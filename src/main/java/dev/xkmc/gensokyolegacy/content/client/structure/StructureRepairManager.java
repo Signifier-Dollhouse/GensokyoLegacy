@@ -3,6 +3,8 @@ package dev.xkmc.gensokyolegacy.content.client.structure;
 import dev.xkmc.gensokyolegacy.content.attachment.home.structure.FixStage;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import net.minecraft.client.Minecraft;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.BlockHitResult;
 
 public class StructureRepairManager {
 
@@ -19,7 +21,13 @@ public class StructureRepairManager {
 	public static void onScan() {
 		var data = StructureInfoClientManager.info;
 		if (data == null || !data.key().isCustom()) return;
-		GensokyoLegacy.HANDLER.toServer(new StructureEditToServer(data.key(), data.key().pos(), StructureEditToServer.Edit.SCAN));
+		var hit = Minecraft.getInstance().hitResult;
+		if (hit == null) return;
+		BlockPos pos;
+		if (hit instanceof BlockHitResult bhit) {
+			pos = bhit.getBlockPos().relative(bhit.getDirection());
+		} else pos = BlockPos.containing(hit.getLocation());
+		GensokyoLegacy.HANDLER.toServer(new StructureEditToServer(data.key(), pos, StructureEditToServer.Edit.SCAN));
 	}
 
 	public static void onDelete() {

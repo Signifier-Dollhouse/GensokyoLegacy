@@ -36,6 +36,9 @@ public class RoomData {
 					}
 				} else list[k++] = old[i];
 			}
+			if (k == n) {
+				list[k] = new int[]{y, y1};
+			}
 		}
 
 		public boolean isInside(int y) {

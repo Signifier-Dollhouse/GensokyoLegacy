@@ -45,16 +45,23 @@ public class StructureOutlineRenderer {
 		var data = StructureInfoClientManager.fetch();
 		if (data == null || level == null || player == null) return;
 		var buffer = Minecraft.getInstance().renderBuffers().bufferSource();
-		var vc = buffer.getBuffer(RenderType.lines());
-		renderBox(pose, vc, data.structure(), camera.toVector3f(), 1, 1, 1, 1, 1f / 32);
-		renderBox(pose, vc, data.house(), camera.toVector3f(), 0.5f, 1, 1, 1, 0);
-		renderBox(pose, vc, data.room(), camera.toVector3f(), 1, 0.5f, 0.5f, 1, -1f / 32);
-		vc = buffer.getBuffer(LineRenderType.OUTLINE);
-		renderBox(pose, vc, data.room(), camera.toVector3f(), 1, 0.5f, 0.5f, 1, -1f / 32);
+		var line = buffer.getBuffer(RenderType.lines());
+		renderBox(pose, line, data.structure(), camera.toVector3f(), 1, 1, 1, 1, 1f / 32);
+		renderBox(pose, line, data.house(), camera.toVector3f(), 0.5f, 1, 1, 1, 0);
+		renderBox(pose, line, data.room(), camera.toVector3f(), 1, 0.5f, 0.5f, 1, -1f / 32);
+		var outline = buffer.getBuffer(LineRenderType.OUTLINE);
+		var cluster = StructureInfoClientManager.bitSet;
+		if (cluster != null) {
+			var vec = camera.toVector3f();
+			cluster.render(true, (x0, y0, z0, x1, y1, z1) -> renderShape(pose, outline, x0, y0, z0, x1, y1, z1, -vec.x, -vec.y, -vec.z, 1, 0.5f, 0.5f, 1));
+		} else {
+			renderBox(pose, outline, data.room(), camera.toVector3f(), 1, 0.5f, 0.5f, 1, -1f / 32);
+
+		}
 	}
 
 	private static void renderBox(
-			PoseStack pose, VertexConsumer vc, StructureBoundUpdateToClient.Box box,
+			PoseStack pose, VertexConsumer vc, IStructureBound.Box box,
 			Vector3f pos, float r, float g, float b, float a, float offset
 	) {
 		renderCube(pose, vc,

@@ -1,7 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.item.debug;
 
 import dev.xkmc.gensokyolegacy.content.attachment.home.core.HomeSearchUtil;
-import dev.xkmc.gensokyolegacy.content.attachment.home.custom.CustomHomeData;
 import dev.xkmc.gensokyolegacy.content.attachment.home.custom.CustomHomeHolder;
 import dev.xkmc.gensokyolegacy.content.attachment.home.custom.RoomVerifier;
 import dev.xkmc.gensokyolegacy.content.block.bed.YoukaiBedBlockEntity;
@@ -21,6 +20,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BedBlock;
 import net.minecraft.world.level.block.state.properties.BedPart;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 public class StructureWand extends Item {
@@ -43,32 +44,35 @@ public class StructureWand extends Item {
 			// Find the structure at this position
 			CustomHomeHolder holder = CustomHomeHolder.create(level, pos);
 			if (holder == null) return InteractionResult.FAIL;
-			boolean[] conditions = new boolean[3];
+			List<YoukaiBedBlockEntity> beds = new ArrayList<>();
 			var box = new RoomVerifier(level, sp, (p, state) -> {
 				if (state.isAir()) return;
-				if (!conditions[0] && HomeSearchUtil.isValidChair(level, pos)) {
-					conditions[0] = true;
+				if (HomeSearchUtil.isValidChair(level, p)) {
+					holder.data().chairs.add(p);
 				}
-				if (!conditions[1] && HomeSearchUtil.isValidChest(level, pos)) {
-					conditions[1] = true;
+				if (HomeSearchUtil.isValidChest(level, p)) {
+					holder.data().containers.add(p);
 				}
-				if (!conditions[2] && level.getBlockEntity(p) instanceof YoukaiBedBlockEntity be && !be.linked() &&
+				if (level.getBlockEntity(p) instanceof YoukaiBedBlockEntity be && !be.linked() &&
 						be.getBlockState().getValue(BedBlock.PART) == BedPart.HEAD) {
-					conditions[2] = true;
+					beds.add(be);
 				}
-			}).run(pos);
-			if (!conditions[0] || !conditions[1] || !conditions[2]) {
-				sp.sendSystemMessage(Component.literal("Missing required blocks. Chair: %s, Container: %s, Bed: %s".formatted(conditions[0], conditions[1], conditions[2])));
+			}).run(pos.relative(context.getClickedFace()));
+			if (holder.data().chairs.isEmpty() || holder.data().containers.isEmpty() || beds.isEmpty()) {
+				sp.sendSystemMessage(Component.literal("Missing required blocks. Chair: %d, Container: %d, Bed: %d".formatted(
+						holder.data().chairs.size(), holder.data().containers.size(), beds.size())));
+				return InteractionResult.FAIL;
 			}
 
 			if (box == null) return InteractionResult.FAIL;
 			holder.data().setData(pos, box);
-
-			// Create new HomeData and put it into StructureAttachment
+			if (!holder.isValid()) return InteractionResult.FAIL;
+			for (var be : beds) {
+				be.setLink(holder.key());
+			}
 			var attachment = holder.chunk().getData(GLMeta.STRUCTURE.get());
-			var homeData = new CustomHomeData();
-			attachment.custom.put(pos, homeData);
-			homeData.checkInit(holder);
+			attachment.custom.put(pos, holder.data());
+
 			holder.chunk().setUnsaved(true);
 			sp.sendSystemMessage(Component.literal("Home registered successfully!"));
 			return InteractionResult.SUCCESS;

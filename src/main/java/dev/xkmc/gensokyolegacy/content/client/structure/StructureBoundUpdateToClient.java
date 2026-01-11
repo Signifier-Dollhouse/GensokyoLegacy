@@ -11,7 +11,7 @@ import net.minecraft.world.level.levelgen.structure.BoundingBox;
 
 public record StructureBoundUpdateToClient(
 		StructureKey key, Box structure, Box house, Box room
-) implements SerialPacketBase<StructureBoundUpdateToClient> {
+) implements SerialPacketBase<StructureBoundUpdateToClient>, IStructureBound {
 
 	public static void clickBlockInServer(Player player, BlockPos pos) {
 		if (!(player instanceof ServerPlayer sp)) return;
@@ -22,18 +22,6 @@ public record StructureBoundUpdateToClient(
 
 	public StructureBoundUpdateToClient(StructureKey key, BoundingBox structure, BoundingBox house, BoundingBox room) {
 		this(key, Box.of(structure), Box.of(house), Box.of(room));
-	}
-
-	public record Box(int x0, int y0, int z0, int x1, int y1, int z1) {
-
-		public static Box of(BoundingBox box) {
-			return new Box(box.minX(), box.minY(), box.minZ(), box.maxX(), box.maxY(), box.maxZ());
-		}
-
-		public BoundingBox toBox() {
-			return new BoundingBox(x0, y0, z0, x1, y1, z1);
-		}
-
 	}
 
 	@Override

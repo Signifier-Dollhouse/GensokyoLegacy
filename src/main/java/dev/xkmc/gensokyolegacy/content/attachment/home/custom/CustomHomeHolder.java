@@ -4,7 +4,7 @@ import dev.xkmc.gensokyolegacy.content.attachment.home.core.HomeSearchUtil;
 import dev.xkmc.gensokyolegacy.content.attachment.home.core.IHomeHolder;
 import dev.xkmc.gensokyolegacy.content.attachment.home.core.StructureAttachment;
 import dev.xkmc.gensokyolegacy.content.attachment.index.StructureKey;
-import dev.xkmc.gensokyolegacy.content.client.structure.StructureBoundUpdateToClient;
+import dev.xkmc.gensokyolegacy.content.client.structure.CustomStructureBoundUpdateToClient;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
 import dev.xkmc.l2serial.network.SimplePacketBase;
@@ -26,7 +26,6 @@ public record CustomHomeHolder(
 		var chunk = level.getChunkAt(pos);
 		var att = chunk.getData(GLMeta.STRUCTURE.get());
 		var home = new CustomHomeData();
-		att.custom.put(pos, home);
 		var ans = new CustomHomeHolder(level, chunk, StructureKey.custom(level.dimension(), pos), att, home);
 		home.checkInit(ans);
 		return ans;
@@ -101,10 +100,8 @@ public record CustomHomeHolder(
 
 	@Override
 	public SimplePacketBase toBoundPacket() {
-		return new StructureBoundUpdateToClient(
-				key(), data().getTotalBound(),
-				data().getHouseBound(),
-				data().getRoomBound()
+		return new CustomStructureBoundUpdateToClient(
+				key(), data().room
 		);
 	}
 

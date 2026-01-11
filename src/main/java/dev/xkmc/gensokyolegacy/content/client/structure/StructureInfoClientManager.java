@@ -1,5 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.client.structure;
 
+import dev.xkmc.gensokyolegacy.content.attachment.home.custom.ClusterBitSet;
 import dev.xkmc.gensokyolegacy.content.attachment.index.StructureKey;
 import dev.xkmc.gensokyolegacy.content.client.debug.InfoUpdateClientManager;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
@@ -16,9 +17,10 @@ public class StructureInfoClientManager {
 
 	static Level level;
 	static StructureKey key;
-	static StructureBoundUpdateToClient data;
+	static IStructureBound data;
 	static StructureInfoUpdateToClient info;
 	static BlockPos hoverPos;
+	static ClusterBitSet bitSet;
 
 	static long lastTime = 0;
 
@@ -42,10 +44,11 @@ public class StructureInfoClientManager {
 		}
 	}
 
-	public static void clearStructure(){
+	public static void clearStructure() {
 		key = null;
 		data = null;
 		info = null;
+		bitSet = null;
 	}
 
 	public static void setStructure(StructureBoundUpdateToClient packet) {
@@ -53,6 +56,18 @@ public class StructureInfoClientManager {
 		if (level == null) return;
 		key = packet.key();
 		data = packet;
+		bitSet = null;
+		if (!key.dim().equals(level.dimension().location())) {
+			level = null;
+		}
+	}
+
+	public static void setStructure(CustomStructureBoundUpdateToClient packet) {
+		level = Minecraft.getInstance().level;
+		if (level == null) return;
+		key = packet.key();
+		data = packet;
+		bitSet = new ClusterBitSet(packet.data());
 		if (!key.dim().equals(level.dimension().location())) {
 			level = null;
 		}
@@ -65,7 +80,7 @@ public class StructureInfoClientManager {
 	}
 
 	@Nullable
-	public static StructureBoundUpdateToClient fetch() {
+	public static IStructureBound fetch() {
 		if (level == null) return null;
 		if (level != Minecraft.getInstance().level) return null;
 		return data;

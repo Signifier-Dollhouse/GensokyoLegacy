@@ -22,9 +22,9 @@ public class CustomHomeData {
 	protected RoomData room;
 
 	@SerialField
-	private final List<BlockPos> containers = new ArrayList<>();
+	public final List<BlockPos> containers = new ArrayList<>();
 	@SerialField
-	private final List<BlockPos> chairs = new ArrayList<>();
+	public final List<BlockPos> chairs = new ArrayList<>();
 
 	public boolean checkInit(CustomHomeHolder holder) {
 		return rootPos != null && room != null;
