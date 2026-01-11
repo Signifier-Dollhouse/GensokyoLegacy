@@ -48,7 +48,6 @@ public class StructureOutlineRenderer {
 		var line = buffer.getBuffer(RenderType.lines());
 		renderBox(pose, line, data.structure(), camera.toVector3f(), 1, 1, 1, 1, 1f / 32);
 		renderBox(pose, line, data.house(), camera.toVector3f(), 0.5f, 1, 1, 1, 0);
-		renderBox(pose, line, data.room(), camera.toVector3f(), 1, 0.5f, 0.5f, 1, -1f / 32);
 		var outline = buffer.getBuffer(LineRenderType.OUTLINE);
 		var cluster = StructureInfoClientManager.bitSet;
 		if (cluster != null) {

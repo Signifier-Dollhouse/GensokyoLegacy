@@ -48,7 +48,7 @@ public class BedRefData {
 
 	void blockTick(BedData bed, CharacterConfig config, ServerLevel sl, YoukaiBedBlockEntity be, StructureKey key) {
 		var home = IHomeHolder.of(sl, key);
-		if (home == null || !home.isInRoom(be.getBlockPos())) {
+		if (home == null || !home.isInRoom(be.getBlockPos().above())) {
 			sl.removeBlock(be.getBlockPos(), false);
 			return;
 		}

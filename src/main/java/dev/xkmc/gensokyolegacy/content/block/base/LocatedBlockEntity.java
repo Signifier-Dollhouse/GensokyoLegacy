@@ -44,6 +44,7 @@ public class LocatedBlockEntity extends BaseBlockEntity implements TickableBlock
 	public void setLink(StructureKey key) {
 		this.key = key;
 		setChanged();
+		sync();
 	}
 
 }

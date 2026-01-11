@@ -16,7 +16,7 @@ public class RoomVerifier {
 
 	private static final AABB UNIT = new AABB(0, 0, 0, 1, 1, 1);
 	private static final AABB WALK = new AABB(3 / 16d, 3 / 16d, 3 / 16d, 13 / 16d, 13 / 16d, 13 / 16d);
-	private static final int MAX_HEIGHT = 15, MAX_SIZE = 30;
+	private static final int MAX_HEIGHT = 15, MAX_SIZE = 48;
 
 	public enum VisitResult {
 		NONE, SUCCEED, REPEAT, BLOCKED, TOO_THIN, NO_FLOOR, NO_ROOF;
