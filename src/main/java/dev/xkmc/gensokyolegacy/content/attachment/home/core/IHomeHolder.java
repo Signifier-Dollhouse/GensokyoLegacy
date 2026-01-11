@@ -16,6 +16,9 @@ import org.jetbrains.annotations.Nullable;
 
 public interface IHomeHolder {
 
+	/**
+	 * Find the home structure linked to this entity
+	 */
 	@Nullable
 	static IHomeHolder of(ServerLevel sl, SmartYoukaiEntity entity) {
 		var key = StructureKey.of(entity);
@@ -25,6 +28,9 @@ public interface IHomeHolder {
 		return CustomHomeHolder.of(sl, key.get().pos());
 	}
 
+	/**
+	 * Find a home structure that contains this particular position in its largest bound.
+	 */
 	@Nullable
 	static IHomeHolder find(ServerLevel sl, BlockPos pos) {
 		if (!sl.isLoaded(pos)) return null;
@@ -60,6 +66,9 @@ public interface IHomeHolder {
 
 	}
 
+	/**
+	 * Fetch the home structure that is indexed by the key.
+	 */
 	@Nullable
 	static IHomeHolder of(ServerLevel sl, StructureKey key) {
 		var ans = StructureHomeHolder.of(sl, key);
@@ -71,8 +80,17 @@ public interface IHomeHolder {
 
 	boolean isValid();
 
+	/**
+	 * check if a youkai entity is supported by this structure.
+	 * Custom structure supports all entities.
+	 */
 	boolean supportEntity(EntityType<?> type);
 
+	/**
+	 * Checks if a block pos is inside room.
+	 * Should only check air blocks, as a solid block would not be counted as "in room" for custom structures.
+	 * To check for a solid block, check if any of its surrounding blocks are air and in room.
+	 */
 	boolean isInRoom(BlockPos pos);
 
 	@Nullable
@@ -95,8 +113,14 @@ public interface IHomeHolder {
 
 	void tick();
 
+	/**
+	 * Get the bound debug packet
+	 */
 	SimplePacketBase toBoundPacket();
 
+	/**
+	 * Get structure fix debug packet
+	 */
 	SimplePacketBase getUpdatePacket();
 
 }
