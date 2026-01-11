@@ -26,9 +26,9 @@ public record StructureEditToServer(
 		var home = IHomeHolder.of(sp.serverLevel(), key);
 		if (!(home instanceof CustomHomeHolder data)) return;
 		if (edit == Edit.SCAN) {
-			var box = new RoomVerifier(sp.serverLevel(), sp).run(pos);
+			var box = new RoomVerifier(sp.serverLevel(), sp, null).run(pos);
 			if (box != null)
-				data.data().setBound(data.data().getRoot(), box);
+				data.data().setData(data.data().getRoot(), box);
 		} else {
 			data.attachment().custom.remove(key.pos());
 			IndexStorage.get(sp.serverLevel()).remove(key);

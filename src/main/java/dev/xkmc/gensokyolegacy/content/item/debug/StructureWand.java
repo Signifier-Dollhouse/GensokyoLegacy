@@ -40,30 +40,29 @@ public class StructureWand extends Item {
 	public InteractionResult useOn(UseOnContext context) {
 		if (context.getPlayer() instanceof ServerPlayer sp && context.getLevel() instanceof ServerLevel level) {
 			var pos = context.getClickedPos();
-
-			// Check if there's at least one container and one chair in 15x15x15 area
-			var bed = hasBlockInArea(level, pos, (sl, p) ->
-					sl.getBlockEntity(p) instanceof YoukaiBedBlockEntity be && !be.linked() &&
-							be.getBlockState().getValue(BedBlock.PART) == BedPart.HEAD);
-			if (bed.isEmpty()) {
-				sp.sendSystemMessage(Component.literal("Free Youkai Bed not found!"));
-				return InteractionResult.FAIL;
-			}
-			var container = hasBlockInArea(level, pos, HomeSearchUtil::isValidChest);
-			var chair = hasBlockInArea(level, pos, HomeSearchUtil::isValidChair);
-			if (container.isEmpty() || chair.isEmpty()) {
-				sp.sendSystemMessage(Component.literal(
-						"Missing required blocks. Container: " + container + ", Chair: " + chair));
-				return InteractionResult.FAIL;
-
-			}
-
 			// Find the structure at this position
 			CustomHomeHolder holder = CustomHomeHolder.create(level, pos);
 			if (holder == null) return InteractionResult.FAIL;
-			var box = new RoomVerifier(level, sp).run(pos);
+			boolean[] conditions = new boolean[3];
+			var box = new RoomVerifier(level, sp, (p, state) -> {
+				if (state.isAir()) return;
+				if (!conditions[0] && HomeSearchUtil.isValidChair(level, pos)) {
+					conditions[0] = true;
+				}
+				if (!conditions[1] && HomeSearchUtil.isValidChest(level, pos)) {
+					conditions[1] = true;
+				}
+				if (!conditions[2] && level.getBlockEntity(p) instanceof YoukaiBedBlockEntity be && !be.linked() &&
+						be.getBlockState().getValue(BedBlock.PART) == BedPart.HEAD) {
+					conditions[2] = true;
+				}
+			}).run(pos);
+			if (!conditions[0] || !conditions[1] || !conditions[2]) {
+				sp.sendSystemMessage(Component.literal("Missing required blocks. Chair: %s, Container: %s, Bed: %s".formatted(conditions[0], conditions[1], conditions[2])));
+			}
+
 			if (box == null) return InteractionResult.FAIL;
-			holder.data().setBound(pos, box);
+			holder.data().setData(pos, box);
 
 			// Create new HomeData and put it into StructureAttachment
 			var attachment = holder.chunk().getData(GLMeta.STRUCTURE.get());

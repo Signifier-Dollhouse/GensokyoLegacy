@@ -7,7 +7,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.block.DoorBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.Nullable;
 
@@ -17,7 +16,7 @@ public class RoomVerifier {
 
 	private static final AABB UNIT = new AABB(0, 0, 0, 1, 1, 1);
 	private static final AABB WALK = new AABB(3 / 16d, 3 / 16d, 3 / 16d, 13 / 16d, 13 / 16d, 13 / 16d);
-	private static final int MAX_HEIGHT = 6;
+	private static final int MAX_HEIGHT = 15, MAX_SIZE = 30;
 
 	public enum VisitResult {
 		NONE, SUCCEED, REPEAT, BLOCKED, TOO_THIN, NO_FLOOR, NO_ROOF;
@@ -72,22 +71,25 @@ public class RoomVerifier {
 	}
 
 	private final ServerLevel level;
-	private final ServerPlayer player;
+	private final @Nullable IBlockConsumer consumer;
+	private final @Nullable ServerPlayer player;
 	private final Queue<BlockData[]> queue = new ArrayDeque<>();
 	private final Set<BlockPos> visited = new LinkedHashSet<>();
+	private final Set<BlockPos> doors = new LinkedHashSet<>();
 	private final Set<BlockData[]> valid = new LinkedHashSet<>();
 	private final Map<BlockPos, BlockData> data = new LinkedHashMap<>();
 
 	private int x0, y0, z0, x1, y1, z1, size = 0;
 
-	public RoomVerifier(ServerLevel sl, ServerPlayer player) {
+	public RoomVerifier(ServerLevel sl, @Nullable ServerPlayer player, @Nullable IBlockConsumer consumer) {
 		this.level = sl;
 		this.player = player;
+		this.consumer = consumer;
 	}
 
-	public VisitResult visit(BlockPos pos) {
+	public VisitResult visitColumn(BlockPos pos) {
 		if (visited.contains(pos)) return VisitResult.REPEAT;
-		var val = of(pos);
+		var val = visitBlock(pos);
 		visited.add(pos);
 		if (val.solid) return VisitResult.BLOCKED;
 		int n = MAX_HEIGHT;
@@ -98,7 +100,7 @@ public class RoomVerifier {
 			if (toFloor[i].culling(Direction.DOWN)) break;
 			if (i >= n - 1) return VisitResult.NO_FLOOR;
 			var ipos = toFloor[i].pos.below();
-			toFloor[i + 1] = of(ipos);
+			toFloor[i + 1] = visitBlock(ipos);
 			if (toFloor[i + 1].solid || toFloor[i + 1].culling(Direction.UP)) break;
 			if (visited.contains(ipos)) return VisitResult.REPEAT;
 			visited.add(ipos);
@@ -117,7 +119,7 @@ public class RoomVerifier {
 			if (toRoof[i].culling(Direction.UP)) break;
 			if (i >= n - 1) return VisitResult.NO_ROOF;
 			var ipos = toRoof[i].pos.above();
-			toRoof[i + 1] = of(ipos);
+			toRoof[i + 1] = visitBlock(ipos);
 			if (toRoof[i + 1].solid || toRoof[i + 1].culling(Direction.DOWN)) break;
 			i++;
 		}
@@ -152,7 +154,7 @@ public class RoomVerifier {
 		return VisitResult.SUCCEED;
 	}
 
-	private BlockData of(BlockPos pos) {
+	private BlockData visitBlock(BlockPos pos) {
 		if (data.containsKey(pos)) return data.get(pos);
 		var state = level.getBlockState(pos);
 		var ans = new BlockData(pos, state);
@@ -166,6 +168,7 @@ public class RoomVerifier {
 			}
 		}
 		data.put(pos, ans);
+		if (consumer != null) consumer.consume(pos, state);
 		return ans;
 	}
 
@@ -180,38 +183,59 @@ public class RoomVerifier {
 					wall = 0;
 					continue;
 				}
+				var next = dat.pos.relative(dir);
+				var nval = visitBlock(next);
+				if (nval.door) {
+					doors.add(next);
+				}
+				if (nval.solid || nval.door || nval.culling(dir.getOpposite())) {
+					wall = 0;
+					continue;
+				}
 				wall++;
 				if (wall > 1) {
-					var pos = dat.pos.relative(dir);
-					var ret = visit(pos);
-					if (ret.error()) return new VisitFeedback(ret, pos);
+					var ret = visitColumn(next);
+					if (ret.error()) return new VisitFeedback(ret, next);
 				}
 			}
 		}
-		return new VisitFeedback(VisitResult.SUCCEED, BlockPos.ZERO);
+		return new VisitFeedback(VisitResult.SUCCEED, prev[0].pos);
 	}
 
 	@Nullable
-	public BoundingBox run(BlockPos pos) {
+	public RoomData run(BlockPos pos) {
 		x0 = x1 = pos.getX();
 		y0 = y1 = pos.getY();
 		z0 = z1 = pos.getZ();
-		var ini = visit(pos);
+		var ini = visitColumn(pos);
 		if (ini != VisitResult.SUCCEED) {
-			player.sendSystemMessage(Component.literal("Initial column failed: " + ini.name()));
+			if (player != null) player.sendSystemMessage(Component.literal("Initial column failed: " + ini.name()));
+			return null;
 		}
 		while (!queue.isEmpty()) {
 			var ans = step();
 			if (ans.res().error()) {
 				var p = ans.pos;
-				player.sendSystemMessage(Component.literal("FATAL: %s column at (%d, %d, %d)".formatted(ans.res.name(), p.getX(), p.getY(), p.getZ())));
+				if (player != null)
+					player.sendSystemMessage(Component.literal("FATAL: column at (%d, %d, %d) exceeds maximum height. Must be within %d blocks.".formatted(p.getX(), p.getY(), p.getZ(), MAX_HEIGHT)));
+				return null;
+			}
+			if (x1 - x0 >= MAX_SIZE || y1 - y0 >= MAX_SIZE || z1 - z0 >= MAX_SIZE) {
+				if (player != null)
+					player.sendSystemMessage(Component.literal("FATAL: room too large. Bound must be within %d blocks".formatted(MAX_SIZE)));
 				return null;
 			}
 		}
-		player.sendSystemMessage(Component.literal("Total columns: %d".formatted(valid.size())));
-		player.sendSystemMessage(Component.literal("Bound: (%d, %d, %d) ~ (%d, %d, %d))".formatted(x0, y0, z0, x1, y1, z1)));
-		player.sendSystemMessage(Component.literal("Total size: %d".formatted(size)));
-		return new BoundingBox(x0, y0, z0, x1, y1, z1);
+		if (player != null) {
+			player.sendSystemMessage(Component.literal("Total columns: %d".formatted(valid.size())));
+			player.sendSystemMessage(Component.literal("Bound: (%d, %d, %d) ~ (%d, %d, %d))".formatted(x0, y0, z0, x1, y1, z1)));
+			player.sendSystemMessage(Component.literal("Total size: %d".formatted(size)));
+		}
+		RoomData ans = new RoomData(x0, y0, z0, x1, y1, z1);
+		for (var col : valid) {
+			ans.acceptColumn(col[0].pos, col.length);
+		}
+		return ans;
 	}
 
 }

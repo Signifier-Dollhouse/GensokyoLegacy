@@ -1,5 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.attachment.index;
 
+import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.l2core.capability.level.BaseSavedData;
 import dev.xkmc.l2serial.serialization.codec.TagCodec;
 import dev.xkmc.l2serial.serialization.marker.SerialClass;
@@ -14,7 +15,7 @@ import java.util.Map;
 @SerialClass
 public class IndexStorage extends BaseSavedData<IndexStorage> {
 
-	private static final String ID = "l2backpack_dimensional";
+	private static final String ID = GensokyoLegacy.MODID + "_reference_index";
 	private static final Factory<IndexStorage> FACTORY = new Factory<>(IndexStorage::new, IndexStorage::new);
 
 	public static IndexStorage get(ServerLevel level) {

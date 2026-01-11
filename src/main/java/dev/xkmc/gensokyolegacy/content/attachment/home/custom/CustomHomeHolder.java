@@ -54,7 +54,7 @@ public record CustomHomeHolder(
 
 	public boolean isInRoom(BlockPos pos) {
 		if (!data.checkInit(this)) return false;
-		return data.getRoomBound().isInside(pos);
+		return data.room.isInside(pos);
 	}
 
 	@Nullable

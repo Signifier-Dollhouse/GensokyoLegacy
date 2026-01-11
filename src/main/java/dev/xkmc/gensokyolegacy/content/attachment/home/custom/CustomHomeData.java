@@ -19,7 +19,7 @@ public class CustomHomeData {
 	@SerialField
 	private BlockPos rootPos;
 	@SerialField
-	private BoundingBox roomBound;
+	protected RoomData room;
 
 	@SerialField
 	private final List<BlockPos> containers = new ArrayList<>();
@@ -27,19 +27,16 @@ public class CustomHomeData {
 	private final List<BlockPos> chairs = new ArrayList<>();
 
 	public boolean checkInit(CustomHomeHolder holder) {
-		if (rootPos == null || roomBound == null) {
-			return false;
-		}
-		return true;
+		return rootPos != null && room != null;
 	}
 
-	public void setBound(BlockPos pos, BoundingBox box) {
+	public void setData(BlockPos pos, RoomData box) {
 		rootPos = pos;
-		roomBound = box;
+		room = box;
 	}
 
 	public void tick(CustomHomeHolder holder) {
-		if (rootPos == null || roomBound == null) return;
+		if (rootPos == null || room == null) return;
 	}
 
 	public BlockPos getRoot() {
@@ -47,15 +44,15 @@ public class CustomHomeData {
 	}
 
 	public BoundingBox getRoomBound() {
-		return roomBound;
+		return room.bound;
 	}
 
 	public BoundingBox getHouseBound() {
-		return roomBound.inflatedBy(1);
+		return room.bound.inflatedBy(1);
 	}
 
 	public BoundingBox getTotalBound() {
-		return roomBound.inflatedBy(1);
+		return room.bound.inflatedBy(1);
 	}
 
 	public boolean isOutside(Level level, BlockPos ans) {
