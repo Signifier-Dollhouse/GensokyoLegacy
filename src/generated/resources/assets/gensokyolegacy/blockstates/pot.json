@@ -1,7 +1,7 @@
 {
   "variants": {
     "": {
-      "model": "gensokyolegacy:block/fermentation_tank"
+      "model": "gensokyolegacy:block/iron_stockpot"
     }
   }
 }
