@@ -28,23 +28,35 @@ public class TradeScreen extends AbstractContainerScreen<TradeMenu> {
 		imageHeight = 220;
 	}
 
+	private Button prevButton, nextButton;
+
 	@Override
 	protected void init() {
 		super.init();
 		int y = topPos + 6;
-		addRenderableWidget(new Button.Builder(Component.literal("<"), b -> click(-1))
+		prevButton = addRenderableWidget(new Button.Builder(Component.literal("<"), b -> click(-1))
 				.pos(leftPos + 95, y).size(16, 16).build());
-		addRenderableWidget(new Button.Builder(Component.literal(">"), b -> click(-2))
+		nextButton = addRenderableWidget(new Button.Builder(Component.literal(">"), b -> click(-2))
 				.pos(leftPos + 139, y).size(16, 16).build());
 	}
 
 	@Override
 	protected void renderBg(GuiGraphics g, float pt, int mx, int my) {
+		boolean showPages = menu.getMaxPage() > 1;
+		if (prevButton != null) prevButton.visible = showPages;
+		if (nextButton != null) nextButton.visible = showPages;
 		g.blit(TEXTURE, leftPos, topPos, 0, 0, 256, 220);
 	}
 
 	@Override
+	public void render(GuiGraphics g, int mx, int my, float pt) {
+		super.render(g, mx, my, pt);
+		this.renderTooltip(g, mx, my);
+	}
+
+	@Override
 	protected void renderLabels(GuiGraphics g, int mx, int my) {
+		if (menu.getMaxPage() <= 1) return;
 		var text = Component.literal((menu.getPage() + 1) + "/" + menu.getMaxPage());
 		int x = 124 - font.width(text) / 2;
 		int y = 9;
