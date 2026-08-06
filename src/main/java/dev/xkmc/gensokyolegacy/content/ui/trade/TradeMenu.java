@@ -55,9 +55,9 @@ public class TradeMenu extends AbstractContainerMenu {
 		this.character = character;
 		page = addDataSlot(DataSlot.standalone());
 		maxPage = addDataSlot(DataSlot.standalone());
-		bindPlayerInventory(player.getInventory(), 8, 84);
+		bindPlayerInventory(player.getInventory(), 47, 140);
 		for (int i = 0; i < 15; i++) {
-			addSlot(slots[i] = new TradeSlot(cont, i, -1 + i % 5 * 36, 10 + i / 5 * 36));
+			addSlot(slots[i] = new TradeSlot(cont, i, 55 + i % 3 * 32, 44 + i / 3 * 32));
 		}
 		if (player instanceof ServerPlayer)
 			refreshOffers();
@@ -90,7 +90,7 @@ public class TradeMenu extends AbstractContainerMenu {
 			}
 		}
 		for (int k = 0; k < 9; k++) {
-			this.addSlot(new Slot(inv, k, invX + k * 18, invY + 58));
+			this.addSlot(new Slot(inv, k, invX + k * 18, invY + 55));
 		}
 	}
 
