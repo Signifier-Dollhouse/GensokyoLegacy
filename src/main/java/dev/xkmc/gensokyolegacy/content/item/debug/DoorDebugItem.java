@@ -1,5 +1,7 @@
 package dev.xkmc.gensokyolegacy.content.item.debug;
 
+import dev.xkmc.gensokyolegacy.content.client.debug.CharacterInfoClientManager;
+import dev.xkmc.gensokyolegacy.content.client.debug.IDebugOverlayWand;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.SmartYoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
@@ -27,7 +29,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
-public class DoorDebugItem extends Item {
+public class DoorDebugItem extends Item implements IDebugOverlayWand {
 
 	private static final int SEARCH_RADIUS = 16;
 
@@ -78,6 +80,23 @@ public class DoorDebugItem extends Item {
 			}
 		}
 		return InteractionResult.SUCCESS;
+	}
+
+	@Override
+	public void addTooltip(Player player, ItemStack stack, List<Component> lines, long gameTime) {
+		UUID id = stack.get(GLItems.DC_DEBUG_YOUKAI);
+		if (id == null) {
+			lines.add(GLLang.ITEM$DOOR_DEBUG_UNBOUND.get().withStyle(ChatFormatting.GRAY));
+		} else {
+			Entity e = player.level().getEntitiesOfClass(YoukaiEntity.class,
+							player.getBoundingBox().inflate(64), e2 -> e2.getUUID().equals(id))
+					.stream().findFirst().orElse(null);
+			if (e instanceof YoukaiEntity youkai) {
+				CharacterInfoClientManager.doorTooltip(lines, gameTime, youkai);
+			} else {
+				lines.add(GLLang.ITEM$DOOR_DEBUG_MISSING.get().withStyle(ChatFormatting.GRAY));
+			}
+		}
 	}
 
 	@Override
