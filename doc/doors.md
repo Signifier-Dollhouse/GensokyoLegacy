@@ -1,7 +1,7 @@
 # Doors: SmartYoukaiEntity opens + closes doors
 
 Status: **PLANNING** (living document, updated as the design conversation proceeds). 4.1 (SlidingDoor public API),
-4.2 (pathfinding framework) done; 4.3 (task), 4.4 (registration), 4.5 (datagen), 4.6 (manual) pending.
+4.2 (pathfinding framework), 4.3 (task), 4.4 (registration), 4.5 (datagen) done; 4.6 (manual) pending.
 Scope: `SmartYoukaiEntity` (covers GeneralYoukai: fairy/merchant/boss + Rumia) should
 open vanilla doors **and** the mod's `SlidingDoor`, then remember to close them after passing through.
 
@@ -162,7 +162,7 @@ Walk nav converts to `WALKABLE_DOOR` (canOpen+canPass); fly nav stays `DOOR_WOOD
 changes; both `YoukaiWalkNodeEvaluator` and `YoukaiFlyNodeEvaluator` already delegate here. The
 `gensokyolegacy:sliding_door` block tag was generated (all 11 wood variants) via runData.
 
-### 4.3 New `task/core/YoukaiSmartDoorTask<E extends SmartYoukaiEntity>`
+### 4.3 New `task/core/YoukaiSmartDoorTask<E extends SmartYoukaiEntity>` — **DONE**
 `extends Behavior<E>`, entry conditions `{PATH: REGISTERED, DOORS_TO_CLOSE: REGISTERED, NEAREST_LIVING_ENTITIES: REGISTERED}`,
 duration `(0,0)` (OneShot-like: start+tick every brain tick; instance fields persist, matching vanilla's
 cooldown state). Registers `PATH`/`DOORS_TO_CLOSE`/`NEAREST_LIVING_ENTITIES` into the brain via `TaskBoard`.
@@ -187,15 +187,16 @@ tick() = tryOpenDoors() + closeDoors().
 - **holding for others**: any `SmartYoukaiEntity` (≠ self) within 2 blocks whose own live `PATH` has the seat
   as prev/next node.
 
-### 4.4 Registration
+### 4.4 Registration — **DONE**
 - ~~`GLTagGen`: `public static final TagKey<Block> SLIDING_DOOR = block("sliding_door");`~~ **DONE**.
 - ~~`GLDecoBlocks`: `.tag(GLTagGen.SLIDING_DOOR)` on the sliding-door block~~ **DONE** (tag JSON generated).
-- `SmartYoukaiEntity.constructTaskBoard` line 76: replace `InteractWithDoor.create()` with `new YoukaiSmartDoorTask<>()`.
-- Delete commented `task/home/YoukaiSmartDoorTask.java`.
+- ~~`SmartYoukaiEntity.constructTaskBoard` line 76: replace `InteractWithDoor.create()` with `new YoukaiSmartDoorTask<>()`~~ **DONE**.
+- ~~Delete commented `task/home/YoukaiSmartDoorTask.java`~~ **DONE** (file removed).
 
-### 4.5 Datagen & build
-- `./gradlew runData` → commits new `data/gensokyolegacy/tags/block/sliding_door.json` (+ any lang drift).
-- `./gradlew build` to compile.
+### 4.5 Datagen & build — **DONE**
+- ~~`./gradlew runData` → commits new `data/gensokyolegacy/tags/block/sliding_door.json` (+ any lang drift)~~ **DONE**
+  (runData ran clean, 0 files written — tag JSON already committed from 4.2).
+- `./gradlew build` to compile (passes after 4.3/4.4).
 
 ### 4.6 Manual verification (in-game)
 - Single, double (connected), and STACK>1 sliding doors: youkai opens, passes, closes (sound plays, panel returns).

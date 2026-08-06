@@ -73,7 +73,7 @@ public class SmartYoukaiEntity extends YoukaiEntity {
 		board.addAlways(new YoukaiLookAtTarget(40, 300), Activity.CORE);
 		board.addAlways(new YoukaiMoveTask<>(), Activity.CORE);
 		board.addAlways(new YoukaiSwimTask(0.8f), Activity.CORE);
-		board.addAlways(InteractWithDoor.create(), Activity.CORE);
+		board.addAlways(new YoukaiSmartDoorTask<>(), Activity.CORE);
 		addFightTasks(board);
 		board.addAlways(new YoukaiFetchTargetTask<>(), GLBrains.TALK.get(), GLBrains.AT_HOME.get(), Activity.REST);
 		board.addAlways(new YoukaiSearchTargetTask<>(), Activity.IDLE, Activity.PLAY);
