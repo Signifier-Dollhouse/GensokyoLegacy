@@ -5,14 +5,12 @@ import dev.xkmc.gensokyolegacy.content.client.debug.IDebugOverlayWand;
 import dev.xkmc.gensokyolegacy.content.client.structure.StructureInfoClientManager;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -31,9 +29,7 @@ public class DebugGlasses extends Item implements IDebugOverlayWand {
 	@Override
 	public void addTooltip(Player player, ItemStack stack, List<Component> lines, long gameTime) {
 		if (DebugCharacterTooltip.add(player, lines, gameTime)) return;
-		if (Minecraft.getInstance().hitResult instanceof BlockHitResult block) {
-			StructureInfoClientManager.tooltip(lines, gameTime, block.getBlockPos());
-		}
+		StructureInfoClientManager.tooltip(lines, gameTime);
 	}
 
 	@Override

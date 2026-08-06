@@ -9,6 +9,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -24,9 +25,11 @@ public class StructureInfoClientManager {
 
 	static long lastTime = 0;
 
-	public static void tooltip(List<Component> lines, long gameTime, BlockPos pos) {
-		if (level == null || data == null) return;
-		if (!data.house().toBox().isInside(pos)) return;
+	public static boolean tooltip(List<Component> lines, long gameTime) {
+		if (level == null || data == null) return false;
+		if (!(Minecraft.getInstance().hitResult instanceof BlockHitResult block)) return false;
+		BlockPos pos = block.getBlockPos();
+		if (!data.house().toBox().isInside(pos)) return false;
 		hoverPos = pos;
 		if (gameTime > lastTime + 20) {
 			lastTime = gameTime;
@@ -42,6 +45,7 @@ public class StructureInfoClientManager {
 			int total = info.remove() + info.primary() + info.secondary();
 			lines.add(GLLang.INFO$STRUCTURE_ABNORMAL.get(total).withStyle(ChatFormatting.GRAY));
 		}
+		return true;
 	}
 
 	public static void clearStructure() {
