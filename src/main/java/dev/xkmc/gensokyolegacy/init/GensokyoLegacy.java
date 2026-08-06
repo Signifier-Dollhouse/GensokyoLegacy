@@ -14,6 +14,7 @@ import dev.xkmc.gensokyolegacy.content.client.debug.CharacterRequestToServer;
 import dev.xkmc.gensokyolegacy.content.client.structure.*;
 import dev.xkmc.gensokyolegacy.content.dimension.GLDimensionGen;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.move.PathDataToClient;
+import dev.xkmc.gensokyolegacy.content.entity.behavior.move.YoukaiNodeEvaluatorRegistry;
 import dev.xkmc.gensokyolegacy.content.entity.foundation.CombatToClient;
 import dev.xkmc.gensokyolegacy.content.item.character.TouhouMat;
 import dev.xkmc.gensokyolegacy.content.item.tool.CatBell;
@@ -102,6 +103,7 @@ public class GensokyoLegacy {
 		GLWorldGen.register();
 		GLBrains.register();
 		GLEffects.register();
+		YoukaiNodeEvaluatorRegistry.init();
 		GLSounds.register();
 		GLCriteriaTriggers.register();
 		GLModConfig.init();

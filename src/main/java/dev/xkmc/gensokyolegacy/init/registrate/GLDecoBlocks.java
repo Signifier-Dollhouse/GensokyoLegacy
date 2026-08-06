@@ -206,6 +206,7 @@ public class GLDecoBlocks {
 			e.door = reg.block(name + "_sliding_door", p -> SlidingDoor.create(p))
 					.initialProperties(() -> e.plankProp)
 					.blockstate((ctx, pvd) -> SlidingDoorJsons.buildBlockState(ctx, pvd, doorTop, doorBottom, doorSide))
+					.tag(GLTagGen.SLIDING_DOOR)
 					.item().model((ctx, pvd) -> SlidingDoorJsons.genItemModel(ctx, pvd, doorTop, doorBottom, doorSide))
 					.build()
 					.tag(BlockTags.MINEABLE_WITH_AXE)

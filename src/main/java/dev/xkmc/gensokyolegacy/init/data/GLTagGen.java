@@ -23,6 +23,7 @@ public class GLTagGen {
 
 	public static final TagKey<Block> VERTICAL_SLAB = block("vertical_slab");
 	public static final TagKey<Block> LARGE_TABLE = block("large_table");
+	public static final TagKey<Block> SLIDING_DOOR = block("sliding_door");
 
 	public static final TagKey<EntityType<?>> FLESH_SOURCE = entity("flesh_source");
 	public static final TagKey<EntityType<?>> YOUKAI_IGNORE = entity("youkai_ignore");

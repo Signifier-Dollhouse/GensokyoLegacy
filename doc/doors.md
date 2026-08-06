@@ -1,6 +1,7 @@
 # Doors: SmartYoukaiEntity opens + closes doors
 
-Status: **PLANNING** (living document, updated as the design conversation proceeds).
+Status: **PLANNING** (living document, updated as the design conversation proceeds). 4.1 (SlidingDoor public API),
+4.2 (pathfinding framework) done; 4.3 (task), 4.4 (registration), 4.5 (datagen), 4.6 (manual) pending.
 Scope: `SmartYoukaiEntity` (covers GeneralYoukai: fairy/merchant/boss + Rumia) should
 open vanilla doors **and** the mod's `SlidingDoor`, then remember to close them after passing through.
 
@@ -45,7 +46,8 @@ is removed (`ff3b0fd` "remove sbl") — must be rewritten against vanilla + l2se
 - `getPathTypeWithinMobBB` converts `DOOR_WOOD_CLOSED`→`WALKABLE_DOOR` iff `canOpenDoors() && canPassDoors()`,
   and `DOOR_OPEN`→`BLOCKED` iff `!canPassDoors()`.
 - The mod's `YoukaiWalkNodeEvaluator`/`YoukaiFlyNodeEvaluator` both override `getPathType` and delegate to
-  `YoukaiNodeEvaluatorUtils.getPathType(ans, context, x, y, z)` (currently only trapdoor special-casing).
+  `YoukaiNodeEvaluatorUtils.getPathType(ans, context, x, y, z)`, which routes through the
+  `YoukaiNodeEvaluatorRegistry` of per-block/per-tag `YoukaiPathTypeHandler`s (no hardcoded block logic).
 - `FlyNodeEvaluator extends WalkNodeEvaluator` → same conversion path; fly nav has `canPassDoors(false)`,
   so door-like cells stay `DOOR_WOOD_CLOSED` (malus -1) → unpathable. Good: flying youkai never route through doors.
 - `PathTypeCache` is invalidated in `ServerLevel.sendBlockUpdated` on block change → opening/closing a door
@@ -76,12 +78,15 @@ vanilla doors and sliding doors, registered as CORE always in `constructTaskBoar
 Replicates vanilla open/track/close semantics + adds sliding doors + flying guard. Package: `task/core/`
 (matches CORE movement tasks) — old commented file lives in `task/home/`, will be replaced.
 
-### D2. Pathfinder: reuse `DOOR_WOOD_CLOSED` for closed sliding doors — **DECIDED**
-In `YoukaiNodeEvaluatorUtils.getPathType`, if the cell holds a SlidingDoor panel that is **openable/seated**
-(`canOpen` equivalent), return `PathType.DOOR_WOOD_CLOSED`. The inherited `getPathTypeWithinMobBB` then yields
-`WALKABLE_DOOR` for walk nav and `DOOR_WOOD_CLOSED` (unpathable) for fly nav — free fly-vs-walk discrimination,
-no malus changes. Parked panels (open, sitting in a pocket) classify as `BLOCKED` (can't walk through the panel).
-- Requires making `SlidingDoor.canOpen`/helpers visible to the pathfinding util (block-getter based, no Level).
+### D2. Pathfinder: reuse `DOOR_WOOD_CLOSED` for closed sliding doors — **DECIDED** — **DONE**
+Sliding doors register a `YoukaiPathTypeHandler` for the `GLTagGen.SLIDING_DOOR` tag: if the cell holds a
+SlidingDoor panel that is **openable/seated** (`SlidingDoorUtils.isSeatedAndOpenable`, the `canOpen` equivalent),
+return `PathType.DOOR_WOOD_CLOSED`. The inherited `getPathTypeWithinMobBB` then yields `WALKABLE_DOOR` for walk nav
+and `DOOR_WOOD_CLOSED` (unpathable) for fly nav — free fly-vs-walk discrimination, no malus changes. Parked panels
+(open, sitting in a pocket) classify as `BLOCKED` (can't walk through the panel).
+- No hardcoded block checks: `YoukaiNodeEvaluatorRegistry` dispatches by `Block` or `TagKey<Block>`. Handlers are
+  registered in `YoukaiNodeEvaluatorRegistry.init()` for `BlockTags.MOB_INTERACTABLE_DOORS` (doors),
+  `BlockTags.TRAPDOORS` (open-trapdoor → `BLOCKED` fix), and `GLTagGen.SLIDING_DOOR`.
 - Classifies a cell by normalizing the panel to its bottom half; both halves of a seated door are door-like
   (mirrors vanilla DoorBlock, where both halves map to `DOOR_WOOD_CLOSED`).
 - A closed-but-unopenable door (blocked pocket) is `BLOCKED` — correct: the player can't open it either, and a
@@ -143,14 +148,19 @@ into `content/block/door/SlidingDoorUtils.java` (needs `canOpen`/`canClose`/`doO
 package-private visibility). `GLDecoBlocks` registration now calls `SlidingDoorJsons`. Verified with
 `./gradlew compileJava`.
 
-### 4.2 Pathfinding — `YoukaiNodeEvaluatorUtils`
-After the existing trapdoor branch:
-```
-if (state.is(GLTagGen.SLIDING_DOOR) && SlidingDoorUtils.isSeatedAndOpenable(context.level(), pos))
-    return PathType.DOOR_WOOD_CLOSED;
-```
+### 4.2 Pathfinding — framework + sliding door registration — **DONE**
+No hardcoded block logic in the evaluators. New files in `content/entity/behavior/move/`:
+- `YoukaiPathTypeHandler` — `PathType getPathType(PathType ans, PathfindingContext context, BlockPos pos, BlockState state)`.
+- `YoukaiNodeEvaluatorRegistry` — `register(Block, handler)` / `register(TagKey<Block>, handler)`, applied in
+  `apply(...)` after vanilla's classification. `init()` (called from the mod constructor) registers:
+  - `BlockTags.MOB_INTERACTABLE_DOORS` → explicit `DOOR_OPEN`/`DOOR_WOOD_CLOSED` for any state with an `OPEN`
+    property (covers vanilla wooden doors and modded openable doors carrying the tag).
+  - `BlockTags.TRAPDOORS` → open trapdoor cell (`TRAPDOOR`/`DANGER_TRAPDOOR`) → `BLOCKED` (kept existing fix).
+  - `GLTagGen.SLIDING_DOOR` → `SlidingDoorUtils.isSeatedAndOpenable(...)` → `DOOR_WOOD_CLOSED`.
+- `YoukaiNodeEvaluatorUtils.getPathType` now just delegates to `YoukaiNodeEvaluatorRegistry.apply`.
 Walk nav converts to `WALKABLE_DOOR` (canOpen+canPass); fly nav stays `DOOR_WOOD_CLOSED` (unpathable). No malus
-changes; both `YoukaiWalkNodeEvaluator` and `YoukaiFlyNodeEvaluator` already delegate here.
+changes; both `YoukaiWalkNodeEvaluator` and `YoukaiFlyNodeEvaluator` already delegate here. The
+`gensokyolegacy:sliding_door` block tag was generated (all 11 wood variants) via runData.
 
 ### 4.3 New `task/core/YoukaiSmartDoorTask<E extends SmartYoukaiEntity>`
 `extends Behavior<E>`, entry conditions `{PATH: REGISTERED, DOORS_TO_CLOSE: REGISTERED, NEAREST_LIVING_ENTITIES: REGISTERED}`,
@@ -178,8 +188,8 @@ tick() = tryOpenDoors() + closeDoors().
   as prev/next node.
 
 ### 4.4 Registration
-- `GLTagGen`: `public static final TagKey<Block> SLIDING_DOOR = block("sliding_door");`
-- `GLDecoBlocks` line ~210: `.tag(BlockTags.MINEABLE_WITH_AXE, GLTagGen.SLIDING_DOOR)` (varargs).
+- ~~`GLTagGen`: `public static final TagKey<Block> SLIDING_DOOR = block("sliding_door");`~~ **DONE**.
+- ~~`GLDecoBlocks`: `.tag(GLTagGen.SLIDING_DOOR)` on the sliding-door block~~ **DONE** (tag JSON generated).
 - `SmartYoukaiEntity.constructTaskBoard` line 76: replace `InteractWithDoor.create()` with `new YoukaiSmartDoorTask<>()`.
 - Delete commented `task/home/YoukaiSmartDoorTask.java`.
 
