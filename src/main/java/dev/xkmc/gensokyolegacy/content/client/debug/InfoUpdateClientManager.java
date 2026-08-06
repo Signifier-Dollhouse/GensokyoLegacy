@@ -21,6 +21,10 @@ public class InfoUpdateClientManager {
 		GensokyoLegacy.HANDLER.toServer(new CharacterRequestToServer(uuid));
 	}
 
+	public static void requestDoor(UUID uuid) {
+		GensokyoLegacy.HANDLER.toServer(new DoorRequestToServer(uuid));
+	}
+
 	public static void handleCharacterInfo(CharacterInfoToClient bed) {
 		CharacterInfoClientManager.data = bed;
 	}

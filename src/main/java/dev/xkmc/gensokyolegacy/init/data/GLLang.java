@@ -27,6 +27,7 @@ public enum GLLang {
 	INFO$ENTITY_FEED("Feed cool down: %s", 1),
 	INFO$STRUCTURE_SCANNING("Scanning Structure...", 0),
 	INFO$STRUCTURE_ABNORMAL("Found %s invalid blocks", 1),
+	INFO$DOORS_TO_CLOSE("Doors to close (%s):", 1),
 
 	MSG$RESET("Character reset"),
 
@@ -45,6 +46,14 @@ public enum GLLang {
 	ITEM$GLASS_PATH("Display character path finding"),
 	ITEM$GLASS_CHARACTER("Display character info"),
 	ITEM$GLASS_BED("Display bed info"),
+	ITEM$DOOR_DEBUG_USE("Right-click: bind nearest youkai"),
+	ITEM$DOOR_DEBUG_CLICK("Right-click block: tell bound youkai to go there"),
+	ITEM$DOOR_DEBUG_OVERLAY("Shows DOORS_TO_CLOSE of the bound youkai while held"),
+	ITEM$DOOR_DEBUG_NO_YOUKAI("No youkai nearby"),
+	ITEM$DOOR_DEBUG_UNBOUND("Not bound to a youkai. Right-click to bind."),
+	ITEM$DOOR_DEBUG_BOUND("Bound to %s", 1),
+	ITEM$DOOR_DEBUG_MISSING("Bound youkai is not loaded"),
+	ITEM$DOOR_DEBUG_MOVING("Youkai moving to (%s, %s, %s)", 3),
 	ITEM$HAS_ABILITY("gensokyo roles"),
 
 	ITEM$OBTAIN("Source: ", 0, ChatFormatting.GRAY),
