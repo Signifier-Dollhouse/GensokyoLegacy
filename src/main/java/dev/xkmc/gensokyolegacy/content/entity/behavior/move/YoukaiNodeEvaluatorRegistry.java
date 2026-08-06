@@ -34,7 +34,7 @@ public class YoukaiNodeEvaluatorRegistry {
 		register(GLTagGen.SLIDING_DOOR, (ans, context, pos, state) -> {
 			if (SlidingDoorUtils.isSeatedAndOpenable(context.level(), pos))
 				return PathType.DOOR_WOOD_CLOSED;
-			return ans;
+			return PathType.BLOCKED;
 		});
 	}
 

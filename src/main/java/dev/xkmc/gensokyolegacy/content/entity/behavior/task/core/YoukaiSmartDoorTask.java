@@ -19,6 +19,7 @@ import net.minecraft.world.level.block.DoorBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.pathfinder.Node;
 import net.minecraft.world.level.pathfinder.Path;
+import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
@@ -30,8 +31,7 @@ import java.util.Set;
 
 public class YoukaiSmartDoorTask<E extends SmartYoukaiEntity> extends Behavior<E> {
 
-	private static final int COOLDOWN_BEFORE_RERUNNING_IN_SAME_NODE = 20;
-	private static final double SKIP_CLOSING_DOOR_IF_FURTHER_AWAY_THAN = 3.0;
+	private static final int COOLDOWN_BEFORE_RERUNNING_IN_SAME_NODE = 5;
 	private static final double MAX_DISTANCE_TO_HOLD_DOOR_OPEN_FOR_OTHER_MOBS = 2.0;
 
 	@Nullable
@@ -40,9 +40,9 @@ public class YoukaiSmartDoorTask<E extends SmartYoukaiEntity> extends Behavior<E
 
 	public YoukaiSmartDoorTask() {
 		super(Map.of(
-				MemoryModuleType.PATH, MemoryStatus.REGISTERED,
 				MemoryModuleType.DOORS_TO_CLOSE, MemoryStatus.REGISTERED,
-				MemoryModuleType.NEAREST_LIVING_ENTITIES, MemoryStatus.REGISTERED), 0, 0);
+				MemoryModuleType.NEAREST_LIVING_ENTITIES, MemoryStatus.REGISTERED
+		), 0, 0);
 	}
 
 	@Override
@@ -62,48 +62,43 @@ public class YoukaiSmartDoorTask<E extends SmartYoukaiEntity> extends Behavior<E
 		if (entity.navCtrl.isFlying()) return;
 		Node next = path.getNextNode();
 		if (Objects.equals(this.node, next)) {
-			this.cooldown = COOLDOWN_BEFORE_RERUNNING_IN_SAME_NODE;
-		} else if (this.cooldown-- > 0) {
-			return;
+			if (this.cooldown-- > 0) return;
 		}
 		this.node = next;
-		Set<GlobalPos> doors = BrainUtils.getMemory(entity, MemoryModuleType.DOORS_TO_CLOSE);
-		doors = tryOpenDoor(level, entity, doors, path.getPreviousNode());
-		doors = tryOpenDoor(level, entity, doors, next);
-		if (doors != null) {
-			BrainUtils.setMemory(entity, MemoryModuleType.DOORS_TO_CLOSE, doors);
-		}
+		this.cooldown = COOLDOWN_BEFORE_RERUNNING_IN_SAME_NODE;
+		Node prev = path.getPreviousNode();
+		if (prev != null) tryOpenDoor(level, entity, prev.asBlockPos());
+		tryOpenDoor(level, entity, next.asBlockPos());
 	}
 
-	@Nullable
-	private Set<GlobalPos> tryOpenDoor(ServerLevel level, E entity, @Nullable Set<GlobalPos> doors, @Nullable Node node) {
-		if (node == null) return doors;
-		BlockPos pos = node.asBlockPos();
+	/**
+	 * Attempt to open a closed door at the given cell.
+	 */
+	private void tryOpenDoor(ServerLevel level, E entity, BlockPos pos) {
 		BlockState state = level.getBlockState(pos);
 		if (state.is(BlockTags.MOB_INTERACTABLE_DOORS) && state.getBlock() instanceof DoorBlock door) {
 			if (!door.isOpen(state)) {
 				door.setOpen(entity, level, state, pos, true);
-				doors = rememberDoorToClose(entity, doors, level, pos);
+				rememberDoorToClose(entity, level, pos);
 			}
-		} else if (state.is(GLTagGen.SLIDING_DOOR)) {
+			return;
+		}
+		if (state.is(GLTagGen.SLIDING_DOOR)) {
 			BlockPos seat = SlidingDoorUtils.tryOpen(level, pos);
 			if (seat != null) {
-				doors = rememberDoorToClose(entity, doors, level, seat);
+				rememberDoorToClose(entity, level, seat);
 			}
 		}
-		return doors;
 	}
 
-	private Set<GlobalPos> rememberDoorToClose(E entity, @Nullable Set<GlobalPos> doors, ServerLevel level, BlockPos pos) {
+	private void rememberDoorToClose(E entity, ServerLevel level, BlockPos pos) {
 		GlobalPos gpos = GlobalPos.of(level.dimension(), pos);
+		Set<GlobalPos> doors = BrainUtils.getMemory(entity, MemoryModuleType.DOORS_TO_CLOSE);
 		if (doors == null) {
 			doors = new HashSet<>();
-			doors.add(gpos);
 			BrainUtils.setMemory(entity, MemoryModuleType.DOORS_TO_CLOSE, doors);
-		} else {
-			doors.add(gpos);
 		}
-		return doors;
+		doors.add(gpos);
 	}
 
 	private void closeDoors(ServerLevel level, E entity) {
@@ -123,7 +118,7 @@ public class YoukaiSmartDoorTask<E extends SmartYoukaiEntity> extends Behavior<E
 			if ((prev != null && prev.asBlockPos().equals(pos)) || (next != null && next.asBlockPos().equals(pos))) {
 				continue;
 			}
-			if (gpos.dimension() != level.dimension() || !pos.closerToCenterThan(entity.position(), SKIP_CLOSING_DOOR_IF_FURTHER_AWAY_THAN)) {
+			if (gpos.dimension() != level.dimension()) {
 				it.remove();
 				continue;
 			}
@@ -134,15 +129,15 @@ public class YoukaiSmartDoorTask<E extends SmartYoukaiEntity> extends Behavior<E
 		}
 	}
 
+	/**
+	 * @return true if the door at the recorded seat is still open and the entry must be kept.
+	 */
 	private boolean tryCloseDoor(ServerLevel level, E entity, BlockPos pos, @Nullable List<LivingEntity> nearby) {
 		BlockState state = level.getBlockState(pos);
 		if (state.is(BlockTags.MOB_INTERACTABLE_DOORS) && state.getBlock() instanceof DoorBlock door) {
 			if (door.isOpen(state)) {
-				if (!holdingForOthers(entity, pos, nearby)) {
-					door.setOpen(entity, level, state, pos, false);
-					return false;
-				}
-				return true;
+				if (holdingForOthers(entity, pos, nearby)) return true;
+				door.setOpen(entity, level, state, pos, false);
 			}
 			return false;
 		}
@@ -153,6 +148,7 @@ public class YoukaiSmartDoorTask<E extends SmartYoukaiEntity> extends Behavior<E
 			BlockPos panel = findPanel(level, pos);
 			if (panel == null) return false;
 			if (holdingForOthers(entity, pos, nearby)) return true;
+			if (blockedByEntity(entity, pos, nearby)) return true;
 			return !SlidingDoorUtils.tryClose(level, panel);
 		}
 		return false;
@@ -171,6 +167,21 @@ public class YoukaiSmartDoorTask<E extends SmartYoukaiEntity> extends Behavior<E
 			}
 		}
 		return null;
+	}
+
+	/**
+	 * A sliding panel materializes as a solid block at the seat, so never close it while
+	 * any living entity (including this youkai) still overlaps the doorway.
+	 */
+	private boolean blockedByEntity(E entity, BlockPos seat, @Nullable List<LivingEntity> nearby) {
+		AABB box = new AABB(seat).expandTowards(0, 1, 0);
+		if (entity.getBoundingBox().intersects(box)) return true;
+		if (nearby != null) {
+			for (LivingEntity other : nearby) {
+				if (other.getBoundingBox().intersects(box)) return true;
+			}
+		}
+		return false;
 	}
 
 	private boolean holdingForOthers(E entity, BlockPos pos, @Nullable List<LivingEntity> nearby) {
