@@ -27,7 +27,7 @@ public class ReimuQDGen extends QuestDialogData {
 		prefix("reimu/chat");
 		defaultDialog(GLEntities.REIMU.get(),
 				"Hi! What brings you to the shrine?",
-				"Take a look at my offerings!");
+				"I'd like to trade with you!");
 		starter("reimu/chat", new DialogStarter(GLEntities.REIMU.get(), List.of(),
 				starterText("start", "Hi!"),
 				dialog("hi", "Hi!", option("bye", "Bye!"))

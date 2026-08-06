@@ -81,7 +81,7 @@
   "itemGroup.gensokyolegacy.building_blocks": "异域梦闻记 - 建筑装饰方块",
   "itemGroup.gensokyolegacy.food": "异域梦闻记 - 食物",
   "gensokyolegacy.reimu/chat/greeting": "你好！什么风把你吹到神社来了？",
-  "gensokyolegacy.reimu/chat/trade": "要看看我的供品吗？",
+  "gensokyolegacy.reimu/chat/trade": "我想和你交易一下！",
   "gensokyolegacy.info.bed_missing": "角色失联：%s",
   "gensokyolegacy.info.bed_present": "角色在 (%s, %s, %s)",
   "gensokyolegacy.info.bed_respawn": "角色重生中：%s",

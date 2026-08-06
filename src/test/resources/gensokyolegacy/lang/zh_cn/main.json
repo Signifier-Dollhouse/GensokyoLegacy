@@ -8,7 +8,7 @@
 	},
 	"gensokyolegacy": {
 		"reimu/chat/greeting": "你好！什么风把你吹到神社来了？",
-		"reimu/chat/trade": "要看看我的供品吗？",
+		"reimu/chat/trade": "我想和你交易一下！",
 		"info": {
 			"bed_missing": "角色失联：%s",
 			"bed_present": "角色在 (%s, %s, %s)",
