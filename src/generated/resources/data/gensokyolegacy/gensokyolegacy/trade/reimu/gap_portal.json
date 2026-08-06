@@ -1,0 +1,26 @@
+{
+  "character": "gensokyolegacy:hakurei_reimu",
+  "conditions": [],
+  "ingredients": [
+    {
+      "count": 10,
+      "item": "minecraft:emerald"
+    },
+    {
+      "count": 4,
+      "item": "minecraft:ender_pearl"
+    },
+    {
+      "count": 4,
+      "item": "minecraft:crying_obsidian"
+    }
+  ],
+  "recurrence": {
+    "maxStock": 1,
+    "restockTime": 6000
+  },
+  "result": {
+    "count": 1,
+    "id": "gensokyolegacy:gap_portal"
+  }
+}

@@ -10,8 +10,11 @@ import dev.xkmc.gensokyolegacy.content.rpg.requirement.KillMobRequirement;
 import dev.xkmc.gensokyolegacy.content.rpg.requirement.SubmitItemRequirement;
 import dev.xkmc.gensokyolegacy.content.rpg.reward.ExpReward;
 import dev.xkmc.gensokyolegacy.content.rpg.reward.ReputationReward;
+import dev.xkmc.gensokyolegacy.content.rpg.trade.TradeRecurrence;
+import dev.xkmc.gensokyolegacy.init.registrate.GLBlocks;
 import dev.xkmc.gensokyolegacy.init.registrate.GLEntities;
 import net.minecraft.tags.EntityTypeTags;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.storage.loot.LootTable;
 
@@ -64,7 +67,19 @@ public class ReimuQDGen extends QuestDialogData {
 				))
 		));
 
+		prefix("reimu");
+		trade("rotten_flesh", GLEntities.REIMU.get(),
+				new ItemStack(Items.EMERALD),
+				new TradeRecurrence(10, 1200),
+				item(Items.ROTTEN_FLESH, 8));
+		trade("gap_portal", GLEntities.REIMU.get(),
+				new ItemStack(GLBlocks.GAP_PORTAL.get()),
+				new TradeRecurrence(1, 6000),
+				item(Items.EMERALD, 10),
+				item(Items.ENDER_PEARL, 4),
+				item(Items.CRYING_OBSIDIAN, 4));
 
 	}
+
 
 }
