@@ -15,6 +15,7 @@ public class DebugOverlay implements LayeredDraw.Layer {
 
 	@Override
 	public void render(GuiGraphics g, DeltaTracker delta) {
+		if (Minecraft.getInstance().screen != null) return;
 		var player = Minecraft.getInstance().player;
 		if (player == null) return;
 		var level = player.level();

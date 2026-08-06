@@ -85,7 +85,7 @@ public class TradeScreen extends AbstractContainerScreen<TradeMenu> {
 			var tag = sell ? PRICE_SELL : PRICE_WANT;
 			int tw = sell ? 31 : 30;
 			int x = ts.x + 9 - tw / 2;
-			int y = ts.y + 19 - (12 - font.lineHeight) / 2;
+			int y = ts.y + 17 - (12 - font.lineHeight) / 2;
 			g.blitSprite(tag, x, y, tw, 12);
 			g.drawString(font, price, ts.x + 9 - font.width(price) / 2, ts.y + 19, 0xFFFFFF, true);
 		}
