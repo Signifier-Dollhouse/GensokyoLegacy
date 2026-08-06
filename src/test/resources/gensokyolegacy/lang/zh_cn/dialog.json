@@ -1,0 +1,58 @@
+{
+	"-slash": true,
+	"gensokyolegacy": {
+		"reimu": {
+			"chat": {
+				"greeting": "你好！什么风把你吹到神社来了？",
+				"trade": "我想和你交易一下！",
+				"starter": {
+					"start": "你好！"
+				},
+				"dialog": {
+					"reimu": {
+						"chat": {
+							"hi": "你好！"
+						}
+					}
+				},
+				"option": {
+					"bye": "再见！"
+				}
+			},
+			"kill_zombie": {
+				"quest": {
+					"title": "僵尸杀手",
+					"desc": "杀掉一些僵尸，并为灵梦收集腐肉"
+				},
+				"requirement": {
+					"kill": "击杀僵尸"
+				},
+				"option": {
+					"start": "有什么需要帮忙的吗？",
+					"start/reject": "下次再说",
+					"start/accept": "好的！",
+					"follow_up": "我已经杀掉一半的僵尸了！",
+					"follow_up/end": "让我再去杀几只",
+					"complete": "我把僵尸都杀完了！",
+					"complete/reject": "下次再说",
+					"complete/handover": "好的！"
+				},
+				"dialog": {
+					"reimu": {
+						"kill_zombie": {
+							"start": {
+								"dialog_1": "能帮我杀掉一些僵尸吗？"
+							},
+							"follow_up": {
+								"dialog_1": "谢谢你的努力！我还需要更多僵尸被击杀"
+							},
+							"complete": {
+								"dialog_1": "谢谢！你带着腐肉吗？"
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}

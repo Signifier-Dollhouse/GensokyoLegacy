@@ -32,7 +32,8 @@ public class LangFileOrganizer extends ResourceOrganizer {
 			for (File fj : fi.listFiles()) {
 				if (!fj.getName().endsWith(".json")) continue;
 				JsonObject json = new JsonParser().parse(new FileReader(fj.getPath(), StandardCharsets.UTF_8)).getAsJsonObject();
-				inject("", json, dst_json);
+				String join = json.has("-slash") && json.get("-slash").getAsBoolean() ? "/" : ".";
+				inject("", json, dst_json, join);
 				if (json.has("-cartesian")) {
 					JsonObject block_list = json.get("-cartesian").getAsJsonObject();
 					block_list.entrySet().forEach(ent0 -> {
@@ -74,11 +75,11 @@ public class LangFileOrganizer extends ResourceOrganizer {
 		return reverse ? pattern + prev : prev + pattern;
 	}
 
-	private void inject(String path, JsonObject src, JsonObject dst) {
+	private void inject(String path, JsonObject src, JsonObject dst, String con) {
 		for (Map.Entry<String, JsonElement> ent : src.entrySet()) {
 			if (ent.getKey().startsWith("-")) continue;
 			if (ent.getValue().isJsonObject()) {
-				inject(path + ent.getKey() + ".", ent.getValue().getAsJsonObject(), dst);
+				inject(path + ent.getKey() + con, ent.getValue().getAsJsonObject(), dst, con);
 			} else {
 				dst.add(path + ent.getKey(), ent.getValue());
 			}
