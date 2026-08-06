@@ -10,7 +10,7 @@ public interface IClientOffer {
 
 	static IClientOffer resolve(TradeOffer offer) {
 		if (offer.isSellOffer()) return new SellOffer(offer);
-		return new StockOffer(offer);
+		return new WantOffer(offer);
 	}
 
 	boolean isSell();
@@ -21,7 +21,7 @@ public interface IClientOffer {
 
 	List<IngredientEntry> ingredients();
 
-	record StockOffer(TradeOffer offer) implements IClientOffer {
+	record WantOffer(TradeOffer offer) implements IClientOffer {
 
 		@Override
 		public boolean isSell() {
