@@ -2,7 +2,6 @@ package dev.xkmc.gensokyolegacy.content.entity.module;
 
 import dev.xkmc.gensokyolegacy.content.attachment.character.ReputationState;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
-import dev.xkmc.gensokyolegacy.content.ui.dialog.DialogMenu;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.l2serial.serialization.marker.SerialClass;
 import net.minecraft.resources.ResourceLocation;
@@ -11,6 +10,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.Nullable;
 
 @SerialClass
 public class TalkModule extends AbstractYoukaiModule {
@@ -40,8 +40,8 @@ public class TalkModule extends AbstractYoukaiModule {
 	public void tickServer() {
 		if (talkTarget != null) {
 			if (talkTarget.isRemoved() || !talkTarget.isAlive() || talkTarget.level() != self.level() ||
-					talkTarget.distanceTo(self) > 5 || !(talkTarget.containerMenu instanceof DialogMenu menu) ||
-					menu.character != self) {
+					talkTarget.distanceTo(self) > 5 || !(talkTarget.containerMenu instanceof ITalkMenu menu) ||
+					menu.getCharacter() != self) {
 				stopTalking();
 			}
 		}
@@ -61,6 +61,12 @@ public class TalkModule extends AbstractYoukaiModule {
 
 	public boolean isTalking() {
 		return talkTarget != null;
+	}
+
+	public interface ITalkMenu {
+
+		@Nullable YoukaiEntity getCharacter();
+
 	}
 
 }

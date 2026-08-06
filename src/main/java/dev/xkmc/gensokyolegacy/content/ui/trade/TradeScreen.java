@@ -1,6 +1,7 @@
 package dev.xkmc.gensokyolegacy.content.ui.trade;
 
 import dev.xkmc.gensokyolegacy.content.rpg.core.CodecRegistry;
+import dev.xkmc.gensokyolegacy.content.rpg.trade.IClientOffer;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
@@ -56,11 +57,25 @@ public class TradeScreen extends AbstractContainerScreen<TradeMenu> {
 
 	@Override
 	protected void renderLabels(GuiGraphics g, int mx, int my) {
-		if (menu.getMaxPage() <= 1) return;
-		var text = Component.literal((menu.getPage() + 1) + "/" + menu.getMaxPage());
-		int x = 124 - font.width(text) / 2;
-		int y = 9;
-		g.drawString(font, text, x, y, 0x404040, false);
+		if (menu.getMaxPage() > 1) {
+			var text = Component.literal((menu.getPage() + 1) + "/" + menu.getMaxPage());
+			int x = 124 - font.width(text) / 2;
+			int y = 9;
+			g.drawString(font, text, x, y, 0x404040, false);
+		}
+		for (var ts : menu.getTradeSlots()) {
+			if (!ts.hasItem()) continue;
+			var offerId = GLItems.DC_OFFER.get(ts.getItem());
+			if (offerId == null) continue;
+			var offer = CodecRegistry.TRADE.get(menu.player.level().registryAccess(), offerId);
+			if (offer == null) continue;
+			var currency = IClientOffer.resolve(offer.value()).currency();
+			if (currency.isEmpty()) continue;
+			var price = Component.literal("¥" + currency.getCount());
+			int x = ts.x + 9 - font.width(price) / 2;
+			int y = ts.y + 19;
+			g.drawString(font, price, x, y, 0xFFFFFF, true);
+		}
 	}
 
 	@Override

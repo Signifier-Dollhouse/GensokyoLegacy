@@ -1,5 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.ui.trade;
 
+import dev.xkmc.gensokyolegacy.content.entity.module.TalkModule;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.rpg.core.CodecRegistry;
 import dev.xkmc.gensokyolegacy.content.rpg.core.ServerCharacterDialogManager;
@@ -21,7 +22,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public class TradeMenu extends AbstractContainerMenu {
+public class TradeMenu extends AbstractContainerMenu implements TalkModule.ITalkMenu {
 
 	private final SimpleContainer cont = new SimpleContainer(15);
 
@@ -141,6 +142,15 @@ public class TradeMenu extends AbstractContainerMenu {
 
 	public int getMaxPage() {
 		return maxPage.get();
+	}
+
+	public TradeSlot[] getTradeSlots() {
+		return slots;
+	}
+
+	@Override
+	public @Nullable YoukaiEntity getCharacter() {
+		return character;
 	}
 
 }

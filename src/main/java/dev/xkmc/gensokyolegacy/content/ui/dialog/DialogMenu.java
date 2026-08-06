@@ -1,5 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.ui.dialog;
 
+import dev.xkmc.gensokyolegacy.content.entity.module.TalkModule;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -12,7 +13,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.Optional;
 
-public abstract class DialogMenu extends AbstractContainerMenu {
+public abstract class DialogMenu extends AbstractContainerMenu implements TalkModule.ITalkMenu {
 
 	public final Player player;
 	public final @Nullable YoukaiEntity character;
@@ -21,6 +22,11 @@ public abstract class DialogMenu extends AbstractContainerMenu {
 		super(menu, wid);
 		this.player = player;
 		this.character = character;
+	}
+
+	@Override
+	public @Nullable YoukaiEntity getCharacter() {
+		return character;
 	}
 
 	public abstract List<Component> getOptions();
