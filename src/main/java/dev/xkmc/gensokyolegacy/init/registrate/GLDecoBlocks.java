@@ -7,6 +7,7 @@ import com.tterrag.registrate.util.entry.BlockEntry;
 import com.tterrag.registrate.util.nullness.NonNullBiConsumer;
 import dev.xkmc.gensokyolegacy.content.block.deco.*;
 import dev.xkmc.gensokyolegacy.content.block.door.SlidingDoor;
+import dev.xkmc.gensokyolegacy.content.block.door.SlidingDoorJsons;
 import dev.xkmc.gensokyolegacy.content.block.misc.TatamiBlock;
 import dev.xkmc.gensokyolegacy.content.block.seat.CushionBlock;
 import dev.xkmc.gensokyolegacy.content.block.seat.WoodChairBlock;
@@ -204,11 +205,11 @@ public class GLDecoBlocks {
 			var doorSide = GensokyoLegacy.loc("block/wood/" + name + "_sliding_door_side");
 			e.door = reg.block(name + "_sliding_door", p -> SlidingDoor.create(p))
 					.initialProperties(() -> e.plankProp)
-					.blockstate((ctx, pvd) -> SlidingDoor.buildBlockState(ctx, pvd, doorTop, doorBottom, doorSide))
-					.item().model((ctx, pvd) -> SlidingDoor.genItemModel(ctx, pvd, doorTop, doorBottom, doorSide))
+					.blockstate((ctx, pvd) -> SlidingDoorJsons.buildBlockState(ctx, pvd, doorTop, doorBottom, doorSide))
+					.item().model((ctx, pvd) -> SlidingDoorJsons.genItemModel(ctx, pvd, doorTop, doorBottom, doorSide))
 					.build()
 					.tag(BlockTags.MINEABLE_WITH_AXE)
-					.loot(SlidingDoor::genLoot)
+					.loot(SlidingDoorJsons::genLoot)
 					.register();
 		}
 
