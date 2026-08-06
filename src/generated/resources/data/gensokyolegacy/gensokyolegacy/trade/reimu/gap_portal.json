@@ -1,6 +1,11 @@
 {
   "character": "gensokyolegacy:hakurei_reimu",
-  "conditions": [],
+  "conditions": [
+    {
+      "type": "gensokyolegacy:self_reputation",
+      "reputation": 100
+    }
+  ],
   "ingredients": [
     {
       "count": 10,

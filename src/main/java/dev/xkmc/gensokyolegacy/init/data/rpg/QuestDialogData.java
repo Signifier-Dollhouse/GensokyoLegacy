@@ -142,7 +142,7 @@ public class QuestDialogData {
 	}
 
 	public Holder<TradeOffer> trade(String id, TradeOffer offer) {
-		var key = ResourceKey.create(CodecRegistry.TRADE.key(), loc(id));
+		var key = ResourceKey.create(CodecRegistry.TRADE.key(), loc(prefix + "/" + id));
 		var holder = new DataGenHolder<>(key, offer);
 		tradeRegistry.put(key, holder);
 		return holder;
@@ -150,7 +150,7 @@ public class QuestDialogData {
 
 	public Holder<TradeOffer> trade(String id, EntityType<?> character, ItemStack result,
 	                                TradeRecurrence recurrence, IngredientEntry... ingredients) {
-		return trade(prefix + "/" + id, new TradeOffer(character, List.of(), result, recurrence, List.of(ingredients)));
+		return trade(id, new TradeOffer(character, List.of(), result, recurrence, List.of(ingredients)));
 	}
 
 	public LootTableReward loot(String id, LootTable.Builder loot) {

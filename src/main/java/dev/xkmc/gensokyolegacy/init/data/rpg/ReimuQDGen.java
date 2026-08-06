@@ -10,6 +10,7 @@ import dev.xkmc.gensokyolegacy.content.rpg.requirement.KillMobRequirement;
 import dev.xkmc.gensokyolegacy.content.rpg.requirement.SubmitItemRequirement;
 import dev.xkmc.gensokyolegacy.content.rpg.reward.ExpReward;
 import dev.xkmc.gensokyolegacy.content.rpg.reward.ReputationReward;
+import dev.xkmc.gensokyolegacy.content.rpg.trade.TradeOffer;
 import dev.xkmc.gensokyolegacy.content.rpg.trade.TradeRecurrence;
 import dev.xkmc.gensokyolegacy.init.registrate.GLBlocks;
 import dev.xkmc.gensokyolegacy.init.registrate.GLEntities;
@@ -72,12 +73,14 @@ public class ReimuQDGen extends QuestDialogData {
 				new ItemStack(Items.EMERALD),
 				new TradeRecurrence(10, 1200),
 				item(Items.ROTTEN_FLESH, 8));
-		trade("gap_portal", GLEntities.REIMU.get(),
+		trade("gap_portal", new TradeOffer(GLEntities.REIMU.get(),
+				List.of(new SelfReputationCondition(100)),
 				new ItemStack(GLBlocks.GAP_PORTAL.get()),
 				new TradeRecurrence(1, 6000),
-				item(Items.EMERALD, 10),
-				item(Items.ENDER_PEARL, 4),
-				item(Items.CRYING_OBSIDIAN, 4));
+				List.of(
+						item(Items.EMERALD, 10),
+						item(Items.ENDER_PEARL, 4),
+						item(Items.CRYING_OBSIDIAN, 4))));
 
 	}
 
