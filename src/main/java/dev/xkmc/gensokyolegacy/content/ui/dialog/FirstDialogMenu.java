@@ -1,5 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.ui.dialog;
 
+import dev.xkmc.gensokyolegacy.content.attachment.datamap.DialogConfig;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.rpg.core.ServerCharacterDialogManager;
 import dev.xkmc.gensokyolegacy.content.rpg.handle.ClientHandle;
@@ -92,7 +93,11 @@ public class FirstDialogMenu extends DialogMenu {
 
 	@Override
 	public Optional<Component> getBodyText() {
-		return Optional.empty();
+		if (character == null) return Optional.empty();
+		var cfg = DialogConfig.of(character.getType());
+		if (cfg == null || cfg.greeting().isEmpty())
+			return Optional.empty();
+		return Optional.of(Component.translatable(cfg.greeting()));
 	}
 
 }

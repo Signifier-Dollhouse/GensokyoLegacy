@@ -1,0 +1,8 @@
+{
+  "values": {
+    "gensokyolegacy:hakurei_reimu": {
+      "greeting": "gensokyolegacy/reimu/chat/greeting",
+      "trade": "gensokyolegacy/reimu/chat/trade"
+    }
+  }
+}

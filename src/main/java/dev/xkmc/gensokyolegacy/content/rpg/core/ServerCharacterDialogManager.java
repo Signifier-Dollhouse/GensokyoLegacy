@@ -77,7 +77,7 @@ public class ServerCharacterDialogManager {
 				ans.add(new QuestHandle(e, e.value().initialDialog()));
 		}
 		if (!getTradeOffers(sp, ch).isEmpty())
-			ans.add(new TradeHandle());
+			ans.add(new TradeHandle(ch.getType()));
 		return ans;
 	}
 

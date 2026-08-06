@@ -1,6 +1,7 @@
 package dev.xkmc.gensokyolegacy.init.data.rpg;
 
 import com.tterrag.registrate.providers.ProviderType;
+import dev.xkmc.gensokyolegacy.content.attachment.datamap.DialogConfig;
 import dev.xkmc.gensokyolegacy.content.rpg.action.DialogAction;
 import dev.xkmc.gensokyolegacy.content.rpg.core.CodecRegistry;
 import dev.xkmc.gensokyolegacy.content.rpg.dialog.Dialog;
@@ -11,12 +12,15 @@ import dev.xkmc.gensokyolegacy.content.rpg.quest.Quest;
 import dev.xkmc.gensokyolegacy.content.rpg.core.IngredientEntry;
 import dev.xkmc.gensokyolegacy.content.rpg.reward.LootTableReward;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
+import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
 import dev.xkmc.l2core.init.reg.ench.DataGenHolder;
 import dev.xkmc.l2core.init.reg.registrate.L2Registrate;
 import net.minecraft.core.Holder;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.storage.loot.LootPool;
@@ -36,6 +40,7 @@ public class QuestDialogData {
 	private final Map<ResourceKey<Dialog>, DataGenHolder<Dialog>> dialogRegistry = new LinkedHashMap<>();
 	private final Map<ResourceKey<DialogStarter>, DataGenHolder<DialogStarter>> starterRegistry = new LinkedHashMap<>();
 	private final Map<ResourceKey<Quest>, DataGenHolder<Quest>> questRegistry = new LinkedHashMap<>();
+	private final Map<EntityType<?>, DialogConfig> defaultDialogMap = new LinkedHashMap<>();
 
 	private String prefix = "";
 
@@ -51,6 +56,11 @@ public class QuestDialogData {
 				starterRegistry.forEach((k, v) -> ctx.register(k, v.value())));
 		reg.getDataGenInitializer().add(CodecRegistry.QUEST.key(), ctx ->
 				questRegistry.forEach((k, v) -> ctx.register(k, v.value())));
+		reg.addDataGenerator(ProviderType.DATA_MAP, pvd -> {
+			var builder = pvd.builder(GLMeta.DIALOG_DATA.reg());
+			defaultDialogMap.forEach((k, v) ->
+					builder.add(BuiltInRegistries.ENTITY_TYPE.wrapAsHolder(k), v, false));
+		});
 	}
 
 	public QuestDialogData() {
@@ -79,6 +89,18 @@ public class QuestDialogData {
 
 	public String questTitle(String text) {
 		return text("quest", "title", text);
+	}
+
+	public void defaultDialog(EntityType<?> type, String greetingText, String tradeText) {
+		defaultDialogMap.put(type, new DialogConfig(
+				dialogText("greeting", greetingText),
+				dialogText("trade", tradeText)));
+	}
+
+	private String dialogText(String type, String text) {
+		String full = modid + "/" + prefix + "/" + type;
+		reg.addRawLang(full, text);
+		return full;
 	}
 
 	public String questDesc(String text) {
