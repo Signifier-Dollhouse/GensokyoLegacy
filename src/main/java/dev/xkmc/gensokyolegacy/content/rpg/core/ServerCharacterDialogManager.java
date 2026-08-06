@@ -5,6 +5,7 @@ import dev.xkmc.gensokyolegacy.content.rpg.dialog.DialogStarter;
 import dev.xkmc.gensokyolegacy.content.rpg.handle.DialogHandle;
 import dev.xkmc.gensokyolegacy.content.rpg.handle.IDialogHandle;
 import dev.xkmc.gensokyolegacy.content.rpg.handle.QuestHandle;
+import dev.xkmc.gensokyolegacy.content.rpg.handle.TradeHandle;
 import dev.xkmc.gensokyolegacy.content.rpg.quest.Quest;
 import dev.xkmc.gensokyolegacy.content.rpg.trade.TradeOffer;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
@@ -75,7 +76,8 @@ public class ServerCharacterDialogManager {
 			else if (data.canStart(sp, e.value()) && e.value().match(sp, ch))
 				ans.add(new QuestHandle(e, e.value().initialDialog()));
 		}
-		//TODO trade handle
+		if (!getTradeOffers(sp, ch).isEmpty())
+			ans.add(new TradeHandle());
 		return ans;
 	}
 

@@ -73,7 +73,8 @@ public enum GLLang {
 	ITEM$FURNACE_1_DESC("Mode: %s", 1, ChatFormatting.GRAY),
 
 	TRADE$STOCK("Stock: %s/%s", 2),
-	TRADE$INGREDIENTS("Ingredients:", 0);
+	TRADE$INGREDIENTS("Ingredients:", 0),
+	TRADE$OPTION("Trade");
 
 	private final String def;
 	private final int argn;
