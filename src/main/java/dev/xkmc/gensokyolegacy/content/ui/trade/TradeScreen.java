@@ -2,6 +2,7 @@ package dev.xkmc.gensokyolegacy.content.ui.trade;
 
 import dev.xkmc.gensokyolegacy.content.rpg.core.CodecRegistry;
 import dev.xkmc.gensokyolegacy.content.rpg.trade.IClientOffer;
+import dev.xkmc.gensokyolegacy.content.ui.util.SpriteButton;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
@@ -22,6 +23,14 @@ import java.util.Optional;
 public class TradeScreen extends AbstractContainerScreen<TradeMenu> {
 
 	private static final ResourceLocation TEXTURE = GensokyoLegacy.loc("textures/gui/container/trade.png");
+	private static final ResourceLocation PRICE_SELL = GensokyoLegacy.loc("trade/price_sell");
+	private static final ResourceLocation PRICE_WANT = GensokyoLegacy.loc("trade/price_want");
+	private static final ResourceLocation PREV_NORMAL = GensokyoLegacy.loc("trade/prev_normal");
+	private static final ResourceLocation PREV_HOVER = GensokyoLegacy.loc("trade/prev_hover");
+	private static final ResourceLocation PREV_PRESSED = GensokyoLegacy.loc("trade/prev_pressed");
+	private static final ResourceLocation NEXT_NORMAL = GensokyoLegacy.loc("trade/next_normal");
+	private static final ResourceLocation NEXT_HOVER = GensokyoLegacy.loc("trade/next_hover");
+	private static final ResourceLocation NEXT_PRESSED = GensokyoLegacy.loc("trade/next_pressed");
 
 	public TradeScreen(TradeMenu cont, Inventory plInv, Component title) {
 		super(cont, plInv, title);
@@ -35,10 +44,10 @@ public class TradeScreen extends AbstractContainerScreen<TradeMenu> {
 	protected void init() {
 		super.init();
 		int y = topPos + 6;
-		prevButton = addRenderableWidget(new Button.Builder(Component.literal("<"), b -> click(-1))
-				.pos(leftPos + 95, y).size(16, 16).build());
-		nextButton = addRenderableWidget(new Button.Builder(Component.literal(">"), b -> click(-2))
-				.pos(leftPos + 139, y).size(16, 16).build());
+		prevButton = addRenderableWidget(new SpriteButton(PREV_NORMAL, PREV_HOVER, PREV_PRESSED,
+				leftPos + 95, y, 16, 16, b -> click(-1)));
+		nextButton = addRenderableWidget(new SpriteButton(NEXT_NORMAL, NEXT_HOVER, NEXT_PRESSED,
+				leftPos + 139, y, 16, 16, b -> click(-2)));
 	}
 
 	@Override
@@ -72,9 +81,13 @@ public class TradeScreen extends AbstractContainerScreen<TradeMenu> {
 			var currency = IClientOffer.resolve(offer.value()).currency();
 			if (currency.isEmpty()) continue;
 			var price = Component.literal("¥" + currency.getCount());
-			int x = ts.x + 9 - font.width(price) / 2;
-			int y = ts.y + 19;
-			g.drawString(font, price, x, y, 0xFFFFFF, true);
+			boolean sell = offer.value().isSellOffer();
+			var tag = sell ? PRICE_SELL : PRICE_WANT;
+			int tw = sell ? 31 : 30;
+			int x = ts.x + 9 - tw / 2;
+			int y = ts.y + 19 - (12 - font.lineHeight) / 2;
+			g.blitSprite(tag, x, y, tw, 12);
+			g.drawString(font, price, ts.x + 9 - font.width(price) / 2, ts.y + 19, 0xFFFFFF, true);
 		}
 	}
 
