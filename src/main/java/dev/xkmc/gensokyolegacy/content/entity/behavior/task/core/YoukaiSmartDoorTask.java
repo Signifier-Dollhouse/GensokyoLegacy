@@ -92,13 +92,14 @@ public class YoukaiSmartDoorTask<E extends SmartYoukaiEntity> extends Behavior<E
 	}
 
 	private void rememberDoorToClose(E entity, ServerLevel level, BlockPos pos) {
-		GlobalPos gpos = GlobalPos.of(level.dimension(), pos);
 		Set<GlobalPos> doors = BrainUtils.getMemory(entity, MemoryModuleType.DOORS_TO_CLOSE);
 		if (doors == null) {
 			doors = new HashSet<>();
+			doors.add(GlobalPos.of(level.dimension(), pos));
 			BrainUtils.setMemory(entity, MemoryModuleType.DOORS_TO_CLOSE, doors);
+		} else {
+			doors.add(GlobalPos.of(level.dimension(), pos));
 		}
-		doors.add(gpos);
 	}
 
 	private void closeDoors(ServerLevel level, E entity) {
