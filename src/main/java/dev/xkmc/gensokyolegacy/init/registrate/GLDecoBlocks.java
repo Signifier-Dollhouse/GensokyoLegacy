@@ -2,6 +2,7 @@ package dev.xkmc.gensokyolegacy.init.registrate;
 
 import com.tterrag.registrate.providers.DataGenContext;
 import com.tterrag.registrate.providers.RegistrateBlockstateProvider;
+import com.tterrag.registrate.providers.RegistrateItemModelProvider;
 import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import com.tterrag.registrate.providers.loot.RegistrateBlockLootTables;
 import com.tterrag.registrate.util.DataIngredient;
@@ -36,6 +37,7 @@ import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.ItemLike;
@@ -52,6 +54,7 @@ import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.material.PushReaction;
+import net.minecraft.client.renderer.block.model.BlockModel;
 import net.neoforged.neoforge.client.model.generators.BlockModelBuilder;
 import net.neoforged.neoforge.client.model.generators.ConfiguredModel;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
@@ -517,8 +520,8 @@ public class GLDecoBlocks {
 					.properties(p -> capProp)
 					.blockstate((ctx, pvd) -> genCapState(ctx, pvd, capVariants))
 					.tag(BlockTags.MINEABLE_WITH_AXE)
-					.item().model((ctx, pvd) -> pvd.withExistingParent(ctx.getName(),
-							pvd.modLoc("block/" + capModelName(ctx.getName(), capVariants, 1)))).build()
+					.item().model((ctx, pvd) -> genFlatItemModel(ctx.getName(), pvd,
+							pvd.modLoc("block/mushroom/" + capModelName(ctx.getName(), capVariants, 1)))).build()
 					.register();
 
 			block = reg.block(id + "_block", Block::new)
@@ -528,6 +531,27 @@ public class GLDecoBlocks {
 					.tag(BlockTags.MINEABLE_WITH_AXE)
 					.simpleItem()
 					.register();
+		}
+
+		private static void genFlatItemModel(String name, RegistrateItemModelProvider pvd, ResourceLocation tex) {
+			pvd.getBuilder(name)
+					.guiLight(BlockModel.GuiLight.FRONT)
+					.ao(false)
+					.texture("layer0", tex)
+					.texture("particle", tex)
+					.transforms()
+					.transform(ItemDisplayContext.GROUND).translation(0, 2, 0).scale(0.5f).end()
+					.transform(ItemDisplayContext.HEAD).rotation(0, 180, 0).translation(0, 13, 7).end()
+					.transform(ItemDisplayContext.THIRD_PERSON_RIGHT_HAND).translation(0, 3, 1).scale(0.55f).end()
+					.transform(ItemDisplayContext.FIRST_PERSON_RIGHT_HAND).rotation(0, -90, 25).translation(1.13f, 3.2f, 1.13f).scale(0.68f).end()
+					.transform(ItemDisplayContext.FIXED).rotation(0, 180, 0).end()
+					.end()
+					.element()
+					.from(0, 0, 7.5f).to(16, 16, 8.5f)
+					.shade(false)
+					.emissivity(15, 15)
+					.allFaces((dir, f) -> f.texture("#layer0"))
+					.end();
 		}
 
 		private static void genPlainState(DataGenContext<Block, ? extends Block> ctx, RegistrateBlockstateProvider pvd) {
