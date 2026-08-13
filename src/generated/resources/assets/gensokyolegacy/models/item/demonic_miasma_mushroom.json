@@ -1,5 +1,4 @@
 {
-  "ambientocclusion": false,
   "display": {
     "firstperson_righthand": {
       "rotation": [
@@ -89,11 +88,6 @@
         0,
         7.5
       ],
-      "neoforge_data": {
-        "block_light": 15,
-        "sky_light": 15
-      },
-      "shade": false,
       "to": [
         16,
         16,
@@ -101,7 +95,6 @@
       ]
     }
   ],
-  "gui_light": "front",
   "textures": {
     "layer0": "gensokyolegacy:block/mushroom/demonic_miasma_mushroom_1",
     "particle": "gensokyolegacy:block/mushroom/demonic_miasma_mushroom_1"
