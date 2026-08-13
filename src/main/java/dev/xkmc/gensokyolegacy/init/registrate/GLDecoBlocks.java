@@ -52,6 +52,7 @@ import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.material.PushReaction;
+import net.neoforged.neoforge.client.model.generators.BlockModelBuilder;
 import net.neoforged.neoforge.client.model.generators.ConfiguredModel;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
 
@@ -150,7 +151,7 @@ public class GLDecoBlocks {
 
 	public static final TreeSet BLUE_FUR_SET;
 
-	public static final MushroomSet GHOST_FIRE_MUSHROOM_SET, DREAM_MUSHROOM_SET, DEMONIC_MIASMA_MUSHROOM_SET;
+	public static final EmissiveMushroomSet GHOST_FIRE_MUSHROOM_SET, DREAM_MUSHROOM_SET, DEMONIC_MIASMA_MUSHROOM_SET;
 
 	static {
 		var reg = GensokyoLegacy.REGISTRATE;
@@ -246,19 +247,19 @@ public class GLDecoBlocks {
 				BlockBehaviour.Properties.ofFullCopy(Blocks.ACACIA_LEAVES)
 		);
 
-		GHOST_FIRE_MUSHROOM_SET = new MushroomSet(
+		GHOST_FIRE_MUSHROOM_SET = new EmissiveMushroomSet(
 				reg, "ghost_fire_mushroom", "cyan_mushroom", false, 3,
 				BlockBehaviour.Properties.ofFullCopy(Blocks.BROWN_MUSHROOM_BLOCK).mapColor(MapColor.COLOR_CYAN).lightLevel(b -> 5),
 				BlockBehaviour.Properties.ofFullCopy(Blocks.BROWN_MUSHROOM).mapColor(MapColor.COLOR_CYAN).lightLevel(b -> 5)
 		);
 
-		DREAM_MUSHROOM_SET = new MushroomSet(
+		DREAM_MUSHROOM_SET = new EmissiveMushroomSet(
 				reg, "dream_mushroom", "purple_mushroom", false, 3,
 				BlockBehaviour.Properties.ofFullCopy(Blocks.BROWN_MUSHROOM_BLOCK).mapColor(MapColor.COLOR_PURPLE).lightLevel(b -> 5),
 				BlockBehaviour.Properties.ofFullCopy(Blocks.BROWN_MUSHROOM).mapColor(MapColor.COLOR_PURPLE).lightLevel(b -> 5)
 		);
 
-		DEMONIC_MIASMA_MUSHROOM_SET = new MushroomSet(
+		DEMONIC_MIASMA_MUSHROOM_SET = new EmissiveMushroomSet(
 				reg, "demonic_miasma_mushroom", "red_mushroom", false, 2,
 				BlockBehaviour.Properties.ofFullCopy(Blocks.BROWN_MUSHROOM_BLOCK).mapColor(MapColor.CRIMSON_HYPHAE).lightLevel(b -> 5),
 				BlockBehaviour.Properties.ofFullCopy(Blocks.BROWN_MUSHROOM).mapColor(MapColor.CRIMSON_HYPHAE).lightLevel(b -> 5)
@@ -480,7 +481,7 @@ public class GLDecoBlocks {
 		}
 	}
 
-	public static class MushroomSet {
+	public static class EmissiveMushroomSet {
 
 		private static final Map<String, BlockEntry<Block>> STEMS = new HashMap<>();
 
@@ -488,9 +489,9 @@ public class GLDecoBlocks {
 		public final BlockEntry<Block> block;
 		public final BlockEntry<HugeMushroomBlock> cap;
 
-		public MushroomSet(L2Registrate reg, String id, String stemTex, boolean pillarStem, int capVariants,
-		                   BlockBehaviour.Properties blockProp,
-		                   BlockBehaviour.Properties capProp) {
+		public EmissiveMushroomSet(L2Registrate reg, String id, String stemTex, boolean pillarStem, int capVariants,
+		                           BlockBehaviour.Properties blockProp,
+		                           BlockBehaviour.Properties capProp) {
 			stem = STEMS.computeIfAbsent(stemTex + ":" + pillarStem, key -> {
 				var stemProp = BlockBehaviour.Properties.ofFullCopy(Blocks.MUSHROOM_STEM);
 				var stemBuilder = reg.block(id + "_stem", p -> pillarStem ? new RotatedPillarBlock(p) : new Block(p))
@@ -522,7 +523,7 @@ public class GLDecoBlocks {
 
 			block = reg.block(id + "_block", Block::new)
 					.properties(p -> blockProp)
-					.blockstate(MushroomSet::genPlainState)
+					.blockstate(EmissiveMushroomSet::genPlainState)
 					.loot((tb, blk) -> tb.add(blk, tb.createMushroomBlockDrop(blk, cap)))
 					.tag(BlockTags.MINEABLE_WITH_AXE)
 					.simpleItem()
@@ -530,8 +531,42 @@ public class GLDecoBlocks {
 		}
 
 		private static void genPlainState(DataGenContext<Block, ? extends Block> ctx, RegistrateBlockstateProvider pvd) {
-			pvd.simpleBlock(ctx.get(), pvd.models().cubeAll(ctx.getName(),
+			pvd.simpleBlock(ctx.get(), emissiveCube(pvd, ctx.getName(),
 					pvd.modLoc("block/mushroom/" + ctx.getName())));
+		}
+
+		private static BlockModelBuilder emissiveCube(RegistrateBlockstateProvider pvd, String name, ResourceLocation tex) {
+			return pvd.models().withExistingParent(name, ResourceLocation.withDefaultNamespace("block/block"))
+					.texture("all", tex)
+					.texture("particle", tex)
+					.element().from(0, 0, 0).to(16, 16, 16)
+					.emissivity(15, 15)
+					.cube("#all")
+					.end();
+		}
+
+		private static BlockModelBuilder emissiveCross(RegistrateBlockstateProvider pvd, String name, ResourceLocation tex) {
+			return pvd.models().withExistingParent(name, ResourceLocation.withDefaultNamespace("block/block"))
+					.ao(false)
+					.renderType("cutout")
+					.texture("cross", tex)
+					.texture("particle", tex)
+					.element()
+					.from(0.8f, 0, 8).to(15.2f, 16, 8)
+					.shade(false)
+					.emissivity(15, 15)
+					.rotation().origin(8, 8, 8).axis(Direction.Axis.Y).angle(45).rescale(true).end()
+					.face(Direction.NORTH).uvs(0, 0, 16, 16).texture("#cross").end()
+					.face(Direction.SOUTH).uvs(0, 0, 16, 16).texture("#cross").end()
+					.end()
+					.element()
+					.from(8, 0, 0.8f).to(8, 16, 15.2f)
+					.shade(false)
+					.emissivity(15, 15)
+					.rotation().origin(8, 8, 8).axis(Direction.Axis.Y).angle(45).rescale(true).end()
+					.face(Direction.WEST).uvs(0, 0, 16, 16).texture("#cross").end()
+					.face(Direction.EAST).uvs(0, 0, 16, 16).texture("#cross").end()
+					.end();
 		}
 
 		private static String capModelName(String name, int variants, int index) {
@@ -542,8 +577,8 @@ public class GLDecoBlocks {
 			ConfiguredModel[] models = new ConfiguredModel[variants];
 			for (int i = 1; i <= variants; i++) {
 				var name = capModelName(ctx.getName(), variants, i);
-				models[i - 1] = new ConfiguredModel(pvd.models().cross(name,
-						pvd.modLoc("block/mushroom/" + name)).renderType("cutout"));
+				models[i - 1] = new ConfiguredModel(emissiveCross(pvd, name,
+						pvd.modLoc("block/mushroom/" + name)));
 			}
 			pvd.getVariantBuilder(ctx.get()).partialState().setModels(models);
 		}

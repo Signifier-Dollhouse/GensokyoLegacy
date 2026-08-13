@@ -1,7 +1,105 @@
 {
-  "parent": "minecraft:block/cross",
+  "parent": "minecraft:block/block",
+  "ambientocclusion": false,
+  "elements": [
+    {
+      "faces": {
+        "north": {
+          "texture": "#cross",
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ]
+        },
+        "south": {
+          "texture": "#cross",
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ]
+        }
+      },
+      "from": [
+        0.8,
+        0,
+        8
+      ],
+      "neoforge_data": {
+        "block_light": 15,
+        "sky_light": 15
+      },
+      "rotation": {
+        "angle": 45.0,
+        "axis": "y",
+        "origin": [
+          8,
+          8,
+          8
+        ],
+        "rescale": true
+      },
+      "shade": false,
+      "to": [
+        15.2,
+        16,
+        8
+      ]
+    },
+    {
+      "faces": {
+        "east": {
+          "texture": "#cross",
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ]
+        },
+        "west": {
+          "texture": "#cross",
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ]
+        }
+      },
+      "from": [
+        8,
+        0,
+        0.8
+      ],
+      "neoforge_data": {
+        "block_light": 15,
+        "sky_light": 15
+      },
+      "rotation": {
+        "angle": 45.0,
+        "axis": "y",
+        "origin": [
+          8,
+          8,
+          8
+        ],
+        "rescale": true
+      },
+      "shade": false,
+      "to": [
+        8,
+        16,
+        15.2
+      ]
+    }
+  ],
   "render_type": "minecraft:cutout",
   "textures": {
-    "cross": "gensokyolegacy:block/mushroom/ghost_fire_mushroom_2"
+    "cross": "gensokyolegacy:block/mushroom/ghost_fire_mushroom_2",
+    "particle": "gensokyolegacy:block/mushroom/ghost_fire_mushroom_2"
   }
 }
