@@ -8,12 +8,14 @@ import com.tterrag.registrate.providers.loot.RegistrateBlockLootTables;
 import com.tterrag.registrate.util.DataIngredient;
 import com.tterrag.registrate.util.entry.BlockEntry;
 import com.tterrag.registrate.util.nullness.NonNullBiConsumer;
+import com.tterrag.registrate.util.nullness.NonNullFunction;
 import dev.xkmc.gensokyolegacy.content.block.deco.*;
 import dev.xkmc.gensokyolegacy.content.block.door.SlidingDoor;
 import dev.xkmc.gensokyolegacy.content.block.door.SlidingDoorJsons;
 import dev.xkmc.gensokyolegacy.content.block.misc.TatamiBlock;
 import dev.xkmc.gensokyolegacy.content.block.seat.CushionBlock;
 import dev.xkmc.gensokyolegacy.content.block.seat.WoodChairBlock;
+import dev.xkmc.gensokyolegacy.content.worldgen.feature.MushroomFeatures.MushroomTreeType;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.GLRecipeGen;
 import dev.xkmc.gensokyolegacy.init.data.GLTagGen;
@@ -31,6 +33,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
@@ -44,6 +47,7 @@ import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
+import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
@@ -58,6 +62,8 @@ import net.minecraft.client.renderer.block.model.BlockModel;
 import net.neoforged.neoforge.client.model.generators.BlockModelBuilder;
 import net.neoforged.neoforge.client.model.generators.ConfiguredModel;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
+
+import javax.annotation.Nullable;
 
 import java.util.HashMap;
 import java.util.List;
@@ -253,19 +259,22 @@ public class GLDecoBlocks {
 		GHOST_FIRE_MUSHROOM_SET = new MushroomSet(
 				reg, "ghost_fire_mushroom", "cyan_mushroom", false, 3, true,
 				BlockBehaviour.Properties.ofFullCopy(Blocks.BROWN_MUSHROOM_BLOCK).mapColor(MapColor.COLOR_CYAN).lightLevel(b -> 5),
-				BlockBehaviour.Properties.ofFullCopy(Blocks.BROWN_MUSHROOM).mapColor(MapColor.COLOR_CYAN).lightLevel(b -> 5)
+				BlockBehaviour.Properties.ofFullCopy(Blocks.BROWN_MUSHROOM).mapColor(MapColor.COLOR_CYAN).lightLevel(b -> 5),
+				MushroomTreeType.GHOST_FIRE.cfKey
 		);
 
 		DREAM_MUSHROOM_SET = new MushroomSet(
 				reg, "dream_mushroom", "purple_mushroom", false, 3, false,
 				BlockBehaviour.Properties.ofFullCopy(Blocks.BROWN_MUSHROOM_BLOCK).mapColor(MapColor.COLOR_PURPLE),
-				BlockBehaviour.Properties.ofFullCopy(Blocks.BROWN_MUSHROOM).mapColor(MapColor.COLOR_PURPLE)
+				BlockBehaviour.Properties.ofFullCopy(Blocks.BROWN_MUSHROOM).mapColor(MapColor.COLOR_PURPLE),
+				null
 		);
 
 		DEMONIC_MIASMA_MUSHROOM_SET = new MushroomSet(
 				reg, "demonic_miasma_mushroom", "red_mushroom", false, 2, false,
 				BlockBehaviour.Properties.ofFullCopy(Blocks.BROWN_MUSHROOM_BLOCK).mapColor(MapColor.CRIMSON_HYPHAE),
-				BlockBehaviour.Properties.ofFullCopy(Blocks.BROWN_MUSHROOM).mapColor(MapColor.CRIMSON_HYPHAE)
+				BlockBehaviour.Properties.ofFullCopy(Blocks.BROWN_MUSHROOM).mapColor(MapColor.CRIMSON_HYPHAE),
+				null
 		);
 
 		SNOW_SET = new BrickSet(reg, "snow", BlockBehaviour.Properties.ofFullCopy(Blocks.SNOW_BLOCK),
@@ -490,11 +499,12 @@ public class GLDecoBlocks {
 
 		public final BlockEntry<Block> stem;
 		public final BlockEntry<Block> block;
-		public final BlockEntry<HugeMushroomBlock> cap;
+		public final BlockEntry<? extends Block> cap;
 
 		public MushroomSet(L2Registrate reg, String id, String stemTex, boolean pillarStem, int capVariants,
 		                   boolean emissive, BlockBehaviour.Properties blockProp,
-		                   BlockBehaviour.Properties capProp) {
+		                   BlockBehaviour.Properties capProp,
+		                   @Nullable ResourceKey<ConfiguredFeature<?, ?>> feature) {
 			stem = STEMS.computeIfAbsent(stemTex + ":" + pillarStem, key -> {
 				var stemProp = BlockBehaviour.Properties.ofFullCopy(Blocks.MUSHROOM_STEM);
 				var stemBuilder = reg.block(id + "_stem", p -> pillarStem ? new RotatedPillarBlock(p) : new Block(p))
@@ -516,7 +526,13 @@ public class GLDecoBlocks {
 						.register();
 			});
 
-			cap = reg.block(id, HugeMushroomBlock::new)
+			NonNullFunction<BlockBehaviour.Properties, ? extends Block> capFactory;
+			if (feature == null) {
+				capFactory = HugeMushroomBlock::new;
+			} else {
+				capFactory = p -> new MushroomBlock(feature, p);
+			}
+			cap = reg.block(id, capFactory)
 					.properties(p -> capProp)
 					.blockstate((ctx, pvd) -> genCapState(ctx, pvd, capVariants, emissive))
 					.tag(BlockTags.MINEABLE_WITH_AXE)

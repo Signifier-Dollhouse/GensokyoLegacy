@@ -146,6 +146,7 @@ public class GensokyoLegacy {
 		var init = REGISTRATE.getDataGenInitializer();
 		GLDimensionGen.init(init);
 		GLStructureGen.init(init);
+		GLFeatureGen.init(init);
 		new GLDamageTypes(REGISTRATE).generate();
 
 		var gen = event.getGenerator();
