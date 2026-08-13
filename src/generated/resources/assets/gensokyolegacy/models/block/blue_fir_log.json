@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_column",
+  "textures": {
+    "end": "gensokyolegacy:block/wood/blue_fir_log_top",
+    "side": "gensokyolegacy:block/wood/blue_fir_log_side"
+  }
+}

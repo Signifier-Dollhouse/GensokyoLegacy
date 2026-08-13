@@ -1,7 +1,9 @@
 package dev.xkmc.gensokyolegacy.init.registrate;
 
 import com.tterrag.registrate.providers.DataGenContext;
+import com.tterrag.registrate.providers.RegistrateBlockstateProvider;
 import com.tterrag.registrate.providers.RegistrateRecipeProvider;
+import com.tterrag.registrate.providers.loot.RegistrateBlockLootTables;
 import com.tterrag.registrate.util.DataIngredient;
 import com.tterrag.registrate.util.entry.BlockEntry;
 import com.tterrag.registrate.util.nullness.NonNullBiConsumer;
@@ -18,7 +20,14 @@ import dev.xkmc.l2core.init.reg.registrate.L2Registrate;
 import dev.xkmc.l2core.init.reg.registrate.SimpleEntry;
 import dev.xkmc.l2modularblock.core.BlockTemplates;
 import dev.xkmc.l2modularblock.core.DelegateBlock;
+import net.minecraft.advancements.critereon.EnchantmentPredicate;
+import net.minecraft.advancements.critereon.ItemEnchantmentsPredicate;
+import net.minecraft.advancements.critereon.ItemPredicate;
+import net.minecraft.advancements.critereon.ItemSubPredicates;
+import net.minecraft.advancements.critereon.MinMaxBounds;
+import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.resources.ResourceLocation;
@@ -28,15 +37,28 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
+import net.minecraft.world.level.storage.loot.LootPool;
+import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.level.storage.loot.entries.LootItem;
+import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
+import net.minecraft.world.level.storage.loot.predicates.BonusLevelTableCondition;
+import net.minecraft.world.level.storage.loot.predicates.MatchTool;
+import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
+import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.material.PushReaction;
+import net.neoforged.neoforge.client.model.generators.ConfiguredModel;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.function.Supplier;
 
 public class GLDecoBlocks {
@@ -126,6 +148,10 @@ public class GLDecoBlocks {
 
 	public static final BlockEntry<DelegateBlock> TATAMI, TATAMI_BLOCK;
 
+	public static final TreeSet BLUE_FUR_SET;
+
+	public static final MushroomSet GHOST_FIRE_MUSHROOM_SET;
+
 	static {
 		var reg = GensokyoLegacy.REGISTRATE;
 		TAB = reg.buildModCreativeTab("building_blocks", "Gensokyo Legacy - Building Blocks",
@@ -213,6 +239,18 @@ public class GLDecoBlocks {
 					.loot(SlidingDoorJsons::genLoot)
 					.register();
 		}
+
+		BLUE_FUR_SET = new TreeSet(
+				reg, "blue_fir",
+				BlockBehaviour.Properties.ofFullCopy(Blocks.ACACIA_LOG).mapColor(MapColor.COLOR_CYAN),
+				BlockBehaviour.Properties.ofFullCopy(Blocks.ACACIA_LEAVES)
+		);
+
+		GHOST_FIRE_MUSHROOM_SET = new MushroomSet(
+				reg, "ghost_fire_mushroom", "cyan_mushroom", false, 3,
+				BlockBehaviour.Properties.ofFullCopy(Blocks.BROWN_MUSHROOM_BLOCK).mapColor(MapColor.COLOR_CYAN),
+				BlockBehaviour.Properties.ofFullCopy(Blocks.BROWN_MUSHROOM).mapColor(MapColor.COLOR_CYAN)
+		);
 
 		SNOW_SET = new BrickSet(reg, "snow", BlockBehaviour.Properties.ofFullCopy(Blocks.SNOW_BLOCK),
 				ResourceLocation.withDefaultNamespace("block/snow"), () -> Blocks.SNOW_BLOCK,
@@ -384,8 +422,132 @@ public class GLDecoBlocks {
 							brick.block.get().asItem()).pattern("AA").pattern("AA").define('A', brick.block.get())
 					.save(pvd);
 		}
+	}
 
+	public static class TreeSet {
 
+		public final BlockEntry<RotatedPillarBlock> log;
+		public final BlockEntry<LeavesBlock> leaves;
+
+		public TreeSet(L2Registrate reg, String id,
+		               BlockBehaviour.Properties logProp, BlockBehaviour.Properties leafProp) {
+			log = reg.block(id + "_log", RotatedPillarBlock::new)
+					.properties(p -> logProp)
+					.blockstate((ctx, pvd) -> genColumnState(ctx, pvd,
+							pvd.modLoc("block/wood/" + ctx.getName() + "_side"),
+							pvd.modLoc("block/wood/" + ctx.getName() + "_top")))
+					.tag(BlockTags.MINEABLE_WITH_AXE, BlockTags.LOGS)
+					.simpleItem()
+					.register();
+			leaves = reg.block(id + "_leaves", LeavesBlock::new)
+					.properties(p -> leafProp)
+					.blockstate((ctx, pvd) -> pvd.simpleBlock(ctx.get(), pvd.models().cubeAll(ctx.getName(),
+							pvd.modLoc("block/wood/" + ctx.getName())).renderType("cutout")))
+					.loot(TreeSet::genLeavesLoot)
+					.tag(BlockTags.MINEABLE_WITH_HOE, BlockTags.LEAVES)
+					.simpleItem()
+					.register();
+		}
+
+		private static void genLeavesLoot(RegistrateBlockLootTables tb, Block block) {
+			var enchantments = tb.getRegistries().lookupOrThrow(Registries.ENCHANTMENT);
+			var silkTouch = MatchTool.toolMatches(ItemPredicate.Builder.item()
+							.withSubPredicate(ItemSubPredicates.ENCHANTMENTS,
+									ItemEnchantmentsPredicate.enchantments(List.of(new EnchantmentPredicate(
+											enchantments.getOrThrow(Enchantments.SILK_TOUCH), MinMaxBounds.Ints.atLeast(1))))))
+					.or(MatchTool.toolMatches(ItemPredicate.Builder.item().of(Items.SHEARS)));
+			tb.add(block, LootTable.lootTable()
+					.withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F))
+							.add(LootItem.lootTableItem(block).when(silkTouch)))
+					.withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F)).when(silkTouch.invert())
+							.add(tb.applyExplosionDecay(block, LootItem.lootTableItem(Items.STICK)
+									.apply(SetItemCountFunction.setCount(UniformGenerator.between(1.0F, 2.0F)))
+									.when(BonusLevelTableCondition.bonusLevelFlatChance(
+											enchantments.getOrThrow(Enchantments.FORTUNE),
+											0.02F, 0.022222223F, 0.025F, 0.033333335F, 0.1F))))));
+		}
+	}
+
+	public static class MushroomSet {
+
+		private static final Map<String, BlockEntry<Block>> STEMS = new HashMap<>();
+
+		public final BlockEntry<Block> stem;
+		public final BlockEntry<Block> block;
+		public final BlockEntry<HugeMushroomBlock> cap;
+
+		public MushroomSet(L2Registrate reg, String id, String stemTex, boolean pillarStem, int capVariants,
+		                   BlockBehaviour.Properties blockProp,
+		                   BlockBehaviour.Properties capProp) {
+			stem = STEMS.computeIfAbsent(stemTex + ":" + pillarStem, key -> {
+				var stemProp = BlockBehaviour.Properties.ofFullCopy(Blocks.MUSHROOM_STEM);
+				var stemBuilder = reg.block(id + "_stem", p -> pillarStem ? new RotatedPillarBlock(p) : new Block(p))
+						.properties(p -> stemProp)
+						.tag(BlockTags.MINEABLE_WITH_AXE);
+				if (pillarStem) {
+					stemBuilder.blockstate((ctx, pvd) -> {
+						var side = pvd.modLoc("block/mushroom/" + stemTex + "_stem_side");
+						var top = pvd.modLoc("block/mushroom/" + stemTex + "_stem_top");
+						genColumnState(ctx, pvd, side, top);
+					});
+				} else {
+					stemBuilder.blockstate((ctx, pvd) -> pvd.simpleBlock(ctx.get(), pvd.models().cubeAll(ctx.getName(),
+							pvd.modLoc("block/mushroom/" + stemTex + "_stem"))));
+				}
+				return stemBuilder
+						.loot(RegistrateBlockLootTables::dropWhenSilkTouch)
+						.simpleItem()
+						.register();
+			});
+
+			cap = reg.block(id, HugeMushroomBlock::new)
+					.properties(p -> capProp)
+					.blockstate((ctx, pvd) -> genCapState(ctx, pvd, capVariants))
+					.tag(BlockTags.MINEABLE_WITH_AXE)
+					.item().model((ctx, pvd) -> pvd.withExistingParent(ctx.getName(),
+							pvd.modLoc("block/" + capModelName(ctx.getName(), capVariants, 1)))).build()
+					.register();
+
+			block = reg.block(id + "_block", Block::new)
+					.properties(p -> blockProp)
+					.blockstate(MushroomSet::genPlainState)
+					.loot((tb, blk) -> tb.add(blk, tb.createMushroomBlockDrop(blk, cap)))
+					.tag(BlockTags.MINEABLE_WITH_AXE)
+					.simpleItem()
+					.register();
+		}
+
+		private static void genPlainState(DataGenContext<Block, ? extends Block> ctx, RegistrateBlockstateProvider pvd) {
+			pvd.simpleBlock(ctx.get(), pvd.models().cubeAll(ctx.getName(),
+					pvd.modLoc("block/mushroom/" + ctx.getName())));
+		}
+
+		private static String capModelName(String name, int variants, int index) {
+			return variants <= 1 ? name : name + "_" + index;
+		}
+
+		private static void genCapState(DataGenContext<Block, ? extends Block> ctx, RegistrateBlockstateProvider pvd, int variants) {
+			ConfiguredModel[] models = new ConfiguredModel[variants];
+			for (int i = 1; i <= variants; i++) {
+				var name = capModelName(ctx.getName(), variants, i);
+				models[i - 1] = new ConfiguredModel(pvd.models().cross(name,
+						pvd.modLoc("block/mushroom/" + name)).renderType("cutout"));
+			}
+			pvd.getVariantBuilder(ctx.get()).partialState().setModels(models);
+		}
+	}
+
+	private static void genColumnState(DataGenContext<Block, ? extends Block> ctx, RegistrateBlockstateProvider pvd,
+	                                   ResourceLocation side, ResourceLocation end) {
+		var vertical = pvd.models().cubeColumn(ctx.getName(), side, end);
+		var horizontal = pvd.models().cubeColumnHorizontal(ctx.getName() + "_horizontal", side, end);
+		pvd.getVariantBuilder(ctx.get())
+				.partialState().with(RotatedPillarBlock.AXIS, Direction.Axis.Y)
+				.modelForState().modelFile(vertical).addModel()
+				.partialState().with(RotatedPillarBlock.AXIS, Direction.Axis.Z)
+				.modelForState().modelFile(horizontal).rotationX(90).addModel()
+				.partialState().with(RotatedPillarBlock.AXIS, Direction.Axis.X)
+				.modelForState().modelFile(horizontal).rotationX(90).rotationY(90).addModel();
 	}
 
 }

@@ -1,0 +1,25 @@
+* text=auto
+.gitattributes text eol=lf
+
+# Text files: normalize to LF in the repo AND in the working tree,
+# so datagen output (which always writes LF) never causes whole-file diffs.
+*.java text eol=lf
+*.json text eol=lf
+*.md text eol=lf
+*.gradle text eol=lf
+*.properties text eol=lf
+*.cfg text eol=lf
+*.toml text eol=lf
+*.mcmeta text eol=lf
+*.txt text eol=lf
+.gitignore text eol=lf
+LICENSE text eol=lf
+gradlew text eol=lf
+
+# Binary files
+*.png binary
+*.jar binary
+*.ogg binary
+*.zip binary
+*.jpg binary
+*.jpeg binary
