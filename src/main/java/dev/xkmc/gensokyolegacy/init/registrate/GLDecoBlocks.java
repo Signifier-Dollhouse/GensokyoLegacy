@@ -150,7 +150,7 @@ public class GLDecoBlocks {
 
 	public static final TreeSet BLUE_FUR_SET;
 
-	public static final MushroomSet GHOST_FIRE_MUSHROOM_SET;
+	public static final MushroomSet GHOST_FIRE_MUSHROOM_SET, DREAM_MUSHROOM_SET, DEMONIC_MIASMA_MUSHROOM_SET;
 
 	static {
 		var reg = GensokyoLegacy.REGISTRATE;
@@ -248,8 +248,20 @@ public class GLDecoBlocks {
 
 		GHOST_FIRE_MUSHROOM_SET = new MushroomSet(
 				reg, "ghost_fire_mushroom", "cyan_mushroom", false, 3,
-				BlockBehaviour.Properties.ofFullCopy(Blocks.BROWN_MUSHROOM_BLOCK).mapColor(MapColor.COLOR_CYAN),
-				BlockBehaviour.Properties.ofFullCopy(Blocks.BROWN_MUSHROOM).mapColor(MapColor.COLOR_CYAN)
+				BlockBehaviour.Properties.ofFullCopy(Blocks.BROWN_MUSHROOM_BLOCK).mapColor(MapColor.COLOR_CYAN).lightLevel(b -> 5),
+				BlockBehaviour.Properties.ofFullCopy(Blocks.BROWN_MUSHROOM).mapColor(MapColor.COLOR_CYAN).lightLevel(b -> 5)
+		);
+
+		DREAM_MUSHROOM_SET = new MushroomSet(
+				reg, "dream_mushroom", "purple_mushroom", false, 3,
+				BlockBehaviour.Properties.ofFullCopy(Blocks.BROWN_MUSHROOM_BLOCK).mapColor(MapColor.COLOR_PURPLE).lightLevel(b -> 5),
+				BlockBehaviour.Properties.ofFullCopy(Blocks.BROWN_MUSHROOM).mapColor(MapColor.COLOR_PURPLE).lightLevel(b -> 5)
+		);
+
+		DEMONIC_MIASMA_MUSHROOM_SET = new MushroomSet(
+				reg, "demonic_miasma_mushroom", "red_mushroom", false, 2,
+				BlockBehaviour.Properties.ofFullCopy(Blocks.BROWN_MUSHROOM_BLOCK).mapColor(MapColor.CRIMSON_HYPHAE).lightLevel(b -> 5),
+				BlockBehaviour.Properties.ofFullCopy(Blocks.BROWN_MUSHROOM).mapColor(MapColor.CRIMSON_HYPHAE).lightLevel(b -> 5)
 		);
 
 		SNOW_SET = new BrickSet(reg, "snow", BlockBehaviour.Properties.ofFullCopy(Blocks.SNOW_BLOCK),

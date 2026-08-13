@@ -1,0 +1,12 @@
+{
+  "variants": {
+    "": [
+      {
+        "model": "gensokyolegacy:block/demonic_miasma_mushroom_1"
+      },
+      {
+        "model": "gensokyolegacy:block/demonic_miasma_mushroom_2"
+      }
+    ]
+  }
+}
