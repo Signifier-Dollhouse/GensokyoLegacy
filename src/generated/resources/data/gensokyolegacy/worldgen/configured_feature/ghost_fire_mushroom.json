@@ -7,7 +7,7 @@
         "Name": "gensokyolegacy:ghost_fire_mushroom_block"
       }
     },
-    "foliage_radius": 2,
+    "foliage_radius": 0,
     "stem_provider": {
       "type": "minecraft:simple_state_provider",
       "state": {

@@ -12,6 +12,7 @@ import net.minecraft.world.level.levelgen.feature.AbstractHugeMushroomFeature;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import net.minecraft.world.level.levelgen.feature.configurations.HugeMushroomFeatureConfiguration;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -20,20 +21,22 @@ public class MushroomFeatures {
 
     public enum MushroomTreeType {
         GHOST_FIRE("ghost_fire_mushroom", GhostFireMushroomFeature::new,
-                () -> GLDecoBlocks.GHOST_FIRE_MUSHROOM_SET);
+                () -> GLDecoBlocks.GHOST_FIRE_MUSHROOM_SET, null);
 
         public final String id;
         public final ResourceKey<ConfiguredFeature<?, ?>> cfKey;
         public final Function<Codec<HugeMushroomFeatureConfiguration>, AbstractHugeMushroomFeature> factory;
         public final Supplier<GLDecoBlocks.MushroomSet> set;
+        public final int radius;
 
         MushroomTreeType(String id,
                          Function<Codec<HugeMushroomFeatureConfiguration>, AbstractHugeMushroomFeature> factory,
-                         Supplier<GLDecoBlocks.MushroomSet> set) {
+                         Supplier<GLDecoBlocks.MushroomSet> set, @Nullable Integer radius) {
             this.id = id;
             this.cfKey = ResourceKey.create(Registries.CONFIGURED_FEATURE, GensokyoLegacy.loc(id));
             this.factory = factory;
             this.set = set;
+            this.radius = radius == null ? 0 : radius;
         }
     }
 
@@ -55,12 +58,12 @@ public class MushroomFeatures {
 
         @Override
         protected void makeCap(
-                @NotNull LevelAccessor level,
-                @NotNull RandomSource rand,
-                @NotNull BlockPos origin,
+                LevelAccessor level,
+                RandomSource rand,
+                BlockPos origin,
                 int height,
                 BlockPos.@NotNull MutableBlockPos pos,
-                @NotNull HugeMushroomFeatureConfiguration config
+                HugeMushroomFeatureConfiguration config
         ) {
             for (int layer = 0; layer < 3; layer++) {
                 int y = height - 1 + layer;

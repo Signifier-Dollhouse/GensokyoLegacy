@@ -27,7 +27,7 @@ public class GLFeatureGen {
 						new HugeMushroomFeatureConfiguration(
 								BlockStateProvider.simple(set.block.get()),
 								BlockStateProvider.simple(set.stem.get()),
-								2
+								type.radius
 						)
 				));
 			}
