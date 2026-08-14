@@ -16,6 +16,7 @@ import dev.xkmc.gensokyolegacy.content.block.misc.TatamiBlock;
 import dev.xkmc.gensokyolegacy.content.block.seat.CushionBlock;
 import dev.xkmc.gensokyolegacy.content.block.seat.WoodChairBlock;
 import dev.xkmc.gensokyolegacy.content.worldgen.feature.MushroomFeatures.MushroomTreeType;
+import dev.xkmc.gensokyolegacy.content.worldgen.feature.TreeFeatures.TreeType;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.GLRecipeGen;
 import dev.xkmc.gensokyolegacy.init.data.GLTagGen;
@@ -45,6 +46,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.*;
+import net.minecraft.world.level.block.grower.TreeGrower;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
@@ -69,6 +71,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 public class GLDecoBlocks {
@@ -253,7 +256,8 @@ public class GLDecoBlocks {
 		BLUE_FUR_SET = new TreeSet(
 				reg, "blue_fir",
 				BlockBehaviour.Properties.ofFullCopy(Blocks.ACACIA_LOG).mapColor(MapColor.COLOR_CYAN),
-				BlockBehaviour.Properties.ofFullCopy(Blocks.ACACIA_LEAVES)
+				BlockBehaviour.Properties.ofFullCopy(Blocks.ACACIA_LEAVES),
+				TreeType.BLUE_FIR
 		);
 
 		GHOST_FIRE_MUSHROOM_SET = new MushroomSet(
@@ -453,9 +457,11 @@ public class GLDecoBlocks {
 
 		public final BlockEntry<RotatedPillarBlock> log;
 		public final BlockEntry<LeavesBlock> leaves;
+		public final BlockEntry<SaplingBlock> sapling;
 
 		public TreeSet(L2Registrate reg, String id,
-		               BlockBehaviour.Properties logProp, BlockBehaviour.Properties leafProp) {
+		               BlockBehaviour.Properties logProp, BlockBehaviour.Properties leafProp,
+		               TreeType type) {
 			log = reg.block(id + "_log", RotatedPillarBlock::new)
 					.properties(p -> logProp)
 					.blockstate((ctx, pvd) -> genColumnState(ctx, pvd,
@@ -471,6 +477,17 @@ public class GLDecoBlocks {
 					.loot(TreeSet::genLeavesLoot)
 					.tag(BlockTags.MINEABLE_WITH_HOE, BlockTags.LEAVES)
 					.simpleItem()
+					.register();
+			sapling = reg.block(id + "_sapling", p -> new SaplingBlock(new TreeGrower(
+							id + "_tree", Optional.empty(), Optional.of(type.cfKey), Optional.empty()), p))
+					.properties(p -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_SAPLING))
+					.blockstate((ctx, pvd) -> pvd.simpleBlock(ctx.get(), pvd.models().cross(ctx.getName(),
+							pvd.modLoc("block/wood/" + ctx.getName())).renderType("cutout")))
+					.loot(RegistrateBlockLootTables::dropSelf)
+					.tag(BlockTags.SAPLINGS)
+					.item().model((ctx, pvd) -> pvd.getBuilder(ctx.getName())
+							.parent(new ModelFile.UncheckedModelFile("item/generated"))
+							.texture("layer0", pvd.modLoc("block/wood/" + ctx.getName()))).build()
 					.register();
 		}
 
