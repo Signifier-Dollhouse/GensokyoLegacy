@@ -23,6 +23,7 @@ hs_err_pid*
 
 .idea
 .gradle
+.gradle-home
 build
 runs
 run
