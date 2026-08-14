@@ -5,6 +5,8 @@ import com.tterrag.registrate.util.entry.BlockEntry;
 import dev.xkmc.gensokyolegacy.content.block.bed.FlatBedShape;
 import dev.xkmc.gensokyolegacy.content.block.bed.YoukaiBedBlock;
 import dev.xkmc.gensokyolegacy.content.block.bed.YoukaiBedBlockEntity;
+import dev.xkmc.gensokyolegacy.content.block.cabinet.CabinetBlock;
+import dev.xkmc.gensokyolegacy.content.block.cabinet.CabinetBlockEntity;
 import dev.xkmc.gensokyolegacy.content.block.donation.DonationBoxBlock;
 import dev.xkmc.gensokyolegacy.content.block.donation.DonationBoxBlockEntity;
 import dev.xkmc.gensokyolegacy.content.block.donation.DonationShape;
@@ -70,6 +72,9 @@ public class GLBlocks {
 	public static final BlockEntry<DelegateBlock> SHELF;
 	public static final BlockEntityEntry<ShelfBlockEntity> SHELF_BE;
 
+	public static final BlockEntry<DelegateBlock> DRAWER_CABINET, DOOR_CABINET;
+	public static final BlockEntityEntry<CabinetBlockEntity> CABINET_BE;
+
 	public static final BlockEntry<BasePortalBlock> GAP_PORTAL;
 	public static final BlockEntityEntry<GapPortalBlockEntity> GAP_BE;
 
@@ -110,9 +115,34 @@ public class GLBlocks {
 		}
 
 		{
+			DRAWER_CABINET = GensokyoLegacy.REGISTRATE.block("drawer_cabinet",
+							p -> DelegateBlock.newBaseBlock(p, BlockTemplates.HORIZONTAL, new CabinetBlock(), CabinetBlock.BE))
+					.initialProperties(() -> Blocks.OAK_PLANKS)
+					.properties(BlockBehaviour.Properties::noOcclusion)
+					.blockstate((ctx, pvd) -> CabinetBlock.buildStates(ctx, pvd, "cabinet_top"))
+					.tag(BlockTags.MINEABLE_WITH_AXE)
+					.item().tab(GLDecoBlocks.TAB.key()).build()
+					.register();
+
+			DOOR_CABINET = GensokyoLegacy.REGISTRATE.block("door_cabinet",
+							p -> DelegateBlock.newBaseBlock(p, BlockTemplates.HORIZONTAL, new CabinetBlock(), CabinetBlock.BE))
+					.initialProperties(() -> Blocks.OAK_PLANKS)
+					.properties(BlockBehaviour.Properties::noOcclusion)
+					.blockstate((ctx, pvd) -> CabinetBlock.buildStates(ctx, pvd, "cabinet_side"))
+					.tag(BlockTags.MINEABLE_WITH_AXE)
+					.item().tab(GLDecoBlocks.TAB.key()).build()
+					.register();
+
+			CABINET_BE = GensokyoLegacy.REGISTRATE.blockEntity("cabinet", CabinetBlockEntity::new)
+					.validBlocks(DRAWER_CABINET, DOOR_CABINET)
+					.register();
+
+		}
+
+		{
 			GAP_PORTAL = GensokyoLegacy.REGISTRATE.block("gap_portal", GapPortalBlock::of)
 					.initialProperties(() -> Blocks.END_PORTAL)
-					.properties(p -> p.noLootTable())
+					.properties(BlockBehaviour.Properties::noLootTable)
 					.blockstate((ctx, pvd) -> pvd.simpleBlock(ctx.get(),
 							pvd.models().getBuilder(ctx.getName()).parent(new ModelFile.UncheckedModelFile("builtin/entity"))
 									.texture("particle", pvd.mcLoc("block/obsidian"))))
@@ -145,7 +175,7 @@ public class GLBlocks {
 
 			ALCHEMY_POT = GensokyoLegacy.REGISTRATE.block("alchemy_pot", p -> DelegateBlock.newBaseBlock(p))
 					.initialProperties(() -> Blocks.ANVIL)
-					.properties(p -> p.noOcclusion())
+					.properties(BlockBehaviour.Properties::noOcclusion)
 					.blockstate((ctx, pvd) -> pvd.simpleBlock(ctx.get(),
 							pvd.models().getBuilder(ctx.getName())
 									.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/utensil/" + ctx.getName())))

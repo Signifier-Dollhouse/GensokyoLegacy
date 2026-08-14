@@ -1,5 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.attachment.home.core;
 
+import dev.xkmc.gensokyolegacy.content.block.cabinet.CabinetBlockEntity;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -28,8 +29,8 @@ public class HomeSearchUtil {
 
 	public static boolean isValidChest(ServerLevel sl, BlockPos pos) {
 		var be = sl.getBlockEntity(pos);
-		return be instanceof ChestBlockEntity || be instanceof BarrelBlockEntity;
-		//|| be instanceof CabinetBlockEntity || be instanceof BasketBlockEntity; TODO other container handling
+		return be instanceof ChestBlockEntity || be instanceof BarrelBlockEntity || be instanceof CabinetBlockEntity;
+		//|| be instanceof BasketBlockEntity; TODO other container handling
 	}
 
 	public static boolean isValidChair(ServerLevel sl, BlockPos pos) {

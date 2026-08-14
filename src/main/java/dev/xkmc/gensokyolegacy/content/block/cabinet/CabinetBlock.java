@@ -1,13 +1,16 @@
-package dev.xkmc.gensokyolegacy.content.block.deco;
+package dev.xkmc.gensokyolegacy.content.block.cabinet;
 
 import com.tterrag.registrate.providers.DataGenContext;
 import com.tterrag.registrate.providers.RegistrateBlockstateProvider;
+import dev.xkmc.gensokyolegacy.init.registrate.GLBlocks;
 import dev.xkmc.l2modularblock.core.DelegateBlock;
 import dev.xkmc.l2modularblock.core.VoxelBuilder;
+import dev.xkmc.l2modularblock.impl.BlockEntityBlockMethodImpl;
 import dev.xkmc.l2modularblock.mult.CreateBlockStateBlockMethod;
 import dev.xkmc.l2modularblock.mult.DefaultStateBlockMethod;
 import dev.xkmc.l2modularblock.mult.UseWithoutItemBlockMethod;
 import dev.xkmc.l2modularblock.one.ShapeBlockMethod;
+import dev.xkmc.l2modularblock.type.BlockMethod;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.sounds.SoundEvents;
@@ -32,6 +35,8 @@ public class CabinetBlock implements ShapeBlockMethod, UseWithoutItemBlockMethod
 
 	public static final BooleanProperty OPEN = BlockStateProperties.OPEN;
 
+	public static final BlockMethod BE = new BlockEntityBlockMethodImpl<>(GLBlocks.CABINET_BE, CabinetBlockEntity.class);
+
 	public static final VoxelShape[] SHAPES = new VoxelShape[4];
 
 	static {
@@ -48,6 +53,9 @@ public class CabinetBlock implements ShapeBlockMethod, UseWithoutItemBlockMethod
 
 	@Override
 	public InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
+		if (!player.isSecondaryUseActive()) {
+			return InteractionResult.PASS;// let the block entity method open the storage menu
+		}
 		if (!level.isClientSide) {
 			boolean open = state.getValue(OPEN);
 			level.setBlockAndUpdate(pos, state.setValue(OPEN, !open));

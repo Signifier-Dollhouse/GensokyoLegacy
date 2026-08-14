@@ -1,7 +1,5 @@
 {
   "values": [
-    "gensokyolegacy:drawer_cabinet",
-    "gensokyolegacy:door_cabinet",
     "gensokyolegacy:oak_dining_table",
     "gensokyolegacy:oak_dining_chair",
     "gensokyolegacy:oak_large_table",
@@ -67,6 +65,8 @@
     "gensokyolegacy:red_mushroom_stem",
     "gensokyolegacy:demonic_miasma_mushroom",
     "gensokyolegacy:demonic_miasma_mushroom_block",
-    "gensokyolegacy:birch_shelf"
+    "gensokyolegacy:birch_shelf",
+    "gensokyolegacy:drawer_cabinet",
+    "gensokyolegacy:door_cabinet"
   ]
 }
