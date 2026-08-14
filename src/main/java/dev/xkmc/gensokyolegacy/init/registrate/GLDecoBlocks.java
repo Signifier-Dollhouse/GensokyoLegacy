@@ -165,6 +165,8 @@ public class GLDecoBlocks {
 
 	public static final MushroomSet GHOST_FIRE_MUSHROOM_SET, DREAM_MUSHROOM_SET, DEMONIC_MIASMA_MUSHROOM_SET;
 
+	public static final BlockEntry<TallGrassBlock> BROOM_GRASS;
+
 	static {
 		var reg = GensokyoLegacy.REGISTRATE;
 		TAB = reg.buildModCreativeTab("building_blocks", "Gensokyo Legacy - Building Blocks",
@@ -280,6 +282,17 @@ public class GLDecoBlocks {
 				BlockBehaviour.Properties.ofFullCopy(Blocks.BROWN_MUSHROOM).mapColor(MapColor.CRIMSON_HYPHAE),
 				null
 		);
+
+		BROOM_GRASS = reg.block("broom_grass", TallGrassBlock::new)
+				.initialProperties(() -> Blocks.SHORT_GRASS)
+				.blockstate((ctx, pvd) -> pvd.simpleBlock(ctx.get(),
+						pvd.models().cross(ctx.getName(), pvd.modLoc("block/plant/" + ctx.getName()))
+								.renderType("cutout")))
+				.loot((pvd, block) -> pvd.add(block, pvd.createShearsOnlyDrop(block)))
+				.item().model((ctx, pvd) -> pvd.getBuilder(ctx.getName())
+						.parent(new ModelFile.UncheckedModelFile("item/generated"))
+						.texture("layer0", pvd.modLoc("block/plant/" + ctx.getName()))).build()
+				.register();
 
 		SNOW_SET = new BrickSet(reg, "snow", BlockBehaviour.Properties.ofFullCopy(Blocks.SNOW_BLOCK),
 				ResourceLocation.withDefaultNamespace("block/snow"), () -> Blocks.SNOW_BLOCK,
