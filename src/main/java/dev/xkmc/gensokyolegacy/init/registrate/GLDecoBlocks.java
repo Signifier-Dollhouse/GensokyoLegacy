@@ -317,7 +317,7 @@ public class GLDecoBlocks {
 				.blockstate((ctx, pvd) -> pvd.simpleBlock(ctx.get(),
 						pvd.models().cross(ctx.getName(), pvd.modLoc("block/plant/" + ctx.getName()))
 								.renderType("cutout")))
-				.loot((pvd, block) -> pvd.add(block, pvd.createShearsOnlyDrop(block)))
+				.loot((pvd, block) -> pvd.add(block, RegistrateBlockLootTables.createShearsOnlyDrop(block)))
 				.item().model((ctx, pvd) -> pvd.getBuilder(ctx.getName())
 						.parent(new ModelFile.UncheckedModelFile("item/generated"))
 						.texture("layer0", pvd.modLoc("block/plant/" + ctx.getName()))).build()
