@@ -159,7 +159,7 @@ public class GLDecoBlocks {
 
 	public static final StoneAndBrickSet DARKSTONE;
 
-	public static final BlockEntry<DelegateBlock> TATAMI, TATAMI_BLOCK, DRAWER_CABINET, DOOR_CABINET;
+	public static final BlockEntry<DelegateBlock> TATAMI, TATAMI_BLOCK, STURDY_TEDDY_BEAR, DRAWER_CABINET, DOOR_CABINET;
 
 	public static final TreeSet BLUE_FUR_SET;
 
@@ -205,6 +205,17 @@ public class GLDecoBlocks {
 					.item().tag(GLTagGen.CUSHIONS).build()
 					.register();
 		}
+
+		STURDY_TEDDY_BEAR = reg.block("sturdy_teddy_bear",
+						p -> DelegateBlock.newBaseBlock(p, BlockTemplates.HORIZONTAL))
+				.initialProperties(() -> Blocks.WHITE_WOOL)
+				.properties(p -> p.noOcclusion().strength(0.8F))
+				.blockstate((ctx, pvd) -> pvd.horizontalBlock(ctx.get(),
+						pvd.models().getBuilder("block/" + ctx.getName())
+								.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/sturdy_teddy_bear")))
+								.renderType("cutout")))
+				.simpleItem()
+				.register();
 
 		DRAWER_CABINET = reg.block("drawer_cabinet",
 						p -> DelegateBlock.newBaseBlock(p, BlockTemplates.HORIZONTAL, new CabinetBlock()))
