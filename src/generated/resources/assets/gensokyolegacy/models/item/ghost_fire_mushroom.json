@@ -1,23 +1,6 @@
 {
   "ambientocclusion": false,
   "display": {
-    "firstperson_righthand": {
-      "rotation": [
-        0,
-        -90,
-        25
-      ],
-      "scale": [
-        0.68,
-        0.68,
-        0.68
-      ],
-      "translation": [
-        1.13,
-        3.2,
-        1.13
-      ]
-    },
     "fixed": {
       "rotation": [
         0,
@@ -48,39 +31,15 @@
         13,
         7
       ]
-    },
-    "thirdperson_righthand": {
-      "scale": [
-        0.55,
-        0.55,
-        0.55
-      ],
-      "translation": [
-        0,
-        3,
-        1
-      ]
     }
   },
   "elements": [
     {
       "faces": {
-        "down": {
-          "texture": "#layer0"
-        },
-        "east": {
-          "texture": "#layer0"
-        },
         "north": {
           "texture": "#layer0"
         },
         "south": {
-          "texture": "#layer0"
-        },
-        "up": {
-          "texture": "#layer0"
-        },
-        "west": {
           "texture": "#layer0"
         }
       },
