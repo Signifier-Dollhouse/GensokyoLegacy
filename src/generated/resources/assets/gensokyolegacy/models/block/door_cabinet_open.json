@@ -1,0 +1,8 @@
+{
+  "parent": "gensokyolegacy:custom/cabinet",
+  "render_type": "minecraft:cutout",
+  "textures": {
+    "1": "gensokyolegacy:block/cabinet/cabinet_side_open",
+    "particle": "gensokyolegacy:block/cabinet/cabinet_side_open"
+  }
+}

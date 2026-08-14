@@ -26,7 +26,9 @@
 		"demonic_miasma_mushroom": "妖瘴菇",
 		"demonic_miasma_mushroom_block": "妖瘴菇方块",
 		"red_mushroom_stem": "红色蘑菇柄",
-		"broom_grass": "扫帚草"
+		"broom_grass": "扫帚草",
+		"drawer_cabinet": "抽屉橱柜",
+		"door_cabinet": "双门橱柜"
 	},
 	"item.gensokyolegacy": {
 		"frozen_frog_cold": "冻青蛙",

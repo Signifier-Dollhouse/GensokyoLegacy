@@ -159,7 +159,7 @@ public class GLDecoBlocks {
 
 	public static final StoneAndBrickSet DARKSTONE;
 
-	public static final BlockEntry<DelegateBlock> TATAMI, TATAMI_BLOCK;
+	public static final BlockEntry<DelegateBlock> TATAMI, TATAMI_BLOCK, DRAWER_CABINET, DOOR_CABINET;
 
 	public static final TreeSet BLUE_FUR_SET;
 
@@ -205,6 +205,24 @@ public class GLDecoBlocks {
 					.item().tag(GLTagGen.CUSHIONS).build()
 					.register();
 		}
+
+		DRAWER_CABINET = reg.block("drawer_cabinet",
+						p -> DelegateBlock.newBaseBlock(p, BlockTemplates.HORIZONTAL, new CabinetBlock()))
+				.initialProperties(() -> Blocks.OAK_PLANKS)
+				.properties(BlockBehaviour.Properties::noOcclusion)
+				.blockstate((ctx, pvd) -> CabinetBlock.buildStates(ctx, pvd, "cabinet_top"))
+				.tag(BlockTags.MINEABLE_WITH_AXE)
+				.simpleItem()
+				.register();
+
+		DOOR_CABINET = reg.block("door_cabinet",
+						p -> DelegateBlock.newBaseBlock(p, BlockTemplates.HORIZONTAL, new CabinetBlock()))
+				.initialProperties(() -> Blocks.OAK_PLANKS)
+				.properties(BlockBehaviour.Properties::noOcclusion)
+				.blockstate((ctx, pvd) -> CabinetBlock.buildStates(ctx, pvd, "cabinet_side"))
+				.tag(BlockTags.MINEABLE_WITH_AXE)
+				.simpleItem()
+				.register();
 
 		for (var e : WoodType.values()) {
 			String name = e.name().toLowerCase(Locale.ROOT);
