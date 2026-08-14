@@ -537,7 +537,7 @@ public class GLDecoBlocks {
 		                   @Nullable ResourceKey<ConfiguredFeature<?, ?>> feature) {
 			stem = STEMS.computeIfAbsent(stemTex + ":" + pillarStem, key -> {
 				var stemProp = BlockBehaviour.Properties.ofFullCopy(Blocks.MUSHROOM_STEM);
-				var stemBuilder = reg.block(id + "_stem", p -> pillarStem ? new RotatedPillarBlock(p) : new Block(p))
+				var stemBuilder = reg.block(stemTex + "_stem", p -> pillarStem ? new RotatedPillarBlock(p) : new Block(p))
 						.properties(p -> stemProp)
 						.tag(BlockTags.MINEABLE_WITH_AXE);
 				if (pillarStem) {

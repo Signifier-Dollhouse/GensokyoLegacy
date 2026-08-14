@@ -23,11 +23,11 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "gensokyolegacy:demonic_miasma_mushroom_stem"
+          "name": "gensokyolegacy:cyan_mushroom_stem"
         }
       ],
       "rolls": 1.0
     }
   ],
-  "random_sequence": "gensokyolegacy:blocks/demonic_miasma_mushroom_stem"
+  "random_sequence": "gensokyolegacy:blocks/cyan_mushroom_stem"
 }
