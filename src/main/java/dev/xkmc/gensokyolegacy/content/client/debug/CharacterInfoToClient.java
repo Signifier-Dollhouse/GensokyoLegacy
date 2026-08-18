@@ -22,6 +22,7 @@ public record CharacterInfoToClient(
 			@Nullable BlockPos bed,
 			int reputation,
 			int feedCD,
+			int giftCD,
 			String activity
 	) {
 		ArrayList<Component> info = new ArrayList<>();
@@ -34,6 +35,9 @@ public record CharacterInfoToClient(
 		info.add(ReputationState.toInfo(reputation));
 		if (feedCD > 0) {
 			info.add(GLLang.INFO$ENTITY_FEED.time(feedCD).withStyle(ChatFormatting.GRAY));
+		}
+		if (giftCD > 0) {
+			info.add(GLLang.INFO$ENTITY_GIFT.time(giftCD).withStyle(ChatFormatting.GRAY));
 		}
 		if (!activity.isEmpty()) {
 			String[] strs = activity.split("\n");

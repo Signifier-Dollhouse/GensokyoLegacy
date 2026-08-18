@@ -209,7 +209,7 @@ public abstract class YoukaiEntity extends DamageClampEntity implements SpellCir
 	}
 
 	protected List<AbstractYoukaiModule> createModules() {
-		return List.of(new HomeModule(this), new FeedModule(this), new TalkModule(this));
+		return List.of(new HomeModule(this), new GiftModule(this), new FeedModule(this), new TalkModule(this));
 	}
 
 	@Override

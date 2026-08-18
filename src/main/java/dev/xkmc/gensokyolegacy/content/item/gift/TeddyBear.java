@@ -1,9 +1,7 @@
 package dev.xkmc.gensokyolegacy.content.item.gift;
 
-import net.minecraft.world.item.Item;
-
-public class TeddyBear extends Item {
+public class TeddyBear extends AbstractGift {
     public TeddyBear(Properties properties) {
-        super(properties);
+        super(properties, GiftType.TOY, 5);
     }
 }

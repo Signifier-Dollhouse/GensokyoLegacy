@@ -1,6 +1,7 @@
 package dev.xkmc.gensokyolegacy.init.data;
 
 import com.tterrag.registrate.providers.RegistrateLangProvider;
+import dev.xkmc.gensokyolegacy.content.item.gift.GiftType;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
@@ -25,6 +26,7 @@ public enum GLLang {
 	INFO$ENTITY_BED("Character's bed is at (%s, %s, %s)", 3),
 	INFO$ENTITY_REPUTATION("Your reputation: %s", 1),
 	INFO$ENTITY_FEED("Feed cool down: %s", 1),
+	INFO$ENTITY_GIFT("Gift cool down: %s", 1),
 	INFO$STRUCTURE_SCANNING("Scanning Structure...", 0),
 	INFO$STRUCTURE_ABNORMAL("Found %s invalid blocks", 1),
 	INFO$DOORS_TO_CLOSE("Doors to close (%s):", 1),
@@ -59,6 +61,8 @@ public enum GLLang {
 	ITEM$OBTAIN("Source: ", 0, ChatFormatting.GRAY),
 	ITEM$UNKNOWN("???", 0, ChatFormatting.GRAY),
 	ITEM$USAGE("Usage: ", 0, ChatFormatting.GRAY),
+	ITEM$GIFT_FAVOR("Favor: %s", 1),
+	ITEM$GIFT_TYPE("Type: %s", 1),
 
 	ITEM$OBTAIN_FAIRY_ICE("Crafted by Cirno.", 0, ChatFormatting.GRAY),
 	ITEM$USAGE_FAIRY_ICE("Throw to deal damage and freeze target.", 0, ChatFormatting.GRAY),
@@ -126,6 +130,10 @@ public enum GLLang {
 		//RoleCategory.genLang(pvd);
 		for (var e : values()) {
 			pvd.add(e.key, e.def);
+		}
+
+		for (var type : GiftType.values()) {
+			pvd.add(GensokyoLegacy.MODID + ".gift.type." + type.name().toLowerCase(Locale.ROOT), type.getLangName());
 		}
 
 		pvd.add(GensokyoLegacy.MODID + ".subtitle.koishi_ring", "Koishi Phone Call");

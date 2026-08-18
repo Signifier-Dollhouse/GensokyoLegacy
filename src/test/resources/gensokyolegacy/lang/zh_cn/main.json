@@ -16,6 +16,7 @@
 			"entity_reputation": "好感度：%s",
 			"entity_unbound": "角色未绑定结构",
 			"entity_feed": "投喂冷却: %s",
+			"entity_gift": "送礼冷却: %s",
 			"structure_scanning": "扫描中",
 			"structure_abnormal": "发现%s个错误方块",
 			"loading": "加载中..."
@@ -55,7 +56,20 @@
 			"obtain_reimu_hairband": "玩家投喂灵梦各种食物掉落",
 			"usage_reimu_hairband": "激活创造飞行。弹幕伤害穿透魔法防御",
 			"usage_cirno_hairband": "促进向%s转化。使用淡蓝色弹幕时不消耗。魔法伤害冰冻目标，冻结青蛙",
-			"usage_fairy_wings": "在%s状态下激活创造飞行"
+			"usage_fairy_wings": "在%s状态下激活创造飞行",
+			"gift_favor": "好感值: %s",
+			"gift_type": "类型: %s"
+		},
+		"gift": {
+			"type": {
+				"toy": "玩具",
+				"food": "食物",
+				"drink": "饮品",
+				"book": "书籍",
+				"fan": "扇子",
+				"crystal": "晶石",
+				"magic": "魔法"
+			}
 		},
 		"msg": {
 			"reset": "角色已重置",

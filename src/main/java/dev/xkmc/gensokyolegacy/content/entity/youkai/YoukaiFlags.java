@@ -1,5 +1,5 @@
 package dev.xkmc.gensokyolegacy.content.entity.youkai;
 
 public enum YoukaiFlags {
-	CHARGING, FAINTED, POWERED, NONE, FED, FLYING
+	CHARGING, FAINTED, POWERED, NONE, FED, GIFTED, FLYING
 }
