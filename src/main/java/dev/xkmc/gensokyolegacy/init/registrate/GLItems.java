@@ -13,7 +13,10 @@ import dev.xkmc.gensokyolegacy.content.item.debug.DebugGlasses;
 import dev.xkmc.gensokyolegacy.content.item.debug.DebugWand;
 import dev.xkmc.gensokyolegacy.content.item.debug.DoorDebugItem;
 import dev.xkmc.gensokyolegacy.content.item.debug.StructureWand;
+import dev.xkmc.gensokyolegacy.content.item.gift.FairyCakeItem;
+import dev.xkmc.gensokyolegacy.content.item.gift.MagicBookItem;
 import dev.xkmc.gensokyolegacy.content.item.gift.TeddyBear;
+import dev.xkmc.gensokyolegacy.content.item.gift.TenguSakeItem;
 import dev.xkmc.gensokyolegacy.content.item.ingredient.FairyIceItem;
 import dev.xkmc.gensokyolegacy.content.item.ingredient.FrozenFrogItem;
 import dev.xkmc.gensokyolegacy.content.item.tool.*;
@@ -57,6 +60,9 @@ public class GLItems {
 	public static final ItemEntry<CatBell> CAT_BELL;
 
 	public static final ItemEntry<TeddyBear> TEDDY_BEAR;
+	public static final ItemEntry<TenguSakeItem> TENGU_SAKE;
+	public static final ItemEntry<FairyCakeItem> FAIRY_CAKE;
+	public static final ItemEntry<MagicBookItem> MAGIC_BOOK;
 
 	public static final ItemEntry<DebugGlasses> DEBUG_GLASSES;
 	public static final ItemEntry<DebugWand> DEBUG_WAND;
@@ -124,6 +130,21 @@ public class GLItems {
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
 					.tab(TAB.key())
 					.lang("Teddy Bear").register();
+
+			TENGU_SAKE = reg.item("tengu_sake", TenguSakeItem::new)
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
+					.tab(TAB.key())
+					.lang("Tengu Sake").register();
+
+			FAIRY_CAKE = reg.item("fairy_cake", FairyCakeItem::new)
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
+					.tab(TAB.key())
+					.lang("Fairy Cake").register();
+
+			MAGIC_BOOK = reg.item("magic_book", MagicBookItem::new)
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
+					.tab(TAB.key())
+					.lang("Obscure Magic Book").register();
 		}
 
 

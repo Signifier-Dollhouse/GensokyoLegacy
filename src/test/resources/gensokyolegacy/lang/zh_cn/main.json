@@ -58,7 +58,10 @@
 			"usage_cirno_hairband": "促进向%s转化。使用淡蓝色弹幕时不消耗。魔法伤害冰冻目标，冻结青蛙",
 			"usage_fairy_wings": "在%s状态下激活创造飞行",
 			"gift_favor": "好感值: %s",
-			"gift_type": "类型: %s"
+			"gift_type": "类型: %s",
+			"usage_tengu_sake": "饮用后获得短暂的增益。",
+			"usage_fairy_cake": "美味的蛋糕。食用恢复饥饿值。",
+			"usage_magic_book": "可以作为燃料使用。"
 		},
 		"gift": {
 			"type": {

@@ -63,6 +63,9 @@ public enum GLLang {
 	ITEM$USAGE("Usage: ", 0, ChatFormatting.GRAY),
 	ITEM$GIFT_FAVOR("Favor: %s", 1),
 	ITEM$GIFT_TYPE("Type: %s", 1),
+	ITEM$USAGE_TENGU_SAKE("Drink for a temporary boost.", 0, ChatFormatting.GRAY),
+	ITEM$USAGE_FAIRY_CAKE("A sweet cake. Eat to restore hunger.", 0, ChatFormatting.GRAY),
+	ITEM$USAGE_MAGIC_BOOK("Can be used as furnace fuel.", 0, ChatFormatting.GRAY),
 
 	ITEM$OBTAIN_FAIRY_ICE("Crafted by Cirno.", 0, ChatFormatting.GRAY),
 	ITEM$USAGE_FAIRY_ICE("Throw to deal damage and freeze target.", 0, ChatFormatting.GRAY),
