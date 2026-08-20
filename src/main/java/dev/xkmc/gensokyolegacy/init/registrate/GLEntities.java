@@ -11,6 +11,8 @@ import dev.xkmc.gensokyolegacy.content.entity.characters.merchant.MorichikaEntit
 import dev.xkmc.gensokyolegacy.content.entity.characters.merchant.MorichikaRenderer;
 import dev.xkmc.gensokyolegacy.content.entity.characters.rumia.RumiaEntity;
 import dev.xkmc.gensokyolegacy.content.entity.characters.rumia.RumiaRenderer;
+import dev.xkmc.gensokyolegacy.content.entity.dolls.DollEntity;
+import dev.xkmc.gensokyolegacy.content.entity.dolls.DollRenderer;
 import dev.xkmc.gensokyolegacy.content.entity.misc.FairyIce;
 import dev.xkmc.gensokyolegacy.content.entity.misc.FrozenFrog;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.BossYoukaiEntity;
@@ -36,6 +38,7 @@ public class GLEntities {
 	public static final EntityEntry<GeneralYoukaiEntity> MYSTIA;
 	public static final EntityEntry<BossYoukaiEntity> YUKARI, KOISHI;
 	public static final EntityEntry<FairyEntity> SUNNY, LUNA, STAR;
+    public static final EntityEntry<DollEntity> DOLL;
 
 	public static final EntityEntry<FrozenFrog> FROZEN_FROG;
 	public static final EntityEntry<FairyIce> FAIRY_ICE;
@@ -163,6 +166,16 @@ public class GLEntities {
 					.register();
 		}
 
+        {
+            DOLL = GensokyoLegacy.REGISTRATE
+                    .entity("doll", DollEntity::new, MobCategory.MISC)
+                    .properties(e -> e.sized(0.5F, 1.0F).clientTrackingRange(10))
+                    .attributes(DollEntity::createAttributes)
+                    .renderer(() -> DollRenderer::new)
+                    .spawnEgg(0xFFFFFF, 0x000000).build()
+                    .register();
+        }
+
 		{
 
 			FROZEN_FROG = GensokyoLegacy.REGISTRATE
@@ -176,7 +189,6 @@ public class GLEntities {
 					.properties(p -> p.sized(0.25F, 0.25F).clientTrackingRange(4).updateInterval(10))
 					.renderer(() -> ThrownItemRenderer::new)
 					.register();
-
 		}
 
 	}
