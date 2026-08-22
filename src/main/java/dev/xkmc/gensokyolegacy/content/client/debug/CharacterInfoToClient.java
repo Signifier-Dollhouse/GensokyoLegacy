@@ -44,6 +44,13 @@ public record CharacterInfoToClient(
 		return new CharacterInfoToClient(info, advanced);
 	}
 
+	public static CharacterInfoToClient ofDoor(ArrayList<Component> doors) {
+		ArrayList<Component> info = new ArrayList<>();
+		info.add(GLLang.INFO$DOORS_TO_CLOSE.get(doors.size()).withStyle(ChatFormatting.AQUA));
+		info.addAll(doors);
+		return new CharacterInfoToClient(info, new ArrayList<>());
+	}
+
 	@Override
 	public void handle(Player player) {
 		InfoUpdateClientManager.handleCharacterInfo(this);

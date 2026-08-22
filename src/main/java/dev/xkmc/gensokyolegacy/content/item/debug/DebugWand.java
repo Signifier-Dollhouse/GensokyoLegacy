@@ -2,6 +2,8 @@ package dev.xkmc.gensokyolegacy.content.item.debug;
 
 import dev.xkmc.gensokyolegacy.content.attachment.character.CharacterData;
 import dev.xkmc.gensokyolegacy.content.block.bed.YoukaiBedBlockEntity;
+import dev.xkmc.gensokyolegacy.content.client.debug.DebugCharacterTooltip;
+import dev.xkmc.gensokyolegacy.content.client.debug.IDebugOverlayWand;
 import dev.xkmc.gensokyolegacy.content.client.debug.InfoUpdateClientManager;
 import dev.xkmc.gensokyolegacy.content.client.structure.StructureBoundUpdateToClient;
 import dev.xkmc.gensokyolegacy.content.client.structure.StructureInfoClientManager;
@@ -25,7 +27,7 @@ import net.minecraft.world.level.Level;
 
 import java.util.List;
 
-public class DebugWand extends Item {
+public class DebugWand extends Item implements IDebugOverlayWand {
 
 	public DebugWand(Properties properties) {
 		super(properties);
@@ -34,6 +36,11 @@ public class DebugWand extends Item {
 	@Override
 	public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
 		return super.use(level, player, usedHand);
+	}
+
+	@Override
+	public void addTooltip(Player player, ItemStack stack, List<Component> lines, long gameTime) {
+		DebugCharacterTooltip.add(player, lines, gameTime);
 	}
 
 	@Override

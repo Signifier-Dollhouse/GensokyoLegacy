@@ -1,10 +1,5 @@
 package dev.xkmc.gensokyolegacy.content.block.door;
 
-import com.tterrag.registrate.providers.DataGenContext;
-import com.tterrag.registrate.providers.RegistrateBlockstateProvider;
-import com.tterrag.registrate.providers.RegistrateItemModelProvider;
-import com.tterrag.registrate.providers.loot.RegistrateBlockLootTables;
-import dev.xkmc.l2core.serial.loot.LootHelper;
 import dev.xkmc.l2modularblock.core.BlockTemplates;
 import dev.xkmc.l2modularblock.core.DelegateBlock;
 import dev.xkmc.l2modularblock.core.VoxelBuilder;
@@ -14,16 +9,12 @@ import dev.xkmc.l2modularblock.one.ShapeBlockMethod;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
@@ -34,17 +25,10 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.*;
-import net.minecraft.world.level.storage.loot.LootPool;
-import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.neoforged.neoforge.client.model.generators.BlockModelBuilder;
-import net.neoforged.neoforge.client.model.generators.ConfiguredModel;
-import net.neoforged.neoforge.client.model.generators.ItemModelBuilder;
-import net.neoforged.neoforge.client.model.generators.ModelBuilder;
-import net.neoforged.neoforge.client.model.generators.ModelFile;
 import org.jetbrains.annotations.Nullable;
 
 import static net.minecraft.world.level.block.state.properties.BlockStateProperties.HALF;
@@ -140,7 +124,7 @@ public class SlidingDoor implements CreateBlockStateBlockMethod, DefaultStateBlo
 		return SHAPES[state.getValue(STACK) - 1][state.getValue(HORIZONTAL_FACING).get2DDataValue()];
 	}
 
-	private static boolean canOpen(Level level, BlockPos bottom, BlockState bs) {
+	static boolean canOpen(BlockGetter level, BlockPos bottom, BlockState bs) {
 		BlockPos pocket = bottom.relative(hingeDir(bs));
 		if (bs.getValue(STACK) == 1 && !isConnected(level, bottom, bs)) {
 			return isAir(level, pocket);
@@ -153,7 +137,7 @@ public class SlidingDoor implements CreateBlockStateBlockMethod, DefaultStateBlo
 				&& pocketState.getValue(STACK) + bs.getValue(STACK) <= MAX;
 	}
 
-	private static void doOpen(Level level, BlockPos bottom, BlockState bs) {
+	static void doOpen(Level level, BlockPos bottom, BlockState bs) {
 		if (!canOpen(level, bottom, bs)) return;
 		BlockPos pocket = bottom.relative(hingeDir(bs));
 		if (bs.getValue(STACK) == 1 && !isConnected(level, bottom, bs)) {
@@ -167,7 +151,7 @@ public class SlidingDoor implements CreateBlockStateBlockMethod, DefaultStateBlo
 		playSound(level, bottom, true);
 	}
 
-	private static boolean canClose(Level level, BlockPos bottom, BlockState bs) {
+	static boolean canClose(BlockGetter level, BlockPos bottom, BlockState bs) {
 		BlockPos leaf = bottom.relative(hingeDir(bs).getOpposite());
 		if (bs.getValue(STACK) == 1 && !isConnected(level, bottom, bs)) {
 			return isAir(level, leaf);
@@ -175,7 +159,7 @@ public class SlidingDoor implements CreateBlockStateBlockMethod, DefaultStateBlo
 		return bs.getValue(STACK) > 1 && isAir(level, leaf);
 	}
 
-	private static void doClose(Level level, BlockPos bottom, BlockState bs) {
+	static void doClose(Level level, BlockPos bottom, BlockState bs) {
 		if (!canClose(level, bottom, bs)) return;
 		BlockPos leaf = bottom.relative(hingeDir(bs).getOpposite());
 		if (bs.getValue(STACK) == 1 && !isConnected(level, bottom, bs)) {
@@ -190,7 +174,7 @@ public class SlidingDoor implements CreateBlockStateBlockMethod, DefaultStateBlo
 		playSound(level, bottom, false);
 	}
 
-	private static BlockPos bottom(Level level, BlockPos pos) {
+	public static BlockPos bottom(BlockGetter level, BlockPos pos) {
 		return level.getBlockState(pos).getValue(HALF) == Half.BOTTOM ? pos : pos.below();
 	}
 
@@ -207,27 +191,29 @@ public class SlidingDoor implements CreateBlockStateBlockMethod, DefaultStateBlo
 		level.updateNeighborsAt(bottom, old.getBlock());
 	}
 
-	private static boolean isAir(Level level, BlockPos pos) {
+	private static boolean isAir(BlockGetter level, BlockPos pos) {
 		return level.getBlockState(pos).isAir() && level.getBlockState(pos.above()).isAir();
 	}
-	private static boolean isConnected(Level level, BlockPos bottom, BlockState bs) {
+
+	private static boolean isConnected(BlockGetter level, BlockPos bottom, BlockState bs) {
 		return isConnected(level, bottom, bs, hingeDir(bs))
 				|| isConnected(level, bottom, bs, hingeDir(bs).getOpposite());
 	}
 
-	private static boolean isConnected(Level level, BlockPos bottom, BlockState bs, Direction dir) {
+	private static boolean isConnected(BlockGetter level, BlockPos bottom, BlockState bs, Direction dir) {
 		BlockState neighbor = level.getBlockState(bottom.relative(dir));
 		return neighbor.is(bs.getBlock())
 				&& neighbor.getValue(HORIZONTAL_FACING) == bs.getValue(HORIZONTAL_FACING)
 				&& neighbor.getValue(HINGE) == bs.getValue(HINGE);
 	}
+
 	private static void place(Level level, BlockPos bottom, BlockState bs) {
 		BlockState base = bs.setValue(STACK, 1);
 		level.setBlock(bottom, base.setValue(HALF, Half.BOTTOM), 3);
 		level.setBlock(bottom.above(), base.setValue(HALF, Half.TOP), 3);
 	}
 
-	private static Direction hingeDir(BlockState state) {
+	static Direction hingeDir(BlockState state) {
 		var facing = state.getValue(HORIZONTAL_FACING);
 		return state.getValue(HINGE) == DoorHingeSide.LEFT ? facing.getCounterClockWise() : facing.getClockWise();
 	}
@@ -243,105 +229,6 @@ public class SlidingDoor implements CreateBlockStateBlockMethod, DefaultStateBlo
 		Vec3 click = context.getClickLocation().subtract(context.getClickedPos().getCenter());
 		double coord = axis.choose(click.x, click.y, click.z) * left.getAxisDirection().getStep();
 		return coord > 0 ? DoorHingeSide.LEFT : DoorHingeSide.RIGHT;
-	}
-
-	private static final BlockModelBuilder[] BASE = new BlockModelBuilder[MAX];
-	private static final BlockModelBuilder[] BASE_R = new BlockModelBuilder[MAX];
-
-	public static void buildBlockState(DataGenContext<Block, DelegateBlock> ctx, RegistrateBlockstateProvider pvd,
-	                                   ResourceLocation top, ResourceLocation bottom, ResourceLocation side) {
-		pvd.getVariantBuilder(ctx.get()).forAllStates(state -> ConfiguredModel.builder().modelFile(model(ctx, pvd, state, top, bottom, side))
-				.rotationY(((int) (state.getValue(HORIZONTAL_FACING).toYRot() + 180)) % 360).uvLock(false).build());
-	}
-
-	private static BlockModelBuilder model(DataGenContext<Block, DelegateBlock> ctx, RegistrateBlockstateProvider pvd,
-	                                       BlockState state, ResourceLocation top, ResourceLocation bottom, ResourceLocation side) {
-		boolean right = state.getValue(HINGE) == DoorHingeSide.RIGHT;
-		int stack = state.getValue(STACK);
-		boolean topHalf = state.getValue(HALF) == Half.TOP;
-		return pvd.models().getBuilder("block/" + ctx.getName() + (topHalf ? "_top" : "_bottom") + "_s" + stack
-						+ (right ? "_r" : ""))
-				.parent(base(pvd, stack, right))
-				.texture("front", topHalf ? top : bottom)
-				.texture("side", side)
-				.renderType("cutout");
-	}
-
-	private static BlockModelBuilder base(RegistrateBlockstateProvider pvd, int stack, boolean right) {
-		var cache = right ? BASE_R : BASE;
-		if (cache[stack - 1] == null) {
-			cache[stack - 1] = pvd.models().withExistingParent("sliding_door_s" + stack + (right ? "_r" : ""), "block/block");
-			cube(cache[stack - 1], stack + 1, right);
-			cache[stack - 1].texture("particle", "#side");
-		}
-		return cache[stack - 1];
-	}
-
-	private static void cube(ModelBuilder<?> builder, int thickness, boolean right) {
-		var elem = builder.element();
-		elem.from(0, 0, 0).to(16, 16, thickness);
-		if (!right) {
-			elem.face(Direction.NORTH).uvs(16, 0, 0, 16).texture("#front").cullface(Direction.NORTH).end();
-			elem.face(Direction.SOUTH).uvs(0, 0, 16, 16).texture("#front").end();
-			elem.face(Direction.WEST).uvs(0, 0, thickness, 16).texture("#side").end();
-			elem.face(Direction.EAST).uvs(thickness, 0, 0, 16).texture("#side").end();
-			elem.face(Direction.UP).uvs(0, 0, thickness, 16).rotation(ModelBuilder.FaceRotation.CLOCKWISE_90).texture("#side").end();
-			elem.face(Direction.DOWN).uvs(0, 0, thickness, 16).rotation(ModelBuilder.FaceRotation.CLOCKWISE_90).texture("#side").end();
-		} else {
-			elem.face(Direction.NORTH).uvs(0, 0, 16, 16).texture("#front").cullface(Direction.NORTH).end();
-			elem.face(Direction.SOUTH).uvs(16, 0, 0, 16).texture("#front").end();
-			elem.face(Direction.WEST).uvs(thickness, 0, 0, 16).texture("#side").end();
-			elem.face(Direction.EAST).uvs(0, 0, thickness, 16).texture("#side").end();
-			elem.face(Direction.UP).uvs(thickness, 0, 0, 16).rotation(ModelBuilder.FaceRotation.CLOCKWISE_90).texture("#side").end();
-			elem.face(Direction.DOWN).uvs(thickness, 0, 0, 16).rotation(ModelBuilder.FaceRotation.CLOCKWISE_90).texture("#side").end();
-		}
-	}
-
-	public static void genLoot(RegistrateBlockLootTables pvd, DelegateBlock block) {
-		var helper = new LootHelper(pvd);
-		var pool = LootPool.lootPool();
-		for (int i = 1; i <= MAX; i++) {
-			pool.add(helper.item(block.asItem(), i)
-					.when(helper.intState(block, STACK, i))
-					.when(helper.enumState(block, HALF, Half.BOTTOM)));
-		}
-		pvd.add(block, LootTable.lootTable().withPool(pvd.applyExplosionCondition(block, pool)));
-	}
-
-	public static void genItemModel(DataGenContext<Item, BlockItem> ctx, RegistrateItemModelProvider pvd,
-	                                ResourceLocation top, ResourceLocation bottom, ResourceLocation side) {
-		itemBase(pvd);
-		pvd.getBuilder(ctx.getName())
-				.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("item/sliding_door")))
-				.texture("front_top", top)
-				.texture("front_bottom", bottom)
-				.texture("side", side);
-	}
-
-	private static ItemModelBuilder ITEM_BASE;
-
-	private static ItemModelBuilder itemBase(RegistrateItemModelProvider pvd) {
-		if (ITEM_BASE == null) {
-			ITEM_BASE = pvd.getBuilder("sliding_door")
-					.parent(new ModelFile.UncheckedModelFile("gensokyolegacy:custom/double_block_display"))
-					.texture("particle", "#side")
-					.renderType("cutout");
-			panel(ITEM_BASE, 0, 16, "front_bottom", "side");
-			panel(ITEM_BASE, 16, 32, "front_top", "side");
-		}
-		return ITEM_BASE;
-	}
-
-	private static void panel(ModelBuilder<?> builder, int y0, int y1, String front, String side) {
-		var elem = builder.element();
-		elem.from(0, y0, 0).to(16, y1, 2);
-		elem.face(Direction.NORTH).uvs(0, 0, 16, 16).texture("#" + front).end();
-		elem.face(Direction.SOUTH).uvs(0, 0, 16, 16).texture("#" + front).end();
-		elem.face(Direction.WEST).uvs(0, 0, 2, 16).texture("#" + side).end();
-		elem.face(Direction.EAST).uvs(2, 0, 0, 16).texture("#" + side).end();
-		elem.face(Direction.UP).uvs(0, 0, 2, 16).rotation(ModelBuilder.FaceRotation.CLOCKWISE_90).texture("#" + side).end();
-		elem.face(Direction.DOWN).uvs(0, 0, 2, 16).rotation(ModelBuilder.FaceRotation.CLOCKWISE_90).texture("#" + side).end();
-		elem.end();
 	}
 
 }

@@ -1,5 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.ui.trade;
 
+import dev.xkmc.gensokyolegacy.content.entity.module.TalkModule;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.rpg.core.CodecRegistry;
 import dev.xkmc.gensokyolegacy.content.rpg.core.ServerCharacterDialogManager;
@@ -21,7 +22,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public class TradeMenu extends AbstractContainerMenu {
+public class TradeMenu extends AbstractContainerMenu implements TalkModule.ITalkMenu {
 
 	private final SimpleContainer cont = new SimpleContainer(15);
 
@@ -55,9 +56,9 @@ public class TradeMenu extends AbstractContainerMenu {
 		this.character = character;
 		page = addDataSlot(DataSlot.standalone());
 		maxPage = addDataSlot(DataSlot.standalone());
-		bindPlayerInventory(player.getInventory(), 8, 84);
+		bindPlayerInventory(player.getInventory(), 47, 140);
 		for (int i = 0; i < 15; i++) {
-			addSlot(slots[i] = new TradeSlot(cont, i, -1 + i % 5 * 36, 10 + i / 5 * 36));
+			addSlot(slots[i] = new TradeSlot(cont, i, 55 + i % 3 * 32, 44 + i / 3 * 32));
 		}
 		if (player instanceof ServerPlayer)
 			refreshOffers();
@@ -90,7 +91,7 @@ public class TradeMenu extends AbstractContainerMenu {
 			}
 		}
 		for (int k = 0; k < 9; k++) {
-			this.addSlot(new Slot(inv, k, invX + k * 18, invY + 58));
+			this.addSlot(new Slot(inv, k, invX + k * 18, invY + 55));
 		}
 	}
 
@@ -141,6 +142,15 @@ public class TradeMenu extends AbstractContainerMenu {
 
 	public int getMaxPage() {
 		return maxPage.get();
+	}
+
+	public TradeSlot[] getTradeSlots() {
+		return slots;
+	}
+
+	@Override
+	public @Nullable YoukaiEntity getCharacter() {
+		return character;
 	}
 
 }

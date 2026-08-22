@@ -10,8 +10,12 @@ import dev.xkmc.gensokyolegacy.content.rpg.requirement.KillMobRequirement;
 import dev.xkmc.gensokyolegacy.content.rpg.requirement.SubmitItemRequirement;
 import dev.xkmc.gensokyolegacy.content.rpg.reward.ExpReward;
 import dev.xkmc.gensokyolegacy.content.rpg.reward.ReputationReward;
+import dev.xkmc.gensokyolegacy.content.rpg.trade.TradeOffer;
+import dev.xkmc.gensokyolegacy.content.rpg.trade.TradeRecurrence;
+import dev.xkmc.gensokyolegacy.init.registrate.GLBlocks;
 import dev.xkmc.gensokyolegacy.init.registrate.GLEntities;
 import net.minecraft.tags.EntityTypeTags;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.storage.loot.LootTable;
 
@@ -25,6 +29,9 @@ public class ReimuQDGen extends QuestDialogData {
 	public ReimuQDGen() {
 
 		prefix("reimu/chat");
+		defaultDialog(GLEntities.REIMU.get(),
+				"Hi! What brings you to the shrine?",
+				"I'd like to trade with you!");
 		starter("reimu/chat", new DialogStarter(GLEntities.REIMU.get(), List.of(),
 				starterText("start", "Hi!"),
 				dialog("hi", "Hi!", option("bye", "Bye!"))
@@ -61,7 +68,21 @@ public class ReimuQDGen extends QuestDialogData {
 				))
 		));
 
+		prefix("reimu");
+		trade("rotten_flesh", GLEntities.REIMU.get(),
+				new ItemStack(Items.EMERALD),
+				new TradeRecurrence(10, 1200),
+				item(Items.ROTTEN_FLESH, 8));
+		trade("gap_portal", new TradeOffer(GLEntities.REIMU.get(),
+				List.of(new SelfReputationCondition(100)),
+				new ItemStack(GLBlocks.GAP_PORTAL.get()),
+				new TradeRecurrence(1, 6000),
+				List.of(
+						item(Items.EMERALD, 10),
+						item(Items.ENDER_PEARL, 4),
+						item(Items.CRYING_OBSIDIAN, 4))));
 
 	}
+
 
 }

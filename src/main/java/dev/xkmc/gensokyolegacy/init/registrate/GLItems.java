@@ -11,6 +11,7 @@ import dev.xkmc.gensokyolegacy.content.entity.characters.rumia.RumiaModel;
 import dev.xkmc.gensokyolegacy.content.item.character.*;
 import dev.xkmc.gensokyolegacy.content.item.debug.DebugGlasses;
 import dev.xkmc.gensokyolegacy.content.item.debug.DebugWand;
+import dev.xkmc.gensokyolegacy.content.item.debug.DoorDebugItem;
 import dev.xkmc.gensokyolegacy.content.item.debug.StructureWand;
 import dev.xkmc.gensokyolegacy.content.item.ingredient.FairyIceItem;
 import dev.xkmc.gensokyolegacy.content.item.ingredient.FrozenFrogItem;
@@ -57,10 +58,12 @@ public class GLItems {
 	public static final ItemEntry<DebugGlasses> DEBUG_GLASSES;
 	public static final ItemEntry<DebugWand> DEBUG_WAND;
 	public static final ItemEntry<StructureWand> STRUCTURE_WAND;
+	public static final ItemEntry<DoorDebugItem> DOOR_DEBUG_WAND;
 
 	private static final DCReg DC = DCReg.of(GensokyoLegacy.REG);
 	public static final DCVal<MiniFurnace1.Data> DC_FURNACE_1 = DC.reg("mini_furnace_1_data", MiniFurnace1.Data.class, false);
 	public static final DCVal<UUID> DC_UUID = DC.uuid("uuid");
+	public static final DCVal<UUID> DC_DEBUG_YOUKAI = DC.uuid("debug_youkai");
 	public static final DCVal<ResourceLocation> DC_OFFER = DC.loc("offer");
 
 	static {
@@ -122,6 +125,10 @@ public class GLItems {
 				.defaultLang().register();
 
 		STRUCTURE_WAND = reg.item("structure_wand", p -> new StructureWand(p.stacksTo(1)))
+				.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/debug/" + ctx.getName())))
+				.defaultLang().register();
+
+		DOOR_DEBUG_WAND = reg.item("door_debug_wand", p -> new DoorDebugItem(p.stacksTo(1)))
 				.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/debug/" + ctx.getName())))
 				.defaultLang().register();
 		GLBlocks.register();

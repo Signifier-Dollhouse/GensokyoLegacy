@@ -12,17 +12,28 @@ public class CharacterInfoClientManager {
 
 	static long lastTime = 0;
 	static YoukaiEntity lastEntity = null;
+	static boolean lastDoor = false;
 	static CharacterInfoToClient data;
 
 	public static void tooltip(List<Component> lines, long gameTime, YoukaiEntity youkai) {
-		if (lastEntity != youkai) {
+		request(lines, gameTime, youkai, false);
+	}
+
+	public static void doorTooltip(List<Component> lines, long gameTime, YoukaiEntity youkai) {
+		request(lines, gameTime, youkai, true);
+	}
+
+	private static void request(List<Component> lines, long gameTime, YoukaiEntity youkai, boolean door) {
+		if (lastEntity != youkai || lastDoor != door) {
 			lastTime = 0;
 			data = null;
 			lastEntity = youkai;
+			lastDoor = door;
 		}
 		if (gameTime > lastTime + 10) {
 			lastTime = gameTime;
-			InfoUpdateClientManager.requestCharacter(youkai.getUUID());
+			if (door) InfoUpdateClientManager.requestDoor(youkai.getUUID());
+			else InfoUpdateClientManager.requestCharacter(youkai.getUUID());
 		}
 		if (data == null) {
 			lines.add(GLLang.INFO$LOADING.get().withStyle(ChatFormatting.GRAY));

@@ -1,0 +1,15 @@
+{
+  "variants": {
+    "": [
+      {
+        "model": "gensokyolegacy:block/ghost_fire_mushroom_1"
+      },
+      {
+        "model": "gensokyolegacy:block/ghost_fire_mushroom_2"
+      },
+      {
+        "model": "gensokyolegacy:block/ghost_fire_mushroom_3"
+      }
+    ]
+  }
+}

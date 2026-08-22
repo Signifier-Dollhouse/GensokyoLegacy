@@ -3,6 +3,7 @@ package dev.xkmc.gensokyolegacy.init.registrate;
 import dev.xkmc.gensokyolegacy.content.attachment.character.CharacterAttachment;
 import dev.xkmc.gensokyolegacy.content.attachment.datamap.BedData;
 import dev.xkmc.gensokyolegacy.content.attachment.datamap.CharacterConfig;
+import dev.xkmc.gensokyolegacy.content.attachment.datamap.DialogConfig;
 import dev.xkmc.gensokyolegacy.content.attachment.datamap.StructureConfig;
 import dev.xkmc.gensokyolegacy.content.attachment.home.core.StructureAttachment;
 import dev.xkmc.gensokyolegacy.content.attachment.misc.FrogGodCapability;
@@ -47,6 +48,8 @@ public class GLMeta {
 			GensokyoLegacy.REG.dataMap("bed_data", Registries.BLOCK, BedData.class);
 	public static final DataMapReg<EntityType<?>, CharacterConfig> ENTITY_DATA =
 			GensokyoLegacy.REG.dataMap("character_config", Registries.ENTITY_TYPE, CharacterConfig.class);
+	public static final DataMapReg<EntityType<?>, DialogConfig> DIALOG_DATA =
+			GensokyoLegacy.REG.dataMap("default_dialog", Registries.ENTITY_TYPE, DialogConfig.class);
 	public static final DataMapReg<Structure, StructureConfig> STRUCTURE_DATA =
 			GensokyoLegacy.REG.dataMap(DataMapType.builder(GensokyoLegacy.loc("structure_config"),
 					Registries.STRUCTURE, new CodecAdaptor<>(StructureConfig.class)).build());

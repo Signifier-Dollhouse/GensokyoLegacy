@@ -57,7 +57,10 @@ public record TradeOffer(
 		ItemStack stack;
 		if (offer.value().isSellOffer()) {
 			stack = offer.value().result.copy();
-		} else stack = offer.value().ingredients().getFirst().ingredient().getItems()[0].copy();
+		} else {
+			var ing = offer.value().ingredients().getFirst();
+			stack = ing.ingredient().getItems()[0].copyWithCount(ing.count());
+		}
 		return GLItems.DC_OFFER.set(stack, id);
 	}
 
