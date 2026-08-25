@@ -16,15 +16,20 @@
 		"reimu_bed": "博丽灵梦的床",
 		"blue_fir_log": "青杉木",
 		"blue_fir_leaves": "青杉树叶",
+		"blue_fir_sapling": "青杉树苗",
 		"ghost_fire_mushroom": "鬼火菇",
 		"ghost_fire_mushroom_block": "鬼火菇方块",
-		"ghost_fire_mushroom_stem": "鬼火菇柄",
+		"cyan_mushroom_stem": "青色蘑菇柄",
 		"dream_mushroom": "梦华菇",
 		"dream_mushroom_block": "梦华菇方块",
-		"dream_mushroom_stem": "梦华菇柄",
+		"purple_mushroom_stem": "紫色蘑菇柄",
 		"demonic_miasma_mushroom": "妖瘴菇",
 		"demonic_miasma_mushroom_block": "妖瘴菇方块",
-		"demonic_miasma_mushroom_stem": "妖瘴菇柄"
+		"red_mushroom_stem": "红色蘑菇柄",
+		"broom_grass": "扫帚草",
+		"sturdy_teddy_bear": "结实的玩偶熊",
+		"drawer_cabinet": "抽屉橱柜",
+		"door_cabinet": "双门橱柜"
 	},
 	"item.gensokyolegacy": {
 		"frozen_frog_cold": "冻青蛙",

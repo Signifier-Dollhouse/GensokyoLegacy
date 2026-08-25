@@ -1,3 +1,68 @@
 {
-  "parent": "gensokyolegacy:block/ghost_fire_mushroom_1"
+  "ambientocclusion": false,
+  "display": {
+    "fixed": {
+      "rotation": [
+        0,
+        180,
+        0
+      ]
+    },
+    "ground": {
+      "scale": [
+        0.5,
+        0.5,
+        0.5
+      ],
+      "translation": [
+        0,
+        2,
+        0
+      ]
+    },
+    "head": {
+      "rotation": [
+        0,
+        180,
+        0
+      ],
+      "translation": [
+        0,
+        13,
+        7
+      ]
+    }
+  },
+  "elements": [
+    {
+      "faces": {
+        "north": {
+          "texture": "#layer0"
+        },
+        "south": {
+          "texture": "#layer0"
+        }
+      },
+      "from": [
+        0,
+        0,
+        7.5
+      ],
+      "neoforge_data": {
+        "block_light": 15,
+        "sky_light": 15
+      },
+      "shade": false,
+      "to": [
+        16,
+        16,
+        8.5
+      ]
+    }
+  ],
+  "gui_light": "front",
+  "textures": {
+    "layer0": "gensokyolegacy:block/mushroom/ghost_fire_mushroom_1",
+    "particle": "gensokyolegacy:block/mushroom/ghost_fire_mushroom_1"
+  }
 }

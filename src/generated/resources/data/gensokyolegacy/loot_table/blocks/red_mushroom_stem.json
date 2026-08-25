@@ -23,11 +23,11 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "gensokyolegacy:ghost_fire_mushroom_stem"
+          "name": "gensokyolegacy:red_mushroom_stem"
         }
       ],
       "rolls": 1.0
     }
   ],
-  "random_sequence": "gensokyolegacy:blocks/ghost_fire_mushroom_stem"
+  "random_sequence": "gensokyolegacy:blocks/red_mushroom_stem"
 }

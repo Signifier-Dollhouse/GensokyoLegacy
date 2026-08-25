@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "gensokyolegacy:block/sturdy_teddy_bear",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "gensokyolegacy:block/sturdy_teddy_bear"
+    },
+    "facing=south": {
+      "model": "gensokyolegacy:block/sturdy_teddy_bear",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "gensokyolegacy:block/sturdy_teddy_bear",
+      "y": 270
+    }
+  }
+}
