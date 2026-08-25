@@ -1,0 +1,24 @@
+{
+  "values": {
+    "gensokyolegacy:fairy_cake": {
+      "type": "FOOD",
+      "cooldown": 1000,
+      "favor": 3
+    },
+    "gensokyolegacy:magic_book": {
+      "type": "BOOK",
+      "cooldown": 1000,
+      "favor": 6
+    },
+    "gensokyolegacy:teddy_bear": {
+      "type": "TOY",
+      "cooldown": 1000,
+      "favor": 5
+    },
+    "gensokyolegacy:tengu_sake": {
+      "type": "DRINK",
+      "cooldown": 1000,
+      "favor": 5
+    }
+  }
+}

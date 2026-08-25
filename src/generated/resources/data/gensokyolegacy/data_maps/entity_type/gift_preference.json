@@ -1,0 +1,19 @@
+{
+  "values": {
+    "gensokyolegacy:cirno": {
+      "override": {},
+      "preference": {
+        "BOOK": 0.5,
+        "FOOD": 1.5,
+        "TOY": 2.0
+      }
+    },
+    "gensokyolegacy:hakurei_reimu": {
+      "override": {},
+      "preference": {
+        "BOOK": 1.5,
+        "DRINK": 2.0
+      }
+    }
+  }
+}
