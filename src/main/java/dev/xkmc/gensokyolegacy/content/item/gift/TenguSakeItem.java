@@ -9,10 +9,7 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.ItemUtils;
-import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.item.UseAnim;
+import net.minecraft.world.item.*;
 import net.minecraft.world.level.Level;
 
 import java.util.List;
@@ -21,10 +18,10 @@ import java.util.List;
  * Tengu sake — a strong drink that can be given to characters (GiftType.DRINK)
  * or drunk by the player for a temporary boost.
  */
-public class TenguSakeItem extends AbstractGift {
+public class TenguSakeItem extends Item {
 
 	public TenguSakeItem(Properties properties) {
-		super(properties.stacksTo(1), GiftType.DRINK, 5);
+		super(properties.stacksTo(1));
 	}
 
 	@Override

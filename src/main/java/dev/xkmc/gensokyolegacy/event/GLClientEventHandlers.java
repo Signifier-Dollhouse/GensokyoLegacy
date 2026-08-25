@@ -4,7 +4,10 @@ import dev.xkmc.gensokyolegacy.content.client.deco.DowserRenderer;
 import dev.xkmc.gensokyolegacy.content.client.deco.FurnaceItemDeco;
 import dev.xkmc.gensokyolegacy.content.client.structure.StructureOutlineRenderer;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
+import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.gensokyolegacy.init.registrate.GLEffects;
+import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.world.entity.player.Inventory;
@@ -15,9 +18,20 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
+import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
 
 @EventBusSubscriber(value = Dist.CLIENT, modid = GensokyoLegacy.MODID)
 public class GLClientEventHandlers {
+
+	@SubscribeEvent
+	public static void tooltip(ItemTooltipEvent event) {
+		var level = Minecraft.getInstance().level;
+		if (level == null) return;
+		var data = GLMeta.GIFT_DATA.get(level.registryAccess(), event.getItemStack().getItemHolder());
+		if (data == null) return;
+		event.getToolTip().add(GLLang.ITEM$GIFT_FAVOR.get(data.favor()).withStyle(ChatFormatting.GOLD));
+		event.getToolTip().add(GLLang.ITEM$GIFT_TYPE.get(data.type().getDisplay()).withStyle(ChatFormatting.GRAY));
+	}
 
 	@SubscribeEvent
 	public static void renderStageEvent(RenderLevelStageEvent event) {

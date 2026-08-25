@@ -18,11 +18,15 @@ import dev.xkmc.gensokyolegacy.content.entity.misc.FrozenFrog;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.BossYoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.GeneralYoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.GeneralYoukaiRenderer;
+import dev.xkmc.gensokyolegacy.content.item.gift.GiftPreference;
+import dev.xkmc.gensokyolegacy.content.item.gift.GiftType;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.loot.EntityLootGen;
 import net.minecraft.client.renderer.entity.ThrownItemRenderer;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.item.CreativeModeTabs;
+
+import java.util.Map;
 
 public class GLEntities {
 
@@ -38,7 +42,7 @@ public class GLEntities {
 	public static final EntityEntry<GeneralYoukaiEntity> MYSTIA;
 	public static final EntityEntry<BossYoukaiEntity> YUKARI, KOISHI;
 	public static final EntityEntry<FairyEntity> SUNNY, LUNA, STAR;
-    public static final EntityEntry<DollEntity> DOLL;
+	public static final EntityEntry<DollEntity> DOLL;
 
 	public static final EntityEntry<FrozenFrog> FROZEN_FROG;
 	public static final EntityEntry<FairyIce> FAIRY_ICE;
@@ -71,6 +75,10 @@ public class GLEntities {
 					.renderer(() -> ReimuRenderer::new)
 					.spawnEgg(0xa93937, 0xfaf5f2).build()
 					.loot(EntityLootGen::reimu)
+					.dataMap(GLMeta.GIFT_PREFERENCE.reg(), GiftPreference.of(Map.of(
+							GiftType.DRINK, 2.0,
+							GiftType.BOOK, 1.5
+					)))
 					.register();
 
 			CIRNO = GensokyoLegacy.REGISTRATE
@@ -80,6 +88,11 @@ public class GLEntities {
 					.renderer(() -> CirnoRenderer::new)
 					.spawnEgg(0x5676af, 0xb6ecf1).build()
 					.loot(EntityLootGen::noLoot)
+					.dataMap(GLMeta.GIFT_PREFERENCE.reg(), GiftPreference.of(Map.of(
+							GiftType.TOY, 2.0,
+							GiftType.FOOD, 1.5,
+							GiftType.BOOK, 0.5
+					)))
 					.register();
 		}
 
@@ -166,15 +179,15 @@ public class GLEntities {
 					.register();
 		}
 
-        {
-            DOLL = GensokyoLegacy.REGISTRATE
-                    .entity("doll", DollEntity::new, MobCategory.MISC)
-                    .properties(e -> e.sized(0.4F, 1.2F).clientTrackingRange(10))
-                    .attributes(DollEntity::createAttributes)
-                    .renderer(() -> DollRenderer::new)
-                    .spawnEgg(0xFFFFFF, 0x000000).build()
-                    .register();
-        }
+		{
+			DOLL = GensokyoLegacy.REGISTRATE
+					.entity("doll", DollEntity::new, MobCategory.MISC)
+					.properties(e -> e.sized(0.4F, 1.2F).clientTrackingRange(10))
+					.attributes(DollEntity::createAttributes)
+					.renderer(() -> DollRenderer::new)
+					.spawnEgg(0xFFFFFF, 0x000000).build()
+					.register();
+		}
 
 		{
 

@@ -3,8 +3,8 @@ package dev.xkmc.gensokyolegacy.content.entity.module;
 import dev.xkmc.gensokyolegacy.content.attachment.character.CharacterData;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiFlags;
-import dev.xkmc.gensokyolegacy.content.item.gift.AbstractGift;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
+import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
 import dev.xkmc.l2serial.serialization.marker.SerialClass;
 import dev.xkmc.l2serial.serialization.marker.SerialField;
 import net.minecraft.core.particles.ParticleTypes;
@@ -18,7 +18,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
 /**
- * Handles giving {@link AbstractGift} items to a character. Runs before
+ * Handles giving gift items to a character. Runs before
  * {@link FeedModule} so gift items take priority over being fed as food.
  */
 @SerialClass
@@ -41,9 +41,10 @@ public class GiftModule extends AbstractYoukaiModule {
 	public InteractionResult interact(Player player, InteractionHand hand) {
 		if (!self.mayInteract(player)) return InteractionResult.PASS;
 		ItemStack stack = player.getItemInHand(hand);
-		if (!(stack.getItem() instanceof AbstractGift gift)) return InteractionResult.PASS;
+		var giftData = GLMeta.GIFT_DATA.get(player.registryAccess(), stack.getItemHolder());
+		if (giftData == null) return InteractionResult.PASS;
 		if (giftCoolDown > 0) return InteractionResult.PASS;
-		int favor = gift.getFavor(self);
+		int favor = giftData.getFavor(stack, self);
 		if (favor <= 0) return InteractionResult.PASS;
 		if (!(player instanceof ServerPlayer sp)) {
 			return InteractionResult.SUCCESS;
@@ -52,7 +53,7 @@ public class GiftModule extends AbstractYoukaiModule {
 		if (data.isEmpty()) return InteractionResult.PASS;
 		data.get().gain(favor, CharacterData.MAX);
 		stack.shrink(1);
-		giftCoolDown += gift.getGiftCooldown();
+		giftCoolDown += giftData.cooldown();
 		self.setFlag(YoukaiFlags.GIFTED, true);
 		self.level().broadcastEntityEvent(self, EntityEvent.IN_LOVE_HEARTS);
 		self.playSound(SoundEvents.PLAYER_LEVELUP, 0.8F, 1.2F);

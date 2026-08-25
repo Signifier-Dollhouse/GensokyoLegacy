@@ -8,6 +8,8 @@ import dev.xkmc.gensokyolegacy.content.attachment.datamap.StructureConfig;
 import dev.xkmc.gensokyolegacy.content.attachment.home.core.StructureAttachment;
 import dev.xkmc.gensokyolegacy.content.attachment.misc.FrogGodCapability;
 import dev.xkmc.gensokyolegacy.content.attachment.misc.KoishiAttackCapability;
+import dev.xkmc.gensokyolegacy.content.item.gift.GiftItemData;
+import dev.xkmc.gensokyolegacy.content.item.gift.GiftPreference;
 import dev.xkmc.gensokyolegacy.content.rpg.quest.QuestAttachment;
 import dev.xkmc.gensokyolegacy.content.rpg.trade.TradeAttachment;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
@@ -21,6 +23,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.animal.frog.Frog;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
@@ -53,6 +56,10 @@ public class GLMeta {
 	public static final DataMapReg<Structure, StructureConfig> STRUCTURE_DATA =
 			GensokyoLegacy.REG.dataMap(DataMapType.builder(GensokyoLegacy.loc("structure_config"),
 					Registries.STRUCTURE, new CodecAdaptor<>(StructureConfig.class)).build());
+	public static final DataMapReg<EntityType<?>, GiftPreference> GIFT_PREFERENCE =
+			GensokyoLegacy.REG.dataMap("gift_preference", Registries.ENTITY_TYPE, GiftPreference.class);
+	public static final DataMapReg<Item, GiftItemData> GIFT_DATA =
+			GensokyoLegacy.REG.dataMap("gift_data", Registries.ITEM, GiftItemData.class);
 
 	public static void register() {
 		new CodecHandler<>(BoundingBox.class, BoundingBox.CODEC, ByteBufCodecs.fromCodecWithRegistries(BoundingBox.CODEC));

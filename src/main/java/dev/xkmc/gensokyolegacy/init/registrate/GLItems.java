@@ -13,10 +13,7 @@ import dev.xkmc.gensokyolegacy.content.item.debug.DebugGlasses;
 import dev.xkmc.gensokyolegacy.content.item.debug.DebugWand;
 import dev.xkmc.gensokyolegacy.content.item.debug.DoorDebugItem;
 import dev.xkmc.gensokyolegacy.content.item.debug.StructureWand;
-import dev.xkmc.gensokyolegacy.content.item.gift.FairyCakeItem;
-import dev.xkmc.gensokyolegacy.content.item.gift.MagicBookItem;
-import dev.xkmc.gensokyolegacy.content.item.gift.TeddyBear;
-import dev.xkmc.gensokyolegacy.content.item.gift.TenguSakeItem;
+import dev.xkmc.gensokyolegacy.content.item.gift.*;
 import dev.xkmc.gensokyolegacy.content.item.ingredient.FairyIceItem;
 import dev.xkmc.gensokyolegacy.content.item.ingredient.FrozenFrogItem;
 import dev.xkmc.gensokyolegacy.content.item.tool.*;
@@ -29,10 +26,7 @@ import dev.xkmc.l2core.init.reg.simple.DCVal;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.entity.animal.FrogVariant;
-import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.CreativeModeTabs;
-import net.minecraft.world.item.DyeColor;
-import net.minecraft.world.item.Rarity;
+import net.minecraft.world.item.*;
 
 import java.util.UUID;
 
@@ -59,7 +53,7 @@ public class GLItems {
 	public static final ItemEntry<MermaidPearl> MERMAID_PEARL;
 	public static final ItemEntry<CatBell> CAT_BELL;
 
-	public static final ItemEntry<TeddyBear> TEDDY_BEAR;
+	public static final ItemEntry<Item> TEDDY_BEAR;
 	public static final ItemEntry<TenguSakeItem> TENGU_SAKE;
 	public static final ItemEntry<FairyCakeItem> FAIRY_CAKE;
 	public static final ItemEntry<MagicBookItem> MAGIC_BOOK;
@@ -126,24 +120,25 @@ public class GLItems {
 
 		// gifts
 		{
-			TEDDY_BEAR = reg.item("teddy_bear", p -> new TeddyBear(p.stacksTo(1)))
+			TEDDY_BEAR = reg.item("teddy_bear", Item::new).properties(p -> p.stacksTo(1).rarity(Rarity.RARE))
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
-					.tab(TAB.key())
+					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(5, 1000, GiftType.TOY)).tab(TAB.key())
 					.lang("Teddy Bear").register();
 
 			TENGU_SAKE = reg.item("tengu_sake", TenguSakeItem::new)
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
-					.tab(TAB.key())
+					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(5, 1000, GiftType.DRINK)).tab(TAB.key())
 					.lang("Tengu Sake").register();
 
 			FAIRY_CAKE = reg.item("fairy_cake", FairyCakeItem::new)
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
+					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(3, 1000, GiftType.FOOD))
 					.tab(TAB.key())
 					.lang("Fairy Cake").register();
 
 			MAGIC_BOOK = reg.item("magic_book", MagicBookItem::new)
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
-					.tab(TAB.key())
+					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(6, 1000, GiftType.BOOK)).tab(TAB.key())
 					.lang("Obscure Magic Book").register();
 		}
 
