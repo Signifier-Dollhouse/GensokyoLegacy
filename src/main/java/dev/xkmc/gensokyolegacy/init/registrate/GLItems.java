@@ -55,7 +55,6 @@ public class GLItems {
 	public static final ItemEntry<MermaidPearl> MERMAID_PEARL;
 	public static final ItemEntry<CatBell> CAT_BELL;
 
-	public static final ItemEntry<Item> TEDDY_BEAR;
 	public static final ItemEntry<TenguSakeItem> TENGU_SAKE;
 	public static final ItemEntry<FairyCakeItem> FAIRY_CAKE;
 	public static final ItemEntry<MagicBookItem> MAGIC_BOOK;
@@ -122,11 +121,6 @@ public class GLItems {
 
 		// gifts
 		{
-			TEDDY_BEAR = reg.item("teddy_bear", Item::new).properties(p -> p.stacksTo(1).rarity(Rarity.RARE))
-					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
-					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(5, 1000, GiftType.TOY)).tab(TAB.key())
-					.lang("Teddy Bear").register();
-
 			TENGU_SAKE = reg.item("tengu_sake", TenguSakeItem::new)
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
 					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(5, 1000, GiftType.DRINK)).tab(TAB.key())

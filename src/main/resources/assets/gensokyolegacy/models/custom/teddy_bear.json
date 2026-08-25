@@ -4,8 +4,8 @@
 	"parent": "block/block",
 	"texture_size": [64, 64],
 	"textures": {
-		"0": "gensokyolegacy:block/misc/sturdy_teddy_bear",
-		"particle": "gensokyolegacy:block/misc/sturdy_teddy_bear"
+		"0": "gensokyolegacy:block/misc/teddy_bear",
+		"particle": "gensokyolegacy:block/misc/teddy_bear"
 	},
 	"elements": [
 		{

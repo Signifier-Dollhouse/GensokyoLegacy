@@ -11,11 +11,11 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "gensokyolegacy:sturdy_teddy_bear"
+          "name": "gensokyolegacy:teddy_bear"
         }
       ],
       "rolls": 1.0
     }
   ],
-  "random_sequence": "gensokyolegacy:blocks/sturdy_teddy_bear"
+  "random_sequence": "gensokyolegacy:blocks/teddy_bear"
 }

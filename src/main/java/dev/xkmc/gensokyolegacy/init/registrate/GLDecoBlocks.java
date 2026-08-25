@@ -15,6 +15,8 @@ import dev.xkmc.gensokyolegacy.content.block.door.SlidingDoorJsons;
 import dev.xkmc.gensokyolegacy.content.block.misc.TatamiBlock;
 import dev.xkmc.gensokyolegacy.content.block.seat.CushionBlock;
 import dev.xkmc.gensokyolegacy.content.block.seat.WoodChairBlock;
+import dev.xkmc.gensokyolegacy.content.item.gift.GiftItemData;
+import dev.xkmc.gensokyolegacy.content.item.gift.GiftType;
 import dev.xkmc.gensokyolegacy.content.worldgen.feature.MushroomFeatures.MushroomTreeType;
 import dev.xkmc.gensokyolegacy.content.worldgen.feature.TreeFeatures.TreeType;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
@@ -43,6 +45,7 @@ import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.*;
@@ -159,7 +162,7 @@ public class GLDecoBlocks {
 
 	public static final StoneAndBrickSet DARKSTONE;
 
-	public static final BlockEntry<DelegateBlock> TATAMI, TATAMI_BLOCK, STURDY_TEDDY_BEAR;
+	public static final BlockEntry<DelegateBlock> TATAMI, TATAMI_BLOCK, TEDDY_BEAR;
 
 	public static final TreeSet BLUE_FUR_SET;
 
@@ -206,15 +209,20 @@ public class GLDecoBlocks {
 					.register();
 		}
 
-		STURDY_TEDDY_BEAR = reg.block("sturdy_teddy_bear",
+		TEDDY_BEAR = reg.block("teddy_bear",
 						p -> DelegateBlock.newBaseBlock(p, BlockTemplates.HORIZONTAL))
 				.initialProperties(() -> Blocks.WHITE_WOOL)
 				.properties(p -> p.noOcclusion().strength(0.8F))
 				.blockstate((ctx, pvd) -> pvd.horizontalBlock(ctx.get(),
 						pvd.models().getBuilder("block/" + ctx.getName())
-								.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/sturdy_teddy_bear")))
+								.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/teddy_bear")))
 								.renderType("cutout")))
-				.simpleItem()
+				.item()
+				.properties(p -> p.stacksTo(1).rarity(Rarity.RARE))
+				.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
+				.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(5, 1000, GiftType.TOY))
+				.tab(ResourceKey.create(Registries.CREATIVE_MODE_TAB, GensokyoLegacy.loc("ingredients")))
+				.build()
 				.register();
 
 		for (var e : WoodType.values()) {
