@@ -6,6 +6,9 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.control.FlyingMoveControl;
+import net.minecraft.world.entity.ai.navigation.FlyingPathNavigation;
+import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import software.bernie.geckolib.animatable.GeoEntity;
@@ -29,22 +32,31 @@ public abstract class BaseDollEntity extends PathfinderMob implements GeoEntity 
 
     public BaseDollEntity(EntityType<? extends BaseDollEntity> pEntityType, Level pLevel) {
         super(pEntityType, pLevel);
-        this.setNoGravity(true);
-        this.noPhysics = true;
         Random LEFTIE_ROLLER = new Random();
         this.isLeftie = LEFTIE_ROLLER.nextBoolean();
+        this.moveControl = new FlyingMoveControl(this, 10, true);
+    }
+
+    @Override
+    protected PathNavigation createNavigation(Level level) {
+        FlyingPathNavigation nav = new FlyingPathNavigation(this, level);
+        nav.setCanOpenDoors(true);
+        nav.setCanPassDoors(true);
+        nav.setCanFloat(true);
+        return nav;
     }
 
     public static AttributeSupplier.Builder createAttributes() {
         return PathfinderMob.createMobAttributes()
                 .add(Attributes.MAX_HEALTH, 20)
-                .add(Attributes.FOLLOW_RANGE, 48);
+                .add(Attributes.FOLLOW_RANGE, 48)
+                .add(Attributes.FLYING_SPEED, 0.8);
     }
 
     @Override
     protected void registerGoals() {
         super.registerGoals();
-        this.goalSelector.addGoal(1, new FollowDollOwnerGoal(this, 0.3f, 5.0f));
+        this.goalSelector.addGoal(1, new FollowDollOwnerGoal(this, 1.0f, 2.0f));
     }
 
     public void setOwner(Player owner) {
@@ -62,7 +74,6 @@ public abstract class BaseDollEntity extends PathfinderMob implements GeoEntity 
     public void readAdditionalSaveData(CompoundTag compound) {
         super.readAdditionalSaveData(compound);
         this.setNoGravity(true);
-        this.noPhysics = true;
         if (compound.hasUUID("OwnerUUID")) {
             this.ownerUUID = compound.getUUID("OwnerUUID");
         }

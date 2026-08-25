@@ -18,51 +18,56 @@ public class FollowDollOwnerGoal extends Goal {
         this.stopDistance = stopDistance;
     }
 
+    private Vec3 getPosBehindOwner() {
+        return this.owner.getEyePosition().add(this.owner.getLookAngle().scale(-3.0));
+    }
+
+    private boolean teleportToOwnerPos(Vec3 destination) {
+        if (!this.doll.level().dimension().equals(this.owner.level().dimension())) {
+            ServerLevel targetLevel = this.doll.level().getServer().getLevel(this.owner.level().dimension());
+            if (targetLevel != null){
+                this.doll.teleportTo(targetLevel, destination.x, destination.y, destination.z, java.util.Set.of(), this.doll.getYRot(), this.doll.getXRot());
+            }
+            return true;
+        }
+        double dx = destination.x - this.doll.getX();
+        double dy = destination.y - this.doll.getY();
+        double dz = destination.z - this.doll.getZ();
+        double distanceSq = dx * dx + dy * dy + dz * dz;
+        if (distanceSq > 144) {
+            this.doll.teleportTo(destination.x, destination.y, destination.z);
+            return true;
+        }
+        return false;
+    }
+
     @Override
     public boolean canUse() {
         this.owner = this.doll.getOwnerPlayerObject();
         if (this.owner == null) return false;
-        Vec3 targetPos = this.owner.getEyePosition().add(this.owner.getLookAngle().scale(-1.0));
-        double distanceSqr = this.doll.distanceToSqr(targetPos);
-        if (distanceSqr <= this.stopDistance * this.stopDistance) {
-            return false;
-        }
-        return true;
+        return this.doll.distanceToSqr(this.getPosBehindOwner()) > this.stopDistance * this.stopDistance;
+    }
+
+    @Override
+    public void start() {
+        Vec3 targetPos = this.getPosBehindOwner();
+        this.doll.getNavigation().moveTo(targetPos.x, targetPos.y, targetPos.z, this.speedModifier);
     }
 
     @Override
     public void tick() {
         if (this.doll.level().isClientSide) return;
-        if (this.owner == null) return;
-        Vec3 targetPos = this.owner.getEyePosition().add(this.owner.getLookAngle().scale(-1.0));
-
-        if (!this.doll.level().dimension().equals(this.owner.level().dimension())) {
-            ServerLevel targetLevel = this.doll.level().getServer().getLevel(this.owner.level().dimension());
-            if (targetLevel != null){
-                this.doll.teleportTo(targetLevel, targetPos.x, targetPos.y, targetPos.z, java.util.Set.of(), this.doll.getYRot(), this.doll.getXRot());
-            }
+        Vec3 targetPos = this.getPosBehindOwner();
+        if (this.teleportToOwnerPos(targetPos)) {
             return;
         }
-        double dx = targetPos.x - this.doll.getX();
-        double dy = targetPos.y - this.doll.getY();
-        double dz = targetPos.z - this.doll.getZ();
-        double distanceSq = dx * dx + dy * dy + dz * dz;
-        if (distanceSq > 256) {
-            this.doll.teleportTo(targetPos.x, targetPos.y, targetPos.z);
-            return;
-        }
-        if (distanceSq == 0) return;
-        double distance = Math.sqrt(distanceSq);
-        this.doll.setDeltaMovement(
-                (dx / distance) * this.speedModifier,
-                (dy / distance) * this.speedModifier,
-                (dz / distance) * this.speedModifier
-        );
-        this.doll.lookAt(this.owner, 30.0F, 30.0F);
+        this.doll.getNavigation().moveTo(targetPos.x, targetPos.y, targetPos.z, this.speedModifier);
+        this.doll.getLookControl().setLookAt(this.owner, 30.0F, 30.0F);
     }
 
     @Override
     public void stop() {
-        this.doll.setDeltaMovement(0, 0, 0);
+        this.doll.getNavigation().stop();
+        System.out.println("stopping goal");
     }
 }
