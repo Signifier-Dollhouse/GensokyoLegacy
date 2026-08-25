@@ -169,7 +169,7 @@ public class GLEntities {
         {
             DOLL = GensokyoLegacy.REGISTRATE
                     .entity("doll", DollEntity::new, MobCategory.MISC)
-                    .properties(e -> e.sized(0.4F, 1.2F).clientTrackingRange(10))
+                    .properties(e -> e.sized(0.4F, 0.9F).clientTrackingRange(10))
                     .attributes(DollEntity::createAttributes)
                     .renderer(() -> DollRenderer::new)
                     .spawnEgg(0xFFFFFF, 0x000000).build()

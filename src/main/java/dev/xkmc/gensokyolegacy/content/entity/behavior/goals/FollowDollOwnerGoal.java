@@ -1,4 +1,4 @@
-package dev.xkmc.gensokyolegacy.content.entity.dolls.goals;
+package dev.xkmc.gensokyolegacy.content.entity.behavior.goals;
 
 import dev.xkmc.gensokyolegacy.content.entity.dolls.BaseDollEntity;
 import net.minecraft.server.level.ServerLevel;
@@ -8,18 +8,17 @@ import net.minecraft.world.phys.Vec3;
 
 public class FollowDollOwnerGoal extends Goal {
     private final BaseDollEntity doll;
-    private final double speedModifier;
-    private final float stopDistance;
     private Player owner;
+    private int timeToRecalcPath;
 
-    public FollowDollOwnerGoal(BaseDollEntity doll, double speedModifier, float stopDistance) {
+    public FollowDollOwnerGoal(BaseDollEntity doll) {
         this.doll = doll;
-        this.speedModifier = speedModifier;
-        this.stopDistance = stopDistance;
     }
 
     private Vec3 getPosBehindOwner() {
-        return this.owner.getEyePosition().add(this.owner.getLookAngle().scale(-3.0));
+        Vec3 base = this.owner.getEyePosition().add(this.owner.getLookAngle().scale(3.0));
+        double minY = this.owner.getY() + 0.8;
+        return new Vec3(base.x, Math.max(base.y, minY), base.z);
     }
 
     private boolean teleportToOwnerPos(Vec3 destination) {
@@ -45,13 +44,14 @@ public class FollowDollOwnerGoal extends Goal {
     public boolean canUse() {
         this.owner = this.doll.getOwnerPlayerObject();
         if (this.owner == null) return false;
-        return this.doll.distanceToSqr(this.getPosBehindOwner()) > this.stopDistance * this.stopDistance;
+        return this.doll.distanceToSqr(this.getPosBehindOwner()) > this.doll.stopDistance * this.doll.stopDistance;
     }
 
     @Override
     public void start() {
+        this.timeToRecalcPath = 0;
         Vec3 targetPos = this.getPosBehindOwner();
-        this.doll.getNavigation().moveTo(targetPos.x, targetPos.y, targetPos.z, this.speedModifier);
+        this.doll.getNavigation().moveTo(targetPos.x, targetPos.y, targetPos.z, this.doll.speedModifier);
     }
 
     @Override
@@ -61,13 +61,14 @@ public class FollowDollOwnerGoal extends Goal {
         if (this.teleportToOwnerPos(targetPos)) {
             return;
         }
-        this.doll.getNavigation().moveTo(targetPos.x, targetPos.y, targetPos.z, this.speedModifier);
-        this.doll.getLookControl().setLookAt(this.owner, 30.0F, 30.0F);
+        if (--this.timeToRecalcPath <= 0) {
+            this.timeToRecalcPath = this.adjustedTickDelay(10);
+            this.doll.getNavigation().moveTo(targetPos.x, targetPos.y, targetPos.z, this.doll.speedModifier);
+        }
     }
 
     @Override
     public void stop() {
         this.doll.getNavigation().stop();
-        System.out.println("stopping goal");
     }
 }
