@@ -15,7 +15,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.common.util.FakePlayer;
 
-public class ChairEntity extends SimplifiedEntity {
+public class ChairEntity extends SimplifiedEntity implements SeatableEntity {
 
 	public ChairEntity(EntityType<?> type, Level level) {
 		super(type, level);

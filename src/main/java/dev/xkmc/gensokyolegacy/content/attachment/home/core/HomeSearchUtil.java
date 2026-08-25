@@ -1,19 +1,22 @@
 package dev.xkmc.gensokyolegacy.content.attachment.home.core;
 
 import dev.xkmc.gensokyolegacy.content.block.cabinet.CabinetBlockEntity;
+import dev.xkmc.gensokyolegacy.content.block.seat.ChairEntity;
+import dev.xkmc.gensokyolegacy.content.block.seat.SeatableBlock;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.ai.util.LandRandomPos;
 import net.minecraft.world.entity.ai.util.RandomPos;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.StairBlock;
 import net.minecraft.world.level.block.entity.BarrelBlockEntity;
 import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
 import net.minecraft.world.level.block.entity.ChestBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
@@ -34,8 +37,7 @@ public class HomeSearchUtil {
 	}
 
 	public static boolean isValidChair(ServerLevel sl, BlockPos pos) {
-		return sl.getBlockState(pos).getBlock() instanceof StairBlock;
-		//sl.getBlockState(pos).getBlock() instanceof WoodChairBlock; TODO chair handling
+		return sl.getBlockState(pos).getBlock() instanceof SeatableBlock;
 	}
 
 	public static void put(ServerLevel level, BlockPos chest, Function<Boolean, ItemStack> doCraft) {
@@ -53,22 +55,21 @@ public class HomeSearchUtil {
 
 	public static void setSitting(ServerLevel level, BlockPos pos, YoukaiEntity entity) {
 		BlockState state = level.getBlockState(pos);
-        /* TODO chair handling
-        if (state.getBlock() instanceof WoodChairBlock) {
-            List<ChairEntity> seats = level.getEntitiesOfClass(ChairEntity.class, new AABB(pos));
-            if (seats.isEmpty()) {
-                WoodChairBlock.sitDown(level, pos, entity);
-            } else {
-                var seat = seats.getFirst();
-                var e = seat.getPassengers();
-                if (!e.isEmpty()) {
-                    if (e.getFirst() instanceof Player) return;
-                    if (e.getFirst() instanceof YoukaiEntity) return;
-                }
-                seat.ejectPassengers();
-                entity.startRiding(seat);
-            }
-        }*/
+		if (state.getBlock() instanceof SeatableBlock block) {
+			List<ChairEntity> seats = level.getEntitiesOfClass(ChairEntity.class, new AABB(pos));
+			if (seats.isEmpty()) {
+				block.sitDown(level, pos, entity);
+			} else {
+				var seat = seats.getFirst();
+				var e = seat.getPassengers();
+				if (!e.isEmpty()) {
+					if (e.getFirst() instanceof Player) return;
+					if (e.getFirst() instanceof YoukaiEntity) return;
+				}
+				seat.ejectPassengers();
+				entity.startRiding(seat);
+			}
+		}
 	}
 
 	@Nullable

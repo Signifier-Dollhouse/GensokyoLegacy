@@ -22,11 +22,6 @@ public class MagicBookItem extends Item {
 	}
 
 	@Override
-	public int getBurnTime(ItemStack stack, @Nullable RecipeType<?> recipeType) {
-		return 40000; // roughly two lava buckets (2 * 20000)
-	}
-
-	@Override
 	public void appendHoverText(ItemStack stack, TooltipContext level, List<Component> list, TooltipFlag flag) {
 		super.appendHoverText(stack, level, list, flag);
 		list.add(GLLang.ITEM$USAGE_MAGIC_BOOK.get().withStyle(ChatFormatting.GRAY));

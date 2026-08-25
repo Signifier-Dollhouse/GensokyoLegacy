@@ -72,7 +72,7 @@ public class VerticalSlabBlock extends HorizontalLoggedBlock {
 
 	@Override
 	protected MapCodec<? extends HorizontalDirectionalBlock> codec() {
-		return null;//TODO
+		return null;
 	}
 
 	private static void cube(ModelBuilder<?> builder) {

@@ -27,6 +27,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.entity.animal.FrogVariant;
 import net.minecraft.world.item.*;
+import net.neoforged.neoforge.registries.datamaps.builtin.FurnaceFuel;
+import net.neoforged.neoforge.registries.datamaps.builtin.NeoForgeDataMaps;
 
 import java.util.UUID;
 
@@ -138,7 +140,9 @@ public class GLItems {
 
 			MAGIC_BOOK = reg.item("magic_book", MagicBookItem::new)
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
-					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(6, 1000, GiftType.BOOK)).tab(TAB.key())
+					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(6, 1000, GiftType.BOOK))
+					.dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(40000))
+					.tab(TAB.key())
 					.lang("Obscure Magic Book").register();
 		}
 
