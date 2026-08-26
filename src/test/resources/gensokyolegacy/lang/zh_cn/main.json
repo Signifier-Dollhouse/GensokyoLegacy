@@ -94,6 +94,14 @@
 		"command": {
 			"success": "指令执行成功",
 			"invalid_role": "错误：非法身份ID"
+		},
+		"umbrella": {
+			"wheel_target": "目标位置",
+			"wheel_distance": "传送距离",
+			"wheel_edit": "编辑位置",
+			"manage_title": "管理传送点",
+			"manage_rename": "重命名",
+			"manage_delete": "删除"
 		}
 	},
 	"death.attack": {

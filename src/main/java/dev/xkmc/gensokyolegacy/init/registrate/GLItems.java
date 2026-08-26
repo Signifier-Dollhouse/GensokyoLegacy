@@ -17,12 +17,19 @@ import dev.xkmc.gensokyolegacy.content.item.gift.*;
 import dev.xkmc.gensokyolegacy.content.item.ingredient.FairyIceItem;
 import dev.xkmc.gensokyolegacy.content.item.ingredient.FrozenFrogItem;
 import dev.xkmc.gensokyolegacy.content.item.tool.*;
+import dev.xkmc.gensokyolegacy.content.item.umbrella.BorderUmbrellaItem;
+import dev.xkmc.gensokyolegacy.content.item.umbrella.data.BorderUmbrellaMode;
+import dev.xkmc.gensokyolegacy.content.item.umbrella.data.BorderUmbrellaSlots;
+import dev.xkmc.gensokyolegacy.content.item.umbrella.data.BorderUmbrellaTravelData;
+import dev.xkmc.gensokyolegacy.content.item.umbrella.data.BorderUmbrellaUnlock;
 import dev.xkmc.gensokyolegacy.content.spell.item.*;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.GLTagGen;
 import dev.xkmc.l2core.init.reg.registrate.SimpleEntry;
 import dev.xkmc.l2core.init.reg.simple.DCReg;
 import dev.xkmc.l2core.init.reg.simple.DCVal;
+import dev.xkmc.l2core.init.reg.simple.EnumCodec;
+import dev.xkmc.l2itemselector.init.data.L2ISTagGen;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.entity.animal.FrogVariant;
@@ -65,11 +72,19 @@ public class GLItems {
 	public static final ItemEntry<StructureWand> STRUCTURE_WAND;
 	public static final ItemEntry<DoorDebugItem> DOOR_DEBUG_WAND;
 
+	public static final ItemEntry<BorderUmbrellaItem> BORDER_UMBRELLA;
+
 	private static final DCReg DC = DCReg.of(GensokyoLegacy.REG);
 	public static final DCVal<MiniFurnace1.Data> DC_FURNACE_1 = DC.reg("mini_furnace_1_data", MiniFurnace1.Data.class, false);
 	public static final DCVal<UUID> DC_UUID = DC.uuid("uuid");
 	public static final DCVal<UUID> DC_DEBUG_YOUKAI = DC.uuid("debug_youkai");
 	public static final DCVal<ResourceLocation> DC_OFFER = DC.loc("offer");
+	public static final DCVal<BorderUmbrellaSlots> UMBRELLA_SLOTS = DC.reg("border_umbrella_slots", BorderUmbrellaSlots.class, false);
+	public static final DCVal<Integer> UMBRELLA_SLOT_SELECTED = DC.intVal("border_umbrella_slot_selected");
+	public static final DCVal<BorderUmbrellaMode> UMBRELLA_TYPE = DC.enumVal("border_umbrella_type", EnumCodec.of(BorderUmbrellaMode.class, BorderUmbrellaMode.values()));
+	public static final DCVal<BorderUmbrellaUnlock> UMBRELLA_UNLOCK = DC.reg("border_umbrella_unlock", BorderUmbrellaUnlock.class, false);
+	public static final DCVal<BorderUmbrellaTravelData> UMBRELLA_TRAVEL = DC.reg("border_umbrella_travel", BorderUmbrellaTravelData.class, false);
+	public static final DCVal<Integer> UMBRELLA_DISTANCE = DC.intVal("border_umbrella_distance");
 
 	static {
 		var reg = GensokyoLegacy.REGISTRATE;
@@ -162,6 +177,12 @@ public class GLItems {
 		DOOR_DEBUG_WAND = reg.item("door_debug_wand", p -> new DoorDebugItem(p.stacksTo(1)))
 				.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/debug/" + ctx.getName())))
 				.defaultLang().register();
+
+		BORDER_UMBRELLA = reg.item("border_umbrella", BorderUmbrellaItem::new)
+				.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/tool/" + ctx.getName())))
+				.lang("Border Umbrella").tab(TAB.key(), BorderUmbrellaItem::fillCreativeModeTab)
+				.tag(L2ISTagGen.SELECTABLE)
+				.register();
 		GLBlocks.register();
 
 		reg.defaultCreativeTab(CreativeModeTabs.OP_BLOCKS);
