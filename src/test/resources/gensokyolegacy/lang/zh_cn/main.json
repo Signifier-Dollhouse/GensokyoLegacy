@@ -61,7 +61,15 @@
 			"gift_type": "类型: %s",
 			"usage_tengu_sake": "饮用后获得短暂的增益。",
 			"usage_fairy_cake": "美味的蛋糕。食用恢复饥饿值。",
-			"usage_magic_book": "可以作为燃料使用。"
+			"usage_magic_book": "可以作为燃料使用。",
+			"umbrella_wheel": "按住 %s 打开轮盘",
+			"umbrella_distance": "距离: %s 格",
+			"umbrella_unlocked_travel": "旅行已解锁",
+			"umbrella_unlocked_capture": "捕捉已解锁",
+			"umbrella_desc_record": "对着方块右键来记录位置",
+			"umbrella_desc_waypoint": "右键传送至选中位置",
+			"umbrella_desc_travel": "长按右键来向前传送",
+			"umbrella_desc_capture": "右键实体将其传送至选中位置"
 		},
 		"gift": {
 			"type": {
@@ -94,6 +102,14 @@
 		"command": {
 			"success": "指令执行成功",
 			"invalid_role": "错误：非法身份ID"
+		},
+		"umbrella": {
+			"wheel_target": "目标位置",
+			"wheel_distance": "传送距离",
+			"wheel_edit": "编辑位置",
+			"manage_title": "管理传送点",
+			"manage_rename": "重命名",
+			"manage_delete": "删除"
 		}
 	},
 	"death.attack": {

@@ -12,6 +12,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
+import net.neoforged.neoforge.common.Tags;
 
 public class GLTagGen {
 
@@ -34,6 +35,8 @@ public class GLTagGen {
 	public static final TagKey<EntityType<?>> CREEPER_SOURCE = entity("drops_creeper_head");
 	public static final TagKey<EntityType<?>> PIGLIN_SOURCE = entity("drops_piglin_head");
 
+	public static final TagKey<EntityType<?>> UMBRELLA_CAPTURE_BLACKLIST = entity("umbrella_capture_blacklist");
+
 
 	public static void onBlockTagGen(RegistrateTagsProvider.IntrinsicImpl<Block> pvd) {
 		GLStructureTagGen.genBlockTag(pvd);
@@ -54,6 +57,8 @@ public class GLTagGen {
 		pvd.addTag(PIGLIN_SOURCE).add(EntityType.PIGLIN, EntityType.PIGLIN_BRUTE);
 
 		pvd.addTag(YOUKAI_IGNORE).add(EntityType.ENDER_DRAGON);
+
+		pvd.addTag(UMBRELLA_CAPTURE_BLACKLIST).addTag(Tags.EntityTypes.BOSSES).add(EntityType.WARDEN);
 	}
 
 	public static TagKey<Item> item(String id) {

@@ -20,6 +20,13 @@ import dev.xkmc.gensokyolegacy.content.entity.foundation.CombatToClient;
 import dev.xkmc.gensokyolegacy.content.item.character.TouhouMat;
 import dev.xkmc.gensokyolegacy.content.item.tool.CatBell;
 import dev.xkmc.gensokyolegacy.content.item.tool.Dowser;
+import dev.xkmc.gensokyolegacy.content.item.umbrella.BorderUmbrellaAnvilHandler;
+import dev.xkmc.gensokyolegacy.content.item.umbrella.BorderUmbrellaSelectionListener;
+import dev.xkmc.gensokyolegacy.content.item.umbrella.network.BorderUmbrellaDeletePacket;
+import dev.xkmc.gensokyolegacy.content.item.umbrella.network.BorderUmbrellaOpenRenamePacket;
+import dev.xkmc.gensokyolegacy.content.item.umbrella.network.BorderUmbrellaRenamePacket;
+import dev.xkmc.gensokyolegacy.content.item.umbrella.network.BorderUmbrellaReorderPacket;
+import dev.xkmc.gensokyolegacy.content.item.umbrella.network.BorderUmbrellaSelectPacket;
 import dev.xkmc.gensokyolegacy.content.rpg.core.CodecRegistry;
 import dev.xkmc.gensokyolegacy.content.rpg.network.QuestStatusToClient;
 import dev.xkmc.gensokyolegacy.content.rpg.network.TradeStatusToClient;
@@ -86,7 +93,13 @@ public class GensokyoLegacy {
 			e -> e.create(Dowser.DowserToClient.class, PacketHandler.NetDir.PLAY_TO_CLIENT),
 			e -> e.create(CatBell.MountToClient.class, PacketHandler.NetDir.PLAY_TO_CLIENT),
 			e -> e.create(QuestStatusToClient.class, PacketHandler.NetDir.PLAY_TO_CLIENT),
-			e -> e.create(TradeStatusToClient.class, PacketHandler.NetDir.PLAY_TO_CLIENT)
+			e -> e.create(TradeStatusToClient.class, PacketHandler.NetDir.PLAY_TO_CLIENT),
+
+			e -> e.create(BorderUmbrellaSelectPacket.class, PacketHandler.NetDir.PLAY_TO_SERVER),
+			e -> e.create(BorderUmbrellaRenamePacket.class, PacketHandler.NetDir.PLAY_TO_SERVER),
+			e -> e.create(BorderUmbrellaDeletePacket.class, PacketHandler.NetDir.PLAY_TO_SERVER),
+			e -> e.create(BorderUmbrellaReorderPacket.class, PacketHandler.NetDir.PLAY_TO_SERVER),
+			e -> e.create(BorderUmbrellaOpenRenamePacket.class, PacketHandler.NetDir.PLAY_TO_CLIENT)
 	);
 
 	public GensokyoLegacy() {
@@ -116,6 +129,8 @@ public class GensokyoLegacy {
 		if (ModList.get().isLoaded(TouhouLittleMaid.MOD_ID)) {
 			NeoForge.EVENT_BUS.register(TLMCompat.class);
 		}
+		BorderUmbrellaSelectionListener.register();
+		NeoForge.EVENT_BUS.register(BorderUmbrellaAnvilHandler.class);
 	}
 
 	@SubscribeEvent
