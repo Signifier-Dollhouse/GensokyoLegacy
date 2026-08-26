@@ -5,6 +5,7 @@ import dev.xkmc.l2itemselector.wheel.DefaultKeyHandler;
 import dev.xkmc.l2itemselector.wheel.WheelAdaptor;
 import dev.xkmc.l2itemselector.wheel.WheelContext;
 import dev.xkmc.l2itemselector.wheel.WheelHandler;
+import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.player.Player;
 
 /**
@@ -19,9 +20,9 @@ public class UmbrellaWheelKeyHandler extends DefaultKeyHandler.Fast {
 		if (action == ActionCode.SWITCH) {
 			int target = WheelHandler.wheelIndex + ctx.code().switcher();
 			if (target == 2) {
-				// open full manage screen for any stored positions, like requested fake wheel
 				WheelHandler.disableWheel(player);
-				BorderUmbrellaManageScreen.open();
+				Minecraft.getInstance().mouseHandler.releaseMouse();
+				BorderUmbrellaManageScreen.openViaWheel();
 				return;
 			}
 		}

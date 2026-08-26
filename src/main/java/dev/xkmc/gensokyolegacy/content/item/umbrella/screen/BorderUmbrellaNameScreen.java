@@ -28,6 +28,15 @@ public class BorderUmbrellaNameScreen extends Screen {
 	}
 
 	@Override
+	protected void setInitialFocus() {
+		if (editBox != null) {
+			setInitialFocus(editBox);
+			return;
+		}
+		super.setInitialFocus();
+	}
+
+	@Override
 	protected void init() {
 		int w = 200;
 		int h = 20;
@@ -36,6 +45,7 @@ public class BorderUmbrellaNameScreen extends Screen {
 		editBox = new EditBox(font, x, y, w, h, Component.literal("name"));
 		editBox.setMaxLength(32);
 		editBox.setValue(initialName);
+		editBox.setCanLoseFocus(false);
 		addRenderableWidget(editBox);
 		addRenderableWidget(Button.builder(Component.translatable("gui.done"), b -> onDone())
 				.bounds(x, y + 30, w / 2 - 5, 20).build());
@@ -72,6 +82,17 @@ public class BorderUmbrellaNameScreen extends Screen {
 			onClose();
 			return true;
 		}
+		if (editBox != null && (editBox.keyPressed(key, scan, mod) || editBox.canConsumeInput())) {
+			return true;
+		}
 		return super.keyPressed(key, scan, mod);
+	}
+
+	@Override
+	public boolean charTyped(char codePoint, int modifiers) {
+		if (editBox != null && editBox.canConsumeInput()) {
+			return editBox.charTyped(codePoint, modifiers);
+		}
+		return super.charTyped(codePoint, modifiers);
 	}
 }

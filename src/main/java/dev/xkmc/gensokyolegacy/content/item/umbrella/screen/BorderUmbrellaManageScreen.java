@@ -24,6 +24,10 @@ public class BorderUmbrellaManageScreen extends Screen {
 	private static final int ROW_HEIGHT = 20;
 	private static final int ROWS = BorderUmbrellaSlots.MAX_SLOTS;
 
+	// mouse cache for wheel → screen transition, mirrors GolemWheelHandler.press
+	private static boolean viaWheelCache = false;
+	private boolean suppressNextClick = false;
+
 	private int editingIndex = -1;
 	private EditBox editBox;
 	private Button saveButton;
@@ -38,6 +42,11 @@ public class BorderUmbrellaManageScreen extends Screen {
 		mc.setScreen(new BorderUmbrellaManageScreen());
 	}
 
+	public static void openViaWheel() {
+		viaWheelCache = true;
+		open();
+	}
+
 	private ItemStack getHeld() {
 		var player = Minecraft.getInstance().player;
 		if (player == null) return null;
@@ -50,18 +59,52 @@ public class BorderUmbrellaManageScreen extends Screen {
 	}
 
 	@Override
+	protected void setInitialFocus() {
+		if (editingIndex >= 0 && editBox != null) {
+			setInitialFocus(editBox);
+			return;
+		}
+		super.setInitialFocus();
+	}
+
+	@Override
+	public boolean mouseClicked(double mx, double my, int button) {
+		// mouse cache like GolemWheelHandler.press — consume the wheel side click that opened this screen
+		if (viaWheelCache) {
+			viaWheelCache = false;
+			suppressNextClick = true; // also suppress the following mouseReleased
+			return true;
+		}
+		if (suppressNextClick) {
+			suppressNextClick = false;
+			return true;
+		}
+		return super.mouseClicked(mx, my, button);
+	}
+
+	@Override
+	public boolean mouseReleased(double mx, double my, int button) {
+		if (suppressNextClick) {
+			suppressNextClick = false;
+			return true;
+		}
+		return super.mouseReleased(mx, my, button);
+	}
+
+	@Override
 	protected void init() {
 		clearWidgets();
+		// handle mouse cache from wheel open
+		if (viaWheelCache) {
+			// keep viaWheelCache for first mouseClicked, but also ensure EditBox will be focused
+			// don't clear here, let mouseClicked consume it
+		}
 		int centerX = width / 2;
 		int startY = 30;
 		int panelLeft = centerX - PANEL_WIDTH / 2;
 
-		// Done button at bottom
-		addRenderableWidget(Button.builder(Component.translatable("gui.done"), b -> onClose())
-				.bounds(centerX - 50, startY + ROWS * (ROW_HEIGHT + 2) + 10, 100, 20).build());
-
 		if (editingIndex >= 0) {
-			// editing overlay
+			// editing overlay — editBox must be first widget for setInitialFocus tab navigation
 			int ew = 200;
 			int eh = 20;
 			int ex = centerX - ew / 2;
@@ -75,7 +118,8 @@ public class BorderUmbrellaManageScreen extends Screen {
 			editBox = new EditBox(font, ex, ey, ew, eh, Component.literal("name"));
 			editBox.setMaxLength(32);
 			editBox.setValue(cur);
-			editBox.setFocused(true);
+			editBox.setCanLoseFocus(false);
+			editBox.setBordered(true);
 			addRenderableWidget(editBox);
 			saveButton = Button.builder(Component.translatable("gui.done"), b -> onSaveEdit())
 					.bounds(ex, ey + 30, ew / 2 - 5, 20).build();
@@ -84,8 +128,13 @@ public class BorderUmbrellaManageScreen extends Screen {
 			addRenderableWidget(saveButton);
 			addRenderableWidget(cancelButton);
 			setInitialFocus(editBox);
+			editBox.setFocused(true);
 			return;
 		}
+
+		// Done button at bottom
+		addRenderableWidget(Button.builder(Component.translatable("gui.done"), b -> onClose())
+				.bounds(centerX - 50, startY + ROWS * (ROW_HEIGHT + 2) + 10, 100, 20).build());
 
 		// row buttons
 		for (int i = 0; i < ROWS; i++) {
@@ -127,6 +176,7 @@ public class BorderUmbrellaManageScreen extends Screen {
 
 	private void startEdit(int idx) {
 		editingIndex = idx;
+		suppressNextClick = true; // cache mouse that clicked Edit button, like GolemWheelHandler.press
 		rebuildWidgets();
 	}
 
@@ -232,7 +282,7 @@ public class BorderUmbrellaManageScreen extends Screen {
 
 	@Override
 	public boolean keyPressed(int key, int scan, int mod) {
-		if (editingIndex >= 0) {
+		if (editingIndex >= 0 && editBox != null) {
 			if (key == 257 || key == 335) { // enter
 				onSaveEdit();
 				return true;
@@ -241,8 +291,20 @@ public class BorderUmbrellaManageScreen extends Screen {
 				cancelEdit();
 				return true;
 			}
+			// route to editBox like AnvilScreen does
+			if (editBox.keyPressed(key, scan, mod) || editBox.canConsumeInput()) {
+				return true;
+			}
 		}
 		return super.keyPressed(key, scan, mod);
+	}
+
+	@Override
+	public boolean charTyped(char codePoint, int modifiers) {
+		if (editingIndex >= 0 && editBox != null && editBox.canConsumeInput()) {
+			return editBox.charTyped(codePoint, modifiers);
+		}
+		return super.charTyped(codePoint, modifiers);
 	}
 
 	@Override
