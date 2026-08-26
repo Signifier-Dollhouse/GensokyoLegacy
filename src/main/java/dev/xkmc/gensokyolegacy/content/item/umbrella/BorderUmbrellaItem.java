@@ -59,22 +59,35 @@ public class BorderUmbrellaItem extends Item {
 	@Override
 	public void appendHoverText(ItemStack stack, TooltipContext ctx, List<Component> list, TooltipFlag flag) {
 		var mode = stack.getOrDefault(GLItems.UMBRELLA_TYPE.get(), BorderUmbrellaMode.RECORD);
-		var selected = GLItems.UMBRELLA_SLOT_SELECTED.getOrDefault(stack, 0);
-		var slot = getSelectedSlotData(stack);
 		var unlock = GLItems.UMBRELLA_UNLOCK.getOrDefault(stack, BorderUmbrellaUnlock.DEFAULT);
 		list.add(GLLang.ITEM$UMBRELLA_MODE.get(mode.displayName()).withStyle(ChatFormatting.GRAY));
-		list.add(GLLang.ITEM$UMBRELLA_SLOT.get(String.valueOf(selected)).withStyle(ChatFormatting.GRAY));
-		if (!slot.isEmptySlot()) {
-			list.add(Component.literal(" -> ").append(slot.displayName()).withStyle(ChatFormatting.YELLOW));
-		} else {
-			list.add(GLLang.ITEM$UMBRELLA_SLOT_EMPTY.get());
+		if (mode == BorderUmbrellaMode.RECORD || mode == BorderUmbrellaMode.WAYPOINT || mode == BorderUmbrellaMode.CAPTURE) {
+			var selected = GLItems.UMBRELLA_SLOT_SELECTED.getOrDefault(stack, 0);
+			var slot = getSelectedSlotData(stack);
+			list.add(GLLang.ITEM$UMBRELLA_SLOT.get(String.valueOf(selected)).withStyle(ChatFormatting.GRAY));
+			if (!slot.isEmptySlot()) {
+				list.add(Component.literal(" -> ").append(slot.displayName()).withStyle(ChatFormatting.YELLOW));
+			} else {
+				list.add(GLLang.ITEM$UMBRELLA_SLOT_EMPTY.get());
+			}
+		} else if (mode == BorderUmbrellaMode.TRAVEL) {
+			int dist = stack.getOrDefault(GLItems.UMBRELLA_DISTANCE.get(), 1000);
+			list.add(GLLang.ITEM$UMBRELLA_DISTANCE.get(String.valueOf(dist)).withStyle(ChatFormatting.GRAY));
 		}
-		if (!unlock.travelUnlocked()) {
-			list.add(GLLang.ITEM$UMBRELLA_LOCKED_TRAVEL.get());
+		list.add(GLLang.ITEM$UMBRELLA_WHEEL.get(dev.xkmc.l2itemselector.init.data.L2Keys.WHEEL.map.getDisplayName()).withStyle(ChatFormatting.GRAY));
+		if (unlock.travelUnlocked()) {
+			list.add(GLLang.ITEM$UMBRELLA_UNLOCKED_TRAVEL.get());
 		}
-		if (!unlock.captureUnlocked()) {
-			list.add(GLLang.ITEM$UMBRELLA_LOCKED_CAPTURE.get());
+		if (unlock.captureUnlocked()) {
+			list.add(GLLang.ITEM$UMBRELLA_UNLOCKED_CAPTURE.get());
 		}
+		Component desc = switch (mode) {
+			case RECORD -> GLLang.ITEM$UMBRELLA_DESC_RECORD.get();
+			case WAYPOINT -> GLLang.ITEM$UMBRELLA_DESC_WAYPOINT.get();
+			case TRAVEL -> GLLang.ITEM$UMBRELLA_DESC_TRAVEL.get();
+			case CAPTURE -> GLLang.ITEM$UMBRELLA_DESC_CAPTURE.get();
+		};
+		list.add(desc);
 	}
 
 	@Override
