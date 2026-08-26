@@ -1,8 +1,7 @@
 package dev.xkmc.gensokyolegacy.content.item.umbrella.screen;
 
-import dev.xkmc.gensokyolegacy.content.item.umbrella.BorderUmbrellaItem;
 import dev.xkmc.gensokyolegacy.content.item.umbrella.BorderUmbrellaSelectionListener;
-import dev.xkmc.gensokyolegacy.content.item.umbrella.data.BorderSlot;
+import dev.xkmc.gensokyolegacy.content.item.umbrella.UmbrellaUtil;
 import dev.xkmc.gensokyolegacy.content.item.umbrella.data.BorderUmbrellaSlots;
 import dev.xkmc.gensokyolegacy.content.item.umbrella.network.BorderUmbrellaDeletePacket;
 import dev.xkmc.gensokyolegacy.content.item.umbrella.network.BorderUmbrellaRenamePacket;
@@ -195,7 +194,7 @@ public class BorderUmbrellaManageScreen extends Screen {
 			var slot = getSlots(held).get(editingIndex);
 			if (!slot.isEmptySlot()) {
 				// optimistic client update
-				BorderUmbrellaItem.renameSlot(held, editingIndex, name);
+				UmbrellaUtil.renameSlot(held, editingIndex, name);
 				GensokyoLegacy.HANDLER.toServer(new BorderUmbrellaRenamePacket(editingIndex, name));
 			}
 		}
@@ -208,7 +207,7 @@ public class BorderUmbrellaManageScreen extends Screen {
 		if (held == null) return;
 		var slot = getSlots(held).get(idx);
 		if (slot.isEmptySlot()) return;
-		BorderUmbrellaItem.deleteSlot(held, idx);
+		UmbrellaUtil.deleteSlot(held, idx);
 		GensokyoLegacy.HANDLER.toServer(new BorderUmbrellaDeletePacket(idx));
 		rebuildWidgets();
 	}
@@ -217,7 +216,7 @@ public class BorderUmbrellaManageScreen extends Screen {
 		if (from < 0 || from >= ROWS || to < 0 || to >= ROWS) return;
 		ItemStack held = getHeld();
 		if (held == null) return;
-		BorderUmbrellaItem.swapSlots(held, from, to);
+		UmbrellaUtil.swapSlots(held, from, to);
 		GensokyoLegacy.HANDLER.toServer(new BorderUmbrellaReorderPacket(from, to));
 		rebuildWidgets();
 	}

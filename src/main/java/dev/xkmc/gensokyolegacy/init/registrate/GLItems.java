@@ -133,6 +133,12 @@ public class GLItems {
 			CAT_BELL = reg.item("cat_bell", CatBell::new)
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/tool/" + ctx.getName())))
 					.lang("Cat Bell").register();
+
+			BORDER_UMBRELLA = reg.item("border_umbrella", BorderUmbrellaItem::new)
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/tool/" + ctx.getName())))
+					.lang("Border Umbrella").tab(TAB.key(), BorderUmbrellaItem::fillCreativeModeTab)
+					.tag(L2ISTagGen.SELECTABLE)
+					.register();
 		}
 
 		// gifts
@@ -178,11 +184,6 @@ public class GLItems {
 				.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/debug/" + ctx.getName())))
 				.defaultLang().register();
 
-		BORDER_UMBRELLA = reg.item("border_umbrella", BorderUmbrellaItem::new)
-				.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/tool/" + ctx.getName())))
-				.lang("Border Umbrella").tab(TAB.key(), BorderUmbrellaItem::fillCreativeModeTab)
-				.tag(L2ISTagGen.SELECTABLE)
-				.register();
 		GLBlocks.register();
 
 		reg.defaultCreativeTab(CreativeModeTabs.OP_BLOCKS);

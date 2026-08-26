@@ -106,10 +106,10 @@ public enum GLLang {
 	ITEM$UMBRELLA_DISTANCE("Distance: %s blocks", 1, ChatFormatting.GRAY),
 	ITEM$UMBRELLA_UNLOCKED_TRAVEL("Travel unlocked", 0, ChatFormatting.GREEN),
 	ITEM$UMBRELLA_UNLOCKED_CAPTURE("Capture unlocked", 0, ChatFormatting.GREEN),
-	ITEM$UMBRELLA_DESC_RECORD("Right-click block or use to record position", 0, ChatFormatting.GRAY),
-	ITEM$UMBRELLA_DESC_WAYPOINT("Use to teleport to selected position", 0, ChatFormatting.GRAY),
+	ITEM$UMBRELLA_DESC_RECORD("Right-click block to record position", 0, ChatFormatting.GRAY),
+	ITEM$UMBRELLA_DESC_WAYPOINT("Right-click to teleport to selected position", 0, ChatFormatting.GRAY),
 	ITEM$UMBRELLA_DESC_TRAVEL("Hold use to charge and travel forward", 0, ChatFormatting.GRAY),
-	ITEM$UMBRELLA_DESC_CAPTURE("Interact with entity to teleport it to position", 0, ChatFormatting.GRAY),
+	ITEM$UMBRELLA_DESC_CAPTURE("Interact with entity to teleport it to selected position", 0, ChatFormatting.GRAY),
 
 	UMBRELLA$MODE_RECORD("Record"),
 	UMBRELLA$MODE_WAYPOINT("Waypoint"),

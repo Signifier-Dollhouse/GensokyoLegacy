@@ -66,10 +66,10 @@
 			"umbrella_distance": "距离: %s 格",
 			"umbrella_unlocked_travel": "旅行已解锁",
 			"umbrella_unlocked_capture": "捕捉已解锁",
-			"umbrella_desc_record": "对着方块右键或使用来记录位置",
-			"umbrella_desc_waypoint": "使用来传送至已记录位置",
-			"umbrella_desc_travel": "长按使用来向前传送",
-			"umbrella_desc_capture": "与实体交互来将其传送至位置"
+			"umbrella_desc_record": "对着方块右键来记录位置",
+			"umbrella_desc_waypoint": "右键传送至选中位置",
+			"umbrella_desc_travel": "长按右键来向前传送",
+			"umbrella_desc_capture": "右键实体将其传送至选中位置"
 		},
 		"gift": {
 			"type": {
