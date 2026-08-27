@@ -57,11 +57,10 @@ public class LevelAreaAttachment extends GeneralCapabilityTemplate<Level, LevelA
 		for (UUID id : toRemove) {
 			AreaEffectEntry entry = byId.remove(id);
 			if (entry == null) continue;
-			// tracking cleanup and sync to tracking players (now held by entry)
 			for (ServerPlayer p : entry.getTrackingPlayers()) {
 				AreaEffectManager.notifyRemoveToPlayer(level, p, id);
 			}
-			entry.getTrackingPlayers().clear();
+			entry.getTrackingCounts().clear();
 			// pending entries with dead UUID will be skipped on flush via byId.containsKey
 		}
 	}

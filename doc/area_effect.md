@@ -474,18 +474,20 @@ This aligns `ChunkEffectAttachment.effectIds` / `pending` chunk-granular indexin
 
 ### 12.2 Server State
 
-Reuse `LevelAreaAttachment.byId:110` as authoritative map (`Map<UUID,AreaEffectEntry>`). Each `AreaEffectEntry:11` holds its own transient tracking set:
+Reuse `LevelAreaAttachment.byId:110` as authoritative map (`Map<UUID,AreaEffectEntry>`). Each `AreaEffectEntry:11` holds its own transient **counter** per player (fixes untrack-any-chunk bug):
 
 ```java
 // in AreaEffectEntry.java (not @SerialField → not serialized, not sent to client)
-private final Set<ServerPlayer> trackingPlayers = new HashSet<>();
-public Set<ServerPlayer> getTrackingPlayers() { return trackingPlayers; }
+private final Map<ServerPlayer, Integer> trackingCounts = new HashMap<>();
+public Set<ServerPlayer> getTrackingPlayers() { return trackingCounts.keySet(); }
+public Map<ServerPlayer,Integer> getTrackingCounts() { return trackingCounts; }
+public boolean incrementTracking(ServerPlayer p) { int c=trackingCounts.getOrDefault(p,0)+1; trackingCounts.put(p,c); return c==1; } // first chunk
+public boolean decrementTracking(ServerPlayer p) { Integer c=trackingCounts.get(p); if(c==null) return false; if(c<=1){trackingCounts.remove(p); return true;} trackingCounts.put(p,c-1); return false; } // last chunk
+public void sync() { for(ServerPlayer p: trackingCounts.keySet()) AreaEffectSyncPacket.sendUpdate(p,this); }
 ```
 
-* `entry.getTrackingPlayers()` = players that currently track **at least one** chunk of `range.contains(chunkPos)` for that entry and have been sent the effect. Empty set means no tracking player currently needs it.
-* This keeps tracking co-located with the entry (as requested) instead of a separate `LevelAreaAttachment` map; lifecycle matches `byId` entry.
-
-Per-entry set is transient; rebuilt on demand after restart (no player tracks until they re-track chunks).
+* `trackingCounts.get(p)` = number of chunks of this effect’s `range` that `p` currently tracks. `>0` means `p` should see the effect.
+* Per-entry map keeps tracking co-located with entry (as requested); transient, rebuilt after restart via `TRACK` events.
 
 ### 12.3 When a Player Tracks an Effect
 
@@ -495,40 +497,39 @@ Triggers — only `track`/`untrack` for player status per your note (no `PlayerL
 
 *In this design `WATCH` = `track`*: NeoForge `ChunkWatchEvent.Watch` (player starts tracking chunk `C`) / `ChunkWatchEvent.UnWatch` (player stops tracking `C`). Renamed to `TRACK`/`UNTRACK` below. `WATCH` was just the NeoForge event name for `track`.
 
-1. **Effect lifecycle** — `ADD / UPDATE / REMOVE` via `AreaEffectManager` (`range` immutable; range change = `REMOVE` + `ADD` only):
-   * Compute `Set<ServerPlayer> players = union of chunk trackers for all chunks in range` (via `chunkMap.getPlayers(cpos,false)`; `pending` not needed — `byId` range check suffices):
+1. **Effect lifecycle** — `ADD / UPDATE / REMOVE` via `AreaEffectManager` (`range` immutable; `UPDATE` via `entry.sync()`):
+   * `ADD`: iterate all players in level, count tracked chunks in range per player — **cheap** via `player.getChunkTrackingView().contains(x,z)` (`O(1)` view check), not expensive `chunkMap.getPlayers(ChunkPos)` per chunk:
      ```
-     Set<ServerPlayer> players = new HashSet<>();
-     for (ChunkPos cpos : entry.range.stream()) players.addAll(getTrackingPlayers(level, cpos));
+     for (ServerPlayer player : level.players()) {
+         int count=0;
+         for (int x=range.minCX(); x<=range.maxCX(); x++)
+           for (int z=range.minCZ(); z<=range.maxCZ(); z++)
+             if (player.getChunkTrackingView().contains(x, z)) count++;
+         if (count>0) {
+             entry.getTrackingCounts().put(player, count);
+             AreaEffectSyncPacket.sendAdd(player, entry);
+         }
+     }
      ```
-     For `ADD`: `entry.getTrackingPlayers().addAll(players)`, send `EffectSyncPacket{ADD, entry}` to each.
-     For `UPDATE` (data-only, range unchanged — per your constraint): send `Action.UPDATE` to `entry.getTrackingPlayers()` (no recompute of tracker set).
-     For `REMOVE`: send `Action.REMOVE {uuid}` to `removed.getTrackingPlayers()` then clear (via `byId.remove`).
+     Counts initialize the per-entry counter to the number of overlapping tracked chunks.
+     For `UPDATE` (data-only, range unchanged — per your constraint): `entry.sync()` sends `UPDATE` to `entry.getTrackingPlayers()` (no recompute).
+     For `REMOVE`: iterate `removed.getTrackingPlayers()` (from entry), send `REMOVE`, then `getTrackingCounts().clear()`.
 
-2. **Player chunk tracking** — `TRACK`/`UNTRACK` only (iterate **affecting data for `C` only**, not all `M` on level):
+2. **Player chunk tracking** — `TRACK`/`UNTRACK` only, `O(k)` via `AreaChunkHolder` (affecting data for `C` only, not all `M`):
    * `TRACK chunk C by player P` (`ChunkWatchEvent.Watch`):
      ```
-     var holder = AreaChunkHolder.of(level, C); // nullable per 11.2, via GLMeta.CHUNK_EFFECT.type().getOrCreate
+     var holder = AreaChunkHolder.of(level, C); // nullable, via GLMeta.CHUNK_EFFECT.type().getOrCreate
      if (holder == null) return;
-     for (AreaEffectEntry entry : holder.getAffecting()) { // O(k), k=effects for this chunk (0-3), not O(M)
-         if (entry.getTrackingPlayers().add(P)) HANDLER.toClientPlayer(new EffectSyncPacket(ADD, entry), P);
+     for (AreaEffectEntry entry : holder.getAffecting()) { // O(k), k=effects for this chunk (0-3)
+         if (entry.incrementTracking(P)) HANDLER.toClientPlayer(new EffectSyncPacket(ADD, entry), P);
      }
      ```
    * `UNTRACK chunk C by player P` (`ChunkWatchEvent.UnWatch`):
      ```
      var holder = AreaChunkHolder.of(level, C);
      if (holder == null) return;
-     for (UUID id : new HashSet<>(holder.attachment().getEffectIds())) { // copy to avoid CME, O(k)
-         AreaEffectEntry entry = levelAtt.get(id);
-         if (entry == null) continue;
-         boolean stillTracks = false;
-         for (ChunkPos other : entry.range.stream()) {
-             if (other.equals(C)) continue;
-             if (isPlayerTracking(level, P, other)) { stillTracks = true; break; }
-         }
-         if (!stillTracks && entry.getTrackingPlayers().remove(P)) {
-             HANDLER.toClientPlayer(new EffectSyncPacket(REMOVE, entry.id), P);
-         }
+     for (AreaEffectEntry entry : holder.getAffecting()) {
+         if (entry.decrementTracking(P)) HANDLER.toClientPlayer(new EffectSyncPacket(REMOVE, entry.id), P);
      }
      ```
      `UNTRACK` is the `untrack` event you specified — handles logout/dimension change implicitly (those trigger `UNTRACK` for all their chunks), so no separate `PlayerLoggedOut` handling needed.
@@ -579,8 +580,8 @@ Used for rendering/fog/particles/sound. No per-tick cache needed on client beyon
 
 **Server CPU:**
 
-* `ADD/REMOVE`: `O(N * T_chunk)` where `N≤289` (`R≤8`) and `T_chunk` = avg trackers per chunk (1-3). `UPDATE` is `O(T)` via `entry.sync()` (data-only, range immutable). No pending scan.
-* `TRACK`/`UNTRACK`: `O(k)` per tracked chunk where `k=effectsForThisChunk` (via `AreaChunkHolder:12` `holder.getAffecting()` / `holder.attachment().getEffectIds()`, typically 0-3) — not `O(M)`. Login burst 100 chunks → ~100*`k` checks, not `M*chunks`. `UNTRACK` still needs `O(N)` (`N≤289`) per affected effect to test `stillTracks` via `isPlayerTracking`, but `k` small so trivial.
+* `ADD`: `O(P * N)` where `P=players`, `N≤289` (`R≤8`), each check `player.getChunkTrackingView().contains(x,z)` `O(1)` cheap (not expensive `chunkMap.getPlayers`). `REMOVE` `O(T)` via `entry.getTrackingPlayers()` keyset, `UPDATE` `O(T)` via `entry.sync()`. No pending scan.
+* `TRACK`/`UNTRACK`: `O(k)` per tracked chunk where `k=effectsForThisChunk` (via `AreaChunkHolder` `holder.getAffecting()` typically 0-3) — not `O(M)`. Login burst 100 chunks → ~100*`k` checks. Counter `incrementTracking`/`decrementTracking` makes `UNTRACK` `O(1)` per effect (no `stillTracks` `O(N)` scan).
 
 **Server memory:**
 

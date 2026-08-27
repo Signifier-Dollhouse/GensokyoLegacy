@@ -5,7 +5,8 @@ import dev.xkmc.l2serial.serialization.marker.SerialField;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 
-import java.util.HashSet;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -25,8 +26,8 @@ public class AreaEffectEntry {
 	@SerialField
 	public long createdGameTime;
 
-	// not SerialField -> not serialized, held by entry per spec
-	private final Set<ServerPlayer> trackingPlayers = new HashSet<>();
+	// not SerialField -> not serialized, holds count of tracked chunks per player for this effect
+	private final Map<ServerPlayer, Integer> trackingCounts = new HashMap<>();
 
 	public AreaEffectEntry() {
 	}
@@ -45,11 +46,34 @@ public class AreaEffectEntry {
 	}
 
 	public Set<ServerPlayer> getTrackingPlayers() {
-		return trackingPlayers;
+		return trackingCounts.keySet();
+	}
+
+	public Map<ServerPlayer, Integer> getTrackingCounts() {
+		return trackingCounts;
+	}
+
+	/** @return true if first tracking chunk for this player */
+	public boolean incrementTracking(ServerPlayer player) {
+		int c = trackingCounts.getOrDefault(player, 0) + 1;
+		trackingCounts.put(player, c);
+		return c == 1;
+	}
+
+	/** @return true if last chunk untracked (should send REMOVE) */
+	public boolean decrementTracking(ServerPlayer player) {
+		Integer c = trackingCounts.get(player);
+		if (c == null) return false;
+		if (c <= 1) {
+			trackingCounts.remove(player);
+			return true;
+		}
+		trackingCounts.put(player, c - 1);
+		return false;
 	}
 
 	public void sync() {
-		for (ServerPlayer p : trackingPlayers) {
+		for (ServerPlayer p : trackingCounts.keySet()) {
 			AreaEffectSyncPacket.sendUpdate(p, this);
 		}
 	}
