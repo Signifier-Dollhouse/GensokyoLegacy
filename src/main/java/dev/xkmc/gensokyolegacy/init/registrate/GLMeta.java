@@ -1,5 +1,7 @@
 package dev.xkmc.gensokyolegacy.init.registrate;
 
+import dev.xkmc.gensokyolegacy.content.attachment.area.ChunkAreaAttachment;
+import dev.xkmc.gensokyolegacy.content.attachment.area.LevelAreaAttachment;
 import dev.xkmc.gensokyolegacy.content.attachment.character.CharacterAttachment;
 import dev.xkmc.gensokyolegacy.content.attachment.datamap.BedData;
 import dev.xkmc.gensokyolegacy.content.attachment.datamap.CharacterConfig;
@@ -24,6 +26,7 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.animal.frog.Frog;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
@@ -46,6 +49,12 @@ public class GLMeta {
 			KoishiAttackCapability.class, KoishiAttackCapability::new, PlayerCapabilityNetworkHandler::new);
 	public static final AttVal.CapVal<Frog, FrogGodCapability> FROG_GOD = ATT.entity("frog_god",
 			FrogGodCapability.class, FrogGodCapability::new, Frog.class, e -> true);
+
+	public static final AttVal.CapVal<Level, LevelAreaAttachment> LEVEL_EFFECT =
+			ATT.entity("level_area", LevelAreaAttachment.class, LevelAreaAttachment::new, Level.class, e -> true);
+
+	public static final AttVal.CapVal<LevelChunk, ChunkAreaAttachment> CHUNK_EFFECT =
+			ATT.entity("chunk_area", ChunkAreaAttachment.class, ChunkAreaAttachment::new, LevelChunk.class, e -> true);
 
 	public static final DataMapReg<Block, BedData> BED_DATA =
 			GensokyoLegacy.REG.dataMap("bed_data", Registries.BLOCK, BedData.class);

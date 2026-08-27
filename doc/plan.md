@@ -66,10 +66,8 @@ public class AreaEffectEntry {
     }
 }
 
-// Minimal range representation — cheaper than Set<ChunkPos> for large areas
-@SerialClass
-public class ChunkPosRange {
-    @SerialField int minCX, minCZ, maxCX, maxCZ;
+// Minimal range representation — record, no @SerialClass/@SerialField needed for records
+public record ChunkPosRange(int minCX, int minCZ, int maxCX, int maxCZ) {
     public boolean contains(ChunkPos pos) { … }
     public Stream<ChunkPos> stream() { … }
     public static ChunkPosRange ofBlocks(BlockPos ownerPos, int radiusChunks) { … }
@@ -476,18 +474,18 @@ This aligns `ChunkEffectAttachment.effectIds` / `pending` chunk-granular indexin
 
 ### 12.2 Server State
 
-Reuse `LevelEffectAttachment.byId:110` as authoritative map (`Map<UUID,AreaEffectEntry>`). Add transient (no `@SerialField`) index:
+Reuse `LevelAreaAttachment.byId:110` as authoritative map (`Map<UUID,AreaEffectEntry>`). Each `AreaEffectEntry:11` holds its own transient tracking set:
 
 ```java
-// in LevelEffectAttachment.java (transient, not serialized)
-private final Map<UUID, Set<ServerPlayer>> trackingPlayers = new HashMap<>();
-private final Map<UUID, AreaEffectEntry> byId; // already @SerialField
+// in AreaEffectEntry.java (not @SerialField → not serialized, not sent to client)
+private final Set<ServerPlayer> trackingPlayers = new HashSet<>();
+public Set<ServerPlayer> getTrackingPlayers() { return trackingPlayers; }
 ```
 
-* `trackingPlayers.get(uuid)` = players that currently track **at least one** chunk of `range.contains(chunkPos)` for that entry and have been sent the effect. Empty set means no tracking player currently needs it.
-* Alternative shape `Map<ServerPlayer, Set<UUID>> perPlayer` is derived from the above; primary is per-effect for `ADD/MODIFY/REMOVE` broadcast.
+* `entry.getTrackingPlayers()` = players that currently track **at least one** chunk of `range.contains(chunkPos)` for that entry and have been sent the effect. Empty set means no tracking player currently needs it.
+* This keeps tracking co-located with the entry (as requested) instead of a separate `LevelAreaAttachment` map; lifecycle matches `byId` entry.
 
-Per-effect set is transient; rebuilt on demand after restart (no player tracks until they re-track chunks).
+Per-entry set is transient; rebuilt on demand after restart (no player tracks until they re-track chunks).
 
 ### 12.3 When a Player Tracks an Effect
 
@@ -503,17 +501,16 @@ Triggers — only `track`/`untrack` for player status per your note (no `PlayerL
      Set<ServerPlayer> players = new HashSet<>();
      for (ChunkPos cpos : entry.range.stream()) players.addAll(getTrackingPlayers(level, cpos));
      ```
-     For `ADD`: `trackingPlayers.put(uuid, players)`, send `EffectSyncPacket{ADD, entry}` to each.
-     For `UPDATE` (data-only, range unchanged — per your constraint): send `Action.UPDATE` to existing `trackingPlayers.get(uuid)` (no recompute of tracker set).
-     For `REMOVE`: send `Action.REMOVE {uuid}` to `trackingPlayers.remove(uuid)`.
+     For `ADD`: `entry.getTrackingPlayers().addAll(players)`, send `EffectSyncPacket{ADD, entry}` to each.
+     For `UPDATE` (data-only, range unchanged — per your constraint): send `Action.UPDATE` to `entry.getTrackingPlayers()` (no recompute of tracker set).
+     For `REMOVE`: send `Action.REMOVE {uuid}` to `removed.getTrackingPlayers()` then clear (via `byId.remove`).
 
 2. **Player chunk tracking** — `TRACK`/`UNTRACK` only:
    * `TRACK chunk C by player P` (`ChunkWatchEvent.Watch`):
      ```
      for (entry : levelAtt.byId.values()) {
          if (!entry.range.contains(C)) continue;
-         var set = trackingPlayers.computeIfAbsent(entry.id, k->new HashSet<>());
-         if (set.add(P)) HANDLER.toClientPlayer(new EffectSyncPacket(ADD, entry), P);
+         if (entry.getTrackingPlayers().add(P)) HANDLER.toClientPlayer(new EffectSyncPacket(ADD, entry), P);
      }
      ```
    * `UNTRACK chunk C by player P` (`ChunkWatchEvent.UnWatch`):
@@ -526,10 +523,8 @@ Triggers — only `track`/`untrack` for player status per your note (no `PlayerL
              if (isPlayerTracking(level, P, other)) { stillTracks = true; break; }
          }
          if (!stillTracks) {
-             var set = trackingPlayers.get(entry.id);
-             if (set != null && set.remove(P)) {
+             if (entry.getTrackingPlayers().remove(P)) {
                  HANDLER.toClientPlayer(new EffectSyncPacket(REMOVE, entry.id), P);
-                 if (set.isEmpty()) trackingPlayers.remove(entry.id);
              }
          }
      }
@@ -543,11 +538,10 @@ Entry’s transient player list is thus maintained incrementally; `ADD`/`TRACK` 
 Register via `GensokyoLegacy.HANDLER:75` ( `PacketHandler` / `SerialPacketBase` as `CharDataToClient:76`, `FrogSyncPacket:89`):
 
 ```java
-@SerialClass
 public record EffectSyncPacket(Action action, UUID id, @Nullable AreaEffectEntry entry) implements SerialPacketBase<EffectSyncPacket> {
     public enum Action { ADD, UPDATE, REMOVE }
+    // record, no @SerialClass needed (as ChunkPosRange) — TagCodec handles records directly
     // id always present; entry present for ADD/UPDATE, null for REMOVE
-    // EffectData is @SerialClass base class, so TagCodec inheritance works for entry.data
     @Override public void handle(Player player) { ClientEffectTracker.onSync(this); }
 }
 ```
