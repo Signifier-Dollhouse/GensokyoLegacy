@@ -464,3 +464,152 @@ Closed — hex `String` matches NBT, verify `toHexString` → `parseUnsignedLong
 ### 11.5 Remove
 `O(1)` closed — stale pending skipped at flush, whole list discarded.
 
+---
+
+## 12. Synchronization: Player-Tracked Effects
+
+### 12.1 Requirement
+
+> Track effects player should see in server. Player should see effects if any chunk with said effect is tracked by player. Maintain a map of effects on server. Maintain a transient player list per effect. When effect is tracked, added, modified, or removed, sync data to tracking players. Client side, player should maintain a list of tracked effects.
+
+This aligns `ChunkEffectAttachment.effectIds` / `pending` chunk-granular indexing with vanilla chunk-tracking (what `ServerPlayer` has sent).
+
+### 12.2 Server State
+
+Reuse `LevelEffectAttachment.byId:110` as authoritative map (`Map<UUID,AreaEffectEntry>`). Add transient (no `@SerialField`) index:
+
+```java
+// in LevelEffectAttachment.java (transient, not serialized)
+private final Map<UUID, Set<ServerPlayer>> trackingPlayers = new HashMap<>();
+private final Map<UUID, AreaEffectEntry> byId; // already @SerialField
+```
+
+* `trackingPlayers.get(uuid)` = players that currently track **at least one** chunk of `range.contains(chunkPos)` for that entry and have been sent the effect. Empty set means no tracking player currently needs it.
+* Alternative shape `Map<ServerPlayer, Set<UUID>> perPlayer` is derived from the above; primary is per-effect for `ADD/MODIFY/REMOVE` broadcast.
+
+Per-effect set is transient; rebuilt on demand after restart (no player tracks until they re-track chunks).
+
+### 12.3 When a Player Tracks an Effect
+
+“Tracked” = player’s view distance includes a chunk whose `ChunkEffectAttachment` will contain the effect (or whose `pending` will). Equivalent to `range.contains(trackedChunkPos)` and entry still in `byId`.
+
+Triggers — only `track`/`untrack` for player status per your note (no `PlayerLoggedOut`/`ChangedDimension` separate; range is immutable, so `MODIFY` is data-only):
+
+*In this design `WATCH` = `track`*: NeoForge `ChunkWatchEvent.Watch` (player starts tracking chunk `C`) / `ChunkWatchEvent.UnWatch` (player stops tracking `C`). Renamed to `TRACK`/`UNTRACK` below. `WATCH` was just the NeoForge event name for `track`.
+
+1. **Effect lifecycle** — `ADD / UPDATE / REMOVE` via `AreaEffectManager` (`range` immutable; range change = `REMOVE` + `ADD` only):
+   * Compute `Set<ServerPlayer> players = union of chunk trackers for all chunks in range` (via `chunkMap.getPlayers(cpos,false)`; `pending` not needed — `byId` range check suffices):
+     ```
+     Set<ServerPlayer> players = new HashSet<>();
+     for (ChunkPos cpos : entry.range.stream()) players.addAll(getTrackingPlayers(level, cpos));
+     ```
+     For `ADD`: `trackingPlayers.put(uuid, players)`, send `EffectSyncPacket{ADD, entry}` to each.
+     For `UPDATE` (data-only, range unchanged — per your constraint): send `Action.UPDATE` to existing `trackingPlayers.get(uuid)` (no recompute of tracker set).
+     For `REMOVE`: send `Action.REMOVE {uuid}` to `trackingPlayers.remove(uuid)`.
+
+2. **Player chunk tracking** — `TRACK`/`UNTRACK` only:
+   * `TRACK chunk C by player P` (`ChunkWatchEvent.Watch`):
+     ```
+     for (entry : levelAtt.byId.values()) {
+         if (!entry.range.contains(C)) continue;
+         var set = trackingPlayers.computeIfAbsent(entry.id, k->new HashSet<>());
+         if (set.add(P)) HANDLER.toClientPlayer(new EffectSyncPacket(ADD, entry), P);
+     }
+     ```
+   * `UNTRACK chunk C by player P` (`ChunkWatchEvent.UnWatch`):
+     ```
+     for (entry : levelAtt.byId.values()) {
+         if (!entry.range.contains(C)) continue;
+         boolean stillTracks = false;
+         for (ChunkPos other : entry.range.stream()) {
+             if (other.equals(C)) continue;
+             if (isPlayerTracking(level, P, other)) { stillTracks = true; break; }
+         }
+         if (!stillTracks) {
+             var set = trackingPlayers.get(entry.id);
+             if (set != null && set.remove(P)) {
+                 HANDLER.toClientPlayer(new EffectSyncPacket(REMOVE, entry.id), P);
+                 if (set.isEmpty()) trackingPlayers.remove(entry.id);
+             }
+         }
+     }
+     ```
+     `UNTRACK` is the `untrack` event you specified — handles logout/dimension change implicitly (those trigger `UNTRACK` for all their chunks), so no separate `PlayerLoggedOut` handling needed.
+
+Entry’s transient player list is thus maintained incrementally; `ADD`/`TRACK` adds, `REMOVE`/`UNTRACK-last-chunk` removes.
+
+### 12.4 Packets
+
+Register via `GensokyoLegacy.HANDLER:75` ( `PacketHandler` / `SerialPacketBase` as `CharDataToClient:76`, `FrogSyncPacket:89`):
+
+```java
+@SerialClass
+public record EffectSyncPacket(Action action, UUID id, @Nullable AreaEffectEntry entry) implements SerialPacketBase<EffectSyncPacket> {
+    public enum Action { ADD, UPDATE, REMOVE }
+    // id always present; entry present for ADD/UPDATE, null for REMOVE
+    // EffectData is @SerialClass base class, so TagCodec inheritance works for entry.data
+    @Override public void handle(Player player) { ClientEffectTracker.onSync(this); }
+}
+```
+
+* `ADD`/`UPDATE` sends full `AreaEffectEntry` (id + ownerPos + range + data) — size ~ `BlockPos(12B) + Range(16B) + data` (typically <100B) + UUID. For `R≤8` and small `M` this is tiny.
+* `REMOVE` sends only `UUID` (16B).
+* Consider batch `EffectSyncBatchPacket(List<EffectSyncPacket>)` for initial chunk-watch burst (player logs in and watches ~625 chunks at view distance 12) — see 12.6.
+
+### 12.5 Client State
+
+```java
+// ClientEffectTracker.java — client-only, in src/main/java/dev/xkmc/gensokyolegacy/content/client/effect/
+public final class ClientEffectTracker {
+    private static final Map<UUID, AreaEffectEntry> TRACKED = new LinkedHashMap<>();
+    public static void onSync(EffectSyncPacket p) {
+        switch(p.action()) {
+            case ADD, UPDATE -> TRACKED.put(p.id(), p.entry());
+            case REMOVE -> TRACKED.remove(p.id());
+        }
+    }
+    public static Collection<AreaEffectEntry> getTracked() { return TRACKED.values(); }
+    public static List<AreaEffectEntry> getAffecting(BlockPos pos) {
+        var cpos = new ChunkPos(pos);
+        return TRACKED.values().stream().filter(e -> e.range.contains(cpos)).toList();
+    }
+    public static void clearOnDisconnect() { TRACKED.clear(); }
+}
+```
+
+Used for rendering/fog/particles/sound. No per-tick cache needed on client beyond `ChunkEffectAttachment` equivalent; `TRACKED` is authoritative view.
+
+### 12.6 Performance & Network Evaluation
+
+**Server CPU:**
+
+* `ADD/UPDATE/REMOVE`: `O(N * T_chunk)` where `N≤289` (`R≤8`) and `T_chunk` = avg trackers per chunk (typically 1-3). Worst `O(N * players)` if all players cluster in same range, but `N` bounded. `UPDATE` is `O(T)` only (data-only, range immutable per your constraint; no tracker set recompute).
+* `TRACK` (player moves, tracks ~1-4 new chunks/tick, burst ~100 on login/teleport): naive scan `O(M)` per chunk (`M` = total effects in dimension). With `M=50` and 100 chunks → 5k `range.contains` checks (4 int compares each) → trivial. If `M` 1000+, build secondary index `Map<String,List<UUID>> chunkIndex` (hex key as `pending:118`) so `TRACK` becomes `O(effectsForThisChunk)` (0-1) instead of `O(M)`.
+* `UNTRACK`: similar `O(M)` scan but must also check if player still tracks any other chunk of same effect’s range → `O(N)` per affected effect. Optimize via per-player `watchedChunks` cache or per-effect refcount `Map<UUID,Map<Player,int>>` incremented on `TRACK`/`UNTRACK`. For `R≤8` small, linear scan `N≤289` per effect is acceptable.
+
+**Server memory:**
+
+* Transient `trackingPlayers`: `O(M * avgTrackers)`. Worst `M=100, players=20` → 2k entries. Each set small. Acceptable.
+* No duplication of `byId` data; only `Set<ServerPlayer>` references.
+
+**Network:**
+
+* **Steady state:** 0 packets — effects only sync on `ADD`/`UPDATE`/`REMOVE` or on first `WATCH` for that effect. Not per-tick. `ChunkEffectAttachment.getAffecting` per-tick cache (`5.3`) does not generate traffic.
+* **Per-effect cost:** `ADD`/`UPDATE` sends entry to `T` tracking players → `T * sizeof(entry)` bytes. With `sizeof(entry)` ~100-200B, `T=5`, `N=289` range still only one packet per player per effect (not per chunk). So large range does not multiply network cost — track by effect, not by chunk.
+* **Player join / teleport burst:** Player tracks ~625 chunks; if `M=50` effects scattered, worst `50` `ADD` packets to that player on login. At 200B each → ~10KB burst, negligible. Batch `EffectSyncBatchPacket` can coalesce to 1 packet per tick’s `TRACK` burst.
+* **Movement churn:** Player walking: ~4 `TRACK`/`UNTRACK` per second, each may trigger 0-1 effect sync as they cross range boundary. So 0-4 packets/sec per moving player near effect edge. Not a spam vector.
+* **Stale/duplicate sync:** `trackingPlayers` set ensures each effect sent exactly once per player while they track any chunk of its range; repeated `TRACK` of other chunks in same range does not resend (guard `set.add(P)`). `UNTRACK` only sends `REMOVE` when last chunk of that range is untracked.
+* **Concern if `M` large (hundreds) and many players:** `TRACK` scan `O(M)` per chunk could be done for many players simultaneously. Mitigate with chunk→effects index. Network burst scales with `M_visible` per player.
+* **Pending interaction:** Effects in `pending` (unloaded chunks) are still in `byId`, so `getTrackingPlayers` range check includes them even before chunk load — player will receive effect as soon as they track any chunk in its range, regardless of flush state. No extra sync needed after `ChunkEvent.Load` drain beyond what `TRACK` already does.
+
+**Client CPU/memory:**
+
+* `TRACKED` map `O(M_visible)` (effects whose range overlaps view distance). For `M_visible` small, `getAffecting(BlockPos)` linear scan `O(M_visible)` per render/tick is fine; cache per tick if called frequently.
+* Memory `M_visible * entry` small.
+
+**Alternatives / mitigations:**
+
+* If `TRACK` `O(M)` proves heavy, replace `byId.values()` scan with maintained `Map<String,List<UUID>> chunkIndex` (hex key as `pending:118`) updated on `ADD`/`REMOVE`; then `TRACK` is `O(effectsForChunk)`.
+* Batch `TRACK` burst on login: collect `List<AreaEffectEntry> toAdd` for that player and send single batch packet instead of `M_visible` individual packets.
+* On `UPDATE` (data-only, range immutable), send full `EffectData` or delta if large.
+
