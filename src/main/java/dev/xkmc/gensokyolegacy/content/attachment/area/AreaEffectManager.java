@@ -66,16 +66,6 @@ public final class AreaEffectManager {
 		return true;
 	}
 
-	public static void update(ServerLevel level, UUID id, EffectData newData) {
-		LevelAreaAttachment levelAtt = GLMeta.LEVEL_EFFECT.type().getOrCreate(level);
-		AreaEffectEntry entry = levelAtt.getById().get(id);
-		if (entry == null) return;
-		entry.data = newData;
-		for (ServerPlayer p : new HashSet<>(entry.getTrackingPlayers())) {
-			AreaEffectSyncPacket.sendUpdate(p, entry);
-		}
-	}
-
 	@Nullable
 	public static AreaEffectEntry get(ServerLevel level, UUID id) {
 		return GLMeta.LEVEL_EFFECT.type().getOrCreate(level).get(id);
@@ -87,9 +77,7 @@ public final class AreaEffectManager {
 
 	public static List<AreaEffectEntry> getAffecting(Level level, ChunkPos pos) {
 		if (!level.isLoaded(new BlockPos(pos.x << 4, 64, pos.z << 4))) return List.of();
-		LevelChunk chunk = (LevelChunk) level.getChunk(pos.x, pos.z);
-		// for unloaded case, level.getChunk returns empty? Use getChunkSource
-		if (chunk == null) return List.of();
+		LevelChunk chunk = level.getChunk(pos.x, pos.z);
 		return getAffecting(chunk);
 	}
 
@@ -118,7 +106,6 @@ public final class AreaEffectManager {
 		return result;
 	}
 
-	@SuppressWarnings("unchecked")
 	private static Set<ServerPlayer> getTrackingPlayers(ServerLevel level, ChunkPos pos) {
 		// Use chunkMap's tracking players; fallback to distance check if API not accessible
 		try {
@@ -149,9 +136,10 @@ public final class AreaEffectManager {
 	}
 
 	static void onTrack(ServerLevel level, ChunkPos pos, ServerPlayer player) {
-		LevelAreaAttachment att = GLMeta.LEVEL_EFFECT.type().getOrCreate(level);
-		for (AreaEffectEntry entry : att.getById().values()) {
-			if (!entry.range.contains(pos)) continue;
+		AreaChunkHolder holder = AreaChunkHolder.of(level, pos);
+		if (holder == null) return;
+		// iterate only affecting data for this chunk (k effects, not all M on level)
+		for (AreaEffectEntry entry : holder.getAffecting()) {
 			if (entry.getTrackingPlayers().add(player)) {
 				AreaEffectSyncPacket.sendAdd(player, entry);
 			}
@@ -159,9 +147,12 @@ public final class AreaEffectManager {
 	}
 
 	static void onUntrack(ServerLevel level, ChunkPos pos, ServerPlayer player) {
-		LevelAreaAttachment att = GLMeta.LEVEL_EFFECT.type().getOrCreate(level);
-		for (AreaEffectEntry entry : new ArrayList<>(att.getById().values())) {
-			if (!entry.range.contains(pos)) continue;
+		AreaChunkHolder holder = AreaChunkHolder.of(level, pos);
+		if (holder == null) return;
+		// iterate only effects that actually affected this chunk
+		for (UUID id : holder.attachment().getEffectIds()) {
+			AreaEffectEntry entry = GLMeta.LEVEL_EFFECT.type().getOrCreate(level).get(id);
+			if (entry == null) continue;
 			boolean stillTracks = false;
 			for (int x = entry.range.minCX(); x <= entry.range.maxCX(); x++) {
 				for (int z = entry.range.minCZ(); z <= entry.range.maxCZ(); z++) {

@@ -47,4 +47,10 @@ public class AreaEffectEntry {
 	public Set<ServerPlayer> getTrackingPlayers() {
 		return trackingPlayers;
 	}
+
+	public void sync() {
+		for (ServerPlayer p : trackingPlayers) {
+			AreaEffectSyncPacket.sendUpdate(p, this);
+		}
+	}
 }

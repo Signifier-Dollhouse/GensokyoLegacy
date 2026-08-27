@@ -1,6 +1,7 @@
 package dev.xkmc.gensokyolegacy.content.attachment.area;
 
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
+import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.chunk.LevelChunk;
@@ -24,7 +25,7 @@ public class AreaEffectEvents {
 		if (!(event.getChunk() instanceof LevelChunk chunk)) return;
 		if (!(chunk.getLevel() instanceof ServerLevel sl)) return;
 		String key = Long.toHexString(chunk.getPos().toLong());
-		var att = dev.xkmc.gensokyolegacy.init.registrate.GLMeta.LEVEL_EFFECT.type().getOrCreate(sl);
+		var att = GLMeta.LEVEL_EFFECT.type().getOrCreate(sl);
 		var pendingIds = att.getPending().remove(key);
 		if (pendingIds == null || pendingIds.isEmpty()) return;
 		var holder = AreaChunkHolder.of(sl, chunk);

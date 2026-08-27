@@ -4,6 +4,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 
+import java.util.Objects;
 import java.util.stream.Stream;
 
 public record ChunkPosRange(int minCX, int minCZ, int maxCX, int maxCZ) {
@@ -46,7 +47,7 @@ public record ChunkPosRange(int minCX, int minCZ, int maxCX, int maxCZ) {
 	}
 
 	public Stream<ChunkPos> stream() {
-		return Stream.iterate(new ChunkPos(minCX, minCZ), p -> p != null,
+		return Stream.iterate(new ChunkPos(minCX, minCZ), Objects::nonNull,
 						p -> {
 							int nx = p.x + 1;
 							int nz = p.z;
@@ -57,7 +58,7 @@ public record ChunkPosRange(int minCX, int minCZ, int maxCX, int maxCZ) {
 							if (nz > maxCZ) return null;
 							return new ChunkPos(nx, nz);
 						})
-				.filter(p -> p != null);
+				.filter(Objects::nonNull);
 	}
 
 	public void forEach(java.util.function.Consumer<ChunkPos> consumer) {

@@ -7,6 +7,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.chunk.status.ChunkStatus;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -57,7 +58,7 @@ public class LevelAreaAttachment extends GeneralCapabilityTemplate<Level, LevelA
 			AreaEffectEntry entry = byId.remove(id);
 			if (entry == null) continue;
 			// tracking cleanup and sync to tracking players (now held by entry)
-			for (ServerPlayer p : new HashSet<>(entry.getTrackingPlayers())) {
+			for (ServerPlayer p : entry.getTrackingPlayers()) {
 				AreaEffectManager.notifyRemoveToPlayer(level, p, id);
 			}
 			entry.getTrackingPlayers().clear();
@@ -75,7 +76,7 @@ public class LevelAreaAttachment extends GeneralCapabilityTemplate<Level, LevelA
 			ChunkPos cpos = new ChunkPos(posLong);
 			if (level.getChunkSource().getChunkNow(cpos.x, cpos.z) != null) continue;
 			// called on main thread, last arg false schedules offthread load per ServerChunkCache; forcing generation expected
-			level.getChunkSource().getChunk(cpos.x, cpos.z, net.minecraft.world.level.chunk.status.ChunkStatus.FULL, false);
+			level.getChunkSource().getChunk(cpos.x, cpos.z, ChunkStatus.FULL, false);
 		}
 	}
 }

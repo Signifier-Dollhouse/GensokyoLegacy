@@ -505,27 +505,29 @@ Triggers — only `track`/`untrack` for player status per your note (no `PlayerL
      For `UPDATE` (data-only, range unchanged — per your constraint): send `Action.UPDATE` to `entry.getTrackingPlayers()` (no recompute of tracker set).
      For `REMOVE`: send `Action.REMOVE {uuid}` to `removed.getTrackingPlayers()` then clear (via `byId.remove`).
 
-2. **Player chunk tracking** — `TRACK`/`UNTRACK` only:
+2. **Player chunk tracking** — `TRACK`/`UNTRACK` only (iterate **affecting data for `C` only**, not all `M` on level):
    * `TRACK chunk C by player P` (`ChunkWatchEvent.Watch`):
      ```
-     for (entry : levelAtt.byId.values()) {
-         if (!entry.range.contains(C)) continue;
+     var holder = AreaChunkHolder.of(level, C); // nullable per 11.2, via GLMeta.CHUNK_EFFECT.type().getOrCreate
+     if (holder == null) return;
+     for (AreaEffectEntry entry : holder.getAffecting()) { // O(k), k=effects for this chunk (0-3), not O(M)
          if (entry.getTrackingPlayers().add(P)) HANDLER.toClientPlayer(new EffectSyncPacket(ADD, entry), P);
      }
      ```
    * `UNTRACK chunk C by player P` (`ChunkWatchEvent.UnWatch`):
      ```
-     for (entry : levelAtt.byId.values()) {
-         if (!entry.range.contains(C)) continue;
+     var holder = AreaChunkHolder.of(level, C);
+     if (holder == null) return;
+     for (UUID id : new HashSet<>(holder.attachment().getEffectIds())) { // copy to avoid CME, O(k)
+         AreaEffectEntry entry = levelAtt.get(id);
+         if (entry == null) continue;
          boolean stillTracks = false;
          for (ChunkPos other : entry.range.stream()) {
              if (other.equals(C)) continue;
              if (isPlayerTracking(level, P, other)) { stillTracks = true; break; }
          }
-         if (!stillTracks) {
-             if (entry.getTrackingPlayers().remove(P)) {
-                 HANDLER.toClientPlayer(new EffectSyncPacket(REMOVE, entry.id), P);
-             }
+         if (!stillTracks && entry.getTrackingPlayers().remove(P)) {
+             HANDLER.toClientPlayer(new EffectSyncPacket(REMOVE, entry.id), P);
          }
      }
      ```
@@ -577,9 +579,8 @@ Used for rendering/fog/particles/sound. No per-tick cache needed on client beyon
 
 **Server CPU:**
 
-* `ADD/UPDATE/REMOVE`: `O(N * T_chunk)` where `N≤289` (`R≤8`) and `T_chunk` = avg trackers per chunk (typically 1-3). Worst `O(N * players)` if all players cluster in same range, but `N` bounded. `UPDATE` is `O(T)` only (data-only, range immutable per your constraint; no tracker set recompute).
-* `TRACK` (player moves, tracks ~1-4 new chunks/tick, burst ~100 on login/teleport): naive scan `O(M)` per chunk (`M` = total effects in dimension). With `M=50` and 100 chunks → 5k `range.contains` checks (4 int compares each) → trivial. If `M` 1000+, build secondary index `Map<String,List<UUID>> chunkIndex` (hex key as `pending:118`) so `TRACK` becomes `O(effectsForThisChunk)` (0-1) instead of `O(M)`.
-* `UNTRACK`: similar `O(M)` scan but must also check if player still tracks any other chunk of same effect’s range → `O(N)` per affected effect. Optimize via per-player `watchedChunks` cache or per-effect refcount `Map<UUID,Map<Player,int>>` incremented on `TRACK`/`UNTRACK`. For `R≤8` small, linear scan `N≤289` per effect is acceptable.
+* `ADD/REMOVE`: `O(N * T_chunk)` where `N≤289` (`R≤8`) and `T_chunk` = avg trackers per chunk (1-3). `UPDATE` is `O(T)` via `entry.sync()` (data-only, range immutable). No pending scan.
+* `TRACK`/`UNTRACK`: `O(k)` per tracked chunk where `k=effectsForThisChunk` (via `AreaChunkHolder:12` `holder.getAffecting()` / `holder.attachment().getEffectIds()`, typically 0-3) — not `O(M)`. Login burst 100 chunks → ~100*`k` checks, not `M*chunks`. `UNTRACK` still needs `O(N)` (`N≤289`) per affected effect to test `stillTracks` via `isPlayerTracking`, but `k` small so trivial.
 
 **Server memory:**
 
@@ -588,13 +589,12 @@ Used for rendering/fog/particles/sound. No per-tick cache needed on client beyon
 
 **Network:**
 
-* **Steady state:** 0 packets — effects only sync on `ADD`/`UPDATE`/`REMOVE` or on first `WATCH` for that effect. Not per-tick. `ChunkEffectAttachment.getAffecting` per-tick cache (`5.3`) does not generate traffic.
-* **Per-effect cost:** `ADD`/`UPDATE` sends entry to `T` tracking players → `T * sizeof(entry)` bytes. With `sizeof(entry)` ~100-200B, `T=5`, `N=289` range still only one packet per player per effect (not per chunk). So large range does not multiply network cost — track by effect, not by chunk.
-* **Player join / teleport burst:** Player tracks ~625 chunks; if `M=50` effects scattered, worst `50` `ADD` packets to that player on login. At 200B each → ~10KB burst, negligible. Batch `EffectSyncBatchPacket` can coalesce to 1 packet per tick’s `TRACK` burst.
-* **Movement churn:** Player walking: ~4 `TRACK`/`UNTRACK` per second, each may trigger 0-1 effect sync as they cross range boundary. So 0-4 packets/sec per moving player near effect edge. Not a spam vector.
-* **Stale/duplicate sync:** `trackingPlayers` set ensures each effect sent exactly once per player while they track any chunk of its range; repeated `TRACK` of other chunks in same range does not resend (guard `set.add(P)`). `UNTRACK` only sends `REMOVE` when last chunk of that range is untracked.
-* **Concern if `M` large (hundreds) and many players:** `TRACK` scan `O(M)` per chunk could be done for many players simultaneously. Mitigate with chunk→effects index. Network burst scales with `M_visible` per player.
-* **Pending interaction:** Effects in `pending` (unloaded chunks) are still in `byId`, so `getTrackingPlayers` range check includes them even before chunk load — player will receive effect as soon as they track any chunk in its range, regardless of flush state. No extra sync needed after `ChunkEvent.Load` drain beyond what `TRACK` already does.
+* **Steady state:** 0 packets — effects only sync on `ADD`/`UPDATE`/`REMOVE` or on first `TRACK` for that effect. Not per-tick.
+* **Per-effect cost:** `ADD`/`UPDATE` sends entry to `T` tracking players → `T * sizeof(entry)` bytes. With `sizeof(entry)` ~100-200B, `T=5`, `N=289` range still only one packet per player per effect (not per chunk).
+* **Player join / teleport burst:** Player tracks ~625 chunks; each `TRACK` now `O(k)` via holder (not `O(M)`), so burst is `~625*k` not `625*M`. Worst `M=50` scattered still `50` `ADD` packets (10KB), negligible. Batch `EffectSyncBatchPacket` can coalesce per-tick `TRACK` burst.
+* **Movement churn:** Player walking ~4 `TRACK`/`UNTRACK`/s, each `O(k)` and may trigger 0-1 effect sync at range boundary → 0-4 packets/s per player.
+* **Stale/duplicate sync:** `entry.getTrackingPlayers()` set ensures each effect sent once per player while they track any chunk of its range; repeated `TRACK` of other chunks in same range does not resend (guard `add`). `UNTRACK` only sends `REMOVE` when last chunk of that range is untracked.
+* **Pending interaction:** Effects in `pending` still in `byId`; `TRACK` via `holder.getAffecting()` already includes pending-flushed entries (load drains before watch due to `ServerChunkCache` dedupe), so player receives effect as soon as they track any chunk in its range.
 
 **Client CPU/memory:**
 
