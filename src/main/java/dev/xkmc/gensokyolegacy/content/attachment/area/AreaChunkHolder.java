@@ -12,12 +12,6 @@ import java.util.UUID;
 
 public record AreaChunkHolder(ServerLevel level, ChunkPos pos, LevelChunk chunk, ChunkAreaAttachment attachment) {
 
-	public static AreaChunkHolder of(LevelChunk chunk) {
-		if (!(chunk.getLevel() instanceof ServerLevel sl))
-			throw new IllegalStateException("AreaChunkHolder requires ServerLevel");
-		return new AreaChunkHolder(sl, chunk.getPos(), chunk, GLMeta.CHUNK_EFFECT.type().getOrCreate(chunk));
-	}
-
 	@Nullable
 	public static AreaChunkHolder of(ServerLevel level, ChunkPos pos) {
 		LevelChunk chunk = level.getChunkSource().getChunk(pos.x, pos.z, false);

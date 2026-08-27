@@ -7,6 +7,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.chunk.status.ChunkStatus;
 import org.jetbrains.annotations.Nullable;
 
@@ -57,11 +58,16 @@ public class LevelAreaAttachment extends GeneralCapabilityTemplate<Level, LevelA
 		for (UUID id : toRemove) {
 			AreaEffectEntry entry = byId.remove(id);
 			if (entry == null) continue;
-			for (ServerPlayer p : entry.getTrackingPlayers()) {
-				AreaEffectManager.notifyRemoveToPlayer(level, p, id);
+			for (UUID playerId : Set.copyOf(entry.getTrackingPlayers())) {
+				ServerPlayer p = level.getServer().getPlayerList().getPlayer(playerId);
+				if (p != null) AreaEffectManager.notifyRemoveToPlayer(level, p, id);
 			}
 			entry.getTrackingCounts().clear();
 			// pending entries with dead UUID will be skipped on flush via byId.containsKey
+		}
+		// every 5s clean up offline players from tracking lists
+		if (tick % 100 == 0) {
+			for (AreaEffectEntry e : byId.values()) e.cleanupPlayers(level);
 		}
 	}
 
@@ -73,9 +79,20 @@ public class LevelAreaAttachment extends GeneralCapabilityTemplate<Level, LevelA
 		for (String key : snapshot) {
 			long posLong = Long.parseUnsignedLong(key, 16);
 			ChunkPos cpos = new ChunkPos(posLong);
-			if (level.getChunkSource().getChunkNow(cpos.x, cpos.z) != null) continue;
-			// called on main thread, last arg false schedules offthread load per ServerChunkCache; forcing generation expected
-			level.getChunkSource().getChunk(cpos.x, cpos.z, ChunkStatus.FULL, false);
+			if (level.getChunkSource().getChunkNow(cpos.x, cpos.z) != null) {
+				// in fact in a loaded chunk but still pending (e.g., add raced load) — drain directly
+				var pendingIds = pending.remove(key);
+				if (pendingIds == null || pendingIds.isEmpty()) continue;
+				AreaChunkHolder holder = AreaChunkHolder.of(level, cpos);
+				if (holder == null) continue;
+				for (UUID uid : pendingIds) {
+					if (!byId.containsKey(uid)) continue;
+					holder.addId(uid);
+				}
+			} else {
+				// not loaded, schedule offthread load (forcing generation expected)
+				level.getChunkSource().getChunk(cpos.x, cpos.z, ChunkStatus.FULL, false);
+			}
 		}
 	}
 }

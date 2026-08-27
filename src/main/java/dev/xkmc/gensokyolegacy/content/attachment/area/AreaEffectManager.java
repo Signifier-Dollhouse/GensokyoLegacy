@@ -38,7 +38,7 @@ public final class AreaEffectManager {
 				ChunkPos cpos = new ChunkPos(x, z);
 				LevelChunk chunk = level.getChunkSource().getChunk(cpos.x, cpos.z, false);
 				if (chunk != null) {
-					AreaChunkHolder.of(chunk).addId(entry.id);
+					AreaChunkHolder.of(level, chunk).addId(entry.id);
 				} else {
 					String key = Long.toHexString(cpos.toLong());
 					levelAtt.getPending().computeIfAbsent(key, k -> new ArrayList<>()).add(entry.id);
@@ -54,7 +54,7 @@ public final class AreaEffectManager {
 				}
 			}
 			if (count > 0) {
-				entry.getTrackingCounts().put(player, count);
+				entry.getTrackingCounts().put(player.getUUID(), count);
 				AreaEffectSyncPacket.sendAdd(player, entry);
 			}
 		}
@@ -64,11 +64,11 @@ public final class AreaEffectManager {
 		LevelAreaAttachment levelAtt = GLMeta.LEVEL_EFFECT.type().getOrCreate(level);
 		AreaEffectEntry removed = levelAtt.getById().remove(id);
 		if (removed == null) return false;
-		// notify tracking players (now held by entry), keep pending stale skip via byId check
-		for (ServerPlayer p : removed.getTrackingPlayers()) {
-			AreaEffectSyncPacket.sendRemove(p, id);
+		for (UUID playerId : Set.copyOf(removed.getTrackingPlayers())) {
+			ServerPlayer p = level.getServer().getPlayerList().getPlayer(playerId);
+			if (p != null) AreaEffectSyncPacket.sendRemove(p, id);
 		}
-		removed.getTrackingPlayers().clear();
+		removed.getTrackingCounts().clear();
 		// no chunk iteration, no pending scan per spec (pending lazily skipped)
 		return true;
 	}
@@ -78,17 +78,17 @@ public final class AreaEffectManager {
 		return GLMeta.LEVEL_EFFECT.type().getOrCreate(level).get(id);
 	}
 
-	public static List<AreaEffectEntry> getAffecting(LevelChunk chunk) {
-		return AreaChunkHolder.of(chunk).getAffecting();
+	public static List<AreaEffectEntry> getAffecting(ServerLevel level, LevelChunk chunk) {
+		return AreaChunkHolder.of(level, chunk).getAffecting();
 	}
 
-	public static List<AreaEffectEntry> getAffecting(Level level, ChunkPos pos) {
-		if (!level.isLoaded(new BlockPos(pos.x << 4, 64, pos.z << 4))) return List.of();
-		LevelChunk chunk = level.getChunk(pos.x, pos.z);
-		return getAffecting(chunk);
+	public static List<AreaEffectEntry> getAffecting(ServerLevel level, ChunkPos pos) {
+		AreaChunkHolder holder = AreaChunkHolder.of(level, pos);
+		if (holder == null) return List.of();
+		return holder.getAffecting();
 	}
 
-	public static List<AreaEffectEntry> getAffecting(Level level, BlockPos pos) {
+	public static List<AreaEffectEntry> getAffecting(ServerLevel level, BlockPos pos) {
 		return getAffecting(level, new ChunkPos(pos));
 	}
 

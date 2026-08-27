@@ -26,8 +26,8 @@ public class AreaEffectEntry {
 	@SerialField
 	public long createdGameTime;
 
-	// not SerialField -> not serialized, holds count of tracked chunks per player for this effect
-	private final Map<ServerPlayer, Integer> trackingCounts = new HashMap<>();
+	// not SerialField -> not serialized, holds count of tracked chunks per player UUID for this effect
+	private final Map<UUID, Integer> trackingCounts = new HashMap<>();
 
 	public AreaEffectEntry() {
 	}
@@ -45,36 +45,43 @@ public class AreaEffectEntry {
 		return data.isOwnerStillValid(level, ownerPos, level.getBlockState(ownerPos));
 	}
 
-	public Set<ServerPlayer> getTrackingPlayers() {
+	public Set<UUID> getTrackingPlayers() {
 		return trackingCounts.keySet();
 	}
 
-	public Map<ServerPlayer, Integer> getTrackingCounts() {
+	public Map<UUID, Integer> getTrackingCounts() {
 		return trackingCounts;
 	}
 
 	/** @return true if first tracking chunk for this player */
 	public boolean incrementTracking(ServerPlayer player) {
-		int c = trackingCounts.getOrDefault(player, 0) + 1;
-		trackingCounts.put(player, c);
+		UUID uuid = player.getUUID();
+		int c = trackingCounts.getOrDefault(uuid, 0) + 1;
+		trackingCounts.put(uuid, c);
 		return c == 1;
 	}
 
 	/** @return true if last chunk untracked (should send REMOVE) */
 	public boolean decrementTracking(ServerPlayer player) {
-		Integer c = trackingCounts.get(player);
+		UUID uuid = player.getUUID();
+		Integer c = trackingCounts.get(uuid);
 		if (c == null) return false;
 		if (c <= 1) {
-			trackingCounts.remove(player);
+			trackingCounts.remove(uuid);
 			return true;
 		}
-		trackingCounts.put(player, c - 1);
+		trackingCounts.put(uuid, c - 1);
 		return false;
 	}
 
-	public void sync() {
-		for (ServerPlayer p : trackingCounts.keySet()) {
-			AreaEffectSyncPacket.sendUpdate(p, this);
+	public void sync(ServerLevel level) {
+		for (UUID uuid : Set.copyOf(trackingCounts.keySet())) {
+			ServerPlayer p = level.getServer().getPlayerList().getPlayer(uuid);
+			if (p != null) AreaEffectSyncPacket.sendUpdate(p, this);
 		}
+	}
+
+	public void cleanupPlayers(ServerLevel level) {
+		trackingCounts.keySet().removeIf(uuid -> level.getServer().getPlayerList().getPlayer(uuid) == null);
 	}
 }
