@@ -2,20 +2,17 @@ package dev.xkmc.gensokyolegacy.content.attachment.gap;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerLevel;
+import org.jetbrains.annotations.Nullable;
 
 public record GapMapping(
-		BlockPos worldPos,
-		BlockPos gapPos,
-		ResourceLocation dimension
+		@Nullable BlockPos entryPos,
+		@Nullable ResourceLocation entryDim,
+		@Nullable BlockPos exitPos,
+		@Nullable ResourceLocation exitDim
 ) {
 
-	public GapMapping updateWorld(ServerLevel sl, BlockPos pos) {
-		return new GapMapping(pos, gapPos, sl.dimension().location());
-	}
-
-	public GapMapping updateGap(ServerLevel sl, BlockPos pos) {
-		return new GapMapping(worldPos, pos, dimension);
+	public boolean isPending() {
+		return entryPos == null || entryDim == null || exitPos == null || exitDim == null;
 	}
 
 }
