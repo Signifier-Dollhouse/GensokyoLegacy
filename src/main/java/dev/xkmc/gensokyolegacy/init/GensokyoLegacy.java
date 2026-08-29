@@ -27,6 +27,7 @@ import dev.xkmc.gensokyolegacy.content.item.umbrella.network.BorderUmbrellaOpenR
 import dev.xkmc.gensokyolegacy.content.item.umbrella.network.BorderUmbrellaRenamePacket;
 import dev.xkmc.gensokyolegacy.content.item.umbrella.network.BorderUmbrellaReorderPacket;
 import dev.xkmc.gensokyolegacy.content.item.umbrella.network.BorderUmbrellaSelectPacket;
+import dev.xkmc.gensokyolegacy.content.attachment.area.AreaEffectSyncPacket;
 import dev.xkmc.gensokyolegacy.content.rpg.core.CodecRegistry;
 import dev.xkmc.gensokyolegacy.content.rpg.network.QuestStatusToClient;
 import dev.xkmc.gensokyolegacy.content.rpg.network.TradeStatusToClient;
@@ -89,6 +90,7 @@ public class GensokyoLegacy {
 			e -> e.create(FrogSyncPacket.class, PacketHandler.NetDir.PLAY_TO_CLIENT),
 			e -> e.create(KoishiStartPacket.class, PacketHandler.NetDir.PLAY_TO_CLIENT),
 			e -> e.create(CombatToClient.class, PacketHandler.NetDir.PLAY_TO_CLIENT),
+			e -> e.create(AreaEffectSyncPacket.class, PacketHandler.NetDir.PLAY_TO_CLIENT),
 
 			e -> e.create(Dowser.DowserToClient.class, PacketHandler.NetDir.PLAY_TO_CLIENT),
 			e -> e.create(CatBell.MountToClient.class, PacketHandler.NetDir.PLAY_TO_CLIENT),
