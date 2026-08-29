@@ -205,42 +205,8 @@ public class GapPortalBlockEntity extends BaseBlockEntity implements IPortalBloc
 		}
 	}
 
-	/** Ensure portal exists at target; creates platform if target is GAP, otherwise simple portal. */
 	public static void ensurePortalAt(ServerLevelAccessor sl, BlockPos pos, UUID id, PortalSide side) {
-		if (sl.getBlockEntity(pos) instanceof GapPortalBlockEntity) return;
-		ResourceLocation dim = sl instanceof ServerLevel s ? s.dimension().location() : null;
-		boolean isGap = dim != null && dim.equals(GLDimensionGen.GAP.location());
-		if (isGap) {
-			createEndPlatform(sl, pos, id, side);
-		} else {
-			createSimplePortal(sl, pos, id, side);
-		}
-	}
-
-	public static void createEndPlatform(ServerLevelAccessor sl, BlockPos pos, UUID id, PortalSide side) {
-		if (sl.getBlockEntity(pos) instanceof GapPortalBlockEntity) return;
-		BlockPos.MutableBlockPos m = pos.mutable();
-		for (int i = -2; i <= 2; ++i) {
-			for (int j = -2; j <= 2; ++j) {
-				BlockPos blockpos = m.set(pos).move(j, -1, i);
-				Block block = Math.abs(i) <= 1 && Math.abs(j) <= 1 ? Blocks.CRYING_OBSIDIAN : Blocks.OBSIDIAN;
-				if (sl.getBlockState(blockpos).isAir()) {
-					sl.setBlock(blockpos, block.defaultBlockState(), 3);
-				}
-			}
-		}
-		createSimplePortal(sl, pos, id, side);
-	}
-
-	private static void createSimplePortal(ServerLevelAccessor sl, BlockPos pos, UUID id, PortalSide side) {
-		if (sl.getBlockEntity(pos) instanceof GapPortalBlockEntity) return;
-		sl.setBlock(pos, GLBlocks.GAP_PORTAL.getDefaultState(), 3);
-		sl.setBlock(pos.above(), GLBlocks.GAP_PORTAL.getDefaultState().setValue(BlockStateProperties.HALF, Half.TOP), 3);
-		if (sl.getBlockEntity(pos) instanceof GapPortalBlockEntity be) {
-			be.id = id;
-			be.side = side;
-			be.initData(side);
-		}
+		GapPortalForcer.placePortal(sl, pos, id, side);
 	}
 
 	public PortalSide getSide() {

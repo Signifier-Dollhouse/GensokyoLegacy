@@ -3,6 +3,7 @@ package dev.xkmc.gensokyolegacy.content.block.portal;
 import dev.xkmc.gensokyolegacy.content.attachment.gap.GapMapping;
 import dev.xkmc.gensokyolegacy.content.attachment.gap.GapMappingData;
 import dev.xkmc.gensokyolegacy.init.registrate.GLBlocks;
+import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.l2modularblock.impl.BlockEntityBlockMethodImpl;
 import dev.xkmc.l2modularblock.impl.DoubleBlockImpl;
 import dev.xkmc.l2modularblock.mult.AnimateTickBlockMethod;
@@ -13,7 +14,6 @@ import dev.xkmc.l2modularblock.one.ShapeBlockMethod;
 import dev.xkmc.l2modularblock.type.BlockMethod;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -82,6 +82,29 @@ public class GapPortalBlock implements AnimateTickBlockMethod, ShapeBlockMethod,
 	public ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player pl, InteractionHand hand, BlockHitResult result) {
 		if (state.getValue(BlockStateProperties.HALF) == Half.TOP)
 			pos = pos.below();
+		var sid = stack.get(GLItems.DC_UUID);
+		// Use portal item on portal with same uuid to generate the other side's data (same logic for entry/exit)
+		if (!stack.isEmpty() && sid != null && stack.has(GLItems.DC_PORTAL_SIDE)
+				&& level.getBlockEntity(pos) instanceof GapPortalBlockEntity gap && sid.equals(gap.id)) {
+			if (level instanceof ServerLevel sl) {
+				var data = GapMappingData.get(sl);
+				var mapping = data.get(gap.id);
+				if (mapping != null && mapping.isPending()) {
+					PortalSide itemSide = stack.get(GLItems.DC_PORTAL_SIDE);
+					PortalSide blockSide = gap.getSide();
+					if (itemSide != null && itemSide != blockSide) {
+						GapMapping newMapping = GapPortalForcer.completePending(mapping, itemSide, sl);
+						if (!newMapping.isPending()) {
+							data.set(gap.id, newMapping);
+							pl.setItemInHand(hand, ItemStack.EMPTY);
+							return ItemInteractionResult.SUCCESS;
+						}
+					}
+				}
+				return ItemInteractionResult.FAIL;
+			}
+			return ItemInteractionResult.SUCCESS;
+		}
 		if (stack.isEmpty() && hand == InteractionHand.MAIN_HAND && level.getBlockEntity(pos) instanceof GapPortalBlockEntity gap) {
 			if (!level.isClientSide()) {
 				ItemStack toGive = gap.getItem();
