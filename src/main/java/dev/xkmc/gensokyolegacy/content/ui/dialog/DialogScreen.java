@@ -104,7 +104,7 @@ public class DialogScreen<T extends DialogMenu> extends AbstractContainerScreen<
 			if (avatar) renderAvatar(g, boxX + 1, boxY + 1, mx, my);
 		}
 
-		// option boxes, stacked and centered above the frame
+		// option boxes, stacked above the frame, right edge flush with the frame
 		sel = -1;
 		var options = menu.getOptions();
 		int n = options.size();
@@ -124,10 +124,9 @@ public class DialogScreen<T extends DialogMenu> extends AbstractContainerScreen<
 			if (i > 0) totalH += OPT_GAP;
 			totalH += hs[i];
 		}
-		int cx = framed ? boxX + boxW / 2 : sw / 2;
 		int y = framed ? boxY - OPT_FLOAT - totalH : (sh - totalH) / 2;
 		for (int i = 0; i < n; i++) {
-			int x = cx - ws[i] / 2;
+			int x = framed ? boxX + boxW - ws[i] : (sw - ws[i]) / 2;
 			blitBlend(g, OPTION, x, y, 0, ws[i], hs[i]);
 			boolean hover = mx >= x && mx < x + ws[i] && my >= y && my < y + hs[i];
 			if (hover) {
