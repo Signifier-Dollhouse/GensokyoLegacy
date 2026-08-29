@@ -37,31 +37,43 @@ public class GapPortalRenderer implements BlockEntityRenderer<GapPortalBlockEnti
 		pose.mulPose(Axis.YP.rotationDegrees(180 - cam.getYRot()));
 		var mat = pose.last().pose();
 		var normal = pose.last();
-		{
-			var vc = source.getBuffer(RenderType.entityCutout(FRAME));
+		if (e.pending) {
+			var vc = source.getBuffer(RenderType.entityCutout(FRAME_BACK));
 			vc.addVertex(mat, -0.5f, 0, 0.01f).setColor(-1).setUv(0, 0).setLight(light).setOverlay(overlay).setNormal(normal, 0, 0, 1);
 			vc.addVertex(mat, 0.5f, 0, 0.01f).setColor(-1).setUv(1, 0).setLight(light).setOverlay(overlay).setNormal(normal, 0, 0, 1);
 			vc.addVertex(mat, 0.5f, 2, 0.01f).setColor(-1).setUv(1, 1).setLight(light).setOverlay(overlay).setNormal(normal, 0, 0, 1);
 			vc.addVertex(mat, -0.5f, 2, 0.01f).setColor(-1).setUv(0, 1).setLight(light).setOverlay(overlay).setNormal(normal, 0, 0, 1);
-		}
-		{
-			var vc = source.getBuffer(RenderType.entityCutout(FRAME_BACK));
 			vc.addVertex(mat, -0.5f, 2, -0.01f).setColor(-1).setUv(0, 1).setLight(light).setOverlay(overlay).setNormal(normal, 0, 0, -1);
 			vc.addVertex(mat, 0.5f, 2, -0.01f).setColor(-1).setUv(1, 1).setLight(light).setOverlay(overlay).setNormal(normal, 0, 0, -1);
 			vc.addVertex(mat, 0.5f, 0, -0.01f).setColor(-1).setUv(1, 0).setLight(light).setOverlay(overlay).setNormal(normal, 0, 0, -1);
 			vc.addVertex(mat, -0.5f, 0, -0.01f).setColor(-1).setUv(0, 0).setLight(light).setOverlay(overlay).setNormal(normal, 0, 0, -1);
-		}
-		{
-			var vc = source.getBuffer(RenderType.endPortal());
-			vc.addVertex(mat, -6 / 16f, 9 / 16f, 0);
-			vc.addVertex(mat, 0, 0, 0);
-			vc.addVertex(mat, 0, 2, 0);
-			vc.addVertex(mat, -6 / 16f, 23 / 16f, 0);
+		} else {
+			{
+				var vc = source.getBuffer(RenderType.entityCutout(FRAME));
+				vc.addVertex(mat, -0.5f, 0, 0.01f).setColor(-1).setUv(0, 0).setLight(light).setOverlay(overlay).setNormal(normal, 0, 0, 1);
+				vc.addVertex(mat, 0.5f, 0, 0.01f).setColor(-1).setUv(1, 0).setLight(light).setOverlay(overlay).setNormal(normal, 0, 0, 1);
+				vc.addVertex(mat, 0.5f, 2, 0.01f).setColor(-1).setUv(1, 1).setLight(light).setOverlay(overlay).setNormal(normal, 0, 0, 1);
+				vc.addVertex(mat, -0.5f, 2, 0.01f).setColor(-1).setUv(0, 1).setLight(light).setOverlay(overlay).setNormal(normal, 0, 0, 1);
+			}
+			{
+				var vc = source.getBuffer(RenderType.entityCutout(FRAME_BACK));
+				vc.addVertex(mat, -0.5f, 2, -0.01f).setColor(-1).setUv(0, 1).setLight(light).setOverlay(overlay).setNormal(normal, 0, 0, -1);
+				vc.addVertex(mat, 0.5f, 2, -0.01f).setColor(-1).setUv(1, 1).setLight(light).setOverlay(overlay).setNormal(normal, 0, 0, -1);
+				vc.addVertex(mat, 0.5f, 0, -0.01f).setColor(-1).setUv(1, 0).setLight(light).setOverlay(overlay).setNormal(normal, 0, 0, -1);
+				vc.addVertex(mat, -0.5f, 0, -0.01f).setColor(-1).setUv(0, 0).setLight(light).setOverlay(overlay).setNormal(normal, 0, 0, -1);
+			}
+			{
+				var vc = source.getBuffer(RenderType.endPortal());
+				vc.addVertex(mat, -6 / 16f, 9 / 16f, 0);
+				vc.addVertex(mat, 0, 0, 0);
+				vc.addVertex(mat, 0, 2, 0);
+				vc.addVertex(mat, -6 / 16f, 23 / 16f, 0);
 
-			vc.addVertex(mat, 6 / 16f, 23 / 16f, 0);
-			vc.addVertex(mat, 0, 2, 0);
-			vc.addVertex(mat, 0, 0, 0);
-			vc.addVertex(mat, 6 / 16f, 9 / 16f, 0);
+				vc.addVertex(mat, 6 / 16f, 23 / 16f, 0);
+				vc.addVertex(mat, 0, 2, 0);
+				vc.addVertex(mat, 0, 0, 0);
+				vc.addVertex(mat, 6 / 16f, 9 / 16f, 0);
+			}
 		}
 		pose.popPose();
 	}
