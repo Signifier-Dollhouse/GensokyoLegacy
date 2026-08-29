@@ -61,17 +61,20 @@ public class GapPortalBlockEntity extends BaseBlockEntity implements IPortalBloc
 		PortalSide curSide = getSide();
 		BlockPos targetPos;
 		ResourceLocation targetDim;
+		PortalSide targetSide;
 		if (curSide == PortalSide.ENTRY) {
 			targetPos = data.exitPos();
 			targetDim = data.exitDim();
+			targetSide = PortalSide.EXIT;
 		} else {
 			targetPos = data.entryPos();
 			targetDim = data.entryDim();
+			targetSide = PortalSide.ENTRY;
 		}
 		if (targetPos == null || targetDim == null) return null;
 		ServerLevel targetLevel = level.getServer().getLevel(ResourceKey.create(Registries.DIMENSION, targetDim));
 		if (targetLevel == null) return null;
-		ensurePortalAt(targetLevel, targetPos, id);
+		ensurePortalAt(targetLevel, targetPos, id, targetSide);
 		Vec3 vec3 = targetPos.getBottomCenter();
 		return new DimensionTransition(targetLevel, vec3, e.getDeltaMovement(), e.getYRot(), e.getXRot(),
 				DimensionTransition.PLAY_PORTAL_SOUND.then(DimensionTransition.PLACE_PORTAL_TICKET));
@@ -96,18 +99,17 @@ public class GapPortalBlockEntity extends BaseBlockEntity implements IPortalBloc
 	/**
 	 * Pairing invariant: every fresh item (no uuid) creates exactly 2 uuid-bearing endpoints
 	 * (block or item). Supports teleport between any 2 points (same or different dimension,
-	 * with or without GAP) once the pair is complete. Uses entry/exit naming instead of world/gap.
+	 * with or without GAP) once the pair is complete. Uses entry/exit naming.
 	 * <ul>
-	 *   <li>Outside GAP + fresh item (ENTRY): consume item, create complete {entry=here, exit=proportional GAP}.
-	 *       GAP exit is reserved and created lazily via {@link #ensurePortalAt}.</li>
-	 *   <li>Inside GAP + fresh item (ENTRY): consume item, create pending {entry=GAP here, exit=null}
-	 *       and give player a copy with same uuid as EXIT (see {@link GapPortalItem}). No destination until
-	 *       EXIT is placed anywhere (any dimension).</li>
-	 *   <li>Item with uuid+side on pending pair: fills the null side matching its side.</li>
+	 *   <li>Fresh item (no uuid, any dimension, ENTRY): place block as ENTRY pending
+	 *       {entry=here, exit=null} and replace hand with same-uuid EXIT item (see {@link GapPortalItem}).
+	 *       Consistent whether in GAP or not.</li>
+	 *   <li>Use EXIT item on ENTRY portal (same uuid) while pending: generates the missing side
+	 *       – non-GAP entry → GAP exit (proportional Y), GAP entry → overworld exit (spawn).
+	 *       Also handles the mirrored case (EXIT block + ENTRY item). Consumes the item.</li>
 	 *   <li>Item with uuid+side on complete pair: moves the side matching its side.</li>
 	 *   <li>Picking up via {@link GapPortalBlock} clears that endpoint (making pending) and gives item with side.</li>
 	 * </ul>
-	 * First portal placed outside GAP still defaults to GAP (proportional Y), preserving legacy.
 	 */
 	public void initData(PortalSide side) {
 		if (!(level instanceof ServerLevel sl)) return;
@@ -117,36 +119,12 @@ public class GapPortalBlockEntity extends BaseBlockEntity implements IPortalBloc
 		BlockPos here = getBlockPos();
 		ResourceLocation hereDim = sl.dimension().location();
 		if (prev == null) {
-			// Fresh pair
+			// Fresh pair: always pending with only the placed side, consistent whether in GAP or not.
+			// The other side will be generated when player uses the paired item on this portal.
 			if (side == PortalSide.ENTRY) {
-				if (isInGap(sl)) {
-					// Inside GAP fresh ENTRY
-					data.set(id, new GapMapping(here, hereDim, null, null));
-				} else {
-					// Outside fresh ENTRY -> default exit to GAP
-					int minY = sl.getMinBuildHeight();
-					int maxY = sl.getMaxBuildHeight();
-					var gapLevel = sl.getServer().getLevel(GLDimensionGen.GAP);
-					int gy0 = gapLevel != null ? gapLevel.getMinBuildHeight() : 0;
-					int gy1 = gapLevel != null ? gapLevel.getMaxBuildHeight() : 256;
-					int gy = (int) (1d * (here.getY() - minY) / (maxY - minY) * (gy1 - gy0)) + gy0;
-					BlockPos exitPos = new BlockPos(here.getX(), gy, here.getZ());
-					data.set(id, new GapMapping(here, hereDim, exitPos, GLDimensionGen.GAP.location()));
-				}
+				data.set(id, new GapMapping(here, hereDim, null, null));
 			} else {
-				// Fresh EXIT (rare, manually created): mirror
-				if (isInGap(sl)) {
-					data.set(id, new GapMapping(null, null, here, hereDim));
-				} else {
-					int minY = sl.getMinBuildHeight();
-					int maxY = sl.getMaxBuildHeight();
-					var gapLevel = sl.getServer().getLevel(GLDimensionGen.GAP);
-					int gy0 = gapLevel != null ? gapLevel.getMinBuildHeight() : 0;
-					int gy1 = gapLevel != null ? gapLevel.getMaxBuildHeight() : 256;
-					int gy = (int) (1d * (here.getY() - minY) / (maxY - minY) * (gy1 - gy0)) + gy0;
-					BlockPos entryPos = new BlockPos(here.getX(), gy, here.getZ());
-					data.set(id, new GapMapping(entryPos, GLDimensionGen.GAP.location(), here, hereDim));
-				}
+				data.set(id, new GapMapping(null, null, here, hereDim));
 			}
 			return;
 		}
@@ -228,18 +206,18 @@ public class GapPortalBlockEntity extends BaseBlockEntity implements IPortalBloc
 	}
 
 	/** Ensure portal exists at target; creates platform if target is GAP, otherwise simple portal. */
-	public static void ensurePortalAt(ServerLevelAccessor sl, BlockPos pos, UUID id) {
+	public static void ensurePortalAt(ServerLevelAccessor sl, BlockPos pos, UUID id, PortalSide side) {
 		if (sl.getBlockEntity(pos) instanceof GapPortalBlockEntity) return;
 		ResourceLocation dim = sl instanceof ServerLevel s ? s.dimension().location() : null;
 		boolean isGap = dim != null && dim.equals(GLDimensionGen.GAP.location());
 		if (isGap) {
-			createEndPlatform(sl, pos, id);
+			createEndPlatform(sl, pos, id, side);
 		} else {
-			createSimplePortal(sl, pos, id);
+			createSimplePortal(sl, pos, id, side);
 		}
 	}
 
-	public static void createEndPlatform(ServerLevelAccessor sl, BlockPos pos, UUID id) {
+	public static void createEndPlatform(ServerLevelAccessor sl, BlockPos pos, UUID id, PortalSide side) {
 		if (sl.getBlockEntity(pos) instanceof GapPortalBlockEntity) return;
 		BlockPos.MutableBlockPos m = pos.mutable();
 		for (int i = -2; i <= 2; ++i) {
@@ -251,38 +229,15 @@ public class GapPortalBlockEntity extends BaseBlockEntity implements IPortalBloc
 				}
 			}
 		}
-		createSimplePortal(sl, pos, id);
+		createSimplePortal(sl, pos, id, side);
 	}
 
-	private static void createSimplePortal(ServerLevelAccessor sl, BlockPos pos, UUID id) {
+	private static void createSimplePortal(ServerLevelAccessor sl, BlockPos pos, UUID id, PortalSide side) {
 		if (sl.getBlockEntity(pos) instanceof GapPortalBlockEntity) return;
 		sl.setBlock(pos, GLBlocks.GAP_PORTAL.getDefaultState(), 3);
 		sl.setBlock(pos.above(), GLBlocks.GAP_PORTAL.getDefaultState().setValue(BlockStateProperties.HALF, Half.TOP), 3);
 		if (sl.getBlockEntity(pos) instanceof GapPortalBlockEntity be) {
 			be.id = id;
-			PortalSide side;
-			if (sl instanceof ServerLevel s2) {
-				var data = GapMappingData.get(s2).get(id);
-				if (data != null) {
-					BlockPos here = be.getBlockPos();
-					ResourceLocation hereDim = s2.dimension().location();
-					if (data.entryPos() != null && here.equals(data.entryPos()) && hereDim.equals(data.entryDim()))
-						side = PortalSide.ENTRY;
-					else if (data.exitPos() != null && here.equals(data.exitPos()) && hereDim.equals(data.exitDim()))
-						side = PortalSide.EXIT;
-					else if (data.isPending()) {
-						// Pending: new portal is the missing side
-						if (data.entryPos() == null) side = PortalSide.ENTRY;
-						else side = PortalSide.EXIT;
-					} else {
-						side = isInGap(s2) ? PortalSide.EXIT : PortalSide.ENTRY;
-					}
-				} else {
-					side = isInGap(s2) ? PortalSide.EXIT : PortalSide.ENTRY;
-				}
-			} else {
-				side = PortalSide.ENTRY;
-			}
 			be.side = side;
 			be.initData(side);
 		}
