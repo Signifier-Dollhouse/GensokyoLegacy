@@ -33,6 +33,13 @@ public abstract class DialogMenu extends AbstractContainerMenu implements TalkMo
 
 	public abstract Optional<Component> getBodyText();
 
+	/**
+	 * Name drawn on the avatar name plate. Defaults to the entity display name.
+	 */
+	public Optional<Component> getSpeakerName() {
+		return Optional.ofNullable(character).map(e -> e.getDisplayName());
+	}
+
 	@Override
 	public ItemStack quickMoveStack(Player player, int slot) {
 		return ItemStack.EMPTY;
