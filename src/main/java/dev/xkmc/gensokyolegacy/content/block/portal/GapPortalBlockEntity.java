@@ -43,13 +43,16 @@ public class GapPortalBlockEntity extends BaseBlockEntity implements IPortalBloc
 	@Nullable
 	public PortalSide side;
 
+	@SerialField
+	public boolean pending = true;
+
 	public GapPortalBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
 		super(type, pos, state);
 	}
 
 	@Override
 	public void tick() {
-
+		updatePending();
 	}
 
 	@Override
@@ -115,9 +118,7 @@ public class GapPortalBlockEntity extends BaseBlockEntity implements IPortalBloc
 		ResourceLocation hereDim = sl.dimension().location();
 		if (prev == null) {
 			data.set(id, new GapMapping(null, null, null, null).with(side, here, hereDim));
-			return;
-		}
-		if (prev.isPending()) {
+		} else if (prev.isPending()) {
 			if (prev.isSidePending(side)) {
 				data.set(id, prev.with(side, here, hereDim));
 			} else {
@@ -128,13 +129,14 @@ public class GapPortalBlockEntity extends BaseBlockEntity implements IPortalBloc
 					data.set(id, prev.with(side, here, hereDim));
 				}
 			}
-			return;
+		} else {
+			BlockPos oldPos = prev.posAt(side);
+			ResourceLocation oldDim = prev.dimAt(side);
+			if (!here.equals(oldPos) || !hereDim.equals(oldDim)) {
+				destroyPos(sl, oldPos, oldDim);
+				data.set(id, prev.with(side, here, hereDim));
+			}
 		}
-		BlockPos oldPos = prev.posAt(side);
-		ResourceLocation oldDim = prev.dimAt(side);
-		if (here.equals(oldPos) && hereDim.equals(oldDim)) return;
-		destroyPos(sl, oldPos, oldDim);
-		data.set(id, prev.with(side, here, hereDim));
 	}
 
 	private static void destroyIfLoaded(ServerLevel sl, @Nullable BlockPos pos) {
@@ -176,6 +178,21 @@ public class GapPortalBlockEntity extends BaseBlockEntity implements IPortalBloc
 	public PortalSide getSide() {
 		if (side != null) return side;
 		return PortalSide.ENTRY;
+	}
+
+	public void updatePending() {
+		if (!(level instanceof ServerLevel sl)) return;
+		boolean shouldPending = true;
+		if (id != null) {
+			var data = GapMappingData.get(sl).get(id);
+			shouldPending = data == null || data.isPending();
+		} else {
+			shouldPending = false;
+		}
+		if (pending != shouldPending) {
+			pending = shouldPending;
+			sync();
+		}
 	}
 
 	public ItemStack getItem() {
