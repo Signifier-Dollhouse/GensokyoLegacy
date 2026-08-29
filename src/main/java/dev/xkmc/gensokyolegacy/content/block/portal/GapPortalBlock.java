@@ -68,12 +68,7 @@ public class GapPortalBlock implements AnimateTickBlockMethod, ShapeBlockMethod,
 		var mapping = data.get(gap.id);
 		if (mapping == null) return;
 		PortalSide side = gap.getSide();
-		GapMapping newMapping;
-		if (side == PortalSide.ENTRY) {
-			newMapping = new GapMapping(null, null, mapping.exitPos(), mapping.exitDim());
-		} else {
-			newMapping = new GapMapping(mapping.entryPos(), mapping.entryDim(), null, null);
-		}
+		GapMapping newMapping = mapping.with(side, null, null);
 		if (newMapping.entryPos() == null && newMapping.exitPos() == null) {
 			data.remove(gap.id);
 		} else {
@@ -97,8 +92,8 @@ public class GapPortalBlock implements AnimateTickBlockMethod, ShapeBlockMethod,
 					if (itemSide != null && blockSide != null && itemSide != blockSide) {
 						GapMapping newMapping = GapPortalForcer.completePending(mapping, itemSide, sl);
 						if (newMapping.isPending()) return ItemInteractionResult.FAIL;
-						BlockPos targetPos = itemSide == PortalSide.EXIT ? newMapping.exitPos() : newMapping.entryPos();
-						ResourceLocation targetDim = itemSide == PortalSide.EXIT ? newMapping.exitDim() : newMapping.entryDim();
+						BlockPos targetPos = newMapping.posAt(itemSide);
+						ResourceLocation targetDim = newMapping.dimAt(itemSide);
 						ServerLevel targetLevel = sl.getServer().getLevel(ResourceKey.create(Registries.DIMENSION, targetDim));
 						if (targetLevel == null || !GapPortalForcer.canPlaceAt(targetLevel, targetPos)) {
 							return ItemInteractionResult.FAIL;

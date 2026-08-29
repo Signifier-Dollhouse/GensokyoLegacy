@@ -6,6 +6,7 @@ import dev.xkmc.gensokyolegacy.content.dimension.GLDimensionGen;
 import dev.xkmc.gensokyolegacy.init.registrate.GLBlocks;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.l2core.base.tile.BaseBlockEntity;
+import dev.xkmc.l2modularblock.tile_api.TickableBlockEntity;
 import dev.xkmc.l2serial.serialization.marker.SerialClass;
 import dev.xkmc.l2serial.serialization.marker.SerialField;
 import net.minecraft.core.BlockPos;
@@ -17,8 +18,6 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -30,7 +29,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.UUID;
 
 @SerialClass
-public class GapPortalBlockEntity extends BaseBlockEntity implements IPortalBlockEntity {
+public class GapPortalBlockEntity extends BaseBlockEntity implements IPortalBlockEntity, TickableBlockEntity {
 
 	public static boolean isInGap(Level level) {
 		return level.dimension().location().equals(GLDimensionGen.GAP.location());
@@ -49,6 +48,11 @@ public class GapPortalBlockEntity extends BaseBlockEntity implements IPortalBloc
 	}
 
 	@Override
+	public void tick() {
+
+	}
+
+	@Override
 	public @Nullable DimensionTransition getPortalDestination(ServerLevel level, Entity e, BlockPos pos) {
 		if (getBlockState().getValue(BlockStateProperties.HALF) == Half.TOP) {
 			if (level.getBlockEntity(pos.below()) instanceof GapPortalBlockEntity be) {
@@ -59,18 +63,9 @@ public class GapPortalBlockEntity extends BaseBlockEntity implements IPortalBloc
 		var data = GapMappingData.get(level).get(id);
 		if (data == null || data.isPending()) return null;
 		PortalSide curSide = getSide();
-		BlockPos targetPos;
-		ResourceLocation targetDim;
-		PortalSide targetSide;
-		if (curSide == PortalSide.ENTRY) {
-			targetPos = data.exitPos();
-			targetDim = data.exitDim();
-			targetSide = PortalSide.EXIT;
-		} else {
-			targetPos = data.entryPos();
-			targetDim = data.entryDim();
-			targetSide = PortalSide.ENTRY;
-		}
+		PortalSide targetSide = curSide.other();
+		BlockPos targetPos = data.posAt(targetSide);
+		ResourceLocation targetDim = data.dimAt(targetSide);
 		if (targetPos == null || targetDim == null) return null;
 		ServerLevel targetLevel = level.getServer().getLevel(ResourceKey.create(Registries.DIMENSION, targetDim));
 		if (targetLevel == null) return null;
@@ -119,65 +114,37 @@ public class GapPortalBlockEntity extends BaseBlockEntity implements IPortalBloc
 		BlockPos here = getBlockPos();
 		ResourceLocation hereDim = sl.dimension().location();
 		if (prev == null) {
-			// Fresh pair: always pending with only the placed side, consistent whether in GAP or not.
-			// The other side will be generated when player uses the paired item on this portal.
-			if (side == PortalSide.ENTRY) {
-				data.set(id, new GapMapping(here, hereDim, null, null));
-			} else {
-				data.set(id, new GapMapping(null, null, here, hereDim));
-			}
+			data.set(id, new GapMapping(null, null, null, null).with(side, here, hereDim));
 			return;
 		}
 		if (prev.isPending()) {
-			// Fill the null side matching the placed side
-			if (side == PortalSide.ENTRY) {
-				if (prev.entryPos() == null || prev.entryDim() == null) {
-					data.set(id, new GapMapping(here, hereDim, prev.exitPos(), prev.exitDim()));
-				} else if (prev.exitPos() == null || prev.exitDim() == null) {
-					// Entry already present but we are placing ENTRY again at different pos -> move entry
-					if (!here.equals(prev.entryPos()) || !hereDim.equals(prev.entryDim())) {
-						destroyIfLoaded(sl, prev.entryPos());
-						data.set(id, new GapMapping(here, hereDim, prev.exitPos(), prev.exitDim()));
-					}
-				}
-			} else { // EXIT
-				if (prev.exitPos() == null || prev.exitDim() == null) {
-					data.set(id, new GapMapping(prev.entryPos(), prev.entryDim(), here, hereDim));
-				} else if (prev.entryPos() == null || prev.entryDim() == null) {
-					if (!here.equals(prev.exitPos()) || !hereDim.equals(prev.exitDim())) {
-						destroyIfLoaded(sl, prev.exitPos());
-						data.set(id, new GapMapping(prev.entryPos(), prev.entryDim(), here, hereDim));
-					}
+			if (prev.isSidePending(side)) {
+				data.set(id, prev.with(side, here, hereDim));
+			} else {
+				BlockPos oldPos = prev.posAt(side);
+				ResourceLocation oldDim = prev.dimAt(side);
+				if (!here.equals(oldPos) || !hereDim.equals(oldDim)) {
+					destroyIfLoaded(sl, oldPos);
+					data.set(id, prev.with(side, here, hereDim));
 				}
 			}
 			return;
 		}
-		// Complete pair: move the side matching the placed item's side
-		if (side == PortalSide.ENTRY) {
-			if (here.equals(prev.entryPos()) && hereDim.equals(prev.entryDim())) return;
-			destroyEntryPos(sl, prev);
-			data.set(id, new GapMapping(here, hereDim, prev.exitPos(), prev.exitDim()));
-		} else {
-			if (here.equals(prev.exitPos()) && hereDim.equals(prev.exitDim())) return;
-			destroyExitPos(sl, prev);
-			data.set(id, new GapMapping(prev.entryPos(), prev.entryDim(), here, hereDim));
-		}
+		BlockPos oldPos = prev.posAt(side);
+		ResourceLocation oldDim = prev.dimAt(side);
+		if (here.equals(oldPos) && hereDim.equals(oldDim)) return;
+		destroyPos(sl, oldPos, oldDim);
+		data.set(id, prev.with(side, here, hereDim));
 	}
 
 	private static void destroyIfLoaded(ServerLevel sl, @Nullable BlockPos pos) {
 		if (pos != null && sl.isLoaded(pos)) sl.destroyBlock(pos, false);
 	}
 
-	private static void destroyEntryPos(ServerLevel sl, GapMapping prev) {
-		if (prev.entryPos() == null || prev.entryDim() == null) return;
-		var other = sl.getServer().getLevel(ResourceKey.create(Registries.DIMENSION, prev.entryDim()));
-		if (other != null && other.isLoaded(prev.entryPos())) other.destroyBlock(prev.entryPos(), false);
-	}
-
-	private static void destroyExitPos(ServerLevel sl, GapMapping prev) {
-		if (prev.exitPos() == null || prev.exitDim() == null) return;
-		var other = sl.getServer().getLevel(ResourceKey.create(Registries.DIMENSION, prev.exitDim()));
-		if (other != null && other.isLoaded(prev.exitPos())) other.destroyBlock(prev.exitPos(), false);
+	private static void destroyPos(ServerLevel sl, @Nullable BlockPos pos, @Nullable ResourceLocation dim) {
+		if (pos == null || dim == null) return;
+		var other = sl.getServer().getLevel(ResourceKey.create(Registries.DIMENSION, dim));
+		if (other != null && other.isLoaded(pos)) other.destroyBlock(pos, false);
 	}
 
 	@Override
@@ -191,12 +158,9 @@ public class GapPortalBlockEntity extends BaseBlockEntity implements IPortalBloc
 		BlockPos here = getBlockPos();
 		ResourceLocation hereDim = sl.dimension().location();
 		PortalSide curSide = getSide();
-		boolean matches;
-		if (curSide == PortalSide.ENTRY) {
-			matches = prev.entryPos() != null && here.equals(prev.entryPos()) && hereDim.equals(prev.entryDim());
-		} else {
-			matches = prev.exitPos() != null && here.equals(prev.exitPos()) && hereDim.equals(prev.exitDim());
-		}
+		BlockPos expectedPos = prev.posAt(curSide);
+		ResourceLocation expectedDim = prev.dimAt(curSide);
+		boolean matches = expectedPos != null && expectedDim != null && here.equals(expectedPos) && hereDim.equals(expectedDim);
 		if (!matches) {
 			sl.destroyBlock(here, false);
 			if (sl.getBlockState(here.above()).getBlock() == GLBlocks.GAP_PORTAL.get()) {

@@ -25,9 +25,9 @@ public class GapPortalForcer {
 
 	/** Complete a pending mapping by generating the missing side. Same logic for ENTRY and EXIT. */
 	public static GapMapping completePending(GapMapping pending, PortalSide missingSide, ServerLevel sourceLevel) {
-		boolean missingIsExit = missingSide == PortalSide.EXIT;
-		BlockPos sourcePos = missingIsExit ? pending.entryPos() : pending.exitPos();
-		ResourceLocation sourceDim = missingIsExit ? pending.entryDim() : pending.exitDim();
+		PortalSide sourceSide = missingSide == PortalSide.EXIT ? PortalSide.ENTRY : PortalSide.EXIT;
+		BlockPos sourcePos = pending.posAt(sourceSide);
+		ResourceLocation sourceDim = pending.dimAt(sourceSide);
 		if (sourcePos == null || sourceDim == null) return pending;
 		ServerLevel sourceLvl = sourceLevel.getServer().getLevel(ResourceKey.create(Registries.DIMENSION, sourceDim));
 		if (sourceLvl == null) sourceLvl = sourceLevel;
@@ -38,8 +38,7 @@ public class GapPortalForcer {
 		ResourceLocation targetDim = targetLevel.dimension().location();
 		if (!sourceInGap) targetDim = GLDimensionGen.GAP.location();
 		BlockPos targetPos = scaledPos(sourcePos, sourceLvl, targetLevel);
-		return missingIsExit ? new GapMapping(sourcePos, sourceDim, targetPos, targetDim)
-				: new GapMapping(targetPos, targetDim, sourcePos, sourceDim);
+		return pending.with(missingSide, targetPos, targetDim);
 	}
 
 	private static BlockPos scaledPos(BlockPos sourcePos, ServerLevel sourceLevel, ServerLevel targetLevel) {
