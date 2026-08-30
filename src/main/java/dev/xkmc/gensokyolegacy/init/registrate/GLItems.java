@@ -20,6 +20,7 @@ import dev.xkmc.gensokyolegacy.content.item.tool.*;
 import dev.xkmc.gensokyolegacy.content.item.umbrella.BorderUmbrellaItem;
 import dev.xkmc.gensokyolegacy.content.item.umbrella.data.BorderUmbrellaMode;
 import dev.xkmc.gensokyolegacy.content.item.umbrella.data.BorderUmbrellaSlots;
+import dev.xkmc.gensokyolegacy.content.block.portal.PortalSide;
 import dev.xkmc.gensokyolegacy.content.item.umbrella.data.BorderUmbrellaTravelData;
 import dev.xkmc.gensokyolegacy.content.item.umbrella.data.BorderUmbrellaUnlock;
 import dev.xkmc.gensokyolegacy.content.spell.item.*;
@@ -76,6 +77,7 @@ public class GLItems {
 	private static final DCReg DC = DCReg.of(GensokyoLegacy.REG);
 	public static final DCVal<MiniFurnace1.Data> DC_FURNACE_1 = DC.reg("mini_furnace_1_data", MiniFurnace1.Data.class, false);
 	public static final DCVal<UUID> DC_UUID = DC.uuid("uuid");
+	public static final DCVal<PortalSide> DC_PORTAL_SIDE = DC.enumVal("portal_side", EnumCodec.of(PortalSide.class, PortalSide.values()));
 	public static final DCVal<UUID> DC_DEBUG_YOUKAI = DC.uuid("debug_youkai");
 	public static final DCVal<ResourceLocation> DC_OFFER = DC.loc("offer");
 	public static final DCVal<BorderUmbrellaSlots> UMBRELLA_SLOTS = DC.reg("border_umbrella_slots", BorderUmbrellaSlots.class, false);
@@ -134,7 +136,7 @@ public class GLItems {
 					.lang("Cat Bell").register();
 
 			BORDER_UMBRELLA = reg.item("border_umbrella", BorderUmbrellaItem::new)
-					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/tool/" + ctx.getName())))
+					.model((ctx, pvd) -> pvd.handheld(ctx, pvd.modLoc("item/tool/" + ctx.getName())))
 					.lang("Border Umbrella").tab(TAB.key(), BorderUmbrellaItem::fillCreativeModeTab)
 					.tag(L2ISTagGen.SELECTABLE)
 					.register();
