@@ -497,10 +497,56 @@ public final class GLLang {
 		}
 	}
 
+	// ========== Alchemy Pot Overlay ==========
+	public enum Alchemy implements LangEntry {
+		ALLOW("Possible ingredients"),
+		EXTRA("+%s more", 1);
+
+		private final String def;
+		private final int argn;
+		private final String key;
+		private final @Nullable ChatFormatting format;
+
+		Alchemy(String def) {
+			this(def, 0);
+		}
+
+		Alchemy(String def, int argn) {
+			this(def, argn, null);
+		}
+
+		Alchemy(String def, int argn, @Nullable ChatFormatting format) {
+			this.def = def;
+			this.argn = argn;
+			this.key = GensokyoLegacy.MODID + ".alchemy." + name().toLowerCase(Locale.ROOT);
+			this.format = format;
+		}
+
+		@Override
+		public String key() {
+			return key;
+		}
+
+		@Override
+		public String def() {
+			return def;
+		}
+
+		@Override
+		public int argn() {
+			return argn;
+		}
+
+		@Override
+		public @Nullable ChatFormatting format() {
+			return format;
+		}
+	}
+
 	public static void genLang(RegistrateLangProvider pvd) {
 		for (var group : new LangEntry[][]{
 				Quest.values(), Info.values(), Trade.values(), Misc.values(),
-				ItemDebug.values(), ItemFurnace.values(), ItemCommon.values(), ItemUmbrella.values()}) {
+				ItemDebug.values(), ItemFurnace.values(), ItemCommon.values(), ItemUmbrella.values(), Alchemy.values()}) {
 			for (var e : group) {
 				pvd.add(e.key(), e.def());
 			}

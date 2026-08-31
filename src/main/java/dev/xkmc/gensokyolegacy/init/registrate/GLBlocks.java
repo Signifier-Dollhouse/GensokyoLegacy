@@ -13,6 +13,9 @@ import dev.xkmc.gensokyolegacy.content.block.donation.DonationShape;
 import dev.xkmc.gensokyolegacy.content.block.donation.DoubleBlockHorizontal;
 import dev.xkmc.gensokyolegacy.content.block.misc.BookPile;
 import dev.xkmc.gensokyolegacy.content.block.misc.BookStack;
+import dev.xkmc.gensokyolegacy.content.block.pot.AlchemyPotBlock;
+import dev.xkmc.gensokyolegacy.content.block.pot.AlchemyPotBlockEntity;
+import dev.xkmc.gensokyolegacy.content.block.pot.AlchemyPotRenderer;
 import dev.xkmc.gensokyolegacy.content.block.portal.*;
 import dev.xkmc.gensokyolegacy.content.block.shelf.ShelfBlock;
 import dev.xkmc.gensokyolegacy.content.block.shelf.ShelfBlockEntity;
@@ -79,6 +82,7 @@ public class GLBlocks {
 	public static final BlockEntityEntry<GapPortalBlockEntity> GAP_BE;
 
 	public static final BlockEntry<DelegateBlock> BOOK_PILE, BOOK_STACK, ALCHEMY_POT;
+	public static final BlockEntityEntry<AlchemyPotBlockEntity> ALCHEMY_POT_BE;
 
 	public static final BlockEntry<YoukaiBedBlock>[] BEDS;
 	public static final BlockEntityEntry<YoukaiBedBlockEntity> BE_BED;
@@ -173,8 +177,9 @@ public class GLBlocks {
 							RecipeCategory.DECORATIONS, ctx.get(), 1)::unlockedBy, Items.BOOK).requires(Items.BOOK, 5).save(pvd))
 					.register();
 
-			ALCHEMY_POT = GensokyoLegacy.REGISTRATE.block("alchemy_pot", p -> DelegateBlock.newBaseBlock(p))
-					.initialProperties(() -> Blocks.ANVIL)
+			ALCHEMY_POT = GensokyoLegacy.REGISTRATE.block("alchemy_pot", p -> DelegateBlock.newBaseBlock(p,
+							new AlchemyPotBlock(), AlchemyPotBlock.BE))
+					.initialProperties(() -> Blocks.COPPER_BLOCK)
 					.properties(BlockBehaviour.Properties::noOcclusion)
 					.blockstate((ctx, pvd) -> pvd.simpleBlock(ctx.get(),
 							pvd.models().getBuilder(ctx.getName())
@@ -183,6 +188,10 @@ public class GLBlocks {
 									.renderType("cutout")
 					))
 					.simpleItem()
+					.register();
+			ALCHEMY_POT_BE = GensokyoLegacy.REGISTRATE.blockEntity("alchemy_pot", AlchemyPotBlockEntity::new)
+					.validBlock(ALCHEMY_POT)
+					.renderer(() -> AlchemyPotRenderer::new)
 					.register();
 		}
 

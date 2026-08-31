@@ -2,6 +2,9 @@ package dev.xkmc.gensokyolegacy.init;
 
 import com.github.tartaricacid.touhoulittlemaid.TouhouLittleMaid;
 import dev.xkmc.gensokyolegacy.compat.touhoulittlemaid.TLMRenderHandler;
+import dev.xkmc.gensokyolegacy.content.block.pot.overlay.AlchemyHintOverlay;
+import dev.xkmc.gensokyolegacy.content.block.pot.overlay.TileClientTooltip;
+import dev.xkmc.gensokyolegacy.content.block.pot.overlay.TileTooltip;
 import dev.xkmc.gensokyolegacy.content.client.debug.DebugOverlay;
 import dev.xkmc.gensokyolegacy.content.client.model.*;
 import dev.xkmc.gensokyolegacy.content.entity.characters.fairy.CirnoModel;
@@ -26,6 +29,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
+import net.neoforged.neoforge.client.event.RegisterClientTooltipComponentFactoriesEvent;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.event.RegisterItemDecorationsEvent;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
@@ -45,6 +49,12 @@ public class GLClient {
 	public static void addGuiLayer(RegisterGuiLayersEvent event) {
 		event.registerAbove(VanillaGuiLayers.CROSSHAIR, GensokyoLegacy.loc("debug"), new DebugOverlay());
 		event.registerAbove(VanillaGuiLayers.CROSSHAIR, GensokyoLegacy.loc("quest"), new QuestOverlay());
+		event.registerAbove(VanillaGuiLayers.CROSSHAIR, GensokyoLegacy.loc("alchemy_hint"), new AlchemyHintOverlay());
+	}
+
+	@SubscribeEvent
+	public static void registerTooltips(RegisterClientTooltipComponentFactoriesEvent event) {
+		event.register(TileTooltip.class, TileClientTooltip::new);
 	}
 
 	@SubscribeEvent

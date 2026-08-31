@@ -22,6 +22,9 @@ NeoForge 1.21.1 mod (Gensokyo Legacy, Touhou characters/structures). Java 21, Gr
 - Mixins go in `mixin/` and must be declared in `src/main/resources/gensokyolegacy.mixins.json` (`defaultRequire: 1` — unlisted/unmatched mixins fail hard).
 - Access transformer: `src/main/resources/META-INF/accesstransformer.cfg`.
 
+## Code style
+- Never use fully-qualified names (FQNs) inline — always add an `import` and use the simple name. This applies to all Java sources.
+
 ## Code layout
 - `content/entity/characters/<character>/` — per-character Entity/Model/Renderer (fairy, maiden, rumia, merchant, boss); shared youkai base classes in `content/entity/youkai/`; AI in `content/entity/behavior/` (brain/sensor/task/move/combat).
 - `content/attachment/` — player/entity data (character data, homes/structures, gap mapping).

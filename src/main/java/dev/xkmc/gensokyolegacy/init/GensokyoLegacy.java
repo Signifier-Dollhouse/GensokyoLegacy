@@ -57,9 +57,11 @@ import net.neoforged.fml.ModList;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
+import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.crafting.FluidIngredient;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -107,6 +109,7 @@ public class GensokyoLegacy {
 	public GensokyoLegacy() {
 		Handlers.enableVanilla(Fluid.class, BuiltInRegistries.FLUID);
 		new CodecHandler<>(FluidIngredient.class, FluidIngredient.CODEC, FluidIngredient.STREAM_CODEC);
+		new CodecHandler<>(FluidStack.class, FluidStack.CODEC, FluidStack.STREAM_CODEC);
 
 		GLDecoBlocks.register();
 		GLItems.register();
@@ -137,6 +140,14 @@ public class GensokyoLegacy {
 
 	@SubscribeEvent
 	public static void registerCapabilities(RegisterCapabilitiesEvent event) {
+		event.registerBlockEntity(
+				Capabilities.ItemHandler.BLOCK,
+				GLBlocks.ALCHEMY_POT_BE.get(),
+				(be, dir) -> be.getItemCap(dir));
+		event.registerBlockEntity(
+				Capabilities.FluidHandler.BLOCK,
+				GLBlocks.ALCHEMY_POT_BE.get(),
+				(be, dir) -> be.getTankCap(dir));
 	}
 
 	@SubscribeEvent
