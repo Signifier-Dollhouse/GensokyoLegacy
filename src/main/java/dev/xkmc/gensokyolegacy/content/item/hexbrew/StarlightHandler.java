@@ -1,14 +1,10 @@
 package dev.xkmc.gensokyolegacy.content.item.hexbrew;
 
-import dev.xkmc.danmakuapi.content.entity.ItemBulletEntity;
-import dev.xkmc.danmakuapi.init.registrate.DanmakuEntities;
-import dev.xkmc.danmakuapi.init.registrate.DanmakuItems;
 import dev.xkmc.gensokyolegacy.init.registrate.GLEffects;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -42,17 +38,7 @@ public class StarlightHandler implements HexBrewHandler {
 			}
 		}
 		if (!(thrower instanceof LivingEntity livingOwner)) return;
-		for (int i = 0; i < 16; i++) {
-			double angle = i * Math.PI * 2 / 16;
-			Vec3 dir = new Vec3(Math.cos(angle), 0, Math.sin(angle)).normalize().scale(1.0);
-			Vec3 spawn = pos.add(dir.scale(0.5)).add(0, 0.5, 0);
-			int life = 15 + level.getRandom().nextInt(11);
-			ItemBulletEntity bullet = new ItemBulletEntity(DanmakuEntities.ITEM_DANMAKU.get(), spawn.x, spawn.y, spawn.z, level);
-			bullet.setOwner(livingOwner);
-			bullet.setItem(DanmakuItems.Bullet.STAR.get(DyeColor.YELLOW).asStack());
-			bullet.setup(4.0f, life, false, false, dir);
-			level.addFreshEntity(bullet);
-		}
+		SparklingEventHandler.spawnStars(level, livingOwner, pos, 0.5f);
 	}
 
 	public static String getOwnerKey() {

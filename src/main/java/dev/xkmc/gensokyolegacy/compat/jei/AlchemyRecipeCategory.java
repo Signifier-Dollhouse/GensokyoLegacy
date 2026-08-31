@@ -20,19 +20,20 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.neoforged.neoforge.fluids.FluidStack;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class AlchemyRecipeCategory extends BaseRecipeCategory<AlchemyRecipe<?>, AlchemyRecipeCategory> {
 
+	private static final int WIDTH = 18 * 4 + 30 + 36;
+
 	public AlchemyRecipeCategory() {
 		super(GensokyoLegacy.loc("alchemy"), Wrappers.cast(AlchemyRecipe.class));
 	}
 
 	public AlchemyRecipeCategory init(IGuiHelper helper) {
-		this.background = helper.createBlankDrawable(18 * 6 + 30, 54);
+		this.background = helper.createBlankDrawable(WIDTH, 36);
 		this.icon = helper.createDrawableIngredient(VanillaTypes.ITEM_STACK, GLBlocks.ALCHEMY_POT.asStack());
 		return this;
 	}
@@ -46,70 +47,99 @@ public class AlchemyRecipeCategory extends BaseRecipeCategory<AlchemyRecipe<?>, 
 	public void createRecipeExtras(IRecipeExtrasBuilder builder, AlchemyRecipe<?> recipe, IFocusGroup focuses) {
 		int time = recipe.getProcessTime();
 		if (time <= 0) time = 200;
-		builder.addAnimatedRecipeArrow(time).setPosition(68, 18);
+		Layout lay = compute(recipe);
+		builder.addAnimatedRecipeArrow(time).setPosition(lay.arrowX, lay.arrowY);
 		builder.addText(Component.translatable("gui.jei.category.smelting.time.seconds", time / 20), 80, 10)
-				.setPosition(0, 0, getWidth(), getHeight(), HorizontalAlignment.RIGHT, VerticalAlignment.BOTTOM)
-				.setTextAlignment(HorizontalAlignment.RIGHT)
+				.setPosition(lay.arrowX, 26)
 				.setColor(0xFF808080);
 	}
 
 	@Override
 	public void setRecipe(IRecipeLayoutBuilder builder, AlchemyRecipe<?> recipe, IFocusGroup focuses) {
-		// input fluid as item (water bucket/bottle, hexbrew bottle), or fluid
-		var inFluidItems = recipe.getInputFluidItemStacks();
-		if (!inFluidItems.isEmpty()) {
-			builder.addSlot(RecipeIngredientRole.INPUT, 1, 18)
-					.setStandardSlotBackground()
-					.addItemStacks(inFluidItems);
-			builder.addInvisibleIngredients(RecipeIngredientRole.INPUT)
-					.addIngredients(NeoForgeTypes.FLUID_STACK, List.of(recipe.inputFluid.getStacks()));
-		} else if (!recipe.inputFluid.isEmpty()) {
-			builder.addSlot(RecipeIngredientRole.INPUT, 1, 18)
-					.setStandardSlotBackground()
-					.addIngredients(NeoForgeTypes.FLUID_STACK, List.of(recipe.inputFluid.getStacks()));
+		var compiled = compile(recipe.getInputItems());
+		Layout lay = compute(recipe);
+		int idx = 0;
+		// input fluid
+		if (!recipe.inputFluid.isEmpty()) {
+			var slot = builder.addSlot(RecipeIngredientRole.INPUT, lay.inputX, lay.inputY)
+					.setStandardSlotBackground();
+			var inFluidItems = recipe.getInputFluidItemStacks();
+			if (!inFluidItems.isEmpty()) {
+				slot.addItemStacks(inFluidItems);
+				builder.addInvisibleIngredients(RecipeIngredientRole.INPUT)
+						.addIngredients(NeoForgeTypes.FLUID_STACK, List.of(recipe.inputFluid.getStacks()));
+			} else {
+				slot.addIngredients(NeoForgeTypes.FLUID_STACK, List.of(recipe.inputFluid.getStacks()));
+			}
+			idx++;
 		}
 		// input items
-		var compiled = compile(recipe.getInputItems());
-		int n = compiled.size();
-		int width = n <= 3 ? n : (n + 2) / 3;
-		int startX = 20;
-		int rows = n == 0 ? 0 : (n + width - 1) / width;
-		int startY = rows <= 1 ? 18 : rows == 2 ? 9 : 0;
-		int x = 0, y = 0;
 		for (var arr : compiled) {
-			int px = startX + x * 18;
-			int py = startY + y * 18;
-			builder.addSlot(RecipeIngredientRole.INPUT, px, py)
+			int col = idx % lay.inputCols, row = idx / lay.inputCols;
+			builder.addSlot(RecipeIngredientRole.INPUT, lay.inputX + col * SLOT, lay.inputY + row * SLOT)
 					.setStandardSlotBackground()
 					.addItemStacks(List.of(arr));
-			x++;
-			if (x >= width) {
-				x = 0;
-				y++;
-			}
+			idx++;
 		}
-		// output fluid as item
-		FluidStack outFluid = recipe.resultFluid;
-		if (!outFluid.isEmpty()) {
-			var outFluidItems = recipe.getOutputFluidItemStacks();
-			if (!outFluidItems.isEmpty()) {
-				builder.addSlot(RecipeIngredientRole.OUTPUT, 106, 18)
-						.setOutputSlotBackground()
-						.addItemStacks(outFluidItems);
+		// outputs
+		boolean outFluid = !recipe.resultFluid.isEmpty();
+		boolean outItem = !recipe.resultItem.isEmpty();
+		if (lay.outCount == 1) {
+			addOutput(builder, recipe, lay.outX, lay.outY, true, outFluid, outItem);
+		} else if (lay.outCount == 2) {
+			int oi = 0;
+			if (outFluid) addOutput(builder, recipe, lay.outX + SLOT * oi++, lay.outY, false, true, false);
+			if (outItem) addOutput(builder, recipe, lay.outX + SLOT * oi, lay.outY, false, false, true);
+		}
+	}
+
+	private void addOutput(IRecipeLayoutBuilder builder, AlchemyRecipe<?> recipe, int x, int y,
+	                       boolean big, boolean useFluid, boolean useItem) {
+		var slot = builder.addSlot(RecipeIngredientRole.OUTPUT, x, y);
+		if (big) slot.setOutputSlotBackground();
+		else slot.setStandardSlotBackground();
+		if (useFluid) {
+			if (!recipe.getOutputFluidItemStacks().isEmpty()) {
+				slot.addItemStacks(recipe.getOutputFluidItemStacks());
 				builder.addInvisibleIngredients(RecipeIngredientRole.OUTPUT)
-						.addIngredients(NeoForgeTypes.FLUID_STACK, List.of(outFluid));
+						.addIngredients(NeoForgeTypes.FLUID_STACK, List.of(recipe.resultFluid));
 			} else {
-				if (!outFluid.isEmpty()) {
-					builder.addSlot(RecipeIngredientRole.OUTPUT, 106, 18)
-							.setOutputSlotBackground()
-							.addIngredients(NeoForgeTypes.FLUID_STACK, List.of(outFluid));
-				}
+				slot.addIngredients(NeoForgeTypes.FLUID_STACK, List.of(recipe.resultFluid));
 			}
-		} else if (!recipe.resultItem.isEmpty()) {
-			builder.addSlot(RecipeIngredientRole.OUTPUT, 106, 18)
-					.setOutputSlotBackground()
-					.addItemStack(recipe.resultItem);
 		}
+		if (useItem) {
+			slot.addItemStack(recipe.resultItem);
+		}
+	}
+
+	private static final int SLOT = 18;
+	private static final int BIG_OUT = 26;
+	private static final int ARROW_W = 30;
+
+	private record Layout(int inputX, int inputY, int inputCols, int arrowX, int arrowY,
+	                      int outX, int outY, int outCount) {
+	}
+
+	private Layout compute(AlchemyRecipe<?> recipe) {
+		boolean outFluid = !recipe.resultFluid.isEmpty();
+		boolean outItem = !recipe.resultItem.isEmpty();
+		int outCount = (outFluid ? 1 : 0) + (outItem ? 1 : 0);
+
+		int inputCount = compile(recipe.getInputItems()).size() + (!recipe.inputFluid.isEmpty() ? 1 : 0);
+		int inputW = inputCount <= 4 ? inputCount * SLOT : ((inputCount + 1) / 2) * SLOT;
+		int outW = outCount == 1 ? BIG_OUT : outCount == 2 ? SLOT * 2 : 0;
+		int totalW = inputW + ARROW_W + outW;
+		int x0 = Math.max(0, (getWidth() - totalW) / 2);
+
+		int inputCols = inputCount <= 4 ? inputCount : (inputCount + 1) / 2;
+		boolean twoRows = inputCount > 4;
+
+		return new Layout(
+				x0 + 1, twoRows ? 1 : 10, inputCols,
+				x0 + inputW + 4, 10,
+				x0 + inputW + ARROW_W + 5, 10,
+				outCount
+		);
 	}
 
 	private List<ItemStack[]> compile(List<Ingredient> list) {

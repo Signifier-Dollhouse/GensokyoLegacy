@@ -35,28 +35,6 @@ public class GLJEIPlugin implements IModPlugin {
 	}
 
 	@Override
-	public void registerItemSubtypes(ISubtypeRegistration registration) {
-		for (var brew : HexBrew.values()) {
-			var item = brew.bottle.get();
-			registration.registerSubtypeInterpreter(item, GLJEIPlugin::bottleSubtype);
-		}
-	}
-
-	private static String bottleSubtype(ItemStack stack, UidContext ctx) {
-		if (stack.getItem() instanceof HexBrewBottleItem bottle) {
-			FluidStack fs = bottle.getFluidStack(stack);
-			if (fs.isEmpty()) return "";
-			String key = fs.getFluid().builtInRegistryHolder().unwrapKey().orElseThrow().location().toString();
-			var patch = fs.getComponentsPatch();
-			if (!patch.isEmpty()) key += patch.hashCode();
-			var itemPatch = stack.getComponentsPatch();
-			if (!itemPatch.isEmpty()) key += itemPatch.hashCode();
-			return key;
-		}
-		return "";
-	}
-
-	@Override
 	public void registerCategories(IRecipeCategoryRegistration registration) {
 		IGuiHelper helper = registration.getJeiHelpers().getGuiHelper();
 		registration.addRecipeCategories(new AlchemyRecipeCategory().init(helper));
