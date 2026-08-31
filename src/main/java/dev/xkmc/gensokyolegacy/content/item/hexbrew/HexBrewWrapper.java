@@ -36,13 +36,9 @@ public class HexBrewWrapper implements IFluidHandlerItem {
 	private void setFluid(FluidStack stack) {
 		if (stack.isEmpty()) {
 			container = new ItemStack(Items.GLASS_BOTTLE);
-		} else if (stack.getFluid() instanceof GLHexFluid) {
-			for (HexBrew e : HexBrew.values()) {
-				if (e.fluid.getSource() == stack.getFluid()) {
-					container = e.bottle.asStack(1);
-					return;
-				}
-			}
+		} else if (stack.getFluid() instanceof GLHexFluid gl && gl.brew != null) {
+			container = gl.brew.bottle.asStack(1);
+		} else {
 			container = new ItemStack(Items.GLASS_BOTTLE);
 		}
 	}

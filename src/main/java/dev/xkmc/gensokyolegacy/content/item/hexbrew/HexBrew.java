@@ -38,14 +38,13 @@ public enum HexBrew {
 						GensokyoLegacy.REGISTRATE, GensokyoLegacy.REGISTRATE, id, c,
 						GLFluids.WATER_STILL, GLFluids.WATER_FLOW,
 						(p, s, f) -> new GLFluidType(p, s, f, color),
-						p -> new GLHexFluid(p)))
+						p -> new GLHexFluid(p, this)))
 				.defaultLang().register();
 		bottle = GensokyoLegacy.REGISTRATE.item(id + "_bottle", p -> new HexBrewBottleItem(this, fluid::getSource, p.stacksTo(16)))
 				.model((ctx, pvd) -> pvd.getBuilder(ctx.getName())
 						.parent(new ModelFile.UncheckedModelFile("item/generated"))
 						.texture("layer0", GensokyoLegacy.loc("item/hexbrew/" + id)))
 				.tab(GLItems.TAB.key()).defaultLang().register();
-		// fallback tab set in GLFluids now delegated, but keep for safety
 	}
 
 	public boolean isThrowable() {

@@ -1,5 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.fluid;
 
+import dev.xkmc.gensokyolegacy.content.item.hexbrew.HexBrew;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
@@ -10,8 +11,11 @@ import net.neoforged.neoforge.fluids.BaseFlowingFluid;
 
 public class GLHexFluid extends BaseFlowingFluid {
 
-	public GLHexFluid(Properties properties) {
+	public final HexBrew brew;
+
+	public GLHexFluid(Properties properties, HexBrew brew) {
 		super(properties);
+		this.brew = brew;
 	}
 
 	@Override
