@@ -2,10 +2,10 @@ package dev.xkmc.gensokyolegacy.compat.jei;
 
 import dev.xkmc.gensokyolegacy.content.block.pot.recipe.AlchemyRecipe;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
+import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.gensokyolegacy.init.registrate.GLBlocks;
 import dev.xkmc.l2core.compat.jei.BaseRecipeCategory;
 import dev.xkmc.l2serial.util.Wrappers;
-import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import it.unimi.dsi.fastutil.ints.Int2ObjectLinkedOpenHashMap;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
@@ -47,7 +47,6 @@ public class AlchemyRecipeCategory extends BaseRecipeCategory<AlchemyRecipe<?>, 
 		int time = recipe.getProcessTime();
 		if (time <= 0) time = 200;
 		builder.addAnimatedRecipeArrow(time).setPosition(68, 18);
-		builder.addAnimatedRecipeFlame(300).setPosition(68, 38);
 		builder.addText(Component.translatable("gui.jei.category.smelting.time.seconds", time / 20), 80, 10)
 				.setPosition(0, 0, getWidth(), getHeight(), HorizontalAlignment.RIGHT, VerticalAlignment.BOTTOM)
 				.setTextAlignment(HorizontalAlignment.RIGHT)
@@ -56,19 +55,26 @@ public class AlchemyRecipeCategory extends BaseRecipeCategory<AlchemyRecipe<?>, 
 
 	@Override
 	public void setRecipe(IRecipeLayoutBuilder builder, AlchemyRecipe<?> recipe, IFocusGroup focuses) {
-		// input fluid as item (water bucket/bottle, hexbrew bottle)
+		// input fluid as item (water bucket/bottle, hexbrew bottle), or fluid
 		var inFluidItems = recipe.getInputFluidItemStacks();
 		if (!inFluidItems.isEmpty()) {
 			builder.addSlot(RecipeIngredientRole.INPUT, 1, 18)
 					.setStandardSlotBackground()
 					.addItemStacks(inFluidItems);
+			builder.addInvisibleIngredients(RecipeIngredientRole.INPUT)
+					.addIngredients(NeoForgeTypes.FLUID_STACK, List.of(recipe.inputFluid.getStacks()));
+		} else if (!recipe.inputFluid.isEmpty()) {
+			builder.addSlot(RecipeIngredientRole.INPUT, 1, 18)
+					.setStandardSlotBackground()
+					.addIngredients(NeoForgeTypes.FLUID_STACK, List.of(recipe.inputFluid.getStacks()));
 		}
 		// input items
 		var compiled = compile(recipe.getInputItems());
 		int n = compiled.size();
 		int width = n <= 3 ? n : (n + 2) / 3;
 		int startX = 20;
-		int startY = 1;
+		int rows = n == 0 ? 0 : (n + width - 1) / width;
+		int startY = rows <= 1 ? 18 : rows == 2 ? 9 : 0;
 		int x = 0, y = 0;
 		for (var arr : compiled) {
 			int px = startX + x * 18;
@@ -83,22 +89,24 @@ public class AlchemyRecipeCategory extends BaseRecipeCategory<AlchemyRecipe<?>, 
 			}
 		}
 		// output fluid as item
-		var outFluidItems = recipe.getOutputFluidItemStacks();
-		if (!outFluidItems.isEmpty()) {
-			builder.addSlot(RecipeIngredientRole.OUTPUT, 106, 18)
-					.setOutputSlotBackground()
-					.addItemStacks(outFluidItems);
-		} else {
-			FluidStack outFluid = recipe.resultFluid;
-			if (!outFluid.isEmpty()) {
+		FluidStack outFluid = recipe.resultFluid;
+		if (!outFluid.isEmpty()) {
+			var outFluidItems = recipe.getOutputFluidItemStacks();
+			if (!outFluidItems.isEmpty()) {
 				builder.addSlot(RecipeIngredientRole.OUTPUT, 106, 18)
 						.setOutputSlotBackground()
+						.addItemStacks(outFluidItems);
+				builder.addInvisibleIngredients(RecipeIngredientRole.OUTPUT)
 						.addIngredients(NeoForgeTypes.FLUID_STACK, List.of(outFluid));
+			} else {
+				if (!outFluid.isEmpty()) {
+					builder.addSlot(RecipeIngredientRole.OUTPUT, 106, 18)
+							.setOutputSlotBackground()
+							.addIngredients(NeoForgeTypes.FLUID_STACK, List.of(outFluid));
+				}
 			}
-		}
-		// output item
-		if (!recipe.resultItem.isEmpty()) {
-			builder.addSlot(RecipeIngredientRole.OUTPUT, 106, 36)
+		} else if (!recipe.resultItem.isEmpty()) {
+			builder.addSlot(RecipeIngredientRole.OUTPUT, 106, 18)
 					.setOutputSlotBackground()
 					.addItemStack(recipe.resultItem);
 		}

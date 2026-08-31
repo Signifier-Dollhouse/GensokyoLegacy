@@ -96,19 +96,32 @@ public abstract class AlchemyRecipe<T extends AlchemyRecipe<T>> extends BaseReci
 
 	private static List<ItemStack> fluidToItem(FluidStack fs) {
 		Fluid fluid = fs.getFluid();
+		int amount = fs.getAmount();
+		// only use item representation when the fluid amount exactly matches whole containers
 		if (fluid instanceof GLHexFluid gl && gl.brew != null) {
-			ItemStack stack = gl.brew.bottle.asStack(1);
+			if (amount <= 0 || amount % 250 != 0) return List.of();
+			int count = amount / 250;
+			ItemStack stack = gl.brew.bottle.asStack(count);
 			gl.brew.copyToItem(fs, stack);
 			return List.of(stack);
 		}
 		if (fluid == Fluids.WATER) {
-			ItemStack bucket = new ItemStack(Items.WATER_BUCKET);
-			ItemStack bottle = new ItemStack(Items.POTION);
-			bottle.set(DataComponents.POTION_CONTENTS, new PotionContents(Optional.of(Potions.WATER), Optional.empty(), List.of()));
-			return List.of(bucket, bottle);
+			if (amount <= 0) return List.of();
+			List<ItemStack> out = new ArrayList<>();
+			if (amount % 1000 == 0) {
+				out.add(new ItemStack(Items.WATER_BUCKET, amount / 1000));
+			}
+			if (amount % 250 == 0) {
+				ItemStack bottle = new ItemStack(Items.POTION, amount / 250);
+				bottle.set(DataComponents.POTION_CONTENTS, new PotionContents(Optional.of(Potions.WATER), Optional.empty(), List.of()));
+				out.add(bottle);
+			}
+			return out;
 		}
 		Item bucket = fluid.getBucket();
-		if (bucket != Items.AIR) return List.of(new ItemStack(bucket));
+		if (bucket != Items.AIR && amount > 0 && amount % 1000 == 0) {
+			return List.of(new ItemStack(bucket, amount / 1000));
+		}
 		return List.of();
 	}
 

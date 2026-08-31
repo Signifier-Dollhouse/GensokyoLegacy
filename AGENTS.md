@@ -43,3 +43,8 @@ NeoForge 1.21.1 mod (Gensokyo Legacy, Touhou characters/structures). Java 21, Gr
 
 ## Dependencies
 - Dev.xkmc L2 ecosystem libs (l2core, l2serial, l2library, l2damagetracker, l2menustacker, l2tabs, l2modularblocks, danmaku_api, fast_projectile_api) are jarJar'd. Dev jars can be pulled from `mavenLocal()` or the flatDir `libs/` (sources jars included) — when bumping a library version, confirm the jar exists locally first. Also GeckoLib, Curios, JEI, Touhou Little Maid, Sodium, Jade.
+
+## Neoform patched sources (MC 1.21.1 + NeoForge 21.1.217)
+- Patched sources jar: `build/moddev/artifacts/neoforge-21.1.217-sources.jar`
+- Neoform runtime cache (zip, decompiled+patched+named): `~/.gradle/caches/neoformruntime/intermediate_results/sourcesWithNeoForge_58ddab5b2b626895fcf3a4b832c7d56e848354bd_output.zip`
+- Neoform runtime metadata: `~/.gradle/caches/neoformruntime/intermediate_results/sourcesWithNeoForge_58ddab5b2b626895fcf3a4b832c7d56e848354bd.txt`

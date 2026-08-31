@@ -10,9 +10,7 @@ import net.minecraft.advancements.Criterion;
 import net.minecraft.advancements.critereon.InventoryChangeTrigger;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
-import net.neoforged.neoforge.fluids.FluidStack;
 
 import java.util.function.BiFunction;
 
@@ -25,17 +23,19 @@ public class GLRecipeGen {
 				.add(GLDecoBlocks.GHOST_FIRE_MUSHROOM_SET.cap.get())
 				.add(GLDecoBlocks.DREAM_MUSHROOM_SET.cap.get())
 				.time(200)
-				.resultFluid(new FluidStack((Fluid) HexBrew.MUNDANE.fluid.getSource(), 1000))
+				.resultFluid(HexBrew.MUNDANE.getSource(), 1000)
 				::unlockedBy, GLDecoBlocks.GHOST_FIRE_MUSHROOM_SET.cap.get().asItem())
 				.save(pvd, GensokyoLegacy.loc("alchemy/mundane_hexbrew"));
+
 		unlock(pvd, new UnorderedAlchemyRecipeBuilder()
-				.fluid(HexBrew.MUNDANE.fluid.getSource())
+				.fluid(HexBrew.MUNDANE.getSource())
 				.add(Items.BLAZE_POWDER)
 				.add(Items.GUNPOWDER)
 				.time(200)
-				.resultFluid(new FluidStack((Fluid) HexBrew.EXPLOSIVE.fluid.getSource(), 1000))
+				.resultFluid(HexBrew.EXPLOSIVE.getSource(), 1000)
 				::unlockedBy, Items.BLAZE_POWDER)
 				.save(pvd, GensokyoLegacy.loc("alchemy/explosive_hexbrew"));
+
 		unlock(pvd, new UnorderedAlchemyRecipeBuilder()
 				.fluid(Fluids.WATER)
 				.add(GLDecoBlocks.DEMONIC_MIASMA_MUSHROOM_SET.cap.get())
@@ -45,7 +45,7 @@ public class GLRecipeGen {
 				.add(Items.ROTTEN_FLESH)
 				.add(Items.ROTTEN_FLESH)
 				.time(400)
-				.resultFluid(new FluidStack((Fluid) HexBrew.MIASMA.fluid.getSource(), 1000))
+				.resultFluid(HexBrew.MIASMA.getSource(), 1000)
 				::unlockedBy, GLDecoBlocks.DEMONIC_MIASMA_MUSHROOM_SET.cap.get().asItem())
 				.save(pvd, GensokyoLegacy.loc("alchemy/miasma_hexbrew"));
 	}
