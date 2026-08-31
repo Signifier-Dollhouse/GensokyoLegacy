@@ -1,0 +1,12 @@
+{
+  "variants": {
+    "": [
+      {
+        "model": "gensokyolegacy:block/star_flower"
+      },
+      {
+        "model": "gensokyolegacy:block/star_flower_2"
+      }
+    ]
+  }
+}
