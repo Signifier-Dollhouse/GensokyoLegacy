@@ -42,7 +42,7 @@ public class SparklingEventHandler {
 		for (int i = 0; i < 16; i++) {
 			double angle = i * Math.PI * 2 / 16;
 			Vec3 dir = new Vec3(Math.cos(angle), 0, Math.sin(angle)).normalize().scale(1.0);
-			Vec3 spawn = center.add(dir.scale(0.5));
+			Vec3 spawn = center.add(dir.scale(1));
 			int life = 15 + level.getRandom().nextInt(11);
 			ItemBulletEntity bullet = new ItemBulletEntity(DanmakuEntities.ITEM_DANMAKU.get(), spawn.x, spawn.y, spawn.z, level);
 			bullet.setOwner(livingOwner);

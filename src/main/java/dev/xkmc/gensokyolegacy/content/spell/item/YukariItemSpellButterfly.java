@@ -14,7 +14,7 @@ import org.jetbrains.annotations.Nullable;
 public class YukariItemSpellButterfly extends ItemSpell {
 
 	@Override
-	public void start(Player player, @Nullable LivingEntity target) {
+	public void start(LivingEntity player, @Nullable LivingEntity target) {
 		super.start(player, target);
 		var holder = new PlayerHolder(player, dir, this, target);
 		YukariPartButterfly.launchButterfly(holder, DanmakuItems.Bullet.BUTTERFLY, DyeColor.CYAN, 1);

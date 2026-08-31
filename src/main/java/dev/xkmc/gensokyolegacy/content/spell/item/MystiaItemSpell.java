@@ -11,7 +11,7 @@ import org.jetbrains.annotations.Nullable;
 public class MystiaItemSpell extends ItemSpell {
 
 	@Override
-	public void start(Player player, @Nullable LivingEntity target) {
+	public void start(LivingEntity player, @Nullable LivingEntity target) {
 		super.start(player, target);
 		addTicker(new MystiaPart<>(player.getRandom().nextDouble() > 0.5 ? 1 : -1));
 	}
