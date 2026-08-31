@@ -34,6 +34,10 @@ public abstract class AlchemyRecipe<T extends AlchemyRecipe<T>> extends BaseReci
 	public ItemStack resultItem = ItemStack.EMPTY;
 	@SerialField
 	public FluidStack resultFluid = FluidStack.EMPTY;
+	@SerialField
+	public ItemStack inputFluidItem = ItemStack.EMPTY;
+	@SerialField
+	public ItemStack outputFluidItem = ItemStack.EMPTY;
 
 	public AlchemyRecipe(RecType<T, AlchemyRecipe<?>, AlchemyInv> fac) {
 		super(fac);
@@ -75,6 +79,7 @@ public abstract class AlchemyRecipe<T extends AlchemyRecipe<T>> extends BaseReci
 	}
 
 	public List<ItemStack> getInputFluidItemStacks() {
+		if (!inputFluidItem.isEmpty()) return List.of(inputFluidItem.copy());
 		if (inputFluid.isEmpty()) return List.of();
 		List<ItemStack> out = new ArrayList<>();
 		for (FluidStack fs : inputFluid.getStacks()) {
@@ -84,6 +89,7 @@ public abstract class AlchemyRecipe<T extends AlchemyRecipe<T>> extends BaseReci
 	}
 
 	public List<ItemStack> getOutputFluidItemStacks() {
+		if (!outputFluidItem.isEmpty()) return List.of(outputFluidItem.copy());
 		if (resultFluid.isEmpty()) return List.of();
 		return fluidToItem(resultFluid);
 	}
