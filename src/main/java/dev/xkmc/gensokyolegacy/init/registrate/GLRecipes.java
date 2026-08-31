@@ -3,7 +3,8 @@ package dev.xkmc.gensokyolegacy.init.registrate;
 import dev.xkmc.gensokyolegacy.content.block.pot.AlchemyInv;
 import dev.xkmc.gensokyolegacy.content.block.pot.recipe.AlchemyRecipe;
 import dev.xkmc.gensokyolegacy.content.block.pot.recipe.UnorderedAlchemyRecipe;
-import dev.xkmc.gensokyolegacy.content.block.pot.recipe.WitchRecipe;
+import dev.xkmc.gensokyolegacy.content.block.pot.recipe.WitchEnhanceRecipe;
+import dev.xkmc.gensokyolegacy.content.block.pot.recipe.WitchMergeRecipe;
 import dev.xkmc.gensokyolegacy.content.block.pot.stage.AlchemyStageRecipe;
 import dev.xkmc.gensokyolegacy.content.block.pot.stage.PotionStageRecipe;
 import dev.xkmc.gensokyolegacy.content.block.pot.stage.SimpleAlchemyStageRecipe;
@@ -33,8 +34,10 @@ public class GLRecipes {
 	public static final Val<BaseRecipe.RecType<PotionStageRecipe, AlchemyStageRecipe<?>, AlchemyInv>> ALCHEMY_STAGE_POTION =
 			RS.reg("potion_alchemy_stage", () -> new BaseRecipe.RecType<>(PotionStageRecipe.class, ALCHEMY_STAGE_RT));
 
-	public static final Val<BaseRecipe.RecType<WitchRecipe, AlchemyRecipe<?>, AlchemyInv>> ALCHEMY_WITCH =
-			RS.reg("witch_hexbrew", () -> new BaseRecipe.RecType<>(WitchRecipe.class, ALCHEMY_RT));
+	public static final Val<BaseRecipe.RecType<WitchMergeRecipe, AlchemyRecipe<?>, AlchemyInv>> ALCHEMY_WITCH_MERGE =
+			RS.reg("witch_merge", () -> new BaseRecipe.RecType<>(WitchMergeRecipe.class, ALCHEMY_RT));
+	public static final Val<BaseRecipe.RecType<WitchEnhanceRecipe, AlchemyRecipe<?>, AlchemyInv>> ALCHEMY_WITCH_ENHANCE =
+			RS.reg("witch_enhance", () -> new BaseRecipe.RecType<>(WitchEnhanceRecipe.class, ALCHEMY_RT));
 
 	public static void register() {
 
