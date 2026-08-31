@@ -59,4 +59,9 @@ public abstract class AlchemyRecipe<T extends AlchemyRecipe<T>> extends BaseReci
 	public int getProcessTime() {
 		return time;
 	}
+
+	public FluidStack getResultFluid(AlchemyInv inv, HolderLookup.Provider access) {
+		return resultFluid.copy();
+	}
+
 }

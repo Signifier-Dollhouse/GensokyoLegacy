@@ -280,7 +280,8 @@ public class AlchemyPotBlockEntity extends BaseBlockEntity implements TickableBl
 	}
 
 	protected void finishRecipe(Level level, AlchemyRecipe<?> recipe) {
-		FluidStack outFluid = recipe.resultFluid.copy();
+		AlchemyInv inv = createContainer(true);
+		FluidStack outFluid = recipe.getResultFluid(inv, level.registryAccess());
 		ItemStack outItem = recipe.resultItem.copy();
 		items.clear();
 		tank.clear();

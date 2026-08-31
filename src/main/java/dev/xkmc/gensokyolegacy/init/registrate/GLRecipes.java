@@ -3,7 +3,9 @@ package dev.xkmc.gensokyolegacy.init.registrate;
 import dev.xkmc.gensokyolegacy.content.block.pot.AlchemyInv;
 import dev.xkmc.gensokyolegacy.content.block.pot.recipe.AlchemyRecipe;
 import dev.xkmc.gensokyolegacy.content.block.pot.recipe.UnorderedAlchemyRecipe;
+import dev.xkmc.gensokyolegacy.content.block.pot.recipe.WitchRecipe;
 import dev.xkmc.gensokyolegacy.content.block.pot.stage.AlchemyStageRecipe;
+import dev.xkmc.gensokyolegacy.content.block.pot.stage.PotionStageRecipe;
 import dev.xkmc.gensokyolegacy.content.block.pot.stage.SimpleAlchemyStageRecipe;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.l2core.init.reg.simple.SR;
@@ -28,6 +30,11 @@ public class GLRecipes {
 			RT.reg("alchemy_stage", RecipeType::simple);
 	public static final Val<BaseRecipe.RecType<SimpleAlchemyStageRecipe, AlchemyStageRecipe<?>, AlchemyInv>> ALCHEMY_STAGE_SIMPLE =
 			RS.reg("simple_alchemy_stage", () -> new BaseRecipe.RecType<>(SimpleAlchemyStageRecipe.class, ALCHEMY_STAGE_RT));
+	public static final Val<BaseRecipe.RecType<PotionStageRecipe, AlchemyStageRecipe<?>, AlchemyInv>> ALCHEMY_STAGE_POTION =
+			RS.reg("potion_alchemy_stage", () -> new BaseRecipe.RecType<>(PotionStageRecipe.class, ALCHEMY_STAGE_RT));
+
+	public static final Val<BaseRecipe.RecType<WitchRecipe, AlchemyRecipe<?>, AlchemyInv>> ALCHEMY_WITCH =
+			RS.reg("witch_hexbrew", () -> new BaseRecipe.RecType<>(WitchRecipe.class, ALCHEMY_RT));
 
 	public static void register() {
 

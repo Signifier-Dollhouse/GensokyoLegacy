@@ -28,7 +28,7 @@ public class HexBrewWrapper implements IFluidHandlerItem {
 
 	private FluidStack getFluidFromBottle() {
 		if (container.getItem() instanceof HexBrewBottleItem bottle) {
-			return bottle.getFluidStack();
+			return bottle.getFluidStack(container);
 		}
 		return FluidStack.EMPTY;
 	}
@@ -37,7 +37,9 @@ public class HexBrewWrapper implements IFluidHandlerItem {
 		if (stack.isEmpty()) {
 			container = new ItemStack(Items.GLASS_BOTTLE);
 		} else if (stack.getFluid() instanceof GLHexFluid gl && gl.brew != null) {
-			container = gl.brew.bottle.asStack(1);
+			ItemStack out = gl.brew.bottle.asStack(1);
+			gl.brew.copyToItem(stack, out);
+			container = out;
 		} else {
 			container = new ItemStack(Items.GLASS_BOTTLE);
 		}

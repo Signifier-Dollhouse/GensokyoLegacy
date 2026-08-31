@@ -8,13 +8,19 @@ import dev.xkmc.gensokyolegacy.content.fluid.VirtualFluidBuilder;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.registrate.GLFluids;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
+import net.minecraft.core.component.DataComponentType;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
+import net.neoforged.neoforge.fluids.FluidStack;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.Locale;
 
 public enum HexBrew {
@@ -22,7 +28,9 @@ public enum HexBrew {
 	EXPLOSIVE(0xFFE8453C, new ExplosiveHandler()),
 	MIASMA(0xFF7A4BA1, new MiasmaHandler()),
 	STARLIGHT(0xFFFFF7AE, new StarlightHandler()),
-	HYPHAE(0xFFD98E3A);
+	HYPHAE(0xFFD98E3A),
+	SHIELD(0xFFFFF7AE, new ShieldHandler()),
+	WITCH(0xFF7A4BA1, new WitchHandler());
 
 	public final FluidEntry<GLHexFluid> fluid;
 	public final ItemEntry<HexBrewBottleItem> bottle;
@@ -52,8 +60,46 @@ public enum HexBrew {
 		return handler.isThrowable();
 	}
 
-	public void onHit(Level level, Vec3 pos,@Nullable Entity thrower) {
+	public boolean isDrinkable() {
+		return handler.isDrinkable();
+	}
+
+	public void onHit(Level level, Vec3 pos, @Nullable Entity thrower) {
 		handler.onHit(level, pos, thrower);
+	}
+
+	public void onDrink(LivingEntity user, ItemStack stack, Level level) {
+		handler.onDrink(user, stack, level);
+	}
+
+	public int getUseDuration(ItemStack stack) {
+		return handler.getUseDuration(stack);
+	}
+
+	public UseAnim getUseAnimation(ItemStack stack) {
+		return handler.getUseAnimation(stack);
+	}
+
+	public void copyToFluid(ItemStack from, FluidStack to) {
+		for (DataComponentType<?> type : handler.getComponentsToCopy()) {
+			copyComponent(type, from, to);
+		}
+	}
+
+	public void copyToItem(FluidStack from, ItemStack to) {
+		for (DataComponentType<?> type : handler.getComponentsToCopy()) {
+			copyComponent(type, from, to);
+		}
+	}
+
+	private static <T> void copyComponent(DataComponentType<T> type, ItemStack from, FluidStack to) {
+		T val = from.get(type);
+		if (val != null) to.set(type, val);
+	}
+
+	private static <T> void copyComponent(DataComponentType<T> type, FluidStack from, ItemStack to) {
+		T val = from.get(type);
+		if (val != null) to.set(type, val);
 	}
 
 	public Fluid getSource() {
