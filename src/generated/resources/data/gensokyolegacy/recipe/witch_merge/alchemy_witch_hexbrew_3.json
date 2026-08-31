@@ -1,0 +1,20 @@
+{
+  "type": "gensokyolegacy:witch_merge",
+  "extra": [
+    {
+      "item": "gensokyolegacy:flame_cattail"
+    },
+    {
+      "item": "minecraft:dragon_breath"
+    }
+  ],
+  "inputFluid": {
+    "fluid": "gensokyolegacy:mundane_hexbrew"
+  },
+  "potionCount": 3,
+  "resultFluid": {
+    "amount": 250,
+    "id": "gensokyolegacy:witch_hexbrew"
+  },
+  "time": 200
+}

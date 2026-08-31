@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "gensokyolegacy:block/eugune_ghost_fire",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "gensokyolegacy:block/eugune_ghost_fire"
+    },
+    "facing=south": {
+      "model": "gensokyolegacy:block/eugune_ghost_fire",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "gensokyolegacy:block/eugune_ghost_fire",
+      "y": 270
+    }
+  }
+}

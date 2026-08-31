@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "gensokyolegacy:block/eugune_brown",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "gensokyolegacy:block/eugune_brown"
+    },
+    "facing=south": {
+      "model": "gensokyolegacy:block/eugune_brown",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "gensokyolegacy:block/eugune_brown",
+      "y": 270
+    }
+  }
+}

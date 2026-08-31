@@ -1,0 +1,7 @@
+{
+  "parent": "gensokyolegacy:custom/utensil/donation_box_2",
+  "render_type": "minecraft:cutout",
+  "textures": {
+    "all": "gensokyolegacy:block/utensil/donation_box_2"
+  }
+}

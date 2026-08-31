@@ -1,8 +1,7 @@
 {
-  "parent": "minecraft:block/cube_bottom_top",
+  "parent": "minecraft:block/cube_column",
   "textures": {
-    "bottom": "minecraft:block/jungle_planks",
-    "side": "gensokyolegacy:block/wood/jungle_plank_wall",
-    "top": "minecraft:block/jungle_planks"
+    "end": "gensokyolegacy:block/wood/jungle_plank_wall_top",
+    "side": "gensokyolegacy:block/wood/jungle_plank_wall"
   }
 }

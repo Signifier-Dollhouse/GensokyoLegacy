@@ -1,0 +1,7 @@
+{
+  "parent": "gensokyolegacy:custom/utensil/carton_white",
+  "render_type": "minecraft:cutout",
+  "textures": {
+    "all": "gensokyolegacy:block/utensil/carton_white"
+  }
+}

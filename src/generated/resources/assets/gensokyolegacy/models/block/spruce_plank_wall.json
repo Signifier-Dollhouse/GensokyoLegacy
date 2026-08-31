@@ -1,8 +1,7 @@
 {
-  "parent": "minecraft:block/cube_bottom_top",
+  "parent": "minecraft:block/cube_column",
   "textures": {
-    "bottom": "minecraft:block/spruce_planks",
-    "side": "gensokyolegacy:block/wood/spruce_plank_wall",
-    "top": "minecraft:block/spruce_planks"
+    "end": "gensokyolegacy:block/wood/spruce_plank_wall_top",
+    "side": "gensokyolegacy:block/wood/spruce_plank_wall"
   }
 }

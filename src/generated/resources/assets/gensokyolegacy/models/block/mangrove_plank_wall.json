@@ -1,8 +1,7 @@
 {
-  "parent": "minecraft:block/cube_bottom_top",
+  "parent": "minecraft:block/cube_column",
   "textures": {
-    "bottom": "minecraft:block/mangrove_planks",
-    "side": "gensokyolegacy:block/wood/mangrove_plank_wall",
-    "top": "minecraft:block/mangrove_planks"
+    "end": "gensokyolegacy:block/wood/mangrove_plank_wall_top",
+    "side": "gensokyolegacy:block/wood/mangrove_plank_wall"
   }
 }

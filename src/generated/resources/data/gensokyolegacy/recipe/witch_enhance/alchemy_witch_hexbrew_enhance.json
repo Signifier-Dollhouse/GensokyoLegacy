@@ -1,0 +1,22 @@
+{
+  "type": "gensokyolegacy:witch_enhance",
+  "extra": [
+    {
+      "item": "gensokyolegacy:flame_cattail"
+    },
+    {
+      "item": "minecraft:blaze_powder"
+    },
+    {
+      "item": "minecraft:redstone"
+    }
+  ],
+  "inputFluid": {
+    "fluid": "gensokyolegacy:witch_hexbrew"
+  },
+  "resultFluid": {
+    "amount": 250,
+    "id": "gensokyolegacy:witch_hexbrew"
+  },
+  "time": 200
+}

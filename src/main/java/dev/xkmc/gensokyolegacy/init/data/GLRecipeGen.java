@@ -3,6 +3,8 @@ package dev.xkmc.gensokyolegacy.init.data;
 import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import com.tterrag.registrate.util.DataIngredient;
 import dev.xkmc.gensokyolegacy.content.block.pot.recipe.UnorderedAlchemyRecipeBuilder;
+import dev.xkmc.gensokyolegacy.content.block.pot.recipe.WitchEnhanceBuilder;
+import dev.xkmc.gensokyolegacy.content.block.pot.recipe.WitchMergeBuilder;
 import dev.xkmc.gensokyolegacy.content.item.hexbrew.HexBrew;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.registrate.GLDecoBlocks;
@@ -48,6 +50,45 @@ public class GLRecipeGen {
 				.resultFluid(HexBrew.MIASMA.getSource(), 1000)
 				::unlockedBy, GLDecoBlocks.DEMONIC_MIASMA_MUSHROOM_SET.cap.get().asItem())
 				.save(pvd, GensokyoLegacy.loc("alchemy/miasma_hexbrew"));
+
+		unlock(pvd, new WitchMergeBuilder(GensokyoLegacy.loc("alchemy/witch_hexbrew_1"))
+				.fluid(HexBrew.MUNDANE.getSource())
+				.add(GLDecoBlocks.FLAME_CATTAIL)
+				.potionCount(1)
+				.time(200)
+				.resultFluid(HexBrew.WITCH.getSource(), 250)
+				::unlockedBy, GLDecoBlocks.FLAME_CATTAIL.asItem())
+				.save(pvd);
+
+		unlock(pvd, new WitchMergeBuilder(GensokyoLegacy.loc("alchemy/witch_hexbrew_2"))
+				.fluid(HexBrew.MUNDANE.getSource())
+				.add(GLDecoBlocks.FLAME_CATTAIL)
+				.add(GLDecoBlocks.STAR_FLOWER)
+				.potionCount(2)
+				.time(200)
+				.resultFluid(HexBrew.WITCH.getSource(), 250)
+				::unlockedBy, GLDecoBlocks.STAR_FLOWER.asItem())
+				.save(pvd);
+
+		unlock(pvd, new WitchMergeBuilder(GensokyoLegacy.loc("alchemy/witch_hexbrew_3"))
+				.fluid(HexBrew.MUNDANE.getSource())
+				.add(GLDecoBlocks.FLAME_CATTAIL)
+				.add(Items.DRAGON_BREATH)
+				.potionCount(3)
+				.time(200)
+				.resultFluid(HexBrew.WITCH.getSource(), 250)
+				::unlockedBy, Items.DRAGON_BREATH)
+				.save(pvd);
+
+		unlock(pvd, new WitchEnhanceBuilder(GensokyoLegacy.loc("alchemy/witch_hexbrew_enhance"))
+				.fluid(HexBrew.WITCH.getSource())
+				.add(GLDecoBlocks.FLAME_CATTAIL)
+				.add(Items.BLAZE_POWDER)
+				.add(Items.REDSTONE)
+				.time(200)
+				.resultFluid(HexBrew.WITCH.getSource(), 250)
+				::unlockedBy, Items.BLAZE_POWDER)
+				.save(pvd);
 	}
 
 	public static <T> T unlock(RegistrateRecipeProvider pvd, BiFunction<String, Criterion<InventoryChangeTrigger.TriggerInstance>, T> func, Item item) {

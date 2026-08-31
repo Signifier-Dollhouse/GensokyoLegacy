@@ -1,8 +1,7 @@
 {
-  "parent": "minecraft:block/cube_bottom_top",
+  "parent": "minecraft:block/cube_column",
   "textures": {
-    "bottom": "minecraft:block/bamboo_planks",
-    "side": "gensokyolegacy:block/wood/bamboo_plank_wall",
-    "top": "minecraft:block/bamboo_planks"
+    "end": "gensokyolegacy:block/wood/bamboo_plank_wall_top",
+    "side": "gensokyolegacy:block/wood/bamboo_plank_wall"
   }
 }

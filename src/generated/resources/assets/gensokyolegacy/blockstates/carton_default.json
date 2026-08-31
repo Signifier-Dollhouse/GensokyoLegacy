@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "gensokyolegacy:block/carton_default",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "gensokyolegacy:block/carton_default"
+    },
+    "facing=south": {
+      "model": "gensokyolegacy:block/carton_default",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "gensokyolegacy:block/carton_default",
+      "y": 270
+    }
+  }
+}
