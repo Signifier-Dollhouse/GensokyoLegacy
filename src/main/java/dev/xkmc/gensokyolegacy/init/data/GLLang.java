@@ -497,6 +497,51 @@ public final class GLLang {
 		}
 	}
 
+	// ========== Jei ==========
+	public enum Jei implements LangEntry {
+		ALCHEMY("jei.gensokyolegacy.alchemy", "Alchemy Pot");
+
+		private final String def;
+		private final int argn;
+		private final String key;
+		private final @Nullable ChatFormatting format;
+
+		Jei(String key, String def) {
+			this(key, def, 0);
+		}
+
+		Jei(String key, String def, int argn) {
+			this(key, def, argn, null);
+		}
+
+		Jei(String key, String def, int argn, @Nullable ChatFormatting format) {
+			this.def = def;
+			this.argn = argn;
+			this.key = key;
+			this.format = format;
+		}
+
+		@Override
+		public String key() {
+			return key;
+		}
+
+		@Override
+		public String def() {
+			return def;
+		}
+
+		@Override
+		public int argn() {
+			return argn;
+		}
+
+		@Override
+		public @Nullable ChatFormatting format() {
+			return format;
+		}
+	}
+
 	// ========== Alchemy Pot Overlay ==========
 	public enum Alchemy implements LangEntry {
 		ALLOW("Possible ingredients"),
@@ -546,7 +591,7 @@ public final class GLLang {
 	public static void genLang(RegistrateLangProvider pvd) {
 		for (var group : new LangEntry[][]{
 				Quest.values(), Info.values(), Trade.values(), Misc.values(),
-				ItemDebug.values(), ItemFurnace.values(), ItemCommon.values(), ItemUmbrella.values(), Alchemy.values()}) {
+				ItemDebug.values(), ItemFurnace.values(), ItemCommon.values(), ItemUmbrella.values(), Alchemy.values(), Jei.values()}) {
 			for (var e : group) {
 				pvd.add(e.key(), e.def());
 			}
@@ -557,6 +602,5 @@ public final class GLLang {
 		}
 
 		pvd.add(GensokyoLegacy.MODID + ".subtitle.koishi_ring", "Koishi Phone Call");
-		pvd.add("jei.gensokyolegacy.alchemy", "Alchemy Pot");
 	}
 }

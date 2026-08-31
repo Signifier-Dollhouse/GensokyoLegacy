@@ -5,6 +5,7 @@ import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.registrate.GLBlocks;
 import dev.xkmc.l2core.compat.jei.BaseRecipeCategory;
 import dev.xkmc.l2serial.util.Wrappers;
+import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import it.unimi.dsi.fastutil.ints.Int2ObjectLinkedOpenHashMap;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
@@ -38,7 +39,7 @@ public class AlchemyRecipeCategory extends BaseRecipeCategory<AlchemyRecipe<?>, 
 
 	@Override
 	public Component getTitle() {
-		return Component.translatable("jei.gensokyolegacy.alchemy");
+		return GLLang.Jei.ALCHEMY.get();
 	}
 
 	@Override
@@ -47,12 +48,10 @@ public class AlchemyRecipeCategory extends BaseRecipeCategory<AlchemyRecipe<?>, 
 		if (time <= 0) time = 200;
 		builder.addAnimatedRecipeArrow(time).setPosition(68, 18);
 		builder.addAnimatedRecipeFlame(300).setPosition(68, 38);
-		if (time > 0) {
-			builder.addText(Component.translatable("gui.jei.category.smelting.time.seconds", time / 20), 80, 10)
-					.setPosition(0, 0, getWidth(), getHeight(), HorizontalAlignment.RIGHT, VerticalAlignment.BOTTOM)
-					.setTextAlignment(HorizontalAlignment.RIGHT)
-					.setColor(0xFF808080);
-		}
+		builder.addText(Component.translatable("gui.jei.category.smelting.time.seconds", time / 20), 80, 10)
+				.setPosition(0, 0, getWidth(), getHeight(), HorizontalAlignment.RIGHT, VerticalAlignment.BOTTOM)
+				.setTextAlignment(HorizontalAlignment.RIGHT)
+				.setColor(0xFF808080);
 	}
 
 	@Override

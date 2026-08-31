@@ -1,5 +1,6 @@
 package dev.xkmc.gensokyolegacy.compat.jei;
 
+import dev.xkmc.gensokyolegacy.content.block.pot.recipe.AlchemyRecipe;
 import dev.xkmc.gensokyolegacy.content.item.hexbrew.HexBrew;
 import dev.xkmc.gensokyolegacy.content.item.hexbrew.HexBrewBottleItem;
 import dev.xkmc.gensokyolegacy.content.ui.dialog.FirstDialogScreen;
@@ -10,22 +11,15 @@ import dev.xkmc.gensokyolegacy.init.registrate.GLRecipes;
 import dev.xkmc.l2serial.util.Wrappers;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
-import dev.xkmc.gensokyolegacy.content.block.pot.recipe.AlchemyRecipe;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.ingredients.subtypes.UidContext;
 import mezz.jei.api.recipe.RecipeType;
-import mezz.jei.api.registration.IGuiHandlerRegistration;
-import mezz.jei.api.registration.IRecipeCatalystRegistration;
-import mezz.jei.api.registration.IRecipeCategoryRegistration;
-import mezz.jei.api.registration.IRecipeRegistration;
-import mezz.jei.api.registration.ISubtypeRegistration;
+import mezz.jei.api.registration.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.neoforged.neoforge.fluids.FluidStack;
-
-import java.util.Objects;
 
 @JeiPlugin
 public class GLJEIPlugin implements IModPlugin {
@@ -73,11 +67,10 @@ public class GLJEIPlugin implements IModPlugin {
 		var level = Minecraft.getInstance().level;
 		if (level == null) return;
 		var manager = level.getRecipeManager();
-		registration.addRecipes(ALCHEMY,
+		registration.addRecipes(ALCHEMY, Wrappers.cast(
 				manager.getAllRecipesFor(GLRecipes.ALCHEMY_RT.get()).stream()
 						.map(RecipeHolder::value)
-						.filter(Objects::nonNull)
-						.toList());
+						.toList()));
 	}
 
 	@Override
