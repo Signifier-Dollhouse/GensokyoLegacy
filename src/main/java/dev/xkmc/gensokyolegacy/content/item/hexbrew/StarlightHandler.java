@@ -10,7 +10,9 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
-public class MiasmaHandler implements HexBrewHandler {
+public class StarlightHandler implements HexBrewHandler {
+
+	private static final String OWNER_KEY = "gensokyolegacy:starlight_owner";
 
 	@Override
 	public boolean isThrowable() {
@@ -20,13 +22,20 @@ public class MiasmaHandler implements HexBrewHandler {
 	@Override
 	public void onHit(Level level, Vec3 pos, @Nullable Entity thrower) {
 		if (level.isClientSide) return;
+		level.levelEvent(2002, BlockPos.containing(pos), 0xFFFFF7AE);
+		if (thrower == null) return;
 		AABB box = new AABB(pos, pos).inflate(4.0);
 		for (LivingEntity e : level.getEntitiesOfClass(LivingEntity.class, box, en -> true)) {
 			if (e == thrower) continue;
-			if (thrower != null && e.isAlliedTo(thrower)) continue;
+			if (e.isAlliedTo(thrower)) continue;
 			if (e.distanceToSqr(pos) > 16) continue;
-			e.addEffect(new MobEffectInstance(GLEffects.MIASMA.holder(), 1200, 0));
+			e.addEffect(new MobEffectInstance(GLEffects.SPARKLING.holder(), 1200, 0));
+			e.getPersistentData().putUUID(OWNER_KEY, thrower.getUUID());
+
 		}
-		level.levelEvent(2002, BlockPos.containing(pos), 0xFF7A4BA1);
+	}
+
+	public static String getOwnerKey() {
+		return OWNER_KEY;
 	}
 }

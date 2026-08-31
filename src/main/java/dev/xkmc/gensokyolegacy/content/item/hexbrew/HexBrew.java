@@ -13,6 +13,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Locale;
 
@@ -20,7 +21,7 @@ public enum HexBrew {
 	MUNDANE(0xFF9E9E9E),
 	EXPLOSIVE(0xFFE8453C, new ExplosiveHandler()),
 	MIASMA(0xFF7A4BA1, new MiasmaHandler()),
-	STARLIGHT(0xFFFFF7AE),
+	STARLIGHT(0xFFFFF7AE, new StarlightHandler()),
 	HYPHAE(0xFFD98E3A);
 
 	public final FluidEntry<GLHexFluid> fluid;
@@ -51,7 +52,7 @@ public enum HexBrew {
 		return handler.isThrowable();
 	}
 
-	public void onHit(Level level, Vec3 pos, Entity thrower) {
+	public void onHit(Level level, Vec3 pos,@Nullable Entity thrower) {
 		handler.onHit(level, pos, thrower);
 	}
 

@@ -11,6 +11,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.Nullable;
 
 public class ExplosiveHandler implements HexBrewHandler {
 
@@ -20,7 +21,7 @@ public class ExplosiveHandler implements HexBrewHandler {
 	}
 
 	@Override
-	public void onHit(Level level, Vec3 pos, Entity thrower) {
+	public void onHit(Level level, Vec3 pos, @Nullable Entity thrower) {
 		if (level.isClientSide) return;
 		BaseExplosionContext base = new BaseExplosionContext(level, pos.x, pos.y, pos.z, 4.0f);
 		VanillaExplosionContext vanilla = new VanillaExplosionContext(
