@@ -7,6 +7,8 @@ import dev.xkmc.l2modularblock.mult.UseItemOnBlockMethod;
 import dev.xkmc.l2modularblock.mult.UseWithoutItemBlockMethod;
 import dev.xkmc.l2modularblock.one.ShapeBlockMethod;
 import dev.xkmc.l2modularblock.type.BlockMethod;
+import com.tterrag.registrate.providers.DataGenContext;
+import com.tterrag.registrate.providers.RegistrateBlockstateProvider;
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -116,7 +118,7 @@ public class AlchemyPotBlock implements ShapeBlockMethod, UseItemOnBlockMethod, 
 		return InteractionResult.SUCCESS;
 	}
 
-	public static void buildStates(com.tterrag.registrate.providers.DataGenContext<Block, DelegateBlock> ctx, com.tterrag.registrate.providers.RegistrateBlockstateProvider pvd) {
+	public static void buildStates(DataGenContext<Block, DelegateBlock> ctx, RegistrateBlockstateProvider pvd) {
 		// already handled in GLBlocks
 	}
 }
