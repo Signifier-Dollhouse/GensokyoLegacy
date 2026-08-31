@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "gensokyolegacy:item/hexbrew/witch_hexbrew"
+    "layer0": "gensokyolegacy:item/hexbrew/mundane_hexbrew"
   }
 }

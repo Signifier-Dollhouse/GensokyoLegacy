@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "gensokyolegacy:item/hexbrew/shield_hexbrew"
+    "layer0": "gensokyolegacy:item/hexbrew/explosive_hexbrew"
   }
 }
