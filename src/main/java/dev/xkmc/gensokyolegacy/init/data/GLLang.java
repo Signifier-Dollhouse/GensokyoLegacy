@@ -557,5 +557,6 @@ public final class GLLang {
 		}
 
 		pvd.add(GensokyoLegacy.MODID + ".subtitle.koishi_ring", "Koishi Phone Call");
+		pvd.add("jei.gensokyolegacy.alchemy", "Alchemy Pot");
 	}
 }

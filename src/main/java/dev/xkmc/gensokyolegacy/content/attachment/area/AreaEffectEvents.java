@@ -8,6 +8,7 @@ import net.minecraft.world.level.chunk.LevelChunk;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.level.ChunkEvent;
+import net.neoforged.neoforge.event.level.ChunkWatchEvent;
 import net.neoforged.neoforge.event.tick.LevelTickEvent;
 
 @EventBusSubscriber(modid = GensokyoLegacy.MODID)
@@ -36,14 +37,14 @@ public class AreaEffectEvents {
 	}
 
 	@SubscribeEvent
-	public static void onChunkWatch(net.neoforged.neoforge.event.level.ChunkWatchEvent.Watch event) {
+	public static void onChunkWatch(ChunkWatchEvent.Watch event) {
 		ServerLevel sl = event.getLevel();
 		ServerPlayer player = event.getPlayer();
 		AreaEffectManager.onTrack(sl, event.getPos(), player);
 	}
 
 	@SubscribeEvent
-	public static void onChunkUnwatch(net.neoforged.neoforge.event.level.ChunkWatchEvent.UnWatch event) {
+	public static void onChunkUnwatch(ChunkWatchEvent.UnWatch event) {
 		ServerLevel sl = event.getLevel();
 		ServerPlayer player = event.getPlayer();
 		AreaEffectManager.onUntrack(sl, event.getPos(), player);

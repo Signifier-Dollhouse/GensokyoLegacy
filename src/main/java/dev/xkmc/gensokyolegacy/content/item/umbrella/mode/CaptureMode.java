@@ -2,6 +2,7 @@ package dev.xkmc.gensokyolegacy.content.item.umbrella.mode;
 
 import dev.xkmc.gensokyolegacy.content.item.umbrella.BorderUmbrellaItem;
 import dev.xkmc.gensokyolegacy.content.item.umbrella.UmbrellaUtil;
+import dev.xkmc.gensokyolegacy.content.item.umbrella.data.BorderUmbrellaUnlock;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.gensokyolegacy.init.data.GLTagGen;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
@@ -52,7 +53,7 @@ public class CaptureMode extends UmbrellaMode {
 
 	@Override
 	public InteractionResultHolder<ItemStack> handleUse(Level level, Player player, InteractionHand hand, ItemStack stack, BorderUmbrellaItem item) {
-		var unlock = GLItems.UMBRELLA_UNLOCK.getOrDefault(stack, dev.xkmc.gensokyolegacy.content.item.umbrella.data.BorderUmbrellaUnlock.DEFAULT);
+		var unlock = GLItems.UMBRELLA_UNLOCK.getOrDefault(stack, BorderUmbrellaUnlock.DEFAULT);
 		if (!unlock.captureUnlocked()) {
 			if (!level.isClientSide)
 				player.displayClientMessage(GLLang.ItemUmbrella.LOCKED_CAPTURE.get(), true);
@@ -63,7 +64,7 @@ public class CaptureMode extends UmbrellaMode {
 
 	@Override
 	public InteractionResult handleInteractLiving(ItemStack stack, Player player, LivingEntity target, InteractionHand hand, BorderUmbrellaItem item) {
-		var unlock = GLItems.UMBRELLA_UNLOCK.getOrDefault(stack, dev.xkmc.gensokyolegacy.content.item.umbrella.data.BorderUmbrellaUnlock.DEFAULT);
+		var unlock = GLItems.UMBRELLA_UNLOCK.getOrDefault(stack, BorderUmbrellaUnlock.DEFAULT);
 		if (!unlock.captureUnlocked()) {
 			if (!player.level().isClientSide)
 				player.displayClientMessage(GLLang.ItemUmbrella.LOCKED_CAPTURE.get(), true);

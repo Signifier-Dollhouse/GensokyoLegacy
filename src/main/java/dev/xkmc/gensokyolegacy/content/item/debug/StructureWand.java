@@ -23,6 +23,7 @@ import net.minecraft.world.level.block.state.properties.BedPart;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.BiPredicate;
 
 public class StructureWand extends Item {
 	private static final int SEARCH_RADIUS = 7; // 15x15x15 means radius of 7 in each direction
@@ -84,7 +85,7 @@ public class StructureWand extends Item {
 	 * Check if there's at least one block in the 15x15x15 area around the position
 	 * that matches the given predicate
 	 */
-	private Optional<BlockPos> hasBlockInArea(ServerLevel level, BlockPos center, java.util.function.BiPredicate<ServerLevel, BlockPos> predicate) {
+	private Optional<BlockPos> hasBlockInArea(ServerLevel level, BlockPos center, BiPredicate<ServerLevel, BlockPos> predicate) {
 		BlockPos minPos = center.offset(-SEARCH_RADIUS, -SEARCH_RADIUS_Y, -SEARCH_RADIUS);
 		BlockPos maxPos = center.offset(SEARCH_RADIUS, SEARCH_RADIUS_Y, SEARCH_RADIUS);
 

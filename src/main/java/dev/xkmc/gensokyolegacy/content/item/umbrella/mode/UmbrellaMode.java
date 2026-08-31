@@ -1,5 +1,8 @@
 package dev.xkmc.gensokyolegacy.content.item.umbrella.mode;
 
+import dev.xkmc.gensokyolegacy.content.item.umbrella.BorderUmbrellaItem;
+import dev.xkmc.gensokyolegacy.content.item.umbrella.data.BorderUmbrellaUnlock;
+import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -10,6 +13,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
+
+import java.util.List;
 
 /**
  * Polymorphic behavior for umbrella modes.
@@ -38,15 +43,15 @@ public abstract class UmbrellaMode {
 	}
 
 	// interaction handling — default no-op
-	public InteractionResult handleUseOn(UseOnContext ctx, ItemStack stack, dev.xkmc.gensokyolegacy.content.item.umbrella.BorderUmbrellaItem item) {
+	public InteractionResult handleUseOn(UseOnContext ctx, ItemStack stack, BorderUmbrellaItem item) {
 		return InteractionResult.PASS;
 	}
 
-	public InteractionResultHolder<ItemStack> handleUse(Level level, Player player, InteractionHand hand, ItemStack stack, dev.xkmc.gensokyolegacy.content.item.umbrella.BorderUmbrellaItem item) {
+	public InteractionResultHolder<ItemStack> handleUse(Level level, Player player, InteractionHand hand, ItemStack stack, BorderUmbrellaItem item) {
 		return InteractionResultHolder.pass(stack);
 	}
 
-	public InteractionResult handleInteractLiving(ItemStack stack, Player player, LivingEntity target, InteractionHand hand, dev.xkmc.gensokyolegacy.content.item.umbrella.BorderUmbrellaItem item) {
+	public InteractionResult handleInteractLiving(ItemStack stack, Player player, LivingEntity target, InteractionHand hand, BorderUmbrellaItem item) {
 		return InteractionResult.PASS;
 	}
 
@@ -58,15 +63,15 @@ public abstract class UmbrellaMode {
 		return UseAnim.NONE;
 	}
 
-	public void onUseTick(Level level, LivingEntity entity, ItemStack stack, int remainingUseDuration, dev.xkmc.gensokyolegacy.content.item.umbrella.BorderUmbrellaItem item) {
+	public void onUseTick(Level level, LivingEntity entity, ItemStack stack, int remainingUseDuration, BorderUmbrellaItem item) {
 	}
 
-	public void onReleaseUsing(ItemStack stack, Level level, LivingEntity entity, int timeLeft, dev.xkmc.gensokyolegacy.content.item.umbrella.BorderUmbrellaItem item) {
-		stack.remove(dev.xkmc.gensokyolegacy.init.registrate.GLItems.UMBRELLA_TRAVEL.get());
+	public void onReleaseUsing(ItemStack stack, Level level, LivingEntity entity, int timeLeft, BorderUmbrellaItem item) {
+		stack.remove(GLItems.UMBRELLA_TRAVEL.get());
 		if (entity instanceof Player player) {
-			for (var handStack : java.util.List.of(player.getMainHandItem(), player.getOffhandItem())) {
-				if (handStack.getItem() instanceof dev.xkmc.gensokyolegacy.content.item.umbrella.BorderUmbrellaItem) {
-					handStack.remove(dev.xkmc.gensokyolegacy.init.registrate.GLItems.UMBRELLA_TRAVEL.get());
+			for (var handStack : List.of(player.getMainHandItem(), player.getOffhandItem())) {
+				if (handStack.getItem() instanceof BorderUmbrellaItem) {
+					handStack.remove(GLItems.UMBRELLA_TRAVEL.get());
 				}
 			}
 		}

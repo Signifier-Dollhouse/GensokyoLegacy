@@ -1,4 +1,0 @@
-- never use FQNs. Use import.
-- For drinkable hexbrew, just display list of effects like potion item does.
-- Let HexBrew item specify a list of components to copy from item to fluid or from fluid to item, instead of check for WITCH every time
-- For potion stage recipe, potion items should not be kept floating

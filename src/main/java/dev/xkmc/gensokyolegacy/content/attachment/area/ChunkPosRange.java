@@ -5,6 +5,7 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 
 import java.util.Objects;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 public record ChunkPosRange(int minCX, int minCZ, int maxCX, int maxCZ) {
@@ -61,7 +62,7 @@ public record ChunkPosRange(int minCX, int minCZ, int maxCX, int maxCZ) {
 				.filter(Objects::nonNull);
 	}
 
-	public void forEach(java.util.function.Consumer<ChunkPos> consumer) {
+	public void forEach(Consumer<ChunkPos> consumer) {
 		for (int x = minCX; x <= maxCX; x++) {
 			for (int z = minCZ; z <= maxCZ; z++) {
 				consumer.accept(new ChunkPos(x, z));

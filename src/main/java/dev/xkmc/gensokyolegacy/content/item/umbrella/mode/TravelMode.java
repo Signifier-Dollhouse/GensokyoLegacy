@@ -3,12 +3,14 @@ package dev.xkmc.gensokyolegacy.content.item.umbrella.mode;
 import dev.xkmc.gensokyolegacy.content.item.umbrella.BorderUmbrellaItem;
 import dev.xkmc.gensokyolegacy.content.item.umbrella.TravelModeUtil;
 import dev.xkmc.gensokyolegacy.content.item.umbrella.data.BorderUmbrellaTravelData;
+import dev.xkmc.gensokyolegacy.content.item.umbrella.data.BorderUmbrellaUnlock;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.level.TicketType;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
@@ -60,7 +62,7 @@ public class TravelMode extends UmbrellaMode {
 
 	@Override
 	public InteractionResultHolder<ItemStack> handleUse(Level level, Player player, InteractionHand hand, ItemStack stack, BorderUmbrellaItem item) {
-		var unlock = GLItems.UMBRELLA_UNLOCK.getOrDefault(stack, dev.xkmc.gensokyolegacy.content.item.umbrella.data.BorderUmbrellaUnlock.DEFAULT);
+		var unlock = GLItems.UMBRELLA_UNLOCK.getOrDefault(stack, BorderUmbrellaUnlock.DEFAULT);
 		if (!unlock.travelUnlocked()) {
 			if (!level.isClientSide)
 				player.displayClientMessage(GLLang.ItemUmbrella.LOCKED_TRAVEL.get(), true);
@@ -81,7 +83,7 @@ public class TravelMode extends UmbrellaMode {
 			BlockPos tpos = travelData != null ? travelData.target() : BlockPos.containing(sp.position().add(sp.getLookAngle().normalize().scale(dist)));
 			ServerLevel sl = sp.serverLevel();
 			ChunkPos cpos = new ChunkPos(tpos);
-			sl.getChunkSource().addRegionTicket(net.minecraft.server.level.TicketType.PORTAL, cpos, 2, tpos);
+			sl.getChunkSource().addRegionTicket(TicketType.PORTAL, cpos, 2, tpos);
 			sl.getChunkSource().getChunk(cpos.x, cpos.z, ChunkStatus.FULL, false);
 			sp.displayClientMessage(GLLang.ItemUmbrella.TRAVEL_START.get(), true);
 		}
