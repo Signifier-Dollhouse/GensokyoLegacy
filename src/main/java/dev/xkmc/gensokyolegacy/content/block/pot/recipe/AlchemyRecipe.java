@@ -4,14 +4,24 @@ import dev.xkmc.gensokyolegacy.content.block.pot.AlchemyInv;
 import dev.xkmc.l2core.serial.recipe.BaseRecipe;
 import dev.xkmc.l2serial.serialization.marker.SerialClass;
 import dev.xkmc.l2serial.serialization.marker.SerialField;
+import dev.xkmc.gensokyolegacy.content.fluid.GLHexFluid;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.alchemy.PotionContents;
+import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.crafting.FluidIngredient;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @SerialClass
 public abstract class AlchemyRecipe<T extends AlchemyRecipe<T>> extends BaseRecipe<T, AlchemyRecipe<?>, AlchemyInv> implements TimedRecipe {
@@ -62,6 +72,38 @@ public abstract class AlchemyRecipe<T extends AlchemyRecipe<T>> extends BaseReci
 
 	public FluidStack getResultFluid(AlchemyInv inv, HolderLookup.Provider access) {
 		return resultFluid.copy();
+	}
+
+	public List<ItemStack> getInputFluidItemStacks() {
+		if (inputFluid.isEmpty()) return List.of();
+		List<ItemStack> out = new ArrayList<>();
+		for (FluidStack fs : inputFluid.getStacks()) {
+			out.addAll(fluidToItem(fs));
+		}
+		return out;
+	}
+
+	public List<ItemStack> getOutputFluidItemStacks() {
+		if (resultFluid.isEmpty()) return List.of();
+		return fluidToItem(resultFluid);
+	}
+
+	private static List<ItemStack> fluidToItem(FluidStack fs) {
+		Fluid fluid = fs.getFluid();
+		if (fluid instanceof GLHexFluid gl && gl.brew != null) {
+			ItemStack stack = gl.brew.bottle.asStack(1);
+			gl.brew.copyToItem(fs, stack);
+			return List.of(stack);
+		}
+		if (fluid == Fluids.WATER) {
+			ItemStack bucket = new ItemStack(Items.WATER_BUCKET);
+			ItemStack bottle = new ItemStack(Items.POTION);
+			bottle.set(DataComponents.POTION_CONTENTS, new PotionContents(Optional.of(Potions.WATER), Optional.empty(), List.of()));
+			return List.of(bucket, bottle);
+		}
+		Item bucket = fluid.getBucket();
+		if (bucket != Items.AIR) return List.of(new ItemStack(bucket));
+		return List.of();
 	}
 
 }

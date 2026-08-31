@@ -56,20 +56,12 @@ public class AlchemyRecipeCategory extends BaseRecipeCategory<AlchemyRecipe<?>, 
 
 	@Override
 	public void setRecipe(IRecipeLayoutBuilder builder, AlchemyRecipe<?> recipe, IFocusGroup focuses) {
-		// input fluid
-		if (!recipe.inputFluid.isEmpty()) {
-			var stacks = recipe.inputFluid.getStacks();
-			List<FluidStack> list = new ArrayList<>();
-			for (var s : stacks) {
-				FluidStack copy = s.copy();
-				copy.setAmount(1000);
-				list.add(copy);
-			}
-			if (!list.isEmpty()) {
-				builder.addSlot(RecipeIngredientRole.INPUT, 1, 18)
-						.setStandardSlotBackground()
-						.addIngredients(NeoForgeTypes.FLUID_STACK, list);
-			}
+		// input fluid as item (water bucket/bottle, hexbrew bottle)
+		var inFluidItems = recipe.getInputFluidItemStacks();
+		if (!inFluidItems.isEmpty()) {
+			builder.addSlot(RecipeIngredientRole.INPUT, 1, 18)
+					.setStandardSlotBackground()
+					.addItemStacks(inFluidItems);
 		}
 		// input items
 		var compiled = compile(recipe.getInputItems());
@@ -90,23 +82,25 @@ public class AlchemyRecipeCategory extends BaseRecipeCategory<AlchemyRecipe<?>, 
 				y++;
 			}
 		}
-		// output fluid
-		FluidStack outFluid = recipe.resultFluid;
-		// for dynamic witch recipes, outFluid is empty witch without potion; try to get dynamic via empty inv? keep as is
-		if (!outFluid.isEmpty()) {
+		// output fluid as item
+		var outFluidItems = recipe.getOutputFluidItemStacks();
+		if (!outFluidItems.isEmpty()) {
 			builder.addSlot(RecipeIngredientRole.OUTPUT, 106, 18)
 					.setOutputSlotBackground()
-					.addIngredients(NeoForgeTypes.FLUID_STACK, List.of(outFluid));
+					.addItemStacks(outFluidItems);
+		} else {
+			FluidStack outFluid = recipe.resultFluid;
+			if (!outFluid.isEmpty()) {
+				builder.addSlot(RecipeIngredientRole.OUTPUT, 106, 18)
+						.setOutputSlotBackground()
+						.addIngredients(NeoForgeTypes.FLUID_STACK, List.of(outFluid));
+			}
 		}
 		// output item
 		if (!recipe.resultItem.isEmpty()) {
 			builder.addSlot(RecipeIngredientRole.OUTPUT, 106, 36)
 					.setOutputSlotBackground()
 					.addItemStack(recipe.resultItem);
-		}
-		if (outFluid.isEmpty() && recipe.resultItem.isEmpty()) {
-			// witch merge/enhance dynamic fluid: show generic witch 250 as placeholder
-			// fluid already handled via resultFluid field which may be empty; try to show via getResultFluid with dummy inv is not needed
 		}
 	}
 
