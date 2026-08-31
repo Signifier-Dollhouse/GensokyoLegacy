@@ -11,8 +11,7 @@ import dev.xkmc.gensokyolegacy.content.block.donation.DonationBoxBlock;
 import dev.xkmc.gensokyolegacy.content.block.donation.DonationBoxBlockEntity;
 import dev.xkmc.gensokyolegacy.content.block.donation.DonationShape;
 import dev.xkmc.gensokyolegacy.content.block.donation.DoubleBlockHorizontal;
-import dev.xkmc.gensokyolegacy.content.block.misc.BookPile;
-import dev.xkmc.gensokyolegacy.content.block.misc.BookStack;
+import dev.xkmc.gensokyolegacy.content.block.misc.*;
 import dev.xkmc.gensokyolegacy.content.block.pot.AlchemyPotBlock;
 import dev.xkmc.gensokyolegacy.content.block.pot.AlchemyPotBlockEntity;
 import dev.xkmc.gensokyolegacy.content.block.pot.AlchemyPotRenderer;
@@ -24,6 +23,11 @@ import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.GLRecipeGen;
 import dev.xkmc.l2modularblock.core.BlockTemplates;
 import dev.xkmc.l2modularblock.core.DelegateBlock;
+import dev.xkmc.l2modularblock.one.ShapeBlockMethod;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraft.core.Holder;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapelessRecipeBuilder;
@@ -36,6 +40,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.material.PushReaction;
@@ -83,6 +88,10 @@ public class GLBlocks {
 
 	public static final BlockEntry<DelegateBlock> BOOK_PILE, BOOK_STACK, ALCHEMY_POT;
 	public static final BlockEntityEntry<AlchemyPotBlockEntity> ALCHEMY_POT_BE;
+
+	public static final BlockEntry<DelegateBlock> SEALING_POT;
+	public static final BlockEntry<DelegateBlock> DONATION_BOX_2;
+	public static final BlockEntry<DelegateBlock> CARTON, CARTON_WHITE, CARTON_BLUE;
 
 	public static final BlockEntry<YoukaiBedBlock>[] BEDS;
 	public static final BlockEntityEntry<YoukaiBedBlockEntity> BE_BED;
@@ -192,6 +201,61 @@ public class GLBlocks {
 			ALCHEMY_POT_BE = GensokyoLegacy.REGISTRATE.blockEntity("alchemy_pot", AlchemyPotBlockEntity::new)
 					.validBlock(ALCHEMY_POT)
 					.renderer(() -> AlchemyPotRenderer::new)
+					.register();
+
+			// 封魔之壶
+			SEALING_POT = GensokyoLegacy.REGISTRATE.block("sealing_pot", p -> DelegateBlock.newBaseBlock(p, BlockTemplates.HORIZONTAL, new SealingPotShape()))
+					.properties(p -> p.mapColor(MapColor.NONE).strength(2.0F).sound(SoundType.STONE).noOcclusion())
+					.blockstate((ctx, pvd) -> pvd.horizontalBlock(ctx.get(),
+							pvd.models().getBuilder("block/" + ctx.getName())
+									.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/utensil/" + ctx.getName())))
+									.texture("all", pvd.modLoc("block/utensil/" + ctx.getName()))
+									.renderType("cutout")))
+                    .item().model((ctx, pvd) -> pvd.withExistingParent(ctx.getName(), "item/generated")
+                            .texture("layer0", pvd.modLoc("item/utensil/sealing_pot")))
+                    .build()
+					.register();
+
+			// 赛钱箱
+			DONATION_BOX_2 = GensokyoLegacy.REGISTRATE.block("donation_box_2", p -> DelegateBlock.newBaseBlock(p, BlockTemplates.HORIZONTAL, new DonationBox2Shape()))
+					.properties(p -> p.mapColor(MapColor.DIRT).strength(2.0F).sound(SoundType.WOOD).noOcclusion())
+					.blockstate((ctx, pvd) -> pvd.horizontalBlock(ctx.get(),
+							pvd.models().getBuilder("block/" + ctx.getName())
+									.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/utensil/" + ctx.getName())))
+									.texture("all", pvd.modLoc("block/utensil/" + ctx.getName()))
+									.renderType("cutout")))
+					.simpleItem()
+					.register();
+
+			// 纸盒
+			CARTON = GensokyoLegacy.REGISTRATE.block("carton_default", p -> DelegateBlock.newBaseBlock(p, BlockTemplates.HORIZONTAL, new CartonShape()))
+					.properties(p -> p.mapColor(MapColor.NONE).strength(1.0F).sound(SoundType.WOOD).noOcclusion())
+					.blockstate((ctx, pvd) -> pvd.horizontalBlock(ctx.get(),
+							pvd.models().getBuilder("block/" + ctx.getName())
+									.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/utensil/carton_default")))
+									.texture("all", pvd.modLoc("block/utensil/carton_default"))
+									.renderType("cutout")))
+					.simpleItem()
+					.register();
+
+			CARTON_WHITE = GensokyoLegacy.REGISTRATE.block("carton_white", p -> DelegateBlock.newBaseBlock(p, BlockTemplates.HORIZONTAL, new CartonShape()))
+					.properties(p -> p.mapColor(MapColor.NONE).strength(1.0F).sound(SoundType.WOOD).noOcclusion())
+					.blockstate((ctx, pvd) -> pvd.horizontalBlock(ctx.get(),
+							pvd.models().getBuilder("block/" + ctx.getName())
+									.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/utensil/carton_white")))
+									.texture("all", pvd.modLoc("block/utensil/carton_white"))
+									.renderType("cutout")))
+					.simpleItem()
+					.register();
+
+			CARTON_BLUE = GensokyoLegacy.REGISTRATE.block("carton_blue", p -> DelegateBlock.newBaseBlock(p, BlockTemplates.HORIZONTAL, new CartonShape()))
+					.properties(p -> p.mapColor(MapColor.NONE).strength(1.0F).sound(SoundType.WOOD).noOcclusion())
+					.blockstate((ctx, pvd) -> pvd.horizontalBlock(ctx.get(),
+							pvd.models().getBuilder("block/" + ctx.getName())
+									.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/utensil/carton_blue")))
+									.texture("all", pvd.modLoc("block/utensil/carton_blue"))
+									.renderType("cutout")))
+					.simpleItem()
 					.register();
 		}
 

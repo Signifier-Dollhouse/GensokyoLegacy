@@ -1,0 +1,46 @@
+{
+	"format_version": "1.21.6",
+	"credit": "Made with Blockbench",
+    "parent": "block/block",
+	"texture_size": [128, 128],
+	"textures": {
+		"0": "gensokyolegacy:block/utensil/donation_box_2",
+		"particle": "gensokyolegacy:block/utensil/donation_box_2"
+	},
+	"elements": [
+		{
+			"from": [-5, 14, -1],
+			"to": [21, 16, 17],
+			"rotation": {"angle": 0, "axis": "y", "origin": [0, 14, 0]},
+			"faces": {
+				"north": {"uv": [6, 0, 9.25, 0.25], "texture": "#0"},
+				"east": {"uv": [6, 0.5, 8.25, 0.75], "texture": "#0"},
+				"south": {"uv": [6, 0.25, 9.25, 0.5], "texture": "#0"},
+				"west": {"uv": [6, 0.75, 8.25, 1], "texture": "#0"},
+				"up": {"uv": [7.25, 6.25, 4, 4], "texture": "#0"},
+				"down": {"uv": [3.25, 6, 0, 8.25], "texture": "#0"}
+			}
+		},
+		{
+			"from": [-4, 0, 0],
+			"to": [20, 16, 16],
+			"faces": {
+				"north": {"uv": [0, 0, 3, 2], "texture": "#0"},
+				"east": {"uv": [0, 4, 2, 6], "texture": "#0"},
+				"south": {"uv": [0, 2, 3, 4], "texture": "#0"},
+				"west": {"uv": [2, 4, 4, 6], "texture": "#0"},
+				"up": {"uv": [6, 2, 3, 0], "texture": "#0"},
+				"down": {"uv": [6, 2, 3, 4], "texture": "#0"}
+			}
+		}
+	],
+	"groups": [
+		{
+			"name": "Root",
+			"origin": [8, 8, 8],
+			"color": 0,
+			"children": [0, 1],
+			"shade": true
+		}
+	]
+}

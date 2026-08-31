@@ -10,6 +10,15 @@ import com.tterrag.registrate.util.entry.BlockEntry;
 import com.tterrag.registrate.util.nullness.NonNullBiConsumer;
 import com.tterrag.registrate.util.nullness.NonNullFunction;
 import dev.xkmc.gensokyolegacy.content.block.deco.*;
+import dev.xkmc.gensokyolegacy.content.block.deco.IBlockSet;
+import dev.xkmc.gensokyolegacy.content.block.deco.LargeTableBlock;
+import dev.xkmc.gensokyolegacy.content.block.deco.TableClothImpl;
+import dev.xkmc.gensokyolegacy.content.block.deco.VerticalSlabBlock;
+import dev.xkmc.gensokyolegacy.content.block.nature.CedarFallenLeavesBlock;
+import dev.xkmc.gensokyolegacy.content.block.nature.EvergreenVineBodyBlock;
+import dev.xkmc.gensokyolegacy.content.block.nature.EvergreenVineHeadBlock;
+import dev.xkmc.gensokyolegacy.content.block.nature.WaterloggedCrossBlock;
+import dev.xkmc.gensokyolegacy.content.block.deco.WoodTableBlock;
 import dev.xkmc.gensokyolegacy.content.block.door.SlidingDoor;
 import dev.xkmc.gensokyolegacy.content.block.door.SlidingDoorJsons;
 import dev.xkmc.gensokyolegacy.content.block.misc.TatamiBlock;
@@ -170,6 +179,17 @@ public class GLDecoBlocks {
 
 	public static final BlockEntry<TallGrassBlock> BROOM_GRASS;
 
+	public static final BlockEntry<GrassBlock> STAR_FLOWER;
+	public static final BlockEntry<WaterloggedCrossBlock> FLAME_CATTAIL;
+	public static final BlockEntry<GrassBlock> BRACKEN;
+	public static final BlockEntry<DelegateBlock> EUGUNE_RED, EUGUNE_BROWN, EUGUNE_GHOST_FIRE;
+	public static final BlockEntry<EvergreenVineHeadBlock> EVERGREEN_VINE;
+	public static final BlockEntry<EvergreenVineBodyBlock> EVERGREEN_VINE_PLANT;
+	public static final BlockEntry<CedarFallenLeavesBlock> CEDAR_FALLEN_LEAVES;
+	public static final BlockEntry<Block> GLASS;
+	public static final BlockEntry<IronBarsBlock> GLASS_PANE;
+	public static final BlockEntry<Block> CRATE;
+
 	static {
 		var reg = GensokyoLegacy.REGISTRATE;
 		TAB = reg.buildModCreativeTab("building_blocks", "Gensokyo Legacy - Building Blocks",
@@ -194,6 +214,122 @@ public class GLDecoBlocks {
 				.simpleItem()
 				.register();
 
+		// 星星花
+		STAR_FLOWER = reg.block("star_flower", GrassBlock::new)
+				.properties(p -> p.offsetType(BlockBehaviour.OffsetType.XYZ).mapColor(MapColor.PLANT).strength(0).sound(SoundType.GRASS).noOcclusion().noCollission().pushReaction(PushReaction.DESTROY))
+				.blockstate((ctx, pvd) -> {})
+				.simpleItem()
+				.register();
+
+		// 燃蒲
+		FLAME_CATTAIL = reg.block("flame_cattail", WaterloggedCrossBlock::new)
+				.properties(p -> p.offsetType(BlockBehaviour.OffsetType.XYZ).mapColor(MapColor.PLANT).strength(0).sound(SoundType.GRASS).noOcclusion().noCollission().pushReaction(PushReaction.DESTROY))
+				.blockstate((ctx, pvd) -> pvd.simpleBlock(ctx.get(),
+						pvd.models().getBuilder("block/" + ctx.getName())
+								.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/flame_cattail")))
+								.renderType("cutout")))
+				.simpleItem()
+				.register();
+
+		// 蕨菜
+		BRACKEN = reg.block("bracken", GrassBlock::new)
+				.properties(p -> p.offsetType(BlockBehaviour.OffsetType.XYZ).mapColor(MapColor.PLANT).strength(0).sound(SoundType.GRASS).noOcclusion().pushReaction(PushReaction.DESTROY).dynamicShape())
+				.blockstate((ctx, pvd) -> pvd.simpleBlock(ctx.get(),
+						new ModelFile.UncheckedModelFile(pvd.modLoc("block/bracken"))))
+				.simpleItem()
+				.register();
+
+		// 红耳姑
+		EUGUNE_RED = reg.block("eugune_red", p -> DelegateBlock.newBaseBlock(p, BlockTemplates.HORIZONTAL))
+				.properties(p -> p.mapColor(MapColor.PLANT).strength(0).sound(SoundType.GRASS).noOcclusion().noCollission().pushReaction(PushReaction.DESTROY))
+				.blockstate((ctx, pvd) -> pvd.horizontalBlock(ctx.get(),
+						new ModelFile.UncheckedModelFile(pvd.modLoc("block/eugune_red"))))
+				.simpleItem()
+				.register();
+
+		// 棕耳姑
+		EUGUNE_BROWN = reg.block("eugune_brown", p -> DelegateBlock.newBaseBlock(p, BlockTemplates.HORIZONTAL))
+				.properties(p -> p.mapColor(MapColor.PLANT).strength(0).sound(SoundType.GRASS).noOcclusion().noCollission().pushReaction(PushReaction.DESTROY))
+				.blockstate((ctx, pvd) -> pvd.horizontalBlock(ctx.get(),
+						new ModelFile.UncheckedModelFile(pvd.modLoc("block/eugune_brown"))))
+				.simpleItem()
+				.register();
+
+		// 鬼火耳姑
+		EUGUNE_GHOST_FIRE = reg.block("eugune_ghost_fire", p -> DelegateBlock.newBaseBlock(p, BlockTemplates.HORIZONTAL))
+				.properties(p -> p.mapColor(MapColor.PLANT).strength(0).sound(SoundType.GRASS).noOcclusion().noCollission().pushReaction(PushReaction.DESTROY))
+				.blockstate((ctx, pvd) -> pvd.horizontalBlock(ctx.get(),
+						new ModelFile.UncheckedModelFile(pvd.modLoc("block/eugune_ghost_fire"))))
+				.simpleItem()
+				.register();
+
+		// 常青垂藤
+		EVERGREEN_VINE = reg.block("evergreen_vine", EvergreenVineHeadBlock::new)
+                .properties(p -> p.mapColor(MapColor.PLANT).strength(0).sound(SoundType.GRASS).noOcclusion().noCollission().pushReaction(PushReaction.DESTROY))
+                .blockstate((ctx, pvd) -> pvd.simpleBlock(ctx.get(),
+                        pvd.models().getBuilder("block/" + ctx.getName())
+                                .parent(new ModelFile.UncheckedModelFile("minecraft:block/cross"))
+                                .texture("cross", pvd.modLoc("block/nature/evergreen_vine"))
+                                .renderType("cutout")))
+                .item().model((ctx, pvd) -> pvd.getBuilder(ctx.getName())
+                        .parent(new ModelFile.UncheckedModelFile(pvd.modLoc("block/" + ctx.getName()))))
+                .build()
+                .register();
+
+
+
+		EVERGREEN_VINE_PLANT = reg.block("evergreen_vine_plant", EvergreenVineBodyBlock::new)
+                .properties(p -> p.mapColor(MapColor.PLANT).strength(0).sound(SoundType.GRASS).noOcclusion().noCollission().pushReaction(PushReaction.DESTROY))
+                .blockstate((ctx, pvd) -> pvd.simpleBlock(ctx.get(),
+                        pvd.models().getBuilder("block/" + ctx.getName())
+                                .parent(new ModelFile.UncheckedModelFile("minecraft:block/cross"))
+                                .texture("cross", pvd.modLoc("block/nature/evergreen_vine_plant"))
+                                .renderType("cutout")))
+                .register();
+
+
+		// 青杉落叶
+		CEDAR_FALLEN_LEAVES = reg.block("cedar_fallen_leaves", CedarFallenLeavesBlock::new)
+				.properties(p -> p.mapColor(MapColor.PLANT).strength(0).sound(SoundType.GRASS).noOcclusion().noCollission().pushReaction(PushReaction.DESTROY))
+				.blockstate((ctx, pvd) -> {
+					var layer1 = pvd.models().getBuilder("block/" + ctx.getName() + "_layer1")
+							.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/cedar_fallen_leaves_layer1")))
+							.renderType("cutout");
+					var layer2 = pvd.models().getBuilder("block/" + ctx.getName() + "_layer2")
+                            .parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/cedar_fallen_leaves_layer2")))
+							.renderType("cutout");
+					pvd.getVariantBuilder(ctx.get())
+							.partialState().with(CedarFallenLeavesBlock.LAYERS, 1).modelForState().modelFile(layer1).addModel()
+							.partialState().with(CedarFallenLeavesBlock.LAYERS, 2).modelForState().modelFile(layer2).addModel();
+				})
+				.item().model((ctx, pvd) -> pvd.getBuilder(ctx.getName())
+						.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/cedar_fallen_leaves_layer1"))))
+				.build()
+				.register();
+
+		// 纸窗方块
+		GLASS = reg.block("paper_window", Block::new)
+				.properties(p -> p.mapColor(MapColor.NONE).strength(0.3F).sound(SoundType.WOOD).noOcclusion().noLootTable())
+				.blockstate((ctx, pvd) -> pvd.simpleBlock(ctx.get(),
+						pvd.models().cubeAll(ctx.getName(),
+								pvd.modLoc("block/deco/paper_window"))))
+				.loot((pvd, block) -> pvd.add(block, LootTable.lootTable()))
+				.tag(BlockTags.MINEABLE_WITH_PICKAXE)
+				.simpleItem()
+				.register();
+
+		// 纸窗板
+		GLASS_PANE = reg.block("paper_window_pane", IronBarsBlock::new)
+				.properties(p -> p.mapColor(MapColor.NONE).strength(0.3F).sound(SoundType.WOOD).noOcclusion().noLootTable())
+				.blockstate((ctx, pvd) -> pvd.paneBlock(ctx.get(),
+						pvd.modLoc("block/deco/paper_window"),
+						pvd.modLoc("block/deco/paper_window")))
+				.loot((pvd, block) -> pvd.add(block, LootTable.lootTable()))
+				.tag(BlockTags.MINEABLE_WITH_PICKAXE)
+				.item().model((ctx, pvd) -> pvd.withExistingParent(ctx.getName(), "item/generated")
+						.texture("layer0", pvd.modLoc("block/deco/paper_window")))
+				.build()
+				.register();
 
 		reg.block("cushion", CushionBlock::new)
 				.properties(p -> p.mapColor(MapColor.SAND).sound(SoundType.WOOL).pushReaction(PushReaction.DESTROY).noOcclusion().noCollission())
@@ -254,8 +390,12 @@ public class GLDecoBlocks {
 
 			e.wall = reg.block(name + "_plank_wall", Block::new)
 					.initialProperties(() -> e.plankProp)
-					.blockstate((ctx, pvd) -> pvd.simpleBlock(ctx.get(), pvd.models().cubeBottomTop(ctx.getName(),
-							pvd.modLoc("block/wood/" + name + "_plank_wall"), e.top(), e.top())))
+					.blockstate((ctx, pvd) -> {
+						var wallTop = pvd.modLoc("block/wood/" + name + "_plank_wall_top");
+						pvd.simpleBlock(ctx.get(), pvd.models().cubeColumn(ctx.getName(),
+								pvd.modLoc("block/wood/" + name + "_plank_wall"),
+                                pvd.modLoc("block/wood/" + name + "_plank_wall_top")));
+					})
 					.tag(BlockTags.MINEABLE_WITH_AXE)
 					.simpleItem()
 					.register();
@@ -350,6 +490,13 @@ public class GLDecoBlocks {
 							pvd.simpleBlock(ctx.get(), pvd.models().cubeAll(ctx.getName(), GensokyoLegacy.loc("block/strips/" + ctx.getName()))))
 					.tag(BlockTags.MINEABLE_WITH_PICKAXE).simpleItem().register();
 		}
+
+		// 板条箱
+		CRATE = reg.block("crate", Block::new)
+				.properties(p -> p.mapColor(MapColor.WOOD).strength(2.0F).sound(SoundType.WOOD))
+				.blockstate((ctx, pvd) ->
+						pvd.simpleBlock(ctx.get(), pvd.models().cubeAll(ctx.getName(), pvd.modLoc("block/utensil/" + ctx.getName()))))
+				.tag(BlockTags.MINEABLE_WITH_AXE).simpleItem().register();
 
 
 	}
