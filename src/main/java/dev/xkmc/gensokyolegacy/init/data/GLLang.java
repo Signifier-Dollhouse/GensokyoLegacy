@@ -420,61 +420,59 @@ public final class GLLang {
 		}
 	}
 
-	// ========== ItemUmbrella (item.umbrella.* + umbrella.*) ==========
+	// ========== ItemUmbrella (umbrella.*) ==========
 	public enum ItemUmbrella implements LangEntry {
-		// item.umbrella.*
-		MODE("item.umbrella_mode", "Mode: %s", 1),
-		SLOT("item.umbrella_slot", "Slot: %s", 1),
-		SLOT_EMPTY_ITEM("item.umbrella_slot_empty", "Empty slot", 0, ChatFormatting.DARK_GRAY),
-		LOCKED_TRAVEL("item.umbrella_locked_travel", "Travel mode locked: apply chorus fruit in anvil", 0, ChatFormatting.DARK_RED),
-		LOCKED_CAPTURE("item.umbrella_locked_capture", "Capture mode locked: apply echo shard in anvil", 0, ChatFormatting.DARK_RED),
-		RECORDED("item.umbrella_recorded", "Recorded position %s: %s", 2),
-		WAYPOINT("item.umbrella_waypoint", "Teleported to %s", 1),
-		TRAVEL_START("item.umbrella_travel_start", "Charging border travel...", 0),
-		TRAVEL_DONE("item.umbrella_travel_done", "Border travel complete", 0),
-		CAPTURED("item.umbrella_captured", "Teleported %s to %s", 2),
-		CAPTURE_FAIL("item.umbrella_capture_fail", "Cannot capture this entity", 0, ChatFormatting.RED),
-		TRAVEL_CANCELLED("item.umbrella_travel_cancelled", "Travel cancelled", 0, ChatFormatting.GRAY),
-		DIM_MISSING("item.umbrella_dim_missing", "Dimension %s not found", 1),
-		RENAME_TITLE("item.umbrella_rename_title", "Rename Position", 0),
-		WHEEL("item.umbrella_wheel", "Hold %s to open wheel", 1, ChatFormatting.GRAY),
-		DISTANCE("item.umbrella_distance", "Distance: %s blocks", 1, ChatFormatting.GRAY),
-		UNLOCKED_TRAVEL("item.umbrella_unlocked_travel", "Travel unlocked", 0, ChatFormatting.GREEN),
-		UNLOCKED_CAPTURE("item.umbrella_unlocked_capture", "Capture unlocked", 0, ChatFormatting.GREEN),
-		DESC_RECORD("item.umbrella_desc_record", "Right-click block to record position", 0, ChatFormatting.GRAY),
-		DESC_WAYPOINT("item.umbrella_desc_waypoint", "Right-click to teleport to selected position", 0, ChatFormatting.GRAY),
-		DESC_TRAVEL("item.umbrella_desc_travel", "Hold use to charge and travel forward", 0, ChatFormatting.GRAY),
-		DESC_CAPTURE("item.umbrella_desc_capture", "Interact with entity to teleport it to selected position", 0, ChatFormatting.GRAY),
-		// umbrella.*
-		MODE_RECORD("umbrella.mode_record", "Record"),
-		MODE_WAYPOINT("umbrella.mode_waypoint", "Waypoint"),
-		MODE_TRAVEL("umbrella.mode_travel", "Travel"),
-		MODE_CAPTURE("umbrella.mode_capture", "Capture"),
-		SLOT_EMPTY("umbrella.slot_empty", "Empty"),
-		WHEEL_TARGET("umbrella.wheel_target", "Target Position"),
-		WHEEL_DISTANCE("umbrella.wheel_distance", "Travel Distance"),
-		WHEEL_EDIT("umbrella.wheel_edit", "Edit Position"),
-		MANAGE_TITLE("umbrella.manage_title", "Manage Positions"),
-		MANAGE_RENAME("umbrella.manage_rename", "Rename"),
-		MANAGE_DELETE("umbrella.manage_delete", "Delete");
+		MODE("Mode: %s", 1),
+		SLOT("Slot: %s", 1),
+		SLOT_EMPTY_ITEM("Empty slot", 0, ChatFormatting.DARK_GRAY),
+		LOCKED_TRAVEL("Travel mode locked: apply chorus fruit in anvil", 0, ChatFormatting.DARK_RED),
+		LOCKED_CAPTURE("Capture mode locked: apply echo shard in anvil", 0, ChatFormatting.DARK_RED),
+		RECORDED("Recorded position %s: %s", 2),
+		WAYPOINT("Teleported to %s", 1),
+		TRAVEL_START("Charging border travel...", 0),
+		TRAVEL_DONE("Border travel complete", 0),
+		CAPTURED("Teleported %s to %s", 2),
+		CAPTURE_FAIL("Cannot capture this entity", 0, ChatFormatting.RED),
+		TRAVEL_CANCELLED("Travel cancelled", 0, ChatFormatting.GRAY),
+		DIM_MISSING("Dimension %s not found", 1),
+		RENAME_TITLE("Rename Position", 0),
+		WHEEL("Hold %s to open wheel", 1, ChatFormatting.GRAY),
+		DISTANCE("Distance: %s blocks", 1, ChatFormatting.GRAY),
+		UNLOCKED_TRAVEL("Travel unlocked", 0, ChatFormatting.GREEN),
+		UNLOCKED_CAPTURE("Capture unlocked", 0, ChatFormatting.GREEN),
+		DESC_RECORD("Right-click block to record position", 0, ChatFormatting.GRAY),
+		DESC_WAYPOINT("Right-click to teleport to selected position", 0, ChatFormatting.GRAY),
+		DESC_TRAVEL("Hold use to charge and travel forward", 0, ChatFormatting.GRAY),
+		DESC_CAPTURE("Interact with entity to teleport it to selected position", 0, ChatFormatting.GRAY),
+		MODE_RECORD("Record"),
+		MODE_WAYPOINT("Waypoint"),
+		MODE_TRAVEL("Travel"),
+		MODE_CAPTURE("Capture"),
+		SLOT_EMPTY("Empty"),
+		WHEEL_TARGET("Target Position"),
+		WHEEL_DISTANCE("Travel Distance"),
+		WHEEL_EDIT("Edit Position"),
+		MANAGE_TITLE("Manage Positions"),
+		MANAGE_RENAME("Rename"),
+		MANAGE_DELETE("Delete");
 
 		private final String def;
 		private final int argn;
 		private final String key;
 		private final @Nullable ChatFormatting format;
 
-		ItemUmbrella(String suffix, String def) {
-			this(suffix, def, 0);
+		ItemUmbrella(String def) {
+			this(def, 0);
 		}
 
-		ItemUmbrella(String suffix, String def, int argn) {
-			this(suffix, def, argn, null);
+		ItemUmbrella(String def, int argn) {
+			this(def, argn, null);
 		}
 
-		ItemUmbrella(String suffix, String def, int argn, @Nullable ChatFormatting format) {
+		ItemUmbrella(String def, int argn, @Nullable ChatFormatting format) {
 			this.def = def;
 			this.argn = argn;
-			this.key = GensokyoLegacy.MODID + "." + suffix;
+			this.key = GensokyoLegacy.MODID + ".umbrella." + name().toLowerCase(Locale.ROOT);
 			this.format = format;
 		}
 

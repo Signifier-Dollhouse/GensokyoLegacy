@@ -61,15 +61,7 @@
 			"gift_type": "类型: %s",
 			"usage_tengu_sake": "饮用后获得短暂的增益。",
 			"usage_fairy_cake": "美味的蛋糕。食用恢复饥饿值。",
-			"usage_magic_book": "可以作为燃料使用。",
-			"umbrella_wheel": "按住 %s 打开轮盘",
-			"umbrella_distance": "距离: %s 格",
-			"umbrella_unlocked_travel": "旅行已解锁",
-			"umbrella_unlocked_capture": "捕捉已解锁",
-			"umbrella_desc_record": "对着方块右键来记录位置",
-			"umbrella_desc_waypoint": "右键传送至选中位置",
-			"umbrella_desc_travel": "长按右键来向前传送",
-			"umbrella_desc_capture": "右键实体将其传送至选中位置"
+			"usage_magic_book": "可以作为燃料使用。"
 		},
 		"gift": {
 			"type": {
@@ -109,7 +101,15 @@
 			"wheel_edit": "编辑位置",
 			"manage_title": "管理传送点",
 			"manage_rename": "重命名",
-			"manage_delete": "删除"
+			"manage_delete": "删除",
+			"wheel": "按住 %s 打开轮盘",
+			"distance": "距离: %s 格",
+			"unlocked_travel": "旅行已解锁",
+			"unlocked_capture": "捕捉已解锁",
+			"desc_record": "对着方块右键来记录位置",
+			"desc_waypoint": "右键传送至选中位置",
+			"desc_travel": "长按右键来向前传送",
+			"desc_capture": "右键实体将其传送至选中位置"
 		}
 	},
 	"death.attack": {
