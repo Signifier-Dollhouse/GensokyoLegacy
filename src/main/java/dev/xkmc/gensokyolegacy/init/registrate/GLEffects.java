@@ -2,6 +2,7 @@ package dev.xkmc.gensokyolegacy.init.registrate;
 
 import com.tterrag.registrate.util.nullness.NonNullSupplier;
 import dev.xkmc.gensokyolegacy.content.effect.EmptyEffect;
+import dev.xkmc.gensokyolegacy.content.effect.MiasmaEffect;
 import dev.xkmc.gensokyolegacy.content.effect.NativeGodBlessEffect;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.l2core.init.reg.registrate.LegacyHolder;
@@ -30,6 +31,10 @@ public class GLEffects {
 	public static final LegacyHolder<MobEffect> LOOTING = genEffect("looting",
 			() -> new EmptyEffect(MobEffectCategory.BENEFICIAL, 0xFF9AC0CD),
 			"Higher chance to get rare drops");
+
+	public static final LegacyHolder<MobEffect> MIASMA = genEffect("miasma",
+			MiasmaEffect::new,
+			"Armor halved, damage taken +50%");
 
 	private static <T extends MobEffect> LegacyHolder<MobEffect> genEffect(String name, NonNullSupplier<T> sup, String desc) {
 		return new SimpleEntry<>(GensokyoLegacy.REGISTRATE.effect(name, sup, desc).lang(MobEffect::getDescriptionId).register());

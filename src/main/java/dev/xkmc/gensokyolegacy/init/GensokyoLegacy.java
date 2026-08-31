@@ -40,7 +40,8 @@ import dev.xkmc.gensokyolegacy.init.data.structure.GLStructureGen;
 import dev.xkmc.gensokyolegacy.init.data.structure.GLStructureLootGen;
 import dev.xkmc.gensokyolegacy.init.data.structure.GLStructureTagGen;
 import dev.xkmc.gensokyolegacy.init.data.structure.ReportBlocksInStructure;
-import dev.xkmc.gensokyolegacy.init.registrate.GLFluids;
+import dev.xkmc.gensokyolegacy.content.item.hexbrew.HexBrew;
+import dev.xkmc.gensokyolegacy.content.item.hexbrew.HexBrewWrapper;
 import dev.xkmc.gensokyolegacy.init.registrate.*;
 import dev.xkmc.l2core.init.reg.registrate.L2Registrate;
 import dev.xkmc.l2core.init.reg.simple.Reg;
@@ -48,8 +49,6 @@ import dev.xkmc.l2damagetracker.contents.attack.AttackEventHandler;
 import dev.xkmc.l2serial.network.PacketHandler;
 import dev.xkmc.l2serial.serialization.custom_handler.CodecHandler;
 import dev.xkmc.l2serial.serialization.custom_handler.Handlers;
-import dev.xkmc.gensokyolegacy.content.fluid.HexbrewWrapper;
-import dev.xkmc.gensokyolegacy.init.registrate.GLFluids;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
@@ -156,10 +155,10 @@ public class GensokyoLegacy {
 				Capabilities.FluidHandler.BLOCK,
 				GLBlocks.ALCHEMY_POT_BE.get(),
 				(be, dir) -> be.getTankCap(dir));
-		event.registerItem(Capabilities.FluidHandler.ITEM, (stack, ctx) -> new HexbrewWrapper(stack),
+		event.registerItem(Capabilities.FluidHandler.ITEM, (stack, ctx) -> new HexBrewWrapper(stack),
 				Items.GLASS_BOTTLE);
-		var hexBottles = Arrays.stream(GLFluids.Hexbrew.values()).map(e -> e.bottle.asItem()).toArray(Item[]::new);
-		event.registerItem(Capabilities.FluidHandler.ITEM, (stack, ctx) -> new HexbrewWrapper(stack),
+		var hexBottles = Arrays.stream(HexBrew.values()).map(e -> e.bottle.asItem()).toArray(Item[]::new);
+		event.registerItem(Capabilities.FluidHandler.ITEM, (stack, ctx) -> new HexBrewWrapper(stack),
 				hexBottles);
 	}
 
@@ -170,6 +169,8 @@ public class GensokyoLegacy {
 			DispenserBlock.registerProjectileBehavior(GLItems.FROZEN_FROG_WARM.get());
 			DispenserBlock.registerProjectileBehavior(GLItems.FROZEN_FROG_TEMPERATE.get());
 			DispenserBlock.registerProjectileBehavior(GLItems.FAIRY_ICE_CRYSTAL.get());
+			DispenserBlock.registerProjectileBehavior(HexBrew.EXPLOSIVE.bottle.get());
+			DispenserBlock.registerProjectileBehavior(HexBrew.MIASMA.bottle.get());
 		});
 	}
 

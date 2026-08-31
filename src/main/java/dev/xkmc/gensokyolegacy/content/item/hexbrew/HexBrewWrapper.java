@@ -1,6 +1,6 @@
-package dev.xkmc.gensokyolegacy.content.fluid;
+package dev.xkmc.gensokyolegacy.content.item.hexbrew;
 
-import dev.xkmc.gensokyolegacy.init.registrate.GLFluids;
+import dev.xkmc.gensokyolegacy.content.fluid.GLHexFluid;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.neoforged.neoforge.fluids.FluidStack;
@@ -8,15 +8,15 @@ import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class HexbrewWrapper implements IFluidHandlerItem {
+public class HexBrewWrapper implements IFluidHandlerItem {
 
 	private ItemStack container;
 
-	public HexbrewWrapper(ItemStack container) {
+	public HexBrewWrapper(ItemStack container) {
 		this.container = container;
 	}
 
-	public HexbrewWrapper(ItemStack container, @Nullable Void ctx) {
+	public HexBrewWrapper(ItemStack container, @Nullable Void ctx) {
 		this(container);
 	}
 
@@ -27,7 +27,7 @@ public class HexbrewWrapper implements IFluidHandlerItem {
 	}
 
 	private FluidStack getFluidFromBottle() {
-		if (container.getItem() instanceof HexbrewBottleItem bottle) {
+		if (container.getItem() instanceof HexBrewBottleItem bottle) {
 			return bottle.getFluidStack();
 		}
 		return FluidStack.EMPTY;
@@ -37,7 +37,7 @@ public class HexbrewWrapper implements IFluidHandlerItem {
 		if (stack.isEmpty()) {
 			container = new ItemStack(Items.GLASS_BOTTLE);
 		} else if (stack.getFluid() instanceof GLHexFluid) {
-			for (var e : GLFluids.Hexbrew.values()) {
+			for (HexBrew e : HexBrew.values()) {
 				if (e.fluid.getSource() == stack.getFluid()) {
 					container = e.bottle.asStack(1);
 					return;

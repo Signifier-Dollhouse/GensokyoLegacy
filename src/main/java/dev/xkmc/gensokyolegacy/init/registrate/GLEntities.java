@@ -15,6 +15,7 @@ import dev.xkmc.gensokyolegacy.content.entity.dolls.DollEntity;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.DollRenderer;
 import dev.xkmc.gensokyolegacy.content.entity.misc.FairyIce;
 import dev.xkmc.gensokyolegacy.content.entity.misc.FrozenFrog;
+import dev.xkmc.gensokyolegacy.content.entity.misc.HexBrewBottleEntity;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.BossYoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.GeneralYoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.GeneralYoukaiRenderer;
@@ -46,6 +47,7 @@ public class GLEntities {
 
 	public static final EntityEntry<FrozenFrog> FROZEN_FROG;
 	public static final EntityEntry<FairyIce> FAIRY_ICE;
+	public static final EntityEntry<HexBrewBottleEntity> HEXBREW_BOTTLE;
 
 	static {
 
@@ -199,6 +201,12 @@ public class GLEntities {
 
 			FAIRY_ICE = GensokyoLegacy.REGISTRATE
 					.<FairyIce>entity("fairy_ice_crystal", FairyIce::new, MobCategory.MISC)
+					.properties(p -> p.sized(0.25F, 0.25F).clientTrackingRange(4).updateInterval(10))
+					.renderer(() -> ThrownItemRenderer::new)
+					.register();
+
+			HEXBREW_BOTTLE = GensokyoLegacy.REGISTRATE
+					.<HexBrewBottleEntity>entity("hexbrew_bottle", HexBrewBottleEntity::new, MobCategory.MISC)
 					.properties(p -> p.sized(0.25F, 0.25F).clientTrackingRange(4).updateInterval(10))
 					.renderer(() -> ThrownItemRenderer::new)
 					.register();
