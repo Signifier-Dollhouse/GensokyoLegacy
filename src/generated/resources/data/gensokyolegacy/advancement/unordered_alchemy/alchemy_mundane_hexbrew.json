@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_ghost_fire_mushroom": {
+      "conditions": {
+        "items": [
+          {
+            "items": "gensokyolegacy:ghost_fire_mushroom"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "gensokyolegacy:alchemy_mundane_hexbrew"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_ghost_fire_mushroom"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "gensokyolegacy:alchemy_mundane_hexbrew"
+    ]
+  }
+}

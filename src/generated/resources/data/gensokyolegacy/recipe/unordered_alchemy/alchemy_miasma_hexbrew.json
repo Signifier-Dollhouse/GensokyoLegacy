@@ -1,0 +1,31 @@
+{
+  "type": "gensokyolegacy:unordered_alchemy",
+  "input": [
+    {
+      "item": "gensokyolegacy:demonic_miasma_mushroom"
+    },
+    {
+      "item": "minecraft:spider_eye"
+    },
+    {
+      "item": "minecraft:rotten_flesh"
+    },
+    {
+      "item": "minecraft:rotten_flesh"
+    },
+    {
+      "item": "minecraft:rotten_flesh"
+    },
+    {
+      "item": "minecraft:rotten_flesh"
+    }
+  ],
+  "inputFluid": {
+    "fluid": "minecraft:water"
+  },
+  "resultFluid": {
+    "amount": 1000,
+    "id": "gensokyolegacy:miasma_hexbrew"
+  },
+  "time": 400
+}

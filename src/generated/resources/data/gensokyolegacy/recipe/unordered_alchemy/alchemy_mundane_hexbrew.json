@@ -1,0 +1,19 @@
+{
+  "type": "gensokyolegacy:unordered_alchemy",
+  "input": [
+    {
+      "item": "gensokyolegacy:ghost_fire_mushroom"
+    },
+    {
+      "item": "gensokyolegacy:dream_mushroom"
+    }
+  ],
+  "inputFluid": {
+    "fluid": "minecraft:water"
+  },
+  "resultFluid": {
+    "amount": 1000,
+    "id": "gensokyolegacy:mundane_hexbrew"
+  },
+  "time": 200
+}
