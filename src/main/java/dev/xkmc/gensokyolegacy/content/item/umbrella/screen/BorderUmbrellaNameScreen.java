@@ -17,7 +17,7 @@ public class BorderUmbrellaNameScreen extends Screen {
 	private EditBox editBox;
 
 	public BorderUmbrellaNameScreen(int slot, String initialName) {
-		super(GLLang.ITEM$UMBRELLA_RENAME_TITLE.get());
+		super(GLLang.ItemUmbrella.RENAME_TITLE.get());
 		this.slot = slot;
 		this.initialName = initialName;
 	}

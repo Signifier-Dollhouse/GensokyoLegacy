@@ -53,7 +53,7 @@ public record SubmitItemRequirement(
 		}
 		if (ingredients.size() > 1) {
 			boolean pass = InventoryMapper.testCached(player, this);
-			ans.addFirst(pass ? GLLang.QUEST$ITEM_SUBMIT_PASS.get() : GLLang.QUEST$ITEM_SUBMIT_FAIL.get());
+			ans.addFirst(pass ? GLLang.Quest.ITEM_SUBMIT_PASS.get() : GLLang.Quest.ITEM_SUBMIT_FAIL.get());
 		}
 		return ans;
 	}

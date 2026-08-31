@@ -100,7 +100,7 @@ public class BorderUmbrellaSelectionListener extends IItemSelector implements Wh
 		} else if (wheelIndex == 2) {
 			// fake wheel at index 2 for editing stored position, like GolemFakeWheel in ModularGolems
 			ItemStack icon = new ItemStack(Items.NAME_TAG);
-			return Optional.of(new UmbrellaFakeWheel(icon, GLLang.UMBRELLA$WHEEL_EDIT.get()));
+			return Optional.of(new UmbrellaFakeWheel(icon, GLLang.ItemUmbrella.WHEEL_EDIT.get()));
 		}
 		return Optional.empty();
 	}

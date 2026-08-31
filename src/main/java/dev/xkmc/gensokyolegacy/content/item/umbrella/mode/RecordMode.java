@@ -23,12 +23,12 @@ public class RecordMode extends UmbrellaMode {
 
 	@Override
 	public Component displayName() {
-		return GLLang.UMBRELLA$MODE_RECORD.get();
+		return GLLang.ItemUmbrella.MODE_RECORD.get();
 	}
 
 	@Override
 	public Component description() {
-		return GLLang.ITEM$UMBRELLA_DESC_RECORD.get();
+		return GLLang.ItemUmbrella.DESC_RECORD.get();
 	}
 
 	@Override

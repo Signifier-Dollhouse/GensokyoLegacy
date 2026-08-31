@@ -36,7 +36,7 @@ public class CharacterInfoClientManager {
 			else InfoUpdateClientManager.requestCharacter(youkai.getUUID());
 		}
 		if (data == null) {
-			lines.add(GLLang.INFO$LOADING.get().withStyle(ChatFormatting.GRAY));
+			lines.add(GLLang.Info.LOADING.get().withStyle(ChatFormatting.GRAY));
 			return;
 		}
 		lines.addAll(data.info());

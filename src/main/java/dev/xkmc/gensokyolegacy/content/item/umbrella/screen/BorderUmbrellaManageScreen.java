@@ -33,7 +33,7 @@ public class BorderUmbrellaManageScreen extends Screen {
 	private Button cancelButton;
 
 	public BorderUmbrellaManageScreen() {
-		super(GLLang.UMBRELLA$MANAGE_TITLE.get());
+		super(GLLang.ItemUmbrella.MANAGE_TITLE.get());
 	}
 
 	public static void open() {
@@ -227,7 +227,7 @@ public class BorderUmbrellaManageScreen extends Screen {
 		g.drawCenteredString(font, title, width / 2, 12, 0xFFFFFF);
 		if (editingIndex >= 0) {
 			// dim background behind edit overlay is handled by super.render transparent background
-			g.drawCenteredString(font, GLLang.ITEM$UMBRELLA_RENAME_TITLE.get(), width / 2, height / 2 - 40, 0xFFFFFF);
+			g.drawCenteredString(font, GLLang.ItemUmbrella.RENAME_TITLE.get(), width / 2, height / 2 - 40, 0xFFFFFF);
 			// show which slot is being edited
 			g.drawCenteredString(font, Component.literal("Slot " + editingIndex), width / 2, height / 2 - 28, 0xAAAAAA);
 			return;
@@ -260,7 +260,7 @@ public class BorderUmbrellaManageScreen extends Screen {
 			// name and pos
 			int textX = panelLeft + 38;
 			if (slot.isEmptySlot()) {
-				g.drawString(font, GLLang.UMBRELLA$SLOT_EMPTY.get(), textX, y + 6, 0x777777, false);
+				g.drawString(font, GLLang.ItemUmbrella.SLOT_EMPTY.get(), textX, y + 6, 0x777777, false);
 			} else {
 				Component name = Component.literal(slot.name());
 				// truncate if too long

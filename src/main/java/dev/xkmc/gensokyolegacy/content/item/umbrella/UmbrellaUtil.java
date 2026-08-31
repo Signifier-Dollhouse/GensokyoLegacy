@@ -41,30 +41,30 @@ public class UmbrellaUtil {
 		stack.set(GLItems.UMBRELLA_SLOTS.get(), slots.with(idx, slot));
 		// send packet to client to open rename editor
 		GensokyoLegacy.HANDLER.toClientPlayer(new BorderUmbrellaOpenRenamePacket(idx, defaultName), sp);
-		sp.displayClientMessage(GLLang.ITEM$UMBRELLA_RECORDED.get(idx, defaultName), true);
+		sp.displayClientMessage(GLLang.ItemUmbrella.RECORDED.get(idx, defaultName), true);
 	}
 
 	public static void teleportToSlot(ServerPlayer sp, ItemStack stack) {
 		var slot = BorderUmbrellaItem.getSelectedSlotData(stack);
 		if (slot.isEmptySlot()) {
-			sp.displayClientMessage(GLLang.ITEM$UMBRELLA_SLOT_EMPTY.get(), true);
+			sp.displayClientMessage(GLLang.ItemUmbrella.SLOT_EMPTY_ITEM.get(), true);
 			return;
 		}
 		ServerLevel targetLevel = sp.server.getLevel(ResourceKey.create(Registries.DIMENSION, slot.dim()));
 		if (targetLevel == null) {
-			sp.displayClientMessage(GLLang.ITEM$UMBRELLA_DIM_MISSING.get(slot.dim().toString()), true);
+			sp.displayClientMessage(GLLang.ItemUmbrella.DIM_MISSING.get(slot.dim().toString()), true);
 			return;
 		}
 		// teleport directly to slot position without safe check
 		Vec3 dst = Vec3.atBottomCenterOf(slot.pos());
 		TravelModeUtil.teleportPlayer(sp, targetLevel, dst);
-		sp.displayClientMessage(GLLang.ITEM$UMBRELLA_WAYPOINT.get(slot.name()), true);
+		sp.displayClientMessage(GLLang.ItemUmbrella.WAYPOINT.get(slot.name()), true);
 	}
 
 	public static void teleportEntityToSlot(ServerPlayer sp, LivingEntity target, BorderSlot slot, ItemStack stack) {
 		ServerLevel targetLevel = sp.server.getLevel(ResourceKey.create(Registries.DIMENSION, slot.dim()));
 		if (targetLevel == null) {
-			sp.displayClientMessage(GLLang.ITEM$UMBRELLA_DIM_MISSING.get(slot.dim().toString()), true);
+			sp.displayClientMessage(GLLang.ItemUmbrella.DIM_MISSING.get(slot.dim().toString()), true);
 			return;
 		}
 		// teleport directly to slot position without safe check
@@ -80,7 +80,7 @@ public class UmbrellaUtil {
 				tp.connection.resetPosition();
 			}
 		}
-		sp.displayClientMessage(GLLang.ITEM$UMBRELLA_CAPTURED.get(target.getDisplayName(), slot.name()), true);
+		sp.displayClientMessage(GLLang.ItemUmbrella.CAPTURED.get(target.getDisplayName(), slot.name()), true);
 	}
 
 	// Called by server when renaming slot

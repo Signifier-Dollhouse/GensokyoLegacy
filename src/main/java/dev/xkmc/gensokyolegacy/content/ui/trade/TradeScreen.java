@@ -195,9 +195,9 @@ public class TradeScreen extends AbstractContainerScreen<TradeMenu> {
 				if (offer != null) {
 					var data = GLMeta.TRADE.type().getOrCreate(menu.player);
 					var list = new ArrayList<Component>();
-					list.add(GLLang.TRADE$STOCK.get(data.getRemainingTrades(menu.player, offer), data.getMaxTrades(offer)));
+					list.add(GLLang.Trade.STOCK.get(data.getRemainingTrades(menu.player, offer), data.getMaxTrades(offer)));
 					if (offer.value().ingredients().size() > 1) {
-						list.add(GLLang.TRADE$INGREDIENTS.get());
+						list.add(GLLang.Trade.INGREDIENTS.get());
 						for (var entry : offer.value().ingredients())
 							list.add(entry.getDesc(menu.player));
 					}

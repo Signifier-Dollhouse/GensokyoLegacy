@@ -17,7 +17,7 @@ import net.minecraft.resources.ResourceLocation;
 public class QuestInfoScreen extends BaseTextScreen {
 
 	public QuestInfoScreen() {
-		super(GLLang.QUEST$TAB.get(), ResourceLocation.fromNamespaceAndPath("l2tabs", "textures/gui/empty.png"));
+		super(GLLang.Quest.TAB.get(), ResourceLocation.fromNamespaceAndPath("l2tabs", "textures/gui/empty.png"));
 	}
 
 	@Override
@@ -36,7 +36,7 @@ public class QuestInfoScreen extends BaseTextScreen {
 		if (player == null) return;
 		var quest = GLMeta.QUEST.type().getOrCreate(player);
 		QuestInfo focus = null;
-		g.drawString(this.font, GLLang.QUEST$TAB.get().append(":").withStyle(ChatFormatting.UNDERLINE), x, y, 0, false);
+		g.drawString(this.font, GLLang.Quest.TAB.get().append(":").withStyle(ChatFormatting.UNDERLINE), x, y, 0, false);
 		y += font.lineHeight;
 		x += 8;
 		for (var e : quest.data.entrySet()) {

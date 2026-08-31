@@ -44,7 +44,7 @@ public class SuwakoHatItem extends TouhouHatItem {
 
 	@Override
 	public void appendHoverText(ItemStack stack, TooltipContext level, List<Component> list, TooltipFlag flag) {
-		//RolePlayHandler.addTooltips(list, GLLang.ITEM$OBTAIN_SUWAKO_HAT.get(Component.literal("" + GLModConfig.SERVER.frogEatCountForHat.get())), GLLang.ITEM$USAGE_SUWAKO_HAT.get(Component.translatable(GLEffects.NATIVE.get().getDescriptionId())));
+		//RolePlayHandler.addTooltips(list, GLLang.ItemCommon.OBTAIN_SUWAKO_HAT.get(Component.literal("" + GLModConfig.SERVER.frogEatCountForHat.get())), GLLang.ItemCommon.USAGE_SUWAKO_HAT.get(Component.translatable(GLEffects.NATIVE.get().getDescriptionId())));
 	}
 
 	@Override

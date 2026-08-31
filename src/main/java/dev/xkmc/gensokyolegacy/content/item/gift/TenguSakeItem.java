@@ -51,7 +51,7 @@ public class TenguSakeItem extends Item {
 	@Override
 	public void appendHoverText(ItemStack stack, TooltipContext level, List<Component> list, TooltipFlag flag) {
 		super.appendHoverText(stack, level, list, flag);
-		list.add(GLLang.ITEM$USAGE_TENGU_SAKE.get().withStyle(ChatFormatting.GRAY));
+		list.add(GLLang.ItemCommon.USAGE_TENGU_SAKE.get().withStyle(ChatFormatting.GRAY));
 	}
 
 }

@@ -42,7 +42,7 @@ public class RumiaHairbandItem extends TouhouHatItem {
 
 	@Override
 	public void appendHoverText(ItemStack stack, TooltipContext level, List<Component> list, TooltipFlag flag) {
-		//RolePlayHandler.addTooltips(list, GLLang.ITEM$OBTAIN_RUMIA_HAIRBAND.get(), GLLang.ITEM$USAGE_RUMIA_HAIRBAND.get(GLMechanics.RUMIA.get().getName()));
+		//RolePlayHandler.addTooltips(list, GLLang.ItemCommon.OBTAIN_RUMIA_HAIRBAND.get(), GLLang.ItemCommon.USAGE_RUMIA_HAIRBAND.get(GLMechanics.RUMIA.get().getName()));
 	}
 
 }

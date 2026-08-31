@@ -29,8 +29,8 @@ public class GLClientEventHandlers {
 		if (level == null) return;
 		var data = GLMeta.GIFT_DATA.get(level.registryAccess(), event.getItemStack().getItemHolder());
 		if (data == null) return;
-		event.getToolTip().add(GLLang.ITEM$GIFT_FAVOR.get(data.favor()).withStyle(ChatFormatting.GOLD));
-		event.getToolTip().add(GLLang.ITEM$GIFT_TYPE.get(data.type().getDisplay()).withStyle(ChatFormatting.GRAY));
+		event.getToolTip().add(GLLang.ItemCommon.GIFT_FAVOR.get(data.favor()).withStyle(ChatFormatting.GOLD));
+		event.getToolTip().add(GLLang.ItemCommon.GIFT_TYPE.get(data.type().getDisplay()).withStyle(ChatFormatting.GRAY));
 	}
 
 	@SubscribeEvent

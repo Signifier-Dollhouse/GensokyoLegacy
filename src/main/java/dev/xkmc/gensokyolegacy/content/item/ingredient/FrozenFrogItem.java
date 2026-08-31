@@ -53,7 +53,7 @@ public class FrozenFrogItem extends Item implements ProjectileItem {
 
 	@Override
 	public void appendHoverText(ItemStack stack, TooltipContext level, List<Component> list, TooltipFlag flag) {
-		//RolePlayHandler.addTooltips(list, GLLang.ITEM$OBTAIN_FROZEN_FROG.get(), GLLang.ITEM$USAGE_FROZEN_FROG.get());
+		//RolePlayHandler.addTooltips(list, GLLang.ItemCommon.OBTAIN_FROZEN_FROG.get(), GLLang.ItemCommon.USAGE_FROZEN_FROG.get());
 	}
 
 	@Override

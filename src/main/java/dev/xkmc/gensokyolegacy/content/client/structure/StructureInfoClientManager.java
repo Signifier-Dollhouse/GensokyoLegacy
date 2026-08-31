@@ -36,14 +36,14 @@ public class StructureInfoClientManager {
 			InfoUpdateClientManager.requestStructure(key);
 		}
 		if (info == null) {
-			lines.add(GLLang.INFO$LOADING.get().withStyle(ChatFormatting.GRAY));
+			lines.add(GLLang.Info.LOADING.get().withStyle(ChatFormatting.GRAY));
 		} else if (info.key().isCustom()) {
 			lines.add(Component.literal("Custom Structure").withStyle(ChatFormatting.GRAY));//TODO
 		} else if (info.remove() < 0) {
-			lines.add(GLLang.INFO$STRUCTURE_SCANNING.get().withStyle(ChatFormatting.GRAY));
+			lines.add(GLLang.Info.STRUCTURE_SCANNING.get().withStyle(ChatFormatting.GRAY));
 		} else {
 			int total = info.remove() + info.primary() + info.secondary();
-			lines.add(GLLang.INFO$STRUCTURE_ABNORMAL.get(total).withStyle(ChatFormatting.GRAY));
+			lines.add(GLLang.Info.STRUCTURE_ABNORMAL.get(total).withStyle(ChatFormatting.GRAY));
 		}
 		return true;
 	}

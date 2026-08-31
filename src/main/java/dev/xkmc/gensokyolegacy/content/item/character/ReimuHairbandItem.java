@@ -34,7 +34,7 @@ public class ReimuHairbandItem extends TouhouHatItem {
 
 	@Override
 	public void appendHoverText(ItemStack stack, TooltipContext level, List<Component> list, TooltipFlag flag) {
-		//RolePlayHandler.addTooltips(list, GLLang.ITEM$OBTAIN_REIMU_HAIRBAND.get(), GLLang.ITEM$USAGE_REIMU_HAIRBAND.get());
+		//RolePlayHandler.addTooltips(list, GLLang.ItemCommon.OBTAIN_REIMU_HAIRBAND.get(), GLLang.ItemCommon.USAGE_REIMU_HAIRBAND.get());
 	}
 
 }

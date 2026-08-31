@@ -45,11 +45,11 @@ public class DoorDebugItem extends Item implements IDebugOverlayWand {
 							player.getBoundingBox().inflate(SEARCH_RADIUS), e -> e.isAlive())
 					.stream().min(Comparator.comparingDouble(e -> e.distanceToSqr(player))).orElse(null);
 			if (youkai == null) {
-				player.displayClientMessage(GLLang.ITEM$DOOR_DEBUG_NO_YOUKAI.get().withStyle(ChatFormatting.RED), true);
+				player.displayClientMessage(GLLang.ItemDebug.DOOR_DEBUG_NO_YOUKAI.get().withStyle(ChatFormatting.RED), true);
 				return InteractionResultHolder.success(stack);
 			}
 			stack.set(GLItems.DC_DEBUG_YOUKAI, youkai.getUUID());
-			player.displayClientMessage(GLLang.ITEM$DOOR_DEBUG_BOUND.get(youkai.getName().getString())
+			player.displayClientMessage(GLLang.ItemDebug.DOOR_DEBUG_BOUND.get(youkai.getName().getString())
 					.withStyle(ChatFormatting.GREEN), true);
 		}
 		return InteractionResultHolder.success(stack);
@@ -62,7 +62,7 @@ public class DoorDebugItem extends Item implements IDebugOverlayWand {
 			ItemStack stack = context.getItemInHand();
 			UUID id = stack.get(GLItems.DC_DEBUG_YOUKAI);
 			if (id == null) {
-				sp.displayClientMessage(GLLang.ITEM$DOOR_DEBUG_UNBOUND.get().withStyle(ChatFormatting.RED), true);
+				sp.displayClientMessage(GLLang.ItemDebug.DOOR_DEBUG_UNBOUND.get().withStyle(ChatFormatting.RED), true);
 				return InteractionResult.SUCCESS;
 			}
 			Entity e = sl.getEntity(id);
@@ -72,11 +72,11 @@ public class DoorDebugItem extends Item implements IDebugOverlayWand {
 				BrainUtils.clearMemory(youkai, MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE);
 				BrainUtils.setMemory(youkai, MemoryModuleType.WALK_TARGET,
 						new WalkTarget(context.getClickedPos(), 1, 1));
-				sp.displayClientMessage(GLLang.ITEM$DOOR_DEBUG_MOVING.get(
+				sp.displayClientMessage(GLLang.ItemDebug.DOOR_DEBUG_MOVING.get(
 						context.getClickedPos().getX(), context.getClickedPos().getY(),
 						context.getClickedPos().getZ()).withStyle(ChatFormatting.GREEN), true);
 			} else {
-				sp.displayClientMessage(GLLang.ITEM$DOOR_DEBUG_MISSING.get().withStyle(ChatFormatting.RED), true);
+				sp.displayClientMessage(GLLang.ItemDebug.DOOR_DEBUG_MISSING.get().withStyle(ChatFormatting.RED), true);
 			}
 		}
 		return InteractionResult.SUCCESS;
@@ -86,7 +86,7 @@ public class DoorDebugItem extends Item implements IDebugOverlayWand {
 	public void addTooltip(Player player, ItemStack stack, List<Component> lines, long gameTime) {
 		UUID id = stack.get(GLItems.DC_DEBUG_YOUKAI);
 		if (id == null) {
-			lines.add(GLLang.ITEM$DOOR_DEBUG_UNBOUND.get().withStyle(ChatFormatting.GRAY));
+			lines.add(GLLang.ItemDebug.DOOR_DEBUG_UNBOUND.get().withStyle(ChatFormatting.GRAY));
 		} else {
 			Entity e = player.level().getEntitiesOfClass(YoukaiEntity.class,
 							player.getBoundingBox().inflate(64), e2 -> e2.getUUID().equals(id))
@@ -94,16 +94,16 @@ public class DoorDebugItem extends Item implements IDebugOverlayWand {
 			if (e instanceof YoukaiEntity youkai) {
 				CharacterInfoClientManager.doorTooltip(lines, gameTime, youkai);
 			} else {
-				lines.add(GLLang.ITEM$DOOR_DEBUG_MISSING.get().withStyle(ChatFormatting.GRAY));
+				lines.add(GLLang.ItemDebug.DOOR_DEBUG_MISSING.get().withStyle(ChatFormatting.GRAY));
 			}
 		}
 	}
 
 	@Override
 	public void appendHoverText(ItemStack stack, TooltipContext ctx, List<Component> list, TooltipFlag flag) {
-		list.add(GLLang.ITEM$DOOR_DEBUG_USE.get().withStyle(ChatFormatting.GRAY));
-		list.add(GLLang.ITEM$DOOR_DEBUG_CLICK.get().withStyle(ChatFormatting.GRAY));
-		list.add(GLLang.ITEM$DOOR_DEBUG_OVERLAY.get().withStyle(ChatFormatting.GRAY));
+		list.add(GLLang.ItemDebug.DOOR_DEBUG_USE.get().withStyle(ChatFormatting.GRAY));
+		list.add(GLLang.ItemDebug.DOOR_DEBUG_CLICK.get().withStyle(ChatFormatting.GRAY));
+		list.add(GLLang.ItemDebug.DOOR_DEBUG_OVERLAY.get().withStyle(ChatFormatting.GRAY));
 	}
 
 }

@@ -34,10 +34,10 @@ public class DebugGlasses extends Item implements IDebugOverlayWand {
 
 	@Override
 	public void appendHoverText(ItemStack stack, TooltipContext ctx, List<Component> list, TooltipFlag flag) {
-		list.add(GLLang.ITEM$GLASS_PATH.get().withStyle(ChatFormatting.GRAY));
+		list.add(GLLang.ItemDebug.GLASS_PATH.get().withStyle(ChatFormatting.GRAY));
 
-		list.add(GLLang.ITEM$GLASS_CHARACTER.get().withStyle(ChatFormatting.GRAY));
-		list.add(GLLang.ITEM$GLASS_BED.get().withStyle(ChatFormatting.GRAY));
+		list.add(GLLang.ItemDebug.GLASS_CHARACTER.get().withStyle(ChatFormatting.GRAY));
+		list.add(GLLang.ItemDebug.GLASS_BED.get().withStyle(ChatFormatting.GRAY));
 	}
 
 }

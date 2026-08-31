@@ -19,7 +19,7 @@ public record TradeHandle(EntityType<?> type) implements IDialogHandle {
 		var cfg = DialogConfig.of(type);
 		if (cfg != null && !cfg.trade().isEmpty())
 			return Component.translatable(cfg.trade());
-		return GLLang.TRADE$OPTION.get();
+		return GLLang.Trade.OPTION.get();
 	}
 
 	@Override

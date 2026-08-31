@@ -37,7 +37,7 @@ public record BorderSlot(
 	}
 
 	public Component displayName() {
-		if (isEmpty) return GLLang.UMBRELLA$SLOT_EMPTY.get();
+		if (isEmpty) return GLLang.ItemUmbrella.SLOT_EMPTY.get();
 		if (name == null || name.isEmpty()) {
 			return Component.literal(pos.getX() + ", " + pos.getY() + ", " + pos.getZ() + " [" + dim + "]");
 		}

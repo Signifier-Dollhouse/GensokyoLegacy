@@ -77,7 +77,7 @@ public class BorderUmbrellaModeWheel implements PersistentWheel<BorderUmbrellaMo
 			}
 			if (index == 2) {
 				// fake wheel at index 2 for editing, mirrors GolemModeWheel side fake wheels
-				return new UmbrellaFakeWheel(new ItemStack(Items.NAME_TAG), GLLang.UMBRELLA$WHEEL_EDIT.get());
+				return new UmbrellaFakeWheel(new ItemStack(Items.NAME_TAG), GLLang.ItemUmbrella.WHEEL_EDIT.get());
 			}
 		}
 		return PersistentWheel.super.getAtIndex(player, index, main);

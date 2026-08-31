@@ -25,12 +25,12 @@ public class CaptureMode extends UmbrellaMode {
 
 	@Override
 	public Component displayName() {
-		return GLLang.UMBRELLA$MODE_CAPTURE.get();
+		return GLLang.ItemUmbrella.MODE_CAPTURE.get();
 	}
 
 	@Override
 	public Component description() {
-		return GLLang.ITEM$UMBRELLA_DESC_CAPTURE.get();
+		return GLLang.ItemUmbrella.DESC_CAPTURE.get();
 	}
 
 	@Override
@@ -55,7 +55,7 @@ public class CaptureMode extends UmbrellaMode {
 		var unlock = GLItems.UMBRELLA_UNLOCK.getOrDefault(stack, dev.xkmc.gensokyolegacy.content.item.umbrella.data.BorderUmbrellaUnlock.DEFAULT);
 		if (!unlock.captureUnlocked()) {
 			if (!level.isClientSide)
-				player.displayClientMessage(GLLang.ITEM$UMBRELLA_LOCKED_CAPTURE.get(), true);
+				player.displayClientMessage(GLLang.ItemUmbrella.LOCKED_CAPTURE.get(), true);
 			return InteractionResultHolder.fail(stack);
 		}
 		return InteractionResultHolder.pass(stack);
@@ -66,18 +66,18 @@ public class CaptureMode extends UmbrellaMode {
 		var unlock = GLItems.UMBRELLA_UNLOCK.getOrDefault(stack, dev.xkmc.gensokyolegacy.content.item.umbrella.data.BorderUmbrellaUnlock.DEFAULT);
 		if (!unlock.captureUnlocked()) {
 			if (!player.level().isClientSide)
-				player.displayClientMessage(GLLang.ITEM$UMBRELLA_LOCKED_CAPTURE.get(), true);
+				player.displayClientMessage(GLLang.ItemUmbrella.LOCKED_CAPTURE.get(), true);
 			return InteractionResult.FAIL;
 		}
 		if (player instanceof ServerPlayer sp) {
 			var slot = BorderUmbrellaItem.getSelectedSlotData(stack);
 			if (slot.isEmptySlot()) {
-				player.displayClientMessage(GLLang.ITEM$UMBRELLA_SLOT_EMPTY.get(), true);
+				player.displayClientMessage(GLLang.ItemUmbrella.SLOT_EMPTY_ITEM.get(), true);
 				return InteractionResult.FAIL;
 			}
 			if (target instanceof Player || target.isMultipartEntity() ||
 					target.getType().is(GLTagGen.UMBRELLA_CAPTURE_BLACKLIST)) {
-				sp.displayClientMessage(GLLang.ITEM$UMBRELLA_CAPTURE_FAIL.get(), true);
+				sp.displayClientMessage(GLLang.ItemUmbrella.CAPTURE_FAIL.get(), true);
 				return InteractionResult.FAIL;
 			}
 			UmbrellaUtil.teleportEntityToSlot(sp, target, slot, stack);

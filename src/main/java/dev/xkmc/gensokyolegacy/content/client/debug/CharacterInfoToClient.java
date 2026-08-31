@@ -28,16 +28,16 @@ public record CharacterInfoToClient(
 		ArrayList<Component> info = new ArrayList<>();
 		ArrayList<Component> advanced = new ArrayList<>();
 		if (home == null || bed == null) {
-			info.add(GLLang.INFO$ENTITY_UNBOUND.get().withStyle(ChatFormatting.GRAY));
+			info.add(GLLang.Info.ENTITY_UNBOUND.get().withStyle(ChatFormatting.GRAY));
 		} else {
-			info.add(GLLang.INFO$ENTITY_BED.get(bed.getX(), bed.getY(), bed.getZ()).withStyle(ChatFormatting.GRAY));
+			info.add(GLLang.Info.ENTITY_BED.get(bed.getX(), bed.getY(), bed.getZ()).withStyle(ChatFormatting.GRAY));
 		}
 		info.add(ReputationState.toInfo(reputation));
 		if (feedCD > 0) {
-			info.add(GLLang.INFO$ENTITY_FEED.time(feedCD).withStyle(ChatFormatting.GRAY));
+			info.add(GLLang.Info.ENTITY_FEED.time(feedCD).withStyle(ChatFormatting.GRAY));
 		}
 		if (giftCD > 0) {
-			info.add(GLLang.INFO$ENTITY_GIFT.time(giftCD).withStyle(ChatFormatting.GRAY));
+			info.add(GLLang.Info.ENTITY_GIFT.time(giftCD).withStyle(ChatFormatting.GRAY));
 		}
 		if (!activity.isEmpty()) {
 			String[] strs = activity.split("\n");
@@ -50,7 +50,7 @@ public record CharacterInfoToClient(
 
 	public static CharacterInfoToClient ofDoor(ArrayList<Component> doors) {
 		ArrayList<Component> info = new ArrayList<>();
-		info.add(GLLang.INFO$DOORS_TO_CLOSE.get(doors.size()).withStyle(ChatFormatting.AQUA));
+		info.add(GLLang.Info.DOORS_TO_CLOSE.get(doors.size()).withStyle(ChatFormatting.AQUA));
 		info.addAll(doors);
 		return new CharacterInfoToClient(info, new ArrayList<>());
 	}

@@ -38,7 +38,7 @@ public class GLMisc {
 
 	public static final Val<TabToken<InvTabData, QuestTab>> QUEST_TAB =
 			TAB_REG.reg("golem", () -> L2Tabs.GROUP.registerTab(
-					() -> QuestTab::new, GLLang.QUEST$TAB.get()));
+					() -> QuestTab::new, GLLang.Quest.TAB.get()));
 
 	public static void register() {
 

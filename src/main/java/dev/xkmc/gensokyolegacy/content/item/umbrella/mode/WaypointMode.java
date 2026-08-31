@@ -21,12 +21,12 @@ public class WaypointMode extends UmbrellaMode {
 
 	@Override
 	public Component displayName() {
-		return GLLang.UMBRELLA$MODE_WAYPOINT.get();
+		return GLLang.ItemUmbrella.MODE_WAYPOINT.get();
 	}
 
 	@Override
 	public Component description() {
-		return GLLang.ITEM$UMBRELLA_DESC_WAYPOINT.get();
+		return GLLang.ItemUmbrella.DESC_WAYPOINT.get();
 	}
 
 	@Override

@@ -45,7 +45,7 @@ public class FairyIceItem extends Item implements ProjectileItem {
 
 	@Override
 	public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> list, TooltipFlag flag) {
-		//RolePlayHandler.addTooltips(list, GLLang.ITEM$OBTAIN_FAIRY_ICE.get(), GLLang.ITEM$USAGE_FAIRY_ICE.get());
+		//RolePlayHandler.addTooltips(list, GLLang.ItemCommon.OBTAIN_FAIRY_ICE.get(), GLLang.ItemCommon.USAGE_FAIRY_ICE.get());
 	}
 
 	@Override

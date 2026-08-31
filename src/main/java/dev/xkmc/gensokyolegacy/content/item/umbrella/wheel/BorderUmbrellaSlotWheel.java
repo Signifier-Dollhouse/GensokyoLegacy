@@ -80,12 +80,12 @@ public class BorderUmbrellaSlotWheel implements WheelAdaptor<BorderSlotEntry> {
 			int cx2 = left ? (int) (sideWidth / 2) : g.guiWidth() - (int) (sideWidth / 2);
 			int ty = y0 + (int) r0 * 2;
 			var font = Minecraft.getInstance().font;
-			for (var line : font.split(GLLang.UMBRELLA$WHEEL_TARGET.get(), (int) (sideWidth - 4))) {
+			for (var line : font.split(GLLang.ItemUmbrella.WHEEL_TARGET.get(), (int) (sideWidth - 4))) {
 				g.drawString(font, line, cx2 - font.width(line) / 2, ty, 0xFFFF55, true);
 				ty += font.lineHeight + 1;
 			}
 			var slot = BorderUmbrellaItem.getSelectedSlotData(stack);
-			var text = slot.isEmptySlot() ? GLLang.ITEM$UMBRELLA_SLOT_EMPTY.get() : slot.displayName();
+			var text = slot.isEmptySlot() ? GLLang.ItemUmbrella.SLOT_EMPTY_ITEM.get() : slot.displayName();
 			for (var line : font.split(text, (int) (sideWidth - 4))) {
 				g.drawString(font, line, cx2 - font.width(line) / 2, ty, 0xffffff, true);
 				ty += font.lineHeight + 1;

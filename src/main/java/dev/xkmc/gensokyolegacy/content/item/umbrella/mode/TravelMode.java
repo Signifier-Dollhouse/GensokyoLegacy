@@ -33,12 +33,12 @@ public class TravelMode extends UmbrellaMode {
 
 	@Override
 	public Component displayName() {
-		return GLLang.UMBRELLA$MODE_TRAVEL.get();
+		return GLLang.ItemUmbrella.MODE_TRAVEL.get();
 	}
 
 	@Override
 	public Component description() {
-		return GLLang.ITEM$UMBRELLA_DESC_TRAVEL.get();
+		return GLLang.ItemUmbrella.DESC_TRAVEL.get();
 	}
 
 	@Override
@@ -63,7 +63,7 @@ public class TravelMode extends UmbrellaMode {
 		var unlock = GLItems.UMBRELLA_UNLOCK.getOrDefault(stack, dev.xkmc.gensokyolegacy.content.item.umbrella.data.BorderUmbrellaUnlock.DEFAULT);
 		if (!unlock.travelUnlocked()) {
 			if (!level.isClientSide)
-				player.displayClientMessage(GLLang.ITEM$UMBRELLA_LOCKED_TRAVEL.get(), true);
+				player.displayClientMessage(GLLang.ItemUmbrella.LOCKED_TRAVEL.get(), true);
 			return InteractionResultHolder.fail(stack);
 		}
 		{
@@ -83,7 +83,7 @@ public class TravelMode extends UmbrellaMode {
 			ChunkPos cpos = new ChunkPos(tpos);
 			sl.getChunkSource().addRegionTicket(net.minecraft.server.level.TicketType.PORTAL, cpos, 2, tpos);
 			sl.getChunkSource().getChunk(cpos.x, cpos.z, ChunkStatus.FULL, false);
-			sp.displayClientMessage(GLLang.ITEM$UMBRELLA_TRAVEL_START.get(), true);
+			sp.displayClientMessage(GLLang.ItemUmbrella.TRAVEL_START.get(), true);
 		}
 		player.startUsingItem(hand);
 		return InteractionResultHolder.consume(stack);
@@ -153,7 +153,7 @@ public class TravelMode extends UmbrellaMode {
 		Vec3 dst = TravelModeUtil.findSafePosition(sl, tpos);
 		TravelModeUtil.teleportPlayer(sp, sl, dst);
 		sp.getCooldowns().addCooldown(item, 20);
-		sp.displayClientMessage(GLLang.ITEM$UMBRELLA_TRAVEL_DONE.get(), true);
+		sp.displayClientMessage(GLLang.ItemUmbrella.TRAVEL_DONE.get(), true);
 		stack.remove(GLItems.UMBRELLA_TRAVEL.get());
 		for (var handStack : List.of(sp.getMainHandItem(), sp.getOffhandItem())) {
 			if (handStack.getItem() instanceof BorderUmbrellaItem) {
@@ -168,7 +168,7 @@ public class TravelMode extends UmbrellaMode {
 		super.onReleaseUsing(stack, level, entity, timeLeft, item);
 		if (entity instanceof ServerPlayer sp) {
 			if (!sp.getCooldowns().isOnCooldown(item)) {
-				sp.displayClientMessage(GLLang.ITEM$UMBRELLA_TRAVEL_CANCELLED.get(), true);
+				sp.displayClientMessage(GLLang.ItemUmbrella.TRAVEL_CANCELLED.get(), true);
 			}
 		}
 	}

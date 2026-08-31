@@ -74,7 +74,7 @@ public class BorderUmbrellaDistanceWheel implements WheelAdaptor<BorderUmbrellaD
 			int cx2 = left ? (int) (sideWidth / 2) : g.guiWidth() - (int) (sideWidth / 2);
 			int ty = y0 + (int) r0 * 2;
 			var font = Minecraft.getInstance().font;
-			for (var line : font.split(GLLang.UMBRELLA$WHEEL_DISTANCE.get(), (int) (sideWidth - 4))) {
+			for (var line : font.split(GLLang.ItemUmbrella.WHEEL_DISTANCE.get(), (int) (sideWidth - 4))) {
 				g.drawString(font, line, cx2 - font.width(line) / 2, ty, 0xFFFF55, true);
 				ty += font.lineHeight + 1;
 			}

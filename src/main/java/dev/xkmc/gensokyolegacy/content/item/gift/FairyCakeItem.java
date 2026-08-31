@@ -25,7 +25,7 @@ public class FairyCakeItem extends Item {
 	@Override
 	public void appendHoverText(ItemStack stack, TooltipContext level, List<Component> list, TooltipFlag flag) {
 		super.appendHoverText(stack, level, list, flag);
-		list.add(GLLang.ITEM$USAGE_FAIRY_CAKE.get().withStyle(ChatFormatting.GRAY));
+		list.add(GLLang.ItemCommon.USAGE_FAIRY_CAKE.get().withStyle(ChatFormatting.GRAY));
 	}
 
 }

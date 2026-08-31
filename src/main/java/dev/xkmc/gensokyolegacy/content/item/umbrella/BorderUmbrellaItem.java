@@ -44,26 +44,26 @@ public class BorderUmbrellaItem extends Item {
 	public void appendHoverText(ItemStack stack, TooltipContext ctx, List<Component> list, TooltipFlag flag) {
 		var mode = stack.getOrDefault(GLItems.UMBRELLA_TYPE.get(), BorderUmbrellaMode.RECORD);
 		var unlock = GLItems.UMBRELLA_UNLOCK.getOrDefault(stack, BorderUmbrellaUnlock.DEFAULT);
-		list.add(GLLang.ITEM$UMBRELLA_MODE.get(mode.displayName()).withStyle(ChatFormatting.GRAY));
+		list.add(GLLang.ItemUmbrella.MODE.get(mode.displayName()).withStyle(ChatFormatting.GRAY));
 		if (mode.showsSlot()) {
 			var selected = GLItems.UMBRELLA_SLOT_SELECTED.getOrDefault(stack, 0);
 			var slot = getSelectedSlotData(stack);
-			var sel = GLLang.ITEM$UMBRELLA_SLOT.get(String.valueOf(selected)).withStyle(ChatFormatting.GRAY).append(Component.literal(" -> "));
+			var sel = GLLang.ItemUmbrella.SLOT.get(String.valueOf(selected)).withStyle(ChatFormatting.GRAY).append(Component.literal(" -> "));
 			if (!slot.isEmptySlot()) {
 				list.add(sel.append(slot.displayName().copy().withStyle(ChatFormatting.YELLOW)));
 			} else {
-				list.add(sel.append(GLLang.ITEM$UMBRELLA_SLOT_EMPTY.get()));
+				list.add(sel.append(GLLang.ItemUmbrella.SLOT_EMPTY_ITEM.get()));
 			}
 		} else if (mode.showsDistance()) {
 			int dist = stack.getOrDefault(GLItems.UMBRELLA_DISTANCE.get(), 1000);
-			list.add(GLLang.ITEM$UMBRELLA_DISTANCE.get(String.valueOf(dist)).withStyle(ChatFormatting.GRAY));
+			list.add(GLLang.ItemUmbrella.DISTANCE.get(String.valueOf(dist)).withStyle(ChatFormatting.GRAY));
 		}
-		list.add(GLLang.ITEM$UMBRELLA_WHEEL.get(L2Keys.WHEEL.map.getKey().getDisplayName()).withStyle(ChatFormatting.GRAY));
+		list.add(GLLang.ItemUmbrella.WHEEL.get(L2Keys.WHEEL.map.getKey().getDisplayName()).withStyle(ChatFormatting.GRAY));
 		if (unlock.travelUnlocked()) {
-			list.add(GLLang.ITEM$UMBRELLA_UNLOCKED_TRAVEL.get());
+			list.add(GLLang.ItemUmbrella.UNLOCKED_TRAVEL.get());
 		}
 		if (unlock.captureUnlocked()) {
-			list.add(GLLang.ITEM$UMBRELLA_UNLOCKED_CAPTURE.get());
+			list.add(GLLang.ItemUmbrella.UNLOCKED_CAPTURE.get());
 		}
 		list.add(mode.description());
 	}
