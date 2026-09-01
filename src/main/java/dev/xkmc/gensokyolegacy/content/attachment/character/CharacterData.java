@@ -2,6 +2,7 @@ package dev.xkmc.gensokyolegacy.content.attachment.character;
 
 import dev.xkmc.danmakuapi.init.data.DanmakuDamageTypes;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
+import dev.xkmc.gensokyolegacy.init.data.GLModConfig;
 import dev.xkmc.l2serial.serialization.marker.SerialClass;
 import dev.xkmc.l2serial.serialization.marker.SerialField;
 import net.minecraft.world.damagesource.DamageSource;
@@ -24,6 +25,14 @@ public class CharacterData {
 			int room = Math.max(0, maxCap - reputationCap);
 			reputationCap += Math.min(capIncrease, room);
 		}
+		if (softCap < 0) {
+			// Negative soft cap: forgiveness ceiling. Reputation climbs toward zero but never
+			// rises above softCap, so it only recovers while the relationship is negative.
+			if (reputation < softCap) {
+				reputation = Math.min(reputation + val, softCap);
+			}
+			return;
+		}
 		if (reputation >= reputationCap) return;
 		if (softCap > 0 && reputation >= softCap) {
 			reputation = Math.min(reputation + val / 2, reputationCap);
@@ -35,12 +44,17 @@ public class CharacterData {
 	}
 
 	public void loseReputation(int val) {
-		reputation = Math.max(reputation - val, ReputationConstants.MIN_REPUTATION);
+		loseReputation(val, ReputationConstants.MIN_REPUTATION);
+	}
+
+	public void loseReputation(int val, int floor) {
+		reputation = Math.max(reputation - val, floor);
 	}
 
 	protected void dailyUpdate() {
-		if (reputation > ReputationConstants.THRESHOLD_FRIEND) {
-			loseReputation(ReputationConstants.DAILY_DECAY_AMOUNT);
+		int floor = (int) (reputationCap * GLModConfig.SERVER.reputationDecayFloor.get());
+		if (reputation > floor) {
+			loseReputation(ReputationConstants.DAILY_DECAY_AMOUNT, floor);
 		} else if (reputation < ReputationConstants.THRESHOLD_JERK) {
 			gainReputation(ReputationConstants.DAILY_DECAY_AMOUNT, 0, 0, 0);
 		}

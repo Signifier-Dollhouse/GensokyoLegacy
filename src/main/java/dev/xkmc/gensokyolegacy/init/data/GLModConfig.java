@@ -11,6 +11,8 @@ public class GLModConfig {
 		public final ModConfigSpec.IntValue higiHealingPeriod;
 		public final ModConfigSpec.DoubleValue fairyHealingFactor;
 
+		public final ModConfigSpec.DoubleValue reputationDecayFloor;
+
 		public final ModConfigSpec.IntValue frogEatCountForHat;
 		public final ModConfigSpec.IntValue frogEatRaiderVillagerSightRange;
 		public final ModConfigSpec.IntValue frogEatRaiderVillagerNoSightRange;
@@ -36,6 +38,13 @@ public class GLModConfig {
 						.defineInRange("higiHealingPeriod", 60, 0, 10000);
 				fairyHealingFactor = builder.text("Fairy Healing Factor")
 						.defineInRange("fairyHealingFactor", 2d, 1, 100);
+			}
+			builder.pop();
+
+			builder.push("reputation", "Reputation");
+			{
+				reputationDecayFloor = builder.text("Daily reputation decay never reduces reputation below this fraction of the reputation cap")
+						.defineInRange("reputationDecayFloor", 0.8, 0, 1);
 			}
 			builder.pop();
 
