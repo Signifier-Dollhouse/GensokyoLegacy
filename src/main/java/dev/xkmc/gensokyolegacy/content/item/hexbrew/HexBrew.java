@@ -6,6 +6,7 @@ import dev.xkmc.gensokyolegacy.content.fluid.GLFluidType;
 import dev.xkmc.gensokyolegacy.content.fluid.GLHexFluid;
 import dev.xkmc.gensokyolegacy.content.fluid.VirtualFluidBuilder;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
+import dev.xkmc.gensokyolegacy.init.registrate.GLEffects;
 import dev.xkmc.gensokyolegacy.init.registrate.GLFluids;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import net.minecraft.core.component.DataComponentType;
@@ -20,7 +21,6 @@ import net.neoforged.neoforge.client.model.generators.ModelFile;
 import net.neoforged.neoforge.fluids.FluidStack;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
 import java.util.Locale;
 
 public enum HexBrew {
@@ -29,7 +29,7 @@ public enum HexBrew {
 	MIASMA_HEXBREW(0xFF7A4BA1, new MiasmaHandler()),
 	STARLIGHT_HEXBREW(0xFFFFF7AE, new StarlightHandler()),
 	HYPHAE_HEXBREW(0xFFD98E3A),
-	SHIELD_HEXBREW(0xFFFFF7AE, new ShieldHandler()),
+	SHIELD_HEXBREW(0xFFFFF7AE, new SimplePotionHandler(false, GLEffects.STARLIGHT_SHIELD.holder(), 1200, 0)),
 	WITCH_HEXBREW(0xFF7A4BA1, new WitchHandler());
 
 	public final FluidEntry<GLHexFluid> fluid;
@@ -49,7 +49,8 @@ public enum HexBrew {
 						(p, s, f) -> new GLFluidType(p, s, f, color),
 						p -> new GLHexFluid(p, this)))
 				.defaultLang().register();
-		bottle = GensokyoLegacy.REGISTRATE.item(id + "_bottle", p -> new HexBrewBottleItem(this, fluid::getSource, p.stacksTo(16)))
+		bottle = GensokyoLegacy.REGISTRATE.item(id + "_bottle",
+						p -> new HexBrewBottleItem(this, fluid::getSource, handler.modify(p)))
 				.model((ctx, pvd) -> pvd.getBuilder(ctx.getName())
 						.parent(new ModelFile.UncheckedModelFile("item/generated"))
 						.texture("layer0", GensokyoLegacy.loc("item/hexbrew/" + id)))

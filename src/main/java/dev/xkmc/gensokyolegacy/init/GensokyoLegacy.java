@@ -119,6 +119,7 @@ public class GensokyoLegacy {
 
 		GLDecoBlocks.register();
 		GLItems.register();
+		GLEffects.register();
 		GLFluids.register();
 		GLEntities.register();
 		CodecRegistry.register();
@@ -129,7 +130,6 @@ public class GensokyoLegacy {
 		GLMisc.register();
 		GLWorldGen.register();
 		GLBrains.register();
-		GLEffects.register();
 		YoukaiNodeEvaluatorRegistry.init();
 		GLSounds.register();
 		GLCriteriaTriggers.register();

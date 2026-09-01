@@ -4,14 +4,12 @@ import dev.xkmc.gensokyolegacy.content.entity.misc.HexBrewBottleEntity;
 import dev.xkmc.gensokyolegacy.content.fluid.GLHexFluid;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Position;
-import dev.xkmc.gensokyolegacy.init.registrate.GLEffects;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
@@ -27,7 +25,6 @@ import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.fluids.FluidStack;
 
 import java.util.List;
-import java.util.Optional;
 
 import java.util.function.Supplier;
 
@@ -128,12 +125,6 @@ public class HexBrewBottleItem extends Item implements ProjectileItem {
 			}
 			if (contents != null) {
 				contents.addPotionTooltip(list::add, 1.0f, context.tickRate());
-				return;
-			}
-			if (hexBrew == HexBrew.SHIELD_HEXBREW) {
-				PotionContents shieldContents = new PotionContents(Optional.empty(), Optional.empty(),
-						List.of(new MobEffectInstance(GLEffects.STARLIGHT_SHIELD.holder(), 1200, 0)));
-				shieldContents.addPotionTooltip(list::add, 1.0f, context.tickRate());
 			}
 		}
 	}
