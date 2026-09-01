@@ -4,30 +4,24 @@ import com.github.tartaricacid.touhoulittlemaid.TouhouLittleMaid;
 import com.tterrag.registrate.providers.ProviderType;
 import dev.xkmc.gensokyolegacy.compat.touhoulittlemaid.TLMCompat;
 import dev.xkmc.gensokyolegacy.compat.touhoulittlemaid.TouhouSpellCards;
+import dev.xkmc.gensokyolegacy.content.attachment.area.AreaEffectSyncPacket;
 import dev.xkmc.gensokyolegacy.content.attachment.character.CharDataToClient;
 import dev.xkmc.gensokyolegacy.content.attachment.misc.FrogSyncPacket;
 import dev.xkmc.gensokyolegacy.content.attachment.misc.KoishiStartPacket;
-import dev.xkmc.gensokyolegacy.content.client.debug.BlockInfoToClient;
-import dev.xkmc.gensokyolegacy.content.client.debug.BlockRequestToServer;
-import dev.xkmc.gensokyolegacy.content.client.debug.CharacterInfoToClient;
-import dev.xkmc.gensokyolegacy.content.client.debug.CharacterRequestToServer;
-import dev.xkmc.gensokyolegacy.content.client.debug.DoorRequestToServer;
+import dev.xkmc.gensokyolegacy.content.client.debug.*;
 import dev.xkmc.gensokyolegacy.content.client.structure.*;
 import dev.xkmc.gensokyolegacy.content.dimension.GLDimensionGen;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.move.PathDataToClient;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.move.YoukaiNodeEvaluatorRegistry;
 import dev.xkmc.gensokyolegacy.content.entity.foundation.CombatToClient;
 import dev.xkmc.gensokyolegacy.content.item.character.TouhouMat;
+import dev.xkmc.gensokyolegacy.content.item.hexbrew.HexBrew;
+import dev.xkmc.gensokyolegacy.content.item.hexbrew.HexBrewWrapper;
 import dev.xkmc.gensokyolegacy.content.item.tool.CatBell;
 import dev.xkmc.gensokyolegacy.content.item.tool.Dowser;
 import dev.xkmc.gensokyolegacy.content.item.umbrella.BorderUmbrellaAnvilHandler;
 import dev.xkmc.gensokyolegacy.content.item.umbrella.BorderUmbrellaSelectionListener;
-import dev.xkmc.gensokyolegacy.content.item.umbrella.network.BorderUmbrellaDeletePacket;
-import dev.xkmc.gensokyolegacy.content.item.umbrella.network.BorderUmbrellaOpenRenamePacket;
-import dev.xkmc.gensokyolegacy.content.item.umbrella.network.BorderUmbrellaRenamePacket;
-import dev.xkmc.gensokyolegacy.content.item.umbrella.network.BorderUmbrellaReorderPacket;
-import dev.xkmc.gensokyolegacy.content.item.umbrella.network.BorderUmbrellaSelectPacket;
-import dev.xkmc.gensokyolegacy.content.attachment.area.AreaEffectSyncPacket;
+import dev.xkmc.gensokyolegacy.content.item.umbrella.network.*;
 import dev.xkmc.gensokyolegacy.content.rpg.core.CodecRegistry;
 import dev.xkmc.gensokyolegacy.content.rpg.network.QuestStatusToClient;
 import dev.xkmc.gensokyolegacy.content.rpg.network.TradeStatusToClient;
@@ -40,8 +34,6 @@ import dev.xkmc.gensokyolegacy.init.data.structure.GLStructureGen;
 import dev.xkmc.gensokyolegacy.init.data.structure.GLStructureLootGen;
 import dev.xkmc.gensokyolegacy.init.data.structure.GLStructureTagGen;
 import dev.xkmc.gensokyolegacy.init.data.structure.ReportBlocksInStructure;
-import dev.xkmc.gensokyolegacy.content.item.hexbrew.HexBrew;
-import dev.xkmc.gensokyolegacy.content.item.hexbrew.HexBrewWrapper;
 import dev.xkmc.gensokyolegacy.init.registrate.*;
 import dev.xkmc.l2core.init.reg.registrate.L2Registrate;
 import dev.xkmc.l2core.init.reg.simple.Reg;
@@ -65,12 +57,11 @@ import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
-import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.crafting.FluidIngredient;
-
-import java.util.Arrays;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import java.util.Arrays;
 
 @Mod(GensokyoLegacy.MODID)
 @EventBusSubscriber(modid = GensokyoLegacy.MODID)
@@ -117,6 +108,7 @@ public class GensokyoLegacy {
 		new CodecHandler<>(FluidIngredient.class, FluidIngredient.CODEC, FluidIngredient.STREAM_CODEC);
 
 		GLDecoBlocks.register();
+		GLNaturalBlocks.register();
 		GLItems.register();
 		GLEffects.register();
 		GLFluids.register();

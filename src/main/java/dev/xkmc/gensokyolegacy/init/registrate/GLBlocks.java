@@ -11,39 +11,30 @@ import dev.xkmc.gensokyolegacy.content.block.donation.DonationBoxBlock;
 import dev.xkmc.gensokyolegacy.content.block.donation.DonationBoxBlockEntity;
 import dev.xkmc.gensokyolegacy.content.block.donation.DonationShape;
 import dev.xkmc.gensokyolegacy.content.block.donation.DoubleBlockHorizontal;
-import dev.xkmc.gensokyolegacy.content.block.misc.*;
+import dev.xkmc.gensokyolegacy.content.block.misc.CartonShape;
+import dev.xkmc.gensokyolegacy.content.block.misc.DonationBox2Shape;
+import dev.xkmc.gensokyolegacy.content.block.misc.SealingPotShape;
+import dev.xkmc.gensokyolegacy.content.block.portal.*;
 import dev.xkmc.gensokyolegacy.content.block.pot.AlchemyPotBlock;
 import dev.xkmc.gensokyolegacy.content.block.pot.AlchemyPotBlockEntity;
 import dev.xkmc.gensokyolegacy.content.block.pot.AlchemyPotRenderer;
-import dev.xkmc.gensokyolegacy.content.block.portal.*;
 import dev.xkmc.gensokyolegacy.content.block.shelf.ShelfBlock;
 import dev.xkmc.gensokyolegacy.content.block.shelf.ShelfBlockEntity;
 import dev.xkmc.gensokyolegacy.content.block.shelf.ShelfRenderer;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
-import dev.xkmc.gensokyolegacy.init.data.GLRecipeGen;
 import dev.xkmc.l2modularblock.core.BlockTemplates;
 import dev.xkmc.l2modularblock.core.DelegateBlock;
-import dev.xkmc.l2modularblock.one.ShapeBlockMethod;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraft.core.Holder;
-import net.minecraft.data.recipes.RecipeCategory;
-import net.minecraft.data.recipes.ShapelessRecipeBuilder;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.item.BedItem;
 import net.minecraft.world.item.DyeColor;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.BedBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
 import net.minecraft.world.level.material.MapColor;
-import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
 
@@ -86,7 +77,7 @@ public class GLBlocks {
 	public static final BlockEntry<BasePortalBlock> GAP_PORTAL;
 	public static final BlockEntityEntry<GapPortalBlockEntity> GAP_BE;
 
-	public static final BlockEntry<DelegateBlock> BOOK_PILE, BOOK_STACK, ALCHEMY_POT;
+	public static final BlockEntry<DelegateBlock> ALCHEMY_POT;
 	public static final BlockEntityEntry<AlchemyPotBlockEntity> ALCHEMY_POT_BE;
 
 	public static final BlockEntry<DelegateBlock> SEALING_POT;
@@ -98,60 +89,7 @@ public class GLBlocks {
 
 	static {
 
-		{
-
-			DONATION_BOX = GensokyoLegacy.REGISTRATE.block("donation_box", p -> new DonationBoxBlock(
-							BlockBehaviour.Properties.of().noLootTable().strength(2.0F).sound(SoundType.WOOD)
-									.mapColor(MapColor.DIRT).instrument(NoteBlockInstrument.BASS),
-							BlockTemplates.HORIZONTAL, new DoubleBlockHorizontal(), new DonationShape(), DonationBoxBlock.TE
-					)).blockstate(DonationBoxBlock::buildStates)
-					.simpleItem()
-					.loot((pvd, block) -> pvd.add(block, LootTable.lootTable()))
-					.register();
-
-			DONATION_BOX_BE = GensokyoLegacy.REGISTRATE.blockEntity("donation_box", DonationBoxBlockEntity::new)
-					.validBlock(DONATION_BOX)
-					.register();
-
-			SHELF = GensokyoLegacy.REGISTRATE.block("birch_shelf", p -> DelegateBlock.newBaseBlock(p,
-							BlockTemplates.HORIZONTAL, new ShelfBlock(), ShelfBlock.BE))
-					.initialProperties(() -> Blocks.BIRCH_TRAPDOOR)
-					.blockstate(ShelfBlock::buildStates)
-					.tag(BlockTags.MINEABLE_WITH_AXE)
-					.simpleItem().register();
-
-			SHELF_BE = GensokyoLegacy.REGISTRATE.blockEntity("shelf", ShelfBlockEntity::new)
-					.validBlock(SHELF)
-					.renderer(() -> ShelfRenderer::new)
-					.register();
-
-		}
-
-		{
-			DRAWER_CABINET = GensokyoLegacy.REGISTRATE.block("drawer_cabinet",
-							p -> DelegateBlock.newBaseBlock(p, BlockTemplates.HORIZONTAL, new CabinetBlock(), CabinetBlock.BE))
-					.initialProperties(() -> Blocks.OAK_PLANKS)
-					.properties(BlockBehaviour.Properties::noOcclusion)
-					.blockstate((ctx, pvd) -> CabinetBlock.buildStates(ctx, pvd, "cabinet_top"))
-					.tag(BlockTags.MINEABLE_WITH_AXE)
-					.item().tab(GLDecoBlocks.TAB.key()).build()
-					.register();
-
-			DOOR_CABINET = GensokyoLegacy.REGISTRATE.block("door_cabinet",
-							p -> DelegateBlock.newBaseBlock(p, BlockTemplates.HORIZONTAL, new CabinetBlock(), CabinetBlock.BE))
-					.initialProperties(() -> Blocks.OAK_PLANKS)
-					.properties(BlockBehaviour.Properties::noOcclusion)
-					.blockstate((ctx, pvd) -> CabinetBlock.buildStates(ctx, pvd, "cabinet_side"))
-					.tag(BlockTags.MINEABLE_WITH_AXE)
-					.item().tab(GLDecoBlocks.TAB.key()).build()
-					.register();
-
-			CABINET_BE = GensokyoLegacy.REGISTRATE.blockEntity("cabinet", CabinetBlockEntity::new)
-					.validBlocks(DRAWER_CABINET, DOOR_CABINET)
-					.register();
-
-		}
-
+		// gap
 		{
 			GAP_PORTAL = GensokyoLegacy.REGISTRATE.block("gap_portal", GapPortalBlock::of)
 					.initialProperties(() -> Blocks.END_PORTAL)
@@ -169,23 +107,8 @@ public class GLBlocks {
 					.register();
 		}
 
+		// pots
 		{
-			BOOK_PILE = GensokyoLegacy.REGISTRATE.block("book_pile", BookPile::create)
-					.properties(p -> p.noOcclusion().strength(0F).offsetType(BlockBehaviour.OffsetType.XZ)
-							.mapColor(MapColor.WOOD).sound(SoundType.WOOD).pushReaction(PushReaction.DESTROY).dynamicShape())
-					.blockstate(BookPile::buildStates).loot(BookPile::buildLoot).simpleItem()
-					.recipe((ctx, pvd) -> GLRecipeGen.unlock(pvd, ShapelessRecipeBuilder.shapeless(
-							RecipeCategory.DECORATIONS, ctx.get(), 1)::unlockedBy, Items.BOOK).requires(Items.BOOK, 5).save(pvd))
-					.register();
-
-			BOOK_STACK = GensokyoLegacy.REGISTRATE.block("book_stack", BookStack::create)
-					.properties(p -> p.noOcclusion().strength(0F).offsetType(BlockBehaviour.OffsetType.XZ)
-							.mapColor(MapColor.WOOD).sound(SoundType.WOOD).pushReaction(PushReaction.DESTROY).dynamicShape())
-					.blockstate(BookStack::buildStates).loot(BookStack::buildLoot).simpleItem()
-					.recipe((ctx, pvd) -> GLRecipeGen.unlock(pvd, ShapelessRecipeBuilder.shapeless(
-							RecipeCategory.DECORATIONS, ctx.get(), 1)::unlockedBy, Items.BOOK).requires(Items.BOOK, 5).save(pvd))
-					.register();
-
 			ALCHEMY_POT = GensokyoLegacy.REGISTRATE.block("alchemy_pot", p -> DelegateBlock.newBaseBlock(p,
 							new AlchemyPotBlock(), AlchemyPotBlock.BE))
 					.initialProperties(() -> Blocks.COPPER_BLOCK)
@@ -211,13 +134,28 @@ public class GLBlocks {
 									.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/utensil/" + ctx.getName())))
 									.texture("all", pvd.modLoc("block/utensil/" + ctx.getName()))
 									.renderType("cutout")))
-                    .item().model((ctx, pvd) -> pvd.withExistingParent(ctx.getName(), "item/generated")
-                            .texture("layer0", pvd.modLoc("item/utensil/sealing_pot")))
-                    .build()
+					.item().model((ctx, pvd) -> pvd.withExistingParent(ctx.getName(), "item/generated")
+							.texture("layer0", pvd.modLoc("item/utensil/sealing_pot")))
+					.build()
+					.register();
+
+		}
+
+		// donation box, shelf, drawer cabinet
+		{
+
+			DONATION_BOX = GensokyoLegacy.REGISTRATE.block("donation_box", p -> new DonationBoxBlock(p,
+							BlockTemplates.HORIZONTAL, new DoubleBlockHorizontal(), new DonationShape(), DonationBoxBlock.TE
+					)).properties(p -> p.noLootTable().strength(2.0F).sound(SoundType.WOOD)
+							.mapColor(MapColor.DIRT).instrument(NoteBlockInstrument.BASS))
+					.blockstate(DonationBoxBlock::buildStates)
+					.simpleItem()
+					.loot((pvd, block) -> pvd.add(block, LootTable.lootTable()))
 					.register();
 
 			// 赛钱箱
-			DONATION_BOX_2 = GensokyoLegacy.REGISTRATE.block("donation_box_2", p -> DelegateBlock.newBaseBlock(p, BlockTemplates.HORIZONTAL, new DonationBox2Shape()))
+			DONATION_BOX_2 = GensokyoLegacy.REGISTRATE.block("donation_box_2", p -> DelegateBlock.newBaseBlock(p,
+							BlockTemplates.HORIZONTAL, new DonationBox2Shape(), DonationBoxBlock.TE))
 					.properties(p -> p.mapColor(MapColor.DIRT).strength(2.0F).sound(SoundType.WOOD).noOcclusion())
 					.blockstate((ctx, pvd) -> pvd.horizontalBlock(ctx.get(),
 							pvd.models().getBuilder("block/" + ctx.getName())
@@ -227,7 +165,49 @@ public class GLBlocks {
 					.simpleItem()
 					.register();
 
-			// 纸盒
+			DONATION_BOX_BE = GensokyoLegacy.REGISTRATE.blockEntity("donation_box", DonationBoxBlockEntity::new)
+					.validBlocks(DONATION_BOX, DONATION_BOX_2)
+					.register();
+
+			SHELF = GensokyoLegacy.REGISTRATE.block("birch_shelf", p -> DelegateBlock.newBaseBlock(p,
+							BlockTemplates.HORIZONTAL, new ShelfBlock(), ShelfBlock.BE))
+					.initialProperties(() -> Blocks.BIRCH_TRAPDOOR)
+					.blockstate(ShelfBlock::buildStates)
+					.tag(BlockTags.MINEABLE_WITH_AXE)
+					.simpleItem().register();
+
+			SHELF_BE = GensokyoLegacy.REGISTRATE.blockEntity("shelf", ShelfBlockEntity::new)
+					.validBlock(SHELF)
+					.renderer(() -> ShelfRenderer::new)
+					.register();
+
+			DRAWER_CABINET = GensokyoLegacy.REGISTRATE.block("drawer_cabinet",
+							p -> DelegateBlock.newBaseBlock(p, BlockTemplates.HORIZONTAL, new CabinetBlock(), CabinetBlock.BE))
+					.initialProperties(() -> Blocks.OAK_PLANKS)
+					.properties(BlockBehaviour.Properties::noOcclusion)
+					.blockstate((ctx, pvd) -> CabinetBlock.buildStates(ctx, pvd, "cabinet_top"))
+					.tag(BlockTags.MINEABLE_WITH_AXE)
+					.item().tab(GLDecoBlocks.TAB.key()).build()
+					.register();
+
+			DOOR_CABINET = GensokyoLegacy.REGISTRATE.block("door_cabinet",
+							p -> DelegateBlock.newBaseBlock(p, BlockTemplates.HORIZONTAL, new CabinetBlock(), CabinetBlock.BE))
+					.initialProperties(() -> Blocks.OAK_PLANKS)
+					.properties(BlockBehaviour.Properties::noOcclusion)
+					.blockstate((ctx, pvd) -> CabinetBlock.buildStates(ctx, pvd, "cabinet_side"))
+					.tag(BlockTags.MINEABLE_WITH_AXE)
+					.item().tab(GLDecoBlocks.TAB.key()).build()
+					.register();
+
+			CABINET_BE = GensokyoLegacy.REGISTRATE.blockEntity("cabinet", CabinetBlockEntity::new)
+					.validBlocks(DRAWER_CABINET, DOOR_CABINET)
+					.register();
+
+		}
+
+		// 纸盒
+		{
+
 			CARTON = GensokyoLegacy.REGISTRATE.block("carton_default", p -> DelegateBlock.newBaseBlock(p, BlockTemplates.HORIZONTAL, new CartonShape()))
 					.properties(p -> p.mapColor(MapColor.NONE).strength(1.0F).sound(SoundType.WOOD).noOcclusion())
 					.blockstate((ctx, pvd) -> pvd.horizontalBlock(ctx.get(),

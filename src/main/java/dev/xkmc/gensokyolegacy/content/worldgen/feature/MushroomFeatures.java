@@ -3,6 +3,7 @@ package dev.xkmc.gensokyolegacy.content.worldgen.feature;
 import com.mojang.serialization.Codec;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.registrate.GLDecoBlocks;
+import dev.xkmc.gensokyolegacy.init.registrate.GLNaturalBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
@@ -21,17 +22,17 @@ public class MushroomFeatures {
 
     public enum MushroomTreeType {
         GHOST_FIRE("ghost_fire_mushroom", GhostFireMushroomFeature::new,
-                () -> GLDecoBlocks.GHOST_FIRE_MUSHROOM_SET, null);
+                () -> GLNaturalBlocks.GHOST_FIRE_MUSHROOM_SET, null);
 
         public final String id;
         public final ResourceKey<ConfiguredFeature<?, ?>> cfKey;
         public final Function<Codec<HugeMushroomFeatureConfiguration>, AbstractHugeMushroomFeature> factory;
-        public final Supplier<GLDecoBlocks.MushroomSet> set;
+        public final Supplier<GLNaturalBlocks.MushroomSet> set;
         public final int radius;
 
         MushroomTreeType(String id,
                          Function<Codec<HugeMushroomFeatureConfiguration>, AbstractHugeMushroomFeature> factory,
-                         Supplier<GLDecoBlocks.MushroomSet> set, @Nullable Integer radius) {
+                         Supplier<GLNaturalBlocks.MushroomSet> set, @Nullable Integer radius) {
             this.id = id;
             this.cfKey = ResourceKey.create(Registries.CONFIGURED_FEATURE, GensokyoLegacy.loc(id));
             this.factory = factory;

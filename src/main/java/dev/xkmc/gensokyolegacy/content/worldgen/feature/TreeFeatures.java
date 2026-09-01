@@ -2,6 +2,7 @@ package dev.xkmc.gensokyolegacy.content.worldgen.feature;
 
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.registrate.GLDecoBlocks;
+import dev.xkmc.gensokyolegacy.init.registrate.GLNaturalBlocks;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.valueproviders.ConstantInt;
@@ -19,12 +20,12 @@ public class TreeFeatures {
 
     public enum TreeType {
         BLUE_FIR("blue_fir_tree",
-                () -> GLDecoBlocks.BLUE_FUR_SET,
+                () -> GLNaturalBlocks.BLUE_FUR_SET,
                 4, 2, 0, 2, 0, 3),
         ;
 
         public final String id;
-        public final Supplier<GLDecoBlocks.TreeSet> set;
+        public final Supplier<GLNaturalBlocks.TreeSet> set;
         public final int trunkBase;
         public final int trunkRandA;
         public final int trunkRandB;
@@ -34,7 +35,7 @@ public class TreeFeatures {
         public final ResourceKey<ConfiguredFeature<?, ?>> cfKey;
 
         TreeType(String id,
-                 Supplier<GLDecoBlocks.TreeSet> set,
+                 Supplier<GLNaturalBlocks.TreeSet> set,
                  int trunkBase, int trunkRandA, int trunkRandB,
                  int foliageRadius, int foliageOffset, int foliageHeight) {
             this.id = id;

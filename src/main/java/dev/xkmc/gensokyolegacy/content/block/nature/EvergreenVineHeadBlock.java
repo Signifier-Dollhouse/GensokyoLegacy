@@ -4,7 +4,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
@@ -12,13 +11,8 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LeavesBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.Shapes;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.phys.shapes.VoxelShape;
-import dev.xkmc.gensokyolegacy.init.registrate.GLDecoBlocks;
 
-import static dev.xkmc.gensokyolegacy.init.registrate.GLDecoBlocks.EVERGREEN_VINE_PLANT;
+import static dev.xkmc.gensokyolegacy.init.registrate.GLNaturalBlocks.EVERGREEN_VINE_PLANT;
 
 public class EvergreenVineHeadBlock extends Block {
 
@@ -58,13 +52,13 @@ public class EvergreenVineHeadBlock extends Block {
 				|| above.getBlock() instanceof EvergreenVineBodyBlock;
 	}
 
-    @Override
-    public void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
-        super.onPlace(state, level, pos, oldState, movedByPiston);
-        BlockPos abovePos = pos.above();
-        BlockState aboveState = level.getBlockState(abovePos);
-        if (aboveState.getBlock() instanceof EvergreenVineHeadBlock) {
-            level.setBlockAndUpdate(abovePos, EVERGREEN_VINE_PLANT.getDefaultState());
-        }
-    }
+	@Override
+	public void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
+		super.onPlace(state, level, pos, oldState, movedByPiston);
+		BlockPos abovePos = pos.above();
+		BlockState aboveState = level.getBlockState(abovePos);
+		if (aboveState.getBlock() instanceof EvergreenVineHeadBlock) {
+			level.setBlockAndUpdate(abovePos, EVERGREEN_VINE_PLANT.getDefaultState());
+		}
+	}
 }
