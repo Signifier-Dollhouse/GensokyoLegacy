@@ -24,13 +24,13 @@ import java.util.List;
 import java.util.Locale;
 
 public enum HexBrew {
-	MUNDANE(0xFF9E9E9E),
-	EXPLOSIVE(0xFFE8453C, new ExplosiveHandler()),
-	MIASMA(0xFF7A4BA1, new MiasmaHandler()),
-	STARLIGHT(0xFFFFF7AE, new StarlightHandler()),
-	HYPHAE(0xFFD98E3A),
-	SHIELD(0xFFFFF7AE, new ShieldHandler()),
-	WITCH(0xFF7A4BA1, new WitchHandler());
+	MUNDANE_HEXBREW(0xFF9E9E9E),
+	EXPLOSIVE_HEXBREW(0xFFE8453C, new ExplosiveHandler()),
+	MIASMA_HEXBREW(0xFF7A4BA1, new MiasmaHandler()),
+	STARLIGHT_HEXBREW(0xFFFFF7AE, new StarlightHandler()),
+	HYPHAE_HEXBREW(0xFFD98E3A),
+	SHIELD_HEXBREW(0xFFFFF7AE, new ShieldHandler()),
+	WITCH_HEXBREW(0xFF7A4BA1, new WitchHandler());
 
 	public final FluidEntry<GLHexFluid> fluid;
 	public final ItemEntry<HexBrewBottleItem> bottle;
@@ -42,7 +42,7 @@ public enum HexBrew {
 
 	HexBrew(int color, HexBrewHandler handler) {
 		this.handler = handler;
-		String id = name().toLowerCase(Locale.ROOT) + "_hexbrew";
+		String id = name().toLowerCase(Locale.ROOT);
 		fluid = GensokyoLegacy.REGISTRATE.entry(id, c -> new VirtualFluidBuilder<>(
 						GensokyoLegacy.REGISTRATE, GensokyoLegacy.REGISTRATE, id, c,
 						GLFluids.WATER_STILL, GLFluids.WATER_FLOW,

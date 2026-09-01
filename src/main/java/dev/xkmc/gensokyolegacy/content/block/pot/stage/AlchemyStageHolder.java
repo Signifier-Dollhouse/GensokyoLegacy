@@ -73,7 +73,7 @@ public class AlchemyStageHolder {
 		ResourceLocation bestId = null;
 		RecipeHolder<AlchemyStageRecipe<?>> best = null;
 		for (var e : recipes) {
-			int cnt = e.value().getIngredientCount();
+			int cnt = e.value().getPriority();
 			if (cnt > max) {
 				max = cnt;
 				bestId = e.id();

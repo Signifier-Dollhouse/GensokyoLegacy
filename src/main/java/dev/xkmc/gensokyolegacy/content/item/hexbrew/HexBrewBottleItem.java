@@ -130,7 +130,7 @@ public class HexBrewBottleItem extends Item implements ProjectileItem {
 				contents.addPotionTooltip(list::add, 1.0f, context.tickRate());
 				return;
 			}
-			if (hexBrew == HexBrew.SHIELD) {
+			if (hexBrew == HexBrew.SHIELD_HEXBREW) {
 				PotionContents shieldContents = new PotionContents(Optional.empty(), Optional.empty(),
 						List.of(new MobEffectInstance(GLEffects.STARLIGHT_SHIELD.holder(), 1200, 0)));
 				shieldContents.addPotionTooltip(list::add, 1.0f, context.tickRate());

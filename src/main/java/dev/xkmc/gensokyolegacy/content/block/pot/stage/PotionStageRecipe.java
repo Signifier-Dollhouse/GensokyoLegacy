@@ -1,7 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.block.pot.stage;
 
 import dev.xkmc.gensokyolegacy.content.block.pot.AlchemyInv;
-import dev.xkmc.gensokyolegacy.content.item.hexbrew.HexBrew;
 import dev.xkmc.gensokyolegacy.init.registrate.GLRecipes;
 import dev.xkmc.l2serial.serialization.marker.SerialClass;
 import net.minecraft.core.HolderLookup;
@@ -10,8 +9,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.material.Fluid;
-import net.neoforged.neoforge.fluids.crafting.FluidIngredient;
 
 import java.util.List;
 
@@ -20,12 +17,10 @@ public class PotionStageRecipe extends AlchemyStageRecipe<PotionStageRecipe> {
 
 	public PotionStageRecipe() {
 		super(GLRecipes.ALCHEMY_STAGE_POTION.get());
-		inputFluid = FluidIngredient.of((Fluid) HexBrew.MUNDANE.fluid.getSource());
 	}
 
 	@Override
-	public int getIngredientCount() {
-		// use max to prefer potion color blending over simple stages when multiple potions
+	public int getPriority() {
 		return 12;
 	}
 
@@ -33,7 +28,7 @@ public class PotionStageRecipe extends AlchemyStageRecipe<PotionStageRecipe> {
 	public void removeConsumed(List<ItemStack> list) {
 		for (int i = 0; i < list.size(); i++) {
 			ItemStack stack = list.get(i);
-			if (isRegularPotion(stack)) {
+			if (isPotion(stack)) {
 				list.set(i, ItemStack.EMPTY);
 			}
 		}
@@ -44,7 +39,7 @@ public class PotionStageRecipe extends AlchemyStageRecipe<PotionStageRecipe> {
 		int rSum = 0, gSum = 0, bSum = 0, count = 0;
 		for (ItemStack stack : inv.list()) {
 			if (stack.isEmpty()) continue;
-			if (!isRegularPotion(stack)) continue;
+			if (!isPotion(stack)) continue;
 			PotionContents contents = stack.get(DataComponents.POTION_CONTENTS);
 			if (contents == null) continue;
 			int col = getPotionColor(contents);
@@ -67,15 +62,13 @@ public class PotionStageRecipe extends AlchemyStageRecipe<PotionStageRecipe> {
 		if (inv.list().isEmpty()) return false;
 		for (ItemStack stack : inv.list()) {
 			if (stack.isEmpty()) return false;
-			if (!isRegularPotion(stack)) return false;
+			if (!isPotion(stack)) return false;
 		}
 		return true;
 	}
 
-	public static boolean isRegularPotion(ItemStack stack) {
-		if (!stack.is(Items.POTION)) return false;
-		// ensure not splash/lingering already filtered by item type
-		return true;
+	public static boolean isPotion(ItemStack stack) {
+		return stack.is(Items.POTION) || stack.is(Items.SPLASH_POTION) || stack.is(Items.LINGERING_POTION);
 	}
 
 	private static int getPotionColor(PotionContents contents) {

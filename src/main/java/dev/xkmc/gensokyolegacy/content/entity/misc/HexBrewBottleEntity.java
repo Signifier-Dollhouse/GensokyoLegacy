@@ -62,6 +62,6 @@ public class HexBrewBottleEntity extends ThrowableItemProjectile {
 
 	@Override
 	protected Item getDefaultItem() {
-		return HexBrew.MUNDANE.bottle.asItem();
+		return HexBrew.MUNDANE_HEXBREW.bottle.asItem();
 	}
 }

@@ -30,7 +30,7 @@ public class SimpleAlchemyStageRecipe extends AlchemyStageRecipe<SimpleAlchemySt
 	}
 
 	@Override
-	public int getIngredientCount() {
+	public int getPriority() {
 		return input.size();
 	}
 

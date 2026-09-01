@@ -25,16 +25,16 @@ public class GLRecipeGen {
 				.add(GLDecoBlocks.GHOST_FIRE_MUSHROOM_SET.cap.get())
 				.add(GLDecoBlocks.DREAM_MUSHROOM_SET.cap.get())
 				.time(200)
-				.resultFluid(HexBrew.MUNDANE.getSource(), 1000)
+				.resultFluid(HexBrew.MUNDANE_HEXBREW.getSource(), 1000)
 				::unlockedBy, GLDecoBlocks.GHOST_FIRE_MUSHROOM_SET.cap.get().asItem())
 				.save(pvd, GensokyoLegacy.loc("alchemy/mundane_hexbrew"));
 
 		unlock(pvd, new UnorderedAlchemyRecipeBuilder()
-				.fluid(HexBrew.MUNDANE.getSource())
+				.fluid(HexBrew.MUNDANE_HEXBREW.getSource())
 				.add(Items.BLAZE_POWDER)
 				.add(Items.GUNPOWDER)
 				.time(200)
-				.resultFluid(HexBrew.EXPLOSIVE.getSource(), 1000)
+				.resultFluid(HexBrew.EXPLOSIVE_HEXBREW.getSource(), 1000)
 				::unlockedBy, Items.BLAZE_POWDER)
 				.save(pvd, GensokyoLegacy.loc("alchemy/explosive_hexbrew"));
 
@@ -47,46 +47,46 @@ public class GLRecipeGen {
 				.add(Items.ROTTEN_FLESH)
 				.add(Items.ROTTEN_FLESH)
 				.time(400)
-				.resultFluid(HexBrew.MIASMA.getSource(), 1000)
+				.resultFluid(HexBrew.MIASMA_HEXBREW.getSource(), 1000)
 				::unlockedBy, GLDecoBlocks.DEMONIC_MIASMA_MUSHROOM_SET.cap.get().asItem())
 				.save(pvd, GensokyoLegacy.loc("alchemy/miasma_hexbrew"));
 
 		unlock(pvd, new WitchMergeBuilder(GensokyoLegacy.loc("alchemy/witch_hexbrew_1"))
-				.fluid(HexBrew.MUNDANE.getSource())
+				.fluid(HexBrew.MUNDANE_HEXBREW.getSource())
 				.add(GLDecoBlocks.FLAME_CATTAIL)
 				.potionCount(1)
 				.time(200)
-				.resultFluid(HexBrew.WITCH.getSource(), 250)
+				.resultFluid(HexBrew.WITCH_HEXBREW.getSource(), 250)
 				::unlockedBy, GLDecoBlocks.FLAME_CATTAIL.asItem())
 				.save(pvd);
 
 		unlock(pvd, new WitchMergeBuilder(GensokyoLegacy.loc("alchemy/witch_hexbrew_2"))
-				.fluid(HexBrew.MUNDANE.getSource())
+				.fluid(HexBrew.MUNDANE_HEXBREW.getSource())
 				.add(GLDecoBlocks.FLAME_CATTAIL)
 				.add(GLDecoBlocks.STAR_FLOWER)
 				.potionCount(2)
 				.time(200)
-				.resultFluid(HexBrew.WITCH.getSource(), 250)
+				.resultFluid(HexBrew.WITCH_HEXBREW.getSource(), 250)
 				::unlockedBy, GLDecoBlocks.STAR_FLOWER.asItem())
 				.save(pvd);
 
 		unlock(pvd, new WitchMergeBuilder(GensokyoLegacy.loc("alchemy/witch_hexbrew_3"))
-				.fluid(HexBrew.MUNDANE.getSource())
+				.fluid(HexBrew.MUNDANE_HEXBREW.getSource())
 				.add(GLDecoBlocks.FLAME_CATTAIL)
 				.add(Items.DRAGON_BREATH)
 				.potionCount(3)
 				.time(200)
-				.resultFluid(HexBrew.WITCH.getSource(), 250)
+				.resultFluid(HexBrew.WITCH_HEXBREW.getSource(), 250)
 				::unlockedBy, Items.DRAGON_BREATH)
 				.save(pvd);
 
 		unlock(pvd, new WitchEnhanceBuilder(GensokyoLegacy.loc("alchemy/witch_hexbrew_enhance"))
-				.fluid(HexBrew.WITCH.getSource())
+				.fluid(HexBrew.WITCH_HEXBREW.getSource())
 				.add(GLDecoBlocks.FLAME_CATTAIL)
 				.add(Items.BLAZE_POWDER)
 				.add(Items.REDSTONE)
 				.time(200)
-				.resultFluid(HexBrew.WITCH.getSource(), 250)
+				.resultFluid(HexBrew.WITCH_HEXBREW.getSource(), 250)
 				::unlockedBy, Items.BLAZE_POWDER)
 				.save(pvd);
 	}

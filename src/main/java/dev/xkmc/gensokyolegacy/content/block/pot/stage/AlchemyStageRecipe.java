@@ -21,7 +21,7 @@ public abstract class AlchemyStageRecipe<T extends AlchemyStageRecipe<T>> extend
 		super(fac);
 	}
 
-	public abstract int getIngredientCount();
+	public abstract int getPriority();
 
 	public abstract void removeConsumed(List<ItemStack> list);
 

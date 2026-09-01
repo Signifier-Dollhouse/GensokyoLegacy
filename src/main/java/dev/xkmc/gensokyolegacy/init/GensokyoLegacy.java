@@ -169,8 +169,8 @@ public class GensokyoLegacy {
 			DispenserBlock.registerProjectileBehavior(GLItems.FROZEN_FROG_WARM.get());
 			DispenserBlock.registerProjectileBehavior(GLItems.FROZEN_FROG_TEMPERATE.get());
 			DispenserBlock.registerProjectileBehavior(GLItems.FAIRY_ICE_CRYSTAL.get());
-			DispenserBlock.registerProjectileBehavior(HexBrew.EXPLOSIVE.bottle.get());
-			DispenserBlock.registerProjectileBehavior(HexBrew.MIASMA.bottle.get());
+			DispenserBlock.registerProjectileBehavior(HexBrew.EXPLOSIVE_HEXBREW.bottle.get());
+			DispenserBlock.registerProjectileBehavior(HexBrew.MIASMA_HEXBREW.bottle.get());
 		});
 	}
 
