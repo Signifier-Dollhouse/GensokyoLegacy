@@ -55,7 +55,7 @@ public class HexBrewBottleEntity extends ThrowableItemProjectile {
 		}
 		HexBrew hex = bottle.getHexBrew();
 		Vec3 pos = result.getLocation();
-		hex.onHit(level(), pos, getOwner());
+		hex.onHit(level(), pos, getOwner(), stack);
 		level().broadcastEntityEvent(this, EntityEvent.DEATH);
 		discard();
 	}

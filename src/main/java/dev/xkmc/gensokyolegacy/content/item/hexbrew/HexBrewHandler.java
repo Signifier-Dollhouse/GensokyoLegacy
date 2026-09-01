@@ -1,13 +1,11 @@
 package dev.xkmc.gensokyolegacy.content.item.hexbrew;
 
 import net.minecraft.core.component.DataComponentType;
-import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.UseAnim;
-import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
@@ -16,9 +14,13 @@ import java.util.List;
 
 public interface HexBrewHandler {
 
-	boolean isThrowable();
+	default boolean isThrowable() {
+		return false;
+	}
 
-	void onHit(Level level, Vec3 pos, @Nullable Entity thrower);
+	default void onHit(Level level, Vec3 pos, @Nullable Entity thrower, ItemStack stack) {
+
+	}
 
 	default boolean isDrinkable() {
 		return false;

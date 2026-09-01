@@ -5,6 +5,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -20,7 +21,7 @@ public class StarlightHandler implements HexBrewHandler {
 	}
 
 	@Override
-	public void onHit(Level level, Vec3 pos, @Nullable Entity thrower) {
+	public void onHit(Level level, Vec3 pos, @Nullable Entity thrower, ItemStack stack) {
 		if (level.isClientSide) return;
 		level.levelEvent(2002, BlockPos.containing(pos), 0xFFFFF7AE);
 		if (thrower == null) return;

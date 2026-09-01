@@ -26,11 +26,12 @@ import java.util.Locale;
 public enum HexBrew {
 	MUNDANE_HEXBREW(0xFF9E9E9E),
 	EXPLOSIVE_HEXBREW(0xFFE8453C, new ExplosiveHandler()),
-	MIASMA_HEXBREW(0xFF7A4BA1, new MiasmaHandler()),
+	MIASMA_HEXBREW(0xFF7A4BA1, new SimplePotionHandler(true, GLEffects.MIASMA, 1200, 0)),
 	STARLIGHT_HEXBREW(0xFFFFF7AE, new StarlightHandler()),
 	HYPHAE_HEXBREW(0xFFD98E3A),
-	SHIELD_HEXBREW(0xFFFFF7AE, new SimplePotionHandler(false, GLEffects.STARLIGHT_SHIELD.holder(), 1200, 0)),
-	WITCH_HEXBREW(0xFF7A4BA1, new WitchHandler());
+	SHIELD_HEXBREW(0xFFFFF7AE, new SimplePotionHandler(false, GLEffects.STARLIGHT_SHIELD, 1200, 0)),
+	WITCH_HEXBREW(0xFF7A4BA1, new WitchHandler(false)),
+	WITCH_SPLASH(0xFF7A4BA1, new WitchHandler(true));
 
 	public final FluidEntry<GLHexFluid> fluid;
 	public final ItemEntry<HexBrewBottleItem> bottle;
@@ -65,8 +66,8 @@ public enum HexBrew {
 		return handler.isDrinkable();
 	}
 
-	public void onHit(Level level, Vec3 pos, @Nullable Entity thrower) {
-		handler.onHit(level, pos, thrower);
+	public void onHit(Level level, Vec3 pos, @Nullable Entity thrower, ItemStack stack) {
+		handler.onHit(level, pos, thrower, stack);
 	}
 
 	public void onDrink(LivingEntity user, ItemStack stack, Level level) {
