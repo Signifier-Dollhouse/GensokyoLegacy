@@ -1,7 +1,7 @@
 package dev.xkmc.gensokyolegacy.content.block.donation;
 
 import dev.xkmc.gensokyolegacy.content.attachment.character.CharDataHolder;
-import dev.xkmc.gensokyolegacy.content.attachment.character.CharacterData;
+import dev.xkmc.gensokyolegacy.content.attachment.character.ReputationConstants;
 import dev.xkmc.gensokyolegacy.content.attachment.character.ReputationState;
 import dev.xkmc.gensokyolegacy.content.attachment.datamap.BedData;
 import dev.xkmc.gensokyolegacy.content.block.base.IDebugInfoBlockEntity;
@@ -44,11 +44,11 @@ public class DonationBoxBlockEntity extends LocatedBlockEntity implements IDebug
 		}
 		if (value > 0) {
 			int current = holder.data().reputation;
-			int max = CharacterData.MAX;
+			int max = holder.data().reputationCap;
 			if (current < max) {
 				int count = Math.min(stack.getCount(), (max - current - 1) / value + 1);
 				stack.shrink(count);
-				holder.gain(value * count, max);
+				holder.gain(value * count, ReputationConstants.FEED_SOFT_CAP, 0, 0);
 			}
 		}
 	}
@@ -58,8 +58,8 @@ public class DonationBoxBlockEntity extends LocatedBlockEntity implements IDebug
 		var bed = BedData.of(getBlockState().getBlock());
 		if (bed == null || key == null)
 			return BlockInfoToClient.of(GLLang.Info.BED_UNBOUND.get().withStyle(ChatFormatting.RED));
-		var reputation = CharDataHolder.getUnbounded(player, bed.type()).data().reputation;
-		return BlockInfoToClient.of(ReputationState.toInfo(reputation));
+		var data = CharDataHolder.getUnbounded(player, bed.type()).data();
+		return BlockInfoToClient.of(ReputationState.toInfo(data.reputation, data.reputationCap));
 	}
 
 }

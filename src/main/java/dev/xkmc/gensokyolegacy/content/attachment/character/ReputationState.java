@@ -8,8 +8,8 @@ import net.minecraft.network.chat.Component;
 public enum ReputationState {
 	FRIEND, STRANGER, JERK, ENEMY;
 
-	public static Component toInfo(int reputation) {
-		return GLLang.Info.ENTITY_REPUTATION.get(reputation).withStyle(
+	public static Component toInfo(int reputation, int cap) {
+		return GLLang.Info.ENTITY_REPUTATION.get(reputation, cap).withStyle(
 				switch (CharacterData.getState(reputation)) {
 					case FRIEND -> ChatFormatting.GREEN;
 					case STRANGER -> ChatFormatting.WHITE;

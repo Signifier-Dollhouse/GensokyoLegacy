@@ -48,7 +48,7 @@ public class ReimuQDGen extends QuestDialogData {
 				)),
 				List.of(
 						new ExpReward(100),
-						new ReputationReward(50, 200),
+						new ReputationReward(50, 100, 10, 200),
 						loot("reimu/kill_zombie", LootTable.lootTable()
 								.withPool(lootItem(Items.BOOK, 2)))
 				),

@@ -99,7 +99,7 @@ public final class GLLang {
 		BED_RESPAWN("Character respawning. Remaining time: %s", 1),
 		ENTITY_UNBOUND("This character is not linked to a bed"),
 		ENTITY_BED("Character's bed is at (%s, %s, %s)", 3),
-		ENTITY_REPUTATION("Your reputation: %s", 1),
+		ENTITY_REPUTATION("Your reputation: %s / %s", 2),
 		ENTITY_FEED("Feed cool down: %s", 1),
 		ENTITY_GIFT("Gift cool down: %s", 1),
 		STRUCTURE_SCANNING("Scanning Structure...", 0),

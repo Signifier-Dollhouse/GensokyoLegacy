@@ -39,13 +39,13 @@ public record CharDataHolder(CharacterData data, Player player, EntityType<?> ty
 	public int feed(ItemStack food, int favor) {
 		double rate = data.foodData.feed(food);
 		int v = (int) Math.round(rate * favor);
-		data.gainReputation(v, CharacterData.MAX);
+		data.gainReputation(v, ReputationConstants.FEED_SOFT_CAP, 0, 0);
 		sync();
 		return v;
 	}
 
-	public void gain(int v, int max) {
-		data.gainReputation(v, max);
+	public void gain(int v, int softCap, int capIncrease, int maxCap) {
+		data.gainReputation(v, softCap, capIncrease, maxCap);
 		sync();
 	}
 

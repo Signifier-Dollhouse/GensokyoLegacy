@@ -1,6 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.entity.module;
 
-import dev.xkmc.gensokyolegacy.content.attachment.character.CharacterData;
+import dev.xkmc.gensokyolegacy.content.attachment.character.ReputationConstants;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiFlags;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
@@ -51,7 +51,7 @@ public class GiftModule extends AbstractYoukaiModule {
 		}
 		var data = self.getData(player);
 		if (data.isEmpty()) return InteractionResult.PASS;
-		data.get().gain(favor, CharacterData.MAX);
+		data.get().gain(favor, ReputationConstants.GIFT_SOFT_CAP, 0, 0);
 		stack.shrink(1);
 		giftCoolDown += giftData.cooldown();
 		self.setFlag(YoukaiFlags.GIFTED, true);

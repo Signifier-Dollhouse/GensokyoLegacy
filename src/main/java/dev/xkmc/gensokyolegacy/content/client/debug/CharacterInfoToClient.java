@@ -21,6 +21,7 @@ public record CharacterInfoToClient(
 			@Nullable StructureKey home,
 			@Nullable BlockPos bed,
 			int reputation,
+			int reputationCap,
 			int feedCD,
 			int giftCD,
 			String activity
@@ -32,7 +33,7 @@ public record CharacterInfoToClient(
 		} else {
 			info.add(GLLang.Info.ENTITY_BED.get(bed.getX(), bed.getY(), bed.getZ()).withStyle(ChatFormatting.GRAY));
 		}
-		info.add(ReputationState.toInfo(reputation));
+		info.add(ReputationState.toInfo(reputation, reputationCap));
 		if (feedCD > 0) {
 			info.add(GLLang.Info.ENTITY_FEED.time(feedCD).withStyle(ChatFormatting.GRAY));
 		}

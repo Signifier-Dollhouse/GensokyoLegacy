@@ -284,7 +284,7 @@
   "gensokyolegacy.info.entity_bed": "Character's bed is at (%s, %s, %s)",
   "gensokyolegacy.info.entity_feed": "Feed cool down: %s",
   "gensokyolegacy.info.entity_gift": "Gift cool down: %s",
-  "gensokyolegacy.info.entity_reputation": "Your reputation: %s",
+  "gensokyolegacy.info.entity_reputation": "Your reputation: %s / %s",
   "gensokyolegacy.info.entity_unbound": "This character is not linked to a bed",
   "gensokyolegacy.info.loading": "Loading...",
   "gensokyolegacy.info.structure_abnormal": "Found %s invalid blocks",

@@ -10,39 +10,50 @@ import net.minecraft.world.entity.player.Player;
 @SerialClass
 public class CharacterData {
 
-	public static final int MAX = 300, MIN = -300;
-
-	public static ReputationState getState(int reputation) {
-		if (reputation >= 150)
-			return ReputationState.FRIEND;
-		if (reputation >= -50)
-			return ReputationState.STRANGER;
-		if (reputation >= -150)
-			return ReputationState.JERK;
-		return ReputationState.ENEMY;
-	}
-
 	@SerialField
 	protected final FeedModuleData foodData = new FeedModuleData();
 
 	@SerialField
 	public int reputation;
 
-	public void gainReputation(int val, int max) {
-		if (reputation < max) {
-			reputation = Math.min(reputation + val, max);
+	@SerialField
+	public int reputationCap = ReputationConstants.INITIAL_CAP;
+
+	public void gainReputation(int val, int softCap, int capIncrease, int maxCap) {
+		if (capIncrease > 0) {
+			int room = Math.max(0, maxCap - reputationCap);
+			reputationCap += Math.min(capIncrease, room);
+		}
+		if (reputation >= reputationCap) return;
+		if (softCap > 0 && reputation >= softCap) {
+			reputation = Math.min(reputation + val / 2, reputationCap);
+		} else if (softCap > 0 && reputation + val > softCap) {
+			reputation = Math.min((val + softCap + reputation) / 2, reputationCap);
+		} else {
+			reputation = Math.min(reputation + val, reputationCap);
 		}
 	}
 
-	public void loseReputation(int val, int min) {
-		if (reputation > min) {
-			reputation = Math.max(reputation - val, min);
-		}
+	public void loseReputation(int val) {
+		reputation = Math.max(reputation - val, ReputationConstants.MIN_REPUTATION);
 	}
 
 	protected void dailyUpdate() {
-		loseReputation(1, 150);
-		gainReputation(1, -150);
+		if (reputation > ReputationConstants.THRESHOLD_FRIEND) {
+			loseReputation(ReputationConstants.DAILY_DECAY_AMOUNT);
+		} else if (reputation < ReputationConstants.THRESHOLD_JERK) {
+			gainReputation(ReputationConstants.DAILY_DECAY_AMOUNT, 0, 0, 0);
+		}
+	}
+
+	public static ReputationState getState(int reputation) {
+		if (reputation >= ReputationConstants.THRESHOLD_FRIEND)
+			return ReputationState.FRIEND;
+		if (reputation >= ReputationConstants.THRESHOLD_STRANGER)
+			return ReputationState.STRANGER;
+		if (reputation >= ReputationConstants.THRESHOLD_JERK)
+			return ReputationState.JERK;
+		return ReputationState.ENEMY;
 	}
 
 	public ReputationState getState() {
@@ -50,7 +61,11 @@ public class CharacterData {
 	}
 
 	protected void onKilledByCharacter() {
-		gainReputation(100, -50);
+		gainReputation(
+				ReputationConstants.KILLED_GAIN,
+				ReputationConstants.KILLED_SOFT_CAP,
+				0, 0
+		);
 	}
 
 	protected void onHurtCharacter(Player player, YoukaiEntity e, float damage, DamageSource source) {
@@ -58,22 +73,22 @@ public class CharacterData {
 		if (danmaku) return;
 		boolean first = !e.targets.contains(player) && e.getLastHurtByMob() != player;
 		if (first && damage <= 4) {
-			if (reputation >= 100)
-				loseReputation(1, 0);
-			else if (reputation >= 0)
-				loseReputation(5, -100);
-			else loseReputation(10, -100);
+			if (reputation >= ReputationConstants.HURT_FIRST_SMALL_REP_THRESHOLD)
+				loseReputation(ReputationConstants.HURT_FIRST_SMALL_LOSS);
+			else if (reputation >= ReputationConstants.THRESHOLD_STRANGER)
+				loseReputation(ReputationConstants.HURT_FIRST_BIG_LOSS);
+			else loseReputation(ReputationConstants.HURT_FIRST_BIG_LOSS);
 		} else {
-			if (first && reputation >= 100)
-				loseReputation(5, 0);
-			else if (reputation >= 0)
-				loseReputation(10, -150);
-			else loseReputation(20, -150);
+			if (first && reputation >= ReputationConstants.HURT_FIRST_SMALL_REP_THRESHOLD)
+				loseReputation(ReputationConstants.HURT_FIRST_BIG_LOSS);
+			else if (reputation >= ReputationConstants.THRESHOLD_STRANGER)
+				loseReputation(ReputationConstants.HURT_REPEAT_LOW_LOSS);
+			else loseReputation(ReputationConstants.HURT_REPEAT_HIGH_LOSS);
 		}
 	}
 
 	protected void onKillCharacter() {
-		loseReputation(200, MIN);
+		loseReputation(ReputationConstants.DEATH_LOSS);
 	}
 
 }

@@ -106,7 +106,7 @@
   "gensokyolegacy.info.bed_respawn": "角色重生中：%s",
   "gensokyolegacy.info.bed_unbound": "这个方块未被绑定到结构",
   "gensokyolegacy.info.entity_bed": "角色的床在 (%s, %s, %s)",
-  "gensokyolegacy.info.entity_reputation": "好感度：%s",
+  "gensokyolegacy.info.entity_reputation": "好感度：%s / %s",
   "gensokyolegacy.info.entity_unbound": "角色未绑定结构",
   "gensokyolegacy.info.entity_feed": "投喂冷却: %s",
   "gensokyolegacy.info.entity_gift": "送礼冷却: %s",

@@ -29,6 +29,7 @@ public record CharacterRequestToServer(UUID id) implements SerialPacketBase<Char
 				home.orElse(null),
 				bed.orElse(null),
 				data.data().reputation,
+				data.data().reputationCap,
 				feedCD, giftCD, activity
 		), sp));
 	}

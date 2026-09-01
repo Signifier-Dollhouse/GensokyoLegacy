@@ -8,11 +8,13 @@ import dev.xkmc.gensokyolegacy.content.rpg.quest.QuestReward;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
 import net.minecraft.server.level.ServerPlayer;
 
-public record ReputationReward(int reputation, int max) implements QuestReward<ReputationReward> {
+public record ReputationReward(int reputation, int softCap, int capIncrease, int maxCap) implements QuestReward<ReputationReward> {
 
 	public static final MapCodec<ReputationReward> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 			Codec.INT.fieldOf("reputation").forGetter(ReputationReward::reputation),
-			Codec.INT.fieldOf("max").forGetter(ReputationReward::max)
+			Codec.INT.fieldOf("soft_cap").forGetter(ReputationReward::softCap),
+			Codec.INT.fieldOf("cap_increase").forGetter(ReputationReward::capIncrease),
+			Codec.INT.fieldOf("max_cap").forGetter(ReputationReward::maxCap)
 
 	).apply(i, ReputationReward::new));
 
@@ -23,7 +25,7 @@ public record ReputationReward(int reputation, int max) implements QuestReward<R
 
 	@Override
 	public void execute(ServerPlayer sp, YoukaiEntity ch) {
-		GLMeta.CHAR.type().getOrCreate(sp).get(sp, ch).gain(reputation, max);
+		GLMeta.CHAR.type().getOrCreate(sp).get(sp, ch).gain(reputation, softCap, capIncrease, maxCap);
 	}
 
 }
