@@ -1,8 +1,8 @@
 package dev.xkmc.gensokyolegacy.content.block.functional.portal;
 
 import dev.xkmc.gensokyolegacy.content.dimension.GLDimensionGen;
-import dev.xkmc.gensokyolegacy.init.registrate.block.GLBlocks;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
+import dev.xkmc.gensokyolegacy.init.registrate.block.GLBlocks;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;

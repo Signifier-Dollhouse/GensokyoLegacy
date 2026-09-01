@@ -4,8 +4,8 @@ import dev.xkmc.gensokyolegacy.content.block.functional.alchemypot.recipe.Alchem
 import dev.xkmc.gensokyolegacy.content.ui.dialog.FirstDialogScreen;
 import dev.xkmc.gensokyolegacy.content.ui.dialog.SimpleDialogScreen;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
-import dev.xkmc.gensokyolegacy.init.registrate.block.GLBlocks;
 import dev.xkmc.gensokyolegacy.init.registrate.GLRecipes;
+import dev.xkmc.gensokyolegacy.init.registrate.block.GLBlocks;
 import dev.xkmc.l2serial.util.Wrappers;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;

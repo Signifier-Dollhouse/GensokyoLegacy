@@ -2,8 +2,8 @@ package dev.xkmc.gensokyolegacy.content.block.functional.portal;
 
 import dev.xkmc.gensokyolegacy.content.attachment.gap.GapMapping;
 import dev.xkmc.gensokyolegacy.content.attachment.gap.GapMappingData;
-import dev.xkmc.gensokyolegacy.init.registrate.block.GLBlocks;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
+import dev.xkmc.gensokyolegacy.init.registrate.block.GLBlocks;
 import dev.xkmc.l2modularblock.impl.BlockEntityBlockMethodImpl;
 import dev.xkmc.l2modularblock.impl.DoubleBlockImpl;
 import dev.xkmc.l2modularblock.mult.AnimateTickBlockMethod;
