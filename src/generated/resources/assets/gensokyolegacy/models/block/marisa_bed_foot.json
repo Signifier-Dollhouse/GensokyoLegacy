@@ -1,0 +1,6 @@
+{
+  "parent": "gensokyolegacy:custom/bed_high_foot",
+  "textures": {
+    "all": "gensokyolegacy:block/bed/marisa_bed"
+  }
+}

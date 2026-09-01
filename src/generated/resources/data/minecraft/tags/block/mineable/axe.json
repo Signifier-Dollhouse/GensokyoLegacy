@@ -68,6 +68,9 @@
     "gensokyolegacy:demonic_miasma_mushroom_block",
     "gensokyolegacy:birch_shelf",
     "gensokyolegacy:drawer_cabinet",
-    "gensokyolegacy:door_cabinet"
+    "gensokyolegacy:door_cabinet",
+    "gensokyolegacy:tea_table",
+    "gensokyolegacy:shelf_empty",
+    "gensokyolegacy:shelf_book"
   ]
 }

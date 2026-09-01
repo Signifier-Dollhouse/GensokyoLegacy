@@ -1,0 +1,31 @@
+{
+  "variants": {
+    "facing=east,origin=false": {
+      "model": "gensokyolegacy:block/tea_table_empty"
+    },
+    "facing=east,origin=true": {
+      "model": "gensokyolegacy:block/tea_table",
+      "y": 270
+    },
+    "facing=north,origin=false": {
+      "model": "gensokyolegacy:block/tea_table_empty"
+    },
+    "facing=north,origin=true": {
+      "model": "gensokyolegacy:block/tea_table",
+      "y": 180
+    },
+    "facing=south,origin=false": {
+      "model": "gensokyolegacy:block/tea_table_empty"
+    },
+    "facing=south,origin=true": {
+      "model": "gensokyolegacy:block/tea_table"
+    },
+    "facing=west,origin=false": {
+      "model": "gensokyolegacy:block/tea_table_empty"
+    },
+    "facing=west,origin=true": {
+      "model": "gensokyolegacy:block/tea_table",
+      "y": 90
+    }
+  }
+}

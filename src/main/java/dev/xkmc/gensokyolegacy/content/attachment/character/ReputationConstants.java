@@ -161,5 +161,6 @@ public final class ReputationConstants {
 	 */
 	public static final int GIFT_SOFT_CAP = 150;
 
-	private ReputationConstants() {}
+	private ReputationConstants() {
+	}
 }

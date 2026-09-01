@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "gensokyolegacy:block/shelf_book",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "gensokyolegacy:block/shelf_book"
+    },
+    "facing=south": {
+      "model": "gensokyolegacy:block/shelf_book",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "gensokyolegacy:block/shelf_book",
+      "y": 270
+    }
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "parent": "gensokyolegacy:custom/shelf_empty",
+  "textures": {
+    "0": "gensokyolegacy:block/shelf/shelf_empty",
+    "particle": "gensokyolegacy:block/shelf/shelf_empty"
+  }
+}

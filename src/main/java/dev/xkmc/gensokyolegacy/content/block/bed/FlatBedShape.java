@@ -3,7 +3,6 @@ package dev.xkmc.gensokyolegacy.content.block.bed;
 import com.tterrag.registrate.providers.DataGenContext;
 import com.tterrag.registrate.providers.RegistrateBlockstateProvider;
 import com.tterrag.registrate.providers.RegistrateItemModelProvider;
-import dev.xkmc.l2modularblock.one.ShapeBlockMethod;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.BedItem;
 import net.minecraft.world.item.Item;
@@ -15,7 +14,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
 import org.jetbrains.annotations.Nullable;
 
-public class FlatBedShape implements ShapeBlockMethod {
+public class FlatBedShape implements BedShape {
 
 	public static VoxelShape SHAPE = Block.box(0, 0, 0, 16, 2, 16);
 
@@ -24,13 +23,13 @@ public class FlatBedShape implements ShapeBlockMethod {
 		return SHAPE;
 	}
 
-	public static void buildStates(DataGenContext<Block, YoukaiBedBlock> ctx, RegistrateBlockstateProvider pvd) {
+	public void buildStates(DataGenContext<Block, YoukaiBedBlock> ctx, RegistrateBlockstateProvider pvd) {
 		pvd.horizontalBlock(ctx.get(), state -> pvd.models().getBuilder(ctx.getName() + "_" + state.getValue(YoukaiBedBlock.PART))
 				.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/bed_" + state.getValue(YoukaiBedBlock.PART))))
 				.texture("all", pvd.modLoc("block/bed/" + ctx.getName())), 0);
 	}
 
-	public static void buildItemModel(DataGenContext<Item, BedItem> ctx, RegistrateItemModelProvider pvd) {
+	public void buildItemModel(DataGenContext<Item, BedItem> ctx, RegistrateItemModelProvider pvd) {
 		pvd.getBuilder(ctx.getName())
 				.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/bed")))
 				.texture("all", pvd.modLoc("block/bed/" + ctx.getName()));

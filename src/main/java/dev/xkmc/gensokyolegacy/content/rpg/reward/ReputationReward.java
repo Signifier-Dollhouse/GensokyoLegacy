@@ -8,7 +8,9 @@ import dev.xkmc.gensokyolegacy.content.rpg.quest.QuestReward;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
 import net.minecraft.server.level.ServerPlayer;
 
-public record ReputationReward(int reputation, int softCap, int capIncrease, int maxCap) implements QuestReward<ReputationReward> {
+public record ReputationReward(
+		int reputation, int softCap, int capIncrease, int maxCap
+) implements QuestReward<ReputationReward> {
 
 	public static final MapCodec<ReputationReward> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 			Codec.INT.fieldOf("reputation").forGetter(ReputationReward::reputation),

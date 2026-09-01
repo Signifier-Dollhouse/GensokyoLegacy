@@ -1,11 +1,7 @@
 package dev.xkmc.gensokyolegacy.content.block.deco;
 
 import dev.xkmc.l2modularblock.core.BlockTemplates;
-import dev.xkmc.l2modularblock.mult.CreateBlockStateBlockMethod;
-import dev.xkmc.l2modularblock.mult.DefaultStateBlockMethod;
-import dev.xkmc.l2modularblock.mult.PlacementBlockMethod;
-import dev.xkmc.l2modularblock.mult.SetPlacedByBlockMethod;
-import dev.xkmc.l2modularblock.mult.ShapeUpdateBlockMethod;
+import dev.xkmc.l2modularblock.mult.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.LivingEntity;
@@ -49,8 +45,8 @@ public class TeaTableBlock implements CreateBlockStateBlockMethod, DefaultStateB
 		BlockPos leftBackPos = pos.relative(left).relative(facing);
 
 		if (!level.getBlockState(leftPos).canBeReplaced() ||
-			!level.getBlockState(backPos).canBeReplaced() ||
-			!level.getBlockState(leftBackPos).canBeReplaced()) {
+				!level.getBlockState(backPos).canBeReplaced() ||
+				!level.getBlockState(leftBackPos).canBeReplaced()) {
 			return null;
 		}
 
@@ -78,7 +74,7 @@ public class TeaTableBlock implements CreateBlockStateBlockMethod, DefaultStateB
 
 		Direction blockFacing = current.getValue(BlockTemplates.HORIZONTAL_FACING);
 		if (!isStructureValid(level, currentPos, self, blockFacing)) {
-            level.destroyBlock(currentPos, false);
+			level.destroyBlock(currentPos, false);
 			return Blocks.AIR.defaultBlockState();
 		}
 
@@ -89,17 +85,17 @@ public class TeaTableBlock implements CreateBlockStateBlockMethod, DefaultStateB
 		Direction left = facing.getClockWise();
 
 		return validateOrigin(level, pos, self, facing) ||
-			   validateOrigin(level, pos.relative(left), self, facing) ||
-			   validateOrigin(level, pos.relative(facing.getOpposite()), self, facing) ||
-			   validateOrigin(level, pos.relative(left).relative(facing.getOpposite()), self, facing);
+				validateOrigin(level, pos.relative(left), self, facing) ||
+				validateOrigin(level, pos.relative(facing.getOpposite()), self, facing) ||
+				validateOrigin(level, pos.relative(left).relative(facing.getOpposite()), self, facing);
 	}
 
 	private boolean validateOrigin(LevelAccessor level, BlockPos origin, Block self, Direction facing) {
 		Direction left = facing.getClockWise();
 
 		return level.getBlockState(origin).is(self) &&
-			   level.getBlockState(origin.relative(left)).is(self) &&
-			   level.getBlockState(origin.relative(facing)).is(self) &&
-			   level.getBlockState(origin.relative(left).relative(facing)).is(self);
+				level.getBlockState(origin.relative(left)).is(self) &&
+				level.getBlockState(origin.relative(facing)).is(self) &&
+				level.getBlockState(origin.relative(left).relative(facing)).is(self);
 	}
 }

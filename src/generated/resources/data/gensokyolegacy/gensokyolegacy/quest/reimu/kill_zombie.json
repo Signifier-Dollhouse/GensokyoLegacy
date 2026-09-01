@@ -57,10 +57,10 @@
     },
     {
       "type": "gensokyolegacy:reputation",
-      "cap_increase": 100,
-      "max_cap": 250,
+      "cap_increase": 10,
+      "max_cap": 200,
       "reputation": 50,
-      "soft_cap": 150
+      "soft_cap": 100
     },
     {
       "type": "gensokyolegacy:loot_table",
