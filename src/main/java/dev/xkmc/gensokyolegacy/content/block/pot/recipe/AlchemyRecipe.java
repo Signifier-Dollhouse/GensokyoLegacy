@@ -53,8 +53,27 @@ public abstract class AlchemyRecipe<T extends AlchemyRecipe<T>> extends BaseReci
 	@Override
 	public boolean matches(AlchemyInv inv, Level level) {
 		if (inv.fluid().isEmpty()) return false;
-		if (!inputFluid.test(inv.fluid())) return false;
-		return true;
+		return inputFluid.test(inv.fluid());
+	}
+
+	public boolean matchItems(AlchemyInv inv, Level level, List<Ingredient> input){
+		if (inv.size() > input.size()) return false;
+		List<Ingredient> remain = new ArrayList<>(input);
+		for (int i = 0; i < inv.size(); i++) {
+			ItemStack stack = inv.getItem(i);
+			var itr = remain.iterator();
+			boolean matched = false;
+			while (itr.hasNext()) {
+				var ing = itr.next();
+				if (ing.test(stack)) {
+					itr.remove();
+					matched = true;
+					break;
+				}
+			}
+			if (!matched) return false;
+		}
+		return !inv.isComplete() || remain.isEmpty();
 	}
 
 	@Override

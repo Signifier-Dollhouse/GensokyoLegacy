@@ -35,23 +35,7 @@ public class UnorderedAlchemyRecipe extends AlchemyRecipe<UnorderedAlchemyRecipe
 	@Override
 	public boolean matches(AlchemyInv inv, Level level) {
 		if (!super.matches(inv, level)) return false;
-		if (inv.size() > input.size()) return false;
-		List<Ingredient> remain = new ArrayList<>(input);
-		for (int i = 0; i < inv.size(); i++) {
-			ItemStack stack = inv.getItem(i);
-			var itr = remain.iterator();
-			boolean matched = false;
-			while (itr.hasNext()) {
-				var ing = itr.next();
-				if (ing.test(stack)) {
-					itr.remove();
-					matched = true;
-					break;
-				}
-			}
-			if (!matched) return false;
-		}
-		return !inv.isComplete() || remain.isEmpty();
+		return matchItems(inv, level, input);
 	}
 
 	@Override

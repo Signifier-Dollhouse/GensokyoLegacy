@@ -1,6 +1,8 @@
 package dev.xkmc.gensokyolegacy.content.block.pot.recipe;
 
+import com.mojang.datafixers.util.Pair;
 import dev.xkmc.gensokyolegacy.content.block.pot.AlchemyInv;
+import dev.xkmc.gensokyolegacy.content.block.pot.stage.PotionStageRecipe;
 import dev.xkmc.gensokyolegacy.init.registrate.GLRecipes;
 import dev.xkmc.l2serial.serialization.marker.SerialClass;
 import dev.xkmc.l2serial.serialization.marker.SerialField;
@@ -49,7 +51,7 @@ public class WitchMergeRecipe extends AlchemyRecipe<WitchMergeRecipe> {
 	public boolean matches(AlchemyInv inv, Level level) {
 		if (!super.matches(inv, level)) return false;
 		if (inv.fluid().getAmount() < 1000) return false;
-		if (inv.size() != potionCount + extra.size()) return false;
+		if (inv.size() > potionCount + extra.size()) return false;
 		int potions = 0;
 		List<Ingredient> remain = new ArrayList<>(extra);
 		for (var stack : inv.list()) {
@@ -69,9 +71,9 @@ public class WitchMergeRecipe extends AlchemyRecipe<WitchMergeRecipe> {
 				if (!matched) return false;
 			}
 		}
-		if (potions != potionCount) return false;
-		if (!remain.isEmpty()) return false;
-		return true;
+		if (!inv.isComplete())
+			return potions <= potionCount;
+		else return potions == potionCount && remain.isEmpty();
 	}
 
 	@Override
@@ -83,26 +85,23 @@ public class WitchMergeRecipe extends AlchemyRecipe<WitchMergeRecipe> {
 	public FluidStack getResultFluid(AlchemyInv inv, HolderLookup.Provider access) {
 		Fluid fluid = resultFluid.isEmpty() ? inv.fluid().getFluid() : resultFluid.getFluid();
 		FluidStack outFluid = new FluidStack(fluid, 250);
-		Map<Holder<MobEffect>, MobEffectInstance> map = new LinkedHashMap<>();
+		int color = PotionStageRecipe.calculateMixColor(inv);
+		Map<Pair<Holder<MobEffect>, Integer>, Integer> map = new LinkedHashMap<>();
 		for (ItemStack s : inv.list()) {
 			if (!potionIngredient.test(s)) continue;
 			PotionContents pc = s.get(DataComponents.POTION_CONTENTS);
 			if (pc == null) continue;
 			for (MobEffectInstance e : pc.getAllEffects()) {
 				var holder = e.getEffect();
-				MobEffectInstance existing = map.get(holder);
-				if (existing == null) {
-					map.put(holder, new MobEffectInstance(e));
-				} else {
-					int dur = existing.getDuration() + e.getDuration();
-					int amp = Math.max(existing.getAmplifier(), e.getAmplifier());
-					var n = new MobEffectInstance(holder, dur, amp, existing.isAmbient(), existing.isVisible(), existing.showIcon());
-					map.put(holder, n);
-				}
+				var key = Pair.of(holder, e.getAmplifier());
+				map.merge(key, e.getDuration(), Integer::sum);
 			}
 		}
-		List<MobEffectInstance> list = new ArrayList<>(map.values());
-		PotionContents out = new PotionContents(Optional.empty(), Optional.empty(), list);
+		List<MobEffectInstance> list = new ArrayList<>();
+		for (var ent : map.entrySet()) {
+			list.add(new MobEffectInstance(ent.getKey().getFirst(), ent.getValue(), ent.getKey().getSecond()));
+		}
+		PotionContents out = new PotionContents(Optional.empty(), Optional.of(color), list);
 		outFluid.set(DataComponents.POTION_CONTENTS, out);
 		return outFluid;
 	}

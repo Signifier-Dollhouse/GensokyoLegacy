@@ -36,6 +36,10 @@ public class PotionStageRecipe extends AlchemyStageRecipe<PotionStageRecipe> {
 
 	@Override
 	public int getColor(AlchemyInv inv, HolderLookup.Provider access) {
+		return calculateMixColor(inv);
+	}
+
+	public static int calculateMixColor(AlchemyInv inv) {
 		int rSum = 0, gSum = 0, bSum = 0, count = 0;
 		for (ItemStack stack : inv.list()) {
 			if (stack.isEmpty()) continue;
