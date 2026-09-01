@@ -25,14 +25,6 @@ public class CharacterData {
 			int room = Math.max(0, maxCap - reputationCap);
 			reputationCap += Math.min(capIncrease, room);
 		}
-		if (softCap < 0) {
-			// Negative soft cap: forgiveness ceiling. Reputation climbs toward zero but never
-			// rises above softCap, so it only recovers while the relationship is negative.
-			if (reputation < softCap) {
-				reputation = Math.min(reputation + val, softCap);
-			}
-			return;
-		}
 		if (reputation >= reputationCap) return;
 		if (softCap > 0 && reputation >= softCap) {
 			reputation = Math.min(reputation + val / 2, reputationCap);
@@ -40,6 +32,12 @@ public class CharacterData {
 			reputation = Math.min((val + softCap + reputation) / 2, reputationCap);
 		} else {
 			reputation = Math.min(reputation + val, reputationCap);
+		}
+	}
+
+	public void gainCapped(int val, int ceiling) {
+		if (reputation < ceiling) {
+			reputation = Math.min(reputation + val, ceiling);
 		}
 	}
 
@@ -75,10 +73,9 @@ public class CharacterData {
 	}
 
 	protected void onKilledByCharacter() {
-		gainReputation(
+		gainCapped(
 				ReputationConstants.KILLED_GAIN,
-				ReputationConstants.KILLED_SOFT_CAP,
-				0, 0
+				ReputationConstants.KILLED_GAIN_CEILING
 		);
 	}
 

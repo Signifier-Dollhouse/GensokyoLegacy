@@ -83,12 +83,12 @@ public final class ReputationConstants {
 	public static final int KILLED_GAIN = 100;
 
 	/**
-	 * Negative forgiveness ceiling for {@link #KILLED_GAIN}. The gain moves reputation toward
-	 * zero but can never push it above this negative value, so forgiveness only applies while
-	 * the relationship is hostile. Once reputation has recovered past {@code -50}, being
-	 * killed by this character's youkai no longer helps.
+	 * Hard ceiling applied to {@link #KILLED_GAIN}. The forgiveness gain can never push
+	 * reputation above this negative value, so it only recovers while the relationship is
+	 * hostile. Once reputation has recovered past {@code -50}, being killed by this
+	 * character's youkai no longer helps.
 	 */
-	public static final int KILLED_SOFT_CAP = -50;
+	public static final int KILLED_GAIN_CEILING = -50;
 
 	// --- Combat: youkai killed the player ---
 

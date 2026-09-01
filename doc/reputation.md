@@ -42,7 +42,7 @@ public final class ReputationConstants {
 
     // --- Combat: youkai killed by player ---
     public static final int KILLED_GAIN = 100;
-    public static final int KILLED_SOFT_CAP = -50;
+    public static final int KILLED_GAIN_CEILING = -50;
 
     // --- Combat: player killed by youkai ---
     public static final int DEATH_LOSS = 200;
@@ -87,22 +87,13 @@ Reputation can never exceed `reputationCap`. The default cap of 100 means the pl
 ```java
 // Positive reputation gain with absolute soft cap and optional cap increase.
 //   val          -- base reputation to add
-//   softCap      -- >= 0: absolute value above which gains are halved (0 = no soft cap)
-//                   < 0: forgiveness ceiling; reputation never rises above it (gain clamped)
+//   softCap      -- absolute reputation value above which gains are halved (0 = no soft cap)
 //   capIncrease  -- how much to increase reputationCap (0 = no cap increase)
 //   maxCap       -- absolute maximum reputationCap can reach (ignored if capIncrease <= 0)
 public void gainReputation(int val, int softCap, int capIncrease, int maxCap) {
     if (capIncrease > 0) {
         int room = Math.max(0, maxCap - reputationCap);
         reputationCap += Math.min(capIncrease, room);
-    }
-    if (softCap < 0) {
-        // Negative soft cap: forgiveness ceiling. Reputation climbs toward zero but never
-        // rises above softCap, so it only recovers while the relationship is negative.
-        if (reputation < softCap) {
-            reputation = Math.min(reputation + val, softCap);
-        }
-        return;
     }
     if (reputation >= reputationCap) return;
     if (softCap > 0 && reputation >= softCap) {
@@ -117,13 +108,22 @@ public void gainReputation(int val, int softCap, int capIncrease, int maxCap) {
     }
 }
 
+// Forgiveness gain with a hard ceiling and no cap increase.
+//   val       -- base reputation to add
+//   ceiling   -- absolute value reputation never rises above (clamped, no cap increase)
+public void gainCapped(int val, int ceiling) {
+    if (reputation < ceiling) {
+        reputation = Math.min(reputation + val, ceiling);
+    }
+}
+
 // Negative reputation (no cap change, no soft cap -- losses are always full).
 public void loseReputation(int val) {
     reputation = Math.max(reputation - val, ReputationConstants.MIN_REPUTATION);
 }
 ```
 
-**Negative soft cap (forgiveness):** When `softCap < 0`, gains act as forgiveness: reputation is raised toward zero but clamped at `softCap`. Example `gainReputation(100, -50, 0, 0)`: reputation -200 -> -100 (100 gained); reputation -20 -> unchanged (already above -50); reputation -40 -> -50 (clamped at ceiling).
+**Two gain methods, no sign overloading:** `gainReputation(val, softCap, capIncrease, maxCap)` handles normal progress (halving soft cap, optional quest cap increase, always bounded by `reputationCap`). `gainCapped(val, ceiling)` is the forgiveness path used when a youkai kills the player: reputation is raised toward zero but clamped at a hard ceiling (e.g. -50), never touching the cap.
 
 **Soft cap explained:** A non-negative soft cap is an absolute reputation value. Gains are halved when reputation is already at or above the soft cap. When crossing the soft cap in a single gain, the portion before the threshold is full and the portion after is halved.
 
@@ -154,8 +154,8 @@ protected void dailyUpdate() {
 ```java
 protected void onKilledByCharacter() {
     gainReputation(
-        ReputationConstants.KILLED_GAIN,
-        ReputationConstants.KILLED_SOFT_CAP,
+ReputationConstants.KILLED_GAIN,
+    ReputationConstants.KILLED_GAIN_CEILING,
         0, 0
     );
 }
@@ -184,7 +184,7 @@ protected void onHurtCharacter(Player player, YoukaiEntity e, float damage, Dama
 }
 ```
 
-`onKilledByCharacter` is forgiveness: a youkai killing the player gains reputation to offset part of the death penalty, but the gain is capped at `KILLED_SOFT_CAP` (-50) so it only helps while the relationship is hostile. No cap increase -- a death doesn't deepen the relationship.
+`onKilledByCharacter` is forgiveness: a youkai killing the player gains reputation to offset part of the death penalty, but the gain is capped at `KILLED_GAIN_CEILING` (-50) so it only helps while the relationship is hostile. No cap increase -- a death doesn't deepen the relationship.
 
 ## Quest Reward: `ReputationReward`
 
@@ -233,7 +233,7 @@ public static final MapCodec<ReputationReward> CODEC = RecordCodecBuilder.mapCod
 | `GiftModule.interact()` | `gain(favor, 300)` | `gain(favor, GIFT_SOFT_CAP, 0, 0)` |
 | `DonationBoxBlockEntity.take()` | `gain(value * count, 300)` | `gain(value * count, FEED_SOFT_CAP, 0, 0)` -- rep only, no cap increase |
 | `ReputationReward.execute()` | `gain(reputation, max)` | `gain(reputation, softCap, capIncrease, maxCap)` |
-| `CharacterData.onKilledByCharacter()` | `gainReputation(100, -50)` | `gainReputation(KILLED_GAIN, KILLED_SOFT_CAP, 0, 0)` |
+| `CharacterData.onKilledByCharacter()` | `gainReputation(100, -50)` | `gainCapped(KILLED_GAIN, KILLED_GAIN_CEILING)` |
 | `CharacterData.dailyUpdate()` | `loseReputation(1, 150)` / `gainReputation(1, -150)` | `loseReputation(DAILY_DECAY)` / `gainReputation(DAILY_DECAY, 0, 0, 0)` |
 | `DebugWand` reset | `new CharacterData()` | No change -- both fields initialized from constants |
 
