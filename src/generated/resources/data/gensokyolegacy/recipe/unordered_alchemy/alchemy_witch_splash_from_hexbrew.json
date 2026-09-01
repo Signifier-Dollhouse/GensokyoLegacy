@@ -1,0 +1,16 @@
+{
+  "type": "gensokyolegacy:unordered_alchemy",
+  "input": [
+    {
+      "item": "minecraft:gunpowder"
+    }
+  ],
+  "inputFluid": {
+    "fluid": "gensokyolegacy:witch_hexbrew"
+  },
+  "resultFluid": {
+    "amount": 1000,
+    "id": "gensokyolegacy:witch_splash"
+  },
+  "time": 200
+}

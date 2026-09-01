@@ -5,19 +5,19 @@
       "item": "gensokyolegacy:flame_cattail"
     },
     {
-      "item": "gensokyolegacy:star_flower"
+      "item": "minecraft:gunpowder"
     }
   ],
   "inputFluid": {
     "fluid": "gensokyolegacy:mundane_hexbrew"
   },
-  "potionCount": 2,
+  "potionCount": 1,
   "potionIngredient": {
-    "item": "minecraft:potion"
+    "item": "minecraft:splash_potion"
   },
   "resultFluid": {
     "amount": 250,
-    "id": "gensokyolegacy:witch_hexbrew"
+    "id": "gensokyolegacy:witch_splash"
   },
   "time": 200
 }

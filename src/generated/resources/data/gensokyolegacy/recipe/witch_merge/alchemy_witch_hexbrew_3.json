@@ -12,6 +12,9 @@
     "fluid": "gensokyolegacy:mundane_hexbrew"
   },
   "potionCount": 3,
+  "potionIngredient": {
+    "item": "minecraft:potion"
+  },
   "resultFluid": {
     "amount": 250,
     "id": "gensokyolegacy:witch_hexbrew"

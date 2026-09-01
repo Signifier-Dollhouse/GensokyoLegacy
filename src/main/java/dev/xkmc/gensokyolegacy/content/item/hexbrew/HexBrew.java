@@ -8,7 +8,6 @@ import dev.xkmc.gensokyolegacy.content.fluid.VirtualFluidBuilder;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.registrate.GLEffects;
 import dev.xkmc.gensokyolegacy.init.registrate.GLFluids;
-import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -18,6 +17,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
+import net.neoforged.neoforge.common.MutableDataComponentHolder;
 import net.neoforged.neoforge.fluids.FluidStack;
 import org.jetbrains.annotations.Nullable;
 
@@ -30,12 +30,12 @@ public enum HexBrew {
 	STARLIGHT_HEXBREW(0xFFFFF7AE, new StarlightHandler()),
 	HYPHAE_HEXBREW(0xFFD98E3A),
 	SHIELD_HEXBREW(0xFFFFF7AE, new SimplePotionHandler(false, GLEffects.STARLIGHT_SHIELD, 1200, 0)),
-	WITCH_HEXBREW(0xFF7A4BA1, new WitchHandler(false)),
-	WITCH_SPLASH(0xFF7A4BA1, new WitchHandler(true));
+	WITCH_HEXBREW(0xFFFFFFFF, new WitchHandler(false)),
+	WITCH_SPLASH(0xFFFFFFFF, new WitchHandler(true));
 
 	public final FluidEntry<GLHexFluid> fluid;
 	public final ItemEntry<HexBrewBottleItem> bottle;
-	private final HexBrewHandler handler;
+	public final HexBrewHandler handler;
 
 	HexBrew(int color) {
 		this(color, new NoOpHandler());
@@ -50,36 +50,18 @@ public enum HexBrew {
 						(p, s, f) -> new GLFluidType(p, s, f, color),
 						p -> new GLHexFluid(p, this)))
 				.defaultLang().register();
-		bottle = GensokyoLegacy.REGISTRATE.item(id + "_bottle",
+		var builder = GensokyoLegacy.REGISTRATE.item(id + "_bottle",
 						p -> new HexBrewBottleItem(this, fluid::getSource, handler.modify(p)))
-				.model((ctx, pvd) -> pvd.getBuilder(ctx.getName())
-						.parent(new ModelFile.UncheckedModelFile("item/generated"))
-						.texture("layer0", GensokyoLegacy.loc("item/hexbrew/" + id)))
-				.tab(GLItems.TAB.key()).defaultLang().register();
-	}
-
-	public boolean isThrowable() {
-		return handler.isThrowable();
-	}
-
-	public boolean isDrinkable() {
-		return handler.isDrinkable();
-	}
-
-	public void onHit(Level level, Vec3 pos, @Nullable Entity thrower, ItemStack stack) {
-		handler.onHit(level, pos, thrower, stack);
-	}
-
-	public void onDrink(LivingEntity user, ItemStack stack, Level level) {
-		handler.onDrink(user, stack, level);
-	}
-
-	public int getUseDuration(ItemStack stack) {
-		return handler.getUseDuration(stack);
-	}
-
-	public UseAnim getUseAnimation(ItemStack stack) {
-		return handler.getUseAnimation(stack);
+				.model((ctx, pvd) -> {
+					var b = pvd.getBuilder(ctx.getName())
+							.parent(new ModelFile.UncheckedModelFile("item/generated"))
+							.texture("layer0", GensokyoLegacy.loc("item/hexbrew/" + id));
+					if (handler.potionTexture()) {
+						b.texture("layer1", GensokyoLegacy.loc("item/hexbrew/potion_content"));
+					}
+				});
+		handler.build(builder);
+		bottle = builder.defaultLang().register();
 	}
 
 	public void copyToFluid(ItemStack from, FluidStack to) {
@@ -94,12 +76,7 @@ public enum HexBrew {
 		}
 	}
 
-	private static <T> void copyComponent(DataComponentType<T> type, ItemStack from, FluidStack to) {
-		T val = from.get(type);
-		if (val != null) to.set(type, val);
-	}
-
-	private static <T> void copyComponent(DataComponentType<T> type, FluidStack from, ItemStack to) {
+	public static <T> void copyComponent(DataComponentType<T> type, MutableDataComponentHolder from, MutableDataComponentHolder to) {
 		T val = from.get(type);
 		if (val != null) to.set(type, val);
 	}

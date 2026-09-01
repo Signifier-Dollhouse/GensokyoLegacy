@@ -6,6 +6,9 @@
     },
     {
       "item": "gensokyolegacy:star_flower"
+    },
+    {
+      "item": "minecraft:gunpowder"
     }
   ],
   "inputFluid": {
@@ -13,11 +16,11 @@
   },
   "potionCount": 2,
   "potionIngredient": {
-    "item": "minecraft:potion"
+    "item": "minecraft:splash_potion"
   },
   "resultFluid": {
     "amount": 250,
-    "id": "gensokyolegacy:witch_hexbrew"
+    "id": "gensokyolegacy:witch_splash"
   },
   "time": 200
 }

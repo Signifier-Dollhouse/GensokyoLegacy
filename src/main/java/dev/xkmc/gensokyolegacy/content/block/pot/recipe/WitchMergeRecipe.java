@@ -10,24 +10,22 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.Fluid;
 import net.neoforged.neoforge.fluids.FluidStack;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @SerialClass
 public class WitchMergeRecipe extends AlchemyRecipe<WitchMergeRecipe> {
 
 	@SerialField
 	public int potionCount = 0;
+
+	@SerialField
+	public Ingredient potionIngredient = Ingredient.EMPTY;
 
 	@SerialField
 	public final ArrayList<Ingredient> extra = new ArrayList<>();
@@ -41,7 +39,7 @@ public class WitchMergeRecipe extends AlchemyRecipe<WitchMergeRecipe> {
 	public List<Ingredient> getInputItems() {
 		List<Ingredient> list = new ArrayList<>();
 		for (int i = 0; i < potionCount; i++) {
-			list.add(Ingredient.of(Items.POTION));
+			list.add(potionIngredient);
 		}
 		list.addAll(extra);
 		return list;
@@ -55,7 +53,7 @@ public class WitchMergeRecipe extends AlchemyRecipe<WitchMergeRecipe> {
 		int potions = 0;
 		List<Ingredient> remain = new ArrayList<>(extra);
 		for (var stack : inv.list()) {
-			if (stack.is(Items.POTION)) {
+			if (potionIngredient.test(stack)) {
 				potions++;
 			} else {
 				boolean matched = false;
@@ -87,7 +85,7 @@ public class WitchMergeRecipe extends AlchemyRecipe<WitchMergeRecipe> {
 		FluidStack outFluid = new FluidStack(fluid, 250);
 		Map<Holder<MobEffect>, MobEffectInstance> map = new LinkedHashMap<>();
 		for (ItemStack s : inv.list()) {
-			if (!s.is(Items.POTION)) continue;
+			if (!potionIngredient.test(s)) continue;
 			PotionContents pc = s.get(DataComponents.POTION_CONTENTS);
 			if (pc == null) continue;
 			for (MobEffectInstance e : pc.getAllEffects()) {

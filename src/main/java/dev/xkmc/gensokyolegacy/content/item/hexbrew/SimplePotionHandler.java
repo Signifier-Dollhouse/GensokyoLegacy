@@ -5,16 +5,22 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.alchemy.Potion;
 import net.minecraft.world.item.alchemy.PotionContents;
+import net.neoforged.neoforge.common.util.Lazy;
 
 import java.util.List;
 import java.util.Optional;
 
-public record SimplePotionHandler(boolean throwable, PotionContents potion) implements AbstractPotionHandler {
+public record SimplePotionHandler(boolean throwable, Lazy<PotionContents> potion) implements AbstractPotionHandler {
+
+	public SimplePotionHandler(boolean throwable, Holder<Potion> potion) {
+		this(throwable, Lazy.of(() -> new PotionContents(potion)));
+	}
 
 	public SimplePotionHandler(boolean throwable, Holder<MobEffect> eff, int dur, int amp) {
-		this(throwable, new PotionContents(Optional.empty(), Optional.empty(),
-				List.of(new MobEffectInstance(eff, dur, amp))));
+		this(throwable, Lazy.of(() -> new PotionContents(Optional.empty(), Optional.empty(),
+				List.of(new MobEffectInstance(eff, dur, amp)))));
 	}
 
 	@Override
@@ -29,7 +35,7 @@ public record SimplePotionHandler(boolean throwable, PotionContents potion) impl
 
 	@Override
 	public Item.Properties modify(Item.Properties p) {
-		return AbstractPotionHandler.super.modify(p).component(DataComponents.POTION_CONTENTS, potion());
+		return AbstractPotionHandler.super.modify(p).component(DataComponents.POTION_CONTENTS, potion().get());
 	}
 
 }

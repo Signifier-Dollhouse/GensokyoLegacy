@@ -52,11 +52,11 @@ public class HexBrewBottleItem extends Item implements ProjectileItem {
 	@Override
 	public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
 		ItemStack stack = player.getItemInHand(hand);
-		if (hexBrew.isDrinkable()) {
+		if (hexBrew.handler.isDrinkable()) {
 			player.startUsingItem(hand);
 			return InteractionResultHolder.consume(stack);
 		}
-		if (!hexBrew.isThrowable()) {
+		if (!hexBrew.handler.isThrowable()) {
 			return InteractionResultHolder.fail(stack);
 		}
 		level.playSound(null, player.getX(), player.getY(), player.getZ(),
@@ -76,29 +76,29 @@ public class HexBrewBottleItem extends Item implements ProjectileItem {
 
 	@Override
 	public int getUseDuration(ItemStack stack, LivingEntity entity) {
-		if (hexBrew.isDrinkable()) {
-			return hexBrew.getUseDuration(stack);
+		if (hexBrew.handler.isDrinkable()) {
+			return hexBrew.handler.getUseDuration(stack);
 		}
 		return super.getUseDuration(stack, entity);
 	}
 
 	@Override
 	public UseAnim getUseAnimation(ItemStack stack) {
-		if (hexBrew.isDrinkable()) {
-			return hexBrew.getUseAnimation(stack);
+		if (hexBrew.handler.isDrinkable()) {
+			return hexBrew.handler.getUseAnimation(stack);
 		}
 		return super.getUseAnimation(stack);
 	}
 
 	@Override
 	public ItemStack finishUsingItem(ItemStack stack, Level level, LivingEntity livingEntity) {
-		if (!hexBrew.isDrinkable()) {
+		if (!hexBrew.handler.isDrinkable()) {
 			return super.finishUsingItem(stack, level, livingEntity);
 		}
 		if (livingEntity instanceof Player player) {
 			player.awardStat(Stats.ITEM_USED.get(this));
 		}
-		hexBrew.onDrink(livingEntity, stack, level);
+		hexBrew.handler.onDrink(livingEntity, stack, level);
 		if (livingEntity instanceof Player player && player.getAbilities().instabuild) {
 			return stack;
 		}
@@ -118,7 +118,7 @@ public class HexBrewBottleItem extends Item implements ProjectileItem {
 	@Override
 	public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> list, TooltipFlag flag) {
 		super.appendHoverText(stack, context, list, flag);
-		if (hexBrew.isDrinkable()) {
+		if (hexBrew.handler.isDrinkable()) {
 			PotionContents contents = stack.get(DataComponents.POTION_CONTENTS);
 			if (contents != null && !contents.getAllEffects().iterator().hasNext()) {
 				contents = null;
