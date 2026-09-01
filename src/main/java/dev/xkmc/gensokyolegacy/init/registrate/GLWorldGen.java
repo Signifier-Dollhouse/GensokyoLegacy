@@ -22,26 +22,26 @@ import java.util.Map;
 
 public class GLWorldGen {
 
-    private static final SR<StructureProcessorType<?>> PROCESSORS = SR.of(GensokyoLegacy.REG, Registries.STRUCTURE_PROCESSOR);
-    public static final Val<StructureProcessorType<SetDataProcessor>> SET_DATA = PROCESSORS.reg("set_data", () -> () -> SetDataProcessor.CODEC);
+	private static final SR<StructureProcessorType<?>> PROCESSORS = SR.of(GensokyoLegacy.REG, Registries.STRUCTURE_PROCESSOR);
+	public static final Val<StructureProcessorType<SetDataProcessor>> SET_DATA = PROCESSORS.reg("set_data", () -> () -> SetDataProcessor.CODEC);
 
-    private static final CdcReg<ChunkGenerator> CG = CdcReg.of(GensokyoLegacy.REG, BuiltInRegistries.CHUNK_GENERATOR);
-    public static final CdcVal<EmptyChunkGenerator> CG_GAP = CG.reg("gap", EmptyChunkGenerator.CODEC);
+	private static final CdcReg<ChunkGenerator> CG = CdcReg.of(GensokyoLegacy.REG, BuiltInRegistries.CHUNK_GENERATOR);
+	public static final CdcVal<EmptyChunkGenerator> CG_GAP = CG.reg("gap", EmptyChunkGenerator.CODEC);
 
 
-    private static final SR<Feature<?>> FR = SR.of(GensokyoLegacy.REG, BuiltInRegistries.FEATURE);
-    public static final Map<MushroomFeatures.MushroomTreeType, Val<AbstractHugeMushroomFeature>> MUSHROOM_TREES;
+	private static final SR<Feature<?>> FR = SR.of(GensokyoLegacy.REG, BuiltInRegistries.FEATURE);
+	public static final Map<MushroomFeatures.MushroomTreeType, Val<AbstractHugeMushroomFeature>> MUSHROOM_TREES;
 
-    static {
-        EnumMap<MushroomFeatures.MushroomTreeType, Val<AbstractHugeMushroomFeature>> map = new EnumMap<>(MushroomFeatures.MushroomTreeType.class);
-        for (var type : MushroomFeatures.MushroomTreeType.values()) {
-            map.put(type, FR.reg(type.id, () -> type.factory.apply(HugeMushroomFeatureConfiguration.CODEC)));
-        }
-        MUSHROOM_TREES = Collections.unmodifiableMap(map);
-    }
+	static {
+		EnumMap<MushroomFeatures.MushroomTreeType, Val<AbstractHugeMushroomFeature>> map = new EnumMap<>(MushroomFeatures.MushroomTreeType.class);
+		for (var type : MushroomFeatures.MushroomTreeType.values()) {
+			map.put(type, FR.reg(type.id, () -> type.factory.apply(HugeMushroomFeatureConfiguration.CODEC)));
+		}
+		MUSHROOM_TREES = Collections.unmodifiableMap(map);
+	}
 
-    public static void register() {
+	public static void register() {
 
-    }
+	}
 
 }

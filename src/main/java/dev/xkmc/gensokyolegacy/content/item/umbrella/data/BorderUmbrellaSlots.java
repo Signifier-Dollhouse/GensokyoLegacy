@@ -17,7 +17,8 @@ public record BorderUmbrellaSlots(BorderSlot[] slots) {
 	public BorderUmbrellaSlots(BorderSlot[] slots) {
 		if (slots.length != MAX_SLOTS) {
 			var arr = new BorderSlot[MAX_SLOTS];
-			for (int i = 0; i < MAX_SLOTS; i++) arr[i] = i < slots.length && slots[i] != null ? slots[i] : BorderSlot.empty();
+			for (int i = 0; i < MAX_SLOTS; i++)
+				arr[i] = i < slots.length && slots[i] != null ? slots[i] : BorderSlot.empty();
 			this.slots = arr;
 		} else {
 			this.slots = slots;

@@ -73,19 +73,19 @@ public class CabinetBlockEntity extends BaseContainerBlockEntity implements Tick
 	@Override
 	public void startOpen(Player player) {
 		if (!remove && !player.isSpectator()) {
-            if (getLevel() != null) {
-                openersCounter.incrementOpeners(player, getLevel(), getBlockPos(), getBlockState());
-            }
-        }
+			if (getLevel() != null) {
+				openersCounter.incrementOpeners(player, getLevel(), getBlockPos(), getBlockState());
+			}
+		}
 	}
 
 	@Override
 	public void stopOpen(Player player) {
 		if (!remove && !player.isSpectator()) {
-            if (getLevel() != null) {
-                openersCounter.decrementOpeners(player, getLevel(), getBlockPos(), getBlockState());
-            }
-        }
+			if (getLevel() != null) {
+				openersCounter.decrementOpeners(player, getLevel(), getBlockPos(), getBlockState());
+			}
+		}
 	}
 
 	@Override

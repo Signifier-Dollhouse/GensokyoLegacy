@@ -10,7 +10,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 
 import java.util.LinkedHashMap;
-import java.util.Map;
 
 @SerialClass
 public class IndexStorage extends BaseSavedData<IndexStorage> {

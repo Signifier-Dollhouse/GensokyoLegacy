@@ -39,15 +39,8 @@ public class InventoryMapper {
 
 	}
 
-	private static class Source {
+	private record Source(ItemStack stack, boolean[] map) {
 
-		private final ItemStack stack;
-		private final boolean[] map;
-
-		public Source(ItemStack input, boolean[] map) {
-			this.stack = input;
-			this.map = map;
-		}
 	}
 
 	private final ItemStack[] inputs;

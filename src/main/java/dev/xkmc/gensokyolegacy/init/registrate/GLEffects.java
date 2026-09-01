@@ -1,11 +1,7 @@
 package dev.xkmc.gensokyolegacy.init.registrate;
 
 import com.tterrag.registrate.util.nullness.NonNullSupplier;
-import dev.xkmc.gensokyolegacy.content.effect.EmptyEffect;
-import dev.xkmc.gensokyolegacy.content.effect.MiasmaEffect;
-import dev.xkmc.gensokyolegacy.content.effect.NativeGodBlessEffect;
-import dev.xkmc.gensokyolegacy.content.effect.SparklingEffect;
-import dev.xkmc.gensokyolegacy.content.effect.StarlightShieldEffect;
+import dev.xkmc.gensokyolegacy.content.effect.*;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.l2core.init.reg.registrate.LegacyHolder;
 import dev.xkmc.l2core.init.reg.registrate.SimpleEntry;

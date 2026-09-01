@@ -27,7 +27,7 @@ public class FlatBedShape implements ShapeBlockMethod {
 	public static void buildStates(DataGenContext<Block, YoukaiBedBlock> ctx, RegistrateBlockstateProvider pvd) {
 		pvd.horizontalBlock(ctx.get(), state -> pvd.models().getBuilder(ctx.getName() + "_" + state.getValue(YoukaiBedBlock.PART))
 				.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/bed_" + state.getValue(YoukaiBedBlock.PART))))
-				.texture("all", pvd.modLoc("block/bed/" + ctx.getName())),0);
+				.texture("all", pvd.modLoc("block/bed/" + ctx.getName())), 0);
 	}
 
 	public static void buildItemModel(DataGenContext<Item, BedItem> ctx, RegistrateItemModelProvider pvd) {

@@ -68,8 +68,7 @@ public class TravelModeUtil {
 		BlockState above = level.getBlockState(pos.above());
 		if (below.isAir() || !below.isSolidRender(level, pos.below())) return false;
 		if (!cur.isAir() || !above.isAir()) return false;
-		if (!cur.getFluidState().isEmpty() || !above.getFluidState().isEmpty()) return false;
-		return true;
+		return cur.getFluidState().isEmpty() && above.getFluidState().isEmpty();
 	}
 
 	public static void teleportPlayer(ServerPlayer sp, ServerLevel targetLevel, Vec3 dst) {

@@ -162,7 +162,7 @@ public class GapPortalBlockEntity extends BaseBlockEntity implements IPortalBloc
 		PortalSide curSide = getSide();
 		BlockPos expectedPos = prev.posAt(curSide);
 		ResourceLocation expectedDim = prev.dimAt(curSide);
-		boolean matches = expectedPos != null && expectedDim != null && here.equals(expectedPos) && hereDim.equals(expectedDim);
+		boolean matches = expectedDim != null && here.equals(expectedPos) && hereDim.equals(expectedDim);
 		if (!matches) {
 			sl.destroyBlock(here, false);
 			if (sl.getBlockState(here.above()).getBlock() == GLBlocks.GAP_PORTAL.get()) {

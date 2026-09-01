@@ -30,8 +30,7 @@ public class Dowser extends Item {
 	public static boolean isValid(@Nullable BlockEntity be) {
 		if (!(be instanceof RandomizableContainerBlockEntity e)) return false;
 		var lv = be.getLevel();
-		if (lv instanceof ServerLevel && e.getLootTable() == null) return false;
-		return true;
+		return !(lv instanceof ServerLevel) || e.getLootTable() != null;
 	}
 
 	public static LinkedHashSet<BlockPos> search(ServerLevel level, BlockPos pos, int r) {

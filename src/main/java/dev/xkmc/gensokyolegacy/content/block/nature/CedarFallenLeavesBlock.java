@@ -31,24 +31,24 @@ public class CedarFallenLeavesBlock extends Block {
 		builder.add(LAYERS);
 	}
 
-    @Override
-    public @Nullable BlockState getStateForPlacement(BlockPlaceContext context) {
-        return this.defaultBlockState().setValue(LAYERS,2);
-    }
+	@Override
+	public @Nullable BlockState getStateForPlacement(BlockPlaceContext context) {
+		return this.defaultBlockState().setValue(LAYERS, 2);
+	}
 
-    @Override
+	@Override
 	public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext ctx) {
 		return Block.box(0, 0, 0, 16, 1, 16);
 	}
 
-    @Override
-    protected ItemInteractionResult useItemOn(ItemStack itemStack, BlockState blockState, Level level, BlockPos pos, Player player, InteractionHand interactionHand, BlockHitResult result) {
-        if (level.isClientSide) return ItemInteractionResult.CONSUME;
-        if(itemStack.getItem().equals(blockState.getBlock().asItem()) && blockState.getValue(LAYERS) == 2) {
-            level.setBlockAndUpdate(pos, blockState.setValue(LAYERS, 1));
-            if (!player.isCreative()) itemStack.shrink(1);
-            return ItemInteractionResult.SUCCESS;
-        }
-        return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
-    }
+	@Override
+	protected ItemInteractionResult useItemOn(ItemStack itemStack, BlockState blockState, Level level, BlockPos pos, Player player, InteractionHand interactionHand, BlockHitResult result) {
+		if (level.isClientSide) return ItemInteractionResult.CONSUME;
+		if (itemStack.getItem().equals(blockState.getBlock().asItem()) && blockState.getValue(LAYERS) == 2) {
+			level.setBlockAndUpdate(pos, blockState.setValue(LAYERS, 1));
+			if (!player.isCreative()) itemStack.shrink(1);
+			return ItemInteractionResult.SUCCESS;
+		}
+		return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+	}
 }

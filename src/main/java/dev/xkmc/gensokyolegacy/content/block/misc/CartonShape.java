@@ -13,12 +13,12 @@ import static net.minecraft.world.level.block.HorizontalDirectionalBlock.FACING;
 
 public class CartonShape implements ShapeBlockMethod {
 
-    public static final VoxelShape SHAPE_NS = Block.box(3, 0, 2, 13, 8, 14);
-    public static final VoxelShape SHAPE_WE = Block.box(2, 0, 3, 14, 8, 13);
+	public static final VoxelShape SHAPE_NS = Block.box(3, 0, 2, 13, 8, 14);
+	public static final VoxelShape SHAPE_WE = Block.box(2, 0, 3, 14, 8, 13);
 
 	@Override
 	public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext ctx) {
-        return state.getValue(FACING) == Direction.NORTH || state.getValue(FACING) == Direction.SOUTH ? SHAPE_NS : SHAPE_WE;
-    }
+		return state.getValue(FACING) == Direction.NORTH || state.getValue(FACING) == Direction.SOUTH ? SHAPE_NS : SHAPE_WE;
+	}
 
 }

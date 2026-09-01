@@ -35,8 +35,7 @@ public abstract class AlchemyStageRecipe<T extends AlchemyStageRecipe<T>> extend
 	@Override
 	public boolean matches(AlchemyInv inv, Level level) {
 		if (inv.fluid().isEmpty()) return false;
-		if (!inputFluid.isEmpty() && !inputFluid.test(inv.fluid())) return false;
-		return true;
+		return inputFluid.isEmpty() || inputFluid.test(inv.fluid());
 	}
 
 	@Override

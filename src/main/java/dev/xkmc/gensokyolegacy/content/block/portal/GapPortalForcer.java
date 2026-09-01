@@ -21,9 +21,12 @@ import java.util.UUID;
 
 public class GapPortalForcer {
 
-	private GapPortalForcer() {}
+	private GapPortalForcer() {
+	}
 
-	/** Complete a pending mapping by generating the missing side. Same logic for ENTRY and EXIT. */
+	/**
+	 * Complete a pending mapping by generating the missing side. Same logic for ENTRY and EXIT.
+	 */
 	public static GapMapping completePending(GapMapping pending, PortalSide missingSide, ServerLevel sourceLevel) {
 		PortalSide sourceSide = missingSide == PortalSide.EXIT ? PortalSide.ENTRY : PortalSide.EXIT;
 		BlockPos sourcePos = pending.posAt(sourceSide);
@@ -57,7 +60,9 @@ public class GapPortalForcer {
 		return (int) (ratio * (tMax - tMin)) + tMin;
 	}
 
-	/** Place a portal at pos with 3x2x3 free space and 3x3 obsidian ground. Does not replace obstructing blocks. */
+	/**
+	 * Place a portal at pos with 3x2x3 free space and 3x3 obsidian ground. Does not replace obstructing blocks.
+	 */
 	public static void placePortal(ServerLevelAccessor level, BlockPos pos, UUID id, PortalSide side) {
 		if (level.getBlockEntity(pos) instanceof GapPortalBlockEntity) return;
 		if (!canPlaceAt(level, pos)) return;
@@ -128,26 +133,22 @@ public class GapPortalForcer {
 
 	private static boolean canReplaceForGround(BlockState state, ServerLevelAccessor level, BlockPos pos) {
 		if (state.isAir()) return true;
-		if (isObstructing(state, level, pos)) return false;
-		return true;
+		return !isObstructing(state, level, pos);
 	}
 
 	private static boolean canReplaceForClear(BlockState state, ServerLevelAccessor level, BlockPos pos) {
 		if (state.isAir()) return false; // already air, no need
-		if (isObstructing(state, level, pos)) return false;
-		return true;
+		return !isObstructing(state, level, pos);
 	}
 
 	private static boolean canReplaceForPortal(BlockState state, ServerLevelAccessor level, BlockPos pos) {
 		if (state.isAir()) return true;
-		if (isObstructing(state, level, pos)) return false;
-		return true;
+		return !isObstructing(state, level, pos);
 	}
 
 	private static boolean isObstructing(BlockState state, ServerLevelAccessor level, BlockPos pos) {
 		if (state.getDestroySpeed(level, pos) < 0) return true;
-		if (level.getBlockEntity(pos) != null) return true;
-		return false;
+		return level.getBlockEntity(pos) != null;
 	}
 
 	private static boolean isFullCube(BlockState state, ServerLevelAccessor level, BlockPos pos) {

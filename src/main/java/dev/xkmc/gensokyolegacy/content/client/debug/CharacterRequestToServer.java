@@ -2,8 +2,6 @@ package dev.xkmc.gensokyolegacy.content.client.debug;
 
 import dev.xkmc.gensokyolegacy.content.attachment.index.BedRefData;
 import dev.xkmc.gensokyolegacy.content.attachment.index.StructureKey;
-import dev.xkmc.gensokyolegacy.content.attachment.index.BedRefData;
-import dev.xkmc.gensokyolegacy.content.attachment.index.StructureKey;
 import dev.xkmc.gensokyolegacy.content.entity.module.FeedModule;
 import dev.xkmc.gensokyolegacy.content.entity.module.GiftModule;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.SmartYoukaiEntity;

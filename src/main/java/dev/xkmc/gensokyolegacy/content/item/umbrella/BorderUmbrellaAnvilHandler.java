@@ -1,11 +1,11 @@
 package dev.xkmc.gensokyolegacy.content.item.umbrella;
 
+import dev.xkmc.gensokyolegacy.content.item.umbrella.data.BorderUmbrellaUnlock;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.event.AnvilUpdateEvent;
-import dev.xkmc.gensokyolegacy.content.item.umbrella.data.BorderUmbrellaUnlock;
 
 public class BorderUmbrellaAnvilHandler {
 

@@ -1,13 +1,12 @@
 package dev.xkmc.gensokyolegacy.content.attachment.area;
 
+import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.l2serial.network.SerialPacketBase;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
-
-import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 
 public record AreaEffectSyncPacket(
 		Action action,

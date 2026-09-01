@@ -23,7 +23,7 @@ public class YoukaiSitTask<E extends SmartYoukaiEntity> extends AbstractHomeHold
 				MemoryModuleType.HOME, MemoryStatus.VALUE_PRESENT,
 				MemoryModuleType.ATTACK_TARGET, MemoryStatus.VALUE_ABSENT,
 				MemoryModuleType.LOOK_TARGET, MemoryStatus.REGISTERED
-		),minDur, maxDur);
+		), minDur, maxDur);
 	}
 
 	@Override

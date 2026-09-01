@@ -98,7 +98,7 @@ public class VerticalSlabBlock extends HorizontalLoggedBlock {
 	}
 
 	public static void buildBlockState(DataGenContext<Block, ? extends VerticalSlabBlock> ctx, RegistrateBlockstateProvider pvd,
-									   ResourceLocation top, ResourceLocation side) {
+	                                   ResourceLocation top, ResourceLocation side) {
 		var model = buildModel(ctx, pvd).texture("top", top).texture("side", side);
 		pvd.getVariantBuilder(ctx.get()).forAllStates((state) -> ConfiguredModel.builder().modelFile(model).uvLock(true)
 				.rotationY(((int) (state.getValue(BlockStateProperties.HORIZONTAL_FACING)).toYRot() + 180) % 360).build());

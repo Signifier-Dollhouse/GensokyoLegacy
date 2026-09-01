@@ -16,15 +16,9 @@ import net.minecraft.world.level.block.state.properties.DoorHingeSide;
 import net.minecraft.world.level.block.state.properties.Half;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
-import net.neoforged.neoforge.client.model.generators.BlockModelBuilder;
-import net.neoforged.neoforge.client.model.generators.ConfiguredModel;
-import net.neoforged.neoforge.client.model.generators.ItemModelBuilder;
-import net.neoforged.neoforge.client.model.generators.ModelBuilder;
-import net.neoforged.neoforge.client.model.generators.ModelFile;
+import net.neoforged.neoforge.client.model.generators.*;
 
-import static dev.xkmc.gensokyolegacy.content.block.door.SlidingDoor.HINGE;
-import static dev.xkmc.gensokyolegacy.content.block.door.SlidingDoor.MAX;
-import static dev.xkmc.gensokyolegacy.content.block.door.SlidingDoor.STACK;
+import static dev.xkmc.gensokyolegacy.content.block.door.SlidingDoor.*;
 import static net.minecraft.world.level.block.state.properties.BlockStateProperties.HALF;
 import static net.minecraft.world.level.block.state.properties.BlockStateProperties.HORIZONTAL_FACING;
 

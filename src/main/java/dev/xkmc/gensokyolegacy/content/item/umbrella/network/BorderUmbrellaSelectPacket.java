@@ -1,12 +1,12 @@
 package dev.xkmc.gensokyolegacy.content.item.umbrella.network;
 
+import dev.xkmc.gensokyolegacy.content.item.umbrella.BorderUmbrellaSelectionListener;
+import dev.xkmc.gensokyolegacy.content.item.umbrella.data.BorderUmbrellaSlots;
+import dev.xkmc.gensokyolegacy.content.item.umbrella.wheel.BorderUmbrellaDistanceEntry;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.l2serial.network.SerialPacketBase;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import dev.xkmc.gensokyolegacy.content.item.umbrella.BorderUmbrellaSelectionListener;
-import dev.xkmc.gensokyolegacy.content.item.umbrella.wheel.BorderUmbrellaDistanceEntry;
-import dev.xkmc.gensokyolegacy.content.item.umbrella.data.BorderUmbrellaSlots;
 
 public record BorderUmbrellaSelectPacket(int wheel, int index) implements SerialPacketBase<BorderUmbrellaSelectPacket> {
 

@@ -4,7 +4,6 @@ import dev.xkmc.danmakuapi.content.spell.item.ItemSpell;
 import dev.xkmc.gensokyolegacy.content.spell.part.MystiaPart;
 import dev.xkmc.l2serial.serialization.marker.SerialClass;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
 
 @SerialClass

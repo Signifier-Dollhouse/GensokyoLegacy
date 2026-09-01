@@ -1,5 +1,10 @@
 package dev.xkmc.gensokyolegacy.content.item.umbrella.wheel;
 
+import dev.xkmc.gensokyolegacy.content.item.umbrella.BorderUmbrellaItem;
+import dev.xkmc.gensokyolegacy.content.item.umbrella.BorderUmbrellaSelectionListener;
+import dev.xkmc.gensokyolegacy.content.item.umbrella.data.BorderSlot;
+import dev.xkmc.gensokyolegacy.content.item.umbrella.data.BorderUmbrellaSlots;
+import dev.xkmc.gensokyolegacy.content.item.umbrella.network.BorderUmbrellaSelectPacket;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
@@ -15,11 +20,6 @@ import net.minecraft.world.item.Items;
 
 import java.util.ArrayList;
 import java.util.List;
-import dev.xkmc.gensokyolegacy.content.item.umbrella.BorderUmbrellaItem;
-import dev.xkmc.gensokyolegacy.content.item.umbrella.BorderUmbrellaSelectionListener;
-import dev.xkmc.gensokyolegacy.content.item.umbrella.data.BorderSlot;
-import dev.xkmc.gensokyolegacy.content.item.umbrella.data.BorderUmbrellaSlots;
-import dev.xkmc.gensokyolegacy.content.item.umbrella.network.BorderUmbrellaSelectPacket;
 
 public class BorderUmbrellaSlotWheel implements WheelAdaptor<BorderSlotEntry> {
 
@@ -71,7 +71,7 @@ public class BorderUmbrellaSlotWheel implements WheelAdaptor<BorderSlotEntry> {
 			g.pose().translate(cx, y0, 0);
 			g.pose().scale(s, s, s);
 			var slot = BorderUmbrellaItem.getSelectedSlotData(stack);
-			ItemStack icon = slot.isEmptySlot() ?  new ItemStack(Items.COMPASS) : slot.displayIcon();
+			ItemStack icon = slot.isEmptySlot() ? new ItemStack(Items.COMPASS) : slot.displayIcon();
 			if (icon.isEmpty()) icon = new ItemStack(Items.COMPASS);
 			g.renderItem(icon, -8, -8);
 			g.pose().popPose();

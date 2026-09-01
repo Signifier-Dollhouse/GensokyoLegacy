@@ -1,35 +1,20 @@
 package dev.xkmc.gensokyolegacy.init.registrate;
 
 import com.tterrag.registrate.providers.DataGenContext;
-import com.tterrag.registrate.providers.RegistrateBlockstateProvider;
-import com.tterrag.registrate.providers.RegistrateItemModelProvider;
 import com.tterrag.registrate.providers.RegistrateRecipeProvider;
-import com.tterrag.registrate.providers.loot.RegistrateBlockLootTables;
 import com.tterrag.registrate.util.DataIngredient;
 import com.tterrag.registrate.util.entry.BlockEntry;
 import com.tterrag.registrate.util.nullness.NonNullBiConsumer;
-import com.tterrag.registrate.util.nullness.NonNullFunction;
 import dev.xkmc.gensokyolegacy.content.block.deco.*;
-import dev.xkmc.gensokyolegacy.content.block.deco.IBlockSet;
-import dev.xkmc.gensokyolegacy.content.block.deco.LargeTableBlock;
-import dev.xkmc.gensokyolegacy.content.block.deco.TableClothImpl;
-import dev.xkmc.gensokyolegacy.content.block.deco.VerticalSlabBlock;
-import dev.xkmc.gensokyolegacy.content.block.misc.BookPile;
-import dev.xkmc.gensokyolegacy.content.block.misc.BookStack;
-import dev.xkmc.gensokyolegacy.content.block.nature.CedarFallenLeavesBlock;
-import dev.xkmc.gensokyolegacy.content.block.nature.EvergreenVineBodyBlock;
-import dev.xkmc.gensokyolegacy.content.block.nature.EvergreenVineHeadBlock;
-import dev.xkmc.gensokyolegacy.content.block.nature.WaterloggedCrossBlock;
-import dev.xkmc.gensokyolegacy.content.block.deco.WoodTableBlock;
 import dev.xkmc.gensokyolegacy.content.block.door.SlidingDoor;
 import dev.xkmc.gensokyolegacy.content.block.door.SlidingDoorJsons;
+import dev.xkmc.gensokyolegacy.content.block.misc.BookPile;
+import dev.xkmc.gensokyolegacy.content.block.misc.BookStack;
 import dev.xkmc.gensokyolegacy.content.block.misc.TatamiBlock;
 import dev.xkmc.gensokyolegacy.content.block.seat.CushionBlock;
 import dev.xkmc.gensokyolegacy.content.block.seat.WoodChairBlock;
 import dev.xkmc.gensokyolegacy.content.item.gift.GiftItemData;
 import dev.xkmc.gensokyolegacy.content.item.gift.GiftType;
-import dev.xkmc.gensokyolegacy.content.worldgen.feature.MushroomFeatures.MushroomTreeType;
-import dev.xkmc.gensokyolegacy.content.worldgen.feature.TreeFeatures.TreeType;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.GLRecipeGen;
 import dev.xkmc.gensokyolegacy.init.data.GLTagGen;
@@ -37,12 +22,6 @@ import dev.xkmc.l2core.init.reg.registrate.L2Registrate;
 import dev.xkmc.l2core.init.reg.registrate.SimpleEntry;
 import dev.xkmc.l2modularblock.core.BlockTemplates;
 import dev.xkmc.l2modularblock.core.DelegateBlock;
-import net.minecraft.advancements.critereon.EnchantmentPredicate;
-import net.minecraft.advancements.critereon.ItemEnchantmentsPredicate;
-import net.minecraft.advancements.critereon.ItemPredicate;
-import net.minecraft.advancements.critereon.ItemSubPredicates;
-import net.minecraft.advancements.critereon.MinMaxBounds;
-import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.recipes.RecipeCategory;
@@ -55,38 +34,18 @@ import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.DyeColor;
-import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.Rarity;
-import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.*;
-import net.minecraft.world.level.block.grower.TreeGrower;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
-import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
-import net.minecraft.world.level.storage.loot.LootPool;
-import net.minecraft.world.level.storage.loot.LootTable;
-import net.minecraft.world.level.storage.loot.entries.LootItem;
-import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
-import net.minecraft.world.level.storage.loot.predicates.BonusLevelTableCondition;
-import net.minecraft.world.level.storage.loot.predicates.MatchTool;
-import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
-import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.material.PushReaction;
-import net.minecraft.client.renderer.block.model.BlockModel;
-import net.neoforged.neoforge.client.model.generators.BlockModelBuilder;
-import net.neoforged.neoforge.client.model.generators.ConfiguredModel;
+import net.minecraft.world.level.storage.loot.LootTable;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
 
-import javax.annotation.Nullable;
-
-import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
-import java.util.Map;
-import java.util.Optional;
 import java.util.function.Supplier;
 
 public class GLDecoBlocks {
@@ -224,7 +183,6 @@ public class GLDecoBlocks {
 				.register();
 
 
-
 		// 纸窗方块
 		GLASS = reg.block("paper_window", Block::new)
 				.properties(p -> p.mapColor(MapColor.NONE).strength(0.3F).sound(SoundType.WOOD).noOcclusion().noLootTable())
@@ -312,7 +270,7 @@ public class GLDecoBlocks {
 						var wallTop = pvd.modLoc("block/wood/" + name + "_plank_wall_top");
 						pvd.simpleBlock(ctx.get(), pvd.models().cubeColumn(ctx.getName(),
 								pvd.modLoc("block/wood/" + name + "_plank_wall"),
-                                pvd.modLoc("block/wood/" + name + "_plank_wall_top")));
+								pvd.modLoc("block/wood/" + name + "_plank_wall_top")));
 					})
 					.tag(BlockTags.MINEABLE_WITH_AXE)
 					.simpleItem()

@@ -1,10 +1,10 @@
 package dev.xkmc.gensokyolegacy.content.entity.characters.fairy;
 
+import dev.xkmc.gensokyolegacy.content.entity.behavior.brain.TaskBoard;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.combat.YoukaiCombatManager;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.sensor.NearbyItemsSensor;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.sensor.YoukaiFindPreySensor;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.task.combat.YoukaiSearchTargetTask;
-import dev.xkmc.gensokyolegacy.content.entity.behavior.brain.TaskBoard;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.task.home.YoukaiCraftTask;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.task.play.ItemPickupTask;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.task.play.YoukaiHuntTask;

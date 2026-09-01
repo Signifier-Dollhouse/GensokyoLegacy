@@ -1,13 +1,11 @@
 package dev.xkmc.gensokyolegacy.content.item.umbrella.wheel;
 
-import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
+import dev.xkmc.gensokyolegacy.content.item.umbrella.data.BorderSlot;
 import dev.xkmc.l2itemselector.wheel.WheelAdaptor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import dev.xkmc.gensokyolegacy.content.item.umbrella.data.BorderSlot;
 
 public record BorderSlotEntry(int index, BorderSlot slot) implements WheelAdaptor.Entry {
 

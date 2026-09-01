@@ -5,11 +5,11 @@ import dev.xkmc.gensokyolegacy.content.item.umbrella.UmbrellaUtil;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.level.Level;
 
 public class WaypointMode extends UmbrellaMode {

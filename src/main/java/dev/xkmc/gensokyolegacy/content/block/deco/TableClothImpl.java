@@ -1,6 +1,5 @@
 package dev.xkmc.gensokyolegacy.content.block.deco;
 
-import com.tterrag.registrate.providers.DataGenContext;
 import com.tterrag.registrate.providers.RegistrateBlockstateProvider;
 import com.tterrag.registrate.providers.loot.RegistrateBlockLootTables;
 import dev.xkmc.gensokyolegacy.init.registrate.GLDecoBlocks;

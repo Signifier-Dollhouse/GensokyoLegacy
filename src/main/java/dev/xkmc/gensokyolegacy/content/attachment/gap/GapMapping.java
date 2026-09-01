@@ -3,7 +3,6 @@ package dev.xkmc.gensokyolegacy.content.attachment.gap;
 import dev.xkmc.gensokyolegacy.content.block.portal.PortalSide;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerLevel;
 import org.jetbrains.annotations.Nullable;
 
 public record GapMapping(

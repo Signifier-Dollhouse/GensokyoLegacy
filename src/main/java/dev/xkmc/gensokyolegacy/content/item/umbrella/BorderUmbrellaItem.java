@@ -2,7 +2,10 @@ package dev.xkmc.gensokyolegacy.content.item.umbrella;
 
 import com.tterrag.registrate.providers.DataGenContext;
 import com.tterrag.registrate.util.CreativeModeTabModifier;
-import dev.xkmc.gensokyolegacy.content.item.umbrella.data.*;
+import dev.xkmc.gensokyolegacy.content.item.umbrella.data.BorderSlot;
+import dev.xkmc.gensokyolegacy.content.item.umbrella.data.BorderUmbrellaMode;
+import dev.xkmc.gensokyolegacy.content.item.umbrella.data.BorderUmbrellaSlots;
+import dev.xkmc.gensokyolegacy.content.item.umbrella.data.BorderUmbrellaUnlock;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.l2itemselector.init.data.L2Keys;
@@ -14,7 +17,10 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.*;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 

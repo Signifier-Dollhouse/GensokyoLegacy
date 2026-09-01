@@ -3,11 +3,7 @@ package dev.xkmc.gensokyolegacy.content.attachment.area;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.ChunkPos;
 
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public final class ClientAreaEffectTracker {
 

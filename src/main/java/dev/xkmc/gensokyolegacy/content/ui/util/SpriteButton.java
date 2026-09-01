@@ -11,7 +11,7 @@ public class SpriteButton extends Button {
 	private boolean isDown;
 
 	public SpriteButton(ResourceLocation normal, ResourceLocation hover, ResourceLocation pressed,
-			int x, int y, int w, int h, OnPress onPress) {
+	                    int x, int y, int w, int h, OnPress onPress) {
 		super(x, y, w, h, Component.empty(), onPress, DEFAULT_NARRATION);
 		this.normal = normal;
 		this.hover = hover;

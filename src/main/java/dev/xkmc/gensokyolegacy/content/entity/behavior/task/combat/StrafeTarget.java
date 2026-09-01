@@ -84,7 +84,7 @@ public class StrafeTarget<E extends PathfinderMob> extends Behavior<E> {
 		LivingEntity target = BrainUtils.getTargetOfEntity(entity);
 		if (target == null) return;
 		double distanceToTarget = target.distanceToSqr(entity);
-		boolean canSeeTarget =entity.hasLineOfSight(target);
+		boolean canSeeTarget = entity.hasLineOfSight(target);
 		boolean couldSeeTarget = this.targetingTime > 0;
 
 		if (canSeeTarget != couldSeeTarget)

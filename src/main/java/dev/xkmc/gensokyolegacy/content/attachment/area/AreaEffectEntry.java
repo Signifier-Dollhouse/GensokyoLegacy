@@ -4,13 +4,12 @@ import dev.xkmc.l2serial.serialization.marker.SerialClass;
 import dev.xkmc.l2serial.serialization.marker.SerialField;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-
-import net.minecraft.server.level.ServerPlayer;
 
 @SerialClass
 public class AreaEffectEntry {
@@ -53,7 +52,9 @@ public class AreaEffectEntry {
 		return trackingCounts;
 	}
 
-	/** @return true if first tracking chunk for this player */
+	/**
+	 * @return true if first tracking chunk for this player
+	 */
 	public boolean incrementTracking(ServerPlayer player) {
 		UUID uuid = player.getUUID();
 		int c = trackingCounts.getOrDefault(uuid, 0) + 1;
@@ -61,7 +62,9 @@ public class AreaEffectEntry {
 		return c == 1;
 	}
 
-	/** @return true if last chunk untracked (should send REMOVE) */
+	/**
+	 * @return true if last chunk untracked (should send REMOVE)
+	 */
 	public boolean decrementTracking(ServerPlayer player) {
 		UUID uuid = player.getUUID();
 		Integer c = trackingCounts.get(uuid);

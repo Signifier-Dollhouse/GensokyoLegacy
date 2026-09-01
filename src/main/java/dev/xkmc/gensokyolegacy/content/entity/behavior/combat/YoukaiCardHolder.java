@@ -12,6 +12,7 @@ import dev.xkmc.fastprojectileapi.entity.SimplifiedProjectile;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.SmartYoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import dev.xkmc.gensokyolegacy.init.registrate.GLBrains;
+import dev.xkmc.gensokyolegacy.util.BrainUtils;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
@@ -19,7 +20,6 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import dev.xkmc.gensokyolegacy.util.BrainUtils;
 import org.jetbrains.annotations.Nullable;
 
 public record YoukaiCardHolder(YoukaiEntity self) implements CardHolder {

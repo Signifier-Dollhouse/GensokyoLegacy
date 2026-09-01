@@ -1,11 +1,11 @@
 package dev.xkmc.gensokyolegacy.content.item.umbrella.wheel;
 
+import dev.xkmc.gensokyolegacy.content.item.umbrella.data.BorderUmbrellaMode;
 import dev.xkmc.l2itemselector.wheel.WheelAdaptor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
-import dev.xkmc.gensokyolegacy.content.item.umbrella.data.BorderUmbrellaMode;
 
 public record BorderUmbrellaModeEntry(BorderUmbrellaMode mode) implements WheelAdaptor.Entry {
 

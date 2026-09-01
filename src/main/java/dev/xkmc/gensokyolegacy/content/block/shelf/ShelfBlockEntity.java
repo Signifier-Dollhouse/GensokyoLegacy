@@ -95,7 +95,7 @@ public class ShelfBlockEntity extends BaseBlockEntity {
 			emeraldCost = cost - blockCost * 9;
 			for (var e : player.getInventory().items) {
 				if (e.is(Items.EMERALD_BLOCK) && blockCost > 0) {
-					int remove = Math.min(blockCost , e.getCount());
+					int remove = Math.min(blockCost, e.getCount());
 					e.shrink(remove);
 					blockCost -= remove * 9;
 				}

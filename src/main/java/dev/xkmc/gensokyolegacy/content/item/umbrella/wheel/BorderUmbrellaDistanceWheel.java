@@ -1,5 +1,7 @@
 package dev.xkmc.gensokyolegacy.content.item.umbrella.wheel;
 
+import dev.xkmc.gensokyolegacy.content.item.umbrella.BorderUmbrellaSelectionListener;
+import dev.xkmc.gensokyolegacy.content.item.umbrella.network.BorderUmbrellaSelectPacket;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
@@ -13,8 +15,6 @@ import net.minecraft.world.item.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;
-import dev.xkmc.gensokyolegacy.content.item.umbrella.BorderUmbrellaSelectionListener;
-import dev.xkmc.gensokyolegacy.content.item.umbrella.network.BorderUmbrellaSelectPacket;
 
 public class BorderUmbrellaDistanceWheel implements WheelAdaptor<BorderUmbrellaDistanceEntry> {
 

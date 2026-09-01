@@ -36,7 +36,7 @@ public class AlchemyPotRenderer implements BlockEntityRenderer<AlchemyPotBlockEn
 			float prog = be.inProgress();
 			// we need pTick-adjusted progress: use recipeProgress + pTick
 			float visualProg = Mth.clamp((be.recipeProgress + pTick) / (float) Math.max(1, be.totalTime), 0, 1);
-			amount = Mth.lerp(visualProg,  amount, (float) target);
+			amount = Mth.lerp(visualProg, amount, (float) target);
 			// but if fluid is partial at start? start amount is 1000, so use that
 			// clamp target interpolation from current actual amount to target
 			// alternative: lerp from 1000 to target
@@ -62,7 +62,10 @@ public class AlchemyPotRenderer implements BlockEntityRenderer<AlchemyPotBlockEn
 			float time = level.getGameTime() + pTick;
 			int idx = 0;
 			for (var entry : be.stage.floating) {
-				if (entry.stack().isEmpty()) { idx++; continue; }
+				if (entry.stack().isEmpty()) {
+					idx++;
+					continue;
+				}
 				float offset = Mth.sin(time * 0.05f + idx * 0.7f) * 0.02f;
 				ms.pushPose();
 				// place items in circle

@@ -5,7 +5,6 @@ import dev.xkmc.danmakuapi.init.registrate.DanmakuItems;
 import dev.xkmc.gensokyolegacy.content.spell.part.ReimuPart;
 import dev.xkmc.l2serial.serialization.marker.SerialClass;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.DyeColor;
 import org.jetbrains.annotations.Nullable;
 

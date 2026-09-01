@@ -9,8 +9,6 @@ import dev.xkmc.l2serial.util.Wrappers;
 import it.unimi.dsi.fastutil.ints.Int2ObjectLinkedOpenHashMap;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
-import mezz.jei.api.gui.placement.HorizontalAlignment;
-import mezz.jei.api.gui.placement.VerticalAlignment;
 import mezz.jei.api.gui.widgets.IRecipeExtrasBuilder;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.neoforge.NeoForgeTypes;

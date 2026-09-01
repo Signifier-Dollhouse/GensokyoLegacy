@@ -15,16 +15,16 @@ import static net.minecraft.world.level.block.HorizontalDirectionalBlock.FACING;
 public class DonationBox2Shape implements ShapeBlockMethod {
 
 	public static final VoxelShape SHAPE_NS = Shapes.or(
-            Block.box(-4, 0, 0, 20, 14, 16),
-            Block.box(-5,14,-1,21,16,17)
-    );
-    public static final VoxelShape SHAPE_WE = Shapes.or(
-            Block.box(0, 0, -4, 16, 14, 20),
-            Block.box(-1,14,-5,17,16,21)
-    );
+			Block.box(-4, 0, 0, 20, 14, 16),
+			Block.box(-5, 14, -1, 21, 16, 17)
+	);
+	public static final VoxelShape SHAPE_WE = Shapes.or(
+			Block.box(0, 0, -4, 16, 14, 20),
+			Block.box(-1, 14, -5, 17, 16, 21)
+	);
 
 	@Override
 	public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext ctx) {
-        return state.getValue(FACING) == Direction.NORTH || state.getValue(FACING) == Direction.SOUTH ? SHAPE_NS : SHAPE_WE;
-    }
+		return state.getValue(FACING) == Direction.NORTH || state.getValue(FACING) == Direction.SOUTH ? SHAPE_NS : SHAPE_WE;
+	}
 }

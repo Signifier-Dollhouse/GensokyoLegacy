@@ -4,6 +4,7 @@ import dev.xkmc.danmakuapi.content.entity.DanmakuHelper;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiFlags;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.registrate.GLBrains;
+import dev.xkmc.gensokyolegacy.util.BrainUtils;
 import dev.xkmc.l2serial.serialization.marker.SerialClass;
 import dev.xkmc.l2serial.serialization.marker.SerialField;
 import net.minecraft.resources.ResourceLocation;
@@ -14,7 +15,6 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.phys.Vec3;
-import dev.xkmc.gensokyolegacy.util.BrainUtils;
 
 @SerialClass
 public class RumiaStateMachine {

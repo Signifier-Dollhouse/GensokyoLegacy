@@ -1,8 +1,8 @@
 package dev.xkmc.gensokyolegacy.content.entity.characters.rumia;
 
+import dev.xkmc.gensokyolegacy.content.entity.behavior.brain.TaskBoard;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.combat.YoukaiCombatManager;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.task.combat.YoukaiUpdateTargetTask;
-import dev.xkmc.gensokyolegacy.content.entity.behavior.brain.TaskBoard;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.SmartYoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiFeatureSet;

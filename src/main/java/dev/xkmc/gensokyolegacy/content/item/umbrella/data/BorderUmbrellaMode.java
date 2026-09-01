@@ -1,11 +1,7 @@
 package dev.xkmc.gensokyolegacy.content.item.umbrella.data;
 
 import dev.xkmc.gensokyolegacy.content.item.umbrella.BorderUmbrellaItem;
-import dev.xkmc.gensokyolegacy.content.item.umbrella.mode.CaptureMode;
-import dev.xkmc.gensokyolegacy.content.item.umbrella.mode.RecordMode;
-import dev.xkmc.gensokyolegacy.content.item.umbrella.mode.TravelMode;
-import dev.xkmc.gensokyolegacy.content.item.umbrella.mode.UmbrellaMode;
-import dev.xkmc.gensokyolegacy.content.item.umbrella.mode.WaypointMode;
+import dev.xkmc.gensokyolegacy.content.item.umbrella.mode.*;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;

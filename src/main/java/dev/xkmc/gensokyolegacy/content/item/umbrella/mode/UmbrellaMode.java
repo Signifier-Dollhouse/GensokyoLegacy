@@ -1,7 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.item.umbrella.mode;
 
 import dev.xkmc.gensokyolegacy.content.item.umbrella.BorderUmbrellaItem;
-import dev.xkmc.gensokyolegacy.content.item.umbrella.data.BorderUmbrellaUnlock;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;

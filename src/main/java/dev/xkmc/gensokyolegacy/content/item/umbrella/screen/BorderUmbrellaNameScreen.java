@@ -1,5 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.item.umbrella.screen;
 
+import dev.xkmc.gensokyolegacy.content.item.umbrella.network.BorderUmbrellaRenamePacket;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import net.minecraft.client.Minecraft;
@@ -8,7 +9,6 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import dev.xkmc.gensokyolegacy.content.item.umbrella.network.BorderUmbrellaRenamePacket;
 
 public class BorderUmbrellaNameScreen extends Screen {
 

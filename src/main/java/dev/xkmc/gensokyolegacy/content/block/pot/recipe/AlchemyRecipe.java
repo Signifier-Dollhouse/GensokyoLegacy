@@ -1,10 +1,10 @@
 package dev.xkmc.gensokyolegacy.content.block.pot.recipe;
 
 import dev.xkmc.gensokyolegacy.content.block.pot.AlchemyInv;
+import dev.xkmc.gensokyolegacy.content.fluid.GLHexFluid;
 import dev.xkmc.l2core.serial.recipe.BaseRecipe;
 import dev.xkmc.l2serial.serialization.marker.SerialClass;
 import dev.xkmc.l2serial.serialization.marker.SerialField;
-import dev.xkmc.gensokyolegacy.content.fluid.GLHexFluid;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.Item;
@@ -56,7 +56,7 @@ public abstract class AlchemyRecipe<T extends AlchemyRecipe<T>> extends BaseReci
 		return inputFluid.test(inv.fluid());
 	}
 
-	public boolean matchItems(AlchemyInv inv, Level level, List<Ingredient> input){
+	public boolean matchItems(AlchemyInv inv, Level level, List<Ingredient> input) {
 		if (inv.size() > input.size()) return false;
 		List<Ingredient> remain = new ArrayList<>(input);
 		for (int i = 0; i < inv.size(); i++) {
