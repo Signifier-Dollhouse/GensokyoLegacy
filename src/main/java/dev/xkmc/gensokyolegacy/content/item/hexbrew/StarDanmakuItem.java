@@ -22,7 +22,7 @@ public class StarDanmakuItem extends DanmakuItem {
 
 	@Override
 	public double modifyFading(double selfFading) {
-		return selfFading / 2;
+		return selfFading / 2 + 0.5;
 	}
 
 }
