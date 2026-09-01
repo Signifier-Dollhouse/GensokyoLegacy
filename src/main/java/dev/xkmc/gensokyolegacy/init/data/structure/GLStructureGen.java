@@ -3,7 +3,7 @@ package dev.xkmc.gensokyolegacy.init.data.structure;
 import com.tterrag.registrate.providers.DataProviderInitializer;
 import com.tterrag.registrate.providers.RegistrateDataMapProvider;
 import dev.xkmc.gensokyolegacy.content.attachment.datamap.BedData;
-import dev.xkmc.gensokyolegacy.init.registrate.GLBlocks;
+import dev.xkmc.gensokyolegacy.init.registrate.block.GLBlocks;
 import dev.xkmc.gensokyolegacy.init.registrate.GLEntities;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
 import net.minecraft.core.registries.Registries;

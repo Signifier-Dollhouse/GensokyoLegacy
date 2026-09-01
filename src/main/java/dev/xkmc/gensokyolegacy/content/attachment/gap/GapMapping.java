@@ -1,6 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.attachment.gap;
 
-import dev.xkmc.gensokyolegacy.content.block.portal.PortalSide;
+import dev.xkmc.gensokyolegacy.content.block.functional.portal.PortalSide;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;

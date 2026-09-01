@@ -1,13 +1,13 @@
 package dev.xkmc.gensokyolegacy.init.registrate;
 
-import dev.xkmc.gensokyolegacy.content.block.pot.AlchemyInv;
-import dev.xkmc.gensokyolegacy.content.block.pot.recipe.AlchemyRecipe;
-import dev.xkmc.gensokyolegacy.content.block.pot.recipe.UnorderedAlchemyRecipe;
-import dev.xkmc.gensokyolegacy.content.block.pot.recipe.WitchEnhanceRecipe;
-import dev.xkmc.gensokyolegacy.content.block.pot.recipe.WitchMergeRecipe;
-import dev.xkmc.gensokyolegacy.content.block.pot.stage.AlchemyStageRecipe;
-import dev.xkmc.gensokyolegacy.content.block.pot.stage.PotionStageRecipe;
-import dev.xkmc.gensokyolegacy.content.block.pot.stage.SimpleAlchemyStageRecipe;
+import dev.xkmc.gensokyolegacy.content.block.functional.alchemypot.AlchemyInv;
+import dev.xkmc.gensokyolegacy.content.block.functional.alchemypot.recipe.AlchemyRecipe;
+import dev.xkmc.gensokyolegacy.content.block.functional.alchemypot.recipe.UnorderedAlchemyRecipe;
+import dev.xkmc.gensokyolegacy.content.block.functional.alchemypot.recipe.WitchEnhanceRecipe;
+import dev.xkmc.gensokyolegacy.content.block.functional.alchemypot.recipe.WitchMergeRecipe;
+import dev.xkmc.gensokyolegacy.content.block.functional.alchemypot.stage.AlchemyStageRecipe;
+import dev.xkmc.gensokyolegacy.content.block.functional.alchemypot.stage.PotionStageRecipe;
+import dev.xkmc.gensokyolegacy.content.block.functional.alchemypot.stage.SimpleAlchemyStageRecipe;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.l2core.init.reg.simple.SR;
 import dev.xkmc.l2core.init.reg.simple.Val;

@@ -1,7 +1,7 @@
 package dev.xkmc.gensokyolegacy.content.entity.behavior.task.core;
 
-import dev.xkmc.gensokyolegacy.content.block.door.SlidingDoor;
-import dev.xkmc.gensokyolegacy.content.block.door.SlidingDoorUtils;
+import dev.xkmc.gensokyolegacy.content.block.deco.door.SlidingDoor;
+import dev.xkmc.gensokyolegacy.content.block.deco.door.SlidingDoorUtils;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.SmartYoukaiEntity;
 import dev.xkmc.gensokyolegacy.init.data.GLTagGen;
 import dev.xkmc.gensokyolegacy.util.BrainUtils;

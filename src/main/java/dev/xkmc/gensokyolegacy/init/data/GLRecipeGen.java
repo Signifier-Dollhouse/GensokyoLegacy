@@ -2,13 +2,13 @@ package dev.xkmc.gensokyolegacy.init.data;
 
 import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import com.tterrag.registrate.util.DataIngredient;
-import dev.xkmc.gensokyolegacy.content.block.pot.recipe.UnorderedAlchemyRecipeBuilder;
-import dev.xkmc.gensokyolegacy.content.block.pot.recipe.WitchEnhanceBuilder;
-import dev.xkmc.gensokyolegacy.content.block.pot.recipe.WitchMergeBuilder;
-import dev.xkmc.gensokyolegacy.content.block.pot.stage.PotionStageBuilder;
+import dev.xkmc.gensokyolegacy.content.block.functional.alchemypot.recipe.UnorderedAlchemyRecipeBuilder;
+import dev.xkmc.gensokyolegacy.content.block.functional.alchemypot.recipe.WitchEnhanceBuilder;
+import dev.xkmc.gensokyolegacy.content.block.functional.alchemypot.recipe.WitchMergeBuilder;
+import dev.xkmc.gensokyolegacy.content.block.functional.alchemypot.stage.PotionStageBuilder;
 import dev.xkmc.gensokyolegacy.content.item.hexbrew.HexBrew;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
-import dev.xkmc.gensokyolegacy.init.registrate.GLNaturalBlocks;
+import dev.xkmc.gensokyolegacy.init.registrate.block.GLNaturalBlocks;
 import net.minecraft.advancements.Criterion;
 import net.minecraft.advancements.critereon.InventoryChangeTrigger;
 import net.minecraft.world.item.Item;

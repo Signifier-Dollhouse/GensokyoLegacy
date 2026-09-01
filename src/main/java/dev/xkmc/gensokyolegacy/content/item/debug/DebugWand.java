@@ -1,7 +1,7 @@
 package dev.xkmc.gensokyolegacy.content.item.debug;
 
 import dev.xkmc.gensokyolegacy.content.attachment.character.CharacterData;
-import dev.xkmc.gensokyolegacy.content.block.bed.YoukaiBedBlockEntity;
+import dev.xkmc.gensokyolegacy.content.block.deco.bed.YoukaiBedBlockEntity;
 import dev.xkmc.gensokyolegacy.content.client.debug.DebugCharacterTooltip;
 import dev.xkmc.gensokyolegacy.content.client.debug.IDebugOverlayWand;
 import dev.xkmc.gensokyolegacy.content.client.debug.InfoUpdateClientManager;

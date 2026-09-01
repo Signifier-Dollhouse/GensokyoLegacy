@@ -2,7 +2,7 @@ package dev.xkmc.gensokyolegacy.content.worldgen.feature;
 
 import com.mojang.serialization.Codec;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
-import dev.xkmc.gensokyolegacy.init.registrate.GLNaturalBlocks;
+import dev.xkmc.gensokyolegacy.init.registrate.block.GLNaturalBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;

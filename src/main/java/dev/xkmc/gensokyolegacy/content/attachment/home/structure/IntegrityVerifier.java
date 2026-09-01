@@ -3,7 +3,7 @@ package dev.xkmc.gensokyolegacy.content.attachment.home.structure;
 import dev.xkmc.gensokyolegacy.content.attachment.datamap.StructureConfig;
 import dev.xkmc.gensokyolegacy.content.attachment.home.core.PerformanceConstants;
 import dev.xkmc.gensokyolegacy.content.attachment.home.core.StructureBound;
-import dev.xkmc.gensokyolegacy.content.block.bed.YoukaiBedBlock;
+import dev.xkmc.gensokyolegacy.content.block.deco.bed.YoukaiBedBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.Blocks;

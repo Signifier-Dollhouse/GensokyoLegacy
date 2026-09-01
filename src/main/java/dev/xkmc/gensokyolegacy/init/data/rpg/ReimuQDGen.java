@@ -12,7 +12,7 @@ import dev.xkmc.gensokyolegacy.content.rpg.reward.ExpReward;
 import dev.xkmc.gensokyolegacy.content.rpg.reward.ReputationReward;
 import dev.xkmc.gensokyolegacy.content.rpg.trade.TradeOffer;
 import dev.xkmc.gensokyolegacy.content.rpg.trade.TradeRecurrence;
-import dev.xkmc.gensokyolegacy.init.registrate.GLBlocks;
+import dev.xkmc.gensokyolegacy.init.registrate.block.GLBlocks;
 import dev.xkmc.gensokyolegacy.init.registrate.GLEntities;
 import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.world.item.ItemStack;

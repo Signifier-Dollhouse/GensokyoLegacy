@@ -1,6 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.entity.behavior.move;
 
-import dev.xkmc.gensokyolegacy.content.block.door.SlidingDoorUtils;
+import dev.xkmc.gensokyolegacy.content.block.deco.door.SlidingDoorUtils;
 import dev.xkmc.gensokyolegacy.init.data.GLTagGen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.tags.BlockTags;

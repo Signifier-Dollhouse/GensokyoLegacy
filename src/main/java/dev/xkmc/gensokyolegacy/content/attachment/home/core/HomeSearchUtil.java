@@ -1,8 +1,8 @@
 package dev.xkmc.gensokyolegacy.content.attachment.home.core;
 
-import dev.xkmc.gensokyolegacy.content.block.cabinet.CabinetBlockEntity;
-import dev.xkmc.gensokyolegacy.content.block.seat.ChairEntity;
-import dev.xkmc.gensokyolegacy.content.block.seat.SeatableBlock;
+import dev.xkmc.gensokyolegacy.content.block.deco.cabinet.CabinetBlockEntity;
+import dev.xkmc.gensokyolegacy.content.block.deco.seat.ChairEntity;
+import dev.xkmc.gensokyolegacy.content.block.deco.seat.SeatableBlock;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;

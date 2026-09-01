@@ -12,7 +12,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LeavesBlock;
 import net.minecraft.world.level.block.state.BlockState;
 
-import static dev.xkmc.gensokyolegacy.init.registrate.GLNaturalBlocks.EVERGREEN_VINE_PLANT;
+import static dev.xkmc.gensokyolegacy.init.registrate.block.GLNaturalBlocks.EVERGREEN_VINE_PLANT;
 
 public class EvergreenVineHeadBlock extends Block {
 

@@ -3,7 +3,7 @@ package dev.xkmc.gensokyolegacy.content.item.debug;
 import dev.xkmc.gensokyolegacy.content.attachment.home.core.HomeSearchUtil;
 import dev.xkmc.gensokyolegacy.content.attachment.home.custom.CustomHomeHolder;
 import dev.xkmc.gensokyolegacy.content.attachment.home.custom.RoomVerifier;
-import dev.xkmc.gensokyolegacy.content.block.bed.YoukaiBedBlockEntity;
+import dev.xkmc.gensokyolegacy.content.block.deco.bed.YoukaiBedBlockEntity;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
