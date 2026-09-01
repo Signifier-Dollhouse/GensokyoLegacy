@@ -45,6 +45,7 @@ public class SparklingEventHandler {
 	}
 
 	public static void spawnStars(Level level, LivingEntity owner, Vec3 center, float dist) {
+		var col = new DyeColor[]{DyeColor.RED, DyeColor.GREEN, DyeColor.BLUE, DyeColor.YELLOW};
 		double offset = owner.getRandom().nextDouble();
 		for (int i = 0; i < 16; i++) {
 			double angle = (i + offset) * Math.PI * 2 / 16;
@@ -53,7 +54,7 @@ public class SparklingEventHandler {
 			int life = 15 + level.getRandom().nextInt(11);
 			ItemBulletEntity bullet = new ItemBulletEntity(DanmakuEntities.ITEM_DANMAKU.get(), spawn.x, spawn.y, spawn.z, level);
 			bullet.setOwner(owner);
-			bullet.setItem(DanmakuItems.Bullet.STAR.get(DyeColor.YELLOW).asStack());
+			bullet.setItem(DanmakuItems.Bullet.SPARK.get(col[i % 4]).asStack());
 			bullet.setup(4.0f, life, false, false, dir);
 			level.addFreshEntity(bullet);
 		}

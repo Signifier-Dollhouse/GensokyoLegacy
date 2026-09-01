@@ -20,8 +20,6 @@ public class WitchMergeBuilder extends AbstractAlchemyRecipeBuilder<WitchMergeRe
 		super(GLRecipes.ALCHEMY_WITCH_MERGE.get());
 		this.id = id;
 		recipe.potionCount = 0;
-		recipe.inputFluid = FluidIngredient.of((Fluid) HexBrew.MUNDANE.fluid.getSource());
-		recipe.resultFluid = new FluidStack((Fluid) HexBrew.WITCH.fluid.getSource(), 250);
 	}
 
 	public WitchMergeBuilder potionCount(int count) {

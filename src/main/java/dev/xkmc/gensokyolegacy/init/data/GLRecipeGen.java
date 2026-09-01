@@ -19,7 +19,7 @@ import java.util.function.BiFunction;
 public class GLRecipeGen {
 
 	public static void genRecipe(RegistrateRecipeProvider pvd) {
-		// alchemy pot: 1 bucket (4 bottles) per recipe
+
 		unlock(pvd, new UnorderedAlchemyRecipeBuilder()
 				.fluid(Fluids.WATER)
 				.add(GLDecoBlocks.GHOST_FIRE_MUSHROOM_SET.cap.get())
