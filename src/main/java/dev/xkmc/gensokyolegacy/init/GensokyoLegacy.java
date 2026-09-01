@@ -115,7 +115,6 @@ public class GensokyoLegacy {
 	public GensokyoLegacy() {
 		Handlers.enableVanilla(Fluid.class, BuiltInRegistries.FLUID);
 		new CodecHandler<>(FluidIngredient.class, FluidIngredient.CODEC, FluidIngredient.STREAM_CODEC);
-		new CodecHandler<>(FluidStack.class, FluidStack.CODEC, FluidStack.STREAM_CODEC);
 
 		GLDecoBlocks.register();
 		GLItems.register();

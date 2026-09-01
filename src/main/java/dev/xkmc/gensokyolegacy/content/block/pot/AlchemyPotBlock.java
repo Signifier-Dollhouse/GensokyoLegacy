@@ -27,6 +27,7 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.fluids.FluidUtil;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
+import net.neoforged.neoforge.items.wrapper.PlayerInvWrapper;
 import org.jetbrains.annotations.Nullable;
 
 public class AlchemyPotBlock implements ShapeBlockMethod, UseItemOnBlockMethod, UseWithoutItemBlockMethod {
@@ -56,11 +57,12 @@ public class AlchemyPotBlock implements ShapeBlockMethod, UseItemOnBlockMethod, 
 					var result = FluidUtil.tryEmptyContainer(player.getItemInHand(hand), be.tank, filled, player, false);
 					if (result.isSuccess()) {
 						if (!level.isClientSide) {
-							FluidUtil.tryEmptyContainer(player.getItemInHand(hand), be.tank, filled, player, true);
+							var ans = FluidUtil.tryEmptyContainerAndStow(player.getItemInHand(hand), be.tank, new PlayerInvWrapper(player.getInventory()), filled, player, true);
+							player.setItemInHand(hand, ans.getResult());
 							be.notifyTile();
 							level.playSound(null, pos, SoundEvents.BUCKET_EMPTY, SoundSource.BLOCKS, 1, 1);
-							return ItemInteractionResult.SUCCESS;
 						}
+						return ItemInteractionResult.SUCCESS;
 					}
 				}
 				return ItemInteractionResult.FAIL;
@@ -69,7 +71,8 @@ public class AlchemyPotBlock implements ShapeBlockMethod, UseItemOnBlockMethod, 
 					var result = FluidUtil.tryFillContainer(stack, be.tank, be.getFluid().getAmount(), player, false);
 					if (result.isSuccess()) {
 						if (!level.isClientSide) {
-							FluidUtil.tryFillContainer(stack, be.tank, be.getFluid().getAmount(), player, true);
+							var ans = FluidUtil.tryFillContainerAndStow(stack, be.tank, new PlayerInvWrapper(player.getInventory()), be.getFluid().getAmount(), player, true);
+							player.setItemInHand(hand, ans.getResult());
 							be.notifyTile();
 							level.playSound(null, pos, SoundEvents.BUCKET_FILL, SoundSource.BLOCKS, 1, 1);
 						}
