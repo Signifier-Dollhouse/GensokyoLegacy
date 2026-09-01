@@ -1,4 +1,4 @@
-package dev.xkmc.gensokyolegacy.content.block.deco;
+package dev.xkmc.gensokyolegacy.content.block.misc;
 
 import dev.xkmc.l2modularblock.core.BlockTemplates;
 import dev.xkmc.l2modularblock.mult.*;
