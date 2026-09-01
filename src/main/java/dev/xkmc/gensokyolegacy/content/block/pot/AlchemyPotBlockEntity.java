@@ -76,7 +76,7 @@ public class AlchemyPotBlockEntity extends BaseBlockEntity implements TickableBl
 		super(type, pos, state);
 		tank.add(this);
 		tank.setPredicate(stack -> !isReacting() && (tank.isEmpty() || FluidStack.isSameFluidSameComponents(tank.getFluidInTank(0), stack)));
-		tank.setExtract(() -> !isReacting());
+		tank.setExtract(() -> items.isEmpty() && !isReacting());
 	}
 
 	public FluidStack getFluid() {
@@ -175,6 +175,9 @@ public class AlchemyPotBlockEntity extends BaseBlockEntity implements TickableBl
 		for (int i = items.getContainerSize() - 1; i >= 0; i--) {
 			ItemStack s = items.getItem(i);
 			if (!s.isEmpty()) {
+				if (s.hasCraftingRemainingItem()) {
+					continue;
+				}
 				ItemStack out = s.copy();
 				items.setItem(i, ItemStack.EMPTY);
 				notifyTile();

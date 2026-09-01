@@ -2,13 +2,12 @@ package dev.xkmc.gensokyolegacy.content.item.hexbrew;
 
 import dev.xkmc.danmakuapi.content.entity.ItemBulletEntity;
 import dev.xkmc.danmakuapi.init.registrate.DanmakuEntities;
-import dev.xkmc.danmakuapi.init.registrate.DanmakuItems;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.registrate.GLEffects;
+import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -45,7 +44,6 @@ public class SparklingEventHandler {
 	}
 
 	public static void spawnStars(Level level, LivingEntity owner, Vec3 center, float dist) {
-		var col = new DyeColor[]{DyeColor.RED, DyeColor.GREEN, DyeColor.BLUE, DyeColor.YELLOW};
 		double offset = owner.getRandom().nextDouble();
 		for (int i = 0; i < 16; i++) {
 			double angle = (i + offset) * Math.PI * 2 / 16;
@@ -54,7 +52,7 @@ public class SparklingEventHandler {
 			int life = 15 + level.getRandom().nextInt(11);
 			ItemBulletEntity bullet = new ItemBulletEntity(DanmakuEntities.ITEM_DANMAKU.get(), spawn.x, spawn.y, spawn.z, level);
 			bullet.setOwner(owner);
-			bullet.setItem(DanmakuItems.Bullet.SPARK.get(col[i % 4]).asStack());
+			bullet.setItem(GLItems.STAR.asStack());
 			bullet.setup(4.0f, life, false, false, dir);
 			level.addFreshEntity(bullet);
 		}

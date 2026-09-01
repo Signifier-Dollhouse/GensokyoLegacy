@@ -1,6 +1,7 @@
 package dev.xkmc.gensokyolegacy.init;
 
 import com.github.tartaricacid.touhoulittlemaid.TouhouLittleMaid;
+import dev.xkmc.fastprojectileapi.render.ProjectileRenderHelper;
 import dev.xkmc.gensokyolegacy.compat.touhoulittlemaid.TLMRenderHandler;
 import dev.xkmc.gensokyolegacy.content.block.pot.overlay.AlchemyHintOverlay;
 import dev.xkmc.gensokyolegacy.content.block.pot.overlay.TileClientTooltip;
@@ -11,13 +12,16 @@ import dev.xkmc.gensokyolegacy.content.entity.characters.fairy.CirnoModel;
 import dev.xkmc.gensokyolegacy.content.entity.characters.maiden.ReimuModel;
 import dev.xkmc.gensokyolegacy.content.entity.characters.rumia.BlackBallModel;
 import dev.xkmc.gensokyolegacy.content.entity.characters.rumia.RumiaModel;
+import dev.xkmc.gensokyolegacy.content.item.umbrella.BorderUmbrellaItem;
 import dev.xkmc.gensokyolegacy.content.ui.quest.QuestOverlay;
+import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.FrogRenderer;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
+import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -39,6 +43,13 @@ public class GLClient {
 		if (ModList.get().isLoaded(TouhouLittleMaid.MOD_ID)) {
 			NeoForge.EVENT_BUS.register(TLMRenderHandler.class);
 		}
+
+		event.enqueueWork(() -> {
+			ItemProperties.register(GLItems.BORDER_UMBRELLA.get(), GensokyoLegacy.loc("umbrella_open"), BorderUmbrellaItem::isOpen);
+
+			GLItems.STAR.get().getTypeForRender();
+			ProjectileRenderHelper.setup();
+		});
 	}
 
 	@SubscribeEvent

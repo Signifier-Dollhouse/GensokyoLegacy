@@ -50,19 +50,11 @@ public class AlchemyStageHolder {
 		var original = be.createContainer(false).list();
 		for (int i = 0; i < original.size(); i++) {
 			ItemStack orig = original.get(i);
-			if (orig.isEmpty()) {
-				floating.add(new ItemEntry(ItemStack.EMPTY, -1));
-				continue;
-			}
-			boolean curEmpty = curItems.get(i).isEmpty();
-			if (curEmpty) {
-				// consumed -> dissolved, not floating
-				floating.add(new ItemEntry(ItemStack.EMPTY, -1));
-			} else {
+			if (orig.isEmpty()) continue;
+			if (!curItems.get(i).isEmpty()) {
 				floating.add(new ItemEntry(orig, -1));
 			}
 		}
-		while (floating.size() < original.size()) floating.add(new ItemEntry(ItemStack.EMPTY, -1));
 	}
 
 	@Nullable

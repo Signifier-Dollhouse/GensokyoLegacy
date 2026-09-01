@@ -123,4 +123,8 @@ public class BorderUmbrellaItem extends Item {
 		super.releaseUsing(stack, level, entity, timeLeft);
 	}
 
+	public static float isOpen(ItemStack stack, Level level, LivingEntity user, int index) {
+		return GLItems.UMBRELLA_TYPE.getOrDefault(stack, BorderUmbrellaMode.RECORD) == BorderUmbrellaMode.RECORD ? 0 : 1;
+	}
+
 }

@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/handheld",
+  "textures": {
+    "layer0": "gensokyolegacy:item/tool/border_umbrella_open"
+  }
+}

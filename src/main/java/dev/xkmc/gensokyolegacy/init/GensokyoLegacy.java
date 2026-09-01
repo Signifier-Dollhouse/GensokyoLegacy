@@ -108,11 +108,10 @@ public class GensokyoLegacy {
 		Handlers.enableVanilla(Fluid.class, BuiltInRegistries.FLUID);
 		new CodecHandler<>(FluidIngredient.class, FluidIngredient.CODEC, FluidIngredient.STREAM_CODEC);
 
+		GLEffects.register();
 		GLDecoBlocks.register();
 		GLNaturalBlocks.register();
 		GLItems.register();
-		GLEffects.register();
-		GLFluids.register();
 		GLEntities.register();
 		CodecRegistry.register();
 

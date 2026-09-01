@@ -1,9 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.block.pot;
 
-import com.tterrag.registrate.providers.DataGenContext;
-import com.tterrag.registrate.providers.RegistrateBlockstateProvider;
 import dev.xkmc.gensokyolegacy.init.registrate.GLBlocks;
-import dev.xkmc.l2modularblock.core.DelegateBlock;
 import dev.xkmc.l2modularblock.impl.BlockEntityBlockMethodImpl;
 import dev.xkmc.l2modularblock.mult.UseItemOnBlockMethod;
 import dev.xkmc.l2modularblock.mult.UseWithoutItemBlockMethod;
@@ -19,7 +16,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -111,7 +107,4 @@ public class AlchemyPotBlock implements ShapeBlockMethod, UseItemOnBlockMethod, 
 		return InteractionResult.SUCCESS;
 	}
 
-	public static void buildStates(DataGenContext<Block, DelegateBlock> ctx, RegistrateBlockstateProvider pvd) {
-		// already handled in GLBlocks
-	}
 }

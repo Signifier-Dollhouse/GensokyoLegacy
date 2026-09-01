@@ -15,6 +15,7 @@ import dev.xkmc.gensokyolegacy.content.item.debug.DebugWand;
 import dev.xkmc.gensokyolegacy.content.item.debug.DoorDebugItem;
 import dev.xkmc.gensokyolegacy.content.item.debug.StructureWand;
 import dev.xkmc.gensokyolegacy.content.item.gift.*;
+import dev.xkmc.gensokyolegacy.content.item.hexbrew.StarDanmakuItem;
 import dev.xkmc.gensokyolegacy.content.item.ingredient.FairyIceItem;
 import dev.xkmc.gensokyolegacy.content.item.ingredient.FrozenFrogItem;
 import dev.xkmc.gensokyolegacy.content.item.tool.*;
@@ -77,6 +78,8 @@ public class GLItems {
 
 	public static final ItemEntry<BorderUmbrellaItem> BORDER_UMBRELLA;
 
+	public static final ItemEntry<StarDanmakuItem> STAR;
+
 	private static final DCReg DC = DCReg.of(GensokyoLegacy.REG);
 	public static final DCVal<MiniFurnace1.Data> DC_FURNACE_1 = DC.reg("mini_furnace_1_data", MiniFurnace1.Data.class, false);
 	public static final DCVal<UUID> DC_UUID = DC.uuid("uuid");
@@ -89,6 +92,7 @@ public class GLItems {
 	public static final DCVal<BorderUmbrellaUnlock> UMBRELLA_UNLOCK = DC.reg("border_umbrella_unlock", BorderUmbrellaUnlock.class, false);
 	public static final DCVal<BorderUmbrellaTravelData> UMBRELLA_TRAVEL = DC.reg("border_umbrella_travel", BorderUmbrellaTravelData.class, false);
 	public static final DCVal<Integer> UMBRELLA_DISTANCE = DC.intVal("border_umbrella_distance");
+
 
 	static {
 		var reg = GensokyoLegacy.REGISTRATE;
@@ -139,7 +143,11 @@ public class GLItems {
 					.lang("Cat Bell").register();
 
 			BORDER_UMBRELLA = reg.item("border_umbrella", BorderUmbrellaItem::new)
-					.model((ctx, pvd) -> pvd.handheld(ctx, pvd.modLoc("item/tool/" + ctx.getName())))
+					.model((ctx, pvd) ->
+							pvd.handheld(ctx, pvd.modLoc("item/tool/" + ctx.getName()))
+									.override().predicate(GensokyoLegacy.loc("umbrella_open"), 1)
+									.model(pvd.withExistingParent("item/" + ctx.getName() + "_open", "item/handheld").
+											texture("layer0", pvd.modLoc("item/tool/" + ctx.getName() + "_open"))))
 					.lang("Border Umbrella").tab(TAB.key(), BorderUmbrellaItem::fillCreativeModeTab)
 					.tag(L2ISTagGen.SELECTABLE)
 					.register();
@@ -166,26 +174,38 @@ public class GLItems {
 					.lang("Obscure Magic Book").register();
 		}
 
-
-		DEBUG_GLASSES = reg.item("debug_glasses", p -> new DebugGlasses(p.stacksTo(1)))
-				.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/debug/" + ctx.getName())))
-				.defaultLang().register();
-
-		DEBUG_WAND = reg.item("debug_wand", p -> new DebugWand(p.stacksTo(1)))
-				.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/debug/" + ctx.getName())))
-				.defaultLang().register();
-
-		STRUCTURE_WAND = reg.item("structure_wand", p -> new StructureWand(p.stacksTo(1)))
-				.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/debug/" + ctx.getName())))
-				.defaultLang().register();
-
-		DOOR_DEBUG_WAND = reg.item("door_debug_wand", p -> new DoorDebugItem(p.stacksTo(1)))
-				.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/debug/" + ctx.getName())))
-				.defaultLang().register();
+		GLFluids.register();
 
 		GLBlocks.register();
 
+		// debug
+		{
+
+			DEBUG_GLASSES = reg.item("debug_glasses", p -> new DebugGlasses(p.stacksTo(1)))
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/debug/" + ctx.getName())))
+					.defaultLang().register();
+
+			DEBUG_WAND = reg.item("debug_wand", p -> new DebugWand(p.stacksTo(1)))
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/debug/" + ctx.getName())))
+					.defaultLang().register();
+
+			STRUCTURE_WAND = reg.item("structure_wand", p -> new StructureWand(p.stacksTo(1)))
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/debug/" + ctx.getName())))
+					.defaultLang().register();
+
+			DOOR_DEBUG_WAND = reg.item("door_debug_wand", p -> new DoorDebugItem(p.stacksTo(1)))
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/debug/" + ctx.getName())))
+					.defaultLang().register();
+
+		}
+
+
 		reg.defaultCreativeTab(CreativeModeTabs.OP_BLOCKS);
+
+		STAR = reg.item("star_danmaku", p -> new StarDanmakuItem(p.rarity(Rarity.RARE)))
+				.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/hexbrew/star")))
+				.tag(DanmakuItems.Bullet.STAR.tag)
+				.register();
 
 		// spell cards
 		{
@@ -236,7 +256,7 @@ public class GLItems {
 
 			MYSTIA_SPELL = reg
 					.item("spell_mystia", p -> new SpellItem(
-							p.stacksTo(1), YukariItemSpellLaser::new, false,
+							p.stacksTo(1), MystiaItemSpell::new, false,
 							() -> DanmakuItems.Bullet.MENTOS.get(DyeColor.GREEN).get()))
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/spell/" + ctx.getName())))
 					.lang("Night Sparrow \"Midnight Chorus Master\"")
