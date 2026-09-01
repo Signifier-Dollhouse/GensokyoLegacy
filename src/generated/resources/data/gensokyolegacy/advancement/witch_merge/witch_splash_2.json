@@ -1,11 +1,11 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_blaze_powder": {
+    "has_flame_cattail": {
       "conditions": {
         "items": [
           {
-            "items": "minecraft:blaze_powder"
+            "items": "gensokyolegacy:flame_cattail"
           }
         ]
       },
@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "gensokyolegacy:alchemy_explosive_hexbrew"
+        "recipe": "gensokyolegacy:witch_splash_2"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
@@ -21,12 +21,12 @@
   "requirements": [
     [
       "has_the_recipe",
-      "has_blaze_powder"
+      "has_flame_cattail"
     ]
   ],
   "rewards": {
     "recipes": [
-      "gensokyolegacy:alchemy_explosive_hexbrew"
+      "gensokyolegacy:witch_splash_2"
     ]
   }
 }

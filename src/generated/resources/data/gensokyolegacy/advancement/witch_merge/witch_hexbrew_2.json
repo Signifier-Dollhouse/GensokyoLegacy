@@ -1,11 +1,11 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_demonic_miasma_mushroom": {
+    "has_star_flower": {
       "conditions": {
         "items": [
           {
-            "items": "gensokyolegacy:demonic_miasma_mushroom"
+            "items": "gensokyolegacy:star_flower"
           }
         ]
       },
@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "gensokyolegacy:alchemy_miasma_hexbrew"
+        "recipe": "gensokyolegacy:witch_hexbrew_2"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
@@ -21,12 +21,12 @@
   "requirements": [
     [
       "has_the_recipe",
-      "has_demonic_miasma_mushroom"
+      "has_star_flower"
     ]
   ],
   "rewards": {
     "recipes": [
-      "gensokyolegacy:alchemy_miasma_hexbrew"
+      "gensokyolegacy:witch_hexbrew_2"
     ]
   }
 }

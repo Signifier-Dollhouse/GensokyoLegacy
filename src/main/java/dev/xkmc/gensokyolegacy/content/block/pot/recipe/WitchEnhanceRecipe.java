@@ -7,6 +7,7 @@ import dev.xkmc.l2serial.serialization.marker.SerialField;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
@@ -57,7 +58,19 @@ public class WitchEnhanceRecipe extends AlchemyRecipe<WitchEnhanceRecipe> {
 
 	@Override
 	public List<Ingredient> getHints(Level level, AlchemyInv inv) {
-		return List.of();
+		List<Ingredient> remain = new ArrayList<>(extra);
+		for (int i = 0; i < inv.size(); i++) {
+			ItemStack stack = inv.getItem(i);
+			var itr = remain.iterator();
+			while (itr.hasNext()) {
+				var ing = itr.next();
+				if (ing.test(stack)) {
+					itr.remove();
+					break;
+				}
+			}
+		}
+		return remain;
 	}
 
 	@Override

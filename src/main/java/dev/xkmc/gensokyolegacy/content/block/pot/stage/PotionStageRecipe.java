@@ -65,10 +65,10 @@ public class PotionStageRecipe extends AlchemyStageRecipe<PotionStageRecipe> {
 		if (!super.matches(inv, level)) return false;
 		if (inv.list().isEmpty()) return false;
 		for (ItemStack stack : inv.list()) {
-			if (stack.isEmpty()) return false;
-			if (!isPotion(stack)) return false;
+			if(isPotion(stack))
+				return true;
 		}
-		return true;
+		return false;
 	}
 
 	public static boolean isPotion(ItemStack stack) {

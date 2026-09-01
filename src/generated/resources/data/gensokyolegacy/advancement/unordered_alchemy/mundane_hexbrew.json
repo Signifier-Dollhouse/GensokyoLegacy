@@ -1,11 +1,11 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_dragon_breath": {
+    "has_ghost_fire_mushroom": {
       "conditions": {
         "items": [
           {
-            "items": "minecraft:dragon_breath"
+            "items": "gensokyolegacy:ghost_fire_mushroom"
           }
         ]
       },
@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "gensokyolegacy:alchemy_witch_hexbrew_3"
+        "recipe": "gensokyolegacy:mundane_hexbrew"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
@@ -21,12 +21,12 @@
   "requirements": [
     [
       "has_the_recipe",
-      "has_dragon_breath"
+      "has_ghost_fire_mushroom"
     ]
   ],
   "rewards": {
     "recipes": [
-      "gensokyolegacy:alchemy_witch_hexbrew_3"
+      "gensokyolegacy:mundane_hexbrew"
     ]
   }
 }

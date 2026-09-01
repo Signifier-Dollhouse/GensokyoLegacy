@@ -21,7 +21,6 @@ public class HexBrewWrapper implements IFluidHandlerItem {
 	}
 
 	@Override
-	@NotNull
 	public ItemStack getContainer() {
 		return container;
 	}
@@ -36,7 +35,7 @@ public class HexBrewWrapper implements IFluidHandlerItem {
 	private void setFluid(FluidStack stack) {
 		if (stack.isEmpty()) {
 			container = new ItemStack(Items.GLASS_BOTTLE);
-		} else if (stack.getFluid() instanceof GLHexFluid gl && gl.brew != null) {
+		} else if (stack.getFluid() instanceof GLHexFluid gl) {
 			ItemStack out = gl.brew.bottle.asStack(1);
 			gl.brew.copyToItem(stack, out);
 			container = out;
@@ -51,7 +50,6 @@ public class HexBrewWrapper implements IFluidHandlerItem {
 	}
 
 	@Override
-	@NotNull
 	public FluidStack getFluidInTank(int tank) {
 		return getFluidFromBottle();
 	}
@@ -62,7 +60,7 @@ public class HexBrewWrapper implements IFluidHandlerItem {
 	}
 
 	@Override
-	public boolean isFluidValid(int tank, @NotNull FluidStack stack) {
+	public boolean isFluidValid(int tank, FluidStack stack) {
 		return stack.getFluid() instanceof GLHexFluid;
 	}
 

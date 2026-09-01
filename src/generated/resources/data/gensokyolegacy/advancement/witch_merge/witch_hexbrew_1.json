@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "gensokyolegacy:alchemy_witch_splash_1"
+        "recipe": "gensokyolegacy:witch_hexbrew_1"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
@@ -26,7 +26,7 @@
   ],
   "rewards": {
     "recipes": [
-      "gensokyolegacy:alchemy_witch_splash_1"
+      "gensokyolegacy:witch_hexbrew_1"
     ]
   }
 }

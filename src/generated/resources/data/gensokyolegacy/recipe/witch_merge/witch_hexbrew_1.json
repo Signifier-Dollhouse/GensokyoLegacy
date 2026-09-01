@@ -3,6 +3,9 @@
   "extra": [
     {
       "item": "gensokyolegacy:flame_cattail"
+    },
+    {
+      "item": "gensokyolegacy:ghost_fire_mushroom"
     }
   ],
   "inputFluid": {

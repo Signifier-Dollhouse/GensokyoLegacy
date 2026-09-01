@@ -25,8 +25,6 @@ public class AlchemyStageHolder {
 	}
 
 	public void tickStage(AlchemyPotBlockEntity be, int time) {
-		// time ignored; stage is immediate based on current contents
-		// keep for compatibility but just ensures floating is up to date
 		if (floating.isEmpty() && !be.items.isEmpty()) {
 			update(be);
 		}

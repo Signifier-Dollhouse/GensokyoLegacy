@@ -137,9 +137,7 @@ public class AlchemyPotBlockEntity extends BaseBlockEntity implements TickableBl
 		if (!player.isCreative()) {
 			stack.shrink(1);
 			if (!remainder.isEmpty()) {
-				if (!player.getInventory().add(remainder)) {
-					player.drop(remainder, false);
-				}
+				player.getInventory().placeItemBackInInventory(remainder);
 			}
 		}
 		notifyTile();

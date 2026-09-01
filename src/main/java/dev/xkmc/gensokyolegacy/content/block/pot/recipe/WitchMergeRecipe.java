@@ -78,7 +78,26 @@ public class WitchMergeRecipe extends AlchemyRecipe<WitchMergeRecipe> {
 
 	@Override
 	public List<Ingredient> getHints(Level level, AlchemyInv inv) {
-		return List.of();
+		List<Ingredient> remain = new ArrayList<>(extra);
+		int availPotion = potionCount;
+		for (int i = 0; i < inv.size(); i++) {
+			ItemStack stack = inv.getItem(i);
+			if (availPotion > 0 && potionIngredient.test(stack)) {
+				availPotion--;
+			}
+			var itr = remain.iterator();
+			while (itr.hasNext()) {
+				var ing = itr.next();
+				if (ing.test(stack)) {
+					itr.remove();
+					break;
+				}
+			}
+		}
+		if (availPotion > 0) {
+			remain.add(potionIngredient);
+		}
+		return remain;
 	}
 
 	@Override
