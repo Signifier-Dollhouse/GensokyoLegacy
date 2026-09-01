@@ -44,6 +44,13 @@ public class AlchemyHintOverlay implements LayeredDraw.Layer {
 			prev = mc.player.tickCount;
 		lastPos = pos;
 		startTick = prev;
+
+		int w = g.guiWidth(), h = g.guiHeight();
+		if (be.isReacting()) {
+			new ImageBox(g, (int) (w * 0.7), (int) (h * 0.5), 0).render(be.getHintLines(mc.player.isShiftKeyDown(), bhit));
+			return;
+		}
+
 		int time = mc.player.tickCount - startTick;
 		if (time < 15) return;
 		List<Ingredient> hints = be.getHints(level, pos);
@@ -60,7 +67,6 @@ public class AlchemyHintOverlay implements LayeredDraw.Layer {
 			}
 			display[i] = arr[time / 15 % arr.length];
 		}
-		int w = g.guiWidth(), h = g.guiHeight();
 		new ImageBox(g, (int) (w * 0.7), (int) (h * 0.5), 0).render(display, Math.min(4, n), Math.min(3, (n - 1) / 4 + 1), total - n);
 	}
 
@@ -76,9 +82,14 @@ public class AlchemyHintOverlay implements LayeredDraw.Layer {
 		return null;
 	}
 
-	// Exposed for AlchemyPotBlockEntity to implement
 	public interface IHintable extends SingletonBlockMethod {
+
 		List<Ingredient> getHints(Level level, BlockPos pos);
+
+		List<Component> getHintLines(boolean shift, BlockHitResult hit);
+
+		boolean isReacting();
+
 	}
 
 	private List<ItemStack[]> compile(List<Ingredient> list) {
@@ -117,6 +128,14 @@ public class AlchemyHintOverlay implements LayeredDraw.Layer {
 			if (extra > 0) {
 				tooltip.add(new ClientTextTooltip(GLLang.Alchemy.EXTRA.get(extra).getVisualOrderText()));
 			}
+			renderTooltipInternal(Minecraft.getInstance().font, tooltip);
+		}
+
+
+		public void render(List<Component> list) {
+			List<ClientTooltipComponent> tooltip = new ArrayList<>();
+			for (var e : list)
+				tooltip.add(ClientTooltipComponent.create(e.getVisualOrderText()));
 			renderTooltipInternal(Minecraft.getInstance().font, tooltip);
 		}
 	}

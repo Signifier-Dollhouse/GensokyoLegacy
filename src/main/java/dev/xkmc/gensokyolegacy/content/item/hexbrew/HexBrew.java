@@ -9,27 +9,22 @@ import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.registrate.GLEffects;
 import dev.xkmc.gensokyolegacy.init.registrate.GLFluids;
 import net.minecraft.core.component.DataComponentType;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.UseAnim;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.Fluid;
-import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
 import net.neoforged.neoforge.common.MutableDataComponentHolder;
 import net.neoforged.neoforge.fluids.FluidStack;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Locale;
 
 public enum HexBrew {
-	MUNDANE_HEXBREW(0xFF9E9E9E),
-	EXPLOSIVE_HEXBREW(0xFFE8453C, new ExplosiveHandler()),
-	MIASMA_HEXBREW(0xFF7A4BA1, new SimplePotionHandler(true, GLEffects.MIASMA, 1200, 0)),
-	STARLIGHT_HEXBREW(0xFFFFF7AE, new StarlightHandler()),
-	HYPHAE_HEXBREW(0xFFD98E3A),
-	SHIELD_HEXBREW(0xFFFFF7AE, new SimplePotionHandler(false, GLEffects.STARLIGHT_SHIELD, 1200, 0)),
+	MUNDANE_HEXBREW(0xff946eb6),
+	HEXBREW_ELIXIR(0xff946eb6),
+	EXPLOSIVE_HEXBREW(0xffe1a074, new ExplosiveHandler()),
+	MIASMA_HEXBREW(0xff488d86, new SimplePotionHandler(true, GLEffects.MIASMA, 1200, 0)),
+	SHIELD_HEXBREW(0xffaf5088, new SimplePotionHandler(false, GLEffects.STARLIGHT_SHIELD, 1200, 0)),
+	STARLIGHT_HEXBREW(0xfffceb95, new StarlightHandler()),
+	HYPHAE_HEXBREW(0xff47c0fc),
 	WITCH_HEXBREW(0xFFFFFFFF, new WitchHandler(false)),
 	WITCH_SPLASH(0xFFFFFFFF, new WitchHandler(true));
 

@@ -11,6 +11,7 @@ import dev.xkmc.l2modularblock.tile_api.BlockContainer;
 import dev.xkmc.l2modularblock.tile_api.TickableBlockEntity;
 import dev.xkmc.l2serial.serialization.marker.SerialClass;
 import dev.xkmc.l2serial.serialization.marker.SerialField;
+import dev.xkmc.l2serial.util.Wrappers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -256,9 +257,20 @@ public class AlchemyPotBlockEntity extends BaseBlockEntity implements TickableBl
 			doRecipeSearch = false;
 			recheckStage = true;
 		}
+		if (recipeId == null) {
+			totalTime = 0;
+			recipeProgress = 0;
+			recipe = null;
+		}
 		if (totalTime > 0) {
 			recipeProgress++;
 			if (recipeProgress >= totalTime) {
+				if (recipe == null) {
+					var opt = level.getRecipeManager().byKey(recipeId);
+					if (opt.isPresent() && opt.get().value() instanceof AlchemyRecipe<?>) {
+						recipe = Wrappers.cast(opt.get());
+					}
+				}
 				if (recipe != null) {
 					finishRecipe(level, recipe.value());
 				}
@@ -282,18 +294,13 @@ public class AlchemyPotBlockEntity extends BaseBlockEntity implements TickableBl
 	protected void finishRecipe(Level level, AlchemyRecipe<?> recipe) {
 		AlchemyInv inv = createContainer(true);
 		FluidStack outFluid = recipe.getResultFluid(inv, level.registryAccess());
-		ItemStack outItem = recipe.resultItem.copy();
+		ItemStack outItem = recipe.assemble(inv, level.registryAccess());
 		items.clear();
 		tank.clear();
 		if (!outFluid.isEmpty()) {
 			tank.fill(outFluid, IFluidHandler.FluidAction.EXECUTE);
-		} else if (!outItem.isEmpty()) {
-			// item-only: fluid already cleared
-		} else {
-			// both empty should not happen, validated
 		}
 		if (!outItem.isEmpty()) {
-			// distribute one by one up to MAX_SLOTS
 			int count = outItem.getCount();
 			ItemStack base = outItem.copyWithCount(1);
 			for (int i = 0; i < count; i++) {
@@ -305,7 +312,6 @@ public class AlchemyPotBlockEntity extends BaseBlockEntity implements TickableBl
 				}
 			}
 		}
-		// note: keep both inside as per spec, already done
 	}
 
 	@Override

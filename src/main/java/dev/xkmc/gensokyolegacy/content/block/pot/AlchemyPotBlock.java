@@ -1,5 +1,7 @@
 package dev.xkmc.gensokyolegacy.content.block.pot;
 
+import com.tterrag.registrate.providers.DataGenContext;
+import com.tterrag.registrate.providers.RegistrateBlockstateProvider;
 import dev.xkmc.gensokyolegacy.init.registrate.GLBlocks;
 import dev.xkmc.l2modularblock.core.DelegateBlock;
 import dev.xkmc.l2modularblock.impl.BlockEntityBlockMethodImpl;
@@ -7,8 +9,6 @@ import dev.xkmc.l2modularblock.mult.UseItemOnBlockMethod;
 import dev.xkmc.l2modularblock.mult.UseWithoutItemBlockMethod;
 import dev.xkmc.l2modularblock.one.ShapeBlockMethod;
 import dev.xkmc.l2modularblock.type.BlockMethod;
-import com.tterrag.registrate.providers.DataGenContext;
-import com.tterrag.registrate.providers.RegistrateBlockstateProvider;
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -44,47 +44,37 @@ public class AlchemyPotBlock implements ShapeBlockMethod, UseItemOnBlockMethod, 
 	public ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
 		if (!(level.getBlockEntity(pos) instanceof AlchemyPotBlockEntity be))
 			return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
-		// forbid interaction during reaction except shift-clear (handled in useWithoutItem)
-		// but bucket handling should be forbidden during reaction too
-		if (be.isReacting()) {
-			// fluid interaction forbidden, item add forbidden
-			// we still allow fluid containers? spec says forbid during reaction, so reject
+		if (be.isReacting())
 			return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
-		}
 		// try fluid handler first
 		if (!stack.isEmpty() && FluidUtil.getFluidHandler(stack).isPresent()) {
 			// check if stack is fluid container
 			var fluidContained = FluidUtil.getFluidContained(stack);
 			if (fluidContained.isPresent() && !fluidContained.get().isEmpty()) {
-				// has fluid -> try fill
 				int filled = be.tank.fill(fluidContained.get(), IFluidHandler.FluidAction.SIMULATE);
 				if (filled > 0) {
-					if (!level.isClientSide) {
-						var result = FluidUtil.tryEmptyContainer(player.getItemInHand(hand), be.tank, filled, player, true);
-						if (result.isSuccess()) {
+					var result = FluidUtil.tryEmptyContainer(player.getItemInHand(hand), be.tank, filled, player, false);
+					if (result.isSuccess()) {
+						if (!level.isClientSide) {
+							FluidUtil.tryEmptyContainer(player.getItemInHand(hand), be.tank, filled, player, true);
 							be.notifyTile();
 							level.playSound(null, pos, SoundEvents.BUCKET_EMPTY, SoundSource.BLOCKS, 1, 1);
 							return ItemInteractionResult.SUCCESS;
 						}
-						// fallback manual
-						be.tank.fill(fluidContained.get(), IFluidHandler.FluidAction.EXECUTE);
-						be.notifyTile();
 					}
-					return ItemInteractionResult.SUCCESS;
 				}
+				return ItemInteractionResult.FAIL;
 			} else {
-				// empty container -> try drain
-				// Actually for bucket, empty bucket item is Items.BUCKET
-				// Use FluidUtil.tryFillContainer
 				if (!be.getFluid().isEmpty()) {
-					var result = FluidUtil.tryFillContainer(stack, be.tank, be.getFluid().getAmount(), player, true);
+					var result = FluidUtil.tryFillContainer(stack, be.tank, be.getFluid().getAmount(), player, false);
 					if (result.isSuccess()) {
 						if (!level.isClientSide) {
+							FluidUtil.tryFillContainer(stack, be.tank, be.getFluid().getAmount(), player, true);
 							be.notifyTile();
 							level.playSound(null, pos, SoundEvents.BUCKET_FILL, SoundSource.BLOCKS, 1, 1);
 						}
 						return ItemInteractionResult.SUCCESS;
-					}
+					} else return ItemInteractionResult.FAIL;
 				}
 			}
 		}

@@ -53,7 +53,7 @@ public class AlchemyPotRenderer implements BlockEntityRenderer<AlchemyPotBlockEn
 		// FluidRenderer will handle color
 		int col = color;
 		// Need to render box 3..13
-		FluidRenderer.renderFluidBox(vis, 3 / 16f, yMin, 3 / 16f, 13 / 16f, yMax, 13 / 16f, buffer, ms, light, false, col == -1 ? 0 : col);
+		FluidRenderer.renderFluidBox(vis, 2 / 16f, yMin, 2 / 16f, 14 / 16f, yMax, 14 / 16f, buffer, ms, light, false, col == -1 ? 0 : col);
 
 		// render floating items (simple)
 		if (!be.stage.floating.isEmpty()) {
