@@ -6,6 +6,7 @@ import dev.xkmc.l2core.serial.loot.LootHelper;
 import dev.xkmc.l2modularblock.core.BlockTemplates;
 import dev.xkmc.l2modularblock.core.DelegateEntityBlockImpl;
 import dev.xkmc.l2modularblock.impl.BlockEntityBlockMethodImpl;
+import dev.xkmc.l2modularblock.one.ShapeBlockMethod;
 import dev.xkmc.l2modularblock.type.BlockMethod;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -34,7 +35,11 @@ public class YoukaiBedBlock extends DelegateEntityBlockImpl {
 	public static final BlockMethod TE = new BlockEntityBlockMethodImpl<>(GLBlocks.BE_BED, YoukaiBedBlockEntity.class);
 
 	public YoukaiBedBlock(BlockBehaviour.Properties properties) {
-		super(properties, BlockTemplates.HORIZONTAL, new FlatBedShape(), new YoukaiBedMethods(), TE);
+		this(properties, new FlatBedShape());
+	}
+
+	public YoukaiBedBlock(BlockBehaviour.Properties properties, ShapeBlockMethod shape) {
+		super(properties, BlockTemplates.HORIZONTAL, shape, new YoukaiBedMethods(), TE);
 	}
 
 	public static Direction getNeighbourDirection(BedPart part, Direction direction) {

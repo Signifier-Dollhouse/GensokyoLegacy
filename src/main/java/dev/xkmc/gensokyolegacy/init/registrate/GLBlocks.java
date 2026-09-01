@@ -3,10 +3,12 @@ package dev.xkmc.gensokyolegacy.init.registrate;
 import com.tterrag.registrate.util.entry.BlockEntityEntry;
 import com.tterrag.registrate.util.entry.BlockEntry;
 import dev.xkmc.gensokyolegacy.content.block.bed.FlatBedShape;
+import dev.xkmc.gensokyolegacy.content.block.bed.HighBedShape;
 import dev.xkmc.gensokyolegacy.content.block.bed.YoukaiBedBlock;
 import dev.xkmc.gensokyolegacy.content.block.bed.YoukaiBedBlockEntity;
 import dev.xkmc.gensokyolegacy.content.block.cabinet.CabinetBlock;
 import dev.xkmc.gensokyolegacy.content.block.cabinet.CabinetBlockEntity;
+import dev.xkmc.gensokyolegacy.content.block.deco.TeaTableBlock;
 import dev.xkmc.gensokyolegacy.content.block.donation.DonationBoxBlock;
 import dev.xkmc.gensokyolegacy.content.block.donation.DonationBoxBlockEntity;
 import dev.xkmc.gensokyolegacy.content.block.donation.DonationShape;
@@ -19,12 +21,14 @@ import dev.xkmc.gensokyolegacy.content.block.portal.*;
 import dev.xkmc.gensokyolegacy.content.block.shelf.ShelfBlock;
 import dev.xkmc.gensokyolegacy.content.block.shelf.ShelfBlockEntity;
 import dev.xkmc.gensokyolegacy.content.block.shelf.ShelfRenderer;
+import dev.xkmc.gensokyolegacy.content.block.shelf.SimpleShelfBlock;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.GLRecipeGen;
 import dev.xkmc.l2modularblock.core.BlockTemplates;
 import dev.xkmc.l2modularblock.core.DelegateBlock;
 import dev.xkmc.l2modularblock.one.ShapeBlockMethod;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -55,7 +59,8 @@ public class GLBlocks {
 		CIRNO(Blocks.BLUE_BED),
 		RUMIA(Blocks.BLACK_BED),
 		REIMU(Blocks.RED_BED),
-		MORICHIKA(Blocks.LIGHT_BLUE_BED);
+		MORICHIKA(Blocks.LIGHT_BLUE_BED),
+        MARISA(Blocks.BLACK_BED);
 
 		private final BedBlock template;
 		private final DyeColor wool;
@@ -95,6 +100,11 @@ public class GLBlocks {
 
 	public static final BlockEntry<YoukaiBedBlock>[] BEDS;
 	public static final BlockEntityEntry<YoukaiBedBlockEntity> BE_BED;
+
+	//public static final BlockEntry<MarisaBedBlock> MARISA_BED;
+	public static final BlockEntry<DelegateBlock> TEA_TABLE;
+	public static final BlockEntry<DelegateBlock> SHELF_EMPTY;
+	public static final BlockEntry<DelegateBlock> SHELF_BOOK;
 
 	static {
 
@@ -259,19 +269,92 @@ public class GLBlocks {
 					.register();
 		}
 
+		// 魔理沙床铺
+		/*MARISA_BED = GensokyoLegacy.REGISTRATE.block("marisa_bed", MarisaBedBlock::new)
+				.initialProperties(() -> Blocks.BLACK_BED)
+				.blockstate(FlatBedShape::buildStates)
+				.item(BedItem::new)
+				.model(FlatBedShape::buildItemModel)
+				.build()
+				.loot(MarisaBedBlock::buildLoot)
+				.register();*/
+
+		// 茶几
+		TEA_TABLE = GensokyoLegacy.REGISTRATE.block("tea_table", p -> DelegateBlock.newBaseBlock(p,
+						BlockTemplates.HORIZONTAL, new TeaTableBlock()))
+				.initialProperties(() -> Blocks.OAK_PLANKS)
+				.properties(BlockBehaviour.Properties::noOcclusion)
+				.blockstate((ctx, pvd) -> {
+					var originModel = pvd.models().getBuilder(ctx.getName())
+							.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/tea_table")))
+							.texture("all", pvd.modLoc("block/deco/tea_table"))
+							.renderType("cutout");
+					var emptyModel = pvd.models().getBuilder(ctx.getName() + "_empty")
+							.texture("particle", pvd.modLoc("block/deco/tea_table"));
+					var builder = pvd.getVariantBuilder(ctx.get());
+					for (Direction dir : Direction.Plane.HORIZONTAL) {
+						int yRot = (int) dir.toYRot() % 360;
+						builder.partialState()
+								.with(TeaTableBlock.ORIGIN, true)
+								.with(BlockTemplates.HORIZONTAL_FACING, dir)
+								.modelForState().modelFile(originModel).rotationY(yRot).addModel();
+						builder.partialState()
+								.with(TeaTableBlock.ORIGIN, false)
+								.with(BlockTemplates.HORIZONTAL_FACING, dir)
+								.modelForState().modelFile(emptyModel).addModel();
+					}
+				})
+                .tag(BlockTags.MINEABLE_WITH_AXE)
+                .item().model((ctx, pvd) -> pvd.getBuilder(ctx.getName())
+                        .parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/tea_table_item")))
+                        .texture("all", pvd.modLoc("block/deco/tea_table"))
+                        .renderType("cutout"))
+                .build()
+                .register();
+
+		// 空厨架
+		SHELF_EMPTY = GensokyoLegacy.REGISTRATE.block("shelf_empty", p -> DelegateBlock.newBaseBlock(p,
+						BlockTemplates.HORIZONTAL, new SimpleShelfBlock()))
+				.initialProperties(() -> Blocks.BIRCH_TRAPDOOR)
+				.blockstate(SimpleShelfBlock::buildStates)
+				.tag(BlockTags.MINEABLE_WITH_AXE)
+				.simpleItem()
+				.register();
+
+		// 书架
+		SHELF_BOOK = GensokyoLegacy.REGISTRATE.block("shelf_book", p -> DelegateBlock.newBaseBlock(p,
+						BlockTemplates.HORIZONTAL, new SimpleShelfBlock()))
+				.initialProperties(() -> Blocks.BIRCH_TRAPDOOR)
+				.blockstate(SimpleShelfBlock::buildStates)
+				.tag(BlockTags.MINEABLE_WITH_AXE)
+				.simpleItem()
+				.register();
+
 		BEDS = new BlockEntry[Beds.values().length];
 		for (var e : Beds.values()) {
 			String name = e.name().toLowerCase(Locale.ROOT);
-			BEDS[e.ordinal()] = GensokyoLegacy.REGISTRATE.block(name + "_bed", YoukaiBedBlock::new)
-					.initialProperties(() -> e.template)
-					.blockstate(FlatBedShape::buildStates)
-					.item(BedItem::new)
-					.model(FlatBedShape::buildItemModel)
-					.build()
-					.loot(YoukaiBedBlock::buildLoot)
-					.register();
+            if(e == Beds.MARISA){
+                BEDS[e.ordinal()] = GensokyoLegacy.REGISTRATE.block(name + "_bed", p -> new YoukaiBedBlock(p, new HighBedShape()))
+                        .initialProperties(() -> e.template)
+                        .blockstate(HighBedShape::buildStates)
+                        .item(BedItem::new)
+                        .model(HighBedShape::buildItemModel)
+                        .build()
+                        .loot(YoukaiBedBlock::buildLoot)
+                        .register();
+            }else {
+                BEDS[e.ordinal()] = GensokyoLegacy.REGISTRATE.block(name + "_bed", YoukaiBedBlock::new)
+                        .initialProperties(() -> e.template)
+                        .blockstate(FlatBedShape::buildStates)
+                        .item(BedItem::new)
+                        .model(FlatBedShape::buildItemModel)
+                        .build()
+                        .loot(YoukaiBedBlock::buildLoot)
+                        .register();
+            }
 		}
 		BE_BED = GensokyoLegacy.REGISTRATE.blockEntity("youkai_bed", YoukaiBedBlockEntity::new)
+				//.validBlock(MARISA_BED)
 				.validBlocks(BEDS)
 				.register();
 	}
