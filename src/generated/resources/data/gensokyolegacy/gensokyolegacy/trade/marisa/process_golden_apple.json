@@ -1,0 +1,27 @@
+{
+  "character": "gensokyolegacy:kirisame_marisa",
+  "conditions": [
+    {
+      "type": "gensokyolegacy:has_quest_completed",
+      "quest": "gensokyolegacy:marisa/golden_apple"
+    }
+  ],
+  "ingredients": [
+    {
+      "count": 1,
+      "item": "minecraft:golden_apple"
+    },
+    {
+      "count": 1,
+      "item": "minecraft:gold_block"
+    }
+  ],
+  "recurrence": {
+    "maxStock": 1,
+    "restockTime": 24000
+  },
+  "result": {
+    "count": 1,
+    "id": "minecraft:enchanted_golden_apple"
+  }
+}

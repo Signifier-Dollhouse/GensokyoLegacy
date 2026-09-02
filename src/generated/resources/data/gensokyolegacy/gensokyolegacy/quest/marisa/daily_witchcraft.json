@@ -1,0 +1,72 @@
+{
+  "character": "gensokyolegacy:kirisame_marisa",
+  "completionDialog": {
+    "type": "gensokyolegacy:simple",
+    "actions": [],
+    "conditions": [],
+    "next": "gensokyolegacy:marisa/daily_witchcraft/complete/dialog_1",
+    "text": "gensokyolegacy/marisa/daily_witchcraft/option/complete"
+  },
+  "conditions": [],
+  "description": "gensokyolegacy/marisa/daily_witchcraft/quest/desc",
+  "followUpDialog": {
+    "type": "gensokyolegacy:simple",
+    "actions": [],
+    "conditions": [],
+    "next": "gensokyolegacy:marisa/daily_witchcraft/follow_up/dialog_1",
+    "text": "gensokyolegacy/marisa/daily_witchcraft/option/follow_up"
+  },
+  "initialDialog": {
+    "type": "gensokyolegacy:simple",
+    "actions": [],
+    "conditions": [],
+    "next": "gensokyolegacy:marisa/daily_witchcraft/start/dialog_1",
+    "text": "gensokyolegacy/marisa/daily_witchcraft/option/start"
+  },
+  "recurrence": {
+    "cooldown": 24000
+  },
+  "requirements": {
+    "a-flesh": {
+      "type": "gensokyolegacy:submit_item",
+      "ingredients": [
+        {
+          "count": 8,
+          "item": "minecraft:rotten_flesh"
+        }
+      ]
+    },
+    "b-eye": {
+      "type": "gensokyolegacy:submit_item",
+      "ingredients": [
+        {
+          "count": 4,
+          "item": "minecraft:spider_eye"
+        }
+      ]
+    },
+    "c-miasma": {
+      "type": "gensokyolegacy:submit_item",
+      "ingredients": [
+        {
+          "count": 4,
+          "item": "gensokyolegacy:demonic_miasma_mushroom"
+        }
+      ]
+    }
+  },
+  "rewards": [
+    {
+      "type": "gensokyolegacy:exp",
+      "point": 80
+    },
+    {
+      "type": "gensokyolegacy:reputation",
+      "cap_increase": 10,
+      "max_cap": 200,
+      "reputation": 15,
+      "soft_cap": 100
+    }
+  ],
+  "title": "gensokyolegacy/marisa/daily_witchcraft/quest/title"
+}

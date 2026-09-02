@@ -1,0 +1,21 @@
+{
+  "options": [
+    {
+      "type": "gensokyolegacy:simple",
+      "actions": [],
+      "conditions": [],
+      "text": "gensokyolegacy/marisa/shroomlight/option/start/reject"
+    },
+    {
+      "type": "gensokyolegacy:simple",
+      "actions": [
+        {
+          "type": "gensokyolegacy:start_quest"
+        }
+      ],
+      "conditions": [],
+      "text": "gensokyolegacy/marisa/shroomlight/option/start/accept"
+    }
+  ],
+  "text": "gensokyolegacy/marisa/shroomlight/dialog/marisa/shroomlight/start/dialog_1"
+}

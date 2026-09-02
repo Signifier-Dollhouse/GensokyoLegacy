@@ -1,0 +1,15 @@
+{
+  "options": [
+    {
+      "type": "gensokyolegacy:simple",
+      "actions": [
+        {
+          "type": "gensokyolegacy:complete_quest"
+        }
+      ],
+      "conditions": [],
+      "text": "gensokyolegacy/marisa/huge_mushroom/option/complete/handover"
+    }
+  ],
+  "text": "gensokyolegacy/marisa/huge_mushroom/dialog/marisa/huge_mushroom/complete/dialog_1"
+}

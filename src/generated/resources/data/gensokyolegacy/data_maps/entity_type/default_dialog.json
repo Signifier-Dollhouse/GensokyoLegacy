@@ -3,6 +3,10 @@
     "gensokyolegacy:hakurei_reimu": {
       "greeting": "gensokyolegacy/reimu/chat/greeting",
       "trade": "gensokyolegacy/reimu/chat/trade"
+    },
+    "gensokyolegacy:kirisame_marisa": {
+      "greeting": "gensokyolegacy/marisa/chat/greeting",
+      "trade": "gensokyolegacy/marisa/chat/trade"
     }
   }
 }

@@ -1,0 +1,60 @@
+{
+  "character": "gensokyolegacy:kirisame_marisa",
+  "completionDialog": {
+    "type": "gensokyolegacy:simple",
+    "actions": [],
+    "conditions": [],
+    "next": "gensokyolegacy:marisa/first_mushroom/complete/dialog_1",
+    "text": "gensokyolegacy/marisa/first_mushroom/option/complete"
+  },
+  "conditions": [],
+  "description": "gensokyolegacy/marisa/first_mushroom/quest/desc",
+  "followUpDialog": {
+    "type": "gensokyolegacy:simple",
+    "actions": [],
+    "conditions": [],
+    "next": "gensokyolegacy:marisa/first_mushroom/follow_up/dialog_1",
+    "text": "gensokyolegacy/marisa/first_mushroom/option/follow_up"
+  },
+  "initialDialog": {
+    "type": "gensokyolegacy:simple",
+    "actions": [],
+    "conditions": [],
+    "next": "gensokyolegacy:marisa/first_mushroom/start/dialog_1",
+    "text": "gensokyolegacy/marisa/first_mushroom/option/start"
+  },
+  "requirements": {
+    "a-red": {
+      "type": "gensokyolegacy:submit_item",
+      "ingredients": [
+        {
+          "count": 4,
+          "item": "minecraft:red_mushroom"
+        }
+      ]
+    },
+    "b-brown": {
+      "type": "gensokyolegacy:submit_item",
+      "ingredients": [
+        {
+          "count": 4,
+          "item": "minecraft:brown_mushroom"
+        }
+      ]
+    }
+  },
+  "rewards": [
+    {
+      "type": "gensokyolegacy:exp",
+      "point": 50
+    },
+    {
+      "type": "gensokyolegacy:reputation",
+      "cap_increase": 10,
+      "max_cap": 200,
+      "reputation": 40,
+      "soft_cap": 100
+    }
+  ],
+  "title": "gensokyolegacy/marisa/first_mushroom/quest/title"
+}

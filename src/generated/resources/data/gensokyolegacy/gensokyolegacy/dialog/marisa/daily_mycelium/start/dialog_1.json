@@ -1,0 +1,21 @@
+{
+  "options": [
+    {
+      "type": "gensokyolegacy:simple",
+      "actions": [],
+      "conditions": [],
+      "text": "gensokyolegacy/marisa/daily_mycelium/option/start/reject"
+    },
+    {
+      "type": "gensokyolegacy:simple",
+      "actions": [
+        {
+          "type": "gensokyolegacy:start_quest"
+        }
+      ],
+      "conditions": [],
+      "text": "gensokyolegacy/marisa/daily_mycelium/option/start/accept"
+    }
+  ],
+  "text": "gensokyolegacy/marisa/daily_mycelium/dialog/marisa/daily_mycelium/start/dialog_1"
+}

@@ -1,0 +1,11 @@
+{
+  "options": [
+    {
+      "type": "gensokyolegacy:simple",
+      "actions": [],
+      "conditions": [],
+      "text": "gensokyolegacy/marisa/brewing/option/follow_up/end"
+    }
+  ],
+  "text": "gensokyolegacy/marisa/brewing/dialog/marisa/brewing/follow_up/dialog_1"
+}

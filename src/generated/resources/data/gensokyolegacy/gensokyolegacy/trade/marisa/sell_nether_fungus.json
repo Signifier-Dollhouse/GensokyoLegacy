@@ -1,0 +1,23 @@
+{
+  "character": "gensokyolegacy:kirisame_marisa",
+  "conditions": [
+    {
+      "type": "gensokyolegacy:has_quest_completed",
+      "quest": "gensokyolegacy:marisa/shroomlight"
+    }
+  ],
+  "ingredients": [
+    {
+      "count": 8,
+      "item": "minecraft:crimson_fungus"
+    }
+  ],
+  "recurrence": {
+    "maxStock": 8,
+    "restockTime": 2400
+  },
+  "result": {
+    "count": 1,
+    "id": "minecraft:emerald"
+  }
+}

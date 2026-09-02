@@ -1,0 +1,65 @@
+{
+  "character": "gensokyolegacy:kirisame_marisa",
+  "completionDialog": {
+    "type": "gensokyolegacy:simple",
+    "actions": [],
+    "conditions": [],
+    "next": "gensokyolegacy:marisa/huge_mushroom/complete/dialog_1",
+    "text": "gensokyolegacy/marisa/huge_mushroom/option/complete"
+  },
+  "conditions": [
+    {
+      "type": "gensokyolegacy:has_quest_completed",
+      "quest": "gensokyolegacy:marisa/first_mushroom"
+    }
+  ],
+  "description": "gensokyolegacy/marisa/huge_mushroom/quest/desc",
+  "followUpDialog": {
+    "type": "gensokyolegacy:simple",
+    "actions": [],
+    "conditions": [],
+    "next": "gensokyolegacy:marisa/huge_mushroom/follow_up/dialog_1",
+    "text": "gensokyolegacy/marisa/huge_mushroom/option/follow_up"
+  },
+  "initialDialog": {
+    "type": "gensokyolegacy:simple",
+    "actions": [],
+    "conditions": [],
+    "next": "gensokyolegacy:marisa/huge_mushroom/start/dialog_1",
+    "text": "gensokyolegacy/marisa/huge_mushroom/option/start"
+  },
+  "requirements": {
+    "a-ghost": {
+      "type": "gensokyolegacy:submit_item",
+      "ingredients": [
+        {
+          "count": 4,
+          "item": "gensokyolegacy:ghost_fire_mushroom_block"
+        }
+      ]
+    },
+    "b-dream": {
+      "type": "gensokyolegacy:submit_item",
+      "ingredients": [
+        {
+          "count": 4,
+          "item": "gensokyolegacy:dream_mushroom_block"
+        }
+      ]
+    }
+  },
+  "rewards": [
+    {
+      "type": "gensokyolegacy:exp",
+      "point": 100
+    },
+    {
+      "type": "gensokyolegacy:reputation",
+      "cap_increase": 10,
+      "max_cap": 200,
+      "reputation": 50,
+      "soft_cap": 100
+    }
+  ],
+  "title": "gensokyolegacy/marisa/huge_mushroom/quest/title"
+}

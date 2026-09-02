@@ -1,0 +1,56 @@
+{
+  "character": "gensokyolegacy:kirisame_marisa",
+  "completionDialog": {
+    "type": "gensokyolegacy:simple",
+    "actions": [],
+    "conditions": [],
+    "next": "gensokyolegacy:marisa/golden_apple/complete/dialog_1",
+    "text": "gensokyolegacy/marisa/golden_apple/option/complete"
+  },
+  "conditions": [
+    {
+      "type": "gensokyolegacy:has_quest_completed",
+      "quest": "gensokyolegacy:marisa/brewing"
+    }
+  ],
+  "description": "gensokyolegacy/marisa/golden_apple/quest/desc",
+  "followUpDialog": {
+    "type": "gensokyolegacy:simple",
+    "actions": [],
+    "conditions": [],
+    "next": "gensokyolegacy:marisa/golden_apple/follow_up/dialog_1",
+    "text": "gensokyolegacy/marisa/golden_apple/option/follow_up"
+  },
+  "initialDialog": {
+    "type": "gensokyolegacy:simple",
+    "actions": [],
+    "conditions": [],
+    "next": "gensokyolegacy:marisa/golden_apple/start/dialog_1",
+    "text": "gensokyolegacy/marisa/golden_apple/option/start"
+  },
+  "requirements": {
+    "a-apple": {
+      "type": "gensokyolegacy:submit_item",
+      "ingredients": [
+        {
+          "count": 1,
+          "item": "minecraft:enchanted_golden_apple"
+        }
+      ]
+    }
+  },
+  "rewards": [
+    {
+      "type": "gensokyolegacy:exp",
+      "point": 300
+    },
+    {
+      "type": "gensokyolegacy:reputation",
+      "cap_increase": 10,
+      "max_cap": 300,
+      "reputation": 80,
+      "soft_cap": 150
+    }
+  ],
+  "title": "gensokyolegacy/marisa/golden_apple/quest/title"
+}

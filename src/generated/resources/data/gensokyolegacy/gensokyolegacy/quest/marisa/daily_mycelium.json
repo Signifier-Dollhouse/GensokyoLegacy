@@ -1,0 +1,72 @@
+{
+  "character": "gensokyolegacy:kirisame_marisa",
+  "completionDialog": {
+    "type": "gensokyolegacy:simple",
+    "actions": [],
+    "conditions": [],
+    "next": "gensokyolegacy:marisa/daily_mycelium/complete/dialog_1",
+    "text": "gensokyolegacy/marisa/daily_mycelium/option/complete"
+  },
+  "conditions": [],
+  "description": "gensokyolegacy/marisa/daily_mycelium/quest/desc",
+  "followUpDialog": {
+    "type": "gensokyolegacy:simple",
+    "actions": [],
+    "conditions": [],
+    "next": "gensokyolegacy:marisa/daily_mycelium/follow_up/dialog_1",
+    "text": "gensokyolegacy/marisa/daily_mycelium/option/follow_up"
+  },
+  "initialDialog": {
+    "type": "gensokyolegacy:simple",
+    "actions": [],
+    "conditions": [],
+    "next": "gensokyolegacy:marisa/daily_mycelium/start/dialog_1",
+    "text": "gensokyolegacy/marisa/daily_mycelium/option/start"
+  },
+  "recurrence": {
+    "cooldown": 24000
+  },
+  "requirements": {
+    "a-ghost": {
+      "type": "gensokyolegacy:submit_item",
+      "ingredients": [
+        {
+          "count": 4,
+          "item": "gensokyolegacy:ghost_fire_mushroom"
+        }
+      ]
+    },
+    "b-dream": {
+      "type": "gensokyolegacy:submit_item",
+      "ingredients": [
+        {
+          "count": 4,
+          "item": "gensokyolegacy:dream_mushroom"
+        }
+      ]
+    },
+    "c-miasma": {
+      "type": "gensokyolegacy:submit_item",
+      "ingredients": [
+        {
+          "count": 4,
+          "item": "gensokyolegacy:demonic_miasma_mushroom"
+        }
+      ]
+    }
+  },
+  "rewards": [
+    {
+      "type": "gensokyolegacy:exp",
+      "point": 60
+    },
+    {
+      "type": "gensokyolegacy:reputation",
+      "cap_increase": 10,
+      "max_cap": 200,
+      "reputation": 15,
+      "soft_cap": 100
+    }
+  ],
+  "title": "gensokyolegacy/marisa/daily_mycelium/quest/title"
+}

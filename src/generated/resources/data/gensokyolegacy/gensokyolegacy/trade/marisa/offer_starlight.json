@@ -1,0 +1,23 @@
+{
+  "character": "gensokyolegacy:kirisame_marisa",
+  "conditions": [
+    {
+      "type": "gensokyolegacy:self_reputation",
+      "reputation": 150
+    }
+  ],
+  "ingredients": [
+    {
+      "count": 6,
+      "item": "minecraft:emerald"
+    }
+  ],
+  "recurrence": {
+    "maxStock": 2,
+    "restockTime": 3600
+  },
+  "result": {
+    "count": 1,
+    "id": "gensokyolegacy:starlight_hexbrew_bottle"
+  }
+}

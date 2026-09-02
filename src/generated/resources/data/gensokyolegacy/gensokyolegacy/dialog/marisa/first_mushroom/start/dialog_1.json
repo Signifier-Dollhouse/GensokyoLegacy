@@ -1,0 +1,21 @@
+{
+  "options": [
+    {
+      "type": "gensokyolegacy:simple",
+      "actions": [],
+      "conditions": [],
+      "text": "gensokyolegacy/marisa/first_mushroom/option/start/reject"
+    },
+    {
+      "type": "gensokyolegacy:simple",
+      "actions": [
+        {
+          "type": "gensokyolegacy:start_quest"
+        }
+      ],
+      "conditions": [],
+      "text": "gensokyolegacy/marisa/first_mushroom/option/start/accept"
+    }
+  ],
+  "text": "gensokyolegacy/marisa/first_mushroom/dialog/marisa/first_mushroom/start/dialog_1"
+}

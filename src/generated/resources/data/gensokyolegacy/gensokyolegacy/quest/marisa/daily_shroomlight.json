@@ -1,0 +1,68 @@
+{
+  "character": "gensokyolegacy:kirisame_marisa",
+  "completionDialog": {
+    "type": "gensokyolegacy:simple",
+    "actions": [],
+    "conditions": [],
+    "next": "gensokyolegacy:marisa/daily_shroomlight/complete/dialog_1",
+    "text": "gensokyolegacy/marisa/daily_shroomlight/option/complete"
+  },
+  "conditions": [
+    {
+      "type": "gensokyolegacy:has_quest_completed",
+      "quest": "gensokyolegacy:marisa/shroomlight"
+    }
+  ],
+  "description": "gensokyolegacy/marisa/daily_shroomlight/quest/desc",
+  "followUpDialog": {
+    "type": "gensokyolegacy:simple",
+    "actions": [],
+    "conditions": [],
+    "next": "gensokyolegacy:marisa/daily_shroomlight/follow_up/dialog_1",
+    "text": "gensokyolegacy/marisa/daily_shroomlight/option/follow_up"
+  },
+  "initialDialog": {
+    "type": "gensokyolegacy:simple",
+    "actions": [],
+    "conditions": [],
+    "next": "gensokyolegacy:marisa/daily_shroomlight/start/dialog_1",
+    "text": "gensokyolegacy/marisa/daily_shroomlight/option/start"
+  },
+  "recurrence": {
+    "cooldown": 24000
+  },
+  "requirements": {
+    "a-light": {
+      "type": "gensokyolegacy:submit_item",
+      "ingredients": [
+        {
+          "count": 4,
+          "item": "minecraft:shroomlight"
+        }
+      ]
+    },
+    "b-fungus": {
+      "type": "gensokyolegacy:submit_item",
+      "ingredients": [
+        {
+          "count": 4,
+          "item": "minecraft:crimson_fungus"
+        }
+      ]
+    }
+  },
+  "rewards": [
+    {
+      "type": "gensokyolegacy:exp",
+      "point": 120
+    },
+    {
+      "type": "gensokyolegacy:reputation",
+      "cap_increase": 15,
+      "max_cap": 250,
+      "reputation": 20,
+      "soft_cap": 150
+    }
+  ],
+  "title": "gensokyolegacy/marisa/daily_shroomlight/quest/title"
+}

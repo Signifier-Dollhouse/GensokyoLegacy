@@ -1,0 +1,15 @@
+{
+  "options": [
+    {
+      "type": "gensokyolegacy:simple",
+      "actions": [
+        {
+          "type": "gensokyolegacy:complete_quest"
+        }
+      ],
+      "conditions": [],
+      "text": "gensokyolegacy/marisa/shroomlight/option/complete/handover"
+    }
+  ],
+  "text": "gensokyolegacy/marisa/shroomlight/dialog/marisa/shroomlight/complete/dialog_1"
+}

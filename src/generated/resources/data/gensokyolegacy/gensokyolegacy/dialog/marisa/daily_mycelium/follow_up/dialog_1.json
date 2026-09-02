@@ -1,0 +1,11 @@
+{
+  "options": [
+    {
+      "type": "gensokyolegacy:simple",
+      "actions": [],
+      "conditions": [],
+      "text": "gensokyolegacy/marisa/daily_mycelium/option/follow_up/end"
+    }
+  ],
+  "text": "gensokyolegacy/marisa/daily_mycelium/dialog/marisa/daily_mycelium/follow_up/dialog_1"
+}

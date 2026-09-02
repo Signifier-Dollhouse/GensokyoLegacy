@@ -1,0 +1,23 @@
+{
+  "character": "gensokyolegacy:kirisame_marisa",
+  "conditions": [
+    {
+      "type": "gensokyolegacy:has_quest_completed",
+      "quest": "gensokyolegacy:marisa/brewing"
+    }
+  ],
+  "ingredients": [
+    {
+      "count": 3,
+      "item": "minecraft:blaze_rod"
+    }
+  ],
+  "recurrence": {
+    "maxStock": 6,
+    "restockTime": 2400
+  },
+  "result": {
+    "count": 2,
+    "id": "minecraft:emerald"
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "character": "gensokyolegacy:kirisame_marisa",
+  "completionDialog": {
+    "type": "gensokyolegacy:simple",
+    "actions": [],
+    "conditions": [],
+    "next": "gensokyolegacy:marisa/shroomlight/complete/dialog_1",
+    "text": "gensokyolegacy/marisa/shroomlight/option/complete"
+  },
+  "conditions": [
+    {
+      "type": "gensokyolegacy:has_quest_completed",
+      "quest": "gensokyolegacy:marisa/nether_mushroom_prep"
+    }
+  ],
+  "description": "gensokyolegacy/marisa/shroomlight/quest/desc",
+  "followUpDialog": {
+    "type": "gensokyolegacy:simple",
+    "actions": [],
+    "conditions": [],
+    "next": "gensokyolegacy:marisa/shroomlight/follow_up/dialog_1",
+    "text": "gensokyolegacy/marisa/shroomlight/option/follow_up"
+  },
+  "initialDialog": {
+    "type": "gensokyolegacy:simple",
+    "actions": [],
+    "conditions": [],
+    "next": "gensokyolegacy:marisa/shroomlight/start/dialog_1",
+    "text": "gensokyolegacy/marisa/shroomlight/option/start"
+  },
+  "requirements": {
+    "a-light": {
+      "type": "gensokyolegacy:submit_item",
+      "ingredients": [
+        {
+          "count": 4,
+          "item": "minecraft:shroomlight"
+        }
+      ]
+    },
+    "b-stem": {
+      "type": "gensokyolegacy:submit_item",
+      "ingredients": [
+        {
+          "count": 4,
+          "item": "minecraft:crimson_stem"
+        }
+      ]
+    }
+  },
+  "rewards": [
+    {
+      "type": "gensokyolegacy:exp",
+      "point": 150
+    },
+    {
+      "type": "gensokyolegacy:reputation",
+      "cap_increase": 10,
+      "max_cap": 250,
+      "reputation": 50,
+      "soft_cap": 150
+    }
+  ],
+  "title": "gensokyolegacy/marisa/shroomlight/quest/title"
+}

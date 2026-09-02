@@ -1,0 +1,22 @@
+{
+  "character": "gensokyolegacy:kirisame_marisa",
+  "conditions": [],
+  "ingredients": [
+    {
+      "count": 8,
+      "item": "minecraft:rotten_flesh"
+    },
+    {
+      "count": 4,
+      "item": "minecraft:spider_eye"
+    }
+  ],
+  "recurrence": {
+    "maxStock": 14,
+    "restockTime": 1200
+  },
+  "result": {
+    "count": 1,
+    "id": "minecraft:emerald"
+  }
+}

@@ -1,0 +1,69 @@
+{
+  "character": "gensokyolegacy:kirisame_marisa",
+  "completionDialog": {
+    "type": "gensokyolegacy:simple",
+    "actions": [],
+    "conditions": [],
+    "next": "gensokyolegacy:marisa/nether_mushroom_prep/complete/dialog_1",
+    "text": "gensokyolegacy/marisa/nether_mushroom_prep/option/complete"
+  },
+  "conditions": [
+    {
+      "type": "gensokyolegacy:has_quest_completed",
+      "quest": "gensokyolegacy:marisa/first_mushroom"
+    },
+    {
+      "type": "gensokyolegacy:has_advancement",
+      "advancement": "minecraft:nether/root"
+    }
+  ],
+  "description": "gensokyolegacy/marisa/nether_mushroom_prep/quest/desc",
+  "followUpDialog": {
+    "type": "gensokyolegacy:simple",
+    "actions": [],
+    "conditions": [],
+    "next": "gensokyolegacy:marisa/nether_mushroom_prep/follow_up/dialog_1",
+    "text": "gensokyolegacy/marisa/nether_mushroom_prep/option/follow_up"
+  },
+  "initialDialog": {
+    "type": "gensokyolegacy:simple",
+    "actions": [],
+    "conditions": [],
+    "next": "gensokyolegacy:marisa/nether_mushroom_prep/start/dialog_1",
+    "text": "gensokyolegacy/marisa/nether_mushroom_prep/option/start"
+  },
+  "requirements": {
+    "a-wart": {
+      "type": "gensokyolegacy:submit_item",
+      "ingredients": [
+        {
+          "count": 4,
+          "item": "minecraft:nether_wart_block"
+        }
+      ]
+    },
+    "b-crimson": {
+      "type": "gensokyolegacy:submit_item",
+      "ingredients": [
+        {
+          "count": 4,
+          "item": "minecraft:crimson_fungus"
+        }
+      ]
+    }
+  },
+  "rewards": [
+    {
+      "type": "gensokyolegacy:exp",
+      "point": 150
+    },
+    {
+      "type": "gensokyolegacy:reputation",
+      "cap_increase": 10,
+      "max_cap": 250,
+      "reputation": 50,
+      "soft_cap": 150
+    }
+  ],
+  "title": "gensokyolegacy/marisa/nether_mushroom_prep/quest/title"
+}

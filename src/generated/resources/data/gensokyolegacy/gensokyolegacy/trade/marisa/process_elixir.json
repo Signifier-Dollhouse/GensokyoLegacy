@@ -1,0 +1,18 @@
+{
+  "character": "gensokyolegacy:kirisame_marisa",
+  "conditions": [],
+  "ingredients": [
+    {
+      "count": 4,
+      "item": "gensokyolegacy:mundane_hexbrew_bottle"
+    }
+  ],
+  "recurrence": {
+    "maxStock": 2,
+    "restockTime": 1200
+  },
+  "result": {
+    "count": 1,
+    "id": "gensokyolegacy:hexbrew_elixir_bottle"
+  }
+}

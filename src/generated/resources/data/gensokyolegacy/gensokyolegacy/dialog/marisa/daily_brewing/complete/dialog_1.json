@@ -1,0 +1,15 @@
+{
+  "options": [
+    {
+      "type": "gensokyolegacy:simple",
+      "actions": [
+        {
+          "type": "gensokyolegacy:complete_quest"
+        }
+      ],
+      "conditions": [],
+      "text": "gensokyolegacy/marisa/daily_brewing/option/complete/handover"
+    }
+  ],
+  "text": "gensokyolegacy/marisa/daily_brewing/dialog/marisa/daily_brewing/complete/dialog_1"
+}

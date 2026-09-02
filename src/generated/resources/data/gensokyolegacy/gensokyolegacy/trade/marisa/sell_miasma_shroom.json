@@ -1,0 +1,18 @@
+{
+  "character": "gensokyolegacy:kirisame_marisa",
+  "conditions": [],
+  "ingredients": [
+    {
+      "count": 8,
+      "item": "gensokyolegacy:demonic_miasma_mushroom"
+    }
+  ],
+  "recurrence": {
+    "maxStock": 8,
+    "restockTime": 1200
+  },
+  "result": {
+    "count": 1,
+    "id": "minecraft:emerald"
+  }
+}
