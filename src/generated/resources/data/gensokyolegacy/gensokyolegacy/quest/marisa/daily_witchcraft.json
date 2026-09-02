@@ -5,7 +5,7 @@
     "actions": [],
     "conditions": [],
     "next": "gensokyolegacy:marisa/daily_witchcraft/complete/dialog_1",
-    "text": "gensokyolegacy/marisa/daily_witchcraft/option/complete"
+    "text": "gensokyolegacy/marisa/shared/option/daily_complete"
   },
   "conditions": [],
   "description": "gensokyolegacy/marisa/daily_witchcraft/quest/desc",
@@ -14,14 +14,14 @@
     "actions": [],
     "conditions": [],
     "next": "gensokyolegacy:marisa/daily_witchcraft/follow_up/dialog_1",
-    "text": "gensokyolegacy/marisa/daily_witchcraft/option/follow_up"
+    "text": "gensokyolegacy/marisa/shared/option/daily_follow"
   },
   "initialDialog": {
     "type": "gensokyolegacy:simple",
     "actions": [],
     "conditions": [],
     "next": "gensokyolegacy:marisa/daily_witchcraft/start/dialog_1",
-    "text": "gensokyolegacy/marisa/daily_witchcraft/option/start"
+    "text": "gensokyolegacy/marisa/shared/option/daily_start"
   },
   "recurrence": {
     "cooldown": 24000

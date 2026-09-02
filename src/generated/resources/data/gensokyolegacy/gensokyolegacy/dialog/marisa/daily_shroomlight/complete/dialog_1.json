@@ -9,8 +9,8 @@
       ],
       "conditions": [],
       "next": "gensokyolegacy:marisa/daily_shroomlight/complete/handover/dialog_1",
-      "text": "gensokyolegacy/marisa/daily_shroomlight/option/complete/handover"
+      "text": "gensokyolegacy/marisa/shared/option/daily_handover"
     }
   ],
-  "text": "gensokyolegacy/marisa/daily_shroomlight/dialog/marisa/daily_shroomlight/complete/dialog_1"
+  "text": "gensokyolegacy/marisa/shared/dialog/daily_gotem"
 }

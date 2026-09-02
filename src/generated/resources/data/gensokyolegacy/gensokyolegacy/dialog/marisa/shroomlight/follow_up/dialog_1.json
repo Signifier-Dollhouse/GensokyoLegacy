@@ -5,7 +5,7 @@
       "actions": [],
       "conditions": [],
       "next": "gensokyolegacy:marisa/shroomlight/follow_up/end/dialog_1",
-      "text": "gensokyolegacy/marisa/shroomlight/option/follow_up/end"
+      "text": "Still in the Nether."
     }
   ],
   "text": "gensokyolegacy/marisa/shroomlight/dialog/marisa/shroomlight/follow_up/dialog_1"

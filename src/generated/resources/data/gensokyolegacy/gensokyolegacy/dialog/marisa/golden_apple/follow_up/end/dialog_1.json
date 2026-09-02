@@ -4,7 +4,7 @@
       "type": "gensokyolegacy:simple",
       "actions": [],
       "conditions": [],
-      "text": "gensokyolegacy/marisa/golden_apple/option/follow_up/end/bye"
+      "text": "gensokyolegacy/marisa/shared/option/bye"
     }
   ],
   "text": "gensokyolegacy/marisa/golden_apple/dialog/marisa/golden_apple/follow_up/end/dialog_1"

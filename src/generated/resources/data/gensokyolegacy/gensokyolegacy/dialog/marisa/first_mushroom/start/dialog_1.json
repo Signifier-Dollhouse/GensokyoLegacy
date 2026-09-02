@@ -5,7 +5,7 @@
       "actions": [],
       "conditions": [],
       "next": "gensokyolegacy:marisa/first_mushroom/start/reject/dialog_1",
-      "text": "gensokyolegacy/marisa/first_mushroom/option/start/reject"
+      "text": "Ehh, sounds like a hassle."
     },
     {
       "type": "gensokyolegacy:simple",
@@ -16,7 +16,7 @@
       ],
       "conditions": [],
       "next": "gensokyolegacy:marisa/first_mushroom/start/accept/dialog_1",
-      "text": "gensokyolegacy/marisa/first_mushroom/option/start/accept"
+      "text": "Sure, I'll gather some."
     }
   ],
   "text": "gensokyolegacy/marisa/first_mushroom/dialog/marisa/first_mushroom/start/dialog_1"

@@ -13,6 +13,7 @@ import dev.xkmc.gensokyolegacy.content.block.nature.WaterloggedCrossBlock;
 import dev.xkmc.gensokyolegacy.content.worldgen.feature.MushroomFeatures;
 import dev.xkmc.gensokyolegacy.content.worldgen.feature.TreeFeatures;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
+import dev.xkmc.gensokyolegacy.init.data.GLTagGen;
 import dev.xkmc.l2core.init.reg.registrate.L2Registrate;
 import dev.xkmc.l2modularblock.core.BlockTemplates;
 import dev.xkmc.l2modularblock.core.DelegateBlock;
@@ -291,7 +292,7 @@ public class GLNaturalBlocks {
 				}
 				return stemBuilder
 						.loot(RegistrateBlockLootTables::dropWhenSilkTouch)
-						.simpleItem()
+						.item().tag(GLTagGen.HUGE_MUSHROOM).build()
 						.register();
 			});
 
@@ -314,7 +315,7 @@ public class GLNaturalBlocks {
 					.blockstate((ctx, pvd) -> genPlainState(ctx, pvd, emissive))
 					.loot((tb, blk) -> tb.add(blk, tb.createMushroomBlockDrop(blk, cap)))
 					.tag(BlockTags.MINEABLE_WITH_AXE)
-					.simpleItem()
+					.item().tag(GLTagGen.HUGE_MUSHROOM).build()
 					.register();
 		}
 

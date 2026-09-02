@@ -5,7 +5,7 @@
       "actions": [],
       "conditions": [],
       "next": "gensokyolegacy:marisa/huge_mushroom/start/reject/dialog_1",
-      "text": "gensokyolegacy/marisa/huge_mushroom/option/start/reject"
+      "text": "Can't you just break them yourself?"
     },
     {
       "type": "gensokyolegacy:simple",
@@ -16,7 +16,7 @@
       ],
       "conditions": [],
       "next": "gensokyolegacy:marisa/huge_mushroom/start/accept/dialog_1",
-      "text": "gensokyolegacy/marisa/huge_mushroom/option/start/accept"
+      "text": "I'll bring you fresh blocks."
     }
   ],
   "text": "gensokyolegacy/marisa/huge_mushroom/dialog/marisa/huge_mushroom/start/dialog_1"

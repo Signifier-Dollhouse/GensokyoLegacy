@@ -5,7 +5,7 @@
       "actions": [],
       "conditions": [],
       "next": "gensokyolegacy:marisa/brewing/start/reject/dialog_1",
-      "text": "gensokyolegacy/marisa/brewing/option/start/reject"
+      "text": "Blazes are tough to fight."
     },
     {
       "type": "gensokyolegacy:simple",
@@ -16,7 +16,7 @@
       ],
       "conditions": [],
       "next": "gensokyolegacy:marisa/brewing/start/accept/dialog_1",
-      "text": "gensokyolegacy/marisa/brewing/option/start/accept"
+      "text": "I'll get you the samples."
     }
   ],
   "text": "gensokyolegacy/marisa/brewing/dialog/marisa/brewing/start/dialog_1"

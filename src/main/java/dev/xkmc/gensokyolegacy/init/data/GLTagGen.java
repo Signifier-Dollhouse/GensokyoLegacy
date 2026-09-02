@@ -47,8 +47,7 @@ public class GLTagGen {
 	public static void onItemTagGen(RegistrateItemTagsProvider pvd) {
 		pvd.addTag(CURRENCY).add(Items.EMERALD, Items.GOLD_INGOT);
 		pvd.addTag(HUGE_MUSHROOM)
-				.add(GLNaturalBlocks.GHOST_FIRE_MUSHROOM_SET.cap.get().asItem(), GLNaturalBlocks.GHOST_FIRE_MUSHROOM_SET.stem.get().asItem())
-				.add(GLNaturalBlocks.DREAM_MUSHROOM_SET.cap.get().asItem(), GLNaturalBlocks.DREAM_MUSHROOM_SET.stem.get().asItem());
+				.add(Items.MUSHROOM_STEM, Items.BROWN_MUSHROOM_BLOCK, Items.RED_MUSHROOM_BLOCK);
 	}
 
 	public static void onEntityTagGen(RegistrateTagsProvider.IntrinsicImpl<EntityType<?>> pvd) {

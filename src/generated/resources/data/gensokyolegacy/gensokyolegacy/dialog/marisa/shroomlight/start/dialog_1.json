@@ -5,7 +5,7 @@
       "actions": [],
       "conditions": [],
       "next": "gensokyolegacy:marisa/shroomlight/start/reject/dialog_1",
-      "text": "gensokyolegacy/marisa/shroomlight/option/start/reject"
+      "text": "They're dangerous to climb."
     },
     {
       "type": "gensokyolegacy:simple",
@@ -16,7 +16,7 @@
       ],
       "conditions": [],
       "next": "gensokyolegacy:marisa/shroomlight/start/accept/dialog_1",
-      "text": "gensokyolegacy/marisa/shroomlight/option/start/accept"
+      "text": "I'll bring back samples."
     }
   ],
   "text": "gensokyolegacy/marisa/shroomlight/dialog/marisa/shroomlight/start/dialog_1"

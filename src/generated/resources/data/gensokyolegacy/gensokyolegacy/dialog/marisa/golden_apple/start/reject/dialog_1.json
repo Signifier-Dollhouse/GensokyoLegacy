@@ -4,7 +4,7 @@
       "type": "gensokyolegacy:simple",
       "actions": [],
       "conditions": [],
-      "text": "gensokyolegacy/marisa/golden_apple/option/start/reject/bye"
+      "text": "gensokyolegacy/marisa/shared/option/bye"
     }
   ],
   "text": "gensokyolegacy/marisa/golden_apple/dialog/marisa/golden_apple/start/reject/dialog_1"

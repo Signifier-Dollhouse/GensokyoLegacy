@@ -5,7 +5,7 @@
     "actions": [],
     "conditions": [],
     "next": "gensokyolegacy:marisa/daily_mycelium/complete/dialog_1",
-    "text": "gensokyolegacy/marisa/daily_mycelium/option/complete"
+    "text": "gensokyolegacy/marisa/shared/option/daily_complete"
   },
   "conditions": [],
   "description": "gensokyolegacy/marisa/daily_mycelium/quest/desc",
@@ -14,14 +14,14 @@
     "actions": [],
     "conditions": [],
     "next": "gensokyolegacy:marisa/daily_mycelium/follow_up/dialog_1",
-    "text": "gensokyolegacy/marisa/daily_mycelium/option/follow_up"
+    "text": "gensokyolegacy/marisa/shared/option/daily_follow"
   },
   "initialDialog": {
     "type": "gensokyolegacy:simple",
     "actions": [],
     "conditions": [],
     "next": "gensokyolegacy:marisa/daily_mycelium/start/dialog_1",
-    "text": "gensokyolegacy/marisa/daily_mycelium/option/start"
+    "text": "gensokyolegacy/marisa/shared/option/daily_start"
   },
   "recurrence": {
     "cooldown": 24000

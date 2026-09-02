@@ -5,7 +5,7 @@
       "actions": [],
       "conditions": [],
       "next": "gensokyolegacy:marisa/first_mushroom/complete/reject/dialog_1",
-      "text": "gensokyolegacy/marisa/first_mushroom/option/complete/reject"
+      "text": "Not yet."
     },
     {
       "type": "gensokyolegacy:simple",
@@ -16,7 +16,7 @@
       ],
       "conditions": [],
       "next": "gensokyolegacy:marisa/first_mushroom/complete/handover/dialog_1",
-      "text": "gensokyolegacy/marisa/first_mushroom/option/complete/handover"
+      "text": "Here you go."
     }
   ],
   "text": "gensokyolegacy/marisa/first_mushroom/dialog/marisa/first_mushroom/complete/dialog_1"

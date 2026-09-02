@@ -9,8 +9,8 @@
       ],
       "conditions": [],
       "next": "gensokyolegacy:marisa/daily_witchcraft/complete/handover/dialog_1",
-      "text": "gensokyolegacy/marisa/daily_witchcraft/option/complete/handover"
+      "text": "gensokyolegacy/marisa/shared/option/daily_handover"
     }
   ],
-  "text": "gensokyolegacy/marisa/daily_witchcraft/dialog/marisa/daily_witchcraft/complete/dialog_1"
+  "text": "gensokyolegacy/marisa/shared/dialog/daily_gotem"
 }

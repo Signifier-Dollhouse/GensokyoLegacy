@@ -4,7 +4,7 @@
       "type": "gensokyolegacy:simple",
       "actions": [],
       "conditions": [],
-      "text": "gensokyolegacy/marisa/nether_mushroom_prep/option/follow_up/end/bye"
+      "text": "gensokyolegacy/marisa/shared/option/bye"
     }
   ],
   "text": "gensokyolegacy/marisa/nether_mushroom_prep/dialog/marisa/nether_mushroom_prep/follow_up/end/dialog_1"

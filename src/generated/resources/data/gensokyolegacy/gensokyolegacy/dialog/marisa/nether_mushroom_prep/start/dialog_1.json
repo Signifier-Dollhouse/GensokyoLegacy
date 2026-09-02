@@ -5,7 +5,7 @@
       "actions": [],
       "conditions": [],
       "next": "gensokyolegacy:marisa/nether_mushroom_prep/start/reject/dialog_1",
-      "text": "gensokyolegacy/marisa/nether_mushroom_prep/option/start/reject"
+      "text": "The Nether scares even me."
     },
     {
       "type": "gensokyolegacy:simple",
@@ -16,7 +16,7 @@
       ],
       "conditions": [],
       "next": "gensokyolegacy:marisa/nether_mushroom_prep/start/accept/dialog_1",
-      "text": "gensokyolegacy/marisa/nether_mushroom_prep/option/start/accept"
+      "text": "I've been to the Nether. I can do this."
     }
   ],
   "text": "gensokyolegacy/marisa/nether_mushroom_prep/dialog/marisa/nether_mushroom_prep/start/dialog_1"

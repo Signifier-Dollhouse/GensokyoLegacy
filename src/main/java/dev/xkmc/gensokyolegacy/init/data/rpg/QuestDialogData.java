@@ -128,7 +128,7 @@ public class QuestDialogData {
 		return text("quest", "desc", text);
 	}
 
-	private String text(String type, String id, String text) {
+	protected String text(String type, String id, String text) {
 		String full = modid + "/" + prefix + "/" + type + "/" + id;
 		reg.addRawLang(full, text);
 		return full;
@@ -139,6 +139,14 @@ public class QuestDialogData {
 		var key = ResourceKey.create(CodecRegistry.DIALOG.key(), loc(id));
 		var holder = new DataGenHolder<>(key, new Dialog(text("dialog", id, text), List.of(options)));
 		dialogRegistry.put(key, holder);
+		return holder;
+	}
+
+	public Holder<Dialog> dialogKey(String id, String key, DialogOption<?>... options) {
+		id = prefix + "/" + id;
+		var rkey = ResourceKey.create(CodecRegistry.DIALOG.key(), loc(id));
+		var holder = new DataGenHolder<>(rkey, new Dialog(key, List.of(options)));
+		dialogRegistry.put(rkey, holder);
 		return holder;
 	}
 
@@ -202,6 +210,22 @@ public class QuestDialogData {
 
 	public SimpleDialogOption option(String id, String text, DialogAction<?> action, Holder<Dialog> next) {
 		return new SimpleDialogOption(List.of(), optionText(id, text), List.of(action), Optional.of(next));
+	}
+
+	public SimpleDialogOption optionKey(String id, String key) {
+		return new SimpleDialogOption(List.of(), key, List.of(), Optional.empty());
+	}
+
+	public SimpleDialogOption optionKey(String id, String key, DialogAction<?> action) {
+		return new SimpleDialogOption(List.of(), key, List.of(action), Optional.empty());
+	}
+
+	public SimpleDialogOption optionKey(String id, String key, Holder<Dialog> next) {
+		return new SimpleDialogOption(List.of(), key, List.of(), Optional.of(next));
+	}
+
+	public SimpleDialogOption optionKey(String id, String key, DialogAction<?> action, Holder<Dialog> next) {
+		return new SimpleDialogOption(List.of(), key, List.of(action), Optional.of(next));
 	}
 
 	public IngredientEntry item(ItemLike item, int count) {

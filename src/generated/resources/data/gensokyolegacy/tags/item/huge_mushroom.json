@@ -1,8 +1,13 @@
 {
   "values": [
-    "gensokyolegacy:ghost_fire_mushroom",
     "gensokyolegacy:cyan_mushroom_stem",
-    "gensokyolegacy:dream_mushroom",
-    "gensokyolegacy:purple_mushroom_stem"
+    "gensokyolegacy:ghost_fire_mushroom_block",
+    "gensokyolegacy:purple_mushroom_stem",
+    "gensokyolegacy:dream_mushroom_block",
+    "gensokyolegacy:red_mushroom_stem",
+    "gensokyolegacy:demonic_miasma_mushroom_block",
+    "minecraft:mushroom_stem",
+    "minecraft:brown_mushroom_block",
+    "minecraft:red_mushroom_block"
   ]
 }

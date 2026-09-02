@@ -4,7 +4,7 @@
       "type": "gensokyolegacy:simple",
       "actions": [],
       "conditions": [],
-      "text": "gensokyolegacy/marisa/huge_mushroom/option/start/reject/bye"
+      "text": "gensokyolegacy/marisa/shared/option/bye"
     }
   ],
   "text": "gensokyolegacy/marisa/huge_mushroom/dialog/marisa/huge_mushroom/start/reject/dialog_1"

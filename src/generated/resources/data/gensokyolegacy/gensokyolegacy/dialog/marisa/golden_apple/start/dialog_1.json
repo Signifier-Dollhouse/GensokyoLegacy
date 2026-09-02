@@ -5,7 +5,7 @@
       "actions": [],
       "conditions": [],
       "next": "gensokyolegacy:marisa/golden_apple/start/reject/dialog_1",
-      "text": "gensokyolegacy/marisa/golden_apple/option/start/reject"
+      "text": "Those are really rare."
     },
     {
       "type": "gensokyolegacy:simple",
@@ -16,7 +16,7 @@
       ],
       "conditions": [],
       "next": "gensokyolegacy:marisa/golden_apple/start/accept/dialog_1",
-      "text": "gensokyolegacy/marisa/golden_apple/option/start/accept"
+      "text": "I'll try to find one."
     }
   ],
   "text": "gensokyolegacy/marisa/golden_apple/dialog/marisa/golden_apple/start/dialog_1"

@@ -4,7 +4,7 @@
       "type": "gensokyolegacy:simple",
       "actions": [],
       "conditions": [],
-      "text": "gensokyolegacy/marisa/daily_brewing/option/follow_up/end/bye"
+      "text": "gensokyolegacy/marisa/shared/option/bye"
     }
   ],
   "text": "gensokyolegacy/marisa/daily_brewing/dialog/marisa/daily_brewing/follow_up/end/dialog_1"

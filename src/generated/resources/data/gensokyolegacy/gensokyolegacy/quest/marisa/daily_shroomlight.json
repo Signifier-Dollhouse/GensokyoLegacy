@@ -5,7 +5,7 @@
     "actions": [],
     "conditions": [],
     "next": "gensokyolegacy:marisa/daily_shroomlight/complete/dialog_1",
-    "text": "gensokyolegacy/marisa/daily_shroomlight/option/complete"
+    "text": "gensokyolegacy/marisa/shared/option/daily_complete"
   },
   "conditions": [
     {
@@ -19,14 +19,14 @@
     "actions": [],
     "conditions": [],
     "next": "gensokyolegacy:marisa/daily_shroomlight/follow_up/dialog_1",
-    "text": "gensokyolegacy/marisa/daily_shroomlight/option/follow_up"
+    "text": "gensokyolegacy/marisa/shared/option/daily_follow"
   },
   "initialDialog": {
     "type": "gensokyolegacy:simple",
     "actions": [],
     "conditions": [],
     "next": "gensokyolegacy:marisa/daily_shroomlight/start/dialog_1",
-    "text": "gensokyolegacy/marisa/daily_shroomlight/option/start"
+    "text": "gensokyolegacy/marisa/shared/option/daily_start"
   },
   "recurrence": {
     "cooldown": 24000

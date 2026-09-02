@@ -5,7 +5,7 @@
       "actions": [],
       "conditions": [],
       "next": "gensokyolegacy:marisa/huge_mushroom/follow_up/end/dialog_1",
-      "text": "gensokyolegacy/marisa/huge_mushroom/option/follow_up/end"
+      "text": "Still working on it."
     }
   ],
   "text": "gensokyolegacy/marisa/huge_mushroom/dialog/marisa/huge_mushroom/follow_up/dialog_1"

@@ -5,7 +5,7 @@
       "actions": [],
       "conditions": [],
       "next": "gensokyolegacy:marisa/daily_brewing/start/reject/dialog_1",
-      "text": "gensokyolegacy/marisa/daily_brewing/option/start/reject"
+      "text": "gensokyolegacy/marisa/shared/option/daily_reject"
     },
     {
       "type": "gensokyolegacy:simple",
@@ -16,7 +16,7 @@
       ],
       "conditions": [],
       "next": "gensokyolegacy:marisa/daily_brewing/start/accept/dialog_1",
-      "text": "gensokyolegacy/marisa/daily_brewing/option/start/accept"
+      "text": "gensokyolegacy/marisa/shared/option/daily_accept"
     }
   ],
   "text": "gensokyolegacy/marisa/daily_brewing/dialog/marisa/daily_brewing/start/dialog_1"

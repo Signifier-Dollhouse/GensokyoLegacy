@@ -51,7 +51,27 @@ public class MarisaQDGen extends QuestDialogData {
 	private static final ResourceLocation ADV_NETHER = ResourceLocation.withDefaultNamespace("nether/root");
 	private static final ResourceLocation ADV_FORTRESS = ResourceLocation.withDefaultNamespace("nether/find_fortress");
 
+	private final String byeKey;
+	private final String dailyStartKey;
+	private final String dailyAcceptKey;
+	private final String dailyRejectKey;
+	private final String dailyFollowKey;
+	private final String dailyFollowEndKey;
+	private final String dailyCompleteKey;
+	private final String dailyHandoverKey;
+	private final String dailyGotemKey;
+
 	public MarisaQDGen() {
+		prefix("marisa/shared");
+		byeKey = text("option", "bye", "Bye!");
+		dailyStartKey = text("option", "daily_start", "I can gather that for you.");
+		dailyAcceptKey = text("option", "daily_accept", "I'll do it!");
+		dailyRejectKey = text("option", "daily_reject", "Maybe later.");
+		dailyFollowKey = text("option", "daily_follow", "How's it going?");
+		dailyFollowEndKey = text("option", "daily_follow_end", "I'm on it!");
+		dailyCompleteKey = text("option", "daily_complete", "I've got the goods!");
+		dailyHandoverKey = text("option", "daily_handover", "Here you go!");
+		dailyGotemKey = text("dialog", "daily_gotem", "Oh, you got 'em? Let me see!");
 
 		prefix("marisa/chat");
 		defaultDialog(GLEntities.MARISA.get(),
@@ -60,9 +80,14 @@ public class MarisaQDGen extends QuestDialogData {
 		starter("marisa/chat", new DialogStarter(GLEntities.MARISA.get(), List.of(),
 				starterText("start", "Yo! Marisa Kirisame, the ordinary magician, at your service! Ze!"),
 				dialog("hi", "Yo! What can I do for ya?",
-						option("chat/bye", "Bye!"))
+						optionKey("chat/bye", byeKey))
 		));
 
+		quests();
+		trades();
+	}
+
+	private void quests() {
 		prefix("marisa/first_mushroom");
 		quest("marisa/first_mushroom", new Quest(GLEntities.MARISA.get(), List.of(),
 				questTitle("First Mushrooms"), questDesc("Bring Marisa red and brown mushrooms from the surface."),
@@ -192,7 +217,10 @@ public class MarisaQDGen extends QuestDialogData {
 						"I knew you could do it.", "Heh! With me around, ain't nothin' impossible!")
 		));
 
-		// Daily quests
+		dailyQuests();
+	}
+
+	private void dailyQuests() {
 		prefix("marisa/daily_mycelium");
 		var myceliumTable = requestTable("daily_mycelium", LootTable.lootTable().withPool(LootPool.lootPool()
 				.setRolls(ConstantValue.exactly(3))
@@ -264,7 +292,9 @@ public class MarisaQDGen extends QuestDialogData {
 						"a-blaze", new SubmitItemRequirement(List.of(item(Items.BLAZE_ROD, 2))),
 						"b-wart", new SubmitItemRequirement(List.of(item(Items.NETHER_WART, 8)))
 				)));
+	}
 
+	private void trades() {
 		// Restocking trades (player sells to Marisa)
 		prefix("marisa");
 		trade("sell_mod_shroom", GLEntities.MARISA.get(), new ItemStack(Items.EMERALD),
@@ -329,7 +359,6 @@ public class MarisaQDGen extends QuestDialogData {
 				new ItemStack(HexBrew.HEXBREW_ELIXIR.bottle.get()),
 				new TradeRecurrence(16, 24000),
 				List.of(item(HexBrew.MUNDANE_HEXBREW.bottle, 4))));
-
 	}
 
 	private SimpleDialogOption start(String button, String intro,
@@ -337,22 +366,22 @@ public class MarisaQDGen extends QuestDialogData {
 	                                 String reject, String rejectLine) {
 		return option("start", button,
 				dialog("start/dialog_1", intro,
-						option("start/reject", reject, dialog("start/reject/dialog_1", rejectLine, option("start/reject/bye", "Bye!"))),
-						option("start/accept", accept, new StartQuestAction(),
-								dialog("start/accept/dialog_1", acceptLine, option("start/accept/bye", "Bye!")))));
+						optionKey("start/reject", reject, dialog("start/reject/dialog_1", rejectLine, optionKey("start/reject/bye", byeKey))),
+						optionKey("start/accept", accept, new StartQuestAction(),
+								dialog("start/accept/dialog_1", acceptLine, optionKey("start/accept/bye", byeKey)))));
 	}
 
 	private SimpleDialogOption follow(String button, String intro, String opt, String optLine) {
 		return option("follow_up", button,
 				dialog("follow_up/dialog_1", intro,
-						option("follow_up/end", opt, dialog("follow_up/end/dialog_1", optLine, option("follow_up/end/bye", "Bye!")))));
+						optionKey("follow_up/end", opt, dialog("follow_up/end/dialog_1", optLine, optionKey("follow_up/end/bye", byeKey)))));
 	}
 
 	private SimpleDialogOption complete(String button, String intro, String complete, String completeLine) {
 		return option("complete", button,
 				dialog("complete/dialog_1", intro,
-						option("complete/handover", complete, new CompleteQuestAction(),
-								dialog("complete/handover/dialog_1", completeLine, option("complete/handover/bye", "Bye!")))));
+						optionKey("complete/handover", complete, new CompleteQuestAction(),
+								dialog("complete/handover/dialog_1", completeLine, optionKey("complete/handover/bye", byeKey)))));
 	}
 
 	private SimpleDialogOption complete(String button, String intro,
@@ -360,9 +389,9 @@ public class MarisaQDGen extends QuestDialogData {
 	                                    String reject, String rejectLine) {
 		return option("complete", button,
 				dialog("complete/dialog_1", intro,
-						option("complete/reject", reject, dialog("complete/reject/dialog_1", rejectLine, option("complete/reject/bye", "Bye!"))),
-						option("complete/handover", complete, new CompleteQuestAction(),
-								dialog("complete/handover/dialog_1", completeLine, option("complete/handover/bye", "Bye!")))));
+						optionKey("complete/reject", reject, dialog("complete/reject/dialog_1", rejectLine, optionKey("complete/reject/bye", byeKey))),
+						optionKey("complete/handover", complete, new CompleteQuestAction(),
+								dialog("complete/handover/dialog_1", completeLine, optionKey("complete/handover/bye", byeKey)))));
 	}
 
 	private ItemStack witch(Holder<Potion> potion, int count) {
@@ -387,26 +416,26 @@ public class MarisaQDGen extends QuestDialogData {
 	}
 
 	private SimpleDialogOption dailyStart(String intro, String acceptLine, String rejectLine) {
-		return option("start", "I can gather that for you.",
+		return optionKey("start", dailyStartKey,
 				dialog("start/dialog_1", intro,
-						option("start/reject", "Maybe later.",
-								dialog("start/reject/dialog_1", rejectLine, option("start/reject/bye", "Bye!"))),
-						option("start/accept", "I'll do it!", new StartQuestAction(),
-								dialog("start/accept/dialog_1", acceptLine, option("start/accept/bye", "Bye!")))));
+						optionKey("start/reject", dailyRejectKey,
+								dialog("start/reject/dialog_1", rejectLine, optionKey("start/reject/bye", byeKey))),
+						optionKey("start/accept", dailyAcceptKey, new StartQuestAction(),
+								dialog("start/accept/dialog_1", acceptLine, optionKey("start/accept/bye", byeKey)))));
 	}
 
 	private SimpleDialogOption dailyFollow(String followLine, String optLine) {
-		return option("follow_up", "How's it going?",
+		return optionKey("follow_up", dailyFollowKey,
 				dialog("follow_up/dialog_1", followLine,
-						option("follow_up/end", "I'm on it!",
-								dialog("follow_up/end/dialog_1", optLine, option("follow_up/end/bye", "Bye!")))));
+						optionKey("follow_up/end", dailyFollowEndKey,
+								dialog("follow_up/end/dialog_1", optLine, optionKey("follow_up/end/bye", byeKey)))));
 	}
 
 	private SimpleDialogOption dailyComplete(String completeLine) {
-		return option("complete", "I've got the goods!",
-				dialog("complete/dialog_1", "Oh, you got 'em? Let me see!",
-						option("complete/handover", "Here you go!", new CompleteQuestAction(),
-								dialog("complete/handover/dialog_1", completeLine, option("complete/handover/bye", "Bye!")))));
+		return optionKey("complete", dailyCompleteKey,
+				dialogKey("complete/dialog_1", dailyGotemKey,
+						optionKey("complete/handover", dailyHandoverKey, new CompleteQuestAction(),
+								dialog("complete/handover/dialog_1", completeLine, optionKey("complete/handover/bye", byeKey)))));
 	}
 
 }
