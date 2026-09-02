@@ -33,21 +33,21 @@
     "text": "gensokyolegacy/marisa/nether_mushroom_prep/option/start"
   },
   "requirements": {
-    "a-wart": {
-      "type": "gensokyolegacy:submit_item",
-      "ingredients": [
-        {
-          "count": 4,
-          "item": "minecraft:nether_wart_block"
-        }
-      ]
-    },
-    "b-crimson": {
+    "a-crimson": {
       "type": "gensokyolegacy:submit_item",
       "ingredients": [
         {
           "count": 4,
           "item": "minecraft:crimson_fungus"
+        }
+      ]
+    },
+    "b-warped": {
+      "type": "gensokyolegacy:submit_item",
+      "ingredients": [
+        {
+          "count": 4,
+          "item": "minecraft:warped_fungus"
         }
       ]
     }
@@ -60,8 +60,8 @@
     {
       "type": "gensokyolegacy:reputation",
       "cap_increase": 10,
-      "max_cap": 250,
-      "reputation": 50,
+      "max_cap": 300,
+      "reputation": 30,
       "soft_cap": 150
     }
   ],

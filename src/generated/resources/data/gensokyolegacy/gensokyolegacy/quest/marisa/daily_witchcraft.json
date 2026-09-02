@@ -27,38 +27,15 @@
     "cooldown": 24000
   },
   "requirements": {
-    "a-flesh": {
-      "type": "gensokyolegacy:submit_item",
-      "ingredients": [
-        {
-          "count": 8,
-          "item": "minecraft:rotten_flesh"
-        }
-      ]
-    },
-    "b-eye": {
-      "type": "gensokyolegacy:submit_item",
-      "ingredients": [
-        {
-          "count": 4,
-          "item": "minecraft:spider_eye"
-        }
-      ]
-    },
-    "c-miasma": {
-      "type": "gensokyolegacy:submit_item",
-      "ingredients": [
-        {
-          "count": 4,
-          "item": "gensokyolegacy:demonic_miasma_mushroom"
-        }
-      ]
+    "a-grubby": {
+      "type": "gensokyolegacy:roll_item",
+      "table": "gensokyolegacy:quest_req/marisa/daily_witchcraft/daily_witchcraft"
     }
   },
   "rewards": [
     {
       "type": "gensokyolegacy:exp",
-      "point": 80
+      "point": 60
     },
     {
       "type": "gensokyolegacy:reputation",

@@ -115,7 +115,7 @@
 			"shroomlight": {
 				"quest": {
 					"title": "灵魂灯与菌木",
-					"desc": "给魔理沙带回菌光体和下界菌木方块。"
+					"desc": "给魔理沙带回菌光体。"
 				},
 				"option": {
 					"start": "谈谈菌木。",
@@ -265,7 +265,7 @@
 			"daily_shroomlight": {
 				"quest": {
 					"title": "下界灯材",
-					"desc": "给魔理沙带回菌光体和绯红菌。"
+					"desc": "给魔理沙带回菌光体和下界真菌。"
 				},
 				"option": {
 					"start": "我能帮你弄那个。",

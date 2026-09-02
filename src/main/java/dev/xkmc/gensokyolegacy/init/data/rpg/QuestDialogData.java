@@ -23,7 +23,9 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.ItemLike;
@@ -200,6 +202,10 @@ public class QuestDialogData {
 
 	public IngredientEntry item(ItemLike item, int count) {
 		return new IngredientEntry(Ingredient.of(item), count, Optional.empty());
+	}
+
+	public IngredientEntry itemTag(TagKey<Item> tag, int count) {
+		return new IngredientEntry(Ingredient.of(tag), count, Optional.empty());
 	}
 
 	public LootPool.Builder lootItem(ItemLike item, int count) {

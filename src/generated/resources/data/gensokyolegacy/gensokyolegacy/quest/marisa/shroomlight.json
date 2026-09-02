@@ -33,17 +33,8 @@
       "type": "gensokyolegacy:submit_item",
       "ingredients": [
         {
-          "count": 4,
+          "count": 8,
           "item": "minecraft:shroomlight"
-        }
-      ]
-    },
-    "b-stem": {
-      "type": "gensokyolegacy:submit_item",
-      "ingredients": [
-        {
-          "count": 4,
-          "item": "minecraft:crimson_stem"
         }
       ]
     }
@@ -55,9 +46,9 @@
     },
     {
       "type": "gensokyolegacy:reputation",
-      "cap_increase": 10,
-      "max_cap": 250,
-      "reputation": 50,
+      "cap_increase": 20,
+      "max_cap": 300,
+      "reputation": 30,
       "soft_cap": 150
     }
   ],

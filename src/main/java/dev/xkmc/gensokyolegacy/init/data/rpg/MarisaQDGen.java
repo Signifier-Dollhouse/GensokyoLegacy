@@ -18,11 +18,18 @@ import dev.xkmc.gensokyolegacy.content.rpg.reward.ReputationReward;
 import dev.xkmc.gensokyolegacy.content.rpg.trade.TradeOffer;
 import dev.xkmc.gensokyolegacy.content.rpg.trade.TradeRecurrence;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
+import dev.xkmc.gensokyolegacy.init.data.GLTagGen;
 import dev.xkmc.gensokyolegacy.init.registrate.GLEntities;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLNaturalBlocks;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.storage.loot.LootPool;
+import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.level.storage.loot.entries.LootItem;
+import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
+import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
+import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
 
 import java.util.List;
 import java.util.Map;
@@ -60,7 +67,7 @@ public class MarisaQDGen extends QuestDialogData {
 						"a-red", new SubmitItemRequirement(List.of(item(Items.RED_MUSHROOM, 4))),
 						"b-brown", new SubmitItemRequirement(List.of(item(Items.BROWN_MUSHROOM, 4)))
 				)),
-				List.of(new ExpReward(50), new ReputationReward(40, 100, 10, 200)),
+				List.of(new ExpReward(50), new ReputationReward(20, 100, 10, 300)),
 				start("Talk about her mushroom research.",
 						"Ah, a new human! Marisa Kirisame, the ordinary magician, zo! This whole world's still fresh to me — even the grass smells different. Say, you live around here, right? I'm just getting my magic research started, and I need some honest-to-goodness samples. Bring me some red and brown mushrooms from the surface, would ya?",
 						"Sure, I'll gather some.", "That's the spirit, ze! Eight red or brown mushrooms'll do. Bring me the good stuff!",
@@ -80,10 +87,9 @@ public class MarisaQDGen extends QuestDialogData {
 				questTitle("Giant Mushrooms"), questDesc("Bring Marisa huge mushroom blocks."),
 				Optional.empty(),
 				new TreeMap<>(Map.of(
-						"a-ghost", new SubmitItemRequirement(List.of(item(GLNaturalBlocks.GHOST_FIRE_MUSHROOM_SET.block, 4))),
-						"b-dream", new SubmitItemRequirement(List.of(item(GLNaturalBlocks.DREAM_MUSHROOM_SET.block, 4)))
+						"a-huge", new SubmitItemRequirement(List.of(itemTag(GLTagGen.HUGE_MUSHROOM, 8)))
 				)),
-				List.of(new ExpReward(100), new ReputationReward(50, 100, 10, 200)),
+				List.of(new ExpReward(100), new ReputationReward(40, 100, 20, 300)),
 				start("Talk about the giant mushrooms.",
 						"Whoa, hold on. Have ya seen the mushrooms around here? They're practically trees! I've never seen anything this huge — real whoppers. I tried pluckin' one, but it just shattered into little bits in my hands. There's gotta be a proper way to harvest the solid blocks. Think ya can bring me some whole giant mushroom blocks?",
 						"I'll bring you fresh blocks.", "That's my human! Bring 'em intact — caps and stems, either kind is fine.",
@@ -102,10 +108,10 @@ public class MarisaQDGen extends QuestDialogData {
 				questTitle("Nether Mushrooms"), questDesc("Bring Marisa nether mushroom samples."),
 				Optional.empty(),
 				new TreeMap<>(Map.of(
-						"a-wart", new SubmitItemRequirement(List.of(item(Items.NETHER_WART_BLOCK, 4))),
-						"b-crimson", new SubmitItemRequirement(List.of(item(Items.CRIMSON_FUNGUS, 4)))
+						"a-crimson", new SubmitItemRequirement(List.of(item(Items.CRIMSON_FUNGUS, 4))),
+						"b-warped", new SubmitItemRequirement(List.of(item(Items.WARPED_FUNGUS, 4)))
 				)),
-				List.of(new ExpReward(150), new ReputationReward(50, 150, 10, 250)),
+				List.of(new ExpReward(150), new ReputationReward(30, 150, 10, 300)),
 				start("Talk about the Nether.",
 						"Say — you've been to that creepy red world under the rock, right? The Nether, the fiery one? I hear the 'shrooms down there are somethin' else entirely. Never had the guts to go myself — all that heat and lava, yikes. But you've been there, haven't ya? Bring me some genuine Nether mushroom samples!",
 						"I've been to the Nether. I can do this.", "Then I knew I could count on ya! Bring back the weird stuff!",
@@ -121,13 +127,12 @@ public class MarisaQDGen extends QuestDialogData {
 		prefix("marisa/shroomlight");
 		quest("marisa/shroomlight", new Quest(GLEntities.MARISA.get(),
 				List.of(new HasQuestCompletedCondition(QUEST_NETHER_MUSHROOM)),
-				questTitle("Shroomlight & Fungus Trees"), questDesc("Bring Marisa shroomlights and nether fungus blocks."),
+				questTitle("Shroomlight & Fungus Trees"), questDesc("Bring Marisa shroomlights."),
 				Optional.empty(),
 				new TreeMap<>(Map.of(
-						"a-light", new SubmitItemRequirement(List.of(item(Items.SHROOMLIGHT, 4))),
-						"b-stem", new SubmitItemRequirement(List.of(item(Items.CRIMSON_STEM, 4)))
+						"a-light", new SubmitItemRequirement(List.of(item(Items.SHROOMLIGHT, 8)))
 				)),
-				List.of(new ExpReward(150), new ReputationReward(50, 150, 10, 250)),
+				List.of(new ExpReward(150), new ReputationReward(30, 150, 20, 300)),
 				start("Talk about the fungus trees.",
 						"Okay, okay! You mentioned those giant *fungus trees* in the Nether — whole towers of mushroom! And they glow, right? The shroomlights? I've gotta see one up close. I need some samples: a few of those light-up shroomlight blocks and a chunk of the tree itself. Best research material money can't buy!",
 						"I'll bring back samples.", "Now we're talkin'! Shroomlights and fungus — as many as ya can carry!",
@@ -149,7 +154,7 @@ public class MarisaQDGen extends QuestDialogData {
 						"a-blaze", new SubmitItemRequirement(List.of(item(Items.BLAZE_ROD, 4))),
 						"b-wart", new SubmitItemRequirement(List.of(item(Items.NETHER_WART, 12)))
 				)),
-				List.of(new ExpReward(200), new ReputationReward(60, 150, 10, 250)),
+				List.of(new ExpReward(200), new ReputationReward(40, 150, 30, 300)),
 				start("Talk about the native potion system.",
 						"Hold up! You mentioned *blazes* down there, right? And nether wart? The folks in this world figured out how to brew potions from scratch — a whole native potion system! Can ya imagine? I *gotta* understand it. I hear ya need a blaze rod to power a brewing stand, and nether wart to make the base. Bring me samples of both, and I'll reverse-engineer this 'Minecraft brewing' thing in no time!",
 						"I'll get you the samples.", "Right on! Blaze rods and nether wart — the key ingredients!",
@@ -170,7 +175,7 @@ public class MarisaQDGen extends QuestDialogData {
 				new TreeMap<>(Map.of(
 						"a-apple", new SubmitItemRequirement(List.of(item(Items.ENCHANTED_GOLDEN_APPLE, 1)))
 				)),
-				List.of(new ExpReward(300), new ReputationReward(80, 150, 10, 300)),
+				List.of(new ExpReward(300), new ReputationReward(40, 150, 20, 300)),
 				start("Talk about the lost golden apple tech.",
 						"One more thing, one more thing! Ever seen those fancy golden apples — the glowy ones, the 'enchanted' ones? The recipe's completely lost to this world. Nobody can craft 'em anymore. But *I* can figure it out! Bring me one as a prime sample, and I'll reverse-engineer the whole thing and share the knowledge. Whaddaya say?",
 						"I'll try to find one.", "That's the Marisa-approved spirit! One enchanted golden apple, comin' right up!",
@@ -185,46 +190,60 @@ public class MarisaQDGen extends QuestDialogData {
 
 		// Daily quests
 		prefix("marisa/daily_mycelium");
+		var myceliumTable = requestTable("daily_mycelium", LootTable.lootTable().withPool(LootPool.lootPool()
+				.setRolls(ConstantValue.exactly(3))
+				.add(LootItem.lootTableItem(GLNaturalBlocks.GHOST_FIRE_MUSHROOM_SET.cap).apply(SetItemCountFunction.setCount(UniformGenerator.between(3, 6))))
+				.add(LootItem.lootTableItem(GLNaturalBlocks.DREAM_MUSHROOM_SET.cap).apply(SetItemCountFunction.setCount(UniformGenerator.between(3, 6))))
+				.add(LootItem.lootTableItem(GLNaturalBlocks.DEMONIC_MIASMA_MUSHROOM_SET.cap).apply(SetItemCountFunction.setCount(UniformGenerator.between(3, 6))))));
 		daily("marisa/daily_mycelium", "Specialty Mushrooms", "Bring Marisa fresh specialty mushrooms.",
-				new QuestRecurrence(24000), List.of(), 60, 15, 100, 200,
+				new QuestRecurrence(24000), List.of(), 60, 15, 0, 0,
 				"Morning, human! My stock's runnin' low again. Bring me a fresh bundle of this world's specialty mushrooms — the glowing ones, the dreamy ones, whatever ya can find. Fresh research material, stat!",
 				"That's the spirit! Bring me the good stuff!",
 				"Take your time, human — but don't skimp on me, now!",
 				"Oh, these are perfect! Thanks, human!",
 				new TreeMap<>(Map.of(
-						"a-ghost", new SubmitItemRequirement(List.of(item(GLNaturalBlocks.GHOST_FIRE_MUSHROOM_SET.cap, 4))),
-						"b-dream", new SubmitItemRequirement(List.of(item(GLNaturalBlocks.DREAM_MUSHROOM_SET.cap, 4))),
-						"c-miasma", new SubmitItemRequirement(List.of(item(GLNaturalBlocks.DEMONIC_MIASMA_MUSHROOM_SET.cap, 4)))
+						"a-special", rollItem(myceliumTable)
 				)));
 
 		prefix("marisa/daily_witchcraft");
+		var witchcraftTable = requestTable("daily_witchcraft", LootTable.lootTable()
+				.withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1))
+						.add(LootItem.lootTableItem(GLNaturalBlocks.DEMONIC_MIASMA_MUSHROOM_SET.cap).apply(SetItemCountFunction.setCount(UniformGenerator.between(2, 3)))))
+				.withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1))
+						.add(LootItem.lootTableItem(Items.ROTTEN_FLESH).apply(SetItemCountFunction.setCount(UniformGenerator.between(6, 12)))))
+				.withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1))
+						.add(LootItem.lootTableItem(Items.SPIDER_EYE).apply(SetItemCountFunction.setCount(UniformGenerator.between(2, 3))))
+						.add(LootItem.lootTableItem(Items.BONE).apply(SetItemCountFunction.setCount(UniformGenerator.between(2, 3))))
+						.add(LootItem.lootTableItem(Items.GUNPOWDER).apply(SetItemCountFunction.setCount(UniformGenerator.between(2, 3))))));
 		daily("marisa/daily_witchcraft", "Witchcraft Bits", "Bring Marisa rotten flesh, spider eyes, and miasma mushrooms.",
-				new QuestRecurrence(24000), List.of(), 80, 15, 100, 200,
+				new QuestRecurrence(24000), List.of(), 60, 15, 100, 200,
 				"Yo, human! I'm mid-brew and I'm runnin' short on the gross stuff. Think ya can scrounge up some rotten flesh, spider eyes, and a few of those miasma mushrooms? For, uh... research. Yeah. Research.",
 				"Right on! Bring me the grubby bits!",
 				"Take your time, human — but don't skimp on me, now!",
 				"Just what I needed for the brew, human! Thanks!",
 				new TreeMap<>(Map.of(
-						"a-flesh", new SubmitItemRequirement(List.of(item(Items.ROTTEN_FLESH, 8))),
-						"b-eye", new SubmitItemRequirement(List.of(item(Items.SPIDER_EYE, 4))),
-						"c-miasma", new SubmitItemRequirement(List.of(item(GLNaturalBlocks.DEMONIC_MIASMA_MUSHROOM_SET.cap, 4)))
+						"a-grubby", rollItem(witchcraftTable)
 				)));
 
 		prefix("marisa/daily_shroomlight");
-		daily("marisa/daily_shroomlight", "Nether Light Run", "Bring Marisa shroomlights and crimson fungus.",
-				new QuestRecurrence(24000), List.of(new HasQuestCompletedCondition(QUEST_SHROOMLIGHT)), 120, 20, 150, 250,
+		var shroomlightTable = requestTable("daily_shroomlight", LootTable.lootTable().withPool(LootPool.lootPool()
+				.setRolls(ConstantValue.exactly(2))
+				.add(LootItem.lootTableItem(Items.SHROOMLIGHT).apply(SetItemCountFunction.setCount(UniformGenerator.between(3, 6))))
+				.add(LootItem.lootTableItem(Items.CRIMSON_FUNGUS).apply(SetItemCountFunction.setCount(UniformGenerator.between(3, 6))))
+				.add(LootItem.lootTableItem(Items.WARPED_FUNGUS).apply(SetItemCountFunction.setCount(UniformGenerator.between(3, 6))))));
+		daily("marisa/daily_shroomlight", "Nether Light Run", "Bring Marisa shroomlights and nether fungus.",
+				new QuestRecurrence(24000), List.of(new HasQuestCompletedCondition(QUEST_SHROOMLIGHT)), 60, 20, 100, 200,
 				"Hey, human! I need more of those glowing mushrooms and shroomlights from the Nether. You're my personal Nether scout now, ze! Make a quick trip and bring 'em back.",
 				"That's my scout! Fetch me the glowy stuff!",
 				"Still out in the Nether, human? Don't become a mushroom!",
 				"Ah, perfect! Thanks, scout!",
 				new TreeMap<>(Map.of(
-						"a-light", new SubmitItemRequirement(List.of(item(Items.SHROOMLIGHT, 4))),
-						"b-fungus", new SubmitItemRequirement(List.of(item(Items.CRIMSON_FUNGUS, 4)))
+						"a-light", rollItem(shroomlightTable)
 				)));
 
 		prefix("marisa/daily_brewing");
 		daily("marisa/daily_brewing", "Brewing Errand", "Bring Marisa blaze rods and nether wart.",
-				new QuestRecurrence(24000), List.of(new HasQuestCompletedCondition(QUEST_BREWING)), 150, 25, 150, 250,
+				new QuestRecurrence(24000), List.of(new HasQuestCompletedCondition(QUEST_BREWING)), 60, 25, 200, 200,
 				"Brewin' up a storm over here, and I'm fresh outta base ingredients! Skedaddle to the Nether and grab me some blaze rods and nether wart, willya? There's a good human!",
 				"That's my human! Fetch me the brew bits!",
 				"Still gatherin'? The brew's waitin' on ya!",

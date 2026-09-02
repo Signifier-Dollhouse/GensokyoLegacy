@@ -33,35 +33,21 @@
   },
   "requirements": {
     "a-light": {
-      "type": "gensokyolegacy:submit_item",
-      "ingredients": [
-        {
-          "count": 4,
-          "item": "minecraft:shroomlight"
-        }
-      ]
-    },
-    "b-fungus": {
-      "type": "gensokyolegacy:submit_item",
-      "ingredients": [
-        {
-          "count": 4,
-          "item": "minecraft:crimson_fungus"
-        }
-      ]
+      "type": "gensokyolegacy:roll_item",
+      "table": "gensokyolegacy:quest_req/marisa/daily_shroomlight/daily_shroomlight"
     }
   },
   "rewards": [
     {
       "type": "gensokyolegacy:exp",
-      "point": 120
+      "point": 60
     },
     {
       "type": "gensokyolegacy:reputation",
-      "cap_increase": 15,
-      "max_cap": 250,
+      "cap_increase": 10,
+      "max_cap": 200,
       "reputation": 20,
-      "soft_cap": 150
+      "soft_cap": 100
     }
   ],
   "title": "gensokyolegacy/marisa/daily_shroomlight/quest/title"

@@ -4,6 +4,7 @@ import com.tterrag.registrate.providers.RegistrateItemTagsProvider;
 import com.tterrag.registrate.providers.RegistrateTagsProvider;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.structure.GLStructureTagGen;
+import dev.xkmc.gensokyolegacy.init.registrate.block.GLNaturalBlocks;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
@@ -18,6 +19,7 @@ public class GLTagGen {
 
 	public static final TagKey<Item> CURRENCY = item("currency");
 	public static final TagKey<Item> CUSHIONS = item("cushions");
+	public static final TagKey<Item> HUGE_MUSHROOM = item("huge_mushroom");
 
 	public static final TagKey<Item> TOUHOU_HAT = item("touhou_hat");
 	public static final TagKey<Item> TOUHOU_WINGS = item("touhou_wings");
@@ -44,6 +46,9 @@ public class GLTagGen {
 
 	public static void onItemTagGen(RegistrateItemTagsProvider pvd) {
 		pvd.addTag(CURRENCY).add(Items.EMERALD, Items.GOLD_INGOT);
+		pvd.addTag(HUGE_MUSHROOM)
+				.add(GLNaturalBlocks.GHOST_FIRE_MUSHROOM_SET.cap.get().asItem(), GLNaturalBlocks.GHOST_FIRE_MUSHROOM_SET.stem.get().asItem())
+				.add(GLNaturalBlocks.DREAM_MUSHROOM_SET.cap.get().asItem(), GLNaturalBlocks.DREAM_MUSHROOM_SET.stem.get().asItem());
 	}
 
 	public static void onEntityTagGen(RegistrateTagsProvider.IntrinsicImpl<EntityType<?>> pvd) {

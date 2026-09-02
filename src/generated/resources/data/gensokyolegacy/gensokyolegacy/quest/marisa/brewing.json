@@ -59,9 +59,9 @@
     },
     {
       "type": "gensokyolegacy:reputation",
-      "cap_increase": 10,
-      "max_cap": 250,
-      "reputation": 60,
+      "cap_increase": 30,
+      "max_cap": 300,
+      "reputation": 40,
       "soft_cap": 150
     }
   ],

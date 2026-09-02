@@ -29,21 +29,12 @@
     "text": "gensokyolegacy/marisa/huge_mushroom/option/start"
   },
   "requirements": {
-    "a-ghost": {
+    "a-huge": {
       "type": "gensokyolegacy:submit_item",
       "ingredients": [
         {
-          "count": 4,
-          "item": "gensokyolegacy:ghost_fire_mushroom_block"
-        }
-      ]
-    },
-    "b-dream": {
-      "type": "gensokyolegacy:submit_item",
-      "ingredients": [
-        {
-          "count": 4,
-          "item": "gensokyolegacy:dream_mushroom_block"
+          "count": 8,
+          "tag": "gensokyolegacy:huge_mushroom"
         }
       ]
     }
@@ -55,9 +46,9 @@
     },
     {
       "type": "gensokyolegacy:reputation",
-      "cap_increase": 10,
-      "max_cap": 200,
-      "reputation": 50,
+      "cap_increase": 20,
+      "max_cap": 300,
+      "reputation": 40,
       "soft_cap": 100
     }
   ],

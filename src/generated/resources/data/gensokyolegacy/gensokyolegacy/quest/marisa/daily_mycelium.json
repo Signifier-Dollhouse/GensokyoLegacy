@@ -27,32 +27,9 @@
     "cooldown": 24000
   },
   "requirements": {
-    "a-ghost": {
-      "type": "gensokyolegacy:submit_item",
-      "ingredients": [
-        {
-          "count": 4,
-          "item": "gensokyolegacy:ghost_fire_mushroom"
-        }
-      ]
-    },
-    "b-dream": {
-      "type": "gensokyolegacy:submit_item",
-      "ingredients": [
-        {
-          "count": 4,
-          "item": "gensokyolegacy:dream_mushroom"
-        }
-      ]
-    },
-    "c-miasma": {
-      "type": "gensokyolegacy:submit_item",
-      "ingredients": [
-        {
-          "count": 4,
-          "item": "gensokyolegacy:demonic_miasma_mushroom"
-        }
-      ]
+    "a-special": {
+      "type": "gensokyolegacy:roll_item",
+      "table": "gensokyolegacy:quest_req/marisa/daily_mycelium/daily_mycelium"
     }
   },
   "rewards": [
@@ -62,10 +39,10 @@
     },
     {
       "type": "gensokyolegacy:reputation",
-      "cap_increase": 10,
-      "max_cap": 200,
+      "cap_increase": 0,
+      "max_cap": 0,
       "reputation": 15,
-      "soft_cap": 100
+      "soft_cap": 0
     }
   ],
   "title": "gensokyolegacy/marisa/daily_mycelium/quest/title"
