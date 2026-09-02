@@ -4,6 +4,7 @@
       "type": "gensokyolegacy:simple",
       "actions": [],
       "conditions": [],
+      "next": "gensokyolegacy:marisa/first_mushroom/follow_up/end/dialog_1",
       "text": "gensokyolegacy/marisa/first_mushroom/option/follow_up/end"
     }
   ],

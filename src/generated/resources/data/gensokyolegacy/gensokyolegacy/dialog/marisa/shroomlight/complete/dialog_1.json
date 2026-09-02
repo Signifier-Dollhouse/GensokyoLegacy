@@ -8,6 +8,7 @@
         }
       ],
       "conditions": [],
+      "next": "gensokyolegacy:marisa/shroomlight/complete/handover/dialog_1",
       "text": "gensokyolegacy/marisa/shroomlight/option/complete/handover"
     }
   ],

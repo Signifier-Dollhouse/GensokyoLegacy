@@ -4,6 +4,7 @@
       "type": "gensokyolegacy:simple",
       "actions": [],
       "conditions": [],
+      "next": "gensokyolegacy:marisa/daily_mycelium/follow_up/end/dialog_1",
       "text": "gensokyolegacy/marisa/daily_mycelium/option/follow_up/end"
     }
   ],

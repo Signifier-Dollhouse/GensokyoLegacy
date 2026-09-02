@@ -4,6 +4,7 @@
       "type": "gensokyolegacy:simple",
       "actions": [],
       "conditions": [],
+      "next": "gensokyolegacy:marisa/daily_brewing/start/reject/dialog_1",
       "text": "gensokyolegacy/marisa/daily_brewing/option/start/reject"
     },
     {
@@ -14,6 +15,7 @@
         }
       ],
       "conditions": [],
+      "next": "gensokyolegacy:marisa/daily_brewing/start/accept/dialog_1",
       "text": "gensokyolegacy/marisa/daily_brewing/option/start/accept"
     }
   ],

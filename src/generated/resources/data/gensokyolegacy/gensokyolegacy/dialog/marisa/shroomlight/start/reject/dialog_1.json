@@ -1,0 +1,11 @@
+{
+  "options": [
+    {
+      "type": "gensokyolegacy:simple",
+      "actions": [],
+      "conditions": [],
+      "text": "gensokyolegacy/marisa/shroomlight/option/start/reject/bye"
+    }
+  ],
+  "text": "gensokyolegacy/marisa/shroomlight/dialog/marisa/shroomlight/start/reject/dialog_1"
+}

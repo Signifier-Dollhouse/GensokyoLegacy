@@ -1,0 +1,11 @@
+{
+  "options": [
+    {
+      "type": "gensokyolegacy:simple",
+      "actions": [],
+      "conditions": [],
+      "text": "gensokyolegacy/marisa/first_mushroom/option/complete/reject/bye"
+    }
+  ],
+  "text": "gensokyolegacy/marisa/first_mushroom/dialog/marisa/first_mushroom/complete/reject/dialog_1"
+}

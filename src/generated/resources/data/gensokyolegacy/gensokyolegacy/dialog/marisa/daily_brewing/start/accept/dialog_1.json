@@ -1,0 +1,11 @@
+{
+  "options": [
+    {
+      "type": "gensokyolegacy:simple",
+      "actions": [],
+      "conditions": [],
+      "text": "gensokyolegacy/marisa/daily_brewing/option/start/accept/bye"
+    }
+  ],
+  "text": "gensokyolegacy/marisa/daily_brewing/dialog/marisa/daily_brewing/start/accept/dialog_1"
+}

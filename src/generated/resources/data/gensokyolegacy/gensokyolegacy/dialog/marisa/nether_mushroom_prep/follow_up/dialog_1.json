@@ -4,6 +4,7 @@
       "type": "gensokyolegacy:simple",
       "actions": [],
       "conditions": [],
+      "next": "gensokyolegacy:marisa/nether_mushroom_prep/follow_up/end/dialog_1",
       "text": "gensokyolegacy/marisa/nether_mushroom_prep/option/follow_up/end"
     }
   ],

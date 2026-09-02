@@ -8,6 +8,7 @@
         }
       ],
       "conditions": [],
+      "next": "gensokyolegacy:marisa/brewing/complete/handover/dialog_1",
       "text": "gensokyolegacy/marisa/brewing/option/complete/handover"
     }
   ],

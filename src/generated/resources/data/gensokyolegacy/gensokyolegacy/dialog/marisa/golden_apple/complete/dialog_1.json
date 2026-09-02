@@ -8,6 +8,7 @@
         }
       ],
       "conditions": [],
+      "next": "gensokyolegacy:marisa/golden_apple/complete/handover/dialog_1",
       "text": "gensokyolegacy/marisa/golden_apple/option/complete/handover"
     }
   ],

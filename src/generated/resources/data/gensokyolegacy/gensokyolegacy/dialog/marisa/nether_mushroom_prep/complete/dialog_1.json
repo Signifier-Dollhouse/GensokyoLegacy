@@ -8,6 +8,7 @@
         }
       ],
       "conditions": [],
+      "next": "gensokyolegacy:marisa/nether_mushroom_prep/complete/handover/dialog_1",
       "text": "gensokyolegacy/marisa/nether_mushroom_prep/option/complete/handover"
     }
   ],

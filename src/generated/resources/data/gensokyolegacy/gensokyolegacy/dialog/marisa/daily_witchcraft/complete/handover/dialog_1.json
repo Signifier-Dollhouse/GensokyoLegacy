@@ -1,0 +1,11 @@
+{
+  "options": [
+    {
+      "type": "gensokyolegacy:simple",
+      "actions": [],
+      "conditions": [],
+      "text": "gensokyolegacy/marisa/daily_witchcraft/option/complete/handover/bye"
+    }
+  ],
+  "text": "gensokyolegacy/marisa/daily_witchcraft/dialog/marisa/daily_witchcraft/complete/handover/dialog_1"
+}

@@ -1,0 +1,11 @@
+{
+  "options": [
+    {
+      "type": "gensokyolegacy:simple",
+      "actions": [],
+      "conditions": [],
+      "text": "gensokyolegacy/marisa/golden_apple/option/start/accept/bye"
+    }
+  ],
+  "text": "gensokyolegacy/marisa/golden_apple/dialog/marisa/golden_apple/start/accept/dialog_1"
+}

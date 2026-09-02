@@ -1,0 +1,11 @@
+{
+  "options": [
+    {
+      "type": "gensokyolegacy:simple",
+      "actions": [],
+      "conditions": [],
+      "text": "gensokyolegacy/marisa/shroomlight/option/complete/handover/bye"
+    }
+  ],
+  "text": "gensokyolegacy/marisa/shroomlight/dialog/marisa/shroomlight/complete/handover/dialog_1"
+}

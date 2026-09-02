@@ -1,0 +1,11 @@
+{
+  "options": [
+    {
+      "type": "gensokyolegacy:simple",
+      "actions": [],
+      "conditions": [],
+      "text": "gensokyolegacy/marisa/nether_mushroom_prep/option/start/accept/bye"
+    }
+  ],
+  "text": "gensokyolegacy/marisa/nether_mushroom_prep/dialog/marisa/nether_mushroom_prep/start/accept/dialog_1"
+}

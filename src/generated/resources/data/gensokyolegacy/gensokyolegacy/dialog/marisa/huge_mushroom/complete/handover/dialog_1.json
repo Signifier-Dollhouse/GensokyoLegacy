@@ -1,0 +1,11 @@
+{
+  "options": [
+    {
+      "type": "gensokyolegacy:simple",
+      "actions": [],
+      "conditions": [],
+      "text": "gensokyolegacy/marisa/huge_mushroom/option/complete/handover/bye"
+    }
+  ],
+  "text": "gensokyolegacy/marisa/huge_mushroom/dialog/marisa/huge_mushroom/complete/handover/dialog_1"
+}

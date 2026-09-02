@@ -4,6 +4,7 @@
       "type": "gensokyolegacy:simple",
       "actions": [],
       "conditions": [],
+      "next": "gensokyolegacy:marisa/daily_witchcraft/follow_up/end/dialog_1",
       "text": "gensokyolegacy/marisa/daily_witchcraft/option/follow_up/end"
     }
   ],

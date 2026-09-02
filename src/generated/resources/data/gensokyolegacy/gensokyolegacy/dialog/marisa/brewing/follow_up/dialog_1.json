@@ -4,6 +4,7 @@
       "type": "gensokyolegacy:simple",
       "actions": [],
       "conditions": [],
+      "next": "gensokyolegacy:marisa/brewing/follow_up/end/dialog_1",
       "text": "gensokyolegacy/marisa/brewing/option/follow_up/end"
     }
   ],

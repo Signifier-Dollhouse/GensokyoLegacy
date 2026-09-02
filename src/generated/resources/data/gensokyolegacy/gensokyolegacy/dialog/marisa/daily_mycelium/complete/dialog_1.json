@@ -8,6 +8,7 @@
         }
       ],
       "conditions": [],
+      "next": "gensokyolegacy:marisa/daily_mycelium/complete/handover/dialog_1",
       "text": "gensokyolegacy/marisa/daily_mycelium/option/complete/handover"
     }
   ],

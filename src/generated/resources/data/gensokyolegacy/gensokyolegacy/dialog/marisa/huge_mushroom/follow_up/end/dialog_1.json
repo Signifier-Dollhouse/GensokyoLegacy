@@ -1,0 +1,11 @@
+{
+  "options": [
+    {
+      "type": "gensokyolegacy:simple",
+      "actions": [],
+      "conditions": [],
+      "text": "gensokyolegacy/marisa/huge_mushroom/option/follow_up/end/bye"
+    }
+  ],
+  "text": "gensokyolegacy/marisa/huge_mushroom/dialog/marisa/huge_mushroom/follow_up/end/dialog_1"
+}

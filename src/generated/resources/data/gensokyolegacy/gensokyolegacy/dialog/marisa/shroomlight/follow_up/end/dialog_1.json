@@ -1,0 +1,11 @@
+{
+  "options": [
+    {
+      "type": "gensokyolegacy:simple",
+      "actions": [],
+      "conditions": [],
+      "text": "gensokyolegacy/marisa/shroomlight/option/follow_up/end/bye"
+    }
+  ],
+  "text": "gensokyolegacy/marisa/shroomlight/dialog/marisa/shroomlight/follow_up/end/dialog_1"
+}

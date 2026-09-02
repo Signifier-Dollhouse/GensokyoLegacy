@@ -200,6 +200,10 @@ public class QuestDialogData {
 		return new SimpleDialogOption(List.of(), optionText(id, text), List.of(), Optional.of(next));
 	}
 
+	public SimpleDialogOption option(String id, String text, DialogAction<?> action, Holder<Dialog> next) {
+		return new SimpleDialogOption(List.of(), optionText(id, text), List.of(action), Optional.of(next));
+	}
+
 	public IngredientEntry item(ItemLike item, int count) {
 		return new IngredientEntry(Ingredient.of(item), count, Optional.empty());
 	}
