@@ -52,8 +52,8 @@
       "type": "gensokyolegacy:reputation",
       "cap_increase": 10,
       "max_cap": 300,
-      "reputation": 20,
-      "soft_cap": 100
+      "reputation": 10,
+      "soft_cap": 300
     }
   ],
   "title": "gensokyolegacy/marisa/first_mushroom/quest/title"

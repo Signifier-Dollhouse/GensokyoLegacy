@@ -46,10 +46,10 @@
     },
     {
       "type": "gensokyolegacy:reputation",
-      "cap_increase": 20,
+      "cap_increase": 0,
       "max_cap": 300,
-      "reputation": 30,
-      "soft_cap": 150
+      "reputation": 10,
+      "soft_cap": 300
     }
   ],
   "title": "gensokyolegacy/marisa/shroomlight/quest/title"

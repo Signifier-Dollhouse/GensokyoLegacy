@@ -61,8 +61,8 @@
       "type": "gensokyolegacy:reputation",
       "cap_increase": 10,
       "max_cap": 300,
-      "reputation": 30,
-      "soft_cap": 150
+      "reputation": 20,
+      "soft_cap": 300
     }
   ],
   "title": "gensokyolegacy/marisa/nether_mushroom_prep/quest/title"

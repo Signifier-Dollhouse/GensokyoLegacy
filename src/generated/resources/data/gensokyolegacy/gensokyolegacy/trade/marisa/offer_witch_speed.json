@@ -14,7 +14,7 @@
   ],
   "recurrence": {
     "maxStock": 4,
-    "restockTime": 2400
+    "restockTime": 12000
   },
   "result": {
     "components": {

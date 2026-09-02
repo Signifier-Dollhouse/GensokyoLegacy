@@ -13,8 +13,8 @@
     }
   ],
   "recurrence": {
-    "maxStock": 8,
-    "restockTime": 2400
+    "maxStock": 4,
+    "restockTime": 24000
   },
   "result": {
     "count": 1,

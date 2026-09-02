@@ -58,10 +58,10 @@
     },
     {
       "type": "gensokyolegacy:reputation",
-      "cap_increase": 20,
-      "max_cap": 200,
-      "reputation": 25,
-      "soft_cap": 200
+      "cap_increase": 5,
+      "max_cap": 130,
+      "reputation": 20,
+      "soft_cap": 150
     }
   ],
   "title": "gensokyolegacy/marisa/daily_brewing/quest/title"

@@ -71,7 +71,7 @@ public class MarisaQDGen extends QuestDialogData {
 						"a-red", new SubmitItemRequirement(List.of(item(Items.RED_MUSHROOM, 4))),
 						"b-brown", new SubmitItemRequirement(List.of(item(Items.BROWN_MUSHROOM, 4)))
 				)),
-				List.of(new ExpReward(50), new ReputationReward(20, 100, 10, 300)),
+				List.of(new ExpReward(50), new ReputationReward(10, 300, 10, 300)),
 				start("Talk about her mushroom research.",
 						"Ah, a new human! Marisa Kirisame, the ordinary magician, zo! This whole world's still fresh to me — even the grass smells different. Say, you live around here, right? I'm just getting my magic research started, and I need some honest-to-goodness samples. Bring me some red and brown mushrooms from the surface, would ya?",
 						"Sure, I'll gather some.", "That's the spirit, ze! Eight red or brown mushrooms'll do. Bring me the good stuff!",
@@ -93,7 +93,7 @@ public class MarisaQDGen extends QuestDialogData {
 				new TreeMap<>(Map.of(
 						"a-huge", new SubmitItemRequirement(List.of(itemTag(GLTagGen.HUGE_MUSHROOM, 8)))
 				)),
-				List.of(new ExpReward(100), new ReputationReward(40, 100, 20, 300)),
+				List.of(new ExpReward(100), new ReputationReward(10, 300, 0, 300)),
 				start("Talk about the giant mushrooms.",
 						"Whoa, hold on. Have ya seen the mushrooms around here? They're practically trees! I've never seen anything this huge — real whoppers. I tried pluckin' one, but it just shattered into little bits in my hands. There's gotta be a proper way to harvest the solid blocks. Think ya can bring me some whole giant mushroom blocks?",
 						"I'll bring you fresh blocks.", "That's my human! Bring 'em intact — caps and stems, either kind is fine.",
@@ -115,7 +115,7 @@ public class MarisaQDGen extends QuestDialogData {
 						"a-crimson", new SubmitItemRequirement(List.of(item(Items.CRIMSON_FUNGUS, 4))),
 						"b-warped", new SubmitItemRequirement(List.of(item(Items.WARPED_FUNGUS, 4)))
 				)),
-				List.of(new ExpReward(150), new ReputationReward(30, 150, 10, 300)),
+				List.of(new ExpReward(150), new ReputationReward(20, 300, 10, 300)),
 				start("Talk about the Nether.",
 						"Say — you've been to that creepy red world under the rock, right? The Nether, the fiery one? I hear the 'shrooms down there are somethin' else entirely. Never had the guts to go myself — all that heat and lava, yikes. But you've been there, haven't ya? Bring me some genuine Nether mushroom samples!",
 						"I've been to the Nether. I can do this.", "Then I knew I could count on ya! Bring back the weird stuff!",
@@ -136,7 +136,7 @@ public class MarisaQDGen extends QuestDialogData {
 				new TreeMap<>(Map.of(
 						"a-light", new SubmitItemRequirement(List.of(item(Items.SHROOMLIGHT, 8)))
 				)),
-				List.of(new ExpReward(150), new ReputationReward(30, 150, 20, 300)),
+				List.of(new ExpReward(150), new ReputationReward(10, 300, 0, 300)),
 				start("Talk about the fungus trees.",
 						"Okay, okay! You mentioned those giant *fungus trees* in the Nether — whole towers of mushroom! And they glow, right? The shroomlights? I've gotta see one up close. I need some samples: a few of those light-up shroomlight blocks and a chunk of the tree itself. Best research material money can't buy!",
 						"I'll bring back samples.", "Now we're talkin'! Shroomlights and fungus — as many as ya can carry!",
@@ -158,7 +158,7 @@ public class MarisaQDGen extends QuestDialogData {
 						"a-blaze", new SubmitItemRequirement(List.of(item(Items.BLAZE_ROD, 4))),
 						"b-wart", new SubmitItemRequirement(List.of(item(Items.NETHER_WART, 12)))
 				)),
-				List.of(new ExpReward(200), new ReputationReward(40, 150, 30, 300)),
+				List.of(new ExpReward(200), new ReputationReward(20, 300, 10, 300)),
 				start("Talk about the native potion system.",
 						"Hold up! You mentioned *blazes* down there, right? And nether wart? The folks in this world figured out how to brew potions from scratch — a whole native potion system! Can ya imagine? I *gotta* understand it. I hear ya need a blaze rod to power a brewing stand, and nether wart to make the base. Bring me samples of both, and I'll reverse-engineer this 'Minecraft brewing' thing in no time!",
 						"I'll get you the samples.", "Right on! Blaze rods and nether wart — the key ingredients!",
@@ -179,7 +179,7 @@ public class MarisaQDGen extends QuestDialogData {
 				new TreeMap<>(Map.of(
 						"a-apple", new SubmitItemRequirement(List.of(item(Items.ENCHANTED_GOLDEN_APPLE, 1)))
 				)),
-				List.of(new ExpReward(300), new ReputationReward(40, 150, 20, 300)),
+				List.of(new ExpReward(300), new ReputationReward(10, 300, 0, 300)),
 				start("Talk about the lost golden apple tech.",
 						"One more thing, one more thing! Ever seen those fancy golden apples — the glowy ones, the 'enchanted' ones? The recipe's completely lost to this world. Nobody can craft 'em anymore. But *I* can figure it out! Bring me one as a prime sample, and I'll reverse-engineer the whole thing and share the knowledge. Whaddaya say?",
 						"I'll try to find one.", "That's the Marisa-approved spirit! One enchanted golden apple, comin' right up!",
@@ -200,7 +200,7 @@ public class MarisaQDGen extends QuestDialogData {
 				.add(LootItem.lootTableItem(GLNaturalBlocks.DREAM_MUSHROOM_SET.cap).apply(SetItemCountFunction.setCount(UniformGenerator.between(3, 6))))
 				.add(LootItem.lootTableItem(GLNaturalBlocks.DEMONIC_MIASMA_MUSHROOM_SET.cap).apply(SetItemCountFunction.setCount(UniformGenerator.between(3, 6))))));
 		daily("marisa/daily_mycelium", "Specialty Mushrooms", "Bring Marisa fresh specialty mushrooms.",
-				new QuestRecurrence(24000), List.of(), 60, 15, 0, 0,
+				new QuestRecurrence(24000), List.of(), 60, 10, 150, 0, 0,
 				"Morning, human! My stock's runnin' low again. Bring me a fresh bundle of this world's specialty mushrooms — the glowing ones, the dreamy ones, whatever ya can find. Fresh research material, stat!",
 				"That's the spirit! Bring me the good stuff!",
 				"Take your time, human — but don't skimp on me, now!",
@@ -220,7 +220,7 @@ public class MarisaQDGen extends QuestDialogData {
 						.add(LootItem.lootTableItem(Items.BONE).apply(SetItemCountFunction.setCount(UniformGenerator.between(2, 3))))
 						.add(LootItem.lootTableItem(Items.GUNPOWDER).apply(SetItemCountFunction.setCount(UniformGenerator.between(2, 3))))));
 		daily("marisa/daily_witchcraft", "Witchcraft Bits", "Bring Marisa rotten flesh, spider eyes, and miasma mushrooms.",
-				new QuestRecurrence(24000), List.of(), 60, 15, 100, 200,
+				new QuestRecurrence(24000), List.of(), 60, 10, 150, 0, 0,
 				"Yo, human! I'm mid-brew and I'm runnin' short on the gross stuff. Think ya can scrounge up some rotten flesh, spider eyes, and a few of those miasma mushrooms? For, uh... research. Yeah. Research.",
 				"Right on! Bring me the grubby bits!",
 				"Take your time, human — but don't skimp on me, now!",
@@ -236,7 +236,7 @@ public class MarisaQDGen extends QuestDialogData {
 				.add(LootItem.lootTableItem(Items.CRIMSON_FUNGUS).apply(SetItemCountFunction.setCount(UniformGenerator.between(3, 6))))
 				.add(LootItem.lootTableItem(Items.WARPED_FUNGUS).apply(SetItemCountFunction.setCount(UniformGenerator.between(3, 6))))));
 		daily("marisa/daily_shroomlight", "Nether Light Run", "Bring Marisa shroomlights and nether fungus.",
-				new QuestRecurrence(24000), List.of(new HasQuestCompletedCondition(QUEST_SHROOMLIGHT)), 60, 20, 100, 200,
+				new QuestRecurrence(24000), List.of(new HasQuestCompletedCondition(QUEST_SHROOMLIGHT)), 60, 10, 150, 0, 0,
 				"Hey, human! I need more of those glowing mushrooms and shroomlights from the Nether. You're my personal Nether scout now, ze! Make a quick trip and bring 'em back.",
 				"That's my scout! Fetch me the glowy stuff!",
 				"Still out in the Nether, human? Don't become a mushroom!",
@@ -247,7 +247,7 @@ public class MarisaQDGen extends QuestDialogData {
 
 		prefix("marisa/daily_brewing");
 		daily("marisa/daily_brewing", "Brewing Errand", "Bring Marisa blaze rods and nether wart.",
-				new QuestRecurrence(24000), List.of(new HasQuestCompletedCondition(QUEST_BREWING)), 60, 25, 200, 200,
+				new QuestRecurrence(24000), List.of(new HasQuestCompletedCondition(QUEST_BREWING)), 60, 20, 150, 5, 130,
 				"Brewin' up a storm over here, and I'm fresh outta base ingredients! Skedaddle to the Nether and grab me some blaze rods and nether wart, willya? There's a good human!",
 				"That's my human! Fetch me the brew bits!",
 				"Still gatherin'? The brew's waitin' on ya!",
@@ -260,55 +260,55 @@ public class MarisaQDGen extends QuestDialogData {
 		// Restocking trades (player sells to Marisa)
 		prefix("marisa");
 		trade("sell_mod_shroom", GLEntities.MARISA.get(), new ItemStack(Items.EMERALD),
-				new TradeRecurrence(10, 1200), item(GLNaturalBlocks.GHOST_FIRE_MUSHROOM_SET.cap, 8));
+				new TradeRecurrence(10, 24000), item(GLNaturalBlocks.GHOST_FIRE_MUSHROOM_SET.cap, 8));
 		trade("sell_dream_shroom", GLEntities.MARISA.get(), new ItemStack(Items.EMERALD),
-				new TradeRecurrence(10, 1200), item(GLNaturalBlocks.DREAM_MUSHROOM_SET.cap, 8));
+				new TradeRecurrence(10, 24000), item(GLNaturalBlocks.DREAM_MUSHROOM_SET.cap, 8));
 		trade("sell_miasma_shroom", GLEntities.MARISA.get(), new ItemStack(Items.EMERALD),
-				new TradeRecurrence(8, 1200), item(GLNaturalBlocks.DEMONIC_MIASMA_MUSHROOM_SET.cap, 8));
+				new TradeRecurrence(8, 24000), item(GLNaturalBlocks.DEMONIC_MIASMA_MUSHROOM_SET.cap, 8));
 		trade("sell_spider_eye", GLEntities.MARISA.get(), new ItemStack(Items.EMERALD),
-				new TradeRecurrence(14, 1200), item(Items.SPIDER_EYE, 8));
+				new TradeRecurrence(4, 24000), item(Items.SPIDER_EYE, 8));
 		trade("sell_shroomlight", new TradeOffer(GLEntities.MARISA.get(),
 				List.of(new HasQuestCompletedCondition(QUEST_SHROOMLIGHT)), new ItemStack(Items.EMERALD),
-				new TradeRecurrence(6, 2400), List.of(item(Items.SHROOMLIGHT, 4))));
+				new TradeRecurrence(4, 24000), List.of(item(Items.SHROOMLIGHT, 4))));
 		trade("sell_nether_fungus", new TradeOffer(GLEntities.MARISA.get(),
 				List.of(new HasQuestCompletedCondition(QUEST_SHROOMLIGHT)), new ItemStack(Items.EMERALD),
-				new TradeRecurrence(8, 2400), List.of(item(Items.CRIMSON_FUNGUS, 8))));
+				new TradeRecurrence(4, 24000), List.of(item(Items.CRIMSON_FUNGUS, 8))));
 		trade("sell_blaze_rod", new TradeOffer(GLEntities.MARISA.get(),
 				List.of(new HasQuestCompletedCondition(QUEST_BREWING)), new ItemStack(Items.EMERALD, 2),
-				new TradeRecurrence(6, 2400), List.of(item(Items.BLAZE_ROD, 3))));
+				new TradeRecurrence(4, 24000), List.of(item(Items.BLAZE_ROD, 3))));
 		trade("sell_nether_wart", new TradeOffer(GLEntities.MARISA.get(),
 				List.of(new HasQuestCompletedCondition(QUEST_BREWING)), new ItemStack(Items.EMERALD),
-				new TradeRecurrence(10, 2400), List.of(item(Items.NETHER_WART, 8))));
+				new TradeRecurrence(4, 24000), List.of(item(Items.NETHER_WART, 8))));
 
 		// Offering trades (player buys hexbrews from Marisa), gated by reputation or quests
 		trade("offer_miasma", new TradeOffer(GLEntities.MARISA.get(), List.of(),
 				new ItemStack(HexBrew.MIASMA_HEXBREW.bottle.get(), 4),
-				new TradeRecurrence(3, 2400), List.of(item(Items.EMERALD, 3))));
-		// Witch hexbrew: variety of potion effects, unlocked by the brewing quest, no rep gate
+				new TradeRecurrence(4, 24000), List.of(item(Items.EMERALD, 3))));
+		// Witch hexbrew: variety of potion effects, unlocked by the brewing quest, no rep gate; half-day restock
 		trade("offer_witch_speed", new TradeOffer(GLEntities.MARISA.get(),
 				List.of(new HasQuestCompletedCondition(QUEST_BREWING)), witch(Potions.SWIFTNESS, 4),
-				new TradeRecurrence(4, 2400), List.of(item(Items.EMERALD, 3))));
+				new TradeRecurrence(4, 12000), List.of(item(Items.EMERALD, 3))));
 		trade("offer_witch_strength", new TradeOffer(GLEntities.MARISA.get(),
 				List.of(new HasQuestCompletedCondition(QUEST_BREWING)), witch(Potions.STRENGTH, 4),
-				new TradeRecurrence(3, 2400), List.of(item(Items.EMERALD, 3))));
+				new TradeRecurrence(4, 12000), List.of(item(Items.EMERALD, 3))));
 		trade("offer_witch_regen", new TradeOffer(GLEntities.MARISA.get(),
 				List.of(new HasQuestCompletedCondition(QUEST_BREWING)), witch(Potions.REGENERATION, 4),
-				new TradeRecurrence(3, 2400), List.of(item(Items.EMERALD, 3))));
+				new TradeRecurrence(4, 12000), List.of(item(Items.EMERALD, 3))));
 		trade("offer_witch_leaping", new TradeOffer(GLEntities.MARISA.get(),
 				List.of(new HasQuestCompletedCondition(QUEST_BREWING)), witch(Potions.LEAPING, 4),
-				new TradeRecurrence(4, 2400), List.of(item(Items.EMERALD, 2))));
+				new TradeRecurrence(4, 12000), List.of(item(Items.EMERALD, 2))));
 		trade("offer_witch_fire", new TradeOffer(GLEntities.MARISA.get(),
 				List.of(new HasQuestCompletedCondition(QUEST_BREWING)), witch(Potions.FIRE_RESISTANCE, 4),
-				new TradeRecurrence(4, 2400), List.of(item(Items.EMERALD, 2))));
+				new TradeRecurrence(4, 12000), List.of(item(Items.EMERALD, 2))));
 		trade("offer_shield", new TradeOffer(GLEntities.MARISA.get(),
 				List.of(new SelfReputationCondition(50)), new ItemStack(HexBrew.SHIELD_HEXBREW.bottle.get()),
-				new TradeRecurrence(3, 3600), List.of(item(Items.EMERALD, 2))));
+				new TradeRecurrence(8, 24000), List.of(item(Items.EMERALD, 2))));
 		trade("offer_explosive", new TradeOffer(GLEntities.MARISA.get(),
 				List.of(new SelfReputationCondition(50)), new ItemStack(HexBrew.EXPLOSIVE_HEXBREW.bottle.get(), 4),
-				new TradeRecurrence(3, 4800), List.of(item(Items.EMERALD, 3))));
+				new TradeRecurrence(4, 24000), List.of(item(Items.EMERALD, 3))));
 		trade("offer_starlight", new TradeOffer(GLEntities.MARISA.get(),
 				List.of(new SelfReputationCondition(120)), new ItemStack(HexBrew.STARLIGHT_HEXBREW.bottle.get()),
-				new TradeRecurrence(2, 3600), List.of(item(Items.EMERALD, 4))));
+				new TradeRecurrence(8, 24000), List.of(item(Items.EMERALD, 4))));
 
 		// Processing trades
 		trade("process_golden_apple", new TradeOffer(GLEntities.MARISA.get(),
@@ -319,7 +319,7 @@ public class MarisaQDGen extends QuestDialogData {
 		trade("process_elixir", new TradeOffer(GLEntities.MARISA.get(),
 				List.of(new SelfReputationCondition(80)),
 				new ItemStack(HexBrew.HEXBREW_ELIXIR.bottle.get()),
-				new TradeRecurrence(2, 1200),
+				new TradeRecurrence(16, 24000),
 				List.of(item(HexBrew.MUNDANE_HEXBREW.bottle, 4))));
 
 	}
@@ -361,14 +361,14 @@ public class MarisaQDGen extends QuestDialogData {
 	}
 
 	private void daily(String id, String title, String desc, QuestRecurrence rec,
-	                   List<QuestCondition<?>> conditions, int exp, int rep, int softCap, int maxCap,
+	                   List<QuestCondition<?>> conditions, int exp, int rep, int softCap, int capIncrease, int maxCap,
 	                   String intro, String acceptLine, String followLine, String completeLine,
 	                   Map<String, QuestRequirement<?, ?>> reqs) {
 		quest(id, new Quest(GLEntities.MARISA.get(), conditions,
 				questTitle(title), questDesc(desc),
 				Optional.of(rec),
 				new TreeMap<>(reqs),
-				List.of(new ExpReward(exp), new ReputationReward(rep, softCap, softCap / 10, maxCap)),
+				List.of(new ExpReward(exp), new ReputationReward(rep, softCap, capIncrease, maxCap)),
 				dailyStart(intro, acceptLine),
 				dailyFollow(followLine),
 				dailyComplete(completeLine)));
