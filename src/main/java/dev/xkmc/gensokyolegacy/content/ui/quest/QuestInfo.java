@@ -35,6 +35,13 @@ public class QuestInfo {
 		return ans;
 	}
 
+	public List<Component> getPreviewText() {
+		List<Component> ans = new ArrayList<>();
+		ans.add(Component.translatable(quest.title()).withStyle(ChatFormatting.UNDERLINE));
+		ans.add(Component.translatable(quest.description()));
+		return ans;
+	}
+
 	public List<Component> getInfoPageText(Player player) {
 		List<Component> ans = getReqText(player);
 		ans.addFirst(GLLang.Quest.CHARACTER.get(quest.character().getDescription()).withStyle(ChatFormatting.UNDERLINE));

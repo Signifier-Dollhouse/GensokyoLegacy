@@ -26,6 +26,11 @@ public class QuestAttachment extends PlayerCapabilityTemplate<QuestAttachment> {
 		return data.computeIfAbsent(id, k -> new QuestData());
 	}
 
+	public boolean hasStarted(ResourceLocation id) {
+		var d = data.get(id);
+		return d != null && d.started;
+	}
+
 	public void start(ServerPlayer sp, Holder<Quest> quest) {
 		var id = quest.unwrapKey().orElseThrow().location();
 		var data = getData(id);

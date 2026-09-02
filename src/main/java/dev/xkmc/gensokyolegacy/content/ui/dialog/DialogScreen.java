@@ -197,11 +197,19 @@ public class DialogScreen<T extends DialogMenu> extends AbstractContainerScreen<
 
 	protected void renderQuestInfo(GuiGraphics g, Optional<Holder<Quest>> quest) {
 		if (quest.isEmpty()) return;
-		var data = GLMeta.QUEST.type().getOrCreate(menu.player).getData(quest.get().unwrapKey().orElseThrow().location());
-		if (!data.started) return;
-		var info = new QuestInfo(quest.get().value(), data);
+		var key = quest.get().unwrapKey().orElseThrow().location();
+		var data = GLMeta.QUEST.type().getOrCreate(menu.player);
+		QuestInfo info;
+		List<Component> text;
+		if (data.hasStarted(key)) {
+			info = new QuestInfo(quest.get().value(), data.getData(key));
+			text = info.getSideBarText(menu.player);
+		} else {
+			info = new QuestInfo(quest.get().value(), null);
+			text = info.getPreviewText();
+		}
 		new TextBox(g, 0, 1, 10, g.guiHeight() / 2, (int) (g.guiWidth() * 0.4f - 20))
-				.renderLongText(font, info.getSideBarText(menu.player));
+				.renderLongText(font, text);
 	}
 
 }
