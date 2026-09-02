@@ -29,6 +29,7 @@ public class QuestData {
 	public final TreeMap<String, QuestRequirementData> requirementData = new TreeMap<>();
 
 	public boolean isCompletable(Player sp, Quest quest) {
+		if (!started) return false;
 		for (var e : quest.requirements().entrySet()) {
 			var req = e.getValue();
 			if (req.getMaxProgress() > progress.getOrDefault(e.getKey(), 0))
