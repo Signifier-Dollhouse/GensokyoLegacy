@@ -3,6 +3,7 @@ package dev.xkmc.gensokyolegacy.content.rpg.requirement;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.xkmc.gensokyolegacy.content.rpg.quest.QuestData;
 import dev.xkmc.gensokyolegacy.content.rpg.quest.QuestRequirement;
 import dev.xkmc.gensokyolegacy.content.rpg.trigger.KillTrigger;
 import net.minecraft.ChatFormatting;
@@ -48,7 +49,8 @@ public record KillMobRequirement(
 	}
 
 	@Override
-	public List<Component> getDesc(Player player, int progress) {
+	public List<Component> getDesc(Player player, QuestData data, String key) {
+		int progress = data.progress.getOrDefault(key, 0);
 		return List.of(Component.literal("- ").append(Component.translatable(text)).append(": ")
 				.append(Component.literal("" + progress).withStyle(progress == count ? ChatFormatting.GREEN : ChatFormatting.RED))
 				.append("/").append(Component.literal("" + count).withStyle(ChatFormatting.AQUA)));

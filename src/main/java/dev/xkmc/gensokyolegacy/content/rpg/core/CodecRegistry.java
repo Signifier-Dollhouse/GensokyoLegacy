@@ -15,6 +15,7 @@ import dev.xkmc.gensokyolegacy.content.rpg.quest.QuestCondition;
 import dev.xkmc.gensokyolegacy.content.rpg.quest.QuestRequirement;
 import dev.xkmc.gensokyolegacy.content.rpg.quest.QuestReward;
 import dev.xkmc.gensokyolegacy.content.rpg.requirement.KillMobRequirement;
+import dev.xkmc.gensokyolegacy.content.rpg.requirement.RollItemRequirement;
 import dev.xkmc.gensokyolegacy.content.rpg.requirement.SubmitItemRequirement;
 import dev.xkmc.gensokyolegacy.content.rpg.reward.ExpReward;
 import dev.xkmc.gensokyolegacy.content.rpg.reward.LootTableReward;
@@ -59,6 +60,7 @@ public class CodecRegistry {
 
 	public static final CdcVal<KillMobRequirement> KILL_MOB_REQ = REQUIREMENT.reg("kill_mob", KillMobRequirement.CODEC);
 	public static final CdcVal<SubmitItemRequirement> SUBMIT_ITEM_REQ = REQUIREMENT.reg("submit_item", SubmitItemRequirement.CODEC);
+	public static final CdcVal<RollItemRequirement> ROLL_ITEM_REQ = REQUIREMENT.reg("roll_item", RollItemRequirement.CODEC);
 
 	public static final CdcVal<LootTableReward> LOOT_REWARD = REWARD.reg("loot_table", LootTableReward.CODEC);
 	public static final CdcVal<ExpReward> EXP_REWARD = REWARD.reg("exp", ExpReward.CODEC);

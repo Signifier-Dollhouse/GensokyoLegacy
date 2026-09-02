@@ -10,6 +10,7 @@ import dev.xkmc.gensokyolegacy.content.rpg.dialog.DialogOption;
 import dev.xkmc.gensokyolegacy.content.rpg.dialog.DialogStarter;
 import dev.xkmc.gensokyolegacy.content.rpg.dialog.SimpleDialogOption;
 import dev.xkmc.gensokyolegacy.content.rpg.quest.Quest;
+import dev.xkmc.gensokyolegacy.content.rpg.requirement.RollItemRequirement;
 import dev.xkmc.gensokyolegacy.content.rpg.reward.LootTableReward;
 import dev.xkmc.gensokyolegacy.content.rpg.trade.TradeOffer;
 import dev.xkmc.gensokyolegacy.content.rpg.trade.TradeRecurrence;
@@ -159,6 +160,18 @@ public class QuestDialogData {
 				LootContextParamSets.ADVANCEMENT_REWARD,
 				c -> c.accept(key, loot)));
 		return new LootTableReward(key.location());
+	}
+
+	public ResourceLocation requestTable(String id, LootTable.Builder loot) {
+		var key = ResourceKey.create(Registries.LOOT_TABLE, loc("quest_req/" + prefix + "/" + id));
+		reg.addDataGenerator(ProviderType.LOOT, pvd -> pvd.addLootAction(
+				LootContextParamSets.ADVANCEMENT_REWARD,
+				c -> c.accept(key, loot)));
+		return key.location();
+	}
+
+	public RollItemRequirement rollItem(ResourceLocation table) {
+		return new RollItemRequirement(table);
 	}
 
 	public SimpleDialogOption option(String id, String text) {

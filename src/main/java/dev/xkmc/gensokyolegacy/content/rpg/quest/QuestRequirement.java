@@ -18,11 +18,15 @@ public interface QuestRequirement<
 		return 0;
 	}
 
-	default boolean canComplete(Player sp) {
+	default void start(QuestData data, ServerPlayer sp, String key) {
+
+	}
+
+	default boolean canComplete(Player sp, QuestData data, String key) {
 		return true;
 	}
 
-	default void doComplete(ServerPlayer sp) {
+	default void doComplete(ServerPlayer sp, QuestData data, String key) {
 
 	}
 
@@ -39,6 +43,6 @@ public interface QuestRequirement<
 		return 0;
 	}
 
-	List<Component> getDesc(Player player, int progress);
+	List<Component> getDesc(Player player, QuestData data, String key);
 
 }

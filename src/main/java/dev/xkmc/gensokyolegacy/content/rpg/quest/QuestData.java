@@ -5,7 +5,9 @@ import dev.xkmc.l2serial.serialization.marker.SerialClass;
 import dev.xkmc.l2serial.serialization.marker.SerialField;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 
+import java.util.List;
 import java.util.TreeMap;
 
 @SerialClass
@@ -23,12 +25,15 @@ public class QuestData {
 	@SerialField
 	public final TreeMap<String, Integer> progress = new TreeMap<>();
 
+	@SerialField
+	public final TreeMap<String, List<ItemStack>> requests = new TreeMap<>();
+
 	public boolean isCompletable(Player sp, Quest quest) {
 		for (var e : quest.requirements().entrySet()) {
 			var req = e.getValue();
 			if (req.getMaxProgress() > progress.getOrDefault(e.getKey(), 0))
 				return false;
-			if (!req.canComplete(sp))
+			if (!req.canComplete(sp, this, e.getKey()))
 				return false;
 		}
 		return true;
@@ -49,17 +54,21 @@ public class QuestData {
 
 	public void start(ServerPlayer sp, Quest quest) {
 		started = true;
+		for (var e : quest.requirements().entrySet()) {
+			e.getValue().start(this, sp, e.getKey());
+		}
 	}
 
 	public void complete(ServerPlayer sp, Quest quest, YoukaiEntity ch) {
 		for (var e : quest.requirements().entrySet()) {
 			var req = e.getValue();
-			req.doComplete(sp);
+			req.doComplete(sp, this, e.getKey());
 		}
 		for (var e : quest.rewards()) {
 			e.execute(sp, ch);
 		}
 		progress.clear();
+		requests.clear();
 		completed++;
 		lastCompletion = sp.level().getGameTime();
 		started = false;

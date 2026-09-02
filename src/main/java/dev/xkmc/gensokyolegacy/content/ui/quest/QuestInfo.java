@@ -24,7 +24,7 @@ public class QuestInfo {
 		ArrayList<Component> ans = new ArrayList<>();
 		ans.add(Component.translatable(quest.description()));
 		for (var e : quest.requirements().entrySet()) {
-			ans.addAll(e.getValue().getDesc(player, data.progress.getOrDefault(e.getKey(), 0)));
+			ans.addAll(e.getValue().getDesc(player, data, e.getKey()));
 		}
 		return ans;
 	}
