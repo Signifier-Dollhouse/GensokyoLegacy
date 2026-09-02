@@ -3,12 +3,12 @@
   "conditions": [
     {
       "type": "gensokyolegacy:self_reputation",
-      "reputation": 100
+      "reputation": 50
     }
   ],
   "ingredients": [
     {
-      "count": 5,
+      "count": 2,
       "item": "minecraft:emerald"
     }
   ],

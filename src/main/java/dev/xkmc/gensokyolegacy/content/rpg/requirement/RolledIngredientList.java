@@ -6,6 +6,7 @@ import dev.xkmc.l2serial.serialization.marker.SerialClass;
 import dev.xkmc.l2serial.serialization.marker.SerialField;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +22,25 @@ public class RolledIngredientList extends QuestRequirementData implements Ingred
 	}
 
 	public RolledIngredientList(List<ItemStack> rolled) {
-		this.rolled.addAll(rolled);
+		for (var stack : rolled) {
+			if (stack.isEmpty()) continue;
+			var existing = findMatching(stack);
+			if (existing != null) {
+				existing.grow(stack.getCount());
+			} else {
+				this.rolled.add(stack.copy());
+			}
+		}
+	}
+
+	@Nullable
+	private ItemStack findMatching(ItemStack stack) {
+		for (var existing : rolled) {
+			if (ItemStack.isSameItemSameComponents(existing, stack)) {
+				return existing;
+			}
+		}
+		return null;
 	}
 
 	@Override

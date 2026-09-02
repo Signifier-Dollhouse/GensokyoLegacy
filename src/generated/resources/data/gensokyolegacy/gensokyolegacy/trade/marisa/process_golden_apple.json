@@ -2,8 +2,8 @@
   "character": "gensokyolegacy:kirisame_marisa",
   "conditions": [
     {
-      "type": "gensokyolegacy:has_quest_completed",
-      "quest": "gensokyolegacy:marisa/golden_apple"
+      "type": "gensokyolegacy:self_reputation",
+      "reputation": 30
     }
   ],
   "ingredients": [

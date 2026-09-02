@@ -3,21 +3,21 @@
   "conditions": [
     {
       "type": "gensokyolegacy:self_reputation",
-      "reputation": 200
+      "reputation": 50
     }
   ],
   "ingredients": [
     {
-      "count": 8,
+      "count": 3,
       "item": "minecraft:emerald"
     }
   ],
   "recurrence": {
-    "maxStock": 2,
+    "maxStock": 3,
     "restockTime": 4800
   },
   "result": {
-    "count": 1,
+    "count": 4,
     "id": "gensokyolegacy:explosive_hexbrew_bottle"
   }
 }

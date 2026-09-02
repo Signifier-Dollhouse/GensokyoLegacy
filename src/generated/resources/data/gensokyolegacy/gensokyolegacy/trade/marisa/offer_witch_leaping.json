@@ -1,0 +1,28 @@
+{
+  "character": "gensokyolegacy:kirisame_marisa",
+  "conditions": [
+    {
+      "type": "gensokyolegacy:has_quest_completed",
+      "quest": "gensokyolegacy:marisa/brewing"
+    }
+  ],
+  "ingredients": [
+    {
+      "count": 2,
+      "item": "minecraft:emerald"
+    }
+  ],
+  "recurrence": {
+    "maxStock": 4,
+    "restockTime": 2400
+  },
+  "result": {
+    "components": {
+      "minecraft:potion_contents": {
+        "potion": "minecraft:leaping"
+      }
+    },
+    "count": 4,
+    "id": "gensokyolegacy:witch_hexbrew_bottle"
+  }
+}

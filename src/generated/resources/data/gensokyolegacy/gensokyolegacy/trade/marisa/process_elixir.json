@@ -1,6 +1,11 @@
 {
   "character": "gensokyolegacy:kirisame_marisa",
-  "conditions": [],
+  "conditions": [
+    {
+      "type": "gensokyolegacy:self_reputation",
+      "reputation": 80
+    }
+  ],
   "ingredients": [
     {
       "count": 4,

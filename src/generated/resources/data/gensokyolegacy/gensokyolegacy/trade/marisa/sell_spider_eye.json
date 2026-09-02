@@ -4,10 +4,6 @@
   "ingredients": [
     {
       "count": 8,
-      "item": "minecraft:rotten_flesh"
-    },
-    {
-      "count": 4,
       "item": "minecraft:spider_eye"
     }
   ],

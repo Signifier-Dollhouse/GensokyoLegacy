@@ -1,11 +1,6 @@
 {
   "character": "gensokyolegacy:kirisame_marisa",
-  "conditions": [
-    {
-      "type": "gensokyolegacy:self_reputation",
-      "reputation": 50
-    }
-  ],
+  "conditions": [],
   "ingredients": [
     {
       "count": 3,
@@ -17,7 +12,7 @@
     "restockTime": 2400
   },
   "result": {
-    "count": 1,
+    "count": 4,
     "id": "gensokyolegacy:miasma_hexbrew_bottle"
   }
 }

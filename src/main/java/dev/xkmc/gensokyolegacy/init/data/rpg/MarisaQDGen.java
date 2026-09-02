@@ -21,9 +21,14 @@ import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.GLTagGen;
 import dev.xkmc.gensokyolegacy.init.registrate.GLEntities;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLNaturalBlocks;
+import net.minecraft.core.Holder;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.alchemy.Potion;
+import net.minecraft.world.item.alchemy.PotionContents;
+import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
@@ -42,7 +47,6 @@ public class MarisaQDGen extends QuestDialogData {
 	private static final ResourceLocation QUEST_NETHER_MUSHROOM = GensokyoLegacy.loc("marisa/nether_mushroom_prep");
 	private static final ResourceLocation QUEST_SHROOMLIGHT = GensokyoLegacy.loc("marisa/shroomlight");
 	private static final ResourceLocation QUEST_BREWING = GensokyoLegacy.loc("marisa/brewing");
-	private static final ResourceLocation QUEST_GOLDEN_APPLE = GensokyoLegacy.loc("marisa/golden_apple");
 
 	private static final ResourceLocation ADV_NETHER = ResourceLocation.withDefaultNamespace("nether/root");
 	private static final ResourceLocation ADV_FORTRESS = ResourceLocation.withDefaultNamespace("nether/find_fortress");
@@ -261,11 +265,10 @@ public class MarisaQDGen extends QuestDialogData {
 				new TradeRecurrence(10, 1200), item(GLNaturalBlocks.DREAM_MUSHROOM_SET.cap, 8));
 		trade("sell_miasma_shroom", GLEntities.MARISA.get(), new ItemStack(Items.EMERALD),
 				new TradeRecurrence(8, 1200), item(GLNaturalBlocks.DEMONIC_MIASMA_MUSHROOM_SET.cap, 8));
-		trade("sell_mob_loot", new TradeOffer(GLEntities.MARISA.get(), List.of(), new ItemStack(Items.EMERALD),
-				new TradeRecurrence(14, 1200),
-				List.of(item(Items.ROTTEN_FLESH, 8), item(Items.SPIDER_EYE, 4))));
+		trade("sell_spider_eye", GLEntities.MARISA.get(), new ItemStack(Items.EMERALD),
+				new TradeRecurrence(14, 1200), item(Items.SPIDER_EYE, 8));
 		trade("sell_shroomlight", new TradeOffer(GLEntities.MARISA.get(),
-				List.of(new HasQuestCompletedCondition(QUEST_SHROOMLIGHT)), new ItemStack(Items.EMERALD, 2),
+				List.of(new HasQuestCompletedCondition(QUEST_SHROOMLIGHT)), new ItemStack(Items.EMERALD),
 				new TradeRecurrence(6, 2400), List.of(item(Items.SHROOMLIGHT, 4))));
 		trade("sell_nether_fungus", new TradeOffer(GLEntities.MARISA.get(),
 				List.of(new HasQuestCompletedCondition(QUEST_SHROOMLIGHT)), new ItemStack(Items.EMERALD),
@@ -277,33 +280,44 @@ public class MarisaQDGen extends QuestDialogData {
 				List.of(new HasQuestCompletedCondition(QUEST_BREWING)), new ItemStack(Items.EMERALD),
 				new TradeRecurrence(10, 2400), List.of(item(Items.NETHER_WART, 8))));
 
-		// Offering trades (player buys hexbrews from Marisa), gated by reputation
-		trade("offer_mundane", new TradeOffer(GLEntities.MARISA.get(),
-				List.of(new SelfReputationCondition(0)), new ItemStack(HexBrew.MUNDANE_HEXBREW.bottle.get()),
-				new TradeRecurrence(4, 2400), List.of(item(Items.EMERALD, 3))));
-		trade("offer_miasma", new TradeOffer(GLEntities.MARISA.get(),
-				List.of(new SelfReputationCondition(50)), new ItemStack(HexBrew.MIASMA_HEXBREW.bottle.get()),
+		// Offering trades (player buys hexbrews from Marisa), gated by reputation or quests
+		trade("offer_miasma", new TradeOffer(GLEntities.MARISA.get(), List.of(),
+				new ItemStack(HexBrew.MIASMA_HEXBREW.bottle.get(), 4),
 				new TradeRecurrence(3, 2400), List.of(item(Items.EMERALD, 3))));
+		// Witch hexbrew: variety of potion effects, unlocked by the brewing quest, no rep gate
+		trade("offer_witch_speed", new TradeOffer(GLEntities.MARISA.get(),
+				List.of(new HasQuestCompletedCondition(QUEST_BREWING)), witch(Potions.SWIFTNESS, 4),
+				new TradeRecurrence(4, 2400), List.of(item(Items.EMERALD, 3))));
+		trade("offer_witch_strength", new TradeOffer(GLEntities.MARISA.get(),
+				List.of(new HasQuestCompletedCondition(QUEST_BREWING)), witch(Potions.STRENGTH, 4),
+				new TradeRecurrence(3, 2400), List.of(item(Items.EMERALD, 3))));
+		trade("offer_witch_regen", new TradeOffer(GLEntities.MARISA.get(),
+				List.of(new HasQuestCompletedCondition(QUEST_BREWING)), witch(Potions.REGENERATION, 4),
+				new TradeRecurrence(3, 2400), List.of(item(Items.EMERALD, 3))));
+		trade("offer_witch_leaping", new TradeOffer(GLEntities.MARISA.get(),
+				List.of(new HasQuestCompletedCondition(QUEST_BREWING)), witch(Potions.LEAPING, 4),
+				new TradeRecurrence(4, 2400), List.of(item(Items.EMERALD, 2))));
+		trade("offer_witch_fire", new TradeOffer(GLEntities.MARISA.get(),
+				List.of(new HasQuestCompletedCondition(QUEST_BREWING)), witch(Potions.FIRE_RESISTANCE, 4),
+				new TradeRecurrence(4, 2400), List.of(item(Items.EMERALD, 2))));
 		trade("offer_shield", new TradeOffer(GLEntities.MARISA.get(),
-				List.of(new SelfReputationCondition(100)), new ItemStack(HexBrew.SHIELD_HEXBREW.bottle.get()),
-				new TradeRecurrence(3, 3600), List.of(item(Items.EMERALD, 5))));
-		trade("offer_starlight", new TradeOffer(GLEntities.MARISA.get(),
-				List.of(new SelfReputationCondition(150)), new ItemStack(HexBrew.STARLIGHT_HEXBREW.bottle.get()),
-				new TradeRecurrence(2, 3600), List.of(item(Items.EMERALD, 6))));
+				List.of(new SelfReputationCondition(50)), new ItemStack(HexBrew.SHIELD_HEXBREW.bottle.get()),
+				new TradeRecurrence(3, 3600), List.of(item(Items.EMERALD, 2))));
 		trade("offer_explosive", new TradeOffer(GLEntities.MARISA.get(),
-				List.of(new SelfReputationCondition(200)), new ItemStack(HexBrew.EXPLOSIVE_HEXBREW.bottle.get()),
-				new TradeRecurrence(2, 4800), List.of(item(Items.EMERALD, 8))));
-		trade("offer_witch", new TradeOffer(GLEntities.MARISA.get(),
-				List.of(new SelfReputationCondition(250)), new ItemStack(HexBrew.WITCH_HEXBREW.bottle.get()),
-				new TradeRecurrence(1, 6000), List.of(item(Items.EMERALD, 12))));
+				List.of(new SelfReputationCondition(50)), new ItemStack(HexBrew.EXPLOSIVE_HEXBREW.bottle.get(), 4),
+				new TradeRecurrence(3, 4800), List.of(item(Items.EMERALD, 3))));
+		trade("offer_starlight", new TradeOffer(GLEntities.MARISA.get(),
+				List.of(new SelfReputationCondition(120)), new ItemStack(HexBrew.STARLIGHT_HEXBREW.bottle.get()),
+				new TradeRecurrence(2, 3600), List.of(item(Items.EMERALD, 4))));
 
 		// Processing trades
 		trade("process_golden_apple", new TradeOffer(GLEntities.MARISA.get(),
-				List.of(new HasQuestCompletedCondition(QUEST_GOLDEN_APPLE)),
+				List.of(new SelfReputationCondition(30)),
 				new ItemStack(Items.ENCHANTED_GOLDEN_APPLE),
 				new TradeRecurrence(1, 24000),
 				List.of(item(Items.GOLDEN_APPLE, 1), item(Items.GOLD_BLOCK, 1))));
-		trade("process_elixir", new TradeOffer(GLEntities.MARISA.get(), List.of(),
+		trade("process_elixir", new TradeOffer(GLEntities.MARISA.get(),
+				List.of(new SelfReputationCondition(80)),
 				new ItemStack(HexBrew.HEXBREW_ELIXIR.bottle.get()),
 				new TradeRecurrence(2, 1200),
 				List.of(item(HexBrew.MUNDANE_HEXBREW.bottle, 4))));
@@ -338,6 +352,12 @@ public class MarisaQDGen extends QuestDialogData {
 				dialog("complete/dialog_1", intro,
 						option("complete/reject", reject),
 						option("complete/handover", complete, new CompleteQuestAction())));
+	}
+
+	private ItemStack witch(Holder<Potion> potion, int count) {
+		var stack = new ItemStack(HexBrew.WITCH_HEXBREW.bottle.get(), count);
+		stack.set(DataComponents.POTION_CONTENTS, new PotionContents(potion));
+		return stack;
 	}
 
 	private void daily(String id, String title, String desc, QuestRecurrence rec,
