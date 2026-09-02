@@ -6,6 +6,7 @@ import dev.xkmc.gensokyolegacy.content.block.deco.bed.*;
 import dev.xkmc.gensokyolegacy.content.block.functional.alchemypot.AlchemyPotBlock;
 import dev.xkmc.gensokyolegacy.content.block.functional.alchemypot.AlchemyPotBlockEntity;
 import dev.xkmc.gensokyolegacy.content.block.functional.alchemypot.AlchemyPotRenderer;
+import dev.xkmc.gensokyolegacy.content.block.functional.barriers.SealingPotBlock;
 import dev.xkmc.gensokyolegacy.content.block.functional.barriers.SealingPotShape;
 import dev.xkmc.gensokyolegacy.content.block.functional.portal.*;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
@@ -105,7 +106,7 @@ public class GLBlocks {
 					.register();
 
 			// 封魔之壶
-			SEALING_POT = GensokyoLegacy.REGISTRATE.block("sealing_pot", p -> DelegateBlock.newBaseBlock(p, BlockTemplates.HORIZONTAL, new SealingPotShape()))
+			SEALING_POT = GensokyoLegacy.REGISTRATE.block("sealing_pot", p -> DelegateBlock.newBaseBlock(p, BlockTemplates.HORIZONTAL, new SealingPotShape(), new SealingPotBlock()))
 					.properties(p -> p.mapColor(MapColor.NONE).strength(2.0F).sound(SoundType.STONE).noOcclusion())
 					.blockstate((ctx, pvd) -> pvd.horizontalBlock(ctx.get(),
 							pvd.models().getBuilder("block/" + ctx.getName())

@@ -30,6 +30,8 @@ public class GLModConfig {
 		public final ModConfigSpec.BooleanValue fairyAttackYoukaified;
 		public final ModConfigSpec.DoubleValue fairySummonReinforcement;
 
+		public final ModConfigSpec.IntValue sealingPotRadius;
+
 		Server(Builder builder) {
 			markL2();
 			builder.push("food_effect", "Potion Effects");
@@ -50,6 +52,8 @@ public class GLModConfig {
 
 			builder.push("blocks", "Blocks");
 			{
+				sealingPotRadius = builder.text("Radius in chunks of the area around sealing pot that prevents hostile natural mob spawning")
+						.defineInRange("sealingPotRadius", 4, 1, 8);
 			}
 			builder.pop();
 

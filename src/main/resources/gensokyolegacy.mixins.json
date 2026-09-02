@@ -7,6 +7,7 @@
 		"FrogAttackablesSensorMixin",
 		"ItemAccessor",
 		"LivingEntityMixin",
+		"NaturalSpawnerSealingMixin",
 		"RandomizableContainerBlockEntityMixin",
 		"ShootTongueMixin"
 	],
