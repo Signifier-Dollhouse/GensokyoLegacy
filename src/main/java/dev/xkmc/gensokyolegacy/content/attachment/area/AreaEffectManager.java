@@ -104,7 +104,7 @@ public final class AreaEffectManager {
 
 	// tracking helpers
 
-	static void onTrack(ServerLevel level, ChunkPos pos, ServerPlayer player) {
+	public static void onTrack(ServerLevel level, ChunkPos pos, ServerPlayer player) {
 		AreaChunkHolder holder = AreaChunkHolder.of(level, pos);
 		if (holder == null) return;
 		for (AreaEffectEntry entry : holder.getAffecting()) {
@@ -114,7 +114,7 @@ public final class AreaEffectManager {
 		}
 	}
 
-	static void onUntrack(ServerLevel level, ChunkPos pos, ServerPlayer player) {
+	public static void onUntrack(ServerLevel level, ChunkPos pos, ServerPlayer player) {
 		AreaChunkHolder holder = AreaChunkHolder.of(level, pos);
 		if (holder == null) return;
 		for (AreaEffectEntry entry : holder.getAffecting()) {

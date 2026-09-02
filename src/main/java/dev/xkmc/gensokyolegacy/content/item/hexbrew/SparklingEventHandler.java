@@ -2,7 +2,6 @@ package dev.xkmc.gensokyolegacy.content.item.hexbrew;
 
 import dev.xkmc.danmakuapi.content.entity.ItemBulletEntity;
 import dev.xkmc.danmakuapi.init.registrate.DanmakuEntities;
-import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.registrate.GLEffects;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import net.minecraft.server.level.ServerLevel;
@@ -10,21 +9,15 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 
 import java.util.UUID;
 
-@EventBusSubscriber(modid = GensokyoLegacy.MODID)
 public class SparklingEventHandler {
 
 	private static final String OWNER_KEY = StarlightHandler.getOwnerKey();
 	private static final String COOLDOWN_KEY = "gensokyolegacy:starlight_cooldown";
 
-	@SubscribeEvent
-	public static void onLivingHurt(LivingIncomingDamageEvent event) {
-		LivingEntity victim = event.getEntity();
+	public static void onLivingHurt(LivingEntity victim) {
 		if (!victim.hasEffect(GLEffects.SPARKLING.holder())) return;
 		if (!(victim.level() instanceof ServerLevel level)) return;
 		if (!victim.getPersistentData().contains(COOLDOWN_KEY)) {

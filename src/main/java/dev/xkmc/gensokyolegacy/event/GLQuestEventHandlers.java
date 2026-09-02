@@ -13,7 +13,7 @@ import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 public class GLQuestEventHandlers {
 
 	@SubscribeEvent(priority = EventPriority.LOWEST)
-	public static void reload(LivingDeathEvent event) {
+	public static void triggerDeath(LivingDeathEvent event) {
 		if (event.getEntity().getKillCredit() instanceof ServerPlayer sp) {
 			GLMeta.QUEST.type().getOrCreate(sp).dispatch(sp, new KillTrigger(sp, event.getEntity()));
 		}

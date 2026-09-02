@@ -1,5 +1,7 @@
 package dev.xkmc.gensokyolegacy.event;
 
+import dev.xkmc.gensokyolegacy.content.attachment.area.AreaEffectRenderer;
+import dev.xkmc.gensokyolegacy.content.attachment.area.ClientAreaEffectTracker;
 import dev.xkmc.gensokyolegacy.content.client.deco.DowserRenderer;
 import dev.xkmc.gensokyolegacy.content.client.deco.FurnaceItemDeco;
 import dev.xkmc.gensokyolegacy.content.client.structure.StructureOutlineRenderer;
@@ -16,12 +18,26 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
+import net.neoforged.neoforge.event.level.LevelEvent;
 
 @EventBusSubscriber(value = Dist.CLIENT, modid = GensokyoLegacy.MODID)
 public class GLClientEventHandlers {
+
+	@SubscribeEvent
+	public static void onClientLogout(ClientPlayerNetworkEvent.LoggingOut event) {
+		ClientAreaEffectTracker.clear();
+	}
+
+	@SubscribeEvent
+	public static void onLevelUnload(LevelEvent.Unload event) {
+		if (event.getLevel().isClientSide()) {
+			ClientAreaEffectTracker.clear();
+		}
+	}
 
 	@SubscribeEvent
 	public static void tooltip(ItemTooltipEvent event) {
@@ -35,9 +51,14 @@ public class GLClientEventHandlers {
 
 	@SubscribeEvent
 	public static void renderStageEvent(RenderLevelStageEvent event) {
+		Minecraft mc = Minecraft.getInstance();
+		if (mc.level == null) return;
 		if (event.getStage() == RenderLevelStageEvent.Stage.AFTER_BLOCK_ENTITIES) {
 			StructureOutlineRenderer.renderOutline(event.getPoseStack(), event.getCamera().getPosition());
 			DowserRenderer.renderOutline(event.getPoseStack(), event.getCamera().getPosition());
+		}
+		if (event.getStage() == RenderLevelStageEvent.Stage.AFTER_ENTITIES) {
+			AreaEffectRenderer.onRenderLevel(mc.level, event);
 		}
 	}
 

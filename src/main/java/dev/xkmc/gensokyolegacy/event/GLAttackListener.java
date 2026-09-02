@@ -3,6 +3,7 @@ package dev.xkmc.gensokyolegacy.event;
 import dev.xkmc.danmakuapi.init.data.DanmakuDamageTypes;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.item.character.TouhouHatItem;
+import dev.xkmc.gensokyolegacy.content.item.hexbrew.SparklingEventHandler;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.GLModConfig;
 import dev.xkmc.l2damagetracker.contents.attack.AttackListener;
@@ -44,6 +45,8 @@ public class GLAttackListener implements AttackListener {
 
 	@Override
 	public void onDamageFinalized(DamageData.DefenceMax data) {
+		SparklingEventHandler.onLivingHurt(data.getTarget());
+		
 		var attacker = data.getAttacker();
 		if (attacker == null) return;
 		ItemStack head = attacker.getItemBySlot(EquipmentSlot.HEAD);

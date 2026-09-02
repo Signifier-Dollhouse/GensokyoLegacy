@@ -234,13 +234,23 @@ range until re-placed); fine for v1.
 
 **[DECIDED]** Visual feedback shows the forcefield texture ("for now", placeholder).
 
+The renderer is generic: **each `EffectData` declares its own visuals**, so any area effect
+(not just sealing) can render. `EffectData.getClientVisual()` returns a `List<AreaEffectVisual>`
+(texture, RGBA, scroll speed, which faces) — an entry may contribute to **multiple render passes**
+by returning several visuals; `SealingEffectData` returns one.
+
 `ClientSealingPotRenderer` (`@EventBusSubscriber`, `Dist.CLIENT`) listens to
 `RenderLevelStageEvent` at `AFTER_ENTITIES`:
-- Filters `ClientAreaEffectTracker.getTracked()` for `SealingEffectData` entries.
-- Draws the 4 vertical boundary walls of each region (`ChunkPosRange` block extents) as translucent
-  `POSITION_TEX_COLOR` quads using the mod texture `gensokyolegacy:textures/barriers/sealing_pot.png`
-  (copied from vanilla `textures/misc/forcefield.png`), tiled every 16 blocks via repeat wrap
-  (UV beyond `[0,1]`), frustum-culled per region.
+- Groups visuals by texture into passes (one `BufferBuilder` + draw per distinct texture).
+- **Frustum-culls each region before the buffer is built**; a pass with no visible regions is
+  skipped entirely (no begin/build/draw). Also guards a null frustum.
+- Walls/top/bottom of each region (`ChunkPosRange` block extents) as translucent
+  `POSITION_TEX_COLOR` quads using the visual's texture
+  (`gensokyolegacy:textures/barriers/sealing_pot.png`, copied from vanilla
+  `textures/misc/forcefield.png`), tiled every 16 blocks via repeat wrap (UV beyond `[0,1]`).
+- Texture scrolls **vertically** on walls: V offsets by `speed * time` (tiles/second, time from
+  game time + partial tick); sealing uses `0.5` tiles/s.
+- Walls on the **negative X/Z sides are UV-flipped** so adjacent sides read consistently from inside.
 - Camera-relative coords (the level render model-view is already camera-translated at AFTER_ENTITIES).
 - Full build-height columns (`minBuildHeight..maxBuildHeight`).
 
@@ -258,6 +268,8 @@ range until re-placed); fine for v1.
 | Spawn hook | `NaturalSpawner` mixin (§5) | Hostile-natural-only; programmatic spawns untouched; cheaper than per-mob events. |
 | Spawn scope | **Hostile (`MONSTER`) natural spawns only** | Decided: friendly mobs still spawn; youkai indifferent (programmatic → unaffected). |
 | Visual | forcefield-texture walls | Decided: `textures/barriers/sealing_pot.png` (copied from vanilla `textures/misc/forcefield.png`) placeholder until a proper effect render/art exists. |
+| Visual API | `EffectData.getClientVisual()` → `List<AreaEffectVisual>` | Decided: per-effect visuals (texture/color/speed/faces); one entry → multiple render passes; renderer batches by texture. Culling happens before any buffer is built. |
+| Visual scroll | V offset `speed*time` on walls, `0.5` tiles/s | Decided: textures move vertically; speed is per-visual. |
 | Config | `sealingPotRadius` default 4 | Decided: server-synced config, range `[1, 8]`. |
 | Chunk quantize | `getAffecting(level, ChunkPos)` | No force-load; bounds check to the pot's sealed chunks. |
 | Range | `r=4` (9×9=81 chunks) | Task spec; well under 1024 cap. |
