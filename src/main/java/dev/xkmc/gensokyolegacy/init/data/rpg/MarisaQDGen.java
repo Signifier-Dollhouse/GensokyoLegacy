@@ -283,11 +283,11 @@ public class MarisaQDGen extends QuestDialogData {
 				List.of(new HasQuestCompletedCondition(QUEST_GOLDEN_APPLE)),
 				new ItemStack(Items.ENCHANTED_GOLDEN_APPLE),
 				new TradeRecurrence(1, 24000),
-				List.of(item(Items.GOLDEN_APPLE, 1), item(Items.GOLD_BLOCK, 1)), true));
+				List.of(item(Items.GOLDEN_APPLE, 1), item(Items.GOLD_BLOCK, 1))));
 		trade("process_elixir", new TradeOffer(GLEntities.MARISA.get(), List.of(),
 				new ItemStack(HexBrew.HEXBREW_ELIXIR.bottle.get()),
 				new TradeRecurrence(2, 1200),
-				List.of(item(HexBrew.MUNDANE_HEXBREW.bottle, 4)), true));
+				List.of(item(HexBrew.MUNDANE_HEXBREW.bottle, 4))));
 
 	}
 

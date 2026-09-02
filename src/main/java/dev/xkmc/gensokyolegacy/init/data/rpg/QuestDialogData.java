@@ -38,6 +38,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 public class QuestDialogData {
 
@@ -55,23 +56,34 @@ public class QuestDialogData {
 	public QuestDialogData(String modid, L2Registrate reg) {
 		this.modid = modid;
 		this.reg = reg;
-		reg.getDataGenInitializer().add(CodecRegistry.DIALOG.key(), ctx ->
-				dialogRegistry.forEach((k, v) -> ctx.register(k, v.value())));
-		reg.getDataGenInitializer().add(CodecRegistry.STARTER.key(), ctx ->
-				starterRegistry.forEach((k, v) -> ctx.register(k, v.value())));
-		reg.getDataGenInitializer().add(CodecRegistry.QUEST.key(), ctx ->
-				questRegistry.forEach((k, v) -> ctx.register(k, v.value())));
-		reg.getDataGenInitializer().add(CodecRegistry.TRADE.key(), ctx ->
-				tradeRegistry.forEach((k, v) -> ctx.register(k, v.value())));
-		reg.addDataGenerator(ProviderType.DATA_MAP, pvd -> {
-			var builder = pvd.builder(GLMeta.DIALOG_DATA.reg());
-			defaultDialogMap.forEach((k, v) ->
-					builder.add(BuiltInRegistries.ENTITY_TYPE.wrapAsHolder(k), v, false));
-		});
 	}
 
 	public QuestDialogData() {
 		this(GensokyoLegacy.MODID, GensokyoLegacy.REGISTRATE);
+	}
+
+	/**
+	 * Registers all content contributed by the given instances into each datapack registry exactly once.
+	 */
+	public static void build(L2Registrate reg, QuestDialogData... all) {
+		reg.getDataGenInitializer().add(CodecRegistry.DIALOG.key(), ctx ->
+				forAll(all, d -> d.dialogRegistry.forEach((k, v) -> ctx.register(k, v.value()))));
+		reg.getDataGenInitializer().add(CodecRegistry.STARTER.key(), ctx ->
+				forAll(all, d -> d.starterRegistry.forEach((k, v) -> ctx.register(k, v.value()))));
+		reg.getDataGenInitializer().add(CodecRegistry.QUEST.key(), ctx ->
+				forAll(all, d -> d.questRegistry.forEach((k, v) -> ctx.register(k, v.value()))));
+		reg.getDataGenInitializer().add(CodecRegistry.TRADE.key(), ctx ->
+				forAll(all, d -> d.tradeRegistry.forEach((k, v) -> ctx.register(k, v.value()))));
+		reg.addDataGenerator(ProviderType.DATA_MAP, pvd -> {
+			var builder = pvd.builder(GLMeta.DIALOG_DATA.reg());
+			forAll(all, d -> d.defaultDialogMap.forEach((k, v) ->
+					builder.add(BuiltInRegistries.ENTITY_TYPE.wrapAsHolder(k), v, false)));
+		});
+	}
+
+	private static void forAll(QuestDialogData[] all, Consumer<QuestDialogData> c) {
+		for (var d : all)
+			c.accept(d);
 	}
 
 	public ResourceLocation loc(String id) {

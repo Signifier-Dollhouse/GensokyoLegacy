@@ -29,6 +29,8 @@ import dev.xkmc.gensokyolegacy.event.GLAttackListener;
 import dev.xkmc.gensokyolegacy.event.GLClickHandler;
 import dev.xkmc.gensokyolegacy.init.data.*;
 import dev.xkmc.gensokyolegacy.init.data.loot.GLGLMProvider;
+import dev.xkmc.gensokyolegacy.init.data.rpg.MarisaQDGen;
+import dev.xkmc.gensokyolegacy.init.data.rpg.QuestDialogData;
 import dev.xkmc.gensokyolegacy.init.data.rpg.ReimuQDGen;
 import dev.xkmc.gensokyolegacy.init.data.structure.GLStructureGen;
 import dev.xkmc.gensokyolegacy.init.data.structure.GLStructureLootGen;
@@ -191,7 +193,9 @@ public class GensokyoLegacy {
 		var gen = event.getGenerator();
 		gen.addProvider(event.includeServer(), new GLGLMProvider(gen.getPackOutput(), event.getLookupProvider()));
 
-		new ReimuQDGen();
+		var reimu = new ReimuQDGen();
+		var marisa = new MarisaQDGen();
+		QuestDialogData.build(REGISTRATE, reimu, marisa);
 
 		ReportBlocksInStructure.report();
 	}
