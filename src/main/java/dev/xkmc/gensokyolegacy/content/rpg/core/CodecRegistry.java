@@ -12,7 +12,7 @@ import dev.xkmc.gensokyolegacy.content.rpg.dialog.DialogStarter;
 import dev.xkmc.gensokyolegacy.content.rpg.dialog.SimpleDialogOption;
 import dev.xkmc.gensokyolegacy.content.rpg.quest.Quest;
 import dev.xkmc.gensokyolegacy.content.rpg.quest.QuestCondition;
-import dev.xkmc.gensokyolegacy.content.rpg.quest.QuestRequirement;
+import dev.xkmc.gensokyolegacy.content.rpg.requirement.QuestRequirement;
 import dev.xkmc.gensokyolegacy.content.rpg.quest.QuestReward;
 import dev.xkmc.gensokyolegacy.content.rpg.requirement.KillMobRequirement;
 import dev.xkmc.gensokyolegacy.content.rpg.requirement.RollItemRequirement;

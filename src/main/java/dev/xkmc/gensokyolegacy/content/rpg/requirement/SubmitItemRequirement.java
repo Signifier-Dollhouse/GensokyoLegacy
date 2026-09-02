@@ -4,7 +4,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.xkmc.gensokyolegacy.content.rpg.core.IngredientEntry;
 import dev.xkmc.gensokyolegacy.content.rpg.core.IngredientList;
-import dev.xkmc.gensokyolegacy.content.rpg.quest.QuestRequirement;
+import dev.xkmc.gensokyolegacy.content.rpg.quest.QuestData;
 import dev.xkmc.gensokyolegacy.content.rpg.trigger.EmptyTrigger;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.gensokyolegacy.util.InventoryMapper;
@@ -34,19 +34,19 @@ public record SubmitItemRequirement(
 	}
 
 	@Override
-	public boolean canComplete(Player pl) {
+	public boolean canComplete(Player pl, QuestData data, String key) {
 		return InventoryMapper.testCached(pl, this);
 	}
 
 	@Override
-	public void doComplete(ServerPlayer sp) {
+	public void doComplete(ServerPlayer sp, QuestData data, String key) {
 		var ans = new InventoryMapper(sp.getInventory().items, ingredients);
 		ans.test();
 		ans.consume();
 	}
 
 	@Override
-	public List<Component> getDesc(Player player, int progress) {
+	public List<Component> getDesc(Player player, QuestData data, String key) {
 		List<Component> ans = new ArrayList<>();
 		for (var e : ingredients) {
 			ans.add(e.getDesc(player));

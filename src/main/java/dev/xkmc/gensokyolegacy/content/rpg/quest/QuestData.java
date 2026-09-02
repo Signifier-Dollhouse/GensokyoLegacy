@@ -1,13 +1,13 @@
 package dev.xkmc.gensokyolegacy.content.rpg.quest;
 
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
+import dev.xkmc.gensokyolegacy.content.rpg.requirement.QuestRequirementData;
+import dev.xkmc.gensokyolegacy.content.rpg.requirement.RolledIngredientList;
 import dev.xkmc.l2serial.serialization.marker.SerialClass;
 import dev.xkmc.l2serial.serialization.marker.SerialField;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 
-import java.util.List;
 import java.util.TreeMap;
 
 @SerialClass
@@ -26,7 +26,7 @@ public class QuestData {
 	public final TreeMap<String, Integer> progress = new TreeMap<>();
 
 	@SerialField
-	public final TreeMap<String, List<ItemStack>> requests = new TreeMap<>();
+	public final TreeMap<String, QuestRequirementData> requirementData = new TreeMap<>();
 
 	public boolean isCompletable(Player sp, Quest quest) {
 		for (var e : quest.requirements().entrySet()) {
@@ -68,7 +68,7 @@ public class QuestData {
 			e.execute(sp, ch);
 		}
 		progress.clear();
-		requests.clear();
+		requirementData.clear();
 		completed++;
 		lastCompletion = sp.level().getGameTime();
 		started = false;

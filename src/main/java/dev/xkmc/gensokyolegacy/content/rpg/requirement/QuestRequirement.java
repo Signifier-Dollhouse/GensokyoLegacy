@@ -1,6 +1,7 @@
-package dev.xkmc.gensokyolegacy.content.rpg.quest;
+package dev.xkmc.gensokyolegacy.content.rpg.requirement;
 
 import dev.xkmc.gensokyolegacy.content.rpg.core.CodecElement;
+import dev.xkmc.gensokyolegacy.content.rpg.quest.QuestData;
 import dev.xkmc.gensokyolegacy.content.rpg.trigger.QuestTrigger;
 import dev.xkmc.l2serial.util.Wrappers;
 import net.minecraft.network.chat.Component;

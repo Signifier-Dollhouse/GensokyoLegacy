@@ -4,7 +4,6 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.xkmc.gensokyolegacy.content.rpg.quest.QuestData;
-import dev.xkmc.gensokyolegacy.content.rpg.quest.QuestRequirement;
 import dev.xkmc.gensokyolegacy.content.rpg.trigger.KillTrigger;
 import net.minecraft.ChatFormatting;
 import net.minecraft.advancements.critereon.EntityPredicate;

@@ -6,6 +6,7 @@ import dev.xkmc.gensokyolegacy.content.rpg.core.CharacterEntry;
 import dev.xkmc.gensokyolegacy.content.rpg.core.CodecRegistry;
 import dev.xkmc.gensokyolegacy.content.rpg.core.GatedEntry;
 import dev.xkmc.gensokyolegacy.content.rpg.dialog.DialogOption;
+import dev.xkmc.gensokyolegacy.content.rpg.requirement.QuestRequirement;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.RegistryFileCodec;
