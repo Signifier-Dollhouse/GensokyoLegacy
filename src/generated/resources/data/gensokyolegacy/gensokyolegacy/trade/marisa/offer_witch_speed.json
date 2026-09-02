@@ -8,21 +8,33 @@
   ],
   "ingredients": [
     {
-      "count": 3,
+      "count": 4,
       "item": "minecraft:emerald"
     }
   ],
   "recurrence": {
-    "maxStock": 4,
+    "maxStock": 16,
     "restockTime": 12000
   },
   "result": {
     "components": {
       "minecraft:potion_contents": {
-        "potion": "minecraft:swiftness"
+        "custom_color": -13374465,
+        "custom_effects": [
+          {
+            "amplifier": 1,
+            "duration": 3600,
+            "id": "minecraft:speed",
+            "neoforge:cures": [
+              "milk",
+              "protected_by_totem"
+            ],
+            "show_icon": true
+          }
+        ]
       }
     },
-    "count": 4,
+    "count": 1,
     "id": "gensokyolegacy:witch_hexbrew_bottle"
   }
 }

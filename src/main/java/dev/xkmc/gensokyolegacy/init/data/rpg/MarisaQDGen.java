@@ -26,6 +26,7 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.item.alchemy.Potion;
 import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.item.alchemy.Potions;
@@ -322,22 +323,23 @@ public class MarisaQDGen extends QuestDialogData {
 		trade("offer_miasma", new TradeOffer(GLEntities.MARISA.get(), List.of(),
 				new ItemStack(HexBrew.MIASMA_HEXBREW.bottle.get(), 4),
 				new TradeRecurrence(4, 24000), List.of(item(Items.EMERALD, 3))));
-		// Witch hexbrew: variety of potion effects, unlocked by the brewing quest, no rep gate; half-day restock
+		// Witch hexbrew: variety of potion effects, unlocked by the brewing quest, no rep gate; half-day restock.
+		// Strong variants sell 1 bottle at 4 emerald, 16 stock. No-strong effects fall back to long, 4 bottles at 4 emerald.
 		trade("offer_witch_speed", new TradeOffer(GLEntities.MARISA.get(),
-				List.of(new HasQuestCompletedCondition(QUEST_BREWING)), witch(Potions.SWIFTNESS, 4),
-				new TradeRecurrence(4, 12000), List.of(item(Items.EMERALD, 3))));
+				List.of(new HasQuestCompletedCondition(QUEST_BREWING)), witchStrong(Potions.STRONG_SWIFTNESS),
+				new TradeRecurrence(16, 12000), List.of(item(Items.EMERALD, 4))));
 		trade("offer_witch_strength", new TradeOffer(GLEntities.MARISA.get(),
-				List.of(new HasQuestCompletedCondition(QUEST_BREWING)), witch(Potions.STRENGTH, 4),
-				new TradeRecurrence(4, 12000), List.of(item(Items.EMERALD, 3))));
+				List.of(new HasQuestCompletedCondition(QUEST_BREWING)), witchStrong(Potions.STRONG_STRENGTH),
+				new TradeRecurrence(16, 12000), List.of(item(Items.EMERALD, 4))));
 		trade("offer_witch_regen", new TradeOffer(GLEntities.MARISA.get(),
-				List.of(new HasQuestCompletedCondition(QUEST_BREWING)), witch(Potions.REGENERATION, 4),
-				new TradeRecurrence(4, 12000), List.of(item(Items.EMERALD, 3))));
+				List.of(new HasQuestCompletedCondition(QUEST_BREWING)), witchStrong(Potions.STRONG_REGENERATION),
+				new TradeRecurrence(16, 12000), List.of(item(Items.EMERALD, 4))));
 		trade("offer_witch_leaping", new TradeOffer(GLEntities.MARISA.get(),
-				List.of(new HasQuestCompletedCondition(QUEST_BREWING)), witch(Potions.LEAPING, 4),
-				new TradeRecurrence(4, 12000), List.of(item(Items.EMERALD, 2))));
+				List.of(new HasQuestCompletedCondition(QUEST_BREWING)), witchStrong(Potions.STRONG_LEAPING),
+				new TradeRecurrence(16, 12000), List.of(item(Items.EMERALD, 4))));
 		trade("offer_witch_fire", new TradeOffer(GLEntities.MARISA.get(),
-				List.of(new HasQuestCompletedCondition(QUEST_BREWING)), witch(Potions.FIRE_RESISTANCE, 4),
-				new TradeRecurrence(4, 12000), List.of(item(Items.EMERALD, 2))));
+				List.of(new HasQuestCompletedCondition(QUEST_BREWING)), witchLong(Potions.LONG_FIRE_RESISTANCE),
+				new TradeRecurrence(4, 12000), List.of(item(Items.EMERALD, 4))));
 		trade("offer_shield", new TradeOffer(GLEntities.MARISA.get(),
 				List.of(new SelfReputationCondition(50)), new ItemStack(HexBrew.SHIELD_HEXBREW.bottle.get()),
 				new TradeRecurrence(8, 24000), List.of(item(Items.EMERALD, 2))));
@@ -394,10 +396,23 @@ public class MarisaQDGen extends QuestDialogData {
 								dialog("complete/handover/dialog_1", completeLine, optionKey("complete/handover/bye", byeKey)))));
 	}
 
-	private ItemStack witch(Holder<Potion> potion, int count) {
-		var stack = new ItemStack(HexBrew.WITCH_HEXBREW.bottle.get(), count);
-		stack.set(DataComponents.POTION_CONTENTS, new PotionContents(potion));
+	private ItemStack witchStrong(Holder<Potion> potion) {
+		var stack = new ItemStack(HexBrew.WITCH_HEXBREW.bottle.get(), 1);
+		stack.set(DataComponents.POTION_CONTENTS, witchContents(potion, 2));
 		return stack;
+	}
+
+	private ItemStack witchLong(Holder<Potion> potion) {
+		var stack = new ItemStack(HexBrew.WITCH_HEXBREW.bottle.get(), 4);
+		stack.set(DataComponents.POTION_CONTENTS, witchContents(potion, 1));
+		return stack;
+	}
+
+	private PotionContents witchContents(Holder<Potion> potion, int durationMul) {
+		return new PotionContents(Optional.empty(), Optional.of(PotionContents.getColor(potion)),
+				potion.value().getEffects().stream()
+						.map(e -> new MobEffectInstance(e.getEffect(), e.getDuration() * durationMul, e.getAmplifier()))
+						.toList());
 	}
 
 	private void daily(String id, String title, String desc, QuestRecurrence rec,

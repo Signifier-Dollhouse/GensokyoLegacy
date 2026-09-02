@@ -8,7 +8,7 @@
   ],
   "ingredients": [
     {
-      "count": 2,
+      "count": 4,
       "item": "minecraft:emerald"
     }
   ],
@@ -19,7 +19,18 @@
   "result": {
     "components": {
       "minecraft:potion_contents": {
-        "potion": "minecraft:fire_resistance"
+        "custom_color": -26368,
+        "custom_effects": [
+          {
+            "duration": 9600,
+            "id": "minecraft:fire_resistance",
+            "neoforge:cures": [
+              "milk",
+              "protected_by_totem"
+            ],
+            "show_icon": true
+          }
+        ]
       }
     },
     "count": 4,
