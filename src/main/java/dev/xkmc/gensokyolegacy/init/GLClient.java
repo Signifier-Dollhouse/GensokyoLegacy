@@ -74,8 +74,6 @@ public class GLClient {
 		event.registerLayerDefinition(RumiaModel.LAYER_LOCATION, RumiaModel::createBodyLayer);
 		event.registerLayerDefinition(RumiaModel.HAIRBAND, RumiaModel::createHairbandLayer);
 		event.registerLayerDefinition(BlackBallModel.LAYER_LOCATION, BlackBallModel::createBodyLayer);
-		event.registerLayerDefinition(ReimuModel.LAYER_LOCATION, ReimuModel::createBodyLayer);
-		event.registerLayerDefinition(ReimuModel.HAIRBAND, ReimuModel::createHatLayer);
 		event.registerLayerDefinition(CirnoModel.LAYER_LOCATION, CirnoModel::createBodyLayer);
 		event.registerLayerDefinition(CirnoModel.HAT, CirnoModel::createHatLayer);
 		event.registerLayerDefinition(CirnoModel.WINGS_LOCATION, CirnoModel::createWingsLayer);
