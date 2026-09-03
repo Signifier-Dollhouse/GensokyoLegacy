@@ -122,7 +122,7 @@ public class GLDecoBlocks {
 					.properties(p -> p.mapColor(MapColor.NONE).strength(0.3F).sound(SoundType.WOOD).noOcclusion().noLootTable())
 					.blockstate((ctx, pvd) -> pvd.paneBlock(ctx.get(),
 							pvd.modLoc("block/deco/paper_window"),
-							pvd.modLoc("block/deco/paper_window")))
+                            ResourceLocation.withDefaultNamespace("block/spruce_planks")))
 					.loot((pvd, block) -> pvd.add(block, LootTable.lootTable()))
 					.tag(BlockTags.MINEABLE_WITH_PICKAXE)
 					.item().model((ctx, pvd) -> pvd.withExistingParent(ctx.getName(), "item/generated")
@@ -176,6 +176,25 @@ public class GLDecoBlocks {
 					.loot(LargeTableBlock::genLoot)
 					.register();
 
+			// 木椅
+			reg.block(name + "_large_chair", p -> DelegateBlock.newBaseBlock(p, BlockTemplates.HORIZONTAL, new LargeChairBlock(), new ChairPadImpl()))
+					.initialProperties(() -> e.plankProp)
+					.blockstate(LargeChairBlock::buildStates)
+					.simpleItem().tag(BlockTags.MINEABLE_WITH_AXE)
+					.loot(LargeChairBlock::genLoot)
+					.register();
+
+			// 木凳
+			reg.block(name + "_chair", p -> new WoodChairBlock(
+							BlockBehaviour.Properties.ofFullCopy(e.plankProp)))
+					.blockstate((ctx, pvd) -> pvd.simpleBlock(ctx.get(), pvd.models().getBuilder("block/" + ctx.getName())
+							.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/wooden_large_chair")))
+							.texture("all", pvd.modLoc("block/wood/" + ctx.getName()))
+							.texture("particle", pvd.mcLoc("block/birch_planks"))
+							.renderType("cutout")))
+					.simpleItem().tag(BlockTags.MINEABLE_WITH_AXE)
+					.register();
+
 			e.wall = reg.block(name + "_plank_wall", Block::new)
 					.initialProperties(() -> e.plankProp)
 					.blockstate((ctx, pvd) -> {
@@ -201,6 +220,17 @@ public class GLDecoBlocks {
 					.loot(SlidingDoorJsons::genLoot)
 					.register();
 		}
+
+		// 红魔馆木椅
+		reg.block("wooden_large_chair_scarlet_devil_mansion", p -> DelegateBlock.newBaseBlock(p, BlockTemplates.HORIZONTAL, new LargeChairBlock()))
+				.initialProperties(() -> Blocks.OAK_PLANKS)
+				.blockstate((ctx, pvd) -> pvd.horizontalBlock(ctx.get(), pvd.models().getBuilder("block/" + ctx.getName())
+						.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/wooden_large_chair")))
+						.texture("all", pvd.modLoc("block/wood/" + ctx.getName()))
+						.texture("particle", pvd.mcLoc("block/birch_planks"))
+						.renderType("cutout")))
+				.simpleItem().tag(BlockTags.MINEABLE_WITH_AXE)
+				.register();
 
 		// brick sets
 		{

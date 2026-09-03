@@ -1,0 +1,142 @@
+package dev.xkmc.gensokyolegacy.content.block.deco.variants;
+
+import com.tterrag.registrate.providers.RegistrateBlockstateProvider;
+import com.tterrag.registrate.providers.loot.RegistrateBlockLootTables;
+import dev.xkmc.gensokyolegacy.init.registrate.block.GLDecoBlocks;
+import dev.xkmc.l2core.serial.loot.LootHelper;
+import dev.xkmc.l2modularblock.mult.CreateBlockStateBlockMethod;
+import dev.xkmc.l2modularblock.mult.DefaultStateBlockMethod;
+import dev.xkmc.l2modularblock.mult.UseItemOnBlockMethod;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.StringRepresentable;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.storage.loot.LootPool;
+import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.level.storage.loot.entries.LootItem;
+import net.minecraft.world.phys.BlockHitResult;
+import net.neoforged.neoforge.client.model.generators.ModelFile;
+import net.neoforged.neoforge.common.ItemAbilities;
+
+import java.util.Locale;
+
+public class ChairPadImpl implements CreateBlockStateBlockMethod, DefaultStateBlockMethod, UseItemOnBlockMethod {
+
+	public enum Color implements StringRepresentable {
+		NONE(Items.AIR),
+		BASE(() -> GLDecoBlocks.TATAMI.asItem()),
+
+		WHITE(Blocks.WHITE_CARPET),
+		ORANGE(Blocks.ORANGE_CARPET),
+		MAGENTA(Blocks.MAGENTA_CARPET),
+		LIGHT_BLUE(Blocks.LIGHT_BLUE_CARPET),
+		YELLOW(Blocks.YELLOW_CARPET),
+		LIME(Blocks.LIME_CARPET),
+		PINK(Blocks.PINK_CARPET),
+		GRAY(Blocks.GRAY_CARPET),
+		LIGHT_GRAY(Blocks.LIGHT_GRAY_CARPET),
+		CYAN(Blocks.CYAN_CARPET),
+		PURPLE(Blocks.PURPLE_CARPET),
+		BLUE(Blocks.BLUE_CARPET),
+		BROWN(Blocks.BROWN_CARPET),
+		GREEN(Blocks.GREEN_CARPET),
+		RED(Blocks.RED_CARPET),
+		BLACK(Blocks.BLACK_CARPET);
+
+		private final ItemLike item;
+
+		Color(ItemLike item) {
+			this.item = item;
+		}
+
+		@Override
+		public String getSerializedName() {
+			return name().toLowerCase(Locale.ROOT);
+		}
+
+	}
+
+	public static final EnumProperty<Color> COLOR = EnumProperty.create("pad_color", Color.class, Color.values());
+
+	@Override
+	public void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+		builder.add(COLOR);
+	}
+
+	@Override
+	public BlockState getDefaultState(BlockState state) {
+		return state.setValue(COLOR, Color.NONE);
+	}
+
+	@Override
+	public ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player pl, InteractionHand hand, BlockHitResult result) {
+		if (state.getValue(COLOR) == Color.NONE) {
+			for (var e : Color.values()) {
+				if (e.item.asItem() == Items.AIR) continue;
+				if (stack.is(e.item.asItem())) {
+					if (!level.isClientSide()) {
+						level.setBlockAndUpdate(pos, state.setValue(COLOR, e));
+						if (!pl.getAbilities().instabuild) {
+							stack.shrink(1);
+						}
+					}
+					return ItemInteractionResult.SUCCESS;
+				}
+			}
+		} else if (stack.canPerformAction(ItemAbilities.SHEARS_CARVE)) {
+			if (!level.isClientSide()) {
+				var col = state.getValue(COLOR);
+				level.setBlockAndUpdate(pos, state.setValue(COLOR, Color.NONE));
+				if (!pl.getAbilities().instabuild) {
+					Block.popResource(level, pos, new ItemStack(col.item, 1));
+					stack.hurtAndBreak(1, pl, LivingEntity.getSlotForHand(hand));
+				}
+			}
+			return ItemInteractionResult.SUCCESS;
+		}
+		return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+	}
+
+	public static LootTable.Builder loot(RegistrateBlockLootTables pvd, Block block) {
+		LootHelper helper = new LootHelper(pvd);
+		var ans = LootTable.lootTable();
+		ans.withPool(LootPool.lootPool().add(LootItem.lootTableItem(block)));
+		for (var e : Color.values()) {
+			if (e.item.asItem() == Items.AIR) continue;
+			ans.withPool(LootPool.lootPool().add(LootItem.lootTableItem(e.item)).when(helper.enumState(block, COLOR, e)));
+		}
+		return ans;
+	}
+
+	private static void buildCushionModels(RegistrateBlockstateProvider pvd, String woodName, String chairTexture, String suffix) {
+		String textureDir = suffix.equals("pad") ? "chair" : "cushion";
+		for (var e : Color.values()) {
+			if (e.item.asItem() == Items.AIR) continue;
+			String texName = e == Color.BASE ? suffix : e.getSerializedName() + "_" + suffix;
+			String modelName = woodName + "_" + texName;
+			pvd.models().getBuilder("block/" + modelName)
+					.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/wooden_large_chair_pad")))
+					.texture("wood", chairTexture)
+					.texture("pad", "block/" + textureDir + "/" + texName)
+					.texture("particle", "minecraft:block/birch_planks")
+					.renderType("cutout");
+		}
+	}
+
+	public static void buildStates(RegistrateBlockstateProvider pvd, String woodName, String chairTexture) {
+		buildCushionModels(pvd, woodName, chairTexture, "pad");
+	}
+
+
+}
