@@ -8,6 +8,7 @@
 		"ItemAccessor",
 		"LivingEntityMixin",
 		"NaturalSpawnerSealingMixin",
+		"ServerLevelSealingMixin",
 		"RandomizableContainerBlockEntityMixin",
 		"ShootTongueMixin"
 	],
