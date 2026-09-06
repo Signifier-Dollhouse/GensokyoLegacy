@@ -90,7 +90,7 @@ public class GLNaturalBlocks {
 
 		// 蕨菜
 		BRACKEN = reg.block("bracken", GrassBlock::new)
-				.properties(p -> p.offsetType(BlockBehaviour.OffsetType.XYZ).mapColor(MapColor.PLANT).strength(0).sound(SoundType.GRASS).noOcclusion().pushReaction(PushReaction.DESTROY).dynamicShape())
+				.properties(p -> p.offsetType(BlockBehaviour.OffsetType.XYZ).mapColor(MapColor.PLANT).strength(0).sound(SoundType.GRASS).noOcclusion().noCollission().pushReaction(PushReaction.DESTROY).dynamicShape())
 				.blockstate((ctx, pvd) -> pvd.simpleBlock(ctx.get(),
 						new ModelFile.UncheckedModelFile(pvd.modLoc("block/bracken"))))
 				.simpleItem()
@@ -144,7 +144,7 @@ public class GLNaturalBlocks {
 
 		// 青杉落叶
 		CEDAR_FALLEN_LEAVES = reg.block("cedar_fallen_leaves", CedarFallenLeavesBlock::new)
-				.properties(p -> p.mapColor(MapColor.PLANT).strength(0).sound(SoundType.GRASS).noOcclusion().noCollission().pushReaction(PushReaction.DESTROY))
+				.properties(p -> p.mapColor(MapColor.PLANT).sound(SoundType.GRASS).noOcclusion().noCollission())
 				.blockstate((ctx, pvd) -> {
 					var layer1 = pvd.models().getBuilder("block/" + ctx.getName() + "_layer1")
 							.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/cedar_fallen_leaves_layer1")))
