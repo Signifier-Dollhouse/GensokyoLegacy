@@ -58,7 +58,6 @@ public class GLItems {
 	public static final ItemEntry<SuwakoHatItem> SUWAKO_HAT;
 	public static final ItemEntry<KoishiHatItem> KOISHI_HAT;
 	public static final ItemEntry<RumiaHairbandItem> RUMIA_HAIRBAND;
-	public static final ItemEntry<ReimuHairbandItem> REIMU_HAIRBAND;
 	public static final ItemEntry<CirnoHairbandItem> CIRNO_HAIRBAND;
 	public static final ItemEntry<CirnoWingsItem> CIRNO_WINGS;
 
@@ -293,14 +292,6 @@ public class GLItems {
 					.clientExtension(() -> () -> new RumiaHairbandModel(RumiaModel.HAIRBAND))
 					.tag(ItemTags.HEAD_ARMOR, GLTagGen.TOUHOU_HAT)
 					.register();
-
-			REIMU_HAIRBAND = reg
-					.item("reimu_hairband", p -> new ReimuHairbandItem(p.rarity(Rarity.EPIC)))
-					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/curio/" + ctx.getName())))
-					.clientExtension(() -> () -> new ReimuHairbandModel(ReimuModel.HAIRBAND))
-					.tag(ItemTags.HEAD_ARMOR, GLTagGen.TOUHOU_HAT)
-					.register();
-
 
 			CIRNO_HAIRBAND = reg
 					.item("cirno_hairband", p -> new CirnoHairbandItem(p.rarity(Rarity.EPIC)))

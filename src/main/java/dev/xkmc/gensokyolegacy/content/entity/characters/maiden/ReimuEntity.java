@@ -3,6 +3,7 @@ package dev.xkmc.gensokyolegacy.content.entity.characters.maiden;
 import dev.xkmc.danmakuapi.init.data.DanmakuDamageTypes;
 import dev.xkmc.gensokyolegacy.compat.touhoulittlemaid.TouhouConditionalSpawns;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiFeatureSet;
+import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiFlags;
 import dev.xkmc.l2serial.serialization.marker.SerialClass;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
@@ -16,6 +17,7 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 @SerialClass
 public class ReimuEntity extends MaidenEntity implements GeoEntity {
 	protected static final RawAnimation IDLE = RawAnimation.begin().thenLoop("idle");
+	protected static final RawAnimation WALK = RawAnimation.begin().thenLoop("walk");
 
 	private final AnimatableInstanceCache geoCache = GeckoLibUtil.createInstanceCache(this);
 
@@ -37,6 +39,12 @@ public class ReimuEntity extends MaidenEntity implements GeoEntity {
 	}
 
 	protected <E extends ReimuEntity> PlayState idleAnimController(final AnimationState<E> event) {
+		if (getFlag(YoukaiFlags.FLYING)) {
+			return event.setAndContinue(IDLE);
+		}
+		if (event.isMoving()) {
+			return event.setAndContinue(WALK);
+		}
 		return event.setAndContinue(IDLE);
 	}
 

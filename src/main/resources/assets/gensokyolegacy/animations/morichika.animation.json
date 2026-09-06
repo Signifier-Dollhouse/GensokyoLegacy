@@ -1,7 +1,7 @@
 {
 	"format_version": "1.8.0",
 	"animations": {
-		"——肢体动画——": {
+		"limb_anim": {
 			"loop": true
 		},
 		"walk": {
@@ -447,7 +447,7 @@
 				}
 			}
 		},
-		"跑步": {
+		"run": {
 			"loop": true,
 			"animation_length": 0.6667,
 			"bones": {
@@ -1079,7 +1079,7 @@
 				}
 			}
 		},
-		"眨眼": {
+		"wink": {
 			"loop": true,
 			"animation_length": 1.5,
 			"bones": {
@@ -1123,7 +1123,7 @@
 				}
 			}
 		},
-		"使用主手物品": {
+		"use_main_hand_item": {
 			"animation_length": 0.4167,
 			"bones": {
 				"UpBody": {
@@ -1232,7 +1232,7 @@
 				}
 			}
 		},
-		"拿取物品": {
+		"grab_item": {
 			"animation_length": 0.75,
 			"bones": {
 				"UpBody": {
@@ -1297,7 +1297,7 @@
 				}
 			}
 		},
-		"吃": {
+		"eat": {
 			"animation_length": 2.25,
 			"bones": {
 				"UpBody": {
@@ -1533,7 +1533,7 @@
 				}
 			}
 		},
-		"喝": {
+		"drink": {
 			"animation_length": 2.25,
 			"bones": {
 				"UpBody": {
@@ -1709,10 +1709,10 @@
 				}
 			}
 		},
-		"——交流动画——": {
+		"conversation_anim": {
 			"loop": true
 		},
-		"交流_01": {
+		"conversation1": {
 			"loop": true,
 			"animation_length": 0.875,
 			"bones": {
@@ -1839,7 +1839,7 @@
 				}
 			}
 		},
-		"交流_02": {
+		"conversation2": {
 			"loop": true,
 			"animation_length": 0.875,
 			"bones": {
@@ -1937,7 +1937,7 @@
 				}
 			}
 		},
-		"思考中": {
+		"thinking": {
 			"loop": true,
 			"animation_length": 1.5,
 			"bones": {
@@ -2023,7 +2023,7 @@
 				}
 			}
 		},
-		"拒绝": {
+		"refuse": {
 			"animation_length": 1.25,
 			"bones": {
 				"UpBody": {
@@ -2246,7 +2246,7 @@
 				}
 			}
 		},
-		"肯定": {
+		"affirm": {
 			"animation_length": 1.5,
 			"bones": {
 				"UpBody": {
@@ -2437,7 +2437,7 @@
 				}
 			}
 		},
-		"招呼": {
+		"greet": {
 			"animation_length": 1.125,
 			"bones": {
 				"UpBody": {
