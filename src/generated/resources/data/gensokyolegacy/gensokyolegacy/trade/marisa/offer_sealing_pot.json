@@ -1,0 +1,23 @@
+{
+  "character": "gensokyolegacy:kirisame_marisa",
+  "conditions": [
+    {
+      "type": "gensokyolegacy:self_reputation",
+      "reputation": 120
+    }
+  ],
+  "ingredients": [
+    {
+      "count": 24,
+      "item": "minecraft:emerald"
+    }
+  ],
+  "recurrence": {
+    "maxStock": 1,
+    "restockTime": 48000
+  },
+  "result": {
+    "count": 1,
+    "id": "gensokyolegacy:sealing_pot"
+  }
+}

@@ -1,0 +1,4 @@
+- Fix community textures by extending the center line
+- Identify and fix models are does not follow guidelines
+- Block models not using cutout / cross blocks not using generated item model
+- chair update

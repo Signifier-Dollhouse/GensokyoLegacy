@@ -18,6 +18,7 @@ import dev.xkmc.gensokyolegacy.content.rpg.reward.ReputationReward;
 import dev.xkmc.gensokyolegacy.content.rpg.trade.TradeOffer;
 import dev.xkmc.gensokyolegacy.content.rpg.trade.TradeRecurrence;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
+import dev.xkmc.gensokyolegacy.init.registrate.block.GLBlocks;
 import dev.xkmc.gensokyolegacy.init.data.GLTagGen;
 import dev.xkmc.gensokyolegacy.init.registrate.GLEntities;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLNaturalBlocks;
@@ -349,6 +350,9 @@ public class MarisaQDGen extends QuestDialogData {
 		trade("offer_starlight", new TradeOffer(GLEntities.MARISA.get(),
 				List.of(new SelfReputationCondition(120)), new ItemStack(HexBrew.STARLIGHT_HEXBREW.bottle.get()),
 				new TradeRecurrence(8, 24000), List.of(item(Items.EMERALD, 4))));
+		trade("offer_sealing_pot", new TradeOffer(GLEntities.MARISA.get(),
+				List.of(new SelfReputationCondition(120)), new ItemStack(GLBlocks.SEALING_POT.asItem()),
+				new TradeRecurrence(1, 48000), List.of(item(Items.EMERALD, 24))));
 
 		// Processing trades
 		trade("process_golden_apple", new TradeOffer(GLEntities.MARISA.get(),
