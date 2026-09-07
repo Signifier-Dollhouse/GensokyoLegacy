@@ -152,32 +152,16 @@ public class GLDecoBlocks {
 		for (var e : WoodType.values()) {
 			String name = e.name().toLowerCase(Locale.ROOT);
 
-			e.table = reg.block(name + "_dining_table", p -> DelegateBlock.newBaseBlock(p, new WoodTableBlock(), new TableClothImpl()))
-					.initialProperties(() -> e.plankProp)
-					.blockstate(WoodTableBlock::buildStates)
-					.simpleItem().tag(BlockTags.MINEABLE_WITH_AXE)
-					.recipe((ctx, pvd) -> WoodTableBlock.genRecipe(pvd, e, ctx))
-					.loot(WoodTableBlock::genLoot)
-					.register();
-
-			e.seat = reg.block(name + "_dining_chair", p -> new WoodChairBlock(
-							BlockBehaviour.Properties.ofFullCopy(e.plankProp)))
-					.blockstate(WoodChairBlock::buildStates)
-					.simpleItem().tag(BlockTags.MINEABLE_WITH_AXE)
-					.recipe((ctx, pvd) -> WoodChairBlock.genRecipe(pvd, e, ctx))
-					.register();
-
-			reg.block(name + "_large_table", p -> DelegateBlock.newBaseBlock(p, new LargeTableBlock(), new TableClothImpl()))
+			reg.block(name + "_large_table", p -> DelegateBlock.newBaseBlock(p, new LargeTableBlock(), new CoverableImpl()))
 					.initialProperties(() -> e.plankProp)
 					.blockstate(LargeTableBlock::buildStates)
 					.tag(GLTagGen.LARGE_TABLE)
 					.simpleItem().tag(BlockTags.MINEABLE_WITH_AXE)
-					//.recipe((ctx, pvd) -> WoodTableBlock.genRecipe(pvd, e, ctx))
 					.loot(LargeTableBlock::genLoot)
 					.register();
 
 			// 木椅
-			reg.block(name + "_large_chair", p -> DelegateBlock.newBaseBlock(p, BlockTemplates.HORIZONTAL, new LargeChairBlock(), new ChairPadImpl()))
+			reg.block(name + "_large_chair", p -> DelegateBlock.newBaseBlock(p, BlockTemplates.HORIZONTAL, new LargeChairBlock(), new CoverableImpl()))
 					.initialProperties(() -> e.plankProp)
 					.blockstate(LargeChairBlock::buildStates)
 					.simpleItem().tag(BlockTags.MINEABLE_WITH_AXE)

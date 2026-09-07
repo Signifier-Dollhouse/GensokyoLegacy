@@ -37,7 +37,7 @@ public class LargeTableBlock implements ShapeBlockMethod, CreateBlockStateBlockM
 
 	@Override
 	public @Nullable VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext ctx) {
-		return state.getValue(TableClothImpl.COLOR) == TableClothImpl.Color.NONE ?
+		return state.getValue(CoverableImpl.COLOR) == CoverableImpl.Color.NONE ?
 				state.getValue(ATTACHED) ? TOP : BARE :
 				state.getValue(ATTACHED) ? CLOTH : CLOTHED;
 	}
@@ -90,11 +90,11 @@ public class LargeTableBlock implements ShapeBlockMethod, CreateBlockStateBlockM
 
 		var builder = pvd.getMultipartBuilder(ctx.get());
 		builder.part().modelFile(stall).addModel().condition(ATTACHED, false).end();
-		TableClothImpl.buildStates(builder, pvd, table);
+		CoverableImpl.buildTableStates(builder, pvd, table);
 	}
 
 	public static void genLoot(RegistrateBlockLootTables pvd, DelegateBlock block) {
-		pvd.add(block, TableClothImpl.loot(pvd, block));
+		pvd.add(block, CoverableImpl.loot(pvd, block));
 	}
 
 }
