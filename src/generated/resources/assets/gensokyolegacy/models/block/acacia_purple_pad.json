@@ -1,0 +1,9 @@
+{
+  "parent": "gensokyolegacy:custom/wooden_large_chair_pad",
+  "render_type": "minecraft:cutout",
+  "textures": {
+    "pad": "gensokyolegacy:block/chair/purple_pad",
+    "particle": "minecraft:block/birch_planks",
+    "wood": "gensokyolegacy:block/wood/acacia_large_chair"
+  }
+}

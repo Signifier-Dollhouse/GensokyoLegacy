@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion"
+    },
+    "facing=south": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion",
+      "y": 270
+    }
+  }
+}
