@@ -18,7 +18,7 @@ import net.neoforged.neoforge.client.model.generators.ModelFile;
 
 public class LargeChairBlock implements ShapeBlockMethod, CreateBlockStateBlockMethod, DefaultStateBlockMethod {
 
-	public static final VoxelShape SHAPE = Block.box(1, 0, 1, 15, 10, 15);
+	public static final VoxelShape SHAPE = Block.box(1, 0, 1, 15, 12, 15);
 
 	@Override
 	public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext ctx) {

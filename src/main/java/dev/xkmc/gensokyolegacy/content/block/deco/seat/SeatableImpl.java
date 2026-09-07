@@ -1,28 +1,21 @@
 package dev.xkmc.gensokyolegacy.content.block.deco.seat;
 
+import dev.xkmc.l2modularblock.mult.UseWithoutItemBlockMethod;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 
 import java.util.List;
 
-public class SeatableBlock extends Block {
-
-	private final float offset;
-
-	public SeatableBlock(Properties pProperties, float offset) {
-		super(pProperties);
-		this.offset = offset;
-	}
+public record SeatableImpl() implements UseWithoutItemBlockMethod {
 
 	@Override
-	protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
+	public InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult result) {
 		if (player.isShiftKeyDown()) {
 			return InteractionResult.PASS;
 		}
@@ -39,23 +32,10 @@ public class SeatableBlock extends Block {
 			}
 			return InteractionResult.SUCCESS;
 		}
-		if (!level.isClientSide) {
-			sitDown(level, pos, player);
+		if (!level.isClientSide && state.getBlock() instanceof ISeatableBlock block) {
+			block.sitDown(level, pos, player);
 		}
 		return InteractionResult.SUCCESS;
-	}
-
-	public void sitDown(Level world, BlockPos pos, Entity entity) {
-		if (!world.isClientSide) {
-			ChairEntity seat = new ChairEntity(world, pos);
-			seat.setPos(pos.getX() + 0.5F, pos.getY() + offset, pos.getZ() + 0.5F);
-			world.addFreshEntity(seat);
-			entity.startRiding(seat, true);
-		}
-	}
-
-	public static boolean isSeatOccupied(Level world, BlockPos pos) {
-		return !world.getEntitiesOfClass(ChairEntity.class, new AABB(pos)).isEmpty();
 	}
 
 }

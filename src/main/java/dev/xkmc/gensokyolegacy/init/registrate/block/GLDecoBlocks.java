@@ -9,6 +9,8 @@ import dev.xkmc.gensokyolegacy.content.block.deco.door.SlidingDoor;
 import dev.xkmc.gensokyolegacy.content.block.deco.door.SlidingDoorJsons;
 import dev.xkmc.gensokyolegacy.content.block.deco.misc.TatamiBlock;
 import dev.xkmc.gensokyolegacy.content.block.deco.seat.CushionBlock;
+import dev.xkmc.gensokyolegacy.content.block.deco.seat.ISeatableBlock;
+import dev.xkmc.gensokyolegacy.content.block.deco.seat.SeatableImpl;
 import dev.xkmc.gensokyolegacy.content.block.deco.seat.WoodChairBlock;
 import dev.xkmc.gensokyolegacy.content.block.deco.variants.*;
 import dev.xkmc.gensokyolegacy.content.item.gift.GiftItemData;
@@ -122,7 +124,7 @@ public class GLDecoBlocks {
 					.properties(p -> p.mapColor(MapColor.NONE).strength(0.3F).sound(SoundType.WOOD).noOcclusion().noLootTable())
 					.blockstate((ctx, pvd) -> pvd.paneBlock(ctx.get(),
 							pvd.modLoc("block/deco/paper_window"),
-                            ResourceLocation.withDefaultNamespace("block/spruce_planks")))
+							ResourceLocation.withDefaultNamespace("block/spruce_planks")))
 					.loot((pvd, block) -> pvd.add(block, LootTable.lootTable()))
 					.tag(BlockTags.MINEABLE_WITH_PICKAXE)
 					.item().model((ctx, pvd) -> pvd.withExistingParent(ctx.getName(), "item/generated")
@@ -133,14 +135,14 @@ public class GLDecoBlocks {
 
 		// cushion
 		{
-			reg.block("cushion", CushionBlock::new)
+			reg.block("cushion", p -> ISeatableBlock.of(p, 2 / 16f, new CushionBlock(), new SeatableImpl()))
 					.properties(p -> p.mapColor(MapColor.SAND).sound(SoundType.WOOL).pushReaction(PushReaction.DESTROY).noOcclusion().noCollission())
 					.blockstate(CushionBlock::buildStates)
 					.item().tag(GLTagGen.CUSHIONS).build()
 					.register();
 
 			for (DyeColor col : DyeColor.values()) {
-				reg.block(col.getName() + "_cushion", CushionBlock::new)
+				reg.block(col.getName() + "_cushion", p -> ISeatableBlock.of(p, 2 / 16f, new CushionBlock(), new SeatableImpl()))
 						.properties(p -> p.mapColor(MapColor.byId(14 + col.getId())).sound(SoundType.WOOL).pushReaction(PushReaction.DESTROY).noOcclusion().noCollission())
 						.blockstate(CushionBlock::buildStates)
 						.item().tag(GLTagGen.CUSHIONS).build()
@@ -161,7 +163,7 @@ public class GLDecoBlocks {
 					.register();
 
 			// 木椅
-			reg.block(name + "_large_chair", p -> DelegateBlock.newBaseBlock(p, BlockTemplates.HORIZONTAL, new LargeChairBlock(), new CoverableImpl()))
+			reg.block(name + "_large_chair", p -> ISeatableBlock.of(p, 12 / 16f, BlockTemplates.HORIZONTAL, new LargeChairBlock(), new CoverableImpl(), new SeatableImpl()))
 					.initialProperties(() -> e.plankProp)
 					.blockstate(LargeChairBlock::buildStates)
 					.simpleItem().tag(BlockTags.MINEABLE_WITH_AXE)
@@ -169,8 +171,8 @@ public class GLDecoBlocks {
 					.register();
 
 			// 木凳
-			reg.block(name + "_chair", p -> new WoodChairBlock(
-							BlockBehaviour.Properties.ofFullCopy(e.plankProp)))
+			reg.block(name + "_chair", p -> ISeatableBlock.of(
+							BlockBehaviour.Properties.ofFullCopy(e.plankProp), 12 / 16f, new WoodChairBlock(), new SeatableImpl()))
 					.blockstate((ctx, pvd) -> pvd.simpleBlock(ctx.get(), pvd.models().getBuilder("block/" + ctx.getName())
 							.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/wooden_large_chair")))
 							.texture("all", pvd.modLoc("block/wood/" + ctx.getName()))
@@ -282,8 +284,7 @@ public class GLDecoBlocks {
 		private final String name;
 		private final ResourceLocation tex;
 		public final ItemLike plank, strippedWood;
-		public BlockEntry<DelegateBlock> table;
-		public BlockEntry<WoodChairBlock> seat;
+		public BlockEntry<DelegateBlock> table, seat;
 		public BlockEntry<VerticalSlabBlock> vertical;
 		public BlockEntry<Block> wall;
 		public BlockEntry<DelegateBlock> door;

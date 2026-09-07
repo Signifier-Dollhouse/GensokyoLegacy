@@ -2,7 +2,7 @@ package dev.xkmc.gensokyolegacy.content.attachment.home.core;
 
 import dev.xkmc.gensokyolegacy.content.block.deco.cabinet.CabinetBlockEntity;
 import dev.xkmc.gensokyolegacy.content.block.deco.seat.ChairEntity;
-import dev.xkmc.gensokyolegacy.content.block.deco.seat.SeatableBlock;
+import dev.xkmc.gensokyolegacy.content.block.deco.seat.ISeatableBlock;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -37,7 +37,7 @@ public class HomeSearchUtil {
 	}
 
 	public static boolean isValidChair(ServerLevel sl, BlockPos pos) {
-		return sl.getBlockState(pos).getBlock() instanceof SeatableBlock;
+		return sl.getBlockState(pos).getBlock() instanceof ISeatableBlock;
 	}
 
 	public static void put(ServerLevel level, BlockPos chest, Function<Boolean, ItemStack> doCraft) {
@@ -55,7 +55,7 @@ public class HomeSearchUtil {
 
 	public static void setSitting(ServerLevel level, BlockPos pos, YoukaiEntity entity) {
 		BlockState state = level.getBlockState(pos);
-		if (state.getBlock() instanceof SeatableBlock block) {
+		if (state.getBlock() instanceof ISeatableBlock block) {
 			List<ChairEntity> seats = level.getEntitiesOfClass(ChairEntity.class, new AABB(pos));
 			if (seats.isEmpty()) {
 				block.sitDown(level, pos, entity);

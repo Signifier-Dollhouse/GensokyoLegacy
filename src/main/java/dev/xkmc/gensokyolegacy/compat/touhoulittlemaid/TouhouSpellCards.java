@@ -46,12 +46,6 @@ public class TouhouSpellCards {
 		var sup = MAP.get(id);
 		if (sup != null) e.spellCard.card = sup.get();
 		e.syncModel();
-		if (ModList.get().isLoaded(TouhouLittleMaid.MOD_ID)) {
-			var rl = ResourceLocation.parse(id);
-			var name = Component.translatable(rl.toLanguageKey("model") + ".name");
-			var desc = Component.translatable(rl.toLanguageKey("model") + ".desc");
-			e.setCustomName(name.append(" - ").append(desc));
-		}
 	}
 
 	public static void setReimu(MaidenEntity e) {

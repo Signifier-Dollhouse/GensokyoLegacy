@@ -39,7 +39,7 @@ public class ChairEntity extends SimplifiedEntity implements SeatableEntity {
 	public void tick() {
 		if (this.level().isClientSide) return;
 		boolean blockPresent = this.level().getBlockState(this.blockPosition())
-				.getBlock() instanceof SeatableBlock;
+				.getBlock() instanceof ISeatableBlock;
 		if (!this.isVehicle() || !blockPresent) {
 			this.discard();
 		}
