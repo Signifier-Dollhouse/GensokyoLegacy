@@ -26,12 +26,14 @@ import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.phys.BlockHitResult;
+import net.neoforged.neoforge.client.model.generators.BlockModelBuilder;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
+import net.neoforged.neoforge.client.model.generators.MultiPartBlockStateBuilder;
 import net.neoforged.neoforge.common.ItemAbilities;
 
 import java.util.Locale;
 
-public class ChairPadImpl implements CreateBlockStateBlockMethod, DefaultStateBlockMethod, UseItemOnBlockMethod {
+public class CoverableImpl implements CreateBlockStateBlockMethod, DefaultStateBlockMethod, UseItemOnBlockMethod {
 
 	public enum Color implements StringRepresentable {
 		NONE(Items.AIR),
@@ -67,7 +69,7 @@ public class ChairPadImpl implements CreateBlockStateBlockMethod, DefaultStateBl
 
 	}
 
-	public static final EnumProperty<Color> COLOR = EnumProperty.create("pad_color", Color.class, Color.values());
+	public static final EnumProperty<Color> COLOR = EnumProperty.create("color", Color.class, Color.values());
 
 	@Override
 	public void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
@@ -119,24 +121,46 @@ public class ChairPadImpl implements CreateBlockStateBlockMethod, DefaultStateBl
 		return ans;
 	}
 
-	private static void buildCushionModels(RegistrateBlockstateProvider pvd, String woodName, String chairTexture, String suffix) {
-		String textureDir = suffix.equals("pad") ? "chair" : "cushion";
+	private static boolean built = false;
+
+	public static void buildTableStates(RegistrateBlockstateProvider pvd) {
+		if (built) return;
+		built = true;
 		for (var e : Color.values()) {
 			if (e.item.asItem() == Items.AIR) continue;
-			String texName = e == Color.BASE ? suffix : e.getSerializedName() + "_" + suffix;
-			String modelName = woodName + "_" + texName;
-			pvd.models().getBuilder("block/" + modelName)
-					.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/wooden_large_chair_pad")))
-					.texture("wood", chairTexture)
-					.texture("pad", "block/" + textureDir + "/" + texName)
-					.texture("particle", "minecraft:block/birch_planks")
+			String name = e == Color.BASE ? "tablecloth" : e.getSerializedName() + "_tablecloth";
+			pvd.models().getBuilder("block/" + name)
+					.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/tablecloth")))
+					.texture("all", "block/table/" + name)
 					.renderType("cutout");
 		}
 	}
 
-	public static void buildStates(RegistrateBlockstateProvider pvd, String woodName, String chairTexture) {
-		buildCushionModels(pvd, woodName, chairTexture, "pad");
+	public static void buildTableStates(MultiPartBlockStateBuilder builder, RegistrateBlockstateProvider pvd, BlockModelBuilder table) {
+		buildTableStates(pvd);
+		for (var e : Color.values()) {
+			String name = e == Color.BASE ? "tablecloth" : e.getSerializedName() + "_tablecloth";
+			var file = e.item.asItem() == Items.AIR ? table : new ModelFile.UncheckedModelFile(pvd.modLoc("block/" + name));
+			builder.part().modelFile(file).addModel().condition(COLOR, e).end();
+		}
 	}
 
+    private static void buildChairStates(RegistrateBlockstateProvider pvd, String woodName, String chairTexture, String suffix) {
+        String textureDir = suffix.equals("pad") ? "chair" : "cushion";
+        for (var e : Color.values()) {
+            if (e.item.asItem() == Items.AIR) continue;
+            String texName = e == Color.BASE ? suffix : e.getSerializedName() + "_" + suffix;
+            String modelName = woodName + "_" + texName;
+            pvd.models().getBuilder("block/" + modelName)
+                    .parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/wooden_large_chair_pad")))
+                    .texture("wood", chairTexture)
+                    .texture("pad", "block/" + textureDir + "/" + texName)
+                    .texture("particle", "minecraft:block/birch_planks")
+                    .renderType("cutout");
+        }
+    }
 
+    public static void buildChairStates(RegistrateBlockstateProvider pvd, String woodName, String chairTexture) {
+        buildChairStates(pvd, woodName, chairTexture, "pad");
+    }
 }

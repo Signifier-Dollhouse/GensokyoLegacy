@@ -42,17 +42,17 @@ public class LargeChairBlock implements ShapeBlockMethod, CreateBlockStateBlockM
 				.texture("particle", pvd.mcLoc("block/birch_planks"))
 				.renderType("cutout");
 
-		ChairPadImpl.buildStates(pvd, woodName, "block/wood/" + ctx.getName());
+		CoverableImpl.buildChairStates(pvd, woodName, "block/wood/" + ctx.getName());
 		pvd.horizontalBlock(ctx.get(), state -> {
-			if (state.getValue(ChairPadImpl.COLOR) == ChairPadImpl.Color.NONE) return chair;
-			var col = state.getValue(ChairPadImpl.COLOR);
-			String suffix = col == ChairPadImpl.Color.BASE ? "pad" : col.getSerializedName() + "_pad";
+			if (state.getValue(CoverableImpl.COLOR) == CoverableImpl.Color.NONE) return chair;
+			var col = state.getValue(CoverableImpl.COLOR);
+			String suffix = col == CoverableImpl.Color.BASE ? "pad" : col.getSerializedName() + "_pad";
 			return new ModelFile.UncheckedModelFile(pvd.modLoc("block/" + woodName + "_" + suffix));
 		});
 	}
 
 	public static void genLoot(RegistrateBlockLootTables pvd, DelegateBlock block) {
-		pvd.add(block, ChairPadImpl.loot(pvd, block));
+		pvd.add(block, CoverableImpl.loot(pvd, block));
 	}
 
 }
