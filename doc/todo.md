@@ -1,1 +1,2 @@
 - Fix community textures by extending the center line
+- Natural blocks have incorrect behavior, shape, loot, and interaction
