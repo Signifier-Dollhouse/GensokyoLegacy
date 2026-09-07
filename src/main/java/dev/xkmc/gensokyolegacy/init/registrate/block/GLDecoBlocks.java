@@ -75,6 +75,7 @@ public class GLDecoBlocks {
 					.blockstate((ctx, pvd) -> pvd.horizontalBlock(ctx.get(),
 							pvd.models().getBuilder("block/" + ctx.getName())
 									.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/teddy_bear")))
+									.texture("all", pvd.modLoc("block/misc/teddy_bear"))
 									.renderType("cutout")))
 					.item()
 					.properties(p -> p.stacksTo(1).rarity(Rarity.RARE))

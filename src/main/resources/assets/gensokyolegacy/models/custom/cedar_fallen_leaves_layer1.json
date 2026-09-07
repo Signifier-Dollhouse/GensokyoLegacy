@@ -3,8 +3,8 @@
 	"credit": "Made with Blockbench",
     "parent": "block/block",
 	"textures": {
-		"1": "gensokyolegacy:block/nature/cedar_fallen_leaves_layer1",
-		"particle": "gensokyolegacy:block/nature/cedar_fallen_leaves_layer1"
+		"1": "#all",
+		"particle": "#all"
 	},
 	"elements": [
 		{

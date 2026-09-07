@@ -2,7 +2,7 @@
   "parent": "gensokyolegacy:custom/cabinet",
   "render_type": "minecraft:cutout",
   "textures": {
-    "1": "gensokyolegacy:block/cabinet/cabinet_top",
+    "all": "gensokyolegacy:block/cabinet/cabinet_top",
     "particle": "gensokyolegacy:block/cabinet/cabinet_top"
   }
 }

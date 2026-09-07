@@ -2,9 +2,10 @@
 	"format_version": "1.21.6",
 	"credit": "Made with Blockbench",
     "parent": "block/block",
+	"texture_size": [32, 32],
 	"textures": {
-		"0": "gensokyolegacy:block/nature/eugune_red",
-		"particle": "gensokyolegacy:block/nature/eugune_red"
+		"0": "#all",
+		"particle": "#all"
 	},
 	"elements": [
 		{

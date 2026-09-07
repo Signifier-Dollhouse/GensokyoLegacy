@@ -38,8 +38,7 @@ public class SimpleShelfBlock implements ShapeBlockMethod {
 	public static void buildStates(DataGenContext<Block, DelegateBlock> ctx, RegistrateBlockstateProvider pvd) {
 		pvd.horizontalBlock(ctx.get(), pvd.models().getBuilder(ctx.getName())
 				.parent(new ModelFile.UncheckedModelFile(GensokyoLegacy.loc("custom/shelf_empty")))
-				.texture("0", "block/shelf/" + ctx.getName())
-				.texture("particle", "block/shelf/" + ctx.getName())
+				.texture("all", "block/shelf/" + ctx.getName())
 		);
 	}
 }

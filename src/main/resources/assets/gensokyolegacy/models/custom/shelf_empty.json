@@ -4,8 +4,8 @@
     "parent": "block/block",
 	"texture_size": [64, 64],
 	"textures": {
-		"0": "shelf_book",
-		"particle": "shelf_empty"
+		"0": "#all",
+		"particle": "#all"
 	},
 	"elements": [
 		{

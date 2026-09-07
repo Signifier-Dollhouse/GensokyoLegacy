@@ -74,6 +74,12 @@ public class GLNaturalBlocks {
 		STAR_FLOWER = reg.block("star_flower", GrassBlock::new)
 				.properties(p -> p.offsetType(BlockBehaviour.OffsetType.XYZ).mapColor(MapColor.PLANT).strength(0).sound(SoundType.GRASS).noOcclusion().noCollission().pushReaction(PushReaction.DESTROY))
 				.blockstate((ctx, pvd) -> {
+					var modelA = pvd.models().cross(ctx.getName(),
+							pvd.modLoc("block/nature/star_flower")).renderType("cutout");
+					var modelB = pvd.models().cross(ctx.getName() + "_2",
+							pvd.modLoc("block/nature/star_flower_2")).renderType("cutout");
+					pvd.getVariantBuilder(ctx.get()).partialState().setModels(
+							new ConfiguredModel(modelA), new ConfiguredModel(modelB));
 				})
 				.simpleItem()
 				.register();
@@ -84,6 +90,8 @@ public class GLNaturalBlocks {
 				.blockstate((ctx, pvd) -> pvd.simpleBlock(ctx.get(),
 						pvd.models().getBuilder("block/" + ctx.getName())
 								.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/flame_cattail")))
+								.texture("cattail_bottom", pvd.modLoc("block/nature/flame_cattail_bottom"))
+								.texture("cattail_top", pvd.modLoc("block/nature/flame_cattail_top"))
 								.renderType("cutout")))
 				.simpleItem()
 				.register();
@@ -92,7 +100,10 @@ public class GLNaturalBlocks {
 		BRACKEN = reg.block("bracken", GrassBlock::new)
 				.properties(p -> p.offsetType(BlockBehaviour.OffsetType.XYZ).mapColor(MapColor.PLANT).strength(0).sound(SoundType.GRASS).noOcclusion().noCollission().pushReaction(PushReaction.DESTROY).dynamicShape())
 				.blockstate((ctx, pvd) -> pvd.simpleBlock(ctx.get(),
-						new ModelFile.UncheckedModelFile(pvd.modLoc("block/bracken"))))
+						pvd.models().getBuilder("block/" + ctx.getName())
+								.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/bracken")))
+								.texture("all", pvd.modLoc("block/nature/bracken"))
+								.renderType("cutout")))
 				.simpleItem()
 				.register();
 
@@ -100,7 +111,9 @@ public class GLNaturalBlocks {
 		EUGUNE_RED = reg.block("eugune_red", p -> DelegateBlock.newBaseBlock(p, BlockTemplates.HORIZONTAL))
 				.properties(p -> p.mapColor(MapColor.PLANT).strength(0).sound(SoundType.GRASS).noOcclusion().noCollission().pushReaction(PushReaction.DESTROY))
 				.blockstate((ctx, pvd) -> pvd.horizontalBlock(ctx.get(),
-						new ModelFile.UncheckedModelFile(pvd.modLoc("block/eugune_red"))))
+						pvd.models().getBuilder("block/" + ctx.getName())
+								.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/eugune_red")))
+								.texture("all", pvd.modLoc("block/nature/eugune_red"))))
 				.simpleItem()
 				.register();
 
@@ -108,7 +121,9 @@ public class GLNaturalBlocks {
 		EUGUNE_BROWN = reg.block("eugune_brown", p -> DelegateBlock.newBaseBlock(p, BlockTemplates.HORIZONTAL))
 				.properties(p -> p.mapColor(MapColor.PLANT).strength(0).sound(SoundType.GRASS).noOcclusion().noCollission().pushReaction(PushReaction.DESTROY))
 				.blockstate((ctx, pvd) -> pvd.horizontalBlock(ctx.get(),
-						new ModelFile.UncheckedModelFile(pvd.modLoc("block/eugune_brown"))))
+						pvd.models().getBuilder("block/" + ctx.getName())
+								.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/eugune_brown")))
+								.texture("all", pvd.modLoc("block/nature/eugune_brown"))))
 				.simpleItem()
 				.register();
 
@@ -116,7 +131,9 @@ public class GLNaturalBlocks {
 		EUGUNE_GHOST_FIRE = reg.block("eugune_ghost_fire", p -> DelegateBlock.newBaseBlock(p, BlockTemplates.HORIZONTAL))
 				.properties(p -> p.mapColor(MapColor.PLANT).strength(0).sound(SoundType.GRASS).noOcclusion().noCollission().pushReaction(PushReaction.DESTROY))
 				.blockstate((ctx, pvd) -> pvd.horizontalBlock(ctx.get(),
-						new ModelFile.UncheckedModelFile(pvd.modLoc("block/eugune_ghost_fire"))))
+						pvd.models().getBuilder("block/" + ctx.getName())
+								.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/eugune_ghost_fire")))
+								.texture("all", pvd.modLoc("block/nature/eugune_ghost_fire"))))
 				.simpleItem()
 				.register();
 
@@ -148,16 +165,19 @@ public class GLNaturalBlocks {
 				.blockstate((ctx, pvd) -> {
 					var layer1 = pvd.models().getBuilder("block/" + ctx.getName() + "_layer1")
 							.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/cedar_fallen_leaves_layer1")))
+							.texture("all", pvd.modLoc("block/nature/cedar_fallen_leaves_layer1"))
 							.renderType("cutout");
 					var layer2 = pvd.models().getBuilder("block/" + ctx.getName() + "_layer2")
 							.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/cedar_fallen_leaves_layer2")))
+							.texture("all", pvd.modLoc("block/nature/cedar_fallen_leaves_layer2"))
 							.renderType("cutout");
 					pvd.getVariantBuilder(ctx.get())
 							.partialState().with(CedarFallenLeavesBlock.LAYERS, 1).modelForState().modelFile(layer1).addModel()
 							.partialState().with(CedarFallenLeavesBlock.LAYERS, 2).modelForState().modelFile(layer2).addModel();
 				})
 				.item().model((ctx, pvd) -> pvd.getBuilder(ctx.getName())
-						.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/cedar_fallen_leaves_layer1"))))
+						.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/cedar_fallen_leaves_layer1")))
+						.texture("all", pvd.modLoc("block/nature/cedar_fallen_leaves_layer1")))
 				.build()
 				.register();
 

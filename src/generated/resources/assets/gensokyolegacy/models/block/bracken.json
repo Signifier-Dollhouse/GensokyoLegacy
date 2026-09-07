@@ -1,0 +1,7 @@
+{
+  "parent": "gensokyolegacy:custom/bracken",
+  "render_type": "minecraft:cutout",
+  "textures": {
+    "all": "gensokyolegacy:block/nature/bracken"
+  }
+}

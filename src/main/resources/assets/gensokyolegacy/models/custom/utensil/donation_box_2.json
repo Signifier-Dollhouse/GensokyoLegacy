@@ -4,8 +4,8 @@
     "parent": "block/block",
 	"texture_size": [128, 128],
 	"textures": {
-		"0": "gensokyolegacy:block/utensil/donation_box_2",
-		"particle": "gensokyolegacy:block/utensil/donation_box_2"
+		"0": "#all",
+		"particle": "#all"
 	},
 	"elements": [
 		{

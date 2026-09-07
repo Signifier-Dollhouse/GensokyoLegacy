@@ -1,4 +1,7 @@
 {
   "parent": "gensokyolegacy:custom/cedar_fallen_leaves_layer1",
-  "render_type": "minecraft:cutout"
+  "render_type": "minecraft:cutout",
+  "textures": {
+    "all": "gensokyolegacy:block/nature/cedar_fallen_leaves_layer1"
+  }
 }

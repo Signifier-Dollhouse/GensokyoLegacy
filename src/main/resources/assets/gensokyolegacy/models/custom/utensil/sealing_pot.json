@@ -4,8 +4,8 @@
     "parent": "block/block",
 	"texture_size": [64, 64],
 	"textures": {
-		"0": "gensokyolegacy:block/utensil/sealing_pot",
-		"particle": "gensokyolegacy:block/utensil/sealing_pot"
+		"0": "#all",
+		"particle": "#all"
 	},
 	"elements": [
 		{

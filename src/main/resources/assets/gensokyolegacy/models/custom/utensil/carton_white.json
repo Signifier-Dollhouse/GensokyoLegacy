@@ -4,8 +4,8 @@
     "parent": "block/block",
 	"texture_size": [32, 32],
 	"textures": {
-      "0": "gensokyolegacy:block/utensil/carton_white",
-      "particle": "gensokyolegacy:block/utensil/carton_white"
+      "0": "#all",
+      "particle": "#all"
 	},
 	"elements": [
 		{

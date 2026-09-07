@@ -1,0 +1,6 @@
+{
+  "parent": "gensokyolegacy:custom/eugune_ghost_fire",
+  "textures": {
+    "all": "gensokyolegacy:block/nature/eugune_ghost_fire"
+  }
+}

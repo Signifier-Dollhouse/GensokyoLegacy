@@ -1,0 +1,6 @@
+{
+  "parent": "gensokyolegacy:custom/eugune_brown",
+  "textures": {
+    "all": "gensokyolegacy:block/nature/eugune_brown"
+  }
+}

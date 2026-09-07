@@ -1,9 +1,9 @@
 {
 	"parent": "minecraft:block/cross",
 	"textures": {
-		"bottom": "gensokyolegacy:block/nature/flame_cattail_bottom",
-		"top": "gensokyolegacy:block/nature/flame_cattail_top",
-        "particle": "gensokyolegacy:block/nature/flame_cattail_top"
+		"bottom": "#cattail_bottom",
+		"top": "#cattail_top",
+        "particle": "#cattail_top"
     },
 	"elements": [
 		{
