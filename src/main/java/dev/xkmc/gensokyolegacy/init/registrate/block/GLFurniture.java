@@ -181,7 +181,7 @@ public class GLFurniture {
 					.properties(p -> p.mapColor(MapColor.NONE).strength(1.0F).sound(SoundType.WOOD).noOcclusion())
 					.blockstate((ctx, pvd) -> pvd.horizontalBlock(ctx.get(),
 							pvd.models().getBuilder("block/" + ctx.getName())
-									.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/utensil/carton_default")))
+									.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/utensil/carton")))
 									.texture("all", pvd.modLoc("block/utensil/carton_default"))
 									.renderType("cutout")))
 					.simpleItem()
@@ -191,7 +191,7 @@ public class GLFurniture {
 					.properties(p -> p.mapColor(MapColor.NONE).strength(1.0F).sound(SoundType.WOOD).noOcclusion())
 					.blockstate((ctx, pvd) -> pvd.horizontalBlock(ctx.get(),
 							pvd.models().getBuilder("block/" + ctx.getName())
-									.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/utensil/carton_white")))
+									.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/utensil/carton")))
 									.texture("all", pvd.modLoc("block/utensil/carton_white"))
 									.renderType("cutout")))
 					.simpleItem()
@@ -201,7 +201,7 @@ public class GLFurniture {
 					.properties(p -> p.mapColor(MapColor.NONE).strength(1.0F).sound(SoundType.WOOD).noOcclusion())
 					.blockstate((ctx, pvd) -> pvd.horizontalBlock(ctx.get(),
 							pvd.models().getBuilder("block/" + ctx.getName())
-									.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/utensil/carton_blue")))
+									.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/utensil/carton")))
 									.texture("all", pvd.modLoc("block/utensil/carton_blue"))
 									.renderType("cutout")))
 					.simpleItem()

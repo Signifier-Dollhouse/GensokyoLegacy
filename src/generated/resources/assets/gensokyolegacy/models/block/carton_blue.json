@@ -1,5 +1,5 @@
 {
-  "parent": "gensokyolegacy:custom/utensil/carton_blue",
+  "parent": "gensokyolegacy:custom/utensil/carton",
   "render_type": "minecraft:cutout",
   "textures": {
     "all": "gensokyolegacy:block/utensil/carton_blue"

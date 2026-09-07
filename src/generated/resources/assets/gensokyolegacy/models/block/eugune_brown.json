@@ -1,5 +1,5 @@
 {
-  "parent": "gensokyolegacy:custom/eugune_brown",
+  "parent": "gensokyolegacy:custom/eugune",
   "textures": {
     "all": "gensokyolegacy:block/nature/eugune_brown"
   }

@@ -1,5 +1,5 @@
 {
-  "parent": "gensokyolegacy:custom/cedar_fallen_leaves_layer1",
+  "parent": "gensokyolegacy:custom/cedar_fallen_leaves",
   "textures": {
     "all": "gensokyolegacy:block/nature/cedar_fallen_leaves_layer1"
   }
