@@ -1,3 +1,6 @@
 {
-  "parent": "gensokyolegacy:block/star_flower"
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "gensokyolegacy:item/ingredient/star_flower"
+  }
 }

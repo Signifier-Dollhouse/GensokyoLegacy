@@ -81,7 +81,9 @@ public class GLNaturalBlocks {
 					pvd.getVariantBuilder(ctx.get()).partialState().setModels(
 							new ConfiguredModel(modelA), new ConfiguredModel(modelB));
 				})
-				.simpleItem()
+				.item().model((ctx, pvd) -> pvd.getBuilder(ctx.getName())
+						.parent(new ModelFile.UncheckedModelFile("item/generated"))
+						.texture("layer0", pvd.modLoc("item/ingredient/" + ctx.getName()))).build()
 				.register();
 
 		// 燃蒲
@@ -93,7 +95,9 @@ public class GLNaturalBlocks {
 								.texture("cattail_bottom", pvd.modLoc("block/nature/flame_cattail_bottom"))
 								.texture("cattail_top", pvd.modLoc("block/nature/flame_cattail_top"))
 								.renderType("cutout")))
-				.simpleItem()
+				.item().model((ctx, pvd) -> pvd.getBuilder(ctx.getName())
+						.parent(new ModelFile.UncheckedModelFile("item/generated"))
+						.texture("layer0", pvd.modLoc("item/ingredient/flame_cattail"))).build()
 				.register();
 
 		// 蕨菜
@@ -104,7 +108,9 @@ public class GLNaturalBlocks {
 								.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/bracken")))
 								.texture("all", pvd.modLoc("block/nature/bracken"))
 								.renderType("cutout")))
-				.simpleItem()
+				.item().model((ctx, pvd) -> pvd.getBuilder(ctx.getName())
+						.parent(new ModelFile.UncheckedModelFile("item/generated"))
+						.texture("layer0", pvd.modLoc("block/nature/" + ctx.getName()))).build()
 				.register();
 
 		// 红耳姑
@@ -146,7 +152,8 @@ public class GLNaturalBlocks {
 								.texture("cross", pvd.modLoc("block/nature/evergreen_vine"))
 								.renderType("cutout")))
 				.item().model((ctx, pvd) -> pvd.getBuilder(ctx.getName())
-						.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("block/" + ctx.getName()))))
+						.parent(new ModelFile.UncheckedModelFile("item/generated"))
+						.texture("layer0", pvd.modLoc("block/nature/" + ctx.getName())))
 				.build()
 				.register();
 

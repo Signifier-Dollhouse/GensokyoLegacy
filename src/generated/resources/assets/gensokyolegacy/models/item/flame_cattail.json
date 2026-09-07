@@ -1,3 +1,6 @@
 {
-  "parent": "gensokyolegacy:block/flame_cattail"
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "gensokyolegacy:item/ingredient/flame_cattail"
+  }
 }
