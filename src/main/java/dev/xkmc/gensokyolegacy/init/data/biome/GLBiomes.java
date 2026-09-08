@@ -3,7 +3,6 @@ package dev.xkmc.gensokyolegacy.init.data.biome;
 import com.tterrag.registrate.providers.DataProviderInitializer;
 import dev.xkmc.gensokyolegacy.content.dimension.GLDimensionGen;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
-import dev.xkmc.gensokyolegacy.init.data.GLFeatureGen;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.Music;

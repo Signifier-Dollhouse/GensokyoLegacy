@@ -26,6 +26,7 @@ import dev.xkmc.gensokyolegacy.content.rpg.core.CodecRegistry;
 import dev.xkmc.gensokyolegacy.content.rpg.network.QuestStatusToClient;
 import dev.xkmc.gensokyolegacy.content.rpg.network.TradeStatusToClient;
 import dev.xkmc.gensokyolegacy.init.data.biome.GLBiomes;
+import dev.xkmc.gensokyolegacy.init.data.biome.GLFeatureGen;
 import dev.xkmc.gensokyolegacy.init.data.biome.MagicalForestRegion;
 import dev.xkmc.gensokyolegacy.event.GLAttackListener;
 import dev.xkmc.gensokyolegacy.event.GLClickHandler;

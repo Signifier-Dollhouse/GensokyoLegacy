@@ -1,4 +1,4 @@
-package dev.xkmc.gensokyolegacy.init.data;
+package dev.xkmc.gensokyolegacy.init.data.biome;
 
 import com.tterrag.registrate.providers.DataProviderInitializer;
 import dev.xkmc.gensokyolegacy.content.worldgen.feature.MushroomFeatures.MushroomTreeType;
