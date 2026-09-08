@@ -200,7 +200,8 @@ public class GLNaturalBlocks {
 				.blockstate((ctx, pvd) -> pvd.horizontalBlock(ctx.get(),
 						pvd.models().getBuilder("block/" + ctx.getName())
 								.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/eugune")))
-								.texture("all", pvd.modLoc("block/nature/eugune_red"))))
+								.texture("all", pvd.modLoc("block/nature/eugune_red"))
+								.renderType("cutout")))
 				.loot((tb, blk) -> genEuguneLoot(tb, blk, Items.RED_MUSHROOM))
 				.simpleItem()
 				.register();
@@ -211,7 +212,8 @@ public class GLNaturalBlocks {
 				.blockstate((ctx, pvd) -> pvd.horizontalBlock(ctx.get(),
 						pvd.models().getBuilder("block/" + ctx.getName())
 								.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/eugune")))
-								.texture("all", pvd.modLoc("block/nature/eugune_brown"))))
+								.texture("all", pvd.modLoc("block/nature/eugune_brown"))
+								.renderType("cutout")))
 				.loot((tb, blk) -> genEuguneLoot(tb, blk, Items.BROWN_MUSHROOM))
 				.simpleItem()
 				.register();
@@ -222,7 +224,8 @@ public class GLNaturalBlocks {
 				.blockstate((ctx, pvd) -> pvd.horizontalBlock(ctx.get(),
 						pvd.models().getBuilder("block/" + ctx.getName())
 								.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/eugune")))
-								.texture("all", pvd.modLoc("block/nature/eugune_ghost_fire"))))
+								.texture("all", pvd.modLoc("block/nature/eugune_ghost_fire"))
+								.renderType("cutout")))
 				.loot((tb, blk) -> genEuguneLoot(tb, blk, GHOST_FIRE_MUSHROOM_SET.cap))
 				.simpleItem()
 				.register();

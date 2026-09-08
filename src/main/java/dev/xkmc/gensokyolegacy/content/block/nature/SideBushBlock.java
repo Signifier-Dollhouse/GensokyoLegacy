@@ -55,7 +55,7 @@ public class SideBushBlock extends Block {
 			BlockPos supportPos = ctx.getClickedPos().relative(dir);
 			BlockState supportState = ctx.getLevel().getBlockState(supportPos);
 			if (supportState.isFaceSturdy(ctx.getLevel(), supportPos, dir.getOpposite())) {
-				return this.defaultBlockState().setValue(FACING, dir);
+				return this.defaultBlockState().setValue(FACING, dir.getOpposite());
 			}
 		}
 		return null;
@@ -63,7 +63,7 @@ public class SideBushBlock extends Block {
 
 	@Override
 	protected boolean canSurvive(BlockState state, LevelReader level, BlockPos pos) {
-		Direction facing = state.getValue(FACING);
+		Direction facing = state.getValue(FACING).getOpposite();
 		BlockPos supportPos = pos.relative(facing);
 		BlockState supportState = level.getBlockState(supportPos);
 		return supportState.isFaceSturdy(level, supportPos, facing.getOpposite());
