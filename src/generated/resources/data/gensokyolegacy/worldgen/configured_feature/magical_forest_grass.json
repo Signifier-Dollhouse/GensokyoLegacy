@@ -16,10 +16,7 @@
               },
               {
                 "data": {
-                  "Name": "gensokyolegacy:bracken",
-                  "Properties": {
-                    "snowy": "false"
-                  }
+                  "Name": "gensokyolegacy:bracken"
                 },
                 "weight": 2
               }

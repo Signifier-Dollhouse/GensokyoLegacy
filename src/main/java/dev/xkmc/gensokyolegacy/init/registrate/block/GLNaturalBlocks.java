@@ -9,14 +9,14 @@ import com.tterrag.registrate.util.nullness.NonNullFunction;
 import dev.xkmc.gensokyolegacy.content.block.nature.CedarFallenLeavesBlock;
 import dev.xkmc.gensokyolegacy.content.block.nature.EvergreenVineBodyBlock;
 import dev.xkmc.gensokyolegacy.content.block.nature.EvergreenVineHeadBlock;
-import dev.xkmc.gensokyolegacy.content.block.nature.WaterloggedCrossBlock;
+import dev.xkmc.gensokyolegacy.content.block.nature.SimpleBushBlock;
+import dev.xkmc.gensokyolegacy.content.block.nature.SideBushBlock;
+import dev.xkmc.gensokyolegacy.content.block.nature.WaterloggedBushBlock;
 import dev.xkmc.gensokyolegacy.content.worldgen.feature.MushroomFeatures;
 import dev.xkmc.gensokyolegacy.content.worldgen.feature.TreeFeatures;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.GLTagGen;
 import dev.xkmc.l2core.init.reg.registrate.L2Registrate;
-import dev.xkmc.l2modularblock.core.BlockTemplates;
-import dev.xkmc.l2modularblock.core.DelegateBlock;
 import net.minecraft.advancements.critereon.*;
 import net.minecraft.client.renderer.block.model.BlockModel;
 import net.minecraft.core.Direction;
@@ -53,10 +53,10 @@ import java.util.Optional;
 
 public class GLNaturalBlocks {
 
-	public static final BlockEntry<GrassBlock> STAR_FLOWER;
-	public static final BlockEntry<WaterloggedCrossBlock> FLAME_CATTAIL;
-	public static final BlockEntry<GrassBlock> BRACKEN;
-	public static final BlockEntry<DelegateBlock> EUGUNE_RED, EUGUNE_BROWN, EUGUNE_GHOST_FIRE;
+	public static final BlockEntry<SimpleBushBlock> STAR_FLOWER;
+	public static final BlockEntry<WaterloggedBushBlock> FLAME_CATTAIL;
+	public static final BlockEntry<SimpleBushBlock> BRACKEN;
+	public static final BlockEntry<SideBushBlock> EUGUNE_RED, EUGUNE_BROWN, EUGUNE_GHOST_FIRE;
 	public static final BlockEntry<EvergreenVineHeadBlock> EVERGREEN_VINE;
 	public static final BlockEntry<EvergreenVineBodyBlock> EVERGREEN_VINE_PLANT;
 	public static final BlockEntry<CedarFallenLeavesBlock> CEDAR_FALLEN_LEAVES;
@@ -71,7 +71,7 @@ public class GLNaturalBlocks {
 		var reg = GensokyoLegacy.REGISTRATE;
 
 		// 星星花
-		STAR_FLOWER = reg.block("star_flower", GrassBlock::new)
+		STAR_FLOWER = reg.block("star_flower", p -> new SimpleBushBlock(p, SimpleBushBlock.FULL))
 				.properties(p -> p.offsetType(BlockBehaviour.OffsetType.XYZ).mapColor(MapColor.PLANT).strength(0).sound(SoundType.GRASS).noOcclusion().noCollission().pushReaction(PushReaction.DESTROY))
 				.blockstate((ctx, pvd) -> {
 					var modelA = pvd.models().cross(ctx.getName(),
@@ -87,7 +87,7 @@ public class GLNaturalBlocks {
 				.register();
 
 		// 燃蒲
-		FLAME_CATTAIL = reg.block("flame_cattail", WaterloggedCrossBlock::new)
+		FLAME_CATTAIL = reg.block("flame_cattail", WaterloggedBushBlock::new)
 				.properties(p -> p.offsetType(BlockBehaviour.OffsetType.XYZ).mapColor(MapColor.PLANT).strength(0).sound(SoundType.GRASS).noOcclusion().noCollission().pushReaction(PushReaction.DESTROY))
 				.blockstate((ctx, pvd) -> pvd.simpleBlock(ctx.get(),
 						pvd.models().getBuilder("block/" + ctx.getName())
@@ -101,7 +101,7 @@ public class GLNaturalBlocks {
 				.register();
 
 		// 蕨菜
-		BRACKEN = reg.block("bracken", GrassBlock::new)
+		BRACKEN = reg.block("bracken", p -> new SimpleBushBlock(p, SimpleBushBlock.THIN))
 				.properties(p -> p.offsetType(BlockBehaviour.OffsetType.XYZ).mapColor(MapColor.PLANT).strength(0).sound(SoundType.GRASS).noOcclusion().noCollission().pushReaction(PushReaction.DESTROY).dynamicShape())
 				.blockstate((ctx, pvd) -> pvd.simpleBlock(ctx.get(),
 						pvd.models().getBuilder("block/" + ctx.getName())
@@ -114,7 +114,7 @@ public class GLNaturalBlocks {
 				.register();
 
 		// 红耳姑
-		EUGUNE_RED = reg.block("eugune_red", p -> DelegateBlock.newBaseBlock(p, BlockTemplates.HORIZONTAL))
+		EUGUNE_RED = reg.block("eugune_red", SideBushBlock::new)
 				.properties(p -> p.mapColor(MapColor.PLANT).strength(0).sound(SoundType.GRASS).noOcclusion().noCollission().pushReaction(PushReaction.DESTROY))
 				.blockstate((ctx, pvd) -> pvd.horizontalBlock(ctx.get(),
 						pvd.models().getBuilder("block/" + ctx.getName())
@@ -124,7 +124,7 @@ public class GLNaturalBlocks {
 				.register();
 
 		// 棕耳姑
-		EUGUNE_BROWN = reg.block("eugune_brown", p -> DelegateBlock.newBaseBlock(p, BlockTemplates.HORIZONTAL))
+		EUGUNE_BROWN = reg.block("eugune_brown", SideBushBlock::new)
 				.properties(p -> p.mapColor(MapColor.PLANT).strength(0).sound(SoundType.GRASS).noOcclusion().noCollission().pushReaction(PushReaction.DESTROY))
 				.blockstate((ctx, pvd) -> pvd.horizontalBlock(ctx.get(),
 						pvd.models().getBuilder("block/" + ctx.getName())
@@ -134,7 +134,7 @@ public class GLNaturalBlocks {
 				.register();
 
 		// 鬼火耳姑
-		EUGUNE_GHOST_FIRE = reg.block("eugune_ghost_fire", p -> DelegateBlock.newBaseBlock(p, BlockTemplates.HORIZONTAL))
+		EUGUNE_GHOST_FIRE = reg.block("eugune_ghost_fire", SideBushBlock::new)
 				.properties(p -> p.mapColor(MapColor.PLANT).strength(0).sound(SoundType.GRASS).noOcclusion().noCollission().pushReaction(PushReaction.DESTROY))
 				.blockstate((ctx, pvd) -> pvd.horizontalBlock(ctx.get(),
 						pvd.models().getBuilder("block/" + ctx.getName())

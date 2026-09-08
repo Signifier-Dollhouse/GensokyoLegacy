@@ -1,44 +1,45 @@
 package dev.xkmc.gensokyolegacy.content.block.nature;
 
+import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.BushBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
-public class CedarFallenLeavesBlock extends Block {
+public class CedarFallenLeavesBlock extends SimpleBushBlock {
 
 	public static final IntegerProperty LAYERS = IntegerProperty.create("layers", 1, 2);
+	private static final MapCodec<CedarFallenLeavesBlock> CODEC = simpleCodec(CedarFallenLeavesBlock::new);
 
 	public CedarFallenLeavesBlock(Properties properties) {
-		super(properties);
+		super(properties, LAYER);
 		this.registerDefaultState(this.stateDefinition.any().setValue(LAYERS, 1));
 	}
 
 	@Override
+	public MapCodec<? extends BushBlock> codec() {
+		return CODEC;
+	}
+
+	@Override
 	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+		super.createBlockStateDefinition(builder);
 		builder.add(LAYERS);
 	}
 
 	@Override
 	public @Nullable BlockState getStateForPlacement(BlockPlaceContext context) {
 		return this.defaultBlockState().setValue(LAYERS, 2);
-	}
-
-	@Override
-	public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext ctx) {
-		return Block.box(0, 0, 0, 16, 1, 16);
 	}
 
 	@Override
