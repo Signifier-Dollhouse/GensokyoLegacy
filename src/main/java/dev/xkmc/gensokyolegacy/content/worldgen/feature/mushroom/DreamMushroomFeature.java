@@ -41,7 +41,7 @@ public class DreamMushroomFeature extends AbstractHugeMushroomFeature {
 	) {
 		for (int y = height - 3; y <= height; y++) {
 			int radius = y < height ? config.foliageRadius : config.foliageRadius - 1;
-			int rim = config.foliageRadius - 2;
+			int k = config.foliageRadius - 2;
 			for (int dx = -radius; dx <= radius; dx++) {
 				for (int dz = -radius; dz <= radius; dz++) {
 					boolean west = dx == -radius;
@@ -59,15 +59,11 @@ public class DreamMushroomFeature extends AbstractHugeMushroomFeature {
 									&& state.hasProperty(HugeMushroomBlock.NORTH)
 									&& state.hasProperty(HugeMushroomBlock.SOUTH)
 									&& state.hasProperty(HugeMushroomBlock.UP)) {
-								state = state
-										.setValue(HugeMushroomBlock.UP, y >= height - 1)
-										.setValue(HugeMushroomBlock.WEST, dx < -rim)
-										.setValue(HugeMushroomBlock.EAST, dx > rim)
-										.setValue(HugeMushroomBlock.NORTH, dz < -rim)
-										.setValue(HugeMushroomBlock.SOUTH, dz > rim);
-							}
-							if (state.hasProperty(HugeMushroomBlock.DOWN)) {
-								state = state.setValue(HugeMushroomBlock.DOWN, false);
+								state = state.setValue(HugeMushroomBlock.UP, y >= height - 1)
+										.setValue(HugeMushroomBlock.WEST, dx < -k)
+										.setValue(HugeMushroomBlock.EAST, dx > k)
+										.setValue(HugeMushroomBlock.NORTH, dz < -k)
+										.setValue(HugeMushroomBlock.SOUTH, dz > k);
 							}
 							this.setBlock(level, pos, state);
 						}

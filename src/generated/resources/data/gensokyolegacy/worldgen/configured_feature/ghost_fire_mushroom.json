@@ -6,7 +6,7 @@
       "state": {
         "Name": "gensokyolegacy:ghost_fire_mushroom_block",
         "Properties": {
-          "down": "true",
+          "down": "false",
           "east": "true",
           "north": "true",
           "south": "true",
@@ -21,11 +21,11 @@
       "state": {
         "Name": "gensokyolegacy:cyan_mushroom_stem",
         "Properties": {
-          "down": "true",
+          "down": "false",
           "east": "true",
           "north": "true",
           "south": "true",
-          "up": "true",
+          "up": "false",
           "west": "true"
         }
       }

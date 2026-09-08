@@ -11,9 +11,8 @@ import net.minecraft.world.level.levelgen.feature.configurations.HugeMushroomFea
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Ghost fire mushroom: a short, tiered cap that tapers toward a point.
- * Height is always 3-4, with three stacked cap layers: a 5x5 ring (hollow in the
- * middle ring corners removed), a corners-only 5x5, and a solid 5x5 top.
+ * Ghost fire mushroom: a short, tiered cap with a 5x5 base layer
+ * topped by three 3x3 layers, tapering toward a point.
  */
 public class GhostFireMushroomFeature extends AbstractHugeMushroomFeature {
 
@@ -40,26 +39,31 @@ public class GhostFireMushroomFeature extends AbstractHugeMushroomFeature {
 			BlockPos.@NotNull MutableBlockPos pos,
 			HugeMushroomFeatureConfiguration config
 	) {
-		for (int layer = 0; layer < 3; layer++) {
+		int k = 0;
+		for (int layer = 0; layer < 4; layer++) {
 			int y = height - 1 + layer;
-			for (int dx = -2; dx <= 2; dx++)
-				for (int dz = -2; dz <= 2; dz++) {
+			int radius = layer == 0 ? 2 : 1;
+			for (int dx = -radius; dx <= radius; dx++) {
+				for (int dz = -radius; dz <= radius; dz++) {
 					int d = Math.max(Math.abs(dx), Math.abs(dz));
-					boolean place = switch (layer) {
-						case 0 -> d >= 1;
-						case 1 -> d == 2;
-						default -> true;
-					};
-					if (!place) continue;
 					pos.setWithOffset(origin, dx, y, dz);
 					if (!level.getBlockState(pos).isSolidRender(level, pos)) {
 						BlockState state = config.capProvider.getState(rand, origin);
-						if (state.hasProperty(HugeMushroomBlock.DOWN)) {
-							state = state.setValue(HugeMushroomBlock.DOWN, false);
+						if (state.hasProperty(HugeMushroomBlock.WEST)
+								&& state.hasProperty(HugeMushroomBlock.EAST)
+								&& state.hasProperty(HugeMushroomBlock.NORTH)
+								&& state.hasProperty(HugeMushroomBlock.SOUTH)
+								&& state.hasProperty(HugeMushroomBlock.UP)) {
+							state = state.setValue(HugeMushroomBlock.UP, y >= height + 1 || layer == 0 && d == radius)
+									.setValue(HugeMushroomBlock.WEST, dx < -k)
+									.setValue(HugeMushroomBlock.EAST, dx > k)
+									.setValue(HugeMushroomBlock.NORTH, dz < -k)
+									.setValue(HugeMushroomBlock.SOUTH, dz > k);
 						}
 						this.setBlock(level, pos, state);
 					}
 				}
+			}
 		}
 	}
 
