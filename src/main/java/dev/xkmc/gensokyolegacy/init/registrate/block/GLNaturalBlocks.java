@@ -23,9 +23,11 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantments;
+import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.grower.TreeGrower;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -113,36 +115,6 @@ public class GLNaturalBlocks {
 						.texture("layer0", pvd.modLoc("block/nature/" + ctx.getName()))).build()
 				.register();
 
-		// 红耳姑
-		EUGUNE_RED = reg.block("eugune_red", SideBushBlock::new)
-				.properties(p -> p.mapColor(MapColor.PLANT).strength(0).sound(SoundType.GRASS).noOcclusion().noCollission().pushReaction(PushReaction.DESTROY))
-				.blockstate((ctx, pvd) -> pvd.horizontalBlock(ctx.get(),
-						pvd.models().getBuilder("block/" + ctx.getName())
-								.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/eugune")))
-								.texture("all", pvd.modLoc("block/nature/eugune_red"))))
-				.simpleItem()
-				.register();
-
-		// 棕耳姑
-		EUGUNE_BROWN = reg.block("eugune_brown", SideBushBlock::new)
-				.properties(p -> p.mapColor(MapColor.PLANT).strength(0).sound(SoundType.GRASS).noOcclusion().noCollission().pushReaction(PushReaction.DESTROY))
-				.blockstate((ctx, pvd) -> pvd.horizontalBlock(ctx.get(),
-						pvd.models().getBuilder("block/" + ctx.getName())
-								.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/eugune")))
-								.texture("all", pvd.modLoc("block/nature/eugune_brown"))))
-				.simpleItem()
-				.register();
-
-		// 鬼火耳姑
-		EUGUNE_GHOST_FIRE = reg.block("eugune_ghost_fire", SideBushBlock::new)
-				.properties(p -> p.mapColor(MapColor.PLANT).strength(0).sound(SoundType.GRASS).noOcclusion().noCollission().pushReaction(PushReaction.DESTROY))
-				.blockstate((ctx, pvd) -> pvd.horizontalBlock(ctx.get(),
-						pvd.models().getBuilder("block/" + ctx.getName())
-								.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/eugune")))
-								.texture("all", pvd.modLoc("block/nature/eugune_ghost_fire"))))
-				.simpleItem()
-				.register();
-
 		// 常青垂藤
 		EVERGREEN_VINE = reg.block("evergreen_vine", EvergreenVineHeadBlock::new)
 				.properties(p -> p.mapColor(MapColor.PLANT).strength(0).sound(SoundType.GRASS).noOcclusion().noCollission().pushReaction(PushReaction.DESTROY))
@@ -182,6 +154,7 @@ public class GLNaturalBlocks {
 							.partialState().with(CedarFallenLeavesBlock.LAYERS, 1).modelForState().modelFile(layer1).addModel()
 							.partialState().with(CedarFallenLeavesBlock.LAYERS, 2).modelForState().modelFile(layer2).addModel();
 				})
+				.loot(GLNaturalBlocks::genFallenLeavesLoot)
 				.item().model((ctx, pvd) -> pvd.getBuilder(ctx.getName())
 						.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/cedar_fallen_leaves")))
 						.texture("all", pvd.modLoc("block/nature/cedar_fallen_leaves_layer1")))
@@ -220,6 +193,39 @@ public class GLNaturalBlocks {
 				BlockBehaviour.Properties.ofFullCopy(Blocks.BROWN_MUSHROOM).mapColor(MapColor.CRIMSON_HYPHAE),
 				MushroomFeatures.MushroomTreeType.DEMONIC_MIASMA.cfKey
 		);
+
+		// 红耳姑
+		EUGUNE_RED = reg.block("eugune_red", SideBushBlock::new)
+				.properties(p -> p.mapColor(MapColor.PLANT).strength(0).sound(SoundType.GRASS).noOcclusion().noCollission().pushReaction(PushReaction.DESTROY))
+				.blockstate((ctx, pvd) -> pvd.horizontalBlock(ctx.get(),
+						pvd.models().getBuilder("block/" + ctx.getName())
+								.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/eugune")))
+								.texture("all", pvd.modLoc("block/nature/eugune_red"))))
+				.loot((tb, blk) -> genEuguneLoot(tb, blk, Items.RED_MUSHROOM))
+				.simpleItem()
+				.register();
+
+		// 棕耳姑
+		EUGUNE_BROWN = reg.block("eugune_brown", SideBushBlock::new)
+				.properties(p -> p.mapColor(MapColor.PLANT).strength(0).sound(SoundType.GRASS).noOcclusion().noCollission().pushReaction(PushReaction.DESTROY))
+				.blockstate((ctx, pvd) -> pvd.horizontalBlock(ctx.get(),
+						pvd.models().getBuilder("block/" + ctx.getName())
+								.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/eugune")))
+								.texture("all", pvd.modLoc("block/nature/eugune_brown"))))
+				.loot((tb, blk) -> genEuguneLoot(tb, blk, Items.BROWN_MUSHROOM))
+				.simpleItem()
+				.register();
+
+		// 鬼火耳姑
+		EUGUNE_GHOST_FIRE = reg.block("eugune_ghost_fire", SideBushBlock::new)
+				.properties(p -> p.mapColor(MapColor.PLANT).strength(0).sound(SoundType.GRASS).noOcclusion().noCollission().pushReaction(PushReaction.DESTROY))
+				.blockstate((ctx, pvd) -> pvd.horizontalBlock(ctx.get(),
+						pvd.models().getBuilder("block/" + ctx.getName())
+								.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/eugune")))
+								.texture("all", pvd.modLoc("block/nature/eugune_ghost_fire"))))
+				.loot((tb, blk) -> genEuguneLoot(tb, blk, GHOST_FIRE_MUSHROOM_SET.cap))
+				.simpleItem()
+				.register();
 
 		BROOM_GRASS = reg.block("broom_grass", TallGrassBlock::new)
 				.initialProperties(() -> Blocks.SHORT_GRASS)
@@ -450,6 +456,32 @@ public class GLNaturalBlocks {
 			}
 			pvd.getVariantBuilder(ctx.get()).partialState().setModels(models);
 		}
+	}
+
+	private static void genEuguneLoot(RegistrateBlockLootTables tb, Block block, ItemLike capItem) {
+		var enchantments = tb.getRegistries().lookupOrThrow(Registries.ENCHANTMENT);
+		var shearsOrSilk = MatchTool.toolMatches(ItemPredicate.Builder.item().of(Items.SHEARS))
+				.or(MatchTool.toolMatches(ItemPredicate.Builder.item()
+						.withSubPredicate(ItemSubPredicates.ENCHANTMENTS,
+								ItemEnchantmentsPredicate.enchantments(List.of(new EnchantmentPredicate(
+										enchantments.getOrThrow(Enchantments.SILK_TOUCH), MinMaxBounds.Ints.atLeast(1)))))));
+		tb.add(block, LootTable.lootTable()
+				.withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F)).when(shearsOrSilk)
+						.add(LootItem.lootTableItem(block)))
+				.withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F)).when(shearsOrSilk.invert())
+						.add(LootItem.lootTableItem(capItem))));
+	}
+
+	private static void genFallenLeavesLoot(RegistrateBlockLootTables tb, Block block) {
+		var enchantments = tb.getRegistries().lookupOrThrow(Registries.ENCHANTMENT);
+		var shovelOrSilk = MatchTool.toolMatches(ItemPredicate.Builder.item().of(ItemTags.SHOVELS))
+				.or(MatchTool.toolMatches(ItemPredicate.Builder.item()
+						.withSubPredicate(ItemSubPredicates.ENCHANTMENTS,
+								ItemEnchantmentsPredicate.enchantments(List.of(new EnchantmentPredicate(
+										enchantments.getOrThrow(Enchantments.SILK_TOUCH), MinMaxBounds.Ints.atLeast(1)))))));
+		tb.add(block, LootTable.lootTable()
+				.withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F)).when(shovelOrSilk)
+						.add(LootItem.lootTableItem(block))));
 	}
 
 	private static void genColumnState(DataGenContext<Block, ? extends Block> ctx, RegistrateBlockstateProvider pvd,
