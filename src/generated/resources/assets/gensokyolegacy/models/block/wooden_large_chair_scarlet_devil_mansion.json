@@ -1,5 +1,5 @@
 {
-  "parent": "gensokyolegacy:custom/wooden_large_chair",
+  "parent": "gensokyolegacy:custom/furniture/wooden_large_chair",
   "render_type": "minecraft:cutout",
   "textures": {
     "all": "gensokyolegacy:block/wood/wooden_large_chair_scarlet_devil_mansion",

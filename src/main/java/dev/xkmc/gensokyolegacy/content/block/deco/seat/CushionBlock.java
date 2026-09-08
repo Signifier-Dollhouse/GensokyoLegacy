@@ -23,7 +23,7 @@ public record CushionBlock() implements ShapeBlockMethod {
 
 	public static void buildStates(DataGenContext<Block, DelegateBlock> ctx, RegistrateBlockstateProvider pvd) {
 		pvd.simpleBlock(ctx.get(), pvd.models().getBuilder("block/" + ctx.getName())
-				.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/cushion")))
+				.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/furniture/cushion")))
 				.texture("all", pvd.modLoc("block/cushion/" + ctx.getName()))
 				.texture("particle", pvd.mcLoc("block/white_wool"))
 				.renderType("cutout"));

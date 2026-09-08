@@ -175,7 +175,7 @@ public class GLDecoBlocks {
 			reg.block(name + "_chair", p -> ISeatableBlock.of(
 							BlockBehaviour.Properties.ofFullCopy(e.plankProp), 12 / 16f, new WoodChairBlock(), new SeatableImpl()))
 					.blockstate((ctx, pvd) -> pvd.simpleBlock(ctx.get(), pvd.models().getBuilder("block/" + ctx.getName())
-							.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/wooden_large_chair")))
+							.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/furniture/wooden_large_chair")))
 							.texture("all", pvd.modLoc("block/wood/" + ctx.getName()))
 							.texture("particle", pvd.mcLoc("block/birch_planks"))
 							.renderType("cutout")))
@@ -212,7 +212,7 @@ public class GLDecoBlocks {
 		reg.block("wooden_large_chair_scarlet_devil_mansion", p -> DelegateBlock.newBaseBlock(p, BlockTemplates.HORIZONTAL, new LargeChairBlock()))
 				.initialProperties(() -> Blocks.OAK_PLANKS)
 				.blockstate((ctx, pvd) -> pvd.horizontalBlock(ctx.get(), pvd.models().getBuilder("block/" + ctx.getName())
-						.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/wooden_large_chair")))
+						.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/furniture/wooden_large_chair")))
 						.texture("all", pvd.modLoc("block/wood/" + ctx.getName()))
 						.texture("particle", pvd.mcLoc("block/birch_planks"))
 						.renderType("cutout")))

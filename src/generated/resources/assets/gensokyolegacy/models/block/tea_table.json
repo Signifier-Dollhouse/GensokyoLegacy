@@ -1,5 +1,5 @@
 {
-  "parent": "gensokyolegacy:custom/tea_table",
+  "parent": "gensokyolegacy:custom/furniture/tea_table",
   "render_type": "minecraft:cutout",
   "textures": {
     "all": "gensokyolegacy:block/deco/tea_table"

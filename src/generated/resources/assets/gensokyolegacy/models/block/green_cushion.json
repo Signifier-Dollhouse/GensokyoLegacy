@@ -1,5 +1,5 @@
 {
-  "parent": "gensokyolegacy:custom/cushion",
+  "parent": "gensokyolegacy:custom/furniture/cushion",
   "render_type": "minecraft:cutout",
   "textures": {
     "all": "gensokyolegacy:block/cushion/green_cushion",

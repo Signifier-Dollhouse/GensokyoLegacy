@@ -1,5 +1,5 @@
 {
-  "parent": "gensokyolegacy:custom/bed_high_head",
+  "parent": "gensokyolegacy:custom/furniture/bed_high_head",
   "textures": {
     "all": "gensokyolegacy:block/bed/marisa_bed"
   }

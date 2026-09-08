@@ -130,7 +130,7 @@ public class CoverableImpl implements CreateBlockStateBlockMethod, DefaultStateB
 			if (e.item.asItem() == Items.AIR) continue;
 			String name = e == Color.BASE ? "tablecloth" : e.getSerializedName() + "_tablecloth";
 			pvd.models().getBuilder("block/" + name)
-					.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/tablecloth")))
+					.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/furniture/tablecloth")))
 					.texture("all", "block/table/" + name)
 					.renderType("cutout");
 		}
@@ -152,7 +152,7 @@ public class CoverableImpl implements CreateBlockStateBlockMethod, DefaultStateB
             String texName = e == Color.BASE ? suffix : e.getSerializedName() + "_" + suffix;
             String modelName = woodName + "_" + texName;
             pvd.models().getBuilder("block/" + modelName)
-                    .parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/wooden_large_chair_pad")))
+                    .parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/furniture/wooden_large_chair_pad")))
                     .texture("wood", chairTexture)
                     .texture("pad", "block/" + textureDir + "/" + texName)
                     .texture("particle", "minecraft:block/birch_planks")

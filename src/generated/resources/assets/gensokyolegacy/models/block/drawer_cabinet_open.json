@@ -1,5 +1,5 @@
 {
-  "parent": "gensokyolegacy:custom/cabinet",
+  "parent": "gensokyolegacy:custom/furniture/cabinet",
   "render_type": "minecraft:cutout",
   "textures": {
     "all": "gensokyolegacy:block/cabinet/cabinet_top_open",

@@ -25,13 +25,13 @@ public class FlatBedShape implements BedShape {
 
 	public void buildStates(DataGenContext<Block, YoukaiBedBlock> ctx, RegistrateBlockstateProvider pvd) {
 		pvd.horizontalBlock(ctx.get(), state -> pvd.models().getBuilder(ctx.getName() + "_" + state.getValue(YoukaiBedBlock.PART))
-				.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/bed_" + state.getValue(YoukaiBedBlock.PART))))
+				.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/furniture/bed_" + state.getValue(YoukaiBedBlock.PART))))
 				.texture("all", pvd.modLoc("block/bed/" + ctx.getName())), 0);
 	}
 
 	public void buildItemModel(DataGenContext<Item, BedItem> ctx, RegistrateItemModelProvider pvd) {
 		pvd.getBuilder(ctx.getName())
-				.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/bed")))
+				.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/furniture/bed")))
 				.texture("all", pvd.modLoc("block/bed/" + ctx.getName()));
 	}
 

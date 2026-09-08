@@ -128,7 +128,7 @@ public class GLFurniture {
 					.properties(BlockBehaviour.Properties::noOcclusion)
 					.blockstate((ctx, pvd) -> {
 						var originModel = pvd.models().getBuilder(ctx.getName())
-								.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/tea_table")))
+								.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/furniture/tea_table")))
 								.texture("all", pvd.modLoc("block/deco/tea_table"))
 								.renderType("cutout");
 						var emptyModel = pvd.models().getBuilder(ctx.getName() + "_empty")
@@ -148,7 +148,7 @@ public class GLFurniture {
 					})
 					.tag(BlockTags.MINEABLE_WITH_AXE)
 					.item().model((ctx, pvd) -> pvd.getBuilder(ctx.getName())
-							.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/tea_table_item")))
+							.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/furniture/tea_table_item")))
 							.texture("all", pvd.modLoc("block/deco/tea_table"))
 							.renderType("cutout"))
 					.build()

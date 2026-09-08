@@ -1,5 +1,5 @@
 {
-  "parent": "gensokyolegacy:custom/eugune",
+  "parent": "gensokyolegacy:custom/nature/eugune",
   "render_type": "minecraft:cutout",
   "textures": {
     "all": "gensokyolegacy:block/nature/eugune_red"

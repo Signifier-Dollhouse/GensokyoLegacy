@@ -23,7 +23,7 @@ public record WoodChairBlock() implements ShapeBlockMethod {
 
 	public static void buildStates(DataGenContext<Block, DelegateBlock> ctx, RegistrateBlockstateProvider pvd) {
 		pvd.simpleBlock(ctx.get(), pvd.models().getBuilder("block/" + ctx.getName())
-				.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/wooden_dining_chair")))
+				.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/furniture/wooden_dining_chair")))
 				.texture("all", pvd.modLoc("block/wood/" + ctx.getName()))
 				.texture("particle", pvd.mcLoc("block/birch_planks"))
 				.renderType("cutout"));

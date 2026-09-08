@@ -71,19 +71,19 @@ public class LargeTableBlock implements ShapeBlockMethod, CreateBlockStateBlockM
 
 	public static void buildStates(DataGenContext<Block, DelegateBlock> ctx, RegistrateBlockstateProvider pvd) {
 		pvd.models().getBuilder("block/" + ctx.getName())
-				.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/wooden_large_table")))
+				.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/furniture/wooden_large_table")))
 				.texture("all", pvd.modLoc("block/wood/" + ctx.getName()))
 				.texture("particle", pvd.mcLoc("block/birch_planks"))
 				.renderType("cutout");
 
 		var table = pvd.models().getBuilder("block/" + ctx.getName() + "_top")
-				.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/wooden_large_table_top")))
+				.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/furniture/wooden_large_table_top")))
 				.texture("all", pvd.modLoc("block/wood/" + ctx.getName()))
 				.texture("particle", pvd.mcLoc("block/birch_planks"))
 				.renderType("cutout");
 
 		var stall = pvd.models().getBuilder("block/" + ctx.getName() + "_stall")
-				.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/wooden_large_table_stall")))
+				.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/furniture/wooden_large_table_stall")))
 				.texture("all", pvd.modLoc("block/wood/" + ctx.getName()))
 				.texture("particle", pvd.mcLoc("block/birch_planks"))
 				.renderType("cutout");

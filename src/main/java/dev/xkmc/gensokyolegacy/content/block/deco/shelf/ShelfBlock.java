@@ -74,7 +74,7 @@ public class ShelfBlock implements ShapeBlockMethod, UseItemOnBlockMethod, SetPl
 
 	public static void buildStates(DataGenContext<Block, DelegateBlock> ctx, RegistrateBlockstateProvider pvd) {
 		pvd.horizontalBlock(ctx.get(), pvd.models().getBuilder(ctx.getName())
-				.parent(new ModelFile.UncheckedModelFile(GensokyoLegacy.loc("custom/shelf")))
+				.parent(new ModelFile.UncheckedModelFile(GensokyoLegacy.loc("custom/furniture/shelf")))
 				.texture("all", "block/shelf/" + ctx.getName()));
 	}
 

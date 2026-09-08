@@ -1,5 +1,5 @@
 {
-  "parent": "gensokyolegacy:custom/flame_cattail",
+  "parent": "gensokyolegacy:custom/nature/flame_cattail",
   "render_type": "minecraft:cutout",
   "textures": {
     "cattail_bottom": "gensokyolegacy:block/nature/flame_cattail_bottom",

@@ -1,5 +1,5 @@
 {
-  "parent": "gensokyolegacy:custom/tablecloth",
+  "parent": "gensokyolegacy:custom/furniture/tablecloth",
   "render_type": "minecraft:cutout",
   "textures": {
     "all": "gensokyolegacy:block/table/cyan_tablecloth"

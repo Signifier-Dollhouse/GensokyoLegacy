@@ -1,5 +1,5 @@
 {
-  "parent": "gensokyolegacy:custom/shelf_empty",
+  "parent": "gensokyolegacy:custom/furniture/shelf_empty",
   "textures": {
     "all": "gensokyolegacy:block/shelf/shelf_empty"
   }

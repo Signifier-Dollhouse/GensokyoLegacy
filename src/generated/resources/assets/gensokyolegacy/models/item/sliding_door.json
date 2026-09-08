@@ -1,5 +1,5 @@
 {
-  "parent": "gensokyolegacy:custom/double_block_display",
+  "parent": "gensokyolegacy:custom/furniture/double_block_display",
   "elements": [
     {
       "faces": {

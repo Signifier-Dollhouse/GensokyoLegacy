@@ -102,7 +102,7 @@ public class SlidingDoorJsons {
 	private static ItemModelBuilder itemBase(RegistrateItemModelProvider pvd) {
 		if (ITEM_BASE == null) {
 			ITEM_BASE = pvd.getBuilder("sliding_door")
-					.parent(new ModelFile.UncheckedModelFile("gensokyolegacy:custom/double_block_display"))
+					.parent(new ModelFile.UncheckedModelFile("gensokyolegacy:custom/furniture/double_block_display"))
 					.texture("particle", "#side")
 					.renderType("cutout");
 			panel(ITEM_BASE, 0, 16, "front_bottom", "side");

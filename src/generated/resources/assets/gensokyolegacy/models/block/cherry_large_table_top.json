@@ -1,5 +1,5 @@
 {
-  "parent": "gensokyolegacy:custom/wooden_large_table_top",
+  "parent": "gensokyolegacy:custom/furniture/wooden_large_table_top",
   "render_type": "minecraft:cutout",
   "textures": {
     "all": "gensokyolegacy:block/wood/cherry_large_table",

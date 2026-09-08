@@ -1,5 +1,5 @@
 {
-  "parent": "gensokyolegacy:custom/bed",
+  "parent": "gensokyolegacy:custom/furniture/bed",
   "textures": {
     "all": "gensokyolegacy:block/bed/cirno_bed"
   }

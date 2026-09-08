@@ -93,7 +93,7 @@ public class GLNaturalBlocks {
 				.properties(p -> p.offsetType(BlockBehaviour.OffsetType.XYZ).mapColor(MapColor.PLANT).strength(0).sound(SoundType.GRASS).noOcclusion().noCollission().pushReaction(PushReaction.DESTROY))
 				.blockstate((ctx, pvd) -> pvd.simpleBlock(ctx.get(),
 						pvd.models().getBuilder("block/" + ctx.getName())
-								.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/flame_cattail")))
+								.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/nature/flame_cattail")))
 								.texture("cattail_bottom", pvd.modLoc("block/nature/flame_cattail_bottom"))
 								.texture("cattail_top", pvd.modLoc("block/nature/flame_cattail_top"))
 								.renderType("cutout")))
@@ -107,7 +107,7 @@ public class GLNaturalBlocks {
 				.properties(p -> p.offsetType(BlockBehaviour.OffsetType.XYZ).mapColor(MapColor.PLANT).strength(0).sound(SoundType.GRASS).noOcclusion().noCollission().pushReaction(PushReaction.DESTROY).dynamicShape())
 				.blockstate((ctx, pvd) -> pvd.simpleBlock(ctx.get(),
 						pvd.models().getBuilder("block/" + ctx.getName())
-								.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/bracken")))
+								.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/nature/bracken")))
 								.texture("all", pvd.modLoc("block/nature/bracken"))
 								.renderType("cutout")))
 				.item().model((ctx, pvd) -> pvd.getBuilder(ctx.getName())
@@ -143,11 +143,11 @@ public class GLNaturalBlocks {
 				.properties(p -> p.mapColor(MapColor.PLANT).sound(SoundType.GRASS).noOcclusion().noCollission())
 				.blockstate((ctx, pvd) -> {
 					var layer1 = pvd.models().getBuilder("block/" + ctx.getName() + "_layer1")
-							.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/cedar_fallen_leaves")))
+							.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/nature/cedar_fallen_leaves")))
 							.texture("all", pvd.modLoc("block/nature/cedar_fallen_leaves_layer1"))
 							.renderType("cutout");
 					var layer2 = pvd.models().getBuilder("block/" + ctx.getName() + "_layer2")
-							.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/cedar_fallen_leaves")))
+							.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/nature/cedar_fallen_leaves")))
 							.texture("all", pvd.modLoc("block/nature/cedar_fallen_leaves_layer2"))
 							.renderType("cutout");
 					pvd.getVariantBuilder(ctx.get())
@@ -156,7 +156,7 @@ public class GLNaturalBlocks {
 				})
 				.loot(GLNaturalBlocks::genFallenLeavesLoot)
 				.item().model((ctx, pvd) -> pvd.getBuilder(ctx.getName())
-						.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/cedar_fallen_leaves")))
+						.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/nature/cedar_fallen_leaves")))
 						.texture("all", pvd.modLoc("block/nature/cedar_fallen_leaves_layer1")))
 				.build()
 				.register();
@@ -199,7 +199,7 @@ public class GLNaturalBlocks {
 				.properties(p -> p.mapColor(MapColor.PLANT).strength(0).sound(SoundType.GRASS).noOcclusion().noCollission().pushReaction(PushReaction.DESTROY))
 				.blockstate((ctx, pvd) -> pvd.horizontalBlock(ctx.get(),
 						pvd.models().getBuilder("block/" + ctx.getName())
-								.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/eugune")))
+								.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/nature/eugune")))
 								.texture("all", pvd.modLoc("block/nature/eugune_red"))
 								.renderType("cutout")))
 				.loot((tb, blk) -> genEuguneLoot(tb, blk, Items.RED_MUSHROOM))
@@ -211,7 +211,7 @@ public class GLNaturalBlocks {
 				.properties(p -> p.mapColor(MapColor.PLANT).strength(0).sound(SoundType.GRASS).noOcclusion().noCollission().pushReaction(PushReaction.DESTROY))
 				.blockstate((ctx, pvd) -> pvd.horizontalBlock(ctx.get(),
 						pvd.models().getBuilder("block/" + ctx.getName())
-								.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/eugune")))
+								.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/nature/eugune")))
 								.texture("all", pvd.modLoc("block/nature/eugune_brown"))
 								.renderType("cutout")))
 				.loot((tb, blk) -> genEuguneLoot(tb, blk, Items.BROWN_MUSHROOM))
@@ -223,7 +223,7 @@ public class GLNaturalBlocks {
 				.properties(p -> p.mapColor(MapColor.PLANT).strength(0).sound(SoundType.GRASS).noOcclusion().noCollission().pushReaction(PushReaction.DESTROY))
 				.blockstate((ctx, pvd) -> pvd.horizontalBlock(ctx.get(),
 						pvd.models().getBuilder("block/" + ctx.getName())
-								.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/eugune")))
+								.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/nature/eugune_emissive")))
 								.texture("all", pvd.modLoc("block/nature/eugune_ghost_fire"))
 								.renderType("cutout")))
 				.loot((tb, blk) -> genEuguneLoot(tb, blk, GHOST_FIRE_MUSHROOM_SET.cap))

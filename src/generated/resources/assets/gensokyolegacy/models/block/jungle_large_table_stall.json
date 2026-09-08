@@ -1,5 +1,5 @@
 {
-  "parent": "gensokyolegacy:custom/wooden_large_table_stall",
+  "parent": "gensokyolegacy:custom/furniture/wooden_large_table_stall",
   "render_type": "minecraft:cutout",
   "textures": {
     "all": "gensokyolegacy:block/wood/jungle_large_table",

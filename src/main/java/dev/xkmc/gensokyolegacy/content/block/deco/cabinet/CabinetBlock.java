@@ -78,12 +78,12 @@ public class CabinetBlock implements ShapeBlockMethod, UseWithoutItemBlockMethod
 
 	public static void buildStates(DataGenContext<Block, DelegateBlock> ctx, RegistrateBlockstateProvider pvd, String tex) {
 		var closed = pvd.models().getBuilder("block/" + ctx.getName())
-				.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/cabinet")))
+				.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/furniture/cabinet")))
 				.texture("all", pvd.modLoc("block/cabinet/" + tex))
 				.texture("particle", pvd.modLoc("block/cabinet/" + tex))
 				.renderType("cutout");
 		var open = pvd.models().getBuilder("block/" + ctx.getName() + "_open")
-				.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/cabinet")))
+				.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/furniture/cabinet")))
 				.texture("all", pvd.modLoc("block/cabinet/" + tex + "_open"))
 				.texture("particle", pvd.modLoc("block/cabinet/" + tex + "_open"))
 				.renderType("cutout");

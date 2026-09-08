@@ -37,7 +37,7 @@ public class LargeChairBlock implements ShapeBlockMethod, CreateBlockStateBlockM
 	public static void buildStates(DataGenContext<Block, DelegateBlock> ctx, RegistrateBlockstateProvider pvd) {
 		String woodName = ctx.getName().replace("_large_chair", "");
 		var chair = pvd.models().getBuilder("block/" + ctx.getName())
-				.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/wooden_large_chair")))
+				.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/furniture/wooden_large_chair")))
 				.texture("all", pvd.modLoc("block/wood/" + ctx.getName()))
 				.texture("particle", pvd.mcLoc("block/birch_planks"))
 				.renderType("cutout");
