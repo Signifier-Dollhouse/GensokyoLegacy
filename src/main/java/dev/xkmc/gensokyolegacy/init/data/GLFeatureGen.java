@@ -87,6 +87,8 @@ public class GLFeatureGen {
 			FeatureUtils.register(ctx, MAGICAL_FOREST_VEGETATION, Feature.RANDOM_SELECTOR,
 					new RandomFeatureConfiguration(List.of(
 							new WeightedPlacedFeature(PlacementUtils.inlinePlaced(cf.getOrThrow(MushroomTreeType.GHOST_FIRE.cfKey)), 0.15F),
+							new WeightedPlacedFeature(PlacementUtils.inlinePlaced(cf.getOrThrow(MushroomTreeType.DREAM.cfKey)), 0.1F),
+							new WeightedPlacedFeature(PlacementUtils.inlinePlaced(cf.getOrThrow(MushroomTreeType.DEMONIC_MIASMA.cfKey)), 0.05F),
 							new WeightedPlacedFeature(PlacementUtils.inlinePlaced(cf.getOrThrow(HUGE_BROWN_MUSHROOM)), 0.1F),
 							new WeightedPlacedFeature(PlacementUtils.inlinePlaced(cf.getOrThrow(HUGE_RED_MUSHROOM)), 0.05F)
 					), PlacementUtils.inlinePlaced(cf.getOrThrow(TreeType.BLUE_FIR.cfKey))));

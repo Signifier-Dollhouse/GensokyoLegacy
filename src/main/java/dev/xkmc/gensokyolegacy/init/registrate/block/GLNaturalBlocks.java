@@ -5,7 +5,6 @@ import com.tterrag.registrate.providers.RegistrateBlockstateProvider;
 import com.tterrag.registrate.providers.RegistrateItemModelProvider;
 import com.tterrag.registrate.providers.loot.RegistrateBlockLootTables;
 import com.tterrag.registrate.util.entry.BlockEntry;
-import com.tterrag.registrate.util.nullness.NonNullFunction;
 import dev.xkmc.gensokyolegacy.content.block.nature.CedarFallenLeavesBlock;
 import dev.xkmc.gensokyolegacy.content.block.nature.EvergreenVineBodyBlock;
 import dev.xkmc.gensokyolegacy.content.block.nature.EvergreenVineHeadBlock;
@@ -30,6 +29,7 @@ import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.grower.TreeGrower;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.material.PushReaction;
@@ -44,11 +44,9 @@ import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
 import net.neoforged.neoforge.client.model.generators.BlockModelBuilder;
 import net.neoforged.neoforge.client.model.generators.ConfiguredModel;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
+import net.neoforged.neoforge.client.model.generators.MultiPartBlockStateBuilder;
 
-import javax.annotation.Nullable;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 public class GLNaturalBlocks {
@@ -62,6 +60,8 @@ public class GLNaturalBlocks {
 	public static final BlockEntry<CedarFallenLeavesBlock> CEDAR_FALLEN_LEAVES;
 
 	public static final TreeSet BLUE_FUR_SET;
+
+	public static final BlockEntry<HugeMushroomBlock> CYAN_MUSHROOM_STEM, PURPLE_MUSHROOM_STEM, RED_MUSHROOM_STEM;
 
 	public static final MushroomSet GHOST_FIRE_MUSHROOM_SET, DREAM_MUSHROOM_SET, DEMONIC_MIASMA_MUSHROOM_SET;
 
@@ -196,25 +196,29 @@ public class GLNaturalBlocks {
 				TreeFeatures.TreeType.BLUE_FIR
 		);
 
+		CYAN_MUSHROOM_STEM = MushroomSet.regStem(reg, "cyan_mushroom");
+		PURPLE_MUSHROOM_STEM = MushroomSet.regStem(reg, "purple_mushroom");
+		RED_MUSHROOM_STEM = MushroomSet.regStem(reg, "red_mushroom");
+
 		GHOST_FIRE_MUSHROOM_SET = new MushroomSet(
-				reg, "ghost_fire_mushroom", "cyan_mushroom", false, 3, true,
+				reg, "ghost_fire_mushroom", CYAN_MUSHROOM_STEM, 3, true,
 				BlockBehaviour.Properties.ofFullCopy(Blocks.BROWN_MUSHROOM_BLOCK).mapColor(MapColor.COLOR_CYAN).lightLevel(b -> 5),
 				BlockBehaviour.Properties.ofFullCopy(Blocks.BROWN_MUSHROOM).mapColor(MapColor.COLOR_CYAN).lightLevel(b -> 5),
 				MushroomFeatures.MushroomTreeType.GHOST_FIRE.cfKey
 		);
 
 		DREAM_MUSHROOM_SET = new MushroomSet(
-				reg, "dream_mushroom", "purple_mushroom", false, 3, false,
+				reg, "dream_mushroom", PURPLE_MUSHROOM_STEM, 3, false,
 				BlockBehaviour.Properties.ofFullCopy(Blocks.BROWN_MUSHROOM_BLOCK).mapColor(MapColor.COLOR_PURPLE),
 				BlockBehaviour.Properties.ofFullCopy(Blocks.BROWN_MUSHROOM).mapColor(MapColor.COLOR_PURPLE),
-				null
+				MushroomFeatures.MushroomTreeType.DREAM.cfKey
 		);
 
 		DEMONIC_MIASMA_MUSHROOM_SET = new MushroomSet(
-				reg, "demonic_miasma_mushroom", "red_mushroom", false, 2, false,
+				reg, "demonic_miasma_mushroom", RED_MUSHROOM_STEM, 2, false,
 				BlockBehaviour.Properties.ofFullCopy(Blocks.BROWN_MUSHROOM_BLOCK).mapColor(MapColor.CRIMSON_HYPHAE),
 				BlockBehaviour.Properties.ofFullCopy(Blocks.BROWN_MUSHROOM).mapColor(MapColor.CRIMSON_HYPHAE),
-				null
+				MushroomFeatures.MushroomTreeType.DEMONIC_MIASMA.cfKey
 		);
 
 		BROOM_GRASS = reg.block("broom_grass", TallGrassBlock::new)
@@ -292,44 +296,32 @@ public class GLNaturalBlocks {
 
 	public static class MushroomSet {
 
-		private static final Map<String, BlockEntry<Block>> STEMS = new HashMap<>();
-
-		public final BlockEntry<Block> stem;
-		public final BlockEntry<Block> block;
+		public final BlockEntry<HugeMushroomBlock> stem;
+		public final BlockEntry<HugeMushroomBlock> block;
 		public final BlockEntry<? extends Block> cap;
 
-		public MushroomSet(L2Registrate reg, String id, String stemTex, boolean pillarStem, int capVariants,
+		public static BlockEntry<HugeMushroomBlock> regStem(L2Registrate reg, String stemTex) {
+			var stemProp = BlockBehaviour.Properties.ofFullCopy(Blocks.MUSHROOM_STEM);
+			return reg.block(stemTex + "_stem", HugeMushroomBlock::new)
+					.properties(p -> stemProp)
+					.blockstate((ctx, pvd) -> {
+						var outer = genHugeMushroomModels(pvd, ctx.getName(),
+								pvd.modLoc("block/mushroom/" + stemTex + "_stem"), false);
+						genHugeMushroomState(ctx, pvd, outer);
+					})
+					.tag(BlockTags.MINEABLE_WITH_AXE)
+					.loot(RegistrateBlockLootTables::dropWhenSilkTouch)
+					.item().model((ctx, pvd) -> genInventoryItemModel(ctx.getName(), pvd)).tag(GLTagGen.HUGE_MUSHROOM).build()
+					.register();
+		}
+
+		public MushroomSet(L2Registrate reg, String id, BlockEntry<HugeMushroomBlock> stem, int capVariants,
 		                   boolean emissive, BlockBehaviour.Properties blockProp,
 		                   BlockBehaviour.Properties capProp,
-		                   @Nullable ResourceKey<ConfiguredFeature<?, ?>> feature) {
-			stem = STEMS.computeIfAbsent(stemTex + ":" + pillarStem, key -> {
-				var stemProp = BlockBehaviour.Properties.ofFullCopy(Blocks.MUSHROOM_STEM);
-				var stemBuilder = reg.block(stemTex + "_stem", p -> pillarStem ? new RotatedPillarBlock(p) : new Block(p))
-						.properties(p -> stemProp)
-						.tag(BlockTags.MINEABLE_WITH_AXE);
-				if (pillarStem) {
-					stemBuilder.blockstate((ctx, pvd) -> {
-						var side = pvd.modLoc("block/mushroom/" + stemTex + "_stem_side");
-						var top = pvd.modLoc("block/mushroom/" + stemTex + "_stem_top");
-						genColumnState(ctx, pvd, side, top);
-					});
-				} else {
-					stemBuilder.blockstate((ctx, pvd) -> pvd.simpleBlock(ctx.get(), pvd.models().cubeAll(ctx.getName(),
-							pvd.modLoc("block/mushroom/" + stemTex + "_stem"))));
-				}
-				return stemBuilder
-						.loot(RegistrateBlockLootTables::dropWhenSilkTouch)
-						.item().tag(GLTagGen.HUGE_MUSHROOM).build()
-						.register();
-			});
+		                   ResourceKey<ConfiguredFeature<?, ?>> feature) {
+			this.stem = stem;
 
-			NonNullFunction<BlockBehaviour.Properties, ? extends Block> capFactory;
-			if (feature == null) {
-				capFactory = HugeMushroomBlock::new;
-			} else {
-				capFactory = p -> new MushroomBlock(feature, p);
-			}
-			cap = reg.block(id, capFactory)
+			cap = reg.block(id, p -> new MushroomBlock(feature, p))
 					.properties(p -> capProp)
 					.blockstate((ctx, pvd) -> genCapState(ctx, pvd, capVariants, emissive))
 					.tag(BlockTags.MINEABLE_WITH_AXE)
@@ -337,12 +329,16 @@ public class GLNaturalBlocks {
 							pvd.modLoc("block/mushroom/" + capModelName(ctx.getName(), capVariants, 1)), emissive)).build()
 					.register();
 
-			block = reg.block(id + "_block", Block::new)
+			block = reg.block(id + "_block", HugeMushroomBlock::new)
 					.properties(p -> blockProp)
-					.blockstate((ctx, pvd) -> genPlainState(ctx, pvd, emissive))
+					.blockstate((ctx, pvd) -> {
+						var outer = genHugeMushroomModels(pvd, ctx.getName(),
+								pvd.modLoc("block/mushroom/" + ctx.getName()), emissive);
+						genHugeMushroomState(ctx, pvd, outer);
+					})
 					.loot((tb, blk) -> tb.add(blk, tb.createMushroomBlockDrop(blk, cap)))
 					.tag(BlockTags.MINEABLE_WITH_AXE)
-					.item().tag(GLTagGen.HUGE_MUSHROOM).build()
+					.item().model((ctx, pvd) -> genInventoryItemModel(ctx.getName(), pvd)).tag(GLTagGen.HUGE_MUSHROOM).build()
 					.register();
 		}
 
@@ -372,24 +368,46 @@ public class GLNaturalBlocks {
 					.end();
 		}
 
-		private static void genPlainState(DataGenContext<Block, ? extends Block> ctx, RegistrateBlockstateProvider pvd, boolean emissive) {
-			if (emissive) {
-				pvd.simpleBlock(ctx.get(), emissiveCube(pvd, ctx.getName(),
-						pvd.modLoc("block/mushroom/" + ctx.getName())));
-			} else {
-				pvd.simpleBlock(ctx.get(), pvd.models().cubeAll(ctx.getName(),
-						pvd.modLoc("block/mushroom/" + ctx.getName())));
-			}
+		private static void genInventoryItemModel(String name, RegistrateItemModelProvider pvd) {
+			pvd.getBuilder(name)
+					.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("block/" + name + "_inventory")));
 		}
 
-		private static BlockModelBuilder emissiveCube(RegistrateBlockstateProvider pvd, String name, ResourceLocation tex) {
-			return pvd.models().withExistingParent(name, ResourceLocation.withDefaultNamespace("block/block"))
-					.texture("all", tex)
-					.texture("particle", tex)
-					.element().from(0, 0, 0).to(16, 16, 16)
-					.emissivity(15, 15)
-					.cube("#all")
-					.end();
+		private static ModelFile genHugeMushroomModels(RegistrateBlockstateProvider pvd, String id, ResourceLocation tex, boolean emissive) {
+			ModelFile outer;
+			if (emissive) {
+				outer = pvd.models().withExistingParent(id, ResourceLocation.withDefaultNamespace("block/block"))
+						.texture("texture", tex)
+						.texture("particle", tex)
+						.element().from(0, 0, 0).to(16, 16, 0)
+						.shade(false)
+						.emissivity(15, 15)
+						.face(Direction.NORTH).uvs(0, 0, 16, 16).texture("#texture").cullface(Direction.NORTH).end()
+						.end();
+			} else {
+				outer = pvd.models().withExistingParent(id, ResourceLocation.withDefaultNamespace("block/template_single_face"))
+						.texture("texture", tex);
+			}
+			pvd.models().withExistingParent(id + "_inventory", ResourceLocation.withDefaultNamespace("block/cube_all"))
+					.texture("all", tex);
+			return outer;
+		}
+
+		private static void genHugeMushroomState(DataGenContext<Block, ? extends Block> ctx, RegistrateBlockstateProvider pvd, ModelFile outer) {
+			var builder = pvd.getMultipartBuilder(ctx.get());
+			var inside = new ModelFile.UncheckedModelFile(ResourceLocation.withDefaultNamespace("block/mushroom_block_inside"));
+			addFace(builder, outer, inside, HugeMushroomBlock.NORTH, 0, 0);
+			addFace(builder, outer, inside, HugeMushroomBlock.EAST, 0, 90);
+			addFace(builder, outer, inside, HugeMushroomBlock.SOUTH, 0, 180);
+			addFace(builder, outer, inside, HugeMushroomBlock.WEST, 0, 270);
+			addFace(builder, outer, inside, HugeMushroomBlock.UP, 270, 0);
+			addFace(builder, outer, inside, HugeMushroomBlock.DOWN, 90, 0);
+		}
+
+		private static void addFace(MultiPartBlockStateBuilder builder, ModelFile outer, ModelFile inside,
+		                            BooleanProperty prop, int x, int y) {
+			builder.part().modelFile(outer).rotationX(x).rotationY(y).uvLock(true).addModel().condition(prop, true).end();
+			builder.part().modelFile(inside).rotationX(x).rotationY(y).uvLock(false).addModel().condition(prop, false).end();
 		}
 
 		private static BlockModelBuilder emissiveCross(RegistrateBlockstateProvider pvd, String name, ResourceLocation tex) {

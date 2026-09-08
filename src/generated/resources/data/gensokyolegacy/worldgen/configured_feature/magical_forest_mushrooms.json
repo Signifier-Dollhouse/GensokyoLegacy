@@ -16,29 +16,13 @@
               },
               {
                 "data": {
-                  "Name": "gensokyolegacy:dream_mushroom",
-                  "Properties": {
-                    "down": "true",
-                    "east": "true",
-                    "north": "true",
-                    "south": "true",
-                    "up": "true",
-                    "west": "true"
-                  }
+                  "Name": "gensokyolegacy:dream_mushroom"
                 },
                 "weight": 2
               },
               {
                 "data": {
-                  "Name": "gensokyolegacy:demonic_miasma_mushroom",
-                  "Properties": {
-                    "down": "true",
-                    "east": "true",
-                    "north": "true",
-                    "south": "true",
-                    "up": "true",
-                    "west": "true"
-                  }
+                  "Name": "gensokyolegacy:demonic_miasma_mushroom"
                 },
                 "weight": 1
               }

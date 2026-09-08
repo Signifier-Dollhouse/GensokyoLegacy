@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cube_all",
+  "textures": {
+    "all": "gensokyolegacy:block/mushroom/demonic_miasma_mushroom_block"
+  }
+}

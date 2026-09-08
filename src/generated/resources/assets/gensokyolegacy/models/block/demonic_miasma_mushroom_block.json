@@ -1,6 +1,6 @@
 {
-  "parent": "minecraft:block/cube_all",
+  "parent": "minecraft:block/template_single_face",
   "textures": {
-    "all": "gensokyolegacy:block/mushroom/demonic_miasma_mushroom_block"
+    "texture": "gensokyolegacy:block/mushroom/demonic_miasma_mushroom_block"
   }
 }
