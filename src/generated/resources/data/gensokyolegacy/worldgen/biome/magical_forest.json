@@ -15,7 +15,23 @@
     "water_color": 4159204,
     "water_fog_color": 329011
   },
-  "features": [],
+  "features": [
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [
+      "gensokyolegacy:magical_forest_vegetation",
+      "gensokyolegacy:magical_forest_grass",
+      "gensokyolegacy:magical_forest_flowers",
+      "gensokyolegacy:magical_forest_mushrooms"
+    ]
+  ],
   "has_precipitation": true,
   "spawn_costs": {},
   "spawners": {

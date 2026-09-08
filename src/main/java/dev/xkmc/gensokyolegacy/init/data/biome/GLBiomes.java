@@ -3,6 +3,7 @@ package dev.xkmc.gensokyolegacy.init.data.biome;
 import com.tterrag.registrate.providers.DataProviderInitializer;
 import dev.xkmc.gensokyolegacy.content.dimension.GLDimensionGen;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
+import dev.xkmc.gensokyolegacy.init.data.GLFeatureGen;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.Music;
@@ -10,6 +11,7 @@ import net.minecraft.sounds.Musics;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.biome.*;
+import net.minecraft.world.level.levelgen.GenerationStep;
 
 import javax.annotation.Nullable;
 
@@ -19,13 +21,20 @@ public class GLBiomes {
 
 	public static void init(DataProviderInitializer init) {
 		init.add(Registries.BIOME, (ctx) -> {
+			var pf = ctx.lookup(Registries.PLACED_FEATURE);
+			var carvers = ctx.lookup(Registries.CONFIGURED_CARVER);
 			ctx.register(GLDimensionGen.BIOME_GAP, biome(6840176,
 					new MobSpawnSettings.Builder(),
 					new BiomeGenerationSettings.PlainBuilder(),
 					Musics.createGameMusic(SoundEvents.MUSIC_END)));
 			ctx.register(MAGICAL_FOREST, biome(
 					new MobSpawnSettings.Builder(),
-					new BiomeGenerationSettings.PlainBuilder()));
+					new BiomeGenerationSettings.Builder(pf, carvers)
+							.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, GLFeatureGen.MAGICAL_FOREST_VEGETATION_PLACED)
+							.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, GLFeatureGen.MAGICAL_FOREST_GRASS_PLACED)
+							.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, GLFeatureGen.MAGICAL_FOREST_FLOWERS_PLACED)
+							.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, GLFeatureGen.MAGICAL_FOREST_MUSHROOMS_PLACED)
+			));
 		});
 	}
 
