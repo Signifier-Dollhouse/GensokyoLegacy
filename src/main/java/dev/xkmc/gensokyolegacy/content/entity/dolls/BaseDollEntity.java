@@ -22,7 +22,7 @@ public abstract class BaseDollEntity extends PathfinderMob implements GeoEntity 
 	protected static final RawAnimation IDLE_R = RawAnimation.begin().thenLoop("hover_idle_r");
 	protected static final RawAnimation MOVE_L = RawAnimation.begin().thenLoop("hover_move_l");
 	protected static final RawAnimation MOVE_R = RawAnimation.begin().thenLoop("hover_move_r");
-	private final boolean isLeftie;
+	private boolean isLeftie;
 
 	private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 	private UUID ownerUUID;
@@ -31,8 +31,6 @@ public abstract class BaseDollEntity extends PathfinderMob implements GeoEntity 
 		super(pEntityType, pLevel);
 		this.setNoGravity(true);
 		this.noPhysics = true;
-		Random LEFTIE_ROLLER = new Random();
-		this.isLeftie = LEFTIE_ROLLER.nextBoolean();
 	}
 
 	public static AttributeSupplier.Builder createAttributes() {
@@ -54,8 +52,7 @@ public abstract class BaseDollEntity extends PathfinderMob implements GeoEntity 
 	@Nullable
 	public Player getOwnerPlayerObject() {
 		if (this.ownerUUID == null) return null;
-		if (this.level().isClientSide) return null;
-		return this.level().getServer().getPlayerList().getPlayer(this.ownerUUID);
+		return level().getPlayerByUUID(ownerUUID);
 	}
 
 	@Override

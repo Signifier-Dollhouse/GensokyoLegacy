@@ -25,6 +25,8 @@ import dev.xkmc.gensokyolegacy.content.item.umbrella.network.*;
 import dev.xkmc.gensokyolegacy.content.rpg.core.CodecRegistry;
 import dev.xkmc.gensokyolegacy.content.rpg.network.QuestStatusToClient;
 import dev.xkmc.gensokyolegacy.content.rpg.network.TradeStatusToClient;
+import dev.xkmc.gensokyolegacy.init.data.biome.GLBiomes;
+import dev.xkmc.gensokyolegacy.init.data.biome.MagicalForestRegion;
 import dev.xkmc.gensokyolegacy.event.GLAttackListener;
 import dev.xkmc.gensokyolegacy.event.GLClickHandler;
 import dev.xkmc.gensokyolegacy.init.data.*;
@@ -66,6 +68,7 @@ import net.neoforged.neoforge.data.event.GatherDataEvent;
 import net.neoforged.neoforge.fluids.crafting.FluidIngredient;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import terrablender.api.Regions;
 
 import java.util.Arrays;
 
@@ -170,6 +173,8 @@ public class GensokyoLegacy {
 
 			((ItemAccessor) Items.POTION).setCraftingRemainingItem(Items.GLASS_BOTTLE);
 			((ItemAccessor) Items.DRAGON_BREATH).setCraftingRemainingItem(Items.GLASS_BOTTLE);
+
+			Regions.register(new MagicalForestRegion());
 		});
 	}
 
@@ -186,6 +191,7 @@ public class GensokyoLegacy {
 		REGISTRATE.addDataGenerator(ProviderType.ADVANCEMENT, GLAdvGen::genAdv);
 		var init = REGISTRATE.getDataGenInitializer();
 		GLDimensionGen.init(init);
+		GLBiomes.init(init);
 		GLStructureGen.init(init);
 		GLFeatureGen.init(init);
 		new GLDamageTypes(REGISTRATE).generate();
