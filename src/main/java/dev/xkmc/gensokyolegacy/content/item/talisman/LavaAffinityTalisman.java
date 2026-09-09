@@ -1,11 +1,11 @@
 package dev.xkmc.gensokyolegacy.content.item.talisman;
 
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
+import dev.xkmc.gensokyolegacy.init.registrate.GLEffects;
 import dev.xkmc.l2damagetracker.contents.attack.DamageData;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.DamageTypeTags;
-import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.List;
@@ -38,7 +38,7 @@ public class LavaAffinityTalisman extends TalismanPaperItem {
 
 	@Override
 	public void trigger(ItemStack stack, ServerPlayer le) {
-		applyEffect(stack, le, MobEffects.FIRE_RESISTANCE, 1);
+		applyEffect(stack, le, GLEffects.LAVA_AFFINITY, 0);
 	}
 
 	@Override

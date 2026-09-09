@@ -17,6 +17,9 @@
 		"vampire.description": "让玩家加速进入吸血鬼身份",
 		"rumia": "霄暗妖怪化",
 		"rumia.desc": "让玩家加速进入霄暗妖怪身份",
-		"rumia.description": "让玩家加速进入霄暗妖怪身份"
+		"rumia.description": "让玩家加速进入霄暗妖怪身份",
+		"lava_affinity": "熔岩亲和",
+		"lava_affinity.desc": "提升熔岩下视野。提升熔岩中的移动速度。提供火焰免疫。",
+		"lava_affinity.description": "提升熔岩下视野。提升熔岩中的移动速度。提供火焰免疫。"
 	}
 }

@@ -3,6 +3,7 @@ package dev.xkmc.gensokyolegacy.mixin;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
+import dev.xkmc.gensokyolegacy.util.LavaEffectsHelper;
 import dev.xkmc.gensokyolegacy.event.MixinHookHandlers;
 import dev.xkmc.gensokyolegacy.init.registrate.GLEffects;
 import net.minecraft.core.Holder;
@@ -13,6 +14,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -48,6 +50,12 @@ public abstract class LivingEntityMixin {
 	@WrapOperation(method = "dropFromLootTable", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/storage/loot/LootTable;getRandomItems(Lnet/minecraft/world/level/storage/loot/LootParams;JLjava/util/function/Consumer;)V"))
 	public void gensokyoLegacy$dropIncrease(LootTable instance, LootParams params, long seed, Consumer<ItemStack> output, Operation<Void> original, @Local(argsOnly = true) DamageSource source) {
 		MixinHookHandlers.alterDrops(source, seed, output, (s, c) -> original.call(instance, params, s, c));
+	}
+
+	@WrapOperation(method = "travel", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;moveRelative(FLnet/minecraft/world/phys/Vec3;)V", ordinal = 1))
+	public void gensokyolegacy$travel$lavaSwim(LivingEntity instance, float v, Vec3 vec3, Operation<Void> original) {
+		v = LavaEffectsHelper.lavaSwim(instance, v);
+		original.call(instance, v, vec3);
 	}
 
 }

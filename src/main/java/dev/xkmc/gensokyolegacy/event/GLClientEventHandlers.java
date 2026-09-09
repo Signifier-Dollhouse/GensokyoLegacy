@@ -9,18 +9,23 @@ import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.gensokyolegacy.init.registrate.GLEffects;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
+import dev.xkmc.gensokyolegacy.util.LavaEffectsHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.material.FogType;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.client.event.RenderBlockScreenEffectEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
+import net.neoforged.neoforge.client.event.ViewportEvent;
 import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
 import net.neoforged.neoforge.event.level.LevelEvent;
 
@@ -92,6 +97,25 @@ public class GLClientEventHandlers {
 			}
 		}
 		return original;
+	}
+
+	@SubscribeEvent
+	public static void renderFireOverlay(RenderBlockScreenEffectEvent event) {
+		if (event.getOverlayType() == RenderBlockScreenEffectEvent.OverlayType.FIRE) {
+			if (LavaEffectsHelper.noFire(event.getPlayer())) {
+				event.setCanceled(true);
+			}
+		}
+	}
+
+	@SubscribeEvent
+	public static void onFogSetup(ViewportEvent.RenderFog event) {
+		if (event.getType() == FogType.LAVA) {
+			if (event.getCamera().getEntity() instanceof LivingEntity le && LavaEffectsHelper.lavaVision(le)) {
+				event.setFarPlaneDistance(24f);
+				event.setCanceled(true);
+			}
+		}
 	}
 
 }

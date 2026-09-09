@@ -42,6 +42,10 @@ public class GLEffects {
 			StarlightShieldEffect::new,
 			"Grants 1 absorption");
 
+	public static final LegacyHolder<MobEffect> LAVA_AFFINITY = genEffect("lava_affinity",
+			() -> new EmptyEffect(MobEffectCategory.BENEFICIAL, 0xAD7A64),
+			"Improve vision under lava. Increase motion speed under lava. Provide fire immunity.");
+
 	private static <T extends MobEffect> LegacyHolder<MobEffect> genEffect(String name, NonNullSupplier<T> sup, String desc) {
 		return new SimpleEntry<>(GensokyoLegacy.REGISTRATE.effect(name, sup, desc).lang(MobEffect::getDescriptionId).register());
 	}

@@ -5,6 +5,7 @@
 	"compatibilityLevel": "JAVA_21",
 	"mixins": [
 		"FrogAttackablesSensorMixin",
+		"ILivingEntityExtensionMixin",
 		"ItemAccessor",
 		"LivingEntityMixin",
 		"NaturalSpawnerSealingMixin",
@@ -14,7 +15,8 @@
 	],
 	"client": [
 		"AbstractContainerScreenMixin",
-		"GuiGraphicsMixin"
+		"GuiGraphicsMixin",
+		"LocalPlayerMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

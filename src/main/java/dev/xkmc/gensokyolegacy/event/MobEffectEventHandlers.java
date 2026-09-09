@@ -4,17 +4,25 @@ import dev.xkmc.gensokyolegacy.content.entity.characters.maiden.MaidenEntity;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.registrate.GLEffects;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
+import dev.xkmc.gensokyolegacy.util.LavaEffectsHelper;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.entity.EntityInvulnerabilityCheckEvent;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
 @EventBusSubscriber(modid = GensokyoLegacy.MODID)
 public class MobEffectEventHandlers {
 
+	@SubscribeEvent
+	public static void immunityCheck(EntityInvulnerabilityCheckEvent event) {
+		if (LavaEffectsHelper.fireImmune(event.getEntity(), event.getSource())) {
+			event.setInvulnerable(true);
+		}
+	}
 
 	@SubscribeEvent
 	public static void onAttack(LivingIncomingDamageEvent event) {

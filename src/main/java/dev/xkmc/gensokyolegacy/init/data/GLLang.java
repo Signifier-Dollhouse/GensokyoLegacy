@@ -56,7 +56,7 @@ public final class GLLang {
 		HEAL("Recovers %s%% of max health when health is low", 1),
 		SPEED("Grants speed while sprinting"),
 		HYDROPHOBIC("Restores air supply while drowning"),
-		LAVA("Grants fire resistance while on fire or in lava"),
+		LAVA("Grants lava affinity while on fire or in lava: faster swim speed, clear lava vision, fire immunity"),
 		SHELTER("Protects against heavy hits");
 
 		private final String def;
