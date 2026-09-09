@@ -42,6 +42,58 @@ public final class GLLang {
 		}
 	}
 
+	// ========== Talisman ==========
+	public enum Talisman implements LangEntry {
+		BLANK("Blank folded talisman"),
+		DURABILITY("Uses left: %s / %s", 2),
+		EQUIP("Equip in a charm curio slot to activate"),
+		HEAL("Recovers %s%% of max health when health is low", 1),
+		SPEED("Grants speed while sprinting"),
+		HYDROPHOBIC("Restores air supply while drowning"),
+		LAVA("Grants fire resistance while on fire or in lava"),
+		SHELTER("Protects against heavy hits");
+
+		private final String def;
+		private final int argn;
+		private final String key;
+		private final @Nullable ChatFormatting format;
+
+		Talisman(String def) {
+			this(def, 0);
+		}
+
+		Talisman(String def, int argn) {
+			this(def, argn, null);
+		}
+
+		Talisman(String def, int argn, @Nullable ChatFormatting format) {
+			this.def = def;
+			this.argn = argn;
+			this.key = GensokyoLegacy.MODID + ".talisman." + name().toLowerCase(Locale.ROOT);
+			this.format = format;
+		}
+
+		@Override
+		public String key() {
+			return key;
+		}
+
+		@Override
+		public String def() {
+			return def;
+		}
+
+		@Override
+		public int argn() {
+			return argn;
+		}
+
+		@Override
+		public @Nullable ChatFormatting format() {
+			return format;
+		}
+	}
+
 	// ========== Quest ==========
 	public enum Quest implements LangEntry {
 		TAB("Active Quests"),
@@ -591,7 +643,8 @@ public final class GLLang {
 	public static void genLang(RegistrateLangProvider pvd) {
 		for (var group : new LangEntry[][]{
 				Quest.values(), Info.values(), Trade.values(), Misc.values(),
-				ItemDebug.values(), ItemFurnace.values(), ItemCommon.values(), ItemUmbrella.values(), Alchemy.values(), Jei.values()}) {
+				ItemDebug.values(), ItemFurnace.values(), ItemCommon.values(), ItemUmbrella.values(), Alchemy.values(), Jei.values(),
+				Talisman.values()}) {
 			for (var e : group) {
 				pvd.add(e.key(), e.def());
 			}

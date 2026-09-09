@@ -1,12 +1,12 @@
 package dev.xkmc.gensokyolegacy.content.item.talisman;
 
+import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.l2damagetracker.contents.attack.DamageData;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.TooltipFlag;
 
 import java.util.List;
 
@@ -46,8 +46,9 @@ public class LavaAffinityTalisman extends TalismanPaperItem {
 	}
 
 	@Override
-	public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> list, TooltipFlag flag) {
-
+	protected void appendTalismanDesc(ItemStack stack, List<Component> list) {
+		list.add(GLLang.Talisman.LAVA.get());
+		list.add(GLLang.Talisman.EQUIP.get());
 	}
 
 }

@@ -1,11 +1,16 @@
 package dev.xkmc.gensokyolegacy.compat.curios;
 
+import dev.xkmc.gensokyolegacy.content.item.talisman.TalismanCurioItem;
 import dev.xkmc.gensokyolegacy.init.data.GLTagGen;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.neoforged.fml.ModList;
 import top.theillusivec4.curios.api.CuriosApi;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class CuriosManager {
 
@@ -30,6 +35,23 @@ public class CuriosManager {
 					.isPresent();
 		}
 		return false;
+	}
+
+	public static List<ItemStack> getEquippedTalismans(LivingEntity le) {
+		List<ItemStack> ans = new ArrayList<>();
+		if (ModList.get().isLoaded("curios")) {
+			CuriosApi.getCuriosInventory(le).ifPresent(inv ->
+					inv.getStacksHandler("charm").ifPresent(handler -> {
+						var stacks = handler.getStacks();
+						for (int i = 0; i < stacks.getSlots(); i++) {
+							ItemStack curio = stacks.getStackInSlot(i);
+							if (curio.getItem() instanceof TalismanCurioItem t) {
+								ans.addAll(t.getActiveTalismans(curio));
+							}
+						}
+					}));
+		}
+		return ans;
 	}
 
 }

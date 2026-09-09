@@ -2,11 +2,15 @@ package dev.xkmc.gensokyolegacy.content.item.talisman;
 
 import dev.xkmc.l2damagetracker.contents.attack.DamageData;
 import net.minecraft.core.Holder;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+
+import java.util.List;
 
 public abstract class TalismanPaperItem extends Item {
 
@@ -46,6 +50,15 @@ public abstract class TalismanPaperItem extends Item {
 	}
 
 	public void onDamaged(ItemStack stack, ServerPlayer sp, DamageData.Defence event) {
+
+	}
+
+	@Override
+	public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> list, TooltipFlag flag) {
+		appendTalismanDesc(stack, list);
+	}
+
+	protected void appendTalismanDesc(ItemStack stack, List<Component> list) {
 
 	}
 

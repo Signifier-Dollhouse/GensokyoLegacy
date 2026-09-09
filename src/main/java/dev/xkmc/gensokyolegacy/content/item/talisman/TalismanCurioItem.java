@@ -14,7 +14,7 @@ public abstract class TalismanCurioItem extends Item implements ICurioItem {
 		super(p);
 	}
 
-	protected abstract List<ItemStack> getActiveTalismans(ItemStack stack);
+	public abstract List<ItemStack> getActiveTalismans(ItemStack stack);
 
 	@Override
 	public void curioTick(SlotContext slotContext, ItemStack stack) {

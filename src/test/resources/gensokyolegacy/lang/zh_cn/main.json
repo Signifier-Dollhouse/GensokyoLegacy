@@ -74,6 +74,16 @@
 				"magic": "魔法"
 			}
 		},
+		"talisman": {
+			"blank": "空白的折叠护符",
+			"durability": "剩余使用次数: %s / %s",
+			"equip": "装备到护身符槽位以激活",
+			"heal": "生命值过低时恢复%s%%的最大生命值",
+			"speed": "疾跑时提供速度效果",
+			"hydrophobic": "溺水时恢复氧气值",
+			"lava": "着火或在熔岩中时提供抗火效果",
+			"shelter": "抵挡强力攻击"
+		},
 		"msg": {
 			"reset": "角色已重置",
 			"koishi_reimu": "灵梦：谁在那？",

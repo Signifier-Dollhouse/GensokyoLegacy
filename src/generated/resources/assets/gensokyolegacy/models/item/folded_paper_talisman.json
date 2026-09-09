@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "gensokyolegacy:item/talisman/folded_paper_talisman",
+    "layer1": "gensokyolegacy:item/talisman/folded_paper_talisman_overlay"
+  }
+}

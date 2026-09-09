@@ -1,4 +1,4 @@
-package dev.xkmc.gensokyolegacy.content.item.talisman.data;
+package dev.xkmc.gensokyolegacy.content.item.talisman;
 
 import net.minecraft.world.item.Item;
 

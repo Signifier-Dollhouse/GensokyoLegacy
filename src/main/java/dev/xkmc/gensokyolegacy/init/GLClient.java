@@ -12,6 +12,7 @@ import dev.xkmc.gensokyolegacy.content.entity.characters.fairy.CirnoModel;
 import dev.xkmc.gensokyolegacy.content.entity.characters.maiden.ReimuModel;
 import dev.xkmc.gensokyolegacy.content.entity.characters.rumia.BlackBallModel;
 import dev.xkmc.gensokyolegacy.content.entity.characters.rumia.RumiaModel;
+import dev.xkmc.gensokyolegacy.content.item.talisman.FoldedPaperTalisman;
 import dev.xkmc.gensokyolegacy.content.item.talisman.GLTalismans;
 import dev.xkmc.gensokyolegacy.content.item.talisman.TalismanPaperItem;
 import dev.xkmc.gensokyolegacy.content.item.umbrella.BorderUmbrellaItem;
@@ -72,6 +73,11 @@ public class GLClient {
 				event.getItemColors().register((stack, tintIndex) -> paper.getColor(), item);
 			}
 		}
+		Item folded = GLTalismans.FOLDED_PAPER_TALISMAN.get();
+		event.getItemColors().register((stack, tintIndex) -> {
+			var paper = FoldedPaperTalisman.paper(stack);
+			return paper == null ? 0xFFFFFF : paper.getColor();
+		}, folded);
 	}
 
 	@SubscribeEvent

@@ -1,10 +1,14 @@
 package dev.xkmc.gensokyolegacy.content.item.talisman;
 
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
+import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.l2damagetracker.contents.attack.DamageData;
 import dev.xkmc.l2damagetracker.contents.attack.DamageModifier;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
+
+import java.util.List;
 
 public class ShelterTalisman extends TalismanPaperItem {
 
@@ -33,6 +37,12 @@ public class ShelterTalisman extends TalismanPaperItem {
 			}
 			return f;
 		}, GensokyoLegacy.loc("shelter_talisman")));
+	}
+
+	@Override
+	protected void appendTalismanDesc(ItemStack stack, List<Component> list) {
+		list.add(GLLang.Talisman.SHELTER.get());
+		list.add(GLLang.Talisman.EQUIP.get());
 	}
 
 }

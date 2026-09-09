@@ -1,9 +1,9 @@
 package dev.xkmc.gensokyolegacy.content.item.talisman;
 
+import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.TooltipFlag;
 
 import java.util.List;
 
@@ -35,8 +35,9 @@ public class HydrophobicTalisman extends TalismanPaperItem {
 	}
 
 	@Override
-	public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> list, TooltipFlag flag) {
-
+	protected void appendTalismanDesc(ItemStack stack, List<Component> list) {
+		list.add(GLLang.Talisman.HYDROPHOBIC.get());
+		list.add(GLLang.Talisman.EQUIP.get());
 	}
 
 }
