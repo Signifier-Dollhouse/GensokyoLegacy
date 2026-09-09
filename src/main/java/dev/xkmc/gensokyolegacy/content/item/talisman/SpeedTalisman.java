@@ -11,7 +11,7 @@ import java.util.List;
 public class SpeedTalisman extends BasePaperTalisman {
 
 	public SpeedTalisman(Properties p) {
-		super(p);
+		super(p, 180);
 	}
 
 	@Override

@@ -13,7 +13,7 @@ import java.util.List;
 public class LavaAffinityTalisman extends BasePaperTalisman {
 
 	public LavaAffinityTalisman(Properties p) {
-		super(p);
+		super(p, 180);
 	}
 
 

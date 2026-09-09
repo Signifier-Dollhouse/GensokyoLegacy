@@ -1,0 +1,4 @@
+- Fix community textures by extending the center line
+- Natural blocks bonemeal
+- regroup custom block models into same structure as respective block registration (utensil, deco, furniture, natural)
+- large chair shape fix

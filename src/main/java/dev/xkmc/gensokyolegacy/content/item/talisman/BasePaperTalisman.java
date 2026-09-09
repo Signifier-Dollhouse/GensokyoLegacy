@@ -10,8 +10,11 @@ import net.minecraft.world.item.ItemStack;
 
 public class BasePaperTalisman extends Item {
 
-	public BasePaperTalisman(Properties p) {
+	protected final int durability;
+
+	public BasePaperTalisman(Properties p, int durability) {
 		super(p);
+		this.durability = durability;
 	}
 
 	public final void tickTalisman(ItemStack stack, ServerPlayer player) {

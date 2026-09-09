@@ -9,7 +9,7 @@ import net.minecraft.world.item.ItemStack;
 public class ShelterTalisman extends BasePaperTalisman {
 
 	public ShelterTalisman(Properties p) {
-		super(p);
+		super(p, 16);
 	}
 
 	@Override

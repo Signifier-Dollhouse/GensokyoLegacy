@@ -10,7 +10,7 @@ import java.util.List;
 public class HealTalisman extends BasePaperTalisman {
 
 	public HealTalisman(Properties p) {
-		super(p.stacksTo(16));
+		super(p, 16);
 	}
 
 	@Override

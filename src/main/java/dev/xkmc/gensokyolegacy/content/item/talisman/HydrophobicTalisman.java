@@ -10,7 +10,7 @@ import java.util.List;
 public class HydrophobicTalisman extends BasePaperTalisman {
 
 	public HydrophobicTalisman(Properties p) {
-		super(p.durability(180));
+		super(p, 180);
 	}
 
 	@Override
