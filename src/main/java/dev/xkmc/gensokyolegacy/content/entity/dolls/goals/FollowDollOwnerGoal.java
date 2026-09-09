@@ -6,6 +6,8 @@ import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 
+import java.util.Set;
+
 public class FollowDollOwnerGoal extends Goal {
 	private final BaseDollEntity doll;
 	private final double speedModifier;
@@ -36,7 +38,7 @@ public class FollowDollOwnerGoal extends Goal {
 		if (!this.doll.level().dimension().equals(this.owner.level().dimension())) {
 			ServerLevel targetLevel = this.doll.level().getServer().getLevel(this.owner.level().dimension());
 			if (targetLevel != null) {
-				this.doll.teleportTo(targetLevel, targetPos.x, targetPos.y, targetPos.z, java.util.Set.of(), this.doll.getYRot(), this.doll.getXRot());
+				this.doll.teleportTo(targetLevel, targetPos.x, targetPos.y, targetPos.z, Set.of(), this.doll.getYRot(), this.doll.getXRot());
 			}
 			return;
 		}
