@@ -1,7 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.item.talisman;
 
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
-import net.minecraft.ChatFormatting;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
@@ -41,13 +40,19 @@ public class FoldedPaperTalisman extends TalismanCurioItem {
 	}
 
 	@Override
+	public Component getName(ItemStack stack) {
+		TalismanPaperItem paper = paper(stack);
+		if (paper == null) return super.getName(stack);
+		return GLLang.Talisman.FOLDED.get(paper.kindName().get());
+	}
+
+	@Override
 	public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> list, TooltipFlag flag) {
 		TalismanPaperItem paper = paper(stack);
 		if (paper == null) {
 			list.add(GLLang.Talisman.BLANK.get());
 			return;
 		}
-		list.add(paper.getName(stack).copy().withStyle(ChatFormatting.GOLD));
 		paper.appendTalismanDesc(stack, list);
 		list.add(GLLang.Talisman.DURABILITY.get(
 				GLTalismans.DC_TALISMAN_DURABILITY.getOrDefault(stack, paper.getDurability()),

@@ -76,6 +76,12 @@
 		},
 		"talisman": {
 			"blank": "空白的折叠护符",
+			"folded": "%s护身符",
+			"kind_heal": "治愈",
+			"kind_speed": "疾速",
+			"kind_hydrophobic": "避水",
+			"kind_lava": "熔岩",
+			"kind_shelter": "守护",
 			"durability": "剩余使用次数: %s / %s",
 			"equip": "装备到护身符槽位以激活",
 			"heal": "生命值过低时恢复%s%%的最大生命值",

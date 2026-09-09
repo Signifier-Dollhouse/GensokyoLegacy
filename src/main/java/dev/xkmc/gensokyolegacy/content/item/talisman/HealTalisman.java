@@ -24,6 +24,11 @@ public class HealTalisman extends TalismanPaperItem {
 	}
 
 	@Override
+	public GLLang.LangEntry kindName() {
+		return GLLang.Talisman.KIND_HEAL;
+	}
+
+	@Override
 	public boolean test(ServerPlayer le) {
 		return le.getHealth() < le.getMaxHealth() && le.isAlive();
 	}

@@ -25,6 +25,11 @@ public class SpeedTalisman extends TalismanPaperItem {
 	}
 
 	@Override
+	public GLLang.LangEntry kindName() {
+		return GLLang.Talisman.KIND_SPEED;
+	}
+
+	@Override
 	public boolean test(ServerPlayer le) {
 		return le.isSprinting();
 	}

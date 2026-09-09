@@ -24,6 +24,11 @@ public class HydrophobicTalisman extends TalismanPaperItem {
 	}
 
 	@Override
+	public GLLang.LangEntry kindName() {
+		return GLLang.Talisman.KIND_HYDROPHOBIC;
+	}
+
+	@Override
 	public boolean test(ServerPlayer le) {
 		return le.getAirSupply() < le.getMaxAirSupply() * 0.7f;
 	}

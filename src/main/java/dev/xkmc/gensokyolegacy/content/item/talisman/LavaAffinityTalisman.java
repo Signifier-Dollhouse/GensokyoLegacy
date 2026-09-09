@@ -27,6 +27,11 @@ public class LavaAffinityTalisman extends TalismanPaperItem {
 	}
 
 	@Override
+	public GLLang.LangEntry kindName() {
+		return GLLang.Talisman.KIND_LAVA;
+	}
+
+	@Override
 	public boolean test(ServerPlayer le) {
 		return le.isOnFire() || le.isInLava();
 	}

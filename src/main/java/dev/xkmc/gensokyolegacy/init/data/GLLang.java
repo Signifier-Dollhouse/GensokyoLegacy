@@ -45,6 +45,12 @@ public final class GLLang {
 	// ========== Talisman ==========
 	public enum Talisman implements LangEntry {
 		BLANK("Blank folded talisman"),
+		FOLDED("Folded Paper Talisman: %s", 1),
+		KIND_HEAL("Healing"),
+		KIND_SPEED("Speed Boost"),
+		KIND_HYDROPHOBIC("Hydrophobic"),
+		KIND_LAVA("Lava Affinity"),
+		KIND_SHELTER("Shelter"),
 		DURABILITY("Uses left: %s / %s", 2),
 		EQUIP("Equip in a charm curio slot to activate"),
 		HEAL("Recovers %s%% of max health when health is low", 1),

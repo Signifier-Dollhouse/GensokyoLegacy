@@ -47,7 +47,8 @@ Exactly one registered item represents any kind. Kind + durability are data comp
   - `static TalismanPaperItem paper(ItemStack folded)` — resolve the represented kind, or null.
   - `getActiveTalismans(stack)` — singleton `[stack]`, ticked by `curioTick` via `paper(stack).tickTalisman(stack, sp)`.
   - There is no separate `hurtTalisman`: the active form is the folded stack itself, so the paper base `hurtItem` runs on it and decrements `DC_TALISMAN_DURABILITY`, shrinking the whole curio stack at 0.
-  - `appendHoverText()` — kind name (GOLD, reused paper name), effect description (paper's `appendTalismanDesc`), `uses/total` (`Talisman.DURABILITY`). Blank stack (no kind) shows `Talisman.BLANK`.
+  - `getName(stack)` — composes the display name at runtime: `FOLDED` template (`Folded Paper Talisman: %s` / zh `%s护身符`) with the kind word from `paper.kindName()` (a `GLLang.Talisman.KIND_*` entry). Each kind word: Healing / Speed Boost / Hydrophobic / Lava Affinity / Shelter (zh 治愈/疾速/避水/熔岩/守护). Blank stack falls back to the base item name.
+  - `appendHoverText()` — effect description (paper's `appendTalismanDesc`), `uses/total` (`Talisman.DURABILITY`). Blank stack (no kind) shows `Talisman.BLANK`. The item-name line is no longer needed in the tooltip since `getName` already embeds the kind.
   - Item tint: the layered model's `layer1` overlay is tinted dynamically by `paper(stack).getColor()` (registered in `GLClient`); falls back to white for a blank folded stack.
 - Unstackable + data-component durability is exactly why the folded form exists: Minecraft forbids durability on stackable items. `hurtItem` in the paper base must be reworked to decrement the component instead of vanilla damage, since the folded item has no vanilla durability.
 
@@ -127,7 +128,7 @@ Follow the modular build order; each phase compiles + datagen independently.
 2. Statics: `fold(ItemStack paper)` sets `DC_TALISMAN_PAPER` + `DC_TALISMAN_DURABILITY = paper().getDurability()`; `paper(stack)` helper resolving to `TalismanPaperItem`.
 3. `getActiveTalismans` = `[stack]` (self), ticked via `curioTick` → `paper(stack).tickTalisman(stack, sp)`.
 4. Damage/uses: no separate method — the paper base `hurtItem` runs on the folded stack itself (decrement `DC_TALISMAN_DURABILITY`, shrink at 0).
-5. `appendHoverText`: kind name, effect line (paper's `appendTalismanDesc`), `uses/total`.
+5. `getName(stack)`: kind-composed display name (`GLLang.Talisman.FOLDED` + `kindName()`); `appendHoverText`: effect line (paper's `appendTalismanDesc`), `uses/total`.
 6. Register `FOLDED_PAPER_TALISMAN` in `GLTalismans`, `stacksTo(1)`, tag `curios:charm`; layered model + dynamic tint in `GLClient`.
 
 ## Phase 5: Talisman pocket (deferred — skipped this pass)

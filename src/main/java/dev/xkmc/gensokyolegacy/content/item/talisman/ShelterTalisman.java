@@ -27,6 +27,11 @@ public class ShelterTalisman extends TalismanPaperItem {
 	}
 
 	@Override
+	public GLLang.LangEntry kindName() {
+		return GLLang.Talisman.KIND_SHELTER;
+	}
+
+	@Override
 	public void onDamaged(ItemStack stack, ServerPlayer sp, DamageData.Defence event) {
 		if (sp.getCooldowns().isOnCooldown(this)) return;
 		event.addDealtModifier(DamageModifier.nonlinearFinal(614, f -> {

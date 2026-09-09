@@ -37,27 +37,27 @@ public class GLTalismans {
 		HEAL_TALISMAN = reg.item("heal_talisman", HealTalisman::new)
 				.model((ctx, pvd) -> genLayeredItemModel(ctx.getName(), pvd, "life_talisman_paper"))
 				.tab(GLItems.TAB.key())
-				.lang("Heal Talisman").register();
+				.lang("Healing Talisman Paper").register();
 
 		SPEED_TALISMAN = reg.item("speed_talisman", SpeedTalisman::new)
 				.model((ctx, pvd) -> genLayeredItemModel(ctx.getName(), pvd, "speed_talisman_paper"))
 				.tab(GLItems.TAB.key())
-				.lang("Speed Talisman").register();
+				.lang("Speed Boost Talisman Paper").register();
 
 		HYDROPHOBIC_TALISMAN = reg.item("hydrophobic_talisman", HydrophobicTalisman::new)
 				.model((ctx, pvd) -> genLayeredItemModel(ctx.getName(), pvd, "attack_talisman_paper"))
 				.tab(GLItems.TAB.key())
-				.lang("Hydrophobic Talisman").register();
+				.lang("Hydrophobic Talisman Paper").register();
 
 		LAVA_TALISMAN = reg.item("lava_talisman", LavaAffinityTalisman::new)
 				.model((ctx, pvd) -> genLayeredItemModel(ctx.getName(), pvd, "attack_talisman_paper"))
 				.tab(GLItems.TAB.key())
-				.lang("Lava Affinity Talisman").register();
+				.lang("Lava Affinity Talisman Paper").register();
 
 		SHELTER_TALISMAN = reg.item("shelter_talisman", ShelterTalisman::new)
 				.model((ctx, pvd) -> genLayeredItemModel(ctx.getName(), pvd, "life_talisman_paper"))
 				.tab(GLItems.TAB.key())
-				.lang("Mystic Shelter Talisman").register();
+				.lang("Shelter Talisman Paper").register();
 
 		FOLDED_PAPER_TALISMAN = reg.item("folded_paper_talisman", FoldedPaperTalisman::new)
 				.model((ctx, pvd) -> genLayeredItemModel(ctx.getName(), pvd, "folded_paper_talisman"))

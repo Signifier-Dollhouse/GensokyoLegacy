@@ -1,5 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.item.talisman;
 
+import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.l2damagetracker.contents.attack.DamageData;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
@@ -28,6 +29,8 @@ public abstract class TalismanPaperItem extends Item {
 	public abstract int getColor();
 
 	public abstract String getTexture();
+
+	public abstract GLLang.LangEntry kindName();
 
 	public final void tickTalisman(ItemStack stack, ServerPlayer player) {
 		if (player.getCooldowns().isOnCooldown(this))
