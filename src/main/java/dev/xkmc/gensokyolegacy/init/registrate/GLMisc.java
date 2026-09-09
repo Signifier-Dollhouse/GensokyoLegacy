@@ -6,6 +6,8 @@ import dev.xkmc.gensokyolegacy.content.ui.dialog.FirstDialogScreen;
 import dev.xkmc.gensokyolegacy.content.ui.dialog.SimpleDialogMenu;
 import dev.xkmc.gensokyolegacy.content.ui.dialog.SimpleDialogScreen;
 import dev.xkmc.gensokyolegacy.content.ui.quest.QuestTab;
+import dev.xkmc.gensokyolegacy.content.ui.talisman.TalismanPocketMenu;
+import dev.xkmc.gensokyolegacy.content.ui.talisman.TalismanPocketScreen;
 import dev.xkmc.gensokyolegacy.content.ui.trade.TradeMenu;
 import dev.xkmc.gensokyolegacy.content.ui.trade.TradeScreen;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
@@ -31,6 +33,9 @@ public class GLMisc {
 
 	public static final MenuEntry<TradeMenu> TRADE = GensokyoLegacy.REGISTRATE.menu("trade",
 			TradeMenu::fromNetwork, () -> TradeScreen::new).register();
+
+	public static final MenuEntry<TalismanPocketMenu> TALISMAN_POCKET = GensokyoLegacy.REGISTRATE.menu("talisman_pocket",
+			TalismanPocketMenu::fromNetwork, () -> TalismanPocketScreen::new).register();
 
 
 	public static final ResourceLocation DUMMY = L2Tabs.loc(GensokyoLegacy.MODID);

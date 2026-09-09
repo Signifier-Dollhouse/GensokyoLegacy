@@ -77,6 +77,8 @@ public class GLClient {
 			var paper = FoldedPaperTalisman.paper(stack);
 			return paper == null ? 0xFFFFFF : paper.getColor();
 		}, folded);
+		Item pocket = GLTalismans.TALISMAN_POCKET.get();
+		event.getItemColors().register((stack, tintIndex) -> 0xFFFFFF, pocket);
 	}
 
 	@SubscribeEvent

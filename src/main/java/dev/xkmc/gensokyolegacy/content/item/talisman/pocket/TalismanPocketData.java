@@ -7,7 +7,7 @@ public record TalismanPocketData(TalismanSlot[] slots) {
 	public static final int MAX_SLOTS = 9;
 
 	public TalismanPocketData {
-		if (slots == null || slots.length == 0) {
+		if (slots.length == 0) {
 			slots = defaultSlots();
 		} else if (slots.length != MAX_SLOTS) {
 			var normalized = new TalismanSlot[MAX_SLOTS];

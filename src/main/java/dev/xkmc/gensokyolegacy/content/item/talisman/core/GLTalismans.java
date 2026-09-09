@@ -3,6 +3,7 @@ package dev.xkmc.gensokyolegacy.content.item.talisman.core;
 import com.tterrag.registrate.providers.RegistrateItemModelProvider;
 import com.tterrag.registrate.util.entry.ItemEntry;
 import dev.xkmc.gensokyolegacy.content.item.talisman.kinds.*;
+import dev.xkmc.gensokyolegacy.content.item.talisman.pocket.TalismanPocket;
 import dev.xkmc.gensokyolegacy.content.item.talisman.pocket.TalismanPocketData;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
@@ -26,6 +27,7 @@ public class GLTalismans {
 	public static final ItemEntry<LavaAffinityTalisman> LAVA_TALISMAN;
 	public static final ItemEntry<ShelterTalisman> SHELTER_TALISMAN;
 	public static final ItemEntry<FoldedPaperTalisman> FOLDED_PAPER_TALISMAN;
+	public static final ItemEntry<TalismanPocket> TALISMAN_POCKET;
 
 	private static final DCReg DC = DCReg.of(GensokyoLegacy.REG);
 
@@ -67,6 +69,13 @@ public class GLTalismans {
 				.properties(p -> p.stacksTo(1))
 				.tab(GLItems.TAB.key())
 				.lang("Folded Paper Talisman").register();
+
+		TALISMAN_POCKET = reg.item("talisman_pocket", TalismanPocket::new)
+				.model((ctx, pvd) -> genLayeredItemModel(ctx.getName(), pvd, "talisman_pocket"))
+				.tag(ItemTags.create(ResourceLocation.fromNamespaceAndPath("curios", "charm")))
+				.properties(p -> p.stacksTo(1))
+				.tab(GLItems.TAB.key())
+				.lang("Talisman Pocket").register();
 	}
 
 	private static void genLayeredItemModel(String name, RegistrateItemModelProvider pvd, String tex) {

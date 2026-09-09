@@ -57,7 +57,9 @@ public final class GLLang {
 		SPEED("Grants speed while sprinting"),
 		HYDROPHOBIC("Restores air supply while drowning"),
 		LAVA("Grants lava affinity while on fire or in lava: faster swim speed, clear lava vision, fire immunity"),
-		SHELTER("Protects against heavy hits");
+		SHELTER("Protects against heavy hits"),
+		POCKET("Talisman Pocket"),
+		POCKET_DESC("Right click the item to open its talisman magazine.", 0, ChatFormatting.GRAY);
 
 		private final String def;
 		private final int argn;
