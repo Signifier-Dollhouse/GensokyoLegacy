@@ -8,10 +8,20 @@ import net.minecraft.world.item.TooltipFlag;
 
 import java.util.List;
 
-public class SpeedTalisman extends BasePaperTalisman {
+public class SpeedTalisman extends TalismanPaperItem {
 
 	public SpeedTalisman(Properties p) {
 		super(p, 180);
+	}
+
+	@Override
+	public int getColor() {
+		return 0x55FF7F;
+	}
+
+	@Override
+	public String getTexture() {
+		return "speed";
 	}
 
 	@Override

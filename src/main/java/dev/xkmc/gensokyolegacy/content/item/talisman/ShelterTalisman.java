@@ -6,10 +6,20 @@ import dev.xkmc.l2damagetracker.contents.attack.DamageModifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 
-public class ShelterTalisman extends BasePaperTalisman {
+public class ShelterTalisman extends TalismanPaperItem {
 
 	public ShelterTalisman(Properties p) {
 		super(p, 16);
+	}
+
+	@Override
+	public int getColor() {
+		return 0xFFFFD5;
+	}
+
+	@Override
+	public String getTexture() {
+		return "life";
 	}
 
 	@Override

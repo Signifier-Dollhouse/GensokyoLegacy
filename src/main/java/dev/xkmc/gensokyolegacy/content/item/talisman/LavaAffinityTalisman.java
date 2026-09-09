@@ -10,12 +10,21 @@ import net.minecraft.world.item.TooltipFlag;
 
 import java.util.List;
 
-public class LavaAffinityTalisman extends BasePaperTalisman {
+public class LavaAffinityTalisman extends TalismanPaperItem {
 
 	public LavaAffinityTalisman(Properties p) {
 		super(p, 180);
 	}
 
+	@Override
+	public int getColor() {
+		return 0xFFB37F;
+	}
+
+	@Override
+	public String getTexture() {
+		return "attack";
+	}
 
 	@Override
 	public boolean test(ServerPlayer le) {

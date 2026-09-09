@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "gensokyolegacy:item/talisman/attack_talisman_paper",
+    "layer1": "gensokyolegacy:item/talisman/attack_talisman_paper_overlay"
+  }
+}

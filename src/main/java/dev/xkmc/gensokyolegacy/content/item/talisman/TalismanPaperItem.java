@@ -8,14 +8,22 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
-public class BasePaperTalisman extends Item {
+public abstract class TalismanPaperItem extends Item {
 
 	protected final int durability;
 
-	public BasePaperTalisman(Properties p, int durability) {
+	public TalismanPaperItem(Properties p, int durability) {
 		super(p);
 		this.durability = durability;
 	}
+
+	public int getDurability() {
+		return durability;
+	}
+
+	public abstract int getColor();
+
+	public abstract String getTexture();
 
 	public final void tickTalisman(ItemStack stack, ServerPlayer player) {
 		if (player.getCooldowns().isOnCooldown(this))
@@ -50,7 +58,14 @@ public class BasePaperTalisman extends Item {
 	}
 
 	protected void hurtItem(ItemStack stack) {
-		if (stack.isDamageableItem()) {
+		Integer left = GLTalismans.DC_TALISMAN_DURABILITY.get(stack);
+		if (left != null) {
+			if (left <= 1) {
+				stack.shrink(1);
+			} else {
+				GLTalismans.DC_TALISMAN_DURABILITY.set(stack, left - 1);
+			}
+		} else if (stack.isDamageableItem()) {
 			stack.setDamageValue(stack.getDamageValue() + 1);
 			if (stack.getDamageValue() >= stack.getMaxDamage()) {
 				stack.shrink(1);

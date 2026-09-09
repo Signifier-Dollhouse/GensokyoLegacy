@@ -7,10 +7,20 @@ import net.minecraft.world.item.TooltipFlag;
 
 import java.util.List;
 
-public class HealTalisman extends BasePaperTalisman {
+public class HealTalisman extends TalismanPaperItem {
 
 	public HealTalisman(Properties p) {
 		super(p, 16);
+	}
+
+	@Override
+	public int getColor() {
+		return 0xFF5050;
+	}
+
+	@Override
+	public String getTexture() {
+		return "life";
 	}
 
 	@Override

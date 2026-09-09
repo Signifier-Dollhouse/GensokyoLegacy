@@ -12,6 +12,8 @@ import dev.xkmc.gensokyolegacy.content.entity.characters.fairy.CirnoModel;
 import dev.xkmc.gensokyolegacy.content.entity.characters.maiden.ReimuModel;
 import dev.xkmc.gensokyolegacy.content.entity.characters.rumia.BlackBallModel;
 import dev.xkmc.gensokyolegacy.content.entity.characters.rumia.RumiaModel;
+import dev.xkmc.gensokyolegacy.content.item.talisman.GLTalismans;
+import dev.xkmc.gensokyolegacy.content.item.talisman.TalismanPaperItem;
 import dev.xkmc.gensokyolegacy.content.item.umbrella.BorderUmbrellaItem;
 import dev.xkmc.gensokyolegacy.content.ui.quest.QuestOverlay;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
@@ -26,6 +28,7 @@ import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModList;
@@ -34,6 +37,8 @@ import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.*;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 import net.neoforged.neoforge.common.NeoForge;
+
+import java.util.function.Supplier;
 
 @EventBusSubscriber(value = Dist.CLIENT, modid = GensokyoLegacy.MODID)
 public class GLClient {
@@ -57,6 +62,16 @@ public class GLClient {
 		event.registerAbove(VanillaGuiLayers.CROSSHAIR, GensokyoLegacy.loc("debug"), new DebugOverlay());
 		event.registerAbove(VanillaGuiLayers.CROSSHAIR, GensokyoLegacy.loc("quest"), new QuestOverlay());
 		event.registerAbove(VanillaGuiLayers.CROSSHAIR, GensokyoLegacy.loc("alchemy_hint"), new AlchemyHintOverlay());
+	}
+
+	@SubscribeEvent
+	public static void registerItemColors(RegisterColorHandlersEvent.Item event) {
+		for (Supplier<? extends Item> entry : GLTalismans.TALISMAN_PAPERS) {
+			Item item = entry.get();
+			if (item instanceof TalismanPaperItem paper) {
+				event.getItemColors().register((stack, tintIndex) -> paper.getColor(), item);
+			}
+		}
 	}
 
 	@SubscribeEvent
