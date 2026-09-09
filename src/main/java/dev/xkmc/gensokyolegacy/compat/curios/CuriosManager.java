@@ -1,6 +1,6 @@
 package dev.xkmc.gensokyolegacy.compat.curios;
 
-import dev.xkmc.gensokyolegacy.content.item.talisman.TalismanCurioItem;
+import dev.xkmc.gensokyolegacy.content.item.talisman.core.TalismanCurioItem;
 import dev.xkmc.gensokyolegacy.init.data.GLTagGen;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;

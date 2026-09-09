@@ -5,7 +5,7 @@ import dev.xkmc.gensokyolegacy.compat.curios.CuriosManager;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.item.character.TouhouHatItem;
 import dev.xkmc.gensokyolegacy.content.item.hexbrew.SparklingEventHandler;
-import dev.xkmc.gensokyolegacy.content.item.talisman.TalismanPaperItem;
+import dev.xkmc.gensokyolegacy.content.item.talisman.core.TalismanPaperItem;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.GLModConfig;
 import dev.xkmc.l2damagetracker.contents.attack.AttackListener;

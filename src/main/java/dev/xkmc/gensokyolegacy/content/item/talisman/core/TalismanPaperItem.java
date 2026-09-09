@@ -1,4 +1,4 @@
-package dev.xkmc.gensokyolegacy.content.item.talisman;
+package dev.xkmc.gensokyolegacy.content.item.talisman.core;
 
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.l2damagetracker.contents.attack.DamageData;

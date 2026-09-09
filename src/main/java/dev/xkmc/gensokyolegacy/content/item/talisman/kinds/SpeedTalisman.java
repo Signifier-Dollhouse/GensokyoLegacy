@@ -1,47 +1,48 @@
-package dev.xkmc.gensokyolegacy.content.item.talisman;
+package dev.xkmc.gensokyolegacy.content.item.talisman.kinds;
 
+import dev.xkmc.gensokyolegacy.content.item.talisman.core.TalismanPaperItem;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.List;
 
-public class HydrophobicTalisman extends TalismanPaperItem {
+public class SpeedTalisman extends TalismanPaperItem {
 
-	public HydrophobicTalisman(Properties p) {
+	public SpeedTalisman(Properties p) {
 		super(p, 180);
 	}
 
 	@Override
 	public int getColor() {
-		return 0x5555FF;
+		return 0x55FF7F;
 	}
 
 	@Override
 	public String getTexture() {
-		return "attack";
+		return "speed";
 	}
 
 	@Override
 	public GLLang.LangEntry kindName() {
-		return GLLang.Talisman.KIND_HYDROPHOBIC;
+		return GLLang.Talisman.KIND_SPEED;
 	}
 
 	@Override
 	public boolean test(ServerPlayer le) {
-		return le.getAirSupply() < le.getMaxAirSupply() * 0.7f;
+		return le.isSprinting();
 	}
 
 	@Override
 	public void trigger(ItemStack stack, ServerPlayer le) {
-		le.setAirSupply(le.getAirSupply() + 1);
-		hurtItem(stack);
+		applyEffect(stack, le, MobEffects.MOVEMENT_SPEED, 1);
 	}
 
 	@Override
 	protected void appendTalismanDesc(ItemStack stack, List<Component> list) {
-		list.add(GLLang.Talisman.HYDROPHOBIC.get());
+		list.add(GLLang.Talisman.SPEED.get());
 		list.add(GLLang.Talisman.EQUIP.get());
 	}
 

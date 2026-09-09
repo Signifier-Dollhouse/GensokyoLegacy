@@ -1,7 +1,9 @@
-package dev.xkmc.gensokyolegacy.content.item.talisman;
+package dev.xkmc.gensokyolegacy.content.item.talisman.core;
 
 import com.tterrag.registrate.providers.RegistrateItemModelProvider;
 import com.tterrag.registrate.util.entry.ItemEntry;
+import dev.xkmc.gensokyolegacy.content.item.talisman.kinds.*;
+import dev.xkmc.gensokyolegacy.content.item.talisman.pocket.TalismanPocketData;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.l2core.init.reg.simple.DCReg;

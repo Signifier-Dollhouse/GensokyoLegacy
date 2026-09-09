@@ -9,12 +9,11 @@ import dev.xkmc.gensokyolegacy.content.block.functional.alchemypot.overlay.TileT
 import dev.xkmc.gensokyolegacy.content.client.debug.DebugOverlay;
 import dev.xkmc.gensokyolegacy.content.client.model.*;
 import dev.xkmc.gensokyolegacy.content.entity.characters.fairy.CirnoModel;
-import dev.xkmc.gensokyolegacy.content.entity.characters.maiden.ReimuModel;
 import dev.xkmc.gensokyolegacy.content.entity.characters.rumia.BlackBallModel;
 import dev.xkmc.gensokyolegacy.content.entity.characters.rumia.RumiaModel;
-import dev.xkmc.gensokyolegacy.content.item.talisman.FoldedPaperTalisman;
-import dev.xkmc.gensokyolegacy.content.item.talisman.GLTalismans;
-import dev.xkmc.gensokyolegacy.content.item.talisman.TalismanPaperItem;
+import dev.xkmc.gensokyolegacy.content.item.talisman.core.FoldedPaperTalisman;
+import dev.xkmc.gensokyolegacy.content.item.talisman.core.GLTalismans;
+import dev.xkmc.gensokyolegacy.content.item.talisman.core.TalismanPaperItem;
 import dev.xkmc.gensokyolegacy.content.item.umbrella.BorderUmbrellaItem;
 import dev.xkmc.gensokyolegacy.content.ui.quest.QuestOverlay;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;

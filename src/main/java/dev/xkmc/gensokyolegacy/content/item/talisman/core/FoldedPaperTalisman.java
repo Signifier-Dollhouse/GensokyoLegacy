@@ -1,4 +1,4 @@
-package dev.xkmc.gensokyolegacy.content.item.talisman;
+package dev.xkmc.gensokyolegacy.content.item.talisman.core;
 
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import net.minecraft.core.Holder;

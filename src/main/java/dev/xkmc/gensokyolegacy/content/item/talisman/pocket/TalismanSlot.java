@@ -1,5 +1,6 @@
-package dev.xkmc.gensokyolegacy.content.item.talisman;
+package dev.xkmc.gensokyolegacy.content.item.talisman.pocket;
 
+import dev.xkmc.gensokyolegacy.content.item.talisman.core.GLTalismans;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 

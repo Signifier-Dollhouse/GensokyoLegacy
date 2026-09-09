@@ -1,47 +1,49 @@
-package dev.xkmc.gensokyolegacy.content.item.talisman;
+package dev.xkmc.gensokyolegacy.content.item.talisman.kinds;
 
+import dev.xkmc.gensokyolegacy.content.item.talisman.core.TalismanPaperItem;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.List;
 
-public class SpeedTalisman extends TalismanPaperItem {
+public class HealTalisman extends TalismanPaperItem {
 
-	public SpeedTalisman(Properties p) {
-		super(p, 180);
+	public HealTalisman(Properties p) {
+		super(p, 16);
 	}
 
 	@Override
 	public int getColor() {
-		return 0x55FF7F;
+		return 0xFF5050;
 	}
 
 	@Override
 	public String getTexture() {
-		return "speed";
+		return "life";
 	}
 
 	@Override
 	public GLLang.LangEntry kindName() {
-		return GLLang.Talisman.KIND_SPEED;
+		return GLLang.Talisman.KIND_HEAL;
 	}
 
 	@Override
 	public boolean test(ServerPlayer le) {
-		return le.isSprinting();
+		return le.getHealth() < le.getMaxHealth() && le.isAlive();
 	}
 
 	@Override
 	public void trigger(ItemStack stack, ServerPlayer le) {
-		applyEffect(stack, le, MobEffects.MOVEMENT_SPEED, 1);
+		le.heal(le.getMaxHealth() * 0.3f);
+		le.getCooldowns().addCooldown(this, 100);
+		hurtItem(stack);
 	}
 
 	@Override
 	protected void appendTalismanDesc(ItemStack stack, List<Component> list) {
-		list.add(GLLang.Talisman.SPEED.get());
+		list.add(GLLang.Talisman.HEAL.get(30));
 		list.add(GLLang.Talisman.EQUIP.get());
 	}
 

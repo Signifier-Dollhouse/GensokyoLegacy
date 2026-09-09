@@ -1,4 +1,4 @@
-package dev.xkmc.gensokyolegacy.content.item.talisman;
+package dev.xkmc.gensokyolegacy.content.item.talisman.core;
 
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.Item;

@@ -1,5 +1,6 @@
-package dev.xkmc.gensokyolegacy.content.item.talisman;
+package dev.xkmc.gensokyolegacy.content.item.talisman.kinds;
 
+import dev.xkmc.gensokyolegacy.content.item.talisman.core.TalismanPaperItem;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -7,42 +8,41 @@ import net.minecraft.world.item.ItemStack;
 
 import java.util.List;
 
-public class HealTalisman extends TalismanPaperItem {
+public class HydrophobicTalisman extends TalismanPaperItem {
 
-	public HealTalisman(Properties p) {
-		super(p, 16);
+	public HydrophobicTalisman(Properties p) {
+		super(p, 180);
 	}
 
 	@Override
 	public int getColor() {
-		return 0xFF5050;
+		return 0x5555FF;
 	}
 
 	@Override
 	public String getTexture() {
-		return "life";
+		return "attack";
 	}
 
 	@Override
 	public GLLang.LangEntry kindName() {
-		return GLLang.Talisman.KIND_HEAL;
+		return GLLang.Talisman.KIND_HYDROPHOBIC;
 	}
 
 	@Override
 	public boolean test(ServerPlayer le) {
-		return le.getHealth() < le.getMaxHealth() && le.isAlive();
+		return le.getAirSupply() < le.getMaxAirSupply() * 0.7f;
 	}
 
 	@Override
 	public void trigger(ItemStack stack, ServerPlayer le) {
-		le.heal(le.getMaxHealth() * 0.3f);
-		le.getCooldowns().addCooldown(this, 100);
+		le.setAirSupply(le.getAirSupply() + 1);
 		hurtItem(stack);
 	}
 
 	@Override
 	protected void appendTalismanDesc(ItemStack stack, List<Component> list) {
-		list.add(GLLang.Talisman.HEAL.get(30));
+		list.add(GLLang.Talisman.HYDROPHOBIC.get());
 		list.add(GLLang.Talisman.EQUIP.get());
 	}
 
