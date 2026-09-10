@@ -5,12 +5,22 @@
       "cooldown": 1000,
       "favor": 3
     },
+    "gensokyolegacy:ghost_wine": {
+      "type": "DRINK",
+      "cooldown": 1000,
+      "favor": 5
+    },
     "gensokyolegacy:magic_book": {
       "type": "BOOK",
       "cooldown": 1000,
       "favor": 6
     },
-    "gensokyolegacy:teddy_bear": {
+    "gensokyolegacy:star_flower": {
+      "type": "MAGIC",
+      "cooldown": 1000,
+      "favor": 5
+    },
+    "gensokyolegacy:sturdy_teddy_bear": {
       "type": "TOY",
       "cooldown": 1000,
       "favor": 5

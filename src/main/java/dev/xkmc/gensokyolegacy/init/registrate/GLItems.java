@@ -68,6 +68,7 @@ public class GLItems {
 	public static final ItemEntry<CatBell> CAT_BELL;
 
 	public static final ItemEntry<TenguSakeItem> TENGU_SAKE;
+	public static final ItemEntry<GhostWineItem> GHOST_WINE;
 	public static final ItemEntry<FairyCakeItem> FAIRY_CAKE;
 	public static final ItemEntry<MagicBookItem> MAGIC_BOOK;
 
@@ -159,6 +160,12 @@ public class GLItems {
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
 					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(5, 1000, GiftType.DRINK)).tab(TAB.key())
 					.lang("Tengu Sake").register();
+
+			// TODO placeholder favor / cooldown
+			GHOST_WINE = reg.item("ghost_wine", GhostWineItem::new)
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
+					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(5, 1000, GiftType.DRINK)).tab(TAB.key())
+					.lang("Ghost Wine").register();
 
 			FAIRY_CAKE = reg.item("fairy_cake", FairyCakeItem::new)
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))

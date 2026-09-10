@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "gensokyolegacy:item/gift/star_flower"
+    "layer0": "gensokyolegacy:item/gift/sturdy_teddy_bear"
   }
 }

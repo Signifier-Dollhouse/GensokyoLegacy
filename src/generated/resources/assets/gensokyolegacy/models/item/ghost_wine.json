@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "gensokyolegacy:item/gift/teddy_bear"
+    "layer0": "gensokyolegacy:item/gift/ghost_wine"
   }
 }

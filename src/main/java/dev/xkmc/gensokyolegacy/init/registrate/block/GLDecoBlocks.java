@@ -59,7 +59,7 @@ public class GLDecoBlocks {
 	public static final BlockEntry<Block> GLASS;
 	public static final BlockEntry<IronBarsBlock> GLASS_PANE;
 	public static final BlockEntry<DelegateBlock> TATAMI, TATAMI_BLOCK;
-	public static final BlockEntry<DelegateBlock> TEDDY_BEAR;
+	public static final BlockEntry<DelegateBlock> STURDY_TEDDY_BEAR;
 
 	static {
 		var reg = GensokyoLegacy.REGISTRATE;
@@ -68,7 +68,8 @@ public class GLDecoBlocks {
 
 		// decorative small placeable items not primarily for building
 		{
-			TEDDY_BEAR = reg.block("teddy_bear",
+			// the item uses its own sturdy teddy bear texture; the placed block keeps reusing the teddy_bear model and texture
+			STURDY_TEDDY_BEAR = reg.block("sturdy_teddy_bear",
 							p -> DelegateBlock.newBaseBlock(p, BlockTemplates.HORIZONTAL))
 					.initialProperties(() -> Blocks.WHITE_WOOL)
 					.properties(p -> p.noOcclusion().strength(0.8F))
