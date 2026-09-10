@@ -28,11 +28,18 @@
 		"demonic_miasma_mushroom": "妖瘴菇",
 		"demonic_miasma_mushroom_block": "妖瘴菇方块",
 		"red_mushroom_stem": "红色蘑菇柄",
+		"eugune_red": "红耳菇",
+		"eugune_brown": "棕耳菇",
+		"eugune_ghost_fire": "鬼火耳菇",
 		"broom_grass": "扫帚草",
+		"bracken": "蕨菜",
 		"star_flower": "星星花",
 		"sturdy_teddy_bear": "结实的玩偶熊",
 		"drawer_cabinet": "抽屉橱柜",
-		"door_cabinet": "双门橱柜"
+		"door_cabinet": "双门橱柜",
+		"birch_shelf": "桦木货架",
+		"shelf_empty": "空书架",
+		"shelf_book": "书架"
 	},
 	"item.gensokyolegacy": {
 		"frozen_frog_cold": "冻青蛙",

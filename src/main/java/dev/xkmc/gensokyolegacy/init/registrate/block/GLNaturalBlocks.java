@@ -200,7 +200,7 @@ public class GLNaturalBlocks {
 				MushroomFeatures.MushroomTreeType.DEMONIC_MIASMA.cfKey
 		);
 
-		// 红耳姑
+		// 红耳菇
 		EUGUNE_RED = reg.block("eugune_red", SideBushBlock::new)
 				.properties(p -> p.mapColor(MapColor.PLANT).strength(0).sound(SoundType.GRASS).noOcclusion().noCollission().pushReaction(PushReaction.DESTROY))
 				.blockstate((ctx, pvd) -> pvd.horizontalBlock(ctx.get(),
@@ -212,7 +212,7 @@ public class GLNaturalBlocks {
 				.simpleItem()
 				.register();
 
-		// 棕耳姑
+		// 棕耳菇
 		EUGUNE_BROWN = reg.block("eugune_brown", SideBushBlock::new)
 				.properties(p -> p.mapColor(MapColor.PLANT).strength(0).sound(SoundType.GRASS).noOcclusion().noCollission().pushReaction(PushReaction.DESTROY))
 				.blockstate((ctx, pvd) -> pvd.horizontalBlock(ctx.get(),
@@ -224,7 +224,7 @@ public class GLNaturalBlocks {
 				.simpleItem()
 				.register();
 
-		// 鬼火耳姑
+		// 鬼火耳菇
 		EUGUNE_GHOST_FIRE = reg.block("eugune_ghost_fire", SideBushBlock::new)
 				.properties(p -> p.mapColor(MapColor.PLANT).strength(0).sound(SoundType.GRASS).noOcclusion().noCollission().pushReaction(PushReaction.DESTROY))
 				.blockstate((ctx, pvd) -> pvd.horizontalBlock(ctx.get(),
