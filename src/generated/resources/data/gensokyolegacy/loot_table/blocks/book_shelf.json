@@ -11,11 +11,11 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "gensokyolegacy:shelf_book"
+          "name": "gensokyolegacy:book_shelf"
         }
       ],
       "rolls": 1.0
     }
   ],
-  "random_sequence": "gensokyolegacy:blocks/shelf_book"
+  "random_sequence": "gensokyolegacy:blocks/book_shelf"
 }
