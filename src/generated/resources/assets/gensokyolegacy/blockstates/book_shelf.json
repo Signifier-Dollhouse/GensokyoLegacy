@@ -30,6 +30,51 @@
       "model": "gensokyolegacy:block/book_shelf_1",
       "y": 270
     },
+    "book_count=10,facing=east": {
+      "model": "gensokyolegacy:block/book_shelf_10",
+      "y": 90
+    },
+    "book_count=10,facing=north": {
+      "model": "gensokyolegacy:block/book_shelf_10"
+    },
+    "book_count=10,facing=south": {
+      "model": "gensokyolegacy:block/book_shelf_10",
+      "y": 180
+    },
+    "book_count=10,facing=west": {
+      "model": "gensokyolegacy:block/book_shelf_10",
+      "y": 270
+    },
+    "book_count=11,facing=east": {
+      "model": "gensokyolegacy:block/book_shelf_11",
+      "y": 90
+    },
+    "book_count=11,facing=north": {
+      "model": "gensokyolegacy:block/book_shelf_11"
+    },
+    "book_count=11,facing=south": {
+      "model": "gensokyolegacy:block/book_shelf_11",
+      "y": 180
+    },
+    "book_count=11,facing=west": {
+      "model": "gensokyolegacy:block/book_shelf_11",
+      "y": 270
+    },
+    "book_count=12,facing=east": {
+      "model": "gensokyolegacy:block/book_shelf_12",
+      "y": 90
+    },
+    "book_count=12,facing=north": {
+      "model": "gensokyolegacy:block/book_shelf_12"
+    },
+    "book_count=12,facing=south": {
+      "model": "gensokyolegacy:block/book_shelf_12",
+      "y": 180
+    },
+    "book_count=12,facing=west": {
+      "model": "gensokyolegacy:block/book_shelf_12",
+      "y": 270
+    },
     "book_count=2,facing=east": {
       "model": "gensokyolegacy:block/book_shelf_2",
       "y": 90
@@ -73,6 +118,81 @@
     },
     "book_count=4,facing=west": {
       "model": "gensokyolegacy:block/book_shelf_4",
+      "y": 270
+    },
+    "book_count=5,facing=east": {
+      "model": "gensokyolegacy:block/book_shelf_5",
+      "y": 90
+    },
+    "book_count=5,facing=north": {
+      "model": "gensokyolegacy:block/book_shelf_5"
+    },
+    "book_count=5,facing=south": {
+      "model": "gensokyolegacy:block/book_shelf_5",
+      "y": 180
+    },
+    "book_count=5,facing=west": {
+      "model": "gensokyolegacy:block/book_shelf_5",
+      "y": 270
+    },
+    "book_count=6,facing=east": {
+      "model": "gensokyolegacy:block/book_shelf_6",
+      "y": 90
+    },
+    "book_count=6,facing=north": {
+      "model": "gensokyolegacy:block/book_shelf_6"
+    },
+    "book_count=6,facing=south": {
+      "model": "gensokyolegacy:block/book_shelf_6",
+      "y": 180
+    },
+    "book_count=6,facing=west": {
+      "model": "gensokyolegacy:block/book_shelf_6",
+      "y": 270
+    },
+    "book_count=7,facing=east": {
+      "model": "gensokyolegacy:block/book_shelf_7",
+      "y": 90
+    },
+    "book_count=7,facing=north": {
+      "model": "gensokyolegacy:block/book_shelf_7"
+    },
+    "book_count=7,facing=south": {
+      "model": "gensokyolegacy:block/book_shelf_7",
+      "y": 180
+    },
+    "book_count=7,facing=west": {
+      "model": "gensokyolegacy:block/book_shelf_7",
+      "y": 270
+    },
+    "book_count=8,facing=east": {
+      "model": "gensokyolegacy:block/book_shelf_8",
+      "y": 90
+    },
+    "book_count=8,facing=north": {
+      "model": "gensokyolegacy:block/book_shelf_8"
+    },
+    "book_count=8,facing=south": {
+      "model": "gensokyolegacy:block/book_shelf_8",
+      "y": 180
+    },
+    "book_count=8,facing=west": {
+      "model": "gensokyolegacy:block/book_shelf_8",
+      "y": 270
+    },
+    "book_count=9,facing=east": {
+      "model": "gensokyolegacy:block/book_shelf_9",
+      "y": 90
+    },
+    "book_count=9,facing=north": {
+      "model": "gensokyolegacy:block/book_shelf_9"
+    },
+    "book_count=9,facing=south": {
+      "model": "gensokyolegacy:block/book_shelf_9",
+      "y": 180
+    },
+    "book_count=9,facing=west": {
+      "model": "gensokyolegacy:block/book_shelf_9",
       "y": 270
     }
   }

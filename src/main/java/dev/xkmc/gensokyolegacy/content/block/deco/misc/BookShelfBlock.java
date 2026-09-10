@@ -35,7 +35,7 @@ import javax.annotation.Nullable;
 public class BookShelfBlock implements ShapeBlockMethod, CreateBlockStateBlockMethod, DefaultStateBlockMethod,
 		UseItemOnBlockMethod, OnReplacedBlockMethod {
 
-	public static final int MAX_BOOKS = 4;
+	public static final int MAX_BOOKS = 12;
 
 	public static final IntegerProperty BOOK_COUNT = IntegerProperty.create("book_count", 0, MAX_BOOKS);
 
@@ -98,11 +98,11 @@ public class BookShelfBlock implements ShapeBlockMethod, CreateBlockStateBlockMe
 	public static void buildStates(DataGenContext<Block, DelegateBlock> ctx, RegistrateBlockstateProvider pvd) {
 		pvd.horizontalBlock(ctx.get(), state -> {
 			int count = state.getValue(BOOK_COUNT);
+			// texture shelf_book_0 is the empty shelf; models use the base name for count 0 so the item model can parent it
 			String id = count > 0 ? ctx.getName() + "_" + count : ctx.getName();
-			String texture = count > 0 ? "block/shelf/shelf_book_" + (count - 1) : "block/shelf/shelf_empty";
 			return pvd.models().getBuilder("block/" + id)
 					.parent(new ModelFile.UncheckedModelFile(GensokyoLegacy.loc("custom/furniture/book_shelf")))
-					.texture("all", pvd.modLoc(texture));
+					.texture("all", pvd.modLoc("block/shelf/shelf_book_" + count));
 		});
 	}
 
