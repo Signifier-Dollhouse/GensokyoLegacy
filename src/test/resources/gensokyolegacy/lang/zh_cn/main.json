@@ -60,8 +60,6 @@
 			"gift_favor": "好感值: %s",
 			"gift_type": "类型: %s",
 			"usage_tengu_sake": "饮用后获得短暂的增益。",
-			"usage_ghost_wine": "鬼之佳酿。饮用后获得短暂的增益。",
-			"usage_fairy_cake": "美味的蛋糕。食用恢复饥饿值。",
 			"usage_magic_book": "可以作为燃料使用。"
 		},
 		"gift": {

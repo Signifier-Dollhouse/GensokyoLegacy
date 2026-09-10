@@ -36,9 +36,11 @@ import dev.xkmc.l2itemselector.init.data.L2ISTagGen;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.entity.animal.FrogVariant;
+import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Rarity;
 import net.neoforged.neoforge.registries.datamaps.builtin.FurnaceFuel;
 import net.neoforged.neoforge.registries.datamaps.builtin.NeoForgeDataMaps;
@@ -68,8 +70,8 @@ public class GLItems {
 	public static final ItemEntry<CatBell> CAT_BELL;
 
 	public static final ItemEntry<TenguSakeItem> TENGU_SAKE;
-	public static final ItemEntry<GhostWineItem> GHOST_WINE;
-	public static final ItemEntry<FairyCakeItem> FAIRY_CAKE;
+	public static final ItemEntry<DrinkGiftItem> GHOST_WINE;
+	public static final ItemEntry<Item> FAIRY_CAKE;
 	public static final ItemEntry<MagicBookItem> MAGIC_BOOK;
 
 	public static final ItemEntry<DebugGlasses> DEBUG_GLASSES;
@@ -162,12 +164,13 @@ public class GLItems {
 					.lang("Tengu Sake").register();
 
 			// TODO placeholder favor / cooldown
-			GHOST_WINE = reg.item("ghost_wine", GhostWineItem::new)
+			GHOST_WINE = reg.item("ghost_wine", DrinkGiftItem::new)
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
 					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(5, 1000, GiftType.DRINK)).tab(TAB.key())
 					.lang("Ghost Wine").register();
 
-			FAIRY_CAKE = reg.item("fairy_cake", FairyCakeItem::new)
+			FAIRY_CAKE = reg.item("fairy_cake", p -> new Item(p.stacksTo(1)
+							.food(new FoodProperties.Builder().nutrition(4).saturationModifier(0.3f).build())))
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
 					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(3, 1000, GiftType.FOOD))
 					.tab(TAB.key())
