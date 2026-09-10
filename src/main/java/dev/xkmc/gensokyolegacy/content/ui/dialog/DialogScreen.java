@@ -28,8 +28,8 @@ import java.util.Optional;
 
 public class DialogScreen<T extends DialogMenu> extends AbstractContainerScreen<T> {
 
-	private static final ResourceLocation FRAME = GensokyoLegacy.loc("dialogue/box");
-	private static final ResourceLocation BOX_BG = GensokyoLegacy.loc("dialogue/box_bg");
+	private static final ResourceLocation FRAME = GensokyoLegacy.loc("dialogue/frame");
+	private static final ResourceLocation BG = GensokyoLegacy.loc("dialogue/bg");
 	private static final ResourceLocation OPTION = GensokyoLegacy.loc("dialogue/option");
 	private static final ResourceLocation AVATAR = GensokyoLegacy.loc("dialogue/avatar");
 	private static final ResourceLocation AVATAR_BG = GensokyoLegacy.loc("dialogue/avatar_bg");
@@ -274,7 +274,7 @@ public class DialogScreen<T extends DialogMenu> extends AbstractContainerScreen<
 		int x1 = Mth.ceil((px + uw) * scale);
 		int y1 = Mth.ceil((py + vh) * scale);
 		if (x1 <= x0 || y1 <= y0) return;
-		var sprite = Minecraft.getInstance().getGuiSprites().getSprite(BOX_BG);
+		var sprite = Minecraft.getInstance().getGuiSprites().getSprite(BG);
 		RenderSystem.setShaderTexture(0, sprite.atlasLocation());
 		RenderSystem.setShader(GameRenderer::getPositionTexShader);
 		RenderSystem.disableBlend();
