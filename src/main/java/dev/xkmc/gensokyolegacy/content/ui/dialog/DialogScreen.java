@@ -1,6 +1,10 @@
 package dev.xkmc.gensokyolegacy.content.ui.dialog;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.BufferUploader;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.blaze3d.vertex.VertexFormat;
 import dev.xkmc.gensokyolegacy.content.rpg.quest.Quest;
 import dev.xkmc.gensokyolegacy.content.ui.quest.QuestInfo;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
@@ -10,6 +14,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -33,27 +38,49 @@ public class DialogScreen<T extends DialogMenu> extends AbstractContainerScreen<
 
 	private static final int BOX_H = 160;
 
-	// horizontal breathing room between the screen edges and the box; everything
-	// pinned to the box (text, options, avatar) moves with it
+	private static final int BG_SIZE = 128;
+	private static final int BG_SPLIT = 32;
+
+	private static final int[] BG_LEFT = { -1, -1, -1, -1, -1, 30, 23, 22, 21, 20, 20, 18, 18, 17, 17,
+			16, 16, 16, 16, 16, 15, 15, 14, 14, 14, 13, 13, 12, 13, 13, 13, 13, 13, 13, 13, 13, 12, 12, 11,
+			10, 9, 8, 8, 8, 8, 8, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
+			6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
+			6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 7, 13, 10, 8, 7, 8, -1, -1, -1, -1, -1, -1 };
+	private static final int[] BG_RIGHT = { -1, -1, -1, -1, -1, 30, 23, 22, 21, 20, 20, 18, 18, 17, 17,
+			16, 16, 16, 16, 16, 15, 15, 14, 14, 14, 13, 13, 12, 13, 13, 13, 13, 13, 13, 13, 13, 12, 12, 11,
+			10, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
+			6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
+			6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 17, 14, -1, -1, -1, -1, -1, -1 };
+
+	private static final int FRAME_BORDER_TOP = 47;
+	private static final int FRAME_BORDER_BOTTOM = 25;
+
+	private static final int[] BG_CLIP = new int[BOX_H];
+
+	static {
+		for (int i = 0; i < BOX_H; i++) {
+			if (i < FRAME_BORDER_TOP)
+				BG_CLIP[i] = i;
+			else if (i < BOX_H - FRAME_BORDER_BOTTOM)
+				BG_CLIP[i] = FRAME_BORDER_TOP + (i - FRAME_BORDER_TOP) *
+						(BG_SIZE - FRAME_BORDER_TOP - FRAME_BORDER_BOTTOM) /
+						(BOX_H - FRAME_BORDER_TOP - FRAME_BORDER_BOTTOM);
+			else
+				BG_CLIP[i] = BG_SIZE - FRAME_BORDER_BOTTOM + (i - (BOX_H - FRAME_BORDER_BOTTOM));
+		}
+	}
+
 	private static final int BOX_PAD_X = 48;
 
 	private static final float TEXT_SCALE = 1.5F;
 	private static final int TEXT_PAD_TOP = 40;
 	private static final int TEXT_PAD_X = 60;
 
-	// AVATAR: overall size relative to the texture, left edge offset from the
-	// box's left edge, how far the frame's top edge sits ABOVE the box top at
-	// scale 1.0 (the distance itself scales with AVATAR_SCALE: the unit shrinks
-	// toward the box top, so the dip into the box stays proportional), and a
-	// vertical nudge
 	private static final float AVATAR_SCALE = 0.8F;
 	private static final int AVATAR_X = 0;
 	private static final int AVATAR_ABOVE = 150;
 	private static final int AVATAR_NUDGE_Y = 1;
 
-	// OPTIONS: gap between the bottom option's bottom edge and the box top,
-	// gap between options, horizontal/vertical padding around the label,
-	// minimum box width, and the right margin from the screen right edge
 	private static final int OPT_BOTTOM_GAP = 6;
 	private static final int OPT_GAP = 4;
 	private static final int OPT_PAD_X = 14;
@@ -110,7 +137,6 @@ public class DialogScreen<T extends DialogMenu> extends AbstractContainerScreen<
 	@Override
 	protected void renderBg(GuiGraphics g, float pt, int mx, int my) {
 		float s = this.height / (float) SCREEN_H;
-		// guards the two divisions below if the screen was never sized
 		if (s <= 0.0F) return;
 		float dw = this.width / s;
 
@@ -118,13 +144,10 @@ public class DialogScreen<T extends DialogMenu> extends AbstractContainerScreen<
 		boolean framed = body.isPresent();
 		boolean avatar = framed && menu.character != null;
 
-		// never let the margin squeeze the box out on extremely narrow windows
 		float padX = Math.min(BOX_PAD_X, dw * 0.2F);
 		float boxX = padX;
 		float boxW = dw - 2 * padX;
 		float boxY = SCREEN_H - BOX_H;
-		// distance above the box scales with the avatar, so the unit shrinks
-		// toward the box top instead of sinking into it by the full height loss
 		float avatarY = boxY - AVATAR_ABOVE * AVATAR_SCALE + AVATAR_NUDGE_Y;
 		float textTop = boxY + TEXT_PAD_TOP;
 
@@ -144,10 +167,6 @@ public class DialogScreen<T extends DialogMenu> extends AbstractContainerScreen<
 			float needed = n * (textH + 2 * optPadY) + (n - 1) * OPT_GAP;
 			if (needed > avail)
 				optPadY = Math.max(1.0F, (avail - n * textH - (n - 1) * OPT_GAP) / (2.0F * n));
-			// the option is drawn in a pose scaled by artScale while its target size
-			// is divided by it, so the nine-slice border lands at OPT_BORDER * artScale
-			// = optPadY pixels: the frame tracks the text padding instead of
-			// overflowing it, and stays unclamped since ohs >= 2 * optPadY
 			artScale = Mth.clamp(optPadY / OPT_BORDER, 0.25F, 1.0F);
 			int maxTextW = Math.max(1, Math.round((boxW - 2 * OPT_PAD_X - OPT_RIGHT_PAD) / TEXT_SCALE));
 			for (int i = 0; i < n; i++) {
@@ -162,22 +181,21 @@ public class DialogScreen<T extends DialogMenu> extends AbstractContainerScreen<
 		}
 		float totalH = sumH + Math.max(0, n - 1) * OPT_GAP;
 
+		// drawn unscaled so its quad edges can be pixel-snapped below
+		if (framed)
+			drawBoxBackground(g, s, Math.round(boxX), Math.round(boxY), Math.round(boxW), BOX_H);
+
 		g.pose().pushPose();
 		g.pose().scale(s, s, 1.0F);
 
 		if (framed) {
-			blitBlend(g, BOX_BG, Math.round(boxX), Math.round(boxY), 0, Math.round(boxW), BOX_H);
 			blitBlend(g, FRAME, Math.round(boxX), Math.round(boxY), 0, Math.round(boxW), BOX_H);
 			var lines = font.split(body.get(), Math.max(1, Math.round((boxW - 2 * TEXT_PAD_X) / TEXT_SCALE)));
 			drawLines(g, lines, boxX + TEXT_PAD_X, textTop, TEXT_COLOR);
 		}
 
 		if (n > 0) {
-			// laid out from a top anchor: when framed the lowest option ends up
-			// OPT_BOTTOM_GAP above the box, otherwise the stack is centred
 			float stackTop = framed ? boxY - OPT_BOTTOM_GAP - totalH : (SCREEN_H - totalH) / 2.0F;
-			// options hug the box's right edge, and the pose is scaled by s, so
-			// hit testing works in design space as well
 			float boxRight = boxX + boxW;
 			float dmx = mx / s;
 			float dmy = my / s;
@@ -205,10 +223,70 @@ public class DialogScreen<T extends DialogMenu> extends AbstractContainerScreen<
 		if (avatar) renderAvatar(g, s, boxX, avatarY, mx, my);
 	}
 
-	/**
-	 * blitSprite goes through the colorless innerBlit, which does not manage GL
-	 * blend state; translucent sprite pixels turn opaque unless blend is enabled.
-	 */
+	private static void drawBoxBackground(GuiGraphics g, float scale, int x, int y, int w, int h) {
+		int patternTop = y + h - (BG_SIZE - BG_SPLIT);
+		drawZone(g, scale, x, y, w, y, patternTop, 0, BG_SPLIT);
+		drawZone(g, scale, x, y, w, patternTop, y + h, BG_SPLIT, BG_SIZE - BG_SPLIT);
+	}
+
+	private static void drawZone(GuiGraphics g, float scale, int x, int y, int w, int dFrom, int dTo, int vBase, int vPeriod) {
+		for (int d = dFrom, next; d < dTo; d = next) {
+			int ins = bgInset(d - y, true);
+			next = bgRunEnd(d, dTo, y);
+			if (ins < 0) continue;
+			int x0 = x + ins;
+			int x1 = x + w - bgInset(d - y, false);
+			for (int py = d; py < next; ) {
+				int vOff = (py - dFrom) % vPeriod;
+				int vh = Math.min(vPeriod - vOff, next - py);
+				for (int px = x0; px < x1; ) {
+					int u = (px - x) % BG_SIZE;
+					int uw = Math.min(BG_SIZE - u, x1 - px);
+					blitBg(g, scale, px, py, uw, vh, u, vBase + vOff);
+					px += uw;
+				}
+				py += vh;
+			}
+		}
+	}
+
+	private static int bgInset(int i, boolean left) {
+		int row = BG_CLIP[i];
+		return left ? BG_LEFT[row] : BG_RIGHT[row];
+	}
+
+	private static int bgRunEnd(int from, int to, int base) {
+		int left = bgInset(from - base, true);
+		int right = bgInset(from - base, false);
+		int d = from + 1;
+		while (d < to && bgInset(d - base, true) == left && bgInset(d - base, false) == right)
+			d++;
+		return d;
+	}
+
+	private static void blitBg(GuiGraphics g, float scale, int px, int py, int uw, int vh, int u, int v) {
+		// expand every quad to whole screen pixels: adjacent tiles overlap by up
+		// to 1px (harmless, the bg draws opaque) instead of abutting on fractional
+		// screen positions, which opens 1px world-colored seams at odd gui scales;
+		// blitSprite only draws sprites 1:1, so restate its innerBlit here
+		int x0 = Mth.floor(px * scale);
+		int y0 = Mth.floor(py * scale);
+		int x1 = Mth.ceil((px + uw) * scale);
+		int y1 = Mth.ceil((py + vh) * scale);
+		if (x1 <= x0 || y1 <= y0) return;
+		var sprite = Minecraft.getInstance().getGuiSprites().getSprite(BOX_BG);
+		RenderSystem.setShaderTexture(0, sprite.atlasLocation());
+		RenderSystem.setShader(GameRenderer::getPositionTexShader);
+		RenderSystem.disableBlend();
+		var matrix = g.pose().last().pose();
+		var buffer = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+		buffer.addVertex(matrix, x0, y0, 0).setUv(sprite.getU(u / (float) BG_SIZE), sprite.getV(v / (float) BG_SIZE));
+		buffer.addVertex(matrix, x0, y1, 0).setUv(sprite.getU(u / (float) BG_SIZE), sprite.getV((v + vh) / (float) BG_SIZE));
+		buffer.addVertex(matrix, x1, y1, 0).setUv(sprite.getU((u + uw) / (float) BG_SIZE), sprite.getV((v + vh) / (float) BG_SIZE));
+		buffer.addVertex(matrix, x1, y0, 0).setUv(sprite.getU((u + uw) / (float) BG_SIZE), sprite.getV(v / (float) BG_SIZE));
+		BufferUploader.drawWithShader(buffer.buildOrThrow());
+	}
+
 	private static void blitBlend(GuiGraphics g, ResourceLocation sprite, int x, int y, int z, int w, int h) {
 		RenderSystem.enableBlend();
 		RenderSystem.defaultBlendFunc();
@@ -219,8 +297,6 @@ public class DialogScreen<T extends DialogMenu> extends AbstractContainerScreen<
 	private void renderAvatar(GuiGraphics g, float s, float boxX, float avatarY, int mx, int my) {
 		var ch = menu.character;
 		if (ch == null) return;
-		// all avatar geometry carries AVATAR_SCALE so frame, window and entity
-		// shrink together around the same top-left corner
 		float as = AVATAR_SCALE * s;
 		int fx = Math.round((boxX + AVATAR_X) * s);
 		int fy = Math.round(avatarY * s);
