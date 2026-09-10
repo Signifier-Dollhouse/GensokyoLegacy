@@ -23,29 +23,57 @@ import java.util.Optional;
 
 public class DialogScreen<T extends DialogMenu> extends AbstractContainerScreen<T> {
 
-	private static final ResourceLocation FRAME = GensokyoLegacy.loc("community/community");
-	private static final ResourceLocation OPTION = GensokyoLegacy.loc("community/options");
-	private static final ResourceLocation AVATAR = GensokyoLegacy.loc("community/avatar");
+	private static final ResourceLocation FRAME = GensokyoLegacy.loc("dialogue/box");
+	private static final ResourceLocation BOX_BG = GensokyoLegacy.loc("dialogue/box_bg");
+	private static final ResourceLocation OPTION = GensokyoLegacy.loc("dialogue/option");
+	private static final ResourceLocation AVATAR = GensokyoLegacy.loc("dialogue/avatar");
+	private static final ResourceLocation AVATAR_BG = GensokyoLegacy.loc("dialogue/avatar_bg");
 
-	// nine-slice borders, must match the .png.mcmeta next to the textures
-	private static final int BORDER = 13;
-	private static final int OPT_BORDER = 4;
+	private static final int SCREEN_H = 384;
 
-	// avatar.png native size, its transparent window inset and bottom name plate
-	private static final int AVATAR_W = 65;
-	private static final int AVATAR_H = 75;
-	private static final int AVATAR_WIN = 3;
-	private static final int NAME_PLATE = 13;
+	private static final int BOX_H = 160;
 
-	private static final int PAD = 3;
-	private static final int OPT_GAP = 3;
-	private static final int OPT_FLOAT = 8;
-	private static final int MIN_OPT_W = 60;
+	// horizontal breathing room between the screen edges and the box; everything
+	// pinned to the box (text, options, avatar) moves with it
+	private static final int BOX_PAD_X = 48;
+
+	private static final float TEXT_SCALE = 1.5F;
+	private static final int TEXT_PAD_TOP = 40;
+	private static final int TEXT_PAD_X = 60;
+
+	// AVATAR: overall size relative to the texture, left edge offset from the
+	// box's left edge, how far the frame's top edge sits ABOVE the box top at
+	// scale 1.0 (the distance itself scales with AVATAR_SCALE: the unit shrinks
+	// toward the box top, so the dip into the box stays proportional), and a
+	// vertical nudge
+	private static final float AVATAR_SCALE = 0.8F;
+	private static final int AVATAR_X = 0;
+	private static final int AVATAR_ABOVE = 150;
+	private static final int AVATAR_NUDGE_Y = 1;
+
+	// OPTIONS: gap between the bottom option's bottom edge and the box top,
+	// gap between options, horizontal/vertical padding around the label,
+	// minimum box width, and the right margin from the screen right edge
+	private static final int OPT_BOTTOM_GAP = 6;
+	private static final int OPT_GAP = 4;
+	private static final int OPT_PAD_X = 14;
+	private static final float OPT_PAD_Y = 9.0F;
+	private static final int MIN_OPT_W = 50;
+	private static final int OPT_RIGHT_PAD = 4;
+
+	private static final int AVATAR_W = 195;
+	private static final int AVATAR_H = 189;
+
+	private static final int AVATAR_WIN_X = 18;
+	private static final int AVATAR_WIN_Y = 42;
+	private static final int AVATAR_WIN_W = 121;
+	private static final int AVATAR_WIN_H = 102;
+
+	private static final int OPT_BORDER = 24;
 
 	private static final int TEXT_COLOR = 0xFFFFFF;
 	private static final int HOVER_COLOR = 0xFFE9A8;
 	private static final int HOVER_FILL = 0x30FFFFFF;
-	private static final int NAME_COLOR = 0x6B2038;
 
 	protected int sel = -1;
 
@@ -81,61 +109,100 @@ public class DialogScreen<T extends DialogMenu> extends AbstractContainerScreen<
 
 	@Override
 	protected void renderBg(GuiGraphics g, float pt, int mx, int my) {
-		int sw = g.guiWidth();
-		int sh = g.guiHeight();
+		float s = this.height / (float) SCREEN_H;
+		// guards the two divisions below if the screen was never sized
+		if (s <= 0.0F) return;
+		float dw = this.width / s;
+
 		var body = menu.getBodyText();
 		boolean framed = body.isPresent();
+		boolean avatar = framed && menu.character != null;
 
-		// dialog frame at bottom center, avatar unit pinned to its top-left corner
-		int boxX = 0, boxY = 0, boxW = 0;
-		if (framed) {
-			boolean avatar = menu.character != null;
-			boxW = (int) (sw * 0.7f);
-			int padL = avatar ? AVATAR_W + 9 : BORDER + PAD;
-			int padR = BORDER + PAD;
-			var lines = font.split(body.get(), boxW - padL - padR);
-			int textH = lines.size() * font.lineHeight;
-			int boxH = Math.max(textH + 2 * (BORDER + PAD),
-					Math.max(avatar ? AVATAR_H + BORDER + PAD : 0, (int) (sh * 0.2f)));
-			boxX = (sw - boxW) / 2;
-			boxY = sh - 10 - boxH;
-			blitBlend(g, FRAME, boxX, boxY, 0, boxW, boxH);
-			drawLines(g, lines, boxX + padL, boxY + BORDER + PAD, TEXT_COLOR);
-			if (avatar) renderAvatar(g, boxX + 1, boxY + 1, mx, my);
-		}
+		// never let the margin squeeze the box out on extremely narrow windows
+		float padX = Math.min(BOX_PAD_X, dw * 0.2F);
+		float boxX = padX;
+		float boxW = dw - 2 * padX;
+		float boxY = SCREEN_H - BOX_H;
+		// distance above the box scales with the avatar, so the unit shrinks
+		// toward the box top instead of sinking into it by the full height loss
+		float avatarY = boxY - AVATAR_ABOVE * AVATAR_SCALE + AVATAR_NUDGE_Y;
+		float textTop = boxY + TEXT_PAD_TOP;
 
-		// option boxes, stacked above the frame, right edge flush with the frame
-		sel = -1;
 		var options = menu.getOptions();
 		int n = options.size();
-		if (n == 0) return;
-		int maxW = (framed ? boxW : sw / 2) - 2 * (OPT_BORDER + 2);
+		sel = -1;
+
 		List<List<FormattedCharSequence>> optLines = new ArrayList<>(n);
-		int[] ws = new int[n];
-		int[] hs = new int[n];
-		int totalH = 0;
-		for (int i = 0; i < n; i++) {
-			var lines = font.split(options.get(i), maxW);
-			optLines.add(lines);
-			int w = MIN_OPT_W;
-			for (var line : lines) w = Math.max(w, font.width(line) + 2 * (OPT_BORDER + 2));
-			ws[i] = w;
-			hs[i] = lines.size() * font.lineHeight + 2 * OPT_BORDER;
-			if (i > 0) totalH += OPT_GAP;
-			totalH += hs[i];
-		}
-		int y = framed ? boxY - OPT_FLOAT - totalH : (sh - totalH) / 2;
-		for (int i = 0; i < n; i++) {
-			int x = framed ? boxX + boxW - ws[i] : (sw - ws[i]) / 2;
-			blitBlend(g, OPTION, x, y, 0, ws[i], hs[i]);
-			boolean hover = mx >= x && mx < x + ws[i] && my >= y && my < y + hs[i];
-			if (hover) {
-				sel = i;
-				g.fill(x, y, x + ws[i], y + hs[i], 350, HOVER_FILL);
+		int[] ows = new int[n];
+		int[] ohs = new int[n];
+		float textH = font.lineHeight * TEXT_SCALE;
+		float optPadY = OPT_PAD_Y;
+		float artScale = 1.0F;
+		int sumH = 0;
+		if (n > 0) {
+			float avail = framed ? boxY - OPT_BOTTOM_GAP : SCREEN_H / 2.0F;
+			float needed = n * (textH + 2 * optPadY) + (n - 1) * OPT_GAP;
+			if (needed > avail)
+				optPadY = Math.max(1.0F, (avail - n * textH - (n - 1) * OPT_GAP) / (2.0F * n));
+			// the option is drawn in a pose scaled by artScale while its target size
+			// is divided by it, so the nine-slice border lands at OPT_BORDER * artScale
+			// = optPadY pixels: the frame tracks the text padding instead of
+			// overflowing it, and stays unclamped since ohs >= 2 * optPadY
+			artScale = Mth.clamp(optPadY / OPT_BORDER, 0.25F, 1.0F);
+			int maxTextW = Math.max(1, Math.round((boxW - 2 * OPT_PAD_X - OPT_RIGHT_PAD) / TEXT_SCALE));
+			for (int i = 0; i < n; i++) {
+				var lines = font.split(options.get(i), maxTextW);
+				optLines.add(lines);
+				int tw = 0;
+				for (var line : lines) tw = Math.max(tw, font.width(line));
+				ows[i] = Math.max(MIN_OPT_W, Math.round(tw * TEXT_SCALE) + 2 * OPT_PAD_X);
+				ohs[i] = Math.round(lines.size() * textH + 2 * optPadY);
+				sumH += ohs[i];
 			}
-			drawLinesCentered(g, optLines.get(i), x + ws[i] / 2, y + OPT_BORDER, hover ? HOVER_COLOR : TEXT_COLOR);
-			y += hs[i] + OPT_GAP;
 		}
+		float totalH = sumH + Math.max(0, n - 1) * OPT_GAP;
+
+		g.pose().pushPose();
+		g.pose().scale(s, s, 1.0F);
+
+		if (framed) {
+			blitBlend(g, BOX_BG, Math.round(boxX), Math.round(boxY), 0, Math.round(boxW), BOX_H);
+			blitBlend(g, FRAME, Math.round(boxX), Math.round(boxY), 0, Math.round(boxW), BOX_H);
+			var lines = font.split(body.get(), Math.max(1, Math.round((boxW - 2 * TEXT_PAD_X) / TEXT_SCALE)));
+			drawLines(g, lines, boxX + TEXT_PAD_X, textTop, TEXT_COLOR);
+		}
+
+		if (n > 0) {
+			// laid out from a top anchor: when framed the lowest option ends up
+			// OPT_BOTTOM_GAP above the box, otherwise the stack is centred
+			float stackTop = framed ? boxY - OPT_BOTTOM_GAP - totalH : (SCREEN_H - totalH) / 2.0F;
+			// options hug the box's right edge, and the pose is scaled by s, so
+			// hit testing works in design space as well
+			float boxRight = boxX + boxW;
+			float dmx = mx / s;
+			float dmy = my / s;
+			for (int i = 0; i < n; i++) {
+				int x = Math.round(boxRight - ows[i] - OPT_RIGHT_PAD);
+				int y = Math.round(stackTop);
+				g.pose().pushPose();
+				g.pose().translate(x, y, 0);
+				g.pose().scale(artScale, artScale, 1.0F);
+				blitBlend(g, OPTION, 0, 0, 0, Math.round(ows[i] / artScale), Math.round(ohs[i] / artScale));
+				g.pose().popPose();
+				boolean hover = dmx >= x && dmx < x + ows[i] && dmy >= y && dmy < y + ohs[i];
+				if (hover) {
+					sel = i;
+					g.fill(x, y, x + ows[i], y + ohs[i], 350, HOVER_FILL);
+				}
+				drawLinesCentered(g, optLines.get(i), x + ows[i] / 2.0F, y + optPadY,
+						hover ? HOVER_COLOR : TEXT_COLOR);
+				stackTop += ohs[i] + OPT_GAP;
+			}
+		}
+
+		g.pose().popPose();
+
+		if (avatar) renderAvatar(g, s, boxX, avatarY, mx, my);
 	}
 
 	/**
@@ -147,56 +214,56 @@ public class DialogScreen<T extends DialogMenu> extends AbstractContainerScreen<
 		RenderSystem.defaultBlendFunc();
 		g.blitSprite(sprite, x, y, z, w, h);
 		RenderSystem.disableBlend();
-		RenderSystem.defaultBlendFunc();
 	}
 
-	private void renderAvatar(GuiGraphics g, int x, int y, int mx, int my) {
+	private void renderAvatar(GuiGraphics g, float s, float boxX, float avatarY, int mx, int my) {
 		var ch = menu.character;
 		if (ch == null) return;
-		// entity bust view, clipped to the transparent window of the frame
-		int wx1 = x + AVATAR_WIN;
-		int wy1 = y + AVATAR_WIN;
-		int wx2 = x + AVATAR_W - AVATAR_WIN;
-		int wy2 = y + AVATAR_H - NAME_PLATE - 1;
+		// all avatar geometry carries AVATAR_SCALE so frame, window and entity
+		// shrink together around the same top-left corner
+		float as = AVATAR_SCALE * s;
+		int fx = Math.round((boxX + AVATAR_X) * s);
+		int fy = Math.round(avatarY * s);
+		int fw = Math.round(AVATAR_W * as);
+		int fh = Math.round(AVATAR_H * as);
+		int wx = fx + Math.round(AVATAR_WIN_X * as);
+		int wy = fy + Math.round(AVATAR_WIN_Y * as);
+		int ww = Math.round(AVATAR_WIN_W * as);
+		int wh = Math.round(AVATAR_WIN_H * as);
+		blitBlend(g, AVATAR_BG, wx, wy, 0, ww, wh);
 		float bh = ch.getBbHeight();
-		// zoom so the upper ~60% of the body fills the window; 0.35*bh pivots chest to center
-		int scale = Mth.clamp(Math.round((wy2 - wy1) / (bh * 0.6f)), 24, 192);
-		InventoryScreen.renderEntityInInventoryFollowsMouse(g, wx1, wy1, wx2, wy2, scale, 0.35f * bh, mx, my, ch);
-		blitBlend(g, AVATAR, x, y, 100, AVATAR_W, AVATAR_H);
-		var name = menu.getSpeakerName();
-		if (name.isPresent()) {
-			var seq = font.split(name.get(), AVATAR_W - 2 * AVATAR_WIN - 2);
-			if (!seq.isEmpty()) {
-				var text = seq.get(0);
-				g.drawString(font, text, x + (AVATAR_W - font.width(text)) / 2,
-						y + AVATAR_H - NAME_PLATE + 2, NAME_COLOR, false);
-			}
-		}
+		int scale = Mth.clamp(Math.round(AVATAR_WIN_H / (bh * 0.6f) * as), 16, 256);
+		InventoryScreen.renderEntityInInventoryFollowsMouse(g, wx, wy, wx + ww, wy + wh, scale, 0.35f * bh, mx, my, ch);
+		blitBlend(g, AVATAR, fx, fy, 100, fw, fh);
 	}
 
-	private void drawLines(GuiGraphics g, List<FormattedCharSequence> lines, int x, int y, int color) {
+	private void drawLines(GuiGraphics g, List<FormattedCharSequence> lines, float x, float y, int color) {
 		g.pose().pushPose();
-		g.pose().translate(0, 0, 400);
+		g.pose().translate(x, y, 400);
+		g.pose().scale(TEXT_SCALE, TEXT_SCALE, 1.0F);
+		int ly = 0;
 		for (var line : lines) {
-			g.drawString(font, line, x, y, color, true);
-			y += font.lineHeight;
+			g.drawString(font, line, 0, ly, color, true);
+			ly += font.lineHeight;
 		}
 		g.pose().popPose();
 	}
 
-	private void drawLinesCentered(GuiGraphics g, List<FormattedCharSequence> lines, int cx, int y, int color) {
+	private void drawLinesCentered(GuiGraphics g, List<FormattedCharSequence> lines, float cx, float y, int color) {
 		g.pose().pushPose();
-		g.pose().translate(0, 0, 400);
+		g.pose().translate(cx, y, 400);
+		g.pose().scale(TEXT_SCALE, TEXT_SCALE, 1.0F);
+		int ly = 0;
 		for (var line : lines) {
-			g.drawString(font, line, cx - font.width(line) / 2, y, color, true);
-			y += font.lineHeight;
+			g.drawString(font, line, -font.width(line) / 2, ly, color, true);
+			ly += font.lineHeight;
 		}
 		g.pose().popPose();
 	}
 
 	protected void renderQuestInfo(GuiGraphics g, Optional<Holder<Quest>> quest) {
 		if (quest.isEmpty()) return;
-		var key = quest.get().unwrapKey().orElseThrow().location();
+		var key = quest.get().unwrapKey().map(k -> k.location()).orElseThrow();
 		var data = GLMeta.QUEST.type().getOrCreate(menu.player);
 		QuestInfo info;
 		List<Component> text;
@@ -207,7 +274,7 @@ public class DialogScreen<T extends DialogMenu> extends AbstractContainerScreen<
 			info = new QuestInfo(quest.get().value(), null);
 			text = info.getPreviewText();
 		}
-		new TextBox(g, 0, 1, 10, g.guiHeight() / 2, (int) (g.guiWidth() * 0.4f - 20))
+		new TextBox(g, 0, 1, 10, this.height / 2, (int) (this.width * 0.4f - 20))
 				.renderLongText(font, text);
 	}
 
