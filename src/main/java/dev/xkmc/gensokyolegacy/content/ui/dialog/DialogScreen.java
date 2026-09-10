@@ -1,6 +1,10 @@
 package dev.xkmc.gensokyolegacy.content.ui.dialog;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.BufferUploader;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.blaze3d.vertex.VertexFormat;
 import dev.xkmc.gensokyolegacy.content.rpg.quest.Quest;
 import dev.xkmc.gensokyolegacy.content.ui.quest.QuestInfo;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
@@ -10,6 +14,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -23,29 +28,79 @@ import java.util.Optional;
 
 public class DialogScreen<T extends DialogMenu> extends AbstractContainerScreen<T> {
 
-	private static final ResourceLocation FRAME = GensokyoLegacy.loc("community/community");
-	private static final ResourceLocation OPTION = GensokyoLegacy.loc("community/options");
-	private static final ResourceLocation AVATAR = GensokyoLegacy.loc("community/avatar");
+	private static final ResourceLocation FRAME = GensokyoLegacy.loc("dialogue/frame");
+	private static final ResourceLocation BG = GensokyoLegacy.loc("dialogue/bg");
+	private static final ResourceLocation OPTION = GensokyoLegacy.loc("dialogue/option");
+	private static final ResourceLocation AVATAR = GensokyoLegacy.loc("dialogue/avatar");
+	private static final ResourceLocation AVATAR_BG = GensokyoLegacy.loc("dialogue/avatar_bg");
 
-	// nine-slice borders, must match the .png.mcmeta next to the textures
-	private static final int BORDER = 13;
-	private static final int OPT_BORDER = 4;
+	private static final int SCREEN_H = 384;
 
-	// avatar.png native size, its transparent window inset and bottom name plate
-	private static final int AVATAR_W = 65;
-	private static final int AVATAR_H = 75;
-	private static final int AVATAR_WIN = 3;
-	private static final int NAME_PLATE = 13;
+	private static final int BOX_H = 160;
 
-	private static final int PAD = 3;
-	private static final int OPT_GAP = 3;
-	private static final int OPT_FLOAT = 8;
-	private static final int MIN_OPT_W = 60;
+	private static final int BG_SIZE = 128;
+	private static final int BG_SPLIT = 32;
+
+	private static final int[] BG_LEFT = { -1, -1, -1, -1, -1, 30, 23, 22, 21, 20, 20, 18, 18, 17, 17,
+			16, 16, 16, 16, 16, 15, 15, 14, 14, 14, 13, 13, 12, 13, 13, 13, 13, 13, 13, 13, 13, 12, 12, 11,
+			10, 9, 8, 8, 8, 8, 8, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
+			6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
+			6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 7, 13, 10, 8, 7, 8, -1, -1, -1, -1, -1, -1 };
+	private static final int[] BG_RIGHT = { -1, -1, -1, -1, -1, 30, 23, 22, 21, 20, 20, 18, 18, 17, 17,
+			16, 16, 16, 16, 16, 15, 15, 14, 14, 14, 13, 13, 12, 13, 13, 13, 13, 13, 13, 13, 13, 12, 12, 11,
+			10, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
+			6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
+			6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 17, 14, -1, -1, -1, -1, -1, -1 };
+
+	private static final int FRAME_BORDER_TOP = 47;
+	private static final int FRAME_BORDER_BOTTOM = 25;
+
+	private static final int[] BG_CLIP = new int[BOX_H];
+
+	static {
+		for (int i = 0; i < BOX_H; i++) {
+			if (i < FRAME_BORDER_TOP)
+				BG_CLIP[i] = i;
+			else if (i < BOX_H - FRAME_BORDER_BOTTOM)
+				BG_CLIP[i] = FRAME_BORDER_TOP + (i - FRAME_BORDER_TOP) *
+						(BG_SIZE - FRAME_BORDER_TOP - FRAME_BORDER_BOTTOM) /
+						(BOX_H - FRAME_BORDER_TOP - FRAME_BORDER_BOTTOM);
+			else
+				BG_CLIP[i] = BG_SIZE - FRAME_BORDER_BOTTOM + (i - (BOX_H - FRAME_BORDER_BOTTOM));
+		}
+	}
+
+	private static final int BOX_PAD_X = 48;
+
+	private static final float TEXT_SCALE = 1.5F;
+	private static final int TEXT_PAD_TOP = 40;
+	private static final int TEXT_PAD_X = 60;
+
+	private static final float AVATAR_SCALE = 0.8F;
+	private static final int AVATAR_X = 0;
+	private static final int AVATAR_ABOVE = 150;
+	private static final int AVATAR_NUDGE_Y = 1;
+
+	private static final int OPT_BOTTOM_GAP = 6;
+	private static final int OPT_GAP = 4;
+	private static final int OPT_PAD_X = 14;
+	private static final float OPT_PAD_Y = 9.0F;
+	private static final int MIN_OPT_W = 50;
+	private static final int OPT_RIGHT_PAD = 4;
+
+	private static final int AVATAR_W = 195;
+	private static final int AVATAR_H = 189;
+
+	private static final int AVATAR_WIN_X = 18;
+	private static final int AVATAR_WIN_Y = 42;
+	private static final int AVATAR_WIN_W = 121;
+	private static final int AVATAR_WIN_H = 102;
+
+	private static final int OPT_BORDER = 24;
 
 	private static final int TEXT_COLOR = 0xFFFFFF;
 	private static final int HOVER_COLOR = 0xFFE9A8;
 	private static final int HOVER_FILL = 0x30FFFFFF;
-	private static final int NAME_COLOR = 0x6B2038;
 
 	protected int sel = -1;
 
@@ -81,122 +136,210 @@ public class DialogScreen<T extends DialogMenu> extends AbstractContainerScreen<
 
 	@Override
 	protected void renderBg(GuiGraphics g, float pt, int mx, int my) {
-		int sw = g.guiWidth();
-		int sh = g.guiHeight();
+		float s = this.height / (float) SCREEN_H;
+		if (s <= 0.0F) return;
+		float dw = this.width / s;
+
 		var body = menu.getBodyText();
 		boolean framed = body.isPresent();
+		boolean avatar = framed && menu.character != null;
 
-		// dialog frame at bottom center, avatar unit pinned to its top-left corner
-		int boxX = 0, boxY = 0, boxW = 0;
-		if (framed) {
-			boolean avatar = menu.character != null;
-			boxW = (int) (sw * 0.7f);
-			int padL = avatar ? AVATAR_W + 9 : BORDER + PAD;
-			int padR = BORDER + PAD;
-			var lines = font.split(body.get(), boxW - padL - padR);
-			int textH = lines.size() * font.lineHeight;
-			int boxH = Math.max(textH + 2 * (BORDER + PAD),
-					Math.max(avatar ? AVATAR_H + BORDER + PAD : 0, (int) (sh * 0.2f)));
-			boxX = (sw - boxW) / 2;
-			boxY = sh - 10 - boxH;
-			blitBlend(g, FRAME, boxX, boxY, 0, boxW, boxH);
-			drawLines(g, lines, boxX + padL, boxY + BORDER + PAD, TEXT_COLOR);
-			if (avatar) renderAvatar(g, boxX + 1, boxY + 1, mx, my);
-		}
+		float padX = Math.min(BOX_PAD_X, dw * 0.2F);
+		float boxX = padX;
+		float boxW = dw - 2 * padX;
+		float boxY = SCREEN_H - BOX_H;
+		float avatarY = boxY - AVATAR_ABOVE * AVATAR_SCALE + AVATAR_NUDGE_Y;
+		float textTop = boxY + TEXT_PAD_TOP;
 
-		// option boxes, stacked above the frame, right edge flush with the frame
-		sel = -1;
 		var options = menu.getOptions();
 		int n = options.size();
-		if (n == 0) return;
-		int maxW = (framed ? boxW : sw / 2) - 2 * (OPT_BORDER + 2);
+		sel = -1;
+
 		List<List<FormattedCharSequence>> optLines = new ArrayList<>(n);
-		int[] ws = new int[n];
-		int[] hs = new int[n];
-		int totalH = 0;
-		for (int i = 0; i < n; i++) {
-			var lines = font.split(options.get(i), maxW);
-			optLines.add(lines);
-			int w = MIN_OPT_W;
-			for (var line : lines) w = Math.max(w, font.width(line) + 2 * (OPT_BORDER + 2));
-			ws[i] = w;
-			hs[i] = lines.size() * font.lineHeight + 2 * OPT_BORDER;
-			if (i > 0) totalH += OPT_GAP;
-			totalH += hs[i];
-		}
-		int y = framed ? boxY - OPT_FLOAT - totalH : (sh - totalH) / 2;
-		for (int i = 0; i < n; i++) {
-			int x = framed ? boxX + boxW - ws[i] : (sw - ws[i]) / 2;
-			blitBlend(g, OPTION, x, y, 0, ws[i], hs[i]);
-			boolean hover = mx >= x && mx < x + ws[i] && my >= y && my < y + hs[i];
-			if (hover) {
-				sel = i;
-				g.fill(x, y, x + ws[i], y + hs[i], 350, HOVER_FILL);
+		int[] ows = new int[n];
+		int[] ohs = new int[n];
+		float textH = font.lineHeight * TEXT_SCALE;
+		float optPadY = OPT_PAD_Y;
+		float artScale = 1.0F;
+		int sumH = 0;
+		if (n > 0) {
+			float avail = framed ? boxY - OPT_BOTTOM_GAP : SCREEN_H / 2.0F;
+			float needed = n * (textH + 2 * optPadY) + (n - 1) * OPT_GAP;
+			if (needed > avail)
+				optPadY = Math.max(1.0F, (avail - n * textH - (n - 1) * OPT_GAP) / (2.0F * n));
+			artScale = Mth.clamp(optPadY / OPT_BORDER, 0.25F, 1.0F);
+			int maxTextW = Math.max(1, Math.round((boxW - 2 * OPT_PAD_X - OPT_RIGHT_PAD) / TEXT_SCALE));
+			for (int i = 0; i < n; i++) {
+				var lines = font.split(options.get(i), maxTextW);
+				optLines.add(lines);
+				int tw = 0;
+				for (var line : lines) tw = Math.max(tw, font.width(line));
+				ows[i] = Math.max(MIN_OPT_W, Math.round(tw * TEXT_SCALE) + 2 * OPT_PAD_X);
+				ohs[i] = Math.round(lines.size() * textH + 2 * optPadY);
+				sumH += ohs[i];
 			}
-			drawLinesCentered(g, optLines.get(i), x + ws[i] / 2, y + OPT_BORDER, hover ? HOVER_COLOR : TEXT_COLOR);
-			y += hs[i] + OPT_GAP;
+		}
+		float totalH = sumH + Math.max(0, n - 1) * OPT_GAP;
+
+		// drawn unscaled so its quad edges can be pixel-snapped below
+		if (framed)
+			drawBoxBackground(g, s, Math.round(boxX), Math.round(boxY), Math.round(boxW), BOX_H);
+
+		g.pose().pushPose();
+		g.pose().scale(s, s, 1.0F);
+
+		if (framed) {
+			blitBlend(g, FRAME, Math.round(boxX), Math.round(boxY), 0, Math.round(boxW), BOX_H);
+			var lines = font.split(body.get(), Math.max(1, Math.round((boxW - 2 * TEXT_PAD_X) / TEXT_SCALE)));
+			drawLines(g, lines, boxX + TEXT_PAD_X, textTop, TEXT_COLOR);
+		}
+
+		if (n > 0) {
+			float stackTop = framed ? boxY - OPT_BOTTOM_GAP - totalH : (SCREEN_H - totalH) / 2.0F;
+			float boxRight = boxX + boxW;
+			float dmx = mx / s;
+			float dmy = my / s;
+			for (int i = 0; i < n; i++) {
+				int x = Math.round(boxRight - ows[i] - OPT_RIGHT_PAD);
+				int y = Math.round(stackTop);
+				g.pose().pushPose();
+				g.pose().translate(x, y, 0);
+				g.pose().scale(artScale, artScale, 1.0F);
+				blitBlend(g, OPTION, 0, 0, 0, Math.round(ows[i] / artScale), Math.round(ohs[i] / artScale));
+				g.pose().popPose();
+				boolean hover = dmx >= x && dmx < x + ows[i] && dmy >= y && dmy < y + ohs[i];
+				if (hover) {
+					sel = i;
+					g.fill(x, y, x + ows[i], y + ohs[i], 350, HOVER_FILL);
+				}
+				drawLinesCentered(g, optLines.get(i), x + ows[i] / 2.0F, y + optPadY,
+						hover ? HOVER_COLOR : TEXT_COLOR);
+				stackTop += ohs[i] + OPT_GAP;
+			}
+		}
+
+		g.pose().popPose();
+
+		if (avatar) renderAvatar(g, s, boxX, avatarY, mx, my);
+	}
+
+	private static void drawBoxBackground(GuiGraphics g, float scale, int x, int y, int w, int h) {
+		int patternTop = y + h - (BG_SIZE - BG_SPLIT);
+		drawZone(g, scale, x, y, w, y, patternTop, 0, BG_SPLIT);
+		drawZone(g, scale, x, y, w, patternTop, y + h, BG_SPLIT, BG_SIZE - BG_SPLIT);
+	}
+
+	private static void drawZone(GuiGraphics g, float scale, int x, int y, int w, int dFrom, int dTo, int vBase, int vPeriod) {
+		for (int d = dFrom, next; d < dTo; d = next) {
+			int ins = bgInset(d - y, true);
+			next = bgRunEnd(d, dTo, y);
+			if (ins < 0) continue;
+			int x0 = x + ins;
+			int x1 = x + w - bgInset(d - y, false);
+			for (int py = d; py < next; ) {
+				int vOff = (py - dFrom) % vPeriod;
+				int vh = Math.min(vPeriod - vOff, next - py);
+				for (int px = x0; px < x1; ) {
+					int u = (px - x) % BG_SIZE;
+					int uw = Math.min(BG_SIZE - u, x1 - px);
+					blitBg(g, scale, px, py, uw, vh, u, vBase + vOff);
+					px += uw;
+				}
+				py += vh;
+			}
 		}
 	}
 
-	/**
-	 * blitSprite goes through the colorless innerBlit, which does not manage GL
-	 * blend state; translucent sprite pixels turn opaque unless blend is enabled.
-	 */
+	private static int bgInset(int i, boolean left) {
+		int row = BG_CLIP[i];
+		return left ? BG_LEFT[row] : BG_RIGHT[row];
+	}
+
+	private static int bgRunEnd(int from, int to, int base) {
+		int left = bgInset(from - base, true);
+		int right = bgInset(from - base, false);
+		int d = from + 1;
+		while (d < to && bgInset(d - base, true) == left && bgInset(d - base, false) == right)
+			d++;
+		return d;
+	}
+
+	private static void blitBg(GuiGraphics g, float scale, int px, int py, int uw, int vh, int u, int v) {
+		// expand every quad to whole screen pixels: adjacent tiles overlap by up
+		// to 1px (harmless, the bg draws opaque) instead of abutting on fractional
+		// screen positions, which opens 1px world-colored seams at odd gui scales;
+		// blitSprite only draws sprites 1:1, so restate its innerBlit here
+		int x0 = Mth.floor(px * scale);
+		int y0 = Mth.floor(py * scale);
+		int x1 = Mth.ceil((px + uw) * scale);
+		int y1 = Mth.ceil((py + vh) * scale);
+		if (x1 <= x0 || y1 <= y0) return;
+		var sprite = Minecraft.getInstance().getGuiSprites().getSprite(BG);
+		RenderSystem.setShaderTexture(0, sprite.atlasLocation());
+		RenderSystem.setShader(GameRenderer::getPositionTexShader);
+		RenderSystem.disableBlend();
+		var matrix = g.pose().last().pose();
+		var buffer = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+		buffer.addVertex(matrix, x0, y0, 0).setUv(sprite.getU(u / (float) BG_SIZE), sprite.getV(v / (float) BG_SIZE));
+		buffer.addVertex(matrix, x0, y1, 0).setUv(sprite.getU(u / (float) BG_SIZE), sprite.getV((v + vh) / (float) BG_SIZE));
+		buffer.addVertex(matrix, x1, y1, 0).setUv(sprite.getU((u + uw) / (float) BG_SIZE), sprite.getV((v + vh) / (float) BG_SIZE));
+		buffer.addVertex(matrix, x1, y0, 0).setUv(sprite.getU((u + uw) / (float) BG_SIZE), sprite.getV(v / (float) BG_SIZE));
+		BufferUploader.drawWithShader(buffer.buildOrThrow());
+	}
+
 	private static void blitBlend(GuiGraphics g, ResourceLocation sprite, int x, int y, int z, int w, int h) {
 		RenderSystem.enableBlend();
 		RenderSystem.defaultBlendFunc();
 		g.blitSprite(sprite, x, y, z, w, h);
 		RenderSystem.disableBlend();
-		RenderSystem.defaultBlendFunc();
 	}
 
-	private void renderAvatar(GuiGraphics g, int x, int y, int mx, int my) {
+	private void renderAvatar(GuiGraphics g, float s, float boxX, float avatarY, int mx, int my) {
 		var ch = menu.character;
 		if (ch == null) return;
-		// entity bust view, clipped to the transparent window of the frame
-		int wx1 = x + AVATAR_WIN;
-		int wy1 = y + AVATAR_WIN;
-		int wx2 = x + AVATAR_W - AVATAR_WIN;
-		int wy2 = y + AVATAR_H - NAME_PLATE - 1;
+		float as = AVATAR_SCALE * s;
+		int fx = Math.round((boxX + AVATAR_X) * s);
+		int fy = Math.round(avatarY * s);
+		int fw = Math.round(AVATAR_W * as);
+		int fh = Math.round(AVATAR_H * as);
+		int wx = fx + Math.round(AVATAR_WIN_X * as);
+		int wy = fy + Math.round(AVATAR_WIN_Y * as);
+		int ww = Math.round(AVATAR_WIN_W * as);
+		int wh = Math.round(AVATAR_WIN_H * as);
+		blitBlend(g, AVATAR_BG, wx, wy, 0, ww, wh);
 		float bh = ch.getBbHeight();
-		// zoom so the upper ~60% of the body fills the window; 0.35*bh pivots chest to center
-		int scale = Mth.clamp(Math.round((wy2 - wy1) / (bh * 0.6f)), 24, 192);
-		InventoryScreen.renderEntityInInventoryFollowsMouse(g, wx1, wy1, wx2, wy2, scale, 0.35f * bh, mx, my, ch);
-		blitBlend(g, AVATAR, x, y, 100, AVATAR_W, AVATAR_H);
-		var name = menu.getSpeakerName();
-		if (name.isPresent()) {
-			var seq = font.split(name.get(), AVATAR_W - 2 * AVATAR_WIN - 2);
-			if (!seq.isEmpty()) {
-				var text = seq.get(0);
-				g.drawString(font, text, x + (AVATAR_W - font.width(text)) / 2,
-						y + AVATAR_H - NAME_PLATE + 2, NAME_COLOR, false);
-			}
-		}
+		int scale = Mth.clamp(Math.round(AVATAR_WIN_H / (bh * 0.6f) * as), 16, 256);
+		InventoryScreen.renderEntityInInventoryFollowsMouse(g, wx, wy, wx + ww, wy + wh, scale, 0.35f * bh, mx, my, ch);
+		blitBlend(g, AVATAR, fx, fy, 100, fw, fh);
 	}
 
-	private void drawLines(GuiGraphics g, List<FormattedCharSequence> lines, int x, int y, int color) {
+	private void drawLines(GuiGraphics g, List<FormattedCharSequence> lines, float x, float y, int color) {
 		g.pose().pushPose();
-		g.pose().translate(0, 0, 400);
+		g.pose().translate(x, y, 400);
+		g.pose().scale(TEXT_SCALE, TEXT_SCALE, 1.0F);
+		int ly = 0;
 		for (var line : lines) {
-			g.drawString(font, line, x, y, color, true);
-			y += font.lineHeight;
+			g.drawString(font, line, 0, ly, color, true);
+			ly += font.lineHeight;
 		}
 		g.pose().popPose();
 	}
 
-	private void drawLinesCentered(GuiGraphics g, List<FormattedCharSequence> lines, int cx, int y, int color) {
+	private void drawLinesCentered(GuiGraphics g, List<FormattedCharSequence> lines, float cx, float y, int color) {
 		g.pose().pushPose();
-		g.pose().translate(0, 0, 400);
+		g.pose().translate(cx, y, 400);
+		g.pose().scale(TEXT_SCALE, TEXT_SCALE, 1.0F);
+		int ly = 0;
 		for (var line : lines) {
-			g.drawString(font, line, cx - font.width(line) / 2, y, color, true);
-			y += font.lineHeight;
+			g.drawString(font, line, -font.width(line) / 2, ly, color, true);
+			ly += font.lineHeight;
 		}
 		g.pose().popPose();
 	}
 
 	protected void renderQuestInfo(GuiGraphics g, Optional<Holder<Quest>> quest) {
 		if (quest.isEmpty()) return;
-		var key = quest.get().unwrapKey().orElseThrow().location();
+		var key = quest.get().unwrapKey().map(k -> k.location()).orElseThrow();
 		var data = GLMeta.QUEST.type().getOrCreate(menu.player);
 		QuestInfo info;
 		List<Component> text;
@@ -207,7 +350,7 @@ public class DialogScreen<T extends DialogMenu> extends AbstractContainerScreen<
 			info = new QuestInfo(quest.get().value(), null);
 			text = info.getPreviewText();
 		}
-		new TextBox(g, 0, 1, 10, g.guiHeight() / 2, (int) (g.guiWidth() * 0.4f - 20))
+		new TextBox(g, 0, 1, 10, this.height / 2, (int) (this.width * 0.4f - 20))
 				.renderLongText(font, text);
 	}
 

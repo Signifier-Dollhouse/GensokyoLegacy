@@ -28,10 +28,17 @@
 		"demonic_miasma_mushroom": "妖瘴菇",
 		"demonic_miasma_mushroom_block": "妖瘴菇方块",
 		"red_mushroom_stem": "红色蘑菇柄",
+		"eugune_red": "红耳菇",
+		"eugune_brown": "棕耳菇",
+		"eugune_ghost_fire": "鬼火耳菇",
 		"broom_grass": "扫帚草",
-		"teddy_bear": "玩偶熊",
+		"bracken": "蕨菜",
+		"star_flower": "星星花",
+		"sturdy_teddy_bear": "结实的玩偶熊",
 		"drawer_cabinet": "抽屉橱柜",
-		"door_cabinet": "双门橱柜"
+		"door_cabinet": "双门橱柜",
+		"birch_shelf": "桦木货架",
+		"book_shelf": "书架"
 	},
 	"item.gensokyolegacy": {
 		"frozen_frog_cold": "冻青蛙",
@@ -39,6 +46,7 @@
 		"frozen_frog_temperate": "冻青蛙",
 		"fairy_ice_crystal": "妖精冰晶",
 		"tengu_sake": "天狗酒",
+		"ghost_sake": "鬼酒",
 		"fairy_cake": "妖精蛋糕",
 		"magic_book": "晦涩难懂的魔法书",
 		"heal_talisman": "治愈符纸",

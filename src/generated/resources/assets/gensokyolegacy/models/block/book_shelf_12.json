@@ -1,0 +1,6 @@
+{
+  "parent": "gensokyolegacy:custom/furniture/book_shelf",
+  "textures": {
+    "all": "gensokyolegacy:block/shelf/shelf_book_12"
+  }
+}

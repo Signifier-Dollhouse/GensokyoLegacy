@@ -421,7 +421,6 @@ public final class GLLang {
 		GIFT_FAVOR("Favor: %s", 1),
 		GIFT_TYPE("Type: %s", 1),
 		USAGE_TENGU_SAKE("Drink for a temporary boost.", 0, ChatFormatting.GRAY),
-		USAGE_FAIRY_CAKE("A sweet cake. Eat to restore hunger.", 0, ChatFormatting.GRAY),
 		USAGE_MAGIC_BOOK("Can be used as furnace fuel.", 0, ChatFormatting.GRAY),
 		OBTAIN_FAIRY_ICE("Crafted by Cirno.", 0, ChatFormatting.GRAY),
 		USAGE_FAIRY_ICE("Throw to deal damage and freeze target.", 0, ChatFormatting.GRAY),

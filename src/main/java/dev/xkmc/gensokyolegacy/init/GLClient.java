@@ -69,16 +69,20 @@ public class GLClient {
 		for (Supplier<? extends Item> entry : GLTalismans.TALISMAN_PAPERS) {
 			Item item = entry.get();
 			if (item instanceof TalismanPaperItem paper) {
-				event.getItemColors().register((stack, tintIndex) -> paper.getColor(), item);
+				event.getItemColors().register((stack, tintIndex) -> opaque(paper.getColor()), item);
 			}
 		}
 		Item folded = GLTalismans.FOLDED_PAPER_TALISMAN.get();
 		event.getItemColors().register((stack, tintIndex) -> {
 			var paper = FoldedPaperTalisman.paper(stack);
-			return paper == null ? 0xFFFFFF : paper.getColor();
+			return paper == null ? 0xFFFFFFFF : opaque(paper.getColor());
 		}, folded);
 		Item pocket = GLTalismans.TALISMAN_POCKET.get();
-		event.getItemColors().register((stack, tintIndex) -> 0xFFFFFF, pocket);
+		event.getItemColors().register((stack, tintIndex) -> 0xFFFFFFFF, pocket);
+	}
+
+	private static int opaque(int color) {
+		return 0xFF000000 | color;
 	}
 
 	@SubscribeEvent

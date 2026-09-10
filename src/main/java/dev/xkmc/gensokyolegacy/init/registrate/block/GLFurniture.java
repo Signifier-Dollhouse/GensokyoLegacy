@@ -45,7 +45,7 @@ public class GLFurniture {
 
 	public static final BlockEntry<DelegateBlock> CARTON, CARTON_WHITE, CARTON_BLUE;
 	public static final BlockEntry<DelegateBlock> TEA_TABLE;
-	public static final BlockEntry<DelegateBlock> SHELF_EMPTY, SHELF_BOOK;
+	public static final BlockEntry<DelegateBlock> BOOK_SHELF;
 
 	public static final BlockEntry<Block> CRATE;
 	public static final BlockEntry<DelegateBlock> BOOK_PILE, BOOK_STACK;
@@ -154,20 +154,11 @@ public class GLFurniture {
 					.build()
 					.register();
 
-			// 空厨架
-			SHELF_EMPTY = reg.block("shelf_empty", p -> DelegateBlock.newBaseBlock(p,
-							BlockTemplates.HORIZONTAL, new SimpleShelfBlock()))
+			// 书架：空架可放书，最多 4 本，潜行右键取书
+			BOOK_SHELF = reg.block("book_shelf", p -> DelegateBlock.newBaseBlock(p,
+							BlockTemplates.HORIZONTAL, new BookShelfBlock()))
 					.initialProperties(() -> Blocks.BIRCH_TRAPDOOR)
-					.blockstate(SimpleShelfBlock::buildStates)
-					.tag(BlockTags.MINEABLE_WITH_AXE)
-					.simpleItem()
-					.register();
-
-			// 书架
-			SHELF_BOOK = reg.block("shelf_book", p -> DelegateBlock.newBaseBlock(p,
-							BlockTemplates.HORIZONTAL, new SimpleShelfBlock()))
-					.initialProperties(() -> Blocks.BIRCH_TRAPDOOR)
-					.blockstate(SimpleShelfBlock::buildStates)
+					.blockstate(BookShelfBlock::buildStates)
 					.tag(BlockTags.MINEABLE_WITH_AXE)
 					.simpleItem()
 					.register();

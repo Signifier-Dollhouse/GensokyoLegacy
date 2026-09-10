@@ -11,10 +11,13 @@ import dev.xkmc.gensokyolegacy.content.block.nature.EvergreenVineHeadBlock;
 import dev.xkmc.gensokyolegacy.content.block.nature.SimpleBushBlock;
 import dev.xkmc.gensokyolegacy.content.block.nature.SideBushBlock;
 import dev.xkmc.gensokyolegacy.content.block.nature.WaterloggedBushBlock;
+import dev.xkmc.gensokyolegacy.content.item.gift.GiftItemData;
+import dev.xkmc.gensokyolegacy.content.item.gift.GiftType;
 import dev.xkmc.gensokyolegacy.content.worldgen.feature.MushroomFeatures;
 import dev.xkmc.gensokyolegacy.content.worldgen.feature.TreeFeatures;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.GLTagGen;
+import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
 import dev.xkmc.l2core.init.reg.registrate.L2Registrate;
 import net.minecraft.advancements.critereon.*;
 import net.minecraft.client.renderer.block.model.BlockModel;
@@ -83,9 +86,12 @@ public class GLNaturalBlocks {
 					pvd.getVariantBuilder(ctx.get()).partialState().setModels(
 							new ConfiguredModel(modelA), new ConfiguredModel(modelB));
 				})
-				.item().model((ctx, pvd) -> pvd.getBuilder(ctx.getName())
-						.parent(new ModelFile.UncheckedModelFile("item/generated"))
-						.texture("layer0", pvd.modLoc("item/ingredient/" + ctx.getName()))).build()
+				.item()
+				.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
+				// TODO placeholder favor / cooldown
+				.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(5, 1000, GiftType.MAGIC))
+				.tab(ResourceKey.create(Registries.CREATIVE_MODE_TAB, GensokyoLegacy.loc("ingredients")))
+				.build()
 				.register();
 
 		// 燃蒲
@@ -194,7 +200,7 @@ public class GLNaturalBlocks {
 				MushroomFeatures.MushroomTreeType.DEMONIC_MIASMA.cfKey
 		);
 
-		// 红耳姑
+		// 红耳菇
 		EUGUNE_RED = reg.block("eugune_red", SideBushBlock::new)
 				.properties(p -> p.mapColor(MapColor.PLANT).strength(0).sound(SoundType.GRASS).noOcclusion().noCollission().pushReaction(PushReaction.DESTROY))
 				.blockstate((ctx, pvd) -> pvd.horizontalBlock(ctx.get(),
@@ -206,7 +212,7 @@ public class GLNaturalBlocks {
 				.simpleItem()
 				.register();
 
-		// 棕耳姑
+		// 棕耳菇
 		EUGUNE_BROWN = reg.block("eugune_brown", SideBushBlock::new)
 				.properties(p -> p.mapColor(MapColor.PLANT).strength(0).sound(SoundType.GRASS).noOcclusion().noCollission().pushReaction(PushReaction.DESTROY))
 				.blockstate((ctx, pvd) -> pvd.horizontalBlock(ctx.get(),
@@ -218,7 +224,7 @@ public class GLNaturalBlocks {
 				.simpleItem()
 				.register();
 
-		// 鬼火耳姑
+		// 鬼火耳菇
 		EUGUNE_GHOST_FIRE = reg.block("eugune_ghost_fire", SideBushBlock::new)
 				.properties(p -> p.mapColor(MapColor.PLANT).strength(0).sound(SoundType.GRASS).noOcclusion().noCollission().pushReaction(PushReaction.DESTROY))
 				.blockstate((ctx, pvd) -> pvd.horizontalBlock(ctx.get(),
