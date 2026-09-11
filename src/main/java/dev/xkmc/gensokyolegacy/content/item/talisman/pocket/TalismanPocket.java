@@ -50,8 +50,8 @@ public class TalismanPocket extends TalismanCurioItem implements InvClickItem {
 		var data = GLTalismans.DC_TALISMAN_POCKET.get(stack);
 		if (data == null) return List.of();
 		List<TalismanContext> ans = new ArrayList<>();
-		for (int i = 0; i < data.slots().length; i++) {
-			ItemStack folded = data.get(i).foldedStack();
+		for (int i = 0; i < TalismanPocketData.MAX_SLOTS; i++) {
+			ItemStack folded = data.folded(i);
 			if (folded.isEmpty()) continue;
 			TalismanPaperItem paper = FoldedPaperTalisman.paper(folded);
 			if (paper != null) ans.add(new TalismanContext(player, stack, i, folded, paper));
@@ -72,13 +72,12 @@ public class TalismanPocket extends TalismanCurioItem implements InvClickItem {
 		if (data == null) return;
 		TalismanPocketData next = data;
 		boolean changed = false;
-		for (int i = 0; i < data.slots().length; i++) {
-			TalismanSlot slot = data.get(i);
-			if (!slot.foldedStack().isEmpty() || slot.paperStack().isEmpty()) continue;
-			ItemStack paper = slot.paperStack();
+		for (int i = 0; i < TalismanPocketData.MAX_SLOTS; i++) {
+			if (data.hasFolded(i) || !data.hasPaper(i)) continue;
+			ItemStack paper = data.paper(i);
 			ItemStack one = paper.copyWithCount(1);
 			paper.shrink(1);
-			next = next.with(i, new TalismanSlot(FoldedPaperTalisman.fold(one), paper.isEmpty() ? ItemStack.EMPTY : paper));
+			next = next.with(i, FoldedPaperTalisman.fold(one), paper.isEmpty() ? ItemStack.EMPTY : paper);
 			changed = true;
 		}
 		if (changed) {
@@ -113,12 +112,12 @@ public class TalismanPocket extends TalismanCurioItem implements InvClickItem {
 		List<ItemStack> list = new ArrayList<>(getInvSize());
 		boolean has = false;
 		for (int i = 0; i < TalismanPocketData.MAX_SLOTS; i++) {
-			var folded = data.get(i).foldedStack();
+			var folded = data.folded(i);
 			list.add(folded);
 			has |= !folded.isEmpty();
 		}
 		for (int i = 0; i < TalismanPocketData.MAX_SLOTS; i++) {
-			var paper = data.get(i).paperStack();
+			var paper = data.paper(i);
 			list.add(paper);
 			has |= !paper.isEmpty();
 		}

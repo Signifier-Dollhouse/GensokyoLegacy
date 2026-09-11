@@ -9,7 +9,7 @@ import net.neoforged.neoforge.items.IItemHandlerModifiable;
 /**
  * 18-slot IItemHandlerModifiable facade over {@link TalismanPocketData}.
  * Slots 0..8 are the folded talisman row, slots 9..17 the reserve paper row,
- * index i holding the two stacks of pocket slot i (see {@link TalismanSlot}).
+ * index i holding the two stacks of pocket slot i.
  *
  * <p>Slot input restriction is handled here ({@link #isItemValid}): a slot is
  * only locked to the kind present in its partnered slot — a folded slot is
@@ -33,7 +33,7 @@ public class TalismanPocketItemHandler implements IItemHandlerModifiable {
 
 	private TalismanPocketData data() {
 		var data = GLTalismans.DC_TALISMAN_POCKET.get(stack);
-		return data != null ? data : new TalismanPocketData(TalismanPocketData.defaultSlots());
+		return data != null ? data : TalismanPocketData.defaults();
 	}
 
 	private void save(TalismanPocketData data) {
@@ -58,8 +58,9 @@ public class TalismanPocketItemHandler implements IItemHandlerModifiable {
 	@Override
 	public ItemStack getStackInSlot(int slot) {
 		if (slot < 0 || slot >= getSlots()) return ItemStack.EMPTY;
-		var pair = data().get(pair(slot));
-		return foldedSlot(slot) ? pair.foldedStack() : pair.paperStack();
+		var data = data();
+		int index = pair(slot);
+		return foldedSlot(slot) ? data.folded(index) : data.paper(index);
 	}
 
 	@Override
@@ -71,13 +72,13 @@ public class TalismanPocketItemHandler implements IItemHandlerModifiable {
 	private boolean isValidFolded(ItemStack s, int index) {
 		if (!(s.getItem() instanceof FoldedPaperTalisman)) return false;
 		if (FoldedPaperTalisman.paper(s) == null) return false;
-		ItemStack paper = data().get(index).paperStack();
+		ItemStack paper = data().paper(index);
 		return paper.isEmpty() || paper.getItem().equals(FoldedPaperTalisman.paper(s));
 	}
 
 	private boolean isValidPaper(ItemStack s, int index) {
 		if (!(s.getItem() instanceof TalismanPaperItem)) return false;
-		ItemStack folded = data().get(index).foldedStack();
+		ItemStack folded = data().folded(index);
 		if (folded.isEmpty()) return true;
 		return folded.getItem() instanceof FoldedPaperTalisman && s.getItem().equals(FoldedPaperTalisman.paper(folded));
 	}
@@ -89,19 +90,18 @@ public class TalismanPocketItemHandler implements IItemHandlerModifiable {
 		int index = pair(slot);
 		int advance;
 		var data = data();
-		var pair = data.get(index);
 		if (foldedSlot(slot)) {
-			if (!pair.foldedStack().isEmpty()) return s;
+			if (data.hasFolded(index)) return s;
 			advance = 1;
 		} else {
-			advance = Math.min(s.getCount(), 64 - pair.paperStack().getCount());
+			advance = Math.min(s.getCount(), 64 - data.paper(index).getCount());
 		}
 		if (advance <= 0) return s;
 		if (simulate) {
 			s.shrink(advance);
 			return s;
 		}
-		save(data.with(index, foldedSlot(slot) ? pair.withFolded(s.copy()) : pair.withPaper(grow(pair.paperStack(), advance))));
+		save(foldedSlot(slot) ? data.withFolded(index, s.copy()) : data.withPaper(index, grow(data.paper(index), advance)));
 		s.shrink(advance);
 		return s;
 	}
@@ -115,20 +115,19 @@ public class TalismanPocketItemHandler implements IItemHandlerModifiable {
 		if (amount <= 0 || slot < 0 || slot >= getSlots()) return ItemStack.EMPTY;
 		int index = pair(slot);
 		var data = data();
-		var pair = data.get(index);
 		if (foldedSlot(slot)) {
-			ItemStack folded = pair.foldedStack();
+			ItemStack folded = data.folded(index);
 			if (folded.isEmpty()) return ItemStack.EMPTY;
 			if (simulate) return folded.copy();
-			save(data.with(index, pair.withFolded(ItemStack.EMPTY)));
+			save(data.withFolded(index, ItemStack.EMPTY));
 			return folded.copy();
 		}
-		ItemStack papers = pair.paperStack();
+		ItemStack papers = data.paper(index);
 		if (papers.isEmpty()) return ItemStack.EMPTY;
 		int n = Math.min(amount, papers.getCount());
 		if (simulate) return papers.copyWithCount(n);
 		ItemStack left = papers.copyWithCount(papers.getCount() - n);
-		save(data.with(index, left.isEmpty() ? pair.withPaper(ItemStack.EMPTY) : pair.withPaper(left)));
+		save(data.withPaper(index, left.isEmpty() ? ItemStack.EMPTY : left));
 		return papers.copyWithCount(n);
 	}
 
@@ -137,20 +136,19 @@ public class TalismanPocketItemHandler implements IItemHandlerModifiable {
 		if (slot < 0 || slot >= getSlots()) return;
 		int index = pair(slot);
 		var data = data();
-		var pair = data.get(index);
 		ItemStack copy = s.copy();
 		if (foldedSlot(slot)) {
 			if (copy.isEmpty()) {
-				save(data.with(index, pair.withFolded(ItemStack.EMPTY)));
+				save(data.withFolded(index, ItemStack.EMPTY));
 			} else if (copy.getItem() instanceof FoldedPaperTalisman && FoldedPaperTalisman.paper(copy) != null) {
-				save(data.with(index, pair.withFolded(copy)));
+				save(data.withFolded(index, copy));
 			}
 			return;
 		}
 		if (copy.isEmpty()) {
-			save(data.with(index, pair.withPaper(ItemStack.EMPTY)));
+			save(data.withPaper(index, ItemStack.EMPTY));
 		} else if (copy.getItem() instanceof TalismanPaperItem) {
-			save(data.with(index, pair.withPaper(copy)));
+			save(data.withPaper(index, copy));
 		}
 	}
 

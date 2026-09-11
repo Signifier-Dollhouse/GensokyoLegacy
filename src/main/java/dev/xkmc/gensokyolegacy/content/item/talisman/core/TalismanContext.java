@@ -36,8 +36,7 @@ public record TalismanContext(
 		}
 		var data = GLTalismans.DC_TALISMAN_POCKET.get(pocketStack);
 		if (data != null) {
-			var slot = data.get(index);
-			GLTalismans.DC_TALISMAN_POCKET.set(pocketStack, data.with(index, slot.withFolded(foldedStack)));
+			GLTalismans.DC_TALISMAN_POCKET.set(pocketStack, data.withFolded(index, foldedStack));
 		}
 	}
 
