@@ -4,8 +4,10 @@ import dev.xkmc.gensokyolegacy.content.item.talisman.core.FoldedPaperTalisman;
 import dev.xkmc.gensokyolegacy.content.item.talisman.core.GLTalismans;
 import dev.xkmc.gensokyolegacy.content.item.talisman.core.TalismanCurioItem;
 import dev.xkmc.gensokyolegacy.content.item.tool.InvClickItem;
+import dev.xkmc.gensokyolegacy.content.item.tool.InvTooltip;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.l2menustacker.screen.source.PlayerSlot;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -13,12 +15,14 @@ import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 import top.theillusivec4.curios.api.SlotContext;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class TalismanPocket extends TalismanCurioItem implements InvClickItem {
 
@@ -95,6 +99,31 @@ public class TalismanPocket extends TalismanCurioItem implements InvClickItem {
 	@Override
 	public void appendHoverText(ItemStack stack, TooltipContext ctx, List<Component> list, TooltipFlag flag) {
 		list.add(GLLang.Talisman.POCKET_DESC.get());
+	}
+
+	@Override
+	public Optional<TooltipComponent> getTooltipImage(ItemStack stack) {
+		if (Screen.hasShiftDown()) return Optional.empty();
+		var data = GLTalismans.DC_TALISMAN_POCKET.get(stack);
+		if (data == null) return Optional.empty();
+		List<ItemStack> list = new ArrayList<>(getInvSize());
+		boolean has = false;
+		for (int i = 0; i < TalismanPocketData.MAX_SLOTS; i++) {
+			var folded = data.get(i).foldedStack();
+			list.add(folded);
+			has |= !folded.isEmpty();
+		}
+		for (int i = 0; i < TalismanPocketData.MAX_SLOTS; i++) {
+			var paper = data.get(i).paperStack();
+			list.add(paper);
+			has |= !paper.isEmpty();
+		}
+		if (!has) return Optional.empty();
+		return Optional.of(new InvTooltip(list, TalismanPocketData.MAX_SLOTS, 2));
+	}
+
+	private static int getInvSize() {
+		return TalismanPocketData.MAX_SLOTS * 2;
 	}
 
 }

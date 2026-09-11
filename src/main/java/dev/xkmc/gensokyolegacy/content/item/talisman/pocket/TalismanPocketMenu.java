@@ -1,5 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.item.talisman.pocket;
 
+import dev.xkmc.gensokyolegacy.content.item.talisman.core.GLTalismans;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.l2core.base.menu.base.BaseContainerMenu;
 import dev.xkmc.l2core.base.menu.base.SpriteManager;
@@ -27,7 +28,7 @@ public class TalismanPocketMenu extends BaseContainerMenu<TalismanPocketMenu> {
 	public TalismanPocketMenu(@Nullable MenuType<?> type, int wid, Inventory plInv, @Nullable PlayerSlot<?> slot) {
 		super(type, wid, plInv, MANAGER, menu -> new SimpleContainer(0), false);
 		this.slot = slot;
-		ItemStack backing = slot != null ? slot.getItem(plInv.player) : ItemStack.EMPTY;
+		ItemStack backing = slot != null ? slot.getItem(plInv.player) : GLTalismans.TALISMAN_POCKET.asStack();
 		this.handler = new TalismanPocketItemHandler(backing);
 		getLayout().getSlot("grid", (x, y) -> new ItemHandlerCopySlot(handler, added++, x, y), this::addSlot);
 	}

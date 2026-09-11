@@ -26,19 +26,17 @@ import net.neoforged.neoforge.items.IItemHandlerModifiable;
 public class TalismanPocketItemHandler implements IItemHandlerModifiable {
 
 	private final ItemStack stack;
-	private TalismanPocketData data;
 
 	public TalismanPocketItemHandler(ItemStack stack) {
 		this.stack = stack;
-		this.data = getData(stack);
 	}
 
-	private static TalismanPocketData getData(ItemStack stack) {
+	private TalismanPocketData data() {
 		var data = GLTalismans.DC_TALISMAN_POCKET.get(stack);
 		return data != null ? data : new TalismanPocketData(TalismanPocketData.defaultSlots());
 	}
 
-	private void markDirty() {
+	private void save(TalismanPocketData data) {
 		if (!stack.isEmpty()) {
 			GLTalismans.DC_TALISMAN_POCKET.set(stack, data);
 		}
@@ -60,7 +58,7 @@ public class TalismanPocketItemHandler implements IItemHandlerModifiable {
 	@Override
 	public ItemStack getStackInSlot(int slot) {
 		if (slot < 0 || slot >= getSlots()) return ItemStack.EMPTY;
-		var pair = data.get(pair(slot));
+		var pair = data().get(pair(slot));
 		return foldedSlot(slot) ? pair.foldedStack() : pair.paperStack();
 	}
 
@@ -73,13 +71,13 @@ public class TalismanPocketItemHandler implements IItemHandlerModifiable {
 	private boolean isValidFolded(ItemStack s, int index) {
 		if (!(s.getItem() instanceof FoldedPaperTalisman)) return false;
 		if (FoldedPaperTalisman.paper(s) == null) return false;
-		ItemStack paper = data.get(index).paperStack();
+		ItemStack paper = data().get(index).paperStack();
 		return paper.isEmpty() || paper.getItem().equals(FoldedPaperTalisman.paper(s));
 	}
 
 	private boolean isValidPaper(ItemStack s, int index) {
 		if (!(s.getItem() instanceof TalismanPaperItem)) return false;
-		ItemStack folded = data.get(index).foldedStack();
+		ItemStack folded = data().get(index).foldedStack();
 		if (folded.isEmpty()) return true;
 		return folded.getItem() instanceof FoldedPaperTalisman && s.getItem().equals(FoldedPaperTalisman.paper(folded));
 	}
@@ -90,6 +88,7 @@ public class TalismanPocketItemHandler implements IItemHandlerModifiable {
 		if (s.isEmpty() || !isItemValid(slot, s)) return s;
 		int index = pair(slot);
 		int advance;
+		var data = data();
 		var pair = data.get(index);
 		if (foldedSlot(slot)) {
 			if (!pair.foldedStack().isEmpty()) return s;
@@ -102,8 +101,7 @@ public class TalismanPocketItemHandler implements IItemHandlerModifiable {
 			s.shrink(advance);
 			return s;
 		}
-		data = data.with(index, foldedSlot(slot) ? pair.withFolded(s.copy()) : pair.withPaper(grow(pair.paperStack(), advance)));
-		markDirty();
+		save(data.with(index, foldedSlot(slot) ? pair.withFolded(s.copy()) : pair.withPaper(grow(pair.paperStack(), advance))));
 		s.shrink(advance);
 		return s;
 	}
@@ -118,13 +116,13 @@ public class TalismanPocketItemHandler implements IItemHandlerModifiable {
 	public ItemStack extractItem(int slot, int amount, boolean simulate) {
 		if (amount <= 0 || slot < 0 || slot >= getSlots()) return ItemStack.EMPTY;
 		int index = pair(slot);
+		var data = data();
 		var pair = data.get(index);
 		if (foldedSlot(slot)) {
 			ItemStack folded = pair.foldedStack();
 			if (folded.isEmpty()) return ItemStack.EMPTY;
 			if (simulate) return folded.copy();
-			data = data.with(index, pair.withFolded(ItemStack.EMPTY));
-			markDirty();
+			save(data.with(index, pair.withFolded(ItemStack.EMPTY)));
 			return folded.copy();
 		}
 		ItemStack papers = pair.paperStack();
@@ -132,8 +130,7 @@ public class TalismanPocketItemHandler implements IItemHandlerModifiable {
 		int n = Math.min(amount, papers.getCount());
 		if (simulate) return shrinkTo(papers, n);
 		ItemStack left = shrinkTo(papers, papers.getCount() - n);
-		data = data.with(index, left.isEmpty() ? pair.withPaper(ItemStack.EMPTY) : pair.withPaper(left));
-		markDirty();
+		save(data.with(index, left.isEmpty() ? pair.withPaper(ItemStack.EMPTY) : pair.withPaper(left)));
 		return shrinkTo(papers, n);
 	}
 
@@ -147,23 +144,20 @@ public class TalismanPocketItemHandler implements IItemHandlerModifiable {
 	public void setStackInSlot(int slot, ItemStack s) {
 		if (slot < 0 || slot >= getSlots()) return;
 		int index = pair(slot);
+		var data = data();
 		var pair = data.get(index);
 		if (foldedSlot(slot)) {
 			if (s.isEmpty()) {
-				data = data.with(index, pair.withFolded(ItemStack.EMPTY));
-				markDirty();
+				save(data.with(index, pair.withFolded(ItemStack.EMPTY)));
 			} else if (s.getItem() instanceof FoldedPaperTalisman && FoldedPaperTalisman.paper(s) != null) {
-				data = data.with(index, pair.withFolded(s));
-				markDirty();
+				save(data.with(index, pair.withFolded(s)));
 			}
 			return;
 		}
 		if (s.isEmpty()) {
-			data = data.with(index, pair.withPaper(ItemStack.EMPTY));
-			markDirty();
+			save(data.with(index, pair.withPaper(ItemStack.EMPTY)));
 		} else if (s.getItem() instanceof TalismanPaperItem) {
-			data = data.with(index, pair.withPaper(s));
-			markDirty();
+			save(data.with(index, pair.withPaper(s)));
 		}
 	}
 

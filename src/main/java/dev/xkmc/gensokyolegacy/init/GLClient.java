@@ -14,6 +14,8 @@ import dev.xkmc.gensokyolegacy.content.entity.characters.rumia.RumiaModel;
 import dev.xkmc.gensokyolegacy.content.item.talisman.core.FoldedPaperTalisman;
 import dev.xkmc.gensokyolegacy.content.item.talisman.core.GLTalismans;
 import dev.xkmc.gensokyolegacy.content.item.talisman.core.TalismanPaperItem;
+import dev.xkmc.gensokyolegacy.content.item.tool.ClientInvTooltip;
+import dev.xkmc.gensokyolegacy.content.item.tool.InvTooltip;
 import dev.xkmc.gensokyolegacy.content.item.umbrella.BorderUmbrellaItem;
 import dev.xkmc.gensokyolegacy.content.ui.quest.QuestOverlay;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
@@ -67,6 +69,7 @@ public class GLClient {
 	@SubscribeEvent
 	public static void registerTooltips(RegisterClientTooltipComponentFactoriesEvent event) {
 		event.register(TileTooltip.class, TileClientTooltip::new);
+		event.register(InvTooltip.class, ClientInvTooltip::new);
 	}
 
 	@SubscribeEvent
