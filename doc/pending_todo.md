@@ -2,4 +2,3 @@
 - Natural blocks bonemeal
 - regroup custom block models into same structure as respective block registration (utensil, deco, furniture, natural)
 - large chair shape fix
-- use new lava affinity effects from the lost legend

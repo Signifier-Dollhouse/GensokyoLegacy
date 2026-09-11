@@ -45,8 +45,8 @@ public class CuriosManager {
 						var stacks = handler.getStacks();
 						for (int i = 0; i < stacks.getSlots(); i++) {
 							ItemStack curio = stacks.getStackInSlot(i);
-							if (curio.getItem() instanceof TalismanCurioItem t) {
-								ans.addAll(t.getActiveTalismans(curio));
+							if (curio.getItem() instanceof TalismanCurioItem) {
+								ans.add(curio);
 							}
 						}
 					}));

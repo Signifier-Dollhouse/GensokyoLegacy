@@ -13,23 +13,8 @@ import java.util.List;
 
 public class ShelterTalisman extends TalismanPaperItem {
 
-	public ShelterTalisman(Properties p) {
-		super(p, 16);
-	}
-
-	@Override
-	public int getColor() {
-		return 0xFFFFD5;
-	}
-
-	@Override
-	public String getTexture() {
-		return "life";
-	}
-
-	@Override
-	public GLLang.LangEntry kindName() {
-		return GLLang.Talisman.KIND_SHELTER;
+	public ShelterTalisman(Properties p, int durability, int color, GLLang.LangEntry name) {
+		super(p, durability, color, name);
 	}
 
 	@Override

@@ -10,23 +10,8 @@ import java.util.List;
 
 public class HydrophobicTalisman extends TalismanPaperItem {
 
-	public HydrophobicTalisman(Properties p) {
-		super(p, 180);
-	}
-
-	@Override
-	public int getColor() {
-		return 0x5555FF;
-	}
-
-	@Override
-	public String getTexture() {
-		return "attack";
-	}
-
-	@Override
-	public GLLang.LangEntry kindName() {
-		return GLLang.Talisman.KIND_HYDROPHOBIC;
+	public HydrophobicTalisman(Properties p, int durability, int color, GLLang.LangEntry name) {
+		super(p, durability, color, name);
 	}
 
 	@Override
@@ -36,7 +21,7 @@ public class HydrophobicTalisman extends TalismanPaperItem {
 
 	@Override
 	public void trigger(ItemStack stack, ServerPlayer le) {
-		le.setAirSupply(le.getAirSupply() + 1);
+		le.setAirSupply(le.getAirSupply() + 40);
 		hurtItem(stack);
 	}
 

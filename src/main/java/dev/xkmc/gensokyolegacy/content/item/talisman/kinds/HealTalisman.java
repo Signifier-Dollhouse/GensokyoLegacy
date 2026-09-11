@@ -10,23 +10,8 @@ import java.util.List;
 
 public class HealTalisman extends TalismanPaperItem {
 
-	public HealTalisman(Properties p) {
-		super(p, 16);
-	}
-
-	@Override
-	public int getColor() {
-		return 0xFF5050;
-	}
-
-	@Override
-	public String getTexture() {
-		return "life";
-	}
-
-	@Override
-	public GLLang.LangEntry kindName() {
-		return GLLang.Talisman.KIND_HEAL;
+	public HealTalisman(Properties p, int durability, int color, GLLang.LangEntry name) {
+		super(p, durability, color, name);
 	}
 
 	@Override

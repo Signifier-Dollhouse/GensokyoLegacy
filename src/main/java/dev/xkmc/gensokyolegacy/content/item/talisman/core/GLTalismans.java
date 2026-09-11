@@ -6,6 +6,7 @@ import dev.xkmc.gensokyolegacy.content.item.talisman.kinds.*;
 import dev.xkmc.gensokyolegacy.content.item.talisman.pocket.TalismanPocket;
 import dev.xkmc.gensokyolegacy.content.item.talisman.pocket.TalismanPocketData;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
+import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.l2core.init.reg.simple.DCReg;
 import dev.xkmc.l2core.init.reg.simple.DCVal;
@@ -15,9 +16,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.Item;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
-
-import java.util.List;
-import java.util.function.Supplier;
 
 public class GLTalismans {
 
@@ -38,43 +36,43 @@ public class GLTalismans {
 	static {
 		var reg = GensokyoLegacy.REGISTRATE;
 
-		HEAL_TALISMAN = reg.item("heal_talisman", HealTalisman::new)
+		HEAL_TALISMAN = reg.item("heal_talisman", p -> new HealTalisman(p, 16, 0xFFFF5050, GLLang.Talisman.KIND_HEAL))
 				.model((ctx, pvd) -> genLayeredItemModel(ctx.getName(), pvd, "life_talisman_paper"))
-				.tab(GLItems.TAB.key())
+				.color(() -> () -> TalismanPaperItem::color)
 				.lang("Healing Talisman Paper").register();
 
-		SPEED_TALISMAN = reg.item("speed_talisman", SpeedTalisman::new)
+		SPEED_TALISMAN = reg.item("speed_talisman", p -> new SpeedTalisman(p, 180, 0xFF55FF7F, GLLang.Talisman.KIND_SPEED))
 				.model((ctx, pvd) -> genLayeredItemModel(ctx.getName(), pvd, "speed_talisman_paper"))
-				.tab(GLItems.TAB.key())
+				.color(() -> () -> TalismanPaperItem::color)
 				.lang("Speed Boost Talisman Paper").register();
 
-		HYDROPHOBIC_TALISMAN = reg.item("hydrophobic_talisman", HydrophobicTalisman::new)
+		HYDROPHOBIC_TALISMAN = reg.item("hydrophobic_talisman", p -> new HydrophobicTalisman(p, 180, 0xFF5555FF, GLLang.Talisman.KIND_HYDROPHOBIC))
 				.model((ctx, pvd) -> genLayeredItemModel(ctx.getName(), pvd, "attack_talisman_paper"))
-				.tab(GLItems.TAB.key())
+				.color(() -> () -> TalismanPaperItem::color)
 				.lang("Hydrophobic Talisman Paper").register();
 
-		LAVA_TALISMAN = reg.item("lava_talisman", LavaAffinityTalisman::new)
+		LAVA_TALISMAN = reg.item("lava_talisman", p -> new LavaAffinityTalisman(p, 180, 0xFFFFB37F, GLLang.Talisman.KIND_LAVA))
 				.model((ctx, pvd) -> genLayeredItemModel(ctx.getName(), pvd, "attack_talisman_paper"))
-				.tab(GLItems.TAB.key())
+				.color(() -> () -> TalismanPaperItem::color)
 				.lang("Lava Affinity Talisman Paper").register();
 
-		SHELTER_TALISMAN = reg.item("shelter_talisman", ShelterTalisman::new)
+		SHELTER_TALISMAN = reg.item("shelter_talisman", p -> new ShelterTalisman(p, 16, 0xFFFFFFD5, GLLang.Talisman.KIND_SHELTER))
 				.model((ctx, pvd) -> genLayeredItemModel(ctx.getName(), pvd, "life_talisman_paper"))
-				.tab(GLItems.TAB.key())
+				.color(() -> () -> TalismanPaperItem::color)
 				.lang("Shelter Talisman Paper").register();
 
 		FOLDED_PAPER_TALISMAN = reg.item("folded_paper_talisman", FoldedPaperTalisman::new)
 				.model((ctx, pvd) -> genLayeredItemModel(ctx.getName(), pvd, "folded_paper_talisman"))
 				.tag(ItemTags.create(ResourceLocation.fromNamespaceAndPath("curios", "charm")))
 				.properties(p -> p.stacksTo(1))
-				.tab(GLItems.TAB.key())
+				.removeTab(GLItems.TAB.key())
+				.color(() -> () -> FoldedPaperTalisman::color)
 				.lang("Folded Paper Talisman").register();
 
 		TALISMAN_POCKET = reg.item("talisman_pocket", TalismanPocket::new)
-				.model((ctx, pvd) -> genLayeredItemModel(ctx.getName(), pvd, "talisman_pocket"))
+				.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/talisman/talisman_pocket")))
 				.tag(ItemTags.create(ResourceLocation.fromNamespaceAndPath("curios", "charm")))
 				.properties(p -> p.stacksTo(1))
-				.tab(GLItems.TAB.key())
 				.lang("Talisman Pocket").register();
 	}
 
@@ -84,9 +82,6 @@ public class GLTalismans {
 				.texture("layer0", pvd.modLoc("item/talisman/" + tex))
 				.texture("layer1", pvd.modLoc("item/talisman/" + tex + "_overlay"));
 	}
-
-	public static final List<Supplier<? extends Item>> TALISMAN_PAPERS = List.of(
-			HEAL_TALISMAN, SPEED_TALISMAN, HYDROPHOBIC_TALISMAN, LAVA_TALISMAN, SHELTER_TALISMAN);
 
 	public static void register() {
 	}

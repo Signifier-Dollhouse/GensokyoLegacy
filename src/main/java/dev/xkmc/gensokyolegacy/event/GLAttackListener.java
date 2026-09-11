@@ -5,6 +5,7 @@ import dev.xkmc.gensokyolegacy.compat.curios.CuriosManager;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.item.character.TouhouHatItem;
 import dev.xkmc.gensokyolegacy.content.item.hexbrew.SparklingEventHandler;
+import dev.xkmc.gensokyolegacy.content.item.talisman.core.TalismanCurioItem;
 import dev.xkmc.gensokyolegacy.content.item.talisman.core.TalismanPaperItem;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.GLModConfig;
@@ -30,14 +31,7 @@ public class GLAttackListener implements AttackListener {
 			}
 		}
 		if (cache.getTarget() instanceof ServerPlayer sp) {
-			for (ItemStack paper : CuriosManager.getEquippedTalismans(sp)) {
-				if (sp.getCooldowns().isOnCooldown(paper.getItem())) continue;
-				if (paper.getItem() instanceof TalismanPaperItem entry) {
-					if (entry.onAttacked(paper, sp, cache)) {
-						return true;
-					}
-				}
-			}
+			TalismanCurioItem.iterate(sp, (paper, stack) -> paper.onAttacked(stack, sp, cache));
 		}
 		return AttackListener.super.onAttack(cache);
 	}
@@ -45,11 +39,7 @@ public class GLAttackListener implements AttackListener {
 	@Override
 	public void onDamage(DamageData.Defence data) {
 		if (data.getTarget() instanceof ServerPlayer sp) {
-			for (ItemStack paper : CuriosManager.getEquippedTalismans(sp)) {
-				if (paper.getItem() instanceof TalismanPaperItem entry) {
-					entry.onDamaged(paper, sp, data);
-				}
-			}
+			TalismanCurioItem.iterate(sp, (paper, stack) -> paper.onDamaged(stack, sp, data));
 		}
 		if (data.getSource().is(DanmakuDamageTypes.DANMAKU) && data.getSource().getEntity() instanceof YoukaiEntity) {
 			LivingEntity le = data.getTarget();
@@ -66,7 +56,7 @@ public class GLAttackListener implements AttackListener {
 	@Override
 	public void onDamageFinalized(DamageData.DefenceMax data) {
 		SparklingEventHandler.onLivingHurt(data.getTarget());
-		
+
 		var attacker = data.getAttacker();
 		if (attacker == null) return;
 		ItemStack head = attacker.getItemBySlot(EquipmentSlot.HEAD);

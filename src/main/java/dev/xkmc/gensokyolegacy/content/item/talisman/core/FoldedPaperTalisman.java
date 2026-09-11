@@ -44,7 +44,7 @@ public class FoldedPaperTalisman extends TalismanCurioItem {
 	public Component getName(ItemStack stack) {
 		TalismanPaperItem paper = paper(stack);
 		if (paper == null) return super.getName(stack);
-		return GLLang.Talisman.FOLDED.get(paper.kindName().get());
+		return GLLang.Talisman.FOLDED.get(paper.name.get());
 	}
 
 	@Override
@@ -58,6 +58,13 @@ public class FoldedPaperTalisman extends TalismanCurioItem {
 		list.add(GLLang.Talisman.DURABILITY.get(
 				GLTalismans.DC_TALISMAN_DURABILITY.getOrDefault(stack, paper.getDurability()),
 				paper.getDurability()));
+	}
+
+	public static int color(ItemStack stack, int tintIndex) {
+		if (tintIndex != 1) return -1;
+		var item = GLTalismans.DC_TALISMAN_PAPER.get(stack);
+		if (item == null || !(item.value() instanceof TalismanPaperItem paper)) return -1;
+		return paper.color;
 	}
 
 }

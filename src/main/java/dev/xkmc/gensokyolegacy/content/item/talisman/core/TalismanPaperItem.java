@@ -15,22 +15,23 @@ import java.util.List;
 
 public abstract class TalismanPaperItem extends Item {
 
-	protected final int durability;
+	protected final int durability, color;
+	protected final GLLang.LangEntry name;
 
-	public TalismanPaperItem(Properties p, int durability) {
+	public TalismanPaperItem(Properties p, int durability, int color, GLLang.LangEntry name) {
 		super(p);
 		this.durability = durability;
+		this.color = color;
+		this.name = name;
 	}
 
 	public int getDurability() {
 		return durability;
 	}
 
-	public abstract int getColor();
-
-	public abstract String getTexture();
-
-	public abstract GLLang.LangEntry kindName();
+	public int getColor() {
+		return color;
+	}
 
 	public final void tickTalisman(ItemStack stack, ServerPlayer player) {
 		if (player.getCooldowns().isOnCooldown(this))
@@ -87,6 +88,10 @@ public abstract class TalismanPaperItem extends Item {
 				stack.shrink(1);
 			}
 		}
+	}
+
+	public static int color(ItemStack stack, int tintIndex) {
+		return tintIndex == 1 ? stack.getItem() instanceof TalismanPaperItem item ? item.color : -1 : -1;
 	}
 
 }

@@ -11,23 +11,8 @@ import java.util.List;
 
 public class SpeedTalisman extends TalismanPaperItem {
 
-	public SpeedTalisman(Properties p) {
-		super(p, 180);
-	}
-
-	@Override
-	public int getColor() {
-		return 0x55FF7F;
-	}
-
-	@Override
-	public String getTexture() {
-		return "speed";
-	}
-
-	@Override
-	public GLLang.LangEntry kindName() {
-		return GLLang.Talisman.KIND_SPEED;
+	public SpeedTalisman(Properties p, int durability, int color, GLLang.LangEntry name) {
+		super(p, durability, color, name);
 	}
 
 	@Override

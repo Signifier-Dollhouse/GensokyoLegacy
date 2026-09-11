@@ -13,23 +13,8 @@ import java.util.List;
 
 public class LavaAffinityTalisman extends TalismanPaperItem {
 
-	public LavaAffinityTalisman(Properties p) {
-		super(p, 180);
-	}
-
-	@Override
-	public int getColor() {
-		return 0xFFB37F;
-	}
-
-	@Override
-	public String getTexture() {
-		return "attack";
-	}
-
-	@Override
-	public GLLang.LangEntry kindName() {
-		return GLLang.Talisman.KIND_LAVA;
+	public LavaAffinityTalisman(Properties p, int durability, int color, GLLang.LangEntry name) {
+		super(p, durability, color, name);
 	}
 
 	@Override

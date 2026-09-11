@@ -199,7 +199,11 @@ public class GensokyoLegacy {
 		new GLDamageTypes(REGISTRATE).generate();
 
 		var gen = event.getGenerator();
-		gen.addProvider(event.includeServer(), new GLGLMProvider(gen.getPackOutput(), event.getLookupProvider()));
+		var out = gen.getPackOutput();
+		var helper = event.getExistingFileHelper();
+		var pvd = event.getLookupProvider();
+		gen.addProvider(event.includeServer(), new GLGLMProvider(out, pvd));
+		gen.addProvider(event.includeServer(), new GLSlotGen(out, helper, pvd));
 
 		var reimu = new ReimuQDGen();
 		var marisa = new MarisaQDGen();
