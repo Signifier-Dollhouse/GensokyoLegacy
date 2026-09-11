@@ -146,18 +146,19 @@ public class TalismanPocketItemHandler implements IItemHandlerModifiable {
 		int index = pair(slot);
 		var data = data();
 		var pair = data.get(index);
+		ItemStack copy = s.copy();
 		if (foldedSlot(slot)) {
-			if (s.isEmpty()) {
+			if (copy.isEmpty()) {
 				save(data.with(index, pair.withFolded(ItemStack.EMPTY)));
-			} else if (s.getItem() instanceof FoldedPaperTalisman && FoldedPaperTalisman.paper(s) != null) {
-				save(data.with(index, pair.withFolded(s)));
+			} else if (copy.getItem() instanceof FoldedPaperTalisman && FoldedPaperTalisman.paper(copy) != null) {
+				save(data.with(index, pair.withFolded(copy)));
 			}
 			return;
 		}
-		if (s.isEmpty()) {
+		if (copy.isEmpty()) {
 			save(data.with(index, pair.withPaper(ItemStack.EMPTY)));
-		} else if (s.getItem() instanceof TalismanPaperItem) {
-			save(data.with(index, pair.withPaper(s)));
+		} else if (copy.getItem() instanceof TalismanPaperItem) {
+			save(data.with(index, pair.withPaper(copy)));
 		}
 	}
 

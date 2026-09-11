@@ -1,5 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.item.talisman.kinds;
 
+import dev.xkmc.gensokyolegacy.content.item.talisman.core.TalismanContext;
 import dev.xkmc.gensokyolegacy.content.item.talisman.core.TalismanPaperItem;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
@@ -18,12 +19,13 @@ public class ShelterTalisman extends TalismanPaperItem {
 	}
 
 	@Override
-	public void onDamaged(ItemStack stack, ServerPlayer sp, DamageData.Defence event) {
+	public void onDamaged(TalismanContext ctx, DamageData.Defence event) {
+		ServerPlayer sp = ctx.player();
 		if (sp.getCooldowns().isOnCooldown(this)) return;
 		event.addDealtModifier(DamageModifier.nonlinearFinal(614, f -> {
 			if (f >= event.getTarget().getHealth() * 0.2) {
-				sp.getCooldowns().addCooldown(this, 100);
-				hurtItem(stack);
+				ctx.addCooldown(100);
+				ctx.hurtItem();
 				return f * 0.2f;
 			}
 			return f;

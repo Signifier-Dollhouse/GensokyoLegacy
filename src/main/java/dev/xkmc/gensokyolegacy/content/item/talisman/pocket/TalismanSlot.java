@@ -8,9 +8,12 @@ public record TalismanSlot(ItemStack foldedStack, ItemStack paperStack) {
 
 	public static final TalismanSlot EMPTY = new TalismanSlot(ItemStack.EMPTY, ItemStack.EMPTY);
 
-	public TalismanSlot {
-		if (foldedStack == null) foldedStack = ItemStack.EMPTY;
-		if (paperStack == null) paperStack = ItemStack.EMPTY;
+	public ItemStack foldedStack() {
+		return foldedStack.copy();
+	}
+
+	public ItemStack paperStack() {
+		return paperStack.copy();
 	}
 
 	public boolean isEmpty() {

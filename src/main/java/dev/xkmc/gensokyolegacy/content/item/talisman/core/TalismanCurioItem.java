@@ -8,7 +8,7 @@ import top.theillusivec4.curios.api.SlotContext;
 import top.theillusivec4.curios.api.type.capability.ICurioItem;
 
 import java.util.List;
-import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 public abstract class TalismanCurioItem extends Item implements ICurioItem {
 
@@ -16,28 +16,26 @@ public abstract class TalismanCurioItem extends Item implements ICurioItem {
 		super(p);
 	}
 
-	public static void iterate(ServerPlayer sp, BiConsumer<TalismanPaperItem, ItemStack> cons) {
+	public static void iterate(ServerPlayer sp, Consumer<TalismanContext> cons) {
 		for (ItemStack curio : CuriosManager.getEquippedTalismans(sp)) {
 			if (curio.getItem() instanceof TalismanCurioItem cont) {
-				for (var stack : cont.getActiveTalismans(curio)) {
-					var item = GLTalismans.DC_TALISMAN_PAPER.get(stack);
-					if (item != null && item.value() instanceof TalismanPaperItem paper && !sp.getCooldowns().isOnCooldown(paper)) {
-						cons.accept(paper, stack);
+				for (var ctx : cont.getActiveTalismans(sp, curio)) {
+					if (!sp.getCooldowns().isOnCooldown(ctx.paper())) {
+						cons.accept(ctx);
 					}
 				}
 			}
 		}
 	}
 
-	public abstract List<ItemStack> getActiveTalismans(ItemStack stack);
+	public abstract List<TalismanContext> getActiveTalismans(ServerPlayer player, ItemStack stack);
 
 	@Override
 	public void curioTick(SlotContext slotContext, ItemStack curio) {
 		if (slotContext.entity() instanceof ServerPlayer sp) {
-			for (ItemStack stack : getActiveTalismans(curio)) {
-				var item = GLTalismans.DC_TALISMAN_PAPER.get(stack);
-				if (item != null && item.value() instanceof TalismanPaperItem paper && !sp.getCooldowns().isOnCooldown(paper)) {
-					paper.tickTalisman(stack, sp);
+			for (TalismanContext ctx : getActiveTalismans(sp, curio)) {
+				if (!sp.getCooldowns().isOnCooldown(ctx.paper())) {
+					ctx.paper().tickTalisman(ctx);
 				}
 			}
 		}

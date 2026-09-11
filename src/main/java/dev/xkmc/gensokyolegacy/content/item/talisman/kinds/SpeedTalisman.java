@@ -1,5 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.item.talisman.kinds;
 
+import dev.xkmc.gensokyolegacy.content.item.talisman.core.TalismanContext;
 import dev.xkmc.gensokyolegacy.content.item.talisman.core.TalismanPaperItem;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import net.minecraft.network.chat.Component;
@@ -21,8 +22,8 @@ public class SpeedTalisman extends TalismanPaperItem {
 	}
 
 	@Override
-	public void trigger(ItemStack stack, ServerPlayer le) {
-		applyEffect(stack, le, MobEffects.MOVEMENT_SPEED, 1);
+	public void trigger(TalismanContext ctx) {
+		applyEffect(ctx, MobEffects.MOVEMENT_SPEED, 1);
 	}
 
 	@Override

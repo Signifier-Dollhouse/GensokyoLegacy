@@ -33,27 +33,28 @@ public abstract class TalismanPaperItem extends Item {
 		return color;
 	}
 
-	public final void tickTalisman(ItemStack stack, ServerPlayer player) {
+	public final void tickTalisman(TalismanContext ctx) {
+		ServerPlayer player = ctx.player();
 		if (player.getCooldowns().isOnCooldown(this))
 			return;
 		if (!test(player))
 			return;
-		trigger(stack, player);
+		trigger(ctx);
 	}
 
 	public boolean test(ServerPlayer le) {
 		return false;
 	}
 
-	public void trigger(ItemStack stack, ServerPlayer le) {
+	public void trigger(TalismanContext ctx) {
 
 	}
 
-	public boolean onAttacked(ItemStack stack, ServerPlayer sp, DamageData.Attack event) {
+	public boolean onAttacked(TalismanContext ctx, DamageData.Attack event) {
 		return false;
 	}
 
-	public void onDamaged(ItemStack stack, ServerPlayer sp, DamageData.Defence event) {
+	public void onDamaged(TalismanContext ctx, DamageData.Defence event) {
 
 	}
 
@@ -66,27 +67,12 @@ public abstract class TalismanPaperItem extends Item {
 
 	}
 
-	protected void applyEffect(ItemStack stack, ServerPlayer le, Holder<MobEffect> eff, int amp) {
+	protected void applyEffect(TalismanContext ctx, Holder<MobEffect> eff, int amp) {
+		ServerPlayer le = ctx.player();
 		var old = le.getEffect(eff);
 		if (old == null || old.getAmplifier() != amp || old.getDuration() <= 20) {
 			le.addEffect(new MobEffectInstance(eff, 39, amp, true, false, true));
-			hurtItem(stack);
-		}
-	}
-
-	protected void hurtItem(ItemStack stack) {
-		Integer left = GLTalismans.DC_TALISMAN_DURABILITY.get(stack);
-		if (left != null) {
-			if (left <= 1) {
-				stack.shrink(1);
-			} else {
-				GLTalismans.DC_TALISMAN_DURABILITY.set(stack, left - 1);
-			}
-		} else if (stack.isDamageableItem()) {
-			stack.setDamageValue(stack.getDamageValue() + 1);
-			if (stack.getDamageValue() >= stack.getMaxDamage()) {
-				stack.shrink(1);
-			}
+			ctx.hurtItem();
 		}
 	}
 

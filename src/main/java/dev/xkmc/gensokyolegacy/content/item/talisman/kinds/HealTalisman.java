@@ -1,5 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.item.talisman.kinds;
 
+import dev.xkmc.gensokyolegacy.content.item.talisman.core.TalismanContext;
 import dev.xkmc.gensokyolegacy.content.item.talisman.core.TalismanPaperItem;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import net.minecraft.network.chat.Component;
@@ -20,10 +21,11 @@ public class HealTalisman extends TalismanPaperItem {
 	}
 
 	@Override
-	public void trigger(ItemStack stack, ServerPlayer le) {
+	public void trigger(TalismanContext ctx) {
+		ServerPlayer le = ctx.player();
 		le.heal(le.getMaxHealth() * 0.3f);
-		le.getCooldowns().addCooldown(this, 100);
-		hurtItem(stack);
+		ctx.addCooldown(100);
+		ctx.hurtItem();
 	}
 
 	@Override

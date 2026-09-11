@@ -2,7 +2,9 @@ package dev.xkmc.gensokyolegacy.content.item.talisman.pocket;
 
 import dev.xkmc.gensokyolegacy.content.item.talisman.core.FoldedPaperTalisman;
 import dev.xkmc.gensokyolegacy.content.item.talisman.core.GLTalismans;
+import dev.xkmc.gensokyolegacy.content.item.talisman.core.TalismanContext;
 import dev.xkmc.gensokyolegacy.content.item.talisman.core.TalismanCurioItem;
+import dev.xkmc.gensokyolegacy.content.item.talisman.core.TalismanPaperItem;
 import dev.xkmc.gensokyolegacy.content.item.tool.InvClickItem;
 import dev.xkmc.gensokyolegacy.content.item.tool.InvTooltip;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
@@ -44,12 +46,15 @@ public class TalismanPocket extends TalismanCurioItem implements InvClickItem {
 	}
 
 	@Override
-	public List<ItemStack> getActiveTalismans(ItemStack stack) {
+	public List<TalismanContext> getActiveTalismans(ServerPlayer player, ItemStack stack) {
 		var data = GLTalismans.DC_TALISMAN_POCKET.get(stack);
 		if (data == null) return List.of();
-		List<ItemStack> ans = new ArrayList<>();
-		for (TalismanSlot slot : data.slots()) {
-			if (!slot.foldedStack().isEmpty()) ans.add(slot.foldedStack());
+		List<TalismanContext> ans = new ArrayList<>();
+		for (int i = 0; i < data.slots().length; i++) {
+			ItemStack folded = data.get(i).foldedStack();
+			if (folded.isEmpty()) continue;
+			TalismanPaperItem paper = FoldedPaperTalisman.paper(folded);
+			if (paper != null) ans.add(new TalismanContext(player, stack, i, folded, paper));
 		}
 		return ans;
 	}
@@ -70,11 +75,11 @@ public class TalismanPocket extends TalismanCurioItem implements InvClickItem {
 		for (int i = 0; i < data.slots().length; i++) {
 			TalismanSlot slot = data.get(i);
 			if (!slot.foldedStack().isEmpty() || slot.paperStack().isEmpty()) continue;
-			ItemStack one = slot.paperStack().copy();
+			ItemStack paper = slot.paperStack();
+			ItemStack one = paper.copy();
 			one.setCount(1);
-			ItemStack rest = slot.paperStack().copy();
-			rest.shrink(1);
-			next = next.with(i, new TalismanSlot(FoldedPaperTalisman.fold(one), rest.isEmpty() ? ItemStack.EMPTY : rest));
+			paper.shrink(1);
+			next = next.with(i, new TalismanSlot(FoldedPaperTalisman.fold(one), paper.isEmpty() ? ItemStack.EMPTY : paper));
 			changed = true;
 		}
 		if (changed) {
