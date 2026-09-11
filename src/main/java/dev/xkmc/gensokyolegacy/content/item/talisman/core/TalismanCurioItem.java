@@ -1,7 +1,7 @@
 package dev.xkmc.gensokyolegacy.content.item.talisman.core;
 
 import dev.xkmc.gensokyolegacy.compat.curios.CuriosManager;
-import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import top.theillusivec4.curios.api.SlotContext;
@@ -9,6 +9,7 @@ import top.theillusivec4.curios.api.type.capability.ICurioItem;
 
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 public abstract class TalismanCurioItem extends Item implements ICurioItem {
 
@@ -16,11 +17,11 @@ public abstract class TalismanCurioItem extends Item implements ICurioItem {
 		super(p);
 	}
 
-	public static void iterate(ServerPlayer sp, Consumer<TalismanContext> cons) {
-		for (ItemStack curio : CuriosManager.getEquippedTalismans(sp)) {
+	public static void iterate(LivingEntity entity, Consumer<TalismanContext> cons) {
+		for (ItemStack curio : CuriosManager.getEquippedTalismans(entity)) {
 			if (curio.getItem() instanceof TalismanCurioItem cont) {
-				for (var ctx : cont.getActiveTalismans(sp, curio)) {
-					if (!sp.getCooldowns().isOnCooldown(ctx.paper())) {
+				for (var ctx : cont.getActiveTalismans(entity, curio)) {
+					if (!ctx.isOnCooldown()) {
 						cons.accept(ctx);
 					}
 				}
@@ -28,13 +29,26 @@ public abstract class TalismanCurioItem extends Item implements ICurioItem {
 		}
 	}
 
-	public abstract List<TalismanContext> getActiveTalismans(ServerPlayer player, ItemStack stack);
+	public static boolean testAny(LivingEntity entity, Predicate<TalismanContext> cons) {
+		for (ItemStack curio : CuriosManager.getEquippedTalismans(entity)) {
+			if (curio.getItem() instanceof TalismanCurioItem cont) {
+				for (var ctx : cont.getActiveTalismans(entity, curio)) {
+					if (!ctx.isOnCooldown()) {
+						if (cons.test(ctx)) return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
+
+	public abstract List<TalismanContext> getActiveTalismans(LivingEntity entity, ItemStack stack);
 
 	@Override
 	public void curioTick(SlotContext slotContext, ItemStack curio) {
-		if (slotContext.entity() instanceof ServerPlayer sp) {
-			for (TalismanContext ctx : getActiveTalismans(sp, curio)) {
-				if (!sp.getCooldowns().isOnCooldown(ctx.paper())) {
+		if (slotContext.entity() instanceof LivingEntity le) {
+			for (TalismanContext ctx : getActiveTalismans(le, curio)) {
+				if (!ctx.isOnCooldown()) {
 					ctx.paper().tickTalisman(ctx);
 				}
 			}

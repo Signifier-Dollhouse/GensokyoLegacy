@@ -4,7 +4,7 @@ import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -37,10 +37,10 @@ public class FoldedPaperTalisman extends TalismanCurioItem {
 	}
 
 	@Override
-	public List<TalismanContext> getActiveTalismans(ServerPlayer player, ItemStack stack) {
+	public List<TalismanContext> getActiveTalismans(LivingEntity entity, ItemStack stack) {
 		TalismanPaperItem paper = paper(stack);
 		if (paper == null) return List.of();
-		return List.of(new TalismanContext(player, stack, 0, stack, paper));
+		return List.of(new TalismanContext(entity, stack, 0, stack, paper));
 	}
 
 	@Override

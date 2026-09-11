@@ -4,8 +4,8 @@ import dev.xkmc.gensokyolegacy.content.item.talisman.core.TalismanContext;
 import dev.xkmc.gensokyolegacy.content.item.talisman.core.TalismanPaperItem;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.List;
@@ -17,7 +17,7 @@ public class SpeedTalisman extends TalismanPaperItem {
 	}
 
 	@Override
-	public boolean test(ServerPlayer le) {
+	public boolean test(LivingEntity le) {
 		return le.isSprinting();
 	}
 

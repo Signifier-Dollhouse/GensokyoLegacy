@@ -1,23 +1,22 @@
 package dev.xkmc.gensokyolegacy.content.item.talisman.pocket;
 
-import dev.xkmc.gensokyolegacy.content.item.talisman.core.FoldedPaperTalisman;
-import dev.xkmc.gensokyolegacy.content.item.talisman.core.GLTalismans;
-import dev.xkmc.gensokyolegacy.content.item.talisman.core.TalismanContext;
-import dev.xkmc.gensokyolegacy.content.item.talisman.core.TalismanCurioItem;
-import dev.xkmc.gensokyolegacy.content.item.talisman.core.TalismanPaperItem;
+import dev.xkmc.gensokyolegacy.content.item.talisman.core.*;
 import dev.xkmc.gensokyolegacy.content.item.tool.InvClickItem;
 import dev.xkmc.gensokyolegacy.content.item.tool.InvTooltip;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
+import dev.xkmc.l2menustacker.init.L2MenuStacker;
+import dev.xkmc.l2menustacker.screen.packets.CacheMouseToClient;
 import dev.xkmc.l2menustacker.screen.source.PlayerSlot;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 import top.theillusivec4.curios.api.SlotContext;
@@ -46,7 +45,7 @@ public class TalismanPocket extends TalismanCurioItem implements InvClickItem {
 	}
 
 	@Override
-	public List<TalismanContext> getActiveTalismans(ServerPlayer player, ItemStack stack) {
+	public List<TalismanContext> getActiveTalismans(LivingEntity entity, ItemStack stack) {
 		var data = GLTalismans.DC_TALISMAN_POCKET.get(stack);
 		if (data == null) return List.of();
 		List<TalismanContext> ans = new ArrayList<>();
@@ -54,7 +53,7 @@ public class TalismanPocket extends TalismanCurioItem implements InvClickItem {
 			ItemStack folded = data.folded(i);
 			if (folded.isEmpty()) continue;
 			TalismanPaperItem paper = FoldedPaperTalisman.paper(folded);
-			if (paper != null) ans.add(new TalismanContext(player, stack, i, folded, paper));
+			if (paper != null) ans.add(new TalismanContext(entity, stack, i, folded, paper));
 		}
 		return ans;
 	}
@@ -62,7 +61,7 @@ public class TalismanPocket extends TalismanCurioItem implements InvClickItem {
 	@Override
 	public void curioTick(SlotContext slotContext, ItemStack stack) {
 		super.curioTick(slotContext, stack);
-		if (slotContext.entity() instanceof ServerPlayer) {
+		if (slotContext.entity() instanceof LivingEntity) {
 			refill(stack);
 		}
 	}
@@ -96,6 +95,7 @@ public class TalismanPocket extends TalismanCurioItem implements InvClickItem {
 
 	@Override
 	public void handleClick(ServerPlayer sp, PlayerSlot<?> slot) {
+		L2MenuStacker.PACKET_HANDLER.toClientPlayer(new CacheMouseToClient(), sp);
 		TalismanPocketProvider.open(sp, slot);
 	}
 

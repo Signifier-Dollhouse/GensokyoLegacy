@@ -4,7 +4,7 @@ import dev.xkmc.gensokyolegacy.content.item.talisman.core.TalismanContext;
 import dev.xkmc.gensokyolegacy.content.item.talisman.core.TalismanPaperItem;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.List;
@@ -16,13 +16,13 @@ public class HealTalisman extends TalismanPaperItem {
 	}
 
 	@Override
-	public boolean test(ServerPlayer le) {
+	public boolean test(LivingEntity le) {
 		return le.getHealth() < le.getMaxHealth() && le.isAlive();
 	}
 
 	@Override
 	public void trigger(TalismanContext ctx) {
-		ServerPlayer le = ctx.player();
+		LivingEntity le = ctx.target();
 		le.heal(le.getMaxHealth() * 0.3f);
 		ctx.addCooldown(100);
 		ctx.hurtItem();

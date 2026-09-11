@@ -1,2 +1,0 @@
-- Use LivingEntity as parameter for TalismanContext and handle cooldown for non-player in persistentData, so that talisman supports non-player
-- 

@@ -4,9 +4,9 @@ import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.l2damagetracker.contents.attack.DamageData;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -34,15 +34,14 @@ public abstract class TalismanPaperItem extends Item {
 	}
 
 	public final void tickTalisman(TalismanContext ctx) {
-		ServerPlayer player = ctx.player();
-		if (player.getCooldowns().isOnCooldown(this))
+		if (ctx.isOnCooldown())
 			return;
-		if (!test(player))
+		if (!test(ctx.target()))
 			return;
 		trigger(ctx);
 	}
 
-	public boolean test(ServerPlayer le) {
+	public boolean test(LivingEntity le) {
 		return false;
 	}
 
@@ -68,7 +67,7 @@ public abstract class TalismanPaperItem extends Item {
 	}
 
 	protected void applyEffect(TalismanContext ctx, Holder<MobEffect> eff, int amp) {
-		ServerPlayer le = ctx.player();
+		LivingEntity le = ctx.target();
 		var old = le.getEffect(eff);
 		if (old == null || old.getAmplifier() != amp || old.getDuration() <= 20) {
 			le.addEffect(new MobEffectInstance(eff, 39, amp, true, false, true));

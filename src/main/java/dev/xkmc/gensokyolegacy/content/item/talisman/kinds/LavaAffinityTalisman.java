@@ -6,8 +6,8 @@ import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.gensokyolegacy.init.registrate.GLEffects;
 import dev.xkmc.l2damagetracker.contents.attack.DamageData;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.DamageTypeTags;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.List;
@@ -19,7 +19,7 @@ public class LavaAffinityTalisman extends TalismanPaperItem {
 	}
 
 	@Override
-	public boolean test(ServerPlayer le) {
+	public boolean test(LivingEntity le) {
 		return le.isOnFire() || le.isInLava();
 	}
 

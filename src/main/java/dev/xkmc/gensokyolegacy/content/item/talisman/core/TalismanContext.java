@@ -1,7 +1,10 @@
 package dev.xkmc.gensokyolegacy.content.item.talisman.core;
 
 import dev.xkmc.gensokyolegacy.content.item.talisman.pocket.TalismanPocketData;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 
 /**
@@ -13,12 +16,14 @@ import net.minecraft.world.item.ItemStack;
  * the pocket's {@link TalismanPocketData} component.
  */
 public record TalismanContext(
-		ServerPlayer player,
+		LivingEntity target,
 		ItemStack pocketStack,
 		int index,
 		ItemStack foldedStack,
 		TalismanPaperItem paper
 ) {
+
+	private static final String COOLDOWN_KEY = "gensokyolegacy:talisman_cooldowns";
 
 	public void hurtItem() {
 		Integer left = GLTalismans.DC_TALISMAN_DURABILITY.get(foldedStack);
@@ -40,8 +45,26 @@ public record TalismanContext(
 		}
 	}
 
+	public boolean isOnCooldown() {
+		if (target instanceof ServerPlayer sp) {
+			return sp.getCooldowns().isOnCooldown(paper);
+		}
+		long cd = target.getPersistentData().getCompound(COOLDOWN_KEY).getLong(cooldownId());
+		return target.level().getGameTime() < cd;
+	}
+
 	public void addCooldown(int ticks) {
-		player.getCooldowns().addCooldown(paper, ticks);
+		if (target instanceof ServerPlayer sp) {
+			sp.getCooldowns().addCooldown(paper, ticks);
+			return;
+		}
+		CompoundTag tag = target.getPersistentData().getCompound(COOLDOWN_KEY).copy();
+		tag.putLong(cooldownId(), target.level().getGameTime() + ticks);
+		target.getPersistentData().put(COOLDOWN_KEY, tag);
+	}
+
+	private String cooldownId() {
+		return BuiltInRegistries.ITEM.getKey(paper).toString();
 	}
 
 }

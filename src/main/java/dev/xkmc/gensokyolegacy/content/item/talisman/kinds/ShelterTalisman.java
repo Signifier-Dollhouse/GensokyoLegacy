@@ -7,7 +7,6 @@ import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.l2damagetracker.contents.attack.DamageData;
 import dev.xkmc.l2damagetracker.contents.attack.DamageModifier;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.List;
@@ -20,8 +19,7 @@ public class ShelterTalisman extends TalismanPaperItem {
 
 	@Override
 	public void onDamaged(TalismanContext ctx, DamageData.Defence event) {
-		ServerPlayer sp = ctx.player();
-		if (sp.getCooldowns().isOnCooldown(this)) return;
+		if (ctx.isOnCooldown()) return;
 		event.addDealtModifier(DamageModifier.nonlinearFinal(614, f -> {
 			if (f >= event.getTarget().getHealth() * 0.2) {
 				ctx.addCooldown(100);
