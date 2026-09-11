@@ -83,8 +83,10 @@ public class GLNaturalBlocks {
 							pvd.modLoc("block/nature/star_flower")).renderType("cutout");
 					var modelB = pvd.models().cross(ctx.getName() + "_2",
 							pvd.modLoc("block/nature/star_flower_2")).renderType("cutout");
+					var modelC = pvd.models().cross(ctx.getName() + "_3",
+							pvd.modLoc("block/nature/star_flower_3")).renderType("cutout");
 					pvd.getVariantBuilder(ctx.get()).partialState().setModels(
-							new ConfiguredModel(modelA), new ConfiguredModel(modelB));
+							new ConfiguredModel(modelA), new ConfiguredModel(modelB), new ConfiguredModel(modelC));
 				})
 				.item()
 				.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
