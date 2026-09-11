@@ -1,8 +1,8 @@
 package dev.xkmc.gensokyolegacy.content.item.tool;
 
+import dev.xkmc.l2menustacker.screen.source.PlayerSlot;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.item.ItemStack;
 
 public interface InvClickItem {
-	void handleClick(ServerPlayer sp, ItemStack stack);
+	void handleClick(ServerPlayer sp, PlayerSlot<?> slot);
 }

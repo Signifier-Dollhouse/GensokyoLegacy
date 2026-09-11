@@ -3,8 +3,9 @@ package dev.xkmc.gensokyolegacy.content.item.talisman.pocket;
 import dev.xkmc.gensokyolegacy.content.item.talisman.core.FoldedPaperTalisman;
 import dev.xkmc.gensokyolegacy.content.item.talisman.core.GLTalismans;
 import dev.xkmc.gensokyolegacy.content.item.talisman.core.TalismanCurioItem;
-import dev.xkmc.gensokyolegacy.content.ui.talisman.TalismanPocketProvider;
+import dev.xkmc.gensokyolegacy.content.item.tool.InvClickItem;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
+import dev.xkmc.l2menustacker.screen.source.PlayerSlot;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -13,15 +14,29 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.Nullable;
 import top.theillusivec4.curios.api.SlotContext;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class TalismanPocket extends TalismanCurioItem {
+public class TalismanPocket extends TalismanCurioItem implements InvClickItem {
 
 	public TalismanPocket(Properties p) {
 		super(p);
+	}
+
+	@Nullable
+	private static PlayerSlot<?> handSlot(ServerPlayer sp, InteractionHand hand) {
+		ItemStack held = sp.getItemInHand(hand);
+		if (hand == InteractionHand.OFF_HAND) {
+			return sp.getInventory().offhand.getFirst() == held
+					? PlayerSlot.ofInventory(sp.getInventory().getContainerSize() - 1) : null;
+		}
+		for (int i = 0; i < 9; i++) {
+			if (sp.getInventory().items.get(i) == held) return PlayerSlot.ofInventory(i);
+		}
+		return null;
 	}
 
 	@Override
@@ -66,9 +81,15 @@ public class TalismanPocket extends TalismanCurioItem {
 	@Override
 	public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
 		if (!level.isClientSide() && player instanceof ServerPlayer sp) {
-			TalismanPocketProvider.open(sp, hand);
+			PlayerSlot<?> slot = handSlot(sp, hand);
+			if (slot != null) TalismanPocketProvider.open(sp, slot);
 		}
 		return InteractionResultHolder.sidedSuccess(player.getItemInHand(hand), level.isClientSide());
+	}
+
+	@Override
+	public void handleClick(ServerPlayer sp, PlayerSlot<?> slot) {
+		TalismanPocketProvider.open(sp, slot);
 	}
 
 	@Override

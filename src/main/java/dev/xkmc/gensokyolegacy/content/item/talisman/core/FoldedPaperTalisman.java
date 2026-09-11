@@ -67,4 +67,25 @@ public class FoldedPaperTalisman extends TalismanCurioItem {
 		return paper.color;
 	}
 
+	@Override
+	public boolean isBarVisible(ItemStack stack) {
+		TalismanPaperItem paper = paper(stack);
+		if (paper == null) return false;
+		return GLTalismans.DC_TALISMAN_DURABILITY.getOrDefault(stack, paper.getDurability()) < paper.getDurability();
+	}
+
+	@Override
+	public int getBarWidth(ItemStack stack) {
+		TalismanPaperItem paper = paper(stack);
+		if (paper == null) return 13;
+		int durability = GLTalismans.DC_TALISMAN_DURABILITY.getOrDefault(stack, paper.getDurability());
+		return Math.round(13.0F * durability / paper.getDurability());
+	}
+
+	@Override
+	public int getBarColor(ItemStack stack) {
+		TalismanPaperItem paper = paper(stack);
+		return paper != null ? paper.getColor() : 0xFFFFFF;
+	}
+
 }

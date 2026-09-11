@@ -1,12 +1,10 @@
-package dev.xkmc.gensokyolegacy.content.ui.talisman;
+package dev.xkmc.gensokyolegacy.content.item.talisman.pocket;
 
-import dev.xkmc.gensokyolegacy.content.item.talisman.pocket.TalismanPocket;
-import dev.xkmc.gensokyolegacy.content.item.talisman.pocket.TalismanPocketItemHandler;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.l2core.base.menu.base.BaseContainerMenu;
 import dev.xkmc.l2core.base.menu.base.SpriteManager;
+import dev.xkmc.l2menustacker.screen.source.PlayerSlot;
 import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -19,18 +17,17 @@ public class TalismanPocketMenu extends BaseContainerMenu<TalismanPocketMenu> {
 
 	public static final SpriteManager MANAGER = new SpriteManager(GensokyoLegacy.MODID, "talisman_pocket");
 
-	private final InteractionHand hand;
+	private final PlayerSlot<?> slot;
 	private final TalismanPocketItemHandler handler;
 
 	public static TalismanPocketMenu fromNetwork(MenuType<?> menu, int wid, Inventory inv, @Nullable RegistryFriendlyByteBuf buf) {
-		InteractionHand hand = buf != null ? buf.readEnum(InteractionHand.class) : InteractionHand.MAIN_HAND;
-		return new TalismanPocketMenu(menu, wid, inv, hand);
+		return new TalismanPocketMenu(menu, wid, inv, null);
 	}
 
-	public TalismanPocketMenu(@Nullable MenuType<?> type, int wid, Inventory plInv, InteractionHand hand) {
+	public TalismanPocketMenu(@Nullable MenuType<?> type, int wid, Inventory plInv, @Nullable PlayerSlot<?> slot) {
 		super(type, wid, plInv, MANAGER, menu -> new SimpleContainer(0), false);
-		this.hand = hand;
-		ItemStack backing = plInv.player.level().isClientSide() ? ItemStack.EMPTY : plInv.player.getItemInHand(hand);
+		this.slot = slot;
+		ItemStack backing = slot != null ? slot.getItem(plInv.player) : ItemStack.EMPTY;
 		this.handler = new TalismanPocketItemHandler(backing);
 		getLayout().getSlot("grid", (x, y) -> new ItemHandlerCopySlot(handler, added++, x, y), this::addSlot);
 	}
@@ -55,7 +52,7 @@ public class TalismanPocketMenu extends BaseContainerMenu<TalismanPocketMenu> {
 
 	@Override
 	public boolean stillValid(Player player) {
-		return player.getItemInHand(hand).getItem() instanceof TalismanPocket;
+		return slot != null && slot.getItem(player).getItem() instanceof TalismanPocket;
 	}
 
 }
