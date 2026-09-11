@@ -76,8 +76,7 @@ public class TalismanPocket extends TalismanCurioItem implements InvClickItem {
 			TalismanSlot slot = data.get(i);
 			if (!slot.foldedStack().isEmpty() || slot.paperStack().isEmpty()) continue;
 			ItemStack paper = slot.paperStack();
-			ItemStack one = paper.copy();
-			one.setCount(1);
+			ItemStack one = paper.copyWithCount(1);
 			paper.shrink(1);
 			next = next.with(i, new TalismanSlot(FoldedPaperTalisman.fold(one), paper.isEmpty() ? ItemStack.EMPTY : paper));
 			changed = true;

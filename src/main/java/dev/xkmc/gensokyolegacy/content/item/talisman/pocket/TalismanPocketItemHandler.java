@@ -107,9 +107,7 @@ public class TalismanPocketItemHandler implements IItemHandlerModifiable {
 	}
 
 	private static ItemStack grow(ItemStack stack, int amount) {
-		ItemStack ans = stack.copy();
-		ans.grow(amount);
-		return ans;
+		return stack.copyWithCount(stack.getCount() + amount);
 	}
 
 	@Override
@@ -128,16 +126,10 @@ public class TalismanPocketItemHandler implements IItemHandlerModifiable {
 		ItemStack papers = pair.paperStack();
 		if (papers.isEmpty()) return ItemStack.EMPTY;
 		int n = Math.min(amount, papers.getCount());
-		if (simulate) return shrinkTo(papers, n);
-		ItemStack left = shrinkTo(papers, papers.getCount() - n);
+		if (simulate) return papers.copyWithCount(n);
+		ItemStack left = papers.copyWithCount(papers.getCount() - n);
 		save(data.with(index, left.isEmpty() ? pair.withPaper(ItemStack.EMPTY) : pair.withPaper(left)));
-		return shrinkTo(papers, n);
-	}
-
-	private static ItemStack shrinkTo(ItemStack stack, int count) {
-		ItemStack ans = stack.copy();
-		ans.setCount(count);
-		return ans;
+		return papers.copyWithCount(n);
 	}
 
 	@Override
