@@ -1,6 +1,6 @@
 # Hakurei Reimu — Quest & Trade Chart
 
-Entity: `hakurei_reimu`. Quest unlock chain: 1.1 → 2.1 → 2.2 → 3.1 → 3.2 (linear one-time chain; dailies unlock from the corresponding one-time quest).
+Entity: `hakurei_reimu`. One-time chain: 1.1 → 2.1, then branches — 2.2 → 2.3, and 3.1 → 3.2 (from 2.1). Dailies unlock from the corresponding one-time quest.
 
 **Status: implemented** (`ReimuQDGen`, commits `reimu quest` + follow-up fixes). Dialog text below is the final text baked into the datagen class (en_us via raw lang keys; zh_cn in the split lang files). The old prototype `reimu/kill_zombie` quest is removed — only the bare `dialog/reimu/kill_zombie/{start,follow_up,complete}` dirs linger (empty/untracked, harmless).
 
@@ -16,9 +16,10 @@ Entity: `hakurei_reimu`. Quest unlock chain: 1.1 → 2.1 → 2.2 → 3.1 → 3.2
 |---|--------------|--------|--------------|---------|
 | 1.1 | `local_food`   | none    | bread ×8, mushroom stew ×3 | exp 50, rep +10 (cap +10/max 300) |
 | 2.1 | `hostile_loot` | 1.1 | kill `#minecraft:zombies` ×10, kill `#minecraft:skeletons` ×10, rotten flesh ×8, bone ×8 | exp 100, rep +20 (cap +10/max 300) |
-| 2.2 | `talisman_materials` | 2.1 | paper ×16, redstone ×8 | exp 100, rep +10 (cap +0/max 300), loot: folded paper talisman ×1 + healing talisman paper ×2 |
-| 3.1 | `ominous_banner` | 2.2 | ominous banner ×1 | exp 200, rep +20 (cap +10/max 300) |
-| 3.2 | `raid`        | 3.1 | win a raid (bad omen mark given by Reimu) | exp 400, rep +30 (cap +20/max 300), loot: Reimu's spellcard "Innate Dream" ×1 |
+| 2.2 | `talisman_materials` | 2.1 | paper ×16, redstone ×8 | exp 100, rep +10 (cap +0/max 300), loot: talisman pocket ×1 + healing talisman paper ×2 |
+| 2.3 | `ender_materials` | 2.2 | ender pearl ×1, ender eye ×1 | exp 150, rep +10 (cap +0/max 300), unlocks `gap_portal` trade |
+| 3.1 | `ominous_banner` | 2.1 | ominous banner ×1 | exp 200, rep +20 (cap +10/max 300) |
+| 3.2 | `raid`        | 3.1 | win a raid (bad omen mark given by Reimu) | exp 400, rep +30 (cap +20/max 300), loot: border umbrella ×1, unlocks `offer_border_umbrella` trade |
 
 ### 1.1 `local_food` — "Shrine Provisions" *(1.x: exploring & surviving in a new world)*
 
@@ -59,7 +60,7 @@ Reward loot table `reimu/talisman_materials`: `folded_paper_talisman` ×1, `heal
 
 ### 3.1 `ominous_banner` — "Raider's Banner" *(3.x: discovering the raiders)*
 
-Requirements: submit an Ominous Banner ×1. Matched by **item name component** (`DataComponentIngredient` on `ITEMS.WHITE_BANNER` carrying the `ItemName` "Ominous Banner"), so any banner the player names "Ominous Banner" qualifies — including real captain drops.
+Requirements: submit an Ominous Banner ×1. Matched by **full component set** (`DataComponentIngredient` built from `Raid.getLeaderBannerInstance`: `BANNER_PATTERNS` layers, `HIDE_ADDITIONAL_TOOLTIP`, gold `ItemName` "Ominous Banner"). The banner pattern layers are resolved via a datagen dummy `HolderGetter` (`util/DummyHolderGetter.java`), so they serialize as registry ids (`minecraft:rhombus`, …) that still match the real patterns at runtime — plain renamed or pattern-less banners no longer qualify.
 
 - **Start** — "People keep whispering about *raiders*—armed groups with black-and-white banners. Bring me one from their captain. I want to know what it means."
   - Accept: "I'll find a raid captain." → "Good. Their captains carry those ominous banners. Take one down and bring it to me. Just watch for the mark they leave behind."

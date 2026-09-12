@@ -24,17 +24,17 @@ import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.registrate.GLEntities;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLBlocks;
-import net.minecraft.ChatFormatting;
-import net.minecraft.core.component.DataComponents;
+import dev.xkmc.gensokyolegacy.util.DummyHolderGetter;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.raid.Raid;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.level.block.entity.BannerPattern;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
@@ -52,6 +52,11 @@ import java.util.TreeMap;
 public class ReimuQDGen extends QuestDialogData {
 
 	private static final int BAD_OMEN_DURATION = 12000;
+
+	private static Ingredient ominousBanner() {
+		return DataComponentIngredient.of(false, Raid.getLeaderBannerInstance(DummyHolderGetter.create(
+				key -> new BannerPattern(key.location(), "block.minecraft.banner." + key.location().getPath()))));
+	}
 
 	private static final ResourceLocation QUEST_LOCAL_FOOD = GensokyoLegacy.loc("reimu/local_food");
 	private static final ResourceLocation QUEST_HOSTILE_LOOT = GensokyoLegacy.loc("reimu/hostile_loot");
@@ -180,8 +185,8 @@ public class ReimuQDGen extends QuestDialogData {
 						"b-eye", new SubmitItemRequirement(List.of(item(Items.ENDER_EYE, 1)))
 				)),
 				List.of(new ExpReward(150), new ReputationReward(10, 300, 0, 300)),
-				start("Talk about the gap.",
-						"Those gap portals of mine? This world's ender pearl bends space like a miniature gap, and an eye can lock onto the way home. Bring me one of each — I think I can anchor a route with them.",
+				start("Mention the endermen teleporting around.",
+						"They fold space to blink across the world, right? I want that trick for my gap portal. This world's ender pearl bends space like a miniature gap, and an eye can lock onto the way home. Bring me one of each — I think I can anchor a route through them.",
 						"I'll find ender materials.", "One pearl and one eye, then. Rare stuff, but that's exactly what I need for the binding.",
 						"Maybe next time.", "They're hard to come by. Come back when you've got some to spare."),
 				follow("Ask about the gap.",
@@ -200,9 +205,7 @@ public class ReimuQDGen extends QuestDialogData {
 				Optional.empty(),
 				new TreeMap<>(Map.of(
 						"a-banner", new SubmitItemRequirement(List.of(new IngredientEntry(
-								DataComponentIngredient.of(false, DataComponents.ITEM_NAME,
-										Component.translatable("block.minecraft.ominous_banner").withStyle(ChatFormatting.GOLD), Items.WHITE_BANNER),
-								1, Optional.of("Ominous Banner"))))
+								ominousBanner(), 1, Optional.of("Ominous Banner"))))
 				)),
 				List.of(new ExpReward(200), new ReputationReward(20, 300, 10, 300)),
 				start("Talk about the raiders.",
