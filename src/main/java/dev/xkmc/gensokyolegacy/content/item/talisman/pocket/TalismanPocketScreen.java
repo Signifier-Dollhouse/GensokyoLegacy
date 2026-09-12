@@ -9,6 +9,7 @@ public class TalismanPocketScreen extends BaseContainerScreen<TalismanPocketMenu
 
 	public TalismanPocketScreen(TalismanPocketMenu cont, Inventory plInv, Component title) {
 		super(cont, plInv, title);
+		this.imageWidth = 186;
 	}
 
 	@Override
