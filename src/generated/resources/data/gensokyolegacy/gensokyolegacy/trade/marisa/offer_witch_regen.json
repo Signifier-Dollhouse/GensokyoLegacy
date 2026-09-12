@@ -25,10 +25,6 @@
             "amplifier": 1,
             "duration": 900,
             "id": "minecraft:regeneration",
-            "neoforge:cures": [
-              "protected_by_totem",
-              "milk"
-            ],
             "show_icon": true
           }
         ]

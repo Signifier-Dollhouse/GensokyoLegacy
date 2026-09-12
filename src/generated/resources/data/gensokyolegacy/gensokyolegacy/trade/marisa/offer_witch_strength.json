@@ -25,10 +25,6 @@
             "amplifier": 1,
             "duration": 3600,
             "id": "minecraft:strength",
-            "neoforge:cures": [
-              "protected_by_totem",
-              "milk"
-            ],
             "show_icon": true
           }
         ]

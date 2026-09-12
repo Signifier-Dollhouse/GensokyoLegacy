@@ -25,10 +25,6 @@
             "amplifier": 1,
             "duration": 3600,
             "id": "minecraft:speed",
-            "neoforge:cures": [
-              "protected_by_totem",
-              "milk"
-            ],
             "show_icon": true
           }
         ]
