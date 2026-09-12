@@ -9,7 +9,7 @@ This document reflects the current implementation in `content/attachment/area` (
 | `ChunkPosRange` | `area/ChunkPosRange.java` | `record(int minCX, minCZ, maxCX, maxCZ)` — no `@SerialClass` needed for records. `contains(ChunkPos)`, `stream()`, `forEach`, `chunkCount()`, factories `ofChunks/ofRadius/ofOwner/ofBlocks/ofBoundingBox`. |
 | `EffectData` | `area/EffectData.java` | `@SerialClass abstract class` — `isOwnerStillValid(ServerLevel,BlockPos,BlockState)` default `!isAir()`. Subclasses `@SerialClass` (e.g., `BeaconEffectData`). `TagCodec` handles inheritance when field handle `EffectData` is `@SerialClass`. |
 | `AreaEffectEntry` | `area/AreaEffectEntry.java` | `@SerialClass` — `@SerialField UUID id, BlockPos ownerPos, ChunkPosRange range, EffectData data, long createdGameTime`. Transient `Map<UUID,Integer> trackingCounts` (player `UUID` → tracked chunk count, not serialized) with `incrementTracking(ServerPlayer)→bool first`, `decrementTracking→bool last`, `getTrackingPlayers()`, `sync(ServerLevel)`, `cleanupPlayers(ServerLevel)`, `isOwnerValid(ServerLevel)`. |
-| `LevelAreaAttachment` | `area/LevelAreaAttachment.java` | `GeneralCapabilityTemplate<Level>` — `@SerialField Map<UUID,AreaEffectEntry> byId` + `Map<String,List<UUID>> pending` (hex `Long.toHexString(ChunkPos.toLong())` → `List<UUID>`, coalesced per chunk, discarded as unit). Transient `lastPendingFlushTick`. `tickValidation` `O(M/100)` per tick via `floorMod(id.hashCode(),100)==tick%100`, owner `getChunkNow` check; `tickPendingFlush` every 5s if `P>10` offthread `getChunk(...,false)`. |
+| `LevelAreaAttachment` | `area/LevelAreaAttachment.java` | `GeneralCapabilityTemplate<Level>` — `@SerialField Map<UUID,AreaEffectEntry> byId` + `@SerialField Map<BlockPos,UUID> byOwner` (owner block pos → owned effect `UUID`, one per block; so an owner block can find/remove its entry without iterating `byId`; maintained by `addEntry`/`removeEntry`) + `Map<String,List<UUID>> pending` (hex `Long.toHexString(ChunkPos.toLong())` → `List<UUID>`, coalesced per chunk, discarded as unit). Transient `lastPendingFlushTick`. `tickValidation` `O(M/100)` per tick via `floorMod(id.hashCode(),100)==tick%100`, owner `getChunkNow` check; `tickPendingFlush` every 5s if `P>10` offthread `getChunk(...,false)`. |
 | `ChunkAreaAttachment` | `area/ChunkAreaAttachment.java` | `GeneralCapabilityTemplate<LevelChunk>` — `@SerialField Set<UUID> effectIds` + transient `cachedTick/Resolved/cacheValid` (no `transient` keyword). Pure data; logic lives in holder. |
 | `AreaChunkHolder` | `area/AreaChunkHolder.java` | `record(ServerLevel level, ChunkPos pos, LevelChunk chunk, ChunkAreaAttachment attachment)` — **main interface**. Factories `of(ServerLevel,ChunkPos)` nullable (`getChunk(...,false)` → `null` if not loaded, via `GLMeta.CHUNK_EFFECT.type().getOrCreate`) and `of(ServerLevel,LevelChunk)`. `addId/removeId` (invalidate cache + `setUnsaved`), `getAffecting()` `O(k)` with per-tick cache and stale prune (`byId` check + `removeAll`). Always requires `ServerLevel`. |
 | `AreaEffectManager` | `area/AreaEffectManager.java` | Facade — `add/remove/getAffecting/tickValidation/tickPendingFlush/onTrack/onUntrack`. Uses `GLMeta.LEVEL_EFFECT/CHUNK_EFFECT.type().getOrCreate` (not `chunk.getData`). `getAffecting` never forces load (`holder` nullable). |
@@ -25,7 +25,7 @@ This document reflects the current implementation in `content/attachment/area` (
 ```
 AreaEffectManager.add(level, ownerPos, ChunkPosRange.ofOwner(ownerPos, R), data) -> UUID
   - create entry(UUID.randomUUID(), ownerPos, range, data, gameTime)
-  - byId.put
+  - addEntry(level, entry)   // one effect per owner block: remove any previous effect at ownerPos (REMOVE to its trackers), then byId.put(id,entry) + byOwner.put(ownerPos,id)
   - fan-out N≤289: for each ChunkPos in range
       chunk = level.getChunkSource().getChunk(x,z,false) // no force
       if chunk != null AreaChunkHolder.of(level,chunk).addId(uuid)
@@ -39,12 +39,24 @@ AreaEffectManager.add(level, ownerPos, ChunkPosRange.ofOwner(ownerPos, R), data)
 ### Remove
 ```
 AreaEffectManager.remove(level, uuid) -> bool
-  entry = byId.remove(uuid); if null return false
-  for (playerId : copy(entry.trackingPlayers)) { player = server.getPlayerList().getPlayer(playerId); if(player!=null) send REMOVE }
-  entry.trackingCounts.clear()
+  entry = removeEntry(level, uuid)  // single removal path: byId/byOwner index cleanup
+   + REMOVE sent to every tracking player + trackingCounts.clear()
+  if entry == null return false
   // no chunk/pending scan — pending stale skipped via byId.containsKey at flush, chunk stale pruned at next getAffecting
 ```
-`O(T)` where `T=tracking players` (typically 0-3), `O(1)` plus lazy.
+`O(T)` where `T=tracking players` (typically 0-3), `O(1)` plus lazy. Also used by `tickValidation`
+auto-removal and by the one-effect-per-owner-block replacement on add — every removal notifies
+all currently-tracking players.
+
+### Remove the effect of an owner block (no iteration)
+```
+AreaEffectManager.removeOwner(level, ownerPos)  // O(1) via byOwner index, plus O(T) tracking notify
+  id = byOwner.get(ownerPos); if(id!=null) remove(level, id)
+```
+Replaces the old `byId.values().removeIf(e -> e.ownerPos.equals(pos) && ...)` scan. Call from
+`onReplaced`/`onRemove`/`setRemoved`. `byOwner` is `@SerialField` (one `UUID` per owner block) and
+maintained on every add/remove (including `tickValidation` auto-removal and add-time replacement),
+so it stays in sync with `byId` across save/load.
 
 ### Fetch (server, chunk-granular)
 ```
@@ -70,7 +82,7 @@ for key in snapshot
 ```
 
 ### Owner validation
-Spread `O(M/100)` per tick: `tick = gameTime %100`, `bucket = floorMod(entry.id.hashCode(),100)`, only entries where `bucket==tickBucket` are checked. For each, `getChunkNow(ownerPos)` null → skip; else `entry.isOwnerValid` → collect toRemove → `byId.remove` + `REMOVE` to `trackingPlayers` + `clear`. Every 100 ticks also `entry.cleanupPlayers(level)` removes offline `UUID`s (`getPlayer==null`).
+Spread `O(M/100)` per tick: `tick = gameTime %100`, `bucket = floorMod(entry.id.hashCode(),100)`, only entries where `bucket==tickBucket` are checked. For each, `getChunkNow(ownerPos)` null → skip; else `entry.isOwnerValid` → collect toRemove → `removeEntry(level, id)` (index cleanup + `REMOVE` to `trackingPlayers` + clear). Every 100 ticks also `entry.cleanupPlayers(level)` removes offline `UUID`s (`getPlayer==null`).
 
 ### Sync (track/untrack)
 * `TRACK chunk C by P` (`ChunkWatchEvent.Watch`): `holder = of(level,C)` (`O(k)`); for `entry : holder.getAffecting()` if `incrementTracking(P)` (0→1) send `ADD`.
@@ -131,17 +143,15 @@ if (entry != null) {
 ```java
 AreaEffectManager.remove(level, id); // O(1), pending lazily skipped, chunk pruned on next getAffecting
 // or on owner block break, let tickValidation auto-remove within ≤100 ticks (5s bucket) as fallback;
-// for instant, call remove from Block.onRemove / BlockEntity.setRemoved
+// for instant, call AreaEffectManager.removeOwner(level, pos) from Block.onRemove / BlockEntity.setRemoved
 ```
 
 ### Owner block removal fallback
-Tick `O(M/100)` per tick handles missed `onRemove` (explosion, `/setblock`). No extra code needed, but for instant feedback call `remove` in your block:
+Tick `O(M/100)` per tick handles missed `onRemove` (explosion, `/setblock`). No extra code needed, but for instant feedback call `removeOwner` in your block:
 ```java
 @Override public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean moved) {
     if (!state.is(newState.getBlock()) && level instanceof ServerLevel sl) {
-        // find and remove entries with this ownerPos — iterate byId
-        var att = GLMeta.LEVEL_EFFECT.type().getOrCreate(sl);
-        att.getById().values().removeIf(e -> e.ownerPos.equals(pos) && AreaEffectManager.remove(sl, e.id));
+        AreaEffectManager.removeOwner(sl, pos); // O(1) via byOwner index, no iteration over all effects
     }
     super.onRemove(state, level, pos, newState, moved);
 }
@@ -149,7 +159,7 @@ Tick `O(M/100)` per tick handles missed `onRemove` (explosion, `/setblock`). No 
 
 ## 4. Performance
 
-* **Add** `O(P*N)` cheap `contains` checks, `N≤289`. **Remove** `O(T)`. **Fetch** `O(k)` miss / `O(1)` hit. **Validation** `O(M/100)`/tick, **pending** `ChunkEvent.Load` `O(L)` per chunk + 5s bulge `O(P)` only if `P>10`. **Track** `O(k)` per chunk via holder, `UNTRACK` `O(k)`. Memory `effectIds` small, `pending` short-lived hex strings, `trackingCounts` `O(M*players)` transient `UUID` keys (cleaned every 5s for offline).
+* **Add** `O(P*N)` cheap `contains` checks, `N≤289` (plus `O(T_prev)` when replacing an existing entry at the owner block). **Remove** `O(T)`; owner-block `removeOwner` `O(1)` via `byOwner` index. **Fetch** `O(k)` miss / `O(1)` hit. **Validation** `O(M/100)`/tick, **pending** `ChunkEvent.Load` `O(L)` per chunk + 5s bulge `O(P)` only if `P>10`. **Track** `O(k)` per chunk via holder, `UNTRACK` `O(k)`. Memory `effectIds` small, `byOwner` `O(M)` pos-keyed `UUID`s, `pending` short-lived hex strings, `trackingCounts` `O(M*players)` transient `UUID` keys (cleaned every 5s for offline).
 
 ## 5. Registration
 

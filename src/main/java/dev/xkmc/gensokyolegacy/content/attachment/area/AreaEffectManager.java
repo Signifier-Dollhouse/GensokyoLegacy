@@ -10,7 +10,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 public final class AreaEffectManager {
@@ -33,7 +32,8 @@ public final class AreaEffectManager {
 
 	public static void add(ServerLevel level, AreaEffectEntry entry) {
 		LevelAreaAttachment levelAtt = GLMeta.LEVEL_EFFECT.type().getOrCreate(level);
-		levelAtt.getById().put(entry.id, entry);
+		// one effect per owner block: any previous effect at this position is removed (REMOVE to its trackers)
+		levelAtt.addEntry(level, entry);
 		// fan out
 		for (int x = entry.range.minCX(); x <= entry.range.maxCX(); x++) {
 			for (int z = entry.range.minCZ(); z <= entry.range.maxCZ(); z++) {
@@ -64,15 +64,15 @@ public final class AreaEffectManager {
 
 	public static boolean remove(ServerLevel level, UUID id) {
 		LevelAreaAttachment levelAtt = GLMeta.LEVEL_EFFECT.type().getOrCreate(level);
-		AreaEffectEntry removed = levelAtt.getById().remove(id);
-		if (removed == null) return false;
-		for (UUID playerId : Set.copyOf(removed.getTrackingPlayers())) {
-			ServerPlayer p = level.getServer().getPlayerList().getPlayer(playerId);
-			if (p != null) AreaEffectSyncPacket.sendRemove(p, id);
-		}
-		removed.getTrackingCounts().clear();
-		// no chunk iteration, no pending scan per spec (pending lazily skipped)
-		return true;
+		// removeEntry handles index cleanup + REMOVE to tracking players + clearing counts
+		return levelAtt.removeEntry(level, id) != null;
+	}
+
+	/** Remove the effect owned by the block at {@code ownerPos}, O(1) via {@code byOwner} index. */
+	public static void removeOwner(ServerLevel level, BlockPos ownerPos) {
+		LevelAreaAttachment levelAtt = GLMeta.LEVEL_EFFECT.type().getOrCreate(level);
+		UUID id = levelAtt.getOwnerId(ownerPos);
+		if (id != null) remove(level, id);
 	}
 
 	@Nullable

@@ -135,10 +135,7 @@ public class SealingPotBlock implements OnPlaceBlockMethod, OnReplacedBlockMetho
     }
 
     private static void removeFor(ServerLevel sl, BlockPos pos) {
-        var att = GLMeta.LEVEL_EFFECT.type().getOrCreate(sl);
-        att.getById().values().removeIf(e -> e.ownerPos.equals(pos)
-                && e.data instanceof SealingEffectData
-                && AreaEffectManager.remove(sl, e.id));
+        AreaEffectManager.removeOwner(sl, pos); // O(1) via LevelAreaAttachment.byOwner index
     }
 }
 ```
@@ -150,10 +147,14 @@ Notes:
   - `onPlace` guard → no effect if already sealed: covers non-item paths that bypass
     `getStateForPlacement` (`/setblock`, pistons, structure generation). The block may still exist
     there but is inert and will show no effect.
-- **`onReplaced`** matches `onRemove` (block replaced/removed); the `removeIf` + nested
-  `AreaEffectManager.remove` pattern is exactly the fallback in `area_effect.md` §3 "Owner block
-  removal fallback". Guard by `e.data instanceof SealingEffectData` so we only touch our own effects
-  at this position.
+- **`onReplaced`** matches `onRemove` (block replaced/removed); it calls
+  `AreaEffectManager.removeOwner` (see `area_effect.md` §3 "Owner block removal fallback")
+  which looks up the effect `UUID` via the `byOwner` index instead of scanning `byId`,
+  so it removes only this position's effect. Since each pot position owns at most one
+  `SealingEffectData` entry (placement is blocked into sealed chunks), no data-type filter is needed.
+- **One effect per owner block** is enforced by `AreaEffectManager.add`: if a block already owns an
+  effect, the previous one is removed (with `REMOVE` to its trackers) before the new one is added,
+  so re-placing a pot (e.g. `/setblock` onto an existing one) leaves a single fresh entry.
 - **Shape split**: `SealingPotBlock` no longer implements `ShapeBlockMethod`/holds `SHAPE`;
   `SealingPotShape` is its own `BlockMethod` passed separately in `GLBlocks.java:108`:
   `DelegateBlock.newBaseBlock(p, BlockTemplates.HORIZONTAL, new SealingPotShape(), new SealingPotBlock())`.

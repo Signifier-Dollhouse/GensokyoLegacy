@@ -1,4 +1,8 @@
-- Fix community textures by extending the center line
+- Fix community textures
 - Natural blocks bonemeal
-- regroup custom block models into same structure as respective block registration (utensil, deco, furniture, natural)
 - large chair shape fix
+- Reimu quest and trade
+- structures
+- coke
+- doll weapons and logic
+- gift interaction

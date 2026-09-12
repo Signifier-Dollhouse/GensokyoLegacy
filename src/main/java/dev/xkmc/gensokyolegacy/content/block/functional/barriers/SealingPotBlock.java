@@ -4,7 +4,6 @@ import dev.xkmc.gensokyolegacy.content.attachment.area.AreaEffectEntry;
 import dev.xkmc.gensokyolegacy.content.attachment.area.AreaEffectManager;
 import dev.xkmc.gensokyolegacy.content.attachment.area.ChunkPosRange;
 import dev.xkmc.gensokyolegacy.init.data.GLModConfig;
-import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
 import dev.xkmc.l2modularblock.mult.OnPlaceBlockMethod;
 import dev.xkmc.l2modularblock.mult.OnReplacedBlockMethod;
 import dev.xkmc.l2modularblock.mult.PlacementBlockMethod;
@@ -32,7 +31,6 @@ public class SealingPotBlock implements OnPlaceBlockMethod, OnReplacedBlockMetho
 		if (level.isClientSide || state.is(old.getBlock())) return;
 		ServerLevel sl = (ServerLevel) level;
 		if (!sl.isLoaded(pos)) return;
-		removeFor(sl, pos);
 		if (isChunkSealed(sl, new ChunkPos(pos))) return;
 		ChunkPosRange range = ChunkPosRange.ofOwner(pos, GLModConfig.SERVER.sealingPotRadius.get());
 		AreaEffectManager.add(sl, pos, range, new SealingEffectData());
@@ -41,7 +39,7 @@ public class SealingPotBlock implements OnPlaceBlockMethod, OnReplacedBlockMetho
 	@Override
 	public void onReplaced(BlockState state, Level level, BlockPos pos, BlockState newState, boolean moving) {
 		if (level.isClientSide || state.is(newState.getBlock())) return;
-		if (level instanceof ServerLevel sl) removeFor(sl, pos);
+		if (level instanceof ServerLevel sl) AreaEffectManager.removeOwner(sl, pos);
 	}
 
 	/**
@@ -54,9 +52,4 @@ public class SealingPotBlock implements OnPlaceBlockMethod, OnReplacedBlockMetho
 		return false;
 	}
 
-	private static void removeFor(ServerLevel sl, BlockPos pos) {
-		var att = GLMeta.LEVEL_EFFECT.type().getOrCreate(sl);
-		att.getById().values().removeIf(e ->
-				e.ownerPos.equals(pos) && e.data instanceof SealingEffectData && AreaEffectManager.remove(sl, e.id));
-	}
 }

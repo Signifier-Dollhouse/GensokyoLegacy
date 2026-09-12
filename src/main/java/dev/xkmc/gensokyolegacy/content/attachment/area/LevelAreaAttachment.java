@@ -3,6 +3,7 @@ package dev.xkmc.gensokyolegacy.content.attachment.area;
 import dev.xkmc.l2core.capability.attachment.GeneralCapabilityTemplate;
 import dev.xkmc.l2serial.serialization.marker.SerialClass;
 import dev.xkmc.l2serial.serialization.marker.SerialField;
+import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.ChunkPos;
@@ -19,6 +20,9 @@ public class LevelAreaAttachment extends GeneralCapabilityTemplate<Level, LevelA
 	private final Map<UUID, AreaEffectEntry> byId = new LinkedHashMap<>();
 
 	@SerialField
+	private final Map<BlockPos, UUID> byOwner = new LinkedHashMap<>();
+
+	@SerialField
 	private final Map<String, List<UUID>> pending = new LinkedHashMap<>();
 
 	// not SerialField -> not serialized
@@ -26,6 +30,10 @@ public class LevelAreaAttachment extends GeneralCapabilityTemplate<Level, LevelA
 
 	public Map<UUID, AreaEffectEntry> getById() {
 		return byId;
+	}
+
+	public Map<BlockPos, UUID> getByOwner() {
+		return byOwner;
 	}
 
 	public Map<String, List<UUID>> getPending() {
@@ -39,6 +47,51 @@ public class LevelAreaAttachment extends GeneralCapabilityTemplate<Level, LevelA
 
 	public Collection<AreaEffectEntry> getAll() {
 		return byId.values();
+	}
+
+	/**
+	 * Add an entry, indexing it both by id and by owner position. One effect per owner block:
+	 * an existing effect at the same position is removed first (REMOVE sent to its trackers).
+	 */
+	public void addEntry(ServerLevel level, AreaEffectEntry entry) {
+		UUID prev = byOwner.get(entry.ownerPos);
+		if (prev != null && !prev.equals(entry.id)) {
+			removeEntry(level, prev);
+		}
+		byId.put(entry.id, entry);
+		byOwner.put(entry.ownerPos, entry.id);
+	}
+
+	/** {@code byId}/{@code byOwner} cleanup only; no packet side effects. */
+	@Nullable
+	private AreaEffectEntry removeEntryData(UUID id) {
+		AreaEffectEntry entry = byId.remove(id);
+		if (entry == null) return null;
+		if (id.equals(byOwner.get(entry.ownerPos))) {
+			byOwner.remove(entry.ownerPos);
+		}
+		return entry;
+	}
+
+	/**
+	 * Remove an entry by id: cleans the {@code byId}/{@code byOwner} indexes, sends REMOVE to every
+	 * tracking player, and clears their counts. Single removal path that keeps maps and clients in sync.
+	 */
+	@Nullable
+	public AreaEffectEntry removeEntry(ServerLevel level, UUID id) {
+		AreaEffectEntry entry = removeEntryData(id);
+		if (entry == null) return null;
+		for (UUID playerId : Set.copyOf(entry.getTrackingPlayers())) {
+			ServerPlayer p = level.getServer().getPlayerList().getPlayer(playerId);
+			if (p != null) AreaEffectManager.notifyRemoveToPlayer(level, p, id);
+		}
+		entry.getTrackingCounts().clear();
+		return entry;
+	}
+
+	@Nullable
+	public UUID getOwnerId(BlockPos pos) {
+		return byOwner.get(pos);
 	}
 
 	public void tickValidation(ServerLevel level) {
@@ -55,13 +108,7 @@ public class LevelAreaAttachment extends GeneralCapabilityTemplate<Level, LevelA
 			}
 		}
 		for (UUID id : toRemove) {
-			AreaEffectEntry entry = byId.remove(id);
-			if (entry == null) continue;
-			for (UUID playerId : Set.copyOf(entry.getTrackingPlayers())) {
-				ServerPlayer p = level.getServer().getPlayerList().getPlayer(playerId);
-				if (p != null) AreaEffectManager.notifyRemoveToPlayer(level, p, id);
-			}
-			entry.getTrackingCounts().clear();
+			if (removeEntry(level, id) == null) continue;
 			// pending entries with dead UUID will be skipped on flush via byId.containsKey
 		}
 		// every 5s clean up offline players from tracking lists
