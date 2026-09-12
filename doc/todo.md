@@ -1,3 +1,0 @@
-- durability display on folded talisman
-- right click open pocket
-- pocket tooltip image

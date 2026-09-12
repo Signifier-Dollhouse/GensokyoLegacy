@@ -1,4 +1,4 @@
-package dev.xkmc.gensokyolegacy.content.ui.talisman;
+package dev.xkmc.gensokyolegacy.content.item.talisman.pocket;
 
 import dev.xkmc.l2core.base.menu.base.BaseContainerScreen;
 import net.minecraft.client.gui.GuiGraphics;

@@ -1,9 +1,10 @@
 package dev.xkmc.gensokyolegacy.content.item.talisman.kinds;
 
+import dev.xkmc.gensokyolegacy.content.item.talisman.core.TalismanContext;
 import dev.xkmc.gensokyolegacy.content.item.talisman.core.TalismanPaperItem;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.List;
@@ -15,14 +16,15 @@ public class HydrophobicTalisman extends TalismanPaperItem {
 	}
 
 	@Override
-	public boolean test(ServerPlayer le) {
+	public boolean test(LivingEntity le) {
 		return le.getAirSupply() < le.getMaxAirSupply() * 0.7f;
 	}
 
 	@Override
-	public void trigger(ItemStack stack, ServerPlayer le) {
+	public void trigger(TalismanContext ctx) {
+		LivingEntity le = ctx.target();
 		le.setAirSupply(le.getAirSupply() + 40);
-		hurtItem(stack);
+		ctx.hurtItem();
 	}
 
 	@Override

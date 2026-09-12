@@ -16,7 +16,7 @@ public class GLClickHandler extends WritableStackClickHandler {
 	@Override
 	protected void handle(ServerPlayer sp, ClickedPlayerSlotResult res) {
 		if (res.stack().getItem() instanceof InvClickItem item) {
-			item.handleClick(sp, res.stack());
+			item.handleClick(sp, res.slot());
 			res.container().update();
 		}
 	}

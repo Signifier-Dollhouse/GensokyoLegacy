@@ -1,12 +1,13 @@
 package dev.xkmc.gensokyolegacy.content.item.talisman.kinds;
 
+import dev.xkmc.gensokyolegacy.content.item.talisman.core.TalismanContext;
 import dev.xkmc.gensokyolegacy.content.item.talisman.core.TalismanPaperItem;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.gensokyolegacy.init.registrate.GLEffects;
 import dev.xkmc.l2damagetracker.contents.attack.DamageData;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.DamageTypeTags;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.List;
@@ -18,22 +19,22 @@ public class LavaAffinityTalisman extends TalismanPaperItem {
 	}
 
 	@Override
-	public boolean test(ServerPlayer le) {
+	public boolean test(LivingEntity le) {
 		return le.isOnFire() || le.isInLava();
 	}
 
 	@Override
-	public void trigger(ItemStack stack, ServerPlayer le) {
-		applyEffect(stack, le, GLEffects.LAVA_AFFINITY, 0);
+	public void trigger(TalismanContext ctx) {
+		applyEffect(ctx, GLEffects.LAVA_AFFINITY, 0);
 	}
 
 	@Override
-	public boolean onAttacked(ItemStack stack, ServerPlayer sp, DamageData.Attack event) {
+	public boolean onAttacked(TalismanContext ctx, DamageData.Attack event) {
 		if (event.getSource().is(DamageTypeTags.IS_FIRE)) {
-			trigger(stack, sp);
+			trigger(ctx);
 			return true;
 		}
-		return super.onAttacked(stack, sp, event);
+		return super.onAttacked(ctx, event);
 	}
 
 	@Override

@@ -2,6 +2,7 @@ package dev.xkmc.gensokyolegacy.content.item.tool;
 
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
+import dev.xkmc.l2menustacker.screen.source.PlayerSlot;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -69,7 +70,8 @@ public class MiniFurnace1 extends Item implements InvClickItem {
 	}
 
 	@Override
-	public void handleClick(ServerPlayer sp, ItemStack stack) {
+	public void handleClick(ServerPlayer sp, PlayerSlot<?> slot) {
+		ItemStack stack = slot.getItem(sp);
 		var data = GLItems.DC_FURNACE_1.getOrDefault(stack, Data.DEF);
 		stack.set(GLItems.DC_FURNACE_1, data.rotate());
 	}

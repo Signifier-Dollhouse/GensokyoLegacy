@@ -4,6 +4,7 @@ import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -36,8 +37,10 @@ public class FoldedPaperTalisman extends TalismanCurioItem {
 	}
 
 	@Override
-	public List<ItemStack> getActiveTalismans(ItemStack stack) {
-		return List.of(stack);
+	public List<TalismanContext> getActiveTalismans(LivingEntity entity, ItemStack stack) {
+		TalismanPaperItem paper = paper(stack);
+		if (paper == null) return List.of();
+		return List.of(new TalismanContext(entity, stack, 0, stack, paper));
 	}
 
 	@Override
@@ -65,6 +68,27 @@ public class FoldedPaperTalisman extends TalismanCurioItem {
 		var item = GLTalismans.DC_TALISMAN_PAPER.get(stack);
 		if (item == null || !(item.value() instanceof TalismanPaperItem paper)) return -1;
 		return paper.color;
+	}
+
+	@Override
+	public boolean isBarVisible(ItemStack stack) {
+		TalismanPaperItem paper = paper(stack);
+		if (paper == null) return false;
+		return GLTalismans.DC_TALISMAN_DURABILITY.getOrDefault(stack, paper.getDurability()) < paper.getDurability();
+	}
+
+	@Override
+	public int getBarWidth(ItemStack stack) {
+		TalismanPaperItem paper = paper(stack);
+		if (paper == null) return 13;
+		int durability = GLTalismans.DC_TALISMAN_DURABILITY.getOrDefault(stack, paper.getDurability());
+		return Math.round(13.0F * durability / paper.getDurability());
+	}
+
+	@Override
+	public int getBarColor(ItemStack stack) {
+		TalismanPaperItem paper = paper(stack);
+		return paper != null ? paper.getColor() : 0xFFFFFF;
 	}
 
 }

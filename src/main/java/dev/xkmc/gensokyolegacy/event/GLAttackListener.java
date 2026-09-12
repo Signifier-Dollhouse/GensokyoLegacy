@@ -1,18 +1,15 @@
 package dev.xkmc.gensokyolegacy.event;
 
 import dev.xkmc.danmakuapi.init.data.DanmakuDamageTypes;
-import dev.xkmc.gensokyolegacy.compat.curios.CuriosManager;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.item.character.TouhouHatItem;
 import dev.xkmc.gensokyolegacy.content.item.hexbrew.SparklingEventHandler;
 import dev.xkmc.gensokyolegacy.content.item.talisman.core.TalismanCurioItem;
-import dev.xkmc.gensokyolegacy.content.item.talisman.core.TalismanPaperItem;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.GLModConfig;
 import dev.xkmc.l2damagetracker.contents.attack.AttackListener;
 import dev.xkmc.l2damagetracker.contents.attack.DamageData;
 import dev.xkmc.l2damagetracker.contents.attack.DamageModifier;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.animal.Cat;
@@ -30,17 +27,15 @@ public class GLAttackListener implements AttackListener {
 				}
 			}
 		}
-		if (cache.getTarget() instanceof ServerPlayer sp) {
-			TalismanCurioItem.iterate(sp, (paper, stack) -> paper.onAttacked(stack, sp, cache));
+		if (TalismanCurioItem.testAny(cache.getTarget(), ctx -> ctx.paper().onAttacked(ctx, cache))) {
+			return true;
 		}
 		return AttackListener.super.onAttack(cache);
 	}
 
 	@Override
 	public void onDamage(DamageData.Defence data) {
-		if (data.getTarget() instanceof ServerPlayer sp) {
-			TalismanCurioItem.iterate(sp, (paper, stack) -> paper.onDamaged(stack, sp, data));
-		}
+		TalismanCurioItem.iterate(data.getTarget(), ctx -> ctx.paper().onDamaged(ctx, data));
 		if (data.getSource().is(DanmakuDamageTypes.DANMAKU) && data.getSource().getEntity() instanceof YoukaiEntity) {
 			LivingEntity le = data.getTarget();
 			double min = le instanceof Player ?

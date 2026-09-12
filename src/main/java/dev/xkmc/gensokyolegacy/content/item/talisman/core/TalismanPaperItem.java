@@ -4,9 +4,9 @@ import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.l2damagetracker.contents.attack.DamageData;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -33,27 +33,27 @@ public abstract class TalismanPaperItem extends Item {
 		return color;
 	}
 
-	public final void tickTalisman(ItemStack stack, ServerPlayer player) {
-		if (player.getCooldowns().isOnCooldown(this))
+	public final void tickTalisman(TalismanContext ctx) {
+		if (ctx.isOnCooldown())
 			return;
-		if (!test(player))
+		if (!test(ctx.target()))
 			return;
-		trigger(stack, player);
+		trigger(ctx);
 	}
 
-	public boolean test(ServerPlayer le) {
+	public boolean test(LivingEntity le) {
 		return false;
 	}
 
-	public void trigger(ItemStack stack, ServerPlayer le) {
+	public void trigger(TalismanContext ctx) {
 
 	}
 
-	public boolean onAttacked(ItemStack stack, ServerPlayer sp, DamageData.Attack event) {
+	public boolean onAttacked(TalismanContext ctx, DamageData.Attack event) {
 		return false;
 	}
 
-	public void onDamaged(ItemStack stack, ServerPlayer sp, DamageData.Defence event) {
+	public void onDamaged(TalismanContext ctx, DamageData.Defence event) {
 
 	}
 
@@ -66,27 +66,12 @@ public abstract class TalismanPaperItem extends Item {
 
 	}
 
-	protected void applyEffect(ItemStack stack, ServerPlayer le, Holder<MobEffect> eff, int amp) {
+	protected void applyEffect(TalismanContext ctx, Holder<MobEffect> eff, int amp) {
+		LivingEntity le = ctx.target();
 		var old = le.getEffect(eff);
 		if (old == null || old.getAmplifier() != amp || old.getDuration() <= 20) {
 			le.addEffect(new MobEffectInstance(eff, 39, amp, true, false, true));
-			hurtItem(stack);
-		}
-	}
-
-	protected void hurtItem(ItemStack stack) {
-		Integer left = GLTalismans.DC_TALISMAN_DURABILITY.get(stack);
-		if (left != null) {
-			if (left <= 1) {
-				stack.shrink(1);
-			} else {
-				GLTalismans.DC_TALISMAN_DURABILITY.set(stack, left - 1);
-			}
-		} else if (stack.isDamageableItem()) {
-			stack.setDamageValue(stack.getDamageValue() + 1);
-			if (stack.getDamageValue() >= stack.getMaxDamage()) {
-				stack.shrink(1);
-			}
+			ctx.hurtItem();
 		}
 	}
 
