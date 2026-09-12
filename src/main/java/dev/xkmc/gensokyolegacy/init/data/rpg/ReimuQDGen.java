@@ -34,7 +34,6 @@ import net.minecraft.world.entity.raid.Raid;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.level.block.entity.BannerPattern;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
@@ -52,11 +51,6 @@ import java.util.TreeMap;
 public class ReimuQDGen extends QuestDialogData {
 
 	private static final int BAD_OMEN_DURATION = 12000;
-
-	private static Ingredient ominousBanner() {
-		return DataComponentIngredient.of(false, Raid.getLeaderBannerInstance(DummyHolderGetter.create(
-				key -> new BannerPattern(key.location(), "block.minecraft.banner." + key.location().getPath()))));
-	}
 
 	private static final ResourceLocation QUEST_LOCAL_FOOD = GensokyoLegacy.loc("reimu/local_food");
 	private static final ResourceLocation QUEST_HOSTILE_LOOT = GensokyoLegacy.loc("reimu/hostile_loot");
@@ -205,7 +199,7 @@ public class ReimuQDGen extends QuestDialogData {
 				Optional.empty(),
 				new TreeMap<>(Map.of(
 						"a-banner", new SubmitItemRequirement(List.of(new IngredientEntry(
-								ominousBanner(), 1, Optional.of("Ominous Banner"))))
+								DataComponentIngredient.of(false, Raid.getLeaderBannerInstance(DummyHolderGetter.create())), 1, Optional.of("Ominous Banner"))))
 				)),
 				List.of(new ExpReward(200), new ReputationReward(20, 300, 10, 300)),
 				start("Talk about the raiders.",

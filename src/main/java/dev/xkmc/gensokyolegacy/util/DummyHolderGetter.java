@@ -8,43 +8,26 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.TagKey;
 
 import java.util.Optional;
-import java.util.function.Function;
 
-public final class DummyHolderGetter {
+public final class DummyHolderGetter<T> implements HolderOwner<T>, HolderGetter<T> {
 
-	private static final class BoundRef<T> extends Holder.Reference<T> {
-
-		private BoundRef(HolderOwner<T> owner, ResourceKey<T> key, T value) {
-			super(Holder.Reference.Type.STAND_ALONE, owner, key, value);
-		}
-
+	public static <T> HolderGetter<T> create() {
+		return new DummyHolderGetter<>();
 	}
 
-	private DummyHolderGetter() {
+	@Override
+	public boolean canSerializeIn(HolderOwner<T> other) {
+		return true;
 	}
 
-	public static <T> HolderGetter<T> create(Function<ResourceKey<T>, T> dummyValue) {
-		HolderOwner<T> owner = new HolderOwner<>() {
+	@Override
+	public Optional<Holder.Reference<T>> get(ResourceKey<T> key) {
+		return Optional.of(Holder.Reference.createStandAlone(this, key));
+	}
 
-			@Override
-			public boolean canSerializeIn(HolderOwner<T> other) {
-				return true;
-			}
-
-		};
-		return new HolderGetter<>() {
-
-			@Override
-			public Optional<Holder.Reference<T>> get(ResourceKey<T> key) {
-				return Optional.of(new BoundRef<>(owner, key, dummyValue.apply(key)));
-			}
-
-			@Override
-			public Optional<HolderSet.Named<T>> get(TagKey<T> key) {
-				return Optional.empty();
-			}
-
-		};
+	@Override
+	public Optional<HolderSet.Named<T>> get(TagKey<T> key) {
+		return Optional.empty();
 	}
 
 }
