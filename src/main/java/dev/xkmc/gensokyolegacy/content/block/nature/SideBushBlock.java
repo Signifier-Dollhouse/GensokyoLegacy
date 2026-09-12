@@ -52,6 +52,7 @@ public class SideBushBlock extends Block {
 	@Override
 	public BlockState getStateForPlacement(BlockPlaceContext ctx) {
 		for (Direction dir : ctx.getNearestLookingDirections()) {
+			if (dir.getAxis() == Direction.Axis.Y) continue;
 			BlockPos supportPos = ctx.getClickedPos().relative(dir);
 			BlockState supportState = ctx.getLevel().getBlockState(supportPos);
 			if (supportState.isFaceSturdy(ctx.getLevel(), supportPos, dir.getOpposite())) {
