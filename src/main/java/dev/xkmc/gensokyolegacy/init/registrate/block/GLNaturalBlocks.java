@@ -257,7 +257,7 @@ public class GLNaturalBlocks {
 						.sound(SoundType.COBWEB).pushReaction(PushReaction.DESTROY))
 				.blockstate((ctx, pvd) -> pvd.simpleBlock(ctx.get(),
 						pvd.models().cross(ctx.getName(), pvd.modLoc("block/misc/hyphae")).renderType("cutout")))
-				.loot(RegistrateBlockLootTables::dropSelf)
+				.loot(GLNaturalBlocks::genHyphaeLoot)
 				.item().model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("block/misc/hyphae"))).build()
 				.register();
 	}
@@ -479,6 +479,18 @@ public class GLNaturalBlocks {
 			}
 			pvd.getVariantBuilder(ctx.get()).partialState().setModels(models);
 		}
+	}
+
+	private static void genHyphaeLoot(RegistrateBlockLootTables tb, Block block) {
+		var enchantments = tb.getRegistries().lookupOrThrow(Registries.ENCHANTMENT);
+		var shearsOrSilk = MatchTool.toolMatches(ItemPredicate.Builder.item().of(Items.SHEARS))
+				.or(MatchTool.toolMatches(ItemPredicate.Builder.item()
+						.withSubPredicate(ItemSubPredicates.ENCHANTMENTS,
+								ItemEnchantmentsPredicate.enchantments(List.of(new EnchantmentPredicate(
+										enchantments.getOrThrow(Enchantments.SILK_TOUCH), MinMaxBounds.Ints.atLeast(1)))))));
+		tb.add(block, LootTable.lootTable()
+				.withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F)).when(shearsOrSilk)
+						.add(LootItem.lootTableItem(block))));
 	}
 
 	private static void genEuguneLoot(RegistrateBlockLootTables tb, Block block, ItemLike capItem) {

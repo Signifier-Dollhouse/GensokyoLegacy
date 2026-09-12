@@ -18,10 +18,14 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class HyphaeBlock extends BushBlock {
 
 	private static final MapCodec<HyphaeBlock> CODEC = simpleCodec(HyphaeBlock::new);
+
+	public static final VoxelShape SHAPE = Block.box(0, 0, 0, 16, 10, 16);
 
 	public static final BooleanProperty TRANSIENT = BooleanProperty.create("transient");
 
@@ -43,6 +47,11 @@ public class HyphaeBlock extends BushBlock {
 	@Override
 	protected boolean mayPlaceOn(BlockState state, BlockGetter level, BlockPos pos) {
 		return state.isFaceSturdy(level, pos, Direction.UP);
+	}
+
+	@Override
+	public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext ctx) {
+		return SHAPE;
 	}
 
 	@Override
