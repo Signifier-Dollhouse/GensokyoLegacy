@@ -2,6 +2,8 @@
 
 Entity: `kirisame_marisa`. Quest unlocks chain: 1.1 → 1.2 → 2.1 → 2.2 → 2.3 → 2.4.
 
+**Status: implemented** (`MarisaQDGen`). Tables below match the datagen (`src/generated/resources/data/gensokyolegacy/.../{quest,dialog,dialog_starter,trade}/marisa/...`).
+
 ## One-time Quests (soft cap 300, max cap 300)
 
 | # | Id | Unlock | Requirements | Rewards |
@@ -41,17 +43,20 @@ Stock = max times tradeable per refresh; Refresh = ticks until restock (20 ticks
 
 ### Offering (player buys, rep/quest gated)
 
+Witch hexbrews carry a real potion effect. Effects that have a **strong** tier are sold as a single strong bottle; the odd one out (`fire`) falls back to the **long** form at 4 bottles — both for emerald ×4.
+
 | Id | Gate | Pay | Get (hexbrew) | Stock | Refresh |
 |----|----------|-----|---------------|-------|---------|
 | `offer_miasma` | none | emerald ×3 | miasma ×4 | 4 | 24000 |
-| `offer_witch_speed` | 2.3 | emerald ×3 | witch (swiftness) ×4 | 4 | 12000 |
-| `offer_witch_strength` | 2.3 | emerald ×3 | witch (strength) ×4 | 4 | 12000 |
-| `offer_witch_regen` | 2.3 | emerald ×3 | witch (regeneration) ×4 | 4 | 12000 |
-| `offer_witch_leaping` | 2.3 | emerald ×2 | witch (leaping) ×4 | 4 | 12000 |
-| `offer_witch_fire` | 2.3 | emerald ×2 | witch (fire resistance) ×4 | 4 | 12000 |
+| `offer_witch_speed` | 2.3 | emerald ×4 | witch (strong swiftness) ×1 | 16 | 12000 |
+| `offer_witch_strength` | 2.3 | emerald ×4 | witch (strong strength) ×1 | 16 | 12000 |
+| `offer_witch_regen` | 2.3 | emerald ×4 | witch (strong regeneration) ×1 | 16 | 12000 |
+| `offer_witch_leaping` | 2.3 | emerald ×4 | witch (strong leaping) ×1 | 16 | 12000 |
+| `offer_witch_fire` | 2.3 | emerald ×4 | witch (long fire resistance) ×4 | 4 | 12000 |
 | `offer_shield` | rep 50 | emerald ×2 | shield ×1 | 8 | 24000 |
 | `offer_explosive` | rep 50 | emerald ×3 | explosive ×4 | 4 | 24000 |
 | `offer_starlight` | rep 120 | emerald ×4 | starlight ×1 | 8 | 24000 |
+| `offer_sealing_pot` | rep 120 | emerald ×24 | sealing pot ×1 | 1 | 48000 |
 
 ### Processing (craft-style, rep-gated)
 

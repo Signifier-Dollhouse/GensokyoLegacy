@@ -17,6 +17,8 @@ Write the design spec in `doc/<char>_quests.md`:
 
 Extract a review-style summary into `doc/draft.md`, get it polished → `doc/polished.md` (final dialog + notes). The final Chinese localization lives in `doc/<char>.docx`.
 
+Reviews are working files: after the quest ships, fold the final dialog into the datagen class and delete the review docs (that's what happened to Reimu — the `reimu_dialog_*` review docs were deleted once `ReimuQDGen` landed). The authoritative dialog source of truth is the datagen class + `en_us.json`.
+
 ## 2. Draft — create the datagen class
 
 New `init/data/rpg/<Char>QDGen.java` extending `QuestDialogData`:
@@ -59,8 +61,11 @@ Conventions:
 
 - Organize content by `prefix(...)` scope (chat / each quest / trades).
 - Item refs: mushroom caps/blocks via `GLNaturalBlocks.MUSHROOM_SET` (ghost / dream / demonic_miasma) `.cap`/`.block`; entity via `GLEntities.<CHAR>.get()`; hexbrews via `HexBrew.*.bottle`.
-- Reuse base helpers (`start/follow/complete`, `daily`) on `QuestDialogData`; note the private `prefix` state means sections must be self-contained.
+- Item-name-matched requirements (e.g. Reimu's "Ominous Banner") use `DataComponentIngredient.of(false, DataComponents.ITEM_NAME, <component>, <item>)` wrapped in a single `IngredientEntry`.
+- Reward loot via `loot("<char>/<x>", LootTable.lootTable().withPool(lootItem(...)))` → `LootTableReward`; daily randomized sub-goals via `requestTable("<daily>", ...)` (uniform-count pools) consumed by `rollItem(table)` → `RollItemRequirement`.
+- Reuse base helpers (`start/follow/complete`, `daily`) on `QuestDialogData`; note the private `prefix` state means sections must be self-contained. `start`/`follow`/`complete` are actually **private per-gen helpers**, not base methods — copy the pattern from `MarisaQDGen`/`ReimuQDGen`.
 - `processing`-style trades are plain `TradeOffer` — the currency heuristic already suppresses the price tag and shows the result for non-currency item trades, so no extra field is needed.
+- **Multi-action options** (start quest + apply an effect, e.g. Reimu's `bad_omen`): build a `SimpleDialogOption` with `option(id, text, List.of(new StartQuestAction(), new GiveMobEffectAction(...)), next)` or use Reimu's `startRaid`/`dailyRaidStart`/`follow(.., action)` overloads.
 
 ## 3. Register & wire
 
@@ -81,11 +86,18 @@ Register any new condition / action / requirement / reward subclasses in `CodecR
 
 Only add shared code if an existing feature is missing (e.g. a new condition class, a `processing` trade mode). Verify the UI already renders the case before adding fields.
 
+The Reimu rework added exactly this kind of machinery, now reusable for future characters:
+
+- `GiveMobEffectAction` (`action/give_mob_effect`) — dialog option action that applies a mob effect (used to hand Bad Omen).
+- `RaidTrigger` + `RaidVictoryRequirement` (`requirement/raid_victory`) — quest requirement completed by winning a raid.
+- `RaidMixin` — `@WrapOperation` on `PlayerTrigger.trigger` in `Raid.tick()` (the `hero_of_the_village` grant), dispatches the trigger. Must be declared in `gensokyolegacy.mixins.json`.
+- Two-action option helpers in `ReimuQDGen` (`startRaid`, `dailyRaidStart`, `follow(.., DialogAction)`, `dailyFollow(.., DialogAction)`) for "start quest + apply effect".
+
 ## 5. Generate & commit
 
 - `./gradlew compileJava` — must pass.
 - `./gradlew runData` — writes `src/generated/resources/data/gensokyolegacy/gensokyolegacy/{dialog,dialog_starter,quest,trade}/...` plus `data_maps/entity_type/default_dialog.json`. Commit generated JSON alongside code.
-- Commit style: short lowercase one-liner (e.g. `"marisa quest"`).
+- Commit style: short lowercase one-liner (e.g. `"reimu quest"`, `"marisa quest"`).
 
 ## 6. Dialog design rules (learned from the Reimu/Marisa rework)
 
