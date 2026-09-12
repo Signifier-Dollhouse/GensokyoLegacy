@@ -2,7 +2,7 @@ package dev.xkmc.gensokyolegacy.content.rpg.core;
 
 import dev.xkmc.gensokyolegacy.content.rpg.action.CompleteQuestAction;
 import dev.xkmc.gensokyolegacy.content.rpg.action.DialogAction;
-import dev.xkmc.gensokyolegacy.content.rpg.action.GiveBadOmenAction;
+import dev.xkmc.gensokyolegacy.content.rpg.action.GiveMobEffectAction;
 import dev.xkmc.gensokyolegacy.content.rpg.action.StartQuestAction;
 import dev.xkmc.gensokyolegacy.content.rpg.condition.HasAdvancementCondition;
 import dev.xkmc.gensokyolegacy.content.rpg.condition.HasQuestCompletedCondition;
@@ -56,7 +56,7 @@ public class CodecRegistry {
 
 	public static final CdcVal<StartQuestAction> START_QUEST = ACTION.reg("start_quest", StartQuestAction.CODEC);
 	public static final CdcVal<CompleteQuestAction> COMPLETE_QUEST = ACTION.reg("complete_quest", CompleteQuestAction.CODEC);
-	public static final CdcVal<GiveBadOmenAction> GIVE_BAD_OMEN = ACTION.reg("give_bad_omen", GiveBadOmenAction.CODEC);
+	public static final CdcVal<GiveMobEffectAction> GIVE_MOB_EFFECT = ACTION.reg("give_mob_effect", GiveMobEffectAction.CODEC);
 
 	public static final CdcVal<HasAdvancementCondition> HAS_ADV = CONDITION.reg("has_advancement", HasAdvancementCondition.CODEC);
 	public static final CdcVal<HasQuestCompletedCondition> HAS_QUEST = CONDITION.reg("has_quest_completed", HasQuestCompletedCondition.CODEC);

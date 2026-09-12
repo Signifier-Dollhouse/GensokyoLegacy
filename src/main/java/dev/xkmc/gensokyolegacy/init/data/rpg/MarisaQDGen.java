@@ -66,7 +66,7 @@ public class MarisaQDGen extends QuestDialogData {
 	public MarisaQDGen() {
 		prefix("marisa/shared");
 		byeKey = text("option", "bye", "Bye!");
-		dailyStartKey = text("option", "daily_start", "I can gather that for you.");
+		dailyStartKey = text("option", "daily_start", "What can I help?");
 		dailyAcceptKey = text("option", "daily_accept", "I'll do it!");
 		dailyRejectKey = text("option", "daily_reject", "Maybe later.");
 		dailyFollowKey = text("option", "daily_follow", "How's it going?");

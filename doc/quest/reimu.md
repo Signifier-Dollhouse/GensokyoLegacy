@@ -95,11 +95,11 @@ Dialog uses Marisa's shared daily pattern (`daily_start` / `daily_accept` / `dai
 
 The current system has no "apply an effect" action and no raid-won trigger:
 
-1. `GiveBadOmenAction(int duration)` — `DialogAction` that applies `MobEffects.BAD_OMEN` (level 0, duration e.g. 12000) to `context.sp()`. Register: `ACTION.reg("give_bad_omen", ...)`.
+1. `GiveMobEffectAction(Holder<MobEffect> effect, int duration, int amplifier)` — `DialogAction` that applies the given effect (level `amplifier`, duration e.g. 12000) to `context.sp()`. Register: `ACTION.reg("give_mob_effect", ...)`.
 2. `RaidTrigger(ServerPlayer player)` — `QuestTrigger` record.
 3. `RaidVictoryRequirement(String text, int count)` — `QuestRequirement` matching `RaidTrigger`. Register: `REQUIREMENT.reg("raid_victory", ...)`.
 4. Mixin `Raids.Raid.tick()` — inject at the `RAID_WIN` criterion grant (`PlayerTrigger.trigger`, i.e. `hero_of_the_village`), the exact point where victory is decided once; iterate `heroesOfTheVillage`, resolve each to `ServerPlayer`, and `GLMeta.QUEST.type().getOrCreate(sp).dispatch(sp, new RaidTrigger(sp))`. Declare the mixin in `src/main/resources/gensokyolegacy.mixins.json` (unlisted mixins fail hard).
-5. `ReimuQDGen` needs a helper to build an option with two actions (`StartQuestAction` + `GiveBadOmenAction`) for the 3.2/daily accept; build a `SimpleDialogOption` with a `List.of(...)` directly.
+5. `ReimuQDGen` needs a helper to build an option with two actions (`StartQuestAction` + `GiveMobEffectAction(MobEffects.BAD_OMEN, ...)`) for the 3.2/daily accept; build a `SimpleDialogOption` with a `List.of(...)` directly.
 
 Bad-omen gameplay to explain to the player in dialog: entering a village with active Bad Omen starts the raid; winning grants Village Hero and fires the trigger — this is exactly the moment `RaidVictoryRequirement` completes.
 

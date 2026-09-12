@@ -14,8 +14,9 @@
           "type": "gensokyolegacy:start_quest"
         },
         {
-          "type": "gensokyolegacy:give_bad_omen",
-          "duration": 12000
+          "type": "gensokyolegacy:give_mob_effect",
+          "duration": 12000,
+          "effect": "minecraft:bad_omen"
         }
       ],
       "conditions": [],

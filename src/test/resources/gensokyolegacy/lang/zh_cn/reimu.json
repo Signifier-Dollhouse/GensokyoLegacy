@@ -5,13 +5,13 @@
 			"shared": {
 				"option": {
 					"bye": "再见！",
-					"daily_start": "我可以帮你收集。",
-					"daily_accept": "我来做！",
+					"daily_start": "有什么我能帮忙的吗？",
+					"daily_accept": "我来搞定",
 					"daily_reject": "也许晚点吧。",
 					"daily_follow": "进展怎么样？",
-					"daily_follow_end": "我还在做。",
-					"daily_complete": "东西都拿来了！",
-					"daily_handover": "给你。"
+					"daily_follow_end": "还差点呢",
+					"daily_complete": "东西都拿来了～",
+					"daily_handover": "给你"
 				},
 				"dialog": {
 					"daily_gotem": "哦，你拿来了？让我看看！"

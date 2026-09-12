@@ -3,7 +3,7 @@ package dev.xkmc.gensokyolegacy.init.data.rpg;
 import dev.xkmc.gensokyolegacy.content.item.talisman.core.GLTalismans;
 import dev.xkmc.gensokyolegacy.content.rpg.action.CompleteQuestAction;
 import dev.xkmc.gensokyolegacy.content.rpg.action.DialogAction;
-import dev.xkmc.gensokyolegacy.content.rpg.action.GiveBadOmenAction;
+import dev.xkmc.gensokyolegacy.content.rpg.action.GiveMobEffectAction;
 import dev.xkmc.gensokyolegacy.content.rpg.action.StartQuestAction;
 import dev.xkmc.gensokyolegacy.content.rpg.condition.HasQuestCompletedCondition;
 import dev.xkmc.gensokyolegacy.content.rpg.condition.SelfReputationCondition;
@@ -32,6 +32,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -71,7 +72,7 @@ public class ReimuQDGen extends QuestDialogData {
 	public ReimuQDGen() {
 		prefix("reimu/shared");
 		byeKey = text("option", "bye", "Bye!");
-		dailyStartKey = text("option", "daily_start", "I can gather that for you.");
+		dailyStartKey = text("option", "daily_start", "What can I help?");
 		dailyAcceptKey = text("option", "daily_accept", "I'll do it!");
 		dailyRejectKey = text("option", "daily_reject", "Maybe later.");
 		dailyFollowKey = text("option", "daily_follow", "How's it going?");
@@ -331,7 +332,7 @@ public class ReimuQDGen extends QuestDialogData {
 		return option("start", button,
 				dialog("start/dialog_1", intro,
 						optionKey("start/reject", reject, dialog("start/reject/dialog_1", rejectLine, optionKey("start/reject/bye", byeKey))),
-						optionKey("start/accept", accept, List.of(new StartQuestAction(), new GiveBadOmenAction(BAD_OMEN_DURATION)),
+						optionKey("start/accept", accept, List.of(new StartQuestAction(), new GiveMobEffectAction(MobEffects.BAD_OMEN, BAD_OMEN_DURATION, 0)),
 								dialog("start/accept/dialog_1", acceptLine, optionKey("start/accept/bye", byeKey)))));
 	}
 
@@ -381,7 +382,7 @@ public class ReimuQDGen extends QuestDialogData {
 						optionKey("start/reject", dailyRejectKey,
 								dialog("start/reject/dialog_1", rejectLine, optionKey("start/reject/bye", byeKey))),
 						optionKey("start/accept", dailyAcceptKey,
-								List.of(new StartQuestAction(), new GiveBadOmenAction(BAD_OMEN_DURATION)),
+								List.of(new StartQuestAction(), new GiveMobEffectAction(MobEffects.BAD_OMEN, BAD_OMEN_DURATION, 0)),
 								dialog("start/accept/dialog_1", acceptLine, optionKey("start/accept/bye", byeKey)))));
 	}
 
