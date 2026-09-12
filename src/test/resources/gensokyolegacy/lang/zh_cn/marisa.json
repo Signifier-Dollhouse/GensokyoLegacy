@@ -313,7 +313,7 @@
 					"start/reject/bye": "再见！",
 					"start/accept": "我去办！",
 					"start/accept/bye": "再见！",
-					"follow_up": "进展怎么样？",
+					"follow_up": "能再说一遍要做什么吗？",
 					"follow_up/end": "我正在办！",
 					"follow_up/end/bye": "再见！",
 					"complete": "我拿到好东西了！",
@@ -333,7 +333,7 @@
 								"dialog_1": "哎，别这样嘛！这个世界的特色蘑菇可是最棒的！"
 							},
 							"follow_up": {
-								"dialog_1": "慢慢来——不过可别偷工减料啊！"
+								"dialog_1": "库存又见底了——发光的、梦幻的，能带什么就带什么。记得吗？"
 							},
 							"follow_up/end": {
 								"dialog_1": "别拖太久！"
@@ -359,7 +359,7 @@
 					"start/reject/bye": "再见！",
 					"start/accept": "我去办！",
 					"start/accept/bye": "再见！",
-					"follow_up": "进展怎么样？",
+					"follow_up": "能再说一遍要做什么吗？",
 					"follow_up/end": "我正在办！",
 					"follow_up/end/bye": "再见！",
 					"complete": "我拿到好东西了！",
@@ -379,7 +379,7 @@
 								"dialog_1": "什么，嫌恶心？科学研究可不能挑三拣四！拜托了！"
 							},
 							"follow_up": {
-								"dialog_1": "慢慢来——不过可别偷工减料啊！"
+								"dialog_1": "恶心的材料又快不够了——腐肉、蜘蛛眼、瘴气蘑菇。记得吗？"
 							},
 							"follow_up/end": {
 								"dialog_1": "行，我先把酿造台热起来！"
@@ -405,7 +405,7 @@
 					"start/reject/bye": "再见！",
 					"start/accept": "我去办！",
 					"start/accept/bye": "再见！",
-					"follow_up": "进展怎么样？",
+					"follow_up": "能再说一遍要做什么吗？",
 					"follow_up/end": "我正在办！",
 					"follow_up/end/bye": "再见！",
 					"complete": "我拿到好东西了！",
@@ -425,7 +425,7 @@
 								"dialog_1": "什么？下界又没那么可怕！小心点熔岩就行了！"
 							},
 							"follow_up": {
-								"dialog_1": "还在下界吗？可别最后自己也变成蘑菇了！"
+								"dialog_1": "下界的发光蘑菇和菌光体，记得吗？你可是我的侦察员！"
 							},
 							"follow_up/end": {
 								"dialog_1": "注意安全！"
@@ -451,7 +451,7 @@
 					"start/reject/bye": "再见！",
 					"start/accept": "我去办！",
 					"start/accept/bye": "再见！",
-					"follow_up": "进展怎么样？",
+					"follow_up": "能再说一遍要做什么吗？",
 					"follow_up/end": "我正在办！",
 					"follow_up/end/bye": "再见！",
 					"complete": "我拿到好东西了！",
@@ -471,7 +471,7 @@
 								"dialog_1": "哎，别丢下我不管啊！酿造可不会自己酿！"
 							},
 							"follow_up": {
-								"dialog_1": "还在收集吗？酿造还等着你呢！"
+								"dialog_1": "烈焰棒和下界疣，记得吗？酿造还等着它们呢！"
 							},
 							"follow_up/end": {
 								"dialog_1": "快去快回，酿造还等着呢！"

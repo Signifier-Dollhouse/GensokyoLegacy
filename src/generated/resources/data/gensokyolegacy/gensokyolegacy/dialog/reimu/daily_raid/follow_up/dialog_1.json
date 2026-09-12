@@ -2,7 +2,13 @@
   "options": [
     {
       "type": "gensokyolegacy:simple",
-      "actions": [],
+      "actions": [
+        {
+          "type": "gensokyolegacy:give_mob_effect",
+          "duration": 12000,
+          "effect": "minecraft:bad_omen"
+        }
+      ],
       "conditions": [],
       "next": "gensokyolegacy:reimu/daily_raid/follow_up/end/dialog_1",
       "text": "gensokyolegacy/reimu/shared/option/daily_follow_end"

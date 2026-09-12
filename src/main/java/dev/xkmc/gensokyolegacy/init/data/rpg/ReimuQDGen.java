@@ -49,6 +49,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
 
+@SuppressWarnings("SameParameterValue")
 public class ReimuQDGen extends QuestDialogData {
 
 	private static final int BAD_OMEN_DURATION = 12000;
@@ -75,7 +76,7 @@ public class ReimuQDGen extends QuestDialogData {
 		dailyStartKey = text("option", "daily_start", "What can I help?");
 		dailyAcceptKey = text("option", "daily_accept", "I'll do it!");
 		dailyRejectKey = text("option", "daily_reject", "Maybe later.");
-		dailyFollowKey = text("option", "daily_follow", "How's it going?");
+		dailyFollowKey = text("option", "daily_follow", "Could you go over the task again?");
 		dailyFollowEndKey = text("option", "daily_follow_end", "I'm on it!");
 		dailyCompleteKey = text("option", "daily_complete", "I've got the goods!");
 		dailyHandoverKey = text("option", "daily_handover", "Here you go!");
@@ -210,8 +211,9 @@ public class ReimuQDGen extends QuestDialogData {
 						"I'll repel the raid.", "There. The mark is on you. Walk into a village, draw them out, and drive every raider away.",
 						"Can't you do it yourself?", "I've got shrine duties. You're the one who knows this world, so I'll leave the fighting to you."),
 				follow("Ask about the raid.",
-						"Is the village still standing?",
-						"Still fighting.", "They'll keep coming in waves. Hold the line."),
+						"The village still stands, but the mark is fading. Care to go again? I can set a fresh one.",
+						"Mark me again.", "There. Walk into a village, draw them out, and drive every raider away.",
+						new GiveMobEffectAction(MobEffects.BAD_OMEN, BAD_OMEN_DURATION, 0)),
 				complete("Tell Reimu the raid is over.",
 						"The waves stopped? Good. So the plan worked.",
 						"Not yet.", "Not yet? Then stay sharp. They won't give up easily.",
@@ -234,7 +236,7 @@ public class ReimuQDGen extends QuestDialogData {
 				"The donation box is empty again, and I'm hungry. Bring me a few things for the shrine.",
 				"Good. Bring back a decent haul.",
 				"A hungry miko is a distracted miko. Your call.",
-				"How's the haul coming along?",
+				"The donation box is empty again — bring a decent haul of supplies, remember.",
 				"Take your time. Just bring back something useful.",
 				"Just what the shrine needed. Thanks.",
 				new TreeMap<>(Map.of(
@@ -252,7 +254,7 @@ public class ReimuQDGen extends QuestDialogData {
 				"Something's been stirring up trouble near the shrine. Thin out the monsters and bring me some loot.",
 				"That's the spirit. Go clear them out.",
 				"They'll only grow bolder. But it's your call.",
-				"How's the thrashing going?",
+				"Something's been stirring near the shrine again — thin them out and bring back their loot, remember.",
 				"Stay careful out there. I need you in one piece.",
 				"Another night's sleep saved. Thanks.",
 				new TreeMap<>(Map.of(
@@ -266,7 +268,7 @@ public class ReimuQDGen extends QuestDialogData {
 				"Talisman stock is running low again. Paper and redstone, just like before.",
 				"Great. Restock me and I'll keep the shrine warded.",
 				"No stock, no warding. Your call.",
-				"Any paper and redstone yet?",
+				"Talisman stock is low again — paper for folding, redstone for ink, remember.",
 				"The ofuda shelves are starting to look empty.",
 				"Good. The shelves are stocked again.",
 				new TreeMap<>(Map.of(
@@ -285,7 +287,9 @@ public class ReimuQDGen extends QuestDialogData {
 				dailyRaidStart("A new mark is ready, and another village could use protecting. Ready for another raid?",
 						"Here's the mark, same as before. Enter the village, hold the line, and drive them out.",
 						"The mark will keep. The raiders will still be there when you're ready."),
-				dailyFollow("Is the village holding up?", "They keep coming in waves. Don't drop your guard."),
+				dailyFollow("The mark is fading. Ready for another round? I can set a fresh one.",
+						"There. Enter the village, hold the line, and drive them out. I'll be here after.",
+						new GiveMobEffectAction(MobEffects.BAD_OMEN, BAD_OMEN_DURATION, 0)),
 				dailyComplete("The village is still standing. You're getting good at this.")
 		));
 	}
@@ -342,6 +346,13 @@ public class ReimuQDGen extends QuestDialogData {
 						optionKey("follow_up/end", opt, dialog("follow_up/end/dialog_1", optLine, optionKey("follow_up/end/bye", byeKey)))));
 	}
 
+	private SimpleDialogOption follow(String button, String intro, String opt, String optLine, DialogAction<?> action) {
+		return option("follow_up", button,
+				dialog("follow_up/dialog_1", intro,
+						optionKey("follow_up/end", opt, List.of(action),
+								dialog("follow_up/end/dialog_1", optLine, optionKey("follow_up/end/bye", byeKey)))));
+	}
+
 	private SimpleDialogOption complete(String button, String intro,
 	                                    String reject, String rejectLine,
 	                                    String complete, String completeLine) {
@@ -390,6 +401,13 @@ public class ReimuQDGen extends QuestDialogData {
 		return optionKey("follow_up", dailyFollowKey,
 				dialog("follow_up/dialog_1", followLine,
 						optionKey("follow_up/end", dailyFollowEndKey,
+								dialog("follow_up/end/dialog_1", optLine, optionKey("follow_up/end/bye", byeKey)))));
+	}
+
+	private SimpleDialogOption dailyFollow(String followLine, String optLine, DialogAction<?> action) {
+		return optionKey("follow_up", dailyFollowKey,
+				dialog("follow_up/dialog_1", followLine,
+						optionKey("follow_up/end", dailyFollowEndKey, List.of(action),
 								dialog("follow_up/end/dialog_1", optLine, optionKey("follow_up/end/bye", byeKey)))));
 	}
 

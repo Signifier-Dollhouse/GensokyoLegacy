@@ -43,6 +43,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
 
+@SuppressWarnings("SameParameterValue")
 public class MarisaQDGen extends QuestDialogData {
 
 	private static final ResourceLocation QUEST_FIRST_MUSHROOM = GensokyoLegacy.loc("marisa/first_mushroom");
@@ -69,7 +70,7 @@ public class MarisaQDGen extends QuestDialogData {
 		dailyStartKey = text("option", "daily_start", "What can I help?");
 		dailyAcceptKey = text("option", "daily_accept", "I'll do it!");
 		dailyRejectKey = text("option", "daily_reject", "Maybe later.");
-		dailyFollowKey = text("option", "daily_follow", "How's it going?");
+		dailyFollowKey = text("option", "daily_follow", "Could you go over the task again?");
 		dailyFollowEndKey = text("option", "daily_follow_end", "I'm on it!");
 		dailyCompleteKey = text("option", "daily_complete", "I've got the goods!");
 		dailyHandoverKey = text("option", "daily_handover", "Here you go!");
@@ -234,7 +235,7 @@ public class MarisaQDGen extends QuestDialogData {
 				"Morning! My stock's runnin' low again. Bring me a fresh bundle of this world's specialty mushrooms — the glowing ones, the dreamy ones, whatever ya can find. Fresh research material, stat!",
 				"That's the spirit! Bring me the good stuff!",
 				"Aw, c'mon! The specialty mushrooms are the best part of this world's flora!",
-				"Take your time — but don't skimp on me, now!",
+				"Stock's runnin' low again — the glowing ones, the dreamy ones, whatever ya can find. Remember?",
 				"Good, don't take too long!",
 				"Oh, these are perfect! Thanks, buddy!",
 				new TreeMap<>(Map.of(
@@ -256,7 +257,7 @@ public class MarisaQDGen extends QuestDialogData {
 				"Yo! I'm mid-brew and I'm runnin' short on the gross stuff. Think ya can scrounge up some rotten flesh, spider eyes, and a few of those miasma mushrooms? For, uh... research. Yeah. Research.",
 				"Right on! Bring me the grubby bits!",
 				"What, too good for a little research? C'mon, it'll be worth it!",
-				"Take your time — but don't skimp on me, now!",
+				"Gettin' short on the gross stuff again — rotten flesh, spider eyes, miasma mushrooms. Remember?",
 				"Good, I'll have the brew ready!",
 				"Just what I needed for the brew! Thanks!",
 				new TreeMap<>(Map.of(
@@ -274,7 +275,7 @@ public class MarisaQDGen extends QuestDialogData {
 				"Hey! I need more of those glowing mushrooms and shroomlights from the Nether. You're my personal Nether scout now, ze! Make a quick trip and bring 'em back.",
 				"That's my scout! Fetch me the glowy stuff!",
 				"What? The Nether's not that bad! Just watch out for the lava!",
-				"Still out in the Nether? Don't become a mushroom!",
+				"Those glowing mushrooms and shroomlights from the Nether, remember? You're my scout!",
 				"Stay safe down there!",
 				"Ah, perfect! Thanks, scout!",
 				new TreeMap<>(Map.of(
@@ -287,7 +288,7 @@ public class MarisaQDGen extends QuestDialogData {
 				"Brewin' up a storm over here, and I'm fresh outta base ingredients! Skedaddle to the Nether and grab me some blaze rods and nether wart, willya? There's a good buddy!",
 				"That's my buddy! Fetch me the brew bits!",
 				"Aw, don't leave me hangin'! The brew won't brew itself!",
-				"Still gatherin'? The brew's waitin' on ya!",
+				"Blaze rods and nether wart, remember? The brew's waitin' on 'em!",
 				"Hurry back, the brew's waiting!",
 				"The brew thanks you!",
 				new TreeMap<>(Map.of(
@@ -413,10 +414,13 @@ public class MarisaQDGen extends QuestDialogData {
 	}
 
 	private PotionContents witchContents(Holder<Potion> potion, int durationMul) {
+		var effects = potion.value().getEffects().stream()
+				.map(e -> new MobEffectInstance(e.getEffect(), e.getDuration() * durationMul, e.getAmplifier()))
+				.toList();
+		for (var e : effects)
+			e.getCures().clear();
 		return new PotionContents(Optional.empty(), Optional.of(PotionContents.getColor(potion)),
-				potion.value().getEffects().stream()
-						.map(e -> new MobEffectInstance(e.getEffect(), e.getDuration() * durationMul, e.getAmplifier()))
-						.toList());
+				effects);
 	}
 
 	private void daily(String id, String title, String desc, QuestRecurrence rec,

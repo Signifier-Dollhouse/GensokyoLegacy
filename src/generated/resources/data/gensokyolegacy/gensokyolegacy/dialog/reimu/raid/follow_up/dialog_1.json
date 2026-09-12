@@ -2,10 +2,16 @@
   "options": [
     {
       "type": "gensokyolegacy:simple",
-      "actions": [],
+      "actions": [
+        {
+          "type": "gensokyolegacy:give_mob_effect",
+          "duration": 12000,
+          "effect": "minecraft:bad_omen"
+        }
+      ],
       "conditions": [],
       "next": "gensokyolegacy:reimu/raid/follow_up/end/dialog_1",
-      "text": "Still fighting."
+      "text": "Mark me again."
     }
   ],
   "text": "gensokyolegacy/reimu/raid/dialog/reimu/raid/follow_up/dialog_1"

@@ -68,7 +68,7 @@ Requirements: `raid_victory` ×1 — completed when the player *wins a raid* whi
 - **Start** — "I read that banner. It's a *claim* — the raiders come to take what the villages have. And the mark that landed on you when you cut down their captain? That's their summons. So I'm going to beat them at their own game. My talismans can recreate that mark, and I'll place it on you. Walk into a village wearing it and the raiders will come swarming — then we give them a hit they won't forget."
   - Accept: "I'll repel the raid." → applies bad omen: "Here's the mark. Don't wash it off until you've walked into a village and driven out every last raider. Come back when it's done."
   - Reject: "Can't you do it yourself?" → "I've got shrine duties, and you're the one who knows this world. The mark will be waiting whenever you're ready."
-- **Follow-up** — "How's the raid going?" → "Is the village still standing? They'll come in waves — hold the line!"
+- **Follow-up** — "Ask about the raid." → "The village still stands, but the mark is fading. Care to go again? I can set a fresh one." → "Mark me again." → re-applies bad omen: "There. Walk into a village, draw them out, and drive every raider away."
 - **Complete** — "The raiders are gone." → "You routed them! I knew baiting them into a decisive hit would pay off. The villages owe you — and so does this shrine. Here, take my spellcard as thanks." Reward loot table `reimu/raid`: `spell_reimu` ×1.
 
 ## Daily Quests (cooldown 24000, soft cap 150, shared dialog ids, per-quest prefix)
@@ -89,7 +89,9 @@ Dialog uses Marisa's shared daily pattern (`daily_start` / `daily_accept` / `dai
 | `daily_talisman` | "Talisman stock is running low again. Paper and redstone, just like before." | "Good, the shelves are stocked again!" |
 | `daily_raid` | "A new mark is ready, and there's a village that could use protecting. Up for one more raid?" | "The village is still standing! You're a natural." |
 
-`daily_raid`'s accept option runs both `start_quest` and the bad-omen action (the standard `dailyStart` helper needs an overload accepting extra actions).
+`daily_raid`'s accept option runs both `start_quest` and the bad-omen action (the standard `dailyStart` helper needs an overload accepting extra actions). Both the 3.2 and `daily_raid` **follow** options also re-apply the bad-omen action: the follow dialog is the player re-checking the task / asking for help, so in the raid quests Reimu re-marks the player there too.
+
+The shared daily follow dialog never asks "how's it going" — the player line is the player asking to re-hear the task ("Could you go over the task again?"), and Reimu replies with a reminder/encouragement.
 
 ## New machinery (Step 4 — only for 3.2 / `daily_raid`)
 
