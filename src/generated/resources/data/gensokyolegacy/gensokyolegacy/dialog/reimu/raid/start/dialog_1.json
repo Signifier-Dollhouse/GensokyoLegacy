@@ -5,7 +5,7 @@
       "actions": [],
       "conditions": [],
       "next": "gensokyolegacy:reimu/raid/start/reject/dialog_1",
-      "text": "Can't you do it yourself?"
+      "text": "gensokyolegacy/reimu/raid/option/start/reject"
     },
     {
       "type": "gensokyolegacy:simple",
@@ -21,7 +21,7 @@
       ],
       "conditions": [],
       "next": "gensokyolegacy:reimu/raid/start/accept/dialog_1",
-      "text": "I'll repel the raid."
+      "text": "gensokyolegacy/reimu/raid/option/start/accept"
     }
   ],
   "text": "gensokyolegacy/reimu/raid/dialog/reimu/raid/start/dialog_1"

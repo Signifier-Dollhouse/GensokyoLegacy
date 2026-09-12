@@ -5,7 +5,7 @@
       "actions": [],
       "conditions": [],
       "next": "gensokyolegacy:reimu/hostile_loot/start/reject/dialog_1",
-      "text": "Maybe next time."
+      "text": "gensokyolegacy/reimu/hostile_loot/option/start/reject"
     },
     {
       "type": "gensokyolegacy:simple",
@@ -16,7 +16,7 @@
       ],
       "conditions": [],
       "next": "gensokyolegacy:reimu/hostile_loot/start/accept/dialog_1",
-      "text": "I'll hunt zombies and skeletons."
+      "text": "gensokyolegacy/reimu/hostile_loot/option/start/accept"
     }
   ],
   "text": "gensokyolegacy/reimu/hostile_loot/dialog/reimu/hostile_loot/start/dialog_1"

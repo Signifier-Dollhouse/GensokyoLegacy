@@ -39,7 +39,12 @@
 				"option": {
 					"start": "谈谈她的蘑菇研究。",
 					"follow_up": "问问她拿到需要的东西没有。",
-					"complete": "把蘑菇交给她。"
+					"complete": "把蘑菇交给她。",
+					"start/reject": "呃，听起来好麻烦。",
+					"start/accept": "好，我去采一些。",
+					"follow_up/end": "还没呢，还在找。",
+					"complete/reject": "还没。",
+					"complete/handover": "给你。"
 				},
 				"dialog": {
 					"marisa": {
@@ -80,7 +85,11 @@
 				"option": {
 					"start": "谈谈那巨大的蘑菇。",
 					"follow_up": "关于那些蘑菇方块。",
-					"complete": "把蘑菇方块交给她。"
+					"complete": "把蘑菇方块交给她。",
+					"start/reject": "你自己不能敲碎吗？",
+					"start/accept": "我给你带完整方块回来。",
+					"follow_up/end": "还在弄。",
+					"complete/handover": "能帮上忙就好。"
 				},
 				"dialog": {
 					"marisa": {
@@ -118,7 +127,11 @@
 				"option": {
 					"start": "谈谈下界。",
 					"follow_up": "关于下界蘑菇。",
-					"complete": "把下界蘑菇交给她。"
+					"complete": "把下界蘑菇交给她。",
+					"start/reject": "连我都怕下界。",
+					"start/accept": "我去过下界，这点事我能办。",
+					"follow_up/end": "疣猪守着它们。",
+					"complete/handover": "为了科学嘛。"
 				},
 				"dialog": {
 					"marisa": {
@@ -156,7 +169,11 @@
 				"option": {
 					"start": "谈谈菌木。",
 					"follow_up": "关于菌光体。",
-					"complete": "把菌光体交给她。"
+					"complete": "把菌光体交给她。",
+					"start/reject": "那些东西很难爬。",
+					"start/accept": "我会把样本带回来。",
+					"follow_up/end": "我还在下界。",
+					"complete/handover": "你喜欢就好。"
 				},
 				"dialog": {
 					"marisa": {
@@ -194,7 +211,11 @@
 				"option": {
 					"start": "谈谈原生的药水系统。",
 					"follow_up": "关于酿造材料。",
-					"complete": "把酿造材料交给她。"
+					"complete": "把酿造材料交给她。",
+					"start/reject": "烈焰人很难打。",
+					"start/accept": "我去给你弄样本。",
+					"follow_up/end": "烈焰人一直把我烧得够呛。",
+					"complete/handover": "为了魔法嘛。"
 				},
 				"dialog": {
 					"marisa": {
@@ -232,7 +253,11 @@
 				"option": {
 					"start": "谈谈失传的金苹果技术。",
 					"follow_up": "关于附魔金苹果。",
-					"complete": "把附魔金苹果交给她。"
+					"complete": "把附魔金苹果交给她。",
+					"start/reject": "那东西太稀有了。",
+					"start/accept": "我试着找找看。",
+					"follow_up/end": "还没找到。",
+					"complete/handover": "我就知道你能做到。"
 				},
 				"dialog": {
 					"marisa": {

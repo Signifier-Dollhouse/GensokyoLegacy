@@ -5,7 +5,7 @@
       "actions": [],
       "conditions": [],
       "next": "gensokyolegacy:reimu/local_food/complete/reject/dialog_1",
-      "text": "Not yet."
+      "text": "gensokyolegacy/reimu/local_food/option/complete/reject"
     },
     {
       "type": "gensokyolegacy:simple",
@@ -16,7 +16,7 @@
       ],
       "conditions": [],
       "next": "gensokyolegacy:reimu/local_food/complete/handover/dialog_1",
-      "text": "Here you go."
+      "text": "gensokyolegacy/reimu/local_food/option/complete/handover"
     }
   ],
   "text": "gensokyolegacy/reimu/local_food/dialog/reimu/local_food/complete/dialog_1"

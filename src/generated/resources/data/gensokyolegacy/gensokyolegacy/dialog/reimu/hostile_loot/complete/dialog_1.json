@@ -5,7 +5,7 @@
       "actions": [],
       "conditions": [],
       "next": "gensokyolegacy:reimu/hostile_loot/complete/reject/dialog_1",
-      "text": "Not yet."
+      "text": "gensokyolegacy/reimu/hostile_loot/option/complete/reject"
     },
     {
       "type": "gensokyolegacy:simple",
@@ -16,7 +16,7 @@
       ],
       "conditions": [],
       "next": "gensokyolegacy:reimu/hostile_loot/complete/handover/dialog_1",
-      "text": "Here are the samples."
+      "text": "gensokyolegacy/reimu/hostile_loot/option/complete/handover"
     }
   ],
   "text": "gensokyolegacy/reimu/hostile_loot/dialog/reimu/hostile_loot/complete/dialog_1"

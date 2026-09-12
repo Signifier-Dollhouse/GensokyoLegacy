@@ -5,7 +5,7 @@
       "actions": [],
       "conditions": [],
       "next": "gensokyolegacy:reimu/talisman_materials/complete/reject/dialog_1",
-      "text": "Not yet."
+      "text": "gensokyolegacy/reimu/talisman_materials/option/complete/reject"
     },
     {
       "type": "gensokyolegacy:simple",
@@ -16,7 +16,7 @@
       ],
       "conditions": [],
       "next": "gensokyolegacy:reimu/talisman_materials/complete/handover/dialog_1",
-      "text": "Here's the paper and redstone."
+      "text": "gensokyolegacy/reimu/talisman_materials/option/complete/handover"
     }
   ],
   "text": "gensokyolegacy/reimu/talisman_materials/dialog/reimu/talisman_materials/complete/dialog_1"

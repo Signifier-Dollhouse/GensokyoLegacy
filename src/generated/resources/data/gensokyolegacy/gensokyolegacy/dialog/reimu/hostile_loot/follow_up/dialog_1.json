@@ -5,7 +5,7 @@
       "actions": [],
       "conditions": [],
       "next": "gensokyolegacy:reimu/hostile_loot/follow_up/end/dialog_1",
-      "text": "Still hunting."
+      "text": "gensokyolegacy/reimu/hostile_loot/option/follow_up/end"
     }
   ],
   "text": "gensokyolegacy/reimu/hostile_loot/dialog/reimu/hostile_loot/follow_up/dialog_1"

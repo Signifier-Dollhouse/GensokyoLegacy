@@ -325,8 +325,8 @@ public class ReimuQDGen extends QuestDialogData {
 	                                 String reject, String rejectLine) {
 		return option("start", button,
 				dialog("start/dialog_1", intro,
-						optionKey("start/reject", reject, dialog("start/reject/dialog_1", rejectLine, optionKey("start/reject/bye", byeKey))),
-						optionKey("start/accept", accept, new StartQuestAction(),
+						option("start/reject", reject, dialog("start/reject/dialog_1", rejectLine, optionKey("start/reject/bye", byeKey))),
+						option("start/accept", accept, new StartQuestAction(),
 								dialog("start/accept/dialog_1", acceptLine, optionKey("start/accept/bye", byeKey)))));
 	}
 
@@ -335,21 +335,21 @@ public class ReimuQDGen extends QuestDialogData {
 	                                     String reject, String rejectLine) {
 		return option("start", button,
 				dialog("start/dialog_1", intro,
-						optionKey("start/reject", reject, dialog("start/reject/dialog_1", rejectLine, optionKey("start/reject/bye", byeKey))),
-						optionKey("start/accept", accept, List.of(new StartQuestAction(), new GiveMobEffectAction(MobEffects.BAD_OMEN, BAD_OMEN_DURATION, 0)),
+						option("start/reject", reject, dialog("start/reject/dialog_1", rejectLine, optionKey("start/reject/bye", byeKey))),
+						option("start/accept", accept, List.of(new StartQuestAction(), new GiveMobEffectAction(MobEffects.BAD_OMEN, BAD_OMEN_DURATION, 0)),
 								dialog("start/accept/dialog_1", acceptLine, optionKey("start/accept/bye", byeKey)))));
 	}
 
 	private SimpleDialogOption follow(String button, String intro, String opt, String optLine) {
 		return option("follow_up", button,
 				dialog("follow_up/dialog_1", intro,
-						optionKey("follow_up/end", opt, dialog("follow_up/end/dialog_1", optLine, optionKey("follow_up/end/bye", byeKey)))));
+						option("follow_up/end", opt, dialog("follow_up/end/dialog_1", optLine, optionKey("follow_up/end/bye", byeKey)))));
 	}
 
 	private SimpleDialogOption follow(String button, String intro, String opt, String optLine, DialogAction<?> action) {
 		return option("follow_up", button,
 				dialog("follow_up/dialog_1", intro,
-						optionKey("follow_up/end", opt, List.of(action),
+						option("follow_up/end", opt, List.of(action),
 								dialog("follow_up/end/dialog_1", optLine, optionKey("follow_up/end/bye", byeKey)))));
 	}
 
@@ -358,8 +358,8 @@ public class ReimuQDGen extends QuestDialogData {
 	                                    String complete, String completeLine) {
 		return option("complete", button,
 				dialog("complete/dialog_1", intro,
-						optionKey("complete/reject", reject, dialog("complete/reject/dialog_1", rejectLine, optionKey("complete/reject/bye", byeKey))),
-						optionKey("complete/handover", complete, new CompleteQuestAction(),
+						option("complete/reject", reject, dialog("complete/reject/dialog_1", rejectLine, optionKey("complete/reject/bye", byeKey))),
+						option("complete/handover", complete, new CompleteQuestAction(),
 								dialog("complete/handover/dialog_1", completeLine, optionKey("complete/handover/bye", byeKey)))));
 	}
 

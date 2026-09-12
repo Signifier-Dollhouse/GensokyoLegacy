@@ -232,6 +232,10 @@ public class QuestDialogData {
 		return new SimpleDialogOption(List.of(), key, actions, Optional.of(next));
 	}
 
+	public SimpleDialogOption option(String id, String text, List<DialogAction<?>> actions, Holder<Dialog> next) {
+		return new SimpleDialogOption(List.of(), optionText(id, text), actions, Optional.of(next));
+	}
+
 	public IngredientEntry item(ItemLike item, int count) {
 		return new IngredientEntry(Ingredient.of(item), count, Optional.empty());
 	}

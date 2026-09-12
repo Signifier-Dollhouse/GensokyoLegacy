@@ -5,7 +5,7 @@
       "actions": [],
       "conditions": [],
       "next": "gensokyolegacy:reimu/ominous_banner/complete/reject/dialog_1",
-      "text": "Not yet."
+      "text": "gensokyolegacy/reimu/ominous_banner/option/complete/reject"
     },
     {
       "type": "gensokyolegacy:simple",
@@ -16,7 +16,7 @@
       ],
       "conditions": [],
       "next": "gensokyolegacy:reimu/ominous_banner/complete/handover/dialog_1",
-      "text": "Here's the banner."
+      "text": "gensokyolegacy/reimu/ominous_banner/option/complete/handover"
     }
   ],
   "text": "gensokyolegacy/reimu/ominous_banner/dialog/reimu/ominous_banner/complete/dialog_1"

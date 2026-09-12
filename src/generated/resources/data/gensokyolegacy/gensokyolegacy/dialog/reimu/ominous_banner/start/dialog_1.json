@@ -5,7 +5,7 @@
       "actions": [],
       "conditions": [],
       "next": "gensokyolegacy:reimu/ominous_banner/start/reject/dialog_1",
-      "text": "Maybe next time."
+      "text": "gensokyolegacy/reimu/ominous_banner/option/start/reject"
     },
     {
       "type": "gensokyolegacy:simple",
@@ -16,7 +16,7 @@
       ],
       "conditions": [],
       "next": "gensokyolegacy:reimu/ominous_banner/start/accept/dialog_1",
-      "text": "I'll find a raid captain."
+      "text": "gensokyolegacy/reimu/ominous_banner/option/start/accept"
     }
   ],
   "text": "gensokyolegacy/reimu/ominous_banner/dialog/reimu/ominous_banner/start/dialog_1"

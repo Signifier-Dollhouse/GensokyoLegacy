@@ -25,7 +25,12 @@
 				"option": {
 					"start": "聊聊食物。",
 					"follow_up": "问问食物。",
-					"complete": "交出食物。"
+					"complete": "交出食物。",
+					"start/reject": "下次吧。",
+					"start/accept": "我给你带饭来。",
+					"follow_up/end": "还在找。",
+					"complete/reject": "还没。",
+					"complete/handover": "给你。"
 				},
 				"dialog": {
 					"reimu": {
@@ -70,7 +75,12 @@
 				"option": {
 					"start": "主动提出猎取样本。",
 					"follow_up": "问问狩猎。",
-					"complete": "交出样本。"
+					"complete": "交出样本。",
+					"start/reject": "下次吧。",
+					"start/accept": "我来猎杀僵尸和骷髅。",
+					"follow_up/end": "还在猎。",
+					"complete/reject": "还没。",
+					"complete/handover": "样本在这里。"
 				},
 				"dialog": {
 					"reimu": {
@@ -111,7 +121,12 @@
 				"option": {
 					"start": "聊聊符札。",
 					"follow_up": "问问符札。",
-					"complete": "交出材料。"
+					"complete": "交出材料。",
+					"start/reject": "为什么要红石粉？",
+					"start/accept": "我来收集纸和红石粉。",
+					"follow_up/end": "还在收集。",
+					"complete/reject": "还没。",
+					"complete/handover": "纸和红石粉在这里。"
 				},
 				"dialog": {
 					"reimu": {
@@ -152,7 +167,12 @@
 				"option": {
 					"start": "聊聊掠夺者。",
 					"follow_up": "问问旗帜。",
-					"complete": "交出旗帜。"
+					"complete": "交出旗帜。",
+					"start/reject": "下次吧。",
+					"start/accept": "我去找一个袭击队长。",
+					"follow_up/end": "还在找。",
+					"complete/reject": "还没。",
+					"complete/handover": "旗帜在这里。"
 				},
 				"dialog": {
 					"reimu": {
@@ -196,7 +216,12 @@
 				"option": {
 					"start": "聊聊计划。",
 					"follow_up": "问问袭击。",
-					"complete": "告诉灵梦袭击结束了。"
+					"complete": "告诉灵梦袭击结束了。",
+					"start/reject": "你自己不能去吗？",
+					"start/accept": "我来击退袭击。",
+					"follow_up/end": "再盖一个印记。",
+					"complete/reject": "还没。",
+					"complete/handover": "掠夺者都被赶走了。"
 				},
 				"dialog": {
 					"reimu": {

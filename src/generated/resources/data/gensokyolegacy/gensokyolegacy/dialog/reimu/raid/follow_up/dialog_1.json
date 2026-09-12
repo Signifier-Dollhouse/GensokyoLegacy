@@ -11,7 +11,7 @@
       ],
       "conditions": [],
       "next": "gensokyolegacy:reimu/raid/follow_up/end/dialog_1",
-      "text": "Mark me again."
+      "text": "gensokyolegacy/reimu/raid/option/follow_up/end"
     }
   ],
   "text": "gensokyolegacy/reimu/raid/dialog/reimu/raid/follow_up/dialog_1"
