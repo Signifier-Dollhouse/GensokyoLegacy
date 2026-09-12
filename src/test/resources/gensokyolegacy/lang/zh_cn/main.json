@@ -3,8 +3,7 @@
 	"gensokyolegacy.subtitle.koishi_ring": "这里是玛丽小姐～",
 	"itemGroup.gensokyolegacy": {
 		"ingredients": "异域梦闻记 - 功能性方块物品",
-		"building_blocks": "异域梦闻记 - 建筑装饰方块",
-		"food": "异域梦闻记 - 食物"
+		"building_blocks": "异域梦闻记 - 建筑装饰方块"
 	},
 	"gensokyolegacy": {
 		"info": {
@@ -20,13 +19,6 @@
 			"structure_scanning": "扫描中",
 			"structure_abnormal": "发现%s个错误方块",
 			"loading": "加载中..."
-		},
-		"flesh": {
-			"taste_half_youkai": "奇怪的味道...",
-			"taste_human": "不详的气味...",
-			"taste_youkai": "美味极了!",
-			"flesh_human": "怪肉",
-			"flesh_youkai": "人肉"
 		},
 		"item": {
 			"glass_bed": "显示角色的床的状态",
@@ -44,8 +36,6 @@
 			"usage_fairy_ice": "可以朝目标扔出。造成范围伤害并冻结。",
 			"obtain_frozen_frog": "琪露诺冻结青蛙时掉落。",
 			"usage_frozen_frog": "可以朝目标扔出。落地后生成一只青蛙。",
-			"obtain_flesh": "在%s状态下持小刀击杀人类生物",
-			"obtain_blood": "在%s状态下持小刀，副手持玻璃瓶击杀人类生物",
 			"obtain_suwako_hat": "当戴帽子的青蛙在村民的目击下吃了%s种不同的灾厄村民时掉落",
 			"usage_straw_hat": "在%s状态下右键青蛙给青蛙戴帽子，让青蛙能吃灾厄村民",
 			"usage_suwako_hat": "提供持续的%s。使用青色和黄绿色弹幕时不消耗",
@@ -92,21 +82,13 @@
 			"pocket_desc": "右键物品以打开符咒口袋"
 		},
 		"msg": {
-			"reset": "角色已重置",
-			"koishi_reimu": "灵梦：谁在那？",
-			"reimu_flesh": "灵梦：别吃这个。最后警告",
-			"reimu_warn": "灵梦：喝点茶清醒一下。最后警告"
+			"reset": "角色已重置"
 		},
 		"tab": {
 			"main_role": "%s (%s)",
 			"no_role": "普通人类(无身份)",
 			"role_progress": "%s - %s",
 			"title": "幻想乡身份"
-		},
-		"role_category": {
-			"fairy": "妖精",
-			"human": "人类",
-			"youkai": "妖怪"
 		},
 		"command": {
 			"success": "指令执行成功",
@@ -127,6 +109,17 @@
 			"desc_waypoint": "右键传送至选中位置",
 			"desc_travel": "长按右键来向前传送",
 			"desc_capture": "右键实体将其传送至选中位置"
+		},
+		"quest": {
+			"character": "给%s的任务",
+			"tab": "进行中的任务",
+			"item_submit_fail": "部分条件未满足",
+			"item_submit_pass": "所有条件均已满足"
+		},
+		"trade": {
+			"ingredients": "材料：",
+			"option": "交易",
+			"stock": "库存：%s/%s"
 		}
 	},
 	"death.attack": {

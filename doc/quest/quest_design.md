@@ -87,7 +87,14 @@ Only add shared code if an existing feature is missing (e.g. a new condition cla
 - `./gradlew runData` — writes `src/generated/resources/data/gensokyolegacy/gensokyolegacy/{dialog,dialog_starter,quest,trade}/...` plus `data_maps/entity_type/default_dialog.json`. Commit generated JSON alongside code.
 - Commit style: short lowercase one-liner (e.g. `"marisa quest"`).
 
-## 6. Chinese localization
+## 6. Dialog design rules (learned from the Reimu/Marisa rework)
+
+- **3 states per quest**: `start` (player knows nothing — NPC explains from scratch), `follow_up` (player re-checks the task — NPC *restates the task / gives a hint*, never asks for progress), `complete` (+`complete/reject`, `complete/handover`, or `complete/handover` on dailies). There is no "in-progress status check" screen.
+- **Voice split**: option/button lines are the **player's** voice; dialog lines are the **NPC's** voice. The player never asks "how's it going?" — that is a progress check the NPC must not answer. Buttons are either task reminders or hand-overs.
+- **Shared daily keys**: all dailies of a character share one `shared/option` block (`daily_start`, `daily_accept`, `daily_reject`, `daily_follow`, `daily_follow_end`, `daily_complete`, `daily_handover`, `bye`) plus `shared/dialog/daily_gotem`. Per-quest `option` blocks and per-quest `complete` dialogs exist only for one-time quests.
+- **Inline-option pitfall**: option texts passed as raw `String` are written *literally* into the generated dialog JSON and are **not localizable** (they render as raw text; e.g. "Ehh, sounds like a hassle.", "Mark me again."). Only keyed option texts (`text("option/...")`) produce lang keys. Don't author zh keys for inline options — they are dead.
+
+## 7. Chinese localization
 
 - Add keys to `src/test/resources/gensokyolegacy/lang/zh_cn/<char>.json`:
   - `"-slash": true`, nested objects mirroring the en key structure (e.g. `gensokyolegacy/marisa/first_mushroom/quest/title`).
@@ -96,4 +103,9 @@ Only add shared code if an existing feature is missing (e.g. a new condition cla
   ```
   java -cp "build/classes/java/test:<gson jar>:<datafixerupper jar>" organize.ResourceOrganizer
   ```
-  This rewrites `src/main/resources/assets/gensokyolegacy/lang/zh_cn.json`. Cross-check that every `gensokyolegacy/<char>/...` en_us key has a zh_cn counterpart (the organizer rewrites the whole file, so re-run after any en change).
+  This rewrites `src/main/resources/assets/gensokyolegacy/lang/zh_cn.json`.
+- **Audit against en_us before regenerating**: `en` = flat keys of `src/generated/resources/assets/gensokyolegacy/lang/en_us.json`; expand each split file's nested path and `-cartesian` blocks, then
+  - *dead keys* = zh-merged keys not in `en` → delete from the split file (stale advancements/removed blocks/items, per-quest `option/*` sub-keys of inline options, etc.). The organizer rewrites the whole file, so dead keys otherwise survive forever.
+  - *missing keys* = `en` keys with no zh counterpart → they fall back to English; translate the dialog/quest-system ones, leave furniture/hexbrew/umbrella names as a follow-up if out of scope.
+  - Use the standalone organizer (run outside Gradle) for zh-only fixes — full `./gradlew runData` regenerates `en_us` and re-touches unrelated generated files (e.g. `trade/marisa/offer_witch_*`).
+- Cross-check that every `gensokyolegacy/<char>/...` en_us key has a zh_cn counterpart; re-run the organizer after any en change.

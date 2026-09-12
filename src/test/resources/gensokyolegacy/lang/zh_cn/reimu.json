@@ -22,7 +22,6 @@
 					"title": "神社补给",
 					"desc": "给灵梦带一些面包和蘑菇煲，让她熟悉这个世界的食物。"
 				},
-				"requirement": {},
 				"option": {
 					"start": "聊聊食物。",
 					"follow_up": "问问食物。",
@@ -109,7 +108,6 @@
 					"title": "符札材料",
 					"desc": "为灵梦的符札带来纸和红石粉。"
 				},
-				"requirement": {},
 				"option": {
 					"start": "聊聊符札。",
 					"follow_up": "问问符札。",
@@ -151,7 +149,6 @@
 					"title": "掠夺者的旗帜",
 					"desc": "为灵梦带回一面掠夺者首领的不祥旗帜。"
 				},
-				"requirement": {},
 				"option": {
 					"start": "聊聊掠夺者。",
 					"follow_up": "问问旗帜。",
@@ -199,7 +196,6 @@
 				"option": {
 					"start": "聊聊计划。",
 					"follow_up": "问问袭击。",
-					"follow_up/end": "再盖一个印记。",
 					"complete": "告诉灵梦袭击结束了。"
 				},
 				"dialog": {
@@ -238,8 +234,6 @@
 					"title": "神社补给",
 					"desc": "给灵梦带些神社需要的物资。"
 				},
-				"requirement": {},
-				"option": {},
 				"dialog": {
 					"reimu": {
 						"daily_food": {
@@ -273,7 +267,6 @@
 				"requirement": {
 					"kill": "击杀敌对生物"
 				},
-				"option": {},
 				"dialog": {
 					"reimu": {
 						"daily_hunt": {
@@ -304,8 +297,6 @@
 					"title": "符札补给",
 					"desc": "为灵梦补充符札库存，带上纸和红石粉。"
 				},
-				"requirement": {},
-				"option": {},
 				"dialog": {
 					"reimu": {
 						"daily_talisman": {
@@ -339,7 +330,6 @@
 				"requirement": {
 					"raid": "赢得一场袭击战"
 				},
-				"option": {},
 				"dialog": {
 					"reimu": {
 						"daily_raid": {

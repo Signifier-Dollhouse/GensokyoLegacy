@@ -3,8 +3,6 @@
 	"entity.gensokyolegacy.frozen_frog": "冻青蛙",
 	"block.gensokyolegacy": {
 		"donation_box": "赛钱箱",
-		"mistletoe_foliage": "槲寄生",
-		"mistletoe_leaves": "槲寄生树叶",
 		"evergreen_vine": "常青垂藤",
 		"cedar_fallen_leaves": "青杉落叶",
 		"ice_bricks": "冰砖",
@@ -12,7 +10,6 @@
 		"darkstone": "宵暗石",
 		"darkstone_bricks": "宵暗瓦块",
 		"chiseled_darkstone_bricks": "雕纹宵暗瓦块",
-		"censer": "香薰炉",
 		"cirno_bed": "琪露诺的床",
 		"rumia_bed": "露米娅的床",
 		"reimu_bed": "博丽灵梦的床",
@@ -59,12 +56,10 @@
 		"shelter_talisman": "守护符纸",
 		"folded_paper_talisman": "折叠护符",
 		"talisman_pocket": "符咒口袋",
-		"mistletoe_branch": "槲寄生",
 		"koishi_hat": "帽子先生",
 		"straw_hat": "稻草帽",
 		"suwako_hat": "诹访子的帽子",
 		"rumia_hairband": "露米娅的发带",
-		"reimu_hairband": "灵梦的大蝴蝶结",
 		"cirno_hairband": "琪露诺的蝴蝶结",
 		"cirno_wings": "琪露诺的翅膀",
 		"debug_glasses": "调试眼镜",
@@ -96,19 +91,6 @@
 				{
 					"entity.gensokyolegacy.*": "",
 					"item.gensokyolegacy.*_spawn_egg": "生成蛋"
-				}
-			]
-		},
-		"bottle": {
-			"path": "",
-			"reverse": true,
-			"list": [
-				{
-					"blood": "血液"
-				},
-				{
-					"fluid.gensokyolegacy.*": "",
-					"item.gensokyolegacy.*_bottle": "瓶装"
 				}
 			]
 		},
