@@ -6,3 +6,4 @@
 - coke
 - doll weapons and logic
 - gift interaction
+- sealing pot area rendering item trigger

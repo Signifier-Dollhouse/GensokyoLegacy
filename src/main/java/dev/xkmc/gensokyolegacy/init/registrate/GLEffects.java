@@ -34,6 +34,10 @@ public class GLEffects {
 			MiasmaEffect::new,
 			"Armor halved, damage taken +50%");
 
+	public static final LegacyHolder<MobEffect> HYPHAE_INFECTION = genEffect("hyphae_infection",
+			HyphaeInfectionEffect::new,
+			"Deals 1 magic damage per second per level");
+
 	public static final LegacyHolder<MobEffect> SPARKLING = genEffect("sparkling",
 			SparklingEffect::new,
 			"When hit, retaliate with stars");

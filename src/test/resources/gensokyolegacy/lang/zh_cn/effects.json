@@ -20,6 +20,9 @@
 		"rumia.description": "让玩家加速进入霄暗妖怪身份",
 		"lava_affinity": "熔岩亲和",
 		"lava_affinity.desc": "提升熔岩下视野。提升熔岩中的移动速度。提供火焰免疫。",
-		"lava_affinity.description": "提升熔岩下视野。提升熔岩中的移动速度。提供火焰免疫。"
+		"lava_affinity.description": "提升熔岩下视野。提升熔岩中的移动速度。提供火焰免疫。",
+		"hyphae_infection": "菌丝感染",
+		"hyphae_infection.desc": "每级每秒造成1点魔法伤害",
+		"hyphae_infection.description": "每级每秒造成1点魔法伤害"
 	}
 }

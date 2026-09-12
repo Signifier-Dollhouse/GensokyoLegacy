@@ -24,7 +24,7 @@ public enum HexBrew {
 	MIASMA_HEXBREW(0xff488d86, new SimplePotionHandler(true, GLEffects.MIASMA, 1200, 0)),
 	SHIELD_HEXBREW(0xffaf5088, new SimplePotionHandler(false, GLEffects.STARLIGHT_SHIELD, 1200, 0)),
 	STARLIGHT_HEXBREW(0xfffceb95, new StarlightHandler()),
-	HYPHAE_HEXBREW(0xff47c0fc),
+	HYPHAE_HEXBREW(0xff47c0fc, new HyphaeHandler()),
 	WITCH_HEXBREW(0xFFFFFFFF, new WitchHandler(false)),
 	WITCH_SPLASH(0xFFFFFFFF, new WitchHandler(true));
 

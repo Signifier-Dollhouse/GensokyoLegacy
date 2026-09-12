@@ -8,6 +8,7 @@ import com.tterrag.registrate.util.entry.BlockEntry;
 import dev.xkmc.gensokyolegacy.content.block.nature.CedarFallenLeavesBlock;
 import dev.xkmc.gensokyolegacy.content.block.nature.EvergreenVineBodyBlock;
 import dev.xkmc.gensokyolegacy.content.block.nature.EvergreenVineHeadBlock;
+import dev.xkmc.gensokyolegacy.content.block.nature.HyphaeBlock;
 import dev.xkmc.gensokyolegacy.content.block.nature.SimpleBushBlock;
 import dev.xkmc.gensokyolegacy.content.block.nature.SideBushBlock;
 import dev.xkmc.gensokyolegacy.content.block.nature.WaterloggedBushBlock;
@@ -71,6 +72,8 @@ public class GLNaturalBlocks {
 	public static final MushroomSet GHOST_FIRE_MUSHROOM_SET, DREAM_MUSHROOM_SET, DEMONIC_MIASMA_MUSHROOM_SET;
 
 	public static final BlockEntry<TallGrassBlock> BROOM_GRASS;
+
+	public static final BlockEntry<HyphaeBlock> HYPHAE;
 
 	static {
 		var reg = GensokyoLegacy.REGISTRATE;
@@ -247,6 +250,15 @@ public class GLNaturalBlocks {
 				.item().model((ctx, pvd) -> pvd.getBuilder(ctx.getName())
 						.parent(new ModelFile.UncheckedModelFile("item/generated"))
 						.texture("layer0", pvd.modLoc("block/plant/" + ctx.getName()))).build()
+				.register();
+
+		HYPHAE = reg.block("hyphae", HyphaeBlock::new)
+				.properties(p -> p.mapColor(MapColor.CRIMSON_HYPHAE).noCollission().noOcclusion().strength(0)
+						.sound(SoundType.COBWEB).pushReaction(PushReaction.DESTROY))
+				.blockstate((ctx, pvd) -> pvd.simpleBlock(ctx.get(),
+						pvd.models().cross(ctx.getName(), pvd.modLoc("block/misc/hyphae")).renderType("cutout")))
+				.loot(RegistrateBlockLootTables::dropSelf)
+				.item().model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("block/misc/hyphae"))).build()
 				.register();
 	}
 
