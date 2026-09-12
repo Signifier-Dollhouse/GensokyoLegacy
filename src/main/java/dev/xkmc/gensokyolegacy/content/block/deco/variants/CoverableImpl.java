@@ -145,22 +145,22 @@ public class CoverableImpl implements CreateBlockStateBlockMethod, DefaultStateB
 		}
 	}
 
-    private static void buildChairStates(RegistrateBlockstateProvider pvd, String woodName, String chairTexture, String suffix) {
-        String textureDir = suffix.equals("pad") ? "chair" : "cushion";
-        for (var e : Color.values()) {
-            if (e.item.asItem() == Items.AIR) continue;
-            String texName = e == Color.BASE ? suffix : e.getSerializedName() + "_" + suffix;
-            String modelName = woodName + "_" + texName;
-            pvd.models().getBuilder("block/" + modelName)
-                    .parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/furniture/wooden_large_chair_pad")))
-                    .texture("wood", chairTexture)
-                    .texture("pad", "block/" + textureDir + "/" + texName)
-                    .texture("particle", "minecraft:block/birch_planks")
-                    .renderType("cutout");
-        }
-    }
+	private static void buildChairStates(RegistrateBlockstateProvider pvd, String woodName, String chairTexture, String suffix) {
+		String textureDir = suffix.equals("pad") ? "chair" : "cushion";
+		for (var e : Color.values()) {
+			if (e.item.asItem() == Items.AIR) continue;
+			String texName = e == Color.BASE ? suffix : e.getSerializedName() + "_" + suffix;
+			String modelName = woodName + "_" + texName;
+			pvd.models().getBuilder("block/" + modelName)
+					.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/furniture/wooden_large_chair_pad")))
+					.texture("wood", chairTexture)
+					.texture("pad", "block/" + textureDir + "/" + texName)
+					.texture("particle", "minecraft:block/birch_planks")
+					.renderType("cutout");
+		}
+	}
 
-    public static void buildChairStates(RegistrateBlockstateProvider pvd, String woodName, String chairTexture) {
-        buildChairStates(pvd, woodName, chairTexture, "pad");
-    }
+	public static void buildChairStates(RegistrateBlockstateProvider pvd, String woodName, String chairTexture) {
+		buildChairStates(pvd, woodName, chairTexture, "pad");
+	}
 }

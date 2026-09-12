@@ -2,11 +2,7 @@ package dev.xkmc.gensokyolegacy.content.block.nature;
 
 import com.mojang.serialization.MapCodec;
 import com.tterrag.registrate.providers.loot.RegistrateBlockLootTables;
-import net.minecraft.advancements.critereon.EnchantmentPredicate;
-import net.minecraft.advancements.critereon.ItemEnchantmentsPredicate;
-import net.minecraft.advancements.critereon.ItemPredicate;
-import net.minecraft.advancements.critereon.ItemSubPredicates;
-import net.minecraft.advancements.critereon.MinMaxBounds;
+import net.minecraft.advancements.critereon.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.tags.ItemTags;

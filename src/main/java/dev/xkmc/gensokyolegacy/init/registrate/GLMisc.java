@@ -1,13 +1,13 @@
 package dev.xkmc.gensokyolegacy.init.registrate;
 
 import com.tterrag.registrate.util.entry.MenuEntry;
+import dev.xkmc.gensokyolegacy.content.item.talisman.pocket.TalismanPocketMenu;
+import dev.xkmc.gensokyolegacy.content.item.talisman.pocket.TalismanPocketScreen;
 import dev.xkmc.gensokyolegacy.content.ui.dialog.FirstDialogMenu;
 import dev.xkmc.gensokyolegacy.content.ui.dialog.FirstDialogScreen;
 import dev.xkmc.gensokyolegacy.content.ui.dialog.SimpleDialogMenu;
 import dev.xkmc.gensokyolegacy.content.ui.dialog.SimpleDialogScreen;
 import dev.xkmc.gensokyolegacy.content.ui.quest.QuestTab;
-import dev.xkmc.gensokyolegacy.content.item.talisman.pocket.TalismanPocketMenu;
-import dev.xkmc.gensokyolegacy.content.item.talisman.pocket.TalismanPocketScreen;
 import dev.xkmc.gensokyolegacy.content.ui.trade.TradeMenu;
 import dev.xkmc.gensokyolegacy.content.ui.trade.TradeScreen;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;

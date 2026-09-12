@@ -2,7 +2,6 @@ package dev.xkmc.gensokyolegacy.content.rpg.quest;
 
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.rpg.requirement.QuestRequirementData;
-import dev.xkmc.gensokyolegacy.content.rpg.requirement.RolledIngredientList;
 import dev.xkmc.l2serial.serialization.marker.SerialClass;
 import dev.xkmc.l2serial.serialization.marker.SerialField;
 import net.minecraft.server.level.ServerPlayer;

@@ -11,9 +11,6 @@ import dev.xkmc.gensokyolegacy.content.client.model.*;
 import dev.xkmc.gensokyolegacy.content.entity.characters.fairy.CirnoModel;
 import dev.xkmc.gensokyolegacy.content.entity.characters.rumia.BlackBallModel;
 import dev.xkmc.gensokyolegacy.content.entity.characters.rumia.RumiaModel;
-import dev.xkmc.gensokyolegacy.content.item.talisman.core.FoldedPaperTalisman;
-import dev.xkmc.gensokyolegacy.content.item.talisman.core.GLTalismans;
-import dev.xkmc.gensokyolegacy.content.item.talisman.core.TalismanPaperItem;
 import dev.xkmc.gensokyolegacy.content.item.tool.ClientInvTooltip;
 import dev.xkmc.gensokyolegacy.content.item.tool.InvTooltip;
 import dev.xkmc.gensokyolegacy.content.item.umbrella.BorderUmbrellaItem;
@@ -30,7 +27,6 @@ import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModList;
@@ -39,8 +35,6 @@ import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.*;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 import net.neoforged.neoforge.common.NeoForge;
-
-import java.util.function.Supplier;
 
 @EventBusSubscriber(value = Dist.CLIENT, modid = GensokyoLegacy.MODID)
 public class GLClient {

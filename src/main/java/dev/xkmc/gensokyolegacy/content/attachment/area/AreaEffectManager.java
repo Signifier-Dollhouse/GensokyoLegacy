@@ -68,7 +68,9 @@ public final class AreaEffectManager {
 		return levelAtt.removeEntry(level, id) != null;
 	}
 
-	/** Remove the effect owned by the block at {@code ownerPos}, O(1) via {@code byOwner} index. */
+	/**
+	 * Remove the effect owned by the block at {@code ownerPos}, O(1) via {@code byOwner} index.
+	 */
 	public static void removeOwner(ServerLevel level, BlockPos ownerPos) {
 		LevelAreaAttachment levelAtt = GLMeta.LEVEL_EFFECT.type().getOrCreate(level);
 		UUID id = levelAtt.getOwnerId(ownerPos);

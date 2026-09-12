@@ -3,7 +3,6 @@ package dev.xkmc.gensokyolegacy.content.block.deco.misc;
 import com.tterrag.registrate.providers.DataGenContext;
 import com.tterrag.registrate.providers.RegistrateBlockstateProvider;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
-import dev.xkmc.l2modularblock.core.BlockTemplates;
 import dev.xkmc.l2modularblock.core.DelegateBlock;
 import dev.xkmc.l2modularblock.core.VoxelBuilder;
 import dev.xkmc.l2modularblock.mult.CreateBlockStateBlockMethod;
