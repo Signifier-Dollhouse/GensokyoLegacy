@@ -1,0 +1,55 @@
+{
+  "character": "gensokyolegacy:hakurei_reimu",
+  "completionDialog": {
+    "type": "gensokyolegacy:simple",
+    "actions": [],
+    "conditions": [],
+    "next": "gensokyolegacy:reimu/daily_raid/complete/dialog_1",
+    "text": "gensokyolegacy/reimu/shared/option/daily_complete"
+  },
+  "conditions": [
+    {
+      "type": "gensokyolegacy:has_quest_completed",
+      "quest": "gensokyolegacy:reimu/raid"
+    }
+  ],
+  "description": "gensokyolegacy/reimu/daily_raid/quest/desc",
+  "followUpDialog": {
+    "type": "gensokyolegacy:simple",
+    "actions": [],
+    "conditions": [],
+    "next": "gensokyolegacy:reimu/daily_raid/follow_up/dialog_1",
+    "text": "gensokyolegacy/reimu/shared/option/daily_follow"
+  },
+  "initialDialog": {
+    "type": "gensokyolegacy:simple",
+    "actions": [],
+    "conditions": [],
+    "next": "gensokyolegacy:reimu/daily_raid/start/dialog_1",
+    "text": "gensokyolegacy/reimu/shared/option/daily_start"
+  },
+  "recurrence": {
+    "cooldown": 24000
+  },
+  "requirements": {
+    "a-raid": {
+      "type": "gensokyolegacy:raid_victory",
+      "count": 1,
+      "text": "gensokyolegacy/reimu/daily_raid/requirement/raid"
+    }
+  },
+  "rewards": [
+    {
+      "type": "gensokyolegacy:exp",
+      "point": 200
+    },
+    {
+      "type": "gensokyolegacy:reputation",
+      "cap_increase": 5,
+      "max_cap": 250,
+      "reputation": 20,
+      "soft_cap": 200
+    }
+  ],
+  "title": "gensokyolegacy/reimu/daily_raid/quest/title"
+}

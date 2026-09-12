@@ -1,0 +1,11 @@
+{
+  "options": [
+    {
+      "type": "gensokyolegacy:simple",
+      "actions": [],
+      "conditions": [],
+      "text": "gensokyolegacy/reimu/shared/option/bye"
+    }
+  ],
+  "text": "gensokyolegacy/reimu/raid/dialog/reimu/raid/start/accept/dialog_1"
+}

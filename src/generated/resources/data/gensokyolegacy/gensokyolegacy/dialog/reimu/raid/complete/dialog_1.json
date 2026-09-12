@@ -1,0 +1,23 @@
+{
+  "options": [
+    {
+      "type": "gensokyolegacy:simple",
+      "actions": [],
+      "conditions": [],
+      "next": "gensokyolegacy:reimu/raid/complete/reject/dialog_1",
+      "text": "Not yet."
+    },
+    {
+      "type": "gensokyolegacy:simple",
+      "actions": [
+        {
+          "type": "gensokyolegacy:complete_quest"
+        }
+      ],
+      "conditions": [],
+      "next": "gensokyolegacy:reimu/raid/complete/handover/dialog_1",
+      "text": "The raiders are gone."
+    }
+  ],
+  "text": "gensokyolegacy/reimu/raid/dialog/reimu/raid/complete/dialog_1"
+}

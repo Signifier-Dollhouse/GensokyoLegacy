@@ -1,0 +1,12 @@
+{
+  "options": [
+    {
+      "type": "gensokyolegacy:simple",
+      "actions": [],
+      "conditions": [],
+      "next": "gensokyolegacy:reimu/ominous_banner/follow_up/end/dialog_1",
+      "text": "Still searching."
+    }
+  ],
+  "text": "gensokyolegacy/reimu/ominous_banner/dialog/reimu/ominous_banner/follow_up/dialog_1"
+}

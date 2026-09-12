@@ -1,0 +1,23 @@
+{
+  "options": [
+    {
+      "type": "gensokyolegacy:simple",
+      "actions": [],
+      "conditions": [],
+      "next": "gensokyolegacy:reimu/daily_food/start/reject/dialog_1",
+      "text": "gensokyolegacy/reimu/shared/option/daily_reject"
+    },
+    {
+      "type": "gensokyolegacy:simple",
+      "actions": [
+        {
+          "type": "gensokyolegacy:start_quest"
+        }
+      ],
+      "conditions": [],
+      "next": "gensokyolegacy:reimu/daily_food/start/accept/dialog_1",
+      "text": "gensokyolegacy/reimu/shared/option/daily_accept"
+    }
+  ],
+  "text": "gensokyolegacy/reimu/daily_food/dialog/reimu/daily_food/start/dialog_1"
+}

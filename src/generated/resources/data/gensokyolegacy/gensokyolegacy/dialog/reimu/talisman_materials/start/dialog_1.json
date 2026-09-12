@@ -1,0 +1,23 @@
+{
+  "options": [
+    {
+      "type": "gensokyolegacy:simple",
+      "actions": [],
+      "conditions": [],
+      "next": "gensokyolegacy:reimu/talisman_materials/start/reject/dialog_1",
+      "text": "Why redstone?"
+    },
+    {
+      "type": "gensokyolegacy:simple",
+      "actions": [
+        {
+          "type": "gensokyolegacy:start_quest"
+        }
+      ],
+      "conditions": [],
+      "next": "gensokyolegacy:reimu/talisman_materials/start/accept/dialog_1",
+      "text": "I'll gather paper and redstone."
+    }
+  ],
+  "text": "gensokyolegacy/reimu/talisman_materials/dialog/reimu/talisman_materials/start/dialog_1"
+}

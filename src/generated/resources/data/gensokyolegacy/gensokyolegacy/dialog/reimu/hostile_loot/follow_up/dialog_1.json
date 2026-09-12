@@ -1,0 +1,12 @@
+{
+  "options": [
+    {
+      "type": "gensokyolegacy:simple",
+      "actions": [],
+      "conditions": [],
+      "next": "gensokyolegacy:reimu/hostile_loot/follow_up/end/dialog_1",
+      "text": "Still hunting."
+    }
+  ],
+  "text": "gensokyolegacy/reimu/hostile_loot/dialog/reimu/hostile_loot/follow_up/dialog_1"
+}

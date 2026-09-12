@@ -1,0 +1,81 @@
+{
+  "character": "gensokyolegacy:hakurei_reimu",
+  "completionDialog": {
+    "type": "gensokyolegacy:simple",
+    "actions": [],
+    "conditions": [],
+    "next": "gensokyolegacy:reimu/hostile_loot/complete/dialog_1",
+    "text": "gensokyolegacy/reimu/hostile_loot/option/complete"
+  },
+  "conditions": [
+    {
+      "type": "gensokyolegacy:has_quest_completed",
+      "quest": "gensokyolegacy:reimu/local_food"
+    }
+  ],
+  "description": "gensokyolegacy/reimu/hostile_loot/quest/desc",
+  "followUpDialog": {
+    "type": "gensokyolegacy:simple",
+    "actions": [],
+    "conditions": [],
+    "next": "gensokyolegacy:reimu/hostile_loot/follow_up/dialog_1",
+    "text": "gensokyolegacy/reimu/hostile_loot/option/follow_up"
+  },
+  "initialDialog": {
+    "type": "gensokyolegacy:simple",
+    "actions": [],
+    "conditions": [],
+    "next": "gensokyolegacy:reimu/hostile_loot/start/dialog_1",
+    "text": "gensokyolegacy/reimu/hostile_loot/option/start"
+  },
+  "requirements": {
+    "a-zombie": {
+      "type": "gensokyolegacy:kill_mob",
+      "count": 10,
+      "target": {
+        "type": "#minecraft:zombies"
+      },
+      "text": "gensokyolegacy/reimu/hostile_loot/requirement/zombie"
+    },
+    "b-skeleton": {
+      "type": "gensokyolegacy:kill_mob",
+      "count": 10,
+      "target": {
+        "type": "#minecraft:skeletons"
+      },
+      "text": "gensokyolegacy/reimu/hostile_loot/requirement/skeleton"
+    },
+    "c-flesh": {
+      "type": "gensokyolegacy:submit_item",
+      "ingredients": [
+        {
+          "count": 8,
+          "item": "minecraft:rotten_flesh"
+        }
+      ]
+    },
+    "d-bone": {
+      "type": "gensokyolegacy:submit_item",
+      "ingredients": [
+        {
+          "count": 8,
+          "item": "minecraft:bone"
+        }
+      ]
+    }
+  },
+  "rewards": [
+    {
+      "type": "gensokyolegacy:exp",
+      "point": 100
+    },
+    {
+      "type": "gensokyolegacy:reputation",
+      "cap_increase": 10,
+      "max_cap": 300,
+      "reputation": 20,
+      "soft_cap": 300
+    }
+  ],
+  "title": "gensokyolegacy/reimu/hostile_loot/quest/title"
+}

@@ -1,0 +1,60 @@
+{
+  "character": "gensokyolegacy:hakurei_reimu",
+  "completionDialog": {
+    "type": "gensokyolegacy:simple",
+    "actions": [],
+    "conditions": [],
+    "next": "gensokyolegacy:reimu/local_food/complete/dialog_1",
+    "text": "gensokyolegacy/reimu/local_food/option/complete"
+  },
+  "conditions": [],
+  "description": "gensokyolegacy/reimu/local_food/quest/desc",
+  "followUpDialog": {
+    "type": "gensokyolegacy:simple",
+    "actions": [],
+    "conditions": [],
+    "next": "gensokyolegacy:reimu/local_food/follow_up/dialog_1",
+    "text": "gensokyolegacy/reimu/local_food/option/follow_up"
+  },
+  "initialDialog": {
+    "type": "gensokyolegacy:simple",
+    "actions": [],
+    "conditions": [],
+    "next": "gensokyolegacy:reimu/local_food/start/dialog_1",
+    "text": "gensokyolegacy/reimu/local_food/option/start"
+  },
+  "requirements": {
+    "a-bread": {
+      "type": "gensokyolegacy:submit_item",
+      "ingredients": [
+        {
+          "count": 8,
+          "item": "minecraft:bread"
+        }
+      ]
+    },
+    "b-stew": {
+      "type": "gensokyolegacy:submit_item",
+      "ingredients": [
+        {
+          "count": 3,
+          "item": "minecraft:mushroom_stew"
+        }
+      ]
+    }
+  },
+  "rewards": [
+    {
+      "type": "gensokyolegacy:exp",
+      "point": 50
+    },
+    {
+      "type": "gensokyolegacy:reputation",
+      "cap_increase": 10,
+      "max_cap": 300,
+      "reputation": 10,
+      "soft_cap": 300
+    }
+  ],
+  "title": "gensokyolegacy/reimu/local_food/quest/title"
+}

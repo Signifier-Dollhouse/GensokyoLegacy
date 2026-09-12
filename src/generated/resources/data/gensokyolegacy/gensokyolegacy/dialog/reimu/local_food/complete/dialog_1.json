@@ -1,0 +1,23 @@
+{
+  "options": [
+    {
+      "type": "gensokyolegacy:simple",
+      "actions": [],
+      "conditions": [],
+      "next": "gensokyolegacy:reimu/local_food/complete/reject/dialog_1",
+      "text": "Not yet."
+    },
+    {
+      "type": "gensokyolegacy:simple",
+      "actions": [
+        {
+          "type": "gensokyolegacy:complete_quest"
+        }
+      ],
+      "conditions": [],
+      "next": "gensokyolegacy:reimu/local_food/complete/handover/dialog_1",
+      "text": "Here you go."
+    }
+  ],
+  "text": "gensokyolegacy/reimu/local_food/dialog/reimu/local_food/complete/dialog_1"
+}

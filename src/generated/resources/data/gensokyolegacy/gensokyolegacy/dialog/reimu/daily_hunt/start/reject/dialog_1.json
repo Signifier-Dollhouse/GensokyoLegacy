@@ -1,0 +1,11 @@
+{
+  "options": [
+    {
+      "type": "gensokyolegacy:simple",
+      "actions": [],
+      "conditions": [],
+      "text": "gensokyolegacy/reimu/shared/option/bye"
+    }
+  ],
+  "text": "gensokyolegacy/reimu/daily_hunt/dialog/reimu/daily_hunt/start/reject/dialog_1"
+}

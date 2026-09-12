@@ -1,0 +1,23 @@
+{
+  "options": [
+    {
+      "type": "gensokyolegacy:simple",
+      "actions": [],
+      "conditions": [],
+      "next": "gensokyolegacy:reimu/hostile_loot/complete/reject/dialog_1",
+      "text": "Not yet."
+    },
+    {
+      "type": "gensokyolegacy:simple",
+      "actions": [
+        {
+          "type": "gensokyolegacy:complete_quest"
+        }
+      ],
+      "conditions": [],
+      "next": "gensokyolegacy:reimu/hostile_loot/complete/handover/dialog_1",
+      "text": "Here are the samples."
+    }
+  ],
+  "text": "gensokyolegacy/reimu/hostile_loot/dialog/reimu/hostile_loot/complete/dialog_1"
+}

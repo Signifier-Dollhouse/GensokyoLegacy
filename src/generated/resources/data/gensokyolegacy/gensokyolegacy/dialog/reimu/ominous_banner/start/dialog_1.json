@@ -1,0 +1,23 @@
+{
+  "options": [
+    {
+      "type": "gensokyolegacy:simple",
+      "actions": [],
+      "conditions": [],
+      "next": "gensokyolegacy:reimu/ominous_banner/start/reject/dialog_1",
+      "text": "Maybe next time."
+    },
+    {
+      "type": "gensokyolegacy:simple",
+      "actions": [
+        {
+          "type": "gensokyolegacy:start_quest"
+        }
+      ],
+      "conditions": [],
+      "next": "gensokyolegacy:reimu/ominous_banner/start/accept/dialog_1",
+      "text": "I'll find a raid captain."
+    }
+  ],
+  "text": "gensokyolegacy/reimu/ominous_banner/dialog/reimu/ominous_banner/start/dialog_1"
+}

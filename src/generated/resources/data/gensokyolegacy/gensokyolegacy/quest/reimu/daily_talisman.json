@@ -1,0 +1,68 @@
+{
+  "character": "gensokyolegacy:hakurei_reimu",
+  "completionDialog": {
+    "type": "gensokyolegacy:simple",
+    "actions": [],
+    "conditions": [],
+    "next": "gensokyolegacy:reimu/daily_talisman/complete/dialog_1",
+    "text": "gensokyolegacy/reimu/shared/option/daily_complete"
+  },
+  "conditions": [
+    {
+      "type": "gensokyolegacy:has_quest_completed",
+      "quest": "gensokyolegacy:reimu/talisman_materials"
+    }
+  ],
+  "description": "gensokyolegacy/reimu/daily_talisman/quest/desc",
+  "followUpDialog": {
+    "type": "gensokyolegacy:simple",
+    "actions": [],
+    "conditions": [],
+    "next": "gensokyolegacy:reimu/daily_talisman/follow_up/dialog_1",
+    "text": "gensokyolegacy/reimu/shared/option/daily_follow"
+  },
+  "initialDialog": {
+    "type": "gensokyolegacy:simple",
+    "actions": [],
+    "conditions": [],
+    "next": "gensokyolegacy:reimu/daily_talisman/start/dialog_1",
+    "text": "gensokyolegacy/reimu/shared/option/daily_start"
+  },
+  "recurrence": {
+    "cooldown": 24000
+  },
+  "requirements": {
+    "a-paper": {
+      "type": "gensokyolegacy:submit_item",
+      "ingredients": [
+        {
+          "count": 16,
+          "item": "minecraft:paper"
+        }
+      ]
+    },
+    "b-redstone": {
+      "type": "gensokyolegacy:submit_item",
+      "ingredients": [
+        {
+          "count": 8,
+          "item": "minecraft:redstone"
+        }
+      ]
+    }
+  },
+  "rewards": [
+    {
+      "type": "gensokyolegacy:exp",
+      "point": 60
+    },
+    {
+      "type": "gensokyolegacy:reputation",
+      "cap_increase": 0,
+      "max_cap": 150,
+      "reputation": 10,
+      "soft_cap": 150
+    }
+  ],
+  "title": "gensokyolegacy/reimu/daily_talisman/quest/title"
+}

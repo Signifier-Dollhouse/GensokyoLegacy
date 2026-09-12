@@ -1,0 +1,12 @@
+{
+  "options": [
+    {
+      "type": "gensokyolegacy:simple",
+      "actions": [],
+      "conditions": [],
+      "next": "gensokyolegacy:reimu/talisman_materials/follow_up/end/dialog_1",
+      "text": "Still gathering."
+    }
+  ],
+  "text": "gensokyolegacy/reimu/talisman_materials/dialog/reimu/talisman_materials/follow_up/dialog_1"
+}

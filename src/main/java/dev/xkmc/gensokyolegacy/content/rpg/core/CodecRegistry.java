@@ -2,6 +2,7 @@ package dev.xkmc.gensokyolegacy.content.rpg.core;
 
 import dev.xkmc.gensokyolegacy.content.rpg.action.CompleteQuestAction;
 import dev.xkmc.gensokyolegacy.content.rpg.action.DialogAction;
+import dev.xkmc.gensokyolegacy.content.rpg.action.GiveBadOmenAction;
 import dev.xkmc.gensokyolegacy.content.rpg.action.StartQuestAction;
 import dev.xkmc.gensokyolegacy.content.rpg.condition.HasAdvancementCondition;
 import dev.xkmc.gensokyolegacy.content.rpg.condition.HasQuestCompletedCondition;
@@ -16,6 +17,7 @@ import dev.xkmc.gensokyolegacy.content.rpg.quest.QuestCondition;
 import dev.xkmc.gensokyolegacy.content.rpg.quest.QuestReward;
 import dev.xkmc.gensokyolegacy.content.rpg.requirement.KillMobRequirement;
 import dev.xkmc.gensokyolegacy.content.rpg.requirement.QuestRequirement;
+import dev.xkmc.gensokyolegacy.content.rpg.requirement.RaidVictoryRequirement;
 import dev.xkmc.gensokyolegacy.content.rpg.requirement.RollItemRequirement;
 import dev.xkmc.gensokyolegacy.content.rpg.requirement.SubmitItemRequirement;
 import dev.xkmc.gensokyolegacy.content.rpg.reward.ExpReward;
@@ -54,6 +56,7 @@ public class CodecRegistry {
 
 	public static final CdcVal<StartQuestAction> START_QUEST = ACTION.reg("start_quest", StartQuestAction.CODEC);
 	public static final CdcVal<CompleteQuestAction> COMPLETE_QUEST = ACTION.reg("complete_quest", CompleteQuestAction.CODEC);
+	public static final CdcVal<GiveBadOmenAction> GIVE_BAD_OMEN = ACTION.reg("give_bad_omen", GiveBadOmenAction.CODEC);
 
 	public static final CdcVal<HasAdvancementCondition> HAS_ADV = CONDITION.reg("has_advancement", HasAdvancementCondition.CODEC);
 	public static final CdcVal<HasQuestCompletedCondition> HAS_QUEST = CONDITION.reg("has_quest_completed", HasQuestCompletedCondition.CODEC);
@@ -63,6 +66,7 @@ public class CodecRegistry {
 	public static final CdcVal<KillMobRequirement> KILL_MOB_REQ = REQUIREMENT.reg("kill_mob", KillMobRequirement.CODEC);
 	public static final CdcVal<SubmitItemRequirement> SUBMIT_ITEM_REQ = REQUIREMENT.reg("submit_item", SubmitItemRequirement.CODEC);
 	public static final CdcVal<RollItemRequirement> ROLL_ITEM_REQ = REQUIREMENT.reg("roll_item", RollItemRequirement.CODEC);
+	public static final CdcVal<RaidVictoryRequirement> RAID_VICTORY_REQ = REQUIREMENT.reg("raid_victory", RaidVictoryRequirement.CODEC);
 
 	public static final CdcVal<LootTableReward> LOOT_REWARD = REWARD.reg("loot_table", LootTableReward.CODEC);
 	public static final CdcVal<ExpReward> EXP_REWARD = REWARD.reg("exp", ExpReward.CODEC);

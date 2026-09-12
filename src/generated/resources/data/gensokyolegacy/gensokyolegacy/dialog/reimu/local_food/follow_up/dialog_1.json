@@ -1,0 +1,12 @@
+{
+  "options": [
+    {
+      "type": "gensokyolegacy:simple",
+      "actions": [],
+      "conditions": [],
+      "next": "gensokyolegacy:reimu/local_food/follow_up/end/dialog_1",
+      "text": "Still looking."
+    }
+  ],
+  "text": "gensokyolegacy/reimu/local_food/dialog/reimu/local_food/follow_up/dialog_1"
+}

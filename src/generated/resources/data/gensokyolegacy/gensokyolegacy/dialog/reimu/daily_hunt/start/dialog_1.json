@@ -1,0 +1,23 @@
+{
+  "options": [
+    {
+      "type": "gensokyolegacy:simple",
+      "actions": [],
+      "conditions": [],
+      "next": "gensokyolegacy:reimu/daily_hunt/start/reject/dialog_1",
+      "text": "gensokyolegacy/reimu/shared/option/daily_reject"
+    },
+    {
+      "type": "gensokyolegacy:simple",
+      "actions": [
+        {
+          "type": "gensokyolegacy:start_quest"
+        }
+      ],
+      "conditions": [],
+      "next": "gensokyolegacy:reimu/daily_hunt/start/accept/dialog_1",
+      "text": "gensokyolegacy/reimu/shared/option/daily_accept"
+    }
+  ],
+  "text": "gensokyolegacy/reimu/daily_hunt/dialog/reimu/daily_hunt/start/dialog_1"
+}

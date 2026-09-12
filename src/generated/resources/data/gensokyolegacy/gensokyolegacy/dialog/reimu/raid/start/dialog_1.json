@@ -1,0 +1,27 @@
+{
+  "options": [
+    {
+      "type": "gensokyolegacy:simple",
+      "actions": [],
+      "conditions": [],
+      "next": "gensokyolegacy:reimu/raid/start/reject/dialog_1",
+      "text": "Can't you do it yourself?"
+    },
+    {
+      "type": "gensokyolegacy:simple",
+      "actions": [
+        {
+          "type": "gensokyolegacy:start_quest"
+        },
+        {
+          "type": "gensokyolegacy:give_bad_omen",
+          "duration": 12000
+        }
+      ],
+      "conditions": [],
+      "next": "gensokyolegacy:reimu/raid/start/accept/dialog_1",
+      "text": "I'll repel the raid."
+    }
+  ],
+  "text": "gensokyolegacy/reimu/raid/dialog/reimu/raid/start/dialog_1"
+}

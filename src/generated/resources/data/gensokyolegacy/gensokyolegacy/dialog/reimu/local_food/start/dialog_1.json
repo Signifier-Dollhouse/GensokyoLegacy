@@ -1,0 +1,23 @@
+{
+  "options": [
+    {
+      "type": "gensokyolegacy:simple",
+      "actions": [],
+      "conditions": [],
+      "next": "gensokyolegacy:reimu/local_food/start/reject/dialog_1",
+      "text": "Maybe next time."
+    },
+    {
+      "type": "gensokyolegacy:simple",
+      "actions": [
+        {
+          "type": "gensokyolegacy:start_quest"
+        }
+      ],
+      "conditions": [],
+      "next": "gensokyolegacy:reimu/local_food/start/accept/dialog_1",
+      "text": "I'll bring you a meal."
+    }
+  ],
+  "text": "gensokyolegacy/reimu/local_food/dialog/reimu/local_food/start/dialog_1"
+}

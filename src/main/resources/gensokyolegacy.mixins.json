@@ -11,6 +11,7 @@
 		"NaturalSpawnerSealingMixin",
 		"ServerLevelSealingMixin",
 		"RandomizableContainerBlockEntityMixin",
+		"RaidMixin",
 		"ShootTongueMixin"
 	],
 	"client": [

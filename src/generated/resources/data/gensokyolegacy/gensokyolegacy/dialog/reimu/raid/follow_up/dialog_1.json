@@ -1,0 +1,12 @@
+{
+  "options": [
+    {
+      "type": "gensokyolegacy:simple",
+      "actions": [],
+      "conditions": [],
+      "next": "gensokyolegacy:reimu/raid/follow_up/end/dialog_1",
+      "text": "Still fighting."
+    }
+  ],
+  "text": "gensokyolegacy/reimu/raid/dialog/reimu/raid/follow_up/dialog_1"
+}

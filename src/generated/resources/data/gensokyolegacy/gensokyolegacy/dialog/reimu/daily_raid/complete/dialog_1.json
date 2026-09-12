@@ -1,0 +1,16 @@
+{
+  "options": [
+    {
+      "type": "gensokyolegacy:simple",
+      "actions": [
+        {
+          "type": "gensokyolegacy:complete_quest"
+        }
+      ],
+      "conditions": [],
+      "next": "gensokyolegacy:reimu/daily_raid/complete/handover/dialog_1",
+      "text": "gensokyolegacy/reimu/shared/option/daily_handover"
+    }
+  ],
+  "text": "gensokyolegacy/reimu/shared/dialog/daily_gotem"
+}

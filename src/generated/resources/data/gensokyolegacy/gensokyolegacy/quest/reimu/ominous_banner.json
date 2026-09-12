@@ -1,0 +1,61 @@
+{
+  "character": "gensokyolegacy:hakurei_reimu",
+  "completionDialog": {
+    "type": "gensokyolegacy:simple",
+    "actions": [],
+    "conditions": [],
+    "next": "gensokyolegacy:reimu/ominous_banner/complete/dialog_1",
+    "text": "gensokyolegacy/reimu/ominous_banner/option/complete"
+  },
+  "conditions": [
+    {
+      "type": "gensokyolegacy:has_quest_completed",
+      "quest": "gensokyolegacy:reimu/talisman_materials"
+    }
+  ],
+  "description": "gensokyolegacy/reimu/ominous_banner/quest/desc",
+  "followUpDialog": {
+    "type": "gensokyolegacy:simple",
+    "actions": [],
+    "conditions": [],
+    "next": "gensokyolegacy:reimu/ominous_banner/follow_up/dialog_1",
+    "text": "gensokyolegacy/reimu/ominous_banner/option/follow_up"
+  },
+  "initialDialog": {
+    "type": "gensokyolegacy:simple",
+    "actions": [],
+    "conditions": [],
+    "next": "gensokyolegacy:reimu/ominous_banner/start/dialog_1",
+    "text": "gensokyolegacy/reimu/ominous_banner/option/start"
+  },
+  "requirements": {
+    "a-banner": {
+      "type": "gensokyolegacy:submit_item",
+      "ingredients": [
+        {
+          "type": "neoforge:components",
+          "components": {
+            "minecraft:item_name": "{\"color\":\"gold\",\"translate\":\"block.minecraft.ominous_banner\"}"
+          },
+          "count": 1,
+          "items": "minecraft:white_banner",
+          "text": "Ominous Banner"
+        }
+      ]
+    }
+  },
+  "rewards": [
+    {
+      "type": "gensokyolegacy:exp",
+      "point": 200
+    },
+    {
+      "type": "gensokyolegacy:reputation",
+      "cap_increase": 10,
+      "max_cap": 300,
+      "reputation": 20,
+      "soft_cap": 300
+    }
+  ],
+  "title": "gensokyolegacy/reimu/ominous_banner/quest/title"
+}

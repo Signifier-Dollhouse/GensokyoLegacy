@@ -1,0 +1,12 @@
+{
+  "options": [
+    {
+      "type": "gensokyolegacy:simple",
+      "actions": [],
+      "conditions": [],
+      "next": "gensokyolegacy:reimu/daily_talisman/follow_up/end/dialog_1",
+      "text": "gensokyolegacy/reimu/shared/option/daily_follow_end"
+    }
+  ],
+  "text": "gensokyolegacy/reimu/daily_talisman/dialog/reimu/daily_talisman/follow_up/dialog_1"
+}

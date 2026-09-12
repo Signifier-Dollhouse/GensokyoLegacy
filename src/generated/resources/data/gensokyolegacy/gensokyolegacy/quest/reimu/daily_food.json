@@ -1,0 +1,54 @@
+{
+  "character": "gensokyolegacy:hakurei_reimu",
+  "completionDialog": {
+    "type": "gensokyolegacy:simple",
+    "actions": [],
+    "conditions": [],
+    "next": "gensokyolegacy:reimu/daily_food/complete/dialog_1",
+    "text": "gensokyolegacy/reimu/shared/option/daily_complete"
+  },
+  "conditions": [
+    {
+      "type": "gensokyolegacy:has_quest_completed",
+      "quest": "gensokyolegacy:reimu/local_food"
+    }
+  ],
+  "description": "gensokyolegacy/reimu/daily_food/quest/desc",
+  "followUpDialog": {
+    "type": "gensokyolegacy:simple",
+    "actions": [],
+    "conditions": [],
+    "next": "gensokyolegacy:reimu/daily_food/follow_up/dialog_1",
+    "text": "gensokyolegacy/reimu/shared/option/daily_follow"
+  },
+  "initialDialog": {
+    "type": "gensokyolegacy:simple",
+    "actions": [],
+    "conditions": [],
+    "next": "gensokyolegacy:reimu/daily_food/start/dialog_1",
+    "text": "gensokyolegacy/reimu/shared/option/daily_start"
+  },
+  "recurrence": {
+    "cooldown": 24000
+  },
+  "requirements": {
+    "a-supplies": {
+      "type": "gensokyolegacy:roll_item",
+      "table": "gensokyolegacy:quest_req/reimu/daily_food/daily_food"
+    }
+  },
+  "rewards": [
+    {
+      "type": "gensokyolegacy:exp",
+      "point": 60
+    },
+    {
+      "type": "gensokyolegacy:reputation",
+      "cap_increase": 0,
+      "max_cap": 150,
+      "reputation": 10,
+      "soft_cap": 150
+    }
+  ],
+  "title": "gensokyolegacy/reimu/daily_food/quest/title"
+}

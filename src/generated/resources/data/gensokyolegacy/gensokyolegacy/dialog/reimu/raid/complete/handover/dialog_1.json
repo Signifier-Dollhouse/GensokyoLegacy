@@ -1,0 +1,11 @@
+{
+  "options": [
+    {
+      "type": "gensokyolegacy:simple",
+      "actions": [],
+      "conditions": [],
+      "text": "gensokyolegacy/reimu/shared/option/bye"
+    }
+  ],
+  "text": "gensokyolegacy/reimu/raid/dialog/reimu/raid/complete/handover/dialog_1"
+}
