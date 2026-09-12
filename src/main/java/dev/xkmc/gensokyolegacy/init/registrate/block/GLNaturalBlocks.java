@@ -27,11 +27,9 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
-import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantments;
-import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.grower.TreeGrower;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -165,7 +163,7 @@ public class GLNaturalBlocks {
 							.partialState().with(CedarFallenLeavesBlock.LAYERS, 1).modelForState().modelFile(layer1).addModel()
 							.partialState().with(CedarFallenLeavesBlock.LAYERS, 2).modelForState().modelFile(layer2).addModel();
 				})
-				.loot(GLNaturalBlocks::genFallenLeavesLoot)
+				.loot(CedarFallenLeavesBlock::loot)
 				.item().model((ctx, pvd) -> pvd.getBuilder(ctx.getName())
 						.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/nature/cedar_fallen_leaves")))
 						.texture("all", pvd.modLoc("block/nature/cedar_fallen_leaves_layer1")))
@@ -206,38 +204,38 @@ public class GLNaturalBlocks {
 		);
 
 		// 红耳菇
-		EUGUNE_RED = reg.block("eugune_red", SideBushBlock::new)
+		EUGUNE_RED = reg.block("eugune_red", p -> new SideBushBlock(p, Items.RED_MUSHROOM))
 				.properties(p -> p.mapColor(MapColor.PLANT).strength(0).sound(SoundType.GRASS).noOcclusion().noCollission().pushReaction(PushReaction.DESTROY))
 				.blockstate((ctx, pvd) -> pvd.horizontalBlock(ctx.get(),
 						pvd.models().getBuilder("block/" + ctx.getName())
 								.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/nature/eugune")))
 								.texture("all", pvd.modLoc("block/nature/eugune_red"))
 								.renderType("cutout")))
-				.loot((tb, blk) -> genEuguneLoot(tb, blk, Items.RED_MUSHROOM))
+				.loot(SideBushBlock::loot)
 				.simpleItem()
 				.register();
 
 		// 棕耳菇
-		EUGUNE_BROWN = reg.block("eugune_brown", SideBushBlock::new)
+		EUGUNE_BROWN = reg.block("eugune_brown", p -> new SideBushBlock(p, Items.BROWN_MUSHROOM))
 				.properties(p -> p.mapColor(MapColor.PLANT).strength(0).sound(SoundType.GRASS).noOcclusion().noCollission().pushReaction(PushReaction.DESTROY))
 				.blockstate((ctx, pvd) -> pvd.horizontalBlock(ctx.get(),
 						pvd.models().getBuilder("block/" + ctx.getName())
 								.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/nature/eugune")))
 								.texture("all", pvd.modLoc("block/nature/eugune_brown"))
 								.renderType("cutout")))
-				.loot((tb, blk) -> genEuguneLoot(tb, blk, Items.BROWN_MUSHROOM))
+				.loot(SideBushBlock::loot)
 				.simpleItem()
 				.register();
 
 		// 鬼火耳菇
-		EUGUNE_GHOST_FIRE = reg.block("eugune_ghost_fire", SideBushBlock::new)
+		EUGUNE_GHOST_FIRE = reg.block("eugune_ghost_fire", p -> new SideBushBlock(p, GHOST_FIRE_MUSHROOM_SET.cap))
 				.properties(p -> p.mapColor(MapColor.PLANT).strength(0).sound(SoundType.GRASS).noOcclusion().noCollission().pushReaction(PushReaction.DESTROY))
 				.blockstate((ctx, pvd) -> pvd.horizontalBlock(ctx.get(),
 						pvd.models().getBuilder("block/" + ctx.getName())
 								.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/nature/eugune_emissive")))
 								.texture("all", pvd.modLoc("block/nature/eugune_ghost_fire"))
 								.renderType("cutout")))
-				.loot((tb, blk) -> genEuguneLoot(tb, blk, GHOST_FIRE_MUSHROOM_SET.cap))
+				.loot(SideBushBlock::loot)
 				.simpleItem()
 				.register();
 
@@ -257,7 +255,7 @@ public class GLNaturalBlocks {
 						.sound(SoundType.COBWEB).pushReaction(PushReaction.DESTROY))
 				.blockstate((ctx, pvd) -> pvd.simpleBlock(ctx.get(),
 						pvd.models().cross(ctx.getName(), pvd.modLoc("block/misc/hyphae")).renderType("cutout")))
-				.loot(GLNaturalBlocks::genHyphaeLoot)
+				.loot(HyphaeBlock::loot)
 				.item().model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("block/misc/hyphae"))).build()
 				.register();
 	}
@@ -479,44 +477,6 @@ public class GLNaturalBlocks {
 			}
 			pvd.getVariantBuilder(ctx.get()).partialState().setModels(models);
 		}
-	}
-
-	private static void genHyphaeLoot(RegistrateBlockLootTables tb, Block block) {
-		var enchantments = tb.getRegistries().lookupOrThrow(Registries.ENCHANTMENT);
-		var shearsOrSilk = MatchTool.toolMatches(ItemPredicate.Builder.item().of(Items.SHEARS))
-				.or(MatchTool.toolMatches(ItemPredicate.Builder.item()
-						.withSubPredicate(ItemSubPredicates.ENCHANTMENTS,
-								ItemEnchantmentsPredicate.enchantments(List.of(new EnchantmentPredicate(
-										enchantments.getOrThrow(Enchantments.SILK_TOUCH), MinMaxBounds.Ints.atLeast(1)))))));
-		tb.add(block, LootTable.lootTable()
-				.withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F)).when(shearsOrSilk)
-						.add(LootItem.lootTableItem(block))));
-	}
-
-	private static void genEuguneLoot(RegistrateBlockLootTables tb, Block block, ItemLike capItem) {
-		var enchantments = tb.getRegistries().lookupOrThrow(Registries.ENCHANTMENT);
-		var shearsOrSilk = MatchTool.toolMatches(ItemPredicate.Builder.item().of(Items.SHEARS))
-				.or(MatchTool.toolMatches(ItemPredicate.Builder.item()
-						.withSubPredicate(ItemSubPredicates.ENCHANTMENTS,
-								ItemEnchantmentsPredicate.enchantments(List.of(new EnchantmentPredicate(
-										enchantments.getOrThrow(Enchantments.SILK_TOUCH), MinMaxBounds.Ints.atLeast(1)))))));
-		tb.add(block, LootTable.lootTable()
-				.withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F)).when(shearsOrSilk)
-						.add(LootItem.lootTableItem(block)))
-				.withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F)).when(shearsOrSilk.invert())
-						.add(LootItem.lootTableItem(capItem))));
-	}
-
-	private static void genFallenLeavesLoot(RegistrateBlockLootTables tb, Block block) {
-		var enchantments = tb.getRegistries().lookupOrThrow(Registries.ENCHANTMENT);
-		var shovelOrSilk = MatchTool.toolMatches(ItemPredicate.Builder.item().of(ItemTags.SHOVELS))
-				.or(MatchTool.toolMatches(ItemPredicate.Builder.item()
-						.withSubPredicate(ItemSubPredicates.ENCHANTMENTS,
-								ItemEnchantmentsPredicate.enchantments(List.of(new EnchantmentPredicate(
-										enchantments.getOrThrow(Enchantments.SILK_TOUCH), MinMaxBounds.Ints.atLeast(1)))))));
-		tb.add(block, LootTable.lootTable()
-				.withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F)).when(shovelOrSilk)
-						.add(LootItem.lootTableItem(block))));
 	}
 
 	private static void genColumnState(DataGenContext<Block, ? extends Block> ctx, RegistrateBlockstateProvider pvd,

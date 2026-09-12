@@ -1,20 +1,36 @@
 package dev.xkmc.gensokyolegacy.content.block.nature;
 
 import com.mojang.serialization.MapCodec;
+import com.tterrag.registrate.providers.loot.RegistrateBlockLootTables;
+import net.minecraft.advancements.critereon.EnchantmentPredicate;
+import net.minecraft.advancements.critereon.ItemEnchantmentsPredicate;
+import net.minecraft.advancements.critereon.ItemPredicate;
+import net.minecraft.advancements.critereon.ItemSubPredicates;
+import net.minecraft.advancements.critereon.MinMaxBounds;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.BushBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
+import net.minecraft.world.level.storage.loot.LootPool;
+import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.level.storage.loot.entries.LootItem;
+import net.minecraft.world.level.storage.loot.predicates.MatchTool;
+import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
 
 public class CedarFallenLeavesBlock extends SimpleBushBlock {
 
@@ -51,5 +67,17 @@ public class CedarFallenLeavesBlock extends SimpleBushBlock {
 			return ItemInteractionResult.SUCCESS;
 		}
 		return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+	}
+
+	public static void loot(RegistrateBlockLootTables tb, Block block) {
+		var enchantments = tb.getRegistries().lookupOrThrow(Registries.ENCHANTMENT);
+		var shovelOrSilk = MatchTool.toolMatches(ItemPredicate.Builder.item().of(ItemTags.SHOVELS))
+				.or(MatchTool.toolMatches(ItemPredicate.Builder.item()
+						.withSubPredicate(ItemSubPredicates.ENCHANTMENTS,
+								ItemEnchantmentsPredicate.enchantments(List.of(new EnchantmentPredicate(
+										enchantments.getOrThrow(Enchantments.SILK_TOUCH), MinMaxBounds.Ints.atLeast(1)))))));
+		tb.add(block, LootTable.lootTable()
+				.withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F)).when(shovelOrSilk)
+						.add(LootItem.lootTableItem(block))));
 	}
 }

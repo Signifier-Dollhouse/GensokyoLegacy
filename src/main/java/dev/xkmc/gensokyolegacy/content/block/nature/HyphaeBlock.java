@@ -1,13 +1,22 @@
 package dev.xkmc.gensokyolegacy.content.block.nature;
 
 import com.mojang.serialization.MapCodec;
+import com.tterrag.registrate.providers.loot.RegistrateBlockLootTables;
 import dev.xkmc.gensokyolegacy.init.registrate.GLEffects;
+import net.minecraft.advancements.critereon.EnchantmentPredicate;
+import net.minecraft.advancements.critereon.ItemEnchantmentsPredicate;
+import net.minecraft.advancements.critereon.ItemPredicate;
+import net.minecraft.advancements.critereon.ItemSubPredicates;
+import net.minecraft.advancements.critereon.MinMaxBounds;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -17,9 +26,16 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.storage.loot.LootPool;
+import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.level.storage.loot.entries.LootItem;
+import net.minecraft.world.level.storage.loot.predicates.MatchTool;
+import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
+
+import java.util.List;
 
 public class HyphaeBlock extends BushBlock {
 
@@ -73,6 +89,18 @@ public class HyphaeBlock extends BushBlock {
 		if (state.getValue(TRANSIENT)) {
 			level.setBlock(pos, Blocks.AIR.defaultBlockState(), 3);
 		}
+	}
+
+	public static void loot(RegistrateBlockLootTables tb, Block block) {
+		var enchantments = tb.getRegistries().lookupOrThrow(Registries.ENCHANTMENT);
+		var shearsOrSilk = MatchTool.toolMatches(ItemPredicate.Builder.item().of(Items.SHEARS))
+				.or(MatchTool.toolMatches(ItemPredicate.Builder.item()
+						.withSubPredicate(ItemSubPredicates.ENCHANTMENTS,
+								ItemEnchantmentsPredicate.enchantments(List.of(new EnchantmentPredicate(
+										enchantments.getOrThrow(Enchantments.SILK_TOUCH), MinMaxBounds.Ints.atLeast(1)))))));
+		tb.add(block, LootTable.lootTable()
+				.withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F)).when(shearsOrSilk)
+						.add(LootItem.lootTableItem(block))));
 	}
 
 }

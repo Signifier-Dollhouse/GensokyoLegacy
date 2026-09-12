@@ -1,11 +1,21 @@
 package dev.xkmc.gensokyolegacy.content.block.nature;
 
 import com.mojang.serialization.MapCodec;
+import com.tterrag.registrate.providers.loot.RegistrateBlockLootTables;
 import dev.xkmc.l2modularblock.core.VoxelBuilder;
+import net.minecraft.advancements.critereon.EnchantmentPredicate;
+import net.minecraft.advancements.critereon.ItemEnchantmentsPredicate;
+import net.minecraft.advancements.critereon.ItemPredicate;
+import net.minecraft.advancements.critereon.ItemSubPredicates;
+import net.minecraft.advancements.critereon.MinMaxBounds;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
@@ -17,8 +27,16 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.pathfinder.PathComputationType;
+import net.minecraft.world.level.storage.loot.LootPool;
+import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.level.storage.loot.entries.LootItem;
+import net.minecraft.world.level.storage.loot.predicates.MatchTool;
+import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
 
 public class SideBushBlock extends Block {
 
@@ -34,8 +52,15 @@ public class SideBushBlock extends Block {
 		}
 	}
 
+	private final @Nullable ItemLike drop;
+
 	public SideBushBlock(Properties properties) {
+		this(properties, null);
+	}
+
+	public SideBushBlock(Properties properties, ItemLike drop) {
 		super(properties);
+		this.drop = drop;
 		this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH));
 	}
 
@@ -99,6 +124,21 @@ public class SideBushBlock extends Block {
 	@Override
 	protected boolean isPathfindable(BlockState state, PathComputationType pathComputationType) {
 		return pathComputationType == PathComputationType.AIR && !this.hasCollision || super.isPathfindable(state, pathComputationType);
+	}
+
+	public static void loot(RegistrateBlockLootTables tb, Block block) {
+		var shearsOrSilk = MatchTool.toolMatches(ItemPredicate.Builder.item().of(Items.SHEARS))
+				.or(MatchTool.toolMatches(ItemPredicate.Builder.item()
+						.withSubPredicate(ItemSubPredicates.ENCHANTMENTS,
+								ItemEnchantmentsPredicate.enchantments(List.of(new EnchantmentPredicate(
+										tb.getRegistries().lookupOrThrow(Registries.ENCHANTMENT).getOrThrow(Enchantments.SILK_TOUCH),
+										MinMaxBounds.Ints.atLeast(1)))))));
+		SideBushBlock bush = (SideBushBlock) block;
+		tb.add(block, LootTable.lootTable()
+				.withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F)).when(shearsOrSilk)
+						.add(LootItem.lootTableItem(block)))
+				.withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F)).when(shearsOrSilk.invert())
+						.add(LootItem.lootTableItem(bush.drop == null ? block.asItem() : bush.drop))));
 	}
 
 }
