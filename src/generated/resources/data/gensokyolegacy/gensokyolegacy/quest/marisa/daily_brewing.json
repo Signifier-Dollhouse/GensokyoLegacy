@@ -62,6 +62,10 @@
       "max_cap": 130,
       "reputation": 20,
       "soft_cap": 150
+    },
+    {
+      "type": "gensokyolegacy:loot_table",
+      "table": "gensokyolegacy:marisa/daily_brewing"
     }
   ],
   "title": "gensokyolegacy/marisa/daily_brewing/quest/title"

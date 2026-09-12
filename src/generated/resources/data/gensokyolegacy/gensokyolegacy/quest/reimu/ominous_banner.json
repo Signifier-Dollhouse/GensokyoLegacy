@@ -100,6 +100,10 @@
       "max_cap": 300,
       "reputation": 20,
       "soft_cap": 300
+    },
+    {
+      "type": "gensokyolegacy:loot_table",
+      "table": "gensokyolegacy:reimu/ominous_banner"
     }
   ],
   "title": "gensokyolegacy/reimu/ominous_banner/quest/title"

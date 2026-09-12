@@ -45,10 +45,14 @@
     },
     {
       "type": "gensokyolegacy:reputation",
-      "cap_increase": 5,
-      "max_cap": 250,
+      "cap_increase": 10,
+      "max_cap": 150,
       "reputation": 20,
       "soft_cap": 200
+    },
+    {
+      "type": "gensokyolegacy:loot_table",
+      "table": "gensokyolegacy:reimu/daily_raid"
     }
   ],
   "title": "gensokyolegacy/reimu/daily_raid/quest/title"

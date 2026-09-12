@@ -99,7 +99,9 @@ public class MarisaQDGen extends QuestDialogData {
 						"a-red", new SubmitItemRequirement(List.of(item(Items.RED_MUSHROOM, 4))),
 						"b-brown", new SubmitItemRequirement(List.of(item(Items.BROWN_MUSHROOM, 4)))
 				)),
-				List.of(new ExpReward(50), new ReputationReward(10, 300, 10, 300)),
+				List.of(new ExpReward(50), new ReputationReward(10, 300, 10, 300),
+						loot("marisa/first_mushroom", LootTable.lootTable()
+								.withPool(lootItem(Items.EMERALD, 4)))),
 				start("Talk about her mushroom research.",
 						"Ah, a newcomer! Marisa Kirisame, the ordinary magician, zo! This whole world's still fresh to me — even the grass smells different. Say, you live around here, right? I'm just getting my magic research started, and I need some honest-to-goodness samples. Bring me some red and brown mushrooms from the surface, would ya?",
 						"Sure, I'll gather some.", "That's the spirit, ze! Eight red or brown mushrooms'll do. Bring me the good stuff!",
@@ -121,7 +123,9 @@ public class MarisaQDGen extends QuestDialogData {
 				new TreeMap<>(Map.of(
 						"a-huge", new SubmitItemRequirement(List.of(itemTag(GLTagGen.HUGE_MUSHROOM, 8)))
 				)),
-				List.of(new ExpReward(100), new ReputationReward(10, 300, 0, 300)),
+				List.of(new ExpReward(100), new ReputationReward(10, 300, 0, 300),
+						loot("marisa/huge_mushroom", LootTable.lootTable()
+								.withPool(lootItem(Items.EMERALD, 6)))),
 				start("Talk about the giant mushrooms.",
 						"Whoa, hold on. Have ya seen the mushrooms around here? They're practically trees! I've never seen anything this huge — real whoppers. I tried pluckin' one, but it just shattered into little bits in my hands. There's gotta be a proper way to harvest the solid blocks. Think ya can bring me some whole giant mushroom blocks?",
 						"I'll bring you fresh blocks.", "That's what I like to hear! Bring 'em intact — caps and stems, either kind is fine.",
@@ -131,7 +135,7 @@ public class MarisaQDGen extends QuestDialogData {
 						"Still working on it.", "Okay, okay — just don't bring me crumbs. I want the good stuff!"),
 				complete("Hand over the mushroom blocks.",
 						"THESE! These are exactly what I needed! Feel that density, ze? There's some serious magic packed in here!",
-						"Glad I could help.", "You're a lifesaver! Now I've got dinner *and* research!")
+						"Glad I could help.", "You're a lifesaver! Now I've got dinner and research!")
 		));
 
 		prefix("marisa/nether_mushroom_prep");
@@ -143,7 +147,10 @@ public class MarisaQDGen extends QuestDialogData {
 						"a-crimson", new SubmitItemRequirement(List.of(item(Items.CRIMSON_FUNGUS, 4))),
 						"b-warped", new SubmitItemRequirement(List.of(item(Items.WARPED_FUNGUS, 4)))
 				)),
-				List.of(new ExpReward(150), new ReputationReward(20, 300, 10, 300)),
+				List.of(new ExpReward(150), new ReputationReward(20, 300, 10, 300),
+						loot("marisa/nether_mushroom_prep", LootTable.lootTable()
+								.withPool(lootItem(Items.EMERALD, 6))
+								.withPool(lootItem(HexBrew.MIASMA_HEXBREW.bottle.get(), 1)))),
 				start("Talk about the Nether.",
 						"Say — you've been to that creepy red world under the rock, right? The Nether, the fiery one? I hear the 'shrooms down there are somethin' else entirely. Never had the guts to go myself — all that heat and lava, yikes. But you've been there, haven't ya? Bring me some genuine Nether mushroom samples!",
 						"I've been to the Nether. I can do this.", "Then I knew I could count on ya! Bring back the weird stuff!",
@@ -152,7 +159,7 @@ public class MarisaQDGen extends QuestDialogData {
 						"Found any of that red Nether stuff yet? I hear it grows like a weed down there.",
 						"The hoglins are guarding them.", "Hoglin trouble, huh? Just bring me what ya can!"),
 				complete("Hand over the nether mushrooms.",
-						"Oh man, look at this! You can practically feel the fire in it! The flora in this world adapts to *everything*. That's amazing research material, ze!",
+						"Oh man, look at this! You can practically feel the fire in it! The flora in this world adapts to everything. That's amazing research material, ze!",
 						"Everything for science.", "Science! You get it! Thanks a million!")
 		));
 
@@ -164,16 +171,19 @@ public class MarisaQDGen extends QuestDialogData {
 				new TreeMap<>(Map.of(
 						"a-light", new SubmitItemRequirement(List.of(item(Items.SHROOMLIGHT, 8)))
 				)),
-				List.of(new ExpReward(150), new ReputationReward(10, 300, 0, 300)),
+				List.of(new ExpReward(150), new ReputationReward(10, 300, 0, 300),
+						loot("marisa/shroomlight", LootTable.lootTable()
+								.withPool(lootItem(Items.EMERALD, 6))
+								.withPool(lootItem(HexBrew.EXPLOSIVE_HEXBREW.bottle.get(), 2)))),
 				start("Talk about the fungus trees.",
-						"Okay, okay! You mentioned those giant *fungus trees* in the Nether — whole towers of mushroom! And they glow, right? The shroomlights? I've gotta see one up close. I need some samples: a few of those light-up shroomlight blocks and a chunk of the tree itself. Best research material money can't buy!",
+						"Okay, okay! You mentioned those giant fungus trees in the Nether — whole towers of mushroom! And they glow, right? The shroomlights? I've gotta see one up close. I need some samples: a few of those light-up shroomlight blocks and a chunk of the tree itself. Best research material money can't buy!",
 						"I'll bring back samples.", "Now we're talkin'! Shroomlights and fungus — as many as ya can carry!",
 						"They're dangerous to climb.", "Everything good is a little dangerous! Just grab a few blocks, then scoot. Easy!"),
 				follow("About the shroomlights.",
 						"You gettin' any of that glowing stuff? I wanna see how it lights up!",
 						"Still in the Nether.", "Take care down there — don't get turned into a mushroom yourself!"),
 				complete("Hand over the shroomlights.",
-						"Ohhh, these little lights are *beautiful*! And look at the structure inside this stem! The magic must practically flow through here. This is gonna make my potions glow like nobody's business!",
+						"Ohhh, these little lights are beautiful! And look at the structure inside this stem! The magic must practically flow through here. This is gonna make my potions glow like nobody's business!",
 						"Glad you like them.", "Like 'em? I love 'em! You've got a real eye for research!")
 		));
 
@@ -186,9 +196,12 @@ public class MarisaQDGen extends QuestDialogData {
 						"a-blaze", new SubmitItemRequirement(List.of(item(Items.BLAZE_ROD, 4))),
 						"b-wart", new SubmitItemRequirement(List.of(item(Items.NETHER_WART, 12)))
 				)),
-				List.of(new ExpReward(200), new ReputationReward(20, 300, 10, 300)),
+				List.of(new ExpReward(200), new ReputationReward(20, 300, 10, 300),
+						loot("marisa/brewing", LootTable.lootTable()
+								.withPool(lootItem(Items.EMERALD, 8))
+								.withPool(lootItem(HexBrew.HEXBREW_ELIXIR.bottle.get(), 1)))),
 				start("Talk about the native potion system.",
-						"Hold up! You mentioned *blazes* down there, right? And nether wart? The folks in this world figured out how to brew potions from scratch — a whole native potion system! Can ya imagine? I *gotta* understand it. I hear ya need a blaze rod to power a brewing stand, and nether wart to make the base. Bring me samples of both, and I'll reverse-engineer this 'Minecraft brewing' thing in no time!",
+						"Hold up! You mentioned blazes down there, right? And nether wart? The folks in this world figured out how to brew potions from scratch — a whole native potion system! Can ya imagine? I gotta understand it. I hear ya need a blaze rod to power a brewing stand, and nether wart to make the base. Bring me samples of both, and I'll reverse-engineer this 'Minecraft brewing' thing in no time!",
 						"I'll get you the samples.", "Right on! Blaze rods and nether wart — the key ingredients!",
 						"Blazes are tough to fight.", "So are goblins, and I've survived those bars for years! C'mon, a smart one like you can handle it!"),
 				follow("About the brewing ingredients.",
@@ -207,16 +220,18 @@ public class MarisaQDGen extends QuestDialogData {
 				new TreeMap<>(Map.of(
 						"a-apple", new SubmitItemRequirement(List.of(item(Items.ENCHANTED_GOLDEN_APPLE, 1)))
 				)),
-				List.of(new ExpReward(300), new ReputationReward(10, 300, 0, 300)),
+				List.of(new ExpReward(300), new ReputationReward(10, 300, 0, 300),
+						loot("marisa/golden_apple", LootTable.lootTable()
+								.withPool(lootItem(Items.EMERALD, 10)))),
 				start("Talk about the lost golden apple tech.",
-						"One more thing, one more thing! Ever seen those fancy golden apples — the glowy ones, the 'enchanted' ones? The recipe's completely lost to this world. Nobody can craft 'em anymore. But *I* can figure it out! Bring me one as a prime sample, and I'll reverse-engineer the whole thing and share the knowledge. Whaddaya say?",
+						"One more thing, one more thing! Ever seen those fancy golden apples — the glowy ones, the 'enchanted' ones? The recipe's completely lost to this world. Nobody can craft 'em anymore. But I can figure it out! Bring me one as a prime sample, and I'll reverse-engineer the whole thing and share the knowledge. Whaddaya say?",
 						"I'll try to find one.", "That's the Marisa-approved spirit! One enchanted golden apple, comin' right up!",
 						"Those are really rare.", "Rare stuff is exactly the fun stuff! They're hidden in ruins and loot, so come back when you've sniffed one out."),
 				follow("About the enchanted golden apple.",
 						"Any sign of one of those glowy apples yet? Check dungeon chests — they like to hide in there!",
 						"Haven't found one yet.", "Keep lookin'! It's gotta be out there somewhere. I just know it!"),
 				complete("Hand over the enchanted golden apple.",
-						"THIS! This is a treasure! Look at that glow — that's *real* lost technology. I'm gonna take this apart, learn every secret, and build it myself. You just made a huge breakthrough possible!",
+						"THIS! This is a treasure! Look at that glow — that's real lost technology. I'm gonna take this apart, learn every secret, and build it myself. You just made a huge breakthrough possible!",
 						"I knew you could do it.", "Heh! With me around, ain't nothin' impossible!")
 		));
 
@@ -240,7 +255,7 @@ public class MarisaQDGen extends QuestDialogData {
 				"Oh, these are perfect! Thanks, buddy!",
 				new TreeMap<>(Map.of(
 						"a-special", rollItem(myceliumTable)
-				)));
+				)), LootTable.lootTable().withPool(lootItem(Items.EMERALD, 1)));
 
 		prefix("marisa/daily_witchcraft");
 		var witchcraftTable = requestTable("daily_witchcraft", LootTable.lootTable()
@@ -262,7 +277,8 @@ public class MarisaQDGen extends QuestDialogData {
 				"Just what I needed for the brew! Thanks!",
 				new TreeMap<>(Map.of(
 						"a-grubby", rollItem(witchcraftTable)
-				)));
+				)), LootTable.lootTable().withPool(lootItem(Items.EMERALD, 1))
+						.withPool(lootItem(HexBrew.MIASMA_HEXBREW.bottle.get(), 1)));
 
 		prefix("marisa/daily_shroomlight");
 		var shroomlightTable = requestTable("daily_shroomlight", LootTable.lootTable().withPool(LootPool.lootPool()
@@ -280,7 +296,7 @@ public class MarisaQDGen extends QuestDialogData {
 				"Ah, perfect! Thanks, scout!",
 				new TreeMap<>(Map.of(
 						"a-light", rollItem(shroomlightTable)
-				)));
+				)), LootTable.lootTable().withPool(lootItem(Items.EMERALD, 2)));
 
 		prefix("marisa/daily_brewing");
 		daily("marisa/daily_brewing", "Brewing Errand", "Bring Marisa blaze rods and nether wart.",
@@ -294,7 +310,7 @@ public class MarisaQDGen extends QuestDialogData {
 				new TreeMap<>(Map.of(
 						"a-blaze", new SubmitItemRequirement(List.of(item(Items.BLAZE_ROD, 2))),
 						"b-wart", new SubmitItemRequirement(List.of(item(Items.NETHER_WART, 8)))
-				)));
+				)), LootTable.lootTable().withPool(lootItem(Items.EMERALD, 8)));
 	}
 
 	private void trades() {
@@ -427,12 +443,13 @@ public class MarisaQDGen extends QuestDialogData {
 	                   List<QuestCondition<?>> conditions, int exp, int rep, int softCap, int capIncrease, int maxCap,
 	                   String intro, String acceptLine, String rejectLine, String followLine, String optLine,
 	                   String completeLine,
-	                   Map<String, QuestRequirement<?, ?>> reqs) {
+	                   Map<String, QuestRequirement<?, ?>> reqs, LootTable.Builder loot) {
 		quest(id, new Quest(GLEntities.MARISA.get(), conditions,
 				questTitle(title), questDesc(desc),
 				Optional.of(rec),
 				new TreeMap<>(reqs),
-				List.of(new ExpReward(exp), new ReputationReward(rep, softCap, capIncrease, maxCap)),
+				List.of(new ExpReward(exp), new ReputationReward(rep, softCap, capIncrease, maxCap),
+						loot(id, loot)),
 				dailyStart(intro, acceptLine, rejectLine),
 				dailyFollow(followLine, optLine),
 				dailyComplete(completeLine)));

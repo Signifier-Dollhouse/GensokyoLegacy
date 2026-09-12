@@ -62,6 +62,10 @@
       "max_cap": 150,
       "reputation": 10,
       "soft_cap": 150
+    },
+    {
+      "type": "gensokyolegacy:loot_table",
+      "table": "gensokyolegacy:reimu/daily_talisman"
     }
   ],
   "title": "gensokyolegacy/reimu/daily_talisman/quest/title"

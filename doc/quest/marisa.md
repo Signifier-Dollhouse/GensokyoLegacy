@@ -8,21 +8,21 @@ Entity: `kirisame_marisa`. Quest unlocks chain: 1.1 → 1.2 → 2.1 → 2.2 → 
 
 | # | Id | Unlock | Requirements | Rewards |
 |---|----|--------|--------------|---------|
-| 1.1 | `first_mushroom` | none | red mushroom ×4, brown mushroom ×4 | exp 50, rep +10 (cap +10/max 300) |
-| 1.2 | `huge_mushroom` | 1.1 | huge mushroom (tag cap+stem) ×8 | exp 100, rep +10 (cap +0/max 300) |
-| 2.1 | `nether_mushroom_prep` | 1.1 + adv `nether/root` | crimson fungus ×4, warped fungus ×4 | exp 150, rep +20 (cap +10/max 300) |
-| 2.2 | `shroomlight` | 2.1 | shroomlight ×8 | exp 150, rep +10 (cap +0/max 300) |
-| 2.3 | `brewing` | 2.2 + adv `nether/find_fortress` | blaze rod ×4, nether wart ×12 | exp 200, rep +20 (cap +10/max 300) |
-| 2.4 | `golden_apple` | 2.3 | enchanted golden apple ×1 | exp 300, rep +10 (cap +0/max 300) |
+| 1.1 | `first_mushroom` | none | red mushroom ×4, brown mushroom ×4 | exp 50, rep +10 (cap +10/max 300), loot: emerald ×4 |
+| 1.2 | `huge_mushroom` | 1.1 | huge mushroom (tag cap+stem) ×8 | exp 100, rep +10 (cap +0/max 300), loot: emerald ×6 |
+| 2.1 | `nether_mushroom_prep` | 1.1 + adv `nether/root` | crimson fungus ×4, warped fungus ×4 | exp 150, rep +20 (cap +10/max 300), loot: emerald ×6 + miasma hexbrew ×1 |
+| 2.2 | `shroomlight` | 2.1 | shroomlight ×8 | exp 150, rep +10 (cap +0/max 300), loot: emerald ×6 + explosive hexbrew ×2 |
+| 2.3 | `brewing` | 2.2 + adv `nether/find_fortress` | blaze rod ×4, nether wart ×12 | exp 200, rep +20 (cap +10/max 300), loot: emerald ×8 + hexbrew elixir ×1 |
+| 2.4 | `golden_apple` | 2.3 | enchanted golden apple ×1 | exp 300, rep +10 (cap +0/max 300), loot: emerald ×10 |
 
 ## Daily Quests (cooldown 24000, exp 60, soft cap 150)
 
 | Id | Unlock | Requirements | Rewards |
 |----|--------|--------------|---------|
-| `daily_mycelium` | always | roll 3 of (ghost cap/dream cap/miasma cap) ×3-6 each | exp 60, rep +10 (no cap growth) |
-| `daily_witchcraft` | always | miasma cap ×2-3 + rotten flesh ×6-12 + 1 of (spider eye/bone/gunpowder) ×2-3 | exp 60, rep +10 (no cap growth) |
-| `daily_shroomlight` | 2.2 | roll 2 of (shroomlight/crimson fungus/warped fungus) ×3-6 each | exp 60, rep +10 (no cap growth) |
-| `daily_brewing` | 2.3 | blaze rod ×2, nether wart ×8 | exp 60, rep +20 (cap +5/max 130) |
+| `daily_mycelium` | always | roll 3 of (ghost cap/dream cap/miasma cap) ×3-6 each | exp 60, rep +10 (no cap growth), loot: emerald ×1 |
+| `daily_witchcraft` | always | miasma cap ×2-3 + rotten flesh ×6-12 + 1 of (spider eye/bone/gunpowder) ×2-3 | exp 60, rep +10 (no cap growth), loot: emerald ×1 + miasma hexbrew ×1 |
+| `daily_shroomlight` | 2.2 | roll 2 of (shroomlight/crimson fungus/warped fungus) ×3-6 each | exp 60, rep +10 (no cap growth), loot: emerald ×2 |
+| `daily_brewing` | 2.3 | blaze rod ×2, nether wart ×8 | exp 60, rep +20 (cap +5/max 130), loot: emerald ×8 |
 
 ## Trades
 

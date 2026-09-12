@@ -28,6 +28,7 @@ import dev.xkmc.gensokyolegacy.util.DummyHolderGetter;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.EntityTypeTags;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.raid.Raid;
@@ -201,9 +202,11 @@ public class ReimuQDGen extends QuestDialogData {
 						"a-banner", new SubmitItemRequirement(List.of(new IngredientEntry(
 								DataComponentIngredient.of(false, Raid.getLeaderBannerInstance(DummyHolderGetter.create())), 1, Optional.of("Ominous Banner"))))
 				)),
-				List.of(new ExpReward(200), new ReputationReward(20, 300, 10, 300)),
+				List.of(new ExpReward(200), new ReputationReward(20, 300, 10, 300),
+						loot("reimu/ominous_banner", LootTable.lootTable()
+								.withPool(lootItem(GLTalismans.SHELTER_TALISMAN.get(), 2)))),
 				start("Talk about the raiders.",
-						"People keep whispering about *raiders*—armed groups with black-and-white banners. Bring me one from their captain. I want to know what it means.",
+						"People keep whispering about raiders—armed groups with black-and-white banners. Bring me one from their captain. I want to know what it means.",
 						"I'll find a raid captain.", "Good. Their captains carry those ominous banners. Take one down and bring it to me. Just watch for the mark they leave behind.",
 						"Maybe next time.", "They're still just humans with weapons. Come back when you're ready to deal with them."),
 				follow("Ask about the banner.",
@@ -260,7 +263,8 @@ public class ReimuQDGen extends QuestDialogData {
 				"Take your time. Just bring back something useful.",
 				"Just what the shrine needed. Thanks.",
 				new TreeMap<>(Map.of(
-						"a-supplies", rollItem(foodTable))));
+						"a-supplies", rollItem(foodTable))),
+				LootTable.lootTable().withPool(lootItem(Items.EMERALD, 1)));
 
 		prefix("reimu/daily_hunt");
 		var huntTable = requestTable("daily_hunt", LootTable.lootTable()
@@ -270,7 +274,7 @@ public class ReimuQDGen extends QuestDialogData {
 						.add(LootItem.lootTableItem(Items.GUNPOWDER).apply(SetItemCountFunction.setCount(UniformGenerator.between(2, 4))))
 						.add(LootItem.lootTableItem(Items.SPIDER_EYE).apply(SetItemCountFunction.setCount(UniformGenerator.between(2, 4))))));
 		daily("reimu/daily_hunt", "Monster Thinning", "Thin out the monsters and bring Reimu some loot.",
-				new QuestRecurrence(24000), List.of(new HasQuestCompletedCondition(QUEST_HOSTILE_LOOT)), 80, 10, 150, 5, 130,
+				new QuestRecurrence(24000), List.of(new HasQuestCompletedCondition(QUEST_HOSTILE_LOOT)), 80, 10, 150, 5, 120,
 				"Something's been stirring up trouble near the shrine. Thin out the monsters and bring me some loot.",
 				"That's the spirit. Go clear them out.",
 				"They'll only grow bolder. But it's your call.",
@@ -280,7 +284,8 @@ public class ReimuQDGen extends QuestDialogData {
 				new TreeMap<>(Map.of(
 						"a-kill", new KillMobRequirement(reqText("kill", "Kill hostile mobs"),
 								TagKey.create(Registries.ENTITY_TYPE, ResourceLocation.withDefaultNamespace("monster")), 12),
-						"b-loot", rollItem(huntTable))));
+						"b-loot", rollItem(huntTable))),
+				LootTable.lootTable().withPool(lootItem(Items.EMERALD, 3)));
 
 		prefix("reimu/daily_talisman");
 		daily("reimu/daily_talisman", "Talisman Restock", "Bring Reimu paper and redstone to restock her talismans.",
@@ -293,7 +298,8 @@ public class ReimuQDGen extends QuestDialogData {
 				"Good. The shelves are stocked again.",
 				new TreeMap<>(Map.of(
 						"a-paper", new SubmitItemRequirement(List.of(item(Items.PAPER, 16))),
-						"b-redstone", new SubmitItemRequirement(List.of(item(Items.REDSTONE, 8))))));
+						"b-redstone", new SubmitItemRequirement(List.of(item(Items.REDSTONE, 8))))),
+				LootTable.lootTable().withPool(lootItem(GLTalismans.HEAL_TALISMAN.get(), 2)));
 
 		prefix("reimu/daily_raid");
 		quest("reimu/daily_raid", new Quest(GLEntities.REIMU.get(),
@@ -303,7 +309,9 @@ public class ReimuQDGen extends QuestDialogData {
 				new TreeMap<>(Map.of(
 						"a-raid", new RaidVictoryRequirement(reqText("raid", "Win a raid"), 1)
 				)),
-				List.of(new ExpReward(200), new ReputationReward(20, 200, 5, 250)),
+				List.of(new ExpReward(200), new ReputationReward(20, 200, 10, 150),
+						loot("reimu/daily_raid", LootTable.lootTable()
+								.withPool(lootItem(GLTalismans.SHELTER_TALISMAN.get(), 2)))),
 				dailyRaidStart("A new mark is ready, and another village could use protecting. Ready for another raid?",
 						"Here's the mark, same as before. Enter the village, hold the line, and drive them out.",
 						"The mark will keep. The raiders will still be there when you're ready."),
@@ -316,56 +324,50 @@ public class ReimuQDGen extends QuestDialogData {
 
 	private void trades() {
 		prefix("reimu");
-		trade("rotten_flesh", GLEntities.REIMU.get(),
-				new ItemStack(Items.EMERALD),
-				new TradeRecurrence(10, 1200),
-				item(Items.ROTTEN_FLESH, 8));
 		trade("gap_portal", new TradeOffer(GLEntities.REIMU.get(),
 				List.of(new HasQuestCompletedCondition(QUEST_ENDER_MATERIALS)),
 				new ItemStack(GLBlocks.GAP_PORTAL.get()),
 				new TradeRecurrence(1, 6000),
 				List.of(
-						item(Items.EMERALD, 10),
-						item(Items.ENDER_PEARL, 4),
-						item(Items.CRYING_OBSIDIAN, 4))));
-		trade("sell_bone", new TradeOffer(GLEntities.REIMU.get(),
-				List.of(new HasQuestCompletedCondition(QUEST_HOSTILE_LOOT)),
+						item(Items.PURPLE_WOOL, 2),
+						item(Items.ENDER_EYE, 2),
+						item(Items.ENDER_PEARL, 2),
+						item(Items.CRYING_OBSIDIAN, 2))));
+		trade("sell_bread", new TradeOffer(GLEntities.REIMU.get(),
+				List.of(new HasQuestCompletedCondition(QUEST_LOCAL_FOOD)),
 				new ItemStack(Items.EMERALD),
-				new TradeRecurrence(4, 24000),
-				List.of(item(Items.BONE, 8))));
-		trade("process_talisman", new TradeOffer(GLEntities.REIMU.get(),
+				new TradeRecurrence(1, 24000),
+				List.of(item(Items.BREAD, 16))));
+		trade("sell_chicken", new TradeOffer(GLEntities.REIMU.get(),
+				List.of(new HasQuestCompletedCondition(QUEST_LOCAL_FOOD)),
+				new ItemStack(Items.EMERALD),
+				new TradeRecurrence(1, 24000),
+				List.of(item(Items.COOKED_CHICKEN, 4))));
+		trade("sell_string", new TradeOffer(GLEntities.REIMU.get(),
+				List.of(new HasQuestCompletedCondition(QUEST_LOCAL_FOOD)),
+				new ItemStack(Items.EMERALD),
+				new TradeRecurrence(4, 96000),
+				List.of(item(Items.STRING, 6))));
+		trade("sell_wool", new TradeOffer(GLEntities.REIMU.get(),
+				List.of(new HasQuestCompletedCondition(QUEST_LOCAL_FOOD)),
+				new ItemStack(Items.EMERALD),
+				new TradeRecurrence(4, 96000),
+				List.of(itemTag(ItemTags.WOOL, 6))));
+		trade("sell_paper", new TradeOffer(GLEntities.REIMU.get(),
 				List.of(new HasQuestCompletedCondition(QUEST_TALISMAN_MATERIALS)),
-				new ItemStack(GLTalismans.FOLDED_PAPER_TALISMAN.get()),
-				new TradeRecurrence(4, 24000),
-				List.of(item(Items.PAPER, 4), item(Items.REDSTONE, 2))));
-		trade("sell_bread", GLEntities.REIMU.get(),
-				new ItemStack(Items.EMERALD),
-				new TradeRecurrence(1, 24000),
-				item(Items.BREAD, 16));
-		trade("sell_chicken", GLEntities.REIMU.get(),
-				new ItemStack(Items.EMERALD),
-				new TradeRecurrence(1, 24000),
-				item(Items.COOKED_CHICKEN, 4));
-		trade("sell_string", GLEntities.REIMU.get(),
-				new ItemStack(Items.EMERALD),
-				new TradeRecurrence(4, 96000),
-				item(Items.STRING, 6));
-		trade("sell_wool", GLEntities.REIMU.get(),
-				new ItemStack(Items.EMERALD),
-				new TradeRecurrence(4, 96000),
-				item(Items.WHITE_WOOL, 6));
-		trade("sell_paper", GLEntities.REIMU.get(),
 				new ItemStack(Items.EMERALD),
 				new TradeRecurrence(16, 24000),
-				item(Items.PAPER, 12));
-		trade("sell_redstone", GLEntities.REIMU.get(),
+				List.of(item(Items.PAPER, 12))));
+		trade("sell_redstone", new TradeOffer(GLEntities.REIMU.get(),
+				List.of(new HasQuestCompletedCondition(QUEST_TALISMAN_MATERIALS)),
 				new ItemStack(Items.EMERALD),
 				new TradeRecurrence(16, 24000),
-				item(Items.REDSTONE, 4));
-		trade("sell_gunpowder", GLEntities.REIMU.get(),
+				List.of(item(Items.REDSTONE, 4))));
+		trade("sell_gunpowder", new TradeOffer(GLEntities.REIMU.get(),
+				List.of(new HasQuestCompletedCondition(QUEST_TALISMAN_MATERIALS)),
 				new ItemStack(Items.EMERALD),
 				new TradeRecurrence(4, 24000),
-				item(Items.GUNPOWDER, 4));
+				List.of(item(Items.GUNPOWDER, 4))));
 		trade("offer_heal_talisman", new TradeOffer(GLEntities.REIMU.get(),
 				List.of(new HasQuestCompletedCondition(QUEST_TALISMAN_MATERIALS)),
 				new ItemStack(GLTalismans.HEAL_TALISMAN.get()),
@@ -443,12 +445,13 @@ public class ReimuQDGen extends QuestDialogData {
 	                   List<QuestCondition<?>> conditions, int exp, int rep, int softCap, int capIncrease, int maxCap,
 	                   String intro, String acceptLine, String rejectLine, String followLine, String optLine,
 	                   String completeLine,
-	                   Map<String, QuestRequirement<?, ?>> reqs) {
+	                   Map<String, QuestRequirement<?, ?>> reqs, LootTable.Builder loot) {
 		quest(id, new Quest(GLEntities.REIMU.get(), conditions,
 				questTitle(title), questDesc(desc),
 				Optional.of(rec),
 				new TreeMap<>(reqs),
-				List.of(new ExpReward(exp), new ReputationReward(rep, softCap, capIncrease, maxCap)),
+				List.of(new ExpReward(exp), new ReputationReward(rep, softCap, capIncrease, maxCap),
+						loot(id, loot)),
 				dailyStart(intro, acceptLine, rejectLine),
 				dailyFollow(followLine, optLine),
 				dailyComplete(completeLine)));

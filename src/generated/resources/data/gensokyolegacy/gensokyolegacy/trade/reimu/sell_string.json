@@ -1,6 +1,11 @@
 {
   "character": "gensokyolegacy:hakurei_reimu",
-  "conditions": [],
+  "conditions": [
+    {
+      "type": "gensokyolegacy:has_quest_completed",
+      "quest": "gensokyolegacy:reimu/local_food"
+    }
+  ],
   "ingredients": [
     {
       "count": 6,

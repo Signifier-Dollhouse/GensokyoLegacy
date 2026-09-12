@@ -50,6 +50,10 @@
       "max_cap": 300,
       "reputation": 10,
       "soft_cap": 300
+    },
+    {
+      "type": "gensokyolegacy:loot_table",
+      "table": "gensokyolegacy:marisa/golden_apple"
     }
   ],
   "title": "gensokyolegacy/marisa/golden_apple/quest/title"
