@@ -10,7 +10,7 @@
   "conditions": [
     {
       "type": "gensokyolegacy:has_quest_completed",
-      "quest": "gensokyolegacy:reimu/talisman_materials"
+      "quest": "gensokyolegacy:reimu/hostile_loot"
     }
   ],
   "description": "gensokyolegacy/reimu/ominous_banner/quest/desc",

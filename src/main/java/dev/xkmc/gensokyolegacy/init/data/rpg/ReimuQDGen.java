@@ -6,7 +6,6 @@ import dev.xkmc.gensokyolegacy.content.rpg.action.DialogAction;
 import dev.xkmc.gensokyolegacy.content.rpg.action.GiveMobEffectAction;
 import dev.xkmc.gensokyolegacy.content.rpg.action.StartQuestAction;
 import dev.xkmc.gensokyolegacy.content.rpg.condition.HasQuestCompletedCondition;
-import dev.xkmc.gensokyolegacy.content.rpg.condition.SelfReputationCondition;
 import dev.xkmc.gensokyolegacy.content.rpg.core.IngredientEntry;
 import dev.xkmc.gensokyolegacy.content.rpg.dialog.DialogStarter;
 import dev.xkmc.gensokyolegacy.content.rpg.dialog.SimpleDialogOption;
@@ -57,6 +56,7 @@ public class ReimuQDGen extends QuestDialogData {
 	private static final ResourceLocation QUEST_LOCAL_FOOD = GensokyoLegacy.loc("reimu/local_food");
 	private static final ResourceLocation QUEST_HOSTILE_LOOT = GensokyoLegacy.loc("reimu/hostile_loot");
 	private static final ResourceLocation QUEST_TALISMAN_MATERIALS = GensokyoLegacy.loc("reimu/talisman_materials");
+	private static final ResourceLocation QUEST_ENDER_MATERIALS = GensokyoLegacy.loc("reimu/ender_materials");
 	private static final ResourceLocation QUEST_OMINOUS_BANNER = GensokyoLegacy.loc("reimu/ominous_banner");
 	private static final ResourceLocation QUEST_RAID = GensokyoLegacy.loc("reimu/raid");
 
@@ -155,7 +155,7 @@ public class ReimuQDGen extends QuestDialogData {
 				)),
 				List.of(new ExpReward(100), new ReputationReward(10, 300, 0, 300),
 						loot("reimu/talisman_materials", LootTable.lootTable()
-								.withPool(lootItem(GLTalismans.FOLDED_PAPER_TALISMAN.get(), 1))
+								.withPool(lootItem(GLTalismans.TALISMAN_POCKET.get(), 1))
 								.withPool(lootItem(GLTalismans.HEAL_TALISMAN.get(), 2)))),
 				start("Talk about the talismans.",
 						"Paper here folds nicely, and this redstone dust glows with power. I can use it as vermilion ink for new-world ofuda. Bring me some.",
@@ -170,9 +170,32 @@ public class ReimuQDGen extends QuestDialogData {
 						"Here's the paper and redstone.", "Excellent. I can make the new ofuda now. I'll make a few for you, too.")
 		));
 
+		prefix("reimu/ender_materials");
+		quest("reimu/ender_materials", new Quest(GLEntities.REIMU.get(),
+				List.of(new HasQuestCompletedCondition(QUEST_TALISMAN_MATERIALS)),
+				questTitle("Ender Materials"), questDesc("Bring Reimu an ender pearl and an ender eye for her gap research."),
+				Optional.empty(),
+				new TreeMap<>(Map.of(
+						"a-pearl", new SubmitItemRequirement(List.of(item(Items.ENDER_PEARL, 1))),
+						"b-eye", new SubmitItemRequirement(List.of(item(Items.ENDER_EYE, 1)))
+				)),
+				List.of(new ExpReward(150), new ReputationReward(10, 300, 0, 300)),
+				start("Talk about the gap.",
+						"Those gap portals of mine? This world's ender pearl bends space like a miniature gap, and an eye can lock onto the way home. Bring me one of each — I think I can anchor a route with them.",
+						"I'll find ender materials.", "One pearl and one eye, then. Rare stuff, but that's exactly what I need for the binding.",
+						"Maybe next time.", "They're hard to come by. Come back when you've got some to spare."),
+				follow("Ask about the gap.",
+						"Found any ender materials yet?",
+						"Still looking.", "Pearls drop from those little purple rascals in the dark. The eyes you'll have to find deeper down."),
+				complete("Hand over the ender materials.",
+						"Let's see what you've brought.",
+						"Not yet.", "No rush. So long as you keep them safe.",
+						"Here's the pearl and eye.", "Perfect. With these I can anchor a real gap. The road home just got a little closer.")
+		));
+
 		prefix("reimu/ominous_banner");
 		quest("reimu/ominous_banner", new Quest(GLEntities.REIMU.get(),
-				List.of(new HasQuestCompletedCondition(QUEST_TALISMAN_MATERIALS)),
+				List.of(new HasQuestCompletedCondition(QUEST_HOSTILE_LOOT)),
 				questTitle("Raider's Banner"), questDesc("Bring Reimu an ominous banner from a raid captain."),
 				Optional.empty(),
 				new TreeMap<>(Map.of(
@@ -205,7 +228,7 @@ public class ReimuQDGen extends QuestDialogData {
 				)),
 				List.of(new ExpReward(400), new ReputationReward(30, 300, 20, 300),
 						loot("reimu/raid", LootTable.lootTable()
-								.withPool(lootItem(GLItems.REIMU_SPELL.get(), 1)))),
+								.withPool(lootItem(GLItems.BORDER_UMBRELLA.get(), 1)))),
 				startRaid("Talk about the plan.",
 						"I figured out the mark. My ofuda can recreate it. I'll put it on you; enter a village, draw the raiders in, and drive them out.",
 						"I'll repel the raid.", "There. The mark is on you. Walk into a village, draw them out, and drive every raider away.",
@@ -217,7 +240,7 @@ public class ReimuQDGen extends QuestDialogData {
 				complete("Tell Reimu the raid is over.",
 						"The waves stopped? Good. So the plan worked.",
 						"Not yet.", "Not yet? Then stay sharp. They won't give up easily.",
-						"The raiders are gone.", "You routed them. I knew baiting them into the village would work. Here—take my *Innate Dream* spellcard.")
+						"The raiders are gone.", "You routed them. I knew baiting them into the village would work. Here—take this border umbrella. It's ready for whatever comes next.")
 		));
 	}
 
@@ -301,7 +324,7 @@ public class ReimuQDGen extends QuestDialogData {
 				new TradeRecurrence(10, 1200),
 				item(Items.ROTTEN_FLESH, 8));
 		trade("gap_portal", new TradeOffer(GLEntities.REIMU.get(),
-				List.of(new SelfReputationCondition(100)),
+				List.of(new HasQuestCompletedCondition(QUEST_ENDER_MATERIALS)),
 				new ItemStack(GLBlocks.GAP_PORTAL.get()),
 				new TradeRecurrence(1, 6000),
 				List.of(
@@ -318,6 +341,62 @@ public class ReimuQDGen extends QuestDialogData {
 				new ItemStack(GLTalismans.FOLDED_PAPER_TALISMAN.get()),
 				new TradeRecurrence(4, 24000),
 				List.of(item(Items.PAPER, 4), item(Items.REDSTONE, 2))));
+		trade("sell_bread", GLEntities.REIMU.get(),
+				new ItemStack(Items.EMERALD),
+				new TradeRecurrence(1, 24000),
+				item(Items.BREAD, 16));
+		trade("sell_chicken", GLEntities.REIMU.get(),
+				new ItemStack(Items.EMERALD),
+				new TradeRecurrence(1, 24000),
+				item(Items.COOKED_CHICKEN, 4));
+		trade("sell_string", GLEntities.REIMU.get(),
+				new ItemStack(Items.EMERALD),
+				new TradeRecurrence(4, 96000),
+				item(Items.STRING, 6));
+		trade("sell_wool", GLEntities.REIMU.get(),
+				new ItemStack(Items.EMERALD),
+				new TradeRecurrence(4, 96000),
+				item(Items.WHITE_WOOL, 6));
+		trade("sell_paper", GLEntities.REIMU.get(),
+				new ItemStack(Items.EMERALD),
+				new TradeRecurrence(16, 24000),
+				item(Items.PAPER, 12));
+		trade("sell_redstone", GLEntities.REIMU.get(),
+				new ItemStack(Items.EMERALD),
+				new TradeRecurrence(16, 24000),
+				item(Items.REDSTONE, 4));
+		trade("sell_gunpowder", GLEntities.REIMU.get(),
+				new ItemStack(Items.EMERALD),
+				new TradeRecurrence(4, 24000),
+				item(Items.GUNPOWDER, 4));
+		trade("offer_heal_talisman", new TradeOffer(GLEntities.REIMU.get(),
+				List.of(new HasQuestCompletedCondition(QUEST_TALISMAN_MATERIALS)),
+				new ItemStack(GLTalismans.HEAL_TALISMAN.get()),
+				new TradeRecurrence(16, 24000), List.of(item(Items.EMERALD, 8))));
+		trade("offer_shelter_talisman", new TradeOffer(GLEntities.REIMU.get(),
+				List.of(new HasQuestCompletedCondition(QUEST_TALISMAN_MATERIALS)),
+				new ItemStack(GLTalismans.SHELTER_TALISMAN.get()),
+				new TradeRecurrence(16, 24000), List.of(item(Items.EMERALD, 8))));
+		trade("offer_speed_talisman", new TradeOffer(GLEntities.REIMU.get(),
+				List.of(new HasQuestCompletedCondition(QUEST_TALISMAN_MATERIALS)),
+				new ItemStack(GLTalismans.SPEED_TALISMAN.get()),
+				new TradeRecurrence(16, 24000), List.of(item(Items.EMERALD, 4))));
+		trade("offer_hydrophobic_talisman", new TradeOffer(GLEntities.REIMU.get(),
+				List.of(new HasQuestCompletedCondition(QUEST_TALISMAN_MATERIALS)),
+				new ItemStack(GLTalismans.HYDROPHOBIC_TALISMAN.get()),
+				new TradeRecurrence(16, 24000), List.of(item(Items.EMERALD, 4))));
+		trade("offer_lava_talisman", new TradeOffer(GLEntities.REIMU.get(),
+				List.of(new HasQuestCompletedCondition(QUEST_TALISMAN_MATERIALS)),
+				new ItemStack(GLTalismans.LAVA_TALISMAN.get()),
+				new TradeRecurrence(16, 24000), List.of(item(Items.EMERALD, 4))));
+		trade("offer_talisman_pocket", new TradeOffer(GLEntities.REIMU.get(),
+				List.of(new HasQuestCompletedCondition(QUEST_TALISMAN_MATERIALS)),
+				new ItemStack(GLTalismans.TALISMAN_POCKET.get()),
+				new TradeRecurrence(4, 24000), List.of(item(Items.EMERALD, 16))));
+		trade("offer_border_umbrella", new TradeOffer(GLEntities.REIMU.get(),
+				List.of(new HasQuestCompletedCondition(QUEST_RAID)),
+				new ItemStack(GLItems.BORDER_UMBRELLA.get()),
+				new TradeRecurrence(1, 168000), List.of(item(Items.EMERALD, 48))));
 	}
 
 	private SimpleDialogOption start(String button, String intro,

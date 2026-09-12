@@ -1,0 +1,12 @@
+{
+  "options": [
+    {
+      "type": "gensokyolegacy:simple",
+      "actions": [],
+      "conditions": [],
+      "next": "gensokyolegacy:reimu/ender_materials/follow_up/end/dialog_1",
+      "text": "gensokyolegacy/reimu/ender_materials/option/follow_up/end"
+    }
+  ],
+  "text": "gensokyolegacy/reimu/ender_materials/dialog/reimu/ender_materials/follow_up/dialog_1"
+}

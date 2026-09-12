@@ -3,29 +3,21 @@
   "conditions": [
     {
       "type": "gensokyolegacy:has_quest_completed",
-      "quest": "gensokyolegacy:reimu/ender_materials"
+      "quest": "gensokyolegacy:reimu/raid"
     }
   ],
   "ingredients": [
     {
-      "count": 10,
+      "count": 48,
       "item": "minecraft:emerald"
-    },
-    {
-      "count": 4,
-      "item": "minecraft:ender_pearl"
-    },
-    {
-      "count": 4,
-      "item": "minecraft:crying_obsidian"
     }
   ],
   "recurrence": {
     "maxStock": 1,
-    "restockTime": 6000
+    "restockTime": 168000
   },
   "result": {
     "count": 1,
-    "id": "gensokyolegacy:gap_portal"
+    "id": "gensokyolegacy:border_umbrella"
   }
 }

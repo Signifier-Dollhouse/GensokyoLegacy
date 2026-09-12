@@ -1,0 +1,65 @@
+{
+  "character": "gensokyolegacy:hakurei_reimu",
+  "completionDialog": {
+    "type": "gensokyolegacy:simple",
+    "actions": [],
+    "conditions": [],
+    "next": "gensokyolegacy:reimu/ender_materials/complete/dialog_1",
+    "text": "gensokyolegacy/reimu/ender_materials/option/complete"
+  },
+  "conditions": [
+    {
+      "type": "gensokyolegacy:has_quest_completed",
+      "quest": "gensokyolegacy:reimu/talisman_materials"
+    }
+  ],
+  "description": "gensokyolegacy/reimu/ender_materials/quest/desc",
+  "followUpDialog": {
+    "type": "gensokyolegacy:simple",
+    "actions": [],
+    "conditions": [],
+    "next": "gensokyolegacy:reimu/ender_materials/follow_up/dialog_1",
+    "text": "gensokyolegacy/reimu/ender_materials/option/follow_up"
+  },
+  "initialDialog": {
+    "type": "gensokyolegacy:simple",
+    "actions": [],
+    "conditions": [],
+    "next": "gensokyolegacy:reimu/ender_materials/start/dialog_1",
+    "text": "gensokyolegacy/reimu/ender_materials/option/start"
+  },
+  "requirements": {
+    "a-pearl": {
+      "type": "gensokyolegacy:submit_item",
+      "ingredients": [
+        {
+          "count": 1,
+          "item": "minecraft:ender_pearl"
+        }
+      ]
+    },
+    "b-eye": {
+      "type": "gensokyolegacy:submit_item",
+      "ingredients": [
+        {
+          "count": 1,
+          "item": "minecraft:ender_eye"
+        }
+      ]
+    }
+  },
+  "rewards": [
+    {
+      "type": "gensokyolegacy:exp",
+      "point": 150
+    },
+    {
+      "type": "gensokyolegacy:reputation",
+      "cap_increase": 0,
+      "max_cap": 300,
+      "reputation": 10,
+      "soft_cap": 300
+    }
+  ],
+  "title": "gensokyolegacy/reimu/ender_materials/quest/title"
+}

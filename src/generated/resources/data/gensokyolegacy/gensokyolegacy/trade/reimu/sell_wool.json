@@ -1,0 +1,18 @@
+{
+  "character": "gensokyolegacy:hakurei_reimu",
+  "conditions": [],
+  "ingredients": [
+    {
+      "count": 6,
+      "item": "minecraft:white_wool"
+    }
+  ],
+  "recurrence": {
+    "maxStock": 4,
+    "restockTime": 96000
+  },
+  "result": {
+    "count": 1,
+    "id": "minecraft:emerald"
+  }
+}

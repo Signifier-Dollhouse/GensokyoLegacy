@@ -159,6 +159,52 @@
 					}
 				}
 			},
+			"ender_materials": {
+				"quest": {
+					"title": "末影材料",
+					"desc": "为灵梦带来一颗末影珍珠和一颗末影之眼，用于她的隙间研究。"
+				},
+				"option": {
+					"start": "聊聊隙间。",
+					"follow_up": "问问隙间。",
+					"complete": "交出末影材料。",
+					"start/reject": "下次吧。",
+					"start/accept": "我去找末影材料。",
+					"follow_up/end": "还在找。",
+					"complete/reject": "还没。",
+					"complete/handover": "珍珠和末影之眼在这里。"
+				},
+				"dialog": {
+					"reimu": {
+						"ender_materials": {
+							"start": {
+								"dialog_1": "我弄的那个隙间传送门？这个世界的末影珍珠能像迷你隙间一样扭曲空间，而末影之眼可以锁定回家的路。各带一个来——我觉得用它们就能把路线锚定住了。"
+							},
+							"start/reject": {
+								"dialog_1": "它们确实很难得。等手头有富余了再来吧。"
+							},
+							"start/accept": {
+								"dialog_1": "那就一颗珍珠和一颗末影之眼。都是稀罕物，不过这正是我需要的锚点。"
+							},
+							"follow_up": {
+								"dialog_1": "找到末影材料了吗？"
+							},
+							"follow_up/end": {
+								"dialog_1": "珍珠是夜里那些紫色小淘气掉的。末影之眼嘛，你得往更深的地方找了。"
+							},
+							"complete": {
+								"dialog_1": "让我看看你带来了什么。"
+							},
+							"complete/reject": {
+								"dialog_1": "不急。只要保管好就行。"
+							},
+							"complete/handover": {
+								"dialog_1": "太棒了。有了这些，我就能锚定一道真正的隙间。回家的路又近了一步。"
+							}
+						}
+					}
+				}
+			},
 			"ominous_banner": {
 				"quest": {
 					"title": "掠夺者的旗帜",
@@ -248,7 +294,7 @@
 								"dialog_1": "还没结束？那就保持警惕。他们没那么容易放弃。"
 							},
 							"complete/handover": {
-								"dialog_1": "你把他们全赶走了。我就知道把他们引进村子会有用。给——拿着我的*梦想天生*符卡。"
+								"dialog_1": "你把他们全赶走了。我就知道把他们引进村子会有用。给——这把结界伞拿好，为接下来要来的东西做个准备吧。"
 							}
 						}
 					}
