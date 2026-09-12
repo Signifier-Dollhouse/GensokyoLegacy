@@ -30,7 +30,7 @@ public class TalismanPocketMenu extends BaseContainerMenu<TalismanPocketMenu> {
 		this.slot = slot;
 		ItemStack backing = slot != null ? slot.getItem(plInv.player) : GLTalismans.TALISMAN_POCKET.asStack();
 		this.handler = new TalismanPocketItemHandler(backing);
-		getLayout().getSlot("grid", (x, y) -> new ItemHandlerCopySlot(handler, added++, x, y), this::addSlot);
+		getLayout().getSlot("talisman", (x, y) -> new ItemHandlerCopySlot(handler, added++, x, y), this::addSlot);
 	}
 
 	public TalismanPocketItemHandler getHandler() {

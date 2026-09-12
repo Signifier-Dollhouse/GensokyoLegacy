@@ -7,8 +7,8 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.items.IItemHandlerModifiable;
 
 /**
- * 18-slot IItemHandlerModifiable facade over {@link TalismanPocketData}.
- * Slots 0..8 are the folded talisman row, slots 9..17 the reserve paper row,
+ * 14-slot IItemHandlerModifiable facade over {@link TalismanPocketData}.
+ * Slots 0..6 are the folded talisman row, slots 7..13 the reserve paper row,
  * index i holding the two stacks of pocket slot i.
  *
  * <p>Slot input restriction is handled here ({@link #isItemValid}): a slot is
