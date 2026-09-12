@@ -62,7 +62,9 @@ public class LevelAreaAttachment extends GeneralCapabilityTemplate<Level, LevelA
 		byOwner.put(entry.ownerPos, entry.id);
 	}
 
-	/** {@code byId}/{@code byOwner} cleanup only; no packet side effects. */
+	/**
+	 * {@code byId}/{@code byOwner} cleanup only; no packet side effects.
+	 */
 	@Nullable
 	private AreaEffectEntry removeEntryData(UUID id) {
 		AreaEffectEntry entry = byId.remove(id);
@@ -101,6 +103,8 @@ public class LevelAreaAttachment extends GeneralCapabilityTemplate<Level, LevelA
 		for (AreaEffectEntry entry : byId.values()) {
 			int bucket = Math.floorMod(entry.id.hashCode(), 100);
 			if (bucket != tickBucket) continue;
+			entry.cleanupPlayers(level);
+			byOwner.put(entry.ownerPos, entry.id);
 			ChunkPos ownerCP = new ChunkPos(entry.ownerPos);
 			if (level.getChunkSource().getChunkNow(ownerCP.x, ownerCP.z) == null) continue;
 			if (!entry.isOwnerValid(level)) {
@@ -108,12 +112,10 @@ public class LevelAreaAttachment extends GeneralCapabilityTemplate<Level, LevelA
 			}
 		}
 		for (UUID id : toRemove) {
-			if (removeEntry(level, id) == null) continue;
-			// pending entries with dead UUID will be skipped on flush via byId.containsKey
+			removeEntry(level, id);
 		}
-		// every 5s clean up offline players from tracking lists
 		if (tick % 100 == 0) {
-			for (AreaEffectEntry e : byId.values()) e.cleanupPlayers(level);
+			byOwner.entrySet().removeIf(e -> !byId.containsKey(e.getValue()));
 		}
 	}
 
