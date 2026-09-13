@@ -23,14 +23,6 @@ public record TradeHandle(EntityType<?> type) implements IDialogHandle {
 	}
 
 	@Override
-	public String groupKey() {
-		var cfg = DialogConfig.of(type);
-		if (cfg != null && !cfg.trade().isEmpty())
-			return cfg.trade();
-		return GLLang.Trade.OPTION.key();
-	}
-
-	@Override
 	public void openMenu(ServerPlayer sp, YoukaiEntity character) {
 		TradeProvider.open(sp, character);
 	}

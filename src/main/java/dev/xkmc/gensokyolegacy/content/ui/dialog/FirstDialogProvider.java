@@ -38,7 +38,7 @@ public record FirstDialogProvider(
 		for (var e : group.members()) {
 			options.add(new ClientHandle(e.groupLabel(), e.getQuest()));
 		}
-		new FirstDialogProvider(sp, ch, group.members(), options, group.display()).open();
+		new FirstDialogProvider(sp, ch, group.members(), options, group.text()).open();
 	}
 
 	@Override

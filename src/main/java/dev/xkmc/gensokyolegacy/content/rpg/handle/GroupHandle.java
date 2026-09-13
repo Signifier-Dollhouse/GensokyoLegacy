@@ -10,7 +10,7 @@ import net.minecraft.server.level.ServerPlayer;
 import java.util.List;
 import java.util.Optional;
 
-public record GroupHandle(Component display, List<IDialogHandle> members) implements IDialogHandle {
+public record GroupHandle(Component display, List<IDialogHandle> members, Component text) implements IDialogHandle {
 
 	@Override
 	public Component display() {

@@ -2,17 +2,14 @@ package dev.xkmc.gensokyolegacy.content.rpg.core;
 
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.rpg.dialog.DialogStarter;
-import dev.xkmc.gensokyolegacy.content.rpg.handle.DialogHandle;
-import dev.xkmc.gensokyolegacy.content.rpg.handle.GroupHandle;
-import dev.xkmc.gensokyolegacy.content.rpg.handle.IDialogHandle;
-import dev.xkmc.gensokyolegacy.content.rpg.handle.QuestHandle;
-import dev.xkmc.gensokyolegacy.content.rpg.handle.TradeHandle;
+import dev.xkmc.gensokyolegacy.content.rpg.handle.*;
 import dev.xkmc.gensokyolegacy.content.rpg.quest.Quest;
 import dev.xkmc.gensokyolegacy.content.rpg.trade.TradeOffer;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
 import dev.xkmc.l2core.init.reg.datapack.DatapackReg;
 import net.minecraft.core.Holder;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EntityType;
@@ -77,30 +74,24 @@ public class ServerCharacterDialogManager {
 			else if (data.canStart(sp, e.value()) && e.value().match(sp, ch))
 				ans.add(new QuestHandle(e, e.value().initialDialog()));
 		}
+		groupHandles(ans);
 		if (!getTradeOffers(sp, ch).isEmpty())
 			ans.add(new TradeHandle(ch.getType()));
-		return groupHandles(ans);
+		return ans;
 	}
 
-	private static List<IDialogHandle> groupHandles(List<IDialogHandle> raw) {
+	private static void groupHandles(List<IDialogHandle> ans) {
 		LinkedHashMap<String, List<IDialogHandle>> map = new LinkedHashMap<>();
-		for (var e : raw) {
+		for (var e : ans) {
 			String key = e.groupKey();
-			if (!key.isEmpty()) {
-				map.computeIfAbsent(key, k -> new ArrayList<>()).add(e);
-			}
+			if (key.isEmpty()) continue;
+			map.computeIfAbsent(key, k -> new ArrayList<>()).add(e);
 		}
-		List<IDialogHandle> ans = new ArrayList<>();
-		for (var e : raw) {
-			if (e.groupKey().isEmpty()) {
-				ans.add(e);
-			}
+		map.entrySet().removeIf(e -> e.getValue().size() == 1);
+		ans.removeIf(e -> map.containsKey(e.groupKey()));
+		for (var e : map.entrySet()) {
+			ans.add(new GroupHandle(e.getValue().getFirst().display(), e.getValue(), Component.translatable(e.getKey())));
 		}
-		for (var e : map.values()) {
-			if (e.size() == 1) ans.add(e.getFirst());
-			else ans.add(new GroupHandle(e.getFirst().display(), e));
-		}
-		return ans;
 	}
 
 }

@@ -18,11 +18,6 @@ public record DialogHandle(Holder<DialogStarter> starter) implements IDialogHand
 	}
 
 	@Override
-	public String groupKey() {
-		return starter.value().text();
-	}
-
-	@Override
 	public void openMenu(ServerPlayer sp, YoukaiEntity character) {
 		new SimpleDialogProvider(sp, character, this, starter.value().dialog()).open();
 	}
