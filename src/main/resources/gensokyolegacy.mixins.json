@@ -5,6 +5,7 @@
 	"compatibilityLevel": "JAVA_21",
 	"mixins": [
 		"FrogAttackablesSensorMixin",
+		"EntityMixin",
 		"ILivingEntityExtensionMixin",
 		"ItemAccessor",
 		"LivingEntityMixin",

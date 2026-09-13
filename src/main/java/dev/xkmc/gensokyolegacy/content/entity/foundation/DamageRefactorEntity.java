@@ -165,8 +165,12 @@ public class DamageRefactorEntity extends PathfinderMob {
 		float m = getMaxHealth();
 		heal = Math.min(m - f, heal);
 		if (f > 0 && heal > 0) {
+			onHeal(heal);
 			setCombatProgress(f + heal, true, false);
 		}
+	}
+
+	public void onHeal(float heal) {
 	}
 
 	// guards
@@ -195,6 +199,7 @@ public class DamageRefactorEntity extends PathfinderMob {
 	public void die(DamageSource source) {
 		if (getCombatProgress() > 0) return;
 		if (CommonHooks.onLivingDeath(this, source)) return;
+		if (specialDeath(source)) return;
 		if (isRemoved() || dead) return;
 		Entity entity = source.getEntity();
 		LivingEntity livingentity = this.getKillCredit();
@@ -216,6 +221,10 @@ public class DamageRefactorEntity extends PathfinderMob {
 			this.level().broadcastEntityEvent(this, (byte) 3);
 		}
 		this.setPose(Pose.DYING);
+	}
+
+	public boolean specialDeath(DamageSource source) {
+		return false;
 	}
 
 	@Override
@@ -263,6 +272,9 @@ public class DamageRefactorEntity extends PathfinderMob {
 		super.kill();
 	}
 
+	public void onRemove(Entity.RemovalReason reason) {
+	}
+
 	// data
 
 	private CombatData combatData;
@@ -283,6 +295,10 @@ public class DamageRefactorEntity extends PathfinderMob {
 				loopingSetHealth = false;
 			} else combatData = combatData.set(this, super.getHealth(), true, false);
 		}
+	}
+
+	public float getDynamicBaseline() {
+		return dynamicReductionRate() == 0 || combatData == null ? 0 : combatData.baseline();
 	}
 
 	protected float dynamicReductionRate() {
