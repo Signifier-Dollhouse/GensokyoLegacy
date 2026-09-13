@@ -1,0 +1,82 @@
+package dev.xkmc.gensokyolegacy.content.item.glove;
+
+import dev.xkmc.gensokyolegacy.content.item.glove.mode.DollGloveMode;
+import dev.xkmc.gensokyolegacy.content.item.glove.client.DollGloveModeWheel;
+import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
+import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
+import dev.xkmc.l2itemselector.select.item.IItemSelector;
+import dev.xkmc.l2itemselector.wheel.WheelAdaptor;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+public class DollGloveSelectionListener extends IItemSelector implements WheelAdaptor.Provider {
+
+	public static final DollGloveSelectionListener INSTANCE = new DollGloveSelectionListener(GensokyoLegacy.loc("doll_glove"));
+	public static final ResourceLocation ID = GensokyoLegacy.loc("doll_glove");
+
+	public DollGloveSelectionListener(ResourceLocation id) {
+		super(id);
+	}
+
+	public static void register() {
+		IItemSelector.register(INSTANCE);
+	}
+
+	@Nullable
+	public static ItemStack getHeldGlove(Player player) {
+		ItemStack main = player.getMainHandItem();
+		if (main.getItem() instanceof DollGloveItem) return main;
+		ItemStack off = player.getOffhandItem();
+		if (off.getItem() instanceof DollGloveItem) return off;
+		return null;
+	}
+
+	@Override
+	public boolean test(ItemStack stack) {
+		return stack.getItem() instanceof DollGloveItem;
+	}
+
+	@Override
+	public int getIndex(Player player, ItemStack stack) {
+		return DollGloveItem.getMode(stack).ordinal();
+	}
+
+	@Override
+	public List<ItemStack> getList(ItemStack stack) {
+		List<ItemStack> list = new ArrayList<>();
+		for (var m : DollGloveMode.values()) {
+			ItemStack icon = m.icon();
+			icon.set(DataComponents.ITEM_NAME, m.displayName());
+			list.add(icon);
+		}
+		return list;
+	}
+
+	@Override
+	public void swap(Player sender, int index, ItemStack stack) {
+		ItemStack held = getHeldGlove(sender);
+		if (held == null) return;
+		var modes = DollGloveMode.values();
+		if (index < 0 || index >= modes.length) return;
+		held.set(GLItems.DOLL_GLOVE_MODE.get(), index);
+	}
+
+	@Override
+	public Optional<WheelAdaptor<?>> get(@Nullable Player player, int wheelIndex, boolean main) {
+		if (player == null) return Optional.empty();
+		ItemStack stack = getHeldGlove(player);
+		if (stack == null) return Optional.empty();
+		if (wheelIndex == 0) {
+			return Optional.of(new DollGloveModeWheel(stack));
+		}
+		return Optional.empty();
+	}
+
+}

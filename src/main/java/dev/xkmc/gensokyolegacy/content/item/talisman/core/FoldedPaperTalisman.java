@@ -4,10 +4,15 @@ import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemUtils;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -25,6 +30,24 @@ public class FoldedPaperTalisman extends TalismanCurioItem {
 			GLTalismans.DC_TALISMAN_DURABILITY.set(ans, paper.getDurability());
 		}
 		return ans;
+	}
+
+	@Nullable
+	public static ItemStack unfold(ItemStack stack) {
+		TalismanPaperItem paper = paper(stack);
+		if (paper == null) return null;
+		if (GLTalismans.DC_TALISMAN_DURABILITY.getOrDefault(stack, paper.getDurability()) != paper.getDurability())
+			return null;
+		return new ItemStack(paper);
+	}
+
+	@Override
+	public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
+		ItemStack stack = player.getItemInHand(hand);
+		ItemStack unfolded = unfold(stack);
+		if (unfolded == null) return InteractionResultHolder.fail(stack);
+		ItemStack result = ItemUtils.createFilledResult(stack, player, unfolded);
+		return InteractionResultHolder.sidedSuccess(result, level.isClientSide());
 	}
 
 	@Nullable
@@ -61,6 +84,9 @@ public class FoldedPaperTalisman extends TalismanCurioItem {
 		list.add(GLLang.Talisman.DURABILITY.get(
 				GLTalismans.DC_TALISMAN_DURABILITY.getOrDefault(stack, paper.getDurability()),
 				paper.getDurability()));
+		if (unfold(stack) != null) {
+			list.add(GLLang.Talisman.UNFOLD.get());
+		}
 	}
 
 	public static int color(ItemStack stack, int tintIndex) {

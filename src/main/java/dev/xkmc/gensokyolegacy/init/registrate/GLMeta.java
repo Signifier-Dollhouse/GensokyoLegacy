@@ -7,6 +7,7 @@ import dev.xkmc.gensokyolegacy.content.attachment.datamap.BedData;
 import dev.xkmc.gensokyolegacy.content.attachment.datamap.CharacterConfig;
 import dev.xkmc.gensokyolegacy.content.attachment.datamap.DialogConfig;
 import dev.xkmc.gensokyolegacy.content.attachment.datamap.StructureConfig;
+import dev.xkmc.gensokyolegacy.content.attachment.doll.DollAttachment;
 import dev.xkmc.gensokyolegacy.content.attachment.home.core.StructureAttachment;
 import dev.xkmc.gensokyolegacy.content.attachment.misc.FrogGodCapability;
 import dev.xkmc.gensokyolegacy.content.attachment.misc.KoishiAttackCapability;
@@ -47,6 +48,8 @@ public class GLMeta {
 			StructureAttachment.class, StructureAttachment::new, LevelChunk.class, e -> true);
 	public static final AttVal.PlayerVal<KoishiAttackCapability> KOISHI_ATTACK = ATT.player("koishi_attack",
 			KoishiAttackCapability.class, KoishiAttackCapability::new, PlayerCapabilityNetworkHandler::new);
+	public static final AttVal.PlayerVal<DollAttachment> DOLL = ATT.player("doll_data",
+			DollAttachment.class, DollAttachment::new, PlayerCapabilityNetworkHandler::new);
 	public static final AttVal.CapVal<Frog, FrogGodCapability> FROG_GOD = ATT.entity("frog_god",
 			FrogGodCapability.class, FrogGodCapability::new, Frog.class, e -> true);
 

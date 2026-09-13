@@ -1,5 +1,6 @@
 package dev.xkmc.gensokyolegacy.init.registrate;
 
+import com.tterrag.registrate.providers.RegistrateItemModelProvider;
 import com.tterrag.registrate.util.entry.ItemEntry;
 import dev.xkmc.danmakuapi.content.item.SpellItem;
 import dev.xkmc.danmakuapi.init.data.DanmakuTagGen;
@@ -13,6 +14,10 @@ import dev.xkmc.gensokyolegacy.content.item.debug.DebugGlasses;
 import dev.xkmc.gensokyolegacy.content.item.debug.DebugWand;
 import dev.xkmc.gensokyolegacy.content.item.debug.DoorDebugItem;
 import dev.xkmc.gensokyolegacy.content.item.debug.StructureWand;
+import dev.xkmc.gensokyolegacy.content.attachment.doll.DollInventory;
+import dev.xkmc.gensokyolegacy.content.item.doll.DollItem;
+import dev.xkmc.gensokyolegacy.content.item.glove.DollGloveItem;
+import dev.xkmc.gensokyolegacy.content.item.doll.DollItemData;
 import dev.xkmc.gensokyolegacy.content.item.gift.*;
 import dev.xkmc.gensokyolegacy.content.item.hexbrew.StarDanmakuItem;
 import dev.xkmc.gensokyolegacy.content.item.ingredient.FairyIceItem;
@@ -38,6 +43,7 @@ import net.minecraft.tags.ItemTags;
 import net.minecraft.world.entity.animal.FrogVariant;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.*;
+import net.neoforged.neoforge.client.model.generators.ModelFile;
 import net.neoforged.neoforge.registries.datamaps.builtin.FurnaceFuel;
 import net.neoforged.neoforge.registries.datamaps.builtin.NeoForgeDataMaps;
 
@@ -77,6 +83,10 @@ public class GLItems {
 
 	public static final ItemEntry<BorderUmbrellaItem> BORDER_UMBRELLA;
 
+	public static final ItemEntry<DollItem> DOLL;
+
+	public static final ItemEntry<DollGloveItem> DOLL_GLOVE;
+
 	public static final ItemEntry<StarDanmakuItem> STAR;
 
 	private static final DCReg DC = DCReg.of(GensokyoLegacy.REG);
@@ -91,6 +101,9 @@ public class GLItems {
 	public static final DCVal<BorderUmbrellaUnlock> UMBRELLA_UNLOCK = DC.reg("border_umbrella_unlock", BorderUmbrellaUnlock.class, false);
 	public static final DCVal<BorderUmbrellaTravelData> UMBRELLA_TRAVEL = DC.reg("border_umbrella_travel", BorderUmbrellaTravelData.class, false);
 	public static final DCVal<Integer> UMBRELLA_DISTANCE = DC.intVal("border_umbrella_distance");
+	public static final DCVal<DollItemData> DOLL_DATA = DC.reg("doll_item_data", DollItemData.class, false);
+	public static final DCVal<DollInventory> DOLL_LOADOUT = DC.reg("doll_loadout", DollInventory.class, false);
+	public static final DCVal<Integer> DOLL_GLOVE_MODE = DC.intVal("doll_glove_mode");
 
 
 	static {
@@ -148,6 +161,19 @@ public class GLItems {
 									.model(pvd.withExistingParent("item/" + ctx.getName() + "_open", "item/handheld").
 											texture("layer0", pvd.modLoc("item/tool/" + ctx.getName() + "_open"))))
 					.lang("Border Umbrella").tab(TAB.key(), BorderUmbrellaItem::fillCreativeModeTab)
+					.tag(L2ISTagGen.SELECTABLE)
+					.register();
+
+			DOLL = reg.item("doll", p -> new DollItem(p.stacksTo(1)))
+					.model((ctx, pvd) -> genLayeredItemModel(ctx.getName(), pvd))
+					.color(() -> () -> DollItem::getColor)
+					.lang("Doll")
+					.tab(TAB.key(), (a, b) -> b.accept(DollItem.blank()))
+					.register();
+
+			DOLL_GLOVE = reg.item("doll_glove", DollGloveItem::new)
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/tool/" + ctx.getName())))
+					.lang("Seven-Colored Doll Glove").tab(TAB.key())
 					.tag(L2ISTagGen.SELECTABLE)
 					.register();
 		}
@@ -318,6 +344,17 @@ public class GLItems {
 
 		}
 
+	}
+
+	/**
+	 * Two-layer doll item: layer0 is the base doll, layer1 is the tint overlay colored by the
+	 * item's {@code DyeColor} (via {@link DollItem#getColor}).
+	 */
+	private static void genLayeredItemModel(String name, RegistrateItemModelProvider pvd) {
+		pvd.getBuilder(name)
+				.parent(new ModelFile.UncheckedModelFile("item/generated"))
+				.texture("layer0", pvd.modLoc("item/doll/doll0"))
+				.texture("layer1", pvd.modLoc("item/doll/doll1"));
 	}
 
 	public static void register() {

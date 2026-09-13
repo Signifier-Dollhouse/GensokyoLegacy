@@ -52,6 +52,8 @@ public final class GLLang {
 		KIND_LAVA("Lava Affinity"),
 		KIND_SHELTER("Shelter"),
 		DURABILITY("Uses left: %s / %s", 2),
+		FOLD("Right-click to fold into a folded talisman", 0, ChatFormatting.GRAY),
+		UNFOLD("At full durability, right-click to unfold into talisman paper", 0, ChatFormatting.GRAY),
 		EQUIP("Equip in a charm curio slot to activate"),
 		HEAL("Recovers %s%% of max health when health is low", 1),
 		SPEED("Grants speed while sprinting"),
@@ -556,6 +558,77 @@ public final class GLLang {
 		}
 	}
 
+	// ========== ItemGlove (glove.*) ==========
+	public enum ItemGlove implements LangEntry {
+		MODE("Mode: %s", 1),
+		WHEEL("Hold %s to open wheel", 1, ChatFormatting.GRAY),
+		MODE_SUMMON("Summon / Recall"),
+		MODE_HEAL_MARK("Heal Mark"),
+		MODE_VOLLEY("Volley"),
+		MODE_SUPER("Super Attack"),
+		MODE_SUICIDE("Suicide"),
+		MODE_STOP("Stop"),
+		MODE_EDITOR("Edit Loadout"),
+		DESC_SUMMON("Summon all parked dolls, or recall all summoned ones", 0, ChatFormatting.GRAY),
+		DESC_HEAL_MARK("Mark the sighted target for healing", 0, ChatFormatting.GRAY),
+		DESC_VOLLEY("Order every armed doll to fire once, in turn", 0, ChatFormatting.GRAY),
+		DESC_SUPER("Order one random doll to fire its super attack", 0, ChatFormatting.GRAY),
+		DESC_SUICIDE("Order one random doll to dive and detonate", 0, ChatFormatting.GRAY),
+		DESC_STOP("Halt all summoned dolls", 0, ChatFormatting.GRAY),
+		DESC_EDITOR("Open the sighted doll's loadout out of reach", 0, ChatFormatting.GRAY),
+		SUMMONED("Summoned %s dolls", 1),
+		RECALLED("Recalled %s dolls (%s parked to data)", 2),
+		VOLLEY("Volley ordered", 0),
+		SUPER("Super attack ordered: %s", 1),
+		SUICIDE("Suicide dive ordered: %s", 1),
+		STOPPED("Stopped %s dolls", 1),
+		MARKED("Marked %s for healing", 1),
+		UNMARKED("Unmarked %s", 1),
+		NO_TARGET("No target in sight", 0, ChatFormatting.RED),
+		NO_DOLL("No available doll", 0, ChatFormatting.RED),
+		NOT_DOLL("Target is not your doll", 0, ChatFormatting.RED);
+
+		private final String def;
+		private final int argn;
+		private final String key;
+		private final @Nullable ChatFormatting format;
+
+		ItemGlove(String def) {
+			this(def, 0);
+		}
+
+		ItemGlove(String def, int argn) {
+			this(def, argn, null);
+		}
+
+		ItemGlove(String def, int argn, @Nullable ChatFormatting format) {
+			this.def = def;
+			this.argn = argn;
+			this.key = GensokyoLegacy.MODID + ".glove." + name().toLowerCase(Locale.ROOT);
+			this.format = format;
+		}
+
+		@Override
+		public String key() {
+			return key;
+		}
+
+		@Override
+		public String def() {
+			return def;
+		}
+
+		@Override
+		public int argn() {
+			return argn;
+		}
+
+		@Override
+		public @Nullable ChatFormatting format() {
+			return format;
+		}
+	}
+
 	// ========== Jei ==========
 	public enum Jei implements LangEntry {
 		ALCHEMY("jei.gensokyolegacy.alchemy", "Alchemy Pot");
@@ -647,11 +720,55 @@ public final class GLLang {
 		}
 	}
 
+	// ========== Doll ==========
+	public enum Doll implements LangEntry {
+		NO_SPACE("No inventory space"),
+		RESYNC_MISSING("Doll entity missing — restoring"),
+		RESYNC_ORPHAN("Removed a strayed doll"),
+		RESYNC_TAMPERED("Removed a tampered doll");
+
+		private final String def;
+		private final int argn;
+		private final String key;
+		private final @Nullable ChatFormatting format;
+
+		Doll(String def) {
+			this(def, 0, null);
+		}
+
+		Doll(String def, int argn, @Nullable ChatFormatting format) {
+			this.def = def;
+			this.argn = argn;
+			this.key = GensokyoLegacy.MODID + ".doll." + name().toLowerCase(Locale.ROOT);
+			this.format = format;
+		}
+
+		@Override
+		public String key() {
+			return key;
+		}
+
+		@Override
+		public String def() {
+			return def;
+		}
+
+		@Override
+		public int argn() {
+			return argn;
+		}
+
+		@Override
+		public @Nullable ChatFormatting format() {
+			return format;
+		}
+	}
+
 	public static void genLang(RegistrateLangProvider pvd) {
 		for (var group : new LangEntry[][]{
 				Quest.values(), Info.values(), Trade.values(), Misc.values(),
-				ItemDebug.values(), ItemFurnace.values(), ItemCommon.values(), ItemUmbrella.values(), Alchemy.values(), Jei.values(),
-				Talisman.values()}) {
+				ItemDebug.values(), ItemFurnace.values(), ItemCommon.values(), ItemUmbrella.values(), ItemGlove.values(), Alchemy.values(), Jei.values(),
+				Talisman.values(), Doll.values()}) {
 			for (var e : group) {
 				pvd.add(e.key(), e.def());
 			}

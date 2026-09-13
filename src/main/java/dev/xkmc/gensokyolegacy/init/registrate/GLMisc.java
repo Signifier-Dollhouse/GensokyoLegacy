@@ -1,6 +1,8 @@
 package dev.xkmc.gensokyolegacy.init.registrate;
 
 import com.tterrag.registrate.util.entry.MenuEntry;
+import dev.xkmc.gensokyolegacy.content.entity.dolls.menu.DollLoadoutMenu;
+import dev.xkmc.gensokyolegacy.content.entity.dolls.menu.DollLoadoutScreen;
 import dev.xkmc.gensokyolegacy.content.item.talisman.pocket.TalismanPocketMenu;
 import dev.xkmc.gensokyolegacy.content.item.talisman.pocket.TalismanPocketScreen;
 import dev.xkmc.gensokyolegacy.content.ui.dialog.FirstDialogMenu;
@@ -36,6 +38,9 @@ public class GLMisc {
 
 	public static final MenuEntry<TalismanPocketMenu> TALISMAN_POCKET = GensokyoLegacy.REGISTRATE.menu("talisman_pocket",
 			TalismanPocketMenu::fromNetwork, () -> TalismanPocketScreen::new).register();
+
+	public static final MenuEntry<DollLoadoutMenu> DOLL_LOADOUT = GensokyoLegacy.REGISTRATE.menu("doll_loadout",
+			DollLoadoutMenu::fromNetwork, () -> DollLoadoutScreen::new).register();
 
 
 	public static final ResourceLocation DUMMY = L2Tabs.loc(GensokyoLegacy.MODID);

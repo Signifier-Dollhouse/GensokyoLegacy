@@ -18,7 +18,8 @@
 	"client": [
 		"AbstractContainerScreenMixin",
 		"GuiGraphicsMixin",
-		"LocalPlayerMixin"
+		"LocalPlayerMixin",
+		"GloveTargetGlowMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

@@ -11,6 +11,10 @@ import dev.xkmc.gensokyolegacy.content.client.model.*;
 import dev.xkmc.gensokyolegacy.content.entity.characters.fairy.CirnoModel;
 import dev.xkmc.gensokyolegacy.content.entity.characters.rumia.BlackBallModel;
 import dev.xkmc.gensokyolegacy.content.entity.characters.rumia.RumiaModel;
+import dev.xkmc.gensokyolegacy.content.item.glove.client.DollAttackStatusOverlay;
+import dev.xkmc.gensokyolegacy.content.item.glove.client.DollClientLoadoutTooltip;
+import dev.xkmc.gensokyolegacy.content.item.glove.client.DollGloveOverlay;
+import dev.xkmc.gensokyolegacy.content.item.glove.client.DollLoadoutTooltip;
 import dev.xkmc.gensokyolegacy.content.item.tool.ClientInvTooltip;
 import dev.xkmc.gensokyolegacy.content.item.tool.InvTooltip;
 import dev.xkmc.gensokyolegacy.content.item.umbrella.BorderUmbrellaItem;
@@ -58,12 +62,15 @@ public class GLClient {
 		event.registerAbove(VanillaGuiLayers.CROSSHAIR, GensokyoLegacy.loc("debug"), new DebugOverlay());
 		event.registerAbove(VanillaGuiLayers.CROSSHAIR, GensokyoLegacy.loc("quest"), new QuestOverlay());
 		event.registerAbove(VanillaGuiLayers.CROSSHAIR, GensokyoLegacy.loc("alchemy_hint"), new AlchemyHintOverlay());
+		event.registerAbove(VanillaGuiLayers.CROSSHAIR, GensokyoLegacy.loc("doll_glove"), new DollGloveOverlay());
+		event.registerAbove(VanillaGuiLayers.CROSSHAIR, GensokyoLegacy.loc("doll_attack_status"), new DollAttackStatusOverlay());
 	}
 
 	@SubscribeEvent
 	public static void registerTooltips(RegisterClientTooltipComponentFactoriesEvent event) {
 		event.register(TileTooltip.class, TileClientTooltip::new);
 		event.register(InvTooltip.class, ClientInvTooltip::new);
+		event.register(DollLoadoutTooltip.class, DollClientLoadoutTooltip::new);
 	}
 
 	@SubscribeEvent

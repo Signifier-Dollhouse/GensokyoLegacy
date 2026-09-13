@@ -1,6 +1,7 @@
 {
 	"entity.gensokyolegacy.fairy_ice_crystal": "妖精冰晶",
 	"entity.gensokyolegacy.frozen_frog": "冻青蛙",
+	"entity.gensokyolegacy.doll": "玩偶熊",
 	"block.gensokyolegacy": {
 		"donation_box": "赛钱箱",
 		"evergreen_vine": "常青垂藤",
@@ -38,9 +39,11 @@
 		"drawer_cabinet": "抽屉橱柜",
 		"door_cabinet": "双门橱柜",
 		"birch_shelf": "桦木货架",
-		"book_shelf": "书架"
+		"book_shelf": "书架",
+		"doll_controller": "玩偶控制器"
 	},
 	"item.gensokyolegacy": {
+		"doll": "玩偶熊",
 		"frozen_frog_cold": "冻青蛙",
 		"frozen_frog_warm": "冻青蛙",
 		"frozen_frog_temperate": "冻青蛙",

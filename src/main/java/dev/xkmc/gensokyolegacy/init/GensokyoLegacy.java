@@ -6,6 +6,7 @@ import dev.xkmc.gensokyolegacy.compat.touhoulittlemaid.TLMCompat;
 import dev.xkmc.gensokyolegacy.compat.touhoulittlemaid.TouhouSpellCards;
 import dev.xkmc.gensokyolegacy.content.attachment.area.AreaEffectSyncPacket;
 import dev.xkmc.gensokyolegacy.content.attachment.character.CharDataToClient;
+import dev.xkmc.gensokyolegacy.content.attachment.doll.DollRosterToClient;
 import dev.xkmc.gensokyolegacy.content.attachment.misc.FrogSyncPacket;
 import dev.xkmc.gensokyolegacy.content.attachment.misc.KoishiStartPacket;
 import dev.xkmc.gensokyolegacy.content.client.debug.*;
@@ -15,6 +16,8 @@ import dev.xkmc.gensokyolegacy.content.entity.behavior.move.PathDataToClient;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.move.YoukaiNodeEvaluatorRegistry;
 import dev.xkmc.gensokyolegacy.content.entity.foundation.CombatToClient;
 import dev.xkmc.gensokyolegacy.content.item.character.TouhouMat;
+import dev.xkmc.gensokyolegacy.content.item.glove.DollGloveSelectionListener;
+import dev.xkmc.gensokyolegacy.content.item.glove.network.*;
 import dev.xkmc.gensokyolegacy.content.item.hexbrew.HexBrew;
 import dev.xkmc.gensokyolegacy.content.item.hexbrew.HexBrewWrapper;
 import dev.xkmc.gensokyolegacy.content.item.tool.CatBell;
@@ -110,7 +113,11 @@ public class GensokyoLegacy {
 			e -> e.create(BorderUmbrellaRenamePacket.class, PacketHandler.NetDir.PLAY_TO_SERVER),
 			e -> e.create(BorderUmbrellaDeletePacket.class, PacketHandler.NetDir.PLAY_TO_SERVER),
 			e -> e.create(BorderUmbrellaReorderPacket.class, PacketHandler.NetDir.PLAY_TO_SERVER),
-			e -> e.create(BorderUmbrellaOpenRenamePacket.class, PacketHandler.NetDir.PLAY_TO_CLIENT)
+			e -> e.create(BorderUmbrellaOpenRenamePacket.class, PacketHandler.NetDir.PLAY_TO_CLIENT),
+
+		e -> e.create(DollGloveSelectPacket.class, PacketHandler.NetDir.PLAY_TO_SERVER),
+		e -> e.create(DollGloveTargetPacket.class, PacketHandler.NetDir.PLAY_TO_SERVER),
+		e -> e.create(DollRosterToClient.class, PacketHandler.NetDir.PLAY_TO_CLIENT)
 	);
 
 	public GensokyoLegacy() {
@@ -142,6 +149,7 @@ public class GensokyoLegacy {
 			NeoForge.EVENT_BUS.register(TLMCompat.class);
 		}
 		BorderUmbrellaSelectionListener.register();
+		DollGloveSelectionListener.register();
 		NeoForge.EVENT_BUS.register(BorderUmbrellaAnvilHandler.class);
 	}
 

@@ -6,7 +6,6 @@ import software.bernie.geckolib.model.GeoModel;
 
 public class DollModel extends GeoModel<DollEntity> {
 	private final ResourceLocation model = GensokyoLegacy.loc("geo/doll.geo.json");
-	private final ResourceLocation texture = GensokyoLegacy.loc("textures/geo/doll.png");
 	private final ResourceLocation animations = GensokyoLegacy.loc("animations/doll.animation.json");
 
 	@Override
@@ -16,7 +15,8 @@ public class DollModel extends GeoModel<DollEntity> {
 
 	@Override
 	public ResourceLocation getTextureResource(DollEntity animatable) {
-		return texture;
+		// one pre-tinted texture per DyeColor (default red for a malformed/null lookup)
+		return GensokyoLegacy.loc("textures/geo/doll/" + animatable.getColor().getName() + ".png");
 	}
 
 	@Override

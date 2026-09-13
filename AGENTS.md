@@ -24,6 +24,7 @@ NeoForge 1.21.1 mod (Gensokyo Legacy, Touhou characters/structures). Java 21, Gr
 
 ## Code style
 - Never use fully-qualified names (FQNs) inline — always add an `import` and use the simple name. This applies to all Java sources.
+- Use package-info.java for all packages with nullability annotation.
 
 ## Code layout
 - `content/entity/characters/<character>/` — per-character Entity/Model/Renderer (fairy, maiden, rumia, merchant, boss); shared youkai base classes in `content/entity/youkai/`; AI in `content/entity/behavior/` (brain/sensor/task/move/combat).

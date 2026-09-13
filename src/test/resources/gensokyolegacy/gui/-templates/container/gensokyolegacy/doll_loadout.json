@@ -1,0 +1,40 @@
+{
+	"side": [
+		"slot",
+		"slotbg_main",
+		"slotbg_off",
+		"slotbg_core",
+		"slotbg_cloth"
+	],
+	"comp": {
+		"main": {
+			"sprite": "empty_slot",
+			"x": 79,
+			"y": 27,
+			"rx": 1,
+			"ry": 1
+		},
+		"off": {
+			"sprite": "empty_slot",
+			"x": 115,
+			"y": 27,
+			"rx": 1,
+			"ry": 1
+		},
+		"core": {
+			"sprite": "empty_slot",
+			"x": 97,
+			"y": 9,
+			"rx": 1,
+			"ry": 1
+		},
+		"cloth": {
+			"sprite": "empty_slot",
+			"x": 97,
+			"y": 27,
+			"rx": 1,
+			"ry": 1
+		}
+	},
+	"isContainer": true
+}

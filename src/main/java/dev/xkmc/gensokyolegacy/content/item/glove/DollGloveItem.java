@@ -1,0 +1,65 @@
+package dev.xkmc.gensokyolegacy.content.item.glove;
+
+import dev.xkmc.gensokyolegacy.content.item.glove.client.GloveTargetCache;
+import dev.xkmc.gensokyolegacy.content.item.glove.mode.DollGloveMode;
+import dev.xkmc.gensokyolegacy.init.data.GLLang;
+import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
+import dev.xkmc.l2itemselector.init.data.L2Keys;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.level.Level;
+
+import java.util.List;
+
+public class DollGloveItem extends Item {
+
+	public DollGloveItem(Properties props) {
+		super(props.stacksTo(1));
+	}
+
+	public static DollGloveMode getMode(ItemStack stack) {
+		int i = GLItems.DOLL_GLOVE_MODE.getOrDefault(stack, 0);
+		var modes = DollGloveMode.values();
+		return modes[Math.floorMod(i, modes.length)];
+	}
+
+	@Override
+	public void appendHoverText(ItemStack stack, TooltipContext ctx, List<Component> list, TooltipFlag flag) {
+		var mode = getMode(stack);
+		list.add(GLLang.ItemGlove.MODE.get(mode.displayName()).withStyle(ChatFormatting.GRAY));
+		list.add(GLLang.ItemGlove.WHEEL.get(L2Keys.WHEEL.map.getKey().getDisplayName()).withStyle(ChatFormatting.GRAY));
+		list.add(mode.description());
+	}
+
+	@Override
+	public InteractionResult useOn(UseOnContext context) {
+		var stack = context.getItemInHand();
+		var player = context.getPlayer();
+		if (player == null) return InteractionResult.PASS;
+		var result = getMode(stack).handleUse(context.getLevel(), player, context.getHand(), stack, this);
+		return result.getResult();
+	}
+
+	@Override
+	public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
+		ItemStack stack = player.getItemInHand(hand);
+		return getMode(stack).handleUse(level, player, hand, stack, this);
+	}
+
+	@Override
+	public void inventoryTick(ItemStack stack, Level level, Entity entity, int slot, boolean selected) {
+		if (level.isClientSide() && entity instanceof Player player) {
+			GloveTargetCache.onInventoryTick(player, stack);
+		}
+	}
+
+}
