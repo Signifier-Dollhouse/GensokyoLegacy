@@ -288,7 +288,7 @@ public abstract class YoukaiEntity extends DamageClampEntity implements SpellCir
 	protected void actuallyHurt(DamageSource source, float amount) {
 		if (spellCard != null) spellCard.hurt(cardHolder, source, amount);
 		getData(source.getEntity()).ifPresent(e -> e.onHurt(source, amount));
-		actuallyHurtImpl(source, amount);
+		super.actuallyHurt(source, amount);
 	}
 
 	@Override

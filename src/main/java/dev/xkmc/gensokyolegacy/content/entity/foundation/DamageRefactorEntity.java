@@ -56,7 +56,8 @@ public class DamageRefactorEntity extends PathfinderMob {
 		return isInvulnerable() && !damage.is(DamageTypeTags.BYPASSES_INVULNERABILITY);
 	}
 
-	protected final void actuallyHurtImpl(DamageSource source, float amount) {
+	@Override
+	protected void actuallyHurt(DamageSource source, float amount) {
 		if (isInvulnerableTo(source)) return;
 		damageContainers.peek().setReduction(DamageContainer.Reduction.ARMOR, damageContainers.peek().getNewDamage() - getDamageAfterArmorAbsorb(source, damageContainers.peek().getNewDamage()));
 		getDamageAfterMagicAbsorb(source, damageContainers.peek().getNewDamage());
