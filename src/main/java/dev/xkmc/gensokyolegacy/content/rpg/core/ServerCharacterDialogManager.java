@@ -3,6 +3,7 @@ package dev.xkmc.gensokyolegacy.content.rpg.core;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.rpg.dialog.DialogStarter;
 import dev.xkmc.gensokyolegacy.content.rpg.handle.DialogHandle;
+import dev.xkmc.gensokyolegacy.content.rpg.handle.GroupHandle;
 import dev.xkmc.gensokyolegacy.content.rpg.handle.IDialogHandle;
 import dev.xkmc.gensokyolegacy.content.rpg.handle.QuestHandle;
 import dev.xkmc.gensokyolegacy.content.rpg.handle.TradeHandle;
@@ -78,6 +79,18 @@ public class ServerCharacterDialogManager {
 		}
 		if (!getTradeOffers(sp, ch).isEmpty())
 			ans.add(new TradeHandle(ch.getType()));
+		return groupHandles(ans);
+	}
+
+	private static List<IDialogHandle> groupHandles(List<IDialogHandle> raw) {
+		LinkedHashMap<String, List<IDialogHandle>> map = new LinkedHashMap<>();
+		for (var e : raw)
+			map.computeIfAbsent(e.groupKey(), k -> new ArrayList<>()).add(e);
+		List<IDialogHandle> ans = new ArrayList<>();
+		for (var e : map.values()) {
+			if (e.size() == 1) ans.add(e.getFirst());
+			else ans.add(new GroupHandle(e.getFirst().display(), e));
+		}
 		return ans;
 	}
 

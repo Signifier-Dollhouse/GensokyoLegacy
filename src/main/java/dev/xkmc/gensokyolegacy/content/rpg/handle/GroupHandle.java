@@ -1,42 +1,35 @@
 package dev.xkmc.gensokyolegacy.content.rpg.handle;
 
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
-import dev.xkmc.gensokyolegacy.content.rpg.dialog.DialogOption;
 import dev.xkmc.gensokyolegacy.content.rpg.quest.Quest;
-import dev.xkmc.gensokyolegacy.content.ui.dialog.SimpleDialogProvider;
+import dev.xkmc.gensokyolegacy.content.ui.dialog.FirstDialogProvider;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 
+import java.util.List;
 import java.util.Optional;
 
-public record QuestHandle(Holder<Quest> quest, DialogOption<?> dialog) implements IDialogHandle {
+public record GroupHandle(Component display, List<IDialogHandle> members) implements IDialogHandle {
 
 	@Override
 	public Component display() {
-		return dialog.display();
-	}
-
-	@Override
-	public String groupKey() {
-		return dialog.text();
+		return display;
 	}
 
 	@Override
 	public Component groupLabel() {
-		return Component.translatable(quest.value().title());
+		return display;
 	}
 
 	@Override
 	public void openMenu(ServerPlayer sp, YoukaiEntity character) {
-		var next = dialog.next();
-		if (next.isEmpty()) return;
-		new SimpleDialogProvider(sp, character, this, next.get()).open();
+		FirstDialogProvider.openGroup(sp, character, this);
 	}
 
 	@Override
 	public Optional<Holder<Quest>> getQuest() {
-		return Optional.of(quest);
+		return Optional.empty();
 	}
 
 }

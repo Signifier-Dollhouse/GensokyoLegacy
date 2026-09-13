@@ -12,6 +12,14 @@ public interface IDialogHandle {
 
 	Component display();
 
+	default String groupKey() {
+		return "";
+	}
+
+	default Component groupLabel() {
+		return display();
+	}
+
 	void openMenu(ServerPlayer sp, YoukaiEntity character);
 
 	Optional<Holder<Quest>> getQuest();

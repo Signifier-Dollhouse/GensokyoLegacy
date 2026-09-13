@@ -11,6 +11,7 @@ import dev.xkmc.l2menustacker.screen.packets.CacheMouseToClient;
 import net.minecraft.core.Holder;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -27,8 +28,11 @@ public class FirstDialogMenu extends DialogMenu {
 		YoukaiEntity ch = null;
 		var player = inv.player;
 		List<ClientHandle> options = new ArrayList<>();
+		@Nullable Component body = null;
 		if (buf != null) {
 			int uid = buf.readVarInt();
+			if (buf.readBoolean())
+				body = ComponentSerialization.STREAM_CODEC.decode(buf);
 			int size = buf.readVarInt();
 			if (player.level().getEntity(uid) instanceof YoukaiEntity e) {
 				ch = e;
@@ -37,7 +41,7 @@ public class FirstDialogMenu extends DialogMenu {
 				options.add(ClientHandle.STREAM_CODEC.decode(buf));
 			}
 		}
-		return new FirstDialogMenu(menu, wid, player, ch, options);
+		return new FirstDialogMenu(menu, wid, player, ch, options, body);
 	}
 
 	public static FirstDialogMenu create(MenuType<?> menu, int wid, ServerPlayer sp, YoukaiEntity character) {
@@ -46,23 +50,29 @@ public class FirstDialogMenu extends DialogMenu {
 		var options = new ArrayList<ClientHandle>();
 		for (var e : handles)
 			options.add(new ClientHandle(e.display(), e.getQuest()));
-		return new FirstDialogMenu(menu, wid, sp, character, handles, options);
+		return new FirstDialogMenu(menu, wid, sp, character, handles, options, null);
 	}
 
 	private final List<ClientHandle> options;
 
 	private final @Nullable List<IDialogHandle> handles;
 
-	public FirstDialogMenu(MenuType<?> menu, int wid, ServerPlayer sp, YoukaiEntity character, List<IDialogHandle> handles, List<ClientHandle> options) {
+	private final @Nullable Component body;
+
+	public FirstDialogMenu(MenuType<?> menu, int wid, ServerPlayer sp, YoukaiEntity character,
+	                       List<IDialogHandle> handles, List<ClientHandle> options, @Nullable Component body) {
 		super(menu, wid, sp, character);
 		this.handles = handles;
 		this.options = options;
+		this.body = body;
 	}
 
-	public FirstDialogMenu(MenuType<?> menu, int wid, Player player, @Nullable YoukaiEntity character, List<ClientHandle> options) {
+	public FirstDialogMenu(MenuType<?> menu, int wid, Player player, @Nullable YoukaiEntity character,
+	                       List<ClientHandle> options, @Nullable Component body) {
 		super(menu, wid, player, character);
 		this.options = options;
 		handles = null;
+		this.body = body;
 	}
 
 	@Override
@@ -93,6 +103,7 @@ public class FirstDialogMenu extends DialogMenu {
 
 	@Override
 	public Optional<Component> getBodyText() {
+		if (body != null) return Optional.of(body);
 		if (character == null) return Optional.empty();
 		var cfg = DialogConfig.of(character.getType());
 		if (cfg == null || cfg.greeting().isEmpty())

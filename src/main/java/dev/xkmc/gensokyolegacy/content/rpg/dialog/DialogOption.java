@@ -11,6 +11,8 @@ import java.util.Optional;
 
 public interface DialogOption<T extends DialogOption<T>> extends CodecElement<T>, GatedEntry {
 
+	String text();
+
 	Component display();
 
 	Optional<Holder<Dialog>> next();
