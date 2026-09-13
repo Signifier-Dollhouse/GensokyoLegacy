@@ -3,7 +3,6 @@ package dev.xkmc.gensokyolegacy.content.entity.foundation;
 import com.google.common.collect.Sets;
 import dev.xkmc.danmakuapi.init.data.DanmakuDamageTypes;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiFeatureSet;
-import dev.xkmc.gensokyolegacy.init.data.GLModConfig;
 import dev.xkmc.l2serial.serialization.marker.SerialClass;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -17,9 +16,7 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-import net.neoforged.neoforge.event.EventHooks;
 import net.neoforged.neoforge.fluids.FluidType;
 import org.jetbrains.annotations.Nullable;
 
@@ -31,7 +28,6 @@ public class DamageClampEntity extends DamageRefactorEntity {
 
 	protected final ServerBossEvent bossEvent = new ServerBossEvent(getDisplayName(), BossEvent.BossBarColor.RED, BossEvent.BossBarOverlay.NOTCHED_20);
 
-	private int hurtCD = 0;
 	private boolean hurtCall = false;
 	private final Set<ServerPlayer> players = Sets.newHashSet();
 
@@ -65,16 +61,19 @@ public class DamageClampEntity extends DamageRefactorEntity {
 
 	@Override
 	public boolean canBeAffected(MobEffectInstance ins) {
-		return !getFeatures().effectImmune() && super.canBeAffected(ins);
+		return !isEffectImmune() && super.canBeAffected(ins);
+	}
+
+	@Override
+	protected boolean isEffectImmune() {
+		return getFeatures().effectImmune();
 	}
 
 	@Override
 	public void tick() {
-		if (hurtCD < 1000) hurtCD++;
-		validateData();
 		super.tick();
 		if (!level().isClientSide()) {
-			if (getFeatures().effectImmune() && !getActiveEffectsMap().isEmpty()) {
+			if (isEffectImmune() && !getActiveEffectsMap().isEmpty()) {
 				removeAllEffects();
 			}
 			bossEvent.setProgress(getCombatProgress() / getMaxHealth());
@@ -92,30 +91,14 @@ public class DamageClampEntity extends DamageRefactorEntity {
 		}
 	}
 
-	private int getCD(DamageSource source) {
-		if (!GLModConfig.SERVER.enableExtraCoolDown.get())
-			return 0;
-		if (!getFeatures().damageCoolDown())
-			return 10;
-		if (source.is(DamageTypeTags.BYPASSES_INVULNERABILITY))
-			return 10;
-		if (source.getEntity() instanceof Player pl && pl.getAbilities().instabuild)
-			return 10;
-		if (source.is(DanmakuDamageTypes.DANMAKU_TYPE))
-			return 20;
-		if (source.is(DamageTypeTags.BYPASSES_COOLDOWN))
-			return 40;
-		return 80;
-	}
-
 	@Override
 	public boolean canSwimInFluidType(FluidType type) {
-		return getFeatures().effectImmune();
+		return isEffectImmune();
 	}
 
 	@Override
 	public boolean fireImmune() {
-		return getFeatures().effectImmune();
+		return isEffectImmune();
 	}
 
 	@Override
@@ -160,13 +143,8 @@ public class DamageClampEntity extends DamageRefactorEntity {
 			if (source.getEntity() instanceof LivingEntity le) {
 				if (shouldIgnore(le)) return false;
 			}
-			int cd = getCD(source);
-			if (getFeatures().damageCoolDown() && hurtCD < cd) {
-				return false;
-			}
 		}
 
-		hurtCD = 0;
 		hurtCall = true;
 		boolean ans = super.hurt(source, amount);
 		hurtCall = false;
@@ -188,28 +166,13 @@ public class DamageClampEntity extends DamageRefactorEntity {
 	}
 
 	@Override
-	public void setHealth(float val) {
-		if (!Float.isFinite(val)) return;
-		if (level().isClientSide() || !getFeatures().damageFilter()) {
-			setCombatProgress(val);
-		}
-		float health = getCombatProgress();
-		if (tickCount > 5 && val <= health) return;
-		setCombatProgress(val);
+	protected float dynamicReductionRate() {
+		return getFeatures().dynamicReductionRate();
 	}
 
-	public void heal(float original) {
-		if (!getFeatures().effectImmune()) {
-			super.heal(original);
-			return;
-		}
-		var heal = EventHooks.onLivingHeal(this, original);
-		heal = Math.max(original, heal);
-		if (heal <= 0) return;
-		float f = getCombatProgress();
-		if (f > 0) {
-			setHealth(f + heal);
-		}
+	@Override
+	protected float dynamicReductionCap() {
+		return getFeatures().dynamicReductionCap();
 	}
 
 	@Override

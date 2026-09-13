@@ -3,16 +3,16 @@ package dev.xkmc.gensokyolegacy.content.entity.youkai;
 /**
  * @param effectImmune         Immune to mob effects, fire, heal reduction, etc
  * @param damageFilter         Enable damage filter, set health immunity, etc
- * @param damageCoolDown       Enable damage cooldown
  * @param noTargetHealing      Enable no-target healing
- * @param limiter              Damage limit factor (1/n)
+ * @param limiter              Damage limit factor (1/n). Also scales the dynamic reduction floor (1/n of max health)
  * @param nonDanmakuProtection Damage reduction for non-danmaku protection (1/n)
+ * @param dynamicReductionRate Rate at which the dynamic reduction floor drops per tick. 0 disables dynamic reduction
  */
 public record YoukaiFeatureSet(
-		boolean effectImmune, boolean damageFilter, boolean damageCoolDown,
+		boolean effectImmune, boolean damageFilter,
 		boolean noTargetHealing, boolean trueDamageOnImmune, boolean hasBossBar,
 		int limiter, int nonDanmakuProtection, int noPlayerDiscardTime,
-		double maxSpeed) {
+		double maxSpeed, float dynamicReductionRate) {
 
 	public static final YoukaiFeatureSet NONE = YoukaiFeatureSet.builder()
 			.limit(5, 1)
@@ -23,16 +23,16 @@ public record YoukaiFeatureSet(
 			.build();
 
 	public static final YoukaiFeatureSet FULL = YoukaiFeatureSet.builder()
-			.markBoss().limit(20, 5).damageFilter().damageCoolDown()
+			.markBoss().limit(20, 5).damageFilter().dynamicReduction()
 			.build();
 
 	public static final YoukaiFeatureSet SAGE = YoukaiFeatureSet.builder()
-			.markBoss().limit(20, 5).damageFilter().damageCoolDown()
+			.markBoss().limit(20, 5).damageFilter().dynamicReduction()
 			.trueDamageOnImmune()
 			.build();
 
 	public static final YoukaiFeatureSet MAIDEN = YoukaiFeatureSet.builder()
-			.markBoss().limit(20, 5).damageFilter().damageCoolDown()
+			.markBoss().limit(20, 5).damageFilter().dynamicReduction()
 			.trueDamageOnImmune().noPlayerTime(30)
 			.build();
 
@@ -44,7 +44,6 @@ public record YoukaiFeatureSet(
 
 		private boolean effectImmune = false;
 		private boolean damageFilter = false;
-		private boolean damageCoolDown = false;
 		private boolean noTargetHealing = false;
 		private boolean hasBossBar = false;
 		private boolean trueDamageOnImmune = false;
@@ -52,6 +51,8 @@ public record YoukaiFeatureSet(
 		private int nonDanmakuProtection = 1;
 		private int noPlayerDiscardTime = -1;
 		private final double maxSpeed = 0.5;
+		private float dynamicReductionRate = 0;
+		private float dynamicReductionCap = 0.2f;
 
 		public Builder markBoss() {
 			effectImmune = true;
@@ -65,8 +66,13 @@ public record YoukaiFeatureSet(
 			return this;
 		}
 
-		public Builder damageCoolDown() {
-			damageCoolDown = true;
+		public Builder dynamicReduction() {
+			return dynamicReduction(20, 0.2f);
+		}
+
+		public Builder dynamicReduction(float rate, float cap) {
+			dynamicReductionRate = rate;
+			dynamicReductionCap = cap;
 			return this;
 		}
 
@@ -88,10 +94,11 @@ public record YoukaiFeatureSet(
 
 		public YoukaiFeatureSet build() {
 			return new YoukaiFeatureSet(
-					effectImmune, damageFilter, damageCoolDown,
+					effectImmune, damageFilter,
 					noTargetHealing, trueDamageOnImmune, hasBossBar,
 					limiter, nonDanmakuProtection,
-					noPlayerDiscardTime, maxSpeed
+					noPlayerDiscardTime, maxSpeed,
+					dynamicReductionRate, dynamicReductionCap
 			);
 		}
 

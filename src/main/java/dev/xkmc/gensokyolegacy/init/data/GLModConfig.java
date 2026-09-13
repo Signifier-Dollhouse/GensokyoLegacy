@@ -25,7 +25,6 @@ public class GLModConfig {
 		public final ModConfigSpec.DoubleValue danmakuMinPHPDamage;
 		public final ModConfigSpec.DoubleValue danmakuPlayerPHPDamage;
 		public final ModConfigSpec.DoubleValue danmakuHealOnHitTarget;
-		public final ModConfigSpec.BooleanValue enableExtraCoolDown;
 
 		public final ModConfigSpec.BooleanValue fairyAttackYoukaified;
 		public final ModConfigSpec.DoubleValue fairySummonReinforcement;
@@ -91,9 +90,6 @@ public class GLModConfig {
 						.defineInRange("danmakuPlayerPHPDamage", 0.1, 0, 1);
 				danmakuHealOnHitTarget = builder.text("When danmaku hits target, heal youkai health by percentage of max health")
 						.defineInRange("danmakuHealOnHitTarget", 0.2, 0, 1);
-				enableExtraCoolDown = builder.text("Extra Damage Cooldown")
-						.comment("Enable extra damage cool down on some youkai")
-						.define("enableExtraCoolDown", true);
 			}
 			builder.pop();
 
