@@ -52,7 +52,6 @@ public record YoukaiFeatureSet(
 		private int noPlayerDiscardTime = -1;
 		private final double maxSpeed = 0.5;
 		private float dynamicReductionRate = 0;
-		private float dynamicReductionCap = 0.2f;
 
 		public Builder markBoss() {
 			effectImmune = true;
@@ -67,12 +66,11 @@ public record YoukaiFeatureSet(
 		}
 
 		public Builder dynamicReduction() {
-			return dynamicReduction(20, 0.2f);
+			return dynamicReduction(20);
 		}
 
-		public Builder dynamicReduction(float rate, float cap) {
+		public Builder dynamicReduction(float rate) {
 			dynamicReductionRate = rate;
-			dynamicReductionCap = cap;
 			return this;
 		}
 
@@ -98,7 +96,7 @@ public record YoukaiFeatureSet(
 					noTargetHealing, trueDamageOnImmune, hasBossBar,
 					limiter, nonDanmakuProtection,
 					noPlayerDiscardTime, maxSpeed,
-					dynamicReductionRate, dynamicReductionCap
+					dynamicReductionRate
 			);
 		}
 

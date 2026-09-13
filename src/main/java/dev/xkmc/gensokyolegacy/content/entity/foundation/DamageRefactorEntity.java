@@ -177,6 +177,15 @@ public class DamageRefactorEntity extends PathfinderMob {
 	}
 
 	@Override
+	public boolean isDeadOrDying() {
+		return this.getCombatProgress() <= 0.0F;
+	}
+
+	public boolean isAlive() {
+		return !this.isRemoved() && this.getCombatProgress() > 0.0F;
+	}
+
+	@Override
 	protected void tickDeath() {
 		if (getCombatProgress() > 0) return;
 		super.tickDeath();

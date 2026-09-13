@@ -1,7 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.entity.foundation;
 
 import com.google.common.collect.Sets;
-import dev.xkmc.danmakuapi.init.data.DanmakuDamageTypes;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiFeatureSet;
 import dev.xkmc.l2serial.serialization.marker.SerialClass;
 import net.minecraft.nbt.CompoundTag;
@@ -109,30 +108,6 @@ public class DamageClampEntity extends DamageRefactorEntity {
 				super.isInvulnerableTo(source);
 	}
 
-	protected float clampDamage(DamageSource source, float amount) {
-		if (!hurtCall) return 0;
-		var filter = getFeatures().damageFilter();
-		if (source.is(DamageTypeTags.BYPASSES_INVULNERABILITY)) {
-			if (source.getEntity() instanceof LivingEntity le) {
-				if (le instanceof ServerPlayer sp) {
-					if (sp.isCreative()) {
-						return amount;
-					}
-				}
-			} else {
-				if (source.is(DamageTypes.GENERIC_KILL)) {
-					return amount;
-				}
-				if (filter && source.is(DamageTypes.FELL_OUT_OF_WORLD))
-					return Math.min(4, amount);
-			}
-		}
-		amount = Math.min(getMaxHealth() / getFeatures().limiter(), amount);
-		if (!source.is(DanmakuDamageTypes.DANMAKU_TYPE))
-			amount /= getFeatures().nonDanmakuProtection();
-		return amount;
-	}
-
 	@Override
 	public boolean hurt(DamageSource source, float amount) {
 		if (!source.is(DamageTypes.GENERIC_KILL) || source.getEntity() != null) {
@@ -158,21 +133,15 @@ public class DamageClampEntity extends DamageRefactorEntity {
 	}
 
 	@Override
-	protected void hurtFinal(DamageSource source, float amount) {
-		if (!Float.isFinite(amount)) return;
-		amount = clampDamage(source, amount);
-		if (amount <= 0) return;
-		super.hurtFinal(source, amount);
-	}
-
-	@Override
 	protected float dynamicReductionRate() {
+		if (getFeatures().limiter() <= 1)
+			return 0;
 		return getFeatures().dynamicReductionRate();
 	}
 
 	@Override
 	protected float dynamicReductionCap() {
-		return getFeatures().dynamicReductionCap();
+		return 1f / getFeatures().limiter();
 	}
 
 	@Override
