@@ -47,10 +47,10 @@ public class QuestInfoScreen extends BaseTextScreen {
 			if (e.getValue().isCompletable(player, holder.get().value()))
 				comp.withStyle(ChatFormatting.DARK_GREEN);
 			g.drawString(this.font, comp, x, y, 0, false);
-			y += font.lineHeight;
-			if (mx > x && mx < x + this.font.width(comp) && my > y && my < y + 10) {
+			if (mx > x && mx < x + this.font.width(comp) && my > y && my < y + font.lineHeight) {
 				focus = new QuestInfo(holder.get().value(), e.getValue());
 			}
+			y += font.lineHeight;
 		}
 		if (focus != null) {
 			g.renderComponentTooltip(this.font, focus.getInfoPageText(player), mx, my);

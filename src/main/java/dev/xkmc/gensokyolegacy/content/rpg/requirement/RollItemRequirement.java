@@ -39,11 +39,6 @@ public record RollItemRequirement(
 	}
 
 	@Override
-	public int getMaxProgress() {
-		return 1;
-	}
-
-	@Override
 	public void start(QuestData data, ServerPlayer sp, String key) {
 		var loot = sp.serverLevel().getServer().reloadableRegistries()
 				.getLootTable(ResourceKey.create(Registries.LOOT_TABLE, table));
@@ -83,7 +78,7 @@ public record RollItemRequirement(
 			ans.add(e.getDesc(player));
 		}
 		if (ingredients.size() > 1) {
-			boolean pass = new InventoryMapper(player.getInventory().items, ingredients).test();
+			boolean pass = InventoryMapper.testCached(player, list);
 			ans.addFirst(pass ? GLLang.Quest.ITEM_SUBMIT_PASS.get() : GLLang.Quest.ITEM_SUBMIT_FAIL.get());
 		}
 		return ans;
