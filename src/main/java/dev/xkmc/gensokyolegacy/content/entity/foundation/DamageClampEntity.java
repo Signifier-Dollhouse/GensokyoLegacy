@@ -144,6 +144,8 @@ public class DamageClampEntity extends DamageRefactorEntity {
 		return 1f / getFeatures().limiter();
 	}
 
+	// boss bar
+
 	@Override
 	public void readAdditionalSaveData(CompoundTag tag) {
 		super.readAdditionalSaveData(tag);
