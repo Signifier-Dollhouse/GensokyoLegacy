@@ -84,9 +84,18 @@ public class ServerCharacterDialogManager {
 
 	private static List<IDialogHandle> groupHandles(List<IDialogHandle> raw) {
 		LinkedHashMap<String, List<IDialogHandle>> map = new LinkedHashMap<>();
-		for (var e : raw)
-			map.computeIfAbsent(e.groupKey(), k -> new ArrayList<>()).add(e);
+		for (var e : raw) {
+			String key = e.groupKey();
+			if (!key.isEmpty()) {
+				map.computeIfAbsent(key, k -> new ArrayList<>()).add(e);
+			}
+		}
 		List<IDialogHandle> ans = new ArrayList<>();
+		for (var e : raw) {
+			if (e.groupKey().isEmpty()) {
+				ans.add(e);
+			}
+		}
 		for (var e : map.values()) {
 			if (e.size() == 1) ans.add(e.getFirst());
 			else ans.add(new GroupHandle(e.getFirst().display(), e));

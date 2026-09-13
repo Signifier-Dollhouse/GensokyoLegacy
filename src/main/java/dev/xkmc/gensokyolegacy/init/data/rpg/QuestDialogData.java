@@ -8,6 +8,7 @@ import dev.xkmc.gensokyolegacy.content.rpg.core.IngredientEntry;
 import dev.xkmc.gensokyolegacy.content.rpg.dialog.Dialog;
 import dev.xkmc.gensokyolegacy.content.rpg.dialog.DialogOption;
 import dev.xkmc.gensokyolegacy.content.rpg.dialog.DialogStarter;
+import dev.xkmc.gensokyolegacy.content.rpg.dialog.GroupDialogOption;
 import dev.xkmc.gensokyolegacy.content.rpg.dialog.SimpleDialogOption;
 import dev.xkmc.gensokyolegacy.content.rpg.quest.Quest;
 import dev.xkmc.gensokyolegacy.content.rpg.requirement.RollItemRequirement;
@@ -198,6 +199,18 @@ public class QuestDialogData {
 
 	public SimpleDialogOption option(String id, String text) {
 		return new SimpleDialogOption(List.of(), optionText(id, text), List.of(), Optional.empty());
+	}
+
+	public GroupDialogOption groupOption(String group, String id, String text) {
+		return new GroupDialogOption(group, optionText(id, text), List.of(), Optional.empty());
+	}
+
+	public GroupDialogOption groupOption(String group, String id, String text, DialogAction<?> action) {
+		return new GroupDialogOption(group, optionText(id, text), List.of(action), Optional.empty());
+	}
+
+	public GroupDialogOption groupOption(String group, String id, String text, Holder<Dialog> next) {
+		return new GroupDialogOption(group, optionText(id, text), List.of(), Optional.of(next));
 	}
 
 	public SimpleDialogOption option(String id, String text, DialogAction<?> action) {

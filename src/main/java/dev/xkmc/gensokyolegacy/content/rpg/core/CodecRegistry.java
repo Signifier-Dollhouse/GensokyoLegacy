@@ -11,6 +11,7 @@ import dev.xkmc.gensokyolegacy.content.rpg.condition.SelfReputationCondition;
 import dev.xkmc.gensokyolegacy.content.rpg.dialog.Dialog;
 import dev.xkmc.gensokyolegacy.content.rpg.dialog.DialogOption;
 import dev.xkmc.gensokyolegacy.content.rpg.dialog.DialogStarter;
+import dev.xkmc.gensokyolegacy.content.rpg.dialog.GroupDialogOption;
 import dev.xkmc.gensokyolegacy.content.rpg.dialog.SimpleDialogOption;
 import dev.xkmc.gensokyolegacy.content.rpg.quest.Quest;
 import dev.xkmc.gensokyolegacy.content.rpg.quest.QuestCondition;
@@ -49,6 +50,7 @@ public class CodecRegistry {
 	public static final DatapackReg<TradeOffer> TRADE = GensokyoLegacy.REG.dataReg("trade", TradeOffer.CODEC);
 
 	public static final CdcVal<SimpleDialogOption> SIMPLE_OPTION = OPTION.reg("simple", SimpleDialogOption.CODEC);
+	public static final CdcVal<GroupDialogOption> GROUP_OPTION = OPTION.reg("group", GroupDialogOption.CODEC);
 
 	public static final CdcVal<StartQuestAction> START_QUEST = ACTION.reg("start_quest", StartQuestAction.CODEC);
 	public static final CdcVal<CompleteQuestAction> COMPLETE_QUEST = ACTION.reg("complete_quest", CompleteQuestAction.CODEC);

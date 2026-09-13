@@ -19,7 +19,7 @@ public record QuestHandle(Holder<Quest> quest, DialogOption<?> dialog) implement
 
 	@Override
 	public String groupKey() {
-		return dialog.text();
+		return dialog.groupKey();
 	}
 
 	@Override

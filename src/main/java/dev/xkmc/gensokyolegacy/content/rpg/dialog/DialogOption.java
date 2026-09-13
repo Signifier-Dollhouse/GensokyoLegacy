@@ -13,6 +13,10 @@ public interface DialogOption<T extends DialogOption<T>> extends CodecElement<T>
 
 	String text();
 
+	default String groupKey() {
+		return "";
+	}
+
 	Component display();
 
 	Optional<Holder<Dialog>> next();
