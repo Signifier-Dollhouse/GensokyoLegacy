@@ -402,9 +402,9 @@ public class ReimuQDGen extends QuestDialogData {
 	                                 String reject, String rejectLine) {
 		return option("start", button,
 				dialog("start/dialog_1", intro,
-						option("start/reject", reject, dialog("start/reject/dialog_1", rejectLine, optionKey("start/reject/bye", byeKey))),
+						option("start/reject", reject, dialog("start/reject/dialog_1", rejectLine, optionKey(byeKey))),
 						option("start/accept", accept, new StartQuestAction(),
-								dialog("start/accept/dialog_1", acceptLine, optionKey("start/accept/bye", byeKey)))));
+								dialog("start/accept/dialog_1", acceptLine, optionKey(byeKey)))));
 	}
 
 	private SimpleDialogOption startRaid(String button, String intro,
@@ -412,22 +412,22 @@ public class ReimuQDGen extends QuestDialogData {
 	                                     String reject, String rejectLine) {
 		return option("start", button,
 				dialog("start/dialog_1", intro,
-						option("start/reject", reject, dialog("start/reject/dialog_1", rejectLine, optionKey("start/reject/bye", byeKey))),
+						option("start/reject", reject, dialog("start/reject/dialog_1", rejectLine, optionKey(byeKey))),
 						option("start/accept", accept, List.of(new StartQuestAction(), new GiveMobEffectAction(MobEffects.BAD_OMEN, BAD_OMEN_DURATION, 0)),
-								dialog("start/accept/dialog_1", acceptLine, optionKey("start/accept/bye", byeKey)))));
+								dialog("start/accept/dialog_1", acceptLine, optionKey(byeKey)))));
 	}
 
 	private SimpleDialogOption follow(String button, String intro, String opt, String optLine) {
 		return option("follow_up", button,
 				dialog("follow_up/dialog_1", intro,
-						option("follow_up/end", opt, dialog("follow_up/end/dialog_1", optLine, optionKey("follow_up/end/bye", byeKey)))));
+						option("follow_up/end", opt, dialog("follow_up/end/dialog_1", optLine, optionKey(byeKey)))));
 	}
 
 	private SimpleDialogOption follow(String button, String intro, String opt, String optLine, DialogAction<?> action) {
 		return option("follow_up", button,
 				dialog("follow_up/dialog_1", intro,
 						option("follow_up/end", opt, List.of(action),
-								dialog("follow_up/end/dialog_1", optLine, optionKey("follow_up/end/bye", byeKey)))));
+								dialog("follow_up/end/dialog_1", optLine, optionKey(byeKey)))));
 	}
 
 	private SimpleDialogOption complete(String button, String intro,
@@ -435,9 +435,9 @@ public class ReimuQDGen extends QuestDialogData {
 	                                    String complete, String completeLine) {
 		return option("complete", button,
 				dialog("complete/dialog_1", intro,
-						option("complete/reject", reject, dialog("complete/reject/dialog_1", rejectLine, optionKey("complete/reject/bye", byeKey))),
+						option("complete/reject", reject, dialog("complete/reject/dialog_1", rejectLine, optionKey(byeKey))),
 						option("complete/handover", complete, new CompleteQuestAction(),
-								dialog("complete/handover/dialog_1", completeLine, optionKey("complete/handover/bye", byeKey)))));
+								dialog("complete/handover/dialog_1", completeLine, optionKey(byeKey)))));
 	}
 
 	private void daily(String id, String title, String desc, QuestRecurrence rec,
@@ -457,43 +457,43 @@ public class ReimuQDGen extends QuestDialogData {
 	}
 
 	private SimpleDialogOption dailyStart(String intro, String acceptLine, String rejectLine) {
-		return optionKey("start", dailyStartKey,
+		return optionKey(dailyStartKey,
 				dialog("start/dialog_1", intro,
-						optionKey("start/reject", dailyRejectKey,
-								dialog("start/reject/dialog_1", rejectLine, optionKey("start/reject/bye", byeKey))),
-						optionKey("start/accept", dailyAcceptKey, new StartQuestAction(),
-								dialog("start/accept/dialog_1", acceptLine, optionKey("start/accept/bye", byeKey)))));
+						optionKey(dailyRejectKey,
+								dialog("start/reject/dialog_1", rejectLine, optionKey(byeKey))),
+						optionKey(dailyAcceptKey, new StartQuestAction(),
+								dialog("start/accept/dialog_1", acceptLine, optionKey(byeKey)))));
 	}
 
 	private SimpleDialogOption dailyRaidStart(String intro, String acceptLine, String rejectLine) {
-		return optionKey("start", dailyStartKey,
+		return optionKey(dailyStartKey,
 				dialog("start/dialog_1", intro,
-						optionKey("start/reject", dailyRejectKey,
-								dialog("start/reject/dialog_1", rejectLine, optionKey("start/reject/bye", byeKey))),
-						optionKey("start/accept", dailyAcceptKey,
+						optionKey(dailyRejectKey,
+								dialog("start/reject/dialog_1", rejectLine, optionKey(byeKey))),
+						optionKey(dailyAcceptKey,
 								List.of(new StartQuestAction(), new GiveMobEffectAction(MobEffects.BAD_OMEN, BAD_OMEN_DURATION, 0)),
-								dialog("start/accept/dialog_1", acceptLine, optionKey("start/accept/bye", byeKey)))));
+								dialog("start/accept/dialog_1", acceptLine, optionKey(byeKey)))));
 	}
 
 	private SimpleDialogOption dailyFollow(String followLine, String optLine) {
-		return optionKey("follow_up", dailyFollowKey,
+		return optionKey(dailyFollowKey,
 				dialog("follow_up/dialog_1", followLine,
-						optionKey("follow_up/end", dailyFollowEndKey,
-								dialog("follow_up/end/dialog_1", optLine, optionKey("follow_up/end/bye", byeKey)))));
+						optionKey(dailyFollowEndKey,
+								dialog("follow_up/end/dialog_1", optLine, optionKey(byeKey)))));
 	}
 
 	private SimpleDialogOption dailyFollow(String followLine, String optLine, DialogAction<?> action) {
-		return optionKey("follow_up", dailyFollowKey,
+		return optionKey(dailyFollowKey,
 				dialog("follow_up/dialog_1", followLine,
-						optionKey("follow_up/end", dailyFollowEndKey, List.of(action),
-								dialog("follow_up/end/dialog_1", optLine, optionKey("follow_up/end/bye", byeKey)))));
+						optionKey(dailyFollowEndKey, List.of(action),
+								dialog("follow_up/end/dialog_1", optLine, optionKey(byeKey)))));
 	}
 
 	private SimpleDialogOption dailyComplete(String completeLine) {
-		return optionKey("complete", dailyCompleteKey,
+		return optionKey(dailyCompleteKey,
 				dialogKey("complete/dialog_1", dailyGotemKey,
-						optionKey("complete/handover", dailyHandoverKey, new CompleteQuestAction(),
-								dialog("complete/handover/dialog_1", completeLine, optionKey("complete/handover/bye", byeKey)))));
+						optionKey(dailyHandoverKey, new CompleteQuestAction(),
+								dialog("complete/handover/dialog_1", completeLine, optionKey(byeKey)))));
 	}
 
 }

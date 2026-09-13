@@ -64,9 +64,9 @@ public class SimpleDialogMenu extends DialogMenu {
 	public void setDialog(Holder<Dialog> dialog) {
 		this.dialog = dialog;
 		options = dialog.value().options();
-		for (int i = 0; i < 16; i++)
-			conditions.set(false, i);
 		if (player instanceof ServerPlayer sp && character != null) {
+			for (int i = 0; i < 16; i++)
+				conditions.set(false, i);
 			for (int i = 0; i < options.size(); i++) {
 				conditions.set(options.get(i).match(sp, character), i);
 			}

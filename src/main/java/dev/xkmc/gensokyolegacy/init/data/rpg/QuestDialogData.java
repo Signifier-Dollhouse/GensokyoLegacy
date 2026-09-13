@@ -225,23 +225,23 @@ public class QuestDialogData {
 		return new SimpleDialogOption(List.of(), optionText(id, text), List.of(action), Optional.of(next));
 	}
 
-	public SimpleDialogOption optionKey(String id, String key) {
+	public SimpleDialogOption optionKey(String key) {
 		return new SimpleDialogOption(List.of(), key, List.of(), Optional.empty());
 	}
 
-	public SimpleDialogOption optionKey(String id, String key, DialogAction<?> action) {
+	public SimpleDialogOption optionKey(String key, DialogAction<?> action) {
 		return new SimpleDialogOption(List.of(), key, List.of(action), Optional.empty());
 	}
 
-	public SimpleDialogOption optionKey(String id, String key, Holder<Dialog> next) {
+	public SimpleDialogOption optionKey(String key, Holder<Dialog> next) {
 		return new SimpleDialogOption(List.of(), key, List.of(), Optional.of(next));
 	}
 
-	public SimpleDialogOption optionKey(String id, String key, DialogAction<?> action, Holder<Dialog> next) {
+	public SimpleDialogOption optionKey(String key, DialogAction<?> action, Holder<Dialog> next) {
 		return new SimpleDialogOption(List.of(), key, List.of(action), Optional.of(next));
 	}
 
-	public SimpleDialogOption optionKey(String id, String key, List<DialogAction<?>> actions, Holder<Dialog> next) {
+	public SimpleDialogOption optionKey(String key, List<DialogAction<?>> actions, Holder<Dialog> next) {
 		return new SimpleDialogOption(List.of(), key, actions, Optional.of(next));
 	}
 
