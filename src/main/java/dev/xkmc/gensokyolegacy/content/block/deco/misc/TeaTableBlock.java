@@ -2,23 +2,25 @@ package dev.xkmc.gensokyolegacy.content.block.deco.misc;
 
 import dev.xkmc.l2modularblock.core.BlockTemplates;
 import dev.xkmc.l2modularblock.mult.*;
+import dev.xkmc.l2modularblock.one.ShapeBlockMethod;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 import javax.annotation.Nullable;
 
 public class TeaTableBlock implements CreateBlockStateBlockMethod, DefaultStateBlockMethod,
-		PlacementBlockMethod, SetPlacedByBlockMethod, ShapeUpdateBlockMethod {
+		PlacementBlockMethod, SetPlacedByBlockMethod, ShapeBlockMethod, OnReplacedBlockMethod {
 
 	public static final BooleanProperty ORIGIN = BooleanProperty.create("origin");
 
@@ -38,11 +40,12 @@ public class TeaTableBlock implements CreateBlockStateBlockMethod, DefaultStateB
 		if (def == null) return null;
 		Level level = ctx.getLevel();
 		BlockPos pos = ctx.getClickedPos();
-		Direction facing = def.getValue(BlockTemplates.HORIZONTAL_FACING).getOpposite();
-		Direction left = facing.getCounterClockWise();
+		Direction direction = def.getValue(BlockTemplates.HORIZONTAL_FACING);
+		Direction left = direction.getClockWise();
+		Direction back = direction.getOpposite();
 		BlockPos leftPos = pos.relative(left);
-		BlockPos backPos = pos.relative(facing);
-		BlockPos leftBackPos = pos.relative(left).relative(facing);
+		BlockPos backPos = pos.relative(back);
+		BlockPos leftBackPos = pos.relative(left).relative(back);
 
 		if (!level.getBlockState(leftPos).canBeReplaced() ||
 				!level.getBlockState(backPos).canBeReplaced() ||
@@ -57,45 +60,30 @@ public class TeaTableBlock implements CreateBlockStateBlockMethod, DefaultStateB
 	public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity le, ItemStack stack) {
 		if (level.isClientSide()) return;
 
-		Direction facing = state.getValue(BlockTemplates.HORIZONTAL_FACING).getOpposite();
-		Direction left = facing.getCounterClockWise();
+        Direction direction = state.getValue(BlockTemplates.HORIZONTAL_FACING);
+		Direction left = direction.getClockWise();
+		Direction back = direction.getOpposite();
 
 		BlockState sub = state.setValue(ORIGIN, false);
-		level.setBlockAndUpdate(pos.relative(left), sub);
-		level.setBlockAndUpdate(pos.relative(facing), sub);
-		level.setBlockAndUpdate(pos.relative(left).relative(facing), sub);
+		level.setBlockAndUpdate(pos.relative(left), sub.setValue(BlockTemplates.HORIZONTAL_FACING, direction.getClockWise()));
+		level.setBlockAndUpdate(pos.relative(back), sub.setValue(BlockTemplates.HORIZONTAL_FACING, direction.getCounterClockWise()));
+		level.setBlockAndUpdate(pos.relative(left).relative(back), sub.setValue(BlockTemplates.HORIZONTAL_FACING, direction.getOpposite()));
 	}
 
 	@Override
-	public BlockState updateShape(Block self, BlockState current, BlockState state, Direction facing, BlockState facingState, LevelAccessor level, BlockPos currentPos, BlockPos facingPos) {
-		if (level.isClientSide()) return current;
+	public void onReplaced(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
+		if (level.isClientSide()) return;
+		if (state.is(newState.getBlock())) return;
 
-		if (facingState.is(self)) return current;
-
-		Direction blockFacing = current.getValue(BlockTemplates.HORIZONTAL_FACING);
-		if (!isStructureValid(level, currentPos, self, blockFacing)) {
-			level.destroyBlock(currentPos, false);
-			return Blocks.AIR.defaultBlockState();
-		}
-
-		return current;
+		Direction clockwise = state.getValue(BlockTemplates.HORIZONTAL_FACING).getClockWise();
+        BlockPos relativePos = pos.relative(clockwise);
+        if(level.getBlockState(relativePos).is(state.getBlock())){
+            level.destroyBlock(relativePos, false);
+        }
 	}
 
-	private boolean isStructureValid(LevelAccessor level, BlockPos pos, Block self, Direction facing) {
-		Direction left = facing.getClockWise();
-
-		return validateOrigin(level, pos, self, facing) ||
-				validateOrigin(level, pos.relative(left), self, facing) ||
-				validateOrigin(level, pos.relative(facing.getOpposite()), self, facing) ||
-				validateOrigin(level, pos.relative(left).relative(facing.getOpposite()), self, facing);
-	}
-
-	private boolean validateOrigin(LevelAccessor level, BlockPos origin, Block self, Direction facing) {
-		Direction left = facing.getClockWise();
-
-		return level.getBlockState(origin).is(self) &&
-				level.getBlockState(origin.relative(left)).is(self) &&
-				level.getBlockState(origin.relative(facing)).is(self) &&
-				level.getBlockState(origin.relative(left).relative(facing)).is(self);
-	}
+    @Override
+    public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext ctx) {
+        return Block.box(0,0,0,16,12,16);
+    }
 }
