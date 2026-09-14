@@ -9,6 +9,7 @@ import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.registrate.GLEffects;
 import dev.xkmc.gensokyolegacy.init.registrate.GLFluids;
 import net.minecraft.core.component.DataComponentType;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.material.Fluid;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
@@ -46,7 +47,8 @@ public enum HexBrew {
 						p -> new GLHexFluid(p, this)))
 				.defaultLang().register();
 		var builder = GensokyoLegacy.REGISTRATE.item(id + "_bottle",
-						p -> new HexBrewBottleItem(this, fluid::getSource, handler.modify(p)))
+						p -> new HexBrewBottleItem(this, fluid::getSource,
+								handler.modify(p).component(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, true)))
 				.model((ctx, pvd) -> {
 					var b = pvd.getBuilder(ctx.getName())
 							.parent(new ModelFile.UncheckedModelFile("item/generated"))

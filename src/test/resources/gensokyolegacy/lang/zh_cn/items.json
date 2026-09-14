@@ -1,6 +1,18 @@
 {
 	"entity.gensokyolegacy.fairy_ice_crystal": "妖精冰晶",
 	"entity.gensokyolegacy.frozen_frog": "冻青蛙",
+	"entity.gensokyolegacy.hexbrew_bottle": "魔药瓶",
+	"fluid.gensokyolegacy": {
+		"mundane_hexbrew": "平凡魔药",
+		"hexbrew_elixir": "灵药魔药",
+		"explosive_hexbrew": "爆爆魔药",
+		"miasma_hexbrew": "腐瘴魔药",
+		"shield_hexbrew": "护盾魔药",
+		"starlight_hexbrew": "星辰魔药",
+		"hyphae_hexbrew": "菌丝魔药",
+		"witch_hexbrew": "女巫魔药",
+		"witch_splash": "喷溅型女巫魔药"
+	},
 	"block.gensokyolegacy": {
 		"donation_box": "赛钱箱",
 		"evergreen_vine": "常青垂藤",
@@ -69,7 +81,16 @@
 		"spell_sanae": "秘术「一脉单传的弹幕」",
 		"spell_mystia": "夜雀「午夜的合唱指挥」",
 		"spell_yukari_butterfly": "魍魉「二重黑死蝶」",
-		"spell_yukari_laser": "结界「光与暗的网目」"
+		"spell_yukari_laser": "结界「光与暗的网目」",
+		"mundane_hexbrew_bottle": "平凡魔药",
+		"hexbrew_elixir_bottle": "灵药魔药",
+		"explosive_hexbrew_bottle": "爆爆魔药",
+		"miasma_hexbrew_bottle": "腐瘴魔药",
+		"shield_hexbrew_bottle": "护盾魔药",
+		"starlight_hexbrew_bottle": "星辰魔药",
+		"hyphae_hexbrew_bottle": "菌丝魔药",
+		"witch_hexbrew_bottle": "女巫魔药",
+		"witch_splash_bottle": "喷溅型女巫魔药"
 	},
 	"-cartesian": {
 		"entity": {
