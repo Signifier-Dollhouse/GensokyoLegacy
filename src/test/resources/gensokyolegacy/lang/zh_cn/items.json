@@ -3,8 +3,8 @@
 	"entity.gensokyolegacy.frozen_frog": "冻青蛙",
 	"entity.gensokyolegacy.hexbrew_bottle": "魔药瓶",
 	"fluid.gensokyolegacy": {
-		"mundane_hexbrew": "平凡魔药",
-		"hexbrew_elixir": "灵药魔药",
+		"mundane_hexbrew": "魔药溶剂",
+		"hexbrew_elixir": "魔药精华",
 		"explosive_hexbrew": "爆爆魔药",
 		"miasma_hexbrew": "腐瘴魔药",
 		"shield_hexbrew": "护盾魔药",
