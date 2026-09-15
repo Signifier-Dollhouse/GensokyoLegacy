@@ -16,6 +16,8 @@
 	],
 	"client": [
 		"AbstractContainerScreenMixin",
+		"DowserHandRendererMixin",
+		"DowserItemInHandLayerMixin",
 		"GuiGraphicsMixin",
 		"LocalPlayerMixin"
 	],

@@ -62,6 +62,7 @@ public class GLItems {
 	public static final ItemEntry<MiniFurnace1> MINI_FURNACE_1;
 	public static final ItemEntry<CentiPickaxe> CENTIPICKAXE;
 	public static final ItemEntry<Dowser> DOWSER;
+	public static final ItemEntry<Item> DOWSER_LEFT, DOWSER_RIGHT;
 	public static final ItemEntry<MermaidPearl> MERMAID_PEARL;
 	public static final ItemEntry<CatBell> CAT_BELL;
 
@@ -125,13 +126,23 @@ public class GLItems {
 					.lang("Mini Hakkero [Prototype]").register();
 
 			CENTIPICKAXE = reg.item("centipickaxe", CentiPickaxe::new)
-					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/tool/" + ctx.getName())))
+					.model((ctx, pvd) -> pvd.handheld(ctx, pvd.modLoc("item/tool/" + ctx.getName())))
 					.tab(TAB.key(), (a, b) -> b.accept(a.get().getDefaultInstance(b.getParameters().holders())))
 					.lang("Centipeck").register();
 
 			DOWSER = reg.item("dowser", Dowser::new)
-					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/tool/" + ctx.getName())))
-					.lang("Dowser").register();
+					.model((ctx, pvd) -> pvd.handheld(ctx, pvd.modLoc("item/tool/" + ctx.getName())))
+					.lang("Nazrin's Dowser").register();
+
+			DOWSER_LEFT = reg.item("dowser_left", Item::new)
+					.model((ctx, pvd) -> pvd.handheld(ctx, pvd.modLoc("item/tool/" + ctx.getName())))
+					.removeTab(TAB.key())
+					.lang("Nazrin's Dowser (Left Half)").register();
+
+			DOWSER_RIGHT = reg.item("dowser_right", Item::new)
+					.model((ctx, pvd) -> pvd.handheld(ctx, pvd.modLoc("item/tool/" + ctx.getName())))
+					.removeTab(TAB.key())
+					.lang("Nazrin's Dowser (Right Half)").register();
 
 			MERMAID_PEARL = reg.item("mermaid_pearl", MermaidPearl::new)
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/tool/" + ctx.getName())))

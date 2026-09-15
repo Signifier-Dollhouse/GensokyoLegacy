@@ -77,21 +77,25 @@
 		"cirno_wings": "琪露诺的翅膀",
 		"debug_glasses": "调试眼镜",
 		"debug_wand": "调试手杖",
+		"centipickaxe": "大蜈蚣镐",
 		"spell_reimu": "「梦想天生」",
 		"spell_marisa": "恋符「极限火花」",
 		"spell_sanae": "秘术「一脉单传的弹幕」",
 		"spell_mystia": "夜雀「午夜的合唱指挥」",
 		"spell_yukari_butterfly": "魍魉「二重黑死蝶」",
 		"spell_yukari_laser": "结界「光与暗的网目」",
-		"mundane_hexbrew_bottle": "平凡魔药",
-		"hexbrew_elixir_bottle": "灵药魔药",
+		"mundane_hexbrew_bottle": "魔药溶剂",
+		"hexbrew_elixir_bottle": "魔药精华",
 		"explosive_hexbrew_bottle": "爆爆魔药",
 		"miasma_hexbrew_bottle": "腐瘴魔药",
 		"shield_hexbrew_bottle": "护盾魔药",
 		"starlight_hexbrew_bottle": "星辰魔药",
 		"hyphae_hexbrew_bottle": "菌丝魔药",
 		"witch_hexbrew_bottle": "女巫魔药",
-		"witch_splash_bottle": "喷溅型女巫魔药"
+		"witch_splash_bottle": "喷溅型女巫魔药",
+		"dowser": "纳兹玲的寻宝钗",
+		"dowser_left": "纳兹玲的寻宝钗（左半）",
+		"dowser_right": "纳兹玲的寻宝钗（右半）"
 	},
 	"-cartesian": {
 		"entity": {

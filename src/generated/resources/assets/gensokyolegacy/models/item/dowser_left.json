@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/handheld",
   "textures": {
-    "layer0": "gensokyolegacy:item/tool/dowser"
+    "layer0": "gensokyolegacy:item/tool/dowser_left"
   }
 }
