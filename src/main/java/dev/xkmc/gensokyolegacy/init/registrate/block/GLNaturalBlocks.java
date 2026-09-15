@@ -261,6 +261,7 @@ public class GLNaturalBlocks {
 	public static class TreeSet {
 
 		public final BlockEntry<RotatedPillarBlock> log;
+		public final BlockEntry<RotatedPillarBlock> wood;
 		public final BlockEntry<LeavesBlock> leaves;
 		public final BlockEntry<SaplingBlock> sapling;
 
@@ -272,6 +273,15 @@ public class GLNaturalBlocks {
 					.blockstate((ctx, pvd) -> genColumnState(ctx, pvd,
 							pvd.modLoc("block/wood/" + ctx.getName() + "_side"),
 							pvd.modLoc("block/wood/" + ctx.getName() + "_top")))
+					.tag(BlockTags.MINEABLE_WITH_AXE, BlockTags.LOGS)
+					.simpleItem()
+					.register();
+			wood = reg.block(id + "_wood", RotatedPillarBlock::new)
+					.properties(p -> logProp)
+					.blockstate((ctx, pvd) -> {
+						var side = pvd.modLoc("block/wood/" + id + "_log_side");
+						genColumnState(ctx, pvd, side, side);
+					})
 					.tag(BlockTags.MINEABLE_WITH_AXE, BlockTags.LOGS)
 					.simpleItem()
 					.register();
