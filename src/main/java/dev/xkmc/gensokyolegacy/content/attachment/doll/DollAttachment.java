@@ -2,7 +2,6 @@ package dev.xkmc.gensokyolegacy.content.attachment.doll;
 
 import dev.xkmc.gensokyolegacy.content.entity.dolls.BaseDollEntity;
 import dev.xkmc.gensokyolegacy.content.item.doll.DollItem;
-import dev.xkmc.gensokyolegacy.content.item.doll.DollItemData;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.l2core.capability.player.PlayerCapabilityTemplate;
@@ -47,6 +46,12 @@ public class DollAttachment extends PlayerCapabilityTemplate<DollAttachment> imp
 	 * resummoned near him; matches the FOLLOW_RANGE the dolls are summoned with.
 	 */
 	private static final double PULLBACK_DISTANCE = 48.0;
+
+	/**
+	 * Maximum summoned dolls per player. Stored dolls (data, items) are uncapped —
+	 * only materialized ones count.
+	 */
+	public static final int MAX_SUMMONED = 8;
 
 	@SerialField
 	private final Map<UUID, DollData> dolls = new LinkedHashMap<>();
@@ -162,9 +167,26 @@ public class DollAttachment extends PlayerCapabilityTemplate<DollAttachment> imp
 	// dimension changes. A cloned spare item therefore summons an independent doll
 	// (fresh uuid), and the entity is always findable via level().getEntity(uuid).
 
+	/** Summoned entries on this ledger. */
+	public int summonedCount() {
+		int n = 0;
+		for (DollData data : dolls.values()) {
+			if (data.isSummoned()) n++;
+		}
+		return n;
+	}
+
+	public boolean summonCapped() {
+		return summonedCount() >= MAX_SUMMONED;
+	}
+
+	/**
+	 * Item -> entity. Broken (0-health) dolls stay items — repair them in an anvil
+	 * with wool first. Respects the per-player summoned cap.
+	 */
 	public boolean summon(ServerPlayer player, ItemStack stack, Vec3 pos) {
 		DollData data = DollData.fromItemData(stack, pos, player.level().dimension().location(), player.getYRot());
-		if (data.combat.amount() <= 0) data.combat = DollItemData.fresh().combat();
+		if (data.getHealth() <= 0 || summonCapped()) return false;
 		data.state = DollState.SUMMONED;
 		return doSummon(player, data, null);
 	}
@@ -222,12 +244,14 @@ public class DollAttachment extends PlayerCapabilityTemplate<DollAttachment> imp
 	public int summonAll(ServerPlayer player) {
 		int n = 0;
 		for (var data : new ArrayList<>(dolls.values())) {
+			if (summonCapped()) break;
 			if (data.isSummoned() || data.type == null) continue;
 			if (data.state == DollState.STORED) data.state = DollState.TEMP;
 			if (data.state == DollState.TEMP && trySummon(player, data)) n++;
 		}
 		var inv = player.getInventory();
 		for (int i = 0; i < inv.getContainerSize(); i++) {
+			if (summonCapped()) break;
 			ItemStack stack = inv.getItem(i);
 			if (stack.isEmpty() || !(stack.getItem() instanceof DollItem)) continue;
 			double a = (i * 2 * Math.PI) / inv.getContainerSize();
@@ -274,6 +298,7 @@ public class DollAttachment extends PlayerCapabilityTemplate<DollAttachment> imp
 
 	public boolean trySummon(ServerPlayer player, DollData data) {
 		if (data.state != DollState.TEMP || data.type == null) return false;
+		if (summonCapped()) return false;
 		if (data.getHealth() <= 0) {
 			data.state = DollState.STORED;
 			return tryItemize(player, data);

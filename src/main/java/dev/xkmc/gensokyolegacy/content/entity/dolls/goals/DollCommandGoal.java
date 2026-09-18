@@ -9,6 +9,8 @@ import dev.xkmc.gensokyolegacy.content.entity.dolls.action.DollActionType;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.behavior.DollBehavior;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.behavior.DollBehaviorRegistry;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.Goal;
 import org.jetbrains.annotations.Nullable;
 
@@ -23,9 +25,12 @@ import java.util.EnumSet;
  * The validating candidate is cached while pending so behavior gates (range,
  * cooldown) apply before start, not just during execution. Unstarted waits are
  * timed out here: a stalled iterative regular hands ahead after 1 second and
- * aborts after 3, anything else aborts after 2. Stopping with the ticket still
- * held completes it (done-set + handoff), so aborted runs never strand chains —
- * only an already-released ticket skips completion.
+ * aborts after 3, anything else aborts after 2. A wait whose target is already
+ * dead or gone aborts immediately instead of burning the timeout, so a volley
+ * at a dead target drains instantly instead of marching yellow down the roster.
+ * Stopping with the ticket still held completes it (done-set + handoff), so
+ * aborted runs never strand chains — only an already-released ticket (natural
+ * completion, glove stop, a preempting new order) skips completion.
  */
 public class DollCommandGoal extends Goal {
 
@@ -81,7 +86,32 @@ public class DollCommandGoal extends Goal {
 		return pending != null && pending.canUse(doll);
 	}
 
+	/**
+	 * True when the action names a target that is no longer a live entity in
+	 * this level (dead, removed, or left). A null target never counts as gone.
+	 */
+	private boolean isTargetGone(DollAction action) {
+		if (action.target() == null) return false;
+		if (!(doll.level() instanceof ServerLevel level)) return false;
+		Entity entity = level.getEntity(action.target());
+		return !(entity instanceof LivingEntity target && target.isAlive());
+	}
+
 	private void checkStartTimeouts(DollAction action) {
+		if (isTargetGone(action)) {
+			doll.actions.complete(doll);
+			pending = null;
+			return;
+		}
+		// Capability lost while waiting (ammo consumed, loadout edited): the
+		// ticket can never start, so release it at once instead of idling
+		// yellow through the timeout. Cooldown-gated waits keep waiting —
+		// capability still resolves, only the behavior gate is closed.
+		if (DollBehaviorRegistry.createFor(doll, action).isEmpty()) {
+			doll.actions.complete(doll);
+			pending = null;
+			return;
+		}
 		long waited = doll.level().getGameTime() - doll.actions.acceptedAt();
 		if (action.mode() == DollActionMode.ITERATIVE && action.type() == DollActionType.REGULAR_ATTACK) {
 			if (waited >= GIVE_UP_TICKS) {
@@ -124,6 +154,15 @@ public class DollCommandGoal extends Goal {
 		if (active != null) {
 			active.stop(doll);
 			active = null;
+		}
+		// Stopping with the ticket still held (target lost mid-execution, gate
+		// failure, preempted wait) completes it through the normal path —
+		// done-set + handoff for iterative — so the run never wedges the doll
+		// on yellow and chains keep moving. Identity-guarded: a ticket that was
+		// already released (natural completion, glove stop) or replaced by a
+		// preempting order is a different instance (or null) and is skipped.
+		if (activeAction != null && doll.actions.holds(activeAction)) {
+			doll.actions.complete(doll);
 		}
 		activeAction = null;
 		pending = null;

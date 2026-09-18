@@ -10,11 +10,16 @@ public enum DollActionStatus {
 	IDLE,
 	PREPARING,
 	ATTACKING,
-	DONE;
+	DONE,
+	/**
+	 * Holding an {@code AUTO} ticket (scheduler-issued, interruptible by player
+	 * commands). Appended last so existing ordinals never shift.
+	 */
+	AUTO;
 
 	/**
 	 * Sidebar frame color (ARGB): white for idle, yellow for preparing, red for
-	 * attacking, green for done.
+	 * attacking, green for done, light blue for auto.
 	 */
 	public int frameColor() {
 		return switch (this) {
@@ -22,6 +27,7 @@ public enum DollActionStatus {
 			case PREPARING -> 0xFFFFFF00;
 			case ATTACKING -> 0xFFFF0000;
 			case DONE -> 0xFF00FF00;
+			case AUTO -> 0xFFADD8E6;
 		};
 	}
 

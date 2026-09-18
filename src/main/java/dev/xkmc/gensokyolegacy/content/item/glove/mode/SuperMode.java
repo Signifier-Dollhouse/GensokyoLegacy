@@ -39,7 +39,7 @@ public class SuperMode extends DollGloveHandler {
 			if (target == null || !isValidAttackTarget(sp, target)) {
 				sp.displayClientMessage(GLLang.ItemGlove.NO_TARGET.get(), true);
 			} else if (commands.issueOneTimeRandom(sp, target, DollActionType.SUPER_ATTACK) instanceof DollEntity doll) {
-				sp.displayClientMessage(GLLang.ItemGlove.SUPER.get(doll.getDisplayName()), false);
+				sp.displayClientMessage(GLLang.ItemGlove.SUPER.get(doll.getDisplayName()), true);
 			} else {
 				sp.displayClientMessage(GLLang.ItemGlove.NO_DOLL.get(), true);
 			}

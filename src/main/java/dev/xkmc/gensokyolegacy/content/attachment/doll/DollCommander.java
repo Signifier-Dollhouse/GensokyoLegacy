@@ -11,6 +11,7 @@ import dev.xkmc.gensokyolegacy.content.item.talisman.core.TalismanContext;
 import dev.xkmc.gensokyolegacy.content.item.talisman.kinds.HealTalisman;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
@@ -51,6 +52,15 @@ public class DollCommander {
 	public final Set<UUID> healTargets = new LinkedHashSet<>();
 
 	/**
+	 * Player-commanded attack targets (entity uuids): every glove volley / super /
+	 * suicide order records its target here. Doll-shot danmaku treats these as
+	 * enemies even after the issuing ticket completes (bullets outlive tickets),
+	 * so everything else uncommanded and non-hostile is spared. Transient like
+	 * {@link #healTargets}: dead or vanished entries are pruned once per second.
+	 */
+	public final Set<UUID> attackTargets = new LinkedHashSet<>();
+
+	/**
 	 * Glove ray-trace target synced from the client (glove.md §2). A hint only:
 	 * every use re-validates alive, range, and alliance server-side, and refreshes
 	 * the timestamp on success.
@@ -76,23 +86,32 @@ public class DollCommander {
 	}
 
 	/**
-	 * Drops marks whose entities are gone or dead from every loaded dimension.
-	 * Runs once per second; scheduling already skips such marks every tick.
+	 * Drops heal marks and commanded-attack records whose entities are gone or
+	 * dead from every loaded dimension. Runs once per second; scheduling
+	 * already skips such entries every tick.
 	 */
 	private void pruneHealMarks(ServerPlayer player) {
 		var server = player.serverLevel().getServer();
-		healTargets.removeIf(id -> {
-			for (ServerLevel level : server.getAllLevels()) {
-				if (level.getEntity(id) instanceof LivingEntity target && target.isAlive()) return false;
-			}
-			return true;
-		});
+		healTargets.removeIf(id -> isGoneEverywhere(server, id));
+		attackTargets.removeIf(id -> isGoneEverywhere(server, id));
+	}
+
+	private static boolean isGoneEverywhere(MinecraftServer server, UUID id) {
+		for (ServerLevel level : server.getAllLevels()) {
+			if (level.getEntity(id) instanceof LivingEntity target && target.isAlive()) return false;
+		}
+		return true;
 	}
 
 	// ---------- glove API: one command, one doll, one execution ----------
 
+	public boolean isCommandedTarget(LivingEntity target) {
+		return target != null && attackTargets.contains(target.getUUID());
+	}
+
 	/** Volley: the first available doll starts an iterative regular attack. */
 	public boolean issueVolley(ServerPlayer player, LivingEntity target) {
+		attackTargets.add(target.getUUID());
 		return issue(player, DollAction.iterative(DollActionType.REGULAR_ATTACK, target.getUUID()));
 	}
 
@@ -104,6 +123,7 @@ public class DollCommander {
 	/** Glove super / suicide: one random available doll acts once. Returns the picked doll, or null. */
 	@Nullable
 	public DollEntity issueOneTimeRandom(ServerPlayer player, LivingEntity target, DollActionType type) {
+		attackTargets.add(target.getUUID());
 		DollAction action = DollAction.oneTime(type, target.getUUID());
 		long now = player.level().getGameTime();
 		List<DollEntity> acceptors = new ArrayList<>();
@@ -133,7 +153,12 @@ public class DollCommander {
 		return false;
 	}
 
-	/** Stop: halt every doll and drop in-flight iterations. Returns dolls halted. */
+	/**
+	 * Stop: halt every doll and drop in-flight iterations — except suicide dives,
+	 * which are unstoppable once started. Also clears heal marks and
+	 * commanded-attack records, so post-stop bullets and heals stand down too.
+	 * Returns dolls halted.
+	 */
 	public int stopAll(ServerPlayer player) {
 		long now = player.level().getGameTime();
 		int n = 0;
@@ -141,10 +166,14 @@ public class DollCommander {
 			if (!data.isSummoned() || data.uuid == null) continue;
 			ServerLevel level = attachment.getLevel(player, data);
 			if (level == null || !(level.getEntity(data.uuid) instanceof DollEntity doll)) continue;
+			DollAction held = doll.actions.getCurrent();
+			if (held != null && held.type() == DollActionType.SUICIDE_ATTACK) continue;
 			doll.actions.stop(now);
 			n++;
 		}
 		iterative.clear();
+		attackTargets.clear();
+		healTargets.clear();
 		return n;
 	}
 
@@ -271,7 +300,7 @@ public class DollCommander {
 			if (target == null) target = findHealMark(doll, paper);
 		}
 		if (target == null) return;
-		doll.actions.tryStart(DollAction.oneTime(DollActionType.HEAL, target.getUUID()), now);
+		doll.actions.tryStart(DollAction.auto(DollActionType.HEAL, target.getUUID()), now);
 	}
 
 	/**

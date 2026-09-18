@@ -54,6 +54,7 @@ public class StrayHost implements DollHost {
 		if (doll.level().isClientSide() || data == null) return;
 		DollData drop = data;
 		data = null;
+		doll.writeValuesTo(drop);
 		drop.combat = new CombatData(0, drop.combat.baseline());
 		ItemStack stack = DollItem.makeItem(drop);
 		if (stack.isEmpty()) return;

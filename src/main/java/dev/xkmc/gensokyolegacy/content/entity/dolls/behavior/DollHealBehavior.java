@@ -16,8 +16,8 @@ import java.util.Optional;
 /**
  * Heal: approach to ~2 blocks (self needs no move) and trigger the held folded
  * heal talisman on the target, wearing the live ledger stack in place. Issued as
- * a one-time order by the scheduler; it holds its ticket to completion and only
- * stop() interrupts it.
+ * an auto order by the scheduler; it holds its ticket to completion, and only a
+ * player command (or stop) interrupts it.
  */
 public class DollHealBehavior extends DollBehavior {
 

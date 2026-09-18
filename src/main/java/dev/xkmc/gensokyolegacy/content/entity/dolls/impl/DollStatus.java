@@ -3,6 +3,7 @@ package dev.xkmc.gensokyolegacy.content.entity.dolls.impl;
 import dev.xkmc.gensokyolegacy.content.attachment.doll.DollAttachment;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.DollEntity;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.action.DollAction;
+import dev.xkmc.gensokyolegacy.content.entity.dolls.action.DollActionMode;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.action.DollActionStatus;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.action.DollActionType;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.behavior.DollBehaviorRegistry;
@@ -40,18 +41,22 @@ public interface DollStatus extends DollBaseImpl {
 	}
 
 	/**
-	 * Server-side recompute: holding a ticket but not yet executing is preparing,
-	 * executing is attacking, sitting in a live volley's done-set with no ticket
-	 * is done, otherwise idle. Done only applies while the volley is still
-	 * in-flight, so no latch needs clearing. The validity mask is recomputed
-	 * alongside from the authoritative ledger loadout.
+	 * Server-side recompute: holding an auto ticket is auto (light blue) whether
+	 * or not it is executing; holding any other ticket but not yet executing is
+	 * preparing, executing is attacking, sitting in a live volley's done-set
+	 * with no ticket is done, otherwise idle. Done only applies while the volley
+	 * is still in-flight, so no latch needs clearing. The validity mask is
+	 * recomputed alongside from the authoritative ledger loadout.
 	 */
 	default void syncActionStatus() {
 		DollEntity doll = asDoll();
 		DollAction current = doll.actions.getCurrent();
 		int type;
 		DollActionStatus status;
-		if (current != null) {
+		if (current != null && current.mode() == DollActionMode.AUTO) {
+			type = current.type().ordinal();
+			status = DollActionStatus.AUTO;
+		} else if (current != null) {
 			type = current.type().ordinal();
 			status = doll.isExecutingCommand() ? DollActionStatus.ATTACKING : DollActionStatus.PREPARING;
 		} else {

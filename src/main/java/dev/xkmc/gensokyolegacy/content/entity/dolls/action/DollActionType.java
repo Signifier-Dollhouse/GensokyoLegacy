@@ -6,7 +6,8 @@ import dev.xkmc.gensokyolegacy.content.entity.dolls.behavior.DollBehaviorRegistr
  * Closed command vocabulary for doll actions. The glove speaks these; which items
  * satisfy each type is registry-open ({@link DollBehaviorRegistry}). There is no
  * priority between types — each doll holds a single ticket, and only a running
- * {@code REGULAR_ATTACK} can be aborted for a new order.
+ * {@code REGULAR_ATTACK} or a running {@code AUTO} ticket can be aborted for a
+ * new order.
  */
 public enum DollActionType {
 

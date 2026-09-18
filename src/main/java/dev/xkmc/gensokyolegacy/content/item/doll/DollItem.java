@@ -7,6 +7,7 @@ import dev.xkmc.gensokyolegacy.content.entity.dolls.menu.DollItemLoadoutProvider
 import dev.xkmc.gensokyolegacy.content.item.tool.InvClickItem;
 import dev.xkmc.gensokyolegacy.content.item.tool.InvTooltip;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
+import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
 import dev.xkmc.l2menustacker.init.L2MenuStacker;
@@ -114,6 +115,20 @@ public class DollItem extends Item implements InvClickItem {
 		return Mth.hsvToRgb(frac / 3.0F, 1.0F, 1.0F);
 	}
 
+	/**
+	 * Why an item summon was refused, for feedback. Null means summonable.
+	 */
+	@Nullable
+	private static Component summonBlocker(ServerPlayer sp, ItemStack stack) {
+		DollAttachment att = GLMeta.DOLL.type().getOrCreate(sp);
+		DollItemData data = stack.get(GLItems.DOLL_DATA.get());
+		if (data != null && data.combat().amount() <= 0)
+			return GLLang.Doll.BROKEN.get();
+		if (att.summonCapped())
+			return GLLang.Doll.TOO_MANY.get(DollAttachment.MAX_SUMMONED);
+		return null;
+	}
+
 	@Override
 	public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
 		ItemStack stack = player.getItemInHand(hand);
@@ -125,6 +140,8 @@ public class DollItem extends Item implements InvClickItem {
 				if (!sp.getAbilities().instabuild) stack.shrink(1);
 				return InteractionResultHolder.consume(stack);
 			}
+			Component blocker = summonBlocker(sp, stack);
+			if (blocker != null) sp.displayClientMessage(blocker, true);
 		}
 		return InteractionResultHolder.fail(stack);
 	}
@@ -144,6 +161,8 @@ public class DollItem extends Item implements InvClickItem {
 				if (!sp.getAbilities().instabuild) ctx.getItemInHand().shrink(1);
 				return InteractionResult.CONSUME;
 			}
+			Component blocker = summonBlocker(sp, ctx.getItemInHand());
+			if (blocker != null) sp.displayClientMessage(blocker, true);
 		}
 		return InteractionResult.FAIL;
 	}

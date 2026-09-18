@@ -32,8 +32,9 @@ import java.util.List;
  * its doll item icon. In task modes (volley, super, suicide, heal-mark) the
  * icon carries a status frame — hidden for invalid (no valid weapon for this
  * task) or untracked dolls, white idle, yellow preparing, red attacking, green
- * done, purple when the doll is busy with a task foreign to the held mode —
- * and the stack it would use for that task renders in the slot to its left.
+ * done, light blue auto, purple when the doll is busy with a task foreign to
+ * the held mode — and the stack it would use for that task renders in the slot
+ * to its left.
  * Summon / stop show no frames, and editor frames only the doll currently
  * under the crosshair, in white.
  *
@@ -161,7 +162,8 @@ public class DollAttackStatusOverlay extends SelectionSideBar<DollAttackStatusOv
 			case SUMMON, STOP -> NO_FRAME;
 			case EDITOR -> GloveTargetCache.isMarked(doll) ? WHITE_FRAME : NO_FRAME;
 			default -> {
-				boolean executing = status == DollActionStatus.PREPARING || status == DollActionStatus.ATTACKING;
+				boolean executing = status == DollActionStatus.PREPARING ||
+						status == DollActionStatus.ATTACKING || status == DollActionStatus.AUTO;
 				if (executing && doll.getActionStatusType() != type.ordinal()) yield PURPLE_FRAME;
 				yield status.frameColor();
 			}

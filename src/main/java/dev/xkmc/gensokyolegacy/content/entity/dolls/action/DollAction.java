@@ -22,6 +22,10 @@ public record DollAction(DollActionType type, DollActionMode mode, @Nullable UUI
 		return new DollAction(type, DollActionMode.ITERATIVE, target, new LinkedHashSet<>());
 	}
 
+	public static DollAction auto(DollActionType type, @Nullable UUID target) {
+		return new DollAction(type, DollActionMode.AUTO, target, new LinkedHashSet<>());
+	}
+
 	public boolean sameOrder(DollAction other) {
 		return type == other.type && mode == other.mode &&
 				(target == null ? other.target == null : target.equals(other.target));

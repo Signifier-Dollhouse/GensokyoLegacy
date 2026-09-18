@@ -37,10 +37,10 @@ public class HealMarkMode extends DollGloveHandler {
 			if (target == null) {
 				sp.displayClientMessage(GLLang.ItemGlove.NO_TARGET.get(), true);
 			} else if (commands.healTargets.remove(target.getUUID())) {
-				sp.displayClientMessage(GLLang.ItemGlove.UNMARKED.get(target.getDisplayName()), false);
+				sp.displayClientMessage(GLLang.ItemGlove.UNMARKED.get(target.getDisplayName()), true);
 			} else {
 				commands.healTargets.add(target.getUUID());
-				sp.displayClientMessage(GLLang.ItemGlove.MARKED.get(target.getDisplayName()), false);
+				sp.displayClientMessage(GLLang.ItemGlove.MARKED.get(target.getDisplayName()), true);
 			}
 			cooldown(sp, item);
 		}

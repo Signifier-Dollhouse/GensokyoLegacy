@@ -39,7 +39,7 @@ public class SuicideMode extends DollGloveHandler {
 			if (target == null || !isValidAttackTarget(sp, target)) {
 				sp.displayClientMessage(GLLang.ItemGlove.NO_TARGET.get(), true);
 			} else if (commands.issueOneTimeRandom(sp, target, DollActionType.SUICIDE_ATTACK) instanceof DollEntity doll) {
-				sp.displayClientMessage(GLLang.ItemGlove.SUICIDE.get(doll.getDisplayName()), false);
+				sp.displayClientMessage(GLLang.ItemGlove.SUICIDE.get(doll.getDisplayName()), true);
 			} else {
 				sp.displayClientMessage(GLLang.ItemGlove.NO_DOLL.get(), true);
 			}

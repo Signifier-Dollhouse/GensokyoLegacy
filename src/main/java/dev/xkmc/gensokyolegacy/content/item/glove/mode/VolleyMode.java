@@ -37,7 +37,7 @@ public class VolleyMode extends DollGloveHandler {
 			if (target == null || !isValidAttackTarget(sp, target)) {
 				sp.displayClientMessage(GLLang.ItemGlove.NO_TARGET.get(), true);
 			} else if (commands.issueVolley(sp, target)) {
-				sp.displayClientMessage(GLLang.ItemGlove.VOLLEY.get(), false);
+				sp.displayClientMessage(GLLang.ItemGlove.VOLLEY.get(), true);
 			} else {
 				sp.displayClientMessage(GLLang.ItemGlove.NO_DOLL.get(), true);
 			}

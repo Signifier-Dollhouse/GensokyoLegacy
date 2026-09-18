@@ -725,7 +725,9 @@ public final class GLLang {
 		NO_SPACE("No inventory space"),
 		RESYNC_MISSING("Doll entity missing — restoring"),
 		RESYNC_ORPHAN("Removed a strayed doll"),
-		RESYNC_TAMPERED("Removed a tampered doll");
+		RESYNC_TAMPERED("Removed a tampered doll"),
+		BROKEN("This doll is broken — repair it in an anvil with wool", 0, ChatFormatting.RED),
+		TOO_MANY("Too many summoned dolls (max %s)", 1, ChatFormatting.RED);
 
 		private final String def;
 		private final int argn;

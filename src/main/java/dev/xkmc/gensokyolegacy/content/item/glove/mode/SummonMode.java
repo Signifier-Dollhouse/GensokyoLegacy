@@ -34,10 +34,10 @@ public class SummonMode extends DollGloveHandler {
 			var att = attachment(sp);
 			if (!att.hasSummoned()) {
 				int n = att.summonAll(sp);
-				sp.displayClientMessage(GLLang.ItemGlove.SUMMONED.get(n), false);
+				sp.displayClientMessage(GLLang.ItemGlove.SUMMONED.get(n), true);
 			} else {
 				int[] r = att.recallAll(sp);
-				sp.displayClientMessage(GLLang.ItemGlove.RECALLED.get(r[0], r[1]), false);
+				sp.displayClientMessage(GLLang.ItemGlove.RECALLED.get(r[0], r[1]), true);
 			}
 			cooldown(sp, item);
 		}

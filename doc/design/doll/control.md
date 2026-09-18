@@ -31,15 +31,16 @@ Deliberate divergences from MobWeaponAPI / ModularGolems:
 | `SUICIDE` | either hand `Items.TNT` | the TNT stack (§5.4) |
 | `SUPER_ATTACK` | `LaserItem` anywhere, else throwable `HexBrewBottleItem` (cf. `HexBrewBottleItem.use`) anywhere | the laser/hexbrew stack |
 | `REGULAR_ATTACK` | `DanmakuItem` in either hand | nothing |
-| `HEAL` | folded heal talisman in either hand, with remaining durability | talisman durability (§5.5; scheduler-issued one-time only) |
+| `HEAL` | folded heal talisman in either hand, with remaining durability | talisman durability (§5.5; scheduler-issued auto only) |
 | shield block | off hand shield | shield durability (§5.6, reactive — never queued) |
 
-There is no priority between types: each doll holds a single ticket (§4). `HEAL` is never player-queued; the scheduler issues it as a one-time order.
+There is no priority between types: each doll holds a single ticket (§4). `HEAL` is never player-queued; the scheduler issues it as an auto order.
 
 `DollActionMode` — issuance mode, carried on the command:
 
-- `ONE_TIME` — one glove command, one doll, one execution (super, suicide, scheduled heal).
+- `ONE_TIME` — one glove command, one doll, one execution (super, suicide).
 - `ITERATIVE` — one glove command fans across dolls, each doll at most once (regular volley only, §8).
+- `AUTO` — like `ONE_TIME` (one doll, one execution, no chaining) but a player command may interrupt it; scheduler-issued heals use this mode (light blue sidebar frame).
 
 ## 4. The ticket
 
@@ -47,7 +48,7 @@ There is no priority between types: each doll holds a single ticket (§4). `HEAL
 
 ```java
 record DollAction(DollActionType type, DollActionMode mode, @Nullable UUID target, Set<UUID> done) {
-    // done is the shared iterative progress set (§8); empty (and unused) for ONE_TIME.
+    // done is the shared iterative progress set (§8); empty (and unused) for ONE_TIME / AUTO.
     // Shared by reference across the dolls of one volley — mutated, never copied.
 }
 ```
@@ -60,9 +61,9 @@ public final DollActionHandler actions = new DollActionHandler();
 ```
 
 - `boolean isActive()`, `@Nullable DollAction getCurrent()`
-- `boolean tryStart(DollAction, gameTime)` — takes the ticket: idle dolls accept; a running `REGULAR_ATTACK` is aborted for the new order; anything else running refuses. Re-issuing the current order is a no-op success. The dropped behavior is stopped by the delegating goal on its next pass; the orphaned action (if iterative) is picked back up by the stall guard.
+- `boolean tryStart(DollAction, gameTime)` — takes the ticket: idle dolls accept; a running `REGULAR_ATTACK` or a running `AUTO` ticket is aborted for the new order; anything else running refuses. Re-issuing the current order is a no-op success. The dropped behavior is stopped by the delegating goal on its next pass; the orphaned action (if iterative) is picked back up by the stall guard.
 - `void stop()` — releases the ticket (glove *stop* mode); the running behavior sees the current vanish and aborts. Also stamps a short suppress (so a scheduled heal doesn't re-fire on the very next tick against a still-valid target).
-- `boolean canAccept(DollAction)` — `findHand` hits either hand (an off-hand hit implies the sticky swap at start); a ticket held by anything but an abortable regular refuses; that `(type, target)` is not already current; and (for `ITERATIVE`) the doll is not in `done`. Used to find "available" dolls (§8).
+- `boolean canAccept(DollAction)` — `findHand` hits either hand (an off-hand hit implies the sticky swap at start); a ticket held by anything but an abortable regular/auto refuses; that `(type, target)` is not already current; and (for `ITERATIVE`) the doll is not in `done`. Used to find "available" dolls (§8).
 - Cooldowns: transient `Map<DollActionType, Long>` of gameTime stamps on the handler (dolls are never chunk-serialized and commands are ephemeral, so nothing persists). Heal needs none of its own — its 100-tick cooldown lives target-side (`TalismanContext`, §5.5).
 - KAMIKAZE flag: transient marker for the suicide dive (§5.4). Set by the suicide behavior on start alongside `becomeStray()`, cleared on complete/abort/`stop()`. Mostly a state marker — leash and pullback exemptions are structural once the entry is detached.
 - No `tick()` driver: behaviors self-drive through the delegating goal (§5). Completion releases the ticket (`complete()`); for `ITERATIVE` it first hands the action off (§8).
@@ -119,14 +120,14 @@ Fly into the target and explode. **Always destroys the doll; the stray death dro
 - Goal: dive at the target at full `MAX_SPEED` with no leash; within blast range (≤ 2 blocks or contact) → the explosive-hexbrew blast itself (`HexBrew.EXPLOSIVE_HEXBREW.handler.onHit` with the doll as thrower: power 4, terrain kept, thrower and allies excluded) — the doll is excluded as thrower, so its death is guaranteed by the fallback below, not the blast.
 - Afterwards (server): consume the TNT from the loadout, then guarantee death (`hurt(genericKill, MAX)` if the blast didn't finish it) → `DollHost.onDeath` (only `StrayHost` acts: drops the item form) and the entity is gone. Abort (target vanished/unloaded) leaves a stray ronin: it keeps following its owner on stray-routed combat, commands can't reach it, and only death ends it — persisting in chunks until then.
 
-### 5.5 `HEAL` — folded heal talisman, scheduler-issued one-time
+### 5.5 `HEAL` — folded heal talisman, scheduler-issued auto
 
 Apply the talisman's own effect on the scheduled target (§6). There is no glove heal command.
 
 - Capability: either hand holds a folded heal talisman (`FoldedPaperTalisman` whose paper is a `HealTalisman`) with remaining durability.
 - Goal: navigate to within ~2 blocks of the target (self needs no move) → stop → trigger on the **live** held stack: `new TalismanContext(target, heldStack, 0, heldStack, paper)` (same worn-directly shape as `FoldedPaperTalisman`, so `hurtItem()` wears the ledger stack in place) → `paper.trigger(ctx)` (`HealTalisman`: heal 30% max, 100-tick target-side cooldown, 1 durability use) → `complete()`.
 - If the target vanished, is full health, or the talisman broke mid-approach, the action is a no-op pop.
-- A heal holds its ticket to completion like anything else (only a running regular can be aborted, and heal never is one) — only `stop()` interrupts it, and it is short anyway.
+- An auto heal holds its ticket to completion like anything else, but any player command aborts it the same way a running regular is aborted — only `stop()` or a preempting order interrupts it, and it is short anyway.
 
 ### 5.6 Shield block — reactive, off hand, regular vanilla pipeline
 
@@ -141,7 +142,7 @@ for doll in summoned dolls, idle and not suppressed:
     target = owner if hurt
         else doll itself if hurt
         else first marked target, alive and damaged, within ~16, target-side cooldown expired
-    if target != null: doll.actions.tryStart(HEAL/ONE_TIME -> target)
+    if target != null: doll.actions.tryStart(HEAL/AUTO -> target)
 ```
 
 Target priority is **owner > self > marked**. `HealTalisman.test` (damaged + alive) is the validity check everywhere; the 100-tick repeat guard is target-side (`TalismanContext.isOnCooldown`), so the ledger keeps no heal timestamps.
@@ -171,17 +172,17 @@ All loadout items live in data (`DollData.inventory` ↔ `DOLL_LOADOUT`). The on
 `ITERATIVE` (regular volley only, for now) fans one command across dolls with no central cursor: **a doll performs the action, puts itself into the action's `done` set, then finds the next available doll; if none is available, the iteration stops.** Every command executes at most once per doll — continuous fire with automatic targeting is future work (§10).
 
 - Glove *volley* (glove.md §1): find the first summoned doll with `actions.canAccept(volley)` and start it with an empty shared `done` set. No doll available → `doll_glove.no_doll` message.
-- On `complete()` of an `ITERATIVE` action, the performing doll adds its own uuid to `done`, then scans ledger-order `SUMMONED` dolls for the first one whose `actions.canAccept(sameAction)` holds (alive, capable hand, ticket free or abortable regular, not in `done`) and starts the *same action instance* (shared set) on it. Spacing between dolls falls out of execution time (~1s per danmaku) — no timer.
+- On `complete()` of an `ITERATIVE` action, the performing doll adds its own uuid to `done`, then scans ledger-order `SUMMONED` dolls for the first one whose `actions.canAccept(sameAction)` holds (alive, capable hand, ticket free or abortable regular, not in `done`) and starts the *same action instance* (shared set) on it. Spacing between dolls falls out of execution time (~1s per danmaku) — no timer. Early goal stops (target lost mid-execution) and unstartable waits (dead target, lost capability) release through the same `complete()` path, so chains never stall on yellow.
 - Stall guard: if a doll holding a current `ITERATIVE` action leaves `SUMMONED` (park/itemize) before completing, the commander hands the action (with its `done` set) to the next available doll on the following tick, so a parked mid-volley doll can't strand the chain.
 - Hand-ahead: an accepted-but-unstarted volley action that still hasn't started after 1s tells the next available doll to go ahead (without releasing its own wait or touching `done`); after 3s unstarted it aborts via `complete()` (done + release, chain moves on). Other unstarted tickets abort the same way after 2s.
-- `ONE_TIME` (super/suicide, scheduled heal) tells exactly one available doll and never chains — glove super/suicide pick the doll **randomly**. Glove *stop* calls `commands.stopAll` (per-doll `actions.stop()` + suppress stamp, in-flight set cleared; summoned only, strays and block-hosted untouched).
+- `ONE_TIME` (super/suicide) and `AUTO` (scheduled heal) tell exactly one available doll and never chain — glove super/suicide pick the doll **randomly**. Glove *stop* calls `commands.stopAll` (per-doll `actions.stop()` + suppress stamp, in-flight set cleared; suicide dives are skipped, summoned only, strays and block-hosted untouched).
 
 ## 9. Files created / modified
 
 Created (`content/entity/dolls/action/`, behaviors in `.../behavior/`, all goals in `.../goals/`) — follow/look goals carry vanilla-standard flags (`MOVE`+`LOOK` / `LOOK`) so the single command goal outranks them in the selector:
 
 - `DollActionType.java` — closed command enum (SUICIDE, SUPER_ATTACK, REGULAR_ATTACK, HEAL; no priority — single ticket)
-- `DollActionMode.java` — `ONE_TIME`, `ITERATIVE` (§3)
+- `DollActionMode.java` — `ONE_TIME`, `ITERATIVE`, `AUTO` (§3)
 - `DollAction.java` — `record DollAction(DollActionType type, DollActionMode mode, @Nullable UUID target, Set<UUID> done)` (shared-mutable `done` for `ITERATIVE`, §8)
 - `DollActionHandler.java` — single-ticket state + cooldowns + suppress stamp + KAMIKAZE flag (§4)
 - `DollBehaviorRegistry.java` (`behavior/`) — `(id, predicate, type, priority, factory)` entries; `findHand` for capability, `createFor` for per-execution construction (§1–2)
@@ -189,7 +190,7 @@ Created (`content/entity/dolls/action/`, behaviors in `.../behavior/`, all goals
 - `DollCardHolder.java` — `implements CardHolder` for the doll (§5)
 - `DollBehavior.java` + `DollDanmakuBehavior`, `DollLaserBehavior`, `DollThrowBehavior`, `DollSuicideBehavior`, `DollHealBehavior` (`behavior/`, §5; laser before throw for super)
 - `DollFriendlyFire.java` (`behavior/`) — ally lanes, blockage test, leash-clamped strafe (§5)
-- `goals/DollCommandGoal.java` — the single delegating `Goal`: behavior cache, start timeouts, stop releases without recording (§5)
+- `goals/DollCommandGoal.java` — the single delegating `Goal`: behavior cache, start timeouts, stop completes the still-held ticket (§5)
 
 - `DollCommander.java` (`content/attachment/doll/`, via `DollAttachment.commands`) — volley/one-time/stop, handoff, stall guard, heal scheduling + 1-second mark prune, transient heal marks (§6/§8)
 - `DollShootUtils.java` (`util/`) — trimmed copy of MobWeaponAPI's `ShootUtils` aim helpers (target lead, gravity arcs; arrow/infinity parts dropped), used for danmaku aim and hexbrew throws
@@ -205,7 +206,7 @@ Modify (all done):
 
 ## 10. Edge cases & open questions
 
-- **Ticket cost**: aborting a running regular wastes its progress; committed ammo (laser at emission, thrown bottle, TNT) is wasted if `stop()` lands after the commit — both player-issued either way. A heal holds its ticket to completion; only `stop()` interrupts it. Accepted.
+- **Ticket cost**: aborting a running regular wastes its progress; committed ammo (laser at emission, thrown bottle, TNT) is wasted if `stop()` lands after the commit — both player-issued either way. An auto heal holds its ticket to completion; only `stop()` or a preempting player order interrupts it. Accepted.
 - **Blocked-lane skip**: a danmaku skipped after ~2s blocked completes without firing (chain moves, no friendly fire); laser fires anyway past ~2s strafing and hexbrew past ~1s (explicitly ordered strikes). Volley spacing absorbs the difference.
 - **Mid-volley re-summons**: the `done`-set chain doesn't snapshot, so a re-summoned doll simply becomes eligible again (its new uuid isn't in `done`) — the next handoff can pick it up. No stale-snapshot problem by construction.
 - **A doll with no relevant item is skipped** by `canAccept` — quiet skip; the chain ends when a full scan finds no acceptor. A volley with zero armed dolls posts a `doll_glove.no_doll` message at issue time.

@@ -146,6 +146,8 @@
 			"resync_missing": "玩偶实体已消失，正在召回",
 			"resync_orphan": "已移除一只游离的玩偶",
 			"resync_tampered": "已移除一只被篡改的玩偶",
+			"broken": "这只玩偶已损坏——在铁砧中用羊毛修复它",
+			"too_many": "召唤的玩偶过多（上限 %s 只）",
 			"lost": "迷路走失的玩偶"
 		},
 		"quest": {
