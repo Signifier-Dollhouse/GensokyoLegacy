@@ -1,6 +1,8 @@
 {
 	"gensokyolegacy.title": "异域梦闻记",
 	"gensokyolegacy.subtitle.koishi_ring": "这里是玛丽小姐～",
+	"patchouli.gensokyolegacy.title": "幻想乡工具指南",
+	"patchouli.gensokyolegacy.landing": "本卷记载了异域梦闻记的劳作之侧：在炼金锅中酿造、纸符、战斗人偶及其手套、特殊与日常工具，以及可坐、可覆盖、可滑动的装饰方块。$(br2)用任意 Patchouli 指南书打开。每个条目都会说明$(bold)它是做什么的$()、$(bold)怎么用$()以及$(bold)从哪里获得$()。",
 	"itemGroup.gensokyolegacy": {
 		"ingredients": "异域梦闻记 - 功能性方块物品",
 		"building_blocks": "异域梦闻记 - 建筑装饰方块"

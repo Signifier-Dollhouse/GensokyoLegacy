@@ -7,4 +7,4 @@
 - sealing pot area rendering item trigger
 - patchouli book too technical
 - doll improvements, bag, danmaku weapon, spear, ui
-- 
+- doll model not binding item correctly

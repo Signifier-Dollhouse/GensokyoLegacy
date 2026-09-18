@@ -47,6 +47,7 @@ import dev.xkmc.gensokyolegacy.init.registrate.block.GLBlocks;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLDecoBlocks;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLNaturalBlocks;
 import dev.xkmc.gensokyolegacy.mixin.ItemAccessor;
+import dev.xkmc.l2core.compat.patchouli.PatchouliHelper;
 import dev.xkmc.l2core.init.reg.registrate.L2Registrate;
 import dev.xkmc.l2core.init.reg.simple.Reg;
 import dev.xkmc.l2damagetracker.contents.attack.AttackEventHandler;
@@ -73,6 +74,7 @@ import net.neoforged.neoforge.fluids.crafting.FluidIngredient;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import terrablender.api.Regions;
+import vazkii.patchouli.api.PatchouliAPI;
 
 import java.util.Arrays;
 
@@ -142,6 +144,15 @@ public class GensokyoLegacy {
 		GLCriteriaTriggers.register();
 		GLModConfig.init();
 		TouhouSpellCards.registerSpells();
+		if (ModList.get().isLoaded(PatchouliAPI.MOD_ID)) {
+			new PatchouliHelper(REGISTRATE, "tools_guide")
+					.buildModel("guide_book").buildShapelessRecipe(e -> e
+									.requires(Items.BOOK).requires(GLItems.MAGIC_BOOK.get()),
+							() -> Items.BOOK)
+					.buildBook("Gensokyo Tools Guide",
+							"This volume documents the working side of Gensokyo Legacy: brewing in the Alchemy Pot, paper talismans, combat dolls and their glove, special and everyday tools, and the decoration blocks you can sit on, cover and slide.$(br2)Open it from any Patchouli guide book. An entry shows $(bold)what it does$(), $(bold)how to use it$() and $(bold)where it comes from$().",
+							1, GLItems.TAB.key());
+		}
 
 		new GLClickHandler(loc("main"));
 		AttackEventHandler.register(1765, new GLAttackListener());
