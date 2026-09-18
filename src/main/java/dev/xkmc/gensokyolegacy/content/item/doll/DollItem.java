@@ -111,7 +111,7 @@ public class DollItem extends Item implements InvClickItem {
 	@Override
 	public int getBarColor(ItemStack stack) {
 		DollItemData data = stack.get(GLItems.DOLL_DATA.get());
-		float frac = data == null ? 0.5F : Math.min(1.0F, data.combat().amount() / BaseDollEntity.DEFAULT_MAX_HEALTH);
+		float frac = data == null ? 0.5F : Mth.clamp(data.combat().amount() / BaseDollEntity.DEFAULT_MAX_HEALTH, 0, 1);
 		return Mth.hsvToRgb(frac / 3.0F, 1.0F, 1.0F);
 	}
 
