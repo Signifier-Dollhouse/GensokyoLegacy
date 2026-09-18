@@ -8,43 +8,43 @@
       "type": "patchouli:spotlight",
       "item": "gensokyolegacy:mundane_hexbrew_bottle",
       "title": "Mundane Hexbrew",
-      "text": "The foundation of all brewing: a plain water-based stock with no drink or splash effect. Every other brew starts from it, and bottles carry 250 mB each."
+      "text": "The plain foundation of witch brewing. Mundane Hexbrew is a water-based stock with no special drinking or throwing effect. Bottles hold 250 mB, and other hexbrews are made from this base."
     },
     {
       "type": "patchouli:spotlight",
       "item": "gensokyolegacy:explosive_hexbrew_bottle",
       "title": "Explosive Hexbrew",
-      "text": "A throwable bottle that bursts into a power-4 explosion. Blocks are left intact, and you and your allies are spared: pure anti-monster artillery."
+      "text": "Throw this bottle to create a power-4 explosion. It damages enemies without breaking blocks, and the blast does not harm you or your allies."
     },
     {
       "type": "patchouli:spotlight",
       "item": "gensokyolegacy:miasma_hexbrew_bottle",
       "title": "Miasma Hexbrew",
-      "text": "A throwable bottle inflicting Miasma for 60 seconds: victims take 50 percent more damage with halved armor. Made for softening up anything tough."
+      "text": "A throwable brew that inflicts Miasma for 60 seconds. Afflicted targets take 50% more damage and have their armor effectiveness halved."
     },
     {
       "type": "patchouli:spotlight",
       "item": "gensokyolegacy:hexbrew_elixir_bottle",
       "title": "Hexbrew Elixir",
-      "text": "A condensed brew that cannot be drunk or thrown: its value is with Marisa. Earn a bottle from her brewing quest, or trade her 4 mundane bottles for one at 80 reputation."
+      "text": "This concentrated brew is neither drinkable nor throwable. It is valuable for dealings with Marisa: you can earn one through her brewing quest, or trade 4 Mundane Hexbrew bottles for one once you reach 80 reputation with her."
     },
     {
       "type": "patchouli:spotlight",
       "item": "gensokyolegacy:shield_hexbrew_bottle",
       "title": "Shield Hexbrew",
-      "text": "Drink it for Starlight Shield: 60 seconds of extra absorption. It is not brewed in the pot; trade for it with Marisa at 50 reputation."
+      "text": "Drink this brew to gain Starlight Shield for 60 seconds, giving you extra absorption. It is not made in the Alchemy Pot; Marisa will trade it to you at 50 reputation."
     },
     {
       "type": "patchouli:spotlight",
       "item": "gensokyolegacy:starlight_hexbrew_bottle",
       "title": "Starlight Hexbrew",
-      "text": "A throwable starburst dealing 4 magic damage and marking victims with Sparkling for 60 seconds. Every hit a sparkling victim takes erupts into a ring of 16 star bullets that fight for you. Marisa's stock, at 120 reputation."
+      "text": "Throw this starry brew to deal 4 magic damage and inflict Sparkling for 60 seconds. Whenever a Sparkling target is hit, a ring of 16 star bullets erupts and fights for you. Marisa offers it once you reach 120 reputation."
     },
     {
       "type": "patchouli:spotlight",
       "item": "gensokyolegacy:hyphae_hexbrew_bottle",
       "title": "Hyphae Hexbrew",
-      "text": "A throwable bottle inflicting Hyphae Infection for 60 seconds (1 magic damage per second) while seeding transient hyphae and turning nearby dirt into mycelium within 4 blocks. Not obtainable in survival yet."
+      "text": "A throwable infection brew that inflicts Hyphae Infection for 60 seconds, dealing 1 magic damage each second. It also briefly grows hyphae and converts nearby dirt into mycelium within 4 blocks. This brew is not currently obtainable in Survival."
     }
   ]
 }

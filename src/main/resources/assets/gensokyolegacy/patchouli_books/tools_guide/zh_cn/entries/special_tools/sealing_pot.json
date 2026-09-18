@@ -1,0 +1,14 @@
+{
+  "name": "封印壶",
+  "icon": "gensokyolegacy:sealing_pot",
+  "category": "gensokyolegacy:special_tools",
+  "sortnum": 2,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "gensokyolegacy:sealing_pot",
+      "title": "结界封印",
+      "text": "放下封印壶，可以给周围的区块加上可见的结界封印。破坏封印壶后，封印也会解除。如果新封印会与已有封印重叠，就无法放置。"
+    }
+  ]
+}

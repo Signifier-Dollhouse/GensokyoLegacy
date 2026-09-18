@@ -1,0 +1,50 @@
+{
+  "name": "魔女魔酿",
+  "icon": "gensokyolegacy:mundane_hexbrew_bottle",
+  "category": "gensokyolegacy:alchemy",
+  "sortnum": 3,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "gensokyolegacy:mundane_hexbrew_bottle",
+      "title": "平凡魔酿",
+      "text": "魔女酿造的基础材料。平凡魔酿是一种以水为基础的普通液体，本身没有饮用或投掷效果。每瓶可装 250 mB，其他魔酿都从它开始。"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "gensokyolegacy:explosive_hexbrew_bottle",
+      "title": "爆炸魔酿",
+      "text": "投掷后会产生威力 4 的爆炸。它不会破坏方块，也不会伤害你和你的同伴，是专门用来轰击敌人的魔法弹药。"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "gensokyolegacy:miasma_hexbrew_bottle",
+      "title": "瘴气魔酿",
+      "text": "投掷后使目标获得持续 60 秒的瘴气。受到瘴气影响的目标会多承受 50% 的伤害，同时护甲效果减半。"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "gensokyolegacy:hexbrew_elixir_bottle",
+      "title": "魔酿精华",
+      "text": "浓缩后的魔酿精华不能饮用，也不能投掷。它的价值主要体现在与魔理沙的交易中：完成她的酿造任务可以获得一瓶；与她达到 80 声望后，也可以用 4 瓶平凡魔酿兑换一瓶。"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "gensokyolegacy:shield_hexbrew_bottle",
+      "title": "护盾魔酿",
+      "text": "饮用后获得持续 60 秒的星光护盾，并提供额外吸收值。它无法在炼金锅中酿造；与魔理沙达到 50 声望后可以向她购买。"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "gensokyolegacy:starlight_hexbrew_bottle",
+      "title": "星光魔酿",
+      "text": "投掷后造成 4 点魔法伤害，并使目标获得持续 60 秒的闪耀效果。闪耀目标每次受到攻击时，都会爆发出一圈共 16 发星弹，为你攻击敌人。与魔理沙达到 120 声望后可以向她购买。"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "gensokyolegacy:hyphae_hexbrew_bottle",
+      "title": "菌丝魔酿",
+      "text": "投掷后使目标获得持续 60 秒的菌丝感染，每秒造成 1 点魔法伤害。同时会短暂生成菌丝，并将 4 格范围内附近的泥土变成菌丝土。目前生存模式尚无法获得。"
+    }
+  ]
+}

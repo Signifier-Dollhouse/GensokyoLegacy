@@ -1,0 +1,18 @@
+{
+  "name": "炼金锅",
+  "icon": "gensokyolegacy:alchemy_pot",
+  "category": "gensokyolegacy:alchemy",
+  "sortnum": 1,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "gensokyolegacy:alchemy_pot",
+      "title": "炼金之锅",
+      "text": "炼金锅是幻想乡炼金术的核心设备。它拥有 12 个物品槽和一个 1000 mB 的液体槽，可以进行炼金、魔女魔酿以及各种药水阶段的配方。"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)使用方法$()$(br)手持液体容器右键可以向锅中装液或取液。手持物品右键可以加入材料，水桶等容器会自动处理。空手右键取出最后放入的物品；潜行右键则可以清空锅中的所有物品。$(br2)锅会提示当前配方接受的材料。完整配方可以在 JEI 的“炼金锅”分类中查看。"
+    }
+  ]
+}

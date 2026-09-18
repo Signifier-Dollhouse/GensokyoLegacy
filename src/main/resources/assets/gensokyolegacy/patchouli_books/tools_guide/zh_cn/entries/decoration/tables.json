@@ -1,0 +1,18 @@
+{
+  "name": "桌子与桌布",
+  "icon": "gensokyolegacy:oak_large_table",
+  "category": "gensokyolegacy:decoration",
+  "sortnum": 3,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "gensokyolegacy:oak_table",
+      "title": "拼成长桌",
+      "text": "这种餐桌提供全部木材种类。将同类桌子并排摆放，可以组合成更大的桌面；在两侧继续连接时，中间的支架会收起，让桌面连成一整条宴会长桌。"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "想给桌子添点颜色？手持地毯或榻榻米右键桌子，就能铺成桌布。用剪刀可以把桌布取下。拆掉装饰过的桌子时，桌子和桌布都会一起掉落。"
+    }
+  ]
+}

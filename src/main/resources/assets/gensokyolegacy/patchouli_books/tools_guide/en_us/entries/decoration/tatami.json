@@ -8,11 +8,11 @@
       "type": "patchouli:spotlight",
       "item": "gensokyolegacy:tatami",
       "title": "Paired Mats",
-      "text": "Woven straw floor mats for Gensokyo-style interiors. Place tatami while holding 2 or more mats and it lays a connected pair at once, consuming 2: a FRONT half joined to an END half facing it."
+      "text": "Tatami mats are made for Gensokyo-style rooms. When you place them with at least two mats in hand, they normally form a connected two-part mat, giving you a neat floor pattern."
     },
     {
       "type": "patchouli:text",
-      "text": "With a single mat in hand, or no free space ahead, you place a lone SQUARE mat instead. Break either half of a pair and the survivor relaxes back into a single square mat; each half drops one tatami item.$(br2)The full-height tatami block pairs up exactly the same way."
+      "text": "If there is only one mat available, or there is not enough room in front of you, a single square mat is placed instead. Breaking a paired mat separates it again, and each half returns one tatami. Full-height tatami blocks work the same way."
     }
   ]
 }

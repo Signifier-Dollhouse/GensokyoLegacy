@@ -8,11 +8,11 @@
       "type": "patchouli:spotlight",
       "item": "gensokyolegacy:mermaid_pearl",
       "title": "Grace of the Sea",
-      "text": "Right-click to grant yourself Dolphin's Grace and Conduit Power for 60 seconds. Perfect before a dive or an ocean monument raid."
+      "text": "Right-click to receive Dolphin's Grace and Conduit Power for 60 seconds. It is a handy companion for long dives and ocean monument expeditions."
     },
     {
       "type": "patchouli:text",
-      "text": "$(bold)Details$()$(br)The pearl has 16 uses and triggers a 5-second cooldown after each song. Unlike potions it needs no brewing stand, just a free hand."
+      "text": "The pearl has 16 uses, with a 5-second cooldown after each activation. Unlike a potion, it needs no brewing stand—just a free hand and a moment to sing."
     }
   ]
 }

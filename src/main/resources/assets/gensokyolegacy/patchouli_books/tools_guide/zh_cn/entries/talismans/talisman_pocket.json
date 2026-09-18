@@ -1,0 +1,18 @@
+{
+  "name": "符纸袋",
+  "icon": "gensokyolegacy:talisman_pocket",
+  "category": "gensokyolegacy:talismans",
+  "sortnum": 3,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "gensokyolegacy:talisman_pocket",
+      "title": "随身符纸匣",
+      "text": "符纸袋可以把多张折叠符纸和备用纸张收在一起。放进去的每一张折叠符纸都会同时生效，因此可以一次准备好多种不同的护身效果。"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "右键符纸袋，或直接在物品栏中点击它，即可整理符纸。空出的折叠符纸槽会自动用备用纸张补上。物品提示还会显示袋中的内容以及剩余使用次数。"
+    }
+  ]
+}

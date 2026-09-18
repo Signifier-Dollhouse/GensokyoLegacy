@@ -8,11 +8,11 @@
       "type": "patchouli:spotlight",
       "item": "gensokyolegacy:centipickaxe",
       "title": "The Hungry Pickaxe",
-      "text": "A gold-tier pickaxe that comes pre-enchanted with Efficiency V, Fortune III and Mending. Simply holding it grants you Haste II, so tunnels melt away."
+      "text": "This gold-tier pickaxe comes with Efficiency V, Fortune III, and Mending. Simply holding it grants Haste II, making it exceptionally quick for mining."
     },
     {
       "type": "patchouli:text",
-      "text": "$(bold)Blood for steel$()$(br)When the Centipeck is about to break, it refuses to die: instead of losing durability it drains your own health, as long as you can survive it.$(br2)Mine with food in your pack, and repair it with Mending experience as usual."
+      "text": "$(bold)A pickaxe with a taste for blood$()$(br)When the Centipeck reaches the end of its durability, it can keep working by draining your own health instead of breaking—as long as you have enough health to survive.$(br2)Mending still works normally, so keep gaining experience while you mine."
     }
   ]
 }

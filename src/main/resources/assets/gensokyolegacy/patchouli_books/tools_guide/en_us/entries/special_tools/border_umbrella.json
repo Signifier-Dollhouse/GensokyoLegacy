@@ -7,20 +7,20 @@
     {
       "type": "patchouli:spotlight",
       "item": "gensokyolegacy:border_umbrella",
-      "title": "Gap Tool",
-      "text": "A four-mode teleportation tool. Switch modes from the item wheel, pick one of your named position slots, then right-click to act. Hold the wheel key while holding the umbrella to change mode, slot and travel distance."
+      "title": "A Gap-Walking Umbrella",
+      "text": "The Border Umbrella offers several ways to bend distance. Use its item wheel to choose a mode, a saved position, and—where applicable—a travel distance. Hold the wheel key while carrying the umbrella to change these settings."
     },
     {
       "type": "patchouli:text",
-      "text": "$(bold)Record$() — right-click a block to save its position into the selected slot.$(br)$(bold)Waypoint$() — right-click to teleport yourself to the selected slot.$(br2)Manage slots from the umbrella screen: rename, delete and reorder your saved positions."
+      "text": "$(bold)Record$()$(br)Right-click a block to save its position in the selected slot.$(br)$(bold)Waypoint$()$(br)Right-click to teleport yourself to the selected position.$(br2)You can rename, delete, and reorder saved positions from the umbrella's management screen."
     },
     {
       "type": "patchouli:text",
-      "text": "$(bold)Travel$() — hold use to charge, then dash forward through the border by the configured distance (default 1000 blocks, adjustable on the wheel).$(br2)Travel starts locked: combine the umbrella with a chorus fruit in an anvil to unlock it."
+      "text": "$(bold)Travel$()$(br)Hold use to charge, then dash through the Border by the selected distance. The default distance is 1000 blocks and can be changed with the item wheel.$(br2)Travel is initially sealed. Combine the umbrella with a chorus fruit in an anvil to unlock it."
     },
     {
       "type": "patchouli:text",
-      "text": "$(bold)Capture$() — interact with a living creature (not a player) to teleport it to the selected slot. Useful for relocating villagers, animals or captured youkai.$(br2)Capture starts locked: combine the umbrella with an echo shard in an anvil to unlock it."
+      "text": "$(bold)Capture$()$(br)Use the umbrella on a living creature other than a player to send it to your selected position. This can be useful for moving villagers, animals, or youkai.$(br2)Capture is initially sealed. Combine the umbrella with an echo shard in an anvil to unlock it."
     }
   ]
 }

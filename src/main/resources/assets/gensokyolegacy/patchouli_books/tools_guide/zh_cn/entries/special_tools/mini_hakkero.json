@@ -1,0 +1,18 @@
+{
+  "name": "迷你八卦炉【试作型】",
+  "icon": "gensokyolegacy:mini_hakkero_prototype",
+  "category": "gensokyolegacy:special_tools",
+  "sortnum": 1,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "gensokyolegacy:mini_hakkero_prototype",
+      "title": "随身熔炉",
+      "text": "一座可以放在物品栏里工作的迷你魔法熔炉。不需要燃料，就能自动慢慢烧炼物品，不过速度只有普通熔炼的一半。"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)切换模式$()$(br)将八卦炉放在物品栏中右键，可以循环切换 $(bold)关闭 → 烟熏炉 → 熔炉 → 高炉$()。不同模式会接受对应类型的配方。$(br2)八卦炉拥有 4 个内部槽位，会从附近的物品栏槽位取出原料，再把成品放回其他附近槽位。想让它自动工作，就要给周围留好物品流转的空间。"
+    }
+  ]
+}

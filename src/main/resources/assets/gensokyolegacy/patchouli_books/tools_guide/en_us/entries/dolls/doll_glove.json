@@ -8,15 +8,15 @@
       "type": "patchouli:spotlight",
       "item": "gensokyolegacy:doll_glove",
       "title": "Doll Commander",
-      "text": "The remote control for all dolls you own. Hold the selection key to open the mode wheel, then use the glove to issue the order. The targeted creature glows in the mode's color."
+      "text": "The Seven-Colored Doll Glove lets you command all of your dolls from a distance. Hold the selection key to open its mode wheel, then use the glove to give an order. A selected target is highlighted in the mode's color."
     },
     {
       "type": "patchouli:text",
-      "text": "$(bold)Summon / Recall$() summons every parked doll, or recalls every active one.$(br)$(bold)Heal Mark$() marks the creature you look at so your dolls heal it; use again to unmark.$(br)$(bold)Volley$() orders every armed doll to fire once, in turn.$(br)$(bold)Super Attack$() orders one random doll to unleash its super attack."
+      "text": "$(bold)Summon / Recall$()$(br)Summons all stored dolls, or recalls all active dolls.$(br)$(bold)Heal Mark$()$(br)Marks the creature you are looking at so your dolls will heal it. Use again to clear the mark.$(br)$(bold)Volley$()$(br)Commands every armed doll to fire once, one after another.$(br)$(bold)Super Attack$()$(br)Commands one random doll to use its super attack."
     },
     {
       "type": "patchouli:text",
-      "text": "$(bold)Suicide$() orders one random doll to dive at the enemy and detonate.$(br)$(bold)Stop$() halts all summoned dolls.$(br)$(bold)Edit Loadout$() opens the loadout of the doll you look at, even out of reach."
+      "text": "$(bold)Suicide$()$(br)Commands one random doll to rush the enemy and detonate.$(br)$(bold)Stop$()$(br)Stops all summoned dolls.$(br)$(bold)Edit Loadout$()$(br)Opens the loadout of the doll you are looking at, even when it is too far away to reach normally."
     }
   ]
 }

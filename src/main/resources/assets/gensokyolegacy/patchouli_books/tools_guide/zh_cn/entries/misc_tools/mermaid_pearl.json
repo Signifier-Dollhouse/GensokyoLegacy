@@ -1,0 +1,18 @@
+{
+  "name": "人鱼之珠",
+  "icon": "gensokyolegacy:mermaid_pearl",
+  "category": "gensokyolegacy:misc_tools",
+  "sortnum": 3,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "gensokyolegacy:mermaid_pearl",
+      "title": "海之恩惠",
+      "text": "右键使用后，你会获得海豚的恩惠与潮涌能量，持续 60 秒。无论是长时间潜水还是挑战海底神殿，它都相当方便。"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "人鱼之珠共有 16 次使用次数，每次发动后有 5 秒冷却。与药水不同，它不需要酿造台——只要空出一只手，就能让它为你歌唱。"
+    }
+  ]
+}

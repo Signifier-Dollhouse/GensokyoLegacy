@@ -7,12 +7,12 @@
     {
       "type": "patchouli:spotlight",
       "item": "gensokyolegacy:gap_portal",
-      "title": "Paired Teleporter",
-      "text": "A two-block-tall portal that teleports anything walking into it to its linked partner. Place the first portal and it hands you a linked copy for the other side."
+      "title": "A Door Through the Gap",
+      "text": "A two-block-tall portal that sends anything walking into it to its paired portal. Place the first portal and you will receive a linked portal item for the other side."
     },
     {
       "type": "patchouli:text",
-      "text": "Using the paired portal item on the portal block completes the link: a portal standing outside the Gap wakes its twin inside the Gap dimension at the same coordinates (height scaled), while a portal already inside the Gap wakes its twin back in the overworld. The far side builds itself an obsidian pad, so keep 3 by 2 by 3 of free space.$(br2)Walking into either side exits the other. Use a placed portal empty-handed to pick it back up and unlink it; breaking the bottom half does the same. A paired item used on a finished pair instead moves its matching side."
+      "text": "Use the linked portal item on the placed portal to finish the connection. A portal in the Overworld creates its partner in the Gap at matching coordinates, with height adjusted for the other side; a portal in the Gap can likewise create a way back. The destination prepares an obsidian landing pad, so leave a clear space at least 3×2×3 blocks large.$(br2)Walk into either portal to travel between them. Right-click a placed portal with an empty hand to pick it up and break the link, or break its bottom half. Using a paired portal item on an already completed pair moves the matching portal to a new location."
     }
   ]
 }

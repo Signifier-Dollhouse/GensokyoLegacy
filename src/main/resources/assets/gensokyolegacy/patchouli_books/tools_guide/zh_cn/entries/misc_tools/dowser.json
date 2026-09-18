@@ -1,0 +1,18 @@
+{
+  "name": "纳兹琳的探宝器",
+  "icon": "gensokyolegacy:dowser",
+  "category": "gensokyolegacy:misc_tools",
+  "sortnum": 2,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "gensokyolegacy:dowser",
+      "title": "寻找宝藏",
+      "text": "右键使用探宝器，可以搜索你周围仍藏有未发现战利品的箱子。找到的箱子会在短时间内高亮，让你不再错过被遗忘的宝藏。"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "搜索范围可达以你为中心、各方向最多 4 个区块。只要箱子的战利品尚未被生成或打开，就有机会被探测到。探宝器共有 64 次使用次数，每次搜索后会有短暂冷却。$(br2)左半片和右半片只是合成材料，本身没有特殊用途。"
+    }
+  ]
+}

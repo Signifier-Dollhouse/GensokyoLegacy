@@ -1,0 +1,18 @@
+{
+  "name": "猫铃",
+  "icon": "gensokyolegacy:cat_bell",
+  "category": "gensokyolegacy:misc_tools",
+  "sortnum": 4,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "gensokyolegacy:cat_bell",
+      "title": "口袋小猫",
+      "text": "对自己驯服的猫使用猫铃，就能让它骑在你身上。之后它会从你的肩膀陪你一起旅行。"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "空手使用猫铃，还会召唤一只已经认你为主人的新猫，并直接把它放到肩膀上。猫铃有 16 次使用次数。肩上的猫不会轻易走丢，而且能让旅途多一份可爱。"
+    }
+  ]
+}

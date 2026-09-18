@@ -7,12 +7,12 @@
     {
       "type": "patchouli:spotlight",
       "item": "gensokyolegacy:ghost_fire_mushroom",
-      "title": "Gensokyo Flora",
-      "text": "Brewing runs on the mod's own plants: ghost fire, dream and demonic miasma mushroom caps from their huge mushroom trees, plus wild star flowers and flame cattails. Keep a mixed stock, since almost every brew combines two or more of them."
+      "title": "Plants of Gensokyo",
+      "text": "Many of the pot's recipes rely on plants unique to Gensokyo: Ghost Fire, Dream, and Demonic Miasma mushrooms, found on their great mushroom trees, along with wild Star Flowers and Flame Cattails."
     },
     {
       "type": "patchouli:text",
-      "text": "Alongside the modded plants, the pot also accepts some vanilla goods: powders, monster drops and similar staples. Check JEI under Alchemy Pot for the exact list of each recipe."
+      "text": "Keep a variety of ingredients on hand. Many recipes combine several different plants, sometimes alongside familiar materials such as powders and monster drops. JEI lists the exact ingredients for every Alchemy Pot recipe."
     }
   ]
 }

@@ -8,7 +8,7 @@
       "type": "patchouli:spotlight",
       "item": "gensokyolegacy:sealing_pot",
       "title": "Barrier Seal",
-      "text": "Placing the pot seals the surrounding chunks with a visible barrier effect. Breaking it lifts the seal. A chunk can only be sealed once: placement is rejected where another seal already overlaps."
+      "text": "Place the pot to seal the surrounding chunks with a visible barrier. Breaking the pot removes the seal. A location cannot receive another seal if it would overlap an existing one."
     }
   ]
 }

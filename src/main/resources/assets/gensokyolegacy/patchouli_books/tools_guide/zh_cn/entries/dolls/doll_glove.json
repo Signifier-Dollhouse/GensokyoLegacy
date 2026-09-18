@@ -1,0 +1,22 @@
+{
+  "name": "七色人偶手套",
+  "icon": "gensokyolegacy:doll_glove",
+  "category": "gensokyolegacy:dolls",
+  "sortnum": 2,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "gensokyolegacy:doll_glove",
+      "title": "人偶指挥官",
+      "text": "七色人偶手套可以远程指挥你的人偶。按住选择键打开模式轮，再用手套下达命令。当前目标会以该模式对应的颜色高亮。"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)召唤 / 召回$()$(br)召唤所有收起的人偶，或召回所有正在活动的人偶。$(br)$(bold)治疗标记$()$(br)标记你正在注视的生物，让人偶为它治疗；再次使用即可取消标记。$(br)$(bold)齐射$()$(br)命令所有装备武器的人偶依次射击一次。$(br)$(bold)必杀技$()$(br)随机选择一个人偶释放它的必杀技。"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)自爆$()$(br)命令一个随机人偶冲向敌人并引爆。$(br)$(bold)停止$()$(br)让所有已召唤的人偶停止行动。$(br)$(bold)编辑装备$()$(br)打开你所注视的人偶的装备配置，即使它离你很远也能进行编辑。"
+    }
+  ]
+}

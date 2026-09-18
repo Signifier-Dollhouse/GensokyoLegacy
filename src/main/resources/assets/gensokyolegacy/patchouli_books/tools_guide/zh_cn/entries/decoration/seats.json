@@ -1,0 +1,18 @@
+{
+  "name": "座椅与坐垫",
+  "icon": "gensokyolegacy:cushion",
+  "category": "gensokyolegacy:decoration",
+  "sortnum": 4,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "gensokyolegacy:seat",
+      "title": "坐下来歇会儿",
+      "text": "无论是软垫、木凳，还是大椅子，都能让你舒舒服服地坐下来。软垫拥有全部 16 种羊毛颜色。对着座椅右键即可入座。"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "大椅子也能像桌子一样装饰：手持地毯或榻榻米右键即可铺上坐垫布。用剪刀可以取下坐垫布，并把它收回来。"
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "name": "推拉门",
+  "icon": "gensokyolegacy:oak_sliding_door",
+  "category": "gensokyolegacy:decoration",
+  "sortnum": 2,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "gensokyolegacy:oak_sliding_door",
+      "title": "障子推拉门",
+      "text": "各种木材都能制作高大的推拉门，包括竹制推拉门。空手对着门右键即可开关。门板可以互相套叠，最多容纳 4 层门板。"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "单扇门板会向一侧滑动一格，因此旁边要留出足够空间。彼此相邻的推拉门可以共享滑动空间，因此也能做成宽大的连续门墙。手持同种推拉门对已有门右键可以增加门板；放置时点击的方向会决定门板的滑动方向。"
+    }
+  ]
+}

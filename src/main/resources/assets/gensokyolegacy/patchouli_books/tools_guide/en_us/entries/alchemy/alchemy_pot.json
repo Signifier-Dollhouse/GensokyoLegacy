@@ -8,11 +8,11 @@
       "type": "patchouli:spotlight",
       "item": "gensokyolegacy:alchemy_pot",
       "title": "Brewing Station",
-      "text": "A 12-slot brewing pot with a 1000 mB fluid tank, used for alchemy, witch merging and potion-stage recipes. The full recipe list is visible in JEI under Alchemy Pot."
+      "text": "The Alchemy Pot is the heart of Gensokyo's brewing. It has 12 item slots and a 1000 mB fluid tank, and can handle alchemy, witch hexbrew recipes, and other potion-stage recipes."
     },
     {
       "type": "patchouli:text",
-      "text": "$(bold)How to operate$()$(br)Right-click with a fluid container to fill or drain the tank. Right-click with an item to insert it (containers like buckets are handled). Right-click with an empty hand to take back the last item; sneak to empty everything.$(br2)A hint overlay lists the ingredients the current brew accepts. The pot ticks its recipe on the server until the timed brew completes."
+      "text": "$(bold)Using the pot$()$(br)Right-click with a fluid container to fill or drain the tank. Right-click with an item to add it to the brew; buckets and similar containers are handled automatically. Right-click with an empty hand to take back the last item, or sneak-right-click to empty the pot.$(br2)The pot shows hints for ingredients accepted by the current recipe. For the complete recipe list, look under Alchemy Pot in JEI."
     }
   ]
 }

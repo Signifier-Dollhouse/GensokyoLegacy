@@ -1,0 +1,26 @@
+{
+  "name": "境界伞",
+  "icon": "gensokyolegacy:border_umbrella",
+  "category": "gensokyolegacy:special_tools",
+  "sortnum": 4,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "gensokyolegacy:border_umbrella",
+      "title": "跨越境界的雨伞",
+      "text": "境界伞可以用各种方式缩短距离。通过物品轮选择模式和已保存的位置；部分模式还可以调整移动距离。手持境界伞按住轮盘键即可修改这些设置。"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)记录$()$(br)右键方块，将它的位置保存到当前槽位。$(br)$(bold)路标$()$(br)右键即可传送到当前保存的位置。$(br2)在境界伞的管理界面中，可以重命名、删除和调整已保存位置的顺序。"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)远行$()$(br)按住使用键蓄力，然后穿过境界向前冲刺指定距离。默认距离为 1000 格，也可以通过物品轮调整。$(br2)远行能力最初处于封印状态。将境界伞与紫颂果放入铁砧即可解锁。"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)捕获$()$(br)对非玩家的活体生物使用，可以把它传送到当前选定的位置。适合搬运村民、动物，或收容妖怪。$(br2)捕获能力最初处于封印状态。将境界伞与回响碎片放入铁砧即可解锁。"
+    }
+  ]
+}

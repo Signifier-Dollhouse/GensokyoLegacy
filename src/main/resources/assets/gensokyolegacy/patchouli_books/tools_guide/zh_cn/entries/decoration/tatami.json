@@ -1,0 +1,18 @@
+{
+  "name": "榻榻米",
+  "icon": "gensokyolegacy:tatami",
+  "category": "gensokyolegacy:decoration",
+  "sortnum": 1,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "gensokyolegacy:tatami",
+      "title": "成对铺设",
+      "text": "榻榻米非常适合布置幻想乡风格的房间。手里至少有两块榻榻米时进行铺设，通常会自动组成一组相连的双块榻榻米，让地面更加整齐。"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "如果手里只有一块，或者前方没有足够空间，就会只铺下一块方形榻榻米。拆掉成对的榻榻米后，剩下的部分会恢复成单块，每一半都会掉落一块榻榻米。整块高度的榻榻米也遵循同样的规则。"
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "name": "符纸种类",
+  "icon": "gensokyolegacy:heal_talisman",
+  "category": "gensokyolegacy:talismans",
+  "sortnum": 2,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "gensokyolegacy:heal_talisman",
+      "title": "治愈符 — 16 次",
+      "text": "当你的生命值未满时，恢复最大生命值的 30%。每次触发后有 5 秒冷却。"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)疾走符 — 180 次$()$(br)疾跑时持续获得速度 II。$(br)$(bold)避水符 — 180 次$()$(br)空气值不足时，每 tick 恢复 40 点空气，帮助你长时间潜水。$(br2)$(bold)熔岩亲和符 — 180 次$()$(br)着火、身处熔岩或受到火焰伤害时，获得熔岩亲和效果：游泳更快、熔岩中视野清晰，并免疫火焰伤害。"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)避灾符 — 16 次$()$(br)如果一次攻击本应造成至少相当于你当前生命值 20% 的伤害，避灾符会将这次伤害压低到你当前生命值的 20%。每次触发后有 5 秒冷却，尤其适合防备突然袭来的重击。"
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "name": "人偶",
+  "icon": "gensokyolegacy:doll",
+  "category": "gensokyolegacy:dolls",
+  "sortnum": 1,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "gensokyolegacy:doll",
+      "title": "可召唤的人偶",
+      "text": "右键即可在你注视的位置召唤战斗人偶，最远可放置在前方 2 格处。召唤会消耗一个人偶物品，同时你的活动人偶数量也有上限。"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "每个人偶都有独立的生命值、名字、染色和战斗装备。物品的耐久条显示它的生命值。在物品栏中右键人偶即可打开装备配置。若人偶的生命值降至 0，它会损坏并无法再次召唤，必须在铁砧中使用羊毛修复。"
+    }
+  ]
+}

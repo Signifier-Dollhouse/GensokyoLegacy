@@ -6,11 +6,11 @@
   "pages": [
     {
       "type": "patchouli:text",
-      "text": "$(bold)How dolls live$()$(br)Each doll is a 20-health combat entity bound to you. Up to 8 can be active at once. They follow you, fight with the gear in their loadout, and can be ordered to heal a marked ally.$(br2)Logging out or dying parks every active doll into your data automatically, so your army survives the night and the server restart."
+      "text": "$(bold)Your Doll Army$()$(br)A doll has 20 health and is bound to you. You can have up to 8 dolls active at once. They follow you, fight using the equipment in their loadouts, and can be ordered to heal a marked ally."
     },
     {
       "type": "patchouli:text",
-      "text": "$(bold)Upkeep$()$(br)A doll reduced to zero health breaks: it stays an item and refuses to deploy until repaired in an anvil with wool. Its tint, name, health and loadout are stored on the item itself, so trade or shelve dolls freely.$(br2)Open the loadout editor from the doll item in your inventory, or at range with the glove's Edit Loadout mode."
+      "text": "$(bold)They won't be lost$()$(br)If you log out or die, your active dolls are safely put away and restored with you later. Their names, colors, health, and equipment stay with each doll.$(br2)When a doll reaches zero health, it breaks and cannot be summoned until you repair it in an anvil with wool. You can edit its loadout directly from the doll item, or use the glove's Edit Loadout mode to manage one from a distance."
     }
   ]
 }

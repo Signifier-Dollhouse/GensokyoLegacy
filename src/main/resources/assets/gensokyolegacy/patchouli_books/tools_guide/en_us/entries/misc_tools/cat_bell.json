@@ -8,11 +8,11 @@
       "type": "patchouli:spotlight",
       "item": "gensokyolegacy:cat_bell",
       "title": "Pocket Kitten",
-      "text": "Use it on one of your tamed cats and the cat will ride on you, following your adventures from your shoulder."
+      "text": "Use the bell on one of your tamed cats to let it ride on you. Your furry companion will travel with you from your shoulder."
     },
     {
       "type": "patchouli:text",
-      "text": "$(bold)Details$()$(br)Using the bell with an empty hand summons a brand-new tamed cat, already yours, and perches it on you.$(br2)The bell has 16 uses. A car-mounted cat never gets lost, stops creeper ambushes at home, and looks adorable."
+      "text": "Using the bell with an empty hand summons a new tamed cat that already belongs to you, then places it on your shoulder. The bell has 16 uses. A shoulder cat is safely carried along on your adventures—and is always ready to make your travels cuter."
     }
   ]
 }

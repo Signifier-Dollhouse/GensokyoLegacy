@@ -1,0 +1,18 @@
+{
+  "name": "百足镐",
+  "icon": "gensokyolegacy:centipickaxe",
+  "category": "gensokyolegacy:misc_tools",
+  "sortnum": 1,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "gensokyolegacy:centipickaxe",
+      "title": "贪吃的镐子",
+      "text": "这把金制镐自带效率 V、时运 III 和经验修补。只要拿在手里就会获得急迫 II，挖矿速度非常可观。"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)用血换钢$()$(br)百足镐耐久耗尽时不会立刻损坏，而是改为消耗你的生命值来继续工作——前提是你能承受这份代价。$(br2)经验修补仍然正常生效，所以带着它挖矿时别忘了收集经验。"
+    }
+  ]
+}

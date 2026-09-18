@@ -1,0 +1,18 @@
+{
+  "name": "炼金材料",
+  "icon": "gensokyolegacy:ghost_fire_mushroom",
+  "category": "gensokyolegacy:alchemy",
+  "sortnum": 2,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "gensokyolegacy:ghost_fire_mushroom",
+      "title": "幻想乡的植物",
+      "text": "许多炼金配方都依赖幻想乡特有的植物：产自巨型蘑菇树的鬼火蘑菇、梦境蘑菇和恶魔瘴气蘑菇，以及野外生长的星之花和火焰香蒲。"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "最好随身储备各种不同的材料。许多配方会组合数种植物，有些还需要粉末、怪物掉落物等熟悉的材料。每种炼金锅配方的准确材料，都可以在 JEI 中查看。"
+    }
+  ]
+}

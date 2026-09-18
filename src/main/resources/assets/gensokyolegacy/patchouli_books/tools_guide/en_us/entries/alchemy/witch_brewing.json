@@ -7,14 +7,14 @@
     {
       "type": "patchouli:spotlight",
       "item": "gensokyolegacy:witch_hexbrew_bottle",
-      "title": "Merging",
-      "text": "Merging pours ordinary potions into the tank's mundane hexbrew and converts them into drinkable witch hexbrew. The tank must hold a full bucket first, and each merge outputs exactly 250 mB: one bottle. Effects at the same level across the input bottles have their durations summed, and the fluid takes the mixed potion color."
+      "title": "Merging Potions",
+      "text": "Ordinary potions can be poured into a tank containing Mundane Hexbrew and turned into drinkable Witch Hexbrew. Start with a full bucket of fluid. Each merge produces 250 mB—enough for one bottle. Matching effects at the same level have their durations added together, and the finished fluid takes on the combined potion color."
     },
     {
       "type": "patchouli:spotlight",
       "item": "gensokyolegacy:witch_splash_bottle",
       "title": "Splash & Enhancing",
-      "text": "Merging splash potions instead yields throwable witch splash, and finished witch hexbrew converts 1:1 the same way. Enhancing re-brews effect-bearing witch fluid: every stored duration doubles, up to an 8-minute cap, and maxed effects refuse further enhancing. Higher tiers merge more bottles at once; check JEI for exact inputs."
+      "text": "Merge splash potions to create throwable Witch Splash instead. Finished Witch Hexbrew can also be converted into the matching form. Enhancing doubles the duration of stored effects, up to 8 minutes; effects already at the cap cannot be enhanced again. Higher tiers can merge more bottles at once. JEI shows the exact ingredients and requirements for each recipe."
     }
   ]
 }

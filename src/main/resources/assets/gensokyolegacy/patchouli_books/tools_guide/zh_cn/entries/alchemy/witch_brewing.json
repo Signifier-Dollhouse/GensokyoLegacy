@@ -1,0 +1,20 @@
+{
+  "name": "魔女魔酿",
+  "icon": "gensokyolegacy:witch_hexbrew_bottle",
+  "category": "gensokyolegacy:alchemy",
+  "sortnum": 4,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "gensokyolegacy:witch_hexbrew_bottle",
+      "title": "魔药融合",
+      "text": "把普通药水倒入装有平凡魔酿的容器中，就能将它们转化为可饮用的魔女魔酿。开始时必须先装满一桶液体。每次融合会产出 250 mB，也就是一瓶。输入药水中等级相同的效果会合并持续时间，成品则会呈现混合后的药水颜色。"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "gensokyolegacy:witch_splash_bottle",
+      "title": "喷溅与强化",
+      "text": "融合喷溅药水时，会得到可以投掷的魔女喷溅魔酿。已经制成的魔女魔酿也可以用同样方式转换。强化会使其中储存的效果持续时间翻倍，最长可达 8 分钟；已经达到上限的效果无法继续强化。更高阶配方一次可以融合更多瓶药水，具体材料和要求请查看 JEI。"
+    }
+  ]
+}

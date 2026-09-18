@@ -8,11 +8,11 @@
       "type": "patchouli:spotlight",
       "item": "gensokyolegacy:dowser",
       "title": "Treasure Finder",
-      "text": "Right-click to sweep a 9 x 9 chunk area around you for unlooted chests. Found loot is highlighted in the world for a short time."
+      "text": "Right-click the dowser to search the area around you for chests that still contain undiscovered loot. Detected chests are highlighted for a short time, making it much easier to find forgotten treasure."
     },
     {
       "type": "patchouli:text",
-      "text": "$(bold)Details$()$(br)The dowser detects chests that still have an unopened loot table, within 4 chunks in every direction. It has 64 uses and a short cooldown after each sweep.$(br2)The Left and Right Half items are inert fragments with no power of their own."
+      "text": "The search reaches up to 4 chunks in every direction and can find chests whose loot has not yet been generated or opened. The dowser has 64 uses and a short cooldown between searches.$(br2)The Left Half and Right Half are only crafting fragments; neither has a use by itself."
     }
   ]
 }

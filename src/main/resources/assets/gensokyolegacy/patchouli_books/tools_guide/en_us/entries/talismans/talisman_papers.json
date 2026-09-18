@@ -7,16 +7,16 @@
     {
       "type": "patchouli:spotlight",
       "item": "gensokyolegacy:heal_talisman",
-      "title": "Healing (16 uses)",
-      "text": "When your health drops below maximum, recover 30 percent of your max health. 5-second cooldown per trigger."
+      "title": "Healing — 16 uses",
+      "text": "When you are below full health, this talisman restores 30% of your maximum health. It can trigger once every 5 seconds."
     },
     {
       "type": "patchouli:text",
-      "text": "$(bold)Speed Boost (180 uses)$() — while sprinting, refreshes Speed II.$(br)$(bold)Hydrophobic (180 uses)$() — while your air runs low, restores 40 air per tick. A drowning aid.$(br2)$(bold)Lava Affinity (180 uses)$() — when on fire, in lava, or taking fire damage, grants Lava Affinity: faster swimming, clear vision in lava, and fire immunity."
+      "text": "$(bold)Speed Boost — 180 uses$()$(br)While sprinting, keeps Speed II active.$(br)$(bold)Hydrophobic — 180 uses$()$(br)When your air supply is running low, restores 40 air per tick to help you stay underwater.$(br2)$(bold)Lava Affinity — 180 uses$()$(br)When you are burning, in lava, or taking fire damage, grants Lava Affinity: faster swimming, clear vision in lava, and immunity to fire."
     },
     {
       "type": "patchouli:text",
-      "text": "$(bold)Shelter (16 uses)$() — when a single hit would deal at least 20 percent of your current health, the hit is reduced to exactly 20 percent. Your anti-one-shot insurance, with a 5-second cooldown."
+      "text": "$(bold)Shelter — 16 uses$()$(br)If one hit would deal at least 20% of your current health, Shelter reduces that hit to exactly 20% of your current health. It has a 5-second cooldown, making it especially useful against sudden heavy attacks."
     }
   ]
 }
