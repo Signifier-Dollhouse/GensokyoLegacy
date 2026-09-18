@@ -1,0 +1,2 @@
+- hyphae trade
+- doll durability bar can go negative

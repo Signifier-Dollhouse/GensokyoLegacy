@@ -8,7 +8,11 @@
       "type": "patchouli:spotlight",
       "item": "gensokyolegacy:oak_sliding_door",
       "title": "Shoji Doors",
-      "text": "Tall sliding doors in every wood type, from oak to bamboo. Right-click and the panels slide aside instead of swinging, so they fit tight corridors and tea rooms."
+      "text": "Tall sliding doors in every wood type, from oak to bamboo. Right-click empty-handed to slide: clicking the edge half (hinge side) slides the panel open into the neighboring space, while the far half pulls a panel back to closed. Panels stack into each other up to 4 thick."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "A lone single panel simply shuttles one block sideways, so it needs two blocks of free air beside it; doors lined up side by side share pockets and form wide sliding walls.$(br2)Right-click a door while holding another door item to add panels, up to 4. The edge you click during placement sets the side the door slides toward."
     }
   ]
 }

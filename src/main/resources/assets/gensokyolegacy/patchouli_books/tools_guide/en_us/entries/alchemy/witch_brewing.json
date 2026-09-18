@@ -7,14 +7,14 @@
     {
       "type": "patchouli:spotlight",
       "item": "gensokyolegacy:witch_hexbrew_bottle",
-      "title": "Merging Potions",
-      "text": "Brew any potion together with mundane hexbrew and a flame cattail to convert it into drinkable witch hexbrew, keeping the potion's effects. The catalyst sets the tier: ghost fire cap (tier 1), star flower (tier 2), or dragon breath (tier 3)."
+      "title": "Merging",
+      "text": "Merging pours ordinary potions into the tank's mundane hexbrew and converts them into drinkable witch hexbrew. The tank must hold a full bucket first, and each merge outputs exactly 250 mB: one bottle. Effects at the same level across the input bottles have their durations summed, and the fluid takes the mixed potion color."
     },
     {
       "type": "patchouli:spotlight",
       "item": "gensokyolegacy:witch_splash_bottle",
       "title": "Splash & Enhancing",
-      "text": "Add gunpowder to a merge to get throwable witch splash instead, or brew plain witch hexbrew with gunpowder 1:1 later. Re-brewing witch hexbrew (or splash) with flame cattail, blaze powder and redstone enhances its stored effects."
+      "text": "Merging splash potions instead yields throwable witch splash, and finished witch hexbrew converts 1:1 the same way. Enhancing re-brews effect-bearing witch fluid: every stored duration doubles, up to an 8-minute cap, and maxed effects refuse further enhancing. Higher tiers merge more bottles at once; check JEI for exact inputs."
     }
   ]
 }

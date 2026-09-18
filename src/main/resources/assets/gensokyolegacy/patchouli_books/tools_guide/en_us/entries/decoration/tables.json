@@ -7,12 +7,12 @@
     {
       "type": "patchouli:spotlight",
       "item": "gensokyolegacy:oak_large_table",
-      "title": "Coverable Tables",
-      "text": "Large dining tables in every wood type. Right-click a table with any carpet, or with tatami, to spread it as a tablecloth in that color. Cut the cloth away with shears to get it back."
+      "title": "Connecting Tables",
+      "text": "Large dining tables in every wood type. A table with tables on both opposite sides (north and south, or east and west) drops its center stand and becomes a pure tabletop, merging into long banquet surfaces. Break the row and the stands come back."
     },
     {
       "type": "patchouli:text",
-      "text": "The plain tatami cloth comes from a tatami item; every wool color has its own cloth. Breaking the table drops both the table and its cloth, so redecorating is free."
+      "text": "Right-click a table with any carpet, or with tatami, to spread it as a tablecloth in that color; the cloth drapes over the top. Cut it away with shears to get the cloth back.$(br2)Breaking a table drops both the table and its cloth, so redecorating is free."
     }
   ]
 }

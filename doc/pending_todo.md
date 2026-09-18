@@ -1,9 +1,8 @@
 - Fix community textures
 - Natural blocks bonemeal
 - large chair shape fix
-- Reimu quest and trade
 - structures
 - coke
-- doll weapons and logic
 - gift interaction
 - sealing pot area rendering item trigger
+- patchouli book too technical

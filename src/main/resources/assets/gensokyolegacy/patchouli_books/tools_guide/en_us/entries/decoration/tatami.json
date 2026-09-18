@@ -7,8 +7,12 @@
     {
       "type": "patchouli:spotlight",
       "item": "gensokyolegacy:tatami",
-      "title": "Floor Mats",
-      "text": "Woven straw floor mats for Gensokyo-style interiors. Tatami is the thin carpet layer; the tatami block is the full-height version. Lay them wall to wall under tables and cushions."
+      "title": "Paired Mats",
+      "text": "Woven straw floor mats for Gensokyo-style interiors. Place tatami while holding 2 or more mats and it lays a connected pair at once, consuming 2: a FRONT half joined to an END half facing it."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "With a single mat in hand, or no free space ahead, you place a lone SQUARE mat instead. Break either half of a pair and the survivor relaxes back into a single square mat; each half drops one tatami item.$(br2)The full-height tatami block pairs up exactly the same way."
     }
   ]
 }
