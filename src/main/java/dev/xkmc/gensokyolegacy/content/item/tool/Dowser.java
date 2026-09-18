@@ -27,6 +27,8 @@ import java.util.Set;
 
 public class Dowser extends Item {
 
+	public static final int RANGE = 4;
+
 	public static boolean isValid(@Nullable BlockEntity be) {
 		if (!(be instanceof RandomizableContainerBlockEntity e)) return false;
 		var lv = be.getLevel();
@@ -60,7 +62,7 @@ public class Dowser extends Item {
 	public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
 		ItemStack stack = player.getItemInHand(hand);
 		if (player instanceof ServerPlayer sp) {
-			var blocks = search(sp.serverLevel(), player.blockPosition(), 4);
+			var blocks = search(sp.serverLevel(), player.blockPosition(), RANGE);
 			GensokyoLegacy.HANDLER.toClientPlayer(new DowserToClient(blocks), sp);
 			if (!player.isCreative()) {
 				stack.hurtAndBreak(1, player, LivingEntity.getSlotForHand(hand));

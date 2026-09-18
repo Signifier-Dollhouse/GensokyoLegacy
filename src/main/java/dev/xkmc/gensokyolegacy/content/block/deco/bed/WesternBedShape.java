@@ -14,7 +14,11 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
 import org.jetbrains.annotations.Nullable;
 
-public class HighBedShape implements BedShape {
+/**
+ * Single full-sized model spanning both blocks: rendered entirely by the head part,
+ * the foot part renders nothing.
+ */
+public class WesternBedShape implements BedShape {
 
 	public static VoxelShape SHAPE = Block.box(0, 0, 0, 16, 9, 16);
 
@@ -24,14 +28,18 @@ public class HighBedShape implements BedShape {
 	}
 
 	public void buildStates(DataGenContext<Block, YoukaiBedBlock> ctx, RegistrateBlockstateProvider pvd) {
-		pvd.horizontalBlock(ctx.get(), state -> pvd.models().getBuilder(ctx.getName() + "_" + state.getValue(YoukaiBedBlock.PART))
-				.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/furniture/bed_high_" + state.getValue(YoukaiBedBlock.PART))))
-				.texture("all", pvd.modLoc("block/bed/" + ctx.getName())), 0);
+		pvd.horizontalBlock(ctx.get(), state -> switch (state.getValue(YoukaiBedBlock.PART)) {
+			case HEAD -> pvd.models().getBuilder(ctx.getName() + "_head")
+					.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/furniture/bed_western")))
+					.texture("all", pvd.modLoc("block/bed/" + ctx.getName()));
+			case FOOT -> pvd.models().getBuilder(ctx.getName() + "_foot")
+					.texture("particle", pvd.modLoc("block/bed/" + ctx.getName()));
+		}, 0);
 	}
 
 	public void buildItemModel(DataGenContext<Item, BedItem> ctx, RegistrateItemModelProvider pvd) {
 		pvd.getBuilder(ctx.getName())
-				.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/furniture/bed_high")))
+				.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/furniture/bed_western")))
 				.texture("all", pvd.modLoc("block/bed/" + ctx.getName()));
 	}
 
