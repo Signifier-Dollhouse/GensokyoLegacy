@@ -31,6 +31,6 @@ side = "BOTH"
 [[dependencies.${ mod_id }]]
 modId = "patchouli"
 type = "optional"
-versionRange = "[87,)"
+versionRange = "[1.21,)"
 ordering = "AFTER"
 side = "BOTH"

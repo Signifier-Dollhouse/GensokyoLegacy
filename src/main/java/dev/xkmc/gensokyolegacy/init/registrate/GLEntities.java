@@ -12,7 +12,7 @@ import dev.xkmc.gensokyolegacy.content.entity.characters.merchant.MorichikaRende
 import dev.xkmc.gensokyolegacy.content.entity.characters.rumia.RumiaEntity;
 import dev.xkmc.gensokyolegacy.content.entity.characters.rumia.RumiaRenderer;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.DollEntity;
-import dev.xkmc.gensokyolegacy.content.entity.dolls.DollRenderer;
+import dev.xkmc.gensokyolegacy.content.entity.dolls.render.DollRenderer;
 import dev.xkmc.gensokyolegacy.content.entity.misc.FairyIce;
 import dev.xkmc.gensokyolegacy.content.entity.misc.FrozenFrog;
 import dev.xkmc.gensokyolegacy.content.entity.misc.HexBrewBottleEntity;

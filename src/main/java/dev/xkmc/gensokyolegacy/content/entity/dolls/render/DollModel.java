@@ -1,5 +1,6 @@
-package dev.xkmc.gensokyolegacy.content.entity.dolls;
+package dev.xkmc.gensokyolegacy.content.entity.dolls.render;
 
+import dev.xkmc.gensokyolegacy.content.entity.dolls.DollEntity;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import net.minecraft.resources.ResourceLocation;
 import software.bernie.geckolib.model.GeoModel;
