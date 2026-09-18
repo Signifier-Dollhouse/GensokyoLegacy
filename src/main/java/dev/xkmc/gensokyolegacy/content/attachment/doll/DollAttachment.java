@@ -258,6 +258,7 @@ public class DollAttachment extends PlayerCapabilityTemplate<DollAttachment> imp
 			Vec3 pos = player.position().add(Math.cos(a) * 1.5, 1, Math.sin(a) * 1.5);
 			if (summon(player, stack, pos)) {
 				stack.shrink(1);
+				inv.setItem(i, stack);
 				n++;
 			}
 		}

@@ -129,6 +129,17 @@ public class DollItem extends Item implements InvClickItem {
 		return null;
 	}
 
+	/**
+	 * Consumes the summoned item, mirroring ModularGolems {@code GolemHolder}:
+	 * shrink unconditionally, then force-write the hand slot so the consumption
+	 * sticks even in creative (a bare shrink alone does not). Doll items are
+	 * singletons ({@code stacksTo(1)}), so the slot always ends up empty.
+	 */
+	private static void consumeSummoned(ServerPlayer sp, InteractionHand hand, ItemStack stack) {
+		stack.shrink(1);
+		sp.setItemInHand(hand, stack);
+	}
+
 	@Override
 	public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
 		ItemStack stack = player.getItemInHand(hand);
@@ -137,7 +148,7 @@ public class DollItem extends Item implements InvClickItem {
 			Vec3 pos = player.position().add(0, 1, 0).add(player.getLookAngle().scale(2.0));
 			DollAttachment att = GLMeta.DOLL.type().getOrCreate(sp);
 			if (att.summon(sp, stack, pos)) {
-				if (!sp.getAbilities().instabuild) stack.shrink(1);
+				consumeSummoned(sp, hand, stack);
 				return InteractionResultHolder.consume(stack);
 			}
 			Component blocker = summonBlocker(sp, stack);
@@ -157,11 +168,12 @@ public class DollItem extends Item implements InvClickItem {
 					? clicked : clicked.relative(ctx.getClickedFace());
 			Vec3 pos = new Vec3(spawnPos.getX() + 0.5, spawnPos.getY() + 0.05, spawnPos.getZ() + 0.5);
 			DollAttachment att = GLMeta.DOLL.type().getOrCreate(sp);
-			if (att.summon(sp, ctx.getItemInHand(), pos)) {
-				if (!sp.getAbilities().instabuild) ctx.getItemInHand().shrink(1);
+			ItemStack stack = ctx.getItemInHand();
+			if (att.summon(sp, stack, pos)) {
+				consumeSummoned(sp, ctx.getHand(), stack);
 				return InteractionResult.CONSUME;
 			}
-			Component blocker = summonBlocker(sp, ctx.getItemInHand());
+			Component blocker = summonBlocker(sp, stack);
 			if (blocker != null) sp.displayClientMessage(blocker, true);
 		}
 		return InteractionResult.FAIL;

@@ -52,7 +52,10 @@ public class DollControllerBlock implements ShapeBlockMethod, UseWithoutItemBloc
 			return ItemInteractionResult.SUCCESS;
 		}
 		if (player instanceof ServerPlayer sp && be.install(stack)) {
-			if (!sp.getAbilities().instabuild) stack.shrink(1);
+			// always consume, even in creative (mirror ModularGolems GolemHolder):
+			// shrink, then force-write the hand slot so it sticks.
+			stack.shrink(1);
+			sp.setItemInHand(hand, stack);
 			return ItemInteractionResult.SUCCESS;
 		}
 		return ItemInteractionResult.FAIL;
