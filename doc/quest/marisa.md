@@ -54,6 +54,7 @@ Witch hexbrews carry a real potion effect. Effects that have a **strong** tier a
 | `offer_witch_leaping` | 2.3 | emerald ×4 | witch (strong leaping) ×1 | 16 | 12000 |
 | `offer_witch_fire` | 2.3 | emerald ×4 | witch (long fire resistance) ×4 | 4 | 12000 |
 | `offer_shield` | rep 50 | emerald ×2 | shield ×1 | 8 | 24000 |
+| `offer_hyphae` | 1.2 | emerald ×2 | hyphae ×1 | 8 | 24000 |
 | `offer_explosive` | rep 50 | emerald ×3 | explosive ×4 | 4 | 24000 |
 | `offer_starlight` | rep 120 | emerald ×4 | starlight ×1 | 8 | 24000 |
 | `offer_sealing_pot` | rep 120 | emerald ×24 | sealing pot ×1 | 1 | 48000 |

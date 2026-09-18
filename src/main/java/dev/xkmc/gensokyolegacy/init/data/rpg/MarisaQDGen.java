@@ -47,6 +47,7 @@ import java.util.TreeMap;
 public class MarisaQDGen extends QuestDialogData {
 
 	private static final ResourceLocation QUEST_FIRST_MUSHROOM = GensokyoLegacy.loc("marisa/first_mushroom");
+	private static final ResourceLocation QUEST_HUGE_MUSHROOM = GensokyoLegacy.loc("marisa/huge_mushroom");
 	private static final ResourceLocation QUEST_NETHER_MUSHROOM = GensokyoLegacy.loc("marisa/nether_mushroom_prep");
 	private static final ResourceLocation QUEST_SHROOMLIGHT = GensokyoLegacy.loc("marisa/shroomlight");
 	private static final ResourceLocation QUEST_BREWING = GensokyoLegacy.loc("marisa/brewing");
@@ -360,6 +361,9 @@ public class MarisaQDGen extends QuestDialogData {
 				new TradeRecurrence(4, 12000), List.of(item(Items.EMERALD, 4))));
 		trade("offer_shield", new TradeOffer(GLEntities.MARISA.get(),
 				List.of(new SelfReputationCondition(50)), new ItemStack(HexBrew.SHIELD_HEXBREW.bottle.get()),
+				new TradeRecurrence(8, 24000), List.of(item(Items.EMERALD, 2))));
+		trade("offer_hyphae", new TradeOffer(GLEntities.MARISA.get(),
+				List.of(new HasQuestCompletedCondition(QUEST_HUGE_MUSHROOM)), new ItemStack(HexBrew.HYPHAE_HEXBREW.bottle.get()),
 				new TradeRecurrence(8, 24000), List.of(item(Items.EMERALD, 2))));
 		trade("offer_explosive", new TradeOffer(GLEntities.MARISA.get(),
 				List.of(new SelfReputationCondition(50)), new ItemStack(HexBrew.EXPLOSIVE_HEXBREW.bottle.get(), 4),

@@ -1,2 +1,1 @@
-- hyphae trade
-- doll durability bar can go negative
+- doll danmaku shot using old texture

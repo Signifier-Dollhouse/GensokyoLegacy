@@ -6,3 +6,5 @@
 - gift interaction
 - sealing pot area rendering item trigger
 - patchouli book too technical
+- doll improvements, bag, danmaku weapon, spear, ui
+- 

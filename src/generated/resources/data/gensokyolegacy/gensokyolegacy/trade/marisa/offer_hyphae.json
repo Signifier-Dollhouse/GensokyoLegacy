@@ -1,0 +1,23 @@
+{
+  "character": "gensokyolegacy:kirisame_marisa",
+  "conditions": [
+    {
+      "type": "gensokyolegacy:has_quest_completed",
+      "quest": "gensokyolegacy:marisa/huge_mushroom"
+    }
+  ],
+  "ingredients": [
+    {
+      "count": 2,
+      "item": "minecraft:emerald"
+    }
+  ],
+  "recurrence": {
+    "maxStock": 8,
+    "restockTime": 24000
+  },
+  "result": {
+    "count": 1,
+    "id": "gensokyolegacy:hyphae_hexbrew_bottle"
+  }
+}

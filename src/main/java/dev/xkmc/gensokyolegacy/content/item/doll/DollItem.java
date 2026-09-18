@@ -105,7 +105,7 @@ public class DollItem extends Item implements InvClickItem {
 	public int getBarWidth(ItemStack stack) {
 		DollItemData data = stack.get(GLItems.DOLL_DATA.get());
 		if (data == null) return 0;
-		return Math.round(13.0F * data.combat().amount() / BaseDollEntity.DEFAULT_MAX_HEALTH);
+		return Mth.clamp(Math.round(13.0F * data.combat().amount() / BaseDollEntity.DEFAULT_MAX_HEALTH), 0, 13);
 	}
 
 	@Override

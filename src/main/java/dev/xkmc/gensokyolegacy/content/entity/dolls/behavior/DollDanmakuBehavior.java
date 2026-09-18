@@ -34,7 +34,7 @@ public class DollDanmakuBehavior extends DollBehavior {
 	private static final int BLOCKED_SKIP_TICKS = 40;
 
 	/** Fired shot speed in blocks per tick; the aim prediction assumes it. */
-	private static final double SHOT_SPEED = 1.5;
+	private static final double SHOT_SPEED = 2;
 
 	/**
 	 * Strafing this long hands ahead (same 1s as unstarted waits): the next doll
@@ -138,7 +138,8 @@ public class DollDanmakuBehavior extends DollBehavior {
 		}
 		DollCardHolder holder = new DollCardHolder(doll, aim);
 		Vec3 dir = DollShootUtils.predictShotDir(target, holder.center(), SHOT_SPEED);
-		holder.shoot(holder.prepareDanmaku(SHOT_LIFE, dir, item.type, item.color));
+		holder.shoot(holder.prepareDanmaku(SHOT_LIFE, dir.scale(SHOT_SPEED), item.type, item.color));
+
 		doll.actions.stamp(type(), doll.level().getGameTime());
 		if (blockedTicks > HAND_AHEAD_TICKS) {
 			doll.actions.complete(doll);
