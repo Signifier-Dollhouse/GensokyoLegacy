@@ -1,0 +1,26 @@
+{
+  "name": "Hexbrew Fluids",
+  "icon": "gensokyolegacy:mundane_hexbrew_bottle",
+  "category": "gensokyolegacy:alchemy",
+  "sortnum": 3,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "gensokyolegacy:mundane_hexbrew_bottle",
+      "title": "Mundane Hexbrew",
+      "text": "Water + ghost fire cap + dream cap, brewed 10 seconds, yields 1000 mB. Neither drinkable nor throwable on its own: it is the base fluid every other brew builds on. Bottles carry 250 mB each."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "gensokyolegacy:explosive_hexbrew_bottle",
+      "title": "Explosive Hexbrew",
+      "text": "Mundane hexbrew + blaze powder + gunpowder, brewed 10 seconds. Throw the bottle for a power-4 blast that keeps blocks intact and spares you and your allies."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "gensokyolegacy:miasma_hexbrew_bottle",
+      "title": "Miasma Hexbrew",
+      "text": "Water + demonic miasma cap + spider eye + 4 rotten flesh, brewed 20 seconds. A throwable bottle that inflicts the Miasma effect for 60 seconds where it shatters."
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "name": "Gap Portal",
+  "icon": "gensokyolegacy:gap_portal",
+  "category": "gensokyolegacy:special_tools",
+  "sortnum": 3,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "gensokyolegacy:gap_portal",
+      "title": "Paired Teleporter",
+      "text": "A two-block-tall portal that teleports anything walking into it to its linked partner. Place the first portal, keep the linked copy it hands you, and place the copy at the destination to complete the pair."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Using the linked copy on a block finishes the pending link and consumes the item. Walking into either side exits from the matching side of the partner.$(br2)Use a placed portal with an empty hand to pick it back up as an item. Breaking the bottom half unlinks the pair."
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "name": "Talisman Papers",
+  "icon": "gensokyolegacy:heal_talisman",
+  "category": "gensokyolegacy:talismans",
+  "sortnum": 2,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "gensokyolegacy:heal_talisman",
+      "title": "Healing (16 uses)",
+      "text": "When your health drops below maximum, recover 30 percent of your max health. 5-second cooldown per trigger."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Speed Boost (180 uses)$() — while sprinting, refreshes Speed II.$(br)$(bold)Hydrophobic (180 uses)$() — while your air runs low, restores 40 air per tick. A drowning aid.$(br2)$(bold)Lava Affinity (180 uses)$() — when on fire, in lava, or taking fire damage, grants Lava Affinity: faster swimming, clear vision in lava, and fire immunity."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Shelter (16 uses)$() — when a single hit would deal at least 20 percent of your current health, the hit is reduced to exactly 20 percent. Your anti-one-shot insurance, with a 5-second cooldown."
+    }
+  ]
+}

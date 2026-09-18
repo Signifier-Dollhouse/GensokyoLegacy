@@ -1,0 +1,18 @@
+{
+  "name": "Alchemy Ingredients",
+  "icon": "gensokyolegacy:ghost_fire_mushroom",
+  "category": "gensokyolegacy:alchemy",
+  "sortnum": 2,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "gensokyolegacy:ghost_fire_mushroom",
+      "title": "What Goes in the Pot",
+      "text": "The Alchemy Pot brews Gensokyo's flora: ghost fire, dream and demonic miasma mushroom caps, star flowers and flame cattails, plus vanilla staples like blaze powder, gunpowder, spider eyes and rotten flesh."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Gathering$()$(br)Star flowers and flame cattails grow as wild plants, and the three mushroom kinds grow from their huge mushroom trees. Pick the caps and keep a mixed stock: almost every brew combines two or more of them.$(br2)Every recipe also names its fluid base (water or an earlier brew) and its brew time. The full list is visible in JEI under Alchemy Pot."
+    }
+  ]
+}

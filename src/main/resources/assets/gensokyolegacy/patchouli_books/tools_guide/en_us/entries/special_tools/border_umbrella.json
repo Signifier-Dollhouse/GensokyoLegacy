@@ -1,0 +1,26 @@
+{
+  "name": "Border Umbrella",
+  "icon": "gensokyolegacy:border_umbrella",
+  "category": "gensokyolegacy:special_tools",
+  "sortnum": 4,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "gensokyolegacy:border_umbrella",
+      "title": "Gap Tool",
+      "text": "A four-mode teleportation tool. Switch modes from the item wheel, pick one of your named position slots, then right-click to act. Hold the wheel key while holding the umbrella to change mode, slot and travel distance."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Record$() — right-click a block to save its position into the selected slot.$(br)$(bold)Waypoint$() — right-click to teleport yourself to the selected slot.$(br2)Manage slots from the umbrella screen: rename, delete and reorder your saved positions."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Travel$() — hold use to charge, then dash forward through the border by the configured distance (default 1000 blocks, adjustable on the wheel).$(br2)Travel starts locked: combine the umbrella with a chorus fruit in an anvil to unlock it."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Capture$() — interact with a living creature (not a player) to teleport it to the selected slot. Useful for relocating villagers, animals or captured youkai.$(br2)Capture starts locked: combine the umbrella with an echo shard in an anvil to unlock it."
+    }
+  ]
+}

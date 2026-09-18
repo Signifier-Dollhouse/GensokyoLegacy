@@ -1,0 +1,14 @@
+{
+  "name": "Sliding Doors",
+  "icon": "gensokyolegacy:oak_sliding_door",
+  "category": "gensokyolegacy:decoration",
+  "sortnum": 2,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "gensokyolegacy:oak_sliding_door",
+      "title": "Shoji Doors",
+      "text": "Tall sliding doors in every wood type, from oak to bamboo. Right-click and the panels slide aside instead of swinging, so they fit tight corridors and tea rooms."
+    }
+  ]
+}

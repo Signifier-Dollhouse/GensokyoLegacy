@@ -1,0 +1,18 @@
+{
+  "name": "Mermaid's Pearl",
+  "icon": "gensokyolegacy:mermaid_pearl",
+  "category": "gensokyolegacy:misc_tools",
+  "sortnum": 3,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "gensokyolegacy:mermaid_pearl",
+      "title": "Grace of the Sea",
+      "text": "Right-click to grant yourself Dolphin's Grace and Conduit Power for 60 seconds. Perfect before a dive or an ocean monument raid."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Details$()$(br)The pearl has 16 uses and triggers a 5-second cooldown after each song. Unlike potions it needs no brewing stand, just a free hand."
+    }
+  ]
+}

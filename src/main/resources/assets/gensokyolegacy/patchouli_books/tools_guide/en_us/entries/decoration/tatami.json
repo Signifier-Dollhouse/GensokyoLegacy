@@ -1,0 +1,14 @@
+{
+  "name": "Tatami",
+  "icon": "gensokyolegacy:tatami",
+  "category": "gensokyolegacy:decoration",
+  "sortnum": 1,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "gensokyolegacy:tatami",
+      "title": "Floor Mats",
+      "text": "Woven straw floor mats for Gensokyo-style interiors. Tatami is the thin carpet layer; the tatami block is the full-height version. Lay them wall to wall under tables and cushions."
+    }
+  ]
+}

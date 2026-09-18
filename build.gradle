@@ -187,6 +187,7 @@ dependencies {
     implementation "mezz.jei:jei-${jei_minecraft_version}:${jei_version}"
 
     implementation "top.theillusivec4.curios:curios-neoforge:${curios_version}"
+    implementation "vazkii.patchouli:Patchouli:${patchouli_version}"
     implementation "curse.maven:better-advancements-272515:5511371"
     implementation "curse.maven:touhou-little-maid-355044:5896992"
     implementation "curse.maven:jade-324717:5976517"

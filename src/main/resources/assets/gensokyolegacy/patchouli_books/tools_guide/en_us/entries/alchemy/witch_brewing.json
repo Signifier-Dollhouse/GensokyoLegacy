@@ -1,0 +1,20 @@
+{
+  "name": "Witch Hexbrew",
+  "icon": "gensokyolegacy:witch_hexbrew_bottle",
+  "category": "gensokyolegacy:alchemy",
+  "sortnum": 4,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "gensokyolegacy:witch_hexbrew_bottle",
+      "title": "Merging Potions",
+      "text": "Brew any potion together with mundane hexbrew and a flame cattail to convert it into drinkable witch hexbrew, keeping the potion's effects. The catalyst sets the tier: ghost fire cap (tier 1), star flower (tier 2), or dragon breath (tier 3)."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "gensokyolegacy:witch_splash_bottle",
+      "title": "Splash & Enhancing",
+      "text": "Add gunpowder to a merge to get throwable witch splash instead, or brew plain witch hexbrew with gunpowder 1:1 later. Re-brewing witch hexbrew (or splash) with flame cattail, blaze powder and redstone enhances its stored effects."
+    }
+  ]
+}

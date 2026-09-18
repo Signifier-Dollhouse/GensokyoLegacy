@@ -1,0 +1,18 @@
+{
+  "name": "Doll",
+  "icon": "gensokyolegacy:doll",
+  "category": "gensokyolegacy:dolls",
+  "sortnum": 1,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "gensokyolegacy:doll",
+      "title": "Summonable Helper",
+      "text": "Right-click to summon a combat doll at the spot you look at, up to 2 blocks ahead. The item is consumed, even in creative, and the number of active dolls is capped."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Care and feeding$()$(br)Each doll stores its own health, shown as the item's durability bar, plus a name, a dye tint and a combat loadout. Right-click the doll item inside your inventory to open its loadout editor.$(br2)A doll at zero health is broken and refuses to deploy: repair it in an anvil using wool."
+    }
+  ]
+}

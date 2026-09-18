@@ -1,0 +1,18 @@
+{
+  "name": "Talisman Basics",
+  "icon": "gensokyolegacy:folded_paper_talisman",
+  "category": "gensokyolegacy:talismans",
+  "sortnum": 1,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "gensokyolegacy:folded_paper_talisman",
+      "title": "Wearable Charms",
+      "text": "Talisman papers do nothing in your pack. Right-click a paper to fold it, then equip the folded talisman in a charm curio slot to activate its power."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "A folded talisman remembers its paper type and its remaining uses, shown as a durability bar. A fully-charged folded talisman can be right-clicked to unfold it back into paper.$(br2)Each paper only triggers under its own condition, and each trigger spends uses with a short cooldown."
+    }
+  ]
+}

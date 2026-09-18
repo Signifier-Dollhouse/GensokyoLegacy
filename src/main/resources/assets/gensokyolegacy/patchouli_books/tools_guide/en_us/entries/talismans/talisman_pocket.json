@@ -1,0 +1,18 @@
+{
+  "name": "Talisman Pocket",
+  "icon": "gensokyolegacy:talisman_pocket",
+  "category": "gensokyolegacy:talismans",
+  "sortnum": 3,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "gensokyolegacy:talisman_pocket",
+      "title": "Charm Magazine",
+      "text": "A charm-slot container that holds folded talismans plus spare paper. Every loaded folded talisman stays active at the same time, and the pocket auto-folds one spare paper into each empty folded slot."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Right-click the pocket (or click it in your inventory) to open its talisman magazine and arrange the loadout. Its tooltip previews the contents, so you can check charges at a glance."
+    }
+  ]
+}

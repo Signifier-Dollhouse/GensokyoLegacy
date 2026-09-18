@@ -1,0 +1,22 @@
+{
+  "name": "Seven-Colored Doll Glove",
+  "icon": "gensokyolegacy:doll_glove",
+  "category": "gensokyolegacy:dolls",
+  "sortnum": 2,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "gensokyolegacy:doll_glove",
+      "title": "Doll Commander",
+      "text": "The remote control for all dolls you own. Hold the selection key to open the mode wheel, then use the glove to issue the order. The targeted creature glows in the mode's color."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Summon / Recall$() summons every parked doll, or recalls every active one.$(br)$(bold)Heal Mark$() marks the creature you look at so your dolls heal it; use again to unmark.$(br)$(bold)Volley$() orders every armed doll to fire once, in turn.$(br)$(bold)Super Attack$() orders one random doll to unleash its super attack."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Suicide$() orders one random doll to dive at the enemy and detonate.$(br)$(bold)Stop$() halts all summoned dolls.$(br)$(bold)Edit Loadout$() opens the loadout of the doll you look at, even out of reach."
+    }
+  ]
+}

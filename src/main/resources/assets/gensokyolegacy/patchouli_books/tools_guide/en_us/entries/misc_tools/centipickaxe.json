@@ -1,0 +1,18 @@
+{
+  "name": "Centipeck",
+  "icon": "gensokyolegacy:centipickaxe",
+  "category": "gensokyolegacy:misc_tools",
+  "sortnum": 1,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "gensokyolegacy:centipickaxe",
+      "title": "The Hungry Pickaxe",
+      "text": "A gold-tier pickaxe that comes pre-enchanted with Efficiency V, Fortune III and Mending. Simply holding it grants you Haste II, so tunnels melt away."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Blood for steel$()$(br)When the Centipeck is about to break, it refuses to die: instead of losing durability it drains your own health, as long as you can survive it.$(br2)Mine with food in your pack, and repair it with Mending experience as usual."
+    }
+  ]
+}

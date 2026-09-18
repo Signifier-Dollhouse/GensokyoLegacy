@@ -1,0 +1,16 @@
+{
+  "name": "Doll Mechanics",
+  "icon": "gensokyolegacy:doll",
+  "category": "gensokyolegacy:dolls",
+  "sortnum": 3,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)How dolls live$()$(br)Each doll is a 20-health combat entity bound to you. Up to 8 can be active at once. They follow you, fight with the gear in their loadout, and can be ordered to heal a marked ally.$(br2)Logging out or dying parks every active doll into your data automatically, so your army survives the night and the server restart."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Upkeep$()$(br)A doll reduced to zero health breaks: it stays an item and refuses to deploy until repaired in an anvil with wool. Its tint, name, health and loadout are stored on the item itself, so trade or shelve dolls freely.$(br2)Open the loadout editor from the doll item in your inventory, or at range with the glove's Edit Loadout mode."
+    }
+  ]
+}

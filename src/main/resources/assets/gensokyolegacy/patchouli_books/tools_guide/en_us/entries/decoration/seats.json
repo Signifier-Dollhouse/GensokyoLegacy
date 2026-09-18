@@ -1,0 +1,14 @@
+{
+  "name": "Seats & Seat Cloths",
+  "icon": "gensokyolegacy:cushion",
+  "category": "gensokyolegacy:decoration",
+  "sortnum": 4,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "gensokyolegacy:cushion",
+      "title": "Take a Seat",
+      "text": "Right-click to sit on cushions (plain plus all 16 wool colors), wooden stools, and large chairs. Large chairs take a matching pad the same way tables take cloths: right-click with a carpet or tatami, shears to remove."
+    }
+  ]
+}
