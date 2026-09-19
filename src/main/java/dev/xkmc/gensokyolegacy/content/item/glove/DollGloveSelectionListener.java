@@ -1,7 +1,9 @@
 package dev.xkmc.gensokyolegacy.content.item.glove;
 
-import dev.xkmc.gensokyolegacy.content.item.glove.mode.DollGloveMode;
+import dev.xkmc.gensokyolegacy.content.item.glove.client.DollGloveClientModes;
 import dev.xkmc.gensokyolegacy.content.item.glove.client.DollGloveModeWheel;
+import dev.xkmc.gensokyolegacy.content.item.glove.mode.DollGloveMode;
+import dev.xkmc.gensokyolegacy.content.item.glove.mode.DollGloveModes;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.l2itemselector.select.item.IItemSelector;
@@ -45,18 +47,40 @@ public class DollGloveSelectionListener extends IItemSelector implements WheelAd
 
 	@Override
 	public int getIndex(Player player, ItemStack stack) {
-		return DollGloveItem.getMode(stack).ordinal();
+		var mode = DollGloveItem.getMode(stack);
+		var avail = player.level().isClientSide() ?
+				DollGloveClientModes.available(player, mode) :
+				DollGloveModes.potentiallyVisible();
+		int idx = avail.indexOf(mode);
+		return idx < 0 ? 0 : idx;
 	}
 
 	@Override
 	public List<ItemStack> getList(ItemStack stack) {
+		// Roster-aware filtering needs a player (see move/getIndex); the static
+		// list covers every mode that can ever be visible.
 		List<ItemStack> list = new ArrayList<>();
-		for (var m : DollGloveMode.values()) {
+		for (var m : DollGloveModes.potentiallyVisible()) {
 			ItemStack icon = m.icon();
 			icon.set(DataComponents.ITEM_NAME, m.displayName());
 			list.add(icon);
 		}
 		return list;
+	}
+
+	/**
+	 * Scroll selection cycles the visible modes and returns the new mode's
+	 * ordinal; {@link #swap} reads the slot back as an ordinal, so the two
+	 * stay consistent even when the visible set changes size.
+	 */
+	@Override
+	public int move(int i, Player player, ItemStack stack) {
+		var mode = DollGloveItem.getMode(stack);
+		var avail = DollGloveClientModes.available(player, mode);
+		if (avail.isEmpty()) return mode.ordinal();
+		int idx = avail.indexOf(mode);
+		if (idx < 0) idx = 0;
+		return avail.get(Math.floorMod(idx + i, avail.size())).ordinal();
 	}
 
 	@Override

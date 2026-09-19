@@ -31,6 +31,7 @@ public class SummonMode extends DollGloveHandler {
 	@Override
 	public InteractionResultHolder<ItemStack> handleUse(Level level, Player player, InteractionHand hand, ItemStack stack, DollGloveItem item) {
 		if (player instanceof ServerPlayer sp) {
+			if (tryOpenEditor(sp, item)) return InteractionResultHolder.success(stack);
 			var att = attachment(sp);
 			if (!att.hasSummoned()) {
 				int n = att.summonAll(sp);

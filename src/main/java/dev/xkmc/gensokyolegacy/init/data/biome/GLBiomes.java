@@ -4,6 +4,8 @@ import com.tterrag.registrate.providers.DataProviderInitializer;
 import dev.xkmc.gensokyolegacy.content.dimension.GLDimensionGen;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.data.worldgen.BiomeDefaultFeatures;
+import net.minecraft.data.worldgen.placement.VegetationPlacements;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.Music;
 import net.minecraft.sounds.Musics;
@@ -17,6 +19,7 @@ import javax.annotation.Nullable;
 public class GLBiomes {
 
 	public static final ResourceKey<Biome> MAGICAL_FOREST = biome("magical_forest");
+	public static final ResourceKey<Biome> SAKURA_FOREST = biome("sakura_forest");
 
 	public static void init(DataProviderInitializer init) {
 		init.add(Registries.BIOME, (ctx) -> {
@@ -26,19 +29,39 @@ public class GLBiomes {
 					new MobSpawnSettings.Builder(),
 					new BiomeGenerationSettings.PlainBuilder(),
 					Musics.createGameMusic(SoundEvents.MUSIC_END)));
-			ctx.register(MAGICAL_FOREST, biome(
-					new MobSpawnSettings.Builder(),
-					new BiomeGenerationSettings.Builder(pf, carvers)
-							.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, GLFeatureGen.MAGICAL_FOREST_VEGETATION_PLACED)
-							.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, GLFeatureGen.MAGICAL_FOREST_GRASS_PLACED)
-							.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, GLFeatureGen.MAGICAL_FOREST_FLOWERS_PLACED)
-							.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, GLFeatureGen.MAGICAL_FOREST_MUSHROOMS_PLACED)
-			));
+		ctx.register(MAGICAL_FOREST, biome(
+				new MobSpawnSettings.Builder(),
+				addDefaultOres(new BiomeGenerationSettings.Builder(pf, carvers))
+						.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, GLFeatureGen.MAGICAL_FOREST_DISK_COARSE_DIRT_PLACED)
+						.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, GLFeatureGen.MAGICAL_FOREST_DISK_PODZOL_PLACED)
+						.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, GLFeatureGen.MAGICAL_FOREST_DISK_MYCELIUM_PLACED)
+						.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, GLFeatureGen.MAGICAL_FOREST_DISK_MOSS_PLACED)
+						.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, GLFeatureGen.MAGICAL_FOREST_VEGETATION_PLACED)
+						.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, GLFeatureGen.MAGICAL_FOREST_GRASS_PLACED)
+						.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, VegetationPlacements.PATCH_GRASS_FOREST)
+						.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, VegetationPlacements.PATCH_GRASS_TAIGA)
+						.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, VegetationPlacements.PATCH_LARGE_FERN)
+						.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, GLFeatureGen.MAGICAL_FOREST_FLOWERS_PLACED)
+						.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, GLFeatureGen.MAGICAL_FOREST_MUSHROOMS_PLACED)
+		));
+		ctx.register(SAKURA_FOREST, biome(true, 0.5f, 0.8f, 0xc0d8ff, 11983713, 11983713,
+				new MobSpawnSettings.Builder(),
+				addDefaultOres(new BiomeGenerationSettings.Builder(pf, carvers))
+						.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, VegetationPlacements.PATCH_GRASS_PLAIN)
+						.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, VegetationPlacements.FLOWER_CHERRY)
+						.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, VegetationPlacements.TREES_CHERRY),
+				null
+		));
 		});
 	}
 
 	private static ResourceKey<Biome> biome(String id) {
 		return ResourceKey.create(Registries.BIOME, GensokyoLegacy.loc(id));
+	}
+
+	private static BiomeGenerationSettings.Builder addDefaultOres(BiomeGenerationSettings.Builder builder) {
+		BiomeDefaultFeatures.addDefaultOres(builder);
+		return builder;
 	}
 
 	private static Biome biome(int fogColor,

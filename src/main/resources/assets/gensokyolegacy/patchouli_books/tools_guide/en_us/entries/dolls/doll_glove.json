@@ -12,11 +12,11 @@
     },
     {
       "type": "patchouli:text",
-      "text": "$(bold)Summon / Recall$()$(br)Summons all stored dolls, or recalls all active dolls.$(br)$(bold)Heal Mark$()$(br)Marks the creature you are looking at so your dolls will heal it. Use again to clear the mark.$(br)$(bold)Volley$()$(br)Commands every armed doll to fire once, one after another.$(br)$(bold)Super Attack$()$(br)Commands one random doll to use its super attack."
+      "text": "$(bold)Summon / Recall$()$(br)Summons all stored dolls, or recalls all active dolls.$(br)$(bold)Volley$()$(br)Commands every armed doll to fire once, one after another.$(br)$(bold)Super Attack$()$(br)Commands one random doll to use its super attack. It is listed only while a doll can perform it."
     },
     {
       "type": "patchouli:text",
-      "text": "$(bold)Suicide$()$(br)Commands one random doll to rush the enemy and detonate.$(br)$(bold)Stop$()$(br)Stops all summoned dolls.$(br)$(bold)Edit Loadout$()$(br)Opens the loadout of the doll you are looking at, even when it is too far away to reach normally."
+      "text": "$(bold)Suicide$()$(br)Commands one random doll to rush the enemy and detonate. It is listed only while a doll carries TNT.$(br)$(bold)Loadout$()$(br)Right-click one of your dolls to open its loadout from afar, in any mode.$(br)$(bold)Left-click$()$(br)Left-click, even at empty air, issues the attack order without ever opening a menu."
     }
   ]
 }

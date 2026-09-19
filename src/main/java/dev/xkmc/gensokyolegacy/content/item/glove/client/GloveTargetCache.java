@@ -27,16 +27,19 @@ import java.util.UUID;
  * Client-side ray-trace target cache (glove.md §2). While the local player
  * holds the glove, the crosshair entity within 48 blocks (not behind a block)
  * is cached and re-synced to the server every few ticks; the cached target
- * glows via {@code GloveTargetGlowMixin} in the current mode's color.
- * Stale entries linger until the TTL instead of flickering on every miss —
- * the server re-validates anyway.
+ * glows via {@code GloveTargetGlowMixin} in the current mode's color, or gold
+ * when it is a doll. Stale entries linger until the TTL instead of flickering
+ * on every miss — the server re-validates anyway.
  *
-	 * <p>The ray trace is pre-filtered by mode, mirroring the server checks in
- * {@code DollGloveHandler}: editor only sees dolls, attack modes only see
- * valid attack targets, summon sees nothing (it acts globally). Other modes
- * take any living entity.
+ * <p>The ray trace is pre-filtered by mode, mirroring the server checks in
+ * {@code DollGloveHandler}: every mode accepts dolls (right-click opens the
+ * loadout of an owned doll in any mode), summon accepts nothing else (it acts
+ * globally), and the rest accept valid attack targets.
  */
 public class GloveTargetCache {
+
+	/** Gold outline for a hovered doll, in every mode (ARGB). */
+	public static final int DOLL_GLOW = 0xFFAA00;
 
 	public static final double RANGE = 48;
 
@@ -52,12 +55,6 @@ public class GloveTargetCache {
 		if (mc.player != player || mc.level == null) return;
 		if (player.getMainHandItem() != stack && player.getOffhandItem() != stack) return;
 		if (player.tickCount % 5 != 0) return;
-		if (DollGloveItem.getMode(stack) == DollGloveMode.SUMMON) {
-			// summon/recall acts globally, not on a target: drop any cached
-			// target so nothing glows in this mode
-			target = null;
-			return;
-		}
 		Entity cam = mc.getCameraEntity() == null ? player : mc.getCameraEntity();
 		Vec3 from = cam.getEyePosition();
 		Vec3 dir = cam.getViewVector(1.0F);
@@ -76,18 +73,17 @@ public class GloveTargetCache {
 	}
 
 	/**
-	 * Mode pre-filter mirroring the server checks: editor commands act on
-	 * dolls, attack commands on valid attack targets. Doll ownership is
-	 * server-side only (the owner UUID is not synced), so the client filters
-	 * by type and the server enforces ownership.
+	 * Mode pre-filter mirroring the server checks: every mode accepts dolls
+	 * (the editor open runs in all modes; ownership is server-side only — the
+	 * owner UUID is not synced — so the client filters by type and the server
+	 * enforces ownership), summon accepts nothing else, and the rest accept
+	 * valid attack targets.
 	 */
 	private static boolean testMode(DollGloveMode mode, Player player, Entity e) {
 		if (!(e instanceof LivingEntity living) || !living.isAlive() || !living.isPickable()) return false;
-		return switch (mode) {
-			case EDITOR -> e instanceof DollEntity;
-			case VOLLEY, SUPER, SUICIDE -> isValidAttackTarget(player, living);
-			default -> true;
-		};
+		if (e instanceof DollEntity) return true;
+		if (mode == DollGloveMode.SUMMON) return false;
+		return isValidAttackTarget(player, living);
 	}
 
 	/** Client mirror of {@code DollGloveHandler.isValidAttackTarget}. */
@@ -96,6 +92,18 @@ public class GloveTargetCache {
 		if (target instanceof OwnableEntity own && player.getUUID().equals(own.getOwnerUUID())) return false;
 		if (target instanceof BaseDollEntity) return false;
 		return target.isAttackable() && !target.isSpectator();
+	}
+
+	/**
+	 * Outline color for a marked entity: gold for dolls in every mode, the
+	 * held mode's color otherwise. Null when nothing is marked.
+	 */
+	@Nullable
+	public static Integer hoverColor(@Nullable Entity entity) {
+		if (!isMarked(entity)) return null;
+		if (entity instanceof DollEntity) return DOLL_GLOW;
+		DollGloveMode mode = markedMode(entity);
+		return mode == null ? null : mode.glowColor();
 	}
 
 	/**

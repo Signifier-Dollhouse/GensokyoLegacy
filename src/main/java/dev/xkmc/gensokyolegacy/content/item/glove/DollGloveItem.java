@@ -7,10 +7,12 @@ import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.l2itemselector.init.data.L2Keys;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -29,6 +31,7 @@ public class DollGloveItem extends Item {
 	public static DollGloveMode getMode(ItemStack stack) {
 		int i = GLItems.DOLL_GLOVE_MODE.getOrDefault(stack, 0);
 		var modes = DollGloveMode.values();
+		// floorMod also migrates pre-removal EDITOR gloves (old ordinal 6) to SUMMON
 		return modes[Math.floorMod(i, modes.length)];
 	}
 
@@ -53,6 +56,22 @@ public class DollGloveItem extends Item {
 	public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
 		ItemStack stack = player.getItemInHand(hand);
 		return getMode(stack).handleUse(level, player, hand, stack, this);
+	}
+
+	/**
+	 * Left-click on an entity in an attack mode: issue the mode command at the
+	 * punched entity (never the editor) and suppress the vanilla punch. Other
+	 * modes punch normally.
+	 */
+	@Override
+	public boolean onLeftClickEntity(ItemStack stack, Player player, Entity entity) {
+		var mode = getMode(stack);
+		if (!mode.isAttackCommand()) return false;
+		if (player instanceof ServerPlayer sp && !sp.getCooldowns().isOnCooldown(this)) {
+			mode.performAttackOn(sp, entity instanceof LivingEntity living ? living : null,
+					InteractionHand.MAIN_HAND, stack, this);
+		}
+		return true;
 	}
 
 	@Override

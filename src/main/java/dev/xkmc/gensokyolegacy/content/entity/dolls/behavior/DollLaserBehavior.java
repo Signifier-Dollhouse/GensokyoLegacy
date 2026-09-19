@@ -144,7 +144,7 @@ public class DollLaserBehavior extends DollBehavior {
 		Vec3 aim = DollShootUtils.predictCenter(target, SETUP_TICKS);
 		DollCardHolder holder = new DollCardHolder(doll, aim);
 		Vec3 dir = aim.subtract(holder.center()).normalize();
-		holder.shoot(holder.prepareLaser(DURATION_TICKS, holder.center(), dir, LASER_LENGTH, item.type, item.color));
+		holder.shoot(holder.prepareLaser(DURATION_TICKS, holder.center(), dir, LASER_LENGTH, item));
 		if (doll.consumeLoadoutItem(DollSlot.MAIN_HAND, 1)) {
 			emitted = true;
 		} else {

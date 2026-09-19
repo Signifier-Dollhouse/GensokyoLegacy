@@ -31,6 +31,7 @@ public class StopMode extends DollGloveHandler {
 	@Override
 	public InteractionResultHolder<ItemStack> handleUse(Level level, Player player, InteractionHand hand, ItemStack stack, DollGloveItem item) {
 		if (player instanceof ServerPlayer sp) {
+			if (tryOpenEditor(sp, item)) return InteractionResultHolder.success(stack);
 			int n = attachment(sp).commands.stopAll(sp);
 			sp.displayClientMessage(GLLang.ItemGlove.STOPPED.get(n), true);
 			cooldown(sp, item);

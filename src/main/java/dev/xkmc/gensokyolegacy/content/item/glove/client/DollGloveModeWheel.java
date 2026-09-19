@@ -2,7 +2,6 @@ package dev.xkmc.gensokyolegacy.content.item.glove.client;
 
 import dev.xkmc.gensokyolegacy.content.item.glove.DollGloveItem;
 import dev.xkmc.gensokyolegacy.content.item.glove.DollGloveSelectionListener;
-import dev.xkmc.gensokyolegacy.content.item.glove.mode.DollGloveMode;
 import dev.xkmc.gensokyolegacy.content.item.glove.network.DollGloveSelectPacket;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
@@ -12,7 +11,6 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
-import java.util.Arrays;
 import java.util.List;
 
 public class DollGloveModeWheel implements PersistentWheel<DollGloveModeEntry> {
@@ -31,24 +29,30 @@ public class DollGloveModeWheel implements PersistentWheel<DollGloveModeEntry> {
 
 	@Override
 	public List<DollGloveModeEntry> getWheelContent() {
-		return Arrays.stream(DollGloveMode.values()).map(DollGloveModeEntry::new).toList();
+		var mc = Minecraft.getInstance();
+		if (mc.player == null) return List.of();
+		return DollGloveClientModes.available(mc.player, DollGloveItem.getMode(stack))
+				.stream().map(DollGloveModeEntry::new).toList();
 	}
 
 	@Override
 	public int getIndex(Player player) {
 		ItemStack held = DollGloveSelectionListener.getHeldGlove(player);
 		if (held == null) return -1;
-		return DollGloveItem.getMode(held).ordinal();
+		var mode = DollGloveItem.getMode(held);
+		return DollGloveClientModes.available(player, mode).indexOf(mode);
 	}
 
 	@Override
 	public void select(int index) {
-		GensokyoLegacy.HANDLER.toServer(new DollGloveSelectPacket(0, index));
+		var mc = Minecraft.getInstance();
+		if (mc.player == null) return;
+		var avail = DollGloveClientModes.available(mc.player, DollGloveItem.getMode(stack));
+		if (index < 0 || index >= avail.size()) return;
+		int ordinal = avail.get(index).ordinal();
+		GensokyoLegacy.HANDLER.toServer(new DollGloveSelectPacket(0, ordinal));
 		// optimistic update
-		var modes = DollGloveMode.values();
-		if (index >= 0 && index < modes.length) {
-			stack.set(GLItems.DOLL_GLOVE_MODE.get(), index);
-		}
+		stack.set(GLItems.DOLL_GLOVE_MODE.get(), ordinal);
 	}
 
 	@Override

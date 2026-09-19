@@ -23,6 +23,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.OwnableEntity;
 import net.minecraft.world.entity.PathfinderMob;
@@ -129,6 +130,28 @@ public abstract class BaseDollEntity extends DamageRefactorEntity implements Own
 	@Override
 	public @Nullable UUID getOwnerUUID() {
 		return ownerUUID;
+	}
+
+	/**
+	 * Explicit doll allegiance, on top of the vanilla team check: the owner,
+	 * everything the owner owns (fellow dolls, pets), and everything allied
+	 * to the owner (teams and the like) all count as allies. Ownerless dolls
+	 * (block-hosted, stray) band together, mirroring the danmaku friendly
+	 * rule in {@link dev.xkmc.gensokyolegacy.content.entity.dolls.impl.DollDanmakuAlly}.
+	 * This drives explosive-hexbrew filtering (blast + bottle pass-through).
+	 */
+	@Override
+	public boolean isAlliedTo(Entity other) {
+		if (other == this) return true;
+		if (super.isAlliedTo(other)) return true;
+		if (ownerUUID == null) {
+			return other instanceof OwnableEntity own && own.getOwnerUUID() == null;
+		}
+		if (other.getUUID().equals(ownerUUID)) return true;
+		if (other instanceof OwnableEntity own && ownerUUID.equals(own.getOwnerUUID())) return true;
+		Entity owner = level() instanceof ServerLevel sl ?
+				sl.getEntity(ownerUUID) : level().getPlayerByUUID(ownerUUID);
+		return owner != null && owner != this && owner.isAlliedTo(other);
 	}
 
 	/**

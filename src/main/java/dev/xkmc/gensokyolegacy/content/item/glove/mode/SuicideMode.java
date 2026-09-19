@@ -13,6 +13,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.Nullable;
 
 public class SuicideMode extends DollGloveHandler {
 
@@ -34,18 +35,28 @@ public class SuicideMode extends DollGloveHandler {
 	@Override
 	public InteractionResultHolder<ItemStack> handleUse(Level level, Player player, InteractionHand hand, ItemStack stack, DollGloveItem item) {
 		if (player instanceof ServerPlayer sp) {
-			var commands = attachment(sp).commands;
-			LivingEntity target = resolveTarget(sp);
-			if (target == null || !isValidAttackTarget(sp, target)) {
-				sp.displayClientMessage(GLLang.ItemGlove.NO_TARGET.get(), true);
-			} else if (commands.issueOneTimeRandom(sp, target, DollActionType.SUICIDE_ATTACK) instanceof DollEntity doll) {
-				sp.displayClientMessage(GLLang.ItemGlove.SUICIDE.get(doll.getDisplayName()), true);
-			} else {
-				sp.displayClientMessage(GLLang.ItemGlove.NO_DOLL.get(), true);
-			}
-			cooldown(sp, item);
+			if (tryOpenEditor(sp, item)) return InteractionResultHolder.success(stack);
+			performAttack(sp, hand, stack, item);
 		}
 		return InteractionResultHolder.success(stack);
+	}
+
+	@Override
+	public boolean isAttackCommand() {
+		return true;
+	}
+
+	@Override
+	public void performAttackOn(ServerPlayer sp, @Nullable LivingEntity target, InteractionHand hand, ItemStack stack, DollGloveItem item) {
+		var commands = attachment(sp).commands;
+		if (target == null || !isValidAttackTarget(sp, target)) {
+			sp.displayClientMessage(GLLang.ItemGlove.NO_TARGET.get(), true);
+		} else if (commands.issueOneTimeRandom(sp, target, DollActionType.SUICIDE_ATTACK) instanceof DollEntity doll) {
+			sp.displayClientMessage(GLLang.ItemGlove.SUICIDE.get(doll.getDisplayName()), true);
+		} else {
+			sp.displayClientMessage(GLLang.ItemGlove.NO_DOLL.get(), true);
+		}
+		cooldown(sp, item);
 	}
 
 }

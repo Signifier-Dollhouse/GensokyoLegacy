@@ -3,15 +3,15 @@
   "downfall": 0.8,
   "effects": {
     "fog_color": 12638463,
-    "foliage_color": 3193611,
-    "grass_color": 5884220,
+    "foliage_color": 11983713,
+    "grass_color": 11983713,
     "mood_sound": {
       "block_search_extent": 8,
       "offset": 2.0,
       "sound": "minecraft:ambient.cave",
       "tick_delay": 6000
     },
-    "sky_color": 7972607,
+    "sky_color": 8103167,
     "water_color": 4159204,
     "water_fog_color": 329011
   },
@@ -39,22 +39,14 @@
       "minecraft:ore_lapis",
       "minecraft:ore_lapis_buried",
       "minecraft:ore_copper",
-      "minecraft:underwater_magma",
-      "gensokyolegacy:magical_forest_disk_coarse_dirt",
-      "gensokyolegacy:magical_forest_disk_podzol",
-      "gensokyolegacy:magical_forest_disk_mycelium",
-      "gensokyolegacy:magical_forest_disk_moss"
+      "minecraft:underwater_magma"
     ],
     [],
     [],
     [
-      "gensokyolegacy:magical_forest_vegetation",
-      "gensokyolegacy:magical_forest_grass",
-      "minecraft:patch_grass_forest",
-      "minecraft:patch_grass_taiga",
-      "minecraft:patch_large_fern",
-      "gensokyolegacy:magical_forest_flowers",
-      "gensokyolegacy:magical_forest_mushrooms"
+      "minecraft:patch_grass_plain",
+      "minecraft:flower_cherry",
+      "minecraft:trees_cherry"
     ]
   ],
   "has_precipitation": true,
@@ -69,5 +61,5 @@
     "water_ambient": [],
     "water_creature": []
   },
-  "temperature": 0.7
+  "temperature": 0.5
 }

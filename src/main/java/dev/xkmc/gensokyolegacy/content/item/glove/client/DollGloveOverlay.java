@@ -3,7 +3,6 @@ package dev.xkmc.gensokyolegacy.content.item.glove.client;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.DollEntity;
 import dev.xkmc.gensokyolegacy.content.item.doll.DollSlot;
 import dev.xkmc.gensokyolegacy.content.item.glove.DollGloveItem;
-import dev.xkmc.gensokyolegacy.content.item.glove.mode.DollGloveMode;
 import dev.xkmc.l2itemselector.overlay.OverlayUtil;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
@@ -18,12 +17,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Edit-mode hover readout (glove.md): while holding the glove in editor mode
- * with no screen open, hovering a doll shows its name plus the loadout in
- * the menu's cross arrangement, the same presentation as ModularGolems'
- * equipment overlay ({@code GolemStatusOverlay} + {@code GolemEquipmentTooltip}).
- * Loadout stacks come from the doll's synced client mirror, so this is
- * display-only.
+ * Hover readout (glove.md): while holding the glove in any mode with no
+ * screen open, hovering a doll shows its name plus the loadout in the menu's
+ * cross arrangement, the same presentation as ModularGolems' equipment overlay
+ * ({@code GolemStatusOverlay} + {@code GolemEquipmentTooltip}). Loadout stacks
+ * come from the doll's synced client mirror, so this is display-only.
  */
 public class DollGloveOverlay implements LayeredDraw.Layer {
 
@@ -46,11 +44,9 @@ public class DollGloveOverlay implements LayeredDraw.Layer {
 
 	private static ItemStack gloveInHand(Player player) {
 		ItemStack main = player.getMainHandItem();
-		if (main.getItem() instanceof DollGloveItem &&
-				DollGloveItem.getMode(main) == DollGloveMode.EDITOR) return main;
+		if (main.getItem() instanceof DollGloveItem) return main;
 		ItemStack off = player.getOffhandItem();
-		if (off.getItem() instanceof DollGloveItem &&
-				DollGloveItem.getMode(off) == DollGloveMode.EDITOR) return off;
+		if (off.getItem() instanceof DollGloveItem) return off;
 		return ItemStack.EMPTY;
 	}
 

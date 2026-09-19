@@ -32,6 +32,7 @@ public class HealMarkMode extends DollGloveHandler {
 	@Override
 	public InteractionResultHolder<ItemStack> handleUse(Level level, Player player, InteractionHand hand, ItemStack stack, DollGloveItem item) {
 		if (player instanceof ServerPlayer sp) {
+			if (tryOpenEditor(sp, item)) return InteractionResultHolder.success(stack);
 			var commands = attachment(sp).commands;
 			LivingEntity target = resolveTarget(sp);
 			if (target == null) {

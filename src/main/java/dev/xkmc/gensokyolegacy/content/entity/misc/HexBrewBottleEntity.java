@@ -5,6 +5,7 @@ import dev.xkmc.gensokyolegacy.content.item.hexbrew.HexBrewBottleItem;
 import dev.xkmc.gensokyolegacy.init.registrate.GLEntities;
 import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityEvent;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -63,5 +64,24 @@ public class HexBrewBottleEntity extends ThrowableItemProjectile {
 	@Override
 	protected Item getDefaultItem() {
 		return HexBrew.MUNDANE_HEXBREW.bottle.asItem();
+	}
+
+	/**
+	 * Explosive bottles fly through allies of the thrower instead of
+	 * detonating on them. Either alliance direction counts: a doll thrower
+	 * covers the owner side via its own isAlliedTo, while the victim's
+	 * vanilla check would not (and vice versa for teams). Other brews keep
+	 * vanilla behavior so helpful splashes still land on allies.
+	 */
+	@Override
+	protected boolean canHitEntity(Entity target) {
+		if (!super.canHitEntity(target)) return false;
+		Entity owner = getOwner();
+		if (owner != null && getItem().getItem() instanceof HexBrewBottleItem bottle &&
+				bottle.getHexBrew() == HexBrew.EXPLOSIVE_HEXBREW &&
+				(target.isAlliedTo(owner) || owner.isAlliedTo(target))) {
+			return false;
+		}
+		return true;
 	}
 }

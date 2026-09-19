@@ -10,19 +10,24 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.features.FeatureUtils;
 import net.minecraft.data.worldgen.placement.PlacementUtils;
+import net.minecraft.data.worldgen.placement.TreePlacements;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.random.SimpleWeightedRandomList;
+import net.minecraft.util.valueproviders.UniformInt;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.HugeMushroomBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.blockpredicates.BlockPredicate;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.WeightedPlacedFeature;
+import net.minecraft.world.level.levelgen.feature.configurations.DiskConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.HugeMushroomFeatureConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.RandomFeatureConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.SimpleBlockConfiguration;
 import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProvider;
+import net.minecraft.world.level.levelgen.feature.stateproviders.RuleBasedBlockStateProvider;
 import net.minecraft.world.level.levelgen.feature.stateproviders.WeightedStateProvider;
 import net.minecraft.world.level.levelgen.placement.*;
 
@@ -37,11 +42,19 @@ public class GLFeatureGen {
 	public static final ResourceKey<ConfiguredFeature<?, ?>> MAGICAL_FOREST_FLOWERS = cf("magical_forest_flowers");
 	public static final ResourceKey<ConfiguredFeature<?, ?>> MAGICAL_FOREST_MUSHROOMS = cf("magical_forest_mushrooms");
 	public static final ResourceKey<ConfiguredFeature<?, ?>> MAGICAL_FOREST_VEGETATION = cf("magical_forest_vegetation");
+	public static final ResourceKey<ConfiguredFeature<?, ?>> MAGICAL_FOREST_DISK_COARSE_DIRT = cf("magical_forest_disk_coarse_dirt");
+	public static final ResourceKey<ConfiguredFeature<?, ?>> MAGICAL_FOREST_DISK_PODZOL = cf("magical_forest_disk_podzol");
+	public static final ResourceKey<ConfiguredFeature<?, ?>> MAGICAL_FOREST_DISK_MYCELIUM = cf("magical_forest_disk_mycelium");
+	public static final ResourceKey<ConfiguredFeature<?, ?>> MAGICAL_FOREST_DISK_MOSS = cf("magical_forest_disk_moss");
 
 	public static final ResourceKey<PlacedFeature> MAGICAL_FOREST_GRASS_PLACED = pf("magical_forest_grass");
 	public static final ResourceKey<PlacedFeature> MAGICAL_FOREST_FLOWERS_PLACED = pf("magical_forest_flowers");
 	public static final ResourceKey<PlacedFeature> MAGICAL_FOREST_MUSHROOMS_PLACED = pf("magical_forest_mushrooms");
 	public static final ResourceKey<PlacedFeature> MAGICAL_FOREST_VEGETATION_PLACED = pf("magical_forest_vegetation");
+	public static final ResourceKey<PlacedFeature> MAGICAL_FOREST_DISK_COARSE_DIRT_PLACED = pf("magical_forest_disk_coarse_dirt");
+	public static final ResourceKey<PlacedFeature> MAGICAL_FOREST_DISK_PODZOL_PLACED = pf("magical_forest_disk_podzol");
+	public static final ResourceKey<PlacedFeature> MAGICAL_FOREST_DISK_MYCELIUM_PLACED = pf("magical_forest_disk_mycelium");
+	public static final ResourceKey<PlacedFeature> MAGICAL_FOREST_DISK_MOSS_PLACED = pf("magical_forest_disk_moss");
 
 	public static void init(DataProviderInitializer init) {
 		init.add(Registries.CONFIGURED_FEATURE, ctx -> {
@@ -63,22 +76,27 @@ public class GLFeatureGen {
 				ctx.register(type.cfKey, type.createConfiguredFeature());
 			}
 			var cf = ctx.lookup(Registries.CONFIGURED_FEATURE);
+			var pf = ctx.lookup(Registries.PLACED_FEATURE);
 			FeatureUtils.register(ctx, MAGICAL_FOREST_GRASS, Feature.RANDOM_PATCH,
 					FeatureUtils.simpleRandomPatchConfiguration(32,
-							PlacementUtils.onlyWhenEmpty(Feature.SIMPLE_BLOCK, new SimpleBlockConfiguration(
-									new WeightedStateProvider(SimpleWeightedRandomList.<BlockState>builder()
-											.add(GLNaturalBlocks.BROOM_GRASS.get().defaultBlockState(), 6)
-											.add(GLNaturalBlocks.BRACKEN.get().defaultBlockState(), 2)
-											.build())))));
+							PlacementUtils.filtered(Feature.SIMPLE_BLOCK, new SimpleBlockConfiguration(
+											new WeightedStateProvider(SimpleWeightedRandomList.<BlockState>builder()
+													.add(GLNaturalBlocks.BROOM_GRASS.get().defaultBlockState(), 6)
+													.add(GLNaturalBlocks.BRACKEN.get().defaultBlockState(), 2)
+													.build())),
+									BlockPredicate.allOf(BlockPredicate.ONLY_IN_AIR_PREDICATE,
+											BlockPredicate.matchesTag(Direction.DOWN.getNormal(), BlockTags.DIRT)))));
 			FeatureUtils.register(ctx, MAGICAL_FOREST_FLOWERS, Feature.RANDOM_PATCH,
 					FeatureUtils.simpleRandomPatchConfiguration(32,
-							PlacementUtils.onlyWhenEmpty(Feature.SIMPLE_BLOCK, new SimpleBlockConfiguration(
-									new WeightedStateProvider(SimpleWeightedRandomList.<BlockState>builder()
-											.add(GLNaturalBlocks.STAR_FLOWER.get().defaultBlockState(), 3)
-											.add(GLNaturalBlocks.EUGUNE_RED.get().defaultBlockState(), 2)
-											.add(GLNaturalBlocks.EUGUNE_BROWN.get().defaultBlockState(), 2)
-											.add(GLNaturalBlocks.EUGUNE_GHOST_FIRE.get().defaultBlockState(), 1)
-											.build())))));
+							PlacementUtils.filtered(Feature.SIMPLE_BLOCK, new SimpleBlockConfiguration(
+											new WeightedStateProvider(SimpleWeightedRandomList.<BlockState>builder()
+													.add(GLNaturalBlocks.STAR_FLOWER.get().defaultBlockState(), 3)
+													.add(GLNaturalBlocks.EUGUNE_RED.get().defaultBlockState(), 2)
+													.add(GLNaturalBlocks.EUGUNE_BROWN.get().defaultBlockState(), 2)
+													.add(GLNaturalBlocks.EUGUNE_GHOST_FIRE.get().defaultBlockState(), 1)
+													.build())),
+									BlockPredicate.allOf(BlockPredicate.ONLY_IN_AIR_PREDICATE,
+											BlockPredicate.matchesTag(Direction.DOWN.getNormal(), BlockTags.DIRT)))));
 			FeatureUtils.register(ctx, MAGICAL_FOREST_MUSHROOMS, Feature.RANDOM_PATCH,
 					FeatureUtils.simpleRandomPatchConfiguration(32,
 							PlacementUtils.filtered(Feature.SIMPLE_BLOCK, new SimpleBlockConfiguration(
@@ -89,20 +107,36 @@ public class GLFeatureGen {
 													.build())),
 									BlockPredicate.allOf(BlockPredicate.ONLY_IN_AIR_PREDICATE,
 											BlockPredicate.matchesTag(Direction.DOWN.getNormal(), BlockTags.DIRT)))));
-			FeatureUtils.register(ctx, MAGICAL_FOREST_VEGETATION, Feature.RANDOM_SELECTOR,
-					new RandomFeatureConfiguration(List.of(
-							new WeightedPlacedFeature(PlacementUtils.inlinePlaced(cf.getOrThrow(MushroomTreeType.GHOST_FIRE.cfKey)), 0.15F),
-							new WeightedPlacedFeature(PlacementUtils.inlinePlaced(cf.getOrThrow(MushroomTreeType.DREAM.cfKey)), 0.1F),
-							new WeightedPlacedFeature(PlacementUtils.inlinePlaced(cf.getOrThrow(MushroomTreeType.DEMONIC_MIASMA.cfKey)), 0.05F),
-							new WeightedPlacedFeature(PlacementUtils.inlinePlaced(cf.getOrThrow(HUGE_BROWN_MUSHROOM)), 0.1F),
-						new WeightedPlacedFeature(PlacementUtils.inlinePlaced(cf.getOrThrow(HUGE_RED_MUSHROOM)), 0.05F)
+		FeatureUtils.register(ctx, MAGICAL_FOREST_VEGETATION, Feature.RANDOM_SELECTOR,
+				new RandomFeatureConfiguration(List.of(
+						new WeightedPlacedFeature(PlacementUtils.inlinePlaced(cf.getOrThrow(MushroomTreeType.GHOST_FIRE.cfKey)), 0.05F),
+						new WeightedPlacedFeature(PlacementUtils.inlinePlaced(cf.getOrThrow(MushroomTreeType.DREAM.cfKey)), 0.053F),
+						new WeightedPlacedFeature(PlacementUtils.inlinePlaced(cf.getOrThrow(MushroomTreeType.DEMONIC_MIASMA.cfKey)), 0.044F),
+						new WeightedPlacedFeature(PlacementUtils.inlinePlaced(cf.getOrThrow(HUGE_BROWN_MUSHROOM)), 0.035F),
+						new WeightedPlacedFeature(PlacementUtils.inlinePlaced(cf.getOrThrow(HUGE_RED_MUSHROOM)), 0.036F),
+						new WeightedPlacedFeature(pf.getOrThrow(TreePlacements.DARK_OAK_CHECKED), 0.25F),
+						new WeightedPlacedFeature(pf.getOrThrow(TreePlacements.JUNGLE_BUSH), 0.33F)
 				), PlacementUtils.inlinePlaced(cf.getOrThrow(TreeType.BLUE_FIR.cfKey),
-						PlacementUtils.filteredByBlockSurvival(GLNaturalBlocks.BLUE_FUR_SET.sapling.get()))));
-		});
+					PlacementUtils.filteredByBlockSurvival(GLNaturalBlocks.BLUE_FUR_SET.sapling.get()))));
+			var soil = BlockPredicate.matchesBlocks(List.of(Blocks.GRASS_BLOCK, Blocks.DIRT));
+			var grassOnly = BlockPredicate.matchesBlocks(Blocks.GRASS_BLOCK);
+			FeatureUtils.register(ctx, MAGICAL_FOREST_DISK_COARSE_DIRT, Feature.DISK,
+					new DiskConfiguration(RuleBasedBlockStateProvider.simple(Blocks.COARSE_DIRT),
+							soil, UniformInt.of(2, 4), 2));
+			FeatureUtils.register(ctx, MAGICAL_FOREST_DISK_PODZOL, Feature.DISK,
+					new DiskConfiguration(RuleBasedBlockStateProvider.simple(Blocks.PODZOL),
+							grassOnly, UniformInt.of(2, 4), 1));
+			FeatureUtils.register(ctx, MAGICAL_FOREST_DISK_MYCELIUM, Feature.DISK,
+					new DiskConfiguration(RuleBasedBlockStateProvider.simple(Blocks.MYCELIUM),
+							grassOnly, UniformInt.of(2, 3), 1));
+			FeatureUtils.register(ctx, MAGICAL_FOREST_DISK_MOSS, Feature.DISK,
+					new DiskConfiguration(RuleBasedBlockStateProvider.simple(Blocks.MOSS_BLOCK),
+							grassOnly, UniformInt.of(2, 4), 1));
+	});
 		init.add(Registries.PLACED_FEATURE, ctx -> {
 			var cf = ctx.lookup(Registries.CONFIGURED_FEATURE);
 			PlacementUtils.register(ctx, MAGICAL_FOREST_VEGETATION_PLACED, cf.getOrThrow(MAGICAL_FOREST_VEGETATION),
-					CountPlacement.of(14), InSquarePlacement.spread(), SurfaceWaterDepthFilter.forMaxDepth(0),
+					CountPlacement.of(12), InSquarePlacement.spread(), SurfaceWaterDepthFilter.forMaxDepth(0),
 					PlacementUtils.HEIGHTMAP_OCEAN_FLOOR, BiomeFilter.biome());
 			PlacementUtils.register(ctx, MAGICAL_FOREST_GRASS_PLACED, cf.getOrThrow(MAGICAL_FOREST_GRASS),
 					CountPlacement.of(4), InSquarePlacement.spread(),
@@ -113,7 +147,19 @@ public class GLFeatureGen {
 			PlacementUtils.register(ctx, MAGICAL_FOREST_MUSHROOMS_PLACED, cf.getOrThrow(MAGICAL_FOREST_MUSHROOMS),
 					CountPlacement.of(2), InSquarePlacement.spread(),
 					PlacementUtils.HEIGHTMAP, BiomeFilter.biome());
-		});
+			PlacementUtils.register(ctx, MAGICAL_FOREST_DISK_COARSE_DIRT_PLACED, cf.getOrThrow(MAGICAL_FOREST_DISK_COARSE_DIRT),
+					CountPlacement.of(4), InSquarePlacement.spread(),
+					PlacementUtils.HEIGHTMAP_OCEAN_FLOOR, BiomeFilter.biome());
+			PlacementUtils.register(ctx, MAGICAL_FOREST_DISK_PODZOL_PLACED, cf.getOrThrow(MAGICAL_FOREST_DISK_PODZOL),
+					CountPlacement.of(3), InSquarePlacement.spread(),
+					PlacementUtils.HEIGHTMAP_OCEAN_FLOOR, BiomeFilter.biome());
+			PlacementUtils.register(ctx, MAGICAL_FOREST_DISK_MYCELIUM_PLACED, cf.getOrThrow(MAGICAL_FOREST_DISK_MYCELIUM),
+					CountPlacement.of(2), InSquarePlacement.spread(),
+					PlacementUtils.HEIGHTMAP_OCEAN_FLOOR, BiomeFilter.biome());
+			PlacementUtils.register(ctx, MAGICAL_FOREST_DISK_MOSS_PLACED, cf.getOrThrow(MAGICAL_FOREST_DISK_MOSS),
+					CountPlacement.of(3), InSquarePlacement.spread(),
+					PlacementUtils.HEIGHTMAP_OCEAN_FLOOR, BiomeFilter.biome());
+	});
 	}
 
 	private static ResourceKey<ConfiguredFeature<?, ?>> cf(String id) {

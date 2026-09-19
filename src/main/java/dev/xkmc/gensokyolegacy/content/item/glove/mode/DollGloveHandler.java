@@ -2,6 +2,8 @@ package dev.xkmc.gensokyolegacy.content.item.glove.mode;
 
 import dev.xkmc.gensokyolegacy.content.attachment.doll.DollAttachment;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.BaseDollEntity;
+import dev.xkmc.gensokyolegacy.content.entity.dolls.DollEntity;
+import dev.xkmc.gensokyolegacy.content.entity.dolls.menu.DollLoadoutProvider;
 import dev.xkmc.gensokyolegacy.content.item.glove.DollGloveItem;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
 import net.minecraft.network.chat.Component;
@@ -39,6 +41,46 @@ public abstract class DollGloveHandler {
 
 	public InteractionResultHolder<ItemStack> handleUse(Level level, Player player, InteractionHand hand, ItemStack stack, DollGloveItem item) {
 		return InteractionResultHolder.pass(stack);
+	}
+
+	/**
+	 * Whether left-click issues this mode's command. Attack modes only — the
+	 * editor open stays right-click only so fighting never pops a menu.
+	 */
+	public boolean isAttackCommand() {
+		return false;
+	}
+
+	/**
+	 * Left-click path (server-side): the attack-mode command at the cached
+	 * ray-trace target, without the editor check.
+	 */
+	public void performAttack(ServerPlayer sp, InteractionHand hand, ItemStack stack, DollGloveItem item) {
+		performAttackOn(sp, resolveTarget(sp), hand, stack, item);
+	}
+
+	/**
+	 * Attack-mode command at an explicit target (server-side): validity,
+	 * feedback, and cooldown mirror the right-click path, minus the editor
+	 * check. Non-attack modes ignore the call.
+	 */
+	public void performAttackOn(ServerPlayer sp, @Nullable LivingEntity target, InteractionHand hand, ItemStack stack, DollGloveItem item) {
+	}
+
+	/**
+	 * Right-click editor shortcut, shared by every mode: when the cached
+	 * target is an owned doll (or the holder is in creative), open its loadout
+	 * instead of the mode action. Returns true when the editor opened.
+	 */
+	protected static boolean tryOpenEditor(ServerPlayer sp, DollGloveItem item) {
+		LivingEntity target = resolveTarget(sp);
+		if (target instanceof DollEntity doll &&
+				(doll.isOwner(sp) || sp.getAbilities().instabuild)) {
+			DollLoadoutProvider.open(sp, doll);
+			cooldown(sp, item);
+			return true;
+		}
+		return false;
 	}
 
 	protected static DollAttachment attachment(ServerPlayer sp) {

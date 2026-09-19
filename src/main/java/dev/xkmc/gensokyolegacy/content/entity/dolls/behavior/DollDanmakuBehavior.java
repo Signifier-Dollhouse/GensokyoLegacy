@@ -138,7 +138,7 @@ public class DollDanmakuBehavior extends DollBehavior {
 		}
 		DollCardHolder holder = new DollCardHolder(doll, aim);
 		Vec3 dir = DollShootUtils.predictShotDir(target, holder.center(), SHOT_SPEED);
-		holder.shoot(holder.prepareDanmaku(SHOT_LIFE, dir.scale(SHOT_SPEED), item.type, item.color));
+		holder.shoot(holder.prepareDanmaku(SHOT_LIFE, dir.scale(SHOT_SPEED), item));
 
 		doll.actions.stamp(type(), doll.level().getGameTime());
 		if (blockedTicks > HAND_AHEAD_TICKS) {

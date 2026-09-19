@@ -45,8 +45,8 @@ public class GLStructureTagGen {
 				.add(Biomes.SNOWY_BEACH);
 		pvd.addTag(HAKUREI_SHRINE)
 				.add(Biomes.CHERRY_GROVE);
-		pvd.addTag(Tags.Biomes.IS_MAGICAL).add(GLBiomes.MAGICAL_FOREST);
-		pvd.addTag(Tags.Biomes.IS_FOREST).add(GLBiomes.MAGICAL_FOREST);
+		pvd.addTag(Tags.Biomes.IS_MAGICAL).add(GLBiomes.MAGICAL_FOREST).add(GLBiomes.SAKURA_FOREST);
+		pvd.addTag(Tags.Biomes.IS_FOREST).add(GLBiomes.MAGICAL_FOREST).add(GLBiomes.SAKURA_FOREST);
 	}
 
 	@SuppressWarnings({"unchecked"})

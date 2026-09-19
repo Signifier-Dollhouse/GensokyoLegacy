@@ -21,6 +21,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.DyedItemColor;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.EntityHitResult;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -35,8 +36,8 @@ import java.util.List;
  * done, light blue auto, purple when the doll is busy with a task foreign to
  * the held mode — and the stack it would use for that task renders in the slot
  * to its left.
- * Summon / stop show no frames, and editor frames only the doll currently
- * under the crosshair, in white.
+ * Summon / stop show no frames. In every mode, the doll under the crosshair
+ * is framed orange instead.
  *
  * <p>Entity-only reads: the roster (entity ids) arrives via
  * {@code DollRosterToClient} into the client {@code DollAttachment} instance; validity and
@@ -47,10 +48,10 @@ public class DollAttackStatusOverlay extends SelectionSideBar<DollAttackStatusOv
 	/** Frame for a doll busy with a task foreign to the held glove mode (ARGB). */
 	private static final int PURPLE_FRAME = 0xFFAA00AA;
 
-	/** Frame for the doll under the crosshair in editor mode (ARGB). */
-	private static final int WHITE_FRAME = 0xFFFFFFFF;
+	/** Frame for the doll under the crosshair, in every mode (ARGB). */
+	private static final int ORANGE_FRAME = 0xFFFFAA00;
 
-	/** No-frame marker: task-less modes and unmarked editor rows. */
+	/** No-frame marker: task-less modes and non-hovered rows. */
 	private static final int NO_FRAME = 0;
 
 	public record Entry(ItemStack icon, boolean valid, int frameColor, ItemStack use) {
@@ -98,7 +99,8 @@ public class DollAttackStatusOverlay extends SelectionSideBar<DollAttackStatusOv
 	protected void renderEntry(Context ctx, Entry entry, int index, int select) {
 		int y = 18 * index + ctx.y0();
 		ctx.renderItem(entry.use(), ctx.x0(), y);
-		if (entry.valid() && entry.frameColor() != NO_FRAME) {
+		if (entry.frameColor() != NO_FRAME &&
+				(entry.valid() || entry.frameColor() == ORANGE_FRAME)) {
 			OverlayUtil.drawRect(ctx.g(), ctx.x0() + 18, y, 16, 16, entry.frameColor());
 		}
 		ctx.renderItem(entry.icon(), ctx.x0() + 18, y);
@@ -152,15 +154,15 @@ public class DollAttackStatusOverlay extends SelectionSideBar<DollAttackStatusOv
 	}
 
 	/**
-	 * Frame color for a row: task modes use status colors with purple for a
-	 * task foreign to the held mode; summon/stop draw none; editor draws white
-	 * only on the doll under the crosshair.
+	 * Frame color for a row: the doll under the crosshair draws orange in
+	 * every mode; otherwise task modes use status colors with purple for a
+	 * task foreign to the held mode, and summon/stop draw none.
 	 */
 	private static int frameFor(DollGloveMode mode, @Nullable DollActionType type,
 								DollEntity doll, DollActionStatus status) {
+		if (isHovered(doll)) return ORANGE_FRAME;
 		return switch (mode) {
 			case SUMMON, STOP -> NO_FRAME;
-			case EDITOR -> GloveTargetCache.isMarked(doll) ? WHITE_FRAME : NO_FRAME;
 			default -> {
 				boolean executing = status == DollActionStatus.PREPARING ||
 						status == DollActionStatus.ATTACKING || status == DollActionStatus.AUTO;
@@ -168,6 +170,11 @@ public class DollAttackStatusOverlay extends SelectionSideBar<DollAttackStatusOv
 				yield status.frameColor();
 			}
 		};
+	}
+
+	private static boolean isHovered(DollEntity doll) {
+		var mc = Minecraft.getInstance();
+		return mc.hitResult instanceof EntityHitResult hit && hit.getEntity() == doll;
 	}
 
 	/**
@@ -210,7 +217,7 @@ public class DollAttackStatusOverlay extends SelectionSideBar<DollAttackStatusOv
 
 	/**
 	 * The {@link DollActionType} a glove mode commands, or null for task-less
-	 * modes (summon, stop, editor) that just manage the roster.
+	 * modes (summon, stop) that just manage the roster.
 	 */
 	@Nullable
 	private static DollActionType typeForGlove(DollGloveMode mode) {

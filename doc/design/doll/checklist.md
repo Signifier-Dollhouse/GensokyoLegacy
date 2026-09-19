@@ -23,13 +23,13 @@ Control (done — framework; glove calls pending):
 
 - `content/entity/dolls/menu/DollLoadoutMenu.java`, `DollLoadoutScreen.java`, `DollLoadoutProvider.java`, `DollLoadoutItemHandler.java` + `GLMisc.DOLL_LOADOUT`, layout JSON, container texture (loadout.md §4)
 
-Implemented — glove (item, 7 modes, wheel, target cache + glow mixin, packets):
+Implemented — glove (item, 6 modes with heal/stop hidden, wheel, target cache + glow mixin, packets):
 - `content/item/glove/DollGloveItem.java`
 - `content/item/glove/mode/DollGloveMode.java`
-- `content/item/glove/mode/DollGloveHandler.java` + 7 mode classes
-- `content/item/glove/DollGloveSelectionListener.java`
+- `content/item/glove/mode/DollGloveHandler.java` + 6 mode classes
+- `content/item/glove/DollGloveSelectionListener.java` + `DollGloveLeftClickHandler.java`
 - `content/item/glove/client/DollGloveModeWheel.java`, `DollGloveModeEntry.java`
-- `content/item/glove/network/DollGloveSelectPacket.java`, `DollGloveTargetPacket.java`
+- `content/item/glove/network/DollGloveSelectPacket.java`, `DollGloveTargetPacket.java`, `DollGloveSwingPacket.java`
 - `content/item/glove/client/GloveTargetCache.java` (+ per-player server cache) + `mixin/GloveTargetGlowMixin.java` + mixins-json entry (glove.md §2)
 
 ## 2. Files to modify

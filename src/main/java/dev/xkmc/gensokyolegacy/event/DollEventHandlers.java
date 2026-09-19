@@ -5,6 +5,8 @@ import dev.xkmc.gensokyolegacy.content.entity.dolls.DollEntity;
 import dev.xkmc.gensokyolegacy.content.entity.foundation.DamageRefactorEntity.CombatData;
 import dev.xkmc.gensokyolegacy.content.item.doll.DollItem;
 import dev.xkmc.gensokyolegacy.content.item.doll.DollItemData;
+import dev.xkmc.gensokyolegacy.content.item.glove.DollGloveItem;
+import dev.xkmc.gensokyolegacy.content.item.glove.network.DollGloveSwingPacket;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
@@ -12,6 +14,8 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.ItemTags;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -19,6 +23,7 @@ import net.neoforged.neoforge.event.AnvilUpdateEvent;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 
 @EventBusSubscriber(modid = GensokyoLegacy.MODID)
 public class DollEventHandlers {
@@ -81,5 +86,28 @@ public class DollEventHandlers {
 		event.setCost(1);
 		event.setMaterialCost(1);
 	}
+
+	@SubscribeEvent
+	public static void onLeftClickBlock(PlayerInteractEvent.LeftClickBlock event) {
+		Player player = event.getEntity();
+		ItemStack stack = player.getMainHandItem();
+		if (!(stack.getItem() instanceof DollGloveItem glove)) return;
+		if (!DollGloveItem.getMode(stack).isAttackCommand()) return;
+		event.setCanceled(true);
+		if (player instanceof ServerPlayer sp && !sp.getCooldowns().isOnCooldown(glove)) {
+			DollGloveItem.getMode(stack).performAttack(sp, InteractionHand.MAIN_HAND, stack, glove);
+		}
+	}
+
+	@SubscribeEvent
+	public static void onLeftClickEmpty(PlayerInteractEvent.LeftClickEmpty event) {
+		Player player = event.getEntity();
+		ItemStack stack = player.getMainHandItem();
+		if (!(stack.getItem() instanceof DollGloveItem glove)) return;
+		if (!DollGloveItem.getMode(stack).isAttackCommand()) return;
+		if (player.getCooldowns().isOnCooldown(glove)) return;
+		GensokyoLegacy.HANDLER.toServer(new DollGloveSwingPacket());
+	}
+
 
 }

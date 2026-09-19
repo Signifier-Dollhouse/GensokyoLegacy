@@ -20,39 +20,47 @@
     },
     "features": [
       {
-        "chance": 0.15,
+        "chance": 0.05,
         "feature": {
           "feature": "gensokyolegacy:ghost_fire_mushroom",
           "placement": []
         }
       },
       {
-        "chance": 0.1,
+        "chance": 0.053,
         "feature": {
           "feature": "gensokyolegacy:dream_mushroom",
           "placement": []
         }
       },
       {
-        "chance": 0.05,
+        "chance": 0.044,
         "feature": {
           "feature": "gensokyolegacy:demonic_miasma_mushroom",
           "placement": []
         }
       },
       {
-        "chance": 0.1,
+        "chance": 0.035,
         "feature": {
           "feature": "minecraft:huge_brown_mushroom",
           "placement": []
         }
       },
       {
-        "chance": 0.05,
+        "chance": 0.036,
         "feature": {
           "feature": "minecraft:huge_red_mushroom",
           "placement": []
         }
+      },
+      {
+        "chance": 0.25,
+        "feature": "minecraft:dark_oak_checked"
+      },
+      {
+        "chance": 0.33,
+        "feature": "minecraft:jungle_bush"
       }
     ]
   }

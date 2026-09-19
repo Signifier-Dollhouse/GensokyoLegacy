@@ -2,11 +2,14 @@ package dev.xkmc.gensokyolegacy.content.item.glove.mode;
 
 import dev.xkmc.gensokyolegacy.content.item.glove.DollGloveItem;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.Nullable;
 
 public enum DollGloveMode {
 	SUMMON(new SummonMode()),
@@ -14,8 +17,7 @@ public enum DollGloveMode {
 	VOLLEY(new VolleyMode()),
 	SUPER(new SuperMode()),
 	SUICIDE(new SuicideMode()),
-	STOP(new StopMode()),
-	EDITOR(new EditorMode());
+	STOP(new StopMode());
 
 	private final DollGloveHandler handler;
 
@@ -40,9 +42,35 @@ public enum DollGloveMode {
 	}
 
 	/**
+	 * Whether left-click (entity punch, block click, empty swing) issues this
+	 * mode's command. Attack modes only: the editor open is right-click only,
+	 * so fighting never risks opening a menu.
+	 */
+	public boolean isAttackCommand() {
+		return handler.isAttackCommand();
+	}
+
+	/**
+	 * Left-click path (server-side): the attack-mode command at the cached
+	 * ray-trace target, without the editor check.
+	 */
+	public void performAttack(ServerPlayer sp, InteractionHand hand, ItemStack stack, DollGloveItem item) {
+		handler.performAttack(sp, hand, stack, item);
+	}
+
+	/**
+	 * Left-click path for a directly punched entity (server-side): the
+	 * attack-mode command at that entity, without the editor check.
+	 */
+	public void performAttackOn(ServerPlayer sp, @Nullable LivingEntity target, InteractionHand hand, ItemStack stack, DollGloveItem item) {
+		handler.performAttackOn(sp, target, hand, stack, item);
+	}
+
+	/**
 	 * Glow color for the cached ray-trace target while this mode is held
 	 * (vanilla formatting palette): aqua for summon, green for heal-mark, red
-	 * for the three attack modes, gray for stop, gold for the doll editor.
+	 * for the three attack modes, gray for stop. Hovered dolls always glow
+	 * gold regardless of mode (see {@code GloveTargetCache}).
 	 */
 	public int glowColor() {
 		return switch (this) {
@@ -50,7 +78,6 @@ public enum DollGloveMode {
 			case HEAL_MARK -> 0x55FF55;
 			case VOLLEY, SUPER, SUICIDE -> 0xFF5555;
 			case STOP -> 0xAAAAAA;
-			case EDITOR -> 0xFFAA00;
 		};
 	}
 
