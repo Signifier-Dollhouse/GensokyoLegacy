@@ -1,0 +1,77 @@
+{
+  "values": [
+    "minecraft:stripped_spruce_log",
+    "minecraft:spruce_log",
+    "minecraft:stripped_dark_oak_log",
+    "minecraft:stripped_mangrove_log",
+    "minecraft:oak_planks",
+    "minecraft:dark_oak_planks",
+    "minecraft:mangrove_planks",
+    "minecraft:spruce_stairs",
+    "minecraft:spruce_slab",
+    "minecraft:dark_oak_stairs",
+    "minecraft:dark_oak_slab",
+    "minecraft:oak_stairs",
+    "minecraft:mangrove_stairs",
+    "minecraft:mangrove_slab",
+    "minecraft:stone",
+    "minecraft:stone_bricks",
+    "minecraft:stone_stairs",
+    "minecraft:stone_slab",
+    "minecraft:polished_andesite",
+    "minecraft:polished_andesite_stairs",
+    "minecraft:polished_andesite_slab",
+    "minecraft:andesite_stairs",
+    "minecraft:smooth_stone",
+    "minecraft:smooth_stone_slab",
+    "minecraft:smooth_quartz",
+    "minecraft:smooth_quartz_stairs",
+    "minecraft:cobblestone",
+    "minecraft:cobblestone_stairs",
+    "minecraft:mossy_stone_bricks",
+    "minecraft:packed_mud",
+    "minecraft:calcite",
+    "minecraft:tuff",
+    "minecraft:red_terracotta",
+    "minecraft:spruce_door",
+    "minecraft:spruce_trapdoor",
+    "minecraft:dark_oak_trapdoor",
+    "minecraft:oak_trapdoor",
+    "minecraft:mangrove_trapdoor",
+    "minecraft:spruce_fence",
+    "minecraft:spruce_fence_gate",
+    "minecraft:stone_brick_wall",
+    {
+      "id": "gensokyolegacy:gray_tiles",
+      "required": false
+    },
+    {
+      "id": "gensokyolegacy:gray_tiles_slab",
+      "required": false
+    },
+    {
+      "id": "gensokyolegacy:gray_tiles_stairs",
+      "required": false
+    },
+    {
+      "id": "gensokyolegacy:black_tiles_slab",
+      "required": false
+    },
+    {
+      "id": "gensokyolegacy:black_tiles_stairs",
+      "required": false
+    },
+    {
+      "id": "gensokyolegacy:brown_tiles_stairs",
+      "required": false
+    },
+    {
+      "id": "gensokyolegacy:oak_sliding_door",
+      "required": false
+    },
+    {
+      "id": "gensokyolegacy:dark_oak_plank_wall",
+      "required": false
+    }
+  ]
+}

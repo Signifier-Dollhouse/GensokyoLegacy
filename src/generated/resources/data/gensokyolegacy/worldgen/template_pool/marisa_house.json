@@ -1,0 +1,15 @@
+{
+  "elements": [
+    {
+      "element": {
+        "element_type": "minecraft:single_pool_element",
+        "location": "gensokyolegacy:marisa_house",
+        "override_liquid_settings": "ignore_waterlogging",
+        "processors": "gensokyolegacy:marisa_house",
+        "projection": "rigid"
+      },
+      "weight": 1
+    }
+  ],
+  "fallback": "minecraft:empty"
+}

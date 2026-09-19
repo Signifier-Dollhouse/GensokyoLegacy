@@ -1,0 +1,47 @@
+{
+  "values": [
+    "minecraft:chest",
+    "minecraft:barrel",
+    "minecraft:ender_chest",
+    "minecraft:bookshelf",
+    "minecraft:chiseled_bookshelf",
+    "minecraft:crafting_table",
+    "minecraft:enchanting_table",
+    "minecraft:brewing_stand",
+    "minecraft:grindstone",
+    "minecraft:stonecutter",
+    "minecraft:loom",
+    "minecraft:lectern",
+    "minecraft:jukebox",
+    "minecraft:cartography_table",
+    "minecraft:smithing_table",
+    "minecraft:cauldron",
+    "minecraft:lantern",
+    "minecraft:soul_lantern",
+    "minecraft:campfire",
+    "minecraft:bell",
+    "minecraft:note_block",
+    "minecraft:redstone_lamp",
+    "minecraft:lightning_rod",
+    "minecraft:lodestone",
+    "minecraft:decorated_pot",
+    "minecraft:flower_pot",
+    "gensokyolegacy:birch_shelf",
+    "gensokyolegacy:crate",
+    "gensokyolegacy:carton_default",
+    "gensokyolegacy:carton_white",
+    "gensokyolegacy:carton_blue",
+    {
+      "id": "gensokyolegacy:tatami_block",
+      "required": false
+    },
+    {
+      "id": "gensokyolegacy:spruce_large_table",
+      "required": false
+    },
+    {
+      "id": "gensokyolegacy:white_cushion",
+      "required": false
+    }
+  ]
+}

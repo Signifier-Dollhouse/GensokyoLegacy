@@ -8,8 +8,6 @@ import net.minecraft.resources.ResourceLocation;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Comparator;
 
@@ -19,16 +17,21 @@ public class ReportBlocksInStructure {
 
 	public static void report() {
 		try {
-			//report("cirno_nest.nbt");
-			//report("hakurei_shrine/shrine.nbt");
+			report("marisa_house.nbt");
+			report("hakurei_shrine.nbt");
+			report("morichika_shop.nbt");
 		} catch (Exception e) {
 			LOGGER.throwing(e);
 		}
 	}
 
 	public static void report(String path) throws IOException {
-		File file = new File("../../src/main/resources/data/gensokyolegacy/structure/" + path);
-		var tag = NbtIo.readCompressed(new FileInputStream(file), NbtAccounter.unlimitedHeap());
+		var stream = ReportBlocksInStructure.class.getResourceAsStream("/data/gensokyolegacy/structure/" + path);
+		if (stream == null) {
+			LOGGER.warn("Structure template not on classpath: {}", path);
+			return;
+		}
+		var tag = NbtIo.readCompressed(stream, NbtAccounter.unlimitedHeap());
 		Object2IntLinkedOpenHashMap<ResourceLocation> count = new Object2IntLinkedOpenHashMap<>();
 		ListTag palette = tag.getList("palette", 10);
 		ResourceLocation[] ids = new ResourceLocation[palette.size()];

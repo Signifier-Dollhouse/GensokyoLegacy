@@ -1,3 +1,25 @@
 {
-  "values": {}
+  "values": {
+    "gensokyolegacy:hakurei_reimu": {
+      "discardTime": 6000,
+      "noPlayerVanishTime": 30,
+      "respawnTime": 12000,
+      "structure": "gensokyolegacy:hakurei_shrine",
+      "wanderRadius": 16
+    },
+    "gensokyolegacy:kirisame_marisa": {
+      "discardTime": 6000,
+      "noPlayerVanishTime": 30,
+      "respawnTime": 12000,
+      "structure": "gensokyolegacy:marisa_house",
+      "wanderRadius": 12
+    },
+    "gensokyolegacy:morichika_rinnosuke": {
+      "discardTime": 6000,
+      "noPlayerVanishTime": 30,
+      "respawnTime": 12000,
+      "structure": "gensokyolegacy:morichika_shop",
+      "wanderRadius": 12
+    }
+  }
 }

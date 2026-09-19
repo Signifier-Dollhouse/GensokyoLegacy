@@ -3,6 +3,12 @@
     "gensokyolegacy:cirno_bed": {
       "type": "gensokyolegacy:cirno"
     },
+    "gensokyolegacy:marisa_bed": {
+      "type": "gensokyolegacy:kirisame_marisa"
+    },
+    "gensokyolegacy:morichika_bed": {
+      "type": "gensokyolegacy:morichika_rinnosuke"
+    },
     "gensokyolegacy:reimu_bed": {
       "type": "gensokyolegacy:hakurei_reimu"
     },

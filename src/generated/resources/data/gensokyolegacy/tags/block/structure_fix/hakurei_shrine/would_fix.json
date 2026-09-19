@@ -1,0 +1,47 @@
+{
+  "values": [
+    "minecraft:chest",
+    "minecraft:barrel",
+    "minecraft:ender_chest",
+    "minecraft:bookshelf",
+    "minecraft:brewing_stand",
+    "minecraft:furnace",
+    "minecraft:smoker",
+    "minecraft:campfire",
+    "minecraft:crafting_table",
+    "minecraft:bell",
+    "minecraft:lantern",
+    "minecraft:composter",
+    "minecraft:beehive",
+    "gensokyolegacy:drawer_cabinet",
+    "gensokyolegacy:door_cabinet",
+    "gensokyolegacy:crate",
+    "gensokyolegacy:book_pile",
+    "gensokyolegacy:book_stack",
+    "gensokyolegacy:donation_box_2",
+    {
+      "id": "gensokyolegacy:tatami_block",
+      "required": false
+    },
+    {
+      "id": "gensokyolegacy:tea_table",
+      "required": false
+    },
+    {
+      "id": "gensokyolegacy:red_cushion",
+      "required": false
+    },
+    {
+      "id": "gensokyolegacy:spruce_large_table",
+      "required": false
+    },
+    {
+      "id": "gensokyolegacy:spruce_large_chair",
+      "required": false
+    },
+    {
+      "id": "gensokyolegacy:dark_oak_large_table",
+      "required": false
+    }
+  ]
+}

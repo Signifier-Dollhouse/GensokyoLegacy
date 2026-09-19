@@ -1,0 +1,38 @@
+{
+  "values": [
+    "minecraft:chest",
+    "minecraft:barrel",
+    "minecraft:bookshelf",
+    "minecraft:chiseled_bookshelf",
+    "minecraft:furnace",
+    "minecraft:blast_furnace",
+    "minecraft:smoker",
+    "minecraft:brewing_stand",
+    "minecraft:enchanting_table",
+    "minecraft:lectern",
+    "minecraft:loom",
+    "minecraft:cartography_table",
+    "minecraft:smithing_table",
+    "minecraft:cauldron",
+    "minecraft:lantern",
+    "minecraft:soul_lantern",
+    "minecraft:campfire",
+    "gensokyolegacy:door_cabinet",
+    "gensokyolegacy:book_shelf",
+    "gensokyolegacy:book_pile",
+    "gensokyolegacy:book_stack",
+    "gensokyolegacy:crate",
+    {
+      "id": "gensokyolegacy:spruce_large_table",
+      "required": false
+    },
+    {
+      "id": "gensokyolegacy:dark_oak_large_table",
+      "required": false
+    },
+    {
+      "id": "gensokyolegacy:dark_oak_large_chair",
+      "required": false
+    }
+  ]
+}

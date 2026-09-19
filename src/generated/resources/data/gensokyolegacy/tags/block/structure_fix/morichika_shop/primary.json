@@ -1,0 +1,49 @@
+{
+  "values": [
+    "minecraft:stripped_spruce_log",
+    "minecraft:stripped_oak_log",
+    "minecraft:oak_log",
+    "minecraft:oak_planks",
+    "minecraft:spruce_planks",
+    "minecraft:oak_stairs",
+    "minecraft:oak_slab",
+    "minecraft:spruce_stairs",
+    "minecraft:spruce_slab",
+    "minecraft:dark_oak_stairs",
+    "minecraft:dark_oak_slab",
+    "minecraft:polished_diorite",
+    "minecraft:polished_diorite_slab",
+    "minecraft:polished_diorite_stairs",
+    "minecraft:diorite",
+    "minecraft:tuff",
+    "minecraft:packed_mud",
+    "minecraft:calcite",
+    "minecraft:light_blue_glazed_terracotta",
+    "minecraft:cobblestone",
+    "minecraft:acacia_door",
+    "minecraft:jungle_door",
+    "minecraft:spruce_door",
+    "minecraft:acacia_trapdoor",
+    "minecraft:jungle_trapdoor",
+    "minecraft:spruce_trapdoor",
+    "minecraft:spruce_fence",
+    "minecraft:dark_oak_fence",
+    "minecraft:glass_pane",
+    {
+      "id": "gensokyolegacy:orange_tiles",
+      "required": false
+    },
+    {
+      "id": "gensokyolegacy:orange_tiles_slab",
+      "required": false
+    },
+    {
+      "id": "gensokyolegacy:orange_tiles_stairs",
+      "required": false
+    },
+    {
+      "id": "gensokyolegacy:black_tiles_stairs",
+      "required": false
+    }
+  ]
+}
