@@ -1,7 +1,7 @@
 {
-  "parent": "gensokyolegacy:custom/nature/bracken",
+  "parent": "minecraft:block/cross",
   "render_type": "minecraft:cutout",
   "textures": {
-    "all": "gensokyolegacy:block/nature/bracken"
+    "cross": "gensokyolegacy:block/nature/bracken"
   }
 }

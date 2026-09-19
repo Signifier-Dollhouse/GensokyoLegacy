@@ -3,7 +3,20 @@
   "config": {
     "default": {
       "feature": "gensokyolegacy:blue_fir_tree",
-      "placement": []
+      "placement": [
+        {
+          "type": "minecraft:block_predicate_filter",
+          "predicate": {
+            "type": "minecraft:would_survive",
+            "state": {
+              "Name": "gensokyolegacy:blue_fir_sapling",
+              "Properties": {
+                "stage": "0"
+              }
+            }
+          }
+        }
+      ]
     },
     "features": [
       {

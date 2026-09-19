@@ -109,9 +109,7 @@ public class GLNaturalBlocks {
 		BRACKEN = reg.block("bracken", p -> new SimpleBushBlock(p, SimpleBushBlock.THIN))
 				.properties(p -> p.offsetType(BlockBehaviour.OffsetType.XYZ).mapColor(MapColor.PLANT).strength(0).sound(SoundType.GRASS).noOcclusion().noCollission().pushReaction(PushReaction.DESTROY).dynamicShape())
 				.blockstate((ctx, pvd) -> pvd.simpleBlock(ctx.get(),
-						pvd.models().getBuilder("block/" + ctx.getName())
-								.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/nature/bracken")))
-								.texture("all", pvd.modLoc("block/nature/bracken"))
+						pvd.models().cross(ctx.getName(), pvd.modLoc("block/nature/bracken"))
 								.renderType("cutout")))
 				.item().model((ctx, pvd) -> pvd.getBuilder(ctx.getName())
 						.parent(new ModelFile.UncheckedModelFile("item/generated"))

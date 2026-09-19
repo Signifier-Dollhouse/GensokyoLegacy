@@ -6,13 +6,16 @@ import dev.xkmc.gensokyolegacy.content.worldgen.feature.TreeFeatures.TreeType;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.registrate.GLWorldGen;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLNaturalBlocks;
+import net.minecraft.core.Direction;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.features.FeatureUtils;
 import net.minecraft.data.worldgen.placement.PlacementUtils;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.util.random.SimpleWeightedRandomList;
 import net.minecraft.world.level.block.HugeMushroomBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.blockpredicates.BlockPredicate;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.WeightedPlacedFeature;
@@ -78,20 +81,23 @@ public class GLFeatureGen {
 											.build())))));
 			FeatureUtils.register(ctx, MAGICAL_FOREST_MUSHROOMS, Feature.RANDOM_PATCH,
 					FeatureUtils.simpleRandomPatchConfiguration(32,
-							PlacementUtils.onlyWhenEmpty(Feature.SIMPLE_BLOCK, new SimpleBlockConfiguration(
-									new WeightedStateProvider(SimpleWeightedRandomList.<BlockState>builder()
-											.add(GLNaturalBlocks.GHOST_FIRE_MUSHROOM_SET.cap.get().defaultBlockState(), 2)
-											.add(GLNaturalBlocks.DREAM_MUSHROOM_SET.cap.get().defaultBlockState(), 2)
-											.add(GLNaturalBlocks.DEMONIC_MIASMA_MUSHROOM_SET.cap.get().defaultBlockState(), 1)
-											.build())))));
+							PlacementUtils.filtered(Feature.SIMPLE_BLOCK, new SimpleBlockConfiguration(
+											new WeightedStateProvider(SimpleWeightedRandomList.<BlockState>builder()
+													.add(GLNaturalBlocks.GHOST_FIRE_MUSHROOM_SET.cap.get().defaultBlockState(), 2)
+													.add(GLNaturalBlocks.DREAM_MUSHROOM_SET.cap.get().defaultBlockState(), 2)
+													.add(GLNaturalBlocks.DEMONIC_MIASMA_MUSHROOM_SET.cap.get().defaultBlockState(), 1)
+													.build())),
+									BlockPredicate.allOf(BlockPredicate.ONLY_IN_AIR_PREDICATE,
+											BlockPredicate.matchesTag(Direction.DOWN.getNormal(), BlockTags.DIRT)))));
 			FeatureUtils.register(ctx, MAGICAL_FOREST_VEGETATION, Feature.RANDOM_SELECTOR,
 					new RandomFeatureConfiguration(List.of(
 							new WeightedPlacedFeature(PlacementUtils.inlinePlaced(cf.getOrThrow(MushroomTreeType.GHOST_FIRE.cfKey)), 0.15F),
 							new WeightedPlacedFeature(PlacementUtils.inlinePlaced(cf.getOrThrow(MushroomTreeType.DREAM.cfKey)), 0.1F),
 							new WeightedPlacedFeature(PlacementUtils.inlinePlaced(cf.getOrThrow(MushroomTreeType.DEMONIC_MIASMA.cfKey)), 0.05F),
 							new WeightedPlacedFeature(PlacementUtils.inlinePlaced(cf.getOrThrow(HUGE_BROWN_MUSHROOM)), 0.1F),
-							new WeightedPlacedFeature(PlacementUtils.inlinePlaced(cf.getOrThrow(HUGE_RED_MUSHROOM)), 0.05F)
-					), PlacementUtils.inlinePlaced(cf.getOrThrow(TreeType.BLUE_FIR.cfKey))));
+						new WeightedPlacedFeature(PlacementUtils.inlinePlaced(cf.getOrThrow(HUGE_RED_MUSHROOM)), 0.05F)
+				), PlacementUtils.inlinePlaced(cf.getOrThrow(TreeType.BLUE_FIR.cfKey),
+						PlacementUtils.filteredByBlockSurvival(GLNaturalBlocks.BLUE_FUR_SET.sapling.get()))));
 		});
 		init.add(Registries.PLACED_FEATURE, ctx -> {
 			var cf = ctx.lookup(Registries.CONFIGURED_FEATURE);
