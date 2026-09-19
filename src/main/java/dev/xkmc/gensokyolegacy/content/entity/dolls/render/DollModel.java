@@ -3,9 +3,13 @@ package dev.xkmc.gensokyolegacy.content.entity.dolls.render;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.DollEntity;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import net.minecraft.resources.ResourceLocation;
-import software.bernie.geckolib.model.GeoModel;
+import software.bernie.geckolib.model.DefaultedEntityGeoModel;
 
-public class DollModel extends GeoModel<DollEntity> {
+public class DollModel extends DefaultedEntityGeoModel<DollEntity> {
+	public DollModel() {
+		super(GensokyoLegacy.loc("doll"), "Head");
+	}
+
 	private final ResourceLocation model = GensokyoLegacy.loc("geo/doll.geo.json");
 	private final ResourceLocation animations = GensokyoLegacy.loc("animations/doll.animation.json");
 
