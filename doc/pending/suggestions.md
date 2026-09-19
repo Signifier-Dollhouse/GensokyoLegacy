@@ -4,19 +4,18 @@ This document synthesises issues and improvement directions across the three sys
 
 ## 1. Correctness Bugs
 
-### 1.1 `StructureKey.support` inverted for preset structures — HIGH
+### 1.1 `StructureKey.support` inverted for preset structures — HIGH — FIXED
 
 **Where:** `content/attachment/index/StructureKey.java:40`
 
 ```java
-public boolean support(CharacterConfig config) {
-    return structure().equals(CUSTOM) || !config.structure().equals(structure);
-}
+// before (inverted):
+return structure().equals(CUSTOM) || !config.structure().equals(structure);
+// after (fixed):
+return structure().equals(CUSTOM) || config.structure().equals(structure);
 ```
 
-`!equals` means a `CIRNO` bed (`config.structure = cirno_nest`) is considered *supported* by every structure *except* `cirno_nest`, and *unsupported* by its own home. The tick path in `YoukaiBedBlockEntity.java:39` and `LocatedBlockEntity.java:34` both gate on `key.support(config)` (or `home.supportEntity`), so preset respawn is currently broken or only works for `CUSTOM`. The debug path `YoukaiBedBlockEntity.getDebugPacket:75` correctly uses `config.structure().equals(key.getStructure().location())`, highlighting the inconsistency.
-
-**Fix:** Change to `config.structure().equals(structure)`. Add a unit test for `support` covering `CUSTOM` vs preset match/mismatch. Backfill `CharacterConfig` for the 3 hard-coded beds to point at their intended structure ids (or `CUSTOM` if stand-alone) before flipping.
+`!equals` meant a `CIRNO` bed (`config.structure = cirno_nest`) was considered *supported* by every structure *except* `cirno_nest`, and *unsupported* by its own home. Fixed to `equals`, which also unifies the tick path (`YoukaiBedBlockEntity.java:39,61`) with the debug path (`getDebugPacket:75`, already `equals`). Null-`CharacterConfig` beds (cirno/rumia, no structure yet) stay skipped via the existing `config != null` guard.
 
 ### 1.2 `StructureHomeHolder` synthetic fallback masks missing registrations — MEDIUM
 
@@ -96,11 +95,12 @@ Per player per 24000t iterates `LinkedHashMap values`. Cheap today (≤14 entrie
 
 ## 4. Suggested Roadmap (ordered)
 
-1. **Hotfix** `StructureKey.support` (1.1) + add regression test; remove synthetic fallback or gate behind `GLModConfig.debug` (1.2).
+1. ~~**Hotfix** `StructureKey.support` (1.1)~~ DONE + add regression test; remove synthetic fallback or gate behind `GLModConfig.debug` (1.2).
 2. **Fix `RoomVerifier` culling** (1.3) + add unit tests `RoomVerifierTest` covering thin wall, door, slab/slope cases. Include a test that destroying either half of the bed (`HEAD` or `FOOT`) leaves no orphan block (assert both positions `AIR` via `updateShape` / `playerWillDestroy`).
 3. **Unify lifecycle** — introduce `BedHomeLinker` for testability; do **not** add movement/`relocate()` (structures/BEs immovable); optional loaded-chunk-only stale-entry prune; avoid `getChunkAt` force-load (2.1, 2.2, 3.1).
 4. **Config surface** — move reputation params + `discard/respawn/wander` defaults to `GLModConfig` / `CharacterConfig` with datamap override (2.3).
 5. **Observability** — debug packet consistency (`getDebugPacket` vs `support` predicate), brain debug overlay, `AbnormalCache` tag unification tests (2.4, 3.2).
+6. **Structure container loot (TODO, not started)** — `marisa_house` / `hakurei_shrine` / `morichika_shop` templates contain chests, barrels, cabinets and shelves that currently generate empty (no `LootTable` NBT). Add loot tables in `GLStructureLootGen` (e.g. books/magic supplies for Marisa, shrine offerings for Reimu, shop goods for Morichika) and inject them via `SetDataProcessor` mappings (`Block → RuleBlockEntityModifier(AppendLoot)`) in each structure's `StructFlatBuilding` processors, following the YH 1.20.1 `YHRuleProcessor(injectData(...))` pattern.
 
 ## 5. What Went Well (keep)
 

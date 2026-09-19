@@ -48,7 +48,7 @@ HomeModule (per-YoukaiEntity) ←── StructureKey.of(entity) ──▶ BedRef
 ### 3.1 Registration (DataMap + Worldgen)
 
 ```java
-// GLStructureGen.dataMap(pvd) — currently dormant (List.of())
+// GLStructureGen.dataMap(pvd) — active for marisa_house, hakurei_shrine, morichika_shop
 for (StructStructure e : STRUCTURES) {
   for (StructBed bed : e.beds()) {
     for (Holder<Block> b : bed.bed()) bedReg.add(b, new BedData(bed.entity().value()));
@@ -57,10 +57,10 @@ for (StructStructure e : STRUCTURES) {
   }
   structureReg.add(e.id(), config.build()); // StructureConfig with shrink + tags
 }
-// hard-coded active bindings (3 beds):
+// hard-coded bindings for beds without structures yet (2 beds):
 bedReg.add(BEDS[CIRNO], new BedData(CIRNO_ENTITY));
-bedReg.add(BEDS[REIMU], new BedData(REIMU_ENTITY));
 bedReg.add(BEDS[RUMIA], new BedData(RUMIA_ENTITY));
+// (reimu_bed is bound via the hakurei_shrine StructBed entry above)
 
 // GLStructureGen.init(init) bootstraps 4 registries from StructBuilding:
 //   PROCESSOR_LIST: SetDataProcessor (marks data markers)
@@ -263,6 +263,6 @@ BlockInfoToClient pkt = be.getDebugPacket(player); // respawn countdown or prese
 
 - **Immovable structures/BEs.** `Structure` worldgen pieces and `LocatedBlockEntity` are never moved by pistons/structure-blocks. `LocatedBlockEntity.tick()` therefore binds `key` once (`located` flag) and that is sufficient — no `relocate()` or move-tracking is needed or correct to add. Structure deletion means chunk unload/regeneration, not translation.
 - **Paired destruction.** Destroying either half of a `YoukaiBedBlock` always removes the other half: survival via `YoukaiBedMethods.updateShape` (neighbour mismatch → `AIR`), creative FOOT via `YoukaiBedBlock.playerWillDestroy` (explicit `setBlock(HEAD, AIR)`). As a result a bed never leaves an orphan half; `BedRefData` dupe logic only handles a *second distinct bed of the same `EntityType`* in the same structure, not a dangling half. `YoukaiBedBlockEntity.tick()` running on `HEAD` only is therefore sufficient — there is no "destroy FOOT alone leaving stale HEAD" case.
-- `GLStructureGen.initStructures()` currently returns `List.of()` — all `StructStructure`/`StructBuilding`/`GLSinglePiece` code is dead outside 3 hard-coded beds. Populating that list is the required step to create worldgen structures; otherwise DataMaps `entity_type/character_config.json` and `worldgen/structure/structure_config.json` remain empty.
-- `StructureKey.support(config)` is `custom || !config.structure.equals(structure)`. For preset structures the `equals` check is inverted vs. intuitive `equals` (see `YoukaiBedBlockEntity.getDebugPacket` which correctly uses `equals` — inconsistent). Current runtime tick uses `support` so preset bed binding currently uses the negated comparison.
+- `GLStructureGen.initStructures()` now defines `marisa_house`, `hakurei_shrine`, `morichika_shop` (flat-check structures); `character_config.json` / `structure_config.json` are populated by datagen. Unregistered structures still fall back to the synthetic CIRNO config (see suggestions 1.2).
+- `StructureKey.support(config)` is `custom || config.structure.equals(structure)` (fixed; was inverted `!equals`). Tick path and `getDebugPacket` both use `equals` now.
 

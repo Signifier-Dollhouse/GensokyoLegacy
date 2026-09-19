@@ -38,7 +38,7 @@ public record StructureKey(ResourceLocation structure, ResourceLocation dim, Blo
 	}
 
 	public boolean support(CharacterConfig config) {
-		return structure().equals(CUSTOM) || !config.structure().equals(structure);
+		return structure().equals(CUSTOM) || config.structure().equals(structure);
 	}
 
 	public boolean isCustom() {

@@ -18,7 +18,7 @@ This document reflects the current implementation in `content/attachment/home/`,
 | `CustomHomeData` | `content/attachment/home/custom/CustomHomeData.java` | `@SerialField BlockPos rootPos`, `@SerialField RoomData room`. `getTotalBound/isInRoom/getRandomPosInRoom|Bound` from `RoomData.bound`. `tick` noop. |
 | `RoomVerifier` | `content/attachment/home/custom/RoomVerifier.java:15` | BFS flood-fill column scanner. Limits `MAX_HEIGHT 15`, `MAX_SIZE 48`. `visitColumn(pos)` vertical scan 2-phase (`toFloor/toRoof`), `step()` expands 4 horizontal dirs (needs `wall>1` continuous). Collects `IBlockConsumer` chairs/containers/beds. `run(pos)→RoomData`. |
 | `RoomData` | `content/attachment/home/custom/RoomData.java` | `bound(6 ints)` + `ColumnData[x][z].list int[][2]` per-column Y intervals (merge via `addHeight`). `isInside(BlockPos)` via column check + `WALK` AABB. `acceptColumn`, `getColumn`. |
-| `StructureKey` | `content/attachment/index/StructureKey.java:16` | `record(structure RL, dim RL, pos BlockPos)`. `CUSTOM` constant, `custom(dim,pos)`, `of(YoukaiEntity)`, `support(config)` `custom||!equals` (inverted), `getStructure()/getDim()`. |
+| `StructureKey` | `content/attachment/index/StructureKey.java:16` | `record(structure RL, dim RL, pos BlockPos)`. `CUSTOM` constant, `custom(dim,pos)`, `of(YoukaiEntity)`, `support(config)` `custom\|\|equals`, `getStructure()/getDim()`. |
 | `IndexStorage` | `content/attachment/index/IndexStorage.java` | Global `@SerialClass BaseSavedData` (`gensokyolegacy_reference_index` in overworld `DataStorage`). `LinkedHashMap<StructureKey, StructureRefData> structureData`. `get(sl)` rebinds `level`, `getOrCreate(key)→StructureRef`. |
 | `BedRefData` | `content/attachment/index/BedRefData.java:24` | Per-entity-type bed state machine (see structure_bed_entity.md). |
 | `StructureWand` | `content/item/debug/StructureWand.java` | Creates/edits custom homes via `RoomVerifier.run(anchor.relative(face))`, requires ≥1 chair+container+bedHead, `setLink`, `chunk.setUnsaved`. |
@@ -52,7 +52,7 @@ record StructureKey(RL structure, RL dim, BlockPos pos)
   of(YoukaiEntity e) → e.getModule(HomeModule.class).map(HomeModule::home)
   getStructure() → ResourceKey.create(Registries.STRUCTURE, structure)
   getDim()       → ResourceKey.create(Registries.DIMENSION, dim)
-  support(CharacterConfig cfg) → structure.equals(CUSTOM) || !cfg.structure().equals(structure)
+  support(CharacterConfig cfg) → structure.equals(CUSTOM) || cfg.structure().equals(structure)
   isCustom()     → structure.equals(CUSTOM)
 ```
 
@@ -73,7 +73,7 @@ Used as unified identifier for both preset and custom homes; `equals/hashCode` f
 | Persistence | `StructureAttachment.data` map, chunk at locator | `StructureAttachment.custom` map, chunk at anchor |
 | Sync packets | `S→C StructureBoundUpdateToClient(key,total,house,room)` | `S→C CustomStructureBoundUpdateToClient(key,RoomData)` |
 | Limits | Throttled by `PerformanceConstants` (setup/verify counts, repair bulk `128/64`) | `RoomVerifier MAX_HEIGHT 15, MAX_SIZE 48`; fails `NO_FLOOR/NO_ROOF/TOO_THIN`; requires ≥1 chair, container, bed Head |
-| Current worldgen | `GLStructureGen.initStructures()` returns `List.of()` → empty `structure_config`/`character_config` DataMaps; fallback synthetic `StructureConfig` (CIRNO) injected when `DataMap` missing (`StructureHomeHolder.TODO`) | Fully functional via wand |
+| Current worldgen | `GLStructureGen.initStructures()` defines `marisa_house` / `hakurei_shrine` / `morichika_shop` → populated `structure_config`/`character_config` DataMaps; fallback synthetic `StructureConfig` (CIRNO) still injected when `DataMap` missing for other structures (`StructureHomeHolder.TODO`) | Fully functional via wand |
 
 ## 5. Workflows
 
