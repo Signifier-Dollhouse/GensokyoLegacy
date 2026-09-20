@@ -24,7 +24,11 @@ public record StructFlatBuilding(
 		Map<MobCategory, StructureSpawnOverride> spawns,
 		int flatCheckRange,
 		int heightTolerance,
-		int maxDistanceFromCenter
+		int maxDistanceFromCenter,
+		int attempts,
+		int spread,
+		int spacing,
+		int safetyRadius
 ) implements StructBuilding {
 
 	@Override
@@ -50,7 +54,8 @@ public record StructFlatBuilding(
 				.getOrThrow(ResourceKey.create(Registries.TEMPLATE_POOL, id));
 		ctx.register(ResourceKey.create(Registries.STRUCTURE, id), new FlatCheckStructure(
 				new Structure.StructureSettings(biome, spawns(), GenerationStep.Decoration.SURFACE_STRUCTURES, TerrainAdjustment.BEARD_THIN),
-				pool, 1, false, maxDistanceFromCenter(), flatCheckRange(), heightTolerance()
+				pool, 1, false, maxDistanceFromCenter(), flatCheckRange(), heightTolerance(),
+				attempts(), spread(), spacing(), safetyRadius()
 		));
 	}
 

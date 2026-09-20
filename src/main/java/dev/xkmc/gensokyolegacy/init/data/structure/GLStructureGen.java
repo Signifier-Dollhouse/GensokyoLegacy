@@ -32,7 +32,7 @@ public class GLStructureGen {
 								CharacterConfig.forStructure(6000, 12000, 12, 30),
 								GLBlocks.Beds.MARISA.holder()
 						)),
-						new StructFlatBuilding(List.of(), Map.of(), 20, 7, 60)
+						new StructFlatBuilding(List.of(), Map.of(), 20, 7, 60, 4, 2, 32, 8)
 				),
 				// Hakurei shrine in the modded sakura forest (template 40x15x45, bed at local (16,2,30)-(16,2,31))
 				new StructStructure(
@@ -43,7 +43,7 @@ public class GLStructureGen {
 								CharacterConfig.forStructure(6000, 12000, 16, 30),
 								GLBlocks.Beds.REIMU.holder()
 						)),
-						new StructFlatBuilding(List.of(), Map.of(), 30, 7, 80)
+						new StructFlatBuilding(List.of(), Map.of(), 30, 7, 80, 6, 2, 24, 8)
 				),
 				// Kourindou (Morichika's shop) on vanilla plains (template 33x18x33, bed at local (27,8,16)-(27,8,17))
 				new StructStructure(
@@ -54,7 +54,7 @@ public class GLStructureGen {
 								CharacterConfig.forStructure(6000, 12000, 12, 30),
 								GLBlocks.Beds.MORICHIKA.holder()
 						)),
-						new StructFlatBuilding(List.of(), Map.of(), 24, 7, 64)
+						new StructFlatBuilding(List.of(), Map.of(), 24, 7, 64, 4, 2, 32, 8)
 				)
 		);
 	}

@@ -1,5 +1,6 @@
 {
   "type": "gensokyolegacy:flat_check",
+  "attempts": 4,
   "biomes": "#gensokyolegacy:has_structure/morichika_shop",
   "flat_check_range": 24,
   "height_tolerance": 7,
