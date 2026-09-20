@@ -3,7 +3,7 @@
   "attempts": 12,
   "biomes": "#gensokyolegacy:has_structure/morichika_shop",
   "flat_check_range": 24,
-  "height_tolerance": 7,
+  "height_tolerance": 5,
   "max_distance_from_center": 64,
   "salt": 754247510,
   "size": 1,

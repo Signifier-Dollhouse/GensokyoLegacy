@@ -17,7 +17,10 @@ import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.LegacyRandomSource;
 import net.minecraft.world.level.levelgen.RandomState;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
+import net.minecraft.world.level.levelgen.structure.PoolElementStructurePiece;
 import net.minecraft.world.level.levelgen.structure.Structure;
+import net.minecraft.world.level.levelgen.structure.StructurePiece;
 import net.minecraft.world.level.levelgen.structure.StructureType;
 import net.minecraft.world.level.levelgen.structure.placement.RandomSpreadType;
 import net.minecraft.world.level.levelgen.structure.pools.DimensionPadding;
@@ -30,16 +33,32 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemp
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Port of YoukaiHomecoming 1.20.1 FlatStructure, paired with
  * {@link MultiSpreadPlacement}.
- * Samples heights on a 3x3 grid (center + 4 ends + 4 corners) spaced by
- * flatCheckRange around the chunk middle, and rejects the placement when
- * max - min exceeds heightTolerance, when any sample is at/below sea level,
- * or when any sample biome is outside the structure biome tag.
- * This guarantees vertical variation on the 4 ends and center stays below
- * heightTolerance (configured to 7, i.e. less than 8 blocks).
+ * Multi-piece placement check. A speculative jigsaw layout is built per
+ * candidate chunk, then validated in order:
+ * <ol>
+ * <li>Biome check on 8 total-bound points (4 union-box corners + 4 edge
+ * centers).</li>
+ * <li>Root footprint check: 9 terrain samples (corners + edge centers +
+ * center of the start piece box). Rejects on sea level or when
+ * {@code max - min > 2 * heightTolerance}; the average sets the spawn
+ * height and the root rigid group is shifted to it.</li>
+ * <li>Rigid check: every rigid piece's center terrain height must be within
+ * {@code heightTolerance} of its placed ground level
+ * ({@code boundingBox.minY + groundLevelDelta}).</li>
+ * <li>Joint check: for every connected non-rigid subgraph, the placed
+ * ground levels of all adjacent rigid groups must be within
+ * {@code heightTolerance} of each other.</li>
+ * </ol>
+ * Rigid pieces linked by rigid-only paths form one group sharing the entry
+ * (first) rigid piece as reference; non-rigid joints reset the budget so
+ * total drift may accumulate along flexible chains. Sea level is checked
+ * together with every height sample. {@code flatCheckRange} is retained in
+ * the codec for datapack compatibility and no longer sizes a grid.
  *
  * <p>Multi-attempt: the placement yields {@code attempts} uniform candidates
  * per region (covering the full region, including the old separation margin
@@ -130,68 +149,131 @@ public class FlatCheckStructure extends Structure {
 			return Optional.empty();
 		}
 		for (int j = 0; j < idx; j++) {
-			if (this.checkCandidate(ctx, cands.get(j)).isPresent()) {
+			ChunkPos sib = cands.get(j);
+			GenerationContext sctx = new GenerationContext(ctx.registryAccess(), ctx.chunkGenerator(), ctx.biomeSource(),
+					ctx.randomState(), ctx.structureTemplateManager(), ctx.seed(), sib, ctx.heightAccessor(), this.biomes()::contains);
+			if (this.checkCandidate(sctx, sib).isPresent()) {
 				return Optional.empty();
 			}
 		}
-		return this.checkCandidate(ctx, me).flatMap((y) -> this.place(ctx, me, y));
+		return this.checkCandidate(ctx, me);
 	}
 
-	private Optional<GenerationStub> place(GenerationContext ctx, ChunkPos chunkpos, int y) {
-		BlockPos blockpos = new BlockPos(chunkpos.getMinBlockX(), y, chunkpos.getMinBlockZ());
-		return JigsawPlacement.addPieces(ctx, this.startPool, Optional.empty(), this.maxDepth, blockpos,
+	/**
+	 * Full eligibility of a candidate chunk: speculative jigsaw layout,
+	 * biome + flat + deformation checks, plus margin safety.
+	 */
+	private Optional<GenerationStub> checkCandidate(GenerationContext ctx, ChunkPos chunkpos) {
+		Validated v = this.validate(ctx, chunkpos);
+		if (!v.pass()) {
+			return Optional.empty();
+		}
+		if (!this.checkMarginSafe(ctx, chunkpos, v.spawnY())) {
+			return Optional.empty();
+		}
+		return Optional.of(v.stub());
+	}
+
+	private record Validated(boolean pass, int spawnY, GenerationStub stub, String reason) {
+
+		static Validated fail(String reason) {
+			return new Validated(false, 0, null, reason);
+		}
+
+	}
+
+	/**
+	 * Speculatively builds the jigsaw layout (provisional Y only fixes XZ;
+	 * the root rigid group is shifted to the footprint average afterwards)
+	 * and runs the biome, root-footprint, rigid and joint checks. On success
+	 * returns a stub serving the already-shifted pieces.
+	 */
+	private Validated validate(GenerationContext ctx, ChunkPos chunkpos) {
+		int sea = ctx.chunkGenerator().getSeaLevel();
+		int provY = freeHeight(ctx, chunkpos.getMiddleBlockX(), chunkpos.getMiddleBlockZ());
+		BlockPos start = new BlockPos(chunkpos.getMinBlockX(), provY, chunkpos.getMinBlockZ());
+		Optional<GenerationStub> layout = JigsawPlacement.addPieces(ctx, this.startPool, Optional.empty(), this.maxDepth, start,
 				this.useExpansionHack, Optional.empty(), this.maxDistanceFromCenter,
 				PoolAliasLookup.EMPTY, DimensionPadding.ZERO, LiquidSettings.IGNORE_WATERLOGGING);
-	}
-
-	/**
-	 * Full eligibility of a candidate chunk: flat check plus margin safety.
-	 * Returns the average ground height when eligible.
-	 */
-	private Optional<Integer> checkCandidate(GenerationContext ctx, ChunkPos chunkpos) {
-		Optional<Integer> y = this.checkFlat(ctx, chunkpos);
-		if (y.isEmpty()) {
-			return Optional.empty();
+		if (layout.isEmpty()) {
+			return Validated.fail("no-layout");
 		}
-		if (!this.checkMarginSafe(ctx, chunkpos, y.get())) {
-			return Optional.empty();
-		}
-		return y;
-	}
-
-	/**
-	 * Flat check at a candidate chunk. Returns the average ground height when
-	 * the 3x3 sample grid passes height, sea level and biome checks.
-	 */
-	private Optional<Integer> checkFlat(GenerationContext ctx, ChunkPos chunkpos) {
-		FlatVerdict verdict = this.checkFlatEx(ctx, chunkpos);
-		return verdict.pass() ? Optional.of(verdict.avg()) : Optional.empty();
-	}
-
-	private record FlatVerdict(boolean pass, int avg, String reason) {
-	}
-
-	private FlatVerdict checkFlatEx(GenerationContext ctx, ChunkPos chunkpos) {
-		int min = Integer.MAX_VALUE;
-		int max = Integer.MIN_VALUE;
-		for (int ix = -1; ix <= 1; ix++) {
-			for (int iz = -1; iz <= 1; iz++) {
-				int x = chunkpos.getMiddleBlockX() + ix * flatCheckRange;
-				int z = chunkpos.getMiddleBlockZ() + iz * flatCheckRange;
-				int y = ctx.chunkGenerator().getFirstOccupiedHeight(x, z, Heightmap.Types.WORLD_SURFACE_WG, ctx.heightAccessor(), ctx.randomState());
-				if (y < min) min = y;
-				if (y > max) max = y;
-				if (y <= ctx.chunkGenerator().getSeaLevel()) {
-					return new FlatVerdict(false, 0, "sea");
-				}
-				var biome = ctx.chunkGenerator().getBiomeSource().getNoiseBiome(QuartPos.fromBlock(x), QuartPos.fromBlock(y), QuartPos.fromBlock(z), ctx.randomState().sampler());
-				if (!biomes().contains(biome)) {
-					return new FlatVerdict(false, 0, "biome");
-				}
+		List<PoolElementStructurePiece> pieces = new ArrayList<>();
+		for (StructurePiece p : layout.get().getPiecesBuilder().build().pieces()) {
+			if (p instanceof PoolElementStructurePiece pool) {
+				pieces.add(pool);
 			}
 		}
-		if (min + flatTolerance < max) return new FlatVerdict(false, 0, "height[%d-%d]".formatted(min, max));
-		return new FlatVerdict(true, (max + min) / 2, "pass");
+		if (pieces.isEmpty()) {
+			return Validated.fail("no-layout");
+		}
+		PieceTree tree = PieceTree.build(pieces);
+		// Total-bound biome check: 4 union-box corners + 4 edge centers.
+		BoundingBox union = tree.unionBox();
+		int ux0 = union.minX(), uz0 = union.minZ(), ux1 = union.maxX(), uz1 = union.maxZ();
+		int ucx = (ux0 + ux1) / 2, ucz = (uz0 + uz1) / 2;
+		int[][] biomePts = {{ux0, uz0}, {ux0, uz1}, {ux1, uz0}, {ux1, uz1},
+				{ucx, uz0}, {ucx, uz1}, {ux0, ucz}, {ux1, ucz}};
+		for (int[] q : biomePts) {
+			int h = freeHeight(ctx, q[0], q[1]);
+			var biome = ctx.chunkGenerator().getBiomeSource().getNoiseBiome(
+					QuartPos.fromBlock(q[0]), QuartPos.fromBlock(h), QuartPos.fromBlock(q[1]), ctx.randomState().sampler());
+			if (!biomes().contains(biome)) {
+				return Validated.fail("biome");
+			}
+		}
+		// Root footprint check: corners + edge centers + center of start box.
+		BoundingBox rootBox = pieces.get(0).getBoundingBox();
+		int rx0 = rootBox.minX(), rz0 = rootBox.minZ(), rx1 = rootBox.maxX(), rz1 = rootBox.maxZ();
+		int rcx = (rx0 + rx1) / 2, rcz = (rz0 + rz1) / 2;
+		int[][] rootPts = {{rx0, rz0}, {rx0, rz1}, {rx1, rz0}, {rx1, rz1},
+				{rcx, rz0}, {rcx, rz1}, {rx0, rcz}, {rx1, rcz}, {rcx, rcz}};
+		int min = Integer.MAX_VALUE, max = Integer.MIN_VALUE;
+		for (int[] q : rootPts) {
+			int h = freeHeight(ctx, q[0], q[1]);
+			if (h <= sea) {
+				return Validated.fail("sea");
+			}
+			if (h < min) min = h;
+			if (h > max) max = h;
+		}
+		if (max - min > 2 * this.flatTolerance) {
+			return Validated.fail("height[%d-%d]".formatted(min, max));
+		}
+		int spawn = (max + min) / 2;
+		// Shift the start rigid group (assumes a rigid start piece) so its
+		// ground sits on the footprint average.
+		int delta = tree.shiftStartGroupToGround(spawn);
+		// Rigid check: center terrain within tolerance of placed ground.
+		for (int i = 0; i < tree.size(); i++) {
+			if (!tree.isRigid(i)) continue;
+			BoundingBox b = tree.piece(i).getBoundingBox();
+			int h = freeHeight(ctx, (b.minX() + b.maxX()) / 2, (b.minZ() + b.maxZ()) / 2);
+			if (h <= sea) {
+				return Validated.fail("sea");
+			}
+			int g = tree.groundOf(i);
+			if (Math.abs(h - g) > this.flatTolerance) {
+				return Validated.fail("rigid-%d[%d-vs-%d]".formatted(i, h, g));
+			}
+		}
+		// Joint check: per connected non-rigid subgraph, adjacent rigid
+		// group grounds must lie within tolerance of each other.
+		for (Set<Integer> grounds : tree.flexJointGrounds()) {
+			if (grounds.size() < 2) continue;
+			int lo = grounds.stream().mapToInt(Integer::intValue).min().orElse(0);
+			int hi = grounds.stream().mapToInt(Integer::intValue).max().orElse(0);
+			if (hi - lo > this.flatTolerance) {
+				return Validated.fail("joint[%d-%d]".formatted(lo, hi));
+			}
+		}
+		BlockPos pos = layout.get().position().offset(0, delta, 0);
+		GenerationStub stub = new GenerationStub(pos, b -> pieces.forEach(b::addPiece));
+		return new Validated(true, spawn, stub, "pass");
+	}
+
+	private static int freeHeight(GenerationContext ctx, int x, int z) {
+		return ctx.chunkGenerator().getFirstFreeHeight(x, z, Heightmap.Types.WORLD_SURFACE_WG, ctx.heightAccessor(), ctx.randomState());
 	}
 
 	/**
@@ -255,7 +337,7 @@ public class FlatCheckStructure extends Structure {
 
 	/**
 	 * Dev diagnostic: lists every attempted position in one region and the
-	 * verdict per attempt (suppressed / flat-fail / margin-fail /
+	 * verdict per attempt (suppressed / place-fail / margin-fail /
 	 * pass(checks)), without placing anything. Mirrors
 	 * {@link #findGenerationPoint} so the trace shows exactly what worldgen
 	 * would attempt.
@@ -276,20 +358,20 @@ public class FlatCheckStructure extends Structure {
 			ChunkPos me = cands.get(i);
 			String verdict = null;
 			for (int j = 0; j < i; j++) {
-				ChunkPos sib = cands.get(j);
-				GenerationContext sctx = this.ctxFor(registries, generator, randomState, templates, seed, sib, heightAccessor);
-				if (this.checkCandidate(sctx, sib).isPresent()) {
-					verdict = "suppressed-by-#" + j;
-					break;
-				}
+			ChunkPos sib = cands.get(j);
+			GenerationContext sctx = this.ctxFor(registries, generator, randomState, templates, seed, sib, heightAccessor);
+			if (this.checkCandidate(sctx, sib).isPresent()) {
+				verdict = "suppressed-by-#" + j;
+				break;
 			}
-			if (verdict == null) {
-				GenerationContext ctx = this.ctxFor(registries, generator, randomState, templates, seed, me, heightAccessor);
-				var flat = this.checkFlatEx(ctx, me);
-				if (!flat.pass()) verdict = "flat-" + flat.reason();
-				else if (!this.checkMarginSafe(ctx, me, flat.avg())) verdict = "margin-fail";
-				else verdict = "pass(checks)";
-			}
+		}
+		if (verdict == null) {
+			GenerationContext ctx = this.ctxFor(registries, generator, randomState, templates, seed, me, heightAccessor);
+			var v = this.validate(ctx, me);
+			if (!v.pass()) verdict = "place-" + v.reason();
+			else if (!this.checkMarginSafe(ctx, me, v.spawnY())) verdict = "margin-fail";
+			else verdict = "pass(checks)";
+		}
 			lines.add("  #%d (%d, %d): %s".formatted(i, me.x, me.z, verdict));
 		}
 		return lines;

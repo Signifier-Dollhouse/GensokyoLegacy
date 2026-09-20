@@ -10,4 +10,5 @@
 
 - structure split
 - character indoor/outdoor check improvement
-- structure multi-place check, margin removal, distance check
+
+Structure spacing and generation debug session: opencode -s ses_f45c107fbffesvLS5fwZ3lA20j

@@ -3,7 +3,7 @@
   "attempts": 12,
   "biomes": "#gensokyolegacy:has_structure/hakurei_shrine",
   "flat_check_range": 30,
-  "height_tolerance": 7,
+  "height_tolerance": 5,
   "max_distance_from_center": 80,
   "salt": 893231697,
   "size": 1,
