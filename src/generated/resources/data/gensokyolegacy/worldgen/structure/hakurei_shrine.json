@@ -1,6 +1,6 @@
 {
   "type": "gensokyolegacy:flat_check",
-  "attempts": 6,
+  "attempts": 12,
   "biomes": "#gensokyolegacy:has_structure/hakurei_shrine",
   "flat_check_range": 30,
   "height_tolerance": 7,

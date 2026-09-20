@@ -8,9 +8,15 @@ import dev.xkmc.gensokyolegacy.init.registrate.GLWorldGen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.QuartPos;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.LevelHeightAccessor;
+import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.level.levelgen.LegacyRandomSource;
+import net.minecraft.world.level.levelgen.RandomState;
+import net.minecraft.world.level.levelgen.WorldgenRandom;
 import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.StructureType;
 import net.minecraft.world.level.levelgen.structure.placement.RandomSpreadType;
@@ -19,7 +25,9 @@ import net.minecraft.world.level.levelgen.structure.pools.JigsawPlacement;
 import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
 import net.minecraft.world.level.levelgen.structure.pools.alias.PoolAliasLookup;
 import net.minecraft.world.level.levelgen.structure.templatesystem.LiquidSettings;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -156,6 +164,14 @@ public class FlatCheckStructure extends Structure {
 	 * the 3x3 sample grid passes height, sea level and biome checks.
 	 */
 	private Optional<Integer> checkFlat(GenerationContext ctx, ChunkPos chunkpos) {
+		FlatVerdict verdict = this.checkFlatEx(ctx, chunkpos);
+		return verdict.pass() ? Optional.of(verdict.avg()) : Optional.empty();
+	}
+
+	private record FlatVerdict(boolean pass, int avg, String reason) {
+	}
+
+	private FlatVerdict checkFlatEx(GenerationContext ctx, ChunkPos chunkpos) {
 		int min = Integer.MAX_VALUE;
 		int max = Integer.MIN_VALUE;
 		for (int ix = -1; ix <= 1; ix++) {
@@ -166,16 +182,16 @@ public class FlatCheckStructure extends Structure {
 				if (y < min) min = y;
 				if (y > max) max = y;
 				if (y <= ctx.chunkGenerator().getSeaLevel()) {
-					return Optional.empty();
+					return new FlatVerdict(false, 0, "sea");
 				}
 				var biome = ctx.chunkGenerator().getBiomeSource().getNoiseBiome(QuartPos.fromBlock(x), QuartPos.fromBlock(y), QuartPos.fromBlock(z), ctx.randomState().sampler());
 				if (!biomes().contains(biome)) {
-					return Optional.empty();
+					return new FlatVerdict(false, 0, "biome");
 				}
 			}
 		}
-		if (min + flatTolerance < max) return Optional.empty();
-		return Optional.of((max + min) / 2);
+		if (min + flatTolerance < max) return new FlatVerdict(false, 0, "height[%d-%d]".formatted(min, max));
+		return new FlatVerdict(true, (max + min) / 2, "pass");
 	}
 
 	/**
@@ -223,6 +239,60 @@ public class FlatCheckStructure extends Structure {
 	@Override
 	public StructureType<?> type() {
 		return GLWorldGen.FLAT.get();
+	}
+
+	int spacing() {
+		return this.spacing;
+	}
+
+	private GenerationContext ctxFor(RegistryAccess registries, ChunkGenerator generator, RandomState randomState,
+									 StructureTemplateManager templates, long seed, ChunkPos pos, LevelHeightAccessor heightAccessor) {
+		WorldgenRandom random = new WorldgenRandom(new LegacyRandomSource(0L));
+		random.setLargeFeatureSeed(seed, pos.x, pos.z);
+		return new GenerationContext(registries, generator, generator.getBiomeSource(), randomState,
+				templates, random, seed, pos, heightAccessor, this.biomes()::contains);
+	}
+
+	/**
+	 * Dev diagnostic: lists every attempted position in one region and the
+	 * verdict per attempt (suppressed / flat-fail / margin-fail /
+	 * pass(checks)), without placing anything. Mirrors
+	 * {@link #findGenerationPoint} so the trace shows exactly what worldgen
+	 * would attempt.
+	 */
+	List<String> diagnoseRegion(long seed, int regionX, int regionZ, RegistryAccess registries,
+								ChunkGenerator generator, RandomState randomState, StructureTemplateManager templates,
+								LevelHeightAccessor heightAccessor) {
+		List<String> lines = new ArrayList<>();
+		List<ChunkPos> cands = MultiSpreadPlacement.candidates(seed, regionX * this.spacing, regionZ * this.spacing,
+				this.spacing, this.spreadType, this.salt, this.attempts);
+		StringBuilder head = new StringBuilder("region [%d, %d] attempts:".formatted(regionX, regionZ));
+		for (int n = 0; n < cands.size(); n++) {
+			ChunkPos c = cands.get(n);
+			head.append(" #%d (%d, %d)".formatted(n, c.x, c.z));
+		}
+		lines.add(head.toString());
+		for (int i = 0; i < cands.size(); i++) {
+			ChunkPos me = cands.get(i);
+			String verdict = null;
+			for (int j = 0; j < i; j++) {
+				ChunkPos sib = cands.get(j);
+				GenerationContext sctx = this.ctxFor(registries, generator, randomState, templates, seed, sib, heightAccessor);
+				if (this.checkCandidate(sctx, sib).isPresent()) {
+					verdict = "suppressed-by-#" + j;
+					break;
+				}
+			}
+			if (verdict == null) {
+				GenerationContext ctx = this.ctxFor(registries, generator, randomState, templates, seed, me, heightAccessor);
+				var flat = this.checkFlatEx(ctx, me);
+				if (!flat.pass()) verdict = "flat-" + flat.reason();
+				else if (!this.checkMarginSafe(ctx, me, flat.avg())) verdict = "margin-fail";
+				else verdict = "pass(checks)";
+			}
+			lines.add("  #%d (%d, %d): %s".formatted(i, me.x, me.z, verdict));
+		}
+		return lines;
 	}
 
 }

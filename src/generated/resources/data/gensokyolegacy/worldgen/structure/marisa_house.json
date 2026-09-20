@@ -1,6 +1,6 @@
 {
   "type": "gensokyolegacy:flat_check",
-  "attempts": 4,
+  "attempts": 12,
   "biomes": "#gensokyolegacy:has_structure/marisa_house",
   "flat_check_range": 20,
   "height_tolerance": 7,
