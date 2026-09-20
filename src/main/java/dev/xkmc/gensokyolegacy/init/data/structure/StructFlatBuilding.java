@@ -25,7 +25,6 @@ import java.util.Map;
 public record StructFlatBuilding(
 		List<StructureProcessor> processors,
 		Map<MobCategory, StructureSpawnOverride> spawns,
-		int flatCheckRange,
 		int heightTolerance,
 		int maxDistanceFromCenter,
 		int attempts,
@@ -56,7 +55,7 @@ public record StructFlatBuilding(
 				.getOrThrow(ResourceKey.create(Registries.TEMPLATE_POOL, id));
 		ctx.register(ResourceKey.create(Registries.STRUCTURE, id), new FlatCheckStructure(
 				new Structure.StructureSettings(biome, spawns(), GenerationStep.Decoration.SURFACE_STRUCTURES, TerrainAdjustment.BEARD_THIN),
-				pool, 1, false, maxDistanceFromCenter(), flatCheckRange(), heightTolerance(),
+				pool, 1, false, maxDistanceFromCenter(), heightTolerance(),
 				attempts(), spacing(), RandomSpreadType.LINEAR, StructStructure.saltFor(id), safetyRadius()
 		));
 	}

@@ -57,8 +57,7 @@ import java.util.Set;
  * Rigid pieces linked by rigid-only paths form one group sharing the entry
  * (first) rigid piece as reference; non-rigid joints reset the budget so
  * total drift may accumulate along flexible chains. Sea level is checked
- * together with every height sample. {@code flatCheckRange} is retained in
- * the codec for datapack compatibility and no longer sizes a grid.
+ * together with every height sample.
  *
  * <p>Multi-attempt: the placement yields {@code attempts} uniform candidates
  * per region (covering the full region, including the old separation margin
@@ -83,7 +82,6 @@ public class FlatCheckStructure extends Structure {
 			Codec.intRange(0, 7).fieldOf("size").forGetter((e) -> e.maxDepth),
 			Codec.BOOL.fieldOf("use_expansion_hack").forGetter((e) -> e.useExpansionHack),
 			Codec.intRange(1, 128).fieldOf("max_distance_from_center").forGetter((e) -> e.maxDistanceFromCenter),
-			Codec.intRange(1, 128).fieldOf("flat_check_range").forGetter((e) -> e.flatCheckRange),
 			Codec.intRange(1, 128).fieldOf("height_tolerance").forGetter((e) -> e.flatTolerance),
 			Codec.intRange(1, 32).fieldOf("attempts").forGetter((e) -> e.attempts),
 			Codec.intRange(1, 4096).fieldOf("spacing").forGetter((e) -> e.spacing),
@@ -96,7 +94,6 @@ public class FlatCheckStructure extends Structure {
 	private final int maxDepth;
 	private final boolean useExpansionHack;
 	private final int maxDistanceFromCenter;
-	private final int flatCheckRange;
 	private final int flatTolerance;
 	private final int attempts;
 	private final int spacing;
@@ -124,14 +121,13 @@ public class FlatCheckStructure extends Structure {
 		return s.maxDistanceFromCenter + i > 128 ? DataResult.error(() -> "Structure size including terrain adaptation must not exceed 128") : DataResult.success(s);
 	}
 
-	public FlatCheckStructure(StructureSettings settings, Holder<StructureTemplatePool> startPool, int maxDepth, boolean useExpansionHack, int maxDistanceFromCenter, int flatCheckRange, int flatTolerance,
+	public FlatCheckStructure(StructureSettings settings, Holder<StructureTemplatePool> startPool, int maxDepth, boolean useExpansionHack, int maxDistanceFromCenter, int flatTolerance,
 							  int attempts, int spacing, RandomSpreadType spreadType, int salt, int safetyRadius) {
 		super(settings);
 		this.startPool = startPool;
 		this.maxDepth = maxDepth;
 		this.useExpansionHack = useExpansionHack;
 		this.maxDistanceFromCenter = maxDistanceFromCenter;
-		this.flatCheckRange = flatCheckRange;
 		this.flatTolerance = flatTolerance;
 		this.attempts = attempts;
 		this.spacing = spacing;
@@ -160,24 +156,29 @@ public class FlatCheckStructure extends Structure {
 	}
 
 	/**
-	 * Full eligibility of a candidate chunk: speculative jigsaw layout,
-	 * biome + flat + deformation checks, plus margin safety.
+	 * Full eligibility of a candidate chunk, cheapest gates first:
+	 * middle-column prefilter, margin safety at the provisional height,
+	 * then the speculative jigsaw layout with tree checks.
 	 */
 	private Optional<GenerationStub> checkCandidate(GenerationContext ctx, ChunkPos chunkpos) {
-		Validated v = this.validate(ctx, chunkpos);
-		if (!v.pass()) {
+		Prefilter pre = prefilter(ctx, chunkpos);
+		if (!pre.pass()) {
 			return Optional.empty();
 		}
-		if (!this.checkMarginSafe(ctx, chunkpos, v.spawnY())) {
+		if (!this.checkMarginSafe(ctx, chunkpos, pre.y())) {
+			return Optional.empty();
+		}
+		Validated v = this.validateLayout(ctx, chunkpos, pre.y());
+		if (!v.pass()) {
 			return Optional.empty();
 		}
 		return Optional.of(v.stub());
 	}
 
-	private record Validated(boolean pass, int spawnY, GenerationStub stub, String reason, String detail) {
+	private record Validated(boolean pass, int spawnY, GenerationStub stub, String reason) {
 
 		static Validated fail(String reason) {
-			return new Validated(false, 0, null, reason, "");
+			return new Validated(false, 0, null, reason);
 		}
 
 	}
@@ -188,19 +189,8 @@ public class FlatCheckStructure extends Structure {
 	 * and runs the biome, root-footprint, rigid and joint checks. On success
 	 * returns a stub serving the already-shifted pieces.
 	 */
-	private Validated validate(GenerationContext ctx, ChunkPos chunkpos) {
+	private Validated validateLayout(GenerationContext ctx, ChunkPos chunkpos, int provY) {
 		int sea = ctx.chunkGenerator().getSeaLevel();
-		// Cheap prefilter: reject sea/wrong-biome middle columns before building the layout.
-		int provY = freeHeight(ctx, chunkpos.getMiddleBlockX(), chunkpos.getMiddleBlockZ());
-		if (provY <= sea) {
-			return Validated.fail("sea");
-		}
-		var centerBiome = ctx.chunkGenerator().getBiomeSource().getNoiseBiome(
-				QuartPos.fromBlock(chunkpos.getMiddleBlockX()), QuartPos.fromBlock(provY),
-				QuartPos.fromBlock(chunkpos.getMiddleBlockZ()), ctx.randomState().sampler());
-		if (!biomes().contains(centerBiome)) {
-			return Validated.fail("biome");
-		}
 		BlockPos start = new BlockPos(chunkpos.getMinBlockX(), provY, chunkpos.getMinBlockZ());
 		Optional<GenerationStub> layout = JigsawPlacement.addPieces(ctx, this.startPool, Optional.empty(), this.maxDepth, start,
 				this.useExpansionHack, Optional.empty(), this.maxDistanceFromCenter,
@@ -260,7 +250,7 @@ public class FlatCheckStructure extends Structure {
 			BoundingBox b = tree.piece(i).getBoundingBox();
 			int h = freeHeight(ctx, (b.minX() + b.maxX()) / 2, (b.minZ() + b.maxZ()) / 2);
 			if (h <= sea) {
-				return Validated.fail("sea");
+				return Validated.fail("rigid-sea-%d".formatted(i));
 			}
 			int g = tree.groundOf(i);
 			if (Math.abs(h - g) > this.flatTolerance) {
@@ -279,11 +269,32 @@ public class FlatCheckStructure extends Structure {
 		}
 		BlockPos pos = layout.get().position().offset(0, delta, 0);
 		GenerationStub stub = new GenerationStub(pos, b -> pieces.forEach(b::addPiece));
-		return new Validated(true, spawn, stub, "pass", tree.describe());
+		return new Validated(true, spawn, stub, "pass");
 	}
 
 	private static int freeHeight(GenerationContext ctx, int x, int z) {
 		return ctx.chunkGenerator().getFirstFreeHeight(x, z, Heightmap.Types.WORLD_SURFACE_WG, ctx.heightAccessor(), ctx.randomState());
+	}
+
+	/**
+	 * Cheap middle-column sea/biome gate. Rejects unsuitable candidates
+	 * before the speculative jigsaw layout is built.
+	 */
+	private record Prefilter(boolean pass, int y, String reason) {
+	}
+
+	private Prefilter prefilter(GenerationContext ctx, ChunkPos chunkpos) {
+		int y = freeHeight(ctx, chunkpos.getMiddleBlockX(), chunkpos.getMiddleBlockZ());
+		if (y <= ctx.chunkGenerator().getSeaLevel()) {
+			return new Prefilter(false, y, "sea");
+		}
+		var biome = ctx.chunkGenerator().getBiomeSource().getNoiseBiome(
+				QuartPos.fromBlock(chunkpos.getMiddleBlockX()), QuartPos.fromBlock(y),
+				QuartPos.fromBlock(chunkpos.getMiddleBlockZ()), ctx.randomState().sampler());
+		if (!biomes().contains(biome)) {
+			return new Prefilter(false, y, "biome");
+		}
+		return new Prefilter(true, y, "pass");
 	}
 
 	/**
@@ -346,13 +357,34 @@ public class FlatCheckStructure extends Structure {
 	}
 
 	/**
+	 * Per-region funnel counts, cumulative: each bucket counts attempts
+	 * passing that gate and every earlier one.
+	 */
+	public record RegionStats(int tried, int prefilter, int margin, int biome, int root, int detailed, int pass) {
+
+		public RegionStats add(RegionStats o) {
+			return new RegionStats(tried + o.tried, prefilter + o.prefilter, margin + o.margin,
+					biome + o.biome, root + o.root, detailed + o.detailed, pass + o.pass);
+		}
+
+		public static RegionStats zero() {
+			return new RegionStats(0, 0, 0, 0, 0, 0, 0);
+		}
+
+	}
+
+	public record RegionReport(List<String> lines, RegionStats stats) {
+	}
+
+	/**
 	 * Dev diagnostic: lists every attempted position in one region and the
 	 * verdict per attempt (suppressed / place-fail / margin-fail /
-	 * pass(checks) with the PieceTree topology line), without placing
+	 * pass(checks)), plus the cumulative funnel line, without placing
 	 * anything. Mirrors {@link #findGenerationPoint} so the trace shows
-	 * exactly what worldgen would attempt.
+	 * exactly what worldgen would attempt. Evaluation stops at the first
+	 * full pass, so later attempts are untried (suppressed).
 	 */
-	public List<String> diagnoseRegion(long seed, int regionX, int regionZ, RegistryAccess registries,
+	public RegionReport diagnoseRegion(long seed, int regionX, int regionZ, RegistryAccess registries,
 								ChunkGenerator generator, RandomState randomState, StructureTemplateManager templates,
 								LevelHeightAccessor heightAccessor) {
 		List<String> lines = new ArrayList<>();
@@ -364,30 +396,69 @@ public class FlatCheckStructure extends Structure {
 			head.append(" #%d (%d, %d)".formatted(n, c.x, c.z));
 		}
 		lines.add(head.toString());
+		int prePassed = 0;
+		for (ChunkPos c : cands) {
+			GenerationContext ctx = this.ctxFor(registries, generator, randomState, templates, seed, c, heightAccessor);
+			if (this.prefilter(ctx, c).pass()) prePassed++;
+		}
+		lines.add("  prefilter: %d/%d passed".formatted(prePassed, cands.size()));
+		int tried = 0, pre = 0, mar = 0, bio = 0, roo = 0, det = 0, pas = 0;
+		int firstPass = -1;
 		for (int i = 0; i < cands.size(); i++) {
 			ChunkPos me = cands.get(i);
-			String verdict = null;
-			for (int j = 0; j < i; j++) {
-			ChunkPos sib = cands.get(j);
-			GenerationContext sctx = this.ctxFor(registries, generator, randomState, templates, seed, sib, heightAccessor);
-			if (this.checkCandidate(sctx, sib).isPresent()) {
-				verdict = "suppressed-by-#" + j;
-				break;
+			String verdict;
+			int stage;
+			if (firstPass >= 0) {
+				verdict = "suppressed-by-#" + firstPass;
+				stage = -1;
+			} else {
+				tried++;
+				GenerationContext ctx = this.ctxFor(registries, generator, randomState, templates, seed, me, heightAccessor);
+				var prefilter = this.prefilter(ctx, me);
+				if (!prefilter.pass()) {
+					verdict = "place-" + prefilter.reason();
+					stage = 0;
+				} else {
+					pre++;
+					if (!this.checkMarginSafe(ctx, me, prefilter.y())) {
+						verdict = "margin-fail";
+						stage = 1;
+					} else {
+						mar++;
+						var v = this.validateLayout(ctx, me, prefilter.y());
+						if (!v.pass()) {
+							verdict = "place-" + v.reason();
+							stage = stageOf(v.reason());
+						} else {
+							verdict = "pass(checks)";
+							stage = 5;
+							pas++;
+							firstPass = i;
+						}
+					}
+				}
 			}
-		}
-		if (verdict == null) {
-			GenerationContext ctx = this.ctxFor(registries, generator, randomState, templates, seed, me, heightAccessor);
-			var v = this.validate(ctx, me);
-			if (!v.pass()) verdict = "place-" + v.reason();
-			else if (!this.checkMarginSafe(ctx, me, v.spawnY())) verdict = "margin-fail";
-			else verdict = "pass(checks)";
+			if (stage >= 3) bio++;
+			if (stage >= 4) roo++;
+			if (stage >= 5) det++;
 			lines.add("  #%d (%d, %d): %s".formatted(i, me.x, me.z, verdict));
-			if (v.pass()) lines.add("    tree %s".formatted(v.detail()));
-			continue;
 		}
-		lines.add("  #%d (%d, %d): %s".formatted(i, me.x, me.z, verdict));
-		}
-		return lines;
+		lines.add("  funnel tried=%d prefilter=%d margin=%d biome=%d root=%d detailed=%d pass=%d".formatted(
+				tried, pre, mar, bio, roo, det, pas));
+		return new RegionReport(lines, new RegionStats(tried, pre, mar, bio, roo, det, pas));
+	}
+
+	/**
+	 * Furthest gate passed for a layout failure reason: 2 = margin (layout
+	 * or detailed biome failed), 3 = detailed biome (root sea/variation
+	 * failed), 4 = root (rigid sea/variation failed), 5 = detailed rigid
+	 * checks (joint failed).
+	 */
+	private static int stageOf(String reason) {
+		if (reason.startsWith("joint[")) return 5;
+		if (reason.startsWith("rigid-")) return 4;
+		if (reason.equals("sea") || reason.startsWith("height[")) return 3;
+		return 2;
 	}
 
 }

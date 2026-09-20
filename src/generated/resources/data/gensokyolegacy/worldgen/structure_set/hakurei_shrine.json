@@ -1,9 +1,9 @@
 {
   "placement": {
     "type": "gensokyolegacy:multi_spread",
-    "attempts": 12,
+    "attempts": 24,
     "salt": 893231697,
-    "spacing": 24
+    "spacing": 32
   },
   "structures": [
     {
