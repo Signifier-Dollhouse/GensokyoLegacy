@@ -4,6 +4,8 @@ import com.mojang.datafixers.util.Pair;
 import dev.xkmc.gensokyolegacy.content.worldgen.structure.MultiSpreadPlacement;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
+import net.minecraft.core.QuartPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.StructureManager;
@@ -48,6 +50,7 @@ public class ChunkGeneratorMultiSpreadMixin {
 					int l = chunkX + spacing * j;
 					int i1 = chunkZ + spacing * k;
 					for (ChunkPos chunkpos : multi.getPotentialChunks(seed, l, i1)) {
+						if (!gensokyolegacy$biomePlausible(level, structures, chunkpos)) continue;
 						Pair<BlockPos, Holder<Structure>> pair = getStructureGeneratingAt(
 								structures, level, manager, skipKnown, multi, chunkpos);
 						if (pair != null) {
@@ -59,6 +62,28 @@ public class ChunkGeneratorMultiSpreadMixin {
 			}
 		}
 		cir.setReturnValue(null);
+	}
+
+	/**
+	 * True if any located structure's biome tag contains any sampled biome in
+	 * the candidate's middle column. Covers the full height range so a chunk
+	 * that could pass the middle-column prefilter is never skipped.
+	 */
+	private static boolean gensokyolegacy$biomePlausible(
+			LevelReader level, Set<Holder<Structure>> structures, ChunkPos chunkpos
+	) {
+		if (!(level instanceof ServerLevel server)) return true;
+		var biomes = server.getChunkSource().getGenerator().getBiomeSource();
+		var sampler = server.getChunkSource().randomState().sampler();
+		int x = QuartPos.fromBlock(chunkpos.getMiddleBlockX());
+		int z = QuartPos.fromBlock(chunkpos.getMiddleBlockZ());
+		for (int y = level.getMinBuildHeight(); y < level.getMaxBuildHeight(); y += 8) {
+			var biome = biomes.getNoiseBiome(x, QuartPos.fromBlock(y), z, sampler);
+			for (Holder<Structure> holder : structures) {
+				if (holder.value().biomes().contains(biome)) return true;
+			}
+		}
+		return false;
 	}
 
 }
