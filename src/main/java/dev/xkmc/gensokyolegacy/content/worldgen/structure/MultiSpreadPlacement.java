@@ -36,7 +36,7 @@ public class MultiSpreadPlacement extends RandomSpreadStructurePlacement {
 			i.group(
 					Codec.intRange(1, 4096).fieldOf("spacing").forGetter(MultiSpreadPlacement::spacing),
 					RandomSpreadType.CODEC.optionalFieldOf("spread_type", RandomSpreadType.LINEAR).forGetter(MultiSpreadPlacement::spreadType),
-					Codec.intRange(1, 32).fieldOf("attempts").forGetter(MultiSpreadPlacement::attempts)
+					Codec.intRange(1, 128).fieldOf("attempts").forGetter(MultiSpreadPlacement::attempts)
 			)).apply(i, MultiSpreadPlacement::new));
 
 	private final int spacing;

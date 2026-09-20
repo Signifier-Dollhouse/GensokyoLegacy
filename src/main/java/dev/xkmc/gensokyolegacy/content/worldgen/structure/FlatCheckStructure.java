@@ -83,7 +83,7 @@ public class FlatCheckStructure extends Structure {
 			Codec.BOOL.fieldOf("use_expansion_hack").forGetter((e) -> e.useExpansionHack),
 			Codec.intRange(1, 128).fieldOf("max_distance_from_center").forGetter((e) -> e.maxDistanceFromCenter),
 			Codec.intRange(1, 128).fieldOf("height_tolerance").forGetter((e) -> e.flatTolerance),
-			Codec.intRange(1, 32).fieldOf("attempts").forGetter((e) -> e.attempts),
+			Codec.intRange(1, 128).fieldOf("attempts").forGetter((e) -> e.attempts),
 			Codec.intRange(1, 4096).fieldOf("spacing").forGetter((e) -> e.spacing),
 			RandomSpreadType.CODEC.optionalFieldOf("spread_type", RandomSpreadType.LINEAR).forGetter((e) -> e.spreadType),
 			ExtraCodecs.NON_NEGATIVE_INT.fieldOf("salt").forGetter((e) -> e.salt),
