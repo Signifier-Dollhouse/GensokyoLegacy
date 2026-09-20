@@ -108,6 +108,33 @@ public class PieceTree {
 		return rigidRoot.get(find(rigidId, i));
 	}
 
+	public int rigidGroupCount() {
+		return rigidRoot.size();
+	}
+
+	public int flexGroupCount() {
+		Set<Integer> seen = new HashSet<>();
+		for (int i = 0; i < pieces.size(); i++) {
+			if (!isRigid(i)) seen.add(find(flexId, i));
+		}
+		return seen.size();
+	}
+
+	/**
+	 * One-line topology + placed grounds for diagnostics. Call after
+	 * shifting so grounds are final.
+	 */
+	public String describe() {
+		StringBuilder sb = new StringBuilder("pieces=%d rigidGroups=%d flexGroups=%d".formatted(
+				pieces.size(), rigidGroupCount(), flexGroupCount()));
+		for (int i = 0; i < pieces.size(); i++) {
+			BoundingBox b = pieces.get(i).getBoundingBox();
+			sb.append(" #%d:%s p=%d g=%d c=(%d,%d)".formatted(i, isRigid(i) ? "R" : "F",
+					parent[i], groundOf(i), (b.minX() + b.maxX()) / 2, (b.minZ() + b.maxZ()) / 2));
+		}
+		return sb.toString();
+	}
+
 	/**
 	 * Shifts the start piece's rigid group so its ground sits on spawn.
 	 * No-op when the start piece is non-rigid. Returns the applied delta.

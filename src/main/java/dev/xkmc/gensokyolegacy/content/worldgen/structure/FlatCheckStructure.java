@@ -174,10 +174,10 @@ public class FlatCheckStructure extends Structure {
 		return Optional.of(v.stub());
 	}
 
-	private record Validated(boolean pass, int spawnY, GenerationStub stub, String reason) {
+	private record Validated(boolean pass, int spawnY, GenerationStub stub, String reason, String detail) {
 
 		static Validated fail(String reason) {
-			return new Validated(false, 0, null, reason);
+			return new Validated(false, 0, null, reason, "");
 		}
 
 	}
@@ -190,7 +190,17 @@ public class FlatCheckStructure extends Structure {
 	 */
 	private Validated validate(GenerationContext ctx, ChunkPos chunkpos) {
 		int sea = ctx.chunkGenerator().getSeaLevel();
+		// Cheap prefilter: reject sea/wrong-biome middle columns before building the layout.
 		int provY = freeHeight(ctx, chunkpos.getMiddleBlockX(), chunkpos.getMiddleBlockZ());
+		if (provY <= sea) {
+			return Validated.fail("sea");
+		}
+		var centerBiome = ctx.chunkGenerator().getBiomeSource().getNoiseBiome(
+				QuartPos.fromBlock(chunkpos.getMiddleBlockX()), QuartPos.fromBlock(provY),
+				QuartPos.fromBlock(chunkpos.getMiddleBlockZ()), ctx.randomState().sampler());
+		if (!biomes().contains(centerBiome)) {
+			return Validated.fail("biome");
+		}
 		BlockPos start = new BlockPos(chunkpos.getMinBlockX(), provY, chunkpos.getMinBlockZ());
 		Optional<GenerationStub> layout = JigsawPlacement.addPieces(ctx, this.startPool, Optional.empty(), this.maxDepth, start,
 				this.useExpansionHack, Optional.empty(), this.maxDistanceFromCenter,
@@ -269,7 +279,7 @@ public class FlatCheckStructure extends Structure {
 		}
 		BlockPos pos = layout.get().position().offset(0, delta, 0);
 		GenerationStub stub = new GenerationStub(pos, b -> pieces.forEach(b::addPiece));
-		return new Validated(true, spawn, stub, "pass");
+		return new Validated(true, spawn, stub, "pass", tree.describe());
 	}
 
 	private static int freeHeight(GenerationContext ctx, int x, int z) {
@@ -323,7 +333,7 @@ public class FlatCheckStructure extends Structure {
 		return GLWorldGen.FLAT.get();
 	}
 
-	int spacing() {
+	public int spacing() {
 		return this.spacing;
 	}
 
@@ -338,9 +348,9 @@ public class FlatCheckStructure extends Structure {
 	/**
 	 * Dev diagnostic: lists every attempted position in one region and the
 	 * verdict per attempt (suppressed / place-fail / margin-fail /
-	 * pass(checks)), without placing anything. Mirrors
-	 * {@link #findGenerationPoint} so the trace shows exactly what worldgen
-	 * would attempt.
+	 * pass(checks) with the PieceTree topology line), without placing
+	 * anything. Mirrors {@link #findGenerationPoint} so the trace shows
+	 * exactly what worldgen would attempt.
 	 */
 	public List<String> diagnoseRegion(long seed, int regionX, int regionZ, RegistryAccess registries,
 								ChunkGenerator generator, RandomState randomState, StructureTemplateManager templates,
@@ -371,8 +381,11 @@ public class FlatCheckStructure extends Structure {
 			if (!v.pass()) verdict = "place-" + v.reason();
 			else if (!this.checkMarginSafe(ctx, me, v.spawnY())) verdict = "margin-fail";
 			else verdict = "pass(checks)";
-		}
 			lines.add("  #%d (%d, %d): %s".formatted(i, me.x, me.z, verdict));
+			if (v.pass()) lines.add("    tree %s".formatted(v.detail()));
+			continue;
+		}
+		lines.add("  #%d (%d, %d): %s".formatted(i, me.x, me.z, verdict));
 		}
 		return lines;
 	}

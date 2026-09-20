@@ -12,7 +12,7 @@ import java.util.Optional;
 
 public class GLSinglePiece extends SinglePoolElement {
 
-	protected GLSinglePiece(ResourceLocation template, Holder<StructureProcessorList> list, StructureTemplatePool.Projection proj) {
+	public GLSinglePiece(ResourceLocation template, Holder<StructureProcessorList> list, StructureTemplatePool.Projection proj) {
 		super(Either.left(template), list, proj, Optional.of(LiquidSettings.IGNORE_WATERLOGGING));
 	}
 
