@@ -68,11 +68,17 @@ import java.util.Set;
  * order. {@code spacing}, {@code spreadType}, {@code salt} and
  * {@code attempts} must match the structure set placement (synced by datagen).
  *
- * <p>Margin band: a candidate within {@code safetyRadius} chunks of its
- * region border is only allowed when every chunk within {@code safetyRadius}
- * of it that falls outside its own region fails the structure biome check
- * (sampled at the candidate ground level). Then no neighboring region could
- * host an overlapping structure there.
+ * <p>Margin check: a candidate within {@code safetyRadius} chunks of its
+ * region border is rejected when an adjacent region hosts a candidate within
+ * {@code safetyRadius} chunks of it that passes the prefilter (the sea +
+ * structure-biome gate) and lies at most as close to its own region center as
+ * we do to ours. The closer of two colliding candidates survives, the farther
+ * one is deferred, and exact ties reject both. Because the prefilter and the
+ * center distance are pure functions of seed and position and never consult
+ * neighbor margins, the check is cheap, order-independent and never builds
+ * jigsaw layouts. Every placed structure passes the prefilter at its own
+ * candidate chunk, so no two structures can land within
+ * {@code safetyRadius} chunks of each other.
  */
 public class FlatCheckStructure extends Structure {
 
@@ -165,7 +171,7 @@ public class FlatCheckStructure extends Structure {
 		if (!pre.pass()) {
 			return Optional.empty();
 		}
-		if (!this.checkMarginSafe(ctx, chunkpos, pre.y())) {
+		if (!this.checkMarginSafe(ctx, chunkpos)) {
 			return Optional.empty();
 		}
 		Validated v = this.validateLayout(ctx, chunkpos, pre.y());
@@ -298,13 +304,15 @@ public class FlatCheckStructure extends Structure {
 	}
 
 	/**
-	 * Margin safety: when the candidate is within safetyRadius chunks of its
-	 * region border, every chunk within safetyRadius of it that falls outside
-	 * its own region must fail the structure biome check, otherwise a
-	 * neighboring region could host a colliding structure there. Candidates
-	 * deep inside their region are always safe.
+	 * Margin check: when the candidate is within safetyRadius chunks of its
+	 * region border, every candidate of an adjacent region within
+	 * safetyRadius chunks of it must either fail the prefilter or lie farther
+	 * from its own region center than we do from ours, otherwise a
+	 * neighboring region could host a structure there. The closer of two
+	 * colliding candidates survives; exact ties reject both. Candidates deep
+	 * inside their region are always safe. No jigsaw layouts are built here.
 	 */
-	private boolean checkMarginSafe(GenerationContext ctx, ChunkPos chunkpos, int y) {
+	private boolean checkMarginSafe(GenerationContext ctx, ChunkPos chunkpos) {
 		if (this.safetyRadius <= 0) {
 			return true;
 		}
@@ -319,20 +327,36 @@ public class FlatCheckStructure extends Structure {
 		if (borderDist >= this.safetyRadius) {
 			return true;
 		}
-		for (int dx = -this.safetyRadius; dx <= this.safetyRadius; dx++) {
-			for (int dz = -this.safetyRadius; dz <= this.safetyRadius; dz++) {
-				int cx = chunkpos.x + dx;
-				int cz = chunkpos.z + dz;
-				if (cx >= minX && cx <= maxX && cz >= minZ && cz <= maxZ) {
+		double cxc = minX + (this.spacing - 1) / 2.0;
+		double czc = minZ + (this.spacing - 1) / 2.0;
+		double myDx = chunkpos.x - cxc, myDz = chunkpos.z - czc;
+		double myDist = myDx * myDx + myDz * myDz;
+		long dist = (long) this.safetyRadius * this.safetyRadius;
+		for (int drx = -1; drx <= 1; drx++) {
+			for (int drz = -1; drz <= 1; drz++) {
+				if (drx == 0 && drz == 0) {
 					continue;
 				}
-				int bx = new ChunkPos(cx, cz).getMiddleBlockX();
-				int bz = new ChunkPos(cx, cz).getMiddleBlockZ();
-				var biome = ctx.chunkGenerator().getBiomeSource().getNoiseBiome(
-						QuartPos.fromBlock(bx), QuartPos.fromBlock(y), QuartPos.fromBlock(bz),
-						ctx.randomState().sampler());
-				if (biomes().contains(biome)) {
-					return false;
+				int nx = rx + drx, nz = rz + drz;
+				double nxc = nx * this.spacing + (this.spacing - 1) / 2.0;
+				double nzc = nz * this.spacing + (this.spacing - 1) / 2.0;
+				List<ChunkPos> cands = MultiSpreadPlacement.candidates(ctx.seed(),
+						nx * this.spacing, nz * this.spacing, this.spacing, this.spreadType, this.salt, this.attempts);
+				for (ChunkPos c : cands) {
+					int dxq = c.x - chunkpos.x, dzq = c.z - chunkpos.z;
+					if ((long) dxq * dxq + (long) dzq * dzq > dist) {
+						continue;
+					}
+					double dxc = c.x - nxc, dzc = c.z - nzc;
+					double cDist = dxc * dxc + dzc * dzc;
+					if (cDist > myDist) {
+						continue;
+					}
+					GenerationContext sctx = this.ctxFor(ctx.registryAccess(), ctx.chunkGenerator(),
+							ctx.randomState(), ctx.structureTemplateManager(), ctx.seed(), c, ctx.heightAccessor());
+					if (this.prefilter(sctx, c).pass()) {
+						return false;
+					}
 				}
 			}
 		}
@@ -420,7 +444,7 @@ public class FlatCheckStructure extends Structure {
 					stage = 0;
 				} else {
 					pre++;
-					if (!this.checkMarginSafe(ctx, me, prefilter.y())) {
+					if (!this.checkMarginSafe(ctx, me)) {
 						verdict = "margin-fail";
 						stage = 1;
 					} else {

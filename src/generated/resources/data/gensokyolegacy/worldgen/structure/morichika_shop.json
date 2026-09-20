@@ -4,7 +4,6 @@
   "biomes": "#gensokyolegacy:has_structure/morichika_shop",
   "height_tolerance": 5,
   "max_distance_from_center": 64,
-  "safety_radius": 6,
   "salt": 754247510,
   "size": 1,
   "spacing": 32,

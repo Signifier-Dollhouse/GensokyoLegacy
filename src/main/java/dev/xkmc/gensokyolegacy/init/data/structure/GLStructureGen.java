@@ -36,7 +36,7 @@ public class GLStructureGen {
 								CharacterConfig.forStructure(6000, 12000, 12, 30),
 								GLBlocks.Beds.MARISA.holder()
 						)),
-						new StructFlatBuilding(List.of(), Map.of(), 5, 60, 24, 32, 6)
+						new StructFlatBuilding(List.of(), Map.of(), 5, 60, 24, 32, 8)
 				),
 			// Hakurei shrine jigsaw in the modded sakura forest (root 19x14x19, bed at local (5,2,12)-(5,2,13))
 			new StructStructure(
@@ -64,7 +64,7 @@ public class GLStructureGen {
 							new StructFlatJigsawBuilding.Part("tree2", true, List.of()),
 							new StructFlatJigsawBuilding.Part("tree2_top", true, List.of()),
 							new StructFlatJigsawBuilding.Part("tree3", true, List.of())
-					), Map.of(), 5, 80, 24, 32, 6)
+					), Map.of(), 5, 80, 24, 32, 8)
 			),
 				// Kourindou (Morichika's shop) on vanilla plains (template 33x18x33, bed at local (27,8,16)-(27,8,17))
 				new StructStructure(
@@ -75,7 +75,7 @@ public class GLStructureGen {
 								CharacterConfig.forStructure(6000, 12000, 12, 30),
 								GLBlocks.Beds.MORICHIKA.holder()
 						)),
-						new StructFlatBuilding(List.of(), Map.of(), 5, 64, 24, 32, 6)
+						new StructFlatBuilding(List.of(), Map.of(), 5, 64, 24, 32, 8)
 				)
 		);
 	}
