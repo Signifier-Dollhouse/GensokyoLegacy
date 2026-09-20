@@ -38,9 +38,9 @@ public class GLBiomes {
 						.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, GLFeatureGen.MAGICAL_FOREST_DISK_MOSS_PLACED)
 						.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, GLFeatureGen.MAGICAL_FOREST_VEGETATION_PLACED)
 						.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, GLFeatureGen.MAGICAL_FOREST_GRASS_PLACED)
+						.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, VegetationPlacements.PATCH_LARGE_FERN)
 						.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, VegetationPlacements.PATCH_GRASS_FOREST)
 						.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, VegetationPlacements.PATCH_GRASS_TAIGA)
-						.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, VegetationPlacements.PATCH_LARGE_FERN)
 						.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, GLFeatureGen.MAGICAL_FOREST_FLOWERS_PLACED)
 						.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, GLFeatureGen.MAGICAL_FOREST_MUSHROOMS_PLACED)
 		));
