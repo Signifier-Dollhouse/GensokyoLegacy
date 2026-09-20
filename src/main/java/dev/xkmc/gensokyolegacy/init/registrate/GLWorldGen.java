@@ -4,6 +4,7 @@ import dev.xkmc.gensokyolegacy.content.dimension.EmptyChunkGenerator;
 import dev.xkmc.gensokyolegacy.content.worldgen.feature.MushroomFeatures;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.structure.FlatCheckStructure;
+import dev.xkmc.gensokyolegacy.init.data.structure.MultiSpreadPlacement;
 import dev.xkmc.gensokyolegacy.init.data.structure.SetDataProcessor;
 import dev.xkmc.l2core.init.reg.simple.CdcReg;
 import dev.xkmc.l2core.init.reg.simple.CdcVal;
@@ -16,6 +17,7 @@ import net.minecraft.world.level.levelgen.feature.AbstractHugeMushroomFeature;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.configurations.HugeMushroomFeatureConfiguration;
 import net.minecraft.world.level.levelgen.structure.StructureType;
+import net.minecraft.world.level.levelgen.structure.placement.StructurePlacementType;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessorType;
 
 import java.util.Collections;
@@ -29,6 +31,9 @@ public class GLWorldGen {
 
 	private static final SR<StructureType<?>> STRUCTURES = SR.of(GensokyoLegacy.REG, Registries.STRUCTURE_TYPE);
 	public static final Val<StructureType<FlatCheckStructure>> FLAT = STRUCTURES.reg("flat_check", () -> () -> FlatCheckStructure.CODEC);
+
+	private static final SR<StructurePlacementType<?>> PLACEMENTS = SR.of(GensokyoLegacy.REG, Registries.STRUCTURE_PLACEMENT);
+	public static final Val<StructurePlacementType<MultiSpreadPlacement>> MULTI_SPREAD = PLACEMENTS.reg("multi_spread", () -> () -> MultiSpreadPlacement.CODEC);
 
 	private static final CdcReg<ChunkGenerator> CG = CdcReg.of(GensokyoLegacy.REG, BuiltInRegistries.CHUNK_GENERATOR);
 	public static final CdcVal<EmptyChunkGenerator> CG_GAP = CG.reg("gap", EmptyChunkGenerator.CODEC);

@@ -1,8 +1,8 @@
 {
   "placement": {
-    "type": "minecraft:random_spread",
+    "type": "gensokyolegacy:multi_spread",
+    "attempts": 4,
     "salt": 754247510,
-    "separation": 8,
     "spacing": 32
   },
   "structures": [

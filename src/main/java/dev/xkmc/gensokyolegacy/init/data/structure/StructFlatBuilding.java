@@ -12,6 +12,7 @@ import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.StructureSpawnOverride;
 import net.minecraft.world.level.levelgen.structure.TerrainAdjustment;
+import net.minecraft.world.level.levelgen.structure.placement.RandomSpreadType;
 import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessor;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessorList;
@@ -26,7 +27,6 @@ public record StructFlatBuilding(
 		int heightTolerance,
 		int maxDistanceFromCenter,
 		int attempts,
-		int spread,
 		int spacing,
 		int safetyRadius
 ) implements StructBuilding {
@@ -55,7 +55,7 @@ public record StructFlatBuilding(
 		ctx.register(ResourceKey.create(Registries.STRUCTURE, id), new FlatCheckStructure(
 				new Structure.StructureSettings(biome, spawns(), GenerationStep.Decoration.SURFACE_STRUCTURES, TerrainAdjustment.BEARD_THIN),
 				pool, 1, false, maxDistanceFromCenter(), flatCheckRange(), heightTolerance(),
-				attempts(), spread(), spacing(), safetyRadius()
+				attempts(), spacing(), RandomSpreadType.LINEAR, StructStructure.saltFor(id), safetyRadius()
 		));
 	}
 

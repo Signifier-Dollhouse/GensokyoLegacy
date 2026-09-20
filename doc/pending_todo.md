@@ -1,10 +1,13 @@
 - Fix community textures
 - Natural blocks bonemeal
 - large chair shape fix
-- structures
 - coke
 - gift interaction
 - sealing pot area rendering item trigger
-- patchouli book too technical
+- patchouli book review
 - doll improvements, bag, danmaku weapon, spear, ui
 - doll model not binding item correctly
+
+- structure split
+- character indoor/outdoor check improvement
+- structure multi-place check, margin removal, distance check

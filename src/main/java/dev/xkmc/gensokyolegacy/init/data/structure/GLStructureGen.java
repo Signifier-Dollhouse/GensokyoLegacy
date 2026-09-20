@@ -11,7 +11,6 @@ import dev.xkmc.gensokyolegacy.init.registrate.block.GLBlocks;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.levelgen.structure.StructureSet;
-import net.minecraft.world.level.levelgen.structure.placement.RandomSpreadStructurePlacement;
 import net.minecraft.world.level.levelgen.structure.placement.RandomSpreadType;
 import net.neoforged.neoforge.common.util.Lazy;
 
@@ -25,36 +24,36 @@ public class GLStructureGen {
 		return List.of(
 				// Marisa's house in the modded magical forest (template 30x13x25, bed at local (4,6,16)-(5,6,16))
 				new StructStructure(
-						GensokyoLegacy.loc("marisa_house"), GLStructureTagGen.MARISA_HOUSE, 32, 8,
+						GensokyoLegacy.loc("marisa_house"), GLStructureTagGen.MARISA_HOUSE, 32, 4,
 						StructureConfigBuilder.marisa(),
 						List.of(new StructBed(
 								GLEntities.MARISA,
 								CharacterConfig.forStructure(6000, 12000, 12, 30),
 								GLBlocks.Beds.MARISA.holder()
 						)),
-						new StructFlatBuilding(List.of(), Map.of(), 20, 7, 60, 4, 2, 32, 8)
+						new StructFlatBuilding(List.of(), Map.of(), 20, 7, 60, 4, 32, 8)
 				),
 				// Hakurei shrine in the modded sakura forest (template 40x15x45, bed at local (16,2,30)-(16,2,31))
 				new StructStructure(
-						GensokyoLegacy.loc("hakurei_shrine"), GLStructureTagGen.HAKUREI_SHRINE, 24, 8,
+						GensokyoLegacy.loc("hakurei_shrine"), GLStructureTagGen.HAKUREI_SHRINE, 24, 6,
 						StructureConfigBuilder.hakurei(),
 						List.of(new StructBed(
 								GLEntities.REIMU,
 								CharacterConfig.forStructure(6000, 12000, 16, 30),
 								GLBlocks.Beds.REIMU.holder()
 						)),
-						new StructFlatBuilding(List.of(), Map.of(), 30, 7, 80, 6, 2, 24, 8)
+						new StructFlatBuilding(List.of(), Map.of(), 30, 7, 80, 6, 24, 8)
 				),
 				// Kourindou (Morichika's shop) on vanilla plains (template 33x18x33, bed at local (27,8,16)-(27,8,17))
 				new StructStructure(
-						GensokyoLegacy.loc("morichika_shop"), GLStructureTagGen.MORICHIKA_SHOP, 32, 8,
+						GensokyoLegacy.loc("morichika_shop"), GLStructureTagGen.MORICHIKA_SHOP, 32, 4,
 						StructureConfigBuilder.morichika(),
 						List.of(new StructBed(
 								GLEntities.MORICHIKA,
 								CharacterConfig.forStructure(6000, 12000, 12, 30),
 								GLBlocks.Beds.MORICHIKA.holder()
 						)),
-						new StructFlatBuilding(List.of(), Map.of(), 24, 7, 64, 4, 2, 32, 8)
+						new StructFlatBuilding(List.of(), Map.of(), 24, 7, 64, 4, 32, 8)
 				)
 		);
 	}
@@ -101,7 +100,7 @@ public class GLStructureGen {
 			for (var e : STRUCTURES.get()) {
 				var str = ctx.lookup(Registries.STRUCTURE).getOrThrow(ResourceKey.create(Registries.STRUCTURE, e.id()));
 				ctx.register(ResourceKey.create(Registries.STRUCTURE_SET, e.id()), new StructureSet(
-						str, new RandomSpreadStructurePlacement(e.spacing(), e.separation(), RandomSpreadType.LINEAR, e.id().hashCode() & 0x7fffffff)));
+						str, new MultiSpreadPlacement(e.spacing(), RandomSpreadType.LINEAR, e.salt(), e.attempts())));
 			}
 		});
 	}

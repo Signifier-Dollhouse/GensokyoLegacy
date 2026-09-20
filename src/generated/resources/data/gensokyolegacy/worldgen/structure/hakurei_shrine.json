@@ -5,6 +5,7 @@
   "flat_check_range": 30,
   "height_tolerance": 7,
   "max_distance_from_center": 80,
+  "salt": 893231697,
   "size": 1,
   "spacing": 24,
   "spawn_overrides": {},

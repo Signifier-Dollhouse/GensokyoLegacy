@@ -4,6 +4,7 @@
 	"package": "dev.xkmc.gensokyolegacy.mixin",
 	"compatibilityLevel": "JAVA_21",
 	"mixins": [
+		"ChunkGeneratorMultiSpreadMixin",
 		"FrogAttackablesSensorMixin",
 		"EntityMixin",
 		"ILivingEntityExtensionMixin",

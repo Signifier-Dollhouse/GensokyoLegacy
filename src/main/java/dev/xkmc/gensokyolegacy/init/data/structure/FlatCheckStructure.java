@@ -8,24 +8,24 @@ import dev.xkmc.gensokyolegacy.init.registrate.GLWorldGen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.QuartPos;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.levelgen.Heightmap;
-import net.minecraft.world.level.levelgen.LegacyRandomSource;
-import net.minecraft.world.level.levelgen.WorldgenRandom;
 import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.StructureType;
+import net.minecraft.world.level.levelgen.structure.placement.RandomSpreadType;
 import net.minecraft.world.level.levelgen.structure.pools.DimensionPadding;
 import net.minecraft.world.level.levelgen.structure.pools.JigsawPlacement;
 import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
 import net.minecraft.world.level.levelgen.structure.pools.alias.PoolAliasLookup;
 import net.minecraft.world.level.levelgen.structure.templatesystem.LiquidSettings;
 
-import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 /**
- * Port of YoukaiHomecoming 1.20.1 FlatStructure, with multi-attempt retry.
+ * Port of YoukaiHomecoming 1.20.1 FlatStructure, paired with
+ * {@link MultiSpreadPlacement}.
  * Samples heights on a 3x3 grid (center + 4 ends + 4 corners) spaced by
  * flatCheckRange around the chunk middle, and rejects the placement when
  * max - min exceeds heightTolerance, when any sample is at/below sea level,
@@ -33,24 +33,20 @@ import java.util.Set;
  * This guarantees vertical variation on the 4 ends and center stays below
  * heightTolerance (configured to 7, i.e. less than 8 blocks).
  *
- * <p>Retry: the vanilla placement yields a single candidate chunk per region.
- * When that candidate fails the flat check, extra candidates near it are tried
- * (up to {@code attempts} total, first passing candidate wins, so at most one
- * structure per region). Extra candidates are drawn deterministically from the
- * {@code (2 * spread + 1)^2} chunks around the placement chunk. Keep
- * {@code spread} small (default 2): pieces must stay within ~8 chunks of the
- * placement chunk or villages run out of structure references.
+ * <p>Multi-attempt: the placement yields {@code attempts} uniform candidates
+ * per region (covering the full region, including the old separation margin
+ * band). Every candidate recomputes the same ordered candidate list and only
+ * the least-index candidate passing the full check below builds, so exactly
+ * one structure start is placed per region. The checks are pure functions of
+ * world seed and position, making the winner independent of chunk generation
+ * order. {@code spacing}, {@code spreadType}, {@code salt} and
+ * {@code attempts} must match the structure set placement (synced by datagen).
  *
- * <p>Margin band: vanilla separation leaves a band of chunks per region where
- * no placement ever lands. Extra candidates may land on that band, but only
- * when there is no collision risk: if the candidate is within
- * {@code safetyRadius} chunks of its region border (a region is
- * {@code spacing x spacing} chunks, and {@code spacing} must match the
- * structure set spacing), every chunk within {@code safetyRadius} of the
- * candidate that falls outside its own region must fail the structure biome
- * check (sampled at the candidate ground level). Then no neighboring region
- * could host an overlapping structure there. The first (vanilla) attempt is
- * exempt from this check to preserve vanilla spacing guarantees.
+ * <p>Margin band: a candidate within {@code safetyRadius} chunks of its
+ * region border is only allowed when every chunk within {@code safetyRadius}
+ * of it that falls outside its own region fails the structure biome check
+ * (sampled at the candidate ground level). Then no neighboring region could
+ * host an overlapping structure there.
  */
 public class FlatCheckStructure extends Structure {
 
@@ -62,13 +58,12 @@ public class FlatCheckStructure extends Structure {
 			Codec.intRange(1, 128).fieldOf("max_distance_from_center").forGetter((e) -> e.maxDistanceFromCenter),
 			Codec.intRange(1, 128).fieldOf("flat_check_range").forGetter((e) -> e.flatCheckRange),
 			Codec.intRange(1, 128).fieldOf("height_tolerance").forGetter((e) -> e.flatTolerance),
-			Codec.intRange(1, 32).optionalFieldOf("attempts", 1).forGetter((e) -> e.attempts),
-			Codec.intRange(0, 8).optionalFieldOf("spread", 2).forGetter((e) -> e.spread),
-			Codec.intRange(1, 4096).optionalFieldOf("spacing", 32).forGetter((e) -> e.spacing),
+			Codec.intRange(1, 32).fieldOf("attempts").forGetter((e) -> e.attempts),
+			Codec.intRange(1, 4096).fieldOf("spacing").forGetter((e) -> e.spacing),
+			RandomSpreadType.CODEC.optionalFieldOf("spread_type", RandomSpreadType.LINEAR).forGetter((e) -> e.spreadType),
+			ExtraCodecs.NON_NEGATIVE_INT.fieldOf("salt").forGetter((e) -> e.salt),
 			Codec.intRange(0, 16).optionalFieldOf("safety_radius", 8).forGetter((e) -> e.safetyRadius)
 	).apply(i, FlatCheckStructure::new)).validate(FlatCheckStructure::verifyRange);
-
-	private static final int RETRY_SALT = 7919;
 
 	public final Holder<StructureTemplatePool> startPool;
 	private final int maxDepth;
@@ -77,8 +72,9 @@ public class FlatCheckStructure extends Structure {
 	private final int flatCheckRange;
 	private final int flatTolerance;
 	private final int attempts;
-	private final int spread;
 	private final int spacing;
+	private final RandomSpreadType spreadType;
+	private final int salt;
 	private final int safetyRadius;
 
 	private static DataResult<FlatCheckStructure> verifyRange(FlatCheckStructure s) {
@@ -102,7 +98,7 @@ public class FlatCheckStructure extends Structure {
 	}
 
 	public FlatCheckStructure(StructureSettings settings, Holder<StructureTemplatePool> startPool, int maxDepth, boolean useExpansionHack, int maxDistanceFromCenter, int flatCheckRange, int flatTolerance,
-							  int attempts, int spread, int spacing, int safetyRadius) {
+							  int attempts, int spacing, RandomSpreadType spreadType, int salt, int safetyRadius) {
 		super(settings);
 		this.startPool = startPool;
 		this.maxDepth = maxDepth;
@@ -111,42 +107,26 @@ public class FlatCheckStructure extends Structure {
 		this.flatCheckRange = flatCheckRange;
 		this.flatTolerance = flatTolerance;
 		this.attempts = attempts;
-		this.spread = spread;
 		this.spacing = spacing;
+		this.spreadType = spreadType;
+		this.salt = salt;
 		this.safetyRadius = safetyRadius;
 	}
 
 	@Override
 	public Optional<GenerationStub> findGenerationPoint(GenerationContext ctx) {
-		ChunkPos origin = ctx.chunkPos();
-		Optional<Integer> first = this.checkFlat(ctx, origin);
-		if (first.isPresent()) {
-			return this.place(ctx, origin, first.get());
-		}
-		if (this.attempts <= 1 || this.spread <= 0) {
+		ChunkPos me = ctx.chunkPos();
+		List<ChunkPos> cands = MultiSpreadPlacement.candidates(ctx.seed(), me.x, me.z, this.spacing, this.spreadType, this.salt, this.attempts);
+		int idx = cands.indexOf(me);
+		if (idx < 0) {
 			return Optional.empty();
 		}
-		WorldgenRandom random = new WorldgenRandom(new LegacyRandomSource(0L));
-		random.setLargeFeatureWithSalt(ctx.seed(), origin.x, origin.z, RETRY_SALT);
-		Set<ChunkPos> tried = new HashSet<>();
-		tried.add(origin);
-		for (int n = 1; n < this.attempts; n++) {
-			int dx = random.nextInt(this.spread * 2 + 1) - this.spread;
-			int dz = random.nextInt(this.spread * 2 + 1) - this.spread;
-			ChunkPos cand = new ChunkPos(origin.x + dx, origin.z + dz);
-			if (!tried.add(cand)) {
-				continue;
+		for (int j = 0; j < idx; j++) {
+			if (this.checkCandidate(ctx, cands.get(j)).isPresent()) {
+				return Optional.empty();
 			}
-			Optional<Integer> y = this.checkFlat(ctx, cand);
-			if (y.isEmpty()) {
-				continue;
-			}
-			if (!this.checkMarginSafe(ctx, cand, y.get())) {
-				continue;
-			}
-			return this.place(ctx, cand, y.get());
 		}
-		return Optional.empty();
+		return this.checkCandidate(ctx, me).flatMap((y) -> this.place(ctx, me, y));
 	}
 
 	private Optional<GenerationStub> place(GenerationContext ctx, ChunkPos chunkpos, int y) {
@@ -154,6 +134,21 @@ public class FlatCheckStructure extends Structure {
 		return JigsawPlacement.addPieces(ctx, this.startPool, Optional.empty(), this.maxDepth, blockpos,
 				this.useExpansionHack, Optional.empty(), this.maxDistanceFromCenter,
 				PoolAliasLookup.EMPTY, DimensionPadding.ZERO, LiquidSettings.IGNORE_WATERLOGGING);
+	}
+
+	/**
+	 * Full eligibility of a candidate chunk: flat check plus margin safety.
+	 * Returns the average ground height when eligible.
+	 */
+	private Optional<Integer> checkCandidate(GenerationContext ctx, ChunkPos chunkpos) {
+		Optional<Integer> y = this.checkFlat(ctx, chunkpos);
+		if (y.isEmpty()) {
+			return Optional.empty();
+		}
+		if (!this.checkMarginSafe(ctx, chunkpos, y.get())) {
+			return Optional.empty();
+		}
+		return y;
 	}
 
 	/**
@@ -184,12 +179,11 @@ public class FlatCheckStructure extends Structure {
 	}
 
 	/**
-	 * Margin safety for extra candidates: when the candidate is within
-	 * safetyRadius chunks of its region border, every chunk within
-	 * safetyRadius of it that falls outside its own region must fail the
-	 * structure biome check, otherwise a neighboring region could host a
-	 * colliding structure there. Candidates deep inside their region are
-	 * always safe.
+	 * Margin safety: when the candidate is within safetyRadius chunks of its
+	 * region border, every chunk within safetyRadius of it that falls outside
+	 * its own region must fail the structure biome check, otherwise a
+	 * neighboring region could host a colliding structure there. Candidates
+	 * deep inside their region are always safe.
 	 */
 	private boolean checkMarginSafe(GenerationContext ctx, ChunkPos chunkpos, int y) {
 		if (this.safetyRadius <= 0) {
