@@ -50,9 +50,9 @@
     [
       "gensokyolegacy:magical_forest_vegetation",
       "gensokyolegacy:magical_forest_grass",
+      "minecraft:patch_large_fern",
       "minecraft:patch_grass_forest",
       "minecraft:patch_grass_taiga",
-      "minecraft:patch_large_fern",
       "gensokyolegacy:magical_forest_flowers",
       "gensokyolegacy:magical_forest_mushrooms"
     ]
