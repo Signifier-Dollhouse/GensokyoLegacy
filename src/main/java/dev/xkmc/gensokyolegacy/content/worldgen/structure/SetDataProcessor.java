@@ -1,4 +1,4 @@
-package dev.xkmc.gensokyolegacy.init.data.structure;
+package dev.xkmc.gensokyolegacy.content.worldgen.structure;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;

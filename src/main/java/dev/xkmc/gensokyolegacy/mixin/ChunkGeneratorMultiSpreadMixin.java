@@ -1,7 +1,7 @@
 package dev.xkmc.gensokyolegacy.mixin;
 
 import com.mojang.datafixers.util.Pair;
-import dev.xkmc.gensokyolegacy.init.data.structure.MultiSpreadPlacement;
+import dev.xkmc.gensokyolegacy.content.worldgen.structure.MultiSpreadPlacement;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.world.level.ChunkPos;

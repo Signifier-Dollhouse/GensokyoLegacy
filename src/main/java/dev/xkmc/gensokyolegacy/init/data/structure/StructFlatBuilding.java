@@ -1,6 +1,8 @@
 package dev.xkmc.gensokyolegacy.init.data.structure;
 
 import com.mojang.datafixers.util.Pair;
+import dev.xkmc.gensokyolegacy.content.worldgen.structure.FlatCheckStructure;
+import dev.xkmc.gensokyolegacy.content.worldgen.structure.GLSinglePiece;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;

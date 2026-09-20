@@ -1,4 +1,4 @@
-package dev.xkmc.gensokyolegacy.init.data.structure;
+package dev.xkmc.gensokyolegacy.content.worldgen.structure;
 
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.PoolElementStructurePiece;

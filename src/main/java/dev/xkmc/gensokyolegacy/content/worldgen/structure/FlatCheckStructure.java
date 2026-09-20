@@ -1,4 +1,4 @@
-package dev.xkmc.gensokyolegacy.init.data.structure;
+package dev.xkmc.gensokyolegacy.content.worldgen.structure;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
@@ -342,7 +342,7 @@ public class FlatCheckStructure extends Structure {
 	 * {@link #findGenerationPoint} so the trace shows exactly what worldgen
 	 * would attempt.
 	 */
-	List<String> diagnoseRegion(long seed, int regionX, int regionZ, RegistryAccess registries,
+	public List<String> diagnoseRegion(long seed, int regionX, int regionZ, RegistryAccess registries,
 								ChunkGenerator generator, RandomState randomState, StructureTemplateManager templates,
 								LevelHeightAccessor heightAccessor) {
 		List<String> lines = new ArrayList<>();
