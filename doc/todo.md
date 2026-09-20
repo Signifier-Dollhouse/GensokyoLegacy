@@ -1,1 +1,0 @@
-- doll danmaku shot using old texture

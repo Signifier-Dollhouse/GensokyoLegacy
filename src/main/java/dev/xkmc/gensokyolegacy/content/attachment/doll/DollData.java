@@ -20,8 +20,8 @@ import java.util.UUID;
 public class DollData {
 
 	/**
-	 * item -> {@link DollData} conversion: reads the {@code DOLL_DATA}/{@code CUSTOM_NAME}/
-	 * {@code DYED_COLOR} components off the stack (a component-less stack is treated as a fresh
+	 * item -> {@link DollData} conversion: reads the {@code DOLL_DATA}/{@code DOLL_COLOR}/
+	 * {@code CUSTOM_NAME} components off the stack (a component-less stack is treated as a fresh
 	 * doll, {@link DollItemData#fresh()}). The doll type is fixed ({@link DollItem#TYPE}),
 	 * position/dimension/facing are supplied at the summon/deploy site, and state is left to the
 	 * caller — SUMMONED for a player summon, STORED for a controller install.

@@ -70,7 +70,7 @@ public enum DollGloveMode {
 	 * Glow color for the cached ray-trace target while this mode is held
 	 * (vanilla formatting palette): aqua for summon, green for heal-mark, red
 	 * for the three attack modes, gray for stop. Hovered dolls always glow
-	 * gold regardless of mode (see {@code GloveTargetCache}).
+	 * gold regardless of mode (see {@code GloveDollHover}).
 	 */
 	public int glowColor() {
 		return switch (this) {

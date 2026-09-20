@@ -7,8 +7,7 @@
 - patchouli book review
 - doll improvements, bag, danmaku weapon, spear, ui
 - doll model not binding item correctly
+- doll hover should be its own cache with lifespan of 2 ticks
 
-- structure split
+- structure split for marisa and morichika
 - character indoor/outdoor check improvement
-
-Structure spacing and generation debug session: opencode -s ses_f45c107fbffesvLS5fwZ3lA20j

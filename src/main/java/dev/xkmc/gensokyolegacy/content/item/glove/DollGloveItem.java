@@ -1,5 +1,7 @@
 package dev.xkmc.gensokyolegacy.content.item.glove;
 
+import dev.xkmc.gensokyolegacy.content.entity.dolls.DollEntity;
+import dev.xkmc.gensokyolegacy.content.entity.dolls.menu.DollLoadoutProvider;
 import dev.xkmc.gensokyolegacy.content.item.glove.client.GloveTargetCache;
 import dev.xkmc.gensokyolegacy.content.item.glove.mode.DollGloveMode;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
@@ -56,6 +58,26 @@ public class DollGloveItem extends Item {
 	public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
 		ItemStack stack = player.getItemInHand(hand);
 		return getMode(stack).handleUse(level, player, hand, stack, this);
+	}
+
+	/**
+	 * Right-click on a doll entity at vanilla reach: open its loadout when
+	 * owned (or in creative), in every mode. Right-click air or a block runs
+	 * the mode action, which first tries the same open through a fresh
+	 * 16-block server trace ({@code DollGloveHandler.tryOpenEditor}). Both
+	 * paths bypass the glove target cache (glove.md §2b) — the cache only
+	 * carries 48-block attack/heal targets.
+	 */
+	@Override
+	public InteractionResult interactLivingEntity(ItemStack stack, Player player, LivingEntity target, InteractionHand hand) {
+		if (target instanceof DollEntity doll && (doll.isOwner(player) || player.getAbilities().instabuild)) {
+			if (player instanceof ServerPlayer sp) {
+				DollLoadoutProvider.open(sp, doll);
+				if (!sp.isCreative()) sp.getCooldowns().addCooldown(this, 10);
+			}
+			return InteractionResult.sidedSuccess(player.level().isClientSide());
+		}
+		return InteractionResult.PASS;
 	}
 
 	/**

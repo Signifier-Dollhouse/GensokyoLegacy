@@ -28,7 +28,6 @@ import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.component.DyedItemColor;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
@@ -52,16 +51,16 @@ public class DollItem extends Item implements InvClickItem {
 
 	/**
 	 * Builds a doll item from a {@link DollData} (the inverse of {@link DollData#fromItemData}):
-	 * combat in the mod's {@code DOLL_DATA} component, name/tint in the vanilla
-	 * {@code CUSTOM_NAME} / {@code DYED_COLOR} components. {@code null} (and {@link #blank()})
-	 * yields a fresh, component-less doll.
+	 * combat in the mod's {@code DOLL_DATA} component, name in the vanilla
+	 * {@code CUSTOM_NAME} component, tint in the mod's {@code DOLL_COLOR} component.
+	 * {@code null} (and {@link #blank()}) yields a fresh, component-less doll.
 	 */
 	public static ItemStack makeItem(@Nullable DollData data) {
 		if (data == null) return blank();
 		ItemStack stack = new ItemStack(GLItems.DOLL.get());
 		stack.set(GLItems.DOLL_DATA.get(), new DollItemData(data.combat));
 		if (data.customName != null) stack.set(DataComponents.CUSTOM_NAME, data.customName);
-		stack.set(DataComponents.DYED_COLOR, new DyedItemColor(data.getColor().getTextColor(), false));
+		stack.set(GLItems.DOLL_COLOR.get(), data.getColor());
 		if (data.inventory != null && !data.inventory.isEmpty())
 			stack.set(GLItems.DOLL_LOADOUT.get(), data.inventory.toInventory());
 		return stack;
@@ -75,20 +74,20 @@ public class DollItem extends Item implements InvClickItem {
 	}
 
 	/**
-	 * The doll's tint from the vanilla {@code DYED_COLOR} component; component-missing stacks
-	 * (blank, legacy, or hand-made) fall back to red.
+	 * The doll's tint from the mod's {@code DOLL_COLOR} component; component-missing stacks
+	 * (blank, legacy, or hand-made) fall back to red. Legacy stacks carrying the vanilla
+	 * {@code DYED_COLOR} component are mapped back (comparing both raw and opaque rgb,
+	 * since the vanilla reader forces alpha).
 	 */
 	public static DyeColor colorOf(ItemStack stack) {
-		int rgb = DyedItemColor.getOrDefault(stack, DyeColor.RED.getTextColor());
-		for (DyeColor d : DyeColor.values()) {
-			if (d.getTextColor() == rgb) return d;
-		}
+		DyeColor color = stack.get(GLItems.DOLL_COLOR.get());
+		if (color != null) return color;
 		return DyeColor.RED;
 	}
 
 	public static int getColor(ItemStack stack, int tintIndex) {
 		if (tintIndex != 1) return -1;
-		return DyedItemColor.getOrDefault(stack, DyeColor.RED.getTextColor());
+		return 0xff000000 | colorOf(stack).getTextColor();
 	}
 
 	// ---- health as a durability bar ----

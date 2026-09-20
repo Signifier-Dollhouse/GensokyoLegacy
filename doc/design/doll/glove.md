@@ -17,7 +17,7 @@
 | 4 | `SUICIDE` | `Items.TNT` | `use()` or left-click: `issueOneTime(player, target, SUICIDE)` — one **random** available doll. Listed only while a summoned doll can perform it, unless already selected. |
 | 5 | `STOP` | `Items.SHIELD` | Hidden from the wheel, implementation kept: `use()` stops **all summoned** dolls — `doll.actions.stop()` + clear `iteration`. Strays and block-hosted dolls untouched. |
 
-There is no editor mode: right-clicking an owned doll (or any doll in creative) opens its loadout in every mode, before the mode action runs. Left-click paths never open the editor, so fighting never pops a menu.
+There is no editor mode: right-clicking an owned doll (or any doll in creative) opens its loadout in every mode — through the vanilla entity-interaction path at vanilla reach, or through a fresh 16-block server ray trace when right-clicking air or a block (§2b) — before the mode action runs. Neither path consults the target cache. Left-click paths never open the editor, so fighting never pops a menu.
 
 Summon and volley are always listed; heal-mark and stop are implemented but hidden. Attack/mark modes act on the cached ray-trace target (§2); empty cache → `no_target` message.
 
@@ -25,15 +25,17 @@ Summon and volley are always listed; heal-mark and stop are implemented but hidd
 
 No entity clicks: the glove acts on a cached ray-trace target (max 48 blocks), so out-of-reach entities work.
 
-- Client `GloveTargetCache`: on item inventory tick while the glove is held (either hand, local player only, every 5 ticks), ray-trace the crosshair (48 blocks, living entities only, blocked by blocks, **holder excluded** — own-doll exclusion isn't reliable client-side, so allies are excluded by the server re-check instead) and cache the UUID + timestamp. Each cache refresh re-sends the UUID to the server; actual glove `use()` also refreshes the cache time. Cache expires after 5 seconds. On a miss the stale entry lingers until TTL (no flicker).
-- Client pre-filters the ray trace by held mode, mirroring the server checks: every mode accepts dolls (right-click opens the loadout of an owned doll in any mode; ownership is server-side only — the owner UUID is not synced — so the client filters by type and the server enforces owner/creative); summon accepts nothing else (it summons/recalls globally); the rest accept valid attack targets (not self, not player-owned, not any doll, attackable, non-spectator).
-- Glowing marker: client-side only, only while the player holds the glove — a mixin on the glow check (`LivingEntity`/`Entity#isCurrentlyGlowing` or the render path) returns true for the cached UUID, and a `getTeamColor` mixin tints the outline in the held mode's color (`DollGloveMode.glowColor`: aqua summon, green heal-mark, red attacks, gray stop), or gold when the target is a doll. Declared in `gensokyolegacy.mixins.json`. No server sync involved.
-- Server `use()` consumes the last-synced UUID: re-validates alive, within 48 blocks. Right-click first tries the editor open (owned doll → loadout); otherwise attack modes require a valid attack target — no allies (`OwnableEntity` owned by the holder, which covers their dolls and pets), no dolls at all, attackable and non-spectator. Left-click paths (`onLeftClickEntity`, block click, empty-swing packet) skip the editor and run the attack directly. Heal-mark takes anything. Stale/missing cache → `no_target` message.
-- Heal-mark mode uses the same target pipeline (any living entity, 48 blocks).
+- Client `GloveTargetCache`: on item inventory tick while the glove is held (either hand, local player only, every 5 ticks), ray-trace the crosshair (48 blocks, living entities only, blocked by blocks, **holder excluded**) and cache the UUID + timestamp. Dolls never enter this cache — doll hovering bypasses it entirely (§2b). Each cache refresh re-sends the UUID to the server; actual glove `use()` also refreshes the cache time. Cache expires after 5 seconds. On a miss the stale entry lingers until TTL (no flicker).
+- Client pre-filters the ray trace by held mode, mirroring the server checks: summon accepts nothing (it summons/recalls globally); the rest accept valid attack targets (not self, not player-owned, not any doll, attackable, non-spectator).
+- Glowing marker: client-side only, only while the player holds the glove — a mixin on the glow check (`LivingEntity`/`Entity#isCurrentlyGlowing` or the render path) returns true for the cached UUID, and a `getTeamColor` mixin tints the outline in the held mode's color (`DollGloveMode.glowColor`: aqua summon, green heal-mark, red attacks, gray stop). Hovered dolls glow gold through `GloveDollHover` (§2b), never the cache. Declared in `gensokyolegacy.mixins.json`. No server sync involved.
+- Server `use()` consumes the last-synced UUID: re-validates alive, within 48 blocks, and a valid attack target — no allies (`OwnableEntity` owned by the holder, which covers their dolls and pets), no dolls at all, attackable and non-spectator. Right-click first tries the editor open: a fresh server-side ray trace (`DollGloveHandler.tryOpenEditor`, 16 blocks, blocked by blocks) opens the loadout of an owned doll, or any doll in creative — no cache, no TTL, re-traced on every use. (Direct entity clicks at vanilla reach open through `DollGloveItem.interactLivingEntity` instead.) Left-click paths (`onLeftClickEntity`, block click, empty-swing packet) run the attack directly. Heal-mark takes anything cached. Stale/missing cache → `no_target` message.
+- Heal-mark mode uses the same target pipeline (any cached non-doll living entity, 48 blocks).
 
 ## 2b. Hover overlay (ModularGolems mirror)
 
-- `DollGloveOverlay` (client GUI layer above the crosshair, registered in `GLClient`): while the glove is held in any mode with no screen open, hovering a doll (vanilla crosshair `EntityHitResult`) shows its name plus the loadout in the menu's cross arrangement (`DollLoadoutTooltip`/`DollClientLoadoutTooltip`, slot frames + ghost icons from the menu texture atlas). Display-only; opening still goes through right-click `use()`.
+- Doll hovering bypasses the targeting cache entirely, on both sides. Client `GloveDollHover` (`content/item/glove/client/`) runs its own crosshair ray trace out to 16 blocks (`DollGloveHandler.EDITOR_RANGE`, occluded by blocks, re-traced at most once per client tick, no packets) while the glove is held in any mode, so the gold glow, the overlay, and the sidebar orange frame appear and vanish with the crosshair — no 5-tick lag, no cache TTL linger, no 48-block far-away hits. Server `DollGloveHandler.tryOpenEditor` runs the mirror trace on every right-click use, so what the holder sees is exactly what opens.
+- `DollGloveOverlay` (client GUI layer above the crosshair, registered in `GLClient`): while the glove is held in any mode with no screen open, hovering a doll (16-block trace) shows its name plus the loadout in the menu's cross arrangement (`DollLoadoutTooltip`/`DollClientLoadoutTooltip`, slot frames + ghost icons from the menu texture atlas). Display-only; opening goes through right-click (`interactLivingEntity` at vanilla reach, else the 16-block `tryOpenEditor` trace).
+- The glow mixin checks `GloveDollHover` first (gold) and falls back to the cached target's mode color.
 
 ## 2c. Attack-mode status sidebar
 
@@ -70,7 +72,7 @@ No entity clicks: the glove acts on a cached ray-trace target (max 48 blocks), s
 - `content/item/glove/DollGloveLeftClickHandler.java`
 - `content/item/glove/client/DollGloveModeWheel.java`, `DollGloveModeEntry.java`
 - `content/item/glove/network/DollGloveSelectPacket.java`, `DollGloveTargetPacket.java`, `DollGloveSwingPacket.java`
-- `content/item/glove/client/GloveTargetCache.java` (+ per-player server cache, e.g. on the commander or a player attachment)
+- `content/item/glove/client/GloveTargetCache.java` (attack/heal targets only — never dolls) + `GloveDollHover.java` (16-block doll hover trace: gold glow source for the mixin, overlay, and sidebar) + per-player server cache, e.g. on the commander or a player attachment)
 - `mixin/GloveTargetGlowMixin.java` (client glow for the cached UUID while the glove is held)
 
 See `checklist.md` for the full cross-document file/registration list.

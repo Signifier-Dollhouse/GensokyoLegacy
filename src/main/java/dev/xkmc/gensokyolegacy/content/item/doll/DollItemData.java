@@ -9,8 +9,8 @@ import dev.xkmc.l2serial.serialization.marker.SerialField;
 /**
  * DCStack-style immutable doll item component. Holds only the combat snapshot {@link CombatData}:
  * the doll type is fixed ({@link DollItem#TYPE}, not stored on the item), and the custom name and
- * tint live in vanilla components ({@code CUSTOM_NAME} / {@code DYED_COLOR}). More fields are added
- * here in the future.
+ * tint live in the vanilla {@code CUSTOM_NAME} and the mod's {@code DOLL_COLOR} components.
+ * More fields are added here in the future.
  * <p>
  * The hash is prebuilt over the final {@link #combat} field and cached like {@code DCStack}; since
  * l2serial reconstructs the instance via the no-arg ctor and writes {@link #combat} afterwards,

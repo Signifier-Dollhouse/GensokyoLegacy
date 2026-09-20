@@ -16,12 +16,9 @@ import dev.xkmc.l2itemselector.overlay.OverlayUtil;
 import dev.xkmc.l2itemselector.overlay.SelectionSideBar;
 import dev.xkmc.l2itemselector.overlay.SideBar;
 import net.minecraft.client.Minecraft;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.component.DyedItemColor;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.EntityHitResult;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -173,8 +170,7 @@ public class DollAttackStatusOverlay extends SelectionSideBar<DollAttackStatusOv
 	}
 
 	private static boolean isHovered(DollEntity doll) {
-		var mc = Minecraft.getInstance();
-		return mc.hitResult instanceof EntityHitResult hit && hit.getEntity() == doll;
+		return GloveDollHover.isHovered(doll);
 	}
 
 	/**
@@ -202,7 +198,7 @@ public class DollAttackStatusOverlay extends SelectionSideBar<DollAttackStatusOv
 		CombatData combat = doll.getCombatData();
 		if (combat == null) combat = new CombatData(doll.getCombatProgress(), 0);
 		stack.set(GLItems.DOLL_DATA.get(), new DollItemData(combat));
-		stack.set(DataComponents.DYED_COLOR, new DyedItemColor(doll.getColor().getTextColor(), false));
+		stack.set(GLItems.DOLL_COLOR.get(), doll.getColor());
 		return stack;
 	}
 

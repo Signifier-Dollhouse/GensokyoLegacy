@@ -13,8 +13,15 @@ import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.OwnableEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
@@ -29,6 +36,9 @@ public abstract class DollGloveHandler {
 
 	/** Ray-trace reach for glove targeting, in blocks (glove.md §2). */
 	public static final double TARGET_RANGE = 48;
+
+	/** Editor-open reach for doll right-click, in blocks (glove.md §2b). */
+	public static final double EDITOR_RANGE = 16;
 
 	/** Server-side target cache TTL, in ticks (5 seconds). */
 	public static final long TARGET_TTL = 100;
@@ -67,15 +77,21 @@ public abstract class DollGloveHandler {
 	public void performAttackOn(ServerPlayer sp, @Nullable LivingEntity target, InteractionHand hand, ItemStack stack, DollGloveItem item) {
 	}
 
+	protected static DollAttachment attachment(ServerPlayer sp) {
+		return GLMeta.DOLL.type().getOrCreate(sp);
+	}
+
 	/**
-	 * Right-click editor shortcut, shared by every mode: when the cached
-	 * target is an owned doll (or the holder is in creative), open its loadout
-	 * instead of the mode action. Returns true when the editor opened.
+	 * Right-click editor shortcut, shared by every mode: when the doll under
+	 * the crosshair (immediate server-side ray trace, {@code EDITOR_RANGE}
+	 * blocks, blocked by blocks) is an owned doll (or the holder is in
+	 * creative), open its loadout instead of the mode action. Returns true
+	 * when the editor opened. Unlike attack commands, this never consults the
+	 * cached ray-trace target — the trace runs fresh on every use.
 	 */
 	protected static boolean tryOpenEditor(ServerPlayer sp, DollGloveItem item) {
-		LivingEntity target = resolveTarget(sp);
-		if (target instanceof DollEntity doll &&
-				(doll.isOwner(sp) || sp.getAbilities().instabuild)) {
+		DollEntity doll = rayTraceDoll(sp);
+		if (doll != null && (doll.isOwner(sp) || sp.getAbilities().instabuild)) {
 			DollLoadoutProvider.open(sp, doll);
 			cooldown(sp, item);
 			return true;
@@ -83,8 +99,24 @@ public abstract class DollGloveHandler {
 		return false;
 	}
 
-	protected static DollAttachment attachment(ServerPlayer sp) {
-		return GLMeta.DOLL.type().getOrCreate(sp);
+	/**
+	 * The doll under the holder's crosshair right now (server-side, occluded
+	 * by blocks), or null. Fresh trace every call — no cache, no TTL.
+	 */
+	@Nullable
+	private static DollEntity rayTraceDoll(ServerPlayer sp) {
+		Level level = sp.level();
+		Vec3 from = sp.getEyePosition();
+		Vec3 dir = sp.getViewVector(1.0F);
+		Vec3 to = from.add(dir.scale(EDITOR_RANGE));
+		BlockHitResult block = level.clip(new ClipContext(from, to, ClipContext.Block.OUTLINE, ClipContext.Fluid.NONE, sp));
+		double blockDist = block.getType() == HitResult.Type.MISS ? EDITOR_RANGE : from.distanceTo(block.getLocation());
+		AABB box = sp.getBoundingBox().expandTowards(dir.scale(EDITOR_RANGE)).inflate(1);
+		EntityHitResult hit = ProjectileUtil.getEntityHitResult(sp, from, to, box,
+				e -> e instanceof DollEntity doll && doll.isAlive() && doll.isPickable(),
+				EDITOR_RANGE * EDITOR_RANGE);
+		if (hit == null || from.distanceTo(hit.getLocation()) > blockDist) return null;
+		return (DollEntity) hit.getEntity();
 	}
 
 	/**
