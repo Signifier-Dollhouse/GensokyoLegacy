@@ -1,4 +1,4 @@
-package dev.xkmc.gensokyolegacy.init.data.structure;
+package dev.xkmc.gensokyolegacy.init.data.structure.helper;
 
 import dev.xkmc.gensokyolegacy.content.attachment.datamap.StructureConfig;
 import net.minecraft.resources.ResourceLocation;

@@ -3,9 +3,9 @@
     {
       "element": {
         "element_type": "minecraft:single_pool_element",
-        "location": "gensokyolegacy:hakurei_shrine",
+        "location": "gensokyolegacy:hakurei_shrine/warehouse",
         "override_liquid_settings": "ignore_waterlogging",
-        "processors": "gensokyolegacy:hakurei_shrine",
+        "processors": "gensokyolegacy:hakurei_shrine/warehouse",
         "projection": "rigid"
       },
       "weight": 1

@@ -1,4 +1,4 @@
-package dev.xkmc.gensokyolegacy.init.data.structure;
+package dev.xkmc.gensokyolegacy.init.data.structure.helper;
 
 import net.minecraft.core.HolderSet;
 import net.minecraft.data.worldgen.BootstrapContext;

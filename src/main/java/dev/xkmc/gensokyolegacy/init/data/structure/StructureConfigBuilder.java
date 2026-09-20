@@ -20,7 +20,7 @@ public class StructureConfigBuilder {
 				.wouldFix(GLStructureTagGen.MARISA_FIX);
 	}
 
-	// hakurei_shrine template is 40x15x45 with bed at local y=2
+	// hakurei_shrine root is 19x14x19 with bed at local (5,2,12)-(5,2,13); other jigsaw parts hang off it
 	public static StructureConfig.Builder hakurei() {
 		return StructureConfig.builder()
 				.room(2, 4, 1).house(1, 2, 1)

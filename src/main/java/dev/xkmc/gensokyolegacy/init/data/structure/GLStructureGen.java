@@ -4,6 +4,10 @@ import com.tterrag.registrate.providers.DataProviderInitializer;
 import com.tterrag.registrate.providers.RegistrateDataMapProvider;
 import dev.xkmc.gensokyolegacy.content.attachment.datamap.BedData;
 import dev.xkmc.gensokyolegacy.content.attachment.datamap.CharacterConfig;
+import dev.xkmc.gensokyolegacy.init.data.structure.helper.StructBed;
+import dev.xkmc.gensokyolegacy.init.data.structure.helper.StructFlatBuilding;
+import dev.xkmc.gensokyolegacy.init.data.structure.helper.StructFlatJigsawBuilding;
+import dev.xkmc.gensokyolegacy.init.data.structure.helper.StructStructure;
 import dev.xkmc.gensokyolegacy.content.worldgen.structure.MultiSpreadPlacement;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.registrate.GLEntities;
@@ -34,17 +38,34 @@ public class GLStructureGen {
 						)),
 						new StructFlatBuilding(List.of(), Map.of(), 5, 60, 24, 32, 6)
 				),
-				// Hakurei shrine in the modded sakura forest (template 40x15x45, bed at local (16,2,30)-(16,2,31))
-				new StructStructure(
-						GensokyoLegacy.loc("hakurei_shrine"), GLStructureTagGen.HAKUREI_SHRINE, 32, 24,
-						StructureConfigBuilder.hakurei(),
-						List.of(new StructBed(
-								GLEntities.REIMU,
-								CharacterConfig.forStructure(6000, 12000, 16, 30),
-								GLBlocks.Beds.REIMU.holder()
-						)),
-						new StructFlatBuilding(List.of(), Map.of(), 5, 80, 24, 32, 6)
-				),
+			// Hakurei shrine jigsaw in the modded sakura forest (root 19x14x19, bed at local (5,2,12)-(5,2,13))
+			new StructStructure(
+					GensokyoLegacy.loc("hakurei_shrine"), GLStructureTagGen.HAKUREI_SHRINE, 32, 24,
+					StructureConfigBuilder.hakurei(),
+					List.of(new StructBed(
+							GLEntities.REIMU,
+							CharacterConfig.forStructure(6000, 12000, 16, 30),
+							GLBlocks.Beds.REIMU.holder()
+					)),
+					new StructFlatJigsawBuilding(6, List.of(
+							new StructFlatJigsawBuilding.Part("root", true, List.of()),
+							new StructFlatJigsawBuilding.Part("road", true, List.of()),
+							new StructFlatJigsawBuilding.Part("gate", true, List.of()),
+							new StructFlatJigsawBuilding.Part("warehouse", true, List.of()),
+							new StructFlatJigsawBuilding.Part("path0", false, List.of()),
+							new StructFlatJigsawBuilding.Part("path1", false, List.of()),
+							new StructFlatJigsawBuilding.Part("path2", false, List.of()),
+							new StructFlatJigsawBuilding.Part("path3", false, List.of()),
+							new StructFlatJigsawBuilding.Part("path4", false, List.of()),
+							new StructFlatJigsawBuilding.Part("path5", false, List.of()),
+							new StructFlatJigsawBuilding.Part("stone", true, List.of()),
+							new StructFlatJigsawBuilding.Part("tree0", true, List.of()),
+							new StructFlatJigsawBuilding.Part("tree1", true, List.of()),
+							new StructFlatJigsawBuilding.Part("tree2", true, List.of()),
+							new StructFlatJigsawBuilding.Part("tree2_top", true, List.of()),
+							new StructFlatJigsawBuilding.Part("tree3", true, List.of())
+					), Map.of(), 5, 80, 24, 32, 6)
+			),
 				// Kourindou (Morichika's shop) on vanilla plains (template 33x18x33, bed at local (27,8,16)-(27,8,17))
 				new StructStructure(
 						GensokyoLegacy.loc("morichika_shop"), GLStructureTagGen.MORICHIKA_SHOP, 32, 24,
