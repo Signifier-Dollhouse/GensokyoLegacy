@@ -15,15 +15,24 @@ import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLBlocks;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.levelgen.structure.StructureSet;
 import net.minecraft.world.level.levelgen.structure.placement.RandomSpreadType;
 import net.neoforged.neoforge.common.util.Lazy;
+
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
 public class GLStructureGen {
+
+	// Marisa's house and Kourindou share one structure set in the magical
+	// forest: a single placement grid picks at most one of them per region,
+	// so the two houses can never spawn too close to each other.
+	private static final ResourceLocation FOREST_HOUSES = GensokyoLegacy.loc("magical_forest_houses");
 
 	private static List<StructStructure> initStructures() {
 		return List.of(
@@ -36,7 +45,8 @@ public class GLStructureGen {
 								CharacterConfig.forStructure(6000, 12000, 12, 30),
 								GLBlocks.Beds.MARISA.holder()
 						)),
-						new StructFlatBuilding(List.of(), Map.of(), 5, 60, 24, 32, 8)
+						new StructFlatBuilding(List.of(), Map.of(), 5, 60, 24, 32, 8),
+						FOREST_HOUSES
 				),
 			// Hakurei shrine jigsaw in the modded sakura forest (root 19x14x19, bed at local (5,2,12)-(5,2,13))
 			new StructStructure(
@@ -66,7 +76,7 @@ public class GLStructureGen {
 							new StructFlatJigsawBuilding.Part("tree3", true, List.of())
 					), Map.of(), 5, 80, 24, 32, 8)
 			),
-				// Kourindou (Morichika's shop) on vanilla plains (template 33x18x33, bed at local (27,8,16)-(27,8,17))
+				// Kourindou (Morichika's shop) in the modded magical forest (template 33x18x33, bed at local (27,8,16)-(27,8,17))
 				new StructStructure(
 						GensokyoLegacy.loc("morichika_shop"), GLStructureTagGen.MORICHIKA_SHOP, 32, 24,
 						StructureConfigBuilder.morichika(),
@@ -75,7 +85,8 @@ public class GLStructureGen {
 								CharacterConfig.forStructure(6000, 12000, 12, 30),
 								GLBlocks.Beds.MORICHIKA.holder()
 						)),
-						new StructFlatBuilding(List.of(), Map.of(), 5, 64, 24, 32, 8)
+						new StructFlatBuilding(List.of(), Map.of(), 5, 64, 24, 32, 8),
+						FOREST_HOUSES
 				)
 		);
 	}
@@ -115,14 +126,29 @@ public class GLStructureGen {
 		init.add(Registries.STRUCTURE, ctx -> {
 			for (var e : STRUCTURES.get()) {
 				var biome = ctx.lookup(Registries.BIOME).getOrThrow(e.biomes());
-				e.building().registerStructure(ctx, e.id(), biome);
+				e.building().registerStructure(ctx, e.id(), biome, e.salt());
 			}
 		});
 		init.add(Registries.STRUCTURE_SET, ctx -> {
+			var groups = new LinkedHashMap<ResourceLocation, List<StructStructure>>();
 			for (var e : STRUCTURES.get()) {
-				var str = ctx.lookup(Registries.STRUCTURE).getOrThrow(ResourceKey.create(Registries.STRUCTURE, e.id()));
-				ctx.register(ResourceKey.create(Registries.STRUCTURE_SET, e.id()), new StructureSet(
-						str, new MultiSpreadPlacement(e.spacing(), RandomSpreadType.LINEAR, e.salt(), e.attempts())));
+				groups.computeIfAbsent(e.set(), k -> new ArrayList<>()).add(e);
+			}
+			for (var entry : groups.entrySet()) {
+				var members = entry.getValue();
+				var first = members.getFirst();
+				for (var e : members) {
+					if (e.spacing() != first.spacing() || e.attempts() != first.attempts()) {
+						throw new IllegalStateException("structures sharing set " + entry.getKey() +
+								" must use the same spacing/attempts");
+					}
+				}
+				var entries = members.stream()
+						.map(e -> new StructureSet.StructureSelectionEntry(
+								ctx.lookup(Registries.STRUCTURE).getOrThrow(ResourceKey.create(Registries.STRUCTURE, e.id())), 1))
+						.toList();
+				ctx.register(ResourceKey.create(Registries.STRUCTURE_SET, entry.getKey()), new StructureSet(
+						entries, new MultiSpreadPlacement(first.spacing(), RandomSpreadType.LINEAR, first.salt(), first.attempts())));
 			}
 		});
 	}

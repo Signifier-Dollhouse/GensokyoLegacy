@@ -2,12 +2,16 @@
   "placement": {
     "type": "gensokyolegacy:multi_spread",
     "attempts": 24,
-    "salt": 680226268,
+    "salt": 2026165872,
     "spacing": 32
   },
   "structures": [
     {
       "structure": "gensokyolegacy:marisa_house",
+      "weight": 1
+    },
+    {
+      "structure": "gensokyolegacy:morichika_shop",
       "weight": 1
     }
   ]

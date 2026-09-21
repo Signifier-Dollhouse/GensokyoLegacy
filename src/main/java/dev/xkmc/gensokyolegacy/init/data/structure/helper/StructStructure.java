@@ -11,14 +11,27 @@ public record StructStructure(
 		ResourceLocation id, TagKey<Biome> biomes, int spacing, int attempts,
 		StructureConfig.Builder config,
 		List<StructBed> beds,
-		StructBuilding building) {
+		StructBuilding building,
+		// Structures sharing one set id are placed by a single StructureSet:
+		// at most one member generates per placement region, so members of a
+		// group can never spawn too close to each other. All members of a
+		// group must use the same spacing/attempts, and share the set salt.
+		ResourceLocation set) {
+
+	public StructStructure(
+			ResourceLocation id, TagKey<Biome> biomes, int spacing, int attempts,
+			StructureConfig.Builder config,
+			List<StructBed> beds,
+			StructBuilding building) {
+		this(id, biomes, spacing, attempts, config, beds, building, id);
+	}
 
 	public static int saltFor(ResourceLocation id) {
 		return id.hashCode() & 0x7fffffff;
 	}
 
 	public int salt() {
-		return saltFor(id());
+		return saltFor(set());
 	}
 
 }

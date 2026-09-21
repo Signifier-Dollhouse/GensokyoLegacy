@@ -71,13 +71,13 @@ public record StructFlatJigsawBuilding(
 	}
 
 	@Override
-	public void registerStructure(BootstrapContext<Structure> ctx, ResourceLocation id, HolderSet.Named<Biome> biome) {
+	public void registerStructure(BootstrapContext<Structure> ctx, ResourceLocation id, HolderSet.Named<Biome> biome, int salt) {
 		var pool = ctx.lookup(Registries.TEMPLATE_POOL)
 				.getOrThrow(ResourceKey.create(Registries.TEMPLATE_POOL, id.withSuffix("/" + parts().getFirst().id())));
 		ctx.register(ResourceKey.create(Registries.STRUCTURE, id), new FlatCheckStructure(
 				new Structure.StructureSettings(biome, spawns(), GenerationStep.Decoration.SURFACE_STRUCTURES, TerrainAdjustment.BEARD_THIN),
 				pool, maxDepth(), false, maxDistanceFromCenter(), heightTolerance(),
-				attempts(), spacing(), RandomSpreadType.LINEAR, StructStructure.saltFor(id), safetyRadius()
+				attempts(), spacing(), RandomSpreadType.LINEAR, salt, safetyRadius()
 		));
 	}
 

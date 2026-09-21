@@ -57,8 +57,7 @@ public class GLStructureTagGen {
 		pvd.addTag(MARISA_HOUSE)
 				.add(GLBiomes.MAGICAL_FOREST);
 		pvd.addTag(MORICHIKA_SHOP)
-				.add(Biomes.PLAINS)
-				.add(Biomes.SUNFLOWER_PLAINS);
+				.add(GLBiomes.MAGICAL_FOREST);
 		pvd.addTag(Tags.Biomes.IS_MAGICAL).add(GLBiomes.MAGICAL_FOREST).add(GLBiomes.SAKURA_FOREST);
 		pvd.addTag(Tags.Biomes.IS_FOREST).add(GLBiomes.MAGICAL_FOREST).add(GLBiomes.SAKURA_FOREST);
 	}
@@ -139,7 +138,7 @@ public class GLStructureTagGen {
 		pvd.addTag(REIMU_FIX).addOptional(GensokyoLegacy.loc("spruce_large_chair"));
 		pvd.addTag(REIMU_FIX).addOptional(GensokyoLegacy.loc("dark_oak_large_table"));
 
-		// Kourindou (Morichika's shop) on vanilla plains (33x18x33): shop shell + goods
+		// Kourindou (Morichika's shop) in the magical forest (33x18x33): shop shell + goods
 		pvd.addTag(MORICHIKA_PRIMARY).add(
 				Blocks.STRIPPED_SPRUCE_LOG, Blocks.STRIPPED_OAK_LOG, Blocks.OAK_LOG,
 				Blocks.OAK_PLANKS, Blocks.SPRUCE_PLANKS,

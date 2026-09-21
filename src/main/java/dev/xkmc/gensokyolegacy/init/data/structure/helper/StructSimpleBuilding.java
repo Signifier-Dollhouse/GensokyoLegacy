@@ -47,7 +47,7 @@ public record StructSimpleBuilding(
 	}
 
 	@Override
-	public void registerStructure(BootstrapContext<Structure> ctx, ResourceLocation id, HolderSet.Named<Biome> biome) {
+	public void registerStructure(BootstrapContext<Structure> ctx, ResourceLocation id, HolderSet.Named<Biome> biome, int salt) {
 		var pool = ctx.lookup(Registries.TEMPLATE_POOL)
 				.getOrThrow(ResourceKey.create(Registries.TEMPLATE_POOL, id));
 		ctx.register(ResourceKey.create(Registries.STRUCTURE, id), new JigsawStructure(
