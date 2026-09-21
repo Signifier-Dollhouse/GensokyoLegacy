@@ -189,10 +189,11 @@ public class GLItems {
 			DOLL_GLOVE = reg.item("doll_glove", DollGloveItem::new)
 					.model((ctx, pvd) -> {
 						var base = pvd.generated(ctx, pvd.modLoc("item/tool/" + ctx.getName()));
-						// vanilla override matching is first-match with >= per predicate,
-						// so emit descending values for exact per-mode matching (glove.md §3b)
+						// vanilla reverses the override list at bake time and returns the
+						// first match with >= per predicate, so emit ascending values for
+						// exact per-mode matching (glove.md §3b)
 						var modes = DollGloveMode.values();
-						for (int i = modes.length - 1; i >= 0; i--) {
+						for (int i = 0; i < modes.length; i++) {
 							base.override()
 									.predicate(GensokyoLegacy.loc("glove_display"), i + 1)
 									.model(pvd.withExistingParent("item/glove_" + modes[i].iconName(), "item/generated")

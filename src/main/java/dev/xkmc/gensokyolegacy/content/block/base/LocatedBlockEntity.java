@@ -27,12 +27,17 @@ public class LocatedBlockEntity extends BaseBlockEntity implements TickableBlock
 	@Override
 	public void tick() {
 		if (level instanceof ServerLevel sl) {
-			if (!located) {
+			// retry while unlinked: template-placed beds carry baked
+			// `located=1, key=null` BE data, so a one-shot locate would
+			// leave them unlinked forever and they would never spawn
+			if (!located || key == null && sl.getGameTime() % 100 == 0) {
 				located = true;
 				var home = IHomeHolder.find(sl, getBlockPos());
 				var bed = BedData.of(getBlockState().getBlock());
-				if (home != null && bed != null && home.supportEntity(bed.type()))
+				if (home != null && bed != null && home.supportEntity(bed.type())) {
 					key = home.key();
+					setChanged();
+				}
 			}
 		}
 	}

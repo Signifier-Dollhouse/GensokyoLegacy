@@ -50,7 +50,7 @@ public class DollGloveItem extends Item {
 	/**
 	 * Model-override value for {@code gensokyolegacy:glove_display}: 0 keeps
 	 * the base glove model, otherwise the mode ordinal + 1 selects the
-	 * matching override (emitted descending, so values match exactly).
+	 * matching override (emitted ascending, so values match exactly).
 	 */
 	public static float displayPredicate(ItemStack stack, Level level, LivingEntity entity, int seed) {
 		return useDisplayIcons(stack) ? getMode(stack).ordinal() + 1 : 0;
