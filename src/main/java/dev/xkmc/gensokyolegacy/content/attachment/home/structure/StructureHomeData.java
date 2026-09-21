@@ -10,6 +10,9 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.StructurePiece;
 import net.minecraft.world.level.levelgen.structure.StructureStart;
+import net.minecraft.world.level.levelgen.structure.TemplateStructurePiece;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -76,16 +79,56 @@ public class StructureHomeData {
 		return piece.getLocatorPosition();
 	}
 
+	public boolean isInRoom(StructureConfig config, BlockPos pos) {
+		if (!config.rooms().isEmpty() && piece instanceof TemplateStructurePiece template) {
+			var settings = template.placeSettings();
+			var origin = template.templatePosition();
+			for (var local : config.rooms()) {
+				if (worldBox(local, settings, origin).isInside(pos)) return true;
+			}
+			return false;
+		}
+		return getRoomBound(config).isInside(pos);
+	}
+
 	public BoundingBox getRoomBound(StructureConfig config) {
-		var bound = piece.getBoundingBox();
-		return new BoundingBox(
-				bound.minX() + config.xzRoomShrink(),
-				bound.minY() + config.floorRoomShrink(),
-				bound.minZ() + config.xzRoomShrink(),
-				bound.maxX() - config.xzRoomShrink(),
-				bound.maxY() - config.topRoomShrink(),
-				bound.maxZ() - config.xzRoomShrink()
-		);
+		if (!config.rooms().isEmpty() && piece instanceof TemplateStructurePiece template) {
+			// map precalculated template-local room boxes to world;
+			// no scan here, just rotation/mirror/offset coordinate mapping
+			var settings = template.placeSettings();
+			var origin = template.templatePosition();
+			int x0 = Integer.MAX_VALUE, y0 = Integer.MAX_VALUE, z0 = Integer.MAX_VALUE;
+			int x1 = Integer.MIN_VALUE, y1 = Integer.MIN_VALUE, z1 = Integer.MIN_VALUE;
+			for (var local : config.rooms()) {
+				var w = worldBox(local, settings, origin);
+				x0 = Math.min(x0, w.minX());
+				y0 = Math.min(y0, w.minY());
+				z0 = Math.min(z0, w.minZ());
+				x1 = Math.max(x1, w.maxX());
+				y1 = Math.max(y1, w.maxY());
+				z1 = Math.max(z1, w.maxZ());
+			}
+			return new BoundingBox(x0, y0, z0, x1, y1, z1);
+		}
+		return piece.getBoundingBox();
+	}
+
+	private static BoundingBox worldBox(BoundingBox local, StructurePlaceSettings settings, BlockPos origin) {
+		var corner = new BlockPos.MutableBlockPos();
+		int x0 = Integer.MAX_VALUE, y0 = Integer.MAX_VALUE, z0 = Integer.MAX_VALUE;
+		int x1 = Integer.MIN_VALUE, y1 = Integer.MIN_VALUE, z1 = Integer.MIN_VALUE;
+		for (int x : new int[]{local.minX(), local.maxX()})
+			for (int y : new int[]{local.minY(), local.maxY()})
+				for (int z : new int[]{local.minZ(), local.maxZ()}) {
+					var w = StructureTemplate.calculateRelativePosition(settings, corner.set(x, y, z));
+					x0 = Math.min(x0, w.getX() + origin.getX());
+					y0 = Math.min(y0, w.getY() + origin.getY());
+					z0 = Math.min(z0, w.getZ() + origin.getZ());
+					x1 = Math.max(x1, w.getX() + origin.getX());
+					y1 = Math.max(y1, w.getY() + origin.getY());
+					z1 = Math.max(z1, w.getZ() + origin.getZ());
+				}
+		return new BoundingBox(x0, y0, z0, x1, y1, z1);
 	}
 
 	public BoundingBox getHouseBound(StructureConfig config) {

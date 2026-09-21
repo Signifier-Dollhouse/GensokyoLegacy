@@ -18,6 +18,7 @@ import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 
@@ -37,7 +38,7 @@ public record StructureHomeHolder(
 			entities.add(GLEntities.CIRNO.get());
 			//TODO 结构自定义
 			config = new StructureConfig(entities,
-					1, 1, 1, 0, 0, 0,
+					1, 1, 1, new ArrayList<>(),
 					null, null, null);
 		}
 		var chunk = level.getChunkAt(key.pos());
@@ -57,7 +58,7 @@ public record StructureHomeHolder(
 
 	public boolean isInRoom(BlockPos pos) {
 		if (!data.checkInit(this)) return false;
-		return data.getRoomBound(config).isInside(pos);
+		return data.isInRoom(config, pos);
 	}
 
 	@Nullable

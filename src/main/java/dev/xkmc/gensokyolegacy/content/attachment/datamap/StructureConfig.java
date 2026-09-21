@@ -8,14 +8,17 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
+import java.util.List;
 
 public record StructureConfig(
 		LinkedHashSet<EntityType<?>> entities,
-		int xzRoomShrink, int topRoomShrink, int floorRoomShrink,
 		int xzHouseShrink, int topHouseShrink, int floorHouseShrink,
+		ArrayList<BoundingBox> rooms,
 		@Nullable ResourceLocation outsideBlock,
 		@Nullable ResourceLocation primaryFix,
 		@Nullable ResourceLocation wouldFix
@@ -50,24 +53,22 @@ public record StructureConfig(
 
 	public static class Builder {
 
-		int xzRoomShrink, topRoomShrink, floorRoomShrink;
 		int xzHouseShrink, topHouseShrink, floorHouseShrink;
 		@Nullable
 		ResourceLocation outSideBlock, primaryFix, wouldFix;
 
 		LinkedHashSet<EntityType<?>> entities = new LinkedHashSet<>();
-
-		public Builder room(int xz, int top, int floor) {
-			this.xzRoomShrink = xz;
-			this.topRoomShrink = top;
-			this.floorRoomShrink = floor;
-			return this;
-		}
+		List<BoundingBox> rooms = new ArrayList<>();
 
 		public Builder house(int xz, int top, int floor) {
 			this.xzHouseShrink = xz;
 			this.topHouseShrink = top;
 			this.floorHouseShrink = floor;
+			return this;
+		}
+
+		public Builder rooms(List<BoundingBox> rooms) {
+			this.rooms = new ArrayList<>(rooms);
 			return this;
 		}
 
@@ -93,8 +94,8 @@ public record StructureConfig(
 
 		public StructureConfig build() {
 			return new StructureConfig(entities,
-					xzRoomShrink, topRoomShrink, floorRoomShrink,
 					xzHouseShrink, topHouseShrink, floorHouseShrink,
+					new ArrayList<>(rooms),
 					outSideBlock, primaryFix, wouldFix);
 		}
 
