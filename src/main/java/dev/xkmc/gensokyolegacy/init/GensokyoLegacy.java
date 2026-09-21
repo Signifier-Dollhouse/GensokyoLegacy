@@ -195,7 +195,7 @@ public class GensokyoLegacy {
 			((ItemAccessor) Items.POTION).setCraftingRemainingItem(Items.GLASS_BOTTLE);
 			((ItemAccessor) Items.DRAGON_BREATH).setCraftingRemainingItem(Items.GLASS_BOTTLE);
 
-			Regions.register(new MagicalForestRegion(GLModConfig.SERVER.regionWeight.get()));
+			Regions.register(new MagicalForestRegion(GLModConfig.COMMON.regionWeight.get()));
 		});
 	}
 

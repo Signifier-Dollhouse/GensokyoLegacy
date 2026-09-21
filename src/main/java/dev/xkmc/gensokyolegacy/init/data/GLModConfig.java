@@ -6,6 +6,22 @@ import net.neoforged.neoforge.common.ModConfigSpec;
 
 public class GLModConfig {
 
+	public static class Common extends ConfigInit {
+
+		public final ModConfigSpec.IntValue regionWeight;
+
+		Common(Builder builder) {
+			markL2();
+			builder.push("worldgen", "World Generation");
+			{
+				regionWeight = builder.text("TerraBlender region weight for the magical forest region; takes effect on game restart")
+						.defineInRange("regionWeight", 2, 0, 100);
+			}
+			builder.pop();
+		}
+
+	}
+
 	public static class Server extends ConfigInit {
 
 		public final ModConfigSpec.IntValue higiHealingPeriod;
@@ -30,8 +46,6 @@ public class GLModConfig {
 		public final ModConfigSpec.DoubleValue fairySummonReinforcement;
 
 		public final ModConfigSpec.DoubleValue morichikaReplaceChance;
-
-		public final ModConfigSpec.IntValue regionWeight;
 
 		public final ModConfigSpec.IntValue sealingPotRadius;
 
@@ -112,16 +126,11 @@ public class GLModConfig {
 						.defineInRange("morichikaReplaceChance", 0.3, 0, 1);
 			}
 			builder.pop();
-
-			builder.push("worldgen", "World Generation");
-			{
-				regionWeight = builder.text("TerraBlender region weight for the magical forest region; takes effect on game restart")
-						.defineInRange("regionWeight", 2, 0, 100);
-			}
-			builder.pop();
 		}
 
 	}
+
+	public static final Common COMMON = GensokyoLegacy.REGISTRATE.registerUnsynced(Common::new);
 
 	public static final Server SERVER = GensokyoLegacy.REGISTRATE.registerSynced(Server::new);
 
