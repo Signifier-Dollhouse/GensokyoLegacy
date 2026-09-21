@@ -140,15 +140,18 @@ public class GLItems {
 		{
 			MINI_FURNACE_1 = reg.item("mini_hakkero_prototype", MiniFurnace1::new)
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/tool/" + ctx.getName())))
+					.tag(GLTagGen.MORICHIKA_OFFERS)
 					.lang("Mini Hakkero [Prototype]").register();
 
 			CENTIPICKAXE = reg.item("centipickaxe", CentiPickaxe::new)
 					.model((ctx, pvd) -> pvd.handheld(ctx, pvd.modLoc("item/tool/" + ctx.getName())))
 					.tab(TAB.key(), (a, b) -> b.accept(a.get().getDefaultInstance(b.getParameters().holders())))
+					.tag(GLTagGen.MORICHIKA_OFFERS)
 					.lang("Centipeck").register();
 
 			DOWSER = reg.item("dowser", Dowser::new)
 					.model((ctx, pvd) -> pvd.handheld(ctx, pvd.modLoc("item/tool/" + ctx.getName())))
+					.tag(GLTagGen.MORICHIKA_OFFERS)
 					.lang("Nazrin's Dowser").register();
 
 			DOWSER_LEFT = reg.item("dowser_left", Item::new)
@@ -163,10 +166,12 @@ public class GLItems {
 
 			MERMAID_PEARL = reg.item("mermaid_pearl", MermaidPearl::new)
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/tool/" + ctx.getName())))
+					.tag(GLTagGen.MORICHIKA_OFFERS)
 					.lang("Mermaid's Pearl").register();
 
 			CAT_BELL = reg.item("cat_bell", CatBell::new)
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/tool/" + ctx.getName())))
+					.tag(GLTagGen.MORICHIKA_OFFERS)
 					.lang("Cat Bell").register();
 
 			BORDER_UMBRELLA = reg.item("border_umbrella", BorderUmbrellaItem::new)

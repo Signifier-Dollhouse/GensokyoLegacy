@@ -23,6 +23,8 @@ public class GLTagGen {
 	public static final TagKey<Item> TOUHOU_HAT = item("touhou_hat");
 	public static final TagKey<Item> TOUHOU_WINGS = item("touhou_wings");
 
+	public static final TagKey<Item> MORICHIKA_OFFERS = item("morichika_offers");
+
 	public static final TagKey<Block> VERTICAL_SLAB = block("vertical_slab");
 	public static final TagKey<Block> LARGE_TABLE = block("large_table");
 	public static final TagKey<Block> SLIDING_DOOR = block("sliding_door");

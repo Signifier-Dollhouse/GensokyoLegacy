@@ -3,6 +3,7 @@ package dev.xkmc.gensokyolegacy.content.attachment.home.core;
 import dev.xkmc.gensokyolegacy.content.block.deco.cabinet.CabinetBlockEntity;
 import dev.xkmc.gensokyolegacy.content.block.deco.seat.ChairEntity;
 import dev.xkmc.gensokyolegacy.content.block.deco.seat.ISeatableBlock;
+import dev.xkmc.gensokyolegacy.content.block.deco.shelf.ShelfBlockEntity;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -23,6 +24,9 @@ import net.neoforged.neoforge.items.ItemHandlerHelper;
 import net.neoforged.neoforge.items.wrapper.InvWrapper;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.function.BiPredicate;
 import java.util.function.Function;
@@ -38,6 +42,15 @@ public class HomeSearchUtil {
 
 	public static boolean isValidChair(ServerLevel sl, BlockPos pos) {
 		return sl.getBlockState(pos).getBlock() instanceof ISeatableBlock;
+	}
+
+	public static boolean isValidShelf(ServerLevel sl, BlockPos pos) {
+		return sl.getBlockEntity(pos) instanceof ShelfBlockEntity;
+	}
+
+	public static boolean isEmptyShelf(ServerLevel sl, BlockPos pos) {
+		return sl.getBlockEntity(pos) instanceof ShelfBlockEntity be &&
+				(be.stack.isEmpty() || be.stock <= 0);
 	}
 
 	public static void put(ServerLevel level, BlockPos chest, Function<Boolean, ItemStack> doCraft) {
@@ -102,9 +115,40 @@ public class HomeSearchUtil {
 		return null;
 	}
 
+	/**
+	 * BFS from a seed position, collecting all connected blocks of the given kind.
+	 * Two blocks count as connected when they are at most {@code radius} blocks
+	 * apart on each axis. Used to find a whole group of adjacent shelves from one hit.
+	 */
+	public static List<BlockPos> collectConnected(ServerLevel sl, BlockPos seed, HomeBlockKind kind, int radius) {
+		var ans = new ArrayList<BlockPos>();
+		if (!sl.isLoaded(seed) || !kind.isValid(sl, seed)) return ans;
+		var visited = new LinkedHashSet<BlockPos>();
+		var queue = new ArrayDeque<BlockPos>();
+		visited.add(seed);
+		queue.add(seed);
+		var pos = new BlockPos.MutableBlockPos();
+		while (!queue.isEmpty() && ans.size() < 64) {
+			var cur = queue.removeFirst();
+			ans.add(cur);
+			for (int dx = -radius; dx <= radius; dx++) {
+				for (int dy = -radius; dy <= radius; dy++) {
+					for (int dz = -radius; dz <= radius; dz++) {
+						if (dx == 0 && dy == 0 && dz == 0) continue;
+						pos.set(cur.getX() + dx, cur.getY() + dy, cur.getZ() + dz);
+						if (!sl.isLoaded(pos)) continue;
+						if (!kind.isValid(sl, pos)) continue;
+						var imm = pos.immutable();
+						if (visited.add(imm)) queue.add(imm);
+					}
+				}
+			}
+		}
+		return ans;
+	}
+
 	@Nullable
-	public static Vec3 getRandomPos(BoundingBox bound, YoukaiEntity e, Predicate<BlockPos> pred) {
-		return getRandomPos(MultiStructureBound.of(bound), e, pred);
+	public static Vec3 getRandomPos(BoundingBox bound, YoukaiEntity e, Predicate<BlockPos> pred) {		return getRandomPos(MultiStructureBound.of(bound), e, pred);
 	}
 
 	@Nullable

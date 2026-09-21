@@ -1,5 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.entity.behavior.task.home;
 
+import dev.xkmc.gensokyolegacy.content.attachment.home.core.HomeBlockKind;
 import dev.xkmc.gensokyolegacy.content.attachment.home.core.HomeSearchUtil;
 import dev.xkmc.gensokyolegacy.content.attachment.index.BedRefData;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.SmartYoukaiEntity;
@@ -57,7 +58,7 @@ public class YoukaiCraftTask<E extends SmartYoukaiEntity> extends AbstractHomeHo
 	@Override
 	protected boolean canStillUse(ServerLevel level, E entity, long gameTime) {
 		if (!home.isValid()) return false;
-		if (!HomeSearchUtil.isValidChest(level, chest)) return false;
+		if (!HomeBlockKind.CONTAINER.isValid(level, chest)) return false;
 		if (craftEnd == 0) {
 			if (entity.distanceToSqr(chest.getCenter()) < 4) {
 				craftEnd = gameTime + craftDuration;

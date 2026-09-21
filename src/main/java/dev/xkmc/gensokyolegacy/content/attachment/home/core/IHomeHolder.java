@@ -106,6 +106,9 @@ public interface IHomeHolder {
 	BlockPos getChairsAround(BlockPos pos);
 
 	@Nullable
+	BlockPos getShelvesAround(BlockPos pos);
+
+	@Nullable
 	BlockPos getWanderCenter();
 
 	int getWanderBaseRadius();

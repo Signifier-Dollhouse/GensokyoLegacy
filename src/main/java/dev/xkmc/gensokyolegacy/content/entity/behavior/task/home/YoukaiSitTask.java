@@ -1,5 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.entity.behavior.task.home;
 
+import dev.xkmc.gensokyolegacy.content.attachment.home.core.HomeBlockKind;
 import dev.xkmc.gensokyolegacy.content.attachment.home.core.HomeSearchUtil;
 import dev.xkmc.gensokyolegacy.content.attachment.index.BedRefData;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.SmartYoukaiEntity;
@@ -45,7 +46,7 @@ public class YoukaiSitTask<E extends SmartYoukaiEntity> extends AbstractHomeHold
 	@Override
 	protected boolean canStillUse(ServerLevel level, E entity, long gameTime) {
 		if (!home.isValid()) return false;
-		if (!HomeSearchUtil.isValidChair(level, chair)) return false;
+		if (!HomeBlockKind.CHAIR.isValid(level, chair)) return false;
 		if (entity.isPassenger()) return true;
 		if (entity.distanceToSqr(chair.getCenter()) < 2) {
 			HomeSearchUtil.setSitting(level, chair, entity);

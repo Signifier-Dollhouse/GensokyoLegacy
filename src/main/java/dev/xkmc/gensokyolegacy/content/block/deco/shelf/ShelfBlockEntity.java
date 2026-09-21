@@ -74,6 +74,16 @@ public class ShelfBlockEntity extends BaseBlockEntity {
 		setChanged();
 	}
 
+	/**
+	 * Fill this shelf with a new offer. Called on server side by shopkeeper restock behavior.
+	 */
+	public void restock(ItemStack display, int stock, int cost) {
+		this.stack = display.copyWithCount(1);
+		this.stock = stock;
+		this.cost = cost;
+		notifyTile();
+	}
+
 	public Component getTitle() {
 		return Component.literal("¥" + cost + " (" + stock + ")");
 	}

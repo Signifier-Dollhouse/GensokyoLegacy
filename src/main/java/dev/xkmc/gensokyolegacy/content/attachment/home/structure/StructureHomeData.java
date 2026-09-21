@@ -1,6 +1,7 @@
 package dev.xkmc.gensokyolegacy.content.attachment.home.structure;
 
 import dev.xkmc.gensokyolegacy.content.attachment.datamap.StructureConfig;
+import dev.xkmc.gensokyolegacy.content.attachment.home.core.HomeBlockKind;
 import dev.xkmc.gensokyolegacy.content.attachment.home.core.HomeSearchUtil;
 import dev.xkmc.gensokyolegacy.content.attachment.home.core.MultiStructureBound;
 import dev.xkmc.gensokyolegacy.content.attachment.index.StructureKey;
@@ -18,6 +19,7 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemp
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 @SerialClass
@@ -29,9 +31,7 @@ public class StructureHomeData {
 	private IntegrityVerifier verifier;
 
 	@SerialField
-	private final List<BlockPos> containers = new ArrayList<>();
-	@SerialField
-	private final List<BlockPos> chairs = new ArrayList<>();
+	private final LinkedHashMap<HomeBlockKind, ArrayList<BlockPos>> blocks = new LinkedHashMap<>();
 	@SerialField
 	private final AbnormalCache abnormal = new AbnormalCache();
 	@SerialField
@@ -146,16 +146,29 @@ public class StructureHomeData {
 		return start.getBoundingBox().inflatedBy(-12);
 	}
 
+	public List<BlockPos> cache(HomeBlockKind kind) {
+		return blocks.computeIfAbsent(kind, k -> new ArrayList<>());
+	}
+
 	@Nullable
-	public BlockPos getContainerAround(StructureHomeHolder holder, BlockPos center, int rxz, int ry, int trail) {
-		return HomeSearchUtil.searchBlock(containers, HomeSearchUtil::isValidChest,
+	public BlockPos getBlockAround(HomeBlockKind kind, StructureHomeHolder holder, BlockPos center, int rxz, int ry, int trail) {
+		return HomeSearchUtil.searchBlock(cache(kind), kind.validator(),
 				getRoomBounds(holder.config()), holder.level(), center, rxz, ry, trail);
 	}
 
 	@Nullable
+	public BlockPos getContainerAround(StructureHomeHolder holder, BlockPos center, int rxz, int ry, int trail) {
+		return getBlockAround(HomeBlockKind.CONTAINER, holder, center, rxz, ry, trail);
+	}
+
+	@Nullable
 	public BlockPos getChairAround(StructureHomeHolder holder, BlockPos center, int rxz, int ry, int trail) {
-		return HomeSearchUtil.searchBlock(chairs, HomeSearchUtil::isValidChair,
-				getRoomBounds(holder.config()), holder.level(), center, rxz, ry, trail);
+		return getBlockAround(HomeBlockKind.CHAIR, holder, center, rxz, ry, trail);
+	}
+
+	@Nullable
+	public BlockPos getShelfAround(StructureHomeHolder holder, BlockPos center, int rxz, int ry, int trail) {
+		return getBlockAround(HomeBlockKind.SHELF, holder, center, rxz, ry, trail);
 	}
 
 	public List<BlockFix> popFix(int count, FixStage stage) {

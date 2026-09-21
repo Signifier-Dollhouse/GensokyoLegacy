@@ -1,5 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.attachment.home.custom;
 
+import dev.xkmc.gensokyolegacy.content.attachment.home.core.HomeBlockKind;
 import dev.xkmc.gensokyolegacy.content.attachment.home.core.HomeSearchUtil;
 import dev.xkmc.gensokyolegacy.content.attachment.index.StructureKey;
 import dev.xkmc.gensokyolegacy.content.client.structure.StructureInfoUpdateToClient;
@@ -11,6 +12,7 @@ import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 @SerialClass
@@ -22,9 +24,7 @@ public class CustomHomeData {
 	protected RoomData room;
 
 	@SerialField
-	public final List<BlockPos> containers = new ArrayList<>();
-	@SerialField
-	public final List<BlockPos> chairs = new ArrayList<>();
+	private final LinkedHashMap<HomeBlockKind, ArrayList<BlockPos>> blocks = new LinkedHashMap<>();
 
 	public boolean checkInit(CustomHomeHolder holder) {
 		return rootPos != null && room != null;
@@ -60,16 +60,29 @@ public class CustomHomeData {
 		return level.canSeeSky(ans);
 	}
 
+	public List<BlockPos> cache(HomeBlockKind kind) {
+		return blocks.computeIfAbsent(kind, k -> new ArrayList<>());
+	}
+
 	@Nullable
-	public BlockPos getContainerAround(CustomHomeHolder holder, BlockPos center, int rxz, int ry, int trail) {
-		return HomeSearchUtil.searchBlock(containers, HomeSearchUtil::isValidChest,
+	public BlockPos getBlockAround(HomeBlockKind kind, CustomHomeHolder holder, BlockPos center, int rxz, int ry, int trail) {
+		return HomeSearchUtil.searchBlock(cache(kind), kind.validator(),
 				getRoomBound(), holder.level(), center, rxz, ry, trail);
 	}
 
 	@Nullable
+	public BlockPos getContainerAround(CustomHomeHolder holder, BlockPos center, int rxz, int ry, int trail) {
+		return getBlockAround(HomeBlockKind.CONTAINER, holder, center, rxz, ry, trail);
+	}
+
+	@Nullable
 	public BlockPos getChairAround(CustomHomeHolder holder, BlockPos center, int rxz, int ry, int trail) {
-		return HomeSearchUtil.searchBlock(chairs, HomeSearchUtil::isValidChair,
-				getRoomBound(), holder.level(), center, rxz, ry, trail);
+		return getBlockAround(HomeBlockKind.CHAIR, holder, center, rxz, ry, trail);
+	}
+
+	@Nullable
+	public BlockPos getShelfAround(CustomHomeHolder holder, BlockPos center, int rxz, int ry, int trail) {
+		return getBlockAround(HomeBlockKind.SHELF, holder, center, rxz, ry, trail);
 	}
 
 	public StructureInfoUpdateToClient getAbnormality(StructureKey key) {

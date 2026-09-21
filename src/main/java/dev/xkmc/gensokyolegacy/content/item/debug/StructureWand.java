@@ -1,6 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.item.debug;
 
-import dev.xkmc.gensokyolegacy.content.attachment.home.core.HomeSearchUtil;
+import dev.xkmc.gensokyolegacy.content.attachment.home.core.HomeBlockKind;
 import dev.xkmc.gensokyolegacy.content.attachment.home.custom.CustomHomeHolder;
 import dev.xkmc.gensokyolegacy.content.attachment.home.custom.RoomVerifier;
 import dev.xkmc.gensokyolegacy.content.block.deco.bed.YoukaiBedBlockEntity;
@@ -48,20 +48,23 @@ public class StructureWand extends Item {
 			List<YoukaiBedBlockEntity> beds = new ArrayList<>();
 			var box = new RoomVerifier(level, sp, (p, state) -> {
 				if (state.isAir()) return;
-				if (HomeSearchUtil.isValidChair(level, p)) {
-					holder.data().chairs.add(p);
+				if (HomeBlockKind.CHAIR.isValid(level, p)) {
+					holder.data().cache(HomeBlockKind.CHAIR).add(p);
 				}
-				if (HomeSearchUtil.isValidChest(level, p)) {
-					holder.data().containers.add(p);
+				if (HomeBlockKind.CONTAINER.isValid(level, p)) {
+					holder.data().cache(HomeBlockKind.CONTAINER).add(p);
+				}
+				if (HomeBlockKind.SHELF.isValid(level, p)) {
+					holder.data().cache(HomeBlockKind.SHELF).add(p);
 				}
 				if (level.getBlockEntity(p) instanceof YoukaiBedBlockEntity be && !be.linked() &&
 						be.getBlockState().getValue(BedBlock.PART) == BedPart.HEAD) {
 					beds.add(be);
 				}
 			}).run(pos.relative(context.getClickedFace()));
-			if (holder.data().chairs.isEmpty() || holder.data().containers.isEmpty() || beds.isEmpty()) {
+			if (holder.data().cache(HomeBlockKind.CHAIR).isEmpty() || holder.data().cache(HomeBlockKind.CONTAINER).isEmpty() || beds.isEmpty()) {
 				sp.sendSystemMessage(Component.literal("Missing required blocks. Chair: %d, Container: %d, Bed: %d".formatted(
-						holder.data().chairs.size(), holder.data().containers.size(), beds.size())));
+						holder.data().cache(HomeBlockKind.CHAIR).size(), holder.data().cache(HomeBlockKind.CONTAINER).size(), beds.size())));
 				return InteractionResult.FAIL;
 			}
 

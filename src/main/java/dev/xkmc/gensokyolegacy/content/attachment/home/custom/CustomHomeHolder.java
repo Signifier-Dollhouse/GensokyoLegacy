@@ -81,6 +81,12 @@ public record CustomHomeHolder(
 	}
 
 	@Nullable
+	public BlockPos getShelvesAround(BlockPos pos) {
+		if (!data.checkInit(this)) return null;
+		return data.getShelfAround(this, pos, 8, 4, 64);
+	}
+
+	@Nullable
 	public BlockPos getWanderCenter() {
 		if (!data.checkInit(this)) return null;
 		var box = data.getTotalBound();
