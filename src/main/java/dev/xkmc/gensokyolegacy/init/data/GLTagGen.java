@@ -4,6 +4,7 @@ import com.tterrag.registrate.providers.RegistrateItemTagsProvider;
 import com.tterrag.registrate.providers.RegistrateTagsProvider;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.structure.GLStructureTagGen;
+import dev.xkmc.gensokyolegacy.init.registrate.block.GLNaturalBlocks;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
@@ -12,6 +13,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.neoforged.neoforge.common.Tags;
 
 public class GLTagGen {
@@ -28,6 +30,7 @@ public class GLTagGen {
 	public static final TagKey<Block> VERTICAL_SLAB = block("vertical_slab");
 	public static final TagKey<Block> LARGE_TABLE = block("large_table");
 	public static final TagKey<Block> SLIDING_DOOR = block("sliding_door");
+	public static final TagKey<Block> TEMPLATE_TRUNK = block("template_trunk");
 
 	public static final TagKey<EntityType<?>> FLESH_SOURCE = entity("flesh_source");
 	public static final TagKey<EntityType<?>> YOUKAI_IGNORE = entity("youkai_ignore");
@@ -43,6 +46,10 @@ public class GLTagGen {
 
 	public static void onBlockTagGen(RegistrateTagsProvider.IntrinsicImpl<Block> pvd) {
 		GLStructureTagGen.genBlockTag(pvd);
+		// trunk blocks of vegetation templates: may sink into dirt and are extended down to the ground
+		pvd.addTag(TEMPLATE_TRUNK).addTag(BlockTags.LOGS).add(Blocks.MUSHROOM_STEM,
+				GLNaturalBlocks.CYAN_MUSHROOM_STEM.get(), GLNaturalBlocks.PURPLE_MUSHROOM_STEM.get(),
+				GLNaturalBlocks.RED_MUSHROOM_STEM.get());
 	}
 
 	public static void onItemTagGen(RegistrateItemTagsProvider pvd) {

@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:random_selector",
+  "config": {
+    "default": {
+      "feature": "gensokyolegacy:magical_forest/blue_fir_large",
+      "placement": []
+    },
+    "features": [
+      {
+        "chance": 0.5,
+        "feature": {
+          "feature": "gensokyolegacy:magical_forest/oak_large",
+          "placement": []
+        }
+      }
+    ]
+  }
+}

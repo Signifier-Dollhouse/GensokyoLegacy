@@ -1,0 +1,77 @@
+{
+  "type": "gensokyolegacy:template",
+  "config": {
+    "footprint_radius": 3,
+    "ground": "#minecraft:dirt",
+    "max_slope": 4,
+    "post_features": [
+      {
+        "feature": {
+          "type": "minecraft:disk",
+          "config": {
+            "half_height": 2,
+            "radius": {
+              "type": "minecraft:uniform",
+              "max_inclusive": 5,
+              "min_inclusive": 3
+            },
+            "state_provider": {
+              "fallback": {
+                "type": "minecraft:weighted_state_provider",
+                "entries": [
+                  {
+                    "data": {
+                      "Name": "minecraft:podzol",
+                      "Properties": {
+                        "snowy": "false"
+                      }
+                    },
+                    "weight": 3
+                  },
+                  {
+                    "data": {
+                      "Name": "minecraft:coarse_dirt"
+                    },
+                    "weight": 2
+                  },
+                  {
+                    "data": {
+                      "Name": "minecraft:rooted_dirt"
+                    },
+                    "weight": 2
+                  },
+                  {
+                    "data": {
+                      "Name": "minecraft:moss_block"
+                    },
+                    "weight": 1
+                  }
+                ]
+              },
+              "rules": []
+            },
+            "target": {
+              "type": "minecraft:matching_blocks",
+              "blocks": [
+                "minecraft:grass_block",
+                "minecraft:dirt"
+              ]
+            }
+          }
+        },
+        "placement": []
+      },
+      {
+        "feature": "gensokyolegacy:magical_forest/moss_carpet",
+        "placement": []
+      }
+    ],
+    "root_depth": 5,
+    "templates": [
+      {
+        "data": "gensokyolegacy:magical_forest/tree/oak_large_1",
+        "weight": 1
+      }
+    ]
+  }
+}

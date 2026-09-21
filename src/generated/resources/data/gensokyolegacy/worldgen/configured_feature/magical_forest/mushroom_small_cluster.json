@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:random_patch",
+  "config": {
+    "feature": {
+      "feature": "gensokyolegacy:magical_forest/mushroom_small",
+      "placement": []
+    },
+    "tries": 5,
+    "xz_spread": 4,
+    "y_spread": 2
+  }
+}

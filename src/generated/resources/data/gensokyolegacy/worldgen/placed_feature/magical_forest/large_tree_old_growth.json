@@ -1,0 +1,50 @@
+{
+  "feature": "gensokyolegacy:magical_forest/blue_fir_large",
+  "placement": [
+    {
+      "type": "gensokyolegacy:jittered_grid",
+      "cell": 18,
+      "chance": 0.95,
+      "margin": 3,
+      "salt": 7310002
+    },
+    {
+      "type": "gensokyolegacy:noise_band",
+      "min": 0.2,
+      "noise": "gensokyolegacy:magical_forest_type"
+    },
+    {
+      "type": "gensokyolegacy:noise_band",
+      "max": 0.48,
+      "noise": "gensokyolegacy:magical_forest_clearing"
+    },
+    {
+      "type": "gensokyolegacy:grid_exclusion",
+      "layers": [
+        {
+          "cell": 28,
+          "chance": 0.85,
+          "distance": 12,
+          "margin": 5,
+          "salt": 7310001
+        }
+      ]
+    },
+    {
+      "type": "gensokyolegacy:avoid_structures",
+      "margin": 11,
+      "structures": [
+        "gensokyolegacy:marisa_house",
+        "gensokyolegacy:morichika_shop",
+        "gensokyolegacy:hakurei_shrine"
+      ]
+    },
+    {
+      "type": "minecraft:heightmap",
+      "heightmap": "MOTION_BLOCKING_NO_LEAVES"
+    },
+    {
+      "type": "minecraft:biome"
+    }
+  ]
+}

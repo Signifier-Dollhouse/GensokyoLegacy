@@ -19,10 +19,11 @@ import java.util.function.Supplier;
 public class TreeFeatures {
 
 	public enum TreeType {
+		// young tree only (4-6 tall): grown blue firs are hand-built templates, see MagicalForestFeatures
 		BLUE_FIR("blue_fir_tree",
 				() -> GLNaturalBlocks.BLUE_FUR_SET,
-				7, 2, 1,
-				UniformInt.of(2, 3), UniformInt.of(0, 2), UniformInt.of(1, 2)),
+				4, 2, 0,
+				UniformInt.of(1, 2), UniformInt.of(0, 1), UniformInt.of(1, 2)),
 		;
 
 		public final String id;

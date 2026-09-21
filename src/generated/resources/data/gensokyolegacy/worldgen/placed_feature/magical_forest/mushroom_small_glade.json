@@ -1,0 +1,33 @@
+{
+  "feature": "gensokyolegacy:magical_forest/mushroom_small_cluster",
+  "placement": [
+    {
+      "type": "minecraft:count",
+      "count": 2
+    },
+    {
+      "type": "minecraft:in_square"
+    },
+    {
+      "type": "gensokyolegacy:noise_band",
+      "max": -0.28,
+      "noise": "gensokyolegacy:magical_forest_type"
+    },
+    {
+      "type": "gensokyolegacy:avoid_structures",
+      "margin": 2,
+      "structures": [
+        "gensokyolegacy:marisa_house",
+        "gensokyolegacy:morichika_shop",
+        "gensokyolegacy:hakurei_shrine"
+      ]
+    },
+    {
+      "type": "minecraft:heightmap",
+      "heightmap": "MOTION_BLOCKING_NO_LEAVES"
+    },
+    {
+      "type": "minecraft:biome"
+    }
+  ]
+}

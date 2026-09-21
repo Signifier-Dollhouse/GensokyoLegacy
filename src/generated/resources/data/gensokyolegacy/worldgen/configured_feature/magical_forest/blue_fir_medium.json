@@ -1,0 +1,19 @@
+{
+  "type": "gensokyolegacy:template",
+  "config": {
+    "footprint_radius": 2,
+    "ground": "#minecraft:dirt",
+    "max_slope": 3,
+    "root_depth": 4,
+    "templates": [
+      {
+        "data": "gensokyolegacy:magical_forest/tree/blue_fir_medium_1",
+        "weight": 1
+      },
+      {
+        "data": "gensokyolegacy:magical_forest/tree/blue_fir_medium_2",
+        "weight": 1
+      }
+    ]
+  }
+}
