@@ -1,5 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.item.glove.client;
 
+import dev.xkmc.gensokyolegacy.content.item.glove.DollGloveItem;
 import dev.xkmc.gensokyolegacy.content.item.glove.mode.DollGloveMode;
 import dev.xkmc.l2itemselector.wheel.WheelAdaptor;
 import net.minecraft.client.Minecraft;
@@ -18,7 +19,7 @@ public record DollGloveModeEntry(DollGloveMode mode) implements WheelAdaptor.Ent
 		g.pose().pushPose();
 		g.pose().translate(dx, dy, 0);
 		g.pose().scale(s, s, s);
-		ItemStack icon = mode.icon();
+		ItemStack icon = DollGloveItem.displayStack(mode);
 		g.renderItem(icon, -8, -8);
 		g.renderItemDecorations(Minecraft.getInstance().font, icon, -8, -8);
 		g.pose().popPose();

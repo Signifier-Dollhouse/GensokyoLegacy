@@ -11,6 +11,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Locale;
+
 public enum DollGloveMode {
 	SUMMON(new SummonMode()),
 	HEAL_MARK(new HealMarkMode()),
@@ -27,6 +29,15 @@ public enum DollGloveMode {
 
 	public ItemStack icon() {
 		return handler.icon();
+	}
+
+	/**
+	 * Dedicated wheel texture + sub-model id suffix for this mode
+	 * ({@code item/tool/glove_<name>}, glove.md §3b): the enum names already
+	 * match the provided texture files.
+	 */
+	public String iconName() {
+		return name().toLowerCase(Locale.ROOT);
 	}
 
 	public Component displayName() {

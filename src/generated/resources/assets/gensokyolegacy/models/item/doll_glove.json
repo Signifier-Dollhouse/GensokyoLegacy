@@ -1,5 +1,43 @@
 {
   "parent": "minecraft:item/generated",
+  "overrides": [
+    {
+      "model": "gensokyolegacy:item/glove_stop",
+      "predicate": {
+        "gensokyolegacy:glove_display": 6.0
+      }
+    },
+    {
+      "model": "gensokyolegacy:item/glove_suicide",
+      "predicate": {
+        "gensokyolegacy:glove_display": 5.0
+      }
+    },
+    {
+      "model": "gensokyolegacy:item/glove_super",
+      "predicate": {
+        "gensokyolegacy:glove_display": 4.0
+      }
+    },
+    {
+      "model": "gensokyolegacy:item/glove_volley",
+      "predicate": {
+        "gensokyolegacy:glove_display": 3.0
+      }
+    },
+    {
+      "model": "gensokyolegacy:item/glove_heal_mark",
+      "predicate": {
+        "gensokyolegacy:glove_display": 2.0
+      }
+    },
+    {
+      "model": "gensokyolegacy:item/glove_summon",
+      "predicate": {
+        "gensokyolegacy:glove_display": 1.0
+      }
+    }
+  ],
   "textures": {
     "layer0": "gensokyolegacy:item/tool/doll_glove"
   }

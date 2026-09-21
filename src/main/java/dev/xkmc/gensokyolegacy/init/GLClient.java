@@ -15,6 +15,7 @@ import dev.xkmc.gensokyolegacy.content.item.glove.client.DollAttackStatusOverlay
 import dev.xkmc.gensokyolegacy.content.item.glove.client.DollClientLoadoutTooltip;
 import dev.xkmc.gensokyolegacy.content.item.glove.client.DollGloveOverlay;
 import dev.xkmc.gensokyolegacy.content.item.glove.client.DollLoadoutTooltip;
+import dev.xkmc.gensokyolegacy.content.item.glove.DollGloveItem;
 import dev.xkmc.gensokyolegacy.content.item.tool.ClientInvTooltip;
 import dev.xkmc.gensokyolegacy.content.item.tool.InvTooltip;
 import dev.xkmc.gensokyolegacy.content.item.umbrella.BorderUmbrellaItem;
@@ -51,6 +52,7 @@ public class GLClient {
 
 		event.enqueueWork(() -> {
 			ItemProperties.register(GLItems.BORDER_UMBRELLA.get(), GensokyoLegacy.loc("umbrella_open"), BorderUmbrellaItem::isOpen);
+			ItemProperties.register(GLItems.DOLL_GLOVE.get(), GensokyoLegacy.loc("glove_display"), DollGloveItem::displayPredicate);
 
 			GLItems.STAR.get().getTypeForRender();
 			ProjectileRenderHelper.setup();

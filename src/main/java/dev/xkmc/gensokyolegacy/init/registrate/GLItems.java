@@ -17,6 +17,7 @@ import dev.xkmc.gensokyolegacy.content.item.debug.StructureWand;
 import dev.xkmc.gensokyolegacy.content.attachment.doll.DollInventory;
 import dev.xkmc.gensokyolegacy.content.item.doll.DollItem;
 import dev.xkmc.gensokyolegacy.content.item.glove.DollGloveItem;
+import dev.xkmc.gensokyolegacy.content.item.glove.mode.DollGloveMode;
 import dev.xkmc.gensokyolegacy.content.item.doll.DollItemData;
 import dev.xkmc.gensokyolegacy.content.item.gift.*;
 import dev.xkmc.gensokyolegacy.content.item.hexbrew.StarDanmakuItem;
@@ -40,6 +41,7 @@ import dev.xkmc.l2core.init.reg.simple.EnumCodec;
 import dev.xkmc.l2itemselector.init.data.L2ISTagGen;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
+import net.minecraft.util.Unit;
 import net.minecraft.world.entity.animal.FrogVariant;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.*;
@@ -106,6 +108,7 @@ public class GLItems {
 	public static final DCVal<DollInventory> DOLL_LOADOUT = DC.reg("doll_loadout", DollInventory.class, false);
 	public static final DCVal<DyeColor> DOLL_COLOR = DC.enumVal("doll_color", EnumCodec.of(DyeColor.class, DyeColor.values()));
 	public static final DCVal<Integer> DOLL_GLOVE_MODE = DC.intVal("doll_glove_mode");
+	public static final DCVal<Unit> DOLL_GLOVE_DISPLAY = DC.unit("doll_glove_display");
 
 
 	static {
@@ -184,7 +187,19 @@ public class GLItems {
 					.register();
 
 			DOLL_GLOVE = reg.item("doll_glove", DollGloveItem::new)
-					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/tool/" + ctx.getName())))
+					.model((ctx, pvd) -> {
+						var base = pvd.generated(ctx, pvd.modLoc("item/tool/" + ctx.getName()));
+						// vanilla override matching is first-match with >= per predicate,
+						// so emit descending values for exact per-mode matching (glove.md §3b)
+						var modes = DollGloveMode.values();
+						for (int i = modes.length - 1; i >= 0; i--) {
+							base.override()
+									.predicate(GensokyoLegacy.loc("glove_display"), i + 1)
+									.model(pvd.withExistingParent("item/glove_" + modes[i].iconName(), "item/generated")
+											.texture("layer0", pvd.modLoc("item/tool/glove_" + modes[i].iconName())))
+									.end();
+						}
+					})
 					.lang("Seven-Colored Doll Glove").tab(TAB.key())
 					.tag(L2ISTagGen.SELECTABLE)
 					.register();

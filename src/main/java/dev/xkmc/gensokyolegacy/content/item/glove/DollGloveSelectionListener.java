@@ -61,7 +61,7 @@ public class DollGloveSelectionListener extends IItemSelector implements WheelAd
 		// list covers every mode that can ever be visible.
 		List<ItemStack> list = new ArrayList<>();
 		for (var m : DollGloveModes.potentiallyVisible()) {
-			ItemStack icon = m.icon();
+			ItemStack icon = DollGloveItem.displayStack(m);
 			icon.set(DataComponents.ITEM_NAME, m.displayName());
 			list.add(icon);
 		}

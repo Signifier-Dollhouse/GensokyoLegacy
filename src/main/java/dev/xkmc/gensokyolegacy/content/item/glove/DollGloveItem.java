@@ -10,6 +10,7 @@ import dev.xkmc.l2itemselector.init.data.L2Keys;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Unit;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
@@ -35,6 +36,37 @@ public class DollGloveItem extends Item {
 		var modes = DollGloveMode.values();
 		// floorMod also migrates pre-removal EDITOR gloves (old ordinal 6) to SUMMON
 		return modes[Math.floorMod(i, modes.length)];
+	}
+
+	/**
+	 * Whether the stack shows the dedicated wheel textures (glove.md §3b):
+	 * true only on client-built display stacks carrying the display
+	 * component — real item stacks never have it set.
+	 */
+	public static boolean useDisplayIcons(ItemStack stack) {
+		return stack.has(GLItems.DOLL_GLOVE_DISPLAY.get());
+	}
+
+	/**
+	 * Model-override value for {@code gensokyolegacy:glove_display}: 0 keeps
+	 * the base glove model, otherwise the mode ordinal + 1 selects the
+	 * matching override (emitted descending, so values match exactly).
+	 */
+	public static float displayPredicate(ItemStack stack, Level level, LivingEntity entity, int seed) {
+		return useDisplayIcons(stack) ? getMode(stack).ordinal() + 1 : 0;
+	}
+
+	/**
+	 * Display stack for wheel entries (client-side only): a fresh glove with
+	 * the entry's mode and the display component set, so the model override
+	 * renders that mode's texture. The component is only ever set here —
+	 * never on real item stacks.
+	 */
+	public static ItemStack displayStack(DollGloveMode mode) {
+		ItemStack stack = new ItemStack(GLItems.DOLL_GLOVE.get());
+		stack.set(GLItems.DOLL_GLOVE_MODE.get(), mode.ordinal());
+		stack.set(GLItems.DOLL_GLOVE_DISPLAY.get(), Unit.INSTANCE);
+		return stack;
 	}
 
 	@Override
