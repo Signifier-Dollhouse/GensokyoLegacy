@@ -1,8 +1,8 @@
 package dev.xkmc.gensokyolegacy.content.block.deco.misc;
 
+import dev.xkmc.gensokyolegacy.content.block.base.ShapePathFindBlockMethod;
 import dev.xkmc.l2modularblock.core.BlockTemplates;
 import dev.xkmc.l2modularblock.mult.*;
-import dev.xkmc.l2modularblock.one.ShapeBlockMethod;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.LivingEntity;
@@ -20,7 +20,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import javax.annotation.Nullable;
 
 public class TeaTableBlock implements CreateBlockStateBlockMethod, DefaultStateBlockMethod,
-		PlacementBlockMethod, SetPlacedByBlockMethod, ShapeBlockMethod, OnReplacedBlockMethod {
+		PlacementBlockMethod, SetPlacedByBlockMethod, OnReplacedBlockMethod, ShapePathFindBlockMethod {
 
 	public static final BooleanProperty ORIGIN = BooleanProperty.create("origin");
 

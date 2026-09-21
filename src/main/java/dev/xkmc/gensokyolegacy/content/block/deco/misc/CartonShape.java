@@ -1,6 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.block.deco.misc;
 
-import dev.xkmc.l2modularblock.one.ShapeBlockMethod;
+import dev.xkmc.gensokyolegacy.content.block.base.ShapePathFindBlockMethod;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.BlockGetter;
@@ -11,7 +11,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 
 import static net.minecraft.world.level.block.HorizontalDirectionalBlock.FACING;
 
-public class CartonShape implements ShapeBlockMethod {
+public class CartonShape implements ShapePathFindBlockMethod {
 
 	public static final VoxelShape SHAPE_NS = Block.box(3, 0, 2, 13, 8, 14);
 	public static final VoxelShape SHAPE_WE = Block.box(2, 0, 3, 14, 8, 13);

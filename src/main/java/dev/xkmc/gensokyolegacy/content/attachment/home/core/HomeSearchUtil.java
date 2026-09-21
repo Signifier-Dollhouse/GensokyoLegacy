@@ -148,7 +148,8 @@ public class HomeSearchUtil {
 	}
 
 	@Nullable
-	public static Vec3 getRandomPos(BoundingBox bound, YoukaiEntity e, Predicate<BlockPos> pred) {		return getRandomPos(MultiStructureBound.of(bound), e, pred);
+	public static Vec3 getRandomPos(BoundingBox bound, YoukaiEntity e, Predicate<BlockPos> pred) {
+		return getRandomPos(MultiStructureBound.of(bound), e, pred);
 	}
 
 	@Nullable

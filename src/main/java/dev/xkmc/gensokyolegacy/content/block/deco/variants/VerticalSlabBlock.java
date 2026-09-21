@@ -22,6 +22,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.client.model.generators.BlockModelBuilder;
@@ -50,6 +51,12 @@ public class VerticalSlabBlock extends HorizontalLoggedBlock {
 	@Override
 	public VoxelShape getShape(BlockState pState, BlockGetter pLevel, BlockPos pPos, CollisionContext pContext) {
 		return SHAPES[pState.getValue(FACING).get2DDataValue()];
+	}
+
+	@Override
+	protected boolean isPathfindable(BlockState state, PathComputationType pathComputationType) {
+		// half-height wall piece: mobs must path around, not through
+		return false;
 	}
 
 	@Override

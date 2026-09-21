@@ -3,10 +3,10 @@ package dev.xkmc.gensokyolegacy.content.block.deco.variants;
 import com.tterrag.registrate.providers.DataGenContext;
 import com.tterrag.registrate.providers.RegistrateBlockstateProvider;
 import com.tterrag.registrate.providers.loot.RegistrateBlockLootTables;
+import dev.xkmc.gensokyolegacy.content.block.base.ShapePathFindBlockMethod;
 import dev.xkmc.l2modularblock.core.DelegateBlock;
 import dev.xkmc.l2modularblock.mult.CreateBlockStateBlockMethod;
 import dev.xkmc.l2modularblock.mult.DefaultStateBlockMethod;
-import dev.xkmc.l2modularblock.one.ShapeBlockMethod;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.Block;
@@ -16,7 +16,7 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
 
-public class LargeChairBlock implements ShapeBlockMethod, CreateBlockStateBlockMethod, DefaultStateBlockMethod {
+public class LargeChairBlock implements CreateBlockStateBlockMethod, DefaultStateBlockMethod, ShapePathFindBlockMethod {
 
 	public static final VoxelShape SHAPE = Block.box(1, 0, 1, 15, 12, 15);
 

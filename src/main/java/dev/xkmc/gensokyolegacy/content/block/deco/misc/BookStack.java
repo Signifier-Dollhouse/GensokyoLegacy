@@ -3,6 +3,7 @@ package dev.xkmc.gensokyolegacy.content.block.deco.misc;
 import com.tterrag.registrate.providers.DataGenContext;
 import com.tterrag.registrate.providers.RegistrateBlockstateProvider;
 import com.tterrag.registrate.providers.loot.RegistrateBlockLootTables;
+import dev.xkmc.gensokyolegacy.content.block.base.ShapePathFindBlockMethod;
 import dev.xkmc.gensokyolegacy.content.block.base.SurviveImpl;
 import dev.xkmc.gensokyolegacy.content.block.base.VariantImpl;
 import dev.xkmc.l2core.serial.loot.LootHelper;
@@ -12,7 +13,6 @@ import dev.xkmc.l2modularblock.core.VoxelBuilder;
 import dev.xkmc.l2modularblock.mult.CreateBlockStateBlockMethod;
 import dev.xkmc.l2modularblock.mult.DefaultStateBlockMethod;
 import dev.xkmc.l2modularblock.mult.UseItemOnBlockMethod;
-import dev.xkmc.l2modularblock.one.ShapeBlockMethod;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
@@ -40,7 +40,7 @@ import org.jetbrains.annotations.Nullable;
 import static net.minecraft.world.level.block.state.properties.BlockStateProperties.ATTACHED;
 import static net.minecraft.world.level.block.state.properties.BlockStateProperties.HORIZONTAL_FACING;
 
-public class BookStack implements CreateBlockStateBlockMethod, DefaultStateBlockMethod, UseItemOnBlockMethod, ShapeBlockMethod {
+public class BookStack implements CreateBlockStateBlockMethod, DefaultStateBlockMethod, UseItemOnBlockMethod, ShapePathFindBlockMethod {
 
 	public static final VoxelShape[] SHAPES = new VoxelShape[4];
 
