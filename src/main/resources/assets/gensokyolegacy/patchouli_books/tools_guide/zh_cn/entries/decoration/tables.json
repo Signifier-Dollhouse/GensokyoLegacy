@@ -6,7 +6,7 @@
   "pages": [
     {
       "type": "patchouli:spotlight",
-      "item": "gensokyolegacy:oak_table",
+      "item": "gensokyolegacy:oak_large_table",
       "title": "拼成长桌",
       "text": "这种餐桌提供全部木材种类。将同类桌子并排摆放，可以组合成更大的桌面；在两侧继续连接时，中间的支架会收起，让桌面连成一整条宴会长桌。"
     },
