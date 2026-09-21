@@ -9,6 +9,7 @@ import dev.xkmc.l2serial.serialization.marker.SerialClass;
 import dev.xkmc.l2serial.serialization.marker.SerialField;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
+import net.minecraft.world.level.levelgen.structure.PoolElementStructurePiece;
 import net.minecraft.world.level.levelgen.structure.StructurePiece;
 import net.minecraft.world.level.levelgen.structure.StructureStart;
 import net.minecraft.world.level.levelgen.structure.TemplateStructurePiece;
@@ -85,16 +86,28 @@ public class StructureHomeData {
 	}
 
 	public MultiStructureBound getRoomBounds(StructureConfig config) {
-		if (!config.rooms().isEmpty() && piece instanceof TemplateStructurePiece template) {
-			// map precalculated template-local room boxes to world;
-			// no scan here, just rotation/mirror/offset coordinate mapping
-			var settings = template.placeSettings();
-			var origin = template.templatePosition();
-			List<BoundingBox> ans = new ArrayList<>(config.rooms().size());
-			for (var local : config.rooms()) {
-				ans.add(worldBox(local, settings, origin));
+		if (!config.rooms().isEmpty()) {
+			if (piece instanceof TemplateStructurePiece template) {
+				// map precalculated template-local room boxes to world;
+				// no scan here, just rotation/mirror/offset coordinate mapping
+				var settings = template.placeSettings();
+				var origin = template.templatePosition();
+				List<BoundingBox> ans = new ArrayList<>(config.rooms().size());
+				for (var local : config.rooms()) {
+					ans.add(worldBox(local, settings, origin));
+				}
+				return MultiStructureBound.of(ans);
+			} else if (piece instanceof PoolElementStructurePiece pool) {
+				// jigsaw pieces are placed with rotation only (mirror NONE,
+				// see SinglePoolElement); origin is the template position
+				var settings = new StructurePlaceSettings().setRotation(pool.getRotation());
+				var origin = pool.getPosition();
+				List<BoundingBox> ans = new ArrayList<>(config.rooms().size());
+				for (var local : config.rooms()) {
+					ans.add(worldBox(local, settings, origin));
+				}
+				return MultiStructureBound.of(ans);
 			}
-			return MultiStructureBound.of(ans);
 		}
 		return MultiStructureBound.of(piece.getBoundingBox());
 	}
