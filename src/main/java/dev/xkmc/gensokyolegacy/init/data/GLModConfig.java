@@ -29,6 +29,10 @@ public class GLModConfig {
 		public final ModConfigSpec.BooleanValue fairyAttackYoukaified;
 		public final ModConfigSpec.DoubleValue fairySummonReinforcement;
 
+		public final ModConfigSpec.DoubleValue morichikaReplaceChance;
+
+		public final ModConfigSpec.IntValue regionWeight;
+
 		public final ModConfigSpec.IntValue sealingPotRadius;
 
 		Server(Builder builder) {
@@ -99,6 +103,20 @@ public class GLModConfig {
 						.define("fairyAttackYoukaified", true);
 				fairySummonReinforcement = builder.text("Chance for fairies to summon other fairies when killed by non-danmaku damage")
 						.defineInRange("fairySummonReinforcement", 0.5, 0, 1);
+			}
+			builder.pop();
+
+			builder.push("morichika", "Morichika");
+			{
+				morichikaReplaceChance = builder.text("Chance for Morichika to replace a stocked shelf with a new item when no empty shelf is available; otherwise he skips restocking")
+						.defineInRange("morichikaReplaceChance", 0.3, 0, 1);
+			}
+			builder.pop();
+
+			builder.push("worldgen", "World Generation");
+			{
+				regionWeight = builder.text("TerraBlender region weight for the magical forest region; takes effect on game restart")
+						.defineInRange("regionWeight", 2, 0, 100);
 			}
 			builder.pop();
 		}

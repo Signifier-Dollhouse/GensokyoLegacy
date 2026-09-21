@@ -32,7 +32,7 @@ public class MorichikaEntity extends GeneralYoukaiEntity implements GeoEntity {
 	@Override
 	protected void constructTaskBoard(TaskBoard board) {
 		super.constructTaskBoard(board);
-		board.addRandom(new YoukaiRestockShelfTask<>(GLTagGen.MORICHIKA_OFFERS, 2, 4, 2, 1200), Activity.WORK);
+		board.addRandom(new YoukaiRestockShelfTask<>(GLTagGen.MORICHIKA_OFFERS), Activity.WORK);
 		board.addRandom(RandomStroll.stroll(0.8f), Activity.WORK);
 		board.addScheduledActivity(Activity.WORK, MemoryModuleType.HOME);
 		board.setSchedule(new ScheduleBuilder(new Schedule())

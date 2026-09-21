@@ -16,8 +16,8 @@ import java.util.function.Consumer;
 
 public class MagicalForestRegion extends Region {
 
-	public MagicalForestRegion() {
-		super(ResourceLocation.fromNamespaceAndPath(GensokyoLegacy.MODID, "magical_forest"), RegionType.OVERWORLD, 3);
+	public MagicalForestRegion(int weight) {
+		super(ResourceLocation.fromNamespaceAndPath(GensokyoLegacy.MODID, "magical_forest"), RegionType.OVERWORLD, weight);
 	}
 
 	@Override

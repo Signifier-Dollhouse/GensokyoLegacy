@@ -5,6 +5,7 @@ import com.tterrag.registrate.util.entry.ItemEntry;
 import dev.xkmc.danmakuapi.content.item.SpellItem;
 import dev.xkmc.danmakuapi.init.data.DanmakuTagGen;
 import dev.xkmc.danmakuapi.init.registrate.DanmakuItems;
+import dev.xkmc.gensokyolegacy.content.block.deco.shelf.MorichikaOfferData;
 import dev.xkmc.gensokyolegacy.content.block.functional.portal.PortalSide;
 import dev.xkmc.gensokyolegacy.content.client.model.*;
 import dev.xkmc.gensokyolegacy.content.entity.characters.fairy.CirnoModel;
@@ -141,17 +142,20 @@ public class GLItems {
 			MINI_FURNACE_1 = reg.item("mini_hakkero_prototype", MiniFurnace1::new)
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/tool/" + ctx.getName())))
 					.tag(GLTagGen.MORICHIKA_OFFERS)
+					.dataMap(GLMeta.MORICHIKA_OFFER.reg(), new MorichikaOfferData(4, 6, 1, 2))
 					.lang("Mini Hakkero [Prototype]").register();
 
 			CENTIPICKAXE = reg.item("centipickaxe", CentiPickaxe::new)
 					.model((ctx, pvd) -> pvd.handheld(ctx, pvd.modLoc("item/tool/" + ctx.getName())))
 					.tab(TAB.key(), (a, b) -> b.accept(a.get().getDefaultInstance(b.getParameters().holders())))
 					.tag(GLTagGen.MORICHIKA_OFFERS)
+					.dataMap(GLMeta.MORICHIKA_OFFER.reg(), new MorichikaOfferData(2, 4, 1, 2))
 					.lang("Centipeck").register();
 
 			DOWSER = reg.item("dowser", Dowser::new)
 					.model((ctx, pvd) -> pvd.handheld(ctx, pvd.modLoc("item/tool/" + ctx.getName())))
 					.tag(GLTagGen.MORICHIKA_OFFERS)
+					.dataMap(GLMeta.MORICHIKA_OFFER.reg(), new MorichikaOfferData(3, 5, 1, 2))
 					.lang("Nazrin's Dowser").register();
 
 			DOWSER_LEFT = reg.item("dowser_left", Item::new)
@@ -167,11 +171,13 @@ public class GLItems {
 			MERMAID_PEARL = reg.item("mermaid_pearl", MermaidPearl::new)
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/tool/" + ctx.getName())))
 					.tag(GLTagGen.MORICHIKA_OFFERS)
+					.dataMap(GLMeta.MORICHIKA_OFFER.reg(), new MorichikaOfferData(2, 3, 2, 4))
 					.lang("Mermaid's Pearl").register();
 
 			CAT_BELL = reg.item("cat_bell", CatBell::new)
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/tool/" + ctx.getName())))
 					.tag(GLTagGen.MORICHIKA_OFFERS)
+					.dataMap(GLMeta.MORICHIKA_OFFER.reg(), new MorichikaOfferData(1, 2, 2, 4))
 					.lang("Cat Bell").register();
 
 			BORDER_UMBRELLA = reg.item("border_umbrella", BorderUmbrellaItem::new)

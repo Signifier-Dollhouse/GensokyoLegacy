@@ -11,6 +11,7 @@ import dev.xkmc.gensokyolegacy.content.attachment.doll.DollAttachment;
 import dev.xkmc.gensokyolegacy.content.attachment.home.core.StructureAttachment;
 import dev.xkmc.gensokyolegacy.content.attachment.misc.FrogGodCapability;
 import dev.xkmc.gensokyolegacy.content.attachment.misc.KoishiAttackCapability;
+import dev.xkmc.gensokyolegacy.content.block.deco.shelf.MorichikaOfferData;
 import dev.xkmc.gensokyolegacy.content.item.gift.GiftItemData;
 import dev.xkmc.gensokyolegacy.content.item.gift.GiftPreference;
 import dev.xkmc.gensokyolegacy.content.rpg.quest.QuestAttachment;
@@ -72,6 +73,8 @@ public class GLMeta {
 			GensokyoLegacy.REG.dataMap("gift_preference", Registries.ENTITY_TYPE, GiftPreference.class);
 	public static final DataMapReg<Item, GiftItemData> GIFT_DATA =
 			GensokyoLegacy.REG.dataMap("gift_data", Registries.ITEM, GiftItemData.class);
+	public static final DataMapReg<Item, MorichikaOfferData> MORICHIKA_OFFER =
+			GensokyoLegacy.REG.dataMap("morichika_offer", Registries.ITEM, MorichikaOfferData.class);
 
 	public static void register() {
 		new CodecHandler<>(BoundingBox.class, BoundingBox.CODEC, ByteBufCodecs.fromCodecWithRegistries(BoundingBox.CODEC));

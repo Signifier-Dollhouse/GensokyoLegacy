@@ -5,6 +5,8 @@ import dev.xkmc.gensokyolegacy.content.attachment.home.core.HomeSearchUtil;
 import dev.xkmc.gensokyolegacy.content.attachment.index.BedRefData;
 import dev.xkmc.gensokyolegacy.content.block.deco.shelf.ShelfBlockEntity;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.SmartYoukaiEntity;
+import dev.xkmc.gensokyolegacy.init.data.GLModConfig;
+import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
 import dev.xkmc.gensokyolegacy.util.BrainUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
@@ -25,13 +27,18 @@ import java.util.Map;
  * from the given tag, so players can buy it. Shelves are handled as a group:
  * starting from one found shelf, all shelves up to 2 blocks away are collected
  * by BFS, then one shelf is picked at random. Empty shelves are prioritized;
- * when every shelf is stocked, restock is skipped at 90% chance, with 10%
- * chance to replace a stocked shelf with a new item.
+ * when every shelf is stocked, restock is skipped most of the time, with a
+ * configurable chance (see morichikaReplaceChance) to replace a stocked
+ * shelf with a new item.
  */
 public class YoukaiRestockShelfTask<E extends SmartYoukaiEntity> extends AbstractHomeHolderTask<E> {
 
+	private static final int NO_SHELF_DELAY = 60;
+	private static final int SKIP_DELAY = 200;
+	private static final int FILL_DELAY = 100;
+	private static final int REPLACE_DELAY = 12000;
+
 	private final TagKey<Item> tag;
-	private final int minStock, maxStock, maxCost, cooldown, retryDelay;
 	private final int restockDuration;
 
 	private BlockPos shelf;
@@ -41,11 +48,11 @@ public class YoukaiRestockShelfTask<E extends SmartYoukaiEntity> extends Abstrac
 
 	private long walkEnd, restockEnd, nextRestock;
 
-	public YoukaiRestockShelfTask(TagKey<Item> tag, int minStock, int maxStock, int maxCost, int cooldown) {
-		this(tag, minStock, maxStock, maxCost, cooldown, 100, 40);
+	public YoukaiRestockShelfTask(TagKey<Item> tag) {
+		this(tag, 40);
 	}
 
-	public YoukaiRestockShelfTask(TagKey<Item> tag, int minStock, int maxStock, int maxCost, int cooldown, int retryDelay, int restockDuration) {
+	public YoukaiRestockShelfTask(TagKey<Item> tag, int restockDuration) {
 		super(Map.of(
 				MemoryModuleType.WALK_TARGET, MemoryStatus.VALUE_ABSENT,
 				MemoryModuleType.HOME, MemoryStatus.VALUE_PRESENT,
@@ -53,11 +60,6 @@ public class YoukaiRestockShelfTask<E extends SmartYoukaiEntity> extends Abstrac
 				MemoryModuleType.LOOK_TARGET, MemoryStatus.REGISTERED
 		));
 		this.tag = tag;
-		this.minStock = minStock;
-		this.maxStock = maxStock;
-		this.maxCost = maxCost;
-		this.cooldown = cooldown;
-		this.retryDelay = retryDelay;
 		this.restockDuration = restockDuration;
 	}
 
@@ -69,7 +71,7 @@ public class YoukaiRestockShelfTask<E extends SmartYoukaiEntity> extends Abstrac
 		if (bed.isEmpty() || bed.get().getBedPos() == null) return false;
 		var seed = home.getShelvesAround(bed.get().getBedPos());
 		if (seed == null) {
-			nextRestock = level.getGameTime() + retryDelay;
+			nextRestock = level.getGameTime() + NO_SHELF_DELAY;
 			return false;
 		}
 		var group = HomeSearchUtil.collectConnected(level, seed, HomeBlockKind.SHELF, 2);
@@ -78,11 +80,11 @@ public class YoukaiRestockShelfTask<E extends SmartYoukaiEntity> extends Abstrac
 		if (!empty.isEmpty()) {
 			shelf = empty.get(rand.nextInt(empty.size()));
 			replace = false;
-		} else if (!group.isEmpty() && rand.nextFloat() >= 0.9f) {
+		} else if (!group.isEmpty() && rand.nextFloat() < GLModConfig.SERVER.morichikaReplaceChance.get()) {
 			shelf = group.get(rand.nextInt(group.size()));
 			replace = true;
 		} else {
-			nextRestock = level.getGameTime() + retryDelay;
+			nextRestock = level.getGameTime() + SKIP_DELAY;
 			return false;
 		}
 		if (!pickOffer(level)) {
@@ -97,9 +99,16 @@ public class YoukaiRestockShelfTask<E extends SmartYoukaiEntity> extends Abstrac
 				.getTag(tag).map(e -> e.stream().toList()).orElse(List.of());
 		if (holders.isEmpty()) return false;
 		var rand = level.getRandom();
-		offer = new ItemStack(holders.get(rand.nextInt(holders.size())).value());
-		stock = minStock + rand.nextInt(maxStock - minStock + 1);
-		cost = 1 + rand.nextInt(maxCost);
+		var holder = holders.get(rand.nextInt(holders.size()));
+		offer = new ItemStack(holder.value());
+		var data = GLMeta.MORICHIKA_OFFER.get(level.registryAccess(), holder);
+		if (data == null) {
+			stock = 1;
+			cost = 1;
+		} else {
+			stock = data.rollStock(rand);
+			cost = data.rollPrice(rand);
+		}
 		return true;
 	}
 
@@ -124,7 +133,7 @@ public class YoukaiRestockShelfTask<E extends SmartYoukaiEntity> extends Abstrac
 		}
 		if (restockEnd == gameTime) {
 			doRestock(level);
-			nextRestock = restockEnd + cooldown;
+			nextRestock = restockEnd + (replace ? REPLACE_DELAY : FILL_DELAY);
 			BrainUtils.clearMemory(entity, MemoryModuleType.WALK_TARGET);
 			BrainUtils.clearMemory(entity, MemoryModuleType.LOOK_TARGET);
 			return false;
