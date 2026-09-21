@@ -2,13 +2,15 @@ package dev.xkmc.gensokyolegacy.content.client.structure;
 
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 
+import java.util.List;
+
 public interface IStructureBound {
 
 	Box house();
 
 	Box structure();
 
-	Box room();
+	List<Box> rooms();
 
 	record Box(int x0, int y0, int z0, int x1, int y1, int z1) {
 
@@ -21,4 +23,5 @@ public interface IStructureBound {
 		}
 
 	}
+
 }

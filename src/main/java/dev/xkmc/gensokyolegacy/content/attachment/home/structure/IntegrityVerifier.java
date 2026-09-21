@@ -1,6 +1,7 @@
 package dev.xkmc.gensokyolegacy.content.attachment.home.structure;
 
 import dev.xkmc.gensokyolegacy.content.attachment.datamap.StructureConfig;
+import dev.xkmc.gensokyolegacy.content.attachment.home.core.MultiStructureBound;
 import dev.xkmc.gensokyolegacy.content.attachment.home.core.PerformanceConstants;
 import dev.xkmc.gensokyolegacy.content.attachment.home.core.StructureBound;
 import dev.xkmc.gensokyolegacy.content.block.deco.bed.YoukaiBedBlock;
@@ -19,13 +20,13 @@ public class IntegrityVerifier {
 	private final StructureBound bound;
 	private final StructureCache template;
 	private final StructureConfig config;
-	private final BoundingBox roomBound;
+	private final MultiStructureBound roomBounds;
 	private final AbnormalCache abnormal;
 
-	public IntegrityVerifier(StructureHomeHolder holder, BoundingBox house, BoundingBox room, StructureCache template, AbnormalCache set) {
+	public IntegrityVerifier(StructureHomeHolder holder, BoundingBox house, MultiStructureBound rooms, StructureCache template, AbnormalCache set) {
 		this.level = holder.level();
 		this.config = holder.config();
-		this.roomBound = room;
+		this.roomBounds = rooms;
 		this.bound = new StructureBound(house);
 		this.template = template;
 		this.abnormal = set;
@@ -46,17 +47,15 @@ public class IntegrityVerifier {
 				step = rand.nextInt(bound.getSize());
 				bound.resolve(pos, step);
 			} else {
-				pos.set(
-						roomBound.minX() + rand.nextInt(roomBound.getXSpan()),
-						roomBound.minY() + rand.nextInt(roomBound.getYSpan()),
-						roomBound.minZ() + rand.nextInt(roomBound.getZSpan())
-				);
+				if (roomBounds.isEmpty()) continue;
+				roomBounds.randomPos(rand, pos);
 				step = bound.compute(pos);
+				if (step < 0 || step >= template.raster().length) continue;
 			}
 			if (!level.isLoaded(pos))
 				continue;
 			int sid = template.raster()[step];
-			boolean inRoom = roomBound.isInside(pos);
+			boolean inRoom = roomBounds.isInside(pos);
 			count++;
 			var state = level.getBlockState(pos);
 			var pal = template.palette()[sid];

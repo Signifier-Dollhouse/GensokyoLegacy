@@ -2,6 +2,7 @@ package dev.xkmc.gensokyolegacy.content.attachment.home.structure;
 
 import dev.xkmc.gensokyolegacy.content.attachment.datamap.StructureConfig;
 import dev.xkmc.gensokyolegacy.content.attachment.home.core.HomeSearchUtil;
+import dev.xkmc.gensokyolegacy.content.attachment.home.core.MultiStructureBound;
 import dev.xkmc.gensokyolegacy.content.attachment.index.StructureKey;
 import dev.xkmc.gensokyolegacy.content.client.structure.StructureInfoUpdateToClient;
 import dev.xkmc.l2serial.serialization.marker.SerialClass;
@@ -61,7 +62,7 @@ public class StructureHomeData {
 		} else {
 			if (verifier == null) {
 				verifier = new IntegrityVerifier(holder, getHouseBound(holder.config()),
-						getRoomBound(holder.config()), cache, abnormal);
+						getRoomBounds(holder.config()), cache, abnormal);
 				if (!verifier.isValid()) {
 					cache = null;
 					cacheBuilder = null;
@@ -80,37 +81,22 @@ public class StructureHomeData {
 	}
 
 	public boolean isInRoom(StructureConfig config, BlockPos pos) {
-		if (!config.rooms().isEmpty() && piece instanceof TemplateStructurePiece template) {
-			var settings = template.placeSettings();
-			var origin = template.templatePosition();
-			for (var local : config.rooms()) {
-				if (worldBox(local, settings, origin).isInside(pos)) return true;
-			}
-			return false;
-		}
-		return getRoomBound(config).isInside(pos);
+		return getRoomBounds(config).isInside(pos);
 	}
 
-	public BoundingBox getRoomBound(StructureConfig config) {
+	public MultiStructureBound getRoomBounds(StructureConfig config) {
 		if (!config.rooms().isEmpty() && piece instanceof TemplateStructurePiece template) {
 			// map precalculated template-local room boxes to world;
 			// no scan here, just rotation/mirror/offset coordinate mapping
 			var settings = template.placeSettings();
 			var origin = template.templatePosition();
-			int x0 = Integer.MAX_VALUE, y0 = Integer.MAX_VALUE, z0 = Integer.MAX_VALUE;
-			int x1 = Integer.MIN_VALUE, y1 = Integer.MIN_VALUE, z1 = Integer.MIN_VALUE;
+			List<BoundingBox> ans = new ArrayList<>(config.rooms().size());
 			for (var local : config.rooms()) {
-				var w = worldBox(local, settings, origin);
-				x0 = Math.min(x0, w.minX());
-				y0 = Math.min(y0, w.minY());
-				z0 = Math.min(z0, w.minZ());
-				x1 = Math.max(x1, w.maxX());
-				y1 = Math.max(y1, w.maxY());
-				z1 = Math.max(z1, w.maxZ());
+				ans.add(worldBox(local, settings, origin));
 			}
-			return new BoundingBox(x0, y0, z0, x1, y1, z1);
+			return MultiStructureBound.of(ans);
 		}
-		return piece.getBoundingBox();
+		return MultiStructureBound.of(piece.getBoundingBox());
 	}
 
 	private static BoundingBox worldBox(BoundingBox local, StructurePlaceSettings settings, BlockPos origin) {
@@ -150,13 +136,13 @@ public class StructureHomeData {
 	@Nullable
 	public BlockPos getContainerAround(StructureHomeHolder holder, BlockPos center, int rxz, int ry, int trail) {
 		return HomeSearchUtil.searchBlock(containers, HomeSearchUtil::isValidChest,
-				getRoomBound(holder.config()), holder.level(), center, rxz, ry, trail);
+				getRoomBounds(holder.config()), holder.level(), center, rxz, ry, trail);
 	}
 
 	@Nullable
 	public BlockPos getChairAround(StructureHomeHolder holder, BlockPos center, int rxz, int ry, int trail) {
 		return HomeSearchUtil.searchBlock(chairs, HomeSearchUtil::isValidChair,
-				getRoomBound(holder.config()), holder.level(), center, rxz, ry, trail);
+				getRoomBounds(holder.config()), holder.level(), center, rxz, ry, trail);
 	}
 
 	public List<BlockFix> popFix(int count, FixStage stage) {

@@ -64,7 +64,7 @@ public record StructureHomeHolder(
 	@Nullable
 	public Vec3 getRandomPosInRoom(YoukaiEntity e) {
 		if (!data.checkInit(this)) return null;
-		return HomeSearchUtil.getRandomPos(data.getRoomBound(config), e, ans -> !config.isOutside(e.level(), ans));
+		return HomeSearchUtil.getRandomPos(data.getRoomBounds(config), e, ans -> !config.isOutside(e.level(), ans));
 	}
 
 	@Nullable
@@ -127,7 +127,7 @@ public record StructureHomeHolder(
 		return new StructureBoundUpdateToClient(
 				key(), data().getTotalBound(),
 				data().getHouseBound(config()),
-				data().getRoomBound(config())
+				data().getRoomBounds(config()).boxes()
 		);
 	}
 

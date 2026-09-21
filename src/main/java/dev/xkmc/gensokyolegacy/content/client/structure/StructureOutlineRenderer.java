@@ -56,7 +56,9 @@ public class StructureOutlineRenderer {
 			var vec = camera.toVector3f();
 			cluster.render(true, (x0, y0, z0, x1, y1, z1) -> renderShape(pose, outline, x0, y0, z0, x1, y1, z1, -vec.x, -vec.y, -vec.z, 1, 0.5f, 0.5f, 1));
 		} else {
-			renderBox(pose, outline, data.room(), camera.toVector3f(), 1, 0.5f, 0.5f, 1, -1f / 32);
+			for (var room : data.rooms()) {
+				renderBox(pose, outline, room, camera.toVector3f(), 1, 0.5f, 0.5f, 1, -1f / 32);
+			}
 
 		}
 	}

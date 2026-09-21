@@ -74,28 +74,25 @@ public class HomeSearchUtil {
 
 	@Nullable
 	public static BlockPos searchBlock(List<BlockPos> cache, BiPredicate<ServerLevel, BlockPos> validity, BoundingBox room, ServerLevel sl, BlockPos center, int rxz, int ry, int trail) {
+		return searchBlock(cache, validity, MultiStructureBound.of(room), sl, center, rxz, ry, trail);
+	}
+
+	@Nullable
+	public static BlockPos searchBlock(List<BlockPos> cache, BiPredicate<ServerLevel, BlockPos> validity, MultiStructureBound rooms, ServerLevel sl, BlockPos center, int rxz, int ry, int trail) {
 		BoundingBox box = BoundingBox.fromCorners(center.offset(-rxz, -ry, -rxz), center.offset(rxz, ry, rxz));
-		int x0 = Math.max(box.minX(), room.minX());
-		int y0 = Math.max(box.minY(), room.minY());
-		int z0 = Math.max(box.minZ(), room.minZ());
-		int x1 = Math.min(box.maxX(), room.maxX());
-		int y1 = Math.min(box.maxY(), room.maxY());
-		int z1 = Math.min(box.maxZ(), room.maxZ());
-		if (x0 > x1 || y0 > y1 || z0 > z1) return null;
+		var area = rooms.intersect(box);
+		if (area.isEmpty()) return null;
 		cache.removeIf(e -> sl.isLoaded(e) && !validity.test(sl, e));
 		for (var e : cache) {
 			if (!sl.isLoaded(e)) continue;
-			if (box.isInside(e)) {
+			if (area.isInside(e)) {
 				return e;
 			}
 		}
 		var rand = sl.getRandom();
 		var pos = new BlockPos.MutableBlockPos();
 		for (int i = 0; i < trail; i++) {
-			int x = rand.nextInt(x0, x1 + 1);
-			int y = rand.nextInt(y0, y1 + 1);
-			int z = rand.nextInt(z0, z1 + 1);
-			pos.set(x, y, z);
+			area.randomPos(rand, pos);
 			if (validity.test(sl, pos)) {
 				var ans = pos.immutable();
 				cache.add(ans);
@@ -107,15 +104,20 @@ public class HomeSearchUtil {
 
 	@Nullable
 	public static Vec3 getRandomPos(BoundingBox bound, YoukaiEntity e, Predicate<BlockPos> pred) {
+		return getRandomPos(MultiStructureBound.of(bound), e, pred);
+	}
+
+	@Nullable
+	public static Vec3 getRandomPos(MultiStructureBound rooms, YoukaiEntity e, Predicate<BlockPos> pred) {
+		if (rooms.isEmpty()) return null;
 		var rand = e.getRandom();
 		return RandomPos.generateRandomPos(e, () -> {
-			int x = rand.nextInt(bound.minX(), bound.maxX() + 1);
-			int y = rand.nextInt(bound.minY(), bound.maxY() + 1);
-			int z = rand.nextInt(bound.minZ(), bound.maxZ() + 1);
-			var ans = new BlockPos(x, y, z);
+			var pos = new BlockPos.MutableBlockPos();
+			rooms.randomPos(rand, pos);
+			var ans = new BlockPos(pos);
 			if (!e.getNavigation().isStableDestination(ans)) return null;
 			ans = LandRandomPos.movePosUpOutOfSolid(e, ans);
-			if (ans == null || !bound.isInside(ans) || !pred.test(ans)) return null;
+			if (ans == null || !rooms.isInside(ans) || !pred.test(ans)) return null;
 			return ans;
 		});
 	}

@@ -9,8 +9,11 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public record StructureBoundUpdateToClient(
-		StructureKey key, Box structure, Box house, Box room
+		StructureKey key, Box structure, Box house, ArrayList<Box> rooms
 ) implements SerialPacketBase<StructureBoundUpdateToClient>, IStructureBound {
 
 	public static void clickBlockInServer(Player player, BlockPos pos) {
@@ -20,8 +23,8 @@ public record StructureBoundUpdateToClient(
 		GensokyoLegacy.HANDLER.toClientPlayer(home.toBoundPacket(), sp);
 	}
 
-	public StructureBoundUpdateToClient(StructureKey key, BoundingBox structure, BoundingBox house, BoundingBox room) {
-		this(key, Box.of(structure), Box.of(house), Box.of(room));
+	public StructureBoundUpdateToClient(StructureKey key, BoundingBox structure, BoundingBox house, List<BoundingBox> rooms) {
+		this(key, Box.of(structure), Box.of(house), rooms.stream().map(Box::of).collect(ArrayList::new, ArrayList::add, ArrayList::addAll));
 	}
 
 	@Override
