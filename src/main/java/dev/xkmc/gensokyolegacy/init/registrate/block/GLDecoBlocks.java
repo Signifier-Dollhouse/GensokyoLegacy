@@ -58,6 +58,7 @@ public class GLDecoBlocks {
 
 	public static final BlockEntry<Block> GLASS;
 	public static final BlockEntry<IronBarsBlock> GLASS_PANE;
+	public static final BlockEntry<Block> SHOJI_FRAME;
 	public static final BlockEntry<DelegateBlock> TATAMI, TATAMI_BLOCK;
 	public static final BlockEntry<DelegateBlock> STURDY_TEDDY_BEAR;
 
@@ -116,6 +117,17 @@ public class GLDecoBlocks {
 					.blockstate((ctx, pvd) -> pvd.simpleBlock(ctx.get(),
 							pvd.models().cubeAll(ctx.getName(),
 									pvd.modLoc("block/deco/paper_window"))))
+					.loot((pvd, block) -> pvd.add(block, LootTable.lootTable()))
+					.tag(BlockTags.MINEABLE_WITH_PICKAXE)
+					.simpleItem()
+					.register();
+
+			// 障子框
+			SHOJI_FRAME = reg.block("shoji_frame", Block::new)
+					.properties(p -> p.mapColor(MapColor.NONE).strength(0.3F).sound(SoundType.WOOD).noOcclusion().noLootTable())
+					.blockstate((ctx, pvd) -> pvd.simpleBlock(ctx.get(),
+							pvd.models().cubeAll(ctx.getName(),
+									pvd.modLoc("block/deco/shoji_frame"))))
 					.loot((pvd, block) -> pvd.add(block, LootTable.lootTable()))
 					.tag(BlockTags.MINEABLE_WITH_PICKAXE)
 					.simpleItem()
