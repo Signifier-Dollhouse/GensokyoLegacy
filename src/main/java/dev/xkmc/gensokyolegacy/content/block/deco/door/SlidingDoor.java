@@ -98,6 +98,21 @@ public class SlidingDoor implements CreateBlockStateBlockMethod, DefaultStateBlo
 		} else if (close) {
 			doClose(level, bottom, bs);
 		} else {
+			Direction dir = hingeDir(bs).getOpposite();
+			for (int d = 1; d <= MAX; d++) {
+				BlockPos cand = bottom.relative(dir, d);
+				BlockState cs = level.getBlockState(cand);
+				if (!cs.is(bs.getBlock()) || !cs.hasProperty(HALF) ||
+						cs.getValue(HALF) != Half.BOTTOM ||
+						cs.getValue(HORIZONTAL_FACING) != bs.getValue(HORIZONTAL_FACING) ||
+						cs.getValue(HINGE) != bs.getValue(HINGE)) {
+					break;
+				}
+				if (canOpen(level, cand, cs)) {
+					doOpen(level, cand, cs);
+					return InteractionResult.SUCCESS;
+				}
+			}
 			return InteractionResult.PASS;
 		}
 		return InteractionResult.SUCCESS;
