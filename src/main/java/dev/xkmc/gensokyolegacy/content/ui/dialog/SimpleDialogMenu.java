@@ -5,6 +5,7 @@ import dev.xkmc.gensokyolegacy.content.rpg.action.ActionContext;
 import dev.xkmc.gensokyolegacy.content.rpg.core.CodecRegistry;
 import dev.xkmc.gensokyolegacy.content.rpg.dialog.Dialog;
 import dev.xkmc.gensokyolegacy.content.rpg.dialog.DialogOption;
+import dev.xkmc.gensokyolegacy.content.rpg.dialog.OptionResult;
 import dev.xkmc.gensokyolegacy.content.rpg.handle.ClientHandle;
 import dev.xkmc.gensokyolegacy.content.rpg.handle.IDialogHandle;
 import dev.xkmc.gensokyolegacy.content.rpg.quest.Quest;
@@ -78,17 +79,32 @@ public class SimpleDialogMenu extends DialogMenu {
 		if (options != null && index >= 0 && index <= options.size()) {
 			if (conditions.get(index)) {
 				var option = options.get(index);
-				if (pl instanceof ServerPlayer sp && character != null) {
+				OptionResult probe = option.resolve(null);
+				if (pl instanceof ServerPlayer sp) {
+					if (character == null) {
+						sp.closeContainer();
+						return true;
+					}
+					OptionResult result = option.resolve(sp.getRandom());
 					var context = new ActionContext(sp, character, handle.getQuest());
-					for (var e : option.actions()) {
+					for (var e : result.actions()) {
 						e.execute(context);
 					}
+					var next = result.next();
+					if (next.isPresent()) {
+						if (probe == null) {
+							new SimpleDialogProvider(sp, character, handle, next.get()).open();
+							return true;
+						}
+					} else {
+						sp.closeContainer();
+						return true;
+					}
 				}
-				var next = option.next();
-				if (next.isPresent()) {
-					setDialog(next.get());
-				} else if (pl instanceof ServerPlayer)
-					pl.closeContainer();
+				if (probe == null) return true;
+				if (probe.next().isPresent()) {
+					setDialog(probe.next().get());
+				}
 				return true;
 			}
 		}

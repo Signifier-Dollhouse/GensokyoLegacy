@@ -89,6 +89,8 @@ Only add shared code if an existing feature is missing (e.g. a new condition cla
 The Reimu rework added exactly this kind of machinery, now reusable for future characters:
 
 - `GiveMobEffectAction` (`action/give_mob_effect`) — dialog option action that applies a mob effect (used to hand Bad Omen).
+- `SetTimerAction` (`action/set_timer`) + `TimerCondition` (`condition/timer`) — generic per-character timestamp gates backed by `CharacterData.timers` (key → next-available game time). Used for Reimu's once-a-day fortune draw; reusable for any chat/quest/trade cooldown.
+- `RandomDialogOption` (`option/random`) — one button rolling a weighted `WeightedEntry` list (weight + actions + next dialog) server-side; the result dialog is pushed via `SimpleDialogProvider.open()`. Used for Reimu's 2:2:1 fortune draw. Click handling is polymorphic, not `instanceof`: `DialogOption.resolve(random)` returns an `OptionResult` (`SimpleDialogOption`/`GroupDialogOption` return themselves, `RandomDialogOption` returns the rolled entry or null for a null source), and a null probe (`resolve(null)`) tells the menu whether the result is predictable on the client.
 - `RaidTrigger` + `RaidVictoryRequirement` (`requirement/raid_victory`) — quest requirement completed by winning a raid.
 - `RaidMixin` — `@WrapOperation` on `PlayerTrigger.trigger` in `Raid.tick()` (the `hero_of_the_village` grant), dispatches the trigger. Must be declared in `gensokyolegacy.mixins.json`.
 - Two-action option helpers in `ReimuQDGen` (`startRaid`, `dailyRaidStart`, `follow(.., DialogAction)`, `dailyFollow(.., DialogAction)`) for "start quest + apply effect".

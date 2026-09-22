@@ -1,0 +1,13 @@
+{
+  "character": "gensokyolegacy:kirisame_marisa",
+  "conditions": [
+    {
+      "type": "gensokyolegacy:has_advancement",
+      "advancement": "gensokyolegacy:main/enter_hakurei_shrine",
+      "invert": true
+    }
+  ],
+  "dialog": "gensokyolegacy:marisa/chat_reimu/talk",
+  "text": "gensokyolegacy/marisa/chat_reimu/starter/start",
+  "weight": 100
+}

@@ -8,6 +8,9 @@ import dev.xkmc.l2serial.serialization.marker.SerialField;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.player.Player;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 @SerialClass
 public class CharacterData {
 
@@ -19,6 +22,17 @@ public class CharacterData {
 
 	@SerialField
 	public int reputationCap = ReputationConstants.INITIAL_CAP;
+
+	@SerialField
+	public final Map<String, Long> timers = new LinkedHashMap<>();
+
+	public boolean isAvailable(String key, long gameTime) {
+		return gameTime >= timers.getOrDefault(key, 0L);
+	}
+
+	public void setTimer(String key, long nextAvailable) {
+		timers.put(key, nextAvailable);
+	}
 
 	public void gainReputation(int val, int softCap, int capIncrease, int maxCap) {
 		if (capIncrease > 0) {

@@ -13,6 +13,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EntityType;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
@@ -58,12 +59,32 @@ public class ServerCharacterDialogManager {
 		return ans;
 	}
 
-	public List<IDialogHandle> getInitialConversation(ServerPlayer sp, YoukaiEntity ch) {
-		List<IDialogHandle> ans = new ArrayList<>();
+	/**
+	 * Pick one unlocked chat by weight. Default chat has weight 1, regular
+	 * informative chats have weight 100, special item-related chats have weight 1000.
+	 */
+	@Nullable
+	public Holder<DialogStarter> pickChat(ServerPlayer sp, YoukaiEntity ch) {
+		int total = 0;
 		for (var e : dialogs) {
 			if (e.value().match(sp, ch))
-				ans.add(new DialogHandle(e));
+				total += Math.max(0, e.value().weight());
 		}
+		if (total <= 0) return null;
+		int roll = sp.getRandom().nextInt(total);
+		for (var e : dialogs) {
+			if (!e.value().match(sp, ch)) continue;
+			roll -= Math.max(0, e.value().weight());
+			if (roll < 0) return e;
+		}
+		return null;
+	}
+
+	public List<IDialogHandle> getInitialConversation(ServerPlayer sp, YoukaiEntity ch) {
+		List<IDialogHandle> ans = new ArrayList<>();
+		Holder<DialogStarter> chat = pickChat(sp, ch);
+		if (chat != null)
+			ans.add(new DialogHandle(chat));
 		var questData = GLMeta.QUEST.type().getOrCreate(sp);
 		for (var e : quests) {
 			var data = questData.getData(e.unwrapKey().orElseThrow().location());

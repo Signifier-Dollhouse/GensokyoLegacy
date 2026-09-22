@@ -1,0 +1,11 @@
+{
+  "options": [
+    {
+      "type": "gensokyolegacy:simple",
+      "actions": [],
+      "conditions": [],
+      "text": "gensokyolegacy/marisa/shared/option/bye"
+    }
+  ],
+  "text": "gensokyolegacy/marisa/chat_reimu/dialog/marisa/chat_reimu/where_ans"
+}

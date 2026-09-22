@@ -213,6 +213,7 @@ public class GensokyoLegacy {
 		REGISTRATE.addDataGenerator(ProviderType.ADVANCEMENT, GLAdvGen::genAdv);
 		var init = REGISTRATE.getDataGenInitializer();
 		init.addDependency(GLStructureTagGen.BIOME_TAG, ProviderType.DYNAMIC);
+		init.addDependency(ProviderType.ADVANCEMENT, ProviderType.DYNAMIC);
 		GLDimensionGen.init(init);
 		GLBiomes.init(init);
 		GLStructureGen.init(init);

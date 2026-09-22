@@ -3,14 +3,22 @@ package dev.xkmc.gensokyolegacy.init.data.rpg;
 import com.tterrag.registrate.providers.ProviderType;
 import dev.xkmc.gensokyolegacy.content.attachment.datamap.DialogConfig;
 import dev.xkmc.gensokyolegacy.content.rpg.action.DialogAction;
+import dev.xkmc.gensokyolegacy.content.rpg.action.SetTimerAction;
+import dev.xkmc.gensokyolegacy.content.rpg.condition.HasAdvancementCondition;
+import dev.xkmc.gensokyolegacy.content.rpg.condition.HasItemCondition;
+import dev.xkmc.gensokyolegacy.content.rpg.condition.HasQuestCompletedCondition;
+import dev.xkmc.gensokyolegacy.content.rpg.condition.TimerCondition;
 import dev.xkmc.gensokyolegacy.content.rpg.core.CodecRegistry;
 import dev.xkmc.gensokyolegacy.content.rpg.core.IngredientEntry;
 import dev.xkmc.gensokyolegacy.content.rpg.dialog.Dialog;
 import dev.xkmc.gensokyolegacy.content.rpg.dialog.DialogOption;
 import dev.xkmc.gensokyolegacy.content.rpg.dialog.DialogStarter;
 import dev.xkmc.gensokyolegacy.content.rpg.dialog.GroupDialogOption;
+import dev.xkmc.gensokyolegacy.content.rpg.dialog.RandomDialogOption;
 import dev.xkmc.gensokyolegacy.content.rpg.dialog.SimpleDialogOption;
+import dev.xkmc.gensokyolegacy.content.rpg.dialog.WeightedEntry;
 import dev.xkmc.gensokyolegacy.content.rpg.quest.Quest;
+import dev.xkmc.gensokyolegacy.content.rpg.quest.QuestCondition;
 import dev.xkmc.gensokyolegacy.content.rpg.requirement.RollItemRequirement;
 import dev.xkmc.gensokyolegacy.content.rpg.reward.LootTableReward;
 import dev.xkmc.gensokyolegacy.content.rpg.trade.TradeOffer;
@@ -44,6 +52,10 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 public class QuestDialogData {
+
+	public static final int CHAT_DEFAULT = 1;
+	public static final int CHAT_INFO = 100;
+	public static final int CHAT_SPECIAL = 1000;
 
 	private final Map<ResourceKey<Dialog>, DataGenHolder<Dialog>> dialogRegistry = new LinkedHashMap<>();
 	private final Map<ResourceKey<DialogStarter>, DataGenHolder<DialogStarter>> starterRegistry = new LinkedHashMap<>();
@@ -158,6 +170,35 @@ public class QuestDialogData {
 		return holder;
 	}
 
+	public Holder<DialogStarter> chat(String id, EntityType<?> character, List<QuestCondition<?>> conditions,
+	                                  String text, Holder<Dialog> dialog, int weight) {
+		return starter(id, new DialogStarter(character, conditions, text, dialog, weight));
+	}
+
+	protected HasAdvancementCondition hasAdv(ResourceLocation adv) {
+		return new HasAdvancementCondition(adv);
+	}
+
+	protected HasAdvancementCondition missingAdv(ResourceLocation adv) {
+		return new HasAdvancementCondition(adv, true);
+	}
+
+	protected HasQuestCompletedCondition hasQuest(ResourceLocation quest) {
+		return new HasQuestCompletedCondition(quest);
+	}
+
+	protected HasItemCondition hasItem(IngredientEntry... entries) {
+		return new HasItemCondition(List.of(entries));
+	}
+
+	protected TimerCondition timer(String key) {
+		return new TimerCondition(key);
+	}
+
+	protected SetTimerAction setTimer(String key, int delay) {
+		return new SetTimerAction(key, delay);
+	}
+
 	public Holder<Quest> quest(String id, Quest quest) {
 		var key = ResourceKey.create(CodecRegistry.QUEST.key(), loc(id));
 		var holder = new DataGenHolder<>(key, quest);
@@ -247,6 +288,14 @@ public class QuestDialogData {
 
 	public SimpleDialogOption option(String id, String text, List<DialogAction<?>> actions, Holder<Dialog> next) {
 		return new SimpleDialogOption(List.of(), optionText(id, text), actions, Optional.of(next));
+	}
+
+	public WeightedEntry weighted(int weight, Holder<Dialog> next, DialogAction<?>... actions) {
+		return new WeightedEntry(weight, List.of(actions), Optional.of(next));
+	}
+
+	public RandomDialogOption randomOption(String id, String text, WeightedEntry... entries) {
+		return new RandomDialogOption(List.of(), optionText(id, text), List.of(entries));
 	}
 
 	public IngredientEntry item(ItemLike item, int count) {

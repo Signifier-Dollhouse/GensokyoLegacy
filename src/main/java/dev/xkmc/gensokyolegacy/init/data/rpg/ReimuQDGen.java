@@ -21,6 +21,8 @@ import dev.xkmc.gensokyolegacy.content.rpg.reward.ReputationReward;
 import dev.xkmc.gensokyolegacy.content.rpg.trade.TradeOffer;
 import dev.xkmc.gensokyolegacy.content.rpg.trade.TradeRecurrence;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
+import dev.xkmc.gensokyolegacy.init.data.GLAdvGen;
+import dev.xkmc.gensokyolegacy.init.registrate.GLEffects;
 import dev.xkmc.gensokyolegacy.init.registrate.GLEntities;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLBlocks;
@@ -51,6 +53,8 @@ import java.util.TreeMap;
 public class ReimuQDGen extends QuestDialogData {
 
 	private static final int BAD_OMEN_DURATION = 12000;
+	private static final int FORTUNE_DURATION = 24000;
+	private static final String FORTUNE_KEY = "fortune";
 
 	private static final ResourceLocation QUEST_LOCAL_FOOD = GensokyoLegacy.loc("reimu/local_food");
 	private static final ResourceLocation QUEST_HOSTILE_LOOT = GensokyoLegacy.loc("reimu/hostile_loot");
@@ -90,9 +94,62 @@ public class ReimuQDGen extends QuestDialogData {
 				dialog("hi", "Hi!", option("bye", "Bye!"))
 		));
 
+		chats();
+		fortune();
 		quests();
 		dailyQuests();
 		trades();
+	}
+
+	private void chats() {
+		prefix("reimu/chat_frog");
+		chat("reimu/chat_frog", GLEntities.REIMU.get(),
+				List.of(hasItem(item(GLItems.STRAW_HAT.get(), 1)), hasQuest(QUEST_OMINOUS_BANNER)),
+				starterText("start", "About this straw hat..."),
+				dialog("talk", "That straw hat... it would look funny on a frog, wouldn't it?",
+						option("ask", "A frog?",
+								dialog("idea", "Suwako is a frog goddess, after all. If she blessed frogs like that, maybe they'd develop a taste for raiders. Faith from frogs... heh, that'd be one way to gather it.",
+										option("bye", "Heh, maybe.")))),
+				CHAT_SPECIAL);
+
+		prefix("reimu/chat_marisa");
+		chat("reimu/chat_marisa", GLEntities.REIMU.get(),
+				List.of(missingAdv(GLAdvGen.ENTER_MARISA_HOUSE)),
+				starterText("start", "Have you met Marisa?"),
+				dialog("talk", "Have you met Marisa yet? Ordinary magician, lives deep in the Magical Forest. Loud, nosy, always borrowing things.",
+						option("where", "Where can I find her?",
+								dialog("where_ans", "Her house is deep in the Magical Forest. Follow the mushrooms — and the explosions. You can't miss her.",
+										option("bye", "Got it!")))),
+				CHAT_INFO);
+	}
+
+	private void fortune() {
+		prefix("reimu/chat_fortune");
+		var good = dialog("good",
+				"Great blessing! Even I'm jealous. Take this luck and put it to work — rare drops will find you for a while.",
+				option("good_bye", "Lucky!"));
+		var mid = dialog("mid",
+				"Middle blessing. Not bad, not great. Your hands will just move faster for a while — don't waste it.",
+				option("mid_bye", "I'll take it."));
+		var bad = dialog("bad",
+				"Ugh, worst fortune. Dark clouds ahead — trouble finds people with luck like this. Keep your head down for a while.",
+				option("bad_bye", "You've got to be kidding..."));
+		chat("reimu/chat_fortune", GLEntities.REIMU.get(),
+				List.of(hasQuest(QUEST_LOCAL_FOOD), timer(FORTUNE_KEY)),
+				starterText("start", "Draw a fortune stick?"),
+				dialog("talk",
+						"The shrine finally has its own fortune sticks. I blessed them myself, so they actually work. Good luck sticks around, bad luck... also sticks around. One draw per day — the gods get tired too.",
+						randomOption("draw", "Draw a fortune.",
+								weighted(2, good,
+										new GiveMobEffectAction(GLEffects.LOOTING, FORTUNE_DURATION, 0),
+										setTimer(FORTUNE_KEY, FORTUNE_DURATION)),
+								weighted(2, mid,
+										new GiveMobEffectAction(MobEffects.DIG_SPEED, FORTUNE_DURATION, 0),
+										setTimer(FORTUNE_KEY, FORTUNE_DURATION)),
+								weighted(1, bad,
+										new GiveMobEffectAction(MobEffects.BAD_OMEN, FORTUNE_DURATION, 0),
+										setTimer(FORTUNE_KEY, FORTUNE_DURATION)))),
+				CHAT_INFO);
 	}
 
 	private void quests() {

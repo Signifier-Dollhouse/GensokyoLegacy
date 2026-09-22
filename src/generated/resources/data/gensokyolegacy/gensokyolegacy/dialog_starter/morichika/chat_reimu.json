@@ -1,0 +1,13 @@
+{
+  "character": "gensokyolegacy:morichika_rinnosuke",
+  "conditions": [
+    {
+      "type": "gensokyolegacy:has_advancement",
+      "advancement": "gensokyolegacy:main/enter_hakurei_shrine",
+      "invert": true
+    }
+  ],
+  "dialog": "gensokyolegacy:morichika/chat_reimu/talk",
+  "text": "gensokyolegacy/morichika/chat_reimu/starter/start",
+  "weight": 100
+}

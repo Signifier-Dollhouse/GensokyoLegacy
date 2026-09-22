@@ -18,6 +18,40 @@
 				"option": {
 					"bye": "再见！"
 				}
+			},
+			"chat_marisa": {
+				"starter": {
+					"start": "你见过魔理沙吗？"
+				},
+				"dialog": {
+					"morichika": {
+						"chat_marisa": {
+							"talk": "雾雨魔理沙，普通的魔法使。她家在魔法森林深处。她喜欢蘑菇、魔法道具，还总爱不问自借。",
+							"where_ans": "跟着蘑菇——还有爆炸声走就行。就说是我霖之助介绍你去的。"
+						}
+					}
+				},
+				"option": {
+					"where": "去哪里找她？",
+					"bye": "谢谢！"
+				}
+			},
+			"chat_reimu": {
+				"starter": {
+					"start": "你见过灵梦吗？"
+				},
+				"dialog": {
+					"morichika": {
+						"chat_reimu": {
+							"talk": "博丽灵梦，樱花林中博丽神社的巫女。要是袭击者找你麻烦，就去找她。",
+							"donation_ans": "记得别忘了赛钱。赛钱箱空空如也的巫女，脾气可不会好。"
+						}
+					}
+				},
+				"option": {
+					"donation": "有什么要注意的吗？",
+					"bye": "谢谢！"
+				}
 			}
 		}
 	}

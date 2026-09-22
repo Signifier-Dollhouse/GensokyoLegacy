@@ -19,6 +19,7 @@ import dev.xkmc.gensokyolegacy.content.rpg.reward.ReputationReward;
 import dev.xkmc.gensokyolegacy.content.rpg.trade.TradeOffer;
 import dev.xkmc.gensokyolegacy.content.rpg.trade.TradeRecurrence;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
+import dev.xkmc.gensokyolegacy.init.data.GLAdvGen;
 import dev.xkmc.gensokyolegacy.init.data.GLTagGen;
 import dev.xkmc.gensokyolegacy.init.registrate.GLEntities;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLBlocks;
@@ -91,8 +92,31 @@ public class MarisaQDGen extends QuestDialogData {
 						optionKey(byeKey))
 		));
 
+		chats();
 		quests();
 		trades();
+	}
+
+	private void chats() {
+		prefix("marisa/chat_reimu");
+		chat("marisa/chat_reimu", GLEntities.MARISA.get(),
+				List.of(missingAdv(GLAdvGen.ENTER_HAKUREI_SHRINE)),
+				starterText("start", "Have you met Reimu?"),
+				dialog("talk", "Reimu Hakurei at the Hakurei Shrine, in the cherry grove. Shrine maiden, incident resolver, professional freeloader at my place.",
+						option("where", "When should I see her?",
+								dialog("where_ans", "If raiders bug you, go see her. She'll drive them out — just don't forget a donation, ze!",
+										optionKey(byeKey)))),
+				CHAT_INFO);
+
+		prefix("marisa/chat_morichika");
+		chat("marisa/chat_morichika", GLEntities.MARISA.get(),
+				List.of(missingAdv(GLAdvGen.ENTER_MORICHIKA_SHOP)),
+				starterText("start", "Need supplies?"),
+				dialog("talk", "Rinnosuke Morichika's Kourindou, right here in the Magical Forest. Half-kappa shopkeeper, knows every tool and trinket.",
+						option("where", "What does he sell?",
+								dialog("where_ans", "Everything from charms to junk — and he'll buy your spare curios too. Tell him Marisa sent ya, ze!",
+										optionKey(byeKey)))),
+				CHAT_INFO);
 	}
 
 	private void quests() {

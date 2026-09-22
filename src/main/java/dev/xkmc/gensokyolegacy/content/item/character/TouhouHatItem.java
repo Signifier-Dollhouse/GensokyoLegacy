@@ -26,7 +26,7 @@ public class TouhouHatItem extends ArmorItem {
 	private final Supplier<ItemAttributeModifiers> defaultModifiers;
 
 	public TouhouHatItem(Properties properties, TouhouMat mat) {
-		super(mat.holder(), Type.HELMET, properties.durability(mat.getDurabilityForType(Type.HELMET)));
+		super(mat.holder(), Type.HELMET, properties);
 		this.defaultModifiers = Suppliers.memoize(() -> {
 			ItemAttributeModifiers.Builder builder = ItemAttributeModifiers.builder();
 			EquipmentSlotGroup group = EquipmentSlotGroup.bySlot(type.getSlot());
@@ -50,11 +50,6 @@ public class TouhouHatItem extends ArmorItem {
 	@Override
 	public ItemAttributeModifiers getDefaultAttributeModifiers() {
 		return this.defaultModifiers.get();
-	}
-
-	@Override
-	public <T extends LivingEntity> int damageItem(ItemStack stack, int amount, @Nullable T entity, Consumer<Item> onBroken) {
-		return Math.min(amount, 1);
 	}
 
 	@Override

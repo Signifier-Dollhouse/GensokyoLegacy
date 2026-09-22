@@ -1,0 +1,11 @@
+{
+  "options": [
+    {
+      "type": "gensokyolegacy:simple",
+      "actions": [],
+      "conditions": [],
+      "text": "gensokyolegacy/morichika/chat_reimu/option/bye"
+    }
+  ],
+  "text": "gensokyolegacy/morichika/chat_reimu/dialog/morichika/chat_reimu/donation_ans"
+}

@@ -3,11 +3,20 @@ package dev.xkmc.gensokyolegacy.content.rpg.core;
 import dev.xkmc.gensokyolegacy.content.rpg.action.CompleteQuestAction;
 import dev.xkmc.gensokyolegacy.content.rpg.action.DialogAction;
 import dev.xkmc.gensokyolegacy.content.rpg.action.GiveMobEffectAction;
+import dev.xkmc.gensokyolegacy.content.rpg.action.SetTimerAction;
 import dev.xkmc.gensokyolegacy.content.rpg.action.StartQuestAction;
 import dev.xkmc.gensokyolegacy.content.rpg.condition.HasAdvancementCondition;
+import dev.xkmc.gensokyolegacy.content.rpg.condition.HasItemCondition;
 import dev.xkmc.gensokyolegacy.content.rpg.condition.HasQuestCompletedCondition;
 import dev.xkmc.gensokyolegacy.content.rpg.condition.OtherReputationCondition;
 import dev.xkmc.gensokyolegacy.content.rpg.condition.SelfReputationCondition;
+import dev.xkmc.gensokyolegacy.content.rpg.condition.TimerCondition;
+import dev.xkmc.gensokyolegacy.content.rpg.dialog.Dialog;
+import dev.xkmc.gensokyolegacy.content.rpg.dialog.DialogOption;
+import dev.xkmc.gensokyolegacy.content.rpg.dialog.DialogStarter;
+import dev.xkmc.gensokyolegacy.content.rpg.dialog.GroupDialogOption;
+import dev.xkmc.gensokyolegacy.content.rpg.dialog.RandomDialogOption;
+import dev.xkmc.gensokyolegacy.content.rpg.dialog.SimpleDialogOption;
 import dev.xkmc.gensokyolegacy.content.rpg.dialog.Dialog;
 import dev.xkmc.gensokyolegacy.content.rpg.dialog.DialogOption;
 import dev.xkmc.gensokyolegacy.content.rpg.dialog.DialogStarter;
@@ -51,13 +60,17 @@ public class CodecRegistry {
 
 	public static final CdcVal<SimpleDialogOption> SIMPLE_OPTION = OPTION.reg("simple", SimpleDialogOption.CODEC);
 	public static final CdcVal<GroupDialogOption> GROUP_OPTION = OPTION.reg("group", GroupDialogOption.CODEC);
+	public static final CdcVal<RandomDialogOption> RANDOM_OPTION = OPTION.reg("random", RandomDialogOption.CODEC);
 
 	public static final CdcVal<StartQuestAction> START_QUEST = ACTION.reg("start_quest", StartQuestAction.CODEC);
 	public static final CdcVal<CompleteQuestAction> COMPLETE_QUEST = ACTION.reg("complete_quest", CompleteQuestAction.CODEC);
 	public static final CdcVal<GiveMobEffectAction> GIVE_MOB_EFFECT = ACTION.reg("give_mob_effect", GiveMobEffectAction.CODEC);
+	public static final CdcVal<SetTimerAction> SET_TIMER = ACTION.reg("set_timer", SetTimerAction.CODEC);
 
 	public static final CdcVal<HasAdvancementCondition> HAS_ADV = CONDITION.reg("has_advancement", HasAdvancementCondition.CODEC);
 	public static final CdcVal<HasQuestCompletedCondition> HAS_QUEST = CONDITION.reg("has_quest_completed", HasQuestCompletedCondition.CODEC);
+	public static final CdcVal<HasItemCondition> HAS_ITEM = CONDITION.reg("has_item", HasItemCondition.CODEC);
+	public static final CdcVal<TimerCondition> TIMER = CONDITION.reg("timer", TimerCondition.CODEC);
 	public static final CdcVal<SelfReputationCondition> SELF_REP = CONDITION.reg("self_reputation", SelfReputationCondition.CODEC);
 	public static final CdcVal<OtherReputationCondition> OTHER_REP = CONDITION.reg("other_reputation", OtherReputationCondition.CODEC);
 

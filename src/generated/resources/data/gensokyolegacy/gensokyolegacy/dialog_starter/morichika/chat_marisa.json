@@ -1,0 +1,13 @@
+{
+  "character": "gensokyolegacy:morichika_rinnosuke",
+  "conditions": [
+    {
+      "type": "gensokyolegacy:has_advancement",
+      "advancement": "gensokyolegacy:main/enter_marisa_house",
+      "invert": true
+    }
+  ],
+  "dialog": "gensokyolegacy:morichika/chat_marisa/talk",
+  "text": "gensokyolegacy/morichika/chat_marisa/starter/start",
+  "weight": 100
+}

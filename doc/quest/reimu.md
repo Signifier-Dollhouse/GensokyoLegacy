@@ -4,6 +4,12 @@ Entity: `hakurei_reimu`. Quest unlocks chain: 1.1 → 2.1, then branches — 2.2
 
 **Status: implemented** (`ReimuQDGen`). Tables below match the datagen (`src/generated/resources/data/gensokyolegacy/.../{quest,dialog,dialog_starter,trade}/reimu/...`).
 
+## Chats
+
+| Id | Gate | Effect |
+|----|------|--------|
+| `chat_fortune` | `local_food` completed + `fortune` timer available | Weighted draw 2:2:1 → good: `gensokyolegacy:looting` 24000 / mid: haste 24000 / bad: bad omen 24000; any draw sets the `fortune` timer to +24000 (1 game day) |
+
 ## One-time Quests (soft cap 300, max cap 300)
 
 | # | Id | Unlock | Requirements | Rewards |

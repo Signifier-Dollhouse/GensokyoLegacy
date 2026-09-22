@@ -215,6 +215,28 @@ public class GLItems {
 					.lang("Seven-Colored Doll Glove").tab(TAB.key())
 					.tag(L2ISTagGen.SELECTABLE)
 					.register();
+
+			STRAW_HAT = reg
+					.item("straw_hat", p -> new StrawHatItem(p.rarity(Rarity.UNCOMMON)))
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/curio/" + ctx.getName())))
+					.clientExtension(() -> () -> new HatModel(SuwakoHatModel.STRAW))
+					.tag(GLTagGen.MORICHIKA_OFFERS)
+					.dataMap(GLMeta.MORICHIKA_OFFER.reg(), new MorichikaOfferData(3, 6, 4, 4))
+					.register();
+
+			SUWAKO_HAT = reg
+					.item("suwako_hat", p -> new SuwakoHatItem(p.rarity(Rarity.EPIC)))
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/curio/" + ctx.getName())))
+					.clientExtension(() -> () -> new HatModel(SuwakoHatModel.SUWAKO))
+					.tag(ItemTags.HEAD_ARMOR, GLTagGen.TOUHOU_HAT)
+					.register();
+
+			KOISHI_HAT = reg
+					.item("koishi_hat", p -> new KoishiHatItem(p.rarity(Rarity.EPIC)))
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/curio/" + ctx.getName())))
+					.clientExtension(() -> () -> new HatModel(KoishiHatModel.HAT))
+					.tag(ItemTags.HEAD_ARMOR, GLTagGen.TOUHOU_HAT)
+					.register();
 		}
 
 		// gifts
@@ -339,25 +361,7 @@ public class GLItems {
 
 		// gears
 		{
-			STRAW_HAT = reg
-					.item("straw_hat", p -> new StrawHatItem(p.rarity(Rarity.UNCOMMON)))
-					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/curio/" + ctx.getName())))
-					.clientExtension(() -> () -> new HatModel(SuwakoHatModel.STRAW))
-					.register();
 
-			SUWAKO_HAT = reg
-					.item("suwako_hat", p -> new SuwakoHatItem(p.rarity(Rarity.EPIC)))
-					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/curio/" + ctx.getName())))
-					.clientExtension(() -> () -> new HatModel(SuwakoHatModel.SUWAKO))
-					.tag(ItemTags.HEAD_ARMOR, GLTagGen.TOUHOU_HAT)
-					.register();
-
-			KOISHI_HAT = reg
-					.item("koishi_hat", p -> new KoishiHatItem(p.rarity(Rarity.EPIC)))
-					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/curio/" + ctx.getName())))
-					.clientExtension(() -> () -> new HatModel(KoishiHatModel.HAT))
-					.tag(ItemTags.HEAD_ARMOR, GLTagGen.TOUHOU_HAT)
-					.register();
 
 			RUMIA_HAIRBAND = reg
 					.item("rumia_hairband", p -> new RumiaHairbandItem(p.rarity(Rarity.EPIC)))

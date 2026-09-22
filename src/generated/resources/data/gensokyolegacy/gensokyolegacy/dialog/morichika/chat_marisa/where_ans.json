@@ -1,0 +1,11 @@
+{
+  "options": [
+    {
+      "type": "gensokyolegacy:simple",
+      "actions": [],
+      "conditions": [],
+      "text": "gensokyolegacy/morichika/chat_marisa/option/bye"
+    }
+  ],
+  "text": "gensokyolegacy/morichika/chat_marisa/dialog/morichika/chat_marisa/where_ans"
+}

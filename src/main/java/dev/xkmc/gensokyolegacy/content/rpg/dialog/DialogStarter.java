@@ -17,14 +17,20 @@ public record DialogStarter(
 		EntityType<?> character,
 		List<QuestCondition<?>> conditions,
 		String text,
-		Holder<Dialog> dialog
+		Holder<Dialog> dialog,
+		int weight
 ) implements GatedEntry, CharacterEntry {
+
+	public DialogStarter(EntityType<?> character, List<QuestCondition<?>> conditions, String text, Holder<Dialog> dialog) {
+		this(character, conditions, text, dialog, 1);
+	}
 
 	public static final Codec<DialogStarter> CODEC = RecordCodecBuilder.create(i -> i.group(
 			BuiltInRegistries.ENTITY_TYPE.byNameCodec().fieldOf("character").forGetter(DialogStarter::character),
 			CodecRegistry.CONDITION.codec().listOf().fieldOf("conditions").forGetter(DialogStarter::conditions),
 			Codec.STRING.fieldOf("text").forGetter(DialogStarter::text),
-			Dialog.HOLDER.fieldOf("dialog").forGetter(DialogStarter::dialog)
+			Dialog.HOLDER.fieldOf("dialog").forGetter(DialogStarter::dialog),
+			Codec.INT.optionalFieldOf("weight", 1).forGetter(DialogStarter::weight)
 	).apply(i, DialogStarter::new));
 
 	public static final Codec<Holder<DialogStarter>> HOLDER = RegistryFileCodec.create(CodecRegistry.Keys.STARTER, CODEC);

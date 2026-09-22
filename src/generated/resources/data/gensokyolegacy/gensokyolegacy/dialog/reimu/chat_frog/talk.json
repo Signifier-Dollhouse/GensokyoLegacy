@@ -1,0 +1,12 @@
+{
+  "options": [
+    {
+      "type": "gensokyolegacy:simple",
+      "actions": [],
+      "conditions": [],
+      "next": "gensokyolegacy:reimu/chat_frog/idea",
+      "text": "gensokyolegacy/reimu/chat_frog/option/ask"
+    }
+  ],
+  "text": "gensokyolegacy/reimu/chat_frog/dialog/reimu/chat_frog/talk"
+}

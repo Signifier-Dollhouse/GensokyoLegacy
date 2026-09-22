@@ -8,6 +8,8 @@ import dev.xkmc.gensokyolegacy.content.rpg.core.CodecRegistry;
 import dev.xkmc.gensokyolegacy.content.rpg.quest.QuestCondition;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.RandomSource;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Optional;
@@ -17,7 +19,7 @@ public record SimpleDialogOption(
 		String text,
 		List<DialogAction<?>> actions,
 		Optional<Holder<Dialog>> next
-) implements DialogOption<SimpleDialogOption> {
+) implements DialogOption<SimpleDialogOption>, OptionResult {
 
 	public static final MapCodec<SimpleDialogOption> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 			CodecRegistry.CONDITION.codec().listOf().fieldOf("conditions").forGetter(SimpleDialogOption::conditions),
@@ -34,6 +36,11 @@ public record SimpleDialogOption(
 	@Override
 	public Component display() {
 		return Component.translatable(text());
+	}
+
+	@Override
+	public OptionResult resolve(@Nullable RandomSource random) {
+		return this;
 	}
 
 }

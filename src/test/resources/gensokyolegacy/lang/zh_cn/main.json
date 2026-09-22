@@ -171,5 +171,27 @@
 		"rumia_attack": "%s被露米娅吃掉了",
 		"rumia_attack.player": "%s被%s吃掉了",
 		"rumia_attack.item": "%s被%s吃掉了"
+	},
+	"advancements": {
+		"gensokyolegacy": {
+			"main": {
+				"welcome": {
+					"title": "欢迎来到幻想乡",
+					"description": "在这个新世界找到自己的路"
+				},
+				"enter_hakurei_shrine": {
+					"title": "博丽神社",
+					"description": "进入博丽神社"
+				},
+				"enter_marisa_house": {
+					"title": "雾雨之家",
+					"description": "进入魔法森林中的魔理沙之家"
+				},
+				"enter_morichika_shop": {
+					"title": "香霖堂",
+					"description": "进入魔法森林中的香霖堂"
+				}
+			}
+		}
 	}
 }

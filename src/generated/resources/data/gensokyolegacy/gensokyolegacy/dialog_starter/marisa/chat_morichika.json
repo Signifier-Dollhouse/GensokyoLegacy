@@ -1,0 +1,13 @@
+{
+  "character": "gensokyolegacy:kirisame_marisa",
+  "conditions": [
+    {
+      "type": "gensokyolegacy:has_advancement",
+      "advancement": "gensokyolegacy:main/enter_morichika_shop",
+      "invert": true
+    }
+  ],
+  "dialog": "gensokyolegacy:marisa/chat_morichika/talk",
+  "text": "gensokyolegacy/marisa/chat_morichika/starter/start",
+  "weight": 100
+}

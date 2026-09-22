@@ -34,6 +34,13 @@
       "maxStock": 1,
       "minPrice": 16,
       "minStock": 1
+    },
+    "gensokyolegacy:straw_hat": {
+      "advancements": [],
+      "maxPrice": 6,
+      "maxStock": 4,
+      "minPrice": 3,
+      "minStock": 4
     }
   }
 }

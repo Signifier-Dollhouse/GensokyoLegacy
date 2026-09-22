@@ -440,6 +440,38 @@
 						}
 					}
 				}
+			},
+			"chat_reimu": {
+				"starter": {
+					"start": "你见过灵梦吗？"
+				},
+				"dialog": {
+					"marisa": {
+						"chat_reimu": {
+							"talk": "樱花林博丽神社的博丽灵梦。巫女，异变解决者，专蹭我家饭的家伙。",
+							"where_ans": "要是袭击者烦你，就去找她。她会把他们赶跑——记得别忘了赛钱，ZE！"
+						}
+					}
+				},
+				"option": {
+					"where": "什么时候该去找她？"
+				}
+			},
+			"chat_morichika": {
+				"starter": {
+					"start": "缺补给吗？"
+				},
+				"dialog": {
+					"marisa": {
+						"chat_morichika": {
+							"talk": "森近霖之助的香霖堂，就在这片魔法森林里。半河童店主，什么道具古董都懂。",
+							"where_ans": "从护符到旧货什么都卖，多余的小玩意儿也能卖给他。就说是魔理沙介绍你来的，ZE！"
+						}
+					}
+				},
+				"option": {
+					"where": "他卖些什么？"
+				}
 			}
 		}
 	}

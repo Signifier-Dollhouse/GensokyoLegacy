@@ -29,7 +29,7 @@ public record QuestHandle(Holder<Quest> quest, DialogOption<?> dialog) implement
 
 	@Override
 	public void openMenu(ServerPlayer sp, YoukaiEntity character) {
-		var next = dialog.next();
+		var next = dialog.resolve(sp.getRandom()).next();
 		if (next.isEmpty()) return;
 		new SimpleDialogProvider(sp, character, this, next.get()).open();
 	}
