@@ -24,9 +24,6 @@ public class GLModConfig {
 
 	public static class Server extends ConfigInit {
 
-		public final ModConfigSpec.IntValue higiHealingPeriod;
-		public final ModConfigSpec.DoubleValue fairyHealingFactor;
-
 		public final ModConfigSpec.DoubleValue reputationDecayFloor;
 
 		public final ModConfigSpec.IntValue frogEatCountForHat;
@@ -42,24 +39,12 @@ public class GLModConfig {
 		public final ModConfigSpec.DoubleValue danmakuPlayerPHPDamage;
 		public final ModConfigSpec.DoubleValue danmakuHealOnHitTarget;
 
-		public final ModConfigSpec.BooleanValue fairyAttackYoukaified;
-		public final ModConfigSpec.DoubleValue fairySummonReinforcement;
-
 		public final ModConfigSpec.DoubleValue morichikaReplaceChance;
 
 		public final ModConfigSpec.IntValue sealingPotRadius;
 
 		Server(Builder builder) {
 			markL2();
-			builder.push("food_effect", "Potion Effects");
-			{
-				higiHealingPeriod = builder.text("Higi Healing Interval")
-						.defineInRange("higiHealingPeriod", 60, 0, 10000);
-				fairyHealingFactor = builder.text("Fairy Healing Factor")
-						.defineInRange("fairyHealingFactor", 2d, 1, 100);
-			}
-			builder.pop();
-
 			builder.push("reputation", "Reputation");
 			{
 				reputationDecayFloor = builder.text("Daily reputation decay never reduces reputation below this fraction of the reputation cap")
@@ -108,15 +93,6 @@ public class GLModConfig {
 						.defineInRange("danmakuPlayerPHPDamage", 0.1, 0, 1);
 				danmakuHealOnHitTarget = builder.text("When danmaku hits target, heal youkai health by percentage of max health")
 						.defineInRange("danmakuHealOnHitTarget", 0.2, 0, 1);
-			}
-			builder.pop();
-
-			builder.push("fairy", "Fairy");
-			{
-				fairyAttackYoukaified = builder.text("Fairies will actively attack players with youkaifying/ed effects")
-						.define("fairyAttackYoukaified", true);
-				fairySummonReinforcement = builder.text("Chance for fairies to summon other fairies when killed by non-danmaku damage")
-						.defineInRange("fairySummonReinforcement", 0.5, 0, 1);
 			}
 			builder.pop();
 
