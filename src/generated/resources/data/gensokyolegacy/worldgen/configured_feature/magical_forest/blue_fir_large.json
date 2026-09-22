@@ -1,0 +1,135 @@
+{
+  "type": "gensokyolegacy:template",
+  "config": {
+    "footprint_radius": 3,
+    "ground": "#minecraft:dirt",
+    "max_slope": 4,
+    "post_features": [
+      {
+        "feature": {
+          "type": "minecraft:disk",
+          "config": {
+            "half_height": 2,
+            "radius": {
+              "type": "minecraft:uniform",
+              "max_inclusive": 5,
+              "min_inclusive": 3
+            },
+            "state_provider": {
+              "fallback": {
+                "type": "minecraft:weighted_state_provider",
+                "entries": [
+                  {
+                    "data": {
+                      "Name": "minecraft:podzol",
+                      "Properties": {
+                        "snowy": "false"
+                      }
+                    },
+                    "weight": 4
+                  },
+                  {
+                    "data": {
+                      "Name": "minecraft:coarse_dirt"
+                    },
+                    "weight": 1
+                  },
+                  {
+                    "data": {
+                      "Name": "minecraft:rooted_dirt"
+                    },
+                    "weight": 1
+                  }
+                ]
+              },
+              "rules": []
+            },
+            "target": {
+              "type": "minecraft:matching_blocks",
+              "blocks": [
+                "minecraft:grass_block",
+                "minecraft:dirt"
+              ]
+            }
+          }
+        },
+        "placement": []
+      },
+      {
+        "feature": {
+          "type": "minecraft:random_patch",
+          "config": {
+            "feature": {
+              "feature": {
+                "type": "minecraft:simple_block",
+                "config": {
+                  "to_place": {
+                    "type": "minecraft:weighted_state_provider",
+                    "entries": [
+                      {
+                        "data": {
+                          "Name": "gensokyolegacy:cedar_fallen_leaves",
+                          "Properties": {
+                            "layers": "1"
+                          }
+                        },
+                        "weight": 3
+                      },
+                      {
+                        "data": {
+                          "Name": "gensokyolegacy:cedar_fallen_leaves",
+                          "Properties": {
+                            "layers": "2"
+                          }
+                        },
+                        "weight": 1
+                      }
+                    ]
+                  }
+                }
+              },
+              "placement": [
+                {
+                  "type": "minecraft:block_predicate_filter",
+                  "predicate": {
+                    "type": "minecraft:all_of",
+                    "predicates": [
+                      {
+                        "type": "minecraft:matching_blocks",
+                        "blocks": "minecraft:air"
+                      },
+                      {
+                        "type": "minecraft:matching_block_tag",
+                        "offset": [
+                          0,
+                          -1,
+                          0
+                        ],
+                        "tag": "minecraft:dirt"
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            "tries": 64,
+            "xz_spread": 7,
+            "y_spread": 3
+          }
+        },
+        "placement": []
+      }
+    ],
+    "root_depth": 5,
+    "templates": [
+      {
+        "data": "gensokyolegacy:magical_forest/tree/blue_fir_large_1",
+        "weight": 1
+      },
+      {
+        "data": "gensokyolegacy:magical_forest/tree/blue_fir_large_2",
+        "weight": 1
+      }
+    ]
+  }
+}

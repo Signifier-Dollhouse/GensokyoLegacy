@@ -1,5 +1,5 @@
 {
-  "feature": "gensokyolegacy:magical_forest_mushrooms",
+  "feature": "gensokyolegacy:magical_forest/fallen_leaves",
   "placement": [
     {
       "type": "minecraft:count",
@@ -9,8 +9,13 @@
       "type": "minecraft:in_square"
     },
     {
+      "type": "gensokyolegacy:canopy",
+      "min_gap": 4,
+      "under": true
+    },
+    {
       "type": "minecraft:heightmap",
-      "heightmap": "MOTION_BLOCKING"
+      "heightmap": "MOTION_BLOCKING_NO_LEAVES"
     },
     {
       "type": "minecraft:biome"

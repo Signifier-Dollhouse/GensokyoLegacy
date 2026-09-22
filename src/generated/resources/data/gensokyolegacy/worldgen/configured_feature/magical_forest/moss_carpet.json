@@ -6,21 +6,10 @@
         "type": "minecraft:simple_block",
         "config": {
           "to_place": {
-            "type": "minecraft:weighted_state_provider",
-            "entries": [
-              {
-                "data": {
-                  "Name": "gensokyolegacy:broom_grass"
-                },
-                "weight": 1
-              },
-              {
-                "data": {
-                  "Name": "gensokyolegacy:bracken"
-                },
-                "weight": 1
-              }
-            ]
+            "type": "minecraft:simple_state_provider",
+            "state": {
+              "Name": "minecraft:moss_carpet"
+            }
           }
         }
       },
@@ -48,8 +37,8 @@
         }
       ]
     },
-    "tries": 32,
-    "xz_spread": 7,
+    "tries": 24,
+    "xz_spread": 4,
     "y_spread": 3
   }
 }

@@ -1,0 +1,70 @@
+{
+  "type": "gensokyolegacy:template",
+  "config": {
+    "footprint_radius": 2,
+    "ground": "#minecraft:dirt",
+    "max_slope": 3,
+    "post_features": [
+      {
+        "feature": {
+          "type": "minecraft:disk",
+          "config": {
+            "half_height": 2,
+            "radius": {
+              "type": "minecraft:uniform",
+              "max_inclusive": 3,
+              "min_inclusive": 2
+            },
+            "state_provider": {
+              "fallback": {
+                "type": "minecraft:simple_state_provider",
+                "state": {
+                  "Name": "minecraft:mycelium",
+                  "Properties": {
+                    "snowy": "false"
+                  }
+                }
+              },
+              "rules": []
+            },
+            "target": {
+              "type": "minecraft:matching_blocks",
+              "blocks": [
+                "minecraft:grass_block",
+                "minecraft:dirt"
+              ]
+            }
+          }
+        },
+        "placement": []
+      }
+    ],
+    "root_depth": 4,
+    "templates": [
+      {
+        "data": "gensokyolegacy:magical_forest/mushroom/ghost_fire_large_1",
+        "weight": 1
+      },
+      {
+        "data": "gensokyolegacy:magical_forest/mushroom/ghost_fire_large_2",
+        "weight": 1
+      },
+      {
+        "data": "gensokyolegacy:magical_forest/mushroom/ghost_fire_large_3",
+        "weight": 1
+      },
+      {
+        "data": "gensokyolegacy:magical_forest/mushroom/demonic_miasma_large_1",
+        "weight": 1
+      },
+      {
+        "data": "gensokyolegacy:magical_forest/mushroom/demonic_miasma_large_2",
+        "weight": 1
+      },
+      {
+        "data": "gensokyolegacy:magical_forest/mushroom/dream_large_1",
+        "weight": 1
+      }
+    ]
+  }
+}

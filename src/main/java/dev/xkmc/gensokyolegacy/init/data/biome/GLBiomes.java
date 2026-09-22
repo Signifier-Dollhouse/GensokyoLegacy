@@ -29,21 +29,13 @@ public class GLBiomes {
 					new MobSpawnSettings.Builder(),
 					new BiomeGenerationSettings.PlainBuilder(),
 					Musics.createGameMusic(SoundEvents.MUSIC_END)));
-		ctx.register(MAGICAL_FOREST, biome(
-				new MobSpawnSettings.Builder(),
-				addDefaultOres(new BiomeGenerationSettings.Builder(pf, carvers))
-						.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, GLFeatureGen.MAGICAL_FOREST_DISK_COARSE_DIRT_PLACED)
-						.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, GLFeatureGen.MAGICAL_FOREST_DISK_PODZOL_PLACED)
-						.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, GLFeatureGen.MAGICAL_FOREST_DISK_MYCELIUM_PLACED)
-						.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, GLFeatureGen.MAGICAL_FOREST_DISK_MOSS_PLACED)
-						.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, GLFeatureGen.MAGICAL_FOREST_VEGETATION_PLACED)
-						.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, GLFeatureGen.MAGICAL_FOREST_GRASS_PLACED)
-						.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, VegetationPlacements.PATCH_LARGE_FERN)
-						.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, VegetationPlacements.PATCH_GRASS_FOREST)
-						.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, VegetationPlacements.PATCH_GRASS_TAIGA)
-						.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, GLFeatureGen.MAGICAL_FOREST_FLOWERS_PLACED)
-						.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, GLFeatureGen.MAGICAL_FOREST_MUSHROOMS_PLACED)
-		));
+		var magicalForest = addDefaultOres(new BiomeGenerationSettings.Builder(pf, carvers))
+				.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, GLFeatureGen.MAGICAL_FOREST_DISK_COARSE_DIRT_PLACED)
+				.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, GLFeatureGen.MAGICAL_FOREST_DISK_PODZOL_PLACED)
+				.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, GLFeatureGen.MAGICAL_FOREST_DISK_MYCELIUM_PLACED)
+				.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, GLFeatureGen.MAGICAL_FOREST_DISK_MOSS_PLACED);
+		MagicalForestFeatures.addVegetation(magicalForest);
+		ctx.register(MAGICAL_FOREST, biome(new MobSpawnSettings.Builder(), magicalForest));
 		ctx.register(SAKURA_FOREST, biome(true, 0.5f, 0.8f, 0xc0d8ff, 11983713, 11983713,
 				new MobSpawnSettings.Builder(),
 				addDefaultOres(new BiomeGenerationSettings.Builder(pf, carvers))

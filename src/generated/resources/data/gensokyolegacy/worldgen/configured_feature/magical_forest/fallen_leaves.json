@@ -10,13 +10,19 @@
             "entries": [
               {
                 "data": {
-                  "Name": "gensokyolegacy:broom_grass"
+                  "Name": "gensokyolegacy:cedar_fallen_leaves",
+                  "Properties": {
+                    "layers": "1"
+                  }
                 },
-                "weight": 1
+                "weight": 3
               },
               {
                 "data": {
-                  "Name": "gensokyolegacy:bracken"
+                  "Name": "gensokyolegacy:cedar_fallen_leaves",
+                  "Properties": {
+                    "layers": "2"
+                  }
                 },
                 "weight": 1
               }
@@ -48,8 +54,8 @@
         }
       ]
     },
-    "tries": 32,
-    "xz_spread": 7,
+    "tries": 40,
+    "xz_spread": 6,
     "y_spread": 3
   }
 }
