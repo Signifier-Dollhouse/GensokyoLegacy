@@ -7,6 +7,10 @@
     "gensokyolegacy:kirisame_marisa": {
       "greeting": "gensokyolegacy/marisa/chat/greeting",
       "trade": "gensokyolegacy/marisa/chat/trade"
+    },
+    "gensokyolegacy:morichika_rinnosuke": {
+      "greeting": "gensokyolegacy/morichika/chat/greeting",
+      "trade": "gensokyolegacy/morichika/chat/trade"
     }
   }
 }

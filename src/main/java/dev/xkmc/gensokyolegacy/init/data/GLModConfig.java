@@ -27,7 +27,6 @@ public class GLModConfig {
 		public final ModConfigSpec.DoubleValue reputationDecayFloor;
 
 		public final ModConfigSpec.IntValue frogEatCountForHat;
-		public final ModConfigSpec.BooleanValue koishiAttackEnable;
 		public final ModConfigSpec.IntValue koishiAttackCoolDown;
 		public final ModConfigSpec.DoubleValue koishiAttackChance;
 		public final ModConfigSpec.IntValue koishiAttackDamage;
@@ -66,8 +65,6 @@ public class GLModConfig {
 
 			builder.push("koishi_attack", "Koishi Attack");
 			{
-				koishiAttackEnable = builder.text("Enable koishi attack when player wears any touhou hat")
-						.define("koishiAttackEnable", true);
 				koishiAttackCoolDown = builder.text("Time in ticks for minimum time between koishi attacks")
 						.defineInRange("koishiAttackCoolDown", 6000, 1, 1000000);
 				koishiAttackChance = builder.text("Chance every tick to do koishi attack")

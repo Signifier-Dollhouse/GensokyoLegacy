@@ -1,0 +1,62 @@
+{
+  "character": "gensokyolegacy:kirisame_marisa",
+  "completionDialog": {
+    "type": "gensokyolegacy:simple",
+    "actions": [],
+    "conditions": [],
+    "next": "gensokyolegacy:marisa/koishi_hat/complete/dialog_1",
+    "text": "gensokyolegacy/marisa/koishi_hat/option/complete"
+  },
+  "conditions": [
+    {
+      "type": "gensokyolegacy:has_quest_completed",
+      "quest": "gensokyolegacy:marisa/brewing"
+    },
+    {
+      "type": "gensokyolegacy:has_quest_completed",
+      "quest": "gensokyolegacy:reimu/ominous_banner"
+    }
+  ],
+  "description": "gensokyolegacy/marisa/koishi_hat/quest/desc",
+  "followUpDialog": {
+    "type": "gensokyolegacy:simple",
+    "actions": [],
+    "conditions": [],
+    "next": "gensokyolegacy:marisa/koishi_hat/follow_up/dialog_1",
+    "text": "gensokyolegacy/marisa/koishi_hat/option/follow_up"
+  },
+  "initialDialog": {
+    "type": "gensokyolegacy:simple",
+    "actions": [
+      {
+        "type": "gensokyolegacy:start_quest"
+      }
+    ],
+    "conditions": [],
+    "next": "gensokyolegacy:marisa/koishi_hat/start/dialog_1",
+    "text": "gensokyolegacy/marisa/koishi_hat/option/start"
+  },
+  "requirements": {
+    "b-proof": {
+      "type": "gensokyolegacy:koishi_hat"
+    }
+  },
+  "rewards": [
+    {
+      "type": "gensokyolegacy:exp",
+      "point": 300
+    },
+    {
+      "type": "gensokyolegacy:reputation",
+      "cap_increase": 10,
+      "max_cap": 300,
+      "reputation": 20,
+      "soft_cap": 300
+    },
+    {
+      "type": "gensokyolegacy:loot_table",
+      "table": "gensokyolegacy:marisa/koishi_hat"
+    }
+  ],
+  "title": "gensokyolegacy/marisa/koishi_hat/quest/title"
+}

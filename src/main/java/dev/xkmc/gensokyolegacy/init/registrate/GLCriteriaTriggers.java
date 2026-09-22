@@ -15,6 +15,7 @@ public class GLCriteriaTriggers {
 	public static final Val<PlayerTrigger> SUWAKO_WEAR = CT.reg("suwako_wear", PlayerTrigger::new);
 	public static final Val<PlayerTrigger> KOISHI_RING = CT.reg("koishi_ring", PlayerTrigger::new);
 	public static final Val<PlayerTrigger> KOISHI_FIRST = CT.reg("koishi_first", PlayerTrigger::new);
+	public static final Val<PlayerTrigger> KOISHI_HAT = CT.reg("koishi_hat", PlayerTrigger::new);
 	public static final Val<FeedCharacterTrigger> FEED_REIMU = CT.reg("feed_reimu", FeedCharacterTrigger::new);
 
 	public static void register() {

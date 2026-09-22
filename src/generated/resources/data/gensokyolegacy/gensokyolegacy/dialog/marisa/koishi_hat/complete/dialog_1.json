@@ -1,0 +1,16 @@
+{
+  "options": [
+    {
+      "type": "gensokyolegacy:simple",
+      "actions": [
+        {
+          "type": "gensokyolegacy:complete_quest"
+        }
+      ],
+      "conditions": [],
+      "next": "gensokyolegacy:marisa/koishi_hat/complete/handover/dialog_1",
+      "text": "gensokyolegacy/marisa/koishi_hat/option/complete/handover"
+    }
+  ],
+  "text": "gensokyolegacy/marisa/koishi_hat/dialog/marisa/koishi_hat/complete/dialog_1"
+}

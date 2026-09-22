@@ -11,6 +11,7 @@ import dev.xkmc.gensokyolegacy.content.rpg.dialog.SimpleDialogOption;
 import dev.xkmc.gensokyolegacy.content.rpg.quest.Quest;
 import dev.xkmc.gensokyolegacy.content.rpg.quest.QuestCondition;
 import dev.xkmc.gensokyolegacy.content.rpg.quest.QuestRecurrence;
+import dev.xkmc.gensokyolegacy.content.rpg.requirement.KoishiHatRequirement;
 import dev.xkmc.gensokyolegacy.content.rpg.requirement.QuestRequirement;
 import dev.xkmc.gensokyolegacy.content.rpg.requirement.SubmitItemRequirement;
 import dev.xkmc.gensokyolegacy.content.rpg.reward.ExpReward;
@@ -51,6 +52,9 @@ public class MarisaQDGen extends QuestDialogData {
 	private static final ResourceLocation QUEST_NETHER_MUSHROOM = GensokyoLegacy.loc("marisa/nether_mushroom_prep");
 	private static final ResourceLocation QUEST_SHROOMLIGHT = GensokyoLegacy.loc("marisa/shroomlight");
 	private static final ResourceLocation QUEST_BREWING = GensokyoLegacy.loc("marisa/brewing");
+	public static final ResourceLocation QUEST_KOISHI = GensokyoLegacy.loc("marisa/koishi_hat");
+	public static final String KOISHI_PROOF = "b-proof";
+	private static final ResourceLocation QUEST_REIMU_OMINOUS = GensokyoLegacy.loc("reimu/ominous_banner");
 
 	private static final ResourceLocation ADV_NETHER = ResourceLocation.withDefaultNamespace("nether/root");
 	private static final ResourceLocation ADV_FORTRESS = ResourceLocation.withDefaultNamespace("nether/find_fortress");
@@ -234,6 +238,30 @@ public class MarisaQDGen extends QuestDialogData {
 				complete("Hand over the enchanted golden apple.",
 						"THIS! This is a treasure! Look at that glow — that's real lost technology. I'm gonna take this apart, learn every secret, and build it myself. You just made a huge breakthrough possible!",
 						"I knew you could do it.", "Heh! With me around, ain't nothin' impossible!")
+		));
+
+		prefix("marisa/koishi_hat");
+		quest("marisa/koishi_hat", new Quest(GLEntities.MARISA.get(),
+				List.of(new HasQuestCompletedCondition(QUEST_BREWING),
+						new HasQuestCompletedCondition(QUEST_REIMU_OMINOUS)),
+				questTitle("Rumors from the Nether"), questDesc("Marisa heard unsettling rumors about the Nether. Investigate — carefully."),
+				Optional.empty(),
+				new TreeMap<>(Map.of(
+						KOISHI_PROOF, new KoishiHatRequirement()
+				)),
+				List.of(new ExpReward(300), new ReputationReward(20, 300, 10, 300),
+						loot("marisa/koishi_hat", LootTable.lootTable()
+								.withPool(lootItem(Items.EMERALD, 8)))),
+				option("start", "Ask about the rumors.", new StartQuestAction(),
+						dialog("start/dialog_1",
+								"Psst — ya been hearin' the rumors comin' outta the Nether lately? Travelers comin' back white as sheets, swearin' somethin' followed 'em home — but none of 'em can say what. Gives me the creeps just thinkin' about it, ze. You're braver than me, though. Poke around down there for me, would ya? And... watch yourself.",
+								optionKey(byeKey))),
+				follow("About those rumors.",
+						"Noticed anythin' strange down there yet? Don't go pokin' where ya shouldn't — just keep an eye out, and come back in one piece.",
+						"I'll be careful.", "Ya better! I'd hate to lose my best scout, ze!"),
+				complete("I found something down there.",
+						"You're back! In one piece, even! Heh — and wouldja look at that, the travelers stopped ravin' about bein' followed. Whatever ya did down there, it worked. Thanks, buddy!",
+						"Here, take a look.", "Haha! Another mystery laid to rest — well, by you, but who's countin'? Drinks are on me next time, ze!")
 		));
 
 		dailyQuests();

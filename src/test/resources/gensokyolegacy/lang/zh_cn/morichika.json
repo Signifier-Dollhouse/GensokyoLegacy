@@ -1,0 +1,24 @@
+{
+	"-slash": true,
+	"gensokyolegacy": {
+		"morichika": {
+			"chat": {
+				"greeting": "欢迎光临香霖堂！随便看看吧。",
+				"trade": "有没有给老主顾的特别优惠？",
+				"starter": {
+					"start": "欢迎！"
+				},
+				"dialog": {
+					"morichika": {
+						"chat": {
+							"hi": "欢迎来到香霖堂！看中什么尽管说。"
+						}
+					}
+				},
+				"option": {
+					"bye": "再见！"
+				}
+			}
+		}
+	}
+}

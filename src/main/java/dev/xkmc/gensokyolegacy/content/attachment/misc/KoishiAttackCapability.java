@@ -1,18 +1,19 @@
 package dev.xkmc.gensokyolegacy.content.attachment.misc;
 
+import dev.xkmc.gensokyolegacy.content.rpg.trigger.KoishiHatTrigger;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.GLAdvGen;
 import dev.xkmc.gensokyolegacy.init.data.GLDamageTypes;
 import dev.xkmc.gensokyolegacy.init.data.GLModConfig;
-import dev.xkmc.gensokyolegacy.init.data.GLTagGen;
+import dev.xkmc.gensokyolegacy.init.data.rpg.MarisaQDGen;
 import dev.xkmc.gensokyolegacy.init.registrate.GLCriteriaTriggers;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
+import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
 import dev.xkmc.gensokyolegacy.util.RayTraceUtil;
 import dev.xkmc.l2core.capability.player.PlayerCapabilityTemplate;
 import dev.xkmc.l2serial.serialization.marker.SerialClass;
 import dev.xkmc.l2serial.serialization.marker.SerialField;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 
@@ -42,12 +43,13 @@ public class KoishiAttackCapability extends PlayerCapabilityTemplate<KoishiAttac
 	}
 
 	private boolean notValid(Player player) {
-		return !player.getItemBySlot(EquipmentSlot.HEAD).is(GLTagGen.TOUHOU_HAT);
+		var quest = GLMeta.QUEST.type().getOrCreate(player).getData(MarisaQDGen.QUEST_KOISHI);
+		if (!quest.started) return true;
+		return quest.progress.getOrDefault(MarisaQDGen.KOISHI_PROOF, 0) > 0;
 	}
 
 	@Override
 	public void tick(Player player) {
-		if (!GLModConfig.SERVER.koishiAttackEnable.get()) return;
 		if (!(player instanceof ServerPlayer sp)) {
 			if (source != null && tickRemain > 0 && tickRemain <= DELAY - MARK_POS) {
 				ClientCapHandler.showParticle(player, source);
@@ -102,6 +104,10 @@ public class KoishiAttackCapability extends PlayerCapabilityTemplate<KoishiAttac
 		if (blockCount >= GLModConfig.SERVER.koishiAttackBlockCount.get()) {
 			blockCount = 0;
 			player.spawnAtLocation(GLItems.KOISHI_HAT.get());
+			if (player instanceof ServerPlayer sp) {
+				GLCriteriaTriggers.KOISHI_HAT.get().trigger(sp);
+				GLMeta.QUEST.type().getOrCreate(sp).dispatch(sp, new KoishiHatTrigger(sp));
+			}
 		}
 	}
 

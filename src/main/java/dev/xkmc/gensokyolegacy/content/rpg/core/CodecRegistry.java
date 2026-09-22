@@ -63,6 +63,8 @@ public class CodecRegistry {
 
 	public static final CdcVal<KillMobRequirement> KILL_MOB_REQ = REQUIREMENT.reg("kill_mob", KillMobRequirement.CODEC);
 	public static final CdcVal<SubmitItemRequirement> SUBMIT_ITEM_REQ = REQUIREMENT.reg("submit_item", SubmitItemRequirement.CODEC);
+	public static final CdcVal<HasItemRequirement> HAS_ITEM_REQ = REQUIREMENT.reg("has_item", HasItemRequirement.CODEC);
+	public static final CdcVal<KoishiHatRequirement> KOISHI_HAT_REQ = REQUIREMENT.reg("koishi_hat", KoishiHatRequirement.CODEC);
 	public static final CdcVal<RollItemRequirement> ROLL_ITEM_REQ = REQUIREMENT.reg("roll_item", RollItemRequirement.CODEC);
 	public static final CdcVal<RaidVictoryRequirement> RAID_VICTORY_REQ = REQUIREMENT.reg("raid_victory", RaidVictoryRequirement.CODEC);
 

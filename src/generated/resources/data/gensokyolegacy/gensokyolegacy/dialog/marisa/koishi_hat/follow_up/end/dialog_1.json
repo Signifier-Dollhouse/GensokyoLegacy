@@ -1,0 +1,11 @@
+{
+  "options": [
+    {
+      "type": "gensokyolegacy:simple",
+      "actions": [],
+      "conditions": [],
+      "text": "gensokyolegacy/marisa/shared/option/bye"
+    }
+  ],
+  "text": "gensokyolegacy/marisa/koishi_hat/dialog/marisa/koishi_hat/follow_up/end/dialog_1"
+}

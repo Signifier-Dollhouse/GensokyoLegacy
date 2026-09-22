@@ -11,11 +11,15 @@ import java.util.Optional;
 
 public class GLAdvGen {
 	public static final ResourceLocation KOISHI_FIRST = GensokyoLegacy.loc("koishi_first");
+	public static final ResourceLocation KOISHI_HAT = GensokyoLegacy.loc("koishi_hat");
 
 	public static void genAdv(RegistrateAdvancementProvider pvd) {
 		pvd.accept(Advancement.Builder.advancement().addCriterion("koishi_first",
 				GLCriteriaTriggers.KOISHI_FIRST.get().createCriterion(new PlayerTrigger.TriggerInstance(Optional.empty()))
 		).build(KOISHI_FIRST));
+		pvd.accept(Advancement.Builder.advancement().addCriterion("koishi_hat",
+				GLCriteriaTriggers.KOISHI_HAT.get().createCriterion(new PlayerTrigger.TriggerInstance(Optional.empty()))
+		).build(KOISHI_HAT));
 	}
 
 }
