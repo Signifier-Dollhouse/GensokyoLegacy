@@ -39,7 +39,7 @@ public class YoukaiSitTask<E extends SmartYoukaiEntity> extends AbstractHomeHold
 
 	@Override
 	protected void start(ServerLevel level, E entity, long gameTime) {
-		BrainUtils.setMemory(entity, MemoryModuleType.WALK_TARGET, new WalkTarget(chair, 1, 1));
+		BrainUtils.setMemory(entity, MemoryModuleType.WALK_TARGET, new WalkTarget(chair.above(), 1, 1));
 		BrainUtils.setMemory(entity, MemoryModuleType.LOOK_TARGET, new BlockPosTracker(chair));
 	}
 

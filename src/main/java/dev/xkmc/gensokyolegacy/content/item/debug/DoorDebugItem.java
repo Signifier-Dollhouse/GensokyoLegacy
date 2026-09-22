@@ -71,7 +71,7 @@ public class DoorDebugItem extends Item implements IDebugOverlayWand {
 				BrainUtils.clearMemory(youkai, MemoryModuleType.PATH);
 				BrainUtils.clearMemory(youkai, MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE);
 				BrainUtils.setMemory(youkai, MemoryModuleType.WALK_TARGET,
-						new WalkTarget(context.getClickedPos(), 1, 1));
+						new WalkTarget(context.getClickedPos().relative(context.getClickedFace()), 1, 0));
 				sp.displayClientMessage(GLLang.ItemDebug.DOOR_DEBUG_MOVING.get(
 						context.getClickedPos().getX(), context.getClickedPos().getY(),
 						context.getClickedPos().getZ()).withStyle(ChatFormatting.GREEN), true);
