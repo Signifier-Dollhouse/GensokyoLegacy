@@ -57,7 +57,8 @@ public class GLDecoBlocks {
 	public static final StoneAndBrickSet DARKSTONE;
 
 	public static final BlockEntry<Block> GLASS;
-	public static final BlockEntry<IronBarsBlock> GLASS_PANE;
+	public static final BlockEntry<IronBarsBlock> GLASS_PANE, SHOJI_FRAME_PANE;
+	public static final BlockEntry<Block> SHOJI_FRAME;
 	public static final BlockEntry<DelegateBlock> TATAMI, TATAMI_BLOCK;
 	public static final BlockEntry<DelegateBlock> STURDY_TEDDY_BEAR;
 
@@ -121,6 +122,17 @@ public class GLDecoBlocks {
 					.simpleItem()
 					.register();
 
+			// 障子方块
+			SHOJI_FRAME = reg.block("shoji_frame", Block::new)
+					.properties(p -> p.mapColor(MapColor.NONE).strength(0.3F).sound(SoundType.WOOD).noOcclusion().noLootTable())
+					.blockstate((ctx, pvd) -> pvd.simpleBlock(ctx.get(),
+							pvd.models().cubeAll(ctx.getName(),
+									pvd.modLoc("block/deco/shoji_frame"))))
+					.loot((pvd, block) -> pvd.add(block, LootTable.lootTable()))
+					.tag(BlockTags.MINEABLE_WITH_PICKAXE)
+					.simpleItem()
+					.register();
+
 			// 纸窗板
 			GLASS_PANE = reg.block("paper_window_pane", IronBarsBlock::new)
 					.properties(p -> p.mapColor(MapColor.NONE).strength(0.3F).sound(SoundType.WOOD).noOcclusion().noLootTable())
@@ -131,6 +143,19 @@ public class GLDecoBlocks {
 					.tag(BlockTags.MINEABLE_WITH_PICKAXE)
 					.item().model((ctx, pvd) -> pvd.withExistingParent(ctx.getName(), "item/generated")
 							.texture("layer0", pvd.modLoc("block/deco/paper_window")))
+					.build()
+					.register();
+
+			// 障子框
+			SHOJI_FRAME_PANE = reg.block("shoji_frame_pane", IronBarsBlock::new)
+					.properties(p -> p.mapColor(MapColor.NONE).strength(0.3F).sound(SoundType.WOOD).noOcclusion().noLootTable())
+					.blockstate((ctx, pvd) -> pvd.paneBlock(ctx.get(),
+							pvd.modLoc("block/deco/shoji_frame"),
+							ResourceLocation.withDefaultNamespace("block/spruce_planks")))
+					.loot((pvd, block) -> pvd.add(block, LootTable.lootTable()))
+					.tag(BlockTags.MINEABLE_WITH_PICKAXE)
+					.item().model((ctx, pvd) -> pvd.withExistingParent(ctx.getName(), "item/generated")
+							.texture("layer0", pvd.modLoc("block/deco/shoji_frame")))
 					.build()
 					.register();
 		}
