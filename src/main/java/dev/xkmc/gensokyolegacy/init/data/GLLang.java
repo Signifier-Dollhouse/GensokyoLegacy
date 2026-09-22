@@ -429,7 +429,7 @@ public final class GLLang {
 		OBTAIN_FROZEN_FROG("Dropped when Cirno freezes a frog.", 0, ChatFormatting.GRAY),
 		USAGE_FROZEN_FROG("Throw toward target to summon a frog.", 0, ChatFormatting.GRAY),
 		USAGE_STRAW_HAT("With %s, you can equip it on frogs to allow them to eat raiders", 1, ChatFormatting.GRAY),
-		OBTAIN_SUWAKO_HAT("Drops when frog with hat eats %s different kinds of raiders in front of villagers", 1, ChatFormatting.GRAY),
+		OBTAIN_SUWAKO_HAT("Drops when frog with hat eats %s different kinds of raiders", 1, ChatFormatting.GRAY),
 		USAGE_SUWAKO_HAT("Grants constant %s. Allows using Cyan and Lime danmaku without consumption.", 1, ChatFormatting.GRAY),
 		OBTAIN_KOISHI_HAT("Drops when blocking Koishi attacks %s times in a row", 1, ChatFormatting.GRAY),
 		USAGE_KOISHI_HAT("Grants constant %s. Allows using Blue and Red danmaku without consumption.", 1, ChatFormatting.GRAY),

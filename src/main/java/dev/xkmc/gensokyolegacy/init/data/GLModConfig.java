@@ -27,8 +27,6 @@ public class GLModConfig {
 		public final ModConfigSpec.DoubleValue reputationDecayFloor;
 
 		public final ModConfigSpec.IntValue frogEatCountForHat;
-		public final ModConfigSpec.IntValue frogEatRaiderVillagerSightRange;
-		public final ModConfigSpec.IntValue frogEatRaiderVillagerNoSightRange;
 		public final ModConfigSpec.BooleanValue koishiAttackEnable;
 		public final ModConfigSpec.IntValue koishiAttackCoolDown;
 		public final ModConfigSpec.DoubleValue koishiAttackChance;
@@ -61,18 +59,14 @@ public class GLModConfig {
 
 			builder.push("suwako_hat", "Suwako Hat");
 			{
-				frogEatCountForHat = builder.text("Number of raiders with different types frogs need to eat in front of villager to drop Suwako hat")
+				frogEatCountForHat = builder.text("Number of raiders with different types frogs need to eat to drop Suwako hat")
 						.defineInRange("frogEatCountForHat", 3, 1, 10);
-				frogEatRaiderVillagerSightRange = builder.text("Range for villagers with direct sight when frog eat raiders")
-						.defineInRange("frogEatRaiderVillagerSightRange", 20, 1, 64);
-				frogEatRaiderVillagerNoSightRange = builder.text("Range for villagers without direct sight when frog eat raiders")
-						.defineInRange("frogEatRaiderVillagerNoSightRange", 10, 1, 64);
 			}
 			builder.pop();
 
 			builder.push("koishi_attack", "Koishi Attack");
 			{
-				koishiAttackEnable = builder.text("Enable koishi attack when player has youkaifying or youkaified effect")
+				koishiAttackEnable = builder.text("Enable koishi attack when player wears any touhou hat")
 						.define("koishiAttackEnable", true);
 				koishiAttackCoolDown = builder.text("Time in ticks for minimum time between koishi attacks")
 						.defineInRange("koishiAttackCoolDown", 6000, 1, 1000000);

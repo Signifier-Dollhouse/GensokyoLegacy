@@ -4,16 +4,16 @@ import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.GLAdvGen;
 import dev.xkmc.gensokyolegacy.init.data.GLDamageTypes;
 import dev.xkmc.gensokyolegacy.init.data.GLModConfig;
+import dev.xkmc.gensokyolegacy.init.data.GLTagGen;
 import dev.xkmc.gensokyolegacy.init.registrate.GLCriteriaTriggers;
-import dev.xkmc.gensokyolegacy.init.registrate.GLEffects;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.gensokyolegacy.util.RayTraceUtil;
 import dev.xkmc.l2core.capability.player.PlayerCapabilityTemplate;
 import dev.xkmc.l2serial.serialization.marker.SerialClass;
 import dev.xkmc.l2serial.serialization.marker.SerialField;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
 @SerialClass
@@ -42,10 +42,7 @@ public class KoishiAttackCapability extends PlayerCapabilityTemplate<KoishiAttac
 	}
 
 	private boolean notValid(Player player) {
-		if (player.level().dimension().equals(Level.NETHER) && player.canBeSeenAsEnemy()) {
-			player.hasEffect(GLEffects.UNCONSCIOUS);
-		}
-		return true;//TODO disable koishi for now
+		return !player.getItemBySlot(EquipmentSlot.HEAD).is(GLTagGen.TOUHOU_HAT);
 	}
 
 	@Override
