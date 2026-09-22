@@ -13,6 +13,7 @@ import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.l2modularblock.core.BlockTemplates;
 import dev.xkmc.l2modularblock.core.DelegateBlock;
 import net.minecraft.core.Holder;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.item.BedItem;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.block.BedBlock;
@@ -92,6 +93,7 @@ public class GLBlocks {
 							new AlchemyPotBlock(), AlchemyPotBlock.BE))
 					.initialProperties(() -> Blocks.COPPER_BLOCK)
 					.properties(BlockBehaviour.Properties::noOcclusion)
+					.tag(BlockTags.MINEABLE_WITH_PICKAXE)
 					.blockstate((ctx, pvd) -> pvd.simpleBlock(ctx.get(),
 							pvd.models().getBuilder(ctx.getName())
 									.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/utensil/" + ctx.getName())))
@@ -108,6 +110,7 @@ public class GLBlocks {
 			// 封魔之壶
 			SEALING_POT = GensokyoLegacy.REGISTRATE.block("sealing_pot", p -> DelegateBlock.newBaseBlock(p, BlockTemplates.HORIZONTAL, new SealingPotShape(), new SealingPotBlock()))
 					.properties(p -> p.mapColor(MapColor.NONE).strength(2.0F).sound(SoundType.STONE).noOcclusion())
+					.tag(BlockTags.MINEABLE_WITH_PICKAXE)
 					.blockstate((ctx, pvd) -> pvd.horizontalBlock(ctx.get(),
 							pvd.models().getBuilder("block/" + ctx.getName())
 									.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/utensil/" + ctx.getName())))

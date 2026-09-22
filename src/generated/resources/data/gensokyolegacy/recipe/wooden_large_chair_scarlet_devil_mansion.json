@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "gensokyolegacy:oak_chair"
+    },
+    {
+      "item": "minecraft:red_wool"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "gensokyolegacy:wooden_large_chair_scarlet_devil_mansion"
+  }
+}

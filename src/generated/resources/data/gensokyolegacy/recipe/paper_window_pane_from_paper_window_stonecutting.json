@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": {
+    "item": "gensokyolegacy:paper_window"
+  },
+  "result": {
+    "count": 4,
+    "id": "gensokyolegacy:paper_window_pane"
+  }
+}

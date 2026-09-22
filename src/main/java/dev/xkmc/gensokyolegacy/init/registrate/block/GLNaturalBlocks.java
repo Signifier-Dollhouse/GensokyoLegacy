@@ -11,6 +11,7 @@ import dev.xkmc.gensokyolegacy.content.item.gift.GiftType;
 import dev.xkmc.gensokyolegacy.content.worldgen.feature.MushroomFeatures;
 import dev.xkmc.gensokyolegacy.content.worldgen.feature.TreeFeatures;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
+import dev.xkmc.gensokyolegacy.init.data.GLRecipeGen;
 import dev.xkmc.gensokyolegacy.init.data.GLTagGen;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
 import dev.xkmc.l2core.init.reg.registrate.L2Registrate;
@@ -20,7 +21,10 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.data.recipes.RecipeCategory;
+import net.minecraft.data.recipes.ShapelessRecipeBuilder;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantments;
@@ -43,6 +47,8 @@ import net.neoforged.neoforge.client.model.generators.BlockModelBuilder;
 import net.neoforged.neoforge.client.model.generators.ConfiguredModel;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
 import net.neoforged.neoforge.client.model.generators.MultiPartBlockStateBuilder;
+import net.neoforged.neoforge.registries.datamaps.builtin.Compostable;
+import net.neoforged.neoforge.registries.datamaps.builtin.NeoForgeDataMaps;
 
 import java.util.List;
 import java.util.Optional;
@@ -87,8 +93,11 @@ public class GLNaturalBlocks {
 				.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
 				// TODO placeholder favor / cooldown
 				.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(5, 1000, GiftType.MAGIC))
+				.dataMap(NeoForgeDataMaps.COMPOSTABLES, new Compostable(0.65f))
+				.tag(ItemTags.SMALL_FLOWERS)
 				.tab(ResourceKey.create(Registries.CREATIVE_MODE_TAB, GensokyoLegacy.loc("ingredients")))
 				.build()
+				.tag(BlockTags.SMALL_FLOWERS)
 				.register();
 
 		// 燃蒲
@@ -102,7 +111,9 @@ public class GLNaturalBlocks {
 								.renderType("cutout")))
 				.item().model((ctx, pvd) -> pvd.getBuilder(ctx.getName())
 						.parent(new ModelFile.UncheckedModelFile("item/generated"))
-						.texture("layer0", pvd.modLoc("item/ingredient/flame_cattail"))).build()
+						.texture("layer0", pvd.modLoc("item/ingredient/flame_cattail")))
+				.dataMap(NeoForgeDataMaps.COMPOSTABLES, new Compostable(0.65f))
+				.build()
 				.register();
 
 		// 蕨菜
@@ -113,7 +124,9 @@ public class GLNaturalBlocks {
 								.renderType("cutout")))
 				.item().model((ctx, pvd) -> pvd.getBuilder(ctx.getName())
 						.parent(new ModelFile.UncheckedModelFile("item/generated"))
-						.texture("layer0", pvd.modLoc("block/nature/" + ctx.getName()))).build()
+						.texture("layer0", pvd.modLoc("block/nature/" + ctx.getName())))
+				.dataMap(NeoForgeDataMaps.COMPOSTABLES, new Compostable(0.65f))
+				.build()
 				.register();
 
 		// 常青垂藤
@@ -127,6 +140,7 @@ public class GLNaturalBlocks {
 				.item().model((ctx, pvd) -> pvd.getBuilder(ctx.getName())
 						.parent(new ModelFile.UncheckedModelFile("item/generated"))
 						.texture("layer0", pvd.modLoc("block/nature/" + ctx.getName())))
+				.dataMap(NeoForgeDataMaps.COMPOSTABLES, new Compostable(0.5f))
 				.build()
 				.register();
 
@@ -159,6 +173,7 @@ public class GLNaturalBlocks {
 				.item().model((ctx, pvd) -> pvd.getBuilder(ctx.getName())
 						.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/nature/cedar_fallen_leaves")))
 						.texture("all", pvd.modLoc("block/nature/cedar_fallen_leaves_layer1")))
+				.dataMap(NeoForgeDataMaps.COMPOSTABLES, new Compostable(0.3f))
 				.build()
 				.register();
 
@@ -204,7 +219,7 @@ public class GLNaturalBlocks {
 								.texture("all", pvd.modLoc("block/nature/eugune_red"))
 								.renderType("cutout")))
 				.loot(SideBushBlock::loot)
-				.simpleItem()
+				.item().dataMap(NeoForgeDataMaps.COMPOSTABLES, new Compostable(0.65f)).build()
 				.register();
 
 		// 棕耳菇
@@ -216,7 +231,7 @@ public class GLNaturalBlocks {
 								.texture("all", pvd.modLoc("block/nature/eugune_brown"))
 								.renderType("cutout")))
 				.loot(SideBushBlock::loot)
-				.simpleItem()
+				.item().dataMap(NeoForgeDataMaps.COMPOSTABLES, new Compostable(0.65f)).build()
 				.register();
 
 		// 鬼火耳菇
@@ -228,7 +243,7 @@ public class GLNaturalBlocks {
 								.texture("all", pvd.modLoc("block/nature/eugune_ghost_fire"))
 								.renderType("cutout")))
 				.loot(SideBushBlock::loot)
-				.simpleItem()
+				.item().dataMap(NeoForgeDataMaps.COMPOSTABLES, new Compostable(0.65f)).build()
 				.register();
 
 		BROOM_GRASS = reg.block("broom_grass", TallGrassBlock::new)
@@ -239,7 +254,9 @@ public class GLNaturalBlocks {
 				.loot((pvd, block) -> pvd.add(block, RegistrateBlockLootTables.createShearsOnlyDrop(block)))
 				.item().model((ctx, pvd) -> pvd.getBuilder(ctx.getName())
 						.parent(new ModelFile.UncheckedModelFile("item/generated"))
-						.texture("layer0", pvd.modLoc("block/plant/" + ctx.getName()))).build()
+						.texture("layer0", pvd.modLoc("block/plant/" + ctx.getName())))
+				.dataMap(NeoForgeDataMaps.COMPOSTABLES, new Compostable(0.5f))
+				.build()
 				.register();
 
 		HYPHAE = reg.block("hyphae", HyphaeBlock::new)
@@ -248,7 +265,9 @@ public class GLNaturalBlocks {
 				.blockstate((ctx, pvd) -> pvd.simpleBlock(ctx.get(),
 						pvd.models().cross(ctx.getName(), pvd.modLoc("block/misc/hyphae")).renderType("cutout")))
 				.loot(HyphaeBlock::loot)
-				.item().model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("block/misc/hyphae"))).build()
+				.item().model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("block/misc/hyphae")))
+				.dataMap(NeoForgeDataMaps.COMPOSTABLES, new Compostable(0.5f))
+				.build()
 				.register();
 	}
 
@@ -258,30 +277,36 @@ public class GLNaturalBlocks {
 
 	public static class TreeSet {
 
-		public final BlockEntry<RotatedPillarBlock> log;
-		public final BlockEntry<RotatedPillarBlock> wood;
+		public final BlockEntry<BlueFirLogBlock> log;
+		public final BlockEntry<BlueFirWoodBlock> wood;
 		public final BlockEntry<LeavesBlock> leaves;
 		public final BlockEntry<SaplingBlock> sapling;
 
 		public TreeSet(L2Registrate reg, String id,
 		               BlockBehaviour.Properties logProp, BlockBehaviour.Properties leafProp,
 		               TreeFeatures.TreeType type) {
-			log = reg.block(id + "_log", RotatedPillarBlock::new)
+			log = reg.block(id + "_log", BlueFirLogBlock::new)
 					.properties(p -> logProp)
 					.blockstate((ctx, pvd) -> genColumnState(ctx, pvd,
 							pvd.modLoc("block/wood/" + ctx.getName() + "_side"),
 							pvd.modLoc("block/wood/" + ctx.getName() + "_top")))
-					.tag(BlockTags.MINEABLE_WITH_AXE, BlockTags.LOGS)
-					.simpleItem()
+					.tag(BlockTags.MINEABLE_WITH_AXE, BlockTags.LOGS, BlockTags.LOGS_THAT_BURN)
+					.item().tag(ItemTags.LOGS_THAT_BURN, ItemTags.LOGS).build()
+					.recipe((ctx, pvd) -> GLRecipeGen.unlock(pvd, ShapelessRecipeBuilder.shapeless(
+									RecipeCategory.BUILDING_BLOCKS, Items.SPRUCE_PLANKS, 4)::unlockedBy, ctx.get().asItem())
+							.requires(ctx.get()).save(pvd, GensokyoLegacy.loc(id + "_log_to_spruce_planks")))
 					.register();
-			wood = reg.block(id + "_wood", RotatedPillarBlock::new)
+			wood = reg.block(id + "_wood", BlueFirWoodBlock::new)
 					.properties(p -> logProp)
 					.blockstate((ctx, pvd) -> {
 						var side = pvd.modLoc("block/wood/" + id + "_log_side");
 						genColumnState(ctx, pvd, side, side);
 					})
-					.tag(BlockTags.MINEABLE_WITH_AXE, BlockTags.LOGS)
-					.simpleItem()
+					.tag(BlockTags.MINEABLE_WITH_AXE, BlockTags.LOGS, BlockTags.LOGS_THAT_BURN)
+					.item().tag(ItemTags.LOGS_THAT_BURN, ItemTags.LOGS).build()
+					.recipe((ctx, pvd) -> GLRecipeGen.unlock(pvd, ShapelessRecipeBuilder.shapeless(
+									RecipeCategory.BUILDING_BLOCKS, Items.SPRUCE_PLANKS, 4)::unlockedBy, ctx.get().asItem())
+							.requires(ctx.get()).save(pvd, GensokyoLegacy.loc(id + "_wood_to_spruce_planks")))
 					.register();
 			leaves = reg.block(id + "_leaves", LeavesBlock::new)
 					.properties(p -> leafProp)
@@ -289,7 +314,9 @@ public class GLNaturalBlocks {
 							pvd.modLoc("block/wood/" + ctx.getName())).renderType("cutout")))
 					.loot(TreeSet::genLeavesLoot)
 					.tag(BlockTags.MINEABLE_WITH_HOE, BlockTags.LEAVES)
-					.simpleItem()
+					.item().tag(ItemTags.LEAVES)
+					.dataMap(NeoForgeDataMaps.COMPOSTABLES, new Compostable(0.3f))
+					.build()
 					.register();
 			sapling = reg.block(id + "_sapling", p -> new SaplingBlock(new TreeGrower(
 							id + "_tree", Optional.empty(), Optional.of(type.cfKey), Optional.empty()), p))
@@ -300,7 +327,10 @@ public class GLNaturalBlocks {
 					.tag(BlockTags.SAPLINGS)
 					.item().model((ctx, pvd) -> pvd.getBuilder(ctx.getName())
 							.parent(new ModelFile.UncheckedModelFile("item/generated"))
-							.texture("layer0", pvd.modLoc("block/wood/" + ctx.getName()))).build()
+							.texture("layer0", pvd.modLoc("block/wood/" + ctx.getName())))
+					.tag(ItemTags.SAPLINGS)
+					.dataMap(NeoForgeDataMaps.COMPOSTABLES, new Compostable(0.3f))
+					.build()
 					.register();
 		}
 
@@ -340,7 +370,10 @@ public class GLNaturalBlocks {
 					})
 					.tag(BlockTags.MINEABLE_WITH_AXE)
 					.loot(RegistrateBlockLootTables::dropWhenSilkTouch)
-					.item().model((ctx, pvd) -> genInventoryItemModel(ctx.getName(), pvd)).tag(GLTagGen.HUGE_MUSHROOM).build()
+					.item().model((ctx, pvd) -> genInventoryItemModel(ctx.getName(), pvd))
+					.tag(GLTagGen.HUGE_MUSHROOM)
+					.dataMap(NeoForgeDataMaps.COMPOSTABLES, new Compostable(0.65f))
+					.build()
 					.register();
 		}
 
@@ -353,9 +386,10 @@ public class GLNaturalBlocks {
 			cap = reg.block(id, p -> new MushroomBlock(feature, p))
 					.properties(p -> capProp)
 					.blockstate((ctx, pvd) -> genCapState(ctx, pvd, capVariants, emissive))
-					.tag(BlockTags.MINEABLE_WITH_AXE)
 					.item().model((ctx, pvd) -> genFlatItemModel(ctx.getName(), pvd,
-							pvd.modLoc("block/mushroom/" + capModelName(ctx.getName(), capVariants, 1)), emissive)).build()
+							pvd.modLoc("block/mushroom/" + capModelName(ctx.getName(), capVariants, 1)), emissive))
+					.dataMap(NeoForgeDataMaps.COMPOSTABLES, new Compostable(0.65f))
+					.build()
 					.register();
 
 			block = reg.block(id + "_block", HugeMushroomBlock::new)
@@ -367,7 +401,10 @@ public class GLNaturalBlocks {
 					})
 					.loot((tb, blk) -> tb.add(blk, tb.createMushroomBlockDrop(blk, cap)))
 					.tag(BlockTags.MINEABLE_WITH_AXE)
-					.item().model((ctx, pvd) -> genInventoryItemModel(ctx.getName(), pvd)).tag(GLTagGen.HUGE_MUSHROOM).build()
+					.item().model((ctx, pvd) -> genInventoryItemModel(ctx.getName(), pvd))
+					.tag(GLTagGen.HUGE_MUSHROOM)
+					.dataMap(NeoForgeDataMaps.COMPOSTABLES, new Compostable(0.85f))
+					.build()
 					.register();
 		}
 

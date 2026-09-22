@@ -1,7 +1,265 @@
 {
   "values": {
+    "gensokyolegacy:acacia_chair": {
+      "burn_time": 300
+    },
+    "gensokyolegacy:acacia_large_chair": {
+      "burn_time": 300
+    },
+    "gensokyolegacy:acacia_large_table": {
+      "burn_time": 300
+    },
+    "gensokyolegacy:acacia_plank_wall": {
+      "burn_time": 150
+    },
+    "gensokyolegacy:acacia_sliding_door": {
+      "burn_time": 300
+    },
+    "gensokyolegacy:bamboo_chair": {
+      "burn_time": 300
+    },
+    "gensokyolegacy:bamboo_large_chair": {
+      "burn_time": 300
+    },
+    "gensokyolegacy:bamboo_large_table": {
+      "burn_time": 300
+    },
+    "gensokyolegacy:bamboo_plank_wall": {
+      "burn_time": 150
+    },
+    "gensokyolegacy:bamboo_sliding_door": {
+      "burn_time": 300
+    },
+    "gensokyolegacy:birch_chair": {
+      "burn_time": 300
+    },
+    "gensokyolegacy:birch_large_chair": {
+      "burn_time": 300
+    },
+    "gensokyolegacy:birch_large_table": {
+      "burn_time": 300
+    },
+    "gensokyolegacy:birch_plank_wall": {
+      "burn_time": 150
+    },
+    "gensokyolegacy:birch_shelf": {
+      "burn_time": 300
+    },
+    "gensokyolegacy:birch_sliding_door": {
+      "burn_time": 300
+    },
+    "gensokyolegacy:black_cushion": {
+      "burn_time": 50
+    },
+    "gensokyolegacy:blue_cushion": {
+      "burn_time": 50
+    },
+    "gensokyolegacy:book_shelf": {
+      "burn_time": 300
+    },
+    "gensokyolegacy:brown_cushion": {
+      "burn_time": 50
+    },
+    "gensokyolegacy:cherry_chair": {
+      "burn_time": 300
+    },
+    "gensokyolegacy:cherry_large_chair": {
+      "burn_time": 300
+    },
+    "gensokyolegacy:cherry_large_table": {
+      "burn_time": 300
+    },
+    "gensokyolegacy:cherry_plank_wall": {
+      "burn_time": 150
+    },
+    "gensokyolegacy:cherry_sliding_door": {
+      "burn_time": 300
+    },
+    "gensokyolegacy:crate": {
+      "burn_time": 300
+    },
+    "gensokyolegacy:crimson_chair": {
+      "burn_time": 300
+    },
+    "gensokyolegacy:crimson_large_chair": {
+      "burn_time": 300
+    },
+    "gensokyolegacy:crimson_large_table": {
+      "burn_time": 300
+    },
+    "gensokyolegacy:crimson_plank_wall": {
+      "burn_time": 150
+    },
+    "gensokyolegacy:crimson_sliding_door": {
+      "burn_time": 300
+    },
+    "gensokyolegacy:cushion": {
+      "burn_time": 50
+    },
+    "gensokyolegacy:cyan_cushion": {
+      "burn_time": 50
+    },
+    "gensokyolegacy:dark_oak_chair": {
+      "burn_time": 300
+    },
+    "gensokyolegacy:dark_oak_large_chair": {
+      "burn_time": 300
+    },
+    "gensokyolegacy:dark_oak_large_table": {
+      "burn_time": 300
+    },
+    "gensokyolegacy:dark_oak_plank_wall": {
+      "burn_time": 150
+    },
+    "gensokyolegacy:dark_oak_sliding_door": {
+      "burn_time": 300
+    },
+    "gensokyolegacy:donation_box": {
+      "burn_time": 300
+    },
+    "gensokyolegacy:donation_box_2": {
+      "burn_time": 300
+    },
+    "gensokyolegacy:door_cabinet": {
+      "burn_time": 300
+    },
+    "gensokyolegacy:drawer_cabinet": {
+      "burn_time": 300
+    },
+    "gensokyolegacy:gray_cushion": {
+      "burn_time": 50
+    },
+    "gensokyolegacy:green_cushion": {
+      "burn_time": 50
+    },
+    "gensokyolegacy:jungle_chair": {
+      "burn_time": 300
+    },
+    "gensokyolegacy:jungle_large_chair": {
+      "burn_time": 300
+    },
+    "gensokyolegacy:jungle_large_table": {
+      "burn_time": 300
+    },
+    "gensokyolegacy:jungle_plank_wall": {
+      "burn_time": 150
+    },
+    "gensokyolegacy:jungle_sliding_door": {
+      "burn_time": 300
+    },
+    "gensokyolegacy:light_blue_cushion": {
+      "burn_time": 50
+    },
+    "gensokyolegacy:light_gray_cushion": {
+      "burn_time": 50
+    },
+    "gensokyolegacy:lime_cushion": {
+      "burn_time": 50
+    },
+    "gensokyolegacy:magenta_cushion": {
+      "burn_time": 50
+    },
     "gensokyolegacy:magic_book": {
       "burn_time": 40000
+    },
+    "gensokyolegacy:mangrove_chair": {
+      "burn_time": 300
+    },
+    "gensokyolegacy:mangrove_large_chair": {
+      "burn_time": 300
+    },
+    "gensokyolegacy:mangrove_large_table": {
+      "burn_time": 300
+    },
+    "gensokyolegacy:mangrove_plank_wall": {
+      "burn_time": 150
+    },
+    "gensokyolegacy:mangrove_sliding_door": {
+      "burn_time": 300
+    },
+    "gensokyolegacy:oak_chair": {
+      "burn_time": 300
+    },
+    "gensokyolegacy:oak_large_chair": {
+      "burn_time": 300
+    },
+    "gensokyolegacy:oak_large_table": {
+      "burn_time": 300
+    },
+    "gensokyolegacy:oak_plank_wall": {
+      "burn_time": 150
+    },
+    "gensokyolegacy:oak_sliding_door": {
+      "burn_time": 300
+    },
+    "gensokyolegacy:orange_cushion": {
+      "burn_time": 50
+    },
+    "gensokyolegacy:paper_window": {
+      "burn_time": 100
+    },
+    "gensokyolegacy:paper_window_pane": {
+      "burn_time": 25
+    },
+    "gensokyolegacy:pink_cushion": {
+      "burn_time": 50
+    },
+    "gensokyolegacy:purple_cushion": {
+      "burn_time": 50
+    },
+    "gensokyolegacy:red_cushion": {
+      "burn_time": 50
+    },
+    "gensokyolegacy:shoji_frame": {
+      "burn_time": 100
+    },
+    "gensokyolegacy:shoji_frame_pane": {
+      "burn_time": 25
+    },
+    "gensokyolegacy:spruce_chair": {
+      "burn_time": 300
+    },
+    "gensokyolegacy:spruce_large_chair": {
+      "burn_time": 300
+    },
+    "gensokyolegacy:spruce_large_table": {
+      "burn_time": 300
+    },
+    "gensokyolegacy:spruce_plank_wall": {
+      "burn_time": 150
+    },
+    "gensokyolegacy:spruce_sliding_door": {
+      "burn_time": 300
+    },
+    "gensokyolegacy:sturdy_teddy_bear": {
+      "burn_time": 100
+    },
+    "gensokyolegacy:tea_table": {
+      "burn_time": 300
+    },
+    "gensokyolegacy:warped_chair": {
+      "burn_time": 300
+    },
+    "gensokyolegacy:warped_large_chair": {
+      "burn_time": 300
+    },
+    "gensokyolegacy:warped_large_table": {
+      "burn_time": 300
+    },
+    "gensokyolegacy:warped_plank_wall": {
+      "burn_time": 150
+    },
+    "gensokyolegacy:warped_sliding_door": {
+      "burn_time": 300
+    },
+    "gensokyolegacy:white_cushion": {
+      "burn_time": 50
+    },
+    "gensokyolegacy:wooden_large_chair_scarlet_devil_mansion": {
+      "burn_time": 400
+    },
+    "gensokyolegacy:yellow_cushion": {
+      "burn_time": 50
     }
   }
 }

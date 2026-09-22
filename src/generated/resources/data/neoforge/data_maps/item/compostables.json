@@ -1,0 +1,67 @@
+{
+  "values": {
+    "gensokyolegacy:blue_fir_leaves": {
+      "chance": 0.3
+    },
+    "gensokyolegacy:blue_fir_sapling": {
+      "chance": 0.3
+    },
+    "gensokyolegacy:bracken": {
+      "chance": 0.65
+    },
+    "gensokyolegacy:broom_grass": {
+      "chance": 0.5
+    },
+    "gensokyolegacy:cedar_fallen_leaves": {
+      "chance": 0.3
+    },
+    "gensokyolegacy:cyan_mushroom_stem": {
+      "chance": 0.65
+    },
+    "gensokyolegacy:demonic_miasma_mushroom": {
+      "chance": 0.65
+    },
+    "gensokyolegacy:demonic_miasma_mushroom_block": {
+      "chance": 0.85
+    },
+    "gensokyolegacy:dream_mushroom": {
+      "chance": 0.65
+    },
+    "gensokyolegacy:dream_mushroom_block": {
+      "chance": 0.85
+    },
+    "gensokyolegacy:eugune_brown": {
+      "chance": 0.65
+    },
+    "gensokyolegacy:eugune_ghost_fire": {
+      "chance": 0.65
+    },
+    "gensokyolegacy:eugune_red": {
+      "chance": 0.65
+    },
+    "gensokyolegacy:evergreen_vine": {
+      "chance": 0.5
+    },
+    "gensokyolegacy:flame_cattail": {
+      "chance": 0.65
+    },
+    "gensokyolegacy:ghost_fire_mushroom": {
+      "chance": 0.65
+    },
+    "gensokyolegacy:ghost_fire_mushroom_block": {
+      "chance": 0.85
+    },
+    "gensokyolegacy:hyphae": {
+      "chance": 0.5
+    },
+    "gensokyolegacy:purple_mushroom_stem": {
+      "chance": 0.65
+    },
+    "gensokyolegacy:red_mushroom_stem": {
+      "chance": 0.65
+    },
+    "gensokyolegacy:star_flower": {
+      "chance": 0.65
+    }
+  }
+}

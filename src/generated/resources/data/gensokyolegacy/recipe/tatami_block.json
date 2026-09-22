@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {
+    "H": {
+      "item": "minecraft:hay_block"
+    },
+    "S": {
+      "item": "minecraft:string"
+    }
+  },
+  "pattern": [
+    "SHS",
+    "HHH",
+    "SHS"
+  ],
+  "result": {
+    "count": 4,
+    "id": "gensokyolegacy:tatami_block"
+  }
+}

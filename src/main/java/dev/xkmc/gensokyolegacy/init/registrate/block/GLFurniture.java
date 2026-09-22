@@ -14,12 +14,14 @@ import dev.xkmc.gensokyolegacy.content.block.deco.shelf.ShelfBlockEntity;
 import dev.xkmc.gensokyolegacy.content.block.deco.shelf.ShelfRenderer;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.GLRecipeGen;
+import dev.xkmc.gensokyolegacy.init.data.GLTagGen;
 import dev.xkmc.l2modularblock.core.BlockTemplates;
 import dev.xkmc.l2modularblock.core.DelegateBlock;
 import net.minecraft.core.Direction;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapelessRecipeBuilder;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -30,6 +32,8 @@ import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
+import net.neoforged.neoforge.registries.datamaps.builtin.FurnaceFuel;
+import net.neoforged.neoforge.registries.datamaps.builtin.NeoForgeDataMaps;
 
 public class GLFurniture {
 
@@ -62,7 +66,8 @@ public class GLFurniture {
 					)).properties(p -> p.noLootTable().strength(2.0F).sound(SoundType.WOOD)
 							.mapColor(MapColor.DIRT).instrument(NoteBlockInstrument.BASS))
 					.blockstate(DonationBoxBlock::buildStates)
-					.simpleItem()
+					.tag(BlockTags.MINEABLE_WITH_AXE)
+					.item().dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(300)).build()
 					.loot((pvd, block) -> pvd.add(block, LootTable.lootTable()))
 					.register();
 
@@ -75,7 +80,8 @@ public class GLFurniture {
 									.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/utensil/" + ctx.getName())))
 									.texture("all", pvd.modLoc("block/utensil/" + ctx.getName()))
 									.renderType("cutout")))
-					.simpleItem()
+					.tag(BlockTags.MINEABLE_WITH_AXE)
+					.item().dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(300)).build()
 					.register();
 
 			DONATION_BOX_BE = reg.blockEntity("donation_box", DonationBoxBlockEntity::new)
@@ -87,7 +93,7 @@ public class GLFurniture {
 					.initialProperties(() -> Blocks.BIRCH_TRAPDOOR)
 					.blockstate(ShelfBlock::buildStates)
 					.tag(BlockTags.MINEABLE_WITH_AXE)
-					.simpleItem().register();
+					.item().dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(300)).build().register();
 
 			SHELF_BE = reg.blockEntity("shelf", ShelfBlockEntity::new)
 					.validBlock(SHELF)
@@ -100,7 +106,8 @@ public class GLFurniture {
 					.properties(BlockBehaviour.Properties::noOcclusion)
 					.blockstate((ctx, pvd) -> CabinetBlock.buildStates(ctx, pvd, "cabinet_top"))
 					.tag(BlockTags.MINEABLE_WITH_AXE)
-					.item().tab(GLDecoBlocks.TAB.key()).build()
+					.item().tab(GLDecoBlocks.TAB.key())
+					.dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(300)).build()
 					.register();
 
 			DOOR_CABINET = reg.block("door_cabinet",
@@ -109,7 +116,8 @@ public class GLFurniture {
 					.properties(BlockBehaviour.Properties::noOcclusion)
 					.blockstate((ctx, pvd) -> CabinetBlock.buildStates(ctx, pvd, "cabinet_side"))
 					.tag(BlockTags.MINEABLE_WITH_AXE)
-					.item().tab(GLDecoBlocks.TAB.key()).build()
+					.item().tab(GLDecoBlocks.TAB.key())
+					.dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(300)).build()
 					.register();
 
 			CABINET_BE = reg.blockEntity("cabinet", CabinetBlockEntity::new)
@@ -151,6 +159,7 @@ public class GLFurniture {
 							.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/furniture/tea_table_item")))
 							.texture("all", pvd.modLoc("block/deco/tea_table"))
 							.renderType("cutout"))
+					.dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(300))
 					.build()
 					.register();
 
@@ -160,7 +169,7 @@ public class GLFurniture {
 					.initialProperties(() -> Blocks.BIRCH_TRAPDOOR)
 					.blockstate(BookShelfBlock::buildStates)
 					.tag(BlockTags.MINEABLE_WITH_AXE)
-					.simpleItem()
+					.item().dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(300)).build()
 					.register();
 
 		}
@@ -175,7 +184,8 @@ public class GLFurniture {
 									.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/utensil/carton")))
 									.texture("all", pvd.modLoc("block/utensil/carton_default"))
 									.renderType("cutout")))
-					.simpleItem()
+					.tag(BlockTags.MINEABLE_WITH_AXE)
+					.item().tag(GLTagGen.CARTONS).build()
 					.register();
 
 			CARTON_WHITE = reg.block("carton_white", p -> DelegateBlock.newBaseBlock(p, BlockTemplates.HORIZONTAL, new CartonShape()))
@@ -185,7 +195,11 @@ public class GLFurniture {
 									.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/utensil/carton")))
 									.texture("all", pvd.modLoc("block/utensil/carton_white"))
 									.renderType("cutout")))
-					.simpleItem()
+					.tag(BlockTags.MINEABLE_WITH_AXE)
+					.item().tag(GLTagGen.CARTONS).build()
+					.recipe((ctx, pvd) -> GLRecipeGen.unlock(pvd, ShapelessRecipeBuilder.shapeless(
+									RecipeCategory.DECORATIONS, ctx.get())::unlockedBy, Items.WHITE_DYE)
+							.requires(GLTagGen.CARTONS).requires(DyeColor.WHITE.getTag()).save(pvd))
 					.register();
 
 			CARTON_BLUE = reg.block("carton_blue", p -> DelegateBlock.newBaseBlock(p, BlockTemplates.HORIZONTAL, new CartonShape()))
@@ -195,7 +209,11 @@ public class GLFurniture {
 									.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/utensil/carton")))
 									.texture("all", pvd.modLoc("block/utensil/carton_blue"))
 									.renderType("cutout")))
-					.simpleItem()
+					.tag(BlockTags.MINEABLE_WITH_AXE)
+					.item().tag(GLTagGen.CARTONS).build()
+					.recipe((ctx, pvd) -> GLRecipeGen.unlock(pvd, ShapelessRecipeBuilder.shapeless(
+									RecipeCategory.DECORATIONS, ctx.get())::unlockedBy, Items.BLUE_DYE)
+							.requires(GLTagGen.CARTONS).requires(DyeColor.BLUE.getTag()).save(pvd))
 					.register();
 
 		}
@@ -208,7 +226,8 @@ public class GLFurniture {
 					.properties(p -> p.mapColor(MapColor.WOOD).strength(2.0F).sound(SoundType.WOOD))
 					.blockstate((ctx, pvd) ->
 							pvd.simpleBlock(ctx.get(), pvd.models().cubeAll(ctx.getName(), pvd.modLoc("block/utensil/" + ctx.getName()))))
-					.tag(BlockTags.MINEABLE_WITH_AXE).simpleItem().register();
+					.tag(BlockTags.MINEABLE_WITH_AXE)
+					.item().dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(300)).build().register();
 
 			BOOK_PILE = reg.block("book_pile", BookPile::create)
 					.properties(p -> p.noOcclusion().strength(0F).offsetType(BlockBehaviour.OffsetType.XZ)

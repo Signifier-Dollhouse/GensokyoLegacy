@@ -1,11 +1,20 @@
 {
   "values": [
+    "gensokyolegacy:donation_box",
+    "gensokyolegacy:donation_box_2",
     "gensokyolegacy:birch_shelf",
     "gensokyolegacy:drawer_cabinet",
     "gensokyolegacy:door_cabinet",
     "gensokyolegacy:tea_table",
     "gensokyolegacy:book_shelf",
+    "gensokyolegacy:carton_default",
+    "gensokyolegacy:carton_white",
+    "gensokyolegacy:carton_blue",
     "gensokyolegacy:crate",
+    "gensokyolegacy:paper_window",
+    "gensokyolegacy:shoji_frame",
+    "gensokyolegacy:paper_window_pane",
+    "gensokyolegacy:shoji_frame_pane",
     "gensokyolegacy:oak_large_table",
     "gensokyolegacy:oak_large_chair",
     "gensokyolegacy:oak_chair",
@@ -67,11 +76,8 @@
     "gensokyolegacy:cyan_mushroom_stem",
     "gensokyolegacy:purple_mushroom_stem",
     "gensokyolegacy:red_mushroom_stem",
-    "gensokyolegacy:ghost_fire_mushroom",
     "gensokyolegacy:ghost_fire_mushroom_block",
-    "gensokyolegacy:dream_mushroom",
     "gensokyolegacy:dream_mushroom_block",
-    "gensokyolegacy:demonic_miasma_mushroom",
     "gensokyolegacy:demonic_miasma_mushroom_block"
   ]
 }

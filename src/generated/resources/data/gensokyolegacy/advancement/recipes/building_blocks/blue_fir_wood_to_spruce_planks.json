@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_blue_fir_wood": {
+      "conditions": {
+        "items": [
+          {
+            "items": "gensokyolegacy:blue_fir_wood"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "gensokyolegacy:blue_fir_wood_to_spruce_planks"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_blue_fir_wood"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "gensokyolegacy:blue_fir_wood_to_spruce_planks"
+    ]
+  }
+}

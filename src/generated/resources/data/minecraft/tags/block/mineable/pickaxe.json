@@ -1,13 +1,5 @@
 {
   "values": [
-    "gensokyolegacy:paper_window",
-    "gensokyolegacy:shoji_frame",
-    "gensokyolegacy:paper_window_pane",
-    "gensokyolegacy:shoji_frame_pane",
-    "gensokyolegacy:snow_bricks",
-    "gensokyolegacy:snow_brick_stairs",
-    "gensokyolegacy:snow_brick_slab",
-    "gensokyolegacy:snow_brick_vertical_slab",
     "gensokyolegacy:packed_ice_stairs",
     "gensokyolegacy:packed_ice_slab",
     "gensokyolegacy:packed_ice_vertical_slab",
@@ -52,6 +44,8 @@
     "gensokyolegacy:gray_tiles_stairs",
     "gensokyolegacy:gray_tiles_slab",
     "gensokyolegacy:gray_tiles_vertical_slab",
-    "gensokyolegacy:blue_strips_terracota"
+    "gensokyolegacy:blue_strips_terracota",
+    "gensokyolegacy:alchemy_pot",
+    "gensokyolegacy:sealing_pot"
   ]
 }
