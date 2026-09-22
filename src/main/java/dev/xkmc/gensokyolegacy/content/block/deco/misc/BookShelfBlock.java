@@ -2,6 +2,7 @@ package dev.xkmc.gensokyolegacy.content.block.deco.misc;
 
 import com.tterrag.registrate.providers.DataGenContext;
 import com.tterrag.registrate.providers.RegistrateBlockstateProvider;
+import dev.xkmc.gensokyolegacy.content.block.base.ShapePathFindBlockMethod;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.l2modularblock.core.DelegateBlock;
 import dev.xkmc.l2modularblock.core.VoxelBuilder;
@@ -9,7 +10,6 @@ import dev.xkmc.l2modularblock.mult.CreateBlockStateBlockMethod;
 import dev.xkmc.l2modularblock.mult.DefaultStateBlockMethod;
 import dev.xkmc.l2modularblock.mult.OnReplacedBlockMethod;
 import dev.xkmc.l2modularblock.mult.UseItemOnBlockMethod;
-import dev.xkmc.l2modularblock.one.ShapeBlockMethod;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
@@ -31,8 +31,8 @@ import net.neoforged.neoforge.client.model.generators.ModelFile;
 
 import javax.annotation.Nullable;
 
-public class BookShelfBlock implements ShapeBlockMethod, CreateBlockStateBlockMethod, DefaultStateBlockMethod,
-		UseItemOnBlockMethod, OnReplacedBlockMethod {
+public class BookShelfBlock implements CreateBlockStateBlockMethod, DefaultStateBlockMethod,
+		UseItemOnBlockMethod, OnReplacedBlockMethod, ShapePathFindBlockMethod {
 
 	public static final int MAX_BOOKS = 12;
 

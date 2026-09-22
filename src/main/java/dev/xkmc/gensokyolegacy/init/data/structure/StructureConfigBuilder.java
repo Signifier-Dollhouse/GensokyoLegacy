@@ -24,11 +24,8 @@ public class StructureConfigBuilder {
 	public static StructureConfig.Builder marisa() {
 		return StructureConfig.builder()
 				.rooms(List.of(
-						new BoundingBox(20, 2, 9, 24, 10, 20),
 						new BoundingBox(18, 2, 9, 26, 8, 21),
-						new BoundingBox(3, 2, 14, 17, 8, 22),
-						new BoundingBox(8, 7, 15, 13, 10, 20),
-						new BoundingBox(3, 9, 16, 26, 10, 20)
+						new BoundingBox(3, 2, 14, 17, 8, 22)
 				)).house(1, 2, 1)
 				.primary(GLStructureTagGen.MARISA_PRIMARY)
 				.wouldFix(GLStructureTagGen.MARISA_FIX);
@@ -39,8 +36,7 @@ public class StructureConfigBuilder {
 		return StructureConfig.builder()
 				.rooms(List.of(
 						new BoundingBox(3, 2, 8, 15, 5, 13),
-						new BoundingBox(5, 2, 6, 13, 10, 13),
-						new BoundingBox(6, 11, 8, 12, 12, 11)
+						new BoundingBox(5, 2, 6, 13, 5, 7)
 				)).house(1, 2, 1)
 				.primary(GLStructureTagGen.REIMU_PRIMARY)
 				.wouldFix(GLStructureTagGen.REIMU_FIX);
@@ -50,11 +46,9 @@ public class StructureConfigBuilder {
 	public static StructureConfig.Builder morichika() {
 		return StructureConfig.builder()
 				.rooms(List.of(
-						new BoundingBox(3, 2, 15, 13, 8, 21),
-						new BoundingBox(3, 9, 17, 12, 10, 19),
-						new BoundingBox(14, 2, 16, 29, 5, 20),
-						new BoundingBox(24, 2, 14, 29, 14, 25),
-						new BoundingBox(26, 15, 14, 27, 15, 25)
+						new BoundingBox(3, 2, 15, 13, 7, 21),
+						new BoundingBox(14, 2, 16, 23, 5, 20),
+						new BoundingBox(24, 2, 14, 29, 10, 25)
 				)).house(1, 2, 1)
 				.primary(GLStructureTagGen.MORICHIKA_PRIMARY)
 				.wouldFix(GLStructureTagGen.MORICHIKA_FIX);

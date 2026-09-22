@@ -43,7 +43,7 @@ public class YoukaiSleepTask extends Behavior<YoukaiEntity> {
 		if (pos == null || !level.dimension().equals(pos.dimension())) return;
 		desperateSleepyTime = gameTime + 1200;
 		if (entity.distanceToSqr(pos.pos().getCenter()) > 2) {
-			BrainUtils.setMemory(entity, MemoryModuleType.WALK_TARGET, new WalkTarget(pos.pos(), 1, 1));
+			BrainUtils.setMemory(entity, MemoryModuleType.WALK_TARGET, new WalkTarget(pos.pos().above(), 1, 1));
 		}
 	}
 
@@ -81,7 +81,7 @@ public class YoukaiSleepTask extends Behavior<YoukaiEntity> {
 				entity.startSleeping(pos.pos());
 			}
 		} else if (!BrainUtils.hasMemory(entity, MemoryModuleType.WALK_TARGET)) {
-			BrainUtils.setMemory(entity, MemoryModuleType.WALK_TARGET, new WalkTarget(pos.pos(), 1, 1));
+			BrainUtils.setMemory(entity, MemoryModuleType.WALK_TARGET, new WalkTarget(pos.pos().above(), 1, 1));
 		}
 	}
 

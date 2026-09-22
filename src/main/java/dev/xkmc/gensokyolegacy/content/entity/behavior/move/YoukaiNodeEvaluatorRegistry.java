@@ -25,16 +25,14 @@ public class YoukaiNodeEvaluatorRegistry {
 			if (!state.hasProperty(DoorBlock.OPEN)) return ans;
 			return state.getValue(DoorBlock.OPEN) ? PathType.DOOR_OPEN : PathType.DOOR_WOOD_CLOSED;
 		});
-		register(BlockTags.TRAPDOORS, (ans, context, pos, state) -> {
-			if ((ans == PathType.TRAPDOOR || ans == PathType.DANGER_TRAPDOOR)
-					&& state.hasProperty(TrapDoorBlock.OPEN) && state.getValue(TrapDoorBlock.OPEN))
-				return PathType.BLOCKED;
-			return ans;
-		});
 		register(GLTagGen.SLIDING_DOOR, (ans, context, pos, state) -> {
 			if (SlidingDoorUtils.isSeatedAndOpenable(context.level(), pos))
 				return PathType.DOOR_WOOD_CLOSED;
 			return PathType.BLOCKED;
+		});
+		register(BlockTags.CLIMBABLE, (ans, context, pos, state) -> {
+			if (ans == PathType.OPEN) return PathType.WALKABLE;
+			return ans;
 		});
 	}
 

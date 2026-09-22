@@ -3,13 +3,13 @@ package dev.xkmc.gensokyolegacy.content.block.deco.variants;
 import com.tterrag.registrate.providers.DataGenContext;
 import com.tterrag.registrate.providers.RegistrateBlockstateProvider;
 import com.tterrag.registrate.providers.loot.RegistrateBlockLootTables;
+import dev.xkmc.gensokyolegacy.content.block.base.ShapePathFindBlockMethod;
 import dev.xkmc.gensokyolegacy.init.data.GLTagGen;
 import dev.xkmc.l2modularblock.core.DelegateBlock;
 import dev.xkmc.l2modularblock.mult.CreateBlockStateBlockMethod;
 import dev.xkmc.l2modularblock.mult.DefaultStateBlockMethod;
 import dev.xkmc.l2modularblock.mult.PlacementBlockMethod;
 import dev.xkmc.l2modularblock.mult.ShapeUpdateBlockMethod;
-import dev.xkmc.l2modularblock.one.ShapeBlockMethod;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -26,7 +26,7 @@ import org.jetbrains.annotations.Nullable;
 
 import static net.minecraft.world.level.block.state.properties.BlockStateProperties.ATTACHED;
 
-public class LargeTableBlock implements ShapeBlockMethod, CreateBlockStateBlockMethod, DefaultStateBlockMethod, ShapeUpdateBlockMethod, PlacementBlockMethod {
+public class LargeTableBlock implements CreateBlockStateBlockMethod, DefaultStateBlockMethod, ShapeUpdateBlockMethod, PlacementBlockMethod, ShapePathFindBlockMethod {
 
 	public static final VoxelShape TOP = Block.box(0, 13, 0, 16, 16, 16);
 	public static final VoxelShape CLOTH = Block.box(0, 6, 0, 16, 16, 16);

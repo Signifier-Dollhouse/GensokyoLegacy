@@ -2,6 +2,7 @@ package dev.xkmc.gensokyolegacy.content.block.deco.cabinet;
 
 import com.tterrag.registrate.providers.DataGenContext;
 import com.tterrag.registrate.providers.RegistrateBlockstateProvider;
+import dev.xkmc.gensokyolegacy.content.block.base.ShapePathFindBlockMethod;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLFurniture;
 import dev.xkmc.l2modularblock.core.DelegateBlock;
 import dev.xkmc.l2modularblock.core.VoxelBuilder;
@@ -9,7 +10,6 @@ import dev.xkmc.l2modularblock.impl.BlockEntityBlockMethodImpl;
 import dev.xkmc.l2modularblock.mult.CreateBlockStateBlockMethod;
 import dev.xkmc.l2modularblock.mult.DefaultStateBlockMethod;
 import dev.xkmc.l2modularblock.mult.UseWithoutItemBlockMethod;
-import dev.xkmc.l2modularblock.one.ShapeBlockMethod;
 import dev.xkmc.l2modularblock.type.BlockMethod;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -30,8 +30,8 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
 import org.jetbrains.annotations.Nullable;
 
-public class CabinetBlock implements ShapeBlockMethod, UseWithoutItemBlockMethod,
-		CreateBlockStateBlockMethod, DefaultStateBlockMethod {
+public class CabinetBlock implements UseWithoutItemBlockMethod,
+		CreateBlockStateBlockMethod, DefaultStateBlockMethod, ShapePathFindBlockMethod {
 
 	public static final BooleanProperty OPEN = BlockStateProperties.OPEN;
 

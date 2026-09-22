@@ -2,6 +2,9 @@ package dev.xkmc.gensokyolegacy.content.entity.behavior.move;
 
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiFlags;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
@@ -10,6 +13,8 @@ import net.minecraft.world.entity.ai.control.MoveControl;
 import net.minecraft.world.entity.ai.navigation.FlyingPathNavigation;
 import net.minecraft.world.entity.ai.navigation.GroundPathNavigation;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.LadderBlock;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.pathfinder.PathFinder;
 import org.jetbrains.annotations.Nullable;
 
@@ -30,7 +35,7 @@ public class YoukaiNavigationControl {
 		this.self = self;
 		this.combat = new CombatFlyingControl(self);
 		this.debugger = new NavigationDebugger(self);
-		this.walkCtrl = new MoveControl(self);
+		this.walkCtrl = new ClimbMoveControl(self);
 		this.walkNav = new Ground(self, self.level());
 		this.flyCtrl = new FlyingMoveControl(self, 10, false);
 		this.flyNav = new Flying(self, self.level());
@@ -195,6 +200,68 @@ public class YoukaiNavigationControl {
 			this.nodeEvaluator = new YoukaiFlyNodeEvaluator();
 			this.nodeEvaluator.setCanPassDoors(false);
 			return new PathFinder(this.nodeEvaluator, maxVisitedNodes);
+		}
+	}
+
+	public static class ClimbMoveControl extends MoveControl {
+
+		public ClimbMoveControl(Mob mob) {
+			super(mob);
+		}
+
+		@Override
+		public void tick() {
+			pressIntoLadder();
+			// Vanilla MoveControl parks in JUMPING state until the mob lands, so a mob
+			// climbing straight up a ladder shaft would stall after the first jump:
+			// it never touches ground to re-trigger. Refresh the jump while the mob
+			// is on a ladder and the target is above to sustain the climb.
+			// (Climbing down needs no assist: being on a ladder clamps sink speed.)
+			if ((operation == Operation.MOVE_TO || operation == Operation.JUMPING) &&
+					mob.onClimbable() && wantedY > mob.getY() + 0.1) {
+				mob.getJumpControl().jump();
+			}
+			super.tick();
+		}
+
+		/**
+		 * While ascending a ladder shaft, steer into the ladder face instead of the
+		 * bare node center. Otherwise the mob either jumps in place at the shaft base
+		 * (centered under the ladder but never touching it) or drifts off the thin
+		 * ladder shape mid-climb and falls. Only applies when the target is above;
+		 * side/top exits keep normal steering so the mob can step off.
+		 */
+		private void pressIntoLadder() {
+			if (operation != Operation.MOVE_TO && operation != Operation.JUMPING) return;
+			if (wantedY < mob.getY() + 0.5) return;
+			BlockPos ladderPos = findLadderForClimb();
+			if (ladderPos == null) return;
+			BlockState ladder = mob.level().getBlockState(ladderPos);
+			double tx = ladderPos.getX() + 0.5;
+			double tz = ladderPos.getZ() + 0.5;
+			if (ladder.getBlock() instanceof LadderBlock && ladder.hasProperty(LadderBlock.FACING)) {
+				Direction wall = ladder.getValue(LadderBlock.FACING).getOpposite();
+				tx += wall.getStepX() * 0.3;
+				tz += wall.getStepZ() * 0.3;
+			}
+			setWantedPosition(tx, wantedY, tz, speedModifier);
+		}
+
+		@Nullable
+		private BlockPos findLadderForClimb() {
+			if (mob.onClimbable()) {
+				var last = mob.getLastClimbablePos();
+				if (last.isPresent() && last.get().distManhattan(mob.blockPosition()) <= 2)
+					return last.get();
+			}
+			// shaft entry from below: standing under the ladder, not yet touching it
+			BlockPos feet = mob.blockPosition();
+			for (int i = 0; i <= 2; i++) {
+				BlockPos pos = feet.above(i);
+				if (mob.level().getBlockState(pos).is(BlockTags.CLIMBABLE))
+					return pos;
+			}
+			return null;
 		}
 	}
 

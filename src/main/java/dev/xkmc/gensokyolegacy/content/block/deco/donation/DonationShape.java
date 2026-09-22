@@ -1,7 +1,7 @@
 package dev.xkmc.gensokyolegacy.content.block.deco.donation;
 
+import dev.xkmc.gensokyolegacy.content.block.base.ShapePathFindBlockMethod;
 import dev.xkmc.l2modularblock.one.EntityInsideBlockMethod;
-import dev.xkmc.l2modularblock.one.ShapeBlockMethod;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -14,7 +14,7 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
-public class DonationShape implements ShapeBlockMethod, EntityInsideBlockMethod {
+public class DonationShape implements EntityInsideBlockMethod, ShapePathFindBlockMethod {
 
 	public static final VoxelShape SHAPE = Block.box(0, 0, 0, 16, 15, 16);
 

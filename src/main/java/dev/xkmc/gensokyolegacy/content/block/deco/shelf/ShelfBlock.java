@@ -6,10 +6,10 @@ import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLFurniture;
 import dev.xkmc.l2modularblock.core.DelegateBlock;
 import dev.xkmc.l2modularblock.core.VoxelBuilder;
+import dev.xkmc.gensokyolegacy.content.block.base.ShapePathFindBlockMethod;
 import dev.xkmc.l2modularblock.impl.BlockEntityBlockMethodImpl;
 import dev.xkmc.l2modularblock.mult.SetPlacedByBlockMethod;
 import dev.xkmc.l2modularblock.mult.UseItemOnBlockMethod;
-import dev.xkmc.l2modularblock.one.ShapeBlockMethod;
 import dev.xkmc.l2modularblock.type.BlockMethod;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -31,7 +31,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
 import org.jetbrains.annotations.Nullable;
 
-public class ShelfBlock implements ShapeBlockMethod, UseItemOnBlockMethod, SetPlacedByBlockMethod {
+public class ShelfBlock implements UseItemOnBlockMethod, SetPlacedByBlockMethod, ShapePathFindBlockMethod {
 
 	public static final BlockMethod BE = new BlockEntityBlockMethodImpl<>(GLFurniture.SHELF_BE, ShelfBlockEntity.class);
 
