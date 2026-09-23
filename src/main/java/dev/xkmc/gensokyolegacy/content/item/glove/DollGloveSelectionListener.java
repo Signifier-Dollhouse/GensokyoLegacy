@@ -58,10 +58,11 @@ public class DollGloveSelectionListener extends IItemSelector implements WheelAd
 	@Override
 	public List<ItemStack> getList(ItemStack stack) {
 		// Roster-aware filtering needs a player (see move/getIndex); the static
-		// list covers every mode that can ever be visible.
+		// list covers every mode that can ever be visible. Entries are icon
+		// display stacks, so the sidebar shows the mode icons, not the glove.
 		List<ItemStack> list = new ArrayList<>();
 		for (var m : DollGloveModes.potentiallyVisible()) {
-			ItemStack icon = DollGloveItem.displayStack(m);
+			ItemStack icon = DollGloveItem.iconStack(m);
 			icon.set(DataComponents.ITEM_NAME, m.displayName());
 			list.add(icon);
 		}

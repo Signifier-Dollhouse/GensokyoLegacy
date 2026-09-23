@@ -41,8 +41,8 @@ import dev.xkmc.l2core.init.reg.simple.DCVal;
 import dev.xkmc.l2core.init.reg.simple.EnumCodec;
 import dev.xkmc.l2itemselector.init.data.L2ISTagGen;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.ItemTags;
 import net.minecraft.util.Unit;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.world.entity.animal.FrogVariant;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.CreativeModeTab;
@@ -112,7 +112,7 @@ public class GLItems {
 	public static final DCVal<DollInventory> DOLL_LOADOUT = DC.reg("doll_loadout", DollInventory.class, false);
 	public static final DCVal<DyeColor> DOLL_COLOR = DC.enumVal("doll_color", EnumCodec.of(DyeColor.class, DyeColor.values()));
 	public static final DCVal<Integer> DOLL_GLOVE_MODE = DC.intVal("doll_glove_mode");
-	public static final DCVal<Unit> DOLL_GLOVE_DISPLAY = DC.unit("doll_glove_display");
+	public static final DCVal<Unit> DOLL_GLOVE_ICON = DC.unit("doll_glove_icon");
 
 
 	static {
@@ -335,6 +335,13 @@ public class GLItems {
 									.predicate(GensokyoLegacy.loc("glove_display"), i + 1)
 									.model(pvd.withExistingParent("item/glove_" + modes[i].iconName(), "item/generated")
 											.texture("layer0", pvd.modLoc("item/tool/glove_" + modes[i].iconName())))
+									.end();
+						}
+						for (int i = 0; i < modes.length; i++) {
+							base.override()
+									.predicate(GensokyoLegacy.loc("glove_display"), modes.length + 1 + i)
+									.model(pvd.withExistingParent("item/glove_icon_" + modes[i].iconName(), "item/generated")
+											.texture("layer0", pvd.modLoc("item/tool/glove_icon_" + modes[i].iconName())))
 									.end();
 						}
 					})

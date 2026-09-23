@@ -12,7 +12,7 @@
     },
     {
       "type": "patchouli:text",
-      "text": "$(bold)Summon / Recall$()$(br)Summons all stored dolls, or recalls all active dolls.$(br)$(bold)Volley$()$(br)Commands every armed doll to fire once, one after another.$(br)$(bold)Super Attack$()$(br)Commands one random doll to use its super attack. It is listed only while a doll can perform it."
+      "text": "$(bold)Rally$()$(br)Summons all stored dolls, or recalls all active dolls.$(br)$(bold)Attack$()$(br)Commands every armed doll to fire once, one after another.$(br)$(bold)Skill$()$(br)Commands one random doll to use its super attack. It is listed only while a doll can perform it."
     },
     {
       "type": "patchouli:text",

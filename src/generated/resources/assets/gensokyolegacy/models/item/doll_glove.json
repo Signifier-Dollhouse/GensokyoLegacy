@@ -8,33 +8,45 @@
       }
     },
     {
-      "model": "gensokyolegacy:item/glove_heal_mark",
+      "model": "gensokyolegacy:item/glove_volley",
       "predicate": {
         "gensokyolegacy:glove_display": 2.0
       }
     },
     {
-      "model": "gensokyolegacy:item/glove_volley",
+      "model": "gensokyolegacy:item/glove_super",
       "predicate": {
         "gensokyolegacy:glove_display": 3.0
       }
     },
     {
-      "model": "gensokyolegacy:item/glove_super",
+      "model": "gensokyolegacy:item/glove_suicide",
       "predicate": {
         "gensokyolegacy:glove_display": 4.0
       }
     },
     {
-      "model": "gensokyolegacy:item/glove_suicide",
+      "model": "gensokyolegacy:item/glove_icon_summon",
       "predicate": {
         "gensokyolegacy:glove_display": 5.0
       }
     },
     {
-      "model": "gensokyolegacy:item/glove_stop",
+      "model": "gensokyolegacy:item/glove_icon_volley",
       "predicate": {
         "gensokyolegacy:glove_display": 6.0
+      }
+    },
+    {
+      "model": "gensokyolegacy:item/glove_icon_super",
+      "predicate": {
+        "gensokyolegacy:glove_display": 7.0
+      }
+    },
+    {
+      "model": "gensokyolegacy:item/glove_icon_suicide",
+      "predicate": {
+        "gensokyolegacy:glove_display": 8.0
       }
     }
   ],

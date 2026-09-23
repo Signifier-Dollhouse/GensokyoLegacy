@@ -4,11 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Wheel visibility for glove modes: summon and volley always show; super and
+ * Wheel visibility for glove modes: rally and attack always show; skill and
  * suicide show only while a summoned doll can perform them (or while the glove
- * is already in that mode, so the holder can always switch away); heal-mark
- * and stop stay implemented but hidden. A legacy current mode outside the
- * visible set is appended, so the wheel index never goes missing.
+ * is already in that mode, so the holder can always switch away). A legacy
+ * current mode outside the visible set is appended, so the wheel index never
+ * goes missing.
  */
 public final class DollGloveModes {
 
