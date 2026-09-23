@@ -146,7 +146,9 @@ public class DollCommandGoal extends Goal {
 		active = pending;
 		pending = null;
 		activeAction = action;
-		if (active != null) active.start(doll);
+		if (active != null) {
+			active.start(doll);
+		}
 	}
 
 	@Override

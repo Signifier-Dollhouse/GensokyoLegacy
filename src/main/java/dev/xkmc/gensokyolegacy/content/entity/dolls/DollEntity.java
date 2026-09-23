@@ -73,6 +73,19 @@ public class DollEntity extends BaseDollEntity
 		goalSelector.addGoal(0, commandGoal);
 	}
 
+	/**
+	 * Doll one-shot animation events (see {@code DollGeo}): consumed on the
+	 * client, everything else falls through to vanilla handling.
+	 */
+	@Override
+	public void handleEntityEvent(byte id) {
+		if (level().isClientSide() && (id == DollGeo.EVENT_ATTACK || id == DollGeo.EVENT_BOMB)) {
+			handleDollEvent(id);
+			return;
+		}
+		super.handleEntityEvent(id);
+	}
+
 	// ---- Shield (vanilla super-calls stay; shield logic lives in DollShield) ----
 
 	@Override

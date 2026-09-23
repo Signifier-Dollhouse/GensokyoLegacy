@@ -6,40 +6,79 @@ import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.animation.*;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
-import java.util.Random;
-
 /**
- * GeckoLib animation for a doll. Handedness and the instance cache live in
+ * GeckoLib animation for a doll: {@code toy_idle} while still,
+ * {@code toy_fly} while moving, plus one-shot {@code toy_attack} /
+ * {@code toy_bomb} fired by server-to-client entity events
+ * ({@link #EVENT_ATTACK}/{@link #EVENT_BOMB}). The instance cache lives in
  * {@link DollGeoModule}, fetched per entity — the entity keeps no geo state itself.
  */
 public interface DollGeo extends DollBaseImpl, GeoEntity {
 
-	RawAnimation IDLE_L = RawAnimation.begin().thenLoop("hover_idle_l");
-	RawAnimation IDLE_R = RawAnimation.begin().thenLoop("hover_idle_r");
-	RawAnimation MOVE_L = RawAnimation.begin().thenLoop("hover_move_l");
-	RawAnimation MOVE_R = RawAnimation.begin().thenLoop("hover_move_r");
+	RawAnimation IDLE = RawAnimation.begin().thenLoop("toy_idle");
+	RawAnimation FLY = RawAnimation.begin().thenLoop("toy_fly");
+	RawAnimation ATTACK = RawAnimation.begin().thenPlay("toy_attack");
+	RawAnimation BOMB = RawAnimation.begin().thenPlay("toy_bomb");
+	RawAnimation BOW = RawAnimation.begin().thenPlay("toy_bow");
+	RawAnimation SKILL = RawAnimation.begin().thenPlay("toy_skill");
+
+	/**
+	 * Entity event ids: vanilla {@code EntityEvent} uses up to 65, so 66+
+	 * are safe. Broadcast server-side, played client-side in
+	 * {@link DollEntity#handleEntityEvent}.
+	 */
+	byte EVENT_ATTACK = 66;
+	byte EVENT_BOMB = 67;
+	byte EVENT_BOW = 68;
+	byte EVENT_SKILL = 69;
 
 	private DollGeoModule geo() {
 		return asDoll().getModule(DollGeoModule.class);
 	}
 
-	default boolean isLeftie() {
-		return geo().leftie;
-	}
-
 	default PlayState dollAnimController(final AnimationState<DollEntity> event) {
-		RawAnimation selectedAnim;
-		if (event.isMoving()) {
-			selectedAnim = isLeftie() ? MOVE_L : MOVE_R;
-		} else {
-			selectedAnim = isLeftie() ? IDLE_L : IDLE_R;
-		}
-		return event.setAndContinue(selectedAnim);
+		if (event.getController().isPlayingTriggeredAnimation())
+			return PlayState.CONTINUE;
+		return event.setAndContinue(event.isMoving() ? FLY : IDLE);
 	}
 
 	@Override
 	default void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-		controllers.add(new AnimationController<>(asDoll(), "all", 3, this::dollAnimController));
+		controllers.add(new AnimationController<>(asDoll(), "all", 3, this::dollAnimController)
+				.triggerableAnim("attack", ATTACK)
+				.triggerableAnim("bomb", BOMB)
+				.triggerableAnim("bow", BOW)
+				.triggerableAnim("skill", SKILL));
+	}
+
+	/**
+	 * Client-side: play the one-shot for an entity event id.
+	 */
+	default void handleDollEvent(byte id) {
+		if (id == EVENT_ATTACK) triggerAnim("all", "attack");
+		else if (id == EVENT_BOMB) triggerAnim("all", "bomb");
+		else if (id == EVENT_BOW) triggerAnim("all", "bow");
+		else if (id == EVENT_SKILL) triggerAnim("all", "skill");
+	}
+
+	default void broadcastAttackAnim() {
+		if (!asDoll().level().isClientSide())
+			asDoll().level().broadcastEntityEvent(asDoll(), EVENT_ATTACK);
+	}
+
+	default void broadcastBowAnim() {
+		if (!asDoll().level().isClientSide())
+			asDoll().level().broadcastEntityEvent(asDoll(), EVENT_BOW);
+	}
+
+	default void broadcastSkillAnim() {
+		if (!asDoll().level().isClientSide())
+			asDoll().level().broadcastEntityEvent(asDoll(), EVENT_SKILL);
+	}
+
+	default void broadcastBombAnim() {
+		if (!asDoll().level().isClientSide())
+			asDoll().level().broadcastEntityEvent(asDoll(), EVENT_BOMB);
 	}
 
 	@Override
@@ -48,18 +87,15 @@ public interface DollGeo extends DollBaseImpl, GeoEntity {
 	}
 
 	/**
-	 * Handedness plus the lazily built instance cache. The cache needs the entity, which
+	 * The lazily built instance cache. The cache needs the entity, which
 	 * modules never store (they run before it exists) — it is built on first render.
 	 * Synchronized: dolls construct on the server thread and render on the client thread.
 	 */
 	final class DollGeoModule implements DollModule {
 
-		private final boolean leftie;
-
 		private AnimatableInstanceCache cache;
 
 		public DollGeoModule(DollEntity entity) {
-			leftie = new Random().nextBoolean();
 			cache = GeckoLibUtil.createInstanceCache(entity);
 		}
 

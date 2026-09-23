@@ -19,7 +19,7 @@ BaseDollEntity (abstract) implements OwnableEntity
         │ mobInteract itemize, tick() sync+inverse check, never-save
         ▼
 DollEntity extends BaseDollEntity implements GeoEntity
-        │ IDLE/MOVE anims, isLeftie, DATA_COLOR, registerControllers
+        │ toy_idle/toy_fly loops, attack/bomb one-shots, DATA_COLOR, registerControllers
 ```
 
 Subclasses are the concrete doll kinds (player doll now, character dolls later); `BaseDollEntity` is abstract. All `dolls.entity.doll` registration goes through the base type; `DollData.type` (from `getDollTypeId()`) records which concrete type a given ledger entry refers to so reconciliation can validate it (pairing.md §5).
@@ -152,7 +152,7 @@ public void readValuesFrom(DollData d) { super.readValuesFrom(d); setDyeColor(d.
 
 `DollEntity` implements `GeoEntity` — the entire GeckoLib animation rig and rendering-facing data are *here*, not in the base:
 
-- Four `RawAnimation` loops selected by movement + handedness: `hover_idle_l/hover_idle_r/hover_move_l/hover_move_r`. `isLeftie` is rolled once per instance (fresh entity per summon → consistent per doll), interpolated by `DollModel`/renderer only for the correct hand.
+- `toy_idle` loop while still, `toy_fly` loop while moving. One-shot `toy_attack` / `toy_bomb` are triggerable anims fired by server-to-client entity events (bytes 66/67) broadcast from `DollCommandGoal.start()` by action type.
 - `DATA_COLOR` is a synced `EntityDataAccessor<Integer>` (`EntityDataSerializers.INT`, default `DyeColor.RED.getId()`), exposed as `getColor()` / `setDyeColor(DyeColor)` and used by `DollModel` for per-`DyeColor` texture lookup. It flows through `write/readValuesTo/From` (overriding `BaseDollEntity.getColor()`'s red default each way).
 - `registerControllers(AnimatableManager.ControllerRegistrar)` adds the "all" controller with the pure `dollAnimController(event)` state machine; `getAnimatableInstanceCache()` returns `GeckoLibUtil.createInstanceCache(this)`.
 
