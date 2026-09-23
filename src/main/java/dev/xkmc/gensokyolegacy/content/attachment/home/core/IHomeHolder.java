@@ -11,6 +11,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
@@ -100,13 +101,10 @@ public interface IHomeHolder {
 	Vec3 getRandomPosInBound(YoukaiEntity e);
 
 	@Nullable
-	BlockPos getContainersAround(BlockPos pos);
+	BlockPos getBlockAround(HomeBlockKind kind, BlockPos pos);
 
 	@Nullable
-	BlockPos getChairsAround(BlockPos pos);
-
-	@Nullable
-	BlockPos getShelvesAround(BlockPos pos);
+	BoundingBox getHouseBound();
 
 	@Nullable
 	BlockPos getWanderCenter();

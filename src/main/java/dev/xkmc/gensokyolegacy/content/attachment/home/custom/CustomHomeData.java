@@ -1,7 +1,10 @@
 package dev.xkmc.gensokyolegacy.content.attachment.home.custom;
 
+import dev.xkmc.gensokyolegacy.content.attachment.home.core.BlockSearchCache;
 import dev.xkmc.gensokyolegacy.content.attachment.home.core.HomeBlockKind;
 import dev.xkmc.gensokyolegacy.content.attachment.home.core.HomeSearchUtil;
+import dev.xkmc.gensokyolegacy.content.attachment.home.core.IBlockSearchCache;
+import dev.xkmc.gensokyolegacy.content.attachment.home.core.MultiStructureBound;
 import dev.xkmc.gensokyolegacy.content.attachment.index.StructureKey;
 import dev.xkmc.gensokyolegacy.content.client.structure.StructureInfoUpdateToClient;
 import dev.xkmc.l2serial.serialization.marker.SerialClass;
@@ -11,12 +14,10 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.List;
 
 @SerialClass
-public class CustomHomeData {
+public class CustomHomeData implements IBlockSearchCache {
 
 	@SerialField
 	private BlockPos rootPos;
@@ -24,7 +25,7 @@ public class CustomHomeData {
 	protected RoomData room;
 
 	@SerialField
-	private final LinkedHashMap<HomeBlockKind, ArrayList<BlockPos>> blocks = new LinkedHashMap<>();
+	private final LinkedHashMap<HomeBlockKind, BlockSearchCache> blocks = new LinkedHashMap<>();
 
 	public boolean checkInit(CustomHomeHolder holder) {
 		return rootPos != null && room != null;
@@ -60,29 +61,15 @@ public class CustomHomeData {
 		return level.canSeeSky(ans);
 	}
 
-	public List<BlockPos> cache(HomeBlockKind kind) {
-		return blocks.computeIfAbsent(kind, k -> new ArrayList<>());
+	@Override
+	public BlockSearchCache cache(HomeBlockKind kind) {
+		return blocks.computeIfAbsent(kind, k -> new BlockSearchCache());
 	}
 
 	@Nullable
-	public BlockPos getBlockAround(HomeBlockKind kind, CustomHomeHolder holder, BlockPos center, int rxz, int ry, int trail) {
-		return HomeSearchUtil.searchBlock(cache(kind), kind.validator(),
-				getRoomBound(), holder.level(), center, rxz, ry, trail);
-	}
-
-	@Nullable
-	public BlockPos getContainerAround(CustomHomeHolder holder, BlockPos center, int rxz, int ry, int trail) {
-		return getBlockAround(HomeBlockKind.CONTAINER, holder, center, rxz, ry, trail);
-	}
-
-	@Nullable
-	public BlockPos getChairAround(CustomHomeHolder holder, BlockPos center, int rxz, int ry, int trail) {
-		return getBlockAround(HomeBlockKind.CHAIR, holder, center, rxz, ry, trail);
-	}
-
-	@Nullable
-	public BlockPos getShelfAround(CustomHomeHolder holder, BlockPos center, int rxz, int ry, int trail) {
-		return getBlockAround(HomeBlockKind.SHELF, holder, center, rxz, ry, trail);
+	public BlockPos getBlockAround(HomeBlockKind kind, CustomHomeHolder holder, BlockPos center) {
+		return HomeSearchUtil.searchKind(this, kind,
+				MultiStructureBound.of(getRoomBound()), holder.level(), center);
 	}
 
 	public StructureInfoUpdateToClient getAbnormality(StructureKey key) {

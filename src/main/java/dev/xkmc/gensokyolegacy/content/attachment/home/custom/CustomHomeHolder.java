@@ -1,5 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.attachment.home.custom;
 
+import dev.xkmc.gensokyolegacy.content.attachment.home.core.HomeBlockKind;
 import dev.xkmc.gensokyolegacy.content.attachment.home.core.HomeSearchUtil;
 import dev.xkmc.gensokyolegacy.content.attachment.home.core.IHomeHolder;
 import dev.xkmc.gensokyolegacy.content.attachment.home.core.StructureAttachment;
@@ -12,6 +13,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
@@ -69,21 +71,15 @@ public record CustomHomeHolder(
 	}
 
 	@Nullable
-	public BlockPos getContainersAround(BlockPos pos) {
+	public BlockPos getBlockAround(HomeBlockKind kind, BlockPos pos) {
 		if (!data.checkInit(this)) return null;
-		return data.getContainerAround(this, pos, 3, 3, 32);
+		return data.getBlockAround(kind, this, pos);
 	}
 
 	@Nullable
-	public BlockPos getChairsAround(BlockPos pos) {
+	public BoundingBox getHouseBound() {
 		if (!data.checkInit(this)) return null;
-		return data.getChairAround(this, pos, 3, 3, 12);
-	}
-
-	@Nullable
-	public BlockPos getShelvesAround(BlockPos pos) {
-		if (!data.checkInit(this)) return null;
-		return data.getShelfAround(this, pos, 8, 4, 64);
+		return data.getHouseBound();
 	}
 
 	@Nullable

@@ -4,9 +4,11 @@ import dev.xkmc.gensokyolegacy.content.block.deco.cabinet.CabinetBlockEntity;
 import dev.xkmc.gensokyolegacy.content.block.deco.seat.ChairEntity;
 import dev.xkmc.gensokyolegacy.content.block.deco.seat.ISeatableBlock;
 import dev.xkmc.gensokyolegacy.content.block.deco.shelf.ShelfBlockEntity;
+import dev.xkmc.gensokyolegacy.content.block.functional.alchemypot.AlchemyPotBlockEntity;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.SectionPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.ai.util.LandRandomPos;
 import net.minecraft.world.entity.ai.util.RandomPos;
@@ -28,7 +30,6 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.function.BiPredicate;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -46,6 +47,10 @@ public class HomeSearchUtil {
 
 	public static boolean isValidShelf(ServerLevel sl, BlockPos pos) {
 		return sl.getBlockEntity(pos) instanceof ShelfBlockEntity;
+	}
+
+	public static boolean isValidPot(ServerLevel sl, BlockPos pos) {
+		return sl.getBlockEntity(pos) instanceof AlchemyPotBlockEntity;
 	}
 
 	public static boolean isEmptyShelf(ServerLevel sl, BlockPos pos) {
@@ -86,29 +91,76 @@ public class HomeSearchUtil {
 	}
 
 	@Nullable
-	public static BlockPos searchBlock(List<BlockPos> cache, BiPredicate<ServerLevel, BlockPos> validity, BoundingBox room, ServerLevel sl, BlockPos center, int rxz, int ry, int trail) {
-		return searchBlock(cache, validity, MultiStructureBound.of(room), sl, center, rxz, ry, trail);
-	}
-
-	@Nullable
-	public static BlockPos searchBlock(List<BlockPos> cache, BiPredicate<ServerLevel, BlockPos> validity, MultiStructureBound rooms, ServerLevel sl, BlockPos center, int rxz, int ry, int trail) {
-		BoundingBox box = BoundingBox.fromCorners(center.offset(-rxz, -ry, -rxz), center.offset(rxz, ry, rxz));
+	public static BlockPos searchKind(IBlockSearchCache data, HomeBlockKind kind, MultiStructureBound rooms, ServerLevel sl, BlockPos center) {
+		BoundingBox box = BoundingBox.fromCorners(
+				center.offset(-kind.rxz(), -kind.ry(), -kind.rxz()),
+				center.offset(kind.rxz(), kind.ry(), kind.rxz()));
 		var area = rooms.intersect(box);
 		if (area.isEmpty()) return null;
-		cache.removeIf(e -> sl.isLoaded(e) && !validity.test(sl, e));
-		for (var e : cache) {
+		var rand = sl.getRandom();
+		BlockSearchCache cache = data.cache(kind);
+		List<BlockPos> list = cache.pos;
+		long now = sl.getGameTime();
+		if (now < cache.lastSearch + Math.max(list.size(), 1) * 100L) {
+			// cooling down: probe a few cached entries instead of a full validation pass
+			List<BlockPos> cands = new ArrayList<>();
+			for (var e : list) {
+				if (!sl.isLoaded(e)) continue;
+				if (area.isInside(e)) cands.add(e);
+			}
+			for (int i = 0; i < 3 && !cands.isEmpty(); i++) {
+				var e = cands.remove(rand.nextInt(cands.size()));
+				if (kind.isValid(sl, e)) return e;
+				list.remove(e);
+			}
+			return null;
+		}
+		var itr = list.iterator();
+		while (itr.hasNext()) {
+			var e = itr.next();
 			if (!sl.isLoaded(e)) continue;
-			if (area.isInside(e)) {
-				return e;
+			if (!kind.isValid(sl, e)) {
+				itr.remove();
 			}
 		}
-		var rand = sl.getRandom();
+		List<BlockPos> hits = new ArrayList<>();
+		for (var e : list) {
+			if (!sl.isLoaded(e)) continue;
+			if (area.isInside(e)) hits.add(e);
+		}
+		cache.lastSearch = now;
+		if (!hits.isEmpty()) {
+			return hits.get(rand.nextInt(hits.size()));
+		}
+		if (kind.scanBlockEntities()) {
+			// refill the cache from block entities of loaded chunks; never forces a chunk load
+			for (var b : area.boxes()) {
+				int x0 = SectionPos.blockToSectionCoord(b.minX());
+				int x1 = SectionPos.blockToSectionCoord(b.maxX());
+				int z0 = SectionPos.blockToSectionCoord(b.minZ());
+				int z1 = SectionPos.blockToSectionCoord(b.maxZ());
+				for (int cx = x0; cx <= x1; cx++) {
+					for (int cz = z0; cz <= z1; cz++) {
+						var chunk = sl.getChunkSource().getChunkNow(cx, cz);
+						if (chunk == null) continue;
+						for (BlockPos bePos : chunk.getBlockEntities().keySet()) {
+							if (!area.isInside(bePos)) continue;
+							if (!kind.isValid(sl, bePos)) continue;
+							if (!list.contains(bePos)) list.add(bePos);
+							hits.add(bePos);
+						}
+					}
+				}
+			}
+			if (!hits.isEmpty()) return hits.get(rand.nextInt(hits.size()));
+			return null;
+		}
 		var pos = new BlockPos.MutableBlockPos();
-		for (int i = 0; i < trail; i++) {
+		for (int i = 0; i < kind.trial(); i++) {
 			area.randomPos(rand, pos);
-			if (validity.test(sl, pos)) {
+			if (kind.isValid(sl, pos)) {
 				var ans = pos.immutable();
-				cache.add(ans);
+				list.add(ans);
 				return ans;
 			}
 		}

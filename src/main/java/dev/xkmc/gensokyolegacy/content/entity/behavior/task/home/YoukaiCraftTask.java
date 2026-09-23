@@ -43,7 +43,7 @@ public class YoukaiCraftTask<E extends SmartYoukaiEntity> extends AbstractHomeHo
 		if (!super.checkExtraStartConditions(level, entity)) return false;
 		var bed = BedRefData.of(level, entity);
 		if (bed.isEmpty() || bed.get().getBedPos() == null) return false;
-		chest = home.getContainersAround(bed.get().getBedPos());
+		chest = home.getBlockAround(HomeBlockKind.CONTAINER, bed.get().getBedPos());
 		return chest != null && !doCraft.apply(true).isEmpty();
 	}
 

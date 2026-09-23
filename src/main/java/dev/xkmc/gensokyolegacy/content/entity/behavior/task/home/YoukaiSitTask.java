@@ -33,7 +33,7 @@ public class YoukaiSitTask<E extends SmartYoukaiEntity> extends AbstractHomeHold
 		if (!super.checkExtraStartConditions(level, entity)) return false;
 		var bed = BedRefData.of(level, entity);
 		if (bed.isEmpty() || bed.get().getBedPos() == null) return false;
-		chair = home.getChairsAround(bed.get().getBedPos());
+		chair = home.getBlockAround(HomeBlockKind.CHAIR, bed.get().getBedPos());
 		return chair != null;
 	}
 

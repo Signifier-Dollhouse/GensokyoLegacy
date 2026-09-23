@@ -13,14 +13,21 @@ import java.util.function.BiPredicate;
  */
 public enum HomeBlockKind {
 
-	CONTAINER(HomeSearchUtil::isValidChest),
-	CHAIR(HomeSearchUtil::isValidChair),
-	SHELF(HomeSearchUtil::isValidShelf);
+	CONTAINER(HomeSearchUtil::isValidChest, 3, 3, 32, true),
+	CHAIR(HomeSearchUtil::isValidChair, 3, 3, 12, false),
+	SHELF(HomeSearchUtil::isValidShelf, 48, 16, 64, true),
+	POT(HomeSearchUtil::isValidPot, 24, 8, 64, true);
 
 	private final BiPredicate<ServerLevel, BlockPos> validator;
+	private final int rxz, ry, trial;
+	private final boolean blockEntityScan;
 
-	HomeBlockKind(BiPredicate<ServerLevel, BlockPos> validator) {
+	HomeBlockKind(BiPredicate<ServerLevel, BlockPos> validator, int rxz, int ry, int trial, boolean blockEntityScan) {
 		this.validator = validator;
+		this.rxz = rxz;
+		this.ry = ry;
+		this.trial = trial;
+		this.blockEntityScan = blockEntityScan;
 	}
 
 	public BiPredicate<ServerLevel, BlockPos> validator() {
@@ -29,6 +36,26 @@ public enum HomeBlockKind {
 
 	public boolean isValid(ServerLevel level, BlockPos pos) {
 		return validator.test(level, pos);
+	}
+
+	public int rxz() {
+		return rxz;
+	}
+
+	public int ry() {
+		return ry;
+	}
+
+	public int trial() {
+		return trial;
+	}
+
+	/**
+	 * Whether targets of this kind are block entities, so a cache miss can be
+	 * refilled by scanning block entities of loaded chunks instead of blind sampling.
+	 */
+	public boolean scanBlockEntities() {
+		return blockEntityScan;
 	}
 
 }

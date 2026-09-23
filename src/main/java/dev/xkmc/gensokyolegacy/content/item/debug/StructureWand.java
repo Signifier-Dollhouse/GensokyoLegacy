@@ -49,22 +49,22 @@ public class StructureWand extends Item {
 			var box = new RoomVerifier(level, sp, (p, state) -> {
 				if (state.isAir()) return;
 				if (HomeBlockKind.CHAIR.isValid(level, p)) {
-					holder.data().cache(HomeBlockKind.CHAIR).add(p);
+					holder.data().cache(HomeBlockKind.CHAIR).pos.add(p);
 				}
 				if (HomeBlockKind.CONTAINER.isValid(level, p)) {
-					holder.data().cache(HomeBlockKind.CONTAINER).add(p);
+					holder.data().cache(HomeBlockKind.CONTAINER).pos.add(p);
 				}
 				if (HomeBlockKind.SHELF.isValid(level, p)) {
-					holder.data().cache(HomeBlockKind.SHELF).add(p);
+					holder.data().cache(HomeBlockKind.SHELF).pos.add(p);
 				}
 				if (level.getBlockEntity(p) instanceof YoukaiBedBlockEntity be && !be.linked() &&
 						be.getBlockState().getValue(BedBlock.PART) == BedPart.HEAD) {
 					beds.add(be);
 				}
 			}).run(pos.relative(context.getClickedFace()));
-			if (holder.data().cache(HomeBlockKind.CHAIR).isEmpty() || holder.data().cache(HomeBlockKind.CONTAINER).isEmpty() || beds.isEmpty()) {
+			if (holder.data().cache(HomeBlockKind.CHAIR).pos.isEmpty() || holder.data().cache(HomeBlockKind.CONTAINER).pos.isEmpty() || beds.isEmpty()) {
 				sp.sendSystemMessage(Component.literal("Missing required blocks. Chair: %d, Container: %d, Bed: %d".formatted(
-						holder.data().cache(HomeBlockKind.CHAIR).size(), holder.data().cache(HomeBlockKind.CONTAINER).size(), beds.size())));
+						holder.data().cache(HomeBlockKind.CHAIR).pos.size(), holder.data().cache(HomeBlockKind.CONTAINER).pos.size(), beds.size())));
 				return InteractionResult.FAIL;
 			}
 

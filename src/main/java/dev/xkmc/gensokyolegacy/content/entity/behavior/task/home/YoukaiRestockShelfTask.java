@@ -69,7 +69,7 @@ public class YoukaiRestockShelfTask<E extends SmartYoukaiEntity> extends Abstrac
 		if (!super.checkExtraStartConditions(level, entity)) return false;
 		var bed = BedRefData.of(level, entity);
 		if (bed.isEmpty() || bed.get().getBedPos() == null) return false;
-		var seed = home.getShelvesAround(bed.get().getBedPos());
+		var seed = home.getBlockAround(HomeBlockKind.SHELF, bed.get().getBedPos());
 		if (seed == null) {
 			nextRestock = level.getGameTime() + NO_SHELF_DELAY;
 			return false;
