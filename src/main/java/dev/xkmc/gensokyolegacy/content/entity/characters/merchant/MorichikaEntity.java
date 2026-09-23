@@ -20,8 +20,10 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 
 public class MorichikaEntity extends GeneralYoukaiEntity implements GeoEntity {
 
-	protected static final RawAnimation IDLE = RawAnimation.begin().thenLoop("idle");
-	protected static final RawAnimation WALK = RawAnimation.begin().thenLoop("walk");
+	protected static final RawAnimation IDLE = RawAnimation.begin().thenLoop("待机");
+	protected static final RawAnimation WALK = RawAnimation.begin().thenLoop("走路");
+	protected static final RawAnimation SIT = RawAnimation.begin().thenLoop("坐下");
+	protected static final RawAnimation SLEEP = RawAnimation.begin().thenLoop("睡觉");
 
 	private final AnimatableInstanceCache geoCache = GeckoLibUtil.createInstanceCache(this);
 
@@ -50,6 +52,12 @@ public class MorichikaEntity extends GeneralYoukaiEntity implements GeoEntity {
 	}
 
 	protected <E extends MorichikaEntity> PlayState idleAnimController(final AnimationState<E> event) {
+		if (isSleeping()) {
+			return event.setAndContinue(SLEEP);
+		}
+		if (isPassenger()) {
+			return event.setAndContinue(SIT);
+		}
 		if (getFlag(YoukaiFlags.FLYING)) {
 			return event.setAndContinue(IDLE);
 		}

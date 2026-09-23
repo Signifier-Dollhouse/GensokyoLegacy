@@ -61,6 +61,7 @@ import net.minecraft.world.level.levelgen.synth.NormalNoise;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Vegetation of the magical forest, built from hand-made templates (see
@@ -242,9 +243,11 @@ public class MagicalForestFeatures {
 				"tree/blue_fir_medium_1", "tree/blue_fir_medium_2"));
 		FeatureUtils.register(ctx, AZALEA_BUSH, template, vegetation(BUSH_FOOTPRINT, List.of(),
 				"bush/azalea_1", "bush/azalea_2", "bush/azalea_3"));
-		FeatureUtils.register(ctx, MUSHROOM_LARGE, template, vegetation(MEDIUM_FOOTPRINT, mushroomFloor,
-				"mushroom/ghost_fire_large_1", "mushroom/ghost_fire_large_2", "mushroom/ghost_fire_large_3",
-				"mushroom/demonic_miasma_large_1", "mushroom/demonic_miasma_large_2", "mushroom/dream_large_1"));
+		FeatureUtils.register(ctx, MUSHROOM_LARGE, template, vegetation(MEDIUM_FOOTPRINT, mushroomFloor, List.of(
+				Map.entry("mushroom/ghost_fire_large_1", 2), Map.entry("mushroom/ghost_fire_large_2", 2),
+				Map.entry("mushroom/ghost_fire_large_3", 2),
+				Map.entry("mushroom/demonic_miasma_large_1", 1), Map.entry("mushroom/demonic_miasma_large_2", 1),
+				Map.entry("mushroom/dream_large_1", 2))));
 		FeatureUtils.register(ctx, MUSHROOM_MEDIUM_TEMPLATE, template, vegetation(SMALL_FOOTPRINT, mushroomFloor,
 				"mushroom/ghost_fire_medium_1", "mushroom/ghost_fire_medium_2",
 				"mushroom/demonic_miasma_medium_1", "mushroom/demonic_miasma_medium_2",
@@ -422,7 +425,19 @@ public class MagicalForestFeatures {
 		for (var id : templates) {
 			list.add(GensokyoLegacy.loc("magical_forest/" + id), 1);
 		}
-		return new TemplateFeatureConfig(list.build(), TemplateFeatureConfig.NO_PROCESSORS, BlockTags.DIRT,
+		return vegetation(footprint, floor, list.build());
+	}
+
+	private static TemplateFeatureConfig vegetation(Footprint footprint, List<Holder<PlacedFeature>> floor, List<Map.Entry<String, Integer>> templates) {
+		var list = SimpleWeightedRandomList.<ResourceLocation>builder();
+		for (var e : templates) {
+			list.add(GensokyoLegacy.loc("magical_forest/" + e.getKey()), e.getValue());
+		}
+		return vegetation(footprint, floor, list.build());
+	}
+
+	private static TemplateFeatureConfig vegetation(Footprint footprint, List<Holder<PlacedFeature>> floor, SimpleWeightedRandomList<ResourceLocation> templates) {
+		return new TemplateFeatureConfig(templates, TemplateFeatureConfig.NO_PROCESSORS, BlockTags.DIRT,
 				footprint.radius(), footprint.maxSlope(), 0, footprint.rootDepth(), floor);
 	}
 

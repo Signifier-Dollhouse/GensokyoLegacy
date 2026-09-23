@@ -85,13 +85,13 @@ public class GLFeatureGen {
 												.add(GLNaturalBlocks.EUGUNE_BROWN.get().defaultBlockState(), 2)
 												.add(GLNaturalBlocks.EUGUNE_GHOST_FIRE.get().defaultBlockState(), 1)
 												.add(GLNaturalBlocks.FLAME_CATTAIL.get().defaultBlockState(), 1)
-												.add(GLNaturalBlocks.GHOST_FIRE_MUSHROOM_SET.cap.get().defaultBlockState(), 1)
-												.add(GLNaturalBlocks.DREAM_MUSHROOM_SET.cap.get().defaultBlockState(), 1)
-												.add(GLNaturalBlocks.DEMONIC_MIASMA_MUSHROOM_SET.cap.get().defaultBlockState(), 1)
-												.build())),
+											.add(GLNaturalBlocks.GHOST_FIRE_MUSHROOM_SET.cap.get().defaultBlockState(), 2)
+											.add(GLNaturalBlocks.DREAM_MUSHROOM_SET.cap.get().defaultBlockState(), 2)
+											.add(GLNaturalBlocks.DEMONIC_MIASMA_MUSHROOM_SET.cap.get().defaultBlockState(), 1)
+											.build())),
 								BlockPredicate.allOf(BlockPredicate.ONLY_IN_AIR_PREDICATE,
 										BlockPredicate.matchesTag(Direction.DOWN.getNormal(), BlockTags.DIRT)))));
-			FeatureUtils.register(ctx, MAGICAL_FOREST_MUSHROOMS, Feature.RANDOM_PATCH,
+		FeatureUtils.register(ctx, MAGICAL_FOREST_MUSHROOMS, Feature.RANDOM_PATCH,
 					FeatureUtils.simpleRandomPatchConfiguration(32,
 							PlacementUtils.filtered(Feature.SIMPLE_BLOCK, new SimpleBlockConfiguration(
 											new WeightedStateProvider(SimpleWeightedRandomList.<BlockState>builder()

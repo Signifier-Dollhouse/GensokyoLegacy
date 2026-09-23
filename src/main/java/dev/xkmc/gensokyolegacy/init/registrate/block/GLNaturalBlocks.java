@@ -51,6 +51,8 @@ import net.neoforged.neoforge.registries.datamaps.builtin.NeoForgeDataMaps;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 
 public class GLNaturalBlocks {
 
@@ -71,6 +73,8 @@ public class GLNaturalBlocks {
 	public static final BlockEntry<TallGrassBlock> BROOM_GRASS;
 
 	public static final BlockEntry<HyphaeBlock> HYPHAE;
+
+	public static final BlockEntry<MiasmaAirBlock> MIASMA_AIR;
 
 	static {
 		var reg = GensokyoLegacy.REGISTRATE;
@@ -206,7 +210,9 @@ public class GLNaturalBlocks {
 				reg, "demonic_miasma_mushroom", RED_MUSHROOM_STEM, 2, false,
 				BlockBehaviour.Properties.ofFullCopy(Blocks.BROWN_MUSHROOM_BLOCK).mapColor(MapColor.CRIMSON_HYPHAE),
 				BlockBehaviour.Properties.ofFullCopy(Blocks.BROWN_MUSHROOM).mapColor(MapColor.CRIMSON_HYPHAE),
-				MushroomFeatures.MushroomTreeType.DEMONIC_MIASMA
+				MushroomFeatures.MushroomTreeType.DEMONIC_MIASMA,
+				(t, p) -> new MiasmaMushroomCapBlock(t.growthSmall, t.growthMedium, t.growthLarge, p),
+				MiasmaMushroomHugeBlock::new
 		);
 
 		// 红耳菇
@@ -267,6 +273,13 @@ public class GLNaturalBlocks {
 				.item().model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("block/misc/hyphae")))
 				.dataMap(NeoForgeDataMaps.COMPOSTABLES, new Compostable(0.5f))
 				.build()
+				.register();
+
+		MIASMA_AIR = reg.block("miasma_air", MiasmaAirBlock::new)
+				.properties(p -> p.mapColor(MapColor.NONE).replaceable().noCollission().noOcclusion()
+						.randomTicks().noLootTable().air().pushReaction(PushReaction.DESTROY))
+				.blockstate((ctx, pvd) -> pvd.simpleBlock(ctx.get(),
+						new ModelFile.UncheckedModelFile("minecraft:block/air")))
 				.register();
 	}
 
@@ -361,7 +374,7 @@ public class GLNaturalBlocks {
 	public static class MushroomSet {
 
 		public final BlockEntry<HugeMushroomBlock> stem;
-		public final BlockEntry<HugeMushroomBlock> block;
+		public final BlockEntry<? extends HugeMushroomBlock> block;
 		public final BlockEntry<? extends Block> cap;
 
 		public static BlockEntry<HugeMushroomBlock> regStem(L2Registrate reg, String stemTex) {
@@ -386,9 +399,20 @@ public class GLNaturalBlocks {
 		                   boolean emissive, BlockBehaviour.Properties blockProp,
 		                   BlockBehaviour.Properties capProp,
 		                   MushroomFeatures.MushroomTreeType type) {
+			this(reg, id, stem, capVariants, emissive, blockProp, capProp, type,
+					(t, p) -> new WeightedMushroomBlock(t.growthSmall, t.growthMedium, t.growthLarge, p),
+					HugeMushroomBlock::new);
+		}
+
+		public MushroomSet(L2Registrate reg, String id, BlockEntry<HugeMushroomBlock> stem, int capVariants,
+		                   boolean emissive, BlockBehaviour.Properties blockProp,
+		                   BlockBehaviour.Properties capProp,
+		                   MushroomFeatures.MushroomTreeType type,
+		                   BiFunction<MushroomFeatures.MushroomTreeType, BlockBehaviour.Properties, ? extends Block> capFactory,
+		                   Function<BlockBehaviour.Properties, ? extends HugeMushroomBlock> blockFactory) {
 			this.stem = stem;
 
-			cap = reg.block(id, p -> new WeightedMushroomBlock(type.growthSmall, type.growthMedium, type.growthLarge, p))
+			cap = reg.block(id, p -> capFactory.apply(type, p))
 					.properties(p -> capProp)
 					.blockstate((ctx, pvd) -> genCapState(ctx, pvd, capVariants, emissive))
 					.item().model((ctx, pvd) -> genFlatItemModel(ctx.getName(), pvd,
@@ -397,7 +421,7 @@ public class GLNaturalBlocks {
 					.build()
 					.register();
 
-			block = reg.block(id + "_block", HugeMushroomBlock::new)
+			block = reg.block(id + "_block", blockFactory::apply)
 					.properties(p -> blockProp)
 					.blockstate((ctx, pvd) -> {
 						var outer = genHugeMushroomModels(pvd, ctx.getName(),

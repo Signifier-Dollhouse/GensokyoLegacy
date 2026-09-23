@@ -986,7 +986,7 @@
 				{
 					"name": "Stomach",
 					"parent": "UpperBody",
-					"pivot": [0, 13.6, 0],
+					"pivot": [0, 15.6, 0],
 					"cubes": [
 						{
 							"origin": [-3.5, 11.1, -2.5],

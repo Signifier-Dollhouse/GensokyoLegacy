@@ -43,15 +43,15 @@
     "templates": [
       {
         "data": "gensokyolegacy:magical_forest/mushroom/ghost_fire_large_1",
-        "weight": 1
+        "weight": 2
       },
       {
         "data": "gensokyolegacy:magical_forest/mushroom/ghost_fire_large_2",
-        "weight": 1
+        "weight": 2
       },
       {
         "data": "gensokyolegacy:magical_forest/mushroom/ghost_fire_large_3",
-        "weight": 1
+        "weight": 2
       },
       {
         "data": "gensokyolegacy:magical_forest/mushroom/demonic_miasma_large_1",
@@ -63,7 +63,7 @@
       },
       {
         "data": "gensokyolegacy:magical_forest/mushroom/dream_large_1",
-        "weight": 1
+        "weight": 2
       }
     ]
   }
