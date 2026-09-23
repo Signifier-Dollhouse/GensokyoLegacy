@@ -1,42 +1,36 @@
 {
   "values": {
     "gensokyolegacy:cat_bell": {
-      "advancements": [],
       "maxPrice": 12,
       "maxStock": 1,
       "minPrice": 8,
       "minStock": 1
     },
     "gensokyolegacy:centipickaxe": {
-      "advancements": [],
       "maxPrice": 6,
       "maxStock": 1,
       "minPrice": 4,
       "minStock": 1
     },
     "gensokyolegacy:dowser": {
-      "advancements": [],
       "maxPrice": 18,
       "maxStock": 1,
       "minPrice": 12,
       "minStock": 1
     },
     "gensokyolegacy:mermaid_pearl": {
-      "advancements": [],
       "maxPrice": 6,
       "maxStock": 5,
       "minPrice": 4,
       "minStock": 3
     },
     "gensokyolegacy:mini_hakkero_prototype": {
-      "advancements": [],
       "maxPrice": 24,
       "maxStock": 1,
       "minPrice": 16,
       "minStock": 1
     },
     "gensokyolegacy:straw_hat": {
-      "advancements": [],
       "maxPrice": 6,
       "maxStock": 4,
       "minPrice": 3,
