@@ -86,7 +86,10 @@ import java.util.Set;
  * deterministically picks exactly one member
  * ({@link #pickForRegion}), and only the picked member may generate there,
  * so two members of one set can never share a region no matter how their
- * per-template terrain checks diverge.
+ * per-template terrain checks diverge. {@code setCount} may exceed the
+ * number of registered members; picks landing on unassigned indices
+ * generate nothing, reserving room for future members. Never change
+ * {@code setCount} or salt once released, or existing picks will shift.
  */
 public class FlatCheckStructure extends Structure {
 

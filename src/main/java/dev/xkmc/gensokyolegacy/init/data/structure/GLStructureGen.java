@@ -31,10 +31,13 @@ import java.util.function.Supplier;
 public class GLStructureGen {
 
 	// Marisa's house and Kourindou share one structure set in the magical
-	// forest: every region randomly picks exactly one of them (via the
-	// FlatCheckStructure setIndex/setCount gate), so the two houses can
-	// never spawn too close to each other.
+	// forest: every region randomly picks exactly one of 4 slots (via the
+	// FlatCheckStructure setIndex/setCount gate), so the houses can never
+	// spawn too close to each other. Only slots 0-1 are assigned yet;
+	// slots 2-3 are reserved for future structures. Never change the total
+	// once released, or existing region picks will shift.
 	private static final ResourceLocation FOREST_HOUSES = GensokyoLegacy.loc("magical_forest_houses");
+	private static final int FOREST_HOUSES_TOTAL = 4;
 
 	private static List<StructStructure> initStructures() {
 		return List.of(
@@ -129,7 +132,7 @@ public class GLStructureGen {
 			var groups = groups();
 			for (var e : STRUCTURES.get()) {
 				var biome = ctx.lookup(Registries.BIOME).getOrThrow(e.biomes());
-				e.building().registerStructure(ctx, e.id(), biome, SetContext.of(e, groups.get(e.set())));
+				e.building().registerStructure(ctx, e.id(), biome, SetContext.of(e, groups.get(e.set()), setTotal(e.set(), groups.get(e.set()))));
 			}
 		});
 		init.add(Registries.STRUCTURE_SET, ctx -> {
@@ -158,6 +161,16 @@ public class GLStructureGen {
 			groups.computeIfAbsent(e.set(), k -> new ArrayList<>()).add(e);
 		}
 		return groups;
+	}
+
+	private static int setTotal(ResourceLocation set, List<StructStructure> members) {
+		if (set.equals(FOREST_HOUSES)) {
+			if (members.size() > FOREST_HOUSES_TOTAL) {
+				throw new IllegalStateException("forest houses exceed reserved total " + FOREST_HOUSES_TOTAL);
+			}
+			return FOREST_HOUSES_TOTAL;
+		}
+		return members.size();
 	}
 
 }

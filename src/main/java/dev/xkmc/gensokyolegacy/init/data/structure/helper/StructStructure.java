@@ -16,7 +16,9 @@ public record StructStructure(
 		// every region randomly picks exactly one member (FlatCheckStructure
 		// setIndex/setCount gate), so members of a group can never spawn too
 		// close to each other. All members of a group must use the same
-		// spacing/attempts and equal weights, and share the set salt.
+		// spacing/attempts and equal weights, and share the set salt. setCount
+		// may exceed the registered member count: unassigned indices generate
+		// nothing and reserve room for future members without shifting picks.
 		ResourceLocation set) {
 
 	public StructStructure(
