@@ -8,11 +8,14 @@ import dev.xkmc.l2modularblock.core.DelegateBlock;
 import dev.xkmc.l2modularblock.core.VoxelBuilder;
 import dev.xkmc.gensokyolegacy.content.block.base.ShapePathFindBlockMethod;
 import dev.xkmc.l2modularblock.impl.BlockEntityBlockMethodImpl;
+import dev.xkmc.l2modularblock.mult.OnReplacedBlockMethod;
+import dev.xkmc.l2modularblock.mult.PlayerDestoryBlockMethod;
 import dev.xkmc.l2modularblock.mult.SetPlacedByBlockMethod;
 import dev.xkmc.l2modularblock.mult.UseItemOnBlockMethod;
 import dev.xkmc.l2modularblock.type.BlockMethod;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.ItemInteractionResult;
@@ -22,6 +25,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.BlockHitResult;
@@ -31,7 +35,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
 import org.jetbrains.annotations.Nullable;
 
-public class ShelfBlock implements UseItemOnBlockMethod, SetPlacedByBlockMethod, ShapePathFindBlockMethod {
+public class ShelfBlock implements UseItemOnBlockMethod, SetPlacedByBlockMethod, ShapePathFindBlockMethod, PlayerDestoryBlockMethod, OnReplacedBlockMethod {
 
 	public static final BlockMethod BE = new BlockEntityBlockMethodImpl<>(GLFurniture.SHELF_BE, ShelfBlockEntity.class);
 
@@ -62,7 +66,7 @@ public class ShelfBlock implements UseItemOnBlockMethod, SetPlacedByBlockMethod,
 	public ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult blockHitResult) {
 		if (level.getBlockEntity(pos) instanceof ShelfBlockEntity be) {
 			if (be.owner.equals(player.getUUID()) && !player.isShiftKeyDown()) {
-				if (be.set(level, stack, player.isCreative()))
+				if (be.set(level, player, stack, player.isCreative()))
 					return ItemInteractionResult.SUCCESS;
 			} else {
 				if (be.buy(level, stack, player))
@@ -70,6 +74,31 @@ public class ShelfBlock implements UseItemOnBlockMethod, SetPlacedByBlockMethod,
 			}
 		}
 		return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+	}
+
+	@Override
+	public @Nullable BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
+		if (level.getBlockEntity(pos) instanceof ShelfBlockEntity shelf) {
+			shelf.lastBreaker = player.getUUID();
+		}
+		return null;
+	}
+
+	/**
+	 * Pass-through: content handling lives in {@link #onReplaced}, which covers
+	 * every removal cause. Returning false falls through to vanilla loot/stats.
+	 */
+	@Override
+	public boolean playerDestroy(Level level, Player player, BlockPos pos, BlockState state, @Nullable BlockEntity be, ItemStack tool) {
+		return false;
+	}
+
+	@Override
+	public void onReplaced(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
+		if (state.is(newState.getBlock())) return;
+		if (level instanceof ServerLevel sl && level.getBlockEntity(pos) instanceof ShelfBlockEntity shelf) {
+			shelf.flushDrops(sl, pos);
+		}
 	}
 
 	public static void buildStates(DataGenContext<Block, DelegateBlock> ctx, RegistrateBlockstateProvider pvd) {

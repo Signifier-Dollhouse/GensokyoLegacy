@@ -386,6 +386,7 @@
   "gensokyolegacy.talisman.pocket": "符咒口袋",
   "gensokyolegacy.talisman.pocket_desc": "右键物品以打开符咒口袋",
   "gensokyolegacy.msg.reset": "角色已重置",
+  "gensokyolegacy.msg.shelf_returned": "你的货架在你离开时被破坏了，暂存的货物和收益已经返还给你。",
   "gensokyolegacy.tab.main_role": "%s (%s)",
   "gensokyolegacy.tab.no_role": "普通人类(无身份)",
   "gensokyolegacy.tab.role_progress": "%s - %s",

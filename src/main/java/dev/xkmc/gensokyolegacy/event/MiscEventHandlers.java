@@ -2,6 +2,7 @@ package dev.xkmc.gensokyolegacy.event;
 
 import dev.xkmc.danmakuapi.api.DanmakuDamageEvent;
 import dev.xkmc.gensokyolegacy.content.attachment.misc.FrogGodCapability;
+import dev.xkmc.gensokyolegacy.content.attachment.storage.PendingItemStorage;
 import dev.xkmc.gensokyolegacy.content.entity.characters.rumia.RumiaEntity;
 import dev.xkmc.gensokyolegacy.content.item.character.TouhouHatItem;
 import dev.xkmc.gensokyolegacy.content.item.glove.DollGloveItem;
@@ -29,6 +30,7 @@ import net.neoforged.neoforge.event.entity.living.LivingShieldBlockEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
 @EventBusSubscriber(modid = GensokyoLegacy.MODID)
 public class MiscEventHandlers {
@@ -54,6 +56,16 @@ public class MiscEventHandlers {
 			e.setCost(10);
 			e.setMaterialCost(1);
 		}
+	}
+
+	@SubscribeEvent
+	public static void onPlayerTick(PlayerTickEvent.Post event) {
+		if (!(event.getEntity() instanceof ServerPlayer sp)) return;
+		if (sp.tickCount % 20 != 0) return;
+		var storage = PendingItemStorage.get(sp.serverLevel());
+		if (!storage.hasPending(sp.getUUID())) return;
+		if (storage.deliver(sp) && !storage.hasPending(sp.getUUID()))
+			sp.sendSystemMessage(PendingItemStorage.RETURN_MSG);
 	}
 
 	@SubscribeEvent

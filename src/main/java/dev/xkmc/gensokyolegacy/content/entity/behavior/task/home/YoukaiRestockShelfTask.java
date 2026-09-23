@@ -8,6 +8,7 @@ import dev.xkmc.gensokyolegacy.content.entity.youkai.SmartYoukaiEntity;
 import dev.xkmc.gensokyolegacy.init.data.GLModConfig;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
 import dev.xkmc.gensokyolegacy.util.BrainUtils;
+import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerLevel;
@@ -29,7 +30,8 @@ import java.util.Map;
  * by BFS, then one shelf is picked at random. Empty shelves are prioritized;
  * when every shelf is stocked, restock is skipped most of the time, with a
  * configurable chance (see morichikaReplaceChance) to replace a stocked
- * shelf with a new item.
+ * shelf with a new item. Shelves owned by other players are skipped while
+ * they hold an item, stock, or earnings; fully empty ones are claimed.
  */
 public class YoukaiRestockShelfTask<E extends SmartYoukaiEntity> extends AbstractHomeHolderTask<E> {
 
@@ -76,12 +78,13 @@ public class YoukaiRestockShelfTask<E extends SmartYoukaiEntity> extends Abstrac
 		}
 		var group = HomeSearchUtil.collectConnected(level, seed, HomeBlockKind.SHELF, 2);
 		var rand = level.getRandom();
-		var empty = group.stream().filter(p -> HomeSearchUtil.isEmptyShelf(level, p)).toList();
+		var usable = group.stream().filter(p -> isAvailableForRestock(level, p)).toList();
+		var empty = usable.stream().filter(p -> HomeSearchUtil.isEmptyShelf(level, p)).toList();
 		if (!empty.isEmpty()) {
 			shelf = empty.get(rand.nextInt(empty.size()));
 			replace = false;
-		} else if (!group.isEmpty() && rand.nextFloat() < GLModConfig.SERVER.morichikaReplaceChance.get()) {
-			shelf = group.get(rand.nextInt(group.size()));
+		} else if (!usable.isEmpty() && rand.nextFloat() < GLModConfig.SERVER.morichikaReplaceChance.get()) {
+			shelf = usable.get(rand.nextInt(usable.size()));
 			replace = true;
 		} else {
 			nextRestock = level.getGameTime() + SKIP_DELAY;
@@ -92,6 +95,17 @@ public class YoukaiRestockShelfTask<E extends SmartYoukaiEntity> extends Abstrac
 			return false;
 		}
 		return true;
+	}
+
+	/**
+	 * Shelves placed by players keep their owner. A shelf owned by someone else is
+	 * left alone while it still holds an item mark, remaining stock, or uncollected
+	 * earnings. A fully empty player shelf may be claimed for the shop (see doRestock).
+	 */
+	private static boolean isAvailableForRestock(ServerLevel level, BlockPos pos) {
+		if (!(level.getBlockEntity(pos) instanceof ShelfBlockEntity be)) return false;
+		if (be.owner.equals(Util.NIL_UUID)) return true;
+		return be.stack.isEmpty() && be.stock <= 0 && be.earning <= 0;
 	}
 
 	private boolean pickOffer(ServerLevel level) {
@@ -144,6 +158,7 @@ public class YoukaiRestockShelfTask<E extends SmartYoukaiEntity> extends Abstrac
 	private void doRestock(ServerLevel level) {
 		if (level.getBlockEntity(shelf) instanceof ShelfBlockEntity be &&
 				(replace || be.stack.isEmpty() || be.stock <= 0)) {
+			be.owner = Util.NIL_UUID;
 			be.restock(offer.copyWithCount(1), stock, cost);
 		}
 	}

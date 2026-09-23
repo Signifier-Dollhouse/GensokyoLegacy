@@ -382,6 +382,7 @@
   "gensokyolegacy.item.wand_character": "Click character to reset global character data for you",
   "gensokyolegacy.item.wand_structure": "Sneak-click block to show structure option screen",
   "gensokyolegacy.msg.reset": "Character reset",
+  "gensokyolegacy.msg.shelf_returned": "Your shop shelf was broken while you were away; its stock and earnings have been returned to you.",
   "gensokyolegacy.quest.character": "For %s",
   "gensokyolegacy.quest.item_submit_fail": "Some criteria are not met or used overlapped items",
   "gensokyolegacy.quest.item_submit_pass": "All criteria are met",

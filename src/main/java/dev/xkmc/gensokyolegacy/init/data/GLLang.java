@@ -259,6 +259,7 @@ public final class GLLang {
 	// ========== Misc (MSG + COMMAND + TAB) ==========
 	public enum Misc implements LangEntry {
 		MSG_RESET("msg.reset", "Character reset"),
+		MSG_SHELF_RETURNED("msg.shelf_returned", "Your shop shelf was broken while you were away; its stock and earnings have been returned to you."),
 		COMMAND_SUCCESS("command.success", "Success"),
 		COMMAND_INVALID_ROLE("command.invalid_role", "Error: invalid role id"),
 		TAB_TITLE("tab.title", "Gensokyo Roles", 0),

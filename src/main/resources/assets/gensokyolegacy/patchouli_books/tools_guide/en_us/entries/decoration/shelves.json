@@ -1,0 +1,28 @@
+{
+  "name": "Shelves",
+  "icon": "gensokyolegacy:birch_shelf",
+  "category": "gensokyolegacy:decoration",
+  "sortnum": 5,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "gensokyolegacy:birch_shelf",
+      "title": "Shop Shelf",
+      "text": "A small wall shelf for selling goods. The item on offer is displayed on the shelf with its price and stock written above it."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Running a shop$()$(br)The player who places the shelf owns it. As the owner, right-click the shelf with an item to stock it, or with an empty hand to take the stock back. Right-click with emeralds or emerald blocks to set the price; a newly stocked shelf costs 1 emerald.$(br2)Sales income gathers in the shelf: taking the stock back with an empty hand pays it out as well, and an empty-handed click on an emptied shelf collects income on its own, as emerald blocks where possible.$(br2)Anyone else who right-clicks the shelf buys one item, paying emeralds from their inventory automatically. Sneak-right-click your own shelf to buy from it as a customer would.$(br2)Nothing inside is ever lost to destruction: breaking it yourself drops everything on the ground, and if anyone or anything else destroys it, the stock and earnings are kept for you and returned once you have room in your inventory."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "gensokyolegacy:book_shelf",
+      "title": "Book Shelf",
+      "text": "A lending shelf for plain books, holding up to 12. Right-click with a book to shelve it. Sneak-right-click to take one book back. Breaking the shelf drops all stored books."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Rinnosuke Morichika of Kourindou restocks the shelves around his home by himself, so his shop stays filled while he tends it. Place your own shelves near where you live and they work the same way for other players.$(br2)He leaves shelves you are actively selling from alone, but a fully emptied shelf with nothing left in it may be claimed for his shop."
+    }
+  ]
+}
