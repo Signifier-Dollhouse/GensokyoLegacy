@@ -24,7 +24,7 @@ import java.util.Map;
  */
 public class MarisaBonemealTask<E extends SmartYoukaiEntity> extends AbstractHomeHolderTask<E> {
 
-	private static final int TRIALS = 48;
+	private static final int TRIALS = 24;
 	private static final int USE_COOLDOWN = 1200;
 
 	private BlockPos target;
@@ -84,8 +84,8 @@ public class MarisaBonemealTask<E extends SmartYoukaiEntity> extends AbstractHom
 
 	private static BlockPos findTarget(ServerLevel level, SmartYoukaiEntity entity, BoundingBox house, BoundingBox area) {
 		for (int i = 0; i < TRIALS; i++) {
-			BlockPos pos = MarisaTaskUtil.randomPosIn(area, entity.getRandom());
-			if (!level.isLoaded(pos)) continue;
+			BlockPos pos = MarisaTaskUtil.randomSurfacePos(level, area, entity.getRandom());
+			if (pos == null || !area.isInside(pos)) continue;
 			if (house.isInside(pos)) continue;
 			if (isValidGrass(level, pos)) return pos;
 		}

@@ -32,7 +32,7 @@ import java.util.Map;
  */
 public class MarisaForageTask<E extends SmartYoukaiEntity> extends AbstractHomeHolderTask<E> {
 
-	private static final int TRIALS = 48;
+	private static final int TRIALS = 12;
 
 	private BlockPos target;
 	private long walkEnd;
@@ -86,15 +86,15 @@ public class MarisaForageTask<E extends SmartYoukaiEntity> extends AbstractHomeH
 
 	private static BlockPos findTarget(ServerLevel level, SmartYoukaiEntity entity, BoundingBox house, BoundingBox area) {
 		for (int i = 0; i < TRIALS; i++) {
-			BlockPos pos = MarisaTaskUtil.randomPosIn(area, entity.getRandom());
-			if (!level.isLoaded(pos)) continue;
+			BlockPos pos = MarisaTaskUtil.randomSurfacePos(level, area, entity.getRandom());
+			if (pos == null || !area.isInside(pos)) continue;
 			if (house.isInside(pos)) continue;
 			if (!level.canSeeSky(pos)) continue;
 			BlockState state = level.getBlockState(pos);
 			if (state.getBlock() instanceof DoublePlantBlock &&
 					state.getValue(DoublePlantBlock.HALF) == DoubleBlockHalf.UPPER) {
 				pos = pos.below();
-				if (!level.isLoaded(pos) || house.isInside(pos)) continue;
+				if (!area.isInside(pos) || house.isInside(pos)) continue;
 			}
 			if (isBreakableFoliage(level, pos)) return pos;
 		}
