@@ -1,0 +1,19 @@
+{
+  "type": "gensokyolegacy:template",
+  "config": {
+    "footprint_radius": 1,
+    "ground": "#minecraft:dirt",
+    "max_slope": 2,
+    "root_depth": 3,
+    "templates": [
+      {
+        "data": "gensokyolegacy:magical_forest/mushroom/dream_medium_1",
+        "weight": 1
+      },
+      {
+        "data": "gensokyolegacy:magical_forest/mushroom/dream_medium_2",
+        "weight": 1
+      }
+    ]
+  }
+}

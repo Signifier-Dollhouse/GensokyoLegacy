@@ -1,0 +1,31 @@
+{
+  "type": "gensokyolegacy:template",
+  "config": {
+    "footprint_radius": 0,
+    "ground": "#minecraft:dirt",
+    "max_slope": 0,
+    "root_depth": 2,
+    "templates": [
+      {
+        "data": "gensokyolegacy:magical_forest/mushroom/dream_small_1",
+        "weight": 1
+      },
+      {
+        "data": "gensokyolegacy:magical_forest/mushroom/dream_small_2",
+        "weight": 1
+      },
+      {
+        "data": "gensokyolegacy:magical_forest/mushroom/dream_small_3",
+        "weight": 1
+      },
+      {
+        "data": "gensokyolegacy:magical_forest/mushroom/dream_small_4",
+        "weight": 1
+      },
+      {
+        "data": "gensokyolegacy:magical_forest/mushroom/dream_small_5",
+        "weight": 1
+      }
+    ]
+  }
+}

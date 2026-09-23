@@ -121,13 +121,24 @@ public class MagicalForestFeatures {
 
 	// configured features
 	private static final ResourceKey<ConfiguredFeature<?, ?>> OAK_GIANT = cf("oak_giant");
-	private static final ResourceKey<ConfiguredFeature<?, ?>> BLUE_FIR_GIANT = cf("blue_fir_giant");
+	// blue fir template trees, also reused for sapling growth (1 / 2x2 / 3x3 saplings)
+	public static final ResourceKey<ConfiguredFeature<?, ?>> BLUE_FIR_GIANT = cf("blue_fir_giant");
 	private static final ResourceKey<ConfiguredFeature<?, ?>> GIANT_MIXED = cf("giant_tree_mixed");
 	private static final ResourceKey<ConfiguredFeature<?, ?>> OAK_LARGE = cf("oak_large");
-	private static final ResourceKey<ConfiguredFeature<?, ?>> BLUE_FIR_LARGE = cf("blue_fir_large");
+	public static final ResourceKey<ConfiguredFeature<?, ?>> BLUE_FIR_LARGE = cf("blue_fir_large");
 	private static final ResourceKey<ConfiguredFeature<?, ?>> LARGE_MIXED = cf("large_tree_mixed");
-	private static final ResourceKey<ConfiguredFeature<?, ?>> BLUE_FIR_MEDIUM = cf("blue_fir_medium");
+	public static final ResourceKey<ConfiguredFeature<?, ?>> BLUE_FIR_MEDIUM = cf("blue_fir_medium");
 	private static final ResourceKey<ConfiguredFeature<?, ?>> AZALEA_BUSH = cf("azalea_bush");
+	// per-type template trees for bonemeal growth (small / medium / large per type)
+	public static final ResourceKey<ConfiguredFeature<?, ?>> GHOST_FIRE_SMALL = cf("ghost_fire_small");
+	public static final ResourceKey<ConfiguredFeature<?, ?>> GHOST_FIRE_MEDIUM = cf("ghost_fire_medium");
+	public static final ResourceKey<ConfiguredFeature<?, ?>> GHOST_FIRE_LARGE = cf("ghost_fire_large");
+	public static final ResourceKey<ConfiguredFeature<?, ?>> DREAM_SMALL = cf("dream_small");
+	public static final ResourceKey<ConfiguredFeature<?, ?>> DREAM_MEDIUM = cf("dream_medium");
+	public static final ResourceKey<ConfiguredFeature<?, ?>> DREAM_LARGE = cf("dream_large");
+	public static final ResourceKey<ConfiguredFeature<?, ?>> DEMONIC_MIASMA_SMALL = cf("demonic_miasma_small");
+	public static final ResourceKey<ConfiguredFeature<?, ?>> DEMONIC_MIASMA_MEDIUM = cf("demonic_miasma_medium");
+	public static final ResourceKey<ConfiguredFeature<?, ?>> DEMONIC_MIASMA_LARGE = cf("demonic_miasma_large");
 	private static final ResourceKey<ConfiguredFeature<?, ?>> MUSHROOM_LARGE = cf("mushroom_large");
 	private static final ResourceKey<ConfiguredFeature<?, ?>> MUSHROOM_MEDIUM_TEMPLATE = cf("mushroom_medium_template");
 	private static final ResourceKey<ConfiguredFeature<?, ?>> MUSHROOM_MEDIUM = cf("mushroom_medium");
@@ -242,6 +253,28 @@ public class MagicalForestFeatures {
 				"mushroom/demonic_miasma_small_1", "mushroom/demonic_miasma_small_2",
 				"mushroom/dream_small_1", "mushroom/dream_small_2", "mushroom/dream_small_3",
 				"mushroom/dream_small_4", "mushroom/dream_small_5"));
+
+		// growth-only variants split by type so a mushroom always grows into its own kind;
+		// no floor: bonemeal growth should not repaint the surrounding terrain
+		FeatureUtils.register(ctx, GHOST_FIRE_SMALL, template, vegetation(TINY_FOOTPRINT, List.of(),
+				"mushroom/ghost_fire_small_1", "mushroom/ghost_fire_small_2"));
+		FeatureUtils.register(ctx, GHOST_FIRE_MEDIUM, template, vegetation(SMALL_FOOTPRINT, List.of(),
+				"mushroom/ghost_fire_medium_1", "mushroom/ghost_fire_medium_2"));
+		FeatureUtils.register(ctx, GHOST_FIRE_LARGE, template, vegetation(MEDIUM_FOOTPRINT, List.of(),
+				"mushroom/ghost_fire_large_1", "mushroom/ghost_fire_large_2", "mushroom/ghost_fire_large_3"));
+		FeatureUtils.register(ctx, DREAM_SMALL, template, vegetation(TINY_FOOTPRINT, List.of(),
+				"mushroom/dream_small_1", "mushroom/dream_small_2", "mushroom/dream_small_3",
+				"mushroom/dream_small_4", "mushroom/dream_small_5"));
+		FeatureUtils.register(ctx, DREAM_MEDIUM, template, vegetation(SMALL_FOOTPRINT, List.of(),
+				"mushroom/dream_medium_1", "mushroom/dream_medium_2"));
+		FeatureUtils.register(ctx, DREAM_LARGE, template, vegetation(MEDIUM_FOOTPRINT, List.of(),
+				"mushroom/dream_large_1"));
+		FeatureUtils.register(ctx, DEMONIC_MIASMA_SMALL, template, vegetation(TINY_FOOTPRINT, List.of(),
+				"mushroom/demonic_miasma_small_1", "mushroom/demonic_miasma_small_2"));
+		FeatureUtils.register(ctx, DEMONIC_MIASMA_MEDIUM, template, vegetation(SMALL_FOOTPRINT, List.of(),
+				"mushroom/demonic_miasma_medium_1", "mushroom/demonic_miasma_medium_2"));
+		FeatureUtils.register(ctx, DEMONIC_MIASMA_LARGE, template, vegetation(MEDIUM_FOOTPRINT, List.of(),
+				"mushroom/demonic_miasma_large_1", "mushroom/demonic_miasma_large_2"));
 
 		// oak : blue fir = 1 : 1
 		FeatureUtils.register(ctx, GIANT_MIXED, Feature.RANDOM_SELECTOR, new RandomFeatureConfiguration(List.of(

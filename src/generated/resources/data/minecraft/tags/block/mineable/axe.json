@@ -11,6 +11,8 @@
     "gensokyolegacy:carton_white",
     "gensokyolegacy:carton_blue",
     "gensokyolegacy:crate",
+    "gensokyolegacy:tatami",
+    "gensokyolegacy:tatami_block",
     "gensokyolegacy:paper_window",
     "gensokyolegacy:shoji_frame",
     "gensokyolegacy:paper_window_pane",
@@ -78,6 +80,11 @@
     "gensokyolegacy:red_mushroom_stem",
     "gensokyolegacy:ghost_fire_mushroom_block",
     "gensokyolegacy:dream_mushroom_block",
-    "gensokyolegacy:demonic_miasma_mushroom_block"
+    "gensokyolegacy:demonic_miasma_mushroom_block",
+    "gensokyolegacy:cirno_bed",
+    "gensokyolegacy:rumia_bed",
+    "gensokyolegacy:reimu_bed",
+    "gensokyolegacy:morichika_bed",
+    "gensokyolegacy:marisa_bed"
   ]
 }

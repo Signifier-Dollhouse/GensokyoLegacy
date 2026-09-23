@@ -1,6 +1,7 @@
 package dev.xkmc.gensokyolegacy.content.worldgen.feature;
 
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
+import dev.xkmc.gensokyolegacy.init.data.biome.MagicalForestFeatures;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLNaturalBlocks;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
@@ -19,11 +20,14 @@ import java.util.function.Supplier;
 public class TreeFeatures {
 
 	public enum TreeType {
-		// young tree only (4-6 tall): grown blue firs are hand-built templates, see MagicalForestFeatures
+		// young tree only (4-6 tall): saplings grow the hand-built template trees instead
 		BLUE_FIR("blue_fir_tree",
 				() -> GLNaturalBlocks.BLUE_FUR_SET,
 				4, 2, 0,
-				UniformInt.of(1, 2), UniformInt.of(0, 1), UniformInt.of(1, 2)),
+				UniformInt.of(1, 2), UniformInt.of(0, 1), UniformInt.of(1, 2),
+				MagicalForestFeatures.BLUE_FIR_MEDIUM,
+				MagicalForestFeatures.BLUE_FIR_LARGE,
+				MagicalForestFeatures.BLUE_FIR_GIANT),
 		;
 
 		public final String id;
@@ -35,11 +39,18 @@ public class TreeFeatures {
 		public final IntProvider foliageOffset;
 		public final IntProvider foliageHeight;
 		public final ResourceKey<ConfiguredFeature<?, ?>> cfKey;
+		// template trees grown from saplings: 1 sapling, 2x2 saplings, 3x3 saplings
+		public final ResourceKey<ConfiguredFeature<?, ?>> saplingTree;
+		public final ResourceKey<ConfiguredFeature<?, ?>> saplingMega;
+		public final ResourceKey<ConfiguredFeature<?, ?>> saplingGiant;
 
 		TreeType(String id,
 		         Supplier<GLNaturalBlocks.TreeSet> set,
 		         int trunkBase, int trunkRandA, int trunkRandB,
-		         IntProvider foliageRadius, IntProvider foliageOffset, IntProvider foliageHeight) {
+		         IntProvider foliageRadius, IntProvider foliageOffset, IntProvider foliageHeight,
+		         ResourceKey<ConfiguredFeature<?, ?>> saplingTree,
+		         ResourceKey<ConfiguredFeature<?, ?>> saplingMega,
+		         ResourceKey<ConfiguredFeature<?, ?>> saplingGiant) {
 			this.id = id;
 			this.set = set;
 			this.trunkBase = trunkBase;
@@ -49,6 +60,9 @@ public class TreeFeatures {
 			this.foliageOffset = foliageOffset;
 			this.foliageHeight = foliageHeight;
 			this.cfKey = ResourceKey.create(Registries.CONFIGURED_FEATURE, GensokyoLegacy.loc(id));
+			this.saplingTree = saplingTree;
+			this.saplingMega = saplingMega;
+			this.saplingGiant = saplingGiant;
 		}
 
 		public ConfiguredFeature<?, ?> createConfiguredFeature() {

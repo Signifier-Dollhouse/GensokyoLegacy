@@ -317,7 +317,7 @@ tools/template_export/               导出器、巨橡生成器、预览、布�
 
 遵守 AGENTS.md：不写内联 FQN、每个新包带 `package-info.java`、`runData` 产物随代码一起提交。
 
-**树苗/催熟复用（M5，可选）**：`TemplateFeature` 是普通 ConfiguredFeature，`TreeGrower` 的 mega 槽位（2×2 树苗）可指向 `blue_fir_large`，`MushroomBlock` 的 feature key 可指向对应的中型蘑菇模板。非 worldgen 环境下不设 bounding box 即可。
+**树苗/催熟复用（M5，已实现）**：`TemplateFeature` 是普通 ConfiguredFeature，可直接作为 `TreeGrower` 目标，非 worldgen 环境下不设 bounding box 即可。蓝杉树苗 1 棵长 `blue_fir_medium`、2×2 长 `blue_fir_large`（`TreeGrower` mega 槽位）；原版没有 3×3 槽位，9 棵长 `blue_fir_giant` 由 `BlueFirSaplingBlock` 在 fallback 到 grower 之前自行检查。蘑菇用 `WeightedMushroomBlock` 按 50% / 40% / 10% 长出同种小 / 中 / 大模板（`ghost_fire_small/medium/large` 等 9 个 growth-only configured feature，不带地表；混种的 worldgen 版不能复用，否则会串种）。
 
 ---
 

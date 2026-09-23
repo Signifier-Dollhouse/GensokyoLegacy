@@ -105,6 +105,7 @@ public class GLDecoBlocks {
 						var suffix = kind == TatamiBlock.Kind.SQUARE ? "" : "_" + kind.getSerializedName();
 						return pvd.models().carpet(ctx.getName() + suffix, pvd.modLoc("block/tatami/tatami" + suffix));
 					}))
+					.tag(BlockTags.MINEABLE_WITH_AXE)
 					.simpleItem()
 					.register();
 			TATAMI_BLOCK = reg.block("tatami_block", p -> DelegateBlock.newBaseBlock(p, BlockTemplates.HORIZONTAL, new TatamiBlock()))
@@ -114,6 +115,7 @@ public class GLDecoBlocks {
 						var suffix = kind == TatamiBlock.Kind.SQUARE ? "" : "_" + kind.getSerializedName();
 						return pvd.models().cubeTop(ctx.getName() + suffix, pvd.modLoc("block/tatami/tatami"), pvd.modLoc("block/tatami/tatami" + suffix));
 					}))
+					.tag(BlockTags.MINEABLE_WITH_AXE)
 					.simpleItem()
 					.register();
 

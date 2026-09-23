@@ -74,17 +74,23 @@ public class GLFeatureGen {
 												.build())),
 									BlockPredicate.allOf(BlockPredicate.ONLY_IN_AIR_PREDICATE,
 											BlockPredicate.matchesTag(Direction.DOWN.getNormal(), BlockTags.DIRT)))));
-			FeatureUtils.register(ctx, MAGICAL_FOREST_FLOWERS, Feature.RANDOM_PATCH,
-					FeatureUtils.simpleRandomPatchConfiguration(32,
-							PlacementUtils.filtered(Feature.SIMPLE_BLOCK, new SimpleBlockConfiguration(
-											new WeightedStateProvider(SimpleWeightedRandomList.<BlockState>builder()
-													.add(GLNaturalBlocks.STAR_FLOWER.get().defaultBlockState(), 3)
-													.add(GLNaturalBlocks.EUGUNE_RED.get().defaultBlockState(), 2)
-													.add(GLNaturalBlocks.EUGUNE_BROWN.get().defaultBlockState(), 2)
-													.add(GLNaturalBlocks.EUGUNE_GHOST_FIRE.get().defaultBlockState(), 1)
-													.build())),
-									BlockPredicate.allOf(BlockPredicate.ONLY_IN_AIR_PREDICATE,
-											BlockPredicate.matchesTag(Direction.DOWN.getNormal(), BlockTags.DIRT)))));
+		FeatureUtils.register(ctx, MAGICAL_FOREST_FLOWERS, Feature.RANDOM_PATCH,
+				FeatureUtils.simpleRandomPatchConfiguration(32,
+						PlacementUtils.filtered(Feature.SIMPLE_BLOCK, new SimpleBlockConfiguration(
+										new WeightedStateProvider(SimpleWeightedRandomList.<BlockState>builder()
+												.add(GLNaturalBlocks.STAR_FLOWER.get().defaultBlockState(), 3)
+												.add(GLNaturalBlocks.BROOM_GRASS.get().defaultBlockState(), 3)
+												.add(GLNaturalBlocks.BRACKEN.get().defaultBlockState(), 2)
+												.add(GLNaturalBlocks.EUGUNE_RED.get().defaultBlockState(), 2)
+												.add(GLNaturalBlocks.EUGUNE_BROWN.get().defaultBlockState(), 2)
+												.add(GLNaturalBlocks.EUGUNE_GHOST_FIRE.get().defaultBlockState(), 1)
+												.add(GLNaturalBlocks.FLAME_CATTAIL.get().defaultBlockState(), 1)
+												.add(GLNaturalBlocks.GHOST_FIRE_MUSHROOM_SET.cap.get().defaultBlockState(), 1)
+												.add(GLNaturalBlocks.DREAM_MUSHROOM_SET.cap.get().defaultBlockState(), 1)
+												.add(GLNaturalBlocks.DEMONIC_MIASMA_MUSHROOM_SET.cap.get().defaultBlockState(), 1)
+												.build())),
+								BlockPredicate.allOf(BlockPredicate.ONLY_IN_AIR_PREDICATE,
+										BlockPredicate.matchesTag(Direction.DOWN.getNormal(), BlockTags.DIRT)))));
 			FeatureUtils.register(ctx, MAGICAL_FOREST_MUSHROOMS, Feature.RANDOM_PATCH,
 					FeatureUtils.simpleRandomPatchConfiguration(32,
 							PlacementUtils.filtered(Feature.SIMPLE_BLOCK, new SimpleBlockConfiguration(

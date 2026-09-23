@@ -32,7 +32,6 @@ import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.grower.TreeGrower;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
-import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.level.storage.loot.LootPool;
@@ -193,21 +192,21 @@ public class GLNaturalBlocks {
 				reg, "ghost_fire_mushroom", CYAN_MUSHROOM_STEM, 3, true,
 				BlockBehaviour.Properties.ofFullCopy(Blocks.BROWN_MUSHROOM_BLOCK).mapColor(MapColor.COLOR_CYAN).lightLevel(b -> 5),
 				BlockBehaviour.Properties.ofFullCopy(Blocks.BROWN_MUSHROOM).mapColor(MapColor.COLOR_CYAN).lightLevel(b -> 5),
-				MushroomFeatures.MushroomTreeType.GHOST_FIRE.cfKey
+				MushroomFeatures.MushroomTreeType.GHOST_FIRE
 		);
 
 		DREAM_MUSHROOM_SET = new MushroomSet(
 				reg, "dream_mushroom", PURPLE_MUSHROOM_STEM, 3, false,
 				BlockBehaviour.Properties.ofFullCopy(Blocks.BROWN_MUSHROOM_BLOCK).mapColor(MapColor.COLOR_PURPLE),
 				BlockBehaviour.Properties.ofFullCopy(Blocks.BROWN_MUSHROOM).mapColor(MapColor.COLOR_PURPLE),
-				MushroomFeatures.MushroomTreeType.DREAM.cfKey
+				MushroomFeatures.MushroomTreeType.DREAM
 		);
 
 		DEMONIC_MIASMA_MUSHROOM_SET = new MushroomSet(
 				reg, "demonic_miasma_mushroom", RED_MUSHROOM_STEM, 2, false,
 				BlockBehaviour.Properties.ofFullCopy(Blocks.BROWN_MUSHROOM_BLOCK).mapColor(MapColor.CRIMSON_HYPHAE),
 				BlockBehaviour.Properties.ofFullCopy(Blocks.BROWN_MUSHROOM).mapColor(MapColor.CRIMSON_HYPHAE),
-				MushroomFeatures.MushroomTreeType.DEMONIC_MIASMA.cfKey
+				MushroomFeatures.MushroomTreeType.DEMONIC_MIASMA
 		);
 
 		// 红耳菇
@@ -280,7 +279,7 @@ public class GLNaturalBlocks {
 		public final BlockEntry<BlueFirLogBlock> log;
 		public final BlockEntry<BlueFirWoodBlock> wood;
 		public final BlockEntry<LeavesBlock> leaves;
-		public final BlockEntry<SaplingBlock> sapling;
+		public final BlockEntry<BlueFirSaplingBlock> sapling;
 
 		public TreeSet(L2Registrate reg, String id,
 		               BlockBehaviour.Properties logProp, BlockBehaviour.Properties leafProp,
@@ -308,18 +307,9 @@ public class GLNaturalBlocks {
 									RecipeCategory.BUILDING_BLOCKS, Items.SPRUCE_PLANKS, 4)::unlockedBy, ctx.get().asItem())
 							.requires(ctx.get()).save(pvd, GensokyoLegacy.loc(id + "_wood_to_spruce_planks")))
 					.register();
-			leaves = reg.block(id + "_leaves", LeavesBlock::new)
-					.properties(p -> leafProp)
-					.blockstate((ctx, pvd) -> pvd.simpleBlock(ctx.get(), pvd.models().cubeAll(ctx.getName(),
-							pvd.modLoc("block/wood/" + ctx.getName())).renderType("cutout")))
-					.loot(TreeSet::genLeavesLoot)
-					.tag(BlockTags.MINEABLE_WITH_HOE, BlockTags.LEAVES)
-					.item().tag(ItemTags.LEAVES)
-					.dataMap(NeoForgeDataMaps.COMPOSTABLES, new Compostable(0.3f))
-					.build()
-					.register();
-			sapling = reg.block(id + "_sapling", p -> new SaplingBlock(new TreeGrower(
-							id + "_tree", Optional.empty(), Optional.of(type.cfKey), Optional.empty()), p))
+			var grower = new TreeGrower(id + "_tree",
+					Optional.of(type.saplingMega), Optional.of(type.saplingTree), Optional.empty());
+			sapling = reg.block(id + "_sapling", p -> new BlueFirSaplingBlock(grower, type.saplingGiant, p))
 					.properties(p -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_SAPLING))
 					.blockstate((ctx, pvd) -> pvd.simpleBlock(ctx.get(), pvd.models().cross(ctx.getName(),
 							pvd.modLoc("block/wood/" + ctx.getName())).renderType("cutout")))
@@ -332,9 +322,19 @@ public class GLNaturalBlocks {
 					.dataMap(NeoForgeDataMaps.COMPOSTABLES, new Compostable(0.3f))
 					.build()
 					.register();
+			leaves = reg.block(id + "_leaves", LeavesBlock::new)
+					.properties(p -> leafProp)
+					.blockstate((ctx, pvd) -> pvd.simpleBlock(ctx.get(), pvd.models().cubeAll(ctx.getName(),
+							pvd.modLoc("block/wood/" + ctx.getName())).renderType("cutout")))
+					.loot((tb, block) -> genLeavesLoot(tb, block, sapling.get()))
+					.tag(BlockTags.MINEABLE_WITH_HOE, BlockTags.LEAVES)
+					.item().tag(ItemTags.LEAVES)
+					.dataMap(NeoForgeDataMaps.COMPOSTABLES, new Compostable(0.3f))
+					.build()
+					.register();
 		}
 
-		private static void genLeavesLoot(RegistrateBlockLootTables tb, Block block) {
+		private static void genLeavesLoot(RegistrateBlockLootTables tb, Block block, Block sapling) {
 			var enchantments = tb.getRegistries().lookupOrThrow(Registries.ENCHANTMENT);
 			var silkTouch = MatchTool.toolMatches(ItemPredicate.Builder.item()
 							.withSubPredicate(ItemSubPredicates.ENCHANTMENTS,
@@ -344,6 +344,11 @@ public class GLNaturalBlocks {
 			tb.add(block, LootTable.lootTable()
 					.withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F))
 							.add(LootItem.lootTableItem(block).when(silkTouch)))
+				.withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F)).when(silkTouch.invert())
+						.add(tb.applyExplosionDecay(block, LootItem.lootTableItem(sapling)
+								.when(BonusLevelTableCondition.bonusLevelFlatChance(
+										enchantments.getOrThrow(Enchantments.FORTUNE),
+										2 / 512F, 3 / 512F, 4 / 512F, 5 / 512F)))))
 					.withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F)).when(silkTouch.invert())
 							.add(tb.applyExplosionDecay(block, LootItem.lootTableItem(Items.STICK)
 									.apply(SetItemCountFunction.setCount(UniformGenerator.between(1.0F, 2.0F)))
@@ -380,10 +385,10 @@ public class GLNaturalBlocks {
 		public MushroomSet(L2Registrate reg, String id, BlockEntry<HugeMushroomBlock> stem, int capVariants,
 		                   boolean emissive, BlockBehaviour.Properties blockProp,
 		                   BlockBehaviour.Properties capProp,
-		                   ResourceKey<ConfiguredFeature<?, ?>> feature) {
+		                   MushroomFeatures.MushroomTreeType type) {
 			this.stem = stem;
 
-			cap = reg.block(id, p -> new MushroomBlock(feature, p))
+			cap = reg.block(id, p -> new WeightedMushroomBlock(type.growthSmall, type.growthMedium, type.growthLarge, p))
 					.properties(p -> capProp)
 					.blockstate((ctx, pvd) -> genCapState(ctx, pvd, capVariants, emissive))
 					.item().model((ctx, pvd) -> genFlatItemModel(ctx.getName(), pvd,

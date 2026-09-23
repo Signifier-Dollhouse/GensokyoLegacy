@@ -1,0 +1,19 @@
+{
+  "type": "gensokyolegacy:template",
+  "config": {
+    "footprint_radius": 0,
+    "ground": "#minecraft:dirt",
+    "max_slope": 0,
+    "root_depth": 2,
+    "templates": [
+      {
+        "data": "gensokyolegacy:magical_forest/mushroom/demonic_miasma_small_1",
+        "weight": 1
+      },
+      {
+        "data": "gensokyolegacy:magical_forest/mushroom/demonic_miasma_small_2",
+        "weight": 1
+      }
+    ]
+  }
+}

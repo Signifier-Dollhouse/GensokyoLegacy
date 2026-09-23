@@ -130,6 +130,7 @@ public class GLBlocks {
 			BEDS[e.ordinal()] = GensokyoLegacy.REGISTRATE.block(name + "_bed", p -> new YoukaiBedBlock(p, e.shape))
 					.initialProperties(() -> e.template)
 					.blockstate(e.shape::buildStates)
+					.tag(BlockTags.MINEABLE_WITH_AXE)
 					.item(BedItem::new)
 					.model(e.shape::buildItemModel)
 					.build()

@@ -16,6 +16,18 @@
               },
               {
                 "data": {
+                  "Name": "gensokyolegacy:broom_grass"
+                },
+                "weight": 3
+              },
+              {
+                "data": {
+                  "Name": "gensokyolegacy:bracken"
+                },
+                "weight": 2
+              },
+              {
+                "data": {
                   "Name": "gensokyolegacy:eugune_red",
                   "Properties": {
                     "facing": "north"
@@ -38,6 +50,33 @@
                   "Properties": {
                     "facing": "north"
                   }
+                },
+                "weight": 1
+              },
+              {
+                "data": {
+                  "Name": "gensokyolegacy:flame_cattail",
+                  "Properties": {
+                    "waterlogged": "false"
+                  }
+                },
+                "weight": 1
+              },
+              {
+                "data": {
+                  "Name": "gensokyolegacy:ghost_fire_mushroom"
+                },
+                "weight": 1
+              },
+              {
+                "data": {
+                  "Name": "gensokyolegacy:dream_mushroom"
+                },
+                "weight": 1
+              },
+              {
+                "data": {
+                  "Name": "gensokyolegacy:demonic_miasma_mushroom"
                 },
                 "weight": 1
               }
