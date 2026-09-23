@@ -9,7 +9,9 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
 
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 
 @SerialClass
 public class CharacterAttachment extends PlayerCapabilityTemplate<CharacterAttachment> {
@@ -41,5 +43,17 @@ public class CharacterAttachment extends PlayerCapabilityTemplate<CharacterAttac
 
 	public void replace(EntityType<?> target, CharacterData data) {
 		characterData.put(target, data);
+	}
+
+	public void reset(EntityType<?> target) {
+		characterData.put(target, new CharacterData());
+	}
+
+	public Set<EntityType<?>> allTypes() {
+		return new LinkedHashSet<>(characterData.keySet());
+	}
+
+	public void clearAll() {
+		characterData.clear();
 	}
 }

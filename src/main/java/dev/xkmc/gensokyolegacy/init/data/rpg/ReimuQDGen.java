@@ -13,6 +13,7 @@ import dev.xkmc.gensokyolegacy.content.rpg.dialog.SimpleDialogOption;
 import dev.xkmc.gensokyolegacy.content.rpg.quest.Quest;
 import dev.xkmc.gensokyolegacy.content.rpg.quest.QuestCondition;
 import dev.xkmc.gensokyolegacy.content.rpg.quest.QuestRecurrence;
+import dev.xkmc.gensokyolegacy.content.rpg.requirement.KillEnemyRequirement;
 import dev.xkmc.gensokyolegacy.content.rpg.requirement.KillMobRequirement;
 import dev.xkmc.gensokyolegacy.content.rpg.requirement.QuestRequirement;
 import dev.xkmc.gensokyolegacy.content.rpg.requirement.RaidVictoryRequirement;
@@ -28,11 +29,9 @@ import dev.xkmc.gensokyolegacy.init.registrate.GLEntities;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLBlocks;
 import dev.xkmc.gensokyolegacy.util.DummyHolderGetter;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.tags.ItemTags;
-import net.minecraft.tags.TagKey;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.raid.Raid;
 import net.minecraft.world.item.ItemStack;
@@ -383,8 +382,7 @@ public class ReimuQDGen extends QuestDialogData {
 				"Stay careful out there. I need you in one piece.",
 				"Another night's sleep saved. Thanks.",
 				new TreeMap<>(Map.of(
-						"a-kill", new KillMobRequirement(reqText("kill", "Kill hostile mobs"),
-								TagKey.create(Registries.ENTITY_TYPE, ResourceLocation.withDefaultNamespace("monster")), 12),
+						"a-kill", new KillEnemyRequirement(reqText("kill", "Kill hostile mobs"), 12),
 						"b-loot", rollItem(huntTable))),
 				LootTable.lootTable().withPool(lootItem(Items.EMERALD, 3)));
 

@@ -75,6 +75,7 @@ public class CodecRegistry {
 	public static final CdcVal<OtherReputationCondition> OTHER_REP = CONDITION.reg("other_reputation", OtherReputationCondition.CODEC);
 
 	public static final CdcVal<KillMobRequirement> KILL_MOB_REQ = REQUIREMENT.reg("kill_mob", KillMobRequirement.CODEC);
+	public static final CdcVal<KillEnemyRequirement> KILL_ENEMY_REQ = REQUIREMENT.reg("kill_enemy", KillEnemyRequirement.CODEC);
 	public static final CdcVal<SubmitItemRequirement> SUBMIT_ITEM_REQ = REQUIREMENT.reg("submit_item", SubmitItemRequirement.CODEC);
 	public static final CdcVal<HasItemRequirement> HAS_ITEM_REQ = REQUIREMENT.reg("has_item", HasItemRequirement.CODEC);
 	public static final CdcVal<KoishiHatRequirement> KOISHI_HAT_REQ = REQUIREMENT.reg("koishi_hat", KoishiHatRequirement.CODEC);

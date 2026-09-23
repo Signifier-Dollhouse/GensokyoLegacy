@@ -56,6 +56,7 @@ public class QuestAttachment extends PlayerCapabilityTemplate<QuestAttachment> {
 
 	public <T extends Record & QuestTrigger<T>> void dispatch(ServerPlayer sp, T trigger) {
 		for (var e : data.entrySet()) {
+			if (!e.getValue().started) continue;
 			var opt = sp.level().registryAccess().holder(ResourceKey.create(CodecRegistry.Keys.QUEST, e.getKey()));
 			if (opt.isEmpty()) continue;
 			var quest = opt.get().value();

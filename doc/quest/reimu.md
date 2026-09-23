@@ -26,7 +26,7 @@ Entity: `hakurei_reimu`. Quest unlocks chain: 1.1 → 2.1, then branches — 2.2
 | Id | Unlock | Requirements | Rewards |
 |----|--------|--------------|---------|
 | `daily_food` | 1.1 | roll 2 of (white wool ×6-8 / leather ×4-6 / iron ×6-8 / gold ×3-4 / bread ×6-8 / apple ×4-6) | exp 60, rep +10 (no cap growth), loot: emerald ×1 |
-| `daily_hunt` | 2.1 | kill `#minecraft:monster` ×12 + roll 1 of (rotten flesh ×4-8 / bone ×4-8 / gunpowder ×2-4 / spider eye ×2-4) | exp 80, rep +10 (cap +5/max 120), loot: emerald ×3 |
+| `daily_hunt` | 2.1 | kill any hostile (`Enemy`) ×12 + roll 1 of (rotten flesh ×4-8 / bone ×4-8 / gunpowder ×2-4 / spider eye ×2-4) | exp 80, rep +10 (cap +5/max 120), loot: emerald ×3 |
 | `daily_talisman` | 2.2 | paper ×16, redstone ×8 | exp 60, rep +10 (no cap growth), loot: heal talisman ×2 |
 | `daily_raid` | 3.2 | win a raid (bad omen mark) | exp 200, rep +20 (cap +10/max 150), loot: shelter talisman ×2 |
 

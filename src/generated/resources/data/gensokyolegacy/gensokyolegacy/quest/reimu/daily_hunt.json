@@ -33,11 +33,8 @@
   },
   "requirements": {
     "a-kill": {
-      "type": "gensokyolegacy:kill_mob",
+      "type": "gensokyolegacy:kill_enemy",
       "count": 12,
-      "target": {
-        "type": "#minecraft:monster"
-      },
       "text": "gensokyolegacy/reimu/daily_hunt/requirement/kill"
     },
     "b-loot": {
