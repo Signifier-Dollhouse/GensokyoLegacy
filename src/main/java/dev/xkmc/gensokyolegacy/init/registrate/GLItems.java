@@ -5,6 +5,7 @@ import com.tterrag.registrate.util.entry.ItemEntry;
 import dev.xkmc.danmakuapi.content.item.SpellItem;
 import dev.xkmc.danmakuapi.init.data.DanmakuTagGen;
 import dev.xkmc.danmakuapi.init.registrate.DanmakuItems;
+import dev.xkmc.gensokyolegacy.content.attachment.doll.DollInventory;
 import dev.xkmc.gensokyolegacy.content.block.deco.shelf.MorichikaOfferData;
 import dev.xkmc.gensokyolegacy.content.block.functional.portal.PortalSide;
 import dev.xkmc.gensokyolegacy.content.client.model.*;
@@ -15,12 +16,11 @@ import dev.xkmc.gensokyolegacy.content.item.debug.DebugGlasses;
 import dev.xkmc.gensokyolegacy.content.item.debug.DebugWand;
 import dev.xkmc.gensokyolegacy.content.item.debug.DoorDebugItem;
 import dev.xkmc.gensokyolegacy.content.item.debug.StructureWand;
-import dev.xkmc.gensokyolegacy.content.attachment.doll.DollInventory;
 import dev.xkmc.gensokyolegacy.content.item.doll.DollItem;
-import dev.xkmc.gensokyolegacy.content.item.glove.DollGloveItem;
-import dev.xkmc.gensokyolegacy.content.item.glove.mode.DollGloveMode;
 import dev.xkmc.gensokyolegacy.content.item.doll.DollItemData;
 import dev.xkmc.gensokyolegacy.content.item.gift.*;
+import dev.xkmc.gensokyolegacy.content.item.glove.DollGloveItem;
+import dev.xkmc.gensokyolegacy.content.item.glove.mode.DollGloveMode;
 import dev.xkmc.gensokyolegacy.content.item.hexbrew.StarDanmakuItem;
 import dev.xkmc.gensokyolegacy.content.item.ingredient.FairyIceItem;
 import dev.xkmc.gensokyolegacy.content.item.ingredient.FrozenFrogItem;
@@ -45,7 +45,10 @@ import net.minecraft.tags.ItemTags;
 import net.minecraft.util.Unit;
 import net.minecraft.world.entity.animal.FrogVariant;
 import net.minecraft.world.food.FoodProperties;
-import net.minecraft.world.item.*;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Rarity;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
 import net.neoforged.neoforge.registries.datamaps.builtin.FurnaceFuel;
 import net.neoforged.neoforge.registries.datamaps.builtin.NeoForgeDataMaps;
@@ -114,6 +117,129 @@ public class GLItems {
 
 	static {
 		var reg = GensokyoLegacy.REGISTRATE;
+
+		// hidden
+		{
+			// gifts
+			{
+				TENGU_SAKE = reg.item("tengu_sake", TenguSakeItem::new)
+						.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
+						.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(5, 1000, GiftType.DRINK))
+						.lang("Tengu Sake").register();
+
+				// TODO placeholder favor / cooldown
+				GHOST_SAKE = reg.item("ghost_sake", DrinkGiftItem::new)
+						.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
+						.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(5, 1000, GiftType.DRINK))
+						.lang("Ghost Sake").register();
+
+				FAIRY_CAKE = reg.item("fairy_cake", p -> new Item(p.stacksTo(1)
+								.food(new FoodProperties.Builder().nutrition(4).saturationModifier(0.3f).build())))
+						.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
+						.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(3, 1000, GiftType.FOOD))
+
+						.lang("Fairy Cake").register();
+
+				MAGIC_BOOK = reg.item("magic_book", MagicBookItem::new)
+						.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
+						.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(6, 1000, GiftType.BOOK))
+						.dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(40000))
+
+						.lang("Obscure Magic Book").register();
+			}
+
+
+			STAR = reg.item("star_danmaku", p -> new StarDanmakuItem(p.rarity(Rarity.RARE)))
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/hexbrew/star")))
+					.tag(DanmakuItems.Bullet.STAR.tag)
+					.register();
+
+			// spell cards
+			{
+				REIMU_SPELL = reg
+						.item("spell_reimu", p -> new SpellItem(
+								p.stacksTo(1), ReimuItemSpell::new, true,
+								() -> DanmakuItems.Bullet.CIRCLE.get(DyeColor.RED).get()))
+						.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/spell/" + ctx.getName())))
+						.lang("Reimu's Spellcard \"Innate Dream\"")
+						.tag(DanmakuTagGen.PRESET_SPELL)
+						.register();
+
+				MARISA_SPELL = reg
+						.item("spell_marisa", p -> new SpellItem(
+								p.stacksTo(1), MarisaItemSpell::new, false,
+								() -> DanmakuItems.Laser.LASER.get(DyeColor.WHITE).get()))
+						.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/spell/" + ctx.getName())))
+						.lang("Marisa's Spellcard \"Master Spark\"")
+						.tag(DanmakuTagGen.PRESET_SPELL)
+						.register();
+
+				SANAE_SPELL = reg
+						.item("spell_sanae", p -> new SpellItem(
+								p.stacksTo(1), SanaeItemSpell::new, false,
+								() -> DanmakuItems.Bullet.SPARK.get(DyeColor.GREEN).get()))
+						.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/spell/" + ctx.getName())))
+						.lang("Sanae's Spellcard \"Inherited Ritual\"")
+						.tag(DanmakuTagGen.PRESET_SPELL)
+						.register();
+
+				YUKARI_SPELL_BUTTERFLY = reg
+						.item("spell_yukari_butterfly", p -> new SpellItem(
+								p.stacksTo(1), YukariItemSpellButterfly::new, false,
+								() -> DanmakuItems.Bullet.BUTTERFLY.get(DyeColor.MAGENTA).get()))
+						.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/spell/spell_yukari")))
+						.lang("Barrier \"Double Black Death Butterfly\"")
+						.tag(DanmakuTagGen.PRESET_SPELL)
+						.register();
+
+				YUKARI_SPELL_LASER = reg
+						.item("spell_yukari_laser", p -> new SpellItem(
+								p.stacksTo(1), YukariItemSpellLaser::new, false,
+								() -> DanmakuItems.Laser.LASER.get(DyeColor.RED).get()))
+						.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/spell/spell_yukari")))
+						.lang("Barrier \"Mesh of Light & Darkness\"")
+						.tag(DanmakuTagGen.PRESET_SPELL)
+						.register();
+
+				MYSTIA_SPELL = reg
+						.item("spell_mystia", p -> new SpellItem(
+								p.stacksTo(1), MystiaItemSpell::new, false,
+								() -> DanmakuItems.Bullet.MENTOS.get(DyeColor.GREEN).get()))
+						.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/spell/" + ctx.getName())))
+						.lang("Night Sparrow \"Midnight Chorus Master\"")
+						.tag(DanmakuTagGen.PRESET_SPELL)
+						.register();
+			}
+
+			// gears
+			{
+
+
+				RUMIA_HAIRBAND = reg
+						.item("rumia_hairband", p -> new RumiaHairbandItem(p.rarity(Rarity.EPIC)))
+						.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/curio/" + ctx.getName())))
+						.clientExtension(() -> () -> new RumiaHairbandModel(RumiaModel.HAIRBAND))
+						.tag(ItemTags.HEAD_ARMOR, GLTagGen.TOUHOU_HAT)
+						.register();
+
+				CIRNO_HAIRBAND = reg
+						.item("cirno_hairband", p -> new CirnoHairbandItem(p.rarity(Rarity.EPIC)))
+						.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/curio/" + ctx.getName())))
+						.clientExtension(() -> () -> new CirnoHairbandModel(CirnoModel.HAT))
+						.tag(ItemTags.HEAD_ARMOR, GLTagGen.TOUHOU_HAT)
+						.register();
+
+				var back = ItemTags.create(ResourceLocation.fromNamespaceAndPath("curios", "back"));
+
+				CIRNO_WINGS = reg
+						.item("cirno_wings", p -> new CirnoWingsItem(p.rarity(Rarity.EPIC)))
+						.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/curio/" + ctx.getName())))
+						.tag(back, GLTagGen.TOUHOU_WINGS)
+						.register();
+
+			}
+
+		}
 
 		TAB = reg.buildModCreativeTab("ingredients", "Gensokyo Legacy - Ingredients",
 				e -> e.icon(GLItems.FAIRY_ICE_CRYSTAL::asStack));
@@ -239,34 +365,6 @@ public class GLItems {
 					.register();
 		}
 
-		// gifts
-		{
-			TENGU_SAKE = reg.item("tengu_sake", TenguSakeItem::new)
-					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
-					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(5, 1000, GiftType.DRINK)).tab(TAB.key())
-					.lang("Tengu Sake").register();
-
-			// TODO placeholder favor / cooldown
-			GHOST_SAKE = reg.item("ghost_sake", DrinkGiftItem::new)
-					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
-					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(5, 1000, GiftType.DRINK)).tab(TAB.key())
-					.lang("Ghost Sake").register();
-
-			FAIRY_CAKE = reg.item("fairy_cake", p -> new Item(p.stacksTo(1)
-							.food(new FoodProperties.Builder().nutrition(4).saturationModifier(0.3f).build())))
-					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
-					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(3, 1000, GiftType.FOOD))
-					.tab(TAB.key())
-					.lang("Fairy Cake").register();
-
-			MAGIC_BOOK = reg.item("magic_book", MagicBookItem::new)
-					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
-					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(6, 1000, GiftType.BOOK))
-					.dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(40000))
-					.tab(TAB.key())
-					.lang("Obscure Magic Book").register();
-		}
-
 		GLTalismans.register();
 
 		GLFluids.register();
@@ -291,99 +389,6 @@ public class GLItems {
 			DOOR_DEBUG_WAND = reg.item("door_debug_wand", p -> new DoorDebugItem(p.stacksTo(1)))
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/debug/" + ctx.getName())))
 					.defaultLang().register();
-
-		}
-
-
-		reg.defaultCreativeTab(CreativeModeTabs.OP_BLOCKS);
-
-		STAR = reg.item("star_danmaku", p -> new StarDanmakuItem(p.rarity(Rarity.RARE)))
-				.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/hexbrew/star")))
-				.tag(DanmakuItems.Bullet.STAR.tag)
-				.register();
-
-		// spell cards
-		{
-			REIMU_SPELL = reg
-					.item("spell_reimu", p -> new SpellItem(
-							p.stacksTo(1), ReimuItemSpell::new, true,
-							() -> DanmakuItems.Bullet.CIRCLE.get(DyeColor.RED).get()))
-					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/spell/" + ctx.getName())))
-					.lang("Reimu's Spellcard \"Innate Dream\"")
-					.tag(DanmakuTagGen.PRESET_SPELL)
-					.register();
-
-			MARISA_SPELL = reg
-					.item("spell_marisa", p -> new SpellItem(
-							p.stacksTo(1), MarisaItemSpell::new, false,
-							() -> DanmakuItems.Laser.LASER.get(DyeColor.WHITE).get()))
-					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/spell/" + ctx.getName())))
-					.lang("Marisa's Spellcard \"Master Spark\"")
-					.tag(DanmakuTagGen.PRESET_SPELL)
-					.register();
-
-			SANAE_SPELL = reg
-					.item("spell_sanae", p -> new SpellItem(
-							p.stacksTo(1), SanaeItemSpell::new, false,
-							() -> DanmakuItems.Bullet.SPARK.get(DyeColor.GREEN).get()))
-					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/spell/" + ctx.getName())))
-					.lang("Sanae's Spellcard \"Inherited Ritual\"")
-					.tag(DanmakuTagGen.PRESET_SPELL)
-					.register();
-
-			YUKARI_SPELL_BUTTERFLY = reg
-					.item("spell_yukari_butterfly", p -> new SpellItem(
-							p.stacksTo(1), YukariItemSpellButterfly::new, false,
-							() -> DanmakuItems.Bullet.BUTTERFLY.get(DyeColor.MAGENTA).get()))
-					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/spell/spell_yukari")))
-					.lang("Barrier \"Double Black Death Butterfly\"")
-					.tag(DanmakuTagGen.PRESET_SPELL)
-					.register();
-
-			YUKARI_SPELL_LASER = reg
-					.item("spell_yukari_laser", p -> new SpellItem(
-							p.stacksTo(1), YukariItemSpellLaser::new, false,
-							() -> DanmakuItems.Laser.LASER.get(DyeColor.RED).get()))
-					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/spell/spell_yukari")))
-					.lang("Barrier \"Mesh of Light & Darkness\"")
-					.tag(DanmakuTagGen.PRESET_SPELL)
-					.register();
-
-			MYSTIA_SPELL = reg
-					.item("spell_mystia", p -> new SpellItem(
-							p.stacksTo(1), MystiaItemSpell::new, false,
-							() -> DanmakuItems.Bullet.MENTOS.get(DyeColor.GREEN).get()))
-					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/spell/" + ctx.getName())))
-					.lang("Night Sparrow \"Midnight Chorus Master\"")
-					.tag(DanmakuTagGen.PRESET_SPELL)
-					.register();
-		}
-
-		// gears
-		{
-
-
-			RUMIA_HAIRBAND = reg
-					.item("rumia_hairband", p -> new RumiaHairbandItem(p.rarity(Rarity.EPIC)))
-					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/curio/" + ctx.getName())))
-					.clientExtension(() -> () -> new RumiaHairbandModel(RumiaModel.HAIRBAND))
-					.tag(ItemTags.HEAD_ARMOR, GLTagGen.TOUHOU_HAT)
-					.register();
-
-			CIRNO_HAIRBAND = reg
-					.item("cirno_hairband", p -> new CirnoHairbandItem(p.rarity(Rarity.EPIC)))
-					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/curio/" + ctx.getName())))
-					.clientExtension(() -> () -> new CirnoHairbandModel(CirnoModel.HAT))
-					.tag(ItemTags.HEAD_ARMOR, GLTagGen.TOUHOU_HAT)
-					.register();
-
-			var back = ItemTags.create(ResourceLocation.fromNamespaceAndPath("curios", "back"));
-
-			CIRNO_WINGS = reg
-					.item("cirno_wings", p -> new CirnoWingsItem(p.rarity(Rarity.EPIC)))
-					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/curio/" + ctx.getName())))
-					.tag(back, GLTagGen.TOUHOU_WINGS)
-					.register();
 
 		}
 

@@ -8,6 +8,7 @@ import dev.xkmc.gensokyolegacy.content.block.functional.alchemypot.recipe.WitchM
 import dev.xkmc.gensokyolegacy.content.block.functional.alchemypot.stage.PotionStageBuilder;
 import dev.xkmc.gensokyolegacy.content.item.hexbrew.HexBrew;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
+import dev.xkmc.gensokyolegacy.init.registrate.block.GLBlocks;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLDecoBlocks;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLFurniture;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLNaturalBlocks;
@@ -19,7 +20,6 @@ import net.minecraft.data.recipes.ShapelessRecipeBuilder;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.material.Fluids;
 
@@ -28,39 +28,49 @@ import java.util.function.BiFunction;
 public class GLRecipeGen {
 
 	public static void genRecipe(RegistrateRecipeProvider pvd) {
-
 		furniture(pvd);
+		hexbrew(pvd);
 
-		unlock(pvd, new UnorderedAlchemyRecipeBuilder()
-				.fluid(Fluids.WATER)
-				.add(GLNaturalBlocks.GHOST_FIRE_MUSHROOM_SET.cap.get())
-				.add(GLNaturalBlocks.DREAM_MUSHROOM_SET.cap.get())
-				.time(200)
-				.resultFluid(HexBrew.MUNDANE_HEXBREW.getSource(), 1000)
-				::unlockedBy, GLNaturalBlocks.GHOST_FIRE_MUSHROOM_SET.cap.get().asItem())
-				.save(pvd, GensokyoLegacy.loc("mundane_hexbrew"));
+		unlock(pvd, ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, GLBlocks.ALCHEMY_POT.get(), 6)::unlockedBy, Items.IRON_INGOT)
+				.pattern("I I").pattern("IFI").pattern("III")
+				.define('I', Items.IRON_INGOT).define('F', GLNaturalBlocks.STAR_FLOWER).save(pvd);
+	}
 
-		unlock(pvd, new UnorderedAlchemyRecipeBuilder()
-				.fluid(HexBrew.MUNDANE_HEXBREW.getSource())
-				.add(Items.BLAZE_POWDER)
-				.add(Items.GUNPOWDER)
-				.time(200)
-				.resultFluid(HexBrew.EXPLOSIVE_HEXBREW.getSource(), 1000)
-				::unlockedBy, Items.BLAZE_POWDER)
-				.save(pvd, GensokyoLegacy.loc("explosive_hexbrew"));
+	public static void hexbrew(RegistrateRecipeProvider pvd) {
 
-		unlock(pvd, new UnorderedAlchemyRecipeBuilder()
-				.fluid(Fluids.WATER)
-				.add(GLNaturalBlocks.DEMONIC_MIASMA_MUSHROOM_SET.cap.get())
-				.add(Items.SPIDER_EYE)
-				.add(Items.ROTTEN_FLESH)
-				.add(Items.ROTTEN_FLESH)
-				.add(Items.ROTTEN_FLESH)
-				.add(Items.ROTTEN_FLESH)
-				.time(400)
-				.resultFluid(HexBrew.MIASMA_HEXBREW.getSource(), 1000)
-				::unlockedBy, GLNaturalBlocks.DEMONIC_MIASMA_MUSHROOM_SET.cap.get().asItem())
-				.save(pvd, GensokyoLegacy.loc("miasma_hexbrew"));
+		// hexbrew
+		{
+			unlock(pvd, new UnorderedAlchemyRecipeBuilder()
+					.fluid(Fluids.WATER)
+					.add(GLNaturalBlocks.GHOST_FIRE_MUSHROOM_SET.cap.get())
+					.add(GLNaturalBlocks.DREAM_MUSHROOM_SET.cap.get())
+					.time(200)
+					.resultFluid(HexBrew.MUNDANE_HEXBREW.getSource(), 1000)
+					::unlockedBy, GLNaturalBlocks.GHOST_FIRE_MUSHROOM_SET.cap.get().asItem())
+					.save(pvd, GensokyoLegacy.loc("mundane_hexbrew"));
+
+			unlock(pvd, new UnorderedAlchemyRecipeBuilder()
+					.fluid(HexBrew.MUNDANE_HEXBREW.getSource())
+					.add(Items.BLAZE_POWDER)
+					.add(Items.GUNPOWDER)
+					.time(200)
+					.resultFluid(HexBrew.EXPLOSIVE_HEXBREW.getSource(), 1000)
+					::unlockedBy, Items.BLAZE_POWDER)
+					.save(pvd, GensokyoLegacy.loc("explosive_hexbrew"));
+
+			unlock(pvd, new UnorderedAlchemyRecipeBuilder()
+					.fluid(Fluids.WATER)
+					.add(GLNaturalBlocks.DEMONIC_MIASMA_MUSHROOM_SET.cap.get())
+					.add(Items.SPIDER_EYE)
+					.add(Items.ROTTEN_FLESH)
+					.add(Items.ROTTEN_FLESH)
+					.add(Items.ROTTEN_FLESH)
+					.add(Items.ROTTEN_FLESH)
+					.time(400)
+					.resultFluid(HexBrew.MIASMA_HEXBREW.getSource(), 1000)
+					::unlockedBy, GLNaturalBlocks.DEMONIC_MIASMA_MUSHROOM_SET.cap.get().asItem())
+					.save(pvd, GensokyoLegacy.loc("miasma_hexbrew"));
+		}
 
 		// potion
 		{
@@ -177,7 +187,7 @@ public class GLRecipeGen {
 
 		// scarlet devil mansion chair: oak stool draped with red wool
 		unlock(pvd, ShapelessRecipeBuilder.shapeless(
-						RecipeCategory.DECORATIONS, GLDecoBlocks.SCARLET_CHAIR.get())::unlockedBy, Items.RED_WOOL)
+				RecipeCategory.DECORATIONS, GLDecoBlocks.SCARLET_CHAIR.get())::unlockedBy, Items.RED_WOOL)
 				.requires(GLDecoBlocks.WoodType.OAK.stool.get()).requires(Items.RED_WOOL).save(pvd);
 
 		// cushion: wool stuffed with string (3 wool at 100 + string = 300 fuel into 6 = 50 each)
