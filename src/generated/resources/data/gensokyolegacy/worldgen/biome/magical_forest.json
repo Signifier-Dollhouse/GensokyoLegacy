@@ -17,7 +17,9 @@
   },
   "features": [
     [],
-    [],
+    [
+      "gensokyolegacy:magical_forest/lake"
+    ],
     [],
     [],
     [],

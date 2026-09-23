@@ -34,6 +34,7 @@ public class GLBiomes {
 				.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, GLFeatureGen.MAGICAL_FOREST_DISK_PODZOL_PLACED)
 				.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, GLFeatureGen.MAGICAL_FOREST_DISK_MYCELIUM_PLACED)
 				.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, GLFeatureGen.MAGICAL_FOREST_DISK_MOSS_PLACED);
+		MagicalForestFeatures.addLake(magicalForest);
 		MagicalForestFeatures.addVegetation(magicalForest);
 		ctx.register(MAGICAL_FOREST, biome(new MobSpawnSettings.Builder(), magicalForest));
 		ctx.register(SAKURA_FOREST, biome(true, 0.5f, 0.8f, 0xc0d8ff, 11983713, 11983713,

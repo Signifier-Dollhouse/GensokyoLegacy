@@ -1,0 +1,28 @@
+{
+  "feature": "gensokyolegacy:magical_forest/lake",
+  "placement": [
+    {
+      "type": "minecraft:rarity_filter",
+      "chance": 6
+    },
+    {
+      "type": "minecraft:in_square"
+    },
+    {
+      "type": "gensokyolegacy:avoid_structures",
+      "margin": 11,
+      "structures": [
+        "gensokyolegacy:marisa_house",
+        "gensokyolegacy:morichika_shop",
+        "gensokyolegacy:hakurei_shrine"
+      ]
+    },
+    {
+      "type": "minecraft:heightmap",
+      "heightmap": "MOTION_BLOCKING_NO_LEAVES"
+    },
+    {
+      "type": "minecraft:biome"
+    }
+  ]
+}

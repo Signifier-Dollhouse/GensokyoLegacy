@@ -65,13 +65,13 @@ public class GLFeatureGen {
 			for (var type : TreeType.values()) {
 				ctx.register(type.cfKey, type.createConfiguredFeature());
 			}
-			FeatureUtils.register(ctx, MAGICAL_FOREST_GRASS, Feature.RANDOM_PATCH,
-					FeatureUtils.simpleRandomPatchConfiguration(32,
-							PlacementUtils.filtered(Feature.SIMPLE_BLOCK, new SimpleBlockConfiguration(
-											new WeightedStateProvider(SimpleWeightedRandomList.<BlockState>builder()
-													.add(GLNaturalBlocks.BROOM_GRASS.get().defaultBlockState(), 1)
-													.add(GLNaturalBlocks.BRACKEN.get().defaultBlockState(), 1)
-													.build())),
+		FeatureUtils.register(ctx, MAGICAL_FOREST_GRASS, Feature.RANDOM_PATCH,
+				FeatureUtils.simpleRandomPatchConfiguration(24,
+						PlacementUtils.filtered(Feature.SIMPLE_BLOCK, new SimpleBlockConfiguration(
+										new WeightedStateProvider(SimpleWeightedRandomList.<BlockState>builder()
+												.add(GLNaturalBlocks.BROOM_GRASS.get().defaultBlockState(), 1)
+												.add(GLNaturalBlocks.BRACKEN.get().defaultBlockState(), 2)
+												.build())),
 									BlockPredicate.allOf(BlockPredicate.ONLY_IN_AIR_PREDICATE,
 											BlockPredicate.matchesTag(Direction.DOWN.getNormal(), BlockTags.DIRT)))));
 			FeatureUtils.register(ctx, MAGICAL_FOREST_FLOWERS, Feature.RANDOM_PATCH,

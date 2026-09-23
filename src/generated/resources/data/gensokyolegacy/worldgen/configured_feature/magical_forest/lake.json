@@ -1,0 +1,80 @@
+{
+  "type": "gensokyolegacy:lake",
+  "config": {
+    "barrier": {
+      "Name": "minecraft:clay"
+    },
+    "component_radius": 8,
+    "decorations": [
+      {
+        "block": {
+          "Name": "minecraft:lily_pad"
+        },
+        "chance": 0.06,
+        "target": "floating"
+      },
+      {
+        "block": {
+          "Name": "gensokyolegacy:flame_cattail",
+          "Properties": {
+            "waterlogged": "true"
+          }
+        },
+        "chance": 0.12,
+        "target": "shallow"
+      },
+      {
+        "block": {
+          "Name": "minecraft:small_dripleaf",
+          "Properties": {
+            "facing": "north",
+            "half": "lower",
+            "waterlogged": "true"
+          }
+        },
+        "chance": 0.12,
+        "soil": "#minecraft:small_dripleaf_placeable",
+        "target": "shallow",
+        "upper": {
+          "Name": "minecraft:small_dripleaf",
+          "Properties": {
+            "facing": "north",
+            "half": "upper",
+            "waterlogged": "false"
+          }
+        }
+      },
+      {
+        "block": {
+          "Name": "gensokyolegacy:flame_cattail",
+          "Properties": {
+            "waterlogged": "false"
+          }
+        },
+        "chance": 0.08,
+        "target": "shore"
+      }
+    ],
+    "depth": 4,
+    "fluid": {
+      "Name": "minecraft:water",
+      "Properties": {
+        "level": "0"
+      }
+    },
+    "margin": 3,
+    "max_component": 5,
+    "max_height": 8,
+    "max_width": 24,
+    "min_component": 3,
+    "padding": {
+      "Name": "minecraft:dirt"
+    },
+    "surface": {
+      "Name": "minecraft:grass_block",
+      "Properties": {
+        "snowy": "false"
+      }
+    }
+  }
+}

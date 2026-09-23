@@ -1,6 +1,8 @@
 package dev.xkmc.gensokyolegacy.init.data.biome;
 
 import dev.xkmc.gensokyolegacy.content.block.nature.CedarFallenLeavesBlock;
+import dev.xkmc.gensokyolegacy.content.block.nature.WaterloggedBushBlock;
+import dev.xkmc.gensokyolegacy.content.worldgen.feature.lake.MagicalForestLakeFeature;
 import dev.xkmc.gensokyolegacy.content.worldgen.feature.template.TemplateFeatureConfig;
 import dev.xkmc.gensokyolegacy.content.worldgen.placement.AvoidStructuresFilter;
 import dev.xkmc.gensokyolegacy.content.worldgen.placement.CanopyFilter;
@@ -29,7 +31,10 @@ import net.minecraft.util.random.SimpleWeightedRandomList;
 import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.level.biome.BiomeGenerationSettings;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.SmallDripleafBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.blockpredicates.BlockPredicate;
@@ -60,6 +65,7 @@ import java.util.List;
  * Vegetation of the magical forest, built from hand-made templates (see
  * doc/design/magical_forest_vegetation.md). Four canopy layers placed top-down, then ground cover:
  * giant trees, large trees, medium trees and huge mushrooms, bushes and small mushrooms.
+ * Ponds ({@code magical_forest/lake}) run ahead of all that in the LAKES step.
  * <p>
  * Giant and large trees sit on seed-pure jittered grids, lower layers keep their distance from
  * those grids. A low frequency noise splits the biome into forest types and a mid frequency
@@ -97,6 +103,7 @@ public class MagicalForestFeatures {
 
 	// blocks kept free around the listed buildings, by canopy size
 	private static final int GIANT_CLEARANCE = 13, LARGE_CLEARANCE = 11, MEDIUM_CLEARANCE = 6, SMALL_CLEARANCE = 4, GROUND_CLEARANCE = 2;
+	private static final int LAKE_CLEARANCE = 11;
 	private static final List<String> STRUCTURES = List.of("marisa_house", "morichika_shop", "hakurei_shrine");
 
 	/**
@@ -128,8 +135,10 @@ public class MagicalForestFeatures {
 	private static final ResourceKey<ConfiguredFeature<?, ?>> MUSHROOM_SMALL_CLUSTER = cf("mushroom_small_cluster");
 	private static final ResourceKey<ConfiguredFeature<?, ?>> FALLEN_LEAVES = cf("fallen_leaves");
 	private static final ResourceKey<ConfiguredFeature<?, ?>> MOSS_CARPET = cf("moss_carpet");
+	private static final ResourceKey<ConfiguredFeature<?, ?>> LAKE = cf("lake");
 
 	// placed features
+	private static final ResourceKey<PlacedFeature> LAKE_PF = pf("lake");
 	private static final ResourceKey<PlacedFeature> GIANT_MIXED_PF = pf("giant_tree_mixed");
 	private static final ResourceKey<PlacedFeature> GIANT_FIR_PF = pf("giant_tree_old_growth");
 	private static final ResourceKey<PlacedFeature> GIANT_GLADE_PF = pf("giant_tree_glade");
@@ -168,6 +177,14 @@ public class MagicalForestFeatures {
 		for (var key : ORDER) {
 			builder.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, key);
 		}
+	}
+
+	/**
+	 * Ponds carved in the LAKES step, before vegetation: {@code TemplateFeature} rejects wet
+	 * ground, so giant and large trees keep off the water on their own and never intersect a lake.
+	 */
+	public static void addLake(BiomeGenerationSettings.Builder builder) {
+		builder.addFeature(GenerationStep.Decoration.LAKES, LAKE_PF);
 	}
 
 	public static void noise(BootstrapContext<NormalNoise.NoiseParameters> ctx) {
@@ -240,6 +257,31 @@ public class MagicalForestFeatures {
 		), PlacementUtils.inlinePlaced(cf.getOrThrow(MUSHROOM_MEDIUM_TEMPLATE))));
 		FeatureUtils.register(ctx, MUSHROOM_SMALL_CLUSTER, Feature.RANDOM_PATCH, new RandomPatchConfiguration(
 				5, 4, 2, PlacementUtils.inlinePlaced(cf.getOrThrow(MUSHROOM_SMALL))));
+		// pond 6-9 blocks in radius: 24 wide footprint, 3-5 blobs of component radius 8
+		BlockState cattailWet = GLNaturalBlocks.FLAME_CATTAIL.get().defaultBlockState()
+				.setValue(WaterloggedBushBlock.WATERLOGGED, true);
+		BlockState cattailDry = GLNaturalBlocks.FLAME_CATTAIL.get().defaultBlockState()
+				.setValue(WaterloggedBushBlock.WATERLOGGED, false);
+		BlockState dripLower = Blocks.SMALL_DRIPLEAF.defaultBlockState()
+				.setValue(SmallDripleafBlock.HALF, DoubleBlockHalf.LOWER)
+				.setValue(BlockStateProperties.WATERLOGGED, true)
+				.setValue(SmallDripleafBlock.FACING, Direction.NORTH);
+		BlockState dripUpper = Blocks.SMALL_DRIPLEAF.defaultBlockState()
+				.setValue(SmallDripleafBlock.HALF, DoubleBlockHalf.UPPER)
+				.setValue(BlockStateProperties.WATERLOGGED, false)
+				.setValue(SmallDripleafBlock.FACING, Direction.NORTH);
+		FeatureUtils.register(ctx, LAKE, GLWorldGen.LAKE.get(), new MagicalForestLakeFeature.Data(
+				Blocks.WATER.defaultBlockState(), Blocks.CLAY.defaultBlockState(),
+				Blocks.DIRT.defaultBlockState(), Blocks.GRASS_BLOCK.defaultBlockState(),
+				4, 24, 8, 3, 5, 8, 3, List.of(
+				new MagicalForestLakeFeature.Deco(MagicalForestLakeFeature.Target.FLOATING,
+						Blocks.LILY_PAD.defaultBlockState(), Blocks.AIR.defaultBlockState(), 0.06f, BlockTags.DIRT),
+				new MagicalForestLakeFeature.Deco(MagicalForestLakeFeature.Target.SHALLOW,
+						cattailWet, Blocks.AIR.defaultBlockState(), 0.12f, BlockTags.DIRT),
+				new MagicalForestLakeFeature.Deco(MagicalForestLakeFeature.Target.SHALLOW,
+						dripLower, dripUpper, 0.12f, BlockTags.SMALL_DRIPLEAF_PLACEABLE),
+				new MagicalForestLakeFeature.Deco(MagicalForestLakeFeature.Target.SHORE,
+						cattailDry, Blocks.AIR.defaultBlockState(), 0.08f, BlockTags.DIRT))));
 	}
 
 	public static void placed(BootstrapContext<PlacedFeature> ctx) {
@@ -250,6 +292,11 @@ public class MagicalForestFeatures {
 		var noGlade = NoiseBandFilter.atLeast(FOREST_TYPE, GLADE);
 		var mixed = new NoiseBandFilter(FOREST_TYPE, GLADE, OLD_GROWTH);
 		var oldGrowth = NoiseBandFilter.atLeast(FOREST_TYPE, OLD_GROWTH);
+
+		// ponds run in the LAKES step, ahead of the trees below
+		PlacementUtils.register(ctx, LAKE_PF, cf.getOrThrow(LAKE),
+				RarityFilter.onAverageOnceEvery(6), InSquarePlacement.spread(),
+				avoid(structures, LAKE_CLEARANCE), FLOOR, BiomeFilter.biome());
 
 		// L1 giant trees: one grid, density and species by forest type
 		tree(ctx, GIANT_MIXED_PF, cf.getOrThrow(GIANT_MIXED), new JitteredGridPlacement(GIANT),
@@ -290,11 +337,11 @@ public class MagicalForestFeatures {
 		// L5 ground cover: FLOOR looks through the canopies that now cover most of the biome
 		cover(ctx, FALLEN_LEAVES_PF, cf.getOrThrow(FALLEN_LEAVES), CountPlacement.of(2), new CanopyFilter(4, true));
 		cover(ctx, MOSS_CARPET_PF, cf.getOrThrow(MOSS_CARPET), CountPlacement.of(1), new CanopyFilter(4, true));
-		// placement tries per chunk (patch count x 32): short grass ~240, fern ~180, broom grass 32, bracken 32
+		// placement tries per chunk (patch count x 32): short grass ~310, fern ~230; custom patch 2 x 24: broom grass 16, bracken 32
 		cover(ctx, GRASS_PF, cf.getOrThrow(GLFeatureGen.MAGICAL_FOREST_GRASS), CountPlacement.of(2));
 		cover(ctx, LARGE_FERN_PF, cf.getOrThrow(VegetationFeatures.PATCH_LARGE_FERN), RarityFilter.onAverageOnceEvery(5));
-		cover(ctx, GRASS_FOREST_PF, cf.getOrThrow(VegetationFeatures.PATCH_GRASS), CountPlacement.of(6));
-		cover(ctx, GRASS_TAIGA_PF, cf.getOrThrow(VegetationFeatures.PATCH_TAIGA_GRASS), CountPlacement.of(7));
+		cover(ctx, GRASS_FOREST_PF, cf.getOrThrow(VegetationFeatures.PATCH_GRASS), CountPlacement.of(8));
+		cover(ctx, GRASS_TAIGA_PF, cf.getOrThrow(VegetationFeatures.PATCH_TAIGA_GRASS), CountPlacement.of(9));
 		cover(ctx, FLOWERS_PF, cf.getOrThrow(GLFeatureGen.MAGICAL_FOREST_FLOWERS), CountPlacement.of(3));
 		cover(ctx, MUSHROOMS_PF, cf.getOrThrow(GLFeatureGen.MAGICAL_FOREST_MUSHROOMS), CountPlacement.of(2));
 	}

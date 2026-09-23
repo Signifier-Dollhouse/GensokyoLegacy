@@ -18,7 +18,7 @@
                 "data": {
                   "Name": "gensokyolegacy:bracken"
                 },
-                "weight": 1
+                "weight": 2
               }
             ]
           }
@@ -48,7 +48,7 @@
         }
       ]
     },
-    "tries": 32,
+    "tries": 24,
     "xz_spread": 7,
     "y_spread": 3
   }
