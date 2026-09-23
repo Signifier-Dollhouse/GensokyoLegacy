@@ -50,13 +50,13 @@ public record StructFlatBuilding(
 	}
 
 	@Override
-	public void registerStructure(BootstrapContext<Structure> ctx, ResourceLocation id, HolderSet.Named<Biome> biome, int salt) {
+	public void registerStructure(BootstrapContext<Structure> ctx, ResourceLocation id, HolderSet.Named<Biome> biome, SetContext set) {
 		var pool = ctx.lookup(Registries.TEMPLATE_POOL)
 				.getOrThrow(ResourceKey.create(Registries.TEMPLATE_POOL, id));
 		ctx.register(ResourceKey.create(Registries.STRUCTURE, id), new FlatCheckStructure(
 				new Structure.StructureSettings(biome, spawns(), GenerationStep.Decoration.SURFACE_STRUCTURES, TerrainAdjustment.BEARD_THIN),
 				pool, 1, false, maxDistanceFromCenter(), heightTolerance(),
-				attempts(), spacing(), RandomSpreadType.LINEAR, salt, safetyRadius()
+				attempts(), spacing(), RandomSpreadType.LINEAR, set.salt(), safetyRadius(), set.setIndex(), set.setCount()
 		));
 	}
 

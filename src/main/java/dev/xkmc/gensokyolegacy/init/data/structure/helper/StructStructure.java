@@ -13,9 +13,10 @@ public record StructStructure(
 		List<StructBed> beds,
 		StructBuilding building,
 		// Structures sharing one set id are placed by a single StructureSet:
-		// at most one member generates per placement region, so members of a
-		// group can never spawn too close to each other. All members of a
-		// group must use the same spacing/attempts, and share the set salt.
+		// every region randomly picks exactly one member (FlatCheckStructure
+		// setIndex/setCount gate), so members of a group can never spawn too
+		// close to each other. All members of a group must use the same
+		// spacing/attempts and equal weights, and share the set salt.
 		ResourceLocation set) {
 
 	public StructStructure(

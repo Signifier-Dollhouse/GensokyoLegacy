@@ -79,6 +79,14 @@ import java.util.Set;
  * jigsaw layouts. Every placed structure passes the prefilter at its own
  * candidate chunk, so no two structures can land within
  * {@code safetyRadius} chunks of each other.
+ *
+ * <p>Shared sets: structures grouped in one {@code StructureSet} (same
+ * spacing, salt and attempts, hence identical candidate lists) each carry
+ * {@code setIndex}/{@code setCount} synced by datagen. Every region
+ * deterministically picks exactly one member
+ * ({@link #pickForRegion}), and only the picked member may generate there,
+ * so two members of one set can never share a region no matter how their
+ * per-template terrain checks diverge.
  */
 public class FlatCheckStructure extends Structure {
 
@@ -93,7 +101,9 @@ public class FlatCheckStructure extends Structure {
 			Codec.intRange(1, 4096).fieldOf("spacing").forGetter((e) -> e.spacing),
 			RandomSpreadType.CODEC.optionalFieldOf("spread_type", RandomSpreadType.LINEAR).forGetter((e) -> e.spreadType),
 			ExtraCodecs.NON_NEGATIVE_INT.fieldOf("salt").forGetter((e) -> e.salt),
-			Codec.intRange(0, 16).optionalFieldOf("safety_radius", 8).forGetter((e) -> e.safetyRadius)
+			Codec.intRange(0, 16).optionalFieldOf("safety_radius", 8).forGetter((e) -> e.safetyRadius),
+			Codec.intRange(0, 128).optionalFieldOf("set_index", 0).forGetter((e) -> e.setIndex),
+			Codec.intRange(1, 128).optionalFieldOf("set_count", 1).forGetter((e) -> e.setCount)
 	).apply(i, FlatCheckStructure::new)).validate(FlatCheckStructure::verifyRange);
 
 	public final Holder<StructureTemplatePool> startPool;
@@ -106,6 +116,8 @@ public class FlatCheckStructure extends Structure {
 	private final RandomSpreadType spreadType;
 	private final int salt;
 	private final int safetyRadius;
+	private final int setIndex;
+	private final int setCount;
 
 	private static DataResult<FlatCheckStructure> verifyRange(FlatCheckStructure s) {
 		byte b0;
@@ -124,11 +136,15 @@ public class FlatCheckStructure extends Structure {
 		}
 
 		int i = b0;
-		return s.maxDistanceFromCenter + i > 128 ? DataResult.error(() -> "Structure size including terrain adaptation must not exceed 128") : DataResult.success(s);
+		if (s.maxDistanceFromCenter + i > 128)
+			return DataResult.error(() -> "Structure size including terrain adaptation must not exceed 128");
+		if (s.setIndex < 0 || s.setIndex >= s.setCount)
+			return DataResult.error(() -> "set_index " + s.setIndex + " out of range for set_count " + s.setCount);
+		return DataResult.success(s);
 	}
 
 	public FlatCheckStructure(StructureSettings settings, Holder<StructureTemplatePool> startPool, int maxDepth, boolean useExpansionHack, int maxDistanceFromCenter, int flatTolerance,
-							  int attempts, int spacing, RandomSpreadType spreadType, int salt, int safetyRadius) {
+							  int attempts, int spacing, RandomSpreadType spreadType, int salt, int safetyRadius, int setIndex, int setCount) {
 		super(settings);
 		this.startPool = startPool;
 		this.maxDepth = maxDepth;
@@ -140,6 +156,32 @@ public class FlatCheckStructure extends Structure {
 		this.spreadType = spreadType;
 		this.salt = salt;
 		this.safetyRadius = safetyRadius;
+		this.setIndex = setIndex;
+		this.setCount = setCount;
+	}
+
+	/**
+	 * Index of the set member picked for the region {@code (rx, rz)}.
+	 * One fresh random per region, salted independently of the candidate
+	 * stream so the pick never shifts candidate positions. Pure function
+	 * of seed and region: every member of the set computes the same pick.
+	 */
+	public static int pickForRegion(long seed, int rx, int rz, int salt, int count) {
+		if (count <= 1) {
+			return 0;
+		}
+		WorldgenRandom random = new WorldgenRandom(new LegacyRandomSource(0L));
+		random.setLargeFeatureWithSalt(seed, rx, rz, salt ^ 0x9E3779B9);
+		return random.nextInt(count);
+	}
+
+	private boolean checkRegionPicked(long seed, ChunkPos chunkpos) {
+		if (this.setCount <= 1) {
+			return true;
+		}
+		int rx = Math.floorDiv(chunkpos.x, this.spacing);
+		int rz = Math.floorDiv(chunkpos.z, this.spacing);
+		return pickForRegion(seed, rx, rz, this.salt, this.setCount) == this.setIndex;
 	}
 
 	@Override
@@ -148,6 +190,9 @@ public class FlatCheckStructure extends Structure {
 		List<ChunkPos> cands = MultiSpreadPlacement.candidates(ctx.seed(), me.x, me.z, this.spacing, this.spreadType, this.salt, this.attempts);
 		int idx = cands.indexOf(me);
 		if (idx < 0) {
+			return Optional.empty();
+		}
+		if (!this.checkRegionPicked(ctx.seed(), me)) {
 			return Optional.empty();
 		}
 		for (int j = 0; j < idx; j++) {
@@ -426,6 +471,16 @@ public class FlatCheckStructure extends Structure {
 			if (this.prefilter(ctx, c).pass()) prePassed++;
 		}
 		lines.add("  prefilter: %d/%d passed".formatted(prePassed, cands.size()));
+		int pick = pickForRegion(seed, regionX, regionZ, this.salt, this.setCount);
+		lines.add("  region pick: #%d (mine #%d of %d)".formatted(pick, this.setIndex, this.setCount));
+		if (pick != this.setIndex) {
+			for (int i = 0; i < cands.size(); i++) {
+				ChunkPos me = cands.get(i);
+				lines.add("  #%d (%d, %d): suppressed-by-pick-#%d".formatted(i, me.x, me.z, pick));
+			}
+			lines.add("  funnel tried=0 prefilter=0 margin=0 biome=0 root=0 detailed=0 pass=0");
+			return new RegionReport(lines, RegionStats.zero());
+		}
 		int tried = 0, pre = 0, mar = 0, bio = 0, roo = 0, det = 0, pas = 0;
 		int firstPass = -1;
 		for (int i = 0; i < cands.size(); i++) {

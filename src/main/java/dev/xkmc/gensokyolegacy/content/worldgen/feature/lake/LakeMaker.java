@@ -109,7 +109,6 @@ public class LakeMaker {
 	}
 
 	public boolean test(WorldGenLevel level, BlockPos origin, MagicalForestLakeFeature.Data data) {
-		BlockState fluid = data.fluid();
 		var pos = new BlockPos.MutableBlockPos();
 		for (int dx = 0; dx < maxHor; dx++) {
 			for (int dz = 0; dz < maxHor; dz++) {
@@ -121,7 +120,8 @@ public class LakeMaker {
 					if (block.is(BlockTags.LOGS) || block.is(BlockTags.LEAVES)) return false;
 					if (isEdge(dx, dy, dz)) {
 						if (dy >= data.depth() && block.liquid()) return false;
-						if (dy < data.depth() && !block.isSolid() && block != fluid) return false;
+						// rim below the waterline must be solid ground: no ponds on ocean or over cavities
+						if (dy < data.depth() && !block.isSolid()) return false;
 					}
 				}
 			}

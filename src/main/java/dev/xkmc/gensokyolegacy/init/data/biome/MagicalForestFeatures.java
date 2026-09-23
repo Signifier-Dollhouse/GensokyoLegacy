@@ -55,6 +55,7 @@ import net.minecraft.world.level.levelgen.placement.InSquarePlacement;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import net.minecraft.world.level.levelgen.placement.PlacementModifier;
 import net.minecraft.world.level.levelgen.placement.RarityFilter;
+import net.minecraft.world.level.levelgen.placement.SurfaceWaterDepthFilter;
 import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.synth.NormalNoise;
 
@@ -308,9 +309,9 @@ public class MagicalForestFeatures {
 				Blocks.DIRT.defaultBlockState(), Blocks.GRASS_BLOCK.defaultBlockState(),
 				4, 24, 8, 3, 5, 8, 3, List.of(
 				new MagicalForestLakeFeature.Deco(MagicalForestLakeFeature.Target.FLOATING,
-						Blocks.LILY_PAD.defaultBlockState(), Blocks.AIR.defaultBlockState(), 0.06f, BlockTags.DIRT),
+						Blocks.LILY_PAD.defaultBlockState(), Blocks.AIR.defaultBlockState(), 0.15f, BlockTags.DIRT),
 				new MagicalForestLakeFeature.Deco(MagicalForestLakeFeature.Target.SHALLOW,
-						cattailWet, Blocks.AIR.defaultBlockState(), 0.12f, BlockTags.DIRT),
+						cattailWet, Blocks.AIR.defaultBlockState(), 0.25f, BlockTags.DIRT),
 				new MagicalForestLakeFeature.Deco(MagicalForestLakeFeature.Target.SHALLOW,
 						dripLower, dripUpper, 0.12f, BlockTags.SMALL_DRIPLEAF_PLACEABLE),
 				new MagicalForestLakeFeature.Deco(MagicalForestLakeFeature.Target.SHORE,
@@ -326,10 +327,10 @@ public class MagicalForestFeatures {
 		var mixed = new NoiseBandFilter(FOREST_TYPE, GLADE, OLD_GROWTH);
 		var oldGrowth = NoiseBandFilter.atLeast(FOREST_TYPE, OLD_GROWTH);
 
-		// ponds run in the LAKES step, ahead of the trees below
+		// ponds run in the LAKES step, ahead of the trees below; on dry ground only, never on ocean
 		PlacementUtils.register(ctx, LAKE_PF, cf.getOrThrow(LAKE),
 				RarityFilter.onAverageOnceEvery(6), InSquarePlacement.spread(),
-				avoid(structures, LAKE_CLEARANCE), FLOOR, BiomeFilter.biome());
+				avoid(structures, LAKE_CLEARANCE), FLOOR, SurfaceWaterDepthFilter.forMaxDepth(0), BiomeFilter.biome());
 
 		// L1 giant trees: one grid, density and species by forest type
 		tree(ctx, GIANT_MIXED_PF, cf.getOrThrow(GIANT_MIXED), new JitteredGridPlacement(GIANT),

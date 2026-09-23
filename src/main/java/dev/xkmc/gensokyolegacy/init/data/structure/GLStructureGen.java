@@ -5,6 +5,7 @@ import com.tterrag.registrate.providers.RegistrateDataMapProvider;
 import dev.xkmc.gensokyolegacy.content.attachment.datamap.BedData;
 import dev.xkmc.gensokyolegacy.content.attachment.datamap.CharacterConfig;
 import dev.xkmc.gensokyolegacy.init.data.structure.helper.StructBed;
+import dev.xkmc.gensokyolegacy.init.data.structure.helper.SetContext;
 import dev.xkmc.gensokyolegacy.init.data.structure.helper.StructFlatBuilding;
 import dev.xkmc.gensokyolegacy.init.data.structure.helper.StructFlatJigsawBuilding;
 import dev.xkmc.gensokyolegacy.init.data.structure.helper.StructStructure;
@@ -30,8 +31,9 @@ import java.util.function.Supplier;
 public class GLStructureGen {
 
 	// Marisa's house and Kourindou share one structure set in the magical
-	// forest: a single placement grid picks at most one of them per region,
-	// so the two houses can never spawn too close to each other.
+	// forest: every region randomly picks exactly one of them (via the
+	// FlatCheckStructure setIndex/setCount gate), so the two houses can
+	// never spawn too close to each other.
 	private static final ResourceLocation FOREST_HOUSES = GensokyoLegacy.loc("magical_forest_houses");
 
 	private static List<StructStructure> initStructures() {
@@ -124,17 +126,14 @@ public class GLStructureGen {
 			}
 		});
 		init.add(Registries.STRUCTURE, ctx -> {
+			var groups = groups();
 			for (var e : STRUCTURES.get()) {
 				var biome = ctx.lookup(Registries.BIOME).getOrThrow(e.biomes());
-				e.building().registerStructure(ctx, e.id(), biome, e.salt());
+				e.building().registerStructure(ctx, e.id(), biome, SetContext.of(e, groups.get(e.set())));
 			}
 		});
 		init.add(Registries.STRUCTURE_SET, ctx -> {
-			var groups = new LinkedHashMap<ResourceLocation, List<StructStructure>>();
-			for (var e : STRUCTURES.get()) {
-				groups.computeIfAbsent(e.set(), k -> new ArrayList<>()).add(e);
-			}
-			for (var entry : groups.entrySet()) {
+			for (var entry : groups().entrySet()) {
 				var members = entry.getValue();
 				var first = members.getFirst();
 				for (var e : members) {
@@ -151,6 +150,14 @@ public class GLStructureGen {
 						entries, new MultiSpreadPlacement(first.spacing(), RandomSpreadType.LINEAR, first.salt(), first.attempts())));
 			}
 		});
+	}
+
+	private static LinkedHashMap<ResourceLocation, List<StructStructure>> groups() {
+		var groups = new LinkedHashMap<ResourceLocation, List<StructStructure>>();
+		for (var e : STRUCTURES.get()) {
+			groups.computeIfAbsent(e.set(), k -> new ArrayList<>()).add(e);
+		}
+		return groups;
 	}
 
 }

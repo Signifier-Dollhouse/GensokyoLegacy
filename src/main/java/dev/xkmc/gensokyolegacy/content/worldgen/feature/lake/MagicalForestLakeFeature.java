@@ -28,8 +28,9 @@ import java.util.List;
  * planted with lily pads, small dripleafs and flame cattails.
  * <p>
  * Placed in the LAKES step before vegetation: {@code TemplateFeature} rejects wet ground, so
- * giant and large trees keep off the water on their own. The {@link LakeMaker#test} log and
- * leaf check additionally rejects ponds that would cut canopies reaching in from neighbours.
+ * giant and large trees keep off the water on their own. The {@link LakeMaker#test} log, leaf
+ * and solid-rim checks additionally reject ponds that would cut canopies reaching in from
+ * neighbours or sit on ocean instead of ground.
  */
 public class MagicalForestLakeFeature extends Feature<MagicalForestLakeFeature.Data> {
 
@@ -138,6 +139,8 @@ public class MagicalForestLakeFeature extends Feature<MagicalForestLakeFeature.D
 		var pos = new BlockPos.MutableBlockPos();
 		for (Direction dir : Direction.Plane.HORIZONTAL) {
 			pos.setWithOffset(ground, dir);
+			// shore ground usually sits level with the water surface, sometimes one above it
+			if (level.getBlockState(pos).is(Blocks.WATER)) return true;
 			pos.move(0, 1, 0);
 			if (level.getBlockState(pos).is(Blocks.WATER)) return true;
 		}

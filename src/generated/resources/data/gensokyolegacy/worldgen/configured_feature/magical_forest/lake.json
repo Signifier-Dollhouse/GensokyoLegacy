@@ -10,7 +10,7 @@
         "block": {
           "Name": "minecraft:lily_pad"
         },
-        "chance": 0.06,
+        "chance": 0.15,
         "target": "floating"
       },
       {
@@ -20,7 +20,7 @@
             "waterlogged": "true"
           }
         },
-        "chance": 0.12,
+        "chance": 0.25,
         "target": "shallow"
       },
       {

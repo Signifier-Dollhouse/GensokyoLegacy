@@ -14,6 +14,6 @@ public interface StructBuilding {
 
 	void registerProcessors(BootstrapContext<StructureProcessorList> ctx, ResourceLocation id);
 
-	void registerStructure(BootstrapContext<Structure> ctx, ResourceLocation id, HolderSet.Named<Biome> biome, int salt);
+	void registerStructure(BootstrapContext<Structure> ctx, ResourceLocation id, HolderSet.Named<Biome> biome, SetContext set);
 
 }
