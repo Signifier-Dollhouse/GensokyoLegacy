@@ -15,11 +15,9 @@ import java.util.Locale;
 
 public enum DollGloveMode {
 	SUMMON(new SummonMode()),
-	HEAL_MARK(new HealMarkMode()),
 	VOLLEY(new VolleyMode()),
 	SUPER(new SuperMode()),
-	SUICIDE(new SuicideMode()),
-	STOP(new StopMode());
+	SUICIDE(new SuicideMode());
 
 	private final DollGloveHandler handler;
 
@@ -32,9 +30,9 @@ public enum DollGloveMode {
 	}
 
 	/**
-	 * Dedicated wheel texture + sub-model id suffix for this mode
-	 * ({@code item/tool/glove_<name>}, glove.md §3b): the enum names already
-	 * match the provided texture files.
+	 * Sub-model id suffix for this mode's textures ({@code item/tool/glove_<name>}
+	 * held textures and {@code item/tool/glove_icon_<name>} icon variants,
+	 * glove.md §3b): the enum names already match the provided texture files.
 	 */
 	public String iconName() {
 		return name().toLowerCase(Locale.ROOT);
@@ -79,16 +77,14 @@ public enum DollGloveMode {
 
 	/**
 	 * Glow color for the cached ray-trace target while this mode is held
-	 * (vanilla formatting palette): aqua for summon, green for heal-mark, red
-	 * for the three attack modes, gray for stop. Hovered dolls always glow
-	 * gold regardless of mode (see {@code GloveDollHover}).
+	 * (vanilla formatting palette): aqua for rally, red for the three attack
+	 * modes. Hovered dolls always glow gold regardless of mode (see
+	 * {@code GloveDollHover}).
 	 */
 	public int glowColor() {
 		return switch (this) {
 			case SUMMON -> 0x55FFFF;
-			case HEAL_MARK -> 0x55FF55;
 			case VOLLEY, SUPER, SUICIDE -> 0xFF5555;
-			case STOP -> 0xAAAAAA;
 		};
 	}
 

@@ -39,33 +39,31 @@ public class DollGloveItem extends Item {
 	}
 
 	/**
-	 * Whether the stack shows the dedicated wheel textures (glove.md §3b):
-	 * true only on client-built display stacks carrying the display
-	 * component — real item stacks never have it set.
-	 */
-	public static boolean useDisplayIcons(ItemStack stack) {
-		return stack.has(GLItems.DOLL_GLOVE_DISPLAY.get());
-	}
-
-	/**
-	 * Model-override value for {@code gensokyolegacy:glove_display}: 0 keeps
-	 * the base glove model, otherwise the mode ordinal + 1 selects the
-	 * matching override (emitted ascending, so values match exactly).
+	 * Model-override value for {@code gensokyolegacy:glove_display}: the held
+	 * mode's ordinal + 1 selects the matching held-texture override; an icon
+	 * display stack (selector sidebar / wheel, marked with
+	 * {@code DOLL_GLOVE_ICON}) instead uses the icon-variant range behind it.
+	 * Values are emitted ascending, so they match exactly.
 	 */
 	public static float displayPredicate(ItemStack stack, Level level, LivingEntity entity, int seed) {
-		return useDisplayIcons(stack) ? getMode(stack).ordinal() + 1 : 0;
+		int ordinal = getMode(stack).ordinal();
+		return stack.has(GLItems.DOLL_GLOVE_ICON.get()) ?
+				DollGloveMode.values().length + 1 + ordinal : ordinal + 1;
 	}
 
 	/**
-	 * Display stack for wheel entries (client-side only): a fresh glove with
-	 * the entry's mode and the display component set, so the model override
-	 * renders that mode's texture. The component is only ever set here —
-	 * never on real item stacks.
+	 * Display stack for the held glove's per-mode texture (client-side only):
+	 * a fresh glove with the given mode.
 	 */
 	public static ItemStack displayStack(DollGloveMode mode) {
 		ItemStack stack = new ItemStack(GLItems.DOLL_GLOVE.get());
 		stack.set(GLItems.DOLL_GLOVE_MODE.get(), mode.ordinal());
-		stack.set(GLItems.DOLL_GLOVE_DISPLAY.get(), Unit.INSTANCE);
+		return stack;
+	}
+
+	public static ItemStack iconStack(DollGloveMode mode) {
+		ItemStack stack = displayStack(mode);
+		stack.set(GLItems.DOLL_GLOVE_ICON.get(), Unit.INSTANCE);
 		return stack;
 	}
 
@@ -98,7 +96,7 @@ public class DollGloveItem extends Item {
 	 * the mode action, which first tries the same open through a fresh
 	 * 16-block server trace ({@code DollGloveHandler.tryOpenEditor}). Both
 	 * paths bypass the glove target cache (glove.md §2b) — the cache only
-	 * carries 48-block attack/heal targets.
+	 * carries 48-block attack targets.
 	 */
 	@Override
 	public InteractionResult interactLivingEntity(ItemStack stack, Player player, LivingEntity target, InteractionHand hand) {

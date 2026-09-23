@@ -27,13 +27,13 @@ import java.util.List;
 /**
  * Doll roster (glove.md §2c): while holding the glove in any mode with no
  * screen open, the right side lists every summoned doll in ledger order as
- * its doll item icon. In task modes (volley, super, suicide, heal-mark) the
+ * its doll item icon. In task modes (attack, skill, suicide) the
  * icon carries a status frame — hidden for invalid (no valid weapon for this
  * task) or untracked dolls, white idle, yellow preparing, red attacking, green
  * done, light blue auto, purple when the doll is busy with a task foreign to
  * the held mode — and the stack it would use for that task renders in the slot
  * to its left.
- * Summon / stop show no frames. In every mode, the doll under the crosshair
+ * Rally shows no frames. In every mode, the doll under the crosshair
  * is framed orange instead.
  *
  * <p>Entity-only reads: the roster (entity ids) arrives via
@@ -153,13 +153,13 @@ public class DollAttackStatusOverlay extends SelectionSideBar<DollAttackStatusOv
 	/**
 	 * Frame color for a row: the doll under the crosshair draws orange in
 	 * every mode; otherwise task modes use status colors with purple for a
-	 * task foreign to the held mode, and summon/stop draw none.
+	 * task foreign to the held mode, and rally draws none.
 	 */
 	private static int frameFor(DollGloveMode mode, @Nullable DollActionType type,
 								DollEntity doll, DollActionStatus status) {
 		if (isHovered(doll)) return ORANGE_FRAME;
 		return switch (mode) {
-			case SUMMON, STOP -> NO_FRAME;
+			case SUMMON -> NO_FRAME;
 			default -> {
 				boolean executing = status == DollActionStatus.PREPARING ||
 						status == DollActionStatus.ATTACKING || status == DollActionStatus.AUTO;
@@ -213,7 +213,7 @@ public class DollAttackStatusOverlay extends SelectionSideBar<DollAttackStatusOv
 
 	/**
 	 * The {@link DollActionType} a glove mode commands, or null for task-less
-	 * modes (summon, stop) that just manage the roster.
+	 * modes (rally) that just manage the roster.
 	 */
 	@Nullable
 	private static DollActionType typeForGlove(DollGloveMode mode) {
@@ -221,7 +221,6 @@ public class DollAttackStatusOverlay extends SelectionSideBar<DollAttackStatusOv
 			case VOLLEY -> DollActionType.REGULAR_ATTACK;
 			case SUPER -> DollActionType.SUPER_ATTACK;
 			case SUICIDE -> DollActionType.SUICIDE_ATTACK;
-			case HEAL_MARK -> DollActionType.HEAL;
 			default -> null;
 		};
 	}

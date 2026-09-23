@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "gensokyolegacy:item/tool/glove_stop"
+    "layer0": "gensokyolegacy:item/tool/glove_icon_volley"
   }
 }
