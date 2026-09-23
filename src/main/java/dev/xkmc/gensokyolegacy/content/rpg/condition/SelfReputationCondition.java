@@ -9,12 +9,18 @@ import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
 import net.minecraft.server.level.ServerPlayer;
 
 public record SelfReputationCondition(
-		int reputation
+		int reputation,
+		boolean invert
 ) implements QuestCondition<SelfReputationCondition> {
 
 	public static final MapCodec<SelfReputationCondition> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-			Codec.INT.fieldOf("reputation").forGetter(SelfReputationCondition::reputation)
+			Codec.INT.fieldOf("reputation").forGetter(SelfReputationCondition::reputation),
+			Codec.BOOL.optionalFieldOf("invert", false).forGetter(SelfReputationCondition::invert)
 	).apply(i, SelfReputationCondition::new));
+
+	public SelfReputationCondition(int reputation) {
+		this(reputation, false);
+	}
 
 	@Override
 	public MapCodec<SelfReputationCondition> codec() {
@@ -23,7 +29,8 @@ public record SelfReputationCondition(
 
 	@Override
 	public boolean test(ServerPlayer pl, YoukaiEntity ch) {
-		return GLMeta.CHAR.type().getOrCreate(pl).get(pl, ch).data().reputation >= reputation;
+		boolean pass = GLMeta.CHAR.type().getOrCreate(pl).get(pl, ch).data().reputation >= reputation;
+		return invert != pass;
 	}
 
 }

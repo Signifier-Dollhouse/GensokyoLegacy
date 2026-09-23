@@ -54,6 +54,7 @@ import java.util.function.Consumer;
 public class QuestDialogData {
 
 	public static final int CHAT_DEFAULT = 1;
+	public static final int CHAT_MISC = 30;
 	public static final int CHAT_INFO = 100;
 	public static final int CHAT_SPECIAL = 1000;
 

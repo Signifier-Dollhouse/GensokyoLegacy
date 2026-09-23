@@ -1,0 +1,12 @@
+{
+  "character": "gensokyolegacy:hakurei_reimu",
+  "conditions": [
+    {
+      "type": "gensokyolegacy:self_reputation",
+      "reputation": 100
+    }
+  ],
+  "dialog": "gensokyolegacy:reimu/chat_guests/talk",
+  "text": "gensokyolegacy/reimu/chat_guests/starter/start",
+  "weight": 30
+}

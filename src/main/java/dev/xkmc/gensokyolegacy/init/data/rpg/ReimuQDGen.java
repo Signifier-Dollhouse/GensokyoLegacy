@@ -6,6 +6,7 @@ import dev.xkmc.gensokyolegacy.content.rpg.action.DialogAction;
 import dev.xkmc.gensokyolegacy.content.rpg.action.GiveMobEffectAction;
 import dev.xkmc.gensokyolegacy.content.rpg.action.StartQuestAction;
 import dev.xkmc.gensokyolegacy.content.rpg.condition.HasQuestCompletedCondition;
+import dev.xkmc.gensokyolegacy.content.rpg.condition.SelfReputationCondition;
 import dev.xkmc.gensokyolegacy.content.rpg.core.IngredientEntry;
 import dev.xkmc.gensokyolegacy.content.rpg.dialog.DialogStarter;
 import dev.xkmc.gensokyolegacy.content.rpg.dialog.SimpleDialogOption;
@@ -85,15 +86,6 @@ public class ReimuQDGen extends QuestDialogData {
 		dailyHandoverKey = text("option", "daily_handover", "Here you go!");
 		dailyGotemKey = text("dialog", "daily_gotem", "Oh, you got 'em? Let me see!");
 
-		prefix("reimu/chat");
-		defaultDialog(GLEntities.REIMU.get(),
-				"Hi! What brings you to the shrine?",
-				"I'd like to trade with you!");
-		starter("reimu/chat", new DialogStarter(GLEntities.REIMU.get(), List.of(),
-				starterText("start", "Hi!"),
-				dialog("hi", "Hi!", option("bye", "Bye!"))
-		));
-
 		chats();
 		fortune();
 		quests();
@@ -102,6 +94,59 @@ public class ReimuQDGen extends QuestDialogData {
 	}
 
 	private void chats() {
+		prefix("reimu/chat");
+		defaultDialog(GLEntities.REIMU.get(),
+				"Hi! What brings you to the shrine?",
+				"I'd like to trade with you!");
+
+		prefix("reimu/chat_shrine");
+		chat("reimu/chat_shrine", GLEntities.REIMU.get(),
+				List.of(new SelfReputationCondition(50, true)),
+				starterText("start", "Where is this place?"),
+				dialog("talk", "Oh, a visitor. This is the Hakurei Shrine — though if you came to worship, you'll have to wait a while. I still haven't figured out what's going on around here.",
+						option("bye", "Got it, bye!")),
+				CHAT_DEFAULT);
+
+		prefix("reimu/chat_shrine_close");
+		chat("reimu/chat_shrine_close", GLEntities.REIMU.get(),
+				List.of(new SelfReputationCondition(50)),
+				starterText("start", "Tell me more about the shrine."),
+				dialog("talk", "This shrine sits in the middle of nowhere, but back in Gensokyo its fusui was one of a kind. After all, this place is the border between Gensokyo and the outside world — at least, that's what Yukari says... But being this remote has a downside: hardly anyone comes to worship, and lately not even the youkai show up... What am I supposed to do? Moving isn't an option.",
+						option("bye", "I'll keep visiting.")),
+				CHAT_MISC);
+
+		prefix("reimu/chat_duty");
+		chat("reimu/chat_duty", GLEntities.REIMU.get(),
+				List.of(new SelfReputationCondition(100)),
+				starterText("start", "What are your duties, exactly?"),
+				dialog("talk", "Back in Gensokyo, my job was simple, really — keeping Gensokyo in order. Put bluntly: wherever trouble broke out, I'd rush over and beat up whoever started it... Sounds exhausting, right? And it's year-round with no pay.",
+						option("bye", "I see.")),
+				CHAT_MISC);
+
+		prefix("reimu/chat_guests");
+		chat("reimu/chat_guests", GLEntities.REIMU.get(),
+				List.of(new SelfReputationCondition(100)),
+				starterText("start", "Who usually visits the shrine?"),
+				dialog("talk", "Visitors? Back then it was mostly youkai — I barely saw any humans. A place meant for human worship, yet every day a crowd of youkai gathered to mooch food and drink. Over time the youkai grew more numerous and the humans fewer... Whatever. Donations barely amounted to anything anyway. Whoever comes, at least it's lively.",
+						option("bye", "I see.")),
+				CHAT_MISC);
+
+		prefix("reimu/chat_power");
+		chat("reimu/chat_power", GLEntities.REIMU.get(),
+				List.of(new SelfReputationCondition(100)),
+				starterText("start", "What are your abilities?"),
+				dialog("talk", "My abilities? Why ask all of a sudden... It's the ability to fly through the sky, of course... Besides that, my intuition is scary accurate. How exactly it works, I couldn't tell you myself.",
+						option("bye", "I see.")),
+				CHAT_MISC);
+
+		prefix("reimu/chat_money");
+		chat("reimu/chat_money", GLEntities.REIMU.get(),
+				List.of(new SelfReputationCondition(100)),
+				starterText("start", "Do you care a lot about money?"),
+				dialog("talk", "Isn't that obvious? Running a shrine nobody visits, I can't even cover basic living expenses. Of course I need money...",
+						option("bye", "I see.")),
+				CHAT_MISC);
+
 		prefix("reimu/chat_frog");
 		chat("reimu/chat_frog", GLEntities.REIMU.get(),
 				List.of(hasItem(item(GLItems.STRAW_HAT.get(), 1)), hasQuest(QUEST_OMINOUS_BANNER)),
@@ -162,17 +207,17 @@ public class ReimuQDGen extends QuestDialogData {
 						"b-stew", new SubmitItemRequirement(List.of(item(Items.MUSHROOM_STEW, 3)))
 				)),
 				List.of(new ExpReward(50), new ReputationReward(10, 300, 10, 300)),
-				start("Talk about food.",
-						"I'm still figuring out what's safe to eat here. Bring me some bread and mushroom stew so I can learn the local food.",
-						"I'll bring you a meal.", "Great. Bread and mushroom stew. Nothing fancy, just enough to keep this shrine maiden fed.",
-						"Maybe next time.", "Foraging in an unfamiliar world wasn't in the shrine maiden handbook. But I suppose I'll manage."),
-				follow("Ask about the food.",
-						"How's the food hunt going?",
-						"Still looking.", "I keep watching the villagers eat and feeling left out."),
+				start("Is the food here to your liking?",
+						"Let's not talk about whether I like it — I don't even know what's edible around here. The shrine's stockpiled rations are almost gone. Could you bring me some edible food? If you help out, I can share a little with you — er, as a reward.",
+						"Let me prepare some food.", "Thanks for the generous aid. I hope you can get it ready before I faint from hunger.",
+						"Maybe next time.", "Ah — is that so. Never mind, the shrine's rations should last me a while. I'll figure out what's edible around here myself."),
+				follow("Ask about food preferences.",
+						"Marisa always shares mushroom dishes at feasts, and they're pretty tasty. Got any mushrooms? How about mushroom stew and bread?",
+						"Still preparing.", "The rations should last a while longer... though they taste awful. I'll be waiting to hear from you."),
 				complete("Hand over the food.",
-						"Welcome back. Please tell me you brought food, not another donation.",
-						"Not yet.", "No rush. I'll just keep dreaming about mushroom stew.",
-						"Here you go.", "Ahh, real food. Thanks. You're the first person I can count on here.")
+						"Oh, you're back. So, how did it go?",
+						"Not yet.", "Mm... alright.",
+						"Here, I brought it.", "Not bad, that was quick. Here, your reward. Don't complain it's small — you know how things are at the shrine these days. There used to be youkai visiting; now there's not even a shadow of one...")
 		));
 
 		prefix("reimu/hostile_loot");
@@ -187,17 +232,17 @@ public class ReimuQDGen extends QuestDialogData {
 						"d-bone", new SubmitItemRequirement(List.of(item(Items.BONE, 8)))
 				)),
 				List.of(new ExpReward(100), new ReputationReward(20, 300, 10, 300)),
-				start("Offer to hunt for samples.",
-						"The walking dead and clattering skeletons keep ambushing me. They're not exactly youkai, but I want to study them. Bring me some flesh and bones.",
-						"I'll hunt zombies and skeletons.", "Good. Ten of each, plus rotten flesh and bones. Bring me enough samples to study.",
-						"Maybe next time.", "It is dangerous. But you've survived here longer than I have. You'll manage when you're ready."),
-				follow("Ask about the hunt.",
-						"How's the hunt going?",
-						"Still hunting.", "Got those samples yet? Flesh and bones should tell me plenty."),
+				start("Ask if the shrine needs help.",
+						"Now that you mention it, something's been bothering me lately. It's no incident, but it's annoying — what are those green-skinned things and walking bones? They don't look like youkai, and I can't exterminate them. Drive some off for me and I can share a little... reward with you. So, in or out? You look pretty free anyway.",
+						"Sure.", "Alright, I'm counting on you. Don't mess it up — if you do, I'm not cleaning up after you... Just kidding. Good luck.",
+						"Maybe next time.", "Ah — really? Fine, forget it. It's not like I was counting on you — I'm just too lazy to move myself."),
+				follow("Ask about the hunting.",
+						"How's the zombie and skeleton hunting going?",
+						"Still working on it.", "Oh — I see. While you're driving them off, bring back some of their materials. I want to study what kind of creatures they are, so I can sleep well at night."),
 				complete("Hand over the samples.",
-						"You're back. Please tell me you didn't become one of them.",
-						"Not yet.", "No rush. Just don't let them nibble on you.",
-						"Here are the samples.", "Perfect. Now I can compare these against the youkai I know. Thanks for the fieldwork.")
+						"Oh, you're back. How did it go?",
+						"Not quite done yet.", "No rush, really. But watch yourself while hunting — don't get bitten. Zombies are a lot of trouble.",
+						"Done. Here are the materials.", "That was quick. Guess I can count on you after all. You didn't get bitten, did you? I wonder how the zombies here differ from the ones back home... With these I can study them properly.")
 		));
 
 		prefix("reimu/talisman_materials");
@@ -214,16 +259,16 @@ public class ReimuQDGen extends QuestDialogData {
 								.withPool(lootItem(GLTalismans.TALISMAN_POCKET.get(), 1))
 								.withPool(lootItem(GLTalismans.HEAL_TALISMAN.get(), 2)))),
 				start("Talk about the talismans.",
-						"Paper here folds nicely, and this redstone dust glows with power. I can use it as vermilion ink for new-world ofuda. Bring me some.",
-						"I'll gather paper and redstone.", "Good. Paper for folding, redstone for ink. That should keep the shrine stocked.",
-						"Why redstone?", "It's red, it glows, and it's full of power. That's good enough for vermilion ink."),
+						"You can't exterminate youkai without ofuda. I bet you've run into some nasty youkai on your travels — if you don't like them, beating them up works, but ofuda drive them off even better. I wonder if this place has materials for making them... redstone dust should do.",
+						"I'll gather paper and redstone.", "Alright, I'll leave it to you. Once the materials are gathered, I'll draw some ofuda for you as a reward.",
+						"Why redstone?", "If you had cinnabar here it'd work even better, but redstone dust is cheaper."),
 				follow("Ask about the ofuda.",
-						"Got the materials yet?",
-						"Still gathering.", "I want to see how well the new ofuda work."),
+						"You're back. How's the progress?",
+						"Still gathering.", "Then I'll wait for good news."),
 				complete("Hand over the materials.",
-						"You brought them. Let me see.",
-						"Not yet.", "Okay, okay. The ofuda can wait a little longer.",
-						"Here's the paper and redstone.", "Excellent. I can make the new ofuda now. I'll make a few for you, too.")
+						"You're back. Got all the materials?",
+						"Not ready yet.", "No problem. Come find me once the materials are ready, and I'll draw the ofuda for you.",
+						"Here's the paper and redstone.", "Good, you're reliable after all. With these materials the shrine's ofuda stock is much fuller... Don't worry, I haven't forgotten your share. Here, take these.")
 		));
 
 		prefix("reimu/ender_materials");

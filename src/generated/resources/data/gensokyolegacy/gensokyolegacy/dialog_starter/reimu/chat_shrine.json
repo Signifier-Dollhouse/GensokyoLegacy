@@ -1,0 +1,12 @@
+{
+  "character": "gensokyolegacy:hakurei_reimu",
+  "conditions": [
+    {
+      "type": "gensokyolegacy:self_reputation",
+      "invert": true,
+      "reputation": 50
+    }
+  ],
+  "dialog": "gensokyolegacy:reimu/chat_shrine/talk",
+  "text": "gensokyolegacy/reimu/chat_shrine/starter/start"
+}
