@@ -30,6 +30,12 @@
       "minPrice": 16,
       "minStock": 1
     },
+    "gensokyolegacy:strange_glasses": {
+      "maxPrice": 10,
+      "maxStock": 1,
+      "minPrice": 6,
+      "minStock": 1
+    },
     "gensokyolegacy:straw_hat": {
       "maxPrice": 6,
       "maxStock": 4,

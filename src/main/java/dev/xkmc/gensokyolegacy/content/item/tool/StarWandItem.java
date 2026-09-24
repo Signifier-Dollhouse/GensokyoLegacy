@@ -6,6 +6,7 @@ import dev.xkmc.danmakuapi.content.entity.ItemBulletEntity;
 import dev.xkmc.danmakuapi.content.spell.item.SpellContainer;
 import dev.xkmc.danmakuapi.init.registrate.DanmakuEntities;
 import dev.xkmc.gensokyolegacy.content.item.hexbrew.StarDanmakuItem;
+import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.l2library.content.raytrace.RayTraceUtil;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -44,7 +45,7 @@ public class StarWandItem extends StarDanmakuItem {
 				0.5F, 0.4F / (level.getRandom().nextFloat() * 0.4F + 0.8F));
 		if (!level.isClientSide) {
 			ItemBulletEntity danmaku = new ItemBulletEntity(DanmakuEntities.ITEM_DANMAKU.get(), player, level);
-			danmaku.setItem(stack);
+			danmaku.setItem(GLItems.STAR.asStack());
 			danmaku.setup(type.damage(), 40, false, type.bypass(),
 					RayTraceUtil.getRayTerm(Vec3.ZERO, player.getXRot(), player.getYRot(), 2));
 			danmaku.moveTo(RayTraceUtil.getRayTerm(player.getEyePosition(), player.getXRot(), player.getYRot(), 2));

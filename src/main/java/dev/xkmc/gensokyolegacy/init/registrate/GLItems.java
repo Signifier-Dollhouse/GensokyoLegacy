@@ -381,7 +381,8 @@ public class GLItems {
 
 			STRANGE_GLASSES = reg.item("strange_glasses", p -> new StrangeGlassesItem(p.rarity(Rarity.UNCOMMON)))
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/curio/" + ctx.getName())))
-					.tag(ItemTags.HEAD_ARMOR)
+					.tag(ItemTags.HEAD_ARMOR, GLTagGen.MORICHIKA_OFFERS)
+					.dataMap(GLMeta.MORICHIKA_OFFER.reg(), new MorichikaOfferData(6, 10, 1, 1))
 					.lang("Strange Glasses").tab(TAB.key())
 					.register();
 		}

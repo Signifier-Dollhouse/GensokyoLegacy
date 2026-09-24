@@ -313,15 +313,15 @@ public class MarisaQDGen extends QuestDialogData {
 								.withPool(lootItem(GLItems.STAR_WAND.get(), 1))
 								.withPool(lootItem(Items.EMERALD, 8)))),
 				start("Talk about Reimu's talismans.",
-						"Say, ze — you've seen Reimu's ofuda, right? Those little papers pack a real punch! I tried copyin' 'em myself, but mine just fizzle and smoke. Hers actually work! I need genuine samples to study — four healing talisman papers, straight from Reimu. She sells 'em, so bring your emeralds. Whaddaya say?",
+						"Say, ze — you've seen Reimu's ofuda, right? Those little papers pack a real punch! Lately I keep singeing myself with my own experiments, and her healing papers patch me right up. I need four of 'em for myself — straight from Reimu. She sells 'em, so bring your emeralds. Just... don't tell her they're for me. Whaddaya say?",
 						"I'll get them from Reimu.", "That's the spirit! Four healing papers, fresh from the shrine. Don't accept knockoffs!",
 						"Can't you ask her yourself?", "Heh, Reimu charges even me full price — and she'd never stop teasin' me about it. You're my discreet courier, ze!"),
 				follow("About the talisman papers.",
 						"Got those healing papers yet? Reimu sells 'em at the shrine — four of 'em, remember!",
 						"Still saving emeralds.", "She drives a hard bargain, huh? Worth every emerald, trust me!"),
 				complete("Hand over the talisman papers.",
-						"These! Genuine Reimu ofuda — feel that ward hummin'! With these samples I'll crack her technique in no time. You're the best courier a magician could ask for!",
-						"Glad I could help.", "And I've got somethin' special for ya — my doll glove, a fresh doll, and a star wand of my own makin'. Use 'em well, ze!")
+						"These! Genuine Reimu ofuda — feel that ward hummin'! Now I can patch myself up no matter how wild my experiments get. You're the best courier a magician could ask for!",
+						"Glad I could help.", "And I've got somethin' special for ya — a doll glove and a fresh doll, straight from Alice herself, plus a star wand of my own makin'. Use 'em well, ze!")
 		));
 
 		prefix("marisa/daily_talisman");
@@ -331,12 +331,12 @@ public class MarisaQDGen extends QuestDialogData {
 						.apply(SetItemCountFunction.setCount(UniformGenerator.between(2, 3))))));
 		daily("marisa/daily_talisman", "Talisman Top-Up", "Bring Marisa healing talisman papers from Reimu.",
 				new QuestRecurrence(24000), List.of(new HasQuestCompletedCondition(QUEST_TALISMAN_REQUEST)), 60, 10, 150, 0, 0,
-				"Yo! My ofuda study burned through yesterday's samples already. Scoot over to Reimu's and fetch me a few more healing papers, willya? Fresh research material, stat!",
+				"Yo! I already used up yesterday's papers — blown to bits, patched right back up! Scoot over to Reimu's and fetch me a few more healing papers, willya? A magician's gotta stay in one piece, stat!",
 				"That's my courier! Fetch me the good papers!",
 				"What, too good for a little courier work? C'mon, Reimu's waitin'!",
-				"Healing talisman papers from Reimu, remember? My research is waitin' on 'em!",
+				"Healing talisman papers from Reimu, remember? I go through 'em fast with all my experimenting!",
 				"Good, don't take too long!",
-				"Perfect samples again! Thanks, courier!",
+				"Perfect papers again! Thanks, courier!",
 				new TreeMap<>(Map.of(
 						"a-talisman", rollItem(talismanTable)
 				)), LootTable.lootTable()
