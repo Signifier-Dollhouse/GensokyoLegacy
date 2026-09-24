@@ -89,11 +89,11 @@ public class ServerCharacterDialogManager {
 		for (var e : quests) {
 			var data = questData.getData(e.unwrapKey().orElseThrow().location());
 			if (data.isCompletable(sp, e.value()))
-				ans.add(new QuestHandle(e, e.value().completionDialog()));
+				ans.add(new QuestHandle(e, e.value().completionDialog(), QuestHandle.Kind.COMPLETE));
 			else if (data.hasStarted(e.value()))
-				ans.add(new QuestHandle(e, e.value().followUpDialog()));
+				ans.add(new QuestHandle(e, e.value().followUpDialog(), QuestHandle.Kind.FOLLOW_UP));
 			else if (data.canStart(sp, e.value()) && e.value().match(sp, ch))
-				ans.add(new QuestHandle(e, e.value().initialDialog()));
+				ans.add(new QuestHandle(e, e.value().initialDialog(), QuestHandle.Kind.START));
 		}
 		groupHandles(ans);
 		if (!getTradeOffers(sp, ch).isEmpty())

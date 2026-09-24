@@ -10,6 +10,12 @@ import net.minecraft.world.level.block.Block;
 
 public interface BedShape extends ShapeBlockMethod {
 
+	/**
+	 * Y offset from the head block origin to the sleeping entity origin.
+	 * Vanilla beds use 0.6875 (9/16 mattress top + 2/16 gap).
+	 */
+	double sleepOffset();
+
 	void buildStates(DataGenContext<Block, YoukaiBedBlock> ctx, RegistrateBlockstateProvider pvd);
 
 	void buildItemModel(DataGenContext<Item, BedItem> ctx, RegistrateItemModelProvider pvd);

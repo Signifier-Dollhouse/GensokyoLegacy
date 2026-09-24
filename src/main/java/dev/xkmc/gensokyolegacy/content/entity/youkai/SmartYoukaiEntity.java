@@ -55,6 +55,13 @@ public class SmartYoukaiEntity extends YoukaiEntity {
 	protected void customServerAiStep() {
 		super.customServerAiStep();
 		getBrain().tick((ServerLevel) level(), Wrappers.cast(this));
+		// Stale-sleep watchdog: sleep is owned by YoukaiSleepTask, which only runs
+		// under REST. If the entity still sleeps without it (e.g. unloaded asleep
+		// at night, reloaded during the day), the task never stops to wake it and
+		// it would wander around in sleeping pose. Wake in that case.
+		if (isSleeping() && getActivity() != Activity.REST) {
+			stopSleeping();
+		}
 	}
 
 	@Override
@@ -161,6 +168,7 @@ public class SmartYoukaiEntity extends YoukaiEntity {
 			BrainUtils.setMemory(this, GLBrains.MEM_TALK.get(), player);
 		else getBrain().setMemoryWithExpiry(GLBrains.MEM_TALK.get(), player, time);
 		FirstDialogProvider.open(player, this);
+		if (this instanceof GeoYoukaiAnim anim) anim.broadcastGreetAnim();
 	}
 
 	@Override

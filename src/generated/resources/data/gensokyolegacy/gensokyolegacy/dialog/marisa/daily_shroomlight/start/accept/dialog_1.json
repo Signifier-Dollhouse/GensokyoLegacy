@@ -1,11 +1,4 @@
 {
-  "options": [
-    {
-      "type": "gensokyolegacy:simple",
-      "actions": [],
-      "conditions": [],
-      "text": "gensokyolegacy/marisa/shared/option/bye"
-    }
-  ],
+  "options": [],
   "text": "gensokyolegacy/marisa/daily_shroomlight/dialog/marisa/daily_shroomlight/start/accept/dialog_1"
 }

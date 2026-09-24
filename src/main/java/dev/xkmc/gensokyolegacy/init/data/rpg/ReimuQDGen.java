@@ -158,7 +158,7 @@ public class ReimuQDGen extends QuestDialogData {
 
 		prefix("reimu/chat_marisa");
 		chat("reimu/chat_marisa", GLEntities.REIMU.get(),
-				List.of(missingAdv(GLAdvGen.ENTER_MARISA_HOUSE)),
+				List.of(missingAdv(GLAdvGen.ENTER_MARISA_HOUSE), new SelfReputationCondition(50)),
 				starterText("start", "Have you met Marisa?"),
 				dialog("talk", "Have you met Marisa yet? Ordinary magician, lives deep in the Magical Forest. Loud, nosy, always borrowing things.",
 						option("where", "Where can I find her?",

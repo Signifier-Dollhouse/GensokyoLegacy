@@ -27,6 +27,12 @@ public class WesternBedShape implements BedShape {
 		return SHAPE;
 	}
 
+	@Override
+	public double sleepOffset() {
+		// collision top (9/16) + vanilla 2/16 gap above the mattress = 0.6875
+		return SHAPE.bounds().maxY + 0.125;
+	}
+
 	public void buildStates(DataGenContext<Block, YoukaiBedBlock> ctx, RegistrateBlockstateProvider pvd) {
 		pvd.horizontalBlock(ctx.get(), state -> switch (state.getValue(YoukaiBedBlock.PART)) {
 			case HEAD -> pvd.models().getBuilder(ctx.getName() + "_head")

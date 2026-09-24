@@ -21,6 +21,9 @@ public interface DollGeo extends DollBaseImpl, GeoEntity {
 	RawAnimation BOMB = RawAnimation.begin().thenPlay("toy_bomb");
 	RawAnimation BOW = RawAnimation.begin().thenPlay("toy_bow");
 	RawAnimation SKILL = RawAnimation.begin().thenPlay("toy_skill");
+	RawAnimation WINK = RawAnimation.begin().thenLoop("toy_wink");
+
+	String WINK_CONTROLLER = "wink";
 
 	/**
 	 * Entity event ids: vanilla {@code EntityEvent} uses up to 65, so 66+
@@ -44,6 +47,9 @@ public interface DollGeo extends DollBaseImpl, GeoEntity {
 
 	@Override
 	default void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
+		// Wink first: controllers tick in registration order and overwrite shared
+		// bones, so the always-looping wink yields to the main controller.
+		controllers.add(new AnimationController<>(asDoll(), WINK_CONTROLLER, 0, e -> e.setAndContinue(WINK)));
 		controllers.add(new AnimationController<>(asDoll(), "all", 3, this::dollAnimController)
 				.triggerableAnim("attack", ATTACK)
 				.triggerableAnim("bomb", BOMB)

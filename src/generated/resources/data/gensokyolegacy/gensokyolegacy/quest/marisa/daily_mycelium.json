@@ -5,7 +5,7 @@
     "actions": [],
     "conditions": [],
     "next": "gensokyolegacy:marisa/daily_mycelium/complete/dialog_1",
-    "text": "gensokyolegacy/marisa/shared/option/daily_complete"
+    "text": "gensokyolegacy/marisa/daily_mycelium/option/complete"
   },
   "conditions": [],
   "description": "gensokyolegacy/marisa/daily_mycelium/quest/desc",

@@ -1,11 +1,4 @@
 {
-  "options": [
-    {
-      "type": "gensokyolegacy:simple",
-      "actions": [],
-      "conditions": [],
-      "text": "gensokyolegacy/marisa/shared/option/bye"
-    }
-  ],
+  "options": [],
   "text": "gensokyolegacy/marisa/daily_brewing/dialog/marisa/daily_brewing/follow_up/end/dialog_1"
 }

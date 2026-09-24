@@ -23,6 +23,12 @@ public class FlatBedShape implements BedShape {
 		return SHAPE;
 	}
 
+	@Override
+	public double sleepOffset() {
+		// collision top (2/16) + vanilla 2/16 gap above the mattress
+		return SHAPE.bounds().maxY + 0.125;
+	}
+
 	public void buildStates(DataGenContext<Block, YoukaiBedBlock> ctx, RegistrateBlockstateProvider pvd) {
 		pvd.horizontalBlock(ctx.get(), state -> pvd.models().getBuilder(ctx.getName() + "_" + state.getValue(YoukaiBedBlock.PART))
 				.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/furniture/bed_" + state.getValue(YoukaiBedBlock.PART))))

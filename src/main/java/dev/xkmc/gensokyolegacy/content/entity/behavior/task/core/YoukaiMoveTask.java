@@ -39,6 +39,7 @@ public class YoukaiMoveTask<E extends YoukaiEntity> extends Behavior<E> {
 
 	@Override
 	protected boolean checkExtraStartConditions(ServerLevel level, E entity) {
+		if (entity.isSleeping()) return false;
 		if (cooldown > entity.tickCount) return false;
 		Brain<?> brain = entity.getBrain();
 		WalkTarget walkTarget = BrainUtils.getMemory(brain, MemoryModuleType.WALK_TARGET);
@@ -56,6 +57,8 @@ public class YoukaiMoveTask<E extends YoukaiEntity> extends Behavior<E> {
 
 	@Override
 	protected boolean canStillUse(ServerLevel level, E entity, long gameTime) {
+		if (entity.isSleeping())
+			return false;
 		if (this.path == null || this.lastTargetPos == null)
 			return false;
 		if (entity.getNavigation().isDone())

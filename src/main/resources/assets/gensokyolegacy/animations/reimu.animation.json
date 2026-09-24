@@ -2205,7 +2205,6 @@
 			"loop": true
 		},
 		"交流_01": {
-			"loop": true,
 			"animation_length": 0.875,
 			"bones": {
 				"UpBody": {
@@ -2332,7 +2331,6 @@
 			}
 		},
 		"交流_02": {
-			"loop": true,
 			"animation_length": 0.875,
 			"bones": {
 				"UpBody": {
@@ -2430,7 +2428,6 @@
 			}
 		},
 		"思考中": {
-			"loop": true,
 			"animation_length": 1.5,
 			"bones": {
 				"UpBody": {

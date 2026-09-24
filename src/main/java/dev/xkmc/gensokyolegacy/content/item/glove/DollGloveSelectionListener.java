@@ -12,6 +12,8 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.fml.loading.FMLEnvironment;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -57,16 +59,27 @@ public class DollGloveSelectionListener extends IItemSelector implements WheelAd
 
 	@Override
 	public List<ItemStack> getList(ItemStack stack) {
-		// Roster-aware filtering needs a player (see move/getIndex); the static
-		// list covers every mode that can ever be visible. Entries are icon
-		// display stacks, so the sidebar shows the mode icons, not the glove.
+		// The scroll sidebar has no player param, so resolve the client player
+		// internally: unavailable super / suicide modes must not display.
+		// Server side keeps the static set (only used for sizing, never shown).
+		var modes = FMLEnvironment.dist == Dist.CLIENT ?
+				DollGloveClientModes.availableForDisplay(stack) :
+				DollGloveModes.potentiallyVisible();
 		List<ItemStack> list = new ArrayList<>();
-		for (var m : DollGloveModes.potentiallyVisible()) {
+		for (var m : modes) {
 			ItemStack icon = DollGloveItem.iconStack(m);
 			icon.set(DataComponents.ITEM_NAME, m.displayName());
 			list.add(icon);
 		}
 		return list;
+	}
+
+	@Override
+	public int getSelHash(ItemStack stack) {
+		if (FMLEnvironment.dist == Dist.CLIENT) {
+			return DollGloveClientModes.availableForDisplay(stack).hashCode();
+		}
+		return 0;
 	}
 
 	/**

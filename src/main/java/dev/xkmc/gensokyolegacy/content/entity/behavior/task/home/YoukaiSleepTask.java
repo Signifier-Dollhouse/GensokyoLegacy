@@ -81,10 +81,13 @@ public class YoukaiSleepTask extends Behavior<YoukaiEntity> {
 				pos = null;
 				return;
 			}
+			// Sleep with the head on the head block, mirroring vanilla
+			// BedBlock.useWithoutItem: the head sits one step along FACING from
+			// the foot, so a foot home resolves forward while a head home stays.
 			if (state.getValue(BedBlock.PART) == BedPart.HEAD) {
-				entity.startSleeping(pos.pos().relative(state.getValue(BedBlock.FACING).getOpposite()));
-			} else {
 				entity.startSleeping(pos.pos());
+			} else {
+				entity.startSleeping(pos.pos().relative(state.getValue(BedBlock.FACING)));
 			}
 		} else if (!BrainUtils.hasMemory(entity, MemoryModuleType.WALK_TARGET)) {
 			BrainUtils.setMemory(entity, MemoryModuleType.WALK_TARGET, new WalkTarget(pos.pos().above(), 1, 1));

@@ -79,7 +79,8 @@ public class DollEntity extends BaseDollEntity
 	 */
 	@Override
 	public void handleEntityEvent(byte id) {
-		if (level().isClientSide() && (id == DollGeo.EVENT_ATTACK || id == DollGeo.EVENT_BOMB)) {
+		if (level().isClientSide() && (id == DollGeo.EVENT_ATTACK || id == DollGeo.EVENT_BOMB ||
+				id == DollGeo.EVENT_BOW || id == DollGeo.EVENT_SKILL)) {
 			handleDollEvent(id);
 			return;
 		}

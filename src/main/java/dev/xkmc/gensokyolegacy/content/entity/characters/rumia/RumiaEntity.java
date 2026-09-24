@@ -135,7 +135,9 @@ public class RumiaEntity extends SmartYoukaiEntity {
 		return isBlocked() ? FALL.scale(getScale()) : super.getDefaultDimensions(pPose);
 	}
 
+	@Override
 	public void onSyncedDataUpdated(EntityDataAccessor<?> pKey) {
+		super.onSyncedDataUpdated(pKey);
 		if (DATA_FLAGS_ID.equals(pKey)) {
 			this.refreshDimensions();
 		}

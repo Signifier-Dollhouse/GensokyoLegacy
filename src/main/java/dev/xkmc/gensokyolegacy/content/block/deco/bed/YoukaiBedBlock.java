@@ -33,6 +33,9 @@ public class YoukaiBedBlock extends DelegateEntityBlockImpl {
 
 	public static final EnumProperty<BedPart> PART = BlockStateProperties.BED_PART;
 	public static final BlockMethod TE = new BlockEntityBlockMethodImpl<>(GLBlocks.BE_BED, YoukaiBedBlockEntity.class);
+	public static final double VANILLA_SLEEP_OFFSET = 0.6875;
+
+	private final ShapeBlockMethod shape;
 
 	public YoukaiBedBlock(BlockBehaviour.Properties properties) {
 		this(properties, new FlatBedShape());
@@ -40,6 +43,21 @@ public class YoukaiBedBlock extends DelegateEntityBlockImpl {
 
 	public YoukaiBedBlock(BlockBehaviour.Properties properties, ShapeBlockMethod shape) {
 		super(properties, BlockTemplates.HORIZONTAL, shape, new YoukaiBedMethods(), TE);
+		this.shape = shape;
+	}
+
+	public double getSleepOffset() {
+		if (shape instanceof BedShape bed) {
+			return bed.sleepOffset();
+		}
+		return VANILLA_SLEEP_OFFSET;
+	}
+
+	public static double getSleepOffset(BlockState state) {
+		if (state.getBlock() instanceof YoukaiBedBlock bed) {
+			return bed.getSleepOffset();
+		}
+		return VANILLA_SLEEP_OFFSET;
 	}
 
 	public static Direction getNeighbourDirection(BedPart part, Direction direction) {

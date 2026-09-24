@@ -28,11 +28,11 @@
 	"gensokyolegacy.configuration.reputationDecayFloor.tooltip": " 默认：0.8\n 范围：0.0 ~ 1.0",
 	"gensokyolegacy.configuration.sealingPotRadius": "封印壶周围阻止敌对生物自然生成的半径（区块）",
 	"gensokyolegacy.configuration.sealingPotRadius.tooltip": " 默认：4\n 范围：1 ~ 8",
-	"gensokyolegacy.configuration.section.l2configs.gensokyolegacy.common.toml": "异域梦闻记通用配置",
-	"gensokyolegacy.configuration.section.l2configs.gensokyolegacy.common.toml.title": "异域梦闻记通用配置",
-	"gensokyolegacy.configuration.section.l2configs.gensokyolegacy.server.toml": "异域梦闻记服务器配置",
-	"gensokyolegacy.configuration.section.l2configs.gensokyolegacy.server.toml.title": "异域梦闻记服务器配置",
+	"gensokyolegacy.configuration.section.l2configs.gensokyolegacy.common.toml": "东方幻想绮谈通用配置",
+	"gensokyolegacy.configuration.section.l2configs.gensokyolegacy.common.toml.title": "东方幻想绮谈通用配置",
+	"gensokyolegacy.configuration.section.l2configs.gensokyolegacy.server.toml": "东方幻想绮谈服务器配置",
+	"gensokyolegacy.configuration.section.l2configs.gensokyolegacy.server.toml.title": "东方幻想绮谈服务器配置",
 	"gensokyolegacy.configuration.suwako_hat": "诹访子的帽子",
-	"gensokyolegacy.configuration.title": "异域梦闻记配置",
+	"gensokyolegacy.configuration.title": "东方幻想绮谈配置",
 	"gensokyolegacy.configuration.worldgen": "世界生成"
 }

@@ -28,7 +28,7 @@
       "type": "gensokyolegacy:submit_item",
       "ingredients": [
         {
-          "count": 4,
+          "count": 8,
           "item": "minecraft:red_mushroom"
         }
       ]
@@ -37,7 +37,7 @@
       "type": "gensokyolegacy:submit_item",
       "ingredients": [
         {
-          "count": 4,
+          "count": 8,
           "item": "minecraft:brown_mushroom"
         }
       ]

@@ -9,8 +9,8 @@
       ],
       "conditions": [],
       "next": "gensokyolegacy:marisa/daily_talisman/complete/handover/dialog_1",
-      "text": "gensokyolegacy/marisa/shared/option/daily_handover"
+      "text": "gensokyolegacy/marisa/daily_talisman/option/complete/handover"
     }
   ],
-  "text": "gensokyolegacy/marisa/shared/dialog/daily_gotem"
+  "text": "gensokyolegacy/marisa/daily_talisman/dialog/marisa/daily_talisman/complete/dialog_1"
 }

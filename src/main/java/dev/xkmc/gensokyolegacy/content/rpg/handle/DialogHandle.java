@@ -1,5 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.rpg.handle;
 
+import dev.xkmc.gensokyolegacy.content.entity.youkai.GeoYoukaiAnim;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.rpg.dialog.DialogStarter;
 import dev.xkmc.gensokyolegacy.content.rpg.quest.Quest;
@@ -19,6 +20,7 @@ public record DialogHandle(Holder<DialogStarter> starter) implements IDialogHand
 
 	@Override
 	public void openMenu(ServerPlayer sp, YoukaiEntity character) {
+		if (character instanceof GeoYoukaiAnim anim) anim.broadcastTalkAnim();
 		new SimpleDialogProvider(sp, character, this, starter.value().dialog()).open();
 	}
 

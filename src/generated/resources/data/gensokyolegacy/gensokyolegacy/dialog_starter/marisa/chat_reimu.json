@@ -5,6 +5,10 @@
       "type": "gensokyolegacy:has_advancement",
       "advancement": "gensokyolegacy:main/enter_hakurei_shrine",
       "invert": true
+    },
+    {
+      "type": "gensokyolegacy:self_reputation",
+      "reputation": 50
     }
   ],
   "dialog": "gensokyolegacy:marisa/chat_reimu/talk",

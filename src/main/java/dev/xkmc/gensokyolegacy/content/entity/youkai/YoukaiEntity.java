@@ -9,6 +9,7 @@ import dev.xkmc.danmakuapi.init.registrate.DanmakuItems;
 import dev.xkmc.fastprojectileapi.spellcircle.SpellCircleHolder;
 import dev.xkmc.gensokyolegacy.content.attachment.character.CharDataHolder;
 import dev.xkmc.gensokyolegacy.content.attachment.character.ReputationState;
+import dev.xkmc.gensokyolegacy.content.block.deco.bed.YoukaiBedBlock;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.combat.*;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.move.YoukaiNavigationControl;
 import dev.xkmc.gensokyolegacy.content.entity.foundation.DamageClampEntity;
@@ -196,7 +197,16 @@ public abstract class YoukaiEntity extends DamageClampEntity implements SpellCir
 		targets.tick();
 		tickTargeting();
 		tickSpell();
-		navCtrl.tickMove();
+		if (isSleeping()) {
+			// Sleep freeze: no brain behavior may move the entity while it sleeps,
+			// so drop any stale navigation / control orders and kill momentum.
+			// (travel/push overrides below enforce the same freeze client-side.)
+			getNavigation().stop();
+			navCtrl.stopMoving();
+			setDeltaMovement(Vec3.ZERO);
+		} else {
+			navCtrl.tickMove();
+		}
 		for (var e : modules) {
 			e.tickServer();
 		}
@@ -465,10 +475,26 @@ public abstract class YoukaiEntity extends DamageClampEntity implements SpellCir
 		this.navCtrl.stopMoving();
 		this.navCtrl.setWalking();
 		this.setPose(Pose.SLEEPING);
-		this.setPos(pos.getX() + 0.5, pos.getY() + 0.6875, pos.getZ() + 0.5);
+		this.setPosToBed(pos);
 		this.setSleepingPos(pos);
 		this.setDeltaMovement(Vec3.ZERO);
 		this.hasImpulse = true;
+	}
+
+	protected double getSleepOffset(BlockPos pos) {
+		if (level().isLoaded(pos)) {
+			return YoukaiBedBlock.getSleepOffset(level().getBlockState(pos));
+		}
+		return YoukaiBedBlock.VANILLA_SLEEP_OFFSET;
+	}
+
+	@Override
+	protected void setPosToBed(BlockPos pos) {
+		// Vanilla hardcodes 0.6875 (vanilla mattress top 9/16 + 2/16 gap).
+		// Our flat beds are only 2/16 tall, so use the per-bed offset instead.
+		// Access-transformed to protected; all vanilla call sites (startSleeping,
+		// first-tick baseTick, load, sleeping-pos sync) dispatch here virtually.
+		this.setPos(pos.getX() + 0.5, pos.getY() + getSleepOffset(pos), pos.getZ() + 0.5);
 	}
 
 	public boolean mayInteract(Player player) {
@@ -483,6 +509,23 @@ public abstract class YoukaiEntity extends DamageClampEntity implements SpellCir
 		if (player == null) return;
 		getNavigation().stop();
 		lookAt(player, 30, 30);
+	}
+
+	@Override
+	public void travel(Vec3 vec) {
+		// Sleep freeze, client-side half: client physics (gravity, move control)
+		// would otherwise drift the sleeping entity between server syncs.
+		if (isSleeping()) {
+			setDeltaMovement(Vec3.ZERO);
+			return;
+		}
+		super.travel(vec);
+	}
+
+	@Override
+	public void push(Entity entity) {
+		if (isSleeping()) return;
+		super.push(entity);
 	}
 
 	public boolean mayFly() {

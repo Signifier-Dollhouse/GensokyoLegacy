@@ -16,7 +16,6 @@ import dev.xkmc.gensokyolegacy.init.data.GLTagGen;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
 import dev.xkmc.l2core.init.reg.registrate.L2Registrate;
 import net.minecraft.advancements.critereon.*;
-import net.minecraft.client.renderer.block.model.BlockModel;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
@@ -25,7 +24,6 @@ import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapelessRecipeBuilder;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
-import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.block.*;
@@ -259,7 +257,7 @@ public class GLNaturalBlocks {
 				.loot((pvd, block) -> pvd.add(block, RegistrateBlockLootTables.createShearsOnlyDrop(block)))
 				.item().model((ctx, pvd) -> pvd.getBuilder(ctx.getName())
 						.parent(new ModelFile.UncheckedModelFile("item/generated"))
-						.texture("layer0", pvd.modLoc("block/plant/" + ctx.getName())))
+						.texture("layer0", pvd.modLoc("item/ingredient/" + ctx.getName())))
 				.dataMap(NeoForgeDataMaps.COMPOSTABLES, new Compostable(0.5f))
 				.build()
 				.register();
@@ -415,8 +413,8 @@ public class GLNaturalBlocks {
 			cap = reg.block(id, p -> capFactory.apply(type, p))
 					.properties(p -> capProp)
 					.blockstate((ctx, pvd) -> genCapState(ctx, pvd, capVariants, emissive))
-					.item().model((ctx, pvd) -> genFlatItemModel(ctx.getName(), pvd,
-							pvd.modLoc("block/mushroom/" + capModelName(ctx.getName(), capVariants, 1)), emissive))
+				.item().model((ctx, pvd) -> pvd.generated(ctx,
+						pvd.modLoc("block/mushroom/" + capModelName(ctx.getName(), capVariants, 1))))
 					.dataMap(NeoForgeDataMaps.COMPOSTABLES, new Compostable(0.65f))
 					.build()
 					.register();
@@ -435,32 +433,6 @@ public class GLNaturalBlocks {
 					.dataMap(NeoForgeDataMaps.COMPOSTABLES, new Compostable(0.85f))
 					.build()
 					.register();
-		}
-
-		private static void genFlatItemModel(String name, RegistrateItemModelProvider pvd, ResourceLocation tex, boolean emissive) {
-			if (!emissive) {
-				pvd.getBuilder(name)
-						.parent(new ModelFile.UncheckedModelFile("item/generated"))
-						.texture("layer0", tex);
-				return;
-			}
-			pvd.getBuilder(name)
-					.texture("layer0", tex)
-					.texture("particle", tex)
-					.guiLight(BlockModel.GuiLight.FRONT)
-					.ao(false)
-					.transforms()
-					.transform(ItemDisplayContext.GROUND).translation(0, 2, 0).scale(0.5f).end()
-					.transform(ItemDisplayContext.HEAD).rotation(0, 180, 0).translation(0, 13, 7).end()
-					.transform(ItemDisplayContext.FIXED).rotation(0, 180, 0).end()
-					.end()
-					.element()
-					.from(0, 0, 7.5f).to(16, 16, 8.5f)
-					.shade(false)
-					.emissivity(15, 15)
-					.face(Direction.NORTH).uvs(0, 0, 16, 16).texture("#layer0").end()
-					.face(Direction.SOUTH).uvs(0, 0, 16, 16).texture("#layer0").end()
-					.end();
 		}
 
 		private static void genInventoryItemModel(String name, RegistrateItemModelProvider pvd) {

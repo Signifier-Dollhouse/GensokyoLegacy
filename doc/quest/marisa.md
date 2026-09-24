@@ -8,7 +8,7 @@ Entity: `kirisame_marisa`. Quest unlocks chain: 1.1 → 1.2 → 2.1 → 2.2 → 
 
 | # | Id | Unlock | Requirements | Rewards |
 |---|----|--------|--------------|---------|
-| 1.1 | `first_mushroom` | none | red mushroom ×4, brown mushroom ×4 | exp 50, rep +10 (cap +10/max 300), loot: emerald ×4 |
+| 1.1 | `first_mushroom` | none | red mushroom ×8, brown mushroom ×8 | exp 50, rep +10 (cap +10/max 300), loot: emerald ×4 |
 | 1.2 | `huge_mushroom` | 1.1 | huge mushroom (tag cap+stem) ×8 | exp 100, rep +10 (cap +0/max 300), loot: emerald ×6 |
 | 2.1 | `nether_mushroom_prep` | 1.1 + adv `nether/root` | crimson fungus ×4, warped fungus ×4 | exp 150, rep +20 (cap +10/max 300), loot: emerald ×6 + miasma hexbrew ×1 |
 | 2.2 | `shroomlight` | 2.1 | shroomlight ×8 | exp 150, rep +10 (cap +0/max 300), loot: emerald ×6 + explosive hexbrew ×2 |

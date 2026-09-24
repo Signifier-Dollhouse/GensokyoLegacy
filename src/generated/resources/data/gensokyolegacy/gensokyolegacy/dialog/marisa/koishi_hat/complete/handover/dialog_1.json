@@ -4,7 +4,7 @@
       "type": "gensokyolegacy:simple",
       "actions": [],
       "conditions": [],
-      "text": "gensokyolegacy/marisa/shared/option/bye"
+      "text": "gensokyolegacy/marisa/koishi_hat/option/complete/handover/end"
     }
   ],
   "text": "gensokyolegacy/marisa/koishi_hat/dialog/marisa/koishi_hat/complete/handover/dialog_1"

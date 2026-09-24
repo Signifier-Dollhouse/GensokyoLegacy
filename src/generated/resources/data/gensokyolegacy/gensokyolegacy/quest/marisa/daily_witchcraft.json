@@ -5,7 +5,7 @@
     "actions": [],
     "conditions": [],
     "next": "gensokyolegacy:marisa/daily_witchcraft/complete/dialog_1",
-    "text": "gensokyolegacy/marisa/shared/option/daily_complete"
+    "text": "gensokyolegacy/marisa/daily_witchcraft/option/complete"
   },
   "conditions": [],
   "description": "gensokyolegacy/marisa/daily_witchcraft/quest/desc",

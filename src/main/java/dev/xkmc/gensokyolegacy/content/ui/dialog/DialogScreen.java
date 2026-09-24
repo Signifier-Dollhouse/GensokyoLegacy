@@ -15,9 +15,11 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
@@ -120,6 +122,7 @@ public class DialogScreen<T extends DialogMenu> extends AbstractContainerScreen<
 	protected boolean click(int btn) {
 		if (menu.clickMenuButton(menu.player, btn) && Minecraft.getInstance().gameMode != null) {
 			Minecraft.getInstance().gameMode.handleInventoryButtonClick(menu.containerId, btn);
+			Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
 			return true;
 		} else {
 			return false;
@@ -128,10 +131,23 @@ public class DialogScreen<T extends DialogMenu> extends AbstractContainerScreen<
 
 	@Override
 	public boolean mouseClicked(double mx, double my, int btn) {
+		if (menu.getOptions().isEmpty()) {
+			onClose();
+			return true;
+		}
 		if (sel >= 0) {
 			return click(sel);
 		}
 		return super.mouseClicked(mx, my, btn);
+	}
+
+	@Override
+	public boolean keyPressed(int key, int scan, int mod) {
+		if (menu.getOptions().isEmpty()) {
+			onClose();
+			return true;
+		}
+		return super.keyPressed(key, scan, mod);
 	}
 
 	@Override

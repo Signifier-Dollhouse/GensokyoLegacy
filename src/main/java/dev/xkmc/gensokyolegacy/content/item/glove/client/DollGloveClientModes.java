@@ -2,11 +2,13 @@ package dev.xkmc.gensokyolegacy.content.item.glove.client;
 
 import dev.xkmc.gensokyolegacy.content.entity.dolls.DollEntity;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.action.DollActionType;
+import dev.xkmc.gensokyolegacy.content.item.glove.DollGloveItem;
 import dev.xkmc.gensokyolegacy.content.item.glove.mode.DollGloveMode;
 import dev.xkmc.gensokyolegacy.content.item.glove.mode.DollGloveModes;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 
 import java.util.List;
 
@@ -24,6 +26,17 @@ public final class DollGloveClientModes {
 		boolean hasSuper = current == DollGloveMode.SUPER || hasValidDoll(player, DollActionType.SUPER_ATTACK);
 		boolean hasSuicide = current == DollGloveMode.SUICIDE || hasValidDoll(player, DollActionType.SUICIDE_ATTACK);
 		return DollGloveModes.available(current, hasSuper, hasSuicide);
+	}
+
+	/**
+	 * Display list for the scroll sidebar ({@code getList} has no player
+	 * param): resolves the client player internally. Falls back to the static
+	 * set when no player is at hand.
+	 */
+	public static List<DollGloveMode> availableForDisplay(ItemStack stack) {
+		var mc = Minecraft.getInstance();
+		if (mc.player == null) return DollGloveModes.potentiallyVisible();
+		return available(mc.player, DollGloveItem.getMode(stack));
 	}
 
 	public static boolean hasValidDoll(Player player, DollActionType type) {

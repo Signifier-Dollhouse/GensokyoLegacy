@@ -3,7 +3,7 @@ package dev.xkmc.gensokyolegacy.content.entity.behavior.task.marisa;
 import dev.xkmc.gensokyolegacy.content.block.nature.SideBushBlock;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.task.home.AbstractHomeHolderTask;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.SmartYoukaiEntity;
-import dev.xkmc.gensokyolegacy.content.entity.youkai.UseMainhandAnim;
+import dev.xkmc.gensokyolegacy.content.entity.youkai.GeoYoukaiAnim;
 import dev.xkmc.gensokyolegacy.util.BrainUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -70,7 +70,7 @@ public class MarisaForageTask<E extends SmartYoukaiEntity> extends AbstractHomeH
 		if (!level.isLoaded(target) || !isBreakableFoliage(level, target)) return false;
 		if (entity.distanceToSqr(target.getCenter()) < 9) {
 			entity.swing(InteractionHand.MAIN_HAND);
-			if (entity instanceof UseMainhandAnim anim) anim.broadcastUseMainhandAnim();
+			if (entity instanceof GeoYoukaiAnim anim) anim.broadcastUseMainhandAnim();
 			level.destroyBlock(target, true, entity);
 			BrainUtils.clearMemory(entity, MemoryModuleType.WALK_TARGET);
 			BrainUtils.clearMemory(entity, MemoryModuleType.LOOK_TARGET);

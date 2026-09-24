@@ -4,7 +4,7 @@
       "type": "gensokyolegacy:simple",
       "actions": [],
       "conditions": [],
-      "text": "gensokyolegacy/marisa/shared/option/bye"
+      "text": "gensokyolegacy/marisa/talisman_request/option/follow_up/end/end"
     }
   ],
   "text": "gensokyolegacy/marisa/talisman_request/dialog/marisa/talisman_request/follow_up/end/dialog_1"
