@@ -1,0 +1,23 @@
+{
+  "character": "gensokyolegacy:morichika_rinnosuke",
+  "conditions": [
+    {
+      "type": "gensokyolegacy:has_quest_completed",
+      "quest": "gensokyolegacy:marisa/talisman_request"
+    }
+  ],
+  "ingredients": [
+    {
+      "count": 32,
+      "item": "minecraft:emerald"
+    }
+  ],
+  "recurrence": {
+    "maxStock": 1,
+    "restockTime": 168000
+  },
+  "result": {
+    "count": 1,
+    "id": "gensokyolegacy:doll_glove"
+  }
+}

@@ -1,0 +1,64 @@
+{
+  "character": "gensokyolegacy:kirisame_marisa",
+  "completionDialog": {
+    "type": "gensokyolegacy:simple",
+    "actions": [],
+    "conditions": [],
+    "next": "gensokyolegacy:marisa/talisman_request/complete/dialog_1",
+    "text": "gensokyolegacy/marisa/talisman_request/option/complete"
+  },
+  "conditions": [
+    {
+      "type": "gensokyolegacy:self_reputation",
+      "reputation": 100
+    },
+    {
+      "type": "gensokyolegacy:has_quest_completed",
+      "quest": "gensokyolegacy:reimu/talisman_materials"
+    }
+  ],
+  "description": "gensokyolegacy/marisa/talisman_request/quest/desc",
+  "followUpDialog": {
+    "type": "gensokyolegacy:simple",
+    "actions": [],
+    "conditions": [],
+    "next": "gensokyolegacy:marisa/talisman_request/follow_up/dialog_1",
+    "text": "gensokyolegacy/marisa/talisman_request/option/follow_up"
+  },
+  "initialDialog": {
+    "type": "gensokyolegacy:simple",
+    "actions": [],
+    "conditions": [],
+    "next": "gensokyolegacy:marisa/talisman_request/start/dialog_1",
+    "text": "gensokyolegacy/marisa/talisman_request/option/start"
+  },
+  "requirements": {
+    "a-talisman": {
+      "type": "gensokyolegacy:submit_item",
+      "ingredients": [
+        {
+          "count": 4,
+          "item": "gensokyolegacy:heal_talisman"
+        }
+      ]
+    }
+  },
+  "rewards": [
+    {
+      "type": "gensokyolegacy:exp",
+      "point": 200
+    },
+    {
+      "type": "gensokyolegacy:reputation",
+      "cap_increase": 10,
+      "max_cap": 300,
+      "reputation": 20,
+      "soft_cap": 300
+    },
+    {
+      "type": "gensokyolegacy:loot_table",
+      "table": "gensokyolegacy:marisa/talisman_request"
+    }
+  ],
+  "title": "gensokyolegacy/marisa/talisman_request/quest/title"
+}

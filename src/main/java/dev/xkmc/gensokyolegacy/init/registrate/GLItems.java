@@ -95,6 +95,8 @@ public class GLItems {
 	public static final ItemEntry<DollGloveItem> DOLL_GLOVE;
 
 	public static final ItemEntry<StarDanmakuItem> STAR;
+	public static final ItemEntry<StarWandItem> STAR_WAND;
+	public static final ItemEntry<StrangeGlassesItem> STRANGE_GLASSES;
 
 	private static final DCReg DC = DCReg.of(GensokyoLegacy.REG);
 	public static final DCVal<MiniFurnace1.Data> DC_FURNACE_1 = DC.reg("mini_furnace_1_data", MiniFurnace1.Data.class, false);
@@ -369,6 +371,18 @@ public class GLItems {
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/curio/" + ctx.getName())))
 					.clientExtension(() -> () -> new HatModel(KoishiHatModel.HAT))
 					.tag(ItemTags.HEAD_ARMOR, GLTagGen.TOUHOU_HAT)
+					.register();
+
+			STAR_WAND = reg.item("star_wand", p -> new StarWandItem(p.rarity(Rarity.RARE)))
+					.model((ctx, pvd) -> pvd.handheld(ctx, pvd.modLoc("item/tool/" + ctx.getName())))
+					.tag(DanmakuItems.Bullet.STAR.tag)
+					.lang("Star Wand").tab(TAB.key())
+					.register();
+
+			STRANGE_GLASSES = reg.item("strange_glasses", p -> new StrangeGlassesItem(p.rarity(Rarity.UNCOMMON)))
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/curio/" + ctx.getName())))
+					.tag(ItemTags.HEAD_ARMOR)
+					.lang("Strange Glasses").tab(TAB.key())
 					.register();
 		}
 

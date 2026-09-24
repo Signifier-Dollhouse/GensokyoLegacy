@@ -1,6 +1,7 @@
 package dev.xkmc.gensokyolegacy.init.data.rpg;
 
 import dev.xkmc.gensokyolegacy.content.item.hexbrew.HexBrew;
+import dev.xkmc.gensokyolegacy.content.item.talisman.core.GLTalismans;
 import dev.xkmc.gensokyolegacy.content.rpg.action.CompleteQuestAction;
 import dev.xkmc.gensokyolegacy.content.rpg.action.StartQuestAction;
 import dev.xkmc.gensokyolegacy.content.rpg.condition.HasAdvancementCondition;
@@ -22,6 +23,7 @@ import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.GLAdvGen;
 import dev.xkmc.gensokyolegacy.init.data.GLTagGen;
 import dev.xkmc.gensokyolegacy.init.registrate.GLEntities;
+import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLBlocks;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLNaturalBlocks;
 import net.minecraft.core.Holder;
@@ -54,6 +56,8 @@ public class MarisaQDGen extends QuestDialogData {
 	private static final ResourceLocation QUEST_SHROOMLIGHT = GensokyoLegacy.loc("marisa/shroomlight");
 	private static final ResourceLocation QUEST_BREWING = GensokyoLegacy.loc("marisa/brewing");
 	public static final ResourceLocation QUEST_KOISHI = GensokyoLegacy.loc("marisa/koishi_hat");
+	public static final ResourceLocation QUEST_TALISMAN_REQUEST = GensokyoLegacy.loc("marisa/talisman_request");
+	private static final ResourceLocation QUEST_DAILY_TALISMAN = GensokyoLegacy.loc("marisa/daily_talisman");
 	public static final String KOISHI_PROOF = "b-proof";
 	private static final ResourceLocation QUEST_REIMU_OMINOUS = GensokyoLegacy.loc("reimu/ominous_banner");
 
@@ -289,6 +293,55 @@ public class MarisaQDGen extends QuestDialogData {
 		));
 
 		dailyQuests();
+		talismanQuests();
+	}
+
+	private void talismanQuests() {
+		prefix("marisa/talisman_request");
+		quest("marisa/talisman_request", new Quest(GLEntities.MARISA.get(),
+				List.of(new SelfReputationCondition(100),
+						new HasQuestCompletedCondition(ReimuQDGen.QUEST_TALISMAN_MATERIALS)),
+				questTitle("Talisman Courier"), questDesc("Bring Marisa healing talisman papers from Reimu."),
+				Optional.empty(),
+				new TreeMap<>(Map.of(
+						"a-talisman", new SubmitItemRequirement(List.of(item(GLTalismans.HEAL_TALISMAN.get(), 4)))
+				)),
+				List.of(new ExpReward(200), new ReputationReward(20, 300, 10, 300),
+						loot("marisa/talisman_request", LootTable.lootTable()
+								.withPool(lootItem(GLItems.DOLL_GLOVE.get(), 1))
+								.withPool(lootItem(GLItems.DOLL.get(), 1))
+								.withPool(lootItem(GLItems.STAR_WAND.get(), 1))
+								.withPool(lootItem(Items.EMERALD, 8)))),
+				start("Talk about Reimu's talismans.",
+						"Say, ze — you've seen Reimu's ofuda, right? Those little papers pack a real punch! I tried copyin' 'em myself, but mine just fizzle and smoke. Hers actually work! I need genuine samples to study — four healing talisman papers, straight from Reimu. She sells 'em, so bring your emeralds. Whaddaya say?",
+						"I'll get them from Reimu.", "That's the spirit! Four healing papers, fresh from the shrine. Don't accept knockoffs!",
+						"Can't you ask her yourself?", "Heh, Reimu charges even me full price — and she'd never stop teasin' me about it. You're my discreet courier, ze!"),
+				follow("About the talisman papers.",
+						"Got those healing papers yet? Reimu sells 'em at the shrine — four of 'em, remember!",
+						"Still saving emeralds.", "She drives a hard bargain, huh? Worth every emerald, trust me!"),
+				complete("Hand over the talisman papers.",
+						"These! Genuine Reimu ofuda — feel that ward hummin'! With these samples I'll crack her technique in no time. You're the best courier a magician could ask for!",
+						"Glad I could help.", "And I've got somethin' special for ya — my doll glove, a fresh doll, and a star wand of my own makin'. Use 'em well, ze!")
+		));
+
+		prefix("marisa/daily_talisman");
+		var talismanTable = requestTable("daily_talisman", LootTable.lootTable().withPool(LootPool.lootPool()
+				.setRolls(ConstantValue.exactly(1))
+				.add(LootItem.lootTableItem(GLTalismans.HEAL_TALISMAN.get())
+						.apply(SetItemCountFunction.setCount(UniformGenerator.between(2, 3))))));
+		daily("marisa/daily_talisman", "Talisman Top-Up", "Bring Marisa healing talisman papers from Reimu.",
+				new QuestRecurrence(24000), List.of(new HasQuestCompletedCondition(QUEST_TALISMAN_REQUEST)), 60, 10, 150, 0, 0,
+				"Yo! My ofuda study burned through yesterday's samples already. Scoot over to Reimu's and fetch me a few more healing papers, willya? Fresh research material, stat!",
+				"That's my courier! Fetch me the good papers!",
+				"What, too good for a little courier work? C'mon, Reimu's waitin'!",
+				"Healing talisman papers from Reimu, remember? My research is waitin' on 'em!",
+				"Good, don't take too long!",
+				"Perfect samples again! Thanks, courier!",
+				new TreeMap<>(Map.of(
+						"a-talisman", rollItem(talismanTable)
+				)), LootTable.lootTable()
+						.withPool(lootItem(GLItems.DOLL.get(), 1))
+						.withPool(lootItem(GLItems.STAR_WAND.get(), 1)));
 	}
 
 	private void dailyQuests() {
@@ -426,6 +479,10 @@ public class MarisaQDGen extends QuestDialogData {
 		trade("offer_sealing_pot", new TradeOffer(GLEntities.MARISA.get(),
 				List.of(new SelfReputationCondition(120)), new ItemStack(GLBlocks.SEALING_POT.asItem()),
 				new TradeRecurrence(1, 48000), List.of(item(Items.EMERALD, 24))));
+		trade("offer_star_wand", new TradeOffer(GLEntities.MARISA.get(),
+				List.of(new SelfReputationCondition(100), new HasQuestCompletedCondition(QUEST_TALISMAN_REQUEST)),
+				new ItemStack(GLItems.STAR_WAND.get()),
+				new TradeRecurrence(4, 24000), List.of(item(Items.EMERALD, 8))));
 
 		// Processing trades
 		trade("process_golden_apple", new TradeOffer(GLEntities.MARISA.get(),

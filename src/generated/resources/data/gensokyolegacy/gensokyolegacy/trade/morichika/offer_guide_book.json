@@ -1,0 +1,26 @@
+{
+  "character": "gensokyolegacy:morichika_rinnosuke",
+  "conditions": [
+    {
+      "type": "gensokyolegacy:has_advancement",
+      "advancement": "gensokyolegacy:main/welcome"
+    }
+  ],
+  "ingredients": [
+    {
+      "count": 1,
+      "item": "minecraft:emerald"
+    }
+  ],
+  "recurrence": {
+    "maxStock": 1,
+    "restockTime": 24000
+  },
+  "result": {
+    "components": {
+      "patchouli:book": "gensokyolegacy:tools_guide"
+    },
+    "count": 1,
+    "id": "patchouli:guide_book"
+  }
+}

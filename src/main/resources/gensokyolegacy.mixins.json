@@ -22,7 +22,7 @@
 		"DowserItemInHandLayerMixin",
 		"GuiGraphicsMixin",
 		"LocalPlayerMixin",
-		"GloveTargetGlowMixin"
+		"ClientGlowMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

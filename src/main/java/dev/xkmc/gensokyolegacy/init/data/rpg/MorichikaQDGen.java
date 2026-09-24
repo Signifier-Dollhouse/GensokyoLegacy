@@ -1,12 +1,15 @@
 package dev.xkmc.gensokyolegacy.init.data.rpg;
 
 import dev.xkmc.gensokyolegacy.content.rpg.condition.HasAdvancementCondition;
+import dev.xkmc.gensokyolegacy.content.rpg.condition.HasQuestCompletedCondition;
 import dev.xkmc.gensokyolegacy.content.rpg.dialog.DialogStarter;
 import dev.xkmc.gensokyolegacy.content.rpg.trade.TradeOffer;
 import dev.xkmc.gensokyolegacy.content.rpg.trade.TradeRecurrence;
+import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.GLAdvGen;
 import dev.xkmc.gensokyolegacy.init.registrate.GLEntities;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
+import dev.xkmc.l2core.compat.patchouli.PatchouliHelper;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
@@ -57,6 +60,18 @@ public class MorichikaQDGen extends QuestDialogData {
 				List.of(new HasAdvancementCondition(GLAdvGen.KOISHI_HAT)),
 				new ItemStack(GLItems.KOISHI_HAT.get()),
 				new TradeRecurrence(1, 168000), List.of(item(Items.EMERALD, 32))));
+		trade("offer_strange_glasses", new TradeOffer(GLEntities.MORICHIKA.get(),
+				List.of(),
+				new ItemStack(GLItems.STRANGE_GLASSES.get()),
+				new TradeRecurrence(1, 24000), List.of(item(Items.EMERALD, 8))));
+		trade("offer_doll_glove", new TradeOffer(GLEntities.MORICHIKA.get(),
+				List.of(new HasQuestCompletedCondition(MarisaQDGen.QUEST_TALISMAN_REQUEST)),
+				new ItemStack(GLItems.DOLL_GLOVE.get()),
+				new TradeRecurrence(1, 168000), List.of(item(Items.EMERALD, 32))));
+		trade("offer_guide_book", new TradeOffer(GLEntities.MORICHIKA.get(),
+				List.of(new HasAdvancementCondition(GLAdvGen.WELCOME)),
+				PatchouliHelper.getBook(GensokyoLegacy.loc("tools_guide")),
+				new TradeRecurrence(1, 24000), List.of(item(Items.EMERALD, 1))));
 	}
 
 }

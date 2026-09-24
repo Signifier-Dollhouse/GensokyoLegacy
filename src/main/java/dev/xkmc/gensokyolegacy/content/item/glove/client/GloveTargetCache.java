@@ -26,7 +26,7 @@ import java.util.UUID;
  * Client-side ray-trace target cache (glove.md §2). While the local player
  * holds the glove, the crosshair entity within 48 blocks (not behind a block)
  * is cached and re-synced to the server every few ticks; the cached target
- * glows via {@code GloveTargetGlowMixin} in the current mode's color. Stale
+ * glows via {@code ClientGlowManager} in the current mode's color. Stale
  * entries linger until the TTL instead of flickering on every miss — the
  * server re-validates anyway.
  *

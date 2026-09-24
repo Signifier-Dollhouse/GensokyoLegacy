@@ -321,6 +321,48 @@
 					}
 				}
 			},
+			"talisman_request": {
+				"quest": {
+					"title": "符纸快递",
+					"desc": "从灵梦那里给魔理沙带回治愈符纸。"
+				},
+				"option": {
+					"start": "谈谈灵梦的符纸。",
+					"follow_up": "关于那些符纸。",
+					"complete": "把符纸交给她。",
+					"start/reject": "你怎么不自己去问她？",
+					"start/accept": "我去灵梦那儿拿。",
+					"follow_up/end": "还在攒绿宝石。",
+					"complete/handover": "能帮上忙就好。"
+				},
+				"dialog": {
+					"marisa": {
+						"talisman_request": {
+							"start": {
+								"dialog_1": "呐，DAZE——你见过灵梦的御札吧？那些小纸片可厉害了！我自己试着仿过，结果只会滋滋冒烟。人家的可是真货！我想弄些正品来研究——四张治愈符纸，直接从灵梦那儿拿。她有卖，记得带上绿宝石。怎么样？"
+							},
+							"start/accept": {
+								"dialog_1": "好嘞！四张治愈符纸，要神社出品的新鲜货。可别拿假货糊弄我！"
+							},
+							"start/reject": {
+								"dialog_1": "嘿，灵梦连我都收全价——还会拿这事笑话我一辈子。你可是我的秘密快递员，ZE！"
+							},
+							"follow_up": {
+								"dialog_1": "治愈符纸拿到了吗？灵梦在神社有卖——四张，记得！"
+							},
+							"follow_up/end": {
+								"dialog_1": "她砍价可真狠，对吧？不过绝对值这个价，信我！"
+							},
+							"complete": {
+								"dialog_1": "就是这个！灵梦御札正品——感受到那结界的嗡鸣了吗！有了这些样本，我马上就能破解她的手法。你可真是魔法使能找到的最棒的快递员！"
+							},
+							"complete/handover": {
+								"dialog_1": "我这儿也有好东西给你——我的人偶手套、一只新玩偶，还有我亲手做的星星魔杖。好好用，ZE！"
+							}
+						}
+					}
+				}
+			},
 			"daily_mycelium": {
 				"quest": {
 					"title": "特色蘑菇",
@@ -436,6 +478,36 @@
 							},
 							"complete/handover": {
 								"dialog_1": "酿造谢过你了！"
+							}
+						}
+					}
+				}
+			},
+			"daily_talisman": {
+				"quest": {
+					"title": "符纸补货",
+					"desc": "从灵梦那里给魔理沙带回治愈符纸。"
+				},
+				"dialog": {
+					"marisa": {
+						"daily_talisman": {
+							"start": {
+								"dialog_1": "哟！昨天的样本已经被我的御札研究烧光了。跑一趟灵梦那儿，再给我弄几张治愈符纸回来，行不？新鲜研究材料，赶紧的！"
+							},
+							"start/accept": {
+								"dialog_1": "好搭档！把好符纸给我带回来！"
+							},
+							"start/reject": {
+								"dialog_1": "怎么，看不上跑腿的活？别这样，灵梦还等着呢！"
+							},
+							"follow_up": {
+								"dialog_1": "灵梦那儿的治愈符纸，记得吗？我的研究就等它们了！"
+							},
+							"follow_up/end": {
+								"dialog_1": "好，别拖太久！"
+							},
+							"complete/handover": {
+								"dialog_1": "又是完美的样本！谢啦，快递员！"
 							}
 						}
 					}

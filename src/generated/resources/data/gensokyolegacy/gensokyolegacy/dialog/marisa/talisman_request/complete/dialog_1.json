@@ -1,0 +1,16 @@
+{
+  "options": [
+    {
+      "type": "gensokyolegacy:simple",
+      "actions": [
+        {
+          "type": "gensokyolegacy:complete_quest"
+        }
+      ],
+      "conditions": [],
+      "next": "gensokyolegacy:marisa/talisman_request/complete/handover/dialog_1",
+      "text": "gensokyolegacy/marisa/talisman_request/option/complete/handover"
+    }
+  ],
+  "text": "gensokyolegacy/marisa/talisman_request/dialog/marisa/talisman_request/complete/dialog_1"
+}

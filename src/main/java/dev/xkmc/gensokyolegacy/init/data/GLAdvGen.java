@@ -1,19 +1,24 @@
 package dev.xkmc.gensokyolegacy.init.data;
 
 import com.tterrag.registrate.providers.RegistrateAdvancementProvider;
+import dev.xkmc.gensokyolegacy.content.dimension.GLDimensionGen;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
+import dev.xkmc.gensokyolegacy.init.data.biome.GLBiomes;
 import dev.xkmc.gensokyolegacy.init.registrate.GLCriteriaTriggers;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.l2core.serial.advancements.AdvancementGenerator;
 import dev.xkmc.l2core.serial.advancements.CriterionBuilder;
 import net.minecraft.advancements.Advancement;
+import net.minecraft.advancements.AdvancementRewards;
 import net.minecraft.advancements.critereon.LocationPredicate;
 import net.minecraft.advancements.critereon.PlayerTrigger;
 import net.minecraft.core.Holder;
+import net.minecraft.core.HolderSet;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.levelgen.structure.Structure;
 
 import java.util.Optional;
@@ -22,6 +27,7 @@ public class GLAdvGen {
 	public static final ResourceLocation KOISHI_FIRST = GensokyoLegacy.loc("koishi_first");
 	public static final ResourceLocation KOISHI_HAT = GensokyoLegacy.loc("koishi_hat");
 
+	public static final ResourceLocation WELCOME = GensokyoLegacy.loc("main/welcome");
 	public static final ResourceLocation ENTER_HAKUREI_SHRINE = GensokyoLegacy.loc("main/enter_hakurei_shrine");
 	public static final ResourceLocation ENTER_MARISA_HOUSE = GensokyoLegacy.loc("main/enter_marisa_house");
 	public static final ResourceLocation ENTER_MORICHIKA_SHOP = GensokyoLegacy.loc("main/enter_morichika_shop");
@@ -37,8 +43,15 @@ public class GLAdvGen {
 		var gen = new AdvancementGenerator(pvd, GensokyoLegacy.MODID);
 		var tab = gen.new TabBuilder("main");
 		var root = tab.root("welcome", GLItems.BORDER_UMBRELLA.get(),
-				CriterionBuilder.one(PlayerTrigger.TriggerInstance.tick()),
+				CriterionBuilder.one(PlayerTrigger.TriggerInstance.located(
+						LocationPredicate.Builder.location().setBiomes(HolderSet.direct(
+								resolveBiome(pvd, GLBiomes.MAGICAL_FOREST),
+								resolveBiome(pvd, GLBiomes.SAKURA_FOREST),
+								resolveBiome(pvd, GLDimensionGen.BIOME_GAP))))),
 				"Welcome to Gensokyo", "Find your way in this new world");
+		root.add((id, builder, conditions) -> builder.rewards(
+				AdvancementRewards.Builder.loot(ResourceKey.create(Registries.LOOT_TABLE,
+						GensokyoLegacy.loc("tools_guide"))).build()));
 		root.create("enter_hakurei_shrine", Items.CHERRY_SAPLING,
 				CriterionBuilder.one(PlayerTrigger.TriggerInstance.located(
 						LocationPredicate.Builder.inStructure(resolve(pvd, "hakurei_shrine")))),
@@ -52,6 +65,10 @@ public class GLAdvGen {
 						LocationPredicate.Builder.inStructure(resolve(pvd, "morichika_shop")))),
 				"Kourindou", "Enter Morichika's shop in the Magical Forest");
 		root.finish();
+	}
+
+	private static Holder<Biome> resolveBiome(RegistrateAdvancementProvider pvd, ResourceKey<Biome> key) {
+		return pvd.resolve(key);
 	}
 
 	private static Holder<Structure> resolve(RegistrateAdvancementProvider pvd, String id) {

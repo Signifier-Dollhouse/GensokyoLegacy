@@ -105,7 +105,9 @@
 		"dowser": "纳兹玲的寻宝钗",
 		"dowser_left": "纳兹玲的寻宝钗（左半）",
 		"dowser_right": "纳兹玲的寻宝钗（右半）",
-		"border_umbrella": "隙间伞"
+		"border_umbrella": "隙间伞",
+		"star_wand": "星星魔杖",
+		"strange_glasses": "奇怪的眼镜"
 	},
 	"-cartesian": {
 		"entity": {

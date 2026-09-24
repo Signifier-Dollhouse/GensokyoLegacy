@@ -30,7 +30,7 @@ Implemented — glove (item, 6 modes with heal/stop hidden, wheel, target cache 
 - `content/item/glove/DollGloveSelectionListener.java` + `DollGloveLeftClickHandler.java`
 - `content/item/glove/client/DollGloveModeWheel.java`, `DollGloveModeEntry.java`
 - `content/item/glove/network/DollGloveSelectPacket.java`, `DollGloveTargetPacket.java`, `DollGloveSwingPacket.java`
-- `content/item/glove/client/GloveTargetCache.java` (+ per-player server cache) + `mixin/GloveTargetGlowMixin.java` + mixins-json entry (glove.md §2)
+- `content/item/glove/client/GloveTargetCache.java` (+ per-player server cache) + `mixin/ClientGlowMixin.java` (via `content/client/ClientGlowManager.java`) + mixins-json entry (glove.md §2)
 
 ## 2. Files to modify
 

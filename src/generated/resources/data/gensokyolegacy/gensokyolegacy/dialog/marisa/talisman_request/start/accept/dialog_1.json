@@ -1,0 +1,11 @@
+{
+  "options": [
+    {
+      "type": "gensokyolegacy:simple",
+      "actions": [],
+      "conditions": [],
+      "text": "gensokyolegacy/marisa/shared/option/bye"
+    }
+  ],
+  "text": "gensokyolegacy/marisa/talisman_request/dialog/marisa/talisman_request/start/accept/dialog_1"
+}

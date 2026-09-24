@@ -1,0 +1,23 @@
+{
+  "options": [
+    {
+      "type": "gensokyolegacy:simple",
+      "actions": [],
+      "conditions": [],
+      "next": "gensokyolegacy:marisa/daily_talisman/start/reject/dialog_1",
+      "text": "gensokyolegacy/marisa/shared/option/daily_reject"
+    },
+    {
+      "type": "gensokyolegacy:simple",
+      "actions": [
+        {
+          "type": "gensokyolegacy:start_quest"
+        }
+      ],
+      "conditions": [],
+      "next": "gensokyolegacy:marisa/daily_talisman/start/accept/dialog_1",
+      "text": "gensokyolegacy/marisa/shared/option/daily_accept"
+    }
+  ],
+  "text": "gensokyolegacy/marisa/daily_talisman/dialog/marisa/daily_talisman/start/dialog_1"
+}

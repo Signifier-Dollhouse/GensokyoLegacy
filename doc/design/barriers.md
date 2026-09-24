@@ -236,9 +236,10 @@ range until re-placed); fine for v1.
 **[DECIDED]** Visual feedback shows the forcefield texture ("for now", placeholder).
 
 The renderer is generic: **each `EffectData` declares its own visuals**, so any area effect
-(not just sealing) can render. `EffectData.getClientVisual()` returns a `List<AreaEffectVisual>`
+(not just sealing) can render. `EffectData.getClientVisual(viewer)` returns a `List<AreaEffectVisual>`
 (texture, RGBA, scroll speed, which faces) — an entry may contribute to **multiple render passes**
-by returning several visuals; `SealingEffectData` returns one.
+by returning several visuals; `SealingEffectData` returns one, and only when the viewer wears
+strange glasses or holds a sealing pot (otherwise empty).
 
 `ClientSealingPotRenderer` (`@EventBusSubscriber`, `Dist.CLIENT`) listens to
 `RenderLevelStageEvent` at `AFTER_ENTITIES`:
@@ -269,7 +270,7 @@ by returning several visuals; `SealingEffectData` returns one.
 | Spawn hook | `NaturalSpawner` mixin (§5) | Hostile-natural-only; programmatic spawns untouched; cheaper than per-mob events. |
 | Spawn scope | **Hostile (`MONSTER`) natural spawns only** | Decided: friendly mobs still spawn; youkai indifferent (programmatic → unaffected). |
 | Visual | forcefield-texture walls | Decided: `textures/barriers/sealing_pot.png` (copied from vanilla `textures/misc/forcefield.png`) placeholder until a proper effect render/art exists. |
-| Visual API | `EffectData.getClientVisual()` → `List<AreaEffectVisual>` | Decided: per-effect visuals (texture/color/speed/faces); one entry → multiple render passes; renderer batches by texture. Culling happens before any buffer is built. |
+| Visual API | `EffectData.getClientVisual(viewer)` → `List<AreaEffectVisual>` | Decided: per-effect visuals (texture/color/speed/faces) with per-viewer visibility; one entry → multiple render passes; renderer batches by texture. Culling happens before any buffer is built. |
 | Visual scroll | V offset `speed*time` on walls, `0.5` tiles/s | Decided: textures move vertically; speed is per-visual. |
 | Config | `sealingPotRadius` default 4 | Decided: server-synced config, range `[1, 8]`. |
 | Chunk quantize | `getAffecting(level, ChunkPos)` | No force-load; bounds check to the pot's sealed chunks. |

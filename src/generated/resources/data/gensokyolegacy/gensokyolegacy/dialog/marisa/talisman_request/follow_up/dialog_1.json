@@ -1,0 +1,12 @@
+{
+  "options": [
+    {
+      "type": "gensokyolegacy:simple",
+      "actions": [],
+      "conditions": [],
+      "next": "gensokyolegacy:marisa/talisman_request/follow_up/end/dialog_1",
+      "text": "gensokyolegacy/marisa/talisman_request/option/follow_up/end"
+    }
+  ],
+  "text": "gensokyolegacy/marisa/talisman_request/dialog/marisa/talisman_request/follow_up/dialog_1"
+}

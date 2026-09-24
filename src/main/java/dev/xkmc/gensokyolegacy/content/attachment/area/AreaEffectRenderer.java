@@ -2,9 +2,11 @@ package dev.xkmc.gensokyolegacy.content.attachment.area;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -23,8 +25,9 @@ public class AreaEffectRenderer {
 	public static void onRenderLevel(Level level, RenderLevelStageEvent event) {
 		Frustum frustum = event.getFrustum();
 		Map<ResourceLocation, List<RegionBorderVisual>> passes = new LinkedHashMap<>();
+		Player viewer = Minecraft.getInstance().player;
 		for (AreaEffectEntry entry : ClientAreaEffectTracker.getTracked()) {
-			for (AreaEffectVisual visual : entry.data.getClientVisual()) {
+			for (AreaEffectVisual visual : entry.data.getClientVisual(viewer)) {
 				passes.computeIfAbsent(visual.texture(), k -> new ArrayList<>())
 						.add(new RegionBorderVisual(entry.range, visual));
 			}

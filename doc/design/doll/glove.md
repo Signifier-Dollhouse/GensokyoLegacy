@@ -79,6 +79,6 @@ No entity clicks: the glove acts on a cached ray-trace target (max 48 blocks), s
 - `content/item/glove/client/DollGloveModeWheel.java`, `DollGloveModeEntry.java`
 - `content/item/glove/network/DollGloveSelectPacket.java`, `DollGloveTargetPacket.java`, `DollGloveSwingPacket.java`
 - `content/item/glove/client/GloveTargetCache.java` (attack/heal targets only — never dolls) + `GloveDollHover.java` (16-block doll hover trace: gold glow source for the mixin, overlay, and sidebar) + per-player server cache, e.g. on the commander or a player attachment)
-- `mixin/GloveTargetGlowMixin.java` (client glow for the cached UUID while the glove is held)
+- `mixin/ClientGlowMixin.java` (single client entity-glow mixin, delegating to `content/client/ClientGlowManager.java`; glow rule for the cached UUID while the glove is held)
 
 See `checklist.md` for the full cross-document file/registration list.

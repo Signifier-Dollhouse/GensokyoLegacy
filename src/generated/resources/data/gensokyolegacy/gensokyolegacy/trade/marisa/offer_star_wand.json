@@ -1,0 +1,27 @@
+{
+  "character": "gensokyolegacy:kirisame_marisa",
+  "conditions": [
+    {
+      "type": "gensokyolegacy:self_reputation",
+      "reputation": 100
+    },
+    {
+      "type": "gensokyolegacy:has_quest_completed",
+      "quest": "gensokyolegacy:marisa/talisman_request"
+    }
+  ],
+  "ingredients": [
+    {
+      "count": 8,
+      "item": "minecraft:emerald"
+    }
+  ],
+  "recurrence": {
+    "maxStock": 4,
+    "restockTime": 24000
+  },
+  "result": {
+    "count": 1,
+    "id": "gensokyolegacy:star_wand"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "character": "gensokyolegacy:morichika_rinnosuke",
+  "conditions": [],
+  "ingredients": [
+    {
+      "count": 8,
+      "item": "minecraft:emerald"
+    }
+  ],
+  "recurrence": {
+    "maxStock": 1,
+    "restockTime": 24000
+  },
+  "result": {
+    "count": 1,
+    "id": "gensokyolegacy:strange_glasses"
+  }
+}

@@ -58,7 +58,7 @@ public class ReimuQDGen extends QuestDialogData {
 
 	private static final ResourceLocation QUEST_LOCAL_FOOD = GensokyoLegacy.loc("reimu/local_food");
 	private static final ResourceLocation QUEST_HOSTILE_LOOT = GensokyoLegacy.loc("reimu/hostile_loot");
-	private static final ResourceLocation QUEST_TALISMAN_MATERIALS = GensokyoLegacy.loc("reimu/talisman_materials");
+	public static final ResourceLocation QUEST_TALISMAN_MATERIALS = GensokyoLegacy.loc("reimu/talisman_materials");
 	private static final ResourceLocation QUEST_ENDER_MATERIALS = GensokyoLegacy.loc("reimu/ender_materials");
 	private static final ResourceLocation QUEST_OMINOUS_BANNER = GensokyoLegacy.loc("reimu/ominous_banner");
 	private static final ResourceLocation QUEST_RAID = GensokyoLegacy.loc("reimu/raid");
