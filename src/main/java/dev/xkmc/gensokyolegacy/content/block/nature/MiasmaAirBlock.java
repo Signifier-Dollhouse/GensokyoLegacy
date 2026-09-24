@@ -49,6 +49,14 @@ public class MiasmaAirBlock extends AirBlock {
 	@Override
 	protected void randomTick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
 		int lvl = state.getValue(INTENSITY);
+		if (!isSustained(level, pos, lvl)) {
+			if (lvl <= 1) {
+				level.removeBlock(pos, false);
+			} else {
+				level.setBlock(pos, state.setValue(INTENSITY, lvl - 1), 3);
+			}
+			return;
+		}
 		trySpread(level, pos.below(), lvl, this, 1.0f, random);
 		for (Direction dir : Direction.Plane.HORIZONTAL) {
 			int next = lvl - 1;
@@ -60,6 +68,32 @@ public class MiasmaAirBlock extends AirBlock {
 		if (up >= 1) {
 			trySpread(level, pos.above(), up, this, 0.1f, random);
 		}
+	}
+
+	private static boolean isSustained(ServerLevel level, BlockPos pos, int lvl) {
+		for (Direction dir : Direction.values()) {
+			BlockState neighbor = level.getBlockState(pos.relative(dir));
+			if (isMushroomSustainer(neighbor, lvl)) return true;
+			if (neighbor.getBlock() instanceof MiasmaAirBlock) {
+				int required = switch (dir) {
+					case UP -> lvl;// neighbor above spreads down at full strength
+					case DOWN -> lvl + 2;// neighbor below spreads up at -2
+					default -> lvl + 1;// horizontal neighbors spread at -1
+				};
+				if (neighbor.getValue(INTENSITY) >= required) return true;
+			}
+		}
+		return false;
+	}
+
+	private static boolean isMushroomSustainer(BlockState state, int lvl) {
+		if (state.getBlock() instanceof MiasmaMushroomCapBlock) {
+			return MiasmaMushroomCapBlock.MAX_INTENSITY >= lvl;
+		}
+		if (state.getBlock() instanceof MiasmaMushroomHugeBlock) {
+			return MiasmaMushroomHugeBlock.MAX_INTENSITY >= lvl;
+		}
+		return false;
 	}
 
 	public static void emitAround(ServerLevel level, BlockPos center, int max, RandomSource random) {

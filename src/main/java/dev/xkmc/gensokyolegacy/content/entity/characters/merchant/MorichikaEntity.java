@@ -7,6 +7,7 @@ import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiFlags;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.UseMainhandAnim;
 import dev.xkmc.gensokyolegacy.init.data.GLTagGen;
 import dev.xkmc.gensokyolegacy.init.registrate.GLBrains;
+import dev.xkmc.l2serial.serialization.marker.SerialClass;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.behavior.RandomStroll;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
@@ -19,6 +20,7 @@ import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.animation.*;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
+@SerialClass
 public class MorichikaEntity extends GeneralYoukaiEntity implements GeoEntity, UseMainhandAnim {
 
 	protected static final RawAnimation IDLE = RawAnimation.begin().thenLoop("待机");

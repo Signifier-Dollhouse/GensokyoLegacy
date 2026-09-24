@@ -1,5 +1,5 @@
 {
-  "parent": "gensokyolegacy:main/enter_hakurei_shrine",
+  "parent": "gensokyolegacy:main/obtain_gap_portal",
   "criteria": {
     "0": {
       "conditions": {

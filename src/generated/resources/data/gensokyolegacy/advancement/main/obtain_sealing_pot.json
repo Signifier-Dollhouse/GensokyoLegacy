@@ -1,5 +1,5 @@
 {
-  "parent": "gensokyolegacy:main/enter_marisa_house",
+  "parent": "gensokyolegacy:main/obtain_doll_glove",
   "criteria": {
     "0": {
       "conditions": {

@@ -80,51 +80,48 @@ public class GLAdvGen {
 						LocationPredicate.Builder.inStructure(resolve(pvd, "morichika_shop")))),
 				"Kourindou", "Enter Morichika's shop in the Magical Forest");
 		marisaHouse.create("alchemy", GLBlocks.ALCHEMY_POT.asItem(),
-				CriterionBuilder.item(GLBlocks.ALCHEMY_POT.asItem()),
-				"Alchemy Pot", "Obtain an Alchemy Pot")
-				.type(AdvancementType.TASK, false, false, false);
-		marisaHouse.create("obtain_doll_glove", GLItems.DOLL_GLOVE.get(),
-				CriterionBuilder.item(GLItems.DOLL_GLOVE.get()),
-				"Doll Glove", "Obtain the Seven-Colored Doll Glove")
-				.type(AdvancementType.TASK, false, false, false);
-		marisaHouse.create("obtain_sealing_pot", GLBlocks.SEALING_POT.asItem(),
-				CriterionBuilder.item(GLBlocks.SEALING_POT.asItem()),
-				"Sealing Pot", "Obtain a Sealing Pot")
+						CriterionBuilder.item(GLBlocks.ALCHEMY_POT.asItem()),
+						"Alchemy Pot", "Obtain an Alchemy Pot")
+				.type(AdvancementType.TASK, false, false, false)
+				.create("obtain_doll_glove", GLItems.DOLL_GLOVE.get(),
+						CriterionBuilder.item(GLItems.DOLL_GLOVE.get()),
+						"Doll Glove", "Obtain the Seven-Colored Doll Glove")
+				.type(AdvancementType.TASK, false, false, false)
+				.create("obtain_sealing_pot", GLBlocks.SEALING_POT.asItem(),
+						CriterionBuilder.item(GLBlocks.SEALING_POT.asItem()),
+						"Sealing Pot", "Obtain a Sealing Pot")
 				.type(AdvancementType.TASK, false, false, false);
 		hakurei.create("obtain_talisman", GLTalismans.HEAL_TALISMAN.get(),
-				CriterionBuilder.items(
-						GLTalismans.HEAL_TALISMAN.get(), GLTalismans.SPEED_TALISMAN.get(),
-						GLTalismans.HYDROPHOBIC_TALISMAN.get(), GLTalismans.LAVA_TALISMAN.get(),
-						GLTalismans.SHELTER_TALISMAN.get(), GLTalismans.FOLDED_PAPER_TALISMAN.get()),
-				"Paper Talismans", "Obtain a paper talisman")
-				.type(AdvancementType.TASK, false, false, false);
-		hakurei.create("obtain_gap_portal", GLBlocks.GAP_PORTAL.asItem(),
-				CriterionBuilder.item(GLBlocks.GAP_PORTAL.asItem()),
-				"Gap Portal", "Obtain a Gap Portal")
-				.type(AdvancementType.TASK, false, false, false);
-		hakurei.create("obtain_border_umbrella", GLItems.BORDER_UMBRELLA.get(),
-				CriterionBuilder.item(GLItems.BORDER_UMBRELLA.get()),
-				"Border Umbrella", "Obtain a Border Umbrella")
+						CriterionBuilder.item(GLTagGen.TALISMAN),
+						"Paper Talismans", "Obtain a paper talisman")
+				.type(AdvancementType.TASK, false, false, false)
+				.create("obtain_gap_portal", GLBlocks.GAP_PORTAL.asItem(),
+						CriterionBuilder.item(GLBlocks.GAP_PORTAL.asItem()),
+						"Gap Portal", "Obtain a Gap Portal")
+				.type(AdvancementType.TASK, false, false, false)
+				.create("obtain_border_umbrella", GLItems.BORDER_UMBRELLA.get(),
+						CriterionBuilder.item(GLItems.BORDER_UMBRELLA.get()),
+						"Border Umbrella", "Obtain a Border Umbrella")
 				.type(AdvancementType.TASK, false, false, false);
 		morichika.create("obtain_mini_hakkero", GLItems.MINI_FURNACE_1.get(),
-				CriterionBuilder.item(GLItems.MINI_FURNACE_1.get()),
-				"Mini Hakkero", "Obtain a Mini Hakkero Prototype")
+						CriterionBuilder.item(GLItems.MINI_FURNACE_1.get()),
+						"Mini Hakkero", "Obtain a Mini Hakkero Prototype")
 				.type(AdvancementType.TASK, false, false, false);
 		morichika.create("obtain_cat_bell", GLItems.CAT_BELL.get(),
-				CriterionBuilder.item(GLItems.CAT_BELL.get()),
-				"Cat Bell", "Obtain a Cat Bell")
+						CriterionBuilder.item(GLItems.CAT_BELL.get()),
+						"Cat Bell", "Obtain a Cat Bell")
 				.type(AdvancementType.TASK, false, false, false);
 		morichika.create("obtain_centipickaxe", GLItems.CENTIPICKAXE.get(),
-				CriterionBuilder.item(GLItems.CENTIPICKAXE.get()),
-				"Centipeck", "Obtain a Centipeck")
+						CriterionBuilder.item(GLItems.CENTIPICKAXE.get()),
+						"Centipeck", "Obtain a Centipeck")
 				.type(AdvancementType.TASK, false, false, false);
 		morichika.create("obtain_dowser", GLItems.DOWSER.get(),
-				CriterionBuilder.item(GLItems.DOWSER.get()),
-				"Dowser", "Obtain Nazrin's Dowser")
+						CriterionBuilder.item(GLItems.DOWSER.get()),
+						"Dowser", "Obtain Nazrin's Dowser")
 				.type(AdvancementType.TASK, false, false, false);
 		morichika.create("obtain_mermaid_pearl", GLItems.MERMAID_PEARL.get(),
-				CriterionBuilder.item(GLItems.MERMAID_PEARL.get()),
-				"Mermaid's Pearl", "Obtain a Mermaid's Pearl")
+						CriterionBuilder.item(GLItems.MERMAID_PEARL.get()),
+						"Mermaid's Pearl", "Obtain a Mermaid's Pearl")
 				.type(AdvancementType.TASK, false, false, false);
 		root.finish();
 	}

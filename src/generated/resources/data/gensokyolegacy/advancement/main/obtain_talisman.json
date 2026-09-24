@@ -5,14 +5,7 @@
       "conditions": {
         "items": [
           {
-            "items": [
-              "gensokyolegacy:heal_talisman",
-              "gensokyolegacy:speed_talisman",
-              "gensokyolegacy:hydrophobic_talisman",
-              "gensokyolegacy:lava_talisman",
-              "gensokyolegacy:shelter_talisman",
-              "gensokyolegacy:folded_paper_talisman"
-            ]
+            "items": "#gensokyolegacy:talisman"
           }
         ]
       },
