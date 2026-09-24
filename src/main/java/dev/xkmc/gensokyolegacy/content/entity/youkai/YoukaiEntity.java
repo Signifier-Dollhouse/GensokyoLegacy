@@ -163,7 +163,7 @@ public abstract class YoukaiEntity extends DamageClampEntity implements SpellCir
 				cdc.fromTag(val, e.getClass(), e);
 			}
 		}
-		if (getTarget() == null) {
+		if (getTarget() == null || isSleeping()) {
 			navCtrl.setWalking();
 		}
 	}
@@ -458,6 +458,12 @@ public abstract class YoukaiEntity extends DamageClampEntity implements SpellCir
 		if (this.isPassenger()) {
 			this.stopRiding();
 		}
+		// Sleep entry cancels all motion at the source: the bed-approach walk/fly
+		// orders must not outlive sleep onset, and stale flight state (noGravity,
+		// FLYING flag) must not carry into the sleeping pose / animation.
+		this.getNavigation().stop();
+		this.navCtrl.stopMoving();
+		this.navCtrl.setWalking();
 		this.setPose(Pose.SLEEPING);
 		this.setPos(pos.getX() + 0.5, pos.getY() + 0.6875, pos.getZ() + 0.5);
 		this.setSleepingPos(pos);

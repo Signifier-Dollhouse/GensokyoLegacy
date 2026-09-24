@@ -49,6 +49,12 @@ public class YoukaiSleepTask extends Behavior<YoukaiEntity> {
 
 	@Override
 	protected void stop(ServerLevel level, YoukaiEntity entity, long gameTime) {
+		// Sleep exit always releases the bed approach: when REST ends mid-approach
+		// the entity is awake but still holds this task's WALK_TARGET, which would
+		// keep MoveTask walking on a stale order and block tasks that require
+		// WALK_TARGET absent (e.g. YoukaiGoHomeTask) from starting.
+		entity.getNavigation().stop();
+		BrainUtils.clearMemory(entity, MemoryModuleType.WALK_TARGET);
 		if (!entity.isSleeping()) return;
 		entity.stopSleeping();
 		this.nextOkStartTime = gameTime + 40L;

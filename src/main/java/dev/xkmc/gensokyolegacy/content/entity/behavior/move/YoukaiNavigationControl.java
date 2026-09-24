@@ -23,8 +23,8 @@ public class YoukaiNavigationControl {
 	private final YoukaiEntity self;
 	private final CombatFlyingControl combat;
 	private final NavigationDebugger debugger;
-	private final MoveControl walkCtrl;
-	private final MoveControl flyCtrl;
+	private final ClimbMoveControl walkCtrl;
+	private final FlyControl flyCtrl;
 	private final Ground walkNav;
 	private final Flying flyNav;
 
@@ -37,25 +37,32 @@ public class YoukaiNavigationControl {
 		this.debugger = new NavigationDebugger(self);
 		this.walkCtrl = new ClimbMoveControl(self);
 		this.walkNav = new Ground(self, self.level());
-		this.flyCtrl = new FlyingMoveControl(self, 10, false);
+		this.flyCtrl = new FlyControl(self, 10, false);
 		this.flyNav = new Flying(self, self.level());
 		self.setControl(walkCtrl, walkNav);
 		markHuman();
 	}
 
 	public final void setFlying() {
+		// Flight entry wakes: within one brain tick the new activity's behaviors
+		// start before the old activity's stop, so a fight order issued while
+		// asleep must end sleep first instead of flying in sleeping pose.
+		if (self.isSleeping()) {
+			self.stopSleeping();
+		}
 		flyNav.tempFly = false;
 		self.setNoGravity(true);
+		self.setFlag(YoukaiFlags.FLYING, true);
 		if (isFlying) return;
 		self.getNavigation().stop();
 		self.setControl(flyCtrl, flyNav);
 		isFlying = true;
-		self.setFlag(YoukaiFlags.FLYING, true);
 	}
 
 	public final void setWalking() {
 		flyNav.tempFly = false;
 		self.setNoGravity(false);
+		self.setFlag(YoukaiFlags.FLYING, false);
 		if (!isFlying) return;
 		self.getNavigation().stop();
 		self.setYya(0);
@@ -64,11 +71,15 @@ public class YoukaiNavigationControl {
 		self.setControl(walkCtrl, walkNav);
 		isFlying = false;
 		leaveGroundTick = 0;
-		self.setFlag(YoukaiFlags.FLYING, false);
 	}
 
 	public final boolean isFlying() {
 		return isFlying;
+	}
+
+	public void stopMoving() {
+		walkCtrl.stop();
+		flyCtrl.stop();
 	}
 
 	public void tickMove() {
@@ -209,6 +220,10 @@ public class YoukaiNavigationControl {
 			super(mob);
 		}
 
+		public void stop() {
+			operation = Operation.WAIT;
+		}
+
 		@Override
 		public void tick() {
 			pressIntoLadder();
@@ -262,6 +277,17 @@ public class YoukaiNavigationControl {
 					return pos;
 			}
 			return null;
+		}
+	}
+
+	public static class FlyControl extends FlyingMoveControl {
+
+		public FlyControl(Mob mob, int maxTurn, boolean hovers) {
+			super(mob, maxTurn, hovers);
+		}
+
+		public void stop() {
+			operation = Operation.WAIT;
 		}
 	}
 
