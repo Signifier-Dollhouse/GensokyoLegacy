@@ -4,6 +4,7 @@ import dev.xkmc.gensokyolegacy.content.entity.behavior.brain.TaskBoard;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.task.home.YoukaiRestockShelfTask;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.GeneralYoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiFlags;
+import dev.xkmc.gensokyolegacy.content.entity.youkai.UseMainhandAnim;
 import dev.xkmc.gensokyolegacy.init.data.GLTagGen;
 import dev.xkmc.gensokyolegacy.init.registrate.GLBrains;
 import net.minecraft.world.entity.EntityType;
@@ -18,7 +19,7 @@ import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.animation.*;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
-public class MorichikaEntity extends GeneralYoukaiEntity implements GeoEntity {
+public class MorichikaEntity extends GeneralYoukaiEntity implements GeoEntity, UseMainhandAnim {
 
 	protected static final RawAnimation IDLE = RawAnimation.begin().thenLoop("待机");
 	protected static final RawAnimation WALK = RawAnimation.begin().thenLoop("走路");
@@ -52,6 +53,9 @@ public class MorichikaEntity extends GeneralYoukaiEntity implements GeoEntity {
 	}
 
 	protected <E extends MorichikaEntity> PlayState idleAnimController(final AnimationState<E> event) {
+		if (event.getController().isPlayingTriggeredAnimation()) {
+			return PlayState.CONTINUE;
+		}
 		if (isSleeping()) {
 			return event.setAndContinue(SLEEP);
 		}
@@ -69,7 +73,14 @@ public class MorichikaEntity extends GeneralYoukaiEntity implements GeoEntity {
 
 	@Override
 	public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-		controllers.add(new AnimationController<>(this, "Moving", 5, this::idleAnimController));
+		controllers.add(new AnimationController<>(this, ANIM_CONTROLLER, 5, this::idleAnimController)
+				.triggerableAnim(USE_TRIGGER, USE_MAINHAND));
+	}
+
+	@Override
+	public void handleEntityEvent(byte id) {
+		if (level().isClientSide() && handleUseMainhandEvent(id)) return;
+		super.handleEntityEvent(id);
 	}
 
 	@Override

@@ -12,7 +12,7 @@ public class MarisaModel extends DefaultedEntityGeoModel<MarisaEntity> {
 
 	private final ResourceLocation model = GensokyoLegacy.loc("geo/marisa.geo.json");
 	private final ResourceLocation texture = GensokyoLegacy.loc("textures/geo/marisa.png");
-	private final ResourceLocation animations = GensokyoLegacy.loc("animations/morichika.animation.json");
+	private final ResourceLocation animations = GensokyoLegacy.loc("animations/marisa.animation.json");
 
 	@Override
 	public ResourceLocation getModelResource(MarisaEntity animatable) {

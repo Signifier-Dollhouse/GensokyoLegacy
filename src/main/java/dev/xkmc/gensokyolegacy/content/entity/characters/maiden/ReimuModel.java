@@ -13,7 +13,7 @@ public class ReimuModel extends DefaultedEntityGeoModel<ReimuEntity> {
 
 	private final ResourceLocation model = GensokyoLegacy.loc("geo/reimu.geo.json");
 	private final ResourceLocation texture = GensokyoLegacy.loc("textures/geo/reimu.png");
-	private final ResourceLocation animations = GensokyoLegacy.loc("animations/morichika.animation.json");
+	private final ResourceLocation animations = GensokyoLegacy.loc("animations/reimu.animation.json");
 
 	@Override
 	public ResourceLocation getModelResource(ReimuEntity animatable) {

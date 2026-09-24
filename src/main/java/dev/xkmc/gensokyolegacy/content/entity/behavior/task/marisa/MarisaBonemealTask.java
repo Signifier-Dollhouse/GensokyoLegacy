@@ -2,6 +2,7 @@ package dev.xkmc.gensokyolegacy.content.entity.behavior.task.marisa;
 
 import dev.xkmc.gensokyolegacy.content.entity.behavior.task.home.AbstractHomeHolderTask;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.SmartYoukaiEntity;
+import dev.xkmc.gensokyolegacy.content.entity.youkai.UseMainhandAnim;
 import dev.xkmc.gensokyolegacy.util.BrainUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -64,6 +65,7 @@ public class MarisaBonemealTask<E extends SmartYoukaiEntity> extends AbstractHom
 		if (!level.isLoaded(target) || !isValidGrass(level, target)) return false;
 		if (entity.distanceToSqr(target.getCenter()) < 9) {
 			entity.swing(InteractionHand.MAIN_HAND);
+			if (entity instanceof UseMainhandAnim anim) anim.broadcastUseMainhandAnim();
 			if (BoneMealItem.applyBonemeal(new ItemStack(Items.BONE_MEAL), level, target, null)) {
 				level.levelEvent(1505, target, 15);
 				nextUse = gameTime + USE_COOLDOWN;
