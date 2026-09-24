@@ -35,6 +35,8 @@ import dev.xkmc.gensokyolegacy.content.spell.item.*;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.GLTagGen;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLBlocks;
+import dev.xkmc.gensokyolegacy.init.registrate.block.GLDecoBlocks;
+import dev.xkmc.gensokyolegacy.init.registrate.block.GLNaturalBlocks;
 import dev.xkmc.l2core.init.reg.registrate.SimpleEntry;
 import dev.xkmc.l2core.init.reg.simple.DCReg;
 import dev.xkmc.l2core.init.reg.simple.DCVal;
@@ -241,29 +243,34 @@ public class GLItems {
 
 			}
 
+			// ice
+			{
+				FAIRY_ICE_CRYSTAL = reg.item("fairy_ice_crystal", FairyIceItem::new)
+						.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/ingredient/" + ctx.getName())))
+						.register();
+				FROZEN_FROG_COLD = reg.item("frozen_frog_cold",
+								p -> new FrozenFrogItem(p.stacksTo(16), FrogVariant.COLD))
+						.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/ingredient/" + ctx.getName())))
+						.register();
+				FROZEN_FROG_WARM = reg.item("frozen_frog_warm",
+								p -> new FrozenFrogItem(p.stacksTo(16), FrogVariant.WARM))
+						.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/ingredient/" + ctx.getName())))
+						.register();
+				FROZEN_FROG_TEMPERATE = reg.item("frozen_frog_temperate",
+								p -> new FrozenFrogItem(p.stacksTo(16), FrogVariant.TEMPERATE))
+						.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/ingredient/" + ctx.getName())))
+						.register();
+			}
+
 		}
+
+		GLEffects.register();
+		GLParticles.register();
+		GLDecoBlocks.register();
+		GLNaturalBlocks.register();
 
 		TAB = reg.buildModCreativeTab("ingredients", "Gensokyo Legacy - Ingredients",
 				e -> e.icon(GLItems.FAIRY_ICE_CRYSTAL::asStack));
-
-		// ice
-		{
-			FAIRY_ICE_CRYSTAL = reg.item("fairy_ice_crystal", FairyIceItem::new)
-					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/ingredient/" + ctx.getName())))
-					.register();
-			FROZEN_FROG_COLD = reg.item("frozen_frog_cold",
-							p -> new FrozenFrogItem(p.stacksTo(16), FrogVariant.COLD))
-					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/ingredient/" + ctx.getName())))
-					.register();
-			FROZEN_FROG_WARM = reg.item("frozen_frog_warm",
-							p -> new FrozenFrogItem(p.stacksTo(16), FrogVariant.WARM))
-					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/ingredient/" + ctx.getName())))
-					.register();
-			FROZEN_FROG_TEMPERATE = reg.item("frozen_frog_temperate",
-							p -> new FrozenFrogItem(p.stacksTo(16), FrogVariant.TEMPERATE))
-					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/ingredient/" + ctx.getName())))
-					.register();
-		}
 
 		// tools
 		{

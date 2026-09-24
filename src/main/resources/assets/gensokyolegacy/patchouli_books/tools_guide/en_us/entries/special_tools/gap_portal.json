@@ -2,6 +2,7 @@
   "name": "Gap Portal",
   "icon": "gensokyolegacy:gap_portal",
   "category": "gensokyolegacy:special_tools",
+  "advancement": "gensokyolegacy:main/obtain_gap_portal",
   "sortnum": 3,
   "pages": [
     {

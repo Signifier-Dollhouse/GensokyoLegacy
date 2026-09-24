@@ -2,6 +2,7 @@
   "name": "魔女魔酿",
   "icon": "gensokyolegacy:mundane_hexbrew_bottle",
   "category": "gensokyolegacy:alchemy",
+  "advancement": "gensokyolegacy:main/alchemy",
   "sortnum": 3,
   "pages": [
     {
@@ -20,7 +21,7 @@
       "type": "patchouli:spotlight",
       "item": "gensokyolegacy:miasma_hexbrew_bottle",
       "title": "瘴气魔酿",
-      "text": "投掷后使目标获得持续 60 秒的瘴气。受到瘴气影响的目标会多承受 50% 的伤害，同时护甲效果减半。"
+      "text": "投掷后使目标获得持续 60 秒的瘴气。受到瘴气影响的目标会多承受 50% 的伤害，同时护甲效果减半、治疗量降低 30%，受伤时还可能获得负面效果。"
     },
     {
       "type": "patchouli:spotlight",

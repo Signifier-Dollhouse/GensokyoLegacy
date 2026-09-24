@@ -1,0 +1,35 @@
+{
+  "parent": "gensokyolegacy:main/enter_marisa_house",
+  "criteria": {
+    "0": {
+      "conditions": {
+        "items": [
+          {
+            "items": "gensokyolegacy:sealing_pot"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "announce_to_chat": false,
+    "description": {
+      "translate": "advancements.gensokyolegacy.main.obtain_sealing_pot.description"
+    },
+    "icon": {
+      "count": 1,
+      "id": "gensokyolegacy:sealing_pot"
+    },
+    "show_toast": false,
+    "title": {
+      "translate": "advancements.gensokyolegacy.main.obtain_sealing_pot.title"
+    }
+  },
+  "requirements": [
+    [
+      "0"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

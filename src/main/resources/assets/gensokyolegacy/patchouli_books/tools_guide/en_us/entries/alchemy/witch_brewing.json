@@ -2,6 +2,7 @@
   "name": "Witch Hexbrew",
   "icon": "gensokyolegacy:witch_hexbrew_bottle",
   "category": "gensokyolegacy:alchemy",
+  "advancement": "gensokyolegacy:main/alchemy",
   "sortnum": 4,
   "pages": [
     {

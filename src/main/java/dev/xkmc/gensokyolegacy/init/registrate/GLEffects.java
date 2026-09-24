@@ -32,7 +32,7 @@ public class GLEffects {
 
 	public static final LegacyHolder<MobEffect> MIASMA = genEffect("miasma",
 			MiasmaEffect::new,
-			"Armor halved, damage taken +50%");
+			"Armor halved, damage taken +50%, healing -30%. May gain negative effects when hurt.");
 
 	public static final LegacyHolder<MobEffect> HYPHAE_INFECTION = genEffect("hyphae_infection",
 			HyphaeInfectionEffect::new,

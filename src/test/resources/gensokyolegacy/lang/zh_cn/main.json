@@ -123,28 +123,28 @@
 			"mode_super": "技能",
 			"mode_suicide": "自爆",
 			"mode_editor": "编辑装载",
-			"desc_summon": "召唤所有待命玩偶，或召回所有已召唤玩偶",
-			"desc_volley": "命令所有携带弹幕的玩偶依次射击一次",
-			"desc_super": "命令一只随机玩偶释放超绝攻击",
-			"desc_suicide": "命令一只随机玩偶冲锋自爆",
-			"desc_editor": "远程编辑玩偶装载",
-			"summoned": "已召唤 %s 只玩偶",
-			"recalled": "已召回 %s 只玩偶（%s 只存入数据）",
+			"desc_summon": "召唤所有待命人偶，或召回所有已召唤人偶",
+			"desc_volley": "命令所有携带弹幕的人偶依次射击一次",
+			"desc_super": "命令一只随机人偶释放超绝攻击",
+			"desc_suicide": "命令一只随机人偶冲锋自爆",
+			"desc_editor": "远程编辑人偶装载",
+			"summoned": "已召唤 %s 只人偶",
+			"recalled": "已召回 %s 只人偶（%s 只存入数据）",
 			"volley": "攻击命令已下达",
 			"super": "技能已下达：%s",
 			"suicide": "自爆命令已下达：%s",
 			"no_target": "视线内没有目标",
-			"no_doll": "没有可用的玩偶",
-			"not_doll": "目标不是你的玩偶"
+			"no_doll": "没有可用的人偶",
+			"not_doll": "目标不是你的人偶"
 		},
 		"doll": {
 			"no_space": "背包没有空间",
-			"resync_missing": "玩偶实体已消失，正在召回",
-			"resync_orphan": "已移除一只游离的玩偶",
-			"resync_tampered": "已移除一只被篡改的玩偶",
-			"broken": "这只玩偶已损坏——在铁砧中用羊毛修复它",
-			"too_many": "召唤的玩偶过多（上限 %s 只）",
-			"lost": "迷路走失的玩偶"
+			"resync_missing": "人偶实体已消失，正在召回",
+			"resync_orphan": "已移除一只游离的人偶",
+			"resync_tampered": "已移除一只被篡改的人偶",
+			"broken": "这只人偶已损坏——在铁砧中用羊毛修复它",
+			"too_many": "召唤的人偶过多（上限 %s 只）",
+			"lost": "迷路走失的人偶"
 		},
 		"quest": {
 			"character": "给%s的任务",
@@ -165,27 +165,5 @@
 		"rumia_attack": "%s被露米娅吃掉了",
 		"rumia_attack.player": "%s被%s吃掉了",
 		"rumia_attack.item": "%s被%s吃掉了"
-	},
-	"advancements": {
-		"gensokyolegacy": {
-			"main": {
-				"welcome": {
-					"title": "欢迎来到幻想乡",
-					"description": "在这个新世界找到自己的路"
-				},
-				"enter_hakurei_shrine": {
-					"title": "博丽神社",
-					"description": "进入博丽神社"
-				},
-				"enter_marisa_house": {
-					"title": "雾雨之家",
-					"description": "进入魔法森林中的魔理沙之家"
-				},
-				"enter_morichika_shop": {
-					"title": "香霖堂",
-					"description": "进入魔法森林中的香霖堂"
-				}
-			}
-		}
 	}
 }

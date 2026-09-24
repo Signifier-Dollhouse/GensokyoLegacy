@@ -127,10 +127,6 @@ public class GensokyoLegacy {
 
 	public GensokyoLegacy() {
 
-		GLEffects.register();
-		GLParticles.register();
-		GLDecoBlocks.register();
-		GLNaturalBlocks.register();
 		GLItems.register();
 		GLEntities.register();
 		CodecRegistry.register();

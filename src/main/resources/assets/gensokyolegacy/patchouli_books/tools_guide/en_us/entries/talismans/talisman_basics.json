@@ -2,6 +2,7 @@
   "name": "Talisman Basics",
   "icon": "gensokyolegacy:folded_paper_talisman",
   "category": "gensokyolegacy:talismans",
+  "advancement": "gensokyolegacy:main/obtain_talisman",
   "sortnum": 1,
   "pages": [
     {

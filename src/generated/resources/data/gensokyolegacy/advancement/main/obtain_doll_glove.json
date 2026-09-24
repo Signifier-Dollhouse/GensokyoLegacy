@@ -1,0 +1,35 @@
+{
+  "parent": "gensokyolegacy:main/enter_marisa_house",
+  "criteria": {
+    "0": {
+      "conditions": {
+        "items": [
+          {
+            "items": "gensokyolegacy:doll_glove"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "announce_to_chat": false,
+    "description": {
+      "translate": "advancements.gensokyolegacy.main.obtain_doll_glove.description"
+    },
+    "icon": {
+      "count": 1,
+      "id": "gensokyolegacy:doll_glove"
+    },
+    "show_toast": false,
+    "title": {
+      "translate": "advancements.gensokyolegacy.main.obtain_doll_glove.title"
+    }
+  },
+  "requirements": [
+    [
+      "0"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

@@ -2,6 +2,7 @@
   "name": "百足镐",
   "icon": "gensokyolegacy:centipickaxe",
   "category": "gensokyolegacy:misc_tools",
+  "advancement": "gensokyolegacy:main/obtain_centipickaxe",
   "sortnum": 1,
   "pages": [
     {

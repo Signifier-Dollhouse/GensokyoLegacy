@@ -42,6 +42,7 @@ public class GLClientEventHandlers {
 
 	@SubscribeEvent
 	public static void tooltip(ItemTooltipEvent event) {
+		if (true) return;//TODO gift not enabled yet;
 		var level = Minecraft.getInstance().level;
 		if (level == null) return;
 		var data = GLMeta.GIFT_DATA.get(level.registryAccess(), event.getItemStack().getItemHolder());

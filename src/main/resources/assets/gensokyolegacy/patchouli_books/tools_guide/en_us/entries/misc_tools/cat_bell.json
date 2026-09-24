@@ -2,6 +2,7 @@
   "name": "Cat Bell",
   "icon": "gensokyolegacy:cat_bell",
   "category": "gensokyolegacy:misc_tools",
+  "advancement": "gensokyolegacy:main/obtain_cat_bell",
   "sortnum": 4,
   "pages": [
     {

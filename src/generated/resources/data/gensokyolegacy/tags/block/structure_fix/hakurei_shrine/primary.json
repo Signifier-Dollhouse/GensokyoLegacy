@@ -66,10 +66,6 @@
       "required": false
     },
     {
-      "id": "gensokyolegacy:oak_sliding_door",
-      "required": false
-    },
-    {
       "id": "gensokyolegacy:dark_oak_plank_wall",
       "required": false
     }

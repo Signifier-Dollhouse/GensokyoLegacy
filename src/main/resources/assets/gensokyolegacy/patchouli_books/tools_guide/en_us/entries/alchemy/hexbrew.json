@@ -2,6 +2,7 @@
   "name": "Hexbrew Fluids",
   "icon": "gensokyolegacy:mundane_hexbrew_bottle",
   "category": "gensokyolegacy:alchemy",
+  "advancement": "gensokyolegacy:main/alchemy",
   "sortnum": 3,
   "pages": [
     {
@@ -20,7 +21,7 @@
       "type": "patchouli:spotlight",
       "item": "gensokyolegacy:miasma_hexbrew_bottle",
       "title": "Miasma Hexbrew",
-      "text": "A throwable brew that inflicts Miasma for 60 seconds. Afflicted targets take 50% more damage and have their armor effectiveness halved."
+      "text": "A throwable brew that inflicts Miasma for 60 seconds. Afflicted targets take 50% more damage, have their armor effectiveness halved and heal 30% less. They may also gain negative effects when hurt."
     },
     {
       "type": "patchouli:spotlight",

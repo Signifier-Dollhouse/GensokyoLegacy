@@ -5,6 +5,7 @@ import dev.xkmc.gensokyolegacy.content.attachment.home.core.MultiStructureBound;
 import dev.xkmc.gensokyolegacy.content.attachment.home.core.PerformanceConstants;
 import dev.xkmc.gensokyolegacy.content.attachment.home.core.StructureBound;
 import dev.xkmc.gensokyolegacy.content.block.deco.bed.YoukaiBedBlock;
+import dev.xkmc.gensokyolegacy.init.data.GLTagGen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.Blocks;
@@ -70,6 +71,8 @@ public class IntegrityVerifier {
 	}
 
 	private void process(BlockPos pos, int step, BlockState current, BlockState ref, boolean inRoom) {
+		// Sliding doors relocate as they open/close; that is normal use, never structural damage.
+		if (current.is(GLTagGen.SLIDING_DOOR) || ref.is(GLTagGen.SLIDING_DOOR)) return;
 		if (inRoom) {
 			boolean curCollide = current.getCollisionShape(level, pos).isEmpty();
 			boolean refCollide = ref.getCollisionShape(level, pos).isEmpty();

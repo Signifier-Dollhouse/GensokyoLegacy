@@ -1,0 +1,35 @@
+{
+  "parent": "gensokyolegacy:main/enter_hakurei_shrine",
+  "criteria": {
+    "0": {
+      "conditions": {
+        "items": [
+          {
+            "items": "gensokyolegacy:gap_portal"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "announce_to_chat": false,
+    "description": {
+      "translate": "advancements.gensokyolegacy.main.obtain_gap_portal.description"
+    },
+    "icon": {
+      "count": 1,
+      "id": "gensokyolegacy:gap_portal"
+    },
+    "show_toast": false,
+    "title": {
+      "translate": "advancements.gensokyolegacy.main.obtain_gap_portal.title"
+    }
+  },
+  "requirements": [
+    [
+      "0"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

@@ -2,6 +2,7 @@
   "name": "Alchemy Ingredients",
   "icon": "gensokyolegacy:ghost_fire_mushroom",
   "category": "gensokyolegacy:alchemy",
+  "advancement": "gensokyolegacy:main/alchemy",
   "sortnum": 2,
   "pages": [
     {

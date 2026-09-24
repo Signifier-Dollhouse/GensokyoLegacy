@@ -1,0 +1,68 @@
+{
+	"advancements": {
+		"gensokyolegacy": {
+			"main": {
+				"welcome": {
+					"title": "欢迎来到幻想乡",
+					"description": "在这个新世界找到自己的路"
+				},
+				"enter_hakurei_shrine": {
+					"title": "博丽神社",
+					"description": "进入博丽神社"
+				},
+				"enter_marisa_house": {
+					"title": "雾雨之家",
+					"description": "进入魔法森林中的魔理沙之家"
+				},
+				"enter_morichika_shop": {
+					"title": "香霖堂",
+					"description": "进入魔法森林中的香霖堂"
+				},
+				"alchemy": {
+					"title": "炼金锅",
+					"description": "获得炼金锅"
+				},
+				"obtain_doll_glove": {
+					"title": "人偶手套",
+					"description": "获得七色人偶手套"
+				},
+				"obtain_sealing_pot": {
+					"title": "封印壶",
+					"description": "获得封印壶"
+				},
+				"obtain_talisman": {
+					"title": "纸符",
+					"description": "获得一张纸符"
+				},
+				"obtain_gap_portal": {
+					"title": "隙间门",
+					"description": "获得隙间门"
+				},
+				"obtain_border_umbrella": {
+					"title": "隙间伞",
+					"description": "获得隙间伞"
+				},
+				"obtain_mini_hakkero": {
+					"title": "迷你八卦炉",
+					"description": "获得迷你八卦炉·原型"
+				},
+				"obtain_cat_bell": {
+					"title": "猫铃铛",
+					"description": "获得猫铃铛"
+				},
+				"obtain_centipickaxe": {
+					"title": "大蜈蚣镐",
+					"description": "获得大蜈蚣镐"
+				},
+				"obtain_dowser": {
+					"title": "寻宝钗",
+					"description": "获得纳兹玲的寻宝钗"
+				},
+				"obtain_mermaid_pearl": {
+					"title": "人鱼珍珠",
+					"description": "获得人鱼珍珠"
+				}
+			}
+		}
+	}
+}

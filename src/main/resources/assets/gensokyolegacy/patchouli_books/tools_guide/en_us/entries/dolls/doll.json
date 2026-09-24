@@ -2,6 +2,7 @@
   "name": "Doll",
   "icon": "gensokyolegacy:doll",
   "category": "gensokyolegacy:dolls",
+  "advancement": "gensokyolegacy:main/obtain_doll_glove",
   "sortnum": 1,
   "pages": [
     {

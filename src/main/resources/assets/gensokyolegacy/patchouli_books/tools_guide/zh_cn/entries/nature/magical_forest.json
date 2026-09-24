@@ -1,0 +1,29 @@
+{
+  "name": "魔法森林",
+  "icon": "gensokyolegacy:blue_fir_sapling",
+  "category": "gensokyolegacy:nature",
+  "advancement": "gensokyolegacy:main/welcome",
+  "sortnum": 1,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "gensokyolegacy:demonic_miasma_mushroom",
+      "title": "魔法之森",
+      "text": "茂密的主世界生物群系，高大的青杉与巨型蘑菇遮天蔽日：鬼火菇、梦菇与妖瘴菇。进入这里会获得这本指南。小心巨伞之间的雾气：有些雾是会咬人的。"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "巨杉与蘑菇树环绕着林窗、池塘与蘑菇谷地。妖瘴菇会不断呼出瘴气，瘴气向周围漂移、堆积。雾越浓，施加的瘴气等级越高。"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "gensokyolegacy:miasma_hexbrew_bottle",
+      "title": "瘴气",
+      "text": "瘴气使护甲效果减半、受到的伤害提高 50%、治疗量降低 30%。受伤时还可能获得缓慢、虚弱，II 级瘴气还可能中毒。"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "站在瘴气中、触碰妖瘴菇盖，或被瘴气魔酿击中（持续 60 秒）都会染上瘴气。远离红色菌盖，速战速决：瘴气缠身时，挨到的每一击都会更疼。"
+    }
+  ]
+}

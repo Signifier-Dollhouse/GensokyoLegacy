@@ -2,6 +2,7 @@
   "name": "Border Umbrella",
   "icon": "gensokyolegacy:border_umbrella",
   "category": "gensokyolegacy:special_tools",
+  "advancement": "gensokyolegacy:main/obtain_border_umbrella",
   "sortnum": 4,
   "pages": [
     {

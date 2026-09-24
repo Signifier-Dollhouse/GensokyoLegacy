@@ -58,10 +58,10 @@
 		"door_cabinet": "双门橱柜",
 		"birch_shelf": "桦木货架",
 		"book_shelf": "书架",
-		"doll_controller": "玩偶控制器"
+		"doll_controller": "人偶控制器"
 	},
 	"item.gensokyolegacy": {
-		"doll": "玩偶熊",
+		"doll": "人偶",
 		"doll_glove": "七色人偶手套",
 		"frozen_frog_cold": "冻青蛙",
 		"frozen_frog_warm": "冻青蛙",

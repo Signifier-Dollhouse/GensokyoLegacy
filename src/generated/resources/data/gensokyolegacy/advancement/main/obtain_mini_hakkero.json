@@ -1,0 +1,35 @@
+{
+  "parent": "gensokyolegacy:main/enter_morichika_shop",
+  "criteria": {
+    "0": {
+      "conditions": {
+        "items": [
+          {
+            "items": "gensokyolegacy:mini_hakkero_prototype"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "announce_to_chat": false,
+    "description": {
+      "translate": "advancements.gensokyolegacy.main.obtain_mini_hakkero.description"
+    },
+    "icon": {
+      "count": 1,
+      "id": "gensokyolegacy:mini_hakkero_prototype"
+    },
+    "show_toast": false,
+    "title": {
+      "translate": "advancements.gensokyolegacy.main.obtain_mini_hakkero.title"
+    }
+  },
+  "requirements": [
+    [
+      "0"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

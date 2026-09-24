@@ -1,0 +1,35 @@
+{
+  "parent": "gensokyolegacy:main/enter_morichika_shop",
+  "criteria": {
+    "0": {
+      "conditions": {
+        "items": [
+          {
+            "items": "gensokyolegacy:mermaid_pearl"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "announce_to_chat": false,
+    "description": {
+      "translate": "advancements.gensokyolegacy.main.obtain_mermaid_pearl.description"
+    },
+    "icon": {
+      "count": 1,
+      "id": "gensokyolegacy:mermaid_pearl"
+    },
+    "show_toast": false,
+    "title": {
+      "translate": "advancements.gensokyolegacy.main.obtain_mermaid_pearl.title"
+    }
+  },
+  "requirements": [
+    [
+      "0"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

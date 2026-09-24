@@ -1,7 +1,6 @@
 - Fix community textures
 - coke
 - gift interaction
-- sealing pot area rendering item trigger
 - patchouli book review
-- doll improvements, bag, danmaku weapon, spear, ui
+- doll improvements, bag, spear, ui
 - doll model not binding item correctly

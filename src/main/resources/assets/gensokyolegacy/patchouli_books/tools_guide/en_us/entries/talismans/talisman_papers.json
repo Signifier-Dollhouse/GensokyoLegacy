@@ -2,6 +2,7 @@
   "name": "Talisman Papers",
   "icon": "gensokyolegacy:heal_talisman",
   "category": "gensokyolegacy:talismans",
+  "advancement": "gensokyolegacy:main/obtain_talisman",
   "sortnum": 2,
   "pages": [
     {

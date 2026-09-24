@@ -1,0 +1,42 @@
+{
+  "parent": "gensokyolegacy:main/enter_hakurei_shrine",
+  "criteria": {
+    "0": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "gensokyolegacy:heal_talisman",
+              "gensokyolegacy:speed_talisman",
+              "gensokyolegacy:hydrophobic_talisman",
+              "gensokyolegacy:lava_talisman",
+              "gensokyolegacy:shelter_talisman",
+              "gensokyolegacy:folded_paper_talisman"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "announce_to_chat": false,
+    "description": {
+      "translate": "advancements.gensokyolegacy.main.obtain_talisman.description"
+    },
+    "icon": {
+      "count": 1,
+      "id": "gensokyolegacy:heal_talisman"
+    },
+    "show_toast": false,
+    "title": {
+      "translate": "advancements.gensokyolegacy.main.obtain_talisman.title"
+    }
+  },
+  "requirements": [
+    [
+      "0"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

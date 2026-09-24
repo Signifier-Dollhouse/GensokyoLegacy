@@ -2,6 +2,7 @@
   "name": "Seven-Colored Doll Glove",
   "icon": "gensokyolegacy:doll_glove",
   "category": "gensokyolegacy:dolls",
+  "advancement": "gensokyolegacy:main/obtain_doll_glove",
   "sortnum": 2,
   "pages": [
     {

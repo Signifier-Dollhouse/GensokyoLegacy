@@ -2,6 +2,7 @@
   "name": "迷你八卦炉【试作型】",
   "icon": "gensokyolegacy:mini_hakkero_prototype",
   "category": "gensokyolegacy:special_tools",
+  "advancement": "gensokyolegacy:main/obtain_mini_hakkero",
   "sortnum": 1,
   "pages": [
     {

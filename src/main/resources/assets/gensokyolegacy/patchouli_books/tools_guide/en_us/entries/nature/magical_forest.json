@@ -1,0 +1,29 @@
+{
+  "name": "Magical Forest",
+  "icon": "gensokyolegacy:blue_fir_sapling",
+  "category": "gensokyolegacy:nature",
+  "advancement": "gensokyolegacy:main/welcome",
+  "sortnum": 1,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "gensokyolegacy:demonic_miasma_mushroom",
+      "title": "Forest of Magic",
+      "text": "A dense overworld biome of towering blue firs and giant mushrooms: Ghost Fire, Dream, and Demonic Miasma. Entering it earns you this guide. Watch the haze between the great caps: some of it bites."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Giant firs and mushroom trees crowd around clearings, ponds, and mushroom glades. Miasma mushrooms constantly breathe out miasma air, which drifts and thickens nearby. Denser haze inflicts a stronger level of Miasma."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "gensokyolegacy:miasma_hexbrew_bottle",
+      "title": "Miasma",
+      "text": "Miasma halves armor effectiveness, raises damage taken by 50%, and cuts healing by 30%. Whenever victims are hurt, they may also gain Slowness, Weakness, or Poison (Poison only at Miasma II)."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "You catch it by standing in miasma air, brushing against miasma caps, or being hit by Miasma Hexbrew (60 seconds). Keep your distance from the red caps, and end fights fast: everything that hits you while it lasts hits harder."
+    }
+  ]
+}

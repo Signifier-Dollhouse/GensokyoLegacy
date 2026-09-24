@@ -118,7 +118,6 @@ public class GLStructureTagGen {
 		pvd.addTag(REIMU_PRIMARY).addOptional(GensokyoLegacy.loc("black_tiles_slab"));
 		pvd.addTag(REIMU_PRIMARY).addOptional(GensokyoLegacy.loc("black_tiles_stairs"));
 		pvd.addTag(REIMU_PRIMARY).addOptional(GensokyoLegacy.loc("brown_tiles_stairs"));
-		pvd.addTag(REIMU_PRIMARY).addOptional(GensokyoLegacy.loc("oak_sliding_door"));
 		pvd.addTag(REIMU_PRIMARY).addOptional(GensokyoLegacy.loc("dark_oak_plank_wall"));
 		pvd.addTag(REIMU_FIX).add(
 				Blocks.CHEST, Blocks.BARREL, Blocks.ENDER_CHEST, Blocks.BOOKSHELF,

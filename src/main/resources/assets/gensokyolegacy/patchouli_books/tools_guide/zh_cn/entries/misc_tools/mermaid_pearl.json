@@ -2,6 +2,7 @@
   "name": "人鱼之珠",
   "icon": "gensokyolegacy:mermaid_pearl",
   "category": "gensokyolegacy:misc_tools",
+  "advancement": "gensokyolegacy:main/obtain_mermaid_pearl",
   "sortnum": 3,
   "pages": [
     {

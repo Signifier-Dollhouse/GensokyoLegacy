@@ -1,6 +1,7 @@
 package dev.xkmc.gensokyolegacy.event;
 
 import dev.xkmc.danmakuapi.init.data.DanmakuDamageTypes;
+import dev.xkmc.gensokyolegacy.content.effect.MiasmaEffect;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.item.character.TouhouHatItem;
 import dev.xkmc.gensokyolegacy.content.item.hexbrew.SparklingEventHandler;
@@ -51,6 +52,7 @@ public class GLAttackListener implements AttackListener {
 	@Override
 	public void onDamageFinalized(DamageData.DefenceMax data) {
 		SparklingEventHandler.onLivingHurt(data.getTarget());
+		MiasmaEffect.onHurt(data.getTarget());
 
 		var attacker = data.getAttacker();
 		if (attacker == null) return;

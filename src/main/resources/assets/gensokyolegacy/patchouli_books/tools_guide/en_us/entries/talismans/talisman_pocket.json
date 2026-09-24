@@ -2,6 +2,7 @@
   "name": "Talisman Pocket",
   "icon": "gensokyolegacy:talisman_pocket",
   "category": "gensokyolegacy:talismans",
+  "advancement": "gensokyolegacy:main/obtain_talisman",
   "sortnum": 3,
   "pages": [
     {

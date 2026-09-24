@@ -2,6 +2,7 @@
   "name": "Doll Mechanics",
   "icon": "gensokyolegacy:doll",
   "category": "gensokyolegacy:dolls",
+  "advancement": "gensokyolegacy:main/obtain_doll_glove",
   "sortnum": 3,
   "pages": [
     {

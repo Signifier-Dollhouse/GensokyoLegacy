@@ -2,6 +2,7 @@
   "name": "Nazrin's Dowser",
   "icon": "gensokyolegacy:dowser",
   "category": "gensokyolegacy:misc_tools",
+  "advancement": "gensokyolegacy:main/obtain_dowser",
   "sortnum": 2,
   "pages": [
     {

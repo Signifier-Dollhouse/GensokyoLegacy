@@ -14,6 +14,13 @@ import java.util.List;
 
 public class CuriosManager {
 
+	public static boolean hasItem(LivingEntity le, Item item, boolean checkRender) {
+		return CuriosApi.getCuriosInventory(le)
+				.flatMap(e -> e.findFirstCurio(item))
+				.map(e -> !checkRender || e.slotContext().visible())
+				.orElse(false);
+	}
+
 	public static boolean hasWings(LivingEntity le, Item item, boolean checkRender) {
 		if (le.getItemBySlot(EquipmentSlot.CHEST).is(item))
 			return true;

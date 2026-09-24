@@ -2,6 +2,7 @@
   "name": "炼金锅",
   "icon": "gensokyolegacy:alchemy_pot",
   "category": "gensokyolegacy:alchemy",
+  "advancement": "gensokyolegacy:main/alchemy",
   "sortnum": 1,
   "pages": [
     {

@@ -2,6 +2,7 @@
   "name": "纳兹琳的探宝器",
   "icon": "gensokyolegacy:dowser",
   "category": "gensokyolegacy:misc_tools",
+  "advancement": "gensokyolegacy:main/obtain_dowser",
   "sortnum": 2,
   "pages": [
     {
