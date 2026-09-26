@@ -58,7 +58,6 @@ public class BorderUmbrellaDistanceWheel implements WheelAdaptor<BorderUmbrellaD
 		// side icon shows current distance
 		int dist = stack.getOrDefault(GLItems.UMBRELLA_DISTANCE.get(), 1000);
 		var entry = new BorderUmbrellaDistanceEntry(dist);
-		ItemStack icon = entry.icon();
 		float cx = left ? sideWidth / 2f : g.guiWidth() - sideWidth / 2f;
 		float r = Math.min((float) x0 / 1.5f, (float) y0) / 1.5f;
 		float s = r * 0.025f;
@@ -67,7 +66,7 @@ public class BorderUmbrellaDistanceWheel implements WheelAdaptor<BorderUmbrellaD
 			g.pose().pushPose();
 			g.pose().translate(cx, y0, 0);
 			g.pose().scale(s, s, s);
-			g.renderItem(icon, -8, -8);
+			UmbrellaWheelIcons.render(g, entry.icon());
 			g.pose().popPose();
 		}
 		if (hover) {
@@ -100,8 +99,7 @@ public class BorderUmbrellaDistanceWheel implements WheelAdaptor<BorderUmbrellaD
 		g.pose().scale(s, s, s);
 		g.pose().translate(0, -8, 0);
 		var entry = list.get(index);
-		ItemStack icon = entry.icon();
-		g.renderItem(icon, -8, -8);
+		UmbrellaWheelIcons.render(g, entry.icon());
 		g.pose().popPose();
 		var text = entry.displayName();
 		var font = Minecraft.getInstance().font;

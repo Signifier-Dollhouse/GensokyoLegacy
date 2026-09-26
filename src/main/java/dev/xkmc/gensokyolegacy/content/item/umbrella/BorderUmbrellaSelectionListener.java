@@ -5,6 +5,7 @@ import dev.xkmc.gensokyolegacy.content.item.umbrella.wheel.BorderUmbrellaDistanc
 import dev.xkmc.gensokyolegacy.content.item.umbrella.wheel.BorderUmbrellaModeWheel;
 import dev.xkmc.gensokyolegacy.content.item.umbrella.wheel.BorderUmbrellaSlotWheel;
 import dev.xkmc.gensokyolegacy.content.item.umbrella.wheel.UmbrellaFakeWheel;
+import dev.xkmc.gensokyolegacy.content.item.umbrella.wheel.UmbrellaWheelIcons;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
@@ -14,7 +15,6 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -99,8 +99,7 @@ public class BorderUmbrellaSelectionListener extends IItemSelector implements Wh
 			return Optional.of(new BorderUmbrellaDistanceWheel(stack));
 		} else if (wheelIndex == 2) {
 			// fake wheel at index 2 for editing stored position, like GolemFakeWheel in ModularGolems
-			ItemStack icon = new ItemStack(Items.NAME_TAG);
-			return Optional.of(new UmbrellaFakeWheel(icon, GLLang.ItemUmbrella.WHEEL_EDIT.get()));
+			return Optional.of(new UmbrellaFakeWheel(UmbrellaWheelIcons.EDIT, GLLang.ItemUmbrella.WHEEL_EDIT.get()));
 		}
 		return Optional.empty();
 	}

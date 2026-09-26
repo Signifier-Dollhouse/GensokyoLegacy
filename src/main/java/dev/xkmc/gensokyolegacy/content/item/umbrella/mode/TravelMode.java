@@ -2,6 +2,7 @@ package dev.xkmc.gensokyolegacy.content.item.umbrella.mode;
 
 import dev.xkmc.gensokyolegacy.content.item.umbrella.BorderUmbrellaItem;
 import dev.xkmc.gensokyolegacy.content.item.umbrella.TravelModeUtil;
+import dev.xkmc.gensokyolegacy.content.item.umbrella.data.BorderUmbrellaMode;
 import dev.xkmc.gensokyolegacy.content.item.umbrella.data.BorderUmbrellaTravelData;
 import dev.xkmc.gensokyolegacy.content.item.umbrella.data.BorderUmbrellaUnlock;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
@@ -17,7 +18,6 @@ import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
@@ -30,7 +30,7 @@ public class TravelMode extends UmbrellaMode {
 
 	@Override
 	public ItemStack icon() {
-		return new ItemStack(Items.ENDER_PEARL);
+		return BorderUmbrellaItem.iconStack(BorderUmbrellaMode.TRAVEL);
 	}
 
 	@Override

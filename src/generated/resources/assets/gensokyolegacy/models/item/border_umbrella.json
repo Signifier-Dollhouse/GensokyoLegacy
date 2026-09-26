@@ -6,6 +6,30 @@
       "predicate": {
         "gensokyolegacy:umbrella_open": 1.0
       }
+    },
+    {
+      "model": "gensokyolegacy:item/umbrella_icon_record",
+      "predicate": {
+        "gensokyolegacy:umbrella_display": 1.0
+      }
+    },
+    {
+      "model": "gensokyolegacy:item/umbrella_icon_waypoint",
+      "predicate": {
+        "gensokyolegacy:umbrella_display": 2.0
+      }
+    },
+    {
+      "model": "gensokyolegacy:item/umbrella_icon_travel",
+      "predicate": {
+        "gensokyolegacy:umbrella_display": 3.0
+      }
+    },
+    {
+      "model": "gensokyolegacy:item/umbrella_icon_capture",
+      "predicate": {
+        "gensokyolegacy:umbrella_display": 4.0
+      }
     }
   ],
   "textures": {

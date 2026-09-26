@@ -13,6 +13,8 @@ import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 
+import java.util.Locale;
+
 public enum BorderUmbrellaMode {
 	RECORD(new RecordMode()),
 	WAYPOINT(new WaypointMode()),
@@ -27,6 +29,16 @@ public enum BorderUmbrellaMode {
 
 	public ItemStack icon() {
 		return handler.icon();
+	}
+
+	/**
+	 * Sub-model id suffix for this mode's icon
+	 * ({@code item/tool/border_umbrella_icon_<name>}), mirroring
+	 * {@code DollGloveMode.iconName}: the enum names already match the
+	 * provided texture files.
+	 */
+	public String iconName() {
+		return name().toLowerCase(Locale.ROOT);
 	}
 
 	public Component displayName() {

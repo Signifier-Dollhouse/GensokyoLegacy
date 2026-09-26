@@ -52,6 +52,7 @@ public class GLClient {
 
 		event.enqueueWork(() -> {
 			ItemProperties.register(GLItems.BORDER_UMBRELLA.get(), GensokyoLegacy.loc("umbrella_open"), BorderUmbrellaItem::isOpen);
+			ItemProperties.register(GLItems.BORDER_UMBRELLA.get(), GensokyoLegacy.loc("umbrella_display"), BorderUmbrellaItem::displayPredicate);
 			ItemProperties.register(GLItems.DOLL_GLOVE.get(), GensokyoLegacy.loc("glove_display"), DollGloveItem::displayPredicate);
 
 			GLItems.STAR.get().getTypeForRender();

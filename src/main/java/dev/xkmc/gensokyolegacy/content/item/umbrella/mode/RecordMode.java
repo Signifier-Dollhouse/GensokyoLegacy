@@ -2,6 +2,7 @@ package dev.xkmc.gensokyolegacy.content.item.umbrella.mode;
 
 import dev.xkmc.gensokyolegacy.content.item.umbrella.BorderUmbrellaItem;
 import dev.xkmc.gensokyolegacy.content.item.umbrella.UmbrellaUtil;
+import dev.xkmc.gensokyolegacy.content.item.umbrella.data.BorderUmbrellaMode;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -10,7 +11,6 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 
@@ -18,7 +18,7 @@ public class RecordMode extends UmbrellaMode {
 
 	@Override
 	public ItemStack icon() {
-		return new ItemStack(Items.LODESTONE);
+		return BorderUmbrellaItem.iconStack(BorderUmbrellaMode.RECORD);
 	}
 
 	@Override

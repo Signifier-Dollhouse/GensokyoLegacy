@@ -4,17 +4,18 @@ import dev.xkmc.l2itemselector.wheel.WheelAdaptor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 
 import java.util.List;
 
 /**
  * Fake wheel with empty content, used for edit-position entry at index 2.
  * Mirrors {@code dev.xkmc.modulargolems.content.menu.wheel.GolemFakeWheel} from ModularGolems sibling project:
- * empty wheel, custom renderIcon shows centered icon + text.
+ * empty wheel, custom renderIcon shows centered icon + text. The icon is a
+ * raw wheel texture blitted directly (wheel-only, no model override).
  */
-public record UmbrellaFakeWheel(ItemStack stack, Component text) implements WheelAdaptor<WheelAdaptor.Entry> {
+public record UmbrellaFakeWheel(ResourceLocation texture, Component text) implements WheelAdaptor<WheelAdaptor.Entry> {
 
 	@Override
 	public List<WheelAdaptor.Entry> getWheelContent() {
@@ -42,7 +43,7 @@ public record UmbrellaFakeWheel(ItemStack stack, Component text) implements Whee
 			g.pose().pushPose();
 			g.pose().translate(cx, (float) y0, 0.0F);
 			g.pose().scale(s, s, s);
-			g.renderItem(stack, -8, -8);
+			UmbrellaWheelIcons.render(g, texture);
 			g.pose().popPose();
 		}
 		int cx2 = left ? (int) (sideWidth / 2) : g.guiWidth() - (int) (sideWidth / 2);

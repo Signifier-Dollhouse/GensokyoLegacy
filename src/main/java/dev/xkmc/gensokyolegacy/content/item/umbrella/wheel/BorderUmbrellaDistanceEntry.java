@@ -1,12 +1,10 @@
 package dev.xkmc.gensokyolegacy.content.item.umbrella.wheel;
 
 import dev.xkmc.l2itemselector.wheel.WheelAdaptor;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 
 public record BorderUmbrellaDistanceEntry(int distance) implements WheelAdaptor.Entry {
 
@@ -28,14 +26,8 @@ public record BorderUmbrellaDistanceEntry(int distance) implements WheelAdaptor.
 		return Component.literal(distance + " blocks");
 	}
 
-	public ItemStack icon() {
-		return switch (distance) {
-			case 10 -> new ItemStack(Items.PAPER);
-			case 100 -> new ItemStack(Items.MAP);
-			case 1000 -> new ItemStack(Items.FILLED_MAP);
-			case 10000 -> new ItemStack(Items.NETHER_STAR);
-			default -> new ItemStack(Items.ENDER_PEARL);
-		};
+	public ResourceLocation icon() {
+		return UmbrellaWheelIcons.distanceIcon(distance);
 	}
 
 	@Override
@@ -47,9 +39,7 @@ public record BorderUmbrellaDistanceEntry(int distance) implements WheelAdaptor.
 		g.pose().pushPose();
 		g.pose().translate(dx, dy, 0);
 		g.pose().scale(s, s, s);
-		ItemStack icon = icon();
-		g.renderItem(icon, -8, -8);
-		g.renderItemDecorations(Minecraft.getInstance().font, icon, -8, -8);
+		UmbrellaWheelIcons.render(g, icon());
 		g.pose().popPose();
 	}
 }

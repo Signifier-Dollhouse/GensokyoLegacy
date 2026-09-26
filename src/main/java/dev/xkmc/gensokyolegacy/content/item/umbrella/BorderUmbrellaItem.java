@@ -12,6 +12,7 @@ import dev.xkmc.l2itemselector.init.data.L2Keys;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.Unit;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
@@ -44,6 +45,36 @@ public class BorderUmbrellaItem extends Item {
 		GLItems.UMBRELLA_UNLOCK.set(stack, new BorderUmbrellaUnlock(true, true));
 		stack.set(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, true);
 		b.accept(stack);
+	}
+
+	/**
+	 * Model-override value for {@code gensokyolegacy:umbrella_display},
+	 * mirroring {@code DollGloveItem.displayPredicate}: plain stacks keep the
+	 * base model (value 0, open/closed still selected by
+	 * {@code umbrella_open}); an icon display stack (wheel entries, selector
+	 * sidebar, marked with {@code UMBRELLA_ICON}) uses the per-mode icon
+	 * range. Values are emitted ascending, so they match exactly.
+	 */
+	public static float displayPredicate(ItemStack stack, Level level, LivingEntity entity, int seed) {
+		if (!stack.has(GLItems.UMBRELLA_ICON.get())) return 0;
+		return stack.getOrDefault(GLItems.UMBRELLA_TYPE.get(), BorderUmbrellaMode.RECORD).ordinal() + 1;
+	}
+
+	/**
+	 * Display stack for a mode's icon (client-side only): a fresh umbrella
+	 * with the given mode plus the icon marker, so the override draws that
+	 * mode's icon texture.
+	 */
+	public static ItemStack displayStack(BorderUmbrellaMode mode) {
+		ItemStack stack = new ItemStack(GLItems.BORDER_UMBRELLA.get());
+		stack.set(GLItems.UMBRELLA_TYPE.get(), mode);
+		return stack;
+	}
+
+	public static ItemStack iconStack(BorderUmbrellaMode mode) {
+		ItemStack stack = displayStack(mode);
+		stack.set(GLItems.UMBRELLA_ICON.get(), Unit.INSTANCE);
+		return stack;
 	}
 
 	@Override
@@ -124,6 +155,10 @@ public class BorderUmbrellaItem extends Item {
 	}
 
 	public static float isOpen(ItemStack stack, Level level, LivingEntity user, int index) {
+		// icon display stacks always resolve through umbrella_display, never
+		// the open model: display takes priority over the open flag by
+		// construction, independent of override order
+		if (stack.has(GLItems.UMBRELLA_ICON.get())) return 0;
 		return GLItems.UMBRELLA_TYPE.getOrDefault(stack, BorderUmbrellaMode.RECORD) == BorderUmbrellaMode.RECORD ? 0 : 1;
 	}
 

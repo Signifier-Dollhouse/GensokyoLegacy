@@ -109,6 +109,7 @@ public class GLItems {
 	public static final DCVal<BorderUmbrellaSlots> UMBRELLA_SLOTS = DC.reg("border_umbrella_slots", BorderUmbrellaSlots.class, false);
 	public static final DCVal<Integer> UMBRELLA_SLOT_SELECTED = DC.intVal("border_umbrella_slot_selected");
 	public static final DCVal<BorderUmbrellaMode> UMBRELLA_TYPE = DC.enumVal("border_umbrella_type", EnumCodec.of(BorderUmbrellaMode.class, BorderUmbrellaMode.values()));
+	public static final DCVal<Unit> UMBRELLA_ICON = DC.unit("border_umbrella_icon");
 	public static final DCVal<BorderUmbrellaUnlock> UMBRELLA_UNLOCK = DC.reg("border_umbrella_unlock", BorderUmbrellaUnlock.class, false);
 	public static final DCVal<BorderUmbrellaTravelData> UMBRELLA_TRAVEL = DC.reg("border_umbrella_travel", BorderUmbrellaTravelData.class, false);
 	public static final DCVal<Integer> UMBRELLA_DISTANCE = DC.intVal("border_umbrella_distance");
@@ -316,11 +317,25 @@ public class GLItems {
 					.lang("Cat Bell").register();
 
 			BORDER_UMBRELLA = reg.item("border_umbrella", BorderUmbrellaItem::new)
-					.model((ctx, pvd) ->
-							pvd.handheld(ctx, pvd.modLoc("item/tool/" + ctx.getName()))
-									.override().predicate(GensokyoLegacy.loc("umbrella_open"), 1)
-									.model(pvd.withExistingParent("item/" + ctx.getName() + "_open", "item/handheld").
-											texture("layer0", pvd.modLoc("item/tool/" + ctx.getName() + "_open"))))
+					.model((ctx, pvd) -> {
+						var base = pvd.handheld(ctx, pvd.modLoc("item/tool/" + ctx.getName()));
+						base.override().predicate(GensokyoLegacy.loc("umbrella_open"), 1)
+								.model(pvd.withExistingParent("item/" + ctx.getName() + "_open", "item/handheld").
+										texture("layer0", pvd.modLoc("item/tool/" + ctx.getName() + "_open")))
+								.end();
+						// icon variants for the wheel display stacks (cf. glove_display):
+						// vanilla reverses the override list at bake time and returns the
+						// first match with >= per predicate, so emit ascending values for
+						// exact per-mode matching; plain stacks keep value 0 (base model)
+						var modes = BorderUmbrellaMode.values();
+						for (int i = 0; i < modes.length; i++) {
+							base.override()
+									.predicate(GensokyoLegacy.loc("umbrella_display"), i + 1)
+									.model(pvd.withExistingParent("item/umbrella_icon_" + modes[i].iconName(), "item/generated")
+											.texture("layer0", pvd.modLoc("item/tool/border_umbrella_icon_" + modes[i].iconName())))
+									.end();
+						}
+					})
 					.lang("Border Umbrella").tab(TAB.key(), BorderUmbrellaItem::fillCreativeModeTab)
 					.tag(L2ISTagGen.SELECTABLE)
 					.register();

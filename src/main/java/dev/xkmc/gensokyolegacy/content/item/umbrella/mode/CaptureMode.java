@@ -2,6 +2,7 @@ package dev.xkmc.gensokyolegacy.content.item.umbrella.mode;
 
 import dev.xkmc.gensokyolegacy.content.item.umbrella.BorderUmbrellaItem;
 import dev.xkmc.gensokyolegacy.content.item.umbrella.UmbrellaUtil;
+import dev.xkmc.gensokyolegacy.content.item.umbrella.data.BorderUmbrellaMode;
 import dev.xkmc.gensokyolegacy.content.item.umbrella.data.BorderUmbrellaUnlock;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.gensokyolegacy.init.data.GLTagGen;
@@ -14,14 +15,13 @@ import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 
 public class CaptureMode extends UmbrellaMode {
 
 	@Override
 	public ItemStack icon() {
-		return new ItemStack(Items.IRON_BARS);
+		return BorderUmbrellaItem.iconStack(BorderUmbrellaMode.CAPTURE);
 	}
 
 	@Override

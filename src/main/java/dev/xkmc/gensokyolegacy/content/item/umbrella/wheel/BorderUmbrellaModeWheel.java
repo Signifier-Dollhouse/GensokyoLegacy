@@ -15,7 +15,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -77,7 +76,7 @@ public class BorderUmbrellaModeWheel implements PersistentWheel<BorderUmbrellaMo
 			}
 			if (index == 2) {
 				// fake wheel at index 2 for editing, mirrors GolemModeWheel side fake wheels
-				return new UmbrellaFakeWheel(new ItemStack(Items.NAME_TAG), GLLang.ItemUmbrella.WHEEL_EDIT.get());
+				return new UmbrellaFakeWheel(UmbrellaWheelIcons.EDIT, GLLang.ItemUmbrella.WHEEL_EDIT.get());
 			}
 		}
 		return PersistentWheel.super.getAtIndex(player, index, main);

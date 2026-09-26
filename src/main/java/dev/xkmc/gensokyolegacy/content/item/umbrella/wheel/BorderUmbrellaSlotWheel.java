@@ -16,7 +16,6 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -71,9 +70,12 @@ public class BorderUmbrellaSlotWheel implements WheelAdaptor<BorderSlotEntry> {
 			g.pose().translate(cx, y0, 0);
 			g.pose().scale(s, s, s);
 			var slot = BorderUmbrellaItem.getSelectedSlotData(stack);
-			ItemStack icon = slot.isEmptySlot() ? new ItemStack(Items.COMPASS) : slot.displayIcon();
-			if (icon.isEmpty()) icon = new ItemStack(Items.COMPASS);
-			g.renderItem(icon, -8, -8);
+			ItemStack icon = slot.isEmptySlot() ? ItemStack.EMPTY : slot.displayIcon();
+			if (icon.isEmpty()) {
+				UmbrellaWheelIcons.render(g, UmbrellaWheelIcons.SELECT);
+			} else {
+				g.renderItem(icon, -8, -8);
+			}
 			g.pose().popPose();
 		}
 		if (hover) {
