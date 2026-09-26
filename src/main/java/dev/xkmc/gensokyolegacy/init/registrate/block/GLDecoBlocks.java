@@ -62,6 +62,7 @@ public class GLDecoBlocks {
 	public static final BlockEntry<Block> GLASS;
 	public static final BlockEntry<IronBarsBlock> GLASS_PANE, SHOJI_FRAME_PANE;
 	public static final BlockEntry<Block> SHOJI_FRAME;
+	public static final BlockEntry<DelegateBlock> PAPER_SLIDING_DOOR;
 	public static final BlockEntry<DelegateBlock> TATAMI, TATAMI_BLOCK;
 	public static final BlockEntry<DelegateBlock> STURDY_TEDDY_BEAR;
 	public static final BlockEntry<DelegateBlock> CUSHION;
@@ -151,6 +152,22 @@ public class GLDecoBlocks {
 				.dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(25))
 				.build()
 				.register();
+
+		// 纸门:纸面推拉门,与木制推拉门同逻辑,纸窗材质手感
+		{
+			var doorTop = GensokyoLegacy.loc("block/deco/paper_sliding_door_top");
+			var doorBottom = GensokyoLegacy.loc("block/deco/paper_sliding_door_bottom");
+			var doorSide = GensokyoLegacy.loc("block/deco/paper_sliding_door_side");
+			PAPER_SLIDING_DOOR = reg.block("paper_sliding_door", SlidingDoor::create)
+					.properties(p -> p.mapColor(MapColor.SAND).strength(0.3F).sound(SoundType.WOOD).noOcclusion())
+					.blockstate((ctx, pvd) -> SlidingDoorJsons.buildBlockState(ctx, pvd, doorTop, doorBottom, doorSide))
+					.tag(GLTagGen.SLIDING_DOOR, BlockTags.MINEABLE_WITH_AXE)
+					.item().model((ctx, pvd) -> SlidingDoorJsons.genItemModel(ctx, pvd, doorTop, doorBottom, doorSide))
+					.dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(100))
+					.build()
+					.loot(SlidingDoorJsons::genLoot)
+					.register();
+		}
 
 		// 障子框
 		SHOJI_FRAME_PANE = reg.block("shoji_frame_pane", IronBarsBlock::new)

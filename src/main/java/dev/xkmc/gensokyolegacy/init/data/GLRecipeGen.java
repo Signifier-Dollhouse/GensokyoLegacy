@@ -226,6 +226,11 @@ public class GLRecipeGen {
 		pvd.stonecutting(DataIngredient.items(GLDecoBlocks.SHOJI_FRAME.get()),
 				RecipeCategory.BUILDING_BLOCKS, GLDecoBlocks.SHOJI_FRAME_PANE, 4);
 
+		// paper sliding door: shoji lattice door, paper in a stick grid like shoji frame
+		unlock(pvd, ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, GLDecoBlocks.PAPER_SLIDING_DOOR.get())::unlockedBy, Items.PAPER)
+				.pattern("SPS").pattern("PSP").pattern("SPS")
+				.define('S', Items.STICK).define('P', Items.PAPER).save(pvd);
+
 		// case goods are cut from dark oak logs on the stonecutter (1 log at 300
 		// burn time into 1 piece, so fuel stays 300)
 		var darkOakLog = DataIngredient.items(Blocks.DARK_OAK_LOG);

@@ -195,6 +195,9 @@
     "gensokyolegacy:orange_cushion": {
       "burn_time": 50
     },
+    "gensokyolegacy:paper_sliding_door": {
+      "burn_time": 100
+    },
     "gensokyolegacy:paper_window": {
       "burn_time": 100
     },
