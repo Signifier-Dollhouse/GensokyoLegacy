@@ -192,8 +192,8 @@ public class GLNaturalBlocks {
 
 		GHOST_FIRE_MUSHROOM_SET = new MushroomSet(
 				reg, "ghost_fire_mushroom", CYAN_MUSHROOM_STEM, 3, true,
-				BlockBehaviour.Properties.ofFullCopy(Blocks.BROWN_MUSHROOM_BLOCK).mapColor(MapColor.COLOR_CYAN).lightLevel(b -> 5),
-				BlockBehaviour.Properties.ofFullCopy(Blocks.BROWN_MUSHROOM).mapColor(MapColor.COLOR_CYAN).lightLevel(b -> 5),
+				BlockBehaviour.Properties.ofFullCopy(Blocks.BROWN_MUSHROOM_BLOCK).mapColor(MapColor.COLOR_CYAN).lightLevel(b -> 8),
+				BlockBehaviour.Properties.ofFullCopy(Blocks.BROWN_MUSHROOM).mapColor(MapColor.COLOR_CYAN).lightLevel(b -> 8),
 				MushroomFeatures.MushroomTreeType.GHOST_FIRE
 		);
 
@@ -239,7 +239,7 @@ public class GLNaturalBlocks {
 
 		// 鬼火耳菇
 		EUGUNE_GHOST_FIRE = reg.block("eugune_ghost_fire", p -> new SideBushBlock(p, GHOST_FIRE_MUSHROOM_SET.cap))
-				.properties(p -> p.mapColor(MapColor.PLANT).strength(0).sound(SoundType.GRASS).noOcclusion().noCollission().pushReaction(PushReaction.DESTROY))
+				.properties(p -> p.mapColor(MapColor.PLANT).strength(0).sound(SoundType.GRASS).noOcclusion().noCollission().pushReaction(PushReaction.DESTROY).lightLevel(b -> 8))
 				.blockstate((ctx, pvd) -> pvd.horizontalBlock(ctx.get(),
 						pvd.models().getBuilder("block/" + ctx.getName())
 								.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/nature/eugune_emissive")))

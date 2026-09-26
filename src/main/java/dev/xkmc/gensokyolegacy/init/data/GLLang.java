@@ -517,7 +517,9 @@ public final class GLLang {
 		WHEEL_EDIT("Edit Position"),
 		MANAGE_TITLE("Manage Positions"),
 		MANAGE_RENAME("Rename"),
-		MANAGE_DELETE("Delete");
+		MANAGE_DELETE("Delete"),
+		MANAGE_SLOT("Slot %s", 1),
+		MANAGE_NO_HELD("No umbrella held", 0, ChatFormatting.RED);
 
 		private final String def;
 		private final int argn;
@@ -672,7 +674,8 @@ public final class GLLang {
 	// ========== Alchemy Pot Overlay ==========
 	public enum Alchemy implements LangEntry {
 		ALLOW("Possible ingredients"),
-		EXTRA("+%s more", 1);
+		EXTRA("+%s more", 1),
+		PROGRESS("Progress: %s%%", 1);
 
 		private final String def;
 		private final int argn;

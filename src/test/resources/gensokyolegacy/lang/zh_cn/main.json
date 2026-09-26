@@ -21,6 +21,7 @@
 			"structure_scanning": "扫描中",
 			"structure_abnormal": "发现%s个错误方块",
 			"loading": "加载中...",
+			"doors_to_close": "待关闭的门（%s）：",
 			"youkai_avoid": "%s可能暂时不想见你"
 		},
 		"item": {
@@ -53,7 +54,19 @@
 			"gift_favor": "好感值: %s",
 			"gift_type": "类型: %s",
 			"usage_tengu_sake": "饮用后获得短暂的增益。",
-			"usage_magic_book": "可以作为燃料使用。"
+			"usage_magic_book": "可以作为燃料使用。",
+			"door_debug_use": "右键：绑定最近的妖怪",
+			"door_debug_click": "右键方块：命令绑定的妖怪前往",
+			"door_debug_overlay": "手持时显示绑定妖怪的待关门",
+			"door_debug_no_youkai": "附近没有妖怪",
+			"door_debug_bound": "已绑定至%s",
+			"door_debug_unbound": "未绑定妖怪，右键进行绑定。",
+			"door_debug_missing": "绑定的妖怪未加载",
+			"door_debug_moving": "妖怪正在前往（%s，%s，%s）",
+			"furnace_1_desc": "模式：%s",
+			"furnace_1_lore": "便携魔法炉，会发热。放在物品栏中可缓慢冶炼相邻物品。",
+			"furnace_1_off": "模式：关闭",
+			"furnace_1_use": "在物品栏中右键物品以切换模式。"
 		},
 		"gift": {
 			"type": {
@@ -114,7 +127,28 @@
 			"desc_record": "对着方块右键来记录位置",
 			"desc_waypoint": "右键传送至选中位置",
 			"desc_travel": "长按右键来向前传送",
-			"desc_capture": "右键实体将其传送至选中位置"
+			"desc_capture": "右键实体将其传送至选中位置",
+			"mode": "模式：%s",
+			"mode_record": "记录",
+			"mode_waypoint": "传送点",
+			"mode_travel": "旅行",
+			"mode_capture": "捕捉",
+			"slot": "槽位：%s",
+			"slot_empty": "空",
+			"slot_empty_item": "空槽位",
+			"dim_missing": "未找到维度%s",
+			"recorded": "已记录位置%s：%s",
+			"captured": "已将%s传送至%s",
+			"waypoint": "已传送至%s",
+			"travel_start": "正在蓄力隙间移动……",
+			"travel_done": "隙间移动完成",
+			"travel_cancelled": "隙间移动已取消",
+			"rename_title": "重命名位置",
+			"capture_fail": "无法捕捉该实体",
+			"locked_capture": "捕捉模式已锁定：在铁砧中使用回响碎片解锁",
+			"locked_travel": "旅行模式已锁定：在铁砧中使用紫颂果解锁",
+			"manage_slot": "槽位：%s",
+			"manage_no_held": "未手持隙间伞"
 		},
 		"glove": {
 			"mode": "模式：%s",
@@ -144,8 +178,7 @@
 			"resync_orphan": "已移除一只游离的人偶",
 			"resync_tampered": "已移除一只被篡改的人偶",
 			"broken": "这只人偶已损坏——在铁砧中用羊毛修复它",
-			"too_many": "召唤的人偶过多（上限 %s 只）",
-			"lost": "迷路走失的人偶"
+			"too_many": "召唤的人偶过多（上限 %s 只）"
 		},
 		"quest": {
 			"character": "给%s的任务",
@@ -157,6 +190,16 @@
 			"ingredients": "材料：",
 			"option": "交易",
 			"stock": "库存：%s/%s"
+		},
+		"alchemy": {
+			"allow": "可能的材料",
+			"extra": "+还有%s种",
+			"progress": "进度：%s%%"
+		}
+	},
+	"jei": {
+		"gensokyolegacy": {
+			"alchemy": "炼金锅"
 		}
 	},
 	"death.attack": {

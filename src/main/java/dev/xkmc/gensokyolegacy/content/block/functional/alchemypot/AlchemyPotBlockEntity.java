@@ -3,6 +3,7 @@ package dev.xkmc.gensokyolegacy.content.block.functional.alchemypot;
 import dev.xkmc.gensokyolegacy.content.block.functional.alchemypot.overlay.AlchemyHintOverlay;
 import dev.xkmc.gensokyolegacy.content.block.functional.alchemypot.recipe.AlchemyRecipe;
 import dev.xkmc.gensokyolegacy.content.block.functional.alchemypot.stage.AlchemyStageHolder;
+import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.gensokyolegacy.init.registrate.GLRecipes;
 import dev.xkmc.l2core.base.tile.BaseBlockEntity;
 import dev.xkmc.l2core.base.tile.BaseContainerListener;
@@ -336,7 +337,7 @@ public class AlchemyPotBlockEntity extends BaseBlockEntity implements TickableBl
 	}
 
 	public List<Component> getHintLines(boolean shift, BlockHitResult hit) {
-		if (inProgress() > 0) return List.of(Component.literal("Progress: " + Math.round(inProgress() * 100) + "%"));
+		if (inProgress() > 0) return List.of(GLLang.Alchemy.PROGRESS.get(Math.round(inProgress() * 100)));
 		return List.of();
 	}
 
