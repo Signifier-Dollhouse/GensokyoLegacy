@@ -1,5 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.entity.behavior.combat;
 
+import dev.xkmc.gensokyolegacy.content.attachment.character.ReputationConstants;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import dev.xkmc.gensokyolegacy.init.data.GLTagGen;
 import dev.xkmc.l2serial.serialization.marker.SerialClass;
@@ -7,6 +8,7 @@ import dev.xkmc.l2serial.serialization.marker.SerialField;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -32,11 +34,11 @@ public class YoukaiTargetContainer {
 	public void tick() {
 		if (youkai.level().isClientSide()) return;
 		LivingEntity le = youkai.getLastHurtByMob();
-		if (le != null && isValidTarget(le) && !list.contains(le.getUUID())) {
+		if (le != null && !(le instanceof Player) && isValidTarget(le) && !list.contains(le.getUUID())) {
 			list.add(le.getUUID());
 		} else {
 			le = youkai.getTarget();
-			if (le != null && isValidTarget(le)) {
+			if (le != null && !(le instanceof Player) && isValidTarget(le)) {
 				list.add(le.getUUID());
 			}
 		}
@@ -47,11 +49,19 @@ public class YoukaiTargetContainer {
 	}
 
 	public boolean isValidTarget(LivingEntity e) {
-		return !youkai.invalidTarget(e) && e.canBeSeenAsEnemy() && !e.getType().is(GLTagGen.YOUKAI_IGNORE);
+		if (youkai.invalidTarget(e) || !e.canBeSeenAsEnemy() || e.getType().is(GLTagGen.YOUKAI_IGNORE))
+			return false;
+		if (e instanceof Player player) {
+			int rep = youkai.getData(player).map(h -> h.data().reputation)
+					.orElse(ReputationConstants.INITIAL_REPUTATION);
+			return rep <= ReputationConstants.COMBAT_SAFE_THRESHOLD;
+		}
+		return true;
 	}
 
 	private boolean isValid(UUID id) {
 		Entity e = ((ServerLevel) youkai.level()).getEntity(id);
+		if (e instanceof Player) return false;
 		if (e instanceof LivingEntity le) {
 			return isValidTarget(le);
 		}
@@ -59,6 +69,7 @@ public class YoukaiTargetContainer {
 	}
 
 	public boolean contains(LivingEntity e) {
+		if (e instanceof Player) return youkai.getTarget() == e;
 		return youkai.getTarget() == e || list.contains(e.getUUID());
 	}
 
@@ -78,7 +89,7 @@ public class YoukaiTargetContainer {
 	public LivingEntity getPrimaryTarget() {
 		if (!(youkai.level() instanceof ServerLevel sl)) return null;
 		for (var id : list)
-			if (sl.getEntity(id) instanceof LivingEntity le && isValidTarget(le))
+			if (sl.getEntity(id) instanceof LivingEntity le && !(le instanceof Player) && isValidTarget(le))
 				return le;
 		return null;
 	}
@@ -87,7 +98,7 @@ public class YoukaiTargetContainer {
 		List<LivingEntity> ans = new ArrayList<>();
 		if (!(youkai.level() instanceof ServerLevel sl)) return ans;
 		for (var id : list) {
-			if (sl.getEntity(id) instanceof LivingEntity le && isValidTarget(le))
+			if (sl.getEntity(id) instanceof LivingEntity le && !(le instanceof Player) && isValidTarget(le))
 				ans.add(le);
 		}
 		return ans;

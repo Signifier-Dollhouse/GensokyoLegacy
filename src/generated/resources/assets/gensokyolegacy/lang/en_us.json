@@ -355,6 +355,7 @@
   "gensokyolegacy.info.loading": "Loading...",
   "gensokyolegacy.info.structure_abnormal": "Found %s invalid blocks",
   "gensokyolegacy.info.structure_scanning": "Scanning Structure...",
+  "gensokyolegacy.info.youkai_avoid": "%s might not want to see you for a while",
   "gensokyolegacy.item.door_debug_bound": "Bound to %s",
   "gensokyolegacy.item.door_debug_click": "Right-click block: tell bound youkai to go there",
   "gensokyolegacy.item.door_debug_missing": "Bound youkai is not loaded",

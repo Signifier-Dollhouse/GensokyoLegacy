@@ -334,6 +334,7 @@
   "gensokyolegacy.info.structure_scanning": "扫描中",
   "gensokyolegacy.info.structure_abnormal": "发现%s个错误方块",
   "gensokyolegacy.info.loading": "加载中...",
+  "gensokyolegacy.info.youkai_avoid": "%s可能暂时不想见你",
   "gensokyolegacy.item.glass_bed": "显示角色的床的状态",
   "gensokyolegacy.item.glass_character": "显示角色的状态 ",
   "gensokyolegacy.item.glass_path": "显示角色寻路",

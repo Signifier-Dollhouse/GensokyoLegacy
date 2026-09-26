@@ -20,7 +20,8 @@
 			"entity_gift": "送礼冷却: %s",
 			"structure_scanning": "扫描中",
 			"structure_abnormal": "发现%s个错误方块",
-			"loading": "加载中..."
+			"loading": "加载中...",
+			"youkai_avoid": "%s可能暂时不想见你"
 		},
 		"item": {
 			"glass_bed": "显示角色的床的状态",

@@ -162,6 +162,7 @@ public final class GLLang {
 		ENTITY_UNBOUND("This character is not linked to a bed"),
 		ENTITY_BED("Character's bed is at (%s, %s, %s)", 3),
 		ENTITY_REPUTATION("Your reputation: %s / %s", 2),
+		YOUKAI_AVOID("%s might not want to see you for a while", 1),
 		ENTITY_FEED("Feed cool down: %s", 1),
 		ENTITY_GIFT("Gift cool down: %s", 1),
 		STRUCTURE_SCANNING("Scanning Structure...", 0),

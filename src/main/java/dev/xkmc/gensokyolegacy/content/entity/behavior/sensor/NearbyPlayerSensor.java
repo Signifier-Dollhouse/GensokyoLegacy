@@ -1,5 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.entity.behavior.sensor;
 
+import dev.xkmc.gensokyolegacy.content.attachment.character.ReputationConstants;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.SmartYoukaiEntity;
 import dev.xkmc.gensokyolegacy.util.BrainUtils;
 import net.minecraft.server.level.ServerLevel;
@@ -31,12 +32,18 @@ public class NearbyPlayerSensor<E extends SmartYoukaiEntity> extends AbstractNea
 	protected void setMemory(ServerLevel level, E entity, List<Player> list) {
 		list.sort(Comparator.comparingDouble(entity::distanceToSqr));
 		BrainUtils.setMemory(entity, MemoryModuleType.NEAREST_PLAYERS, list);
+		boolean allHostile = !list.isEmpty() && list.stream().allMatch(p ->
+				entity.getData(p).map(h -> h.data().reputation)
+						.orElse(ReputationConstants.INITIAL_REPUTATION) < ReputationConstants.DISCARD_REP_THRESHOLD);
 		list = new ArrayList<>(list);
 		list.removeIf(p -> !entity.targets.contains(p) && p.distanceTo(entity) > p.getVisibilityPercent(entity) * 16);
 		BrainUtils.setMemory(entity, MemoryModuleType.NEAREST_VISIBLE_PLAYER, list.isEmpty() ? null : list.getFirst());
 		list = new ArrayList<>(list);
 		list.removeIf(p -> !p.canBeSeenAsEnemy());
 		BrainUtils.setMemory(entity, MemoryModuleType.NEAREST_VISIBLE_ATTACKABLE_PLAYER, list.isEmpty() ? null : list.getFirst());
+		if (allHostile) {
+			entity.discard();
+		}
 	}
 
 }

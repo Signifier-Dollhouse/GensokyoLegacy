@@ -49,12 +49,6 @@ public class CharacterData {
 		}
 	}
 
-	public void gainCapped(int val, int ceiling) {
-		if (reputation < ceiling) {
-			reputation = Math.min(reputation + val, ceiling);
-		}
-	}
-
 	public void loseReputation(int val) {
 		loseReputation(val, ReputationConstants.MIN_REPUTATION);
 	}
@@ -87,28 +81,24 @@ public class CharacterData {
 	}
 
 	protected void onKilledByCharacter() {
-		gainCapped(
-				ReputationConstants.KILLED_GAIN,
-				ReputationConstants.KILLED_GAIN_CEILING
-		);
+		if (reputation < ReputationConstants.KILLED_RESTORE) {
+			reputation = ReputationConstants.KILLED_RESTORE;
+		}
 	}
 
 	protected void onHurtCharacter(Player player, YoukaiEntity e, float damage, DamageSource source) {
 		boolean danmaku = source.is(DanmakuDamageTypes.DANMAKU_TYPE);
 		if (danmaku) return;
 		boolean first = !e.targets.contains(player) && e.getLastHurtByMob() != player;
-		if (first && damage <= 4) {
-			if (reputation >= ReputationConstants.HURT_FIRST_SMALL_REP_THRESHOLD)
-				loseReputation(ReputationConstants.HURT_FIRST_SMALL_LOSS);
-			else if (reputation >= ReputationConstants.THRESHOLD_STRANGER)
-				loseReputation(ReputationConstants.HURT_FIRST_BIG_LOSS);
-			else loseReputation(ReputationConstants.HURT_FIRST_BIG_LOSS);
+		int floor = ReputationConstants.HURT_LOSS_FLOOR;
+		if (first && damage <= 4 && reputation >= ReputationConstants.HURT_FIRST_SMALL_REP_THRESHOLD) {
+			loseReputation(ReputationConstants.HURT_FIRST_SMALL_LOSS, floor);
+		} else if (first && reputation >= ReputationConstants.HURT_FIRST_SMALL_REP_THRESHOLD) {
+			loseReputation(ReputationConstants.HURT_FIRST_BIG_LOSS, floor);
+		} else if (reputation >= ReputationConstants.THRESHOLD_STRANGER) {
+			loseReputation(first ? ReputationConstants.HURT_FIRST_BIG_LOSS : ReputationConstants.HURT_REPEAT_LOW_LOSS, floor);
 		} else {
-			if (first && reputation >= ReputationConstants.HURT_FIRST_SMALL_REP_THRESHOLD)
-				loseReputation(ReputationConstants.HURT_FIRST_BIG_LOSS);
-			else if (reputation >= ReputationConstants.THRESHOLD_STRANGER)
-				loseReputation(ReputationConstants.HURT_REPEAT_LOW_LOSS);
-			else loseReputation(ReputationConstants.HURT_REPEAT_HIGH_LOSS);
+			loseReputation(first ? ReputationConstants.HURT_FIRST_BIG_LOSS : ReputationConstants.HURT_REPEAT_HIGH_LOSS, floor);
 		}
 	}
 

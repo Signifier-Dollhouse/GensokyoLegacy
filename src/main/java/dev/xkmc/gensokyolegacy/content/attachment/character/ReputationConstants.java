@@ -75,30 +75,48 @@ public final class ReputationConstants {
 	// --- Combat: youkai killed player (forgiveness) ---
 
 	/**
-	 * Reputation gained toward a character when one of that character's youkai kills the
-	 * player. This is forgiveness: a death is not meant to drive the relationship all the
-	 * way to {@link #MIN_REPUTATION} on its own, so the loss of {@link #DEATH_LOSS} is
-	 * partially offset by this gain. Never raises the reputation cap.
+	 * Reputation value restored when one of a character's youkai kills the player
+	 * while reputation is below this value. Death forgives hostility: any negative
+	 * reputation is reset straight to {@code 0} (neutral). Never raises the
+	 * reputation cap, and never lowers a positive reputation.
 	 */
-	public static final int KILLED_GAIN = 100;
+	public static final int KILLED_RESTORE = 0;
+
+	// --- Combat targeting ---
 
 	/**
-	 * Hard ceiling applied to {@link #KILLED_GAIN}. The forgiveness gain can never push
-	 * reputation above this negative value, so it only recovers while the relationship is
-	 * hostile. Once reputation has recovered past {@code -50}, being killed by this
-	 * character's youkai no longer helps.
+	 * Minimum reputation to stay non-hostile in combat. Youkai never initiate
+	 * attacks against players with reputation above this value. At or below it,
+	 * players are valid combat targets. Fresh players start at {@code 0}, so
+	 * youkai are hostile by default until befriended.
 	 */
-	public static final int KILLED_GAIN_CEILING = -50;
+	public static final int COMBAT_SAFE_THRESHOLD = 0;
 
-	// --- Combat: youkai killed the player ---
+	// --- Combat: player killed a youkai ---
 
 	/**
-	 * Reputation lost when the player is killed by a character's youkai. A serious setback
+	 * Reputation below which a youkai discards itself instead of staying around
+	 * the player. Any negative reputation means the character wants nothing to
+	 * do with the player for a while, whether hurt directly or merely sensed
+	 * nearby with no non-hostile players around.
+	 */
+	public static final int DISCARD_REP_THRESHOLD = 0;
+
+	/**
+	 * Reputation lost when the player kills one of a character's youkai. A serious setback
 	 * that drops the relationship, floored at {@link #MIN_REPUTATION}.
 	 */
 	public static final int DEATH_LOSS = 200;
 
 	// --- Combat: player hurt a youkai ---
+
+	/**
+	 * Floor for all reputation losses from damaging a youkai. Hurting a youkai can
+	 * never push reputation below this value no matter how often it happens;
+	 * only killing a youkai ({@link #DEATH_LOSS}) can drive it to
+	 * {@link #MIN_REPUTATION}. Equals {@link #THRESHOLD_JERK}.
+	 */
+	public static final int HURT_LOSS_FLOOR = -150;
 
 	/**
 	 * Minor reputation loss for a single small (non-danmaku, damage &lt;= 4) first hit dealt
@@ -121,22 +139,10 @@ public final class ReputationConstants {
 	public static final int HURT_FIRST_BIG_LOSS = 5;
 
 	/**
-	 * Floor for reputation when taking a bigger first hit at low reputation. Prevents a couple
-	 * of stray hits from instantly tanking a relationship into outright hostility.
-	 */
-	public static final int HURT_FIRST_BIG_FLOOR = -100;
-
-	/**
 	 * Reputation loss for a repeated (or large) hit against a STRANGER or above without a
 	 * friendship cushion. Escalates damage to the relationship as the fight continues.
 	 */
 	public static final int HURT_REPEAT_LOW_LOSS = 10;
-
-	/**
-	 * Floor for reputation when punishing repeat hits while the player is not yet friendly.
-	 * Keeps repeated low-tier harassment from pushing all the way to {@link #MIN_REPUTATION}.
-	 */
-	public static final int HURT_REPEAT_LOW_FLOOR = -150;
 
 	/**
 	 * Reputation loss for repeated (or large) hits directed at an already-hostile
