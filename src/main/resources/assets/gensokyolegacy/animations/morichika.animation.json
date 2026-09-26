@@ -2468,7 +2468,6 @@
 			}
 		},
 		"思考中": {
-			"loop": true,
 			"animation_length": 1.5,
 			"bones": {
 				"UpBody": {
