@@ -2,24 +2,34 @@ package dev.xkmc.gensokyolegacy.content.ui.trade;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import dev.xkmc.gensokyolegacy.content.rpg.core.CodecRegistry;
+import dev.xkmc.gensokyolegacy.content.rpg.core.IngredientEntry;
 import dev.xkmc.gensokyolegacy.content.rpg.trade.IClientOffer;
+import dev.xkmc.gensokyolegacy.content.rpg.trade.TradeOffer;
 import dev.xkmc.gensokyolegacy.content.ui.util.SpriteButton;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
+import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.client.ItemDecoratorHandler;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Optional;
@@ -175,6 +185,63 @@ public class TradeScreen extends AbstractContainerScreen<TradeMenu> {
 		super.slotClicked(slot, slotId, mouseButton, clickType);
 	}
 
+	@Override
+	protected void renderSlotContents(GuiGraphics g, ItemStack stack, Slot slot, @Nullable String countString) {
+		if (countString == null && slot instanceof TradeSlot ts && ts.hasItem()) {
+			var offer = getPlayerSellOffer(ts);
+			if (offer != null) {
+				int seed = slot.x + slot.y * this.imageWidth;
+				if (slot.isFake()) {
+					g.renderFakeItem(stack, slot.x, slot.y, seed);
+				} else {
+					g.renderItem(stack, slot.x, slot.y, seed);
+				}
+				renderSellDecorations(g, stack, slot, offer.value().canTrade(menu.player));
+				return;
+			}
+		}
+		super.renderSlotContents(g, stack, slot, countString);
+	}
+
+	@Nullable
+	private Holder<TradeOffer> getPlayerSellOffer(TradeSlot ts) {
+		var offerId = GLItems.DC_OFFER.get(ts.getItem());
+		if (offerId == null) return null;
+		var offer = CodecRegistry.TRADE.get(menu.player.level().registryAccess(), offerId);
+		if (offer == null || offer.value().isSellOffer()) return null;
+		return offer;
+	}
+
+	private void renderSellDecorations(GuiGraphics g, ItemStack stack, Slot slot, boolean enough) {
+		int x = slot.x, y = slot.y;
+		g.pose().pushPose();
+		if (stack.getCount() != 1) {
+			String s = String.valueOf(stack.getCount());
+			g.pose().translate(0.0F, 0.0F, 200.0F);
+			g.drawString(font, s, x + 19 - 2 - font.width(s), y + 6 + 3,
+					enough ? 0x55FF55 : 0xFF5555, true);
+		}
+		if (stack.isBarVisible()) {
+			int l = stack.getBarWidth();
+			int i = stack.getBarColor();
+			int j = x + 2;
+			int k = y + 13;
+			g.fill(RenderType.guiOverlay(), j, k, j + 13, k + 2, -16777216);
+			g.fill(RenderType.guiOverlay(), j, k, j + l, k + 1, i | 0xFF000000);
+		}
+		LocalPlayer localplayer = this.minecraft.player;
+		float f = localplayer == null ? 0.0F :
+				localplayer.getCooldowns().getCooldownPercent(stack.getItem(),
+						this.minecraft.getTimer().getGameTimeDeltaPartialTick(true));
+		if (f > 0.0F) {
+			int i1 = y + Mth.floor(16.0F * (1.0F - f));
+			int j1 = i1 + Mth.ceil(16.0F * f);
+			g.fill(RenderType.guiOverlay(), x, i1, x + 16, j1, Integer.MAX_VALUE);
+		}
+		g.pose().popPose();
+		ItemDecoratorHandler.of(stack).render(g, font, stack, x, y);
+	}
+
 	protected boolean click(int btn) {
 		if (menu.clickMenuButton(menu.player, btn) && Minecraft.getInstance().gameMode != null) {
 			Minecraft.getInstance().gameMode.handleInventoryButtonClick(menu.containerId, btn);
@@ -182,6 +249,29 @@ public class TradeScreen extends AbstractContainerScreen<TradeMenu> {
 		} else {
 			return false;
 		}
+	}
+
+	private static Component actionText(TradeOffer offer) {
+		var character = bracket(offer.character().getDescription(), ChatFormatting.AQUA);
+		if (!offer.isSellOffer()) {
+			var entry = offer.ingredients().getFirst();
+			return GLLang.Trade.SELL.get(bracket(ingredientName(entry), ChatFormatting.YELLOW), character);
+		}
+		if (IClientOffer.resolve(offer).currency().isEmpty()) {
+			return GLLang.Trade.CRAFT.get(character, bracket(offer.result().getHoverName(), ChatFormatting.YELLOW));
+		}
+		return GLLang.Trade.BUY.get(bracket(offer.result().getHoverName(), ChatFormatting.YELLOW), character);
+	}
+
+	private static Component bracket(Component inner, ChatFormatting color) {
+		return Component.literal("[").append(inner.copy().withStyle(color)).append("]");
+	}
+
+	private static Component ingredientName(IngredientEntry entry) {
+		if (entry.text().isPresent()) return Component.literal(entry.text().get());
+		var items = entry.ingredient().getItems();
+		if (items.length == 0) return Component.literal("?");
+		return items[0].getHoverName().copy();
 	}
 
 	@Override
@@ -195,6 +285,7 @@ public class TradeScreen extends AbstractContainerScreen<TradeMenu> {
 				if (offer != null) {
 					var data = GLMeta.TRADE.type().getOrCreate(menu.player);
 					var list = new ArrayList<Component>();
+					list.add(actionText(offer.value()));
 					list.add(GLLang.Trade.STOCK.get(data.getRemainingTrades(menu.player, offer), data.getMaxTrades(offer)));
 					if (offer.value().ingredients().size() > 1) {
 						list.add(GLLang.Trade.INGREDIENTS.get());

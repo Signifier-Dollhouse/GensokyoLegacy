@@ -138,6 +138,7 @@
 			"slot_empty_item": "空槽位",
 			"dim_missing": "未找到维度%s",
 			"recorded": "已记录位置%s：%s",
+			"record_overwrite": "槽位%s已有%s，确认后将覆盖",
 			"captured": "已将%s传送至%s",
 			"waypoint": "已传送至%s",
 			"travel_start": "正在蓄力隙间移动……",
@@ -170,6 +171,7 @@
 			"suicide": "自爆命令已下达：%s",
 			"no_target": "视线内没有目标",
 			"no_doll": "没有可用的人偶",
+			"no_weapon": "没有人偶持有可用的武器",
 			"not_doll": "目标不是你的人偶"
 		},
 		"doll": {
@@ -189,6 +191,9 @@
 		"trade": {
 			"ingredients": "材料：",
 			"option": "交易",
+			"buy": "从%2$s购买%1$s",
+			"sell": "向%2$s出售%1$s",
+			"craft": "请求%1$s制作%2$s",
 			"stock": "库存：%s/%s"
 		},
 		"alchemy": {

@@ -214,6 +214,9 @@ public final class GLLang {
 	public enum Trade implements LangEntry {
 		STOCK("Stock: %s/%s", 2),
 		INGREDIENTS("Ingredients:", 0),
+		BUY("Buy %s from %s", 2),
+		SELL("Sell %s to %s", 2),
+		CRAFT("Request %s to craft %s", 2),
 		OPTION("Trade");
 
 		private final String def;
@@ -491,6 +494,7 @@ public final class GLLang {
 		LOCKED_TRAVEL("Travel mode locked: apply chorus fruit in anvil", 0, ChatFormatting.DARK_RED),
 		LOCKED_CAPTURE("Capture mode locked: apply echo shard in anvil", 0, ChatFormatting.DARK_RED),
 		RECORDED("Recorded position %s: %s", 2),
+		RECORD_OVERWRITE("Slot %s already holds %s — confirming will overwrite it", 2, ChatFormatting.RED),
 		WAYPOINT("Teleported to %s", 1),
 		TRAVEL_START("Charging border travel...", 0),
 		TRAVEL_DONE("Border travel complete", 0),
@@ -583,6 +587,7 @@ public final class GLLang {
 		SUICIDE("Suicide dive ordered: %s", 1),
 		NO_TARGET("No target in sight", 0, ChatFormatting.RED),
 		NO_DOLL("No available doll", 0, ChatFormatting.RED),
+		NO_WEAPON("No doll holds a valid weapon", 0, ChatFormatting.RED),
 		NOT_DOLL("Target is not your doll", 0, ChatFormatting.RED);
 
 		private final String def;

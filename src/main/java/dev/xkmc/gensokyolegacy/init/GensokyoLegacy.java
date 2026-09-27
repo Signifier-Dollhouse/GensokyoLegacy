@@ -115,6 +115,7 @@ public class GensokyoLegacy {
 
 			e -> e.create(BorderUmbrellaSelectPacket.class, PacketHandler.NetDir.PLAY_TO_SERVER),
 			e -> e.create(BorderUmbrellaRenamePacket.class, PacketHandler.NetDir.PLAY_TO_SERVER),
+			e -> e.create(BorderUmbrellaConfirmRecordPacket.class, PacketHandler.NetDir.PLAY_TO_SERVER),
 			e -> e.create(BorderUmbrellaDeletePacket.class, PacketHandler.NetDir.PLAY_TO_SERVER),
 			e -> e.create(BorderUmbrellaReorderPacket.class, PacketHandler.NetDir.PLAY_TO_SERVER),
 			e -> e.create(BorderUmbrellaOpenRenamePacket.class, PacketHandler.NetDir.PLAY_TO_CLIENT),

@@ -255,6 +255,18 @@ public class QuestDialogData {
 		return new GroupDialogOption(group, optionText(id, text), List.of(), Optional.of(next));
 	}
 
+	public GroupDialogOption groupKey(String group, String key, Holder<Dialog> next) {
+		return new GroupDialogOption(group, key, List.of(), Optional.of(next));
+	}
+
+	public GroupDialogOption groupKey(String group, String key, DialogAction<?> action, Holder<Dialog> next) {
+		return new GroupDialogOption(group, key, List.of(action), Optional.of(next));
+	}
+
+	public GroupDialogOption groupKey(String group, String key, List<DialogAction<?>> actions, Holder<Dialog> next) {
+		return new GroupDialogOption(group, key, actions, Optional.of(next));
+	}
+
 	public SimpleDialogOption option(String id, String text, DialogAction<?> action) {
 		return new SimpleDialogOption(List.of(), optionText(id, text), List.of(action), Optional.empty());
 	}

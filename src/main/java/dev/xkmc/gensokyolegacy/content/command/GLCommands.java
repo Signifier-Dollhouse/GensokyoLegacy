@@ -10,7 +10,6 @@ import com.mojang.brigadier.suggestion.SuggestionProvider;
 import dev.xkmc.gensokyolegacy.content.attachment.character.CharDataHolder;
 import dev.xkmc.gensokyolegacy.content.attachment.character.CharacterData;
 import dev.xkmc.gensokyolegacy.content.attachment.character.ReputationConstants;
-import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.rpg.core.CodecRegistry;
 import dev.xkmc.gensokyolegacy.content.rpg.network.QuestStatusToClient;
 import dev.xkmc.gensokyolegacy.content.rpg.network.TradeStatusToClient;
@@ -23,6 +22,7 @@ import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.arguments.ResourceLocationArgument;
 import net.minecraft.core.Holder;
@@ -37,7 +37,9 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 @EventBusSubscriber(modid = GensokyoLegacy.MODID)
 public class GLCommands {
@@ -56,13 +58,11 @@ public class GLCommands {
 			new SimpleCommandExceptionType(Component.literal("Unknown quest requirement key"));
 
 	private static final SuggestionProvider<CommandSourceStack> SUGGEST_CHARACTER = (ctx, builder) -> {
-		for (var entry : BuiltInRegistries.ENTITY_TYPE.entrySet()) {
-			if (!entry.getKey().location().getNamespace().equals(GensokyoLegacy.MODID)) continue;
-			if (!(entry.getValue() instanceof EntityType<?> type)) continue;
-			if (!YoukaiEntity.class.isAssignableFrom(type.getBaseClass())) continue;
-			builder.suggest(entry.getKey().location().toString());
-		}
-		return builder.buildFuture();
+		var access = ctx.getSource().registryAccess();
+		Set<ResourceLocation> ids = new LinkedHashSet<>();
+		for (var e : access.registryOrThrow(CodecRegistry.Keys.STARTER).entrySet())
+			ids.add(BuiltInRegistries.ENTITY_TYPE.getKey(e.getValue().character()));
+		return SharedSuggestionProvider.suggestResource(ids, builder);
 	};
 
 	private static final SuggestionProvider<CommandSourceStack> SUGGEST_ALL_QUESTS = (ctx, builder) -> {

@@ -1,25 +1,25 @@
 {
   "character": "gensokyolegacy:kirisame_marisa",
   "completionDialog": {
-    "type": "gensokyolegacy:simple",
+    "type": "gensokyolegacy:group",
     "actions": [],
-    "conditions": [],
+    "group": "gensokyolegacy/marisa/shared/option/daily_group",
     "next": "gensokyolegacy:marisa/daily_witchcraft/complete/dialog_1",
     "text": "gensokyolegacy/marisa/daily_witchcraft/option/complete"
   },
   "conditions": [],
   "description": "gensokyolegacy/marisa/daily_witchcraft/quest/desc",
   "followUpDialog": {
-    "type": "gensokyolegacy:simple",
+    "type": "gensokyolegacy:group",
     "actions": [],
-    "conditions": [],
+    "group": "gensokyolegacy/marisa/shared/option/daily_group",
     "next": "gensokyolegacy:marisa/daily_witchcraft/follow_up/dialog_1",
     "text": "gensokyolegacy/marisa/shared/option/daily_follow"
   },
   "initialDialog": {
-    "type": "gensokyolegacy:simple",
+    "type": "gensokyolegacy:group",
     "actions": [],
-    "conditions": [],
+    "group": "gensokyolegacy/marisa/shared/option/daily_group",
     "next": "gensokyolegacy:marisa/daily_witchcraft/start/dialog_1",
     "text": "gensokyolegacy/marisa/shared/option/daily_start"
   },

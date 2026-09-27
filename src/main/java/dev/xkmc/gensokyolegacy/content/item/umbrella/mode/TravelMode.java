@@ -110,7 +110,18 @@ public class TravelMode extends UmbrellaMode {
 					Vec3 eye = player.getEyePosition();
 					Vec3 target = Vec3.atCenterOf(data.target());
 					Vec3 diff = target.subtract(eye);
-					if (diff.lengthSqr() < 9.0) return;
+					if (diff.lengthSqr() < 9.0 || player.position().distanceToSqr(data.origin()) > 64.0) {
+						// arrived: the server teleported us (near the target, or far from
+						// the charge origin). Stop locking and restore the original orientation.
+						for (var handStack : List.of(player.getMainHandItem(), player.getOffhandItem())) {
+							if (handStack.getItem() instanceof BorderUmbrellaItem) {
+								handStack.remove(GLItems.UMBRELLA_TRAVEL.get());
+							}
+						}
+						player.stopUsingItem();
+						TravelModeUtil.restoreOrientation(player, data.yRot(), data.xRot());
+						return;
+					}
 					double dx = diff.x;
 					double dy = diff.y;
 					double dz = diff.z;
@@ -153,7 +164,12 @@ public class TravelMode extends UmbrellaMode {
 			return;
 		}
 		Vec3 dst = TravelModeUtil.findSafePosition(sl, tpos);
-		TravelModeUtil.teleportPlayer(sp, sl, dst);
+		dst = TravelModeUtil.adjustToFreeSpace(sl, sp, dst);
+		if (data != null) {
+			TravelModeUtil.teleportPlayer(sp, sl, dst, data.yRot(), data.xRot());
+		} else {
+			TravelModeUtil.teleportPlayer(sp, sl, dst);
+		}
 		sp.getCooldowns().addCooldown(item, 20);
 		sp.displayClientMessage(GLLang.ItemUmbrella.TRAVEL_DONE.get(), true);
 		stack.remove(GLItems.UMBRELLA_TRAVEL.get());
@@ -167,6 +183,10 @@ public class TravelMode extends UmbrellaMode {
 
 	@Override
 	public void onReleaseUsing(ItemStack stack, Level level, LivingEntity entity, int timeLeft, BorderUmbrellaItem item) {
+		var data = stack.get(GLItems.UMBRELLA_TRAVEL.get());
+		if (data != null) {
+			TravelModeUtil.restoreOrientation(entity, data.yRot(), data.xRot());
+		}
 		super.onReleaseUsing(stack, level, entity, timeLeft, item);
 		if (entity instanceof ServerPlayer sp) {
 			if (!sp.getCooldowns().isOnCooldown(item)) {

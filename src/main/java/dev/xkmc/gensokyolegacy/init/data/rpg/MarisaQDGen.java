@@ -8,6 +8,7 @@ import dev.xkmc.gensokyolegacy.content.rpg.condition.HasAdvancementCondition;
 import dev.xkmc.gensokyolegacy.content.rpg.condition.HasQuestCompletedCondition;
 import dev.xkmc.gensokyolegacy.content.rpg.condition.SelfReputationCondition;
 import dev.xkmc.gensokyolegacy.content.rpg.dialog.DialogStarter;
+import dev.xkmc.gensokyolegacy.content.rpg.dialog.GroupDialogOption;
 import dev.xkmc.gensokyolegacy.content.rpg.dialog.SimpleDialogOption;
 import dev.xkmc.gensokyolegacy.content.rpg.quest.Quest;
 import dev.xkmc.gensokyolegacy.content.rpg.quest.QuestCondition;
@@ -66,6 +67,7 @@ public class MarisaQDGen extends QuestDialogData {
 	private static final ResourceLocation ADV_FORTRESS = ResourceLocation.withDefaultNamespace("nether/find_fortress");
 
 	private final String byeKey;
+	private final String dailyGroupKey;
 	private final String dailyStartKey;
 	private final String dailyAcceptKey;
 	private final String dailyRejectKey;
@@ -76,6 +78,7 @@ public class MarisaQDGen extends QuestDialogData {
 	public MarisaQDGen() {
 		prefix("marisa/shared");
 		byeKey = text("option", "bye", "Bye!");
+		dailyGroupKey = text("option", "daily_group", "Daily Tasks");
 		dailyStartKey = text("option", "daily_start", "What can I help?");
 		dailyAcceptKey = text("option", "daily_accept", "I'll do it!");
 		dailyRejectKey = text("option", "daily_reject", "Maybe later.");
@@ -570,8 +573,8 @@ public class MarisaQDGen extends QuestDialogData {
 				dailyComplete(completeOpener, gotemLine, handover, completeLine, thanks)));
 	}
 
-	private SimpleDialogOption dailyStart(String intro, String acceptLine, String rejectLine) {
-		return optionKey(dailyStartKey,
+	private GroupDialogOption dailyStart(String intro, String acceptLine, String rejectLine) {
+		return groupKey(dailyGroupKey, dailyStartKey,
 				dialog("start/dialog_1", intro,
 						optionKey(dailyRejectKey,
 								dialog("start/reject/dialog_1", rejectLine)),
@@ -579,22 +582,22 @@ public class MarisaQDGen extends QuestDialogData {
 								dialog("start/accept/dialog_1", acceptLine))));
 	}
 
-	private SimpleDialogOption dailyFollow(String followLine, @Nullable String endOverride, String optLine) {
+	private GroupDialogOption dailyFollow(String followLine, @Nullable String endOverride, String optLine) {
 		var end = endOverride == null
 				? optionKey(dailyFollowEndKey, dialog("follow_up/end/dialog_1", optLine))
 				: option("follow_up/end", endOverride, dialog("follow_up/end/dialog_1", optLine));
-		return optionKey(dailyFollowKey,
+		return groupKey(dailyGroupKey, dailyFollowKey,
 				dialog("follow_up/dialog_1", followLine, end));
 	}
 
-	private SimpleDialogOption dailyComplete(String opener, String gotemLine, String handover,
+	private GroupDialogOption dailyComplete(String opener, String gotemLine, String handover,
 	                                         String completeLine, @Nullable String thanks) {
 		var done = thanks == null
 				? dialog("complete/handover/dialog_1", completeLine)
 				: dialog("complete/handover/dialog_1", completeLine, optionKey(dailyThanksKey));
-		return option("complete", opener,
-				dialog("complete/dialog_1", gotemLine,
-						option("complete/handover", handover, new CompleteQuestAction(), done)));
+		return new GroupDialogOption(dailyGroupKey, optionText("complete", opener), List.of(),
+				Optional.of(dialog("complete/dialog_1", gotemLine,
+						option("complete/handover", handover, new CompleteQuestAction(), done))));
 	}
 
 }

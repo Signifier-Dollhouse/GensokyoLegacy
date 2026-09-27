@@ -22,6 +22,7 @@
 			"shared": {
 				"option": {
 					"bye": "拜拜！",
+					"daily_group": "每日委托",
 					"daily_start": "有什么能帮忙的吗？",
 					"daily_accept": "我去办！",
 					"daily_reject": "晚点再说吧。",
