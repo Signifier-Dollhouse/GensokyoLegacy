@@ -1,0 +1,8 @@
+{
+  "parent": "gensokyolegacy:item/sliding_door",
+  "textures": {
+    "front_bottom": "gensokyolegacy:block/deco/paper_sliding_door_bottom",
+    "front_top": "gensokyolegacy:block/deco/paper_sliding_door_top",
+    "side": "gensokyolegacy:block/deco/paper_sliding_door_side"
+  }
+}
