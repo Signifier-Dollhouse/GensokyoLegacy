@@ -1,9 +1,9 @@
 package dev.xkmc.gensokyolegacy.content.entity.dolls.menu;
 
 import dev.xkmc.gensokyolegacy.content.entity.dolls.DollEntity;
+import dev.xkmc.gensokyolegacy.content.ui.util.EntityPreviewRenderer;
 import dev.xkmc.l2core.base.menu.base.BaseContainerScreen;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 
@@ -41,7 +41,7 @@ public class DollLoadoutScreen extends BaseContainerScreen<DollLoadoutMenu> {
 		double ly = y - my;
 		float ax = (float) Math.atan(lx / 50.0);
 		float ay = (float) Math.atan(ly / 50.0);
-		InventoryScreen.renderEntityInInventoryFollowsAngle(g,
+		EntityPreviewRenderer.renderEntityInInventoryFollowsAngle(g,
 				leftPos + 3, topPos + 16, leftPos + 58, topPos + 62,
 				40, 0.0625f, ax, ay, doll);
 	}
