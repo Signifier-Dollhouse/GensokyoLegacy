@@ -11,7 +11,6 @@ import dev.xkmc.gensokyolegacy.init.data.GLModConfig;
 import dev.xkmc.l2damagetracker.contents.attack.AttackListener;
 import dev.xkmc.l2damagetracker.contents.attack.DamageData;
 import dev.xkmc.l2damagetracker.contents.attack.DamageModifier;
-import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.animal.Cat;
 import net.minecraft.world.entity.player.Player;
@@ -56,9 +55,10 @@ public class GLAttackListener implements AttackListener {
 
 		var attacker = data.getAttacker();
 		if (attacker == null) return;
-		ItemStack head = attacker.getItemBySlot(EquipmentSlot.HEAD);
-		if (head.getItem() instanceof TouhouHatItem hat) {
-			hat.onHurtTarget(head, data.getSource(), data.getTarget());
+		for (ItemStack head : TouhouHatItem.getEquippedHats(attacker)) {
+			if (head.getItem() instanceof TouhouHatItem hat) {
+				hat.onHurtTarget(head, data.getSource(), data.getTarget());
+			}
 		}
 	}
 

@@ -22,7 +22,7 @@ import java.util.List;
 public class SuwakoHatItem extends TouhouHatItem {
 
 	public SuwakoHatItem(Item.Properties properties) {
-		super(properties, TouhouMat.SUWAKO_HAT);
+		super(properties);
 	}
 
 	@Override

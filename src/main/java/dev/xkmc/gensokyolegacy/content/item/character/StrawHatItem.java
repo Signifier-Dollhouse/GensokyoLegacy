@@ -24,7 +24,7 @@ import java.util.List;
 public class StrawHatItem extends TouhouHatItem {
 
 	public StrawHatItem(Item.Properties properties) {
-		super(properties, TouhouMat.STRAW_HAT);
+		super(properties);
 	}
 
 	@Override

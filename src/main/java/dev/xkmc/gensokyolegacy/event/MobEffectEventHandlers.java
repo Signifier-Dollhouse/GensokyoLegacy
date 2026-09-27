@@ -1,11 +1,11 @@
 package dev.xkmc.gensokyolegacy.event;
 
 import dev.xkmc.gensokyolegacy.content.entity.characters.maiden.MaidenEntity;
+import dev.xkmc.gensokyolegacy.content.item.character.TouhouHatItem;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.registrate.GLEffects;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.gensokyolegacy.util.LavaEffectsHelper;
-import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -48,7 +48,7 @@ public class MobEffectEventHandlers {
 				player.removeEffect(GLEffects.UNCONSCIOUS);
 			}
 			var hat = GLItems.KOISHI_HAT.get();
-			if (player.getItemBySlot(EquipmentSlot.HEAD).is(hat)) {
+			if (TouhouHatItem.getEquippedHats(player).stream().anyMatch(e -> e.is(hat))) {
 				if (player.getCooldowns().getCooldownPercent(hat, 0) < 0.5)
 					player.getCooldowns().addCooldown(hat, 200);
 			}

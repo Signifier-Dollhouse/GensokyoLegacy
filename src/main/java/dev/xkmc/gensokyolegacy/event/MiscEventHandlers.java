@@ -17,7 +17,6 @@ import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.animal.Cat;
 import net.minecraft.world.entity.animal.frog.Frog;
 import net.minecraft.world.entity.player.Player;
@@ -90,9 +89,10 @@ public class MiscEventHandlers {
 	@SubscribeEvent
 	public static void onDanmakuDamageType(DanmakuDamageEvent event) {
 		var le = event.getUser();
-		ItemStack stack = le.getItemBySlot(EquipmentSlot.HEAD);
-		if (stack.getItem() instanceof TouhouHatItem hat) {
-			event.setSource(hat.modifyDamageType(stack, le, event.getBullet(), event.getSource()));
+		for (ItemStack stack : TouhouHatItem.getEquippedHats(le)) {
+			if (stack.getItem() instanceof TouhouHatItem hat) {
+				event.setSource(hat.modifyDamageType(stack, le, event.getBullet(), event.getSource()));
+			}
 		}
 	}
 

@@ -1,5 +1,6 @@
 package dev.xkmc.gensokyolegacy.compat.curios;
 
+import dev.xkmc.gensokyolegacy.content.item.character.TouhouHatItem;
 import dev.xkmc.gensokyolegacy.content.item.talisman.core.TalismanCurioItem;
 import dev.xkmc.gensokyolegacy.init.data.GLTagGen;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -42,6 +43,23 @@ public class CuriosManager {
 					.isPresent();
 		}
 		return false;
+	}
+
+	public static List<ItemStack> getCurioHats(LivingEntity le) {
+		List<ItemStack> ans = new ArrayList<>();
+		if (ModList.get().isLoaded("curios")) {
+			CuriosApi.getCuriosInventory(le).ifPresent(inv ->
+					inv.getStacksHandler("head").ifPresent(handler -> {
+						var stacks = handler.getStacks();
+						for (int i = 0; i < stacks.getSlots(); i++) {
+							ItemStack curio = stacks.getStackInSlot(i);
+							if (curio.getItem() instanceof TouhouHatItem) {
+								ans.add(curio);
+							}
+						}
+					}));
+		}
+		return ans;
 	}
 
 	public static List<ItemStack> getEquippedTalismans(LivingEntity le) {

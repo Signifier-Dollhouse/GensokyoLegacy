@@ -40,6 +40,7 @@ import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.*;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 import net.neoforged.neoforge.common.NeoForge;
+import top.theillusivec4.curios.api.client.CuriosRendererRegistry;
 
 @EventBusSubscriber(value = Dist.CLIENT, modid = GensokyoLegacy.MODID)
 public class GLClient {
@@ -54,6 +55,17 @@ public class GLClient {
 			ItemProperties.register(GLItems.BORDER_UMBRELLA.get(), GensokyoLegacy.loc("umbrella_open"), BorderUmbrellaItem::isOpen);
 			ItemProperties.register(GLItems.BORDER_UMBRELLA.get(), GensokyoLegacy.loc("umbrella_display"), BorderUmbrellaItem::displayPredicate);
 			ItemProperties.register(GLItems.DOLL_GLOVE.get(), GensokyoLegacy.loc("glove_display"), DollGloveItem::displayPredicate);
+
+			CuriosRendererRegistry.register(GLItems.STRAW_HAT.get(),
+					() -> new TouhouHatRenderer(GensokyoLegacy.loc("textures/model/straw_hat.png")));
+			CuriosRendererRegistry.register(GLItems.SUWAKO_HAT.get(),
+					() -> new TouhouHatRenderer(GensokyoLegacy.loc("textures/model/suwako_hat.png")));
+			CuriosRendererRegistry.register(GLItems.KOISHI_HAT.get(),
+					() -> new TouhouHatRenderer(GensokyoLegacy.loc("textures/model/koishi_hat.png")));
+			CuriosRendererRegistry.register(GLItems.RUMIA_HAIRBAND.get(),
+					() -> new TouhouHatRenderer(GensokyoLegacy.loc("textures/entity/rumia.png")));
+			CuriosRendererRegistry.register(GLItems.CIRNO_HAIRBAND.get(),
+					() -> new TouhouHatRenderer(GensokyoLegacy.loc("textures/entity/cirno.png")));
 
 			GLItems.STAR.get().getTypeForRender();
 			ProjectileRenderHelper.setup();

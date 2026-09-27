@@ -19,7 +19,7 @@ import java.util.List;
 public class ReimuHairbandItem extends TouhouHatItem {
 
 	public ReimuHairbandItem(Properties properties) {
-		super(properties, TouhouMat.REIMU_HAIRBAND);
+		super(properties);
 	}
 
 	@Override

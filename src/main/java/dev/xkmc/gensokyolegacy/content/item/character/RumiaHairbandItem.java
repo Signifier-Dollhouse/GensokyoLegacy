@@ -21,7 +21,7 @@ import java.util.List;
 public class RumiaHairbandItem extends TouhouHatItem {
 
 	public RumiaHairbandItem(Properties properties) {
-		super(properties, TouhouMat.RUMIA_HAIRBAND);
+		super(properties);
 	}
 
 	@Override
