@@ -192,6 +192,7 @@ dependencies {
     implementation "curse.maven:touhou-little-maid-355044:5896992"
     implementation "curse.maven:jade-324717:5976517"
     implementation "curse.maven:sodium-394468:6382651"
+//    implementation "curse.maven:lootr-361276:8968561"
 
     testImplementation "com.mojang:datafixerupper:8.0.16"
     testImplementation "com.google.guava:guava:32.1.2-jre"
