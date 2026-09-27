@@ -78,7 +78,7 @@ public class GLBiomes {
 			MobSpawnSettings.Builder spawns,
 			BiomeGenerationSettings.PlainBuilder gen
 	) {
-		return biome(true, 0.7f, 0.8f, 0xc0d8ff, 0x59c93c, 0x30bb0b, spawns, gen, null);
+		return biome(true, 0.7f, 0.8f, 0x4b6fad, 329011, 0x8facf3, 0x418e63, 0x4e9465, spawns, gen, null);
 	}
 
 	private static Biome biome(
@@ -104,7 +104,7 @@ public class GLBiomes {
 				.waterColor(waterColor)
 				.waterFogColor(waterFogColor)
 				.fogColor(fogColor)
-				.skyColor(calculateSkyColor(temperature))
+				.skyColor(0x4770c1)
 				.ambientMoodSound(AmbientMoodSettings.LEGACY_CAVE_SETTINGS)
 				.backgroundMusic(bgm);
 		if (grassCol != null) {
