@@ -1,4 +1,4 @@
-package dev.xkmc.gensokyolegacy.content.block.deco.misc;
+package dev.xkmc.gensokyolegacy.content.block.deco.donation;
 
 import dev.xkmc.gensokyolegacy.content.block.base.ShapePathFindBlockMethod;
 import net.minecraft.core.BlockPos;
@@ -12,7 +12,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 
 import static net.minecraft.world.level.block.HorizontalDirectionalBlock.FACING;
 
-public class DonationBox2Shape implements ShapePathFindBlockMethod {
+public class DonationBoxShape implements ShapePathFindBlockMethod {
 
 	public static final VoxelShape SHAPE_NS = Shapes.or(
 			Block.box(-4, 0, 0, 20, 14, 16),

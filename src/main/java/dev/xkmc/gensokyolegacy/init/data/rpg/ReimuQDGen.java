@@ -504,7 +504,7 @@ public class ReimuQDGen extends QuestDialogData {
 	                                 String accept, String acceptLine,
 	                                 String reject, String rejectLine) {
 		return option("start", button,
-				dialog("start/dialog_1", intro,
+				dialog("start/dialog_1", intro, THINK_ANIMS,
 						option("start/reject", reject, dialog("start/reject/dialog_1", rejectLine, optionKey(byeKey))),
 						option("start/accept", accept, new StartQuestAction(),
 								dialog("start/accept/dialog_1", acceptLine, optionKey(byeKey)))));
@@ -514,7 +514,7 @@ public class ReimuQDGen extends QuestDialogData {
 	                                     String accept, String acceptLine,
 	                                     String reject, String rejectLine) {
 		return option("start", button,
-				dialog("start/dialog_1", intro,
+				dialog("start/dialog_1", intro, THINK_ANIMS,
 						option("start/reject", reject, dialog("start/reject/dialog_1", rejectLine, optionKey(byeKey))),
 						option("start/accept", accept, List.of(new StartQuestAction(), new GiveMobEffectAction(MobEffects.BAD_OMEN, BAD_OMEN_DURATION, 0)),
 								dialog("start/accept/dialog_1", acceptLine, optionKey(byeKey)))));
@@ -522,13 +522,13 @@ public class ReimuQDGen extends QuestDialogData {
 
 	private SimpleDialogOption follow(String button, String intro, String opt, String optLine) {
 		return option("follow_up", button,
-				dialog("follow_up/dialog_1", intro,
+				dialog("follow_up/dialog_1", intro, THINK_ANIMS,
 						option("follow_up/end", opt, dialog("follow_up/end/dialog_1", optLine, optionKey(byeKey)))));
 	}
 
 	private SimpleDialogOption follow(String button, String intro, String opt, String optLine, DialogAction<?> action) {
 		return option("follow_up", button,
-				dialog("follow_up/dialog_1", intro,
+				dialog("follow_up/dialog_1", intro, THINK_ANIMS,
 						option("follow_up/end", opt, List.of(action),
 								dialog("follow_up/end/dialog_1", optLine, optionKey(byeKey)))));
 	}
@@ -537,7 +537,7 @@ public class ReimuQDGen extends QuestDialogData {
 	                                    String reject, String rejectLine,
 	                                    String complete, String completeLine) {
 		return option("complete", button,
-				dialog("complete/dialog_1", intro,
+				dialog("complete/dialog_1", intro, AGREE_ANIMS,
 						option("complete/reject", reject, dialog("complete/reject/dialog_1", rejectLine, optionKey(byeKey))),
 						option("complete/handover", complete, new CompleteQuestAction(),
 								dialog("complete/handover/dialog_1", completeLine, optionKey(byeKey)))));
@@ -561,7 +561,7 @@ public class ReimuQDGen extends QuestDialogData {
 
 	private GroupDialogOption dailyStart(String intro, String acceptLine, String rejectLine) {
 		return groupKey(dailyGroupKey, dailyStartKey,
-				dialog("start/dialog_1", intro,
+				dialog("start/dialog_1", intro, THINK_ANIMS,
 						optionKey(dailyRejectKey,
 								dialog("start/reject/dialog_1", rejectLine, optionKey(byeKey))),
 						optionKey(dailyAcceptKey, new StartQuestAction(),
@@ -570,7 +570,7 @@ public class ReimuQDGen extends QuestDialogData {
 
 	private GroupDialogOption dailyRaidStart(String intro, String acceptLine, String rejectLine) {
 		return groupKey(dailyGroupKey, dailyStartKey,
-				dialog("start/dialog_1", intro,
+				dialog("start/dialog_1", intro, THINK_ANIMS,
 						optionKey(dailyRejectKey,
 								dialog("start/reject/dialog_1", rejectLine, optionKey(byeKey))),
 						optionKey(dailyAcceptKey,
@@ -580,21 +580,21 @@ public class ReimuQDGen extends QuestDialogData {
 
 	private GroupDialogOption dailyFollow(String followLine, String optLine) {
 		return groupKey(dailyGroupKey, dailyFollowKey,
-				dialog("follow_up/dialog_1", followLine,
+				dialog("follow_up/dialog_1", followLine, THINK_ANIMS,
 						optionKey(dailyFollowEndKey,
 								dialog("follow_up/end/dialog_1", optLine, optionKey(byeKey)))));
 	}
 
 	private GroupDialogOption dailyFollow(String followLine, String optLine, DialogAction<?> action) {
 		return groupKey(dailyGroupKey, dailyFollowKey,
-				dialog("follow_up/dialog_1", followLine,
+				dialog("follow_up/dialog_1", followLine, THINK_ANIMS,
 						optionKey(dailyFollowEndKey, List.of(action),
 								dialog("follow_up/end/dialog_1", optLine, optionKey(byeKey)))));
 	}
 
 	private GroupDialogOption dailyComplete(String completeLine) {
 		return groupKey(dailyGroupKey, dailyCompleteKey,
-				dialogKey("complete/dialog_1", dailyGotemKey,
+				dialogKey("complete/dialog_1", dailyGotemKey, AGREE_ANIMS,
 						optionKey(dailyHandoverKey, new CompleteQuestAction(),
 								dialog("complete/handover/dialog_1", completeLine, optionKey(byeKey)))));
 	}

@@ -10,6 +10,7 @@ import dev.xkmc.gensokyolegacy.content.block.functional.alchemypot.recipe.WitchM
 import dev.xkmc.gensokyolegacy.content.entity.behavior.task.home.AbstractHomeHolderTask;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.SmartYoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.GeoYoukaiAnim;
+import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiAnim;
 import dev.xkmc.gensokyolegacy.content.fluid.GLHexFluid;
 import dev.xkmc.gensokyolegacy.content.item.hexbrew.HexBrew;
 import dev.xkmc.gensokyolegacy.init.registrate.GLRecipes;
@@ -163,7 +164,7 @@ public class MarisaBrewTask<E extends SmartYoukaiEntity> extends AbstractHomeHol
 	private void doAdd(ServerLevel level, E entity, AlchemyPotBlockEntity be) {
 		if (be.isReacting()) return;
 		entity.swing(InteractionHand.MAIN_HAND);
-		if (entity instanceof GeoYoukaiAnim anim) anim.broadcastUseMainhandAnim();
+		if (entity instanceof GeoYoukaiAnim anim) anim.broadcastAnim(YoukaiAnim.USE_MAINHAND);
 		if (rescueFirst) {
 			rescueSlotItems(level, be);
 			be.clearContents();
@@ -196,7 +197,7 @@ public class MarisaBrewTask<E extends SmartYoukaiEntity> extends AbstractHomeHol
 		if (isCompleteMatch(level, fluid, potItems(be))) return;
 		if (!findOptions(level, entity, fluid.copy(), potItems(be)).isEmpty()) return;
 		entity.swing(InteractionHand.MAIN_HAND);
-		if (entity instanceof GeoYoukaiAnim anim) anim.broadcastUseMainhandAnim();
+		if (entity instanceof GeoYoukaiAnim anim) anim.broadcastAnim(YoukaiAnim.USE_MAINHAND);
 		BlockPos chest = home.getBlockAround(HomeBlockKind.CONTAINER, bedPos);
 		BlockPos drop = pot.above();
 		if (fluid.getFluid() instanceof GLHexFluid hex) {

@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "gensokyolegacy:block/oak_shelf",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "gensokyolegacy:block/oak_shelf"
+    },
+    "facing=south": {
+      "model": "gensokyolegacy:block/oak_shelf",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "gensokyolegacy:block/oak_shelf",
+      "y": 270
+    }
+  }
+}

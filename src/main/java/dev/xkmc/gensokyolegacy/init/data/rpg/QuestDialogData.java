@@ -2,6 +2,7 @@ package dev.xkmc.gensokyolegacy.init.data.rpg;
 
 import com.tterrag.registrate.providers.ProviderType;
 import dev.xkmc.gensokyolegacy.content.attachment.datamap.DialogConfig;
+import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiAnim;
 import dev.xkmc.gensokyolegacy.content.rpg.action.DialogAction;
 import dev.xkmc.gensokyolegacy.content.rpg.action.SetTimerAction;
 import dev.xkmc.gensokyolegacy.content.rpg.condition.HasAdvancementCondition;
@@ -57,6 +58,16 @@ public class QuestDialogData {
 	public static final int CHAT_MISC = 30;
 	public static final int CHAT_INFO = 100;
 	public static final int CHAT_SPECIAL = 1000;
+
+	/**
+	 * Standard dialog animations, mirroring the old code-triggered behavior:
+	 * chats play a random talk clip, quest start/follow-up play think,
+	 * quest completion plays agree.
+	 */
+	protected static final List<String> TALK_ANIMS = List.of(
+			YoukaiAnim.TALK_01.trigger(), YoukaiAnim.TALK_02.trigger());
+	protected static final List<String> THINK_ANIMS = List.of(YoukaiAnim.THINK.trigger());
+	protected static final List<String> AGREE_ANIMS = List.of(YoukaiAnim.AGREE.trigger());
 
 	private final Map<ResourceKey<Dialog>, DataGenHolder<Dialog>> dialogRegistry = new LinkedHashMap<>();
 	private final Map<ResourceKey<DialogStarter>, DataGenHolder<DialogStarter>> starterRegistry = new LinkedHashMap<>();
@@ -149,17 +160,25 @@ public class QuestDialogData {
 	}
 
 	public Holder<Dialog> dialog(String id, String text, DialogOption<?>... options) {
+		return dialog(id, text, TALK_ANIMS, options);
+	}
+
+	public Holder<Dialog> dialog(String id, String text, List<String> animations, DialogOption<?>... options) {
 		id = prefix + "/" + id;
 		var key = ResourceKey.create(CodecRegistry.DIALOG.key(), loc(id));
-		var holder = new DataGenHolder<>(key, new Dialog(text("dialog", id, text), List.of(options)));
+		var holder = new DataGenHolder<>(key, new Dialog(text("dialog", id, text), List.of(options), animations));
 		dialogRegistry.put(key, holder);
 		return holder;
 	}
 
 	public Holder<Dialog> dialogKey(String id, String key, DialogOption<?>... options) {
+		return dialogKey(id, key, TALK_ANIMS, options);
+	}
+
+	public Holder<Dialog> dialogKey(String id, String key, List<String> animations, DialogOption<?>... options) {
 		id = prefix + "/" + id;
 		var rkey = ResourceKey.create(CodecRegistry.DIALOG.key(), loc(id));
-		var holder = new DataGenHolder<>(rkey, new Dialog(key, List.of(options)));
+		var holder = new DataGenHolder<>(rkey, new Dialog(key, List.of(options), animations));
 		dialogRegistry.put(rkey, holder);
 		return holder;
 	}

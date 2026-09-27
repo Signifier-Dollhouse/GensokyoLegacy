@@ -10,12 +10,14 @@ import java.util.List;
 
 public record Dialog(
 		String text,
-		List<DialogOption<?>> options
+		List<DialogOption<?>> options,
+		List<String> animations
 ) {
 
 	public static final Codec<Dialog> CODEC = RecordCodecBuilder.create(i -> i.group(
 			Codec.STRING.fieldOf("text").forGetter(Dialog::text),
-			CodecRegistry.OPTION.codec().listOf().fieldOf("options").forGetter(Dialog::options)
+			CodecRegistry.OPTION.codec().listOf().fieldOf("options").forGetter(Dialog::options),
+			Codec.STRING.listOf().optionalFieldOf("animations", List.of()).forGetter(Dialog::animations)
 	).apply(i, Dialog::new));
 
 	public static final Codec<Holder<Dialog>> HOLDER = RegistryFileCodec.create(CodecRegistry.Keys.DIALOG, CODEC);

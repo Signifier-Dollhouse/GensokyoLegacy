@@ -38,7 +38,7 @@
 				{
 					"name": "MHead",
 					"parent": "AllHead",
-					"pivot": [0, 29.3, 0]
+					"pivot": [0, 24.3, 0]
 				},
 				{
 					"name": "Head",
@@ -473,7 +473,7 @@
 				{
 					"name": "Left_Hair",
 					"parent": "Hair",
-					"pivot": [0, 5.575, 0.7],
+					"pivot": [3.35373, 25.83492, 0.08724],
 					"cubes": [
 						{
 							"origin": [2.4, 22.6, -3],
@@ -494,7 +494,7 @@
 				{
 					"name": "Right_Hair",
 					"parent": "Hair",
-					"pivot": [0, 5.575, 0.7],
+					"pivot": [-3.35373, 25.83492, 0.08724],
 					"cubes": [
 						{
 							"origin": [-4.4, 22.6, -3],

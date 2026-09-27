@@ -128,7 +128,7 @@ public class GLStructureTagGen {
 		pvd.addTag(REIMU_FIX).add(
 				GLFurniture.DRAWER_CABINET.get(), GLFurniture.DOOR_CABINET.get(),
 				GLFurniture.CRATE.get(), GLFurniture.BOOK_PILE.get(), GLFurniture.BOOK_STACK.get(),
-				GLFurniture.DONATION_BOX_2.get()
+				GLFurniture.DONATION_BOX.get()
 		);
 		pvd.addTag(REIMU_FIX).addOptional(GensokyoLegacy.loc("tatami_block"));
 		pvd.addTag(REIMU_FIX).addOptional(GensokyoLegacy.loc("tea_table"));

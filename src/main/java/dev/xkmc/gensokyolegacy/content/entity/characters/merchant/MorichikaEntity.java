@@ -4,6 +4,7 @@ import dev.xkmc.gensokyolegacy.content.entity.behavior.brain.TaskBoard;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.task.home.YoukaiRestockShelfTask;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.GeneralYoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.GeoYoukaiAnim;
+import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiAnim;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiFlags;
 import dev.xkmc.gensokyolegacy.init.data.GLTagGen;
 import dev.xkmc.gensokyolegacy.init.registrate.GLBrains;
@@ -19,6 +20,8 @@ import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.animation.*;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
+import java.util.Optional;
+
 @SerialClass
 public class MorichikaEntity extends GeneralYoukaiEntity implements GeoYoukaiAnim {
 
@@ -26,6 +29,13 @@ public class MorichikaEntity extends GeneralYoukaiEntity implements GeoYoukaiAni
 	protected static final RawAnimation WALK = RawAnimation.begin().thenLoop("走路");
 	protected static final RawAnimation SIT = RawAnimation.begin().thenLoop("坐下");
 	protected static final RawAnimation SLEEP = RawAnimation.begin().thenLoop("睡觉");
+	private static final RawAnimation USE_MAINHAND = RawAnimation.begin().thenPlay("使用主手物品");
+	private static final RawAnimation GREET = RawAnimation.begin().thenPlay("招呼");
+	private static final RawAnimation TALK_01 = RawAnimation.begin().thenPlay("交流_01");
+	private static final RawAnimation TALK_02 = RawAnimation.begin().thenPlay("交流_02");
+	private static final RawAnimation THINK = RawAnimation.begin().thenPlay("思考中");
+	private static final RawAnimation AGREE = RawAnimation.begin().thenPlay("肯定");
+	private static final RawAnimation DECLINE = RawAnimation.begin().thenPlay("拒绝");
 
 	private final AnimatableInstanceCache geoCache = GeckoLibUtil.createInstanceCache(this);
 
@@ -73,18 +83,26 @@ public class MorichikaEntity extends GeneralYoukaiEntity implements GeoYoukaiAni
 	}
 
 	@Override
+	public Optional<RawAnimation> getAnim(YoukaiAnim anim) {
+		return Optional.of(switch (anim) {
+			case USE_MAINHAND -> USE_MAINHAND;
+			case GREET -> GREET;
+			case TALK_01 -> TALK_01;
+			case TALK_02 -> TALK_02;
+			case THINK -> THINK;
+			case AGREE -> AGREE;
+			case DECLINE -> DECLINE;
+		});
+	}
+
+	@Override
 	public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
 		// Wink first: controllers tick in registration order and overwrite shared
 		// bones, so the always-looping blink yields to the main controller.
 		controllers.add(new AnimationController<>(this, WINK_CONTROLLER, 0, e -> e.setAndContinue(BLINK)));
-		controllers.add(new AnimationController<>(this, ANIM_CONTROLLER, 5, this::idleAnimController)
-				.triggerableAnim(USE_TRIGGER, USE_MAINHAND)
-				.triggerableAnim(GREET_TRIGGER, GREET)
-				.triggerableAnim(TALK_01_TRIGGER, TALK_01)
-				.triggerableAnim(TALK_02_TRIGGER, TALK_02)
-				.triggerableAnim(THINK_TRIGGER, THINK)
-				.triggerableAnim(AGREE_TRIGGER, AGREE)
-				.triggerableAnim(DECLINE_TRIGGER, DECLINE));
+		var main = new AnimationController<>(this, ANIM_CONTROLLER, 5, this::idleAnimController);
+		addDialogAnims(main);
+		controllers.add(main);
 	}
 
 	@Override

@@ -11,11 +11,11 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "gensokyolegacy:donation_box_2"
+          "name": "gensokyolegacy:oak_shelf"
         }
       ],
       "rolls": 1.0
     }
   ],
-  "random_sequence": "gensokyolegacy:blocks/donation_box_2"
+  "random_sequence": "gensokyolegacy:blocks/oak_shelf"
 }

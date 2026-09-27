@@ -60,10 +60,6 @@
           }
         },
         "placement": []
-      },
-      {
-        "feature": "gensokyolegacy:magical_forest/moss_carpet",
-        "placement": []
       }
     ],
     "root_depth": 6,

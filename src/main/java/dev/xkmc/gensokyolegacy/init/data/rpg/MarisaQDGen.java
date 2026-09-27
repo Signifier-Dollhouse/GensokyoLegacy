@@ -283,6 +283,7 @@ public class MarisaQDGen extends QuestDialogData {
 				option("start", "What's with the hush-hush request — what's going on?", new StartQuestAction(),
 						dialog("start/dialog_1",
 								"Heard the news coming outta the Nether lately? Travelers comin' back white as sheets, swearin' somethin' followed 'em home — but none of 'em can say what. Gives me the creeps just thinkin' about it, ze. You're braver than me, though. Poke around down there for me, would ya? And... watch yourself.",
+								THINK_ANIMS,
 								option("start/end", "Really? I'll go take a look."))),
 				follow("Hm — nothing seems to be happening?",
 						"Best if nothing's wrong — but while you were gone, travelers started going missing.",
@@ -505,7 +506,7 @@ public class MarisaQDGen extends QuestDialogData {
 	                                 String accept, String acceptLine, String acceptEnd,
 	                                 String reject, String rejectLine, String rejectEnd) {
 		return option("start", button,
-				dialog("start/dialog_1", intro,
+				dialog("start/dialog_1", intro, THINK_ANIMS,
 						option("start/reject", reject, dialog("start/reject/dialog_1", rejectLine, option("start/reject/end", rejectEnd))),
 						option("start/accept", accept, new StartQuestAction(),
 								dialog("start/accept/dialog_1", acceptLine, option("start/accept/end", acceptEnd)))));
@@ -514,13 +515,13 @@ public class MarisaQDGen extends QuestDialogData {
 	private SimpleDialogOption follow(String button, String intro, String opt, String optLine, @Nullable String end) {
 		var tail = end == null ? optionKey(byeKey) : option("follow_up/end/end", end);
 		return option("follow_up", button,
-				dialog("follow_up/dialog_1", intro,
+				dialog("follow_up/dialog_1", intro, THINK_ANIMS,
 						option("follow_up/end", opt, dialog("follow_up/end/dialog_1", optLine, tail))));
 	}
 
 	private SimpleDialogOption complete(String button, String intro, String complete, String completeLine, String completeEnd) {
 		return option("complete", button,
-				dialog("complete/dialog_1", intro,
+				dialog("complete/dialog_1", intro, AGREE_ANIMS,
 						option("complete/handover", complete, new CompleteQuestAction(),
 								dialog("complete/handover/dialog_1", completeLine, option("complete/handover/end", completeEnd)))));
 	}
@@ -529,7 +530,7 @@ public class MarisaQDGen extends QuestDialogData {
 	                                    String complete, String completeLine, String completeEnd,
 	                                    String reject, String rejectLine, String rejectEnd) {
 		return option("complete", button,
-				dialog("complete/dialog_1", intro,
+				dialog("complete/dialog_1", intro, AGREE_ANIMS,
 						option("complete/reject", reject, dialog("complete/reject/dialog_1", rejectLine, option("complete/reject/end", rejectEnd))),
 						option("complete/handover", complete, new CompleteQuestAction(),
 								dialog("complete/handover/dialog_1", completeLine, option("complete/handover/end", completeEnd)))));
@@ -575,7 +576,7 @@ public class MarisaQDGen extends QuestDialogData {
 
 	private GroupDialogOption dailyStart(String intro, String acceptLine, String rejectLine) {
 		return groupKey(dailyGroupKey, dailyStartKey,
-				dialog("start/dialog_1", intro,
+				dialog("start/dialog_1", intro, THINK_ANIMS,
 						optionKey(dailyRejectKey,
 								dialog("start/reject/dialog_1", rejectLine)),
 						optionKey(dailyAcceptKey, new StartQuestAction(),
@@ -587,7 +588,7 @@ public class MarisaQDGen extends QuestDialogData {
 				? optionKey(dailyFollowEndKey, dialog("follow_up/end/dialog_1", optLine))
 				: option("follow_up/end", endOverride, dialog("follow_up/end/dialog_1", optLine));
 		return groupKey(dailyGroupKey, dailyFollowKey,
-				dialog("follow_up/dialog_1", followLine, end));
+				dialog("follow_up/dialog_1", followLine, THINK_ANIMS, end));
 	}
 
 	private GroupDialogOption dailyComplete(String opener, String gotemLine, String handover,
@@ -596,7 +597,7 @@ public class MarisaQDGen extends QuestDialogData {
 				? dialog("complete/handover/dialog_1", completeLine)
 				: dialog("complete/handover/dialog_1", completeLine, optionKey(dailyThanksKey));
 		return new GroupDialogOption(dailyGroupKey, optionText("complete", opener), List.of(),
-				Optional.of(dialog("complete/dialog_1", gotemLine,
+				Optional.of(dialog("complete/dialog_1", gotemLine, AGREE_ANIMS,
 						option("complete/handover", handover, new CompleteQuestAction(), done))));
 	}
 

@@ -32,8 +32,7 @@ public class GLBiomes {
 		var magicalForest = addDefaultOres(new BiomeGenerationSettings.Builder(pf, carvers))
 				.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, GLFeatureGen.MAGICAL_FOREST_DISK_COARSE_DIRT_PLACED)
 				.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, GLFeatureGen.MAGICAL_FOREST_DISK_PODZOL_PLACED)
-				.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, GLFeatureGen.MAGICAL_FOREST_DISK_MYCELIUM_PLACED)
-				.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, GLFeatureGen.MAGICAL_FOREST_DISK_MOSS_PLACED);
+				.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, GLFeatureGen.MAGICAL_FOREST_DISK_MYCELIUM_PLACED);
 		MagicalForestFeatures.addLake(magicalForest);
 		MagicalForestFeatures.addVegetation(magicalForest);
 		ctx.register(MAGICAL_FOREST, biome(new MobSpawnSettings.Builder(), magicalForest));

@@ -38,7 +38,7 @@
 				{
 					"name": "MHead",
 					"parent": "AllHead",
-					"pivot": [0, 25.3, 0]
+					"pivot": [0, 23.3, 0]
 				},
 				{
 					"name": "Head",
@@ -511,7 +511,7 @@
 				{
 					"name": "Back_Hair",
 					"parent": "Hair",
-					"pivot": [0, 5.575, 6.7],
+					"pivot": [0, 28.40703, 3.30959],
 					"cubes": [
 						{
 							"origin": [-2, 22, 2.4],
@@ -842,7 +842,7 @@
 				{
 					"name": "Front_DownCloth1a",
 					"parent": "Front_DownCloth",
-					"pivot": [0, 16.45889, -8.6201],
+					"pivot": [0, 9.28801, -2.18321],
 					"cubes": [
 						{
 							"origin": [-2, 3.2804, -2.35752],
@@ -883,7 +883,7 @@
 				{
 					"name": "Back_DownCloth1a",
 					"parent": "Back_DownCloth",
-					"pivot": [0, 16.45889, 8.6201],
+					"pivot": [0, 9.28801, 2.18321],
 					"cubes": [
 						{
 							"origin": [-2, 3.2804, 2.35752],

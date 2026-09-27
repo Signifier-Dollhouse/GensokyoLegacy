@@ -1,12 +1,12 @@
 {
   "name": "货架与书架",
-  "icon": "gensokyolegacy:birch_shelf",
+  "icon": "gensokyolegacy:oak_shelf",
   "category": "gensokyolegacy:decoration",
   "sortnum": 5,
   "pages": [
     {
       "type": "patchouli:spotlight",
-      "item": "gensokyolegacy:birch_shelf",
+      "item": "gensokyolegacy:oak_shelf",
       "title": "售货架",
       "text": "用来摆摊卖东西的小壁架。架上的商品会直接展示出来，上方还会写明价格和库存。"
     },
