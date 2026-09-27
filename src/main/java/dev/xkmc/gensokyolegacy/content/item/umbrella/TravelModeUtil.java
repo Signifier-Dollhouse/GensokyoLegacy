@@ -3,8 +3,13 @@ package dev.xkmc.gensokyolegacy.content.item.umbrella;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Pose;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 import java.util.Set;
 
@@ -71,6 +76,20 @@ public class TravelModeUtil {
 		return cur.getFluidState().isEmpty() && above.getFluidState().isEmpty();
 	}
 
+	public static Vec3 adjustToFreeSpace(ServerLevel level, LivingEntity entity, Vec3 dst) {
+		var dim = entity.getDimensions(Pose.STANDING);
+		if (dim.width() * dim.width() * dim.height() > 64) return dst;
+		Vec3 center = dst.add(0, dim.height() / 2.0, 0);
+		double xz = Math.max(0, dim.width() - 1) + 1e-6;
+		double y = Math.max(0, dim.height() - 1) + 1e-6;
+		VoxelShape shape = Shapes.create(AABB.ofSize(center, xz, y, xz));
+		var found = level.findFreePosition(entity, shape, center, dim.width(), dim.height(), dim.width());
+		if (found.isPresent()) {
+			return found.get().add(0, -dim.height() / 2.0, 0);
+		}
+		return dst;
+	}
+
 	public static void teleportPlayer(ServerPlayer sp, ServerLevel targetLevel, Vec3 dst) {
 		ServerLevel cur = sp.serverLevel();
 		if (cur != targetLevel) {
@@ -79,5 +98,20 @@ public class TravelModeUtil {
 			sp.teleportTo(dst.x, dst.y, dst.z);
 			sp.connection.resetPosition();
 		}
+	}
+
+	public static void teleportPlayer(ServerPlayer sp, ServerLevel targetLevel, Vec3 dst, float yaw, float pitch) {
+		sp.setYRot(yaw);
+		sp.setXRot(pitch);
+		sp.yHeadRot = yaw;
+		sp.yBodyRot = yaw;
+		teleportPlayer(sp, targetLevel, dst);
+	}
+
+	public static void restoreOrientation(LivingEntity entity, float yaw, float pitch) {
+		entity.setYRot(yaw);
+		entity.setXRot(pitch);
+		entity.yHeadRot = yaw;
+		entity.yBodyRot = yaw;
 	}
 }

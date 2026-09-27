@@ -229,7 +229,7 @@ public class BorderUmbrellaManageScreen extends Screen {
 			// dim background behind edit overlay is handled by super.render transparent background
 			g.drawCenteredString(font, GLLang.ItemUmbrella.RENAME_TITLE.get(), width / 2, height / 2 - 40, 0xFFFFFF);
 			// show which slot is being edited
-			g.drawCenteredString(font, Component.literal("Slot " + editingIndex), width / 2, height / 2 - 28, 0xAAAAAA);
+			g.drawCenteredString(font, GLLang.ItemUmbrella.MANAGE_SLOT.get(editingIndex), width / 2, height / 2 - 28, 0xAAAAAA);
 			return;
 		}
 		int centerX = width / 2;
@@ -237,7 +237,7 @@ public class BorderUmbrellaManageScreen extends Screen {
 		int panelLeft = centerX - PANEL_WIDTH / 2;
 		ItemStack held = getHeld();
 		if (held == null) {
-			g.drawCenteredString(font, Component.literal("No umbrella held"), centerX, startY + 20, 0xFF5555);
+			g.drawCenteredString(font, GLLang.ItemUmbrella.MANAGE_NO_HELD.get(), centerX, startY + 20, 0xFF5555);
 			return;
 		}
 		var slots = getSlots(held);

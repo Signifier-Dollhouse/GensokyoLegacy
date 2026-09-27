@@ -1,5 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.item.glove.mode;
 
+import dev.xkmc.gensokyolegacy.content.entity.dolls.action.DollActionType;
 import dev.xkmc.gensokyolegacy.content.item.glove.DollGloveItem;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
@@ -51,6 +52,9 @@ public class VolleyMode extends DollGloveHandler {
 			sp.displayClientMessage(GLLang.ItemGlove.NO_TARGET.get(), true);
 		} else if (commands.issueVolley(sp, target)) {
 			sp.displayClientMessage(GLLang.ItemGlove.VOLLEY.get(), true);
+		} else if (commands.hasSummonedDoll(sp) &&
+				!commands.hasCapableDoll(sp, DollActionType.REGULAR_ATTACK)) {
+			sp.displayClientMessage(GLLang.ItemGlove.NO_WEAPON.get(), true);
 		} else {
 			sp.displayClientMessage(GLLang.ItemGlove.NO_DOLL.get(), true);
 		}

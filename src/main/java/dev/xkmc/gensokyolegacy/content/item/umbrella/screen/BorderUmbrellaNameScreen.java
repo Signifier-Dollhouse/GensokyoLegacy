@@ -1,6 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.item.umbrella.screen;
 
-import dev.xkmc.gensokyolegacy.content.item.umbrella.network.BorderUmbrellaRenamePacket;
+import dev.xkmc.gensokyolegacy.content.item.umbrella.network.BorderUmbrellaConfirmRecordPacket;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import net.minecraft.client.Minecraft;
@@ -8,23 +8,34 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.Nullable;
 
 public class BorderUmbrellaNameScreen extends Screen {
 
 	private final int slot;
 	private final String initialName;
+	private final BlockPos pos;
+	private final ResourceLocation dim;
+	private final boolean overwrite;
 	private EditBox editBox;
 
-	public BorderUmbrellaNameScreen(int slot, String initialName) {
+	public BorderUmbrellaNameScreen(int slot, String initialName, @Nullable BlockPos pos,
+									@Nullable ResourceLocation dim, boolean overwrite) {
 		super(GLLang.ItemUmbrella.RENAME_TITLE.get());
 		this.slot = slot;
 		this.initialName = initialName;
+		this.pos = pos;
+		this.dim = dim;
+		this.overwrite = overwrite;
 	}
 
-	public static void open(int slot, String currentName) {
+	public static void open(int slot, String currentName, @Nullable BlockPos pos,
+							@Nullable ResourceLocation dim, boolean overwrite) {
 		Minecraft mc = Minecraft.getInstance();
-		mc.setScreen(new BorderUmbrellaNameScreen(slot, currentName));
+		mc.setScreen(new BorderUmbrellaNameScreen(slot, currentName, pos, dim, overwrite));
 	}
 
 	@Override
@@ -57,7 +68,9 @@ public class BorderUmbrellaNameScreen extends Screen {
 
 	private void onDone() {
 		String name = editBox.getValue();
-		GensokyoLegacy.HANDLER.toServer(new BorderUmbrellaRenamePacket(slot, name));
+		if (pos != null && dim != null) {
+			GensokyoLegacy.HANDLER.toServer(new BorderUmbrellaConfirmRecordPacket(slot, pos, dim, name));
+		}
 		onClose();
 	}
 
@@ -65,6 +78,9 @@ public class BorderUmbrellaNameScreen extends Screen {
 	public void render(GuiGraphics g, int mx, int my, float pt) {
 		super.render(g, mx, my, pt);
 		g.drawCenteredString(font, title, width / 2, height / 2 - 40, 0xFFFFFF);
+		if (overwrite) {
+			g.drawCenteredString(font, GLLang.ItemUmbrella.RECORD_OVERWRITE.get(slot, initialName), width / 2, height / 2 - 52, 0xFF5555);
+		}
 	}
 
 	@Override

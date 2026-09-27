@@ -8,12 +8,14 @@ import dev.xkmc.danmakuapi.init.registrate.DanmakuEntities;
 import dev.xkmc.danmakuapi.init.registrate.DanmakuItems;
 import dev.xkmc.fastprojectileapi.spellcircle.SpellCircleHolder;
 import dev.xkmc.gensokyolegacy.content.attachment.character.CharDataHolder;
+import dev.xkmc.gensokyolegacy.content.attachment.character.ReputationConstants;
 import dev.xkmc.gensokyolegacy.content.attachment.character.ReputationState;
 import dev.xkmc.gensokyolegacy.content.block.deco.bed.YoukaiBedBlock;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.combat.*;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.move.YoukaiNavigationControl;
 import dev.xkmc.gensokyolegacy.content.entity.foundation.DamageClampEntity;
 import dev.xkmc.gensokyolegacy.content.entity.module.*;
+import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.l2core.base.entity.SyncedData;
 import dev.xkmc.l2serial.serialization.codec.TagCodec;
 import dev.xkmc.l2serial.serialization.marker.SerialClass;
@@ -283,11 +285,21 @@ public abstract class YoukaiEntity extends DamageClampEntity implements SpellCir
 
 	// data
 
-	public Optional<CharDataHolder> getData(@Nullable Entity e) {
+	public Optional<Player> resolvePlayer(@Nullable Entity e) {
 		if (e instanceof Player player) {
-			return Optional.of(CharDataHolder.get(player, this));
+			return Optional.of(player);
+		}
+		if (e instanceof OwnableEntity own && level() instanceof ServerLevel sl) {
+			var id = own.getOwnerUUID();
+			if (id != null && sl.getEntity(id) instanceof Player player) {
+				return Optional.of(player);
+			}
 		}
 		return Optional.empty();
+	}
+
+	public Optional<CharDataHolder> getData(@Nullable Entity e) {
+		return resolvePlayer(e).map(player -> CharDataHolder.get(player, this));
 	}
 
 	public <T> Optional<T> getModule(Class<T> cls) {
@@ -297,7 +309,17 @@ public abstract class YoukaiEntity extends DamageClampEntity implements SpellCir
 	@Override
 	protected void actuallyHurt(DamageSource source, float amount) {
 		if (spellCard != null) spellCard.hurt(cardHolder, source, amount);
-		getData(source.getEntity()).ifPresent(e -> e.onHurt(source, amount));
+		var holder = getData(source.getEntity());
+		holder.ifPresent(e -> e.onHurt(source, amount));
+		if (!level().isClientSide()) {
+			holder.ifPresent(e -> {
+				if (e.data().reputation < ReputationConstants.DISCARD_REP_THRESHOLD &&
+						e.player() instanceof ServerPlayer sp) {
+					sp.displayClientMessage(GLLang.Info.YOUKAI_AVOID.get(getDisplayName()), false);
+					discard();
+				}
+			});
+		}
 		super.actuallyHurt(source, amount);
 	}
 
@@ -402,6 +424,7 @@ public abstract class YoukaiEntity extends DamageClampEntity implements SpellCir
 	}
 
 	public final boolean wouldInitiateAttack(LivingEntity entity) {
+		if (entity instanceof Player) return false;
 		if (!targets.isValidTarget(entity)) return false;
 		if (shouldIgnore(entity)) return false;
 		return combatManager.targetKind(entity).initiateAttack();
@@ -413,6 +436,7 @@ public abstract class YoukaiEntity extends DamageClampEntity implements SpellCir
 
 	public final boolean shouldHurt(LivingEntity le) {
 		if (shouldIgnore(le)) return false;
+		if (le instanceof Player && targets.isValidTarget(le)) return true;
 		return isHostileTo(le) || combatManager.targetKind(le).isPrey() || combatManager.shouldHurtInnocent(le);
 	}
 

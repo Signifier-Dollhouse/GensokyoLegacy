@@ -1,6 +1,7 @@
 package dev.xkmc.gensokyolegacy.content.entity.behavior.combat;
 
 import dev.xkmc.danmakuapi.api.IDanmakuEntity;
+import dev.xkmc.gensokyolegacy.content.attachment.character.ReputationConstants;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import dev.xkmc.gensokyolegacy.init.data.GLModConfig;
 import net.minecraft.resources.ResourceLocation;
@@ -48,6 +49,13 @@ public class DefaultCombatManager implements YoukaiCombatManager {
 	@Override
 	public TargetKind targetKind(LivingEntity le) {
 		if (le instanceof YoukaiEntity) return TargetKind.WORTHY;
+		if (le instanceof Player player) {
+			int rep = self.getData(player).map(h -> h.data().reputation)
+					.orElse(ReputationConstants.INITIAL_REPUTATION);
+			if (rep >= ReputationConstants.THRESHOLD_FRIEND) return TargetKind.WORTHY;
+			if (rep > ReputationConstants.COMBAT_SAFE_THRESHOLD) return TargetKind.NONE;
+			return TargetKind.ENEMY;
+		}
 		return self.getReputation(le).asTargetKind();
 	}
 

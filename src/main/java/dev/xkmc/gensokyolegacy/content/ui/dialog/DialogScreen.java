@@ -325,7 +325,10 @@ public class DialogScreen<T extends DialogMenu> extends AbstractContainerScreen<
 		blitBlend(g, AVATAR_BG, wx, wy, 0, ww, wh);
 		float bh = ch.getBbHeight();
 		int scale = Mth.clamp(Math.round(AVATAR_WIN_H / (bh * 0.6f) * as), 16, 256);
+		g.pose().pushPose();
+		g.pose().translate(0, 0, 50);
 		InventoryScreen.renderEntityInInventoryFollowsMouse(g, wx, wy, wx + ww, wy + wh, scale, 0.35f * bh, mx, my, ch);
+		g.pose().popPose();
 		blitBlend(g, AVATAR, fx, fy, 100, fw, fh);
 	}
 

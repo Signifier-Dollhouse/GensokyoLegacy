@@ -9,6 +9,7 @@ import dev.xkmc.gensokyolegacy.content.rpg.condition.HasQuestCompletedCondition;
 import dev.xkmc.gensokyolegacy.content.rpg.condition.SelfReputationCondition;
 import dev.xkmc.gensokyolegacy.content.rpg.core.IngredientEntry;
 import dev.xkmc.gensokyolegacy.content.rpg.dialog.DialogStarter;
+import dev.xkmc.gensokyolegacy.content.rpg.dialog.GroupDialogOption;
 import dev.xkmc.gensokyolegacy.content.rpg.dialog.SimpleDialogOption;
 import dev.xkmc.gensokyolegacy.content.rpg.quest.Quest;
 import dev.xkmc.gensokyolegacy.content.rpg.quest.QuestCondition;
@@ -64,6 +65,7 @@ public class ReimuQDGen extends QuestDialogData {
 	private static final ResourceLocation QUEST_RAID = GensokyoLegacy.loc("reimu/raid");
 
 	private final String byeKey;
+	private final String dailyGroupKey;
 	private final String dailyStartKey;
 	private final String dailyAcceptKey;
 	private final String dailyRejectKey;
@@ -76,6 +78,7 @@ public class ReimuQDGen extends QuestDialogData {
 	public ReimuQDGen() {
 		prefix("reimu/shared");
 		byeKey = text("option", "bye", "Bye!");
+		dailyGroupKey = text("option", "daily_group", "Daily Tasks");
 		dailyStartKey = text("option", "daily_start", "What can I help?");
 		dailyAcceptKey = text("option", "daily_accept", "I'll do it!");
 		dailyRejectKey = text("option", "daily_reject", "Maybe later.");
@@ -556,8 +559,8 @@ public class ReimuQDGen extends QuestDialogData {
 				dailyComplete(completeLine)));
 	}
 
-	private SimpleDialogOption dailyStart(String intro, String acceptLine, String rejectLine) {
-		return optionKey(dailyStartKey,
+	private GroupDialogOption dailyStart(String intro, String acceptLine, String rejectLine) {
+		return groupKey(dailyGroupKey, dailyStartKey,
 				dialog("start/dialog_1", intro,
 						optionKey(dailyRejectKey,
 								dialog("start/reject/dialog_1", rejectLine, optionKey(byeKey))),
@@ -565,8 +568,8 @@ public class ReimuQDGen extends QuestDialogData {
 								dialog("start/accept/dialog_1", acceptLine, optionKey(byeKey)))));
 	}
 
-	private SimpleDialogOption dailyRaidStart(String intro, String acceptLine, String rejectLine) {
-		return optionKey(dailyStartKey,
+	private GroupDialogOption dailyRaidStart(String intro, String acceptLine, String rejectLine) {
+		return groupKey(dailyGroupKey, dailyStartKey,
 				dialog("start/dialog_1", intro,
 						optionKey(dailyRejectKey,
 								dialog("start/reject/dialog_1", rejectLine, optionKey(byeKey))),
@@ -575,22 +578,22 @@ public class ReimuQDGen extends QuestDialogData {
 								dialog("start/accept/dialog_1", acceptLine, optionKey(byeKey)))));
 	}
 
-	private SimpleDialogOption dailyFollow(String followLine, String optLine) {
-		return optionKey(dailyFollowKey,
+	private GroupDialogOption dailyFollow(String followLine, String optLine) {
+		return groupKey(dailyGroupKey, dailyFollowKey,
 				dialog("follow_up/dialog_1", followLine,
 						optionKey(dailyFollowEndKey,
 								dialog("follow_up/end/dialog_1", optLine, optionKey(byeKey)))));
 	}
 
-	private SimpleDialogOption dailyFollow(String followLine, String optLine, DialogAction<?> action) {
-		return optionKey(dailyFollowKey,
+	private GroupDialogOption dailyFollow(String followLine, String optLine, DialogAction<?> action) {
+		return groupKey(dailyGroupKey, dailyFollowKey,
 				dialog("follow_up/dialog_1", followLine,
 						optionKey(dailyFollowEndKey, List.of(action),
 								dialog("follow_up/end/dialog_1", optLine, optionKey(byeKey)))));
 	}
 
-	private SimpleDialogOption dailyComplete(String completeLine) {
-		return optionKey(dailyCompleteKey,
+	private GroupDialogOption dailyComplete(String completeLine) {
+		return groupKey(dailyGroupKey, dailyCompleteKey,
 				dialogKey("complete/dialog_1", dailyGotemKey,
 						optionKey(dailyHandoverKey, new CompleteQuestAction(),
 								dialog("complete/handover/dialog_1", completeLine, optionKey(byeKey)))));

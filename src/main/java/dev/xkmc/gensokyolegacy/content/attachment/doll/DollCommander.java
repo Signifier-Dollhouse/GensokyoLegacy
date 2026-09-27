@@ -115,6 +115,28 @@ public class DollCommander {
 		return issue(player, DollAction.iterative(DollActionType.REGULAR_ATTACK, target.getUUID()));
 	}
 
+	/** Whether the player has any summoned doll entity loaded nearby. */
+	public boolean hasSummonedDoll(ServerPlayer player) {
+		for (DollData data : attachment.dolls().values()) {
+			if (!data.isSummoned() || data.uuid == null) continue;
+			ServerLevel level = attachment.getLevel(player, data);
+			if (level == null || !(level.getEntity(data.uuid) instanceof DollEntity)) continue;
+			return true;
+		}
+		return false;
+	}
+
+	/** Whether any summoned doll holds a valid weapon for the given action type (ignoring busy state). */
+	public boolean hasCapableDoll(ServerPlayer player, DollActionType type) {
+		for (DollData data : attachment.dolls().values()) {
+			if (!data.isSummoned() || data.uuid == null) continue;
+			ServerLevel level = attachment.getLevel(player, data);
+			if (level == null || !(level.getEntity(data.uuid) instanceof DollEntity doll)) continue;
+			if (DollBehaviorRegistry.findHand(doll, type).isPresent()) return true;
+		}
+		return false;
+	}
+
 	/** Super / suicide: exactly one available doll acts once. */
 	public boolean issueOneTime(ServerPlayer player, LivingEntity target, DollActionType type) {
 		return issue(player, DollAction.oneTime(type, target.getUUID()));

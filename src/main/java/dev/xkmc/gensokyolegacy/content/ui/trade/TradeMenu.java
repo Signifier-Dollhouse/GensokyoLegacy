@@ -58,7 +58,7 @@ public class TradeMenu extends AbstractContainerMenu implements TalkModule.ITalk
 		maxPage = addDataSlot(DataSlot.standalone());
 		bindPlayerInventory(player.getInventory(), 47, 140);
 		for (int i = 0; i < 15; i++) {
-			addSlot(slots[i] = new TradeSlot(cont, i, 55 + i % 3 * 32, 44 + i / 3 * 32));
+			addSlot(slots[i] = new TradeSlot(cont, i, 55 + i % 5 * 32, 44 + i / 5 * 32));
 		}
 		if (player instanceof ServerPlayer)
 			refreshOffers();

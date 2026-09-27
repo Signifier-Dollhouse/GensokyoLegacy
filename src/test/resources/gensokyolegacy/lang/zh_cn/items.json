@@ -14,6 +14,7 @@
 		"witch_splash": "喷溅型女巫魔药"
 	},
 	"entity.gensokyolegacy.doll": "人偶",
+	"entity.gensokyolegacy.dining_chair": "餐椅",
 	"block.gensokyolegacy": {
 		"donation_box": "赛钱箱",
 		"evergreen_vine": "常青垂藤",
@@ -54,11 +55,29 @@
 		"paper_window_pane": "纸窗板",
 		"shoji_frame": "障子",
 		"shoji_frame_pane": "障子框",
+		"paper_sliding_door": "纸门",
 		"drawer_cabinet": "抽屉橱柜",
 		"door_cabinet": "双门橱柜",
 		"birch_shelf": "桦木货架",
 		"book_shelf": "书架",
-		"doll_controller": "人偶控制器"
+		"alchemy_pot": "炼金锅",
+		"sealing_pot": "封印壶",
+		"book_pile": "书堆",
+		"book_stack": "书摞",
+		"crate": "板条箱",
+		"carton_blue": "蓝色纸箱",
+		"carton_default": "原色纸箱",
+		"carton_white": "白色纸箱",
+		"donation_box_2": "赛钱箱2号",
+		"tatami": "榻榻米",
+		"tatami_block": "榻榻米块",
+		"tea_table": "茶桌",
+		"wooden_large_chair_scarlet_devil_mansion": "红魔馆木制大椅",
+		"flame_cattail": "燃蒲",
+		"evergreen_vine_plant": "常青垂藤茎",
+		"gap_portal": "隙间传送门",
+		"blue_strips_terracota": "蓝条纹陶瓦",
+		"cushion": "坐垫"
 	},
 	"item.gensokyolegacy": {
 		"doll": "人偶",
@@ -107,7 +126,15 @@
 		"dowser_right": "纳兹玲的寻宝钗（右半）",
 		"border_umbrella": "隙间伞",
 		"star_wand": "星星魔杖",
-		"strange_glasses": "奇怪的眼镜"
+		"strange_glasses": "奇怪的眼镜",
+		"cat_bell": "猫铃铛",
+		"doll_spawn_egg": "人偶生成蛋",
+		"door_debug_wand": "门调试杖",
+		"mermaid_pearl": "人鱼珍珠",
+		"mini_hakkero_prototype": "迷你八卦炉【原型】",
+		"morichika_rinnosuke_spawn_egg": "森近霖之助生成蛋",
+		"star_danmaku": "星星弹幕",
+		"structure_wand": "结构杖"
 	},
 	"-cartesian": {
 		"entity": {
@@ -124,7 +151,8 @@
 					"mystia_lorelei": "米斯蒂亚",
 					"luna_child": "露娜",
 					"star_sapphire": "斯塔",
-					"sunny_milk": "桑尼"
+					"sunny_milk": "桑尼",
+					"morichika_rinnosuke": "森近霖之助"
 				},
 				{
 					"entity.gensokyolegacy.*": "",
@@ -147,6 +175,77 @@
 					"slab": "台阶",
 					"stairs": "楼梯",
 					"vertical_slab": "墙"
+				}
+			]
+		},
+		"wood_furniture": {
+			"path": "block.gensokyolegacy",
+			"list": [
+				{
+					"acacia": "金合欢",
+					"bamboo": "竹",
+					"birch": "白桦",
+					"cherry": "樱桃",
+					"crimson": "绯红",
+					"dark_oak": "深色橡木",
+					"jungle": "丛林",
+					"mangrove": "红树",
+					"oak": "橡木",
+					"spruce": "云杉",
+					"warped": "诡异"
+				},
+				{
+					"chair": "椅",
+					"large_chair": "大椅",
+					"large_table": "大桌",
+					"plank_wall": "木板墙",
+					"sliding_door": "推拉门"
+				}
+			]
+		},
+		"cushions": {
+			"path": "block.gensokyolegacy",
+			"list": [
+				{
+					"black": "黑色",
+					"blue": "蓝色",
+					"brown": "棕色",
+					"cyan": "青色",
+					"gray": "灰色",
+					"green": "绿色",
+					"light_blue": "浅蓝色",
+					"light_gray": "浅灰色",
+					"lime": "黄绿色",
+					"magenta": "品红色",
+					"orange": "橙色",
+					"pink": "粉色",
+					"purple": "紫色",
+					"red": "红色",
+					"white": "白色",
+					"yellow": "黄色"
+				},
+				{
+					"cushion": "坐垫"
+				}
+			]
+		},
+			"tiles": {
+			"path": "block.gensokyolegacy",
+			"list": [
+				{
+					"black": "黑色",
+					"blue": "蓝色",
+					"brown": "棕色",
+					"cyan": "青色",
+					"gray": "灰色",
+					"orange": "橙色",
+					"yellow": "黄色"
+				},
+				{
+					"tiles": "瓷砖",
+					"tiles_slab": "瓷砖台阶",
+					"tiles_stairs": "瓷砖楼梯",
+					"tiles_vertical_slab": "瓷砖墙"
 				}
 			]
 		}
