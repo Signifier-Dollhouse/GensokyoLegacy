@@ -1,6 +1,8 @@
 package dev.xkmc.gensokyolegacy.content.entity.characters.merchant;
 
+import dev.xkmc.gensokyolegacy.content.attachment.home.core.HomeBlockKind;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.brain.TaskBoard;
+import dev.xkmc.gensokyolegacy.content.entity.behavior.sensor.YoukaiHomeBlocksSensor;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.task.home.YoukaiRestockShelfTask;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.GeneralYoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.GeoYoukaiAnim;
@@ -33,6 +35,7 @@ public class MorichikaEntity extends GeneralYoukaiEntity implements GeoYoukaiAni
 	private static final RawAnimation GREET = RawAnimation.begin().thenPlay("招呼");
 	private static final RawAnimation TALK_01 = RawAnimation.begin().thenPlay("交流_01");
 	private static final RawAnimation TALK_02 = RawAnimation.begin().thenPlay("交流_02");
+	private static final RawAnimation TALK_03 = RawAnimation.begin().thenPlay("交流_03");
 	private static final RawAnimation THINK = RawAnimation.begin().thenPlay("思考中");
 	private static final RawAnimation AGREE = RawAnimation.begin().thenPlay("肯定");
 	private static final RawAnimation DECLINE = RawAnimation.begin().thenPlay("拒绝");
@@ -48,6 +51,7 @@ public class MorichikaEntity extends GeneralYoukaiEntity implements GeoYoukaiAni
 		super.constructTaskBoard(board);
 		board.addRandom(new YoukaiRestockShelfTask<>(GLTagGen.MORICHIKA_OFFERS), Activity.WORK);
 		board.addRandom(RandomStroll.stroll(0.8f), Activity.WORK);
+		board.addSensor(new YoukaiHomeBlocksSensor<>(HomeBlockKind.SHELF));
 		board.addScheduledActivity(Activity.WORK, MemoryModuleType.HOME);
 		board.setSchedule(new ScheduleBuilder(new Schedule())
 				.changeActivityAt(10, GLBrains.AT_HOME.get())
@@ -84,15 +88,17 @@ public class MorichikaEntity extends GeneralYoukaiEntity implements GeoYoukaiAni
 
 	@Override
 	public Optional<RawAnimation> getAnim(YoukaiAnim anim) {
-		return Optional.of(switch (anim) {
-			case USE_MAINHAND -> USE_MAINHAND;
-			case GREET -> GREET;
-			case TALK_01 -> TALK_01;
-			case TALK_02 -> TALK_02;
-			case THINK -> THINK;
-			case AGREE -> AGREE;
-			case DECLINE -> DECLINE;
-		});
+		return switch (anim) {
+			case USE_MAINHAND -> Optional.of(USE_MAINHAND);
+			case GREET -> Optional.of(GREET);
+			case TALK_01 -> Optional.of(TALK_01);
+			case TALK_02 -> Optional.of(TALK_02);
+			case TALK_03 -> Optional.of(TALK_03);
+			case THINK -> Optional.of(THINK);
+			case AGREE -> Optional.of(AGREE);
+			case DECLINE -> Optional.of(DECLINE);
+			case OUTDOOR_IDLE -> Optional.empty();
+		};
 	}
 
 	@Override

@@ -1,6 +1,8 @@
 package dev.xkmc.gensokyolegacy.content.entity.characters.maiden;
 
+import dev.xkmc.gensokyolegacy.content.attachment.home.core.HomeBlockKind;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.brain.TaskBoard;
+import dev.xkmc.gensokyolegacy.content.entity.behavior.sensor.YoukaiHomeBlocksSensor;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.task.marisa.MarisaBonemealTask;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.task.marisa.MarisaBrewTask;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.task.marisa.MarisaForageTask;
@@ -29,9 +31,11 @@ public class MarisaEntity extends MaidenEntity implements GeoYoukaiAnim {
 	private static final RawAnimation GREET = RawAnimation.begin().thenPlay("招呼");
 	private static final RawAnimation TALK_01 = RawAnimation.begin().thenPlay("交流_01");
 	private static final RawAnimation TALK_02 = RawAnimation.begin().thenPlay("交流_02");
+	private static final RawAnimation TALK_03 = RawAnimation.begin().thenPlay("交流_03");
 	private static final RawAnimation THINK = RawAnimation.begin().thenPlay("思考中");
 	private static final RawAnimation AGREE = RawAnimation.begin().thenPlay("肯定");
 	private static final RawAnimation DECLINE = RawAnimation.begin().thenPlay("拒绝");
+	private static final RawAnimation STRETCH = RawAnimation.begin().thenPlay("伸懒腰");
 
 	private final AnimatableInstanceCache geoCache = GeckoLibUtil.createInstanceCache(this);
 
@@ -45,6 +49,7 @@ public class MarisaEntity extends MaidenEntity implements GeoYoukaiAnim {
 		board.addRandom(new MarisaBrewTask<>(), GLBrains.AT_HOME.get());
 		board.addRandom(new MarisaForageTask<>(), Activity.IDLE, Activity.PLAY);
 		board.addRandom(new MarisaBonemealTask<>(), Activity.IDLE, Activity.PLAY);
+		board.addSensor(new YoukaiHomeBlocksSensor<>(HomeBlockKind.POT, HomeBlockKind.CONTAINER));
 	}
 
 	@Override
@@ -73,15 +78,17 @@ public class MarisaEntity extends MaidenEntity implements GeoYoukaiAnim {
 
 	@Override
 	public Optional<RawAnimation> getAnim(YoukaiAnim anim) {
-		return Optional.of(switch (anim) {
-			case USE_MAINHAND -> USE_MAINHAND;
-			case GREET -> GREET;
-			case TALK_01 -> TALK_01;
-			case TALK_02 -> TALK_02;
-			case THINK -> THINK;
-			case AGREE -> AGREE;
-			case DECLINE -> DECLINE;
-		});
+		return switch (anim) {
+			case USE_MAINHAND -> Optional.of(USE_MAINHAND);
+			case GREET -> Optional.of(GREET);
+			case TALK_01 -> Optional.of(TALK_01);
+			case TALK_02 -> Optional.of(TALK_02);
+			case TALK_03 -> Optional.of(TALK_03);
+			case THINK -> Optional.of(THINK);
+			case AGREE -> Optional.of(AGREE);
+			case DECLINE -> Optional.of(DECLINE);
+			case OUTDOOR_IDLE -> Optional.of(STRETCH);
+		};
 	}
 
 	@Override

@@ -17,6 +17,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 
@@ -85,6 +86,7 @@ public class MarisaBonemealTask<E extends SmartYoukaiEntity> extends AbstractHom
 		super.stop(level, entity, gameTime);
 	}
 
+	@Nullable
 	private static BlockPos findTarget(ServerLevel level, SmartYoukaiEntity entity, BoundingBox house, BoundingBox area) {
 		for (int i = 0; i < TRIALS; i++) {
 			BlockPos pos = MarisaTaskUtil.randomSurfacePos(level, area, entity.getRandom());

@@ -1,4 +1,9 @@
 {
+  "animations": [
+    "dialog_talk_01",
+    "dialog_talk_02",
+    "dialog_talk_03"
+  ],
   "options": [],
   "text": "gensokyolegacy/marisa/daily_shroomlight/dialog/marisa/daily_shroomlight/start/reject/dialog_1"
 }

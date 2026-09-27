@@ -14,7 +14,7 @@ import java.util.function.BiPredicate;
 public enum HomeBlockKind {
 
 	CONTAINER(HomeSearchUtil::isValidChest, 3, 3, 32, true),
-	CHAIR(HomeSearchUtil::isValidChair, 3, 3, 12, false),
+	CHAIR(HomeSearchUtil::isValidChair, 6, 6, 32, false),
 	SHELF(HomeSearchUtil::isValidShelf, 48, 16, 64, true),
 	POT(HomeSearchUtil::isValidPot, 24, 8, 64, true);
 

@@ -65,7 +65,7 @@ public class QuestDialogData {
 	 * quest completion plays agree.
 	 */
 	protected static final List<String> TALK_ANIMS = List.of(
-			YoukaiAnim.TALK_01.trigger(), YoukaiAnim.TALK_02.trigger());
+			YoukaiAnim.TALK_01.trigger(), YoukaiAnim.TALK_02.trigger(), YoukaiAnim.TALK_03.trigger());
 	protected static final List<String> THINK_ANIMS = List.of(YoukaiAnim.THINK.trigger());
 	protected static final List<String> AGREE_ANIMS = List.of(YoukaiAnim.AGREE.trigger());
 
