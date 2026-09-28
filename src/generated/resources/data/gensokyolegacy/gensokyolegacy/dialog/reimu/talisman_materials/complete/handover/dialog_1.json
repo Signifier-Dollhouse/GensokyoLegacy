@@ -4,7 +4,7 @@
       "type": "gensokyolegacy:simple",
       "actions": [],
       "conditions": [],
-      "text": "gensokyolegacy/reimu/shared/option/bye"
+      "text": "gensokyolegacy/reimu/talisman_materials/option/complete/handover/end"
     }
   ],
   "text": "gensokyolegacy/reimu/talisman_materials/dialog/reimu/talisman_materials/complete/handover/dialog_1"

@@ -8,7 +8,7 @@
       "actions": [],
       "conditions": [],
       "next": "gensokyolegacy:reimu/daily_raid/start/reject/dialog_1",
-      "text": "gensokyolegacy/reimu/shared/option/daily_reject"
+      "text": "gensokyolegacy/reimu/daily_raid/option/start/reject"
     },
     {
       "type": "gensokyolegacy:simple",
@@ -24,7 +24,7 @@
       ],
       "conditions": [],
       "next": "gensokyolegacy:reimu/daily_raid/start/accept/dialog_1",
-      "text": "gensokyolegacy/reimu/shared/option/daily_accept"
+      "text": "gensokyolegacy/reimu/daily_raid/option/start/accept"
     }
   ],
   "text": "gensokyolegacy/reimu/daily_raid/dialog/reimu/daily_raid/start/dialog_1"

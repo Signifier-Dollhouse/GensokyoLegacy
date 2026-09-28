@@ -4,7 +4,7 @@
       "type": "gensokyolegacy:simple",
       "actions": [],
       "conditions": [],
-      "text": "gensokyolegacy/reimu/shared/option/bye"
+      "text": "gensokyolegacy/reimu/ender_materials/option/complete/reject/end"
     }
   ],
   "text": "gensokyolegacy/reimu/ender_materials/dialog/reimu/ender_materials/complete/reject/dialog_1"

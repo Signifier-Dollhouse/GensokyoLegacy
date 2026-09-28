@@ -5,20 +5,12 @@
   "options": [
     {
       "type": "gensokyolegacy:simple",
-      "actions": [],
-      "conditions": [],
-      "next": "gensokyolegacy:reimu/raid/complete/reject/dialog_1",
-      "text": "gensokyolegacy/reimu/raid/option/complete/reject"
-    },
-    {
-      "type": "gensokyolegacy:simple",
       "actions": [
         {
           "type": "gensokyolegacy:complete_quest"
         }
       ],
       "conditions": [],
-      "next": "gensokyolegacy:reimu/raid/complete/handover/dialog_1",
       "text": "gensokyolegacy/reimu/raid/option/complete/handover"
     }
   ],

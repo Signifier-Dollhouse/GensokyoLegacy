@@ -65,6 +65,8 @@ public class ReimuQDGen extends QuestDialogData {
 	private static final ResourceLocation QUEST_RAID = GensokyoLegacy.loc("reimu/raid");
 
 	private final String byeKey;
+	private final String leaveKey;
+	private final String takeKey;
 	private final String dailyGroupKey;
 	private final String dailyStartKey;
 	private final String dailyAcceptKey;
@@ -78,13 +80,15 @@ public class ReimuQDGen extends QuestDialogData {
 	public ReimuQDGen() {
 		prefix("reimu/shared");
 		byeKey = text("option", "bye", "Bye!");
+		leaveKey = text("option", "leave", "(Leave)");
+		takeKey = text("option", "take_reward", "(Take the reward)");
 		dailyGroupKey = text("option", "daily_group", "Daily Tasks");
 		dailyStartKey = text("option", "daily_start", "What can I help?");
-		dailyAcceptKey = text("option", "daily_accept", "I'll do it!");
-		dailyRejectKey = text("option", "daily_reject", "Maybe later.");
+		dailyAcceptKey = text("option", "daily_accept", "I'll help.");
+		dailyRejectKey = text("option", "daily_reject", "Later.");
 		dailyFollowKey = text("option", "daily_follow", "Could you go over the task again?");
 		dailyFollowEndKey = text("option", "daily_follow_end", "I'm on it!");
-		dailyCompleteKey = text("option", "daily_complete", "I've got the goods!");
+		dailyCompleteKey = text("option", "daily_complete", "I've got the goods.");
 		dailyHandoverKey = text("option", "daily_handover", "Here you go!");
 		dailyGotemKey = text("dialog", "daily_gotem", "Oh, you got 'em? Let me see!");
 
@@ -98,8 +102,8 @@ public class ReimuQDGen extends QuestDialogData {
 	private void chats() {
 		prefix("reimu/chat");
 		defaultDialog(GLEntities.REIMU.get(),
-				"Hi! What brings you to the shrine?",
-				"I'd like to trade with you!");
+				"Oh? What brings you to the shrine?",
+				"I've come to ask for ofuda!");
 
 		prefix("reimu/chat_shrine");
 		chat("reimu/chat_shrine", GLEntities.REIMU.get(),
@@ -162,11 +166,11 @@ public class ReimuQDGen extends QuestDialogData {
 		prefix("reimu/chat_marisa");
 		chat("reimu/chat_marisa", GLEntities.REIMU.get(),
 				List.of(missingAdv(GLAdvGen.ENTER_MARISA_HOUSE), new SelfReputationCondition(50)),
-				starterText("start", "Brewing potions is so complicated…"),
-				dialog("talk", "There's a magician living deep in the Magical Forest. Loud, nosy, always borrowing things — but she messes with mushrooms and brews of every kind. If brewing gives you trouble, she may help make it easier.",
+				starterText("start", "Which works better, ofuda or potions?"),
+				dialog("talk", "Ofuda borrow power from the gods, so they usually come with strings attached. Speaking of potions — you haven't met Marisa yet, have you? She runs a shop deep in the Magical Forest. Her potions work differently from the usual brewing — go take a look if you're curious.",
 						option("where", "Where can I find her?",
-								dialog("where_ans", "Her house is deep in the Magical Forest. Follow the mushrooms — and the explosions. You can't miss her.",
-										option("bye", "Got it!")))),
+								dialog("where_ans", "Her house is deep in the Magical Forest — follow the mushrooms and the explosions, you can't miss her.",
+										option("bye", "Thanks for the directions!")))),
 				CHAT_INFO);
 	}
 
@@ -211,40 +215,40 @@ public class ReimuQDGen extends QuestDialogData {
 				List.of(new ExpReward(50), new ReputationReward(10, 300, 10, 300)),
 				start("Is the food here to your liking?",
 						"Let's not talk about whether I like it — I don't even know what's edible around here. The shrine's stockpiled rations are almost gone. Could you bring me some edible food? If you help out, I can share a little with you — er, as a reward.",
-						"Let me prepare some food.", "Thanks for the generous aid. I hope you can get it ready before I faint from hunger.",
-						"Maybe next time.", "Ah — is that so. Never mind, the shrine's rations should last me a while. I'll figure out what's edible around here myself."),
-				follow("Ask about food preferences.",
-						"Marisa always shares mushroom dishes at feasts, and they're pretty tasty. Got any mushrooms? How about mushroom stew and bread?",
-						"Still preparing.", "The rations should last a while longer... though they taste awful. I'll be waiting to hear from you."),
-				complete("Hand over the food.",
+						"I'll get some food ready.", "Thanks for the generous aid. I hope you can get it ready before I faint from hunger.", "Hang in there!",
+						"Maybe next time.", "Ah — is that so. Never mind, the shrine's rations should last me a while. I'll figure out what's edible around here myself.", "(Leave)"),
+				follow("What do you like to eat?",
+						"Marisa always shares mushroom dishes at feasts — I kind of miss that taste. Are there any edible mushrooms around here? How about mushroom stew and bread?",
+						"That shouldn't be hard to find.", "The rations should last a while longer... though they taste awful. I'll wait for good news from you.", "(Leave)"),
+				complete("I'm back.",
 						"Oh, you're back. So, how did it go?",
-						"Not yet.", "Mm... alright.",
-						"Here, I brought it.", "Not bad, that was quick. Here, your reward. Don't complain it's small — you know how things are at the shrine these days. There used to be youkai visiting; now there's not even a shadow of one...")
+						"Something urgent came up — excuse me.", "Hey, the rations are really running out—", "(Leave)",
+						"Here, I brought it.", "Not bad, that was quick. Here, your reward. Don't complain it's small — you know how things are at the shrine these days. There used to be youkai visiting; now there's not even a shadow of one...", "(Take the reward)")
 		));
 
 		prefix("reimu/hostile_loot");
 		quest("reimu/hostile_loot", new Quest(GLEntities.REIMU.get(),
 				List.of(new HasQuestCompletedCondition(QUEST_LOCAL_FOOD)),
-				questTitle("Hostile Analysis"), questDesc("Hunt zombies and skeletons for Reimu and collect their flesh and bones."),
+				questTitle("Hostile Analysis"), questDesc("Clear out zombies and skeletons for Reimu and collect their flesh and bones."),
 				Optional.empty(),
 				new TreeMap<>(Map.of(
-						"a-zombie", new KillMobRequirement(reqText("zombie", "Kill zombies"), EntityTypeTags.ZOMBIES, 10),
-						"b-skeleton", new KillMobRequirement(reqText("skeleton", "Kill skeletons"), EntityTypeTags.SKELETONS, 10),
+						"a-zombie", new KillMobRequirement(reqText("zombie", "Exterminate zombies"), EntityTypeTags.ZOMBIES, 10),
+						"b-skeleton", new KillMobRequirement(reqText("skeleton", "Exterminate skeletons"), EntityTypeTags.SKELETONS, 10),
 						"c-flesh", new SubmitItemRequirement(List.of(item(Items.ROTTEN_FLESH, 8))),
 						"d-bone", new SubmitItemRequirement(List.of(item(Items.BONE, 8)))
 				)),
 				List.of(new ExpReward(100), new ReputationReward(20, 300, 10, 300)),
-				start("Ask if the shrine needs help.",
-						"Now that you mention it, something's been bothering me lately. It's no incident, but it's annoying — what are those green-skinned things and walking bones? They don't look like youkai, and I can't exterminate them. Drive some off for me and I can share a little... reward with you. So, in or out? You look pretty free anyway.",
-						"Sure.", "Alright, I'm counting on you. Don't mess it up — if you do, I'm not cleaning up after you... Just kidding. Good luck.",
-						"Maybe next time.", "Ah — really? Fine, forget it. It's not like I was counting on you — I'm just too lazy to move myself."),
-				follow("Ask about the hunting.",
+				start("You look worried — something on your mind?",
+						"Now that you mention it, something's been bothering me lately. It's no incident, but it's annoying — what are those green-skinned things and walking bones? They don't look like youkai, and sweeping them up is boring work. Drive some off for me and I can share a little... reward with you. So, in or out? You look pretty free anyway.",
+						"Sure.", "Alright, I'm counting on you. Don't mess it up — if you do, I'm not cleaning up after you— Just kidding. Good luck.", "(Leave)",
+						"Maybe next time.", "Ah — really? Fine, forget it. It's not like I was counting on you — I'm just too lazy to move myself.", "(Leave)"),
+				follow("(Check clearing progress)",
 						"How's the zombie and skeleton hunting going?",
-						"Still working on it.", "Oh — I see. While you're driving them off, bring back some of their materials. I want to study what kind of creatures they are, so I can sleep well at night."),
-				complete("Hand over the samples.",
+						"Not done yet.", "Oh — I see. While you're driving them off, bring back some of their materials. I want to see what kind of beings they are, so I can work out a better way to deal with them.", "Got it."),
+				complete("I'm back.",
 						"Oh, you're back. How did it go?",
-						"Not quite done yet.", "No rush, really. But watch yourself while hunting — don't get bitten. Zombies are a lot of trouble.",
-						"Done. Here are the materials.", "That was quick. Guess I can count on you after all. You didn't get bitten, did you? I wonder how the zombies here differ from the ones back home... With these I can study them properly.")
+						"Not quite done yet.", "No rush. But watch yourself while driving them off — healing up is way more trouble than a commission.", "(Leave)",
+						"Done. Here are the materials.", "That was quick. Guess you're no pushover. You didn't get hurt, did you? I wonder how the zombies here differ from the ones I know... With these I can confirm properly.", "(Take the reward)")
 		));
 
 		prefix("reimu/talisman_materials");
@@ -260,17 +264,17 @@ public class ReimuQDGen extends QuestDialogData {
 						loot("reimu/talisman_materials", LootTable.lootTable()
 								.withPool(lootItem(GLTalismans.TALISMAN_POCKET.get(), 1))
 								.withPool(lootItem(GLTalismans.HEAL_TALISMAN.get(), 2)))),
-				start("Talk about the talismans.",
-						"You can't exterminate youkai without ofuda. I bet you've run into some nasty youkai on your travels — if you don't like them, beating them up works, but ofuda drive them off even better. I wonder if this place has materials for making them... redstone dust should do.",
-						"I'll gather paper and redstone.", "Alright, I'll leave it to you. Once the materials are gathered, I'll draw some ofuda for you as a reward.",
-						"Why redstone?", "If you had cinnabar here it'd work even better, but redstone dust is cheaper."),
-				follow("Ask about the ofuda.",
+				start("What are these ofuda you mentioned?",
+						"You can't exterminate youkai without ofuda. I bet you've run into some nasty youkai on your travels — blades work, sure, but ofuda drive them off even better. The materials aren't too picky — redstone dust will do. I'm just running short. Wish I had a helper.",
+						"I'll gather the materials for you.", "Alright, I'll leave it to you. Once the materials are gathered, I'll draw some ofuda for you as a reward.", "(Leave)",
+						"If it's not picky, why not red dye?", "Because it takes natural ore to commune with the gods. The best ofuda are dotted with cinnabar — dye just won't cut it.", "That sounds pretty picky."),
+				follow("(Check gathering progress)",
 						"You're back. How's the progress?",
-						"Still gathering.", "Then I'll wait for good news."),
-				complete("Hand over the materials.",
+						"Still gathering.", "Then I'll wait for good news.", "(Take my leave)"),
+				complete("I'm back.",
 						"You're back. Got all the materials?",
-						"Not ready yet.", "No problem. Come find me once the materials are ready, and I'll draw the ofuda for you.",
-						"Here's the paper and redstone.", "Good, you're reliable after all. With these materials the shrine's ofuda stock is much fuller... Don't worry, I haven't forgotten your share. Here, take these.")
+						"Not yet.", "No problem. Come find me once the materials are ready, and I'll draw the ofuda for you.", "(Leave)",
+						"Here's what you asked for.", "So reliable. With these the shrine's ofuda stock is much fuller... Don't worry, I haven't forgotten your share. Here, take these.", "(Take the reward)")
 		));
 
 		prefix("reimu/ender_materials");
@@ -283,17 +287,17 @@ public class ReimuQDGen extends QuestDialogData {
 						"b-eye", new SubmitItemRequirement(List.of(item(Items.ENDER_EYE, 1)))
 				)),
 				List.of(new ExpReward(150), new ReputationReward(10, 300, 0, 300)),
-				start("Mention the endermen teleporting around.",
-						"They fold space to blink across the world, right? I want that trick for my gap portal. This world's ender pearl bends space like a miniature gap, and an eye can lock onto the way home. Bring me one of each — I think I can anchor a route through them.",
-						"I'll find ender materials.", "One pearl and one eye, then. Rare stuff, but that's exactly what I need for the binding.",
-						"Maybe next time.", "They're hard to come by. Come back when you've got some to spare."),
-				follow("Ask about the gap.",
+				start("The village says you reach them almost instantly when exterminating — are you some kind of enderman?",
+						"You mean those black creatures that fear water and being stared at? I travel through gaps — borrowed power from Yukari. It resonates with this world's ender pearls to anchor places. Bring me one of each — I can teach you how to use it.",
+						"I'll go look for them.", "One pearl and one eye, then. They're not easy for me to get — danmaku doesn't do much against them.", "(Leave)",
+						"I've got other things to do.", "No worries. We can talk when you're free.", "(Leave)"),
+				follow("(Check gathering progress)",
 						"Found any ender materials yet?",
-						"Still looking.", "Pearls drop from those little purple rascals in the dark. The eyes you'll have to find deeper down."),
-				complete("Hand over the ender materials.",
+						"Still looking.", "I hear they're common in a place called the warped forest. Give it a try.", "(Leave)"),
+				complete("I'm back.",
 						"Let's see what you've brought.",
-						"Not yet.", "No rush. So long as you keep them safe.",
-						"Here's the pearl and eye.", "Perfect. With these I can anchor a real gap. The road home just got a little closer.")
+						"I need them for something else.", "No rush. Just bring spares when you have them.", "(Leave)",
+						"The pearl and eye you asked for.", "With these I can anchor a gap and shorten the road greatly. I'll teach you how to use it too.", "(Take the reward)")
 		));
 
 		prefix("reimu/ominous_banner");
@@ -308,17 +312,17 @@ public class ReimuQDGen extends QuestDialogData {
 				List.of(new ExpReward(200), new ReputationReward(20, 300, 10, 300),
 						loot("reimu/ominous_banner", LootTable.lootTable()
 								.withPool(lootItem(GLTalismans.SHELTER_TALISMAN.get(), 2)))),
-				start("Talk about the raiders.",
-						"People keep whispering about raiders—armed groups with black-and-white banners. Bring me one from their captain. I want to know what it means.",
-						"I'll find a raid captain.", "Good. Their captains carry those ominous banners. Take one down and bring it to me. Just watch for the mark they leave behind.",
-						"Maybe next time.", "They're still just humans with weapons. Come back when you're ready to deal with them."),
-				follow("Ask about the banner.",
-						"Found their captain yet?",
-						"Still searching.", "Check outposts and patrols. That's where you're most likely to find one."),
-				complete("Hand over the banner.",
-						"That's the one. Let me see what this strange banner is saying.",
-						"Not yet.", "Take your time. I'll be here.",
-						"Here's the banner.", "There it is. I'll study what binds these raiders together. Then we'll see what I can do about them.")
+				start("Is it true what the raiders preach about defiling souls?",
+						"I've exterminated them before — nothing special. They're upsetting the balance. If you're willing, bring me one of their banners. I don't think it's just a symbol.",
+						"I'll go get one.", "Good. Bring the banner back — but be careful, they'll mark you with an ominous brand.", "I'll be careful.",
+						"Maybe next time.", "Fine. They're just heretics anyway — I can handle them myself.", "(Leave)"),
+				follow("(Check gathering progress)",
+						"Found the banner yet?",
+						"Not yet.", "Check outposts and patrols. That's where you're most likely to find one.", "Got it."),
+				complete("I'm back.",
+						"Got it? Let me see the banner.",
+						"One moment.", "Take your time. I'll be here.", "(Leave)",
+						"Here, the banner.", "That's it. I'll study the calamity behind these raiders, and put an end to their balance-breaking.", "(Leave)")
 		));
 
 		prefix("reimu/raid");
@@ -332,18 +336,16 @@ public class ReimuQDGen extends QuestDialogData {
 				List.of(new ExpReward(400), new ReputationReward(30, 300, 20, 300),
 						loot("reimu/raid", LootTable.lootTable()
 								.withPool(lootItem(GLItems.BORDER_UMBRELLA.get(), 1)))),
-				startRaid("Talk about the plan.",
-						"I figured out the mark. My ofuda can recreate it. I'll put it on you; enter a village, draw the raiders in, and drive them out.",
-						"I'll repel the raid.", "There. The mark is on you. Walk into a village, draw them out, and drive every raider away.",
-						"Can't you do it yourself?", "I've got shrine duties. You're the one who knows this world, so I'll leave the fighting to you."),
-				follow("Ask about the raid.",
-						"The village still stands, but the mark is fading. Care to go again? I can set a fresh one.",
-						"Mark me again.", "There. Walk into a village, draw them out, and drive every raider away.",
+				startRaidEx("What's your plan for the raiders attacking villages lately?",
+						"I've figured out that ominous mark. My ofuda can recreate it. I want to put it on you — can you draw the raiders out and drive them away?",
+						"I'll repel the raid.", "There. The mark is on you. Draw them out and destroy this balance-breaking force.", "(Leave)",
+						"Isn't that too risky?", "I think you're strong enough. If you're not confident, forget it.", "(Leave)"),
+				followEx("(Reapply the mark)",
+						"The mark is fading. Want another? I can set a fresh one.",
+						"Please set the mark again.", "There. Enter the village, draw them out — you know what to do.", "(Leave)",
 						new GiveMobEffectAction(MobEffects.BAD_OMEN, BAD_OMEN_DURATION, 0)),
-				complete("Tell Reimu the raid is over.",
-						"The waves stopped? Good. So the plan worked.",
-						"Not yet.", "Not yet? Then stay sharp. They won't give up easily.",
-						"The raiders are gone.", "You routed them. I knew baiting them into the village would work. Here—take this border umbrella. It's ready for whatever comes next.")
+				completeSingle("The raid is over.",
+						"They stopped coming? Good — that saves a lot of work. Here — take this border umbrella, and be ready for what's coming.", "(Take the reward)")
 		));
 	}
 
@@ -357,14 +359,13 @@ public class ReimuQDGen extends QuestDialogData {
 						.add(LootItem.lootTableItem(Items.GOLD_INGOT).apply(SetItemCountFunction.setCount(UniformGenerator.between(3, 4))))
 						.add(LootItem.lootTableItem(Items.BREAD).apply(SetItemCountFunction.setCount(UniformGenerator.between(6, 8))))
 						.add(LootItem.lootTableItem(Items.APPLE).apply(SetItemCountFunction.setCount(UniformGenerator.between(4, 6))))));
-		daily("reimu/daily_food", "Shrine Provisions", "Bring Reimu a few supplies for the shrine.",
+		dailyEx("reimu/daily_food", "Shrine Provisions", "Bring Reimu a few supplies for the shrine.",
 				new QuestRecurrence(24000), List.of(new HasQuestCompletedCondition(QUEST_LOCAL_FOOD)), 60, 10, 150, 0, 150,
-				"The donation box is empty again, and I'm hungry. Bring me a few things for the shrine.",
-				"Good. Bring back a decent haul.",
-				"A hungry miko is a distracted miko. Your call.",
+				"The offering box is bone dry — at this rate I won't eat. Bring me a few things the shrine can use.",
+				"Great. I need these things.", "Then I'll think of something — maybe mooch a meal off her.",
 				"The donation box is empty again — bring a decent haul of supplies, remember.",
-				"Take your time. Just bring back something useful.",
-				"Just what the shrine needed. Thanks.",
+				"Okay.", "Don't forget.", "(Leave)",
+				"Just what was needed. Thanks.",
 				new TreeMap<>(Map.of(
 						"a-supplies", rollItem(foodTable))),
 				LootTable.lootTable().withPool(lootItem(Items.EMERALD, 1)));
@@ -376,28 +377,35 @@ public class ReimuQDGen extends QuestDialogData {
 						.add(LootItem.lootTableItem(Items.BONE).apply(SetItemCountFunction.setCount(UniformGenerator.between(4, 8))))
 						.add(LootItem.lootTableItem(Items.GUNPOWDER).apply(SetItemCountFunction.setCount(UniformGenerator.between(2, 4))))
 						.add(LootItem.lootTableItem(Items.SPIDER_EYE).apply(SetItemCountFunction.setCount(UniformGenerator.between(2, 4))))));
-		daily("reimu/daily_hunt", "Monster Thinning", "Thin out the monsters and bring Reimu some loot.",
-				new QuestRecurrence(24000), List.of(new HasQuestCompletedCondition(QUEST_HOSTILE_LOOT)), 80, 10, 150, 5, 120,
-				"Something's been stirring up trouble near the shrine. Thin out the monsters and bring me some loot.",
-				"That's the spirit. Go clear them out.",
-				"They'll only grow bolder. But it's your call.",
-				"Something's been stirring near the shrine again — thin them out and bring back their loot, remember.",
-				"Stay careful out there. I need you in one piece.",
-				"Another night's sleep saved. Thanks.",
+		quest("reimu/daily_hunt", new Quest(GLEntities.REIMU.get(),
+				List.of(new HasQuestCompletedCondition(QUEST_HOSTILE_LOOT)),
+				questTitle("Monster Thinning"), questDesc("Thin out the monsters and bring Reimu some loot."),
+				Optional.of(new QuestRecurrence(24000)),
 				new TreeMap<>(Map.of(
 						"a-kill", new KillEnemyRequirement(reqText("kill", "Kill hostile mobs"), 12),
 						"b-loot", rollItem(huntTable))),
-				LootTable.lootTable().withPool(lootItem(Items.EMERALD, 3)));
+				List.of(new ExpReward(80), new ReputationReward(10, 150, 5, 120),
+						loot("reimu/daily_hunt", LootTable.lootTable().withPool(lootItem(Items.EMERALD, 3)))),
+				groupKey(dailyGroupKey, dailyStartKey,
+						dialog("start/dialog_1", "Something's always stirring trouble near the shrine. Clear out those monsters and bring back their loot.", THINK_ANIMS,
+								option("start/reject", "Later.",
+										dialog("start/reject/dialog_1", "Ugh, looks like I'll have to fight them myself.", option("start/reject/end", "(Leave)"))),
+								option("start/accept", "I'll handle it.", new StartQuestAction(),
+										dialog("start/accept/dialog_1", "That's the spirit. Go clear them out.", option("start/accept/end", "(Leave)"))))),
+				dailyFollowEx("Something's been stirring near the shrine again — thin them out and bring back their loot, remember.",
+						"Okay.", "Stay careful out there. I need you in one piece.", "(Leave)"),
+				dailyCompleteEx("Another peaceful night's sleep. Thanks.")
+		));
 
 		prefix("reimu/daily_talisman");
-		daily("reimu/daily_talisman", "Talisman Restock", "Bring Reimu paper and redstone to restock her talismans.",
+		dailyEx("reimu/daily_talisman", "Talisman Restock", "Bring Reimu paper and redstone to restock her talismans.",
 				new QuestRecurrence(24000), List.of(new HasQuestCompletedCondition(QUEST_TALISMAN_MATERIALS)), 60, 10, 150, 0, 150,
-				"Talisman stock is running low again. Paper and redstone, just like before.",
-				"Great. Restock me and I'll keep the shrine warded.",
-				"No stock, no warding. Your call.",
-				"Talisman stock is low again — paper for folding, redstone for ink, remember.",
-				"The ofuda shelves are starting to look empty.",
-				"Good. The shelves are stocked again.",
+				"Ofuda stock is running low again — paper and redstone, same as before. Gather some for me?",
+				"Good. Restock me and I'll keep a steady supply of ofuda.",
+				"There's still a little left. We'll talk when you're free.",
+				"Ofuda stock is low again — paper and redstone, remember.",
+				"Got it.", "The stock is almost empty.", "I'll be right back.",
+				"Good. That'll last a while. Here's your share.",
 				new TreeMap<>(Map.of(
 						"a-paper", new SubmitItemRequirement(List.of(item(Items.PAPER, 16))),
 						"b-redstone", new SubmitItemRequirement(List.of(item(Items.REDSTONE, 8))))),
@@ -414,13 +422,20 @@ public class ReimuQDGen extends QuestDialogData {
 				List.of(new ExpReward(200), new ReputationReward(20, 200, 10, 150),
 						loot("reimu/daily_raid", LootTable.lootTable()
 								.withPool(lootItem(GLTalismans.SHELTER_TALISMAN.get(), 2)))),
-				dailyRaidStart("A new mark is ready, and another village could use protecting. Ready for another raid?",
-						"Here's the mark, same as before. Enter the village, hold the line, and drive them out.",
-						"The mark will keep. The raiders will still be there when you're ready."),
-				dailyFollow("The mark is fading. Ready for another round? I can set a fresh one.",
-						"There. Enter the village, hold the line, and drive them out. I'll be here after.",
-						new GiveMobEffectAction(MobEffects.BAD_OMEN, BAD_OMEN_DURATION, 0)),
-				dailyComplete("The village is still standing. You're getting good at this.")
+				groupKey(dailyGroupKey, dailyStartKey,
+						dialog("start/dialog_1", "Another village needs protecting. I've got the bait ready — up for another cleanup?", THINK_ANIMS,
+								option("start/reject", "Later.",
+										dialog("start/reject/dialog_1", "The mark will keep. We'll talk when you're ready.", option("start/reject/end", "(Leave)"))),
+								option("start/accept", "I'll help.",
+										List.of(new StartQuestAction(), new GiveMobEffectAction(MobEffects.BAD_OMEN, BAD_OMEN_DURATION, 0)),
+										dialog("start/accept/dialog_1", "Same as before — lure them in, hold the line, drive them out.", option("start/accept/end", "(Leave)"))))),
+				groupOption(dailyGroupKey, "follow_up", "My mark seems gone?",
+						dialog("follow_up/dialog_1", "Is that so? I can set a fresh one on you.", THINK_ANIMS,
+								option("follow_up/end", "Please do.", new GiveMobEffectAction(MobEffects.BAD_OMEN, BAD_OMEN_DURATION, 0),
+										dialog("follow_up/end/dialog_1", "There. Same plan — I'll wait for good news.", option("follow_up/end/leave", "(Leave)"))))),
+				option("complete", "The cleanup went well.",
+						dialog("complete/dialog_1", "Not bad — you're getting better at this.", AGREE_ANIMS,
+								option("complete/handover", "I couldn't have drawn them out so smoothly without your help.", new CompleteQuestAction())))
 		));
 	}
 
@@ -501,51 +516,58 @@ public class ReimuQDGen extends QuestDialogData {
 	}
 
 	private SimpleDialogOption start(String button, String intro,
-	                                 String accept, String acceptLine,
-	                                 String reject, String rejectLine) {
+	                                 String accept, String acceptLine, String acceptEnd,
+	                                 String reject, String rejectLine, String rejectEnd) {
 		return option("start", button,
 				dialog("start/dialog_1", intro, THINK_ANIMS,
-						option("start/reject", reject, dialog("start/reject/dialog_1", rejectLine, optionKey(byeKey))),
+						option("start/reject", reject, dialog("start/reject/dialog_1", rejectLine, option("start/reject/end", rejectEnd))),
 						option("start/accept", accept, new StartQuestAction(),
-								dialog("start/accept/dialog_1", acceptLine, optionKey(byeKey)))));
+								dialog("start/accept/dialog_1", acceptLine, option("start/accept/end", acceptEnd)))));
 	}
 
-	private SimpleDialogOption startRaid(String button, String intro,
-	                                     String accept, String acceptLine,
-	                                     String reject, String rejectLine) {
+	private SimpleDialogOption startRaidEx(String button, String intro,
+	                                       String accept, String acceptLine, String acceptEnd,
+	                                       String reject, String rejectLine, String rejectEnd) {
 		return option("start", button,
 				dialog("start/dialog_1", intro, THINK_ANIMS,
-						option("start/reject", reject, dialog("start/reject/dialog_1", rejectLine, optionKey(byeKey))),
+						option("start/reject", reject, dialog("start/reject/dialog_1", rejectLine, option("start/reject/end", rejectEnd))),
 						option("start/accept", accept, List.of(new StartQuestAction(), new GiveMobEffectAction(MobEffects.BAD_OMEN, BAD_OMEN_DURATION, 0)),
-								dialog("start/accept/dialog_1", acceptLine, optionKey(byeKey)))));
+								dialog("start/accept/dialog_1", acceptLine, option("start/accept/end", acceptEnd)))));
 	}
 
-	private SimpleDialogOption follow(String button, String intro, String opt, String optLine) {
+	private SimpleDialogOption follow(String button, String intro, String opt, String optLine, String optEnd) {
 		return option("follow_up", button,
 				dialog("follow_up/dialog_1", intro, THINK_ANIMS,
-						option("follow_up/end", opt, dialog("follow_up/end/dialog_1", optLine, optionKey(byeKey)))));
+						option("follow_up/end", opt, dialog("follow_up/end/dialog_1", optLine, option("follow_up/end/leave", optEnd)))));
 	}
 
-	private SimpleDialogOption follow(String button, String intro, String opt, String optLine, DialogAction<?> action) {
+	private SimpleDialogOption followEx(String button, String intro, String opt, String optLine, String optEnd, DialogAction<?> action) {
 		return option("follow_up", button,
 				dialog("follow_up/dialog_1", intro, THINK_ANIMS,
 						option("follow_up/end", opt, List.of(action),
-								dialog("follow_up/end/dialog_1", optLine, optionKey(byeKey)))));
+								dialog("follow_up/end/dialog_1", optLine, option("follow_up/end/leave", optEnd)))));
 	}
 
 	private SimpleDialogOption complete(String button, String intro,
-	                                    String reject, String rejectLine,
-	                                    String complete, String completeLine) {
+	                                    String reject, String rejectLine, String rejectEnd,
+	                                    String complete, String completeLine, String completeEnd) {
 		return option("complete", button,
 				dialog("complete/dialog_1", intro, AGREE_ANIMS,
-						option("complete/reject", reject, dialog("complete/reject/dialog_1", rejectLine, optionKey(byeKey))),
+						option("complete/reject", reject, dialog("complete/reject/dialog_1", rejectLine, option("complete/reject/end", rejectEnd))),
 						option("complete/handover", complete, new CompleteQuestAction(),
-								dialog("complete/handover/dialog_1", completeLine, optionKey(byeKey)))));
+								dialog("complete/handover/dialog_1", completeLine, option("complete/handover/end", completeEnd)))));
 	}
 
-	private void daily(String id, String title, String desc, QuestRecurrence rec,
+	private SimpleDialogOption completeSingle(String button, String intro, String takeEnd) {
+		return option("complete", button,
+				dialog("complete/dialog_1", intro, AGREE_ANIMS,
+						option("complete/handover", takeEnd, new CompleteQuestAction())));
+	}
+
+	private void dailyEx(String id, String title, String desc, QuestRecurrence rec,
 	                   List<QuestCondition<?>> conditions, int exp, int rep, int softCap, int capIncrease, int maxCap,
-	                   String intro, String acceptLine, String rejectLine, String followLine, String optLine,
+	                   String intro, String acceptLine, String rejectLine, String followLine,
+	                   String followOpt, String optLine, String optEnd,
 	                   String completeLine,
 	                   Map<String, QuestRequirement<?, ?>> reqs, LootTable.Builder loot) {
 		quest(id, new Quest(GLEntities.REIMU.get(), conditions,
@@ -554,49 +576,28 @@ public class ReimuQDGen extends QuestDialogData {
 				new TreeMap<>(reqs),
 				List.of(new ExpReward(exp), new ReputationReward(rep, softCap, capIncrease, maxCap),
 						loot(id, loot)),
-				dailyStart(intro, acceptLine, rejectLine),
-				dailyFollow(followLine, optLine),
-				dailyComplete(completeLine)));
+				groupKey(dailyGroupKey, dailyStartKey,
+						dialog("start/dialog_1", intro, THINK_ANIMS,
+								groupKey(dailyGroupKey, dailyRejectKey,
+										dialog("start/reject/dialog_1", rejectLine, option("start/reject/end", "(Leave)"))),
+								groupKey(dailyGroupKey, dailyAcceptKey, new StartQuestAction(),
+										dialog("start/accept/dialog_1", acceptLine, option("start/accept/end", "(Leave)"))))),
+				dailyFollowEx(followLine, followOpt, optLine, optEnd),
+				dailyCompleteEx(completeLine)));
 	}
 
-	private GroupDialogOption dailyStart(String intro, String acceptLine, String rejectLine) {
-		return groupKey(dailyGroupKey, dailyStartKey,
-				dialog("start/dialog_1", intro, THINK_ANIMS,
-						optionKey(dailyRejectKey,
-								dialog("start/reject/dialog_1", rejectLine, optionKey(byeKey))),
-						optionKey(dailyAcceptKey, new StartQuestAction(),
-								dialog("start/accept/dialog_1", acceptLine, optionKey(byeKey)))));
-	}
-
-	private GroupDialogOption dailyRaidStart(String intro, String acceptLine, String rejectLine) {
-		return groupKey(dailyGroupKey, dailyStartKey,
-				dialog("start/dialog_1", intro, THINK_ANIMS,
-						optionKey(dailyRejectKey,
-								dialog("start/reject/dialog_1", rejectLine, optionKey(byeKey))),
-						optionKey(dailyAcceptKey,
-								List.of(new StartQuestAction(), new GiveMobEffectAction(MobEffects.BAD_OMEN, BAD_OMEN_DURATION, 0)),
-								dialog("start/accept/dialog_1", acceptLine, optionKey(byeKey)))));
-	}
-
-	private GroupDialogOption dailyFollow(String followLine, String optLine) {
+	private GroupDialogOption dailyFollowEx(String followLine, String followOpt, String optLine, String optEnd) {
 		return groupKey(dailyGroupKey, dailyFollowKey,
 				dialog("follow_up/dialog_1", followLine, THINK_ANIMS,
-						optionKey(dailyFollowEndKey,
-								dialog("follow_up/end/dialog_1", optLine, optionKey(byeKey)))));
+						option("follow_up/end", followOpt,
+								dialog("follow_up/end/dialog_1", optLine, option("follow_up/end/leave", optEnd)))));
 	}
 
-	private GroupDialogOption dailyFollow(String followLine, String optLine, DialogAction<?> action) {
-		return groupKey(dailyGroupKey, dailyFollowKey,
-				dialog("follow_up/dialog_1", followLine, THINK_ANIMS,
-						optionKey(dailyFollowEndKey, List.of(action),
-								dialog("follow_up/end/dialog_1", optLine, optionKey(byeKey)))));
-	}
-
-	private GroupDialogOption dailyComplete(String completeLine) {
+	private GroupDialogOption dailyCompleteEx(String completeLine) {
 		return groupKey(dailyGroupKey, dailyCompleteKey,
 				dialogKey("complete/dialog_1", dailyGotemKey, AGREE_ANIMS,
 						optionKey(dailyHandoverKey, new CompleteQuestAction(),
-								dialog("complete/handover/dialog_1", completeLine, optionKey(byeKey)))));
+								dialog("complete/handover/dialog_1", completeLine, option("complete/handover/end", "(Take the reward)")))));
 	}
 
 }
