@@ -1,0 +1,39 @@
+{
+	"format_version": "1.21.6",
+	"credit": "Made with Blockbench",
+	"texture_size": [32, 32],
+	"textures": {
+		"0": "gensokyolegacy:item/curio/strange_glasses_head",
+		"particle": "gensokyolegacy:item/curio/strange_glasses_head"
+	},
+	"elements": [
+		{
+			"from": [2.5, 0, 2],
+			"to": [13.5, 5, 9],
+			"rotation": {"angle": 0, "axis": "y", "origin": [6, 0, 0]},
+			"faces": {
+				"north": {"uv": [5.5, 0, 11, 2.5], "texture": "#0"},
+				"east": {"uv": [5.5, 5, 9, 7.5], "texture": "#0"},
+				"south": {"uv": [5.5, 2.5, 11, 5], "texture": "#0"},
+				"west": {"uv": [0, 7, 3.5, 9.5], "texture": "#0"},
+				"up": {"uv": [5.5, 3.5, 0, 0], "texture": "#0"},
+				"down": {"uv": [5.5, 3.5, 0, 7], "texture": "#0"}
+			}
+		}
+	],
+	"display": {
+		"head": {
+			"rotation": [-10, 0, 0],
+			"translation": [0, 7, -1.25],
+			"scale": [1.4, 1.4, 1.4]
+		}
+	},
+	"groups": [
+		{
+			"name": "Root",
+			"origin": [8, 8, 8],
+			"color": 0,
+			"children": [0]
+		}
+	]
+}

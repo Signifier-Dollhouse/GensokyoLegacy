@@ -34,6 +34,15 @@ public enum YoukaiAnim {
 		return trigger;
 	}
 
+	/**
+	 * Play this one-shot on the entity if it supports it. Unmapped slots
+	 * are silently ignored.
+	 */
+	public void play(YoukaiEntity e) {
+		if (e instanceof GeoYoukaiAnim anim && anim.getAnim(this).isPresent())
+			anim.broadcastAnim(this);
+	}
+
 	public static Optional<YoukaiAnim> byTrigger(String trigger) {
 		for (var e : values()) {
 			if (e.trigger.equals(trigger)) return Optional.of(e);

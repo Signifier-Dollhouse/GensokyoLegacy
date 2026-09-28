@@ -60,12 +60,10 @@ public class QuestDialogData {
 	public static final int CHAT_SPECIAL = 1000;
 
 	/**
-	 * Standard dialog animations, mirroring the old code-triggered behavior:
-	 * chats play a random talk clip, quest start/follow-up play think,
-	 * quest completion plays agree.
+	 * Standard dialog animations: quest start/follow-up play think, quest
+	 * completion plays agree. Chats leave the list empty so a random talk
+	 * clip is picked at play time (see {@code GeoYoukaiAnim}).
 	 */
-	protected static final List<String> TALK_ANIMS = List.of(
-			YoukaiAnim.TALK_01.trigger(), YoukaiAnim.TALK_02.trigger(), YoukaiAnim.TALK_03.trigger());
 	protected static final List<String> THINK_ANIMS = List.of(YoukaiAnim.THINK.trigger());
 	protected static final List<String> AGREE_ANIMS = List.of(YoukaiAnim.AGREE.trigger());
 
@@ -160,7 +158,7 @@ public class QuestDialogData {
 	}
 
 	public Holder<Dialog> dialog(String id, String text, DialogOption<?>... options) {
-		return dialog(id, text, TALK_ANIMS, options);
+		return dialog(id, text, List.of(), options);
 	}
 
 	public Holder<Dialog> dialog(String id, String text, List<String> animations, DialogOption<?>... options) {
@@ -172,7 +170,7 @@ public class QuestDialogData {
 	}
 
 	public Holder<Dialog> dialogKey(String id, String key, DialogOption<?>... options) {
-		return dialogKey(id, key, TALK_ANIMS, options);
+		return dialogKey(id, key, List.of(), options);
 	}
 
 	public Holder<Dialog> dialogKey(String id, String key, List<String> animations, DialogOption<?>... options) {

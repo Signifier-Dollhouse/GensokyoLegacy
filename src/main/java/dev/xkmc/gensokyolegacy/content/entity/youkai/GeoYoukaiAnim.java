@@ -55,10 +55,16 @@ public interface GeoYoukaiAnim extends GeoEntity {
 	/**
 	 * Play one of the given dialog triggers once, chosen at random. Entries
 	 * map to {@link YoukaiAnim} by trigger name (falling back to enum name);
-	 * unknown entries and unmapped slots are ignored.
+	 * unknown entries and unmapped slots are ignored. An empty list falls
+	 * back to a random talk clip.
 	 */
 	default void broadcastDialogAnim(List<String> animations, RandomSource random) {
-		if (animations.isEmpty()) return;
+		if (animations.isEmpty()) {
+			var talks = List.of(YoukaiAnim.TALK_01, YoukaiAnim.TALK_02, YoukaiAnim.TALK_03);
+			var fallback = talks.get(random.nextInt(talks.size()));
+			if (getAnim(fallback).isPresent()) broadcastAnim(fallback);
+			return;
+		}
 		var trigger = animations.get(random.nextInt(animations.size()));
 		var anim = YoukaiAnim.byTrigger(trigger).or(() -> YoukaiAnim.byName(trigger));
 		anim.ifPresent(e -> {

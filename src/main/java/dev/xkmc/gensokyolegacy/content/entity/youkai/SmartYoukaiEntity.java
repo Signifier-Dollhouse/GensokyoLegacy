@@ -171,7 +171,7 @@ public class SmartYoukaiEntity extends YoukaiEntity {
 			BrainUtils.setMemory(this, GLBrains.MEM_TALK.get(), player);
 		else getBrain().setMemoryWithExpiry(GLBrains.MEM_TALK.get(), player, time);
 		FirstDialogProvider.open(player, this);
-		if (this instanceof GeoYoukaiAnim anim) anim.broadcastAnim(YoukaiAnim.GREET);
+		YoukaiAnim.GREET.play(this);
 	}
 
 	@Override

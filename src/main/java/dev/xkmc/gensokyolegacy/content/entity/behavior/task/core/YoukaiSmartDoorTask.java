@@ -3,6 +3,7 @@ package dev.xkmc.gensokyolegacy.content.entity.behavior.task.core;
 import dev.xkmc.gensokyolegacy.content.block.deco.door.SlidingDoor;
 import dev.xkmc.gensokyolegacy.content.block.deco.door.SlidingDoorUtils;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.SmartYoukaiEntity;
+import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiAnim;
 import dev.xkmc.gensokyolegacy.init.data.GLTagGen;
 import dev.xkmc.gensokyolegacy.util.BrainUtils;
 import net.minecraft.core.BlockPos;
@@ -10,6 +11,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.behavior.Behavior;
@@ -75,6 +77,8 @@ public class YoukaiSmartDoorTask<E extends SmartYoukaiEntity> extends Behavior<E
 			if (!door.isOpen(state)) {
 				door.setOpen(entity, level, state, pos, true);
 				rememberDoorToClose(entity, level, pos);
+				entity.swing(InteractionHand.MAIN_HAND);
+				YoukaiAnim.USE_MAINHAND.play(entity);
 			}
 			return;
 		}
@@ -82,6 +86,8 @@ public class YoukaiSmartDoorTask<E extends SmartYoukaiEntity> extends Behavior<E
 			BlockPos seat = SlidingDoorUtils.tryOpen(level, pos);
 			if (seat != null) {
 				rememberDoorToClose(entity, level, seat);
+				entity.swing(InteractionHand.MAIN_HAND);
+				YoukaiAnim.USE_MAINHAND.play(entity);
 			}
 		}
 	}

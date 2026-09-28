@@ -1,6 +1,14 @@
 {
-  "parent": "minecraft:item/generated",
-  "textures": {
-    "layer0": "gensokyolegacy:item/curio/strange_glasses"
+  "base": {
+    "parent": "minecraft:item/generated",
+    "textures": {
+      "layer0": "gensokyolegacy:item/curio/strange_glasses"
+    }
+  },
+  "loader": "neoforge:separate_transforms",
+  "perspectives": {
+    "head": {
+      "parent": "gensokyolegacy:custom/strange_glasses_head"
+    }
   }
 }
