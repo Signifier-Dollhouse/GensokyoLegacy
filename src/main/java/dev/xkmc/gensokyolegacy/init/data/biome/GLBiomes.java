@@ -71,14 +71,14 @@ public class GLBiomes {
 	                           @Nullable Music bgm
 	) {
 		return biome(hasPrecipitation, temperature, downfall, 4159204, 329011, fogColor,
-				null, null, spawns, gen, bgm);
+				null, null, null, spawns, gen, bgm);
 	}
 
 	private static Biome biome(
 			MobSpawnSettings.Builder spawns,
 			BiomeGenerationSettings.PlainBuilder gen
 	) {
-		return biome(true, 0.7f, 0.8f, 0x4b6fad, 329011, 0x8facf3, 0x418e63, 0x4e9465, spawns, gen, null);
+		return biome(true, 0.7f, 0.8f, 0x4b6fad, 329011, 0x8facf3, 0x4770c1, 0x418e63, 0x4e9465, spawns, gen, null);
 	}
 
 	private static Biome biome(
@@ -89,12 +89,13 @@ public class GLBiomes {
 			@Nullable Music bgm
 	) {
 		return biome(hasPrecipitation, temperature, downfall, 4159204, 329011, fogColor,
-				grassCol, foliageCol, spawns, gen, bgm);
+				null, grassCol, foliageCol, spawns, gen, bgm);
 	}
 
 	private static Biome biome(
 			boolean hasPrecipitation, float temperature, float downfall,
 			int waterColor, int waterFogColor, int fogColor,
+			@Nullable Integer skyCol,
 			@Nullable Integer grassCol, @Nullable Integer foliageCol,
 			MobSpawnSettings.Builder spawns,
 			BiomeGenerationSettings.PlainBuilder gen,
@@ -103,9 +104,13 @@ public class GLBiomes {
 		BiomeSpecialEffects.Builder effects = new BiomeSpecialEffects.Builder()
 				.waterColor(waterColor)
 				.waterFogColor(waterFogColor)
-				.fogColor(fogColor)
-				.skyColor(0x4770c1)
-				.ambientMoodSound(AmbientMoodSettings.LEGACY_CAVE_SETTINGS)
+				.fogColor(fogColor);
+		if (skyCol != null) {
+			effects.skyColor(skyCol);
+		} else {
+			effects.skyColor(calculateSkyColor(temperature));
+		}
+		effects.ambientMoodSound(AmbientMoodSettings.LEGACY_CAVE_SETTINGS)
 				.backgroundMusic(bgm);
 		if (grassCol != null) {
 			effects.grassColorOverride(grassCol);
