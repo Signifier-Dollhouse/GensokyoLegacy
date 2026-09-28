@@ -1,6 +1,8 @@
 package dev.xkmc.gensokyolegacy.content.entity.behavior.task.core;
 
+import dev.xkmc.gensokyolegacy.content.attachment.home.core.IHomeHolder;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.move.CompoundPath;
+import dev.xkmc.gensokyolegacy.content.entity.youkai.SmartYoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import dev.xkmc.gensokyolegacy.init.registrate.GLBrains;
 import dev.xkmc.gensokyolegacy.util.BrainUtils;
@@ -17,6 +19,8 @@ import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public class YoukaiMoveTask<E extends YoukaiEntity> extends Behavior<E> {
@@ -133,7 +137,8 @@ public class YoukaiMoveTask<E extends YoukaiEntity> extends Behavior<E> {
 			BrainUtils.clearMemory(brain, MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE);
 			return false;
 		}
-		Vec3 pos = Vec3.atBottomCenterOf(walkTarget.getTarget().currentBlockPosition());
+		BlockPos finalPos = walkTarget.getTarget().currentBlockPosition();
+		Vec3 pos = Vec3.atBottomCenterOf(stageViaInterior(entity, finalPos));
 		entity.getNavigation().moveTo(pos.x, pos.y, pos.z, 0, walkTarget.getSpeedModifier());
 		this.path = entity.navCtrl.getPath();
 		this.speedModifier = walkTarget.getSpeedModifier();
@@ -154,6 +159,51 @@ public class YoukaiMoveTask<E extends YoukaiEntity> extends Behavior<E> {
 
 	protected boolean hasReachedTarget(E entity, WalkTarget target) {
 		return target.getTarget().currentBlockPosition().distManhattan(entity.blockPosition()) <= target.getCloseEnoughDist();
+	}
+
+	/**
+	 * When the entity and its final target sit in different interior rooms
+	 * of the same home, head for the next node on the room route instead of
+	 * the final target, so each vanilla search stays short and in-room.
+	 * Chaining happens through behavior restarts: reaching a staging node
+	 * ends navigation with the final WalkTarget still pending, and the next
+	 * attempt plans the following leg from the new room. Returns the final
+	 * target whenever staging does not apply.
+	 */
+	private static BlockPos stageViaInterior(YoukaiEntity entity, BlockPos finalPos) {
+		if (!(entity instanceof SmartYoukaiEntity smart)) return finalPos;
+		if (!(entity.level() instanceof ServerLevel level)) return finalPos;
+		if (entity.navCtrl.isFlying()) return finalPos;
+		var home = IHomeHolder.of(level, smart);
+		if (home == null || !home.isValid()) return finalPos;
+		var interior = home.getInterior();
+		if (interior.isEmpty()) return finalPos;
+		int from = interior.roomIndexOf(entity.blockPosition());
+		int to = interior.roomIndexOf(finalPos);
+		if (from < 0 || to < 0 || from == to) return finalPos;
+		var route = interior.findRoute(from, to);
+		if (route.isEmpty()) return finalPos;
+		List<BlockPos> waypoints = new ArrayList<>();
+		int side = from;
+		for (var edge : route) {
+			if (side == edge.roomA()) {
+				waypoints.add(edge.posA());
+				if (edge.isDual()) waypoints.add(edge.posB());
+				side = edge.roomB();
+			} else if (side == edge.roomB()) {
+				if (edge.isDual()) waypoints.add(edge.posB());
+				waypoints.add(edge.posA());
+				side = edge.roomA();
+			} else {
+				return finalPos;
+			}
+		}
+		if (side != to) return finalPos;
+		BlockPos feet = entity.blockPosition();
+		for (var waypoint : waypoints) {
+			if (waypoint.distSqr(feet) > 4) return waypoint;
+		}
+		return finalPos;
 	}
 
 	/**

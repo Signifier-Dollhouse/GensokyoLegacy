@@ -35,6 +35,9 @@ public class StructureConfigBuilder {
 	// Room boxes are disjoint: shared walls belong to roomA of the doorway
 	// node, the neighbor room is reduced on that side. Stair staging cells
 	// stand clear of the stair run, on ground and upper floors respectively.
+	// Upper boxes stay clear of the roof-stair intrusions at the y8 edges
+	// (z=14/22 rows, x=3/18/26 columns); graph connectivity is unaffected
+	// as it runs on node declarations, not box overlap.
 	public static StructureConfig.Builder marisa() {
 		return StructureConfig.builder()
 				.rooms(List.of(
@@ -50,10 +53,10 @@ public class StructureConfigBuilder {
 		var rooms = new ArrayList<>(List.of(
 				new InteriorRoom("west_ground_west", new BoundingBox(3, 2, 14, 9, 6, 22)),
 				new InteriorRoom("west_ground_east", new BoundingBox(10, 2, 14, 17, 6, 22)),
-				new InteriorRoom("west_upper_bedroom", new BoundingBox(3, 7, 14, 14, 8, 22)),
-				new InteriorRoom("upper_hall", new BoundingBox(15, 7, 14, 26, 8, 22)),
+				new InteriorRoom("west_upper_bedroom", new BoundingBox(4, 7, 15, 14, 8, 21)),
+				new InteriorRoom("upper_hall", new BoundingBox(15, 7, 15, 25, 8, 21)),
 				new InteriorRoom("east_ground", new BoundingBox(18, 2, 9, 26, 6, 21)),
-				new InteriorRoom("east_upper_platform", new BoundingBox(18, 7, 9, 26, 8, 13))
+				new InteriorRoom("east_upper_platform", new BoundingBox(19, 7, 9, 25, 8, 13))
 		));
 		var nodes = new ArrayList<>(List.of(
 				new InteriorNode(new BlockPos(9, 2, 16), new BlockPos(9, 2, 16), 0, 1),

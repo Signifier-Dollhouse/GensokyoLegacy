@@ -1,5 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.attachment.home.custom;
 
+import dev.xkmc.gensokyolegacy.content.attachment.datamap.StructureInterior;
 import dev.xkmc.gensokyolegacy.content.attachment.home.core.HomeBlockKind;
 import dev.xkmc.gensokyolegacy.content.attachment.home.core.HomeSearchUtil;
 import dev.xkmc.gensokyolegacy.content.attachment.home.core.IHomeHolder;
@@ -74,6 +75,10 @@ public record CustomHomeHolder(
 	public BlockPos getBlockAround(HomeBlockKind kind, BlockPos pos) {
 		if (!data.checkInit(this)) return null;
 		return data.getBlockAround(kind, this, pos);
+	}
+
+	public StructureInterior getInterior() {
+		return StructureInterior.empty();
 	}
 
 	@Nullable

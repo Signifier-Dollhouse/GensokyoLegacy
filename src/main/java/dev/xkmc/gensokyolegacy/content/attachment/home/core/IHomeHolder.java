@@ -1,5 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.attachment.home.core;
 
+import dev.xkmc.gensokyolegacy.content.attachment.datamap.StructureInterior;
 import dev.xkmc.gensokyolegacy.content.attachment.home.custom.CustomHomeHolder;
 import dev.xkmc.gensokyolegacy.content.attachment.home.structure.StructureHomeHolder;
 import dev.xkmc.gensokyolegacy.content.attachment.index.StructureKey;
@@ -102,6 +103,11 @@ public interface IHomeHolder {
 
 	@Nullable
 	BlockPos getBlockAround(HomeBlockKind kind, BlockPos pos);
+
+	/**
+	 * World-mapped interior room graph, or empty when the structure has none.
+	 */
+	StructureInterior getInterior();
 
 	@Nullable
 	BoundingBox getHouseBound();

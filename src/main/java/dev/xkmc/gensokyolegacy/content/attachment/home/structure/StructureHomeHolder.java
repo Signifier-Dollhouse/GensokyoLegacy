@@ -82,6 +82,11 @@ public record StructureHomeHolder(
 		return data.getBlockAround(kind, this, pos);
 	}
 
+	public StructureInterior getInterior() {
+		if (!data.checkInit(this)) return StructureInterior.empty();
+		return data.getInterior(config);
+	}
+
 	@Nullable
 	public BoundingBox getHouseBound() {
 		if (!data.checkInit(this)) return null;
