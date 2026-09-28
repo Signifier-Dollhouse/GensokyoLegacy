@@ -75,7 +75,7 @@ public record StructFlatJigsawBuilding(
 		var pool = ctx.lookup(Registries.TEMPLATE_POOL)
 				.getOrThrow(ResourceKey.create(Registries.TEMPLATE_POOL, id.withSuffix("/" + parts().getFirst().id())));
 		ctx.register(ResourceKey.create(Registries.STRUCTURE, id), new FlatCheckStructure(
-				new Structure.StructureSettings(biome, spawns(), GenerationStep.Decoration.SURFACE_STRUCTURES, TerrainAdjustment.BEARD_THIN),
+				new Structure.StructureSettings(biome, spawns(), GenerationStep.Decoration.UNDERGROUND_DECORATION, TerrainAdjustment.BEARD_THIN),
 				pool, maxDepth(), false, maxDistanceFromCenter(), heightTolerance(),
 				attempts(), spacing(), RandomSpreadType.LINEAR, set.salt(), safetyRadius(), set.setIndex(), set.setCount()
 		));
