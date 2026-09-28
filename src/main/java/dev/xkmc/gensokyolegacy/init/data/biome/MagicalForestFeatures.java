@@ -215,7 +215,6 @@ public class MagicalForestFeatures {
 						.add(Blocks.PODZOL.defaultBlockState(), 3)
 						.add(Blocks.COARSE_DIRT.defaultBlockState(), 2)
 						.add(Blocks.ROOTED_DIRT.defaultBlockState(), 2)
-						.add(Blocks.MOSS_BLOCK.defaultBlockState(), 1)
 						.build()), 3, 5));
 		var firFloor = List.of(
 				floorDisk(new WeightedStateProvider(SimpleWeightedRandomList.<BlockState>builder()
