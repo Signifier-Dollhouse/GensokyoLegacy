@@ -17,9 +17,9 @@ import java.util.List;
 
 public record StructureConfig(
 		LinkedHashSet<EntityType<?>> entities,
-		int xzHouseShrink, int topHouseShrink, int floorHouseShrink,
 		ArrayList<BoundingBox> rooms,
 		StructureInterior interior,
+		ArrayList<BoundingBox> house,
 		@Nullable ResourceLocation outsideBlock,
 		@Nullable ResourceLocation primaryFix,
 		@Nullable ResourceLocation wouldFix
@@ -54,18 +54,16 @@ public record StructureConfig(
 
 	public static class Builder {
 
-		int xzHouseShrink, topHouseShrink, floorHouseShrink;
 		@Nullable
 		ResourceLocation outSideBlock, primaryFix, wouldFix;
 
 		LinkedHashSet<EntityType<?>> entities = new LinkedHashSet<>();
 		List<BoundingBox> rooms = new ArrayList<>();
 		StructureInterior interior = StructureInterior.empty();
+		List<BoundingBox> house = new ArrayList<>();
 
-		public Builder house(int xz, int top, int floor) {
-			this.xzHouseShrink = xz;
-			this.topHouseShrink = top;
-			this.floorHouseShrink = floor;
+		public Builder house(List<BoundingBox> house) {
+			this.house = new ArrayList<>(house);
 			return this;
 		}
 
@@ -101,8 +99,7 @@ public record StructureConfig(
 
 		public StructureConfig build() {
 			return new StructureConfig(entities,
-					xzHouseShrink, topHouseShrink, floorHouseShrink,
-					new ArrayList<>(rooms), interior,
+					new ArrayList<>(rooms), interior, new ArrayList<>(house),
 					outSideBlock, primaryFix, wouldFix);
 		}
 

@@ -47,7 +47,7 @@ public class MarisaBonemealTask<E extends SmartYoukaiEntity> extends AbstractHom
 	protected boolean checkExtraStartConditions(ServerLevel level, E entity) {
 		if (!super.checkExtraStartConditions(level, entity)) return false;
 		if (level.getGameTime() < nextUse) return false;
-		BoundingBox house = home.getHouseBound();
+		BoundingBox house = home.getRoomUnion();
 		if (house == null) return false;
 		target = findTarget(level, entity, house, MarisaTaskUtil.outdoorBox(house));
 		return target != null;

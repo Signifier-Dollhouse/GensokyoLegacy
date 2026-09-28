@@ -27,6 +27,12 @@ public class AbnormalCache {
 		secondary.add(step);
 	}
 
+	public void clear() {
+		air.clear();
+		primary.clear();
+		secondary.clear();
+	}
+
 	public int @Nullable [] pop(int count, FixStage stage) {
 		if (!air.isEmpty()) {
 			return pop(air, count);

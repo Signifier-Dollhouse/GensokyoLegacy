@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public record StructureBoundUpdateToClient(
-		StructureKey key, Box structure, Box house, ArrayList<Box> rooms, StructureInterior interior
+		StructureKey key, Box structure, ArrayList<Box> house, ArrayList<Box> rooms, StructureInterior interior
 ) implements SerialPacketBase<StructureBoundUpdateToClient>, IStructureBound {
 
 	public static void clickBlockInServer(Player player, BlockPos pos) {
@@ -24,8 +24,10 @@ public record StructureBoundUpdateToClient(
 		GensokyoLegacy.HANDLER.toClientPlayer(home.toBoundPacket(), sp);
 	}
 
-	public StructureBoundUpdateToClient(StructureKey key, BoundingBox structure, BoundingBox house, List<BoundingBox> rooms, StructureInterior interior) {
-		this(key, Box.of(structure), Box.of(house), rooms.stream().map(Box::of).collect(ArrayList::new, ArrayList::add, ArrayList::addAll), interior);
+	public StructureBoundUpdateToClient(StructureKey key, BoundingBox structure, List<BoundingBox> house, List<BoundingBox> rooms, StructureInterior interior) {
+		this(key, Box.of(structure),
+				house.stream().map(Box::of).collect(ArrayList::new, ArrayList::add, ArrayList::addAll),
+				rooms.stream().map(Box::of).collect(ArrayList::new, ArrayList::add, ArrayList::addAll), interior);
 	}
 
 	@Override

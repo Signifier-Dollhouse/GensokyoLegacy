@@ -49,10 +49,6 @@ public class CustomHomeData implements IBlockSearchCache {
 		return room.bound;
 	}
 
-	public BoundingBox getHouseBound() {
-		return room.bound.inflatedBy(1);
-	}
-
 	public BoundingBox getTotalBound() {
 		return room.bound.inflatedBy(1);
 	}

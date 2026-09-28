@@ -110,7 +110,7 @@ public interface IHomeHolder {
 	StructureInterior getInterior();
 
 	@Nullable
-	BoundingBox getHouseBound();
+	BoundingBox getRoomUnion();
 
 	@Nullable
 	BlockPos getWanderCenter();

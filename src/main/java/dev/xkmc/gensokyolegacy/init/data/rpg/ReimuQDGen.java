@@ -162,8 +162,8 @@ public class ReimuQDGen extends QuestDialogData {
 		prefix("reimu/chat_marisa");
 		chat("reimu/chat_marisa", GLEntities.REIMU.get(),
 				List.of(missingAdv(GLAdvGen.ENTER_MARISA_HOUSE), new SelfReputationCondition(50)),
-				starterText("start", "Have you met Marisa?"),
-				dialog("talk", "Have you met Marisa yet? Ordinary magician, lives deep in the Magical Forest. Loud, nosy, always borrowing things.",
+				starterText("start", "Brewing potions is so complicated…"),
+				dialog("talk", "There's a magician living deep in the Magical Forest. Loud, nosy, always borrowing things — but she messes with mushrooms and brews of every kind. If brewing gives you trouble, she may help make it easier.",
 						option("where", "Where can I find her?",
 								dialog("where_ans", "Her house is deep in the Magical Forest. Follow the mushrooms — and the explosions. You can't miss her.",
 										option("bye", "Got it!")))),

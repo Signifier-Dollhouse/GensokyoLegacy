@@ -1,7 +1,9 @@
 package dev.xkmc.gensokyolegacy.content.entity.behavior.move;
 
+import dev.xkmc.gensokyolegacy.content.entity.youkai.SmartYoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiFlags;
+import dev.xkmc.gensokyolegacy.init.registrate.GLBrains;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.tags.BlockTags;
@@ -14,6 +16,7 @@ import net.minecraft.world.entity.ai.control.FlyingMoveControl;
 import net.minecraft.world.entity.ai.control.MoveControl;
 import net.minecraft.world.entity.ai.navigation.FlyingPathNavigation;
 import net.minecraft.world.entity.ai.navigation.GroundPathNavigation;
+import net.minecraft.world.entity.schedule.Activity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.LadderBlock;
 import net.minecraft.world.level.block.state.BlockState;
@@ -21,6 +24,8 @@ import net.minecraft.world.level.pathfinder.PathFinder;
 import org.jetbrains.annotations.Nullable;
 
 public class YoukaiNavigationControl {
+
+	private static final int GROUND_PROXIMITY = 2;
 
 	private final YoukaiEntity self;
 	private final CombatFlyingControl combat;
@@ -79,6 +84,29 @@ public class YoukaiNavigationControl {
 		return isFlying;
 	}
 
+	/**
+	 * Whether solid ground is within {@link #GROUND_PROXIMITY} blocks below
+	 * the feet. Flying characters close to the ground should land and try
+	 * ground navigation first instead of staying airborne.
+	 */
+	public boolean isCloseToGround() {
+		if (self.onGround()) return true;
+		BlockPos feet = self.blockPosition();
+		var level = self.level();
+		for (int i = 1; i <= GROUND_PROXIMITY; i++) {
+			if (!level.getBlockState(feet.below(i)).isAir()) return true;
+		}
+		return false;
+	}
+
+	private boolean isCombatActivity() {
+		if (self instanceof SmartYoukaiEntity smart) {
+			var activity = smart.getActivity();
+			return activity == Activity.FIGHT || activity == GLBrains.HUNT.get();
+		}
+		return self.isAggressive();
+	}
+
 	public void stopMoving() {
 		walkCtrl.stop();
 		flyCtrl.stop();
@@ -129,6 +157,10 @@ public class YoukaiNavigationControl {
 			if (!isFlying()) {
 				walkNav.moveTo(path.path(), speedModifier);
 				return true;
+			} else if (isCloseToGround()) {
+				setWalking();
+				walkNav.moveTo(path.path(), speedModifier);
+				return true;
 			} else {
 				return false;
 			}
@@ -159,7 +191,7 @@ public class YoukaiNavigationControl {
 			if (!self.mayFly()) return false;
 			setFlying();
 			flyNav.tempFly = true;
-			return flyNav.moveTo(x, y, z, accuracy, speed);
+			return flyNav.moveToDirect(x, y, z, accuracy, speed);
 		}
 
 		@Override
@@ -173,7 +205,7 @@ public class YoukaiNavigationControl {
 			if (!self.mayFly()) return false;
 			setFlying();
 			flyNav.tempFly = true;
-			return flyNav.moveTo(entity, speed);
+			return flyNav.moveToDirect(entity, speed);
 		}
 
 		@Override
@@ -196,6 +228,32 @@ public class YoukaiNavigationControl {
 
 		public Flying(Mob mob, Level level) {
 			super(mob, level);
+		}
+
+		@Override
+		public boolean moveTo(double x, double y, double z, int accuracy, double speed) {
+			if (isCloseToGround() && !isCombatActivity()) {
+				setWalking();
+				return walkNav.moveTo(x, y, z, accuracy, speed);
+			}
+			return super.moveTo(x, y, z, accuracy, speed);
+		}
+
+		@Override
+		public boolean moveTo(Entity entity, double speed) {
+			if (isCloseToGround() && !isCombatActivity()) {
+				setWalking();
+				return walkNav.moveTo(entity, speed);
+			}
+			return super.moveTo(entity, speed);
+		}
+
+		private boolean moveToDirect(double x, double y, double z, int accuracy, double speed) {
+			return super.moveTo(x, y, z, accuracy, speed);
+		}
+
+		private boolean moveToDirect(Entity entity, double speed) {
+			return super.moveTo(entity, speed);
 		}
 
 		@Override

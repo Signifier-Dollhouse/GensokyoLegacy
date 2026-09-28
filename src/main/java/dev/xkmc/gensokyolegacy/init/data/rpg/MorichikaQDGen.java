@@ -36,18 +36,18 @@ public class MorichikaQDGen extends QuestDialogData {
 		prefix("morichika/chat_marisa");
 		chat("morichika/chat_marisa", GLEntities.MORICHIKA.get(),
 				List.of(missingAdv(GLAdvGen.ENTER_MARISA_HOUSE)),
-				starterText("start", "Have you met Marisa?"),
-				dialog("talk", "Marisa Kirisame, the ordinary magician. Her house is deep in the Magical Forest. She loves mushrooms, magic tools, and borrowing things without asking.",
+				starterText("start", "Brewing potions is such a hassle…"),
+				dialog("talk", "There's a magician deep in the Magical Forest. She loves mushrooms, magic tools, and borrowing things without asking — if brewing troubles you, go find her; she may make it easier for you.",
 						option("where", "Where can I find her?",
-								dialog("where_ans", "Follow the mushrooms — and the explosions. Tell her Rinnosuke sent you.",
+								dialog("where_ans", "Follow the mushrooms — and the explosions. Tell her I sent you.",
 										option("bye", "Thanks!")))),
 				CHAT_INFO);
 
 		prefix("morichika/chat_reimu");
 		chat("morichika/chat_reimu", GLEntities.MORICHIKA.get(),
 				List.of(missingAdv(GLAdvGen.ENTER_HAKUREI_SHRINE)),
-				starterText("start", "Have you met Reimu?"),
-				dialog("talk", "Reimu Hakurei, the shrine maiden of the Hakurei Shrine in the cherry grove. If raiders trouble you, she's the one to see.",
+				starterText("start", "It's dangerous out there…"),
+				dialog("talk", "There's a shrine maiden in the cherry grove. If raiders trouble you, she's the one to see — she may provide something to aid you in a fight.",
 						option("donation", "Anything I should know?",
 								dialog("donation_ans", "Just don't forget a donation. A shrine maiden with an empty donation box is a grumpy shrine maiden.",
 										option("bye", "Thanks!")))),

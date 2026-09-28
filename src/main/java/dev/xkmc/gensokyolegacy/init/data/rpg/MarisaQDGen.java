@@ -89,7 +89,7 @@ public class MarisaQDGen extends QuestDialogData {
 		prefix("marisa/chat");
 		defaultDialog(GLEntities.MARISA.get(),
 				"Yo, hey~ welcome to the Kirisame Magic Shop!",
-				"Wanna see the goods? Check out what I just got today!");
+				"What are you offering today?");
 		starter("marisa/chat", new DialogStarter(GLEntities.MARISA.get(), List.of(),
 				starterText("start", "Business usually busy around here?"),
 				dialog("hi", "Used to get plenty, but everything around here changed big-time lately — no idea where my customers went.",
@@ -105,8 +105,8 @@ public class MarisaQDGen extends QuestDialogData {
 		prefix("marisa/chat_reimu");
 		chat("marisa/chat_reimu", GLEntities.MARISA.get(),
 				List.of(missingAdv(GLAdvGen.ENTER_HAKUREI_SHRINE), new SelfReputationCondition(50)),
-				starterText("start", "I heard the Hakurei Shrine helped lots of villages — what's that place?"),
-				dialog("talk", "You'll find the Hakurei Shrine out in the cherry grove — an old friend of mine's there, a real incident-resolving expert.",
+				starterText("start", "This world is so dangerous…"),
+				dialog("talk", "You'll find the Hakurei Shrine out in the cherry grove — an old friend of mine's there, a real incident-resolving expert. If you're heading into danger, she may provide something to aid you in a fight.",
 						option("where", "Anything I should know before visiting?",
 								dialog("where_ans", "If raiders come at you, go find her — she'll chase them off. Just don't forget the donation, okay?",
 										option("where/end", "I'll drop by when I get the chance.")))),
@@ -115,8 +115,8 @@ public class MarisaQDGen extends QuestDialogData {
 		prefix("marisa/chat_morichika");
 		chat("marisa/chat_morichika", GLEntities.MARISA.get(),
 				List.of(missingAdv(GLAdvGen.ENTER_MORICHIKA_SHOP), new SelfReputationCondition(50)),
-				starterText("start", "Did you make all these little trinkets yourself?"),
-				dialog("talk", "Not all of 'em — there's another shop in this Magical Forest, Kourindou, run by Rinnosuke Morichika. Got some history with him — anyway, he deals all kinds of curios, kinda a secondhand shop.",
+				starterText("start", "I wish I had tools to aid exploration…"),
+				dialog("talk", "Funny you mention tools — not all of my trinkets are handmade. There's another shop in this Magical Forest, Kourindou, run by an old acquaintance of mine. He deals all kinds of curios and tools, kinda a secondhand shop — if you need gear for exploring, he may sell you something useful.",
 						option("where", "What does he sell?",
 								dialog("where_ans", "Sells everything from charms to junk — and he'll buy your spare curios too.",
 										option("where/end", "I'll have to pay it a visit sometime.")))),

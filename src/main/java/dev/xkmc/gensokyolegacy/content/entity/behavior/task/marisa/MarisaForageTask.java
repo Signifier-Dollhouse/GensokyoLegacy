@@ -51,7 +51,7 @@ public class MarisaForageTask<E extends SmartYoukaiEntity> extends AbstractHomeH
 	@Override
 	protected boolean checkExtraStartConditions(ServerLevel level, E entity) {
 		if (!super.checkExtraStartConditions(level, entity)) return false;
-		BoundingBox house = home.getHouseBound();
+		BoundingBox house = home.getRoomUnion();
 		if (house == null) return false;
 		target = findTarget(level, entity, house, MarisaTaskUtil.outdoorBox(house));
 		return target != null;

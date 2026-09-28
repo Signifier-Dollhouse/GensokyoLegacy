@@ -50,18 +50,20 @@ public class StructureOutlineRenderer {
 		if (data == null || level == null || player == null) return;
 		var buffer = Minecraft.getInstance().renderBuffers().bufferSource();
 		var line = buffer.getBuffer(RenderType.lines());
-		renderBox(pose, line, data.structure(), camera.toVector3f(), 1, 1, 1, 1, 1f / 32);
-		renderBox(pose, line, data.house(), camera.toVector3f(), 0.5f, 1, 1, 1, 0);
+		var vec = camera.toVector3f();
+		renderBox(pose, line, data.structure(), vec, 1, 1, 1, 1, 1f / 32);
+		for (var house : data.house()) {
+			renderBox(pose, line, house, vec, 0.5f, 1, 1, 1, -1f / 16);
+		}
 		var outline = buffer.getBuffer(LineRenderType.OUTLINE);
 		var cluster = StructureInfoClientManager.bitSet;
 		if (cluster != null) {
-			var vec = camera.toVector3f();
 			cluster.render(true, (x0, y0, z0, x1, y1, z1) -> renderShape(pose, outline, x0, y0, z0, x1, y1, z1, -vec.x, -vec.y, -vec.z, 1, 0.5f, 0.5f, 1));
-		} else {
+		} else if (data.interior().isEmpty()) {
 			for (var room : data.rooms()) {
-				renderBox(pose, outline, room, camera.toVector3f(), 1, 0.5f, 0.5f, 1, -1f / 32);
+				renderBox(pose, outline, room, vec, 1, 0.5f, 0.5f, 1, -1f / 32);
 			}
-			var vec = camera.toVector3f();
+		} else {
 			var rooms = data.interior().rooms();
 			for (var room : rooms) {
 				renderBox(pose, outline, IStructureBound.Box.of(room.bound()), vec, 0.3f, 1, 0.3f, 1, -1f / 16);

@@ -4,7 +4,16 @@
       "entities": [
         "gensokyolegacy:hakurei_reimu"
       ],
-      "floorHouseShrink": 1,
+      "house": [
+        [
+          0,
+          1,
+          0,
+          18,
+          13,
+          18
+        ]
+      ],
       "interior": {
         "nodes": [],
         "rooms": []
@@ -28,15 +37,30 @@
           7
         ]
       ],
-      "topHouseShrink": 2,
-      "wouldFix": "gensokyolegacy:structure_fix/hakurei_shrine/would_fix",
-      "xzHouseShrink": 1
+      "wouldFix": "gensokyolegacy:structure_fix/hakurei_shrine/would_fix"
     },
     "gensokyolegacy:marisa_house": {
       "entities": [
         "gensokyolegacy:kirisame_marisa"
       ],
-      "floorHouseShrink": 1,
+      "house": [
+        [
+          1,
+          1,
+          12,
+          15,
+          12,
+          24
+        ],
+        [
+          16,
+          1,
+          7,
+          28,
+          12,
+          24
+        ]
+      ],
       "interior": {
         "nodes": [
           {
@@ -163,7 +187,7 @@
           },
           {
             "bound": [
-              4,
+              3,
               7,
               15,
               14,
@@ -201,40 +225,38 @@
               9,
               25,
               8,
-              13
+              14
             ],
             "name": "east_upper_platform"
           }
         ]
       },
       "primaryFix": "gensokyolegacy:structure_fix/marisa_house/primary",
-      "rooms": [
-        [
-          18,
-          2,
-          9,
-          26,
-          8,
-          21
-        ],
-        [
-          3,
-          2,
-          14,
-          17,
-          8,
-          22
-        ]
-      ],
-      "topHouseShrink": 2,
-      "wouldFix": "gensokyolegacy:structure_fix/marisa_house/would_fix",
-      "xzHouseShrink": 1
+      "rooms": [],
+      "wouldFix": "gensokyolegacy:structure_fix/marisa_house/would_fix"
     },
     "gensokyolegacy:morichika_shop": {
       "entities": [
         "gensokyolegacy:morichika_rinnosuke"
       ],
-      "floorHouseShrink": 1,
+      "house": [
+        [
+          0,
+          1,
+          12,
+          21,
+          12,
+          24
+        ],
+        [
+          22,
+          1,
+          12,
+          31,
+          17,
+          27
+        ]
+      ],
       "interior": {
         "nodes": [],
         "rooms": []
@@ -266,9 +288,7 @@
           25
         ]
       ],
-      "topHouseShrink": 2,
-      "wouldFix": "gensokyolegacy:structure_fix/morichika_shop/would_fix",
-      "xzHouseShrink": 1
+      "wouldFix": "gensokyolegacy:structure_fix/morichika_shop/would_fix"
     }
   }
 }

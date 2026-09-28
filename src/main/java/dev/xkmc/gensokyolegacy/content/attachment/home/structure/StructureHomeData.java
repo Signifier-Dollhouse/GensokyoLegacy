@@ -68,11 +68,14 @@ public class StructureHomeData implements IBlockSearchCache {
 		} else {
 			if (verifier == null) {
 				verifier = new IntegrityVerifier(holder, getHouseBound(holder.config()),
-						getRoomBounds(holder.config()), cache, abnormal);
+						getHouseBounds(holder.config()), getRoomBounds(holder.config()), cache, abnormal);
 				if (!verifier.isValid()) {
+					// snapshot box changed: drop the cache and the raster-indexed
+					// abnormal entries along with it, then rescan from scratch
 					cache = null;
 					cacheBuilder = null;
 					verifier = null;
+					abnormal.clear();
 					return;
 				}
 			}
@@ -91,16 +94,15 @@ public class StructureHomeData implements IBlockSearchCache {
 	}
 
 	public MultiStructureBound getRoomBounds(StructureConfig config) {
+		var interior = getInterior(config);
+		if (!interior.isEmpty()) {
+			List<BoundingBox> boxes = new ArrayList<>();
+			for (var room : interior.rooms()) boxes.add(room.bound());
+			return new MultiStructureBound(boxes);
+		}
 		var mapped = mapBoxes(config.rooms());
 		if (mapped != null) return mapped;
 		return MultiStructureBound.of(piece.getBoundingBox());
-	}
-
-	public MultiStructureBound getInteriorBounds(StructureConfig config) {
-		var interior = getInterior(config);
-		List<BoundingBox> boxes = new ArrayList<>();
-		for (var room : interior.rooms()) boxes.add(room.bound());
-		return new MultiStructureBound(boxes);
 	}
 
 	/**
@@ -189,15 +191,17 @@ public class StructureHomeData implements IBlockSearchCache {
 	}
 
 	public BoundingBox getHouseBound(StructureConfig config) {
-		var bound = piece.getBoundingBox();
-		return new BoundingBox(
-				bound.minX() + config.xzHouseShrink(),
-				bound.minY() + config.floorHouseShrink(),
-				bound.minZ() + config.xzHouseShrink(),
-				bound.maxX() - config.xzHouseShrink(),
-				bound.maxY() - config.topHouseShrink(),
-				bound.maxZ() - config.xzHouseShrink()
-		);
+		return getHouseBounds(config).union();
+	}
+
+	/**
+	 * World-mapped house boxes: the integrity snapshot domain. Cells outside
+	 * every box (margin terrain, yard foliage) are never flagged nor fixed.
+	 */
+	public MultiStructureBound getHouseBounds(StructureConfig config) {
+		var mapped = mapBoxes(config.house());
+		if (mapped != null) return mapped;
+		return MultiStructureBound.of(piece.getBoundingBox());
 	}
 
 	public BoundingBox getTotalBound() {

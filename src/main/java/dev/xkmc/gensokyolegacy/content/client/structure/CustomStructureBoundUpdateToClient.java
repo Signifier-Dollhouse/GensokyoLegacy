@@ -23,13 +23,13 @@ public record CustomStructureBoundUpdateToClient(
 	}
 
 	@Override
-	public StructureInterior interior() {
-		return StructureInterior.empty();
+	public List<Box> house() {
+		return List.of();
 	}
 
 	@Override
-	public Box house() {
-		return Box.of(data().bound.inflatedBy(1));
+	public StructureInterior interior() {
+		return StructureInterior.empty();
 	}
 
 	@Override

@@ -82,9 +82,9 @@ public record CustomHomeHolder(
 	}
 
 	@Nullable
-	public BoundingBox getHouseBound() {
+	public BoundingBox getRoomUnion() {
 		if (!data.checkInit(this)) return null;
-		return data.getHouseBound();
+		return data.getRoomBound();
 	}
 
 	@Nullable

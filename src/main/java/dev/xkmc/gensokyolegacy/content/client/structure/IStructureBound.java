@@ -7,9 +7,9 @@ import java.util.List;
 
 public interface IStructureBound {
 
-	Box house();
-
 	Box structure();
+
+	List<Box> house();
 
 	List<Box> rooms();
 
