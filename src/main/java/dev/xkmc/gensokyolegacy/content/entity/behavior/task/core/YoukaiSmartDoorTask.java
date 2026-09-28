@@ -56,7 +56,6 @@ public class YoukaiSmartDoorTask<E extends SmartYoukaiEntity> extends Behavior<E
 	private void tryOpenDoors(ServerLevel level, E entity) {
 		Path path = BrainUtils.getMemory(entity, MemoryModuleType.PATH);
 		if (path == null || path.notStarted() || path.isDone()) return;
-		if (entity.navCtrl.isFlying()) return;
 		Node next = path.getNextNode();
 		if (Objects.equals(this.node, next)) {
 			if (this.cooldown-- > 0) return;

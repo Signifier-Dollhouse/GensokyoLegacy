@@ -42,6 +42,7 @@ import dev.xkmc.l2core.init.reg.simple.DCReg;
 import dev.xkmc.l2core.init.reg.simple.DCVal;
 import dev.xkmc.l2core.init.reg.simple.EnumCodec;
 import dev.xkmc.l2itemselector.init.data.L2ISTagGen;
+import net.minecraft.client.renderer.block.model.BlockModel;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Unit;
 import net.minecraft.tags.ItemTags;
@@ -417,9 +418,9 @@ public class GLItems {
 								.customLoader(SeparateTransformsModelBuilder::begin)
 								.base(base)
 								.perspective(ItemDisplayContext.HEAD, headModel)
-								.end();
+								.end().guiLight(BlockModel.GuiLight.FRONT);
 					})
-					.tag(ItemTags.HEAD_ARMOR, GLTagGen.MORICHIKA_OFFERS)
+					.tag(ItemTags.HEAD_ARMOR, head, GLTagGen.MORICHIKA_OFFERS)
 					.dataMap(GLMeta.MORICHIKA_OFFER.reg(), new MorichikaOfferData(6, 10, 1, 1))
 					.lang("Strange Glasses").tab(TAB.key())
 					.register();

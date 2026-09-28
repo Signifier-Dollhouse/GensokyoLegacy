@@ -564,7 +564,7 @@ public abstract class YoukaiEntity extends DamageClampEntity implements SpellCir
 	public Vec3 getVehicleAttachmentPoint(Entity entity) {
 		// Match vanilla player sitting height so the sitting animation sits
 		// on chairs instead of floating above the seat.
-		return new Vec3(0, 0.6, 0);
+		return new Vec3(0, 0.5, 0);
 	}
 
 }

@@ -13,12 +13,16 @@ import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.entity.ai.memory.WalkTarget;
 import net.minecraft.world.entity.ai.util.DefaultRandomPos;
+import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 
 public class YoukaiMoveTask<E extends YoukaiEntity> extends Behavior<E> {
+
+	private static final double DRIFT_SQR = 9.0;
+	private static final int DRIFT_REPATH_INTERVAL = 20;
 
 	@Nullable
 	protected CompoundPath path;
@@ -27,6 +31,7 @@ public class YoukaiMoveTask<E extends YoukaiEntity> extends Behavior<E> {
 	protected float speedModifier;
 	private int cooldown;
 	private int leaveGroundTick;
+	private long lastRepathTime;
 
 	public YoukaiMoveTask() {
 		super(Map.of(
@@ -69,6 +74,7 @@ public class YoukaiMoveTask<E extends YoukaiEntity> extends Behavior<E> {
 
 	@Override
 	protected void start(ServerLevel level, E entity, long gameTime) {
+		lastRepathTime = gameTime;
 		BrainUtils.setMemory(entity, MemoryModuleType.PATH, path == null ? null : path.path());
 		BrainUtils.setMemory(entity, GLBrains.MEM_PATH.get(), this.path);
 		if (path == null) return;
@@ -86,11 +92,25 @@ public class YoukaiMoveTask<E extends YoukaiEntity> extends Behavior<E> {
 		}
 		if (path != null && this.lastTargetPos != null) {
 			WalkTarget target = BrainUtils.getMemory(brain, MemoryModuleType.WALK_TARGET);
-			if (target != null && target.getTarget().currentBlockPosition().distSqr(this.lastTargetPos) > 4) {
-				if (attemptNewPath(entity, target, hasReachedTarget(entity, target)))
-					this.lastTargetPos = target.getTarget().currentBlockPosition();
+			if (target == null) return;
+			if (target.getTarget().currentBlockPosition().distSqr(this.lastTargetPos) > 4) {
+				repath(level, entity, gameTime, target);
+			} else if (gameTime - lastRepathTime > DRIFT_REPATH_INTERVAL &&
+					isDriftedFromPath(entity, path.path())) {
+				repath(level, entity, gameTime, target);
 			}
 		}
+	}
+
+	private void repath(ServerLevel level, E entity, long gameTime, WalkTarget target) {
+		if (attemptNewPath(entity, target, hasReachedTarget(entity, target))) {
+			this.lastTargetPos = target.getTarget().currentBlockPosition();
+			Brain<?> brain = entity.getBrain();
+			BrainUtils.setMemory(brain, MemoryModuleType.PATH, this.path == null ? null : this.path.path());
+			BrainUtils.setMemory(brain, GLBrains.MEM_PATH.get(), this.path);
+			if (this.path != null) entity.navCtrl.moveTo(this.path, this.speedModifier);
+		}
+		lastRepathTime = gameTime;
 	}
 
 	@Override
@@ -134,6 +154,41 @@ public class YoukaiMoveTask<E extends YoukaiEntity> extends Behavior<E> {
 
 	protected boolean hasReachedTarget(E entity, WalkTarget target) {
 		return target.getTarget().currentBlockPosition().distManhattan(entity.blockPosition()) <= target.getCloseEnoughDist();
+	}
+
+	/**
+	 * Whether the entity drifted away from the remaining path polyline. Vanilla
+	 * navigation just steers toward the next node when this happens, cutting
+	 * straight through whatever is in between, so detect it and re-path instead.
+	 */
+	private static boolean isDriftedFromPath(YoukaiEntity entity, Path path) {
+		if (path.getNodeCount() == 0 || path.isDone()) return false;
+		Vec3 pos = entity.position();
+		int start = Math.max(0, path.getNextNodeIndex() - 1);
+		Vec3 prev = Vec3.atBottomCenterOf(path.getNodePos(start));
+		if (start == path.getNodeCount() - 1)
+			return prev.distanceToSqr(pos) > DRIFT_SQR;
+		for (int i = start + 1; i < path.getNodeCount(); i++) {
+			Vec3 cur = Vec3.atBottomCenterOf(path.getNodePos(i));
+			if (distToSegmentSqr(pos, prev, cur) <= DRIFT_SQR)
+				return false;
+			prev = cur;
+		}
+		return true;
+	}
+
+	private static double distToSegmentSqr(Vec3 p, Vec3 a, Vec3 b) {
+		double abx = b.x - a.x;
+		double aby = b.y - a.y;
+		double abz = b.z - a.z;
+		double lenSqr = abx * abx + aby * aby + abz * abz;
+		if (lenSqr < 1e-8) return p.distanceToSqr(a);
+		double t = ((p.x - a.x) * abx + (p.y - a.y) * aby + (p.z - a.z) * abz) / lenSqr;
+		t = Math.max(0, Math.min(1, t));
+		double dx = p.x - (a.x + abx * t);
+		double dy = p.y - (a.y + aby * t);
+		double dz = p.z - (a.z + abz * t);
+		return dx * dx + dy * dy + dz * dz;
 	}
 
 }

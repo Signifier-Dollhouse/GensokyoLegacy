@@ -44,9 +44,9 @@ public class YoukaiDoNothing<E extends SmartYoukaiEntity> implements BehaviorCon
 		endTimestamp = gameTime + i;
 		var activity = entity.getActivity();
 		if ((activity == Activity.IDLE || activity == Activity.PLAY) &&
-				isOutsideHouse(level, entity) &&
+				isOutsideHouse(level, entity) && entity.getNavigation().isDone() &&
 				gameTime - lastOutdoorIdle >= OUTDOOR_IDLE_COOLDOWN &&
-				level.getRandom().nextFloat() < 0.2f) {
+				level.getRandom().nextFloat() < 0.5f) {
 			lastOutdoorIdle = gameTime;
 			YoukaiAnim.OUTDOOR_IDLE.play(entity);
 		}
@@ -56,9 +56,7 @@ public class YoukaiDoNothing<E extends SmartYoukaiEntity> implements BehaviorCon
 	private static <T extends SmartYoukaiEntity> boolean isOutsideHouse(ServerLevel level, T entity) {
 		var home = IHomeHolder.of(level, entity);
 		if (home == null) return true;
-		var bound = home.getHouseBound();
-		if (bound == null) return true;
-		return !bound.isInside(entity.blockPosition());
+		return !home.isInRoom(entity.blockPosition());
 	}
 
 	@Override

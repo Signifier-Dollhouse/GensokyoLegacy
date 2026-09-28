@@ -3,6 +3,8 @@ package dev.xkmc.gensokyolegacy.content.entity.behavior.task.home;
 import dev.xkmc.gensokyolegacy.content.attachment.index.BedRefData;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import dev.xkmc.gensokyolegacy.util.BrainUtils;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.ai.behavior.Behavior;
@@ -42,8 +44,11 @@ public class YoukaiSleepTask extends Behavior<YoukaiEntity> {
 		pos = BrainUtils.getMemory(entity, MemoryModuleType.HOME);
 		if (pos == null || !level.dimension().equals(pos.dimension())) return;
 		desperateSleepyTime = gameTime + 1200;
-		if (entity.distanceToSqr(pos.pos().getCenter()) > 2) {
-			BrainUtils.setMemory(entity, MemoryModuleType.WALK_TARGET, new WalkTarget(pos.pos().above(), 1, 1));
+		BlockPos[] ends = bedEnds(level);
+		if (ends == null) return;
+		if (bedDistSqr(entity, ends) > 4) {
+			BrainUtils.setMemory(entity, MemoryModuleType.WALK_TARGET,
+					new WalkTarget(scanApproach(level, entity, ends), 1, 2));
 		}
 	}
 
@@ -73,25 +78,78 @@ public class YoukaiSleepTask extends Behavior<YoukaiEntity> {
 			}
 			desperateSleepyTime = 0;
 		}
-		if (entity.distanceToSqr(pos.pos().getCenter()) < 2) {
+		BlockPos[] ends = bedEnds(level);
+		if (ends == null) {
+			pos = null;
+			return;
+		}
+		if (bedDistSqr(entity, ends) < 4) {
 			BrainUtils.clearMemory(entity, MemoryModuleType.WALK_TARGET);
 			entity.getNavigation().stop();
-			var state = entity.level().getBlockState(pos.pos());
-			if (!state.hasProperty(BedBlock.PART)) {
-				pos = null;
-				return;
-			}
 			// Sleep with the head on the head block, mirroring vanilla
 			// BedBlock.useWithoutItem: the head sits one step along FACING from
-			// the foot, so a foot home resolves forward while a head home stays.
-			if (state.getValue(BedBlock.PART) == BedPart.HEAD) {
-				entity.startSleeping(pos.pos());
-			} else {
-				entity.startSleeping(pos.pos().relative(state.getValue(BedBlock.FACING)));
-			}
+			// the foot, so ends[0] is always the head (see bedEnds).
+			entity.startSleeping(ends[0]);
 		} else if (!BrainUtils.hasMemory(entity, MemoryModuleType.WALK_TARGET)) {
-			BrainUtils.setMemory(entity, MemoryModuleType.WALK_TARGET, new WalkTarget(pos.pos().above(), 1, 1));
+			BrainUtils.setMemory(entity, MemoryModuleType.WALK_TARGET,
+					new WalkTarget(scanApproach(level, entity, ends), 1, 0));
 		}
+	}
+
+	/**
+	 * Head and foot of the home bed ({@code ends[0]} is always the head).
+	 * Returns null when the home bed block is gone.
+	 */
+	@Nullable
+	private BlockPos[] bedEnds(ServerLevel level) {
+		if (pos == null) return null;
+		var state = level.getBlockState(pos.pos());
+		if (!state.hasProperty(BedBlock.PART)) return null;
+		BlockPos home = pos.pos();
+		Direction facing = state.getValue(BedBlock.FACING);
+		boolean isHead = state.getValue(BedBlock.PART) == BedPart.HEAD;
+		return new BlockPos[]{
+				isHead ? home : home.relative(facing),
+				isHead ? home.relative(facing.getOpposite()) : home};
+	}
+
+	private static double bedDistSqr(YoukaiEntity entity, BlockPos[] ends) {
+		return Math.min(entity.distanceToSqr(ends[0].getCenter()), entity.distanceToSqr(ends[1].getCenter()));
+	}
+
+	/**
+	 * Walk target for the bed approach: the nearest standable cell in the ring
+	 * around the bed (4 horizontal neighbors of each bed end). No {@code above()}:
+	 * standing on top of the mattress is never required since sleep entry
+	 * teleports onto the head block. Falls back to the nearer bed end itself when
+	 * every neighbor is blocked, so the fly fallback and desperate teleport still
+	 * have a closest-reachable endpoint to work with.
+	 */
+	private static BlockPos scanApproach(ServerLevel level, YoukaiEntity entity, BlockPos[] ends) {
+		BlockPos best = null;
+		double bestDist = Double.MAX_VALUE;
+		for (BlockPos end : ends) {
+			for (Direction dir : Direction.Plane.HORIZONTAL) {
+				BlockPos cell = end.relative(dir);
+				if (!isStandable(level, cell)) continue;
+				double dist = entity.distanceToSqr(cell.getCenter());
+				if (dist < bestDist) {
+					bestDist = dist;
+					best = cell;
+				}
+			}
+		}
+		if (best != null) return best;
+		return entity.distanceToSqr(ends[0].getCenter()) <= entity.distanceToSqr(ends[1].getCenter()) ?
+				ends[0] : ends[1];
+	}
+
+	private static boolean isStandable(ServerLevel level, BlockPos cell) {
+		if (!level.isLoaded(cell)) return false;
+		BlockPos floor = cell.below();
+		if (!level.getBlockState(floor).isFaceSturdy(level, floor, Direction.UP)) return false;
+		if (!level.getBlockState(cell).getCollisionShape(level, cell).isEmpty()) return false;
+		return level.getBlockState(cell.above()).getCollisionShape(level, cell.above()).isEmpty();
 	}
 
 	@Override

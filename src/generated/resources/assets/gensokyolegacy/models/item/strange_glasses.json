@@ -5,6 +5,7 @@
       "layer0": "gensokyolegacy:item/curio/strange_glasses"
     }
   },
+  "gui_light": "front",
   "loader": "neoforge:separate_transforms",
   "perspectives": {
     "head": {

@@ -56,16 +56,12 @@ public class GLClient {
 			ItemProperties.register(GLItems.BORDER_UMBRELLA.get(), GensokyoLegacy.loc("umbrella_display"), BorderUmbrellaItem::displayPredicate);
 			ItemProperties.register(GLItems.DOLL_GLOVE.get(), GensokyoLegacy.loc("glove_display"), DollGloveItem::displayPredicate);
 
-			CuriosRendererRegistry.register(GLItems.STRAW_HAT.get(),
-					() -> new TouhouHatRenderer(GensokyoLegacy.loc("textures/model/straw_hat.png")));
-			CuriosRendererRegistry.register(GLItems.SUWAKO_HAT.get(),
-					() -> new TouhouHatRenderer(GensokyoLegacy.loc("textures/model/suwako_hat.png")));
-			CuriosRendererRegistry.register(GLItems.KOISHI_HAT.get(),
-					() -> new TouhouHatRenderer(GensokyoLegacy.loc("textures/model/koishi_hat.png")));
-			CuriosRendererRegistry.register(GLItems.RUMIA_HAIRBAND.get(),
-					() -> new TouhouHatRenderer(GensokyoLegacy.loc("textures/entity/rumia.png")));
-			CuriosRendererRegistry.register(GLItems.CIRNO_HAIRBAND.get(),
-					() -> new TouhouHatRenderer(GensokyoLegacy.loc("textures/entity/cirno.png")));
+			CuriosRendererRegistry.register(GLItems.STRAW_HAT.get(), TouhouHatRenderer::new);
+			CuriosRendererRegistry.register(GLItems.SUWAKO_HAT.get(), TouhouHatRenderer::new);
+			CuriosRendererRegistry.register(GLItems.KOISHI_HAT.get(), TouhouHatRenderer::new);
+			CuriosRendererRegistry.register(GLItems.RUMIA_HAIRBAND.get(), TouhouHatRenderer::new);
+			CuriosRendererRegistry.register(GLItems.CIRNO_HAIRBAND.get(), TouhouHatRenderer::new);
+			CuriosRendererRegistry.register(GLItems.STRANGE_GLASSES.get(), StrangeGlassesRenderer::new);
 
 			GLItems.STAR.get().getTypeForRender();
 			ProjectileRenderHelper.setup();
@@ -114,6 +110,21 @@ public class GLClient {
 		}
 		if (event.getRenderer(EntityType.FROG) instanceof FrogRenderer r) {
 			r.addLayer(new FrogHatLayer<>(r, event.getEntityModels()));
+		}
+		for (var skin : event.getSkins()) {
+			var renderer = event.getSkin(skin);
+			addHatLayer(renderer);
+		}
+		for (var type : event.getEntityTypes()) {
+			var renderer = event.getRenderer(type);
+			addHatLayer(renderer);
+		}
+	}
+
+	@SuppressWarnings({"unchecked", "rawtypes"})
+	private static void addHatLayer(EntityRenderer<?> renderer) {
+		if (renderer instanceof LivingEntityRenderer ler && ler.getModel() instanceof HumanoidModel) {
+			ler.addLayer(new TouhouHatLayer<>(ler));
 		}
 	}
 
