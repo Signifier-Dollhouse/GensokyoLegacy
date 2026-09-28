@@ -1,6 +1,9 @@
 package dev.xkmc.gensokyolegacy.content.attachment.home.structure;
 
 import dev.xkmc.gensokyolegacy.content.attachment.datamap.StructureConfig;
+import dev.xkmc.gensokyolegacy.content.attachment.datamap.InteriorNode;
+import dev.xkmc.gensokyolegacy.content.attachment.datamap.InteriorRoom;
+import dev.xkmc.gensokyolegacy.content.attachment.datamap.StructureInterior;
 import dev.xkmc.gensokyolegacy.content.attachment.home.core.BlockSearchCache;
 import dev.xkmc.gensokyolegacy.content.attachment.home.core.HomeBlockKind;
 import dev.xkmc.gensokyolegacy.content.attachment.home.core.HomeSearchUtil;
@@ -94,9 +97,44 @@ public class StructureHomeData implements IBlockSearchCache {
 	}
 
 	public MultiStructureBound getInteriorBounds(StructureConfig config) {
-		var mapped = mapBoxes(config.interior());
-		if (mapped != null) return mapped;
-		return new MultiStructureBound(List.of());
+		var interior = getInterior(config);
+		List<BoundingBox> boxes = new ArrayList<>();
+		for (var room : interior.rooms()) boxes.add(room.bound());
+		return new MultiStructureBound(boxes);
+	}
+
+	/**
+	 * World-mapped interior: room boxes via corner mapping, node positions
+	 * via single-point mapping. Empty when the config has no interior data
+	 * or the piece is not a template/jigsaw piece.
+	 */
+	public StructureInterior getInterior(StructureConfig config) {
+		var local = config.interior();
+		if (local.isEmpty()) return StructureInterior.empty();
+		if (piece instanceof TemplateStructurePiece template) {
+			var settings = template.placeSettings();
+			var origin = template.templatePosition();
+			return mapInterior(local, settings, origin);
+		} else if (piece instanceof PoolElementStructurePiece pool) {
+			var settings = new StructurePlaceSettings().setRotation(pool.getRotation());
+			var origin = pool.getPosition();
+			return mapInterior(local, settings, origin);
+		}
+		return StructureInterior.empty();
+	}
+
+	private static StructureInterior mapInterior(StructureInterior local, StructurePlaceSettings settings, BlockPos origin) {
+		List<InteriorRoom> rooms = new ArrayList<>(local.rooms().size());
+		for (var room : local.rooms()) {
+			rooms.add(new InteriorRoom(room.name(), worldBox(room.bound(), settings, origin)));
+		}
+		List<InteriorNode> nodes = new ArrayList<>(local.nodes().size());
+		for (var node : local.nodes()) {
+			nodes.add(new InteriorNode(
+					worldPos(node.posA(), settings, origin), worldPos(node.posB(), settings, origin),
+					node.roomA(), node.roomB()));
+		}
+		return new StructureInterior(new ArrayList<>(rooms), new ArrayList<>(nodes));
 	}
 
 	@Nullable
@@ -125,6 +163,11 @@ public class StructureHomeData implements IBlockSearchCache {
 			}
 		}
 		return null;
+	}
+
+	private static BlockPos worldPos(BlockPos local, StructurePlaceSettings settings, BlockPos origin) {
+		var w = StructureTemplate.calculateRelativePosition(settings, new BlockPos(local.getX(), local.getY(), local.getZ()));
+		return w.offset(origin.getX(), origin.getY(), origin.getZ());
 	}
 
 	private static BoundingBox worldBox(BoundingBox local, StructurePlaceSettings settings, BlockPos origin) {

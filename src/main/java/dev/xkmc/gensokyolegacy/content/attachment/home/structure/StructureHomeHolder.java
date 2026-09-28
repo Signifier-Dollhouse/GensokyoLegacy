@@ -1,6 +1,7 @@
 package dev.xkmc.gensokyolegacy.content.attachment.home.structure;
 
 import dev.xkmc.gensokyolegacy.content.attachment.datamap.StructureConfig;
+import dev.xkmc.gensokyolegacy.content.attachment.datamap.StructureInterior;
 import dev.xkmc.gensokyolegacy.content.attachment.home.core.HomeBlockKind;
 import dev.xkmc.gensokyolegacy.content.attachment.home.core.HomeSearchUtil;
 import dev.xkmc.gensokyolegacy.content.attachment.home.core.IFixableHomeHolder;
@@ -40,7 +41,7 @@ public record StructureHomeHolder(
 			entities.add(GLEntities.CIRNO.get());
 			//TODO 结构自定义
 			config = new StructureConfig(entities,
-					1, 1, 1, new ArrayList<>(), new ArrayList<>(),
+					1, 1, 1, new ArrayList<>(), StructureInterior.empty(),
 					null, null, null);
 		}
 		var chunk = level.getChunkAt(key.pos());
@@ -130,7 +131,7 @@ public record StructureHomeHolder(
 				key(), data().getTotalBound(),
 				data().getHouseBound(config()),
 				data().getRoomBounds(config()).boxes(),
-				data().getInteriorBounds(config()).boxes()
+				data().getInterior(config)
 		);
 	}
 

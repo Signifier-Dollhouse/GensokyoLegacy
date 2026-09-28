@@ -1,5 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.client.structure;
 
+import dev.xkmc.gensokyolegacy.content.attachment.datamap.StructureInterior;
 import dev.xkmc.gensokyolegacy.content.attachment.home.custom.RoomData;
 import dev.xkmc.gensokyolegacy.content.attachment.index.StructureKey;
 import dev.xkmc.l2serial.network.SerialPacketBase;
@@ -22,8 +23,8 @@ public record CustomStructureBoundUpdateToClient(
 	}
 
 	@Override
-	public List<Box> interiors() {
-		return List.of();
+	public StructureInterior interior() {
+		return StructureInterior.empty();
 	}
 
 	@Override
