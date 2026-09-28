@@ -5,6 +5,7 @@
         "gensokyolegacy:hakurei_reimu"
       ],
       "floorHouseShrink": 1,
+      "interior": [],
       "primaryFix": "gensokyolegacy:structure_fix/hakurei_shrine/primary",
       "rooms": [
         [
@@ -33,6 +34,40 @@
         "gensokyolegacy:kirisame_marisa"
       ],
       "floorHouseShrink": 1,
+      "interior": [
+        [
+          3,
+          2,
+          14,
+          17,
+          6,
+          22
+        ],
+        [
+          3,
+          7,
+          14,
+          17,
+          8,
+          22
+        ],
+        [
+          18,
+          2,
+          9,
+          26,
+          6,
+          21
+        ],
+        [
+          18,
+          7,
+          9,
+          26,
+          8,
+          21
+        ]
+      ],
       "primaryFix": "gensokyolegacy:structure_fix/marisa_house/primary",
       "rooms": [
         [
@@ -61,6 +96,7 @@
         "gensokyolegacy:morichika_rinnosuke"
       ],
       "floorHouseShrink": 1,
+      "interior": [],
       "primaryFix": "gensokyolegacy:structure_fix/morichika_shop/primary",
       "rooms": [
         [

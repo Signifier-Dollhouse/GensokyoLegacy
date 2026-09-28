@@ -12,6 +12,8 @@ public interface IStructureBound {
 
 	List<Box> rooms();
 
+	List<Box> interiors();
+
 	record Box(int x0, int y0, int z0, int x1, int y1, int z1) {
 
 		public static Box of(BoundingBox box) {

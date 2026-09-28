@@ -21,11 +21,19 @@ import java.util.List;
 public class StructureConfigBuilder {
 
 	// marisa_house template is 30x13x25 with bed at local y=6
+	// ground floor feet at y=2 (ceiling slabs at y=6), upper floor feet at
+	// y=7 (roof above y=8); wings join at x=17/18, z=15-21 on the ground
+	// floor, east stair shaft at x=23-25, z=14-18, pot platform at z=9-13
 	public static StructureConfig.Builder marisa() {
 		return StructureConfig.builder()
 				.rooms(List.of(
 						new BoundingBox(18, 2, 9, 26, 8, 21),
 						new BoundingBox(3, 2, 14, 17, 8, 22)
+				)).interior(List.of(
+						new BoundingBox(3, 2, 14, 17, 6, 22),
+						new BoundingBox(3, 7, 14, 17, 8, 22),
+						new BoundingBox(18, 2, 9, 26, 6, 21),
+						new BoundingBox(18, 7, 9, 26, 8, 21)
 				)).house(1, 2, 1)
 				.primary(GLStructureTagGen.MARISA_PRIMARY)
 				.wouldFix(GLStructureTagGen.MARISA_FIX);

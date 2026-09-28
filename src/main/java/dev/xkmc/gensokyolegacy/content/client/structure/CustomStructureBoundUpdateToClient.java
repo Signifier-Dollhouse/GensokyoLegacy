@@ -22,6 +22,11 @@ public record CustomStructureBoundUpdateToClient(
 	}
 
 	@Override
+	public List<Box> interiors() {
+		return List.of();
+	}
+
+	@Override
 	public Box house() {
 		return Box.of(data().bound.inflatedBy(1));
 	}

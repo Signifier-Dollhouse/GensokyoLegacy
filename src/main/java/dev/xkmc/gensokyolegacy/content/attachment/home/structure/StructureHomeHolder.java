@@ -40,7 +40,7 @@ public record StructureHomeHolder(
 			entities.add(GLEntities.CIRNO.get());
 			//TODO 结构自定义
 			config = new StructureConfig(entities,
-					1, 1, 1, new ArrayList<>(),
+					1, 1, 1, new ArrayList<>(), new ArrayList<>(),
 					null, null, null);
 		}
 		var chunk = level.getChunkAt(key.pos());
@@ -129,7 +129,8 @@ public record StructureHomeHolder(
 		return new StructureBoundUpdateToClient(
 				key(), data().getTotalBound(),
 				data().getHouseBound(config()),
-				data().getRoomBounds(config()).boxes()
+				data().getRoomBounds(config()).boxes(),
+				data().getInteriorBounds(config()).boxes()
 		);
 	}
 

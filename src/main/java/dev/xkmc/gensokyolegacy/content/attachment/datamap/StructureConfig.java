@@ -19,6 +19,7 @@ public record StructureConfig(
 		LinkedHashSet<EntityType<?>> entities,
 		int xzHouseShrink, int topHouseShrink, int floorHouseShrink,
 		ArrayList<BoundingBox> rooms,
+		ArrayList<BoundingBox> interior,
 		@Nullable ResourceLocation outsideBlock,
 		@Nullable ResourceLocation primaryFix,
 		@Nullable ResourceLocation wouldFix
@@ -59,6 +60,7 @@ public record StructureConfig(
 
 		LinkedHashSet<EntityType<?>> entities = new LinkedHashSet<>();
 		List<BoundingBox> rooms = new ArrayList<>();
+		List<BoundingBox> interior = new ArrayList<>();
 
 		public Builder house(int xz, int top, int floor) {
 			this.xzHouseShrink = xz;
@@ -69,6 +71,11 @@ public record StructureConfig(
 
 		public Builder rooms(List<BoundingBox> rooms) {
 			this.rooms = new ArrayList<>(rooms);
+			return this;
+		}
+
+		public Builder interior(List<BoundingBox> interior) {
+			this.interior = new ArrayList<>(interior);
 			return this;
 		}
 
@@ -96,6 +103,7 @@ public record StructureConfig(
 			return new StructureConfig(entities,
 					xzHouseShrink, topHouseShrink, floorHouseShrink,
 					new ArrayList<>(rooms),
+					new ArrayList<>(interior),
 					outSideBlock, primaryFix, wouldFix);
 		}
 

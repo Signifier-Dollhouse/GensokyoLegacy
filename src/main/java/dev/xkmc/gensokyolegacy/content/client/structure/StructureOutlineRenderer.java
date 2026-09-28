@@ -59,6 +59,9 @@ public class StructureOutlineRenderer {
 			for (var room : data.rooms()) {
 				renderBox(pose, outline, room, camera.toVector3f(), 1, 0.5f, 0.5f, 1, -1f / 32);
 			}
+			for (var interior : data.interiors()) {
+				renderBox(pose, outline, interior, camera.toVector3f(), 0.3f, 1, 0.3f, 1, -1f / 16);
+			}
 
 		}
 	}
