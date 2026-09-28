@@ -11,11 +11,11 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "gensokyolegacy:birch_shelf"
+          "name": "gensokyolegacy:donation_box"
         }
       ],
       "rolls": 1.0
     }
   ],
-  "random_sequence": "gensokyolegacy:blocks/birch_shelf"
+  "random_sequence": "gensokyolegacy:blocks/donation_box"
 }

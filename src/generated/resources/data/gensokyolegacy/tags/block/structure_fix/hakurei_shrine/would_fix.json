@@ -18,7 +18,7 @@
     "gensokyolegacy:crate",
     "gensokyolegacy:book_pile",
     "gensokyolegacy:book_stack",
-    "gensokyolegacy:donation_box_2",
+    "gensokyolegacy:donation_box",
     {
       "id": "gensokyolegacy:tatami_block",
       "required": false

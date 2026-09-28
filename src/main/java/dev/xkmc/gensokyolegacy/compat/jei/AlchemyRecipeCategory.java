@@ -46,7 +46,7 @@ public class AlchemyRecipeCategory extends BaseRecipeCategory<AlchemyRecipe<?>, 
 		int time = recipe.getProcessTime();
 		if (time <= 0) time = 200;
 		Layout lay = compute(recipe);
-		builder.addAnimatedRecipeArrow(time).setPosition(lay.arrowX, lay.arrowY);
+		builder.addAnimatedRecipeArrowWidget(time).setPosition(lay.arrowX, lay.arrowY);
 		builder.addText(Component.translatable("gui.jei.category.smelting.time.seconds", time / 20), 80, 10)
 				.setPosition(lay.arrowX, 26)
 				.setColor(0xFF808080);

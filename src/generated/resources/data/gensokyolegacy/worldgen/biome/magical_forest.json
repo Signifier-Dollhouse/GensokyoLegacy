@@ -44,8 +44,7 @@
       "minecraft:underwater_magma",
       "gensokyolegacy:magical_forest_disk_coarse_dirt",
       "gensokyolegacy:magical_forest_disk_podzol",
-      "gensokyolegacy:magical_forest_disk_mycelium",
-      "gensokyolegacy:magical_forest_disk_moss"
+      "gensokyolegacy:magical_forest_disk_mycelium"
     ],
     [],
     [],
@@ -64,7 +63,6 @@
       "gensokyolegacy:magical_forest/mushroom_small_glade",
       "gensokyolegacy:magical_forest/mushroom_small",
       "gensokyolegacy:magical_forest/fallen_leaves",
-      "gensokyolegacy:magical_forest/moss_carpet",
       "gensokyolegacy:magical_forest/grass",
       "gensokyolegacy:magical_forest/grass_forest",
       "gensokyolegacy:magical_forest/grass_taiga",

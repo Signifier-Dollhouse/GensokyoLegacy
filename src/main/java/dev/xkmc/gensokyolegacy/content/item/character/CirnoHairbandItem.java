@@ -23,7 +23,7 @@ import java.util.List;
 public class CirnoHairbandItem extends TouhouHatItem {
 
 	public CirnoHairbandItem(Properties properties) {
-		super(properties, TouhouMat.CIRNO_HAIRBAND);
+		super(properties);
 	}
 
 	@Override

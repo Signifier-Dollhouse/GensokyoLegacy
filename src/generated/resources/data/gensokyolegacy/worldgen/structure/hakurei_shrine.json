@@ -9,7 +9,7 @@
   "spacing": 32,
   "spawn_overrides": {},
   "start_pool": "gensokyolegacy:hakurei_shrine/root",
-  "step": "surface_structures",
+  "step": "underground_decoration",
   "terrain_adaptation": "beard_thin",
   "use_expansion_hack": false
 }

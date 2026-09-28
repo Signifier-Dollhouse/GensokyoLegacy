@@ -42,6 +42,7 @@ import dev.xkmc.l2core.init.reg.simple.DCReg;
 import dev.xkmc.l2core.init.reg.simple.DCVal;
 import dev.xkmc.l2core.init.reg.simple.EnumCodec;
 import dev.xkmc.l2itemselector.init.data.L2ISTagGen;
+import net.minecraft.client.renderer.block.model.BlockModel;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Unit;
 import net.minecraft.tags.ItemTags;
@@ -50,8 +51,10 @@ import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.Rarity;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
+import net.neoforged.neoforge.client.model.generators.loaders.SeparateTransformsModelBuilder;
 import net.neoforged.neoforge.registries.datamaps.builtin.FurnaceFuel;
 import net.neoforged.neoforge.registries.datamaps.builtin.NeoForgeDataMaps;
 
@@ -218,20 +221,21 @@ public class GLItems {
 
 			// gears
 			{
+				var head = ItemTags.create(ResourceLocation.fromNamespaceAndPath("curios", "head"));
 
 
 				RUMIA_HAIRBAND = reg
 						.item("rumia_hairband", p -> new RumiaHairbandItem(p.rarity(Rarity.EPIC)))
 						.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/curio/" + ctx.getName())))
 						.clientExtension(() -> () -> new RumiaHairbandModel(RumiaModel.HAIRBAND))
-						.tag(ItemTags.HEAD_ARMOR, GLTagGen.TOUHOU_HAT)
+						.tag(head, GLTagGen.TOUHOU_HAT)
 						.register();
 
 				CIRNO_HAIRBAND = reg
 						.item("cirno_hairband", p -> new CirnoHairbandItem(p.rarity(Rarity.EPIC)))
 						.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/curio/" + ctx.getName())))
 						.clientExtension(() -> () -> new CirnoHairbandModel(CirnoModel.HAT))
-						.tag(ItemTags.HEAD_ARMOR, GLTagGen.TOUHOU_HAT)
+						.tag(head, GLTagGen.TOUHOU_HAT)
 						.register();
 
 				var back = ItemTags.create(ResourceLocation.fromNamespaceAndPath("curios", "back"));
@@ -275,6 +279,7 @@ public class GLItems {
 
 		// tools
 		{
+			var head = ItemTags.create(ResourceLocation.fromNamespaceAndPath("curios", "head"));
 			MINI_FURNACE_1 = reg.item("mini_hakkero_prototype", MiniFurnace1::new)
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/tool/" + ctx.getName())))
 					.tag(GLTagGen.MORICHIKA_OFFERS)
@@ -378,6 +383,7 @@ public class GLItems {
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/curio/" + ctx.getName())))
 					.clientExtension(() -> () -> new HatModel(SuwakoHatModel.STRAW))
 					.tag(GLTagGen.MORICHIKA_OFFERS)
+					.tag(head, GLTagGen.TOUHOU_HAT)
 					.dataMap(GLMeta.MORICHIKA_OFFER.reg(), new MorichikaOfferData(3, 6, 4, 4))
 					.register();
 
@@ -385,14 +391,14 @@ public class GLItems {
 					.item("suwako_hat", p -> new SuwakoHatItem(p.rarity(Rarity.EPIC)))
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/curio/" + ctx.getName())))
 					.clientExtension(() -> () -> new HatModel(SuwakoHatModel.SUWAKO))
-					.tag(ItemTags.HEAD_ARMOR, GLTagGen.TOUHOU_HAT)
+					.tag(head, GLTagGen.TOUHOU_HAT)
 					.register();
 
 			KOISHI_HAT = reg
 					.item("koishi_hat", p -> new KoishiHatItem(p.rarity(Rarity.EPIC)))
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/curio/" + ctx.getName())))
 					.clientExtension(() -> () -> new HatModel(KoishiHatModel.HAT))
-					.tag(ItemTags.HEAD_ARMOR, GLTagGen.TOUHOU_HAT)
+					.tag(head, GLTagGen.TOUHOU_HAT)
 					.register();
 
 			STAR_WAND = reg.item("star_wand", p -> new StarWandItem(p.rarity(Rarity.RARE)))
@@ -402,8 +408,19 @@ public class GLItems {
 					.register();
 
 			STRANGE_GLASSES = reg.item("strange_glasses", p -> new StrangeGlassesItem(p.rarity(Rarity.UNCOMMON)))
-					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/curio/" + ctx.getName())))
-					.tag(ItemTags.HEAD_ARMOR, GLTagGen.MORICHIKA_OFFERS)
+					.model((ctx, pvd) -> {
+						var base = pvd.nested()
+								.parent(new ModelFile.UncheckedModelFile("item/generated"))
+								.texture("layer0", pvd.modLoc("item/curio/" + ctx.getName()));
+						var headModel = pvd.nested()
+								.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/strange_glasses_head")));
+						pvd.getBuilder(ctx.getName())
+								.customLoader(SeparateTransformsModelBuilder::begin)
+								.base(base)
+								.perspective(ItemDisplayContext.HEAD, headModel)
+								.end().guiLight(BlockModel.GuiLight.FRONT);
+					})
+					.tag(ItemTags.HEAD_ARMOR, head, GLTagGen.MORICHIKA_OFFERS)
 					.dataMap(GLMeta.MORICHIKA_OFFER.reg(), new MorichikaOfferData(6, 10, 1, 1))
 					.lang("Strange Glasses").tab(TAB.key())
 					.register();

@@ -10,6 +10,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.SectionPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.ai.util.LandRandomPos;
 import net.minecraft.world.entity.ai.util.RandomPos;
 import net.minecraft.world.entity.player.Player;
@@ -113,7 +114,12 @@ public class HomeSearchUtil {
 				if (kind.isValid(sl, e)) return e;
 				list.remove(e);
 			}
-			return null;
+			// no cached valid block within range: fall back to a cached block
+			// outside the range, or trigger a fresh search below; forced scans
+			// are throttled to at most one per 20 ticks
+			var fb = fallback(list, rooms, sl, rand, kind, area);
+			if (fb != null) return fb;
+			if (now < cache.lastSearch + 20L) return null;
 		}
 		var itr = list.iterator();
 		while (itr.hasNext()) {
@@ -124,9 +130,11 @@ public class HomeSearchUtil {
 			}
 		}
 		List<BlockPos> hits = new ArrayList<>();
+		List<BlockPos> rest = new ArrayList<>();
 		for (var e : list) {
 			if (!sl.isLoaded(e)) continue;
 			if (area.isInside(e)) hits.add(e);
+			else if (rooms.isInside(e)) rest.add(e);
 		}
 		cache.lastSearch = now;
 		if (!hits.isEmpty()) {
@@ -153,6 +161,8 @@ public class HomeSearchUtil {
 				}
 			}
 			if (!hits.isEmpty()) return hits.get(rand.nextInt(hits.size()));
+			// nothing within range: fall back to a cached block outside the range
+			if (!rest.isEmpty()) return rest.get(rand.nextInt(rest.size()));
 			return null;
 		}
 		var pos = new BlockPos.MutableBlockPos();
@@ -163,6 +173,29 @@ public class HomeSearchUtil {
 				list.add(ans);
 				return ans;
 			}
+		}
+		// nothing within range: fall back to a cached block outside the range
+		if (!rest.isEmpty()) return rest.get(rand.nextInt(rest.size()));
+		return null;
+	}
+
+	/**
+	 * Probe a few cached entries outside the search area (but still in rooms)
+	 * and return the first one that is still valid. Stale entries are dropped.
+	 */
+	@Nullable
+	private static BlockPos fallback(List<BlockPos> list, MultiStructureBound rooms, ServerLevel sl, RandomSource rand, HomeBlockKind kind, MultiStructureBound area) {
+		List<BlockPos> cands = new ArrayList<>();
+		for (var e : list) {
+			if (!sl.isLoaded(e)) continue;
+			if (area.isInside(e)) continue;
+			if (!rooms.isInside(e)) continue;
+			cands.add(e);
+		}
+		for (int i = 0; i < 3 && !cands.isEmpty(); i++) {
+			var e = cands.remove(rand.nextInt(cands.size()));
+			if (kind.isValid(sl, e)) return e;
+			list.remove(e);
 		}
 		return null;
 	}

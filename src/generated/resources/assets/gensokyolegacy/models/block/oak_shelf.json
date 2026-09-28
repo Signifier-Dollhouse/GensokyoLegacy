@@ -1,6 +1,6 @@
 {
   "parent": "gensokyolegacy:custom/furniture/shelf",
   "textures": {
-    "all": "gensokyolegacy:block/shelf/birch_shelf"
+    "all": "gensokyolegacy:block/shelf/oak_shelf"
   }
 }

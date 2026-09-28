@@ -17,7 +17,7 @@ public class GLSlotGen extends CuriosDataProvider {
 
 	@Override
 	public void generate(HolderLookup.Provider provider, ExistingFileHelper existingFileHelper) {
-		createEntities("player").addEntities(EntityType.PLAYER).addSlots("back", "charm");
+		createEntities("player").addEntities(EntityType.PLAYER).addSlots("back", "charm", "head");
 	}
 
 }

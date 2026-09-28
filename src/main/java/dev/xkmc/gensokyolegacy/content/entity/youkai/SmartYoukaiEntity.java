@@ -1,10 +1,12 @@
 package dev.xkmc.gensokyolegacy.content.entity.youkai;
 
 import com.mojang.serialization.Dynamic;
+import dev.xkmc.gensokyolegacy.content.attachment.home.core.HomeBlockKind;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.brain.SmartBrain;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.brain.TaskBoard;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.sensor.NearbyLivingEntitySensor;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.sensor.NearbyPlayerSensor;
+import dev.xkmc.gensokyolegacy.content.entity.behavior.sensor.YoukaiHomeBlocksSensor;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.sensor.YoukaiUpdateHomeSensor;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.task.combat.*;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.task.core.*;
@@ -98,13 +100,14 @@ public class SmartYoukaiEntity extends YoukaiEntity {
 				.cooldownFor(e -> e.getRandom().nextInt(200, 400)), Activity.IDLE);
 		board.addRandom(new YoukaiSitTask<>(100, 200).speedModifier(0.8f)
 				.cooldownFor(e -> e.getRandom().nextInt(200, 400)), GLBrains.AT_HOME.get());
-		board.addRandom(new DoNothing(30, 60),
+		board.addRandom(new YoukaiDoNothing<>(30, 60),
 				Activity.IDLE, Activity.PLAY, GLBrains.AT_HOME.get());
 
 		board.addSensor(new NearbyPlayerSensor<SmartYoukaiEntity>().setRadius(32, 32).setScanRate(e -> 5));
 		board.addSensor(new NearbyLivingEntitySensor<SmartYoukaiEntity>().setRadius(32, 16)
 				.setScanRate(self -> self.isAggressive() || self.hasPlayerNearby() ? 10 : 20));
 		board.addSensor(new YoukaiUpdateHomeSensor<SmartYoukaiEntity>());
+		board.addSensor(new YoukaiHomeBlocksSensor<SmartYoukaiEntity>(HomeBlockKind.CHAIR));
 
 		board.addScheduledActivity(Activity.REST, MemoryModuleType.HOME);
 		board.addScheduledActivity(GLBrains.AT_HOME.get(), MemoryModuleType.HOME);
@@ -168,7 +171,7 @@ public class SmartYoukaiEntity extends YoukaiEntity {
 			BrainUtils.setMemory(this, GLBrains.MEM_TALK.get(), player);
 		else getBrain().setMemoryWithExpiry(GLBrains.MEM_TALK.get(), player, time);
 		FirstDialogProvider.open(player, this);
-		if (this instanceof GeoYoukaiAnim anim) anim.broadcastGreetAnim();
+		YoukaiAnim.GREET.play(this);
 	}
 
 	@Override

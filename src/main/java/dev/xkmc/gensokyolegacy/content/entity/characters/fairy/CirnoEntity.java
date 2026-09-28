@@ -1,9 +1,11 @@
 package dev.xkmc.gensokyolegacy.content.entity.characters.fairy;
 
+import dev.xkmc.gensokyolegacy.content.attachment.home.core.HomeBlockKind;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.brain.TaskBoard;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.combat.YoukaiCombatManager;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.sensor.NearbyItemsSensor;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.sensor.YoukaiFindPreySensor;
+import dev.xkmc.gensokyolegacy.content.entity.behavior.sensor.YoukaiHomeBlocksSensor;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.task.combat.YoukaiSearchTargetTask;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.task.home.YoukaiCraftTask;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.task.play.ItemPickupTask;
@@ -67,6 +69,7 @@ public class CirnoEntity extends FairyEntity {
 		board.addExclusive(250, new YoukaiHuntTask(6), GLBrains.HUNT.get());
 
 		board.addRandom(new YoukaiCraftTask<>(this::doCraft, 60, 12000), GLBrains.AT_HOME.get());
+		board.addSensor(new YoukaiHomeBlocksSensor<>(HomeBlockKind.CONTAINER));
 
 		board.addBehaviorActivity(YoukaiSearchTargetTask.class, GLBrains.HUNT.get());
 

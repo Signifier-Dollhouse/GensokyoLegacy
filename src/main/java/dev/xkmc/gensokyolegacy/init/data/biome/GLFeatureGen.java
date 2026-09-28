@@ -39,12 +39,10 @@ public class GLFeatureGen {
 	public static final ResourceKey<ConfiguredFeature<?, ?>> MAGICAL_FOREST_DISK_COARSE_DIRT = cf("magical_forest_disk_coarse_dirt");
 	public static final ResourceKey<ConfiguredFeature<?, ?>> MAGICAL_FOREST_DISK_PODZOL = cf("magical_forest_disk_podzol");
 	public static final ResourceKey<ConfiguredFeature<?, ?>> MAGICAL_FOREST_DISK_MYCELIUM = cf("magical_forest_disk_mycelium");
-	public static final ResourceKey<ConfiguredFeature<?, ?>> MAGICAL_FOREST_DISK_MOSS = cf("magical_forest_disk_moss");
 
 	public static final ResourceKey<PlacedFeature> MAGICAL_FOREST_DISK_COARSE_DIRT_PLACED = pf("magical_forest_disk_coarse_dirt");
 	public static final ResourceKey<PlacedFeature> MAGICAL_FOREST_DISK_PODZOL_PLACED = pf("magical_forest_disk_podzol");
 	public static final ResourceKey<PlacedFeature> MAGICAL_FOREST_DISK_MYCELIUM_PLACED = pf("magical_forest_disk_mycelium");
-	public static final ResourceKey<PlacedFeature> MAGICAL_FOREST_DISK_MOSS_PLACED = pf("magical_forest_disk_moss");
 
 	public static void init(DataProviderInitializer init) {
 		init.add(Registries.CONFIGURED_FEATURE, ctx -> {
@@ -112,9 +110,6 @@ public class GLFeatureGen {
 			FeatureUtils.register(ctx, MAGICAL_FOREST_DISK_MYCELIUM, Feature.DISK,
 					new DiskConfiguration(RuleBasedBlockStateProvider.simple(Blocks.MYCELIUM),
 							grassOnly, UniformInt.of(2, 3), 1));
-			FeatureUtils.register(ctx, MAGICAL_FOREST_DISK_MOSS, Feature.DISK,
-					new DiskConfiguration(RuleBasedBlockStateProvider.simple(Blocks.MOSS_BLOCK),
-							grassOnly, UniformInt.of(2, 4), 1));
 			MagicalForestFeatures.configured(ctx);
 	});
 		init.add(Registries.PLACED_FEATURE, ctx -> {
@@ -127,9 +122,6 @@ public class GLFeatureGen {
 					PlacementUtils.HEIGHTMAP_OCEAN_FLOOR, BiomeFilter.biome());
 			PlacementUtils.register(ctx, MAGICAL_FOREST_DISK_MYCELIUM_PLACED, cf.getOrThrow(MAGICAL_FOREST_DISK_MYCELIUM),
 					CountPlacement.of(2), InSquarePlacement.spread(),
-					PlacementUtils.HEIGHTMAP_OCEAN_FLOOR, BiomeFilter.biome());
-			PlacementUtils.register(ctx, MAGICAL_FOREST_DISK_MOSS_PLACED, cf.getOrThrow(MAGICAL_FOREST_DISK_MOSS),
-					CountPlacement.of(3), InSquarePlacement.spread(),
 					PlacementUtils.HEIGHTMAP_OCEAN_FLOOR, BiomeFilter.biome());
 			MagicalForestFeatures.placed(ctx);
 	});

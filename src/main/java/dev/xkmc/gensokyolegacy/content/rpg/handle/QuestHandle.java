@@ -1,6 +1,5 @@
 package dev.xkmc.gensokyolegacy.content.rpg.handle;
 
-import dev.xkmc.gensokyolegacy.content.entity.youkai.GeoYoukaiAnim;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.rpg.dialog.DialogOption;
 import dev.xkmc.gensokyolegacy.content.rpg.quest.Quest;
@@ -38,10 +37,6 @@ public record QuestHandle(Holder<Quest> quest, DialogOption<?> dialog, Kind kind
 	public void openMenu(ServerPlayer sp, YoukaiEntity character) {
 		var next = dialog.resolve(sp.getRandom()).next();
 		if (next.isEmpty()) return;
-		if (character instanceof GeoYoukaiAnim anim) {
-			if (kind == Kind.COMPLETE) anim.broadcastAgreeAnim();
-			else anim.broadcastThinkAnim();
-		}
 		new SimpleDialogProvider(sp, character, this, next.get()).open();
 	}
 

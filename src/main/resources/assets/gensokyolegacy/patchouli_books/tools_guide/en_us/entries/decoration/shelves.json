@@ -1,12 +1,12 @@
 {
   "name": "Shelves",
-  "icon": "gensokyolegacy:birch_shelf",
+  "icon": "gensokyolegacy:oak_shelf",
   "category": "gensokyolegacy:decoration",
   "sortnum": 5,
   "pages": [
     {
       "type": "patchouli:spotlight",
-      "item": "gensokyolegacy:birch_shelf",
+      "item": "gensokyolegacy:oak_shelf",
       "title": "Shop Shelf",
       "text": "A small wall shelf for selling goods. The item on offer is displayed on the shelf with its price and stock written above it."
     },

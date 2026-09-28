@@ -4,10 +4,8 @@ import com.tterrag.registrate.util.entry.BlockEntityEntry;
 import com.tterrag.registrate.util.entry.BlockEntry;
 import dev.xkmc.gensokyolegacy.content.block.deco.cabinet.CabinetBlock;
 import dev.xkmc.gensokyolegacy.content.block.deco.cabinet.CabinetBlockEntity;
-import dev.xkmc.gensokyolegacy.content.block.deco.donation.DonationBoxBlock;
 import dev.xkmc.gensokyolegacy.content.block.deco.donation.DonationBoxBlockEntity;
-import dev.xkmc.gensokyolegacy.content.block.deco.donation.DonationShape;
-import dev.xkmc.gensokyolegacy.content.block.deco.donation.DoubleBlockHorizontal;
+import dev.xkmc.gensokyolegacy.content.block.deco.donation.DonationBoxShape;
 import dev.xkmc.gensokyolegacy.content.block.deco.misc.*;
 import dev.xkmc.gensokyolegacy.content.block.deco.shelf.ShelfBlock;
 import dev.xkmc.gensokyolegacy.content.block.deco.shelf.ShelfBlockEntity;
@@ -27,18 +25,15 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
-import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.material.PushReaction;
-import net.minecraft.world.level.storage.loot.LootTable;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
 import net.neoforged.neoforge.registries.datamaps.builtin.FurnaceFuel;
 import net.neoforged.neoforge.registries.datamaps.builtin.NeoForgeDataMaps;
 
 public class GLFurniture {
 
-	public static final BlockEntry<DonationBoxBlock> DONATION_BOX;
-	public static final BlockEntry<DelegateBlock> DONATION_BOX_2;
+	public static final BlockEntry<DelegateBlock> DONATION_BOX;
 	public static final BlockEntityEntry<DonationBoxBlockEntity> DONATION_BOX_BE;
 
 	public static final BlockEntry<DelegateBlock> SHELF;
@@ -61,19 +56,9 @@ public class GLFurniture {
 		// donation box, shelf, drawer cabinet
 		{
 
-			DONATION_BOX = reg.block("donation_box", p -> new DonationBoxBlock(p,
-							BlockTemplates.HORIZONTAL, new DoubleBlockHorizontal(), new DonationShape(), DonationBoxBlock.TE
-					)).properties(p -> p.noLootTable().strength(2.0F).sound(SoundType.WOOD)
-							.mapColor(MapColor.DIRT).instrument(NoteBlockInstrument.BASS))
-					.blockstate(DonationBoxBlock::buildStates)
-					.tag(BlockTags.MINEABLE_WITH_AXE)
-					.item().dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(300)).build()
-					.loot((pvd, block) -> pvd.add(block, LootTable.lootTable()))
-					.register();
-
 			// 赛钱箱
-			DONATION_BOX_2 = reg.block("donation_box_2", p -> DelegateBlock.newBaseBlock(p,
-							BlockTemplates.HORIZONTAL, new DonationBox2Shape(), DonationBoxBlock.TE))
+			DONATION_BOX = reg.block("donation_box", p -> DelegateBlock.newBaseBlock(p,
+							BlockTemplates.HORIZONTAL, new DonationBoxShape(), DonationBoxBlockEntity.TE))
 					.properties(p -> p.mapColor(MapColor.DIRT).strength(2.0F).sound(SoundType.WOOD).noOcclusion())
 					.blockstate((ctx, pvd) -> pvd.horizontalBlock(ctx.get(),
 							pvd.models().getBuilder("block/" + ctx.getName())
@@ -85,10 +70,10 @@ public class GLFurniture {
 					.register();
 
 			DONATION_BOX_BE = reg.blockEntity("donation_box", DonationBoxBlockEntity::new)
-					.validBlocks(DONATION_BOX, DONATION_BOX_2)
+					.validBlock(DONATION_BOX)
 					.register();
 
-			SHELF = reg.block("birch_shelf", p -> DelegateBlock.newBaseBlock(p,
+			SHELF = reg.block("oak_shelf", p -> DelegateBlock.newBaseBlock(p,
 							BlockTemplates.HORIZONTAL, new ShelfBlock(), ShelfBlock.BE))
 					.initialProperties(() -> Blocks.BIRCH_TRAPDOOR)
 					.blockstate(ShelfBlock::buildStates)

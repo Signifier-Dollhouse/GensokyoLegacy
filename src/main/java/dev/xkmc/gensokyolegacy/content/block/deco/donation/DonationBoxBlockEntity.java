@@ -8,6 +8,9 @@ import dev.xkmc.gensokyolegacy.content.block.base.IDebugInfoBlockEntity;
 import dev.xkmc.gensokyolegacy.content.block.base.LocatedBlockEntity;
 import dev.xkmc.gensokyolegacy.content.client.debug.BlockInfoToClient;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
+import dev.xkmc.gensokyolegacy.init.registrate.block.GLFurniture;
+import dev.xkmc.l2modularblock.impl.BlockEntityBlockMethodImpl;
+import dev.xkmc.l2modularblock.type.BlockMethod;
 import dev.xkmc.l2serial.serialization.marker.SerialClass;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -21,6 +24,8 @@ import org.jetbrains.annotations.Nullable;
 
 @SerialClass
 public class DonationBoxBlockEntity extends LocatedBlockEntity implements IDebugInfoBlockEntity {
+
+	public static final BlockMethod TE = new BlockEntityBlockMethodImpl<>(GLFurniture.DONATION_BOX_BE, DonationBoxBlockEntity.class);
 
 	public DonationBoxBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
 		super(type, pos, state);

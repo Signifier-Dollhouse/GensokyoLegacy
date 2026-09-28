@@ -2,7 +2,7 @@ package dev.xkmc.gensokyolegacy.content.entity.behavior.task.marisa;
 
 import dev.xkmc.gensokyolegacy.content.entity.behavior.task.home.AbstractHomeHolderTask;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.SmartYoukaiEntity;
-import dev.xkmc.gensokyolegacy.content.entity.youkai.GeoYoukaiAnim;
+import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiAnim;
 import dev.xkmc.gensokyolegacy.util.BrainUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -16,6 +16,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 
@@ -65,7 +66,7 @@ public class MarisaBonemealTask<E extends SmartYoukaiEntity> extends AbstractHom
 		if (!level.isLoaded(target) || !isValidGrass(level, target)) return false;
 		if (entity.distanceToSqr(target.getCenter()) < 9) {
 			entity.swing(InteractionHand.MAIN_HAND);
-			if (entity instanceof GeoYoukaiAnim anim) anim.broadcastUseMainhandAnim();
+			YoukaiAnim.USE_MAINHAND.play(entity);
 			if (BoneMealItem.applyBonemeal(new ItemStack(Items.BONE_MEAL), level, target, null)) {
 				level.levelEvent(1505, target, 15);
 				nextUse = gameTime + USE_COOLDOWN;
@@ -84,6 +85,7 @@ public class MarisaBonemealTask<E extends SmartYoukaiEntity> extends AbstractHom
 		super.stop(level, entity, gameTime);
 	}
 
+	@Nullable
 	private static BlockPos findTarget(ServerLevel level, SmartYoukaiEntity entity, BoundingBox house, BoundingBox area) {
 		for (int i = 0; i < TRIALS; i++) {
 			BlockPos pos = MarisaTaskUtil.randomSurfacePos(level, area, entity.getRandom());

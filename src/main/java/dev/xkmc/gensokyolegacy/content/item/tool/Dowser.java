@@ -8,8 +8,10 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.vehicle.AbstractMinecartContainer;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ChunkPos;
@@ -35,7 +37,12 @@ public class Dowser extends Item {
 		return !(lv instanceof ServerLevel) || e.getLootTable() != null;
 	}
 
-	public static LinkedHashSet<BlockPos> search(ServerLevel level, BlockPos pos, int r) {
+	public static boolean isValid(Entity entity) {
+		if (!(entity instanceof AbstractMinecartContainer e)) return false;
+		return e.getLootTable() != null;
+	}
+
+	public static LinkedHashSet<BlockPos> searchBlock(ServerLevel level, BlockPos pos, int r) {
 		var cpos = new ChunkPos(pos.getX() >> 4, pos.getZ() >> 4);
 		LinkedHashSet<BlockPos> ans = new LinkedHashSet<>();
 		for (int ix = -r; ix <= r; ix++) {
@@ -54,6 +61,19 @@ public class Dowser extends Item {
 		return ans;
 	}
 
+	public static LinkedHashSet<BlockPos> searchEntity(ServerLevel level, BlockPos pos, int r) {
+		LinkedHashSet<BlockPos> ans = new LinkedHashSet<>();
+		var cpos = new ChunkPos(pos.getX() >> 4, pos.getZ() >> 4);
+		level.getAllEntities().forEach(e -> {
+			ChunkPos chunkPos = e.chunkPosition();
+			if (Math.abs(chunkPos.x - cpos.x) > r || Math.abs(chunkPos.z - cpos.z) > r) return;
+			if (isValid(e)) {
+				ans.add(e.blockPosition());
+			}
+		});
+		return ans;
+	}
+
 	public Dowser(Properties properties) {
 		super(properties.durability(64));
 	}
@@ -62,8 +82,10 @@ public class Dowser extends Item {
 	public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
 		ItemStack stack = player.getItemInHand(hand);
 		if (player instanceof ServerPlayer sp) {
-			var blocks = search(sp.serverLevel(), player.blockPosition(), RANGE);
-			GensokyoLegacy.HANDLER.toClientPlayer(new DowserToClient(blocks), sp);
+			var pos = player.blockPosition();
+			var ans = searchBlock(sp.serverLevel(), pos, RANGE);
+			ans.addAll(searchEntity(sp.serverLevel(), pos, RANGE));
+			GensokyoLegacy.HANDLER.toClientPlayer(new DowserToClient(ans), sp);
 			if (!player.isCreative()) {
 				stack.hurtAndBreak(1, player, LivingEntity.getSlotForHand(hand));
 			}

@@ -3,8 +3,11 @@ package dev.xkmc.gensokyolegacy.content.item.character;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.registrate.GLEffects;
 import dev.xkmc.l2core.base.effects.EffectUtil;
+import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -21,7 +24,12 @@ import java.util.List;
 public class KoishiHatItem extends TouhouHatItem {
 
 	public KoishiHatItem(Properties properties) {
-		super(properties, TouhouMat.KOISHI_HAT);
+		super(properties);
+	}
+
+	@Override
+	public Holder<SoundEvent> getEquipSound() {
+		return SoundEvents.ARMOR_EQUIP_IRON;
 	}
 
 	@Override

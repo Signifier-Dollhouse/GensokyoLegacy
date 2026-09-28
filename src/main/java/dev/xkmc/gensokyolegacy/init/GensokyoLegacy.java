@@ -15,7 +15,6 @@ import dev.xkmc.gensokyolegacy.content.dimension.GLDimensionGen;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.move.PathDataToClient;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.move.YoukaiNodeEvaluatorRegistry;
 import dev.xkmc.gensokyolegacy.content.entity.foundation.CombatToClient;
-import dev.xkmc.gensokyolegacy.content.item.character.TouhouMat;
 import dev.xkmc.gensokyolegacy.content.item.glove.DollGloveSelectionListener;
 import dev.xkmc.gensokyolegacy.content.item.glove.network.DollGloveSelectPacket;
 import dev.xkmc.gensokyolegacy.content.item.glove.network.DollGloveSwingPacket;
@@ -133,7 +132,6 @@ public class GensokyoLegacy {
 		CodecRegistry.register();
 
 		GLRecipes.register();
-		TouhouMat.register();
 		GLMeta.register();
 		GLMisc.register();
 		GLWorldGen.register();

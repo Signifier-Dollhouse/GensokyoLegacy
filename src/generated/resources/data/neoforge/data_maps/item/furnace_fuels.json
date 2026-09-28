@@ -42,9 +42,6 @@
     "gensokyolegacy:birch_plank_wall": {
       "burn_time": 150
     },
-    "gensokyolegacy:birch_shelf": {
-      "burn_time": 300
-    },
     "gensokyolegacy:birch_sliding_door": {
       "burn_time": 300
     },
@@ -117,9 +114,6 @@
     "gensokyolegacy:donation_box": {
       "burn_time": 300
     },
-    "gensokyolegacy:donation_box_2": {
-      "burn_time": 300
-    },
     "gensokyolegacy:door_cabinet": {
       "burn_time": 300
     },
@@ -188,6 +182,9 @@
     },
     "gensokyolegacy:oak_plank_wall": {
       "burn_time": 150
+    },
+    "gensokyolegacy:oak_shelf": {
+      "burn_time": 300
     },
     "gensokyolegacy:oak_sliding_door": {
       "burn_time": 300

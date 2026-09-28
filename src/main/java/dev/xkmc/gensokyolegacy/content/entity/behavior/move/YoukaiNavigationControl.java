@@ -5,9 +5,11 @@ import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiFlags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.control.FlyingMoveControl;
 import net.minecraft.world.entity.ai.control.MoveControl;
 import net.minecraft.world.entity.ai.navigation.FlyingPathNavigation;
@@ -209,7 +211,8 @@ public class YoukaiNavigationControl {
 		@Override
 		protected PathFinder createPathFinder(int maxVisitedNodes) {
 			this.nodeEvaluator = new YoukaiFlyNodeEvaluator();
-			this.nodeEvaluator.setCanPassDoors(false);
+			this.nodeEvaluator.setCanPassDoors(true);
+			this.nodeEvaluator.setCanOpenDoors(true);
 			return new PathFinder(this.nodeEvaluator, maxVisitedNodes);
 		}
 	}
@@ -226,17 +229,44 @@ public class YoukaiNavigationControl {
 
 		@Override
 		public void tick() {
-			pressIntoLadder();
-			// Vanilla MoveControl parks in JUMPING state until the mob lands, so a mob
-			// climbing straight up a ladder shaft would stall after the first jump:
-			// it never touches ground to re-trigger. Refresh the jump while the mob
-			// is on a ladder and the target is above to sustain the climb.
-			// (Climbing down needs no assist: being on a ladder clamps sink speed.)
-			if ((operation == Operation.MOVE_TO || operation == Operation.JUMPING) &&
-					mob.onClimbable() && wantedY > mob.getY() + 0.1) {
-				mob.getJumpControl().jump();
+			boolean onLadder = mob.onClimbable();
+			boolean tracking = operation == Operation.MOVE_TO || operation == Operation.JUMPING;
+			boolean ascending = tracking && onLadder &&
+					(wantedY > mob.getY() + 0.1 || (climbingShaft() && wantedY > mob.getY() - 0.5));
+			if (!tracking || !onLadder) {
+				super.tick();
+				return;
 			}
-			super.tick();
+			if (ascending) {
+				pressIntoLadder();
+				// Vanilla MoveControl parks in JUMPING state until the mob lands, and its
+				// JUMPING branch never re-steers yaw. On a ladder the mob never lands, so
+				// a sideways entry yaw (e.g. stepping onto the shaft from adjacent stairs)
+				// would be kept for the whole ascent and the mob drifts off the thin ladder.
+				// Reset to MOVE_TO so super.tick() re-steers toward the ladder-pressed
+				// target every tick. (Vanilla's own jump trigger also fires here, which is
+				// exactly what we want while ascending.)
+				operation = Operation.MOVE_TO;
+				mob.getJumpControl().jump();
+				super.tick();
+				return;
+			}
+			// Descending or stepping off at the same level: steer toward the target
+			// WITHOUT jumping. Vanilla MOVE_TO forces a jump every tick while the mob's
+			// feet are inside the ladder's collision shape, which would pin the mob into
+			// a permanent climb even though the target is below. Mirror its steering
+			// math here, minus the jump.
+			double dx = wantedX - mob.getX();
+			double dy = wantedY - mob.getY();
+			double dz = wantedZ - mob.getZ();
+			operation = Operation.WAIT;
+			if (dx * dx + dy * dy + dz * dz < MoveControl.MIN_SPEED_SQR) {
+				mob.setZza(0.0F);
+				return;
+			}
+			float yaw = (float) (Mth.atan2(dz, dx) * 180.0F / Math.PI) - 90.0F;
+			mob.setYRot(rotlerp(mob.getYRot(), yaw, 90.0F));
+			mob.setSpeed((float) (speedModifier * mob.getAttributeValue(Attributes.MOVEMENT_SPEED)));
 		}
 
 		/**
@@ -260,6 +290,22 @@ public class YoukaiNavigationControl {
 				tz += wall.getStepZ() * 0.3;
 			}
 			setWantedPosition(tx, wantedY, tz, speedModifier);
+		}
+
+		/**
+		 * Whether the active path is currently going up inside the mob's own shaft
+		 * column. Navigation only advances a ladder node once the mob is 0.5 above
+		 * it (airborne advancement in {@code PathNavigation.tick}), so the climb
+		 * must overdrive half a block past each node. A same-level side exit has its
+		 * next node in an adjacent column instead, and must not overdrive, or the
+		 * mob would overshoot above the exit while stepping off.
+		 */
+		private boolean climbingShaft() {
+			var path = mob.getNavigation().getPath();
+			if (path == null || path.isDone()) return false;
+			BlockPos next = path.getNextNodePos();
+			BlockPos cur = mob.blockPosition();
+			return next.getX() == cur.getX() && next.getZ() == cur.getZ() && next.getY() >= cur.getY();
 		}
 
 		@Nullable

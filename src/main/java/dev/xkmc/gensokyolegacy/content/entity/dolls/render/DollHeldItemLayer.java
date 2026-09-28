@@ -1,8 +1,13 @@
 package dev.xkmc.gensokyolegacy.content.entity.dolls.render;
 
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Axis;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.DollEntity;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.impl.DollLoadout;
 import dev.xkmc.gensokyolegacy.content.item.doll.DollSlot;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.OutlineBufferSource;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
@@ -17,29 +22,56 @@ import software.bernie.geckolib.renderer.layer.BlockAndItemGeoLayer;
  */
 public class DollHeldItemLayer extends BlockAndItemGeoLayer<DollEntity> {
 
-	public static final String RIGHT_HAND_BONE = "RightHandLocator";
-	public static final String LEFT_HAND_BONE = "LeftHandLocator";
+    public static final String RIGHT_HAND_BONE = "RightHandLocator";
+    public static final String LEFT_HAND_BONE = "LeftHandLocator";
 
-	public DollHeldItemLayer(GeoRenderer<DollEntity> renderer) {
-		super(renderer);
-	}
+    public DollHeldItemLayer(GeoRenderer<DollEntity> renderer) {
+        super(renderer);
+    }
 
-	@Override
-	@Nullable
-	protected ItemStack getStackForBone(GeoBone bone, DollEntity doll) {
-		ItemStack stack = switch (bone.getName()) {
-			case RIGHT_HAND_BONE -> doll.getLoadoutItem(DollSlot.MAIN_HAND);
-			case LEFT_HAND_BONE -> doll.getLoadoutItem(DollSlot.OFF_HAND);
-			default -> ItemStack.EMPTY;
-		};
-		return stack.isEmpty() ? null : stack;
-	}
+    @Override
+    @Nullable
+    protected ItemStack getStackForBone(GeoBone bone, DollEntity doll) {
+        ItemStack stack = switch (bone.getName()) {
+            case RIGHT_HAND_BONE -> doll.getLoadoutItem(DollSlot.MAIN_HAND);
+            case LEFT_HAND_BONE -> doll.getLoadoutItem(DollSlot.OFF_HAND);
+            default -> ItemStack.EMPTY;
+        };
+        return stack.isEmpty() ? null : stack;
+    }
 
-	@Override
-	protected ItemDisplayContext getTransformTypeForStack(GeoBone bone, ItemStack stack, DollEntity doll) {
-		return bone.getName().equals(LEFT_HAND_BONE) ?
-				ItemDisplayContext.THIRD_PERSON_LEFT_HAND :
-				ItemDisplayContext.THIRD_PERSON_RIGHT_HAND;
-	}
+    @Override
+    protected ItemDisplayContext getTransformTypeForStack(GeoBone bone, ItemStack stack, DollEntity doll) {
+        return ItemDisplayContext.THIRD_PERSON_RIGHT_HAND;
+    }
+
+    @Override
+    protected void renderStackForBone(PoseStack poseStack, GeoBone bone, ItemStack stack, DollEntity doll,
+                                      MultiBufferSource bufferSource, float partialTick, int packedLight, int packedOverlay) {
+        poseStack.pushPose();
+        poseStack.scale(0.8F, 0.8F, 0.8F);
+        poseStack.mulPose(Axis.XP.rotationDegrees(90));
+        poseStack.translate(0.0D, 0.0D, -0.2D);
+        super.renderStackForBone(poseStack, bone, stack, doll, itemBuffer(bufferSource),
+                partialTick, packedLight, packedOverlay);
+        poseStack.popPose();
+    }
+
+    /**
+     * While glowing, the whole model is drawn through the {@link OutlineBufferSource}, whose outline
+     * source is a single shared {@code ByteBufferBuilder} with no fixed buffers: asking it for any new
+     * render type ends the batch of the previous type. Rendering the held item through it therefore
+     * ends the model's outline batch mid-model and leaves GeckoLib holding a dead consumer, which
+     * drops the geometry of the following bones (the arms). Also note GeckoLib's own
+     * {@code checkAndRefreshBuffer} only repairs the consumer at bone boundaries.
+     * <p>
+     * The item is not part of the silhouette anyway, so route it to the main buffer source (the same
+     * batch vanilla draws the normal body of a glowing entity into).
+     */
+    private static MultiBufferSource itemBuffer(MultiBufferSource bufferSource) {
+        if (bufferSource instanceof OutlineBufferSource)
+            return Minecraft.getInstance().renderBuffers().bufferSource();
+        return bufferSource;
+    }
 
 }

@@ -11,7 +11,7 @@
   "spacing": 32,
   "spawn_overrides": {},
   "start_pool": "gensokyolegacy:morichika_shop",
-  "step": "surface_structures",
+  "step": "underground_decoration",
   "terrain_adaptation": "beard_thin",
   "use_expansion_hack": false
 }

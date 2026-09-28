@@ -1,5 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.ui.dialog;
 
+import dev.xkmc.gensokyolegacy.content.entity.youkai.GeoYoukaiAnim;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.rpg.dialog.Dialog;
 import dev.xkmc.gensokyolegacy.content.rpg.handle.IDialogHandle;
@@ -23,6 +24,9 @@ public record SimpleDialogProvider(
 	}
 
 	public void open() {
+		if (ch instanceof GeoYoukaiAnim anim) {
+			anim.broadcastDialogAnim(dialog.value().animations(), sp.getRandom());
+		}
 		sp.openMenu(this, this::write);
 	}
 

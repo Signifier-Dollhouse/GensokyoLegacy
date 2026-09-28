@@ -147,7 +147,6 @@ public class MagicalForestFeatures {
 	private static final ResourceKey<ConfiguredFeature<?, ?>> MUSHROOM_SMALL = cf("mushroom_small");
 	private static final ResourceKey<ConfiguredFeature<?, ?>> MUSHROOM_SMALL_CLUSTER = cf("mushroom_small_cluster");
 	private static final ResourceKey<ConfiguredFeature<?, ?>> FALLEN_LEAVES = cf("fallen_leaves");
-	private static final ResourceKey<ConfiguredFeature<?, ?>> MOSS_CARPET = cf("moss_carpet");
 	private static final ResourceKey<ConfiguredFeature<?, ?>> LAKE = cf("lake");
 
 	// placed features
@@ -166,7 +165,6 @@ public class MagicalForestFeatures {
 	private static final ResourceKey<PlacedFeature> MUSHROOM_SMALL_GLADE_PF = pf("mushroom_small_glade");
 	private static final ResourceKey<PlacedFeature> MUSHROOM_SMALL_PF = pf("mushroom_small");
 	private static final ResourceKey<PlacedFeature> FALLEN_LEAVES_PF = pf("fallen_leaves");
-	private static final ResourceKey<PlacedFeature> MOSS_CARPET_PF = pf("moss_carpet");
 	private static final ResourceKey<PlacedFeature> GRASS_PF = pf("grass");
 	private static final ResourceKey<PlacedFeature> GRASS_FOREST_PF = pf("grass_forest");
 	private static final ResourceKey<PlacedFeature> GRASS_TAIGA_PF = pf("grass_taiga");
@@ -183,7 +181,7 @@ public class MagicalForestFeatures {
 			MUSHROOM_LARGE_GLADE_PF, MUSHROOM_LARGE_PF,
 			MEDIUM_TREE_PF, MUSHROOM_MEDIUM_GLADE_PF, MUSHROOM_MEDIUM_PF,
 			BUSH_PF, MUSHROOM_SMALL_GLADE_PF, MUSHROOM_SMALL_PF,
-			FALLEN_LEAVES_PF, MOSS_CARPET_PF, GRASS_PF, GRASS_FOREST_PF, GRASS_TAIGA_PF, LARGE_FERN_PF, FLOWERS_PF, MUSHROOMS_PF
+			FALLEN_LEAVES_PF, GRASS_PF, GRASS_FOREST_PF, GRASS_TAIGA_PF, LARGE_FERN_PF, FLOWERS_PF, MUSHROOMS_PF
 	);
 
 	public static void addVegetation(BiomeGenerationSettings.Builder builder) {
@@ -212,16 +210,13 @@ public class MagicalForestFeatures {
 		// ground patches around big trunks, placed by the template feature at the trunk base
 		var fallenLeaves = fallenLeavesPatch(64, 7);
 		FeatureUtils.register(ctx, FALLEN_LEAVES, Feature.RANDOM_PATCH, fallenLeavesPatch(40, 6));
-		FeatureUtils.register(ctx, MOSS_CARPET, Feature.RANDOM_PATCH, groundPatch(24, 4,
-				BlockStateProvider.simple(Blocks.MOSS_CARPET)));
 		var oakFloor = List.of(
 				floorDisk(new WeightedStateProvider(SimpleWeightedRandomList.<BlockState>builder()
 						.add(Blocks.PODZOL.defaultBlockState(), 3)
 						.add(Blocks.COARSE_DIRT.defaultBlockState(), 2)
 						.add(Blocks.ROOTED_DIRT.defaultBlockState(), 2)
 						.add(Blocks.MOSS_BLOCK.defaultBlockState(), 1)
-						.build()), 3, 5),
-				PlacementUtils.inlinePlaced(cf.getOrThrow(MOSS_CARPET)));
+						.build()), 3, 5));
 		var firFloor = List.of(
 				floorDisk(new WeightedStateProvider(SimpleWeightedRandomList.<BlockState>builder()
 						.add(Blocks.PODZOL.defaultBlockState(), 4)
@@ -373,7 +368,6 @@ public class MagicalForestFeatures {
 
 		// L5 ground cover: FLOOR looks through the canopies that now cover most of the biome
 		cover(ctx, FALLEN_LEAVES_PF, cf.getOrThrow(FALLEN_LEAVES), CountPlacement.of(2), new CanopyFilter(4, true));
-		cover(ctx, MOSS_CARPET_PF, cf.getOrThrow(MOSS_CARPET), CountPlacement.of(1), new CanopyFilter(4, true));
 		// placement tries per chunk (patch count x 32): short grass ~310, fern ~230; custom patch 2 x 24: broom grass 16, bracken 32
 		cover(ctx, GRASS_PF, cf.getOrThrow(GLFeatureGen.MAGICAL_FOREST_GRASS), CountPlacement.of(2));
 		cover(ctx, LARGE_FERN_PF, cf.getOrThrow(VegetationFeatures.PATCH_LARGE_FERN), RarityFilter.onAverageOnceEvery(5));

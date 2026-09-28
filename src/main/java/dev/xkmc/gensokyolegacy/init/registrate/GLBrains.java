@@ -28,6 +28,7 @@ public class GLBrains {
 	public static final Val<SensorType<NearbyItemsSensor<?>>> SN_ITEM = SENSORS.reg("nearby_items", () -> new SensorType<>(NearbyItemsSensor::new));
 	public static final Val<SensorType<NearbyLivingEntitySensor<?>>> SN_LE = SENSORS.reg("nearby_living_entities", () -> new SensorType<>(NearbyLivingEntitySensor::new));
 	public static final Val<SensorType<NearbyPlayerSensor<?>>> SN_PLAYER = SENSORS.reg("nearby_players", () -> new SensorType<>(NearbyPlayerSensor::new));
+	public static final Val<SensorType<YoukaiHomeBlocksSensor<?>>> SN_HOME_BLOCKS = SENSORS.reg("home_blocks", () -> new SensorType<>(YoukaiHomeBlocksSensor::new));
 
 	public static final Val<MemoryModuleType<CompoundPath>> MEM_PATH = MEMORIES.reg("path", () -> new MemoryModuleType<>(Optional.empty()));
 	public static final Val<MemoryModuleType<LivingEntity>> MEM_PREY = MEMORIES.reg("prey", () -> new MemoryModuleType<>(Optional.empty()));
