@@ -1,3 +1,5 @@
+import net.darkhax.curseforgegradle.TaskPublishCurseForge
+
 plugins {
     id 'java-library'
     id 'eclipse'
@@ -196,4 +198,35 @@ dependencies {
 
     testImplementation "com.mojang:datafixerupper:8.0.16"
     testImplementation "com.google.guava:guava:32.1.2-jre"
+}
+
+
+
+tasks.register('publishCurseForge', TaskPublishCurseForge) {
+    group = 'publishing'
+    apiToken = secrets.get("curseforge_token")
+    def mainFile = upload(curseforge_project, new File("./build/libs/${mod_id}-${mod_version}.jar"))
+    mainFile.changelog = new File('./changelog.txt')
+    mainFile.addEnvironment("Client", "Server")
+    mainFile.addGameVersion("1.21.1")
+    mainFile.addModLoader("NeoForge")
+    mainFile.addRequirement("curios", "patchouli")
+    mainFile.releaseType = "release"
+    disableVersionDetection()
+}
+
+modrinth {
+    token = secrets.get("modrinth_token")
+    projectId = project.modrinth_project
+    versionName = "Gensokyo Legacy ${project.mod_version}"
+    versionNumber = project.mod_version
+    versionType = "release"
+    uploadFile = new File("./build/libs/${mod_id}-${mod_version}.jar")
+    gameVersions = ["1.21.1"]
+    loaders = ["neoforge"]
+    changelog = new File('./changelog.txt').text.split("\n\n")[0]
+    dependencies {
+        required.project "curios"
+        required.project "patchouli"
+    }
 }
