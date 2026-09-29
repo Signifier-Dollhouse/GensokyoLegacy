@@ -112,14 +112,12 @@ public class HexBrewBottleItem extends Item implements ProjectileItem {
 	@Override
 	public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> list, TooltipFlag flag) {
 		super.appendHoverText(stack, context, list, flag);
-		if (hexBrew.handler.isDrinkable()) {
-			PotionContents contents = stack.get(DataComponents.POTION_CONTENTS);
-			if (contents != null && !contents.getAllEffects().iterator().hasNext()) {
-				contents = null;
-			}
-			if (contents != null) {
-				contents.addPotionTooltip(list::add, 1.0f, context.tickRate());
-			}
+		PotionContents contents = stack.get(DataComponents.POTION_CONTENTS);
+		if (contents != null && !contents.getAllEffects().iterator().hasNext()) {
+			contents = null;
+		}
+		if (contents != null) {
+			contents.addPotionTooltip(list::add, 1.0f, context.tickRate());
 		}
 	}
 
