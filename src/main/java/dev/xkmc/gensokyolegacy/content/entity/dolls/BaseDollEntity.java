@@ -337,6 +337,16 @@ public abstract class BaseDollEntity extends DamageRefactorEntity implements Own
 		return InteractionResult.CONSUME;
 	}
 
+	@Override
+	public boolean canBeLeashed() {
+		return false;
+	}
+
+	@Override
+	protected boolean canRide(Entity vehicle) {
+		return false;
+	}
+
 	// ---- pairing: lazy sync + inverse check (world → host) ----
 
 	@Override
