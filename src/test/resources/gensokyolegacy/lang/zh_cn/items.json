@@ -195,9 +195,9 @@
 					"warped": "诡异"
 				},
 				{
-					"chair": "椅",
-					"large_chair": "大椅",
-					"large_table": "大桌",
+					"chair": "凳",
+					"large_chair": "椅",
+					"large_table": "桌",
 					"plank_wall": "木板墙",
 					"sliding_door": "推拉门"
 				}
