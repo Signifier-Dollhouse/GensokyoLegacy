@@ -347,11 +347,11 @@ public class MarisaQDGen extends QuestDialogData {
 
 	private void dailyQuests() {
 		prefix("marisa/daily_mycelium");
-		var myceliumTable = requestTable("daily_mycelium", LootTable.lootTable().withPool(LootPool.lootPool()
-				.setRolls(ConstantValue.exactly(3))
-				.add(LootItem.lootTableItem(GLNaturalBlocks.GHOST_FIRE_MUSHROOM_SET.cap).apply(SetItemCountFunction.setCount(UniformGenerator.between(3, 6))))
-				.add(LootItem.lootTableItem(GLNaturalBlocks.DREAM_MUSHROOM_SET.cap).apply(SetItemCountFunction.setCount(UniformGenerator.between(3, 6))))
-				.add(LootItem.lootTableItem(GLNaturalBlocks.DEMONIC_MIASMA_MUSHROOM_SET.cap).apply(SetItemCountFunction.setCount(UniformGenerator.between(3, 6))))));
+		var myceliumTable = requestTable("daily_mycelium", LootTable.lootTable()
+				.withPool(lootItem(GLNaturalBlocks.GHOST_FIRE_MUSHROOM_SET.cap.asItem(), 3, 6))
+				.withPool(lootItem(GLNaturalBlocks.DREAM_MUSHROOM_SET.cap.asItem(), 3, 6))
+				.withPool(lootItem(GLNaturalBlocks.DEMONIC_MIASMA_MUSHROOM_SET.cap.asItem(), 2, 4))
+		);
 		daily("marisa/daily_mycelium", "Specialty Mushrooms", "Bring Marisa fresh specialty mushrooms.",
 				new QuestRecurrence(24000), List.of(), 60, 10, 150, 0, 0,
 				"Morning! My stock's runnin' low again. Bring me a fresh bundle of forest mushrooms — the glowing ones, the dreamy ones, whatever ya can find. Fresh research material, stat!",
@@ -503,8 +503,8 @@ public class MarisaQDGen extends QuestDialogData {
 	}
 
 	private SimpleDialogOption start(String button, String intro,
-	                                 String accept, String acceptLine, String acceptEnd,
-	                                 String reject, String rejectLine, String rejectEnd) {
+									 String accept, String acceptLine, String acceptEnd,
+									 String reject, String rejectLine, String rejectEnd) {
 		return option("start", button,
 				dialog("start/dialog_1", intro, THINK_ANIMS,
 						option("start/reject", reject, dialog("start/reject/dialog_1", rejectLine, option("start/reject/end", rejectEnd))),
@@ -527,8 +527,8 @@ public class MarisaQDGen extends QuestDialogData {
 	}
 
 	private SimpleDialogOption complete(String button, String intro,
-	                                    String complete, String completeLine, String completeEnd,
-	                                    String reject, String rejectLine, String rejectEnd) {
+										String complete, String completeLine, String completeEnd,
+										String reject, String rejectLine, String rejectEnd) {
 		return option("complete", button,
 				dialog("complete/dialog_1", intro, AGREE_ANIMS,
 						option("complete/reject", reject, dialog("complete/reject/dialog_1", rejectLine, option("complete/reject/end", rejectEnd))),
@@ -559,10 +559,10 @@ public class MarisaQDGen extends QuestDialogData {
 	}
 
 	private void daily(String id, String title, String desc, QuestRecurrence rec,
-	                   List<QuestCondition<?>> conditions, int exp, int rep, int softCap, int capIncrease, int maxCap,
-	                   String intro, String acceptLine, String rejectLine, String followLine, @Nullable String followEndOverride, String optLine,
-	                   String completeOpener, String gotemLine, String handover, String completeLine, @Nullable String thanks,
-	                   Map<String, QuestRequirement<?, ?>> reqs, LootTable.Builder loot) {
+					   List<QuestCondition<?>> conditions, int exp, int rep, int softCap, int capIncrease, int maxCap,
+					   String intro, String acceptLine, String rejectLine, String followLine, @Nullable String followEndOverride, String optLine,
+					   String completeOpener, String gotemLine, String handover, String completeLine, @Nullable String thanks,
+					   Map<String, QuestRequirement<?, ?>> reqs, LootTable.Builder loot) {
 		quest(id, new Quest(GLEntities.MARISA.get(), conditions,
 				questTitle(title), questDesc(desc),
 				Optional.of(rec),
@@ -592,7 +592,7 @@ public class MarisaQDGen extends QuestDialogData {
 	}
 
 	private GroupDialogOption dailyComplete(String opener, String gotemLine, String handover,
-	                                         String completeLine, @Nullable String thanks) {
+											String completeLine, @Nullable String thanks) {
 		var done = thanks == null
 				? dialog("complete/handover/dialog_1", completeLine)
 				: dialog("complete/handover/dialog_1", completeLine, optionKey(dailyThanksKey));

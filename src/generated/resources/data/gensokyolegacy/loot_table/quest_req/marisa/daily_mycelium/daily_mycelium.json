@@ -18,7 +18,13 @@
             }
           ],
           "name": "gensokyolegacy:ghost_fire_mushroom"
-        },
+        }
+      ],
+      "rolls": 1.0
+    },
+    {
+      "bonus_rolls": 0.0,
+      "entries": [
         {
           "type": "minecraft:item",
           "functions": [
@@ -33,7 +39,13 @@
             }
           ],
           "name": "gensokyolegacy:dream_mushroom"
-        },
+        }
+      ],
+      "rolls": 1.0
+    },
+    {
+      "bonus_rolls": 0.0,
+      "entries": [
         {
           "type": "minecraft:item",
           "functions": [
@@ -41,8 +53,8 @@
               "add": false,
               "count": {
                 "type": "minecraft:uniform",
-                "max": 6.0,
-                "min": 3.0
+                "max": 4.0,
+                "min": 2.0
               },
               "function": "minecraft:set_count"
             }
@@ -50,7 +62,7 @@
           "name": "gensokyolegacy:demonic_miasma_mushroom"
         }
       ],
-      "rolls": 3.0
+      "rolls": 1.0
     }
   ],
   "random_sequence": "gensokyolegacy:quest_req/marisa/daily_mycelium/daily_mycelium"
