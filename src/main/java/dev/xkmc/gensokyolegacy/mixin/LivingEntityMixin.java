@@ -38,7 +38,7 @@ public abstract class LivingEntityMixin {
 		// Vanilla hardcodes 0.6875 (vanilla mattress top 9/16 + 2/16 gap);
 		// our beds are flat, so ask the entity for its own sleep height.
 		if (self instanceof ISleepOffsetEntity e) {
-			e.setPosToBed(pos);
+			e.setPosToBedImpl(pos);
 			ci.cancel();
 		}
 	}

@@ -500,7 +500,7 @@ public abstract class YoukaiEntity extends DamageClampEntity implements SpellCir
 		this.navCtrl.stopMoving();
 		this.navCtrl.setWalking();
 		this.setPose(Pose.SLEEPING);
-		this.setPosToBed(pos);
+		this.setPosToBedImpl(pos);
 		this.setSleepingPos(pos);
 		this.setDeltaMovement(Vec3.ZERO);
 		this.hasImpulse = true;
