@@ -1,21 +1,59 @@
 package dev.xkmc.gensokyolegacy.content.ui.dialog;
 
+import dev.xkmc.gensokyolegacy.content.attachment.datamap.DialogConfig;
+import dev.xkmc.gensokyolegacy.content.rpg.network.FirstDialogToClient;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.player.Inventory;
 
-public class FirstDialogScreen extends DialogScreen<FirstDialogMenu> {
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
-	public FirstDialogScreen(FirstDialogMenu menu, Inventory inv, Component title) {
-		super(menu, inv, title);
+public class FirstDialogScreen extends DialogScreen {
+
+	public static void open(FirstDialogToClient data) {
+		show(new FirstDialogScreen(data));
+	}
+
+	private final FirstDialogToClient data;
+
+	/**
+	 * Option labels, in the order the server sent them - which is the order a
+	 * click index refers to.
+	 */
+	private final List<Component> options;
+
+	public FirstDialogScreen(FirstDialogToClient data) {
+		super(data.session(), data.character());
+		this.data = data;
+		List<Component> labels = new ArrayList<>(data.options().size());
+		for (var e : data.options()) {
+			labels.add(e.display());
+		}
+		this.options = labels;
 	}
 
 	@Override
-	protected void renderBg(GuiGraphics g, float pt, int mx, int my) {
-		super.renderBg(g, pt, mx, my);
+	public void renderDialog(GuiGraphics g, float pt, int mx, int my) {
+		super.renderDialog(g, pt, mx, my);
 		if (sel >= 0) {
-			renderQuestInfo(g, menu.getQuest(sel));
+			renderQuestInfo(g, data.options().get(sel).quest());
 		}
+	}
+
+	@Override
+	protected List<Component> getOptions() {
+		return options;
+	}
+
+	@Override
+	protected Optional<Component> getBodyText() {
+		var body = data.body();
+		if (body != null) return Optional.of(body);
+		if (character == null) return Optional.empty();
+		var cfg = DialogConfig.of(character.getType());
+		if (cfg == null || cfg.greeting().isEmpty()) return Optional.empty();
+		return Optional.of(Component.translatable(cfg.greeting()));
 	}
 
 }
