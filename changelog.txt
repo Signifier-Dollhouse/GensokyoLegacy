@@ -1,2 +1,15 @@
+1.0.1
+- change dialog text color
+- make characters and dolls not able to be leashed
+- fix FTB icons showing up in dialog screen
+- fix dolls in suicide mode not able to be recalled
+- fix throwable witch hexbrew tooltip
+- fix sealing pot placement in forbidden region
+- fix chair rendering
+- fix blue fir rendering in fast graphics
+- tweak marisa mushroom quest randomization
+- add mystical straw
+- improve mod compatibility
+
 1.0.0
 - initial release

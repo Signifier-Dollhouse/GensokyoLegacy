@@ -116,7 +116,7 @@ public abstract class DialogScreen extends Screen {
 
 	private static final int OPT_BORDER = 24;
 
-	private static final int TEXT_COLOR = 0xFFFFFF;
+	private static final int TEXT_COLOR = 0x47424F;
 	private static final int HOVER_COLOR = 0xFFE9A8;
 	private static final int HOVER_FILL = 0x30FFFFFF;
 
