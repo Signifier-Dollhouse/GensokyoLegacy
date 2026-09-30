@@ -7,6 +7,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -15,7 +16,7 @@ import java.util.List;
  * so there is no vanilla screen packet to piggyback on.
  */
 public record FirstDialogToClient(
-		int session, int character, @Nullable Component body, List<ClientHandle> options
+		int session, int character, @Nullable Component body, ArrayList<ClientHandle> options
 ) implements SerialPacketBase<FirstDialogToClient> {
 
 	@Override

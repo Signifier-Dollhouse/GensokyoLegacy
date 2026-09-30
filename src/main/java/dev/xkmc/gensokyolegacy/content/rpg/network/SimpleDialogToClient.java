@@ -6,6 +6,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -15,7 +16,7 @@ import java.util.List;
  * meaning the same thing on both sides.
  */
 public record SimpleDialogToClient(
-		int session, int character, ResourceLocation dialog, @Nullable ResourceLocation quest, List<Integer> options
+		int session, int character, ResourceLocation dialog, @Nullable ResourceLocation quest, ArrayList<Integer> options
 ) implements SerialPacketBase<SimpleDialogToClient> {
 
 	@Override

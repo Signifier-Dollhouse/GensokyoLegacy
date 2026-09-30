@@ -65,7 +65,7 @@ public class FirstDialogSession extends DialogSession {
 
 	@Override
 	protected void sync() {
-		GensokyoLegacy.HANDLER.toClientPlayer(new FirstDialogToClient(id, character.getId(), body, options), player);
+		GensokyoLegacy.HANDLER.toClientPlayer(new FirstDialogToClient(id, character.getId(), body, new ArrayList<>(options)), player);
 	}
 
 	@Override
