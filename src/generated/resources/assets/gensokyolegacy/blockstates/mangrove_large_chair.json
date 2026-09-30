@@ -1,273 +1,543 @@
 {
   "variants": {
-    "color=base,facing=east": {
+    "color=base,facing=east,half=bottom": {
       "model": "gensokyolegacy:block/mangrove_pad",
       "y": 90
     },
-    "color=base,facing=north": {
+    "color=base,facing=east,half=top": {
+      "model": "gensokyolegacy:block/mangrove_large_chair_top",
+      "y": 90
+    },
+    "color=base,facing=north,half=bottom": {
       "model": "gensokyolegacy:block/mangrove_pad"
     },
-    "color=base,facing=south": {
+    "color=base,facing=north,half=top": {
+      "model": "gensokyolegacy:block/mangrove_large_chair_top"
+    },
+    "color=base,facing=south,half=bottom": {
       "model": "gensokyolegacy:block/mangrove_pad",
       "y": 180
     },
-    "color=base,facing=west": {
+    "color=base,facing=south,half=top": {
+      "model": "gensokyolegacy:block/mangrove_large_chair_top",
+      "y": 180
+    },
+    "color=base,facing=west,half=bottom": {
       "model": "gensokyolegacy:block/mangrove_pad",
       "y": 270
     },
-    "color=black,facing=east": {
+    "color=base,facing=west,half=top": {
+      "model": "gensokyolegacy:block/mangrove_large_chair_top",
+      "y": 270
+    },
+    "color=black,facing=east,half=bottom": {
       "model": "gensokyolegacy:block/mangrove_black_pad",
       "y": 90
     },
-    "color=black,facing=north": {
+    "color=black,facing=east,half=top": {
+      "model": "gensokyolegacy:block/mangrove_large_chair_top",
+      "y": 90
+    },
+    "color=black,facing=north,half=bottom": {
       "model": "gensokyolegacy:block/mangrove_black_pad"
     },
-    "color=black,facing=south": {
+    "color=black,facing=north,half=top": {
+      "model": "gensokyolegacy:block/mangrove_large_chair_top"
+    },
+    "color=black,facing=south,half=bottom": {
       "model": "gensokyolegacy:block/mangrove_black_pad",
       "y": 180
     },
-    "color=black,facing=west": {
+    "color=black,facing=south,half=top": {
+      "model": "gensokyolegacy:block/mangrove_large_chair_top",
+      "y": 180
+    },
+    "color=black,facing=west,half=bottom": {
       "model": "gensokyolegacy:block/mangrove_black_pad",
       "y": 270
     },
-    "color=blue,facing=east": {
+    "color=black,facing=west,half=top": {
+      "model": "gensokyolegacy:block/mangrove_large_chair_top",
+      "y": 270
+    },
+    "color=blue,facing=east,half=bottom": {
       "model": "gensokyolegacy:block/mangrove_blue_pad",
       "y": 90
     },
-    "color=blue,facing=north": {
+    "color=blue,facing=east,half=top": {
+      "model": "gensokyolegacy:block/mangrove_large_chair_top",
+      "y": 90
+    },
+    "color=blue,facing=north,half=bottom": {
       "model": "gensokyolegacy:block/mangrove_blue_pad"
     },
-    "color=blue,facing=south": {
+    "color=blue,facing=north,half=top": {
+      "model": "gensokyolegacy:block/mangrove_large_chair_top"
+    },
+    "color=blue,facing=south,half=bottom": {
       "model": "gensokyolegacy:block/mangrove_blue_pad",
       "y": 180
     },
-    "color=blue,facing=west": {
+    "color=blue,facing=south,half=top": {
+      "model": "gensokyolegacy:block/mangrove_large_chair_top",
+      "y": 180
+    },
+    "color=blue,facing=west,half=bottom": {
       "model": "gensokyolegacy:block/mangrove_blue_pad",
       "y": 270
     },
-    "color=brown,facing=east": {
+    "color=blue,facing=west,half=top": {
+      "model": "gensokyolegacy:block/mangrove_large_chair_top",
+      "y": 270
+    },
+    "color=brown,facing=east,half=bottom": {
       "model": "gensokyolegacy:block/mangrove_brown_pad",
       "y": 90
     },
-    "color=brown,facing=north": {
+    "color=brown,facing=east,half=top": {
+      "model": "gensokyolegacy:block/mangrove_large_chair_top",
+      "y": 90
+    },
+    "color=brown,facing=north,half=bottom": {
       "model": "gensokyolegacy:block/mangrove_brown_pad"
     },
-    "color=brown,facing=south": {
+    "color=brown,facing=north,half=top": {
+      "model": "gensokyolegacy:block/mangrove_large_chair_top"
+    },
+    "color=brown,facing=south,half=bottom": {
       "model": "gensokyolegacy:block/mangrove_brown_pad",
       "y": 180
     },
-    "color=brown,facing=west": {
+    "color=brown,facing=south,half=top": {
+      "model": "gensokyolegacy:block/mangrove_large_chair_top",
+      "y": 180
+    },
+    "color=brown,facing=west,half=bottom": {
       "model": "gensokyolegacy:block/mangrove_brown_pad",
       "y": 270
     },
-    "color=cyan,facing=east": {
+    "color=brown,facing=west,half=top": {
+      "model": "gensokyolegacy:block/mangrove_large_chair_top",
+      "y": 270
+    },
+    "color=cyan,facing=east,half=bottom": {
       "model": "gensokyolegacy:block/mangrove_cyan_pad",
       "y": 90
     },
-    "color=cyan,facing=north": {
+    "color=cyan,facing=east,half=top": {
+      "model": "gensokyolegacy:block/mangrove_large_chair_top",
+      "y": 90
+    },
+    "color=cyan,facing=north,half=bottom": {
       "model": "gensokyolegacy:block/mangrove_cyan_pad"
     },
-    "color=cyan,facing=south": {
+    "color=cyan,facing=north,half=top": {
+      "model": "gensokyolegacy:block/mangrove_large_chair_top"
+    },
+    "color=cyan,facing=south,half=bottom": {
       "model": "gensokyolegacy:block/mangrove_cyan_pad",
       "y": 180
     },
-    "color=cyan,facing=west": {
+    "color=cyan,facing=south,half=top": {
+      "model": "gensokyolegacy:block/mangrove_large_chair_top",
+      "y": 180
+    },
+    "color=cyan,facing=west,half=bottom": {
       "model": "gensokyolegacy:block/mangrove_cyan_pad",
       "y": 270
     },
-    "color=gray,facing=east": {
+    "color=cyan,facing=west,half=top": {
+      "model": "gensokyolegacy:block/mangrove_large_chair_top",
+      "y": 270
+    },
+    "color=gray,facing=east,half=bottom": {
       "model": "gensokyolegacy:block/mangrove_gray_pad",
       "y": 90
     },
-    "color=gray,facing=north": {
+    "color=gray,facing=east,half=top": {
+      "model": "gensokyolegacy:block/mangrove_large_chair_top",
+      "y": 90
+    },
+    "color=gray,facing=north,half=bottom": {
       "model": "gensokyolegacy:block/mangrove_gray_pad"
     },
-    "color=gray,facing=south": {
+    "color=gray,facing=north,half=top": {
+      "model": "gensokyolegacy:block/mangrove_large_chair_top"
+    },
+    "color=gray,facing=south,half=bottom": {
       "model": "gensokyolegacy:block/mangrove_gray_pad",
       "y": 180
     },
-    "color=gray,facing=west": {
+    "color=gray,facing=south,half=top": {
+      "model": "gensokyolegacy:block/mangrove_large_chair_top",
+      "y": 180
+    },
+    "color=gray,facing=west,half=bottom": {
       "model": "gensokyolegacy:block/mangrove_gray_pad",
       "y": 270
     },
-    "color=green,facing=east": {
+    "color=gray,facing=west,half=top": {
+      "model": "gensokyolegacy:block/mangrove_large_chair_top",
+      "y": 270
+    },
+    "color=green,facing=east,half=bottom": {
       "model": "gensokyolegacy:block/mangrove_green_pad",
       "y": 90
     },
-    "color=green,facing=north": {
+    "color=green,facing=east,half=top": {
+      "model": "gensokyolegacy:block/mangrove_large_chair_top",
+      "y": 90
+    },
+    "color=green,facing=north,half=bottom": {
       "model": "gensokyolegacy:block/mangrove_green_pad"
     },
-    "color=green,facing=south": {
+    "color=green,facing=north,half=top": {
+      "model": "gensokyolegacy:block/mangrove_large_chair_top"
+    },
+    "color=green,facing=south,half=bottom": {
       "model": "gensokyolegacy:block/mangrove_green_pad",
       "y": 180
     },
-    "color=green,facing=west": {
+    "color=green,facing=south,half=top": {
+      "model": "gensokyolegacy:block/mangrove_large_chair_top",
+      "y": 180
+    },
+    "color=green,facing=west,half=bottom": {
       "model": "gensokyolegacy:block/mangrove_green_pad",
       "y": 270
     },
-    "color=light_blue,facing=east": {
+    "color=green,facing=west,half=top": {
+      "model": "gensokyolegacy:block/mangrove_large_chair_top",
+      "y": 270
+    },
+    "color=light_blue,facing=east,half=bottom": {
       "model": "gensokyolegacy:block/mangrove_light_blue_pad",
       "y": 90
     },
-    "color=light_blue,facing=north": {
+    "color=light_blue,facing=east,half=top": {
+      "model": "gensokyolegacy:block/mangrove_large_chair_top",
+      "y": 90
+    },
+    "color=light_blue,facing=north,half=bottom": {
       "model": "gensokyolegacy:block/mangrove_light_blue_pad"
     },
-    "color=light_blue,facing=south": {
+    "color=light_blue,facing=north,half=top": {
+      "model": "gensokyolegacy:block/mangrove_large_chair_top"
+    },
+    "color=light_blue,facing=south,half=bottom": {
       "model": "gensokyolegacy:block/mangrove_light_blue_pad",
       "y": 180
     },
-    "color=light_blue,facing=west": {
+    "color=light_blue,facing=south,half=top": {
+      "model": "gensokyolegacy:block/mangrove_large_chair_top",
+      "y": 180
+    },
+    "color=light_blue,facing=west,half=bottom": {
       "model": "gensokyolegacy:block/mangrove_light_blue_pad",
       "y": 270
     },
-    "color=light_gray,facing=east": {
+    "color=light_blue,facing=west,half=top": {
+      "model": "gensokyolegacy:block/mangrove_large_chair_top",
+      "y": 270
+    },
+    "color=light_gray,facing=east,half=bottom": {
       "model": "gensokyolegacy:block/mangrove_light_gray_pad",
       "y": 90
     },
-    "color=light_gray,facing=north": {
+    "color=light_gray,facing=east,half=top": {
+      "model": "gensokyolegacy:block/mangrove_large_chair_top",
+      "y": 90
+    },
+    "color=light_gray,facing=north,half=bottom": {
       "model": "gensokyolegacy:block/mangrove_light_gray_pad"
     },
-    "color=light_gray,facing=south": {
+    "color=light_gray,facing=north,half=top": {
+      "model": "gensokyolegacy:block/mangrove_large_chair_top"
+    },
+    "color=light_gray,facing=south,half=bottom": {
       "model": "gensokyolegacy:block/mangrove_light_gray_pad",
       "y": 180
     },
-    "color=light_gray,facing=west": {
+    "color=light_gray,facing=south,half=top": {
+      "model": "gensokyolegacy:block/mangrove_large_chair_top",
+      "y": 180
+    },
+    "color=light_gray,facing=west,half=bottom": {
       "model": "gensokyolegacy:block/mangrove_light_gray_pad",
       "y": 270
     },
-    "color=lime,facing=east": {
+    "color=light_gray,facing=west,half=top": {
+      "model": "gensokyolegacy:block/mangrove_large_chair_top",
+      "y": 270
+    },
+    "color=lime,facing=east,half=bottom": {
       "model": "gensokyolegacy:block/mangrove_lime_pad",
       "y": 90
     },
-    "color=lime,facing=north": {
+    "color=lime,facing=east,half=top": {
+      "model": "gensokyolegacy:block/mangrove_large_chair_top",
+      "y": 90
+    },
+    "color=lime,facing=north,half=bottom": {
       "model": "gensokyolegacy:block/mangrove_lime_pad"
     },
-    "color=lime,facing=south": {
+    "color=lime,facing=north,half=top": {
+      "model": "gensokyolegacy:block/mangrove_large_chair_top"
+    },
+    "color=lime,facing=south,half=bottom": {
       "model": "gensokyolegacy:block/mangrove_lime_pad",
       "y": 180
     },
-    "color=lime,facing=west": {
+    "color=lime,facing=south,half=top": {
+      "model": "gensokyolegacy:block/mangrove_large_chair_top",
+      "y": 180
+    },
+    "color=lime,facing=west,half=bottom": {
       "model": "gensokyolegacy:block/mangrove_lime_pad",
       "y": 270
     },
-    "color=magenta,facing=east": {
+    "color=lime,facing=west,half=top": {
+      "model": "gensokyolegacy:block/mangrove_large_chair_top",
+      "y": 270
+    },
+    "color=magenta,facing=east,half=bottom": {
       "model": "gensokyolegacy:block/mangrove_magenta_pad",
       "y": 90
     },
-    "color=magenta,facing=north": {
+    "color=magenta,facing=east,half=top": {
+      "model": "gensokyolegacy:block/mangrove_large_chair_top",
+      "y": 90
+    },
+    "color=magenta,facing=north,half=bottom": {
       "model": "gensokyolegacy:block/mangrove_magenta_pad"
     },
-    "color=magenta,facing=south": {
+    "color=magenta,facing=north,half=top": {
+      "model": "gensokyolegacy:block/mangrove_large_chair_top"
+    },
+    "color=magenta,facing=south,half=bottom": {
       "model": "gensokyolegacy:block/mangrove_magenta_pad",
       "y": 180
     },
-    "color=magenta,facing=west": {
+    "color=magenta,facing=south,half=top": {
+      "model": "gensokyolegacy:block/mangrove_large_chair_top",
+      "y": 180
+    },
+    "color=magenta,facing=west,half=bottom": {
       "model": "gensokyolegacy:block/mangrove_magenta_pad",
       "y": 270
     },
-    "color=none,facing=east": {
+    "color=magenta,facing=west,half=top": {
+      "model": "gensokyolegacy:block/mangrove_large_chair_top",
+      "y": 270
+    },
+    "color=none,facing=east,half=bottom": {
       "model": "gensokyolegacy:block/mangrove_large_chair",
       "y": 90
     },
-    "color=none,facing=north": {
+    "color=none,facing=east,half=top": {
+      "model": "gensokyolegacy:block/mangrove_large_chair_top",
+      "y": 90
+    },
+    "color=none,facing=north,half=bottom": {
       "model": "gensokyolegacy:block/mangrove_large_chair"
     },
-    "color=none,facing=south": {
+    "color=none,facing=north,half=top": {
+      "model": "gensokyolegacy:block/mangrove_large_chair_top"
+    },
+    "color=none,facing=south,half=bottom": {
       "model": "gensokyolegacy:block/mangrove_large_chair",
       "y": 180
     },
-    "color=none,facing=west": {
+    "color=none,facing=south,half=top": {
+      "model": "gensokyolegacy:block/mangrove_large_chair_top",
+      "y": 180
+    },
+    "color=none,facing=west,half=bottom": {
       "model": "gensokyolegacy:block/mangrove_large_chair",
       "y": 270
     },
-    "color=orange,facing=east": {
+    "color=none,facing=west,half=top": {
+      "model": "gensokyolegacy:block/mangrove_large_chair_top",
+      "y": 270
+    },
+    "color=orange,facing=east,half=bottom": {
       "model": "gensokyolegacy:block/mangrove_orange_pad",
       "y": 90
     },
-    "color=orange,facing=north": {
+    "color=orange,facing=east,half=top": {
+      "model": "gensokyolegacy:block/mangrove_large_chair_top",
+      "y": 90
+    },
+    "color=orange,facing=north,half=bottom": {
       "model": "gensokyolegacy:block/mangrove_orange_pad"
     },
-    "color=orange,facing=south": {
+    "color=orange,facing=north,half=top": {
+      "model": "gensokyolegacy:block/mangrove_large_chair_top"
+    },
+    "color=orange,facing=south,half=bottom": {
       "model": "gensokyolegacy:block/mangrove_orange_pad",
       "y": 180
     },
-    "color=orange,facing=west": {
+    "color=orange,facing=south,half=top": {
+      "model": "gensokyolegacy:block/mangrove_large_chair_top",
+      "y": 180
+    },
+    "color=orange,facing=west,half=bottom": {
       "model": "gensokyolegacy:block/mangrove_orange_pad",
       "y": 270
     },
-    "color=pink,facing=east": {
+    "color=orange,facing=west,half=top": {
+      "model": "gensokyolegacy:block/mangrove_large_chair_top",
+      "y": 270
+    },
+    "color=pink,facing=east,half=bottom": {
       "model": "gensokyolegacy:block/mangrove_pink_pad",
       "y": 90
     },
-    "color=pink,facing=north": {
+    "color=pink,facing=east,half=top": {
+      "model": "gensokyolegacy:block/mangrove_large_chair_top",
+      "y": 90
+    },
+    "color=pink,facing=north,half=bottom": {
       "model": "gensokyolegacy:block/mangrove_pink_pad"
     },
-    "color=pink,facing=south": {
+    "color=pink,facing=north,half=top": {
+      "model": "gensokyolegacy:block/mangrove_large_chair_top"
+    },
+    "color=pink,facing=south,half=bottom": {
       "model": "gensokyolegacy:block/mangrove_pink_pad",
       "y": 180
     },
-    "color=pink,facing=west": {
+    "color=pink,facing=south,half=top": {
+      "model": "gensokyolegacy:block/mangrove_large_chair_top",
+      "y": 180
+    },
+    "color=pink,facing=west,half=bottom": {
       "model": "gensokyolegacy:block/mangrove_pink_pad",
       "y": 270
     },
-    "color=purple,facing=east": {
+    "color=pink,facing=west,half=top": {
+      "model": "gensokyolegacy:block/mangrove_large_chair_top",
+      "y": 270
+    },
+    "color=purple,facing=east,half=bottom": {
       "model": "gensokyolegacy:block/mangrove_purple_pad",
       "y": 90
     },
-    "color=purple,facing=north": {
+    "color=purple,facing=east,half=top": {
+      "model": "gensokyolegacy:block/mangrove_large_chair_top",
+      "y": 90
+    },
+    "color=purple,facing=north,half=bottom": {
       "model": "gensokyolegacy:block/mangrove_purple_pad"
     },
-    "color=purple,facing=south": {
+    "color=purple,facing=north,half=top": {
+      "model": "gensokyolegacy:block/mangrove_large_chair_top"
+    },
+    "color=purple,facing=south,half=bottom": {
       "model": "gensokyolegacy:block/mangrove_purple_pad",
       "y": 180
     },
-    "color=purple,facing=west": {
+    "color=purple,facing=south,half=top": {
+      "model": "gensokyolegacy:block/mangrove_large_chair_top",
+      "y": 180
+    },
+    "color=purple,facing=west,half=bottom": {
       "model": "gensokyolegacy:block/mangrove_purple_pad",
       "y": 270
     },
-    "color=red,facing=east": {
+    "color=purple,facing=west,half=top": {
+      "model": "gensokyolegacy:block/mangrove_large_chair_top",
+      "y": 270
+    },
+    "color=red,facing=east,half=bottom": {
       "model": "gensokyolegacy:block/mangrove_red_pad",
       "y": 90
     },
-    "color=red,facing=north": {
+    "color=red,facing=east,half=top": {
+      "model": "gensokyolegacy:block/mangrove_large_chair_top",
+      "y": 90
+    },
+    "color=red,facing=north,half=bottom": {
       "model": "gensokyolegacy:block/mangrove_red_pad"
     },
-    "color=red,facing=south": {
+    "color=red,facing=north,half=top": {
+      "model": "gensokyolegacy:block/mangrove_large_chair_top"
+    },
+    "color=red,facing=south,half=bottom": {
       "model": "gensokyolegacy:block/mangrove_red_pad",
       "y": 180
     },
-    "color=red,facing=west": {
+    "color=red,facing=south,half=top": {
+      "model": "gensokyolegacy:block/mangrove_large_chair_top",
+      "y": 180
+    },
+    "color=red,facing=west,half=bottom": {
       "model": "gensokyolegacy:block/mangrove_red_pad",
       "y": 270
     },
-    "color=white,facing=east": {
+    "color=red,facing=west,half=top": {
+      "model": "gensokyolegacy:block/mangrove_large_chair_top",
+      "y": 270
+    },
+    "color=white,facing=east,half=bottom": {
       "model": "gensokyolegacy:block/mangrove_white_pad",
       "y": 90
     },
-    "color=white,facing=north": {
+    "color=white,facing=east,half=top": {
+      "model": "gensokyolegacy:block/mangrove_large_chair_top",
+      "y": 90
+    },
+    "color=white,facing=north,half=bottom": {
       "model": "gensokyolegacy:block/mangrove_white_pad"
     },
-    "color=white,facing=south": {
+    "color=white,facing=north,half=top": {
+      "model": "gensokyolegacy:block/mangrove_large_chair_top"
+    },
+    "color=white,facing=south,half=bottom": {
       "model": "gensokyolegacy:block/mangrove_white_pad",
       "y": 180
     },
-    "color=white,facing=west": {
+    "color=white,facing=south,half=top": {
+      "model": "gensokyolegacy:block/mangrove_large_chair_top",
+      "y": 180
+    },
+    "color=white,facing=west,half=bottom": {
       "model": "gensokyolegacy:block/mangrove_white_pad",
       "y": 270
     },
-    "color=yellow,facing=east": {
+    "color=white,facing=west,half=top": {
+      "model": "gensokyolegacy:block/mangrove_large_chair_top",
+      "y": 270
+    },
+    "color=yellow,facing=east,half=bottom": {
       "model": "gensokyolegacy:block/mangrove_yellow_pad",
       "y": 90
     },
-    "color=yellow,facing=north": {
+    "color=yellow,facing=east,half=top": {
+      "model": "gensokyolegacy:block/mangrove_large_chair_top",
+      "y": 90
+    },
+    "color=yellow,facing=north,half=bottom": {
       "model": "gensokyolegacy:block/mangrove_yellow_pad"
     },
-    "color=yellow,facing=south": {
+    "color=yellow,facing=north,half=top": {
+      "model": "gensokyolegacy:block/mangrove_large_chair_top"
+    },
+    "color=yellow,facing=south,half=bottom": {
       "model": "gensokyolegacy:block/mangrove_yellow_pad",
       "y": 180
     },
-    "color=yellow,facing=west": {
+    "color=yellow,facing=south,half=top": {
+      "model": "gensokyolegacy:block/mangrove_large_chair_top",
+      "y": 180
+    },
+    "color=yellow,facing=west,half=bottom": {
       "model": "gensokyolegacy:block/mangrove_yellow_pad",
+      "y": 270
+    },
+    "color=yellow,facing=west,half=top": {
+      "model": "gensokyolegacy:block/mangrove_large_chair_top",
       "y": 270
     }
   }

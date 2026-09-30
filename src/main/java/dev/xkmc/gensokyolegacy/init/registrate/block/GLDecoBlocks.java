@@ -23,6 +23,7 @@ import dev.xkmc.l2core.init.reg.registrate.L2Registrate;
 import dev.xkmc.l2core.init.reg.registrate.SimpleEntry;
 import dev.xkmc.l2modularblock.core.BlockTemplates;
 import dev.xkmc.l2modularblock.core.DelegateBlock;
+import dev.xkmc.l2modularblock.impl.DoubleBlockImpl;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.recipes.RecipeCategory;
@@ -41,6 +42,7 @@ import net.minecraft.world.item.Rarity;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.properties.Half;
 import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.material.PushReaction;
@@ -50,6 +52,8 @@ import net.neoforged.neoforge.registries.datamaps.builtin.NeoForgeDataMaps;
 
 import java.util.Locale;
 import java.util.function.Supplier;
+
+import static net.minecraft.world.level.block.state.properties.BlockStateProperties.HALF;
 
 public class GLDecoBlocks {
 
@@ -218,11 +222,13 @@ public class GLDecoBlocks {
 					.register();
 
 			// 木椅
-			e.largeChair = reg.block(name + "_large_chair", p -> ISeatableBlock.of(p, 12 / 16f, BlockTemplates.HORIZONTAL, new LargeChairBlock(), new CoverableImpl(), new SeatableImpl()))
+			e.largeChair = reg.block(name + "_large_chair", p -> ISeatableBlock.of(p, 12 / 16f, BlockTemplates.HORIZONTAL,
+							new DoubleBlockImpl(), new LargeChairBlock(), new CoverableImpl(), new SeatableImpl()))
 					.initialProperties(() -> e.plankProp)
 					.blockstate(LargeChairBlock::buildStates)
 					.tag(BlockTags.MINEABLE_WITH_AXE)
-					.item().dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(300)).build()
+					.item().model(LargeChairBlock::genItemModel)
+					.dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(300)).build()
 					.loot(LargeChairBlock::genLoot)
 					.register();
 
@@ -265,15 +271,27 @@ public class GLDecoBlocks {
 		}
 
 		// 红魔馆木椅: oak stool draped with red wool, fuel follows the recipe
-		SCARLET_CHAIR = reg.block("wooden_large_chair_scarlet_devil_mansion", p -> DelegateBlock.newBaseBlock(p, BlockTemplates.HORIZONTAL, new LargeChairBlock()))
+		SCARLET_CHAIR = reg.block("wooden_large_chair_scarlet_devil_mansion", p -> DelegateBlock.newBaseBlock(p, BlockTemplates.HORIZONTAL,
+						new DoubleBlockImpl(), new LargeChairBlock()))
 				.initialProperties(() -> Blocks.OAK_PLANKS)
-				.blockstate((ctx, pvd) -> pvd.horizontalBlock(ctx.get(), pvd.models().getBuilder("block/" + ctx.getName())
-						.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/furniture/wooden_large_chair")))
-						.texture("all", pvd.modLoc("block/wood/" + ctx.getName()))
-						.texture("particle", pvd.mcLoc("block/birch_planks"))
-						.renderType("cutout")))
+				.blockstate((ctx, pvd) -> {
+					var bottom = pvd.models().getBuilder("block/" + ctx.getName())
+							.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/furniture/wooden_large_chair_bottom")))
+							.texture("all", pvd.modLoc("block/wood/" + ctx.getName()))
+							.texture("particle", pvd.mcLoc("block/birch_planks"))
+							.renderType("cutout");
+					var top = pvd.models().getBuilder("block/" + ctx.getName() + "_top")
+							.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/furniture/wooden_large_chair_top")))
+							.texture("all", pvd.modLoc("block/wood/" + ctx.getName()))
+							.texture("particle", pvd.mcLoc("block/birch_planks"))
+							.renderType("cutout");
+					LargeChairBlock.genFullModel(pvd, ctx.getName());
+					pvd.horizontalBlock(ctx.get(), state -> state.getValue(HALF) == Half.TOP ? top : bottom);
+				})
 				.tag(BlockTags.MINEABLE_WITH_AXE)
-				.item().dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(400)).build()
+				.item().model(LargeChairBlock::genItemModel)
+				.dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(400)).build()
+				.loot(LargeChairBlock::genPlainLoot)
 				.register();
 
 		// brick sets

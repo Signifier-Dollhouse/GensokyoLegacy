@@ -1,18 +1,33 @@
 {
   "variants": {
-    "facing=east": {
+    "facing=east,half=bottom": {
       "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion",
       "y": 90
     },
-    "facing=north": {
+    "facing=east,half=top": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_top",
+      "y": 90
+    },
+    "facing=north,half=bottom": {
       "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion"
     },
-    "facing=south": {
+    "facing=north,half=top": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_top"
+    },
+    "facing=south,half=bottom": {
       "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion",
       "y": 180
     },
-    "facing=west": {
+    "facing=south,half=top": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_top",
+      "y": 180
+    },
+    "facing=west,half=bottom": {
       "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion",
+      "y": 270
+    },
+    "facing=west,half=top": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_top",
       "y": 270
     }
   }

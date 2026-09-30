@@ -5,7 +5,11 @@
       "bonus_rolls": 0.0,
       "conditions": [
         {
-          "condition": "minecraft:survives_explosion"
+          "block": "gensokyolegacy:wooden_large_chair_scarlet_devil_mansion",
+          "condition": "minecraft:block_state_property",
+          "properties": {
+            "half": "bottom"
+          }
         }
       ],
       "entries": [
