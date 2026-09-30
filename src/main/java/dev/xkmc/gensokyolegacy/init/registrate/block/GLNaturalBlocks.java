@@ -349,7 +349,7 @@ public class GLNaturalBlocks {
 			leaves = reg.block(id + "_leaves", LeavesBlock::new)
 					.properties(p -> leafProp)
 					.blockstate((ctx, pvd) -> pvd.simpleBlock(ctx.get(), pvd.models().cubeAll(ctx.getName(),
-							pvd.modLoc("block/wood/" + ctx.getName())).renderType("cutout")))
+							pvd.modLoc("block/wood/" + ctx.getName()))))
 					.loot((tb, block) -> genLeavesLoot(tb, block, sapling.get()))
 					.tag(BlockTags.MINEABLE_WITH_HOE, BlockTags.LEAVES)
 					.item().tag(ItemTags.LEAVES)
