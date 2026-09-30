@@ -102,11 +102,10 @@ public class SealingPotBlock implements OnPlaceBlockMethod, OnReplacedBlockMetho
     // ----- prevents placement into an already-sealed chunk (item stays in hand) -----
     @Override
     public @Nullable BlockState getStateForPlacement(BlockState def, BlockPlaceContext context) {
-        if (!(context.getLevel() instanceof ServerLevel sl)) return def;
         BlockPos target = context.replacingClickedOnBlock()
                 ? context.getClickedPos()
                 : context.getClickedPos().relative(context.getClickedFace());
-        return isChunkSealed(sl, new ChunkPos(target)) ? null : def;
+        return isSealed(context.getLevel(), target) ? null : def;   // both sides, see note
     }
 
     // ----- effect activation on placement -----
@@ -129,7 +128,17 @@ public class SealingPotBlock implements OnPlaceBlockMethod, OnReplacedBlockMetho
     }
 
     static boolean isChunkSealed(ServerLevel level, ChunkPos pos) { // overlap check
-        for (AreaEffectEntry e : AreaEffectManager.getAffecting(level, pos))
+        return hasSealingEffect(AreaEffectManager.getAffecting(level, pos));
+    }
+
+    static boolean isSealed(Level level, BlockPos pos) {            // overlap check, side-agnostic
+        return level instanceof ServerLevel sl
+                ? hasSealingEffect(AreaEffectManager.getAffecting(sl, pos))
+                : hasSealingEffect(ClientAreaEffectTracker.getAffecting(pos));
+    }
+
+    private static boolean hasSealingEffect(List<AreaEffectEntry> affecting) {
+        for (AreaEffectEntry e : affecting)
             if (e.data instanceof SealingEffectData) return true;
         return false;
     }
@@ -147,6 +156,13 @@ Notes:
   - `onPlace` guard → no effect if already sealed: covers non-item paths that bypass
     `getStateForPlacement` (`/setblock`, pistons, structure generation). The block may still exist
     there but is inert and will show no effect.
+- **`getStateForPlacement` runs on both sides** (not just `ServerLevel`): the client predicts block
+  placement in `MultiPlayerGameMode.performUseItemOn` and calls `itemstack.consume(1, player)` right
+  away. `BlockStatePredictionHandler` rolls back predicted *block states* only — never item counts —
+  so a client that allows the placement burns the pot while the server rejects it ("item consumed
+  without a pot"). The client therefore queries the synced `ClientAreaEffectTracker` (populated by
+  `AreaEffectSyncPacket` on chunk tracking), which mirrors the server's `AreaEffectManager` data for
+  every chunk the placer can actually reach.
 - **`onReplaced`** matches `onRemove` (block replaced/removed); it calls
   `AreaEffectManager.removeOwner` (see `area_effect.md` §3 "Owner block removal fallback")
   which looks up the effect `UUID` via the `byOwner` index instead of scanning `byId`,
@@ -265,7 +281,7 @@ strange glasses or holds a sealing pot (otherwise empty).
 | Effect data type | `SealingEffectData extends EffectData` | First concrete subclass; the system's intended extension point; persistence + sync for free. |
 | Block entity | **None** | Owner validity only checks block id; no inventory/tick state. Keeps `r=4` effects cheap. |
 | Effect lifecycle | `onPlace` add / `onReplaced` remove | Instant on break; `tickValidation` auto-removal (≤5 s) as fallback for explosions/`/setblock`. |
-| Overlap limit | `PlacementBlockMethod` blocks placing into a sealed chunk; `onPlace` guard for non-item paths | No redundant pots; the item is not consumed on a blocked placement. |
+| Overlap limit | `PlacementBlockMethod` blocks placing into a sealed chunk (server **and** client); `onPlace` guard for non-item paths | No redundant pots; the item is not consumed on a blocked placement (client prediction must agree with the server). |
 | Block shape | separate `SealingPotShape` `BlockMethod` | Decided: shape decoupled from `SealingPotBlock` so both are reusable by other blocks. |
 | Spawn hook | `NaturalSpawner` mixin (§5) | Hostile-natural-only; programmatic spawns untouched; cheaper than per-mob events. |
 | Spawn scope | **Hostile (`MONSTER`) natural spawns only** | Decided: friendly mobs still spawn; youkai indifferent (programmatic → unaffected). |
