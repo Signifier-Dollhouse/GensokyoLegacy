@@ -5,30 +5,46 @@ import com.mojang.blaze3d.vertex.BufferUploader;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
-import dev.xkmc.gensokyolegacy.content.rpg.quest.Quest;
+import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
+import dev.xkmc.gensokyolegacy.content.rpg.core.CodecRegistry;
+import dev.xkmc.gensokyolegacy.content.rpg.dialog.Dialog;
+import dev.xkmc.gensokyolegacy.content.rpg.network.DialogClickToServer;
+import dev.xkmc.gensokyolegacy.content.rpg.network.DialogCloseToServer;
 import dev.xkmc.gensokyolegacy.content.ui.quest.QuestInfo;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
 import dev.xkmc.l2itemselector.overlay.TextBox;
+import dev.xkmc.l2serial.network.SimplePacketBase;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
-import net.minecraft.world.entity.player.Inventory;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class DialogScreen<T extends DialogMenu> extends AbstractContainerScreen<T> {
+/**
+ * A conversation with a character, drawn over the untouched world.
+ *
+ * <p>Deliberately a plain {@link Screen} and not an
+ * {@code AbstractContainerScreen}: the dialog has no slots, so the menu it
+ * used to run on was only ever a sync channel - and a menu on screen is
+ * something mods decorate whether they should or not. State arrives through
+ * the {@code content.rpg.network} dialog packets instead, and the screen owns
+ * nothing but how to draw; see {@link DialogSession} for the server half.
+ */
+public abstract class DialogScreen extends Screen {
 
 	private static final ResourceLocation FRAME = GensokyoLegacy.loc("dialogue/frame");
 	private static final ResourceLocation BG = GensokyoLegacy.loc("dialogue/bg");
@@ -44,10 +60,10 @@ public class DialogScreen<T extends DialogMenu> extends AbstractContainerScreen<
 	private static final int BG_SPLIT = 32;
 
 	private static final int[] BG_LEFT = {-1, -1, -1, -1, -1, 30, 23, 22, 21, 20, 20, 18, 18, 17, 17,
-			16, 16, 16, 16, 16, 15, 15, 14, 14, 14, 13, 13, 12, 13, 13, 13, 13, 13, 13, 13, 13, 12, 12, 11,
+			16, 16, 16, 16, 16, 15, 15, 14, 14, 14, 13, 13, 12, 13, 13, 13, 13, 13, 13, 13, 12, 12, 11,
 			10, 9, 8, 8, 8, 8, 8, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
 			6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
-			6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 7, 13, 10, 8, 7, 8, -1, -1, -1, -1, -1, -1};
+			6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 13, 10, 8, 7, 8, -1, -1, -1, -1, -1, -1};
 	private static final int[] BG_RIGHT = {-1, -1, -1, -1, -1, 30, 23, 22, 21, 20, 20, 18, 18, 17, 17,
 			16, 16, 16, 16, 16, 15, 15, 14, 14, 14, 13, 13, 12, 13, 13, 13, 13, 13, 13, 13, 13, 12, 12, 11,
 			10, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
@@ -104,34 +120,124 @@ public class DialogScreen<T extends DialogMenu> extends AbstractContainerScreen<
 	private static final int HOVER_COLOR = 0xFFE9A8;
 	private static final int HOVER_FILL = 0x30FFFFFF;
 
+	/**
+	 * The dialog screen on top right now, if any. Stamped <em>before</em> the
+	 * screen reaches {@code setScreen}, so the outgoing screen's
+	 * {@link #removed()} can tell "replaced by another dialog" from "actually
+	 * closed" and only report the latter back to the server.
+	 */
+	@Nullable
+	private static DialogScreen current;
+
+	/**
+	 * Close the dialog on screen, if it is still the one the server meant.
+	 */
+	public static void close(int session) {
+		var screen = current;
+		if (screen != null && screen.session == session) {
+			Minecraft.getInstance().setScreen(null);
+		}
+	}
+
+	/**
+	 * The server-side step this screen is showing.
+	 */
+	protected final int session;
+
+	/**
+	 * The character being talked to, or null if it is not loaded on this side.
+	 * The id is kept regardless, so a click or a close can still be answered
+	 * when the entity is gone.
+	 */
+	protected final int characterId;
+
+	protected final @Nullable YoukaiEntity character;
+
 	protected int sel = -1;
 
-	public DialogScreen(T menu, Inventory inv, Component title) {
-		super(menu, inv, title);
+	protected DialogScreen(int session, int characterId) {
+		super(Component.empty());
+		this.session = session;
+		this.characterId = characterId;
+		this.character = resolveCharacter(characterId);
+	}
+
+	/**
+	 * Put a dialog on screen, replacing whichever one was there. Claims
+	 * ownership <em>before</em> {@code setScreen} tears the old one down, which
+	 * is what keeps the swap from looking like a close.
+	 */
+	protected static void show(DialogScreen screen) {
+		current = screen;
+		Minecraft.getInstance().setScreen(screen);
+	}
+
+	/**
+	 * Name drawn on the avatar name plate. Defaults to the entity display name.
+	 */
+	protected Optional<Component> getSpeakerName() {
+		return Optional.ofNullable(character).map(YoukaiEntity::getDisplayName);
+	}
+
+	protected abstract List<Component> getOptions();
+
+	protected abstract Optional<Component> getBodyText();
+
+	@Override
+	public boolean isPauseScreen() {
+		return false;
 	}
 
 	@Override
-	public void renderTransparentBackground(GuiGraphics g) {
-
-	}
-
-	@Override
-	protected void renderLabels(GuiGraphics g, int mx, int my) {
-	}
-
-	protected boolean click(int btn) {
-		if (menu.clickMenuButton(menu.player, btn) && Minecraft.getInstance().gameMode != null) {
-			Minecraft.getInstance().gameMode.handleInventoryButtonClick(menu.containerId, btn);
-			Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
-			return true;
-		} else {
-			return false;
+	public void tick() {
+		super.tick();
+		if (minecraft.player == null || !minecraft.player.isAlive() || minecraft.player.isRemoved()) {
+			onClose();
 		}
 	}
 
 	@Override
+	public void removed() {
+		super.removed();
+		if (current != this) return;
+		current = null;
+		sendToServer(new DialogCloseToServer(session, characterId));
+	}
+
+	/**
+	 * Screens also go away on disconnect, where there is no connection left
+	 * to answer on.
+	 */
+	private static void sendToServer(SimplePacketBase packet) {
+		if (Minecraft.getInstance().getConnection() != null) {
+			GensokyoLegacy.HANDLER.toServer(packet);
+		}
+	}
+
+	/**
+	 * No dimming, no blur, no menu background: the conversation is meant to be
+	 * had with the world still visible behind it.
+	 */
+	@Override
+	public void renderBackground(GuiGraphics g, int mx, int my, float pt) {
+
+	}
+
+	@Override
+	public void render(GuiGraphics g, int mx, int my, float pt) {
+		super.render(g, mx, my, pt);
+		renderDialog(g, pt, mx, my);
+	}
+
+	protected boolean click(int btn) {
+		sendToServer(new DialogClickToServer(session, characterId, btn));
+		minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+		return true;
+	}
+
+	@Override
 	public boolean mouseClicked(double mx, double my, int btn) {
-		if (menu.getOptions().isEmpty()) {
+		if (getOptions().isEmpty()) {
 			onClose();
 			return true;
 		}
@@ -143,22 +249,21 @@ public class DialogScreen<T extends DialogMenu> extends AbstractContainerScreen<
 
 	@Override
 	public boolean keyPressed(int key, int scan, int mod) {
-		if (menu.getOptions().isEmpty()) {
+		if (getOptions().isEmpty()) {
 			onClose();
 			return true;
 		}
 		return super.keyPressed(key, scan, mod);
 	}
 
-	@Override
-	protected void renderBg(GuiGraphics g, float pt, int mx, int my) {
+	protected void renderDialog(GuiGraphics g, float pt, int mx, int my) {
 		float s = this.height / (float) SCREEN_H;
 		if (s <= 0.0F) return;
 		float dw = this.width / s;
 
-		var body = menu.getBodyText();
+		var body = getBodyText();
 		boolean framed = body.isPresent();
-		boolean avatar = framed && menu.character != null;
+		boolean avatar = framed && character != null;
 
 		float padX = Math.min(BOX_PAD_X, dw * 0.2F);
 		float boxX = padX;
@@ -167,7 +272,7 @@ public class DialogScreen<T extends DialogMenu> extends AbstractContainerScreen<
 		float avatarY = boxY - AVATAR_ABOVE * AVATAR_SCALE + AVATAR_NUDGE_Y;
 		float textTop = boxY + TEXT_PAD_TOP;
 
-		var options = menu.getOptions();
+		var options = getOptions();
 		int n = options.size();
 		sel = -1;
 
@@ -311,8 +416,7 @@ public class DialogScreen<T extends DialogMenu> extends AbstractContainerScreen<
 	}
 
 	private void renderAvatar(GuiGraphics g, float s, float boxX, float avatarY, int mx, int my) {
-		var ch = menu.character;
-		if (ch == null) return;
+		if (character == null) return;
 		float as = AVATAR_SCALE * s;
 		int fx = Math.round((boxX + AVATAR_X) * s);
 		int fy = Math.round(avatarY * s);
@@ -323,11 +427,11 @@ public class DialogScreen<T extends DialogMenu> extends AbstractContainerScreen<
 		int ww = Math.round(AVATAR_WIN_W * as);
 		int wh = Math.round(AVATAR_WIN_H * as);
 		blitBlend(g, AVATAR_BG, wx, wy, 0, ww, wh);
-		float bh = ch.getBbHeight();
+		float bh = character.getBbHeight();
 		int scale = Mth.clamp(Math.round(AVATAR_WIN_H / (bh * 0.6f) * as), 16, 256);
 		g.pose().pushPose();
 		g.pose().translate(0, 0, 50);
-		InventoryScreen.renderEntityInInventoryFollowsMouse(g, wx, wy, wx + ww, wy + wh, scale, 0.35f * bh, mx, my, ch);
+		InventoryScreen.renderEntityInInventoryFollowsMouse(g, wx, wy, wx + ww, wy + wh, scale, 0.35f * bh, mx, my, character);
 		g.pose().popPose();
 		blitBlend(g, AVATAR, fx, fy, 100, fw, fh);
 	}
@@ -356,21 +460,47 @@ public class DialogScreen<T extends DialogMenu> extends AbstractContainerScreen<
 		g.pose().popPose();
 	}
 
-	protected void renderQuestInfo(GuiGraphics g, Optional<Holder<Quest>> quest) {
-		if (quest.isEmpty()) return;
-		var key = quest.get().unwrapKey().map(k -> k.location()).orElseThrow();
-		var data = GLMeta.QUEST.type().getOrCreate(menu.player);
+	/**
+	 * Draw the side panel describing a quest, resolved against the client's own
+	 * synced registry. Shows the started quest's state, or a preview of it when
+	 * the player has not picked it up yet.
+	 */
+	protected void renderQuestInfo(GuiGraphics g, @Nullable ResourceLocation questId) {
+		if (questId == null) return;
+		var level = minecraft.level;
+		if (level == null) return;
+		var holder = level.registryAccess().holder(ResourceKey.create(CodecRegistry.Keys.QUEST, questId));
+		if (holder.isEmpty()) return;
+		var data = GLMeta.QUEST.type().getOrCreate(minecraft.player);
 		QuestInfo info;
 		List<Component> text;
-		if (data.hasStarted(key)) {
-			info = new QuestInfo(quest.get().value(), data.getData(key));
-			text = info.getSideBarText(menu.player);
+		if (data.hasStarted(questId)) {
+			info = new QuestInfo(holder.get().value(), data.getData(questId));
+			text = info.getSideBarText(minecraft.player);
 		} else {
-			info = new QuestInfo(quest.get().value(), null);
+			info = new QuestInfo(holder.get().value(), null);
 			text = info.getPreviewText();
 		}
 		new TextBox(g, 0, 1, 10, this.height / 2, (int) (this.width * 0.4f - 20))
 				.renderLongText(font, text);
+	}
+
+	/**
+	 * Resolve a dialog id against the client's own synced registry. Null if the
+	 * dialog is gone, e.g. a datapack reload dropped it.
+	 */
+	protected static @Nullable Dialog resolveDialog(ResourceLocation id) {
+		var level = Minecraft.getInstance().level;
+		if (level == null) return null;
+		return level.registryAccess().holder(ResourceKey.create(CodecRegistry.Keys.DIALOG, id))
+				.map(Holder::value).orElse(null);
+	}
+
+	protected static @Nullable YoukaiEntity resolveCharacter(int uid) {
+		var level = Minecraft.getInstance().level;
+		if (level == null) return null;
+		if (level.getEntity(uid) instanceof YoukaiEntity e) return e;
+		return null;
 	}
 
 }

@@ -16,7 +16,7 @@ import java.util.Optional;
  * Each character maps every {@link YoukaiAnim} slot to its own clip, possibly
  * empty when it has no such animation. Dialog animations are data-driven: each
  * {@code Dialog} carries a list of possible trigger names, one of which is
- * played once when the dialog opens (see {@code SimpleDialogProvider}). The
+ * played once when the dialog opens (see {@code SimpleDialogSession}). The
  * greeting is the exception: it is code-triggered when a conversation starts,
  * as it is not part of any dialog.
  * <p>

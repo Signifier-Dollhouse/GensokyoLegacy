@@ -3,7 +3,7 @@ package dev.xkmc.gensokyolegacy.content.rpg.handle;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.rpg.dialog.DialogStarter;
 import dev.xkmc.gensokyolegacy.content.rpg.quest.Quest;
-import dev.xkmc.gensokyolegacy.content.ui.dialog.SimpleDialogProvider;
+import dev.xkmc.gensokyolegacy.content.ui.dialog.SimpleDialogSession;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -18,8 +18,8 @@ public record DialogHandle(Holder<DialogStarter> starter) implements IDialogHand
 	}
 
 	@Override
-	public void openMenu(ServerPlayer sp, YoukaiEntity character) {
-		new SimpleDialogProvider(sp, character, this, starter.value().dialog()).open();
+	public void open(ServerPlayer sp, YoukaiEntity character) {
+		SimpleDialogSession.open(sp, character, this, starter.value().dialog());
 	}
 
 	@Override

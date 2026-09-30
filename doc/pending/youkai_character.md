@@ -176,9 +176,9 @@ killedEntity(level, entity):
 
 `mobInteract` iterates `HomeModule → GiftModule → FeedModule → TalkModule` (order in `createModules()`), first non-PASS wins `YoukaiEntity.java:216`.
 
-- **TalkModule**: requires `mayInteract` (`!isHostileTo && !isTalking && activity!=REST/FIGHT`), `reputation!=ENEMY`, empty hand. Server: `setTalkTo(sp,-1)` → `BrainUtils.setMemory(MEM_TALK, player)` + `FirstDialogProvider.open`. Client validates `distance<=5` + still `ITalkMenu`.
-- **FeedModule**: `@SerialField feedCoolDown`. `getFavor(FoodProperties) = nutrition - poison penalties + beneficial`, capped 10. Only if `feedCoolDown==0 && favor>=0 && food != empty`. Server: `shrink(1)`, `coolDown += nutrition*100`, `CharDataHolder.feed(stack, favor)` → `foodData.feed()` multiplier + `gainReputation(round(val*favor), MAX)`, `setTalkTo(sp,-1)` auto-talk.
-- **GiftModule**: via `GLMeta.GIFT_DATA` datamap `GiftData.getFavor(stack, self)` + `cooldown()`. On success `gain(favor, MAX)` + shrink + `GIFTED` flag + `HEART` event + levelup sound. Takes priority over Feed (Gift before Feed in list).
+- **TalkModule**: requires `mayInteract` (`!isHostileTo && !isTalking && activity!=REST/FIGHT`), `reputation!=ENEMY`, empty hand. `beginTalking(sp)` is the single entry point for every conversation start (talking, feeding, gifting): it records `talkTarget` then calls `setTalkTo(sp,-1)` → `BrainUtils.setMemory(MEM_TALK, player)` + `FirstDialogSession.open`. Server validates `distance<=5` + that the player still has a talk UI: either a live `DialogSession` or a container menu implementing `ITalkMenu` (the trade screen, which takes over from a dialog).
+- **FeedModule**: `@SerialField feedCoolDown`. `getFavor(FoodProperties) = nutrition - poison penalties + beneficial`, capped 10. Only if `feedCoolDown==0 && favor>=0 && food != empty`. Server: `shrink(1)`, `coolDown += nutrition*100`, `CharDataHolder.feed(stack, favor)` → `foodData.feed()` multiplier + `gainReputation(round(val*favor), MAX)`, then `beginTalking(sp)` auto-talk.
+- **GiftModule**: via `GLMeta.GIFT_DATA` datamap `GiftData.getFavor(stack, self)` + `cooldown()`. On success `gain(favor, MAX)` + shrink + `GIFTED` flag + `HEART` event + levelup sound, then `beginTalking(sp)`. Takes priority over Feed (Gift before Feed in list).
 - **HomeModule**: not interactable; storage only.
 
 Flags `YoukaiFlags` bitmask in `DATA_FLAGS_ID`: `CHARGING, FAINTED, POWERED, FED, GIFTED, FLYING`.
