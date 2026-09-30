@@ -3,6 +3,15 @@
   "pools": [
     {
       "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "block": "gensokyolegacy:oak_large_chair",
+          "condition": "minecraft:block_state_property",
+          "properties": {
+            "half": "bottom"
+          }
+        }
+      ],
       "entries": [
         {
           "type": "minecraft:item",

@@ -6,7 +6,11 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.Half;
 import net.minecraft.world.phys.AABB;
+
+import static net.minecraft.world.level.block.state.properties.BlockStateProperties.HALF;
 
 public interface ISeatableBlock {
 
@@ -27,6 +31,14 @@ public interface ISeatableBlock {
 
 	static boolean isSeatOccupied(Level world, BlockPos pos) {
 		return !world.getEntitiesOfClass(ChairEntity.class, new AABB(pos)).isEmpty();
+	}
+
+	/**
+	 * Two block seats keep their seat entity on the lower half, so the upper half
+	 * is neither clickable nor holding a seat.
+	 */
+	static boolean isSeatPos(BlockState state) {
+		return !state.hasProperty(HALF) || state.getValue(HALF) == Half.BOTTOM;
 	}
 
 }

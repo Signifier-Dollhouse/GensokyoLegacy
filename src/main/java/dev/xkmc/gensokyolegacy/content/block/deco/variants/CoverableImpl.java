@@ -2,6 +2,7 @@ package dev.xkmc.gensokyolegacy.content.block.deco.variants;
 
 import com.tterrag.registrate.providers.RegistrateBlockstateProvider;
 import com.tterrag.registrate.providers.loot.RegistrateBlockLootTables;
+import dev.xkmc.gensokyolegacy.content.block.deco.seat.ISeatableBlock;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLDecoBlocks;
 import dev.xkmc.l2core.serial.loot.LootHelper;
 import dev.xkmc.l2modularblock.mult.CreateBlockStateBlockMethod;
@@ -25,11 +26,13 @@ import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
+import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.neoforge.client.model.generators.BlockModelBuilder;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
 import net.neoforged.neoforge.client.model.generators.MultiPartBlockStateBuilder;
 import net.neoforged.neoforge.common.ItemAbilities;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Locale;
 
@@ -83,6 +86,10 @@ public class CoverableImpl implements CreateBlockStateBlockMethod, DefaultStateB
 
 	@Override
 	public ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player pl, InteractionHand hand, BlockHitResult result) {
+		// the pad sits on the lower half only, so the upper half stays plain wood
+		if (!ISeatableBlock.isSeatPos(state)) {
+			return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+		}
 		if (state.getValue(COLOR) == Color.NONE) {
 			for (var e : Color.values()) {
 				if (e.item.asItem() == Items.AIR) continue;
@@ -111,9 +118,19 @@ public class CoverableImpl implements CreateBlockStateBlockMethod, DefaultStateB
 	}
 
 	public static LootTable.Builder loot(RegistrateBlockLootTables pvd, Block block) {
+		return loot(pvd, block, null);
+	}
+
+	/**
+	 * @param self extra condition gating the block drop, used by two block
+	 *             furniture to drop from one half only
+	 */
+	public static LootTable.Builder loot(RegistrateBlockLootTables pvd, Block block, @Nullable LootItemCondition.Builder self) {
 		LootHelper helper = new LootHelper(pvd);
 		var ans = LootTable.lootTable();
-		ans.withPool(LootPool.lootPool().add(LootItem.lootTableItem(block)));
+		var pool = LootPool.lootPool().add(LootItem.lootTableItem(block));
+		if (self != null) pool.when(self);
+		ans.withPool(pool);
 		for (var e : Color.values()) {
 			if (e.item.asItem() == Items.AIR) continue;
 			ans.withPool(LootPool.lootPool().add(LootItem.lootTableItem(e.item)).when(helper.enumState(block, COLOR, e)));
@@ -152,7 +169,7 @@ public class CoverableImpl implements CreateBlockStateBlockMethod, DefaultStateB
 			String texName = e == Color.BASE ? suffix : e.getSerializedName() + "_" + suffix;
 			String modelName = woodName + "_" + texName;
 			pvd.models().getBuilder("block/" + modelName)
-					.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/furniture/wooden_large_chair_pad")))
+					.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/furniture/wooden_large_chair_pad_bottom")))
 					.texture("wood", chairTexture)
 					.texture("pad", "block/" + textureDir + "/" + texName)
 					.texture("particle", "minecraft:block/birch_planks")

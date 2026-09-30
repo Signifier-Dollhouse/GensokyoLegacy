@@ -3,6 +3,7 @@ package dev.xkmc.gensokyolegacy.content.block.functional.barriers;
 import dev.xkmc.gensokyolegacy.content.attachment.area.AreaEffectEntry;
 import dev.xkmc.gensokyolegacy.content.attachment.area.AreaEffectManager;
 import dev.xkmc.gensokyolegacy.content.attachment.area.ChunkPosRange;
+import dev.xkmc.gensokyolegacy.content.attachment.area.ClientAreaEffectTracker;
 import dev.xkmc.gensokyolegacy.init.data.GLModConfig;
 import dev.xkmc.l2modularblock.mult.OnPlaceBlockMethod;
 import dev.xkmc.l2modularblock.mult.OnReplacedBlockMethod;
@@ -15,15 +16,18 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
+
 public class SealingPotBlock implements OnPlaceBlockMethod, OnReplacedBlockMethod, PlacementBlockMethod {
 
 	@Override
 	public @Nullable BlockState getStateForPlacement(BlockState def, BlockPlaceContext context) {
-		if (!(context.getLevel() instanceof ServerLevel sl)) return def;
 		BlockPos target = context.replacingClickedOnBlock()
 				? context.getClickedPos()
 				: context.getClickedPos().relative(context.getClickedFace());
-		return isChunkSealed(sl, new ChunkPos(target)) ? null : def;
+		// This must be checked on the client too: the client predicts block placement and shrinks the
+		// held stack before the server rejects it, and that prediction is never rolled back for items.
+		return isSealed(context.getLevel(), target) ? null : def;
 	}
 
 	@Override
@@ -46,7 +50,20 @@ public class SealingPotBlock implements OnPlaceBlockMethod, OnReplacedBlockMetho
 	 * Limit overlap: hide the effect if the chunk is already sealed by another pot.
 	 */
 	static boolean isChunkSealed(ServerLevel level, ChunkPos pos) {
-		for (AreaEffectEntry e : AreaEffectManager.getAffecting(level, pos)) {
+		return hasSealingEffect(AreaEffectManager.getAffecting(level, pos));
+	}
+
+	/**
+	 * Side-agnostic sealed check, so that the client's placement prediction matches the server.
+	 */
+	static boolean isSealed(Level level, BlockPos pos) {
+		return level instanceof ServerLevel sl
+				? hasSealingEffect(AreaEffectManager.getAffecting(sl, pos))
+				: hasSealingEffect(ClientAreaEffectTracker.getAffecting(pos));
+	}
+
+	private static boolean hasSealingEffect(List<AreaEffectEntry> affecting) {
+		for (AreaEffectEntry e : affecting) {
 			if (e.data instanceof SealingEffectData) return true;
 		}
 		return false;

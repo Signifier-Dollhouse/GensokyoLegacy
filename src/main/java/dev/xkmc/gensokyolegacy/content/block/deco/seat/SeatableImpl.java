@@ -19,6 +19,9 @@ public record SeatableImpl() implements UseWithoutItemBlockMethod {
 		if (player.isShiftKeyDown()) {
 			return InteractionResult.PASS;
 		}
+		if (!ISeatableBlock.isSeatPos(state)) {
+			return InteractionResult.PASS;
+		}
 		List<ChairEntity> seats = level.getEntitiesOfClass(ChairEntity.class, new AABB(pos));
 		if (!seats.isEmpty()) {
 			ChairEntity seat = seats.getFirst();
