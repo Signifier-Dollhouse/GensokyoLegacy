@@ -53,6 +53,13 @@ public class DollAttachment extends PlayerCapabilityTemplate<DollAttachment> imp
 	 */
 	public static final int MAX_SUMMONED = 8;
 
+	/**
+	 * How close a stray must be for the glove recall to reach it (control.md
+	 * §5.4) — the glove's target range, so it matches what the holder can
+	 * actually see. Strays further out are left to the idle rejoin.
+	 */
+	public static final double STRAY_RECALL_RANGE = 48.0;
+
 	@SerialField
 	private final Map<UUID, DollData> dolls = new LinkedHashMap<>();
 
@@ -225,6 +232,30 @@ public class DollAttachment extends PlayerCapabilityTemplate<DollAttachment> imp
 		return true;
 	}
 
+	/**
+	 * Stray rejoin (control.md §5.4): a suicide dive that aborted before
+	 * detonation is not a death, so its detached entry goes back on the ledger
+	 * parked TEMP — the next tick's TEMP pass resummons the doll near its owner,
+	 * health and gear untouched. The stray entity is discarded instead of killed,
+	 * so the death drop never fires. False when the doll is not stray, already
+	 * handed its entry to the death drop, is dying, or its key is taken — the
+	 * caller then leaves it a stray.
+	 */
+	public boolean rejoin(BaseDollEntity doll) {
+		StrayHost stray = doll.strayHost();
+		if (stray == null || doll.isDeadOrDying()) return false;
+		DollData data = stray.data();
+		if (data == null || data.uuid == null || data.type == null) return false;
+		if (dolls.containsKey(data.uuid)) return false;
+		stray.take();
+		doll.setStrayHost(null);
+		doll.writeValuesTo(data);
+		data.state = DollState.TEMP;
+		dolls.put(data.uuid, data);
+		doll.discard();
+		return true;
+	}
+
 	// ---------- glove mass operations ----------
 
 	/** Any doll currently summoned on this ledger. */
@@ -266,13 +297,57 @@ public class DollAttachment extends PlayerCapabilityTemplate<DollAttachment> imp
 	}
 
 	/**
+	 * Glove recall for strays (control.md §5.4): itemize every stray of this
+	 * ledger within {@code range} blocks of the owner, same result as recalling
+	 * a summoned one — the item form lands in the player's inventory. A stray
+	 * holds no ledger entry, so this scans loaded entities for this player's own
+	 * stray dolls rather than walking the map. Stops at the first full-inventory
+	 * refusal like {@link #itemize} does; strays past {@code range} are left
+	 * alone, and the idle rejoin ({@code DollStray}) is the fallback for those.
+	 * Returns dolls itemized.
+	 */
+	public int recallStrays(ServerPlayer player, double range) {
+		AABB box = player.getBoundingBox().inflate(range);
+		List<Entity> strays = player.level().getEntities(player, box,
+				e -> e instanceof BaseDollEntity doll && doll.isStray() && doll.isOwner(player));
+		int n = 0;
+		for (var e : strays) {
+			if (!hasSlotFor(player)) {
+				player.displayClientMessage(GLLang.Doll.NO_SPACE.get(), true);
+				break;
+			}
+			if (itemizeStray(player, (BaseDollEntity) e)) n++;
+		}
+		return n;
+	}
+
+	/**
+	 * Stray counterpart of {@link #itemize}: the detached entry rides a fresh
+	 * doll item into the player's inventory and the stray entity is discarded.
+	 * The slot is the caller's gate — {@link #placeItemBackInInventory} drops
+	 * whatever does not fit, and the doll must not be lost to a full inventory.
+	 */
+	private boolean itemizeStray(ServerPlayer player, BaseDollEntity doll) {
+		StrayHost stray = doll.strayHost();
+		if (stray == null || doll.isDeadOrDying()) return false;
+		DollData data = stray.take();
+		if (data == null) return false;
+		doll.setStrayHost(null);
+		doll.writeValuesTo(data);
+		player.getInventory().placeItemBackInInventory(DollItem.makeItem(data));
+		doll.discard();
+		return true;
+	}
+
+	/**
 	 * Glove recall-all: itemize every reachable summoned doll, parking to STORED
 	 * when the inventory is full; then consolidate all TEMP into STORED, so
-	 * everything parked ends up as data. Player-ledger only — block-hosted
-	 * dolls never reach here. Returns {itemized, parked}.
+	 * everything parked ends up as data. Strays within {@link #STRAY_RECALL_RANGE}
+	 * blocks ride the same sweep as itemized dolls (§5.4). Player-ledger only —
+	 * block-hosted dolls never reach here. Returns {itemized, parked}.
 	 */
 	public int[] recallAll(ServerPlayer player) {
-		int itemized = 0, parked = 0;
+		int itemized = recallStrays(player, STRAY_RECALL_RANGE), parked = 0;
 		for (var data : new ArrayList<>(dolls.values())) {
 			if (!data.isSummoned() || data.uuid == null) continue;
 			ServerLevel level = getLevel(player, data);

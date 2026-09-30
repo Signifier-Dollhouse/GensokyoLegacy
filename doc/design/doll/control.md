@@ -118,7 +118,22 @@ Fly into the target and explode. **Always destroys the doll; the stray death dro
 - Capability: `Items.TNT` in either hand.
 - On start the behavior raises the handler KAMIKAZE flag **and cuts the doll from pairing** (`DollEntity.becomeStray()` → `DollHost.detach` into a `StrayHost`): the ledger entry is removed with no item produced. From here the doll is stray — pairing queries resolve against the host, so no sync, no pullback, no commands.
 - Goal: dive at the target at full `MAX_SPEED` with no leash; within blast range (≤ 2 blocks or contact) → the explosive-hexbrew blast itself (`HexBrew.EXPLOSIVE_HEXBREW.handler.onHit` with the doll as thrower: power 4, terrain kept, thrower and allies excluded) — the doll is excluded as thrower, so its death is guaranteed by the fallback below, not the blast.
-- Afterwards (server): consume the TNT from the loadout, then guarantee death (`hurt(genericKill, MAX)` if the blast didn't finish it) → `DollHost.onDeath` (only `StrayHost` acts: drops the item form) and the entity is gone. Abort (target vanished/unloaded) leaves a stray ronin: it keeps following its owner on stray-routed combat, commands can't reach it, and only death ends it — persisting in chunks until then.
+- Afterwards (server): consume the TNT from the loadout, then guarantee death (`hurt(genericKill, MAX)` if the blast didn't finish it) → `DollHost.onDeath` (only `StrayHost` acts: drops the item form) and the entity is gone. Nothing is consumed unless the dive lands: an abort before detonation (target died or left, weapon gone) is **not** a death, so `stop()` calls `rejoinOwner()` (§5.4a).
+
+### 5.4a Stray rejoin — the cut is never permanent
+
+The stray cut above is a transient state, not a fate. Two paths bring a doll back, both landing on the same ledger transition (`TEMP`, resummoned near the owner on the next tick, health and gear untouched):
+
+| Path | Trigger | Scope |
+|---|---|---|
+| Abort | suicide `stop()` without detonation (§5.4) | that one doll, immediately |
+| Idle | `DollStray.maybeRejoin`, ticked once per second from `DollEntity.tick` while the doll is stray **and holds no ticket** | that doll, retried every second until its owner is reachable |
+
+The idle pass is the fallback for every way a stray can end up ownerless that the abort path can't cover — chiefly a dive that ran while the player logged out, which leaves the doll mid-air with no ticket and no way to reach the ledger. It resolves the owner through the server player list, so a rejoin happens as soon as they log back in. A stray holding a ticket is never yanked: a dive in flight runs to its conclusion.
+
+Only two things end a stray for good, both intentional: the suicide blast (death drop) and the glove recall below. An owner who is offline is not one of them.
+
+- **Glove recall**: the recall half of rally (`SUMMON` mode, `DollAttachment.recallAll`) also sweeps strays within `STRAY_RECALL_RANGE` (48 blocks, the glove's target range, so it matches what the holder can see) and itemizes them into the inventory exactly like a summoned doll (`recallStrays` → `itemizeStray`: entry to a doll item, entity discarded, full inventory stops the sweep with `no_space`). Strays beyond that range are left alone — the idle rejoin is what covers those. `recallStrays` scans loaded entities filtered by `isStray() && isOwner(player)`, not the ledger map: strays hold no entry.
 
 ### 5.5 `HEAL` — folded heal talisman, scheduler-issued auto
 
@@ -163,7 +178,7 @@ public final Set<UUID> healTargets = new LinkedHashSet<>();
 All loadout items live in data (`DollData.inventory` ↔ `DOLL_LOADOUT`). The only world drop in the whole system is the stray death drop (§5.4):
 
 - **Normal itemize** (`interact`, recall, park→`STORED`→item): gear rides the item untouched. `park`/`TEMP`/`SUMMONED` transitions keep `DollData.inventory` as before.
-- **Suicide itemize**: gone — the doll goes stray at dive start (§5.4) and the death drop returns the 0-hp item with remaining gear. Nothing is ever handed to the player directly.
+- **Suicide itemize**: gone — the doll goes stray at dive start (§5.4) and the death drop returns the 0-hp item with remaining gear. Nothing is ever handed to the player directly; an aborted dive never reaches either, it rejoins the ledger with all of it (§5.4).
 - **Revival**: `DollAttachment.summon` treats `combat.amount() <= 0` as fresh (`DollItemData.fresh()` combat, gear intact) — persist everything, no kamikaze loadout price. All other transitions already preserve health and gear.
 - **Clone duplication**: cloning a doll item (e.g. creative) clones its gear too — accepted, same precedent as shulker boxes. The pairing invariant (pairing.md §5) covers doll *identity*, which gear never participates in. Ammo can never duplicate through commands: TNT/laser/hexbrew are consumed from the live ledger stack, talisman/shield wear lands on the live stack.
 
@@ -197,10 +212,10 @@ Created (`content/entity/dolls/action/`, behaviors in `.../behavior/`, all goals
 
 Modify (all done):
 
-- `DollEntity` — `actions` field, one `DollCommandGoal` at selector priority 0, vanilla shield hooks (§5.6), never-null ledger-direct loadout API, `becomeStray()`
+- `DollEntity` — `actions` field, one `DollCommandGoal` at selector priority 0, vanilla shield hooks (§5.6), never-null ledger-direct loadout API, `becomeStray()` / `rejoinOwner()` / `maybeRejoin()` (doll side of the stray cut, `DollStray`)
 - `BaseDollEntity` — pairing pipeline only (plus the stray `getHost` branch and `die()` → `onDeath` fan-out); empty-hand itemize (arming removed, loadout.md §4)
-- `DollHost` — `detach(UUID)` for stray cuts, `onDeath` hook (only `StrayHost` acts); impls on the attachment and the controller; `StrayHost` holds the detached entry, answers pairing queries, and persists it via chunk save/load
-- `DollAttachment` — destroyed-resummon revival (§7); ledger transitions only, command logic lives in the commander
+- `DollHost` — `detach(UUID)` for stray cuts, `onDeath` hook (only `StrayHost` acts); impls on the attachment and the controller; `StrayHost` holds the detached entry, answers pairing queries, hands it over one-shot via `take()` (death drop, rejoin, recall), and persists it via chunk save/load
+- `DollAttachment` — destroyed-resummon revival (§7); stray rejoin as `TEMP` and the recall sweep for strays (§5.4a); ledger transitions only, command logic lives in the commander
 - `DollItem`/`DollData` — revival keeps gear (§7)
 - `GLLang` — glove + feedback messages (glove.md §1)
 
@@ -213,6 +228,6 @@ Modify (all done):
 - **Suicide while block-hosted**: `itemize` needs the player ledger; block-hosted dolls can't be recalled to item form. Suicide commands are only issued over the player ledger, so this never arises; block-hosted dolls keep `mobInteract`'s existing no-itemize rule.
 - **Destroyed-doll revival vs. health-at-zero**: bounded exception — revival spawns *fresh* health with gear intact instead of a 0-HP corpse-cycle (§7). All other transitions stay health-preserving.
 - **Gear vs. dup protection**: gear never leaves data (§7); cloning an item clones gear (shulker precedent, accepted); ammo is consumed from the live ledger stack, so commands can't duplicate anything.
-- **Leash vs. pullback**: goals enforce the 10-block owner leash (§5), strictly inside the 48-block ledger pullback — the yank only ever fires on knockback spikes or bugs mid-action. Stray dolls (detached entries) never see the ledger at all; park/resummon are otherwise unchanged.
-- **Stray ronin**: a dive aborted before detonation (or a stray hurt by anything else) keeps following its owner on stray-routed combat, shield still works, but no ledger path can reach it — no commands, no scheduling, no itemize. Only death ends it, via the death drop, persisting in chunks until then. There is no rejoin path by design.
+- **Leash vs. pullback**: goals enforce the 10-block owner leash (§5), strictly inside the 48-block ledger pullback — the yank only ever fires on knockback spikes or bugs mid-action. Stray dolls (detached entries) are exempt from both while they last, but the cut only lasts until one of §5.4a's rejoins or a recall; park/resummon are otherwise unchanged.
+- **Stray ronin**: the stray cut is transient, not a fate — both rejoin paths (§5.4a) bring an idle doll back to its ledger, and the glove recall within 48 blocks itemizes it outright. While it is stray it keeps following its owner on stray-routed combat and the shield still works, but no ledger path can reach it: no commands, no scheduling, no itemize. Death is still the only path that ends one *without* returning it — the death drop, persisting in chunks until then.
 - **Future work (out of scope)**: continuous attacks with automatic targeting, mechanical `core` items, attack-tracking lasers, `ITERATIVE` for other types, render held items (loadout.md §5), a glove-inventory screen, block-hosted doll commands, modded-shield matching, heal-mark pruning.

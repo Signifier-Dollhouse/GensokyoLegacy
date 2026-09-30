@@ -1,5 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.item.glove.mode;
 
+import dev.xkmc.gensokyolegacy.content.attachment.doll.DollAttachment;
 import dev.xkmc.gensokyolegacy.content.item.glove.DollGloveItem;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
@@ -11,6 +12,13 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
+/**
+ * Rally, the glove's one toggle mode: with nothing summoned it materializes
+ * everything parked plus every doll item in the inventory, otherwise it recalls
+ * — itemizing the summoned dolls (overflow parked to data) and any stray dolls
+ * within {@link DollAttachment#STRAY_RECALL_RANGE} blocks, which are as loose
+ * as a summoned one as far as the holder is concerned (control.md §5.4).
+ */
 public class SummonMode extends DollGloveHandler {
 
 	@Override

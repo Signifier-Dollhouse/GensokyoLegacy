@@ -53,7 +53,11 @@ public class DollEntity extends BaseDollEntity
 	@Override
 	public void tick() {
 		super.tick();
-		if (!level().isClientSide() && !isRemoved()) syncActionStatus();
+		if (level().isClientSide() || isRemoved()) return;
+		syncActionStatus();
+		// last-resort path out of the stray cut (control.md §5.4): an idle
+		// stray rejoins its ledger on its own, no player input needed.
+		maybeRejoin();
 	}
 
 	@Override
