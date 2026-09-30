@@ -27,8 +27,8 @@
 		"sparkling": "星星附着",
 		"sparkling.desc": "受到攻击时散发星星",
 		"sparkling.description": "受到攻击时散发星星",
-		"starlight_shield": "星光护盾",
-		"starlight_shield.desc": "获得1点吸收值",
-		"starlight_shield.description": "获得1点吸收值"
+		"shield": "护盾",
+		"shield.desc": "获得1点吸收值",
+		"shield.description": "获得1点吸收值"
 	}
 }

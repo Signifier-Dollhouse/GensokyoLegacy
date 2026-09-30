@@ -42,8 +42,8 @@ public class GLEffects {
 			SparklingEffect::new,
 			"When hit, retaliate with stars");
 
-	public static final LegacyHolder<MobEffect> STARLIGHT_SHIELD = genEffect("starlight_shield",
-			StarlightShieldEffect::new,
+	public static final LegacyHolder<MobEffect> SHIELD = genEffect("shield",
+			ShieldEffect::new,
 			"Grants 1 absorption");
 
 	public static final LegacyHolder<MobEffect> LAVA_AFFINITY = genEffect("lava_affinity",
