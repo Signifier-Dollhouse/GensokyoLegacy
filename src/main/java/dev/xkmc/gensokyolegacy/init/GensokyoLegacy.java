@@ -93,7 +93,7 @@ public class GensokyoLegacy {
 	public static final String MODID = "gensokyolegacy";
 	public static final Reg REG = new Reg(MODID);
 	public static final L2Registrate REGISTRATE = new L2Registrate(MODID);
-	public static final PacketHandler HANDLER = new PacketHandler(MODID, 1,
+	public static final PacketHandler HANDLER = new PacketHandler(MODID, 2,
 			e -> e.create(CharDataToClient.class, PacketHandler.NetDir.PLAY_TO_CLIENT),
 			e -> e.create(PathDataToClient.class, PacketHandler.NetDir.PLAY_TO_CLIENT),
 			e -> e.create(BlockRequestToServer.class, PacketHandler.NetDir.PLAY_TO_SERVER),
