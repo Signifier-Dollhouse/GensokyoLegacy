@@ -49,6 +49,7 @@ import net.minecraft.tags.ItemTags;
 import net.minecraft.world.entity.animal.FrogVariant;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemDisplayContext;
@@ -279,7 +280,7 @@ public class GLItems {
 		GLNaturalBlocks.register();
 
 		TAB = reg.buildModCreativeTab("ingredients", "Gensokyo Legacy - Ingredients",
-				e -> e.icon(GLItems.FAIRY_ICE_CRYSTAL::asStack));
+				e -> e.icon(GLItems.MYSTICAL_STRAW::asStack));
 
 		// tools
 		{

@@ -43,7 +43,6 @@ import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.properties.Half;
-import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.material.PushReaction;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
@@ -60,9 +59,6 @@ public class GLDecoBlocks {
 
 	public static final SimpleEntry<CreativeModeTab> TAB;
 
-	public static final BrickSet PACKED_ICE_SET, SNOW_SET, ICE_BRICK_SET, SNOW_BRICK_SET;
-	public static final StoneAndBrickSet DARKSTONE;
-
 	public static final BlockEntry<Block> GLASS;
 	public static final BlockEntry<IronBarsBlock> GLASS_PANE, SHOJI_FRAME_PANE;
 	public static final BlockEntry<Block> SHOJI_FRAME;
@@ -75,7 +71,7 @@ public class GLDecoBlocks {
 	static {
 		var reg = GensokyoLegacy.REGISTRATE;
 		TAB = reg.buildModCreativeTab("building_blocks", "Gensokyo Legacy - Building Blocks",
-				e -> e.icon(() -> GLDecoBlocks.ICE_BRICK_SET.block.get().asItem().getDefaultInstance()));
+				e -> e.icon(() -> GLDecoBlocks.TATAMI_BLOCK.asItem().getDefaultInstance()));
 
 		// decorative small placeable items not primarily for building
 		{
@@ -296,27 +292,6 @@ public class GLDecoBlocks {
 
 		// brick sets
 		{
-			SNOW_SET = new BrickSet(reg, "snow", BlockBehaviour.Properties.ofFullCopy(Blocks.SNOW_BLOCK),
-					ResourceLocation.withDefaultNamespace("block/snow"), () -> Blocks.SNOW_BLOCK,
-					BlockTags.MINEABLE_WITH_SHOVEL);
-			SNOW_BRICK_SET = new BrickSet(reg, "snow", BlockBehaviour.Properties.of().mapColor(MapColor.SNOW)
-					.requiresCorrectToolForDrops().strength(0.2F).sound(SoundType.SNOW),
-					(ctx, pvd) -> GLRecipeGen.unlock(pvd, ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, ctx.get())::unlockedBy, Items.SNOW_BLOCK)
-							.pattern("XX").pattern("XX").define('X', Items.SNOW_BLOCK).save(pvd),
-					BlockTags.MINEABLE_WITH_SHOVEL);
-
-			PACKED_ICE_SET = new BrickSet(reg, "packed_ice", BlockBehaviour.Properties.ofFullCopy(Blocks.PACKED_ICE),
-					ResourceLocation.withDefaultNamespace("block/packed_ice"), () -> Blocks.PACKED_ICE,
-					BlockTags.MINEABLE_WITH_PICKAXE);
-
-			ICE_BRICK_SET = new BrickSet(reg, "ice", BlockBehaviour.Properties.of().mapColor(MapColor.ICE)
-					.instrument(NoteBlockInstrument.CHIME)
-					.requiresCorrectToolForDrops().strength(0.5F).sound(SoundType.GLASS),
-					(ctx, pvd) -> pvd.stonecutting(DataIngredient.items(Blocks.PACKED_ICE), RecipeCategory.BUILDING_BLOCKS, ctx));
-
-			DARKSTONE = new StoneAndBrickSet(reg, "darkstone", MapColor.COLOR_BLACK, 1F,
-					SoundType.DEEPSLATE, SoundType.DEEPSLATE_BRICKS);
-
 			var tiles = new DyeColor[]{DyeColor.CYAN, DyeColor.ORANGE, DyeColor.YELLOW, DyeColor.BROWN, DyeColor.BLUE, DyeColor.BLACK, DyeColor.GRAY};
 			var strips = new DyeColor[]{DyeColor.BLUE};
 

@@ -1,7 +1,0 @@
-{
-  "parent": "gensokyolegacy:block/vertical_slab",
-  "textures": {
-    "side": "minecraft:block/snow",
-    "top": "minecraft:block/snow"
-  }
-}

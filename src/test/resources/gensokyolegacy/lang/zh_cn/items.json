@@ -19,8 +19,6 @@
 		"donation_box": "赛钱箱",
 		"evergreen_vine": "常青垂藤",
 		"cedar_fallen_leaves": "青杉落叶",
-		"ice_bricks": "冰砖",
-		"snow_bricks": "雪砖",
 		"darkstone": "宵暗石",
 		"darkstone_bricks": "宵暗瓦块",
 		"chiseled_darkstone_bricks": "雕纹宵暗瓦块",
@@ -128,10 +126,11 @@
 		"star_wand": "星星魔杖",
 		"strange_glasses": "奇怪的眼镜",
 		"cat_bell": "猫铃铛",
-		"doll_spawn_egg": "人形生成蛋",
 		"door_debug_wand": "门调试杖",
 		"mermaid_pearl": "人鱼珍珠",
 		"mini_hakkero_prototype": "迷你八卦炉【原型】",
+		"hakurei_reimu_spawn_egg": "博丽灵梦生成蛋",
+		"kirisame_marisa_spawn_egg": "雾雨魔理沙生成蛋",
 		"morichika_rinnosuke_spawn_egg": "森近霖之助生成蛋",
 		"star_danmaku": "星星弹幕",
 		"structure_wand": "结构杖"
@@ -155,8 +154,7 @@
 					"morichika_rinnosuke": "森近霖之助"
 				},
 				{
-					"entity.gensokyolegacy.*": "",
-					"item.gensokyolegacy.*_spawn_egg": "生成蛋"
+					"entity.gensokyolegacy.*": ""
 				}
 			]
 		},
@@ -166,8 +164,6 @@
 				{
 					"packed_ice": "浮冰",
 					"snow": "雪",
-					"ice_brick": "冰砖",
-					"snow_brick": "雪砖",
 					"darkstone": "宵暗石",
 					"darkstone_brick": "宵暗瓦"
 				},

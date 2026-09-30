@@ -1,4 +1,6 @@
 1.0.1
+- mark curios and patchouli as required prerequisite
+- remove irrelevant items and blocks.
 - change dialog text color
 - make characters and dolls not able to be leashed
 - fix FTB icons showing up in dialog screen

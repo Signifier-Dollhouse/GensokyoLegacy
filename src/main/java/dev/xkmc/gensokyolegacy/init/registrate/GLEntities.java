@@ -49,6 +49,8 @@ public class GLEntities {
 	public static final EntityEntry<FairyIce> FAIRY_ICE;
 	public static final EntityEntry<HexBrewBottleEntity> HEXBREW_BOTTLE;
 
+	// Spawn eggs are only registered for the three fully implemented characters
+	// (Reimu, Marisa, Morichika); every other mob and the doll are obtained in-world only.
 	static {
 
 		GensokyoLegacy.REGISTRATE.defaultCreativeTab(CreativeModeTabs.OP_BLOCKS);
@@ -66,7 +68,6 @@ public class GLEntities {
 					.properties(e -> e.sized(0.4F, 1.7f).clientTrackingRange(10))
 					.attributes(RumiaEntity::createAttributes)
 					.renderer(() -> RumiaRenderer::new)
-					.spawnEgg(0x413734, 0xA55064).build()
 					.loot(EntityLootGen::noLoot)
 					.register();
 
@@ -88,7 +89,6 @@ public class GLEntities {
 					.properties(e -> e.sized(0.4F, 1.8f).clientTrackingRange(10))
 					.attributes(CirnoEntity::createAttributes)
 					.renderer(() -> CirnoRenderer::new)
-					.spawnEgg(0x5676af, 0xb6ecf1).build()
 					.loot(EntityLootGen::noLoot)
 					.dataMap(GLMeta.GIFT_PREFERENCE.reg(), GiftPreference.of(Map.of(
 							GiftType.TOY, 2.0,
@@ -104,7 +104,6 @@ public class GLEntities {
 					.properties(e -> e.sized(0.4F, 1.8f).clientTrackingRange(10))
 					.attributes(BossYoukaiEntity::createAttributes)
 					.renderer(() -> GeneralYoukaiRenderer::new)
-					.spawnEgg(0x4B1442, 0xFFFFFF).build()
 					.loot(EntityLootGen::yukari)
 					.register();
 
@@ -113,7 +112,6 @@ public class GLEntities {
 					.properties(e -> e.sized(0.4F, 1.8f).clientTrackingRange(10))
 					.attributes(BossYoukaiEntity::createAttributes)
 					.renderer(() -> GeneralYoukaiRenderer::new)
-					.spawnEgg(0x4eaff9, 0xFFFFFF).build()
 					.loot(EntityLootGen::sanae)
 					.register();
 
@@ -122,7 +120,6 @@ public class GLEntities {
 					.properties(e -> e.sized(0.4F, 1.8f).clientTrackingRange(10))
 					.attributes(BossYoukaiEntity::createAttributes)
 					.renderer(() -> GeneralYoukaiRenderer::new)
-					.spawnEgg(0x88BA7F, 0x645856).build()
 					.loot(EntityLootGen::noLoot)
 					.register();
 
@@ -149,7 +146,6 @@ public class GLEntities {
 					.properties(e -> e.sized(0.4F, 1.8f).clientTrackingRange(10))
 					.attributes(GeneralYoukaiEntity::createAttributes)
 					.renderer(() -> GeneralYoukaiRenderer::new)
-					.spawnEgg(0x9B6D79, 0xF4BDAE).build()
 					.loot(EntityLootGen::mystia)
 					.register();
 
@@ -158,7 +154,6 @@ public class GLEntities {
 					.properties(e -> e.sized(0.4F, 1.8f).clientTrackingRange(10))
 					.attributes(FairyEntity::createAttributes)
 					.renderer(() -> GeneralYoukaiRenderer::new)
-					.spawnEgg(0xB14435, 0xFCF5D8).build()
 					.loot(EntityLootGen::noLoot)
 					.register();
 
@@ -167,7 +162,6 @@ public class GLEntities {
 					.properties(e -> e.sized(0.4F, 1.8f).clientTrackingRange(10))
 					.attributes(FairyEntity::createAttributes)
 					.renderer(() -> GeneralYoukaiRenderer::new)
-					.spawnEgg(0xFFF9DA, 0xA26B4F).build()
 					.loot(EntityLootGen::noLoot)
 					.register();
 
@@ -176,7 +170,6 @@ public class GLEntities {
 					.properties(e -> e.sized(0.4F, 1.8f).clientTrackingRange(10))
 					.attributes(FairyEntity::createAttributes)
 					.renderer(() -> GeneralYoukaiRenderer::new)
-					.spawnEgg(0x353D95, 0x482E25).build()
 					.loot(EntityLootGen::noLoot)
 					.register();
 		}
@@ -187,7 +180,6 @@ public class GLEntities {
 					.properties(e -> e.sized(0.4F, 0.9F).clientTrackingRange(10))
 					.attributes(DollEntity::createAttributes)
 					.renderer(() -> DollRenderer::new)
-					.spawnEgg(0xFFFFFF, 0x000000).build()
 					.register();
 		}
 
