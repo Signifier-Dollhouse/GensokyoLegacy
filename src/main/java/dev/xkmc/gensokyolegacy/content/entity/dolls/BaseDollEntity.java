@@ -311,7 +311,14 @@ public abstract class BaseDollEntity extends DamageRefactorEntity implements Own
 	@Override
 	protected void takeDamage(DamageSource source, float amount) {
 		DollData data = resolveDollData();
-		if (data == null) return;
+		if (data == null) {
+			// No paired entry: use the plain path, as documented. Dropping the hit
+			// instead would make an unpaired doll immune to every kind of damage,
+			// which reads as invulnerability from the outside and hides whatever
+			// fault actually left it unpaired.
+			super.takeDamage(source, amount);
+			return;
+		}
 		float progress = getCombatProgress();
 		if (progress <= amount && preventDeath(source)) return;
 		deferCombatData(data, progress - amount, false, false);
@@ -439,24 +446,13 @@ public abstract class BaseDollEntity extends DamageRefactorEntity implements Own
 	}
 
 	// ---- never persisted into chunks ----
-	// Only a marker is written, so a doll stored in a chunk is detected on load and
-	// discarded. All state lives in the player capability (doc/design/doll/entity.md).
+	// All state lives in the ledger entry — the player capability (doc/design/doll/entity.md)
+	// for a player's dolls, or the host entity's save data for a character's. A doll
+	// with no entry cannot be reconstructed, so it must never be written in the first
+	// place: {@link #shouldBeSaved} is the gate that keeps it out of chunks.
 
 	@Override
 	public void readAdditionalSaveData(CompoundTag compound) {
-		// A doll is never supposed to be chunk-persisted (§5.8): the ledger entry is
-		// the only copy, and the entity is a projection of it. The marker written by
-		// addAdditionalSaveData is what makes that stick — without reading it back, a
-		// doll that did get written to disk comes back as a zombie: vanilla keeps the
-		// game UUID but ownerUUID was never written, so it has no host and can
-		// neither follow nor be commanded, while its ledger still matches it by UUID.
-		// The worst case is a chunk that never ticks it: it sits there frozen forever
-		// and, because its UUID resolves, it also suppresses the conjure pass that
-		// would replace it. Remove it during load instead, before it is ever added.
-		if (compound.contains("DollNeverSave", Tag.TAG_BYTE)) {
-			this.setRemoved(Entity.RemovalReason.DISCARDED);
-			return;
-		}
 		this.ownerUUID = compound.hasUUID("OwnerUUID") ? compound.getUUID("OwnerUUID") : null;
 		if (compound.contains("DollStrayData", Tag.TAG_COMPOUND)) {
 			StrayHost loaded = StrayHost.load(level().registryAccess(), compound.getCompound("DollStrayData"));
@@ -465,11 +461,40 @@ public abstract class BaseDollEntity extends DamageRefactorEntity implements Own
 		this.setNoGravity(true);
 	}
 
+	/**
+	 * A doll is a projection of its ledger entry, never a thing in its own right
+	 * (§5.8) — so it must not be written into a chunk at all. A <b>stray</b> is the
+	 * one exception: its entry was cut from the ledger, so the entity carries the
+	 * only copy of that detached data and has to ride the chunk until it dies
+	 * (control.md §5.4a). Matches {@link #addAdditionalSaveData} exactly.
+	 * <p>
+	 * This has to be the real gate rather than the {@code DollNeverSave} marker
+	 * alone. A marker can only be acted on once the entity is already being
+	 * constructed, and {@code setRemoved} at that point is a no-op in effect:
+	 * {@code EntityInLevelCallback} is attached <i>after</i>
+	 * {@code readAdditionalSaveData}, and {@code addEntityWithoutEvent} does not
+	 * consult the removal reason. The result is the worst possible outcome — an
+	 * entity that is in the world, in the uuid lookup, and in the live count, but
+	 * whose {@code tick} returns immediately and whose {@code getHost} is null. It
+	 * never ticks, so it never self-discards; it is counted as live, so it
+	 * suppresses the very conjure that would replace it; and with no paired entry
+	 * the deferred damage pipeline drops every hit on it, which looks exactly
+	 * like an invulnerable doll. Not writing it at all is the only clean answer.
+	 */
+	@Override
+	public boolean shouldBeSaved() {
+		return strayHost != null && strayHost.data() != null;
+	}
+
 	@Override
 	public void addAdditionalSaveData(CompoundTag compound) {
 		if (strayHost != null && strayHost.data() != null) {
 			compound.put("DollStrayData", strayHost.save(level().registryAccess()));
 		} else {
+			// Only reached for a stray-less doll that something forced a save on
+			// despite {@link #shouldBeSaved}. The marker says so on the way back in,
+			// where it is ignored: there is nothing to rebuild from, so the doll is
+			// simply ownerless and both ledgers evict it on sight.
 			compound.putByte("DollNeverSave", (byte) 1);
 		}
 	}

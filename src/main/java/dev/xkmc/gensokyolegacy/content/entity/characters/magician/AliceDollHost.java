@@ -222,6 +222,14 @@ public class AliceDollHost extends AbstractYoukaiModule implements DollLedger {
 	 * dropped from the ledger outright: she conjures dolls from air, so there is no
 	 * count of how many she may have to respect and no broken one worth keeping —
 	 * the conjure pass just makes another.
+	 * <p>
+	 * A doll that has <b>lost its host</b> is parked as well, and that is the
+	 * self-healing case. It can neither follow nor be commanded, and with no paired
+	 * entry the deferred damage pipeline has nothing to write, so it would otherwise
+	 * sit there inert — and, because its uuid still resolves, still be counted as
+	 * live, which suppresses the conjure meant to replace it. One such doll wedges
+	 * the whole roster. The commander's own resolution refuses to count it, so
+	 * parking it here lets the conjure pass bring a working doll back.
 	 *
 	 * @return whether any entry was parked or dropped, so the caller can re-conjure
 	 *         immediately instead of waiting for its own interval
@@ -239,7 +247,7 @@ public class AliceDollHost extends AbstractYoukaiModule implements DollLedger {
 				doll.discard();
 				it.remove();
 				repaired = true;
-			} else if (doll.level() != sl || doll.distanceTo(owner) >= PULLBACK_DISTANCE) {
+			} else if (doll.level() != sl || doll.distanceTo(owner) >= PULLBACK_DISTANCE || doll.getHost() == null) {
 				park(data);
 				repaired = true;
 			}
@@ -481,7 +489,11 @@ public class AliceDollHost extends AbstractYoukaiModule implements DollLedger {
 	/**
 	 * The live doll an entry names, looked up in the dimension the entry recorded.
 	 * Null when that world is gone or the entity is not there — dolls are never
-	 * chunk-serialized (§5.8), so "not there" means gone rather than pending.
+	 * chunk-serialized (§5.8), so "not there" means gone rather than pending. This
+	 * is the <b>raw</b> lookup, host and all: a doll that has lost its host still has
+	 * to come back here, so that {@link #reconcile} can see it and park it. The
+	 * commander's resolution is the filtered one, and that is what keeps a useless
+	 * doll out of the live count.
 	 */
 	@Nullable
 	private BaseDollEntity resolve(DollData data) {

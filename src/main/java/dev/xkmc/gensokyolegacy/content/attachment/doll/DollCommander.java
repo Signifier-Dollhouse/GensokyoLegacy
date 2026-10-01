@@ -1,5 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.attachment.doll;
 
+import dev.xkmc.gensokyolegacy.content.entity.dolls.BaseDollEntity;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.DollEntity;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.action.DollAction;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.action.DollActionMode;
@@ -351,13 +352,26 @@ public class DollCommander {
 		return null;
 	}
 
+	/**
+	 * The live doll an entry names, or null when there is nothing to act on.
+	 * <p>
+	 * A doll whose host it cannot resolve is deliberately <b>not</b> returned: such
+	 * a doll can neither follow nor be commanded, and with no paired entry its
+	 * deferred damage pipeline has nothing to write. It is still in the level and
+	 * still in the uuid lookup, so treating it as live would make the live count
+	 * include a doll that cannot function — and a live count above the roster size
+	 * is exactly what suppresses the conjure that would replace it. Excluding it
+	 * here is what lets a ledger heal itself out of a wedged roster.
+	 */
 	@Nullable
 	private Entity resolveEntity(Entity from, DollData data) {
 		if (data.uuid == null || data.dimension == null) return null;
 		var server = from.level().getServer();
 		if (server == null) return null;
 		ServerLevel level = server.getLevel(ResourceKey.create(Registries.DIMENSION, data.dimension));
-		return level == null ? null : level.getEntity(data.uuid);
+		if (level == null) return null;
+		if (!(level.getEntity(data.uuid) instanceof BaseDollEntity doll)) return null;
+		return doll.getHost() == null ? null : doll;
 	}
 
 	/**
