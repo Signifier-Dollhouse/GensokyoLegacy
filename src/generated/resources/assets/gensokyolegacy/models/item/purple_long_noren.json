@@ -1,0 +1,6 @@
+{
+  "parent": "gensokyolegacy:item/noren_long_item",
+  "textures": {
+    "curtain": "gensokyolegacy:block/noren/purple_long_noren"
+  }
+}

@@ -75,7 +75,10 @@
 		"evergreen_vine_plant": "常青垂藤茎",
 		"gap_portal": "隙间传送门",
 		"blue_strips_terracota": "蓝条纹陶瓦",
-		"cushion": "坐垫"
+		"cushion": "坐垫",
+		"wrought_iron_bars": "铁艺护栏",
+		"wrought_iron_pillar": "铁艺立柱",
+		"neiton_noren": "霓吞町门帘"
 	},
 	"item.gensokyolegacy": {
 		"doll": "人形",
@@ -227,7 +230,36 @@
 				}
 			]
 		},
-			"tiles": {
+		"norens": {
+			"path": "block.gensokyolegacy",
+			"list": [
+				{
+					"black": "黑色",
+					"blue": "蓝色",
+					"brown": "棕色",
+					"cyan": "青色",
+					"gray": "灰色",
+					"green": "绿色",
+					"light_blue": "浅蓝色",
+					"light_gray": "淡灰色",
+					"lime": "黄绿色",
+					"magenta": "品红色",
+					"orange": "橙色",
+					"pink": "粉色",
+					"purple": "紫色",
+					"red": "红色",
+					"white": "白色",
+					"yellow": "黄色"
+				},
+				{
+					"noren": "门帘",
+					"striped_noren": "条纹门帘",
+					"wavy_noren": "波浪纹门帘",
+					"long_noren": "双条纹长门帘"
+				}
+			]
+		},
+		"tiles": {
 			"path": "block.gensokyolegacy",
 			"list": [
 				{

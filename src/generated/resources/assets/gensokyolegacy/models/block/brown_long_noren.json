@@ -1,0 +1,7 @@
+{
+  "parent": "gensokyolegacy:block/noren_hanging",
+  "render_type": "minecraft:cutout",
+  "textures": {
+    "curtain": "gensokyolegacy:block/noren/brown_long_noren"
+  }
+}
