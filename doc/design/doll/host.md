@@ -99,6 +99,24 @@ hand, and a doll keeps one to spend on Alice and on her other dolls whenever the
 are hurt. The two hands do not contend: `REGULAR_ATTACK` and `HEAL` are different
 action types and a doll only ever holds one ticket.
 
+`arm()` therefore has to own the **whole** loadout, not just the wand. The heal
+behaviour has a sticky swap (control.md §2): acting on an off-hand item moves it
+into the main hand and leaves it there, because main-hand-ness *is* the doll's
+standing choice of hand. A doll that has just healed is therefore holding the
+talisman in the **main** hand and the wand in the off hand. A pass that only
+policed the main hand for the wand would leave that talisman sitting there, and
+then refuel the off hand on top of it — the doll ends up carrying two. So `arm()`:
+
+1. hands any main-hand talisman **back to the off hand, keeping the stack**
+   (moving it, not refolding a fresh one — otherwise every heal burns a talisman);
+2. sets the main hand to the wand iff in combat, empty otherwise;
+3. refolds the off hand if what is there is not a usable talisman.
+
+A doll **holding a ticket is skipped entirely**. The swap is deliberate for the
+action in flight, and reloading the loadout out from under it would make the heal
+no-op on the very tick it resolves; the layout is repaired on the first idle tick
+afterwards.
+
 `arm()` walks the **whole ledger**, not just the live dolls, so a doll retired
 mid-fight is already parked by the time it runs and does not carry a wand back
 out the next time she goes to the park.
@@ -185,7 +203,7 @@ dolls are never chunk-serialized (§5.8) so there is no second copy anywhere:
 
 | Event | What happens |
 |---|---|
-| **unload** (chunk leaves) | The ledger is written with her — dolls and all their values. The doll entities are simply not saved, so on the next tick `reconcile` finds every `SUMMONED` entry without a live entity, parks it `TEMP`, and `conjure` brings the roster back at her side. Health, colour and gear all survive. |
+| **unload** (chunk leaves) | The ledger is written with her — dolls and all their values. The doll entities are *not*: `addAdditionalSaveData` stamps `DollNeverSave`, and `readAdditionalSaveData` reads it back and removes the entity during load, so a doll that did get written to disk is gone before it is ever added. On the next tick `reconcile` parks every `SUMMONED` entry `TEMP` and `conjure` brings the roster back at her side. Health, colour and gear all survive. |
 | **kill** | `onKilled` discards every doll immediately — a corpse does not keep ordering dolls about. Her data is never written back, so the roster dies with her. |
 | **discard** (vanish task, reputation, debug reset) | She leaves the level, so `getHost()` returns null for each doll and each self-discards on its next tick. Nothing of hers is left in the world. |
 
@@ -194,6 +212,7 @@ every character gets.
 
 Other edge cases:
 
+- **A doll restored from disk.** `DollNeverSave` used to be written but never read, and `ownerUUID` is never persisted at all — so a doll that got written to a chunk came back as a zombie: vanilla keeps its game UUID, but it has no owner, so it can neither follow nor be commanded, *while its ledger entry still matches it by UUID*. That last part is the nasty one: a live count that includes a doll which cannot function suppresses the conjure pass that would replace it, so one zombie doll can wedge a whole roster — and if its chunk never ticks it, it never even self-discards. `readAdditionalSaveData` now honours the marker and removes the entity at load, and `reconcile` reports whether it repaired anything so the conjure happens in the same tick rather than up to a second later.
 - **A doll drifts off.** Past `DollHost.PULLBACK_DISTANCE` (or into another dimension) the reconcile pass discards it and parks the entry; the next conjure brings it back at her side.
 - **A retired doll stays armed.** `arm` walks the whole ledger, not just the live dolls, so a doll parked mid-fight does not carry a wand back out the next time she goes to the park.
 - **Dolls never itemize.** `mobInteract`'s empty-hand recall is gated on `isPlayerOwned()`, so a creative player cannot pull one of Alice's dolls into their inventory. Her dolls have no item form at all.

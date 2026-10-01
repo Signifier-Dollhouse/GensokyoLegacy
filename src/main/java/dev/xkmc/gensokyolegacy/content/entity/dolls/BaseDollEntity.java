@@ -444,6 +444,19 @@ public abstract class BaseDollEntity extends DamageRefactorEntity implements Own
 
 	@Override
 	public void readAdditionalSaveData(CompoundTag compound) {
+		// A doll is never supposed to be chunk-persisted (§5.8): the ledger entry is
+		// the only copy, and the entity is a projection of it. The marker written by
+		// addAdditionalSaveData is what makes that stick — without reading it back, a
+		// doll that did get written to disk comes back as a zombie: vanilla keeps the
+		// game UUID but ownerUUID was never written, so it has no host and can
+		// neither follow nor be commanded, while its ledger still matches it by UUID.
+		// The worst case is a chunk that never ticks it: it sits there frozen forever
+		// and, because its UUID resolves, it also suppresses the conjure pass that
+		// would replace it. Remove it during load instead, before it is ever added.
+		if (compound.contains("DollNeverSave", Tag.TAG_BYTE)) {
+			this.setRemoved(Entity.RemovalReason.DISCARDED);
+			return;
+		}
 		this.ownerUUID = compound.hasUUID("OwnerUUID") ? compound.getUUID("OwnerUUID") : null;
 		if (compound.contains("DollStrayData", Tag.TAG_COMPOUND)) {
 			StrayHost loaded = StrayHost.load(level().registryAccess(), compound.getCompound("DollStrayData"));

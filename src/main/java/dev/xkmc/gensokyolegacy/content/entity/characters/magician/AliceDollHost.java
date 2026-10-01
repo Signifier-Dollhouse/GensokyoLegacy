@@ -6,6 +6,7 @@ import dev.xkmc.gensokyolegacy.content.attachment.doll.DollHost;
 import dev.xkmc.gensokyolegacy.content.attachment.doll.DollLedger;
 import dev.xkmc.gensokyolegacy.content.attachment.doll.DollSpawn;
 import dev.xkmc.gensokyolegacy.content.attachment.doll.DollState;
+import dev.xkmc.gensokyolegacy.content.attachment.doll.MutableDollInventory;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.BaseDollEntity;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.DollEntity;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.action.DollAction;
@@ -171,7 +172,10 @@ public class AliceDollHost extends AbstractYoukaiModule implements DollLedger {
 	public void tickServer() {
 		if (!(owner.level() instanceof ServerLevel sl)) return;
 		if (owner.isDeadOrDying()) return;
-		reconcile(sl);
+		// a chunk reload is the one case that can invalidate the whole roster at
+		// once, so repair and re-conjure land in the same tick instead of letting
+		// the conjure gate below hide the repair for up to a second
+		boolean repaired = reconcile(sl);
 		commander.tick(owner);
 		// restamp the follow-formation slots. The player ledger folds this into its
 		// sidebar push; Alice has no sidebar, so she just pays for it here.
@@ -181,7 +185,7 @@ public class AliceDollHost extends AbstractYoukaiModule implements DollLedger {
 		// always run against the size they were meant for
 		boolean resized = rosterSize(current);
 		retire(quota);
-		if (resized || sl.getGameTime() % CONJURE_INTERVAL == 0) conjure(sl, quota);
+		if (repaired || resized || sl.getGameTime() % CONJURE_INTERVAL == 0) conjure(sl, quota);
 		arm(current == Post.COMBAT);
 		if (current == Post.COMBAT && sl.getGameTime() % COMMAND_INTERVAL == 0) command();
 	}
@@ -218,21 +222,29 @@ public class AliceDollHost extends AbstractYoukaiModule implements DollLedger {
 	 * dropped from the ledger outright: she conjures dolls from air, so there is no
 	 * count of how many she may have to respect and no broken one worth keeping —
 	 * the conjure pass just makes another.
+	 *
+	 * @return whether any entry was parked or dropped, so the caller can re-conjure
+	 *         immediately instead of waiting for its own interval
 	 */
-	private void reconcile(ServerLevel sl) {
+	private boolean reconcile(ServerLevel sl) {
+		boolean repaired = false;
 		for (var it = dolls.iterator(); it.hasNext(); ) {
 			DollData data = it.next();
 			if (data == null || !data.isSummoned()) continue;
 			BaseDollEntity doll = resolve(data);
 			if (doll == null) {
 				data.state = DollState.TEMP;
+				repaired = true;
 			} else if (data.getHealth() <= 0) {
 				doll.discard();
 				it.remove();
+				repaired = true;
 			} else if (doll.level() != sl || doll.distanceTo(owner) >= PULLBACK_DISTANCE) {
 				park(data);
+				repaired = true;
 			}
 		}
+		return repaired;
 	}
 
 	/**
@@ -340,6 +352,21 @@ public class AliceDollHost extends AbstractYoukaiModule implements DollLedger {
 	 * The two hands do not contend — {@code REGULAR_ATTACK} and {@code HEAL} are
 	 * different action types, and a doll only ever holds one ticket.
 	 * <p>
+	 * This owns the <b>whole</b> loadout, not just the wand, because the heal
+	 * behaviour has a sticky swap: acting on an off-hand item moves it into the main
+	 * hand and leaves it there — that is how a doll "decides" to act with a given
+	 * hand. So a doll that has just healed is holding the talisman in the main hand
+	 * and the wand in the off hand. A pass that only policed the main hand would
+	 * leave the talisman sitting there, and then refuel the off hand on top of it,
+	 * which is how a doll ends up carrying two. So: hand the talisman back where it
+	 * belongs — <b>keeping the stack</b> rather than burning a fresh one — and let the
+	 * main hand be reclaimed for the wand.
+	 * <p>
+	 * A doll holding a ticket is left completely alone. The swap is deliberate for
+	 * the action in flight, and reloading the loadout out from under it would make
+	 * the heal no-op on the very tick it resolves. The layout is repaired on the
+	 * first idle tick after.
+	 * <p>
 	 * Walks the whole ledger, not just the live dolls: a doll retired mid-fight is
 	 * already parked by the time this runs, and it must not carry a wand back out
 	 * the next time she goes to the park.
@@ -347,16 +374,26 @@ public class AliceDollHost extends AbstractYoukaiModule implements DollLedger {
 	private void arm(boolean combat) {
 		for (DollData data : dolls) {
 			if (data == null || data.inventory == null) continue;
-			boolean armed = data.inventory.get(DollSlot.MAIN_HAND).getItem() instanceof StarWandItem;
+			DollEntity doll = resolve(data) instanceof DollEntity found ? found : null;
+			if (doll != null && doll.actions.isActive()) continue;
+			MutableDollInventory inv = data.inventory;
+			// a sticky swap left the talisman in the main hand: move it home rather
+			// than overwrite it and burn a fresh one
+			ItemStack main = inv.get(DollSlot.MAIN_HAND);
+			if (main.getItem() instanceof FoldedPaperTalisman
+					&& !DollBehaviors.isUsableHealTalisman(inv.get(DollSlot.OFF_HAND))) {
+				inv.set(DollSlot.OFF_HAND, main);
+			}
+			boolean armed = inv.get(DollSlot.MAIN_HAND).getItem() instanceof StarWandItem;
 			if (armed != combat) {
-				data.inventory.set(DollSlot.MAIN_HAND, combat ? GLItems.STAR_WAND.asStack() : ItemStack.EMPTY);
+				inv.set(DollSlot.MAIN_HAND, combat ? GLItems.STAR_WAND.asStack() : ItemStack.EMPTY);
 			}
 			// refilled as it wears down: a spent talisman is no longer a heal hand,
 			// and a healer that cannot heal is just a doll with a paper scrap
-			if (!DollBehaviors.isUsableHealTalisman(data.inventory.get(DollSlot.OFF_HAND))) {
-				data.inventory.set(DollSlot.OFF_HAND, FoldedPaperTalisman.fold(GLTalismans.HEAL_TALISMAN.asStack()));
+			if (!DollBehaviors.isUsableHealTalisman(inv.get(DollSlot.OFF_HAND))) {
+				inv.set(DollSlot.OFF_HAND, FoldedPaperTalisman.fold(GLTalismans.HEAL_TALISMAN.asStack()));
 			}
-			if (resolve(data) instanceof DollEntity doll) doll.syncLoadoutMirror();
+			if (doll != null) doll.syncLoadoutMirror();
 		}
 	}
 
