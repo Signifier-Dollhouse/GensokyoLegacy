@@ -1,6 +1,6 @@
 {
-  "parent": "minecraft:item/generated",
+  "parent": "gensokyolegacy:item/noren_long_item",
   "textures": {
-    "layer0": "gensokyolegacy:block/noren/purple_long_noren"
+    "curtain": "gensokyolegacy:block/noren/purple_long_noren"
   }
 }

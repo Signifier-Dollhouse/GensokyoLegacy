@@ -217,8 +217,7 @@ public class GLDecoBlocks {
 								.pushReaction(PushReaction.DESTROY).noOcclusion().noCollission())
 						.blockstate((ctx, pvd) -> NorenJsons.buildBlockState(ctx, pvd, kind.hanging()))
 						.item().tag(kind.tag())
-						.model((ctx, pvd) -> pvd.withExistingParent(ctx.getName(), "item/generated")
-								.texture("layer0", pvd.modLoc("block/noren/" + ctx.getName())))
+						.model((ctx, pvd) -> NorenJsons.genItemModel(ctx, pvd, kind.hanging()))
 						.build()
 						.recipe((ctx, pvd) -> GLRecipeGen.unlock(pvd, ShapelessRecipeBuilder.shapeless(
 								RecipeCategory.DECORATIONS, ctx.get())::unlockedBy, DyeItem.byColor(col))
@@ -232,8 +231,7 @@ public class GLDecoBlocks {
 				.properties(p -> p.mapColor(MapColor.NONE).strength(0.1F).sound(SoundType.WOOL)
 						.pushReaction(PushReaction.DESTROY).noOcclusion().noCollission())
 				.blockstate((ctx, pvd) -> NorenJsons.buildBlockState(ctx, pvd, true))
-				.item().model((ctx, pvd) -> pvd.withExistingParent(ctx.getName(), "item/generated")
-						.texture("layer0", pvd.modLoc("block/noren/neiton_noren")))
+				.item().model((ctx, pvd) -> NorenJsons.genItemModel(ctx, pvd, true))
 				.build()
 				.register();
 

@@ -1,6 +1,6 @@
 {
-  "parent": "minecraft:item/generated",
+  "parent": "gensokyolegacy:item/noren_item",
   "textures": {
-    "layer0": "gensokyolegacy:block/noren/black_striped_noren"
+    "curtain": "gensokyolegacy:block/noren/black_striped_noren"
   }
 }

@@ -64,7 +64,8 @@ public class NorenBlock {
 	}
 
 	/**
-	 * 帘子本体只有一格厚,跟着 facing 转向。碰撞由方块属性的 {@code noCollission} 关掉,
+	 * 帘子本体只有一格厚,而且贴着挂它的那面墙:rotationY=0 对应 facing=south,
+	 * 墙就在北面,所以帘子落在 z=0 那条边上。碰撞由方块属性的 {@code noCollission} 关掉,
 	 * 这里只管选中范围。
 	 */
 	public record Shape(boolean hanging) implements ShapeBlockMethod {
@@ -73,7 +74,7 @@ public class NorenBlock {
 		private static final VoxelShape[] LONG = shapes(-HANGING);
 
 		private static VoxelShape[] shapes(int y0) {
-			var builder = new VoxelBuilder(0, y0, 7, 16, 16, 9);
+			var builder = new VoxelBuilder(0, y0, 0, 16, 16, 1);
 			VoxelShape[] ans = new VoxelShape[4];
 			for (int i = 0; i < ans.length; i++) {
 				ans[i] = builder.rotateFromNorth(Direction.from2DDataValue(i));
