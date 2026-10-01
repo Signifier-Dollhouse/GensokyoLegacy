@@ -1,0 +1,4 @@
+{
+  "parent": "gensokyolegacy:block/gray_curtain",
+  "render_type": "minecraft:cutout"
+}

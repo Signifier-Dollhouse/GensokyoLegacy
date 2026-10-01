@@ -1,0 +1,8 @@
+{
+  "parent": "gensokyolegacy:custom/furniture/curtain",
+  "render_type": "minecraft:cutout",
+  "textures": {
+    "0": "gensokyolegacy:block/curtain/green_curtain_double_striped_long",
+    "particle": "gensokyolegacy:block/curtain/green_curtain_double_striped_long"
+  }
+}

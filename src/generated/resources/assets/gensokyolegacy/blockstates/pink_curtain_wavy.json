@@ -1,0 +1,11 @@
+{
+  "variants": {
+    "axis=x": {
+      "model": "gensokyolegacy:block/pink_curtain_wavy"
+    },
+    "axis=z": {
+      "model": "gensokyolegacy:block/pink_curtain_wavy",
+      "y": 90
+    }
+  }
+}

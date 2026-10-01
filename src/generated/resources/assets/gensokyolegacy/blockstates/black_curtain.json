@@ -1,0 +1,11 @@
+{
+  "variants": {
+    "axis=x": {
+      "model": "gensokyolegacy:block/black_curtain"
+    },
+    "axis=z": {
+      "model": "gensokyolegacy:block/black_curtain",
+      "y": 90
+    }
+  }
+}

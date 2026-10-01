@@ -9,6 +9,7 @@ import com.tterrag.registrate.util.nullness.NonNullBiConsumer;
 import dev.xkmc.gensokyolegacy.content.block.deco.door.SlidingDoor;
 import dev.xkmc.gensokyolegacy.content.block.deco.door.SlidingDoorJsons;
 import dev.xkmc.gensokyolegacy.content.block.deco.misc.BlackIronPillarBlock;
+import dev.xkmc.gensokyolegacy.content.block.deco.misc.CurtainBlock;
 import dev.xkmc.gensokyolegacy.content.block.deco.misc.TatamiBlock;
 import dev.xkmc.gensokyolegacy.content.block.deco.seat.CushionBlock;
 import dev.xkmc.gensokyolegacy.content.block.deco.seat.ISeatableBlock;
@@ -26,6 +27,7 @@ import dev.xkmc.l2core.init.reg.registrate.SimpleEntry;
 import dev.xkmc.l2modularblock.core.BlockTemplates;
 import dev.xkmc.l2modularblock.core.DelegateBlock;
 import dev.xkmc.l2modularblock.impl.DoubleBlockImpl;
+import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.recipes.RecipeCategory;
@@ -71,6 +73,8 @@ public class GLDecoBlocks {
 	public static final BlockEntry<DelegateBlock> SCARLET_CHAIR;
 
 	public static final BlockEntry<BlackIronPillarBlock> BLACK_IRON_PILLAR;
+
+	public static final BlockEntry<CurtainBlock> NEITUN_CURTAIN;
 
 	static {
 		var reg = GensokyoLegacy.REGISTRATE;
@@ -331,6 +335,45 @@ public class GLDecoBlocks {
 					.register();
 		}
 
+		// 门帘：16 色 x 4 款式 + 霓吞町，无碰撞但可交互，走向随玩家放置朝向
+		{
+			NEITUN_CURTAIN = registerCurtain(reg, "neitun_curtain", MapColor.COLOR_BLUE);
+			for (DyeColor col : DyeColor.values()) {
+				registerCurtain(reg, col.getName() + "_curtain", col.getMapColor());
+				registerCurtain(reg, col.getName() + "_curtain_striped", col.getMapColor());
+				registerCurtain(reg, col.getName() + "_curtain_wavy", col.getMapColor());
+				registerCurtain(reg, col.getName() + "_curtain_double_striped_long", col.getMapColor());
+			}
+		}
+
+	}
+
+	private static BlockEntry<CurtainBlock> registerCurtain(L2Registrate reg, String id, MapColor color) {
+		return reg.block(id, CurtainBlock::new)
+				.properties(p -> p.mapColor(color).strength(0.3F).sound(SoundType.WOOL)
+						.noCollission().noOcclusion().pushReaction(PushReaction.DESTROY))
+				.blockstate((ctx, pvd) -> {
+					var model = buildCurtainModel(pvd, ctx.getName());
+					pvd.getVariantBuilder(ctx.get())
+							.partialState().with(CurtainBlock.AXIS, Direction.Axis.X)
+							.modelForState().modelFile(model).addModel()
+							.partialState().with(CurtainBlock.AXIS, Direction.Axis.Z)
+							.modelForState().modelFile(model).rotationY(90).addModel();
+				})
+				.item().tab(TAB.key())
+				.model((ctx, pvd) -> pvd.getBuilder(ctx.getName())
+						.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("block/" + ctx.getName())))
+						.renderType("cutout"))
+				.build()
+				.register();
+	}
+
+	private static ModelFile buildCurtainModel(RegistrateBlockstateProvider pvd, String name) {
+		return pvd.models().getBuilder("block/" + name)
+				.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/furniture/curtain")))
+				.texture("0", pvd.modLoc("block/curtain/" + name))
+				.texture("particle", pvd.modLoc("block/curtain/" + name))
+				.renderType("cutout");
 	}
 
 	private static ModelFile buildPillarModel(RegistrateBlockstateProvider pvd, String name, String parent, ResourceLocation tex) {

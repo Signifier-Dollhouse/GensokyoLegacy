@@ -1,0 +1,11 @@
+{
+  "variants": {
+    "axis=x": {
+      "model": "gensokyolegacy:block/magenta_curtain_striped"
+    },
+    "axis=z": {
+      "model": "gensokyolegacy:block/magenta_curtain_striped",
+      "y": 90
+    }
+  }
+}
