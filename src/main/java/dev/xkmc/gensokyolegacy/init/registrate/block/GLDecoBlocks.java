@@ -8,6 +8,7 @@ import com.tterrag.registrate.util.entry.BlockEntry;
 import com.tterrag.registrate.util.nullness.NonNullBiConsumer;
 import dev.xkmc.gensokyolegacy.content.block.deco.door.SlidingDoor;
 import dev.xkmc.gensokyolegacy.content.block.deco.door.SlidingDoorJsons;
+import dev.xkmc.gensokyolegacy.content.block.deco.misc.BlackIronFenceBlock;
 import dev.xkmc.gensokyolegacy.content.block.deco.misc.BlackIronPillarBlock;
 import dev.xkmc.gensokyolegacy.content.block.deco.misc.CurtainBlock;
 import dev.xkmc.gensokyolegacy.content.block.deco.misc.TatamiBlock;
@@ -46,6 +47,7 @@ import net.minecraft.world.item.Rarity;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.Half;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.material.PushReaction;
@@ -73,6 +75,8 @@ public class GLDecoBlocks {
 	public static final BlockEntry<DelegateBlock> SCARLET_CHAIR;
 
 	public static final BlockEntry<BlackIronPillarBlock> BLACK_IRON_PILLAR;
+
+	public static final BlockEntry<BlackIronFenceBlock> BLACK_IRON_BARS;
 
 	public static final BlockEntry<CurtainBlock> NEITUN_CURTAIN;
 
@@ -346,6 +350,83 @@ public class GLDecoBlocks {
 			}
 		}
 
+		// 黑铁栅栏：复用原版铁栏杆模型，端面材质随上下是否有黑铁栅栏切换
+		{
+			BLACK_IRON_BARS = reg.block("black_iron_bars", BlackIronFenceBlock::new)
+					.initialProperties(() -> Blocks.IRON_BARS)
+					.properties(p -> p.mapColor(MapColor.COLOR_BLACK))
+					.blockstate(GLDecoBlocks::buildBarsStates)
+					.tag(BlockTags.MINEABLE_WITH_PICKAXE)
+					.item().tab(TAB.key())
+					// 与原版铁栏杆一致：背包内使用 2D 材质精灵而非 3D 模型
+					.model((ctx, pvd) -> pvd.getBuilder(ctx.getName())
+							.parent(new ModelFile.UncheckedModelFile("item/generated"))
+							.texture("layer0", pvd.modLoc("block/deco/black_iron_bars")))
+					.build()
+					.register();
+		}
+
+	}
+
+	/**
+	 * 复刻原版铁栏杆 multipart，端面（post_ends）按上下是否存在黑铁栅栏切换截面材质。
+	 */
+	private static void buildBarsStates(DataGenContext<Block, ? extends Block> ctx, RegistrateBlockstateProvider pvd) {
+		String name = ctx.getName();
+		var tex = pvd.modLoc("block/deco/black_iron_bars");
+		var topTex = pvd.modLoc("block/deco/black_iron_bars_top");
+		var post = buildBarsModel(pvd, name + "_post", "iron_bars_post", tex);
+		var cap = buildBarsModel(pvd, name + "_cap", "iron_bars_cap", tex);
+		var capAlt = buildBarsModel(pvd, name + "_cap_alt", "iron_bars_cap_alt", tex);
+		var side = buildBarsModel(pvd, name + "_side", "iron_bars_side", tex);
+		var sideAlt = buildBarsModel(pvd, name + "_side_alt", "iron_bars_side_alt", tex);
+		var endsTT = buildBarsEndsModel(pvd, name + "_ends_tt", tex, topTex, topTex);
+		var endsTF = buildBarsEndsModel(pvd, name + "_ends_tf", tex, topTex, tex);
+		var endsFT = buildBarsEndsModel(pvd, name + "_ends_ft", tex, tex, topTex);
+		var endsFF = buildBarsEndsModel(pvd, name + "_ends_ff", tex, tex, tex);
+		var builder = pvd.getMultipartBuilder(ctx.get());
+		builder.part().modelFile(endsTT).addModel().condition(BlackIronFenceBlock.TOP, true).condition(BlackIronFenceBlock.BOTTOM, true).end();
+		builder.part().modelFile(endsTF).addModel().condition(BlackIronFenceBlock.TOP, true).condition(BlackIronFenceBlock.BOTTOM, false).end();
+		builder.part().modelFile(endsFT).addModel().condition(BlackIronFenceBlock.TOP, false).condition(BlackIronFenceBlock.BOTTOM, true).end();
+		builder.part().modelFile(endsFF).addModel().condition(BlackIronFenceBlock.TOP, false).condition(BlackIronFenceBlock.BOTTOM, false).end();
+		builder.part().modelFile(post).addModel()
+				.condition(BlockStateProperties.NORTH, false).condition(BlockStateProperties.EAST, false)
+				.condition(BlockStateProperties.SOUTH, false).condition(BlockStateProperties.WEST, false).end();
+		builder.part().modelFile(cap).addModel()
+				.condition(BlockStateProperties.NORTH, true).condition(BlockStateProperties.EAST, false)
+				.condition(BlockStateProperties.SOUTH, false).condition(BlockStateProperties.WEST, false).end();
+		builder.part().modelFile(cap).rotationY(90).addModel()
+				.condition(BlockStateProperties.NORTH, false).condition(BlockStateProperties.EAST, true)
+				.condition(BlockStateProperties.SOUTH, false).condition(BlockStateProperties.WEST, false).end();
+		builder.part().modelFile(capAlt).addModel()
+				.condition(BlockStateProperties.NORTH, false).condition(BlockStateProperties.EAST, false)
+				.condition(BlockStateProperties.SOUTH, true).condition(BlockStateProperties.WEST, false).end();
+		builder.part().modelFile(capAlt).rotationY(90).addModel()
+				.condition(BlockStateProperties.NORTH, false).condition(BlockStateProperties.EAST, false)
+				.condition(BlockStateProperties.SOUTH, false).condition(BlockStateProperties.WEST, true).end();
+		builder.part().modelFile(side).addModel().condition(BlockStateProperties.NORTH, true).end();
+		builder.part().modelFile(side).rotationY(90).addModel().condition(BlockStateProperties.EAST, true).end();
+		builder.part().modelFile(sideAlt).addModel().condition(BlockStateProperties.SOUTH, true).end();
+		builder.part().modelFile(sideAlt).rotationY(90).addModel().condition(BlockStateProperties.WEST, true).end();
+	}
+
+	private static ModelFile buildBarsModel(RegistrateBlockstateProvider pvd, String name, String parent, ResourceLocation tex) {
+		return pvd.models().getBuilder("block/" + name)
+				.parent(new ModelFile.UncheckedModelFile(pvd.mcLoc("block/" + parent)))
+				.texture("particle", tex)
+				.texture("bars", tex)
+				.texture("edge", tex)
+				.renderType("cutout");
+	}
+
+	private static ModelFile buildBarsEndsModel(RegistrateBlockstateProvider pvd, String name, ResourceLocation tex,
+	                                            ResourceLocation edgeTop, ResourceLocation edgeBottom) {
+		return pvd.models().getBuilder("block/" + name)
+				.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/building/black_iron_bars_post_ends")))
+				.texture("particle", tex)
+				.texture("edge_top", edgeTop)
+				.texture("edge_bottom", edgeBottom)
+				.renderType("cutout");
 	}
 
 	private static BlockEntry<CurtainBlock> registerCurtain(L2Registrate reg, String id, MapColor color) {
