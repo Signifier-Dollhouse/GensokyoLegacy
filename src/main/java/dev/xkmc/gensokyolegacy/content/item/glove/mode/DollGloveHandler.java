@@ -126,7 +126,7 @@ public abstract class DollGloveHandler {
 	 */
 	@Nullable
 	protected static LivingEntity resolveTarget(ServerPlayer sp) {
-		var commands = attachment(sp).commands;
+		var commands = attachment(sp).commands();
 		UUID id = commands.gloveTarget;
 		if (id == null) return null;
 		long now = sp.level().getGameTime();

@@ -14,25 +14,21 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraft.world.phys.shapes.Shapes;
-import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 @SerialClass
-public class DollAttachment extends PlayerCapabilityTemplate<DollAttachment> implements DollHost {
+public class DollAttachment extends PlayerCapabilityTemplate<DollAttachment> implements DollLedger {
 
 	/**
 	 * A recorded restore position is trusted only while within this many blocks of the owner;
@@ -40,12 +36,6 @@ public class DollAttachment extends PlayerCapabilityTemplate<DollAttachment> imp
 	 * owner instead of at the recorded spot.
 	 */
 	private static final double RESTORE_TRUST_RADIUS = 10.0;
-
-	/**
-	 * A summoned doll that has drifted at least this far from its owner is discarded and
-	 * resummoned near him; matches the FOLLOW_RANGE the dolls are summoned with.
-	 */
-	private static final double PULLBACK_DISTANCE = 48.0;
 
 	/**
 	 * Maximum summoned dolls per player. Stored dolls (data, items) are uncapped —
@@ -67,40 +57,11 @@ public class DollAttachment extends PlayerCapabilityTemplate<DollAttachment> imp
 	 * Player-facing command logic: volley / one-time / stop, iterative handoff,
 	 * auto-heal, heal marks. Server-only command state lives here, never persisted.
 	 */
-	public final DollCommander commands = new DollCommander(this);
+	private final DollCommander commander = new DollCommander(this);
 
-	/**
-	 * Follow-formation anchor (server-only, never serialized). The formation yaw
-	 * is latched from the owner's view yaw only when the owner actually moves
-	 * horizontally — looking around while standing still leaves the anchor (and
-	 * therefore every doll's slot target) frozen, so dolls never swirl around
-	 * to track the cursor.
-	 */
-	private float formationYaw;
-	@Nullable
-	private Vec3 formationAnchor;
-
-	/**
-	 * The latched follow-formation yaw, re-anchored once per tick from the
-	 * owner's view yaw (see {@link #updateFormationAnchor}). Server-only.
-	 */
-	public float getFormationYaw() {
-		return formationYaw;
-	}
-
-	private void updateFormationAnchor(ServerPlayer player) {
-		Vec3 pos = player.position();
-		if (formationAnchor == null) {
-			formationAnchor = pos;
-			formationYaw = player.getYRot();
-			return;
-		}
-		double dx = pos.x - formationAnchor.x;
-		double dz = pos.z - formationAnchor.z;
-		if (dx * dx + dz * dz > 1.0) {
-			formationAnchor = pos;
-			formationYaw = player.getYRot();
-		}
+	@Override
+	public DollCommander commands() {
+		return commander;
 	}
 
 	/**
@@ -122,8 +83,9 @@ public class DollAttachment extends PlayerCapabilityTemplate<DollAttachment> imp
 		this.roster = List.copyOf(roster);
 	}
 
-	Map<UUID, DollData> dolls() {
-		return dolls;
+	@Override
+	public Collection<DollData> dolls() {
+		return dolls.values();
 	}
 
 	// ---------- queries ----------
@@ -420,8 +382,7 @@ public class DollAttachment extends PlayerCapabilityTemplate<DollAttachment> imp
 				case SUMMONED -> tickSummoned(sp, data);
 			}
 		}
-		commands.tick(sp);
-		updateFormationAnchor(sp);
+		commander.tick(sp);
 		maybePushRoster(sp);
 	}
 
@@ -432,25 +393,14 @@ public class DollAttachment extends PlayerCapabilityTemplate<DollAttachment> imp
 	 * are {@code toClient = false}); per-doll display state rides the doll
 	 * entity's synced data instead.
 	 *
-	 * The same pass restamps each live entry's formation slot
-	 * ({@code formationIndex} in ledger order, shared {@code formationTotal}),
-	 * so the follow goal reads a cached slot instead of scanning the ledger.
+	 * The roster pass also restamps each live entry's formation slot, which the
+	 * follow goal reads instead of scanning the ledger.
 	 */
 	private void maybePushRoster(ServerPlayer player) {
-		ArrayList<DollRosterToClient.Entry> next = new ArrayList<>();
-		for (DollData data : dolls.values()) {
-			if (!data.isSummoned()) continue;
-			ServerLevel level = getLevel(player, data);
-			if (level == null) continue;
-			Entity entity = level.getEntity(data.uuid);
-			if (!(entity instanceof BaseDollEntity)) continue;
-			data.formationIndex = next.size();
-			next.add(new DollRosterToClient.Entry(entity.getId(), data.uuid));
-		}
-		int total = Math.max(1, next.size());
-		for (DollRosterToClient.Entry entry : next) {
-			DollData data = dolls.get(entry.uuid());
-			if (data != null) data.formationTotal = total;
+		var built = commander.roster(player);
+		ArrayList<DollRosterToClient.Entry> next = new ArrayList<>(built.size());
+		for (DollCommander.RosterEntry entry : built) {
+			next.add(new DollRosterToClient.Entry(entry.entityId(), entry.uuid()));
 		}
 		if (!next.equals(roster)) {
 			setRoster(next);
@@ -544,42 +494,12 @@ public class DollAttachment extends PlayerCapabilityTemplate<DollAttachment> imp
 	// oldKey != null re-keys a TEMP entry to the new entity's fresh uuid (§6.5).
 
 	private boolean doSummon(ServerPlayer player, DollData data, @Nullable UUID oldKey) {
-		if (data.type == null || data.position == null || data.getHealth() <= 0) return false;
-		EntityType<?> type = player.level().registryAccess().registry(Registries.ENTITY_TYPE)
-				.flatMap(r -> r.getOptional(ResourceKey.create(Registries.ENTITY_TYPE, data.type))).orElse(null);
-		if (type == null) return false;
-		Entity ent = type.create(player.serverLevel());
-		if (!(ent instanceof BaseDollEntity doll)) {
-			if (ent != null) ent.discard();
-			return false;
-		}
-		data.uuid = doll.getUUID();
-		setPos(player.level(), doll, data.position);
-		doll.setOwner(player);
-		// free-space search may have moved the doll; write its final spot back so readValuesFrom
-		// (which applies position + facing) puts the entity exactly there.
-		data.position = doll.position();
-		doll.readValuesFrom(data);
-		data.dimension = player.serverLevel().dimension().location();
+		BaseDollEntity doll = DollSpawn.materialize(player.serverLevel(), player, data);
+		if (doll == null) return false;
 		if (oldKey != null) dolls.remove(oldKey);
 		dolls.put(data.uuid, data);
 		player.serverLevel().addFreshEntity(doll);
-		data.lastUpdate = player.level().getGameTime();
 		return true;
-	}
-
-	private static void setPos(Level level, BaseDollEntity doll, Vec3 pos) {
-		doll.setPos(pos);
-		var dim = doll.getDimensions(Pose.STANDING);
-		if (dim.width() * dim.width() * dim.height() > 64) return;
-		Vec3 center = doll.position().add(0, dim.height() / 2.0, 0);
-		double xz = Math.max(0, dim.width() - 1) + 1e-6;
-		double y = Math.max(0, dim.height() - 1) + 1e-6;
-		VoxelShape shape = Shapes.create(AABB.ofSize(center, xz, y, xz));
-		var found = level.findFreePosition(doll, shape, center, dim.width(), dim.height(), dim.width());
-		if (found.isPresent()) {
-			doll.setPos(found.get().add(0, -dim.height() / 2.0, 0));
-		}
 	}
 
 }

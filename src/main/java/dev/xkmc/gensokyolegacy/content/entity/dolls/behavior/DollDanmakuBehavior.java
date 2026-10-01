@@ -1,7 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.entity.dolls.behavior;
 
 import dev.xkmc.danmakuapi.content.item.DanmakuItem;
-import dev.xkmc.gensokyolegacy.content.attachment.doll.DollAttachment;
 import dev.xkmc.gensokyolegacy.content.attachment.doll.DollHost;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.DollEntity;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.action.DollAction;
@@ -112,7 +111,7 @@ public class DollDanmakuBehavior extends DollBehavior {
 					!doll.actions.handAheadSent()) {
 				doll.actions.markHandAheadSent();
 				DollHost host = doll.getHost();
-				if (host instanceof DollAttachment att) att.commands.handAhead(doll, action);
+				if (host != null) host.handAhead(doll, action);
 			}
 			if (blockedTicks > BLOCKED_SKIP_TICKS) {
 				doll.actions.complete(doll);

@@ -1,6 +1,5 @@
 package dev.xkmc.gensokyolegacy.content.entity.dolls.goals;
 
-import dev.xkmc.gensokyolegacy.content.attachment.doll.DollAttachment;
 import dev.xkmc.gensokyolegacy.content.attachment.doll.DollHost;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.DollEntity;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.action.DollAction;
@@ -120,7 +119,7 @@ public class DollCommandGoal extends Goal {
 			} else if (waited >= HAND_AHEAD_TICKS && !doll.actions.handAheadSent()) {
 				doll.actions.markHandAheadSent();
 				DollHost host = doll.getHost();
-				if (host instanceof DollAttachment att) att.commands.handAhead(doll, action);
+				if (host != null) host.handAhead(doll, action);
 			}
 		} else if (waited >= GIVE_UP_OTHER_TICKS) {
 			doll.actions.complete(doll);

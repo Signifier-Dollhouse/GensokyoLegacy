@@ -115,6 +115,12 @@ public class GLStructureGen {
 
 		bedReg.add(GLBlocks.BEDS[GLBlocks.Beds.CIRNO.ordinal()], new BedData(GLEntities.CIRNO.get()), false);
 		bedReg.add(GLBlocks.BEDS[GLBlocks.Beds.RUMIA.ordinal()], new BedData(GLEntities.RUMIA.get()), false);
+
+		// Alice has no preset house yet: her bed binds to any CUSTOM home
+		// (StructureKey.support() accepts every custom key), so a player-built
+		// room holding an alice bed claims her and respawns her there.
+		bedReg.add(GLBlocks.BEDS[GLBlocks.Beds.ALICE.ordinal()], new BedData(GLEntities.ALICE.get()), false);
+		entityReg.add(GLEntities.ALICE, CharacterConfig.forStructure(6000, 12000, 12, 30), false);
 	}
 
 	public static void init(DataProviderInitializer init) {

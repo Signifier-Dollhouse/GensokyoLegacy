@@ -88,18 +88,29 @@ public boolean isHomedTo(BlockPos pos) { ... }
 
 ```java
 @Override
+public boolean shouldBeSaved() {
+    return strayHost != null && strayHost.data() != null;
+}
+@Override
 public void addAdditionalSaveData(CompoundTag compound) {
-    compound.putByte("DollNeverSave", (byte) 1);   // marker only
+    if (strayHost != null && strayHost.data() != null)
+        compound.put("DollStrayData", strayHost.save(level().registryAccess()));
+    else
+        compound.putByte("DollNeverSave", (byte) 1);   // marker only
 }
 @Override
 public void readAdditionalSaveData(CompoundTag compound) {
     this.ownerUUID = compound.hasUUID("OwnerUUID") ? compound.getUUID("OwnerUUID") : null;
+    if (compound.contains("DollStrayData", Tag.TAG_COMPOUND))
+        strayHost = StrayHost.load(level().registryAccess(), compound.getCompound("DollStrayData"));
     this.setNoGravity(true);
 }
 ```
 
-- Only a **marker** is written to the chunk for paired dolls. No paired-doll state (damage, color, data — only the owner uuid for context) is ever chunk-serialized; **all** paired state lives in the player capability (pairing.md §2). Any non-stray doll found inside a chunk on load is a leftover: it reads back only a marker, so it cannot be a genuine entity, and reconciliation discards it (the on-load check in §6).
-- Exception: **stray** dolls (control.md §5.4) have no ledger, so the chunk is their only persistence — they serialize the detached entry through `StrayHost` (l2serial `TagCodec`, presence of the compound marks stray; owner rides the base `OwnerUUID` field) and resume from it on load.
+- **`shouldBeSaved` is the gate.** A paired doll is a projection of its ledger entry, never a thing in its own right, so it must not be written into a chunk *at all*. `addAdditionalSaveData` is essentially unreachable for one; the `DollNeverSave` marker is a belt-and-braces for a doll something forced a save on, and is ignored on the way back in.
+- Why the gate has to be `shouldBeSaved` and not a load-time `setRemoved`: `EntityInLevelCallback` is attached *after* `readAdditionalSaveData`, and `addEntityWithoutEvent` does not consult the removal reason. A doll marked removed during load therefore lands in the world anyway, in the worst possible state — in the level, in the uuid lookup and in the live count, but with a `tick` that returns immediately and a `getHost` of `null`. It never ticks, so it never self-discards; it is counted as live, so it suppresses the conjure meant to replace it; and with no paired entry the deferred damage pipeline drops every hit, which reads exactly like an invulnerable doll. Not writing it is the only clean answer.
+- No paired-doll state (damage, colour, data — only the owner uuid for context) is ever chunk-serialized; **all** paired state lives in the ledger (pairing.md §2). A non-stray doll found inside a chunk can only be a leftover from an older version: it reads back ownerless, so it has no host, and both ledgers evict it on sight (the on-load check in §6, and the ledger-side `resolve`).
+- Exception: **stray** dolls (control.md §5.4) have no ledger, so the chunk is their only persistence — `shouldBeSaved` lets exactly those through, and they serialize the detached entry through `StrayHost` (l2serial `TagCodec`, presence of the compound marks stray; owner rides the base `OwnerUUID` field) and resume from it on load.
 - Because paired dolls never serialize into chunks, "two entities for one uuid" is impossible — an entity only reappears by fresh-tick spawning, which always mints a fresh uuid (pairing.md §3.1).
 
 ## 6. Ledger sync inside `tick()`
@@ -167,5 +178,5 @@ When the four-slot loadout ships, the per-slot synced item accessors land **here
 ## 9. Interaction and damage (pairing logic, lives in the base)
 
 - **`mobInteract`**: sneak-interact (owner or creative, both sides) opens the loadout editor (`DollLoadoutMenu`, loadout.md §4); empty main hand, owner or creative on the server: `DollAttachment.itemize(...)` — the entity → item conversion (pairing.md §3.2). Block-hosted dolls are *not* itemized here (they belong to the controller block; controller.md). Non-sneak interactions with items pass through.
-- **Deferred damage pipeline**: `takeDamage` (intercept) and `onHeal` (hook) both call `resolveDollData()` first. If a paired SUMMONED entry exists, the change lands in `DollData.combat` first (via `deferCombatData`), then is mirrored into the entity's `CombatData` (+ `CombatToClient.send` when the amount actually changed). No paired entry → plain damage path unaffected. Death-would-be and expressions flow through `DamageRefactorEntity`'s `preventDeath`/`actuallyHurt` untouched.
+- **Deferred damage pipeline**: `takeDamage` (intercept) and `onHeal` (hook) both call `resolveDollData()` first. If a paired SUMMONED entry exists, the change lands in `DollData.combat` first (via `deferCombatData`), then is mirrored into the entity's `CombatData` (+ `CombatToClient.send` when the amount actually changed). No paired entry → plain damage path (`super.takeDamage`) — never a dropped hit, since silently swallowing it would make an unpaired doll immune to *every* source, which reads as invulnerability and hides whatever fault left it unpaired. Death-would-be and expressions flow through `DamageRefactorEntity`'s `preventDeath`/`actuallyHurt` untouched.
 - **Targetability**: `canBeSeenAsEnemy()` returns `false` (pairing.md §6) — never targeted by hostile mobs, still takes damage.

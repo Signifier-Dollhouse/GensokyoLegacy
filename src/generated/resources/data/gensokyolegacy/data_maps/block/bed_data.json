@@ -1,5 +1,8 @@
 {
   "values": {
+    "gensokyolegacy:alice_bed": {
+      "type": "gensokyolegacy:alice_margatroid"
+    },
     "gensokyolegacy:cirno_bed": {
       "type": "gensokyolegacy:cirno"
     },

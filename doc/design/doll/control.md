@@ -1,6 +1,6 @@
 # Doll Control — item behaviors, commands, iterations
 
-"Player-hosted dolls have behaviors which depend on the items they hold." Commands come only from the player (glove) — a doll **never acts or switches items on its own**. Two things escape the command path without breaking that rule: a shield held in the off hand blocks projectiles reactively (blocking never moves items), and `HEAL` is scheduler-issued (ordered by the ledger tick, never by the doll itself).
+"Player-hosted dolls have behaviors which depend on the items they hold." Commands come only from the host — a doll **never acts or switches items on its own**. For a player that host is the glove; for a character it is their own ledger (see §14). Two things escape the command path without breaking that rule: a shield held in the off hand blocks projectiles reactively (blocking never moves items), and `HEAL` is scheduler-issued (ordered by the ledger tick, never by the doll itself).
 
 > Status: framework implemented (registry, behaviors, ticket queue, shield, scheduled heal, iteration, revival). Glove (`glove.md`) planned — it will call `commands.issueVolley` / `commands.issueOneTime` / `commands.stopAll`.
 
@@ -207,14 +207,15 @@ Created (`content/entity/dolls/action/`, behaviors in `.../behavior/`, all goals
 - `DollFriendlyFire.java` (`behavior/`) — ally lanes, blockage test, leash-clamped strafe (§5)
 - `goals/DollCommandGoal.java` — the single delegating `Goal`: behavior cache, start timeouts, stop completes the still-held ticket (§5)
 
-- `DollCommander.java` (`content/attachment/doll/`, via `DollAttachment.commands`) — volley/one-time/stop, handoff, stall guard, heal scheduling + 1-second mark prune, transient heal marks (§6/§8)
+- `DollCommander.java` (`content/attachment/doll/`, one per `DollLedger`) — volley/one-time/stop, handoff, stall guard, heal scheduling + 1-second mark prune, transient heal marks, and the follow-formation anchor (§6/§8). Every entry point takes the commanding `LivingEntity`, so a player and a character share one fan-out.
 - `DollShootUtils.java` (`util/`) — trimmed copy of MobWeaponAPI's `ShootUtils` aim helpers (target lead, gravity arcs; arrow/infinity parts dropped), used for danmaku aim and hexbrew throws
 
 Modify (all done):
 
 - `DollEntity` — `actions` field, one `DollCommandGoal` at selector priority 0, vanilla shield hooks (§5.6), never-null ledger-direct loadout API, `becomeStray()` / `rejoinOwner()` / `maybeRejoin()` (doll side of the stray cut, `DollStray`)
 - `BaseDollEntity` — pairing pipeline only (plus the stray `getHost` branch and `die()` → `onDeath` fan-out); empty-hand itemize (arming removed, loadout.md §4)
-- `DollHost` — `detach(UUID)` for stray cuts, `onDeath` hook (only `StrayHost` acts); impls on the attachment and the controller; `StrayHost` holds the detached entry, answers pairing queries, hands it over one-shot via `take()` (death drop, rejoin, recall), and persists it via chunk save/load
+- `DollHost` — the whole doll↔host surface: pairing (`findSummoned` / `update` / `detach` / `onDeath`) plus the **command surface** (`getFormationYaw`, `summonedAllies`, `isCommandedTarget`, `doneType`, `handAhead`, `handOff`), all defaulting to inert. Doll entity code calls these unconditionally and never branches on the concrete host, so a new host kind needs no changes in `content/entity/dolls/`. `DollLedger` narrows it to hosts that actually own a ledger, forwarding the command surface to their `DollCommander`. Impls: the player attachment, the controller block (inert), `StrayHost` (inert), and `AliceDollHost` (a character).
+- `DollSpawn` — the one materialization path every ledger shares: create the entity, key the entry to its fresh uuid, hand it the owner, apply the recorded values. The caller registers the entry *before* `addFreshEntity` so the join-level inverse check always finds a host.
 - `DollAttachment` — destroyed-resummon revival (§7); stray rejoin as `TEMP` and the recall sweep for strays (§5.4a); ledger transitions only, command logic lives in the commander
 - `DollItem`/`DollData` — revival keeps gear (§7)
 - `GLLang` — glove + feedback messages (glove.md §1)

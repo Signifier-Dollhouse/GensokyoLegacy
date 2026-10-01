@@ -1,6 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.entity.dolls.impl;
 
-import dev.xkmc.gensokyolegacy.content.attachment.doll.DollAttachment;
+import dev.xkmc.gensokyolegacy.content.attachment.doll.DollHost;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.DollEntity;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.action.DollAction;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.action.DollActionMode;
@@ -83,9 +83,8 @@ public interface DollStatus extends DollBaseImpl {
 	}
 
 	private static Optional<DollActionType> doneType(DollEntity doll) {
-		if (doll.getHost() instanceof DollAttachment att)
-			return att.commands.doneType(doll.getUUID());
-		return Optional.empty();
+		DollHost host = doll.getHost();
+		return host == null ? Optional.empty() : host.doneType(doll.getUUID());
 	}
 
 	final class DollStatusModule implements DollModule {

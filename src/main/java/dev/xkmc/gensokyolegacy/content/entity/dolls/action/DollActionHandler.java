@@ -1,6 +1,5 @@
 package dev.xkmc.gensokyolegacy.content.entity.dolls.action;
 
-import dev.xkmc.gensokyolegacy.content.attachment.doll.DollAttachment;
 import dev.xkmc.gensokyolegacy.content.attachment.doll.DollHost;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.DollEntity;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.behavior.DollBehaviorRegistry;
@@ -145,9 +144,7 @@ public class DollActionHandler {
 		if (finished != null && finished.mode() == DollActionMode.ITERATIVE) {
 			finished.done().add(doll.getUUID());
 			DollHost host = doll.getHost();
-			if (host instanceof DollAttachment att) {
-				att.commands.handOff(doll, finished);
-			}
+			if (host != null) host.handOff(doll, finished);
 		}
 	}
 
