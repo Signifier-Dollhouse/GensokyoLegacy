@@ -57,7 +57,7 @@ public class GiftModule extends AbstractYoukaiModule {
 		self.setFlag(YoukaiFlags.GIFTED, true);
 		self.level().broadcastEntityEvent(self, EntityEvent.IN_LOVE_HEARTS);
 		self.playSound(SoundEvents.PLAYER_LEVELUP, 0.8F, 1.2F);
-		self.setTalkTo(sp, -1);
+		self.getModule(TalkModule.class).ifPresent(e -> e.beginTalking(sp));
 		return InteractionResult.SUCCESS;
 	}
 

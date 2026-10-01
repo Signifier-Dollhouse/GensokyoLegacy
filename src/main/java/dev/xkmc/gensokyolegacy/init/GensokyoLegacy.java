@@ -26,7 +26,12 @@ import dev.xkmc.gensokyolegacy.content.item.tool.Dowser;
 import dev.xkmc.gensokyolegacy.content.item.umbrella.BorderUmbrellaSelectionListener;
 import dev.xkmc.gensokyolegacy.content.item.umbrella.network.*;
 import dev.xkmc.gensokyolegacy.content.rpg.core.CodecRegistry;
+import dev.xkmc.gensokyolegacy.content.rpg.network.DialogClickToServer;
+import dev.xkmc.gensokyolegacy.content.rpg.network.DialogCloseToClient;
+import dev.xkmc.gensokyolegacy.content.rpg.network.DialogCloseToServer;
+import dev.xkmc.gensokyolegacy.content.rpg.network.FirstDialogToClient;
 import dev.xkmc.gensokyolegacy.content.rpg.network.QuestStatusToClient;
+import dev.xkmc.gensokyolegacy.content.rpg.network.SimpleDialogToClient;
 import dev.xkmc.gensokyolegacy.content.rpg.network.TradeStatusToClient;
 import dev.xkmc.gensokyolegacy.event.GLAttackListener;
 import dev.xkmc.gensokyolegacy.event.GLClickHandler;
@@ -88,7 +93,7 @@ public class GensokyoLegacy {
 	public static final String MODID = "gensokyolegacy";
 	public static final Reg REG = new Reg(MODID);
 	public static final L2Registrate REGISTRATE = new L2Registrate(MODID);
-	public static final PacketHandler HANDLER = new PacketHandler(MODID, 1,
+	public static final PacketHandler HANDLER = new PacketHandler(MODID, 2,
 			e -> e.create(CharDataToClient.class, PacketHandler.NetDir.PLAY_TO_CLIENT),
 			e -> e.create(PathDataToClient.class, PacketHandler.NetDir.PLAY_TO_CLIENT),
 			e -> e.create(BlockRequestToServer.class, PacketHandler.NetDir.PLAY_TO_SERVER),
@@ -106,6 +111,13 @@ public class GensokyoLegacy {
 			e -> e.create(AreaEffectSyncPacket.class, PacketHandler.NetDir.PLAY_TO_CLIENT),
 			e -> e.create(QuestStatusToClient.class, PacketHandler.NetDir.PLAY_TO_CLIENT),
 			e -> e.create(TradeStatusToClient.class, PacketHandler.NetDir.PLAY_TO_CLIENT),
+
+			// the dialog screen runs on no container menu, so it syncs over its own packets
+			e -> e.create(FirstDialogToClient.class, PacketHandler.NetDir.PLAY_TO_CLIENT),
+			e -> e.create(SimpleDialogToClient.class, PacketHandler.NetDir.PLAY_TO_CLIENT),
+			e -> e.create(DialogCloseToClient.class, PacketHandler.NetDir.PLAY_TO_CLIENT),
+			e -> e.create(DialogClickToServer.class, PacketHandler.NetDir.PLAY_TO_SERVER),
+			e -> e.create(DialogCloseToServer.class, PacketHandler.NetDir.PLAY_TO_SERVER),
 
 			e -> e.create(FrogSyncPacket.class, PacketHandler.NetDir.PLAY_TO_CLIENT),
 			e -> e.create(KoishiStartPacket.class, PacketHandler.NetDir.PLAY_TO_CLIENT),

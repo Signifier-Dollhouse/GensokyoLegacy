@@ -10,7 +10,7 @@
 
 | idx | Mode | Icon | Interaction |
 |---|---|---|---|
-| 0 | `SUMMON` | glove icon (itself) | `use()`: no summoned dolls → summon everything parked (STORED promoted to TEMP, then summoned) plus every doll item in the player inventory, in a ring around the owner — no ledger cap. Otherwise recall: `itemize` every summoned doll, overflow parked to data as STORED, and all TEMP consolidated to STORED. Block-hosted dolls never touched. |
+| 0 | `SUMMON` | glove icon (itself) | `use()`: no summoned dolls → summon everything parked (STORED promoted to TEMP, then summoned) plus every doll item in the player inventory, in a ring around the owner — no ledger cap. Otherwise recall: `itemize` every summoned doll, plus any **stray** doll within 48 blocks (control.md §5.4a) — strays hold no ledger entry, so the sweep scans loaded entities and itemizes them the same way; overflow parked to data as STORED, and all TEMP consolidated to STORED. Block-hosted dolls never touched. |
 | 1 | `HEAL_MARK` | `Items.GOLDEN_CARROT` | Hidden from the wheel, implementation kept: `use()` toggles the heal mark on the cached ray-trace target (control.md §5–6). Any living entity, same 48-block range. |
 | 2 | `VOLLEY` | `GLItems.STAR` (star danmaku, the starlight-hexbrew star) | `use()` or left-click: `issueIteration(player, target, REGULAR_ATTACK)` on the cached target (left-click on an entity uses the punched entity). |
 | 3 | `SUPER` | explosive hexbrew | `use()` or left-click: `issueOneTime(player, target, SUPER_ATTACK)` — one **random** available doll. Listed only while a summoned doll can perform it, unless already selected. |

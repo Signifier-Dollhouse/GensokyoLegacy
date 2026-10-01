@@ -4,7 +4,7 @@
       "type": "gensokyolegacy:simple",
       "actions": [],
       "conditions": [],
-      "text": "gensokyolegacy/reimu/shared/option/bye"
+      "text": "gensokyolegacy/reimu/hostile_loot/option/start/reject/end"
     }
   ],
   "text": "gensokyolegacy/reimu/hostile_loot/dialog/reimu/hostile_loot/start/reject/dialog_1"

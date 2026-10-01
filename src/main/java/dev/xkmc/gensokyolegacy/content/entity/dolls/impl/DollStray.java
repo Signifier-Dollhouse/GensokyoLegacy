@@ -6,6 +6,11 @@ import dev.xkmc.gensokyolegacy.content.attachment.doll.DollState;
 import dev.xkmc.gensokyolegacy.content.attachment.doll.StrayHost;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.DollEntity;
 import dev.xkmc.gensokyolegacy.content.item.doll.DollSlot;
+import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+
+import java.util.UUID;
 
 /**
  * Stray cut: detaches the ledger entry (no item produced) and hosts it transiently.
@@ -29,6 +34,38 @@ public interface DollStray extends DollBaseImpl {
 		}
 		doll.writeValuesTo(data);
 		doll.setStrayHost(new StrayHost(data));
+	}
+
+	/**
+	 * Reverse of {@link #becomeStray()}: hands the detached entry back to the
+	 * owner's ledger, which resummons the doll from the parked TEMP entry on its
+	 * next tick. Server-only. A stray whose owner is offline stays a stray — the
+	 * ledger lives on the player, so there is nowhere to hand the entry back to.
+	 */
+	default boolean rejoinOwner() {
+		DollEntity doll = asDoll();
+		UUID owner = doll.getOwnerUUID();
+		if (owner == null || !(doll.level() instanceof ServerLevel level)) return false;
+		ServerPlayer sp = level.getServer().getPlayerList().getPlayer(owner);
+		if (sp == null) return false;
+		return GLMeta.DOLL.type().getOrCreate(sp).rejoin(doll);
+	}
+
+	/** Idle rejoin period, in ticks (one second). */
+	int REJOIN_INTERVAL = 20;
+
+	/**
+	 * Idle fallback for the stray cut, ticked once per {@link #REJOIN_INTERVAL}:
+	 * a stray with nothing to do (its dive aborted while the owner was logged
+	 * out, say) tries to rejoin every second until its owner is back, so the
+	 * cut can never leave a permanently ownerless doll. No-op while the doll
+	 * holds a ticket — a dive in flight is never yanked.
+	 */
+	default void maybeRejoin() {
+		DollEntity doll = asDoll();
+		if (!doll.isStray() || doll.actions.isActive()) return;
+		if (doll.tickCount % REJOIN_INTERVAL != 0) return;
+		rejoinOwner();
 	}
 
 }

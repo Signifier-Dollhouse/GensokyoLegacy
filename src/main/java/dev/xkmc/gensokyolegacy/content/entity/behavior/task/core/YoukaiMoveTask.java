@@ -1,6 +1,10 @@
 package dev.xkmc.gensokyolegacy.content.entity.behavior.task.core;
 
+import dev.xkmc.gensokyolegacy.content.attachment.datamap.InteriorNode;
+import dev.xkmc.gensokyolegacy.content.attachment.datamap.StructureInterior;
+import dev.xkmc.gensokyolegacy.content.attachment.home.core.IHomeHolder;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.move.CompoundPath;
+import dev.xkmc.gensokyolegacy.content.entity.youkai.SmartYoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import dev.xkmc.gensokyolegacy.init.registrate.GLBrains;
 import dev.xkmc.gensokyolegacy.util.BrainUtils;
@@ -17,6 +21,8 @@ import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public class YoukaiMoveTask<E extends YoukaiEntity> extends Behavior<E> {
@@ -133,7 +139,8 @@ public class YoukaiMoveTask<E extends YoukaiEntity> extends Behavior<E> {
 			BrainUtils.clearMemory(brain, MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE);
 			return false;
 		}
-		Vec3 pos = Vec3.atBottomCenterOf(walkTarget.getTarget().currentBlockPosition());
+		BlockPos finalPos = walkTarget.getTarget().currentBlockPosition();
+		Vec3 pos = Vec3.atBottomCenterOf(stageViaInterior(entity, finalPos));
 		entity.getNavigation().moveTo(pos.x, pos.y, pos.z, 0, walkTarget.getSpeedModifier());
 		this.path = entity.navCtrl.getPath();
 		this.speedModifier = walkTarget.getSpeedModifier();
@@ -154,6 +161,117 @@ public class YoukaiMoveTask<E extends YoukaiEntity> extends Behavior<E> {
 
 	protected boolean hasReachedTarget(E entity, WalkTarget target) {
 		return target.getTarget().currentBlockPosition().distManhattan(entity.blockPosition()) <= target.getCloseEnoughDist();
+	}
+
+	/**
+	 * When the entity or its final target sits outside the interior rooms,
+	 * the exterior side is handled directly while the indoor side still
+	 * stages through the room graph: an exterior start heads for the
+	 * nearest entry first, an exterior target stages to the best exit and
+	 * then walks out directly. Returns the final target whenever staging
+	 * does not apply.
+	 */
+	private static BlockPos stageViaInterior(YoukaiEntity entity, BlockPos finalPos) {
+		if (!(entity instanceof SmartYoukaiEntity smart)) return finalPos;
+		if (!(entity.level() instanceof ServerLevel level)) return finalPos;
+		if (entity.navCtrl.isFlying()) return finalPos;
+		var home = IHomeHolder.of(level, smart);
+		if (home == null || !home.isValid()) return finalPos;
+		var interior = home.getInterior();
+		if (interior.isEmpty()) return finalPos;
+		int from = interior.roomIndexOf(entity.blockPosition());
+		int to = interior.roomIndexOf(finalPos);
+		if (from == to) return finalPos;
+		BlockPos feet = entity.blockPosition();
+		if (from >= 0 && to >= 0) {
+			List<BlockPos> waypoints = new ArrayList<>();
+			if (!appendRoute(interior, waypoints, from, to)) return finalPos;
+			return firstUnreached(feet, waypoints, finalPos);
+		}
+		if (from < 0 && to >= 0) {
+			var entry = nearestEntry(interior, feet);
+			if (entry == null) return finalPos;
+			List<BlockPos> waypoints = new ArrayList<>();
+			waypoints.add(entry.posA());
+			if (!appendRoute(interior, waypoints, entry.roomA(), to)) return finalPos;
+			return firstUnreached(feet, waypoints, finalPos);
+		}
+		if (from >= 0) {
+			var entry = bestExit(interior, from, finalPos);
+			if (entry == null) return finalPos;
+			List<BlockPos> waypoints = new ArrayList<>();
+			if (!appendRoute(interior, waypoints, from, entry.roomA())) return finalPos;
+			waypoints.add(entry.posA());
+			return firstUnreached(feet, waypoints, finalPos);
+		}
+		return finalPos;
+	}
+
+	private static boolean appendRoute(StructureInterior interior, List<BlockPos> waypoints, int from, int to) {
+		if (from == to) return true;
+		var route = interior.findRoute(from, to);
+		if (route.isEmpty()) return false;
+		int side = from;
+		for (var edge : route) {
+			if (side == edge.roomA()) {
+				waypoints.add(edge.posA());
+				if (edge.isDual()) waypoints.add(edge.posB());
+				side = edge.roomB();
+			} else if (side == edge.roomB()) {
+				if (edge.isDual()) waypoints.add(edge.posB());
+				waypoints.add(edge.posA());
+				side = edge.roomA();
+			} else {
+				return false;
+			}
+		}
+		return side == to;
+	}
+
+	@Nullable
+	private static InteriorNode nearestEntry(StructureInterior interior, BlockPos pos) {
+		InteriorNode ans = null;
+		double best = Double.MAX_VALUE;
+		for (var node : interior.nodes()) {
+			if (!node.isEntry()) continue;
+			double dist = node.posA().distSqr(pos);
+			if (dist < best) {
+				ans = node;
+				best = dist;
+			}
+		}
+		return ans;
+	}
+
+	@Nullable
+	private static InteriorNode bestExit(StructureInterior interior, int from, BlockPos target) {
+		InteriorNode ans = null;
+		int bestLegs = Integer.MAX_VALUE;
+		double bestDist = Double.MAX_VALUE;
+		for (var node : interior.nodes()) {
+			if (!node.isEntry()) continue;
+			int legs;
+			if (node.roomA() == from) legs = 0;
+			else {
+				var route = interior.findRoute(from, node.roomA());
+				if (route.isEmpty()) continue;
+				legs = route.size();
+			}
+			double dist = node.posA().distSqr(target);
+			if (legs < bestLegs || (legs == bestLegs && dist < bestDist)) {
+				ans = node;
+				bestLegs = legs;
+				bestDist = dist;
+			}
+		}
+		return ans;
+	}
+
+	private static BlockPos firstUnreached(BlockPos feet, List<BlockPos> waypoints, BlockPos fallback) {
+		for (var waypoint : waypoints) {
+			if (waypoint.distSqr(feet) > 4) return waypoint;
+		}
+		return fallback;
 	}
 
 	/**

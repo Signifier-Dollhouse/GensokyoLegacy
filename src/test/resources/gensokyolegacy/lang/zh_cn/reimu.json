@@ -5,13 +5,15 @@
 			"shared": {
 				"option": {
 					"bye": "再见！",
+					"leave": "（离开）",
+					"take_reward": "（收下报酬）",
 					"daily_group": "每日委托",
 					"daily_start": "有什么我能帮忙的吗？",
-					"daily_accept": "我来搞定",
-					"daily_reject": "也许晚点吧。",
+					"daily_accept": "我来帮你",
+					"daily_reject": "晚点吧。",
 					"daily_follow": "能再说一遍要做什么吗？",
 					"daily_follow_end": "我正在办！",
-					"daily_complete": "东西都拿来了～",
+					"daily_complete": "东西都拿来了。",
 					"daily_handover": "给你"
 				},
 				"dialog": {
@@ -25,13 +27,18 @@
 				},
 				"option": {
 					"start": "这里的食物你吃得惯吗？",
-					"follow_up": "询问食物喜好",
-					"complete": "交出食物。",
+					"follow_up": "你喜欢吃什么？",
+					"complete": "我回来了。",
 					"start/reject": "下次吧",
-					"start/accept": "等我准备一下食物。",
-					"follow_up/end": "还在准备中。",
-					"complete/reject": "还没",
-					"complete/handover": "给你带来咯。"
+					"start/reject/end": "（离开）",
+					"start/accept": "那我弄些食物来吧。",
+					"start/accept/end": "要撑住啊。",
+					"follow_up/end": "应该不难弄到。",
+					"follow_up/end/leave": "（离开）",
+					"complete/reject": "我想起来有急事，先失陪了。",
+					"complete/reject/end": "（离开）",
+					"complete/handover": "给你带来咯。",
+					"complete/handover/end": "（收下报酬）"
 				},
 				"dialog": {
 					"reimu": {
@@ -46,19 +53,19 @@
 								"dialog_1": "感谢你的慷慨援助，希望你能尽快在我饿晕之前准备好。"
 							},
 							"follow_up": {
-								"dialog_1": "魔理沙那家伙经常在宴会上分享蘑菇类的食物，还挺美味，你那有蘑菇吗？蘑菇煲和面包怎么样？"
+								"dialog_1": "魔理沙那家伙，经常在宴会上分享蘑菇类的食物，说起来还挺想念这口，这地界有能吃的蘑菇吗，蘑菇煲和面包怎么样？"
 							},
 							"follow_up/end": {
-								"dialog_1": "储备粮应该还够支撑一段时间。。。只是这味道实在是难以下咽，等你消息。"
+								"dialog_1": "储备粮应该还够支撑一段时间......只是这味道实在是难以下咽，等你好消息咯。"
 							},
 							"complete": {
 								"dialog_1": "哦回来了啊，事情办的怎么样了啊"
 							},
 							"complete/reject": {
-								"dialog_1": "嗯。。。好吧。"
+								"dialog_1": "喂，储备粮真的要见底了——"
 							},
 							"complete/handover": {
-								"dialog_1": "不错，办的还挺利索嘛。给你，这是你的报酬。别嫌少，目前神社这条件你也懂得，以前还有妖怪来访呢，现在影子都不见一个了。。。"
+								"dialog_1": "不错，办的还挺利索嘛。给你，这是你的报酬。别嫌少，目前神社这条件你也懂得，以前还有妖怪来访呢，现在影子都不见一个了......"
 							}
 						}
 					}
@@ -67,48 +74,53 @@
 			"hostile_loot": {
 				"quest": {
 					"title": "敌对生物分析",
-					"desc": "为灵梦猎杀僵尸和骷髅，收集它们的腐肉和骨头。"
+					"desc": "为灵梦清理僵尸和骷髅，收集它们的腐肉和骨头。"
 				},
 				"requirement": {
-					"zombie": "击杀僵尸",
-					"skeleton": "击杀骷髅"
+					"zombie": "退治僵尸",
+					"skeleton": "退治骷髅"
 				},
 				"option": {
-					"start": "询问神社周围是否需要帮助",
-					"follow_up": "询问猎杀需求。",
-					"complete": "交出样本。",
+					"start": "看你在皱眉，是有心事？",
+					"follow_up": "（查看清理进度）",
+					"complete": "我回来了。",
 					"start/reject": "下次吧。",
+					"start/reject/end": "（离开）",
 					"start/accept": "可以。",
-					"follow_up/end": "还在处理。",
+					"start/accept/end": "（离开）",
+					"follow_up/end": "还没处理好。",
+					"follow_up/end/leave": "好的。",
 					"complete/reject": "还没处理完善。",
-					"complete/handover": "搞定了，这是素材。"
+					"complete/reject/end": "（离开）",
+					"complete/handover": "搞定了，这是素材。",
+					"complete/handover/end": "（收下报酬）"
 				},
 				"dialog": {
 					"reimu": {
 						"hostile_loot": {
 							"start": {
-								"dialog_1": "说起来，最近确实有些很在意的事情，不是什么异变啦但是也是很烦人的，那些绿色皮肤和白骨头的是什么玩意？看着也不像是妖怪也不能退治，如果你帮我击退一些这类玩意的话，可以给你分享一些。。。报酬的。怎么样，接不接，反正看你挺闲的。"
+								"dialog_1": "说起来，最近确实有些很在意的事情，不是什么异变啦但是也是很烦人的，那些绿色皮肤和白骨头的是什么玩意？看着也不像是妖怪，打扫起来也很无聊，如果你帮我击退一些的话，可以给你一些......报酬。怎么样，接不接，反正看你挺闲的。"
 							},
 							"start/reject": {
 								"dialog_1": "啊——是吗，不愿意的话就算了，其实也不是打算指望你啦，只是有点懒得动而已。"
 							},
 							"start/accept": {
-								"dialog_1": "行，那就拜托你了。别搞砸了啊，搞砸了我可不负责善后。。。开玩笑的，加油吧。"
+								"dialog_1": "行，那就拜托你了。别搞砸了啊，搞砸了我可不负责善后——开玩笑的，加油吧。"
 							},
 							"follow_up": {
 								"dialog_1": "僵尸和骷髅处理的怎么样了？"
 							},
 							"follow_up/end": {
-								"dialog_1": "哦——这样啊，那击退的时候顺便带点他们的素材，我想研究一下他们是什么样的物种，这样可以晚上的时候睡个好觉。"
+								"dialog_1": "哦——这样啊，那击退的时候顺便带点他们的素材，我想看一下他们是什么样的存在，这样可以做出更好的应对法。"
 							},
 							"complete": {
 								"dialog_1": "哦，回来了啊，事情办得怎么样了啊。"
 							},
 							"complete/reject": {
-								"dialog_1": "倒是也不急，我说你击退的时候也要注意一下安全啊，别到时候被咬到了，僵尸这玩意可麻烦多了。"
+								"dialog_1": "倒是也不急，击退的时候也要注意一下安全，治疗可比委托麻烦多了。"
 							},
 							"complete/handover": {
-								"dialog_1": "很利索嘛，看来你还是能指望的上，应该没有被咬伤吧？不清楚这边的僵尸和我那边的有什么差别。。。有了这些东西我也能更好研究一下了。"
+								"dialog_1": "很利索嘛，看来你也不简单呢，没有受伤吧？不清楚这边的僵尸和我认知的有什么差别......有了这些东西我也能更好确认一下了。"
 							}
 						}
 					}
@@ -120,23 +132,28 @@
 					"desc": "为灵梦的符札带来纸和红石粉。"
 				},
 				"option": {
-					"start": "聊聊符札。",
-					"follow_up": "问问符札。",
-					"complete": "交出材料。",
-					"start/reject": "为什么是红石粉？",
-					"start/accept": "我来收集纸和红石粉。",
+					"start": "你提到的符札是什么。",
+					"follow_up": "（查看收集进度）",
+					"complete": "我回来了。",
+					"start/reject": "既然要求不严格，为什么不用红色染料？",
+					"start/reject/end": "这不是挺有讲究么。",
+					"start/accept": "我来帮你收集材料吧。",
+					"start/accept/end": "（离开）",
 					"follow_up/end": "还在收集中。",
-					"complete/reject": "还没准备好。",
-					"complete/handover": "纸和红石粉在这里。"
+					"follow_up/end/leave": "（离去）",
+					"complete/reject": "还没呢。",
+					"complete/reject/end": "（离开）",
+					"complete/handover": "你要的东西在这里。",
+					"complete/handover/end": "（收下报酬）"
 				},
 				"dialog": {
 					"reimu": {
 						"talisman_materials": {
 							"start": {
-								"dialog_1": "退治妖怪不能没有符札，想必你在旅行中也遇到了些棘手的妖怪吧？如果看他们不爽揍他们一顿就完事了，当然有符札就能更好击退妖怪了，不过这个地方有能用来画符札的材料吗，红石粉应该可以。"
+								"dialog_1": "退治妖怪不能没有符札，想必你在旅行中也遇到了些棘手的妖怪吧？虽说刀剑自然起效，不过有符札就能更好击退妖怪了，用来画符札的材料不算很有讲究，红石粉就可以，不过手头材料有点不够，真希望有帮手啊。"
 							},
 							"start/reject": {
-								"dialog_1": "如果你们这里有朱砂肯定是朱砂效果更好啊，不过红石粉更便宜一点。"
+								"dialog_1": "因为需要天然矿石的成分来沟通神明，最好的符纸本应是朱砂点的，染料那种东西是不行的啦。"
 							},
 							"start/accept": {
 								"dialog_1": "行，那就麻烦你了，材料收集好后我会给你画些符札来当作报酬。"
@@ -154,7 +171,7 @@
 								"dialog_1": "没事，准备好材料后就来找我，我给你画符札就是了。"
 							},
 							"complete/handover": {
-								"dialog_1": "好，看来你还是很靠谱的嘛，有了这些材料神社的符札也充裕了许多。。。放心吧我不会忘了你的那一份的，这些你拿着。"
+								"dialog_1": "真可靠呢，有了这些材料神社的符札也充裕了许多......放心吧，我不会忘了你的那一份的，这些你拿着。"
 							}
 						}
 					}
@@ -166,41 +183,46 @@
 					"desc": "为灵梦带来一颗末影珍珠和一颗末影之眼，用于她的隙间研究。"
 				},
 				"option": {
-					"start": "提起末影人在四处瞬移的事。",
-					"follow_up": "问问隙间。",
-					"complete": "交出末影材料。",
-					"start/reject": "下次吧。",
-					"start/accept": "我去找末影材料。",
-					"follow_up/end": "还在找。",
-					"complete/reject": "还没。",
-					"complete/handover": "珍珠和末影之眼在这里。"
+					"start": "听村庄说，你去村子退治几乎是瞬间就到了，难不成你是什么末影人变的吗？",
+					"follow_up": "（查看收集进度）",
+					"complete": "我回来了。",
+					"start/reject": "我有别的事情要做。",
+					"start/reject/end": "（离开）",
+					"start/accept": "我去找找看。",
+					"start/accept/end": "（离开）",
+					"follow_up/end": "还在找呢。",
+					"follow_up/end/leave": "（离开）",
+					"complete/reject": "我还有其它用处。",
+					"complete/reject/end": "（离开）",
+					"complete/handover": "你要的珍珠和末影之眼。",
+					"complete/handover/end": "（收下报酬）"
 				},
 				"dialog": {
 					"reimu": {
 						"ender_materials": {
 							"start": {
-								"dialog_1": "它们靠扭曲空间在世界里闪来闪去，对吧？我想把这招用在我的隙间传送门上。这个世界的末影珍珠能像迷你隙间一样扭曲空间，而末影之眼可以锁定回家的路。各带一个来——我觉得靠它们就能把路线定下来。"
+								"dialog_1": "你是说那些怕水又怕注视的黑色生物？我是借助隙间传送的啦，这是借用紫那家伙的能力，和这里的末影珍珠能够产生联系，从而锚定一些地点。你帮我各带一个来——我可以教你怎么使用这个。"
 							},
 							"start/reject": {
-								"dialog_1": "它们确实很难得。等手头有富余了再来吧。"
+								"dialog_1": "没关系，等有空再说也不迟。"
 							},
 							"start/accept": {
-								"dialog_1": "那就一颗珍珠和一颗末影之眼。都是稀罕物，不过这正是我需要的锚点。"
+								"dialog_1": "那就一颗珍珠和一颗末影之眼，对我来说这东西是不太容易得到的东西，弹幕对他们作用不大。"
 							},
 							"follow_up": {
 								"dialog_1": "找到末影材料了吗？"
 							},
 							"follow_up/end": {
-								"dialog_1": "珍珠是夜里那些紫色小淘气掉的。末影之眼嘛，你得往更深的地方找了。"
+								"dialog_1": "据说有个叫诡异森林的地方是比较常见的，你可以试试看。"
 							},
 							"complete": {
 								"dialog_1": "让我看看你带来了什么。"
 							},
 							"complete/reject": {
-								"dialog_1": "不急。只要保管好就行。"
+								"dialog_1": "不急，等你有多出来的就行。"
 							},
 							"complete/handover": {
-								"dialog_1": "太棒了。有了这些，我就能锚定一道真正的隙间。回家的路又近了一步。"
+								"dialog_1": "有了这些，我就能锚定一道隙间，让路程极大地缩短，我也教你怎么用吧。"
 							}
 						}
 					}
@@ -212,41 +234,46 @@
 					"desc": "为灵梦带回一面掠夺者首领的不祥旗帜。"
 				},
 				"option": {
-					"start": "聊聊掠夺者。",
-					"follow_up": "问问旗帜。",
-					"complete": "交出旗帜。",
-					"start/reject": "下次吧。",
-					"start/accept": "我去找一个袭击队长。",
-					"follow_up/end": "还在找。",
-					"complete/reject": "还没。",
-					"complete/handover": "旗帜在这里。"
+					"start": "那些掠夺者们宣称亵渎灵魂的教义是真的吗。",
+					"follow_up": "（查看收集进度）",
+					"complete": "我回来了。",
+					"start/reject": "等我下次再说吧。",
+					"start/reject/end": "（离开）",
+					"start/accept": "那我去弄一个回来。",
+					"start/accept/end": "我会小心的。",
+					"follow_up/end": "还没有。",
+					"follow_up/end/leave": "好的。",
+					"complete/reject": "稍等一下。",
+					"complete/reject/end": "（离开）",
+					"complete/handover": "给，旗帜。",
+					"complete/handover/end": "（离开）"
 				},
 				"dialog": {
 					"reimu": {
 						"ominous_banner": {
 							"start": {
-								"dialog_1": "大家一直在说掠夺者——一群带着黑白旗帜的武装家伙。带一面他们首领的旗子给我。我想看看那上面到底是什么意思。"
+								"dialog_1": "我退治过他们，也没有什么了不起的，他们在做破坏平衡的事情，如果你有心的话，带一面他们的旗帜给我，我认为那不只是一个象征那么简单。"
 							},
 							"start/reject": {
-								"dialog_1": "说到底也只是拿着武器的人类。准备好对付他们以后再来吧。"
+								"dialog_1": "好吧，说到底也只是邪信徒，我出手也完全足够了。"
 							},
 							"start/accept": {
-								"dialog_1": "好。他们的首领会带着那种不祥旗帜。解决掉一个，把旗子带回来。不过要小心，他们会留下一个不祥的印记。"
+								"dialog_1": "好，麻烦把旗子带回来，不过要小心，他们会给你种下不祥的印记。"
 							},
 							"follow_up": {
-								"dialog_1": "找到他们的首领了吗？"
+								"dialog_1": "找到旗帜了吗？"
 							},
 							"follow_up/end": {
 								"dialog_1": "去看看前哨站和巡逻队。你最有可能在那里找到他们。"
 							},
 							"complete": {
-								"dialog_1": "就是这个。让我看看这面怪旗子到底在说什么。"
+								"dialog_1": "拿到了吗？让我看看旗子。"
 							},
 							"complete/reject": {
-								"dialog_1": "慢慢来。我会在这里等着。"
+								"dialog_1": "慢慢来，我会在这里等着。"
 							},
 							"complete/handover": {
-								"dialog_1": "就是它。我会研究这群掠夺者到底靠什么联系在一起。然后再想想该怎么收拾他们。"
+								"dialog_1": "就是它，我会研究掠夺者的灾厄本源，好断绝他们扰乱平衡的行为。"
 							}
 						}
 					}
@@ -261,41 +288,37 @@
 					"raid": "赢得一场袭击战"
 				},
 				"option": {
-					"start": "聊聊计划。",
-					"follow_up": "问问袭击。",
-					"complete": "告诉灵梦袭击结束了。",
-					"start/reject": "你自己不能去吗？",
+					"start": "对近期袭击村庄的掠夺者，你有什么计划？",
+					"follow_up": "（补充印记）",
+					"complete": "袭击结束了。",
+					"start/reject": "这样不会太冒险了吗？",
+					"start/reject/end": "（离开）",
 					"start/accept": "我来击退袭击。",
-					"follow_up/end": "再盖一个印记。",
-					"complete/reject": "还没。",
-					"complete/handover": "掠夺者都被赶走了。"
+					"start/accept/end": "（离开）",
+					"follow_up/end": "麻烦再施加一个印记吧。",
+					"follow_up/end/leave": "（离开）",
+					"complete/handover": "（收下报酬）"
 				},
 				"dialog": {
 					"reimu": {
 						"raid": {
 							"start": {
-								"dialog_1": "我弄明白那个印记了。我的符札可以重新做出它。我把印记放到你身上；你进村，把掠夺者引出来，再把他们赶走。"
+								"dialog_1": "我弄明白那个不详的印记了，我的符札可以重新还原它，我想把印记放到你身上，你能把掠夺者引出来，再把他们赶走吗？"
 							},
 							"start/reject": {
-								"dialog_1": "我还有神社的事要做。你更了解这个世界，所以战斗就交给你了。"
+								"dialog_1": "我觉得你的实力没问题啊，真没有这个信心就算了。"
 							},
 							"start/accept": {
-								"dialog_1": "好了。印记已经在你身上了。进村把他们引出来，然后把所有掠夺者都赶走。"
+								"dialog_1": "好了，印记已经在你身上了，把他们引出来，消灭这股破坏平衡的势力。"
 							},
 							"follow_up": {
-								"dialog_1": "村子还撑得住，但印记正在消退。要再来一次吗？我可以再给你盖上一个新的。"
+								"dialog_1": "印记有消退的迹象，要再来一次吗？我可以再给你盖上一个新的。"
 							},
 							"follow_up/end": {
-								"dialog_1": "好了。进村把他们引出来，然后把所有掠夺者都赶走。"
+								"dialog_1": "好了。进村把他们引出来，然后你知道该怎么做。"
 							},
 							"complete": {
-								"dialog_1": "那些一波波的家伙停下来了？很好。看来计划成功了。"
-							},
-							"complete/reject": {
-								"dialog_1": "还没结束？那就保持警惕。他们没那么容易放弃。"
-							},
-							"complete/handover": {
-								"dialog_1": "你把他们全赶走了。我就知道把他们引进村子会有用。给——这把结界伞拿好，为接下来要来的东西做个准备吧。"
+								"dialog_1": "那些家伙停下来了？很好，省了不少功夫。给——这把结界伞拿好，为接下来要来的东西做个准备吧。"
 							}
 						}
 					}
@@ -306,26 +329,33 @@
 					"title": "神社补给",
 					"desc": "给灵梦带些神社需要的物资。"
 				},
+				"option": {
+					"start/reject/end": "（离开）",
+					"start/accept/end": "（离开）",
+					"follow_up/end": "好的。",
+					"follow_up/end/leave": "（离开）",
+					"complete/handover/end": "（收下报酬）"
+				},
 				"dialog": {
 					"reimu": {
 						"daily_food": {
 							"start": {
-								"dialog_1": "捐款箱又空了，而且我也饿了。带几样神社用得上的东西来吧。"
+								"dialog_1": "塞钱箱空空如也，这样下去饭要吃不上了。麻烦带几样神社用得上的东西来吧。"
 							},
 							"start/reject": {
-								"dialog_1": "饿着肚子的巫女可没精神干活。随你。"
+								"dialog_1": "那我想想办法吧，要不要找那家伙去蹭饭呢。"
 							},
 							"start/accept": {
-								"dialog_1": "很好。带一批像样的回来。"
+								"dialog_1": "很好，需要这些东西。"
 							},
 							"follow_up": {
 								"dialog_1": "捐款箱又空了——记得带一批像样的补给回来。"
 							},
 							"follow_up/end": {
-								"dialog_1": "不急。记得带些有用的回来。"
+								"dialog_1": "别忘了啊。"
 							},
 							"complete/handover": {
-								"dialog_1": "正好是神社需要的。谢了。"
+								"dialog_1": "正好是需要的，谢了。"
 							}
 						}
 					}
@@ -339,14 +369,23 @@
 				"requirement": {
 					"kill": "击杀敌对生物"
 				},
+				"option": {
+					"start/reject": "晚点吧。",
+					"start/reject/end": "（离开）",
+					"start/accept": "我来搞定。",
+					"start/accept/end": "（离开）",
+					"follow_up/end": "好的。",
+					"follow_up/end/leave": "（离开）",
+					"complete/handover/end": "（收下报酬）"
+				},
 				"dialog": {
 					"reimu": {
 						"daily_hunt": {
 							"start": {
-								"dialog_1": "神社附近最近总有东西惹麻烦。把那些怪物清掉，再带些战利品回来。"
+								"dialog_1": "神社附近总有东西惹麻烦，把那些怪物清理掉，再把战利品带回来。"
 							},
 							"start/reject": {
-								"dialog_1": "它们只会越来越嚣张。不过随你。"
+								"dialog_1": "哎，搞半天，原来还要自己打。"
 							},
 							"start/accept": {
 								"dialog_1": "很好。去把它们清干净。"
@@ -358,7 +397,7 @@
 								"dialog_1": "在外面小心点。我可需要你完完整整地回来。"
 							},
 							"complete/handover": {
-								"dialog_1": "又能让大家安稳睡一晚。谢了。"
+								"dialog_1": "又能安稳睡一晚，谢了。"
 							}
 						}
 					}
@@ -369,26 +408,33 @@
 					"title": "符札补给",
 					"desc": "为灵梦补充符札库存，带上纸和红石粉。"
 				},
+				"option": {
+					"start/reject/end": "（离开）",
+					"start/accept/end": "（离开）",
+					"follow_up/end": "了解了。",
+					"follow_up/end/leave": "我去去就回。",
+					"complete/handover/end": "（收下报酬）"
+				},
 				"dialog": {
 					"reimu": {
 						"daily_talisman": {
 							"start": {
-								"dialog_1": "符札库存又快见底了。纸和红石，还是之前那些。"
+								"dialog_1": "符札库存又快见底了，纸和红石，还是之前那些，帮我收集一些吧。"
 							},
 							"start/reject": {
-								"dialog_1": "没库存就没法做结界。随你。"
+								"dialog_1": "还有一些余量，那等你有空再说。"
 							},
 							"start/accept": {
-								"dialog_1": "很好。补好库存，我就能继续给神社做结界。"
+								"dialog_1": "很好，补好库存，我就能稳定供给符札。"
 							},
 							"follow_up": {
-								"dialog_1": "符札库存又见底了——纸用来折，红石用来当墨，记得吗。"
+								"dialog_1": "符札库存又见底了——纸和红石，记得吗？"
 							},
 							"follow_up/end": {
-								"dialog_1": "符札架子都快空了。"
+								"dialog_1": "库存快空了呢。"
 							},
 							"complete/handover": {
-								"dialog_1": "很好。架子又补满了。"
+								"dialog_1": "很好，这下又够一阵了，这是给你的一份。"
 							}
 						}
 					}
@@ -402,26 +448,37 @@
 				"requirement": {
 					"raid": "赢得一场袭击战"
 				},
+				"option": {
+					"start/reject": "晚点吧。",
+					"start/reject/end": "（离开）",
+					"start/accept": "我来帮你。",
+					"start/accept/end": "（离开）",
+					"follow_up": "我的印记好像不见了？",
+					"follow_up/end": "麻烦了。",
+					"follow_up/end/leave": "（离开）",
+					"complete": "清扫很顺利。",
+					"complete/handover": "没有你的助力也不会这么顺利地引出他们。"
+				},
 				"dialog": {
 					"reimu": {
 						"daily_raid": {
 							"start": {
-								"dialog_1": "新的印记准备好了，又有一个村子需要保护。准备再来一次袭击战吗？"
+								"dialog_1": "又有一个村子需要保护，我准备好了诱饵，要准备再来一次清扫吗？"
 							},
 							"start/reject": {
-								"dialog_1": "印记会留着。等你准备好，掠夺者还在那里。"
+								"dialog_1": "印记会留着，等你准备好再说。"
 							},
 							"start/accept": {
-								"dialog_1": "给你印记，和上次一样。进村、守住阵线，把他们赶出去。"
+								"dialog_1": "和上次一样，引诱，守住阵线，把他们赶走。"
 							},
 							"follow_up": {
-								"dialog_1": "印记正在消退。准备好再来一轮了吗？我可以重新给你盖一个。"
+								"dialog_1": "是么，我可以重新给你施加一个。"
 							},
 							"follow_up/end": {
-								"dialog_1": "好了。进村、守住阵线，把他们赶出去。我在这里等你。"
+								"dialog_1": "好了，计划不变，我等你好消息。"
 							},
-							"complete/handover": {
-								"dialog_1": "村子还好好的。看来你已经很熟练了。"
+							"complete": {
+								"dialog_1": "不错嘛，你越来越熟练了。"
 							}
 						}
 					}
@@ -446,19 +503,19 @@
 			},
 			"chat_marisa": {
 				"starter": {
-					"start": "你见过魔理沙吗？"
+					"start": "符札和药水哪个更好用呢？"
 				},
 				"dialog": {
 					"reimu": {
 						"chat_marisa": {
-							"talk": "你还没见过魔理沙吧？普通的魔法使，住在魔法森林深处。大嗓门，爱管闲事，总爱顺手借东西。",
-							"where_ans": "她家在魔法森林深处。跟着蘑菇——还有爆炸声走就行。你肯定不会错过她。"
+							"talk": "符札是向神明借助力量，所以一般有着条件限制。对了，说到药剂，你还没见过魔理沙吧？她在魔法森林深处开着一家店，那里的药剂有别于平常的体系，感兴趣可以去看看。",
+							"where_ans": "她家在魔法森林深处，跟着蘑菇——还有爆炸声走就行，你肯定不会错过她。"
 						}
 					}
 				},
 				"option": {
 					"where": "去哪里找她？",
-					"bye": "明白了！"
+					"bye": "感谢指路。"
 				}
 			},
 			"chat_fortune": {

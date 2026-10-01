@@ -14,6 +14,7 @@ import dev.xkmc.gensokyolegacy.content.block.deco.bed.YoukaiBedBlock;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.combat.*;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.move.YoukaiNavigationControl;
 import dev.xkmc.gensokyolegacy.content.entity.foundation.DamageClampEntity;
+import dev.xkmc.gensokyolegacy.content.entity.foundation.ISleepOffsetEntity;
 import dev.xkmc.gensokyolegacy.content.entity.module.*;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.l2core.base.entity.SyncedData;
@@ -57,7 +58,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 @SerialClass
-public abstract class YoukaiEntity extends DamageClampEntity implements SpellCircleHolder, IYoukaiEntity {
+public abstract class YoukaiEntity extends DamageClampEntity implements SpellCircleHolder, IYoukaiEntity, ISleepOffsetEntity {
 
 	private static <T> EntityDataAccessor<T> defineId(EntityDataSerializer<T> ser) {
 		return SynchedEntityData.defineId(YoukaiEntity.class, ser);
@@ -221,7 +222,8 @@ public abstract class YoukaiEntity extends DamageClampEntity implements SpellCir
 	}
 
 	protected List<AbstractYoukaiModule> createModules() {
-		return List.of(new HomeModule(this), new GiftModule(this), new FeedModule(this), new TalkModule(this));
+		return List.of(new HomeModule(this), //new GiftModule(this), new FeedModule(this),
+				new TalkModule(this));
 	}
 
 	@Override
@@ -499,26 +501,18 @@ public abstract class YoukaiEntity extends DamageClampEntity implements SpellCir
 		this.navCtrl.stopMoving();
 		this.navCtrl.setWalking();
 		this.setPose(Pose.SLEEPING);
-		this.setPosToBed(pos);
+		this.setPosToBedImpl(pos);
 		this.setSleepingPos(pos);
 		this.setDeltaMovement(Vec3.ZERO);
 		this.hasImpulse = true;
 	}
 
-	protected double getSleepOffset(BlockPos pos) {
+	@Override
+	public double getSleepOffset(BlockPos pos) {
 		if (level().isLoaded(pos)) {
 			return YoukaiBedBlock.getSleepOffset(level().getBlockState(pos));
 		}
 		return YoukaiBedBlock.VANILLA_SLEEP_OFFSET;
-	}
-
-	@Override
-	protected void setPosToBed(BlockPos pos) {
-		// Vanilla hardcodes 0.6875 (vanilla mattress top 9/16 + 2/16 gap).
-		// Our flat beds are only 2/16 tall, so use the per-bed offset instead.
-		// Access-transformed to protected; all vanilla call sites (startSleeping,
-		// first-tick baseTick, load, sleeping-pos sync) dispatch here virtually.
-		this.setPos(pos.getX() + 0.5, pos.getY() + getSleepOffset(pos), pos.getZ() + 0.5);
 	}
 
 	public boolean mayInteract(Player player) {

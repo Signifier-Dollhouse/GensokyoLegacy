@@ -3,9 +3,11 @@ package dev.xkmc.gensokyolegacy.mixin;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
+import dev.xkmc.gensokyolegacy.content.entity.foundation.ISleepOffsetEntity;
 import dev.xkmc.gensokyolegacy.event.MixinHookHandlers;
 import dev.xkmc.gensokyolegacy.init.registrate.GLEffects;
 import dev.xkmc.gensokyolegacy.util.LavaEffectsHelper;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffect;
@@ -19,6 +21,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.function.Consumer;
@@ -28,6 +31,17 @@ public abstract class LivingEntityMixin {
 
 	@Shadow
 	public abstract boolean hasEffect(Holder<MobEffect> effect);
+
+	@Inject(at = @At("HEAD"), method = "setPosToBed", cancellable = true, require = 0)
+	public void gensokyolegacy$setPosToBed(BlockPos pos, CallbackInfo ci) {
+		LivingEntity self = (LivingEntity) (Object) this;
+		// Vanilla hardcodes 0.6875 (vanilla mattress top 9/16 + 2/16 gap);
+		// our beds are flat, so ask the entity for its own sleep height.
+		if (self instanceof ISleepOffsetEntity e) {
+			e.setPosToBedImpl(pos);
+			ci.cancel();
+		}
+	}
 
 	@Inject(at = @At("HEAD"), method = "canBeSeenAsEnemy", cancellable = true)
 	public void gensokyolegacy$canBeSeenAsEnemy$unconscious(CallbackInfoReturnable<Boolean> cir) {

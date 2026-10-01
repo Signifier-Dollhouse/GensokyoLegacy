@@ -1,16 +1,19 @@
 package dev.xkmc.gensokyolegacy.content.client.structure;
 
+import dev.xkmc.gensokyolegacy.content.attachment.datamap.StructureInterior;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 
 import java.util.List;
 
 public interface IStructureBound {
 
-	Box house();
-
 	Box structure();
 
+	List<Box> house();
+
 	List<Box> rooms();
+
+	StructureInterior interior();
 
 	record Box(int x0, int y0, int z0, int x1, int y1, int z1) {
 

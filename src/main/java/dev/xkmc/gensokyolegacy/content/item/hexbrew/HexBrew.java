@@ -23,7 +23,7 @@ public enum HexBrew {
 	HEXBREW_ELIXIR(0xff946eb6),
 	EXPLOSIVE_HEXBREW(0xffe1a074, new ExplosiveHandler()),
 	MIASMA_HEXBREW(0xff488d86, new SimplePotionHandler(true, GLEffects.MIASMA, 1200, 0)),
-	SHIELD_HEXBREW(0xffaf5088, new SimplePotionHandler(false, GLEffects.STARLIGHT_SHIELD, 1200, 0)),
+	SHIELD_HEXBREW(0xffaf5088, new SimplePotionHandler(false, GLEffects.SHIELD, 1200, 0)),
 	STARLIGHT_HEXBREW(0xfffceb95, new StarlightHandler()),
 	HYPHAE_HEXBREW(0xff47c0fc, new HyphaeHandler()),
 	WITCH_HEXBREW(0xFFFFFFFF, new WitchHandler(false)),

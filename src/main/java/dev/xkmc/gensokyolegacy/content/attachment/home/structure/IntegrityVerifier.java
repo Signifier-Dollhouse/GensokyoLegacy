@@ -21,12 +21,14 @@ public class IntegrityVerifier {
 	private final StructureBound bound;
 	private final StructureCache template;
 	private final StructureConfig config;
+	private final MultiStructureBound houseMask;
 	private final MultiStructureBound roomBounds;
 	private final AbnormalCache abnormal;
 
-	public IntegrityVerifier(StructureHomeHolder holder, BoundingBox house, MultiStructureBound rooms, StructureCache template, AbnormalCache set) {
+	public IntegrityVerifier(StructureHomeHolder holder, BoundingBox house, MultiStructureBound mask, MultiStructureBound rooms, StructureCache template, AbnormalCache set) {
 		this.level = holder.level();
 		this.config = holder.config();
+		this.houseMask = mask;
 		this.roomBounds = rooms;
 		this.bound = new StructureBound(house);
 		this.template = template;
@@ -54,6 +56,8 @@ public class IntegrityVerifier {
 				if (step < 0 || step >= template.raster().length) continue;
 			}
 			if (!level.isLoaded(pos))
+				continue;
+			if (!houseMask.isInside(pos))
 				continue;
 			int sid = template.raster()[step];
 			boolean inRoom = roomBounds.isInside(pos);

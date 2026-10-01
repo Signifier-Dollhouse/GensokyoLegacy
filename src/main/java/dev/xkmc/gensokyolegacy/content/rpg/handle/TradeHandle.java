@@ -23,7 +23,10 @@ public record TradeHandle(EntityType<?> type) implements IDialogHandle {
 	}
 
 	@Override
-	public void openMenu(ServerPlayer sp, YoukaiEntity character) {
+	public void open(ServerPlayer sp, YoukaiEntity character) {
+		// the trade screen is a real container menu, so it keeps the
+		// conversation alive on its own; the dialog session standing down is
+		// handled by the client's close packet
 		TradeProvider.open(sp, character);
 	}
 

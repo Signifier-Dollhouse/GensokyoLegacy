@@ -29,7 +29,7 @@ public class StructureInfoClientManager {
 		if (level == null || data == null) return false;
 		if (!(Minecraft.getInstance().hitResult instanceof BlockHitResult block)) return false;
 		BlockPos pos = block.getBlockPos();
-		if (!data.house().toBox().isInside(pos)) return false;
+		if (!data.structure().toBox().isInside(pos)) return false;
 		hoverPos = pos;
 		if (gameTime > lastTime + 20) {
 			lastTime = gameTime;

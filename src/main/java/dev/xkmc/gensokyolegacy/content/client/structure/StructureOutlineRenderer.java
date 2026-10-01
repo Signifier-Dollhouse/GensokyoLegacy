@@ -11,9 +11,11 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
 
+import java.util.ArrayList;
 import java.util.OptionalDouble;
 import java.util.Set;
 
@@ -48,16 +50,44 @@ public class StructureOutlineRenderer {
 		if (data == null || level == null || player == null) return;
 		var buffer = Minecraft.getInstance().renderBuffers().bufferSource();
 		var line = buffer.getBuffer(RenderType.lines());
-		renderBox(pose, line, data.structure(), camera.toVector3f(), 1, 1, 1, 1, 1f / 32);
-		renderBox(pose, line, data.house(), camera.toVector3f(), 0.5f, 1, 1, 1, 0);
+		var vec = camera.toVector3f();
+		renderBox(pose, line, data.structure(), vec, 1, 1, 1, 1, 1f / 32);
+		for (var house : data.house()) {
+			renderBox(pose, line, house, vec, 0.5f, 1, 1, 1, -1f / 16);
+		}
 		var outline = buffer.getBuffer(LineRenderType.OUTLINE);
 		var cluster = StructureInfoClientManager.bitSet;
 		if (cluster != null) {
-			var vec = camera.toVector3f();
 			cluster.render(true, (x0, y0, z0, x1, y1, z1) -> renderShape(pose, outline, x0, y0, z0, x1, y1, z1, -vec.x, -vec.y, -vec.z, 1, 0.5f, 0.5f, 1));
-		} else {
+		} else if (data.interior().isEmpty()) {
 			for (var room : data.rooms()) {
-				renderBox(pose, outline, room, camera.toVector3f(), 1, 0.5f, 0.5f, 1, -1f / 32);
+				renderBox(pose, outline, room, vec, 1, 0.5f, 0.5f, 1, -1f / 32);
+			}
+		} else {
+			var rooms = data.interior().rooms();
+			for (var room : rooms) {
+				renderBox(pose, outline, IStructureBound.Box.of(room.bound()), vec, 0.3f, 1, 0.3f, 1, -1f / 16);
+			}
+			for (var node : data.interior().nodes()) {
+				float dx = -vec.x, dy = -vec.y, dz = -vec.z;
+				renderNodeCube(pose, outline, node.posA(), dx, dy, dz);
+				var path = new ArrayList<float[]>();
+				path.add(roomBottomCenter(rooms.get(node.roomA()).bound()));
+				path.add(blockBottomCenter(node.posA()));
+				if (node.isDual()) {
+					renderNodeCube(pose, outline, node.posB(), dx, dy, dz);
+					path.add(blockBottomCenter(node.posB()));
+				}
+				if (!node.isEntry()) {
+					path.add(roomBottomCenter(rooms.get(node.roomB()).bound()));
+				}
+				for (int i = 0; i + 1 < path.size(); i++) {
+					var a = path.get(i);
+					var b = path.get(i + 1);
+					renderShape(pose, outline,
+							a[0], a[1], a[2], b[0], b[1], b[2],
+							dx, dy, dz, 1, 0.55f, 0.1f, 1);
+				}
 			}
 
 		}
@@ -67,6 +97,26 @@ public class StructureOutlineRenderer {
 		var buffer = Minecraft.getInstance().renderBuffers().bufferSource();
 		var outline = buffer.getBuffer(LineRenderType.OUTLINE);
 		renderPos(pose, outline, pos, camera.toVector3f(), 1, 1, 1, 1, 0);
+	}
+
+	private static void renderNodeCube(
+			PoseStack pose, VertexConsumer vc, BlockPos pos,
+			float dx, float dy, float dz
+	) {
+		renderCube(pose, vc,
+				pos.getX(), pos.getY(), pos.getZ(),
+				pos.getX() + 1, pos.getY() + 2, pos.getZ() + 1,
+				dx, dy, dz, 1, 0.55f, 0.1f, 1);
+	}
+
+	private static float[] blockBottomCenter(BlockPos pos) {
+		return new float[]{pos.getX() + 0.5f, pos.getY(), pos.getZ() + 0.5f};
+	}
+
+	private static float[] roomBottomCenter(BoundingBox box) {
+		return new float[]{
+				(box.minX() + box.maxX() + 1) / 2f, box.minY(),
+				(box.minZ() + box.maxZ() + 1) / 2f};
 	}
 
 	private static void renderBox(

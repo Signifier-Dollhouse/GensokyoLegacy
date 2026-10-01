@@ -1,21 +1,5 @@
 {
   "values": [
-    "gensokyolegacy:packed_ice_stairs",
-    "gensokyolegacy:packed_ice_slab",
-    "gensokyolegacy:packed_ice_vertical_slab",
-    "gensokyolegacy:ice_bricks",
-    "gensokyolegacy:ice_brick_stairs",
-    "gensokyolegacy:ice_brick_slab",
-    "gensokyolegacy:ice_brick_vertical_slab",
-    "gensokyolegacy:darkstone",
-    "gensokyolegacy:darkstone_stairs",
-    "gensokyolegacy:darkstone_slab",
-    "gensokyolegacy:darkstone_vertical_slab",
-    "gensokyolegacy:darkstone_bricks",
-    "gensokyolegacy:darkstone_brick_stairs",
-    "gensokyolegacy:darkstone_brick_slab",
-    "gensokyolegacy:darkstone_brick_vertical_slab",
-    "gensokyolegacy:chiseled_darkstone_bricks",
     "gensokyolegacy:cyan_tiles",
     "gensokyolegacy:cyan_tiles_stairs",
     "gensokyolegacy:cyan_tiles_slab",
@@ -44,7 +28,6 @@
     "gensokyolegacy:gray_tiles_stairs",
     "gensokyolegacy:gray_tiles_slab",
     "gensokyolegacy:gray_tiles_vertical_slab",
-    "gensokyolegacy:blue_strips_terracota",
     "gensokyolegacy:alchemy_pot",
     "gensokyolegacy:sealing_pot"
   ]

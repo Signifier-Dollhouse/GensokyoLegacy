@@ -2,7 +2,7 @@ package dev.xkmc.gensokyolegacy.content.rpg.handle;
 
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.rpg.quest.Quest;
-import dev.xkmc.gensokyolegacy.content.ui.dialog.FirstDialogProvider;
+import dev.xkmc.gensokyolegacy.content.ui.dialog.FirstDialogSession;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -23,8 +23,8 @@ public record GroupHandle(Component display, List<IDialogHandle> members, Compon
 	}
 
 	@Override
-	public void openMenu(ServerPlayer sp, YoukaiEntity character) {
-		FirstDialogProvider.openGroup(sp, character, this);
+	public void open(ServerPlayer sp, YoukaiEntity character) {
+		FirstDialogSession.openGroup(sp, character, this);
 	}
 
 	@Override

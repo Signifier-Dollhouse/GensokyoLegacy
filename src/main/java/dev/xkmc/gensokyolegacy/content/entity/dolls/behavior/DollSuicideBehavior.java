@@ -15,7 +15,9 @@ import java.util.Optional;
  * Suicide attack: go stray (cut from pairing, no leash), dive at the target and
  * explode — entities only, terrain never breaks. The TNT is consumed, then the
  * doll is guaranteed dead so the stray death drop returns the item form with all
- * other gear intact.
+ * other gear intact. A dive aborted before detonation (target died or left) never
+ * reaches the blast, so on stop the doll rejoins its ledger instead — the order
+ * costs the player nothing and the doll comes back whole.
  */
 public class DollSuicideBehavior extends DollBehavior {
 
@@ -60,6 +62,10 @@ public class DollSuicideBehavior extends DollBehavior {
 		halt(doll);
 		navCooldown = 0;
 		doll.actions.setKamikaze(false);
+		// A dive that never detonated (target died or left, weapon gone) is not a
+		// death: hand the doll back to its ledger as TEMP instead of leaving a
+		// stray nothing can reach. No-op once the entry went to the death drop.
+		doll.rejoinOwner();
 	}
 
 	@Override

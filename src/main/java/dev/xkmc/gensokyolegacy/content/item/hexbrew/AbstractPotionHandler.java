@@ -56,9 +56,8 @@ public interface AbstractPotionHandler extends HexBrewHandler {
 		AABB box = new AABB(pos, pos).inflate(r);
 		var taste = getCategory(stack);
 		for (LivingEntity e : level.getEntitiesOfClass(LivingEntity.class, box, en -> true)) {
-			if (e == thrower) continue;
 			if (thrower != null) {
-				var ally = e.isAlliedTo(thrower);
+				var ally = e == thrower||e.isAlliedTo(thrower);
 				if (taste == MobEffectCategory.HARMFUL && ally)
 					continue;
 			}

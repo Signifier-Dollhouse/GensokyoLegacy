@@ -20,12 +20,6 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 public abstract class DowserItemInHandLayerMixin {
 
 	@Unique
-	private static final ItemStack gensokyolegacy$DOWSER_LEFT_VIEW = new ItemStack(GLItems.DOWSER_LEFT.get());
-
-	@Unique
-	private static final ItemStack gensokyolegacy$DOWSER_RIGHT_VIEW = new ItemStack(GLItems.DOWSER_RIGHT.get());
-
-	@Unique
 	private static boolean gensokyolegacy$isSplitDowser(LivingEntity entity) {
 		return entity.getMainHandItem().is(GLItems.DOWSER.get()) && entity.getOffhandItem().isEmpty();
 	}
@@ -33,14 +27,14 @@ public abstract class DowserItemInHandLayerMixin {
 	@Redirect(method = "render*", at = @At(value = "INVOKE",
 			target = "Lnet/minecraft/world/entity/LivingEntity;getMainHandItem()Lnet/minecraft/world/item/ItemStack;"))
 	private ItemStack gensokyolegacy$dowserMainHand(LivingEntity entity) {
-		if (gensokyolegacy$isSplitDowser(entity)) return gensokyolegacy$DOWSER_LEFT_VIEW;
+		if (gensokyolegacy$isSplitDowser(entity)) return GLItems.DOWSER_LEFT.asStack();
 		return entity.getMainHandItem();
 	}
 
 	@Redirect(method = "render*", at = @At(value = "INVOKE",
 			target = "Lnet/minecraft/world/entity/LivingEntity;getOffhandItem()Lnet/minecraft/world/item/ItemStack;"))
 	private ItemStack gensokyolegacy$dowserOffHand(LivingEntity entity) {
-		if (gensokyolegacy$isSplitDowser(entity)) return gensokyolegacy$DOWSER_RIGHT_VIEW;
+		if (gensokyolegacy$isSplitDowser(entity)) return GLItems.DOWSER_RIGHT.asStack();
 		return entity.getOffhandItem();
 	}
 }

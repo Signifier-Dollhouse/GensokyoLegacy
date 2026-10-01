@@ -89,7 +89,7 @@ public class MarisaQDGen extends QuestDialogData {
 		prefix("marisa/chat");
 		defaultDialog(GLEntities.MARISA.get(),
 				"Yo, hey~ welcome to the Kirisame Magic Shop!",
-				"Wanna see the goods? Check out what I just got today!");
+				"What are you offering today?");
 		starter("marisa/chat", new DialogStarter(GLEntities.MARISA.get(), List.of(),
 				starterText("start", "Business usually busy around here?"),
 				dialog("hi", "Used to get plenty, but everything around here changed big-time lately — no idea where my customers went.",
@@ -105,8 +105,8 @@ public class MarisaQDGen extends QuestDialogData {
 		prefix("marisa/chat_reimu");
 		chat("marisa/chat_reimu", GLEntities.MARISA.get(),
 				List.of(missingAdv(GLAdvGen.ENTER_HAKUREI_SHRINE), new SelfReputationCondition(50)),
-				starterText("start", "I heard the Hakurei Shrine helped lots of villages — what's that place?"),
-				dialog("talk", "You'll find the Hakurei Shrine out in the cherry grove — an old friend of mine's there, a real incident-resolving expert.",
+				starterText("start", "This world is so dangerous…"),
+				dialog("talk", "You'll find the Hakurei Shrine out in the cherry grove — an old friend of mine's there, a real incident-resolving expert. If you're heading into danger, she may provide something to aid you in a fight.",
 						option("where", "Anything I should know before visiting?",
 								dialog("where_ans", "If raiders come at you, go find her — she'll chase them off. Just don't forget the donation, okay?",
 										option("where/end", "I'll drop by when I get the chance.")))),
@@ -115,8 +115,8 @@ public class MarisaQDGen extends QuestDialogData {
 		prefix("marisa/chat_morichika");
 		chat("marisa/chat_morichika", GLEntities.MARISA.get(),
 				List.of(missingAdv(GLAdvGen.ENTER_MORICHIKA_SHOP), new SelfReputationCondition(50)),
-				starterText("start", "Did you make all these little trinkets yourself?"),
-				dialog("talk", "Not all of 'em — there's another shop in this Magical Forest, Kourindou, run by Rinnosuke Morichika. Got some history with him — anyway, he deals all kinds of curios, kinda a secondhand shop.",
+				starterText("start", "I wish I had tools to aid exploration…"),
+				dialog("talk", "Funny you mention tools — not all of my trinkets are handmade. There's another shop in this Magical Forest, Kourindou, run by an old acquaintance of mine. He deals all kinds of curios and tools, kinda a secondhand shop — if you need gear for exploring, he may sell you something useful.",
 						option("where", "What does he sell?",
 								dialog("where_ans", "Sells everything from charms to junk — and he'll buy your spare curios too.",
 										option("where/end", "I'll have to pay it a visit sometime.")))),
@@ -347,11 +347,11 @@ public class MarisaQDGen extends QuestDialogData {
 
 	private void dailyQuests() {
 		prefix("marisa/daily_mycelium");
-		var myceliumTable = requestTable("daily_mycelium", LootTable.lootTable().withPool(LootPool.lootPool()
-				.setRolls(ConstantValue.exactly(3))
-				.add(LootItem.lootTableItem(GLNaturalBlocks.GHOST_FIRE_MUSHROOM_SET.cap).apply(SetItemCountFunction.setCount(UniformGenerator.between(3, 6))))
-				.add(LootItem.lootTableItem(GLNaturalBlocks.DREAM_MUSHROOM_SET.cap).apply(SetItemCountFunction.setCount(UniformGenerator.between(3, 6))))
-				.add(LootItem.lootTableItem(GLNaturalBlocks.DEMONIC_MIASMA_MUSHROOM_SET.cap).apply(SetItemCountFunction.setCount(UniformGenerator.between(3, 6))))));
+		var myceliumTable = requestTable("daily_mycelium", LootTable.lootTable()
+				.withPool(lootItem(GLNaturalBlocks.GHOST_FIRE_MUSHROOM_SET.cap.asItem(), 3, 6))
+				.withPool(lootItem(GLNaturalBlocks.DREAM_MUSHROOM_SET.cap.asItem(), 3, 6))
+				.withPool(lootItem(GLNaturalBlocks.DEMONIC_MIASMA_MUSHROOM_SET.cap.asItem(), 2, 4))
+		);
 		daily("marisa/daily_mycelium", "Specialty Mushrooms", "Bring Marisa fresh specialty mushrooms.",
 				new QuestRecurrence(24000), List.of(), 60, 10, 150, 0, 0,
 				"Morning! My stock's runnin' low again. Bring me a fresh bundle of forest mushrooms — the glowing ones, the dreamy ones, whatever ya can find. Fresh research material, stat!",
@@ -503,8 +503,8 @@ public class MarisaQDGen extends QuestDialogData {
 	}
 
 	private SimpleDialogOption start(String button, String intro,
-	                                 String accept, String acceptLine, String acceptEnd,
-	                                 String reject, String rejectLine, String rejectEnd) {
+									 String accept, String acceptLine, String acceptEnd,
+									 String reject, String rejectLine, String rejectEnd) {
 		return option("start", button,
 				dialog("start/dialog_1", intro, THINK_ANIMS,
 						option("start/reject", reject, dialog("start/reject/dialog_1", rejectLine, option("start/reject/end", rejectEnd))),
@@ -527,8 +527,8 @@ public class MarisaQDGen extends QuestDialogData {
 	}
 
 	private SimpleDialogOption complete(String button, String intro,
-	                                    String complete, String completeLine, String completeEnd,
-	                                    String reject, String rejectLine, String rejectEnd) {
+										String complete, String completeLine, String completeEnd,
+										String reject, String rejectLine, String rejectEnd) {
 		return option("complete", button,
 				dialog("complete/dialog_1", intro, AGREE_ANIMS,
 						option("complete/reject", reject, dialog("complete/reject/dialog_1", rejectLine, option("complete/reject/end", rejectEnd))),
@@ -559,10 +559,10 @@ public class MarisaQDGen extends QuestDialogData {
 	}
 
 	private void daily(String id, String title, String desc, QuestRecurrence rec,
-	                   List<QuestCondition<?>> conditions, int exp, int rep, int softCap, int capIncrease, int maxCap,
-	                   String intro, String acceptLine, String rejectLine, String followLine, @Nullable String followEndOverride, String optLine,
-	                   String completeOpener, String gotemLine, String handover, String completeLine, @Nullable String thanks,
-	                   Map<String, QuestRequirement<?, ?>> reqs, LootTable.Builder loot) {
+					   List<QuestCondition<?>> conditions, int exp, int rep, int softCap, int capIncrease, int maxCap,
+					   String intro, String acceptLine, String rejectLine, String followLine, @Nullable String followEndOverride, String optLine,
+					   String completeOpener, String gotemLine, String handover, String completeLine, @Nullable String thanks,
+					   Map<String, QuestRequirement<?, ?>> reqs, LootTable.Builder loot) {
 		quest(id, new Quest(GLEntities.MARISA.get(), conditions,
 				questTitle(title), questDesc(desc),
 				Optional.of(rec),
@@ -592,7 +592,7 @@ public class MarisaQDGen extends QuestDialogData {
 	}
 
 	private GroupDialogOption dailyComplete(String opener, String gotemLine, String handover,
-	                                         String completeLine, @Nullable String thanks) {
+											String completeLine, @Nullable String thanks) {
 		var done = thanks == null
 				? dialog("complete/handover/dialog_1", completeLine)
 				: dialog("complete/handover/dialog_1", completeLine, optionKey(dailyThanksKey));

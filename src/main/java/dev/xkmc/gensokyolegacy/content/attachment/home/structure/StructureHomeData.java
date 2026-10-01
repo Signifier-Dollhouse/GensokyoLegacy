@@ -1,6 +1,9 @@
 package dev.xkmc.gensokyolegacy.content.attachment.home.structure;
 
 import dev.xkmc.gensokyolegacy.content.attachment.datamap.StructureConfig;
+import dev.xkmc.gensokyolegacy.content.attachment.datamap.InteriorNode;
+import dev.xkmc.gensokyolegacy.content.attachment.datamap.InteriorRoom;
+import dev.xkmc.gensokyolegacy.content.attachment.datamap.StructureInterior;
 import dev.xkmc.gensokyolegacy.content.attachment.home.core.BlockSearchCache;
 import dev.xkmc.gensokyolegacy.content.attachment.home.core.HomeBlockKind;
 import dev.xkmc.gensokyolegacy.content.attachment.home.core.HomeSearchUtil;
@@ -65,11 +68,14 @@ public class StructureHomeData implements IBlockSearchCache {
 		} else {
 			if (verifier == null) {
 				verifier = new IntegrityVerifier(holder, getHouseBound(holder.config()),
-						getRoomBounds(holder.config()), cache, abnormal);
+						getHouseBounds(holder.config()), getRoomBounds(holder.config()), cache, abnormal);
 				if (!verifier.isValid()) {
+					// snapshot box changed: drop the cache and the raster-indexed
+					// abnormal entries along with it, then rescan from scratch
 					cache = null;
 					cacheBuilder = null;
 					verifier = null;
+					abnormal.clear();
 					return;
 				}
 			}
@@ -88,14 +94,61 @@ public class StructureHomeData implements IBlockSearchCache {
 	}
 
 	public MultiStructureBound getRoomBounds(StructureConfig config) {
-		if (!config.rooms().isEmpty()) {
+		var interior = getInterior(config);
+		if (!interior.isEmpty()) {
+			List<BoundingBox> boxes = new ArrayList<>();
+			for (var room : interior.rooms()) boxes.add(room.bound());
+			return new MultiStructureBound(boxes);
+		}
+		var mapped = mapBoxes(config.rooms());
+		if (mapped != null) return mapped;
+		return MultiStructureBound.of(piece.getBoundingBox());
+	}
+
+	/**
+	 * World-mapped interior: room boxes via corner mapping, node positions
+	 * via single-point mapping. Empty when the config has no interior data
+	 * or the piece is not a template/jigsaw piece.
+	 */
+	public StructureInterior getInterior(StructureConfig config) {
+		var local = config.interior();
+		if (local.isEmpty()) return StructureInterior.empty();
+		if (piece instanceof TemplateStructurePiece template) {
+			var settings = template.placeSettings();
+			var origin = template.templatePosition();
+			return mapInterior(local, settings, origin);
+		} else if (piece instanceof PoolElementStructurePiece pool) {
+			var settings = new StructurePlaceSettings().setRotation(pool.getRotation());
+			var origin = pool.getPosition();
+			return mapInterior(local, settings, origin);
+		}
+		return StructureInterior.empty();
+	}
+
+	private static StructureInterior mapInterior(StructureInterior local, StructurePlaceSettings settings, BlockPos origin) {
+		List<InteriorRoom> rooms = new ArrayList<>(local.rooms().size());
+		for (var room : local.rooms()) {
+			rooms.add(new InteriorRoom(room.name(), worldBox(room.bound(), settings, origin)));
+		}
+		List<InteriorNode> nodes = new ArrayList<>(local.nodes().size());
+		for (var node : local.nodes()) {
+			nodes.add(new InteriorNode(
+					worldPos(node.posA(), settings, origin), worldPos(node.posB(), settings, origin),
+					node.roomA(), node.roomB()));
+		}
+		return new StructureInterior(new ArrayList<>(rooms), new ArrayList<>(nodes));
+	}
+
+	@Nullable
+	private MultiStructureBound mapBoxes(List<BoundingBox> locals) {
+		if (!locals.isEmpty()) {
 			if (piece instanceof TemplateStructurePiece template) {
-				// map precalculated template-local room boxes to world;
+				// map precalculated template-local boxes to world;
 				// no scan here, just rotation/mirror/offset coordinate mapping
 				var settings = template.placeSettings();
 				var origin = template.templatePosition();
-				List<BoundingBox> ans = new ArrayList<>(config.rooms().size());
-				for (var local : config.rooms()) {
+				List<BoundingBox> ans = new ArrayList<>(locals.size());
+				for (var local : locals) {
 					ans.add(worldBox(local, settings, origin));
 				}
 				return MultiStructureBound.of(ans);
@@ -104,14 +157,19 @@ public class StructureHomeData implements IBlockSearchCache {
 				// see SinglePoolElement); origin is the template position
 				var settings = new StructurePlaceSettings().setRotation(pool.getRotation());
 				var origin = pool.getPosition();
-				List<BoundingBox> ans = new ArrayList<>(config.rooms().size());
-				for (var local : config.rooms()) {
+				List<BoundingBox> ans = new ArrayList<>(locals.size());
+				for (var local : locals) {
 					ans.add(worldBox(local, settings, origin));
 				}
 				return MultiStructureBound.of(ans);
 			}
 		}
-		return MultiStructureBound.of(piece.getBoundingBox());
+		return null;
+	}
+
+	private static BlockPos worldPos(BlockPos local, StructurePlaceSettings settings, BlockPos origin) {
+		var w = StructureTemplate.calculateRelativePosition(settings, new BlockPos(local.getX(), local.getY(), local.getZ()));
+		return w.offset(origin.getX(), origin.getY(), origin.getZ());
 	}
 
 	private static BoundingBox worldBox(BoundingBox local, StructurePlaceSettings settings, BlockPos origin) {
@@ -133,15 +191,17 @@ public class StructureHomeData implements IBlockSearchCache {
 	}
 
 	public BoundingBox getHouseBound(StructureConfig config) {
-		var bound = piece.getBoundingBox();
-		return new BoundingBox(
-				bound.minX() + config.xzHouseShrink(),
-				bound.minY() + config.floorHouseShrink(),
-				bound.minZ() + config.xzHouseShrink(),
-				bound.maxX() - config.xzHouseShrink(),
-				bound.maxY() - config.topHouseShrink(),
-				bound.maxZ() - config.xzHouseShrink()
-		);
+		return getHouseBounds(config).union();
+	}
+
+	/**
+	 * World-mapped house boxes: the integrity snapshot domain. Cells outside
+	 * every box (margin terrain, yard foliage) are never flagged nor fixed.
+	 */
+	public MultiStructureBound getHouseBounds(StructureConfig config) {
+		var mapped = mapBoxes(config.house());
+		if (mapped != null) return mapped;
+		return MultiStructureBound.of(piece.getBoundingBox());
 	}
 
 	public BoundingBox getTotalBound() {

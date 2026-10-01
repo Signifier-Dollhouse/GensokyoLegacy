@@ -20,7 +20,11 @@ public interface IDialogHandle {
 		return display();
 	}
 
-	void openMenu(ServerPlayer sp, YoukaiEntity character);
+	/**
+	 * What happens when the player picks this option: another dialog, the
+	 * topic list again, or the trade screen.
+	 */
+	void open(ServerPlayer sp, YoukaiEntity character);
 
 	Optional<Holder<Quest>> getQuest();
 

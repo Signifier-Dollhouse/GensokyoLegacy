@@ -1,8 +1,0 @@
-{
-  "parent": "minecraft:block/stairs",
-  "textures": {
-    "bottom": "gensokyolegacy:block/deco/darkstone",
-    "side": "gensokyolegacy:block/deco/darkstone",
-    "top": "gensokyolegacy:block/deco/darkstone"
-  }
-}

@@ -4,7 +4,20 @@
       "entities": [
         "gensokyolegacy:hakurei_reimu"
       ],
-      "floorHouseShrink": 1,
+      "house": [
+        [
+          0,
+          1,
+          0,
+          18,
+          13,
+          18
+        ]
+      ],
+      "interior": {
+        "nodes": [],
+        "rooms": []
+      },
       "primaryFix": "gensokyolegacy:structure_fix/hakurei_shrine/primary",
       "rooms": [
         [
@@ -24,43 +37,230 @@
           7
         ]
       ],
-      "topHouseShrink": 2,
-      "wouldFix": "gensokyolegacy:structure_fix/hakurei_shrine/would_fix",
-      "xzHouseShrink": 1
+      "wouldFix": "gensokyolegacy:structure_fix/hakurei_shrine/would_fix"
     },
     "gensokyolegacy:marisa_house": {
       "entities": [
         "gensokyolegacy:kirisame_marisa"
       ],
-      "floorHouseShrink": 1,
-      "primaryFix": "gensokyolegacy:structure_fix/marisa_house/primary",
-      "rooms": [
+      "house": [
         [
-          18,
-          2,
-          9,
-          26,
-          8,
-          21
+          1,
+          1,
+          12,
+          15,
+          12,
+          24
         ],
         [
-          3,
-          2,
-          14,
-          17,
-          8,
-          22
+          16,
+          1,
+          7,
+          28,
+          12,
+          24
         ]
       ],
-      "topHouseShrink": 2,
-      "wouldFix": "gensokyolegacy:structure_fix/marisa_house/would_fix",
-      "xzHouseShrink": 1
+      "interior": {
+        "nodes": [
+          {
+            "posA": [
+              9,
+              2,
+              16
+            ],
+            "posB": [
+              9,
+              2,
+              16
+            ],
+            "roomA": 0,
+            "roomB": 1
+          },
+          {
+            "posA": [
+              14,
+              7,
+              18
+            ],
+            "posB": [
+              14,
+              7,
+              18
+            ],
+            "roomA": 2,
+            "roomB": 3
+          },
+          {
+            "posA": [
+              17,
+              2,
+              18
+            ],
+            "posB": [
+              17,
+              2,
+              18
+            ],
+            "roomA": 1,
+            "roomB": 4
+          },
+          {
+            "posA": [
+              21,
+              7,
+              13
+            ],
+            "posB": [
+              21,
+              7,
+              13
+            ],
+            "roomA": 5,
+            "roomB": 3
+          },
+          {
+            "posA": [
+              24,
+              2,
+              13
+            ],
+            "posB": [
+              24,
+              7,
+              19
+            ],
+            "roomA": 4,
+            "roomB": 3
+          },
+          {
+            "posA": [
+              3,
+              2,
+              17
+            ],
+            "posB": [
+              3,
+              2,
+              17
+            ],
+            "roomA": 0,
+            "roomB": -1
+          },
+          {
+            "posA": [
+              21,
+              2,
+              9
+            ],
+            "posB": [
+              21,
+              2,
+              9
+            ],
+            "roomA": 4,
+            "roomB": -1
+          }
+        ],
+        "rooms": [
+          {
+            "bound": [
+              3,
+              2,
+              14,
+              9,
+              6,
+              22
+            ],
+            "name": "west_ground_west"
+          },
+          {
+            "bound": [
+              10,
+              2,
+              14,
+              17,
+              6,
+              22
+            ],
+            "name": "west_ground_east"
+          },
+          {
+            "bound": [
+              3,
+              7,
+              15,
+              14,
+              8,
+              21
+            ],
+            "name": "west_upper_bedroom"
+          },
+          {
+            "bound": [
+              15,
+              7,
+              15,
+              25,
+              8,
+              21
+            ],
+            "name": "upper_hall"
+          },
+          {
+            "bound": [
+              18,
+              2,
+              9,
+              26,
+              6,
+              21
+            ],
+            "name": "east_ground"
+          },
+          {
+            "bound": [
+              19,
+              7,
+              9,
+              25,
+              8,
+              14
+            ],
+            "name": "east_upper_platform"
+          }
+        ]
+      },
+      "primaryFix": "gensokyolegacy:structure_fix/marisa_house/primary",
+      "rooms": [],
+      "wouldFix": "gensokyolegacy:structure_fix/marisa_house/would_fix"
     },
     "gensokyolegacy:morichika_shop": {
       "entities": [
         "gensokyolegacy:morichika_rinnosuke"
       ],
-      "floorHouseShrink": 1,
+      "house": [
+        [
+          0,
+          1,
+          12,
+          21,
+          12,
+          24
+        ],
+        [
+          22,
+          1,
+          12,
+          31,
+          17,
+          27
+        ]
+      ],
+      "interior": {
+        "nodes": [],
+        "rooms": []
+      },
       "primaryFix": "gensokyolegacy:structure_fix/morichika_shop/primary",
       "rooms": [
         [
@@ -88,9 +288,7 @@
           25
         ]
       ],
-      "topHouseShrink": 2,
-      "wouldFix": "gensokyolegacy:structure_fix/morichika_shop/would_fix",
-      "xzHouseShrink": 1
+      "wouldFix": "gensokyolegacy:structure_fix/morichika_shop/would_fix"
     }
   }
 }

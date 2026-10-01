@@ -49,6 +49,7 @@ import net.minecraft.tags.ItemTags;
 import net.minecraft.world.entity.animal.FrogVariant;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemDisplayContext;
@@ -66,6 +67,7 @@ public class GLItems {
 
 	public static final ItemEntry<FairyIceItem> FAIRY_ICE_CRYSTAL;
 	public static final ItemEntry<FrozenFrogItem> FROZEN_FROG_COLD, FROZEN_FROG_WARM, FROZEN_FROG_TEMPERATE;
+	public static final ItemEntry<Item> MYSTICAL_STRAW;
 
 	public static final ItemEntry<SpellItem> REIMU_SPELL, MARISA_SPELL, SANAE_SPELL, YUKARI_SPELL_BUTTERFLY, YUKARI_SPELL_LASER, MYSTIA_SPELL;
 
@@ -267,6 +269,9 @@ public class GLItems {
 						.register();
 			}
 
+			MYSTICAL_STRAW = reg.item("mystical_straw", Item::new)
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/ingredient/" + ctx.getName())))
+					.register();
 		}
 
 		GLEffects.register();
@@ -275,7 +280,7 @@ public class GLItems {
 		GLNaturalBlocks.register();
 
 		TAB = reg.buildModCreativeTab("ingredients", "Gensokyo Legacy - Ingredients",
-				e -> e.icon(GLItems.FAIRY_ICE_CRYSTAL::asStack));
+				e -> e.icon(GLItems.MYSTICAL_STRAW::asStack));
 
 		// tools
 		{

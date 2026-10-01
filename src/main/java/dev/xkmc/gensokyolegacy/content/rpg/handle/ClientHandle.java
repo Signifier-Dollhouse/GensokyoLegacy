@@ -1,32 +1,29 @@
 package dev.xkmc.gensokyolegacy.content.rpg.handle;
 
-import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.rpg.core.CodecRegistry;
 import dev.xkmc.gensokyolegacy.content.rpg.quest.Quest;
 import net.minecraft.core.Holder;
-import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.ComponentSerialization;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 
-public record ClientHandle(Component display, Optional<Holder<Quest>> quest) implements IDialogHandle {
+/**
+ * Client-side mirror of an {@link IDialogHandle}: the label to draw, and the
+ * quest the option is about. It carries the quest id rather than the holder
+ * because the packet codec cannot write a holder of one of our datapack
+ * registries; the client resolves it back through
+ * {@link CodecRegistry.Keys#QUEST}.
+ */
+public record ClientHandle(Component display, @Nullable ResourceLocation quest) {
 
-	public static final StreamCodec<RegistryFriendlyByteBuf, ClientHandle> STREAM_CODEC = StreamCodec.composite(
-			ComponentSerialization.STREAM_CODEC, ClientHandle::display,
-			ByteBufCodecs.optional(ByteBufCodecs.holderRegistry(CodecRegistry.Keys.QUEST)), ClientHandle::quest,
-			ClientHandle::new);
-
-	@Override
-	public void openMenu(ServerPlayer sp, YoukaiEntity character) {
-
+	/**
+	 * The id form of a quest holder, or null when there is no quest or the
+	 * holder is a direct reference with no key.
+	 */
+	public static @Nullable ResourceLocation questId(Optional<Holder<Quest>> quest) {
+		return quest.flatMap(Holder::unwrapKey).map(k -> k.location()).orElse(null);
 	}
 
-	@Override
-	public Optional<Holder<Quest>> getQuest() {
-		return quest;
-	}
 }

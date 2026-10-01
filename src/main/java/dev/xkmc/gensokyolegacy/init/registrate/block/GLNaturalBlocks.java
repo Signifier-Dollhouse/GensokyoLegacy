@@ -13,6 +13,7 @@ import dev.xkmc.gensokyolegacy.content.worldgen.feature.TreeFeatures;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.GLRecipeGen;
 import dev.xkmc.gensokyolegacy.init.data.GLTagGen;
+import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
 import dev.xkmc.l2core.init.reg.registrate.L2Registrate;
 import net.minecraft.advancements.critereon.*;
@@ -254,10 +255,22 @@ public class GLNaturalBlocks {
 				.blockstate((ctx, pvd) -> pvd.simpleBlock(ctx.get(),
 						pvd.models().cross(ctx.getName(), pvd.modLoc("block/plant/" + ctx.getName()))
 								.renderType("cutout")))
-				.loot((pvd, block) -> pvd.add(block, RegistrateBlockLootTables.createShearsOnlyDrop(block)))
+				.loot((pvd, block) -> {
+					var shearsOrSilk = MatchTool.toolMatches(ItemPredicate.Builder.item().of(Items.SHEARS))
+							.or(MatchTool.toolMatches(ItemPredicate.Builder.item()
+									.withSubPredicate(ItemSubPredicates.ENCHANTMENTS,
+											ItemEnchantmentsPredicate.enchantments(List.of(new EnchantmentPredicate(
+													pvd.getRegistries().lookupOrThrow(Registries.ENCHANTMENT).getOrThrow(Enchantments.SILK_TOUCH),
+													MinMaxBounds.Ints.atLeast(1)))))));
+					pvd.add(block, LootTable.lootTable()
+							.withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F)).when(shearsOrSilk)
+									.add(LootItem.lootTableItem(block)))
+							.withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F)).when(shearsOrSilk.invert())
+									.add(LootItem.lootTableItem(GLItems.MYSTICAL_STRAW.get()))));
+				})
 				.item().model((ctx, pvd) -> pvd.getBuilder(ctx.getName())
 						.parent(new ModelFile.UncheckedModelFile("item/generated"))
-						.texture("layer0", pvd.modLoc("item/ingredient/" + ctx.getName())))
+						.texture("layer0", pvd.modLoc("block/plant/" + ctx.getName())))
 				.dataMap(NeoForgeDataMaps.COMPOSTABLES, new Compostable(0.5f))
 				.build()
 				.register();
@@ -336,7 +349,7 @@ public class GLNaturalBlocks {
 			leaves = reg.block(id + "_leaves", LeavesBlock::new)
 					.properties(p -> leafProp)
 					.blockstate((ctx, pvd) -> pvd.simpleBlock(ctx.get(), pvd.models().cubeAll(ctx.getName(),
-							pvd.modLoc("block/wood/" + ctx.getName())).renderType("cutout")))
+							pvd.modLoc("block/wood/" + ctx.getName()))))
 					.loot((tb, block) -> genLeavesLoot(tb, block, sapling.get()))
 					.tag(BlockTags.MINEABLE_WITH_HOE, BlockTags.LEAVES)
 					.item().tag(ItemTags.LEAVES)

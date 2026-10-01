@@ -1,7 +1,0 @@
-{
-  "parent": "gensokyolegacy:block/vertical_slab",
-  "textures": {
-    "side": "gensokyolegacy:block/deco/darkstone",
-    "top": "gensokyolegacy:block/deco/darkstone"
-  }
-}

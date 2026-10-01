@@ -31,6 +31,19 @@ public class StrayHost implements DollHost {
 		return data;
 	}
 
+	/**
+	 * Hands the detached entry to a rejoin or an itemize: the same one-shot
+	 * consumption as the death drop, but for a doll that is still alive. The
+	 * entry never comes back — a caller that fails partway must drop it rather
+	 * than leave a spent host behind.
+	 */
+	@Nullable
+	public DollData take() {
+		DollData taken = data;
+		data = null;
+		return taken;
+	}
+
 	@Override
 	@Nullable
 	public DollData findSummoned(UUID uuid) {
@@ -51,9 +64,9 @@ public class StrayHost implements DollHost {
 
 	@Override
 	public void onDeath(BaseDollEntity doll) {
-		if (doll.level().isClientSide() || data == null) return;
-		DollData drop = data;
-		data = null;
+		if (doll.level().isClientSide()) return;
+		DollData drop = take();
+		if (drop == null) return;
 		doll.writeValuesTo(drop);
 		drop.combat = new CombatData(0, drop.combat.baseline());
 		ItemStack stack = DollItem.makeItem(drop);
