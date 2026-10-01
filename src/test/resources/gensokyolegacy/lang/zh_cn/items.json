@@ -27,6 +27,7 @@
 		"reimu_bed": "博丽灵梦的床",
 		"morichika_bed": "森近霖之的床",
 		"marisa_bed": "雾雨魔理沙的床",
+		"alice_bed": "爱丽丝的床",
 		"blue_fir_log": "青杉木原木",
 		"blue_fir_wood": "青杉木",
 		"blue_fir_leaves": "青杉树叶",
@@ -151,7 +152,8 @@
 					"luna_child": "露娜",
 					"star_sapphire": "斯塔",
 					"sunny_milk": "桑尼",
-					"morichika_rinnosuke": "森近霖之助"
+					"morichika_rinnosuke": "森近霖之助",
+					"alice_margatroid": "爱丽丝·玛格特罗伊德"
 				},
 				{
 					"entity.gensokyolegacy.*": ""

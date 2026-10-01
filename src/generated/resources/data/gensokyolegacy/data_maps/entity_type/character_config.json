@@ -1,5 +1,12 @@
 {
   "values": {
+    "gensokyolegacy:alice_margatroid": {
+      "discardTime": 6000,
+      "noPlayerVanishTime": 30,
+      "respawnTime": 12000,
+      "structure": "gensokyolegacy:empty",
+      "wanderRadius": 12
+    },
     "gensokyolegacy:hakurei_reimu": {
       "discardTime": 6000,
       "noPlayerVanishTime": 30,
