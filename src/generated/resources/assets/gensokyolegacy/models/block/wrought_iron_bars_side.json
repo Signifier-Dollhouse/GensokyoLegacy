@@ -1,0 +1,9 @@
+{
+  "parent": "minecraft:block/iron_bars_side",
+  "render_type": "minecraft:cutout",
+  "textures": {
+    "bars": "gensokyolegacy:block/deco/wrought_iron_bar",
+    "edge": "gensokyolegacy:block/deco/wrought_iron_bar",
+    "particle": "gensokyolegacy:block/deco/wrought_iron_bar"
+  }
+}

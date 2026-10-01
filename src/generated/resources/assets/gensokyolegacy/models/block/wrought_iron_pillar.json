@@ -1,0 +1,7 @@
+{
+  "parent": "gensokyolegacy:custom/iron/pillar",
+  "render_type": "minecraft:cutout",
+  "textures": {
+    "all": "gensokyolegacy:block/deco/wrought_iron_pillar"
+  }
+}

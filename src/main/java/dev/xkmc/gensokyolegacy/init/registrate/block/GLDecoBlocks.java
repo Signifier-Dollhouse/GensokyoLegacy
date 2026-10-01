@@ -5,9 +5,13 @@ import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import com.tterrag.registrate.util.DataIngredient;
 import com.tterrag.registrate.util.entry.BlockEntry;
 import com.tterrag.registrate.util.nullness.NonNullBiConsumer;
+import dev.xkmc.gensokyolegacy.content.block.deco.door.NorenBlock;
+import dev.xkmc.gensokyolegacy.content.block.deco.door.NorenJsons;
 import dev.xkmc.gensokyolegacy.content.block.deco.door.SlidingDoor;
 import dev.xkmc.gensokyolegacy.content.block.deco.door.SlidingDoorJsons;
 import dev.xkmc.gensokyolegacy.content.block.deco.misc.TatamiBlock;
+import dev.xkmc.gensokyolegacy.content.block.deco.misc.WroughtIronBarsBlock;
+import dev.xkmc.gensokyolegacy.content.block.deco.misc.WroughtIronPillarBlock;
 import dev.xkmc.gensokyolegacy.content.block.deco.seat.CushionBlock;
 import dev.xkmc.gensokyolegacy.content.block.deco.seat.ISeatableBlock;
 import dev.xkmc.gensokyolegacy.content.block.deco.seat.SeatableImpl;
@@ -67,6 +71,8 @@ public class GLDecoBlocks {
 	public static final BlockEntry<DelegateBlock> STURDY_TEDDY_BEAR;
 	public static final BlockEntry<DelegateBlock> CUSHION;
 	public static final BlockEntry<DelegateBlock> SCARLET_CHAIR;
+	public static final BlockEntry<WroughtIronBarsBlock> WROUGHT_IRON_BARS;
+	public static final BlockEntry<WroughtIronPillarBlock> WROUGHT_IRON_PILLAR;
 
 	static {
 		var reg = GensokyoLegacy.REGISTRATE;
@@ -182,6 +188,54 @@ public class GLDecoBlocks {
 				.build()
 				.register();
 		}
+
+		// wrought iron
+		{
+			WROUGHT_IRON_BARS = reg.block("wrought_iron_bars", WroughtIronBarsBlock::new)
+					.initialProperties(() -> Blocks.IRON_BARS)
+					.blockstate(WroughtIronBarsBlock::buildStates)
+					.tag(BlockTags.MINEABLE_WITH_PICKAXE)
+					.item().model((ctx, pvd) -> pvd.withExistingParent(ctx.getName(), "item/generated")
+							.texture("layer0", pvd.modLoc("block/deco/wrought_iron_bar")))
+					.build()
+					.register();
+
+			WROUGHT_IRON_PILLAR = reg.block("wrought_iron_pillar", WroughtIronPillarBlock::new)
+					.properties(p -> p.mapColor(MapColor.METAL).requiresCorrectToolForDrops()
+							.strength(5.0F, 6.0F).sound(SoundType.METAL).noOcclusion())
+					.blockstate(WroughtIronPillarBlock::buildStates)
+					.tag(BlockTags.MINEABLE_WITH_PICKAXE)
+					.simpleItem()
+					.register();
+		}
+
+		// 门帘:每个颜色每种花纹各一个,长款往下多吊一截。染色时按花纹各自换个颜色,花纹不变
+		for (DyeColor col : DyeColor.values()) {
+			for (var kind : NorenBlock.Kind.values()) {
+				reg.block(kind.name(col), p -> NorenBlock.create(p, kind.hanging()))
+						.properties(p -> p.mapColor(MapColor.NONE).strength(0.1F).sound(SoundType.WOOL)
+								.pushReaction(PushReaction.DESTROY).noOcclusion().noCollission())
+						.blockstate((ctx, pvd) -> NorenJsons.buildBlockState(ctx, pvd, kind.hanging()))
+						.item().tag(kind.tag())
+						.model((ctx, pvd) -> pvd.withExistingParent(ctx.getName(), "item/generated")
+								.texture("layer0", pvd.modLoc("block/noren/" + ctx.getName())))
+						.build()
+						.recipe((ctx, pvd) -> GLRecipeGen.unlock(pvd, ShapelessRecipeBuilder.shapeless(
+								RecipeCategory.DECORATIONS, ctx.get())::unlockedBy, DyeItem.byColor(col))
+								.requires(kind.tag()).requires(col.getTag()).save(pvd))
+						.register();
+			}
+		}
+
+		// 霓吞町门帘
+		reg.block("neiton_noren", p -> NorenBlock.create(p, true))
+				.properties(p -> p.mapColor(MapColor.NONE).strength(0.1F).sound(SoundType.WOOL)
+						.pushReaction(PushReaction.DESTROY).noOcclusion().noCollission())
+				.blockstate((ctx, pvd) -> NorenJsons.buildBlockState(ctx, pvd, true))
+				.item().model((ctx, pvd) -> pvd.withExistingParent(ctx.getName(), "item/generated")
+						.texture("layer0", pvd.modLoc("block/noren/neiton_noren")))
+				.build()
+				.register();
 
 		// cushion
 		{
