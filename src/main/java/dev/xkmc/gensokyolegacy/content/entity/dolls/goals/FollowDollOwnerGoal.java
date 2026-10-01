@@ -1,6 +1,5 @@
 package dev.xkmc.gensokyolegacy.content.entity.dolls.goals;
 
-import dev.xkmc.gensokyolegacy.content.attachment.doll.DollAttachment;
 import dev.xkmc.gensokyolegacy.content.attachment.doll.DollData;
 import dev.xkmc.gensokyolegacy.content.attachment.doll.DollHost;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.BaseDollEntity;
@@ -74,10 +73,10 @@ public class FollowDollOwnerGoal extends Goal {
         if (owner == null) return null;
         if (this.doll.isStray()) return owner.position().add(0, FORMATION_HEIGHT, 0);
         DollHost host = this.doll.getHost();
-        if (!(host instanceof DollAttachment att)) return null;
-        DollData data = att.findSummoned(this.doll.getUUID());
+        if (host == null) return null;
+        DollData data = host.findSummoned(this.doll.getUUID());
         if (data == null) return null;
-        return formationPos(owner.position(), owner.getY(), att.getFormationYaw(), data.formationIndex, data.formationTotal);
+        return formationPos(owner.position(), owner.getY(), host.getFormationYaw(), data.formationIndex, data.formationTotal);
     }
 
     private boolean teleportToOwnerPos(Vec3 destination) {

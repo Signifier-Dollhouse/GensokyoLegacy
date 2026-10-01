@@ -13,12 +13,13 @@ parked DollData     — a ledger entry with a restore intent (STORED → waits t
                       become an item; TEMP → waits to become an entity again)
 ```
 
-Entity ↔ `DollData` identity is the entity's **own game uuid**, minted fresh on every materialization and never stored on the item. The player capability `DollAttachment` is the authoritative ledger for player-hosted dolls; the doll controller block is an alternative host. No item is ever lost or duplicated across any transition.
+Entity ↔ `DollData` identity is the entity's **own game uuid**, minted fresh on every materialization and never stored on the item. The player capability `DollAttachment` is the authoritative ledger for player-hosted dolls; the doll controller block and Alice's own retinue (`AliceDollHost`) are alternative hosts. No item is ever lost or duplicated across any transition.
 
 ## Goals
 
 - A **doll item** that places to summon a `DollEntity`; clicking the doll with an empty hand converts it back to the item.
 - A **player capability** (`DollAttachment`) is the authoritative ledger for summoned dolls. The doll entity is a **projection** of the `DollData` held there.
+- The **host is pluggable** — a block, a stray, or a character that conjures her own dolls. Doll entity code never branches on the host type.
 - **No item loss, no duplication** — item and `DollData` never coexist (itemization removes the data first, atomic).
 - **Fresh uuid per summon** — clones of an item always summon independent dolls; a stale entity whose uuid lost its `SUMMONED` entry discards itself.
 - **No expensive per-tick state capture** — only *significant values* (uuid, type, dimension, position, facing, name) + `CombatData` are tracked, updated lazily; never a full `CompoundTag` snapshot.
@@ -35,9 +36,10 @@ Entity ↔ `DollData` identity is the entity's **own game uuid**, minted fresh o
 | [entity.md](entity.md) | `BaseDollEntity` (pairing + foundational properties) vs `DollEntity` (doll-specific logic + rendering-facing hooks); movement/navigation, value sync, never-save guard, rendering | implemented |
 | [item.md](item.md) | the doll item, significant values, item ↔ data conversion, trading | implemented |
 | [controller.md](controller.md) | block-hosted dolls — the doll controller block and its block entity as a `DollHost` | implemented (block registration pending) |
+| [host.md](host.md) | character-hosted dolls — the `DollHost` command surface, living-entity hosts, and Alice's retinue (roster by post, star-wand arming, one-time orders) | implemented |
 | [loadout.md](loadout.md) | the four held item slots (main hand / off hand / cloth / core), synced entity data, loadout editor menu, item rendering TODO | implemented |
 | [control.md](control.md) | doll actions (ticket, single execution), the four action types, heal-mark targets, iterative command sequences | framework implemented (glove pending) |
 | [glove.md](glove.md) | the Seven-Colored Doll Glove: modes, itemselector wheel, network, registration | planned |
 | [checklist.md](checklist.md) | registration & datagen checklist, files to create / modify, edge cases | — |
 
-Suggested reading order: **pairing → entity → item → controller** (the core pairing model), then **loadout → control → glove** (doll behavior and control).
+Suggested reading order: **pairing → entity → item → controller** (the core pairing model), then **loadout → control → glove** (doll behavior and control), then **host** (non-player hosts).

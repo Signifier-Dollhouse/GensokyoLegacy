@@ -1,6 +1,5 @@
 package dev.xkmc.gensokyolegacy.content.entity.dolls.behavior;
 
-import dev.xkmc.gensokyolegacy.content.attachment.doll.DollAttachment;
 import dev.xkmc.gensokyolegacy.content.attachment.doll.DollHost;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.DollEntity;
 import net.minecraft.world.entity.LivingEntity;
@@ -31,8 +30,8 @@ public final class DollFriendlyFire {
 		LivingEntity owner = doll.getOwner();
 		if (owner != null && owner.isAlive() && owner != target) out.add(owner);
 		DollHost host = doll.getHost();
-		if (host instanceof DollAttachment att) {
-			for (DollEntity ally : att.commands.summonedAllies(doll)) {
+		if (host != null) {
+			for (DollEntity ally : host.summonedAllies(doll)) {
 				if (ally.isAlive() && ally != target) out.add(ally);
 			}
 		}

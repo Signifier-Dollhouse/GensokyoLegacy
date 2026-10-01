@@ -1,0 +1,430 @@
+package dev.xkmc.gensokyolegacy.content.entity.characters.magician;
+
+import dev.xkmc.gensokyolegacy.content.attachment.doll.DollCommander;
+import dev.xkmc.gensokyolegacy.content.attachment.doll.DollData;
+import dev.xkmc.gensokyolegacy.content.attachment.doll.DollLedger;
+import dev.xkmc.gensokyolegacy.content.attachment.doll.DollSpawn;
+import dev.xkmc.gensokyolegacy.content.attachment.doll.DollState;
+import dev.xkmc.gensokyolegacy.content.entity.dolls.BaseDollEntity;
+import dev.xkmc.gensokyolegacy.content.entity.dolls.DollEntity;
+import dev.xkmc.gensokyolegacy.content.entity.dolls.action.DollAction;
+import dev.xkmc.gensokyolegacy.content.entity.dolls.action.DollActionType;
+import dev.xkmc.gensokyolegacy.content.entity.module.AbstractYoukaiModule;
+import dev.xkmc.gensokyolegacy.content.item.doll.DollItem;
+import dev.xkmc.gensokyolegacy.content.item.doll.DollSlot;
+import dev.xkmc.gensokyolegacy.content.item.tool.StarWandItem;
+import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
+import dev.xkmc.gensokyolegacy.init.registrate.GLBrains;
+import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
+import dev.xkmc.l2serial.serialization.marker.SerialClass;
+import dev.xkmc.l2serial.serialization.marker.SerialField;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.schedule.Activity;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
+
+/**
+ * Alice's retinue: she is a {@link dev.xkmc.gensokyolegacy.content.attachment.doll.DollHost}
+ * in her own right, so her dolls pair, follow, and fight through exactly the same
+ * machinery as a player's (doc/design/doll/pairing.md §8.2). Nothing in the doll
+ * entity is aware of who holds it.
+ * <p>
+ * Deliberate departures from the player ledger, all of them the point of the
+ * character:
+ * <ul>
+ *   <li><b>No items, no inventory.</b> Her dolls are conjured out of thin air and
+ *       never itemize, so {@code STORED} is unused. A retired doll parks as
+ *       {@code TEMP} to be conjured again when the roster grows; a
+ *       <b>destroyed</b> one is dropped from the ledger outright, because there is
+ *       no count of dolls she is allowed to own for a cap to protect — she simply
+ *       makes another. {@code detach} is refused and {@code onDeath} does nothing.</li>
+ *   <li><b>A roster, not a collection.</b> She keeps a standing set sized by what
+ *       she is doing ({@link Post}), so the count is her intent rather than
+ *       whatever the player happens to own.</li>
+ *   <li><b>She arms and orders them.</b> Star wands exist exactly while she is
+ *       fighting (§{@link Post#COMBAT}), and every attack is a one-time order she
+ *       hands out herself, one doll per mob — never an iterative volley.</li>
+ * </ul>
+ * <p>
+ * The whole ledger lives on her entity and rides her chunk save like any other
+ * module data, so an <b>unload</b> keeps the roster — dolls and all their values —
+ * and the reconcile pass re-conjures them on the next tick. Dolls themselves are
+ * never chunk-serialized (§5.8), so a SUMMONED entry without a live entity is by
+ * definition gone. A <b>discard or a kill</b> drops the whole thing: the host
+ * becomes unreachable and every doll self-discards, and her data is never written
+ * back. There is nothing of hers left in the world to come back to.
+ */
+@SerialClass
+public class AliceDollHost extends AbstractYoukaiModule implements DollLedger {
+
+	private static final ResourceLocation ID = GensokyoLegacy.loc("alice_dolls");
+
+	/**
+	 * Hard bound on the ledger — the top of {@link Post#COMBAT}. Only retired dolls
+	 * linger in it, since destroyed ones are dropped, so the live roster is really
+	 * bounded by {@link #quota}.
+	 */
+	public static final int MAX_DOLLS = 8;
+
+	/** Reconjure at most this often, so a doll dying never becomes a spawn loop. */
+	private static final int CONJURE_INTERVAL = 20;
+
+	/** Order pass period. The dolls' own shot cooldowns pace the actual firing. */
+	private static final int COMMAND_INTERVAL = 5;
+
+	/**
+	 * Her dolls, in conjuring order. A doll is <b>created on demand</b> — the roster
+	 * grows as her post demands more, rather than being conjured up front and sat
+	 * idle — and is created at most {@link #MAX_DOLLS} times over, because a
+	 * destroyed entry is dropped instead of being kept for repair.
+	 */
+	@SerialField
+	private final List<DollData> dolls = new ArrayList<>();
+
+	/** Ordinal of the {@link Post} she last rolled a roster size for, -1 before the first. */
+	@SerialField
+	private int post = -1;
+
+	/** How many dolls to keep out in {@link #post}. Re-rolled only when the post changes. */
+	@SerialField
+	private int quota = Post.INDOOR.min;
+
+	private final DollCommander commander = new DollCommander(this);
+
+	private final AliceEntity owner;
+
+	public AliceDollHost(AliceEntity owner) {
+		super(ID, owner);
+		this.owner = owner;
+	}
+
+	// ---------- host ----------
+
+	@Override
+	public Collection<DollData> dolls() {
+		return dolls;
+	}
+
+	@Override
+	public DollCommander commands() {
+		return commander;
+	}
+
+	@Override
+	@Nullable
+	public DollData findSummoned(UUID uuid) {
+		if (uuid == null) return null;
+		for (DollData data : dolls) {
+			if (data != null && data.isSummoned() && uuid.equals(data.uuid)) return data;
+		}
+		return null;
+	}
+
+	@Override
+	public void update(BaseDollEntity doll) {
+		DollData data = findSummoned(doll.getUUID());
+		if (data != null) doll.writeValuesTo(data);
+	}
+
+	@Override
+	@Nullable
+	public DollData detach(UUID uuid) {
+		// Alice never cuts a doll loose: a stray needs somewhere to hand its entry
+		// back to, and she has no way to take one in. Only a suicide order asks for
+		// this, and she issues none.
+		return null;
+	}
+
+	// ---------- tick ----------
+
+	@Override
+	public void tickServer() {
+		if (!(owner.level() instanceof ServerLevel sl)) return;
+		if (owner.isDeadOrDying()) return;
+		reconcile(sl);
+		commander.tick(owner);
+		// restamp the follow-formation slots. The player ledger folds this into its
+		// sidebar push; Alice has no sidebar, so she just pays for it here.
+		commander.roster(owner);
+		Post current = currentPost();
+		// a new post re-rolls the roster size, so the retire/conjure passes below
+		// always run against the size they were meant for
+		boolean resized = rosterSize(current);
+		retire(quota);
+		if (resized || sl.getGameTime() % CONJURE_INTERVAL == 0) conjure(sl, quota);
+		arm(current == Post.COMBAT);
+		if (current == Post.COMBAT && sl.getGameTime() % COMMAND_INTERVAL == 0) command();
+	}
+
+	/**
+	 * The post she is holding, read off the brain's active activity: hunting and
+	 * fighting are combat, idling and playing are outdoors, everything else (at
+	 * home, asleep, in conversation) counts as indoors.
+	 */
+	public Post currentPost() {
+		Activity act = owner.getActivity();
+		if (act == Activity.FIGHT || act == GLBrains.HUNT.get()) return Post.COMBAT;
+		if (act == Activity.IDLE || act == Activity.PLAY) return Post.OUTDOOR;
+		return Post.INDOOR;
+	}
+
+	/**
+	 * How many dolls she wants out right now, rolling a fresh size whenever the
+	 * post changes so two Alices — and two visits — do not field identical
+	 * rosters. Returns whether the size changed this pass.
+	 */
+	private boolean rosterSize(Post current) {
+		if (post == current.ordinal()) return false;
+		post = current.ordinal();
+		quota = Math.min(current.roll(owner.getRandom()), MAX_DOLLS);
+		return true;
+	}
+
+	/**
+	 * Per-entry watchdog, the counterpart of the player ledger's SUMMONED pass. An
+	 * entry whose entity is gone — chunk unload, a dimension hop — is parked so the
+	 * next conjure brings it back, and one that wandered off (too far, or into
+	 * another world) is conjured again at her side. A <b>destroyed</b> doll is
+	 * dropped from the ledger outright: she conjures dolls from air, so there is no
+	 * count of how many she may have to respect and no broken one worth keeping —
+	 * the conjure pass just makes another.
+	 */
+	private void reconcile(ServerLevel sl) {
+		for (var it = dolls.iterator(); it.hasNext(); ) {
+			DollData data = it.next();
+			if (data == null || !data.isSummoned()) continue;
+			BaseDollEntity doll = resolve(data);
+			if (doll == null) {
+				data.state = DollState.TEMP;
+			} else if (data.getHealth() <= 0) {
+				doll.discard();
+				it.remove();
+			} else if (doll.level() != sl || doll.distanceTo(owner) >= PULLBACK_DISTANCE) {
+				park(data);
+			}
+		}
+	}
+
+	/**
+	 * Her death takes the retinue with her, immediately rather than a tick later —
+	 * a corpse does not keep ordering dolls about. The ledger itself is never
+	 * written back: it goes down with her entity, exactly like the rest of her data.
+	 */
+	@Override
+	public void onKilled() {
+		for (DollData data : dolls) {
+			if (data == null || !data.isSummoned()) continue;
+			BaseDollEntity doll = resolve(data);
+			if (doll != null) doll.discard();
+		}
+	}
+
+	/** Parks every doll past {@code want}, newest first, so the elders keep their posts. */
+	private void retire(int want) {
+		int live = liveCount();
+		for (int i = dolls.size() - 1; i >= 0 && live > want; i--) {
+			DollData data = dolls.get(i);
+			if (data == null || !data.isSummoned()) continue;
+			park(data);
+			live--;
+		}
+	}
+
+	/** Writes the doll's values back, drops the entity, and parks the entry. */
+	private void park(DollData data) {
+		if (resolve(data) instanceof BaseDollEntity doll) {
+			doll.writeValuesTo(data);
+			doll.discard();
+		}
+		data.state = DollState.TEMP;
+	}
+
+	/** Brings the roster up to {@code want}, re-conjuring parked dolls before making new ones. */
+	private void conjure(ServerLevel sl, int want) {
+		int live = liveCount();
+		while (live < want) {
+			DollData data = parkedEntry();
+			int slot;
+			if (data == null) {
+				if (atCap()) return;
+				data = conjurer();
+				dolls.add(data);
+				slot = dolls.size() - 1;
+			} else {
+				slot = dolls.indexOf(data);
+			}
+			// spread the fresh materialization over the ring by its own slot in the
+			// roster, so a returning doll does not pop in on top of a live one
+			Vec3 pos = DollSpawn.ringPos(owner, slot, Math.max(1, want));
+			if (pos == null) return;
+			data.position = pos;
+			data.yRot = owner.getYRot();
+			BaseDollEntity doll = DollSpawn.materialize(sl, owner, data);
+			if (doll == null) {
+				data.state = DollState.TEMP;
+				return;
+			}
+			sl.addFreshEntity(doll);
+			live++;
+		}
+	}
+
+	/** The first parked entry ready to come back, or null when they are all out. */
+	@Nullable
+	private DollData parkedEntry() {
+		for (DollData data : dolls) {
+			if (data == null || data.isSummoned() || data.getHealth() <= 0) continue;
+			return data;
+		}
+		return null;
+	}
+
+	/**
+	 * Hard bound on the ledger. Only ever reached by a retired doll still parked,
+	 * since destroyed ones are dropped outright — the live roster is already capped
+	 * by {@link #quota}, which never exceeds the top of {@link Post#COMBAT}.
+	 */
+	private boolean atCap() {
+		return dolls.size() >= MAX_DOLLS;
+	}
+
+	/** A brand new doll entry: full health, unarmament, Alice's white. */
+	private DollData conjurer() {
+		DollData data = new DollData();
+		data.type = DollItem.TYPE;
+		data.color = DyeColor.WHITE;
+		data.state = DollState.TEMP;
+		return data;
+	}
+
+	/**
+	 * Star wands exactly while she is fighting. A doll is armed the moment combat
+	 * starts and disarmed the moment it ends, so she never leaves a wand in a doll's
+	 * hand she is not paying for — and unarmed dolls cannot be handed an attack at
+	 * all, since a danmaku order needs a {@link DollActionType#REGULAR_ATTACK} hand.
+	 * <p>
+	 * Walks the whole ledger, not just the live dolls: a doll retired mid-fight is
+	 * already parked by the time this runs, and it must not carry a wand back out
+	 * the next time she goes to the park.
+	 */
+	private void arm(boolean combat) {
+		for (DollData data : dolls) {
+			if (data == null || data.inventory == null) continue;
+			boolean armed = data.inventory.get(DollSlot.MAIN_HAND).getItem() instanceof StarWandItem;
+			if (armed == combat) continue;
+			data.inventory.set(DollSlot.MAIN_HAND, combat ? GLItems.STAR_WAND.asStack() : ItemStack.EMPTY);
+			if (resolve(data) instanceof DollEntity doll) doll.syncLoadoutMirror();
+		}
+	}
+
+	// ---------- orders ----------
+
+	/**
+	 * One attack order per free doll, each against a mob no other doll is already
+	 * engaged with, so her retinue spreads over the prey instead of piling onto one
+	 * target. Deliberately one-time: she re-tasks every free doll each pass rather
+	 * than chaining an iterative volley, so orders never queue up behind one another
+	 * and a dead target frees its doll at once.
+	 */
+	private void command() {
+		var summoned = commander.summoned(owner);
+		if (summoned.isEmpty()) return;
+		List<LivingEntity> targets = validTargets();
+		if (targets.isEmpty()) return;
+		Set<UUID> claimed = new HashSet<>();
+		for (var entry : summoned) {
+			DollAction held = entry.doll().actions.getCurrent();
+			if (held != null && held.target() != null) claimed.add(held.target());
+		}
+		for (var entry : summoned) {
+			DollEntity doll = entry.doll();
+			if (doll.actions.isActive()) continue;
+			LivingEntity target = nextFree(targets, claimed);
+			if (target == null) break;
+			var order = DollAction.oneTime(DollActionType.REGULAR_ATTACK, target.getUUID());
+			if (commander.issueTo(doll, order)) {
+				commander.markAttackTarget(target);
+				claimed.add(target.getUUID());
+			}
+		}
+	}
+
+	@Nullable
+	private static LivingEntity nextFree(List<LivingEntity> targets, Set<UUID> claimed) {
+		for (LivingEntity target : targets) {
+			if (!claimed.contains(target.getUUID())) return target;
+		}
+		return null;
+	}
+
+	/**
+	 * Everything Alice is actually hostile to, her melee target first. The target
+	 * container tracks non-players only, so her current target is added by hand —
+	 * she is perfectly willing to point the retinue at a player she has decided
+	 * to hit.
+	 */
+	private List<LivingEntity> validTargets() {
+		List<LivingEntity> out = new ArrayList<>();
+		LivingEntity primary = owner.getTarget();
+		if (primary != null && owner.targets.isValidTarget(primary)) out.add(primary);
+		for (LivingEntity target : owner.targets.getTargets()) {
+			if (!out.contains(target)) out.add(target);
+		}
+		return out;
+	}
+
+	private int liveCount() {
+		return commander.summoned(owner).size();
+	}
+
+	/**
+	 * The live doll an entry names, looked up in the dimension the entry recorded.
+	 * Null when that world is gone or the entity is not there — dolls are never
+	 * chunk-serialized (§5.8), so "not there" means gone rather than pending.
+	 */
+	@Nullable
+	private BaseDollEntity resolve(DollData data) {
+		if (data.uuid == null || data.dimension == null) return null;
+		var server = owner.level().getServer();
+		if (server == null) return null;
+		ServerLevel level = server.getLevel(ResourceKey.create(Registries.DIMENSION, data.dimension));
+		if (level == null) return null;
+		return level.getEntity(data.uuid) instanceof BaseDollEntity doll ? doll : null;
+	}
+
+	/** How many dolls Alice commands at once, by what she is doing. */
+	public enum Post {
+		/** At home, asleep, or talking: a couple of dolls minding the house. */
+		INDOOR(1, 2),
+		/** Out and about: a small escort. */
+		OUTDOOR(3, 4),
+		/** Hunting or fighting: the full set, all armed. */
+		COMBAT(6, 8);
+
+		private final int min, max;
+
+		Post(int min, int max) {
+			this.min = min;
+			this.max = max;
+		}
+
+		public int roll(RandomSource random) {
+			return min + random.nextInt(max - min + 1);
+		}
+	}
+
+}

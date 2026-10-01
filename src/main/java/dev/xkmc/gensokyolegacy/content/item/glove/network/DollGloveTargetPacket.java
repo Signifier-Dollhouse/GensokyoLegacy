@@ -17,7 +17,7 @@ public record DollGloveTargetPacket(UUID target) implements SerialPacketBase<Dol
 	@Override
 	public void handle(Player player) {
 		if (player instanceof ServerPlayer sp) {
-			var commands = GLMeta.DOLL.type().getOrCreate(sp).commands;
+			var commands = GLMeta.DOLL.type().getOrCreate(sp).commands();
 			commands.gloveTarget = target;
 			commands.gloveTargetTime = sp.level().getGameTime();
 		}

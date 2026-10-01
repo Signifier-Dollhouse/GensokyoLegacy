@@ -4,6 +4,9 @@ import dev.xkmc.gensokyolegacy.content.entity.behavior.brain.TaskBoard;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.sensor.YoukaiFindPreySensor;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.task.combat.YoukaiSearchTargetTask;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.task.play.YoukaiHuntTask;
+import dev.xkmc.gensokyolegacy.content.entity.module.AbstractYoukaiModule;
+import dev.xkmc.gensokyolegacy.content.entity.module.HomeModule;
+import dev.xkmc.gensokyolegacy.content.entity.module.TalkModule;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.GeoYoukaiAnim;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.GeneralYoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiAnim;
@@ -17,6 +20,7 @@ import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.animation.*;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
+import java.util.List;
 import java.util.Optional;
 
 @SerialClass
@@ -43,11 +47,23 @@ public class AliceEntity extends GeneralYoukaiEntity implements GeoYoukaiAnim {
 	}
 
 	@Override
+	protected List<AbstractYoukaiModule> createModules() {
+		return List.of(
+				new HomeModule(this),
+				new TalkModule(this),
+				new AliceDollHost(this)
+		);
+	}
+
+	@Override
 	protected void constructTaskBoard(TaskBoard board) {
 		super.constructTaskBoard(board);
 		board.addExclusive(250, new YoukaiHuntTask(6), GLBrains.HUNT.get());
 		board.addBehaviorActivity(YoukaiSearchTargetTask.class, GLBrains.HUNT.get());
-		board.addSensor(new YoukaiFindPreySensor<>(e -> e.getActivity() == Activity.PLAY));
+		// the prey sensor has to keep running while the hunt is already up, or the
+		// hunt drops the moment it starts
+		board.addSensor(new YoukaiFindPreySensor<>(e -> e.getActivity() == Activity.PLAY
+				|| e.getActivity() == GLBrains.HUNT.get()));
 		board.addPrioritizedActivity(GLBrains.HUNT.get(), GLBrains.MEM_PREY.get(), 200);
 	}
 
