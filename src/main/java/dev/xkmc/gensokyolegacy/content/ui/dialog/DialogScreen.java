@@ -442,7 +442,7 @@ public abstract class DialogScreen extends Screen {
 		g.pose().scale(TEXT_SCALE, TEXT_SCALE, 1.0F);
 		int ly = 0;
 		for (var line : lines) {
-			g.drawString(font, line, 0, ly, color, true);
+			g.drawString(font, line, 0, ly, color, false);
 			ly += font.lineHeight;
 		}
 		g.pose().popPose();
@@ -454,7 +454,7 @@ public abstract class DialogScreen extends Screen {
 		g.pose().scale(TEXT_SCALE, TEXT_SCALE, 1.0F);
 		int ly = 0;
 		for (var line : lines) {
-			g.drawString(font, line, -font.width(line) / 2, ly, color, true);
+			g.drawString(font, line, -font.width(line) / 2, ly, color, false);
 			ly += font.lineHeight;
 		}
 		g.pose().popPose();
