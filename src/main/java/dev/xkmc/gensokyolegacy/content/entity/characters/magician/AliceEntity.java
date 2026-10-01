@@ -1,9 +1,16 @@
 package dev.xkmc.gensokyolegacy.content.entity.characters.magician;
 
+import dev.xkmc.gensokyolegacy.content.attachment.doll.DollData;
+import dev.xkmc.gensokyolegacy.content.attachment.doll.DollHost;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.brain.TaskBoard;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.sensor.YoukaiFindPreySensor;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.task.combat.YoukaiSearchTargetTask;
+import dev.xkmc.gensokyolegacy.content.entity.behavior.task.combat.YoukaiUpdateTargetTask;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.task.play.YoukaiHuntTask;
+import dev.xkmc.gensokyolegacy.content.entity.dolls.BaseDollEntity;
+import dev.xkmc.gensokyolegacy.content.entity.dolls.DollEntity;
+import dev.xkmc.gensokyolegacy.content.entity.dolls.action.DollAction;
+import dev.xkmc.gensokyolegacy.content.entity.dolls.action.DollActionType;
 import dev.xkmc.gensokyolegacy.content.entity.module.AbstractYoukaiModule;
 import dev.xkmc.gensokyolegacy.content.entity.module.HomeModule;
 import dev.xkmc.gensokyolegacy.content.entity.module.TalkModule;
@@ -14,17 +21,28 @@ import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiFlags;
 import dev.xkmc.gensokyolegacy.init.registrate.GLBrains;
 import dev.xkmc.l2serial.serialization.marker.SerialClass;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.schedule.Activity;
 import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.animation.*;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
+/**
+ * Alice Margatroid, the doll master. She is a {@link DollHost} in her own right:
+ * her dolls are hosted by {@link AliceDollHost}, which is where the roster, the
+ * arming, and the orders live. This class exists only to <b>be</b> the host —
+ * {@link BaseDollEntity#getHost} resolves a doll's host by asking its owning
+ * entity, so without this every one of her dolls would find no host and discard
+ * itself on the next tick.
+ */
 @SerialClass
-public class AliceEntity extends GeneralYoukaiEntity implements GeoYoukaiAnim {
+public class AliceEntity extends GeneralYoukaiEntity implements GeoYoukaiAnim, DollHost {
 
 	protected static final RawAnimation IDLE = RawAnimation.begin().thenLoop("待机");
 	protected static final RawAnimation WALK = RawAnimation.begin().thenLoop("走路");
@@ -55,6 +73,63 @@ public class AliceEntity extends GeneralYoukaiEntity implements GeoYoukaiAnim {
 		);
 	}
 
+	// ---------- doll host ----------
+	// Pure delegation to the module, which is where the state actually lives. A
+	// doll resolves its host by asking its owner, so Alice has to answer even
+	// though she keeps nothing here.
+
+	@Override
+	@Nullable
+	public DollData findSummoned(UUID uuid) {
+		return dolls().findSummoned(uuid);
+	}
+
+	@Override
+	public void update(BaseDollEntity doll) {
+		dolls().update(doll);
+	}
+
+	@Override
+	@Nullable
+	public DollData detach(UUID uuid) {
+		return dolls().detach(uuid);
+	}
+
+	@Override
+	public float getFormationYaw() {
+		return dolls().getFormationYaw();
+	}
+
+	@Override
+	public List<DollEntity> summonedAllies(DollEntity doll) {
+		return dolls().summonedAllies(doll);
+	}
+
+	@Override
+	public boolean isCommandedTarget(LivingEntity target) {
+		return dolls().isCommandedTarget(target);
+	}
+
+	@Override
+	public Optional<DollActionType> doneType(UUID uuid) {
+		return dolls().doneType(uuid);
+	}
+
+	@Override
+	public void handAhead(DollEntity doll, DollAction action) {
+		dolls().handAhead(doll, action);
+	}
+
+	@Override
+	public boolean handOff(DollEntity doll, DollAction action) {
+		return dolls().handOff(doll, action);
+	}
+
+	/** Her retinue: the ledger she conjures from and hands her orders. */
+	private DollHost dolls() {
+		return AliceDollHost.hostOf(this);
+	}
+
 	@Override
 	protected void constructTaskBoard(TaskBoard board) {
 		super.constructTaskBoard(board);
@@ -65,6 +140,18 @@ public class AliceEntity extends GeneralYoukaiEntity implements GeoYoukaiAnim {
 		board.addSensor(new YoukaiFindPreySensor<>(e -> e.getActivity() == Activity.PLAY
 				|| e.getActivity() == GLBrains.HUNT.get()));
 		board.addPrioritizedActivity(GLBrains.HUNT.get(), GLBrains.MEM_PREY.get(), 200);
+	}
+
+	/**
+	 * She fights at range, so the stock melee-then-strafe pair is wrong for her:
+	 * both close to contact, which is where her dolls' danmaku and her own
+	 * incoming damage are least welcome. {@link AliceRangeTask} holds a 16-24
+	 * band instead, on the full 3D vector.
+	 */
+	@Override
+	protected void addFightTasks(TaskBoard board) {
+		board.addAlways(new YoukaiUpdateTargetTask<>(), Activity.FIGHT);
+		board.addAlways(new AliceRangeTask(), Activity.FIGHT);
 	}
 
 	protected <E extends AliceEntity> PlayState idleAnimController(final AnimationState<E> event) {

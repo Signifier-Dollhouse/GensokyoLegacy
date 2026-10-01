@@ -2,6 +2,7 @@ package dev.xkmc.gensokyolegacy.content.entity.characters.magician;
 
 import dev.xkmc.gensokyolegacy.content.attachment.doll.DollCommander;
 import dev.xkmc.gensokyolegacy.content.attachment.doll.DollData;
+import dev.xkmc.gensokyolegacy.content.attachment.doll.DollHost;
 import dev.xkmc.gensokyolegacy.content.attachment.doll.DollLedger;
 import dev.xkmc.gensokyolegacy.content.attachment.doll.DollSpawn;
 import dev.xkmc.gensokyolegacy.content.attachment.doll.DollState;
@@ -9,9 +10,12 @@ import dev.xkmc.gensokyolegacy.content.entity.dolls.BaseDollEntity;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.DollEntity;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.action.DollAction;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.action.DollActionType;
+import dev.xkmc.gensokyolegacy.content.entity.dolls.behavior.DollBehaviors;
 import dev.xkmc.gensokyolegacy.content.entity.module.AbstractYoukaiModule;
 import dev.xkmc.gensokyolegacy.content.item.doll.DollItem;
 import dev.xkmc.gensokyolegacy.content.item.doll.DollSlot;
+import dev.xkmc.gensokyolegacy.content.item.talisman.core.FoldedPaperTalisman;
+import dev.xkmc.gensokyolegacy.content.item.talisman.core.GLTalismans;
 import dev.xkmc.gensokyolegacy.content.item.tool.StarWandItem;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.registrate.GLBrains;
@@ -110,6 +114,18 @@ public class AliceDollHost extends AbstractYoukaiModule implements DollLedger {
 	public AliceDollHost(AliceEntity owner) {
 		super(ID, owner);
 		this.owner = owner;
+	}
+
+	/**
+	 * The retinue ledger, exposed on {@link AliceEntity} itself. The module cannot
+	 * be the doll's host: {@link BaseDollEntity#getHost} resolves the host by
+	 * asking the <b>owning entity</b> for a {@link DollHost}, and a module is not
+	 * an entity. So Alice delegates the whole host surface to her module.
+	 */
+	public static DollHost hostOf(AliceEntity alice) {
+		return alice.getModule(AliceDollHost.class)
+				.map(DollLedger.class::cast)
+				.orElseThrow(() -> new IllegalStateException("Alice is missing her doll module"));
 	}
 
 	// ---------- host ----------
@@ -312,10 +328,17 @@ public class AliceDollHost extends AbstractYoukaiModule implements DollLedger {
 	}
 
 	/**
-	 * Star wands exactly while she is fighting. A doll is armed the moment combat
-	 * starts and disarmed the moment it ends, so she never leaves a wand in a doll's
-	 * hand she is not paying for — and unarmed dolls cannot be handed an attack at
-	 * all, since a danmaku order needs a {@link DollActionType#REGULAR_ATTACK} hand.
+	 * Star wands exactly while she is fighting, and a folded heal talisman in the
+	 * off hand always. A doll is armed the moment combat starts and disarmed the
+	 * moment it ends, so she never leaves a wand in a doll's hand she is not paying
+	 * for — and unarmed dolls cannot be handed an attack at all, since a danmaku
+	 * order needs a {@link DollActionType#REGULAR_ATTACK} hand.
+	 * <p>
+	 * The off hand is never conditional: the heal order is scheduler-issued
+	 * (DollCommander's heal pass, not her {@link #command}), so a doll keeps a
+	 * talisman to spend on the owner and on her other dolls whenever they are hurt.
+	 * The two hands do not contend — {@code REGULAR_ATTACK} and {@code HEAL} are
+	 * different action types, and a doll only ever holds one ticket.
 	 * <p>
 	 * Walks the whole ledger, not just the live dolls: a doll retired mid-fight is
 	 * already parked by the time this runs, and it must not carry a wand back out
@@ -325,8 +348,14 @@ public class AliceDollHost extends AbstractYoukaiModule implements DollLedger {
 		for (DollData data : dolls) {
 			if (data == null || data.inventory == null) continue;
 			boolean armed = data.inventory.get(DollSlot.MAIN_HAND).getItem() instanceof StarWandItem;
-			if (armed == combat) continue;
-			data.inventory.set(DollSlot.MAIN_HAND, combat ? GLItems.STAR_WAND.asStack() : ItemStack.EMPTY);
+			if (armed != combat) {
+				data.inventory.set(DollSlot.MAIN_HAND, combat ? GLItems.STAR_WAND.asStack() : ItemStack.EMPTY);
+			}
+			// refilled as it wears down: a spent talisman is no longer a heal hand,
+			// and a healer that cannot heal is just a doll with a paper scrap
+			if (!DollBehaviors.isUsableHealTalisman(data.inventory.get(DollSlot.OFF_HAND))) {
+				data.inventory.set(DollSlot.OFF_HAND, FoldedPaperTalisman.fold(GLTalismans.HEAL_TALISMAN.asStack()));
+			}
 			if (resolve(data) instanceof DollEntity doll) doll.syncLoadoutMirror();
 		}
 	}
@@ -334,11 +363,21 @@ public class AliceDollHost extends AbstractYoukaiModule implements DollLedger {
 	// ---------- orders ----------
 
 	/**
-	 * One attack order per free doll, each against a mob no other doll is already
-	 * engaged with, so her retinue spreads over the prey instead of piling onto one
-	 * target. Deliberately one-time: she re-tasks every free doll each pass rather
-	 * than chaining an iterative volley, so orders never queue up behind one another
-	 * and a dead target frees its doll at once.
+	 * Hands out one attack order per free doll, in two passes.
+	 * <p>
+	 * The first pass is a spread: every doll takes a mob no other doll is engaged
+	 * with, so a crowd is dealt with rather than focused. The second pass is the
+	 * overflow, and it is the point of the whole thing: once the mobs run out, the
+	 * dolls that are still free pile onto the survivors. Without it a one-mob fight
+	 * would have exactly one doll shooting and seven standing idle, which reads as
+	 * the dolls not working at all.
+	 * <p>
+	 * Deliberately one-time rather than iterative: she re-tasks every free doll each
+	 * pass instead of chaining a volley, so orders never queue behind one another and
+	 * a dead target frees its doll immediately. What paces the shooting is the doll's
+	 * own danmaku cooldown, so throughput is simply one shot per doll per cooldown —
+	 * with a full combat roster that is a shot every half second from every doll,
+	 * which is where the "non-stop" comes from.
 	 */
 	private void command() {
 		var summoned = commander.summoned(owner);
@@ -350,17 +389,28 @@ public class AliceDollHost extends AbstractYoukaiModule implements DollLedger {
 			DollAction held = entry.doll().actions.getCurrent();
 			if (held != null && held.target() != null) claimed.add(held.target());
 		}
+		// pass one: spread the roster over the distinct mobs
 		for (var entry : summoned) {
-			DollEntity doll = entry.doll();
-			if (doll.actions.isActive()) continue;
+			if (entry.doll().actions.isActive()) continue;
 			LivingEntity target = nextFree(targets, claimed);
 			if (target == null) break;
-			var order = DollAction.oneTime(DollActionType.REGULAR_ATTACK, target.getUUID());
-			if (commander.issueTo(doll, order)) {
-				commander.markAttackTarget(target);
-				claimed.add(target.getUUID());
-			}
+			issue(entry.doll(), target, claimed);
 		}
+		// pass two: nobody stands idle. The mobs ran out before the dolls did, so
+		// the rest pile onto whatever is left — the first live target, which is the
+		// one she is herself fixated on
+		for (var entry : summoned) {
+			if (entry.doll().actions.isActive()) continue;
+			issue(entry.doll(), targets.getFirst(), claimed);
+		}
+	}
+
+	/** One-time attack order on a named target. Records it so the doll treats it as an enemy. */
+	private void issue(DollEntity doll, LivingEntity target, Set<UUID> claimed) {
+		var order = DollAction.oneTime(DollActionType.REGULAR_ATTACK, target.getUUID());
+		if (!commander.issueTo(doll, order)) return;
+		commander.markAttackTarget(target);
+		claimed.add(target.getUUID());
 	}
 
 	@Nullable

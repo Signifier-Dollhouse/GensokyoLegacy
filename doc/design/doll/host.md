@@ -13,6 +13,16 @@ Two supporting generalizations came with it:
 - **`DollCommander` works off `DollLedger`, not `DollAttachment`,** and every entry point takes a `LivingEntity` commander instead of a `ServerPlayer`. A glove call passes the player; Alice passes herself. One fan-out, two callers.
 - **`BaseDollEntity` accepts any living owner.** `setOwner`/`isOwner` widened from `Player` to `LivingEntity`, and `getHost()` resolves the owner entity and asks *it* for a host: a `ServerPlayer` yields the capability, anything else that implements `DollHost` yields itself. That single branch is the whole extension point — no registry, no interface lookup, no new entity type.
 
+> **The host must be the entity, not the module.** Alice keeps her ledger in an
+> `AliceDollHost` module, because that is where module data belongs — it rides her
+> chunk save for free. But `getHost()` can only ask an *entity*, so `AliceEntity`
+> has to implement `DollHost` itself and delegate every method to the module.
+> Without that, `getHost()` returns null for all of her dolls and each one
+> self-discards on its next tick, and the symptoms are extremely misleading: the
+> dolls appear, they never move, they never fight, and the roster seems to ignore
+> its own cap — because what the player is watching is a conjure/discard churn,
+> not a working retinue.
+
 ## 2. What a character host looks like
 
 `AliceDollHost` is a youkai module (`AbstractYoukaiModule`), so its whole ledger rides Alice's chunk save like any other module data. The materialization path is `DollSpawn.materialize`, the same one the player ledger uses, so the pairing invariants (fresh uuid per entity, entry registered before `addFreshEntity`, free-space placement) hold identically.
@@ -65,32 +75,108 @@ A retired doll is parked `TEMP` and conjured again when the roster grows. Its en
 
 Note the at-home post depends on `MemoryModuleType.HOME` being present — an Alice with no bed bound to a home is never "indoors" and keeps the outdoor escort. The bed is what earns her the smaller roster.
 
-## 4. Arming — star wands iff combat
+## 4. Arming — star wands iff combat, talismans always
 
-A doll gets a `StarWandItem` in its main hand the moment `Post.COMBAT` begins and loses it the moment that ends. This is exact and bidirectional, not "armed until she runs dry":
+A doll gets a `StarWandItem` in its **main hand** the moment `Post.COMBAT` begins
+and loses it the moment that ends. This is exact and bidirectional, not "armed
+until she runs dry":
 
-- outside combat, no doll holds a wand, so a `REGULAR_ATTACK` order cannot be *accepted* at all (`canAccept` requires a matching hand) — an unarmed doll is not merely idle, it is incapable.
-- in combat, every doll is armed within the same tick the post flips, because `arm()` walks the live roster and mutates the ledger loadout directly.
+- outside combat, no doll holds a wand, so a `REGULAR_ATTACK` order cannot be
+  *accepted* at all (`canAccept` requires a matching hand) — an unarmed doll is not
+  merely idle, it is incapable.
+- in combat, every doll is armed within the same tick the post flips, because
+  `arm()` walks the roster and mutates the ledger loadout directly.
 
-The wands are hers, not loot: they are conjured alongside the dolls and vanish with them. Nothing is consumed and nothing is dropped, so the fight costs her nothing but the attention.
+The wands are hers, not loot: they are conjured alongside the dolls and vanish
+with them. Nothing is consumed and nothing is dropped, so the fight costs her
+nothing but the attention.
 
-## 5. Orders — one-time, one doll per mob
+A folded **heal talisman sits in the off hand at all times**, refolded whenever it
+wears out. The off hand is deliberately unconditional: `HEAL` is not her decision
+— it is scheduler-issued by `DollCommander`'s heal pass, which every ledger
+already runs — so the talisman only has to be *present* for that pass to find a
+hand, and a doll keeps one to spend on Alice and on her other dolls whenever they
+are hurt. The two hands do not contend: `REGULAR_ATTACK` and `HEAL` are different
+action types and a doll only ever holds one ticket.
 
-`command()` runs every `COMMAND_INTERVAL` ticks, only in combat:
+`arm()` walks the **whole ledger**, not just the live dolls, so a doll retired
+mid-fight is already parked by the time it runs and does not carry a wand back
+out the next time she goes to the park.
+
+## 5. Orders — one-time, one doll per mob, and nobody idle
+
+`command()` runs every `COMMAND_INTERVAL` ticks, only in combat, in two passes:
 
 ```
 claimed = every target some doll is already holding a ticket for
-for each idle doll:
-    target = first valid target not in claimed
-    issue DollAction.oneTime(REGULAR_ATTACK, target)   // ONE_TIME, not ITERATIVE
-    if issued: claimed += target
+
+pass 1 (spread):   for each free doll -> first valid target not in claimed
+pass 2 (overflow): for each still-free doll -> the first valid target, claimed or not
 ```
 
-**One-time, not iterative.** The iterative mode exists to chain a *single player order* across dolls so a volley spreads over time without a central cursor. That is exactly the wrong tool here: Alice is not issuing one order, she is continuously re-tasking a squad. One-time orders mean no shared `done` set, no handoff, no stall guard, and no chain to strand — a doll finishes, is free, and is re-tasked on the next pass against whatever is left. A dead target frees its doll immediately instead of queueing behind nine.
+**Pass 1 is the spread**: a doll takes a mob no other doll is engaged with, so a
+crowd is dealt with rather than focused.
 
-**Distinct targets.** `claimed` is seeded from the tickets the dolls already hold, then filled as orders go out, so no two dolls are ever issued the same mob. The retinue spreads over the prey instead of piling onto one target, and when the prey list shrinks the surplus dolls simply idle.
+**Pass 2 is the point of the whole thing.** Once the mobs run out, the dolls that
+are still free pile onto the survivors. Without it a one-mob fight would have
+exactly one doll shooting and seven standing idle — which reads as the dolls not
+working at all. "One doll per mob" is a *preference for the first pass*, never a
+cap on how many may engage a given mob.
 
-Targets come from `YoukaiTargetContainer` (her own hostile list, non-players) plus her current melee target by hand, since the container deliberately tracks only mobs.
+**One-time, not iterative.** The iterative mode exists to chain a *single player
+order* across dolls so a volley spreads over time without a central cursor. That
+is exactly the wrong tool here: Alice is not issuing one order, she is
+continuously re-tasking a squad. One-time orders mean no shared `done` set, no
+handoff, no stall guard, and no chain to strand — a doll finishes, is free, and is
+re-tasked on the next pass against whatever is left. A dead target frees its doll
+immediately instead of queueing behind nine.
+
+What paces the shooting is therefore not Alice at all but each doll's own danmaku
+cooldown (`DollDanmakuBehavior`, 20 ticks). Throughput is one shot per doll per
+cooldown, and with a full combat roster that is a shot every half second from
+every doll at once — the "non-stop" is emergent, not scripted.
+
+Targets come from `YoukaiTargetContainer` (her own hostile list, non-players)
+plus her current melee target by hand, since the container deliberately tracks
+only mobs.
+
+## 5.1 Fighting stance — a 16-24 band, in 3D
+
+`AliceRangeTask` replaces the stock `AttackTask` + `StrafeTarget` pair, which both
+want to be standing on top of the target: the strafe stops inside its radius and
+the attack task walks in until it is within half of its melee reach. Her dolls
+shoot; she conducts from a lane.
+
+A single strafe *radius* cannot express "keep your distance" — the stock strafe
+circles inside the radius and charges outside it, so anything sitting at the
+threshold flips between the two forever. The task therefore holds a **dead band**:
+
+| 3D distance to target | behaviour |
+|---|---|
+| `> 24` (`MAX`) | step to 20 blocks out, along the full 3D vector |
+| `16..24` | circle at 20, in the direction she is already orbiting |
+| `< 16` (`MIN`) | step to 20 blocks out, along the full 3D vector |
+
+**3D, not a horizontal plane.** The orbit is a circle whose *horizontal* radius is
+solved from what is left of the 20-block budget after the height error: the closer
+she is to the target's height, the wider the circle, and the further above or below
+it, the tighter. A horizontal-only version reads identically on flat ground and is
+simply wrong against a player on a tower or a dragon in the air — it would leave
+her circling at the wrong altitude forever. A floor on the horizontal radius stops
+the circle collapsing to a point when the height gap is most of the budget.
+
+Two implementation notes that are easy to get wrong:
+
+- Movement goes through `getNavigation()`, **not** `MoveControl.strafe`.
+  `FlyingMoveControl.tick` only handles `MOVE_TO` and clears `noGravity` in its
+  else branch, so a strafe operation makes a flying youkai drop out of the sky.
+- The entry condition requires `WALK_TARGET = ABSENT`, which is what keeps the
+  always-on `YoukaiMoveTask` from claiming navigation on the same tick. This is the
+  same gate `StrafeTarget` uses.
+
+She also gets a short grace period (20 ticks) before charging a target she has
+lost line of sight on, so a blink behind a pillar does not send her across the
+arena.
 
 ## 6. Lifecycle — her retinue cannot outlive her
 
@@ -109,7 +195,6 @@ every character gets.
 Other edge cases:
 
 - **A doll drifts off.** Past `DollHost.PULLBACK_DISTANCE` (or into another dimension) the reconcile pass discards it and parks the entry; the next conjure brings it back at her side.
-- **More dolls than targets.** `nextFree` returns null and the loop breaks; the surplus stand down. They do not pile onto the last mob.
 - **A retired doll stays armed.** `arm` walks the whole ledger, not just the live dolls, so a doll parked mid-fight does not carry a wand back out the next time she goes to the park.
 - **Dolls never itemize.** `mobInteract`'s empty-hand recall is gated on `isPlayerOwned()`, so a creative player cannot pull one of Alice's dolls into their inventory. Her dolls have no item form at all.
 - **No strays.** `detach` is refused. A stray needs somewhere to hand its entry back to and Alice has no way to take one in, so she never creates one — she issues no `SUICIDE_ATTACK`, the only thing that cuts a doll loose.
