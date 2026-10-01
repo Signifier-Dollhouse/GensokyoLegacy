@@ -293,21 +293,11 @@ public class GLDecoBlocks {
 		// brick sets
 		{
 			var tiles = new DyeColor[]{DyeColor.CYAN, DyeColor.ORANGE, DyeColor.YELLOW, DyeColor.BROWN, DyeColor.BLUE, DyeColor.BLACK, DyeColor.GRAY};
-			var strips = new DyeColor[]{DyeColor.BLUE};
 
 			for (DyeColor col : tiles) {
 				new BrickSet(reg, col.getName() + "_tiles",
 						BlockBehaviour.Properties.ofFullCopy(Blocks.DEEPSLATE).mapColor(MapColor.byId(14 + col.getId())),
 						"tiles/", BlockTags.MINEABLE_WITH_PICKAXE);
-			}
-
-			for (DyeColor col : strips) {
-				reg.block(col.getName() + "_strips_terracota", Block::new)
-						.initialProperties(() -> Blocks.WHITE_GLAZED_TERRACOTTA)
-						.properties(p -> p.mapColor(MapColor.byId(14 + col.getId())))
-						.blockstate((ctx, pvd) ->
-								pvd.simpleBlock(ctx.get(), pvd.models().cubeAll(ctx.getName(), GensokyoLegacy.loc("block/strips/" + ctx.getName()))))
-						.tag(BlockTags.MINEABLE_WITH_PICKAXE).simpleItem().register();
 			}
 
 		}
