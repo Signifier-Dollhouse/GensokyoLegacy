@@ -1,12 +1,14 @@
 package dev.xkmc.gensokyolegacy.init.registrate.block;
 
 import com.tterrag.registrate.providers.DataGenContext;
+import com.tterrag.registrate.providers.RegistrateBlockstateProvider;
 import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import com.tterrag.registrate.util.DataIngredient;
 import com.tterrag.registrate.util.entry.BlockEntry;
 import com.tterrag.registrate.util.nullness.NonNullBiConsumer;
 import dev.xkmc.gensokyolegacy.content.block.deco.door.SlidingDoor;
 import dev.xkmc.gensokyolegacy.content.block.deco.door.SlidingDoorJsons;
+import dev.xkmc.gensokyolegacy.content.block.deco.misc.BlackIronPillarBlock;
 import dev.xkmc.gensokyolegacy.content.block.deco.misc.TatamiBlock;
 import dev.xkmc.gensokyolegacy.content.block.deco.seat.CushionBlock;
 import dev.xkmc.gensokyolegacy.content.block.deco.seat.ISeatableBlock;
@@ -67,6 +69,8 @@ public class GLDecoBlocks {
 	public static final BlockEntry<DelegateBlock> STURDY_TEDDY_BEAR;
 	public static final BlockEntry<DelegateBlock> CUSHION;
 	public static final BlockEntry<DelegateBlock> SCARLET_CHAIR;
+
+	public static final BlockEntry<BlackIronPillarBlock> BLACK_IRON_PILLAR;
 
 	static {
 		var reg = GensokyoLegacy.REGISTRATE;
@@ -302,6 +306,39 @@ public class GLDecoBlocks {
 
 		}
 
+		// 黑铁柱：上下方有任意方块时不渲染对应端面
+		{
+			BLACK_IRON_PILLAR = reg.block("black_iron_pillar", BlackIronPillarBlock::new)
+					.initialProperties(() -> Blocks.DEEPSLATE)
+					.properties(p -> p.mapColor(MapColor.COLOR_BLACK).noOcclusion())
+					.blockstate((ctx, pvd) -> {
+						var tex = pvd.modLoc("block/deco/black_iron_pillar");
+						buildPillarModel(pvd, ctx.getName(), "black_iron_pillar", tex);
+						var base = buildPillarModel(pvd, ctx.getName() + "_base", "black_iron_pillar_base", tex);
+						var top = buildPillarModel(pvd, ctx.getName() + "_top", "black_iron_pillar_top", tex);
+						var bottom = buildPillarModel(pvd, ctx.getName() + "_bottom", "black_iron_pillar_bottom", tex);
+						var builder = pvd.getMultipartBuilder(ctx.get());
+						builder.part().modelFile(base).addModel();
+						builder.part().modelFile(top).addModel().condition(BlackIronPillarBlock.TOP, true).end();
+						builder.part().modelFile(bottom).addModel().condition(BlackIronPillarBlock.BOTTOM, true).end();
+					})
+					.tag(BlockTags.MINEABLE_WITH_PICKAXE)
+					.item().tab(TAB.key())
+					.model((ctx, pvd) -> pvd.getBuilder(ctx.getName())
+							.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("block/" + ctx.getName())))
+							.renderType("cutout"))
+					.build()
+					.register();
+		}
+
+	}
+
+	private static ModelFile buildPillarModel(RegistrateBlockstateProvider pvd, String name, String parent, ResourceLocation tex) {
+		return pvd.models().getBuilder("block/" + name)
+				.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/building/" + parent)))
+				.texture("0", tex)
+				.texture("particle", tex)
+				.renderType("cutout");
 	}
 
 	public static void register() {

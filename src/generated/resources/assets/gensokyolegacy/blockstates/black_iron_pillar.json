@@ -1,0 +1,25 @@
+{
+  "multipart": [
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/black_iron_pillar_base"
+      }
+    },
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/black_iron_pillar_top"
+      },
+      "when": {
+        "top": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/black_iron_pillar_bottom"
+      },
+      "when": {
+        "bottom": "true"
+      }
+    }
+  ]
+}
