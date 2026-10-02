@@ -340,11 +340,11 @@ public class AliceDollHost extends AbstractYoukaiModule implements DollLedger {
 		return dolls.size() >= MAX_DOLLS;
 	}
 
-	/** A brand new doll entry: full health, unarmament, Alice's white. */
+	/** A brand new doll entry: full health, unarmament, Alice's red. */
 	private DollData conjurer() {
 		DollData data = new DollData();
 		data.type = DollItem.TYPE;
-		data.color = DyeColor.WHITE;
+		data.color = DyeColor.RED;
 		data.state = DollState.TEMP;
 		return data;
 	}
