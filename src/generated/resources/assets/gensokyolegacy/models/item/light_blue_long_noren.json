@@ -1,6 +1,19 @@
 {
-  "parent": "gensokyolegacy:item/noren_long_item",
+  "parent": "minecraft:item/generated",
   "textures": {
-    "curtain": "gensokyolegacy:block/noren/light_blue_long_noren"
+    "layer0": "gensokyolegacy:block/noren/light_blue_long_noren"
+  },
+  "transform": {
+    "origin": "center",
+    "scale": [
+      0.8,
+      1.6,
+      1.0
+    ],
+    "translation": [
+      0.0,
+      -0.25,
+      0.0
+    ]
   }
 }
