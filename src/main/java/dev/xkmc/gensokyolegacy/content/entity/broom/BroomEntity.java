@@ -68,16 +68,26 @@ public class BroomEntity extends SimplifiedEntity implements GeoEntity {
 	@Override
 	public void tick() {
 		baseTick();
-		if (level().isClientSide) return;
 		Player rider = getRider();
 		if (rider == null || !holdsBroom(rider)) {
 			discard();
 			return;
 		}
+		// Authority split as on Boat/Minecart: the riding client owns the flight
+		// model and reports the result in ServerboundMoveVehiclePacket, so the
+		// server must not simulate or it fights that packet. Other clients only
+		// receive position updates; base Entity#lerpTo snaps, as it does for boats.
+		if (!isControlledByLocalInstance()) return;
 		setYRot(rider.getYRot());
 		setXRot(rider.getXRot());
 		setDeltaMovement(thrust(rider));
 		move(MoverType.SELF, getDeltaMovement());
+	}
+
+	@Override
+	public boolean isNoGravity() {
+		// a broom holds altitude on its own; only LIFT moves it vertically
+		return true;
 	}
 
 	/**
@@ -86,7 +96,7 @@ public class BroomEntity extends SimplifiedEntity implements GeoEntity {
 	 */
 	private Vec3 thrust(Player rider) {
 		// vanilla riding input: zza is forward/back, xxa is left/right, and jump and
-		// shift are still sent to a passenger. Sneak normally dismounts, which
+		// shift are still live for a passenger. Sneak normally dismounts, which
 		// PlayerMixin opts this vehicle out of.
 		double ahead = rider.zza;
 		double aside = rider.xxa;
@@ -115,9 +125,10 @@ public class BroomEntity extends SimplifiedEntity implements GeoEntity {
 	}
 
 	/**
-	 * Hands the controls to whoever is sitting on the front of the shaft; this is
-	 * also what tells {@link Player#getControlledVehicle} that the rider is the
-	 * one steering, so the client keeps reporting its view rotation.
+	 * Hands the controls to whoever is sitting on the front of the shaft. This is
+	 * what makes the vehicle client-authoritative the same way a boat is: the
+	 * riding client ticks it via {@link #isControlledByLocalInstance()} and reports
+	 * the resulting position in {@code ServerboundMoveVehiclePacket}.
 	 */
 	@Override
 	public @Nullable LivingEntity getControllingPassenger() {

@@ -68,7 +68,7 @@ public class GLEntities {
 
 		BROOM = GensokyoLegacy.REGISTRATE
 				.<BroomEntity>entity("broom", BroomEntity::new, MobCategory.MISC)
-				.properties(e -> e.sized(0.4F, 0.3F).clientTrackingRange(10).updateInterval(1))
+				.properties(e -> e.sized(0.4F, 0.3F).clientTrackingRange(10).updateInterval(2))
 				.renderer(() -> BroomRenderer::new)
 				.register();
 
