@@ -4,8 +4,9 @@
 three-mode thrown weapon: one mode per spread, driven by the l2itemselector wheel exactly as
 `DollGloveMode` is.
 
-> Status: implemented. Textures are generated placeholders
-> (`textures/item/tool/dagger_glove*.png`) — replace with real art when available (16×16, same paths).
+> Status: implemented. All three modes wear the same glove art
+> (`textures/item/tool/dagger_glove{,_single,_fan,_homing}.png` are identical copies of one 16×16
+> texture), so the mode is carried by the tooltip and the wheel rather than by the held model.
 
 The glove is the *second* way to throw a dagger. The plain `IronDaggerItem` stays the single-dagger
 weapon; the glove is what turns a stack of daggers into a pattern, at the cost of a cooldown per
@@ -272,10 +273,12 @@ Mirror of `DollGloveSelectionListener` (`glove.md` §3), minus the display-compo
 - Data components: `DAGGER_GLOVE_MODE` (`DC.enumVal` over the enum, persistent) and
   `DAGGER_GLOVE_RUNE` (`DC.loc`).
 
-Wheel entries render a **fresh glove stack carrying the mode**, so the wheel shows the held
-glove's texture for each mode — the same trick as `DollGloveItem.displayStack`, driven here by the
-`dagger_glove_display` model predicate rather than a separate icon component, because the dagger
-glove's modes are not hidden from the wheel and so need no distinct icon variants.
+Wheel entries render a **fresh glove stack carrying the mode**, the same trick as
+`DollGloveItem.displayStack`, driven here by the `dagger_glove_display` model predicate rather than a
+separate icon component, because the dagger glove's modes are not hidden from the wheel and so need
+no distinct icon variants. Every mode currently wears the same glove art, so the wheel tells the
+modes apart by the name it draws under the hovered entry; the per-mode overrides stay so that
+distinct per-mode art can be dropped into the four texture paths without touching the wheel.
 
 ## 7. Open questions
 
@@ -347,7 +350,7 @@ doll glove's, and the two gloves share nothing but the word.
   field, rune on hit)
 - `init/registrate/GLItems.java`, `init/data/GLLang.java`, `init/GLClient.java`,
   `init/GensokyoLegacy.java` (edited)
-- `textures/item/tool/dagger_glove{,_single,_fan,_homing}.png` (placeholders)
+- `textures/item/tool/dagger_glove{,_single,_fan,_homing}.png` (one glove, copied to all four paths)
 
 ## 10. Verified
 

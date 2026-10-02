@@ -427,10 +427,10 @@ public class GLItems {
 					.lang("Iron Dagger").tab(TAB.key())
 					.register();
 
-			// The glove wears one texture per mode, so the held model carries a predicate
-			// override per mode rather than the flat layer0 a wheel icon needs; the wheel
-			// therefore renders real glove stacks and shows the mode it is actually in
-			// (dagger_glove.md §6).
+			// The glove's held model carries a predicate override per mode rather than a flat
+			// layer0, so per-mode art can be dropped into the four texture paths without
+			// touching the wheel, which renders real glove stacks and names the hovered mode
+			// (dagger_glove.md §6). Today every mode wears the same texture.
 			DAGGER_GLOVE = reg.item("dagger_glove", p -> new DaggerGloveItem(p.stacksTo(1)))
 					.model((ctx, pvd) -> {
 						var base = pvd.generated(ctx, pvd.modLoc("item/tool/" + ctx.getName()));
