@@ -222,6 +222,9 @@ public class DollMeleeBehavior extends DollBehavior {
 	}
 
 	private void swing(DollEntity doll, ItemStack weapon, LivingEntity target, Vec3 toTarget) {
+		// Plain mob_attack; the doll's melee source is turned into a bypass-cooldown
+		// variant in GLAttackListener#onCreateSource, which covers every doll melee
+		// rather than only this behavior.
 		DamageSource source = doll.damageSources().mobAttack(doll);
 		if (!target.hurt(source, meleeDamage(weapon))) return;
 		Vec3 push = new Vec3(toTarget.x, 0, toTarget.z);
