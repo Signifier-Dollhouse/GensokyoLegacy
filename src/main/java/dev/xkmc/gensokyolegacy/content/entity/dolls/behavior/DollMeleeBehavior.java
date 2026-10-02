@@ -129,6 +129,18 @@ public class DollMeleeBehavior extends DollBehavior {
 		return doll.position().distanceToSqr(home) > halfLeg * halfLeg;
 	}
 
+	/**
+	 * A charge has to begin from inside {@link #ENGAGE_RANGE}, and a doll standing
+	 * in formation does not close that gap by waiting — so a target past it is one
+	 * this doll can never go and get. That is why the wait gives the ticket up at
+	 * once instead of sitting on it (the delegating goal asks this), and why a
+	 * volley at such a target is reported as too far rather than ordered at all.
+	 */
+	@Override
+	public boolean canReach(DollEntity doll, LivingEntity target) {
+		return inRange(doll, target, ENGAGE_RANGE);
+	}
+
 	@Override
 	public void start(DollEntity doll) {
 		phase = CHARGE;

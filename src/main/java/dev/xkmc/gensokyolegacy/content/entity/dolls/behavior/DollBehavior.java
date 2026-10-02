@@ -51,6 +51,20 @@ public abstract class DollBehavior {
 		return false;
 	}
 
+	/**
+	 * Whether this behavior could ever act on the given target with what the doll
+	 * holds — the ticket-free form of {@link #canUse}, asked before an order is
+	 * issued. A behavior with no reach of its own (every ranged attack, the suicide
+	 * dive) answers true for anything the host already vetted; one that has to
+	 * close a distance answers false past that distance. Two callers care: the
+	 * delegating goal, which gives up a ticket that can never run instead of
+	 * idling through the start timeout, and the host, which reports an order
+	 * nothing can perform rather than issuing it.
+	 */
+	public boolean canReach(DollEntity doll, LivingEntity target) {
+		return true;
+	}
+
 	/** My action, iff it is the current command. */
 	@Nullable
 	protected DollAction current(DollEntity doll) {

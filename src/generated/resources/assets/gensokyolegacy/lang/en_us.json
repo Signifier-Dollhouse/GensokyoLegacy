@@ -320,6 +320,7 @@
   "gensokyolegacy.glove.suicide": "Suicide dive ordered: %s",
   "gensokyolegacy.glove.summoned": "Summoned %s dolls",
   "gensokyolegacy.glove.super": "Super attack ordered: %s",
+  "gensokyolegacy.glove.too_far": "Target is too far to melee",
   "gensokyolegacy.glove.volley": "Volley ordered",
   "gensokyolegacy.glove.wheel": "Hold %s to open wheel",
   "gensokyolegacy.info.bed_missing": "Character is missing for %s",

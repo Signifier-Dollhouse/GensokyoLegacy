@@ -12,7 +12,7 @@
 |---|---|---|---|
 | 0 | `SUMMON` | glove icon (itself) | `use()`: no summoned dolls → summon everything parked (STORED promoted to TEMP, then summoned) plus every doll item in the player inventory, in a ring around the owner — no ledger cap. Otherwise recall: `itemize` every summoned doll, plus any **stray** doll within 48 blocks (control.md §5.4a) — strays hold no ledger entry, so the sweep scans loaded entities and itemizes them the same way; overflow parked to data as STORED, and all TEMP consolidated to STORED. Block-hosted dolls never touched. |
 | 1 | `HEAL_MARK` | `Items.GOLDEN_CARROT` | Hidden from the wheel, implementation kept: `use()` toggles the heal mark on the cached ray-trace target (control.md §5–6). Any living entity, same 48-block range. |
-| 2 | `VOLLEY` | `GLItems.STAR` (star danmaku, the starlight-hexbrew star) | `use()` or left-click: `issueIteration(player, target, REGULAR_ATTACK)` on the cached target (left-click on an entity uses the punched entity). |
+| 2 | `VOLLEY` | `GLItems.STAR` (star danmaku, the starlight-hexbrew star) | `use()` or left-click: `issueVolley(player, target, REGULAR_ATTACK)` on the cached target (left-click on an entity uses the punched entity). Armed but out of reach — a roster of melee dolls against a far mob — reports `too_far` and issues nothing (control.md §5.1b). |
 | 3 | `SUPER` | explosive hexbrew | `use()` or left-click: `issueOneTime(player, target, SUPER_ATTACK)` — one **random** available doll. Listed only while a summoned doll can perform it, unless already selected. |
 | 4 | `SUICIDE` | `Items.TNT` | `use()` or left-click: `issueOneTime(player, target, SUICIDE)` — one **random** available doll. Listed only while a summoned doll can perform it, unless already selected. |
 | 5 | `STOP` | `Items.SHIELD` | Hidden from the wheel, implementation kept: `use()` stops **all summoned** dolls — `doll.actions.stop()` + clear `iteration`. Strays and block-hosted dolls untouched. |
@@ -65,7 +65,7 @@ No entity clicks: the glove acts on a cached ray-trace target (max 48 blocks), s
 
 - `GLItems` — `DOLL_GLOVE` = `reg.item("doll_glove", p -> new DollGloveItem(p.stacksTo(1)))` + `.model(generated item/doll_glove + 6 ascending `glove_display` overrides → `item/glove_<mode>` sub-models)` + `.lang("Seven-Colored Doll Glove")` + tab + `DOLL_GLOVE_MODE` DCVal + `DOLL_GLOVE_DISPLAY` unit component (§3b).
 - Mod constructor — `DollGloveSelectionListener.register()` beside `BorderUmbrellaSelectionListener.register()`; `GensokyoLegacy.HANDLER` registers `DollGloveSelectPacket` + `DollGloveTargetPacket`; the `CodecHandler<ItemStack>` (loadout.md §2) alongside `FluidIngredient`.
-- `GLLang` — `ItemGlove` enum: mode names/descriptions plus a message for every non-trivial action (summoned count, recalled count + parked count, volley/super/suicide issued, stopped count, mark toggled/untoggled, no_target, no_doll, not_doll).
+- `GLLang` — `ItemGlove` enum: mode names/descriptions plus a message for every non-trivial action (summoned count, recalled count + parked count, volley/super/suicide issued, stopped count, mark toggled/untoggled, no_target, no_doll, too_far, not_doll).
 - Textures — copy `temp/七色人偶手套.png` to `assets/gensokyolegacy/textures/item/doll_glove.png`; copy `temp/{summon,heal_mark,volley,super,suicide,stop}.png` to `assets/gensokyolegacy/textures/item/tool/glove_<mode>.png` (§3b).
 - Mixins — target-glow mixin declared in `gensokyolegacy.mixins.json`.
 

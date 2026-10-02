@@ -632,6 +632,7 @@
   "gensokyolegacy.glove.no_target": "视线内没有目标",
   "gensokyolegacy.glove.no_doll": "没有可用的人偶",
   "gensokyolegacy.glove.no_weapon": "没有人偶持有可用的武器",
+  "gensokyolegacy.glove.too_far": "目标太远，人偶无法近身",
   "gensokyolegacy.glove.not_doll": "目标不是你的人偶",
   "gensokyolegacy.doll.no_space": "背包没有空间",
   "gensokyolegacy.doll.resync_missing": "人偶实体已消失，正在召回",
