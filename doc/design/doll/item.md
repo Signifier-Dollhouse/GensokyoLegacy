@@ -76,3 +76,56 @@ Dolls are ordinary, tradeable items: item form carries no owner-id and no uuid, 
 
 - `getTooltipImage` reuses the talisman pocket's `InvTooltip`/`ClientInvTooltip` pair (already registered in `GLClient`): a 4×1 grid of the `DOLL_LOADOUT` stacks in menu order (main, off, core, cloth), hidden while shift is held and when the loadout is empty.
 - `DollItem implements InvClickItem`, so right-clicking the stack in an inventory routes through the existing `GLClickHandler` and opens the same `DollLoadoutMenu` via `DollItemLoadoutProvider` — backed live by the stack's `DOLL_LOADOUT` component (`DollLoadoutItemHandler` item mode), titled with the doll's hover name. In-world `use`/`useOn` still summon.
+
+## 9. The doll lance: `DollLanceItem`
+
+`content/item/doll/DollLanceItem.java` — the mod's only melee weapon, and the **only** item that arms a doll's charge (§5.1b of control.md). A sword no longer does: the binding is `stack -> stack.is(GLItems.DOLL_LANCE.get())`, not a `#minecraft:swords` tag, so it matches this item exactly and nothing else.
+
+```java
+DOLL_LANCE = reg.item("doll_lance", DollLanceItem::new)
+        .lang("Doll Lance").tab(TAB.key())
+        .register();
+```
+
+A plain `Item`, deliberately **not** a `SwordItem`: a lance is a polearm, and inheriting `SwordItem` would bring along a `TOOL` component that cuts cobwebs, sword item abilities, and a `hurtEnemy` that returns true for every block.
+
+### Damage
+
+`ItemAttributeModifiers` in the vanilla melee-weapon shape, supplied through `Properties.attributes(...)` rather than a `getDefaultAttributeModifiers` override:
+
+| Attribute | Amount | Result on a player (base 1 / 4) |
+|---|---|---|
+| `ATTACK_DAMAGE` | **+6** | 7 per swing |
+| `ATTACK_SPEED` | **−3** | 4 − 3 = 1, i.e. one swing a second |
+
+Both entries carry `Item.BASE_ATTACK_DAMAGE_ID` / `Item.BASE_ATTACK_SPEED_ID`. That is load-bearing twice over: `ItemStack.addModifierTooltip` folds the holder's own attribute base into a modifier with those ids, so the tooltip reads "6 Attack Damage, 1 Attack Speed" instead of a bare "+6 / −3" in raw attribute language — and `DollMeleeBehavior.meleeDamage`, which sums the held stack's main-hand `ATTACK_DAMAGE` modifiers over the doll's 2.0 base, gets 6 for free and lands 8 on a charge. Declaring damage any other way (a getter, a custom component) would silently drop the doll back to bare 2.0.
+
+### No durability
+
+`Properties.durability` is never called, so stacks carry no `max_damage` and no swing can wear one — which also means no `stacksTo(1)`: a lance stacks like any other non-tool item, and there is nothing to repair or replace. This retires the old open question in control.md §10 ("sword durability: the charge costs the swing nothing") — the answer is that the item never had any.
+
+### Model
+
+Split with `SeparateTransformsModelBuilder` and `gui_light: front` (the same shape as `STRANGE_GLASSES`), because the two halves want opposite things:
+
+| Context | Model | Why |
+|---|---|---|
+| all but `gui` (base) | `models/custom/doll_lance.json` — a Blockbench item model with real `elements` | a 28-unit polearm along **+Z**, which neither `item/generated` nor `item/handheld` can express, so it has to be hand-authored |
+| `gui` | generated, `item/generated` + `textures/item/tool/doll_lance_icon.png` | a flat 16×16 sprite is the only thing that reads at slot size; no transform of the 3D lance lands inside 16px |
+
+```java
+var base = pvd.nested()
+        .parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/doll_lance")));
+var guiModel = pvd.nested()
+        .parent(new ModelFile.UncheckedModelFile("item/generated"))
+        .texture("layer0", pvd.modLoc("item/tool/" + ctx.getName() + "_icon"));
+pvd.getBuilder(ctx.getName())
+        .customLoader(SeparateTransformsModelBuilder::begin)
+        .base(base)
+        .perspective(ItemDisplayContext.GUI, guiModel)
+        .end().guiLight(BlockModel.GuiLight.FRONT);
+```
+
+- `custom/doll_lance.json` is the **Blockbench export kept verbatim** — `format_version`, `credit`, `texture_size`, `groups`, `particle` and the `#0` texture key all stay, exactly as `custom/strange_glasses_head.json` does. Only the placeholder texture is filled in (`gensokyolegacy:item/tool/doll_lance`); the game ignores the rest, and round-tripping the file through Blockbench must not produce a diff.
+- Its four hand `display` transforms are the authored ones. `fixed` (item frame) deliberately has none: the lance is 28 units pointing at the camera there.
+- `SeparateTransformsModel` takes `getQuads`/`getRenderTypes`/`getParticleIcon` from the **base**, so dropped-item particles come from the 3D model's `particle` key. Only `applyTransform` redirects, which is what swaps the quads per context.

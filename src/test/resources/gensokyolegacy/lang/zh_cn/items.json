@@ -16,6 +16,7 @@
 	},
 	"entity.gensokyolegacy.doll": "人形",
 	"entity.gensokyolegacy.dining_chair": "餐椅",
+	"entity.gensokyolegacy.broom": "扫帚",
 	"block.gensokyolegacy": {
 		"donation_box": "赛钱箱",
 		"evergreen_vine": "常青垂藤",
@@ -28,6 +29,7 @@
 		"reimu_bed": "博丽灵梦的床",
 		"morichika_bed": "森近霖之的床",
 		"marisa_bed": "雾雨魔理沙的床",
+		"alice_bed": "爱丽丝的床",
 		"blue_fir_log": "青杉木原木",
 		"blue_fir_wood": "青杉木",
 		"blue_fir_leaves": "青杉树叶",
@@ -87,6 +89,7 @@
 	"item.gensokyolegacy": {
 		"doll": "人形",
 		"doll_glove": "七彩线手套",
+		"doll_lance": "人形长枪",
 		"frozen_frog_cold": "冻青蛙",
 		"frozen_frog_warm": "冻青蛙",
 		"frozen_frog_temperate": "冻青蛙",
@@ -136,6 +139,7 @@
 		"dagger_glove": "匕首手套",
 		"strange_glasses": "奇怪的眼镜",
 		"cat_bell": "猫铃铛",
+		"broom": "飞行扫帚",
 		"door_debug_wand": "门调试杖",
 		"mermaid_pearl": "人鱼珍珠",
 		"mini_hakkero_prototype": "迷你八卦炉【原型】",
@@ -161,7 +165,8 @@
 					"luna_child": "露娜",
 					"star_sapphire": "斯塔",
 					"sunny_milk": "桑尼",
-					"morichika_rinnosuke": "森近霖之助"
+					"morichika_rinnosuke": "森近霖之助",
+					"alice_margatroid": "爱丽丝·玛格特罗伊德"
 				},
 				{
 					"entity.gensokyolegacy.*": ""

@@ -19,7 +19,9 @@ Loadout (done — slots, storage, mirror, editor menu; render TODO):
 Control (done — framework; glove calls pending):
 - `content/attachment/doll/DollCommander.java` — via `DollAttachment.commands`: volley/one-time/stop, handoff, stall guard, heal scheduling + 1-second mark prune, transient heal marks (control.md §6/§8)
 - `content/entity/dolls/action/DollAction.java`, `DollActionType.java`, `DollActionMode.java`, `DollActionHandler.java`, `DollCardHolder.java` + `goals/DollCommandGoal.java` (control.md §1/§3–5, goals under `dolls/goals/`)
-- `content/entity/dolls/behavior/DollBehavior.java`, `DollBehaviorRegistry.java`, `DollBehaviors.java`, `DollFriendlyFire.java` + `DollDanmakuBehavior.java`, `DollLaserBehavior.java`, `DollThrowBehavior.java`, `DollSuicideBehavior.java`, `DollHealBehavior.java` (control.md §1/§5)
+- `content/entity/dolls/behavior/DollBehavior.java`, `DollBehaviorRegistry.java`, `DollBehaviors.java`, `DollFriendlyFire.java` + `DollDanmakuBehavior.java`, `DollLaserBehavior.java`, `DollThrowBehavior.java`, `DollSuicideBehavior.java`, `DollHealBehavior.java`, `DollMeleeBehavior.java` (control.md §1/§5, lance charge §5.1b)
+- `content/item/doll/DollLanceItem.java` — the only melee weapon a doll arms with (item.md §9)
+- `content/entity/dolls/impl/DollHandLock.java` — 10-tick post-spend hold on a doll's hands, stamped from `DollBehavior.ensureMainHand`; a host's arming pass skips a doll inside it (host.md §4)
 
 - `content/entity/dolls/menu/DollLoadoutMenu.java`, `DollLoadoutScreen.java`, `DollLoadoutProvider.java`, `DollLoadoutItemHandler.java` + `GLMisc.DOLL_LOADOUT`, layout JSON, container texture (loadout.md §4)
 
@@ -37,7 +39,7 @@ Implemented — glove (item, 6 modes with heal/stop hidden, wheel, target cache 
 - `content/attachment/doll/DollData.java` — `inventory` field (loadout.md §2) — done (mutable variant)
 - `content/attachment/doll/DollAttachment.java` — destroyed-resummon revival keeping gear (§7); stray rejoin as `TEMP` and the recall sweep for strays within 48 blocks (control.md §5.4a); ledger transitions only
 - `content/attachment/doll/DollHost.java` — `detach(UUID)` for stray cuts, `onDeath` hook; `StrayHost.java` holds the detached entry, answers pairing, hands it over one-shot via `take()`, persists via chunk save/load (control.md §5.4)
-- `content/entity/dolls/BaseDollEntity.java` — pairing pipeline only (stray `getHost` branch, `die()` → `onDeath`); empty-hand itemize (arming removed, loadout.md §4)
+- `content/entity/dolls/BaseDollEntity.java` — pairing pipeline only (stray `getHost` branch, `die()` → `onDeath`); empty-hand itemize (arming removed, loadout.md §4); `setSpeedCap` escape hatch on the movement cap for the melee charge (entity.md §3.1, control.md §5.1b)
 - `content/entity/dolls/DollEntity.java` — `actions` field, one `DollCommandGoal`, vanilla shield hooks (§5.6), never-null ledger-direct loadout API, `becomeStray()` / `rejoinOwner()` / `maybeRejoin()` (1-second idle rejoin from `tick()`); 4 synced slot accessors, `writeValuesTo`/`readValuesFrom` (loadout.md §3 / entity.md §8.1) — done
 - `content/entity/dolls/DollRenderer.java` / `DollModel.java` — exist; add **TODO** placeholders for the held-item render pass (loadout.md §5)
 - `init/registrate/GLItems.java` — `DOLL_GLOVE` + `DOLL_GLOVE_MODE`

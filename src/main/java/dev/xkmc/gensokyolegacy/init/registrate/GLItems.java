@@ -11,6 +11,7 @@ import dev.xkmc.gensokyolegacy.content.block.functional.portal.PortalSide;
 import dev.xkmc.gensokyolegacy.content.client.model.*;
 import dev.xkmc.gensokyolegacy.content.entity.characters.fairy.CirnoModel;
 import dev.xkmc.gensokyolegacy.content.entity.characters.rumia.RumiaModel;
+import dev.xkmc.gensokyolegacy.content.item.broom.BroomItem;
 import dev.xkmc.gensokyolegacy.content.item.character.*;
 import dev.xkmc.gensokyolegacy.content.item.debug.DebugGlasses;
 import dev.xkmc.gensokyolegacy.content.item.debug.DebugWand;
@@ -18,6 +19,7 @@ import dev.xkmc.gensokyolegacy.content.item.debug.DoorDebugItem;
 import dev.xkmc.gensokyolegacy.content.item.debug.StructureWand;
 import dev.xkmc.gensokyolegacy.content.item.doll.DollItem;
 import dev.xkmc.gensokyolegacy.content.item.doll.DollItemData;
+import dev.xkmc.gensokyolegacy.content.item.doll.DollLanceItem;
 import dev.xkmc.gensokyolegacy.content.item.gift.*;
 import dev.xkmc.gensokyolegacy.content.item.glove.DollGloveItem;
 import dev.xkmc.gensokyolegacy.content.item.glove.DollGloveModel;
@@ -106,9 +108,13 @@ public class GLItems {
 
 	public static final ItemEntry<BorderUmbrellaItem> BORDER_UMBRELLA;
 
+	public static final ItemEntry<BroomItem> BROOM;
+
 	public static final ItemEntry<DollItem> DOLL;
 
 	public static final ItemEntry<DollGloveItem> DOLL_GLOVE;
+
+	public static final ItemEntry<DollLanceItem> DOLL_LANCE;
 
 	public static final ItemEntry<StarDanmakuItem> STAR;
 	public static final ItemEntry<StarWandItem> STAR_WAND;
@@ -366,6 +372,11 @@ public class GLItems {
 					.tag(L2ISTagGen.SELECTABLE)
 					.register();
 
+			BROOM = reg.item("broom", BroomItem::new)
+					.model((ctx, pvd) -> pvd.handheld(ctx, pvd.modLoc("item/tool/" + ctx.getName())))
+					.lang("Flying Broom").tab(TAB.key())
+					.register();
+
 			DOLL = reg.item("doll", p -> new DollItem(p.stacksTo(1)))
 					.model((ctx, pvd) -> genLayeredItemModel(ctx.getName(), pvd))
 					.color(() -> () -> DollItem::getColor)
@@ -377,6 +388,27 @@ public class GLItems {
 					.model(DollGloveModel::model)
 					.lang("Seven-Colored Doll Glove").tab(TAB.key())
 					.tag(L2ISTagGen.SELECTABLE)
+					.register();
+
+			// The lance is a hand-authored Blockbench model with real elements — a 28-unit
+			// polearm along +Z, which neither `handheld` nor `generated` can express — so it
+			// lives in src/main/resources/models/custom and is wired up as the base, i.e. every
+			// display context but GUI. The GUI gets the flat 16x16 icon instead: a 28-unit
+			// lance has no transform that lands it inside a 16px slot.
+			DOLL_LANCE = reg.item("doll_lance", DollLanceItem::new)
+					.model((ctx, pvd) -> {
+						var base = pvd.nested()
+								.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/doll_lance")));
+						var guiModel = pvd.nested()
+								.parent(new ModelFile.UncheckedModelFile("item/generated"))
+								.texture("layer0", pvd.modLoc("item/tool/" + ctx.getName() + "_icon"));
+						pvd.getBuilder(ctx.getName())
+								.customLoader(SeparateTransformsModelBuilder::begin)
+								.base(base)
+								.perspective(ItemDisplayContext.GUI, guiModel)
+								.end().guiLight(BlockModel.GuiLight.FRONT);
+					})
+					.lang("Doll Lance").tab(TAB.key())
 					.register();
 
 			STRAW_HAT = reg

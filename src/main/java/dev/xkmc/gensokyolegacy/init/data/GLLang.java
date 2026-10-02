@@ -588,6 +588,7 @@ public final class GLLang {
 		NO_TARGET("No target in sight", 0, ChatFormatting.RED),
 		NO_DOLL("No available doll", 0, ChatFormatting.RED),
 		NO_WEAPON("No doll holds a valid weapon", 0, ChatFormatting.RED),
+		TOO_FAR("Target is too far to melee", 0, ChatFormatting.RED),
 		NOT_DOLL("Target is not your doll", 0, ChatFormatting.RED);
 
 		private final String def;

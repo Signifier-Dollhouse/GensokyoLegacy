@@ -172,6 +172,7 @@
 			"no_target": "视线内没有目标",
 			"no_doll": "没有可用的人偶",
 			"no_weapon": "没有人偶持有可用的武器",
+			"too_far": "目标太远，人偶无法近身",
 			"not_doll": "目标不是你的人偶"
 		},
 		"dagger_glove": {

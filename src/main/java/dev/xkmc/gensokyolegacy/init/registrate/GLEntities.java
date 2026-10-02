@@ -4,10 +4,14 @@ import com.tterrag.registrate.util.entry.EntityEntry;
 import dev.xkmc.danmakuapi.content.entity.ItemBulletRenderer;
 import dev.xkmc.gensokyolegacy.content.block.deco.seat.ChairEntity;
 import dev.xkmc.gensokyolegacy.content.block.deco.seat.NothingRenderer;
+import dev.xkmc.gensokyolegacy.content.entity.broom.BroomEntity;
+import dev.xkmc.gensokyolegacy.content.entity.broom.BroomRenderer;
 import dev.xkmc.gensokyolegacy.content.entity.characters.fairy.CirnoEntity;
 import dev.xkmc.gensokyolegacy.content.entity.characters.fairy.CirnoRenderer;
 import dev.xkmc.gensokyolegacy.content.entity.characters.fairy.FairyEntity;
 import dev.xkmc.gensokyolegacy.content.entity.characters.maiden.*;
+import dev.xkmc.gensokyolegacy.content.entity.characters.magician.AliceEntity;
+import dev.xkmc.gensokyolegacy.content.entity.characters.magician.AliceRenderer;
 import dev.xkmc.gensokyolegacy.content.entity.characters.merchant.MorichikaEntity;
 import dev.xkmc.gensokyolegacy.content.entity.characters.merchant.MorichikaRenderer;
 import dev.xkmc.gensokyolegacy.content.entity.characters.rumia.RumiaEntity;
@@ -34,6 +38,9 @@ import java.util.Map;
 public class GLEntities {
 
 	public static final EntityEntry<ChairEntity> CHAIR;
+	// summon-only vehicle, no spawn egg or natural spawn: it exists only while a
+	// player rides it with a broom item in hand (see BroomItem)
+	public static final EntityEntry<BroomEntity> BROOM;
 
 	public static final EntityEntry<RumiaEntity> RUMIA;
 	public static final EntityEntry<ReimuEntity> REIMU;
@@ -42,6 +49,7 @@ public class GLEntities {
 	public static final EntityEntry<MaidenEntity> SANAE;
 	public static final EntityEntry<MarisaEntity> MARISA;
 	public static final EntityEntry<MorichikaEntity> MORICHIKA;
+	public static final EntityEntry<AliceEntity> ALICE;
 	public static final EntityEntry<GeneralYoukaiEntity> MYSTIA;
 	public static final EntityEntry<BossYoukaiEntity> YUKARI, KOISHI;
 	public static final EntityEntry<FairyEntity> SUNNY, LUNA, STAR;
@@ -62,6 +70,12 @@ public class GLEntities {
 				.<ChairEntity>entity("dining_chair", ChairEntity::new, MobCategory.MISC)
 				.properties(e -> e.sized(0f, 0f))
 				.renderer(() -> NothingRenderer::new)
+				.register();
+
+		BROOM = GensokyoLegacy.REGISTRATE
+				.<BroomEntity>entity("broom", BroomEntity::new, MobCategory.MISC)
+				.properties(e -> e.sized(0.4F, 0.3F).clientTrackingRange(10).updateInterval(2))
+				.renderer(() -> BroomRenderer::new)
 				.register();
 
 		{
@@ -141,6 +155,14 @@ public class GLEntities {
 					.attributes(GeneralYoukaiEntity::createAttributes)
 					.renderer(() -> MorichikaRenderer::new)
 					.spawnEgg(0x52403C, 0xFAF2EF).build()
+					.loot(EntityLootGen::noLoot)
+					.register();
+
+			ALICE = GensokyoLegacy.REGISTRATE
+					.entity("alice_margatroid", AliceEntity::new, MobCategory.MONSTER)
+					.properties(e -> e.sized(0.4F, 1.8f).clientTrackingRange(10))
+					.attributes(GeneralYoukaiEntity::createAttributes)
+					.renderer(() -> AliceRenderer::new)
 					.loot(EntityLootGen::noLoot)
 					.register();
 

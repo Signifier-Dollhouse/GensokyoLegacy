@@ -47,14 +47,21 @@ public class VolleyMode extends DollGloveHandler {
 
 	@Override
 	public void performAttackOn(ServerPlayer sp, @Nullable LivingEntity target, InteractionHand hand, ItemStack stack, DollGloveItem item) {
-		var commands = attachment(sp).commands;
+var commands = attachment(sp).commands();
 		if (target == null || !DollGloveItem.isValidAttackTarget(sp, target)) {
 			sp.displayClientMessage(GLLang.ItemGlove.NO_TARGET.get(), true);
+		} else if (!commands.hasCapableDoll(sp, DollActionType.REGULAR_ATTACK)) {
+			// Armed with nothing at all: which of the two "no doll for this" lines
+			// fits depends on whether there is a roster to speak of.
+			sp.displayClientMessage(commands.hasSummonedDoll(sp) ?
+					GLLang.ItemGlove.NO_WEAPON.get() : GLLang.ItemGlove.NO_DOLL.get(), true);
+		} else if (!commands.canAttack(sp, target, DollActionType.REGULAR_ATTACK)) {
+			// Armed, but only with dolls that cannot close the distance (melee past
+			// its engage range). Say so instead of issuing a volley that empties
+			// itself on the spot.
+			sp.displayClientMessage(GLLang.ItemGlove.TOO_FAR.get(), true);
 		} else if (commands.issueVolley(sp, target)) {
 			sp.displayClientMessage(GLLang.ItemGlove.VOLLEY.get(), true);
-		} else if (commands.hasSummonedDoll(sp) &&
-				!commands.hasCapableDoll(sp, DollActionType.REGULAR_ATTACK)) {
-			sp.displayClientMessage(GLLang.ItemGlove.NO_WEAPON.get(), true);
 		} else {
 			sp.displayClientMessage(GLLang.ItemGlove.NO_DOLL.get(), true);
 		}

@@ -2,7 +2,6 @@ package dev.xkmc.gensokyolegacy.content.entity.dolls.impl;
 
 import dev.xkmc.danmakuapi.api.IDanmakuEntity;
 import dev.xkmc.danmakuapi.api.IYoukaiEntity;
-import dev.xkmc.gensokyolegacy.content.attachment.doll.DollAttachment;
 import dev.xkmc.gensokyolegacy.content.attachment.doll.DollHost;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.DollEntity;
 import net.minecraft.world.damagesource.DamageSource;
@@ -59,7 +58,7 @@ public interface DollDanmakuAlly extends DollBaseImpl, IYoukaiEntity {
 		UUID ownerId = doll.getOwnerUUID();
 		if (ownerId == null) return false;
 		DollHost host = doll.getHost();
-		if (host instanceof DollAttachment att && att.commands.isCommandedTarget(le)) return false;
+		if (host != null && host.isCommandedTarget(le)) return false;
 		if (le instanceof Mob mob && mob.getTarget() != null &&
 				ownerId.equals(mob.getTarget().getUUID())) return false;
 		LivingEntity lastHurt = le.getLastHurtByMob();

@@ -48,7 +48,7 @@ public class SuperMode extends DollGloveHandler {
 
 	@Override
 	public void performAttackOn(ServerPlayer sp, @Nullable LivingEntity target, InteractionHand hand, ItemStack stack, DollGloveItem item) {
-		var commands = attachment(sp).commands;
+var commands = attachment(sp).commands();
 		if (target == null || !DollGloveItem.isValidAttackTarget(sp, target)) {
 			sp.displayClientMessage(GLLang.ItemGlove.NO_TARGET.get(), true);
 		} else if (commands.issueOneTimeRandom(sp, target, DollActionType.SUPER_ATTACK) instanceof DollEntity doll) {

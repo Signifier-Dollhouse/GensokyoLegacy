@@ -1,6 +1,5 @@
 package dev.xkmc.gensokyolegacy.content.entity.dolls.goals;
 
-import dev.xkmc.gensokyolegacy.content.attachment.doll.DollAttachment;
 import dev.xkmc.gensokyolegacy.content.attachment.doll.DollHost;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.DollEntity;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.action.DollAction;
@@ -31,6 +30,12 @@ import java.util.EnumSet;
  * Stopping with the ticket still held completes it (done-set + handoff), so
  * aborted runs never strand chains — only an already-released ticket (natural
  * completion, glove stop, a preempting new order) skips completion.
+ * <p>
+ * A behavior may also outlive its own ticket: {@link DollBehavior#selfDriven} lets
+ * one keep running (and ticking) for as long as the doll holds nothing else, so a
+ * behavior that releases the ticket mid-run — the melee charge hands the volley
+ * off on impact and flies home on its own — still gets its tail. A new order always
+ * wins over the tail.
  */
 public class DollCommandGoal extends Goal {
 
@@ -91,10 +96,18 @@ public class DollCommandGoal extends Goal {
 	 * this level (dead, removed, or left). A null target never counts as gone.
 	 */
 	private boolean isTargetGone(DollAction action) {
-		if (action.target() == null) return false;
-		if (!(doll.level() instanceof ServerLevel level)) return false;
+		return action.target() != null && liveTarget(action) == null;
+	}
+
+	/**
+	 * The action's target as a live entity of this level, or null when it names
+	 * none or names something that is gone.
+	 */
+	@Nullable
+	private LivingEntity liveTarget(DollAction action) {
+		if (action.target() == null || !(doll.level() instanceof ServerLevel level)) return null;
 		Entity entity = level.getEntity(action.target());
-		return !(entity instanceof LivingEntity target && target.isAlive());
+		return entity instanceof LivingEntity target && target.isAlive() ? target : null;
 	}
 
 	private void checkStartTimeouts(DollAction action) {
@@ -103,11 +116,24 @@ public class DollCommandGoal extends Goal {
 			pending = null;
 			return;
 		}
+		DollBehavior behavior = DollBehaviorRegistry.createFor(doll, action).orElse(null);
 		// Capability lost while waiting (ammo consumed, loadout edited): the
 		// ticket can never start, so release it at once instead of idling
 		// yellow through the timeout. Cooldown-gated waits keep waiting —
 		// capability still resolves, only the behavior gate is closed.
-		if (DollBehaviorRegistry.createFor(doll, action).isEmpty()) {
+		if (behavior == null) {
+			doll.actions.complete(doll);
+			pending = null;
+			return;
+		}
+		// Out of the behavior's reach, and no amount of waiting changes that: a
+		// melee charge refuses to begin past its engage range (§5.1b) and a doll
+		// idling in formation does not close the gap by standing there. The ticket
+		// goes now rather than burning the start timeout and its hand-ahead, so an
+		// unreachable volley drains in a single tick instead of marching yellow
+		// down the roster.
+		LivingEntity target = liveTarget(action);
+		if (target != null && !behavior.canReach(doll, target)) {
 			doll.actions.complete(doll);
 			pending = null;
 			return;
@@ -120,7 +146,7 @@ public class DollCommandGoal extends Goal {
 			} else if (waited >= HAND_AHEAD_TICKS && !doll.actions.handAheadSent()) {
 				doll.actions.markHandAheadSent();
 				DollHost host = doll.getHost();
-				if (host instanceof DollAttachment att) att.commands.handAhead(doll, action);
+				if (host != null) host.handAhead(doll, action);
 			}
 		} else if (waited >= GIVE_UP_OTHER_TICKS) {
 			doll.actions.complete(doll);
@@ -130,8 +156,13 @@ public class DollCommandGoal extends Goal {
 
 	@Override
 	public boolean canContinueToUse() {
+		if (active == null) return false;
 		DollAction action = doll.actions.getCurrent();
-		if (action == null || active == null || active.type() != action.type()) return false;
+		// The ticket is gone: either a behavior released it on its own (the melee
+		// charge hands the volley off on impact), in which case only that behavior
+		// decides whether it is still doing anything, or something stopped us.
+		if (action == null) return active.selfDriven(doll);
+		if (active.type() != action.type()) return false;
 		return active.canContinueToUse(doll);
 	}
 
@@ -172,8 +203,13 @@ public class DollCommandGoal extends Goal {
 
 	@Override
 	public void tick() {
+		if (active == null) return;
 		DollAction action = doll.actions.getCurrent();
-		if (action == null || active == null || active.type() != action.type()) return;
+		if (action == null) {
+			if (!active.selfDriven(doll)) return;
+		} else if (active.type() != action.type()) {
+			return;
+		}
 		active.tick(doll);
 	}
 
