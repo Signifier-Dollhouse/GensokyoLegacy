@@ -13,7 +13,8 @@ weapon; the glove is what turns a stack of daggers into a pattern, at the cost o
 shot instead of a cooldown per dagger.
 
 It lives in `content/item/dagger/`, its own package under `item/`: `content/item/glove/` belongs to
-the doll glove and the two share nothing but the word.
+the doll glove. The one thing the two share is `content/item/targeting/` — the ray-trace target
+cache, whose contract `GloveTargeting` both gloves implement (§2d).
 
 ## 1. Modes
 
@@ -142,23 +143,51 @@ first. `HOMING_STAGE_LIFE` must stay above the latest turn (20), which it is at 
 
 ### 2d. Targeting
 
-A fresh **server-side** ray trace on every use, 64 blocks
-(`RayTraceUtil.rayTraceEntity`), not a client cache:
+The **shared glove target cache** (glove.md §2), not a trace of its own: the client traces the
+crosshair every 5 ticks while the glove is held and syncs the hit to the server, which re-validates
+it on use. Homing is the second user of that cache after the doll glove, and it plugs into it by
+implementing `GloveTargeting`:
 
-- no client → server target packet, no cache TTL, no staleness. The doll glove needs a cache
-  because its targets act on *left*-click, long after the hover; the glove acts on *this* use, so
-  re-tracing is both cheaper and exact.
-- The predicate is the same one the danmaku would hit anyway: `LivingEntity`, not a spectator,
+| member | `DaggerGloveItem` | why |
+|---|---|---|
+| `targetRange()` | 64 | the mode's own reach; unchanged |
+| `blockedByBlocks()` | `false` | see below |
+| `targetTtl()` | 60 ticks (half a second) | see below |
+| `acceptsTarget(stack, holder, candidate)` | homing mode only; not the holder, non-spectator, `IDanmakuEntity.canHurt` | allies are never homed on, and an aimed mode marks nothing |
+| `targetGlow(stack)` | red, or null outside homing | the marker tells the holder what the volley will turn onto |
+
+- **Walls do not block the trace.** The daggers turn, so refusing a target behind a wall would only
+  make the mode less useful; the trace answers "what is under the crosshair", not "what can I shoot
+  at". This is why `blockedByBlocks()` is a member rather than baked into the shared trace: the
+  doll glove's targets must not be behind a wall, and the two rules differ.
+- **The TTL is 60 ticks, not the doll glove's 100.** A homing shot fires on the *same click* that
+  asks for the target, so a hint that outlived the look would send ten daggers at someone the holder
+  had already turned away from; the doll glove's targets act on left-click, long after the hover,
+  and want the generous window. Both sides read the same number — the marker is drawn for exactly as
+  long as a use would still accept the target — so half a second of lingering is all there is, which
+  is two of the shared cache's five-tick trace intervals and so never rejects a target the holder is
+  still looking at.
+- **The predicate is the same one the danmaku would hit anyway**: `LivingEntity`, not a spectator,
   not the holder, and `IDanmakuEntity.canHurt(holder, target)` so allied entities are never
-  targeted.
-- Walls do **not** block the trace. The daggers home, so refusing a target behind a wall would
-  only make the mode less useful; the trace answers "what is under the crosshair", not
-  "what can I shoot at".
+  targeted. It is answered once, by the item, and used twice — as the client trace pre-filter and
+  again on the server against the resolved hint, so the two sides cannot drift apart.
+- **What the cache costs.** The target is up to one trace interval (250 ms) plus the TTL linger old
+  rather than traced at the instant of the use, and the server no longer re-traces, so within that
+  window a shot can be aimed at something the holder has just looked away from. With the TTL at 60
+  ticks the window is half a second; the server re-checks range, level, liveness and the predicate
+  anyway. In exchange the holder gets a **red outline on the target before firing**, which a
+  server-only trace could never draw.
+- **No target → no shot.** With nothing cached inside 64 blocks, homing fires nothing, spends no
+  dagger and starts no cooldown, and tells the holder so (`no_target`). Same rule as the doll
+  glove's `no_target`: a shot that cannot happen should not cost anything. Single and fan have no
+  target requirement at all — they are aimed, not homed.
 
-**No target → no shot.** With nothing under the crosshair inside 64 blocks, homing fires nothing,
-spends no dagger and starts no cooldown, and tells the holder so (`no_target`). Same rule as the
-doll glove's `no_target`: a shot that cannot happen should not cost anything. Single and fan have
-no target requirement at all — they are aimed, not homed.
+This replaces a fresh server-side `RayTraceUtil.rayTraceEntity` on every use. The old reasoning —
+"the glove acts on *this* use, so re-tracing is both cheaper and exact" — was right about the
+fresh trace but wrong about what it bought: the mode's own reach, its through-walls rule and its
+accept predicate were all hard-coded into one private method, while the doll glove was already
+paying for the same trace, the same TTL and the same server re-check. The one thing the shared
+cache actually adds is the marker, and it costs nothing.
 
 ## 3. Ammo
 
@@ -325,18 +354,20 @@ zh_cn is hand-authored in the split per-category files, then merged by the
   Tagged `L2ISTagGen.SELECTABLE` so the wheel offers it, like the doll glove.
 - Mod constructor — `DaggerGloveSelectionListener.register()` beside
   `DollGloveSelectionListener.register()`; `GensokyoLegacy.HANDLER` registers
-  `DaggerGloveSelectPacket`.
+  `DaggerGloveSelectPacket`. The target cache needs nothing of its own: `GloveTargetPacket`,
+  `GLMeta.GLOVE_TARGET` and the client tick all come with the doll glove (§2d).
 - `GLLang.ItemDaggerGlove` — mode names and descriptions, the rune line, `no_dagger`, `no_target`.
   The tooltip reuses `GLLang.ItemGlove.WHEEL` for the "hold the wheel key" hint rather than
   duplicating the string.
 - `GLClient` — `ItemProperties.register(GLItems.DAGGER_GLOVE.get(), gensokyolegacy:dagger_glove_display, ...)`,
-  returning the mode ordinal + 1 so each held mode picks its own texture override.
+  returning the mode ordinal + 1 so each held mode picks its own texture override. The red target
+  marker comes from the shared glow rule instead of a new one (§2d).
 - Textures — `textures/item/tool/dagger_glove.png` plus `_single` / `_fan` / `_homing`.
 
 ## 9. Files
 
 The glove lives in its own package under `item/`, not under `item/glove/` — that package is the
-doll glove's, and the two gloves share nothing but the word.
+doll glove's. The only code the two share is the target cache in `content/item/targeting/` (§2d).
 
 - `content/item/dagger/DaggerGloveItem.java`
 - `content/item/dagger/DaggerGloveMode.java`
@@ -346,6 +377,8 @@ doll glove's, and the two gloves share nothing but the word.
 - `content/item/dagger/DaggerGloveSelectionListener.java`
 - `content/item/dagger/network/DaggerGloveSelectPacket.java`
 - `content/item/dagger/client/DaggerGloveModeWheel.java`, `DaggerGloveModeEntry.java`
+- `content/item/targeting/GloveTargeting.java` (shared with the doll glove, §2d) — the client trace
+  and the server store it drives are not this glove's and are not listed here
 - `content/entity/misc/IronDaggerBulletEntity.java` (edited: `handOffTo` return transfer, rune id
   field, rune on hit)
 - `init/registrate/GLItems.java`, `init/data/GLLang.java`, `init/GLClient.java`,
@@ -367,6 +400,8 @@ doll glove's, and the two gloves share nothing but the word.
 
 Not yet verified in game: the strange-speed fix (§2a — the mover removal), the new homing spread,
 turn timing and `16/delay` reach, the feel of the turn, whether a single re-aim reads as "homing" or
-as a bend, whether the 64-block trace is the range players expect, and the wheel's behaviour. The
-dagger loss is fixed and modelled but **not** yet confirmed in game — worth watching the inventory
-count through a homing volley at a target you can kill mid-flight.
+as a bend, whether 64 blocks is the range players expect, the wheel's behaviour, and the cached
+targeting (§2d) — in particular whether the red marker appears soon enough to feel like an aim, and
+whether a shot at a target the holder has just looked away from reads as wrong. The dagger loss is
+fixed and modelled but **not** yet confirmed in game — worth watching the inventory count through a
+homing volley at a target you can kill mid-flight.

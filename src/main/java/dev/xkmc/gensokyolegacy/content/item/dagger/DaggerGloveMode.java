@@ -130,6 +130,19 @@ public enum DaggerGloveMode {
 		return this == HOMING;
 	}
 
+	/**
+	 * Outline tint for this mode's cached target while it is held (vanilla formatting palette).
+	 * Only {@link #HOMING} ever has one — the aimed modes mark nothing, so
+	 * {@link DaggerGloveItem#targetGlow} returns null for them rather than a color nothing uses.
+	 * Red matches the doll glove's attack modes (glove.md §2): both mean "this is what you hit".
+	 */
+	public int glowColor() {
+		return switch (this) {
+			case SINGLE, FAN -> 0x000000;
+			case HOMING -> 0xFF5555;
+		};
+	}
+
 	public Component displayName() {
 		return name.get();
 	}

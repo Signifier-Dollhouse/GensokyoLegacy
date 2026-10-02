@@ -1,20 +1,20 @@
 package dev.xkmc.gensokyolegacy.content.item.dagger;
 
 import dev.xkmc.danmakuapi.api.IDanmakuEntity;
+import dev.xkmc.gensokyolegacy.content.item.targeting.GloveTargeting;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
+import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
 import dev.xkmc.l2itemselector.init.data.L2Keys;
-import dev.xkmc.l2library.content.raytrace.RayTraceUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -48,10 +48,12 @@ import java.util.List;
  * post no {@code DanmakuUseEvent}: that event prices a danmaku item's own use, and the glove has
  * already priced its shot two ways over — by daggers and by cooldown.
  */
-public class DaggerGloveItem extends Item {
+public class DaggerGloveItem extends Item implements GloveTargeting {
 
 	/** How far {@link DaggerGloveMode#HOMING} will look for something to home on. */
 	public static final double TARGET_RANGE = 64;
+
+	public static final long TARGET_TTL = 60;
 
 	public DaggerGloveItem(Properties props) {
 		super(props.stacksTo(1));
@@ -102,11 +104,14 @@ public class DaggerGloveItem extends Item {
 		// the server owns every decision below; the client only reports the use
 		if (level.isClientSide) return InteractionResultHolder.sidedSuccess(stack, true);
 		if (player.getCooldowns().isOnCooldown(this)) return InteractionResultHolder.fail(stack);
+		if (!(player instanceof ServerPlayer sp)) return InteractionResultHolder.fail(stack);
 		DaggerGloveMode mode = getMode(stack);
-		Entity target = null;
+		LivingEntity target = null;
 		if (mode.needsTarget()) {
-			target = target(player);
-			if (target == null) {
+			// the shared glove cache (glove.md §2): the client's crosshair trace, re-validated
+			// server-side. A hint is not authority, so the glove's own predicate runs again here.
+			target = GLMeta.GLOVE_TARGET.type().getOrCreate(sp).resolve(sp, stack);
+			if (target == null || !acceptsTarget(stack, sp, target)) {
 				player.displayClientMessage(GLLang.ItemDaggerGlove.NO_TARGET.get(), true);
 				return InteractionResultHolder.fail(stack);
 			}
@@ -115,28 +120,53 @@ public class DaggerGloveItem extends Item {
 			player.displayClientMessage(GLLang.ItemDaggerGlove.NO_DAGGER.get(), true);
 			return InteractionResultHolder.fail(stack);
 		}
-		if (!(level instanceof ServerLevel serverLevel)) return InteractionResultHolder.fail(stack);
-		mode.fire(serverLevel, player, DaggerGloveMode.dagger(), getRuneId(stack), target);
+		mode.fire(sp.serverLevel(), sp, DaggerGloveMode.dagger(), getRuneId(stack), target);
 		playThrowSound(level, player);
 		player.awardStat(Stats.ITEM_USED.get(this));
 		player.getCooldowns().addCooldown(this, cooldown(stack));
 		return InteractionResultHolder.sidedSuccess(stack, false);
 	}
 
+	// ---------- shared target cache (glove.md §2) ----------
+
+	@Override
+	public double targetRange() {
+		return TARGET_RANGE;
+	}
+
 	/**
-	 * What a homing shot would aim at: whatever the holder is looking at, traced fresh on this use
-	 * rather than cached by a client, and accepted only if the holder's own danmaku could actually
-	 * hit it — so allies and spectators are never homed on.
-	 * <p>
-	 * Walls do not block the trace: the daggers turn, so "something behind that wall" is a target
-	 * this mode is for rather than one to refuse ({@code doc/design/dagger_glove.md} §2).
+	 * False: the daggers turn, so refusing a target behind a wall would only make the mode less
+	 * useful. The trace answers "what is under the crosshair", not "what can I shoot at"
+	 * (dagger_glove.md §2d).
 	 */
+	@Override
+	public boolean blockedByBlocks() {
+		return false;
+	}
+
+	@Override
+	public long targetTtl() {
+		return TARGET_TTL;
+	}
+
+	/**
+	 * What a homing shot will aim at: whatever the holder is looking at, accepted only if the
+	 * holder's own danmaku could actually hit it — so allies and spectators are never homed on.
+	 * <p>
+	 * The aimed modes need no target at all, and say so here rather than at the call site, which
+	 * is also what keeps them from lighting anything up.
+	 */
+	@Override
+	public boolean acceptsTarget(ItemStack stack, Player holder, LivingEntity candidate) {
+		if (!getMode(stack).needsTarget()) return false;
+		return candidate != holder && !candidate.isSpectator() && IDanmakuEntity.canHurt(holder, candidate);
+	}
+
+	/** The homing target glows red, like the doll glove's attack modes; the aimed modes draw nothing. */
 	@Nullable
-	private static Entity target(Player player) {
-		var hit = RayTraceUtil.rayTraceEntity(player, TARGET_RANGE, e -> e != player
-				&& e instanceof LivingEntity living && !living.isSpectator()
-				&& IDanmakuEntity.canHurt(player, living));
-		return hit == null ? null : hit.getEntity();
+	@Override
+	public Integer targetGlow(ItemStack stack) {
+		return getMode(stack).needsTarget() ? getMode(stack).glowColor() : null;
 	}
 
 	/**
