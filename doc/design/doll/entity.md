@@ -53,6 +53,8 @@ public static final double MAX_SPEED = 0.5;   // blocks per tick
 
 Every tick, the ellipsoidal velocity vector is hard-clamped: if its length exceeds 0.5, it is scaled back to 0.5 exactly. Applied **after** `super.tick()` so even *external* pushes (knockback, explosions, attacks) cannot exceed the cap. The follow goal's preferred speed is well below the cap, so the follow behavior is unaffected; the clamp only reins in the extreme cases. The cap is documented in the constant comment so its coupling to the reference-goal speed stays visible.
 
+The enforced value is a field (`speedCap`, `setSpeedCap`), `MAX_SPEED` by default. It exists for one sanctioned exception: a behavior that deliberately spends speed on an attack — the melee charge raises it to twice the cap for the lunge and drops it back in its `stop` (control.md §5.1b). Nothing else may touch it, and it is not synced: a burst belongs to the tick that pays for it, so a doll always resumes under the ordinary cap.
+
 The follow goal's >12-block / cross-dimension **teleport** remains the catch-up mechanism (it does not violate the cap — teleporting is not velocity). `canChangeDimensions()` may be overridden to `true` as optional hardening.
 
 ### 3.2 Goals

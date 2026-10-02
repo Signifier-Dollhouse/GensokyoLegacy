@@ -30,6 +30,12 @@ import java.util.EnumSet;
  * Stopping with the ticket still held completes it (done-set + handoff), so
  * aborted runs never strand chains — only an already-released ticket (natural
  * completion, glove stop, a preempting new order) skips completion.
+ * <p>
+ * A behavior may also outlive its own ticket: {@link DollBehavior#selfDriven} lets
+ * one keep running (and ticking) for as long as the doll holds nothing else, so a
+ * behavior that releases the ticket mid-run — the melee charge hands the volley
+ * off on impact and flies home on its own — still gets its tail. A new order always
+ * wins over the tail.
  */
 public class DollCommandGoal extends Goal {
 
@@ -129,8 +135,13 @@ public class DollCommandGoal extends Goal {
 
 	@Override
 	public boolean canContinueToUse() {
+		if (active == null) return false;
 		DollAction action = doll.actions.getCurrent();
-		if (action == null || active == null || active.type() != action.type()) return false;
+		// The ticket is gone: either a behavior released it on its own (the melee
+		// charge hands the volley off on impact), in which case only that behavior
+		// decides whether it is still doing anything, or something stopped us.
+		if (action == null) return active.selfDriven(doll);
+		if (active.type() != action.type()) return false;
 		return active.canContinueToUse(doll);
 	}
 
@@ -171,8 +182,13 @@ public class DollCommandGoal extends Goal {
 
 	@Override
 	public void tick() {
+		if (active == null) return;
 		DollAction action = doll.actions.getCurrent();
-		if (action == null || active == null || active.type() != action.type()) return;
+		if (action == null) {
+			if (!active.selfDriven(doll)) return;
+		} else if (active.type() != action.type()) {
+			return;
+		}
 		active.tick(doll);
 	}
 
