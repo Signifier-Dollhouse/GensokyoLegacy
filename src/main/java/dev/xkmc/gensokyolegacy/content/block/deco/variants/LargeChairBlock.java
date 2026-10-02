@@ -25,6 +25,8 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
 
+import java.util.function.BiConsumer;
+
 import static net.minecraft.world.level.block.state.properties.BlockStateProperties.HALF;
 import static net.minecraft.world.level.block.state.properties.BlockStateProperties.HORIZONTAL_FACING;
 
@@ -74,14 +76,6 @@ public class LargeChairBlock implements CreateBlockStateBlockMethod, DefaultStat
 	}
 
 	public static void buildStates(DataGenContext<Block, DelegateBlock> ctx, RegistrateBlockstateProvider pvd) {
-		buildStates(ctx, pvd, ctx.getName().replace("_large_chair", ""));
-	}
-
-	/**
-	 * @param padPrefix name prefix of the pad models, the wood name for the
-	 *                  per-wood chairs and the block name for the themed one
-	 */
-	public static void buildStates(DataGenContext<Block, DelegateBlock> ctx, RegistrateBlockstateProvider pvd, String padPrefix) {
 		String wood = "block/wood/" + ctx.getName();
 
 		var bottom = pvd.models().getBuilder("block/" + ctx.getName())
@@ -96,15 +90,37 @@ public class LargeChairBlock implements CreateBlockStateBlockMethod, DefaultStat
 				.texture("particle", pvd.mcLoc("block/birch_planks"))
 				.renderType("cutout");
 
-		CoverableImpl.buildChairStates(pvd, padPrefix, wood);
+		CoverableImpl.buildChairStates(pvd);
 		genFullModel(pvd, ctx.getName());
-		pvd.horizontalBlock(ctx.get(), state -> {
-			if (state.getValue(HALF) == Half.TOP) return top;
-			if (state.getValue(CoverableImpl.COLOR) == CoverableImpl.Color.NONE) return bottom;
-			var col = state.getValue(CoverableImpl.COLOR);
-			String suffix = col == CoverableImpl.Color.BASE ? "pad" : col.getSerializedName() + "_pad";
-			return new ModelFile.UncheckedModelFile(pvd.modLoc("block/" + padPrefix + "_" + suffix));
-		});
+
+		// The pad only rests on the lower half, it does not replace any wood, so the
+		// lower half is just its wood part plus the pad as an extra multipart part.
+		// Splitting it that way keeps the pad models at one per color instead of one
+		// per chair and color pair.
+		var builder = pvd.getMultipartBuilder(ctx.get());
+		forEachFacing((facing, yRot) -> builder.part().modelFile(bottom).rotationY(yRot).addModel()
+				.condition(HALF, Half.BOTTOM).condition(HORIZONTAL_FACING, facing).end());
+		forEachFacing((facing, yRot) -> builder.part().modelFile(top).rotationY(yRot).addModel()
+				.condition(HALF, Half.TOP).condition(HORIZONTAL_FACING, facing).end());
+		for (var e : CoverableImpl.Color.values()) {
+			if (e == CoverableImpl.Color.NONE) continue;
+			var pad = new ModelFile.UncheckedModelFile(pvd.modLoc("block/" + CoverableImpl.coverName(e, "pad")));
+			forEachFacing((facing, yRot) -> builder.part().modelFile(pad).rotationY(yRot).addModel()
+					.condition(HALF, Half.BOTTOM).condition(HORIZONTAL_FACING, facing)
+					.condition(CoverableImpl.COLOR, e).end());
+		}
+	}
+
+	/**
+	 * A multipart part carries a single y rotation instead of one entry per state,
+	 * so each rotated model has to be added once per horizontal facing, using the
+	 * angle offset {@code BlockStateProvider.horizontalBlock} applies as well.
+	 */
+	private static void forEachFacing(BiConsumer<Direction, Integer> action) {
+		for (int i = 0; i < 4; i++) {
+			var dir = Direction.from2DDataValue(i);
+			action.accept(dir, (((int) dir.toYRot()) + 180) % 360);
+		}
 	}
 
 	/**

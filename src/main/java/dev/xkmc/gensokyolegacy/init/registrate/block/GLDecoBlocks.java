@@ -293,7 +293,7 @@ public class GLDecoBlocks {
 		SCARLET_CHAIR = reg.block("wooden_large_chair_scarlet_devil_mansion", p -> ISeatableBlock.of(p, 12 / 16f, BlockTemplates.HORIZONTAL,
 						new DoubleBlockImpl(), new LargeChairBlock(), new CoverableImpl(), new SeatableImpl()))
 				.initialProperties(() -> Blocks.OAK_PLANKS)
-				.blockstate((ctx, pvd) -> LargeChairBlock.buildStates(ctx, pvd, ctx.getName()))
+				.blockstate(LargeChairBlock::buildStates)
 				.tag(BlockTags.MINEABLE_WITH_AXE)
 				.item().model(LargeChairBlock::genItemModel)
 				.dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(400)).build()
