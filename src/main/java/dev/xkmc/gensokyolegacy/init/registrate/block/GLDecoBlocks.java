@@ -293,7 +293,7 @@ public class GLDecoBlocks {
 		SCARLET_CHAIR = reg.block("wooden_large_chair_scarlet_devil_mansion", p -> ISeatableBlock.of(p, 12 / 16f, BlockTemplates.HORIZONTAL,
 						new DoubleBlockImpl(), new LargeChairBlock(), new CoverableImpl(), new SeatableImpl()))
 				.initialProperties(() -> Blocks.OAK_PLANKS)
-				.blockstate((ctx, pvd) -> LargeChairBlock.buildStates(ctx, pvd, ctx.getName()))
+				.blockstate(LargeChairBlock::buildStates)
 				.tag(BlockTags.MINEABLE_WITH_AXE)
 				.item().model(LargeChairBlock::genItemModel)
 				.dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(400)).build()
@@ -303,7 +303,7 @@ public class GLDecoBlocks {
 		// noren
 		{
 
-			// 门帘:每个颜色每种花纹各一个,长款往下多吊一截。染色时按花纹各自换个颜色,花纹不变
+			// 门帘:每个颜色每种花纹各一个,长款往下多吊一截。染色时按花纹各自换个颜色,花纹不变;同色羊毛用切石机裁出
 			for (DyeColor col : DyeColor.values()) {
 				for (var kind : NorenBlock.Kind.values()) {
 					reg.block(kind.name(col), p -> NorenBlock.create(p, kind.hanging()))
@@ -312,15 +312,18 @@ public class GLDecoBlocks {
 							.blockstate((ctx, pvd) -> NorenJsons.buildBlockState(ctx, pvd, kind.hanging()))
 							.item().tag(kind.tag())
 							.model((ctx, pvd) -> NorenJsons.genItemModel(ctx, pvd, kind.hanging()))
-							.build()
-							.recipe((ctx, pvd) -> GLRecipeGen.unlock(pvd, ShapelessRecipeBuilder.shapeless(
-											RecipeCategory.DECORATIONS, ctx.get())::unlockedBy, DyeItem.byColor(col))
-									.requires(kind.tag()).requires(col.getTag()).save(pvd))
-							.register();
+						.build()
+						.recipe((ctx, pvd) -> {
+							GLRecipeGen.cutWool(pvd, col, ctx);
+							GLRecipeGen.unlock(pvd, ShapelessRecipeBuilder.shapeless(
+												RecipeCategory.DECORATIONS, ctx.get())::unlockedBy, DyeItem.byColor(col))
+											.requires(kind.tag()).requires(col.getTag()).save(pvd);
+						})
+						.register();
 				}
 			}
 
-			// 霓吞町门帘
+			// 霓吞町门帘,只能从结构里拿,没有配方
 			reg.block("neiton_noren", p -> NorenBlock.create(p, true))
 					.properties(p -> p.mapColor(MapColor.NONE).strength(0.1F).sound(SoundType.WOOL)
 							.pushReaction(PushReaction.DESTROY).noOcclusion().noCollission())

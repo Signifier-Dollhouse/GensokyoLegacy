@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": {
+    "item": "minecraft:black_wool"
+  },
+  "result": {
+    "count": 1,
+    "id": "gensokyolegacy:black_wavy_noren"
+  }
+}

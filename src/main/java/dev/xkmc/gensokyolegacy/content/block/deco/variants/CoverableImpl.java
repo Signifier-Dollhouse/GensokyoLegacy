@@ -28,7 +28,6 @@ import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.minecraft.world.phys.BlockHitResult;
-import net.neoforged.neoforge.client.model.generators.BlockModelBuilder;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
 import net.neoforged.neoforge.client.model.generators.MultiPartBlockStateBuilder;
 import net.neoforged.neoforge.common.ItemAbilities;
@@ -138,46 +137,45 @@ public class CoverableImpl implements CreateBlockStateBlockMethod, DefaultStateB
 		return ans;
 	}
 
-	private static boolean built = false;
-
-	public static void buildTableStates(RegistrateBlockstateProvider pvd) {
-		if (built) return;
-		built = true;
+	/**
+	 * Every coverable block puts the same cover geometry on its own geometry, so
+	 * the cover models only depend on the color and are shared by all blocks
+	 * instead of being rebuilt for every block and color pair. The model provider
+	 * caches builders by name, so generating the same cover twice is a no-op and
+	 * the loop over the woods can call this once per block.
+	 */
+	private static void buildCoverModels(RegistrateBlockstateProvider pvd, String suffix, String textureDir, String parent, String textureKey) {
 		for (var e : Color.values()) {
 			if (e.item.asItem() == Items.AIR) continue;
-			String name = e == Color.BASE ? "tablecloth" : e.getSerializedName() + "_tablecloth";
+			String name = coverName(e, suffix);
 			pvd.models().getBuilder("block/" + name)
-					.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/furniture/tablecloth")))
-					.texture("all", "block/table/" + name)
+					.parent(new ModelFile.UncheckedModelFile(pvd.modLoc(parent)))
+					.texture(textureKey, "block/" + textureDir + "/" + name)
 					.renderType("cutout");
 		}
 	}
 
-	public static void buildTableStates(MultiPartBlockStateBuilder builder, RegistrateBlockstateProvider pvd, BlockModelBuilder table) {
+	/**
+	 * Name of both the cover model and its texture, the base cover being the only
+	 * one without a color prefix.
+	 */
+	public static String coverName(Color color, String suffix) {
+		return color == Color.BASE ? suffix : color.getSerializedName() + "_" + suffix;
+	}
+
+	public static void buildTableStates(RegistrateBlockstateProvider pvd) {
+		buildCoverModels(pvd, "tablecloth", "table", "custom/furniture/tablecloth", "all");
+	}
+
+	public static void buildTableStates(MultiPartBlockStateBuilder builder, RegistrateBlockstateProvider pvd, ModelFile table) {
 		buildTableStates(pvd);
 		for (var e : Color.values()) {
-			String name = e == Color.BASE ? "tablecloth" : e.getSerializedName() + "_tablecloth";
-			var file = e.item.asItem() == Items.AIR ? table : new ModelFile.UncheckedModelFile(pvd.modLoc("block/" + name));
+			var file = e.item.asItem() == Items.AIR ? table : new ModelFile.UncheckedModelFile(pvd.modLoc("block/" + coverName(e, "tablecloth")));
 			builder.part().modelFile(file).addModel().condition(COLOR, e).end();
 		}
 	}
 
-	private static void buildChairStates(RegistrateBlockstateProvider pvd, String woodName, String chairTexture, String suffix) {
-		String textureDir = suffix.equals("pad") ? "chair" : "cushion";
-		for (var e : Color.values()) {
-			if (e.item.asItem() == Items.AIR) continue;
-			String texName = e == Color.BASE ? suffix : e.getSerializedName() + "_" + suffix;
-			String modelName = woodName + "_" + texName;
-			pvd.models().getBuilder("block/" + modelName)
-					.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/furniture/wooden_large_chair_pad_bottom")))
-					.texture("wood", chairTexture)
-					.texture("pad", "block/" + textureDir + "/" + texName)
-					.texture("particle", "minecraft:block/birch_planks")
-					.renderType("cutout");
-		}
-	}
-
-	public static void buildChairStates(RegistrateBlockstateProvider pvd, String woodName, String chairTexture) {
-		buildChairStates(pvd, woodName, chairTexture, "pad");
+	public static void buildChairStates(RegistrateBlockstateProvider pvd) {
+		buildCoverModels(pvd, "pad", "chair", "custom/furniture/wooden_large_chair_pad_overlay", "pad");
 	}
 }

@@ -1,0 +1,7 @@
+{
+  "parent": "gensokyolegacy:custom/furniture/wooden_large_chair_pad_overlay",
+  "render_type": "minecraft:cutout",
+  "textures": {
+    "pad": "gensokyolegacy:block/chair/light_gray_pad"
+  }
+}
