@@ -46,7 +46,6 @@ import net.minecraft.world.item.Rarity;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockBehaviour;
-import net.minecraft.world.level.block.state.properties.Half;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.material.PushReaction;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
@@ -55,8 +54,6 @@ import net.neoforged.neoforge.registries.datamaps.builtin.NeoForgeDataMaps;
 
 import java.util.Locale;
 import java.util.function.Supplier;
-
-import static net.minecraft.world.level.block.state.properties.BlockStateProperties.HALF;
 
 public class GLDecoBlocks {
 
@@ -293,27 +290,14 @@ public class GLDecoBlocks {
 		}
 
 		// 红魔馆木椅: oak stool draped with red wool, fuel follows the recipe
-		SCARLET_CHAIR = reg.block("wooden_large_chair_scarlet_devil_mansion", p -> DelegateBlock.newBaseBlock(p, BlockTemplates.HORIZONTAL,
-						new DoubleBlockImpl(), new LargeChairBlock()))
+		SCARLET_CHAIR = reg.block("wooden_large_chair_scarlet_devil_mansion", p -> ISeatableBlock.of(p, 12 / 16f, BlockTemplates.HORIZONTAL,
+						new DoubleBlockImpl(), new LargeChairBlock(), new CoverableImpl(), new SeatableImpl()))
 				.initialProperties(() -> Blocks.OAK_PLANKS)
-				.blockstate((ctx, pvd) -> {
-					var bottom = pvd.models().getBuilder("block/" + ctx.getName())
-							.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/furniture/wooden_large_chair_bottom")))
-							.texture("all", pvd.modLoc("block/wood/" + ctx.getName()))
-							.texture("particle", pvd.mcLoc("block/birch_planks"))
-							.renderType("cutout");
-					var top = pvd.models().getBuilder("block/" + ctx.getName() + "_top")
-							.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/furniture/wooden_large_chair_top")))
-							.texture("all", pvd.modLoc("block/wood/" + ctx.getName()))
-							.texture("particle", pvd.mcLoc("block/birch_planks"))
-							.renderType("cutout");
-					LargeChairBlock.genFullModel(pvd, ctx.getName());
-					pvd.horizontalBlock(ctx.get(), state -> state.getValue(HALF) == Half.TOP ? top : bottom);
-				})
+				.blockstate((ctx, pvd) -> LargeChairBlock.buildStates(ctx, pvd, ctx.getName()))
 				.tag(BlockTags.MINEABLE_WITH_AXE)
 				.item().model(LargeChairBlock::genItemModel)
 				.dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(400)).build()
-				.loot(LargeChairBlock::genPlainLoot)
+				.loot(LargeChairBlock::genLoot)
 				.register();
 
 		// noren

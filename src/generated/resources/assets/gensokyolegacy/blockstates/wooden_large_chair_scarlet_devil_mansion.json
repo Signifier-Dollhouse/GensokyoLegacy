@@ -1,32 +1,542 @@
 {
   "variants": {
-    "facing=east,half=bottom": {
-      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion",
+    "color=base,facing=east,half=bottom": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_pad",
       "y": 90
     },
-    "facing=east,half=top": {
+    "color=base,facing=east,half=top": {
       "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_top",
       "y": 90
     },
-    "facing=north,half=bottom": {
-      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion"
+    "color=base,facing=north,half=bottom": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_pad"
     },
-    "facing=north,half=top": {
+    "color=base,facing=north,half=top": {
       "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_top"
     },
-    "facing=south,half=bottom": {
-      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion",
+    "color=base,facing=south,half=bottom": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_pad",
       "y": 180
     },
-    "facing=south,half=top": {
+    "color=base,facing=south,half=top": {
       "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_top",
       "y": 180
     },
-    "facing=west,half=bottom": {
+    "color=base,facing=west,half=bottom": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_pad",
+      "y": 270
+    },
+    "color=base,facing=west,half=top": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_top",
+      "y": 270
+    },
+    "color=black,facing=east,half=bottom": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_black_pad",
+      "y": 90
+    },
+    "color=black,facing=east,half=top": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_top",
+      "y": 90
+    },
+    "color=black,facing=north,half=bottom": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_black_pad"
+    },
+    "color=black,facing=north,half=top": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_top"
+    },
+    "color=black,facing=south,half=bottom": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_black_pad",
+      "y": 180
+    },
+    "color=black,facing=south,half=top": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_top",
+      "y": 180
+    },
+    "color=black,facing=west,half=bottom": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_black_pad",
+      "y": 270
+    },
+    "color=black,facing=west,half=top": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_top",
+      "y": 270
+    },
+    "color=blue,facing=east,half=bottom": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_blue_pad",
+      "y": 90
+    },
+    "color=blue,facing=east,half=top": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_top",
+      "y": 90
+    },
+    "color=blue,facing=north,half=bottom": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_blue_pad"
+    },
+    "color=blue,facing=north,half=top": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_top"
+    },
+    "color=blue,facing=south,half=bottom": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_blue_pad",
+      "y": 180
+    },
+    "color=blue,facing=south,half=top": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_top",
+      "y": 180
+    },
+    "color=blue,facing=west,half=bottom": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_blue_pad",
+      "y": 270
+    },
+    "color=blue,facing=west,half=top": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_top",
+      "y": 270
+    },
+    "color=brown,facing=east,half=bottom": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_brown_pad",
+      "y": 90
+    },
+    "color=brown,facing=east,half=top": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_top",
+      "y": 90
+    },
+    "color=brown,facing=north,half=bottom": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_brown_pad"
+    },
+    "color=brown,facing=north,half=top": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_top"
+    },
+    "color=brown,facing=south,half=bottom": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_brown_pad",
+      "y": 180
+    },
+    "color=brown,facing=south,half=top": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_top",
+      "y": 180
+    },
+    "color=brown,facing=west,half=bottom": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_brown_pad",
+      "y": 270
+    },
+    "color=brown,facing=west,half=top": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_top",
+      "y": 270
+    },
+    "color=cyan,facing=east,half=bottom": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_cyan_pad",
+      "y": 90
+    },
+    "color=cyan,facing=east,half=top": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_top",
+      "y": 90
+    },
+    "color=cyan,facing=north,half=bottom": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_cyan_pad"
+    },
+    "color=cyan,facing=north,half=top": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_top"
+    },
+    "color=cyan,facing=south,half=bottom": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_cyan_pad",
+      "y": 180
+    },
+    "color=cyan,facing=south,half=top": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_top",
+      "y": 180
+    },
+    "color=cyan,facing=west,half=bottom": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_cyan_pad",
+      "y": 270
+    },
+    "color=cyan,facing=west,half=top": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_top",
+      "y": 270
+    },
+    "color=gray,facing=east,half=bottom": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_gray_pad",
+      "y": 90
+    },
+    "color=gray,facing=east,half=top": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_top",
+      "y": 90
+    },
+    "color=gray,facing=north,half=bottom": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_gray_pad"
+    },
+    "color=gray,facing=north,half=top": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_top"
+    },
+    "color=gray,facing=south,half=bottom": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_gray_pad",
+      "y": 180
+    },
+    "color=gray,facing=south,half=top": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_top",
+      "y": 180
+    },
+    "color=gray,facing=west,half=bottom": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_gray_pad",
+      "y": 270
+    },
+    "color=gray,facing=west,half=top": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_top",
+      "y": 270
+    },
+    "color=green,facing=east,half=bottom": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_green_pad",
+      "y": 90
+    },
+    "color=green,facing=east,half=top": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_top",
+      "y": 90
+    },
+    "color=green,facing=north,half=bottom": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_green_pad"
+    },
+    "color=green,facing=north,half=top": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_top"
+    },
+    "color=green,facing=south,half=bottom": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_green_pad",
+      "y": 180
+    },
+    "color=green,facing=south,half=top": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_top",
+      "y": 180
+    },
+    "color=green,facing=west,half=bottom": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_green_pad",
+      "y": 270
+    },
+    "color=green,facing=west,half=top": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_top",
+      "y": 270
+    },
+    "color=light_blue,facing=east,half=bottom": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_light_blue_pad",
+      "y": 90
+    },
+    "color=light_blue,facing=east,half=top": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_top",
+      "y": 90
+    },
+    "color=light_blue,facing=north,half=bottom": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_light_blue_pad"
+    },
+    "color=light_blue,facing=north,half=top": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_top"
+    },
+    "color=light_blue,facing=south,half=bottom": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_light_blue_pad",
+      "y": 180
+    },
+    "color=light_blue,facing=south,half=top": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_top",
+      "y": 180
+    },
+    "color=light_blue,facing=west,half=bottom": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_light_blue_pad",
+      "y": 270
+    },
+    "color=light_blue,facing=west,half=top": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_top",
+      "y": 270
+    },
+    "color=light_gray,facing=east,half=bottom": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_light_gray_pad",
+      "y": 90
+    },
+    "color=light_gray,facing=east,half=top": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_top",
+      "y": 90
+    },
+    "color=light_gray,facing=north,half=bottom": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_light_gray_pad"
+    },
+    "color=light_gray,facing=north,half=top": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_top"
+    },
+    "color=light_gray,facing=south,half=bottom": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_light_gray_pad",
+      "y": 180
+    },
+    "color=light_gray,facing=south,half=top": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_top",
+      "y": 180
+    },
+    "color=light_gray,facing=west,half=bottom": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_light_gray_pad",
+      "y": 270
+    },
+    "color=light_gray,facing=west,half=top": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_top",
+      "y": 270
+    },
+    "color=lime,facing=east,half=bottom": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_lime_pad",
+      "y": 90
+    },
+    "color=lime,facing=east,half=top": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_top",
+      "y": 90
+    },
+    "color=lime,facing=north,half=bottom": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_lime_pad"
+    },
+    "color=lime,facing=north,half=top": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_top"
+    },
+    "color=lime,facing=south,half=bottom": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_lime_pad",
+      "y": 180
+    },
+    "color=lime,facing=south,half=top": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_top",
+      "y": 180
+    },
+    "color=lime,facing=west,half=bottom": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_lime_pad",
+      "y": 270
+    },
+    "color=lime,facing=west,half=top": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_top",
+      "y": 270
+    },
+    "color=magenta,facing=east,half=bottom": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_magenta_pad",
+      "y": 90
+    },
+    "color=magenta,facing=east,half=top": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_top",
+      "y": 90
+    },
+    "color=magenta,facing=north,half=bottom": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_magenta_pad"
+    },
+    "color=magenta,facing=north,half=top": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_top"
+    },
+    "color=magenta,facing=south,half=bottom": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_magenta_pad",
+      "y": 180
+    },
+    "color=magenta,facing=south,half=top": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_top",
+      "y": 180
+    },
+    "color=magenta,facing=west,half=bottom": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_magenta_pad",
+      "y": 270
+    },
+    "color=magenta,facing=west,half=top": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_top",
+      "y": 270
+    },
+    "color=none,facing=east,half=bottom": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion",
+      "y": 90
+    },
+    "color=none,facing=east,half=top": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_top",
+      "y": 90
+    },
+    "color=none,facing=north,half=bottom": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion"
+    },
+    "color=none,facing=north,half=top": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_top"
+    },
+    "color=none,facing=south,half=bottom": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion",
+      "y": 180
+    },
+    "color=none,facing=south,half=top": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_top",
+      "y": 180
+    },
+    "color=none,facing=west,half=bottom": {
       "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion",
       "y": 270
     },
-    "facing=west,half=top": {
+    "color=none,facing=west,half=top": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_top",
+      "y": 270
+    },
+    "color=orange,facing=east,half=bottom": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_orange_pad",
+      "y": 90
+    },
+    "color=orange,facing=east,half=top": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_top",
+      "y": 90
+    },
+    "color=orange,facing=north,half=bottom": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_orange_pad"
+    },
+    "color=orange,facing=north,half=top": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_top"
+    },
+    "color=orange,facing=south,half=bottom": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_orange_pad",
+      "y": 180
+    },
+    "color=orange,facing=south,half=top": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_top",
+      "y": 180
+    },
+    "color=orange,facing=west,half=bottom": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_orange_pad",
+      "y": 270
+    },
+    "color=orange,facing=west,half=top": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_top",
+      "y": 270
+    },
+    "color=pink,facing=east,half=bottom": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_pink_pad",
+      "y": 90
+    },
+    "color=pink,facing=east,half=top": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_top",
+      "y": 90
+    },
+    "color=pink,facing=north,half=bottom": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_pink_pad"
+    },
+    "color=pink,facing=north,half=top": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_top"
+    },
+    "color=pink,facing=south,half=bottom": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_pink_pad",
+      "y": 180
+    },
+    "color=pink,facing=south,half=top": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_top",
+      "y": 180
+    },
+    "color=pink,facing=west,half=bottom": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_pink_pad",
+      "y": 270
+    },
+    "color=pink,facing=west,half=top": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_top",
+      "y": 270
+    },
+    "color=purple,facing=east,half=bottom": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_purple_pad",
+      "y": 90
+    },
+    "color=purple,facing=east,half=top": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_top",
+      "y": 90
+    },
+    "color=purple,facing=north,half=bottom": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_purple_pad"
+    },
+    "color=purple,facing=north,half=top": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_top"
+    },
+    "color=purple,facing=south,half=bottom": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_purple_pad",
+      "y": 180
+    },
+    "color=purple,facing=south,half=top": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_top",
+      "y": 180
+    },
+    "color=purple,facing=west,half=bottom": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_purple_pad",
+      "y": 270
+    },
+    "color=purple,facing=west,half=top": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_top",
+      "y": 270
+    },
+    "color=red,facing=east,half=bottom": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_red_pad",
+      "y": 90
+    },
+    "color=red,facing=east,half=top": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_top",
+      "y": 90
+    },
+    "color=red,facing=north,half=bottom": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_red_pad"
+    },
+    "color=red,facing=north,half=top": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_top"
+    },
+    "color=red,facing=south,half=bottom": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_red_pad",
+      "y": 180
+    },
+    "color=red,facing=south,half=top": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_top",
+      "y": 180
+    },
+    "color=red,facing=west,half=bottom": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_red_pad",
+      "y": 270
+    },
+    "color=red,facing=west,half=top": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_top",
+      "y": 270
+    },
+    "color=white,facing=east,half=bottom": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_white_pad",
+      "y": 90
+    },
+    "color=white,facing=east,half=top": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_top",
+      "y": 90
+    },
+    "color=white,facing=north,half=bottom": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_white_pad"
+    },
+    "color=white,facing=north,half=top": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_top"
+    },
+    "color=white,facing=south,half=bottom": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_white_pad",
+      "y": 180
+    },
+    "color=white,facing=south,half=top": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_top",
+      "y": 180
+    },
+    "color=white,facing=west,half=bottom": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_white_pad",
+      "y": 270
+    },
+    "color=white,facing=west,half=top": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_top",
+      "y": 270
+    },
+    "color=yellow,facing=east,half=bottom": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_yellow_pad",
+      "y": 90
+    },
+    "color=yellow,facing=east,half=top": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_top",
+      "y": 90
+    },
+    "color=yellow,facing=north,half=bottom": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_yellow_pad"
+    },
+    "color=yellow,facing=north,half=top": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_top"
+    },
+    "color=yellow,facing=south,half=bottom": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_yellow_pad",
+      "y": 180
+    },
+    "color=yellow,facing=south,half=top": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_top",
+      "y": 180
+    },
+    "color=yellow,facing=west,half=bottom": {
+      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_yellow_pad",
+      "y": 270
+    },
+    "color=yellow,facing=west,half=top": {
       "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_top",
       "y": 270
     }

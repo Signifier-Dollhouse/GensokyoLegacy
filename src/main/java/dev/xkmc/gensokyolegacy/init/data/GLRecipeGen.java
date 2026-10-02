@@ -31,7 +31,7 @@ public class GLRecipeGen {
 		furniture(pvd);
 		hexbrew(pvd);
 
-		unlock(pvd, ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, GLBlocks.ALCHEMY_POT.get(), 6)::unlockedBy, Items.IRON_INGOT)
+		unlock(pvd, ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, GLBlocks.ALCHEMY_POT.get(), 1)::unlockedBy, Items.IRON_INGOT)
 				.pattern("I I").pattern("IFI").pattern("III")
 				.define('I', Items.IRON_INGOT).define('F', GLNaturalBlocks.STAR_FLOWER).save(pvd);
 	}
@@ -184,11 +184,6 @@ public class GLRecipeGen {
 			pvd.stonecutting(plank, RecipeCategory.BUILDING_BLOCKS, e.wall, 2);
 			pvd.stonecutting(plank, RecipeCategory.BUILDING_BLOCKS, e.door);
 		}
-
-		// scarlet devil mansion chair: oak stool draped with red wool
-		unlock(pvd, ShapelessRecipeBuilder.shapeless(
-				RecipeCategory.DECORATIONS, GLDecoBlocks.SCARLET_CHAIR.get())::unlockedBy, Items.RED_WOOL)
-				.requires(GLDecoBlocks.WoodType.OAK.stool.get()).requires(Items.RED_WOOL).save(pvd);
 
 		// cushion: wool stuffed with string (3 wool at 100 + string = 300 fuel into 6 = 50 each)
 		unlock(pvd, ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, GLDecoBlocks.CUSHION.get(), 6)::unlockedBy, Items.STRING)
