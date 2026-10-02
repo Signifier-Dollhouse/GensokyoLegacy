@@ -175,6 +175,18 @@
 			"too_far": "目标太远，人偶无法近身",
 			"not_doll": "目标不是你的人偶"
 		},
+		"dagger_glove": {
+			"mode": "模式：%s",
+			"mode_single": "单发",
+			"mode_fan": "扇形",
+			"mode_homing": "追踪",
+			"desc_single": "投掷一把匕首",
+			"desc_fan": "以 30 度扇形投掷 7 把匕首",
+			"desc_homing": "投掷 10 把匕首，它们会转向你注视的目标",
+			"rune": "符文：冷却时间 +%s 刻",
+			"no_dagger": "没有匕首",
+			"no_target": "视线内没有目标"
+		},
 		"doll": {
 			"no_space": "背包没有空间",
 			"resync_missing": "人偶实体已消失，正在召回",

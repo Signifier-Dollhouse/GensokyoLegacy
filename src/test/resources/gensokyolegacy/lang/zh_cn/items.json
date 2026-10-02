@@ -2,6 +2,7 @@
 	"entity.gensokyolegacy.fairy_ice_crystal": "妖精冰晶",
 	"entity.gensokyolegacy.frozen_frog": "冻青蛙",
 	"entity.gensokyolegacy.hexbrew_bottle": "魔药瓶",
+	"entity.gensokyolegacy.iron_dagger": "铁匕首",
 	"fluid.gensokyolegacy": {
 		"mundane_hexbrew": "魔药溶剂",
 		"hexbrew_elixir": "魔药精华",
@@ -134,6 +135,8 @@
 		"dowser_right": "寻宝钗（右半）",
 		"border_umbrella": "隙间伞",
 		"star_wand": "星星魔杖",
+		"iron_dagger": "铁匕首",
+		"dagger_glove": "匕首手套",
 		"strange_glasses": "奇怪的眼镜",
 		"cat_bell": "猫铃铛",
 		"broom": "飞行扫帚",

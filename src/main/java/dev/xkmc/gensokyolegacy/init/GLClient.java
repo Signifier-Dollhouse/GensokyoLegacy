@@ -16,6 +16,8 @@ import dev.xkmc.gensokyolegacy.content.item.glove.client.DollClientLoadoutToolti
 import dev.xkmc.gensokyolegacy.content.item.glove.client.DollGloveOverlay;
 import dev.xkmc.gensokyolegacy.content.item.glove.client.DollLoadoutTooltip;
 import dev.xkmc.gensokyolegacy.content.item.glove.DollGloveItem;
+import dev.xkmc.gensokyolegacy.content.item.targeting.client.GloveTargetCache;
+import dev.xkmc.gensokyolegacy.content.item.dagger.DaggerGloveItem;
 import dev.xkmc.gensokyolegacy.content.item.tool.ClientInvTooltip;
 import dev.xkmc.gensokyolegacy.content.item.tool.InvTooltip;
 import dev.xkmc.gensokyolegacy.content.item.umbrella.BorderUmbrellaItem;
@@ -55,6 +57,8 @@ public class GLClient {
 			ItemProperties.register(GLItems.BORDER_UMBRELLA.get(), GensokyoLegacy.loc("umbrella_open"), BorderUmbrellaItem::isOpen);
 			ItemProperties.register(GLItems.BORDER_UMBRELLA.get(), GensokyoLegacy.loc("umbrella_display"), BorderUmbrellaItem::displayPredicate);
 			ItemProperties.register(GLItems.DOLL_GLOVE.get(), GensokyoLegacy.loc("glove_display"), DollGloveItem::displayPredicate);
+			ItemProperties.register(GLItems.DAGGER_GLOVE.get(), GensokyoLegacy.loc("dagger_glove_display"),
+					(stack, level, entity, seed) -> DaggerGloveItem.getMode(stack).ordinal() + 1);
 
 			CuriosRendererRegistry.register(GLItems.STRAW_HAT.get(), TouhouHatRenderer::new);
 			CuriosRendererRegistry.register(GLItems.SUWAKO_HAT.get(), TouhouHatRenderer::new);
@@ -64,8 +68,16 @@ public class GLClient {
 			CuriosRendererRegistry.register(GLItems.STRANGE_GLASSES.get(), StrangeGlassesRenderer::new);
 
 			GLItems.STAR.get().getTypeForRender();
+			GLItems.IRON_DAGGER.get().getTypeForRender();
 			ProjectileRenderHelper.setup();
 		});
+	}
+
+	@SubscribeEvent
+	public static void clientTick(ClientTickEvent.Post event) {
+		// the shared glove target cache (glove.md §2) traces for whichever gloves are held,
+		// so it is driven from one place rather than from every glove's inventoryTick
+		GloveTargetCache.tick();
 	}
 
 	@SubscribeEvent

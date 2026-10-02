@@ -66,7 +66,7 @@ public class DollCommander {
 	 */
 	public final Set<UUID> attackTargets = new LinkedHashSet<>();
 
-	/**
+/**
 	 * Follow-formation anchor (server-only, never serialized). The formation yaw
 	 * is latched from the commander's view yaw only when the commander actually
 	 * moves horizontally — looking around while standing still leaves the anchor
@@ -76,15 +76,6 @@ public class DollCommander {
 	private float formationYaw;
 	@Nullable
 	private Vec3 formationAnchor;
-
-	/**
-	 * Glove ray-trace target synced from the client (glove.md §2). A hint only:
-	 * every use re-validates alive, range, and alliance server-side, and refreshes
-	 * the timestamp on success.
-	 */
-	@Nullable
-	public UUID gloveTarget;
-	public long gloveTargetTime;
 
 	public DollCommander(DollLedger ledger) {
 		this.ledger = ledger;
