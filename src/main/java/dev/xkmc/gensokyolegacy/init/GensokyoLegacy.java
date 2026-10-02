@@ -20,7 +20,7 @@ import dev.xkmc.gensokyolegacy.content.item.dagger.DaggerGloveSelectionListener;
 import dev.xkmc.gensokyolegacy.content.item.dagger.network.DaggerGloveSelectPacket;
 import dev.xkmc.gensokyolegacy.content.item.glove.network.DollGloveSelectPacket;
 import dev.xkmc.gensokyolegacy.content.item.glove.network.DollGloveSwingPacket;
-import dev.xkmc.gensokyolegacy.content.item.glove.network.DollGloveTargetPacket;
+import dev.xkmc.gensokyolegacy.content.item.targeting.network.GloveTargetPacket;
 import dev.xkmc.gensokyolegacy.content.item.hexbrew.HexBrew;
 import dev.xkmc.gensokyolegacy.content.item.hexbrew.HexBrewWrapper;
 import dev.xkmc.gensokyolegacy.content.item.tool.CatBell;
@@ -134,10 +134,11 @@ public class GensokyoLegacy {
 			e -> e.create(BorderUmbrellaOpenRenamePacket.class, PacketHandler.NetDir.PLAY_TO_CLIENT),
 
 			e -> e.create(DollGloveSelectPacket.class, PacketHandler.NetDir.PLAY_TO_SERVER),
-			e -> e.create(DollGloveTargetPacket.class, PacketHandler.NetDir.PLAY_TO_SERVER),
 			e -> e.create(DollGloveSwingPacket.class, PacketHandler.NetDir.PLAY_TO_SERVER),
 			e -> e.create(DollRosterToClient.class, PacketHandler.NetDir.PLAY_TO_CLIENT),
 
+			// the shared glove target cache (glove.md §2): one packet for every targeting glove
+			e -> e.create(GloveTargetPacket.class, PacketHandler.NetDir.PLAY_TO_SERVER),
 			e -> e.create(DaggerGloveSelectPacket.class, PacketHandler.NetDir.PLAY_TO_SERVER)
 	);
 

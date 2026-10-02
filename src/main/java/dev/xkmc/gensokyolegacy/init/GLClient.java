@@ -16,6 +16,7 @@ import dev.xkmc.gensokyolegacy.content.item.glove.client.DollClientLoadoutToolti
 import dev.xkmc.gensokyolegacy.content.item.glove.client.DollGloveOverlay;
 import dev.xkmc.gensokyolegacy.content.item.glove.client.DollLoadoutTooltip;
 import dev.xkmc.gensokyolegacy.content.item.glove.DollGloveItem;
+import dev.xkmc.gensokyolegacy.content.item.targeting.client.GloveTargetCache;
 import dev.xkmc.gensokyolegacy.content.item.dagger.DaggerGloveItem;
 import dev.xkmc.gensokyolegacy.content.item.tool.ClientInvTooltip;
 import dev.xkmc.gensokyolegacy.content.item.tool.InvTooltip;
@@ -70,6 +71,13 @@ public class GLClient {
 			GLItems.IRON_DAGGER.get().getTypeForRender();
 			ProjectileRenderHelper.setup();
 		});
+	}
+
+	@SubscribeEvent
+	public static void clientTick(ClientTickEvent.Post event) {
+		// the shared glove target cache (glove.md §2) traces for whichever gloves are held,
+		// so it is driven from one place rather than from every glove's inventoryTick
+		GloveTargetCache.tick();
 	}
 
 	@SubscribeEvent

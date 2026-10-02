@@ -48,8 +48,8 @@ public class SuicideMode extends DollGloveHandler {
 
 	@Override
 	public void performAttackOn(ServerPlayer sp, @Nullable LivingEntity target, InteractionHand hand, ItemStack stack, DollGloveItem item) {
-		var commands = attachment(sp).commands();
-		if (target == null || !isValidAttackTarget(sp, target)) {
+var commands = attachment(sp).commands();
+		if (target == null || !DollGloveItem.isValidAttackTarget(sp, target)) {
 			sp.displayClientMessage(GLLang.ItemGlove.NO_TARGET.get(), true);
 		} else if (commands.issueOneTimeRandom(sp, target, DollActionType.SUICIDE_ATTACK) instanceof DollEntity doll) {
 			sp.displayClientMessage(GLLang.ItemGlove.SUICIDE.get(doll.getDisplayName()), true);

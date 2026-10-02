@@ -1,9 +1,10 @@
 package dev.xkmc.gensokyolegacy.content.item.glove;
 
+import dev.xkmc.gensokyolegacy.content.entity.dolls.BaseDollEntity;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.DollEntity;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.menu.DollLoadoutProvider;
-import dev.xkmc.gensokyolegacy.content.item.glove.client.GloveTargetCache;
 import dev.xkmc.gensokyolegacy.content.item.glove.mode.DollGloveMode;
+import dev.xkmc.gensokyolegacy.content.item.targeting.GloveTargeting;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.l2itemselector.init.data.L2Keys;
@@ -16,6 +17,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.OwnableEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -25,7 +27,17 @@ import net.minecraft.world.level.Level;
 
 import java.util.List;
 
-public class DollGloveItem extends Item {
+public class DollGloveItem extends Item implements GloveTargeting {
+
+	/** Ray-trace reach for glove targeting, in blocks (glove.md §2). */
+	public static final double TARGET_RANGE = 48;
+
+	/**
+	 * How long a traced target stays usable, in ticks (glove.md §2). Generous on purpose: this
+	 * glove's targets act on *left*-click, which can land long after the hover the trace ran
+	 * from, so a short window would make the glove feel like it had forgotten what was aimed at.
+	 */
+	public static final long TARGET_TTL = 100;
 
 	public DollGloveItem(Properties props) {
 		super(props.stacksTo(1));
@@ -126,11 +138,54 @@ public class DollGloveItem extends Item {
 		return true;
 	}
 
+	// ---------- shared target cache (glove.md §2) ----------
+
 	@Override
-	public void inventoryTick(ItemStack stack, Level level, Entity entity, int slot, boolean selected) {
-		if (level.isClientSide() && entity instanceof Player player) {
-			GloveTargetCache.onInventoryTick(player, stack);
-		}
+	public double targetRange() {
+		return TARGET_RANGE;
+	}
+
+	@Override
+	public boolean blockedByBlocks() {
+		return true;
+	}
+
+	@Override
+	public long targetTtl() {
+		return TARGET_TTL;
+	}
+
+	/**
+	 * The glove's own trace filter, run by the shared cache on both sides: summon acts globally
+	 * and so accepts nothing, while every other mode wants a valid attack target.
+	 */
+	@Override
+	public boolean acceptsTarget(ItemStack stack, Player holder, LivingEntity candidate) {
+		if (getMode(stack) == DollGloveMode.SUMMON) return false;
+		return isValidAttackTarget(holder, candidate);
+	}
+
+	@Override
+	public Integer targetGlow(ItemStack stack) {
+		return getMode(stack).glowColor();
+	}
+
+	/**
+	 * Attack-target validity: allies, any doll (own, stray, another player's, block-hosted),
+	 * spectators, and anything unattackable are all excluded. One implementation for all three
+	 * callers — the attack mode commands, and the shared cache's trace pre-filter through
+	 * {@link #acceptsTarget} — instead of a client copy of the server's rules that can drift.
+	 */
+	public static boolean isValidAttackTarget(Player holder, LivingEntity target) {
+		if (isAlly(holder, target)) return false;
+		if (target instanceof BaseDollEntity) return false;
+		return target.isAttackable() && !target.isSpectator();
+	}
+
+	/** Ally check via ownership: the holder plus anything they own (dolls, pets). */
+	private static boolean isAlly(Player holder, LivingEntity target) {
+		if (target == holder) return true;
+		return target instanceof OwnableEntity own && holder.getUUID().equals(own.getOwnerUUID());
 	}
 
 }
