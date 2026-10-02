@@ -137,6 +137,24 @@ action in flight, and reloading the loadout out from under it would make the hea
 no-op on the very tick it resolves; the layout is repaired on the first idle tick
 afterwards.
 
+A doll that just **spent** an item is skipped for `DollHandLock.HOLD` (10) ticks on
+top of that, because idle is not the same as finished drawing. The one-shot
+animations are triggered by the action that spends the item — `toy_bow`, `toy_skill`,
+`toy_bomb` all fire from the same tick the stack is consumed or the talisman is
+burned — and heal, throw and laser **complete their ticket on that tick**. So
+without the hold, the very next `arm()` pass would find an idle doll with a spent
+stack in its fist and take it away, or move it back to the other hand, while the
+client is still playing the swing that fist performed: the wand blinks out of the
+hand a frame after the last shot of a fight.
+
+The record lives on the doll, not the host, and is written at the single point every
+behaviour already passes through — `DollBehavior.ensureMainHand`, called immediately
+before the item is used, so "acting with the main hand" and "just spent it" cannot
+disagree. `DollHandLock` is transient and server-only, like `DollActionHandler`: the
+client is told what to draw by the synced loadout mirror and keeps no timing of its
+own, so there is no client-side half of this to keep in step. The hold is per doll
+and covers both hands, which is right because the animation covers both.
+
 `arm()` walks the **whole ledger**, not just the live dolls, so a doll retired
 mid-fight is already parked by the time it runs and does not carry a wand back
 out the next time she goes to the park.

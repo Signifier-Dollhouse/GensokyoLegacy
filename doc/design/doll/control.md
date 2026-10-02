@@ -143,6 +143,7 @@ Apply the talisman's own effect on the scheduled target (§6). There is no glove
 - Goal: navigate to within ~2 blocks of the target (self needs no move) → stop → trigger on the **live** held stack: `new TalismanContext(target, heldStack, 0, heldStack, paper)` (same worn-directly shape as `FoldedPaperTalisman`, so `hurtItem()` wears the ledger stack in place) → `paper.trigger(ctx)` (`HealTalisman`: heal 30% max, 100-tick target-side cooldown, 1 durability use) → `complete()`.
 - If the target vanished, is full health, or the talisman broke mid-approach, the action is a no-op pop.
 - An auto heal holds its ticket to completion like anything else, but any player command aborts it the same way a running regular is aborted — only `stop()` or a preempting order interrupts it, and it is short anyway.
+- The talisman stays in the hand it was burned from for `DollHandLock.HOLD` (10) ticks after the trigger, even though the ticket ends on the trigger tick: `ensureMainHand` stamps the lock on every behavior's pre-use call, so an arming host cannot take or swap the item out mid-swing (host.md §4).
 
 ### 5.6 Shield block — reactive, off hand, regular vanilla pipeline
 
@@ -205,8 +206,9 @@ Created (`content/entity/dolls/action/`, behaviors in `.../behavior/`, all goals
 - `DollBehaviorRegistry.java` (`behavior/`) — `(id, predicate, type, priority, factory)` entries; `findHand` for capability, `createFor` for per-execution construction (§1–2)
 - `DollBehaviors.java` — built-in registration (danmaku / laser / hexbrew / TNT / heal-talis­man / shield-offhand)
 - `DollCardHolder.java` — `implements CardHolder` for the doll (§5)
-- `DollBehavior.java` + `DollDanmakuBehavior`, `DollLaserBehavior`, `DollThrowBehavior`, `DollSuicideBehavior`, `DollHealBehavior` (`behavior/`, §5; laser before throw for super)
+- `DollBehavior.java` + `DollDanmakuBehavior`, `DollLaserBehavior`, `DollThrowBehavior`, `DollSuicideBehavior`, `DollHealBehavior` (`behavior/`, §5; laser before throw for super). `ensureMainHand` is also the single place a spend is recorded, so every behavior holds its item for the swing without repeating it
 - `DollFriendlyFire.java` (`behavior/`) — ally lanes, blockage test, leash-clamped strafe (§5)
+- `DollHandLock.java` (`impl/`) — per-doll 10-tick post-spend hold on both hands, stamped by `ensureMainHand` (§5, §5.5)
 - `goals/DollCommandGoal.java` — the single delegating `Goal`: behavior cache, start timeouts, stop completes the still-held ticket (§5)
 
 - `DollCommander.java` (`content/attachment/doll/`, one per `DollLedger`) — volley/one-time/stop, handoff, stall guard, heal scheduling + 1-second mark prune, transient heal marks, and the follow-formation anchor (§6/§8). Every entry point takes the commanding `LivingEntity`, so a player and a character share one fan-out.
@@ -214,7 +216,7 @@ Created (`content/entity/dolls/action/`, behaviors in `.../behavior/`, all goals
 
 Modify (all done):
 
-- `DollEntity` — `actions` field, one `DollCommandGoal` at selector priority 0, vanilla shield hooks (§5.6), never-null ledger-direct loadout API, `becomeStray()` / `rejoinOwner()` / `maybeRejoin()` (doll side of the stray cut, `DollStray`)
+- `DollEntity` — `actions` and `handLock` fields, one `DollCommandGoal` at selector priority 0, vanilla shield hooks (§5.6), never-null ledger-direct loadout API, `becomeStray()` / `rejoinOwner()` / `maybeRejoin()` (doll side of the stray cut, `DollStray`)
 - `BaseDollEntity` — pairing pipeline only (plus the stray `getHost` branch and `die()` → `onDeath` fan-out); empty-hand itemize (arming removed, loadout.md §4)
 - `DollHost` — the whole doll↔host surface: pairing (`findSummoned` / `update` / `detach` / `onDeath`) plus the **command surface** (`getFormationYaw`, `summonedAllies`, `isCommandedTarget`, `doneType`, `handAhead`, `handOff`), all defaulting to inert. Doll entity code calls these unconditionally and never branches on the concrete host, so a new host kind needs no changes in `content/entity/dolls/`. `DollLedger` narrows it to hosts that actually own a ledger, forwarding the command surface to their `DollCommander`. Impls: the player attachment, the controller block (inert), `StrayHost` (inert), and `AliceDollHost` (a character).
 - `DollSpawn` — the one materialization path every ledger shares: create the entity, key the entry to its fresh uuid, hand it the owner, apply the recorded values. The caller registers the entry *before* `addFreshEntity` so the join-level inverse check always finds a host.
@@ -231,6 +233,7 @@ Modify (all done):
 - **Suicide while block-hosted**: `itemize` needs the player ledger; block-hosted dolls can't be recalled to item form. Suicide commands are only issued over the player ledger, so this never arises; block-hosted dolls keep `mobInteract`'s existing no-itemize rule.
 - **Destroyed-doll revival vs. health-at-zero**: bounded exception — revival spawns *fresh* health with gear intact instead of a 0-HP corpse-cycle (§7). All other transitions stay health-preserving.
 - **Gear vs. dup protection**: gear never leaves data (§7); cloning an item clones gear (shulker precedent, accepted); ammo is consumed from the live ledger stack, so commands can't duplicate anything.
+- **Item popped mid-swing**: heal, throw and laser complete their ticket on the tick they spend the item, so a host arming on the very next tick would take it away (or swap it to the other hand) while the one-shot animation is still playing. `DollHandLock` holds both hands for 10 ticks past the spend, and `ensureMainHand` is the only writer — one call every behavior already makes. The 10 ticks are `DollDanmakuBehavior.WINDDOWN_TICKS`, the longest tail any behavior had anyway; no animation is cut short.
 - **Leash vs. pullback**: goals enforce the 10-block owner leash (§5), strictly inside the 48-block ledger pullback — the yank only ever fires on knockback spikes or bugs mid-action. Stray dolls (detached entries) are exempt from both while they last, but the cut only lasts until one of §5.4a's rejoins or a recall; park/resummon are otherwise unchanged.
 - **Stray ronin**: the stray cut is transient, not a fate — both rejoin paths (§5.4a) bring an idle doll back to its ledger, and the glove recall within 48 blocks itemizes it outright. While it is stray it keeps following its owner on stray-routed combat and the shield still works, but no ledger path can reach it: no commands, no scheduling, no itemize. Death is still the only path that ends one *without* returning it — the death drop, persisting in chunks until then.
 - **Future work (out of scope)**: continuous attacks with automatic targeting, mechanical `core` items, attack-tracking lasers, `ITERATIVE` for other types, render held items (loadout.md §5), a glove-inventory screen, block-hosted doll commands, modded-shield matching, heal-mark pruning.

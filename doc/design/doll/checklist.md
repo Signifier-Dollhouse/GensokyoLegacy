@@ -20,6 +20,7 @@ Control (done — framework; glove calls pending):
 - `content/attachment/doll/DollCommander.java` — via `DollAttachment.commands`: volley/one-time/stop, handoff, stall guard, heal scheduling + 1-second mark prune, transient heal marks (control.md §6/§8)
 - `content/entity/dolls/action/DollAction.java`, `DollActionType.java`, `DollActionMode.java`, `DollActionHandler.java`, `DollCardHolder.java` + `goals/DollCommandGoal.java` (control.md §1/§3–5, goals under `dolls/goals/`)
 - `content/entity/dolls/behavior/DollBehavior.java`, `DollBehaviorRegistry.java`, `DollBehaviors.java`, `DollFriendlyFire.java` + `DollDanmakuBehavior.java`, `DollLaserBehavior.java`, `DollThrowBehavior.java`, `DollSuicideBehavior.java`, `DollHealBehavior.java` (control.md §1/§5)
+- `content/entity/dolls/impl/DollHandLock.java` — 10-tick post-spend hold on a doll's hands, stamped from `DollBehavior.ensureMainHand`; a host's arming pass skips a doll inside it (host.md §4)
 
 - `content/entity/dolls/menu/DollLoadoutMenu.java`, `DollLoadoutScreen.java`, `DollLoadoutProvider.java`, `DollLoadoutItemHandler.java` + `GLMisc.DOLL_LOADOUT`, layout JSON, container texture (loadout.md §4)
 

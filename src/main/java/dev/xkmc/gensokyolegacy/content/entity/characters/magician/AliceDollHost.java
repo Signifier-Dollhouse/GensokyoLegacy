@@ -12,6 +12,7 @@ import dev.xkmc.gensokyolegacy.content.entity.dolls.DollEntity;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.action.DollAction;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.action.DollActionType;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.behavior.DollBehaviors;
+import dev.xkmc.gensokyolegacy.content.entity.dolls.impl.DollHandLock;
 import dev.xkmc.gensokyolegacy.content.entity.module.AbstractYoukaiModule;
 import dev.xkmc.gensokyolegacy.content.item.doll.DollItem;
 import dev.xkmc.gensokyolegacy.content.item.doll.DollSlot;
@@ -383,6 +384,13 @@ public class AliceDollHost extends AbstractYoukaiModule implements DollLedger {
 	 * the heal no-op on the very tick it resolves. The layout is repaired on the
 	 * first idle tick after.
 	 * <p>
+	 * A doll that just <b>spent</b> an item is left alone too, for
+	 * {@link DollHandLock#HOLD} ticks past the ticket. The one-shot animation is
+	 * triggered by the action that spends the item, and heal, throw and laser all
+	 * complete on the tick they fire — so a doll firing the last shot of a fight
+	 * would otherwise have its wand taken away, or its talisman teleported back to
+	 * the other hand, one tick into the swing that swing is playing.
+	 * <p>
 	 * Walks the whole ledger, not just the live dolls: a doll retired mid-fight is
 	 * already parked by the time this runs, and it must not carry a wand back out
 	 * the next time she goes to the park.
@@ -391,10 +399,13 @@ public class AliceDollHost extends AbstractYoukaiModule implements DollLedger {
 		// whether a talisman is worth holding at all. Asked once per pass, so the
 		// whole roster draws the same conclusion from the same moment in time
 		boolean medic = combat || commander.healNeeded(owner);
+		long now = owner.level().getGameTime();
 		for (DollData data : dolls) {
 			if (data == null || data.inventory == null) continue;
 			DollEntity doll = resolve(data) instanceof DollEntity found ? found : null;
-			if (doll != null && doll.actions.isActive()) continue;
+			// idle is not enough to touch it: a doll that spent something a moment ago
+			// is still playing that swing, and its hands have to stay as drawn
+			if (doll != null && (doll.actions.isActive() || doll.handLock.isLocked(now))) continue;
 			MutableDollInventory inv = data.inventory;
 			if (isTalisman(inv.get(DollSlot.MAIN_HAND))) {
 				// a sticky swap left the talisman in the main hand, which the wand

@@ -36,6 +36,13 @@ public class DollEntity extends BaseDollEntity
 
 	public final DollActionHandler actions = new DollActionHandler();
 
+	/**
+	 * How long a just-spent item is held onto: the swing animation outlives the
+	 * ticket that spent it, so the hands stay as they were drawn for
+	 * {@link DollHandLock#HOLD} ticks.
+	 */
+	public final DollHandLock handLock = new DollHandLock();
+
 	private DollCommandGoal commandGoal;
 
 	public DollEntity(EntityType<? extends DollEntity> type, Level level) {
