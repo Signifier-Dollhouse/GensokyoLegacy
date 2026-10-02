@@ -84,6 +84,7 @@ public class GLItems {
 	public static final ItemEntry<Item> DOWSER_LEFT, DOWSER_RIGHT;
 	public static final ItemEntry<MermaidPearl> MERMAID_PEARL;
 	public static final ItemEntry<CatBell> CAT_BELL;
+	public static final ItemEntry<IronDaggerItem> IRON_DAGGER;
 
 	public static final ItemEntry<TenguSakeItem> TENGU_SAKE;
 	public static final ItemEntry<DrinkGiftItem> GHOST_SAKE;
@@ -410,6 +411,14 @@ public class GLItems {
 					.model((ctx, pvd) -> pvd.handheld(ctx, pvd.modLoc("item/tool/" + ctx.getName())))
 					.tag(DanmakuItems.Bullet.STAR.tag)
 					.lang("Star Wand").tab(TAB.key())
+					.register();
+
+			// 3D model hand-written in models/custom, so only wire up the parent here
+			IRON_DAGGER = reg.item("iron_dagger", IronDaggerItem::new)
+					.model((ctx, pvd) -> pvd.getBuilder(ctx.getName())
+							.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/" + ctx.getName()))))
+					.tag(DanmakuItems.Bullet.DAGGER.tag)
+					.lang("Iron Dagger").tab(TAB.key())
 					.register();
 
 			STRANGE_GLASSES = reg.item("strange_glasses", p -> new StrangeGlassesItem(p.rarity(Rarity.UNCOMMON)))
