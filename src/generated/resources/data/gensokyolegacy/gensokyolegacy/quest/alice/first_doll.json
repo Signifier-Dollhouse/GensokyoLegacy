@@ -1,0 +1,73 @@
+{
+  "character": "gensokyolegacy:alice_margatroid",
+  "completionDialog": {
+    "type": "gensokyolegacy:simple",
+    "actions": [],
+    "conditions": [],
+    "next": "gensokyolegacy:alice/first_doll/complete/dialog_1",
+    "text": "gensokyolegacy/alice/first_doll/option/complete"
+  },
+  "conditions": [],
+  "description": "gensokyolegacy/alice/first_doll/quest/desc",
+  "followUpDialog": {
+    "type": "gensokyolegacy:simple",
+    "actions": [],
+    "conditions": [],
+    "next": "gensokyolegacy:alice/first_doll/follow_up/dialog_1",
+    "text": "gensokyolegacy/alice/first_doll/option/follow_up"
+  },
+  "initialDialog": {
+    "type": "gensokyolegacy:simple",
+    "actions": [],
+    "conditions": [],
+    "next": "gensokyolegacy:alice/first_doll/start/dialog_1",
+    "text": "gensokyolegacy/alice/first_doll/option/start"
+  },
+  "requirements": {
+    "a-string": {
+      "type": "gensokyolegacy:submit_item",
+      "ingredients": [
+        {
+          "count": 8,
+          "item": "minecraft:string"
+        }
+      ]
+    },
+    "b-wool": {
+      "type": "gensokyolegacy:submit_item",
+      "ingredients": [
+        {
+          "count": 8,
+          "tag": "minecraft:wool"
+        }
+      ]
+    },
+    "c-straw": {
+      "type": "gensokyolegacy:submit_item",
+      "ingredients": [
+        {
+          "count": 4,
+          "item": "gensokyolegacy:mystical_straw"
+        }
+      ]
+    }
+  },
+  "rewards": [
+    {
+      "type": "gensokyolegacy:exp",
+      "point": 50
+    },
+    {
+      "type": "gensokyolegacy:reputation",
+      "cap_increase": 10,
+      "max_cap": 300,
+      "reputation": 10,
+      "soft_cap": 300
+    },
+    {
+      "type": "gensokyolegacy:loot_table",
+      "table": "gensokyolegacy:alice/first_doll"
+    }
+  ],
+  "title": "gensokyolegacy/alice/first_doll/quest/title"
+}

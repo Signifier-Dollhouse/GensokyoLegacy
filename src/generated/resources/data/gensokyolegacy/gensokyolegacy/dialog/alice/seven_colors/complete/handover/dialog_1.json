@@ -1,0 +1,11 @@
+{
+  "options": [
+    {
+      "type": "gensokyolegacy:simple",
+      "actions": [],
+      "conditions": [],
+      "text": "gensokyolegacy/alice/seven_colors/option/complete/handover/end"
+    }
+  ],
+  "text": "gensokyolegacy/alice/seven_colors/dialog/alice/seven_colors/complete/handover/dialog_1"
+}

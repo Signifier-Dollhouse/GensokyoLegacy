@@ -1,0 +1,114 @@
+{
+  "character": "gensokyolegacy:alice_margatroid",
+  "completionDialog": {
+    "type": "gensokyolegacy:simple",
+    "actions": [],
+    "conditions": [],
+    "next": "gensokyolegacy:alice/seven_colors/complete/dialog_1",
+    "text": "gensokyolegacy/alice/seven_colors/option/complete"
+  },
+  "conditions": [
+    {
+      "type": "gensokyolegacy:has_quest_completed",
+      "quest": "gensokyolegacy:alice/first_doll"
+    }
+  ],
+  "description": "gensokyolegacy/alice/seven_colors/quest/desc",
+  "followUpDialog": {
+    "type": "gensokyolegacy:simple",
+    "actions": [],
+    "conditions": [],
+    "next": "gensokyolegacy:alice/seven_colors/follow_up/dialog_1",
+    "text": "gensokyolegacy/alice/seven_colors/option/follow_up"
+  },
+  "initialDialog": {
+    "type": "gensokyolegacy:simple",
+    "actions": [],
+    "conditions": [],
+    "next": "gensokyolegacy:alice/seven_colors/start/dialog_1",
+    "text": "gensokyolegacy/alice/seven_colors/option/start"
+  },
+  "requirements": {
+    "a-cyan_dye": {
+      "type": "gensokyolegacy:submit_item",
+      "ingredients": [
+        {
+          "count": 4,
+          "item": "minecraft:cyan_dye"
+        }
+      ]
+    },
+    "a-light_blue_dye": {
+      "type": "gensokyolegacy:submit_item",
+      "ingredients": [
+        {
+          "count": 4,
+          "item": "minecraft:light_blue_dye"
+        }
+      ]
+    },
+    "a-lime_dye": {
+      "type": "gensokyolegacy:submit_item",
+      "ingredients": [
+        {
+          "count": 4,
+          "item": "minecraft:lime_dye"
+        }
+      ]
+    },
+    "a-orange_dye": {
+      "type": "gensokyolegacy:submit_item",
+      "ingredients": [
+        {
+          "count": 4,
+          "item": "minecraft:orange_dye"
+        }
+      ]
+    },
+    "a-purple_dye": {
+      "type": "gensokyolegacy:submit_item",
+      "ingredients": [
+        {
+          "count": 4,
+          "item": "minecraft:purple_dye"
+        }
+      ]
+    },
+    "a-red_dye": {
+      "type": "gensokyolegacy:submit_item",
+      "ingredients": [
+        {
+          "count": 4,
+          "item": "minecraft:red_dye"
+        }
+      ]
+    },
+    "a-yellow_dye": {
+      "type": "gensokyolegacy:submit_item",
+      "ingredients": [
+        {
+          "count": 4,
+          "item": "minecraft:yellow_dye"
+        }
+      ]
+    }
+  },
+  "rewards": [
+    {
+      "type": "gensokyolegacy:exp",
+      "point": 200
+    },
+    {
+      "type": "gensokyolegacy:reputation",
+      "cap_increase": 10,
+      "max_cap": 300,
+      "reputation": 20,
+      "soft_cap": 300
+    },
+    {
+      "type": "gensokyolegacy:loot_table",
+      "table": "gensokyolegacy:alice/seven_colors"
+    }
+  ],
+  "title": "gensokyolegacy/alice/seven_colors/quest/title"
+}

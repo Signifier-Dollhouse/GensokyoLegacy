@@ -40,6 +40,7 @@ import dev.xkmc.gensokyolegacy.init.data.biome.GLBiomes;
 import dev.xkmc.gensokyolegacy.init.data.biome.GLFeatureGen;
 import dev.xkmc.gensokyolegacy.init.data.biome.MagicalForestRegion;
 import dev.xkmc.gensokyolegacy.init.data.loot.GLGLMProvider;
+import dev.xkmc.gensokyolegacy.init.data.rpg.AliceQDGen;
 import dev.xkmc.gensokyolegacy.init.data.rpg.MarisaQDGen;
 import dev.xkmc.gensokyolegacy.init.data.rpg.MorichikaQDGen;
 import dev.xkmc.gensokyolegacy.init.data.rpg.QuestDialogData;
@@ -236,7 +237,8 @@ public class GensokyoLegacy {
 		var reimu = new ReimuQDGen();
 		var marisa = new MarisaQDGen();
 		var morichika = new MorichikaQDGen();
-		QuestDialogData.build(REGISTRATE, reimu, marisa, morichika);
+		var alice = new AliceQDGen();
+		QuestDialogData.build(REGISTRATE, reimu, marisa, morichika, alice);
 
 		ReportBlocksInStructure.report();
 	}

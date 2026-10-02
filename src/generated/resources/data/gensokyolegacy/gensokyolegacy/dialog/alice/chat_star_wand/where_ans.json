@@ -1,0 +1,11 @@
+{
+  "options": [
+    {
+      "type": "gensokyolegacy:simple",
+      "actions": [],
+      "conditions": [],
+      "text": "gensokyolegacy/alice/chat_star_wand/option/where/end"
+    }
+  ],
+  "text": "gensokyolegacy/alice/chat_star_wand/dialog/alice/chat_star_wand/where_ans"
+}

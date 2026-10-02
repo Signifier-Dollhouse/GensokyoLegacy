@@ -1,0 +1,40 @@
+{
+  "type": "minecraft:advancement_reward",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:red_dye"
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:orange_dye"
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:yellow_dye"
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:lime_dye"
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:cyan_dye"
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:light_blue_dye"
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:purple_dye"
+        }
+      ],
+      "rolls": 3.0
+    }
+  ],
+  "random_sequence": "gensokyolegacy:quest_req/alice/daily_doll/daily_doll"
+}

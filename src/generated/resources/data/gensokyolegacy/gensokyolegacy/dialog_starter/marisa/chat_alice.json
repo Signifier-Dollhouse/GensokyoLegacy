@@ -1,0 +1,12 @@
+{
+  "character": "gensokyolegacy:kirisame_marisa",
+  "conditions": [
+    {
+      "type": "gensokyolegacy:self_reputation",
+      "reputation": 50
+    }
+  ],
+  "dialog": "gensokyolegacy:marisa/chat_alice/talk",
+  "text": "gensokyolegacy/marisa/chat_alice/starter/start",
+  "weight": 100
+}

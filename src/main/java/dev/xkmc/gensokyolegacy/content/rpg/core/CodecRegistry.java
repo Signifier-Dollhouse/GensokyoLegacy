@@ -5,6 +5,7 @@ import dev.xkmc.gensokyolegacy.content.rpg.action.DialogAction;
 import dev.xkmc.gensokyolegacy.content.rpg.action.GiveMobEffectAction;
 import dev.xkmc.gensokyolegacy.content.rpg.action.SetTimerAction;
 import dev.xkmc.gensokyolegacy.content.rpg.action.StartQuestAction;
+import dev.xkmc.gensokyolegacy.content.rpg.condition.AnyCondition;
 import dev.xkmc.gensokyolegacy.content.rpg.condition.HasAdvancementCondition;
 import dev.xkmc.gensokyolegacy.content.rpg.condition.HasItemCondition;
 import dev.xkmc.gensokyolegacy.content.rpg.condition.HasQuestCompletedCondition;
@@ -73,6 +74,7 @@ public class CodecRegistry {
 	public static final CdcVal<TimerCondition> TIMER = CONDITION.reg("timer", TimerCondition.CODEC);
 	public static final CdcVal<SelfReputationCondition> SELF_REP = CONDITION.reg("self_reputation", SelfReputationCondition.CODEC);
 	public static final CdcVal<OtherReputationCondition> OTHER_REP = CONDITION.reg("other_reputation", OtherReputationCondition.CODEC);
+	public static final CdcVal<AnyCondition> ANY = CONDITION.reg("any", AnyCondition.CODEC);
 
 	public static final CdcVal<KillMobRequirement> KILL_MOB_REQ = REQUIREMENT.reg("kill_mob", KillMobRequirement.CODEC);
 	public static final CdcVal<KillEnemyRequirement> KILL_ENEMY_REQ = REQUIREMENT.reg("kill_enemy", KillEnemyRequirement.CODEC);

@@ -95,6 +95,15 @@ The Reimu rework added exactly this kind of machinery, now reusable for future c
 - `RaidMixin` — `@WrapOperation` on `PlayerTrigger.trigger` in `Raid.tick()` (the `hero_of_the_village` grant), dispatches the trigger. Must be declared in `gensokyolegacy.mixins.json`.
 - Two-action option helpers in `ReimuQDGen` (`startRaid`, `dailyRaidStart`, `follow(.., DialogAction)`, `dailyFollow(.., DialogAction)`) for "start quest + apply effect".
 
+The Alice rework added:
+
+- `AnyCondition` (`condition/any`) — composite condition passing as soon as *one*
+  nested condition passes. Needed because every condition list is ANDed
+  (`GatedEntry#match`); used for Marisa's talisman errand, which is offered after
+  `reimu/talisman_materials` **or** `alice/seven_colors`. Its `CODEC` nests
+  `CodecRegistry.CONDITION.codec()` directly — safe for the same reason `Quest.CODEC`
+  is: `CodecRegistry` assigns `CONDITION` before it registers any condition's codec.
+
 ## 5. Generate & commit
 
 - `./gradlew compileJava` — must pass.

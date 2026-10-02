@@ -1,7 +1,6 @@
 package dev.xkmc.gensokyolegacy.init.data.rpg;
 
 import dev.xkmc.gensokyolegacy.content.rpg.condition.HasAdvancementCondition;
-import dev.xkmc.gensokyolegacy.content.rpg.condition.HasQuestCompletedCondition;
 import dev.xkmc.gensokyolegacy.content.rpg.dialog.DialogStarter;
 import dev.xkmc.gensokyolegacy.content.rpg.trade.TradeOffer;
 import dev.xkmc.gensokyolegacy.content.rpg.trade.TradeRecurrence;
@@ -64,10 +63,6 @@ public class MorichikaQDGen extends QuestDialogData {
 				List.of(),
 				new ItemStack(GLItems.STRANGE_GLASSES.get()),
 				new TradeRecurrence(1, 24000), List.of(item(Items.EMERALD, 8))));
-		trade("offer_doll_glove", new TradeOffer(GLEntities.MORICHIKA.get(),
-				List.of(new HasQuestCompletedCondition(MarisaQDGen.QUEST_TALISMAN_REQUEST)),
-				new ItemStack(GLItems.DOLL_GLOVE.get()),
-				new TradeRecurrence(1, 168000), List.of(item(Items.EMERALD, 32))));
 		trade("offer_guide_book", new TradeOffer(GLEntities.MORICHIKA.get(),
 				List.of(new HasAdvancementCondition(GLAdvGen.WELCOME)),
 				PatchouliHelper.getBook(GensokyoLegacy.loc("tools_guide")),

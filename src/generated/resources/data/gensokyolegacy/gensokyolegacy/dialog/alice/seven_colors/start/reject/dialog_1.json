@@ -1,0 +1,11 @@
+{
+  "options": [
+    {
+      "type": "gensokyolegacy:simple",
+      "actions": [],
+      "conditions": [],
+      "text": "gensokyolegacy/alice/seven_colors/option/start/reject/end"
+    }
+  ],
+  "text": "gensokyolegacy/alice/seven_colors/dialog/alice/seven_colors/start/reject/dialog_1"
+}
