@@ -57,7 +57,16 @@ public final class DollBehaviorRegistry {
 	 * when nothing held satisfies the action type.
 	 */
 	public static Optional<DollBehavior> createFor(DollEntity doll, DollAction action) {
-		return findBest(doll, action.type()).map(best -> best.entry().factory().get());
+		return createFor(doll, action.type());
+	}
+
+	/**
+	 * Constructs the behavior an action type maps to from the currently held items.
+	 * Empty when nothing held satisfies it. The order-free form, for asking what a
+	 * loadout could do with no command in hand — a reach check, say.
+	 */
+	public static Optional<DollBehavior> createFor(DollEntity doll, DollActionType type) {
+		return findBest(doll, type).map(best -> best.entry().factory().get());
 	}
 
 	/**

@@ -96,10 +96,18 @@ public class DollCommandGoal extends Goal {
 	 * this level (dead, removed, or left). A null target never counts as gone.
 	 */
 	private boolean isTargetGone(DollAction action) {
-		if (action.target() == null) return false;
-		if (!(doll.level() instanceof ServerLevel level)) return false;
+		return action.target() != null && liveTarget(action) == null;
+	}
+
+	/**
+	 * The action's target as a live entity of this level, or null when it names
+	 * none or names something that is gone.
+	 */
+	@Nullable
+	private LivingEntity liveTarget(DollAction action) {
+		if (action.target() == null || !(doll.level() instanceof ServerLevel level)) return null;
 		Entity entity = level.getEntity(action.target());
-		return !(entity instanceof LivingEntity target && target.isAlive());
+		return entity instanceof LivingEntity target && target.isAlive() ? target : null;
 	}
 
 	private void checkStartTimeouts(DollAction action) {
@@ -108,11 +116,24 @@ public class DollCommandGoal extends Goal {
 			pending = null;
 			return;
 		}
+		DollBehavior behavior = DollBehaviorRegistry.createFor(doll, action).orElse(null);
 		// Capability lost while waiting (ammo consumed, loadout edited): the
 		// ticket can never start, so release it at once instead of idling
 		// yellow through the timeout. Cooldown-gated waits keep waiting —
 		// capability still resolves, only the behavior gate is closed.
-		if (DollBehaviorRegistry.createFor(doll, action).isEmpty()) {
+		if (behavior == null) {
+			doll.actions.complete(doll);
+			pending = null;
+			return;
+		}
+		// Out of the behavior's reach, and no amount of waiting changes that: a
+		// melee charge refuses to begin past its engage range (§5.1b) and a doll
+		// idling in formation does not close the gap by standing there. The ticket
+		// goes now rather than burning the start timeout and its hand-ahead, so an
+		// unreachable volley drains in a single tick instead of marching yellow
+		// down the roster.
+		LivingEntity target = liveTarget(action);
+		if (target != null && !behavior.canReach(doll, target)) {
 			doll.actions.complete(doll);
 			pending = null;
 			return;

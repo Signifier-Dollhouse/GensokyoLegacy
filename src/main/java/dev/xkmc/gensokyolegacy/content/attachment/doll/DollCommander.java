@@ -5,6 +5,7 @@ import dev.xkmc.gensokyolegacy.content.entity.dolls.DollEntity;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.action.DollAction;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.action.DollActionMode;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.action.DollActionType;
+import dev.xkmc.gensokyolegacy.content.entity.dolls.behavior.DollBehavior;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.behavior.DollBehaviorRegistry;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.behavior.DollBehaviors;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.behavior.DollHealBehavior;
@@ -177,6 +178,25 @@ public class DollCommander {
 		return false;
 	}
 
+	/**
+	 * Whether any summoned doll could actually perform this action on this target:
+	 * it must hold a valid weapon for the type, and the behavior that weapon maps to
+	 * must be able to reach the target. The reach half is what separates
+	 * {@link #hasCapableDoll} from "can attack that" — a roster of melee dolls is
+	 * armed but cannot touch a mob across the field (control.md §5.1b), which is the
+	 * case a host reports as too far rather than ordering a volley that cannot run.
+	 * Asked per doll with a fresh behavior, so it costs nothing and never leaves
+	 * per-run state behind.
+	 */
+	public boolean canAttack(LivingEntity owner, LivingEntity target, DollActionType type) {
+		for (DollData data : ledger.dolls()) {
+			if (!(resolveEntity(owner, data) instanceof DollEntity doll)) continue;
+			Optional<DollBehavior> behavior = DollBehaviorRegistry.createFor(doll, type);
+			if (behavior.isPresent() && behavior.get().canReach(doll, target)) return true;
+		}
+		return false;
+	}
+
 	/** Super / suicide: exactly one available doll acts once. */
 	public boolean issueOneTime(LivingEntity owner, LivingEntity target, DollActionType type) {
 		return issue(owner, DollAction.oneTime(type, target.getUUID()));
@@ -286,8 +306,24 @@ public class DollCommander {
 	/**
 	 * Chain-passing for iterative actions: starts the same (shared done-set) action
 	 * on the next available summoned doll. Returns false when the iteration ends.
+	 * <p>
+	 * A chain that already lives on another doll is left alone. Hand-ahead
+	 * deliberately puts two dolls on the same action — the one that went ahead and
+	 * the waiter that kept its own attempt — so without this guard every release
+	 * from the waiter (its abort timer running out, a target that died, a stop)
+	 * would start a <b>second</b> link while the first is still attacking, and the
+	 * volley would fan out instead of walking down the roster. That is reachable
+	 * whenever a doll holds the ticket without starting, which only a behavior with
+	 * a range gate does: the melee charge refuses to begin past its engage range and
+	 * so stalls (control.md §5.1b), while danmaku always starts at once.
+	 * <p>
+	 * The chain still never stalls: the link that is actually performing keeps passing
+	 * it, and once the waiter releases there is nobody holding it again. The one
+	 * effect is that a volley with a stalled waiter in it waits out that waiter's
+	 * abort timer instead of racing ahead of it.
 	 */
 	public boolean handOff(DollEntity from, DollAction action) {
+		if (heldBy(action, from)) return true;
 		for (DollData data : ledger.dolls()) {
 			if (data.uuid == null ||
 					data.uuid.equals(from.getUUID()) || action.done().contains(data.uuid)) continue;
