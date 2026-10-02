@@ -19,9 +19,6 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.Half;
-import net.minecraft.world.level.storage.loot.LootPool;
-import net.minecraft.world.level.storage.loot.LootTable;
-import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
@@ -77,7 +74,14 @@ public class LargeChairBlock implements CreateBlockStateBlockMethod, DefaultStat
 	}
 
 	public static void buildStates(DataGenContext<Block, DelegateBlock> ctx, RegistrateBlockstateProvider pvd) {
-		String woodName = ctx.getName().replace("_large_chair", "");
+		buildStates(ctx, pvd, ctx.getName().replace("_large_chair", ""));
+	}
+
+	/**
+	 * @param padPrefix name prefix of the pad models, the wood name for the
+	 *                  per-wood chairs and the block name for the themed one
+	 */
+	public static void buildStates(DataGenContext<Block, DelegateBlock> ctx, RegistrateBlockstateProvider pvd, String padPrefix) {
 		String wood = "block/wood/" + ctx.getName();
 
 		var bottom = pvd.models().getBuilder("block/" + ctx.getName())
@@ -92,14 +96,14 @@ public class LargeChairBlock implements CreateBlockStateBlockMethod, DefaultStat
 				.texture("particle", pvd.mcLoc("block/birch_planks"))
 				.renderType("cutout");
 
-		CoverableImpl.buildChairStates(pvd, woodName, wood);
+		CoverableImpl.buildChairStates(pvd, padPrefix, wood);
 		genFullModel(pvd, ctx.getName());
 		pvd.horizontalBlock(ctx.get(), state -> {
 			if (state.getValue(HALF) == Half.TOP) return top;
 			if (state.getValue(CoverableImpl.COLOR) == CoverableImpl.Color.NONE) return bottom;
 			var col = state.getValue(CoverableImpl.COLOR);
 			String suffix = col == CoverableImpl.Color.BASE ? "pad" : col.getSerializedName() + "_pad";
-			return new ModelFile.UncheckedModelFile(pvd.modLoc("block/" + woodName + "_" + suffix));
+			return new ModelFile.UncheckedModelFile(pvd.modLoc("block/" + padPrefix + "_" + suffix));
 		});
 	}
 
@@ -121,15 +125,6 @@ public class LargeChairBlock implements CreateBlockStateBlockMethod, DefaultStat
 
 	public static void genLoot(RegistrateBlockLootTables pvd, DelegateBlock block) {
 		pvd.add(block, CoverableImpl.loot(pvd, block, halfOnly(pvd, block)));
-	}
-
-	/**
-	 * Loot for the chair without a coverable color property. Both halves share one
-	 * item, so only the lower one drops it.
-	 */
-	public static void genPlainLoot(RegistrateBlockLootTables pvd, DelegateBlock block) {
-		pvd.add(block, LootTable.lootTable().withPool(
-				LootPool.lootPool().add(LootItem.lootTableItem(block)).when(halfOnly(pvd, block))));
 	}
 
 	private static LootItemCondition.Builder halfOnly(RegistrateBlockLootTables pvd, Block block) {
