@@ -5,6 +5,7 @@ import dev.xkmc.gensokyolegacy.content.entity.dolls.DollEntity;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.action.DollAction;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.action.DollActionType;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.behavior.DollBehaviorRegistry.HandMatch;
+import dev.xkmc.gensokyolegacy.content.item.doll.DollLanceItem;
 import dev.xkmc.gensokyolegacy.content.item.doll.DollSlot;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -19,11 +20,11 @@ import java.util.Optional;
 /**
  * Regular attack, melee variant: charge the target at twice the movement cap, cut
  * the swing on contact, then bounce off and fly back to where the charge began.
- * Sword only, for now ({@code DollBehaviors}).
+ * {@link DollLanceItem} only ({@code DollBehaviors}).
  * <p>
  * The ticket leaves <b>on impact</b> — that is the point of charging inside a
  * volley: {@code complete()} hands the attack to the next doll while this one is
- * already on its way home, so a sword doll never stalls the chain. The behavior
+ * already on its way home, so a charging doll never stalls the chain. The behavior
  * outlives its ticket through {@link #selfDriven} and is released once the doll is
  * at least half way back — or {@link #RETURN_TICKS} runs out, for a return
  * stalled against a wall — after which follow takes the doll over again.
@@ -235,10 +236,10 @@ public class DollMeleeBehavior extends DollBehavior {
 
 	/**
 	 * Melee damage: the vanilla attack-damage base plus the held weapon's own
-	 * damage. Vanilla items keep that in {@link ItemAttributeModifiers} rather than
-	 * behind a getter, and a melee weapon declares it as a flat main-hand modifier,
-	 * so summing them is exactly the sword's damage (5 for an iron sword, 7 for the
-	 * swing in total).
+	 * damage. Both melee weapons keep that in {@link ItemAttributeModifiers}
+	 * rather than behind a getter, declared as a flat main-hand modifier, so
+	 * summing them is exactly the weapon's damage (6 for a {@link DollLanceItem},
+	 * 5 for an iron sword, 7 for the swing in total).
 	 * <p>
 	 * The base is read off the attribute itself, not through
 	 * {@code getAttributeValue}: dolls register no attack-damage attribute
