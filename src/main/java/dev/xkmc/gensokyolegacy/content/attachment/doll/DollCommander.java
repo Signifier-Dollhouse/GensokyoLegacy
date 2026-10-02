@@ -415,6 +415,29 @@ public class DollCommander {
 
 	// ---------- scheduled heal: ledger-issued one-time orders, never doll-issued ----------
 
+	/**
+	 * Whether anyone the heal pass could spend a talisman on is actually hurt:
+	 * the commander, any live doll of this ledger, or a marked entity.
+	 * <p>
+	 * Deliberately the same set {@link #maybeAutoHeal} picks its targets from, so
+	 * a host that arms its own dolls (Alice) can put one in a hand exactly while
+	 * there is something to heal — no talisman in the hands of a doll standing
+	 * around with nothing to spend it on.
+	 */
+	public boolean healNeeded(LivingEntity owner) {
+		if (HealTalisman.needsHeal(owner)) return true;
+		for (DollData data : ledger.dolls()) {
+			if (data.isSummoned() && resolveEntity(owner, data) instanceof DollEntity doll &&
+					HealTalisman.needsHeal(doll)) return true;
+		}
+		if (owner.level() instanceof ServerLevel level) {
+			for (UUID id : healTargets) {
+				if (level.getEntity(id) instanceof LivingEntity target && HealTalisman.needsHeal(target)) return true;
+			}
+		}
+		return false;
+	}
+
 	private void maybeAutoHeal(LivingEntity owner, DollData data) {
 		if (!(resolveEntity(owner, data) instanceof DollEntity doll)) return;
 		if (doll.actions.isActive()) return;

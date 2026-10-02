@@ -17,6 +17,17 @@ public class HealTalisman extends TalismanPaperItem {
 
 	@Override
 	public boolean test(LivingEntity le) {
+		return needsHeal(le);
+	}
+
+	/**
+	 * What a heal talisman is for: an entity that is alive and missing health.
+	 * <p>
+	 * Static and paper-free on purpose — a doll host has to answer "is anyone
+	 * worth handing a talisman to?" before it has one in hand, and that question
+	 * is about the target, not about the paper.
+	 */
+	public static boolean needsHeal(LivingEntity le) {
 		return le.getHealth() < le.getMaxHealth() && le.isAlive();
 	}
 

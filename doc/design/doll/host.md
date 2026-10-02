@@ -38,7 +38,7 @@ her (§6):
 | `detach` | cuts a doll loose (stray) | refused; she issues no suicide order, so it is never asked for |
 | `onDeath` | recovery is the reconcile pass | no-op; the reconcile pass drops the entry (§2.1) |
 | size | the player's collection | a **roster** sized by her post (§3) |
-| arming | the player's choice | star wands, iff she is fighting (§4) |
+| arming | the player's choice | star wands iff she is fighting, talismans iff spendable (§4) |
 | orders | the glove, player-driven | she issues them herself (§5) |
 
 A doll is created **on demand**: the roster grows as her post asks for more, rather than conjuring eight up front and leaving seven standing around.
@@ -75,7 +75,7 @@ A retired doll is parked `TEMP` and conjured again when the roster grows. Its en
 
 Note the at-home post depends on `MemoryModuleType.HOME` being present — an Alice with no bed bound to a home is never "indoors" and keeps the outdoor escort. The bed is what earns her the smaller roster.
 
-## 4. Arming — star wands iff combat, talismans always
+## 4. Arming — star wands iff combat, talismans iff spendable
 
 A doll gets a `StarWandItem` in its **main hand** the moment `Post.COMBAT` begins
 and loses it the moment that ends. This is exact and bidirectional, not "armed
@@ -91,12 +91,26 @@ The wands are hers, not loot: they are conjured alongside the dolls and vanish
 with them. Nothing is consumed and nothing is dropped, so the fight costs her
 nothing but the attention.
 
-A folded **heal talisman sits in the off hand at all times**, refolded whenever it
-wears out. The off hand is deliberately unconditional: `HEAL` is not her decision
-— it is scheduler-issued by `DollCommander`'s heal pass, which every ledger
-already runs — so the talisman only has to be *present* for that pass to find a
-hand, and a doll keeps one to spend on Alice and on her other dolls whenever they
-are hurt. The two hands do not contend: `REGULAR_ATTACK` and `HEAL` are different
+A folded **heal talisman sits in the off hand only while it can be spent** — in
+combat, or when anyone in reach is actually hurt — and leaves both hands again when
+that stops being true. The off hand used to be unconditional, on the reasoning that
+`HEAL` is not her decision but the heal pass's: it is scheduler-issued by
+`DollCommander`, not by her `command()`, so the talisman only had to be *present*
+for that pass to find a hand. True as far as it goes, and useless as a policy — it
+means every doll of the retinue carries a healing charm at all times, so a house
+full of dolls idling with full health bars looks like it is holding a spare
+medkit it has no intention of using. A charm is worth a hand only while there is
+someone to spend it on, exactly like a wand is worth a hand only while there is
+someone to shoot. So `arm()` asks `commander.healNeeded(owner)`: the same set the
+heal pass picks its targets from — her, any live doll of the roster, or a marked
+entity — via the static `HealTalisman.needsHeal`, which is what `test` itself
+delegates to. The interesting case is the one outside combat: off-duty dolls still
+patch up a hurt doll and still heal her, and the charm appears for exactly as long
+as that lasts.
+
+Talismans are folded on demand like the wands, and are hers rather than loot too:
+one put away goes back to the air it was folded from, and the next emergency gets a
+fresh one. The two hands do not contend: `REGULAR_ATTACK` and `HEAL` are different
 action types and a doll only ever holds one ticket.
 
 `arm()` therefore has to own the **whole** loadout, not just the wand. The heal
@@ -108,9 +122,15 @@ policed the main hand for the wand would leave that talisman sitting there, and
 then refuel the off hand on top of it — the doll ends up carrying two. So `arm()`:
 
 1. hands any main-hand talisman **back to the off hand, keeping the stack**
-   (moving it, not refolding a fresh one — otherwise every heal burns a talisman);
+   (moving it, not refolding a fresh one — otherwise every heal burns a talisman),
+   but only while one is wanted at all, and empties the main hand either way, since
+   that is the hand the wand owns;
 2. sets the main hand to the wand iff in combat, empty otherwise;
-3. refolds the off hand if what is there is not a usable talisman.
+3. refolds the off hand when a talisman is wanted and what is there is not a usable
+   one, or empties the off hand when none is wanted.
+
+Note the ordering: a talisman is judged **once per pass**, not per doll, so a doll
+cannot be seen with a charm the pass has already decided nobody needs.
 
 A doll **holding a ticket is skipped entirely**. The swap is deliberate for the
 action in flight, and reloading the loadout out from under it would make the heal

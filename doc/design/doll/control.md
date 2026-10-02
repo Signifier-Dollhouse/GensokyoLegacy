@@ -162,6 +162,8 @@ for doll in summoned dolls, idle and not suppressed:
 
 Target priority is **owner > self > marked**. `HealTalisman.test` (damaged + alive) is the validity check everywhere; the 100-tick repeat guard is target-side (`TalismanContext.isOnCooldown`), so the ledger keeps no heal timestamps.
 
+The same target set is available as `DollCommander.healNeeded(owner)` — the cheap form of the question above, "would this pass find anyone to heal?", asked once per tick rather than once per doll. It exists for a host that arms its own dolls and has to decide whether a talisman belongs in a hand at all (host.md §4), and it goes through the static `HealTalisman.needsHeal`, which `test` itself delegates to, so the scheduling check and the arming check cannot drift apart.
+
 Marks are session-local targeting state on the commander — forgotten on logout / death, never serialized:
 
 ```java

@@ -61,7 +61,8 @@ import java.util.UUID;
  *       she is doing ({@link Post}), so the count is her intent rather than
  *       whatever the player happens to own.</li>
  *   <li><b>She arms and orders them.</b> Star wands exist exactly while she is
- *       fighting (§{@link Post#COMBAT}), and every attack is a one-time order she
+ *       fighting (§{@link Post#COMBAT}), heal talismans only while she is fighting
+ *       or someone in her retinue is hurt, and every attack is a one-time order she
  *       hands out herself, one doll per mob — never an iterative volley.</li>
  * </ul>
  * <p>
@@ -349,14 +350,21 @@ public class AliceDollHost extends AbstractYoukaiModule implements DollLedger {
 
 	/**
 	 * Star wands exactly while she is fighting, and a folded heal talisman in the
-	 * off hand always. A doll is armed the moment combat starts and disarmed the
-	 * moment it ends, so she never leaves a wand in a doll's hand she is not paying
-	 * for — and unarmed dolls cannot be handed an attack at all, since a danmaku
-	 * order needs a {@link DollActionType#REGULAR_ATTACK} hand.
+	 * off hand whenever there is anyone to spend it on. A doll is armed the moment
+	 * combat starts and disarmed the moment it ends, so she never leaves a wand in a
+	 * doll's hand she is not paying for — and unarmed dolls cannot be handed an
+	 * attack at all, since a danmaku order needs a {@link DollActionType#REGULAR_ATTACK}
+	 * hand.
 	 * <p>
-	 * The off hand is never conditional: the heal order is scheduler-issued
-	 * (DollCommander's heal pass, not her {@link #command}), so a doll keeps a
-	 * talisman to spend on the owner and on her other dolls whenever they are hurt.
+	 * The talisman is conditional where the wand is not, because it is not held for
+	 * its own sake: it is held for {@link DollCommander}'s heal pass to spend. A doll
+	 * standing in a house with nothing hurt in reach has nothing to heal, so it holds
+	 * no charm — the same way it holds no wand outside a fight. A talisman appears in
+	 * the off hand as soon as she is fighting (<b>or</b> when the pass finds anyone
+	 * hurt at all, which is the interesting case: it is off-duty and still patches up
+	 * her dolls and herself) and leaves both hands again once nobody is hurt. Like the
+	 * wands it is hers, not loot: it goes back to the air it was folded from.
+	 * <p>
 	 * The two hands do not contend — {@code REGULAR_ATTACK} and {@code HEAL} are
 	 * different action types, and a doll only ever holds one ticket.
 	 * <p>
@@ -380,29 +388,42 @@ public class AliceDollHost extends AbstractYoukaiModule implements DollLedger {
 	 * the next time she goes to the park.
 	 */
 	private void arm(boolean combat) {
+		// whether a talisman is worth holding at all. Asked once per pass, so the
+		// whole roster draws the same conclusion from the same moment in time
+		boolean medic = combat || commander.healNeeded(owner);
 		for (DollData data : dolls) {
 			if (data == null || data.inventory == null) continue;
 			DollEntity doll = resolve(data) instanceof DollEntity found ? found : null;
 			if (doll != null && doll.actions.isActive()) continue;
 			MutableDollInventory inv = data.inventory;
-			// a sticky swap left the talisman in the main hand: move it home rather
-			// than overwrite it and burn a fresh one
-			ItemStack main = inv.get(DollSlot.MAIN_HAND);
-			if (main.getItem() instanceof FoldedPaperTalisman
-					&& !DollBehaviors.isUsableHealTalisman(inv.get(DollSlot.OFF_HAND))) {
-				inv.set(DollSlot.OFF_HAND, main);
+			if (isTalisman(inv.get(DollSlot.MAIN_HAND))) {
+				// a sticky swap left the talisman in the main hand, which the wand
+				// owns: hand it home keeping the stack rather than overwrite it and
+				// burn a fresh one — and only when it is being kept at all
+				if (medic && !DollBehaviors.isUsableHealTalisman(inv.get(DollSlot.OFF_HAND)))
+					inv.set(DollSlot.OFF_HAND, inv.get(DollSlot.MAIN_HAND));
+				inv.set(DollSlot.MAIN_HAND, ItemStack.EMPTY);
+			}
+			if (medic) {
+				// refilled as it wears down: a spent talisman is no longer a heal hand,
+				// and a healer that cannot heal is just a doll with a paper scrap
+				if (!DollBehaviors.isUsableHealTalisman(inv.get(DollSlot.OFF_HAND)))
+					inv.set(DollSlot.OFF_HAND, FoldedPaperTalisman.fold(GLTalismans.HEAL_TALISMAN.asStack()));
+			} else if (isTalisman(inv.get(DollSlot.OFF_HAND))) {
+				// nobody to spend it on and no fight to keep it ready for
+				inv.set(DollSlot.OFF_HAND, ItemStack.EMPTY);
 			}
 			boolean armed = inv.get(DollSlot.MAIN_HAND).getItem() instanceof StarWandItem;
 			if (armed != combat) {
 				inv.set(DollSlot.MAIN_HAND, combat ? GLItems.STAR_WAND.asStack() : ItemStack.EMPTY);
 			}
-			// refilled as it wears down: a spent talisman is no longer a heal hand,
-			// and a healer that cannot heal is just a doll with a paper scrap
-			if (!DollBehaviors.isUsableHealTalisman(inv.get(DollSlot.OFF_HAND))) {
-				inv.set(DollSlot.OFF_HAND, FoldedPaperTalisman.fold(GLTalismans.HEAL_TALISMAN.asStack()));
-			}
 			if (doll != null) doll.syncLoadoutMirror();
 		}
+	}
+
+	/** Whether a hand holds folded paper — a talisman of any kind, spent or not. */
+	private static boolean isTalisman(ItemStack stack) {
+		return stack.getItem() instanceof FoldedPaperTalisman;
 	}
 
 	// ---------- orders ----------
