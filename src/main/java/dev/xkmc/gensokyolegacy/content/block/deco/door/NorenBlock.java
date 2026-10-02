@@ -4,17 +4,21 @@ import dev.xkmc.gensokyolegacy.init.data.GLTagGen;
 import dev.xkmc.l2modularblock.core.BlockTemplates;
 import dev.xkmc.l2modularblock.core.DelegateBlock;
 import dev.xkmc.l2modularblock.core.VoxelBuilder;
+import dev.xkmc.l2modularblock.mult.PlacementBlockMethod;
 import dev.xkmc.l2modularblock.one.ShapeBlockMethod;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * 门帘。一张贴在中线上、双面可见的帘子,贴着贴脸的一格挂,长款往下多吊 {@link #HANGING} 格。
@@ -68,7 +72,7 @@ public class NorenBlock {
 	 * 墙就在北面,所以帘子落在 z=0 那条边上。碰撞由方块属性的 {@code noCollission} 关掉,
 	 * 这里只管选中范围。
 	 */
-	public record Shape(boolean hanging) implements ShapeBlockMethod {
+	public record Shape(boolean hanging) implements ShapeBlockMethod, PlacementBlockMethod {
 
 		private static final VoxelShape[] SHORT = shapes(0);
 		private static final VoxelShape[] LONG = shapes(-HANGING);
@@ -80,6 +84,11 @@ public class NorenBlock {
 				ans[i] = builder.rotateFromNorth(Direction.from2DDataValue(i));
 			}
 			return ans;
+		}
+
+		@Override
+		public BlockState getStateForPlacement(BlockState state, BlockPlaceContext blockPlaceContext) {
+			return state.setValue(BlockStateProperties.HORIZONTAL_FACING, state.getValue(BlockStateProperties.HORIZONTAL_FACING).getOpposite());
 		}
 
 		@Override

@@ -209,32 +209,6 @@ public class GLDecoBlocks {
 					.register();
 		}
 
-		// 门帘:每个颜色每种花纹各一个,长款往下多吊一截。染色时按花纹各自换个颜色,花纹不变
-		for (DyeColor col : DyeColor.values()) {
-			for (var kind : NorenBlock.Kind.values()) {
-				reg.block(kind.name(col), p -> NorenBlock.create(p, kind.hanging()))
-						.properties(p -> p.mapColor(MapColor.NONE).strength(0.1F).sound(SoundType.WOOL)
-								.pushReaction(PushReaction.DESTROY).noOcclusion().noCollission())
-						.blockstate((ctx, pvd) -> NorenJsons.buildBlockState(ctx, pvd, kind.hanging()))
-						.item().tag(kind.tag())
-						.model((ctx, pvd) -> NorenJsons.genItemModel(ctx, pvd, kind.hanging()))
-						.build()
-						.recipe((ctx, pvd) -> GLRecipeGen.unlock(pvd, ShapelessRecipeBuilder.shapeless(
-								RecipeCategory.DECORATIONS, ctx.get())::unlockedBy, DyeItem.byColor(col))
-								.requires(kind.tag()).requires(col.getTag()).save(pvd))
-						.register();
-			}
-		}
-
-		// 霓吞町门帘
-		reg.block("neiton_noren", p -> NorenBlock.create(p, true))
-				.properties(p -> p.mapColor(MapColor.NONE).strength(0.1F).sound(SoundType.WOOL)
-						.pushReaction(PushReaction.DESTROY).noOcclusion().noCollission())
-				.blockstate((ctx, pvd) -> NorenJsons.buildBlockState(ctx, pvd, true))
-				.item().model((ctx, pvd) -> NorenJsons.genItemModel(ctx, pvd, true))
-				.build()
-				.register();
-
 		// cushion
 		{
 			CUSHION = reg.block("cushion", p -> ISeatableBlock.of(p, 2 / 16f, new CushionBlock(), new SeatableImpl()))
@@ -341,6 +315,37 @@ public class GLDecoBlocks {
 				.dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(400)).build()
 				.loot(LargeChairBlock::genPlainLoot)
 				.register();
+
+		// noren
+		{
+
+			// 门帘:每个颜色每种花纹各一个,长款往下多吊一截。染色时按花纹各自换个颜色,花纹不变
+			for (DyeColor col : DyeColor.values()) {
+				for (var kind : NorenBlock.Kind.values()) {
+					reg.block(kind.name(col), p -> NorenBlock.create(p, kind.hanging()))
+							.properties(p -> p.mapColor(MapColor.NONE).strength(0.1F).sound(SoundType.WOOL)
+									.pushReaction(PushReaction.DESTROY).noOcclusion().noCollission())
+							.blockstate((ctx, pvd) -> NorenJsons.buildBlockState(ctx, pvd, kind.hanging()))
+							.item().tag(kind.tag())
+							.model((ctx, pvd) -> NorenJsons.genItemModel(ctx, pvd, kind.hanging()))
+							.build()
+							.recipe((ctx, pvd) -> GLRecipeGen.unlock(pvd, ShapelessRecipeBuilder.shapeless(
+											RecipeCategory.DECORATIONS, ctx.get())::unlockedBy, DyeItem.byColor(col))
+									.requires(kind.tag()).requires(col.getTag()).save(pvd))
+							.register();
+				}
+			}
+
+			// 霓吞町门帘
+			reg.block("neiton_noren", p -> NorenBlock.create(p, true))
+					.properties(p -> p.mapColor(MapColor.NONE).strength(0.1F).sound(SoundType.WOOL)
+							.pushReaction(PushReaction.DESTROY).noOcclusion().noCollission())
+					.blockstate((ctx, pvd) -> NorenJsons.buildBlockState(ctx, pvd, true))
+					.item().model((ctx, pvd) -> NorenJsons.genItemModel(ctx, pvd, true))
+					.build()
+					.register();
+
+		}
 
 		// brick sets
 		{
