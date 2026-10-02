@@ -16,18 +16,20 @@ import net.neoforged.neoforge.client.model.generators.ModelFile;
 
 public class NorenJsons {
 
-	/** 普通款与长款各一份共享几何,挂上贴图就能当方块模型用 */
+	/**
+	 * 普通款与长款各一份共享几何,挂上贴图就能当方块模型用
+	 */
 	private static final BlockModelBuilder[] BASE = new BlockModelBuilder[2];
 
 	private static ItemModelBuilder[] ITEM_BASE;
 
 	public static void buildBlockState(DataGenContext<Block, DelegateBlock> ctx, RegistrateBlockstateProvider pvd,
-	                                   boolean hanging) {
+									   boolean hanging) {
 		pvd.horizontalBlock(ctx.get(), model(ctx, pvd, hanging));
 	}
 
 	public static void genItemModel(DataGenContext<Item, BlockItem> ctx, RegistrateItemModelProvider pvd,
-	                                boolean hanging) {
+									boolean hanging) {
 		itemBase(pvd, hanging);
 		pvd.getBuilder(ctx.getName())
 				.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("item/" + itemBaseName(hanging))))
@@ -35,7 +37,7 @@ public class NorenJsons {
 	}
 
 	public static BlockModelBuilder model(DataGenContext<Block, DelegateBlock> ctx, RegistrateBlockstateProvider pvd,
-	                                      boolean hanging) {
+										  boolean hanging) {
 		return pvd.models().getBuilder("block/" + ctx.getName())
 				.parent(base(pvd, hanging))
 				.texture("curtain", texture(pvd, ctx.getName()))
@@ -49,10 +51,8 @@ public class NorenJsons {
 	private static BlockModelBuilder base(RegistrateBlockstateProvider pvd, boolean hanging) {
 		int idx = hanging ? 1 : 0;
 		if (BASE[idx] == null) {
-			int y0 = hanging ? -NorenBlock.HANGING : 0;
-			int height = 16 - y0;
 			var base = pvd.models().withExistingParent(hanging ? "noren_hanging" : "noren", "block/block");
-			cloth(base, y0, height, true);
+			cloth(base, hanging ? -4 : 0, hanging ? 10 : 16, true);
 			base.texture("particle", "#curtain");
 			BASE[idx] = base;
 		}
@@ -74,7 +74,7 @@ public class NorenJsons {
 			var base = pvd.getBuilder(itemBaseName(hanging))
 					.parent(new ModelFile.UncheckedModelFile("item/generated"))
 					.renderType("cutout");
-			cloth(base, 0, hanging ? 16 + NorenBlock.HANGING : 16, false);
+			cloth(base, 0, hanging ? 10 : 16, false);
 			base.texture("layer0", "#curtain");
 			ITEM_BASE[idx] = base;
 		}

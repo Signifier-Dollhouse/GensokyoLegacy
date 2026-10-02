@@ -10,12 +10,18 @@
             16.0,
             0.0,
             0.0,
-            20.0
+            10.0
           ]
         },
         "south": {
           "cullface": "south",
-          "texture": "#curtain"
+          "texture": "#curtain",
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            10.0
+          ]
         }
       },
       "from": [
