@@ -2,7 +2,7 @@
 	"format_version": "1.21.6",
 	"credit": "Made with Blockbench",
 	"textures": {
-		"0": "gensokyolegacy:item/tool/glove_hand"
+		"0": "gensokyolegacy:item/doll_glove/glove_hand"
 	},
 	"elements": [
 		{

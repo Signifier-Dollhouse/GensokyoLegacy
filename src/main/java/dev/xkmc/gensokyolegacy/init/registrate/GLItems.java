@@ -347,10 +347,10 @@ public class GLItems {
 
 			BORDER_UMBRELLA = reg.item("border_umbrella", BorderUmbrellaItem::new)
 					.model((ctx, pvd) -> {
-						var base = pvd.handheld(ctx, pvd.modLoc("item/tool/" + ctx.getName()));
+						var base = pvd.handheld(ctx, pvd.modLoc("item/border_umbrella/" + ctx.getName()));
 						base.override().predicate(GensokyoLegacy.loc("umbrella_open"), 1)
 								.model(pvd.withExistingParent("item/" + ctx.getName() + "_open", "item/handheld").
-										texture("layer0", pvd.modLoc("item/tool/" + ctx.getName() + "_open")))
+										texture("layer0", pvd.modLoc("item/border_umbrella/" + ctx.getName() + "_open")))
 								.end();
 						// icon variants for the wheel display stacks (cf. glove_display):
 						// vanilla reverses the override list at bake time and returns the
@@ -361,7 +361,7 @@ public class GLItems {
 							base.override()
 									.predicate(GensokyoLegacy.loc("umbrella_display"), i + 1)
 									.model(pvd.withExistingParent("item/umbrella_icon_" + modes[i].iconName(), "item/generated")
-											.texture("layer0", pvd.modLoc("item/tool/border_umbrella_icon_" + modes[i].iconName())))
+											.texture("layer0", pvd.modLoc("item/border_umbrella/border_umbrella_icon_" + modes[i].iconName())))
 									.end();
 						}
 					})

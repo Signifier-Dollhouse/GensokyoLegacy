@@ -2,7 +2,7 @@
   "base": {
     "parent": "minecraft:item/generated",
     "textures": {
-      "layer0": "gensokyolegacy:item/tool/glove_volley"
+      "layer0": "gensokyolegacy:item/doll_glove/glove_volley"
     }
   },
   "gui_light": "front",
