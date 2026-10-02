@@ -19,6 +19,7 @@ import dev.xkmc.gensokyolegacy.content.item.debug.DoorDebugItem;
 import dev.xkmc.gensokyolegacy.content.item.debug.StructureWand;
 import dev.xkmc.gensokyolegacy.content.item.doll.DollItem;
 import dev.xkmc.gensokyolegacy.content.item.doll.DollItemData;
+import dev.xkmc.gensokyolegacy.content.item.doll.DollLanceItem;
 import dev.xkmc.gensokyolegacy.content.item.gift.*;
 import dev.xkmc.gensokyolegacy.content.item.glove.DollGloveItem;
 import dev.xkmc.gensokyolegacy.content.item.glove.mode.DollGloveMode;
@@ -103,6 +104,8 @@ public class GLItems {
 	public static final ItemEntry<DollItem> DOLL;
 
 	public static final ItemEntry<DollGloveItem> DOLL_GLOVE;
+
+	public static final ItemEntry<DollLanceItem> DOLL_LANCE;
 
 	public static final ItemEntry<StarDanmakuItem> STAR;
 	public static final ItemEntry<StarWandItem> STAR_WAND;
@@ -389,6 +392,27 @@ public class GLItems {
 					})
 					.lang("Seven-Colored Doll Glove").tab(TAB.key())
 					.tag(L2ISTagGen.SELECTABLE)
+					.register();
+
+			// The lance is a hand-authored Blockbench model with real elements — a 28-unit
+			// polearm along +Z, which neither `handheld` nor `generated` can express — so it
+			// lives in src/main/resources/models/custom and is wired up as the base, i.e. every
+			// display context but GUI. The GUI gets the flat 16x16 icon instead: a 28-unit
+			// lance has no transform that lands it inside a 16px slot.
+			DOLL_LANCE = reg.item("doll_lance", DollLanceItem::new)
+					.model((ctx, pvd) -> {
+						var base = pvd.nested()
+								.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/doll_lance")));
+						var guiModel = pvd.nested()
+								.parent(new ModelFile.UncheckedModelFile("item/generated"))
+								.texture("layer0", pvd.modLoc("item/tool/" + ctx.getName() + "_icon"));
+						pvd.getBuilder(ctx.getName())
+								.customLoader(SeparateTransformsModelBuilder::begin)
+								.base(base)
+								.perspective(ItemDisplayContext.GUI, guiModel)
+								.end().guiLight(BlockModel.GuiLight.FRONT);
+					})
+					.lang("Doll Lance").tab(TAB.key())
 					.register();
 
 			STRAW_HAT = reg
