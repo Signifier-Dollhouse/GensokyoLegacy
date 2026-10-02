@@ -4,6 +4,7 @@ import dev.xkmc.gensokyolegacy.content.entity.dolls.DollEntity;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.action.DollAction;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.action.DollActionType;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.behavior.DollBehaviorRegistry.HandMatch;
+import dev.xkmc.gensokyolegacy.content.entity.dolls.impl.DollHandLock;
 import dev.xkmc.gensokyolegacy.content.item.doll.DollSlot;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
@@ -67,12 +68,19 @@ public abstract class DollBehavior {
 
 	/**
 	 * The doll acts with its main hand: sticky-swap the ledger when the match is
-	 * off hand (the mirror follows).
+	 * off hand (the mirror follows), and lock both hands for {@link DollHandLock#HOLD}
+	 * ticks.
+	 * <p>
+	 * The lock is why this is also where the spend is recorded. Every behavior calls
+	 * this immediately before using the item, and several complete their ticket on
+	 * that same tick, so without it a host could re-arm the doll on the next tick
+	 * and the client would watch the item blink out of the hand mid-animation.
 	 */
 	protected void ensureMainHand(DollEntity doll, HandMatch match) {
 		if (match.hand() != DollSlot.MAIN_HAND) {
 			doll.swapHands();
 		}
+		doll.handLock.stamp(doll.level().getGameTime());
 	}
 
 	@Nullable
