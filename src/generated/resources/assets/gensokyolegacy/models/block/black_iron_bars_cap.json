@@ -1,9 +1,0 @@
-{
-  "parent": "minecraft:block/iron_bars_cap",
-  "render_type": "minecraft:cutout",
-  "textures": {
-    "bars": "gensokyolegacy:block/deco/black_iron_bars",
-    "edge": "gensokyolegacy:block/deco/black_iron_bars",
-    "particle": "gensokyolegacy:block/deco/black_iron_bars"
-  }
-}

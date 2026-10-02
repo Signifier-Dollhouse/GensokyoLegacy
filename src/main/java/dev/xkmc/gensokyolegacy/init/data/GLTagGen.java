@@ -20,6 +20,10 @@ public class GLTagGen {
 
 	public static final TagKey<Item> CURRENCY = item("currency");
 	public static final TagKey<Item> CUSHIONS = item("cushions");
+	public static final TagKey<Item> NOREN = item("noren");
+	public static final TagKey<Item> STRIPED_NOREN = item("striped_noren");
+	public static final TagKey<Item> WAVY_NOREN = item("wavy_noren");
+	public static final TagKey<Item> LONG_NOREN = item("long_noren");
 	public static final TagKey<Item> CARTONS = item("cartons");
 	public static final TagKey<Item> HUGE_MUSHROOM = item("huge_mushroom");
 

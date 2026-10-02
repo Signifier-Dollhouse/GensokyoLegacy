@@ -1,8 +1,0 @@
-{
-  "parent": "gensokyolegacy:custom/building/black_iron_pillar",
-  "render_type": "minecraft:cutout",
-  "textures": {
-    "0": "gensokyolegacy:block/deco/black_iron_pillar",
-    "particle": "gensokyolegacy:block/deco/black_iron_pillar"
-  }
-}

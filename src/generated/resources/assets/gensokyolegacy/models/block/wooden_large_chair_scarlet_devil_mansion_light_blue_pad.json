@@ -1,9 +1,0 @@
-{
-  "parent": "gensokyolegacy:custom/furniture/wooden_large_chair_pad_bottom",
-  "render_type": "minecraft:cutout",
-  "textures": {
-    "pad": "gensokyolegacy:block/chair/light_blue_pad",
-    "particle": "minecraft:block/birch_planks",
-    "wood": "gensokyolegacy:block/wood/wooden_large_chair_scarlet_devil_mansion"
-  }
-}

@@ -1,8 +1,0 @@
-{
-  "parent": "gensokyolegacy:custom/furniture/curtain",
-  "render_type": "minecraft:cutout",
-  "textures": {
-    "0": "gensokyolegacy:block/curtain/purple_curtain_striped",
-    "particle": "gensokyolegacy:block/curtain/purple_curtain_striped"
-  }
-}

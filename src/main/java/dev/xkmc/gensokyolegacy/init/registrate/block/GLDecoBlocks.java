@@ -1,17 +1,17 @@
 package dev.xkmc.gensokyolegacy.init.registrate.block;
 
 import com.tterrag.registrate.providers.DataGenContext;
-import com.tterrag.registrate.providers.RegistrateBlockstateProvider;
 import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import com.tterrag.registrate.util.DataIngredient;
 import com.tterrag.registrate.util.entry.BlockEntry;
 import com.tterrag.registrate.util.nullness.NonNullBiConsumer;
+import dev.xkmc.gensokyolegacy.content.block.deco.door.NorenBlock;
+import dev.xkmc.gensokyolegacy.content.block.deco.door.NorenJsons;
 import dev.xkmc.gensokyolegacy.content.block.deco.door.SlidingDoor;
 import dev.xkmc.gensokyolegacy.content.block.deco.door.SlidingDoorJsons;
-import dev.xkmc.gensokyolegacy.content.block.deco.misc.BlackIronFenceBlock;
-import dev.xkmc.gensokyolegacy.content.block.deco.misc.BlackIronPillarBlock;
-import dev.xkmc.gensokyolegacy.content.block.deco.misc.CurtainBlock;
 import dev.xkmc.gensokyolegacy.content.block.deco.misc.TatamiBlock;
+import dev.xkmc.gensokyolegacy.content.block.deco.misc.WroughtIronBarsBlock;
+import dev.xkmc.gensokyolegacy.content.block.deco.misc.WroughtIronPillarBlock;
 import dev.xkmc.gensokyolegacy.content.block.deco.seat.CushionBlock;
 import dev.xkmc.gensokyolegacy.content.block.deco.seat.ISeatableBlock;
 import dev.xkmc.gensokyolegacy.content.block.deco.seat.SeatableImpl;
@@ -28,7 +28,6 @@ import dev.xkmc.l2core.init.reg.registrate.SimpleEntry;
 import dev.xkmc.l2modularblock.core.BlockTemplates;
 import dev.xkmc.l2modularblock.core.DelegateBlock;
 import dev.xkmc.l2modularblock.impl.DoubleBlockImpl;
-import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.recipes.RecipeCategory;
@@ -47,8 +46,6 @@ import net.minecraft.world.item.Rarity;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockBehaviour;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.Half;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.material.PushReaction;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
@@ -71,12 +68,8 @@ public class GLDecoBlocks {
 	public static final BlockEntry<DelegateBlock> STURDY_TEDDY_BEAR;
 	public static final BlockEntry<DelegateBlock> CUSHION;
 	public static final BlockEntry<DelegateBlock> SCARLET_CHAIR;
-
-	public static final BlockEntry<BlackIronPillarBlock> BLACK_IRON_PILLAR;
-
-	public static final BlockEntry<BlackIronFenceBlock> BLACK_IRON_BARS;
-
-	public static final BlockEntry<CurtainBlock> NEITUN_CURTAIN;
+	public static final BlockEntry<WroughtIronBarsBlock> WROUGHT_IRON_BARS;
+	public static final BlockEntry<WroughtIronPillarBlock> WROUGHT_IRON_PILLAR;
 
 	static {
 		var reg = GensokyoLegacy.REGISTRATE;
@@ -193,6 +186,26 @@ public class GLDecoBlocks {
 				.register();
 		}
 
+		// wrought iron
+		{
+			WROUGHT_IRON_BARS = reg.block("wrought_iron_bars", WroughtIronBarsBlock::new)
+					.initialProperties(() -> Blocks.IRON_BARS)
+					.blockstate(WroughtIronBarsBlock::buildStates)
+					.tag(BlockTags.MINEABLE_WITH_PICKAXE)
+					.item().model((ctx, pvd) -> pvd.withExistingParent(ctx.getName(), "item/generated")
+							.texture("layer0", pvd.modLoc("block/deco/wrought_iron_bar")))
+					.build()
+					.register();
+
+			WROUGHT_IRON_PILLAR = reg.block("wrought_iron_pillar", WroughtIronPillarBlock::new)
+					.properties(p -> p.mapColor(MapColor.METAL).requiresCorrectToolForDrops()
+							.strength(5.0F, 6.0F).sound(SoundType.METAL).noOcclusion())
+					.blockstate(WroughtIronPillarBlock::buildStates)
+					.tag(BlockTags.MINEABLE_WITH_PICKAXE)
+					.simpleItem()
+					.register();
+		}
+
 		// cushion
 		{
 			CUSHION = reg.block("cushion", p -> ISeatableBlock.of(p, 2 / 16f, new CushionBlock(), new SeatableImpl()))
@@ -280,12 +293,46 @@ public class GLDecoBlocks {
 		SCARLET_CHAIR = reg.block("wooden_large_chair_scarlet_devil_mansion", p -> ISeatableBlock.of(p, 12 / 16f, BlockTemplates.HORIZONTAL,
 						new DoubleBlockImpl(), new LargeChairBlock(), new CoverableImpl(), new SeatableImpl()))
 				.initialProperties(() -> Blocks.OAK_PLANKS)
-				.blockstate((ctx, pvd) -> LargeChairBlock.buildStates(ctx, pvd, ctx.getName()))
+				.blockstate(LargeChairBlock::buildStates)
 				.tag(BlockTags.MINEABLE_WITH_AXE)
 				.item().model(LargeChairBlock::genItemModel)
 				.dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(400)).build()
 				.loot(LargeChairBlock::genLoot)
 				.register();
+
+		// noren
+		{
+
+			// 门帘:每个颜色每种花纹各一个,长款往下多吊一截。染色时按花纹各自换个颜色,花纹不变;同色羊毛用切石机裁出
+			for (DyeColor col : DyeColor.values()) {
+				for (var kind : NorenBlock.Kind.values()) {
+					reg.block(kind.name(col), p -> NorenBlock.create(p, kind.hanging()))
+							.properties(p -> p.mapColor(MapColor.NONE).strength(0.1F).sound(SoundType.WOOL)
+									.pushReaction(PushReaction.DESTROY).noOcclusion().noCollission())
+							.blockstate((ctx, pvd) -> NorenJsons.buildBlockState(ctx, pvd, kind.hanging()))
+							.item().tag(kind.tag())
+							.model((ctx, pvd) -> NorenJsons.genItemModel(ctx, pvd, kind.hanging()))
+						.build()
+						.recipe((ctx, pvd) -> {
+							GLRecipeGen.cutWool(pvd, col, ctx);
+							GLRecipeGen.unlock(pvd, ShapelessRecipeBuilder.shapeless(
+												RecipeCategory.DECORATIONS, ctx.get())::unlockedBy, DyeItem.byColor(col))
+											.requires(kind.tag()).requires(col.getTag()).save(pvd);
+						})
+						.register();
+				}
+			}
+
+			// 霓吞町门帘,只能从结构里拿,没有配方
+			reg.block("neiton_noren", p -> NorenBlock.create(p, true))
+					.properties(p -> p.mapColor(MapColor.NONE).strength(0.1F).sound(SoundType.WOOL)
+							.pushReaction(PushReaction.DESTROY).noOcclusion().noCollission())
+					.blockstate((ctx, pvd) -> NorenJsons.buildBlockState(ctx, pvd, true))
+					.item().model((ctx, pvd) -> NorenJsons.genItemModel(ctx, pvd, true))
+					.build()
+					.register();
+
+		}
 
 		// brick sets
 		{
@@ -299,155 +346,6 @@ public class GLDecoBlocks {
 
 		}
 
-		// 黑铁柱：上下方有任意方块时不渲染对应端面
-		{
-			BLACK_IRON_PILLAR = reg.block("black_iron_pillar", BlackIronPillarBlock::new)
-					.initialProperties(() -> Blocks.DEEPSLATE)
-					.properties(p -> p.mapColor(MapColor.COLOR_BLACK).noOcclusion())
-					.blockstate((ctx, pvd) -> {
-						var tex = pvd.modLoc("block/deco/black_iron_pillar");
-						buildPillarModel(pvd, ctx.getName(), "black_iron_pillar", tex);
-						var base = buildPillarModel(pvd, ctx.getName() + "_base", "black_iron_pillar_base", tex);
-						var top = buildPillarModel(pvd, ctx.getName() + "_top", "black_iron_pillar_top", tex);
-						var bottom = buildPillarModel(pvd, ctx.getName() + "_bottom", "black_iron_pillar_bottom", tex);
-						var builder = pvd.getMultipartBuilder(ctx.get());
-						builder.part().modelFile(base).addModel();
-						builder.part().modelFile(top).addModel().condition(BlackIronPillarBlock.TOP, true).end();
-						builder.part().modelFile(bottom).addModel().condition(BlackIronPillarBlock.BOTTOM, true).end();
-					})
-					.tag(BlockTags.MINEABLE_WITH_PICKAXE)
-					.item().tab(TAB.key())
-					.model((ctx, pvd) -> pvd.getBuilder(ctx.getName())
-							.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("block/" + ctx.getName())))
-							.renderType("cutout"))
-					.build()
-					.register();
-		}
-
-		// 门帘：16 色 x 4 款式 + 霓吞町，无碰撞但可交互，走向随玩家放置朝向
-		{
-			NEITUN_CURTAIN = registerCurtain(reg, "neitun_curtain", MapColor.COLOR_BLUE);
-			for (DyeColor col : DyeColor.values()) {
-				registerCurtain(reg, col.getName() + "_curtain", col.getMapColor());
-				registerCurtain(reg, col.getName() + "_curtain_striped", col.getMapColor());
-				registerCurtain(reg, col.getName() + "_curtain_wavy", col.getMapColor());
-				registerCurtain(reg, col.getName() + "_curtain_double_striped_long", col.getMapColor());
-			}
-		}
-
-		// 黑铁栅栏：复用原版铁栏杆模型，端面材质随上下是否有黑铁栅栏切换
-		{
-			BLACK_IRON_BARS = reg.block("black_iron_bars", BlackIronFenceBlock::new)
-					.initialProperties(() -> Blocks.IRON_BARS)
-					.properties(p -> p.mapColor(MapColor.COLOR_BLACK))
-					.blockstate(GLDecoBlocks::buildBarsStates)
-					.tag(BlockTags.MINEABLE_WITH_PICKAXE)
-					.item().tab(TAB.key())
-					// 与原版铁栏杆一致：背包内使用 2D 材质精灵而非 3D 模型
-					.model((ctx, pvd) -> pvd.getBuilder(ctx.getName())
-							.parent(new ModelFile.UncheckedModelFile("item/generated"))
-							.texture("layer0", pvd.modLoc("block/deco/black_iron_bars")))
-					.build()
-					.register();
-		}
-
-	}
-
-	/**
-	 * 复刻原版铁栏杆 multipart，端面（post_ends）按上下是否存在黑铁栅栏切换截面材质。
-	 */
-	private static void buildBarsStates(DataGenContext<Block, ? extends Block> ctx, RegistrateBlockstateProvider pvd) {
-		String name = ctx.getName();
-		var tex = pvd.modLoc("block/deco/black_iron_bars");
-		var topTex = pvd.modLoc("block/deco/black_iron_bars_top");
-		var post = buildBarsModel(pvd, name + "_post", "iron_bars_post", tex);
-		var cap = buildBarsModel(pvd, name + "_cap", "iron_bars_cap", tex);
-		var capAlt = buildBarsModel(pvd, name + "_cap_alt", "iron_bars_cap_alt", tex);
-		var side = buildBarsModel(pvd, name + "_side", "iron_bars_side", tex);
-		var sideAlt = buildBarsModel(pvd, name + "_side_alt", "iron_bars_side_alt", tex);
-		var endsTT = buildBarsEndsModel(pvd, name + "_ends_tt", tex, topTex, topTex);
-		var endsTF = buildBarsEndsModel(pvd, name + "_ends_tf", tex, topTex, tex);
-		var endsFT = buildBarsEndsModel(pvd, name + "_ends_ft", tex, tex, topTex);
-		var endsFF = buildBarsEndsModel(pvd, name + "_ends_ff", tex, tex, tex);
-		var builder = pvd.getMultipartBuilder(ctx.get());
-		builder.part().modelFile(endsTT).addModel().condition(BlackIronFenceBlock.TOP, true).condition(BlackIronFenceBlock.BOTTOM, true).end();
-		builder.part().modelFile(endsTF).addModel().condition(BlackIronFenceBlock.TOP, true).condition(BlackIronFenceBlock.BOTTOM, false).end();
-		builder.part().modelFile(endsFT).addModel().condition(BlackIronFenceBlock.TOP, false).condition(BlackIronFenceBlock.BOTTOM, true).end();
-		builder.part().modelFile(endsFF).addModel().condition(BlackIronFenceBlock.TOP, false).condition(BlackIronFenceBlock.BOTTOM, false).end();
-		builder.part().modelFile(post).addModel()
-				.condition(BlockStateProperties.NORTH, false).condition(BlockStateProperties.EAST, false)
-				.condition(BlockStateProperties.SOUTH, false).condition(BlockStateProperties.WEST, false).end();
-		builder.part().modelFile(cap).addModel()
-				.condition(BlockStateProperties.NORTH, true).condition(BlockStateProperties.EAST, false)
-				.condition(BlockStateProperties.SOUTH, false).condition(BlockStateProperties.WEST, false).end();
-		builder.part().modelFile(cap).rotationY(90).addModel()
-				.condition(BlockStateProperties.NORTH, false).condition(BlockStateProperties.EAST, true)
-				.condition(BlockStateProperties.SOUTH, false).condition(BlockStateProperties.WEST, false).end();
-		builder.part().modelFile(capAlt).addModel()
-				.condition(BlockStateProperties.NORTH, false).condition(BlockStateProperties.EAST, false)
-				.condition(BlockStateProperties.SOUTH, true).condition(BlockStateProperties.WEST, false).end();
-		builder.part().modelFile(capAlt).rotationY(90).addModel()
-				.condition(BlockStateProperties.NORTH, false).condition(BlockStateProperties.EAST, false)
-				.condition(BlockStateProperties.SOUTH, false).condition(BlockStateProperties.WEST, true).end();
-		builder.part().modelFile(side).addModel().condition(BlockStateProperties.NORTH, true).end();
-		builder.part().modelFile(side).rotationY(90).addModel().condition(BlockStateProperties.EAST, true).end();
-		builder.part().modelFile(sideAlt).addModel().condition(BlockStateProperties.SOUTH, true).end();
-		builder.part().modelFile(sideAlt).rotationY(90).addModel().condition(BlockStateProperties.WEST, true).end();
-	}
-
-	private static ModelFile buildBarsModel(RegistrateBlockstateProvider pvd, String name, String parent, ResourceLocation tex) {
-		return pvd.models().getBuilder("block/" + name)
-				.parent(new ModelFile.UncheckedModelFile(pvd.mcLoc("block/" + parent)))
-				.texture("particle", tex)
-				.texture("bars", tex)
-				.texture("edge", tex)
-				.renderType("cutout");
-	}
-
-	private static ModelFile buildBarsEndsModel(RegistrateBlockstateProvider pvd, String name, ResourceLocation tex,
-	                                            ResourceLocation edgeTop, ResourceLocation edgeBottom) {
-		return pvd.models().getBuilder("block/" + name)
-				.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/building/black_iron_bars_post_ends")))
-				.texture("particle", tex)
-				.texture("edge_top", edgeTop)
-				.texture("edge_bottom", edgeBottom)
-				.renderType("cutout");
-	}
-
-	private static BlockEntry<CurtainBlock> registerCurtain(L2Registrate reg, String id, MapColor color) {
-		return reg.block(id, CurtainBlock::new)
-				.properties(p -> p.mapColor(color).strength(0.3F).sound(SoundType.WOOL)
-						.noCollission().noOcclusion().pushReaction(PushReaction.DESTROY))
-				.blockstate((ctx, pvd) -> {
-					var model = buildCurtainModel(pvd, ctx.getName());
-					pvd.getVariantBuilder(ctx.get())
-							.partialState().with(CurtainBlock.AXIS, Direction.Axis.X)
-							.modelForState().modelFile(model).addModel()
-							.partialState().with(CurtainBlock.AXIS, Direction.Axis.Z)
-							.modelForState().modelFile(model).rotationY(90).addModel();
-				})
-				.item().tab(TAB.key())
-				.model((ctx, pvd) -> pvd.getBuilder(ctx.getName())
-						.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("block/" + ctx.getName())))
-						.renderType("cutout"))
-				.build()
-				.register();
-	}
-
-	private static ModelFile buildCurtainModel(RegistrateBlockstateProvider pvd, String name) {
-		return pvd.models().getBuilder("block/" + name)
-				.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/furniture/curtain")))
-				.texture("0", pvd.modLoc("block/curtain/" + name))
-				.texture("particle", pvd.modLoc("block/curtain/" + name))
-				.renderType("cutout");
-	}
-
-	private static ModelFile buildPillarModel(RegistrateBlockstateProvider pvd, String name, String parent, ResourceLocation tex) {
-		return pvd.models().getBuilder("block/" + name)
-				.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/building/" + parent)))
-				.texture("0", tex)
-				.texture("particle", tex)
-				.renderType("cutout");
 	}
 
 	public static void register() {

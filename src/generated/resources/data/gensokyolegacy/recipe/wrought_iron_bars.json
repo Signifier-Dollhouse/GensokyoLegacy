@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "B": {
+      "item": "minecraft:black_dye"
+    },
+    "I": {
+      "item": "minecraft:iron_bars"
+    }
+  },
+  "pattern": [
+    "I I",
+    "IBI",
+    "I I"
+  ],
+  "result": {
+    "count": 8,
+    "id": "gensokyolegacy:wrought_iron_bars"
+  }
+}

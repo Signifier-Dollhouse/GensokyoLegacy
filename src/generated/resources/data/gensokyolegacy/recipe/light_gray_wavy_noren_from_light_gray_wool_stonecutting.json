@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": {
+    "item": "minecraft:light_gray_wool"
+  },
+  "result": {
+    "count": 1,
+    "id": "gensokyolegacy:light_gray_wavy_noren"
+  }
+}

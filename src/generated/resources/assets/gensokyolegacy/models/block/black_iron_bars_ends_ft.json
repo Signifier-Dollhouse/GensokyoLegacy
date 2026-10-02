@@ -1,9 +1,0 @@
-{
-  "parent": "gensokyolegacy:custom/building/black_iron_bars_post_ends",
-  "render_type": "minecraft:cutout",
-  "textures": {
-    "edge_bottom": "gensokyolegacy:block/deco/black_iron_bars_top",
-    "edge_top": "gensokyolegacy:block/deco/black_iron_bars",
-    "particle": "gensokyolegacy:block/deco/black_iron_bars"
-  }
-}

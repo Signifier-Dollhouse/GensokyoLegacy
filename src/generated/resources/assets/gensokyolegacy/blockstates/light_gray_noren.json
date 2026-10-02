@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "gensokyolegacy:block/light_gray_noren",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "gensokyolegacy:block/light_gray_noren"
+    },
+    "facing=south": {
+      "model": "gensokyolegacy:block/light_gray_noren",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "gensokyolegacy:block/light_gray_noren",
+      "y": 270
+    }
+  }
+}
