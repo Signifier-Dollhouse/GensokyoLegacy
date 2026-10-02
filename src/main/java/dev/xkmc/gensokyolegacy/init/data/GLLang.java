@@ -631,6 +631,60 @@ public final class GLLang {
 		}
 	}
 
+	// ========== ItemDaggerGlove (dagger_glove.*) ==========
+	public enum ItemDaggerGlove implements LangEntry {
+		MODE("Mode: %s", 1),
+		MODE_SINGLE("Single"),
+		MODE_FAN("Fan"),
+		MODE_HOMING("Homing"),
+		DESC_SINGLE("Throw one dagger", 0, ChatFormatting.GRAY),
+		DESC_FAN("Throw 7 daggers in a 30-degree fan", 0, ChatFormatting.GRAY),
+		DESC_HOMING("Throw 10 daggers that turn onto the target you are looking at", 0, ChatFormatting.GRAY),
+		RUNE("Rune: +%s ticks cooldown", 1, ChatFormatting.LIGHT_PURPLE),
+		NO_DAGGER("No daggers", 0, ChatFormatting.RED),
+		NO_TARGET("No target in sight", 0, ChatFormatting.RED);
+
+		private final String def;
+		private final int argn;
+		private final String key;
+		private final @Nullable ChatFormatting format;
+
+		ItemDaggerGlove(String def) {
+			this(def, 0);
+		}
+
+		ItemDaggerGlove(String def, int argn) {
+			this(def, argn, null);
+		}
+
+		ItemDaggerGlove(String def, int argn, @Nullable ChatFormatting format) {
+			this.def = def;
+			this.argn = argn;
+			this.key = GensokyoLegacy.MODID + ".dagger_glove." + name().toLowerCase(Locale.ROOT);
+			this.format = format;
+		}
+
+		@Override
+		public String key() {
+			return key;
+		}
+
+		@Override
+		public String def() {
+			return def;
+		}
+
+		@Override
+		public int argn() {
+			return argn;
+		}
+
+		@Override
+		public @Nullable ChatFormatting format() {
+			return format;
+		}
+	}
+
 	// ========== Jei ==========
 	public enum Jei implements LangEntry {
 		ALCHEMY("jei.gensokyolegacy.alchemy", "Alchemy Pot");
@@ -772,7 +826,7 @@ public final class GLLang {
 	public static void genLang(RegistrateLangProvider pvd) {
 		for (var group : new LangEntry[][]{
 				Quest.values(), Info.values(), Trade.values(), Misc.values(),
-				ItemDebug.values(), ItemFurnace.values(), ItemCommon.values(), ItemUmbrella.values(), ItemGlove.values(), Alchemy.values(), Jei.values(),
+				ItemDebug.values(), ItemFurnace.values(), ItemCommon.values(), ItemUmbrella.values(), ItemGlove.values(), ItemDaggerGlove.values(), Alchemy.values(), Jei.values(),
 				Talisman.values(), Doll.values()}) {
 			for (var e : group) {
 				pvd.add(e.key(), e.def());
