@@ -18,17 +18,22 @@ import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.data.recipes.ShapelessRecipeBuilder;
 import net.minecraft.tags.ItemTags;
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.material.Fluids;
 
 import java.util.function.BiFunction;
+import java.util.function.Supplier;
 
 public class GLRecipeGen {
 
 	public static void genRecipe(RegistrateRecipeProvider pvd) {
 		furniture(pvd);
+		wroughtIron(pvd);
 		hexbrew(pvd);
 
 		unlock(pvd, ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, GLBlocks.ALCHEMY_POT.get(), 6)::unlockedBy, Items.IRON_INGOT)
@@ -255,6 +260,56 @@ public class GLRecipeGen {
 		unlock(pvd, ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, GLFurniture.CARTON.get(), 2)::unlockedBy, Items.PAPER)
 				.pattern("PPP").pattern("PPP")
 				.define('P', Items.PAPER).save(pvd);
+	}
+
+	/**
+	 * Wrought iron: iron bars welded into a ring and blackened with a single
+	 * black dye, then two bars stacked into a pillar. Neither step loses bars,
+	 * so the cost of the metal is the same as vanilla iron bars throughout.
+	 */
+	private static void wroughtIron(RegistrateRecipeProvider pvd) {
+		// 8 bars around the dye, 8 bars out
+		unlock(pvd, ShapedRecipeBuilder.shaped(
+				RecipeCategory.DECORATIONS, GLDecoBlocks.WROUGHT_IRON_BARS.get(), 8)::unlockedBy, Items.IRON_BARS)
+				.pattern("I I").pattern("IBI").pattern("I I")
+				.define('I', Items.IRON_BARS).define('B', Items.BLACK_DYE).save(pvd);
+		// two bars stacked, like a vanilla pillar
+		unlock(pvd, ShapedRecipeBuilder.shaped(
+				RecipeCategory.DECORATIONS, GLDecoBlocks.WROUGHT_IRON_PILLAR.get())::unlockedBy,
+				GLDecoBlocks.WROUGHT_IRON_BARS.get().asItem())
+				.pattern("W").pattern("W")
+				.define('W', GLDecoBlocks.WROUGHT_IRON_BARS.get()).save(pvd);
+	}
+
+	/**
+	 * Noren: a curtain is its own colour of wool cut on the stonecutter, so the
+	 * whole family has a vanilla entry point. Dyeing between the four patterns
+	 * is added separately, next to each block's registration.
+	 */
+	public static void cutWool(RegistrateRecipeProvider pvd, DyeColor color, Supplier<? extends ItemLike> result) {
+		pvd.stonecutting(DataIngredient.items(wool(color)), RecipeCategory.DECORATIONS, result);
+	}
+
+	/** {@link DyeColor} carries no reference to its wool block, so spell them out. */
+	private static Block wool(DyeColor color) {
+		return switch (color) {
+			case WHITE -> Blocks.WHITE_WOOL;
+			case ORANGE -> Blocks.ORANGE_WOOL;
+			case MAGENTA -> Blocks.MAGENTA_WOOL;
+			case LIGHT_BLUE -> Blocks.LIGHT_BLUE_WOOL;
+			case YELLOW -> Blocks.YELLOW_WOOL;
+			case LIME -> Blocks.LIME_WOOL;
+			case PINK -> Blocks.PINK_WOOL;
+			case GRAY -> Blocks.GRAY_WOOL;
+			case LIGHT_GRAY -> Blocks.LIGHT_GRAY_WOOL;
+			case CYAN -> Blocks.CYAN_WOOL;
+			case PURPLE -> Blocks.PURPLE_WOOL;
+			case BLUE -> Blocks.BLUE_WOOL;
+			case BROWN -> Blocks.BROWN_WOOL;
+			case GREEN -> Blocks.GREEN_WOOL;
+			case RED -> Blocks.RED_WOOL;
+			case BLACK -> Blocks.BLACK_WOOL;
+		};
 	}
 
 }
