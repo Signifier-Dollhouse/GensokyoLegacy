@@ -1,0 +1,8 @@
+{
+  "parent": "gensokyolegacy:custom/furniture/lantern",
+  "render_type": "minecraft:cutout",
+  "textures": {
+    "0": "gensokyolegacy:block/furniture/white_lantern_connected",
+    "particle": "gensokyolegacy:block/furniture/white_lantern"
+  }
+}

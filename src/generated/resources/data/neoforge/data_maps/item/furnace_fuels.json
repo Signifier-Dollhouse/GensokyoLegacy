@@ -141,6 +141,12 @@
     "gensokyolegacy:jungle_sliding_door": {
       "burn_time": 300
     },
+    "gensokyolegacy:lettered_red_lantern": {
+      "burn_time": 300
+    },
+    "gensokyolegacy:lettered_white_lantern": {
+      "burn_time": 300
+    },
     "gensokyolegacy:light_blue_cushion": {
       "burn_time": 50
     },
@@ -210,6 +216,9 @@
     "gensokyolegacy:red_cushion": {
       "burn_time": 50
     },
+    "gensokyolegacy:red_lantern": {
+      "burn_time": 300
+    },
     "gensokyolegacy:shoji_frame": {
       "burn_time": 100
     },
@@ -254,6 +263,9 @@
     },
     "gensokyolegacy:white_cushion": {
       "burn_time": 50
+    },
+    "gensokyolegacy:white_lantern": {
+      "burn_time": 300
     },
     "gensokyolegacy:wooden_large_chair_scarlet_devil_mansion": {
       "burn_time": 400

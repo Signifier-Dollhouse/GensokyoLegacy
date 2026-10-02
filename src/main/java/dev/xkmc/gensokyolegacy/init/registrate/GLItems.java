@@ -73,6 +73,8 @@ public class GLItems {
 	public static final ItemEntry<FrozenFrogItem> FROZEN_FROG_COLD, FROZEN_FROG_WARM, FROZEN_FROG_TEMPERATE;
 	public static final ItemEntry<Item> MYSTICAL_STRAW;
 
+	public static final ItemEntry<Item> HAKUREI_GOHEI;
+
 	public static final ItemEntry<SpellItem> REIMU_SPELL, MARISA_SPELL, SANAE_SPELL, YUKARI_SPELL_BUTTERFLY, YUKARI_SPELL_LASER, MYSTIA_SPELL;
 
 	public static final ItemEntry<StrawHatItem> STRAW_HAT;
@@ -282,6 +284,11 @@ public class GLItems {
 			MYSTICAL_STRAW = reg.item("mystical_straw", Item::new)
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/ingredient/" + ctx.getName())))
 					.register();
+
+			// 博丽的御币：装饰物品，手持方式同原版剑
+			HAKUREI_GOHEI = reg.item("hakurei_gohei", Item::new)
+					.model((ctx, pvd) -> pvd.handheld(ctx, pvd.modLoc("item/tool/" + ctx.getName())))
+					.lang("Hakurei Gohei").register();
 		}
 
 		GLEffects.register();

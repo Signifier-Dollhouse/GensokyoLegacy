@@ -78,7 +78,7 @@ import java.util.Map;
  * FOREST_TYPE &gt;= OLD_GROWTH    blue fir old growth: firs only, denser large trees
  * CLEARING &gt;= CLEARING_MIN     clearing: no tree above bush size
  * </pre>
- * Thresholds are quantiles measured on NormalNoise: about 17% glade, 25% old growth, 7% clearing.
+ * Thresholds are quantiles measured on NormalNoise: about 8% glade, 25% old growth, 4% clearing.
  * Grids, spacings and counts were tuned with tools/template_export/simulate_layout.py, which
  * mirrors the constants below: change both together.
  */
@@ -87,7 +87,7 @@ public class MagicalForestFeatures {
 	public static final ResourceKey<NormalNoise.NoiseParameters> FOREST_TYPE = ResourceKey.create(Registries.NOISE, GensokyoLegacy.loc("magical_forest_type"));
 	public static final ResourceKey<NormalNoise.NoiseParameters> CLEARING = ResourceKey.create(Registries.NOISE, GensokyoLegacy.loc("magical_forest_clearing"));
 
-	private static final double GLADE = -0.28, OLD_GROWTH = 0.2, CLEARING_MIN = 0.48;
+	private static final double GLADE = -0.4, OLD_GROWTH = 0.2, CLEARING_MIN = 0.6;
 
 	// layers sharing cell, margin and salt are nested: the sparse one is a subset of the dense one.
 	// ~78% canopy cover outside glades, giant trunks >= 10 apart (mean 22)
@@ -98,8 +98,8 @@ public class MagicalForestFeatures {
 	private static final GridLayer GLADE_MUSHROOM = new GridLayer(12, 2, 7310003, 0.7f);
 
 	// XZ distance a lower layer keeps from the grid points (trunks) of the layers above it
-	private static final GridExclusionFilter LARGE_SPACING = spacing(new Entry(GIANT, 12));
-	private static final GridExclusionFilter MEDIUM_SPACING = spacing(new Entry(GIANT, 9), new Entry(LARGE_DENSE, 8));
+	private static final GridExclusionFilter LARGE_SPACING = spacing(new Entry(GIANT, 10));
+	private static final GridExclusionFilter MEDIUM_SPACING = spacing(new Entry(GIANT, 7), new Entry(LARGE_DENSE, 6));
 	private static final GridExclusionFilter MUSHROOM_SPACING = spacing(new Entry(GIANT, 7), new Entry(LARGE_DENSE, 5));
 	private static final GridExclusionFilter UNDERSTORY_SPACING = spacing(new Entry(GIANT, 5), new Entry(LARGE_DENSE, 4));
 
@@ -350,7 +350,7 @@ public class MagicalForestFeatures {
 				InSquarePlacement.spread(), noGlade, MUSHROOM_SPACING, avoid(structures, MEDIUM_CLEARANCE));
 
 		// L3 medium trees stand at the rim of the big crowns
-		tree(ctx, MEDIUM_TREE_PF, cf.getOrThrow(BLUE_FIR_MEDIUM), CountPlacement.of(3), InSquarePlacement.spread(),
+		tree(ctx, MEDIUM_TREE_PF, cf.getOrThrow(BLUE_FIR_MEDIUM), CountPlacement.of(5), InSquarePlacement.spread(),
 				noGlade, noClearing, MEDIUM_SPACING, avoid(structures, MEDIUM_CLEARANCE));
 		tree(ctx, MUSHROOM_MEDIUM_GLADE_PF, cf.getOrThrow(MUSHROOM_MEDIUM), CountPlacement.of(2),
 				InSquarePlacement.spread(), glade, UNDERSTORY_SPACING, avoid(structures, SMALL_CLEARANCE));
