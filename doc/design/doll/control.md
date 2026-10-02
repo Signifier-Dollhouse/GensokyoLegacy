@@ -30,11 +30,11 @@ Deliberate divergences from MobWeaponAPI / ModularGolems:
 |---|---|---|
 | `SUICIDE` | either hand `Items.TNT` | the TNT stack (§5.4) |
 | `SUPER_ATTACK` | `LaserItem` anywhere, else throwable `HexBrewBottleItem` (cf. `HexBrewBottleItem.use`) anywhere | the laser/hexbrew stack |
-| `REGULAR_ATTACK` | `DanmakuItem` in either hand | nothing |
+| `REGULAR_ATTACK` | `DanmakuItem` in either hand, else a sword (`#minecraft:swords`) in either hand | nothing |
 | `HEAL` | folded heal talisman in either hand, with remaining durability | talisman durability (§5.5; scheduler-issued auto only) |
 | shield block | off hand shield | shield durability (§5.6, reactive — never queued) |
 
-There is no priority between types: each doll holds a single ticket (§4). `HEAL` is never player-queued; the scheduler issues it as an auto order.
+There is no priority between types: each doll holds a single ticket (§4). Within a type the entry priority picks the item: the laser outranks hexbrew (10 vs 0) for `SUPER_ATTACK`, danmaku outranks the sword (0 vs −1) for `REGULAR_ATTACK` — the shot has no range limit while the charge gives up past 16 blocks (§5.1b), so a doll holding both keeps shooting and the sword is what a doll with no danmaku item does instead. `HEAL` is never player-queued; the scheduler issues it as an auto order.
 
 `DollActionMode` — issuance mode, carried on the command:
 
@@ -74,7 +74,11 @@ Each action is a goal-like `DollBehavior` sharing an abstract base (current-comm
 
 Targeting: actions carry a `target UUID` resolved server-side each tick (`level.getEntity(uuid)`); a vanished target aborts and the handler advances. The glove supplies the UUID from its cached ray-trace target (glove.md §2, ≤48 blocks, attack-valid: no allies, no dolls, attackable only, with a server-side re-check); the cache is a hint, never authority. Exactly one execution per doll per command, no re-targeting.
 
-Movement bounds: an acting doll never leaves a 10-block radius around its owner and never chases unreachable targets — if the target is beyond weapon range and closing would breach the leash, the goal aborts immediately rather than pursuing. Per-action ranges (doll→target): danmaku 48, laser 40, hexbrew 16, heal approach-to-2; suicide is contact range and exempt via KAMIKAZE. The 48-block ledger pullback (§10) stays as the outer net and never trips mid-action inside these bounds.
+Movement bounds: an acting doll never leaves a 10-block radius around its owner and never chases unreachable targets — if the target is beyond weapon range and closing would breach the leash, the goal aborts immediately rather than pursuing. Per-action ranges (doll→target): danmaku 48, laser 40, hexbrew 16, melee engage 16, heal approach-to-2; suicide is contact range and exempt via KAMIKAZE. The 48-block ledger pullback (§10) stays as the outer net and never trips mid-action inside these bounds.
+
+Two behaviors leave the ring deliberately, and both are bounded by something stronger than the ring itself: the suicide dive is exempt via KAMIKAZE and goes no further than a blast range, and the melee charge (§5.1b) is exempt while it runs and carries the doll at most 20 blocks from where it started. Both end back where they began (or on the target), so the pullback still never fires.
+
+Behavior tails: a behavior may outlive its own ticket through `DollBehavior.selfDriven`, which the delegating goal asks once the ticket is gone and honors only while the doll holds nothing else. The melee charge is the case: it completes on impact so a volley hands off immediately, then flies home on its own (§5.1b). Anything else still ends at completion or `stop()`.
 
 Ally lanes: all ranged attacks check the firing lane before firing. Allies are the owner plus fellow summoned dolls (never the target itself); a lane is blocked when an ally body comes within hit margin of the doll → target segment. A blocked doll strafes — sidesteps away from the blocker at hover height, clamped into the leash — instead of firing into its own team (`DollFriendlyFire`).
 
@@ -91,6 +95,17 @@ One danmaku, **item not consumed**.
 - Shot: `holder.prepareDanmaku(life, dir, type, color)` with `dir` from `DollShootUtils.predictShotDir` (laser-style: flight ticks from distance ÷ shot speed, `predictCenter`, one refinement pass; fired at that same **speed 1**), `life = 60`; `holder.shoot(e)`.
 - Blocked lane: strafe instead of firing; after ~2s continuously blocked, skip the shot (complete without firing) so the volley keeps moving.
 - Cooldown: short handler cooldown so a volley doesn't instantly re-fire.
+
+### 5.1b `REGULAR_ATTACK` — sword charge
+
+Charge the target, cut the swing on contact, bounce off and fly back to where the charge began. **Sword only, for now** (`#minecraft:swords`, so modded swords that join the tag work too); the item is **not consumed**. Registered below danmaku (§3), so this only runs on a doll with no danmaku item anywhere.
+
+- Capability: a sword in either hand. Engage range 16 (further targets are left to the ranged behaviors and the ticket simply goes unused); strike at contact range 2.5 (bounding-box distance).
+- Charge: plain velocity along the target's center, **twice the movement cap** (1.0 vs `MAX_SPEED` 0.5 blocks/tick — entity.md §3.1), no pathing: a lunge is a straight line. To outrun the cap the behavior raises it (`BaseDollEntity.setSpeedCap`) and restores `MAX_SPEED` in `stop()`. Budgets: the 20-block reach below, a 40-tick cap for a target that circles inside it without ever being caught, and a 10-tick stall guard, since a straight line into a wall never gets anywhere.
+- Leash: **exempt while charging.** The owner ring does not apply to the lunge — it is a bounded dash that ends back on the exact spot it left, so bounding it by "how far may a charge carry a doll from its origin" is both simpler and stricter: `CHARGE_REACH` 20 blocks. That is past anything the 16-block engage range admits (16 + contact), and it puts a charging doll at most 26 blocks from its owner (reach + formation radius), well inside the 48-block pullback. Without the exemption the doll starts in its formation slot 2–6 blocks out, runs out of leash room after a few blocks, and turns around — a visible lunge that never lands. A target that keeps pulling away is dropped at the reach; a target circling inside it is dropped by the tick budget.
+- Impact: `ensureMainHand` (sticky swap + hand lock), then damage = the vanilla attack-damage base (2.0 — dolls register no `ATTACK_DAMAGE` instance and the loadout is not vanilla equipment, so it is read off the attribute's own default rather than through the entity) plus every main-hand attack-damage modifier on the held stack, which is where a vanilla sword keeps its damage (`SwordItem.createAttributes`): 7 for an iron sword. On a landed hit the target takes vanilla's default 0.5 knockback along the charge, the doll plays `toy_attack`, and the ticket **completes**: the iterative volley hands off while this doll is still in the air (§8), so a sword doll never stalls the chain. The bounce is the charge velocity reverted (`scale(-0.5)`), which reads as recoil.
+- Return: plain velocity at ordinary flight speed (the cap again, `0.5`) toward the charge origin, released through `selfDriven` once the doll is **at least half way back** — the follow goal takes over from there and finishes the trip. A return that stalls (wall, corner) ends after 60 ticks, so a doll can never be stuck mid-air holding no ticket. The flight never outlives an order: a new ticket mid-return preempts it (`canContinueToUse` refuses during `RETURN`).
+- Damage is not durability: the sword does not wear (open question, §10).
 
 ### 5.2 `SUPER_ATTACK` — Laser
 
@@ -206,10 +221,10 @@ Created (`content/entity/dolls/action/`, behaviors in `.../behavior/`, all goals
 - `DollBehaviorRegistry.java` (`behavior/`) — `(id, predicate, type, priority, factory)` entries; `findHand` for capability, `createFor` for per-execution construction (§1–2)
 - `DollBehaviors.java` — built-in registration (danmaku / laser / hexbrew / TNT / heal-talis­man / shield-offhand)
 - `DollCardHolder.java` — `implements CardHolder` for the doll (§5)
-- `DollBehavior.java` + `DollDanmakuBehavior`, `DollLaserBehavior`, `DollThrowBehavior`, `DollSuicideBehavior`, `DollHealBehavior` (`behavior/`, §5; laser before throw for super). `ensureMainHand` is also the single place a spend is recorded, so every behavior holds its item for the swing without repeating it
+- `DollBehavior.java` + `DollDanmakuBehavior`, `DollLaserBehavior`, `DollThrowBehavior`, `DollSuicideBehavior`, `DollHealBehavior`, `DollMeleeBehavior` (`behavior/`, §5; laser before throw for super, danmaku before sword for regular). `ensureMainHand` is also the single place a spend is recorded, so every behavior holds its item for the swing without repeating it; `selfDriven` is how one outlives its ticket (§5, §5.1b)
 - `DollFriendlyFire.java` (`behavior/`) — ally lanes, blockage test, leash-clamped strafe (§5)
 - `DollHandLock.java` (`impl/`) — per-doll 10-tick post-spend hold on both hands, stamped by `ensureMainHand` (§5, §5.5)
-- `goals/DollCommandGoal.java` — the single delegating `Goal`: behavior cache, start timeouts, stop completes the still-held ticket (§5)
+- `goals/DollCommandGoal.java` — the single delegating `Goal`: behavior cache, start timeouts, stop completes the still-held ticket, self-driven tails (§5)
 
 - `DollCommander.java` (`content/attachment/doll/`, one per `DollLedger`) — volley/one-time/stop, handoff, stall guard, heal scheduling + 1-second mark prune, transient heal marks, and the follow-formation anchor (§6/§8). Every entry point takes the commanding `LivingEntity`, so a player and a character share one fan-out.
 - `DollShootUtils.java` (`util/`) — trimmed copy of MobWeaponAPI's `ShootUtils` aim helpers (target lead, gravity arcs; arrow/infinity parts dropped), used for danmaku aim and hexbrew throws
@@ -217,7 +232,7 @@ Created (`content/entity/dolls/action/`, behaviors in `.../behavior/`, all goals
 Modify (all done):
 
 - `DollEntity` — `actions` and `handLock` fields, one `DollCommandGoal` at selector priority 0, vanilla shield hooks (§5.6), never-null ledger-direct loadout API, `becomeStray()` / `rejoinOwner()` / `maybeRejoin()` (doll side of the stray cut, `DollStray`)
-- `BaseDollEntity` — pairing pipeline only (plus the stray `getHost` branch and `die()` → `onDeath` fan-out); empty-hand itemize (arming removed, loadout.md §4)
+- `BaseDollEntity` — pairing pipeline only (plus the stray `getHost` branch and `die()` → `onDeath` fan-out); empty-hand itemize (arming removed, loadout.md §4); the movement cap's `setSpeedCap` escape hatch for a behavior that spends speed on an attack (§5.1b, entity.md §3.1)
 - `DollHost` — the whole doll↔host surface: pairing (`findSummoned` / `update` / `detach` / `onDeath`) plus the **command surface** (`getFormationYaw`, `summonedAllies`, `isCommandedTarget`, `doneType`, `handAhead`, `handOff`), all defaulting to inert. Doll entity code calls these unconditionally and never branches on the concrete host, so a new host kind needs no changes in `content/entity/dolls/`. `DollLedger` narrows it to hosts that actually own a ledger, forwarding the command surface to their `DollCommander`. Impls: the player attachment, the controller block (inert), `StrayHost` (inert), and `AliceDollHost` (a character).
 - `DollSpawn` — the one materialization path every ledger shares: create the entity, key the entry to its fresh uuid, hand it the owner, apply the recorded values. The caller registers the entry *before* `addFreshEntity` so the join-level inverse check always finds a host.
 - `DollAttachment` — destroyed-resummon revival (§7); stray rejoin as `TEMP` and the recall sweep for strays (§5.4a); ledger transitions only, command logic lives in the commander
@@ -234,6 +249,8 @@ Modify (all done):
 - **Destroyed-doll revival vs. health-at-zero**: bounded exception — revival spawns *fresh* health with gear intact instead of a 0-HP corpse-cycle (§7). All other transitions stay health-preserving.
 - **Gear vs. dup protection**: gear never leaves data (§7); cloning an item clones gear (shulker precedent, accepted); ammo is consumed from the live ledger stack, so commands can't duplicate anything.
 - **Item popped mid-swing**: heal, throw and laser complete their ticket on the tick they spend the item, so a host arming on the very next tick would take it away (or swap it to the other hand) while the one-shot animation is still playing. `DollHandLock` holds both hands for 10 ticks past the spend, and `ensureMainHand` is the only writer — one call every behavior already makes. The 10 ticks are `DollDanmakuBehavior.WINDDOWN_TICKS`, the longest tail any behavior had anyway; no animation is cut short.
-- **Leash vs. pullback**: goals enforce the 10-block owner leash (§5), strictly inside the 48-block ledger pullback — the yank only ever fires on knockback spikes or bugs mid-action. Stray dolls (detached entries) are exempt from both while they last, but the cut only lasts until one of §5.4a's rejoins or a recall; park/resummon are otherwise unchanged.
+- **Leash vs. pullback**: goals enforce the 10-block owner leash (§5), strictly inside the 48-block ledger pullback — the yank only ever fires on knockback spikes or bugs mid-action. The two deliberate exceptions are the suicide dive (KAMIKAZE) and the melee charge (§5.1b), both bounded by their own reach and both returning to where they started, so neither can reach the yank either. Stray dolls (detached entries) are exempt from both while they last, but the cut only lasts until one of §5.4a's rejoins or a recall; park/resummon are otherwise unchanged.
 - **Stray ronin**: the stray cut is transient, not a fate — both rejoin paths (§5.4a) bring an idle doll back to its ledger, and the glove recall within 48 blocks itemizes it outright. While it is stray it keeps following its owner on stray-routed combat and the shield still works, but no ledger path can reach it: no commands, no scheduling, no itemize. Death is still the only path that ends one *without* returning it — the death drop, persisting in chunks until then.
 - **Future work (out of scope)**: continuous attacks with automatic targeting, mechanical `core` items, attack-tracking lasers, `ITERATIVE` for other types, render held items (loadout.md §5), a glove-inventory screen, block-hosted doll commands, modded-shield matching, heal-mark pruning.
+- **Sword durability**: the charge (§5.1b) costs the swing nothing, so a sword doll never wears its blade — unlike the talisman and the shield, which wear per use. Deliberate for now; the live-stack `hurtAndBreak` + mirror refresh path already exists to reuse if it changes.
+- **Melee other than a sword**: the registry predicate is the only gate — adding axes or modded weapons is one more entry — but the damage formula reads main-hand attack-damage modifiers, so anything that declares its damage elsewhere (a custom damage component) will land as bare attribute damage until it is taught the formula.

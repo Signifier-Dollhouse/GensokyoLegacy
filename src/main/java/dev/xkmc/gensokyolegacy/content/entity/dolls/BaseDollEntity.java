@@ -70,6 +70,23 @@ public abstract class BaseDollEntity extends DamageRefactorEntity implements Own
 	public static final double MAX_SPEED = 0.5;
 
 	/**
+	 * The cap actually enforced in {@link #tick()}. {@link #MAX_SPEED} while the doll
+	 * flies normally, raised by a behavior that needs a burst for its duration (the
+	 * melee charge doubles it) and restored by that behavior's {@code stop}. Nothing
+	 * else may touch it: the cap is what keeps external pushes bounded, and the only
+	 * sanctioned exception is a doll deliberately spending speed on an attack.
+	 */
+	private double speedCap = MAX_SPEED;
+
+	public double speedCap() {
+		return speedCap;
+	}
+
+	public void setSpeedCap(double speedCap) {
+		this.speedCap = speedCap;
+	}
+
+	/**
 	 * Per-entity persistence slices. Populated from {@link #createDollModules(List)} in the
 	 * base constructor; each hierarchy level appends its own through {@code super}.
 	 */
@@ -400,11 +417,12 @@ public abstract class BaseDollEntity extends DamageRefactorEntity implements Own
 	@Override
 	public void tick() {
 		super.tick();
-		// Movement cap: hard-clamp velocity to MAX_SPEED blocks/tick so even external
-		// pushes (knockback, explosions) cannot exceed the cap (doc/design/doll/entity.md).
+		// Movement cap: hard-clamp velocity to the cap (MAX_SPEED blocks/tick unless a
+		// behavior raised it) so even external pushes (knockback, explosions) cannot
+		// exceed it (doc/design/doll/entity.md).
 		Vec3 motion = getDeltaMovement();
 		double speed = motion.length();
-		if (speed > MAX_SPEED) setDeltaMovement(motion.scale(MAX_SPEED / speed));
+		if (speed > speedCap) setDeltaMovement(motion.scale(speedCap / speed));
 		if (level().isClientSide() || isRemoved()) return;
 		DollHost host = getHost();
 		if (host == null) {

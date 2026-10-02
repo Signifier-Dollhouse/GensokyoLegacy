@@ -7,6 +7,7 @@ import dev.xkmc.gensokyolegacy.content.entity.dolls.behavior.DollBehaviorRegistr
 import dev.xkmc.gensokyolegacy.content.entity.dolls.impl.DollHandLock;
 import dev.xkmc.gensokyolegacy.content.item.doll.DollSlot;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
@@ -38,6 +39,17 @@ public abstract class DollBehavior {
 	public abstract void stop(DollEntity doll);
 
 	public abstract void tick(DollEntity doll);
+
+	/**
+	 * Whether this behavior keeps running after it let its ticket go. The charge's
+	 * return flight is the case: it releases the ticket on impact so a volley can
+	 * hand off, and only the flight itself is left. The delegating goal asks this
+	 * once the ticket is gone, and only for as long as it holds — a doll that takes
+	 * a new order mid-flight leaves the flight behind.
+	 */
+	public boolean selfDriven(DollEntity doll) {
+		return false;
+	}
 
 	/** My action, iff it is the current command. */
 	@Nullable
@@ -100,6 +112,17 @@ public abstract class DollBehavior {
 
 	protected void faceTarget(DollEntity doll, LivingEntity target) {
 		doll.getLookControl().setLookAt(target.getX(), target.getEyeY(), target.getZ());
+	}
+
+	/**
+	 * Turn the doll's body onto a horizontal direction. {@link #faceTarget} only
+	 * steers the head — and the look-at-owner goal owns that anyway — so a behavior
+	 * that flies on plain velocity, with no {@code DollMoveControl} to orient it,
+	 * has to set the body itself the same way the move control does.
+	 */
+	protected void faceDir(DollEntity doll, Vec3 dir) {
+		doll.setYRot(-(float) (Mth.atan2(dir.x, dir.z) * Mth.RAD_TO_DEG));
+		doll.yBodyRot = doll.getYRot();
 	}
 
 	protected void halt(DollEntity doll) {

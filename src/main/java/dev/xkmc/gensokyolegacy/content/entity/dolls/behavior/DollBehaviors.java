@@ -8,6 +8,7 @@ import dev.xkmc.gensokyolegacy.content.item.talisman.core.FoldedPaperTalisman;
 import dev.xkmc.gensokyolegacy.content.item.talisman.core.GLTalismans;
 import dev.xkmc.gensokyolegacy.content.item.talisman.core.TalismanPaperItem;
 import dev.xkmc.gensokyolegacy.content.item.talisman.kinds.HealTalisman;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
@@ -33,6 +34,12 @@ public final class DollBehaviors {
 		DollBehaviorRegistry.register("danmaku",
 				stack -> stack.getItem() instanceof DanmakuItem,
 				DollActionType.REGULAR_ATTACK, 0, DollDanmakuBehavior::new);
+		// Below danmaku: a doll holding both keeps shooting, since the shot has no
+		// range limit while the charge gives up past 16 blocks. So the sword is what
+		// a doll with no danmaku item does instead.
+		DollBehaviorRegistry.register("sword",
+				stack -> stack.is(ItemTags.SWORDS),
+				DollActionType.REGULAR_ATTACK, -1, DollMeleeBehavior::new);
 		DollBehaviorRegistry.register("laser",
 				stack -> stack.getItem() instanceof LaserItem,
 				DollActionType.SUPER_ATTACK, 10, DollLaserBehavior::new);
