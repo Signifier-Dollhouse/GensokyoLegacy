@@ -73,11 +73,18 @@ public class BroomEntity extends SimplifiedEntity implements GeoEntity {
 			discard();
 			return;
 		}
-		// Authority split as on Boat/Minecart: the riding client owns the flight
-		// model and reports the result in ServerboundMoveVehiclePacket, so the
-		// server must not simulate or it fights that packet. Other clients only
-		// receive position updates; base Entity#lerpTo snaps, as it does for boats.
-		if (!isControlledByLocalInstance()) return;
+		// Position is client-authoritative, as on Boat/Minecart: the riding client
+		// runs the flight model and reports the result in ServerboundMoveVehiclePacket,
+		// and the server just applies it. Orientation is NOT handled here — the
+		// renderer reads the rider's view directly (see BroomRenderer), because a
+		// broom has no steering of its own the way a boat does, and copying the
+		// rider's yaw into the entity made the server and the packet fight over it.
+		if (!level().isClientSide || !isControlledByLocalInstance()) {
+			setDeltaMovement(Vec3.ZERO);
+			return;
+		}
+		// keep the entity's own facing in step anyway, so the hitbox and any vanilla
+		// yaw-dependent logic (e.g. seat placement) still line up with the model
 		setYRot(rider.getYRot());
 		setXRot(rider.getXRot());
 		setDeltaMovement(thrust(rider));
@@ -128,7 +135,8 @@ public class BroomEntity extends SimplifiedEntity implements GeoEntity {
 	 * Hands the controls to whoever is sitting on the front of the shaft. This is
 	 * what makes the vehicle client-authoritative the same way a boat is: the
 	 * riding client ticks it via {@link #isControlledByLocalInstance()} and reports
-	 * the resulting position in {@code ServerboundMoveVehiclePacket}.
+	 * the resulting position in {@code ServerboundMoveVehiclePacket}, which
+	 * {@code handleMoveVehicle} accepts only when this returns that player.
 	 */
 	@Override
 	public @Nullable LivingEntity getControllingPassenger() {
