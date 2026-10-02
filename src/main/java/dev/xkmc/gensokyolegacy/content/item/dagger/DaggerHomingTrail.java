@@ -113,14 +113,21 @@ public class DaggerHomingTrail extends TrailAction {
 	 * <p>
 	 * <b>The return is transferred, not decided.</b> Both stages are flagged returnable, and this
 	 * one claims the first stage's return ({@link IronDaggerBulletEntity#handOffTo}) only after it has
-	 * actually spawned. That ordering is the whole correctness of a homing shot's ammo: whichever
-	 * way the shot ends, exactly one dagger comes back.
+	 * actually spawned — and lets the outcome of that claim decide whether it is itself returnable.
+	 * Whichever way the shot ends, exactly one dagger comes back.
 	 * <p>
 	 * The alternative — flagging the first stage non-returnable up front and relying on this trail
 	 * always producing a successor — loses the dagger whenever it does not: the target died during
 	 * the outbound flight, the level reference was gone, or the first stage hit a wall or an entity
 	 * before its life ran out (which discards it outright, never reaching {@code terminate} at all).
 	 * All of those leave no returnable entity behind and the dagger was simply gone.
+	 *
+	 * <p>
+	 * The claim can also be refused from the other direction: a first stage that hit geometry on the
+	 * very tick its life ran out has already handed the dagger back, and paying that return disarms
+	 * this trail ({@link IronDaggerBulletEntity#giveBack}) so it never runs at all. See there — it is
+	 * the half of the fix that {@code givenBack} alone does not cover, and it is why this stage takes
+	 * its returnability from the claim instead of assuming it.
 	 *
 	 * <p>
 	 * The glove's rune rides the <em>second</em> stage, not the first. A homing first stage spends
@@ -142,7 +149,6 @@ public class DaggerHomingTrail extends TrailAction {
 		if (heading == null) return;
 		var danmaku = new IronDaggerBulletEntity(GLEntities.IRON_DAGGER.get(), cachedOwner, level);
 		danmaku.setItem(dagger);
-		danmaku.setReturnable(true);
 		danmaku.setRune(rune);
 		// no mover, same as the first stage: the aimed leg's speed and heading are both fixed, so
 		// constant delta movement carries it. The heading change is done here, once, by seeding the
@@ -150,8 +156,12 @@ public class DaggerHomingTrail extends TrailAction {
 		danmaku.setup(DanmakuItems.Bullet.DAGGER.damage(), life, false, false, heading.scale(speed));
 		danmaku.moveTo(pos);
 		level.addFreshEntity(danmaku);
-		// claim the first stage's return only now that a successor exists to carry it
-		if (firstStage != null) firstStage.handOffTo(true);
+		// claim the first stage's return only now that a successor exists to carry it, and let that
+		// claim decide whether this stage is the one that returns. A refused claim means the first
+		// stage still owns the dagger and will hand it back itself, so a successor spawned anyway
+		// must not also be returnable — that is two daggers out of one. Set after the spawn because
+		// the flag has to follow the claim, and the entity cannot tick until the next tick anyway.
+		danmaku.setReturnable(firstStage != null && firstStage.handOffTo(true));
 		level.playSound(null, pos.x, pos.y, pos.z, SoundEvents.TRIDENT_HIT,
 				SoundSource.PLAYERS, 0.5F, 1.5F);
 	}

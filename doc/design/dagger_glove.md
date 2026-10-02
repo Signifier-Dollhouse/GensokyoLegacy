@@ -209,21 +209,25 @@ returnable dagger hands itself back on block hit, entity hit, or expiry.
 
 **The return is transferred between stages, not decided up front.** Both homing stages are flagged
 returnable, and stage 2 claims stage 1's return (`IronDaggerBulletEntity#handOffTo`) *only after it
-has actually been spawned*. Whichever way the shot ends, exactly one dagger comes back:
+has actually been spawned*, and takes its own returnability from the outcome of that claim. Stage 1
+disarms its trail when it pays the return (`IronDaggerBulletEntity#giveBack`). Whichever way the shot
+ends, exactly one dagger comes back:
 
 | how the shot ends | what returns the dagger |
 |---|---|
 | normal turn, stage 2 spawned | stage 2 (stage 1 suppressed by the hand-off) |
 | target died / unloaded during the outbound flight | stage 1, on expiry |
-| stage 1 hit a wall or entity first | stage 1, on the hit |
+| stage 1 hit a wall or entity before its life ran out | stage 1, on the hit |
+| **stage 1 hit a wall or entity on the tick its life ran out** | **stage 1, on the hit — and no stage 2 at all** |
 | stage 2 hit or expired | stage 2 |
 | trail lost its level (dagger reloaded mid-flight) | stage 1 |
+| trail lost its first stage | stage 1 (stage 2 is spawned non-returnable) |
 
 | | returnable | carries rune |
 |---|---|---|
 | single / fan (one entity) | yes | yes |
-| homing stage 1 (outbound) | yes | no |
-| homing stage 2 (aimed) | yes, and claims stage 1's | yes |
+| homing stage 1 (outbound) | yes, while it still owns the return | no |
+| homing stage 2 (aimed) | yes, and only if it actually claimed stage 1's | yes |
 
 Deciding this at throw time instead — flagging stage 1 non-returnable and trusting the trail to
 always produce a successor — is what the first playtest caught: **homing shots were losing daggers.**
@@ -240,6 +244,74 @@ nothing to replace it. The two worst paths were
 
 Both are now covered: the return is claimed last, after a successor exists, so "no successor" is a
 normal ending rather than a lost dagger.
+
+### 4a. The same ordering, in the dupe direction
+
+The fix above went too far the other way, and the second playtest found the mirror image of the
+first bug: **homing shots were duplicating daggers.**
+
+The two fixes share one cause — `BaseProjectile#tick` resolves the move vector's hit *before* it
+checks the lifetime:
+
+```java
+HitResult hitresult = getHitResultOnMoveVector(this, checkBlockHit());
+if (hitresult != null) onHit(hitresult);      // giveBack() + discard()
+if (tickCount >= lifetime()) {
+    if (level() instanceof ServerLevel) {
+        projectileMove();
+        terminate();                          // still runs — the entity is already discarded
+        markErased(false);
+        return;
+    }
+```
+
+A stage 1 that hits a block *before* its final tick is discarded and never reaches `terminate`, so
+it correctly ends the shot and returns its own dagger. But a stage 1 that hits on the **final** tick
+goes out through *both*: `onHitBlock` hands the dagger back and discards the entity, and the tick
+carries straight on into `terminate()` anyway — nothing returns after the hit. The trail then did
+what it always does: spawned a stage 2 flagged returnable. Stage 1's own `handedOff` flag was never
+set, and its `givenBack` flag did nothing about a *different* entity's return, so the shot handed
+back two daggers for one spent.
+
+| | dagger in | daggers out |
+|---|---|---|
+| stage 1 hit on the final tick | 1 | **2** |
+| stage 1 expired cleanly | 1 | 1 |
+| stage 1 hit before the final tick | 1 | 1 |
+
+Which is also why it read as a terrain bug rather than an ammo bug: the window is the stage 1
+final leg — 2 blocks for the innermost pair, 0.8 for the outermost — and it needs something solid in
+it. Flat ground never triggers it; a corridor, a room, or any wall inside the 16-block turn radius
+does, and `blockedByBlocks() == false` (§2d) means the glove will happily target someone through one.
+
+The fix is to make the return genuinely exclusive instead of best-effort, at the one place that
+knows whether the dagger is still owed:
+
+- **`giveBack` disarms the trail.** Paying the return sets `afterExpiry = null`, and
+  `ItemBulletEntity#terminate` short-circuits on that — so a first stage that hit geometry on its
+  final tick has nothing left to fire. Clearing a field the dagger already owns beats overriding a
+  library hook to refuse: the trail ends with the dagger rather than outliving it. And it leans on
+  nothing new, because every plain single/fan dagger already has a null `afterExpiry` and already
+  relies on `terminate` short-circuiting on it.
+- `handOffTo` now answers its own documented contract (`false` if the claim was already taken or the
+  dagger is already given back) rather than returning `true` for any spawn that happened, off a
+  single private `ownsReturn()` — `returnable && !givenBack && !handedOff`.
+- `DaggerHomingTrail` sets stage 2's returnability from the claim's result instead of assuming it,
+  which also covers a trail that lost its `firstStage` reference through a save/load: the successor
+  is then spawned non-returnable and the reloaded stage 1 hands the dagger back itself.
+
+Rejected alternatives, for the record:
+
+- **Overriding `terminate`.** Works, and was the first cut, but it is a second place to keep in sync
+  with the tick ordering it is compensating for, and it needs an `isRemoved()` check as well to cover
+  an entity discarded without a return.
+- **Guarding inside `DaggerHomingTrail#execute`.** Also works, but the shot then ends with a
+  non-returnable stage 2 spawned from a discarded first stage — a phantom dagger flying off from
+  inside a wall, which is worse than no second stage at all.
+- **Deferring the hit-path return to `markErased`** (`if (tickCount >= lifetime())` in `onHitBlock`)
+  and letting the successor take it. Returns 1 on every path, but silently *loses* the dagger if the
+  library ever stops calling `markErased` right after `terminate`, and it churns the single/fan hit
+  path for no benefit. A silent loss is a worse failure mode than a silent dupe.
 
 The rune rides stage 2 only, for a different reason: stage 1 spends its whole life on the outbound
 run and normally hits nothing, so a rune there would almost never fire, and firing on whatever the
@@ -379,8 +451,8 @@ doll glove's. The only code the two share is the target cache in `content/item/t
 - `content/item/dagger/client/DaggerGloveModeWheel.java`, `DaggerGloveModeEntry.java`
 - `content/item/targeting/GloveTargeting.java` (shared with the doll glove, §2d) — the client trace
   and the server store it drives are not this glove's and are not listed here
-- `content/entity/misc/IronDaggerBulletEntity.java` (edited: `handOffTo` return transfer, rune id
-  field, rune on hit)
+- `content/entity/misc/IronDaggerBulletEntity.java` (edited: `handOffTo` return transfer, `giveBack`
+  disarms the trail, rune id field, rune on hit)
 - `init/registrate/GLItems.java`, `init/data/GLLang.java`, `init/GLClient.java`,
   `init/GensokyoLegacy.java` (edited)
 - `textures/item/tool/dagger_glove{,_single,_fan,_homing}.png` (one glove, copied to all four paths)
@@ -397,11 +469,17 @@ doll glove's. The only code the two share is the target cache in `content/item/t
   exactly 1 dagger on all of them (target died mid-flight, trail lost its level, degenerate heading,
   normal turn); the same model with stage 1 flagged non-returnable returns **0** when no successor
   appears, which is the playtest bug reproduced in isolation.
+- The §4a dupe path modelled the same way, from the ordering in `BaseProjectile#tick` rather than
+  from the design's intent: a stage 1 hitting a block or entity on its final tick returns **2**
+  daggers out of one spent, while the same hit before the final tick and a clean expiry both return
+  1. Disarming the trail in `giveBack` makes all three return 1, and every "no successor" path still
+  returns 1.
 
 Not yet verified in game: the strange-speed fix (§2a — the mover removal), the new homing spread,
 turn timing and `16/delay` reach, the feel of the turn, whether a single re-aim reads as "homing" or
 as a bend, whether 64 blocks is the range players expect, the wheel's behaviour, and the cached
 targeting (§2d) — in particular whether the red marker appears soon enough to feel like an aim, and
-whether a shot at a target the holder has just looked away from reads as wrong. The dagger loss is
-fixed and modelled but **not** yet confirmed in game — worth watching the inventory count through a
-homing volley at a target you can kill mid-flight.
+whether a shot at a target the holder has just looked away from reads as wrong. Neither the dagger
+loss nor the §4a duplication is confirmed fixed in game — worth watching the inventory count through
+a homing volley at a target you can kill mid-flight, and then through the same volley fired down a
+corridor, which is what the duplication needed.
