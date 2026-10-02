@@ -4,6 +4,8 @@ import com.tterrag.registrate.util.entry.EntityEntry;
 import dev.xkmc.danmakuapi.content.entity.ItemBulletRenderer;
 import dev.xkmc.gensokyolegacy.content.block.deco.seat.ChairEntity;
 import dev.xkmc.gensokyolegacy.content.block.deco.seat.NothingRenderer;
+import dev.xkmc.gensokyolegacy.content.entity.broom.BroomEntity;
+import dev.xkmc.gensokyolegacy.content.entity.broom.BroomRenderer;
 import dev.xkmc.gensokyolegacy.content.entity.characters.fairy.CirnoEntity;
 import dev.xkmc.gensokyolegacy.content.entity.characters.fairy.CirnoRenderer;
 import dev.xkmc.gensokyolegacy.content.entity.characters.fairy.FairyEntity;
@@ -36,6 +38,9 @@ import java.util.Map;
 public class GLEntities {
 
 	public static final EntityEntry<ChairEntity> CHAIR;
+	// summon-only vehicle, no spawn egg or natural spawn: it exists only while a
+	// player rides it with a broom item in hand (see BroomItem)
+	public static final EntityEntry<BroomEntity> BROOM;
 
 	public static final EntityEntry<RumiaEntity> RUMIA;
 	public static final EntityEntry<ReimuEntity> REIMU;
@@ -65,6 +70,12 @@ public class GLEntities {
 				.<ChairEntity>entity("dining_chair", ChairEntity::new, MobCategory.MISC)
 				.properties(e -> e.sized(0f, 0f))
 				.renderer(() -> NothingRenderer::new)
+				.register();
+
+		BROOM = GensokyoLegacy.REGISTRATE
+				.<BroomEntity>entity("broom", BroomEntity::new, MobCategory.MISC)
+				.properties(e -> e.sized(0.4F, 0.3F).clientTrackingRange(10).updateInterval(2))
+				.renderer(() -> BroomRenderer::new)
 				.register();
 
 		{

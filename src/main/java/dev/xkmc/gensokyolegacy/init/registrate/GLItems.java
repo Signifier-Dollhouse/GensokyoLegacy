@@ -11,6 +11,7 @@ import dev.xkmc.gensokyolegacy.content.block.functional.portal.PortalSide;
 import dev.xkmc.gensokyolegacy.content.client.model.*;
 import dev.xkmc.gensokyolegacy.content.entity.characters.fairy.CirnoModel;
 import dev.xkmc.gensokyolegacy.content.entity.characters.rumia.RumiaModel;
+import dev.xkmc.gensokyolegacy.content.item.broom.BroomItem;
 import dev.xkmc.gensokyolegacy.content.item.character.*;
 import dev.xkmc.gensokyolegacy.content.item.debug.DebugGlasses;
 import dev.xkmc.gensokyolegacy.content.item.debug.DebugWand;
@@ -97,6 +98,8 @@ public class GLItems {
 	public static final ItemEntry<DoorDebugItem> DOOR_DEBUG_WAND;
 
 	public static final ItemEntry<BorderUmbrellaItem> BORDER_UMBRELLA;
+
+	public static final ItemEntry<BroomItem> BROOM;
 
 	public static final ItemEntry<DollItem> DOLL;
 
@@ -349,6 +352,11 @@ public class GLItems {
 					})
 					.lang("Border Umbrella").tab(TAB.key(), BorderUmbrellaItem::fillCreativeModeTab)
 					.tag(L2ISTagGen.SELECTABLE)
+					.register();
+
+			BROOM = reg.item("broom", BroomItem::new)
+					.model((ctx, pvd) -> pvd.handheld(ctx, pvd.modLoc("item/tool/" + ctx.getName())))
+					.lang("Flying Broom").tab(TAB.key())
 					.register();
 
 			DOLL = reg.item("doll", p -> new DollItem(p.stacksTo(1)))

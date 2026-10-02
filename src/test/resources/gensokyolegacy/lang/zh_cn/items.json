@@ -16,6 +16,7 @@
 	},
 	"entity.gensokyolegacy.doll": "人形",
 	"entity.gensokyolegacy.dining_chair": "餐椅",
+	"entity.gensokyolegacy.broom": "扫帚",
 	"block.gensokyolegacy": {
 		"donation_box": "赛钱箱",
 		"evergreen_vine": "常青垂藤",
@@ -132,6 +133,7 @@
 		"iron_dagger": "铁匕首",
 		"strange_glasses": "奇怪的眼镜",
 		"cat_bell": "猫铃铛",
+		"broom": "飞行扫帚",
 		"door_debug_wand": "门调试杖",
 		"mermaid_pearl": "人鱼珍珠",
 		"mini_hakkero_prototype": "迷你八卦炉【原型】",
