@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/handheld",
   "textures": {
-    "layer0": "gensokyolegacy:item/tool/border_umbrella_open"
+    "layer0": "gensokyolegacy:item/border_umbrella/border_umbrella_open"
   }
 }

@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "gensokyolegacy:item/tool/border_umbrella_icon_waypoint"
+    "layer0": "gensokyolegacy:item/border_umbrella/border_umbrella_icon_waypoint"
   }
 }

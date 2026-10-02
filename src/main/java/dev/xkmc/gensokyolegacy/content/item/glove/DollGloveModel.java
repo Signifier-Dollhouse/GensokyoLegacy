@@ -47,13 +47,13 @@ public class DollGloveModel {
 	public static void model(DataGenContext<Item, DollGloveItem> ctx, RegistrateItemModelProvider pvd) {
 		var modes = DollGloveMode.values();
 		var glove = pvd.getBuilder(ctx.getName());
-		perspectives(glove, pvd, pvd.modLoc("item/tool/" + ctx.getName()));
+		perspectives(glove, pvd, pvd.modLoc("item/doll_glove/" + ctx.getName()));
 		// vanilla also reverses the override list at bake time and returns the first match
 		// with >= per predicate, so emit ascending values for exact per-mode matching
 		for (int i = 0; i < modes.length; i++) {
 			var name = "item/glove_" + modes[i].iconName();
 			var held = pvd.getBuilder(name);
-			perspectives(held, pvd, pvd.modLoc("item/tool/glove_" + modes[i].iconName()));
+			perspectives(held, pvd, pvd.modLoc("item/doll_glove/glove_" + modes[i].iconName()));
 			glove.override()
 					.predicate(GensokyoLegacy.loc("glove_display"), i + 1)
 					.model(pvd.getExistingFile(pvd.modLoc(name)))
@@ -63,7 +63,7 @@ public class DollGloveModel {
 			glove.override()
 					.predicate(GensokyoLegacy.loc("glove_display"), modes.length + 1 + i)
 					.model(pvd.withExistingParent("item/glove_icon_" + modes[i].iconName(), "item/generated")
-							.texture("layer0", pvd.modLoc("item/tool/glove_icon_" + modes[i].iconName())))
+							.texture("layer0", pvd.modLoc("item/doll_glove/glove_icon_" + modes[i].iconName())))
 					.end();
 		}
 	}
