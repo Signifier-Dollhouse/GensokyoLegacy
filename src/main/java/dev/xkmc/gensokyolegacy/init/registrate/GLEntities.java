@@ -1,6 +1,7 @@
 package dev.xkmc.gensokyolegacy.init.registrate;
 
 import com.tterrag.registrate.util.entry.EntityEntry;
+import dev.xkmc.danmakuapi.content.entity.ItemBulletRenderer;
 import dev.xkmc.gensokyolegacy.content.block.deco.seat.ChairEntity;
 import dev.xkmc.gensokyolegacy.content.block.deco.seat.NothingRenderer;
 import dev.xkmc.gensokyolegacy.content.entity.characters.fairy.CirnoEntity;
@@ -16,6 +17,7 @@ import dev.xkmc.gensokyolegacy.content.entity.dolls.render.DollRenderer;
 import dev.xkmc.gensokyolegacy.content.entity.misc.FairyIce;
 import dev.xkmc.gensokyolegacy.content.entity.misc.FrozenFrog;
 import dev.xkmc.gensokyolegacy.content.entity.misc.HexBrewBottleEntity;
+import dev.xkmc.gensokyolegacy.content.entity.misc.IronDaggerBulletEntity;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.BossYoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.GeneralYoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.GeneralYoukaiRenderer;
@@ -48,6 +50,7 @@ public class GLEntities {
 	public static final EntityEntry<FrozenFrog> FROZEN_FROG;
 	public static final EntityEntry<FairyIce> FAIRY_ICE;
 	public static final EntityEntry<HexBrewBottleEntity> HEXBREW_BOTTLE;
+	public static final EntityEntry<IronDaggerBulletEntity> IRON_DAGGER;
 
 	// Spawn eggs are only registered for the three fully implemented characters
 	// (Reimu, Marisa, Morichika); every other mob and the doll are obtained in-world only.
@@ -201,6 +204,14 @@ public class GLEntities {
 					.<HexBrewBottleEntity>entity("hexbrew_bottle", HexBrewBottleEntity::new, MobCategory.MISC)
 					.properties(p -> p.sized(0.25F, 0.25F).clientTrackingRange(4).updateInterval(10))
 					.renderer(() -> ThrownItemRenderer::new)
+					.register();
+
+			// the thrown iron dagger: same danmaku bullet, but it returns to its owner
+			// instead of vanishing, so it needs its own entity type
+			IRON_DAGGER = GensokyoLegacy.REGISTRATE
+					.<IronDaggerBulletEntity>entity("iron_dagger", IronDaggerBulletEntity::new, MobCategory.MISC)
+					.properties(p -> p.sized(0.4F, 0.4F).clientTrackingRange(4).updateInterval(1 << 16))
+					.renderer(() -> ItemBulletRenderer::new)
 					.register();
 		}
 
