@@ -3,19 +3,19 @@
   "placement": [
     {
       "type": "minecraft:count",
-      "count": 3
+      "count": 5
     },
     {
       "type": "minecraft:in_square"
     },
     {
       "type": "gensokyolegacy:noise_band",
-      "min": -0.28,
+      "min": -0.4,
       "noise": "gensokyolegacy:magical_forest_type"
     },
     {
       "type": "gensokyolegacy:noise_band",
-      "max": 0.48,
+      "max": 0.6,
       "noise": "gensokyolegacy:magical_forest_clearing"
     },
     {
@@ -24,14 +24,14 @@
         {
           "cell": 28,
           "chance": 0.85,
-          "distance": 9,
+          "distance": 7,
           "margin": 5,
           "salt": 7310001
         },
         {
           "cell": 18,
           "chance": 0.95,
-          "distance": 8,
+          "distance": 6,
           "margin": 3,
           "salt": 7310002
         }
