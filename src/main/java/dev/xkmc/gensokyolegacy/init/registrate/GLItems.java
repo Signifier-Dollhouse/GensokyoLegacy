@@ -26,6 +26,8 @@ import dev.xkmc.gensokyolegacy.content.item.hexbrew.StarDanmakuItem;
 import dev.xkmc.gensokyolegacy.content.item.ingredient.FairyIceItem;
 import dev.xkmc.gensokyolegacy.content.item.ingredient.FrozenFrogItem;
 import dev.xkmc.gensokyolegacy.content.item.talisman.core.GLTalismans;
+import dev.xkmc.gensokyolegacy.content.item.dagger.DaggerGloveItem;
+import dev.xkmc.gensokyolegacy.content.item.dagger.DaggerGloveMode;
 import dev.xkmc.gensokyolegacy.content.item.tool.*;
 import dev.xkmc.gensokyolegacy.content.item.umbrella.BorderUmbrellaItem;
 import dev.xkmc.gensokyolegacy.content.item.umbrella.data.BorderUmbrellaMode;
@@ -60,6 +62,7 @@ import net.neoforged.neoforge.client.model.generators.loaders.SeparateTransforms
 import net.neoforged.neoforge.registries.datamaps.builtin.FurnaceFuel;
 import net.neoforged.neoforge.registries.datamaps.builtin.NeoForgeDataMaps;
 
+import java.util.Locale;
 import java.util.UUID;
 
 public class GLItems {
@@ -86,6 +89,7 @@ public class GLItems {
 	public static final ItemEntry<MermaidPearl> MERMAID_PEARL;
 	public static final ItemEntry<CatBell> CAT_BELL;
 	public static final ItemEntry<IronDaggerItem> IRON_DAGGER;
+	public static final ItemEntry<DaggerGloveItem> DAGGER_GLOVE;
 
 	public static final ItemEntry<TenguSakeItem> TENGU_SAKE;
 	public static final ItemEntry<DrinkGiftItem> GHOST_SAKE;
@@ -127,6 +131,8 @@ public class GLItems {
 	public static final DCVal<DyeColor> DOLL_COLOR = DC.enumVal("doll_color", EnumCodec.of(DyeColor.class, DyeColor.values()));
 	public static final DCVal<Integer> DOLL_GLOVE_MODE = DC.intVal("doll_glove_mode");
 	public static final DCVal<Unit> DOLL_GLOVE_ICON = DC.unit("doll_glove_icon");
+	public static final DCVal<DaggerGloveMode> DAGGER_GLOVE_MODE = DC.enumVal("dagger_glove_mode", EnumCodec.of(DaggerGloveMode.class, DaggerGloveMode.values()));
+	public static final DCVal<ResourceLocation> DAGGER_GLOVE_RUNE = DC.loc("dagger_glove_rune");
 
 
 	static {
@@ -427,6 +433,29 @@ public class GLItems {
 							.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/" + ctx.getName()))))
 					.tag(DanmakuItems.Bullet.DAGGER.tag)
 					.lang("Iron Dagger").tab(TAB.key())
+					.register();
+
+			// The glove wears one texture per mode, so the held model carries a predicate
+			// override per mode rather than the flat layer0 a wheel icon needs; the wheel
+			// therefore renders real glove stacks and shows the mode it is actually in
+			// (dagger_glove.md §6).
+			DAGGER_GLOVE = reg.item("dagger_glove", p -> new DaggerGloveItem(p.stacksTo(1)))
+					.model((ctx, pvd) -> {
+						var base = pvd.generated(ctx, pvd.modLoc("item/tool/" + ctx.getName()));
+						// vanilla reverses the override list at bake time and returns the
+						// first match with >= per predicate, so emit ascending values for
+						// exact per-mode matching, as the doll glove does
+						var modes = DaggerGloveMode.values();
+						for (int i = 0; i < modes.length; i++) {
+							base.override()
+									.predicate(GensokyoLegacy.loc("dagger_glove_display"), i + 1)
+									.model(pvd.withExistingParent("item/dagger_glove_" + modes[i].name().toLowerCase(Locale.ROOT), "item/generated")
+											.texture("layer0", pvd.modLoc("item/tool/dagger_glove_" + modes[i].name().toLowerCase(Locale.ROOT))))
+									.end();
+						}
+					})
+					.lang("Dagger Glove").tab(TAB.key())
+					.tag(L2ISTagGen.SELECTABLE)
 					.register();
 
 			STRANGE_GLASSES = reg.item("strange_glasses", p -> new StrangeGlassesItem(p.rarity(Rarity.UNCOMMON)))
