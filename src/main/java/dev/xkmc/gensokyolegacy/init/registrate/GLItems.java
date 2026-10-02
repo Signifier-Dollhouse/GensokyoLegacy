@@ -22,6 +22,7 @@ import dev.xkmc.gensokyolegacy.content.item.doll.DollItemData;
 import dev.xkmc.gensokyolegacy.content.item.doll.DollLanceItem;
 import dev.xkmc.gensokyolegacy.content.item.gift.*;
 import dev.xkmc.gensokyolegacy.content.item.glove.DollGloveItem;
+import dev.xkmc.gensokyolegacy.content.item.glove.DollGloveModel;
 import dev.xkmc.gensokyolegacy.content.item.glove.mode.DollGloveMode;
 import dev.xkmc.gensokyolegacy.content.item.hexbrew.StarDanmakuItem;
 import dev.xkmc.gensokyolegacy.content.item.ingredient.FairyIceItem;
@@ -56,6 +57,7 @@ import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.Rarity;
+import net.neoforged.neoforge.client.model.generators.ItemModelBuilder;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
 import net.neoforged.neoforge.client.model.generators.loaders.SeparateTransformsModelBuilder;
 import net.neoforged.neoforge.registries.datamaps.builtin.FurnaceFuel;
@@ -70,6 +72,8 @@ public class GLItems {
 	public static final ItemEntry<FairyIceItem> FAIRY_ICE_CRYSTAL;
 	public static final ItemEntry<FrozenFrogItem> FROZEN_FROG_COLD, FROZEN_FROG_WARM, FROZEN_FROG_TEMPERATE;
 	public static final ItemEntry<Item> MYSTICAL_STRAW;
+
+	public static final ItemEntry<Item> HAKUREI_GOHEI;
 
 	public static final ItemEntry<SpellItem> REIMU_SPELL, MARISA_SPELL, SANAE_SPELL, YUKARI_SPELL_BUTTERFLY, YUKARI_SPELL_LASER, MYSTIA_SPELL;
 
@@ -278,6 +282,11 @@ public class GLItems {
 			MYSTICAL_STRAW = reg.item("mystical_straw", Item::new)
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/ingredient/" + ctx.getName())))
 					.register();
+
+			// 博丽的御币：装饰物品，手持方式同原版剑
+			HAKUREI_GOHEI = reg.item("hakurei_gohei", Item::new)
+					.model((ctx, pvd) -> pvd.handheld(ctx, pvd.modLoc("item/tool/" + ctx.getName())))
+					.lang("Hakurei Gohei").register();
 		}
 
 		GLEffects.register();
@@ -334,10 +343,10 @@ public class GLItems {
 
 			BORDER_UMBRELLA = reg.item("border_umbrella", BorderUmbrellaItem::new)
 					.model((ctx, pvd) -> {
-						var base = pvd.handheld(ctx, pvd.modLoc("item/tool/" + ctx.getName()));
+						var base = pvd.handheld(ctx, pvd.modLoc("item/border_umbrella/" + ctx.getName()));
 						base.override().predicate(GensokyoLegacy.loc("umbrella_open"), 1)
 								.model(pvd.withExistingParent("item/" + ctx.getName() + "_open", "item/handheld").
-										texture("layer0", pvd.modLoc("item/tool/" + ctx.getName() + "_open")))
+										texture("layer0", pvd.modLoc("item/border_umbrella/" + ctx.getName() + "_open")))
 								.end();
 						// icon variants for the wheel display stacks (cf. glove_display):
 						// vanilla reverses the override list at bake time and returns the
@@ -348,7 +357,7 @@ public class GLItems {
 							base.override()
 									.predicate(GensokyoLegacy.loc("umbrella_display"), i + 1)
 									.model(pvd.withExistingParent("item/umbrella_icon_" + modes[i].iconName(), "item/generated")
-											.texture("layer0", pvd.modLoc("item/tool/border_umbrella_icon_" + modes[i].iconName())))
+											.texture("layer0", pvd.modLoc("item/border_umbrella/border_umbrella_icon_" + modes[i].iconName())))
 									.end();
 						}
 					})
@@ -369,27 +378,7 @@ public class GLItems {
 					.register();
 
 			DOLL_GLOVE = reg.item("doll_glove", DollGloveItem::new)
-					.model((ctx, pvd) -> {
-						var base = pvd.generated(ctx, pvd.modLoc("item/tool/" + ctx.getName()));
-						// vanilla reverses the override list at bake time and returns the
-						// first match with >= per predicate, so emit ascending values for
-						// exact per-mode matching (glove.md §3b)
-						var modes = DollGloveMode.values();
-						for (int i = 0; i < modes.length; i++) {
-							base.override()
-									.predicate(GensokyoLegacy.loc("glove_display"), i + 1)
-									.model(pvd.withExistingParent("item/glove_" + modes[i].iconName(), "item/generated")
-											.texture("layer0", pvd.modLoc("item/tool/glove_" + modes[i].iconName())))
-									.end();
-						}
-						for (int i = 0; i < modes.length; i++) {
-							base.override()
-									.predicate(GensokyoLegacy.loc("glove_display"), modes.length + 1 + i)
-									.model(pvd.withExistingParent("item/glove_icon_" + modes[i].iconName(), "item/generated")
-											.texture("layer0", pvd.modLoc("item/tool/glove_icon_" + modes[i].iconName())))
-									.end();
-						}
-					})
+					.model(DollGloveModel::model)
 					.lang("Seven-Colored Doll Glove").tab(TAB.key())
 					.tag(L2ISTagGen.SELECTABLE)
 					.register();

@@ -1,6 +1,24 @@
 {
-  "parent": "minecraft:item/generated",
-  "textures": {
-    "layer0": "gensokyolegacy:item/tool/glove_suicide"
+  "base": {
+    "parent": "minecraft:item/generated",
+    "textures": {
+      "layer0": "gensokyolegacy:item/doll_glove/glove_suicide"
+    }
+  },
+  "gui_light": "front",
+  "loader": "neoforge:separate_transforms",
+  "perspectives": {
+    "firstperson_lefthand": {
+      "parent": "gensokyolegacy:custom/doll_glove_hand"
+    },
+    "firstperson_righthand": {
+      "parent": "gensokyolegacy:custom/doll_glove_hand"
+    },
+    "thirdperson_lefthand": {
+      "parent": "gensokyolegacy:custom/doll_glove_hand"
+    },
+    "thirdperson_righthand": {
+      "parent": "gensokyolegacy:custom/doll_glove_hand"
+    }
   }
 }

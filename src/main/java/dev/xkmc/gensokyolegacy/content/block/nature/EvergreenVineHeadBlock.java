@@ -37,6 +37,10 @@ public class EvergreenVineHeadBlock extends Block {
 
 	@Override
 	public BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor level, BlockPos pos, BlockPos neighborPos) {
+		if (direction == Direction.DOWN && (neighborState.getBlock() instanceof EvergreenVineHeadBlock
+				|| neighborState.getBlock() instanceof EvergreenVineBodyBlock)) {
+			return EVERGREEN_VINE_PLANT.getDefaultState();
+		}
 		if (direction == Direction.UP && !state.canSurvive(level, pos)) {
 			return Blocks.AIR.defaultBlockState();
 		}

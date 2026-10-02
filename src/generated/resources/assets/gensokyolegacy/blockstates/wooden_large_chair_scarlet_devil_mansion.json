@@ -1,34 +1,813 @@
 {
-  "variants": {
-    "facing=east,half=bottom": {
-      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion",
-      "y": 90
+  "multipart": [
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion",
+        "y": 180
+      },
+      "when": {
+        "facing": "south",
+        "half": "bottom"
+      }
     },
-    "facing=east,half=top": {
-      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_top",
-      "y": 90
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion",
+        "y": 270
+      },
+      "when": {
+        "facing": "west",
+        "half": "bottom"
+      }
     },
-    "facing=north,half=bottom": {
-      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion"
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion"
+      },
+      "when": {
+        "facing": "north",
+        "half": "bottom"
+      }
     },
-    "facing=north,half=top": {
-      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_top"
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion",
+        "y": 90
+      },
+      "when": {
+        "facing": "east",
+        "half": "bottom"
+      }
     },
-    "facing=south,half=bottom": {
-      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion",
-      "y": 180
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_top",
+        "y": 180
+      },
+      "when": {
+        "facing": "south",
+        "half": "top"
+      }
     },
-    "facing=south,half=top": {
-      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_top",
-      "y": 180
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_top",
+        "y": 270
+      },
+      "when": {
+        "facing": "west",
+        "half": "top"
+      }
     },
-    "facing=west,half=bottom": {
-      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion",
-      "y": 270
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_top"
+      },
+      "when": {
+        "facing": "north",
+        "half": "top"
+      }
     },
-    "facing=west,half=top": {
-      "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_top",
-      "y": 270
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/wooden_large_chair_scarlet_devil_mansion_top",
+        "y": 90
+      },
+      "when": {
+        "facing": "east",
+        "half": "top"
+      }
+    },
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/pad",
+        "y": 180
+      },
+      "when": {
+        "color": "base",
+        "facing": "south",
+        "half": "bottom"
+      }
+    },
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/pad",
+        "y": 270
+      },
+      "when": {
+        "color": "base",
+        "facing": "west",
+        "half": "bottom"
+      }
+    },
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/pad"
+      },
+      "when": {
+        "color": "base",
+        "facing": "north",
+        "half": "bottom"
+      }
+    },
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/pad",
+        "y": 90
+      },
+      "when": {
+        "color": "base",
+        "facing": "east",
+        "half": "bottom"
+      }
+    },
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/white_pad",
+        "y": 180
+      },
+      "when": {
+        "color": "white",
+        "facing": "south",
+        "half": "bottom"
+      }
+    },
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/white_pad",
+        "y": 270
+      },
+      "when": {
+        "color": "white",
+        "facing": "west",
+        "half": "bottom"
+      }
+    },
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/white_pad"
+      },
+      "when": {
+        "color": "white",
+        "facing": "north",
+        "half": "bottom"
+      }
+    },
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/white_pad",
+        "y": 90
+      },
+      "when": {
+        "color": "white",
+        "facing": "east",
+        "half": "bottom"
+      }
+    },
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/orange_pad",
+        "y": 180
+      },
+      "when": {
+        "color": "orange",
+        "facing": "south",
+        "half": "bottom"
+      }
+    },
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/orange_pad",
+        "y": 270
+      },
+      "when": {
+        "color": "orange",
+        "facing": "west",
+        "half": "bottom"
+      }
+    },
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/orange_pad"
+      },
+      "when": {
+        "color": "orange",
+        "facing": "north",
+        "half": "bottom"
+      }
+    },
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/orange_pad",
+        "y": 90
+      },
+      "when": {
+        "color": "orange",
+        "facing": "east",
+        "half": "bottom"
+      }
+    },
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/magenta_pad",
+        "y": 180
+      },
+      "when": {
+        "color": "magenta",
+        "facing": "south",
+        "half": "bottom"
+      }
+    },
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/magenta_pad",
+        "y": 270
+      },
+      "when": {
+        "color": "magenta",
+        "facing": "west",
+        "half": "bottom"
+      }
+    },
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/magenta_pad"
+      },
+      "when": {
+        "color": "magenta",
+        "facing": "north",
+        "half": "bottom"
+      }
+    },
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/magenta_pad",
+        "y": 90
+      },
+      "when": {
+        "color": "magenta",
+        "facing": "east",
+        "half": "bottom"
+      }
+    },
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/light_blue_pad",
+        "y": 180
+      },
+      "when": {
+        "color": "light_blue",
+        "facing": "south",
+        "half": "bottom"
+      }
+    },
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/light_blue_pad",
+        "y": 270
+      },
+      "when": {
+        "color": "light_blue",
+        "facing": "west",
+        "half": "bottom"
+      }
+    },
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/light_blue_pad"
+      },
+      "when": {
+        "color": "light_blue",
+        "facing": "north",
+        "half": "bottom"
+      }
+    },
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/light_blue_pad",
+        "y": 90
+      },
+      "when": {
+        "color": "light_blue",
+        "facing": "east",
+        "half": "bottom"
+      }
+    },
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/yellow_pad",
+        "y": 180
+      },
+      "when": {
+        "color": "yellow",
+        "facing": "south",
+        "half": "bottom"
+      }
+    },
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/yellow_pad",
+        "y": 270
+      },
+      "when": {
+        "color": "yellow",
+        "facing": "west",
+        "half": "bottom"
+      }
+    },
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/yellow_pad"
+      },
+      "when": {
+        "color": "yellow",
+        "facing": "north",
+        "half": "bottom"
+      }
+    },
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/yellow_pad",
+        "y": 90
+      },
+      "when": {
+        "color": "yellow",
+        "facing": "east",
+        "half": "bottom"
+      }
+    },
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/lime_pad",
+        "y": 180
+      },
+      "when": {
+        "color": "lime",
+        "facing": "south",
+        "half": "bottom"
+      }
+    },
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/lime_pad",
+        "y": 270
+      },
+      "when": {
+        "color": "lime",
+        "facing": "west",
+        "half": "bottom"
+      }
+    },
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/lime_pad"
+      },
+      "when": {
+        "color": "lime",
+        "facing": "north",
+        "half": "bottom"
+      }
+    },
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/lime_pad",
+        "y": 90
+      },
+      "when": {
+        "color": "lime",
+        "facing": "east",
+        "half": "bottom"
+      }
+    },
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/pink_pad",
+        "y": 180
+      },
+      "when": {
+        "color": "pink",
+        "facing": "south",
+        "half": "bottom"
+      }
+    },
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/pink_pad",
+        "y": 270
+      },
+      "when": {
+        "color": "pink",
+        "facing": "west",
+        "half": "bottom"
+      }
+    },
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/pink_pad"
+      },
+      "when": {
+        "color": "pink",
+        "facing": "north",
+        "half": "bottom"
+      }
+    },
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/pink_pad",
+        "y": 90
+      },
+      "when": {
+        "color": "pink",
+        "facing": "east",
+        "half": "bottom"
+      }
+    },
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/gray_pad",
+        "y": 180
+      },
+      "when": {
+        "color": "gray",
+        "facing": "south",
+        "half": "bottom"
+      }
+    },
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/gray_pad",
+        "y": 270
+      },
+      "when": {
+        "color": "gray",
+        "facing": "west",
+        "half": "bottom"
+      }
+    },
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/gray_pad"
+      },
+      "when": {
+        "color": "gray",
+        "facing": "north",
+        "half": "bottom"
+      }
+    },
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/gray_pad",
+        "y": 90
+      },
+      "when": {
+        "color": "gray",
+        "facing": "east",
+        "half": "bottom"
+      }
+    },
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/light_gray_pad",
+        "y": 180
+      },
+      "when": {
+        "color": "light_gray",
+        "facing": "south",
+        "half": "bottom"
+      }
+    },
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/light_gray_pad",
+        "y": 270
+      },
+      "when": {
+        "color": "light_gray",
+        "facing": "west",
+        "half": "bottom"
+      }
+    },
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/light_gray_pad"
+      },
+      "when": {
+        "color": "light_gray",
+        "facing": "north",
+        "half": "bottom"
+      }
+    },
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/light_gray_pad",
+        "y": 90
+      },
+      "when": {
+        "color": "light_gray",
+        "facing": "east",
+        "half": "bottom"
+      }
+    },
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/cyan_pad",
+        "y": 180
+      },
+      "when": {
+        "color": "cyan",
+        "facing": "south",
+        "half": "bottom"
+      }
+    },
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/cyan_pad",
+        "y": 270
+      },
+      "when": {
+        "color": "cyan",
+        "facing": "west",
+        "half": "bottom"
+      }
+    },
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/cyan_pad"
+      },
+      "when": {
+        "color": "cyan",
+        "facing": "north",
+        "half": "bottom"
+      }
+    },
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/cyan_pad",
+        "y": 90
+      },
+      "when": {
+        "color": "cyan",
+        "facing": "east",
+        "half": "bottom"
+      }
+    },
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/purple_pad",
+        "y": 180
+      },
+      "when": {
+        "color": "purple",
+        "facing": "south",
+        "half": "bottom"
+      }
+    },
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/purple_pad",
+        "y": 270
+      },
+      "when": {
+        "color": "purple",
+        "facing": "west",
+        "half": "bottom"
+      }
+    },
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/purple_pad"
+      },
+      "when": {
+        "color": "purple",
+        "facing": "north",
+        "half": "bottom"
+      }
+    },
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/purple_pad",
+        "y": 90
+      },
+      "when": {
+        "color": "purple",
+        "facing": "east",
+        "half": "bottom"
+      }
+    },
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/blue_pad",
+        "y": 180
+      },
+      "when": {
+        "color": "blue",
+        "facing": "south",
+        "half": "bottom"
+      }
+    },
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/blue_pad",
+        "y": 270
+      },
+      "when": {
+        "color": "blue",
+        "facing": "west",
+        "half": "bottom"
+      }
+    },
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/blue_pad"
+      },
+      "when": {
+        "color": "blue",
+        "facing": "north",
+        "half": "bottom"
+      }
+    },
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/blue_pad",
+        "y": 90
+      },
+      "when": {
+        "color": "blue",
+        "facing": "east",
+        "half": "bottom"
+      }
+    },
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/brown_pad",
+        "y": 180
+      },
+      "when": {
+        "color": "brown",
+        "facing": "south",
+        "half": "bottom"
+      }
+    },
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/brown_pad",
+        "y": 270
+      },
+      "when": {
+        "color": "brown",
+        "facing": "west",
+        "half": "bottom"
+      }
+    },
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/brown_pad"
+      },
+      "when": {
+        "color": "brown",
+        "facing": "north",
+        "half": "bottom"
+      }
+    },
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/brown_pad",
+        "y": 90
+      },
+      "when": {
+        "color": "brown",
+        "facing": "east",
+        "half": "bottom"
+      }
+    },
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/green_pad",
+        "y": 180
+      },
+      "when": {
+        "color": "green",
+        "facing": "south",
+        "half": "bottom"
+      }
+    },
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/green_pad",
+        "y": 270
+      },
+      "when": {
+        "color": "green",
+        "facing": "west",
+        "half": "bottom"
+      }
+    },
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/green_pad"
+      },
+      "when": {
+        "color": "green",
+        "facing": "north",
+        "half": "bottom"
+      }
+    },
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/green_pad",
+        "y": 90
+      },
+      "when": {
+        "color": "green",
+        "facing": "east",
+        "half": "bottom"
+      }
+    },
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/red_pad",
+        "y": 180
+      },
+      "when": {
+        "color": "red",
+        "facing": "south",
+        "half": "bottom"
+      }
+    },
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/red_pad",
+        "y": 270
+      },
+      "when": {
+        "color": "red",
+        "facing": "west",
+        "half": "bottom"
+      }
+    },
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/red_pad"
+      },
+      "when": {
+        "color": "red",
+        "facing": "north",
+        "half": "bottom"
+      }
+    },
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/red_pad",
+        "y": 90
+      },
+      "when": {
+        "color": "red",
+        "facing": "east",
+        "half": "bottom"
+      }
+    },
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/black_pad",
+        "y": 180
+      },
+      "when": {
+        "color": "black",
+        "facing": "south",
+        "half": "bottom"
+      }
+    },
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/black_pad",
+        "y": 270
+      },
+      "when": {
+        "color": "black",
+        "facing": "west",
+        "half": "bottom"
+      }
+    },
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/black_pad"
+      },
+      "when": {
+        "color": "black",
+        "facing": "north",
+        "half": "bottom"
+      }
+    },
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/black_pad",
+        "y": 90
+      },
+      "when": {
+        "color": "black",
+        "facing": "east",
+        "half": "bottom"
+      }
     }
-  }
+  ]
 }

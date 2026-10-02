@@ -1,0 +1,209 @@
+{
+  "multipart": [
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/wrought_iron_bars_post_ends"
+      }
+    },
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/wrought_iron_bars_post"
+      },
+      "when": {
+        "east": "false",
+        "north": "false",
+        "south": "false",
+        "top": "false",
+        "west": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/wrought_iron_bars_cap"
+      },
+      "when": {
+        "east": "false",
+        "north": "true",
+        "south": "false",
+        "top": "false",
+        "west": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/wrought_iron_bars_side"
+      },
+      "when": {
+        "north": "true",
+        "top": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/wrought_iron_bars_cap",
+        "y": 90
+      },
+      "when": {
+        "east": "true",
+        "north": "false",
+        "south": "false",
+        "top": "false",
+        "west": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/wrought_iron_bars_side",
+        "y": 90
+      },
+      "when": {
+        "east": "true",
+        "top": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/wrought_iron_bars_cap_alt"
+      },
+      "when": {
+        "east": "false",
+        "north": "false",
+        "south": "true",
+        "top": "false",
+        "west": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/wrought_iron_bars_side_alt"
+      },
+      "when": {
+        "south": "true",
+        "top": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/wrought_iron_bars_cap_alt",
+        "y": 90
+      },
+      "when": {
+        "east": "false",
+        "north": "false",
+        "south": "false",
+        "top": "false",
+        "west": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/wrought_iron_bars_side_alt",
+        "y": 90
+      },
+      "when": {
+        "top": "false",
+        "west": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/wrought_iron_bars_post_top"
+      },
+      "when": {
+        "east": "false",
+        "north": "false",
+        "south": "false",
+        "top": "true",
+        "west": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/wrought_iron_bars_cap_top"
+      },
+      "when": {
+        "east": "false",
+        "north": "true",
+        "south": "false",
+        "top": "true",
+        "west": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/wrought_iron_bars_side_top"
+      },
+      "when": {
+        "north": "true",
+        "top": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/wrought_iron_bars_cap_top",
+        "y": 90
+      },
+      "when": {
+        "east": "true",
+        "north": "false",
+        "south": "false",
+        "top": "true",
+        "west": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/wrought_iron_bars_side_top",
+        "y": 90
+      },
+      "when": {
+        "east": "true",
+        "top": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/wrought_iron_bars_cap_alt_top"
+      },
+      "when": {
+        "east": "false",
+        "north": "false",
+        "south": "true",
+        "top": "true",
+        "west": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/wrought_iron_bars_side_alt_top"
+      },
+      "when": {
+        "south": "true",
+        "top": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/wrought_iron_bars_cap_alt_top",
+        "y": 90
+      },
+      "when": {
+        "east": "false",
+        "north": "false",
+        "south": "false",
+        "top": "true",
+        "west": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/wrought_iron_bars_side_alt_top",
+        "y": 90
+      },
+      "when": {
+        "top": "true",
+        "west": "true"
+      }
+    }
+  ]
+}

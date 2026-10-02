@@ -10,7 +10,7 @@
     },
     {
       "type": "gensokyolegacy:noise_band",
-      "max": -0.28,
+      "max": -0.4,
       "noise": "gensokyolegacy:magical_forest_type"
     },
     {

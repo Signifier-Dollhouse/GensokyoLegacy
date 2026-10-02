@@ -33,6 +33,6 @@
     }
   ],
   "textures": {
-    "layer0": "gensokyolegacy:item/tool/border_umbrella"
+    "layer0": "gensokyolegacy:item/border_umbrella/border_umbrella"
   }
 }

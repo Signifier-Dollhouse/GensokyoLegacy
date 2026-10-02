@@ -9,6 +9,8 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LeavesBlock;
 import net.minecraft.world.level.block.state.BlockState;
 
+import static dev.xkmc.gensokyolegacy.init.registrate.block.GLNaturalBlocks.EVERGREEN_VINE;
+
 public class EvergreenVineBodyBlock extends Block {
 
 	public EvergreenVineBodyBlock(Properties properties) {
@@ -17,6 +19,13 @@ public class EvergreenVineBodyBlock extends Block {
 
 	@Override
 	protected BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor level, BlockPos pos, BlockPos neighborPos) {
+		if (direction == Direction.DOWN) {
+			boolean vine = neighborState.getBlock() instanceof EvergreenVineHeadBlock
+					|| neighborState.getBlock() instanceof EvergreenVineBodyBlock;
+			if (!vine) {
+				return EVERGREEN_VINE.getDefaultState();
+			}
+		}
 		if (direction == Direction.UP && !state.canSurvive(level, pos)) {
 			return Blocks.AIR.defaultBlockState();
 		}

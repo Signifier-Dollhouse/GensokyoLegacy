@@ -1,0 +1,19 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "gensokyolegacy:block/noren/white_long_noren"
+  },
+  "transform": {
+    "origin": "center",
+    "scale": [
+      0.8,
+      1.6,
+      1.0
+    ],
+    "translation": [
+      0.0,
+      -0.25,
+      0.0
+    ]
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": {
+    "item": "minecraft:blue_wool"
+  },
+  "result": {
+    "count": 1,
+    "id": "gensokyolegacy:blue_striped_noren"
+  }
+}

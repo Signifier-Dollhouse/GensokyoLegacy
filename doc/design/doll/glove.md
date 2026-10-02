@@ -2,7 +2,7 @@
 
 `DollGloveItem` — the **Seven-Colored Doll Glove** — itemizes doll control: mode selection via the l2itemselector wheel, exactly mirroring the border-umbrella architecture (`content/item/umbrella/`).
 
-> Status: implemented. Texture is a generated placeholder (`textures/item/tool/doll_glove.png`, seven-stripe mitten) — replace with `temp/七色人偶手套.png` art when available (16×16, same path).
+> Status: implemented. Texture is a generated placeholder (`textures/item/doll_glove/doll_glove.png`, seven-stripe mitten) — replace with `temp/七色人偶手套.png` art when available (16×16, same path).
 
 ## 1. Mode enum + handlers
 
@@ -51,7 +51,7 @@ No entity clicks: the glove acts on a cached ray-trace target (max 48 blocks), s
 
 ## 3b. Wheel display icons (model overrides, umbrella mirror)
 
-- The glove item model carries six overrides on the `gensokyolegacy:glove_display` predicate (emitted ascending 1→6: vanilla reverses the list at bake time and returns the first match with `>=` per predicate, so ascending gives exact per-mode matching): value 0 keeps the base glove model, otherwise mode ordinal + 1 selects the `item/glove_<mode>` sub-model (generated parent over `textures/item/tool/glove_<mode>.png`, from `temp/<mode>.png`).
+- The glove item model carries six overrides on the `gensokyolegacy:glove_display` predicate (emitted ascending 1→6: vanilla reverses the list at bake time and returns the first match with `>=` per predicate, so ascending gives exact per-mode matching): value 0 keeps the base glove model, otherwise mode ordinal + 1 selects the `item/glove_<mode>` sub-model (generated parent over `textures/item/doll_glove/glove_<mode>.png`, from `temp/<mode>.png`).
 - `DollGloveItem.displayPredicate` (registered in `GLClient`, mirroring `umbrella_open`) returns 0 unless the stack carries the display component, else the current mode ordinal + 1.
 - New presence component `DOLL_GLOVE_DISPLAY` (`DC.unit`) on the glove stack. It is never set on real item stacks — the client sets it (plus the entry's mode) on a fresh glove to produce a display stack (`DollGloveItem.displayStack(mode)`), so the override draws that mode's texture. Wheel entries and the scroll selector list render display stacks directly, with no reference to the held glove.
 
@@ -66,7 +66,7 @@ No entity clicks: the glove acts on a cached ray-trace target (max 48 blocks), s
 - `GLItems` — `DOLL_GLOVE` = `reg.item("doll_glove", p -> new DollGloveItem(p.stacksTo(1)))` + `.model(generated item/doll_glove + 6 ascending `glove_display` overrides → `item/glove_<mode>` sub-models)` + `.lang("Seven-Colored Doll Glove")` + tab + `DOLL_GLOVE_MODE` DCVal + `DOLL_GLOVE_DISPLAY` unit component (§3b).
 - Mod constructor — `DollGloveSelectionListener.register()` beside `BorderUmbrellaSelectionListener.register()`; `GensokyoLegacy.HANDLER` registers `DollGloveSelectPacket` + `DollGloveTargetPacket`; the `CodecHandler<ItemStack>` (loadout.md §2) alongside `FluidIngredient`.
 - `GLLang` — `ItemGlove` enum: mode names/descriptions plus a message for every non-trivial action (summoned count, recalled count + parked count, volley/super/suicide issued, stopped count, mark toggled/untoggled, no_target, no_doll, too_far, not_doll).
-- Textures — copy `temp/七色人偶手套.png` to `assets/gensokyolegacy/textures/item/doll_glove.png`; copy `temp/{summon,heal_mark,volley,super,suicide,stop}.png` to `assets/gensokyolegacy/textures/item/tool/glove_<mode>.png` (§3b).
+- Textures — copy `temp/七色人偶手套.png` to `assets/gensokyolegacy/textures/item/doll_glove/doll_glove.png`; copy `temp/{summon,heal_mark,volley,super,suicide,stop}.png` to `assets/gensokyolegacy/textures/item/doll_glove/glove_<mode>.png` (§3b).
 - Mixins — target-glow mixin declared in `gensokyolegacy.mixins.json`.
 
 ## 6. Files to create

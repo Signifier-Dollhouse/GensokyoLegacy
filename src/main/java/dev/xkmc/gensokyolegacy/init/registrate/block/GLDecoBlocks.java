@@ -5,9 +5,13 @@ import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import com.tterrag.registrate.util.DataIngredient;
 import com.tterrag.registrate.util.entry.BlockEntry;
 import com.tterrag.registrate.util.nullness.NonNullBiConsumer;
+import dev.xkmc.gensokyolegacy.content.block.deco.door.NorenBlock;
+import dev.xkmc.gensokyolegacy.content.block.deco.door.NorenJsons;
 import dev.xkmc.gensokyolegacy.content.block.deco.door.SlidingDoor;
 import dev.xkmc.gensokyolegacy.content.block.deco.door.SlidingDoorJsons;
 import dev.xkmc.gensokyolegacy.content.block.deco.misc.TatamiBlock;
+import dev.xkmc.gensokyolegacy.content.block.deco.misc.WroughtIronBarsBlock;
+import dev.xkmc.gensokyolegacy.content.block.deco.misc.WroughtIronPillarBlock;
 import dev.xkmc.gensokyolegacy.content.block.deco.seat.CushionBlock;
 import dev.xkmc.gensokyolegacy.content.block.deco.seat.ISeatableBlock;
 import dev.xkmc.gensokyolegacy.content.block.deco.seat.SeatableImpl;
@@ -42,7 +46,6 @@ import net.minecraft.world.item.Rarity;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockBehaviour;
-import net.minecraft.world.level.block.state.properties.Half;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.material.PushReaction;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
@@ -51,8 +54,6 @@ import net.neoforged.neoforge.registries.datamaps.builtin.NeoForgeDataMaps;
 
 import java.util.Locale;
 import java.util.function.Supplier;
-
-import static net.minecraft.world.level.block.state.properties.BlockStateProperties.HALF;
 
 public class GLDecoBlocks {
 
@@ -67,6 +68,8 @@ public class GLDecoBlocks {
 	public static final BlockEntry<DelegateBlock> STURDY_TEDDY_BEAR;
 	public static final BlockEntry<DelegateBlock> CUSHION;
 	public static final BlockEntry<DelegateBlock> SCARLET_CHAIR;
+	public static final BlockEntry<WroughtIronBarsBlock> WROUGHT_IRON_BARS;
+	public static final BlockEntry<WroughtIronPillarBlock> WROUGHT_IRON_PILLAR;
 
 	static {
 		var reg = GensokyoLegacy.REGISTRATE;
@@ -183,6 +186,26 @@ public class GLDecoBlocks {
 				.register();
 		}
 
+		// wrought iron
+		{
+			WROUGHT_IRON_BARS = reg.block("wrought_iron_bars", WroughtIronBarsBlock::new)
+					.initialProperties(() -> Blocks.IRON_BARS)
+					.blockstate(WroughtIronBarsBlock::buildStates)
+					.tag(BlockTags.MINEABLE_WITH_PICKAXE)
+					.item().model((ctx, pvd) -> pvd.withExistingParent(ctx.getName(), "item/generated")
+							.texture("layer0", pvd.modLoc("block/deco/wrought_iron_bar")))
+					.build()
+					.register();
+
+			WROUGHT_IRON_PILLAR = reg.block("wrought_iron_pillar", WroughtIronPillarBlock::new)
+					.properties(p -> p.mapColor(MapColor.METAL).requiresCorrectToolForDrops()
+							.strength(5.0F, 6.0F).sound(SoundType.METAL).noOcclusion())
+					.blockstate(WroughtIronPillarBlock::buildStates)
+					.tag(BlockTags.MINEABLE_WITH_PICKAXE)
+					.simpleItem()
+					.register();
+		}
+
 		// cushion
 		{
 			CUSHION = reg.block("cushion", p -> ISeatableBlock.of(p, 2 / 16f, new CushionBlock(), new SeatableImpl()))
@@ -267,28 +290,49 @@ public class GLDecoBlocks {
 		}
 
 		// 红魔馆木椅: oak stool draped with red wool, fuel follows the recipe
-		SCARLET_CHAIR = reg.block("wooden_large_chair_scarlet_devil_mansion", p -> DelegateBlock.newBaseBlock(p, BlockTemplates.HORIZONTAL,
-						new DoubleBlockImpl(), new LargeChairBlock()))
+		SCARLET_CHAIR = reg.block("wooden_large_chair_scarlet_devil_mansion", p -> ISeatableBlock.of(p, 12 / 16f, BlockTemplates.HORIZONTAL,
+						new DoubleBlockImpl(), new LargeChairBlock(), new CoverableImpl(), new SeatableImpl()))
 				.initialProperties(() -> Blocks.OAK_PLANKS)
-				.blockstate((ctx, pvd) -> {
-					var bottom = pvd.models().getBuilder("block/" + ctx.getName())
-							.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/furniture/wooden_large_chair_bottom")))
-							.texture("all", pvd.modLoc("block/wood/" + ctx.getName()))
-							.texture("particle", pvd.mcLoc("block/birch_planks"))
-							.renderType("cutout");
-					var top = pvd.models().getBuilder("block/" + ctx.getName() + "_top")
-							.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/furniture/wooden_large_chair_top")))
-							.texture("all", pvd.modLoc("block/wood/" + ctx.getName()))
-							.texture("particle", pvd.mcLoc("block/birch_planks"))
-							.renderType("cutout");
-					LargeChairBlock.genFullModel(pvd, ctx.getName());
-					pvd.horizontalBlock(ctx.get(), state -> state.getValue(HALF) == Half.TOP ? top : bottom);
-				})
+				.blockstate(LargeChairBlock::buildStates)
 				.tag(BlockTags.MINEABLE_WITH_AXE)
 				.item().model(LargeChairBlock::genItemModel)
 				.dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(400)).build()
-				.loot(LargeChairBlock::genPlainLoot)
+				.loot(LargeChairBlock::genLoot)
 				.register();
+
+		// noren
+		{
+
+			// 门帘:每个颜色每种花纹各一个,长款往下多吊一截。染色时按花纹各自换个颜色,花纹不变;同色羊毛用切石机裁出
+			for (DyeColor col : DyeColor.values()) {
+				for (var kind : NorenBlock.Kind.values()) {
+					reg.block(kind.name(col), p -> NorenBlock.create(p, kind.hanging()))
+							.properties(p -> p.mapColor(MapColor.NONE).strength(0.1F).sound(SoundType.WOOL)
+									.pushReaction(PushReaction.DESTROY).noOcclusion().noCollission())
+							.blockstate((ctx, pvd) -> NorenJsons.buildBlockState(ctx, pvd, kind.hanging()))
+							.item().tag(kind.tag())
+							.model((ctx, pvd) -> NorenJsons.genItemModel(ctx, pvd, kind.hanging()))
+						.build()
+						.recipe((ctx, pvd) -> {
+							GLRecipeGen.cutWool(pvd, col, ctx);
+							GLRecipeGen.unlock(pvd, ShapelessRecipeBuilder.shapeless(
+												RecipeCategory.DECORATIONS, ctx.get())::unlockedBy, DyeItem.byColor(col))
+											.requires(kind.tag()).requires(col.getTag()).save(pvd);
+						})
+						.register();
+				}
+			}
+
+			// 霓吞町门帘,只能从结构里拿,没有配方
+			reg.block("neiton_noren", p -> NorenBlock.create(p, true))
+					.properties(p -> p.mapColor(MapColor.NONE).strength(0.1F).sound(SoundType.WOOL)
+							.pushReaction(PushReaction.DESTROY).noOcclusion().noCollission())
+					.blockstate((ctx, pvd) -> NorenJsons.buildBlockState(ctx, pvd, true))
+					.item().model((ctx, pvd) -> NorenJsons.genItemModel(ctx, pvd, true))
+					.build()
+					.register();
+
+		}
 
 		// brick sets
 		{

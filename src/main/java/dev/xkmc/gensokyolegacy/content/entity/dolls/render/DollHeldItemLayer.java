@@ -40,9 +40,16 @@ public class DollHeldItemLayer extends BlockAndItemGeoLayer<DollEntity> {
         return stack.isEmpty() ? null : stack;
     }
 
+    /**
+     * The bone's own side, not always right: items whose model carries separate per-side
+     * transforms (the doll glove mitten does, for both the 1st and 3rd person hand) render
+     * unmirrored on the left arm otherwise.
+     */
     @Override
     protected ItemDisplayContext getTransformTypeForStack(GeoBone bone, ItemStack stack, DollEntity doll) {
-        return ItemDisplayContext.THIRD_PERSON_RIGHT_HAND;
+        return bone.getName().equals(LEFT_HAND_BONE)
+                ? ItemDisplayContext.THIRD_PERSON_LEFT_HAND
+                : ItemDisplayContext.THIRD_PERSON_RIGHT_HAND;
     }
 
     @Override

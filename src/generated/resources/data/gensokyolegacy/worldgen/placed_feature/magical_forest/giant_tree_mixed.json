@@ -11,12 +11,12 @@
     {
       "type": "gensokyolegacy:noise_band",
       "max": 0.2,
-      "min": -0.28,
+      "min": -0.4,
       "noise": "gensokyolegacy:magical_forest_type"
     },
     {
       "type": "gensokyolegacy:noise_band",
-      "max": 0.48,
+      "max": 0.6,
       "noise": "gensokyolegacy:magical_forest_clearing"
     },
     {

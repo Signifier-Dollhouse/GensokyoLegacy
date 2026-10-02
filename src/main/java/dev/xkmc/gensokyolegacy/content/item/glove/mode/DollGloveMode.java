@@ -30,8 +30,8 @@ public enum DollGloveMode {
 	}
 
 	/**
-	 * Sub-model id suffix for this mode's textures ({@code item/tool/glove_<name>}
-	 * held textures and {@code item/tool/glove_icon_<name>} icon variants,
+	 * Sub-model id suffix for this mode's textures ({@code item/doll_glove/glove_<name>}
+	 * held textures and {@code item/doll_glove/glove_icon_<name>} icon variants,
 	 * glove.md §3b): the enum names already match the provided texture files.
 	 */
 	public String iconName() {
