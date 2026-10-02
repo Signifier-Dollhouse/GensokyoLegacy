@@ -60,15 +60,6 @@ public class DollCommander {
 	 */
 	public final Set<UUID> attackTargets = new LinkedHashSet<>();
 
-	/**
-	 * Glove ray-trace target synced from the client (glove.md §2). A hint only:
-	 * every use re-validates alive, range, and alliance server-side, and refreshes
-	 * the timestamp on success.
-	 */
-	@Nullable
-	public UUID gloveTarget;
-	public long gloveTargetTime;
-
 	public DollCommander(DollAttachment attachment) {
 		this.attachment = attachment;
 	}

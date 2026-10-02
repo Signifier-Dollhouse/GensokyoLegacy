@@ -29,8 +29,8 @@ Implemented — glove (item, 6 modes with heal/stop hidden, wheel, target cache 
 - `content/item/glove/mode/DollGloveHandler.java` + 6 mode classes
 - `content/item/glove/DollGloveSelectionListener.java` + `DollGloveLeftClickHandler.java`
 - `content/item/glove/client/DollGloveModeWheel.java`, `DollGloveModeEntry.java`
-- `content/item/glove/network/DollGloveSelectPacket.java`, `DollGloveTargetPacket.java`, `DollGloveSwingPacket.java`
-- `content/item/glove/client/GloveTargetCache.java` (+ per-player server cache) + `mixin/ClientGlowMixin.java` (via `content/client/ClientGlowManager.java`) + mixins-json entry (glove.md §2)
+- `content/item/glove/network/DollGloveSelectPacket.java`, `DollGloveSwingPacket.java`
+- `content/item/targeting/` — the shared target cache (glove.md §2): `GloveTargeting.java`, `client/GloveTargetCache.java`, `network/GloveTargetPacket.java`, plus `content/attachment/glove/GloveTargetAttachment.java` as the per-player server store — + `mixin/ClientGlowMixin.java` (via `content/client/ClientGlowManager.java`) + mixins-json entry (glove.md §2)
 
 ## 2. Files to modify
 
@@ -59,7 +59,7 @@ Run `./gradlew runData` (commit generated output), then `organize.ResourceOrgani
 | `GLItems` | `DOLL` item, `DOLL_DATA` + `DOLL_LOADOUT` components | Registrate | done |
 | `GLItems` | `DOLL_GLOVE` item, `DOLL_GLOVE_MODE` DCVal | Registrate | done |
 | `GLMeta` (`ATT.player`) | `DOLL` player capability → `DollAttachment` | attachment | done |
-| `HANDLER` (l2serial) | `DollGloveSelectPacket`, `DollGloveTargetPacket` | mod constructor | done |
+| `HANDLER` (l2serial) | `DollGloveSelectPacket`, `GloveTargetPacket` (shared cache, glove.md §2) | mod constructor | done |
 | item selector | `DollGloveSelectionListener.register()` | mod constructor (next to `BorderUmbrellaSelectionListener`) | done |
 | `GLBlocks` | doll controller block + BE method | Registrate | pending (BE method commented out) |
 

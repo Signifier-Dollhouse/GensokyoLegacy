@@ -2,7 +2,7 @@ package dev.xkmc.gensokyolegacy.content.client;
 
 import dev.xkmc.gensokyolegacy.content.item.character.StrangeGlassesItem;
 import dev.xkmc.gensokyolegacy.content.item.glove.client.GloveDollHover;
-import dev.xkmc.gensokyolegacy.content.item.glove.client.GloveTargetCache;
+import dev.xkmc.gensokyolegacy.content.item.targeting.client.GloveTargetCache;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.Nullable;

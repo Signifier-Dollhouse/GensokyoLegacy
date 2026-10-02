@@ -8,6 +8,7 @@ import dev.xkmc.gensokyolegacy.content.attachment.datamap.CharacterConfig;
 import dev.xkmc.gensokyolegacy.content.attachment.datamap.DialogConfig;
 import dev.xkmc.gensokyolegacy.content.attachment.datamap.StructureConfig;
 import dev.xkmc.gensokyolegacy.content.attachment.doll.DollAttachment;
+import dev.xkmc.gensokyolegacy.content.attachment.glove.GloveTargetAttachment;
 import dev.xkmc.gensokyolegacy.content.attachment.home.core.StructureAttachment;
 import dev.xkmc.gensokyolegacy.content.attachment.misc.FrogGodCapability;
 import dev.xkmc.gensokyolegacy.content.attachment.misc.KoishiAttackCapability;
@@ -57,6 +58,10 @@ public class GLMeta {
 			KoishiAttackCapability.class, KoishiAttackCapability::new, PlayerCapabilityNetworkHandler::new);
 	public static final AttVal.PlayerVal<DollAttachment> DOLL = ATT.player("doll_data",
 			DollAttachment.class, DollAttachment::new, PlayerCapabilityNetworkHandler::new);
+	// the shared glove target cache (glove.md §2): one ray-trace hint per glove, written by
+	// the client's trace and read by whichever glove is used
+	public static final AttVal.PlayerVal<GloveTargetAttachment> GLOVE_TARGET = ATT.player("glove_target",
+			GloveTargetAttachment.class, GloveTargetAttachment::new, PlayerCapabilityNetworkHandler::new);
 	public static final AttVal.CapVal<Frog, FrogGodCapability> FROG_GOD = ATT.entity("frog_god",
 			FrogGodCapability.class, FrogGodCapability::new, Frog.class, e -> true);
 

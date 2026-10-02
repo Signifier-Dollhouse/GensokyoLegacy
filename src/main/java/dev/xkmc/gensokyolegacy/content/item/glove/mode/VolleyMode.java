@@ -48,7 +48,7 @@ public class VolleyMode extends DollGloveHandler {
 	@Override
 	public void performAttackOn(ServerPlayer sp, @Nullable LivingEntity target, InteractionHand hand, ItemStack stack, DollGloveItem item) {
 		var commands = attachment(sp).commands;
-		if (target == null || !isValidAttackTarget(sp, target)) {
+		if (target == null || !DollGloveItem.isValidAttackTarget(sp, target)) {
 			sp.displayClientMessage(GLLang.ItemGlove.NO_TARGET.get(), true);
 		} else if (commands.issueVolley(sp, target)) {
 			sp.displayClientMessage(GLLang.ItemGlove.VOLLEY.get(), true);
