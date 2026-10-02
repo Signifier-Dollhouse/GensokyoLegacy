@@ -1,28 +1,17 @@
 package dev.xkmc.gensokyolegacy.content.item.tool;
 
 import dev.xkmc.danmakuapi.api.DanmakuUseEvent;
-import dev.xkmc.danmakuapi.api.GrazeHelper;
 import dev.xkmc.danmakuapi.content.entity.ItemBulletEntity;
 import dev.xkmc.danmakuapi.content.item.DanmakuItem;
 import dev.xkmc.danmakuapi.content.render.ItemModelProjectileType;
-import dev.xkmc.danmakuapi.content.spell.item.SpellContainer;
-import dev.xkmc.danmakuapi.init.data.DanmakuConfig;
 import dev.xkmc.danmakuapi.init.registrate.DanmakuItems;
 import dev.xkmc.gensokyolegacy.content.entity.misc.IronDaggerBulletEntity;
 import dev.xkmc.gensokyolegacy.init.registrate.GLEntities;
-import dev.xkmc.l2library.content.raytrace.RayTraceUtil;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.stats.Stats;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.DyeColor;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.common.NeoForge;
 
 /**
  * Iron dagger: a thrown {@link DanmakuItems.Bullet#DAGGER} danmaku.
@@ -38,6 +27,11 @@ import net.neoforged.neoforge.common.NeoForge;
  * chain bottoms out at {@code builtin/generated} (as {@code item/handheld} does) from its
  * {@code layer0}/{@code layer1} textures alone, which would discard the {@code elements} and
  * bake to zero quads. The hand-held display transforms are therefore spelled out inline.
+ * <p>
+ * The throw itself is {@link DanmakuItem}'s; what makes this a thrown weapon rather than a
+ * danmaku item is the bullet it throws and the fact that the bullet comes back: the dagger is
+ * spent from the stack on every throw and handed to the thrower again when it lands, so it is
+ * reused rather than lost.
  */
 public class IronDaggerItem extends DanmakuItem {
 
@@ -51,40 +45,30 @@ public class IronDaggerItem extends DanmakuItem {
 	}
 
 	/**
-	 * Throws the dagger as an {@link IronDaggerBulletEntity} rather than the shared danmaku bullet,
-	 * so that it can be handed back to this player when it lands. Everything else follows
-	 * {@link DanmakuItem#use}, including the shrink: the dagger still costs one from the stack on
-	 * every throw, and returning it is what makes the throw reusable.
+	 * Throws an {@link IronDaggerBulletEntity} instead of the shared danmaku bullet, so that this
+	 * one can be handed back when it lands.
 	 */
 	@Override
-	public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
-		ItemStack stack = player.getItemInHand(hand);
-		if (GrazeHelper.forbidDanmaku(player))
-			return InteractionResultHolder.fail(stack);
-		int cooldown = DanmakuConfig.SERVER.playerDanmakuCooldown.get();
-		var event = new DanmakuUseEvent(player, stack, cooldown);
-		NeoForge.EVENT_BUS.post(event);
-		if (event.isCanceled()) {
-			return InteractionResultHolder.fail(stack);
-		}
-		level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.SNOWBALL_THROW, SoundSource.PLAYERS,
-				0.5F, 0.4F / (level.getRandom().nextFloat() * 0.4F + 0.8F));
-		if (!level.isClientSide) {
-			ItemBulletEntity danmaku = new IronDaggerBulletEntity(GLEntities.IRON_DAGGER.get(), player, level);
-			danmaku.setItem(stack);
-			danmaku.setup(type.damage(), 40, false, type.bypass(),
-					RayTraceUtil.getRayTerm(Vec3.ZERO, player.getXRot(), player.getYRot(), 2));
-			danmaku.moveTo(RayTraceUtil.getRayTerm(player.getEyePosition(), player.getXRot(), player.getYRot(), 2));
-			level.addFreshEntity(danmaku);
-			if (player instanceof ServerPlayer sp)
-				SpellContainer.track(sp, danmaku);
-		}
-		player.awardStat(Stats.ITEM_USED.get(this));
-		player.getCooldowns().addCooldown(this, event.getCooldown());
-		if (event.consume()) {
-			stack.shrink(1);
-		}
-		return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
+	protected ItemBulletEntity newBullet(Player player, Level level) {
+		return new IronDaggerBulletEntity(GLEntities.IRON_DAGGER.get(), player, level);
+	}
+
+	/**
+	 * Tells the dagger whether this throw has to be paid back before it goes anywhere else, since
+	 * the throw is the only moment that knows: a throw made in creative, or one a listener cleared
+	 * {@link DanmakuUseEvent#consume()} on, spent nothing and must hand nothing back. The bullet
+	 * is this item's own, see {@link #newBullet}.
+	 */
+	@Override
+	protected void spawnBullet(ItemBulletEntity danmaku, Player player, Level level, DanmakuUseEvent event) {
+		((IronDaggerBulletEntity) danmaku).setReturnable(event.consume());
+		super.spawnBullet(danmaku, player, level, event);
+	}
+
+	@Override
+	protected void playThrowSound(Level level, Player player) {
+		level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.TRIDENT_THROW.value(),
+				SoundSource.PLAYERS, 1F, 1F);
 	}
 
 }
