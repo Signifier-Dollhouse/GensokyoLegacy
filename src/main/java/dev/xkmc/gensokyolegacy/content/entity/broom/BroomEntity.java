@@ -51,11 +51,26 @@ public class BroomEntity extends SimplifiedEntity implements GeoEntity {
 	private static final double THRUST = 0.05;
 	private static final double STRAFE = 0.04;
 	private static final double LIFT = 0.05;
+	/**
+	 * Multiplier on the whole input vector when it pushes against the motion it
+	 * is applied to — holding back into a glide, or swinging the nose around to
+	 * reverse. Braking that is no stronger than accelerating makes a broom coming
+	 * at you take as long to turn around as it did to speed up from a standstill,
+	 * which is where the "mushy" feel came from.
+	 */
+	private static final double BRAKE = 2;
 	/** Speed caps; 1.0 b/t is 20 blocks per second, about a sprinting horse. */
 	private static final double MAX_SPEED = 1.0;
 	private static final double MAX_RISE = 0.8;
-	/** Speed retained per tick once the rider lets go of the keys. */
-	private static final double COAST = 0.85;
+	/**
+	 * Speed retained per tick once the rider lets go of the keys, per axis of the
+	 * rider's horizontal facing — see {@link #coast()} for why it is split.
+	 * Along the facing, friction is low so a released forward key glides instead of
+	 * stopping dead; across it, friction is high so a facing that is never
+	 * corrected bleeds off instead of sliding sideways forever.
+	 */
+	private static final double COAST_FWD = 0.95;
+	private static final double COAST_SIDE = 0.85;
 
 	private static final RawAnimation IDLE = RawAnimation.begin().thenLoop("broom_idle");
 
@@ -99,7 +114,8 @@ public class BroomEntity extends SimplifiedEntity implements GeoEntity {
 
 	/**
 	 * Accelerates along the rider's view, then caps the result per axis group.
-	 * With no keys held the broom coasts down instead of stopping dead.
+	 * Input aimed against the current motion is boosted by {@link #BRAKE}. With no
+	 * keys held the broom coasts down instead of stopping dead.
 	 */
 	private Vec3 thrust(Player rider) {
 		// vanilla riding input: zza is forward/back, xxa is left/right, and jump and
@@ -108,17 +124,40 @@ public class BroomEntity extends SimplifiedEntity implements GeoEntity {
 		double ahead = rider.zza;
 		double aside = rider.xxa;
 		double up = (isJumping(rider) ? 1 : 0) - (rider.isShiftKeyDown() ? 1 : 0);
-		if (ahead == 0 && aside == 0 && up == 0) return getDeltaMovement().scale(COAST);
-		Vec3 motion = getDeltaMovement()
-				.add(getLookAngle().scale(ahead * THRUST))
+		if (ahead == 0 && aside == 0 && up == 0) return coast();
+		Vec3 motion = getDeltaMovement();
+		Vec3 push = getLookAngle().scale(ahead * THRUST)
 				.add(Vec3.directionFromRotation(0, getYRot() - 90).scale(aside * STRAFE))
 				.add(0, up * LIFT, 0);
+		// pushing into the current motion, i.e. braking or reversing: bite harder,
+		// so turning the broom around does not take as long as winding it up
+		if (push.dot(motion) < 0) push = push.scale(BRAKE);
+		motion = motion.add(push);
 		double flat = Math.sqrt(motion.x * motion.x + motion.z * motion.z);
 		if (flat > MAX_SPEED) {
 			double shrink = MAX_SPEED / flat;
 			motion = new Vec3(motion.x * shrink, motion.y, motion.z * shrink);
 		}
 		return motion.with(Direction.Axis.Y, Mth.clamp(motion.y, -MAX_RISE, MAX_RISE));
+	}
+
+	/**
+	 * Idle decay, split along and across the rider's horizontal facing: the
+	 * motion is projected onto the facing, the parallel part is scaled by
+	 * {@link #COAST_FWD} and everything left over — the perpendicular part, which
+	 * is also where pure climb and drop lands, since the facing is level — by
+	 * {@link #COAST_SIDE}. Scaling the whole vector uniformly instead is what made
+	 * the broom feel wrong to steer: momentum could never be spent, because the
+	 * speed the thrust built was thrown away the instant the key came up, and a
+	 * sideways shove kept the broom travelling sideways long after the rider had
+	 * turned to face where they were going.
+	 */
+	private Vec3 coast() {
+		Vec3 facing = Vec3.directionFromRotation(0, getYRot());
+		Vec3 motion = getDeltaMovement();
+		double ahead = motion.dot(facing);
+		Vec3 across = motion.subtract(facing.scale(ahead));
+		return facing.scale(ahead * COAST_FWD).add(across.scale(COAST_SIDE));
 	}
 
 	/** Jump key, read through the mixin: {@code jumping} has no public getter. */
