@@ -31,15 +31,22 @@ export function characterPill(entity) {
   return pill("accent", characterLabel(entity), entityLabel(entity));
 }
 
+/**
+ * An ingredient's display name: an explicit `text` override, the game's name for a
+ * plain item, or a marked id for a tag, which the game never translates.
+ */
+function ingredientName(ingredient) {
+  if (ingredient?.text) return ingredient.text;
+  const id = ingredientId(ingredient);
+  return isTagIngredient(ingredient) ? `#${prettify(id)}` : itemLabel(id);
+}
+
 /** An item or item tag, with its required count. */
 function itemPill(ingredient) {
-  const id = ingredientId(ingredient);
-  const isTag = isTagIngredient(ingredient);
-  const name = ingredient.text ?? itemLabel(id);
-  const node = pill("item", "", id);
-  if (isTag) node.classList.add("tag");
+  const node = pill("item", "", ingredientId(ingredient));
+  if (isTagIngredient(ingredient)) node.classList.add("tag");
   append(node, [
-    isTag ? `#${prettify(id)}` : name,
+    ingredientName(ingredient),
     ingredient.count !== undefined ? " " : "",
     ingredient.count !== undefined ? h("span", { class: "n", text: `x${ingredient.count}` }) : null,
   ]);
@@ -63,6 +70,21 @@ function entry(kind, ...body) {
 export function section(name, ...rows) {
   if (!rows.length) return null;
   return h("section", {}, h("p", { class: "section-label", text: name }), h("ul", { class: "list" }, ...rows));
+}
+
+/**
+ * A collapsible group of cards, labelled with how many it holds. Native
+ * `<details>` so it opens, closes and reports its state without any wiring, and it
+ * is dropped entirely when empty rather than showing an empty heading.
+ */
+export function collapsible(name, count, ...content) {
+  if (!count) return null;
+  return h(
+    "details",
+    { class: "collapse", open: true },
+    h("summary", {}, h("span", { text: name }), h("span", { class: "count", text: String(count) })),
+    h("div", { class: "grid" }, ...content),
+  );
 }
 
 function code(value) {
@@ -613,13 +635,28 @@ export function tradeKind(trade) {
   return (trade.ingredients ?? []).some((ingredient) => isCurrency(ingredientId(ingredient))) ? "buy" : "craft";
 }
 
-// The screen's wording for each kind of offer, resolved on every render so that a
-// language switch is picked up without rebuilding the card.
+// The wording for each kind of offer, resolved on every render so that a language
+// switch is picked up without rebuilding the card. The group heading names the
+// direction of the trade, and the card title adds the item it is about.
 const TRADE_TITLES = {
-  sell: () => tr("trade.sell"),
-  buy: () => tr("trade.buy"),
-  craft: () => tr("trade.craft"),
+  sell: () => tr("trade.title.sell"),
+  buy: () => tr("trade.title.buy"),
+  craft: () => tr("trade.title.craft"),
 };
+
+/** Section heading for a kind of offer; used to group the cards. */
+export function tradeTitle(kind) {
+  return tr(`trade.group.${kind}`);
+}
+
+/**
+ * The item a card is about. Selling hands the ingredients over, so the interesting
+ * item is the one going in; buying and crafting are about what comes out.
+ */
+function tradeItemOfInterest(trade, kind) {
+  if (kind === "sell") return ingredientName(trade.ingredients?.[0]);
+  return ingredientName(trade.result);
+}
 
 export function tradeCard(entryData, trade) {
   const kind = tradeKind(trade);
@@ -629,7 +666,7 @@ export function tradeCard(entryData, trade) {
   return h(
     "article",
     { class: "card" },
-    cardHead(TRADE_TITLES[kind](), entryData.id, [
+    cardHead(tr(TRADE_TITLES[kind](), tradeItemOfInterest(trade, kind)), entryData.id, [
       characterPill(trade.character),
       stock ? pill("requirement", tr("trade.stock", stock)) : null,
       restock ? pill("condition", tr("trade.restock", formatTicks(restock))) : null,

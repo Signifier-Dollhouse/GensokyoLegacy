@@ -24,14 +24,22 @@ fetch 404s - Pages cannot serve files from outside the directory it publishes.
 | --- | --- | --- |
 | Quests | `gensokyolegacy:quest` without `recurrence` | title, description, unlock **conditions**, **requirements**, rewards, conversation entry points |
 | Dailies | `gensokyolegacy:quest` with `recurrence` | the same card, for the quests that come back on a cooldown |
-| Trades | `gensokyolegacy:trade` | ingredients → result, stock and restock, unlock conditions |
-| Dialogs | `gensokyolegacy:dialog_starter`, `gensokyolegacy:dialog` | conversation starters with their conditions, and a viewer that walks each dialog branch |
+| Trades | `gensokyolegacy:trade` | ingredients → result, stock and restock, unlock conditions, grouped into collapsible *sell to*, *buy from* and *processing* sections |
+| Starters | `gensokyolegacy:dialog_starter` | the gated entry points into a conversation, with their conditions |
+| Dialogs | `gensokyolegacy:dialog` | every dialog node, grouped by the conversation it belongs to, with a viewer that walks each branch |
 
 Quests and dailies share one registry and one card; the tab only splits them, so a
 condition linking to a quest lands on whichever of the two it actually belongs to.
+Starters and dialogs are separate registries, and keeping them apart also means the
+Starters tab does not have to pull in the 200+ dialog nodes.
+
+Each trade card is titled with the item the trade is about: the ingredient going in
+for a sale, the result coming out otherwise.
 
 Everything is grouped per character, filterable by search, and addressable by URL
-(`#quest/reimu`, `#daily/reimu`, `#trade/all`, `#dialog/marisa`).
+(`#quest/reimu`, `#daily/reimu`, `#trade/all`, `#starters/marisa`, `#dialog/marisa`).
+The tab badges count the selected character, and picking a character or a tab clears
+the search box.
 
 ### Languages
 

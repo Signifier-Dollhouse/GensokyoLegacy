@@ -22,7 +22,15 @@ import {
   tableFor,
   VANILLA_LANG,
 } from "./lib/store.js";
-import { openDialogViewer, questCard, starterCard, tradeCard } from "./lib/views.js";
+import {
+  collapsible,
+  openDialogViewer,
+  questCard,
+  starterCard,
+  tradeCard,
+  tradeKind,
+  tradeTitle,
+} from "./lib/views.js";
 
 // ---------------------------------------------------------------------------
 // location
@@ -101,6 +109,7 @@ function renderPanel() {
   const panel = clear(document.querySelector("#panel"));
 
   if (state.tab === "dialog") return renderDialogPanel(panel);
+  if (state.tab === "starters") return renderStartersPanel(panel);
   if (state.tab === "trade") return renderTradePanel(panel);
   return renderQuestPanel(panel, state.tab);
 }
@@ -140,6 +149,9 @@ function renderQuestPanel(panel, tab) {
   panel.append(grid);
 }
 
+/** The order trades are listed in, which is also the order of the sections. */
+const TRADE_KINDS = ["sell", "buy", "craft"];
+
 function renderTradePanel(panel) {
   const table = store.trades;
   const entries = entriesOf(store.manifest.registries.trade)
@@ -156,12 +168,16 @@ function renderTradePanel(panel) {
 
   if (!entries.length) return panel.append(emptyState(tr("noun.trades")));
 
-  const grid = h("div", { class: "grid" });
+  // Grouped by direction, the way the trade screen reads them: what the player
+  // hands over, what they pay for, and what the character makes.
+  const groups = new Map(TRADE_KINDS.map((kind) => [kind, []]));
   for (const entryData of entries) {
     const trade = table.get(entryData.id);
-    if (trade) grid.append(tradeCard(entryData, trade));
+    if (trade) groups.get(tradeKind(trade)).push(tradeCard(entryData, trade));
   }
-  panel.append(grid);
+  panel.append(
+    ...TRADE_KINDS.map((kind) => collapsible(tradeTitle(kind), groups.get(kind).length, groups.get(kind))),
+  );
 }
 
 function emptyState(what) {
@@ -183,27 +199,6 @@ async function renderDialogPanel(panel) {
     setStatus("");
   }
 
-  // Starters are the gated entry points into a conversation, so they lead.
-  const starters = entriesOf(store.manifest.registries.dialog_starter).filter(inCharacter).filter((entryData) => {
-    const starter = store.starters.get(entryData.id);
-    return matchesQuery(entryData.id, starter?.text && label(starter.text));
-  });
-
-  panel.append(
-    h("h3", { text: tr("starters.title") }),
-    h("p", { class: "card-id", text: tr("starters.note") }),
-    starters.length
-      ? h(
-          "div",
-          { class: "grid" },
-          ...starters.map((entryData) => {
-            const starter = store.starters.get(entryData.id);
-            return starter ? starterCard(entryData, starter) : null;
-          }),
-        )
-      : emptyState(tr("noun.starters")),
-  );
-
   // 200+ dialog nodes grouped by the conversation they belong to, so the tree
   // stays browsable: `reimu/daily_food/{start,follow_up,complete}/...` is one row.
   const conversations = new Map();
@@ -219,7 +214,6 @@ async function renderDialogPanel(panel) {
   }
 
   panel.append(
-    h("h3", { text: tr("dialogs.title") }),
     h("p", { class: "card-id", text: tr("dialogs.note") }),
     conversations.size
       ? h(
@@ -244,6 +238,32 @@ async function renderDialogPanel(panel) {
           ),
         )
       : emptyState(tr("noun.dialogs")),
+  );
+}
+
+/** Starters are the gated entry points into a conversation, so they get their own
+ *  tab: they are few, they are what a player meets first, and loading them does
+ *  not pull in the 200+ dialog nodes the next tab lists. */
+function renderStartersPanel(panel) {
+  const starters = entriesOf(store.manifest.registries.dialog_starter)
+    .filter(inCharacter)
+    .filter((entryData) => {
+      const starter = store.starters.get(entryData.id);
+      return matchesQuery(entryData.id, starter?.text && label(starter.text));
+    });
+
+  panel.append(
+    h("p", { class: "card-id", text: tr("starters.note") }),
+    starters.length
+      ? h(
+          "div",
+          { class: "grid" },
+          ...starters.map((entryData) => {
+            const starter = store.starters.get(entryData.id);
+            return starter ? starterCard(entryData, starter) : null;
+          }),
+        )
+      : emptyState(tr("noun.starters")),
   );
 }
 
@@ -333,7 +353,7 @@ function renderSidebar() {
  * the numbers match what the panel below is showing.
  */
 function renderTabs() {
-  const counts = { quest: 0, daily: 0, trade: 0, dialog: 0 };
+  const counts = { quest: 0, daily: 0, trade: 0, starters: 0, dialog: 0 };
 
   for (const entryData of entriesOf(store.manifest.registries.quest).filter(inCharacter)) {
     const quest = store.quests.get(entryData.id);
@@ -344,6 +364,9 @@ function renderTabs() {
   // A file that failed to load is in the index but not on screen, so it is not counted.
   for (const entryData of entriesOf(store.manifest.registries.trade).filter(inCharacter)) {
     if (store.trades.get(entryData.id)) counts.trade += 1;
+  }
+  for (const entryData of entriesOf(store.manifest.registries.dialog_starter).filter(inCharacter)) {
+    if (store.starters.get(entryData.id)) counts.starters += 1;
   }
   counts.dialog = entriesOf(store.manifest.registries.dialog).filter(inCharacter).length;
 

@@ -326,6 +326,8 @@ input[type="search"] {
 .tabs {
   display: flex;
   gap: 4px;
+  /* Five tabs do not fit on a narrow phone, and the row would otherwise spill. */
+  flex-wrap: wrap;
   margin-bottom: 18px;
   border-bottom: 1px solid var(--border);
 }
@@ -592,6 +594,44 @@ details.raw pre {
   font-family: var(--mono);
   font-size: 11.5px;
   line-height: 1.45;
+}
+
+/* A collapsible group of cards, such as one direction of the trade list. */
+details.collapse {
+  margin-bottom: 18px;
+}
+
+details.collapse > summary {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  padding: 7px 10px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-sunken);
+  color: var(--text);
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  cursor: pointer;
+  user-select: none;
+}
+
+details.collapse > summary:hover {
+  background: var(--accent-soft);
+}
+
+details.collapse > summary .count {
+  color: var(--text-muted);
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+details.collapse > .grid {
+  margin-top: 12px;
 }
 
 .option-list {

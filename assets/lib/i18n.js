@@ -31,6 +31,7 @@ const en_us = {
   "tab.quest": "Quests",
   "tab.daily": "Dailies",
   "tab.trade": "Trades",
+  "tab.starters": "Starters",
   "tab.dialog": "Dialogs",
 
   // Short character names, keyed by the registry folder their content sits in.
@@ -56,9 +57,7 @@ const en_us = {
   "status.refreshed.one": "Index refreshed from GitHub: {0} new file found on this branch.",
   "status.refreshed.many": "Index refreshed from GitHub: {0} new files found on this branch.",
 
-  "starters.title": "Conversation starters",
   "starters.note": "The gated entry points a player can trigger by talking to a character.",
-  "dialogs.title": "Dialogs",
   "dialogs.note": "Every dialog node, grouped by the conversation it belongs to.",
   "dialog.lines.one": "{0} line - first: {1}",
   "dialog.lines.many": "{0} lines - first: {1}",
@@ -146,9 +145,13 @@ const en_us = {
   "quest.openDialog": "open dialog ->",
 
   // -- trade cards ----------------------------------------------------------
-  "trade.sell": "Sell to character",
-  "trade.buy": "Buy from character",
-  "trade.craft": "Request a craft",
+  // One heading per direction of trade, and a title per card that names the item.
+  "trade.group.sell": "Sell to character",
+  "trade.group.buy": "Buy from character",
+  "trade.group.craft": "Processing",
+  "trade.title.sell": "Sell {0}",
+  "trade.title.buy": "Buy {0}",
+  "trade.title.craft": "Craft {0}",
   "trade.stock": "stock {0}",
   "trade.restock": "restock {0}",
 
@@ -191,6 +194,7 @@ const zh_cn = {
   "tab.quest": "任务",
   "tab.daily": "日常",
   "tab.trade": "交易",
+  "tab.starters": "对话入口",
   "tab.dialog": "对话",
 
   // Short names; the tooltip and fallback carry the full in-game name.
@@ -215,9 +219,7 @@ const zh_cn = {
   "status.refreshed.one": "已从 GitHub 刷新索引：该分支上有 {0} 个新文件。",
   "status.refreshed.many": "已从 GitHub 刷新索引：该分支上有 {0} 个新文件。",
 
-  "starters.title": "对话入口",
   "starters.note": "与角色交谈时可能触发、且带有条件限制的对话入口。",
-  "dialogs.title": "对话",
   "dialogs.note": "全部对话节点，按其所属的对话分组。",
   "dialog.lines.one": "{0} 行——首句：{1}",
   "dialog.lines.many": "{0} 行——首句：{1}",
@@ -304,10 +306,14 @@ const zh_cn = {
   "quest.oneTime": "一次性",
   "quest.openDialog": "查看对话 ->",
 
-  // -- trade cards ----------------------------------------------------------
-  "trade.sell": "卖给角色",
-  "trade.buy": "向角色购买",
-  "trade.craft": "请求制作",
+  // -- 交易卡片 --------------------------------------------------------------
+  // 每种交易方向一个标题，每张卡片再带上物品名。
+  "trade.group.sell": "卖给角色",
+  "trade.group.buy": "向角色购买",
+  "trade.group.craft": "加工",
+  "trade.title.sell": "出售{0}",
+  "trade.title.buy": "购买{0}",
+  "trade.title.craft": "制作{0}",
   "trade.stock": "库存 {0}",
   "trade.restock": "补货 {0}",
 

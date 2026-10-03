@@ -7,8 +7,9 @@
  */
 export const REPO = { owner: "Signifier-Dollhouse", name: "GensokyoLegacy", ref: "gh-page" };
 
-/** Content types, in tab order. `quest` and `daily` share the quest registry. */
-export const TABS = ["quest", "daily", "trade", "dialog"];
+/** Content types, in tab order. `quest`/`daily` and `starters`/`dialog` each split
+ *  one registry in two; see `app.js` for what the split is. */
+export const TABS = ["quest", "daily", "trade", "starters", "dialog"];
 
 function read(key, fallback) {
   try {
