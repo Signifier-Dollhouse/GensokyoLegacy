@@ -33,18 +33,13 @@
     "text": "gensokyolegacy/marisa/nether_mushroom_prep/option/start"
   },
   "requirements": {
-    "a-crimson": {
+    "a-fungi": {
       "type": "gensokyolegacy:submit_item",
       "ingredients": [
         {
           "count": 4,
           "item": "minecraft:crimson_fungus"
-        }
-      ]
-    },
-    "b-warped": {
-      "type": "gensokyolegacy:submit_item",
-      "ingredients": [
+        },
         {
           "count": 4,
           "item": "minecraft:warped_fungus"

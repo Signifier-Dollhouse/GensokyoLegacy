@@ -24,27 +24,17 @@
     "text": "gensokyolegacy/alice/first_doll/option/start"
   },
   "requirements": {
-    "a-string": {
+    "a-materials": {
       "type": "gensokyolegacy:submit_item",
       "ingredients": [
         {
           "count": 8,
           "item": "minecraft:string"
-        }
-      ]
-    },
-    "b-wool": {
-      "type": "gensokyolegacy:submit_item",
-      "ingredients": [
+        },
         {
           "count": 8,
           "tag": "minecraft:wool"
-        }
-      ]
-    },
-    "c-straw": {
-      "type": "gensokyolegacy:submit_item",
-      "ingredients": [
+        },
         {
           "count": 4,
           "item": "gensokyolegacy:mystical_straw"

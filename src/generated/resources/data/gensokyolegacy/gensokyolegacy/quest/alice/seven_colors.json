@@ -29,66 +29,36 @@
     "text": "gensokyolegacy/alice/seven_colors/option/start"
   },
   "requirements": {
-    "a-cyan_dye": {
-      "type": "gensokyolegacy:submit_item",
-      "ingredients": [
-        {
-          "count": 4,
-          "item": "minecraft:cyan_dye"
-        }
-      ]
-    },
-    "a-light_blue_dye": {
-      "type": "gensokyolegacy:submit_item",
-      "ingredients": [
-        {
-          "count": 4,
-          "item": "minecraft:light_blue_dye"
-        }
-      ]
-    },
-    "a-lime_dye": {
-      "type": "gensokyolegacy:submit_item",
-      "ingredients": [
-        {
-          "count": 4,
-          "item": "minecraft:lime_dye"
-        }
-      ]
-    },
-    "a-orange_dye": {
-      "type": "gensokyolegacy:submit_item",
-      "ingredients": [
-        {
-          "count": 4,
-          "item": "minecraft:orange_dye"
-        }
-      ]
-    },
-    "a-purple_dye": {
-      "type": "gensokyolegacy:submit_item",
-      "ingredients": [
-        {
-          "count": 4,
-          "item": "minecraft:purple_dye"
-        }
-      ]
-    },
-    "a-red_dye": {
+    "a-dyes": {
       "type": "gensokyolegacy:submit_item",
       "ingredients": [
         {
           "count": 4,
           "item": "minecraft:red_dye"
-        }
-      ]
-    },
-    "a-yellow_dye": {
-      "type": "gensokyolegacy:submit_item",
-      "ingredients": [
+        },
+        {
+          "count": 4,
+          "item": "minecraft:orange_dye"
+        },
         {
           "count": 4,
           "item": "minecraft:yellow_dye"
+        },
+        {
+          "count": 4,
+          "item": "minecraft:lime_dye"
+        },
+        {
+          "count": 4,
+          "item": "minecraft:cyan_dye"
+        },
+        {
+          "count": 4,
+          "item": "minecraft:light_blue_dye"
+        },
+        {
+          "count": 4,
+          "item": "minecraft:purple_dye"
         }
       ]
     }

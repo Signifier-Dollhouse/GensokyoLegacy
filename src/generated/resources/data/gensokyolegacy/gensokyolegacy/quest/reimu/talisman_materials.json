@@ -29,18 +29,13 @@
     "text": "gensokyolegacy/reimu/talisman_materials/option/start"
   },
   "requirements": {
-    "a-paper": {
+    "a-supplies": {
       "type": "gensokyolegacy:submit_item",
       "ingredients": [
         {
           "count": 16,
           "item": "minecraft:paper"
-        }
-      ]
-    },
-    "b-redstone": {
-      "type": "gensokyolegacy:submit_item",
-      "ingredients": [
+        },
         {
           "count": 8,
           "item": "minecraft:redstone"

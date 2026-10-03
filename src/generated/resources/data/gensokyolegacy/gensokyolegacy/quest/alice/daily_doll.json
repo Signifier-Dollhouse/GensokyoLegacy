@@ -32,34 +32,28 @@
     "cooldown": 24000
   },
   "requirements": {
-    "a-string": {
+    "a-materials": {
       "type": "gensokyolegacy:submit_item",
       "ingredients": [
         {
           "count": 8,
           "item": "minecraft:string"
-        }
-      ]
-    },
-    "b-wool": {
-      "type": "gensokyolegacy:submit_item",
-      "ingredients": [
+        },
         {
           "count": 8,
           "tag": "minecraft:wool"
-        }
-      ]
-    },
-    "c-grass": {
-      "type": "gensokyolegacy:submit_item",
-      "ingredients": [
+        },
         {
           "count": 8,
           "item": "gensokyolegacy:broom_grass"
         }
       ]
     },
-    "d-dye": {
+    "b-iron": {
+      "type": "gensokyolegacy:roll_item",
+      "table": "gensokyolegacy:quest_req/alice/daily_doll/daily_doll_iron"
+    },
+    "c-dye": {
       "type": "gensokyolegacy:roll_item",
       "table": "gensokyolegacy:quest_req/alice/daily_doll/daily_doll"
     }

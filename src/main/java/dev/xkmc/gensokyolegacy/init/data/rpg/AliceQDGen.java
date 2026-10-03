@@ -20,7 +20,6 @@ import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.registrate.GLEntities;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLNaturalBlocks;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.Item;
@@ -97,13 +96,13 @@ public class AliceQDGen extends QuestDialogData {
 						option("hi/end", "Not right now."))
 		));
 
-		// Unlocked by 2.1, which is also the quest that hands out the first
-		// star wand - this chat explains where the wands actually come from.
+		// Unlocked by 2.1, which is also the quest that hands out the first doll
+		// lance - this chat says what a doll fights with and where the wands come from.
 		prefix("alice/chat_star_wand");
 		chat("alice/chat_star_wand", GLEntities.ALICE.get(),
 				List.of(hasQuest(QUEST_SEVEN_COLORS)),
 				starterText("start", "How does a doll of yours actually fight?"),
-				dialog("talk", "Badly, on its own. Cloth and straw will not throw a punch. To make a doll fight, you give it a star wand - a focus that carries its will out to where it can be seen. I cannot make one. A magician lives deeper in this forest and trades them; she is the only one I would trust with the work. Bring her the colors and she will sell you a wand.",
+				dialog("talk", "Badly, on its own. Cloth and straw will not throw a punch. The lance I gave you is the simplest thing I can put in a doll's hand - it has to come to the fight, and it does. If you would rather keep your distance instead, a magician lives deeper in this forest and trades star wands: a focus that carries its will out to where it can be seen. I cannot make one; she is the only one I would trust with the work.",
 						option("where", "Which magician?",
 								dialog("where_ans", "The one with the house full of mushrooms and the roof that keeps exploding. She does not advertise, but she always has stock. Point a doll at what you want it to hit, and the wand will do the rest.",
 										option("where/end", "Then I'll go and see her.")))),
@@ -116,9 +115,10 @@ public class AliceQDGen extends QuestDialogData {
 				questTitle("Doll Materials"), questDesc("Bring Alice the string, wool and mystical straw every doll is made of."),
 				Optional.empty(),
 				new TreeMap<>(Map.of(
-						"a-string", new SubmitItemRequirement(List.of(item(Items.STRING, 8))),
-						"b-wool", new SubmitItemRequirement(List.of(itemTag(ItemTags.WOOL, 8))),
-						"c-straw", new SubmitItemRequirement(List.of(item(GLItems.MYSTICAL_STRAW.get(), 4)))
+						"a-materials", new SubmitItemRequirement(List.of(
+								item(Items.STRING, 8),
+								itemTag(ItemTags.WOOL, 8),
+								item(GLItems.MYSTICAL_STRAW.get(), 4)))
 				)),
 				List.of(new ExpReward(50), new ReputationReward(10, 300, 10, 300),
 						loot("alice/first_doll", LootTable.lootTable()
@@ -146,9 +146,9 @@ public class AliceQDGen extends QuestDialogData {
 						loot("alice/seven_colors", LootTable.lootTable()
 								.withPool(lootItem(GLItems.DOLL_GLOVE.get(), 1))
 								.withPool(lootItem(GLItems.DOLL.get(), 1))
-								.withPool(lootItem(GLItems.STAR_WAND.get(), 1)))),
+								.withPool(lootItem(GLItems.DOLL_LANCE.get(), 1)))),
 				start("What are the seven colors for, exactly?",
-						"For the glove. Seven strands, seven colors - red, orange, yellow, green, cyan, blue, purple. Give me four of each dye and I can bind the whole set into a single piece. It is slow work, so I will not hand over anything half finished: the glove, a doll to put in it, and a focus to make that doll fight. Worth the trip?",
+						"For the glove. Seven strands, seven colors - red, orange, yellow, green, cyan, blue, purple. Give me four of each dye and I can bind the whole set into a single piece. It is slow work, so I will not hand over anything half finished: the glove, a doll to put in it, and a lance to give it something to fight with. Worth the trip?",
 						"Consider it done.", "Then it is settled. Four of each - red, orange, yellow, light green, cyan, light blue, purple. Take your time finding them.", "I'll be back.",
 						"That's a lot of hunting for one glove.", "It is. But I would rather make one glove properly than ten carelessly. Do think it over.", "I'll think about it."),
 				follow("Remind me of the seven colors.",
@@ -157,7 +157,7 @@ public class AliceQDGen extends QuestDialogData {
 				complete("All seven colors, four of each.",
 						"...Red. Orange. Yellow. Green. Cyan. Blue. Purple. Every one present.",
 						"Here - your reward.",
-						"The glove, a doll to match it, and a star wand. The wand is not my work - a magician in this forest trades them, and it will not move a doll one step without one.",
+						"The glove, a doll to match it, and a lance. A doll with an empty hand is a doll in danger - the lance is the least I can send her out with.",
 						"Then I'll put them to good use.",
 						"These aren't what you asked for.", "...Let me look again. Show me what you brought and I will tell you which are short.", "Very well.")
 		));
@@ -173,29 +173,38 @@ public class AliceQDGen extends QuestDialogData {
 		for (var dye : SPECTRUM_DYES)
 			dyePool.add(LootItem.lootTableItem(dye));
 		var dyeTable = requestTable("daily_doll", LootTable.lootTable().withPool(dyePool));
+		// The spear heads: rolled per run off the same table, so the number Alice asks
+		// for is fixed once the quest starts and shown in the request like the dyes are.
+		var ironTable = requestTable("daily_doll_iron", LootTable.lootTable()
+				.withPool(lootItem(Items.IRON_INGOT, 6, 8)));
 
-		daily("alice/daily_doll", "Doll Restock", "Bring Alice the cloth and straw for one day's dolls, plus three dyes of her choosing.",
+		daily("alice/daily_doll", "Doll Restock", "Bring Alice the cloth and straw for one day's dolls, iron for her spear heads, plus three dyes of her choosing.",
 				new QuestRecurrence(24000), List.of(new HasQuestCompletedCondition(QUEST_SEVEN_COLORS)), 60, 10, 150, 0, 0,
-				"I have more orders than doll parts today. Bring me string, wool, some broom grass, and three dyes - any three you like, I am not particular. In return you may keep whatever I finish.",
-				"Very well. String, wool, broom grass, and three dyes.",
+				"I have more orders than doll parts today. Bring me string, wool, some broom grass, iron for the spear heads - enough of it, and no more than I can use - and three dyes, any three you like, I am not particular. In return you may keep whatever I finish.",
+				"Very well. String, wool, broom grass, iron, and three dyes.",
 				"Then I shall make do with what I have.",
-				"String, wool, broom grass, and three dyes. Any three - I have no preference.",
+				"String, wool, broom grass, iron for the spear heads - I asked for six, and not one more than eight - and three dyes. Any three; I have no preference.",
 				null, "Very good. Do not spend the dyes on anything else.",
 				"I have what you asked for.", "Oh, good. Let me look at the colors you picked.",
-				"Here.", "Then this one is yours. Keep it close, and give it a wand before you send it anywhere.",
+				"Here.", "Then these are yours. A doll, and a lance for its hand - that is all she needs. Keep them close.",
 				"You're welcome.",
 				new TreeMap<>(Map.of(
-						"a-string", new SubmitItemRequirement(List.of(item(Items.STRING, 8))),
-						"b-wool", new SubmitItemRequirement(List.of(itemTag(ItemTags.WOOL, 8))),
-						"c-grass", new SubmitItemRequirement(List.of(item(GLNaturalBlocks.BROOM_GRASS.asItem(), 8))),
-						"d-dye", rollItem(dyeTable)
-				)), LootTable.lootTable().withPool(lootItem(GLItems.DOLL.get(), 1)));
+						"a-materials", new SubmitItemRequirement(List.of(
+								item(Items.STRING, 8),
+								itemTag(ItemTags.WOOL, 8),
+								item(GLNaturalBlocks.BROOM_GRASS.asItem(), 8))),
+						"b-iron", rollItem(ironTable),
+						"c-dye", rollItem(dyeTable)
+				)), LootTable.lootTable()
+						.withPool(lootItem(GLItems.DOLL.get(), 1))
+						.withPool(lootItem(GLItems.DOLL_LANCE.get(), 1)));
 	}
 
 	private void trades() {
 		prefix("alice");
 		// Alice sews by hand, so the glove is a weekly item at best; the plain
-		// dolls she can turn out one at a time.
+		// dolls she can turn out one at a time. The lance is the cheap one - iron
+		// and a day's work - but a day is still a day, so one a day it is.
 		trade("offer_doll_glove", new TradeOffer(GLEntities.ALICE.get(),
 				List.of(new HasQuestCompletedCondition(QUEST_SEVEN_COLORS)),
 				new ItemStack(GLItems.DOLL_GLOVE.get()),
@@ -204,22 +213,29 @@ public class AliceQDGen extends QuestDialogData {
 				List.of(new HasQuestCompletedCondition(QUEST_SEVEN_COLORS)),
 				new ItemStack(GLItems.DOLL.get()),
 				new TradeRecurrence(1, 24000), List.of(item(Items.EMERALD, 32))));
+		trade("offer_doll_lance", new TradeOffer(GLEntities.ALICE.get(),
+				List.of(new HasQuestCompletedCondition(QUEST_SEVEN_COLORS)),
+				new ItemStack(GLItems.DOLL_LANCE.get()),
+				new TradeRecurrence(1, 24000), List.of(item(Items.IRON_INGOT, 8))));
 	}
 
 	/** One of each of the seven dyes plus three white wool: the glove's price. */
 	private List<IngredientEntry> gloveIngredients() {
-		List<IngredientEntry> ans = new ArrayList<>();
-		for (var dye : SPECTRUM_DYES)
-			ans.add(item(dye, 1));
+		List<IngredientEntry> ans = new ArrayList<>(dyeIngredients(1));
 		ans.add(item(Items.WHITE_WOOL, 3));
 		return ans;
 	}
 
-	/** One {@code submit_item} requirement per dye, keyed {@code a-<name>}. */
+	/** One of each of the seven dyes, {@code count} apiece: the single submit requirement. */
 	private Map<String, QuestRequirement<?, ?>> dyeRequirements(int count) {
-		Map<String, QuestRequirement<?, ?>> ans = new TreeMap<>();
+		return Map.of("a-dyes", new SubmitItemRequirement(dyeIngredients(count)));
+	}
+
+	/** One {@code IngredientEntry} per dye, in spectral order. */
+	private List<IngredientEntry> dyeIngredients(int count) {
+		List<IngredientEntry> ans = new ArrayList<>();
 		for (var dye : SPECTRUM_DYES)
-			ans.put("a-" + BuiltInRegistries.ITEM.getKey(dye).getPath(), new SubmitItemRequirement(List.of(item(dye, count))));
+			ans.add(item(dye, count));
 		return ans;
 	}
 

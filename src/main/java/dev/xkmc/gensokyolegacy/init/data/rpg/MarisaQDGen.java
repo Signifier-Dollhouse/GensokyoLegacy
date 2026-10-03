@@ -143,8 +143,9 @@ public class MarisaQDGen extends QuestDialogData {
 				questTitle("First Mushrooms"), questDesc("Bring Marisa red and brown mushrooms from the surface."),
 				Optional.empty(),
 				new TreeMap<>(Map.of(
-						"a-red", new SubmitItemRequirement(List.of(item(Items.RED_MUSHROOM, 8))),
-						"b-brown", new SubmitItemRequirement(List.of(item(Items.BROWN_MUSHROOM, 8)))
+						"a-mushrooms", new SubmitItemRequirement(List.of(
+								item(Items.RED_MUSHROOM, 8),
+								item(Items.BROWN_MUSHROOM, 8)))
 				)),
 				List.of(new ExpReward(50), new ReputationReward(10, 300, 10, 300),
 						loot("marisa/first_mushroom", LootTable.lootTable()
@@ -191,8 +192,9 @@ public class MarisaQDGen extends QuestDialogData {
 				questTitle("Nether Mushrooms"), questDesc("Bring Marisa nether mushroom samples."),
 				Optional.empty(),
 				new TreeMap<>(Map.of(
-						"a-crimson", new SubmitItemRequirement(List.of(item(Items.CRIMSON_FUNGUS, 4))),
-						"b-warped", new SubmitItemRequirement(List.of(item(Items.WARPED_FUNGUS, 4)))
+						"a-fungi", new SubmitItemRequirement(List.of(
+								item(Items.CRIMSON_FUNGUS, 4),
+								item(Items.WARPED_FUNGUS, 4)))
 				)),
 				List.of(new ExpReward(150), new ReputationReward(20, 300, 10, 300),
 						loot("marisa/nether_mushroom_prep", LootTable.lootTable()
@@ -240,8 +242,9 @@ public class MarisaQDGen extends QuestDialogData {
 				questTitle("Brewing"), questDesc("Bring Marisa blaze rods and nether wart."),
 				Optional.empty(),
 				new TreeMap<>(Map.of(
-						"a-blaze", new SubmitItemRequirement(List.of(item(Items.BLAZE_ROD, 4))),
-						"b-wart", new SubmitItemRequirement(List.of(item(Items.NETHER_WART, 12)))
+						"a-brewing", new SubmitItemRequirement(List.of(
+								item(Items.BLAZE_ROD, 4),
+								item(Items.NETHER_WART, 12)))
 				)),
 				List.of(new ExpReward(200), new ReputationReward(20, 300, 10, 300),
 						loot("marisa/brewing", LootTable.lootTable()
@@ -437,8 +440,9 @@ public class MarisaQDGen extends QuestDialogData {
 				"I got them.", "Oh, you got 'em? Let me see.", "Here.",
 				"Thank you!", "You're welcome.",
 				new TreeMap<>(Map.of(
-						"a-blaze", new SubmitItemRequirement(List.of(item(Items.BLAZE_ROD, 2))),
-						"b-wart", new SubmitItemRequirement(List.of(item(Items.NETHER_WART, 8)))
+						"a-brewing", new SubmitItemRequirement(List.of(
+								item(Items.BLAZE_ROD, 2),
+								item(Items.NETHER_WART, 8)))
 				)), LootTable.lootTable().withPool(lootItem(Items.EMERALD, 8)));
 	}
 
@@ -506,6 +510,12 @@ public class MarisaQDGen extends QuestDialogData {
 				List.of(new SelfReputationCondition(100), new HasQuestCompletedCondition(QUEST_TALISMAN_REQUEST)),
 				new ItemStack(GLItems.STAR_WAND.get()),
 				new TradeRecurrence(4, 24000), List.of(item(Items.EMERALD, 8))));
+		// The broom: a day's whittling for a handful of straw. Same gate as the wand,
+		// and the same one-a-day ceiling, so neither reward walks out on the other.
+		trade("offer_broom", new TradeOffer(GLEntities.MARISA.get(),
+				List.of(new HasQuestCompletedCondition(QUEST_TALISMAN_REQUEST)),
+				new ItemStack(GLItems.BROOM.get()),
+				new TradeRecurrence(1, 24000), List.of(item(GLItems.MYSTICAL_STRAW.get(), 8))));
 
 		// Processing trades
 		trade("process_golden_apple", new TradeOffer(GLEntities.MARISA.get(),
