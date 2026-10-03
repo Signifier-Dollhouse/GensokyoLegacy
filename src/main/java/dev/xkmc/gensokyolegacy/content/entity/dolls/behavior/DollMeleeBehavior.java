@@ -10,7 +10,6 @@ import dev.xkmc.gensokyolegacy.content.item.doll.DollSlot;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
@@ -248,11 +247,40 @@ public class DollMeleeBehavior extends DollBehavior {
 		// variant in GLAttackListener#onCreateSource, which covers every doll melee
 		// rather than only this behavior.
 		DamageSource source = doll.damageSources().mobAttack(doll);
-		if (!target.hurt(source, (float) doll.getAttributeValue(Attributes.ATTACK_DAMAGE))) return;
+		if (!target.hurt(source, meleeDamage(doll, weapon))) return;
 		Vec3 push = new Vec3(toTarget.x, 0, toTarget.z);
 		if (push.lengthSqr() < 1e-6) return;
 		push = push.normalize();
 		target.knockback(KNOCKBACK, push.x, push.z);
+	}
+
+	/**
+	 * Melee damage: the doll's own {@link Attributes#ATTACK_DAMAGE} — a real
+	 * attribute instance ({@code createAttributes}), so whatever moves it moves the
+	 * swing — plus the ledger weapon's main-hand modifiers.
+	 * <p>
+	 * That addition is the whole point, and it is what being off-hand equipment costs:
+	 * a lance is <b>not</b> an item in the doll's hand. The loadout is deliberately
+	 * not vanilla equipment (loadout.md §2), so nothing feeds the held stack's
+	 * {@link ItemAttributeModifiers} into the entity's attribute map the way an
+	 * equipped weapon's are, and the attribute alone answers the bare base — the same
+	 * 1 a player swings with — which is a charge that ignores its weapon entirely. So
+	 * the main-hand {@code ATTACK_DAMAGE} entries are folded in at swing time, which
+	 * is vanilla's own base-plus-weapon arithmetic: <b>5</b> for a
+	 * {@link DollLanceItem} (1 + its 4).
+	 * <p>
+	 * Damage only. Attack speed is a doll-side cadence ({@link #COOLDOWN_TICKS}),
+	 * not an attribute read, and enchantments ride the attacker's vanilla held item,
+	 * which a loadout is not — so a Sharpened lance swings for its flat damage, the
+	 * same as a doll's danmaku item does.
+	 */
+	private float meleeDamage(DollEntity doll, ItemStack weapon) {
+		double weaponDamage = weapon.getAttributeModifiers().modifiers().stream()
+				.filter(entry -> Attributes.ATTACK_DAMAGE.equals(entry.attribute()))
+				.filter(entry -> entry.slot().test(EquipmentSlot.MAINHAND))
+				.mapToDouble(entry -> entry.modifier().amount())
+				.sum();
+		return (float) (doll.getAttributeValue(Attributes.ATTACK_DAMAGE) + weaponDamage);
 	}
 
 	/** No hit, but the ticket still goes out — a charge given up costs nothing. */

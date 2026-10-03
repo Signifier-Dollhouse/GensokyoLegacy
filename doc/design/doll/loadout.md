@@ -10,10 +10,12 @@ Dolls carry a small **inventory of four slots** that determines their behavior (
 
 | Slot | Semantics | Accepted items |
 |---|---|---|
-| `MAIN_HAND` | assault weapon — decides regular / super / suicide attack | `DanmakuItem`, `LaserItem`, `HexBrewBottleItem`, `Items.TNT` |
-| `OFF_HAND` | secondary throw option — hexbrew super attack | `HexBrewBottleItem` |
-| `CLOTH` | worn paper/cloth — enables passive moves (heal) | `TalismanPaperItem` (a `HealTalisman` activates heal) |
+| `MAIN_HAND` | assault weapon — decides regular / super / suicide attack | every bound item: `DanmakuItem`, `DollLanceItem`, `LaserItem`, throwable `HexBrewBottleItem`, `Items.TNT`, folded heal talisman — plus the vanilla shield (§4) |
+| `OFF_HAND` | secondary throw option — hexbrew super attack | the same set as the main hand |
+| `CLOTH` | worn paper/cloth — enables passive moves (heal) | none — inert for now, though the heal talisman is the item this slot was designed around and it is bound to a hand |
 | `CORE` | reserved for future mechanical cores | none yet — synced but functionally inert |
+
+The accepted set is not a hand-written list: it is the behavior binding table read as a whole (`DollBehaviorRegistry.matchesAny`), so any item that drives some action is admitted to either hand automatically, and a new binding line unlocks its item in the editor with no second edit. The vanilla shield is the one addition — it is a reactive block rather than a behavior (control.md §5.6).
 
 ## 2. Storage: authoritative `DollData.inventory`, two variants
 
@@ -44,7 +46,11 @@ Direction discipline: server logic reads and writes the ledger directly (`DollEn
 
 Click-arming is gone; the loadout is managed through `DollLoadoutMenu` (`content/entity/dolls/menu/`, opened by sneak-interacting the doll as owner/creative), built on l2core's `BaseContainerMenu` + JSON layout exactly like the equipment menu in ModularGolems and our own talisman pocket:
 
-- Four slots arranged as a cross with no gaps on the right side: left main hand, right off hand, top core, middle cloth (the body-worn slot), plus the player inventory; shift-click moves both ways. Hands hold full stacks (capped at 64); core and cloth are inert singles for now. Hands take anything; core and cloth take nothing yet (their predicates open up with future items).
+- Four slots arranged as a cross with no gaps on the right side: left main hand, right off hand, top core, middle cloth (the body-worn slot), plus the player inventory; shift-click moves both ways.
+- **The hands are locked**, on two axes, both enforced in `DollLoadoutItemHandler` — the only writer:
+  - *What*: `isItemValid` admits only what a doll can use (`DollBehaviorRegistry.usableInHand` — every bound item, whatever the action type, plus the vanilla `ShieldItem`). Either hand accepts the same set; only blocking reads the off hand, so a shield parked in the main hand is inert until a sticky swap (control.md §2) carries it across. Core and cloth still take nothing (their predicate opens up with the future core/cloth items).
+  - *How many*: **one item per hand**, with a single exception — **ammunition**, i.e. an item whose binding *spends* it one per use (`DollBehaviorRegistry.spendsOnUse`, the `consumed` flag each registration declares). So a hand holds a whole stack of throwable hexbrew (up to its own 16), laser charges, or TNT (up to 64), where N in the slot is N throws/charges/dives; a danmaku item, the star wand, the lance and a folded talisman are one per hand however large their own stack is, since nothing is spent (a talisman wears down by durability instead).
+  - The count rule is **stack-dependent**, which `IItemHandler.getSlotLimit` cannot express, so it is asked per item: the menu's `LoadoutSlot` (a two-line `ItemHandlerCopySlot` subclass) overrides `getMaxStackSize(ItemStack)` with `DollLoadoutItemHandler.handStackLimit`. Every vanilla placement path sizes its transfer through that overload — click, number-key swap, shift-click, drag — so nothing is ever over-written and then truncated away. `insertItem` applies the same rule for non-menu callers, and `getSlotLimit` answers the 64 ceiling as the honest stack-agnostic answer.
 - Backed live by the ledger `MutableDollInventory` through `DollLoadoutItemHandler`, refreshing the client mirror on every change — no staging, no take-back on close.
 - Like the ModularGolems equipment menu, the doll itself renders on the left side of the screen (`InventoryScreen.renderEntityInInventoryFollowsAngle`, mouse-following), and the slots use a background atlas instead of baked-in frames: layout comps are blank `empty_slot`s while the screen draws `slot` frames plus per-slot ghost icons (`slotbg_main` sword, `slotbg_off` shield, `slotbg_core` gem, `slotbg_cloth` paper) from the texture side sprites whenever a slot is empty. The container source lives at `src/test/.../gui/-templates/container/gensokyolegacy/doll_loadout.json` — regenerate with `organize.GUIGenerator`, never hand-edit the texture or coordinates.
 - Layout `data/.../l2core/menu_layout/doll_loadout.json` + texture `textures/gui/container/doll_loadout.png`; menu type `GLMisc.DOLL_LOADOUT`; `stillValid` closes when the doll is gone or the viewer isn't the owner.

@@ -88,6 +88,15 @@ public class BroomEntity extends SimplifiedEntity implements GeoEntity {
 			discard();
 			return;
 		}
+		// A rider is not falling. Vanilla charges fall damage off the distance
+		// accumulated while moving downward without ground underfoot, and this thing
+		// drops at up to MAX_RISE a tick — so a ride left a bill that came due the
+		// moment the feet touched down, or the moment the broom was discarded for no
+		// longer being held (BroomItem). Cleared on both sides: the server owns the
+		// damage and the client owns the prediction, and neither should see a rider
+		// banking one. Zeroing rather than clamping, so a broom that dives from height
+		// dismounts clean.
+		rider.resetFallDistance();
 		// Position is client-authoritative, as on Boat/Minecart: the riding client
 		// runs the flight model and reports the result in ServerboundMoveVehiclePacket,
 		// and the server just applies it. Orientation is NOT handled here — the

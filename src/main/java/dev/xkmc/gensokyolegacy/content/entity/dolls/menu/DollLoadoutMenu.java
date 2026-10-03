@@ -14,6 +14,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.items.IItemHandlerModifiable;
 import net.neoforged.neoforge.items.ItemHandlerCopySlot;
 import org.jetbrains.annotations.Nullable;
 
@@ -56,10 +57,31 @@ public class DollLoadoutMenu extends BaseContainerMenu<DollLoadoutMenu> {
 	}
 
 	private void addLoadoutSlots() {
-		getLayout().getSlot("main", (x, y) -> new ItemHandlerCopySlot(handler, added++, x, y), this::addSlot);
-		getLayout().getSlot("off", (x, y) -> new ItemHandlerCopySlot(handler, added++, x, y), this::addSlot);
-		getLayout().getSlot("core", (x, y) -> new ItemHandlerCopySlot(handler, added++, x, y), this::addSlot);
-		getLayout().getSlot("cloth", (x, y) -> new ItemHandlerCopySlot(handler, added++, x, y), this::addSlot);
+		getLayout().getSlot("main", (x, y) -> new LoadoutSlot(handler, added++, x, y), this::addSlot);
+		getLayout().getSlot("off", (x, y) -> new LoadoutSlot(handler, added++, x, y), this::addSlot);
+		getLayout().getSlot("core", (x, y) -> new LoadoutSlot(handler, added++, x, y), this::addSlot);
+		getLayout().getSlot("cloth", (x, y) -> new LoadoutSlot(handler, added++, x, y), this::addSlot);
+	}
+
+	/**
+	 * One loadout slot. <b>Which</b> item may go in is the handler's answer
+	 * ({@code mayPlace} → {@code isItemValid}); <b>how many</b> is asked per item
+	 * here, because what one hand holds is stack-dependent — a whole hexbrew stack or
+	 * a single wand — and {@code IItemHandler.getSlotLimit} cannot see the stack.
+	 * Vanilla sizes every transfer with this overload (click, number-key swap,
+	 * shift-click, drag), so the single-item rule holds without the handler ever
+	 * truncating a write.
+	 */
+	private static class LoadoutSlot extends ItemHandlerCopySlot {
+
+		LoadoutSlot(IItemHandlerModifiable handler, int index, int x, int y) {
+			super(handler, index, x, y);
+		}
+
+		@Override
+		public int getMaxStackSize(ItemStack stack) {
+			return DollLoadoutItemHandler.handStackLimit(stack);
+		}
 	}
 
 	public DollLoadoutItemHandler getHandler() {

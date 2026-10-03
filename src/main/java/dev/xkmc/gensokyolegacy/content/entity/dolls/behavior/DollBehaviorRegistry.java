@@ -6,6 +6,7 @@ import dev.xkmc.gensokyolegacy.content.entity.dolls.action.DollActionHandler;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.action.DollActionType;
 import dev.xkmc.gensokyolegacy.content.item.doll.DollSlot;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ShieldItem;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -22,11 +23,23 @@ import java.util.function.Supplier;
  * {@link DollBehaviors}. The matched entry drives both capability checks and
  * execution — behaviors are created per execution from the available items, so
  * the doll stores none and per-run state can never go stale.
+ * <p>
+ * The table is also the loadout's admission list: {@link #usableInHand} (what a
+ * hand slot takes at all) and {@link #spendsOnUse} (whether a stack in a hand is
+ * ammunition rather than one item) both read it, so a new binding unlocks its
+ * item in the loadout editor without a second edit.
  */
 public final class DollBehaviorRegistry {
 
+	/**
+	 * One binding. {@code consumed} says the behavior spends what it holds — one per
+	 * use ({@code consumeLoadoutItem(slot, 1)}) — which is what makes N in a hand N
+	 * uses and therefore what lets such a stack sit above size 1 in a loadout slot.
+	 * Never-consumed bindings (danmaku shots, the lance, talismans) are one item per
+	 * hand, however large a stack the item itself allows.
+	 */
 	public record Entry(String id, Predicate<ItemStack> match, DollActionType type, int priority,
-						Supplier<DollBehavior> factory) {
+						boolean consumed, Supplier<DollBehavior> factory) {
 	}
 
 	public record HandMatch(Entry entry, DollSlot hand, ItemStack stack) {
@@ -38,8 +51,8 @@ public final class DollBehaviorRegistry {
 	}
 
 	public static void register(String id, Predicate<ItemStack> match, DollActionType type, int priority,
-								Supplier<DollBehavior> factory) {
-		ENTRIES.add(new Entry(id, match, type, priority, factory));
+								boolean consumed, Supplier<DollBehavior> factory) {
+		ENTRIES.add(new Entry(id, match, type, priority, consumed, factory));
 	}
 
 	/**
@@ -75,10 +88,55 @@ public final class DollBehaviorRegistry {
 	 * attack-glove sidebar, which reads the synced loadout mirror.
 	 */
 	public static boolean matches(ItemStack stack, DollActionType type) {
+		return !stack.isEmpty() && anyMatch(stack, type);
+	}
+
+	/**
+	 * Whether <b>any</b> binding matches the stack, whatever the action type — the
+	 * doll has something to do with it. The loadout half of the same question: a
+	 * hand slot takes what {@link #usableInHand} admits, and that is every bound
+	 * item.
+	 */
+	public static boolean matchesAny(ItemStack stack) {
+		return !stack.isEmpty() && anyMatch(stack, null);
+	}
+
+	/**
+	 * What a doll hand will take: anything a doll can act with — some binding
+	 * matches it, whatever the action type — plus the vanilla shield, which is not a
+	 * behavior but the reactive block (DollShield §5.6). Both hand slots admit the
+	 * same set; only blocking reads the off hand, so a shield parked in the main
+	 * hand does nothing until a sticky swap (§2) carries it across.
+	 */
+	public static boolean usableInHand(ItemStack stack) {
+		return !stack.isEmpty() && (matchesAny(stack) || stack.getItem() instanceof ShieldItem);
+	}
+
+	/**
+	 * Whether a stack in a doll hand is <b>ammunition</b> rather than one item: a
+	 * binding that spends what it holds matches, so N in the slot is N uses. Only
+	 * these may sit above size 1 (loadout.md §4) — a thrown hexbrew bottle, a fired
+	 * laser, a detonated TNT. A talisman wears down by durability instead, and
+	 * danmaku items and the lance are never spent, so those stay single.
+	 */
+	public static boolean spendsOnUse(ItemStack stack) {
 		if (stack.isEmpty()) return false;
 		DollBehaviors.register();
 		for (Entry entry : ENTRIES) {
-			if (entry.type() == type && entry.match().test(stack)) return true;
+			if (entry.consumed() && entry.match().test(stack)) return true;
+		}
+		return false;
+	}
+
+	/**
+	 * The one matching pass behind {@link #matches} / {@link #matchesAny}: a null
+	 * type means any.
+	 */
+	private static boolean anyMatch(ItemStack stack, @Nullable DollActionType type) {
+		DollBehaviors.register();
+		for (Entry entry : ENTRIES) {
+			if (type != null && entry.type() != type) continue;
+			if (entry.match().test(stack)) return true;
 		}
 		return false;
 	}
