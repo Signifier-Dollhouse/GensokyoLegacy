@@ -634,6 +634,12 @@ details.raw pre {
   margin-top: 4px;
 }
 
+/* Loot table ids are long and unbreakable, so without this they run out of the
+   card instead of wrapping. */
+.weights > code {
+  overflow-wrap: anywhere;
+}
+
 /* ---------------------------------------------------------------- viewer */
 
 .viewer {

@@ -81,10 +81,16 @@ function matchesQuery(...values) {
   return haystack.includes(state.query.toLowerCase());
 }
 
-function select(name, id) {
+/** The search box and the state that backs it; a fresh view clears it. */
+function setQuery(value) {
+  state.query = value;
+  document.querySelector("#search").value = value;
+}
+
+/** Switches character. `id` focuses one entry, so a navigation passes nothing. */
+function select(name, id = "") {
   state.character = name;
-  state.query = id ?? "";
-  document.querySelector("#search").value = state.query;
+  setQuery(id);
   render();
 }
 // ---------------------------------------------------------------------------
@@ -289,7 +295,8 @@ function renderSidebar() {
           type: "button",
           title,
           "aria-current": String(state.character === key),
-          onclick: () => select(key, state.query),
+          // Picking a character is a new view, so any search text is dropped.
+          onclick: () => select(key),
         },
         h("span", { text: name }),
         h("span", { class: "count", text: String(count) }),
@@ -321,12 +328,25 @@ function renderSidebar() {
   );
 }
 
+/**
+ * Tab badges count the selected character's content, not the whole registry, so
+ * the numbers match what the panel below is showing.
+ */
 function renderTabs() {
-  const counts = { quest: 0, daily: 0, trade: store.trades.size, dialog: store.manifest.registries.dialog.files.length };
-  for (const quest of store.quests.values()) {
+  const counts = { quest: 0, daily: 0, trade: 0, dialog: 0 };
+
+  for (const entryData of entriesOf(store.manifest.registries.quest).filter(inCharacter)) {
+    const quest = store.quests.get(entryData.id);
+    if (!quest) continue;
     if (isDaily(quest)) counts.daily += 1;
     else counts.quest += 1;
   }
+  // A file that failed to load is in the index but not on screen, so it is not counted.
+  for (const entryData of entriesOf(store.manifest.registries.trade).filter(inCharacter)) {
+    if (store.trades.get(entryData.id)) counts.trade += 1;
+  }
+  counts.dialog = entriesOf(store.manifest.registries.dialog).filter(inCharacter).length;
+
   for (const node of document.querySelectorAll("[data-count]")) {
     node.textContent = String(counts[node.dataset.count]);
   }
@@ -354,7 +374,7 @@ function wireChrome() {
   const search = document.querySelector("#search");
   search.value = state.query;
   search.addEventListener("input", (event) => {
-    state.query = event.target.value.trim();
+    setQuery(event.target.value.trim());
     render();
   });
 
@@ -375,7 +395,9 @@ function wireChrome() {
 
   for (const button of document.querySelectorAll("[data-tab]")) {
     button.addEventListener("click", () => {
+      // Another slice of the same character: the old search rarely applies to it.
       state.tab = button.dataset.tab;
+      setQuery("");
       render();
     });
   }
@@ -396,7 +418,9 @@ async function boot() {
   wireChrome();
   readLocation(); // tab only; the character slug needs the loaded registries
   addEventListener("hashchange", () => {
+    // Following a URL is a navigation too, so a stale search must not survive it.
     readLocation();
+    setQuery("");
     render();
   });
 

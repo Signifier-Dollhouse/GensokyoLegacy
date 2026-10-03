@@ -102,6 +102,21 @@ function cardHead(title, id, badges) {
 // loot table
 // ---------------------------------------------------------------------------
 
+/**
+ * How many of a drop a single roll yields. Datagen writes an exact count as a bare
+ * number and a range as a min/max provider, so both shapes have to be read; `null`
+ * when the entry says nothing, which means a single item.
+ */
+function dropCount(drop) {
+  const setCount = (drop.functions ?? []).find((fn) => fn.function === "minecraft:set_count");
+  const count = setCount?.count;
+  if (typeof count === "number") return String(Math.floor(count));
+  if (count?.min !== undefined && count?.max !== undefined) {
+    return `${Math.ceil(count.min)}-${Math.floor(count.max)}`;
+  }
+  return count?.value !== undefined ? String(Math.floor(count.value)) : null;
+}
+
 /** Reduces a loot table to the part a player cares about: rolls and possible drops. */
 function lootNode(id) {
   const list = h("ul", { class: "list" }, h("li", { class: "entry-note", text: tr("loot.loading") }));
@@ -116,15 +131,12 @@ function lootNode(id) {
     for (const [index, pool] of (table.pools ?? []).entries()) {
       const rolls = Math.round(pool.rolls ?? 0) + Math.round(pool.bonus_rolls ?? 0);
       const drops = (pool.entries ?? []).map((drop) => {
-        const setCount = (drop.functions ?? []).find((fn) => fn.function === "minecraft:set_count");
-        const count = setCount?.count;
-        const range =
-          count?.type === "minecraft:uniform"
-            ? `${Math.ceil(count.min ?? 1)}-${Math.floor(count.max ?? 1)}`
-            : count?.value !== undefined
-              ? String(Math.floor(count.value))
-              : null;
-        return pill("item", itemLabel(drop.name), range ? tr("loot.perDrop", range) : (drop.name ?? ""));
+        const range = dropCount(drop);
+        const node = pill("item", itemLabel(drop.name), range ? tr("loot.perDrop", range) : (drop.name ?? ""));
+        // The count is the whole point of a drop, so it is shown rather than hidden
+        // in the tooltip; a pool without one always yields a single item.
+        if (range) append(node, [h("span", { class: "n", text: ` x${range}` })]);
+        return node;
       });
       list.append(
         entry(
