@@ -2,7 +2,8 @@
 	"format_version": "1.21.6",
 	"credit": "Made with Blockbench",
 	"textures": {
-		"0": "gensokyolegacy:item/doll_glove/glove_hand"
+		"0": "gensokyolegacy:item/doll_glove/glove_hand",
+		"particle": "gensokyolegacy:item/doll_glove/glove_hand"
 	},
 	"elements": [
 		{
@@ -34,8 +35,8 @@
 	],
 	"display": {
 		"thirdperson_righthand": {
-			"translation": [0, 5, 4],
-			"scale": [1.1, 1.15, 1.1]
+			"translation": [0, 5.25, 4],
+			"scale": [1.1, 1.2, 1.1]
 		},
 		"thirdperson_lefthand": {
 			"rotation": [0, 0, -180],
@@ -43,10 +44,12 @@
 			"scale": [1.1, 1.15, 1.1]
 		},
 		"firstperson_righthand": {
-			"translation": [0, 4.25, 0]
+			"rotation": [30, -5, -20],
+			"translation": [1.5, 4.25, 3]
 		},
 		"firstperson_lefthand": {
-			"translation": [0, 4.25, 0]
+			"rotation": [30, -5, -180],
+			"translation": [-1.5, -5, -1.75]
 		}
 	},
 	"groups": [

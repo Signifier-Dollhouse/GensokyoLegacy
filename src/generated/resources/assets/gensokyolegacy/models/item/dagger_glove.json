@@ -1,5 +1,12 @@
 {
-  "parent": "minecraft:item/generated",
+  "base": {
+    "parent": "minecraft:item/generated",
+    "textures": {
+      "layer0": "gensokyolegacy:item/tool/dagger_glove"
+    }
+  },
+  "gui_light": "front",
+  "loader": "neoforge:separate_transforms",
   "overrides": [
     {
       "model": "gensokyolegacy:item/dagger_glove_single",
@@ -20,7 +27,30 @@
       }
     }
   ],
-  "textures": {
-    "layer0": "gensokyolegacy:item/tool/dagger_glove"
+  "perspectives": {
+    "firstperson_lefthand": {
+      "parent": "gensokyolegacy:custom/glove_hand",
+      "textures": {
+        "0": "gensokyolegacy:item/tool/dagger_glove_hand"
+      }
+    },
+    "firstperson_righthand": {
+      "parent": "gensokyolegacy:custom/glove_hand",
+      "textures": {
+        "0": "gensokyolegacy:item/tool/dagger_glove_hand"
+      }
+    },
+    "thirdperson_lefthand": {
+      "parent": "gensokyolegacy:custom/glove_hand",
+      "textures": {
+        "0": "gensokyolegacy:item/tool/dagger_glove_hand"
+      }
+    },
+    "thirdperson_righthand": {
+      "parent": "gensokyolegacy:custom/glove_hand",
+      "textures": {
+        "0": "gensokyolegacy:item/tool/dagger_glove_hand"
+      }
+    }
   }
 }
