@@ -10,20 +10,23 @@ import net.minecraft.world.item.Item;
 import net.neoforged.neoforge.client.model.generators.ItemModelBuilder;
 
 /**
- * Item model generation for the doll glove. Split out of {@code GLItems} because the
- * glove is one of the two tools whose model is built per mode rather than from one texture.
- *
- * <p>All of the held-mitten half is {@link GloveHandModel}'s, which the dagger glove shares;
- * this class is only what is specific to the doll glove, namely its four modes and the icon
- * variants the wheel shows (glove.md §3b).
- *
- * <p>Per-mode held overrides are separate-transforms models rather than flat ones, because
- * vanilla replaces the whole item model when a predicate matches - a flat override would
- * drop the mitten while in hand. Icon stacks are gui-only and never held, so those stay flat.
- */
+	 * Item model generation for the doll glove. Split out of {@code GLItems} because the
+	 * glove is one of the two tools whose model is built per mode rather than from one texture.
+	 *
+	 * <p>The held-hand half is {@link GloveHandModel}'s wiring around this glove's own
+	 * {@code custom/doll_glove_hand} model; this class is only what is specific to the doll
+	 * glove, namely its four modes and the icon variants the wheel shows (glove.md §3b).
+	 *
+	 * <p>Per-mode held overrides are separate-transforms models rather than flat ones, because
+	 * vanilla replaces the whole item model when a predicate matches - a flat override would
+	 * drop the hand while in hand. Icon stacks are gui-only and never held, so those stay flat.
+	 */
 public class DollGloveModel {
 
-	/** This glove's own mitten skin, which is what the shared model is overridden to. */
+	/** This glove's own modelled hand, exported from Blockbench. */
+	private static final ResourceLocation HAND_MODEL = GensokyoLegacy.loc("custom/doll_glove_hand");
+
+	/** This glove's own hand skin, which is what that model's {@code #0} is overridden to. */
 	private static final ResourceLocation HAND_TEXTURE = GensokyoLegacy.loc("item/doll_glove/glove_hand");
 
 	public static void model(DataGenContext<Item, DollGloveItem> ctx, RegistrateItemModelProvider pvd) {
@@ -52,10 +55,10 @@ public class DollGloveModel {
 
 	/**
 	 * Turns {@code builder} into one held-mode model of the glove: {@code texture} as the
-	 * flat base, the shared mitten on all four hand displays.
+	 * flat base, the glove's own modelled hand on all four hand displays.
 	 */
 	private static void perspectives(ItemModelBuilder builder, RegistrateItemModelProvider pvd, ResourceLocation texture) {
-		GloveHandModel.perspectives(builder, pvd, texture, HAND_TEXTURE);
+		GloveHandModel.perspectives(builder, pvd, texture, HAND_MODEL, HAND_TEXTURE);
 	}
 
 }

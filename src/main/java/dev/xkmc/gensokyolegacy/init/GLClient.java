@@ -58,7 +58,7 @@ public class GLClient {
 			ItemProperties.register(GLItems.BORDER_UMBRELLA.get(), GensokyoLegacy.loc("umbrella_display"), BorderUmbrellaItem::displayPredicate);
 			ItemProperties.register(GLItems.DOLL_GLOVE.get(), GensokyoLegacy.loc("glove_display"), DollGloveItem::displayPredicate);
 			ItemProperties.register(GLItems.DAGGER_GLOVE.get(), GensokyoLegacy.loc("dagger_glove_display"),
-					(stack, level, entity, seed) -> DaggerGloveItem.getMode(stack).ordinal() + 1);
+					DaggerGloveItem::displayPredicate);
 
 			CuriosRendererRegistry.register(GLItems.STRAW_HAT.get(), TouhouHatRenderer::new);
 			CuriosRendererRegistry.register(GLItems.SUWAKO_HAT.get(), TouhouHatRenderer::new);

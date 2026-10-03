@@ -4,20 +4,21 @@
 three-mode thrown weapon: one mode per spread, driven by the l2itemselector wheel exactly as
 `DollGloveMode` is.
 
-> Status: implemented. All three modes wear the same glove art
-> (`textures/item/tool/dagger_glove{,_single,_fan,_homing}.png` are identical copies of one 16×16
-> texture), so the mode is carried by the tooltip and the wheel rather than by the held model.
-> While held the glove wears a mitten, the same model the doll glove wears under its own skin
-> (§6, §8).
+> Status: implemented. All three modes wear the same held glove art
+> (`textures/item/dagger_glove/dagger_glove{,_single,_fan,_homing}.png` are identical copies of one
+> 16×16 texture), so the mode is carried by the tooltip and the wheel rather than by the held
+> texture. While held the glove wears its own hand model — a hand with three daggers fanned out of
+> it, skinned per mode — and the wheel draws a distinct icon per mode (§6, §8).
 
 The glove is the *second* way to throw a dagger. The plain `IronDaggerItem` stays the single-dagger
 weapon; the glove is what turns a stack of daggers into a pattern, at the cost of a cooldown per
 shot instead of a cooldown per dagger.
 
 It lives in `content/item/dagger/`, its own package under `item/`: `content/item/glove/` belongs to
-the doll glove. The two things the gloves share sit in their own packages beside them —
-`content/item/targeting/`, the ray-trace target cache whose contract `GloveTargeting` both implement
-(§2d), and `content/item/glovehand/`, the held mitten model both wear (§6).
+the doll glove. The two gloves share no assets — each has its own hand model and its own skin — only
+two small pieces of code, each in its own package beside them: `content/item/targeting/`, the
+ray-trace target cache whose contract `GloveTargeting` both implement (§2d), and
+`content/item/glovehand/`, the held-hand wiring `GloveHandModel` (§6a).
 
 ## 1. Modes
 
@@ -386,21 +387,41 @@ distinct per-mode art can be dropped into the four texture paths without touchin
 
 ### 6a. Held model
 
-The glove is a modelled mitten while held and a flat sprite everywhere else, so it is a
-`neoforge:separate_transforms` model: the base is `item/tool/dagger_glove.png` (gui, wheel,
-sidebar) and each of the four hand displays swaps in the shared mitten, skinned with this glove's own
-`item/tool/dagger_glove_hand.png`.
+The glove is a modelled hand while held and a flat sprite everywhere else, so it is a
+`neoforge:separate_transforms` model: the base is `item/dagger_glove/dagger_glove.png` (gui,
+sidebar) and each of the four hand displays swaps in `models/custom/dagger_glove_hand.json`. **Every
+mode has its own skin** (`item/dagger_glove/dagger_glove_hand_<mode>.png`), so the hand displays are
+per-mode as well.
 
-The mitten is the doll glove's — one geometry, one set of Blockbench display transforms, in
-`models/custom/glove_hand.json`, since the two gloves are the same mitten in different colours. It is
-shared through `content/item/glovehand/GloveHandModel.java` rather than by either glove's package,
-which the §9 split forbids; `GloveHandModel.perspectives` is the whole of it, and it takes the
-glove's mitten skin as an argument and writes it over the shared model's `#0`. The doll glove is the
-one whose skin is baked into `glove_hand.json`, so it renders correctly even unoverridden.
+That hand model is the dagger glove's own, not a shared one: 11 Blockbench elements — the hand plus
+three daggers fanned out of it at −22.5°/0°/+22.5° — against the doll glove's bare two-element mitten
+in `models/custom/doll_glove_hand.json`. What the two gloves share is only the *wiring* around a hand
+model, in `content/item/glovehand/GloveHandModel.java` (the §9 split forbids either glove's package
+holding it); `GloveHandModel.perspectives` takes the glove's model and skin and writes the skin over
+the model's `#0`.
 
 Per-mode held overrides are separate-transforms models too, not flat ones: vanilla replaces the whole
-item model when a predicate matches, so a flat override would silently drop the mitten while in hand.
-The dagger glove has no icon variants, so it has four models in all (base plus three modes).
+item model when a predicate matches, so a flat override would silently drop the hand while in hand.
+
+> **The `fan` and `homing` skins do not match the model's UVs.** `dagger_glove_hand.json` samples only
+> x 0..9.5, y 0..10.5 — a 10.5×11.5 px window — but those two 32×32 skins still lay their daggers out
+> at x 16..25, outside it: 197 of `fan`'s 296 opaque pixels and 105 of `homing`'s 204 are unreachable.
+> Inside the sampled window all three skins are essentially the bare hand (96/96/99 opaque px), so the
+> nine knife elements currently render hand-coloured geometry and the real dagger art never draws.
+> `single` is unaffected. Either the skins need re-export packed into the 0..9.5 window, or the model
+> needs the UVs remapped to wherever the daggers actually sit.
+
+### 6b. Wheel icons
+
+The four flat held textures are identical copies of one glove, so the wheel cannot tell the modes
+apart from them. Each mode therefore also has a distinct wheel icon,
+`item/dagger_glove/dagger_glove_icon_<mode>.png`, reached the same way the doll glove reaches its
+own: an `DAGGER_GLOVE_ICON` unit component that `DaggerGloveItem.iconStack` sets, which
+`displayPredicate` reads to emit the icon range (`modes.length + 1 + ordinal`) instead of the held
+range (`ordinal + 1`). `DaggerGloveModeEntry` draws `iconStack`, not `displayStack`.
+
+The icon overrides are flat, not separate-transforms: an icon stack is gui-only and never held, so
+there is no hand to preserve. Six models in all — base, three held modes, three icons.
 
 ## 7. Open questions
 
@@ -441,12 +462,13 @@ zh_cn is hand-authored in the split per-category files, then merged by the
 ## 8. Registration
 
 - `GLItems` — `DAGGER_GLOVE` = `reg.item("dagger_glove", p -> new DaggerGloveItem(p.stacksTo(1)))`,
-  model = `DaggerGloveModel::model` (§6a): a `neoforge:separate_transforms` model whose base is
-  `item/generated` and whose four hand displays carry the shared mitten, with three ascending
-  `dagger_glove_display` overrides onto `item/dagger_glove_<mode>` sub-models (also
-  separate-transforms, so the mitten survives the override), `.lang("Dagger Glove")`, tab `TAB`,
-  plus the `DAGGER_GLOVE_MODE` (`DC.enumVal`, persistent) / `DAGGER_GLOVE_RUNE` (`DC.loc`)
-  components. Tagged `L2ISTagGen.SELECTABLE` so the wheel offers it, like the doll glove.
+  model = `DaggerGloveModel::model` (§6a, §6b): a `neoforge:separate_transforms` model whose base is
+  `item/generated` and whose four hand displays carry its own hand model in that mode's skin, with
+  three ascending `dagger_glove_display` overrides onto `item/dagger_glove_<mode>` sub-models (also
+  separate-transforms, so the hand survives the override) and three more onto
+  `item/dagger_glove_icon_<mode>` (flat), `.lang("Dagger Glove")`, tab `TAB`, plus the
+  `DAGGER_GLOVE_MODE` / `DAGGER_GLOVE_RUNE` / `DAGGER_GLOVE_ICON` components. Tagged
+  `L2ISTagGen.SELECTABLE` so the wheel offers it, like the doll glove.
 - Mod constructor — `DaggerGloveSelectionListener.register()` beside
   `DollGloveSelectionListener.register()`; `GensokyoLegacy.HANDLER` registers
   `DaggerGloveSelectPacket`. The target cache needs nothing of its own: `GloveTargetPacket`,
@@ -454,22 +476,47 @@ zh_cn is hand-authored in the split per-category files, then merged by the
 - `GLLang.ItemDaggerGlove` — mode names and descriptions, the rune line, `no_dagger`, `no_target`.
   The tooltip reuses `GLLang.ItemGlove.WHEEL` for the "hold the wheel key" hint rather than
   duplicating the string.
-- `GLClient` — `ItemProperties.register(GLItems.DAGGER_GLOVE.get(), gensokyolegacy:dagger_glove_display, ...)`,
-  returning the mode ordinal + 1 so each held mode picks its own texture override. The red target
-  marker comes from the shared glow rule instead of a new one (§2d).
-- Textures — `textures/item/tool/dagger_glove.png` plus `_single` / `_fan` / `_homing` (the four flat
-  sprites), and `textures/item/tool/dagger_glove_hand.png` (this glove's mitten skin, §6a).
+- `GLClient` — `ItemProperties.register(GLItems.DAGGER_GLOVE.get(), gensokyolegacy:dagger_glove_display,
+  DaggerGloveItem::displayPredicate)`, returning the mode ordinal + 1 for a held stack or the icon
+  range for an icon stack (§6b). The red target marker comes from the shared glow rule instead of a
+  new one (§2d).
+- Data components — `DAGGER_GLOVE_MODE` (`DC.enumVal`, persistent), `DAGGER_GLOVE_RUNE` (`DC.loc`) and
+  `DAGGER_GLOVE_ICON` (`DC.unit`, the wheel's per-mode icon marker, §6b).
+- Textures — all under `textures/item/dagger_glove/`, beside the umbrella's and the doll glove's:
+  `dagger_glove.png` plus `_single` / `_fan` / `_homing` (the four flat held sprites, identical
+  copies of one glove), `dagger_glove_hand_<mode>.png` (the three hand skins, §6a), and
+  `dagger_glove_icon_<mode>.png` (the three wheel icons, §6b). The `iron_dagger` item's own art is
+  `textures/item/tool/iron_dagger.png` (the 3D skin `custom/iron_dagger.json` samples) plus
+  `iron_dagger_icon.png` (its flat gui icon, §6c).
+
+### 6c. `iron_dagger` held vs gui
+
+The dagger item is a modelled blade, so `GLItems` splits it with `SeparateTransformsModelBuilder` and
+`gui_light: front`, exactly as the doll lance does (§6a is the glove; the lance is item.md §9):
+
+| Context | Model | Why |
+|---|---|---|
+| all but `gui` (base) | `models/custom/iron_dagger.json` — 4 Blockbench elements | the modelled blade, which is what a hand, the ground, an item frame and dropped-item rendering want |
+| `gui` | generated, `item/generated` + `textures/item/tool/iron_dagger_icon.png` | a modelled blade has no transform that lands it inside a 16px slot, so the gui gets a flat 16×16 icon |
+
+So `custom/iron_dagger.json` keeps its own `gui` display entry even though the generated separate-
+transforms model now overrides that context; the override replaces the whole model rather than merging,
+which is what makes the base's `gui` transform inert (item.md §9).
+
+The two textures are not interchangeable: `iron_dagger.png` is the 3D skin the model's `#0` resolves to,
+`iron_dagger_icon.png` is the slot icon.
 
 ## 9. Files
 
 The glove lives in its own package under `item/`, not under `item/glove/` — that package is the
-doll glove's. The only code the two share sits in two shared packages: the target cache in
-`content/item/targeting/` (§2d) and the held mitten model in `content/item/glovehand/` (§6a).
+doll glove's. The gloves share no assets, only two small pieces of code, each in its own package:
+the target cache in `content/item/targeting/` (§2d) and the held-hand wiring in
+`content/item/glovehand/` (§6a).
 
 - `content/item/dagger/DaggerGloveItem.java`
 - `content/item/dagger/DaggerGloveMode.java`
 - `content/item/dagger/DaggerGloveModel.java` — item model generation, the three modes on top of the
-  shared mitten (§6a, §8)
+  glove's own hand model (§6a, §8)
 - `content/item/dagger/DaggerHomingTrail.java` — the stage boundary: fires stage 2 and claims the
   first stage's return (extends danmaku_api's `TrailAction`)
 - `content/item/dagger/DaggerGloveRune.java`, `DaggerGloveRunes.java`
@@ -478,16 +525,18 @@ doll glove's. The only code the two share sits in two shared packages: the targe
 - `content/item/dagger/client/DaggerGloveModeWheel.java`, `DaggerGloveModeEntry.java`
 - `content/item/targeting/GloveTargeting.java` (shared with the doll glove, §2d) — the client trace
   and the server store it drives are not this glove's and are not listed here
-- `content/item/glovehand/GloveHandModel.java` (shared with the doll glove, §6a) — the mitten
-  geometry and the separate-transforms wiring, neither of which is this glove's
+- `content/item/glovehand/GloveHandModel.java` (shared with the doll glove, §6a) — the separate-
+  transforms wiring around a held hand model; the model and skin themselves are each glove's own
 - `content/entity/misc/IronDaggerBulletEntity.java` (edited: `handOffTo` return transfer, `giveBack`
   disarms the trail, rune id field, rune on hit)
 - `init/registrate/GLItems.java`, `init/data/GLLang.java`, `init/GLClient.java`,
   `init/GensokyoLegacy.java` (edited)
-- `textures/item/tool/dagger_glove{,_single,_fan,_homing}.png` (one glove, copied to all four flat
-  paths) and `textures/item/tool/dagger_glove_hand.png` (this glove's mitten skin)
-- `models/custom/glove_hand.json` (edited: was `doll_glove_hand.json`, now shared — the display
-  transforms retuned and a `particle` key added, with the doll glove's skin as the baked-in default)
+- `textures/item/dagger_glove/` (new folder, beside the umbrella's and the doll glove's, moved off
+  `textures/item/tool/`): `dagger_glove{,_single,_fan,_homing}.png` (one glove, copied to all four flat
+  paths), `dagger_glove_hand_{single,fan,homing}.png` (the three hand skins), and
+  `dagger_glove_icon_{single,fan,homing}.png` (the wheel icons)
+- `models/custom/dagger_glove_hand.json` (new — the glove's own hand model: the hand plus three
+  fanned daggers, 11 elements; the doll glove keeps its own bare-mitten `doll_glove_hand.json`)
 
 ## 10. Verified
 
