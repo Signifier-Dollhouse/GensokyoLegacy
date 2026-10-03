@@ -1,3 +1,15 @@
 {
-  "parent": "gensokyolegacy:custom/iron_dagger"
+  "base": {
+    "parent": "gensokyolegacy:custom/iron_dagger"
+  },
+  "gui_light": "front",
+  "loader": "neoforge:separate_transforms",
+  "perspectives": {
+    "gui": {
+      "parent": "minecraft:item/generated",
+      "textures": {
+        "layer0": "gensokyolegacy:item/tool/iron_dagger_icon"
+      }
+    }
+  }
 }

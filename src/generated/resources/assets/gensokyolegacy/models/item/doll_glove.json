@@ -59,25 +59,25 @@
   ],
   "perspectives": {
     "firstperson_lefthand": {
-      "parent": "gensokyolegacy:custom/glove_hand",
+      "parent": "gensokyolegacy:custom/doll_glove_hand",
       "textures": {
         "0": "gensokyolegacy:item/doll_glove/glove_hand"
       }
     },
     "firstperson_righthand": {
-      "parent": "gensokyolegacy:custom/glove_hand",
+      "parent": "gensokyolegacy:custom/doll_glove_hand",
       "textures": {
         "0": "gensokyolegacy:item/doll_glove/glove_hand"
       }
     },
     "thirdperson_lefthand": {
-      "parent": "gensokyolegacy:custom/glove_hand",
+      "parent": "gensokyolegacy:custom/doll_glove_hand",
       "textures": {
         "0": "gensokyolegacy:item/doll_glove/glove_hand"
       }
     },
     "thirdperson_righthand": {
-      "parent": "gensokyolegacy:custom/glove_hand",
+      "parent": "gensokyolegacy:custom/doll_glove_hand",
       "textures": {
         "0": "gensokyolegacy:item/doll_glove/glove_hand"
       }

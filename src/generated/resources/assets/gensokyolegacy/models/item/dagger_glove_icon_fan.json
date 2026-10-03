@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "gensokyolegacy:item/dagger_glove/dagger_glove_icon_fan"
+  }
+}

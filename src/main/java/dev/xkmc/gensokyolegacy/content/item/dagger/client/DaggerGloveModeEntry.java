@@ -9,8 +9,9 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 
 /**
- * One mode on the {@link DaggerGloveModeWheel}, drawn as a glove stack carrying that mode so the
- * wheel shows the glove's own per-mode texture rather than a separate icon.
+ * One mode on the {@link DaggerGloveModeWheel}, drawn as a glove stack carrying that mode's wheel
+ * icon. The four held textures are identical copies of one glove, so the wheel tells the modes
+ * apart by these icons rather than by the held texture (dagger_glove.md §6).
  */
 public record DaggerGloveModeEntry(DaggerGloveMode mode) implements WheelAdaptor.Entry {
 
@@ -22,7 +23,7 @@ public record DaggerGloveModeEntry(DaggerGloveMode mode) implements WheelAdaptor
 		g.pose().pushPose();
 		g.pose().translate(dx, dy, 0);
 		g.pose().scale(s, s, s);
-		ItemStack icon = DaggerGloveItem.displayStack(mode);
+		ItemStack icon = DaggerGloveItem.iconStack(mode);
 		g.renderItem(icon, -8, -8);
 		g.renderItemDecorations(Minecraft.getInstance().font, icon, -8, -8);
 		g.pose().popPose();
