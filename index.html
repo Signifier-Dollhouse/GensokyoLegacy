@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Gensokyo Legacy &middot; Quests, Dialogs &amp; Trades</title>
+    <meta
+      name="description"
+      content="Browser for the Gensokyo Legacy RPG datapack: every quest, dialog and trade offer with its conditions and requirements, read straight from the generated JSON."
+    />
+    <link rel="stylesheet" href="assets/site.css" />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ctext y='26' font-size='26'%3E%F0%9F%8D%80%3C/text%3E%3C/svg%3E"
+    />
+  </head>
+  <body>
+    <a class="skip" href="#content">Skip to content</a>
+
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <div>
+          <h1>Gensokyo Legacy</h1>
+          <p class="brand-sub">Quests, dialogs &amp; trades &mdash; read from the datapack</p>
+        </div>
+      </div>
+
+      <div class="topbar-controls">
+        <div class="field">
+          <label class="sr-only" for="search">Search</label>
+          <input id="search" type="search" placeholder="Search quests, dialogs, items&hellip;" autocomplete="off" />
+        </div>
+        <div class="segmented" role="group" aria-label="Language">
+          <button type="button" data-lang="en_us" aria-pressed="true">EN</button>
+          <button type="button" data-lang="zh_cn" aria-pressed="false">中文</button>
+        </div>
+        <button id="theme" type="button" class="icon-button" aria-label="Toggle colour scheme">
+          <span aria-hidden="true">◐</span>
+        </button>
+      </div>
+    </header>
+
+    <div class="layout">
+      <nav class="sidebar" aria-label="Characters">
+        <h2 class="sidebar-title">Characters</h2>
+        <ul id="characters" class="character-list"></ul>
+        <div id="source" class="source-note"></div>
+      </nav>
+
+      <main id="content" class="content">
+        <div id="status" class="status" role="status"></div>
+
+        <div class="progress-track" id="loadbar">
+          <div class="progress-fill" id="progress"></div>
+        </div>
+
+        <div class="tabs" role="tablist" aria-label="Content type">
+          <button type="button" role="tab" data-tab="quest" aria-selected="true">
+            <span>Quests</span><span class="count" data-count="quest"></span>
+          </button>
+          <button type="button" role="tab" data-tab="trade" aria-selected="false">
+            <span>Trades</span><span class="count" data-count="trade"></span>
+          </button>
+          <button type="button" role="tab" data-tab="dialog" aria-selected="false">
+            <span>Dialogs</span><span class="count" data-count="dialog"></span>
+          </button>
+        </div>
+
+        <div id="panel" class="panel" role="tabpanel"></div>
+      </main>
+    </div>
+
+    <dialog id="viewer" class="viewer" aria-label="Detail"></dialog>
+
+    <noscript>
+      <p class="noscript">
+        This page reads the datapack JSON with JavaScript. Without it, browse the files directly under
+        <a href="src/generated/resources/data/gensokyolegacy/gensokyolegacy/">src/generated/resources/data/gensokyolegacy/</a>.
+      </p>
+    </noscript>
+
+    <script type="module" src="assets/app.js"></script>
+  </body>
+</html>

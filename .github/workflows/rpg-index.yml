@@ -1,0 +1,59 @@
+name: Refresh RPG content index
+
+# The website is published from the root of the gh-page branch and reads the
+# datapack JSONs directly from src/generated/resources. Only the file index
+# (rpg-manifest.json) needs regenerating when quest/dialog/trade content changes,
+# which this workflow does automatically.
+
+on:
+  push:
+    branches: [main, gh-page]
+    paths:
+      - "src/generated/resources/data/gensokyolegacy/gensokyolegacy/**"
+      - "src/generated/resources/data/gensokyolegacy/loot_table/**"
+      - "src/generated/resources/data/gensokyolegacy/tags/**"
+      - "src/generated/resources/assets/gensokyolegacy/lang/**"
+      - "src/main/resources/assets/gensokyolegacy/lang/**"
+      - "scripts/build_manifest.py"
+      - ".github/workflows/rpg-index.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+# One refresh at a time, so two rapid pushes cannot race on the same branch.
+concurrency:
+  group: rpg-index
+  cancel-in-progress: false
+
+jobs:
+  index:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validate the site modules
+        run: |
+          python3 -m pip install --quiet tree_sitter tree_sitter_javascript
+          python3 scripts/check_site.py
+
+      - name: Regenerate rpg-manifest.json
+        run: python3 scripts/build_manifest.py
+
+      - name: Publish the index to gh-page
+        run: |
+          if git diff --quiet -- rpg-manifest.json; then
+            echo "index already matches the datapack"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add rpg-manifest.json
+          git commit -m "rpg index"
+          git push origin HEAD:gh-page
+
+# GitHub only runs workflows that exist on the repository's default branch, so this
+# file needs to reach main before the automation takes effect. The page itself does
+# not depend on it: it also refreshes its index from the published branch at runtime.

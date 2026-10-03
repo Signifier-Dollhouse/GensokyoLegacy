@@ -1,0 +1,466 @@
+// Gensokyo Legacy content browser.
+//
+// The page is published from the repository root of the `gh-page` branch, so the
+// RPG datapack files are fetched at their real paths under
+// src/generated/resources/ - nothing is bundled, rewritten or duplicated here.
+
+import { clear, h, setProgress, setStatus } from "./lib/dom.js";
+import { entityLabel, itemLabel, ingredientId, label, prettify } from "./lib/format.js";
+import { REPO, setLanguage, setTheme, state, TABS } from "./lib/state.js";
+import {
+  buildCharacters,
+  characterKeyOf,
+  fetchJson,
+  loadAllDialogs,
+  loadCurrencyTag,
+  loadLang,
+  loadManifest,
+  loadRegistry,
+  store,
+  tableFor,
+} from "./lib/store.js";
+import { openDialogViewer, questCard, starterCard, tradeCard } from "./lib/views.js";
+
+// ---------------------------------------------------------------------------
+// location
+// ---------------------------------------------------------------------------
+
+/**
+ * The view is addressable: `#trade`, `#dialog/reimu`, `#quest/all`. Characters are
+ * slugged by their registry folder (`reimu`) rather than the entity id, so the URL
+ * stays readable; an unknown slug falls back to showing everything.
+ */
+function slugOf(key) {
+  if (key === "all") return "all";
+  const dirs = store.characters.get(key)?.dirs;
+  return dirs?.size ? [...dirs].sort()[0] : key;
+}
+
+function keyFromSlug(slug) {
+  if (!slug || slug === "all") return "all";
+  const match = [...store.characters.values()].find((character) => character.dirs.has(slug));
+  return match?.key ?? (store.characters.has(slug) ? slug : "all");
+}
+
+function readLocation() {
+  const [tab, slug] = decodeURIComponent(location.hash.replace(/^#/, "")).split("/");
+  if (TABS.includes(tab)) state.tab = tab;
+  // Characters are only known once the registries are loaded.
+  if (store.characters.size) state.character = keyFromSlug(slug);
+}
+
+function writeLocation() {
+  const next = `#${state.tab}/${encodeURIComponent(slugOf(state.character))}`;
+  if (location.hash !== next) history.replaceState(null, "", next);
+}
+
+// ---------------------------------------------------------------------------
+// selection helpers
+// ---------------------------------------------------------------------------
+
+/** All entries of a registry that belong to the selected character. */
+function entriesOf(registry) {
+  return registry.files.map((file) => {
+    const idPath = file.slice(registry.root.length + 1, -".json".length);
+    return { id: `${store.manifest.namespace}:${idPath}`, dir: idPath.split("/")[0], file };
+  });
+}
+
+function inCharacter(entryData) {
+  if (state.character === "all") return true;
+  return store.characters.get(state.character)?.dirs.has(entryData.dir) === true;
+}
+
+/** Free text match over ids, titles and item names. */
+function matchesQuery(...values) {
+  if (!state.query) return true;
+  const haystack = values.filter(Boolean).join(" ").toLowerCase();
+  return haystack.includes(state.query.toLowerCase());
+}
+
+function select(name, id) {
+  state.character = name;
+  state.query = id ?? "";
+  document.querySelector("#search").value = state.query;
+  render();
+}
+// ---------------------------------------------------------------------------
+// panels
+// ---------------------------------------------------------------------------
+
+function renderPanel() {
+  const panel = clear(document.querySelector("#panel"));
+
+  if (state.tab === "dialog") return renderDialogPanel(panel);
+  if (state.tab === "trade") return renderTradePanel(panel);
+  return renderQuestPanel(panel);
+}
+
+function renderQuestPanel(panel) {
+  const table = store.quests;
+  const entries = entriesOf(store.manifest.registries.quest)
+    .filter(inCharacter)
+    .filter((entryData) => {
+      const quest = table.get(entryData.id);
+      return matchesQuery(entryData.id, quest?.title && label(quest.title), quest?.description && label(quest.description));
+    });
+
+  if (!entries.length) return panel.append(emptyState("quests"));
+
+  const onQuestLink = (id) => {
+    state.tab = "quest";
+    select("all", id);
+  };
+
+  const grid = h("div", { class: "grid" });
+  for (const entryData of entries) {
+    const quest = table.get(entryData.id);
+    if (quest) grid.append(questCard(entryData, quest, onQuestLink));
+  }
+  panel.append(grid);
+}
+
+function renderTradePanel(panel) {
+  const table = store.trades;
+  const entries = entriesOf(store.manifest.registries.trade)
+    .filter(inCharacter)
+    .filter((entryData) => {
+      const trade = table.get(entryData.id);
+      return matchesQuery(
+        entryData.id,
+        entityLabel(trade?.character),
+        itemLabel(trade?.result?.id),
+        ...(trade?.ingredients ?? []).map((ingredient) => itemLabel(ingredientId(ingredient))),
+      );
+    });
+
+  if (!entries.length) return panel.append(emptyState("trade offers"));
+
+  const grid = h("div", { class: "grid" });
+  for (const entryData of entries) {
+    const trade = table.get(entryData.id);
+    if (trade) grid.append(tradeCard(entryData, trade));
+  }
+  panel.append(grid);
+}
+
+function emptyState(what) {
+  return h("p", { class: "empty", text: `No ${what} match the current filters.` });
+}
+
+async function renderDialogPanel(panel) {
+  if (!state.dialogsLoaded) {
+    const counter = h("span", { text: "0 / 0" });
+    const bar = h("div", { class: "progress-track" }, h("div", { class: "progress-fill" }), counter);
+    panel.append(h("p", { class: "status", text: "Loading dialog files..." }), bar);
+
+    await loadAllDialogs((done, total) => {
+      counter.textContent = `${done} / ${total}`;
+      bar.firstChild.style.width = `${Math.round((done / total) * 100)}%`;
+    });
+    state.dialogsLoaded = true;
+    clear(panel);
+    setStatus("");
+  }
+
+  // Starters are the gated entry points into a conversation, so they lead.
+  const starters = entriesOf(store.manifest.registries.dialog_starter).filter(inCharacter).filter((entryData) => {
+    const starter = store.starters.get(entryData.id);
+    return matchesQuery(entryData.id, starter?.text && label(starter.text));
+  });
+
+  panel.append(
+    h("h3", { text: "Conversation starters" }),
+    h("p", { class: "card-id", text: "The gated entry points a player can trigger by talking to a character." }),
+    starters.length
+      ? h(
+          "div",
+          { class: "grid" },
+          ...starters.map((entryData) => {
+            const starter = store.starters.get(entryData.id);
+            return starter ? starterCard(entryData, starter) : null;
+          }),
+        )
+      : emptyState("starters"),
+  );
+
+  // 200+ dialog nodes grouped by the conversation they belong to, so the tree
+  // stays browsable: `reimu/daily_food/{start,follow_up,complete}/...` is one row.
+  const conversations = new Map();
+  for (const entryData of entriesOf(store.manifest.registries.dialog)) {
+    if (!inCharacter(entryData)) continue;
+    const dialog = store.dialogs.get(entryData.id);
+    if (!matchesQuery(entryData.id, dialog?.text && label(dialog.text), ...(dialog?.options ?? []).map((o) => label(o.text)))) {
+      continue;
+    }
+    const root = entryData.id.split(":")[1].split("/").slice(0, -1).join("/");
+    if (!conversations.has(root)) conversations.set(root, []);
+    conversations.get(root).push({ entryData, dialog });
+  }
+
+  panel.append(
+    h("h3", { text: "Dialogs" }),
+    h("p", { class: "card-id", text: "Every dialog node, grouped by the conversation it belongs to." }),
+    conversations.size
+      ? h(
+          "ul",
+          { class: "list" },
+          ...[...conversations].map(([root, nodes]) =>
+            h(
+              "li",
+              { class: "starter-row" },
+              h("button", {
+                class: "linkish",
+                type: "button",
+                text: `${prettifyRoot(root)} ->`,
+                onclick: () => openFirst(nodes),
+              }),
+              h("span", { class: "card-id mono", text: `${store.manifest.namespace}:${root}` }),
+              h("span", {
+                class: "entry-note",
+                text: `${nodes.length} line${nodes.length === 1 ? "" : "s"} - first: ${label(nodes[0].dialog?.text ?? "?")}`,
+              }),
+            ),
+          ),
+        )
+      : emptyState("dialogs"),
+  );
+}
+
+function prettifyRoot(root) {
+  return prettify(root.split("/").pop());
+}
+
+/** Opens a conversation at its shallowest node. */
+function openFirst(nodes) {
+  const shallowest = nodes
+    .map((node) => ({ ...node, depth: node.entryData.id.split("/").length }))
+    .sort((a, b) => a.depth - b.depth)[0];
+  openDialogViewer(shallowest.entryData.id);
+}
+
+// ---------------------------------------------------------------------------
+// chrome
+// ---------------------------------------------------------------------------
+
+function characterName(character) {
+  // Names come from the lang files, so they are resolved per render rather than
+  // cached: that keeps them correct when the language toggle changes.
+  return character.entity ? entityLabel(character.entity) : prettify(character.key);
+}
+
+function orderedCharacters() {
+  return [...store.characters.values()].sort((a, b) => characterName(a).localeCompare(characterName(b)));
+}
+
+function renderSidebar() {
+  const list = clear(document.querySelector("#characters"));
+  const counts = new Map();
+
+  for (const name of ["quest", "trade", "dialog_starter"]) {
+    for (const [id, data] of tableFor(name)) {
+      if (!data) continue;
+      const key = characterKeyOf(id);
+      counts.set(key, (counts.get(key) ?? 0) + 1);
+    }
+  }
+
+  const button = (key, name, count) =>
+    h(
+      "li",
+      {},
+      h(
+        "button",
+        {
+          type: "button",
+          "aria-current": String(state.character === key),
+          onclick: () => select(key, state.query),
+        },
+        h("span", { text: name }),
+        h("span", { class: "count", text: String(count) }),
+      ),
+    );
+
+  list.append(button("all", "All characters", [...counts.values()].reduce((sum, value) => sum + value, 0)));
+  for (const character of orderedCharacters()) {
+    list.append(button(character.key, characterName(character), counts.get(character.key) ?? 0));
+  }
+
+  clear(document.querySelector("#source")).append(
+    h("p", {
+      text: `${store.manifest.stats.files} datapack files - ${Object.keys(store.manifest.lootTables).length} loot tables`,
+    }),
+    h(
+      "p",
+      {},
+      "Fetched live from ",
+      h("code", { text: store.manifest.resources }),
+      " on branch ",
+      h("code", { text: REPO.ref }),
+      ".",
+    ),
+  );
+}
+
+function renderTabs() {
+  const counts = {
+    quest: store.quests.size,
+    trade: store.trades.size,
+    dialog: store.manifest.registries.dialog.files.length,
+  };
+  for (const node of document.querySelectorAll("[data-count]")) {
+    node.textContent = String(counts[node.dataset.count]);
+  }
+  for (const node of document.querySelectorAll("[data-tab]")) {
+    node.setAttribute("aria-selected", String(node.dataset.tab === state.tab));
+  }
+}
+
+function render() {
+  renderSidebar();
+  renderTabs();
+  writeLocation();
+  renderPanel();
+}
+
+function applyTheme() {
+  const theme = state.theme ?? (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+  document.documentElement.dataset.theme = theme;
+}
+
+function wireChrome() {
+  const search = document.querySelector("#search");
+  search.value = state.query;
+  search.addEventListener("input", (event) => {
+    state.query = event.target.value.trim();
+    render();
+  });
+
+  for (const button of document.querySelectorAll("[data-lang]")) {
+    button.addEventListener("click", () => {
+      setLanguage(button.dataset.lang);
+      for (const sibling of document.querySelectorAll("[data-lang]")) {
+        sibling.setAttribute("aria-pressed", String(sibling === button));
+      }
+      // Names come from the lang files, so they must be re-derived.
+      buildCharacters();
+      render();
+    });
+    button.setAttribute("aria-pressed", String(button.dataset.lang === state.lang));
+  }
+
+  for (const button of document.querySelectorAll("[data-tab]")) {
+    button.addEventListener("click", () => {
+      state.tab = button.dataset.tab;
+      render();
+    });
+  }
+
+  document.querySelector("#theme").addEventListener("click", () => {
+    const next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+    setTheme(next);
+    applyTheme();
+  });
+}
+
+// ---------------------------------------------------------------------------
+// boot
+// ---------------------------------------------------------------------------
+
+async function boot() {
+  applyTheme();
+  wireChrome();
+  readLocation(); // tab only; the character slug needs the loaded registries
+  addEventListener("hashchange", () => {
+    readLocation();
+    render();
+  });
+
+  try {
+    await loadManifest();
+  } catch (error) {
+    setStatus(
+      `Could not load rpg-manifest.json (${error.message}). Publish this branch with GitHub Pages set to the ` +
+        "branch root (not /docs), and make sure rpg-manifest.json is committed.",
+      true,
+    );
+    return;
+  }
+
+  const langFiles = store.manifest.lang;
+  const registries = ["quest", "trade", "dialog_starter"];
+  const total = registries.reduce((sum, name) => sum + store.manifest.registries[name].files.length, 0);
+
+  // Each registry reports its own running count, so track them separately and
+  // show the sum rather than adding every intermediate value.
+  const seen = new Map();
+  const progressFor = (name) => (count) => {
+    seen.set(name, count);
+    setProgress([...seen.values()].reduce((sum, value) => sum + value, 0), total);
+  };
+
+  await Promise.all([
+    ...langFiles.map(loadLang),
+    // The currency tag decides whether a trade reads as "sell" or "craft".
+    loadCurrencyTag(),
+    ...registries.map((name) => loadRegistry(name, progressFor(name))),
+  ]);
+
+  buildCharacters();
+  readLocation(); // now the character slug can be resolved
+  setStatus("");
+  setProgress(0, 0);
+  render();
+
+  refreshFromGitHub();
+}
+
+/**
+ * Opportunistic freshness: if the published branch holds more registry files than
+ * the committed index knows about, adopt the newer listing so new content appears
+ * without anyone re-running the generator. Failure is expected and silent - the
+ * committed index, or the derived fallback paths, keep working either way.
+ */
+async function refreshFromGitHub() {
+  if (location.protocol === "file:") return;
+
+  try {
+    const response = await fetch(
+      `https://data.jsdelivr.com/v1/packages/gh/${REPO.owner}/${REPO.name}@${REPO.ref}?structure=flat`,
+      { cache: "no-cache" },
+    );
+    if (!response.ok) return;
+
+    const listing = await response.json();
+    const published = (listing.files ?? []).map((file) => file.name);
+    if (!published.length) return;
+
+    let added = 0;
+    for (const registry of Object.values(store.manifest.registries)) {
+      const prefix = `${registry.root}/`;
+      const files = published.filter((file) => file.startsWith(prefix) && file.endsWith(".json"));
+      if (files.length <= registry.files.length) continue;
+      added += files.length - registry.files.length;
+      registry.files = files;
+    }
+    if (!added) return;
+
+    // Dialogs are lazy, so only the eagerly loaded registries need refilling.
+    for (const name of ["quest", "trade", "dialog_starter"]) {
+      await loadRegistry(name);
+    }
+    buildCharacters();
+    render();
+    setStatus(`Index refreshed from GitHub: ${added} new file${added === 1 ? "" : "s"} found on this branch.`);
+  } catch {
+    /* offline, rate limited, or the branch is not published: keep the committed index */
+  }
+}
+
+boot().catch((error) => {
+  // A blank page is the worst possible failure mode for a data browser, so say
+  // what went wrong. This also catches the usual cause: a Pages deployment that
+  // serves the site with the wrong base path, breaking every relative fetch.
+  console.error(error);
+  setStatus(`Failed to load content: ${error.message}`, true);
+});
