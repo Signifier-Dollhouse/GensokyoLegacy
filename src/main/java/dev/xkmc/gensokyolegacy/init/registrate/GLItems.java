@@ -9,7 +9,6 @@ import dev.xkmc.gensokyolegacy.content.attachment.doll.DollInventory;
 import dev.xkmc.gensokyolegacy.content.block.deco.shelf.MorichikaOfferData;
 import dev.xkmc.gensokyolegacy.content.block.functional.portal.PortalSide;
 import dev.xkmc.gensokyolegacy.content.client.model.*;
-import dev.xkmc.gensokyolegacy.content.entity.characters.fairy.CirnoModel;
 import dev.xkmc.gensokyolegacy.content.entity.characters.rumia.RumiaModel;
 import dev.xkmc.gensokyolegacy.content.item.broom.BroomItem;
 import dev.xkmc.gensokyolegacy.content.item.character.*;
@@ -251,10 +250,11 @@ public class GLItems {
 						.tag(head, GLTagGen.TOUHOU_HAT)
 						.register();
 
+				// the hairband and the wings are bones of Cirno's own geo rig now, so
+				// the items have no separate model to bake (and no render layer)
 				CIRNO_HAIRBAND = reg
 						.item("cirno_hairband", p -> new CirnoHairbandItem(p.rarity(Rarity.EPIC)))
 						.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/curio/" + ctx.getName())))
-						.clientExtension(() -> () -> new CirnoHairbandModel(CirnoModel.HAT))
 						.tag(head, GLTagGen.TOUHOU_HAT)
 						.register();
 

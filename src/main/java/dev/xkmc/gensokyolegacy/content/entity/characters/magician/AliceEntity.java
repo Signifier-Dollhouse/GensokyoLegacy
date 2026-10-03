@@ -49,12 +49,16 @@ public class AliceEntity extends GeneralYoukaiEntity implements GeoYoukaiAnim, D
 	protected static final RawAnimation SIT = RawAnimation.begin().thenLoop("坐下");
 	protected static final RawAnimation SLEEP = RawAnimation.begin().thenLoop("睡觉");
 	private static final RawAnimation USE_MAINHAND = RawAnimation.begin().thenPlay("使用主手物品");
-	// this rig ships a single, colder greeting clip instead of the neutral 招呼
-	private static final RawAnimation GREET = RawAnimation.begin().thenPlay("招呼(适用于冷淡性格)");
+	// the rig names its greeting plainly, like the other characters' (the clip itself
+	// is still the colder variant this rig has always shipped)
+	private static final RawAnimation GREET = RawAnimation.begin().thenPlay("招呼");
 	private static final RawAnimation TALK_01 = RawAnimation.begin().thenPlay("交流_01");
 	private static final RawAnimation TALK_02 = RawAnimation.begin().thenPlay("交流_02");
 	private static final RawAnimation TALK_03 = RawAnimation.begin().thenPlay("交流_03");
 	private static final RawAnimation THINK = RawAnimation.begin().thenPlay("思考中");
+	// the rig also ships 深思熟虑, a longer thinking-over-it variant of the same slot.
+	// Unmapped: there is only one THINK slot, and swapping would silently lengthen
+	// every existing dialog's thinking beat.
 	private static final RawAnimation AGREE = RawAnimation.begin().thenPlay("肯定");
 	private static final RawAnimation DECLINE = RawAnimation.begin().thenPlay("拒绝");
 

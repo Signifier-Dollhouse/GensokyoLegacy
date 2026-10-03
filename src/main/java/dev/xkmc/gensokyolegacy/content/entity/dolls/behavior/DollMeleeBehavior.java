@@ -21,7 +21,17 @@ import java.util.Optional;
  * Regular attack, melee variant: charge the target at twice the movement cap, cut
  * the swing on contact, recoil off it, hold the spot for {@link #HOLD_TICKS} ticks,
  * then fly back to where the charge began.
- * {@link DollLanceItem} only ({@code DollBehaviors}).
+ * {@link DollLanceItem} ({@code DollBehaviors}) — and, when the doll holds nothing
+ * that can attack at all and one hand is free, the same charge bare-handed, with
+ * {@code toy_slapattack} instead of the lance clip.
+ * <p>
+ * The bare hand comes for free from the registry's fallback
+ * ({@link DollBehaviorRegistry#registerBareHand}) naming the <b>empty</b> hand, so
+ * the sticky swap at {@link #strike} moves whatever sat in the main hand across to
+ * the off hand and frees the striking one. Damage falls out of that for free too:
+ * {@link #meleeDamage} folds in the main hand's weapon modifiers, and an empty main
+ * hand has none, so a slap is the doll's own base {@link Attributes#ATTACK_DAMAGE}
+ * — a charge that finally answers the weapon it was swinging.
  * <p>
  * The ticket leaves <b>on impact</b> — that is the point of charging inside a
  * volley: {@code complete()} hands the attack to the next doll while this one is
@@ -226,6 +236,11 @@ public class DollMeleeBehavior extends DollBehavior {
 	 * The contact tick: swing, and hand the attack on. The ticket goes out here so
 	 * the volley moves on while the doll is still flying; the bounce is the charge
 	 * velocity reverted, which is what reads as recoil.
+	 * <p>
+	 * A bare hand arrives here as the registry's fallback naming the empty hand, so
+	 * {@link #ensureMainHand} is what frees the striking hand — it swaps the ledger
+	 * whenever the match is the off hand, which for a slap is exactly the "something
+	 * was in the main hand, move it across" case.
 	 */
 	private void strike(DollEntity doll, LivingEntity target, Vec3 toTarget) {
 		Optional<HandMatch> match = hand(doll);
@@ -233,9 +248,11 @@ public class DollMeleeBehavior extends DollBehavior {
 			abort(doll);
 			return;
 		}
+		boolean bareHand = match.get().bareHand();
 		ensureMainHand(doll, match.get());
 		swing(doll, doll.ledgerStack(DollSlot.MAIN_HAND), target, toTarget);
-		doll.broadcastAttackAnim();
+		if (bareHand) doll.broadcastSlapAnim();
+		else doll.broadcastAttackAnim();
 		doll.actions.stamp(type(), doll.level().getGameTime());
 		doll.actions.complete(doll);
 		beginHold(doll);
@@ -267,7 +284,8 @@ public class DollMeleeBehavior extends DollBehavior {
 	 * 1 a player swings with — which is a charge that ignores its weapon entirely. So
 	 * the main-hand {@code ATTACK_DAMAGE} entries are folded in at swing time, which
 	 * is vanilla's own base-plus-weapon arithmetic: <b>5</b> for a
-	 * {@link DollLanceItem} (1 + its 4).
+	 * {@link DollLanceItem} (1 + its 4), and the bare <b>1</b> for the bare-handed
+	 * slap, whose empty main hand simply contributes nothing.
 	 * <p>
 	 * Damage only. Attack speed is a doll-side cadence ({@link #COOLDOWN_TICKS}),
 	 * not an attribute read, and enchantments ride the attacker's vanilla held item,

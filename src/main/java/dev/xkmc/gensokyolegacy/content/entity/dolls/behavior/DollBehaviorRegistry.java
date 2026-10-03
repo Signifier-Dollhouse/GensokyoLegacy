@@ -10,7 +10,9 @@ import net.minecraft.world.item.ShieldItem;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -28,8 +30,18 @@ import java.util.function.Supplier;
  * hand slot takes at all) and {@link #spendsOnUse} (whether a stack in a hand is
  * ammunition rather than one item) both read it, so a new binding unlocks its
  * item in the loadout editor without a second edit.
+ * <p>
+ * One binding is <b>not</b> an item: the bare-handed fallback, registered through
+ * {@link #registerBareHand}. An empty stack is never an item-table match (there is
+ * nothing in the hand to match), so it cannot be expressed as a predicate — it is
+ * matched against the <b>empty hand itself</b>, and only after no item binding has
+ * claimed the type. That is what lets a doll with nothing to fight with still answer
+ * a volley, see {@link DollBehaviors#register}.
  */
 public final class DollBehaviorRegistry {
+
+	/** Id of the bare-handed binding, for symmetry with the item-table ids. */
+	private static final String BARE_HAND = "barehand";
 
 	/**
 	 * One binding. {@code consumed} says the behavior spends what it holds — one per
@@ -43,9 +55,22 @@ public final class DollBehaviorRegistry {
 	}
 
 	public record HandMatch(Entry entry, DollSlot hand, ItemStack stack) {
+
+		/**
+		 * Whether this is the bare-handed fallback rather than an item: the match
+		 * names the <b>empty</b> hand. Derived rather than stored, because the item
+		 * table can only match a non-empty stack ({@link #findBest} skips empties),
+		 * so an empty match stack is unambiguously the bare-handed binding.
+		 */
+		public boolean bareHand() {
+			return stack.isEmpty();
+		}
 	}
 
 	private static final List<Entry> ENTRIES = new ArrayList<>();
+
+	/** The one bare-handed binding, if a type registered one. At most one per type. */
+	private static final Map<DollActionType, Entry> BARE_HANDS = new EnumMap<>(DollActionType.class);
 
 	private DollBehaviorRegistry() {
 	}
@@ -56,10 +81,26 @@ public final class DollBehaviorRegistry {
 	}
 
 	/**
+	 * Register the bare-handed fallback for an action type: a doll that holds nothing
+	 * satisfying {@code type}, and has at least one hand free, acts with that hand.
+	 * <p>
+	 * Consulted only once the item table has come up empty for the type, so it never
+	 * competes with a weapon — which is why it takes no priority. Costs nothing and is
+	 * deliberately <b>not</b> in {@link #ENTRIES}: {@link #usableInHand} admits what a
+	 * hand slot takes, and an empty stack is already the one thing it never admits.
+	 */
+	public static void registerBareHand(DollActionType type, Supplier<DollBehavior> factory) {
+		BARE_HANDS.put(type, new Entry(BARE_HAND, ItemStack::isEmpty, type, 0, false, factory));
+	}
+
+	/**
 	 * Best (entry, hand) match for a type across both hands, read from the
 	 * authoritative ledger (never the synced mirror). Higher entry priority wins
 	 * (so a laser anywhere beats hexbrew anywhere); ties prefer main hand.
 	 * The matched stack is a copy.
+	 * <p>
+	 * When no item in either hand satisfies the type, the bare-handed fallback takes
+	 * it if the type registered one and a hand is free — see {@link #registerBareHand}.
 	 */
 	public static Optional<HandMatch> findHand(DollEntity doll, DollActionType type) {
 		return findBest(doll, type).map(best -> new HandMatch(best.entry(), best.hand(), best.stack().copy()));
@@ -179,6 +220,15 @@ public final class DollBehaviorRegistry {
 				if (entry.match().test(stack) && (best == null || entry.priority() > best.entry().priority())) {
 					best = new BestMatch(entry, hand, stack);
 				}
+			}
+		}
+		// Nothing held satisfies the type: fall back to the bare hand, main hand first
+		// so the common case (two empty hands) needs no swap.
+		Entry bareHand = BARE_HANDS.get(type);
+		if (best == null && bareHand != null) {
+			for (DollSlot hand : new DollSlot[]{DollSlot.MAIN_HAND, DollSlot.OFF_HAND}) {
+				if (!doll.ledgerStack(hand).isEmpty()) continue;
+				return Optional.of(new BestMatch(bareHand, hand, ItemStack.EMPTY));
 			}
 		}
 		return Optional.ofNullable(best);

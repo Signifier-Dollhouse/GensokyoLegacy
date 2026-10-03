@@ -51,12 +51,13 @@ var commands = attachment(sp).commands();
 		if (target == null || !DollGloveItem.isValidAttackTarget(sp, target)) {
 			sp.displayClientMessage(GLLang.ItemGlove.NO_TARGET.get(), true);
 		} else if (!commands.hasCapableDoll(sp, DollActionType.REGULAR_ATTACK)) {
-			// Armed with nothing at all: which of the two "no doll for this" lines
-			// fits depends on whether there is a roster to speak of.
+			// Nothing can attack: every doll has both hands full of things no regular
+			// attack can use, so not even a bare hand is free. Which of the two
+			// "no doll for this" lines fits depends on whether there is a roster.
 			sp.displayClientMessage(commands.hasSummonedDoll(sp) ?
 					GLLang.ItemGlove.NO_WEAPON.get() : GLLang.ItemGlove.NO_DOLL.get(), true);
 		} else if (!commands.canAttack(sp, target, DollActionType.REGULAR_ATTACK)) {
-			// Armed, but only with dolls that cannot close the distance (melee past
+			// Able, but only with dolls that cannot close the distance (melee past
 			// its engage range). Say so instead of issuing a volley that empties
 			// itself on the spot.
 			sp.displayClientMessage(GLLang.ItemGlove.TOO_FAR.get(), true);
