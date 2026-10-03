@@ -1214,9 +1214,11 @@
 					}
 				},
 				"LeftHandLocator": {
+					"rotation": [90, 0, 0],
 					"scale": 0.8
 				},
 				"RightHandLocator": {
+					"rotation": [90, 0, 0],
 					"scale": 0.8
 				}
 			}
