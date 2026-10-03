@@ -30,6 +30,7 @@ import dev.xkmc.gensokyolegacy.content.item.ingredient.FrozenFrogItem;
 import dev.xkmc.gensokyolegacy.content.item.talisman.core.GLTalismans;
 import dev.xkmc.gensokyolegacy.content.item.dagger.DaggerGloveItem;
 import dev.xkmc.gensokyolegacy.content.item.dagger.DaggerGloveMode;
+import dev.xkmc.gensokyolegacy.content.item.dagger.DaggerGloveModel;
 import dev.xkmc.gensokyolegacy.content.item.tool.*;
 import dev.xkmc.gensokyolegacy.content.item.umbrella.BorderUmbrellaItem;
 import dev.xkmc.gensokyolegacy.content.item.umbrella.data.BorderUmbrellaMode;
@@ -65,7 +66,6 @@ import net.neoforged.neoforge.client.model.generators.loaders.SeparateTransforms
 import net.neoforged.neoforge.registries.datamaps.builtin.FurnaceFuel;
 import net.neoforged.neoforge.registries.datamaps.builtin.NeoForgeDataMaps;
 
-import java.util.Locale;
 import java.util.UUID;
 
 public class GLItems {
@@ -140,6 +140,7 @@ public class GLItems {
 	public static final DCVal<Unit> DOLL_GLOVE_ICON = DC.unit("doll_glove_icon");
 	public static final DCVal<DaggerGloveMode> DAGGER_GLOVE_MODE = DC.enumVal("dagger_glove_mode", EnumCodec.of(DaggerGloveMode.class, DaggerGloveMode.values()));
 	public static final DCVal<ResourceLocation> DAGGER_GLOVE_RUNE = DC.loc("dagger_glove_rune");
+	public static final DCVal<Unit> DAGGER_GLOVE_ICON = DC.unit("dagger_glove_icon");
 
 
 	static {
@@ -440,10 +441,24 @@ public class GLItems {
 					.lang("Star Wand").tab(TAB.key())
 					.register();
 
-			// 3D model hand-written in models/custom, so only wire up the parent here
+			// 3D model hand-written in models/custom, so only wire up the parent here. Split with
+			// SeparateTransformsModelBuilder and gui_light: front (the same shape as DOLL_LANCE),
+			// because the two halves want opposite things: the base is the modelled dagger, which
+			// is what every display except the gui wants, and the gui gets the flat 16x16 icon
+			// instead, since a modelled blade has no transform that lands it inside a 16px slot.
 			IRON_DAGGER = reg.item("iron_dagger", IronDaggerItem::new)
-					.model((ctx, pvd) -> pvd.getBuilder(ctx.getName())
-							.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/" + ctx.getName()))))
+					.model((ctx, pvd) -> {
+						var base = pvd.nested()
+								.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/" + ctx.getName())));
+						var guiModel = pvd.nested()
+								.parent(new ModelFile.UncheckedModelFile("item/generated"))
+								.texture("layer0", pvd.modLoc("item/tool/" + ctx.getName() + "_icon"));
+						pvd.getBuilder(ctx.getName())
+								.customLoader(SeparateTransformsModelBuilder::begin)
+								.base(base)
+								.perspective(ItemDisplayContext.GUI, guiModel)
+								.end().guiLight(BlockModel.GuiLight.FRONT);
+					})
 					.tag(DanmakuItems.Bullet.DAGGER.tag)
 					.lang("Iron Dagger").tab(TAB.key())
 					.register();
@@ -451,22 +466,10 @@ public class GLItems {
 			// The glove's held model carries a predicate override per mode rather than a flat
 			// layer0, so per-mode art can be dropped into the four texture paths without
 			// touching the wheel, which renders real glove stacks and names the hovered mode
-			// (dagger_glove.md §6). Today every mode wears the same texture.
+			// (dagger_glove.md §6). Today every mode wears the same texture. The held half is
+			// the mitten the doll glove shares (DaggerGloveModel).
 			DAGGER_GLOVE = reg.item("dagger_glove", p -> new DaggerGloveItem(p.stacksTo(1)))
-					.model((ctx, pvd) -> {
-						var base = pvd.generated(ctx, pvd.modLoc("item/tool/" + ctx.getName()));
-						// vanilla reverses the override list at bake time and returns the
-						// first match with >= per predicate, so emit ascending values for
-						// exact per-mode matching, as the doll glove does
-						var modes = DaggerGloveMode.values();
-						for (int i = 0; i < modes.length; i++) {
-							base.override()
-									.predicate(GensokyoLegacy.loc("dagger_glove_display"), i + 1)
-									.model(pvd.withExistingParent("item/dagger_glove_" + modes[i].name().toLowerCase(Locale.ROOT), "item/generated")
-											.texture("layer0", pvd.modLoc("item/tool/dagger_glove_" + modes[i].name().toLowerCase(Locale.ROOT))))
-									.end();
-						}
-					})
+					.model(DaggerGloveModel::model)
 					.lang("Dagger Glove").tab(TAB.key())
 					.tag(L2ISTagGen.SELECTABLE)
 					.register();

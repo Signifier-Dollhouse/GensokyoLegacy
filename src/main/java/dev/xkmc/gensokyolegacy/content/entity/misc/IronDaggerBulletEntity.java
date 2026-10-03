@@ -42,7 +42,9 @@ import org.jetbrains.annotations.Nullable;
  * entity discards straight from {@code DanmakuBulletEntity}, while a dagger that flies its full
  * two seconds is erased through {@link #markErased} without ever hitting anything.
  * {@link #givenBack} keeps a dagger that goes out through both on the same tick (a hit on the
- * tick its life runs out) from being handed over twice.
+ * tick its life runs out) from being handed over twice, and disarming the {@code afterExpiry}
+ * trail there keeps that same tick from spawning a successor on top of the return — which is the
+ * other half of that case, and the one that used to hand out a second dagger.
  * <p>
  * A dagger can also carry a {@link DaggerGloveRune}, the glove's extra on-hit effect, which only
  * the {@link DaggerGloveItem} ever sets. It rides the bullet rather than the stack because the
@@ -111,12 +113,21 @@ public class IronDaggerBulletEntity extends ItemBulletEntity {
 	 * path, including the ones where the turn produced nothing.
 	 *
 	 * @return true if this dagger may now stop returning itself, i.e. the caller really did take
-	 * over the return; false if the claim was already made and the caller must keep its own
+	 * over the return; false if the claim was already made, or the dagger is already gone back to
+	 * its thrower, and the caller must keep its own
 	 */
 	public boolean handOffTo(boolean successorSpawned) {
-		if (!successorSpawned) return false;
+		if (!successorSpawned || !ownsReturn()) return false;
 		handedOff = true;
 		return true;
+	}
+
+	/**
+	 * Whether this dagger is still the one that owes the thrower a return: it was thrown for a
+	 * price, and neither it nor a successor it has spawned has handed that price back yet.
+	 */
+	private boolean ownsReturn() {
+		return returnable && !givenBack && !handedOff;
 	}
 
 	@Override
@@ -157,15 +168,33 @@ public class IronDaggerBulletEntity extends ItemBulletEntity {
 	/**
 	 * Puts the dagger in its owner's inventory, or at their feet when there is no room for it.
 	 * <p>
+	 * <b>Paying the return also disarms this dagger's {@code afterExpiry} trail</b>, and that line is
+	 * the whole of the anti-duplication fix. {@code ItemBulletEntity#terminate} fires the trail from
+	 * {@code BaseProjectile#tick}, which resolves the move vector's hit <em>before</em> it checks the
+	 * lifetime — so a dagger that hits a block or an entity on the very tick its life runs out gives
+	 * itself back and is discarded, and the tick then carries straight on into {@code terminate()} with
+	 * nothing left to stop it. The trail spawned a stage 2 flagged returnable next to a first stage
+	 * that had already handed its dagger back, and the shot returned two out of one. Which is why it
+	 * only ever showed up where there was something solid in the last leg — a corridor, a room, any
+	 * wall inside the turn radius — and never in a superflat.
+	 * <p>
+	 * Clearing the field rather than overriding {@code terminate} to refuse: {@code terminate} short-
+	 * circuits on a null {@code afterExpiry}, which every plain single/fan dagger already relies on to
+	 * have no trail at all, so this is not a new assumption about the library — only the statement that
+	 * a dagger which has already paid its return has no successor left to delegate it to. The trail
+	 * ends with the dagger rather than outliving it, on every path out of here.
+	 * <p>
 	 * Nothing is handed back when there is no one to hand it to, and the dagger then vanishes as
 	 * any other danmaku would: the throw was never flagged returnable (see {@link #setReturnable}),
 	 * the return was claimed by a successor (see {@link #handOffTo}), the owner is not a player (a
 	 * youkai or doll throwing the item as danmaku), the player is dead or has logged out, or they
-	 * left the level while the dagger was still in the air.
+	 * left the level while the dagger was still in the air. The trail is disarmed either way, because
+	 * in all of those the dagger is finished and a successor could only have conjured a second one.
 	 */
 	private void giveBack() {
 		if (givenBack || !returnable || handedOff || level().isClientSide) return;
 		givenBack = true;
+		afterExpiry = null;
 		if (!(getOwner() instanceof Player player)) return;
 		if (!player.isAlive() || player.level() != level()) return;
 		ItemStack dagger = getItem();

@@ -13,6 +13,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
+import net.minecraft.util.Unit;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.LivingEntity;
@@ -65,6 +66,19 @@ public class DaggerGloveItem extends Item implements GloveTargeting {
 
 	public static void setMode(ItemStack stack, DaggerGloveMode mode) {
 		GLItems.DAGGER_GLOVE_MODE.set(stack, mode);
+	}
+
+	/**
+	 * Model-override value for {@code gensokyolegacy:dagger_glove_display}: the held mode's
+	 * ordinal + 1 selects the matching held-texture override, each with its own mitten skin; an
+	 * icon display stack (selector wheel, marked with {@code DAGGER_GLOVE_ICON}) instead uses the
+	 * icon-variant range behind it. Values are emitted ascending, so they match exactly
+	 * (glove.md §3b).
+	 */
+	public static float displayPredicate(ItemStack stack, Level level, LivingEntity entity, int seed) {
+		int ordinal = getMode(stack).ordinal();
+		return stack.has(GLItems.DAGGER_GLOVE_ICON.get()) ?
+				DaggerGloveMode.values().length + 1 + ordinal : ordinal + 1;
 	}
 
 	/**
@@ -219,6 +233,18 @@ public class DaggerGloveItem extends Item implements GloveTargeting {
 	public static ItemStack displayStack(DaggerGloveMode mode) {
 		ItemStack stack = new ItemStack(GLItems.DAGGER_GLOVE.get());
 		setMode(stack, mode);
+		return stack;
+	}
+
+	/**
+	 * As {@link #displayStack}, but marked as an icon display so the wheel draws this mode's
+	 * wheel icon rather than its held texture. The four held textures are deliberately identical
+	 * copies of one glove, so the wheel can only tell the modes apart by their icons
+	 * ({@code doc/design/dagger_glove.md} §6).
+	 */
+	public static ItemStack iconStack(DaggerGloveMode mode) {
+		ItemStack stack = displayStack(mode);
+		stack.set(GLItems.DAGGER_GLOVE_ICON.get(), Unit.INSTANCE);
 		return stack;
 	}
 
