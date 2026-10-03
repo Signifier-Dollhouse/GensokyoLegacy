@@ -25,11 +25,7 @@ import net.minecraft.world.item.component.ItemAttributeModifiers;
  */
 public class DollLanceItem extends Item {
 
-	/**
-	 * Damage over a bare hand. On a player (base 1) that totals 7 per swing; a doll charge adds
-	 * its own 2.0 base on top, for 8.
-	 */
-	public static final double DAMAGE = 6.0;
+	public static final double DAMAGE = 4.0;
 
 	/**
 	 * A swing a second: the player base of 4 lands on 1, which is what the tooltip prints.
