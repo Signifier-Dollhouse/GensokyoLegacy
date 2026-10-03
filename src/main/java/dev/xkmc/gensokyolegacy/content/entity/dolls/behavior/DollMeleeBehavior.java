@@ -19,20 +19,22 @@ import java.util.Optional;
 
 /**
  * Regular attack, melee variant: charge the target at twice the movement cap, cut
- * the swing on contact, then bounce off and fly back to where the charge began.
+ * the swing on contact, recoil off it, hold the spot for {@link #HOLD_TICKS} ticks,
+ * then fly back to where the charge began.
  * {@link DollLanceItem} only ({@code DollBehaviors}).
  * <p>
  * The ticket leaves <b>on impact</b> — that is the point of charging inside a
  * volley: {@code complete()} hands the attack to the next doll while this one is
- * already on its way home, so a charging doll never stalls the chain. The behavior
- * outlives its ticket through {@link #selfDriven} and is released once the doll is
- * at least half way back — or {@link #RETURN_TICKS} runs out, for a return
- * stalled against a wall — after which follow takes the doll over again.
+ * already sitting on its target. The behavior outlives its ticket through
+ * {@link #selfDriven} — the hold always runs out, and the flight is released once
+ * the doll is at least half way back, or {@link #RETURN_TICKS} runs out for a
+ * return stalled against a wall — after which follow takes the doll over again.
  * <p>
- * Both legs are plain velocity rather than a path: a charge has to be a straight
- * lunge, not a detour, and it has to outrun {@link BaseDollEntity#MAX_SPEED}, so
- * the behavior raises the movement cap for the charge and drops it back in
- * {@link #stop}. The charge is exempt from the owner leash for its length — it is
+ * The charge and the return are plain velocity rather than a path: a charge has to
+ * be a straight lunge, not a detour, and it has to outrun
+ * {@link BaseDollEntity#MAX_SPEED}, so the behavior raises the movement cap for
+ * the charge and drops it back the moment the swing lands ({@link #stop} is the
+ * backstop). The charge is exempt from the owner leash for its length — it is
  * a bounded dash that ends back on the exact spot it left, so {@link #CHARGE_REACH}
  * is what bounds it instead, and what stops a target from dragging a doll across a
  * field it was never meant to leave.
@@ -81,11 +83,22 @@ public class DollMeleeBehavior extends DollBehavior {
 	 */
 	private static final int STALL_TICKS = 10;
 
+	/**
+	 * Ticks the doll hangs on the spot the swing landed on before it turns for
+	 * home. The lunge ends on contact, so without a beat here the doll snaps
+	 * straight from "in the target's face" to "flying away" and the swing never
+	 * reads; the hold is what makes the strike land as a hit rather than a pass-by.
+	 * Fixed rather than budgeted — it ends on its own, so it cannot strand a doll
+	 * the way a stalled return would.
+	 */
+	private static final int HOLD_TICKS = 6;
+
 	/** Return budget: the way home is straight and at full flight speed. */
 	private static final int RETURN_TICKS = 60;
 
 	private static final int CHARGE = 0;
-	private static final int RETURN = 1;
+	private static final int HOLD = 1;
+	private static final int RETURN = 2;
 
 	private int phase;
 	private int ticks;
@@ -117,17 +130,20 @@ public class DollMeleeBehavior extends DollBehavior {
 	public boolean canContinueToUse(DollEntity doll) {
 		DollAction action = current(doll);
 		if (action == null) return false;
-		// A ticket that showed up mid-return preempts the flight: the return never
-		// outlives an order, so the goal re-evaluates and this one steps aside.
-		if (phase == RETURN) return false;
+		// A ticket that showed up after the swing preempts the tail: neither the
+		// hold nor the flight home ever outlives an order, so the goal re-evaluates
+		// and this one steps aside.
+		if (phase != CHARGE) return false;
 		LivingEntity target = resolveTarget(doll, action);
 		return target != null && hand(doll).isPresent();
 	}
 
 	@Override
 	public boolean selfDriven(DollEntity doll) {
-		if (phase != RETURN || ticks >= RETURN_TICKS) return false;
-		return doll.position().distanceToSqr(home) > halfLeg * halfLeg;
+		if (phase == CHARGE) return false;
+		// The hold ends on its own tick count, so it needs no release test.
+		if (phase == HOLD) return true;
+		return ticks < RETURN_TICKS && doll.position().distanceToSqr(home) > halfLeg * halfLeg;
 	}
 
 	/**
@@ -165,6 +181,10 @@ public class DollMeleeBehavior extends DollBehavior {
 
 	@Override
 	public void tick(DollEntity doll) {
+		if (phase == HOLD) {
+			hold(doll);
+			return;
+		}
 		if (phase == RETURN) {
 			flyHome(doll);
 			return;
@@ -218,7 +238,7 @@ public class DollMeleeBehavior extends DollBehavior {
 		doll.broadcastAttackAnim();
 		doll.actions.stamp(type(), doll.level().getGameTime());
 		doll.actions.complete(doll);
-		beginReturn(doll);
+		beginHold(doll);
 		doll.setDeltaMovement(doll.getDeltaMovement().scale(-RECOIL));
 	}
 
@@ -227,7 +247,7 @@ public class DollMeleeBehavior extends DollBehavior {
 		// variant in GLAttackListener#onCreateSource, which covers every doll melee
 		// rather than only this behavior.
 		DamageSource source = doll.damageSources().mobAttack(doll);
-		if (!target.hurt(source, meleeDamage(weapon))) return;
+		if (!target.hurt(source, meleeDamage(doll, weapon))) return;
 		Vec3 push = new Vec3(toTarget.x, 0, toTarget.z);
 		if (push.lengthSqr() < 1e-6) return;
 		push = push.normalize();
@@ -235,40 +255,67 @@ public class DollMeleeBehavior extends DollBehavior {
 	}
 
 	/**
-	 * Melee damage: the vanilla attack-damage base plus the held weapon's own
-	 * damage. Both melee weapons keep that in {@link ItemAttributeModifiers}
-	 * rather than behind a getter, declared as a flat main-hand modifier, so
-	 * summing them is exactly the weapon's damage (6 for a {@link DollLanceItem},
-	 * 5 for an iron sword, 7 for the swing in total).
+	 * Melee damage: the doll's own {@link Attributes#ATTACK_DAMAGE} — a real
+	 * attribute instance ({@code createAttributes}), so whatever moves it moves the
+	 * swing — plus the ledger weapon's main-hand modifiers.
 	 * <p>
-	 * The base is read off the attribute itself, not through
-	 * {@code getAttributeValue}: dolls register no attack-damage attribute
-	 * ({@code createAttributes} adds only health, follow range and fall damage) and
-	 * the loadout is deliberately not vanilla equipment, so the attribute map has no
-	 * instance to read — it throws for an unknown attribute rather than answering the
-	 * default. 2.0 is what the doll would carry if it did register one.
+	 * That addition is the whole point, and it is what being off-hand equipment costs:
+	 * a lance is <b>not</b> an item in the doll's hand. The loadout is deliberately
+	 * not vanilla equipment (loadout.md §2), so nothing feeds the held stack's
+	 * {@link ItemAttributeModifiers} into the entity's attribute map the way an
+	 * equipped weapon's are, and the attribute alone answers the bare base — the same
+	 * 1 a player swings with — which is a charge that ignores its weapon entirely. So
+	 * the main-hand {@code ATTACK_DAMAGE} entries are folded in at swing time, which
+	 * is vanilla's own base-plus-weapon arithmetic: <b>5</b> for a
+	 * {@link DollLanceItem} (1 + its 4).
+	 * <p>
+	 * Damage only. Attack speed is a doll-side cadence ({@link #COOLDOWN_TICKS}),
+	 * not an attribute read, and enchantments ride the attacker's vanilla held item,
+	 * which a loadout is not — so a Sharpened lance swings for its flat damage, the
+	 * same as a doll's danmaku item does.
 	 */
-	private float meleeDamage(ItemStack weapon) {
-		double attribute = Attributes.ATTACK_DAMAGE.value().getDefaultValue();
+	private float meleeDamage(DollEntity doll, ItemStack weapon) {
 		double weaponDamage = weapon.getAttributeModifiers().modifiers().stream()
 				.filter(entry -> Attributes.ATTACK_DAMAGE.equals(entry.attribute()))
 				.filter(entry -> entry.slot().test(EquipmentSlot.MAINHAND))
 				.mapToDouble(entry -> entry.modifier().amount())
 				.sum();
-		return (float) (attribute + weaponDamage);
+		return (float) (doll.getAttributeValue(Attributes.ATTACK_DAMAGE) + weaponDamage);
 	}
 
 	/** No hit, but the ticket still goes out — a charge given up costs nothing. */
 	private void abort(DollEntity doll) {
 		doll.actions.complete(doll);
+		doll.setSpeedCap(RETURN_SPEED);
 		beginReturn(doll);
+	}
+
+	/**
+	 * The strike landed: the charge is over, so the doubled cap goes back to the
+	 * ordinary one here rather than at the end of the tail.
+	 */
+	private void beginHold(DollEntity doll) {
+		phase = HOLD;
+		ticks = 0;
+		doll.setSpeedCap(RETURN_SPEED);
+	}
+
+	/**
+	 * Park on the spot for {@link #HOLD_TICKS}, facing whatever the body was
+	 * turned onto at impact (the target), then turn for home. Velocity is pinned
+	 * rather than merely not set: the recoil from the swing still has to be eaten
+	 * here, and a doll is no-gravity, so an unpinned tick drifts off the mark the
+	 * strike just made.
+	 */
+	private void hold(DollEntity doll) {
+		doll.setDeltaMovement(Vec3.ZERO);
+		if (++ticks >= HOLD_TICKS) beginReturn(doll);
 	}
 
 	private void beginReturn(DollEntity doll) {
 		phase = RETURN;
 		ticks = 0;
 		halfLeg = home.subtract(doll.position()).length() * 0.5;
-		doll.setSpeedCap(RETURN_SPEED);
 	}
 
 	private void flyHome(DollEntity doll) {

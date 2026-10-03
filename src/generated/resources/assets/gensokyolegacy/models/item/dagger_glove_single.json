@@ -1,6 +1,36 @@
 {
-  "parent": "minecraft:item/generated",
-  "textures": {
-    "layer0": "gensokyolegacy:item/tool/dagger_glove_single"
+  "base": {
+    "parent": "minecraft:item/generated",
+    "textures": {
+      "layer0": "gensokyolegacy:item/dagger_glove/dagger_glove_single"
+    }
+  },
+  "gui_light": "front",
+  "loader": "neoforge:separate_transforms",
+  "perspectives": {
+    "firstperson_lefthand": {
+      "parent": "gensokyolegacy:custom/dagger_glove_hand",
+      "textures": {
+        "0": "gensokyolegacy:item/dagger_glove/dagger_glove_hand_single"
+      }
+    },
+    "firstperson_righthand": {
+      "parent": "gensokyolegacy:custom/dagger_glove_hand",
+      "textures": {
+        "0": "gensokyolegacy:item/dagger_glove/dagger_glove_hand_single"
+      }
+    },
+    "thirdperson_lefthand": {
+      "parent": "gensokyolegacy:custom/dagger_glove_hand",
+      "textures": {
+        "0": "gensokyolegacy:item/dagger_glove/dagger_glove_hand_single"
+      }
+    },
+    "thirdperson_righthand": {
+      "parent": "gensokyolegacy:custom/dagger_glove_hand",
+      "textures": {
+        "0": "gensokyolegacy:item/dagger_glove/dagger_glove_hand_single"
+      }
+    }
   }
 }

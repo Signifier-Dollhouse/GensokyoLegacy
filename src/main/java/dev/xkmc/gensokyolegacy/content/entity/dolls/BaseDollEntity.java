@@ -126,6 +126,7 @@ public abstract class BaseDollEntity extends DamageRefactorEntity implements Own
 	public static AttributeSupplier.Builder createAttributes() {
 		return PathfinderMob.createMobAttributes()
 				.add(Attributes.MAX_HEALTH, DEFAULT_MAX_HEALTH)
+				.add(Attributes.ATTACK_DAMAGE, 1)
 				.add(Attributes.FOLLOW_RANGE, 48)
 				.add(Attributes.FALL_DAMAGE_MULTIPLIER, 0);
 	}

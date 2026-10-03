@@ -17,6 +17,12 @@ import java.util.Optional;
 /**
  * Built-in item → action bindings. Lazily registered on first
  * {@link DollBehaviorRegistry#findHand} so no mod-constructor wiring is needed.
+ * <p>
+ * Each line's last flag is whether the behavior <b>spends</b> what the doll holds
+ * (one per use), which is also what lets that item stack in a loadout hand
+ * ({@link DollBehaviorRegistry#spendsOnUse}, loadout.md §4): the throwable
+ * hexbrew, the laser and the TNT are ammunition, while a danmaku item, the lance
+ * and a folded talisman are one item per hand however big their own stack is.
  */
 public final class DollBehaviors {
 
@@ -33,26 +39,26 @@ public final class DollBehaviors {
 		ready = true;
 		DollBehaviorRegistry.register("danmaku",
 				stack -> stack.getItem() instanceof DanmakuItem,
-				DollActionType.REGULAR_ATTACK, 0, DollDanmakuBehavior::new);
+				DollActionType.REGULAR_ATTACK, 0, false, DollDanmakuBehavior::new);
 		// Below danmaku: a doll holding both keeps shooting, since the shot has no
 		// range limit while the charge gives up past 16 blocks. So the lance is what
 		// a doll with no danmaku item does instead.
 		DollBehaviorRegistry.register("doll_lance",
 				stack -> stack.is(GLItems.DOLL_LANCE.get()),
-				DollActionType.REGULAR_ATTACK, -1, DollMeleeBehavior::new);
+				DollActionType.REGULAR_ATTACK, -1, false, DollMeleeBehavior::new);
 		DollBehaviorRegistry.register("laser",
 				stack -> stack.getItem() instanceof LaserItem,
-				DollActionType.SUPER_ATTACK, 10, DollLaserBehavior::new);
+				DollActionType.SUPER_ATTACK, 10, true, DollLaserBehavior::new);
 		DollBehaviorRegistry.register("hexbrew",
 				stack -> stack.getItem() instanceof HexBrewBottleItem bottle &&
 						bottle.getHexBrew().handler.isThrowable(),
-				DollActionType.SUPER_ATTACK, 0, DollThrowBehavior::new);
+				DollActionType.SUPER_ATTACK, 0, true, DollThrowBehavior::new);
 		DollBehaviorRegistry.register("tnt",
 				stack -> stack.is(Items.TNT),
-				DollActionType.SUICIDE_ATTACK, 0, DollSuicideBehavior::new);
+				DollActionType.SUICIDE_ATTACK, 0, false, DollSuicideBehavior::new);
 		DollBehaviorRegistry.register("heal_talisman",
 				DollBehaviors::isUsableHealTalisman,
-				DollActionType.HEAL, 0, DollHealBehavior::new);
+				DollActionType.HEAL, 0, false, DollHealBehavior::new);
 	}
 
 	public static boolean isUsableHealTalisman(ItemStack stack) {
