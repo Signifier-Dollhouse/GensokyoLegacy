@@ -373,8 +373,8 @@ Mirror of `DollGloveSelectionListener` (`glove.md` §3), minus the display-compo
   `gensokyolegacy:dagger_glove`, `test(stack)` = `instanceof DaggerGloveItem`. All three modes are
   always available, so `getList` is just the enum and `getSelHash` is constant.
 - `DaggerGloveModeWheel` (`PersistentWheel<DaggerGloveModeEntry>`) + `DaggerGloveModeEntry` render
-  one entry per mode; `select(index)` sends `DaggerGloveSelectPacket(0, ordinal)`.
-- `DaggerGloveSelectPacket(int wheel, int index)` — server-side mode switch on the held glove.
+  one entry per mode; `select(index)` sends `SelectorSelectPacket(index)`, shared with the doll glove and the umbrella.
+- No glove-specific select packet: the mode pick rides the shared selector-wheel packet, `content/item/selector/SelectorSelectPacket.java`, which resolves the held stack to its own `IItemSelector` and calls `swap`.
 - Data components: `DAGGER_GLOVE_MODE` (`DC.enumVal` over the enum, persistent) and
   `DAGGER_GLOVE_RUNE` (`DC.loc`).
 
@@ -471,7 +471,7 @@ zh_cn is hand-authored in the split per-category files, then merged by the
   `L2ISTagGen.SELECTABLE` so the wheel offers it, like the doll glove.
 - Mod constructor — `DaggerGloveSelectionListener.register()` beside
   `DollGloveSelectionListener.register()`; `GensokyoLegacy.HANDLER` registers
-  `DaggerGloveSelectPacket`. The target cache needs nothing of its own: `GloveTargetPacket`,
+  the shared `SelectorSelectPacket`. The target cache needs nothing of its own: `GloveTargetPacket`,
   `GLMeta.GLOVE_TARGET` and the client tick all come with the doll glove (§2d).
 - `GLLang.ItemDaggerGlove` — mode names and descriptions, the rune line, `no_dagger`, `no_target`.
   The tooltip reuses `GLLang.ItemGlove.WHEEL` for the "hold the wheel key" hint rather than
@@ -521,7 +521,7 @@ the target cache in `content/item/targeting/` (§2d) and the held-hand wiring in
   first stage's return (extends danmaku_api's `TrailAction`)
 - `content/item/dagger/DaggerGloveRune.java`, `DaggerGloveRunes.java`
 - `content/item/dagger/DaggerGloveSelectionListener.java`
-- `content/item/dagger/network/DaggerGloveSelectPacket.java`
+- `content/item/selector/SelectorSelectPacket.java` (the shared wheel mode pick this glove sends)
 - `content/item/dagger/client/DaggerGloveModeWheel.java`, `DaggerGloveModeEntry.java`
 - `content/item/targeting/GloveTargeting.java` (shared with the doll glove, §2d) — the client trace
   and the server store it drives are not this glove's and are not listed here

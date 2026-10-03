@@ -46,7 +46,7 @@ The cache is **shared**, not the doll glove's alone: `GloveTargeting` (`content/
 ## 3. Selector + wheel (umbrella mirror)
 
 - `DollGloveSelectionListener` — `extends IItemSelector implements WheelAdaptor.Provider`, id `gensokyolegacy:doll_glove`, `static register()` → `IItemSelector.register(INSTANCE)` (§4); `test(stack)` = `instanceof DollGloveItem`; `getIndex`/`getList`/`swap`/`move` read and write the `DOLL_GLOVE_MODE` component ordinal. The wheel and scroll cycle the visible modes only (`DollGloveModes.available`: summon + volley always, super/suicide while a summoned doll matches, the current mode always so the index never goes missing); the select packet carries ordinals.
-- `DollGloveModeWheel` — `PersistentWheel<DollGloveModeEntry>` over the visible modes; `DollGloveModeEntry(mode)` renders `DollGloveItem.displayStack(mode)`; `select(index)` sends `DollGloveSelectPacket(0, ordinal)`.
+- `DollGloveModeWheel` — `PersistentWheel<DollGloveModeEntry>` over the visible modes; `DollGloveModeEntry(mode)` renders `DollGloveItem.displayStack(mode)`; `select(index)` sends `SelectorSelectPacket(ordinal)` — the shared selector-wheel pick every wheel-owning item uses.
 - Default `WheelKeyHandler` (no manage screen / fake wheel needed).
 - New data component: `DOLL_GLOVE_MODE` (`DC.int`, default 0) on the glove stack (§5).
 
@@ -58,14 +58,14 @@ The cache is **shared**, not the doll glove's alone: `GloveTargeting` (`content/
 
 ## 4. Network
 
-- `DollGloveSelectPacket(int wheel, int index)` — server-side mode switch on the held glove (mirror `BorderUmbrellaSelectPacket`); index is a mode ordinal.
+- `SelectorSelectPacket(int index)` — server-side mode switch on the held glove; shared by every selector item (the umbrella's mode wheel and both gloves'), so a wheel pick and a scroll pick are the same code path and the glove has no packet of its own. Index is a mode ordinal.
 - `GloveTargetPacket(Item glove, UUID target)` — client→server target sync on every cache refresh (§2); one packet for every targeting glove, the item naming its own slot. The server keeps one cached UUID + timestamp per glove per player (`GloveTargetAttachment`) and re-validates on `use()` (alive, ≤48 blocks, not ally), against that glove's own TTL and range.
 - `DollGloveSwingPacket()` — client→server left-click-empty while the glove is held in an attack mode; runs the attack at the cached target without the editor check. No other packets required: all commands run server-side, the ledger is server-side, and slot sync rides the existing entity data (loadout.md §3).
 
 ## 5. Registration
 
 - `GLItems` — `DOLL_GLOVE` = `reg.item("doll_glove", p -> new DollGloveItem(p.stacksTo(1)))` + `.model(generated item/doll_glove + 6 ascending `glove_display` overrides → `item/glove_<mode>` sub-models)` + `.lang("Seven-Colored Doll Glove")` + tab + `DOLL_GLOVE_MODE` DCVal + `DOLL_GLOVE_DISPLAY` unit component (§3b).
-- Mod constructor — `DollGloveSelectionListener.register()` beside `BorderUmbrellaSelectionListener.register()`; `GensokyoLegacy.HANDLER` registers `DollGloveSelectPacket` + `GloveTargetPacket`; the `CodecHandler<ItemStack>` (loadout.md §2) alongside `FluidIngredient`. `GLMeta` registers the `GLOVE_TARGET` attachment that holds the server-side cache; `GLClient` ticks the client cache from `ClientTickEvent.Post`.
+- Mod constructor — `DollGloveSelectionListener.register()` beside `BorderUmbrellaSelectionListener.register()`; `GensokyoLegacy.HANDLER` registers `SelectorSelectPacket` (shared) + `GloveTargetPacket`; the `CodecHandler<ItemStack>` (loadout.md §2) alongside `FluidIngredient`. `GLMeta` registers the `GLOVE_TARGET` attachment that holds the server-side cache; `GLClient` ticks the client cache from `ClientTickEvent.Post`.
 - `GLLang` — `ItemGlove` enum: mode names/descriptions plus a message for every non-trivial action (summoned count, recalled count + parked count, volley/super/suicide issued, stopped count, mark toggled/untoggled, no_target, no_doll, too_far, not_doll).
 - Textures — copy `temp/七色人偶手套.png` to `assets/gensokyolegacy/textures/item/doll_glove/doll_glove.png`; copy `temp/{summon,heal_mark,volley,super,suicide,stop}.png` to `assets/gensokyolegacy/textures/item/doll_glove/glove_<mode>.png` (§3b).
 - Mixins — target-glow mixin declared in `gensokyolegacy.mixins.json`.
@@ -78,7 +78,8 @@ The cache is **shared**, not the doll glove's alone: `GloveTargeting` (`content/
 - `content/item/glove/DollGloveSelectionListener.java`
 - `content/item/glove/DollGloveLeftClickHandler.java`
 - `content/item/glove/client/DollGloveModeWheel.java`, `DollGloveModeEntry.java`
-- `content/item/glove/network/DollGloveSelectPacket.java`, `DollGloveSwingPacket.java`
+- `content/item/glove/network/DollGloveSwingPacket.java`
+- `content/item/selector/SelectorSelectPacket.java` (the shared wheel mode pick, every selector item — not this glove's)
 - `content/item/targeting/` — the shared cache: `GloveTargeting.java` (the contract), `client/GloveTargetCache.java` (client trace, per-glove entries, glow marker source), `network/GloveTargetPacket.java`, and `content/attachment/glove/GloveTargetAttachment.java` (the server's per-glove hint store) — the cache never holds dolls; `GloveDollHover.java` (16-block doll hover trace: gold glow source for the mixin, overlay, and sidebar) is doll-only and stays here
 - `mixin/ClientGlowMixin.java` (single client entity-glow mixin, delegating to `content/client/ClientGlowManager.java`; glow rule for the cached UUID while the glove is held)
 

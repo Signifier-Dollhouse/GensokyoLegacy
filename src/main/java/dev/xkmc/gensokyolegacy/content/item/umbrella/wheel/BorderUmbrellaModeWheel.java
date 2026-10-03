@@ -1,9 +1,9 @@
 package dev.xkmc.gensokyolegacy.content.item.umbrella.wheel;
 
+import dev.xkmc.gensokyolegacy.content.item.selector.SelectorSelectPacket;
 import dev.xkmc.gensokyolegacy.content.item.umbrella.BorderUmbrellaItem;
 import dev.xkmc.gensokyolegacy.content.item.umbrella.BorderUmbrellaSelectionListener;
 import dev.xkmc.gensokyolegacy.content.item.umbrella.data.BorderUmbrellaMode;
-import dev.xkmc.gensokyolegacy.content.item.umbrella.network.BorderUmbrellaSelectPacket;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
@@ -50,7 +50,7 @@ public class BorderUmbrellaModeWheel implements PersistentWheel<BorderUmbrellaMo
 
 	@Override
 	public void select(int index) {
-		GensokyoLegacy.HANDLER.toServer(new BorderUmbrellaSelectPacket(0, index));
+		GensokyoLegacy.HANDLER.toServer(new SelectorSelectPacket(index));
 		// optimistic update
 		var avail = BorderUmbrellaSelectionListener.getAvailableModes(stack);
 		if (index >= 0 && index < avail.size()) {

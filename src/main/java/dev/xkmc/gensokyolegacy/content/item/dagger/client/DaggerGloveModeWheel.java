@@ -3,7 +3,7 @@ package dev.xkmc.gensokyolegacy.content.item.dagger.client;
 import dev.xkmc.gensokyolegacy.content.item.dagger.DaggerGloveItem;
 import dev.xkmc.gensokyolegacy.content.item.dagger.DaggerGloveMode;
 import dev.xkmc.gensokyolegacy.content.item.dagger.DaggerGloveSelectionListener;
-import dev.xkmc.gensokyolegacy.content.item.dagger.network.DaggerGloveSelectPacket;
+import dev.xkmc.gensokyolegacy.content.item.selector.SelectorSelectPacket;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.l2itemselector.wheel.PersistentWheel;
@@ -52,7 +52,7 @@ public class DaggerGloveModeWheel implements PersistentWheel<DaggerGloveModeEntr
 	public void select(int index) {
 		var modes = DaggerGloveMode.values();
 		if (index < 0 || index >= modes.length) return;
-		GensokyoLegacy.HANDLER.toServer(new DaggerGloveSelectPacket(0, index));
+		GensokyoLegacy.HANDLER.toServer(new SelectorSelectPacket(index));
 		// optimistic update, same as the doll glove: the held glove's own texture changes now, the
 		// server's answer only has to confirm it
 		DaggerGloveItem.setMode(stack, modes[index]);

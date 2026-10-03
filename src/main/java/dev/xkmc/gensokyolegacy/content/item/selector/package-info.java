@@ -1,7 +1,7 @@
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
 
-package dev.xkmc.gensokyolegacy.content.item.dagger.network;
+package dev.xkmc.gensokyolegacy.content.item.selector;
 
 import net.minecraft.MethodsReturnNonnullByDefault;
 

@@ -1,5 +1,7 @@
 package dev.xkmc.gensokyolegacy.content.item.tool;
 
+import dev.xkmc.gensokyolegacy.init.data.GLLang;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
@@ -9,7 +11,10 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
+
+import java.util.List;
 
 public class MermaidPearl extends Item {
 
@@ -29,6 +34,14 @@ public class MermaidPearl extends Item {
 			player.getCooldowns().addCooldown(this, 100);
 		}
 		return InteractionResultHolder.success(stack);
+	}
+
+	@Override
+	public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> list, TooltipFlag flag) {
+		list.add(GLLang.ItemTools.MERMAID_PEARL_LORE.get());
+		list.add(GLLang.ItemTools.MERMAID_PEARL_USE.get(
+				Component.translatable(MobEffects.DOLPHINS_GRACE.value().getDescriptionId()),
+				Component.translatable(MobEffects.CONDUIT_POWER.value().getDescriptionId())));
 	}
 
 }
