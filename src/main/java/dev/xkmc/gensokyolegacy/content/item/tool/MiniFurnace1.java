@@ -1,5 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.item.tool;
 
+import dev.xkmc.gensokyolegacy.content.item.common.InvClickItem;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.l2menustacker.screen.source.PlayerSlot;

@@ -4,7 +4,9 @@ import dev.xkmc.gensokyolegacy.content.attachment.doll.DollInventory;
 import dev.xkmc.gensokyolegacy.content.attachment.doll.MutableDollInventory;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.DollEntity;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.behavior.DollBehaviorRegistry;
+import dev.xkmc.gensokyolegacy.content.entity.dolls.impl.DollCoreTalisman;
 import dev.xkmc.gensokyolegacy.content.item.doll.DollSlot;
+import dev.xkmc.gensokyolegacy.content.item.talisman.core.FoldedPaperTalisman;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.items.IItemHandlerModifiable;
@@ -16,14 +18,15 @@ import org.jetbrains.annotations.Nullable;
  * 3 cloth (middle, the body-worn slot). A hand is <b>locked</b> to what a doll can
  * actually use — any bound item, plus the vanilla shield — and to a single item
  * per slot, the one exception being ammunition: an item a behavior spends one per
- * use, where N in the hand is N uses (loadout.md §4). Core and cloth are inert
- * single slots for now.
+ * use, where N in the hand is N uses (loadout.md §4). The core takes a folded
+ * talisman, which the doll wears rather than uses ({@link DollCoreTalisman}); cloth
+ * takes nothing yet.
  *
  * <p>The two rules live here because this is the only writer: {@link
  * #isItemValid} is what a click asks before placing (and what a hopper asks), and
- * {@link #handStackLimit} is what the menu slot reports per item, so vanilla's
- * own split arithmetic never moves more than the rule allows. The one other
- * writer, Alice's arming ({@code AliceDollHost.arm}), goes straight to the ledger
+ * {@link #stackLimit} is the per-item form of the count rule the menu slot reports,
+ * so vanilla's own split arithmetic never moves more than the rule allows. The one
+ * other writer, Alice's arming ({@code AliceDollHost.arm}), goes straight to the ledger
  * and is not gated by these — it only ever hands out star wands and folded
  * talismans, which both admit.
  *
@@ -41,7 +44,7 @@ public class DollLoadoutItemHandler implements IItemHandlerModifiable {
 	/**
 	 * The most one hand can ever hold: a full stack of the largest ammunition — TNT
 	 * at 64 (hexbrew bottles cap at 16 by their own item properties). What a hand
-	 * holds for any one item is {@link #handStackLimit}: {@link #getSlotLimit} cannot
+	 * holds for any one item is {@link #slotLimit}: {@link #getSlotLimit} cannot
 	 * see the stack, so it answers the ceiling and {@link #insertItem} applies the
 	 * real rule per write.
 	 */
@@ -61,15 +64,16 @@ public class DollLoadoutItemHandler implements IItemHandlerModifiable {
 	}
 
 	/**
-	 * How many of this stack one hand may hold: the item's own maximum when a
-	 * binding <b>spends</b> it (ammunition — a thrown hexbrew bottle, a fired laser,
-	 * a detonated TNT), otherwise a single item. Read from the menu through
+	 * How many of this stack a loadout slot may hold. A hand takes the item's own
+	 * maximum when a binding <b>spends</b> it (ammunition — a thrown hexbrew bottle,
+	 * a fired laser, a detonated TNT), otherwise a single item; core and cloth stay
+	 * single slots whatever the stack would otherwise allow. Read from the menu through
 	 * {@code Slot.getMaxStackSize(ItemStack)}, the one hook vanilla asks per item;
 	 * every placement path (click, number-key swap, shift-click, drag) sizes its
 	 * transfer with it, so nothing is ever over-written and then truncated away.
 	 */
-	public static int handStackLimit(ItemStack stack) {
-		if (stack.isEmpty()) return 1;
+	public static int slotLimit(DollSlot slot, ItemStack stack) {
+		if (!isHand(slot) || stack.isEmpty()) return 1;
 		return DollBehaviorRegistry.spendsOnUse(stack) ? stack.getMaxStackSize() : 1;
 	}
 
@@ -143,16 +147,18 @@ public class DollLoadoutItemHandler implements IItemHandlerModifiable {
 	}
 
 	/**
-	 * The loadout lock: a hand takes only what a doll could act with — any bound
+	 * The loadout lock, per slot. A hand takes only what a doll could act with — any bound
 	 * item, whatever the action type, plus the vanilla shield
-	 * ({@link DollBehaviorRegistry#usableInHand}). Core and cloth take nothing yet
-	 * (mechanical cores and cloth items are future work — open their predicate here
-	 * when they land).
+	 * ({@link DollBehaviorRegistry#usableInHand}). The core takes a folded talisman, which
+	 * the doll wears rather than uses ({@link DollCoreTalisman}); cloth takes nothing yet
+	 * (cloth that enables passive moves is future work — open its predicate here when it
+	 * lands).
 	 */
 	@Override
 	public boolean isItemValid(int slot, ItemStack stack) {
 		if (stack.isEmpty() || slot < 0 || slot >= getSlots()) return false;
 		DollSlot target = slotOf(slot);
+		if (target == DollSlot.CORE) return stack.getItem() instanceof FoldedPaperTalisman;
 		if (!isHand(target)) return false;
 		return DollBehaviorRegistry.usableInHand(stack);
 	}
@@ -164,9 +170,9 @@ public class DollLoadoutItemHandler implements IItemHandlerModifiable {
 		DollSlot target = slotOf(slot);
 		ItemStack current = getStackInSlot(slot).copy();
 		if (!current.isEmpty() && !ItemStack.isSameItemSameComponents(current, remainder)) return remainder;
-		// Per-item rule, not the slot ceiling: a hand takes one of anything but a
-		// whole stack of what it spends.
-		int limit = handStackLimit(remainder);
+		// Per-slot rule, not the slot ceiling: a hand takes one of anything but a whole stack
+		// of what it spends, and core and cloth always take exactly one.
+		int limit = slotLimit(target, remainder);
 		int move = Math.min(limit - current.getCount(), remainder.getCount());
 		if (move <= 0) return remainder;
 		if (simulate) {
@@ -201,6 +207,16 @@ public class DollLoadoutItemHandler implements IItemHandlerModifiable {
 		if (slot < 0 || slot >= getSlots()) return 0;
 		DollSlot target = slotOf(slot);
 		return isHand(target) ? HAND_LIMIT : 1;
+	}
+
+	/**
+	 * The same rule per item rather than per slot: {@link #getSlotLimit} cannot see the stack,
+	 * so the menu asks here instead (vanilla sizes every transfer with
+	 * {@code Slot.getMaxStackSize(ItemStack)}).
+	 */
+	public int stackLimit(int slot, ItemStack stack) {
+		if (slot < 0 || slot >= getSlots()) return 0;
+		return slotLimit(slotOf(slot), stack);
 	}
 
 }

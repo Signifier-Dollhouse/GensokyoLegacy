@@ -1,4 +1,4 @@
-package dev.xkmc.gensokyolegacy.content.item.glovehand;
+package dev.xkmc.gensokyolegacy.content.item.common;
 
 import com.tterrag.registrate.providers.RegistrateItemModelProvider;
 import net.minecraft.client.renderer.block.model.BlockModel;

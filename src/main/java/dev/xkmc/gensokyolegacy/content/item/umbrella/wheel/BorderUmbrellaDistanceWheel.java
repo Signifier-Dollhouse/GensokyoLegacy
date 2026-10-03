@@ -1,7 +1,7 @@
 package dev.xkmc.gensokyolegacy.content.item.umbrella.wheel;
 
 import dev.xkmc.gensokyolegacy.content.item.umbrella.BorderUmbrellaSelectionListener;
-import dev.xkmc.gensokyolegacy.content.item.umbrella.network.BorderUmbrellaSelectPacket;
+import dev.xkmc.gensokyolegacy.content.item.umbrella.network.BorderUmbrellaWheelSelectPacket;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
@@ -48,7 +48,7 @@ public class BorderUmbrellaDistanceWheel implements WheelAdaptor<BorderUmbrellaD
 
 	@Override
 	public void select(int index) {
-		GensokyoLegacy.HANDLER.toServer(new BorderUmbrellaSelectPacket(2, index));
+		GensokyoLegacy.HANDLER.toServer(new BorderUmbrellaWheelSelectPacket(2, index));
 		int dist = BorderUmbrellaDistanceEntry.distanceOf(index);
 		stack.set(GLItems.UMBRELLA_DISTANCE.get(), dist);
 	}

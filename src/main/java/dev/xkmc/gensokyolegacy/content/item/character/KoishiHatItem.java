@@ -1,6 +1,8 @@
 package dev.xkmc.gensokyolegacy.content.item.character;
 
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
+import dev.xkmc.gensokyolegacy.init.data.GLLang;
+import dev.xkmc.gensokyolegacy.init.data.GLModConfig;
 import dev.xkmc.gensokyolegacy.init.registrate.GLEffects;
 import dev.xkmc.l2core.base.effects.EffectUtil;
 import net.minecraft.core.Holder;
@@ -46,7 +48,11 @@ public class KoishiHatItem extends TouhouHatItem {
 
 	@Override
 	public void appendHoverText(ItemStack stack, TooltipContext level, List<Component> list, TooltipFlag flag) {
-		//	RolePlayHandler.addTooltips(list, GLLang.ItemCommon.OBTAIN_KOISHI_HAT.get(Component.literal("" + GLModConfig.SERVER.koishiAttackBlockCount.get())), GLLang.ItemCommon.USAGE_KOISHI_HAT.get(Component.translatable(GLEffects.UNCONSCIOUS.get().getDescriptionId())));
+		list.add(GLLang.ItemCommon.LORE_KOISHI_HAT.get());
+		list.add(GLLang.ItemCommon.OBTAIN_KOISHI_HAT.get(
+				Component.literal("" + GLModConfig.SERVER.koishiAttackBlockCount.get())));
+		list.add(GLLang.ItemCommon.USAGE_KOISHI_HAT.get(
+				Component.translatable(GLEffects.UNCONSCIOUS.get().getDescriptionId())));
 	}
 
 	@Override

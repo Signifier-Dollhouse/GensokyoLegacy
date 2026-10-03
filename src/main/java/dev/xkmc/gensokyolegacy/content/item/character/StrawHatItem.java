@@ -1,6 +1,7 @@
 package dev.xkmc.gensokyolegacy.content.item.character;
 
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
+import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.gensokyolegacy.init.registrate.GLCriteriaTriggers;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
 import net.minecraft.network.chat.Component;
@@ -36,7 +37,6 @@ public class StrawHatItem extends TouhouHatItem {
 	public InteractionResult interactLivingEntity(ItemStack stack, Player player, LivingEntity target, InteractionHand hand) {
 		if (!(target instanceof Frog frog))
 			return InteractionResult.PASS;
-		//if (!RolePlayHandler.hasAbility(player)) return InteractionResult.FAIL;
 		if (!GLMeta.FROG_GOD.type().isProper(frog))
 			return InteractionResult.FAIL;
 		var cap = GLMeta.FROG_GOD.type().getOrCreate(frog);
@@ -54,7 +54,8 @@ public class StrawHatItem extends TouhouHatItem {
 
 	@Override
 	public void appendHoverText(ItemStack stack, TooltipContext level, List<Component> list, TooltipFlag flag) {
-		//	RolePlayHandler.addTooltips(list, null, GLLang.ItemCommon.USAGE_STRAW_HAT.get(RolePlayHandler.tooltipStart()));
+		list.add(GLLang.ItemCommon.LORE_STRAW_HAT.get());
+		list.add(GLLang.ItemCommon.USAGE_STRAW_HAT.get());
 	}
 
 }

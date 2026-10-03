@@ -24,7 +24,7 @@ This document reflects the current implementation in `content/entity/youkai/`, `
 | `GLBrains` | `init/registrate/GLBrains.java:15` | `SR`-registered sensors `SN_HOME/SN_HUNT/SN_ITEM/SN_LE/SN_PLAYER`, memories `MEM_PATH/MEM_PREY/MEM_DOWN/MEM_TALK/MEM_ITEMS`, activities `AT_HOME/HUNT/DOWN/TALK`. |
 | `YoukaiModuleHolder` | `content/entity/module/YoukaiModuleHolder.java` | `List<AbstractYoukaiModule>` + `Map<Class,Optional>` cache + `hasPickup` flag. Iterable. |
 | `HomeModule` | `content/entity/module/HomeModule.java` | `@SerialField StructureKey home` (immovable — structures/BEs never move, so no re-binding needed). `tickServer → BedRefData.entityTick`, `onKilled → onEntityDie`. |
-| `YoukaiTargetContainer` | `content/entity/youkai/YoukaiTargetContainer.java` | `@SerialField LinkedHashSet<UUID> list` (maxSize 10/8). Maintains hostile UUIDs; `tick()` promotes `lastHurtByMob`/target. |
+| `YoukaiTargetContainer` | `content/entity/behavior/combat/YoukaiTargetContainer.java` | `@SerialField LinkedHashSet<UUID> list` (maxSize 10/8). Maintains hostile UUIDs; `tick()` promotes `lastHurtByMob`/target. |
 
 ## 2. Hierarchy
 

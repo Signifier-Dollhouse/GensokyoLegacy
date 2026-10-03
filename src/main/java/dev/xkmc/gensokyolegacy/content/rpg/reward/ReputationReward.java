@@ -5,7 +5,9 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.rpg.quest.QuestReward;
+import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 
 public record ReputationReward(
@@ -28,6 +30,11 @@ public record ReputationReward(
 	@Override
 	public void execute(ServerPlayer sp, YoukaiEntity ch) {
 		GLMeta.CHAR.type().getOrCreate(sp).get(sp, ch).gain(reputation, softCap, capIncrease, maxCap);
+	}
+
+	@Override
+	public Component getDesc() {
+		return GLLang.JeiExtra.REWARD_REPUTATION.get(reputation);
 	}
 
 }

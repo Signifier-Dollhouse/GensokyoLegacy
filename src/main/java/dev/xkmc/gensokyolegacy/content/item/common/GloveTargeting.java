@@ -1,4 +1,4 @@
-package dev.xkmc.gensokyolegacy.content.item.targeting;
+package dev.xkmc.gensokyolegacy.content.item.common;
 
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;

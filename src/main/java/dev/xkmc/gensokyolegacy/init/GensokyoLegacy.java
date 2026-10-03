@@ -4,37 +4,14 @@ import com.github.tartaricacid.touhoulittlemaid.TouhouLittleMaid;
 import com.tterrag.registrate.providers.ProviderType;
 import dev.xkmc.gensokyolegacy.compat.touhoulittlemaid.TLMCompat;
 import dev.xkmc.gensokyolegacy.compat.touhoulittlemaid.TouhouSpellCards;
-import dev.xkmc.gensokyolegacy.content.attachment.area.AreaEffectSyncPacket;
-import dev.xkmc.gensokyolegacy.content.attachment.character.CharDataToClient;
-import dev.xkmc.gensokyolegacy.content.attachment.doll.DollRosterToClient;
-import dev.xkmc.gensokyolegacy.content.attachment.misc.FrogSyncPacket;
-import dev.xkmc.gensokyolegacy.content.attachment.misc.KoishiStartPacket;
-import dev.xkmc.gensokyolegacy.content.client.debug.*;
-import dev.xkmc.gensokyolegacy.content.client.structure.*;
 import dev.xkmc.gensokyolegacy.content.dimension.GLDimensionGen;
-import dev.xkmc.gensokyolegacy.content.entity.behavior.move.PathDataToClient;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.move.YoukaiNodeEvaluatorRegistry;
-import dev.xkmc.gensokyolegacy.content.entity.foundation.CombatToClient;
 import dev.xkmc.gensokyolegacy.content.item.glove.DollGloveSelectionListener;
 import dev.xkmc.gensokyolegacy.content.item.dagger.DaggerGloveSelectionListener;
-import dev.xkmc.gensokyolegacy.content.item.dagger.network.DaggerGloveSelectPacket;
-import dev.xkmc.gensokyolegacy.content.item.glove.network.DollGloveSelectPacket;
-import dev.xkmc.gensokyolegacy.content.item.glove.network.DollGloveSwingPacket;
-import dev.xkmc.gensokyolegacy.content.item.targeting.network.GloveTargetPacket;
 import dev.xkmc.gensokyolegacy.content.item.hexbrew.HexBrew;
 import dev.xkmc.gensokyolegacy.content.item.hexbrew.HexBrewWrapper;
-import dev.xkmc.gensokyolegacy.content.item.tool.CatBell;
-import dev.xkmc.gensokyolegacy.content.item.tool.Dowser;
 import dev.xkmc.gensokyolegacy.content.item.umbrella.BorderUmbrellaSelectionListener;
-import dev.xkmc.gensokyolegacy.content.item.umbrella.network.*;
 import dev.xkmc.gensokyolegacy.content.rpg.core.CodecRegistry;
-import dev.xkmc.gensokyolegacy.content.rpg.network.DialogClickToServer;
-import dev.xkmc.gensokyolegacy.content.rpg.network.DialogCloseToClient;
-import dev.xkmc.gensokyolegacy.content.rpg.network.DialogCloseToServer;
-import dev.xkmc.gensokyolegacy.content.rpg.network.FirstDialogToClient;
-import dev.xkmc.gensokyolegacy.content.rpg.network.QuestStatusToClient;
-import dev.xkmc.gensokyolegacy.content.rpg.network.SimpleDialogToClient;
-import dev.xkmc.gensokyolegacy.content.rpg.network.TradeStatusToClient;
 import dev.xkmc.gensokyolegacy.event.GLAttackListener;
 import dev.xkmc.gensokyolegacy.event.GLClickHandler;
 import dev.xkmc.gensokyolegacy.init.data.*;
@@ -52,22 +29,16 @@ import dev.xkmc.gensokyolegacy.init.data.structure.GLStructureTagGen;
 import dev.xkmc.gensokyolegacy.init.data.structure.ReportBlocksInStructure;
 import dev.xkmc.gensokyolegacy.init.registrate.*;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLBlocks;
-import dev.xkmc.gensokyolegacy.init.registrate.block.GLDecoBlocks;
-import dev.xkmc.gensokyolegacy.init.registrate.block.GLNaturalBlocks;
 import dev.xkmc.gensokyolegacy.mixin.ItemAccessor;
 import dev.xkmc.l2core.compat.patchouli.PatchouliHelper;
 import dev.xkmc.l2core.init.reg.registrate.L2Registrate;
 import dev.xkmc.l2core.init.reg.simple.Reg;
 import dev.xkmc.l2damagetracker.contents.attack.AttackEventHandler;
 import dev.xkmc.l2serial.network.PacketHandler;
-import dev.xkmc.l2serial.serialization.custom_handler.CodecHandler;
-import dev.xkmc.l2serial.serialization.custom_handler.Handlers;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.DispenserBlock;
-import net.minecraft.world.level.material.Fluid;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModList;
@@ -78,7 +49,6 @@ import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
-import net.neoforged.neoforge.fluids.crafting.FluidIngredient;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import terrablender.api.Regions;
@@ -95,52 +65,7 @@ public class GensokyoLegacy {
 	public static final String MODID = "gensokyolegacy";
 	public static final Reg REG = new Reg(MODID);
 	public static final L2Registrate REGISTRATE = new L2Registrate(MODID);
-	public static final PacketHandler HANDLER = new PacketHandler(MODID, 2,
-			e -> e.create(CharDataToClient.class, PacketHandler.NetDir.PLAY_TO_CLIENT),
-			e -> e.create(PathDataToClient.class, PacketHandler.NetDir.PLAY_TO_CLIENT),
-			e -> e.create(BlockRequestToServer.class, PacketHandler.NetDir.PLAY_TO_SERVER),
-			e -> e.create(BlockInfoToClient.class, PacketHandler.NetDir.PLAY_TO_CLIENT),
-			e -> e.create(CharacterRequestToServer.class, PacketHandler.NetDir.PLAY_TO_SERVER),
-			e -> e.create(DoorRequestToServer.class, PacketHandler.NetDir.PLAY_TO_SERVER),
-			e -> e.create(CharacterInfoToClient.class, PacketHandler.NetDir.PLAY_TO_CLIENT),
-			e -> e.create(StructureBoundUpdateToClient.class, PacketHandler.NetDir.PLAY_TO_CLIENT),
-			e -> e.create(CustomStructureBoundUpdateToClient.class, PacketHandler.NetDir.PLAY_TO_CLIENT),
-			e -> e.create(StructureInfoRequestToServer.class, PacketHandler.NetDir.PLAY_TO_SERVER),
-			e -> e.create(StructureInfoUpdateToClient.class, PacketHandler.NetDir.PLAY_TO_CLIENT),
-			e -> e.create(StructureRepairToServer.class, PacketHandler.NetDir.PLAY_TO_SERVER),
-			e -> e.create(StructureEditToServer.class, PacketHandler.NetDir.PLAY_TO_SERVER),
-			e -> e.create(CombatToClient.class, PacketHandler.NetDir.PLAY_TO_CLIENT),
-			e -> e.create(AreaEffectSyncPacket.class, PacketHandler.NetDir.PLAY_TO_CLIENT),
-			e -> e.create(QuestStatusToClient.class, PacketHandler.NetDir.PLAY_TO_CLIENT),
-			e -> e.create(TradeStatusToClient.class, PacketHandler.NetDir.PLAY_TO_CLIENT),
-
-			// the dialog screen runs on no container menu, so it syncs over its own packets
-			e -> e.create(FirstDialogToClient.class, PacketHandler.NetDir.PLAY_TO_CLIENT),
-			e -> e.create(SimpleDialogToClient.class, PacketHandler.NetDir.PLAY_TO_CLIENT),
-			e -> e.create(DialogCloseToClient.class, PacketHandler.NetDir.PLAY_TO_CLIENT),
-			e -> e.create(DialogClickToServer.class, PacketHandler.NetDir.PLAY_TO_SERVER),
-			e -> e.create(DialogCloseToServer.class, PacketHandler.NetDir.PLAY_TO_SERVER),
-
-			e -> e.create(FrogSyncPacket.class, PacketHandler.NetDir.PLAY_TO_CLIENT),
-			e -> e.create(KoishiStartPacket.class, PacketHandler.NetDir.PLAY_TO_CLIENT),
-			e -> e.create(Dowser.DowserToClient.class, PacketHandler.NetDir.PLAY_TO_CLIENT),
-			e -> e.create(CatBell.MountToClient.class, PacketHandler.NetDir.PLAY_TO_CLIENT),
-
-			e -> e.create(BorderUmbrellaSelectPacket.class, PacketHandler.NetDir.PLAY_TO_SERVER),
-			e -> e.create(BorderUmbrellaRenamePacket.class, PacketHandler.NetDir.PLAY_TO_SERVER),
-			e -> e.create(BorderUmbrellaConfirmRecordPacket.class, PacketHandler.NetDir.PLAY_TO_SERVER),
-			e -> e.create(BorderUmbrellaDeletePacket.class, PacketHandler.NetDir.PLAY_TO_SERVER),
-			e -> e.create(BorderUmbrellaReorderPacket.class, PacketHandler.NetDir.PLAY_TO_SERVER),
-			e -> e.create(BorderUmbrellaOpenRenamePacket.class, PacketHandler.NetDir.PLAY_TO_CLIENT),
-
-			e -> e.create(DollGloveSelectPacket.class, PacketHandler.NetDir.PLAY_TO_SERVER),
-			e -> e.create(DollGloveSwingPacket.class, PacketHandler.NetDir.PLAY_TO_SERVER),
-			e -> e.create(DollRosterToClient.class, PacketHandler.NetDir.PLAY_TO_CLIENT),
-
-			// the shared glove target cache (glove.md §2): one packet for every targeting glove
-			e -> e.create(GloveTargetPacket.class, PacketHandler.NetDir.PLAY_TO_SERVER),
-			e -> e.create(DaggerGloveSelectPacket.class, PacketHandler.NetDir.PLAY_TO_SERVER)
-	);
+	public static final PacketHandler HANDLER = GLPackets.create(3);
 
 	public GensokyoLegacy() {
 

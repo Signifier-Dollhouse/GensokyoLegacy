@@ -1,7 +1,7 @@
-package dev.xkmc.gensokyolegacy.content.item.targeting.client;
+package dev.xkmc.gensokyolegacy.content.item.common.client;
 
-import dev.xkmc.gensokyolegacy.content.item.targeting.GloveTargeting;
-import dev.xkmc.gensokyolegacy.content.item.targeting.network.GloveTargetPacket;
+import dev.xkmc.gensokyolegacy.content.item.common.GloveTargeting;
+import dev.xkmc.gensokyolegacy.content.item.common.network.GloveTargetPacket;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.Entity;

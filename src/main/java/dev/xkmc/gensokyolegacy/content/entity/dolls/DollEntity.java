@@ -14,7 +14,7 @@ import net.minecraft.world.level.Level;
 import java.util.List;
 
 public class DollEntity extends BaseDollEntity
-		implements DollGeo, DollLoadout, DollShield, DollDanmakuAlly, DollStray, DollTint.Impl, DollStatus {
+		implements DollGeo, DollCoreTalisman, DollShield, DollDanmakuAlly, DollStray, DollTint.Impl, DollStatus {
 
 	public static final EntityDataAccessor<Integer> DATA_COLOR =
 			SynchedEntityData.defineId(DollEntity.class, EntityDataSerializers.INT);
@@ -61,6 +61,8 @@ public class DollEntity extends BaseDollEntity
 	public void tick() {
 		super.tick();
 		if (level().isClientSide() || isRemoved()) return;
+		// the core slot's talisman is passive: no ticket, no target, no order — just this
+		tickCoreTalisman();
 		syncActionStatus();
 		// last-resort path out of the stray cut (control.md §5.4): an idle
 		// stray rejoins its ledger on its own, no player input needed.

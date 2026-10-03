@@ -4,7 +4,7 @@ import dev.xkmc.gensokyolegacy.content.item.umbrella.BorderUmbrellaItem;
 import dev.xkmc.gensokyolegacy.content.item.umbrella.BorderUmbrellaSelectionListener;
 import dev.xkmc.gensokyolegacy.content.item.umbrella.data.BorderSlot;
 import dev.xkmc.gensokyolegacy.content.item.umbrella.data.BorderUmbrellaSlots;
-import dev.xkmc.gensokyolegacy.content.item.umbrella.network.BorderUmbrellaSelectPacket;
+import dev.xkmc.gensokyolegacy.content.item.umbrella.network.BorderUmbrellaWheelSelectPacket;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
@@ -54,7 +54,7 @@ public class BorderUmbrellaSlotWheel implements WheelAdaptor<BorderSlotEntry> {
 
 	@Override
 	public void select(int index) {
-		GensokyoLegacy.HANDLER.toServer(new BorderUmbrellaSelectPacket(1, index));
+		GensokyoLegacy.HANDLER.toServer(new BorderUmbrellaWheelSelectPacket(1, index));
 		stack.set(GLItems.UMBRELLA_SLOT_SELECTED.get(), Math.floorMod(index, BorderUmbrellaSlots.MAX_SLOTS));
 	}
 

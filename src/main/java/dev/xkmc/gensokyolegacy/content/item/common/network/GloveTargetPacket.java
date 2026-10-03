@@ -1,6 +1,6 @@
-package dev.xkmc.gensokyolegacy.content.item.targeting.network;
+package dev.xkmc.gensokyolegacy.content.item.common.network;
 
-import dev.xkmc.gensokyolegacy.content.item.targeting.GloveTargeting;
+import dev.xkmc.gensokyolegacy.content.item.common.GloveTargeting;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
 import dev.xkmc.l2serial.network.SerialPacketBase;
 import net.minecraft.server.level.ServerPlayer;

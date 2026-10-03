@@ -1,4 +1,4 @@
-package dev.xkmc.gensokyolegacy.content.item.tool;
+package dev.xkmc.gensokyolegacy.content.item.common;
 
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;

@@ -306,7 +306,7 @@ Update `gensokyolegacy.info.entity_reputation` to format `"Reputation: %d / %d"`
 3. `content/attachment/character/CharDataHolder.java` -- update `feed()`, `gain()` signatures
 4. `content/attachment/character/ReputationState.java` -- update `getState()` and `toInfo()` to use constants and show cap
 5. `content/rpg/reward/ReputationReward.java` -- add 2 new fields, update codec and execute
-6. `content/block/donation/DonationBoxBlockEntity.java` -- update `take()` and `getDebugPacket()`
+6. `content/block/deco/donation/DonationBoxBlockEntity.java` -- update `take()` and `getDebugPacket()`
 7. `content/entity/module/GiftModule.java` -- update gain call
 8. `content/client/debug/CharacterRequestToServer.java` -- pass cap to info packet
 9. `content/client/debug/CharacterInfoToClient.java` -- accept and store cap

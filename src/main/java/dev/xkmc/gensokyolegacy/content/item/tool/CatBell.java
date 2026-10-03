@@ -1,7 +1,9 @@
 package dev.xkmc.gensokyolegacy.content.item.tool;
 
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
+import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.l2serial.network.SerialPacketBase;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -13,7 +15,10 @@ import net.minecraft.world.entity.animal.Cat;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
+
+import java.util.List;
 
 public class CatBell extends Item {
 
@@ -59,6 +64,12 @@ public class CatBell extends Item {
 			player.getCooldowns().addCooldown(this, 100);
 		}
 		return InteractionResultHolder.success(stack);
+	}
+
+	@Override
+	public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> list, TooltipFlag flag) {
+		list.add(GLLang.ItemTools.CAT_BELL_LORE.get());
+		list.add(GLLang.ItemTools.CAT_BELL_USE.get());
 	}
 
 
