@@ -269,20 +269,22 @@ export async function loadCurrencyTag() {
 // the item section
 // ---------------------------------------------------------------------------
 
-/** Everything the item section needs, fetched on first use with one progress bar.
+/**
+ * What the item section needs that the registries do not carry: the guide book, which
+ * decides the categories and holds the prose, and the recipes plus quest reward tables,
+ * which decide where an item comes from.
  *
- * Recipes and the guide book are the bulk of it; the quest reward loot tables are
- * pulled in as well, since a quest's `loot_table` reward is where a lot of the
- * interesting items come from. Nothing here is derived ahead of time - every entry
- * is read from the JSON at its real path, so merging new content onto the branch is
- * all it takes for the site to show it. */
-export async function loadItems(progress) {
+ * The guide is small and is fetched with everything else, so the sidebar can list the
+ * categories and their counts from the first paint. The sources are a few hundred files
+ * and are fetched the first time an item is actually opened - the same trade-off the
+ * dialog tab makes. Nothing here is derived ahead of time: every entry is read from the
+ * JSON at its real path, so merging new content onto the branch is all it takes for the
+ * site to show it.
+ */
+export async function loadItemSources(progress) {
   const recipes = store.manifest.recipes;
-  const guideFiles = (store.manifest.guides ?? []).flatMap((book) =>
-    Object.values(book.locales).flatMap((locale) => [...locale.categories, ...locale.entries]),
-  );
   const questLoot = questLootTables();
-  const total = recipes.files.length + guideFiles.length + questLoot.size;
+  const total = recipes.files.length + questLoot.size;
   let done = 0;
   const tick = () => progress?.(++done, total);
 
@@ -301,7 +303,6 @@ export async function loadItems(progress) {
       }
       tick();
     }),
-    loadGuide(tick),
     pool([...questLoot.keys()], 8, async (table) => {
       const questId = questLoot.get(table);
       const drops = collectDrops(table, await loadLootTable(table));
@@ -345,7 +346,7 @@ function collectDrops(tableId, table) {
 }
 
 /** Fetches every guide book: the definition, plus each locale's pages. */
-async function loadGuide(progress) {
+export async function loadGuide(progress) {
   const books = [];
   for (const book of store.manifest.guides ?? []) {
     // A category is named `<namespace>:<folder>` in the book's own namespace, which is
@@ -390,11 +391,6 @@ export function guideLocale(book) {
   return book.locales[state.lang] ?? book.locales.en_us ?? Object.values(book.locales)[0];
 }
 
-/** The entries and categories of the first book, which is the only one for now. */
-export function guideBook() {
-  return store.guide?.books[0] ?? null;
-}
-
 /**
  * The item a recipe hands out. The crafting types produce one directly; the alchemy
  * and brewing types produce a fluid, which the game fills a `<fluid>_bottle` item
@@ -417,7 +413,7 @@ export function recipeOutputs(recipe) {
  * are read from the active locale, falling back to English, since an entry spotlights
  * the same items in every translation.
  */
-function buildItemIndex() {
+export function buildItemIndex() {
   const items = new Map();
   const entryFor = (id) => {
     let item = items.get(id);
@@ -481,14 +477,6 @@ function* registeredItems() {
       yield id;
     }
   }
-}
-
-/**
- * How many items the mod adds. Cheap enough to answer from the lang files alone, so
- * the tab badge is right before the recipes have loaded.
- */
-export function registeredItemCount() {
-  return [...registeredItems()].length;
 }
 
 /** Every item an entry is about: its icon, plus whatever it spotlights. */

@@ -8,8 +8,9 @@
 export const REPO = { owner: "Signifier-Dollhouse", name: "GensokyoLegacy", ref: "gh-page" };
 
 /** Content types, in tab order. `quest`/`daily` and `starters`/`dialog` each split
- *  one registry in two; `item` reads the recipes and the guide book instead. */
-export const TABS = ["quest", "daily", "trade", "starters", "dialog", "item"];
+ *  one registry in two; see `app.js` for what the split is. Items are not a tab -
+ *  they are a sidebar section of their own, since they belong to no character. */
+export const TABS = ["quest", "daily", "trade", "starters", "dialog"];
 
 function read(key, fallback) {
   try {
@@ -30,13 +31,17 @@ function write(key, value) {
 export const state = {
   lang: read("lang", (navigator.language || "en").toLowerCase().startsWith("zh") ? "zh_cn" : "en_us"),
   theme: read("theme", null),
+  /** Which sidebar section is showing: a character's content, or the item guide. */
+  section: "character",
   character: "all",
+  /** The guide category being listed, or null for every item. */
+  category: null,
   tab: "quest",
   query: "",
   /** Dialog files are only fetched the first time the dialog tab is opened. */
   dialogsLoaded: false,
-  /** Nor are recipes, the guide book or the quest reward tables, for the item tab. */
-  itemsLoaded: false,
+  /** Nor are the recipes and quest reward tables, behind the first item page. */
+  sourcesLoaded: false,
 };
 
 export function setLanguage(locale) {

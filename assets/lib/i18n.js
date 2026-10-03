@@ -20,7 +20,7 @@ const en_us = {
   "a11y.search": "Search",
   "a11y.language": "Language",
   "a11y.theme": "Toggle colour scheme",
-  "a11y.characters": "Characters",
+  "a11y.browse": "Browse",
   "a11y.contentType": "Content type",
   "a11y.detail": "Detail",
 
@@ -30,12 +30,12 @@ const en_us = {
   // -- navigation -----------------------------------------------------------
   "nav.characters": "Characters",
   "nav.allCharacters": "All characters",
+  "nav.items": "Items",
   "tab.quest": "Quests",
   "tab.daily": "Dailies",
   "tab.trade": "Trades",
   "tab.starters": "Starters",
   "tab.dialog": "Dialogs",
-  "tab.item": "Items",
 
   // Short character names, keyed by the registry folder their content sits in.
   // The full in-game name is the tooltip, and the fallback when one is missing.
@@ -163,7 +163,9 @@ const en_us = {
   // -- item section ---------------------------------------------------------
   "item.note":
     "Every item the mod adds, with the guide entry that documents it and every way to get one. The guide text is the in-game book's own, not a copy of it.",
+  "item.all": "All items",
   "item.undocumented": "Not in the guide",
+  "item.guide": "Guide entry",
   "item.category": "Guide category",
   "item.noGuide": "No guide entry documents this item yet.",
   "item.sources": "Where to get it",
@@ -217,7 +219,7 @@ const zh_cn = {
   "a11y.search": "搜索",
   "a11y.language": "语言",
   "a11y.theme": "切换配色",
-  "a11y.characters": "角色",
+  "a11y.browse": "浏览",
   "a11y.contentType": "内容类型",
   "a11y.detail": "详情",
 
@@ -227,12 +229,12 @@ const zh_cn = {
   // -- navigation -----------------------------------------------------------
   "nav.characters": "角色",
   "nav.allCharacters": "全部角色",
+  "nav.items": "物品",
   "tab.quest": "任务",
   "tab.daily": "日常",
   "tab.trade": "交易",
   "tab.starters": "对话入口",
   "tab.dialog": "对话",
-  "tab.item": "物品",
 
   // Short names; the tooltip and fallback carry the full in-game name.
   "character.reimu": "灵梦",
@@ -358,7 +360,9 @@ const zh_cn = {
 
   // -- 物品 ------------------------------------------------------------------
   "item.note": "模组添加的全部物品，以及各自的指南条目与全部获取方式。指南文字直接来自游戏内的指南书原文。",
+  "item.all": "全部物品",
   "item.undocumented": "指南未收录",
+  "item.guide": "指南条目",
   "item.category": "所属分类",
   "item.noGuide": "暂时还没有指南条目介绍这件物品。",
   "item.sources": "获取方式",

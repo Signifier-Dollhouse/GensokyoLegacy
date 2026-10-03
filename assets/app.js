@@ -10,23 +10,23 @@ import { applyLanguage, tr, trPlural } from "./lib/i18n.js";
 import { REPO, setLanguage, setTheme, state, TABS } from "./lib/state.js";
 import {
   buildCharacters,
+  buildItemIndex,
   characterKeyOf,
   fetchJson,
   loadAllDialogs,
   loadCurrencyTag,
-  loadItems,
+  loadGuide,
+  loadItemSources,
   loadLang,
   loadManifest,
   loadRegistry,
   loadVanillaLang,
-  registeredItemCount,
   store,
   tableFor,
   VANILLA_LANG,
 } from "./lib/store.js";
 import {
   categoryName,
-  collapsible,
   guideEntryName,
   guideSortnum,
   itemRow,
@@ -44,9 +44,10 @@ import {
 // ---------------------------------------------------------------------------
 
 /**
- * The view is addressable: `#trade`, `#dialog/reimu`, `#quest/all`. Characters are
- * slugged by their registry folder (`reimu`) rather than the entity id, so the URL
- * stays readable; an unknown slug falls back to showing everything.
+ * The view is addressable: `#trade`, `#dialog/reimu`, `#quest/all`, `#items/alchemy`.
+ * Characters are slugged by their registry folder (`reimu`) and guide categories by
+ * their own folder (`alchemy`), both rather than the full id, so the URL stays
+ * readable; an unknown slug falls back to showing everything.
  */
 function slugOf(key) {
   if (key === "all") return "all";
@@ -60,15 +61,38 @@ function keyFromSlug(slug) {
   return match?.key ?? (store.characters.has(slug) ? slug : "all");
 }
 
+/** The URL slug for an item section, and the section a slug names. */
+function categorySlug(category) {
+  if (category === null) return "all";
+  if (category === UNDOCUMENTED) return "undocumented";
+  return category.split(":").pop();
+}
+
+function categoryFromSlug(slug) {
+  if (!slug || slug === "all") return null;
+  if (slug === "undocumented") return UNDOCUMENTED;
+  return itemSections().find((section) => categorySlug(section.category) === slug)?.category ?? null;
+}
+
 function readLocation() {
   const [tab, slug] = decodeURIComponent(location.hash.replace(/^#/, "")).split("/");
-  if (TABS.includes(tab)) state.tab = tab;
-  // Characters are only known once the registries are loaded.
+  if (tab === "items") {
+    state.section = "item";
+  } else if (TABS.includes(tab)) {
+    state.section = "character";
+    state.tab = tab;
+  }
   if (store.characters.size) state.character = keyFromSlug(slug);
+  // The item sections are only known once the guide book has loaded.
+  if (state.section === "item" && store.guide) state.category = categoryFromSlug(slug);
 }
 
 function writeLocation() {
-  const next = `#${state.tab}/${encodeURIComponent(slugOf(state.character))}`;
+  const slug =
+    state.section === "item"
+      ? categorySlug(state.category)
+      : encodeURIComponent(slugOf(state.character));
+  const next = `#${state.section === "item" ? "items" : state.tab}/${slug}`;
   if (location.hash !== next) history.replaceState(null, "", next);
 }
 
@@ -105,12 +129,19 @@ function setQuery(value) {
 /** Switches character. `id` focuses one entry, so a navigation passes nothing. */
 function select(name, id = "") {
   state.character = name;
-  // Items belong to no character, so picking one from the item tab means going back
-  // to that character's content rather than staying on a list it cannot filter.
-  if (state.tab === "item") state.tab = "quest";
+  state.section = "character";
   setQuery(id);
   render();
 }
+
+/** Switches to the item section, showing one guide category or every item. */
+function selectCategory(category) {
+  state.category = category;
+  state.section = "item";
+  setQuery("");
+  render();
+}
+
 // ---------------------------------------------------------------------------
 // panels
 // ---------------------------------------------------------------------------
@@ -118,10 +149,12 @@ function select(name, id = "") {
 function renderPanel() {
   const panel = clear(document.querySelector("#panel"));
 
+  // The tab bar only means something for a character, so the item section hides it.
+  document.querySelector(".tabs").hidden = state.section === "item";
+  if (state.section === "item") return renderItemPanel(panel);
   if (state.tab === "dialog") return renderDialogPanel(panel);
   if (state.tab === "starters") return renderStartersPanel(panel);
   if (state.tab === "trade") return renderTradePanel(panel);
-  if (state.tab === "item") return renderItemPanel(panel);
   return renderQuestPanel(panel, state.tab);
 }
 
@@ -200,76 +233,76 @@ function emptyState(what) {
 }
 
 /**
- * The item section. Recipes, the guide book and the quest reward tables are a few
- * hundred files, so they are fetched the first time the tab is opened rather than on
- * first paint - the same trade-off the dialog tab makes, for the same reason.
+ * The item section. The guide book is already loaded - it is what the sidebar is built
+ * from - but the recipes and the quest reward tables are a few hundred files, so they
+ * are fetched the first time the section is opened.
  */
 async function renderItemPanel(panel) {
-  if (!state.itemsLoaded) {
+  if (!state.sourcesLoaded) {
     const counter = h("span", { text: "0 / 0" });
     const bar = h("div", { class: "progress-track" }, h("div", { class: "progress-fill" }), counter);
     panel.append(h("p", { class: "status", text: tr("status.loadingItems") }), bar);
 
-    await loadItems((done, total) => {
+    await loadItemSources((done, total) => {
       counter.textContent = `${done} / ${total}`;
       bar.firstChild.style.width = `${Math.round((done / Math.max(1, total)) * 100)}%`;
     });
-    state.itemsLoaded = true;
+    state.sourcesLoaded = true;
     // Several hundred files take a moment; if the reader moved on meanwhile, this
     // panel is no longer the one on screen and must not be repainted over it.
-    if (state.tab !== "item") return;
+    if (state.section !== "item") return;
     clear(panel);
     setStatus("");
+    renderSidebar(); // the counts can move once the sources are known
   }
 
-  const groups = itemGroups();
-  if (!groups.length) return panel.append(emptyState(tr("noun.items")));
+  const section = itemSections().find((entry) => entry.category === state.category);
+  const items = (section ? section.items : allItems())
+    .filter((item) => matchesQuery(item.id, itemLabel(item.id), item.guide && guideEntryName(item.guide)))
+    .sort((a, b) => itemLabel(a.id).localeCompare(itemLabel(b.id)));
+
+  if (!items.length) return panel.append(emptyState(tr("noun.items")));
 
   panel.append(
     h("p", { class: "card-id", text: tr("item.note") }),
-    ...groups.map((group) =>
-      collapsible(group.name, group.items.length, group.items.map((item) => itemRow(item, () => openItem(item.id))), "list"),
-    ),
+    h("ul", { class: "list" }, ...items.map((item) => itemRow(item, () => openItem(item.id)))),
   );
 }
 
+/** Every item the index knows, in no particular order; the panel sorts them. */
+function allItems() {
+  return [...store.items.values()];
+}
+
 /**
- * Items grouped by the guide category that documents them, with everything the guide
- * does not cover in a group of its own. The category order is the book's own, so a
- * new category in the book shows up here without anyone editing the site.
+ * Items the guide does not document are filed under this rather than under a category
+ * of their own. A symbol, because it is not a category id and must never be mistaken
+ * for one - nor for the "all items" selection, which is `null`.
  */
-function itemGroups() {
-  const byCategory = new Map();
+const UNDOCUMENTED = Symbol("undocumented");
+
+/**
+ * The sidebar's item sections: one per guide category, in the book's own order, plus
+ * everything the guide does not document at the end. The membership comes from the
+ * index rather than from the book alone, so an item the guide never mentions still
+ * shows up - just in the last group.
+ */
+function itemSections() {
+  const groups = new Map();
   for (const item of store.items.values()) {
-    const category = item.guide?.category ?? null;
-    // The guide entry's own title counts as searchable: it is how the book names the
-    // item, and it is the wording a player is likely to type.
-    if (
-      !matchesQuery(
-        item.id,
-        itemLabel(item.id),
-        item.guide && guideEntryName(item.guide),
-        category && categoryName(item.guide.book, category),
-      )
-    ) {
-      continue;
-    }
-    const key = category ?? "";
-    const group = byCategory.get(key) ?? { name: "", sortnum: Infinity, items: [] };
-    if (category) {
-      group.name = categoryName(item.guide.book, category);
-      group.sortnum = guideSortnum(item.guide.book, category);
-    } else {
-      group.name = tr("item.undocumented");
-    }
+    const key = item.guide?.category ?? UNDOCUMENTED;
+    const group = groups.get(key) ?? { category: key, items: [] };
     group.items.push(item);
-    byCategory.set(key, group);
+    groups.set(key, group);
   }
 
-  for (const group of byCategory.values()) {
-    group.items.sort((a, b) => itemLabel(a.id).localeCompare(itemLabel(b.id)));
+  const sections = [...groups.values()];
+  for (const section of sections) {
+    const book = section.items[0].guide?.book;
+    section.name = section.category === UNDOCUMENTED ? tr("item.undocumented") : categoryName(book, section.category);
+    section.sortnum = section.category === UNDOCUMENTED ? Infinity : guideSortnum(book, section.category);
   }
-  return [...byCategory.values()].sort((a, b) => a.sortnum - b.sortnum || a.name.localeCompare(b.name));
+  return sections.sort((a, b) => a.sortnum - b.sortnum || a.name.localeCompare(b.name));
 }
 
 /** Opens one item's page, wiring the jumps back to the quest and trade panels. */
@@ -389,6 +422,12 @@ function orderedCharacters() {
   return [...store.characters.values()].sort((a, b) => characterName(a).localeCompare(characterName(b)));
 }
 
+/**
+ * The sidebar: one list of characters and, beside it, one list of item sections -
+ * the guide's categories and everything it does not document. Picking a character
+ * shows their content behind the tab bar; picking an item section shows the item
+ * list without it, since neither belongs to a character.
+ */
 function renderSidebar() {
   const list = clear(document.querySelector("#characters"));
   const counts = new Map();
@@ -401,7 +440,7 @@ function renderSidebar() {
     }
   }
 
-  const button = (key, name, count, title) =>
+  const button = (current, name, count, title, onClick) =>
     h(
       "li",
       {},
@@ -410,9 +449,9 @@ function renderSidebar() {
         {
           type: "button",
           title,
-          "aria-current": String(state.character === key),
-          // Picking a character is a new view, so any search text is dropped.
-          onclick: () => select(key),
+          "aria-current": String(current),
+          // Picking a section is a new view, so any search text is dropped.
+          onclick: onClick,
         },
         h("span", { text: name }),
         h("span", { class: "count", text: String(count) }),
@@ -420,11 +459,46 @@ function renderSidebar() {
     );
 
   list.append(
-    button("all", tr("nav.allCharacters"), [...counts.values()].reduce((sum, value) => sum + value, 0)),
+    button(
+      state.section === "character" && state.character === "all",
+      tr("nav.allCharacters"),
+      [...counts.values()].reduce((sum, value) => sum + value, 0),
+      null,
+      () => select("all"),
+    ),
   );
   for (const character of orderedCharacters()) {
     list.append(
-      button(character.key, characterName(character), counts.get(character.key) ?? 0, entityLabel(character.entity)),
+      button(
+        state.section === "character" && state.character === character.key,
+        characterName(character),
+        counts.get(character.key) ?? 0,
+        entityLabel(character.entity),
+        () => select(character.key),
+      ),
+    );
+  }
+
+  const items = clear(document.querySelector("#items"));
+  const sections = itemSections();
+  items.append(
+    button(
+      state.section === "item" && state.category === null,
+      tr("item.all"),
+      allItems().length,
+      null,
+      () => selectCategory(null),
+    ),
+  );
+  for (const section of sections) {
+    items.append(
+      button(
+        state.section === "item" && state.category === section.category,
+        section.name,
+        section.items.length,
+        section.category === UNDOCUMENTED ? tr("item.undocumented") : section.category,
+        () => selectCategory(section.category),
+      ),
     );
   }
 
@@ -446,11 +520,11 @@ function renderSidebar() {
 
 /**
  * Tab badges count the selected character's content, not the whole registry, so
- * the numbers match what the panel below is showing. Items are nobody's, so the
- * item tab counts every item the mod registers.
+ * the numbers match what the panel below is showing. Items are in the sidebar, not
+ * here, and are counted there.
  */
 function renderTabs() {
-  const counts = { quest: 0, daily: 0, trade: 0, starters: 0, dialog: 0, item: registeredItemCount() };
+  const counts = { quest: 0, daily: 0, trade: 0, starters: 0, dialog: 0 };
 
   for (const entryData of entriesOf(store.manifest.registries.quest).filter(inCharacter)) {
     const quest = store.quests.get(entryData.id);
@@ -471,7 +545,7 @@ function renderTabs() {
     node.textContent = String(counts[node.dataset.count]);
   }
   for (const node of document.querySelectorAll("[data-tab]")) {
-    node.setAttribute("aria-selected", String(node.dataset.tab === state.tab));
+    node.setAttribute("aria-selected", String(state.section === "character" && node.dataset.tab === state.tab));
   }
 }
 
@@ -530,6 +604,7 @@ function wireChrome() {
   for (const button of document.querySelectorAll("[data-tab]")) {
     button.addEventListener("click", () => {
       // Another slice of the same character: the old search rarely applies to it.
+      state.section = "character";
       state.tab = button.dataset.tab;
       setQuery("");
       render();
@@ -567,7 +642,11 @@ async function boot() {
 
   const langFiles = store.manifest.lang;
   const registries = ["quest", "trade", "dialog_starter"];
-  const total = registries.reduce((sum, name) => sum + store.manifest.registries[name].files.length, 0);
+  const guideFiles = (store.manifest.guides ?? []).flatMap((book) =>
+    Object.values(book.locales).reduce((sum, locale) => sum + locale.categories.length + locale.entries.length, 0),
+  );
+  const total =
+    registries.reduce((sum, name) => sum + store.manifest.registries[name].files.length, 0) + guideFiles;
 
   // Each registry reports its own running count, so track them separately and
   // show the sum rather than adding every intermediate value.
@@ -585,11 +664,15 @@ async function boot() {
     ...(store.manifest.vanillaLang ?? VANILLA_LANG).map(loadVanillaLang),
     // The currency tag decides whether a trade reads as "sell" or "craft".
     loadCurrencyTag(),
+    // The guide book is what the item sidebar is built from, so it is small enough
+    // to fetch with everything else rather than behind a click.
+    loadGuide(progressFor("guide")),
     ...registries.map((name) => loadRegistry(name, progressFor(name))),
   ]);
 
   buildCharacters();
-  readLocation(); // now the character slug can be resolved
+  buildItemIndex();
+  readLocation(); // now the character slug and the item category can be resolved
   setStatus("");
   setProgress(0, 0);
   render();
@@ -644,8 +727,13 @@ async function refreshFromGitHub() {
     for (const name of ["quest", "trade", "dialog_starter"]) {
       await loadRegistry(name);
     }
-    // The item index is built from the listings just adopted, so it is rebuilt too.
-    if (state.itemsLoaded) await loadItems();
+    // The item index is built from the listings just adopted, so it is rebuilt too -
+    // and if the reader is already looking at items, the sources are refetched.
+    buildItemIndex();
+    if (state.section === "item") {
+      state.sourcesLoaded = false;
+      await loadItemSources();
+    }
     buildCharacters();
     render();
     setStatus(trPlural("status.refreshed", added, added));

@@ -27,7 +27,13 @@ fetch 404s - Pages cannot serve files from outside the directory it publishes.
 | Trades | `gensokyolegacy:trade` | ingredients → result, stock and restock, unlock conditions, grouped into collapsible *sell to*, *buy from* and *processing* sections |
 | Starters | `gensokyolegacy:dialog_starter` | the gated entry points into a conversation, with their conditions |
 | Dialogs | `gensokyolegacy:dialog` | every dialog node, grouped by the conversation it belongs to, with a viewer that walks each branch |
-| Items | the mod's lang files, `recipe/`, `trade/`, quest reward `loot_table/`s and the Patchouli book | every item the mod adds, its guide entry, and every way to get one |
+
+The sidebar carries two lists side by side, and the tabs belong to the first: **characters**
+(quests, dailies, trades, starters and dialogs) and **items** (the guide, and where each
+item comes from). Items belong to no character, so they are a section of their own rather
+than a sixth tab; picking one hides the tab bar, and picking a character brings it back.
+Both are addressable: `#quest/reimu`, `#trade/all`, `#dialog/marisa`, `#items/alchemy`,
+`#items/undocumented`.
 
 Quests and dailies share one registry and one card; the tab only splits them, so a
 condition linking to a quest lands on whichever of the two it actually belongs to.
@@ -36,19 +42,17 @@ Starters tab does not have to pull in the 200+ dialog nodes.
 
 Each trade card is titled with the item the trade is about: the ingredient going in
 for a sale, the result coming out otherwise. The trade list is split into collapsible
-*sell to* / *buy from* / *processing* groups, and on the quest, trade and starter cards
+*sell to* / *buy from* / *processing* sections, and on the quest, trade and starter cards
 the conditions, requirements and rewards fold away too - all of them expanded to begin
 with, so a card reads top to bottom unless you close one. Conditions inside a dialog
 option stay inline, since an option is already a small block.
 
-Everything is grouped per character, filterable by search, and addressable by URL
-(`#quest/reimu`, `#daily/reimu`, `#trade/all`, `#starters/marisa`, `#dialog/marisa`,
-`#item/all`). The tab badges count the selected character - items excepted, since they
-belong to nobody - and picking a character or a tab clears the search box.
+The tab badges count the selected character; the item list beside them counts the items
+in each section. Picking a character, a tab or an item section clears the search box.
 
 ### The item section
 
-The Items tab is a guide to what the mod adds and where to find it. Nothing about it is
+The item list is a guide to what the mod adds and where to find it. Nothing about it is
 written down in the site: every list, every source and all of the prose is read from the
 repository at the paths it already lives at, so merging new content onto `gh-page` is
 all it takes for the page to show it.
@@ -58,10 +62,19 @@ all it takes for the page to show it.
 | The item list | the mod's own lang files, which enumerate every `item.`/`block.` it registers, plus the few ids from other namespaces the mod hands out (`patchouli:guide_book`, converted planks) |
 | The guide | `src/main/resources/assets/gensokyolegacy/patchouli_books/<book>/<locale>/` - the in-game book's own categories and entries, with its `$(bold)`, `$(br)` and `$(br2)` macros rendered |
 | Ways to obtain | `recipe/**`, including the mod's alchemy and brewing types; `trade/**`, for the offers that hand out something other than currency, which is how Rinnosuke's shop appears; and the `loot_table` each quest reward names |
-| The grouping | the guide's own categories, in the book's own order, with everything it does not document in a *Not in the guide* group at the end |
+| The sidebar sections | the guide's own categories, in the book's own order, with everything it does not document filed under *Not in the guide* at the end |
 
-Recipes and the guide book are a few hundred files, so they are fetched the first time
-the tab is opened rather than on first paint - the same trade-off the dialog tab makes.
+An item page is its guide entry - the category it sits in, the advancement that grants
+it, and the entry's prose under a heading that folds away - followed by every way to get
+one, one collapsible section per kind of source, with jumps back to the quest or the
+offer it came from.
+
+The guide book is fetched with everything else, since it is small and it is what the
+sidebar's sections and counts are built from. The recipes and the quest reward tables are
+a few hundred files, so they are fetched the first time the item section is opened - the
+same trade-off the dialog tab makes. That is also when the handful of items from other
+namespaces turn up, so the counts can move by two or three at that point.
+
 A shaped recipe is drawn as the crafting grid with a key beneath it, since the layout is
 part of the recipe; the alchemy and brewing recipes show their fluid and their extra
 ingredients, since a hexbrew is brewed rather than crafted.

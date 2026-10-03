@@ -235,13 +235,13 @@ input[type="search"] {
   text-transform: uppercase;
 }
 
-.character-list {
+.nav-list {
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
-.character-list button {
+.nav-list button {
   display: flex;
   gap: 8px;
   align-items: baseline;
@@ -258,17 +258,17 @@ input[type="search"] {
   cursor: pointer;
 }
 
-.character-list button:hover {
+.nav-list button:hover {
   background: var(--bg-sunken);
 }
 
-.character-list button[aria-current="true"] {
+.nav-list button[aria-current="true"] {
   background: var(--accent-soft);
   color: var(--accent);
   font-weight: 650;
 }
 
-.character-list .count {
+.nav-list .count {
   color: var(--text-muted);
   font-family: var(--mono);
   font-size: 11px;
@@ -322,6 +322,12 @@ input[type="search"] {
   border-radius: 2px;
   background: var(--accent);
   transition: width 140ms linear;
+}
+
+/* `display: flex` would otherwise beat the user agent's `[hidden]`, and the tab bar
+   is hidden while the item section is showing. */
+.tabs[hidden] {
+  display: none;
 }
 
 .tabs {
@@ -883,17 +889,17 @@ details.collapse > .grid {
     border-bottom: 1px solid var(--border);
   }
 
-  .character-list {
+  .nav-list {
     display: flex;
     flex-wrap: wrap;
     gap: 6px;
   }
 
-  .character-list li {
+  .nav-list li {
     margin: 0;
   }
 
-  .character-list button {
+  .nav-list button {
     width: auto;
     margin: 0;
     border: 1px solid var(--border);

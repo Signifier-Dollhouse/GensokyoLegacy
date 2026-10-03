@@ -74,20 +74,29 @@ export function section(name, ...rows) {
 }
 
 /**
+ * The summary of a collapsible section: the marker plus the label. The marker is a
+ * real character rather than a list marker, so the row height stays the same open or
+ * closed and the rotation can be animated.
+ */
+function collapsibleHead(name) {
+  return h("summary", { class: "section-label" }, h("span", { class: "marker", text: "▸" }), name);
+}
+
+/**
  * The same rows under a heading that folds away. Expanded by default, since a card
  * is mostly read by scrolling past it; the marker comes from the stylesheet so the
  * summary keeps the quiet look of an inline section label.
  */
 export function collapsibleSection(name, ...rows) {
   if (!rows.length) return null;
-  return h(
-    "details",
-    { class: "section", open: true },
-    // The marker is a real character rather than a list marker, so the row height
-    // stays the same open or closed and the rotation can be animated.
-    h("summary", { class: "section-label" }, h("span", { class: "marker", text: "▸" }), name),
-    h("ul", { class: "list" }, ...rows),
-  );
+  return h("details", { class: "section", open: true }, collapsibleHead(name), h("ul", { class: "list" }, ...rows));
+}
+
+/** As `collapsibleSection`, but for prose rather than rows - a guide entry's pages. */
+export function collapsibleBlock(name, ...blocks) {
+  const content = blocks.filter(Boolean);
+  if (!content.length) return null;
+  return h("details", { class: "section", open: true }, collapsibleHead(name), ...content);
 }
 
 /**
@@ -829,7 +838,9 @@ function guideSection(item) {
     data.advancement
       ? h("p", { class: "entry-note" }, `${tr("item.advancement")}: ${advancementLabel(data.advancement)}`)
       : null,
-    ...(data.pages ?? []).map((block) => guideBlock(block, item.id)),
+    // The prose folds away: it is the longest thing on the page, and the sources
+    // below it are what a reader usually came for.
+    collapsibleBlock(tr("item.guide"), ...(data.pages ?? []).map((block) => guideBlock(block, item.id))),
     rawJson(page?.file, data),
     h("p", { class: "entry-note" }, `${label(book.definition?.name)} · ${id}`),
   );

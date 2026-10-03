@@ -58,9 +58,11 @@
     </header>
 
     <div class="layout">
-      <nav class="sidebar" aria-label="Characters" data-i18n-attr="aria-label:a11y.characters">
+      <nav class="sidebar" aria-label="Browse" data-i18n-attr="aria-label:a11y.browse">
         <h2 class="sidebar-title" data-i18n="nav.characters">Characters</h2>
-        <ul id="characters" class="character-list"></ul>
+        <ul id="characters" class="nav-list"></ul>
+        <h2 class="sidebar-title" data-i18n="nav.items">Items</h2>
+        <ul id="items" class="nav-list"></ul>
         <div id="source" class="source-note"></div>
       </nav>
 
@@ -86,9 +88,6 @@
           </button>
           <button type="button" role="tab" data-tab="dialog" aria-selected="false">
             <span data-i18n="tab.dialog">Dialogs</span><span class="count" data-count="dialog"></span>
-          </button>
-          <button type="button" role="tab" data-tab="item" aria-selected="false">
-            <span data-i18n="tab.item">Items</span><span class="count" data-count="item"></span>
           </button>
         </div>
 
