@@ -1,22 +1,26 @@
 name: Refresh RPG content index
 
 # The website is published from the root of the gh-page branch and reads the
-# datapack JSONs directly from src/generated/resources. Only the file index
-# (rpg-manifest.json) needs regenerating when quest/dialog/trade content changes,
-# which this workflow does automatically.
+# datapack JSONs directly from src/generated/resources. This workflow keeps that
+# copy current and regenerates the file index.
+#
+# Only this YAML needs to exist on the default branch: the job checks out gh-page,
+# which is where the site and the generator script live.
 
 on:
   push:
-    branches: [main, gh-page]
+    branches: [main]
     paths:
-      - "src/generated/resources/data/gensokyolegacy/gensokyolegacy/**"
-      - "src/generated/resources/data/gensokyolegacy/loot_table/**"
-      - "src/generated/resources/data/gensokyolegacy/tags/**"
+      - "src/generated/resources/data/gensokyolegacy/**"
+      - "src/generated/resources/data/minecraft/tags/**"
       - "src/generated/resources/assets/gensokyolegacy/lang/**"
       - "src/main/resources/assets/gensokyolegacy/lang/**"
-      - "scripts/build_manifest.py"
-      - ".github/workflows/rpg-index.yml"
   workflow_dispatch:
+    inputs:
+      source_branch:
+        description: "Branch to mirror the RPG datapack from"
+        required: false
+        default: "main"
 
 permissions:
   contents: write
@@ -29,9 +33,17 @@ concurrency:
 jobs:
   index:
     runs-on: ubuntu-latest
+    env:
+      # Change this in the repository settings, or pass it via workflow_dispatch,
+      # if the site should track a branch other than main.
+      SOURCE_BRANCH: ${{ inputs.source_branch || vars.RPG_SOURCE_BRANCH || 'main' }}
     steps:
+      # Check out the Pages branch: that is where the site, the generator and the
+      # published copy of the datapack live. Checking out main here and pushing
+      # HEAD to gh-page would delete the site, since main does not have it.
       - uses: actions/checkout@v4
         with:
+          ref: gh-page
           fetch-depth: 0
 
       - name: Validate the site modules
@@ -39,21 +51,34 @@ jobs:
           python3 -m pip install --quiet tree_sitter tree_sitter_javascript
           python3 scripts/check_site.py
 
+      - name: Mirror the RPG datapack from ${{ env.SOURCE_BRANCH }}
+        run: |
+          git fetch --quiet origin "$SOURCE_BRANCH"
+
+          for path in \
+            src/generated/resources/data/gensokyolegacy \
+            src/generated/resources/data/minecraft/tags \
+            src/generated/resources/assets/gensokyolegacy/lang \
+            src/main/resources/assets/gensokyolegacy/lang
+          do
+            # Drop what is here first, so quests or tables that were deleted on the
+            # source branch disappear here too; a plain checkout would not remove
+            # them and the index would keep listing files that no longer exist.
+            rm -rf "$path"
+            git checkout "origin/$SOURCE_BRANCH" -- "$path"
+          done
+
       - name: Regenerate rpg-manifest.json
         run: python3 scripts/build_manifest.py
 
-      - name: Publish the index to gh-page
+      - name: Publish to gh-page
         run: |
-          if git diff --quiet -- rpg-manifest.json; then
-            echo "index already matches the datapack"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "gh-page already matches $SOURCE_BRANCH"
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add rpg-manifest.json
-          git commit -m "rpg index"
+          git commit -m "sync rpg content from $SOURCE_BRANCH"
           git push origin HEAD:gh-page
-
-# GitHub only runs workflows that exist on the repository's default branch, so this
-# file needs to reach main before the automation takes effect. The page itself does
-# not depend on it: it also refreshes its index from the published branch at runtime.

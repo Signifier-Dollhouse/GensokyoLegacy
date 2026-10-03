@@ -50,19 +50,27 @@ In the repository settings, set **Pages → Build and deployment → Source** to
 ### Keeping it up to date
 
 `rpg-manifest.json` is the only generated file; the datapack JSONs are read live and
-never copied. After `./gradlew runData`, regenerate the index with:
+never copied. Two things have to stay in step for new content to appear:
 
-```sh
-python3 scripts/build_manifest.py
-```
+1. **`gh-page` must contain the datapack JSONs**, because that is the branch Pages
+   serves. New datagen output lands on your working branch, not on `gh-page`.
+2. **`rpg-manifest.json` must list the new files.** Regenerate it after
+   `./gradlew runData` with:
 
-`.github/workflows/rpg-index.yml` does this automatically whenever quest, dialog,
-trade, loot table, tag or lang content changes on `main`, committing the result to
-`gh-page`. GitHub only runs workflows present on the default branch, so that file has
-to reach `main` before the automation starts.
+   ```sh
+   python3 scripts/build_manifest.py
+   ```
+
+`.github/workflows/rpg-index.yml` does both automatically: it mirrors the RPG datapack
+and lang files from the source branch onto `gh-page`, then regenerates the index.
+GitHub only runs workflows present on the default branch, so that one YAML file has to
+be copied to `main` before the automation starts. Set the `RPG_SOURCE_BRANCH`
+repository variable if the site should track a branch other than `main`.
 
 Independently of the workflow, the page refreshes its index from the published branch
-at runtime, so newly added content shows up even before the index is regenerated.
+at runtime, so newly added files are noticed even before the index is regenerated.
+Note that this only helps for files already present on `gh-page` - it cannot fetch a
+datapack file that only exists on another branch.
 
 Run `python3 scripts/check_site.py` to parse the ES modules and confirm every import
 resolves; it needs `pip install tree_sitter tree_sitter_javascript` and skips itself if
