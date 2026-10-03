@@ -215,6 +215,18 @@ export function characterKeyOf(id) {
   return [...store.characters.values()].find((character) => character.dirs.has(dir))?.key ?? dir;
 }
 
+/**
+ * The registry folder a character's content sits in, from their entity id. This is
+ * the stable, human readable handle (`reimu`) that names and URLs are keyed on,
+ * whereas the entity id spells out the full name.
+ */
+export function characterSlugOf(entity) {
+  if (!entity) return null;
+  const character = [...store.characters.values()].find((entry) => entry.entity === entity);
+  if (!character) return null;
+  return [...character.dirs].sort()[0] ?? null;
+}
+
 /** The currency tag, used to tell "sell to character" from "request a craft". */
 export async function loadCurrencyTag() {
   const id = "gensokyolegacy:currency";

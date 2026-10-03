@@ -29,8 +29,16 @@ const en_us = {
   "nav.characters": "Characters",
   "nav.allCharacters": "All characters",
   "tab.quest": "Quests",
+  "tab.daily": "Dailies",
   "tab.trade": "Trades",
   "tab.dialog": "Dialogs",
+
+  // Short character names, keyed by the registry folder their content sits in.
+  // The full in-game name is the tooltip, and the fallback when one is missing.
+  "character.reimu": "Reimu",
+  "character.marisa": "Marisa",
+  "character.alice": "Alice",
+  "character.morichika": "Rinnosuke",
 
   "source.summary": "{0} datapack files - {1} loot tables",
   "source.fetchedFrom": "Fetched live from ",
@@ -39,6 +47,7 @@ const en_us = {
 
   // -- panels ---------------------------------------------------------------
   "noun.quests": "quests",
+  "noun.dailies": "dailies",
   "noun.trades": "trade offers",
   "noun.starters": "starters",
   "noun.dialogs": "dialogs",
@@ -180,8 +189,15 @@ const zh_cn = {
   "nav.characters": "角色",
   "nav.allCharacters": "全部角色",
   "tab.quest": "任务",
+  "tab.daily": "日常",
   "tab.trade": "交易",
   "tab.dialog": "对话",
+
+  // Short names; the tooltip and fallback carry the full in-game name.
+  "character.reimu": "灵梦",
+  "character.marisa": "魔理沙",
+  "character.alice": "爱丽丝",
+  "character.morichika": "霖之助",
 
   "source.summary": "{0} 个数据包文件 · {1} 个战利品表",
   "source.fetchedFrom": "实时抓取自 ",
@@ -190,6 +206,7 @@ const zh_cn = {
 
   // -- panels ---------------------------------------------------------------
   "noun.quests": "任务",
+  "noun.dailies": "日常任务",
   "noun.trades": "交易",
   "noun.starters": "对话入口",
   "noun.dialogs": "对话",
@@ -323,10 +340,18 @@ const HTML_LANG = { en_us: "en", zh_cn: "zh-CN" };
  * so a missing translation is visible but never blanks the page.
  */
 export function tr(key, ...args) {
-  const text = TABLES[state.lang]?.[key] ?? TABLES.en_us[key];
-  if (text === undefined) return key;
+  const text = trOrNull(key);
+  if (text === null) return key;
   if (!args.length) return text;
   return text.replace(/\{(\d+)\}/g, (match, index) => (args[index] === undefined ? match : String(args[index])));
+}
+
+/**
+ * The string for a key, or null when no locale has one. For keys built at runtime
+ * (`character.${slug}`), where a caller needs to tell "absent" from "empty".
+ */
+export function trOrNull(key) {
+  return TABLES[state.lang]?.[key] ?? TABLES.en_us[key] ?? null;
 }
 
 /** Picks the `.one` or `.many` variant of a key by count; Chinese uses both. */

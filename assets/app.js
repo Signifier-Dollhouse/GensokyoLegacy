@@ -5,7 +5,7 @@
 // src/generated/resources/ - nothing is bundled, rewritten or duplicated here.
 
 import { clear, h, setProgress, setStatus } from "./lib/dom.js";
-import { entityLabel, itemLabel, ingredientId, label, prettify } from "./lib/format.js";
+import { characterLabel, entityLabel, itemLabel, ingredientId, label, prettify } from "./lib/format.js";
 import { applyLanguage, tr, trPlural } from "./lib/i18n.js";
 import { REPO, setLanguage, setTheme, state, TABS } from "./lib/state.js";
 import {
@@ -94,22 +94,33 @@ function renderPanel() {
 
   if (state.tab === "dialog") return renderDialogPanel(panel);
   if (state.tab === "trade") return renderTradePanel(panel);
-  return renderQuestPanel(panel);
+  return renderQuestPanel(panel, state.tab);
 }
 
-function renderQuestPanel(panel) {
+/**
+ * Quests and dailies share one registry and one card; only the split differs. A
+ * quest is a daily when it declares a `recurrence`, which is also what puts a
+ * cooldown on its card.
+ */
+function isDaily(quest) {
+  return Boolean(quest?.recurrence);
+}
+
+function renderQuestPanel(panel, tab) {
   const table = store.quests;
   const entries = entriesOf(store.manifest.registries.quest)
     .filter(inCharacter)
+    .filter((entryData) => isDaily(table.get(entryData.id)) === (tab === "daily"))
     .filter((entryData) => {
       const quest = table.get(entryData.id);
       return matchesQuery(entryData.id, quest?.title && label(quest.title), quest?.description && label(quest.description));
     });
 
-  if (!entries.length) return panel.append(emptyState(tr("noun.quests")));
+  if (!entries.length) return panel.append(emptyState(tr(tab === "daily" ? "noun.dailies" : "noun.quests")));
 
   const onQuestLink = (id) => {
-    state.tab = "quest";
+    // Land on the tab the linked quest actually lives in.
+    state.tab = isDaily(store.quests.get(id)) ? "daily" : "quest";
     select("all", id);
   };
 
@@ -245,9 +256,9 @@ function openFirst(nodes) {
 // ---------------------------------------------------------------------------
 
 function characterName(character) {
-  // Names come from the lang files, so they are resolved per render rather than
-  // cached: that keeps them correct when the language toggle changes.
-  return character.entity ? entityLabel(character.entity) : prettify(character.key);
+  // Names are resolved per render rather than cached: that keeps them correct when
+  // the language toggle changes. A character with no entity falls back to its folder.
+  return characterLabel(character.entity) || prettify(character.key);
 }
 
 function orderedCharacters() {
@@ -266,7 +277,7 @@ function renderSidebar() {
     }
   }
 
-  const button = (key, name, count) =>
+  const button = (key, name, count, title) =>
     h(
       "li",
       {},
@@ -274,6 +285,7 @@ function renderSidebar() {
         "button",
         {
           type: "button",
+          title,
           "aria-current": String(state.character === key),
           onclick: () => select(key, state.query),
         },
@@ -286,7 +298,9 @@ function renderSidebar() {
     button("all", tr("nav.allCharacters"), [...counts.values()].reduce((sum, value) => sum + value, 0)),
   );
   for (const character of orderedCharacters()) {
-    list.append(button(character.key, characterName(character), counts.get(character.key) ?? 0));
+    list.append(
+      button(character.key, characterName(character), counts.get(character.key) ?? 0, entityLabel(character.entity)),
+    );
   }
 
   clear(document.querySelector("#source")).append(
@@ -306,11 +320,11 @@ function renderSidebar() {
 }
 
 function renderTabs() {
-  const counts = {
-    quest: store.quests.size,
-    trade: store.trades.size,
-    dialog: store.manifest.registries.dialog.files.length,
-  };
+  const counts = { quest: 0, daily: 0, trade: store.trades.size, dialog: store.manifest.registries.dialog.files.length };
+  for (const quest of store.quests.values()) {
+    if (isDaily(quest)) counts.daily += 1;
+    else counts.quest += 1;
+  }
   for (const node of document.querySelectorAll("[data-count]")) {
     node.textContent = String(counts[node.dataset.count]);
   }

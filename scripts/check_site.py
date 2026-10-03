@@ -148,39 +148,58 @@ def placeholders(text: str) -> set[str]:
     return set(re.findall(r"\{\d+\}", text))
 
 
-def used_keys(source: bytes) -> set[tuple[str, str]]:
-    """Every i18n key a module asks for, as (key, human readable origin)."""
+def used_keys(source: bytes) -> set[tuple[str, str, str]]:
+    """Every i18n key a module asks for: (kind, key, origin).
+
+    A literal argument is a single key, a template literal such as
+    `character.${slug}` is a prefix that every key under it must cover, and each
+    branch of a ternary contributes its own key. An argument built from a variable
+    cannot be checked statically and is skipped.
+    """
     used = set()
     for node in walk(parser.parse(source).root_node):
         if node.type != "call_expression":
             continue
         callee = child_by_field(node, "function")
-        if callee is None or callee.type != "identifier" or text_of(callee, source) not in ("tr", "trPlural"):
+        if callee is None or callee.type != "identifier" or text_of(callee, source) not in ("tr", "trOrNull", "trPlural"):
             continue
         arguments = node.children_by_field_name("arguments")
         first = next(iter(arguments[0].named_children), None) if arguments else None
-        if first is None or first.type != "string":
-            continue  # a computed key cannot be checked statically
-        key = text_of(first, source).strip("\"'`")
+        if first is None:
+            continue
         line = source[: node.start_byte].count(b"\n") + 1
-        if text_of(callee, source) == "trPlural":
-            used.add((f"{key}.one", f"line {line}"))
-            used.add((f"{key}.many", f"line {line}"))
+        origin = f"line {line}"
+        plural = text_of(callee, source) == "trPlural"
+        if first.type == "ternary_expression":
+            # Only the branches name keys; the condition never does.
+            candidates = [child_by_field(first, "consequence"), child_by_field(first, "alternative")]
         else:
-            used.add((key, f"line {line}"))
+            candidates = [first]
+        for argument in candidates:
+            if argument is None:
+                continue
+            for literal in walk(argument):
+                if literal.type == "string":
+                    key = text_of(literal, source).strip("\"'`")
+                    for name in [f"{key}.one", f"{key}.many"] if plural else [key]:
+                        used.add(("key", name, origin))
+                elif literal.type == "template_string":
+                    # `character.${slug}`: every key under the static head is required.
+                    head = text_of(literal, source).strip("`").split("${", 1)[0]
+                    used.add(("prefix", head, origin))
     return used
 
 
-def markup_keys(html: str) -> set[tuple[str, str]]:
+def markup_keys(html: str) -> set[tuple[str, str, str]]:
     """Keys referenced by the `data-i18n` hooks in index.html."""
     used = set()
     for key in re.findall(r'data-i18n="([^"]+)"', html):
-        used.add((key, "index.html"))
+        used.add(("key", key, "index.html"))
     for pair in re.findall(r'data-i18n-attr="([^"]+)"', html):
         for entry in pair.split(","):
             _, _, key = entry.partition(":")
             if key.strip():
-                used.add((key.strip(), "index.html"))
+                used.add(("key", key.strip(), "index.html"))
     return used
 
 
@@ -198,7 +217,19 @@ def check_i18n(sources: dict[Path, bytes]) -> int:
             used |= used_keys(source)
     used |= markup_keys((ROOT / "index.html").read_text(encoding="utf-8"))
 
-    for key, origin in sorted(used):
+    # A prefix stands for every key under it, so the character names built at
+    # runtime are covered just as strictly as the literal ones.
+    covered = {key for kind, key, _ in used if kind == "key"}
+    for _, prefix, origin in sorted(item for item in used if item[0] == "prefix"):
+        matches = {key for key in tables["en_us"] if key.startswith(prefix)}
+        if not matches:
+            failures += 1
+            print(f"untranslated: {origin} asks for keys starting {prefix!r}, none exist")
+        covered |= matches
+
+    for _, key, origin in sorted(used):
+        if key not in covered:
+            continue
         missing = [locale for locale in ("en_us", "zh_cn") if key not in tables[locale]]
         if missing:
             failures += 1
@@ -209,12 +240,18 @@ def check_i18n(sources: dict[Path, bytes]) -> int:
             failures += 1
             print(f"placeholder mismatch: {key!r} in zh_cn against en_us {sorted(slots)}")
 
-    for key in sorted(set(tables["en_us"]) - {key for key, _ in used}):
+    for key in sorted(set(tables["en_us"]) - covered):
         failures += 1
         print(f"unused i18n key: {key!r}")
 
+    # A key that only one locale has would silently vanish when the other is picked.
+    for locale, other in (("zh_cn", "en_us"), ("en_us", "zh_cn")):
+        for key in sorted(set(tables[locale]) - set(tables[other])):
+            failures += 1
+            print(f"locale-only key: {key!r} is in {locale} but not in {other}")
+
     if not failures:
-        print(f"i18n: {len(used)} interface strings, {len(tables['en_us'])} keys, both locales complete")
+        print(f"i18n: {len(covered)} interface strings, {len(tables['en_us'])} keys, both locales complete")
     return failures
 
 

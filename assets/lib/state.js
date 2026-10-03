@@ -7,7 +7,8 @@
  */
 export const REPO = { owner: "Signifier-Dollhouse", name: "GensokyoLegacy", ref: "gh-page" };
 
-export const TABS = ["quest", "trade", "dialog"];
+/** Content types, in tab order. `quest` and `daily` share the quest registry. */
+export const TABS = ["quest", "daily", "trade", "dialog"];
 
 function read(key, fallback) {
   try {

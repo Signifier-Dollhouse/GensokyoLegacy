@@ -22,12 +22,16 @@ fetch 404s - Pages cannot serve files from outside the directory it publishes.
 
 | Tab | Registry | Highlights |
 | --- | --- | --- |
-| Quests | `gensokyolegacy:quest` | title, description, unlock **conditions**, **requirements**, rewards, conversation entry points |
+| Quests | `gensokyolegacy:quest` without `recurrence` | title, description, unlock **conditions**, **requirements**, rewards, conversation entry points |
+| Dailies | `gensokyolegacy:quest` with `recurrence` | the same card, for the quests that come back on a cooldown |
 | Trades | `gensokyolegacy:trade` | ingredients → result, stock and restock, unlock conditions |
 | Dialogs | `gensokyolegacy:dialog_starter`, `gensokyolegacy:dialog` | conversation starters with their conditions, and a viewer that walks each dialog branch |
 
+Quests and dailies share one registry and one card; the tab only splits them, so a
+condition linking to a quest lands on whichever of the two it actually belongs to.
+
 Everything is grouped per character, filterable by search, and addressable by URL
-(`#quest/reimu`, `#trade/all`, `#dialog/marisa`).
+(`#quest/reimu`, `#daily/reimu`, `#trade/all`, `#dialog/marisa`).
 
 ### Languages
 
@@ -38,6 +42,7 @@ a switch takes effect immediately:
 | --- | --- |
 | Content: quest titles, dialog lines, item, block and entity names | the mod's own lang files (`assets/gensokyolegacy/lang/{en_us,zh_cn}.json`), resolved by `assets/lib/format.js` |
 | Interface: headings, buttons, section labels, units, error messages, `aria-label`s | the tables in `assets/lib/i18n.js` |
+| Character names | `character.<folder>` in `assets/lib/i18n.js` — a short name (灵梦) keyed by the folder the character's content sits in, with the mod's full entity name (博丽灵梦) as the tooltip and the fallback |
 
 Interface strings use positional `{0}` placeholders, so a translation may reorder the
 sentence. A key missing from `zh_cn` falls back to English rather than to the key.
@@ -87,8 +92,9 @@ datapack file that only exists on another branch.
 
 Run `python3 scripts/check_site.py` to parse the ES modules, confirm every import
 resolves, and confirm that every interface string exists in both locales with
-matching `{0}` slots; it needs `pip install tree_sitter tree_sitter_javascript` and
-skips itself if those are absent.
+matching `{0}` slots - including the ones built at runtime, such as the character
+names; it needs `pip install tree_sitter tree_sitter_javascript` and skips itself if
+those are absent.
 
 ### A note on what gets published
 

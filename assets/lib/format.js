@@ -3,8 +3,8 @@
 // `label`/`itemLabel` resolve the mod's own lang files (quest, dialog, item and
 // entity text); the words the site puts around that content come from `tr`.
 
-import { tr } from "./i18n.js";
-import { store } from "./store.js";
+import { tr, trOrNull } from "./i18n.js";
+import { characterSlugOf, store } from "./store.js";
 import { state } from "./state.js";
 
 /** Looks a translation key up in the active locale, falling back to English. */
@@ -45,6 +45,16 @@ export function itemLabel(id) {
 
 export function entityLabel(id) {
   return id ? (t(`entity.${id}`) ?? prettify(id)) : "";
+}
+
+/**
+ * Short display name for a character, keyed by the folder their content sits in
+ * (`reimu`). The mod's own entity name is the fallback, so a character added to the
+ * game shows up in game wording rather than as an id; callers that have room put
+ * the full name in the tooltip.
+ */
+export function characterLabel(entity) {
+  return trOrNull(`character.${characterSlugOf(entity)}`) ?? entityLabel(entity);
 }
 
 export function advancementLabel(id) {

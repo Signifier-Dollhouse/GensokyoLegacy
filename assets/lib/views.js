@@ -4,6 +4,7 @@
 import { append, clear, h } from "./dom.js";
 import {
   advancementLabel,
+  characterLabel,
   entityLabel,
   formatTicks,
   ingredientId,
@@ -22,6 +23,11 @@ import { loadDialog, loadEntityTag, loadItemTag, loadLootTable, store } from "./
 
 export function pill(kind, text, title) {
   return h("span", { class: `pill ${kind}`, title, text });
+}
+
+/** A character badge: short name, with their full in-game name in the tooltip. */
+export function characterPill(entity) {
+  return pill("accent", characterLabel(entity), entityLabel(entity));
 }
 
 /** An item or item tag, with its required count. */
@@ -201,7 +207,7 @@ export function conditionNode(condition, onQuestLink) {
       return entry(
         tr("cond.reputation"),
         h("span", { text: tr("cond.reputation.atLeast", condition.reputation) }),
-        h("span", { class: "entry-note", text: tr("cond.reputation.with", entityLabel(condition.character)) }),
+        h("span", { class: "entry-note", text: tr("cond.reputation.with", characterLabel(condition.character)) }),
       );
     case "any":
       return h(
@@ -533,7 +539,7 @@ export function questCard(entryData, quest, onQuestLink) {
       quest.recurrence
         ? pill("requirement", tr("quest.cooldown", formatTicks(quest.recurrence.cooldown)))
         : pill("condition", tr("quest.oneTime")),
-      pill("accent", entityLabel(quest.character)),
+      characterPill(quest.character),
     ]),
     quest.description ? h("p", { class: "card-desc", text: label(quest.description) }) : null,
     conditionsNode(quest.conditions, onQuestLink),
@@ -607,7 +613,7 @@ export function tradeCard(entryData, trade) {
     "article",
     { class: "card" },
     cardHead(TRADE_TITLES[kind](), entryData.id, [
-      pill("accent", entityLabel(trade.character)),
+      characterPill(trade.character),
       stock ? pill("requirement", tr("trade.stock", stock)) : null,
       restock ? pill("condition", tr("trade.restock", formatTicks(restock))) : null,
     ]),
@@ -629,7 +635,7 @@ export function starterCard(entryData, starter) {
     "article",
     { class: "card" },
     cardHead(label(starter.text), entryData.id, [
-      pill("accent", entityLabel(starter.character)),
+      characterPill(starter.character),
       starter.weight !== undefined ? pill("requirement", tr("option.weight", starter.weight)) : null,
     ]),
     h(
