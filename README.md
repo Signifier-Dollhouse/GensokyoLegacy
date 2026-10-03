@@ -34,7 +34,11 @@ Starters and dialogs are separate registries, and keeping them apart also means 
 Starters tab does not have to pull in the 200+ dialog nodes.
 
 Each trade card is titled with the item the trade is about: the ingredient going in
-for a sale, the result coming out otherwise.
+for a sale, the result coming out otherwise. The trade list is split into collapsible
+*sell to* / *buy from* / *processing* groups, and on the quest, trade and starter cards
+the conditions, requirements and rewards fold away too - all of them expanded to begin
+with, so a card reads top to bottom unless you close one. Conditions inside a dialog
+option stay inline, since an option is already a small block.
 
 Everything is grouped per character, filterable by search, and addressable by URL
 (`#quest/reimu`, `#daily/reimu`, `#trade/all`, `#starters/marisa`, `#dialog/marisa`).

@@ -73,6 +73,23 @@ export function section(name, ...rows) {
 }
 
 /**
+ * The same rows under a heading that folds away. Expanded by default, since a card
+ * is mostly read by scrolling past it; the marker comes from the stylesheet so the
+ * summary keeps the quiet look of an inline section label.
+ */
+export function collapsibleSection(name, ...rows) {
+  if (!rows.length) return null;
+  return h(
+    "details",
+    { class: "section", open: true },
+    // The marker is a real character rather than a list marker, so the row height
+    // stays the same open or closed and the rotation can be animated.
+    h("summary", { class: "section-label" }, h("span", { class: "marker", text: "▸" }), name),
+    h("ul", { class: "list" }, ...rows),
+  );
+}
+
+/**
  * A collapsible group of cards, labelled with how many it holds. Native
  * `<details>` so it opens, closes and reports its state without any wiring, and it
  * is dropped entirely when empty rather than showing an empty heading.
@@ -256,9 +273,18 @@ export function conditionNode(condition, onQuestLink) {
   }
 }
 
+function conditionRows(conditions, onQuestLink) {
+  return (conditions ?? []).map((condition) => conditionNode(condition, onQuestLink));
+}
+
+/** Conditions as a collapsible block, for the cards. */
+export function conditionsBlock(conditions, onQuestLink) {
+  return collapsibleSection(tr("section.conditions"), ...conditionRows(conditions, onQuestLink));
+}
+
+/** Conditions laid out inline, for a dialog option, which is already a small block. */
 export function conditionsNode(conditions, onQuestLink) {
-  if (!conditions?.length) return null;
-  return section(tr("section.conditions"), ...conditions.map((condition) => conditionNode(condition, onQuestLink)));
+  return section(tr("section.conditions"), ...conditionRows(conditions, onQuestLink));
 }
 
 // ---------------------------------------------------------------------------
@@ -315,8 +341,10 @@ export function requirementNode(key, requirement) {
 
 export function requirementsNode(requirements) {
   const entries = Object.entries(requirements ?? {});
-  if (!entries.length) return null;
-  return section(tr("section.requirements"), ...entries.map(([key, value]) => requirementNode(key, value)));
+  return collapsibleSection(
+    tr("section.requirements"),
+    ...entries.map(([key, value]) => requirementNode(key, value)),
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -349,8 +377,7 @@ export function rewardNode(reward) {
 }
 
 export function rewardsNode(rewards) {
-  if (!rewards?.length) return null;
-  return section(tr("section.rewards"), ...rewards.map(rewardNode));
+  return collapsibleSection(tr("section.rewards"), ...(rewards ?? []).map(rewardNode));
 }
 
 // ---------------------------------------------------------------------------
@@ -581,7 +608,7 @@ export function questCard(entryData, quest, onQuestLink) {
       characterPill(quest.character),
     ]),
     quest.description ? h("p", { class: "card-desc", text: label(quest.description) }) : null,
-    conditionsNode(quest.conditions, onQuestLink),
+    conditionsBlock(quest.conditions, onQuestLink),
     requirementsNode(quest.requirements),
     rewardsNode(quest.rewards),
     points.length
@@ -635,13 +662,13 @@ export function tradeKind(trade) {
   return (trade.ingredients ?? []).some((ingredient) => isCurrency(ingredientId(ingredient))) ? "buy" : "craft";
 }
 
-// The wording for each kind of offer, resolved on every render so that a language
-// switch is picked up without rebuilding the card. The group heading names the
-// direction of the trade, and the card title adds the item it is about.
+// The card title for each kind of offer, taking the item the trade is about.
+// Resolved on every render so that a language switch is picked up without
+// rebuilding the card.
 const TRADE_TITLES = {
-  sell: () => tr("trade.title.sell"),
-  buy: () => tr("trade.title.buy"),
-  craft: () => tr("trade.title.craft"),
+  sell: (item) => tr("trade.title.sell", item),
+  buy: (item) => tr("trade.title.buy", item),
+  craft: (item) => tr("trade.title.craft", item),
 };
 
 /** Section heading for a kind of offer; used to group the cards. */
@@ -651,11 +678,12 @@ export function tradeTitle(kind) {
 
 /**
  * The item a card is about. Selling hands the ingredients over, so the interesting
- * item is the one going in; buying and crafting are about what comes out.
+ * item is the one going in; buying and crafting are about what comes out. Note that
+ * a result is spelled `{id}`, unlike an ingredient's `{item}`.
  */
 function tradeItemOfInterest(trade, kind) {
   if (kind === "sell") return ingredientName(trade.ingredients?.[0]);
-  return ingredientName(trade.result);
+  return trade.result?.text ?? itemLabel(trade.result?.id);
 }
 
 export function tradeCard(entryData, trade) {
@@ -666,7 +694,7 @@ export function tradeCard(entryData, trade) {
   return h(
     "article",
     { class: "card" },
-    cardHead(tr(TRADE_TITLES[kind](), tradeItemOfInterest(trade, kind)), entryData.id, [
+    cardHead(TRADE_TITLES[kind](tradeItemOfInterest(trade, kind)), entryData.id, [
       characterPill(trade.character),
       stock ? pill("requirement", tr("trade.stock", stock)) : null,
       restock ? pill("condition", tr("trade.restock", formatTicks(restock))) : null,
@@ -679,7 +707,7 @@ export function tradeCard(entryData, trade) {
       pill("reward", itemLabel(trade.result?.id), trade.result?.id),
       h("span", { class: "n", text: `x${trade.result?.count ?? 1}` }),
     ),
-    conditionsNode(trade.conditions, null),
+    conditionsBlock(trade.conditions, null),
     rawJson(entryData.file, trade),
   );
 }
@@ -704,7 +732,7 @@ export function starterCard(entryData, starter) {
           })
         : null,
     ),
-    conditionsNode(starter.conditions, null),
+    conditionsBlock(starter.conditions, null),
     rawJson(entryData.file, starter),
   );
 }

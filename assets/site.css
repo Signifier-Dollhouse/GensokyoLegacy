@@ -455,6 +455,38 @@ input[type="search"] {
   text-transform: uppercase;
 }
 
+/* A card section that folds away: the same label, plus a drawn marker instead of the
+   browser's, so the heading keeps its quiet look. */
+details.section > summary {
+  display: flex;
+  gap: 5px;
+  align-items: baseline;
+  margin: 4px 0 5px;
+  color: var(--text-muted);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  list-style: none;
+}
+
+details.section > summary::-webkit-details-marker {
+  display: none;
+}
+
+details.section > summary:hover {
+  color: var(--text);
+}
+
+details.section > summary .marker {
+  color: var(--border-strong);
+}
+
+details.section[open] > summary .marker {
+  transform: rotate(90deg);
+}
+
 .list {
   margin: 0;
   padding: 0;
@@ -808,5 +840,9 @@ details.collapse > .grid {
 @media (prefers-reduced-motion: no-preference) {
   .progress {
     transition: width 140ms linear;
+  }
+
+  details.section > summary .marker {
+    transition: transform 120ms ease;
   }
 }
