@@ -95,14 +95,14 @@ A plain `Item`, deliberately **not** a `SwordItem`: a lance is a polearm, and in
 
 | Attribute | Amount | Result on a player (base 1 / 4) |
 |---|---|---|
-| `ATTACK_DAMAGE` | **+6** | 7 per swing |
+| `ATTACK_DAMAGE` | **+4** | 5 per swing |
 | `ATTACK_SPEED` | **−3** | 4 − 3 = 1, i.e. one swing a second |
 
-Both entries carry `Item.BASE_ATTACK_DAMAGE_ID` / `Item.BASE_ATTACK_SPEED_ID`. That is load-bearing twice over: `ItemStack.addModifierTooltip` folds the holder's own attribute base into a modifier with those ids, so the tooltip reads "6 Attack Damage, 1 Attack Speed" instead of a bare "+6 / −3" in raw attribute language — and `DollMeleeBehavior.meleeDamage`, which sums the held stack's main-hand `ATTACK_DAMAGE` modifiers over the doll's 2.0 base, gets 6 for free and lands 8 on a charge. Declaring damage any other way (a getter, a custom component) would silently drop the doll back to bare 2.0.
+Both entries carry `Item.BASE_ATTACK_DAMAGE_ID` / `Item.BASE_ATTACK_SPEED_ID`. That is load-bearing twice over: `ItemStack.addModifierTooltip` folds the holder's own attribute base into a modifier with those ids, so the tooltip reads "4 Attack Damage, 1 Attack Speed" instead of a bare "+4 / −3" in raw attribute language — and `DollMeleeBehavior.meleeDamage`, which adds the held stack's main-hand `ATTACK_DAMAGE` modifiers to the doll's own `ATTACK_DAMAGE` attribute (base 1, the same base a player swings with), gets 4 for free and lands **5** on a charge. Declaring damage any other way (a getter, a custom component) would silently drop the doll back to bare 1. The sum is needed precisely because the loadout is not vanilla equipment: the lance is not an item in the doll's hand, so nothing feeds its modifiers into the entity's attribute map the way an equipped weapon's are (control.md §5.1b).
 
 ### No durability
 
-`Properties.durability` is never called, so stacks carry no `max_damage` and no swing can wear one — which also means no `stacksTo(1)`: a lance stacks like any other non-tool item, and there is nothing to repair or replace. This retires the old open question in control.md §10 ("sword durability: the charge costs the swing nothing") — the answer is that the item never had any.
+`Properties.durability` is never called, so stacks carry no `max_damage` and no swing can wear one — which also means no `stacksTo(1)`: in a player's inventory a lance stacks like any other non-tool item, and there is nothing to repair or replace. (A *doll hand* is the exception and holds exactly one, whatever the stack: nothing spends a lance, so it is not ammunition — loadout.md §4.) This retires the old open question in control.md §10 ("sword durability: the charge costs the swing nothing") — the answer is that the item never had any.
 
 ### Model
 
