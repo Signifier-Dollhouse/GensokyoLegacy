@@ -3,13 +3,15 @@
 
 JSC on macOS cannot parse ES modules and there is no node in this environment, so
 this uses tree-sitter to (a) find syntax errors, (b) verify every imported name is
-actually exported by the target module, and (c) report unused imports.
+actually exported by the target module, (c) report unused imports, and (d) check
+that every interface string is translated in both locales.
 
 Usage: python3 scripts/check_site.py
 """
 
 from __future__ import annotations
 
+import re
 import sys
 from pathlib import Path
 
@@ -115,6 +117,107 @@ def top_level_declarations(source: bytes) -> list[tuple[str, str]]:
     return found
 
 
+def i18n_tables(source: bytes) -> dict[str, dict[str, str]]:
+    """The string tables declared in assets/lib/i18n.js, keyed by locale."""
+    tables: dict[str, dict[str, str]] = {}
+    for node in walk(parser.parse(source).root_node):
+        if node.type != "variable_declarator":
+            continue
+        name = child_by_field(node, "name")
+        value = child_by_field(node, "value")
+        if name is None or value is None or value.type != "object":
+            continue
+        locale = text_of(name, source)
+        if locale not in ("en_us", "zh_cn"):
+            continue
+        entries: dict[str, str] = {}
+        for pair in value.named_children:
+            if pair.type != "pair":
+                continue  # a comment inside the table
+            key_node = child_by_field(pair, "key")
+            text_node = child_by_field(pair, "value")
+            if key_node is None or text_node is None:
+                continue
+            entries[text_of(key_node, source).strip("\"'")] = text_of(text_node, source)
+        tables[locale] = entries
+    return tables
+
+
+def placeholders(text: str) -> set[str]:
+    """The `{0}`, `{1}` ... a translated string expects."""
+    return set(re.findall(r"\{\d+\}", text))
+
+
+def used_keys(source: bytes) -> set[tuple[str, str]]:
+    """Every i18n key a module asks for, as (key, human readable origin)."""
+    used = set()
+    for node in walk(parser.parse(source).root_node):
+        if node.type != "call_expression":
+            continue
+        callee = child_by_field(node, "function")
+        if callee is None or callee.type != "identifier" or text_of(callee, source) not in ("tr", "trPlural"):
+            continue
+        arguments = node.children_by_field_name("arguments")
+        first = next(iter(arguments[0].named_children), None) if arguments else None
+        if first is None or first.type != "string":
+            continue  # a computed key cannot be checked statically
+        key = text_of(first, source).strip("\"'`")
+        line = source[: node.start_byte].count(b"\n") + 1
+        if text_of(callee, source) == "trPlural":
+            used.add((f"{key}.one", f"line {line}"))
+            used.add((f"{key}.many", f"line {line}"))
+        else:
+            used.add((key, f"line {line}"))
+    return used
+
+
+def markup_keys(html: str) -> set[tuple[str, str]]:
+    """Keys referenced by the `data-i18n` hooks in index.html."""
+    used = set()
+    for key in re.findall(r'data-i18n="([^"]+)"', html):
+        used.add((key, "index.html"))
+    for pair in re.findall(r'data-i18n-attr="([^"]+)"', html):
+        for entry in pair.split(","):
+            _, _, key = entry.partition(":")
+            if key.strip():
+                used.add((key.strip(), "index.html"))
+    return used
+
+
+def check_i18n(sources: dict[Path, bytes]) -> int:
+    """Every interface string must exist in both locales with matching slots."""
+    failures = 0
+    tables = i18n_tables(sources[SITE / "lib" / "i18n.js"])
+    if set(tables) != {"en_us", "zh_cn"}:
+        print("i18n: assets/lib/i18n.js does not declare both en_us and zh_cn tables")
+        return 1
+
+    used = set()
+    for path, source in sources.items():
+        if path.name != "i18n.js":
+            used |= used_keys(source)
+    used |= markup_keys((ROOT / "index.html").read_text(encoding="utf-8"))
+
+    for key, origin in sorted(used):
+        missing = [locale for locale in ("en_us", "zh_cn") if key not in tables[locale]]
+        if missing:
+            failures += 1
+            print(f"untranslated: {origin} uses {key!r}, missing from {', '.join(missing)}")
+            continue
+        slots = placeholders(tables["en_us"][key])
+        if placeholders(tables["zh_cn"][key]) != slots:
+            failures += 1
+            print(f"placeholder mismatch: {key!r} in zh_cn against en_us {sorted(slots)}")
+
+    for key in sorted(set(tables["en_us"]) - {key for key, _ in used}):
+        failures += 1
+        print(f"unused i18n key: {key!r}")
+
+    if not failures:
+        print(f"i18n: {len(used)} interface strings, {len(tables['en_us'])} keys, both locales complete")
+    return failures
+
+
 def main() -> int:
     files = sorted(SITE.rglob("*.js"))
     sources = {path: path.read_bytes() for path in files}
@@ -158,10 +261,12 @@ def main() -> int:
                     failures += 1
                     print(f"unused import: {path.relative_to(ROOT)} {name!r} from {specifier}")
 
+    failures += check_i18n(sources)
+
     if failures:
         print(f"\n{failures} problem(s)")
     else:
-        print(f"ok: {len(files)} modules parsed, imports and exports resolve")
+        print(f"ok: {len(files)} modules parsed, imports, exports and translations resolve")
     return 1 if failures else 0
 
 

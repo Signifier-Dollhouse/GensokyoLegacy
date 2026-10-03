@@ -6,6 +6,7 @@
 
 import { clear, h, setProgress, setStatus } from "./lib/dom.js";
 import { entityLabel, itemLabel, ingredientId, label, prettify } from "./lib/format.js";
+import { applyLanguage, tr, trPlural } from "./lib/i18n.js";
 import { REPO, setLanguage, setTheme, state, TABS } from "./lib/state.js";
 import {
   buildCharacters,
@@ -105,7 +106,7 @@ function renderQuestPanel(panel) {
       return matchesQuery(entryData.id, quest?.title && label(quest.title), quest?.description && label(quest.description));
     });
 
-  if (!entries.length) return panel.append(emptyState("quests"));
+  if (!entries.length) return panel.append(emptyState(tr("noun.quests")));
 
   const onQuestLink = (id) => {
     state.tab = "quest";
@@ -134,7 +135,7 @@ function renderTradePanel(panel) {
       );
     });
 
-  if (!entries.length) return panel.append(emptyState("trade offers"));
+  if (!entries.length) return panel.append(emptyState(tr("noun.trades")));
 
   const grid = h("div", { class: "grid" });
   for (const entryData of entries) {
@@ -145,14 +146,14 @@ function renderTradePanel(panel) {
 }
 
 function emptyState(what) {
-  return h("p", { class: "empty", text: `No ${what} match the current filters.` });
+  return h("p", { class: "empty", text: tr("empty.match", what) });
 }
 
 async function renderDialogPanel(panel) {
   if (!state.dialogsLoaded) {
     const counter = h("span", { text: "0 / 0" });
     const bar = h("div", { class: "progress-track" }, h("div", { class: "progress-fill" }), counter);
-    panel.append(h("p", { class: "status", text: "Loading dialog files..." }), bar);
+    panel.append(h("p", { class: "status", text: tr("status.loadingDialogs") }), bar);
 
     await loadAllDialogs((done, total) => {
       counter.textContent = `${done} / ${total}`;
@@ -170,8 +171,8 @@ async function renderDialogPanel(panel) {
   });
 
   panel.append(
-    h("h3", { text: "Conversation starters" }),
-    h("p", { class: "card-id", text: "The gated entry points a player can trigger by talking to a character." }),
+    h("h3", { text: tr("starters.title") }),
+    h("p", { class: "card-id", text: tr("starters.note") }),
     starters.length
       ? h(
           "div",
@@ -181,7 +182,7 @@ async function renderDialogPanel(panel) {
             return starter ? starterCard(entryData, starter) : null;
           }),
         )
-      : emptyState("starters"),
+      : emptyState(tr("noun.starters")),
   );
 
   // 200+ dialog nodes grouped by the conversation they belong to, so the tree
@@ -199,8 +200,8 @@ async function renderDialogPanel(panel) {
   }
 
   panel.append(
-    h("h3", { text: "Dialogs" }),
-    h("p", { class: "card-id", text: "Every dialog node, grouped by the conversation it belongs to." }),
+    h("h3", { text: tr("dialogs.title") }),
+    h("p", { class: "card-id", text: tr("dialogs.note") }),
     conversations.size
       ? h(
           "ul",
@@ -218,12 +219,12 @@ async function renderDialogPanel(panel) {
               h("span", { class: "card-id mono", text: `${store.manifest.namespace}:${root}` }),
               h("span", {
                 class: "entry-note",
-                text: `${nodes.length} line${nodes.length === 1 ? "" : "s"} - first: ${label(nodes[0].dialog?.text ?? "?")}`,
+                text: trPlural("dialog.lines", nodes.length, nodes.length, label(nodes[0].dialog?.text ?? "?")),
               }),
             ),
           ),
         )
-      : emptyState("dialogs"),
+      : emptyState(tr("noun.dialogs")),
   );
 }
 
@@ -281,23 +282,25 @@ function renderSidebar() {
       ),
     );
 
-  list.append(button("all", "All characters", [...counts.values()].reduce((sum, value) => sum + value, 0)));
+  list.append(
+    button("all", tr("nav.allCharacters"), [...counts.values()].reduce((sum, value) => sum + value, 0)),
+  );
   for (const character of orderedCharacters()) {
     list.append(button(character.key, characterName(character), counts.get(character.key) ?? 0));
   }
 
   clear(document.querySelector("#source")).append(
     h("p", {
-      text: `${store.manifest.stats.files} datapack files - ${Object.keys(store.manifest.lootTables).length} loot tables`,
+      text: tr("source.summary", store.manifest.stats.files, Object.keys(store.manifest.lootTables).length),
     }),
     h(
       "p",
       {},
-      "Fetched live from ",
+      tr("source.fetchedFrom"),
       h("code", { text: store.manifest.resources }),
-      " on branch ",
+      tr("source.onBranch"),
       h("code", { text: REPO.ref }),
-      ".",
+      tr("source.end"),
     ),
   );
 }
@@ -329,6 +332,9 @@ function applyTheme() {
 }
 
 function wireChrome() {
+  // The static markup in index.html is English until this runs.
+  applyLanguage();
+
   const search = document.querySelector("#search");
   search.value = state.query;
   search.addEventListener("input", (event) => {
@@ -342,7 +348,9 @@ function wireChrome() {
       for (const sibling of document.querySelectorAll("[data-lang]")) {
         sibling.setAttribute("aria-pressed", String(sibling === button));
       }
-      // Names come from the lang files, so they must be re-derived.
+      // The chrome, the character names and every datapack label are resolved per
+      // render, so a language switch only has to retranslate the static markup.
+      applyLanguage();
       buildCharacters();
       render();
     });
@@ -379,11 +387,7 @@ async function boot() {
   try {
     await loadManifest();
   } catch (error) {
-    setStatus(
-      `Could not load rpg-manifest.json (${error.message}). Publish this branch with GitHub Pages set to the ` +
-        "branch root (not /docs), and make sure rpg-manifest.json is committed.",
-      true,
-    );
+    setStatus(tr("error.manifest", error.message), true);
     return;
   }
 
@@ -451,7 +455,7 @@ async function refreshFromGitHub() {
     }
     buildCharacters();
     render();
-    setStatus(`Index refreshed from GitHub: ${added} new file${added === 1 ? "" : "s"} found on this branch.`);
+    setStatus(trPlural("status.refreshed", added, added));
   } catch {
     /* offline, rate limited, or the branch is not published: keep the committed index */
   }
@@ -462,5 +466,5 @@ boot().catch((error) => {
   // what went wrong. This also catches the usual cause: a Pages deployment that
   // serves the site with the wrong base path, breaking every relative fetch.
   console.error(error);
-  setStatus(`Failed to load content: ${error.message}`, true);
+  setStatus(tr("error.content", error.message), true);
 });

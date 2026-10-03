@@ -46,7 +46,7 @@ jobs:
           ref: gh-page
           fetch-depth: 0
 
-      - name: Validate the site modules
+      - name: Validate the site modules and translations
         run: |
           python3 -m pip install --quiet tree_sitter tree_sitter_javascript
           python3 scripts/check_site.py

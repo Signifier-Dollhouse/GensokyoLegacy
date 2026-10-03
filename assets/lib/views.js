@@ -13,6 +13,7 @@ import {
   label,
   prettify,
 } from "./format.js";
+import { tr } from "./i18n.js";
 import { loadDialog, loadEntityTag, loadItemTag, loadLootTable, store } from "./store.js";
 
 // ---------------------------------------------------------------------------
@@ -70,12 +71,12 @@ function rawJson(file, data) {
   return h(
     "details",
     { class: "raw" },
-    h("summary", { text: "Source JSON" }),
+    h("summary", { text: tr("raw.summary") }),
     h("pre", { text: JSON.stringify(data, null, 2) }),
     h(
       "p",
       { class: "entry-note" },
-      "Loaded from ",
+      tr("raw.loadedFrom"),
       h("a", { href: file, target: "_blank", rel: "noopener", text: file.replace(/^src\/generated\/resources\//, "") }),
     ),
   );
@@ -96,13 +97,13 @@ function cardHead(title, id, badges) {
 
 /** Reduces a loot table to the part a player cares about: rolls and possible drops. */
 function lootNode(id) {
-  const list = h("ul", { class: "list" }, h("li", { class: "entry-note", text: "Loading loot table..." }));
+  const list = h("ul", { class: "list" }, h("li", { class: "entry-note", text: tr("loot.loading") }));
   const node = h("div", { class: "weights" }, code(id), list);
 
   loadLootTable(id).then((table) => {
     clear(list);
     if (!table) {
-      list.append(h("li", { class: "entry-note", text: `Loot table ${id} could not be loaded.` }));
+      list.append(h("li", { class: "entry-note", text: tr("loot.failed", id) }));
       return;
     }
     for (const [index, pool] of (table.pools ?? []).entries()) {
@@ -116,11 +117,14 @@ function lootNode(id) {
             : count?.value !== undefined
               ? String(Math.floor(count.value))
               : null;
-        const title = range ? `${count} per drop` : (drop.name ?? "");
-        return pill("item", itemLabel(drop.name), title);
+        return pill("item", itemLabel(drop.name), range ? tr("loot.perDrop", range) : (drop.name ?? ""));
       });
       list.append(
-        entry(`Pool ${index + 1}`, h("div", { text: `Rolls ${rolls}x` }), h("div", { class: "pill-stack" }, ...drops)),
+        entry(
+          tr("loot.pool", index + 1),
+          h("div", { text: tr("loot.rolls", rolls) }),
+          h("div", { class: "pill-stack" }, ...drops),
+        ),
       );
     }
   });
@@ -135,13 +139,13 @@ function lootNode(id) {
 /** Renders an `EntityPredicate`: either one entity type or a `#tag` of them. */
 function entityTarget(target) {
   const id = target?.type;
-  if (typeof id !== "string") return pill("item", "unknown target");
+  if (typeof id !== "string") return pill("item", tr("tag.unknownTarget"));
   if (!id.startsWith("#")) return pill("item", entityLabel(id), id);
   const known = Boolean(store.manifest.entityTags[id]);
   return focusLink(
     `#${prettify(id)}`,
     () => showEntityTag(id),
-    known ? "Show members" : `${id} (vanilla tag, not in this repository)`,
+    known ? tr("tag.showMembers") : tr("tag.vanilla", id),
   );
 }
 
@@ -152,7 +156,7 @@ async function showEntityTag(id) {
     `#${prettify(id)}`,
     members
       ? h("ul", { class: "list" }, ...[...members].map((value) => entry("", pill("item", entityLabel(value), value))))
-      : h("p", { class: "entry-note", text: "This tag belongs to a base mod, so its members are not in this repository." }),
+      : h("p", { class: "entry-note", text: tr("tag.baseMod") }),
   );
 }
 
@@ -162,7 +166,7 @@ export function conditionNode(condition, onQuestLink) {
       const quest = store.quests.get(condition.quest);
       const text = quest?.title ? label(quest.title) : condition.quest;
       return entry(
-        "Quest",
+        tr("cond.quest"),
         // A link is only useful where a quest list is on screen to link to.
         onQuestLink && quest?.title
           ? focusLink(text, () => onQuestLink(condition.quest), condition.quest)
@@ -171,45 +175,49 @@ export function conditionNode(condition, onQuestLink) {
     }
     case "has_advancement":
       return entry(
-        condition.invert ? "Not yet" : "Advancement",
+        condition.invert ? tr("cond.notYet") : tr("cond.advancement"),
         h("span", { text: advancementLabel(condition.advancement) }),
         h("div", { class: "entry-note" }, code(condition.advancement)),
       );
     case "has_item":
-      return entry("Items", ingredientList(condition.ingredients));
+      return entry(tr("cond.items"), ingredientList(condition.ingredients));
     case "timer":
       return entry(
-        condition.invert ? "Ready" : "Cooldown",
+        condition.invert ? tr("cond.ready") : tr("cond.cooldown"),
         code(condition.key),
-        condition.invert ? null : h("span", { class: "entry-note", text: " must have elapsed" }),
+        condition.invert ? null : h("span", { class: "entry-note", text: tr("cond.elapsed") }),
       );
     case "self_reputation":
       return entry(
-        "Reputation",
-        h("span", { text: `${condition.invert ? "below" : "at least"} ${condition.reputation}` }),
-        h("span", { class: "entry-note", text: " with this character" }),
+        tr("cond.reputation"),
+        h("span", {
+          text: condition.invert
+            ? tr("cond.reputation.below", condition.reputation)
+            : tr("cond.reputation.atLeast", condition.reputation),
+        }),
+        h("span", { class: "entry-note", text: tr("cond.reputation.withCharacter") }),
       );
     case "other_reputation":
       return entry(
-        "Reputation",
-        h("span", { text: `at least ${condition.reputation}` }),
-        h("span", { class: "entry-note", text: ` with ${entityLabel(condition.character)}` }),
+        tr("cond.reputation"),
+        h("span", { text: tr("cond.reputation.atLeast", condition.reputation) }),
+        h("span", { class: "entry-note", text: tr("cond.reputation.with", entityLabel(condition.character)) }),
       );
     case "any":
       return h(
         "li",
         {},
-        h("div", { class: "entry" }, h("span", { class: "entry-kind", text: "Any of" })),
+        h("div", { class: "entry" }, h("span", { class: "entry-kind", text: tr("cond.anyOf") })),
         h("ul", { class: "nested" }, ...(condition.conditions ?? []).map((node) => conditionNode(node, onQuestLink))),
       );
     default:
-      return entry("Condition", code(condition.type));
+      return entry(tr("cond.generic"), code(condition.type));
   }
 }
 
 export function conditionsNode(conditions, onQuestLink) {
   if (!conditions?.length) return null;
-  return section("Conditions to unlock", ...conditions.map((condition) => conditionNode(condition, onQuestLink)));
+  return section(tr("section.conditions"), ...conditions.map((condition) => conditionNode(condition, onQuestLink)));
 }
 
 // ---------------------------------------------------------------------------
@@ -219,55 +227,55 @@ export function conditionsNode(conditions, onQuestLink) {
 export function requirementNode(key, requirement) {
   switch (kindOf(requirement)) {
     case "submit_item":
-      return entry(key || "Submit", ingredientList(requirement.ingredients));
+      return entry(key || tr("req.submit"), ingredientList(requirement.ingredients));
     case "has_item":
-      return entry(key || "Carry", ingredientList(requirement.ingredients));
+      return entry(key || tr("req.carry"), ingredientList(requirement.ingredients));
     case "kill_mob":
       // The text is the objective as the player sees it ("Exterminate skeletons"),
       // so the entity predicate is shown alongside it as the target list.
       return entry(
-        key || "Kill",
-        h("span", { text: requirement.text ? label(requirement.text) : "Defeat" }),
+        key || tr("req.kill"),
+        h("span", { text: requirement.text ? label(requirement.text) : tr("req.defeat") }),
         h("span", { class: "n", text: ` x${requirement.count}` }),
         " ",
         entityTarget(requirement.target),
       );
     case "kill_enemy":
       return entry(
-        key || "Kill",
-        h("span", { text: requirement.text ? label(requirement.text) : "Defeat enemies" }),
+        key || tr("req.kill"),
+        h("span", { text: requirement.text ? label(requirement.text) : tr("req.defeatEnemies") }),
         h("span", { class: "n", text: ` x${requirement.count}` }),
       );
     case "raid_victory":
       return entry(
-        key || "Raid",
-        h("span", { text: requirement.text ? label(requirement.text) : "Win a raid" }),
+        key || tr("req.raid"),
+        h("span", { text: requirement.text ? label(requirement.text) : tr("req.winRaid") }),
         h("span", { class: "n", text: ` x${requirement.count}` }),
       );
     case "roll_item":
       return h(
         "li",
         {},
-        h("div", { class: "entry" }, h("span", { class: "entry-kind", text: key || "Random loot" })),
+        h("div", { class: "entry" }, h("span", { class: "entry-kind", text: key || tr("req.randomLoot") })),
         lootNode(requirement.table),
       );
     case "koishi_hat":
       // KoishiHatRequirement#getDesc returns nothing, so this objective is never
       // shown in game: it completes as a side effect of picking up the hat.
       return entry(
-        key || "Hidden",
-        h("span", { text: "Obtain the Koishi Hat" }),
-        h("div", { class: "entry-note", text: "Hidden objective - no progress is displayed in game." }),
+        key || tr("req.hidden"),
+        h("span", { text: tr("req.koishiHat", itemLabel("gensokyolegacy:koishi_hat")) }),
+        h("div", { class: "entry-note", text: tr("req.hiddenNote") }),
       );
     default:
-      return entry(key || "Requirement", code(requirement.type));
+      return entry(key || tr("req.generic"), code(requirement.type));
   }
 }
 
 export function requirementsNode(requirements) {
   const entries = Object.entries(requirements ?? {});
   if (!entries.length) return null;
-  return section("Requirements", ...entries.map(([key, value]) => requirementNode(key, value)));
+  return section(tr("section.requirements"), ...entries.map(([key, value]) => requirementNode(key, value)));
 }
 
 // ---------------------------------------------------------------------------
@@ -277,31 +285,31 @@ export function requirementsNode(requirements) {
 export function rewardNode(reward) {
   switch (kindOf(reward)) {
     case "exp":
-      return entry("Experience", h("span", { text: `${reward.point} exp` }));
+      return entry(tr("reward.exp"), h("span", { text: tr("reward.expValue", reward.point) }));
     case "reputation":
       return entry(
-        "Reputation",
+        tr("reward.reputation"),
         h("span", { text: `+${reward.reputation}` }),
         h("span", {
           class: "entry-note",
-          text: ` (soft cap ${reward.soft_cap}, cap +${reward.cap_increase}, max ${reward.max_cap})`,
+          text: tr("reward.reputationDetail", reward.soft_cap, reward.cap_increase, reward.max_cap),
         }),
       );
     case "loot_table":
       return h(
         "li",
         {},
-        h("div", { class: "entry" }, h("span", { class: "entry-kind", text: "Loot" })),
+        h("div", { class: "entry" }, h("span", { class: "entry-kind", text: tr("reward.loot") })),
         lootNode(reward.table),
       );
     default:
-      return entry("Reward", code(reward.type));
+      return entry(tr("reward.generic"), code(reward.type));
   }
 }
 
 export function rewardsNode(rewards) {
   if (!rewards?.length) return null;
-  return section("Rewards", ...rewards.map(rewardNode));
+  return section(tr("section.rewards"), ...rewards.map(rewardNode));
 }
 
 // ---------------------------------------------------------------------------
@@ -316,9 +324,9 @@ function actionsNode(actions) {
     ...actions.map((action) => {
       switch (kindOf(action)) {
         case "start_quest":
-          return pill("reward", "starts the quest");
+          return pill("reward", tr("action.startQuest"));
         case "complete_quest":
-          return pill("reward", "completes the quest");
+          return pill("reward", tr("action.completeQuest"));
         case "give_mob_effect": {
           const amplifier = action.amplifier ? ` ${"I".repeat(action.amplifier + 1)}` : "";
           return pill("condition", `${prettify(action.effect)} ${formatTicks(action.duration)}${amplifier}`, action.effect);
@@ -336,7 +344,8 @@ function actionsNode(actions) {
 function optionNode(option, onNext) {
   const group = kindOf(option) === "group" ? label(option.group) : null;
   const next = typeof option.next === "string" ? option.next : null;
-  const continueButton = () => h("button", { class: "linkish", type: "button", text: "continue ->", onclick: () => onNext(next) });
+  const continueButton = () =>
+    h("button", { class: "linkish", type: "button", text: tr("option.continue"), onclick: () => onNext(next) });
 
   return h(
     "div",
@@ -349,8 +358,8 @@ function optionNode(option, onNext) {
       h(
         "div",
         { class: "option-meta" },
-        option.conditions?.length ? pill("condition", `${option.conditions.length} cond.`) : null,
-        option.actions?.length ? pill("reward", `${option.actions.length} act.`) : null,
+        option.conditions?.length ? pill("condition", tr("option.conditions", option.conditions.length)) : null,
+        option.actions?.length ? pill("reward", tr("option.actions", option.actions.length)) : null,
       ),
       conditionsNode(option.conditions, null),
       actionsNode(option.actions),
@@ -362,11 +371,11 @@ function optionNode(option, onNext) {
               h(
                 "li",
                 { class: "starter-row" },
-                pill("requirement", `weight ${entry.weight}`),
+                pill("requirement", tr("option.weight", entry.weight)),
                 actionsNode(entry.actions),
                 typeof entry.next === "string"
-                  ? h("button", { class: "linkish", type: "button", text: "continue ->", onclick: () => onNext(entry.next) })
-                  : h("span", { class: "entry-note", text: "ends here" }),
+                  ? h("button", { class: "linkish", type: "button", text: tr("option.continue"), onclick: () => onNext(entry.next) })
+                  : h("span", { class: "entry-note", text: tr("option.endsHere") }),
               ),
             ),
           )
@@ -388,7 +397,7 @@ function optionNode(option, onNext) {
 function viewerElement() {
   let element = document.querySelector("#viewer");
   if (element) return element;
-  element = h("dialog", { id: "viewer", class: "viewer", "aria-label": "Detail" });
+  element = h("dialog", { id: "viewer", class: "viewer", "aria-label": tr("a11y.detail") });
   document.body.append(element);
   return element;
 }
@@ -424,13 +433,22 @@ function mountViewer() {
       h(
         "div",
         { class: "option-meta" },
+        // `data-i18n` keeps the chrome translated if the language changes while
+        // the viewer is open, since the head is only built once.
         h("button", {
           class: "linkish",
           type: "button",
-          text: "back",
+          "data-i18n": "viewer.back",
+          text: tr("viewer.back"),
           onclick: () => (trail.length > 1 ? renderTrail() : closeViewer()),
         }),
-        h("button", { class: "linkish", type: "button", text: "close", onclick: closeViewer }),
+        h("button", {
+          class: "linkish",
+          type: "button",
+          "data-i18n": "viewer.close",
+          text: tr("viewer.close"),
+          onclick: closeViewer,
+        }),
       ),
     ),
     viewerBody,
@@ -454,7 +472,7 @@ function renderTrail() {
   loadDialog(id).then((dialog) => {
     if (trail.at(-1) !== id) return; // navigated away while loading
     if (!dialog) {
-      viewerBody.append(h("p", { class: "empty", text: `Dialog ${id} could not be loaded.` }));
+      viewerBody.append(h("p", { class: "empty", text: tr("dialog.failed", id) }));
       return;
     }
 
@@ -471,7 +489,7 @@ function renderTrail() {
         : null,
       dialog.options?.length
         ? h("div", { class: "option-list" }, ...dialog.options.map((option) => optionNode(option, go)))
-        : h("p", { class: "entry-note", text: "- end of conversation -" }),
+        : h("p", { class: "entry-note", text: tr("dialog.end") }),
     ]);
   });
 }
@@ -489,11 +507,11 @@ export async function showItemTag(id) {
             entry(
               "",
               pill("item", itemLabel(value), value),
-              members.size > 1 ? h("span", { class: "entry-note", text: ` or ${members.size - 1} other` }) : null,
+              members.size > 1 ? h("span", { class: "entry-note", text: tr("tag.others", members.size - 1) }) : null,
             ),
           ),
         )
-      : h("p", { class: "entry-note", text: "This tag belongs to a base mod, so its members are not in this repository." }),
+      : h("p", { class: "entry-note", text: tr("tag.baseMod") }),
   );
 }
 
@@ -503,9 +521,9 @@ export async function showItemTag(id) {
 
 export function questCard(entryData, quest, onQuestLink) {
   const points = [
-    ["Offer", quest.initialDialog],
-    ["Follow-up", quest.followUpDialog],
-    ["Hand in", quest.completionDialog],
+    [tr("quest.offer"), quest.initialDialog],
+    [tr("quest.followUp"), quest.followUpDialog],
+    [tr("quest.handIn"), quest.completionDialog],
   ].filter(([, option]) => option);
 
   return h(
@@ -513,8 +531,8 @@ export function questCard(entryData, quest, onQuestLink) {
     { class: "card" },
     cardHead(quest.title ? label(quest.title) : entryData.id, entryData.id, [
       quest.recurrence
-        ? pill("requirement", `cooldown ${formatTicks(quest.recurrence.cooldown)}`)
-        : pill("condition", "one-time"),
+        ? pill("requirement", tr("quest.cooldown", formatTicks(quest.recurrence.cooldown)))
+        : pill("condition", tr("quest.oneTime")),
       pill("accent", entityLabel(quest.character)),
     ]),
     quest.description ? h("p", { class: "card-desc", text: label(quest.description) }) : null,
@@ -523,7 +541,7 @@ export function questCard(entryData, quest, onQuestLink) {
     rewardsNode(quest.rewards),
     points.length
       ? section(
-          "Conversation",
+          tr("section.conversation"),
           ...points.map(([name, option]) =>
             entry(
               name,
@@ -532,7 +550,7 @@ export function questCard(entryData, quest, onQuestLink) {
                 ? h("button", {
                     class: "linkish",
                     type: "button",
-                    text: "open dialog ->",
+                    text: tr("quest.openDialog"),
                     onclick: () => openDialogViewer(option.next),
                   })
                 : null,
@@ -549,9 +567,9 @@ export function questCard(entryData, quest, onQuestLink) {
  *
  * `TradeOffer#isSellOffer` answers "does this hand out a non-currency item?", and
  * `TradeScreen#actionText` then splits that into three cases:
- *   - not a sell offer                      -> the player hands over the ingredients: "Sell"
- *   - sell offer, an ingredient is currency  -> the player pays currency: "Buy"
- *   - sell offer, otherwise                  -> the character makes it: "Request a craft"
+ *   - not a sell offer                      -> the player hands over the ingredients
+ *   - sell offer, an ingredient is currency  -> the player pays currency
+ *   - sell offer, otherwise                  -> the character makes it
  */
 export function tradeKind(trade) {
   const currency = store.tags.get("gensokyolegacy:currency");
@@ -572,10 +590,12 @@ export function tradeKind(trade) {
   return (trade.ingredients ?? []).some((ingredient) => isCurrency(ingredientId(ingredient))) ? "buy" : "craft";
 }
 
+// The screen's wording for each kind of offer, resolved on every render so that a
+// language switch is picked up without rebuilding the card.
 const TRADE_TITLES = {
-  sell: "Sell to character",
-  buy: "Buy from character",
-  craft: "Request a craft",
+  sell: () => tr("trade.sell"),
+  buy: () => tr("trade.buy"),
+  craft: () => tr("trade.craft"),
 };
 
 export function tradeCard(entryData, trade) {
@@ -586,10 +606,10 @@ export function tradeCard(entryData, trade) {
   return h(
     "article",
     { class: "card" },
-    cardHead(TRADE_TITLES[kind], entryData.id, [
+    cardHead(TRADE_TITLES[kind](), entryData.id, [
       pill("accent", entityLabel(trade.character)),
-      stock ? pill("requirement", `stock ${stock}`) : null,
-      restock ? pill("condition", `restock ${formatTicks(restock)}`) : null,
+      stock ? pill("requirement", tr("trade.stock", stock)) : null,
+      restock ? pill("condition", tr("trade.restock", formatTicks(restock))) : null,
     ]),
     h(
       "div",
@@ -610,7 +630,7 @@ export function starterCard(entryData, starter) {
     { class: "card" },
     cardHead(label(starter.text), entryData.id, [
       pill("accent", entityLabel(starter.character)),
-      starter.weight !== undefined ? pill("requirement", `weight ${starter.weight}`) : null,
+      starter.weight !== undefined ? pill("requirement", tr("option.weight", starter.weight)) : null,
     ]),
     h(
       "div",
@@ -619,7 +639,7 @@ export function starterCard(entryData, starter) {
         ? h("button", {
             class: "linkish",
             type: "button",
-            text: "start conversation ->",
+            text: tr("dialog.startConversation"),
             onclick: () => openDialogViewer(starter.dialog),
           })
         : null,

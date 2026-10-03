@@ -1,0 +1,353 @@
+// Interface strings: the page chrome, the labels around the datapack nodes, and
+// the messages that are not part of the mod itself.
+//
+// This is deliberately separate from the mod's lang files (assets/lib/format.js
+// resolves those). Those carry quest, dialog, item and entity text; everything the
+// site says *about* that content lives here, so neither has to change when the
+// other does. Placeholders are positional (`{0}`), so a translation is free to
+// reorder the sentence - which Chinese usually needs.
+
+import { state } from "./state.js";
+
+const en_us = {
+  // -- page chrome ----------------------------------------------------------
+  "page.title": "Gensokyo Legacy · Quests, Dialogs & Trades",
+  "meta.description":
+    "Browser for the Gensokyo Legacy RPG datapack: every quest, dialog and trade offer with its conditions and requirements, read straight from the generated JSON.",
+  "a11y.skip": "Skip to content",
+  "a11y.search": "Search",
+  "a11y.language": "Language",
+  "a11y.theme": "Toggle colour scheme",
+  "a11y.characters": "Characters",
+  "a11y.contentType": "Content type",
+  "a11y.detail": "Detail",
+
+  "brand.sub": "Quests, dialogs & trades — read from the datapack",
+  "search.placeholder": "Search quests, dialogs, items…",
+
+  // -- navigation -----------------------------------------------------------
+  "nav.characters": "Characters",
+  "nav.allCharacters": "All characters",
+  "tab.quest": "Quests",
+  "tab.trade": "Trades",
+  "tab.dialog": "Dialogs",
+
+  "source.summary": "{0} datapack files - {1} loot tables",
+  "source.fetchedFrom": "Fetched live from ",
+  "source.onBranch": " on branch ",
+  "source.end": ".",
+
+  // -- panels ---------------------------------------------------------------
+  "noun.quests": "quests",
+  "noun.trades": "trade offers",
+  "noun.starters": "starters",
+  "noun.dialogs": "dialogs",
+  "empty.match": "No {0} match the current filters.",
+  "status.loadingDialogs": "Loading dialog files...",
+  "status.refreshed.one": "Index refreshed from GitHub: {0} new file found on this branch.",
+  "status.refreshed.many": "Index refreshed from GitHub: {0} new files found on this branch.",
+
+  "starters.title": "Conversation starters",
+  "starters.note": "The gated entry points a player can trigger by talking to a character.",
+  "dialogs.title": "Dialogs",
+  "dialogs.note": "Every dialog node, grouped by the conversation it belongs to.",
+  "dialog.lines.one": "{0} line - first: {1}",
+  "dialog.lines.many": "{0} lines - first: {1}",
+  "dialog.end": "- end of conversation -",
+  "dialog.startConversation": "start conversation ->",
+  "dialog.failed": "Dialog {0} could not be loaded.",
+
+  // -- viewer ---------------------------------------------------------------
+  "viewer.back": "back",
+  "viewer.close": "close",
+
+  // -- sections -------------------------------------------------------------
+  "section.conditions": "Conditions to unlock",
+  "section.requirements": "Requirements",
+  "section.rewards": "Rewards",
+  "section.conversation": "Conversation",
+
+  // -- conditions -----------------------------------------------------------
+  "cond.quest": "Quest",
+  "cond.advancement": "Advancement",
+  "cond.notYet": "Not yet",
+  "cond.items": "Items",
+  "cond.cooldown": "Cooldown",
+  "cond.ready": "Ready",
+  "cond.elapsed": " must have elapsed",
+  "cond.reputation": "Reputation",
+  "cond.reputation.below": "below {0}",
+  "cond.reputation.atLeast": "at least {0}",
+  "cond.reputation.withCharacter": " with this character",
+  "cond.reputation.with": " with {0}",
+  "cond.anyOf": "Any of",
+  "cond.generic": "Condition",
+
+  // -- requirements ---------------------------------------------------------
+  "req.submit": "Submit",
+  "req.carry": "Carry",
+  "req.kill": "Kill",
+  "req.defeat": "Defeat",
+  "req.defeatEnemies": "Defeat enemies",
+  "req.raid": "Raid",
+  "req.winRaid": "Win a raid",
+  "req.randomLoot": "Random loot",
+  "req.hidden": "Hidden",
+  "req.koishiHat": "Obtain the {0}",
+  "req.hiddenNote": "Hidden objective - no progress is displayed in game.",
+  "req.generic": "Requirement",
+
+  // -- rewards --------------------------------------------------------------
+  "reward.exp": "Experience",
+  "reward.expValue": "{0} exp",
+  "reward.reputation": "Reputation",
+  "reward.reputationDetail": " (soft cap {0}, cap +{1}, max {2})",
+  "reward.loot": "Loot",
+  "reward.generic": "Reward",
+
+  // -- loot tables ----------------------------------------------------------
+  "loot.loading": "Loading loot table...",
+  "loot.failed": "Loot table {0} could not be loaded.",
+  "loot.pool": "Pool {0}",
+  "loot.rolls": "Rolls {0}x",
+  "loot.perDrop": "{0} per drop",
+
+  // -- tags -----------------------------------------------------------------
+  "tag.unknownTarget": "unknown target",
+  "tag.showMembers": "Show members",
+  "tag.vanilla": "{0} (vanilla tag, not in this repository)",
+  "tag.baseMod": "This tag belongs to a base mod, so its members are not in this repository.",
+  "tag.others": " or {0} other",
+
+  // -- dialog options -------------------------------------------------------
+  "action.startQuest": "starts the quest",
+  "action.completeQuest": "completes the quest",
+  "option.conditions": "{0} cond.",
+  "option.actions": "{0} act.",
+  "option.continue": "continue ->",
+  "option.weight": "weight {0}",
+  "option.endsHere": "ends here",
+
+  // -- quest cards ----------------------------------------------------------
+  "quest.offer": "Offer",
+  "quest.followUp": "Follow-up",
+  "quest.handIn": "Hand in",
+  "quest.cooldown": "cooldown {0}",
+  "quest.oneTime": "one-time",
+  "quest.openDialog": "open dialog ->",
+
+  // -- trade cards ----------------------------------------------------------
+  "trade.sell": "Sell to character",
+  "trade.buy": "Buy from character",
+  "trade.craft": "Request a craft",
+  "trade.stock": "stock {0}",
+  "trade.restock": "restock {0}",
+
+  // -- raw json -------------------------------------------------------------
+  "raw.summary": "Source JSON",
+  "raw.loadedFrom": "Loaded from ",
+
+  // -- units ----------------------------------------------------------------
+  "unit.second": "s",
+  "unit.minute": "min",
+  "unit.hour": "h",
+  "ticks.tooltip": "{0} ticks",
+
+  // -- failures -------------------------------------------------------------
+  "error.manifest":
+    "Could not load rpg-manifest.json ({0}). Publish this branch with GitHub Pages set to the " +
+    "branch root (not /docs), and make sure rpg-manifest.json is committed.",
+  "error.content": "Failed to load content: {0}",
+};
+
+const zh_cn = {
+  // -- page chrome ----------------------------------------------------------
+  "page.title": "幻想乡遗产 · 任务、对话与交易",
+  "meta.description":
+    "浏览幻想乡遗产 RPG 数据包：全部任务、对话与交易内容及其条件与需求，均直接读取自动生成的 JSON。",
+  "a11y.skip": "跳到正文",
+  "a11y.search": "搜索",
+  "a11y.language": "语言",
+  "a11y.theme": "切换配色",
+  "a11y.characters": "角色",
+  "a11y.contentType": "内容类型",
+  "a11y.detail": "详情",
+
+  "brand.sub": "任务、对话与交易——直接读取数据包",
+  "search.placeholder": "搜索任务、对话、物品…",
+
+  // -- navigation -----------------------------------------------------------
+  "nav.characters": "角色",
+  "nav.allCharacters": "全部角色",
+  "tab.quest": "任务",
+  "tab.trade": "交易",
+  "tab.dialog": "对话",
+
+  "source.summary": "{0} 个数据包文件 · {1} 个战利品表",
+  "source.fetchedFrom": "实时抓取自 ",
+  "source.onBranch": "，来自分支 ",
+  "source.end": "。",
+
+  // -- panels ---------------------------------------------------------------
+  "noun.quests": "任务",
+  "noun.trades": "交易",
+  "noun.starters": "对话入口",
+  "noun.dialogs": "对话",
+  "empty.match": "没有符合当前筛选条件的{0}。",
+  "status.loadingDialogs": "正在加载对话文件……",
+  "status.refreshed.one": "已从 GitHub 刷新索引：该分支上有 {0} 个新文件。",
+  "status.refreshed.many": "已从 GitHub 刷新索引：该分支上有 {0} 个新文件。",
+
+  "starters.title": "对话入口",
+  "starters.note": "与角色交谈时可能触发、且带有条件限制的对话入口。",
+  "dialogs.title": "对话",
+  "dialogs.note": "全部对话节点，按其所属的对话分组。",
+  "dialog.lines.one": "{0} 行——首句：{1}",
+  "dialog.lines.many": "{0} 行——首句：{1}",
+  "dialog.end": "— 对话结束 —",
+  "dialog.startConversation": "开始对话 ->",
+  "dialog.failed": "对话 {0} 加载失败。",
+
+  // -- viewer ---------------------------------------------------------------
+  "viewer.back": "返回",
+  "viewer.close": "关闭",
+
+  // -- sections -------------------------------------------------------------
+  "section.conditions": "解锁条件",
+  "section.requirements": "需求",
+  "section.rewards": "奖励",
+  "section.conversation": "对话",
+
+  // -- conditions -----------------------------------------------------------
+  "cond.quest": "任务",
+  "cond.advancement": "进度",
+  "cond.notYet": "尚未获得",
+  "cond.items": "物品",
+  "cond.cooldown": "冷却",
+  "cond.ready": "已就绪",
+  "cond.elapsed": "（需已过）",
+  "cond.reputation": "声望",
+  "cond.reputation.below": "低于 {0}",
+  "cond.reputation.atLeast": "至少 {0}",
+  "cond.reputation.withCharacter": "（与该角色）",
+  "cond.reputation.with": "（与{0}）",
+  "cond.anyOf": "满足其一",
+  "cond.generic": "条件",
+
+  // -- requirements ---------------------------------------------------------
+  "req.submit": "提交",
+  "req.carry": "携带",
+  "req.kill": "击杀",
+  "req.defeat": "击败",
+  "req.defeatEnemies": "击败敌人",
+  "req.raid": "袭击",
+  "req.winRaid": "赢得一场袭击",
+  "req.randomLoot": "随机战利品",
+  "req.hidden": "隐藏",
+  "req.koishiHat": "获得{0}",
+  "req.hiddenNote": "隐藏目标——游戏内不会显示进度。",
+  "req.generic": "需求",
+
+  // -- rewards --------------------------------------------------------------
+  "reward.exp": "经验",
+  "reward.expValue": "{0} 点经验",
+  "reward.reputation": "声望",
+  "reward.reputationDetail": "（软上限 {0}，单次上限 +{1}，最大 {2}）",
+  "reward.loot": "战利品",
+  "reward.generic": "奖励",
+
+  // -- loot tables ----------------------------------------------------------
+  "loot.loading": "正在加载战利品表……",
+  "loot.failed": "战利品表 {0} 加载失败。",
+  "loot.pool": "奖池 {0}",
+  "loot.rolls": "抽取 {0} 次",
+  "loot.perDrop": "每次 {0} 个",
+
+  // -- tags -----------------------------------------------------------------
+  "tag.unknownTarget": "未知目标",
+  "tag.showMembers": "查看成员",
+  "tag.vanilla": "{0}（原版标签，本仓库中没有）",
+  "tag.baseMod": "该标签属于某个前置模组，本仓库中没有它的成员。",
+  "tag.others": "（或另外 {0} 项）",
+
+  // -- dialog options -------------------------------------------------------
+  "action.startQuest": "开启任务",
+  "action.completeQuest": "完成任务",
+  "option.conditions": "{0} 个条件",
+  "option.actions": "{0} 项效果",
+  "option.continue": "继续 ->",
+  "option.weight": "权重 {0}",
+  "option.endsHere": "到此结束",
+
+  // -- quest cards ----------------------------------------------------------
+  "quest.offer": "接取",
+  "quest.followUp": "进行中",
+  "quest.handIn": "交付",
+  "quest.cooldown": "冷却 {0}",
+  "quest.oneTime": "一次性",
+  "quest.openDialog": "查看对话 ->",
+
+  // -- trade cards ----------------------------------------------------------
+  "trade.sell": "卖给角色",
+  "trade.buy": "向角色购买",
+  "trade.craft": "请求制作",
+  "trade.stock": "库存 {0}",
+  "trade.restock": "补货 {0}",
+
+  // -- raw json -------------------------------------------------------------
+  "raw.summary": "源 JSON",
+  "raw.loadedFrom": "加载自 ",
+
+  // -- units ----------------------------------------------------------------
+  "unit.second": "秒",
+  "unit.minute": "分钟",
+  "unit.hour": "小时",
+  "ticks.tooltip": "{0} 刻",
+
+  // -- failures -------------------------------------------------------------
+  "error.manifest":
+    "无法加载 rpg-manifest.json（{0}）。请在仓库设置中将 GitHub Pages 的来源设为“部署分支”，" +
+    "并选择分支根目录（而非 /docs），同时确认 rpg-manifest.json 已提交。",
+  "error.content": "内容加载失败：{0}",
+};
+
+/** Locale -> key -> text. `en_us` is the fallback, so a gap shows English, not a key. */
+const TABLES = { en_us, zh_cn };
+
+/** BCP 47 tags for the `<html lang>` attribute. */
+const HTML_LANG = { en_us: "en", zh_cn: "zh-CN" };
+
+/**
+ * Looks an interface string up in the active locale, substituting `{0}`, `{1}`
+ * ... with the extra arguments. Falls back to English and then to the key itself,
+ * so a missing translation is visible but never blanks the page.
+ */
+export function tr(key, ...args) {
+  const text = TABLES[state.lang]?.[key] ?? TABLES.en_us[key];
+  if (text === undefined) return key;
+  if (!args.length) return text;
+  return text.replace(/\{(\d+)\}/g, (match, index) => (args[index] === undefined ? match : String(args[index])));
+}
+
+/** Picks the `.one` or `.many` variant of a key by count; Chinese uses both. */
+export function trPlural(base, count, ...args) {
+  return tr(count === 1 ? `${base}.one` : `${base}.many`, count, ...args);
+}
+
+/**
+ * Translates the static markup declared in index.html. Text comes from
+ * `data-i18n`; attributes come from `data-i18n-attr`, as a comma separated list of
+ * `attribute:key` pairs. Called on boot and whenever the language changes.
+ */
+export function applyLanguage(root = document) {
+  document.documentElement.lang = HTML_LANG[state.lang] ?? "en";
+  for (const node of root.querySelectorAll("[data-i18n]")) {
+    node.textContent = tr(node.dataset.i18n);
+  }
+  for (const node of root.querySelectorAll("[data-i18n-attr]")) {
+    for (const pair of node.dataset.i18nAttr.split(",")) {
+      const [attribute, key] = pair.split(":").map((part) => part.trim());
+      if (attribute && key) node.setAttribute(attribute, tr(key));
+    }
+  }
+}

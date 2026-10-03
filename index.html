@@ -3,9 +3,10 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Gensokyo Legacy &middot; Quests, Dialogs &amp; Trades</title>
+    <title data-i18n="page.title">Gensokyo Legacy &middot; Quests, Dialogs &amp; Trades</title>
     <meta
       name="description"
+      data-i18n-attr="content:meta.description"
       content="Browser for the Gensokyo Legacy RPG datapack: every quest, dialog and trade offer with its conditions and requirements, read straight from the generated JSON."
     />
     <link rel="stylesheet" href="assets/site.css" />
@@ -15,35 +16,47 @@
     />
   </head>
   <body>
-    <a class="skip" href="#content">Skip to content</a>
+    <a class="skip" href="#content" data-i18n="a11y.skip">Skip to content</a>
 
     <header class="topbar">
       <div class="brand">
         <span class="brand-mark" aria-hidden="true"></span>
         <div>
           <h1>Gensokyo Legacy</h1>
-          <p class="brand-sub">Quests, dialogs &amp; trades &mdash; read from the datapack</p>
+          <p class="brand-sub" data-i18n="brand.sub">Quests, dialogs &amp; trades &mdash; read from the datapack</p>
         </div>
       </div>
 
       <div class="topbar-controls">
         <div class="field">
-          <label class="sr-only" for="search">Search</label>
-          <input id="search" type="search" placeholder="Search quests, dialogs, items&hellip;" autocomplete="off" />
+          <label class="sr-only" for="search" data-i18n="a11y.search">Search</label>
+          <input
+            id="search"
+            type="search"
+            placeholder="Search quests, dialogs, items&hellip;"
+            data-i18n-attr="placeholder:search.placeholder"
+            autocomplete="off"
+          />
         </div>
-        <div class="segmented" role="group" aria-label="Language">
+        <div class="segmented" role="group" aria-label="Language" data-i18n-attr="aria-label:a11y.language">
           <button type="button" data-lang="en_us" aria-pressed="true">EN</button>
           <button type="button" data-lang="zh_cn" aria-pressed="false">中文</button>
         </div>
-        <button id="theme" type="button" class="icon-button" aria-label="Toggle colour scheme">
+        <button
+          id="theme"
+          type="button"
+          class="icon-button"
+          aria-label="Toggle colour scheme"
+          data-i18n-attr="aria-label:a11y.theme"
+        >
           <span aria-hidden="true">◐</span>
         </button>
       </div>
     </header>
 
     <div class="layout">
-      <nav class="sidebar" aria-label="Characters">
-        <h2 class="sidebar-title">Characters</h2>
+      <nav class="sidebar" aria-label="Characters" data-i18n-attr="aria-label:a11y.characters">
+        <h2 class="sidebar-title" data-i18n="nav.characters">Characters</h2>
         <ul id="characters" class="character-list"></ul>
         <div id="source" class="source-note"></div>
       </nav>
@@ -55,15 +68,15 @@
           <div class="progress-fill" id="progress"></div>
         </div>
 
-        <div class="tabs" role="tablist" aria-label="Content type">
+        <div class="tabs" role="tablist" aria-label="Content type" data-i18n-attr="aria-label:a11y.contentType">
           <button type="button" role="tab" data-tab="quest" aria-selected="true">
-            <span>Quests</span><span class="count" data-count="quest"></span>
+            <span data-i18n="tab.quest">Quests</span><span class="count" data-count="quest"></span>
           </button>
           <button type="button" role="tab" data-tab="trade" aria-selected="false">
-            <span>Trades</span><span class="count" data-count="trade"></span>
+            <span data-i18n="tab.trade">Trades</span><span class="count" data-count="trade"></span>
           </button>
           <button type="button" role="tab" data-tab="dialog" aria-selected="false">
-            <span>Dialogs</span><span class="count" data-count="dialog"></span>
+            <span data-i18n="tab.dialog">Dialogs</span><span class="count" data-count="dialog"></span>
           </button>
         </div>
 
@@ -71,7 +84,7 @@
       </main>
     </div>
 
-    <dialog id="viewer" class="viewer" aria-label="Detail"></dialog>
+    <dialog id="viewer" class="viewer" aria-label="Detail" data-i18n-attr="aria-label:a11y.detail"></dialog>
 
     <noscript>
       <p class="noscript">

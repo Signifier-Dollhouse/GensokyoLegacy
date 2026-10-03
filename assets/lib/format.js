@@ -1,5 +1,9 @@
 // Translation, naming and unit formatting.
+//
+// `label`/`itemLabel` resolve the mod's own lang files (quest, dialog, item and
+// entity text); the words the site puts around that content come from `tr`.
 
+import { tr } from "./i18n.js";
 import { store } from "./store.js";
 import { state } from "./state.js";
 
@@ -59,16 +63,16 @@ export function kindOf(node) {
  */
 export function formatTicks(ticks) {
   const seconds = Math.round((ticks ?? 0) / 20);
-  if (seconds < 90) return `${seconds}s`;
-  if (seconds < 5400) return `${Math.round(seconds / 60)} min`;
+  if (seconds < 90) return `${seconds}${tr("unit.second")}`;
+  if (seconds < 5400) return `${Math.round(seconds / 60)} ${tr("unit.minute")}`;
   const hours = seconds / 3600;
-  return `${hours.toFixed(hours % 1 === 0 ? 0 : 1)} h`;
+  return `${hours.toFixed(hours % 1 === 0 ? 0 : 1)} ${tr("unit.hour")}`;
 }
 
 /** Same as `formatTicks` but as a node carrying the raw value. */
 export function ticks(ticks_) {
   const node = document.createElement("span");
-  node.title = `${ticks_} ticks`;
+  node.title = tr("ticks.tooltip", ticks_);
   node.textContent = formatTicks(ticks_);
   return node;
 }

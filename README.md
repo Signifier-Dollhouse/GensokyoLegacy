@@ -27,8 +27,20 @@ fetch 404s - Pages cannot serve files from outside the directory it publishes.
 | Dialogs | `gensokyolegacy:dialog_starter`, `gensokyolegacy:dialog` | conversation starters with their conditions, and a viewer that walks each dialog branch |
 
 Everything is grouped per character, filterable by search, and addressable by URL
-(`#quest/reimu`, `#trade/all`, `#dialog/marisa`). English and Chinese both render from
-the mod's own lang files.
+(`#quest/reimu`, `#trade/all`, `#dialog/marisa`).
+
+### Languages
+
+The EN/中文 toggle covers two separate things, both re-resolved on every render so
+a switch takes effect immediately:
+
+| What | Where it comes from |
+| --- | --- |
+| Content: quest titles, dialog lines, item, block and entity names | the mod's own lang files (`assets/gensokyolegacy/lang/{en_us,zh_cn}.json`), resolved by `assets/lib/format.js` |
+| Interface: headings, buttons, section labels, units, error messages, `aria-label`s | the tables in `assets/lib/i18n.js` |
+
+Interface strings use positional `{0}` placeholders, so a translation may reorder the
+sentence. A key missing from `zh_cn` falls back to English rather than to the key.
 
 ### Files
 
@@ -36,9 +48,10 @@ the mod's own lang files.
 | --- | --- |
 | `index.html` | page shell |
 | `assets/site.css`, `assets/app.js`, `assets/lib/*.js` | styles and viewer modules |
+| `assets/lib/i18n.js` | interface string tables for both locales |
 | `rpg-manifest.json` | generated index of which registry files exist |
 | `scripts/build_manifest.py` | regenerates that index from the datagen output |
-| `scripts/check_site.py` | parses the modules and verifies their imports |
+| `scripts/check_site.py` | parses the modules, verifies their imports and checks both locale tables |
 | `.github/workflows/rpg-index.yml` | keeps the index in step with the datapack |
 | `.nojekyll` | serve the tree verbatim, without Jekyll filtering |
 
@@ -72,9 +85,10 @@ at runtime, so newly added files are noticed even before the index is regenerate
 Note that this only helps for files already present on `gh-page` - it cannot fetch a
 datapack file that only exists on another branch.
 
-Run `python3 scripts/check_site.py` to parse the ES modules and confirm every import
-resolves; it needs `pip install tree_sitter tree_sitter_javascript` and skips itself if
-those are absent.
+Run `python3 scripts/check_site.py` to parse the ES modules, confirm every import
+resolves, and confirm that every interface string exists in both locales with
+matching `{0}` slots; it needs `pip install tree_sitter tree_sitter_javascript` and
+skips itself if those are absent.
 
 ### A note on what gets published
 
