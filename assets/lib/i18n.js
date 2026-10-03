@@ -11,9 +11,11 @@ import { state } from "./state.js";
 
 const en_us = {
   // -- page chrome ----------------------------------------------------------
-  "page.title": "Gensokyo Legacy · Quests, Dialogs & Trades",
+  // The mod's own name is prepended to the tagline at runtime, from the game's
+  // translation of `gensokyolegacy.title` rather than from this table.
+  "page.tagline": "Quests, Dialogs, Trades & Items",
   "meta.description":
-    "Browser for the Gensokyo Legacy RPG datapack: every quest, dialog and trade offer with its conditions and requirements, read straight from the generated JSON.",
+    "Browser for the Gensokyo Legacy RPG datapack: every quest, dialog and trade offer with its conditions and requirements, plus every item with the guide entry that documents it and every way to get one, read straight from the generated JSON.",
   "a11y.skip": "Skip to content",
   "a11y.search": "Search",
   "a11y.language": "Language",
@@ -22,7 +24,7 @@ const en_us = {
   "a11y.contentType": "Content type",
   "a11y.detail": "Detail",
 
-  "brand.sub": "Quests, dialogs & trades — read from the datapack",
+  "brand.sub": "Quests, dialogs, trades & items — read from the datapack",
   "search.placeholder": "Search quests, dialogs, items…",
 
   // -- navigation -----------------------------------------------------------
@@ -33,6 +35,7 @@ const en_us = {
   "tab.trade": "Trades",
   "tab.starters": "Starters",
   "tab.dialog": "Dialogs",
+  "tab.item": "Items",
 
   // Short character names, keyed by the registry folder their content sits in.
   // The full in-game name is the tooltip, and the fallback when one is missing.
@@ -52,8 +55,10 @@ const en_us = {
   "noun.trades": "trade offers",
   "noun.starters": "starters",
   "noun.dialogs": "dialogs",
+  "noun.items": "items",
   "empty.match": "No {0} match the current filters.",
   "status.loadingDialogs": "Loading dialog files...",
+  "status.loadingItems": "Loading recipes, the guide book and quest rewards...",
   "status.refreshed.one": "Index refreshed from GitHub: {0} new file found on this branch.",
   "status.refreshed.many": "Index refreshed from GitHub: {0} new files found on this branch.",
 
@@ -155,6 +160,36 @@ const en_us = {
   "trade.stock": "stock {0}",
   "trade.restock": "restock {0}",
 
+  // -- item section ---------------------------------------------------------
+  "item.note":
+    "Every item the mod adds, with the guide entry that documents it and every way to get one. The guide text is the in-game book's own, not a copy of it.",
+  "item.undocumented": "Not in the guide",
+  "item.category": "Guide category",
+  "item.noGuide": "No guide entry documents this item yet.",
+  "item.sources": "Where to get it",
+  "item.ways.one": "{0} way to get it",
+  "item.ways.many": "{0} ways to get it",
+  "item.source.recipe": "Recipes",
+  "item.source.trade": "Character offers",
+  "item.source.quest": "Quest rewards",
+  "item.source.none":
+    "Nothing in the datapack hands this item out: expect creative mode, worldgen, or a source that is not written yet.",
+  "item.advancement": "Advancement",
+  "item.pay": "Pay",
+  "item.openQuest": "open quest ->",
+  "item.stock": "stock {0}",
+  "item.restock": "restock {0}",
+  "item.perBrew": "{0} per brew",
+
+  // -- recipes --------------------------------------------------------------
+  "recipe.type.crafting_shaped": "Crafting",
+  "recipe.type.crafting_shapeless": "Crafting, shapeless",
+  "recipe.type.stonecutting": "Stonecutter",
+  "recipe.type.unordered_alchemy": "Alchemy pot",
+  "recipe.type.witch_enhance": "Brewing, enhance",
+  "recipe.type.witch_merge": "Brewing, merge",
+  "recipe.type.potion_alchemy_stage": "Brewing, potion",
+
   // -- raw json -------------------------------------------------------------
   "raw.summary": "Source JSON",
   "raw.loadedFrom": "Loaded from ",
@@ -174,9 +209,10 @@ const en_us = {
 
 const zh_cn = {
   // -- page chrome ----------------------------------------------------------
-  "page.title": "幻想乡遗产 · 任务、对话与交易",
+  // 模组名称在运行时取自游戏自己的 `gensokyolegacy.title` 翻译，而不是这张表。
+  "page.tagline": "任务、对话、交易与物品",
   "meta.description":
-    "浏览幻想乡遗产 RPG 数据包：全部任务、对话与交易内容及其条件与需求，均直接读取自动生成的 JSON。",
+    "浏览东方幻想绮谈 RPG 数据包：全部任务、对话与交易内容及其条件与需求，以及每件物品对应的指南条目与全部获取方式，均直接读取自动生成的 JSON。",
   "a11y.skip": "跳到正文",
   "a11y.search": "搜索",
   "a11y.language": "语言",
@@ -185,7 +221,7 @@ const zh_cn = {
   "a11y.contentType": "内容类型",
   "a11y.detail": "详情",
 
-  "brand.sub": "任务、对话与交易——直接读取数据包",
+  "brand.sub": "任务、对话、交易与物品——直接读取数据包",
   "search.placeholder": "搜索任务、对话、物品…",
 
   // -- navigation -----------------------------------------------------------
@@ -196,6 +232,7 @@ const zh_cn = {
   "tab.trade": "交易",
   "tab.starters": "对话入口",
   "tab.dialog": "对话",
+  "tab.item": "物品",
 
   // Short names; the tooltip and fallback carry the full in-game name.
   "character.reimu": "灵梦",
@@ -214,8 +251,10 @@ const zh_cn = {
   "noun.trades": "交易",
   "noun.starters": "对话入口",
   "noun.dialogs": "对话",
+  "noun.items": "物品",
   "empty.match": "没有符合当前筛选条件的{0}。",
   "status.loadingDialogs": "正在加载对话文件……",
+  "status.loadingItems": "正在加载配方、指南书与任务奖励……",
   "status.refreshed.one": "已从 GitHub 刷新索引：该分支上有 {0} 个新文件。",
   "status.refreshed.many": "已从 GitHub 刷新索引：该分支上有 {0} 个新文件。",
 
@@ -316,6 +355,34 @@ const zh_cn = {
   "trade.title.craft": "制作{0}",
   "trade.stock": "库存 {0}",
   "trade.restock": "补货 {0}",
+
+  // -- 物品 ------------------------------------------------------------------
+  "item.note": "模组添加的全部物品，以及各自的指南条目与全部获取方式。指南文字直接来自游戏内的指南书原文。",
+  "item.undocumented": "指南未收录",
+  "item.category": "所属分类",
+  "item.noGuide": "暂时还没有指南条目介绍这件物品。",
+  "item.sources": "获取方式",
+  "item.ways.one": "{0} 种获取方式",
+  "item.ways.many": "{0} 种获取方式",
+  "item.source.recipe": "配方",
+  "item.source.trade": "角色交易",
+  "item.source.quest": "任务奖励",
+  "item.source.none": "数据包中没有任何途径提供这件物品：可能只能通过创造模式或世界生成获得，也可能尚未实装。",
+  "item.advancement": "进度",
+  "item.pay": "支付",
+  "item.openQuest": "查看该任务 ->",
+  "item.stock": "库存 {0}",
+  "item.restock": "补货 {0}",
+  "item.perBrew": "每次酿造 {0}",
+
+  // -- 配方 ------------------------------------------------------------------
+  "recipe.type.crafting_shaped": "合成",
+  "recipe.type.crafting_shapeless": "合成（无序）",
+  "recipe.type.stonecutting": "切石机",
+  "recipe.type.unordered_alchemy": "炼金锅",
+  "recipe.type.witch_enhance": "酿造——强化",
+  "recipe.type.witch_merge": "酿造——合成",
+  "recipe.type.potion_alchemy_stage": "酿造——药水",
 
   // -- raw json -------------------------------------------------------------
   "raw.summary": "源 JSON",

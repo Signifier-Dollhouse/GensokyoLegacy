@@ -30,6 +30,18 @@ RESOURCE_ROOTS = (RESOURCES, "src/main/resources")
 # RPG datapack registries, by folder under `data/<ns>/gensokyolegacy/`.
 REGISTRIES = ("quest", "dialog", "dialog_starter", "trade")
 
+# Recipes, indexed for the item section. Datagen writes them flat under one folder,
+# including the mod's own alchemy and brewing recipe types in subdirectories.
+RECIPES = f"{RESOURCES}/data/{NAMESPACE}/recipe"
+
+# Patchouli guide books: the item guide the website reads instead of writing its own.
+# The book definition is datagen output under `data/<ns>/patchouli_books/`, while the
+# categories and entries are hand-authored under `assets/<ns>/patchouli_books/`, so
+# both resource roots are searched.
+GUIDE_BOOKS = f"{RESOURCES}/data/{NAMESPACE}/patchouli_books"
+GUIDE_PAGES = f"src/main/resources/assets/{NAMESPACE}/patchouli_books"
+GUIDE_LOCALES = ("en_us", "zh_cn")
+
 # Lang files the viewer resolves translation keys against.
 LANG = ("en_us", "zh_cn")
 
@@ -156,6 +168,43 @@ def find_vanilla_lang() -> list[str]:
     return [f"{VANILLA_LANG_DIR}/{locale}.json" for locale in LANG if (ROOT / VANILLA_LANG_DIR / f"{locale}.json").is_file()]
 
 
+def build_recipes(item_tags: set[str]) -> dict[str, Any]:
+    """The recipe index. Ingredients name item tags like any other content, so the
+    tags they reference are collected too - before the tag index is resolved."""
+    files = walk(ROOT / RECIPES, RECIPES)
+    for file in files:
+        collect_item_tags(read_json(file), item_tags)
+    return {"root": RECIPES, "files": files}
+
+
+def build_guides() -> list[dict[str, Any]]:
+    """Every Patchouli book, with its per-locale categories and entries.
+
+    A book is one `book.json`; the pages beside it are `<locale>/categories/**` and
+    `<locale>/entries/**`. Entries are named by their path, which is what the book
+    refers to and what a locale-independent id is built from, since the files for the
+    two locales are otherwise indistinguishable.
+    """
+    books = []
+    for book_file in walk(ROOT / GUIDE_BOOKS, GUIDE_BOOKS):
+        if not book_file.endswith("/book.json"):
+            continue
+        folder = book_file[len(GUIDE_BOOKS) + 1 : -len("/book.json")]
+        locales = {}
+        for locale in GUIDE_LOCALES:
+            pages = f"{GUIDE_PAGES}/{folder}/{locale}"
+            categories = [f for f in walk(ROOT / pages / "categories", f"{pages}/categories") if f.endswith(".json")]
+            entries = [f for f in walk(ROOT / pages / "entries", f"{pages}/entries") if f.endswith(".json")]
+            if not categories and not entries:
+                continue
+            locales[locale] = {"categories": categories, "entries": entries}
+        if not locales:
+            print(f"  ! guide book {folder} has no pages under {GUIDE_PAGES}", file=sys.stderr)
+            continue
+        books.append({"id": f"{NAMESPACE}:{folder}", "book": book_file, "pages": f"{GUIDE_PAGES}/{folder}", "locales": locales})
+    return books
+
+
 def build() -> dict[str, Any]:
     registries: dict[str, Any] = {}
     loot_tables: set[str] = set()
@@ -192,6 +241,9 @@ def build() -> dict[str, Any]:
                 found[ref] = rel
         return found
 
+    # Recipes contribute tags of their own, so they are indexed before the tags are
+    # resolved into files.
+    recipes = build_recipes(item_tags)
     item_tag_files = existing_tags(set(item_tags) | set(EXTRA_ITEM_TAGS), "item")
     for ref in EXTRA_ITEM_TAGS:
         if ref not in item_tag_files:
@@ -202,6 +254,8 @@ def build() -> dict[str, Any]:
         "namespace": NAMESPACE,
         "resources": RESOURCES,
         "registries": registries,
+        "recipes": recipes,
+        "guides": build_guides(),
         "lootTables": loot,
         "itemTags": item_tag_files,
         "entityTags": existing_tags(entity_refs, "entity_type"),
@@ -210,6 +264,11 @@ def build() -> dict[str, Any]:
     }
     manifest["stats"] = {name: len(reg["files"]) for name, reg in registries.items()}
     manifest["stats"]["files"] = sum(len(reg["files"]) for reg in registries.values())
+    manifest["stats"]["recipes"] = len(manifest["recipes"]["files"])
+    # An entry is a file per locale, so the same guide entry is counted once per locale.
+    manifest["stats"]["guideEntries"] = sum(
+        len(locale["entries"]) for book in manifest["guides"] for locale in book["locales"].values()
+    )
     return manifest
 
 

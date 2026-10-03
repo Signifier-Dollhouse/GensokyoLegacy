@@ -15,6 +15,7 @@ on:
       - "src/generated/resources/data/minecraft/tags/**"
       - "src/generated/resources/assets/gensokyolegacy/lang/**"
       - "src/main/resources/assets/gensokyolegacy/lang/**"
+      - "src/main/resources/assets/gensokyolegacy/patchouli_books/**"
       - "assets/lang/vanilla/**"
       - "scripts/build_manifest.py"
       - "scripts/build_vanilla_lang.py"
@@ -69,7 +70,8 @@ jobs:
             src/generated/resources/data/gensokyolegacy \
             src/generated/resources/data/minecraft/tags \
             src/generated/resources/assets/gensokyolegacy/lang \
-            src/main/resources/assets/gensokyolegacy/lang
+            src/main/resources/assets/gensokyolegacy/lang \
+            src/main/resources/assets/gensokyolegacy/patchouli_books
           do
             # Drop what is here first, so quests or tables that were deleted on the
             # source branch disappear here too; a plain checkout would not remove

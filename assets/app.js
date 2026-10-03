@@ -5,7 +5,7 @@
 // src/generated/resources/ - nothing is bundled, rewritten or duplicated here.
 
 import { clear, h, setProgress, setStatus } from "./lib/dom.js";
-import { characterLabel, entityLabel, itemLabel, ingredientId, label, prettify } from "./lib/format.js";
+import { characterLabel, entityLabel, itemLabel, ingredientId, label, modName, prettify } from "./lib/format.js";
 import { applyLanguage, tr, trPlural } from "./lib/i18n.js";
 import { REPO, setLanguage, setTheme, state, TABS } from "./lib/state.js";
 import {
@@ -14,17 +14,24 @@ import {
   fetchJson,
   loadAllDialogs,
   loadCurrencyTag,
+  loadItems,
   loadLang,
   loadManifest,
   loadRegistry,
   loadVanillaLang,
+  registeredItemCount,
   store,
   tableFor,
   VANILLA_LANG,
 } from "./lib/store.js";
 import {
+  categoryName,
   collapsible,
+  guideEntryName,
+  guideSortnum,
+  itemRow,
   openDialogViewer,
+  openItemViewer,
   questCard,
   starterCard,
   tradeCard,
@@ -98,6 +105,9 @@ function setQuery(value) {
 /** Switches character. `id` focuses one entry, so a navigation passes nothing. */
 function select(name, id = "") {
   state.character = name;
+  // Items belong to no character, so picking one from the item tab means going back
+  // to that character's content rather than staying on a list it cannot filter.
+  if (state.tab === "item") state.tab = "quest";
   setQuery(id);
   render();
 }
@@ -111,6 +121,7 @@ function renderPanel() {
   if (state.tab === "dialog") return renderDialogPanel(panel);
   if (state.tab === "starters") return renderStartersPanel(panel);
   if (state.tab === "trade") return renderTradePanel(panel);
+  if (state.tab === "item") return renderItemPanel(panel);
   return renderQuestPanel(panel, state.tab);
 }
 
@@ -121,6 +132,18 @@ function renderPanel() {
  */
 function isDaily(quest) {
   return Boolean(quest?.recurrence);
+}
+
+/** Follows a quest link from anywhere, landing on the tab the quest lives in. */
+function onQuestLink(id) {
+  state.tab = isDaily(store.quests.get(id)) ? "daily" : "quest";
+  select("all", id);
+}
+
+/** Follows an offer link from the item page. */
+function onTradeLink(id) {
+  state.tab = "trade";
+  select("all", id);
 }
 
 function renderQuestPanel(panel, tab) {
@@ -134,12 +157,6 @@ function renderQuestPanel(panel, tab) {
     });
 
   if (!entries.length) return panel.append(emptyState(tr(tab === "daily" ? "noun.dailies" : "noun.quests")));
-
-  const onQuestLink = (id) => {
-    // Land on the tab the linked quest actually lives in.
-    state.tab = isDaily(store.quests.get(id)) ? "daily" : "quest";
-    select("all", id);
-  };
 
   const grid = h("div", { class: "grid" });
   for (const entryData of entries) {
@@ -175,13 +192,89 @@ function renderTradePanel(panel) {
     const trade = table.get(entryData.id);
     if (trade) groups.get(tradeKind(trade)).push(tradeCard(entryData, trade));
   }
-  panel.append(
-    ...TRADE_KINDS.map((kind) => collapsible(tradeTitle(kind), groups.get(kind).length, groups.get(kind))),
-  );
+  panel.append(...TRADE_KINDS.map((kind) => collapsible(tradeTitle(kind), groups.get(kind).length, groups.get(kind))));
 }
 
 function emptyState(what) {
   return h("p", { class: "empty", text: tr("empty.match", what) });
+}
+
+/**
+ * The item section. Recipes, the guide book and the quest reward tables are a few
+ * hundred files, so they are fetched the first time the tab is opened rather than on
+ * first paint - the same trade-off the dialog tab makes, for the same reason.
+ */
+async function renderItemPanel(panel) {
+  if (!state.itemsLoaded) {
+    const counter = h("span", { text: "0 / 0" });
+    const bar = h("div", { class: "progress-track" }, h("div", { class: "progress-fill" }), counter);
+    panel.append(h("p", { class: "status", text: tr("status.loadingItems") }), bar);
+
+    await loadItems((done, total) => {
+      counter.textContent = `${done} / ${total}`;
+      bar.firstChild.style.width = `${Math.round((done / Math.max(1, total)) * 100)}%`;
+    });
+    state.itemsLoaded = true;
+    // Several hundred files take a moment; if the reader moved on meanwhile, this
+    // panel is no longer the one on screen and must not be repainted over it.
+    if (state.tab !== "item") return;
+    clear(panel);
+    setStatus("");
+  }
+
+  const groups = itemGroups();
+  if (!groups.length) return panel.append(emptyState(tr("noun.items")));
+
+  panel.append(
+    h("p", { class: "card-id", text: tr("item.note") }),
+    ...groups.map((group) =>
+      collapsible(group.name, group.items.length, group.items.map((item) => itemRow(item, () => openItem(item.id))), "list"),
+    ),
+  );
+}
+
+/**
+ * Items grouped by the guide category that documents them, with everything the guide
+ * does not cover in a group of its own. The category order is the book's own, so a
+ * new category in the book shows up here without anyone editing the site.
+ */
+function itemGroups() {
+  const byCategory = new Map();
+  for (const item of store.items.values()) {
+    const category = item.guide?.category ?? null;
+    // The guide entry's own title counts as searchable: it is how the book names the
+    // item, and it is the wording a player is likely to type.
+    if (
+      !matchesQuery(
+        item.id,
+        itemLabel(item.id),
+        item.guide && guideEntryName(item.guide),
+        category && categoryName(item.guide.book, category),
+      )
+    ) {
+      continue;
+    }
+    const key = category ?? "";
+    const group = byCategory.get(key) ?? { name: "", sortnum: Infinity, items: [] };
+    if (category) {
+      group.name = categoryName(item.guide.book, category);
+      group.sortnum = guideSortnum(item.guide.book, category);
+    } else {
+      group.name = tr("item.undocumented");
+    }
+    group.items.push(item);
+    byCategory.set(key, group);
+  }
+
+  for (const group of byCategory.values()) {
+    group.items.sort((a, b) => itemLabel(a.id).localeCompare(itemLabel(b.id)));
+  }
+  return [...byCategory.values()].sort((a, b) => a.sortnum - b.sortnum || a.name.localeCompare(b.name));
+}
+
+/** Opens one item's page, wiring the jumps back to the quest and trade panels. */
+function openItem(id) {
+  openItemViewer(id, { quest: onQuestLink, trade: onTradeLink });
 }
 
 async function renderDialogPanel(panel) {
@@ -195,6 +288,9 @@ async function renderDialogPanel(panel) {
       bar.firstChild.style.width = `${Math.round((done / total) * 100)}%`;
     });
     state.dialogsLoaded = true;
+    // Several hundred files take a moment; if the reader moved on meanwhile, this
+    // panel is no longer the one on screen and must not be repainted over it.
+    if (state.tab !== "dialog") return;
     clear(panel);
     setStatus("");
   }
@@ -350,10 +446,11 @@ function renderSidebar() {
 
 /**
  * Tab badges count the selected character's content, not the whole registry, so
- * the numbers match what the panel below is showing.
+ * the numbers match what the panel below is showing. Items are nobody's, so the
+ * item tab counts every item the mod registers.
  */
 function renderTabs() {
-  const counts = { quest: 0, daily: 0, trade: 0, starters: 0, dialog: 0 };
+  const counts = { quest: 0, daily: 0, trade: 0, starters: 0, dialog: 0, item: registeredItemCount() };
 
   for (const entryData of entriesOf(store.manifest.registries.quest).filter(inCharacter)) {
     const quest = store.quests.get(entryData.id);
@@ -378,9 +475,23 @@ function renderTabs() {
   }
 }
 
+/**
+ * The chrome that names the mod. `data-i18n-lang` holds a key from the *mod's* lang
+ * files rather than the interface tables, so the heading and the document title follow
+ * the language toggle the way every other piece of content does. `<title>` is built
+ * here rather than by `applyLanguage`, since the mod name comes first.
+ */
+function renderChrome() {
+  for (const node of document.querySelectorAll("[data-i18n-lang]")) {
+    node.textContent = label(node.dataset.i18nLang);
+  }
+  document.title = `${modName()} · ${tr("page.tagline")}`;
+}
+
 function render() {
   renderSidebar();
   renderTabs();
+  renderChrome();
   writeLocation();
   renderPanel();
 }
@@ -487,10 +598,10 @@ async function boot() {
 }
 
 /**
- * Opportunistic freshness: if the published branch holds more registry files than
- * the committed index knows about, adopt the newer listing so new content appears
- * without anyone re-running the generator. Failure is expected and silent - the
- * committed index, or the derived fallback paths, keep working either way.
+ * Opportunistic freshness: if the published branch holds more files than the committed
+ * index knows about, adopt the newer listing so new content appears without anyone
+ * re-running the generator. Failure is expected and silent - the committed index, or
+ * the derived fallback paths, keep working either way.
  */
 async function refreshFromGitHub() {
   if (location.protocol === "file:") return;
@@ -506,13 +617,26 @@ async function refreshFromGitHub() {
     const published = (listing.files ?? []).map((file) => file.name);
     if (!published.length) return;
 
+    /** The published files under `prefix`, when there are more than the index lists. */
+    const adopt = (files, prefix) => {
+      const found = published.filter((file) => file.startsWith(prefix) && file.endsWith(".json"));
+      if (found.length <= files.length) return 0;
+      files.length = 0;
+      files.push(...found);
+      return found.length;
+    };
+
     let added = 0;
     for (const registry of Object.values(store.manifest.registries)) {
-      const prefix = `${registry.root}/`;
-      const files = published.filter((file) => file.startsWith(prefix) && file.endsWith(".json"));
-      if (files.length <= registry.files.length) continue;
-      added += files.length - registry.files.length;
-      registry.files = files;
+      added += adopt(registry.files, `${registry.root}/`);
+    }
+    if (store.manifest.recipes) added += adopt(store.manifest.recipes.files, `${store.manifest.recipes.root}/`);
+    for (const book of store.manifest.guides ?? []) {
+      for (const [locale, files] of Object.entries(book.locales)) {
+        for (const kind of ["categories", "entries"]) {
+          added += adopt(files[kind], `${book.pages}/${locale}/${kind}/`);
+        }
+      }
     }
     if (!added) return;
 
@@ -520,6 +644,8 @@ async function refreshFromGitHub() {
     for (const name of ["quest", "trade", "dialog_starter"]) {
       await loadRegistry(name);
     }
+    // The item index is built from the listings just adopted, so it is rebuilt too.
+    if (state.itemsLoaded) await loadItems();
     buildCharacters();
     render();
     setStatus(trPlural("status.refreshed", added, added));

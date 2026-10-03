@@ -6,6 +6,7 @@
 // file still resolves it.
 
 import { setProgress } from "./dom.js";
+import { state } from "./state.js";
 
 export const store = {
   manifest: null,
@@ -18,6 +19,11 @@ export const store = {
   loot: new Map(), // resource id -> json | null
   tags: new Map(), // tag id -> Set<string> | null
   characters: new Map(), // key -> { key, entity, dirs:Set, name }
+  // The item section, filled in on first use: see `loadItems`.
+  recipes: new Map(), // recipe id -> json
+  guide: null, // { books: [...] }, see `loadGuide`
+  questDrops: new Map(), // quest id -> [{ item, count, table }]
+  items: new Map(), // item id -> { id, guide, recipes, trades, drops }
 };
 
 const inflight = new Map();
@@ -257,6 +263,242 @@ export async function loadCurrencyTag() {
     store.tags.set(id, new Set(["minecraft:emerald", "minecraft:gold_ingot"]));
   }
   return store.tags.get(id);
+}
+
+// ---------------------------------------------------------------------------
+// the item section
+// ---------------------------------------------------------------------------
+
+/** Everything the item section needs, fetched on first use with one progress bar.
+ *
+ * Recipes and the guide book are the bulk of it; the quest reward loot tables are
+ * pulled in as well, since a quest's `loot_table` reward is where a lot of the
+ * interesting items come from. Nothing here is derived ahead of time - every entry
+ * is read from the JSON at its real path, so merging new content onto the branch is
+ * all it takes for the site to show it. */
+export async function loadItems(progress) {
+  const recipes = store.manifest.recipes;
+  const guideFiles = (store.manifest.guides ?? []).flatMap((book) =>
+    Object.values(book.locales).flatMap((locale) => [...locale.categories, ...locale.entries]),
+  );
+  const questLoot = questLootTables();
+  const total = recipes.files.length + guideFiles.length + questLoot.size;
+  let done = 0;
+  const tick = () => progress?.(++done, total);
+
+  // Cleared first, so loading again after new content appears on the branch rebuilds
+  // the index rather than adding the new sources to the old one.
+  store.recipes.clear();
+  store.questDrops.clear();
+
+  await Promise.all([
+    pool(recipes.files, 10, async (file) => {
+      const id = `${store.manifest.namespace}:${file.slice(recipes.root.length + 1, -".json".length)}`;
+      try {
+        store.recipes.set(id, { id, file, recipe: await fetchJson(file) });
+      } catch {
+        store.recipes.set(id, null);
+      }
+      tick();
+    }),
+    loadGuide(tick),
+    pool([...questLoot.keys()], 8, async (table) => {
+      const questId = questLoot.get(table);
+      const drops = collectDrops(table, await loadLootTable(table));
+      if (drops.length) store.questDrops.set(questId, [...(store.questDrops.get(questId) ?? []), ...drops]);
+      tick();
+    }),
+  ]);
+
+  buildItemIndex();
+}
+
+/** The loot tables quest rewards hand out, as table id -> quest id. */
+function questLootTables() {
+  const tables = new Map();
+  for (const [id, quest] of store.quests) {
+    for (const reward of quest?.rewards ?? []) {
+      if (reward.type === "gensokyolegacy:loot_table" && typeof reward.table === "string") {
+        tables.set(reward.table, id);
+      }
+    }
+  }
+  return tables;
+}
+
+/**
+ * The item drops a loot table can roll, with the pool they come from. The entry is
+ * kept as it is written, since how many it yields is read out of its functions at
+ * display time rather than flattened here.
+ */
+function collectDrops(tableId, table) {
+  const drops = [];
+  for (const pool of table?.pools ?? []) {
+    const rolls = (pool.rolls ?? 0) + (pool.bonus_rolls ?? 0);
+    for (const entry of pool.entries ?? []) {
+      if (entry.type === "minecraft:item" && typeof entry.name === "string") {
+        drops.push({ item: entry.name, table: tableId, rolls, weight: entry.weight ?? 0, entry });
+      }
+    }
+  }
+  return drops;
+}
+
+/** Fetches every guide book: the definition, plus each locale's pages. */
+async function loadGuide(progress) {
+  const books = [];
+  for (const book of store.manifest.guides ?? []) {
+    // A category is named `<namespace>:<folder>` in the book's own namespace, which is
+    // what an entry's `category` field refers to - not the book's id.
+    const namespace = book.id.split(":")[0];
+    const locales = {};
+    for (const [locale, files] of Object.entries(book.locales)) {
+      const prefix = `${book.pages}/${locale}`;
+      const categories = new Map();
+      const entries = new Map();
+      const load = async (file, into, id) => {
+        try {
+          into.set(id, { file, data: await fetchJson(file) });
+        } catch {
+          /* a page that will not load simply does not appear */
+        }
+        progress?.();
+      };
+      await Promise.all([
+        ...files.categories.map((file) => load(file, categories, `${namespace}:${categoryId(file, prefix)}`)),
+        ...files.entries.map((file) => load(file, entries, `${book.id}/${entryPath(file, prefix)}`)),
+      ]);
+      locales[locale] = { categories, entries };
+    }
+    books.push({ id: book.id, definition: await fetchJson(book.book), locales });
+  }
+  store.guide = { books };
+}
+
+/** `.../categories/alchemy.json` -> `alchemy`, the id an entry's `category` uses. */
+function categoryId(file, prefix) {
+  return file.slice(prefix.length + "/categories/".length, -".json".length);
+}
+
+/** `.../entries/alchemy/hexbrew.json` -> `alchemy/hexbrew`. */
+function entryPath(file, prefix) {
+  return file.slice(prefix.length + "/entries/".length, -".json".length);
+}
+
+/** A book's pages in the active language, falling back to English. */
+export function guideLocale(book) {
+  return book.locales[state.lang] ?? book.locales.en_us ?? Object.values(book.locales)[0];
+}
+
+/** The entries and categories of the first book, which is the only one for now. */
+export function guideBook() {
+  return store.guide?.books[0] ?? null;
+}
+
+/**
+ * The item a recipe hands out. The crafting types produce one directly; the alchemy
+ * and brewing types produce a fluid, which the game fills a `<fluid>_bottle` item
+ * from - `HexBrew.java` registers the bottle under exactly that name - so the recipe
+ * is recorded against the bottle rather than against the fluid, which is not an item
+ * and has no place in the list.
+ */
+export function recipeOutputs(recipe) {
+  if (typeof recipe?.result?.id === "string") return [recipe.result.id];
+  return typeof recipe?.resultFluid?.id === "string" ? [`${recipe.resultFluid.id}_bottle`] : [];
+}
+
+/**
+ * Builds the item index: for every item the mod adds or hands out, the guide entry
+ * that documents it and every way to get one.
+ *
+ * The item list is derived, never written down: the mod's own lang files enumerate
+ * everything it registers, and the sources below add the handful of items from other
+ * namespaces that it gives the player (the guide book, converted planks). Guide links
+ * are read from the active locale, falling back to English, since an entry spotlights
+ * the same items in every translation.
+ */
+function buildItemIndex() {
+  const items = new Map();
+  const entryFor = (id) => {
+    let item = items.get(id);
+    if (!item) items.set(id, (item = { id, guide: null, recipes: [], trades: [], drops: [] }));
+    return item;
+  };
+
+  for (const id of registeredItems()) entryFor(id);
+
+  for (const book of store.guide?.books ?? []) {
+    for (const locale of Object.values(book.locales)) {
+      for (const [id, page] of locale.entries) {
+        for (const itemId of guideItems(page.data)) {
+          const item = entryFor(itemId);
+          // Only the link is kept: the entry text lives in per-locale files, so it is
+          // looked up in the active language when the page is opened. The category is
+          // an id, so it reads the same in every translation.
+          if (!item.guide) item.guide = { book, id, category: page.data?.category ?? null };
+        }
+      }
+    }
+  }
+
+  for (const source of store.recipes.values()) {
+    if (!source) continue;
+    for (const itemId of recipeOutputs(source.recipe)) entryFor(itemId).recipes.push(source);
+  }
+
+  // Only an offer that hands out something other than currency gives the player an
+  // item; the rest are the player selling to a character.
+  const currency = store.tags.get("gensokyolegacy:currency");
+  for (const [id, trade] of store.trades) {
+    const result = trade?.result?.id;
+    if (!result || currency?.has(result)) continue;
+    entryFor(result).trades.push({ id, trade });
+  }
+
+  for (const [questId, drops] of store.questDrops) {
+    for (const drop of drops) entryFor(drop.item).drops.push({ questId, ...drop });
+  }
+
+  store.items = items;
+}
+
+/**
+ * Every item the mod registers, read out of its own lang files. `item.` and `block.`
+ * are the two spellings one item can have, and a block's item id is the block's own.
+ */
+function* registeredItems() {
+  const namespace = `${store.manifest.namespace}:`;
+  const seen = new Set();
+  for (const locale of store.lang.values()) {
+    for (const key of Object.keys(locale ?? {})) {
+      // A lang key is a dotted path, so the id has to be spelled back before it can
+      // be compared with a namespaced one.
+      const match = /^(?:item|block)\.(.+)$/.exec(key);
+      if (!match) continue;
+      const id = match[1].replace(".", ":");
+      if (!id.startsWith(namespace) || seen.has(id)) continue;
+      seen.add(id);
+      yield id;
+    }
+  }
+}
+
+/**
+ * How many items the mod adds. Cheap enough to answer from the lang files alone, so
+ * the tab badge is right before the recipes have loaded.
+ */
+export function registeredItemCount() {
+  return [...registeredItems()].length;
+}
+
+/** Every item an entry is about: its icon, plus whatever it spotlights. */
+function guideItems(entry) {
+  const ids = new Set();
+  if (typeof entry?.icon === "string") ids.add(entry.icon);
+  for (const page of entry?.pages ?? []) {
+    if (typeof page.item === "string") ids.add(page.item);
+  }
+  return ids;
 }
 
 export { setProgress };

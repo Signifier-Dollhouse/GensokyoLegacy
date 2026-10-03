@@ -3,27 +3,30 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title data-i18n="page.title">Gensokyo Legacy &middot; Quests, Dialogs &amp; Trades</title>
+    <!-- The mod name is the game&rsquo;s own translation of `gensokyolegacy.title`, so the
+         heading follows the language toggle. The title is assembled in app.js from the
+         same key; this is what a visitor sees before the scripts run. -->
+    <title>Gensokyo Legacy &middot; Quests, Dialogs, Trades &amp; Items</title>
     <meta
       name="description"
       data-i18n-attr="content:meta.description"
-      content="Browser for the Gensokyo Legacy RPG datapack: every quest, dialog and trade offer with its conditions and requirements, read straight from the generated JSON."
+      content="Browser for the Gensokyo Legacy RPG datapack: every quest, dialog and trade offer with its conditions and requirements, plus an item guide and where each item comes from, read straight from the generated JSON."
     />
     <link rel="stylesheet" href="assets/site.css" />
-    <link
-      rel="icon"
-      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ctext y='26' font-size='26'%3E%F0%9F%8D%80%3C/text%3E%3C/svg%3E"
-    />
+    <!-- The logo and the favicon are the mod's own Mini Hakkero texture. assets/img
+         holds a copy so the page does not depend on a path outside itself, and
+         scripts/check_site.py fails if that copy ever falls behind the texture. -->
+    <link rel="icon" type="image/png" href="assets/img/hakkero.png" />
   </head>
   <body>
     <a class="skip" href="#content" data-i18n="a11y.skip">Skip to content</a>
 
     <header class="topbar">
       <div class="brand">
-        <span class="brand-mark" aria-hidden="true"></span>
+        <img class="brand-mark" src="assets/img/hakkero.png" width="32" height="32" alt="" />
         <div>
-          <h1>Gensokyo Legacy</h1>
-          <p class="brand-sub" data-i18n="brand.sub">Quests, dialogs &amp; trades &mdash; read from the datapack</p>
+          <h1 data-i18n-lang="gensokyolegacy.title">Gensokyo Legacy</h1>
+          <p class="brand-sub" data-i18n="brand.sub">Quests, dialogs, trades &amp; items &mdash; read from the datapack</p>
         </div>
       </div>
 
@@ -84,6 +87,9 @@
           <button type="button" role="tab" data-tab="dialog" aria-selected="false">
             <span data-i18n="tab.dialog">Dialogs</span><span class="count" data-count="dialog"></span>
           </button>
+          <button type="button" role="tab" data-tab="item" aria-selected="false">
+            <span data-i18n="tab.item">Items</span><span class="count" data-count="item"></span>
+          </button>
         </div>
 
         <div id="panel" class="panel" role="tabpanel"></div>
@@ -95,7 +101,11 @@
     <noscript>
       <p class="noscript">
         This page reads the datapack JSON with JavaScript. Without it, browse the files directly under
-        <a href="src/generated/resources/data/gensokyolegacy/gensokyolegacy/">src/generated/resources/data/gensokyolegacy/</a>.
+        <a href="src/generated/resources/data/gensokyolegacy/gensokyolegacy/">src/generated/resources/data/gensokyolegacy/</a>
+        for the quests, dialogs and trades,
+        <a href="src/generated/resources/data/gensokyolegacy/recipe/">.../recipe/</a> for the recipes, and
+        <a href="src/main/resources/assets/gensokyolegacy/patchouli_books/">src/main/resources/assets/gensokyolegacy/patchouli_books/</a>
+        for the item guide.
       </p>
     </noscript>
 

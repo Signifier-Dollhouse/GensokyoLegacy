@@ -53,6 +53,7 @@ class Refs:
 
     def __init__(self) -> None:
         self.items: set[str] = set()
+        self.fluids: set[str] = set()
         self.entities: set[str] = set()
         self.advancements: set[str] = set()
         self.effects: set[str] = set()
@@ -63,6 +64,11 @@ class Refs:
         """An item id. A `#` prefix still means a tag, since some writers keep it."""
         if isinstance(value, str):
             (self.tags if value.startswith("#") else self.items).add(value.lstrip("#"))
+
+    def fluid(self, value: object) -> None:
+        """A fluid id, which the game names in its own `fluid.` key family."""
+        if isinstance(value, str):
+            self.fluids.add(value.lstrip("#"))
 
     def tag(self, value: object) -> None:
         """A tag id. Since 1.21 the datapack form drops the leading `#`."""
@@ -103,6 +109,22 @@ def collect_refs(manifest: dict) -> Refs:
             for value in node:
                 effects(value)
 
+    def deep_ingredients(node: object) -> None:
+        """Every `{item}`, `{items}` and `{tag}` anywhere inside `node`.
+
+        Recipes spell their inputs a dozen different ways - a shaped key map, an
+        `ingredient` field, `extra` lists - so a walk beats enumerating them.
+        """
+        if isinstance(node, dict):
+            refs.item(node.get("item"))
+            refs.item(node.get("items"))
+            refs.tag(node.get("tag"))
+            for value in node.values():
+                deep_ingredients(value)
+        elif isinstance(node, list):
+            for value in node:
+                deep_ingredients(value)
+
     for registry in ("quest", "trade", "dialog_starter", "dialog"):
         for file in manifest["registries"][registry]["files"]:
             data = read_json(file)
@@ -116,6 +138,30 @@ def collect_refs(manifest: dict) -> Refs:
                 if isinstance(condition.get("advancement"), str):
                     refs.advancements.add(condition["advancement"])
             effects(data)
+
+    # Recipes, including the mod's own alchemy and brewing types, whose output is a
+    # fluid rather than an item. `inputFluid` is a list in one recipe type and a
+    # single fluid in the others.
+    for file in manifest.get("recipes", {}).get("files", []):
+        recipe = read_json(file)
+        deep_ingredients(recipe)
+        if isinstance(recipe.get("result"), dict):
+            refs.item(recipe["result"].get("id"))
+        for key in ("resultFluid", "inputFluid"):
+            value = recipe.get(key)
+            for fluid in value if isinstance(value, list) else [value]:
+                if isinstance(fluid, dict):
+                    refs.fluid(fluid.get("fluid"))
+
+    # The guide books spotlight the items they document, and those names show up in
+    # the item section whether or not the item has a recipe.
+    for book in manifest.get("guides", []):
+        for locale in book["locales"].values():
+            for file in locale["entries"]:
+                entry = read_json(file)
+                refs.item(entry.get("icon"))
+                for page in entry.get("pages") or []:
+                    refs.item(page.get("item"))
 
     for file in manifest["lootTables"].values():
         for pool in read_json(file).get("pools") or []:
@@ -158,6 +204,10 @@ def wanted_keys(refs: Refs) -> dict[str, set[str]]:
 
     for item in sorted(refs.items):
         add(item, key("item", item), key("block", item))
+    # A fluid is its own key family, but the item and block spellings are tried too,
+    # since vanilla names water and lava as blocks rather than as fluids.
+    for fluid in sorted(refs.fluids):
+        add(fluid, key("fluid", fluid), key("item", fluid), key("block", fluid))
     for entity in sorted(refs.entities):
         add(entity, key("entity", entity))
     for effect in sorted(refs.effects):

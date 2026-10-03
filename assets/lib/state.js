@@ -8,8 +8,8 @@
 export const REPO = { owner: "Signifier-Dollhouse", name: "GensokyoLegacy", ref: "gh-page" };
 
 /** Content types, in tab order. `quest`/`daily` and `starters`/`dialog` each split
- *  one registry in two; see `app.js` for what the split is. */
-export const TABS = ["quest", "daily", "trade", "starters", "dialog"];
+ *  one registry in two; `item` reads the recipes and the guide book instead. */
+export const TABS = ["quest", "daily", "trade", "starters", "dialog", "item"];
 
 function read(key, fallback) {
   try {
@@ -35,6 +35,8 @@ export const state = {
   query: "",
   /** Dialog files are only fetched the first time the dialog tab is opened. */
   dialogsLoaded: false,
+  /** Nor are recipes, the guide book or the quest reward tables, for the item tab. */
+  itemsLoaded: false,
 };
 
 export function setLanguage(locale) {

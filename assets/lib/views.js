@@ -7,6 +7,7 @@ import {
   characterLabel,
   effectLabel,
   entityLabel,
+  fluidLabel,
   formatTicks,
   ingredientId,
   isTagIngredient,
@@ -15,8 +16,8 @@ import {
   label,
   prettify,
 } from "./format.js";
-import { tr } from "./i18n.js";
-import { loadDialog, loadEntityTag, loadItemTag, loadLootTable, store } from "./store.js";
+import { tr, trPlural } from "./i18n.js";
+import { guideLocale, loadDialog, loadEntityTag, loadItemTag, loadLootTable, store } from "./store.js";
 
 // ---------------------------------------------------------------------------
 // fragments
@@ -90,17 +91,17 @@ export function collapsibleSection(name, ...rows) {
 }
 
 /**
- * A collapsible group of cards, labelled with how many it holds. Native
+ * A collapsible group of cards or rows, labelled with how many it holds. Native
  * `<details>` so it opens, closes and reports its state without any wiring, and it
  * is dropped entirely when empty rather than showing an empty heading.
  */
-export function collapsible(name, count, ...content) {
+export function collapsible(name, count, content, className = "grid") {
   if (!count) return null;
   return h(
     "details",
     { class: "collapse", open: true },
     h("summary", {}, h("span", { text: name }), h("span", { class: "count", text: String(count) })),
-    h("div", { class: "grid" }, ...content),
+    h("div", { class: className }, content),
   );
 }
 
@@ -734,6 +735,307 @@ export function starterCard(entryData, starter) {
     ),
     conditionsBlock(starter.conditions, null),
     rawJson(entryData.file, starter),
+  );
+}
+
+// ---------------------------------------------------------------------------
+// the item section
+// ---------------------------------------------------------------------------
+
+/** A fluid as it appears in the alchemy pot, which is not yet an item. */
+function fluidPill(id) {
+  return pill("fluid", fluidLabel(id), id);
+}
+
+/** How many ways there are to get an item, as one number. */
+function sourceCount(item) {
+  return item.recipes.length + item.trades.length + item.drops.length;
+}
+
+/**
+ * One row of the item list. The detail is a page away rather than inline, since there
+ * are hundreds of items and only one of them is being read.
+ */
+export function itemRow(item, onOpen) {
+  const ways = sourceCount(item);
+  return h(
+    "li",
+    { class: "starter-row" },
+    h("button", { class: "linkish", type: "button", text: itemLabel(item.id), title: item.id, onclick: onOpen }),
+    h("span", { class: "card-id mono", text: item.id }),
+    ways ? h("span", { class: "entry-note", text: trPlural("item.ways", ways, ways) }) : null,
+  );
+}
+
+/** The name of the guide category an entry sits in, which the book spells out. */
+export function guideCategoryName(guide) {
+  return categoryName(guide.book, guide.category);
+}
+
+/** A category's own name, read from the book's category file. */
+export function categoryName(book, id) {
+  return guideLocale(book).categories.get(id)?.data?.name ?? prettify(id);
+}
+
+/** A category's position in the book, which is the order the item groups follow. */
+export function guideSortnum(book, id) {
+  return guideLocale(book).categories.get(id)?.data?.sortnum ?? Infinity;
+}
+
+/**
+ * An entry's page in the active language. The files are per locale, so the text is
+ * looked up rather than kept, and an entry a translation has not caught up with falls
+ * back to the English one instead of disappearing.
+ */
+function guideEntry(guide) {
+  const locales = Object.values(guide.book.locales);
+  return (
+    guideLocale(guide.book).entries.get(guide.id) ??
+    locales.find((locale) => locale.entries.has(guide.id))?.entries.get(guide.id)
+  );
+}
+
+/** The entry's own title, which the book spells out per locale. */
+export function guideEntryName(guide) {
+  return guideEntry(guide)?.data?.name ?? prettify(guide.id);
+}
+
+/**
+ * The item page: the guide entry that documents it, then every way to get one. The
+ * links come from the caller, since jumping to a quest or an offer is a navigation
+ * the panels own rather than something this module can do on its own.
+ */
+export function openItemViewer(id, links = {}) {
+  const item = store.items.get(id);
+  if (!item) return;
+  mountViewer();
+  openViewer(
+    itemLabel(id),
+    h("p", { class: "card-id mono", text: id }),
+    item.guide ? guideSection(item) : h("p", { class: "entry-note", text: tr("item.noGuide") }),
+    sourcesSection(item, links),
+  );
+}
+
+function guideSection(item) {
+  const { book, id } = item.guide;
+  const page = guideEntry(item.guide);
+  const data = page?.data ?? {};
+  return h(
+    "section",
+    { class: "guide" },
+    h("p", { class: "section-label", text: tr("item.category") }),
+    h("p", { class: "entry-note", text: guideCategoryName(item.guide) }),
+    data.advancement
+      ? h("p", { class: "entry-note" }, `${tr("item.advancement")}: ${advancementLabel(data.advancement)}`)
+      : null,
+    ...(data.pages ?? []).map((block) => guideBlock(block, item.id)),
+    rawJson(page?.file, data),
+    h("p", { class: "entry-note" }, `${label(book.definition?.name)} · ${id}`),
+  );
+}
+
+/** A spotlight introduces an item with a title; a text page is just prose. */
+function guideBlock(page, itemId) {
+  if (page.type !== "patchouli:spotlight") return guideText(page.text, itemId);
+  return h(
+    "div",
+    { class: "guide-spotlight" },
+    guideText(page.text, page.item ?? itemId),
+    page.title ? h("p", { class: "guide-title", text: page.title }) : null,
+  );
+}
+
+/** Splits on a capturing group, so odd indices are the macro names. */
+const MACRO = /\$\(([a-z0-9_]*)\)/i;
+
+/**
+ * A guide page's text. Patchouli's macros are inline commands rather than markup:
+ * `$(bold)` turns bold on and the `$()` after it turns bold off again, `$(br)` and
+ * `$(br2)` break the line. Anything unrecognised is left exactly as written, so a
+ * macro this renderer does not know shows up rather than silently disappearing.
+ */
+function guideText(text, itemId) {
+  const node = h("p", { class: "guide-text" });
+  const styles = []; // the open <b> elements, innermost last; text lands in the last
+  const write = (value) => (styles.at(-1) ?? node).append(document.createTextNode(value));
+  const here = () => styles.at(-1) ?? node;
+
+  for (const [index, part] of String(text ?? "").split(MACRO).entries()) {
+    if (index % 2 === 0) {
+      if (part) write(part);
+      continue;
+    }
+    switch (part.toLowerCase()) {
+      case "bold":
+        styles.push(h("b", {}));
+        node.append(styles.at(-1));
+        break;
+      case "":
+        styles.pop();
+        break;
+      case "br":
+        here().append(h("br"));
+        break;
+      case "br2":
+        here().append(h("br"), h("br"));
+        break;
+      case "item":
+      case "thing":
+        write(itemLabel(itemId));
+        break;
+      default:
+        write(`$(${part})`);
+    }
+  }
+  return node;
+}
+
+/** Every way to get the item, one collapsible section per kind of source. */
+function sourcesSection(item, links) {
+  const sections = [
+    [tr("item.source.recipe"), item.recipes.map(recipeRow)],
+    [tr("item.source.trade"), item.trades.map((source) => tradeSourceRow(source, links))],
+    [tr("item.source.quest"), item.drops.map((drop) => dropSourceRow(drop, links))],
+  ].filter(([, rows]) => rows.length);
+
+  return section(
+    tr("item.sources"),
+    ...(sections.length
+      ? sections.map(([name, rows]) => collapsibleSection(name, ...rows))
+      : [entry("", h("span", { class: "entry-note", text: tr("item.source.none") }))]),
+  );
+}
+
+/** One recipe: what it takes, what it makes, and how long a brew takes. */
+function recipeRow(source) {
+  const recipe = source.recipe;
+  return entry(
+    tr(`recipe.type.${kindOf(recipe)}`),
+    h(
+      "div",
+      { class: "trade-flow" },
+      recipeInputs(recipe),
+      h("span", { class: "arrow", text: "->" }),
+      recipeOutput(recipe),
+    ),
+    recipe.time ? h("span", { class: "entry-note", text: tr("item.perBrew", formatTicks(recipe.time)) }) : null,
+    rawJson(source.file, recipe),
+  );
+}
+
+/**
+ * What a recipe consumes. A shaped recipe is drawn as its grid, since the layout is
+ * part of the recipe; everything else is listed as it is written, which is the order
+ * the recipe book shows. Fluids are pills of their own - the alchemy pot and the
+ * brewing stand work in fluid, not in items.
+ */
+function recipeInputs(recipe) {
+  if (kindOf(recipe) === "crafting_shaped") return shapedGrid(recipe);
+
+  const inputs = h("div", { class: "pill-stack" });
+  const add = (value) => {
+    if (!value || typeof value !== "object") return;
+    if (typeof value.fluid === "string") inputs.append(fluidPill(value.fluid));
+    else inputs.append(itemPill(value));
+  };
+  const addAll = (value) => (Array.isArray(value) ? value : [value]).filter(Boolean).forEach(add);
+  // `inputFluid` is a list in one recipe type and a single fluid in the others.
+  const addFluid = (value) => addAll(Array.isArray(value) ? value : value?.fluid ? [value] : []);
+
+  switch (kindOf(recipe)) {
+    case "crafting_shapeless":
+      addAll(recipe.ingredients);
+      break;
+    case "stonecutting":
+      add(recipe.ingredient);
+      break;
+    case "unordered_alchemy":
+      addFluid(recipe.inputFluid);
+      addAll(recipe.input);
+      break;
+    case "witch_enhance":
+      addFluid(recipe.inputFluid);
+      addAll(recipe.extra);
+      break;
+    case "witch_merge":
+      addFluid(recipe.inputFluid);
+      addAll(recipe.extra);
+      if (recipe.potionIngredient) add({ ...recipe.potionIngredient, count: recipe.potionCount });
+      break;
+    default:
+      addFluid(recipe.inputFluid);
+      addAll(recipe.ingredients);
+  }
+  return inputs;
+}
+
+/**
+ * A shaped recipe as the crafting grid shows it: the pattern as symbols, with a key
+ * beneath naming what each one stands for. A grid of full ingredient names would be
+ * unreadable at three columns, and the layout is the part of the recipe that matters.
+ */
+function shapedGrid(recipe) {
+  const rows = recipe.pattern ?? [];
+  const width = Math.max(1, ...rows.map((row) => row.length));
+  const grid = h("div", { class: "recipe-grid", style: `grid-template-columns:repeat(${width},22px)` });
+  for (const row of rows) {
+    for (let column = 0; column < width; column += 1) {
+      grid.append(h("span", { class: "cell", text: row[column] ?? " " }));
+    }
+  }
+
+  const key = h("div", { class: "pill-stack" });
+  for (const [symbol, ingredient] of Object.entries(recipe.key ?? {})) {
+    key.append(h("span", { class: "recipe-key" }, h("code", { class: "mono", text: symbol }), itemPill(ingredient)));
+  }
+  return h("div", { class: "recipe-shaped" }, grid, key);
+}
+
+/** What a recipe makes: an item for the crafting types, a fluid for the brewing ones. */
+function recipeOutput(recipe) {
+  if (recipe.result?.id) {
+    const node = pill("reward", itemLabel(recipe.result.id), recipe.result.id);
+    if (recipe.result.count > 1) node.append(h("span", { class: "n", text: ` x${recipe.result.count}` }));
+    return node;
+  }
+  if (recipe.resultFluid?.id) return pill("reward fluid", fluidLabel(recipe.resultFluid.id), recipe.resultFluid.id);
+  return pill("condition", prettify(recipe.type));
+}
+
+/** An offer that hands the item over, with what the player has to pay. */
+function tradeSourceRow(source, links) {
+  const trade = source.trade;
+  const kind = tradeKind(trade);
+  return entry(
+    characterLabel(trade.character),
+    h(
+      "div",
+      { class: "trade-flow" },
+      h("span", { class: "entry-note", text: tr("item.pay") }),
+      ingredientList(trade.ingredients),
+      h("span", { class: "arrow", text: "->" }),
+      pill("reward", itemLabel(trade.result?.id), trade.result?.id),
+    ),
+    trade.recurrence?.maxStock ? pill("requirement", tr("item.stock", trade.recurrence.maxStock)) : null,
+    trade.recurrence?.restockTime ? pill("condition", tr("item.restock", formatTicks(trade.recurrence.restockTime))) : null,
+    links.trade
+      ? focusLink(TRADE_TITLES[kind](tradeItemOfInterest(trade, kind)), () => links.trade(source.id), source.id)
+      : null,
+  );
+}
+
+/** A quest whose reward table can drop the item. */
+function dropSourceRow(drop, links) {
+  const quest = store.quests.get(drop.questId);
+  const range = dropCount(drop.entry);
+  const node = pill("item", itemLabel(drop.item), drop.item);
+  if (range) node.append(h("span", { class: "n", text: ` x${range}` }));
+  return entry(
+    quest?.title ? label(quest.title) : drop.questId,
+    node,
+    h("span", { class: "entry-note", text: tr("loot.rolls", Math.round(drop.rolls)) }),
+    links.quest ? focusLink(tr("item.openQuest"), () => links.quest(drop.questId), drop.questId) : null,
   );
 }
 

@@ -91,6 +91,24 @@ export function effectLabel(id) {
   return t(`effect.${langPath(id)}`) ?? prettify(id);
 }
 
+/**
+ * Fluid name, for the alchemy pot and brewing recipes. A fluid is its own lang key
+ * family, but vanilla names water and lava as blocks, so those are tried too.
+ */
+export function fluidLabel(id) {
+  if (!id) return "";
+  return t(`fluid.${langPath(id)}`) ?? itemLabel(id);
+}
+
+/**
+ * The mod's own name, translated by the game rather than by the interface tables:
+ * `gensokyolegacy.title`. Falls back to the English name before the mod's lang files
+ * have loaded, which is what the static markup says anyway.
+ */
+export function modName() {
+  return t(`${store.manifest?.namespace ?? "gensokyolegacy"}.title`) ?? "Gensokyo Legacy";
+}
+
 /** `gensokyolegacy:kill_enemy` -> `kill_enemy`, for readable dispatch. */
 export function kindOf(node) {
   return typeof node?.type === "string" ? node.type.split(":").pop() : "?";

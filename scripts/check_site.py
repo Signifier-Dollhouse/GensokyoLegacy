@@ -255,10 +255,33 @@ def check_i18n(sources: dict[Path, bytes]) -> int:
     return failures
 
 
+# The site's logo and favicon are the mod's own Mini Hakkero texture, copied into
+# assets/img so the page does not depend on a path outside the site. The copy is
+# checked against the texture rather than trusted, since a retexture in the mod would
+# otherwise leave the site showing the old icon forever.
+LOGO = ROOT / "assets/img/hakkero.png"
+LOGO_SOURCE = ROOT / "src/main/resources/assets/gensokyolegacy/textures/item/tool/mini_hakkero_prototype.png"
+
+
+def check_logo() -> int:
+    """The committed logo copy still matches the mod's texture."""
+    if not LOGO_SOURCE.is_file():
+        print(f"logo source missing: {LOGO_SOURCE.relative_to(ROOT)}")
+        return 1
+    if not LOGO.is_file():
+        print(f"logo missing: {LOGO.relative_to(ROOT)}; copy {LOGO_SOURCE.relative_to(ROOT)} over it")
+        return 1
+    if LOGO.read_bytes() != LOGO_SOURCE.read_bytes():
+        print(f"logo is stale: {LOGO.relative_to(ROOT)} differs from {LOGO_SOURCE.relative_to(ROOT)}")
+        print("  cp " + str(LOGO_SOURCE.relative_to(ROOT)) + " " + str(LOGO.relative_to(ROOT)))
+        return 1
+    return 0
+
+
 def main() -> int:
     files = sorted(SITE.rglob("*.js"))
     sources = {path: path.read_bytes() for path in files}
-    failures = 0
+    failures = check_logo()
 
     for path, source in sources.items():
         tree = parser.parse(source)
@@ -304,6 +327,7 @@ def main() -> int:
         print(f"\n{failures} problem(s)")
     else:
         print(f"ok: {len(files)} modules parsed, imports, exports and translations resolve")
+        print(f"ok: {LOGO.relative_to(ROOT)} matches the mod's texture")
     return 1 if failures else 0
 
 
