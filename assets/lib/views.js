@@ -5,6 +5,7 @@ import { append, clear, h } from "./dom.js";
 import {
   advancementLabel,
   characterLabel,
+  effectLabel,
   entityLabel,
   formatTicks,
   ingredientId,
@@ -335,7 +336,11 @@ function actionsNode(actions) {
           return pill("reward", tr("action.completeQuest"));
         case "give_mob_effect": {
           const amplifier = action.amplifier ? ` ${"I".repeat(action.amplifier + 1)}` : "";
-          return pill("condition", `${prettify(action.effect)} ${formatTicks(action.duration)}${amplifier}`, action.effect);
+          return pill(
+            "condition",
+            `${effectLabel(action.effect)} ${formatTicks(action.duration)}${amplifier}`,
+            action.effect,
+          );
         }
         case "set_timer":
           return pill("condition", `${action.key} ${formatTicks(action.delay)}`);

@@ -369,6 +369,10 @@
     "src/generated/resources/assets/gensokyolegacy/lang/en_us.json",
     "src/main/resources/assets/gensokyolegacy/lang/zh_cn.json"
   ],
+  "vanillaLang": [
+    "assets/lang/vanilla/en_us.json",
+    "assets/lang/vanilla/zh_cn.json"
+  ],
   "stats": {
     "quest": 26,
     "dialog": 215,

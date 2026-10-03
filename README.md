@@ -35,17 +35,41 @@ Everything is grouped per character, filterable by search, and addressable by UR
 
 ### Languages
 
-The EN/中文 toggle covers two separate things, both re-resolved on every render so
+The EN/中文 toggle covers three separate things, all re-resolved on every render so
 a switch takes effect immediately:
 
 | What | Where it comes from |
 | --- | --- |
-| Content: quest titles, dialog lines, item, block and entity names | the mod's own lang files (`assets/gensokyolegacy/lang/{en_us,zh_cn}.json`), resolved by `assets/lib/format.js` |
+| Mod content: quest titles, dialog lines, mod items, blocks and entities | the mod's own lang files (`assets/gensokyolegacy/lang/{en_us,zh_cn}.json`), resolved by `assets/lib/format.js` |
+| Vanilla content: `minecraft:` items, blocks, mobs, advancements and effects | `assets/lang/vanilla/{en_us,zh_cn}.json`, generated from the game data by `scripts/build_vanilla_lang.py` |
 | Interface: headings, buttons, section labels, units, error messages, `aria-label`s | the tables in `assets/lib/i18n.js` |
 | Character names | `character.<folder>` in `assets/lib/i18n.js` — a short name (灵梦) keyed by the folder the character's content sits in, with the mod's full entity name (博丽灵梦) as the tooltip and the fallback |
 
 Interface strings use positional `{0}` placeholders, so a translation may reorder the
 sentence. A key missing from `zh_cn` falls back to English rather than to the key.
+Anything no lang file names - a third party item, a tag, a deleted id - falls back to a
+prettified id, so nothing is ever blank.
+
+### The vanilla table
+
+The mod's lang files carry no vanilla text, so `minecraft:iron_ingot` and
+`minecraft:nether/find_fortress` would otherwise render as prettified English on the
+Chinese page. `scripts/build_vanilla_lang.py` pulls those strings out of the game data
+- `minecraft_1.21.1_client.jar` from NeoForm's cache for `en_us`, the downloaded asset
+objects for `zh_cn` - and keeps only the keys the datapack actually refers to, which
+is currently 45 keys rather than the game's 3000. The output is committed, because the
+published site has no game installation to pull from.
+
+```sh
+python3 scripts/build_vanilla_lang.py           # regenerate, after runData or a Minecraft bump
+python3 scripts/build_vanilla_lang.py --check   # verify only, no game data needed
+```
+
+`--check` is what CI runs: it fails when the content names an id that no lang file can
+name, when a locale is missing a key the other has, or when the file holds a key the
+content no longer references. It reports, without failing, ids that nothing upstream
+translates (currently `patchouli:guide_book`) and tags, which Minecraft does not
+translate at all.
 
 ### Files
 
@@ -54,8 +78,10 @@ sentence. A key missing from `zh_cn` falls back to English rather than to the ke
 | `index.html` | page shell |
 | `assets/site.css`, `assets/app.js`, `assets/lib/*.js` | styles and viewer modules |
 | `assets/lib/i18n.js` | interface string tables for both locales |
+| `assets/lang/vanilla/*.json` | the vanilla strings the content refers to |
 | `rpg-manifest.json` | generated index of which registry files exist |
 | `scripts/build_manifest.py` | regenerates that index from the datagen output |
+| `scripts/build_vanilla_lang.py` | extracts the referenced vanilla strings from the game |
 | `scripts/check_site.py` | parses the modules, verifies their imports and checks both locale tables |
 | `.github/workflows/rpg-index.yml` | keeps the index in step with the datapack |
 | `.nojekyll` | serve the tree verbatim, without Jekyll filtering |
@@ -67,8 +93,10 @@ In the repository settings, set **Pages → Build and deployment → Source** to
 
 ### Keeping it up to date
 
-`rpg-manifest.json` is the only generated file; the datapack JSONs are read live and
-never copied. Two things have to stay in step for new content to appear:
+`rpg-manifest.json` is the only file CI regenerates; the datapack JSONs are read live
+and never copied, and the vanilla table is committed because only a Minecraft
+installation can produce it. Three things have to stay in step for new content to
+appear:
 
 1. **`gh-page` must contain the datapack JSONs**, because that is the branch Pages
    serves. New datagen output lands on your working branch, not on `gh-page`.
@@ -79,10 +107,15 @@ never copied. Two things have to stay in step for new content to appear:
    python3 scripts/build_manifest.py
    ```
 
-`.github/workflows/rpg-index.yml` does both automatically: it mirrors the RPG datapack
-and lang files from the source branch onto `gh-page`, then regenerates the index.
-GitHub only runs workflows present on the default branch, so that one YAML file has to
-be copied to `main` before the automation starts. Set the `RPG_SOURCE_BRANCH`
+3. **`assets/lang/vanilla/*.json` must cover any new vanilla id.** If a quest or trade
+   starts naming a `minecraft:` item, block, mob, advancement or effect that the table
+   does not yet have, regenerate it (see above); CI fails until you do. The mod's own
+   ids need nothing, since they live in the mod's lang files.
+
+`.github/workflows/rpg-index.yml` does the first two automatically: it mirrors the RPG
+datapack and lang files from the source branch onto `gh-page`, then regenerates the
+index. GitHub only runs workflows present on the default branch, so that one YAML file
+has to be copied to `main` before the automation starts. Set the `RPG_SOURCE_BRANCH`
 repository variable if the site should track a branch other than `main`.
 
 Independently of the workflow, the page refreshes its index from the published branch

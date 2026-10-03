@@ -17,8 +17,10 @@ import {
   loadLang,
   loadManifest,
   loadRegistry,
+  loadVanillaLang,
   store,
   tableFor,
+  VANILLA_LANG,
 } from "./lib/store.js";
 import { openDialogViewer, questCard, starterCard, tradeCard } from "./lib/views.js";
 
@@ -419,6 +421,10 @@ async function boot() {
 
   await Promise.all([
     ...langFiles.map(loadLang),
+    // The mod's lang files carry no vanilla text, so items, mobs and advancements
+    // only resolve once these are in. An index predating them falls back to the
+    // fixed paths rather than breaking the page.
+    ...(store.manifest.vanillaLang ?? VANILLA_LANG).map(loadVanillaLang),
     // The currency tag decides whether a trade reads as "sell" or "craft".
     loadCurrencyTag(),
     ...registries.map((name) => loadRegistry(name, progressFor(name))),

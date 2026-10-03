@@ -33,6 +33,11 @@ REGISTRIES = ("quest", "dialog", "dialog_starter", "trade")
 # Lang files the viewer resolves translation keys against.
 LANG = ("en_us", "zh_cn")
 
+# Vanilla lang tables, committed next to the page by scripts/build_vanilla_lang.py.
+# They name the `minecraft:` ids the mod's own files know nothing about, so they are
+# listed here only when they are actually present.
+VANILLA_LANG_DIR = "assets/lang/vanilla"
+
 # Tags the viewer needs beyond those referenced by the data. `currency` backs
 # TradeOffer.isSellOffer, which decides whether an offer is "sell to the character"
 # or "request a craft" - without it the trade list cannot be labelled correctly.
@@ -146,6 +151,11 @@ def find_lang() -> list[str]:
     return [found[locale] for locale in LANG if locale in found]
 
 
+def find_vanilla_lang() -> list[str]:
+    """The committed vanilla tables, which live with the page rather than the mod."""
+    return [f"{VANILLA_LANG_DIR}/{locale}.json" for locale in LANG if (ROOT / VANILLA_LANG_DIR / f"{locale}.json").is_file()]
+
+
 def build() -> dict[str, Any]:
     registries: dict[str, Any] = {}
     loot_tables: set[str] = set()
@@ -196,6 +206,7 @@ def build() -> dict[str, Any]:
         "itemTags": item_tag_files,
         "entityTags": existing_tags(entity_refs, "entity_type"),
         "lang": find_lang(),
+        "vanillaLang": find_vanilla_lang(),
     }
     manifest["stats"] = {name: len(reg["files"]) for name, reg in registries.items()}
     manifest["stats"]["files"] = sum(len(reg["files"]) for reg in registries.values())

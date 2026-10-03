@@ -7,12 +7,18 @@ import { tr, trOrNull } from "./i18n.js";
 import { characterSlugOf, store } from "./store.js";
 import { state } from "./state.js";
 
-/** Looks a translation key up in the active locale, falling back to English. */
+/**
+ * Looks a translation key up in the active locale, falling back to English. The
+ * mod's lang files and the vanilla tables are consulted together: they never
+ * overlap, but only the pair can name `minecraft:iron_ingot` or a vanilla
+ * advancement, neither of which the mod translates.
+ */
 export function t(key) {
   if (typeof key !== "string") return null;
   for (const locale of [state.lang, "en_us"]) {
-    const table = store.lang.get(locale);
-    if (table && key in table) return table[key];
+    for (const table of [store.lang.get(locale), store.vanillaLang.get(locale)]) {
+      if (table && key in table) return table[key];
+    }
   }
   return null;
 }
@@ -36,15 +42,24 @@ export function prettify(id) {
     .trim();
 }
 
+/**
+ * A namespaced id as the dotted path a lang key uses: `minecraft:iron_ingot` is
+ * `item.minecraft.iron_ingot`. Minecraft splits ids on `:` but lang keys on `.`,
+ * so every lookup has to convert first.
+ */
+function langPath(id) {
+  return String(id).replace(":", ".");
+}
+
 /** Item display name, checking the item, block and entity namespaces in turn. */
 export function itemLabel(id) {
   if (!id) return "";
-  const bare = id.replace(/^#/, "");
-  return t(`item.${bare}`) ?? t(`block.${bare}`) ?? t(`entity.${bare}`) ?? prettify(bare);
+  const bare = langPath(id.replace(/^#/, ""));
+  return t(`item.${bare}`) ?? t(`block.${bare}`) ?? t(`entity.${bare}`) ?? prettify(id);
 }
 
 export function entityLabel(id) {
-  return id ? (t(`entity.${id}`) ?? prettify(id)) : "";
+  return id ? (t(`entity.${langPath(id)}`) ?? prettify(id)) : "";
 }
 
 /**
@@ -57,9 +72,23 @@ export function characterLabel(entity) {
   return trOrNull(`character.${characterSlugOf(entity)}`) ?? entityLabel(entity);
 }
 
+/**
+ * Advancement title. The lang key is a dotted path rather than the id: the
+ * namespace is dropped for vanilla advancements (`nether/root` is
+ * `advancements.nether.root.title`) but kept for modded ones, so both spellings
+ * are tried.
+ */
 export function advancementLabel(id) {
-  const path = String(id).split(":")[1];
-  return t(`advancements.${path}.title`) ?? prettify(path);
+  const [namespace, path = ""] = String(id).split(":");
+  const dotted = path.replaceAll("/", ".");
+  return (
+    t(`advancements.${dotted}.title`) ?? t(`advancements.${namespace}.${dotted}.title`) ?? prettify(dotted)
+  );
+}
+
+/** Mob effect name, used by the `give_mob_effect` dialog actions. */
+export function effectLabel(id) {
+  return t(`effect.${langPath(id)}`) ?? prettify(id);
 }
 
 /** `gensokyolegacy:kill_enemy` -> `kill_enemy`, for readable dispatch. */

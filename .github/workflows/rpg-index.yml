@@ -15,6 +15,11 @@ on:
       - "src/generated/resources/data/minecraft/tags/**"
       - "src/generated/resources/assets/gensokyolegacy/lang/**"
       - "src/main/resources/assets/gensokyolegacy/lang/**"
+      - "assets/lang/vanilla/**"
+      - "scripts/build_manifest.py"
+      - "scripts/build_vanilla_lang.py"
+      - "scripts/check_site.py"
+      - ".github/workflows/rpg-index.yml"
   workflow_dispatch:
     inputs:
       source_branch:
@@ -50,6 +55,11 @@ jobs:
         run: |
           python3 -m pip install --quiet tree_sitter tree_sitter_javascript
           python3 scripts/check_site.py
+
+      # A new vanilla item in the datapack needs a new line in assets/lang/vanilla.
+      # That file is generated locally from the game data, so CI only verifies it.
+      - name: Check the vanilla translation table
+        run: python3 scripts/build_vanilla_lang.py --check
 
       - name: Mirror the RPG datapack from ${{ env.SOURCE_BRANCH }}
         run: |

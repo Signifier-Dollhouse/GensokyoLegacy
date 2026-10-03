@@ -9,7 +9,8 @@ import { setProgress } from "./dom.js";
 
 export const store = {
   manifest: null,
-  lang: new Map(), // locale -> { key: text }
+  lang: new Map(), // locale -> { key: text }, from the mod's own lang files
+  vanillaLang: new Map(), // locale -> { key: text }, from assets/lang/vanilla
   quests: new Map(), // resource id -> json
   trades: new Map(),
   starters: new Map(),
@@ -92,6 +93,24 @@ export async function loadRegistry(name, progress) {
 export async function loadLang(file) {
   const locale = file.split("/").pop().replace(".json", "");
   store.lang.set(locale, await fetchJson(file));
+}
+
+/**
+ * Vanilla strings, kept apart from the mod's tables because the mod says nothing
+ * about `minecraft:` items, blocks, mobs or advancements. The files are committed
+ * rather than generated at build time, so they sit at a fixed path; the manifest
+ * lists them for anyone regenerating it.
+ */
+export const VANILLA_LANG = ["en_us", "zh_cn"].map((locale) => `assets/lang/vanilla/${locale}.json`);
+
+export async function loadVanillaLang(file) {
+  const locale = file.split("/").pop().replace(".json", "");
+  try {
+    store.vanillaLang.set(locale, await fetchJson(file));
+  } catch {
+    // The page is still usable: every id falls back to a prettified name.
+    store.vanillaLang.set(locale, null);
+  }
 }
 
 /** Resolves a loot table id to its file, preferring the index. */
