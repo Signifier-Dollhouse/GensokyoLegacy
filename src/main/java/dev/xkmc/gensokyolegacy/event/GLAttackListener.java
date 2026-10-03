@@ -31,10 +31,10 @@ public class GLAttackListener implements AttackListener {
 				}
 			}
 		}
-		if (TalismanCurioItem.testAny(cache.getTarget(), ctx -> ctx.paper().onAttacked(ctx, cache))) {
-			return true;
-		}
-		return AttackListener.super.onAttack(cache);
+		var target = cache.getTarget();
+		boolean blocked = TalismanCurioItem.testAny(target, ctx -> ctx.paper().onAttacked(ctx, cache));
+		TalismanCurioItem.syncSpentTalismans(target);
+		return blocked || AttackListener.super.onAttack(cache);
 	}
 
 	@Override
@@ -47,6 +47,7 @@ public class GLAttackListener implements AttackListener {
 	@Override
 	public void onDamage(DamageData.Defence data) {
 		TalismanCurioItem.iterate(data.getTarget(), ctx -> ctx.paper().onDamaged(ctx, data));
+		TalismanCurioItem.syncSpentTalismans(data.getTarget());
 		if (data.getSource().is(DanmakuDamageTypes.DANMAKU) && data.getSource().getEntity() instanceof YoukaiEntity) {
 			LivingEntity le = data.getTarget();
 			double min = le instanceof Player ?

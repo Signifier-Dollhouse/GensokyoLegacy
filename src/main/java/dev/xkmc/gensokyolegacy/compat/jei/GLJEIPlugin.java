@@ -60,7 +60,10 @@ public class GLJEIPlugin implements IModPlugin {
 		// loaded, which is what having a level here means
 		var access = level.registryAccess();
 		registration.addRecipes(TRADE, CodecRegistry.TRADE.getAll(access).toList());
-		registration.addRecipes(QUEST, CodecRegistry.QUEST.getAll(access).toList());
+		// a quest paying nothing but experience and reputation has no item to look up, so it would
+		// be a page of blank slots; better that it never appears than that it does
+		registration.addRecipes(QUEST, CodecRegistry.QUEST.getAll(access)
+				.filter(QuestRewardCategory::hasItemReward).toList());
 	}
 
 	@Override

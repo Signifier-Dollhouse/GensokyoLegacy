@@ -33,6 +33,7 @@ import dev.xkmc.gensokyolegacy.content.rpg.network.DialogClickToServer;
 import dev.xkmc.gensokyolegacy.content.rpg.network.DialogCloseToClient;
 import dev.xkmc.gensokyolegacy.content.rpg.network.DialogCloseToServer;
 import dev.xkmc.gensokyolegacy.content.rpg.network.FirstDialogToClient;
+import dev.xkmc.gensokyolegacy.content.rpg.network.QuestLootToClient;
 import dev.xkmc.gensokyolegacy.content.rpg.network.QuestStatusToClient;
 import dev.xkmc.gensokyolegacy.content.rpg.network.SimpleDialogToClient;
 import dev.xkmc.gensokyolegacy.content.rpg.network.TradeStatusToClient;
@@ -80,6 +81,7 @@ public class GLPackets {
 				// quest and trade status, then the dialog packets:
 				// the dialog screen runs on no container menu, so it syncs over its own packets
 				.toClient(QuestStatusToClient.class)
+				.toClient(QuestLootToClient.class)
 				.toClient(TradeStatusToClient.class)
 				.toClient(FirstDialogToClient.class)
 				.toClient(SimpleDialogToClient.class)

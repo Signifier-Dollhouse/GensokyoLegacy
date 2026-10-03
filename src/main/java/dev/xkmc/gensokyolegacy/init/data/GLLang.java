@@ -800,9 +800,10 @@ public final class GLLang {
 
 	// ========== Jei extra labels ==========
 	public enum JeiExtra implements LangEntry {
-		PRICE("Price: %s", 1),
 		MAX_STOCK("Max stock: %s", 1),
 		MORE("+%s more", 1),
+		COUNT_RANGE("%s-%s", 2),
+		COUNT_UNKNOWN("?", 0),
 		REWARD_EXP("%s experience", 1),
 		REWARD_REPUTATION("%s reputation", 1),
 		REWARD_LOOT("Loot table: %s", 1);

@@ -234,19 +234,22 @@
 			"allow": "可能的材料",
 			"extra": "+还有%s种",
 			"progress": "进度：%s%%"
+		},
+		"jei": {
+			"max_stock": "最大库存：%s",
+			"more": "+还有%s种",
+			"count_range": "%s-%s",
+			"count_unknown": "?",
+			"reward_exp": "%s 经验",
+			"reward_reputation": "%s 声望",
+			"reward_loot": "战利品表：%s"
 		}
 	},
 	"jei": {
 		"gensokyolegacy": {
 			"alchemy": "炼金锅",
 			"trade": "交易",
-			"quest": "任务奖励",
-			"price": "价格：%s",
-			"max_stock": "最大库存：%s",
-			"more": "+还有%s种",
-			"reward_exp": "%s 经验",
-			"reward_reputation": "%s 声望",
-			"reward_loot": "战利品表：%s"
+			"quest": "任务奖励"
 		}
 	},
 	"death.attack": {

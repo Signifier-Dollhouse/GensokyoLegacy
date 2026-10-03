@@ -57,6 +57,16 @@ public abstract class TalismanCurioItem extends Item implements ICurioItem {
 		return false;
 	}
 
+	/**
+	 * Announce that a damage hook just spent a use, so a {@link TalismanHolder} can refresh
+	 * whatever keeps its talismans in sync. Called once per hook, after every context has run:
+	 * the hooks have no way of knowing whether they were the one that spent anything, and a
+	 * holder that syncs unconditionally pays nothing for the ones that were not.
+	 */
+	public static void syncSpentTalismans(LivingEntity entity) {
+		if (entity instanceof TalismanHolder holder) holder.onTalismansSpent();
+	}
+
 	public abstract List<TalismanContext> getActiveTalismans(LivingEntity entity, ItemStack stack);
 
 	@Override
