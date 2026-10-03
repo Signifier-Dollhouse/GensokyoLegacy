@@ -1,4 +1,4 @@
-package dev.xkmc.gensokyolegacy.content.item.broom;
+package dev.xkmc.gensokyolegacy.content.item.tool;
 
 import dev.xkmc.gensokyolegacy.content.entity.broom.BroomEntity;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;

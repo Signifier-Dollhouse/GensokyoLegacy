@@ -1,16 +1,16 @@
 # Structure-Bed-Entity Framework — Implementation & Usage Guide
 
-This document reflects the current implementation in `content/block/bed/`, `content/block/base/`, `content/attachment/index/`, `content/attachment/datamap/`, `init/data/structure/`, and `content/entity/module/HomeModule`.
+This document reflects the current implementation in `content/block/deco/bed/`, `content/block/base/`, `content/attachment/index/`, `content/attachment/datamap/`, `init/data/structure/`, and `content/entity/module/HomeModule`.
 
 ## 1. Components
 
 | Class | File | Role |
 |---|---|---|
-| `YoukaiBedBlock` | `content/block/bed/YoukaiBedBlock.java` | `DelegateEntityBlockImpl` flat 2/16 double-bed (HEAD/FOOT via `YoukaiBedMethods`). Tag `beds`, `isBed=true`, bounce 0.66. Destroying either half auto-removes the other (updateShape → `AIR` + creative `playerWillDestroy`). |
-| `YoukaiBedMethods` | `content/block/bed/YoukaiBedMethods.java` | `record` with `updateShape` (neighbour mismatch → `AIR`, so paired half vanishes) / `setPlacedBy` / `getStateForPlacement` for horizontal double-bed (`BedPart`). |
-| `FlatBedShape` | `content/block/bed/FlatBedShape.java` | `VoxelShape 0,0,0-16,2,16` + datagen `bed_head/foot` models. |
+| `YoukaiBedBlock` | `content/block/deco/bed/YoukaiBedBlock.java` | `DelegateEntityBlockImpl` flat 2/16 double-bed (HEAD/FOOT via `YoukaiBedMethods`). Tag `beds`, `isBed=true`, bounce 0.66. Destroying either half auto-removes the other (updateShape → `AIR` + creative `playerWillDestroy`). |
+| `YoukaiBedMethods` | `content/block/deco/bed/YoukaiBedMethods.java` | `record` with `updateShape` (neighbour mismatch → `AIR`, so paired half vanishes) / `setPlacedBy` / `getStateForPlacement` for horizontal double-bed (`BedPart`). |
+| `FlatBedShape` | `content/block/deco/bed/FlatBedShape.java` | `VoxelShape 0,0,0-16,2,16` + datagen `bed_head/foot` models. |
 | `LocatedBlockEntity` | `content/block/base/LocatedBlockEntity.java:16` | `@SerialClass BaseBlockEntity` + `Tickable`. `@SerialField StructureKey key`, `located` flag. One-shot `tick()` → `IHomeHolder.find` + `BedData` + `supportEntity` → `key`. Structures and this BE are immovable, so the one-shot binding never needs re-resolution. |
-| `YoukaiBedBlockEntity` | `content/block/bed/YoukaiBedBlockEntity.java:25` | `@SerialClass` extends `LocatedBlockEntity`. Server `tick()` (HEAD only) → `IndexStorage.blockTick` + `IHomeHolder.tick`. Debug `onDebugClick`/`getDebugPacket`. |
+| `YoukaiBedBlockEntity` | `content/block/deco/bed/YoukaiBedBlockEntity.java:25` | `@SerialClass` extends `LocatedBlockEntity`. Server `tick()` (HEAD only) → `IndexStorage.blockTick` + `IHomeHolder.tick`. Debug `onDebugClick`/`getDebugPacket`. |
 | `BedData` | `content/attachment/datamap/BedData.java` | Datamap `Block → EntityType`. `record(EntityType<?> type)`, `of(Block)` via `GLMeta.BED_DATA`. |
 | `CharacterConfig` | `content/attachment/datamap/CharacterConfig.java` | Datamap `EntityType → CharacterConfig(structure RL, discardTime, respawnTime, wanderRadius, noPlayerVanishTime)`. `of(EntityType)`, `create(type,sl,bedPos,key)` spawns youkai. |
 | `StructureConfig` | `content/attachment/datamap/StructureConfig.java` | Datamap `Structure → StructureConfig(entities, room/house shrink, outside/primary/wouldFix tags)`. |
@@ -19,8 +19,8 @@ This document reflects the current implementation in `content/block/bed/`, `cont
 | `StructureRefData` | `content/attachment/index/StructureRefData.java` | Per-structure multi-entity map `Map<EntityType, BedRefData>`. `blockTick()` once/tick delegates to typed `BedRefData`. |
 | `BedRefData` | `content/attachment/index/BedRefData.java:24` | `@SerialClass` per-entity-type state: `UUID entityId`, `BlockPos bedPos`, `lastEntityTickedTime`, `lostEntityTick`. `blockTick`/`entityTick`/`onEntityDie`/`onDebugClick`. |
 | `HomeModule` | `content/entity/module/HomeModule.java` | `@SerialClass AbstractYoukaiModule` `@SerialField StructureKey home`. `tickServer() → BedRefData.entityTick` else discard; `onKilled()`. |
-| `StructStructure` | `init/data/structure/StructStructure.java` | Datagen descriptor `id, biomesTag, spacing, separation, StructureConfig.Builder, List<StructBed>, StructBuilding`. |
-| `StructBuilding` | `init/data/structure/StructBuilding.java` | Sealed `StructSimpleBuilding` (processors, spawns) / `StructJigsawBuilding` (maxDepth, Part list, spawns) → `GLSinglePiece extends SinglePoolElement`. |
+| `StructStructure` | `init/data/structure/helper/StructStructure.java` | Datagen descriptor `id, biomesTag, spacing, separation, StructureConfig.Builder, List<StructBed>, StructBuilding`. |
+| `StructBuilding` | `init/data/structure/helper/StructBuilding.java` | Sealed `StructSimpleBuilding` (processors, spawns) / `StructJigsawBuilding` (maxDepth, Part list, spawns) → `GLSinglePiece extends SinglePoolElement`. |
 | `GLStructureGen` | `init/data/structure/GLStructureGen.java:19` | Bootstraps `PROCESSOR_LIST/TEMPLATE_POOL/STRUCTURE/STRUCTURE_SET` via `L2Registrate DataProviderInitializer`; fills 3 `DataMapReg` in `dataMap()`. Currently `initStructures()` empty. |
 
 ## 2. Relationships

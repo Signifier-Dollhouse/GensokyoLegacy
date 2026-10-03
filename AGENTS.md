@@ -14,7 +14,7 @@ NeoForge 1.21.1 mod (Gensokyo Legacy, Touhou characters/structures). Java 21, Gr
 - `GensokyoLegacy.REG` (`dev.xkmc.l2core...Reg`) — vanilla/built-in registries (sensors/memories/activities via `SR`, see `GLBrains`) and custom datapack registries via `dataReg` + `CdcVal` (see `content/rpg/core/CodecRegistry.java`).
 
 ## Key conventions
-- Networking: single `GensokyoLegacy.HANDLER` (l2serial `PacketHandler`); register every packet there. Packets use l2serial codecs.
+- Networking: single `GensokyoLegacy.HANDLER` (l2serial `PacketHandler`); its registration lives in `init/GLPackets.java` (`GLPackets.create(version)`, one chained `.toClient(X.class)` / `.toServer(X.class)` line per packet). Packets use l2serial codecs.
 - Custom JSON codecs use l2serial `CodecHandler`/`Handlers` (see the `FluidIngredient` registration in the mod constructor).
 - Datapack registries: define a `ResourceKey` in `CodecRegistry.Keys`, register with `REG.dataReg("name", CODEC)`. Runtime JSON lives at `data/gensokyolegacy/gensokyolegacy/<registry>/...` (currently `dialog`, `dialog_starter`, `quest`, `trade`). New option/action/condition/requirement/reward subclasses must be registered in `CodecRegistry`.
 - Config: `GLModConfig.SERVER` via `REGISTRATE.registerSynced(...)` (server-synced), built with l2core `ConfigInit` (pattern in `init/data/GLModConfig.java`).

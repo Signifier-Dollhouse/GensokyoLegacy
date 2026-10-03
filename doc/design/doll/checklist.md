@@ -6,7 +6,7 @@ Consolidated file/registration checklist for the doll system. Items marked **(do
 
 Core (all done):
 - `content/attachment/doll/DollState.java`, `DollData.java`, `DollAttachment.java`, `DollHost.java`
-- `content/entity/dolls/BaseDollEntity.java`, `DollEntity.java`, `DollMoveControl.java`, `DollModel.java`, `DollRenderer.java`
+- `content/entity/dolls/BaseDollEntity.java`, `DollEntity.java`, `DollMoveControl.java`, plus `render/DollModel.java`, `render/DollRenderer.java`
 - `content/entity/dolls/goals/FollowDollOwnerGoal.java`, `LookAtDollOwnerGoal.java`, `DollCommandGoal.java`
 - `content/item/doll/DollItem.java`, `DollItemData.java`
 - `content/block/functional/doll/DollControllerBlock.java`, `DollControllerBlockEntity.java`
@@ -29,11 +29,11 @@ Implemented — glove (item, 6 modes with heal/stop hidden, wheel, target cache 
 - `content/item/glove/DollGloveItem.java`
 - `content/item/glove/mode/DollGloveMode.java`
 - `content/item/glove/mode/DollGloveHandler.java` + 6 mode classes
-- `content/item/glove/DollGloveSelectionListener.java` + `DollGloveLeftClickHandler.java`
+- `content/item/glove/DollGloveSelectionListener.java` (the left-click paths live in `DollGloveItem` + `event/DollEventHandlers.java`)
 - `content/item/glove/client/DollGloveModeWheel.java`, `DollGloveModeEntry.java`
 - `content/item/glove/network/DollGloveSwingPacket.java`
-- `content/item/selector/SelectorSelectPacket.java` — the shared selector-wheel mode pick (no glove-specific select packet any more)
-- `content/item/targeting/` — the shared target cache (glove.md §2): `GloveTargeting.java`, `client/GloveTargetCache.java`, `network/GloveTargetPacket.java`, plus `content/attachment/glove/GloveTargetAttachment.java` as the per-player server store — + `mixin/ClientGlowMixin.java` (via `content/client/ClientGlowManager.java`) + mixins-json entry (glove.md §2)
+- `content/item/common/network/SelectorSelectPacket.java` — the shared selector-wheel mode pick (no glove-specific select packet any more)
+- `content/item/common/` — the shared target cache (glove.md §2): `GloveTargeting.java`, `client/GloveTargetCache.java`, `network/GloveTargetPacket.java`, plus `content/attachment/glove/GloveTargetAttachment.java` as the per-player server store — + `mixin/ClientGlowMixin.java` (via `content/client/ClientGlowManager.java`) + mixins-json entry (glove.md §2)
 
 ## 2. Files to modify
 
@@ -42,9 +42,9 @@ Implemented — glove (item, 6 modes with heal/stop hidden, wheel, target cache 
 - `content/attachment/doll/DollHost.java` — `detach(UUID)` for stray cuts, `onDeath` hook; `StrayHost.java` holds the detached entry, answers pairing, hands it over one-shot via `take()`, persists via chunk save/load (control.md §5.4)
 - `content/entity/dolls/BaseDollEntity.java` — pairing pipeline only (stray `getHost` branch, `die()` → `onDeath`); empty-hand itemize (arming removed, loadout.md §4); `setSpeedCap` escape hatch on the movement cap for the melee charge (entity.md §3.1, control.md §5.1b)
 - `content/entity/dolls/DollEntity.java` — `actions` field, one `DollCommandGoal`, vanilla shield hooks (§5.6), never-null ledger-direct loadout API, `becomeStray()` / `rejoinOwner()` / `maybeRejoin()` (1-second idle rejoin from `tick()`); 4 synced slot accessors, `writeValuesTo`/`readValuesFrom` (loadout.md §3 / entity.md §8.1) — done
-- `content/entity/dolls/DollRenderer.java` / `DollModel.java` — exist; add **TODO** placeholders for the held-item render pass (loadout.md §5)
+- `content/entity/dolls/render/DollRenderer.java` / `DollModel.java` — exist; add **TODO** placeholders for the held-item render pass (loadout.md §5)
 - `init/registrate/GLItems.java` — `DOLL_GLOVE` + `DOLL_GLOVE_MODE`
-- `init/GensokyoLegacy.java` — glove listener, both packets (no `CodecHandler<ItemStack>`: l2serial already ships one)
+- `init/GensokyoLegacy.java` — glove listener, both packets (no `CodecHandler<ItemStack>`: l2serial already ships one); both packet registrations now live in `init/GLPackets.java`
 - `init/data/GLLang.java` — `ItemGlove` enum: modes + a message per non-trivial action (glove.md §5)
 
 Core (done):

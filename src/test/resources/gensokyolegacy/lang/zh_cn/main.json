@@ -238,7 +238,15 @@
 	},
 	"jei": {
 		"gensokyolegacy": {
-			"alchemy": "炼金锅"
+			"alchemy": "炼金锅",
+			"trade": "交易",
+			"quest": "任务奖励",
+			"price": "价格：%s",
+			"max_stock": "最大库存：%s",
+			"more": "+还有%s种",
+			"reward_exp": "%s 经验",
+			"reward_reputation": "%s 声望",
+			"reward_loot": "战利品表：%s"
 		}
 	},
 	"death.attack": {

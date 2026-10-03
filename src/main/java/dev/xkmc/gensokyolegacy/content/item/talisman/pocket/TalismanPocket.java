@@ -1,8 +1,8 @@
 package dev.xkmc.gensokyolegacy.content.item.talisman.pocket;
 
 import dev.xkmc.gensokyolegacy.content.item.talisman.core.*;
-import dev.xkmc.gensokyolegacy.content.item.tool.InvClickItem;
-import dev.xkmc.gensokyolegacy.content.item.tool.InvTooltip;
+import dev.xkmc.gensokyolegacy.content.item.common.InvClickItem;
+import dev.xkmc.gensokyolegacy.content.item.common.InvTooltip;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.l2menustacker.init.L2MenuStacker;
 import dev.xkmc.l2menustacker.screen.packets.CacheMouseToClient;

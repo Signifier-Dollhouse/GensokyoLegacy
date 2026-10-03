@@ -1,6 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.item.umbrella.wheel;
 
-import dev.xkmc.gensokyolegacy.content.item.selector.SelectorSelectPacket;
+import dev.xkmc.gensokyolegacy.content.item.common.network.SelectorSelectPacket;
 import dev.xkmc.gensokyolegacy.content.item.umbrella.BorderUmbrellaItem;
 import dev.xkmc.gensokyolegacy.content.item.umbrella.BorderUmbrellaSelectionListener;
 import dev.xkmc.gensokyolegacy.content.item.umbrella.data.BorderUmbrellaMode;

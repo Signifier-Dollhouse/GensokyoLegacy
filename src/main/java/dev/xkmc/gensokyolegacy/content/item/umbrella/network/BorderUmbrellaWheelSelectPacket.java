@@ -1,5 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.item.umbrella.network;
 
+import dev.xkmc.gensokyolegacy.content.item.common.network.SelectorSelectPacket;
 import dev.xkmc.gensokyolegacy.content.item.umbrella.BorderUmbrellaSelectionListener;
 import dev.xkmc.gensokyolegacy.content.item.umbrella.data.BorderUmbrellaSlots;
 import dev.xkmc.gensokyolegacy.content.item.umbrella.wheel.BorderUmbrellaDistanceEntry;
@@ -12,7 +13,7 @@ import net.minecraft.world.item.ItemStack;
  * A pick from one of the umbrella's two <b>accessory</b> wheels: wheel 1 the recorded position
  * to travel to, wheel 2 the teleport distance. Both write umbrella-only components, so unlike
  * the mode wheel — which every selector item shares through
- * {@link dev.xkmc.gensokyolegacy.content.item.selector.SelectorSelectPacket} — there is nothing
+ * {@link SelectorSelectPacket} — there is nothing
  * here to generalise.
  *
  * <p>{@code wheel} is a payload selector, not the wheel index the UI uses: the distance wheel

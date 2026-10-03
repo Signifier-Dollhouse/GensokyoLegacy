@@ -1,7 +1,7 @@
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
 
-package dev.xkmc.gensokyolegacy.content.item.targeting;
+package dev.xkmc.gensokyolegacy.content.item.common.client;
 
 import net.minecraft.MethodsReturnNonnullByDefault;
 

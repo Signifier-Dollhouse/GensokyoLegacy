@@ -483,6 +483,12 @@
   "gensokyolegacy.item.wand_block": "spunoq ǝɹnʇɔnɹʇs ʍoɥs oʇ ʞɔoןq ʞɔıןƆ",
   "gensokyolegacy.item.wand_character": "noʎ ɹoɟ ɐʇɐp ɹǝʇɔɐɹɐɥɔ ןɐqoןb ʇǝsǝɹ oʇ ɹǝʇɔɐɹɐɥɔ ʞɔıןƆ",
   "gensokyolegacy.item.wand_structure": "uǝǝɹɔs uoıʇdo ǝɹnʇɔnɹʇs ʍoɥs oʇ ʞɔoןq ʞɔıןɔ-ʞɐǝuS",
+  "gensokyolegacy.jei.max_stock": "%s :ʞɔoʇs xɐW",
+  "gensokyolegacy.jei.more": "ǝɹoɯ %s+",
+  "gensokyolegacy.jei.price": "%s :ǝɔıɹԀ",
+  "gensokyolegacy.jei.reward_exp": "ǝɔuǝıɹǝdxǝ %s",
+  "gensokyolegacy.jei.reward_loot": "%s :ǝןqɐʇ ʇooꞀ",
+  "gensokyolegacy.jei.reward_reputation": "uoıʇɐʇndǝɹ %s",
   "gensokyolegacy.msg.reset": "ʇǝsǝɹ ɹǝʇɔɐɹɐɥƆ",
   "gensokyolegacy.msg.shelf_returned": "˙noʎ oʇ pǝuɹnʇǝɹ uǝǝq ǝʌɐɥ sbuıuɹɐǝ puɐ ʞɔoʇs sʇı ؛ʎɐʍɐ ǝɹǝʍ noʎ ǝןıɥʍ uǝʞoɹq sɐʍ ɟןǝɥs doɥs ɹnoʎ",
   "gensokyolegacy.quest.character": "%s ɹoℲ",
@@ -1118,6 +1124,8 @@
   "itemGroup.gensokyolegacy.building_blocks": "sʞɔoןᗺ buıpןınᗺ - ʎɔɐbǝꞀ oʎʞosuǝ⅁",
   "itemGroup.gensokyolegacy.ingredients": "sʇuǝıpǝɹbuI - ʎɔɐbǝꞀ oʎʞosuǝ⅁",
   "jei.gensokyolegacy.alchemy": "ʇoԀ ʎɯǝɥɔןⱯ",
+  "jei.gensokyolegacy.quest": "spɹɐʍǝᴚ ʇsǝnὉ",
+  "jei.gensokyolegacy.trade": "ǝpɐɹ⟘",
   "patchouli.gensokyolegacy.landing": "˙)($ɯoɹɟ sǝɯoɔ ʇı ǝɹǝɥʍ)pןoq($ puɐ )($ʇı ǝsn oʇ ʍoɥ)pןoq($ ')($sǝop ʇı ʇɐɥʍ)pןoq($ sʍoɥs ʎɹʇuǝ uⱯ ˙ʞooq ǝpınb ıןnoɥɔʇɐԀ ʎuɐ ɯoɹɟ ʇı uǝdO)ᄅɹq($˙ǝpıןs puɐ ɹǝʌoɔ 'uo ʇıs uɐɔ noʎ sʞɔoןq uoıʇɐɹoɔǝp ǝɥʇ puɐ 'sןooʇ ʎɐpʎɹǝʌǝ puɐ ןɐıɔǝds 'ǝʌoןb ɹıǝɥʇ puɐ sןןop ʇɐqɯoɔ 'suɐɯsıןɐʇ ɹǝdɐd 'ʇoԀ ʎɯǝɥɔןⱯ ǝɥʇ uı buıʍǝɹq :ʎɔɐbǝꞀ oʎʞosuǝ⅁ ɟo ǝpıs buıʞɹoʍ ǝɥʇ sʇuǝɯnɔop ǝɯnןoʌ sıɥ⟘",
   "patchouli.gensokyolegacy.title": "ǝpın⅁ sןoo⟘ oʎʞosuǝ⅁"
 }

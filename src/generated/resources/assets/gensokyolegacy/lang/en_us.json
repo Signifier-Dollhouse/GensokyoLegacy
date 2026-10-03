@@ -483,6 +483,12 @@
   "gensokyolegacy.item.wand_block": "Click block to show structure bounds",
   "gensokyolegacy.item.wand_character": "Click character to reset global character data for you",
   "gensokyolegacy.item.wand_structure": "Sneak-click block to show structure option screen",
+  "gensokyolegacy.jei.max_stock": "Max stock: %s",
+  "gensokyolegacy.jei.more": "+%s more",
+  "gensokyolegacy.jei.price": "Price: %s",
+  "gensokyolegacy.jei.reward_exp": "%s experience",
+  "gensokyolegacy.jei.reward_loot": "Loot table: %s",
+  "gensokyolegacy.jei.reward_reputation": "%s reputation",
   "gensokyolegacy.msg.reset": "Character reset",
   "gensokyolegacy.msg.shelf_returned": "Your shop shelf was broken while you were away; its stock and earnings have been returned to you.",
   "gensokyolegacy.quest.character": "For %s",
@@ -1118,6 +1124,8 @@
   "itemGroup.gensokyolegacy.building_blocks": "Gensokyo Legacy - Building Blocks",
   "itemGroup.gensokyolegacy.ingredients": "Gensokyo Legacy - Ingredients",
   "jei.gensokyolegacy.alchemy": "Alchemy Pot",
+  "jei.gensokyolegacy.quest": "Quest Rewards",
+  "jei.gensokyolegacy.trade": "Trade",
   "patchouli.gensokyolegacy.landing": "This volume documents the working side of Gensokyo Legacy: brewing in the Alchemy Pot, paper talismans, combat dolls and their glove, special and everyday tools, and the decoration blocks you can sit on, cover and slide.$(br2)Open it from any Patchouli guide book. An entry shows $(bold)what it does$(), $(bold)how to use it$() and $(bold)where it comes from$().",
   "patchouli.gensokyolegacy.title": "Gensokyo Tools Guide"
 }

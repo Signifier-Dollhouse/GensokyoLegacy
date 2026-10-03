@@ -1,7 +1,7 @@
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
 
-package dev.xkmc.gensokyolegacy.content.item.selector;
+package dev.xkmc.gensokyolegacy.content.item.common;
 
 import net.minecraft.MethodsReturnNonnullByDefault;
 

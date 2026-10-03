@@ -430,12 +430,12 @@ public final class GLLang {
 		CAT_BELL_LORE("Small, and heavier than any bell has a right to be.", 0, ChatFormatting.GRAY),
 		CAT_BELL_USE("Right-click your own cat to ride it, or right-click to summon a tamed cat to ride you. 16 uses.", 0, ChatFormatting.GRAY),
 		BROOM_LORE("It flies itself, given there is somebody left to fly.", 0, ChatFormatting.GRAY),
-		BROOM_USE("Right-click to mount, right-click again to get off. Never consumed \u2014 leave it in your inventory and the broom goes away.", 0, ChatFormatting.GRAY),
+		BROOM_USE("Right-click to mount, right-click again to get off. Never consumed — leave it in your inventory and the broom goes away.", 0, ChatFormatting.GRAY),
 		DOLL_LANCE_LORE("A polearm built to a doll's reach rather than a hand's.", 0, ChatFormatting.GRAY),
 		DOLL_LANCE_USE("The only weapon a doll will charge with; nothing else in a hand arms one. It never wears out.", 0, ChatFormatting.GRAY),
 		STAR_WAND_LORE("Throws the star, keeps the wand.", 0, ChatFormatting.GRAY),
 		STAR_WAND_USE("Fires a star every second and is never consumed. A doll picks it up out of a hand slot for her danmaku attack.", 0, ChatFormatting.GRAY),
-		IRON_DAGGER_LORE("Thrown, not dropped \u2014 it knows the way back.", 0, ChatFormatting.GRAY),
+		IRON_DAGGER_LORE("Thrown, not dropped — it knows the way back.", 0, ChatFormatting.GRAY),
 		IRON_DAGGER_USE("Right-click to throw. The dagger leaves your stack while it is in the air and is handed straight back when it lands.", 0, ChatFormatting.GRAY),
 		STRANGE_GLASSES_LORE("Someone else's idea of what counts as real.", 0, ChatFormatting.GRAY),
 		STRANGE_GLASSES_USE("Wear it in the head slot to see sealing-pot barriers, and everything else glow white.", 0, ChatFormatting.GRAY);
@@ -753,7 +753,9 @@ public final class GLLang {
 
 	// ========== Jei ==========
 	public enum Jei implements LangEntry {
-		ALCHEMY("jei.gensokyolegacy.alchemy", "Alchemy Pot");
+		ALCHEMY("jei.gensokyolegacy.alchemy", "Alchemy Pot"),
+		TRADE("jei.gensokyolegacy.trade", "Trade"),
+		QUEST("jei.gensokyolegacy.quest", "Quest Rewards");
 
 		private final String def;
 		private final int argn;
@@ -772,6 +774,52 @@ public final class GLLang {
 			this.def = def;
 			this.argn = argn;
 			this.key = key;
+			this.format = format;
+		}
+
+		@Override
+		public String key() {
+			return key;
+		}
+
+		@Override
+		public String def() {
+			return def;
+		}
+
+		@Override
+		public int argn() {
+			return argn;
+		}
+
+		@Override
+		public @Nullable ChatFormatting format() {
+			return format;
+		}
+	}
+
+	// ========== Jei extra labels ==========
+	public enum JeiExtra implements LangEntry {
+		PRICE("Price: %s", 1),
+		MAX_STOCK("Max stock: %s", 1),
+		MORE("+%s more", 1),
+		REWARD_EXP("%s experience", 1),
+		REWARD_REPUTATION("%s reputation", 1),
+		REWARD_LOOT("Loot table: %s", 1);
+
+		private final String def;
+		private final int argn;
+		private final String key;
+		private final @Nullable ChatFormatting format;
+
+		JeiExtra(String def, int argn) {
+			this(def, argn, null);
+		}
+
+		JeiExtra(String def, int argn, @Nullable ChatFormatting format) {
+			this.def = def;
+			this.argn = argn;
+			this.key = GensokyoLegacy.MODID + ".jei." + name().toLowerCase(Locale.ROOT);
 			this.format = format;
 		}
 
@@ -892,7 +940,7 @@ public final class GLLang {
 	public static void genLang(RegistrateLangProvider pvd) {
 		for (var group : new LangEntry[][]{
 				Quest.values(), Info.values(), Trade.values(), Misc.values(),
-				ItemDebug.values(), ItemFurnace.values(), ItemTools.values(), ItemCommon.values(), ItemUmbrella.values(), ItemGlove.values(), ItemDaggerGlove.values(), Alchemy.values(), Jei.values(),
+				ItemDebug.values(), ItemFurnace.values(), ItemTools.values(), ItemCommon.values(), ItemUmbrella.values(), ItemGlove.values(), ItemDaggerGlove.values(), Alchemy.values(), Jei.values(), JeiExtra.values(),
 				Talisman.values(), Doll.values()}) {
 			for (var e : group) {
 				pvd.add(e.key(), e.def());

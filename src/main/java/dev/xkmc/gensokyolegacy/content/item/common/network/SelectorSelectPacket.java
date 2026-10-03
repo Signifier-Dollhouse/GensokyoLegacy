@@ -1,4 +1,4 @@
-package dev.xkmc.gensokyolegacy.content.item.selector;
+package dev.xkmc.gensokyolegacy.content.item.common.network;
 
 import dev.xkmc.l2itemselector.select.item.IItemSelector;
 import dev.xkmc.l2serial.network.SerialPacketBase;

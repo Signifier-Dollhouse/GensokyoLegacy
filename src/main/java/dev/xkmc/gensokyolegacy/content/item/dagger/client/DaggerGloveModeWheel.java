@@ -3,7 +3,7 @@ package dev.xkmc.gensokyolegacy.content.item.dagger.client;
 import dev.xkmc.gensokyolegacy.content.item.dagger.DaggerGloveItem;
 import dev.xkmc.gensokyolegacy.content.item.dagger.DaggerGloveMode;
 import dev.xkmc.gensokyolegacy.content.item.dagger.DaggerGloveSelectionListener;
-import dev.xkmc.gensokyolegacy.content.item.selector.SelectorSelectPacket;
+import dev.xkmc.gensokyolegacy.content.item.common.network.SelectorSelectPacket;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.l2itemselector.wheel.PersistentWheel;
