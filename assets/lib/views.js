@@ -787,13 +787,13 @@ export function categoryName(book, id) {
 }
 
 /**
- * The guide's own name for a group of items documented under one tag: the title of the
- * spotlight that named it, which is translated. The tag id itself is not, so it is only
- * the fallback and the tooltip.
+ * The guide's own name for a group of items: the title of the spotlight that named them,
+ * which is translated. A tag id is not translated, so it is only a fallback, and one is
+ * needed because a group may be named by ids - the subject is then the id itself.
  */
 export function guideGroupName(guide) {
   const data = guideEntry(guide)?.data;
-  return guideSubjects(data).entries.get(guide.subject)?.pages[0]?.title ?? prettify(guide.tag);
+  return guideSubjects(data).entries.get(guide.subject)?.pages[0]?.title ?? prettify(guide.tag ?? guide.subject);
 }
 
 /** A category's position in the book, which is the order the item groups follow. */

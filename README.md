@@ -37,10 +37,12 @@ Both are addressable: `#quest/reimu`, `#trade/all`, `#dialog/marisa`, `#items/de
 working through one does not have to scroll past the other; both start open.
 
 The item entries are the guide's own categories, in its order, plus one for the items it
-never mentions. Selecting one lays its items out in the panel: what the guide names one
-by one, listed straight in, then a group for every page that spotlights a tag - *Take a
-Seat* for the seventeen cushions, *Noren Curtains* for the sixty-four. Being named by a
-tag is the whole difference, and the groups follow the book's own order. The groups start
+never mentions. Selecting one lays its items out in the panel: the items the guide names
+on their own, listed straight in, then a group for every spotlight that names more than
+one thing - *Take a Seat* for the seventeen cushions, *Noren Curtains* for the
+sixty-four, *Somebody's Bed* for the three beds, *Cartons, Crates and Books* for the six.
+The unit is the spotlight page, not the tag: three beds named together under one title
+are as much a group as four noren tags, and the groups follow the book's own order. The groups start
 folded, since the panel can hold seventy of them and the point of one is to open it; an
 opened group stays open across a redraw or a language switch, since the panel is rebuilt
 on every keystroke of the search box and a `<details>` would otherwise forget.
@@ -73,7 +75,7 @@ all it takes for the page to show it.
 | The guide | `src/main/resources/assets/gensokyolegacy/patchouli_books/<book>/<locale>/` - the in-game book's own categories and entries, with its `$(bold)`, `$(br)` and `$(br2)` macros rendered, and its spotlights followed into the item tags they name |
 | Ways to obtain | `recipe/**`, including the mod's alchemy and brewing types; `trade/**`, for the offers that hand out something other than currency; the `loot_table` each quest reward names; and the `morichika_offers` item tag, which is what Rinnosuke stocks his shelves from |
 | The sidebar entries | the guide's own categories, in the book's order, plus one entry for everything it does not document |
-| The panel groups | within an entry, the items the guide names one by one are listed straight in, then one collapsible group per page that spotlights a tag, named by that page's own translated title |
+| The panel groups | within an entry, the items the guide names on their own are listed straight in, then one collapsible group per spotlight that names several things - a tag or a list of ids - named by that page's own translated title |
 
 Three files are listed for the viewer rather than found by following the content, because
 nothing in the RPG registries refers to them: the `currency` tag, which decides whether a
@@ -89,7 +91,7 @@ offer it came from.
 
 A guide page is about one item *or a whole tag of them*: Patchouli writes a tag
 reference as `tag:namespace:path`, and a spotlight may name several at once under one
-title. Every member of a tag is documented by the same entry - seventeen cushions all
+title - tags or plain ids or a mixture. Every member of a tag is documented by the same entry - seventeen cushions all
 point at *Seats & Seat Cloths* - and an item's page says which group it was documented
 under, with a link to the tag's members. Pages that belong to a *different* item stay
 apart: within one entry, a cushion sees the prose about cushions and a large chair sees

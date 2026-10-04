@@ -493,7 +493,7 @@ export async function buildItemIndex() {
             category,
             subject: subject.key,
             tag: subject.tag ? subject.key : null,
-            group: subject.tag ? subject.group : null,
+            group: subject.grouped ? subject.group : null,
             order: subject.order ?? 0,
           };
         };
@@ -542,18 +542,24 @@ export async function buildItemIndex() {
  * Patchouli spells a tag reference `tag:namespace:path`, where a datapack would write
  * `#namespace:path`, and lets a spotlight name a list - four noren tags under one title.
  *
- * One spotlight may name several tags, and then they are documented together, so what
- * groups them is the page rather than any one tag. The subjects are ids, the same in
- * every locale, so their names make a key for the group that does not shift with the
- * language toggle.
+ * One spotlight may name several subjects, and then they are documented together, so
+ * what groups them is the page rather than any one tag: three beds under one title are as
+ * much a group as four noren tags. Being named alongside something else is therefore the
+ * whole difference, and a spotlight that names one subject on its own groups nothing.
+ * The subjects are ids, the same in every locale, so their names make a key for the group
+ * that does not shift with the language toggle.
  */
 function guideSubjectsOf(value, order) {
   const subjects = (Array.isArray(value) ? value : [value])
     .filter((entry) => typeof entry === "string")
     .map((entry) => (entry.startsWith("tag:") ? { key: entry.slice(4), tag: true } : { key: entry, tag: false }));
   const group = subjects.map((subject) => subject.key).sort().join("|");
+  // A tag always gathers its members, however many subjects share the spotlight; a
+  // named item only joins a group when the spotlight documents it with others.
+  const grouped = subjects.length > 1;
   for (const subject of subjects) {
     subject.group = group;
+    subject.grouped = subject.tag || grouped;
     subject.order = order;
   }
   return subjects;
