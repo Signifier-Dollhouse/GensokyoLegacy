@@ -481,7 +481,7 @@ public class GLDecoBlocks {
 					.blockstate((ctx, pvd) -> pvd.slabBlock(ctx.get(),
 							pvd.models().slab(ctx.getName(), side, side, side),
 							pvd.models().slabTop(ctx.getName() + "_top", side, side, side),
-							new ModelFile.UncheckedModelFile(side)))
+							new ModelFile.UncheckedModelFile(block.get().builtInRegistryHolder().getKey().location().withPrefix("block/"))))
 					.tag(tool, BlockTags.SLABS).item().tag(ItemTags.SLABS).build()
 					.recipe(this::genSlab).register();
 			vertical = reg.block(id + "_vertical_slab", p ->
