@@ -24,6 +24,10 @@ public class GLDimensionGen {
 
 	public static void init(DataProviderInitializer init) {
 
+		GensokyoDimension.noiseSettings(init);
+
+		// biome, dimension type and level stem must all be registered by a single bootstrap each,
+		// otherwise the later one overwrites what the earlier one collected
 		init.add(Registries.DIMENSION_TYPE, (ctx) -> {
 			var spawn = new DimensionType.MonsterSettings(true, false,
 					UniformInt.of(0, 7), 0);
@@ -35,12 +39,15 @@ public class GLDimensionGen {
 					BlockTags.INFINIBURN_OVERWORLD,
 					BuiltinDimensionTypes.END_EFFECTS, 1f, spawn
 			));
+			ctx.register(GensokyoDimension.DT_GENSOKYO, GensokyoDimension.dimensionType());
 		});
 
 		init.add(Registries.LEVEL_STEM, (ctx) -> {
 			var dt = ctx.lookup(Registries.DIMENSION_TYPE);
 			var biome = ctx.lookup(Registries.BIOME);
 			ctx.register(LEVEL_GAP, new LevelStem(dt.getOrThrow(DT_GAP), new EmptyChunkGenerator(biome.getOrThrow(BIOME_GAP))));
+			ctx.register(GensokyoDimension.LEVEL_GENSOKYO, new LevelStem(
+					dt.getOrThrow(GensokyoDimension.DT_GENSOKYO), GensokyoDimension.chunkGenerator(ctx)));
 		});
 
 	}

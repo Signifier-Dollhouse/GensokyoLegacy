@@ -11,6 +11,8 @@ import net.minecraft.sounds.Music;
 import net.minecraft.sounds.Musics;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.level.biome.*;
 import net.minecraft.world.level.levelgen.GenerationStep;
 
@@ -20,6 +22,7 @@ public class GLBiomes {
 
 	public static final ResourceKey<Biome> MAGICAL_FOREST = biome("magical_forest");
 	public static final ResourceKey<Biome> SAKURA_FOREST = biome("sakura_forest");
+	public static final ResourceKey<Biome> MOUNTAIN = biome("mountain");
 
 	public static void init(DataProviderInitializer init) {
 		init.add(Registries.BIOME, (ctx) -> {
@@ -44,6 +47,26 @@ public class GLBiomes {
 						.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, VegetationPlacements.TREES_CHERRY),
 				null
 		));
+		var mountainSpawns = new MobSpawnSettings.Builder();
+		BiomeDefaultFeatures.farmAnimals(mountainSpawns);
+		BiomeDefaultFeatures.oceanSpawns(mountainSpawns, 10, 8, 3);
+		mountainSpawns.addSpawn(MobCategory.CREATURE, new MobSpawnSettings.SpawnerData(EntityType.GOAT, 7, 1, 3));
+		var mountain = new BiomeGenerationSettings.Builder(pf, carvers);
+		BiomeDefaultFeatures.addDefaultCarversAndLakes(mountain);
+		BiomeDefaultFeatures.addDefaultCrystalFormations(mountain);
+		BiomeDefaultFeatures.addDefaultMonsterRoom(mountain);
+		BiomeDefaultFeatures.addDefaultUndergroundVariety(mountain);
+		BiomeDefaultFeatures.addDefaultOres(mountain);
+		BiomeDefaultFeatures.addExtraEmeralds(mountain);
+		BiomeDefaultFeatures.addDefaultSoftDisks(mountain);
+		BiomeDefaultFeatures.addInfestedStone(mountain);
+		BiomeDefaultFeatures.addDefaultSprings(mountain);
+		BiomeDefaultFeatures.addBadlandGrass(mountain);
+		BiomeDefaultFeatures.addDefaultFlowers(mountain);
+		BiomeDefaultFeatures.addDefaultMushrooms(mountain);
+		BiomeDefaultFeatures.addDefaultExtraVegetation(mountain);
+		ctx.register(MOUNTAIN, biome(true, 0.2f, 0.3f, 0x3f76e4, 0x050533, 0xc0d8ff,
+				null, null, null, mountainSpawns, mountain, null));
 		});
 	}
 

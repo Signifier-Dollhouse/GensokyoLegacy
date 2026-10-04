@@ -60,6 +60,7 @@ public class GLStructureTagGen {
 				.add(GLBiomes.MAGICAL_FOREST);
 		pvd.addTag(Tags.Biomes.IS_MAGICAL).add(GLBiomes.MAGICAL_FOREST).add(GLBiomes.SAKURA_FOREST);
 		pvd.addTag(Tags.Biomes.IS_FOREST).add(GLBiomes.MAGICAL_FOREST).add(GLBiomes.SAKURA_FOREST);
+		pvd.addTag(Tags.Biomes.IS_MOUNTAIN).add(GLBiomes.MOUNTAIN);
 	}
 
 	@SuppressWarnings({"unchecked"})
