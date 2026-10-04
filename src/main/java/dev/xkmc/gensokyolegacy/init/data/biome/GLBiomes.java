@@ -57,12 +57,14 @@ public class GLBiomes {
 		BiomeDefaultFeatures.addDefaultMonsterRoom(mountain);
 		BiomeDefaultFeatures.addDefaultUndergroundVariety(mountain);
 		BiomeDefaultFeatures.addDefaultOres(mountain);
-		BiomeDefaultFeatures.addExtraEmeralds(mountain);
 		BiomeDefaultFeatures.addDefaultSoftDisks(mountain);
+		BiomeDefaultFeatures.addExtraEmeralds(mountain);
 		BiomeDefaultFeatures.addInfestedStone(mountain);
 		BiomeDefaultFeatures.addDefaultSprings(mountain);
-		BiomeDefaultFeatures.addBadlandGrass(mountain);
+		// order matters: the sorter links biomes by feature order, so this has to match the vanilla
+		// flower_default -> patch_grass_badlands -> patch_dead_bush_badlands order
 		BiomeDefaultFeatures.addDefaultFlowers(mountain);
+		BiomeDefaultFeatures.addBadlandGrass(mountain);
 		BiomeDefaultFeatures.addDefaultMushrooms(mountain);
 		BiomeDefaultFeatures.addDefaultExtraVegetation(mountain);
 		ctx.register(MOUNTAIN, biome(true, 0.2f, 0.3f, 0x3f76e4, 0x050533, 0xc0d8ff,

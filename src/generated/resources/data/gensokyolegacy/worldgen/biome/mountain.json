@@ -61,10 +61,10 @@
       "minecraft:ore_lapis_buried",
       "minecraft:ore_copper",
       "minecraft:underwater_magma",
-      "minecraft:ore_emerald",
       "minecraft:disk_sand",
       "minecraft:disk_clay",
-      "minecraft:disk_gravel"
+      "minecraft:disk_gravel",
+      "minecraft:ore_emerald"
     ],
     [
       "minecraft:ore_infested"
@@ -75,9 +75,9 @@
     ],
     [
       "minecraft:glow_lichen",
+      "minecraft:flower_default",
       "minecraft:patch_grass_badlands",
       "minecraft:patch_dead_bush_badlands",
-      "minecraft:flower_default",
       "minecraft:brown_mushroom_normal",
       "minecraft:red_mushroom_normal",
       "minecraft:patch_sugar_cane",
