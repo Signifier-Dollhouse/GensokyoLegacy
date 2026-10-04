@@ -21,9 +21,6 @@
 		"donation_box": "赛钱箱",
 		"evergreen_vine": "常青垂藤",
 		"cedar_fallen_leaves": "青杉落叶",
-		"darkstone": "宵暗石",
-		"darkstone_bricks": "宵暗瓦块",
-		"chiseled_darkstone_bricks": "雕纹宵暗瓦块",
 		"cirno_bed": "琪露诺的床",
 		"rumia_bed": "露米娅的床",
 		"reimu_bed": "博丽灵梦的床",
@@ -167,22 +164,6 @@
 				},
 				{
 					"entity.gensokyolegacy.*": ""
-				}
-			]
-		},
-		"bricks": {
-			"path": "block.gensokyolegacy",
-			"list": [
-				{
-					"packed_ice": "浮冰",
-					"snow": "雪",
-					"darkstone": "宵暗石",
-					"darkstone_brick": "宵暗瓦"
-				},
-				{
-					"slab": "台阶",
-					"stairs": "楼梯",
-					"vertical_slab": "墙"
 				}
 			]
 		},
