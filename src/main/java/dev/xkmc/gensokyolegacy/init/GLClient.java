@@ -10,6 +10,8 @@ import dev.xkmc.gensokyolegacy.content.client.debug.DebugOverlay;
 import dev.xkmc.gensokyolegacy.content.client.model.*;
 import dev.xkmc.gensokyolegacy.content.entity.characters.rumia.BlackBallModel;
 import dev.xkmc.gensokyolegacy.content.entity.characters.rumia.RumiaModel;
+import dev.xkmc.gensokyolegacy.content.fluid.ClientGLFluid;
+import dev.xkmc.gensokyolegacy.content.fluid.GLFluidType;
 import dev.xkmc.gensokyolegacy.content.item.glove.client.DollAttackStatusOverlay;
 import dev.xkmc.gensokyolegacy.content.item.glove.client.DollClientLoadoutTooltip;
 import dev.xkmc.gensokyolegacy.content.item.glove.client.DollGloveOverlay;
@@ -19,6 +21,7 @@ import dev.xkmc.gensokyolegacy.content.item.common.client.GloveTargetCache;
 import dev.xkmc.gensokyolegacy.content.item.dagger.DaggerGloveItem;
 import dev.xkmc.gensokyolegacy.content.item.common.ClientInvTooltip;
 import dev.xkmc.gensokyolegacy.content.item.common.InvTooltip;
+import dev.xkmc.gensokyolegacy.content.item.hexbrew.HexBrew;
 import dev.xkmc.gensokyolegacy.content.item.umbrella.BorderUmbrellaItem;
 import dev.xkmc.gensokyolegacy.content.ui.quest.QuestOverlay;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
@@ -34,6 +37,7 @@ import net.neoforged.fml.ModList;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.*;
+import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 import net.neoforged.neoforge.common.NeoForge;
 import top.theillusivec4.curios.api.client.CuriosRendererRegistry;
@@ -64,6 +68,14 @@ public class GLClient {
 			GLItems.IRON_DAGGER.get().getTypeForRender();
 			ProjectileRenderHelper.setup();
 		});
+	}
+
+	@SubscribeEvent
+	public static void registerClientExtensions(RegisterClientExtensionsEvent event) {
+		for (HexBrew brew : HexBrew.values()) {
+			GLFluidType type = (GLFluidType) brew.fluid.getType();
+			event.registerFluidType(new ClientGLFluid(type), type);
+		}
 	}
 
 	@SubscribeEvent
