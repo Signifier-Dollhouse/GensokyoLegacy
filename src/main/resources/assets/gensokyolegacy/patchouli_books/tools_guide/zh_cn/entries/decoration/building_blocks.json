@@ -1,0 +1,31 @@
+{
+  "name": "其他建筑方块",
+  "icon": "gensokyolegacy:cyan_tiles",
+  "category": "gensokyolegacy:decoration",
+  "sortnum": 6,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": [
+        "tag:gensokyolegacy:noren",
+        "tag:gensokyolegacy:striped_noren",
+        "tag:gensokyolegacy:wavy_noren",
+        "tag:gensokyolegacy:long_noren"
+      ],
+      "title": "门帘",
+      "text": "门帘就是挂在门口的对开布帘。用切石机切羊毛块，就能得到对应颜色的门帘；也可以直接染色：染料只改变颜色，花纹保持不变。门帘共有素色、条纹、波浪纹和长款 4 种花纹，每种都有 16 种羊毛颜色，长款会比普通款再往下多吊 4 格。对着墙的一面右键，就能把它挂在那面墙上。"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "tag:gensokyolegacy:plank_wall",
+      "title": "木板墙",
+      "text": "木板墙各种木材都有，用对应的木板在切石机里切，一次切出 2 个。它会占满一整格，侧面是拼板、顶面是普通木板，而且不会自己和其他木板墙连起来，需要一格一格地铺。"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "tag:gensokyolegacy:tile_variants",
+      "title": "瓷砖",
+      "text": "瓷砖共有 7 种颜色：青色、橙色、黄色、棕色、蓝色、黑色和灰色。每种颜色都有整块、楼梯、台阶和墙板 4 种形状，墙板是半格高、贴着墙立起来的那种。楼梯、台阶和墙板都能用切石机从整块瓷砖上切下来。"
+    }
+  ]
+}

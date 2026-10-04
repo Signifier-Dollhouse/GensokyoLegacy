@@ -12,15 +12,15 @@
     },
     {
       "type": "patchouli:spotlight",
-      "item": "tag:gensokyolegacy:stool",
-      "title": "木凳",
-      "text": "木凳只有一格高，各种木材都有，用对应的木板在切石机里切出来。"
-    },
-    {
-      "type": "patchouli:spotlight",
       "item": "tag:gensokyolegacy:chair",
       "title": "大椅子",
       "text": "大椅子有两格高，各种木材都有，同样用对应的木板在切石机里切出来。红魔馆里还有一把颜色更深、铺着红布的椅子，只有那里才有。"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "tag:gensokyolegacy:stool",
+      "title": "木凳",
+      "text": "木凳只有一格高，各种木材都有，用对应的木板在切石机里切出来。"
     },
     {
       "type": "patchouli:text",

@@ -71,6 +71,13 @@ public class GLDecoBlocks {
 	public static final BlockEntry<WroughtIronBarsBlock> WROUGHT_IRON_BARS;
 	public static final BlockEntry<WroughtIronPillarBlock> WROUGHT_IRON_PILLAR;
 
+	/** The glazed tile colors; each one gets a block plus the three shapes cut from it. */
+	public static final DyeColor[] TILE_COLORS = {
+			DyeColor.CYAN, DyeColor.ORANGE, DyeColor.YELLOW, DyeColor.BROWN, DyeColor.BLUE, DyeColor.BLACK, DyeColor.GRAY};
+
+	/** The tile set of every color in {@link #TILE_COLORS}, in the same order. */
+	public static final BrickSet[] TILE_SETS = new BrickSet[TILE_COLORS.length];
+
 	static {
 		var reg = GensokyoLegacy.REGISTRATE;
 		TAB = reg.buildModCreativeTab("building_blocks", "Gensokyo Legacy - Building Blocks",
@@ -274,8 +281,9 @@ public class GLDecoBlocks {
 								pvd.modLoc("block/wood/" + name + "_plank_wall"),
 								pvd.modLoc("block/wood/" + name + "_plank_wall_top")));
 					})
-					.tag(BlockTags.MINEABLE_WITH_AXE)
-					.item().dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(150)).build()
+					.tag(GLTagGen.PLANK_WALL, BlockTags.MINEABLE_WITH_AXE)
+					.item().tag(GLTagGen.PLANK_WALL_ITEM)
+					.dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(150)).build()
 					.register();
 
 			var doorTop = GensokyoLegacy.loc("block/wood/" + name + "_sliding_door_top");
@@ -340,10 +348,9 @@ public class GLDecoBlocks {
 
 		// brick sets
 		{
-			var tiles = new DyeColor[]{DyeColor.CYAN, DyeColor.ORANGE, DyeColor.YELLOW, DyeColor.BROWN, DyeColor.BLUE, DyeColor.BLACK, DyeColor.GRAY};
-
-			for (DyeColor col : tiles) {
-				new BrickSet(reg, col.getName() + "_tiles",
+			for (int i = 0; i < TILE_COLORS.length; i++) {
+				var col = TILE_COLORS[i];
+				TILE_SETS[i] = new BrickSet(reg, col.getName() + "_tiles",
 						BlockBehaviour.Properties.ofFullCopy(Blocks.DEEPSLATE).mapColor(MapColor.byId(14 + col.getId())),
 						"tiles/", BlockTags.MINEABLE_WITH_PICKAXE);
 			}
