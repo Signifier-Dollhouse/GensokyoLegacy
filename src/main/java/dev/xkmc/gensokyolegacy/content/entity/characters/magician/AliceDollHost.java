@@ -11,6 +11,7 @@ import dev.xkmc.gensokyolegacy.content.entity.dolls.BaseDollEntity;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.DollEntity;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.action.DollAction;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.action.DollActionType;
+import dev.xkmc.gensokyolegacy.content.entity.dolls.behavior.DollBehaviorRegistry;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.behavior.DollBehaviors;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.impl.DollHandLock;
 import dev.xkmc.gensokyolegacy.content.entity.module.AbstractYoukaiModule;
@@ -18,7 +19,6 @@ import dev.xkmc.gensokyolegacy.content.item.doll.DollItem;
 import dev.xkmc.gensokyolegacy.content.item.doll.DollSlot;
 import dev.xkmc.gensokyolegacy.content.item.talisman.core.FoldedPaperTalisman;
 import dev.xkmc.gensokyolegacy.content.item.talisman.core.GLTalismans;
-import dev.xkmc.gensokyolegacy.content.item.tool.StarWandItem;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.registrate.GLBrains;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
@@ -61,10 +61,13 @@ import java.util.UUID;
  *   <li><b>A roster, not a collection.</b> She keeps a standing set sized by what
  *       she is doing ({@link Post}), so the count is her intent rather than
  *       whatever the player happens to own.</li>
- *   <li><b>She arms and orders them.</b> Star wands exist exactly while she is
- *       fighting (§{@link Post#COMBAT}), heal talismans only while she is fighting
- *       or someone in her retinue is hurt, and every attack is a one-time order she
- *       hands out herself, one doll per mob — never an iterative volley.</li>
+ *   <li><b>She arms and orders them.</b> A weapon exists exactly while she is
+ *       fighting ({@link Post#COMBAT}) — and it is not the same weapon for all of
+ *       them: the roster splits down the middle, half charging in with doll lances
+ *       and half shooting from the back with star wands. Heal talismans live in the
+ *       off hand only while she is fighting or someone in her retinue is hurt, and
+ *       every attack is a one-time order she hands out herself, one doll per mob,
+ *       never an iterative volley and never one a doll cannot reach.</li>
  * </ul>
  * <p>
  * The whole ledger lives on her entity and rides her chunk save like any other
@@ -350,34 +353,44 @@ public class AliceDollHost extends AbstractYoukaiModule implements DollLedger {
 	}
 
 	/**
-	 * Star wands exactly while she is fighting, and a folded heal talisman in the
-	 * off hand whenever there is anyone to spend it on. A doll is armed the moment
-	 * combat starts and disarmed the moment it ends, so she never leaves a wand in a
-	 * doll's hand she is not paying for — and unarmed dolls cannot be handed an
-	 * attack at all, since a danmaku order needs a {@link DollActionType#REGULAR_ATTACK}
-	 * hand.
+	 * A weapon in the main hand exactly while she is fighting, and a folded heal
+	 * talisman in the off hand whenever there is anyone to spend it on. A doll is
+	 * armed the moment combat starts and disarmed the moment it ends, so she never
+	 * leaves a weapon in a doll's hand she is not paying for — and unarmed dolls
+	 * cannot be handed an attack at all, since an attack order needs a
+	 * {@link DollActionType#REGULAR_ATTACK} hand.
 	 * <p>
-	 * The talisman is conditional where the wand is not, because it is not held for
+	 * Which weapon is the roster's own business: the ledger slot decides, and the
+	 * two halves get opposite ones. Even slots take a {@link GLItems#DOLL_LANCE},
+	 * odd slots a star wand, so half the retinue charges and half shoots. The split
+	 * is deliberately free of state — no assigned-weapon field to keep in step with
+	 * the roster, and a doll that walks away from the fight and comes back finds
+	 * the same thing in its hand. It is also the same ordering the follow
+	 * formation uses, so the two weapons end up on opposite flanks of the arc over
+	 * her head: the lances swing in from one side while the wands lay fire down from
+	 * the other.
+	 * <p>
+	 * The talisman is conditional where the weapon is not, because it is not held for
 	 * its own sake: it is held for {@link DollCommander}'s heal pass to spend. A doll
 	 * standing in a house with nothing hurt in reach has nothing to heal, so it holds
-	 * no charm — the same way it holds no wand outside a fight. A talisman appears in
+	 * no charm — the same way it holds no weapon outside a fight. A talisman appears in
 	 * the off hand as soon as she is fighting (<b>or</b> when the pass finds anyone
 	 * hurt at all, which is the interesting case: it is off-duty and still patches up
 	 * her dolls and herself) and leaves both hands again once nobody is hurt. Like the
-	 * wands it is hers, not loot: it goes back to the air it was folded from.
+	 * weapons it is hers, not loot: it goes back to the air it was folded from.
 	 * <p>
 	 * The two hands do not contend — {@code REGULAR_ATTACK} and {@code HEAL} are
 	 * different action types, and a doll only ever holds one ticket.
 	 * <p>
-	 * This owns the <b>whole</b> loadout, not just the wand, because the heal
+	 * This owns the <b>whole</b> loadout, not just the weapon, because the heal
 	 * behaviour has a sticky swap: acting on an off-hand item moves it into the main
 	 * hand and leaves it there — that is how a doll "decides" to act with a given
 	 * hand. So a doll that has just healed is holding the talisman in the main hand
-	 * and the wand in the off hand. A pass that only policed the main hand would
+	 * and its weapon in the off hand. A pass that only policed the main hand would
 	 * leave the talisman sitting there, and then refuel the off hand on top of it,
 	 * which is how a doll ends up carrying two. So: hand the talisman back where it
 	 * belongs — <b>keeping the stack</b> rather than burning a fresh one — and let the
-	 * main hand be reclaimed for the wand.
+	 * main hand be reclaimed for the weapon.
 	 * <p>
 	 * A doll holding a ticket is left completely alone. The swap is deliberate for
 	 * the action in flight, and reloading the loadout out from under it would make
@@ -392,7 +405,7 @@ public class AliceDollHost extends AbstractYoukaiModule implements DollLedger {
 	 * the other hand, one tick into the swing that swing is playing.
 	 * <p>
 	 * Walks the whole ledger, not just the live dolls: a doll retired mid-fight is
-	 * already parked by the time this runs, and it must not carry a wand back out
+	 * already parked by the time this runs, and it must not carry a weapon back out
 	 * the next time she goes to the park.
 	 */
 	private void arm(boolean combat) {
@@ -400,7 +413,8 @@ public class AliceDollHost extends AbstractYoukaiModule implements DollLedger {
 		// whole roster draws the same conclusion from the same moment in time
 		boolean medic = combat || commander.healNeeded(owner);
 		long now = owner.level().getGameTime();
-		for (DollData data : dolls) {
+		for (int slot = 0; slot < dolls.size(); slot++) {
+			DollData data = dolls.get(slot);
 			if (data == null || data.inventory == null) continue;
 			DollEntity doll = resolve(data) instanceof DollEntity found ? found : null;
 			// idle is not enough to touch it: a doll that spent something a moment ago
@@ -408,7 +422,7 @@ public class AliceDollHost extends AbstractYoukaiModule implements DollLedger {
 			if (doll != null && (doll.actions.isActive() || doll.handLock.isLocked(now))) continue;
 			MutableDollInventory inv = data.inventory;
 			if (isTalisman(inv.get(DollSlot.MAIN_HAND))) {
-				// a sticky swap left the talisman in the main hand, which the wand
+				// a sticky swap left the talisman in the main hand, which the weapon
 				// owns: hand it home keeping the stack rather than overwrite it and
 				// burn a fresh one — and only when it is being kept at all
 				if (medic && !DollBehaviors.isUsableHealTalisman(inv.get(DollSlot.OFF_HAND)))
@@ -424,9 +438,15 @@ public class AliceDollHost extends AbstractYoukaiModule implements DollLedger {
 				// nobody to spend it on and no fight to keep it ready for
 				inv.set(DollSlot.OFF_HAND, ItemStack.EMPTY);
 			}
-			boolean armed = inv.get(DollSlot.MAIN_HAND).getItem() instanceof StarWandItem;
-			if (armed != combat) {
-				inv.set(DollSlot.MAIN_HAND, combat ? GLItems.STAR_WAND.asStack() : ItemStack.EMPTY);
+			ItemStack main = inv.get(DollSlot.MAIN_HAND);
+			if (combat) {
+				ItemStack weapon = slot % 2 == 0 ? GLItems.DOLL_LANCE.asStack() : GLItems.STAR_WAND.asStack();
+				// the lance needs an exact match (it is the only stack
+				// DollBehaviors#doll_lance binds), so this is an identity test and not
+				// "does it hit at all"
+				if (!main.is(weapon.getItem())) inv.set(DollSlot.MAIN_HAND, weapon);
+			} else if (!main.isEmpty()) {
+				inv.set(DollSlot.MAIN_HAND, ItemStack.EMPTY);
 			}
 			if (doll != null) doll.syncLoadoutMirror();
 		}
@@ -449,6 +469,15 @@ public class AliceDollHost extends AbstractYoukaiModule implements DollLedger {
 	 * would have exactly one doll shooting and seven standing idle, which reads as
 	 * the dolls not working at all.
 	 * <p>
+	 * Both passes skip a doll that cannot reach the mob they would be given. Half
+	 * the roster holds a lance, and a charge has to <b>start</b> inside its engage
+	 * range (§5.1b) — a lancer ordered onto a mob across the field would be handed a
+	 * ticket its own doll throws away on the next tick, so the pass would re-offer
+	 * the same dud forever while the shooter it displaced went unassigned. A doll
+	 * with nothing in charge reach is simply left waiting in formation, which is
+	 * also the honest answer: a lance is not a ranged weapon, and it engages when
+	 * the mob comes to it.
+	 * <p>
 	 * Deliberately one-time rather than iterative: she re-tasks every free doll each
 	 * pass instead of chaining a volley, so orders never queue behind one another and
 	 * a dead target frees its doll immediately. What paces the shooting is the doll's
@@ -469,8 +498,8 @@ public class AliceDollHost extends AbstractYoukaiModule implements DollLedger {
 		// pass one: spread the roster over the distinct mobs
 		for (var entry : summoned) {
 			if (entry.doll().actions.isActive()) continue;
-			LivingEntity target = nextFree(targets, claimed);
-			if (target == null) break;
+			LivingEntity target = nextFree(entry.doll(), targets, claimed);
+			if (target == null) continue;
 			issue(entry.doll(), target, claimed);
 		}
 		// pass two: nobody stands idle. The mobs ran out before the dolls did, so
@@ -478,7 +507,9 @@ public class AliceDollHost extends AbstractYoukaiModule implements DollLedger {
 		// one she is herself fixated on
 		for (var entry : summoned) {
 			if (entry.doll().actions.isActive()) continue;
-			issue(entry.doll(), targets.getFirst(), claimed);
+			LivingEntity target = nextFree(entry.doll(), targets, null);
+			if (target == null) continue;
+			issue(entry.doll(), target, claimed);
 		}
 	}
 
@@ -490,12 +521,31 @@ public class AliceDollHost extends AbstractYoukaiModule implements DollLedger {
 		claimed.add(target.getUUID());
 	}
 
+	/**
+	 * The first target this doll could be ordered onto: unclaimed ones only when
+	 * {@code claimed} is given, all of them otherwise. Reach is the same filter in
+	 * both — see {@link #command} for why a lancer is passed over.
+	 */
 	@Nullable
-	private static LivingEntity nextFree(List<LivingEntity> targets, Set<UUID> claimed) {
+	private static LivingEntity nextFree(DollEntity doll, List<LivingEntity> targets, @Nullable Set<UUID> claimed) {
 		for (LivingEntity target : targets) {
-			if (!claimed.contains(target.getUUID())) return target;
+			if (claimed != null && claimed.contains(target.getUUID())) continue;
+			if (canReach(doll, target)) return target;
 		}
 		return null;
+	}
+
+	/**
+	 * Whether an order on this target could actually run: the behavior this doll's
+	 * weapon resolves to, asked whether it can close on the mob. A star wand
+	 * answers for anything in shot range, a lance only inside its engage range.
+	 * Asked per doll with a fresh behavior, so it costs nothing and leaves no state
+	 * behind.
+	 */
+	private static boolean canReach(DollEntity doll, LivingEntity target) {
+		return DollBehaviorRegistry.createFor(doll, DollActionType.REGULAR_ATTACK)
+				.map(behavior -> behavior.canReach(doll, target))
+				.orElse(false);
 	}
 
 	/**
