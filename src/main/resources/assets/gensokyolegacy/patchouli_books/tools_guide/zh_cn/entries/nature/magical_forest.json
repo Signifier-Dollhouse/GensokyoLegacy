@@ -9,21 +9,74 @@
       "type": "patchouli:spotlight",
       "item": "gensokyolegacy:demonic_miasma_mushroom",
       "title": "魔法之森",
-      "text": "茂密的主世界生物群系，高大的青杉与巨型蘑菇遮天蔽日：鬼火菇、梦菇与妖瘴菇。进入这里会获得这本指南。小心巨伞之间的雾气：有些雾是会咬人的。"
+      "text": "茂密的主世界生物群系，高大的青杉与巨型蘑菇遮天蔽日：鬼火菇、梦华菇与妖瘴菇。进入这里会获得这本指南。小心巨伞之间的雾气：有些雾是会咬人的。"
     },
     {
       "type": "patchouli:text",
-      "text": "巨杉与蘑菇树环绕着林窗、池塘与蘑菇谷地。妖瘴菇会不断呼出瘴气，瘴气向周围漂移、堆积。雾越浓，施加的瘴气等级越高。"
+      "text": "巨杉与蘑菇树环绕着林窗、池塘与蘑菇谷地，其中最高最老的那一批俯压在所有东西之上。林地地面从不光秃：草丛、蕨类与花草一直铺到巨型树冠正下方。"
     },
     {
       "type": "patchouli:spotlight",
-      "item": "gensokyolegacy:miasma_hexbrew_bottle",
-      "title": "瘴气",
-      "text": "瘴气使护甲效果减半、受到的伤害提高 50%、治疗量降低 30%。受伤时还可能获得缓慢、虚弱，II 级瘴气还可能中毒。"
+      "item": [
+        "gensokyolegacy:ghost_fire_mushroom",
+        "gensokyolegacy:ghost_fire_mushroom_block",
+        "gensokyolegacy:cyan_mushroom_stem"
+      ],
+      "title": "鬼火菇",
+      "text": "会发光的蘑菇，照亮林地的地面。每一株菌盖都会自己透出微弱的光，一整片看上去就像挂在树冠下的一排灯笼；成熟的鬼火菇能长到比人还高，立在细长的菌柄上。"
     },
     {
-      "type": "patchouli:text",
-      "text": "站在瘴气中、触碰妖瘴菇盖，或被瘴气魔酿击中（持续 60 秒）都会染上瘴气。远离红色菌盖，速战速决：瘴气缠身时，挨到的每一击都会更疼。"
+      "type": "patchouli:spotlight",
+      "item": [
+        "gensokyolegacy:dream_mushroom",
+        "gensokyolegacy:dream_mushroom_block",
+        "gensokyolegacy:purple_mushroom_stem"
+      ],
+      "title": "梦华菇",
+      "text": "三种里最高最圆的一种，却完全不会发光。梦华菇不透出任何光亮，所以梦华菇的林子即使在正午也总是昏暗的——远远地就能这样认出它们。"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": [
+        "gensokyolegacy:demonic_miasma_mushroom",
+        "gensokyolegacy:demonic_miasma_mushroom_block",
+        "gensokyolegacy:red_mushroom_stem"
+      ],
+      "title": "妖瘴菇",
+      "text": "红色的那一种。它们会呼出沉重的雾气，在菌盖下积成一层，再贴着林地地面蔓延；站在里面对你是实打实的不妙——连空气本身都在反抗你。它们的一切都是警告，连颜色都是。"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": [
+        "gensokyolegacy:blue_fir_sapling",
+        "gensokyolegacy:blue_fir_log",
+        "gensokyolegacy:blue_fir_wood",
+        "gensokyolegacy:blue_fir_leaves"
+      ],
+      "title": "青杉",
+      "text": "整片森林之所以有树冠，全靠青杉：高而笔直的树干，长着层层平展的针叶——大多数树的树冠可是浑圆的。最老的那几棵，站得比幻想乡任何东西都高。"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": [
+        "gensokyolegacy:eugune_red",
+        "gensokyolegacy:eugune_brown",
+        "gensokyolegacy:eugune_ghost_fire",
+        "gensokyolegacy:evergreen_vine"
+      ],
+      "title": "树干与枝头",
+      "text": "长在树上而非树下的东西。耳菇是从树皮和原木侧面横着长出来的小层菇，共三种：红的、棕的，和会发光的。常青垂藤从枝头垂下成长长的串，越老的林子里越多。"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": [
+        "gensokyolegacy:star_flower",
+        "gensokyolegacy:flame_cattail",
+        "gensokyolegacy:broom_grass",
+        "gensokyolegacy:bracken"
+      ],
+      "title": "林地地被",
+      "text": "林下的植被。星星花，够得着也够显眼；燃蒲站在池塘里和岸边；扫帚草成片地长；蕨菜从中穿过。正是这些，让魔法森林的地面看起来像一座没有人打理过的花园。"
     }
   ]
 }

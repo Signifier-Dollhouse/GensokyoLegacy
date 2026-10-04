@@ -26,6 +26,28 @@
       "item": "tag:gensokyolegacy:tile_variants",
       "title": "Glazed Tiles",
       "text": "Tiles come in seven colors: cyan, orange, yellow, brown, blue, black and gray. They are glazed the way terracotta is stained: put a dye in the middle of eight deepslate tiles and you get eight tiles in that color. Every color has a full block, stairs, a slab and a vertical slab, which is a half-height piece standing against the wall you click. The three shapes come off the tile block on the stonecutter."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": [
+        "gensokyolegacy:shoji_frame",
+        "gensokyolegacy:shoji_frame_pane",
+        "gensokyolegacy:paper_window",
+        "gensokyolegacy:paper_window_pane"
+      ],
+      "title": "Paper and Shoji",
+      "text": "Two paper-faced building blocks, each in a solid form and a thin pane form. The shoji frame is paper stretched over a lattice of sticks; the paper window is the plainer sheet beside it, the same shape with a border instead of a grid. Both are cheap — sticks and paper — and both stonecut into four panes, while a block of panes crafts into sixteen. They let light through rather than blocking it, so a room walled with them stays bright, and they burn as fuel if you are ever desperate enough for paper to do it."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": [
+        "gensokyolegacy:red_lantern",
+        "gensokyolegacy:white_lantern",
+        "gensokyolegacy:lettered_red_lantern",
+        "gensokyolegacy:lettered_white_lantern"
+      ],
+      "title": "Lanterns",
+      "text": "Four paper lanterns, red and white, plain or lettered, and all of them lit brightly enough to light a whole room on their own. They turn to face you as you place them, and the lettered pair turns its written side out toward you as well. Set one on top of another and the lower lantern switches to its hanging model by itself, so a column of them reads as a single string. There is no recipe for them; look for them in the houses."
     }
   ]
 }
