@@ -24,9 +24,20 @@ export function append(parent, children) {
   return parent;
 }
 
-/** Removes all children and returns the node. */
+/**
+ * Removes all children and returns the node, or null when the page does not have that
+ * element. The page is assembled from files that change independently of it, so a
+ * browser holding a cached `index.html` can be running a newer module than its markup;
+ * losing one list is better than losing the render.
+ */
 export function clear(node) {
-  node.replaceChildren();
+  node?.replaceChildren();
+  return node;
+}
+
+/** Appends to a node that may be absent, so a missing element is a no-op. */
+export function fill(node, ...children) {
+  if (node) append(node, children);
   return node;
 }
 

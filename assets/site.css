@@ -235,6 +235,11 @@ input[type="search"] {
   text-transform: uppercase;
 }
 
+/* The sidebar holds two groups, so the second heading needs room above it. */
+.nav-list + .sidebar-title {
+  margin-top: 22px;
+}
+
 .nav-list {
   margin: 0;
   padding: 0;

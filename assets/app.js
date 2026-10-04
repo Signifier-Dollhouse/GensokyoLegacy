@@ -4,7 +4,7 @@
 // RPG datapack files are fetched at their real paths under
 // src/generated/resources/ - nothing is bundled, rewritten or duplicated here.
 
-import { clear, h, setProgress, setStatus } from "./lib/dom.js";
+import { clear, fill, h, setProgress, setStatus } from "./lib/dom.js";
 import { characterLabel, entityLabel, itemLabel, ingredientId, label, modName, prettify } from "./lib/format.js";
 import { applyLanguage, tr, trPlural } from "./lib/i18n.js";
 import { REPO, setLanguage, setTheme, state, TABS } from "./lib/state.js";
@@ -148,9 +148,11 @@ function selectCategory(category) {
 
 function renderPanel() {
   const panel = clear(document.querySelector("#panel"));
+  if (!panel) return;
 
   // The tab bar only means something for a character, so the item section hides it.
-  document.querySelector(".tabs").hidden = state.section === "item";
+  const tabs = document.querySelector(".tabs");
+  if (tabs) tabs.hidden = state.section === "item";
   if (state.section === "item") return renderItemPanel(panel);
   if (state.tab === "dialog") return renderDialogPanel(panel);
   if (state.tab === "starters") return renderStartersPanel(panel);
@@ -429,80 +431,11 @@ function orderedCharacters() {
  * list without it, since neither belongs to a character.
  */
 function renderSidebar() {
-  const list = clear(document.querySelector("#characters"));
-  const counts = new Map();
+  fill(clear(document.querySelector("#characters")), ...characterEntries());
+  fill(clear(document.querySelector("#items")), ...itemEntries());
 
-  for (const name of ["quest", "trade", "dialog_starter"]) {
-    for (const [id, data] of tableFor(name)) {
-      if (!data) continue;
-      const key = characterKeyOf(id);
-      counts.set(key, (counts.get(key) ?? 0) + 1);
-    }
-  }
-
-  const button = (current, name, count, title, onClick) =>
-    h(
-      "li",
-      {},
-      h(
-        "button",
-        {
-          type: "button",
-          title,
-          "aria-current": String(current),
-          // Picking a section is a new view, so any search text is dropped.
-          onclick: onClick,
-        },
-        h("span", { text: name }),
-        h("span", { class: "count", text: String(count) }),
-      ),
-    );
-
-  list.append(
-    button(
-      state.section === "character" && state.character === "all",
-      tr("nav.allCharacters"),
-      [...counts.values()].reduce((sum, value) => sum + value, 0),
-      null,
-      () => select("all"),
-    ),
-  );
-  for (const character of orderedCharacters()) {
-    list.append(
-      button(
-        state.section === "character" && state.character === character.key,
-        characterName(character),
-        counts.get(character.key) ?? 0,
-        entityLabel(character.entity),
-        () => select(character.key),
-      ),
-    );
-  }
-
-  const items = clear(document.querySelector("#items"));
-  const sections = itemSections();
-  items.append(
-    button(
-      state.section === "item" && state.category === null,
-      tr("item.all"),
-      allItems().length,
-      null,
-      () => selectCategory(null),
-    ),
-  );
-  for (const section of sections) {
-    items.append(
-      button(
-        state.section === "item" && state.category === section.category,
-        section.name,
-        section.items.length,
-        section.category === UNDOCUMENTED ? tr("item.undocumented") : section.category,
-        () => selectCategory(section.category),
-      ),
-    );
-  }
-
-  clear(document.querySelector("#source")).append(
+  fill(
+    clear(document.querySelector("#source")),
     h("p", {
       text: tr("source.summary", store.manifest.stats.files, Object.keys(store.manifest.lootTables).length),
     }),
@@ -516,6 +449,82 @@ function renderSidebar() {
       tr("source.end"),
     ),
   );
+}
+
+/** One sidebar button: a name, a count, and what selecting it means. */
+function navEntry(current, name, count, title, onClick) {
+  return h(
+    "li",
+    {},
+    h(
+      "button",
+      {
+        type: "button",
+        title,
+        "aria-current": String(current),
+        // Picking a section is a new view, so any search text is dropped.
+        onclick: onClick,
+      },
+      h("span", { text: name }),
+      h("span", { class: "count", text: String(count) }),
+    ),
+  );
+}
+
+/**
+ * How much content each character has: the registries that name a character, since
+ * dialogs are attributed to one by the folder they sit in.
+ */
+function characterCounts() {
+  const counts = new Map();
+  for (const name of ["quest", "trade", "dialog_starter"]) {
+    for (const [id, data] of tableFor(name)) {
+      if (!data) continue;
+      const key = characterKeyOf(id);
+      counts.set(key, (counts.get(key) ?? 0) + 1);
+    }
+  }
+  return counts;
+}
+
+function characterEntries() {
+  const counts = characterCounts();
+  const here = (key) => state.section === "character" && state.character === key;
+
+  return [
+    navEntry(
+      here("all"),
+      tr("nav.allCharacters"),
+      [...counts.values()].reduce((sum, value) => sum + value, 0),
+      null,
+      () => select("all"),
+    ),
+    ...orderedCharacters().map((character) =>
+      navEntry(
+        here(character.key),
+        characterName(character),
+        counts.get(character.key) ?? 0,
+        entityLabel(character.entity),
+        () => select(character.key),
+      ),
+    ),
+  ];
+}
+
+function itemEntries() {
+  const here = (category) => state.section === "item" && state.category === category;
+  return [
+    navEntry(here(null), tr("item.all"), allItems().length, null, () => selectCategory(null)),
+    ...itemSections().map((section) =>
+      navEntry(
+        here(section.category),
+        section.name,
+        section.items.length,
+        section.category === UNDOCUMENTED ? tr("item.undocumented") : section.category,
+        () => selectCategory(section.category),
+      ),
+    ),
+  ];
 }
 
 /**
@@ -562,12 +571,31 @@ function renderChrome() {
   document.title = `${modName()} · ${tr("page.tagline")}`;
 }
 
+/**
+ * Redraws the page one part at a time. The parts are independent - the sidebar, the tab
+ * badges, the chrome, the URL, the panel - and each is run on its own so that one of
+ * them throwing costs that part alone rather than the whole render. A browser can end
+ * up running a newer module against a cached `index.html`, and a blank panel is a much
+ * worse outcome than a missing sidebar list.
+ */
 function render() {
-  renderSidebar();
-  renderTabs();
-  renderChrome();
-  writeLocation();
-  renderPanel();
+  for (const step of [renderSidebar, renderTabs, renderChrome, writeLocation, renderPanel]) {
+    try {
+      Promise.resolve(step()).catch(reportFailure);
+    } catch (error) {
+      reportFailure(error);
+    }
+  }
+}
+
+/**
+ * A blank page is the worst possible failure mode for a data browser, so whatever went
+ * wrong is said out loud. On boot this also catches the usual cause: a Pages deployment
+ * that serves the site with the wrong base path, breaking every relative fetch.
+ */
+function reportFailure(error) {
+  console.error(error);
+  setStatus(tr("error.content", error.message), true);
 }
 
 function applyTheme() {
@@ -742,10 +770,4 @@ async function refreshFromGitHub() {
   }
 }
 
-boot().catch((error) => {
-  // A blank page is the worst possible failure mode for a data browser, so say
-  // what went wrong. This also catches the usual cause: a Pages deployment that
-  // serves the site with the wrong base path, breaking every relative fetch.
-  console.error(error);
-  setStatus(tr("error.content", error.message), true);
-});
+boot().catch(reportFailure);
