@@ -45,7 +45,8 @@ import java.util.OptionalLong;
  * Terrain comes from {@code gensokyolegacy:gensokyo}, a copy of the overworld noise settings, so heightmaps, caves,
  * ore veins, sea level and surface rules stay identical to the overworld. Only the biome source differs: it is the
  * vanilla overworld climate grid with every biome swapped for an allowed one, which keeps the continental / erosion /
- * weirdness layout recognizable while dropping biomes that do not belong here.
+ * weirdness layout recognizable while dropping biomes that do not belong here. The allowed biomes are mod copies, so
+ * the vanilla structures that go with the vanilla biomes never generate here.
  */
 public class GensokyoDimension {
 
@@ -66,23 +67,24 @@ public class GensokyoDimension {
 
 	static {
 		// water
-		allow(Biomes.OCEAN, Biomes.DEEP_FROZEN_OCEAN, Biomes.DEEP_COLD_OCEAN, Biomes.DEEP_OCEAN,
+		allow(GLBiomes.OCEAN, Biomes.DEEP_FROZEN_OCEAN, Biomes.DEEP_COLD_OCEAN, Biomes.DEEP_OCEAN,
 				Biomes.DEEP_LUKEWARM_OCEAN, Biomes.FROZEN_OCEAN, Biomes.COLD_OCEAN, Biomes.OCEAN,
 				Biomes.LUKEWARM_OCEAN, Biomes.WARM_OCEAN);
-		allow(Biomes.BEACH, Biomes.BEACH, Biomes.SNOWY_BEACH, Biomes.STONY_SHORE);
-		allow(Biomes.PLAINS, Biomes.PLAINS, Biomes.RIVER, Biomes.DRIPSTONE_CAVES);
-		allow(Biomes.SNOWY_PLAINS, Biomes.SNOWY_PLAINS, Biomes.ICE_SPIKES, Biomes.FROZEN_RIVER, Biomes.SNOWY_TAIGA,
-				Biomes.GROVE);
+		allow(GLBiomes.BEACH, Biomes.BEACH, Biomes.SNOWY_BEACH, Biomes.STONY_SHORE);
+		allow(GLBiomes.PLAINS, Biomes.PLAINS, Biomes.RIVER, Biomes.DRIPSTONE_CAVES);
+		allow(GLBiomes.SNOWY_PLAINS, Biomes.SNOWY_PLAINS, Biomes.ICE_SPIKES, Biomes.FROZEN_RIVER,
+				Biomes.SNOWY_TAIGA, Biomes.GROVE);
 		// dry
-		allow(Biomes.DESERT, Biomes.DESERT, Biomes.BADLANDS, Biomes.ERODED_BADLANDS, Biomes.WOODED_BADLANDS);
-		allow(Biomes.SAVANNA, Biomes.SAVANNA, Biomes.SAVANNA_PLATEAU, Biomes.WINDSWEPT_SAVANNA);
+		allow(GLBiomes.DESERT, Biomes.DESERT, Biomes.BADLANDS, Biomes.ERODED_BADLANDS, Biomes.WOODED_BADLANDS);
+		allow(GLBiomes.SAVANNA, Biomes.SAVANNA, Biomes.SAVANNA_PLATEAU, Biomes.WINDSWEPT_SAVANNA);
 		// temperate
-		allow(Biomes.SUNFLOWER_PLAINS, Biomes.SUNFLOWER_PLAINS, Biomes.MEADOW, Biomes.FLOWER_FOREST);
-		allow(Biomes.FOREST, Biomes.FOREST, Biomes.TAIGA, Biomes.OLD_GROWTH_PINE_TAIGA, Biomes.OLD_GROWTH_SPRUCE_TAIGA);
+		allow(GLBiomes.SUNFLOWER_PLAINS, Biomes.SUNFLOWER_PLAINS, Biomes.MEADOW, Biomes.FLOWER_FOREST);
+		allow(GLBiomes.FOREST, Biomes.FOREST, Biomes.TAIGA, Biomes.OLD_GROWTH_PINE_TAIGA,
+				Biomes.OLD_GROWTH_SPRUCE_TAIGA);
 		allow(GLBiomes.SAKURA_FOREST, Biomes.BIRCH_FOREST, Biomes.OLD_GROWTH_BIRCH_FOREST, Biomes.CHERRY_GROVE);
 		allow(GLBiomes.MAGICAL_FOREST, Biomes.DARK_FOREST, Biomes.SWAMP, Biomes.MUSHROOM_FIELDS,
 				Biomes.LUSH_CAVES, Biomes.DEEP_DARK);
-		allow(Biomes.BAMBOO_JUNGLE, Biomes.BAMBOO_JUNGLE, Biomes.JUNGLE, Biomes.SPARSE_JUNGLE,
+		allow(GLBiomes.BAMBOO_JUNGLE, Biomes.BAMBOO_JUNGLE, Biomes.JUNGLE, Biomes.SPARSE_JUNGLE,
 				Biomes.MANGROVE_SWAMP);
 		// high & exposed
 		allow(GLBiomes.MOUNTAIN, Biomes.STONY_PEAKS, Biomes.JAGGED_PEAKS, Biomes.FROZEN_PEAKS,

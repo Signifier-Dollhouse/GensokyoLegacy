@@ -33,7 +33,7 @@
           }
         },
         {
-          "biome": "minecraft:ocean",
+          "biome": "gensokyolegacy:ocean",
           "parameters": {
             "continentalness": [
               -0.455,
@@ -60,7 +60,7 @@
           }
         },
         {
-          "biome": "minecraft:beach",
+          "biome": "gensokyolegacy:beach",
           "parameters": {
             "continentalness": [
               -0.19,
@@ -87,7 +87,7 @@
           }
         },
         {
-          "biome": "minecraft:bamboo_jungle",
+          "biome": "gensokyolegacy:bamboo_jungle",
           "parameters": {
             "continentalness": [
               0.03,
@@ -141,7 +141,7 @@
           }
         },
         {
-          "biome": "minecraft:snowy_plains",
+          "biome": "gensokyolegacy:snowy_plains",
           "parameters": {
             "continentalness": [
               0.3,
@@ -168,7 +168,7 @@
           }
         },
         {
-          "biome": "minecraft:forest",
+          "biome": "gensokyolegacy:forest",
           "parameters": {
             "continentalness": [
               0.3,
@@ -195,7 +195,7 @@
           }
         },
         {
-          "biome": "minecraft:plains",
+          "biome": "gensokyolegacy:plains",
           "parameters": {
             "continentalness": [
               0.03,
@@ -222,7 +222,7 @@
           }
         },
         {
-          "biome": "minecraft:sunflower_plains",
+          "biome": "gensokyolegacy:sunflower_plains",
           "parameters": {
             "continentalness": [
               0.3,
@@ -276,7 +276,7 @@
           }
         },
         {
-          "biome": "minecraft:savanna",
+          "biome": "gensokyolegacy:savanna",
           "parameters": {
             "continentalness": [
               -0.11,
@@ -303,7 +303,7 @@
           }
         },
         {
-          "biome": "minecraft:desert",
+          "biome": "gensokyolegacy:desert",
           "parameters": {
             "continentalness": [
               0.03,

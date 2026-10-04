@@ -3,8 +3,15 @@ package dev.xkmc.gensokyolegacy.init.data.biome;
 import com.tterrag.registrate.providers.DataProviderInitializer;
 import dev.xkmc.gensokyolegacy.content.dimension.GLDimensionGen;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
+import net.minecraft.core.Holder;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.HolderGetter;
+import net.minecraft.core.HolderSet;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.data.registries.VanillaRegistries;
 import net.minecraft.data.worldgen.BiomeDefaultFeatures;
+import net.minecraft.data.worldgen.Carvers;
+import net.minecraft.data.worldgen.placement.MiscOverworldPlacements;
 import net.minecraft.data.worldgen.placement.VegetationPlacements;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.Music;
@@ -15,14 +22,53 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.level.biome.*;
 import net.minecraft.world.level.levelgen.GenerationStep;
+import net.minecraft.world.level.levelgen.carver.ConfiguredWorldCarver;
+import net.minecraft.world.level.levelgen.placement.PlacedFeature;
+import net.neoforged.neoforge.common.util.Lazy;
 
 import javax.annotation.Nullable;
+import java.util.List;
+import java.util.Map;
 
 public class GLBiomes {
 
 	public static final ResourceKey<Biome> MAGICAL_FOREST = biome("magical_forest");
 	public static final ResourceKey<Biome> SAKURA_FOREST = biome("sakura_forest");
 	public static final ResourceKey<Biome> MOUNTAIN = biome("mountain");
+
+	/**
+	 * Vanilla biomes copied under the mod namespace, byte for byte identical to their vanilla counterpart.
+	 * <p>
+	 * The Gensokyo dimension uses these instead of the vanilla ones. Structure placement asks the biome whether a
+	 * structure may generate ({@code #minecraft:has_structure/*} tags on the structure), so a dimension built on
+	 * {@code gensokyolegacy:plains} cannot host {@code minecraft:village_plains}, while the terrain looks the same.
+	 */
+	public static final ResourceKey<Biome> PLAINS = biome("plains");
+	public static final ResourceKey<Biome> BEACH = biome("beach");
+	public static final ResourceKey<Biome> OCEAN = biome("ocean");
+	public static final ResourceKey<Biome> FOREST = biome("forest");
+	public static final ResourceKey<Biome> BAMBOO_JUNGLE = biome("bamboo_jungle");
+	public static final ResourceKey<Biome> SUNFLOWER_PLAINS = biome("sunflower_plains");
+	public static final ResourceKey<Biome> SAVANNA = biome("savanna");
+	public static final ResourceKey<Biome> DESERT = biome("desert");
+	public static final ResourceKey<Biome> SNOWY_PLAINS = biome("snowy_plains");
+
+	private static final Map<ResourceKey<Biome>, ResourceKey<Biome>> COPIES = Map.ofEntries(
+			Map.entry(Biomes.PLAINS, PLAINS),
+			Map.entry(Biomes.BEACH, BEACH),
+			Map.entry(Biomes.OCEAN, OCEAN),
+			Map.entry(Biomes.FOREST, FOREST),
+			Map.entry(Biomes.BAMBOO_JUNGLE, BAMBOO_JUNGLE),
+			Map.entry(Biomes.SUNFLOWER_PLAINS, SUNFLOWER_PLAINS),
+			Map.entry(Biomes.SAVANNA, SAVANNA),
+			Map.entry(Biomes.DESERT, DESERT),
+			Map.entry(Biomes.SNOWY_PLAINS, SNOWY_PLAINS)
+	);
+
+	/**
+	 * Bootstrapped lazily, this builds every vanilla worldgen registry and is far too heavy for class loading.
+	 */
+	private static final Lazy<HolderLookup.Provider> VANILLA = Lazy.of(VanillaRegistries::createLookup);
 
 	public static void init(DataProviderInitializer init) {
 		init.add(Registries.BIOME, (ctx) -> {
@@ -52,7 +98,7 @@ public class GLBiomes {
 		BiomeDefaultFeatures.oceanSpawns(mountainSpawns, 10, 8, 3);
 		mountainSpawns.addSpawn(MobCategory.CREATURE, new MobSpawnSettings.SpawnerData(EntityType.GOAT, 7, 1, 3));
 		var mountain = new BiomeGenerationSettings.Builder(pf, carvers);
-		BiomeDefaultFeatures.addDefaultCarversAndLakes(mountain);
+		addCarversAndLakes(mountain);
 		BiomeDefaultFeatures.addDefaultCrystalFormations(mountain);
 		BiomeDefaultFeatures.addDefaultMonsterRoom(mountain);
 		BiomeDefaultFeatures.addDefaultUndergroundVariety(mountain);
@@ -69,7 +115,57 @@ public class GLBiomes {
 		BiomeDefaultFeatures.addDefaultExtraVegetation(mountain);
 		ctx.register(MOUNTAIN, biome(true, 0.2f, 0.3f, 0x3f76e4, 0x050533, 0xc0d8ff,
 				null, null, null, mountainSpawns, mountain, null));
+		var vanilla = VANILLA.get().lookupOrThrow(Registries.BIOME);
+		for (var copy : COPIES.entrySet()) {
+			ctx.register(copy.getValue(), copyOf(vanilla.getOrThrow(copy.getKey()).value(), pf, carvers));
+		}
 		});
+	}
+
+	/**
+	 * The overworld carvers without {@code minecraft:canyon}, which ravines far deeper than Gensokyo wants, plus the
+	 * lava lakes that {@link BiomeDefaultFeatures#addDefaultCarversAndLakes} bundles in with them.
+	 */
+	private static void addCarversAndLakes(BiomeGenerationSettings.Builder builder) {
+		builder.addCarver(GenerationStep.Carving.AIR, Carvers.CAVE);
+		builder.addCarver(GenerationStep.Carving.AIR, Carvers.CAVE_EXTRA_UNDERGROUND);
+		builder.addFeature(GenerationStep.Decoration.LAKES, MiscOverworldPlacements.LAKE_LAVA_UNDERGROUND);
+		builder.addFeature(GenerationStep.Decoration.LAKES, MiscOverworldPlacements.LAKE_LAVA_SURFACE);
+	}
+
+	/**
+	 * Rebuilds a vanilla biome from its registry keys, so the copy serializes with our own holder lookups.
+	 */
+	private static Biome copyOf(Biome source, HolderGetter<PlacedFeature> placedFeatures,
+								HolderGetter<ConfiguredWorldCarver<?>> carvers) {
+		var climate = source.getModifiedClimateSettings();
+		var generation = new BiomeGenerationSettings.Builder(placedFeatures, carvers);
+		List<HolderSet<PlacedFeature>> features = source.getGenerationSettings().features();
+		GenerationStep.Decoration[] steps = GenerationStep.Decoration.values();
+		for (int step = 0; step < features.size(); step++) {
+			for (var feature : features.get(step)) {
+				generation.addFeature(steps[step], key(feature));
+			}
+		}
+		for (GenerationStep.Carving carving : source.getGenerationSettings().getCarvingStages()) {
+			for (var carver : source.getGenerationSettings().getCarvers(carving)) {
+				if (!key(carver).equals(Carvers.CANYON)) generation.addCarver(carving, key(carver));
+			}
+		}
+		return new Biome.BiomeBuilder()
+				.hasPrecipitation(climate.hasPrecipitation())
+				.temperature(climate.temperature())
+				.temperatureAdjustment(climate.temperatureModifier())
+				.downfall(climate.downfall())
+				.specialEffects(source.getModifiedSpecialEffects())
+				.mobSpawnSettings(source.getMobSettings())
+				.generationSettings(generation.build())
+				.build();
+	}
+
+	private static <T> ResourceKey<T> key(Holder<T> holder) {
+		return holder.unwrapKey().orElseThrow(() ->
+				new IllegalStateException("Vanilla biome entry " + holder + " is not a registry reference"));
 	}
 
 	private static ResourceKey<Biome> biome(String id) {
