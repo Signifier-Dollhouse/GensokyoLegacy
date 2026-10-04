@@ -266,16 +266,59 @@ async function renderItemPanel(panel) {
   }
 
   const section = itemSections().find((entry) => entry.category === state.category);
-  const items = (section ? section.items : allItems())
-    .filter((item) => matchesQuery(item.id, itemLabel(item.id), item.guide && guideEntryName(item.guide)))
-    .sort((a, b) => itemLabel(a.id).localeCompare(itemLabel(b.id)));
+  const row = (item) => itemRow(item, () => openItem(item.id));
 
-  if (!items.length) return panel.append(emptyState(tr("noun.items")));
+  // "All items" and the undocumented bucket stay a flat list: there is no category to
+  // group them under, and a heading per group would say nothing about them.
+  const groups =
+    section && section.category !== UNDOCUMENTED
+      ? itemGroups(section)
+      : [{ key: null, items: section ? section.items : allItems() }];
+
+  const shown = groups
+    .map((group) => ({ ...group, items: group.items.filter(matchesItem) }))
+    .filter((group) => group.items.length);
+  if (!shown.length) return panel.append(emptyState(tr("noun.items")));
 
   panel.append(
     h("p", { class: "card-id", text: tr("item.note") }),
-    h("ul", { class: "list" }, ...items.map((item) => itemRow(item, () => openItem(item.id)))),
+    ...shown.map((group) =>
+      group.name
+        ? itemGroup(group, row)
+        : h("ul", { class: "list" }, ...group.items.sort(byName).map(row)),
+    ),
   );
+}
+
+/** A group of the item panel: collapsible, and folded away only if the reader says so. */
+function itemGroup(group, row) {
+  return h(
+    "details",
+    {
+      class: "collapse",
+      open: !state.collapsed.has(group.key),
+      ontoggle: (event) => {
+        if (event.target.open) state.collapsed.delete(group.key);
+        else state.collapsed.add(group.key);
+      },
+    },
+    h(
+      "summary",
+      {},
+      h("span", { text: group.name }),
+      h("span", { class: "count", text: String(group.items.length) }),
+    ),
+    h("ul", { class: "list" }, ...group.items.map(row)),
+  );
+}
+
+function byName(a, b) {
+  return itemLabel(a.id).localeCompare(itemLabel(b.id));
+}
+
+/** Free text match over an item's id and the names it is shown and documented under. */
+function matchesItem(item) {
+  return matchesQuery(item.id, itemLabel(item.id), item.guide && guideEntryName(item.guide));
 }
 
 /** Every item the index knows, in no particular order; the panel sorts them. */
@@ -291,49 +334,64 @@ function allItems() {
 const UNDOCUMENTED = Symbol("undocumented");
 
 /**
- * The sidebar's item sections.
- *
- * An item documented under a tag is filed under that tag rather than under its guide
- * category, so a group the book spotlights as one thing - seventeen cushions - becomes a
- * section of its own with every member in it, rather than rows scattered through the
- * decoration category. Sections the book does not tie to a tag come first, in its own
- * order, and the tag sections follow, named by the spotlight they came from. Items the
- * guide does not document are filed last among the untagged ones.
+ * The sidebar's item entries: one per patchouli category, in the book's own order, plus
+ * everything the guide does not document. The tag groups an entry is made of are a
+ * detail of the panel below it, not another level of navigation.
  */
 function itemSections() {
-  const untagged = new Map();
+  const sections = new Map();
+  for (const item of allItems()) {
+    const category = item.guide?.category ?? UNDOCUMENTED;
+    const section = sections.get(category) ?? { category, items: [] };
+    section.items.push(item);
+    sections.set(category, section);
+  }
+  for (const section of sections.values()) {
+    section.name = sectionName(section);
+  }
+  return [...sections.values()].sort((a, b) => sectionSortnum(a) - sectionSortnum(b) || a.name.localeCompare(b.name));
+}
+
+function sectionName(section) {
+  if (section.category === UNDOCUMENTED) return tr("item.undocumented");
+  return categoryName(section.items[0].guide.book, section.category);
+}
+
+function sectionSortnum(section) {
+  const book = section.items[0].guide?.book;
+  return section.category === UNDOCUMENTED || !book ? Infinity : guideSortnum(book, section.category);
+}
+
+/**
+ * How one sidebar entry is laid out in the panel: what the guide names one by one at the
+ * top, then a group for every page that spotlights a tag. Being named by a tag is the
+ * whole difference - a page naming an item directly documents that item alone, while a
+ * page naming a tag documents every member of it, and those read better gathered under
+ * the page's own title.
+ */
+function itemGroups(section) {
+  const direct = [];
   const tagged = new Map();
 
-  for (const item of store.items.values()) {
-    if (item.guide?.group) {
-      addSection(tagged, item.guide.group, item, guideGroupName(item.guide));
-    } else {
-      const category = item.guide?.category ?? UNDOCUMENTED;
-      addSection(
-        untagged,
-        category,
-        item,
-        category === UNDOCUMENTED ? tr("item.undocumented") : categoryName(item.guide.book, category),
-      );
+  for (const item of section.items) {
+    if (!item.guide?.group) {
+      direct.push(item);
+      continue;
     }
+    const group =
+      tagged.get(item.guide.group) ??
+      { key: item.guide.group, name: guideGroupName(item.guide), order: item.guide.order, items: [] };
+    group.items.push(item);
+    tagged.set(group.key, group);
   }
 
-  return [...orderedSections(untagged), ...orderedSections(tagged)];
-}
-
-function addSection(sections, key, item, name) {
-  const section = sections.get(key) ?? { category: key, name, sortnum: Infinity, items: [] };
-  section.name = name;
-  if (typeof item.guide?.category === "string") {
-    section.sortnum = guideSortnum(item.guide.book, item.guide.category);
-  }
-  section.items.push(item);
-  sections.set(key, section);
-}
-
-/** The book's own order, by the sort number of the category each section came from. */
-function orderedSections(sections) {
-  return [...sections.values()].sort((a, b) => a.sortnum - b.sortnum || a.name.localeCompare(b.name));
+  // The untagged group folds under the section's own key, which is a symbol for the
+  // undocumented bucket - a Set takes one happily, where a string would not.
+  const groups = direct.length ? [{ key: section.category, name: tr("item.direct"), items: direct }] : [];
+  // The book's own order, which for a spotlit tag is the order it presents them in.
+  groups.push(...[...tagged.values()].sort((a, b) => (a.order ?? 0) - (b.order ?? 0)));
+  for (const group of groups) group.items.sort((a, b) => itemLabel(a.id).localeCompare(itemLabel(b.id)));
+  return groups;
 }
 
 /** Opens one item's page, wiring the jumps back to the quest and trade panels. */
@@ -541,62 +599,19 @@ function characterEntries() {
 }
 
 function itemEntries() {
+  const here = (category) => state.section === "item" && state.category === category;
   return [
-    navEntry(state.section === "item" && state.category === null, tr("item.all"), allItems().length, null, () =>
-      selectCategory(null),
+    navEntry(here(null), tr("item.all"), allItems().length, null, () => selectCategory(null)),
+    ...itemSections().map((section) =>
+      navEntry(
+        here(section.category),
+        section.name,
+        section.items.length,
+        section.category === UNDOCUMENTED ? tr("item.undocumented") : String(section.category),
+        () => selectCategory(section.category),
+      ),
     ),
-    ...itemSections().map(itemGroup),
   ];
-}
-
-/**
- * One collapsible group of the item sidebar: a heading that folds the group away, and
- * every item it holds listed underneath as its own entry. Groups start open, since the
- * sidebar is the way in and a closed group is a group you cannot see. Clicking the
- * heading also selects the section, which is what the panel below then lists - and
- * since that redraws the sidebar, whether a group is folded is remembered in `state`
- * rather than left to the element.
- */
-function itemGroup(section) {
-  const key = section.category;
-  const title = key === UNDOCUMENTED ? tr("item.undocumented") : String(key);
-  const current = state.section === "item" && state.category === key;
-  return h(
-    "li",
-    {},
-    h(
-      "details",
-      {
-        class: "nav-group",
-        open: !state.collapsed.has(key),
-        ontoggle: (event) => {
-          if (event.target.open) state.collapsed.delete(key);
-          else state.collapsed.add(key);
-        },
-      },
-      h(
-        "summary",
-        { title, "aria-current": String(current), onclick: () => selectCategory(key) },
-        h("span", { text: section.name }),
-        h("span", { class: "count", text: String(section.items.length) }),
-      ),
-      h(
-        "ul",
-        { class: "nav-list nav-items" },
-        ...section.items.map((item) =>
-          h(
-            "li",
-            {},
-            h(
-              "button",
-              { type: "button", title: item.id, onclick: () => openItem(item.id) },
-              h("span", { text: itemLabel(item.id) }),
-            ),
-          ),
-        ),
-      ),
-    ),
-  );
 }
 
 /**

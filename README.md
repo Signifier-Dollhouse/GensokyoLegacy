@@ -32,14 +32,17 @@ The sidebar carries two lists side by side, and the tabs belong to the first: **
 (quests, dailies, trades, starters and dialogs) and **items** (the guide, and where each
 item comes from). Items belong to no character, so they are a section of their own rather
 than a sixth tab; picking one hides the tab bar, and picking a character brings it back.
-Both are addressable: `#quest/reimu`, `#trade/all`, `#dialog/marisa`, `#items/alchemy`,
-`#items/cushions`.
+Both are addressable: `#quest/reimu`, `#trade/all`, `#dialog/marisa`, `#items/decoration`,
+`#items/undocumented`.
 
-The item list is a tree: each category is a collapsible group holding every item it
-covers as its own entry, and a heading both folds the group away and selects it. Groups
-start open, and a group the reader folds stays folded across a redraw or a language
-switch - the sidebar is rebuilt on every selection, and a `<details>` would otherwise
-forget it had been closed.
+The item entries are the guide's own categories, in its order, plus one for the items it
+never mentions. Selecting one lays its items out in the panel: what the guide names one
+by one at the top, then a collapsible group for every page that spotlights a tag -
+*Take a Seat* for the seventeen cushions, *Noren Curtains* for the sixty-four. Being named
+by a tag is the whole difference, and the groups follow the book's own order. Groups start
+open, and one the reader folds stays folded across a redraw or a language switch, since
+the panel is rebuilt on every keystroke of the search box and a `<details>` would
+otherwise forget it had been closed.
 
 Quests and dailies share one registry and one card; the tab only splits them, so a
 condition linking to a quest lands on whichever of the two it actually belongs to.
@@ -68,7 +71,8 @@ all it takes for the page to show it.
 | The item list | the mod's own lang files, which enumerate every `item.`/`block.` it registers, plus the few ids from other namespaces the mod hands out (`patchouli:guide_book`, converted planks) |
 | The guide | `src/main/resources/assets/gensokyolegacy/patchouli_books/<book>/<locale>/` - the in-game book's own categories and entries, with its `$(bold)`, `$(br)` and `$(br2)` macros rendered, and its spotlights followed into the item tags they name |
 | Ways to obtain | `recipe/**`, including the mod's alchemy and brewing types; `trade/**`, for the offers that hand out something other than currency, which is how Rinnosuke's shop appears; and the `loot_table` each quest reward names |
-| The sidebar groups | the guide's own categories first, in the book's order, then one group per page that spotlights a tag - *Take a Seat* for the seventeen cushions - named by the page's own translated title. Anything the guide does not document is filed under *Not in the guide*, with the untagged groups |
+| The sidebar entries | the guide's own categories, in the book's order, plus one entry for everything it does not document |
+| The panel groups | within an entry, the items the guide names one by one, then one collapsible group per page that spotlights a tag, named by that page's own translated title |
 
 An item page is its guide entry - the category it sits in, the advancement that grants
 it, and the entry's prose under a heading that folds away - followed by every way to get

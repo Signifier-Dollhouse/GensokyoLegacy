@@ -448,6 +448,7 @@ export async function buildItemIndex() {
             subject: subject.key,
             tag: subject.tag ? subject.key : null,
             group: subject.tag ? subject.group : null,
+            order: subject.order ?? 0,
           };
         };
 
@@ -493,12 +494,15 @@ export async function buildItemIndex() {
  * every locale, so their names make a key for the group that does not shift with the
  * language toggle.
  */
-function guideSubjectsOf(value) {
+function guideSubjectsOf(value, order) {
   const subjects = (Array.isArray(value) ? value : [value])
     .filter((entry) => typeof entry === "string")
     .map((entry) => (entry.startsWith("tag:") ? { key: entry.slice(4), tag: true } : { key: entry, tag: false }));
   const group = subjects.map((subject) => subject.key).sort().join("|");
-  for (const subject of subjects) subject.group = group;
+  for (const subject of subjects) {
+    subject.group = group;
+    subject.order = order;
+  }
   return subjects;
 }
 
@@ -518,15 +522,14 @@ export function guideSubjects(entry) {
   const entries = new Map();
   let current = []; // the subjects the pages below a spotlight belong to
 
-  for (const page of entry?.pages ?? []) {
-    const spotlights = page.type === "patchouli:spotlight" ? guideSubjectsOf(page.item) : [];
+  for (const [index, page] of (entry?.pages ?? []).entries()) {
+    const spotlights = page.type === "patchouli:spotlight" ? guideSubjectsOf(page.item, index) : [];
     if (spotlights.length) current = spotlights;
 
     for (const subject of current) {
       // The key and the group ride along on the subject, so a caller holding one knows
       // what it names and which page named it.
-      const found =
-        entries.get(subject.key) ?? { key: subject.key, tag: subject.tag, group: subject.group, pages: [] };
+      const found = entries.get(subject.key) ?? { key: subject.key, ...subject, pages: [] };
       found.pages.push(page);
       entries.set(subject.key, found);
     }

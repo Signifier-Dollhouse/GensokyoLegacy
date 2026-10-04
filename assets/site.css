@@ -279,66 +279,6 @@ input[type="search"] {
   font-size: 11px;
 }
 
-/* A collapsible group of the item sidebar: the heading folds it away, and the items it
-   holds sit underneath it indented, so a group reads as a group. */
-.nav-group {
-  margin: 2px 0 6px;
-}
-
-.nav-group > summary {
-  display: flex;
-  gap: 8px;
-  align-items: baseline;
-  justify-content: space-between;
-  padding: 6px 10px;
-  border-radius: var(--radius-sm);
-  color: var(--text);
-  font-size: 13px;
-  font-weight: 650;
-  cursor: pointer;
-  list-style: none;
-}
-
-.nav-group > summary::-webkit-details-marker {
-  display: none;
-}
-
-.nav-group > summary:hover {
-  background: var(--bg-sunken);
-}
-
-.nav-group > summary[aria-current="true"] {
-  background: var(--accent-soft);
-  color: var(--accent);
-}
-
-.nav-group > summary::before {
-  /* A drawn marker rather than the browser's, so it can sit in the flex row. */
-  content: "▸";
-  flex: none;
-  color: var(--border-strong);
-}
-
-.nav-group[open] > summary::before {
-  transform: rotate(90deg);
-}
-
-.nav-group > summary > span:first-of-type {
-  flex: 1;
-  min-width: 0;
-}
-
-.nav-items {
-  margin: 2px 0 0 6px;
-  padding-left: 10px;
-  border-left: 1px solid var(--border);
-}
-
-.nav-items button {
-  padding: 4px 8px;
-  font-size: 12.5px;
-}
-
 .source-note {
   margin-top: 22px;
   padding-top: 14px;
@@ -990,10 +930,6 @@ details.collapse > .grid {
   }
 
   details.section > summary .marker {
-    transition: transform 120ms ease;
-  }
-
-  .nav-group > summary::before {
     transition: transform 120ms ease;
   }
 }
