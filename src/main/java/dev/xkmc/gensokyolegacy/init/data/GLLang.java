@@ -373,7 +373,6 @@ public final class GLLang {
 
 	// ========== ItemFurnace ==========
 	public enum ItemFurnace implements LangEntry {
-		FURNACE_1_LORE("A portable magical furnace that emits heat. Can slowly smelt adjacent items when placed in inventory.", 0, ChatFormatting.GRAY),
 		FURNACE_1_USE("Right click the item in inventory to switch modes.", 0, ChatFormatting.GRAY),
 		FURNACE_1_OFF("Mode: OFF", 0, ChatFormatting.GRAY),
 		FURNACE_1_DESC("Mode: %s", 1, ChatFormatting.GRAY);
@@ -419,44 +418,31 @@ public final class GLLang {
 		}
 	}
 
-	// ========== ItemTools (registered tools with no tooltip of their own) ==========
-	public enum ItemTools implements LangEntry {
+	// ========== ItemLores (flavour lines shown under an item's name) ==========
+	public enum ItemLores implements LangEntry {
 		CENTIPICKAXE_LORE("A pickaxe with a taste for blood, and a habit of hanging on to it.", 0, ChatFormatting.GRAY),
-		CENTIPICKAXE_USE("Comes with Efficiency V, Fortune III and Mending. Holding it grants Haste II; when its durability finally runs out it drinks your health instead of breaking.", 0, ChatFormatting.GRAY),
 		DOWSER_LORE("Nazrin's dowser. Borrowed, and never returned.", 0, ChatFormatting.GRAY),
-		DOWSER_USE("Right-click to search the 4 chunks in every direction around you for chests and minecart chests. 64 uses, 1 second apart.", 0, ChatFormatting.GRAY),
 		MERMAID_PEARL_LORE("Still wet, and still listening to something a long way down.", 0, ChatFormatting.GRAY),
-		MERMAID_PEARL_USE("Right-click for %s and %s for 60 seconds. 16 uses, 5 seconds apart.", 2, ChatFormatting.GRAY),
 		CAT_BELL_LORE("Small, and heavier than any bell has a right to be.", 0, ChatFormatting.GRAY),
-		CAT_BELL_USE("Right-click your own cat to ride it, or right-click to summon a tamed cat to ride you. 16 uses.", 0, ChatFormatting.GRAY),
 		BROOM_LORE("It flies itself, given there is somebody left to fly.", 0, ChatFormatting.GRAY),
-		BROOM_USE("Right-click to mount, right-click again to get off. Never consumed — leave it in your inventory and the broom goes away.", 0, ChatFormatting.GRAY),
 		DOLL_LANCE_LORE("A polearm built to a doll's reach rather than a hand's.", 0, ChatFormatting.GRAY),
-		DOLL_LANCE_USE("The only weapon a doll will charge with; nothing else in a hand arms one. It never wears out.", 0, ChatFormatting.GRAY),
 		STAR_WAND_LORE("Throws the star, keeps the wand.", 0, ChatFormatting.GRAY),
-		STAR_WAND_USE("Fires a star every second and is never consumed. A doll picks it up out of a hand slot for her danmaku attack.", 0, ChatFormatting.GRAY),
 		IRON_DAGGER_LORE("Thrown, not dropped — it knows the way back.", 0, ChatFormatting.GRAY),
-		IRON_DAGGER_USE("Right-click to throw. The dagger leaves your stack while it is in the air and is handed straight back when it lands.", 0, ChatFormatting.GRAY),
 		STRANGE_GLASSES_LORE("Someone else's idea of what counts as real.", 0, ChatFormatting.GRAY),
-		STRANGE_GLASSES_USE("Wear it in the head slot to see sealing-pot barriers, and everything else glow white.", 0, ChatFormatting.GRAY);
+		FURNACE_1_LORE("A portable magical furnace that emits heat. Can slowly smelt adjacent items when placed in inventory.", 0, ChatFormatting.GRAY),
+		STRAW_HAT_LORE("Woven by someone with four legs, for a frog with a very large appetite.", 0, ChatFormatting.GRAY),
+		SUWAKO_HAT_LORE("A river god's hat, traded for a frog's very specific appetite.", 0, ChatFormatting.GRAY),
+		KOISHI_HAT_LORE("Taken off a third party, and it never stopped sulking about it.", 0, ChatFormatting.GRAY);
 
 		private final String def;
 		private final int argn;
 		private final String key;
 		private final @Nullable ChatFormatting format;
 
-		ItemTools(String def) {
-			this(def, 0);
-		}
-
-		ItemTools(String def, int argn) {
-			this(def, argn, null);
-		}
-
-		ItemTools(String def, int argn, @Nullable ChatFormatting format) {
+		ItemLores(String def, int argn, @Nullable ChatFormatting format) {
 			this.def = def;
 			this.argn = argn;
-			this.key = GensokyoLegacy.MODID + ".item." + name().toLowerCase(Locale.ROOT);
+			this.key = GensokyoLegacy.MODID + ".lore." + name().toLowerCase(Locale.ROOT);
 			this.format = format;
 		}
 
@@ -484,31 +470,9 @@ public final class GLLang {
 	// ========== ItemCommon (generic + gear) ==========
 	public enum ItemCommon implements LangEntry {
 		HAS_ABILITY("gensokyo roles"),
-		OBTAIN("Source: ", 0, ChatFormatting.GRAY),
 		UNKNOWN("???", 0, ChatFormatting.GRAY),
-		USAGE("Usage: ", 0, ChatFormatting.GRAY),
 		GIFT_FAVOR("Favor: %s", 1),
-		GIFT_TYPE("Type: %s", 1),
-		USAGE_TENGU_SAKE("Drink for a temporary boost.", 0, ChatFormatting.GRAY),
-		USAGE_MAGIC_BOOK("Can be used as furnace fuel.", 0, ChatFormatting.GRAY),
-		OBTAIN_FAIRY_ICE("Crafted by Cirno.", 0, ChatFormatting.GRAY),
-		USAGE_FAIRY_ICE("Throw to deal damage and freeze target.", 0, ChatFormatting.GRAY),
-		OBTAIN_FROZEN_FROG("Dropped when Cirno freezes a frog.", 0, ChatFormatting.GRAY),
-		USAGE_FROZEN_FROG("Throw toward target to summon a frog.", 0, ChatFormatting.GRAY),
-		USAGE_STRAW_HAT("Right-click a frog to put this on it, and the frog will eat raiders", 0, ChatFormatting.GRAY),
-		LORE_STRAW_HAT("Woven by someone with four legs, for a frog with a very large appetite.", 0, ChatFormatting.GRAY),
-		OBTAIN_SUWAKO_HAT("Drops when frog with hat eats %s different kinds of raiders", 1, ChatFormatting.GRAY),
-		USAGE_SUWAKO_HAT("Grants constant %s.", 1, ChatFormatting.GRAY),
-		LORE_SUWAKO_HAT("A river god's hat, traded for a frog's very specific appetite.", 0, ChatFormatting.GRAY),
-		OBTAIN_KOISHI_HAT("Drops when blocking Koishi attacks %s times in a row", 1, ChatFormatting.GRAY),
-		USAGE_KOISHI_HAT("Grants constant %s.", 1, ChatFormatting.GRAY),
-		LORE_KOISHI_HAT("Taken off a third party, and it never stopped sulking about it.", 0, ChatFormatting.GRAY),
-		OBTAIN_RUMIA_HAIRBAND("Drops when player defeat Ex. Rumia with Danmaku", 0, ChatFormatting.GRAY),
-		USAGE_RUMIA_HAIRBAND("Shift player towards %s. Drops heads when killing mobs. Flesh and blood drops no longer require knife (bonus when still using knife).", 1, ChatFormatting.GRAY),
-		OBTAIN_REIMU_HAIRBAND("Feed Reimu a variety of food", 0, ChatFormatting.GRAY),
-		USAGE_REIMU_HAIRBAND("Enables creative flight. Your danmaku damage bypasses magical protection.", 0, ChatFormatting.GRAY),
-		USAGE_CIRNO_HAIRBAND("Shift player towards %s. Your magic damage freezes target (and frogs). Allows using Light Blue danmaku without consumption.", 1, ChatFormatting.GRAY),
-		USAGE_FAIRY_WINGS("When you are %s, enables creative flight.", 1, ChatFormatting.GRAY);
+		GIFT_TYPE("Type: %s", 1);
 
 		private final String def;
 		private final int argn;
@@ -941,7 +905,7 @@ public final class GLLang {
 	public static void genLang(RegistrateLangProvider pvd) {
 		for (var group : new LangEntry[][]{
 				Quest.values(), Info.values(), Trade.values(), Misc.values(),
-				ItemDebug.values(), ItemFurnace.values(), ItemTools.values(), ItemCommon.values(), ItemUmbrella.values(), ItemGlove.values(), ItemDaggerGlove.values(), Alchemy.values(), Jei.values(), JeiExtra.values(),
+				ItemDebug.values(), ItemFurnace.values(), ItemLores.values(), ItemCommon.values(), ItemUmbrella.values(), ItemGlove.values(), ItemDaggerGlove.values(), Alchemy.values(), Jei.values(), JeiExtra.values(),
 				Talisman.values(), Doll.values()}) {
 			for (var e : group) {
 				pvd.add(e.key(), e.def());

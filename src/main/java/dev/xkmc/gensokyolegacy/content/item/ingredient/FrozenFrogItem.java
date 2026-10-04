@@ -4,7 +4,6 @@ import dev.xkmc.gensokyolegacy.content.entity.misc.FrozenFrog;
 import net.minecraft.Util;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Position;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -17,10 +16,7 @@ import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ProjectileItem;
-import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
-
-import java.util.List;
 
 public class FrozenFrogItem extends Item implements ProjectileItem {
 
@@ -49,11 +45,6 @@ public class FrozenFrogItem extends Item implements ProjectileItem {
 		}
 
 		return InteractionResultHolder.sidedSuccess(itemstack, pLevel.isClientSide());
-	}
-
-	@Override
-	public void appendHoverText(ItemStack stack, TooltipContext level, List<Component> list, TooltipFlag flag) {
-		//RolePlayHandler.addTooltips(list, GLLang.ItemCommon.OBTAIN_FROZEN_FROG.get(), GLLang.ItemCommon.USAGE_FROZEN_FROG.get());
 	}
 
 	@Override

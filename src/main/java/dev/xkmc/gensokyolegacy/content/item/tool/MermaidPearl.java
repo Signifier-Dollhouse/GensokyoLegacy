@@ -38,10 +38,7 @@ public class MermaidPearl extends Item {
 
 	@Override
 	public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> list, TooltipFlag flag) {
-		list.add(GLLang.ItemTools.MERMAID_PEARL_LORE.get());
-		list.add(GLLang.ItemTools.MERMAID_PEARL_USE.get(
-				Component.translatable(MobEffects.DOLPHINS_GRACE.value().getDescriptionId()),
-				Component.translatable(MobEffects.CONDUIT_POWER.value().getDescriptionId())));
+		list.add(GLLang.ItemLores.MERMAID_PEARL_LORE.get());
 	}
 
 }

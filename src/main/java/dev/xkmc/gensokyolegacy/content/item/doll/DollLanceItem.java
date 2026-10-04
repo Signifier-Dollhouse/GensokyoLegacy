@@ -54,8 +54,7 @@ public class DollLanceItem extends Item {
 
 	@Override
 	public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> list, TooltipFlag flag) {
-		list.add(GLLang.ItemTools.DOLL_LANCE_LORE.get());
-		list.add(GLLang.ItemTools.DOLL_LANCE_USE.get());
+		list.add(GLLang.ItemLores.DOLL_LANCE_LORE.get());
 	}
 
 }

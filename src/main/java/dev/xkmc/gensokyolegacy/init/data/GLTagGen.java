@@ -28,7 +28,6 @@ public class GLTagGen {
 	public static final TagKey<Item> HUGE_MUSHROOM = item("huge_mushroom");
 
 	public static final TagKey<Item> TOUHOU_HAT = item("touhou_hat");
-	public static final TagKey<Item> TOUHOU_WINGS = item("touhou_wings");
 
 	public static final TagKey<Item> TALISMAN = item("talisman");
 
