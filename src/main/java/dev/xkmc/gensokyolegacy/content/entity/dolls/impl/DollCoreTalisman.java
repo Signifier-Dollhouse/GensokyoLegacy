@@ -14,7 +14,9 @@ import java.util.Objects;
  * The core slot's folded talisman: a talisman a doll <b>wears</b> rather than an order it
  * follows. Everything the Curios charm slot does for a player it does here for a doll — the
  * passive tick, and the on-attacked / on-damaged hooks, which reach the doll through
- * {@link TalismanCurioItem}'s discovery rather than through Curios.
+ * {@link TalismanCurioItem}'s discovery rather than through Curios. A Curios wearer has its
+ * talisman stacks synced for it by the Curios capability; a doll has to refresh its own mirror
+ * after each of those paths, which is what the two methods below are for.
  *
  * <p>Self-only by construction, which is the whole point of putting it in the core rather than a
  * hand: the context's target is the doll, and an effect only ever acts on its own target
@@ -50,6 +52,21 @@ public interface DollCoreTalisman extends DollLoadout, TalismanHolder {
 		TalismanCurioItem.tickExtraTalismans(asDoll());
 		if (live.isEmpty()) inv.set(DollSlot.CORE, ItemStack.EMPTY);
 		else if (Objects.equals(before, GLTalismans.DC_TALISMAN_DURABILITY.get(live))) return;
+		asDoll().syncLoadoutMirror();
+	}
+
+	/**
+	 * A damage hook spent a use of the core paper, so the ledger and its client mirror have
+	 * parted company. There is nothing to diff against this time — the hook has already worn the
+	 * stack — but the ledger half still has to happen: a slot emptied by its last use holds a
+	 * count-zero stack that has to go back to being nothing. The mirror refresh itself writes
+	 * four entity-data values that the synched-data layer drops when they are unchanged, so an
+	 * attack the paper did nothing about still costs no packet.
+	 */
+	@Override
+	default void onTalismansSpent() {
+		MutableDollInventory inv = asDoll().loadout();
+		if (inv.get(DollSlot.CORE).isEmpty()) inv.set(DollSlot.CORE, ItemStack.EMPTY);
 		asDoll().syncLoadoutMirror();
 	}
 

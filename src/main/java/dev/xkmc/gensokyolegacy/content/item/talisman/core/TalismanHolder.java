@@ -22,4 +22,14 @@ public interface TalismanHolder {
 	 */
 	List<ItemStack> talismanStacks();
 
+	/**
+	 * A talisman carried by this holder just spent a use outside its own tick — a damage hook
+	 * firing {@code onAttacked} / {@code onDamaged}, which wear the stack in place exactly as
+	 * {@link TalismanContext#hurtItem} does anywhere else. A Curios charm slot needs nothing
+	 * here: the stack it wears belongs to the Curios capability, which syncs itself. A holder
+	 * that keeps its talismans in storage of its own has to refresh whatever mirrors them.
+	 */
+	default void onTalismansSpent() {
+	}
+
 }
