@@ -1,0 +1,18 @@
+{
+  "name": "Strange Glasses",
+  "icon": "gensokyolegacy:strange_glasses",
+  "category": "gensokyolegacy:misc_tools",
+  "sortnum": 5,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "gensokyolegacy:strange_glasses",
+      "title": "Someone Else's Eyes",
+      "text": "Right-click to put the glasses on. While you wear them, every entity around you is drawn as a white outline — through walls, through darkness, through anything in the way. It costs you nothing and helps you nothing; it only changes what you are able to see."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)What they actually do$(br)Nothing. The glasses grant no stats, no reach and no damage of any kind. All they do is make every entity glow, so finding whatever is crouched in the dark or standing behind a wall becomes a matter of looking rather than searching. The effect is entirely on your own client, so nobody else sees a thing — and if you take them off, the world goes back to hiding what it hides.$(br2)$(bold)Sealing pots$(br)Wearing them also reveals the barrier of every Sealing Pot nearby, so you can read a seal you are not holding yourself.$(br2)$(bold)Where they come from$(br)Morichika, who runs the curio shop Kourindou out in the Magical Forest, trades them for 8 emeralds. He keeps one at a time and restocks it every 20 minutes. The glasses stack to one, and either a head armor slot or a Curios head slot will hold them."
+    }
+  ]
+}
