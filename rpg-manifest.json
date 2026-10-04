@@ -755,6 +755,7 @@
     "gensokyolegacy:cushions": "src/generated/resources/data/gensokyolegacy/tags/item/cushions.json",
     "gensokyolegacy:huge_mushroom": "src/generated/resources/data/gensokyolegacy/tags/item/huge_mushroom.json",
     "gensokyolegacy:long_noren": "src/generated/resources/data/gensokyolegacy/tags/item/long_noren.json",
+    "gensokyolegacy:morichika_offers": "src/generated/resources/data/gensokyolegacy/tags/item/morichika_offers.json",
     "gensokyolegacy:noren": "src/generated/resources/data/gensokyolegacy/tags/item/noren.json",
     "gensokyolegacy:plank_wall": "src/generated/resources/data/gensokyolegacy/tags/item/plank_wall.json",
     "gensokyolegacy:sliding_door": "src/generated/resources/data/gensokyolegacy/tags/item/sliding_door.json",
@@ -764,6 +765,9 @@
     "gensokyolegacy:talisman_papers": "src/generated/resources/data/gensokyolegacy/tags/item/talisman_papers.json",
     "gensokyolegacy:tile_variants": "src/generated/resources/data/gensokyolegacy/tags/item/tile_variants.json",
     "gensokyolegacy:wavy_noren": "src/generated/resources/data/gensokyolegacy/tags/item/wavy_noren.json"
+  },
+  "dataMaps": {
+    "morichika_offer": "src/generated/resources/data/gensokyolegacy/data_maps/item/morichika_offer.json"
   },
   "entityTags": {},
   "lang": [

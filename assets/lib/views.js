@@ -654,9 +654,9 @@ export function questCard(entryData, quest, onQuestLink) {
  *   - sell offer, otherwise                  -> the character makes it
  */
 export function tradeKind(trade) {
+  // `loadCurrencyTag` leaves a set here even when the tag itself could not be read.
   const currency = store.tags.get("gensokyolegacy:currency");
-  const isCurrency = (id) =>
-    Boolean(currency?.has(id) ?? (id === "minecraft:emerald" || id === "minecraft:gold_ingot"));
+  const isCurrency = (id) => Boolean(currency?.has(id));
 
   const resultIsCurrency = isCurrency(trade.result?.id);
   const single = (trade.ingredients?.length ?? 0) === 1 ? trade.ingredients[0] : null;
@@ -932,7 +932,10 @@ function sourcesSection(item, links) {
     [tr("item.source.recipe"), item.recipes.map(recipeRow)],
     [tr("item.source.trade"), item.trades.map((source) => tradeSourceRow(source, links))],
     [tr("item.source.quest"), item.drops.map((drop) => dropSourceRow(drop, links))],
-  ].filter(([, rows]) => rows.length);
+    // Rinnosuke's shelves: a tag of what he may stock, so there is no price or stock
+    // to show - only that his shop can have it.
+    item.shelf ? [tr("item.source.shelf"), [shelfSourceRow(item.shelf)]] : null,
+  ].filter((section) => section?.[1]?.length);
 
   return section(
     tr("item.sources"),
@@ -1036,6 +1039,20 @@ function recipeOutput(recipe) {
   }
   if (recipe.resultFluid?.id) return pill("reward fluid", fluidLabel(recipe.resultFluid.id), recipe.resultFluid.id);
   return pill("condition", prettify(recipe.type));
+}
+
+/** A shelf Rinnosuke may stock it on, with the price and stock he rolls for it. */
+function shelfSourceRow(offer) {
+  return entry(
+    tr("item.shelfPrice", countRange(offer.minPrice, offer.maxPrice)),
+    h("span", { class: "entry-note", text: tr("item.shelfStock", countRange(offer.minStock, offer.maxStock)) }),
+    h("span", { class: "entry-note", text: tr("item.shelfNote") }),
+  );
+}
+
+/** A range of numbers, written as one when there is no range to speak of. */
+function countRange(min, max) {
+  return min === max ? String(min) : `${min}-${max}`;
 }
 
 /** An offer that hands the item over, with what the player has to pay. */

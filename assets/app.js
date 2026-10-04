@@ -4,7 +4,7 @@
 // RPG datapack files are fetched at their real paths under
 // src/generated/resources/ - nothing is bundled, rewritten or duplicated here.
 
-import { clear, fill, h, setProgress, setStatus } from "./lib/dom.js";
+import { append, clear, fill, h, setProgress, setStatus } from "./lib/dom.js";
 import { characterLabel, entityLabel, itemLabel, ingredientId, label, modName, prettify } from "./lib/format.js";
 import { applyLanguage, tr, trPlural } from "./lib/i18n.js";
 import { REPO, setLanguage, setTheme, state, TABS } from "./lib/state.js";
@@ -20,6 +20,7 @@ import {
   loadLang,
   loadManifest,
   loadRegistry,
+  loadShopOffers,
   loadVanillaLang,
   store,
   tableFor,
@@ -228,13 +229,14 @@ function renderTradePanel(panel) {
   if (!entries.length) return panel.append(emptyState(tr("noun.trades")));
 
   // Grouped by direction, the way the trade screen reads them: what the player
-  // hands over, what they pay for, and what the character makes.
+  // hands over, what they pay for, and what the character makes. `append` rather than
+  // the DOM's own, which would turn the empty groups into the text "null".
   const groups = new Map(TRADE_KINDS.map((kind) => [kind, []]));
   for (const entryData of entries) {
     const trade = table.get(entryData.id);
     if (trade) groups.get(tradeKind(trade)).push(tradeCard(entryData, trade));
   }
-  panel.append(...TRADE_KINDS.map((kind) => collapsible(tradeTitle(kind), groups.get(kind).length, groups.get(kind))));
+  append(panel, TRADE_KINDS.map((kind) => collapsible(tradeTitle(kind), groups.get(kind).length, groups.get(kind))));
 }
 
 function emptyState(what) {
@@ -385,9 +387,9 @@ function itemGroups(section) {
     tagged.set(group.key, group);
   }
 
-  // The untagged group folds under the section's own key, which is a symbol for the
-  // undocumented bucket - a Set takes one happily, where a string would not.
-  const groups = direct.length ? [{ key: section.category, name: tr("item.direct"), items: direct }] : [];
+  // The items the guide names one by one have no heading of their own: they are listed
+  // straight into the panel, ahead of the groups a spotlit tag makes.
+  const groups = direct.length ? [{ key: null, items: direct }] : [];
   // The book's own order, which for a spotlit tag is the order it presents them in.
   groups.push(...[...tagged.values()].sort((a, b) => (a.order ?? 0) - (b.order ?? 0)));
   for (const group of groups) group.items.sort((a, b) => itemLabel(a.id).localeCompare(itemLabel(b.id)));
@@ -777,8 +779,10 @@ async function boot() {
     // only resolve once these are in. An index predating them falls back to the
     // fixed paths rather than breaking the page.
     ...(store.manifest.vanillaLang ?? VANILLA_LANG).map(loadVanillaLang),
-    // The currency tag decides whether a trade reads as "sell" or "craft".
+    // The currency tag decides whether a trade reads as "sell" or "craft"; the shop
+    // offers are what Rinnosuke may put on his shelves.
     loadCurrencyTag(),
+    loadShopOffers(),
     // The guide book is what the item sidebar is built from, so it is small enough
     // to fetch with everything else rather than behind a click.
     loadGuide(progressFor("guide")),

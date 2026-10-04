@@ -50,10 +50,18 @@ LANG = ("en_us", "zh_cn")
 # listed here only when they are actually present.
 VANILLA_LANG_DIR = "assets/lang/vanilla"
 
-# Tags the viewer needs beyond those referenced by the data. `currency` backs
-# TradeOffer.isSellOffer, which decides whether an offer is "sell to the character"
-# or "request a craft" - without it the trade list cannot be labelled correctly.
-EXTRA_ITEM_TAGS = (f"{NAMESPACE}:currency",)
+# Tags the viewer needs beyond those referenced by the data.
+# - `currency` backs TradeOffer.isSellOffer, which decides whether an offer is "sell to
+#   the character" or "request a craft" - without it the trade list cannot be labelled.
+# - `morichika_offers` is what Rinnosuke stocks his shop shelves from; nothing in the
+#   RPG registries refers to it (only MorichikaEntity does), so without listing it here
+#   the shop's stock would be missing from every item page.
+EXTRA_ITEM_TAGS = (f"{NAMESPACE}:currency", f"{NAMESPACE}:morichika_offers")
+
+# The data maps the viewer reads beyond what the content refers to. `morichika_offer`
+# holds the price and stock range each item is shelved at - the tag above says what he
+# may stock at all, this says what for. Datapacked, so it needs no Java to find.
+EXTRA_DATA_MAPS = (f"{NAMESPACE}/data_maps/item/morichika_offer",)
 
 
 def walk(directory: Path, prefix: str) -> list[str]:
@@ -173,6 +181,19 @@ def find_vanilla_lang() -> list[str]:
     return [f"{VANILLA_LANG_DIR}/{locale}.json" for locale in LANG if (ROOT / VANILLA_LANG_DIR / f"{locale}.json").is_file()]
 
 
+def find_data_maps() -> dict[str, str]:
+    """The data maps listed in EXTRA_DATA_MAPS, keyed by their name in the datapack."""
+    found: dict[str, str] = {}
+    for ref in EXTRA_DATA_MAPS:
+        rel = f"{RESOURCES}/data/{ref}.json"
+        name = ref.split("/")[-1]
+        if (ROOT / rel).is_file():
+            found[name] = rel
+        else:
+            print(f"  ! missing data map {name}", file=sys.stderr)
+    return found
+
+
 def build_recipes(item_tags: set[str]) -> dict[str, Any]:
     """The recipe index. Ingredients name item tags like any other content, so the
     tags they reference are collected too - before the tag index is resolved."""
@@ -267,6 +288,7 @@ def build() -> dict[str, Any]:
         "guides": guides,
         "lootTables": loot,
         "itemTags": item_tag_files,
+        "dataMaps": find_data_maps(),
         "entityTags": existing_tags(entity_refs, "entity_type"),
         "lang": find_lang(),
         "vanillaLang": find_vanilla_lang(),

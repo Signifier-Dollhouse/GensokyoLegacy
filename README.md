@@ -37,12 +37,12 @@ Both are addressable: `#quest/reimu`, `#trade/all`, `#dialog/marisa`, `#items/de
 
 The item entries are the guide's own categories, in its order, plus one for the items it
 never mentions. Selecting one lays its items out in the panel: what the guide names one
-by one at the top, then a collapsible group for every page that spotlights a tag -
-*Take a Seat* for the seventeen cushions, *Noren Curtains* for the sixty-four. Being named
-by a tag is the whole difference, and the groups follow the book's own order. Groups start
-open, and one the reader folds stays folded across a redraw or a language switch, since
-the panel is rebuilt on every keystroke of the search box and a `<details>` would
-otherwise forget it had been closed.
+by one, listed straight in, then a collapsible group for every page that spotlights a
+tag - *Take a Seat* for the seventeen cushions, *Noren Curtains* for the sixty-four.
+Being named by a tag is the whole difference, and the groups follow the book's own order.
+Groups start open, and one the reader folds stays folded across a redraw or a language
+switch, since the panel is rebuilt on every keystroke of the search box and a `<details>`
+would otherwise forget it had been closed.
 
 Quests and dailies share one registry and one card; the tab only splits them, so a
 condition linking to a quest lands on whichever of the two it actually belongs to.
@@ -68,11 +68,18 @@ all it takes for the page to show it.
 
 | What | Where it is read from |
 | --- | --- |
-| The item list | the mod's own lang files, which enumerate every `item.`/`block.` it registers, plus the few ids from other namespaces the mod hands out (`patchouli:guide_book`, converted planks) |
+| The item list | the mod's own lang files, which enumerate every `item.`/`block.` it registers, plus the few ids from other namespaces the mod hands out (`patchouli:guide_book`). A vanilla item it hands out is left out: it is not something the mod adds, and it is still named wherever it is traded for |
 | The guide | `src/main/resources/assets/gensokyolegacy/patchouli_books/<book>/<locale>/` - the in-game book's own categories and entries, with its `$(bold)`, `$(br)` and `$(br2)` macros rendered, and its spotlights followed into the item tags they name |
-| Ways to obtain | `recipe/**`, including the mod's alchemy and brewing types; `trade/**`, for the offers that hand out something other than currency, which is how Rinnosuke's shop appears; and the `loot_table` each quest reward names |
+| Ways to obtain | `recipe/**`, including the mod's alchemy and brewing types; `trade/**`, for the offers that hand out something other than currency; the `loot_table` each quest reward names; and the `morichika_offers` item tag, which is what Rinnosuke stocks his shelves from |
 | The sidebar entries | the guide's own categories, in the book's order, plus one entry for everything it does not document |
-| The panel groups | within an entry, the items the guide names one by one, then one collapsible group per page that spotlights a tag, named by that page's own translated title |
+| The panel groups | within an entry, the items the guide names one by one are listed straight in, then one collapsible group per page that spotlights a tag, named by that page's own translated title |
+
+Three files are listed for the viewer rather than found by following the content, because
+nothing in the RPG registries refers to them: the `currency` tag, which decides whether a
+trade reads as *sell to the character* or *request a craft*; the `morichika_offers` tag,
+which only `MorichikaEntity` reads; and the `morichika_offer` data map beside it, which
+holds the price and stock range each item is shelved at. An item on the shop's tag but
+not in the data map is shelved at stock 1 and price 1, the default the code documents.
 
 An item page is its guide entry - the category it sits in, the advancement that grants
 it, and the entry's prose under a heading that folds away - followed by every way to get
@@ -93,7 +100,7 @@ sidebar's sections and counts are built from - along with the item tags it spotl
 which are resolved into their members. The recipes and the quest reward tables are a
 few hundred files, so they are fetched the first time the item section is opened - the
 same trade-off the dialog tab makes. That is also when the handful of items from other
-namespaces turn up, so the counts can move by two or three at that point.
+namespaces turn up, so the counts can move by a point or two at that moment.
 
 A shaped recipe is drawn as the crafting grid with a key beneath it, since the layout is
 part of the recipe; the alchemy and brewing recipes show their fluid and their extra

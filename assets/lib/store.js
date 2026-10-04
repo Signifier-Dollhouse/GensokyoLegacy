@@ -252,17 +252,46 @@ export function characterSlugOf(entity) {
   return [...character.dirs].sort()[0] ?? null;
 }
 
+const CURRENCY = "gensokyolegacy:currency";
+
 /** The currency tag, used to tell "sell to character" from "request a craft". */
 export async function loadCurrencyTag() {
-  const id = "gensokyolegacy:currency";
-  if (store.tags.has(id)) return store.tags.get(id);
-  const file = store.manifest.itemTags[id] ?? `src/generated/resources/data/${id.split(":")[0]}/tags/item/currency.json`;
+  const tag = await loadItemTag(CURRENCY);
+  if (tag) return tag;
+  // The two currencies the game accepts, should the tag be missing. Cached rather than
+  // returned, since the trade list and the item index both read it from the store.
+  const fallback = new Set(["minecraft:emerald", "minecraft:gold_ingot"]);
+  store.tags.set(CURRENCY, fallback);
+  return fallback;
+}
+
+const SHOP_OFFERS = "gensokyolegacy:morichika_offers";
+
+/**
+ * What Rinnosuke may put on his shop shelves, and at what price.
+ *
+ * The tag is named by `GLTagGen.MORICHIKA_OFFERS` and read by `MorichikaEntity`; the
+ * price and stock ranges come from the `morichika_offer` data map. Neither is referred
+ * to by the RPG registries, so both are listed in the manifest's `EXTRA_ITEM_TAGS` and
+ * `EXTRA_DATA_MAPS` rather than discovered by following the content.
+ */
+export async function loadShopOffers() {
+  const file =
+    store.manifest.dataMaps?.morichika_offer ??
+    "src/generated/resources/data/gensokyolegacy/data_maps/item/morichika_offer.json";
+  let ranges = {};
   try {
-    store.tags.set(id, new Set((await fetchJson(file)).values));
+    ranges = (await fetchJson(file)).values ?? {};
   } catch {
-    store.tags.set(id, new Set(["minecraft:emerald", "minecraft:gold_ingot"]));
+    // The tag alone still says what the shop can have, just not what for.
   }
-  return store.tags.get(id);
+
+  const offers = new Map();
+  for (const id of (await loadItemTag(SHOP_OFFERS)) ?? []) {
+    offers.set(id, ranges[id] ?? { minPrice: 1, maxPrice: 1, minStock: 1, maxStock: 1 });
+  }
+  store.shopOffers = offers;
+  return offers;
 }
 
 // ---------------------------------------------------------------------------
@@ -417,7 +446,7 @@ export async function buildItemIndex() {
   const items = new Map();
   const entryFor = (id) => {
     let item = items.get(id);
-    if (!item) items.set(id, (item = { id, guide: null, recipes: [], trades: [], drops: [] }));
+    if (!item) items.set(id, (item = { id, guide: null, recipes: [], trades: [], drops: [], shelf: null }));
     return item;
   };
 
@@ -470,7 +499,7 @@ export async function buildItemIndex() {
 
   // Only an offer that hands out something other than currency gives the player an
   // item; the rest are the player selling to a character.
-  const currency = store.tags.get("gensokyolegacy:currency");
+  const currency = store.tags.get(CURRENCY);
   for (const [id, trade] of store.trades) {
     const result = trade?.result?.id;
     if (!result || currency?.has(result)) continue;
@@ -480,6 +509,13 @@ export async function buildItemIndex() {
   for (const [questId, drops] of store.questDrops) {
     for (const drop of drops) entryFor(drop.item).drops.push({ questId, ...drop });
   }
+
+  for (const [id, offer] of store.shopOffers ?? []) entryFor(id).shelf = offer;
+
+  // The list is what the mod adds, so a vanilla item it happens to hand out - a
+  // processed golden apple, say - is dropped rather than given a page of its own. It is
+  // still named wherever it is traded for, since the lang table covers that.
+  for (const id of items.keys()) if (id.startsWith("minecraft:")) items.delete(id);
 
   store.items = items;
 }
