@@ -27,8 +27,8 @@ import org.jetbrains.annotations.Nullable;
  * {@link #stackLimit} is the per-item form of the count rule the menu slot reports,
  * so vanilla's own split arithmetic never moves more than the rule allows. The one
  * other writer, Alice's arming ({@code AliceDollHost.arm}), goes straight to the ledger
- * and is not gated by these — it only ever hands out star wands and folded
- * talismans, which both admit.
+ * and is not gated by these — it only ever hands out doll lances, star wands and
+ * folded talismans, all of which admit.
  *
  * <p>Two live backings, mirroring {@code TalismanPocketItemHandler}:
  * the server-side entity menu writes straight into the ledger

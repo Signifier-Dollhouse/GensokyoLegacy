@@ -64,8 +64,7 @@ public class CentiPickaxe extends PickaxeItem {
 
 	@Override
 	public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> list, TooltipFlag flag) {
-		list.add(GLLang.ItemTools.CENTIPICKAXE_LORE.get());
-		list.add(GLLang.ItemTools.CENTIPICKAXE_USE.get());
+		list.add(GLLang.ItemLores.CENTIPICKAXE_LORE.get());
 	}
 
 }

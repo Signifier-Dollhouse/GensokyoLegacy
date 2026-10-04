@@ -100,8 +100,7 @@ public class Dowser extends Item {
 
 	@Override
 	public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> list, TooltipFlag flag) {
-		list.add(GLLang.ItemTools.DOWSER_LORE.get());
-		list.add(GLLang.ItemTools.DOWSER_USE.get());
+		list.add(GLLang.ItemLores.DOWSER_LORE.get());
 	}
 
 	public record DowserToClient(

@@ -19,6 +19,7 @@ import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.data.recipes.ShapelessRecipeBuilder;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.DyeItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ItemLike;
@@ -194,6 +195,16 @@ public class GLRecipeGen {
 		unlock(pvd, ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, GLDecoBlocks.CUSHION.get(), 6)::unlockedBy, Items.STRING)
 				.pattern("S S").pattern("WWW")
 				.define('W', Blocks.WHITE_WOOL).define('S', Items.STRING).save(pvd);
+
+		// tiles are glazed the way vanilla stains terracotta: 8 deepslate tiles around a dye
+		for (int i = 0; i < GLDecoBlocks.TILE_COLORS.length; i++) {
+			var dye = DyeItem.byColor(GLDecoBlocks.TILE_COLORS[i]);
+			unlock(pvd, ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS,
+							GLDecoBlocks.TILE_SETS[i].block.get(), 8)::unlockedBy, dye)
+					.pattern("###").pattern("#X#").pattern("###")
+					.define('#', Blocks.DEEPSLATE_TILES).define('X', dye)
+					.save(pvd);
+		}
 
 		// tatami block: bound straw (hay and string are not fuel, so no burn time).
 		// one block cuts into 8 thin mats, or 3 blocks craft into 16

@@ -46,10 +46,19 @@ import java.util.Optional;
 public class CirnoEntity extends FairyEntity implements GeoYoukaiAnim {
 
 	protected static final RawAnimation IDLE = RawAnimation.begin().thenLoop("待机");
-	protected static final RawAnimation WALK = RawAnimation.begin().thenLoop("走路");
 	protected static final RawAnimation SIT = RawAnimation.begin().thenLoop("坐下");
 	protected static final RawAnimation SLEEP = RawAnimation.begin().thenLoop("睡觉");
-	/** Her hovering loop, which is what an airborne fairy wants instead of standing. */
+	/**
+	 * Her hovering loop, which is what an airborne fairy wants instead of standing.
+	 * <p>
+	 * TODO walk cycle: this rig has no {@code 走路}/{@code 跑步} clip, so walking plays this
+	 * too. It cannot stay a missing name: GeckoLib resolves an unknown clip to {@code null},
+	 * {@code buildAnimationQueue} then hands the controller an empty queue, and the next
+	 * {@code process()} tick stops it without writing any bones — which pinned her in the
+	 * last pose written, i.e. frozen mid-hover for the whole walk, silently. Point the
+	 * {@code isMoving} branch below back at a {@code WALK} constant once the clip is
+	 * exported from Blockbench.
+	 */
 	private static final RawAnimation FLOAT = RawAnimation.begin().thenLoop("漂浮");
 	private static final RawAnimation USE_MAINHAND = RawAnimation.begin().thenPlay("使用主手物品");
 	private static final RawAnimation GREET = RawAnimation.begin().thenPlay("招呼(性格外向）");
@@ -196,7 +205,7 @@ public class CirnoEntity extends FairyEntity implements GeoYoukaiAnim {
 			return event.setAndContinue(FLOAT);
 		}
 		if (event.isMoving()) {
-			return event.setAndContinue(WALK);
+			return event.setAndContinue(FLOAT);
 		}
 		return event.setAndContinue(IDLE);
 	}

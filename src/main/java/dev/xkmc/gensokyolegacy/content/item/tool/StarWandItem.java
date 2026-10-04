@@ -44,8 +44,7 @@ public class StarWandItem extends StarDanmakuItem {
 
 	@Override
 	public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> list, TooltipFlag flag) {
-		list.add(GLLang.ItemTools.STAR_WAND_LORE.get());
-		list.add(GLLang.ItemTools.STAR_WAND_USE.get());
+		list.add(GLLang.ItemLores.STAR_WAND_LORE.get());
 	}
 
 }

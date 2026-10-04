@@ -4,7 +4,6 @@ import dev.xkmc.l2itemselector.select.item.IItemSelector;
 import dev.xkmc.l2itemselector.wheel.WheelAdaptor;
 import dev.xkmc.gensokyolegacy.content.item.dagger.client.DaggerGloveModeWheel;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
-import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
@@ -59,7 +58,9 @@ public class DaggerGloveSelectionListener extends IItemSelector implements Wheel
 	public List<ItemStack> getList(ItemStack stack) {
 		List<ItemStack> list = new ArrayList<>();
 		for (var mode : DaggerGloveMode.values()) {
-			ItemStack icon = DaggerGloveItem.displayStack(mode);
+			// the flat icon variant, not the held separate-transforms model: the sidebar is
+			// gui-only, so it wants the mode's own 16x16 icon like the wheel does
+			ItemStack icon = DaggerGloveItem.iconStack(mode);
 			icon.set(DataComponents.ITEM_NAME, mode.displayName());
 			list.add(icon);
 		}

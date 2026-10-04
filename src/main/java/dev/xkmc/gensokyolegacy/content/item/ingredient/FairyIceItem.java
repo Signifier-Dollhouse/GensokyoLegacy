@@ -3,7 +3,6 @@ package dev.xkmc.gensokyolegacy.content.item.ingredient;
 import dev.xkmc.gensokyolegacy.content.entity.misc.FairyIce;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Position;
-import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
@@ -14,10 +13,7 @@ import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ProjectileItem;
-import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
-
-import java.util.List;
 
 public class FairyIceItem extends Item implements ProjectileItem {
 
@@ -41,11 +37,6 @@ public class FairyIceItem extends Item implements ProjectileItem {
 			itemstack.shrink(1);
 		}
 		return InteractionResultHolder.sidedSuccess(itemstack, pLevel.isClientSide());
-	}
-
-	@Override
-	public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> list, TooltipFlag flag) {
-		//RolePlayHandler.addTooltips(list, GLLang.ItemCommon.OBTAIN_FAIRY_ICE.get(), GLLang.ItemCommon.USAGE_FAIRY_ICE.get());
 	}
 
 	@Override

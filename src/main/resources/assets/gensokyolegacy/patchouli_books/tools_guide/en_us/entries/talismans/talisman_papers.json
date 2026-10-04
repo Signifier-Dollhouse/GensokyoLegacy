@@ -7,9 +7,13 @@
   "pages": [
     {
       "type": "patchouli:spotlight",
-      "item": "gensokyolegacy:heal_talisman",
-      "title": "Healing — 16 uses",
-      "text": "When you are below full health, this talisman restores 30% of your maximum health. It can trigger once every 5 seconds."
+      "item": "tag:gensokyolegacy:talisman_papers",
+      "title": "Five Kinds of Paper",
+      "text": "Talisman papers come in five kinds, each with its own power and its own number of uses. Fold a paper and put it in a charm slot to use it; the pages below describe what each kind does."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Healing — 16 uses$()$(br)When you are below full health, this talisman restores 30% of your maximum health. It can trigger once every 5 seconds."
     },
     {
       "type": "patchouli:text",

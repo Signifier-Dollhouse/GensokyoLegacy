@@ -4,7 +4,7 @@
       "model": "gensokyolegacy:block/black_tiles_slab"
     },
     "type=double": {
-      "model": "gensokyolegacy:block/tiles/black_tiles"
+      "model": "gensokyolegacy:block/black_tiles"
     },
     "type=top": {
       "model": "gensokyolegacy:block/black_tiles_slab_top"

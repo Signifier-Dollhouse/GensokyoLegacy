@@ -71,6 +71,13 @@ public class GLDecoBlocks {
 	public static final BlockEntry<WroughtIronBarsBlock> WROUGHT_IRON_BARS;
 	public static final BlockEntry<WroughtIronPillarBlock> WROUGHT_IRON_PILLAR;
 
+	/** The glazed tile colors; each one gets a block plus the three shapes cut from it. */
+	public static final DyeColor[] TILE_COLORS = {
+			DyeColor.CYAN, DyeColor.ORANGE, DyeColor.YELLOW, DyeColor.BROWN, DyeColor.BLUE, DyeColor.BLACK, DyeColor.GRAY};
+
+	/** The tile set of every color in {@link #TILE_COLORS}, in the same order. */
+	public static final BrickSet[] TILE_SETS = new BrickSet[TILE_COLORS.length];
+
 	static {
 		var reg = GensokyoLegacy.REGISTRATE;
 		TAB = reg.buildModCreativeTab("building_blocks", "Gensokyo Legacy - Building Blocks",
@@ -166,6 +173,7 @@ public class GLDecoBlocks {
 					.blockstate((ctx, pvd) -> SlidingDoorJsons.buildBlockState(ctx, pvd, doorTop, doorBottom, doorSide))
 					.tag(GLTagGen.SLIDING_DOOR, BlockTags.MINEABLE_WITH_AXE)
 					.item().model((ctx, pvd) -> SlidingDoorJsons.genItemModel(ctx, pvd, doorTop, doorBottom, doorSide))
+					.tag(GLTagGen.SLIDING_DOOR_ITEM)
 					.dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(100))
 					.build()
 					.loot(SlidingDoorJsons::genLoot)
@@ -235,8 +243,9 @@ public class GLDecoBlocks {
 			e.largeTable = reg.block(name + "_large_table", p -> DelegateBlock.newBaseBlock(p, new LargeTableBlock(), new CoverableImpl()))
 					.initialProperties(() -> e.plankProp)
 					.blockstate(LargeTableBlock::buildStates)
-					.tag(GLTagGen.LARGE_TABLE, BlockTags.MINEABLE_WITH_AXE)
-					.item().dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(300)).build()
+					.tag(GLTagGen.TABLE, GLTagGen.LARGE_TABLE, BlockTags.MINEABLE_WITH_AXE)
+					.item().tag(GLTagGen.TABLE_ITEM)
+					.dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(300)).build()
 					.loot(LargeTableBlock::genLoot)
 					.register();
 
@@ -245,8 +254,8 @@ public class GLDecoBlocks {
 							new DoubleBlockImpl(), new LargeChairBlock(), new CoverableImpl(), new SeatableImpl()))
 					.initialProperties(() -> e.plankProp)
 					.blockstate(LargeChairBlock::buildStates)
-					.tag(BlockTags.MINEABLE_WITH_AXE)
-					.item().model(LargeChairBlock::genItemModel)
+					.tag(GLTagGen.CHAIR, BlockTags.MINEABLE_WITH_AXE)
+					.item().model(LargeChairBlock::genItemModel).tag(GLTagGen.CHAIR_ITEM)
 					.dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(300)).build()
 					.loot(LargeChairBlock::genLoot)
 					.register();
@@ -259,8 +268,9 @@ public class GLDecoBlocks {
 							.texture("all", pvd.modLoc("block/wood/" + ctx.getName()))
 							.texture("particle", pvd.mcLoc("block/birch_planks"))
 							.renderType("cutout")))
-					.tag(BlockTags.MINEABLE_WITH_AXE)
-					.item().dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(300)).build()
+					.tag(GLTagGen.STOOL, BlockTags.MINEABLE_WITH_AXE)
+					.item().tag(GLTagGen.STOOL_ITEM)
+					.dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(300)).build()
 					.register();
 
 			e.wall = reg.block(name + "_plank_wall", Block::new)
@@ -271,8 +281,9 @@ public class GLDecoBlocks {
 								pvd.modLoc("block/wood/" + name + "_plank_wall"),
 								pvd.modLoc("block/wood/" + name + "_plank_wall_top")));
 					})
-					.tag(BlockTags.MINEABLE_WITH_AXE)
-					.item().dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(150)).build()
+					.tag(GLTagGen.PLANK_WALL, BlockTags.MINEABLE_WITH_AXE)
+					.item().tag(GLTagGen.PLANK_WALL_ITEM)
+					.dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(150)).build()
 					.register();
 
 			var doorTop = GensokyoLegacy.loc("block/wood/" + name + "_sliding_door_top");
@@ -283,6 +294,7 @@ public class GLDecoBlocks {
 					.blockstate((ctx, pvd) -> SlidingDoorJsons.buildBlockState(ctx, pvd, doorTop, doorBottom, doorSide))
 					.tag(GLTagGen.SLIDING_DOOR, BlockTags.MINEABLE_WITH_AXE)
 					.item().model((ctx, pvd) -> SlidingDoorJsons.genItemModel(ctx, pvd, doorTop, doorBottom, doorSide))
+					.tag(GLTagGen.SLIDING_DOOR_ITEM)
 					.dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(300))
 					.build()
 					.loot(SlidingDoorJsons::genLoot)
@@ -294,8 +306,8 @@ public class GLDecoBlocks {
 						new DoubleBlockImpl(), new LargeChairBlock(), new CoverableImpl(), new SeatableImpl()))
 				.initialProperties(() -> Blocks.OAK_PLANKS)
 				.blockstate(LargeChairBlock::buildStates)
-				.tag(BlockTags.MINEABLE_WITH_AXE)
-				.item().model(LargeChairBlock::genItemModel)
+				.tag(GLTagGen.CHAIR, BlockTags.MINEABLE_WITH_AXE)
+				.item().model(LargeChairBlock::genItemModel).tag(GLTagGen.CHAIR_ITEM)
 				.dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(400)).build()
 				.loot(LargeChairBlock::genLoot)
 				.register();
@@ -336,10 +348,9 @@ public class GLDecoBlocks {
 
 		// brick sets
 		{
-			var tiles = new DyeColor[]{DyeColor.CYAN, DyeColor.ORANGE, DyeColor.YELLOW, DyeColor.BROWN, DyeColor.BLUE, DyeColor.BLACK, DyeColor.GRAY};
-
-			for (DyeColor col : tiles) {
-				new BrickSet(reg, col.getName() + "_tiles",
+			for (int i = 0; i < TILE_COLORS.length; i++) {
+				var col = TILE_COLORS[i];
+				TILE_SETS[i] = new BrickSet(reg, col.getName() + "_tiles",
 						BlockBehaviour.Properties.ofFullCopy(Blocks.DEEPSLATE).mapColor(MapColor.byId(14 + col.getId())),
 						"tiles/", BlockTags.MINEABLE_WITH_PICKAXE);
 			}
@@ -481,7 +492,7 @@ public class GLDecoBlocks {
 					.blockstate((ctx, pvd) -> pvd.slabBlock(ctx.get(),
 							pvd.models().slab(ctx.getName(), side, side, side),
 							pvd.models().slabTop(ctx.getName() + "_top", side, side, side),
-							new ModelFile.UncheckedModelFile(side)))
+							new ModelFile.UncheckedModelFile(block.get().builtInRegistryHolder().getKey().location().withPrefix("block/"))))
 					.tag(tool, BlockTags.SLABS).item().tag(ItemTags.SLABS).build()
 					.recipe(this::genSlab).register();
 			vertical = reg.block(id + "_vertical_slab", p ->
