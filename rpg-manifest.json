@@ -661,6 +661,7 @@
             "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/en_us/entries/misc_tools/centipickaxe.json",
             "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/en_us/entries/misc_tools/dowser.json",
             "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/en_us/entries/misc_tools/mermaid_pearl.json",
+            "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/en_us/entries/misc_tools/strange_glasses.json",
             "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/en_us/entries/nature/magical_forest.json",
             "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/en_us/entries/special_tools/border_umbrella.json",
             "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/en_us/entries/special_tools/gap_portal.json",
@@ -704,6 +705,7 @@
             "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/zh_cn/entries/misc_tools/centipickaxe.json",
             "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/zh_cn/entries/misc_tools/dowser.json",
             "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/zh_cn/entries/misc_tools/mermaid_pearl.json",
+            "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/zh_cn/entries/misc_tools/strange_glasses.json",
             "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/zh_cn/entries/nature/magical_forest.json",
             "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/zh_cn/entries/special_tools/border_umbrella.json",
             "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/zh_cn/entries/special_tools/gap_portal.json",
@@ -780,7 +782,7 @@
     "assets/lang/vanilla/en_us.json",
     "assets/lang/vanilla/zh_cn.json"
   ],
-  "revision": "6dbdffd29a2885bd2735e7dc688fb43f",
+  "revision": "1383e7a1a511625ae4a3b9b4ce7cbe5a",
   "stats": {
     "quest": 26,
     "dialog": 215,
@@ -788,6 +790,6 @@
     "trade": 44,
     "files": 303,
     "recipes": 290,
-    "guideEntries": 58
+    "guideEntries": 60
   }
 }
