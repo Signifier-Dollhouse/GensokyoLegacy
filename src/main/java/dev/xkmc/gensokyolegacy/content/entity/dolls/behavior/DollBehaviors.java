@@ -23,6 +23,10 @@ import java.util.Optional;
  * ({@link DollBehaviorRegistry#spendsOnUse}, loadout.md §4): the throwable
  * hexbrew, the laser and the TNT are ammunition, while a danmaku item, the lance
  * and a folded talisman are one item per hand however big their own stack is.
+ * <p>
+ * The one binding with no item is the bare-handed regular attack
+ * ({@link DollBehaviorRegistry#registerBareHand}), which the lance charge also
+ * serves: a doll with nothing to swing a lance with still answers a volley.
  */
 public final class DollBehaviors {
 
@@ -46,6 +50,12 @@ public final class DollBehaviors {
 		DollBehaviorRegistry.register("doll_lance",
 				stack -> stack.is(GLItems.DOLL_LANCE.get()),
 				DollActionType.REGULAR_ATTACK, -1, false, DollMeleeBehavior::new);
+		// Below every item binding (which is what makes it a fallback rather than a
+		// competitor): a regular attack with no weapon at all is still an attack. A
+		// doll holding something that cannot attack — a laser, a talisman, a shield —
+		// and nothing in the other hand slaps instead, and the sticky swap at swing
+		// time moves whatever was in the main hand over to the off hand to free it.
+		DollBehaviorRegistry.registerBareHand(DollActionType.REGULAR_ATTACK, DollMeleeBehavior::new);
 		DollBehaviorRegistry.register("laser",
 				stack -> stack.getItem() instanceof LaserItem,
 				DollActionType.SUPER_ATTACK, 10, true, DollLaserBehavior::new);

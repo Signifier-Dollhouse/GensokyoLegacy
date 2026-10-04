@@ -8,7 +8,6 @@ import dev.xkmc.gensokyolegacy.content.block.functional.alchemypot.overlay.TileC
 import dev.xkmc.gensokyolegacy.content.block.functional.alchemypot.overlay.TileTooltip;
 import dev.xkmc.gensokyolegacy.content.client.debug.DebugOverlay;
 import dev.xkmc.gensokyolegacy.content.client.model.*;
-import dev.xkmc.gensokyolegacy.content.entity.characters.fairy.CirnoModel;
 import dev.xkmc.gensokyolegacy.content.entity.characters.rumia.BlackBallModel;
 import dev.xkmc.gensokyolegacy.content.entity.characters.rumia.RumiaModel;
 import dev.xkmc.gensokyolegacy.content.item.glove.client.DollAttackStatusOverlay;
@@ -16,24 +15,19 @@ import dev.xkmc.gensokyolegacy.content.item.glove.client.DollClientLoadoutToolti
 import dev.xkmc.gensokyolegacy.content.item.glove.client.DollGloveOverlay;
 import dev.xkmc.gensokyolegacy.content.item.glove.client.DollLoadoutTooltip;
 import dev.xkmc.gensokyolegacy.content.item.glove.DollGloveItem;
-import dev.xkmc.gensokyolegacy.content.item.targeting.client.GloveTargetCache;
+import dev.xkmc.gensokyolegacy.content.item.common.client.GloveTargetCache;
 import dev.xkmc.gensokyolegacy.content.item.dagger.DaggerGloveItem;
-import dev.xkmc.gensokyolegacy.content.item.tool.ClientInvTooltip;
-import dev.xkmc.gensokyolegacy.content.item.tool.InvTooltip;
+import dev.xkmc.gensokyolegacy.content.item.common.ClientInvTooltip;
+import dev.xkmc.gensokyolegacy.content.item.common.InvTooltip;
 import dev.xkmc.gensokyolegacy.content.item.umbrella.BorderUmbrellaItem;
 import dev.xkmc.gensokyolegacy.content.ui.quest.QuestOverlay;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
-import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.FrogRenderer;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.item.ItemProperties;
-import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModList;
@@ -64,7 +58,6 @@ public class GLClient {
 			CuriosRendererRegistry.register(GLItems.SUWAKO_HAT.get(), TouhouHatRenderer::new);
 			CuriosRendererRegistry.register(GLItems.KOISHI_HAT.get(), TouhouHatRenderer::new);
 			CuriosRendererRegistry.register(GLItems.RUMIA_HAIRBAND.get(), TouhouHatRenderer::new);
-			CuriosRendererRegistry.register(GLItems.CIRNO_HAIRBAND.get(), TouhouHatRenderer::new);
 			CuriosRendererRegistry.register(GLItems.STRANGE_GLASSES.get(), StrangeGlassesRenderer::new);
 
 			GLItems.STAR.get().getTypeForRender();
@@ -106,9 +99,6 @@ public class GLClient {
 		event.registerLayerDefinition(RumiaModel.LAYER_LOCATION, RumiaModel::createBodyLayer);
 		event.registerLayerDefinition(RumiaModel.HAIRBAND, RumiaModel::createHairbandLayer);
 		event.registerLayerDefinition(BlackBallModel.LAYER_LOCATION, BlackBallModel::createBodyLayer);
-		event.registerLayerDefinition(CirnoModel.LAYER_LOCATION, CirnoModel::createBodyLayer);
-		event.registerLayerDefinition(CirnoModel.HAT, CirnoModel::createHatLayer);
-		event.registerLayerDefinition(CirnoModel.WINGS_LOCATION, CirnoModel::createWingsLayer);
 		event.registerLayerDefinition(SuwakoHatModel.SUWAKO, SuwakoHatModel::createSuwakoHat);
 		event.registerLayerDefinition(SuwakoHatModel.STRAW, SuwakoHatModel::createStrawHat);
 		event.registerLayerDefinition(FrogStrawHatModel.STRAW, FrogStrawHatModel::createHat);
@@ -138,32 +128,6 @@ public class GLClient {
 		if (renderer instanceof LivingEntityRenderer ler && ler.getModel() instanceof HumanoidModel) {
 			ler.addLayer(new TouhouHatLayer<>(ler));
 		}
-	}
-
-	@SubscribeEvent
-	public static void registerReloadListener(RegisterClientReloadListenersEvent event) {
-		event.registerReloadListener((ResourceManagerReloadListener) m -> registerWingsLayer());
-	}
-
-	@SuppressWarnings({"unchecked", "rawtypes"})
-	public static void registerWingsLayer() {
-		EntityRenderDispatcher renderManager = Minecraft.getInstance().getEntityRenderDispatcher();
-		var skinMap = renderManager.getSkinMap();
-		for (EntityRenderer<? extends Player> renderer : skinMap.values()) {
-			if (renderer instanceof LivingEntityRenderer ler) {
-				addLayer(renderManager, ler);
-			}
-		}
-		renderManager.renderers.forEach((e, r) -> {
-			if (r instanceof LivingEntityRenderer ler && ler.getModel() instanceof HumanoidModel<?>) {
-				addLayer(renderManager, ler);
-			}
-		});
-	}
-
-	private static <T extends LivingEntity, M extends HumanoidModel<T>> void addLayer(EntityRenderDispatcher manager, LivingEntityRenderer<T, M> ler) {
-		var mc = Minecraft.getInstance();
-		ler.addLayer(new CirnoWingsLayer<>(ler, mc.getEntityModels()));
 	}
 
 }

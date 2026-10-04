@@ -2,7 +2,7 @@
 
 > **Status:** design only; no code yet — updated 2026-08-31 with owner answers
 > **Block id:** `gensokyolegacy:alchemy_pot` (`GLBlocks.ALCHEMY_POT`, `DelegateBlock.newBaseBlock`) — model at `assets/.../custom/utensil/alchemy_pot.json`, blockstate generated in `GLBlocks.java:176`
-> **Package suggestion:** `content/block/alchemy/` (`AlchemyPotBlock`, `AlchemyPotBlockEntity`, `AlchemyPotRenderer`) + `content/recipe/alchemy/`
+> **Package suggestion:** `content/block/functional/alchemypot/` (`AlchemyPotBlock`, `AlchemyPotBlockEntity`, `AlchemyPotRenderer`) + `recipe/`, `stage/`, `overlay/`
 
 ---
 
@@ -331,7 +331,7 @@ Bucket helper uses `FluidUtil.getFluidContained(stack)` / `FluidStack` + NeoForg
 
 ## 7. Overlay Hint
 
-- Reuse `youkaishomecoming/content/pot/overlay/HintOverlay.java` pattern; copy or generalize to `content/block/alchemy/AlchemyHintOverlay.java`.
+- Reuse `youkaishomecoming/content/pot/overlay/HintOverlay.java` pattern; copy or generalize to `content/block/functional/alchemypot/overlay/AlchemyHintOverlay.java`.
 - BE implements `IHintableBlock.getHints(Level, BlockPos)`:
 
 ```java
@@ -392,16 +392,16 @@ public List<Ingredient> getHints(Level level, BlockPos pos) {
 
 ## 11. File / Registration Checklist (when implementation starts)
 
-- `content/block/alchemy/AlchemyPotBlock.java`
-- `content/block/alchemy/AlchemyPotBlockEntity.java` + `AlchemyItemContainer.java`
-- `content/block/alchemy/AlchemyPotRenderer.java`
-- `content/block/alchemy/AlchemyStageHolder.java` (color-only, dynamic-ready)
-- `content/recipe/alchemy/AlchemyInv.java`
-- `content/recipe/alchemy/AlchemyRecipe.java` + `UnorderedAlchemyRecipe.java` + builders
-- `content/recipe/alchemy/AlchemyStageRecipe.java` + `SimpleAlchemyStageRecipe.java` (+ `DynamicAlchemyStageRecipe.java` placeholder for color blend) + builders
-- `content/block/alchemy/AlchemyHintOverlay.java` + client hook in `GLClient` / `YoukaisHomecoming` `YHClient`-style
+- `content/block/functional/alchemypot/AlchemyPotBlock.java`
+- `content/block/functional/alchemypot/AlchemyPotBlockEntity.java` + `AlchemyItemContainer.java`
+- `content/block/functional/alchemypot/AlchemyPotRenderer.java`
+- `content/block/functional/alchemypot/stage/AlchemyStageHolder.java` (color-only, dynamic-ready)
+- `content/block/functional/alchemypot/AlchemyInv.java`
+- `content/block/functional/alchemypot/recipe/AlchemyRecipe.java` + `UnorderedAlchemyRecipe.java` + builders
+- `content/block/functional/alchemypot/stage/AlchemyStageRecipe.java` + `SimpleAlchemyStageRecipe.java` (+ `DynamicAlchemyStageRecipe.java` placeholder for color blend) + builders
+- `content/block/functional/alchemypot/overlay/AlchemyHintOverlay.java` + client hook in `GLClient` / `YoukaisHomecoming` `YHClient`-style
 - `compat/jei/AlchemyRecipeCategory.java`
-- Datagen: `init/data/GLAlchemyRecipeGen.java`, lang in `GLLang`, recipe JSONs via `BaseRecipeBuilder`
+- Datagen: `init/data/GLRecipeGen.java`, lang in `GLLang`, recipe JSONs via `BaseRecipeBuilder`
 - Registrations in `GLBlocks` (`ALCHEMY_POT`, `ALCHEMY_POT_BE`), `GLRecipes` (`ALCHEMY_RT`, `ALCHEMY_STAGE_RT`, `ALCHEMY_STAGE_DYNAMIC_RT` if needed), `GensokyoLegacy.registerCapabilities` (`IFluidHandler`, `IItemHandler`).
 
 ---

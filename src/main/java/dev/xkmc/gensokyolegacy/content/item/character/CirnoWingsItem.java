@@ -6,6 +6,12 @@ import net.minecraft.world.item.TooltipFlag;
 
 import java.util.List;
 
+/**
+ * Cirno's wings. No longer draws anything: the wings are bones of her own geo rig
+ * (see {@code CirnoModel}), flapped by her idle clip, so there is no separate model
+ * or texture left for this item to point at. Kept as a curio so existing collections
+ * and loadouts keep working.
+ */
 public class CirnoWingsItem extends TouhouWingsItem {
 
 	public CirnoWingsItem(Properties pProperties) {

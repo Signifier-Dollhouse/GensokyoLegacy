@@ -6,6 +6,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.crafting.Ingredient;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 
@@ -17,7 +18,15 @@ public record IngredientEntry(Ingredient ingredient, int count, Optional<String>
 			Codec.STRING.optionalFieldOf("text").forGetter(IngredientEntry::text)
 	).apply(i, IngredientEntry::new));
 
-	public Component getDesc(Player player) {
+	/**
+	 * "- {name}: have/need". A null {@code player} drops the have/need part, for surfaces
+	 * that describe an offer without an inventory behind them (JEI).
+	 */
+	public Component getDesc(@Nullable Player player) {
+		var item = text().map(Component::literal).orElse(ingredient.getItems()[0].getHoverName().copy());
+		if (player == null)
+			return Component.literal("- ").append(item).append(": ")
+					.append(Component.literal("" + count).withStyle(ChatFormatting.AQUA));
 		int has = 0;
 		for (var e : player.getInventory().items) {
 			if (e.isEmpty()) continue;
@@ -25,7 +34,6 @@ public record IngredientEntry(Ingredient ingredient, int count, Optional<String>
 				has += e.getCount();
 		}
 		if (has > count) has = count;
-		var item = text().map(Component::literal).orElse(ingredient.getItems()[0].getHoverName().copy());
 
 		return Component.literal("- ").append(item).append(": ")
 				.append(Component.literal("" + has).withStyle(has == count ? ChatFormatting.GREEN : ChatFormatting.RED))

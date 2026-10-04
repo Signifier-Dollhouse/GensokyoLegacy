@@ -1,6 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.attachment.glove;
 
-import dev.xkmc.gensokyolegacy.content.item.targeting.GloveTargeting;
+import dev.xkmc.gensokyolegacy.content.item.common.GloveTargeting;
 import dev.xkmc.l2core.capability.player.PlayerCapabilityTemplate;
 import dev.xkmc.l2serial.serialization.marker.SerialClass;
 import net.minecraft.server.level.ServerPlayer;

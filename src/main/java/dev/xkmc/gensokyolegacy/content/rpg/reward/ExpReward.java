@@ -5,6 +5,8 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.rpg.quest.QuestReward;
+import dev.xkmc.gensokyolegacy.init.data.GLLang;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 
 public record ExpReward(int point) implements QuestReward<ExpReward> {
@@ -21,6 +23,11 @@ public record ExpReward(int point) implements QuestReward<ExpReward> {
 	@Override
 	public void execute(ServerPlayer sp, YoukaiEntity ch) {
 		sp.giveExperiencePoints(point);
+	}
+
+	@Override
+	public Component getDesc() {
+		return GLLang.JeiExtra.REWARD_EXP.get(point);
 	}
 
 }

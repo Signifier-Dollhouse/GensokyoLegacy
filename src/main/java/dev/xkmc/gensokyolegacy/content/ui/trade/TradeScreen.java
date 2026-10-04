@@ -251,7 +251,7 @@ public class TradeScreen extends AbstractContainerScreen<TradeMenu> {
 		}
 	}
 
-	private static Component actionText(TradeOffer offer) {
+	public static Component actionText(TradeOffer offer) {
 		var character = bracket(offer.character().getDescription(), ChatFormatting.AQUA);
 		if (!offer.isSellOffer()) {
 			var entry = offer.ingredients().getFirst();

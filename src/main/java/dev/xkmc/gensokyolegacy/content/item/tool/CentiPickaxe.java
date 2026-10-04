@@ -1,6 +1,8 @@
 package dev.xkmc.gensokyolegacy.content.item.tool;
 
+import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
@@ -9,10 +11,12 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.PickaxeItem;
 import net.minecraft.world.item.Tiers;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.function.Consumer;
 
 public class CentiPickaxe extends PickaxeItem {
@@ -56,6 +60,12 @@ public class CentiPickaxe extends PickaxeItem {
 			}
 		}
 		return super.damageItem(stack, amount, entity, onBroken);
+	}
+
+	@Override
+	public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> list, TooltipFlag flag) {
+		list.add(GLLang.ItemTools.CENTIPICKAXE_LORE.get());
+		list.add(GLLang.ItemTools.CENTIPICKAXE_USE.get());
 	}
 
 }

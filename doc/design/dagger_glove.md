@@ -16,9 +16,10 @@ shot instead of a cooldown per dagger.
 
 It lives in `content/item/dagger/`, its own package under `item/`: `content/item/glove/` belongs to
 the doll glove. The two gloves share no assets — each has its own hand model and its own skin — only
-two small pieces of code, each in its own package beside them: `content/item/targeting/`, the
-ray-trace target cache whose contract `GloveTargeting` both implement (§2d), and
-`content/item/glovehand/`, the held-hand wiring `GloveHandModel` (§6a).
+two small pieces of code, both in `content/item/common/`, the cross-item support package: the
+ray-trace target cache whose contract `GloveTargeting` both implement (§2d, plus the client half in
+`common/client/` and its packet in `common/network/`), and the held-hand wiring `GloveHandModel`
+(§6a).
 
 ## 1. Modes
 
@@ -373,8 +374,8 @@ Mirror of `DollGloveSelectionListener` (`glove.md` §3), minus the display-compo
   `gensokyolegacy:dagger_glove`, `test(stack)` = `instanceof DaggerGloveItem`. All three modes are
   always available, so `getList` is just the enum and `getSelHash` is constant.
 - `DaggerGloveModeWheel` (`PersistentWheel<DaggerGloveModeEntry>`) + `DaggerGloveModeEntry` render
-  one entry per mode; `select(index)` sends `DaggerGloveSelectPacket(0, ordinal)`.
-- `DaggerGloveSelectPacket(int wheel, int index)` — server-side mode switch on the held glove.
+  one entry per mode; `select(index)` sends `SelectorSelectPacket(index)`, shared with the doll glove and the umbrella.
+- No glove-specific select packet: the mode pick rides the shared selector-wheel packet, `content/item/common/network/SelectorSelectPacket.java`, which resolves the held stack to its own `IItemSelector` and calls `swap`.
 - Data components: `DAGGER_GLOVE_MODE` (`DC.enumVal` over the enum, persistent) and
   `DAGGER_GLOVE_RUNE` (`DC.loc`).
 
@@ -396,7 +397,7 @@ per-mode as well.
 That hand model is the dagger glove's own, not a shared one: 11 Blockbench elements — the hand plus
 three daggers fanned out of it at −22.5°/0°/+22.5° — against the doll glove's bare two-element mitten
 in `models/custom/doll_glove_hand.json`. What the two gloves share is only the *wiring* around a hand
-model, in `content/item/glovehand/GloveHandModel.java` (the §9 split forbids either glove's package
+model, in `content/item/common/GloveHandModel.java` (the §9 split forbids either glove's package
 holding it); `GloveHandModel.perspectives` takes the glove's model and skin and writes the skin over
 the model's `#0`.
 
@@ -471,7 +472,7 @@ zh_cn is hand-authored in the split per-category files, then merged by the
   `L2ISTagGen.SELECTABLE` so the wheel offers it, like the doll glove.
 - Mod constructor — `DaggerGloveSelectionListener.register()` beside
   `DollGloveSelectionListener.register()`; `GensokyoLegacy.HANDLER` registers
-  `DaggerGloveSelectPacket`. The target cache needs nothing of its own: `GloveTargetPacket`,
+  the shared `SelectorSelectPacket`. The target cache needs nothing of its own: `GloveTargetPacket`,
   `GLMeta.GLOVE_TARGET` and the client tick all come with the doll glove (§2d).
 - `GLLang.ItemDaggerGlove` — mode names and descriptions, the rune line, `no_dagger`, `no_target`.
   The tooltip reuses `GLLang.ItemGlove.WHEEL` for the "hold the wheel key" hint rather than
@@ -509,9 +510,8 @@ The two textures are not interchangeable: `iron_dagger.png` is the 3D skin the m
 ## 9. Files
 
 The glove lives in its own package under `item/`, not under `item/glove/` — that package is the
-doll glove's. The gloves share no assets, only two small pieces of code, each in its own package:
-the target cache in `content/item/targeting/` (§2d) and the held-hand wiring in
-`content/item/glovehand/` (§6a).
+doll glove's. The gloves share no assets, only two small pieces of code, both in the cross-item
+support package `content/item/common/`: the target cache (§2d) and the held-hand wiring (§6a).
 
 - `content/item/dagger/DaggerGloveItem.java`
 - `content/item/dagger/DaggerGloveMode.java`
@@ -521,11 +521,11 @@ the target cache in `content/item/targeting/` (§2d) and the held-hand wiring in
   first stage's return (extends danmaku_api's `TrailAction`)
 - `content/item/dagger/DaggerGloveRune.java`, `DaggerGloveRunes.java`
 - `content/item/dagger/DaggerGloveSelectionListener.java`
-- `content/item/dagger/network/DaggerGloveSelectPacket.java`
+- `content/item/common/network/SelectorSelectPacket.java` (the shared wheel mode pick this glove sends)
 - `content/item/dagger/client/DaggerGloveModeWheel.java`, `DaggerGloveModeEntry.java`
-- `content/item/targeting/GloveTargeting.java` (shared with the doll glove, §2d) — the client trace
+- `content/item/common/GloveTargeting.java` (shared with the doll glove, §2d) — the client trace
   and the server store it drives are not this glove's and are not listed here
-- `content/item/glovehand/GloveHandModel.java` (shared with the doll glove, §6a) — the separate-
+- `content/item/common/GloveHandModel.java` (shared with the doll glove, §6a) — the separate-
   transforms wiring around a held hand model; the model and skin themselves are each glove's own
 - `content/entity/misc/IronDaggerBulletEntity.java` (edited: `handOffTo` return transfer, `giveBack`
   disarms the trail, rune id field, rune on hit)

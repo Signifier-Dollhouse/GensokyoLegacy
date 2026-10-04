@@ -6,12 +6,18 @@ import dev.xkmc.danmakuapi.content.item.DanmakuItem;
 import dev.xkmc.danmakuapi.content.render.ItemModelProjectileType;
 import dev.xkmc.danmakuapi.init.registrate.DanmakuItems;
 import dev.xkmc.gensokyolegacy.content.entity.misc.IronDaggerBulletEntity;
+import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.gensokyolegacy.init.registrate.GLEntities;
+import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
+
+import java.util.List;
 
 /**
  * Iron dagger: a thrown {@link DanmakuItems.Bullet#DAGGER} danmaku.
@@ -69,6 +75,12 @@ public class IronDaggerItem extends DanmakuItem {
 	protected void playThrowSound(Level level, Player player) {
 		level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.TRIDENT_THROW.value(),
 				SoundSource.PLAYERS, 1F, 1F);
+	}
+
+	@Override
+	public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> list, TooltipFlag flag) {
+		list.add(GLLang.ItemTools.IRON_DAGGER_LORE.get());
+		list.add(GLLang.ItemTools.IRON_DAGGER_USE.get());
 	}
 
 }

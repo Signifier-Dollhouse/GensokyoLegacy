@@ -1,11 +1,17 @@
 package dev.xkmc.gensokyolegacy.content.item.doll;
 
 import dev.xkmc.gensokyolegacy.content.entity.dolls.behavior.DollMeleeBehavior;
+import dev.xkmc.gensokyolegacy.init.data.GLLang;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.EquipmentSlotGroup;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
+
+import java.util.List;
 
 /**
  * The dolls' polearm, and the only melee weapon {@link DollMeleeBehavior} will charge with
@@ -44,6 +50,12 @@ public class DollLanceItem extends Item {
 
 	public DollLanceItem(Properties properties) {
 		super(properties.attributes(ATTRIBUTES));
+	}
+
+	@Override
+	public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> list, TooltipFlag flag) {
+		list.add(GLLang.ItemTools.DOLL_LANCE_LORE.get());
+		list.add(GLLang.ItemTools.DOLL_LANCE_USE.get());
 	}
 
 }
