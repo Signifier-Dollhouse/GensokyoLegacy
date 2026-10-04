@@ -6,7 +6,7 @@
   "pages": [
     {
       "type": "patchouli:spotlight",
-      "item": "gensokyolegacy:oak_sliding_door",
+      "item": "tag:gensokyolegacy:sliding_door",
       "title": "障子推拉门",
       "text": "各种木材都能制作高大的推拉门，包括竹制推拉门。空手对着门右键即可开关。门板可以互相套叠，最多容纳 4 层门板。"
     },

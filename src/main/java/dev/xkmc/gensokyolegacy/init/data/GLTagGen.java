@@ -28,16 +28,32 @@ public class GLTagGen {
 	public static final TagKey<Item> HUGE_MUSHROOM = item("huge_mushroom");
 
 	public static final TagKey<Item> TOUHOU_HAT = item("touhou_hat");
-	public static final TagKey<Item> TOUHOU_WINGS = item("touhou_wings");
 
 	public static final TagKey<Item> TALISMAN = item("talisman");
 
 	public static final TagKey<Item> MORICHIKA_OFFERS = item("morichika_offers");
 
+	/**
+	 * Mirrors of the furniture block tags below, under the same id. Consumers that never see the block
+	 * registry, like the patchouli guide or another mod's item-only checks, need the item registry copy.
+	 */
+	public static final TagKey<Item> TABLE_ITEM = item("table");
+	public static final TagKey<Item> CHAIR_ITEM = item("chair");
+	public static final TagKey<Item> STOOL_ITEM = item("stool");
+	public static final TagKey<Item> SLIDING_DOOR_ITEM = item("sliding_door");
+
 	public static final TagKey<Block> VERTICAL_SLAB = block("vertical_slab");
-	public static final TagKey<Block> LARGE_TABLE = block("large_table");
-	public static final TagKey<Block> SLIDING_DOOR = block("sliding_door");
 	public static final TagKey<Block> TEMPLATE_TRUNK = block("template_trunk");
+
+	/**
+	 * Tables, all of them. {@link #LARGE_TABLE} covers the wooden dining tables only and drives how
+	 * neighbouring tables merge, so it stays separate.
+	 */
+	public static final TagKey<Block> TABLE = block("table");
+	public static final TagKey<Block> LARGE_TABLE = block("large_table");
+	public static final TagKey<Block> CHAIR = block("chair");
+	public static final TagKey<Block> STOOL = block("stool");
+	public static final TagKey<Block> SLIDING_DOOR = block("sliding_door");
 
 	public static final TagKey<EntityType<?>> FLESH_SOURCE = entity("flesh_source");
 	public static final TagKey<EntityType<?>> YOUKAI_IGNORE = entity("youkai_ignore");

@@ -9,7 +9,6 @@ import dev.xkmc.gensokyolegacy.content.attachment.doll.DollInventory;
 import dev.xkmc.gensokyolegacy.content.block.deco.shelf.MorichikaOfferData;
 import dev.xkmc.gensokyolegacy.content.block.functional.portal.PortalSide;
 import dev.xkmc.gensokyolegacy.content.client.model.*;
-import dev.xkmc.gensokyolegacy.content.entity.characters.rumia.RumiaModel;
 import dev.xkmc.gensokyolegacy.content.item.tool.BroomItem;
 import dev.xkmc.gensokyolegacy.content.item.character.*;
 import dev.xkmc.gensokyolegacy.content.item.debug.DebugGlasses;
@@ -79,9 +78,6 @@ public class GLItems {
 	public static final ItemEntry<StrawHatItem> STRAW_HAT;
 	public static final ItemEntry<SuwakoHatItem> SUWAKO_HAT;
 	public static final ItemEntry<KoishiHatItem> KOISHI_HAT;
-	public static final ItemEntry<RumiaHairbandItem> RUMIA_HAIRBAND;
-	public static final ItemEntry<CirnoHairbandItem> CIRNO_HAIRBAND;
-	public static final ItemEntry<CirnoWingsItem> CIRNO_WINGS;
 
 	public static final ItemEntry<MiniFurnace1> MINI_FURNACE_1;
 	public static final ItemEntry<CentiPickaxe> CENTIPICKAXE;
@@ -233,36 +229,6 @@ public class GLItems {
 						.lang("Night Sparrow \"Midnight Chorus Master\"")
 						.tag(DanmakuTagGen.PRESET_SPELL)
 						.register();
-			}
-
-			// gears
-			{
-				var head = ItemTags.create(ResourceLocation.fromNamespaceAndPath("curios", "head"));
-
-
-				RUMIA_HAIRBAND = reg
-						.item("rumia_hairband", p -> new RumiaHairbandItem(p.rarity(Rarity.EPIC)))
-						.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/curio/" + ctx.getName())))
-						.clientExtension(() -> () -> new RumiaHairbandModel(RumiaModel.HAIRBAND))
-						.tag(head, GLTagGen.TOUHOU_HAT)
-						.register();
-
-				// the hairband and the wings are bones of Cirno's own geo rig now, so
-				// the items have no separate model to bake (and no render layer)
-				CIRNO_HAIRBAND = reg
-						.item("cirno_hairband", p -> new CirnoHairbandItem(p.rarity(Rarity.EPIC)))
-						.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/curio/" + ctx.getName())))
-						.tag(head, GLTagGen.TOUHOU_HAT)
-						.register();
-
-				var back = ItemTags.create(ResourceLocation.fromNamespaceAndPath("curios", "back"));
-
-				CIRNO_WINGS = reg
-						.item("cirno_wings", p -> new CirnoWingsItem(p.rarity(Rarity.EPIC)))
-						.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/curio/" + ctx.getName())))
-						.tag(back, GLTagGen.TOUHOU_WINGS)
-						.register();
-
 			}
 
 			// ice

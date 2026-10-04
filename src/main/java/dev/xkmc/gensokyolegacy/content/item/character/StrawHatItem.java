@@ -54,8 +54,7 @@ public class StrawHatItem extends TouhouHatItem {
 
 	@Override
 	public void appendHoverText(ItemStack stack, TooltipContext level, List<Component> list, TooltipFlag flag) {
-		list.add(GLLang.ItemCommon.LORE_STRAW_HAT.get());
-		list.add(GLLang.ItemCommon.USAGE_STRAW_HAT.get());
+		list.add(GLLang.ItemLores.STRAW_HAT_LORE.get());
 	}
 
 }

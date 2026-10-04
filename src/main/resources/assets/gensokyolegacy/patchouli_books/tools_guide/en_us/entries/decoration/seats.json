@@ -6,9 +6,21 @@
   "pages": [
     {
       "type": "patchouli:spotlight",
-      "item": "gensokyolegacy:cushion",
+      "item": "tag:gensokyolegacy:cushions",
       "title": "Take a Seat",
-      "text": "Make yourself comfortable with cushions, wooden stools, and large chairs. Cushions come in every wool color. Right-click a seat to sit down."
+      "text": "Cushions are stuffed with wool and come in every wool color. Right-click a seat to sit down."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "tag:gensokyolegacy:stool",
+      "title": "Wooden Stools",
+      "text": "Stools are one block tall and come in every wood type, cut from the matching planks on the stonecutter."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "tag:gensokyolegacy:chair",
+      "title": "Large Chairs",
+      "text": "Large chairs stand two blocks tall and come in every wood type, cut from the matching planks on the stonecutter. A darker one with red upholstery is only found in the Scarlet Devil Mansion."
     },
     {
       "type": "patchouli:text",

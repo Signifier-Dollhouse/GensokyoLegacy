@@ -79,8 +79,7 @@ public class IronDaggerItem extends DanmakuItem {
 
 	@Override
 	public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> list, TooltipFlag flag) {
-		list.add(GLLang.ItemTools.IRON_DAGGER_LORE.get());
-		list.add(GLLang.ItemTools.IRON_DAGGER_USE.get());
+		list.add(GLLang.ItemLores.IRON_DAGGER_LORE.get());
 	}
 
 }

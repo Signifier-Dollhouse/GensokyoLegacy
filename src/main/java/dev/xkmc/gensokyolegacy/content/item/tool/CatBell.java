@@ -68,8 +68,7 @@ public class CatBell extends Item {
 
 	@Override
 	public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> list, TooltipFlag flag) {
-		list.add(GLLang.ItemTools.CAT_BELL_LORE.get());
-		list.add(GLLang.ItemTools.CAT_BELL_USE.get());
+		list.add(GLLang.ItemLores.CAT_BELL_LORE.get());
 	}
 
 

@@ -63,7 +63,7 @@ public class MiniFurnace1 extends Item implements InvClickItem {
 	@Override
 	public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> list, TooltipFlag flag) {
 		var data = GLItems.DC_FURNACE_1.getOrDefault(stack, Data.DEF);
-		list.add(GLLang.ItemFurnace.FURNACE_1_LORE.get());
+		list.add(GLLang.ItemLores.FURNACE_1_LORE.get());
 		list.add(GLLang.ItemFurnace.FURNACE_1_USE.get());
 		if (data.state() == State.OFF) list.add(GLLang.ItemFurnace.FURNACE_1_OFF.get());
 		else list.add(GLLang.ItemFurnace.FURNACE_1_DESC.get(

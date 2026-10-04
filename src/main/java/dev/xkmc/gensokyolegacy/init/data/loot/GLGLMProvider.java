@@ -73,26 +73,11 @@ public class GLGLMProvider extends GlobalLootModifierProvider {
 						EntityTypePredicate.of(tag))).build();
 	}
 
-	private static LootItemCondition killedByRumia() {
-		return LootItemEntityPropertyCondition.hasProperties(
-				LootContext.EntityTarget.ATTACKER,
-				EntityPredicate.Builder.entity().equipment(
-						EntityEquipmentPredicate.Builder.equipment().head(
-										ItemPredicate.Builder.item().of(GLItems.RUMIA_HAIRBAND))
-								.build()).build()).build();
-	}
-
 	private static LootItemCondition killedByCirno() {
 		return LootItemEntityPropertyCondition.hasProperties(
-						LootContext.EntityTarget.ATTACKER,
-						EntityPredicate.Builder.entity().entityType(
-								EntityTypePredicate.of(GLEntities.CIRNO.get())))
-				.or(LootItemEntityPropertyCondition.hasProperties(
-						LootContext.EntityTarget.ATTACKER,
-						EntityPredicate.Builder.entity().equipment(
-								EntityEquipmentPredicate.Builder.equipment()
-										.head(ItemPredicate.Builder.item().of(GLItems.CIRNO_HAIRBAND.get())).build()
-						).build()))
+				LootContext.EntityTarget.ATTACKER,
+				EntityPredicate.Builder.entity().entityType(
+						EntityTypePredicate.of(GLEntities.CIRNO.get())))
 				//.or(new RoleProgressLootCondition(GLMechanics.ICE_FAIRY.get(), 1000))
 				.build();
 	}

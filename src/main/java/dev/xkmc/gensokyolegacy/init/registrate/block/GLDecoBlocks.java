@@ -166,6 +166,7 @@ public class GLDecoBlocks {
 					.blockstate((ctx, pvd) -> SlidingDoorJsons.buildBlockState(ctx, pvd, doorTop, doorBottom, doorSide))
 					.tag(GLTagGen.SLIDING_DOOR, BlockTags.MINEABLE_WITH_AXE)
 					.item().model((ctx, pvd) -> SlidingDoorJsons.genItemModel(ctx, pvd, doorTop, doorBottom, doorSide))
+					.tag(GLTagGen.SLIDING_DOOR_ITEM)
 					.dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(100))
 					.build()
 					.loot(SlidingDoorJsons::genLoot)
@@ -235,8 +236,9 @@ public class GLDecoBlocks {
 			e.largeTable = reg.block(name + "_large_table", p -> DelegateBlock.newBaseBlock(p, new LargeTableBlock(), new CoverableImpl()))
 					.initialProperties(() -> e.plankProp)
 					.blockstate(LargeTableBlock::buildStates)
-					.tag(GLTagGen.LARGE_TABLE, BlockTags.MINEABLE_WITH_AXE)
-					.item().dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(300)).build()
+					.tag(GLTagGen.TABLE, GLTagGen.LARGE_TABLE, BlockTags.MINEABLE_WITH_AXE)
+					.item().tag(GLTagGen.TABLE_ITEM)
+					.dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(300)).build()
 					.loot(LargeTableBlock::genLoot)
 					.register();
 
@@ -245,8 +247,8 @@ public class GLDecoBlocks {
 							new DoubleBlockImpl(), new LargeChairBlock(), new CoverableImpl(), new SeatableImpl()))
 					.initialProperties(() -> e.plankProp)
 					.blockstate(LargeChairBlock::buildStates)
-					.tag(BlockTags.MINEABLE_WITH_AXE)
-					.item().model(LargeChairBlock::genItemModel)
+					.tag(GLTagGen.CHAIR, BlockTags.MINEABLE_WITH_AXE)
+					.item().model(LargeChairBlock::genItemModel).tag(GLTagGen.CHAIR_ITEM)
 					.dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(300)).build()
 					.loot(LargeChairBlock::genLoot)
 					.register();
@@ -259,8 +261,9 @@ public class GLDecoBlocks {
 							.texture("all", pvd.modLoc("block/wood/" + ctx.getName()))
 							.texture("particle", pvd.mcLoc("block/birch_planks"))
 							.renderType("cutout")))
-					.tag(BlockTags.MINEABLE_WITH_AXE)
-					.item().dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(300)).build()
+					.tag(GLTagGen.STOOL, BlockTags.MINEABLE_WITH_AXE)
+					.item().tag(GLTagGen.STOOL_ITEM)
+					.dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(300)).build()
 					.register();
 
 			e.wall = reg.block(name + "_plank_wall", Block::new)
@@ -283,6 +286,7 @@ public class GLDecoBlocks {
 					.blockstate((ctx, pvd) -> SlidingDoorJsons.buildBlockState(ctx, pvd, doorTop, doorBottom, doorSide))
 					.tag(GLTagGen.SLIDING_DOOR, BlockTags.MINEABLE_WITH_AXE)
 					.item().model((ctx, pvd) -> SlidingDoorJsons.genItemModel(ctx, pvd, doorTop, doorBottom, doorSide))
+					.tag(GLTagGen.SLIDING_DOOR_ITEM)
 					.dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(300))
 					.build()
 					.loot(SlidingDoorJsons::genLoot)
@@ -294,8 +298,8 @@ public class GLDecoBlocks {
 						new DoubleBlockImpl(), new LargeChairBlock(), new CoverableImpl(), new SeatableImpl()))
 				.initialProperties(() -> Blocks.OAK_PLANKS)
 				.blockstate(LargeChairBlock::buildStates)
-				.tag(BlockTags.MINEABLE_WITH_AXE)
-				.item().model(LargeChairBlock::genItemModel)
+				.tag(GLTagGen.CHAIR, BlockTags.MINEABLE_WITH_AXE)
+				.item().model(LargeChairBlock::genItemModel).tag(GLTagGen.CHAIR_ITEM)
 				.dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(400)).build()
 				.loot(LargeChairBlock::genLoot)
 				.register();

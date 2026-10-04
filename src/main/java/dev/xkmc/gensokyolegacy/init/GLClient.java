@@ -57,7 +57,6 @@ public class GLClient {
 			CuriosRendererRegistry.register(GLItems.STRAW_HAT.get(), TouhouHatRenderer::new);
 			CuriosRendererRegistry.register(GLItems.SUWAKO_HAT.get(), TouhouHatRenderer::new);
 			CuriosRendererRegistry.register(GLItems.KOISHI_HAT.get(), TouhouHatRenderer::new);
-			CuriosRendererRegistry.register(GLItems.RUMIA_HAIRBAND.get(), TouhouHatRenderer::new);
 			CuriosRendererRegistry.register(GLItems.STRANGE_GLASSES.get(), StrangeGlassesRenderer::new);
 
 			GLItems.STAR.get().getTypeForRender();
@@ -97,7 +96,6 @@ public class GLClient {
 	@SubscribeEvent
 	public static void registerLayerDefinitions(EntityRenderersEvent.RegisterLayerDefinitions event) {
 		event.registerLayerDefinition(RumiaModel.LAYER_LOCATION, RumiaModel::createBodyLayer);
-		event.registerLayerDefinition(RumiaModel.HAIRBAND, RumiaModel::createHairbandLayer);
 		event.registerLayerDefinition(BlackBallModel.LAYER_LOCATION, BlackBallModel::createBodyLayer);
 		event.registerLayerDefinition(SuwakoHatModel.SUWAKO, SuwakoHatModel::createSuwakoHat);
 		event.registerLayerDefinition(SuwakoHatModel.STRAW, SuwakoHatModel::createStrawHat);
