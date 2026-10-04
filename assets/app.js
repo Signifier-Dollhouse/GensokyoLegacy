@@ -29,6 +29,7 @@ import {
   categoryName,
   collapsible,
   guideEntryName,
+  guideGroupName,
   guideSortnum,
   itemRow,
   openDialogViewer,
@@ -62,11 +63,16 @@ function keyFromSlug(slug) {
   return match?.key ?? (store.characters.has(slug) ? slug : "all");
 }
 
-/** The URL slug for an item section, and the section a slug names. */
+/**
+ * The URL slug for an item section, and the section a slug names. A guide category is
+ * named by its own folder, and a group of tag-documented items by the first tag on the
+ * page that spotlights them - the two rarely collide, and if they did the untagged
+ * section is found first.
+ */
 function categorySlug(category) {
   if (category === null) return "all";
   if (category === UNDOCUMENTED) return "undocumented";
-  return category.split(":").pop();
+  return String(category).split("|")[0].split(":").pop();
 }
 
 function categoryFromSlug(slug) {
@@ -285,27 +291,49 @@ function allItems() {
 const UNDOCUMENTED = Symbol("undocumented");
 
 /**
- * The sidebar's item sections: one per guide category, in the book's own order, plus
- * everything the guide does not document at the end. The membership comes from the
- * index rather than from the book alone, so an item the guide never mentions still
- * shows up - just in the last group.
+ * The sidebar's item sections.
+ *
+ * An item documented under a tag is filed under that tag rather than under its guide
+ * category, so a group the book spotlights as one thing - seventeen cushions - becomes a
+ * section of its own with every member in it, rather than rows scattered through the
+ * decoration category. Sections the book does not tie to a tag come first, in its own
+ * order, and the tag sections follow, named by the spotlight they came from. Items the
+ * guide does not document are filed last among the untagged ones.
  */
 function itemSections() {
-  const groups = new Map();
+  const untagged = new Map();
+  const tagged = new Map();
+
   for (const item of store.items.values()) {
-    const key = item.guide?.category ?? UNDOCUMENTED;
-    const group = groups.get(key) ?? { category: key, items: [] };
-    group.items.push(item);
-    groups.set(key, group);
+    if (item.guide?.group) {
+      addSection(tagged, item.guide.group, item, guideGroupName(item.guide));
+    } else {
+      const category = item.guide?.category ?? UNDOCUMENTED;
+      addSection(
+        untagged,
+        category,
+        item,
+        category === UNDOCUMENTED ? tr("item.undocumented") : categoryName(item.guide.book, category),
+      );
+    }
   }
 
-  const sections = [...groups.values()];
-  for (const section of sections) {
-    const book = section.items[0].guide?.book;
-    section.name = section.category === UNDOCUMENTED ? tr("item.undocumented") : categoryName(book, section.category);
-    section.sortnum = section.category === UNDOCUMENTED ? Infinity : guideSortnum(book, section.category);
+  return [...orderedSections(untagged), ...orderedSections(tagged)];
+}
+
+function addSection(sections, key, item, name) {
+  const section = sections.get(key) ?? { category: key, name, sortnum: Infinity, items: [] };
+  section.name = name;
+  if (typeof item.guide?.category === "string") {
+    section.sortnum = guideSortnum(item.guide.book, item.guide.category);
   }
-  return sections.sort((a, b) => a.sortnum - b.sortnum || a.name.localeCompare(b.name));
+  section.items.push(item);
+  sections.set(key, section);
+}
+
+/** The book's own order, by the sort number of the category each section came from. */
+function orderedSections(sections) {
+  return [...sections.values()].sort((a, b) => a.sortnum - b.sortnum || a.name.localeCompare(b.name));
 }
 
 /** Opens one item's page, wiring the jumps back to the quest and trade panels. */
@@ -513,19 +541,62 @@ function characterEntries() {
 }
 
 function itemEntries() {
-  const here = (category) => state.section === "item" && state.category === category;
   return [
-    navEntry(here(null), tr("item.all"), allItems().length, null, () => selectCategory(null)),
-    ...itemSections().map((section) =>
-      navEntry(
-        here(section.category),
-        section.name,
-        section.items.length,
-        section.category === UNDOCUMENTED ? tr("item.undocumented") : section.category,
-        () => selectCategory(section.category),
+    navEntry(state.section === "item" && state.category === null, tr("item.all"), allItems().length, null, () =>
+      selectCategory(null),
+    ),
+    ...itemSections().map(itemGroup),
+  ];
+}
+
+/**
+ * One collapsible group of the item sidebar: a heading that folds the group away, and
+ * every item it holds listed underneath as its own entry. Groups start open, since the
+ * sidebar is the way in and a closed group is a group you cannot see. Clicking the
+ * heading also selects the section, which is what the panel below then lists - and
+ * since that redraws the sidebar, whether a group is folded is remembered in `state`
+ * rather than left to the element.
+ */
+function itemGroup(section) {
+  const key = section.category;
+  const title = key === UNDOCUMENTED ? tr("item.undocumented") : String(key);
+  const current = state.section === "item" && state.category === key;
+  return h(
+    "li",
+    {},
+    h(
+      "details",
+      {
+        class: "nav-group",
+        open: !state.collapsed.has(key),
+        ontoggle: (event) => {
+          if (event.target.open) state.collapsed.delete(key);
+          else state.collapsed.add(key);
+        },
+      },
+      h(
+        "summary",
+        { title, "aria-current": String(current), onclick: () => selectCategory(key) },
+        h("span", { text: section.name }),
+        h("span", { class: "count", text: String(section.items.length) }),
+      ),
+      h(
+        "ul",
+        { class: "nav-list nav-items" },
+        ...section.items.map((item) =>
+          h(
+            "li",
+            {},
+            h(
+              "button",
+              { type: "button", title: item.id, onclick: () => openItem(item.id) },
+              h("span", { text: itemLabel(item.id) }),
+            ),
+          ),
+        ),
       ),
     ),
-  ];
+  );
 }
 
 /**

@@ -36,6 +36,12 @@ export const state = {
   character: "all",
   /** The guide category being listed, or null for every item. */
   category: null,
+  /**
+   * Item groups the reader has folded away. The sidebar is redrawn on every selection,
+   * and a `<details>` forgets it was closed when its element is rebuilt, so the state
+   * is kept here - keyed by the section id, which is the same in every language.
+   */
+  collapsed: new Set(),
   tab: "quest",
   query: "",
   /** Dialog files are only fetched the first time the dialog tab is opened. */

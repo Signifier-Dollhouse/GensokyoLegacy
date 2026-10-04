@@ -786,6 +786,16 @@ export function categoryName(book, id) {
   return guideLocale(book).categories.get(id)?.data?.name ?? prettify(id);
 }
 
+/**
+ * The guide's own name for a group of items documented under one tag: the title of the
+ * spotlight that named it, which is translated. The tag id itself is not, so it is only
+ * the fallback and the tooltip.
+ */
+export function guideGroupName(guide) {
+  const data = guideEntry(guide)?.data;
+  return guideSubjects(data).entries.get(guide.subject)?.pages[0]?.title ?? prettify(guide.tag);
+}
+
 /** A category's position in the book, which is the order the item groups follow. */
 export function guideSortnum(book, id) {
   return guideLocale(book).categories.get(id)?.data?.sortnum ?? Infinity;

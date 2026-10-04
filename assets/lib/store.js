@@ -441,7 +441,14 @@ export async function buildItemIndex() {
           if (item.guide) return;
           // Which subject it came under, rather than the pages themselves: those live
           // in per-locale files and are looked up when the page is opened.
-          item.guide = { book, id, category, subject: subject.key, tag: subject.tag ? subject.key : null };
+          item.guide = {
+            book,
+            id,
+            category,
+            subject: subject.key,
+            tag: subject.tag ? subject.key : null,
+            group: subject.tag ? subject.group : null,
+          };
         };
 
         for (const [key, subject] of subjects.entries) {
@@ -480,11 +487,19 @@ export async function buildItemIndex() {
  * What a spotlight page is about: one item, a whole tag of them, or several of either.
  * Patchouli spells a tag reference `tag:namespace:path`, where a datapack would write
  * `#namespace:path`, and lets a spotlight name a list - four noren tags under one title.
+ *
+ * One spotlight may name several tags, and then they are documented together, so what
+ * groups them is the page rather than any one tag. The subjects are ids, the same in
+ * every locale, so their names make a key for the group that does not shift with the
+ * language toggle.
  */
 function guideSubjectsOf(value) {
-  return (Array.isArray(value) ? value : [value])
+  const subjects = (Array.isArray(value) ? value : [value])
     .filter((entry) => typeof entry === "string")
     .map((entry) => (entry.startsWith("tag:") ? { key: entry.slice(4), tag: true } : { key: entry, tag: false }));
+  const group = subjects.map((subject) => subject.key).sort().join("|");
+  for (const subject of subjects) subject.group = group;
+  return subjects;
 }
 
 /**
@@ -508,8 +523,10 @@ export function guideSubjects(entry) {
     if (spotlights.length) current = spotlights;
 
     for (const subject of current) {
-      // The key rides along on the subject, so a caller holding one knows what it names.
-      const found = entries.get(subject.key) ?? { key: subject.key, tag: subject.tag, pages: [] };
+      // The key and the group ride along on the subject, so a caller holding one knows
+      // what it names and which page named it.
+      const found =
+        entries.get(subject.key) ?? { key: subject.key, tag: subject.tag, group: subject.group, pages: [] };
       found.pages.push(page);
       entries.set(subject.key, found);
     }
