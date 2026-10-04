@@ -2,6 +2,7 @@ package dev.xkmc.gensokyolegacy.content.block.functional.portal;
 
 import dev.xkmc.gensokyolegacy.content.attachment.gap.GapMapping;
 import dev.xkmc.gensokyolegacy.content.dimension.GLDimensionGen;
+import dev.xkmc.gensokyolegacy.content.dimension.GensokyoDimension;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
@@ -35,7 +36,7 @@ public class GapPortalForcer {
 		ServerLevel sourceLvl = sourceLevel.getServer().getLevel(ResourceKey.create(Registries.DIMENSION, sourceDim));
 		if (sourceLvl == null) sourceLvl = sourceLevel;
 		boolean sourceInGap = sourceDim.equals(GLDimensionGen.GAP.location());
-		ServerLevel targetLevel = sourceInGap ? sourceLevel.getServer().overworld()
+		ServerLevel targetLevel = sourceInGap ? sourceLevel.getServer().getLevel(GensokyoDimension.GENSOKYO)
 				: sourceLevel.getServer().getLevel(GLDimensionGen.GAP);
 		if (targetLevel == null) targetLevel = sourceLevel;
 		ResourceLocation targetDim = targetLevel.dimension().location();

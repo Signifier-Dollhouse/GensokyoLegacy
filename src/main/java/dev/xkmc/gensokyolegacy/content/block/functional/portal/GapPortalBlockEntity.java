@@ -103,7 +103,7 @@ public class GapPortalBlockEntity extends BaseBlockEntity implements IPortalBloc
 	 *       {entry=here, exit=null} and replace hand with same-uuid EXIT item (see {@link GapPortalItem}).
 	 *       Consistent whether in GAP or not.</li>
 	 *   <li>Use EXIT item on ENTRY portal (same uuid) while pending: generates the missing side
-	 *       – non-GAP entry → GAP exit (proportional Y), GAP entry → overworld exit (spawn).
+	 *       – non-GAP entry → GAP exit (proportional Y), GAP entry → Gensokyo exit (proportional Y).
 	 *       Also handles the mirrored case (EXIT block + ENTRY item). Consumes the item.</li>
 	 *   <li>Item with uuid+side on complete pair: moves the side matching its side.</li>
 	 *   <li>Picking up via {@link GapPortalBlock} clears that endpoint (making pending) and gives item with side.</li>
