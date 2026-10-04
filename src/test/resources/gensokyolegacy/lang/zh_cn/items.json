@@ -84,7 +84,11 @@
 		"lettered_white_lantern": "带字白灯笼",
 		"wrought_iron_bars": "铁艺护栏",
 		"wrought_iron_pillar": "铁艺立柱",
-		"neiton_noren": "霓吞町门帘"
+		"neiton_noren": "霓吞町门帘",
+		"magic_table": "魔法道具工作台",
+		"sewing_machine": "缝纫机",
+		"magic_potion_bottle": "魔药瓶",
+		"candlestick": "烛台"
 	},
 	"item.gensokyolegacy": {
 		"doll": "人形",

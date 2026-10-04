@@ -1,0 +1,7 @@
+{
+  "parent": "gensokyolegacy:custom/deco/magic_table_item",
+  "render_type": "minecraft:cutout",
+  "textures": {
+    "all": "gensokyolegacy:block/deco/magic_table"
+  }
+}
