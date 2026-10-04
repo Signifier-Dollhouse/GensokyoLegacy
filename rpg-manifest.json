@@ -645,11 +645,12 @@
             "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/en_us/entries/alchemy/ingredients.json",
             "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/en_us/entries/alchemy/witch_brewing.json",
             "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/en_us/entries/decoration/building_blocks.json",
+            "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/en_us/entries/decoration/character_beds.json",
+            "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/en_us/entries/decoration/indoor_deco.json",
             "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/en_us/entries/decoration/seats.json",
             "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/en_us/entries/decoration/shelves.json",
             "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/en_us/entries/decoration/sliding_door.json",
             "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/en_us/entries/decoration/tables.json",
-            "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/en_us/entries/decoration/tatami.json",
             "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/en_us/entries/dolls/doll.json",
             "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/en_us/entries/dolls/doll_glove.json",
             "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/en_us/entries/dolls/doll_loadout.json",
@@ -687,11 +688,12 @@
             "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/zh_cn/entries/alchemy/ingredients.json",
             "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/zh_cn/entries/alchemy/witch_brewing.json",
             "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/zh_cn/entries/decoration/building_blocks.json",
+            "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/zh_cn/entries/decoration/character_beds.json",
+            "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/zh_cn/entries/decoration/indoor_deco.json",
             "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/zh_cn/entries/decoration/seats.json",
             "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/zh_cn/entries/decoration/shelves.json",
             "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/zh_cn/entries/decoration/sliding_door.json",
             "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/zh_cn/entries/decoration/tables.json",
-            "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/zh_cn/entries/decoration/tatami.json",
             "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/zh_cn/entries/dolls/doll.json",
             "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/zh_cn/entries/dolls/doll_glove.json",
             "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/zh_cn/entries/dolls/doll_loadout.json",
@@ -785,6 +787,6 @@
     "trade": 44,
     "files": 303,
     "recipes": 290,
-    "guideEntries": 56
+    "guideEntries": 58
   }
 }
