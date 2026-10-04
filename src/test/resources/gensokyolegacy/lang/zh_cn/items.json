@@ -1,12 +1,12 @@
 {
-	"entity.gensokyolegacy.fairy_ice_crystal": "妖精冰晶",
+	"entity.gensokyolegacy.fairy_ice_crystal": "冰晶",
 	"entity.gensokyolegacy.frozen_frog": "冻青蛙",
 	"entity.gensokyolegacy.hexbrew_bottle": "魔药瓶",
-	"entity.gensokyolegacy.iron_dagger": "铁匕首",
+	"entity.gensokyolegacy.iron_dagger": "飞刀",
 	"fluid.gensokyolegacy": {
 		"mundane_hexbrew": "魔药溶剂",
 		"hexbrew_elixir": "魔药精华",
-		"explosive_hexbrew": "爆爆魔药",
+		"explosive_hexbrew": "爆炸魔药",
 		"miasma_hexbrew": "腐瘴魔药",
 		"shield_hexbrew": "护盾魔药",
 		"starlight_hexbrew": "星辰魔药",
@@ -14,13 +14,16 @@
 		"witch_hexbrew": "女巫魔药",
 		"witch_splash": "喷溅型女巫魔药"
 	},
-	"entity.gensokyolegacy.doll": "人形",
+	"entity.gensokyolegacy.doll": "人偶",
 	"entity.gensokyolegacy.dining_chair": "餐椅",
 	"entity.gensokyolegacy.broom": "扫帚",
 	"block.gensokyolegacy": {
 		"donation_box": "赛钱箱",
 		"evergreen_vine": "常青垂藤",
 		"cedar_fallen_leaves": "青杉落叶",
+		"darkstone": "宵暗石",
+		"darkstone_bricks": "宵暗瓦片",
+		"chiseled_darkstone_bricks": "雕纹宵暗瓦片",
 		"cirno_bed": "琪露诺的床",
 		"rumia_bed": "露米娅的床",
 		"reimu_bed": "博丽灵梦的床",
@@ -167,6 +170,22 @@
 				}
 			]
 		},
+		"bricks": {
+			"path": "block.gensokyolegacy",
+			"list": [
+				{
+					"packed_ice": "浮冰",
+					"snow": "雪",
+					"darkstone": "宵暗石",
+					"darkstone_brick": "宵暗瓦"
+				},
+				{
+					"slab": "台阶",
+					"stairs": "楼梯",
+					"vertical_slab": "墙"
+				}
+			]
+		},
 		"wood_furniture": {
 			"path": "block.gensokyolegacy",
 			"list": [
@@ -260,10 +279,10 @@
 					"yellow": "黄色"
 				},
 				{
-					"tiles": "瓷砖",
-					"tiles_slab": "瓷砖台阶",
-					"tiles_stairs": "瓷砖楼梯",
-					"tiles_vertical_slab": "瓷砖墙"
+					"tiles": "瓦片",
+					"tiles_slab": "瓦片台阶",
+					"tiles_stairs": "瓦片楼梯",
+					"tiles_vertical_slab": "瓦片墙"
 				}
 			]
 		}
