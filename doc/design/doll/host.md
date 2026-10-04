@@ -38,7 +38,7 @@ her (§6):
 | `detach` | cuts a doll loose (stray) | refused; she issues no suicide order, so it is never asked for |
 | `onDeath` | recovery is the reconcile pass | no-op; the reconcile pass drops the entry (§2.1) |
 | size | the player's collection | a **roster** sized by her post (§3) |
-| arming | the player's choice | star wands iff she is fighting, talismans iff spendable (§4) |
+| arming | the player's choice | a lance or a wand iff she is fighting, talismans iff spendable (§4) |
 | orders | the glove, player-driven | she issues them herself (§5) |
 
 A doll is created **on demand**: the roster grows as her post asks for more, rather than conjuring eight up front and leaving seven standing around.
@@ -75,21 +75,57 @@ A retired doll is parked `TEMP` and conjured again when the roster grows. Its en
 
 Note the at-home post depends on `MemoryModuleType.HOME` being present — an Alice with no bed bound to a home is never "indoors" and keeps the outdoor escort. The bed is what earns her the smaller roster.
 
-## 4. Arming — star wands iff combat, talismans iff spendable
+## 4. Arming — lances and wands iff combat, talismans iff spendable
 
-A doll gets a `StarWandItem` in its **main hand** the moment `Post.COMBAT` begins
-and loses it the moment that ends. This is exact and bidirectional, not "armed
-until she runs dry":
+A doll gets a weapon in its **main hand** the moment `Post.COMBAT` begins and
+loses it the moment that ends. This is exact and bidirectional, not "armed until
+she runs dry":
 
-- outside combat, no doll holds a wand, so a `REGULAR_ATTACK` order cannot be
+- outside combat, no doll holds anything, so a `REGULAR_ATTACK` order cannot be
   *accepted* at all (`canAccept` requires a matching hand) — an unarmed doll is not
   merely idle, it is incapable.
 - in combat, every doll is armed within the same tick the post flips, because
   `arm()` walks the roster and mutates the ledger loadout directly.
 
-The wands are hers, not loot: they are conjured alongside the dolls and vanish
-with them. Nothing is consumed and nothing is dropped, so the fight costs her
+### 4.1 The split — half lances, half wands
+
+**Not** eight identical shooters. The roster divides: **even ledger slots take a
+`DollLanceItem`, odd slots a `StarWandItem`**, so a full combat roster fields 4
+lancers and 4 shooters, a 6-doll roster 3 and 3. One is a
+`DollMeleeBehavior` charge (§5.1b), the other a `DollDanmakuBehavior` shot, and
+neither has to be told — the weapon decides, through the same registry the
+player's glove goes through. A doll with no danmaku item charges; a doll with a
+lance never shoots, because the lance is registered *below* danmaku and nothing
+else competes for its hand.
+
+Parity is the whole rule, and it is deliberately **stateless**: no assigned-weapon
+field to keep in step with the roster, nothing to serialize, nothing to migrate.
+A doll that is parked and conjured again comes back with whatever its slot says,
+which is the same thing it had. The only thing that shifts a doll's slot is a
+**destroyed** entry dropping out of the ledger, and that is already the moment the
+roster has changed underneath her — the one doll that changed flank is cheaper than
+a second field.
+
+It is also free visually. The follow formation is indexed in ledger order too
+(`FollowDollOwnerGoal`, entity.md §3.2), and the arc runs slot 0 to slot n−1 from
+one flank, up over the top and down to the other, so parity splits the arc itself:
+**the lances hang on one side and the wands on the other**, the retinue reading as
+a left flank and a right flank rather than a uniform cloud.
+
+The two halves are not interchangeable at range, and that is the point of the
+split. The charge has to *start* inside its 16-block engage range — a doll idling
+in formation 2–6 blocks off Alice, while Alice herself holds a 16–24 band from
+the target (§5.1), is often outside it, and the wand has no such limit. So a lancer
+is a doll that engages when the mob comes to it, and a shooter is a doll that never
+has to. `command()` accounts for this rather than feeding the charge work it cannot
+do (§5).
+
+The weapons are hers, not loot: they are conjured alongside the dolls and vanish
+with them. Nothing is consumed and nothing is dropped — the lance has no durability
+at all (item.md §9) and the star wand is never spent — so the fight costs her
 nothing but the attention.
+
+### 4.2 The talisman
 
 A folded **heal talisman sits in the off hand only while it can be spent** — in
 combat, or when anyone in reach is actually hurt — and leaves both hands again when
@@ -113,21 +149,26 @@ one put away goes back to the air it was folded from, and the next emergency get
 fresh one. The two hands do not contend: `REGULAR_ATTACK` and `HEAL` are different
 action types and a doll only ever holds one ticket.
 
-`arm()` therefore has to own the **whole** loadout, not just the wand. The heal
+`arm()` therefore has to own the **whole** loadout, not just the weapon. The heal
 behaviour has a sticky swap (control.md §2): acting on an off-hand item moves it
 into the main hand and leaves it there, because main-hand-ness *is* the doll's
 standing choice of hand. A doll that has just healed is therefore holding the
-talisman in the **main** hand and the wand in the off hand. A pass that only
-policed the main hand for the wand would leave that talisman sitting there, and
+talisman in the **main** hand and its weapon in the off hand. A pass that only
+policed the main hand for the weapon would leave that talisman sitting there, and
 then refuel the off hand on top of it — the doll ends up carrying two. So `arm()`:
 
 1. hands any main-hand talisman **back to the off hand, keeping the stack**
    (moving it, not refolding a fresh one — otherwise every heal burns a talisman),
    but only while one is wanted at all, and empties the main hand either way, since
-   that is the hand the wand owns;
-2. sets the main hand to the wand iff in combat, empty otherwise;
+   that is the hand the weapon owns;
+2. sets the main hand to this slot's weapon iff in combat, empty otherwise;
 3. refolds the off hand when a talisman is wanted and what is there is not a usable
    one, or empties the off hand when none is wanted.
+
+Step 2 is an **identity** test, not "does it hit at all". The lance is bound by an
+exact `stack.is(GLItems.DOLL_LANCE.get())` match, so a doll that somehow came back
+holding a *different* danmaku item would keep it, and one holding something with no
+lance match has to be replaced rather than counted as armed.
 
 Note the ordering: a talisman is judged **once per pass**, not per doll, so a doll
 cannot be seen with a charm the pass has already decided nobody needs.
@@ -166,8 +207,8 @@ out the next time she goes to the park.
 ```
 claimed = every target some doll is already holding a ticket for
 
-pass 1 (spread):   for each free doll -> first valid target not in claimed
-pass 2 (overflow): for each still-free doll -> the first valid target, claimed or not
+pass 1 (spread):   for each free doll -> first valid target not in claimed that it can reach
+pass 2 (overflow): for each still-free doll -> first valid target it can reach, claimed or not
 ```
 
 **Pass 1 is the spread**: a doll takes a mob no other doll is engaged with, so a
@@ -179,6 +220,27 @@ exactly one doll shooting and seven standing idle — which reads as the dolls n
 working at all. "One doll per mob" is a *preference for the first pass*, never a
 cap on how many may engage a given mob.
 
+**Both passes skip a doll that cannot reach the mob** — `canReach` on the behavior
+its own weapon resolves to, asked per doll with a fresh instance so it costs nothing
+(control.md §5.1b). This only became a real question when the roster split (§4.1).
+The charge has to *start* inside its 16-block engage range, and her dolls start
+their orders in formation 2–6 blocks off Alice while she holds a 16–24 band from
+the target (§5.1) — so a lancer is routinely out of reach of the mob she is
+pointed at. Two things go wrong if it is not filtered. The order itself is dead on
+arrival: `DollCommandGoal.checkStartTimeouts` sees `!canReach` and completes the
+ticket that same tick, so it drains rather than acting. And because a drained
+lancer is free again by the next pass, the pass would re-offer it the same dud
+forever, claiming a mob in the spread step that the shooter it displaced never gets
+— one permanently misassigned slot per lancer, on every pass, every fight.
+
+Leaving it waiting is the honest result rather than a shortfall. A lance is not a
+ranged weapon; a lancer whose mob is out of charge range stands in formation and
+engages when the mob closes, which is what the weapon is for. `nextFree` taking the
+reach as part of its filter is also what lets a *nearby* mob win the overflow pass
+over the primary one — pass 2 is "first target it can reach", so a lancer that
+cannot touch the mob she is fixated on takes the closer one instead of standing
+idle beside it.
+
 **One-time, not iterative.** The iterative mode exists to chain a *single player
 order* across dolls so a volley spreads over time without a central cursor. That
 is exactly the wrong tool here: Alice is not issuing one order, she is
@@ -189,8 +251,11 @@ immediately instead of queueing behind nine.
 
 What paces the shooting is therefore not Alice at all but each doll's own danmaku
 cooldown (`DollDanmakuBehavior`, 20 ticks). Throughput is one shot per doll per
-cooldown, and with a full combat roster that is a shot every half second from
-every doll at once — the "non-stop" is emergent, not scripted.
+cooldown, and with the wand half of a full combat roster that is a shot every half
+second from every shooter at once — the "non-stop" is emergent, not scripted. The
+lance half is paced the same way (`COOLDOWN_TICKS` 20, the identical constant) but
+bounds itself: a charge that misses returns home on its own rather than
+re-engaging (§5.1b).
 
 Targets come from `YoukaiTargetContainer` (her own hostile list, non-players)
 plus her current melee target by hand, since the container deliberately tracks
@@ -255,6 +320,7 @@ Other edge cases:
   2. `DollCommander`'s resolution refuses to return a doll whose host it cannot resolve, so a useless doll is never counted live and can never suppress its own conjure. This is what makes any ledger heal out of a wedged roster rather than needing the one above to hold.
   3. `reconcile` parks a hostless doll like any other unusable one, and `reconcile` reports whether it repaired anything so the conjure happens in the same tick rather than up to a second later.
 - **A doll drifts off.** Past `DollHost.PULLBACK_DISTANCE` (or into another dimension) the reconcile pass discards it and parks the entry; the next conjure brings it back at her side.
-- **A retired doll stays armed.** `arm` walks the whole ledger, not just the live dolls, so a doll parked mid-fight does not carry a wand back out the next time she goes to the park.
+- **A retired doll stays armed.** `arm` walks the whole ledger, not just the live dolls, so a doll parked mid-fight does not carry a weapon back out the next time she goes to the park — a lance or a wand, whichever its slot says.
+- **A destroyed doll shifts the split.** Slots are parity over ledger order and the ledger drops a destroyed entry outright (§2.1), so every doll after it moves one slot and swaps weapon. Only the frame of the fight, only by one, and the alternative is a second field to serialize and keep in step with a roster that is already rebuilt every tick.
 - **Dolls never itemize.** `mobInteract`'s empty-hand recall is gated on `isPlayerOwned()`, so a creative player cannot pull one of Alice's dolls into their inventory. Her dolls have no item form at all.
 - **No strays.** `detach` is refused. A stray needs somewhere to hand its entry back to and Alice has no way to take one in, so she never creates one — she issues no `SUICIDE_ATTACK`, the only thing that cuts a doll loose.

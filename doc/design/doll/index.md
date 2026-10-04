@@ -36,7 +36,7 @@ Entity ↔ `DollData` identity is the entity's **own game uuid**, minted fresh o
 | [entity.md](entity.md) | `BaseDollEntity` (pairing + foundational properties) vs `DollEntity` (doll-specific logic + rendering-facing hooks); movement/navigation, value sync, never-save guard, rendering | implemented |
 | [item.md](item.md) | the doll item, significant values, item ↔ data conversion, trading | implemented |
 | [controller.md](controller.md) | block-hosted dolls — the doll controller block and its block entity as a `DollHost` | implemented (block registration pending) |
-| [host.md](host.md) | character-hosted dolls — the `DollHost` command surface, living-entity hosts, and Alice's retinue (roster by post, star-wand arming, one-time orders) | implemented |
+| [host.md](host.md) | character-hosted dolls — the `DollHost` command surface, living-entity hosts, and Alice's retinue (roster by post, half-lance/half-wand arming, one-time orders) | implemented |
 | [loadout.md](loadout.md) | the four held item slots (main hand / off hand / cloth / core), synced entity data, loadout editor menu, item rendering TODO | implemented |
 | [control.md](control.md) | doll actions (ticket, single execution), the four action types, heal-mark targets, iterative command sequences | framework implemented (glove pending) |
 | [glove.md](glove.md) | the Seven-Colored Doll Glove: modes, itemselector wheel, network, registration | planned |
