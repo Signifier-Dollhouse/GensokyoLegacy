@@ -1,0 +1,35 @@
+{
+  "parent": "gensokyolegacy:main/obtain_mermaid_pearl",
+  "criteria": {
+    "0": {
+      "conditions": {
+        "items": [
+          {
+            "items": "gensokyolegacy:iron_dagger"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "announce_to_chat": false,
+    "description": {
+      "translate": "advancements.gensokyolegacy.main.obtain_iron_dagger.description"
+    },
+    "icon": {
+      "count": 1,
+      "id": "gensokyolegacy:iron_dagger"
+    },
+    "show_toast": false,
+    "title": {
+      "translate": "advancements.gensokyolegacy.main.obtain_iron_dagger.title"
+    }
+  },
+  "requirements": [
+    [
+      "0"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

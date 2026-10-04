@@ -46,6 +46,9 @@ public class GLAdvGen {
 	public static final ResourceLocation OBTAIN_SEALING_POT = GensokyoLegacy.loc("main/obtain_sealing_pot");
 	public static final ResourceLocation OBTAIN_GAP_PORTAL = GensokyoLegacy.loc("main/obtain_gap_portal");
 	public static final ResourceLocation OBTAIN_BORDER_UMBRELLA = GensokyoLegacy.loc("main/obtain_border_umbrella");
+	public static final ResourceLocation OBTAIN_BROOM = GensokyoLegacy.loc("main/obtain_broom");
+	public static final ResourceLocation OBTAIN_IRON_DAGGER = GensokyoLegacy.loc("main/obtain_iron_dagger");
+	public static final ResourceLocation OBTAIN_DAGGER_GLOVE = GensokyoLegacy.loc("main/obtain_dagger_glove");
 
 	public static void genAdv(RegistrateAdvancementProvider pvd) {
 		pvd.accept(Advancement.Builder.advancement().addCriterion("koishi_first",
@@ -90,6 +93,10 @@ public class GLAdvGen {
 				.create("obtain_sealing_pot", GLBlocks.SEALING_POT.asItem(),
 						CriterionBuilder.item(GLBlocks.SEALING_POT.asItem()),
 						"Sealing Pot", "Obtain a Sealing Pot")
+				.type(AdvancementType.TASK, false, false, false)
+				.create("obtain_broom", GLItems.BROOM.get(),
+						CriterionBuilder.item(GLItems.BROOM.get()),
+						"Flying Broom", "Obtain a Flying Broom")
 				.type(AdvancementType.TASK, false, false, false);
 		hakurei.create("obtain_talisman", GLTalismans.HEAL_TALISMAN.get(),
 						CriterionBuilder.item(GLTagGen.TALISMAN),
@@ -122,6 +129,17 @@ public class GLAdvGen {
 		morichika.create("obtain_mermaid_pearl", GLItems.MERMAID_PEARL.get(),
 						CriterionBuilder.item(GLItems.MERMAID_PEARL.get()),
 						"Mermaid's Pearl", "Obtain a Mermaid's Pearl")
+				.type(AdvancementType.TASK, false, false, false)
+				// The dagger pair: the glove is spent iron daggers, so it follows the dagger
+				// rather than sitting beside it. Neither has a source of its own yet, so they
+				// hang off Morichika as a placeholder until one does.
+				.create("obtain_iron_dagger", GLItems.IRON_DAGGER.get(),
+						CriterionBuilder.item(GLItems.IRON_DAGGER.get()),
+						"Iron Dagger", "Obtain an Iron Dagger")
+				.type(AdvancementType.TASK, false, false, false)
+				.create("obtain_dagger_glove", GLItems.DAGGER_GLOVE.get(),
+						CriterionBuilder.item(GLItems.DAGGER_GLOVE.get()),
+						"Dagger Glove", "Obtain a Dagger Glove")
 				.type(AdvancementType.TASK, false, false, false);
 		root.finish();
 	}

@@ -5,3 +5,4 @@
 - doll improvements, bag
 
 - alice structure, marisa alice chat missing structure condition
+- new patchouli entry advancement lock (broom, dagger, dagger glove)

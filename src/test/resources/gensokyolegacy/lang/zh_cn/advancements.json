@@ -42,6 +42,10 @@
 					"title": "隙间伞",
 					"description": "获得隙间伞"
 				},
+				"obtain_broom": {
+					"title": "飞行扫帚",
+					"description": "获得飞行扫帚"
+				},
 				"obtain_mini_hakkero": {
 					"title": "迷你八卦炉",
 					"description": "获得迷你八卦炉·原型"
@@ -61,6 +65,14 @@
 				"obtain_mermaid_pearl": {
 					"title": "人鱼珍珠",
 					"description": "获得人鱼珍珠"
+				},
+				"obtain_iron_dagger": {
+					"title": "铁匕首",
+					"description": "获得铁匕首"
+				},
+				"obtain_dagger_glove": {
+					"title": "匕首手套",
+					"description": "获得匕首手套"
 				}
 			}
 		}
