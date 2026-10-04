@@ -25,7 +25,7 @@
       "type": "patchouli:spotlight",
       "item": "tag:gensokyolegacy:tile_variants",
       "title": "Glazed Tiles",
-      "text": "Tiles come in seven colors: cyan, orange, yellow, brown, blue, black and gray. Every color has a full block, stairs, a slab and a vertical slab, which is a half-height piece standing against the wall you click. The three shapes come off the tile block on the stonecutter."
+      "text": "Tiles come in seven colors: cyan, orange, yellow, brown, blue, black and gray. They are glazed the way terracotta is stained: put a dye in the middle of eight deepslate tiles and you get eight tiles in that color. Every color has a full block, stairs, a slab and a vertical slab, which is a half-height piece standing against the wall you click. The three shapes come off the tile block on the stonecutter."
     }
   ]
 }
