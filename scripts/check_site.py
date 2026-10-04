@@ -3,8 +3,13 @@
 
 JSC on macOS cannot parse ES modules and there is no node in this environment, so
 this uses tree-sitter to (a) find syntax errors, (b) verify every imported name is
-actually exported by the target module, (c) report unused imports, and (d) check
-that every interface string is translated in both locales.
+actually exported by the target module, (c) report unused imports, (d) report names a
+module uses but never binds or imports, and (e) check that every interface string is
+translated in both locales. It also checks the logo against the mod's texture.
+
+(d) is the one that earns its keep: a module assembled from its neighbours for testing
+sees all of their bindings, so a forgotten import passes (a), (b) and (c) alike and only
+fails in a browser, as a `ReferenceError` on whichever view happens to call it.
 
 Usage: python3 scripts/check_site.py
 """
@@ -90,6 +95,120 @@ def walk(node):
 
 def identifiers_in(source: bytes) -> list[str]:
     return [text_of(node, source) for node in walk(parser.parse(source).root_node) if node.type == "identifier"]
+
+
+# Names a module may use without declaring or importing them: the browser globals the
+# site touches, plus the language builtins. Everything else has to come from somewhere
+# the checker can see, which is the point of `check_undefined`.
+GLOBALS = {
+    # browser
+    "window", "document", "fetch", "location", "history", "navigator", "localStorage",
+    "matchMedia", "console", "alert", "addEventListener", "removeEventListener", "setTimeout",
+    "clearTimeout", "requestAnimationFrame", "structuredClone", "Node", "Element", "URL",
+    "URLSearchParams", "AbortController", "Event", "CustomEvent", "TextDecoder", "TextEncoder",
+    "Intl", "performance",
+    # language
+    "Array", "Boolean", "Date", "Error", "Infinity", "JSON", "Map", "Math", "NaN", "Number",
+    "Object", "Promise", "Proxy", "RegExp", "Set", "String", "Symbol", "WeakMap", "WeakSet",
+    "BigInt", "decodeURIComponent", "encodeURIComponent", "isNaN", "parseInt", "parseFloat",
+    "undefined", "globalThis", "globalThis",
+}
+
+# Node types that introduce a binding of their own, and so must not be descended into
+# wholesale: the names they bind are their name and their parameters, never their body.
+NAME_AND_PARAMETERS = {
+    "function_declaration", "function_expression", "generator_function", "generator_function_declaration",
+    "arrow_function", "method_definition", "class_declaration", "class",
+}
+
+
+def declared_names(source: bytes) -> set[str]:
+    """Every name the module binds: top level, parameters, locals and imports.
+
+    Only the *names* are collected - a function body contributes its own declarations as
+    it is walked, not everything it mentions. Descending into bodies would declare every
+    name a module uses, which is exactly what the check is meant to catch.
+    """
+    names: set[str] = set()
+
+    def name_of(node) -> None:
+        if node is None:
+            return
+        if node.type in ("identifier", "property_identifier", "shorthand_property_identifier"):
+            names.add(text_of(node, source))
+
+    def bind_pattern(node) -> None:
+        """An identifier inside a parameter, destructuring or loop-head pattern."""
+        if node is None:
+            return
+        if node.type in ("identifier", "shorthand_property_identifier_pattern", "property_identifier"):
+            names.add(text_of(node, source))
+            return
+        if node.type == "variable_declarator":
+            bind_pattern(child_by_field(node, "name"))
+            return
+        for child in node.named_children:
+            bind_pattern(child)
+
+    def parameters_of(node):
+        found = child_by_field(node, "parameters")
+        if found is not None:
+            return found
+        for child in node.named_children:
+            if child.type == "formal_parameters":
+                return child
+        return None
+
+    def bind(node) -> None:
+        """Binds what a declaration introduces. A bare identifier is a *use* of a name,
+        not a declaration of one, so it binds nothing - that is the whole check."""
+        if node is None:
+            return
+        if node.type == "variable_declarator":
+            bind_pattern(child_by_field(node, "name"))
+        elif node.type == "import_specifier":
+            name_of(child_by_field(node, "alias") or child_by_field(node, "name"))
+        elif node.type in NAME_AND_PARAMETERS:
+            name_of(child_by_field(node, "name"))
+            bind_pattern(parameters_of(node))
+        elif node.type == "catch_clause":
+            bind_pattern(child_by_field(node, "parameter"))
+        elif node.type in ("for_in_statement", "for_statement"):
+            # The loop head is a bare pattern in this grammar, with no declarator around it.
+            bind_pattern(child_by_field(node, "left"))
+
+    for node in walk(parser.parse(source).root_node):
+        bind(node)
+    # `export { a, b }` re-exports names bound elsewhere in the module.
+    for node in walk(parser.parse(source).root_node):
+        if node.type == "export_clause":
+            for specifier in node.named_children:
+                bind_pattern(child_by_field(specifier, "alias") or child_by_field(specifier, "name"))
+    return names
+
+
+def check_undefined(path: Path, source: bytes) -> int:
+    """Names a module uses but never binds or imports.
+
+    A module concatenated with its neighbours for testing sees all of their bindings, so
+    a missing import passes every other check here and only fails in a browser, as a
+    `ReferenceError` on whichever view happens to call it.
+    """
+    bound = declared_names(source) | GLOBALS
+    failures = 0
+    reported: set[str] = set()
+    for node in walk(parser.parse(source).root_node):
+        # `obj.prop` is a property, not a reference: the parser gives it its own node type.
+        if node.type != "identifier":
+            continue
+        name = text_of(node, source)
+        if name in bound or name in reported:
+            continue
+        reported.add(name)
+        failures += 1
+        line = source[: node.start_byte].count(b"\n") + 1
+        print(f"undefined name: {path.relative_to(ROOT)}:{line} {name!r} is used but never imported or declared")
+    return failures
 
 
 def top_level_declarations(source: bytes) -> list[tuple[str, str]]:
@@ -321,12 +440,16 @@ def main() -> int:
                     failures += 1
                     print(f"unused import: {path.relative_to(ROOT)} {name!r} from {specifier}")
 
+    for path, source in sources.items():
+        failures += check_undefined(path, source)
+
     failures += check_i18n(sources)
 
     if failures:
         print(f"\n{failures} problem(s)")
     else:
         print(f"ok: {len(files)} modules parsed, imports, exports and translations resolve")
+        print("ok: every name used is imported or declared")
         print(f"ok: {LOGO.relative_to(ROOT)} matches the mod's texture")
     return 1 if failures else 0
 

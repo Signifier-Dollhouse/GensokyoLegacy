@@ -27,6 +27,7 @@ import {
 } from "./lib/store.js";
 import {
   categoryName,
+  collapsible,
   guideEntryName,
   guideSortnum,
   itemRow,
