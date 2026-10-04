@@ -368,7 +368,8 @@ cooldown started) and has no held stack to pay from.
 
 ## 6. Selector + wheel
 
-Mirror of `DollGloveSelectionListener` (`glove.md` §3), minus the display-component trick:
+Mirror of `DollGloveSelectionListener` (`glove.md` §3), with the icon-component trick kept (§6b)
+since the glove has three visually distinct modes:
 
 - `DaggerGloveSelectionListener` — `extends IItemSelector implements WheelAdaptor.Provider`, id
   `gensokyolegacy:dagger_glove`, `test(stack)` = `instanceof DaggerGloveItem`. All three modes are
@@ -376,15 +377,14 @@ Mirror of `DollGloveSelectionListener` (`glove.md` §3), minus the display-compo
 - `DaggerGloveModeWheel` (`PersistentWheel<DaggerGloveModeEntry>`) + `DaggerGloveModeEntry` render
   one entry per mode; `select(index)` sends `SelectorSelectPacket(index)`, shared with the doll glove and the umbrella.
 - No glove-specific select packet: the mode pick rides the shared selector-wheel packet, `content/item/common/network/SelectorSelectPacket.java`, which resolves the held stack to its own `IItemSelector` and calls `swap`.
-- Data components: `DAGGER_GLOVE_MODE` (`DC.enumVal` over the enum, persistent) and
-  `DAGGER_GLOVE_RUNE` (`DC.loc`).
+- Data components: `DAGGER_GLOVE_MODE` (`DC.enumVal` over the enum, persistent),
+  `DAGGER_GLOVE_RUNE` (`DC.loc`) and `DAGGER_GLOVE_ICON` (`DC.unit`, §6b).
 
-Wheel entries render a **fresh glove stack carrying the mode**, the same trick as
-`DollGloveItem.displayStack`, driven here by the `dagger_glove_display` model predicate rather than a
-separate icon component, because the dagger glove's modes are not hidden from the wheel and so need
-no distinct icon variants. Every mode currently wears the same glove art, so the wheel tells the
-modes apart by the name it draws under the hovered entry; the per-mode overrides stay so that
-distinct per-mode art can be dropped into the four texture paths without touching the wheel.
+Wheel entries **and the scroll sidebar** render an **icon stack carrying the mode**, the same
+trick as `DollGloveItem.iconStack`, driven by an `DAGGER_GLOVE_ICON` unit component that
+`displayPredicate` reads to emit the icon range instead of the held range (§6b). The held
+per-mode textures are identical copies of one glove, so a display stack would show the same
+picture three times in a row in both places.
 
 ### 6a. Held model
 
