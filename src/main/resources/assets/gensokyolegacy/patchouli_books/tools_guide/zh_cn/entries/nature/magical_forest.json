@@ -6,8 +6,7 @@
   "sortnum": 1,
   "pages": [
     {
-      "type": "patchouli:spotlight",
-      "item": "gensokyolegacy:demonic_miasma_mushroom",
+      "type": "patchouli:text",
       "title": "魔法之森",
       "text": "茂密的主世界生物群系，高大的青杉与巨型蘑菇遮天蔽日：鬼火菇、梦华菇与妖瘴菇。进入这里会获得这本指南。小心巨伞之间的雾气：有些雾是会咬人的。"
     },

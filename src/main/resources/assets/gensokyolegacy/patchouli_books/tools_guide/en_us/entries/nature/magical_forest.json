@@ -6,8 +6,7 @@
   "sortnum": 1,
   "pages": [
     {
-      "type": "patchouli:spotlight",
-      "item": "gensokyolegacy:demonic_miasma_mushroom",
+      "type": "patchouli:text",
       "title": "Forest of Magic",
       "text": "A dense overworld biome of towering blue firs and giant mushrooms: Ghost Fire, Dream, and Demonic Miasma. Entering it earns you this guide. Watch the haze between the great caps: some of it bites."
     },
