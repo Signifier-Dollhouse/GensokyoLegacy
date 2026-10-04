@@ -12,6 +12,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.properties.Half;
+import net.minecraft.world.level.block.state.properties.StairsShape;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 
@@ -21,6 +23,7 @@ public abstract class HorizontalLoggedBlock extends HorizontalDirectionalBlock i
 
 	public HorizontalLoggedBlock(Properties pProperties) {
 		super(pProperties);
+		this.registerDefaultState(this.stateDefinition.any().setValue(WATERLOGGED, false));
 	}
 
 	public void neighborChanged(BlockState pState, Level pLevel, BlockPos pPos, Block pBlock, BlockPos pFromPos, boolean pIsMoving) {

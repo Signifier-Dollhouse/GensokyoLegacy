@@ -32,6 +32,9 @@ public class GLTagGen {
 
 	public static final TagKey<Item> TALISMAN = item("talisman");
 
+	/** The talisman papers themselves, without the folded charm every one of them turns into. */
+	public static final TagKey<Item> TALISMAN_PAPERS = item("talisman_papers");
+
 	public static final TagKey<Item> MORICHIKA_OFFERS = item("morichika_offers");
 
 	/**

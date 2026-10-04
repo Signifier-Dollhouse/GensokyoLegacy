@@ -7,9 +7,13 @@
   "pages": [
     {
       "type": "patchouli:spotlight",
-      "item": "gensokyolegacy:heal_talisman",
-      "title": "治愈符 — 16 次",
-      "text": "当你的生命值未满时，恢复最大生命值的 30%。每次触发后有 5 秒冷却。"
+      "item": "tag:gensokyolegacy:talisman_papers",
+      "title": "五种符纸",
+      "text": "符纸共有 5 种，每种的效果和使用次数都不一样。折好放进护符槽位即可生效，后面几页会分别说明每种符纸的作用。"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)治愈符 — 16 次$()$(br)当你的生命值未满时，恢复最大生命值的 30%。每次触发后有 5 秒冷却。"
     },
     {
       "type": "patchouli:text",
