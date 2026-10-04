@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "gensokyolegacy:block/candlestick",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "gensokyolegacy:block/candlestick"
+    },
+    "facing=south": {
+      "model": "gensokyolegacy:block/candlestick",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "gensokyolegacy:block/candlestick",
+      "y": 270
+    }
+  }
+}

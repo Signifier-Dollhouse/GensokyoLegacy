@@ -17,6 +17,7 @@ import dev.xkmc.gensokyolegacy.init.data.GLTagGen;
 import dev.xkmc.l2core.init.reg.registrate.L2Registrate;
 import dev.xkmc.l2modularblock.core.BlockTemplates;
 import dev.xkmc.l2modularblock.core.DelegateBlock;
+import dev.xkmc.l2modularblock.core.VoxelBuilder;
 import net.minecraft.core.Direction;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapelessRecipeBuilder;
@@ -53,6 +54,8 @@ public class GLFurniture {
 	public static final BlockEntry<DelegateBlock> BOOK_PILE, BOOK_STACK;
 
 	public static final BlockEntry<LanternBlock> RED_LANTERN, WHITE_LANTERN, LETTERED_RED_LANTERN, LETTERED_WHITE_LANTERN;
+
+	public static final BlockEntry<DelegateBlock> MAGIC_TABLE, SEWING_MACHINE, MAGIC_POTION_BOTTLE, CANDLESTICK;
 
 	static {
 
@@ -245,6 +248,62 @@ public class GLFurniture {
 			WHITE_LANTERN = registerLantern(reg, "white_lantern", MapColor.SNOW);
 			LETTERED_RED_LANTERN = registerLantern(reg, "lettered_red_lantern", MapColor.COLOR_RED);
 			LETTERED_WHITE_LANTERN = registerLantern(reg, "lettered_white_lantern", MapColor.SNOW);
+		}
+
+		// 魔法道具工作台：横向两格长的一整块，放下时右手边自动补出另一半
+		{
+			MAGIC_TABLE = reg.block("magic_table", p -> DelegateBlock.newBaseBlock(p,
+							BlockTemplates.HORIZONTAL, new MagicTableBlock()))
+					.properties(p -> p.mapColor(MapColor.WOOD).strength(1.5F).sound(SoundType.WOOD).noOcclusion())
+					.blockstate((ctx, pvd) -> MagicTableBlock.buildStates(ctx.get(), pvd, ctx.getName()))
+					.tag(GLTagGen.TABLE, BlockTags.MINEABLE_WITH_AXE)
+					.item().model((ctx, pvd) -> MagicTableBlock.genItemModel(pvd, ctx.getName()))
+					.tag(GLTagGen.TABLE_ITEM)
+					.tab(GLDecoBlocks.TAB.key())
+					.dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(300))
+					.build()
+					.register();
+
+			// 桌面装饰：只能摆在工作台正上方的那一格上。
+			// 碰撞盒写成朝北的 VoxelBuilder，四个朝向由 allFaces 转出来；
+			// x 和 z 取成不一样，朝向转了才看得出来。
+			SEWING_MACHINE = reg.block("sewing_machine", p -> DelegateBlock.newBaseBlock(p,
+							BlockTemplates.HORIZONTAL,
+							// x 顶到格边（模型伸到 x18 的悬臂被裁掉），z 比 x 窄一圈
+							new TableDecoBlock(MagicTableBlock.allFaces(
+									new VoxelBuilder(0, 0, 6, 18, 15, 12)), 0)))
+					.properties(p -> p.mapColor(MapColor.NONE).strength(1.0F).sound(SoundType.WOOD)
+							.noOcclusion().pushReaction(PushReaction.DESTROY))
+					.blockstate((ctx, pvd) -> TableDecoBlock.buildStates(ctx.get(), pvd, ctx.getName(),
+							"custom/deco/sewing_machine"))
+					.tag(BlockTags.MINEABLE_WITH_AXE)
+					.item().dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(300))
+					.tab(GLDecoBlocks.TAB.key())
+					.build()
+					.register();
+
+			MAGIC_POTION_BOTTLE = reg.block("magic_potion_bottle", p -> DelegateBlock.newBaseBlock(p,
+							BlockTemplates.HORIZONTAL,
+							// 只占桌面中间偏北的一小块；摆放时比默认朝向再顺时针转 90 度
+							new TableDecoBlock(MagicTableBlock.allFaces(
+									new VoxelBuilder(7, 0, 3, 15, 9, 14)), 90)))
+					.properties(p -> p.mapColor(MapColor.NONE).strength(0.5F).sound(SoundType.GLASS)
+							.noOcclusion().pushReaction(PushReaction.DESTROY))
+					.blockstate((ctx, pvd) -> TableDecoBlock.buildStates(ctx.get(), pvd, ctx.getName(),
+							"custom/deco/magic_potion_bottle"))
+					.tag(BlockTags.MINEABLE_WITH_PICKAXE)
+					.item().tab(GLDecoBlocks.TAB.key()).build()
+					.register();
+
+			// 烛台：落地摆件，自带光源
+			CANDLESTICK = reg.block("candlestick", p -> DelegateBlock.newBaseBlock(p,
+							BlockTemplates.HORIZONTAL, new CandlestickBlock()))
+					.properties(p -> p.mapColor(MapColor.WOOD).strength(0.5F).sound(SoundType.WOOD)
+							.noOcclusion().pushReaction(PushReaction.DESTROY).lightLevel(s -> 15))
+					.blockstate((ctx, pvd) -> CandlestickBlock.buildStates(ctx.get(), pvd, ctx.getName()))
+					.tag(BlockTags.MINEABLE_WITH_AXE)
+					.item().tab(GLDecoBlocks.TAB.key()).build()
+					.register();
 		}
 	}
 

@@ -6,8 +6,7 @@
   "sortnum": 2,
   "pages": [
     {
-      "type": "patchouli:spotlight",
-      "item": "gensokyolegacy:ghost_fire_mushroom",
+      "type": "patchouli:text",
       "title": "Plants of Gensokyo",
       "text": "Many of the pot's recipes rely on plants unique to Gensokyo: Ghost Fire, Dream, and Demonic Miasma mushrooms, found on their great mushroom trees, along with wild Star Flowers and Flame Cattails."
     },

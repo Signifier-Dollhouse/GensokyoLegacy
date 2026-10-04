@@ -162,6 +162,9 @@
     "gensokyolegacy:magic_book": {
       "burn_time": 40000
     },
+    "gensokyolegacy:magic_table": {
+      "burn_time": 300
+    },
     "gensokyolegacy:mangrove_chair": {
       "burn_time": 300
     },
@@ -217,6 +220,9 @@
       "burn_time": 50
     },
     "gensokyolegacy:red_lantern": {
+      "burn_time": 300
+    },
+    "gensokyolegacy:sewing_machine": {
       "burn_time": 300
     },
     "gensokyolegacy:shoji_frame": {

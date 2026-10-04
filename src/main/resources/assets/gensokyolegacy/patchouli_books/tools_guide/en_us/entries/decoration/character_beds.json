@@ -1,0 +1,31 @@
+{
+  "name": "Character Beds",
+  "icon": "gensokyolegacy:marisa_bed",
+  "category": "gensokyolegacy:decoration",
+  "advancement": "gensokyolegacy:main/welcome",
+  "sortnum": 7,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": [
+        "gensokyolegacy:reimu_bed",
+        "gensokyolegacy:marisa_bed",
+        "gensokyolegacy:morichika_bed"
+      ],
+      "title": "Somebody's Bed",
+      "text": "Each of these belongs to one character and to nobody else. Stand one in a room of the matching house and that character takes it as hers. You cannot sleep in it, and it is not your respawn point either."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Where they come from$()$(br)You find them where they are already made: Reimu's in the Hakurei Shrine, Marisa's in her house, Morichika's in Kourindou. There is no recipe, and they are not in the creative inventory, so in survival the only way to get one is to break it out of the house and carry it off. Breaking either half takes the whole bed with it."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)How they behave$()$(br)Right-clicking a bed does nothing at all — there is nothing to assign and nothing to check. Once a character has claimed one, she sleeps in it through the night, and if she dies a fresh copy of her lies in it again about ten minutes later.$(br2)$(bold)Where to put it$()$(br)A claimed bed has to stay in one of that house's rooms. Carry it out into the world and it is destroyed, so pick a real room and leave it there. Two beds for the same character in the same house will not both stand: the first one keeps the claim and the newcomer disappears."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)The other three$()$(br)Cirno's, Rumia's and Alice's beds exist as blocks and are bound to their characters, but none of them has a house to belong to, so wherever you put one it simply does nothing."
+    }
+  ]
+}
