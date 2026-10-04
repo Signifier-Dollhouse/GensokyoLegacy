@@ -95,20 +95,25 @@ def values_at(value: Any, key: str) -> Iterator[str]:
 
 
 def collect_item_tags(value: Any, into: set[str]) -> set[str]:
-    """Collects ingredient tag references from an arbitrary value.
+    """Collects item tag references from an arbitrary value.
 
-    Since 1.21 the datapack form of a tag reference drops the leading `#`, so both
-    `{"tag": "ns:path"}` and `{"tag": "#ns:path"}` are accepted.
+    Since 1.21 a `tag` field drops its leading `#`, so the field is what says a value is
+    a reference rather than the spelling. The older `#ns:path` form is still accepted,
+    as is the `tag:ns:path` a Patchouli spotlight uses - and a spotlight may hold a list
+    of them, so the walk descends into lists rather than looking at fields alone.
     """
-    if isinstance(value, list):
+    if isinstance(value, str):
+        if value.startswith("tag:"):
+            into.add(value.removeprefix("tag:"))
+        elif value.startswith("#"):
+            into.add(value)
+    elif isinstance(value, list):
         for item in value:
             collect_item_tags(item, into)
     elif isinstance(value, dict):
         for key, item in value.items():
             if key == "tag" and isinstance(item, str) and ":" in item:
-                into.add(item)
-            elif key in ("item", "items") and isinstance(item, str) and item.startswith("#"):
-                into.add(item)
+                into.add(item.removeprefix("#"))
             else:
                 collect_item_tags(item, into)
     return into
@@ -177,13 +182,14 @@ def build_recipes(item_tags: set[str]) -> dict[str, Any]:
     return {"root": RECIPES, "files": files}
 
 
-def build_guides() -> list[dict[str, Any]]:
+def build_guides(item_tags: set[str]) -> list[dict[str, Any]]:
     """Every Patchouli book, with its per-locale categories and entries.
 
     A book is one `book.json`; the pages beside it are `<locale>/categories/**` and
     `<locale>/entries/**`. Entries are named by their path, which is what the book
     refers to and what a locale-independent id is built from, since the files for the
-    two locales are otherwise indistinguishable.
+    two locales are otherwise indistinguishable. An entry may spotlight a whole item tag,
+    so its tags are collected for the index like any other content's.
     """
     books = []
     for book_file in walk(ROOT / GUIDE_BOOKS, GUIDE_BOOKS):
@@ -197,6 +203,8 @@ def build_guides() -> list[dict[str, Any]]:
             entries = [f for f in walk(ROOT / pages / "entries", f"{pages}/entries") if f.endswith(".json")]
             if not categories and not entries:
                 continue
+            for entry in entries:
+                collect_item_tags(read_json(entry), item_tags)
             locales[locale] = {"categories": categories, "entries": entries}
         if not locales:
             print(f"  ! guide book {folder} has no pages under {GUIDE_PAGES}", file=sys.stderr)
@@ -241,9 +249,10 @@ def build() -> dict[str, Any]:
                 found[ref] = rel
         return found
 
-    # Recipes contribute tags of their own, so they are indexed before the tags are
-    # resolved into files.
+    # Recipes and the guide book both contribute tags of their own, so they are indexed
+    # before the tags are resolved into files.
     recipes = build_recipes(item_tags)
+    guides = build_guides(item_tags)
     item_tag_files = existing_tags(set(item_tags) | set(EXTRA_ITEM_TAGS), "item")
     for ref in EXTRA_ITEM_TAGS:
         if ref not in item_tag_files:
@@ -255,7 +264,7 @@ def build() -> dict[str, Any]:
         "resources": RESOURCES,
         "registries": registries,
         "recipes": recipes,
-        "guides": build_guides(),
+        "guides": guides,
         "lootTables": loot,
         "itemTags": item_tag_files,
         "entityTags": existing_tags(entity_refs, "entity_type"),

@@ -60,7 +60,7 @@ all it takes for the page to show it.
 | What | Where it is read from |
 | --- | --- |
 | The item list | the mod's own lang files, which enumerate every `item.`/`block.` it registers, plus the few ids from other namespaces the mod hands out (`patchouli:guide_book`, converted planks) |
-| The guide | `src/main/resources/assets/gensokyolegacy/patchouli_books/<book>/<locale>/` - the in-game book's own categories and entries, with its `$(bold)`, `$(br)` and `$(br2)` macros rendered |
+| The guide | `src/main/resources/assets/gensokyolegacy/patchouli_books/<book>/<locale>/` - the in-game book's own categories and entries, with its `$(bold)`, `$(br)` and `$(br2)` macros rendered, and its spotlights followed into the item tags they name |
 | Ways to obtain | `recipe/**`, including the mod's alchemy and brewing types; `trade/**`, for the offers that hand out something other than currency, which is how Rinnosuke's shop appears; and the `loot_table` each quest reward names |
 | The sidebar sections | the guide's own categories, in the book's own order, with everything it does not document filed under *Not in the guide* at the end |
 
@@ -69,9 +69,19 @@ it, and the entry's prose under a heading that folds away - followed by every wa
 one, one collapsible section per kind of source, with jumps back to the quest or the
 offer it came from.
 
+A guide page is about one item *or a whole tag of them*: Patchouli writes a tag
+reference as `tag:namespace:path`, and a spotlight may name several at once under one
+title. Every member of a tag is documented by the same entry - seventeen cushions all
+point at *Seats & Seat Cloths* - and an item's page says which group it was documented
+under, with a link to the tag's members. Pages that belong to a *different* item stay
+apart: within one entry, a cushion sees the prose about cushions and a large chair sees
+the prose about large chairs, never each other's. Only a text page that opens an entry,
+naming no item, is shared by all of it.
+
 The guide book is fetched with everything else, since it is small and it is what the
-sidebar's sections and counts are built from. The recipes and the quest reward tables are
-a few hundred files, so they are fetched the first time the item section is opened - the
+sidebar's sections and counts are built from - along with the item tags it spotlights,
+which are resolved into their members. The recipes and the quest reward tables are a
+few hundred files, so they are fetched the first time the item section is opened - the
 same trade-off the dialog tab makes. That is also when the handful of items from other
 namespaces turn up, so the counts can move by two or three at that point.
 

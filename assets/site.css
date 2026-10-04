@@ -650,6 +650,11 @@ details.section[open] > summary .marker {
   font-style: italic;
 }
 
+/* The tag a guide entry spotlights, followed by a link to its members. */
+.entry-note .linkish {
+  margin-left: 6px;
+}
+
 /* A crafting grid, laid out as the pattern is, with its key beside it. */
 .recipe-shaped {
   display: flex;

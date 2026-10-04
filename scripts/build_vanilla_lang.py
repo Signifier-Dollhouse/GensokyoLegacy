@@ -154,14 +154,19 @@ def collect_refs(manifest: dict) -> Refs:
                     refs.fluid(fluid.get("fluid"))
 
     # The guide books spotlight the items they document, and those names show up in
-    # the item section whether or not the item has a recipe.
+    # the item section whether or not the item has a recipe. A spotlight names one item
+    # or tag, or a list of them; a tag is spelled `tag:namespace:path`.
     for book in manifest.get("guides", []):
         for locale in book["locales"].values():
             for file in locale["entries"]:
                 entry = read_json(file)
                 refs.item(entry.get("icon"))
                 for page in entry.get("pages") or []:
-                    refs.item(page.get("item"))
+                    for value in page.get("item") if isinstance(page.get("item"), list) else [page.get("item")]:
+                        if isinstance(value, str) and value.startswith("tag:"):
+                            refs.tag(value.removeprefix("tag:"))
+                        else:
+                            refs.item(value)
 
     for file in manifest["lootTables"].values():
         for pool in read_json(file).get("pools") or []:

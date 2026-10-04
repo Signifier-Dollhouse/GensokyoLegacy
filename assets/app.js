@@ -700,7 +700,7 @@ async function boot() {
   ]);
 
   buildCharacters();
-  buildItemIndex();
+  await buildItemIndex();
   readLocation(); // now the character slug and the item category can be resolved
   setStatus("");
   setProgress(0, 0);
@@ -758,7 +758,7 @@ async function refreshFromGitHub() {
     }
     // The item index is built from the listings just adopted, so it is rebuilt too -
     // and if the reader is already looking at items, the sources are refetched.
-    buildItemIndex();
+    await buildItemIndex();
     if (state.section === "item") {
       state.sourcesLoaded = false;
       await loadItemSources();

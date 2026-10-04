@@ -17,7 +17,7 @@ import {
   prettify,
 } from "./format.js";
 import { tr, trPlural } from "./i18n.js";
-import { guideLocale, loadDialog, loadEntityTag, loadItemTag, loadLootTable, store } from "./store.js";
+import { guideLocale, guideSubjects, loadDialog, loadEntityTag, loadItemTag, loadLootTable, store } from "./store.js";
 
 // ---------------------------------------------------------------------------
 // fragments
@@ -827,20 +827,34 @@ export function openItemViewer(id, links = {}) {
 }
 
 function guideSection(item) {
-  const { book, id } = item.guide;
+  const { book, id, subject, tag } = item.guide;
   const page = guideEntry(item.guide);
   const data = page?.data ?? {};
+  // Resolved here rather than stored, so the prose follows the language toggle.
+  const { shared, entries } = guideSubjects(data);
+  const pages = [...shared, ...(entries.get(subject)?.pages ?? [])];
   return h(
     "section",
     { class: "guide" },
     h("p", { class: "section-label", text: tr("item.category") }),
     h("p", { class: "entry-note", text: guideCategoryName(item.guide) }),
+    // A tag spotlight documents every member at once, so the item's page says which
+    // group it was documented under rather than implying the page is only about it.
+    tag
+      ? h(
+          "p",
+          { class: "entry-note" },
+          tr("item.guideTag"),
+          pill("item tag", `#${prettify(tag)}`, tag),
+          focusLink(tr("tag.showMembers"), () => showItemTag(tag), tag),
+        )
+      : null,
     data.advancement
       ? h("p", { class: "entry-note" }, `${tr("item.advancement")}: ${advancementLabel(data.advancement)}`)
       : null,
     // The prose folds away: it is the longest thing on the page, and the sources
     // below it are what a reader usually came for.
-    collapsibleBlock(tr("item.guide"), ...(data.pages ?? []).map((block) => guideBlock(block, item.id))),
+    collapsibleBlock(tr("item.guide"), ...pages.map((block) => guideBlock(block, item.id))),
     rawJson(page?.file, data),
     h("p", { class: "entry-note" }, `${label(book.definition?.name)} · ${id}`),
   );

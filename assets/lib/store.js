@@ -311,7 +311,7 @@ export async function loadItemSources(progress) {
     }),
   ]);
 
-  buildItemIndex();
+  await buildItemIndex();
 }
 
 /** The loot tables quest rewards hand out, as table id -> quest id. */
@@ -410,10 +410,10 @@ export function recipeOutputs(recipe) {
  * The item list is derived, never written down: the mod's own lang files enumerate
  * everything it registers, and the sources below add the handful of items from other
  * namespaces that it gives the player (the guide book, converted planks). Guide links
- * are read from the active locale, falling back to English, since an entry spotlights
- * the same items in every translation.
+ * are read from every locale, since the ids a page names are the same in each - only
+ * the prose is translated.
  */
-export function buildItemIndex() {
+export async function buildItemIndex() {
   const items = new Map();
   const entryFor = (id) => {
     let item = items.get(id);
@@ -423,15 +423,33 @@ export function buildItemIndex() {
 
   for (const id of registeredItems()) entryFor(id);
 
-  for (const book of store.guide?.books ?? []) {
+  const books = store.guide?.books ?? [];
+  // A spotlight may name a whole tag, and every member of it is documented by that
+  // page, so the tags the book uses are fetched before the pages are handed out.
+  await pool([...guideTags(books)], 8, (tag) => loadItemTag(tag));
+
+  for (const book of books) {
     for (const locale of Object.values(book.locales)) {
       for (const [id, page] of locale.entries) {
-        for (const itemId of guideItems(page.data)) {
+        const category = page.data?.category ?? null;
+        const subjects = guideSubjects(page.data);
+
+        const document = (itemId, subject) => {
           const item = entryFor(itemId);
-          // Only the link is kept: the entry text lives in per-locale files, so it is
-          // looked up in the active language when the page is opened. The category is
-          // an id, so it reads the same in every translation.
-          if (!item.guide) item.guide = { book, id, category: page.data?.category ?? null };
+          // The first entry that names an item documents it; a later one saying
+          // something else about the same item would only dilute the page.
+          if (item.guide) return;
+          // Which subject it came under, rather than the pages themselves: those live
+          // in per-locale files and are looked up when the page is opened.
+          item.guide = { book, id, category, subject: subject.key, tag: subject.tag ? subject.key : null };
+        };
+
+        for (const [key, subject] of subjects.entries) {
+          for (const itemId of guideSubjectItems(key, subject.tag)) document(itemId, subject);
+        }
+        // The entry's icon documents its item even when no spotlight names it.
+        if (typeof page.data?.icon === "string") {
+          document(page.data.icon, { key: page.data.icon, tag: false });
         }
       }
     }
@@ -459,6 +477,71 @@ export function buildItemIndex() {
 }
 
 /**
+ * What a spotlight page is about: one item, a whole tag of them, or several of either.
+ * Patchouli spells a tag reference `tag:namespace:path`, where a datapack would write
+ * `#namespace:path`, and lets a spotlight name a list - four noren tags under one title.
+ */
+function guideSubjectsOf(value) {
+  return (Array.isArray(value) ? value : [value])
+    .filter((entry) => typeof entry === "string")
+    .map((entry) => (entry.startsWith("tag:") ? { key: entry.slice(4), tag: true } : { key: entry, tag: false }));
+}
+
+/**
+ * Splits an entry's pages by what each one is about. Exported so an item's page can be
+ * resolved in the language being read: the pages are per-locale files, and only their
+ * order and the ids they name are the same in each.
+ *
+ * A spotlight names its item or tag, and the text page below it belongs to that
+ * spotlight, while a text page that opens the entry belongs to the entry as a whole. So
+ * an entry that spotlights several things keeps their pages apart - a miasma mushroom
+ * does not inherit the prose about the miasma bottle - and every item still sees the
+ * shared text.
+ */
+export function guideSubjects(entry) {
+  const shared = [];
+  const entries = new Map();
+  let current = []; // the subjects the pages below a spotlight belong to
+
+  for (const page of entry?.pages ?? []) {
+    const spotlights = page.type === "patchouli:spotlight" ? guideSubjectsOf(page.item) : [];
+    if (spotlights.length) current = spotlights;
+
+    for (const subject of current) {
+      // The key rides along on the subject, so a caller holding one knows what it names.
+      const found = entries.get(subject.key) ?? { key: subject.key, tag: subject.tag, pages: [] };
+      found.pages.push(page);
+      entries.set(subject.key, found);
+    }
+    // Nothing above it: the page opens the entry, so it belongs to all of it.
+    if (!current.length) shared.push(page);
+  }
+  return { shared, entries };
+}
+
+/** The item ids a subject covers: one item, or every member of a tag it names. */
+function guideSubjectItems(key, isTag) {
+  if (!isTag) return [key];
+  // A tag the repository does not have documents nothing rather than a phantom item.
+  return [...(store.tags.get(key) ?? [])];
+}
+
+/** Every item tag any guide page spotlights, across every book and locale. */
+function guideTags(books) {
+  const tags = new Set();
+  for (const book of books) {
+    for (const locale of Object.values(book.locales)) {
+      for (const page of locale.entries.values()) {
+        for (const [key, subject] of guideSubjects(page.data).entries) {
+          if (subject.tag) tags.add(key);
+        }
+      }
+    }
+  }
+  return tags;
+}
+
+/**
  * Every item the mod registers, read out of its own lang files. `item.` and `block.`
  * are the two spellings one item can have, and a block's item id is the block's own.
  */
@@ -477,16 +560,6 @@ function* registeredItems() {
       yield id;
     }
   }
-}
-
-/** Every item an entry is about: its icon, plus whatever it spotlights. */
-function guideItems(entry) {
-  const ids = new Set();
-  if (typeof entry?.icon === "string") ids.add(entry.icon);
-  for (const page of entry?.pages ?? []) {
-    if (typeof page.item === "string") ids.add(page.item);
-  }
-  return ids;
 }
 
 export { setProgress };
