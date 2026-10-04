@@ -144,11 +144,12 @@ public class GLFurniture {
 									.modelForState().modelFile(emptyModel).addModel();
 						}
 					})
-					.tag(BlockTags.MINEABLE_WITH_AXE)
+					.tag(GLTagGen.TABLE, BlockTags.MINEABLE_WITH_AXE)
 					.item().model((ctx, pvd) -> pvd.getBuilder(ctx.getName())
 							.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/furniture/tea_table_item")))
 							.texture("all", pvd.modLoc("block/deco/tea_table"))
 							.renderType("cutout"))
+					.tag(GLTagGen.TABLE_ITEM)
 					.dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(300))
 					.build()
 					.register();
