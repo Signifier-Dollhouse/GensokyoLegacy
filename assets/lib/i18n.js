@@ -58,6 +58,7 @@ const en_us = {
   "noun.items": "items",
   "empty.match": "No {0} match the current filters.",
   "status.loadingDialogs": "Loading dialog files...",
+  "nav.loadingItems": "Loading items...",
   "status.loadingItems": "Loading recipes, the guide book and quest rewards...",
   "status.refreshed.one": "Index refreshed from GitHub: {0} new file found on this branch.",
   "status.refreshed.many": "Index refreshed from GitHub: {0} new files found on this branch.",
@@ -262,6 +263,7 @@ const zh_cn = {
   "empty.match": "没有符合当前筛选条件的{0}。",
   "status.loadingDialogs": "正在加载对话文件……",
   "status.loadingItems": "正在加载配方、指南书与任务奖励……",
+  "nav.loadingItems": "正在加载物品……",
   "status.refreshed.one": "已从 GitHub 刷新索引：该分支上有 {0} 个新文件。",
   "status.refreshed.many": "已从 GitHub 刷新索引：该分支上有 {0} 个新文件。",
 

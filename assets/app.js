@@ -13,6 +13,7 @@ import {
   buildItemIndex,
   characterKeyOf,
   fetchJson,
+  guideFileCount,
   loadAllDialogs,
   loadCurrencyTag,
   loadGuide,
@@ -22,6 +23,7 @@ import {
   loadRegistry,
   loadShopOffers,
   loadVanillaLang,
+  sourceFileCount,
   store,
   tableFor,
   VANILLA_LANG,
@@ -83,7 +85,7 @@ function categoryFromSlug(slug) {
 }
 
 function readLocation() {
-  const [tab, slug] = decodeURIComponent(location.hash.replace(/^#/, "")).split("/");
+  const [tab, slug] = hashParts();
   if (tab === "items") {
     state.section = "item";
   } else if (TABS.includes(tab)) {
@@ -91,11 +93,29 @@ function readLocation() {
     state.tab = tab;
   }
   if (store.characters.size) state.character = keyFromSlug(slug);
-  // The item sections are only known once the guide book has loaded.
   if (state.section === "item" && store.guide) state.category = categoryFromSlug(slug);
 }
 
+/**
+ * The item category the hash names. Separate from `readLocation` because the guide book
+ * is fetched behind the first render, so a link straight to `#items/decoration` can only
+ * be answered once it arrives - and answering it must not disturb the character the
+ * reader was on.
+ */
+function readItemCategory() {
+  if (state.section === "item" && store.guide) state.category = categoryFromSlug(hashParts()[1]);
+}
+
+function hashParts() {
+  return decodeURIComponent(location.hash.replace(/^#/, "")).split("/");
+}
+
 function writeLocation() {
+  // Until the guide book is in, the item category in the hash cannot be resolved -
+  // and it is the only record of what was linked to, so it is left as it is rather
+  // than overwritten with "all items".
+  if (state.section === "item" && !state.itemsLoaded) return;
+
   const slug =
     state.section === "item"
       ? categorySlug(state.category)
@@ -244,27 +264,25 @@ function emptyState(what) {
 }
 
 /**
- * The item section. The guide book is already loaded - it is what the sidebar is built
- * from - but the recipes and the quest reward tables are a few hundred files, so they
- * are fetched the first time the section is opened.
+ * The item section. Everything it is made of - the guide book, the tags it names, the
+ * recipes and the reward tables - is fetched behind the first render, so this waits for
+ * that load if the reader gets here before it has landed.
  */
 async function renderItemPanel(panel) {
-  if (!state.sourcesLoaded) {
+  if (!state.itemsLoaded) {
     const counter = h("span", { text: "0 / 0" });
     const bar = h("div", { class: "progress-track" }, h("div", { class: "progress-fill" }), counter);
     panel.append(h("p", { class: "status", text: tr("status.loadingItems") }), bar);
 
-    await loadItemSources((done, total) => {
+    await loadItems((done, total) => {
       counter.textContent = `${done} / ${total}`;
       bar.firstChild.style.width = `${Math.round((done / Math.max(1, total)) * 100)}%`;
     });
-    state.sourcesLoaded = true;
     // Several hundred files take a moment; if the reader moved on meanwhile, this
     // panel is no longer the one on screen and must not be repainted over it.
     if (state.section !== "item") return;
     clear(panel);
     setStatus("");
-    renderSidebar(); // the counts can move once the sources are known
   }
 
   const section = itemSections().find((entry) => entry.category === state.category);
@@ -292,16 +310,16 @@ async function renderItemPanel(panel) {
   );
 }
 
-/** A group of the item panel: collapsible, and folded away only if the reader says so. */
+/** A group of the item panel: folded until the reader opens it, then remembered. */
 function itemGroup(group, row) {
   return h(
     "details",
     {
       class: "collapse",
-      open: !state.collapsed.has(group.key),
+      open: state.expanded.has(group.key),
       ontoggle: (event) => {
-        if (event.target.open) state.collapsed.delete(group.key);
-        else state.collapsed.add(group.key);
+        if (event.target.open) state.expanded.add(group.key);
+        else state.expanded.delete(group.key);
       },
     },
     h(
@@ -334,6 +352,16 @@ function allItems() {
  * for one - nor for the "all items" selection, which is `null`.
  */
 const UNDOCUMENTED = Symbol("undocumented");
+
+/**
+ * The sidebar's "loading items" line, so the loader can write the count into it without
+ * redrawing the whole sidebar on every file. `itemEntries` hands over the current one
+ * on each redraw, so this never names a node that has been replaced.
+ */
+let itemLoading = null;
+
+/** The item list's one load, shared by every caller. Not view state, so not on it. */
+let itemsPromise = null;
 
 /**
  * The sidebar's item entries: one per patchouli category, in the book's own order, plus
@@ -601,6 +629,13 @@ function characterEntries() {
 }
 
 function itemEntries() {
+  // The list is still being fetched, and its categories are the guide's own, so there
+  // is nothing honest to show yet but the fact that it is on its way.
+  if (!state.itemsLoaded) {
+    itemLoading = h("span", { class: "nav-note", text: tr("nav.loadingItems") });
+    return [h("li", {}, itemLoading)];
+  }
+
   const here = (category) => state.section === "item" && state.category === category;
   return [
     navEntry(here(null), tr("item.all"), allItems().length, null, () => selectCategory(null)),
@@ -733,6 +768,17 @@ function wireChrome() {
     setTheme(next);
     applyTheme();
   });
+
+  // The sidebar's two groups fold away so one can have the room to itself. Their state
+  // is remembered here, since the elements themselves are never rebuilt.
+  for (const [selector, key] of [["#nav-characters", "characters"], ["#nav-items", "items"]]) {
+    const group = document.querySelector(selector);
+    group.open = !state.navFolded.has(key);
+    group.addEventListener("toggle", () => {
+      if (group.open) state.navFolded.delete(key);
+      else state.navFolded.add(key);
+    });
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -759,11 +805,7 @@ async function boot() {
 
   const langFiles = store.manifest.lang;
   const registries = ["quest", "trade", "dialog_starter"];
-  const guideFiles = (store.manifest.guides ?? []).flatMap((book) =>
-    Object.values(book.locales).reduce((sum, locale) => sum + locale.categories.length + locale.entries.length, 0),
-  );
-  const total =
-    registries.reduce((sum, name) => sum + store.manifest.registries[name].files.length, 0) + guideFiles;
+  const total = registries.reduce((sum, name) => sum + store.manifest.registries[name].files.length, 0);
 
   // Each registry reports its own running count, so track them separately and
   // show the sum rather than adding every intermediate value.
@@ -779,24 +821,67 @@ async function boot() {
     // only resolve once these are in. An index predating them falls back to the
     // fixed paths rather than breaking the page.
     ...(store.manifest.vanillaLang ?? VANILLA_LANG).map(loadVanillaLang),
-    // The currency tag decides whether a trade reads as "sell" or "craft"; the shop
-    // offers are what Rinnosuke may put on his shelves.
+    // The currency tag decides whether a trade reads as "sell" or "craft".
     loadCurrencyTag(),
-    loadShopOffers(),
-    // The guide book is what the item sidebar is built from, so it is small enough
-    // to fetch with everything else rather than behind a click.
-    loadGuide(progressFor("guide")),
     ...registries.map((name) => loadRegistry(name, progressFor(name))),
   ]);
 
   buildCharacters();
-  await buildItemIndex();
-  readLocation(); // now the character slug and the item category can be resolved
+  readLocation(); // now the character slug can be resolved
   setStatus("");
   setProgress(0, 0);
   render();
 
   refreshFromGitHub();
+
+  // Everything the item list is made of - the guide book, the tags it names, the
+  // recipes and the reward tables - is a few hundred files that no character content
+  // needs. It is fetched behind the first render, so the characters are readable while
+  // it arrives and the sidebar says it is loading; the panel waits for it if the
+  // reader gets there first. Nobody awaits it here, so its failures are reported here.
+  loadItems(reportItemProgress).catch(reportFailure);
+}
+
+/** The item list, fetched once and kept. Shared, so a second caller joins the first. */
+function loadItems(onProgress) {
+  itemsPromise ??= (async () => {
+    const files = guideFileCount() + sourceFileCount();
+    // Each part reports its own count, so track them separately and show the sum.
+    const seen = new Map();
+    const report = () => onProgress?.([...seen.values()].reduce((sum, value) => sum + value, 0), files);
+
+    await Promise.all([
+      loadGuide((done) => {
+        seen.set("guide", done);
+        report();
+      }),
+      // What Rinnosuke may put on his shelves, which is an item's fourth source.
+      loadShopOffers(),
+      loadItemSources((done) => {
+        seen.set("sources", done);
+        report();
+      }),
+    ]);
+    // The index is built from whatever has landed, so it makes no difference which of
+    // the three arrived first - and this is the build that has all of them.
+    await buildItemIndex();
+    state.itemsLoaded = true;
+    // A link straight to `#items/decoration` could only be answered now.
+    readItemCategory();
+    renderSidebar();
+  })().catch((error) => {
+    // A failed load is not kept: the reader who opens the item section afterwards
+    // should get another try rather than the same rejection.
+    itemsPromise = null;
+    throw error;
+  });
+
+  return itemsPromise;
+}
+
+/** The sidebar's own progress line, which is all it can say until the list is in. */
+function reportItemProgress(done, total) {
+  if (itemLoading) itemLoading.textContent = `${tr("nav.loadingItems")} ${done} / ${total}`;
 }
 
 /**
@@ -846,13 +931,11 @@ async function refreshFromGitHub() {
     for (const name of ["quest", "trade", "dialog_starter"]) {
       await loadRegistry(name);
     }
-    // The item index is built from the listings just adopted, so it is rebuilt too -
-    // and if the reader is already looking at items, the sources are refetched.
-    await buildItemIndex();
-    if (state.section === "item") {
-      state.sourcesLoaded = false;
-      await loadItemSources();
-    }
+    // New content may bring recipes, loot tables or guide pages with it, so the item
+    // load is redone: dropping the shared promise is what makes the next caller
+    // refetch rather than reuse what is already in the store.
+    itemsPromise = null;
+    await loadItems();
     buildCharacters();
     render();
     setStatus(trPlural("status.refreshed", added, added));

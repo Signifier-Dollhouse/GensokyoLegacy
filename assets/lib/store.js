@@ -377,6 +377,8 @@ function collectDrops(tableId, table) {
 /** Fetches every guide book: the definition, plus each locale's pages. */
 export async function loadGuide(progress) {
   const books = [];
+  const total = guideFileCount();
+  let done = 0;
   for (const book of store.manifest.guides ?? []) {
     // A category is named `<namespace>:<folder>` in the book's own namespace, which is
     // what an entry's `category` field refers to - not the book's id.
@@ -392,7 +394,7 @@ export async function loadGuide(progress) {
         } catch {
           /* a page that will not load simply does not appear */
         }
-        progress?.();
+        progress?.(++done, total);
       };
       await Promise.all([
         ...files.categories.map((file) => load(file, categories, `${namespace}:${categoryId(file, prefix)}`)),
@@ -403,6 +405,21 @@ export async function loadGuide(progress) {
     books.push({ id: book.id, definition: await fetchJson(book.book), locales });
   }
   store.guide = { books };
+}
+
+/** How many files the guide book is made of, so a progress bar has something to fill. */
+export function guideFileCount() {
+  return (store.manifest.guides ?? []).reduce(
+    (sum, book) =>
+      sum +
+      Object.values(book.locales).reduce((count, locale) => count + locale.categories.length + locale.entries.length, 0),
+    0,
+  );
+}
+
+/** How many files the recipes and the quest reward tables come to. */
+export function sourceFileCount() {
+  return store.manifest.recipes.files.length + questLootTables().size;
 }
 
 /** `.../categories/alchemy.json` -> `alchemy`, the id an entry's `category` uses. */

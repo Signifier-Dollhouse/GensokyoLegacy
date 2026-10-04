@@ -59,10 +59,14 @@
 
     <div class="layout">
       <nav class="sidebar" aria-label="Browse" data-i18n-attr="aria-label:a11y.browse">
-        <h2 class="sidebar-title" data-i18n="nav.characters">Characters</h2>
-        <ul id="characters" class="nav-list"></ul>
-        <h2 class="sidebar-title" data-i18n="nav.items">Items</h2>
-        <ul id="items" class="nav-list"></ul>
+        <details class="nav-group" id="nav-characters" open>
+          <summary class="sidebar-title" data-i18n="nav.characters">Characters</summary>
+          <ul id="characters" class="nav-list"></ul>
+        </details>
+        <details class="nav-group" id="nav-items" open>
+          <summary class="sidebar-title" data-i18n="nav.items">Items</summary>
+          <ul id="items" class="nav-list"></ul>
+        </details>
         <div id="source" class="source-note"></div>
       </nav>
 

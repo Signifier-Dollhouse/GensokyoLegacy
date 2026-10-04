@@ -33,16 +33,17 @@ The sidebar carries two lists side by side, and the tabs belong to the first: **
 item comes from). Items belong to no character, so they are a section of their own rather
 than a sixth tab; picking one hides the tab bar, and picking a character brings it back.
 Both are addressable: `#quest/reimu`, `#trade/all`, `#dialog/marisa`, `#items/decoration`,
-`#items/undocumented`.
+`#items/undocumented`. Each of the two is a heading that folds its list away, so a reader
+working through one does not have to scroll past the other; both start open.
 
 The item entries are the guide's own categories, in its order, plus one for the items it
 never mentions. Selecting one lays its items out in the panel: what the guide names one
-by one, listed straight in, then a collapsible group for every page that spotlights a
-tag - *Take a Seat* for the seventeen cushions, *Noren Curtains* for the sixty-four.
-Being named by a tag is the whole difference, and the groups follow the book's own order.
-Groups start open, and one the reader folds stays folded across a redraw or a language
-switch, since the panel is rebuilt on every keystroke of the search box and a `<details>`
-would otherwise forget it had been closed.
+by one, listed straight in, then a group for every page that spotlights a tag - *Take a
+Seat* for the seventeen cushions, *Noren Curtains* for the sixty-four. Being named by a
+tag is the whole difference, and the groups follow the book's own order. The groups start
+folded, since the panel can hold seventy of them and the point of one is to open it; an
+opened group stays open across a redraw or a language switch, since the panel is rebuilt
+on every keystroke of the search box and a `<details>` would otherwise forget.
 
 Quests and dailies share one registry and one card; the tab only splits them, so a
 condition linking to a quest lands on whichever of the two it actually belongs to.
@@ -95,12 +96,13 @@ apart: within one entry, a cushion sees the prose about cushions and a large cha
 the prose about large chairs, never each other's. Only a text page that opens an entry,
 naming no item, is shared by all of it.
 
-The guide book is fetched with everything else, since it is small and it is what the
-sidebar's sections and counts are built from - along with the item tags it spotlights,
-which are resolved into their members. The recipes and the quest reward tables are a
-few hundred files, so they are fetched the first time the item section is opened - the
-same trade-off the dialog tab makes. That is also when the handful of items from other
-namespaces turn up, so the counts can move by a point or two at that moment.
+The item list is the slow half of the page - the guide book, the tags it spotlights, the
+recipes and the quest reward tables, some 380 files - and no character content needs any
+of it. So it is fetched *behind* the first render rather than in front of it: the
+characters are readable while it arrives, and the sidebar's items heading says
+`Loading items... 140 / 385` until it lands. Opening the item section before then waits
+for the same load rather than starting a second one, and the count is written into the
+line in place so the sidebar does not have to be rebuilt on every file.
 
 A shaped recipe is drawn as the crafting grid with a key beneath it, since the layout is
 part of the recipe; the alchemy and brewing recipes show their fluid and their extra

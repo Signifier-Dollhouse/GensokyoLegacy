@@ -235,9 +235,48 @@ input[type="search"] {
   text-transform: uppercase;
 }
 
-/* The sidebar holds two groups, so the second heading needs room above it. */
-.nav-list + .sidebar-title {
+/* The two groups fold away, so the heading is a summary rather than a plain label. */
+.nav-group > .sidebar-title {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  cursor: pointer;
+  list-style: none;
+}
+
+.nav-group > .sidebar-title::-webkit-details-marker {
+  display: none;
+}
+
+.nav-group > .sidebar-title::before {
+  content: "";
+  width: 0;
+  height: 0;
+  border-top: 4px solid currentcolor;
+  border-right: 4px solid transparent;
+  border-left: 4px solid transparent;
+  transition: transform 120ms ease;
+}
+
+.nav-group[open] > .sidebar-title::before {
+  transform: rotate(90deg);
+}
+
+/* The second group needs room above it, whether the first is open or folded. */
+.nav-group + .nav-group {
   margin-top: 22px;
+}
+
+.nav-group:not([open]) + .nav-group {
+  margin-top: 12px;
+}
+
+/* The item list is still arriving, and this is all the sidebar can say about it. */
+.nav-list .nav-note {
+  display: block;
+  padding: 7px 10px;
+  color: var(--text-muted);
+  font-size: 12px;
 }
 
 .nav-list {
@@ -930,6 +969,10 @@ details.collapse > .grid {
   }
 
   details.section > summary .marker {
+    transition: transform 120ms ease;
+  }
+
+  .nav-group > .sidebar-title::before {
     transition: transform 120ms ease;
   }
 }
