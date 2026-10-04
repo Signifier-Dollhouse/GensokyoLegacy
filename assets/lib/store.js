@@ -615,14 +615,26 @@ function guideTags(books) {
 }
 
 /**
+ * The lang files the mod generates from its registrations. They are the list of what
+ * exists, since they are written from the registrations themselves.
+ */
+const GENERATED_LOCALES = new Set(["en_us", "en_ud"]);
+
+/**
  * Every item the mod registers, read out of its own lang files. `item.` and `block.`
  * are the two spellings one item can have, and a block's item id is the block's own.
+ *
+ * Only the generated tables are read. The hand-authored translations lag behind on
+ * purpose - a key for something that has since been removed costs the game nothing,
+ * since it names an id nothing answers to - but a stale key would otherwise put a block
+ * back into the item list, with no name to show for it in every other language.
  */
 function* registeredItems() {
   const namespace = `${store.manifest.namespace}:`;
+  const generated = [...store.lang].filter(([locale]) => GENERATED_LOCALES.has(locale));
   const seen = new Set();
-  for (const locale of store.lang.values()) {
-    for (const key of Object.keys(locale ?? {})) {
+  for (const [, table] of generated.length ? generated : store.lang) {
+    for (const key of Object.keys(table ?? {})) {
       // A lang key is a dotted path, so the id has to be spelled back before it can
       // be compared with a namespaced one.
       const match = /^(?:item|block)\.(.+)$/.exec(key);

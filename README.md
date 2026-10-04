@@ -69,7 +69,7 @@ all it takes for the page to show it.
 
 | What | Where it is read from |
 | --- | --- |
-| The item list | the mod's own lang files, which enumerate every `item.`/`block.` it registers, plus the few ids from other namespaces the mod hands out (`patchouli:guide_book`). A vanilla item it hands out is left out: it is not something the mod adds, and it is still named wherever it is traded for |
+| The item list | the generated `en_us`/`en_ud` lang file, which enumerates every `item.`/`block.` the mod registers, plus the few ids from other namespaces the mod hands out (`patchouli:guide_book`). Only the generated tables are read: the hand-authored `zh_cn.json` lags behind on purpose, and a key left for a block that has since been removed would otherwise put it back into the list with no name to show for it. A vanilla item the mod hands out is left out too - it is not something the mod adds, and it is still named wherever it is traded for |
 | The guide | `src/main/resources/assets/gensokyolegacy/patchouli_books/<book>/<locale>/` - the in-game book's own categories and entries, with its `$(bold)`, `$(br)` and `$(br2)` macros rendered, and its spotlights followed into the item tags they name |
 | Ways to obtain | `recipe/**`, including the mod's alchemy and brewing types; `trade/**`, for the offers that hand out something other than currency; the `loot_table` each quest reward names; and the `morichika_offers` item tag, which is what Rinnosuke stocks his shelves from |
 | The sidebar entries | the guide's own categories, in the book's order, plus one entry for everything it does not document |
