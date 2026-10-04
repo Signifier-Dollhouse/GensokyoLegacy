@@ -758,7 +758,7 @@ function fluidPill(id) {
 
 /** How many ways there are to get an item, as one number. */
 function sourceCount(item) {
-  return item.recipes.length + item.trades.length + item.drops.length;
+  return item.recipes.length + item.trades.length + item.drops.length + (item.shelf ? 1 : 0);
 }
 
 /**
