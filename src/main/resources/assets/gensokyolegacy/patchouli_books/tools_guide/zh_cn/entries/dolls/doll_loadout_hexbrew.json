@@ -1,0 +1,17 @@
+{
+  "name": "符卡瓶投掷",
+  "icon": "gensokyolegacy:explosive_hexbrew_bottle",
+  "category": "gensokyolegacy:dolls",
+  "advancement": "gensokyolegacy:main/obtain_doll_glove",
+  "sortnum": 8,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)作为超绝攻击投掷$(br)任意一个手部槽位里的可投掷符卡瓶就是人偶的另一种技能：它转向目标，把瓶子沿直线抛出去，整条命令就此结束。爆裂、瘴气、Starlight、菌丝与女巫飞溅都是可投掷的；魔药溶剂、魔药精华与护盾魔药则是喝的，会被槽位直接拒绝。每次投掷消耗一个瓶子，因此手中的一堆就是一堆投掷次数。$(br2)$(bold)破碎效果与你亲手扔完全一致$(br)被扔出的爆裂魔药会造成与玩家投掷相同的 4 级爆炸：敌人受伤，地形不受损，你和你的人偶都不会被波及。只要任意一只手里还拿着激光，瓶子就不会被选中——要等两边都空了才会投掷。"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)射程$(br)16 格，是人偶所有投掷里最短的射程。再远就完全做不到：这条命令会被消耗掉，瓶子不会出手，所以请瞄准更近的目标，或者改用激光来打远距离。$(br2)$(bold)视野里的友方$(br)被挡住的线路会先横向闪避，闪避约一秒之后瓶子照常飞出。"
+    }
+  ]
+}

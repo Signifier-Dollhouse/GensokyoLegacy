@@ -1,0 +1,21 @@
+{
+  "name": "Danmaku Fire",
+  "icon": "gensokyolegacy:star_wand",
+  "category": "gensokyolegacy:dolls",
+  "advancement": "gensokyolegacy:main/obtain_doll_glove",
+  "sortnum": 6,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Any danmaku item fires$(br)Any danmaku item in either hand is the doll's normal attack — the Star Wand and the Iron Dagger, the loose danmaku bullets, the Star Danmaku. It fires the instant it is ordered, one shot per doll per order, and then finishes the swing. Nothing is consumed, so a stack in the slot is not a stack of shots. Spell cards are not doll weapons: a doll holding one has nothing to fire with and answers bare-handed instead."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Reach and aim$(br)Shots are led for their own flight time, so a target that keeps moving is still hit, and they carry up to 48 blocks — the longest reach of anything a doll holds. A doll never closes the gap itself: it fires from wherever it was standing.$(br2)$(bold)Allies in the lane$(br)You and your other dolls count as allies, so a doll that would fire through one sidesteps out of the way instead. Left blocked long enough, it gives up its turn rather than firing into your side, so one doll standing in the way never stalls the line."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)One volley, the whole squad$(br)An attack order walks down your dolls one after another instead of firing them all at once, each doll taking a single shot before the next is sent. That is also why a charge can join in: it ends the instant it lands, so the next doll is already on its way while the charging one is still in the air."
+    }
+  ]
+}

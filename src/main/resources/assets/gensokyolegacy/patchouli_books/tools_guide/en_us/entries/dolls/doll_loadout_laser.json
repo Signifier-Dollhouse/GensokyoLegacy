@@ -1,0 +1,17 @@
+{
+  "name": "Laser Beam",
+  "icon": "danmaku_api:white_laser",
+  "category": "gensokyolegacy:dolls",
+  "advancement": "gensokyolegacy:main/obtain_doll_glove",
+  "sortnum": 7,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Lasers are the super attack$(br)A laser item in either hand is the doll's skill. The glove's Skill order picks a single doll at random and that doll plants itself, draws the beam for a quarter of a second, holds it for two seconds and lets it fade. One laser is spent per shot, so a stack in the hand is a stack of shots.$(br2)$(bold)A laser outranks a bottle$(br)Both hands are searched, and a laser anywhere in them beats a throwable hexbrew bottle: they are the same super attack, and the laser is what the doll reaches for first."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Reach and aim$(br>The beam reaches about 40 blocks and hits the instant it is drawn, aimed at where the target will be half a second from now.$(br2)$(bold)Allies in the lane$(br)As with a danmaku shot, a lane blocked by you or by a fellow doll is sidestepped first — and past a second of dodging the beam fires anyway, because an ordered strike is not called off. Once it is out, the beam runs its full course whatever happens to either of you."
+    }
+  ]
+}
