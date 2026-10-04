@@ -1,0 +1,31 @@
+{
+  "name": "Other Building Blocks",
+  "icon": "gensokyolegacy:cyan_tiles",
+  "category": "gensokyolegacy:decoration",
+  "sortnum": 6,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": [
+        "tag:gensokyolegacy:noren",
+        "tag:gensokyolegacy:striped_noren",
+        "tag:gensokyolegacy:wavy_noren",
+        "tag:gensokyolegacy:long_noren"
+      ],
+      "title": "Noren Curtains",
+      "text": "Noren are the split curtains that hang in doorways. Cut a block of wool on the stonecutter to get one in that color, or dye an existing noren instead: the dye changes the color and the pattern is kept. Four patterns exist — plain, striped, wavy and long — in all 16 wool colors, and the long one hangs four blocks further down. Place one against a wall face to hang it there."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "tag:gensokyolegacy:plank_wall",
+      "title": "Plank Walls",
+      "text": "Plank walls are wall blocks in every wood type, cut two at a time from the matching planks on the stonecutter. They fill a whole block, boarded on the sides and plain planks on top, and they do not join to each other on their own: lay them down one block at a time."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "tag:gensokyolegacy:tile_variants",
+      "title": "Glazed Tiles",
+      "text": "Tiles come in seven colors: cyan, orange, yellow, brown, blue, black and gray. Every color has a full block, stairs, a slab and a vertical slab, which is a half-height piece standing against the wall you click. The three shapes come off the tile block on the stonecutter."
+    }
+  ]
+}

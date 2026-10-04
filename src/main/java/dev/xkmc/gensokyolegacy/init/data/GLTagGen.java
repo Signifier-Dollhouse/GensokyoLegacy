@@ -4,6 +4,7 @@ import com.tterrag.registrate.providers.RegistrateItemTagsProvider;
 import com.tterrag.registrate.providers.RegistrateTagsProvider;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.structure.GLStructureTagGen;
+import dev.xkmc.gensokyolegacy.init.registrate.block.GLDecoBlocks;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLNaturalBlocks;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.tags.BlockTags;
@@ -41,6 +42,8 @@ public class GLTagGen {
 	public static final TagKey<Item> CHAIR_ITEM = item("chair");
 	public static final TagKey<Item> STOOL_ITEM = item("stool");
 	public static final TagKey<Item> SLIDING_DOOR_ITEM = item("sliding_door");
+	public static final TagKey<Item> PLANK_WALL_ITEM = item("plank_wall");
+	public static final TagKey<Item> TILE_VARIANTS_ITEM = item("tile_variants");
 
 	public static final TagKey<Block> VERTICAL_SLAB = block("vertical_slab");
 	public static final TagKey<Block> TEMPLATE_TRUNK = block("template_trunk");
@@ -54,6 +57,10 @@ public class GLTagGen {
 	public static final TagKey<Block> CHAIR = block("chair");
 	public static final TagKey<Block> STOOL = block("stool");
 	public static final TagKey<Block> SLIDING_DOOR = block("sliding_door");
+	public static final TagKey<Block> PLANK_WALL = block("plank_wall");
+
+	/** Every tile block, plus the stairs, slab and vertical slab cut from it. */
+	public static final TagKey<Block> TILE_VARIANTS = block("tile_variants");
 
 	public static final TagKey<EntityType<?>> FLESH_SOURCE = entity("flesh_source");
 	public static final TagKey<EntityType<?>> YOUKAI_IGNORE = entity("youkai_ignore");
@@ -66,6 +73,18 @@ public class GLTagGen {
 
 	public static final TagKey<EntityType<?>> UMBRELLA_CAPTURE_BLACKLIST = entity("umbrella_capture_blacklist");
 
+	private static void addTiles(RegistrateTagsProvider.IntrinsicImpl<Block> pvd, TagKey<Block> tag) {
+		for (var set : GLDecoBlocks.TILE_SETS) {
+			pvd.addTag(tag).add(set.block.get(), set.stairs.get(), set.slab.get(), set.vertical.get());
+		}
+	}
+
+	private static void addTiles(RegistrateItemTagsProvider pvd, TagKey<Item> tag) {
+		for (var set : GLDecoBlocks.TILE_SETS) {
+			pvd.addTag(tag).add(set.block.get().asItem(), set.stairs.get().asItem(),
+					set.slab.get().asItem(), set.vertical.get().asItem());
+		}
+	}
 
 	public static void onBlockTagGen(RegistrateTagsProvider.IntrinsicImpl<Block> pvd) {
 		GLStructureTagGen.genBlockTag(pvd);
@@ -73,12 +92,14 @@ public class GLTagGen {
 		pvd.addTag(TEMPLATE_TRUNK).addTag(BlockTags.LOGS).add(Blocks.MUSHROOM_STEM,
 				GLNaturalBlocks.CYAN_MUSHROOM_STEM.get(), GLNaturalBlocks.PURPLE_MUSHROOM_STEM.get(),
 				GLNaturalBlocks.RED_MUSHROOM_STEM.get());
+		addTiles(pvd, TILE_VARIANTS);
 	}
 
 	public static void onItemTagGen(RegistrateItemTagsProvider pvd) {
 		pvd.addTag(CURRENCY).add(Items.EMERALD, Items.GOLD_INGOT);
 		pvd.addTag(HUGE_MUSHROOM)
 				.add(Items.MUSHROOM_STEM, Items.BROWN_MUSHROOM_BLOCK, Items.RED_MUSHROOM_BLOCK);
+		addTiles(pvd, TILE_VARIANTS_ITEM);
 	}
 
 	public static void onEntityTagGen(RegistrateTagsProvider.IntrinsicImpl<EntityType<?>> pvd) {
