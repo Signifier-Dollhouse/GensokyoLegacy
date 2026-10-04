@@ -106,6 +106,35 @@ characters are readable while it arrives, and the sidebar's items heading says
 for the same load rather than starting a second one, and the count is written into the
 line in place so the sidebar does not have to be rebuilt on every file.
 
+### Caching
+
+The page fetches several hundred small JSON files, so what a returning visitor pays for
+depends entirely on how they are asked for. Asking plainly, the browser revalidates every
+one of them on every visit - hundreds of round trips before anything can be drawn. So
+every data file is asked for at its own path *plus a fingerprint*, and the browser is
+told to use what it has rather than ask again:
+
+```
+src/generated/resources/data/gensokyolegacy/recipe/oak_shelf_from_dark_oak_log_stonecutting.json?v=6dbdffd2…
+```
+
+The fingerprint is an md5 of every datapack file the index points at, written into the
+index as `revision` by `scripts/build_manifest.py`. It changes when - and only when - the
+content does: new content merged onto this branch moves it, so the next visit fetches
+afresh instead of trusting a stale copy, and one update costs one refresh rather than
+every visit costing one. Only bytes are hashed, never timestamps, so a re-run that changes
+nothing leaves the number alone.
+
+Two files are deliberately left unversioned and always revalidated:
+
+| File | Why |
+| --- | --- |
+| `rpg-manifest.json` | it carries the fingerprint everything else is versioned by; a stale copy would pin the page to the revision it was built with and no new content would ever be asked for again |
+| `assets/lang/vanilla/*.json` | committed with the page rather than generated from the datapack, so a hand edit to one should show up without an index rebuild |
+
+An index predating the field is not a problem: the page fetches plain paths and works
+exactly as it did before.
+
 A shaped recipe is drawn as the crafting grid with a key beneath it, since the layout is
 part of the recipe; the alchemy and brewing recipes show their fluid and their extra
 ingredients, since a hexbrew is brewed rather than crafted.
@@ -164,7 +193,7 @@ translate at all.
 | `assets/lib/i18n.js` | interface string tables for both locales |
 | `assets/lang/vanilla/*.json` | the vanilla strings the content refers to |
 | `assets/img/hakkero.png` | the logo and favicon: a copy of the mod's Mini Hakkero texture, checked against it by `scripts/check_site.py` |
-| `rpg-manifest.json` | generated index of which registry, recipe and guide files exist |
+| `rpg-manifest.json` | generated index of which registry, recipe and guide files exist, plus their content fingerprint |
 | `scripts/build_manifest.py` | regenerates that index from the datagen output |
 | `scripts/build_vanilla_lang.py` | extracts the referenced vanilla strings from the game |
 | `scripts/check_site.py` | parses the modules, verifies their imports, checks both locale tables and the logo |

@@ -12,6 +12,7 @@ Usage: python3 scripts/build_manifest.py [--check]
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import sys
 from pathlib import Path
@@ -181,6 +182,59 @@ def find_vanilla_lang() -> list[str]:
     return [f"{VANILLA_LANG_DIR}/{locale}.json" for locale in LANG if (ROOT / VANILLA_LANG_DIR / f"{locale}.json").is_file()]
 
 
+def data_files(manifest: dict[str, Any]) -> list[str]:
+    """Every datapack file the page fetches, which is everything the index points at.
+
+    The two files that live with the page rather than with the datapack are left out: the
+    index cannot hash itself, and the committed vanilla tables are re-read every visit
+    rather than versioned, since a hand edit to one should show up without a rebuild.
+    """
+    files: set[str] = set()
+    for registry in manifest["registries"].values():
+        files.update(registry["files"])
+    files.update(manifest.get("recipes", {}).get("files", []))
+    files.update(manifest["lootTables"].values())
+    files.update(manifest["itemTags"].values())
+    files.update(manifest["entityTags"].values())
+    files.update(manifest.get("dataMaps", {}).values())
+    files.update(manifest["lang"])
+    for book in manifest["guides"]:
+        files.add(book["book"])
+        for pages in book["locales"].values():
+            for kind in ("categories", "entries"):
+                files.update(pages[kind])
+    return sorted(files)
+
+
+def content_revision(manifest: dict[str, Any]) -> str:
+    """An md5 of everything the page fetches, so a data URL can be versioned by it.
+
+    A file is asked for at its own path with the revision on it as a query, and the
+    browser is told to use its cached copy rather than ask again. The name therefore
+    changes exactly when the content does - merging new content onto this branch moves
+    it, so the next visit fetches afresh instead of trusting what it kept - and nothing
+    else about the site has to be told.
+
+    Only the bytes are hashed, never the timestamps, so a re-run that changes nothing
+    leaves the number alone. A file the index lists but the tree does not hold is
+    skipped, with the same warning the rest of the script gives: the page falls back to
+    a derived path for it anyway.
+    """
+    digest = hashlib.md5()
+    listed = data_files(manifest)
+    hashed = 0
+    for file in listed:
+        path = ROOT / file
+        if not path.is_file():
+            print(f"  ! missing data file {file}", file=sys.stderr)
+            continue
+        digest.update(file.encode("utf-8"))
+        digest.update(path.read_bytes())
+        hashed += 1
+    print(f"  revision: {digest.hexdigest()} over {hashed} files")
+    return digest.hexdigest()
+
+
 def find_data_maps() -> dict[str, str]:
     """The data maps listed in EXTRA_DATA_MAPS, keyed by their name in the datapack."""
     found: dict[str, str] = {}
@@ -293,6 +347,7 @@ def build() -> dict[str, Any]:
         "lang": find_lang(),
         "vanillaLang": find_vanilla_lang(),
     }
+    manifest["revision"] = content_revision(manifest)
     manifest["stats"] = {name: len(reg["files"]) for name, reg in registries.items()}
     manifest["stats"]["files"] = sum(len(reg["files"]) for reg in registries.values())
     manifest["stats"]["recipes"] = len(manifest["recipes"]["files"])

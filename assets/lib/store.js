@@ -10,6 +10,8 @@ import { state } from "./state.js";
 
 export const store = {
   manifest: null,
+  /** The index's content fingerprint, which versions every data URL. See `versioned`. */
+  revision: null,
   lang: new Map(), // locale -> { key: text }, from the mod's own lang files
   vanillaLang: new Map(), // locale -> { key: text }, from assets/lang/vanilla
   quests: new Map(), // resource id -> json
@@ -23,25 +25,53 @@ export const store = {
   recipes: new Map(), // recipe id -> json
   guide: null, // { books: [...] }, see `loadGuide`
   questDrops: new Map(), // quest id -> [{ item, count, table }]
-  items: new Map(), // item id -> { id, guide, recipes, trades, drops }
+  items: new Map(), // item id -> { id, guide, recipes, trades, drops, shelf }
 };
 
 const inflight = new Map();
 
-/** Fetches a JSON file from the published repository root, caching the promise. */
-export function fetchJson(file) {
-  let pending = inflight.get(file);
+/**
+ * A data file's URL, carrying the index's content fingerprint.
+ *
+ * This is what makes the browser's cache worth having. The page asks for several hundred
+ * files, and a plain request would have the browser ask the server about every one of
+ * them on every visit - hundreds of round trips before anything can be drawn. Asking
+ * instead for the path plus the fingerprint means the cached copy is exactly the right
+ * one: it is kept as long as the data is unchanged, and the name changes the moment new
+ * content lands on the branch, which is when the copy should be dropped. One update
+ * costs one refresh; every visit after it costs none.
+ *
+ * An index predating this field simply fetches the plain path, which is what the page
+ * did before.
+ */
+function versioned(file) {
+  return store.revision ? `${file}?v=${store.revision}` : file;
+}
+
+/**
+ * Fetches a JSON file from the published repository root, caching the promise.
+ *
+ * `revalidate` is for the two things that must never be served stale: the index, which
+ * carries the fingerprint everything else is versioned by, and the committed vanilla
+ * tables, which are small, live with the page rather than with the datapack, and so are
+ * not covered by the fingerprint.
+ */
+export function fetchJson(file, { revalidate = false } = {}) {
+  // Keyed by what was actually requested, so a file asked for at two revisions in one
+  // sitting is fetched twice rather than answered twice from the same promise.
+  const url = revalidate ? file : versioned(file);
+  let pending = inflight.get(url);
   if (!pending) {
-    pending = fetch(file, { cache: "no-cache" })
+    pending = fetch(url, { cache: revalidate ? "no-cache" : "force-cache" })
       .then((response) => {
         if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
         return response.json();
       })
       .catch((error) => {
-        inflight.delete(file);
+        inflight.delete(url);
         throw error;
       });
-    inflight.set(file, pending);
+    inflight.set(url, pending);
   }
   return pending;
 }
@@ -76,7 +106,11 @@ function makeEntry(registry, file) {
 }
 
 export async function loadManifest() {
-  store.manifest = await fetchJson("rpg-manifest.json");
+  // The index is the one file that is always revalidated: a stale copy would pin the
+  // page to the fingerprint it was built with, and no new content would ever be asked
+  // for again. It is one small request, so the cost is a single conditional GET.
+  store.manifest = await fetchJson("rpg-manifest.json", { revalidate: true });
+  store.revision = store.manifest.revision ?? null;
 }
 
 /** Loads every entry of one registry into its table, reporting progress. */
@@ -112,7 +146,9 @@ export const VANILLA_LANG = ["en_us", "zh_cn"].map((locale) => `assets/lang/vani
 export async function loadVanillaLang(file) {
   const locale = file.split("/").pop().replace(".json", "");
   try {
-    store.vanillaLang.set(locale, await fetchJson(file));
+    // Re-read every visit rather than versioned: the tables are committed with the page
+    // and are small, so a hand edit to one should not need an index rebuild to be seen.
+    store.vanillaLang.set(locale, await fetchJson(file, { revalidate: true }));
   } catch {
     // The page is still usable: every id falls back to a prettified name.
     store.vanillaLang.set(locale, null);

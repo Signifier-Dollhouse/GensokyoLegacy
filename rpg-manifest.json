@@ -780,6 +780,7 @@
     "assets/lang/vanilla/en_us.json",
     "assets/lang/vanilla/zh_cn.json"
   ],
+  "revision": "6dbdffd29a2885bd2735e7dc688fb43f",
   "stats": {
     "quest": 26,
     "dialog": 215,
