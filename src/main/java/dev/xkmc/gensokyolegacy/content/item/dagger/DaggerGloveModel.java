@@ -2,7 +2,7 @@ package dev.xkmc.gensokyolegacy.content.item.dagger;
 
 import com.tterrag.registrate.providers.DataGenContext;
 import com.tterrag.registrate.providers.RegistrateItemModelProvider;
-import dev.xkmc.gensokyolegacy.content.item.glovehand.GloveHandModel;
+import dev.xkmc.gensokyolegacy.content.item.common.GloveHandModel;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;

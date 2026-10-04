@@ -27,7 +27,7 @@ public interface GeoYoukaiAnim extends GeoEntity {
 
 	RawAnimation BLINK = RawAnimation.begin().thenLoop("眨眼");
 
-	byte ANIM_EVENT_BASE = 70;
+	byte ANIM_EVENT_BASE = 71;
 
 	String ANIM_CONTROLLER = "main";
 	String WINK_CONTROLLER = "wink";

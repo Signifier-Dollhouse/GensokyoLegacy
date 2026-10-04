@@ -4,7 +4,7 @@ import dev.xkmc.gensokyolegacy.content.entity.dolls.BaseDollEntity;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.DollEntity;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.menu.DollLoadoutProvider;
 import dev.xkmc.gensokyolegacy.content.item.glove.mode.DollGloveMode;
-import dev.xkmc.gensokyolegacy.content.item.targeting.GloveTargeting;
+import dev.xkmc.gensokyolegacy.content.item.common.GloveTargeting;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.l2itemselector.init.data.L2Keys;

@@ -4,7 +4,9 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.rpg.quest.QuestReward;
+import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -32,6 +34,11 @@ public record LootTableReward(ResourceLocation table) implements QuestReward<Loo
 				.withParameter(LootContextParams.ORIGIN, sp.position())
 				.create(LootContextParamSets.ADVANCEMENT_REWARD);
 		loot.getRandomItems(params, e -> sp.getInventory().placeItemBackInInventory(e));
+	}
+
+	@Override
+	public Component getDesc() {
+		return GLLang.JeiExtra.REWARD_LOOT.get(table.toString());
 	}
 
 }

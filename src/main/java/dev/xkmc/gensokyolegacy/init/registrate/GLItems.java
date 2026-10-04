@@ -9,9 +9,8 @@ import dev.xkmc.gensokyolegacy.content.attachment.doll.DollInventory;
 import dev.xkmc.gensokyolegacy.content.block.deco.shelf.MorichikaOfferData;
 import dev.xkmc.gensokyolegacy.content.block.functional.portal.PortalSide;
 import dev.xkmc.gensokyolegacy.content.client.model.*;
-import dev.xkmc.gensokyolegacy.content.entity.characters.fairy.CirnoModel;
 import dev.xkmc.gensokyolegacy.content.entity.characters.rumia.RumiaModel;
-import dev.xkmc.gensokyolegacy.content.item.broom.BroomItem;
+import dev.xkmc.gensokyolegacy.content.item.tool.BroomItem;
 import dev.xkmc.gensokyolegacy.content.item.character.*;
 import dev.xkmc.gensokyolegacy.content.item.debug.DebugGlasses;
 import dev.xkmc.gensokyolegacy.content.item.debug.DebugWand;
@@ -23,7 +22,6 @@ import dev.xkmc.gensokyolegacy.content.item.doll.DollLanceItem;
 import dev.xkmc.gensokyolegacy.content.item.gift.*;
 import dev.xkmc.gensokyolegacy.content.item.glove.DollGloveItem;
 import dev.xkmc.gensokyolegacy.content.item.glove.DollGloveModel;
-import dev.xkmc.gensokyolegacy.content.item.glove.mode.DollGloveMode;
 import dev.xkmc.gensokyolegacy.content.item.hexbrew.StarDanmakuItem;
 import dev.xkmc.gensokyolegacy.content.item.ingredient.FairyIceItem;
 import dev.xkmc.gensokyolegacy.content.item.ingredient.FrozenFrogItem;
@@ -55,12 +53,10 @@ import net.minecraft.tags.ItemTags;
 import net.minecraft.world.entity.animal.FrogVariant;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.Rarity;
-import net.neoforged.neoforge.client.model.generators.ItemModelBuilder;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
 import net.neoforged.neoforge.client.model.generators.loaders.SeparateTransformsModelBuilder;
 import net.neoforged.neoforge.registries.datamaps.builtin.FurnaceFuel;
@@ -251,10 +247,11 @@ public class GLItems {
 						.tag(head, GLTagGen.TOUHOU_HAT)
 						.register();
 
+				// the hairband and the wings are bones of Cirno's own geo rig now, so
+				// the items have no separate model to bake (and no render layer)
 				CIRNO_HAIRBAND = reg
 						.item("cirno_hairband", p -> new CirnoHairbandItem(p.rarity(Rarity.EPIC)))
 						.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/curio/" + ctx.getName())))
-						.clientExtension(() -> () -> new CirnoHairbandModel(CirnoModel.HAT))
 						.tag(head, GLTagGen.TOUHOU_HAT)
 						.register();
 

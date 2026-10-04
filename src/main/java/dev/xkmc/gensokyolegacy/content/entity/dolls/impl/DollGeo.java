@@ -18,6 +18,8 @@ public interface DollGeo extends DollBaseImpl, GeoEntity {
 	RawAnimation IDLE = RawAnimation.begin().thenLoop("toy_idle");
 	RawAnimation FLY = RawAnimation.begin().thenLoop("toy_fly");
 	RawAnimation ATTACK = RawAnimation.begin().thenPlay("toy_attack");
+	/** The same charge, swung with an empty hand: {@code toy_slapattack}. */
+	RawAnimation SLAP = RawAnimation.begin().thenPlay("toy_slapattack");
 	RawAnimation BOMB = RawAnimation.begin().thenPlay("toy_bomb");
 	RawAnimation BOW = RawAnimation.begin().thenPlay("toy_bow");
 	RawAnimation SKILL = RawAnimation.begin().thenPlay("toy_skill");
@@ -26,14 +28,17 @@ public interface DollGeo extends DollBaseImpl, GeoEntity {
 	String WINK_CONTROLLER = "wink";
 
 	/**
-	 * Entity event ids: vanilla {@code EntityEvent} uses up to 65, so 66+
-	 * are safe. Broadcast server-side, played client-side in
+	 * Entity event ids: vanilla {@code EntityEvent} uses up to 65, so 66+ are safe.
+	 * Dolls take 66-70; characters start after them (see
+	 * {@link dev.xkmc.gensokyolegacy.content.entity.youkai.GeoYoukaiAnim#ANIM_EVENT_BASE}).
+	 * Broadcast server-side, played client-side in
 	 * {@link DollEntity#handleEntityEvent}.
 	 */
 	byte EVENT_ATTACK = 66;
 	byte EVENT_BOMB = 67;
 	byte EVENT_BOW = 68;
 	byte EVENT_SKILL = 69;
+	byte EVENT_SLAP = 70;
 
 	private DollGeoModule geo() {
 		return asDoll().getModule(DollGeoModule.class);
@@ -52,6 +57,7 @@ public interface DollGeo extends DollBaseImpl, GeoEntity {
 		controllers.add(new AnimationController<>(asDoll(), WINK_CONTROLLER, 0, e -> e.setAndContinue(WINK)));
 		controllers.add(new AnimationController<>(asDoll(), "all", 3, this::dollAnimController)
 				.triggerableAnim("attack", ATTACK)
+				.triggerableAnim("slap", SLAP)
 				.triggerableAnim("bomb", BOMB)
 				.triggerableAnim("bow", BOW)
 				.triggerableAnim("skill", SKILL));
@@ -62,6 +68,7 @@ public interface DollGeo extends DollBaseImpl, GeoEntity {
 	 */
 	default void handleDollEvent(byte id) {
 		if (id == EVENT_ATTACK) triggerAnim("all", "attack");
+		else if (id == EVENT_SLAP) triggerAnim("all", "slap");
 		else if (id == EVENT_BOMB) triggerAnim("all", "bomb");
 		else if (id == EVENT_BOW) triggerAnim("all", "bow");
 		else if (id == EVENT_SKILL) triggerAnim("all", "skill");
@@ -70,6 +77,12 @@ public interface DollGeo extends DollBaseImpl, GeoEntity {
 	default void broadcastAttackAnim() {
 		if (!asDoll().level().isClientSide())
 			asDoll().level().broadcastEntityEvent(asDoll(), EVENT_ATTACK);
+	}
+
+	/** The bare-handed swing: {@link #EVENT_SLAP} rather than the lance clip. */
+	default void broadcastSlapAnim() {
+		if (!asDoll().level().isClientSide())
+			asDoll().level().broadcastEntityEvent(asDoll(), EVENT_SLAP);
 	}
 
 	default void broadcastBowAnim() {

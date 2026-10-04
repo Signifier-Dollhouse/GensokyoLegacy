@@ -10,7 +10,7 @@ import java.util.Optional;
  * {@link GeoYoukaiAnim#getAnim(YoukaiAnim)}.
  * <p>
  * Network sync uses {@code ordinal + offset} as the entity event id, so the
- * declaration order must stay stable. Dolls use 66-69; characters use 70-78.
+ * declaration order must stay stable. Dolls use 66-70; characters use 71-79.
  */
 public enum YoukaiAnim {
 

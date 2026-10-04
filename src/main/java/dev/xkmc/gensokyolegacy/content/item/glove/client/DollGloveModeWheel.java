@@ -2,7 +2,7 @@ package dev.xkmc.gensokyolegacy.content.item.glove.client;
 
 import dev.xkmc.gensokyolegacy.content.item.glove.DollGloveItem;
 import dev.xkmc.gensokyolegacy.content.item.glove.DollGloveSelectionListener;
-import dev.xkmc.gensokyolegacy.content.item.glove.network.DollGloveSelectPacket;
+import dev.xkmc.gensokyolegacy.content.item.common.network.SelectorSelectPacket;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.l2itemselector.wheel.PersistentWheel;
@@ -50,7 +50,7 @@ public class DollGloveModeWheel implements PersistentWheel<DollGloveModeEntry> {
 		var avail = DollGloveClientModes.available(mc.player, DollGloveItem.getMode(stack));
 		if (index < 0 || index >= avail.size()) return;
 		int ordinal = avail.get(index).ordinal();
-		GensokyoLegacy.HANDLER.toServer(new DollGloveSelectPacket(0, ordinal));
+		GensokyoLegacy.HANDLER.toServer(new SelectorSelectPacket(ordinal));
 		// optimistic update
 		stack.set(GLItems.DOLL_GLOVE_MODE.get(), ordinal);
 	}

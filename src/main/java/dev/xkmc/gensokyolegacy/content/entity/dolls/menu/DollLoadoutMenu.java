@@ -14,7 +14,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.items.IItemHandlerModifiable;
 import net.neoforged.neoforge.items.ItemHandlerCopySlot;
 import org.jetbrains.annotations.Nullable;
 
@@ -74,13 +73,18 @@ public class DollLoadoutMenu extends BaseContainerMenu<DollLoadoutMenu> {
 	 */
 	private static class LoadoutSlot extends ItemHandlerCopySlot {
 
-		LoadoutSlot(IItemHandlerModifiable handler, int index, int x, int y) {
+		private final DollLoadoutItemHandler handler;
+		private final int index;
+
+		LoadoutSlot(DollLoadoutItemHandler handler, int index, int x, int y) {
 			super(handler, index, x, y);
+			this.handler = handler;
+			this.index = index;
 		}
 
 		@Override
 		public int getMaxStackSize(ItemStack stack) {
-			return DollLoadoutItemHandler.handStackLimit(stack);
+			return handler.stackLimit(index, stack);
 		}
 	}
 

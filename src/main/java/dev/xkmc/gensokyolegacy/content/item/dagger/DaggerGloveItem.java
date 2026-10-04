@@ -1,7 +1,7 @@
 package dev.xkmc.gensokyolegacy.content.item.dagger;
 
 import dev.xkmc.danmakuapi.api.IDanmakuEntity;
-import dev.xkmc.gensokyolegacy.content.item.targeting.GloveTargeting;
+import dev.xkmc.gensokyolegacy.content.item.common.GloveTargeting;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
