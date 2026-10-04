@@ -40,31 +40,31 @@ public class GLTalismans {
 		HEAL_TALISMAN = reg.item("heal_talisman", p -> new HealTalisman(p, 16, 0xFFFF5050, GLLang.Talisman.KIND_HEAL))
 				.model((ctx, pvd) -> genLayeredItemModel(ctx.getName(), pvd, "life_talisman_paper"))
 				.color(() -> () -> TalismanPaperItem::color)
-				.tag(GLTagGen.TALISMAN)
+				.tag(GLTagGen.TALISMAN, GLTagGen.TALISMAN_PAPERS)
 				.lang("Healing Talisman Paper").register();
 
 		SPEED_TALISMAN = reg.item("speed_talisman", p -> new SpeedTalisman(p, 180, 0xFF55FF7F, GLLang.Talisman.KIND_SPEED))
 				.model((ctx, pvd) -> genLayeredItemModel(ctx.getName(), pvd, "speed_talisman_paper"))
 				.color(() -> () -> TalismanPaperItem::color)
-				.tag(GLTagGen.TALISMAN)
+				.tag(GLTagGen.TALISMAN, GLTagGen.TALISMAN_PAPERS)
 				.lang("Speed Boost Talisman Paper").register();
 
 		HYDROPHOBIC_TALISMAN = reg.item("hydrophobic_talisman", p -> new HydrophobicTalisman(p, 180, 0xFF5555FF, GLLang.Talisman.KIND_HYDROPHOBIC))
 				.model((ctx, pvd) -> genLayeredItemModel(ctx.getName(), pvd, "attack_talisman_paper"))
 				.color(() -> () -> TalismanPaperItem::color)
-				.tag(GLTagGen.TALISMAN)
+				.tag(GLTagGen.TALISMAN, GLTagGen.TALISMAN_PAPERS)
 				.lang("Hydrophobic Talisman Paper").register();
 
 		LAVA_TALISMAN = reg.item("lava_talisman", p -> new LavaAffinityTalisman(p, 180, 0xFFFFB37F, GLLang.Talisman.KIND_LAVA))
 				.model((ctx, pvd) -> genLayeredItemModel(ctx.getName(), pvd, "attack_talisman_paper"))
 				.color(() -> () -> TalismanPaperItem::color)
-				.tag(GLTagGen.TALISMAN)
+				.tag(GLTagGen.TALISMAN, GLTagGen.TALISMAN_PAPERS)
 				.lang("Lava Affinity Talisman Paper").register();
 
 		SHELTER_TALISMAN = reg.item("shelter_talisman", p -> new ShelterTalisman(p, 16, 0xFFFFFFD5, GLLang.Talisman.KIND_SHELTER))
 				.model((ctx, pvd) -> genLayeredItemModel(ctx.getName(), pvd, "life_talisman_paper"))
 				.color(() -> () -> TalismanPaperItem::color)
-				.tag(GLTagGen.TALISMAN)
+				.tag(GLTagGen.TALISMAN, GLTagGen.TALISMAN_PAPERS)
 				.lang("Shelter Talisman Paper").register();
 
 		FOLDED_PAPER_TALISMAN = reg.item("folded_paper_talisman", FoldedPaperTalisman::new)
