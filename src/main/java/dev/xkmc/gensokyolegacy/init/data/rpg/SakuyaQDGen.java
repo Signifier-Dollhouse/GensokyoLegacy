@@ -22,9 +22,9 @@ public class SakuyaQDGen extends QuestDialogData {
 	public SakuyaQDGen() {
 		prefix("sakuya/chat");
 		defaultDialog(GLEntities.IZAYOI_SAKUYA.get(),
-				"Hi there",
 				"May I help you?",
-				"Just passing by. Nice to meet you.");
+				"Nice to see you here",
+				"Nice stuff. Care to make an offer?");
 
 		chats();
 		trades();

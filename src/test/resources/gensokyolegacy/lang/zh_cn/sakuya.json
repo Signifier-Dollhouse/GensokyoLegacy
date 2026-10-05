@@ -3,9 +3,9 @@
 	"gensokyolegacy": {
 		"sakuya": {
 			"chat": {
-				"greeting": "您好。",
-				"trade": "只是路过。很高兴认识您。",
-				"visit_greeting": "需要我帮您做些什么吗？"
+				"greeting": "需要我帮您做些什么吗？",
+				"trade": "货色不错。要出价吗？",
+				"visit_greeting": "很高兴在这里见到您。"
 			},
 			"visit_morichika_shop": {
 				"starter": {
