@@ -57,6 +57,8 @@ public class ReimuQDGen extends QuestDialogData {
 	private static final int BAD_OMEN_DURATION = 12000;
 	private static final int FORTUNE_DURATION = 24000;
 	private static final String FORTUNE_KEY = "fortune";
+	private static final int FROG_CHAT_COOLDOWN = 1200;
+	private static final String FROG_KEY = "frog";
 
 	private static final ResourceLocation QUEST_LOCAL_FOOD = GensokyoLegacy.loc("reimu/local_food");
 	private static final ResourceLocation QUEST_HOSTILE_LOOT = GensokyoLegacy.loc("reimu/hostile_loot");
@@ -158,11 +160,14 @@ public class ReimuQDGen extends QuestDialogData {
 				CHAT_MISC);
 
 		prefix("reimu/chat_frog");
+		// Starts the cooldown on the first click inside the chat, the way the
+		// fortune chat only spends its timer when the stick is drawn.
 		chat("reimu/chat_frog", GLEntities.REIMU.get(),
-				List.of(homeBound(), hasItem(item(GLItems.STRAW_HAT.get(), 1)), hasQuest(QUEST_OMINOUS_BANNER)),
+				List.of(homeBound(), hasItem(item(GLItems.STRAW_HAT.get(), 1)), hasQuest(QUEST_OMINOUS_BANNER), timer(FROG_KEY)),
 				starterText("start", "About this straw hat..."),
 				dialog("talk", "That straw hat... it would look funny on a frog, wouldn't it?",
 						option("ask", "A frog?",
+								setTimer(FROG_KEY, FROG_CHAT_COOLDOWN),
 								dialog("idea", "Suwako is a frog goddess, after all. If she blessed frogs like that, maybe they'd develop a taste for raiders. Faith from frogs... heh, that'd be one way to gather it.",
 										option("bye", "Heh, maybe.")))),
 				CHAT_SPECIAL);

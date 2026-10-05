@@ -16,6 +16,10 @@
     {
       "type": "gensokyolegacy:has_quest_completed",
       "quest": "gensokyolegacy:reimu/ominous_banner"
+    },
+    {
+      "type": "gensokyolegacy:timer",
+      "key": "frog"
     }
   ],
   "dialog": "gensokyolegacy:reimu/chat_frog/talk",
