@@ -22,6 +22,7 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 
@@ -40,7 +41,7 @@ public record StructureHomeHolder(
 			LinkedHashSet<EntityType<?>> entities = new LinkedHashSet<>();
 			entities.add(GLEntities.CIRNO.get());
 			//TODO 结构自定义
-			config = new StructureConfig(entities,
+			config = new StructureConfig(entities, new LinkedHashMap<>(),
 					new ArrayList<>(), StructureInterior.empty(), new ArrayList<>(),
 					null, null, null);
 		}

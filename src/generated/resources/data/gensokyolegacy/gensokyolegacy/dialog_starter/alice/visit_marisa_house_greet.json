@@ -1,0 +1,11 @@
+{
+  "character": "gensokyolegacy:alice_margatroid",
+  "conditions": [
+    {
+      "type": "gensokyolegacy:visit_structure",
+      "structure": "gensokyolegacy:marisa_house"
+    }
+  ],
+  "dialog": "gensokyolegacy:alice/visit_marisa_house/greet",
+  "text": "gensokyolegacy/alice/visit_marisa_house/starter/greet"
+}

@@ -2,6 +2,9 @@
   "character": "gensokyolegacy:morichika_rinnosuke",
   "conditions": [
     {
+      "type": "gensokyolegacy:home_bound"
+    },
+    {
       "type": "gensokyolegacy:has_advancement",
       "advancement": "gensokyolegacy:main/enter_hakurei_shrine",
       "invert": true

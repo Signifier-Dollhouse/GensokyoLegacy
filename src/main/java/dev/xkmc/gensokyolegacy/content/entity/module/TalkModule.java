@@ -70,6 +70,9 @@ public class TalkModule extends AbstractYoukaiModule {
 	 */
 	public void beginTalking(ServerPlayer player) {
 		if (talkTarget != null) return;
+		// A visitor's window can close mid-conversation; the hold buys her enough
+		// time to finish handing something over or close a trade.
+		self.getModule(VisitModule.class).ifPresent(e -> e.hold(VisitModule.TALK_HOLD));
 		talkTarget = player;
 		self.setTalkTo(player, -1);
 	}

@@ -1,6 +1,10 @@
 {
   "character": "gensokyolegacy:kirisame_marisa",
-  "conditions": [],
+  "conditions": [
+    {
+      "type": "gensokyolegacy:home_bound"
+    }
+  ],
   "dialog": "gensokyolegacy:marisa/chat/hi",
   "text": "gensokyolegacy/marisa/chat/starter/start"
 }

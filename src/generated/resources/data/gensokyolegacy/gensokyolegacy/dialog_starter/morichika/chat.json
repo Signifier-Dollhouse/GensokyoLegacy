@@ -1,6 +1,10 @@
 {
   "character": "gensokyolegacy:morichika_rinnosuke",
-  "conditions": [],
+  "conditions": [
+    {
+      "type": "gensokyolegacy:home_bound"
+    }
+  ],
   "dialog": "gensokyolegacy:morichika/chat/hi",
   "text": "gensokyolegacy/morichika/chat/starter/start"
 }

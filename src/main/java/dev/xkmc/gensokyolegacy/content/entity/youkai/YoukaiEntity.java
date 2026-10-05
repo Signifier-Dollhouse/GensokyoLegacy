@@ -222,8 +222,18 @@ public abstract class YoukaiEntity extends DamageClampEntity implements SpellCir
 	}
 
 	protected List<AbstractYoukaiModule> createModules() {
-		return List.of(new HomeModule(this), //new GiftModule(this), new FeedModule(this),
+		return List.of(new HomeModule(this), new VisitModule(this),
+				//new GiftModule(this), new FeedModule(this),
 				new TalkModule(this));
+	}
+
+	/**
+	 * Whether this character is currently paying a visit to someone else's home.
+	 * A visitor has no {@link HomeModule} binding, so it can neither sleep nor
+	 * claim a bed, and the quest/dialog layer treats it as a guest.
+	 */
+	public boolean isVisiting() {
+		return getFlag(YoukaiFlags.VISITING);
 	}
 
 	@Override

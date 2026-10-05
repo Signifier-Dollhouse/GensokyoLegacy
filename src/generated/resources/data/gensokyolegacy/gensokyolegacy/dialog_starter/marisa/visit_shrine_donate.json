@@ -1,0 +1,12 @@
+{
+  "character": "gensokyolegacy:kirisame_marisa",
+  "conditions": [
+    {
+      "type": "gensokyolegacy:visit_structure",
+      "structure": "gensokyolegacy:hakurei_shrine"
+    }
+  ],
+  "dialog": "gensokyolegacy:marisa/visit_shrine/donate",
+  "text": "gensokyolegacy/marisa/visit_shrine/starter/donate",
+  "weight": 30
+}

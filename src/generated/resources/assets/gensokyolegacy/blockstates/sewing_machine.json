@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "gensokyolegacy:block/sewing_machine",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "gensokyolegacy:block/sewing_machine"
+    },
+    "facing=south": {
+      "model": "gensokyolegacy:block/sewing_machine",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "gensokyolegacy:block/sewing_machine",
+      "y": 270
+    }
+  }
+}

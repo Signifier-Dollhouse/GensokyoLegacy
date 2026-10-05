@@ -1,0 +1,11 @@
+{
+  "options": [
+    {
+      "type": "gensokyolegacy:simple",
+      "actions": [],
+      "conditions": [],
+      "text": "gensokyolegacy/alice/visit_marisa_house/option/greet/end"
+    }
+  ],
+  "text": "gensokyolegacy/alice/visit_marisa_house/dialog/alice/visit_marisa_house/greet"
+}

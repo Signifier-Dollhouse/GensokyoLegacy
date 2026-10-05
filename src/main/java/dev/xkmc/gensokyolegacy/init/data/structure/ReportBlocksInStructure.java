@@ -24,6 +24,9 @@ public class ReportBlocksInStructure {
 				report("hakurei_shrine/" + part + ".nbt");
 			}
 			report("morichika_shop.nbt");
+			for (var part : new String[]{"root", "gate", "garden", "path", "tree", "backyard"}) {
+				report("alice_house/" + part + ".nbt");
+			}
 		} catch (Exception e) {
 			LOGGER.throwing(e);
 		}

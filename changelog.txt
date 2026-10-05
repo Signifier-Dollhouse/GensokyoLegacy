@@ -1,3 +1,11 @@
+1.0.2
+- Add alice and doll lance. Dolls can use talisman in core slot now.
+- Add dagger glove and iron dagger
+- Add broom
+- decorative blocks: noren curtains, wrought iron bars
+- JEI for quest reward and trade
+- Patchouli improvement
+
 1.0.1
 - mark curios and patchouli as required prerequisite
 - remove irrelevant items and blocks.

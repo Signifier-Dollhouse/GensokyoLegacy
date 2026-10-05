@@ -23,6 +23,7 @@ import dev.xkmc.gensokyolegacy.content.rpg.trade.TradeOffer;
 import dev.xkmc.gensokyolegacy.content.rpg.trade.TradeRecurrence;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.GLAdvGen;
+import dev.xkmc.gensokyolegacy.init.data.structure.GLStructureGen;
 import dev.xkmc.gensokyolegacy.init.data.GLTagGen;
 import dev.xkmc.gensokyolegacy.init.registrate.GLEntities;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
@@ -90,22 +91,60 @@ public class MarisaQDGen extends QuestDialogData {
 		prefix("marisa/chat");
 		defaultDialog(GLEntities.MARISA.get(),
 				"Yo, hey~ welcome to the Kirisame Magic Shop!",
+				"Yo, hey~ hey, you too!",
 				"What are you offering today?");
-		starter("marisa/chat", new DialogStarter(GLEntities.MARISA.get(), List.of(),
+		starter("marisa/chat", new DialogStarter(GLEntities.MARISA.get(), List.of(homeBound()),
 				starterText("start", "Business usually busy around here?"),
 				dialog("hi", "Used to get plenty, but everything around here changed big-time lately — no idea where my customers went.",
 						option("hi/end", "I see."))
 		));
 
+		visitChats();
 		chats();
 		quests();
 		trades();
 	}
 
+	/**
+	 * Marisa out visiting - Kourindou and the shrine, depending on the day. She
+	 * visits two houses, so this is written per host: a joke about cramped rooms
+	 * does not land twice, and at the shrine she has her own thing to say.
+	 * {@code visitingAt} implies she is a guest at all, so none of it can surface
+	 * in her own shop.
+	 */
+	private void visitChats() {
+		prefix("marisa/visit_kourindou");
+		chat("marisa/visit_kourindou_wander", GLEntities.MARISA.get(),
+				List.of(visitingAt(GLStructureGen.MORICHIKA_SHOP)),
+				starterText("wander", "Nice place you've got here!"),
+				dialog("wander", "Not bad, not bad! Kinda cramped, but honestly? I like it. There's more room to think in here than in my own shop, somehow.",
+						option("stay", "You planning to move in?",
+								dialog("stay_ans", "Heh, don't tempt me. My mushrooms won't pack themselves — but I come out here more than I let on, if I'm honest.",
+										option("stay/end", "Honest. Rare.")))),
+				CHAT_MISC);
+
+		prefix("marisa/visit_shrine");
+		chat("marisa/visit_shrine_donate", GLEntities.MARISA.get(),
+				List.of(visitingAt(GLStructureGen.HAKUREI_SHRINE)),
+				starterText("donate", "Is the donation box as empty as it looks?"),
+				dialog("donate", "Oh, it's always empty — that's the whole problem. I come by sometimes to see if anyone's dropped anything in, and to make sure she hasn't floated off again. She never has, but you can never be sure.",
+						option("leave", "Should I put something in it?",
+								dialog("leave_ans", "...Would you? That's decent of you. She'd never say so — she'd just float a little higher. But she'd mean it.",
+										option("leave/end", "Consider it done.")))),
+				CHAT_MISC);
+
+		chat("marisa/visit_shrine_calm", GLEntities.MARISA.get(),
+				List.of(visitingAt(GLStructureGen.HAKUREI_SHRINE)),
+				starterText("calm", "It's quiet up here, isn't it?"),
+				dialog("calm", "Too quiet. I need a fuse going or my brain just stops. A shrine with nothing happening is basically a library, and I've never once been good at those.",
+						option("bye", "I won't keep you.")),
+				CHAT_DEFAULT);
+	}
+
 	private void chats() {
 		prefix("marisa/chat_reimu");
 		chat("marisa/chat_reimu", GLEntities.MARISA.get(),
-				List.of(missingAdv(GLAdvGen.ENTER_HAKUREI_SHRINE), new SelfReputationCondition(50)),
+				List.of(homeBound(), missingAdv(GLAdvGen.ENTER_HAKUREI_SHRINE), new SelfReputationCondition(50)),
 				starterText("start", "This world is so dangerous…"),
 				dialog("talk", "You'll find the Hakurei Shrine out in the cherry grove — an old friend of mine's there, a real incident-resolving expert. If you're heading into danger, she may provide something to aid you in a fight.",
 						option("where", "Anything I should know before visiting?",
@@ -115,7 +154,7 @@ public class MarisaQDGen extends QuestDialogData {
 
 		prefix("marisa/chat_morichika");
 		chat("marisa/chat_morichika", GLEntities.MARISA.get(),
-				List.of(missingAdv(GLAdvGen.ENTER_MORICHIKA_SHOP), new SelfReputationCondition(50)),
+				List.of(homeBound(), missingAdv(GLAdvGen.ENTER_MORICHIKA_SHOP), new SelfReputationCondition(50)),
 				starterText("start", "I wish I had tools to aid exploration…"),
 				dialog("talk", "Funny you mention tools — not all of my trinkets are handmade. There's another shop in this Magical Forest, Kourindou, run by an old acquaintance of mine. He deals all kinds of curios and tools, kinda a secondhand shop — if you need gear for exploring, he may sell you something useful.",
 						option("where", "What does he sell?",
@@ -123,12 +162,12 @@ public class MarisaQDGen extends QuestDialogData {
 										option("where/end", "I'll have to pay it a visit sometime.")))),
 				CHAT_INFO);
 
-		// Alice has no house structure or advancement to gate on, so this intro
-		// is rep-gated only and names her outright - Marisa has known her long
-		// enough. The "what does she want" follow doubles as a hint at quest 2.1.
+		// Hidden once you have found Alice's house yourself - Marisa has met her
+		// long enough to just name her, so this is a pointer, not a secret. The
+		// "what does she want" follow doubles as a hint at quest 2.1.
 		prefix("marisa/chat_alice");
 		chat("marisa/chat_alice", GLEntities.MARISA.get(),
-				List.of(new SelfReputationCondition(50)),
+				List.of(missingAdv(GLAdvGen.ENTER_ALICE_HOUSE), new SelfReputationCondition(50)),
 				starterText("start", "Who's the best doll-maker around here?"),
 				dialog("talk", "Dolls? Only one name comes to mind — Alice. She lives out in the Magical Forest too, same as me. Surly little thing, spends all day sewing and won't say a word about it, but if you want a doll that can hold its own in a fight, she's the one. Bring her colors and she'll do the work.",
 						option("where", "What does she want in return?",
@@ -517,14 +556,15 @@ public class MarisaQDGen extends QuestDialogData {
 				new ItemStack(GLItems.BROOM.get()),
 				new TradeRecurrence(1, 24000), List.of(item(GLItems.MYSTICAL_STRAW.get(), 8))));
 
-		// Processing trades
+		// Processing trades - these need her own workshop, so she only offers them
+		// from the shop rather than from wherever she happens to be visiting.
 		trade("process_golden_apple", new TradeOffer(GLEntities.MARISA.get(),
-				List.of(new SelfReputationCondition(30)),
+				List.of(homeBound(), new SelfReputationCondition(30)),
 				new ItemStack(Items.ENCHANTED_GOLDEN_APPLE),
 				new TradeRecurrence(1, 24000),
 				List.of(item(Items.GOLDEN_APPLE, 1), item(Items.GOLD_BLOCK, 1))));
 		trade("process_elixir", new TradeOffer(GLEntities.MARISA.get(),
-				List.of(new SelfReputationCondition(80)),
+				List.of(homeBound(), new SelfReputationCondition(80)),
 				new ItemStack(HexBrew.HEXBREW_ELIXIR.bottle.get()),
 				new TradeRecurrence(16, 24000),
 				List.of(item(HexBrew.MUNDANE_HEXBREW.bottle, 4))));

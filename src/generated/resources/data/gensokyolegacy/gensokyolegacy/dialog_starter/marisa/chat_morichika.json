@@ -2,6 +2,9 @@
   "character": "gensokyolegacy:kirisame_marisa",
   "conditions": [
     {
+      "type": "gensokyolegacy:home_bound"
+    },
+    {
       "type": "gensokyolegacy:has_advancement",
       "advancement": "gensokyolegacy:main/enter_morichika_shop",
       "invert": true

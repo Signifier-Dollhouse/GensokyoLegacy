@@ -1,0 +1,23 @@
+{
+  "name": "Lance Charge",
+  "icon": "gensokyolegacy:doll_lance",
+  "category": "gensokyolegacy:dolls",
+  "advancement": "gensokyolegacy:main/obtain_doll_glove",
+  "sortnum": 5,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "gensokyolegacy:doll_lance",
+      "title": "The Lance Charge",
+      "text": "The Doll Lance is the only weapon that arms a doll for melee — a sword in the hand does nothing at all. On the attack order the doll flies at its target at twice its usual speed, swings the moment it arrives, hangs on the spot for a beat and then flies back to where the charge began. The lance is never spent, so one in the hand is one charge per order however big the stack is."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Bare hands charge too$(br)A doll holding nothing that can attack, with at least one hand free, slaps instead: the same charge, the same recoil and the same flight home, with the swing moved onto the hand that is actually empty. Whatever sat in the other hand is carried across, and the swap sticks until the next order. The slap is the doll's own 1 damage where the lance swings for 5 — which is why a doll holding nothing but a laser, a talisman or a shield still answers an attack.$(br2)$(bold)Danmaku outranks the lance$(br)A doll holding a danmaku item keeps shooting and never charges; the lance is what it charges with once the shots are gone, since a shot flies further than the 16 blocks a charge will commit to."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)How far it goes$(br)A charge only starts from within 16 blocks of its target and never carries the doll more than 20 blocks from where it began — past that it turns back, and a target that keeps pulling away is simply dropped. An attack order no doll could reach is refused outright instead of being sent, and the whole volley refuses with it.$(br2)$(bold)How hard it hits$(br)Damage is the doll's own attack plus the weapon's own main-hand damage, so a Sharpened lance swings for its flat number: enchantments ride the attacker's held item, and a loadout is not one. A landed hit knocks the target back and ends the charge on the spot, handing the attack to the next doll in the line while this one is still in the air."
+    }
+  ]
+}

@@ -26,6 +26,8 @@ public class GLModConfig {
 
 		public final ModConfigSpec.DoubleValue reputationDecayFloor;
 
+		public final ModConfigSpec.DoubleValue visitStayMultiplier;
+
 		public final ModConfigSpec.IntValue frogEatCountForHat;
 		public final ModConfigSpec.IntValue koishiAttackCoolDown;
 		public final ModConfigSpec.DoubleValue koishiAttackChance;
@@ -46,6 +48,13 @@ public class GLModConfig {
 			{
 				reputationDecayFloor = builder.text("Daily reputation decay never reduces reputation below this fraction of the reputation cap")
 						.defineInRange("reputationDecayFloor", 0.8, 0, 1);
+			}
+			builder.pop();
+
+			builder.push("visit", "Character Visit");
+			{
+				visitStayMultiplier = builder.text("Multiplier on the visit lengths authored in structure_config; 1.0 uses the authored length. Raising it makes guests stay longer, and therefore show up more often")
+						.defineInRange("visitStayMultiplier", 1.0, 0.1, 5);
 			}
 			builder.pop();
 

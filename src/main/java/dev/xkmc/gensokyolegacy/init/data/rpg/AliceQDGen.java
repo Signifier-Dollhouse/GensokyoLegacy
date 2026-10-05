@@ -17,6 +17,7 @@ import dev.xkmc.gensokyolegacy.content.rpg.reward.ReputationReward;
 import dev.xkmc.gensokyolegacy.content.rpg.trade.TradeOffer;
 import dev.xkmc.gensokyolegacy.content.rpg.trade.TradeRecurrence;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
+import dev.xkmc.gensokyolegacy.init.data.structure.GLStructureGen;
 import dev.xkmc.gensokyolegacy.init.registrate.GLEntities;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLNaturalBlocks;
@@ -89,15 +90,22 @@ public class AliceQDGen extends QuestDialogData {
 		prefix("alice/chat");
 		defaultDialog(GLEntities.ALICE.get(),
 				"Oh - a visitor. Do come in; the Magical Forest is loud enough already.",
+				"...Forgive me. I had not expected company today.",
 				"Is there something you'd like made?");
-		starter("alice/chat", new DialogStarter(GLEntities.ALICE.get(), List.of(),
+		// home-bound: the reply below is about living out here, which is not what
+		// a guest standing on someone else's doorstep should say
+		starter("alice/chat", new DialogStarter(GLEntities.ALICE.get(), List.of(homeBound()),
 				starterText("start", "You live out here all by yourself?"),
 				dialog("hi", "All by myself? Not quite. The forest keeps me company, and the dolls keep me busy. I live here in the Magical Forest - a quiet stretch of it, far from the noise. Was there something you needed?",
 						option("hi/end", "Not right now."))
 		));
 
+		visitChats();
+
 		// Unlocked by 2.1, which is also the quest that hands out the first doll
 		// lance - this chat says what a doll fights with and where the wands come from.
+		// Deliberately not home-bound: it points at a house further along, which is
+		// exactly what a guest should hear.
 		prefix("alice/chat_star_wand");
 		chat("alice/chat_star_wand", GLEntities.ALICE.get(),
 				List.of(hasQuest(QUEST_SEVEN_COLORS)),
@@ -107,6 +115,30 @@ public class AliceQDGen extends QuestDialogData {
 								dialog("where_ans", "The one with the house full of mushrooms and the roof that keeps exploding. She does not advertise, but she always has stock. Point a doll at what you want it to hit, and the wand will do the rest.",
 										option("where/end", "Then I'll go and see her.")))),
 				CHAT_INFO);
+	}
+
+	/**
+	 * Alice out visiting. Marisa's house is the only place she goes, so this is
+	 * written for that house rather than left host-agnostic. {@code visitingAt}
+	 * implies she is a guest at all, so none of it can surface at her own door.
+	 */
+	private void visitChats() {
+		prefix("alice/visit_marisa_house");
+		chat("alice/visit_marisa_house_call", GLEntities.ALICE.get(),
+				List.of(visitingAt(GLStructureGen.MARISA_HOUSE)),
+				starterText("call", "Is she in today, do you think?"),
+				dialog("call", "...She is at her own house, I am afraid. I came for the mushrooms - the large ones she keeps in the east room. I would not normally ask a stranger for leave to rifle through a magician's shelves, but you may know the terms on which one does that.",
+						option("terms", "What terms?",
+								dialog("terms_ans", "Bring something she wants, ask plainly, and take only what was offered. She is not unfriendly - she simply does not do business from behind her own door. You will find she is reasonable.",
+										option("terms/end", "Then I shall ask her myself.")))),
+				CHAT_MISC);
+
+		chat("alice/visit_marisa_house_greet", GLEntities.ALICE.get(),
+				List.of(visitingAt(GLStructureGen.MARISA_HOUSE)),
+				starterText("greet", "This is all rather far from my workshop."),
+				dialog("greet", "It is. I am not often away - the dolls do not sew themselves, and the mushrooms here are not the ones I want. Still. It is restful, being somewhere that is not mine to keep tidy.",
+						option("greet/end", "Take your time.")),
+				CHAT_DEFAULT);
 	}
 
 	private void quests() {

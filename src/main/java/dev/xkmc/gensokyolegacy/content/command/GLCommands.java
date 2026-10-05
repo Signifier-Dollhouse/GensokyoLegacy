@@ -10,6 +10,12 @@ import com.mojang.brigadier.suggestion.SuggestionProvider;
 import dev.xkmc.gensokyolegacy.content.attachment.character.CharDataHolder;
 import dev.xkmc.gensokyolegacy.content.attachment.character.CharacterData;
 import dev.xkmc.gensokyolegacy.content.attachment.character.ReputationConstants;
+import dev.xkmc.gensokyolegacy.content.attachment.datamap.StructureConfig;
+import dev.xkmc.gensokyolegacy.content.attachment.home.core.IHomeHolder;
+import dev.xkmc.gensokyolegacy.content.entity.module.VisitModule;
+import dev.xkmc.gensokyolegacy.content.entity.visit.VisitScheduler;
+import dev.xkmc.gensokyolegacy.content.entity.visit.VisitTable;
+import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.rpg.core.CodecRegistry;
 import dev.xkmc.gensokyolegacy.content.rpg.network.QuestStatusToClient;
 import dev.xkmc.gensokyolegacy.content.rpg.network.TradeStatusToClient;
@@ -25,8 +31,10 @@ import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.arguments.ResourceLocationArgument;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -56,12 +64,33 @@ public class GLCommands {
 			new SimpleCommandExceptionType(Component.literal("Trade offer does not belong to this character"));
 	private static final SimpleCommandExceptionType ERROR_UNKNOWN_PROGRESS_KEY =
 			new SimpleCommandExceptionType(Component.literal("Unknown quest requirement key"));
+	private static final SimpleCommandExceptionType ERROR_NO_HOME =
+			new SimpleCommandExceptionType(Component.literal("You are not inside a home"));
+	private static final SimpleCommandExceptionType ERROR_NO_VISITOR =
+			new SimpleCommandExceptionType(Component.literal("No visitor here to dismiss"));
 
 	private static final SuggestionProvider<CommandSourceStack> SUGGEST_CHARACTER = (ctx, builder) -> {
 		var access = ctx.getSource().registryAccess();
 		Set<ResourceLocation> ids = new LinkedHashSet<>();
 		for (var e : access.registryOrThrow(CodecRegistry.Keys.STARTER).entrySet())
 			ids.add(BuiltInRegistries.ENTITY_TYPE.getKey(e.getValue().character()));
+		return SharedSuggestionProvider.suggestResource(ids, builder);
+	};
+
+	/**
+	 * Characters some structure in the loaded world accepts as guests. Suggesting
+	 * from the guest pools rather than from the starter registry, since a visitor
+	 * needs no content of its own to be summoned.
+	 */
+	private static final SuggestionProvider<CommandSourceStack> SUGGEST_VISITORS = (ctx, builder) -> {
+		Set<ResourceLocation> ids = new LinkedHashSet<>();
+		var reg = ctx.getSource().registryAccess().registryOrThrow(Registries.STRUCTURE);
+		for (var key : reg.keySet()) {
+			var config = reg.getHolder(key).map(h -> h.getData(GLMeta.STRUCTURE_DATA.reg())).orElse(null);
+			if (config == null) continue;
+			for (var guest : config.visitors().keySet())
+				ids.add(BuiltInRegistries.ENTITY_TYPE.getKey(guest));
+		}
 		return SharedSuggestionProvider.suggestResource(ids, builder);
 	};
 
@@ -224,7 +253,18 @@ public class GLCommands {
 								.executes(GLCommands::executeCompleteAll)))
 				.then(Commands.literal("resetAll")
 						.then(Commands.argument("player", EntityArgument.player())
-								.executes(GLCommands::executeResetAll))));
+								.executes(GLCommands::executeResetAll)))
+				.then(Commands.literal("visit")
+						.then(Commands.literal("end")
+								.executes(GLCommands::executeVisitEnd))
+						.then(Commands.literal("info")
+								.executes(GLCommands::executeVisitInfo))
+						.then(Commands.argument("character", ResourceLocationArgument.id())
+								.suggests(SUGGEST_VISITORS)
+								.executes(GLCommands::executeVisit)
+								.then(Commands.argument("ticks", IntegerArgumentType.integer(20, 24000))
+										.executes(ctx -> forceVisit(ctx,
+												IntegerArgumentType.getInteger(ctx, "ticks")))))));
 	}
 
 	private static com.mojang.brigadier.builder.LiteralArgumentBuilder<CommandSourceStack> literal(String str) {
@@ -263,6 +303,76 @@ public class GLCommands {
 
 	private static CharDataHolder charHolder(ServerPlayer sp, EntityType<?> type) {
 		return GLMeta.CHAR.type().getOrCreate(sp).getUnbounded(sp, type);
+	}
+
+	// --- visit ---
+
+	/**
+	 * Default length of a command-forced visit, in ticks.
+	 */
+	private static final int DEFAULT_VISIT = 6000;
+
+	private static int executeVisit(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+		return forceVisit(ctx, DEFAULT_VISIT);
+	}
+
+	private static int forceVisit(CommandContext<CommandSourceStack> ctx, int stay) throws CommandSyntaxException {
+		EntityType<?> guest = getCharacter(ctx, "character");
+		var src = ctx.getSource();
+		var home = IHomeHolder.find(src.getLevel(), BlockPos.containing(src.getPosition()));
+		if (home == null) throw ERROR_NO_HOME.create();
+		var visitor = VisitScheduler.force(src.getLevel(), home.key(), home, guest, stay);
+		if (visitor == null) {
+			src.sendFailure(Component.literal("Nowhere for " + guest.toShortString() + " to stand here."));
+			return 0;
+		}
+		src.sendSuccess(() -> Component.literal(guest.toShortString() + " is visiting "
+				+ home.key().structure() + " for " + stay + " ticks"), false);
+		return 1;
+	}
+
+	private static int executeVisitEnd(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+		var sp = ctx.getSource().getPlayerOrException();
+		YoukaiEntity target = null;
+		double best = 64;
+		for (var e : sp.level().getEntities(sp, sp.getBoundingBox().inflate(16),
+				e -> e instanceof YoukaiEntity y && y.isVisiting())) {
+			double d = e.distanceToSqr(sp);
+			if (d < best) {
+				best = d;
+				target = (YoukaiEntity) e;
+			}
+		}
+		if (target == null) throw ERROR_NO_VISITOR.create();
+		String name = target.getName().getString();
+		target.getModule(VisitModule.class).ifPresent(VisitModule::dismiss);
+		ctx.getSource().sendSuccess(() -> Component.literal(name + " left."), false);
+		return 1;
+	}
+
+	private static int executeVisitInfo(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+		var src = ctx.getSource();
+		var sl = src.getLevel();
+		var home = IHomeHolder.find(sl, BlockPos.containing(src.getPosition()));
+		if (home == null) throw ERROR_NO_HOME.create();
+		var key = home.key();
+		var config = StructureConfig.of(sl.registryAccess(), key);
+		src.sendSuccess(() -> Component.literal("Home " + key.structure() + " at " + key.pos()
+				+ " - day time " + (sl.getDayTime() % 24000L) + ", window closes at " + VisitTable.WINDOW), false);
+		if (config == null || config.visitors().isEmpty()) {
+			src.sendSuccess(() -> Component.literal("  no guests declared"), false);
+			return 1;
+		}
+		for (var entry : config.visitors().entrySet()) {
+			var guest = entry.getKey();
+			int left = VisitTable.remaining(sl, key, guest);
+			boolean here = VisitScheduler.find(sl, key, guest, home) != null;
+			src.sendSuccess(() -> Component.literal("  " + BuiltInRegistries.ENTITY_TYPE.getKey(guest)
+					+ ": " + Math.round(entry.getValue().chance() * 100) + "% of days, "
+					+ entry.getValue().minStay() + "-" + entry.getValue().maxStay() + "t -> "
+					+ (left > 0 ? left + "t left" : "not visiting") + (here ? " (on site)" : "")), false);
+		}
+		return 1;
 	}
 
 	// --- reputation ---

@@ -1,5 +1,144 @@
 {
   "values": {
+    "gensokyolegacy:alice_house": {
+      "entities": [
+        "gensokyolegacy:alice_margatroid"
+      ],
+      "house": [
+        [
+          0,
+          0,
+          0,
+          18,
+          22,
+          17
+        ]
+      ],
+      "interior": {
+        "nodes": [
+          {
+            "posA": [
+              9,
+              1,
+              11
+            ],
+            "posB": [
+              9,
+              1,
+              11
+            ],
+            "roomA": 0,
+            "roomB": 1
+          },
+          {
+            "posA": [
+              11,
+              1,
+              11
+            ],
+            "posB": [
+              11,
+              1,
+              11
+            ],
+            "roomA": 1,
+            "roomB": 2
+          },
+          {
+            "posA": [
+              24,
+              1,
+              8
+            ],
+            "posB": [
+              24,
+              6,
+              14
+            ],
+            "roomA": 2,
+            "roomB": 3
+          },
+          {
+            "posA": [
+              18,
+              1,
+              6
+            ],
+            "posB": [
+              18,
+              1,
+              6
+            ],
+            "roomA": 2,
+            "roomB": -1
+          },
+          {
+            "posA": [
+              25,
+              6,
+              7
+            ],
+            "posB": [
+              25,
+              6,
+              7
+            ],
+            "roomA": 3,
+            "roomB": -1
+          }
+        ],
+        "rooms": [
+          {
+            "bound": [
+              2,
+              1,
+              7,
+              9,
+              17,
+              15
+            ],
+            "name": "tower_hall"
+          },
+          {
+            "bound": [
+              10,
+              1,
+              9,
+              11,
+              9,
+              13
+            ],
+            "name": "arcade"
+          },
+          {
+            "bound": [
+              12,
+              1,
+              6,
+              25,
+              4,
+              14
+            ],
+            "name": "wing_ground"
+          },
+          {
+            "bound": [
+              12,
+              5,
+              6,
+              25,
+              8,
+              14
+            ],
+            "name": "wing_upper"
+          }
+        ]
+      },
+      "primaryFix": "gensokyolegacy:structure_fix/alice_house/primary",
+      "rooms": [],
+      "visitors": {},
+      "wouldFix": "gensokyolegacy:structure_fix/alice_house/would_fix"
+    },
     "gensokyolegacy:hakurei_shrine": {
       "entities": [
         "gensokyolegacy:hakurei_reimu"
@@ -37,6 +176,13 @@
           7
         ]
       ],
+      "visitors": {
+        "gensokyolegacy:kirisame_marisa": {
+          "chance": 0.2,
+          "maxStay": 3600,
+          "minStay": 2400
+        }
+      },
       "wouldFix": "gensokyolegacy:structure_fix/hakurei_shrine/would_fix"
     },
     "gensokyolegacy:marisa_house": {
@@ -233,6 +379,13 @@
       },
       "primaryFix": "gensokyolegacy:structure_fix/marisa_house/primary",
       "rooms": [],
+      "visitors": {
+        "gensokyolegacy:alice_margatroid": {
+          "chance": 0.2,
+          "maxStay": 3600,
+          "minStay": 2400
+        }
+      },
       "wouldFix": "gensokyolegacy:structure_fix/marisa_house/would_fix"
     },
     "gensokyolegacy:morichika_shop": {
@@ -288,6 +441,18 @@
           25
         ]
       ],
+      "visitors": {
+        "gensokyolegacy:hakurei_reimu": {
+          "chance": 0.3,
+          "maxStay": 6000,
+          "minStay": 2400
+        },
+        "gensokyolegacy:kirisame_marisa": {
+          "chance": 0.3,
+          "maxStay": 6000,
+          "minStay": 2400
+        }
+      },
       "wouldFix": "gensokyolegacy:structure_fix/morichika_shop/would_fix"
     }
   }

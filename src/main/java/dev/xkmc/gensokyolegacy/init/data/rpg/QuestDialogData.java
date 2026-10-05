@@ -8,7 +8,9 @@ import dev.xkmc.gensokyolegacy.content.rpg.action.SetTimerAction;
 import dev.xkmc.gensokyolegacy.content.rpg.condition.HasAdvancementCondition;
 import dev.xkmc.gensokyolegacy.content.rpg.condition.HasItemCondition;
 import dev.xkmc.gensokyolegacy.content.rpg.condition.HasQuestCompletedCondition;
+import dev.xkmc.gensokyolegacy.content.rpg.condition.HomeBoundCondition;
 import dev.xkmc.gensokyolegacy.content.rpg.condition.TimerCondition;
+import dev.xkmc.gensokyolegacy.content.rpg.condition.VisitStructureCondition;
 import dev.xkmc.gensokyolegacy.content.rpg.core.CodecRegistry;
 import dev.xkmc.gensokyolegacy.content.rpg.core.IngredientEntry;
 import dev.xkmc.gensokyolegacy.content.rpg.dialog.Dialog;
@@ -138,9 +140,10 @@ public class QuestDialogData {
         return text("quest", "title", text);
     }
 
-    public void defaultDialog(EntityType<?> type, String greetingText, String tradeText) {
+    public void defaultDialog(EntityType<?> type, String greetingText, String visitGreetingText, String tradeText) {
         defaultDialogMap.put(type, new DialogConfig(
                 dialogText("greeting", greetingText),
+                dialogText("visit_greeting", visitGreetingText),
                 dialogText("trade", tradeText)));
     }
 
@@ -214,6 +217,30 @@ public class QuestDialogData {
 
     protected TimerCondition timer(String key) {
         return new TimerCondition(key);
+    }
+
+    /**
+     * Content that only makes sense in the character's own home: the greeting
+     * chats, and trades that need her equipment or her shelves.
+     */
+    protected HomeBoundCondition homeBound() {
+        return new HomeBoundCondition();
+    }
+
+    /**
+     * Content that only makes sense while she is a guest somewhere else.
+     */
+    protected HomeBoundCondition visiting() {
+        return new HomeBoundCondition(true);
+    }
+
+    /**
+     * Content that only makes sense while she is a guest of this particular
+     * home - which is how visit chat is written, since she talks about different
+     * things at different houses. Implies {@link #visiting()}.
+     */
+    protected VisitStructureCondition visitingAt(ResourceLocation structure) {
+        return new VisitStructureCondition(structure);
     }
 
     protected SetTimerAction setTimer(String key, int delay) {

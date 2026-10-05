@@ -5,6 +5,7 @@ import dev.xkmc.gensokyolegacy.content.entity.behavior.sensor.*;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.l2core.init.reg.simple.SR;
 import dev.xkmc.l2core.init.reg.simple.Val;
+import net.minecraft.core.GlobalPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.util.Unit;
 import net.minecraft.world.entity.LivingEntity;
@@ -35,11 +36,21 @@ public class GLBrains {
 	public static final Val<MemoryModuleType<Unit>> MEM_DOWN = MEMORIES.reg("down", () -> new MemoryModuleType<>(Optional.of(Unit.CODEC)));
 	public static final Val<MemoryModuleType<Player>> MEM_TALK = MEMORIES.reg("talk", () -> new MemoryModuleType<>(Optional.empty()));
 	public static final Val<MemoryModuleType<List<ItemEntity>>> MEM_ITEMS = MEMORIES.reg("nearby_items", () -> new MemoryModuleType<>(Optional.empty()));
+	/**
+	 * Where the character is visiting. Its presence is what puts her in
+	 * {@link #VISITING} instead of following her schedule.
+	 */
+	public static final Val<MemoryModuleType<GlobalPos>> MEM_VISIT = MEMORIES.reg("visit", () -> new MemoryModuleType<>(Optional.empty()));
 
 	public static final Val<Activity> AT_HOME = ACTIVITIES.reg("at_home", () -> new Activity("at_home"));
 	public static final Val<Activity> HUNT = ACTIVITIES.reg("hunt", () -> new Activity("hunt"));
 	public static final Val<Activity> DOWN = ACTIVITIES.reg("down", () -> new Activity("down"));
 	public static final Val<Activity> TALK = ACTIVITIES.reg("talk", () -> new Activity("talk"));
+	/**
+	 * Being a guest in someone else's home. Priority 50 puts it between FIGHT(0)
+	 * and TALK(100), so a visitor still stops to talk - see the design doc.
+	 */
+	public static final Val<Activity> VISITING = ACTIVITIES.reg("visiting", () -> new Activity("visiting"));
 
 	public static void register() {
 	}

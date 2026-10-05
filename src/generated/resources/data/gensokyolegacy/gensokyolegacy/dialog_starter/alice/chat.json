@@ -1,6 +1,10 @@
 {
   "character": "gensokyolegacy:alice_margatroid",
-  "conditions": [],
+  "conditions": [
+    {
+      "type": "gensokyolegacy:home_bound"
+    }
+  ],
   "dialog": "gensokyolegacy:alice/chat/hi",
   "text": "gensokyolegacy/alice/chat/starter/start"
 }
