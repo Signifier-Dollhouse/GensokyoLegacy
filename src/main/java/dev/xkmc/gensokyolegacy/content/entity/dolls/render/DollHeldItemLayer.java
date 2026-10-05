@@ -44,6 +44,9 @@ public class DollHeldItemLayer extends BlockAndItemGeoLayer<DollEntity> {
      * The bone's own side, not always right: items whose model carries separate per-side
      * transforms (the doll glove mitten does, for both the 1st and 3rd person hand) render
      * unmirrored on the left arm otherwise.
+     * <p>
+     * Pairs with the {@code leftHand} flag in {@link #renderStackForBone}: the context picks
+     * <em>which</em> authored transform, the flag cancels the mirror that transform already carries.
      */
     @Override
     protected ItemDisplayContext getTransformTypeForStack(GeoBone bone, ItemStack stack, DollEntity doll) {
@@ -52,15 +55,34 @@ public class DollHeldItemLayer extends BlockAndItemGeoLayer<DollEntity> {
                 : ItemDisplayContext.THIRD_PERSON_RIGHT_HAND;
     }
 
+    /**
+     * Renders the stack itself instead of delegating to {@code super}, which hardcodes
+     * {@code leftHand = false} and so cannot reproduce vanilla's third-person left hand.
+     * <p>
+     * Vanilla authors {@code thirdperson_lefthand} as the mirror of {@code thirdperson_righthand},
+     * then cancels that mirror at apply time: vanilla's {@code ItemInHandLayer} passes
+     * {@code arm == LEFT} into {@code renderStatic}, and {@code ItemTransform#apply} negates the
+     * Y/Z rotation and X translation straight back out. Both hands therefore get the <em>same</em>
+     * hand-relative transform and the mirrored arm bone does the mirroring. The two locator bones
+     * are exact X-mirrors of each other, so asking for the left-hand context alone lands the item
+     * at {@code M·A_right·M·T_right} rather than vanilla's {@code M·A_right·T_right} — the extra
+     * {@code M} being the very mirror the flag exists to remove.
+     * <p>
+     * A model that omits {@code thirdperson_lefthand} needs no help: {@code ItemTransforms}'s
+     * deserializer copies the right-hand transform into the left slot, leaving the flag nothing
+     * but that authored transform to cancel.
+     */
     @Override
     protected void renderStackForBone(PoseStack poseStack, GeoBone bone, ItemStack stack, DollEntity doll,
                                       MultiBufferSource bufferSource, float partialTick, int packedLight, int packedOverlay) {
+        var left = bone.getName().equals(LEFT_HAND_BONE);
         poseStack.pushPose();
         poseStack.scale(0.8F, 0.8F, 0.8F);
         poseStack.mulPose(Axis.XP.rotationDegrees(90));
         poseStack.translate(0.0D, 0.0D, -0.2D);
-        super.renderStackForBone(poseStack, bone, stack, doll, itemBuffer(bufferSource),
-                partialTick, packedLight, packedOverlay);
+        Minecraft.getInstance().getItemRenderer().renderStatic(doll, stack,
+                getTransformTypeForStack(bone, stack, doll), left, poseStack, itemBuffer(bufferSource),
+                doll.level(), packedLight, packedOverlay, doll.getId());
         poseStack.popPose();
     }
 
