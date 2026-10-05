@@ -111,4 +111,23 @@ public class StructureConfigBuilder {
 				.wouldFix(GLStructureTagGen.MORICHIKA_FIX);
 	}
 
+	// alice_house root is 29x23x18 with bed at local (12,6,6)-(12,6,7);
+	// the other five jigsaw parts (gate, garden, path, tree, backyard) are
+	// pure yard and hold no building, so they need no boxes.
+	// Single box lifted by one to exclude the ground plate, spanning the
+	// whole shell: west tower x1-10 y1-17 plus its hip roof up to y22, east
+	// wing x11-25 under a gable roof up to y13, the iron awning at z1-5 and
+	// the entry porch out to x28. Only the roof eave overhangs past it
+	// (x=0 and z=17, both at y18) and the yard soil stay outside.
+	// No room boxes yet: getRoomBounds then falls back to the whole root
+	// piece box, which still contains every indoor space.
+	public static StructureConfig.Builder alice() {
+		return StructureConfig.builder()
+				.house(List.of(
+						new BoundingBox(1, 1, 1, 28, 22, 16)
+				))
+				.primary(GLStructureTagGen.ALICE_PRIMARY)
+				.wouldFix(GLStructureTagGen.ALICE_FIX);
+	}
+
 }

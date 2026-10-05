@@ -23,6 +23,7 @@ public class GLStructureTagGen {
 	public static final TagKey<Biome> HAKUREI_SHRINE = biomeTag("has_structure/hakurei_shrine");
 	public static final TagKey<Biome> MARISA_HOUSE = biomeTag("has_structure/marisa_house");
 	public static final TagKey<Biome> MORICHIKA_SHOP = biomeTag("has_structure/morichika_shop");
+	public static final TagKey<Biome> ALICE_HOUSE = biomeTag("has_structure/alice_house");
 
 	public static final TagKey<Block> CIRNO_PRIMARY = blockTag("structure_fix/cirno_nest/primary");
 	public static final TagKey<Block> CIRNO_FIX = blockTag("structure_fix/cirno_nest/would_fix");
@@ -32,6 +33,8 @@ public class GLStructureTagGen {
 	public static final TagKey<Block> MARISA_FIX = blockTag("structure_fix/marisa_house/would_fix");
 	public static final TagKey<Block> MORICHIKA_PRIMARY = blockTag("structure_fix/morichika_shop/primary");
 	public static final TagKey<Block> MORICHIKA_FIX = blockTag("structure_fix/morichika_shop/would_fix");
+	public static final TagKey<Block> ALICE_PRIMARY = blockTag("structure_fix/alice_house/primary");
+	public static final TagKey<Block> ALICE_FIX = blockTag("structure_fix/alice_house/would_fix");
 
 	public static TagKey<Biome> biomeTag(String name) {
 		return TagKey.create(Registries.BIOME, GensokyoLegacy.loc(name));
@@ -57,6 +60,8 @@ public class GLStructureTagGen {
 		pvd.addTag(MARISA_HOUSE)
 				.add(GLBiomes.MAGICAL_FOREST);
 		pvd.addTag(MORICHIKA_SHOP)
+				.add(GLBiomes.MAGICAL_FOREST);
+		pvd.addTag(ALICE_HOUSE)
 				.add(GLBiomes.MAGICAL_FOREST);
 		pvd.addTag(Tags.Biomes.IS_MAGICAL).add(GLBiomes.MAGICAL_FOREST).add(GLBiomes.SAKURA_FOREST);
 		pvd.addTag(Tags.Biomes.IS_FOREST).add(GLBiomes.MAGICAL_FOREST).add(GLBiomes.SAKURA_FOREST);
@@ -170,6 +175,35 @@ public class GLStructureTagGen {
 		pvd.addTag(MORICHIKA_FIX).addOptional(GensokyoLegacy.loc("tatami_block"));
 		pvd.addTag(MORICHIKA_FIX).addOptional(GensokyoLegacy.loc("spruce_large_table"));
 		pvd.addTag(MORICHIKA_FIX).addOptional(GensokyoLegacy.loc("white_cushion"));
+
+		// Alice's house in the magical forest (root 29x23x18): quartz/terracotta
+		// shell with the west tower, blue-tiled gable roofs and the iron awnings
+		pvd.addTag(ALICE_PRIMARY).add(
+				Blocks.SMOOTH_QUARTZ, Blocks.SMOOTH_QUARTZ_SLAB, Blocks.SMOOTH_QUARTZ_STAIRS,
+				Blocks.SPRUCE_PLANKS, Blocks.SPRUCE_STAIRS, Blocks.SPRUCE_TRAPDOOR, Blocks.SPRUCE_SLAB,
+				Blocks.STRIPPED_SPRUCE_LOG,
+				Blocks.BLACK_TERRACOTTA, Blocks.CALCITE, Blocks.DIORITE,
+				Blocks.STONE, Blocks.ANDESITE, Blocks.COBBLESTONE,
+				Blocks.STONE_BRICKS, Blocks.MOSSY_STONE_BRICKS, Blocks.PACKED_MUD,
+				Blocks.WHITE_STAINED_GLASS_PANE,
+				Blocks.DARK_OAK_DOOR, Blocks.DARK_OAK_TRAPDOOR
+		);
+		pvd.addTag(ALICE_PRIMARY).addOptional(GensokyoLegacy.loc("blue_tiles"));
+		pvd.addTag(ALICE_PRIMARY).addOptional(GensokyoLegacy.loc("blue_tiles_slab"));
+		pvd.addTag(ALICE_PRIMARY).addOptional(GensokyoLegacy.loc("blue_tiles_stairs"));
+		pvd.addTag(ALICE_PRIMARY).addOptional(GensokyoLegacy.loc("black_tiles_slab"));
+		pvd.addTag(ALICE_PRIMARY).addOptional(GensokyoLegacy.loc("wrought_iron_pillar"));
+		pvd.addTag(ALICE_PRIMARY).addOptional(GensokyoLegacy.loc("wrought_iron_bars"));
+		pvd.addTag(ALICE_PRIMARY).addOptional(GensokyoLegacy.loc("white_long_noren"));
+		pvd.addTag(ALICE_FIX).add(
+				Blocks.BOOKSHELF, Blocks.LANTERN, Blocks.CAMPFIRE
+		);
+		pvd.addTag(ALICE_FIX).add(
+				GLFurniture.BOOK_SHELF.get(), GLFurniture.DOOR_CABINET.get(),
+				GLFurniture.DRAWER_CABINET.get()
+		);
+		pvd.addTag(ALICE_FIX).addOptional(GensokyoLegacy.loc("dark_oak_large_table"));
+		pvd.addTag(ALICE_FIX).addOptional(GensokyoLegacy.loc("candlestick"));
 	}
 
 }
