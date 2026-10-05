@@ -138,7 +138,7 @@ public class AliceQDGen extends QuestDialogData {
 				starterText("greet", "This is all rather far from my workshop."),
 				dialog("greet", "It is. I am not often away - the dolls do not sew themselves, and the mushrooms here are not the ones I want. Still. It is restful, being somewhere that is not mine to keep tidy.",
 						option("greet/end", "Take your time.")),
-				CHAT_DEFAULT);
+				CHAT_MISC);
 	}
 
 	private void quests() {
