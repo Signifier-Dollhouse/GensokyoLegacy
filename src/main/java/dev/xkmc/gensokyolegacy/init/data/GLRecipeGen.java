@@ -270,8 +270,9 @@ public class GLRecipeGen {
 
 	/**
 	 * Wrought iron: iron bars welded into a ring and blackened with a single
-	 * black dye, then two bars stacked into a pillar. Neither step loses bars,
-	 * so the cost of the metal is the same as vanilla iron bars throughout.
+	 * black dye, then two bars stacked into a pillar and one bar carrying three
+	 * candles. The bar steps never lose a bar, so the cost of the metal is the
+	 * same as vanilla iron bars throughout.
 	 */
 	private static void wroughtIron(RegistrateRecipeProvider pvd) {
 		// 8 bars around the dye, 8 bars out
@@ -285,6 +286,13 @@ public class GLRecipeGen {
 				GLDecoBlocks.WROUGHT_IRON_BARS.get().asItem())
 				.pattern("W").pattern("W")
 				.define('W', GLDecoBlocks.WROUGHT_IRON_BARS.get()).save(pvd);
+		// a bar laid flat as the stand, three candles on top: the block burns
+		// three wicks, so the candles are consumed instead of placed
+		unlock(pvd, ShapedRecipeBuilder.shaped(
+				RecipeCategory.DECORATIONS, GLFurniture.CANDLESTICK.get())::unlockedBy,
+				GLDecoBlocks.WROUGHT_IRON_BARS.get().asItem())
+				.pattern("CCC").pattern(" W ")
+				.define('W', GLDecoBlocks.WROUGHT_IRON_BARS.get()).define('C', Items.CANDLE).save(pvd);
 	}
 
 	/**
