@@ -8,6 +8,7 @@ NeoForge 1.21.1 mod (Gensokyo Legacy, Touhou characters/structures). Java 21, Gr
 - `./gradlew build` — full build (jar + sources jar).
 - `gradle.properties` sets `org.gradle.daemon=false` and `-Xmx3G`: every Gradle invocation is a slow cold JVM. Batch independent Gradle work into one command.
 - `src/test/java/organize/*` are `main()` utilities run from the IDE, **not JUnit tests**. `organize.ResourceOrganizer` merges the split zh_cn lang files (below). `./gradlew test` runs no real tests.
+- `python3 tools/export_dialogs.py` — reads the generated `dialog` / `dialog_starter` / `quest` JSON plus the lang files and writes `out/en/<char>.txt` and `out/zh_cn/<char>.txt`: greetings, chats and quest dialogs as review text (gates, actions, requirements, rewards spelled out, dialog trees inlined). Use it to proofread dialogs or the zh_cn translations without launching the game. `--lang en|zh_cn|both`, `--character alice`.
 
 ## Registration (two systems)
 - `GensokyoLegacy.REGISTRATE` (`L2Registrate`, dev.xkmc's fork of Registrate) — blocks, items, entities, creative tabs, with datagen. Register classes in `init/registrate/GL*.java` and call `register()` from the `GensokyoLegacy()` constructor (order matters).

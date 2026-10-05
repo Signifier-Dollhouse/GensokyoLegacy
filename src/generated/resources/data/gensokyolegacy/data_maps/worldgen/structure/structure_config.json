@@ -9,14 +9,130 @@
           0,
           0,
           0,
-          29,
-          23,
-          18
+          18,
+          22,
+          17
         ]
       ],
       "interior": {
-        "nodes": [],
-        "rooms": []
+        "nodes": [
+          {
+            "posA": [
+              9,
+              1,
+              11
+            ],
+            "posB": [
+              9,
+              1,
+              11
+            ],
+            "roomA": 0,
+            "roomB": 1
+          },
+          {
+            "posA": [
+              11,
+              1,
+              11
+            ],
+            "posB": [
+              11,
+              1,
+              11
+            ],
+            "roomA": 1,
+            "roomB": 2
+          },
+          {
+            "posA": [
+              24,
+              1,
+              8
+            ],
+            "posB": [
+              24,
+              6,
+              14
+            ],
+            "roomA": 2,
+            "roomB": 3
+          },
+          {
+            "posA": [
+              18,
+              1,
+              6
+            ],
+            "posB": [
+              18,
+              1,
+              6
+            ],
+            "roomA": 2,
+            "roomB": -1
+          },
+          {
+            "posA": [
+              25,
+              6,
+              7
+            ],
+            "posB": [
+              25,
+              6,
+              7
+            ],
+            "roomA": 3,
+            "roomB": -1
+          }
+        ],
+        "rooms": [
+          {
+            "bound": [
+              2,
+              1,
+              7,
+              9,
+              17,
+              15
+            ],
+            "name": "tower_hall"
+          },
+          {
+            "bound": [
+              10,
+              1,
+              9,
+              11,
+              9,
+              13
+            ],
+            "name": "arcade"
+          },
+          {
+            "bound": [
+              12,
+              1,
+              6,
+              25,
+              4,
+              14
+            ],
+            "name": "wing_ground"
+          },
+          {
+            "bound": [
+              12,
+              5,
+              6,
+              25,
+              8,
+              14
+            ],
+            "name": "wing_upper"
+          }
+        ]
       },
       "primaryFix": "gensokyolegacy:structure_fix/alice_house/primary",
       "rooms": [],
@@ -327,6 +443,11 @@
       ],
       "visitors": {
         "gensokyolegacy:hakurei_reimu": {
+          "chance": 0.3,
+          "maxStay": 6000,
+          "minStay": 2400
+        },
+        "gensokyolegacy:izayoi_sakuya": {
           "chance": 0.3,
           "maxStay": 6000,
           "minStay": 2400

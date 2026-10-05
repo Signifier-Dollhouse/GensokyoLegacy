@@ -1,5 +1,5 @@
 {
-  "parent": "gensokyolegacy:main/enter_morichika_shop",
+  "parent": "gensokyolegacy:main/obtain_mini_hakkero",
   "criteria": {
     "0": {
       "conditions": {
