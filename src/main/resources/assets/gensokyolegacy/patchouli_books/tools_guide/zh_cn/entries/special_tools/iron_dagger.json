@@ -1,0 +1,19 @@
+{
+  "name": "铁匕首",
+  "icon": "gensokyolegacy:iron_dagger",
+  "category": "gensokyolegacy:special_tools",
+  "advancement": "gensokyolegacy:main/obtain_iron_dagger",
+  "sortnum": 5,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "gensokyolegacy:iron_dagger",
+      "title": "掷出，而非丢弃",
+      "text": "右键即可朝视线方向掷出一把铁匕首。它会命中挡在前面的东西，造成 6 点伤害，然后回到你手中——匕首只是暂时离开物品栏，不会永远失去。"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)一次一把$(br)每次投掷消耗一把匕首，也只掷出一把，走弹幕物品的冷却时间（默认 20 刻）。$(bold)匕首手套$()用的是同一把匕首，只是改成一组一组地投出。$(br2)$(bold)必定会回来$(br)掷出的匕首在撞到方块、撞到生物、或飞满两秒消失时，都会回到你的物品栏；物品栏放不下时就掉在脚边。投掷本身不会让你损失匕首；唯一会失去的情况，是这世上已经没有可以把匕首还给的人。$(br2)$(bold)命中即止$(br)与更重型的弹幕不同，铁匕首不会穿透命中的目标：造成伤害后便就此停下。方块与关着的门都会像平常一样挡住它。"
+    }
+  ]
+}

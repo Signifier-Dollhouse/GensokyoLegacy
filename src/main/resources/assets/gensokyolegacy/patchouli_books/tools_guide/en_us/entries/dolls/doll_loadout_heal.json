@@ -1,0 +1,17 @@
+{
+  "name": "Healing an Ally",
+  "icon": "gensokyolegacy:heal_talisman",
+  "category": "gensokyolegacy:dolls",
+  "advancement": "gensokyolegacy:main/obtain_doll_glove",
+  "sortnum": 10,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)A talisman spent on someone else$(br)A folded Healing talisman in either hand makes a doll a medic. It walks to within a couple of blocks of whoever needs it and spends one use of the paper healing them for 30% of their maximum health, on the same terms as wearing the talisman yourself. The paper wears down a use at a time like any other folded talisman, and one in the hand is one heal per trip however many uses are left on it."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Nobody commands this$(br)Dolls schedule their own healing: a doll holding the paper walks over and spends it only when someone is actually hurt, and it does nothing at all to a target already at full health. The order of preference is you, then the doll itself, then the nearest wounded fellow doll — which is why a squad keeps patching up its own hurt members while you fight.$(br2)Any order you give interrupts a heal in progress, and the paper stays in the hand for the moment it takes to finish the swing, so it can never be pulled away mid-use.$(br2)$(bold)Talisman or hand?$(br)A doll heals itself from a hand talisman quite happily, but a core talisman is never spent on anyone else at all — the core works on the doll wearing it, and nobody else."
+    }
+  ]
+}

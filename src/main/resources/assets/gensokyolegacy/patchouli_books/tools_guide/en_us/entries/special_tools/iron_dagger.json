@@ -1,0 +1,19 @@
+{
+  "name": "Iron Dagger",
+  "icon": "gensokyolegacy:iron_dagger",
+  "category": "gensokyolegacy:special_tools",
+  "advancement": "gensokyolegacy:main/obtain_iron_dagger",
+  "sortnum": 5,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "gensokyolegacy:iron_dagger",
+      "title": "Thrown, Not Dropped",
+      "text": "Right-click to throw one iron dagger down your view. It strikes what is in the way for 6 damage and then comes back to you — the dagger leaves your stack for the throw, not out of your life."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)One at a time$(br)Every throw spends one dagger and throws exactly one, on the danmaku item cooldown — 20 ticks by default. The $(bold)Dagger Glove$() is the same blade fired as a pattern rather than singly.$(br2)$(bold)It always comes back$(br)A thrown dagger returns to your inventory, or drops at your feet when you have no room for it, as soon as it hits a block, hits a creature, or has flown its full two seconds. There is no way to lose a dagger by throwing it; the only dagger you ever lose is one with nobody left to return it to.$(br2)$(bold)It stops where it lands$(br)Unlike the heavier danmaku, a dagger does not pass through what it hits: it deals its damage and ends there. Walls and closed doors stop it in the ordinary way."
+    }
+  ]
+}

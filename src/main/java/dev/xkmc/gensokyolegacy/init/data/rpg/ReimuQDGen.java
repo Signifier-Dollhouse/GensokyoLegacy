@@ -209,8 +209,9 @@ public class ReimuQDGen extends QuestDialogData {
 				questTitle("Shrine Provisions"), questDesc("Bring Reimu some bread and mushroom stew so she can learn this world's food."),
 				Optional.empty(),
 				new TreeMap<>(Map.of(
-						"a-bread", new SubmitItemRequirement(List.of(item(Items.BREAD, 8))),
-						"b-stew", new SubmitItemRequirement(List.of(item(Items.MUSHROOM_STEW, 3)))
+						"a-food", new SubmitItemRequirement(List.of(
+								item(Items.BREAD, 8),
+								item(Items.MUSHROOM_STEW, 3)))
 				)),
 				List.of(new ExpReward(50), new ReputationReward(10, 300, 10, 300)),
 				start("Is the food here to your liking?",
@@ -234,8 +235,9 @@ public class ReimuQDGen extends QuestDialogData {
 				new TreeMap<>(Map.of(
 						"a-zombie", new KillMobRequirement(reqText("zombie", "Exterminate zombies"), EntityTypeTags.ZOMBIES, 10),
 						"b-skeleton", new KillMobRequirement(reqText("skeleton", "Exterminate skeletons"), EntityTypeTags.SKELETONS, 10),
-						"c-flesh", new SubmitItemRequirement(List.of(item(Items.ROTTEN_FLESH, 8))),
-						"d-bone", new SubmitItemRequirement(List.of(item(Items.BONE, 8)))
+						"c-loot", new SubmitItemRequirement(List.of(
+								item(Items.ROTTEN_FLESH, 8),
+								item(Items.BONE, 8)))
 				)),
 				List.of(new ExpReward(100), new ReputationReward(20, 300, 10, 300)),
 				start("You look worried — something on your mind?",
@@ -257,8 +259,9 @@ public class ReimuQDGen extends QuestDialogData {
 				questTitle("Talisman Materials"), questDesc("Bring Reimu paper and redstone for her new-world talismans."),
 				Optional.empty(),
 				new TreeMap<>(Map.of(
-						"a-paper", new SubmitItemRequirement(List.of(item(Items.PAPER, 16))),
-						"b-redstone", new SubmitItemRequirement(List.of(item(Items.REDSTONE, 8)))
+						"a-supplies", new SubmitItemRequirement(List.of(
+								item(Items.PAPER, 16),
+								item(Items.REDSTONE, 8)))
 				)),
 				List.of(new ExpReward(100), new ReputationReward(10, 300, 0, 300),
 						loot("reimu/talisman_materials", LootTable.lootTable()
@@ -283,8 +286,9 @@ public class ReimuQDGen extends QuestDialogData {
 				questTitle("Ender Materials"), questDesc("Bring Reimu an ender pearl and an ender eye for her gap research."),
 				Optional.empty(),
 				new TreeMap<>(Map.of(
-						"a-pearl", new SubmitItemRequirement(List.of(item(Items.ENDER_PEARL, 1))),
-						"b-eye", new SubmitItemRequirement(List.of(item(Items.ENDER_EYE, 1)))
+						"a-materials", new SubmitItemRequirement(List.of(
+								item(Items.ENDER_PEARL, 1),
+								item(Items.ENDER_EYE, 1)))
 				)),
 				List.of(new ExpReward(150), new ReputationReward(10, 300, 0, 300)),
 				start("The village says you reach them almost instantly when exterminating — are you some kind of enderman?",
@@ -407,8 +411,9 @@ public class ReimuQDGen extends QuestDialogData {
 				"Got it.", "The stock is almost empty.", "I'll be right back.",
 				"Good. That'll last a while. Here's your share.",
 				new TreeMap<>(Map.of(
-						"a-paper", new SubmitItemRequirement(List.of(item(Items.PAPER, 16))),
-						"b-redstone", new SubmitItemRequirement(List.of(item(Items.REDSTONE, 8))))),
+						"a-supplies", new SubmitItemRequirement(List.of(
+								item(Items.PAPER, 16),
+								item(Items.REDSTONE, 8))))),
 				LootTable.lootTable().withPool(lootItem(GLTalismans.HEAL_TALISMAN.get(), 2)));
 
 		prefix("reimu/daily_raid");

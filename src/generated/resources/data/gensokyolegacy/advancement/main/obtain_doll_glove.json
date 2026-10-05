@@ -1,5 +1,5 @@
 {
-  "parent": "gensokyolegacy:main/alchemy",
+  "parent": "gensokyolegacy:main/enter_alice_house",
   "criteria": {
     "0": {
       "conditions": {

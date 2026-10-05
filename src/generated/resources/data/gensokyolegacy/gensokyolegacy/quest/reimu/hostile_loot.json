@@ -45,18 +45,13 @@
       },
       "text": "gensokyolegacy/reimu/hostile_loot/requirement/skeleton"
     },
-    "c-flesh": {
+    "c-loot": {
       "type": "gensokyolegacy:submit_item",
       "ingredients": [
         {
           "count": 8,
           "item": "minecraft:rotten_flesh"
-        }
-      ]
-    },
-    "d-bone": {
-      "type": "gensokyolegacy:submit_item",
-      "ingredients": [
+        },
         {
           "count": 8,
           "item": "minecraft:bone"

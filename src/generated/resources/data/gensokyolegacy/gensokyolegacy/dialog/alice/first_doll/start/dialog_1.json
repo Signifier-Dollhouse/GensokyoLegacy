@@ -1,0 +1,26 @@
+{
+  "animations": [
+    "dialog_think"
+  ],
+  "options": [
+    {
+      "type": "gensokyolegacy:simple",
+      "actions": [],
+      "conditions": [],
+      "next": "gensokyolegacy:alice/first_doll/start/reject/dialog_1",
+      "text": "gensokyolegacy/alice/first_doll/option/start/reject"
+    },
+    {
+      "type": "gensokyolegacy:simple",
+      "actions": [
+        {
+          "type": "gensokyolegacy:start_quest"
+        }
+      ],
+      "conditions": [],
+      "next": "gensokyolegacy:alice/first_doll/start/accept/dialog_1",
+      "text": "gensokyolegacy/alice/first_doll/option/start/accept"
+    }
+  ],
+  "text": "gensokyolegacy/alice/first_doll/dialog/alice/first_doll/start/dialog_1"
+}

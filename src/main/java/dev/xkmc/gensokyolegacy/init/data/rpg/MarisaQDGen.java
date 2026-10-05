@@ -4,6 +4,7 @@ import dev.xkmc.gensokyolegacy.content.item.hexbrew.HexBrew;
 import dev.xkmc.gensokyolegacy.content.item.talisman.core.GLTalismans;
 import dev.xkmc.gensokyolegacy.content.rpg.action.CompleteQuestAction;
 import dev.xkmc.gensokyolegacy.content.rpg.action.StartQuestAction;
+import dev.xkmc.gensokyolegacy.content.rpg.condition.AnyCondition;
 import dev.xkmc.gensokyolegacy.content.rpg.condition.HasAdvancementCondition;
 import dev.xkmc.gensokyolegacy.content.rpg.condition.HasQuestCompletedCondition;
 import dev.xkmc.gensokyolegacy.content.rpg.condition.SelfReputationCondition;
@@ -121,6 +122,19 @@ public class MarisaQDGen extends QuestDialogData {
 								dialog("where_ans", "Sells everything from charms to junk — and he'll buy your spare curios too.",
 										option("where/end", "I'll have to pay it a visit sometime.")))),
 				CHAT_INFO);
+
+		// Hidden once you have found Alice's house yourself - Marisa has met her
+		// long enough to just name her, so this is a pointer, not a secret. The
+		// "what does she want" follow doubles as a hint at quest 2.1.
+		prefix("marisa/chat_alice");
+		chat("marisa/chat_alice", GLEntities.MARISA.get(),
+				List.of(missingAdv(GLAdvGen.ENTER_ALICE_HOUSE), new SelfReputationCondition(50)),
+				starterText("start", "Who's the best doll-maker around here?"),
+				dialog("talk", "Dolls? Only one name comes to mind — Alice. She lives out in the Magical Forest too, same as me. Surly little thing, spends all day sewing and won't say a word about it, but if you want a doll that can hold its own in a fight, she's the one. Bring her colors and she'll do the work.",
+						option("where", "What does she want in return?",
+								dialog("where_ans", "Dye, mostly — all seven colors, four of each if you've got 'em. She pays in emeralds and won't haggle. Oh, and whatever you do, don't call her a magician. She hates that.",
+										option("where/end", "I'll go and find her.")))),
+				CHAT_INFO);
 	}
 
 	private void quests() {
@@ -129,8 +143,9 @@ public class MarisaQDGen extends QuestDialogData {
 				questTitle("First Mushrooms"), questDesc("Bring Marisa red and brown mushrooms from the surface."),
 				Optional.empty(),
 				new TreeMap<>(Map.of(
-						"a-red", new SubmitItemRequirement(List.of(item(Items.RED_MUSHROOM, 8))),
-						"b-brown", new SubmitItemRequirement(List.of(item(Items.BROWN_MUSHROOM, 8)))
+						"a-mushrooms", new SubmitItemRequirement(List.of(
+								item(Items.RED_MUSHROOM, 8),
+								item(Items.BROWN_MUSHROOM, 8)))
 				)),
 				List.of(new ExpReward(50), new ReputationReward(10, 300, 10, 300),
 						loot("marisa/first_mushroom", LootTable.lootTable()
@@ -177,8 +192,9 @@ public class MarisaQDGen extends QuestDialogData {
 				questTitle("Nether Mushrooms"), questDesc("Bring Marisa nether mushroom samples."),
 				Optional.empty(),
 				new TreeMap<>(Map.of(
-						"a-crimson", new SubmitItemRequirement(List.of(item(Items.CRIMSON_FUNGUS, 4))),
-						"b-warped", new SubmitItemRequirement(List.of(item(Items.WARPED_FUNGUS, 4)))
+						"a-fungi", new SubmitItemRequirement(List.of(
+								item(Items.CRIMSON_FUNGUS, 4),
+								item(Items.WARPED_FUNGUS, 4)))
 				)),
 				List.of(new ExpReward(150), new ReputationReward(20, 300, 10, 300),
 						loot("marisa/nether_mushroom_prep", LootTable.lootTable()
@@ -226,8 +242,9 @@ public class MarisaQDGen extends QuestDialogData {
 				questTitle("Brewing"), questDesc("Bring Marisa blaze rods and nether wart."),
 				Optional.empty(),
 				new TreeMap<>(Map.of(
-						"a-blaze", new SubmitItemRequirement(List.of(item(Items.BLAZE_ROD, 4))),
-						"b-wart", new SubmitItemRequirement(List.of(item(Items.NETHER_WART, 12)))
+						"a-brewing", new SubmitItemRequirement(List.of(
+								item(Items.BLAZE_ROD, 4),
+								item(Items.NETHER_WART, 12)))
 				)),
 				List.of(new ExpReward(200), new ReputationReward(20, 300, 10, 300),
 						loot("marisa/brewing", LootTable.lootTable()
@@ -299,9 +316,14 @@ public class MarisaQDGen extends QuestDialogData {
 
 	private void talismanQuests() {
 		prefix("marisa/talisman_request");
+		// Rep 100 AND (known to Reimu OR to Alice): carrying Reimu's ofuda
+		// stock or Alice's doll glove is what convinces Marisa the errand is
+		// worth trusting to the player.
 		quest("marisa/talisman_request", new Quest(GLEntities.MARISA.get(),
 				List.of(new SelfReputationCondition(100),
-						new HasQuestCompletedCondition(ReimuQDGen.QUEST_TALISMAN_MATERIALS)),
+						new AnyCondition(List.of(
+								new HasQuestCompletedCondition(ReimuQDGen.QUEST_TALISMAN_MATERIALS),
+								new HasQuestCompletedCondition(AliceQDGen.QUEST_SEVEN_COLORS)))),
 				questTitle("Talisman Courier"), questDesc("Bring Marisa healing talisman papers from Reimu."),
 				Optional.empty(),
 				new TreeMap<>(Map.of(
@@ -309,10 +331,9 @@ public class MarisaQDGen extends QuestDialogData {
 				)),
 				List.of(new ExpReward(200), new ReputationReward(20, 300, 10, 300),
 						loot("marisa/talisman_request", LootTable.lootTable()
-								.withPool(lootItem(GLItems.DOLL_GLOVE.get(), 1))
-								.withPool(lootItem(GLItems.DOLL.get(), 1))
+								.withPool(lootItem(GLItems.BROOM.get(), 1))
 								.withPool(lootItem(GLItems.STAR_WAND.get(), 1))
-								.withPool(lootItem(Items.EMERALD, 8)))),
+								.withPool(lootItem(Items.EMERALD, 16)))),
 				start("A talisman request?",
 						"Say — you've seen Reimu's ofuda, right? Those little papers pack a real punch! Lately my experiments keep leaving me singed, and healing's such a hassle. I wanna keep four for myself. Reimu sells 'em, so bring your emeralds. And... don't tell her they're for me. Whaddaya say?",
 						"I'll get them from Reimu.", "Great! Four healing papers — no knockoffs, got it?", "As if I would.",
@@ -322,7 +343,7 @@ public class MarisaQDGen extends QuestDialogData {
 						"I remember they weren't cheap.", "Her prices are brutal, huh? But worth every emerald, trust me!", "Ugh, so I'm paying out of pocket after all."),
 				complete("Here, the papers.",
 						"That's it! One ofuda and every ache is gone — I never could've asked her myself without you.",
-						"You didn't ask at all, though.", "Aw, never mind that — I've got good stuff for you too: a doll glove and a fresh doll, handmade by Alice herself, plus a star wand of my own making. Keep it secret for me!", "At this point I kinda have to.")
+						"You didn't ask at all, though.", "Aw, never mind that — I've got good stuff for you too: a broom I whittled down this morning, and a star wand of my own making. The wand's the real prize — point one of Alice's dolls with it and she won't need a hand anymore. Keep it secret for me!", "At this point I kinda have to.")
 		));
 
 		prefix("marisa/daily_talisman");
@@ -341,8 +362,8 @@ public class MarisaQDGen extends QuestDialogData {
 				new TreeMap<>(Map.of(
 						"a-talisman", rollItem(talismanTable)
 				)), LootTable.lootTable()
-						.withPool(lootItem(GLItems.DOLL.get(), 1))
-						.withPool(lootItem(GLItems.STAR_WAND.get(), 1)));
+						.withPool(lootItem(GLItems.STAR_WAND.get(), 1))
+						.withPool(lootItem(Items.EMERALD, 16)));
 	}
 
 	private void dailyQuests() {
@@ -419,8 +440,9 @@ public class MarisaQDGen extends QuestDialogData {
 				"I got them.", "Oh, you got 'em? Let me see.", "Here.",
 				"Thank you!", "You're welcome.",
 				new TreeMap<>(Map.of(
-						"a-blaze", new SubmitItemRequirement(List.of(item(Items.BLAZE_ROD, 2))),
-						"b-wart", new SubmitItemRequirement(List.of(item(Items.NETHER_WART, 8)))
+						"a-brewing", new SubmitItemRequirement(List.of(
+								item(Items.BLAZE_ROD, 2),
+								item(Items.NETHER_WART, 8)))
 				)), LootTable.lootTable().withPool(lootItem(Items.EMERALD, 8)));
 	}
 
@@ -488,6 +510,12 @@ public class MarisaQDGen extends QuestDialogData {
 				List.of(new SelfReputationCondition(100), new HasQuestCompletedCondition(QUEST_TALISMAN_REQUEST)),
 				new ItemStack(GLItems.STAR_WAND.get()),
 				new TradeRecurrence(4, 24000), List.of(item(Items.EMERALD, 8))));
+		// The broom: a day's whittling for a handful of straw. Same gate as the wand,
+		// and the same one-a-day ceiling, so neither reward walks out on the other.
+		trade("offer_broom", new TradeOffer(GLEntities.MARISA.get(),
+				List.of(new HasQuestCompletedCondition(QUEST_TALISMAN_REQUEST)),
+				new ItemStack(GLItems.BROOM.get()),
+				new TradeRecurrence(1, 24000), List.of(item(GLItems.MYSTICAL_STRAW.get(), 8))));
 
 		// Processing trades
 		trade("process_golden_apple", new TradeOffer(GLEntities.MARISA.get(),

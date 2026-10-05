@@ -1,5 +1,27 @@
 {
   "values": {
+    "gensokyolegacy:alice_house": {
+      "entities": [
+        "gensokyolegacy:alice_margatroid"
+      ],
+      "house": [
+        [
+          0,
+          0,
+          0,
+          29,
+          23,
+          18
+        ]
+      ],
+      "interior": {
+        "nodes": [],
+        "rooms": []
+      },
+      "primaryFix": "gensokyolegacy:structure_fix/alice_house/primary",
+      "rooms": [],
+      "wouldFix": "gensokyolegacy:structure_fix/alice_house/would_fix"
+    },
     "gensokyolegacy:hakurei_shrine": {
       "entities": [
         "gensokyolegacy:hakurei_reimu"

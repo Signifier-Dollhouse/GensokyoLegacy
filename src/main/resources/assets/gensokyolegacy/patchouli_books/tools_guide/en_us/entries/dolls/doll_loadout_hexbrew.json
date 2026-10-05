@@ -1,0 +1,17 @@
+{
+  "name": "Hexbrew Throw",
+  "icon": "gensokyolegacy:explosive_hexbrew_bottle",
+  "category": "gensokyolegacy:dolls",
+  "advancement": "gensokyolegacy:main/obtain_doll_glove",
+  "sortnum": 8,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Thrown as the super attack$(br)A throwable hexbrew bottle in either hand is the doll's other skill: it turns to the target, lobs the bottle in a straight line, and that is the whole order. Explosive, Miasma, Starlight, Hyphae and the Witch Splash are throwable; Mundane Hexbrew, Hexbrew Elixir and Shield Hexbrew are drinks, and are refused by the slot. One bottle is spent per throw, so a stack in the hand is a stack of throws.$(br2)$(bold)It breaks exactly as you would throw it$(br)A thrown Explosive Hexbrew makes the same power-4 blast a player does: enemies are hurt, terrain is untouched, and you and your dolls are spared. A laser held anywhere beats the bottle, so the throw is only taken once neither hand has a laser left."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Reach$(br)Sixteen blocks — the shortest reach of anything a doll throws. Beyond that the doll cannot do it at all: the order is spent and no bottle comes out, so aim at something closer or arm a laser for the long shot.$(br2)$(bold)Allies in the lane$(br)A blocked lane is sidestepped first, and the bottle flies anyway after about a second of dodging."
+    }
+  ]
+}
