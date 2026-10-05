@@ -173,7 +173,7 @@ public class GLEntities {
 			IZAYOI_SAKUYA = GensokyoLegacy.REGISTRATE
 					.entity("izayoi_sakuya", SakuyaEntity::new, MobCategory.MONSTER)
 					.properties(e -> e.sized(0.4F, 1.8f).clientTrackingRange(10))
-					.attributes(GeneralYoukaiEntity::createAttributes)
+					.attributes(BossYoukaiEntity::createAttributes)
 					.renderer(() -> SakuyaRenderer::new)
 					.loot(EntityLootGen::noLoot)
 					.register();

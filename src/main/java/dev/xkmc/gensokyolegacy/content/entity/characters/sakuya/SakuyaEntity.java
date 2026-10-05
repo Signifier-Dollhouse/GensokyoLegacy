@@ -1,5 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.entity.characters.sakuya;
 
+import dev.xkmc.gensokyolegacy.content.entity.characters.maiden.MaidenEntity;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.GeoYoukaiAnim;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.GeneralYoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiAnim;
@@ -20,7 +21,7 @@ import java.util.Optional;
  * what she says and sells there.
  */
 @SerialClass
-public class SakuyaEntity extends GeneralYoukaiEntity implements GeoYoukaiAnim {
+public class SakuyaEntity extends MaidenEntity implements GeoYoukaiAnim {
 
 	protected static final RawAnimation IDLE = RawAnimation.begin().thenLoop("待机");
 	protected static final RawAnimation WALK = RawAnimation.begin().thenLoop("走路");
@@ -36,18 +37,8 @@ public class SakuyaEntity extends GeneralYoukaiEntity implements GeoYoukaiAnim {
 
 	private final AnimatableInstanceCache geoCache = GeckoLibUtil.createInstanceCache(this);
 
-	public SakuyaEntity(EntityType<? extends GeneralYoukaiEntity> pEntityType, Level pLevel) {
+	public SakuyaEntity(EntityType<? extends MaidenEntity> pEntityType, Level pLevel) {
 		super(pEntityType, pLevel);
-	}
-
-	/**
-	 * A guest stands on the host's floor like anyone else. Unreachable either way
-	 * for her own situation - she never gets a {@code HOME} memory, so the flight
-	 * paths are never offered - but it keeps her out of the air if that ever changes.
-	 */
-	@Override
-	public boolean mayFly() {
-		return false;
 	}
 
 	protected <E extends SakuyaEntity> PlayState idleAnimController(final AnimationState<E> event) {
