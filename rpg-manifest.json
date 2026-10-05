@@ -262,7 +262,8 @@
         "src/generated/resources/data/gensokyolegacy/gensokyolegacy/dialog/reimu/talisman_materials/start/reject/dialog_1.json",
         "src/generated/resources/data/gensokyolegacy/gensokyolegacy/dialog/reimu/visit_kourindou/browse_ans.json",
         "src/generated/resources/data/gensokyolegacy/gensokyolegacy/dialog/reimu/visit_kourindou/stay.json",
-        "src/generated/resources/data/gensokyolegacy/gensokyolegacy/dialog/reimu/visit_kourindou/stock.json"
+        "src/generated/resources/data/gensokyolegacy/gensokyolegacy/dialog/reimu/visit_kourindou/stock.json",
+        "src/generated/resources/data/gensokyolegacy/gensokyolegacy/dialog/sakuya/visit_morichika_shop/greet.json"
       ]
     },
     "dialog_starter": {
@@ -292,7 +293,8 @@
         "src/generated/resources/data/gensokyolegacy/gensokyolegacy/dialog_starter/reimu/chat_shrine.json",
         "src/generated/resources/data/gensokyolegacy/gensokyolegacy/dialog_starter/reimu/chat_shrine_close.json",
         "src/generated/resources/data/gensokyolegacy/gensokyolegacy/dialog_starter/reimu/visit_kourindou_stay.json",
-        "src/generated/resources/data/gensokyolegacy/gensokyolegacy/dialog_starter/reimu/visit_kourindou_stock.json"
+        "src/generated/resources/data/gensokyolegacy/gensokyolegacy/dialog_starter/reimu/visit_kourindou_stock.json",
+        "src/generated/resources/data/gensokyolegacy/gensokyolegacy/dialog_starter/sakuya/visit_morichika_shop_greet.json"
       ]
     },
     "trade": {
@@ -324,6 +326,7 @@
         "src/generated/resources/data/gensokyolegacy/gensokyolegacy/trade/marisa/sell_nether_wart.json",
         "src/generated/resources/data/gensokyolegacy/gensokyolegacy/trade/marisa/sell_shroomlight.json",
         "src/generated/resources/data/gensokyolegacy/gensokyolegacy/trade/marisa/sell_spider_eye.json",
+        "src/generated/resources/data/gensokyolegacy/gensokyolegacy/trade/morichika/offer_dagger_glove.json",
         "src/generated/resources/data/gensokyolegacy/gensokyolegacy/trade/morichika/offer_guide_book.json",
         "src/generated/resources/data/gensokyolegacy/gensokyolegacy/trade/morichika/offer_koishi_hat.json",
         "src/generated/resources/data/gensokyolegacy/gensokyolegacy/trade/morichika/offer_strange_glasses.json",
@@ -341,7 +344,8 @@
         "src/generated/resources/data/gensokyolegacy/gensokyolegacy/trade/reimu/sell_paper.json",
         "src/generated/resources/data/gensokyolegacy/gensokyolegacy/trade/reimu/sell_redstone.json",
         "src/generated/resources/data/gensokyolegacy/gensokyolegacy/trade/reimu/sell_string.json",
-        "src/generated/resources/data/gensokyolegacy/gensokyolegacy/trade/reimu/sell_wool.json"
+        "src/generated/resources/data/gensokyolegacy/gensokyolegacy/trade/reimu/sell_wool.json",
+        "src/generated/resources/data/gensokyolegacy/gensokyolegacy/trade/sakuya/offer_iron_dagger.json"
       ]
     }
   },
@@ -816,13 +820,13 @@
     "assets/lang/vanilla/en_us.json",
     "assets/lang/vanilla/zh_cn.json"
   ],
-  "revision": "927bd85834bf013843032c0686b84a42",
+  "revision": "0a77a9cda4144560d543f43a282b42db",
   "stats": {
     "quest": 26,
-    "dialog": 226,
-    "dialog_starter": 25,
-    "trade": 44,
-    "files": 321,
+    "dialog": 227,
+    "dialog_starter": 26,
+    "trade": 46,
+    "files": 325,
     "recipes": 290,
     "guideEntries": 76
   }
