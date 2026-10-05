@@ -124,7 +124,7 @@ public class StructureConfigBuilder {
 	public static StructureConfig.Builder alice() {
 		return StructureConfig.builder()
 				.house(List.of(
-						new BoundingBox(1, 1, 1, 28, 22, 16)
+						new BoundingBox(0, 0, 0, 29, 23, 18)
 				))
 				.primary(GLStructureTagGen.ALICE_PRIMARY)
 				.wouldFix(GLStructureTagGen.ALICE_FIX);

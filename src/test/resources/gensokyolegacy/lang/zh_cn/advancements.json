@@ -18,6 +18,10 @@
 					"title": "香霖堂",
 					"description": "进入魔法森林中的香霖堂"
 				},
+				"enter_alice_house": {
+					"title": "爱丽丝小屋",
+					"description": "进入魔法森林中爱丽丝的小屋"
+				},
 				"alchemy": {
 					"title": "炼金锅",
 					"description": "获得炼金锅"

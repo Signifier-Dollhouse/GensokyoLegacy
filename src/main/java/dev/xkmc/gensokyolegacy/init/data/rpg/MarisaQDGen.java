@@ -123,12 +123,12 @@ public class MarisaQDGen extends QuestDialogData {
 										option("where/end", "I'll have to pay it a visit sometime.")))),
 				CHAT_INFO);
 
-		// Alice has no house structure or advancement to gate on, so this intro
-		// is rep-gated only and names her outright - Marisa has known her long
-		// enough. The "what does she want" follow doubles as a hint at quest 2.1.
+		// Hidden once you have found Alice's house yourself - Marisa has met her
+		// long enough to just name her, so this is a pointer, not a secret. The
+		// "what does she want" follow doubles as a hint at quest 2.1.
 		prefix("marisa/chat_alice");
 		chat("marisa/chat_alice", GLEntities.MARISA.get(),
-				List.of(new SelfReputationCondition(50)),
+				List.of(missingAdv(GLAdvGen.ENTER_ALICE_HOUSE), new SelfReputationCondition(50)),
 				starterText("start", "Who's the best doll-maker around here?"),
 				dialog("talk", "Dolls? Only one name comes to mind — Alice. She lives out in the Magical Forest too, same as me. Surly little thing, spends all day sewing and won't say a word about it, but if you want a doll that can hold its own in a fight, she's the one. Bring her colors and she'll do the work.",
 						option("where", "What does she want in return?",

@@ -1,5 +1,5 @@
 {
-  "parent": "gensokyolegacy:main/obtain_sealing_pot",
+  "parent": "gensokyolegacy:main/alchemy",
   "criteria": {
     "0": {
       "conditions": {

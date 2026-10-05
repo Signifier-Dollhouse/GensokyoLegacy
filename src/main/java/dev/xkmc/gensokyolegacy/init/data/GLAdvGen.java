@@ -34,6 +34,7 @@ public class GLAdvGen {
 	public static final ResourceLocation ENTER_HAKUREI_SHRINE = GensokyoLegacy.loc("main/enter_hakurei_shrine");
 	public static final ResourceLocation ENTER_MARISA_HOUSE = GensokyoLegacy.loc("main/enter_marisa_house");
 	public static final ResourceLocation ENTER_MORICHIKA_SHOP = GensokyoLegacy.loc("main/enter_morichika_shop");
+	public static final ResourceLocation ENTER_ALICE_HOUSE = GensokyoLegacy.loc("main/enter_alice_house");
 
 	public static final ResourceLocation ALCHEMY = GensokyoLegacy.loc("main/alchemy");
 	public static final ResourceLocation OBTAIN_DOLL_GLOVE = GensokyoLegacy.loc("main/obtain_doll_glove");
@@ -82,21 +83,30 @@ public class GLAdvGen {
 				CriterionBuilder.one(PlayerTrigger.TriggerInstance.located(
 						LocationPredicate.Builder.inStructure(resolve(pvd, "morichika_shop")))),
 				"Kourindou", "Enter Morichika's shop in the Magical Forest");
-		marisaHouse.create("alchemy", GLBlocks.ALCHEMY_POT.asItem(),
+		// Purple is the last of Alice's seven dyes, and the glove she weaves
+		// them into hangs off this branch rather than off Marisa's alchemy pot.
+		var aliceHouse = root.create("enter_alice_house", Items.PURPLE_DYE,
+				CriterionBuilder.one(PlayerTrigger.TriggerInstance.located(
+						LocationPredicate.Builder.inStructure(resolve(pvd, "alice_house")))),
+				"Margatroid Cottage", "Enter Alice's house in the Magical Forest");
+		// Entry.create() parents to the builder it is called on, so each of the
+		// two has to hang off alchemy itself - chaining them off one another
+		// would bury the broom under the sealing pot.
+		var alchemy = marisaHouse.create("alchemy", GLBlocks.ALCHEMY_POT.asItem(),
 						CriterionBuilder.item(GLBlocks.ALCHEMY_POT.asItem()),
 						"Alchemy Pot", "Obtain an Alchemy Pot")
-				.type(AdvancementType.TASK, false, false, false)
-				.create("obtain_doll_glove", GLItems.DOLL_GLOVE.get(),
-						CriterionBuilder.item(GLItems.DOLL_GLOVE.get()),
-						"Doll Glove", "Obtain the Seven-Colored Doll Glove")
-				.type(AdvancementType.TASK, false, false, false)
-				.create("obtain_sealing_pot", GLBlocks.SEALING_POT.asItem(),
+				.type(AdvancementType.TASK, false, false, false);
+		alchemy.create("obtain_sealing_pot", GLBlocks.SEALING_POT.asItem(),
 						CriterionBuilder.item(GLBlocks.SEALING_POT.asItem()),
 						"Sealing Pot", "Obtain a Sealing Pot")
-				.type(AdvancementType.TASK, false, false, false)
-				.create("obtain_broom", GLItems.BROOM.get(),
+				.type(AdvancementType.TASK, false, false, false);
+		alchemy.create("obtain_broom", GLItems.BROOM.get(),
 						CriterionBuilder.item(GLItems.BROOM.get()),
 						"Flying Broom", "Obtain a Flying Broom")
+				.type(AdvancementType.TASK, false, false, false);
+		aliceHouse.create("obtain_doll_glove", GLItems.DOLL_GLOVE.get(),
+						CriterionBuilder.item(GLItems.DOLL_GLOVE.get()),
+						"Doll Glove", "Obtain the Seven-Colored Doll Glove")
 				.type(AdvancementType.TASK, false, false, false);
 		hakurei.create("obtain_talisman", GLTalismans.HEAL_TALISMAN.get(),
 						CriterionBuilder.item(GLTagGen.TALISMAN),

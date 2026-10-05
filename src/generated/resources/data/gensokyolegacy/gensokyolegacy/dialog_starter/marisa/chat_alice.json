@@ -2,6 +2,11 @@
   "character": "gensokyolegacy:kirisame_marisa",
   "conditions": [
     {
+      "type": "gensokyolegacy:has_advancement",
+      "advancement": "gensokyolegacy:main/enter_alice_house",
+      "invert": true
+    },
+    {
       "type": "gensokyolegacy:self_reputation",
       "reputation": 50
     }
