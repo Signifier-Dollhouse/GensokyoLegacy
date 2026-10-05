@@ -447,6 +447,11 @@
           "maxStay": 6000,
           "minStay": 2400
         },
+        "gensokyolegacy:izayoi_sakuya": {
+          "chance": 0.3,
+          "maxStay": 6000,
+          "minStay": 2400
+        },
         "gensokyolegacy:kirisame_marisa": {
           "chance": 0.3,
           "maxStay": 6000,

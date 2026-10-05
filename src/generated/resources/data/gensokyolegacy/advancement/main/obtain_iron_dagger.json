@@ -1,5 +1,5 @@
 {
-  "parent": "gensokyolegacy:main/obtain_mermaid_pearl",
+  "parent": "gensokyolegacy:main/enter_morichika_shop",
   "criteria": {
     "0": {
       "conditions": {

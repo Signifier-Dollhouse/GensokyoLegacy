@@ -10,6 +10,11 @@
       "trade": "gensokyolegacy/reimu/chat/trade",
       "visitGreeting": "gensokyolegacy/reimu/chat/visit_greeting"
     },
+    "gensokyolegacy:izayoi_sakuya": {
+      "greeting": "gensokyolegacy/sakuya/chat/greeting",
+      "trade": "gensokyolegacy/sakuya/chat/trade",
+      "visitGreeting": "gensokyolegacy/sakuya/chat/visit_greeting"
+    },
     "gensokyolegacy:kirisame_marisa": {
       "greeting": "gensokyolegacy/marisa/chat/greeting",
       "trade": "gensokyolegacy/marisa/chat/trade",
