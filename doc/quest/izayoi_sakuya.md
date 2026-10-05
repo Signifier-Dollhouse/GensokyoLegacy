@@ -29,8 +29,7 @@ See [quest_design.md](quest_design.md) for the authoring rules and
 
 | Id | Gate | Weight | Topic |
 |----|------|--------|-------|
-| `visit_morichika_shop_greet` | visiting `morichika_shop` | 1 (`CHAT_DEFAULT`) | first time in the shop; tells you not to touch the stacked knives |
-| `visit_morichika_shop_daggers` | visiting `morichika_shop` | 30 (`CHAT_MISC`) | where she keeps her knives — explains why she is allowed to trade here |
+| `visit_morichika_shop_greet` | visiting `morichika_shop` | 1 (`CHAT_DEFAULT`) | is the shop open; she has been here before |
 
 No greeting starter of her own: she has no home to greet you at, so the
 `visit_greeting` line carries the whole first-contact impression.

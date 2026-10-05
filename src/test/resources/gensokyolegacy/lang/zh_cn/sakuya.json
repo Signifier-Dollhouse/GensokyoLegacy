@@ -3,26 +3,23 @@
 	"gensokyolegacy": {
 		"sakuya": {
 			"chat": {
-				"greeting": "……",
-				"trade": "……",
+				"greeting": "您好。",
+				"trade": "只是路过。很高兴认识您。",
 				"visit_greeting": "需要我帮您做些什么吗？"
 			},
 			"visit_morichika_shop": {
 				"starter": {
-					"greet": "您营业吗？我听说这里是森林里唯一的店。",
-					"daggers": "您的刀都放在哪里？"
+					"greet": "营业吗？我听说这里是森林里唯一的店。"
 				},
 				"dialog": {
 					"sakuya": {
 						"visit_morichika_shop": {
-							"greet": "营业。我没来过这里——红魔馆馆外的东西，全都是森近霖之助的货我不反对。他倒不介意我做买卖，省得我自己磨刀。不过请不要挪动那堆叠好的刀。",
-							"daggers": "是我自己的，不是他的。无法自备工具的女仆，只能算半个女仆。他允许我在这里交易，所以我不必自己磨。"
+							"greet": "营业。我以前来过这里——整个幻想乡的货品里，我不反对的只有森近霖之助的。"
 						}
 					}
 				},
 				"option": {
-					"greet/end": "明白了。",
-					"daggers/end": "真有效率。"
+					"greet/end": "明白了。"
 				}
 			}
 		}

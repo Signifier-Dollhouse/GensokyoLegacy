@@ -263,6 +263,7 @@ inspected directly instead of waiting for a 30% roll.
 |---|---|---|---|
 | `morichika_shop` | `hakurei_reimu` | 30% | 2400–6000 (2–5 min) |
 | `morichika_shop` | `kirisame_marisa` | 30% | 2400–6000 (2–5 min) |
+| `morichika_shop` | `izayoi_sakuya` | 30% | 2400–6000 (2–5 min) |
 | `hakurei_shrine` | `kirisame_marisa` | 20% | 2400–3600 (2–3 min) |
 | `marisa_house` | `alice` | 20% | 2400–3600 (2–3 min) |
 
@@ -274,7 +275,8 @@ inspected directly instead of waiting for a 30% roll.
   structure bound, so this needs the bound to straddle an unloaded chunk —
   possible for the 80-block spread of `hakurei_shrine`.
 * **`visit_greeting` is a required JSON field.** A datapack overriding
-  `default_dialog` must add it. Only three entries exist and all are generated.
+  `default_dialog` must add it. Every entry is generated; a character with no
+  home still needs one, because `visitGreeting` is what a first-time player sees.
 * **Quest dialog is not gated.** `initialDialog` is unreachable while visiting
   (hard rule), and `followUp`/`completion` lines are task talk rather than
   "you're in my house" talk, so they were left alone.
