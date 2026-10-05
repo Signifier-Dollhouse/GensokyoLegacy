@@ -565,10 +565,13 @@ export async function buildItemIndex() {
         for (const [key, subject] of subjects.entries) {
           for (const itemId of guideSubjectItems(key, subject.tag)) document(itemId, subject);
         }
-        // The entry's icon documents its item even when no spotlight names it.
-        if (typeof page.data?.icon === "string") {
-          document(page.data.icon, { key: page.data.icon, tag: false });
-        }
+        // The icon is the entry's own illustration and names nothing. It is drawn on
+        // the entry in the book, where it sits beside the title rather than under a
+        // spotlight, so treating it as a subject would put an item on a page that never
+        // spotlights it - `alchemy/ingredients` uses the Ghost Fire Mushroom that way,
+        // and the page about that mushroom is `nature/magical_forest`. An entry with no
+        // spotlight at all documents no item, which leaves those items to the
+        // undocumented bucket rather than pointing them at prose that only mentions them.
       }
     }
   }
