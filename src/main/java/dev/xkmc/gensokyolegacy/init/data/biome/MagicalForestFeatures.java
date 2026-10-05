@@ -106,7 +106,7 @@ public class MagicalForestFeatures {
 	// blocks kept free around the listed buildings, by canopy size
 	private static final int GIANT_CLEARANCE = 13, LARGE_CLEARANCE = 11, MEDIUM_CLEARANCE = 6, SMALL_CLEARANCE = 4, GROUND_CLEARANCE = 2;
 	private static final int LAKE_CLEARANCE = 11;
-	private static final List<String> STRUCTURES = List.of("marisa_house", "morichika_shop", "hakurei_shrine");
+	private static final List<String> STRUCTURES = List.of("marisa_house", "morichika_shop", "hakurei_shrine", "alice_house");
 
 	/**
 	 * Terrain tolerance of a template size: sample radius, max height difference, root extension.
