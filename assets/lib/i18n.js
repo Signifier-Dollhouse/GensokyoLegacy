@@ -95,6 +95,11 @@ const en_us = {
   "cond.reputation.withCharacter": " with this character",
   "cond.reputation.with": " with {0}",
   "cond.anyOf": "Any of",
+  "cond.home": "Home",
+  "cond.home.own": "in this character's own home",
+  "cond.home.visiting": "visiting another character's home",
+  "cond.visiting": "Visiting",
+  "cond.visiting.custom": "any player-built home",
   "cond.generic": "Condition",
 
   // -- requirements ---------------------------------------------------------
@@ -299,6 +304,11 @@ const zh_cn = {
   "cond.reputation.withCharacter": "（与该角色）",
   "cond.reputation.with": "（与{0}）",
   "cond.anyOf": "满足其一",
+  "cond.home": "住所",
+  "cond.home.own": "在该角色自己家中",
+  "cond.home.visiting": "在别处做客",
+  "cond.visiting": "拜访",
+  "cond.visiting.custom": "任意玩家自建的房屋",
   "cond.generic": "条件",
 
   // -- requirements ---------------------------------------------------------

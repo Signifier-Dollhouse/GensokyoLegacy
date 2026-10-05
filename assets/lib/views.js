@@ -228,6 +228,22 @@ async function showEntityTag(id) {
   );
 }
 
+/** A player-built home rather than a character's, which no character config names. */
+const CUSTOM_STRUCTURE = "gensokyolegacy:custom_structure";
+
+/**
+ * Who lives in the structure a `visit_structure` condition names.
+ *
+ * Every player-built home shares one id (`StructureKey.CUSTOM`), so a condition naming
+ * it is about any of them and has no character to show. A structure with no character
+ * behind it falls back to its own prettified id, which is still the truth about it.
+ */
+function hostOfStructure(structure) {
+  if (structure === CUSTOM_STRUCTURE) return h("span", { text: tr("cond.visiting.custom") });
+  const host = store.structureHosts.get(structure);
+  return host ? characterPill(host) : pill("item", prettify(structure));
+}
+
 export function conditionNode(condition, onQuestLink) {
   switch (kindOf(condition)) {
     case "has_quest_completed": {
@@ -277,6 +293,21 @@ export function conditionNode(condition, onQuestLink) {
         {},
         h("div", { class: "entry" }, h("span", { class: "entry-kind", text: tr("cond.anyOf") })),
         h("ul", { class: "nested" }, ...(condition.conditions ?? []).map((node) => conditionNode(node, onQuestLink))),
+      );
+    case "home_bound":
+      // Whether the character is at their own home, which is what separates content
+      // said to the resident from content said to a guest - `invert` asks for the guest.
+      return entry(
+        tr("cond.home"),
+        h("span", { text: condition.invert ? tr("cond.home.visiting") : tr("cond.home.own") }),
+      );
+    case "visit_structure":
+      // A guest says different things at different houses, so this names the host
+      // rather than the structure: `CharacterConfig` says which home is whose.
+      return entry(
+        tr("cond.visiting"),
+        hostOfStructure(condition.structure),
+        h("div", { class: "entry-note" }, code(condition.structure)),
       );
     default:
       return entry(tr("cond.generic"), code(condition.type));

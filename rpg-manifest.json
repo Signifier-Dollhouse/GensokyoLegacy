@@ -809,7 +809,8 @@
     "gensokyolegacy:wavy_noren": "src/generated/resources/data/gensokyolegacy/tags/item/wavy_noren.json"
   },
   "dataMaps": {
-    "morichika_offer": "src/generated/resources/data/gensokyolegacy/data_maps/item/morichika_offer.json"
+    "morichika_offer": "src/generated/resources/data/gensokyolegacy/data_maps/item/morichika_offer.json",
+    "character_config": "src/generated/resources/data/gensokyolegacy/data_maps/entity_type/character_config.json"
   },
   "entityTags": {},
   "lang": [
@@ -820,7 +821,7 @@
     "assets/lang/vanilla/en_us.json",
     "assets/lang/vanilla/zh_cn.json"
   ],
-  "revision": "0a77a9cda4144560d543f43a282b42db",
+  "revision": "ee7279d1b7ce266f9b4e78fa2b07f9f6",
   "stats": {
     "quest": 26,
     "dialog": 227,

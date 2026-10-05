@@ -22,6 +22,7 @@ import {
   loadManifest,
   loadRegistry,
   loadShopOffers,
+  loadStructureHosts,
   loadVanillaLang,
   sourceFileCount,
   store,
@@ -838,6 +839,9 @@ async function boot() {
     ...(store.manifest.vanillaLang ?? VANILLA_LANG).map(loadVanillaLang),
     // The currency tag decides whether a trade reads as "sell" or "craft".
     loadCurrencyTag(),
+    // Whose home each structure is, so a visit condition can name its host. One small
+    // file, and a condition that says "visiting Reimu" is worth it on the first paint.
+    loadStructureHosts(),
     ...registries.map((name) => loadRegistry(name, progressFor(name))),
   ]);
 

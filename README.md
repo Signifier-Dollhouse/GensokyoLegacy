@@ -79,12 +79,15 @@ all it takes for the page to show it.
 | The sidebar entries | the guide's own categories, in the book's order, plus one entry for everything it does not document |
 | The panel groups | within an entry, the items the guide names on their own are listed straight in, then one collapsible group per spotlight that names several things - a tag or a list of ids - named by that page's own translated title, ordered by how many items each holds, fewest first |
 
-Three files are listed for the viewer rather than found by following the content, because
+Four files are listed for the viewer rather than found by following the content, because
 nothing in the RPG registries refers to them: the `currency` tag, which decides whether a
 trade reads as *sell to the character* or *request a craft*; the `morichika_offers` tag,
-which only `MorichikaEntity` reads; and the `morichika_offer` data map beside it, which
-holds the price and stock range each item is shelved at. An item on the shop's tag but
-not in the data map is shelved at stock 1 and price 1, the default the code documents.
+which only `MorichikaEntity` reads; the `morichika_offer` data map beside it, which
+holds the price and stock range each item is shelved at; and the `character_config` data
+map, whose `structure` field is what tells a `visit_structure` condition whose house it
+is, so the row reads *Visiting · Reimu* rather than a structure id. An item on the shop's
+tag but not in the data map is shelved at stock 1 and price 1, the default the code
+documents.
 
 An item page is its guide entry - the category it sits in, the advancement that grants
 it, and the entry's prose under a heading that folds away - followed by every way to get

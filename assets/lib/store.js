@@ -26,6 +26,7 @@ export const store = {
   guide: null, // { books: [...] }, see `loadGuide`
   questDrops: new Map(), // quest id -> [{ item, count, table }]
   items: new Map(), // item id -> { id, guide, recipes, trades, drops, shelf }
+  structureHosts: new Map(), // structure id -> entity id, from `character_config`
 };
 
 const inflight = new Map();
@@ -328,6 +329,33 @@ export async function loadShopOffers() {
   }
   store.shopOffers = offers;
   return offers;
+}
+
+/**
+ * Whose home a structure is: structure id -> the entity id of the character living
+ * there.
+ *
+ * A `visit_structure` condition names a structure, but what it means to a reader is
+ * *whose house this is*, and the character is what the rest of the page is written
+ * around. `CharacterConfig.structure` is the game's own record of which home belongs
+ * to whom, so the mapping is read rather than guessed from the id.
+ *
+ * A player-built home has no resident and is not in this map at all, which is the
+ * answer rather than a gap: `StructureKey.CUSTOM` names every one of them, and the
+ * viewer's caller says so.
+ */
+export async function loadStructureHosts() {
+  const file =
+    store.manifest.dataMaps?.character_config ??
+    "src/generated/resources/data/gensokyolegacy/data_maps/entity_type/character_config.json";
+  try {
+    for (const [entity, config] of Object.entries((await fetchJson(file)).values ?? {})) {
+      if (typeof config?.structure === "string") store.structureHosts.set(config.structure, entity);
+    }
+  } catch {
+    // No homes named: a visit condition falls back to its structure id.
+  }
+  return store.structureHosts;
 }
 
 // ---------------------------------------------------------------------------

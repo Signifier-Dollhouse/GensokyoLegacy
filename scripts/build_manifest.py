@@ -61,8 +61,13 @@ EXTRA_ITEM_TAGS = (f"{NAMESPACE}:currency", f"{NAMESPACE}:morichika_offers")
 
 # The data maps the viewer reads beyond what the content refers to. `morichika_offer`
 # holds the price and stock range each item is shelved at - the tag above says what he
-# may stock at all, this says what for. Datapacked, so it needs no Java to find.
-EXTRA_DATA_MAPS = (f"{NAMESPACE}/data_maps/item/morichika_offer",)
+# may stock at all, this says what for. `character_config` says which home belongs to
+# which character, which is what lets a `visit_structure` condition name its host rather
+# than a structure id. Datapacked, so they need no Java to find.
+EXTRA_DATA_MAPS = (
+    f"{NAMESPACE}/data_maps/item/morichika_offer",
+    f"{NAMESPACE}/data_maps/entity_type/character_config",
+)
 
 
 def walk(directory: Path, prefix: str) -> list[str]:
