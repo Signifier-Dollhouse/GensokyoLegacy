@@ -14,6 +14,7 @@ import org.jetbrains.annotations.Nullable;
 public class StarlightHandler implements HexBrewHandler {
 
 	private static final String OWNER_KEY = "gensokyolegacy:starlight_owner";
+	private static final int DURATION = 3600;
 
 	@Override
 	public boolean isThrowable() {
@@ -30,7 +31,7 @@ public class StarlightHandler implements HexBrewHandler {
 			if (e == thrower) continue;
 			if (e.isAlliedTo(thrower)) continue;
 			if (e.distanceToSqr(pos) > 16) continue;
-			e.addEffect(new MobEffectInstance(GLEffects.SPARKLING.holder(), 1200, 0));
+			e.addEffect(new MobEffectInstance(GLEffects.SPARKLING.holder(), DURATION, 0));
 			e.getPersistentData().putUUID(OWNER_KEY, thrower.getUUID());
 			if (thrower instanceof LivingEntity le) {
 				e.hurt(level.damageSources().indirectMagic(thrower, le), 4.0f);

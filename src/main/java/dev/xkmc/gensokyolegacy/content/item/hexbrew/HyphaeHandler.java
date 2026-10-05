@@ -22,7 +22,7 @@ import org.jetbrains.annotations.Nullable;
 public class HyphaeHandler implements HexBrewHandler {
 
 	private static final float RADIUS = 4;
-	private static final int DURATION = 1200;
+	private static final int DURATION = 3600;
 
 	@Override
 	public boolean isThrowable() {

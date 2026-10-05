@@ -1,0 +1,25 @@
+{
+  "type": "gensokyolegacy:unordered_alchemy",
+  "input": [
+    {
+      "item": "gensokyolegacy:star_flower"
+    },
+    {
+      "item": "gensokyolegacy:star_flower"
+    },
+    {
+      "item": "gensokyolegacy:star_flower"
+    },
+    {
+      "item": "gensokyolegacy:star_flower"
+    }
+  ],
+  "inputFluid": {
+    "fluid": "gensokyolegacy:hexbrew_elixir"
+  },
+  "resultFluid": {
+    "amount": 1000,
+    "id": "gensokyolegacy:starlight_hexbrew"
+  },
+  "time": 400
+}

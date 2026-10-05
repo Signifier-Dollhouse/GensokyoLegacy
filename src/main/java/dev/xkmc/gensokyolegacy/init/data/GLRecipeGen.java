@@ -78,6 +78,36 @@ public class GLRecipeGen {
 					.save(pvd, GensokyoLegacy.loc("miasma_hexbrew"));
 		}
 
+		// the elixir is a carrier, not a brew of its own: a full tank of it plus
+		// the one ingredient that decides which of the three comes out
+		{
+			unlock(pvd, new UnorderedAlchemyRecipeBuilder()
+					.fluid(HexBrew.HEXBREW_ELIXIR.getSource())
+					.add(Items.SHULKER_SHELL)
+					.time(400)
+					.resultFluid(HexBrew.SHIELD_HEXBREW.getSource(), 1000)
+					::unlockedBy, Items.SHULKER_SHELL)
+					.save(pvd, GensokyoLegacy.loc("shield_hexbrew"));
+
+			unlock(pvd, new UnorderedAlchemyRecipeBuilder()
+					.fluid(HexBrew.HEXBREW_ELIXIR.getSource())
+					.add(GLNaturalBlocks.STAR_FLOWER).add(GLNaturalBlocks.STAR_FLOWER)
+					.add(GLNaturalBlocks.STAR_FLOWER).add(GLNaturalBlocks.STAR_FLOWER)
+					.time(400)
+					.resultFluid(HexBrew.STARLIGHT_HEXBREW.getSource(), 1000)
+					::unlockedBy, GLNaturalBlocks.STAR_FLOWER.asItem())
+					.save(pvd, GensokyoLegacy.loc("starlight_hexbrew"));
+
+			var miasmaCap = GLNaturalBlocks.DEMONIC_MIASMA_MUSHROOM_SET.cap.get();
+			unlock(pvd, new UnorderedAlchemyRecipeBuilder()
+					.fluid(HexBrew.HEXBREW_ELIXIR.getSource())
+					.add(miasmaCap).add(miasmaCap).add(miasmaCap).add(miasmaCap)
+					.time(400)
+					.resultFluid(HexBrew.HYPHAE_HEXBREW.getSource(), 1000)
+					::unlockedBy, miasmaCap.asItem())
+					.save(pvd, GensokyoLegacy.loc("hyphae_hexbrew"));
+		}
+
 		// potion
 		{
 			unlock(pvd, new PotionStageBuilder(GensokyoLegacy.loc("potion_stage"))::unlockedBy, Items.POTION).save(pvd);
