@@ -1,0 +1,12 @@
+{
+  "options": [
+    {
+      "type": "gensokyolegacy:simple",
+      "actions": [],
+      "conditions": [],
+      "next": "gensokyolegacy:reimu/visit_kourindou/browse_ans",
+      "text": "gensokyolegacy/reimu/visit_kourindou/option/browse"
+    }
+  ],
+  "text": "gensokyolegacy/reimu/visit_kourindou/dialog/reimu/visit_kourindou/stock"
+}

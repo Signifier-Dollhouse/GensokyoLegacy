@@ -32,6 +32,13 @@ import java.util.function.Supplier;
 
 public class GLStructureGen {
 
+	// Structure ids, public because visit chat is written per host: a guest says
+	// different things at each of these, so the QDGen classes name them.
+	public static final ResourceLocation HAKUREI_SHRINE = GensokyoLegacy.loc("hakurei_shrine");
+	public static final ResourceLocation MARISA_HOUSE = GensokyoLegacy.loc("marisa_house");
+	public static final ResourceLocation MORICHIKA_SHOP = GensokyoLegacy.loc("morichika_shop");
+	public static final ResourceLocation ALICE_HOUSE = GensokyoLegacy.loc("alice_house");
+
 	// Marisa's house and Kourindou share one structure set in the magical
 	// forest: every region randomly picks exactly one of 4 slots (via the
 	// FlatCheckStructure setIndex/setCount gate), so the houses can never
@@ -45,7 +52,7 @@ public class GLStructureGen {
 		return List.of(
 				// Marisa's house in the modded magical forest (template 30x13x25, bed at local (4,6,16)-(5,6,16))
 				new StructStructure(
-						GensokyoLegacy.loc("marisa_house"), GLStructureTagGen.MARISA_HOUSE, 32, 24,
+						MARISA_HOUSE, GLStructureTagGen.MARISA_HOUSE, 32, 24,
 						StructureConfigBuilder.marisa(),
 						List.of(new StructBed(
 								GLEntities.MARISA,
@@ -59,7 +66,7 @@ public class GLStructureGen {
 				),
 			// Hakurei shrine jigsaw in the modded sakura forest (root 19x14x19, bed at local (5,2,12)-(5,2,13))
 			new StructStructure(
-					GensokyoLegacy.loc("hakurei_shrine"), GLStructureTagGen.HAKUREI_SHRINE, 32, 24,
+					HAKUREI_SHRINE, GLStructureTagGen.HAKUREI_SHRINE, 32, 24,
 					StructureConfigBuilder.hakurei(),
 					List.of(new StructBed(
 							GLEntities.REIMU,
@@ -87,11 +94,11 @@ public class GLStructureGen {
 							new StructFlatJigsawBuilding.Part("tree3", true, List.of())
 					), Map.of(), 5, 80, 24, 32, 8),
 				// its own set: the shrine is not part of the forest houses
-				GensokyoLegacy.loc("hakurei_shrine")
+				HAKUREI_SHRINE
 			),
 				// Kourindou (Morichika's shop) in the modded magical forest (template 33x18x33, bed at local (27,8,16)-(27,8,17))
 				new StructStructure(
-						GensokyoLegacy.loc("morichika_shop"), GLStructureTagGen.MORICHIKA_SHOP, 32, 24,
+						MORICHIKA_SHOP, GLStructureTagGen.MORICHIKA_SHOP, 32, 24,
 						StructureConfigBuilder.morichika(),
 						List.of(new StructBed(
 								GLEntities.MORICHIKA,
@@ -110,7 +117,7 @@ public class GLStructureGen {
 				// sit on solid ground, so unlike the hakurei shrine paths
 				// every part is rigid rather than terrain matching.
 				new StructStructure(
-						GensokyoLegacy.loc("alice_house"), GLStructureTagGen.ALICE_HOUSE, 32, 24,
+						ALICE_HOUSE, GLStructureTagGen.ALICE_HOUSE, 32, 24,
 						StructureConfigBuilder.alice(),
 						List.of(new StructBed(
 								GLEntities.ALICE,

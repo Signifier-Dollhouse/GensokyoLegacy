@@ -13,6 +13,7 @@ import dev.xkmc.gensokyolegacy.content.rpg.condition.HomeBoundCondition;
 import dev.xkmc.gensokyolegacy.content.rpg.condition.OtherReputationCondition;
 import dev.xkmc.gensokyolegacy.content.rpg.condition.SelfReputationCondition;
 import dev.xkmc.gensokyolegacy.content.rpg.condition.TimerCondition;
+import dev.xkmc.gensokyolegacy.content.rpg.condition.VisitStructureCondition;
 import dev.xkmc.gensokyolegacy.content.rpg.dialog.Dialog;
 import dev.xkmc.gensokyolegacy.content.rpg.dialog.DialogOption;
 import dev.xkmc.gensokyolegacy.content.rpg.dialog.DialogStarter;
@@ -72,6 +73,7 @@ public class CodecRegistry {
 	public static final CdcVal<OtherReputationCondition> OTHER_REP = CONDITION.reg("other_reputation", OtherReputationCondition.CODEC);
 public static final CdcVal<AnyCondition> ANY = CONDITION.reg("any", AnyCondition.CODEC);
 	public static final CdcVal<HomeBoundCondition> HOME_BOUND = CONDITION.reg("home_bound", HomeBoundCondition.CODEC);
+	public static final CdcVal<VisitStructureCondition> VISIT_STRUCTURE = CONDITION.reg("visit_structure", VisitStructureCondition.CODEC);
 
 	public static final CdcVal<KillMobRequirement> KILL_MOB_REQ = REQUIREMENT.reg("kill_mob", KillMobRequirement.CODEC);
 	public static final CdcVal<KillEnemyRequirement> KILL_ENEMY_REQ = REQUIREMENT.reg("kill_enemy", KillEnemyRequirement.CODEC);

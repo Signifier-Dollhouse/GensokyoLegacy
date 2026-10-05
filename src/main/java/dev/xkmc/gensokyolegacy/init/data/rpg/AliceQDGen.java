@@ -17,6 +17,7 @@ import dev.xkmc.gensokyolegacy.content.rpg.reward.ReputationReward;
 import dev.xkmc.gensokyolegacy.content.rpg.trade.TradeOffer;
 import dev.xkmc.gensokyolegacy.content.rpg.trade.TradeRecurrence;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
+import dev.xkmc.gensokyolegacy.init.data.structure.GLStructureGen;
 import dev.xkmc.gensokyolegacy.init.registrate.GLEntities;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLNaturalBlocks;
@@ -117,14 +118,14 @@ public class AliceQDGen extends QuestDialogData {
 	}
 
 	/**
-	 * Alice out visiting - Marisa's house is where she goes. Host-agnostic, so
-	 * the same set works wherever she turns up, and {@code visiting()} keeps it
-	 * off her own doorstep.
+	 * Alice out visiting. Marisa's house is the only place she goes, so this is
+	 * written for that house rather than left host-agnostic. {@code visitingAt}
+	 * implies she is a guest at all, so none of it can surface at her own door.
 	 */
 	private void visitChats() {
-		prefix("alice/visit");
-		chat("alice/visit_call", GLEntities.ALICE.get(),
-				List.of(visiting()),
+		prefix("alice/visit_marisa_house");
+		chat("alice/visit_marisa_house_call", GLEntities.ALICE.get(),
+				List.of(visitingAt(GLStructureGen.MARISA_HOUSE)),
 				starterText("call", "Is she in today, do you think?"),
 				dialog("call", "...She is at her own house, I am afraid. I came for the mushrooms - the large ones she keeps in the east room. I would not normally ask a stranger for leave to rifle through a magician's shelves, but you may know the terms on which one does that.",
 						option("terms", "What terms?",
@@ -132,8 +133,8 @@ public class AliceQDGen extends QuestDialogData {
 										option("terms/end", "Then I shall ask her myself.")))),
 				CHAT_MISC);
 
-		chat("alice/visit_greet", GLEntities.ALICE.get(),
-				List.of(visiting()),
+		chat("alice/visit_marisa_house_greet", GLEntities.ALICE.get(),
+				List.of(visitingAt(GLStructureGen.MARISA_HOUSE)),
 				starterText("greet", "This is all rather far from my workshop."),
 				dialog("greet", "It is. I am not often away - the dolls do not sew themselves, and the mushrooms here are not the ones I want. Still. It is restful, being somewhere that is not mine to keep tidy.",
 						option("greet/end", "Take your time.")),

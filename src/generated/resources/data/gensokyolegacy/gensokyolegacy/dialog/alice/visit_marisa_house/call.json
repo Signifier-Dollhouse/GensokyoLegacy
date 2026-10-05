@@ -1,0 +1,12 @@
+{
+  "options": [
+    {
+      "type": "gensokyolegacy:simple",
+      "actions": [],
+      "conditions": [],
+      "next": "gensokyolegacy:alice/visit_marisa_house/terms_ans",
+      "text": "gensokyolegacy/alice/visit_marisa_house/option/terms"
+    }
+  ],
+  "text": "gensokyolegacy/alice/visit_marisa_house/dialog/alice/visit_marisa_house/call"
+}

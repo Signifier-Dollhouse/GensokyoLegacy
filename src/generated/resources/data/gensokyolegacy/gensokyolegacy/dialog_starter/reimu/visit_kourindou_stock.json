@@ -1,0 +1,12 @@
+{
+  "character": "gensokyolegacy:hakurei_reimu",
+  "conditions": [
+    {
+      "type": "gensokyolegacy:visit_structure",
+      "structure": "gensokyolegacy:morichika_shop"
+    }
+  ],
+  "dialog": "gensokyolegacy:reimu/visit_kourindou/stock",
+  "text": "gensokyolegacy/reimu/visit_kourindou/starter/stock",
+  "weight": 30
+}

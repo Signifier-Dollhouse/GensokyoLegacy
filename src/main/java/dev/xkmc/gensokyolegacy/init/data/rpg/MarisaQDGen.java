@@ -23,6 +23,7 @@ import dev.xkmc.gensokyolegacy.content.rpg.trade.TradeOffer;
 import dev.xkmc.gensokyolegacy.content.rpg.trade.TradeRecurrence;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.GLAdvGen;
+import dev.xkmc.gensokyolegacy.init.data.structure.GLStructureGen;
 import dev.xkmc.gensokyolegacy.init.data.GLTagGen;
 import dev.xkmc.gensokyolegacy.init.registrate.GLEntities;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
@@ -105,20 +106,39 @@ public class MarisaQDGen extends QuestDialogData {
 	}
 
 	/**
-	 * Marisa out visiting - Kourindou and the shrine, depending on the day. One
-	 * host-agnostic set covers both, and {@code visiting()} keeps it off her own
-	 * doorstep, where she would be talking about her own shop.
+	 * Marisa out visiting - Kourindou and the shrine, depending on the day. She
+	 * visits two houses, so this is written per host: a joke about cramped rooms
+	 * does not land twice, and at the shrine she has her own thing to say.
+	 * {@code visitingAt} implies she is a guest at all, so none of it can surface
+	 * in her own shop.
 	 */
 	private void visitChats() {
-		prefix("marisa/visit");
-		chat("marisa/visit_wander", GLEntities.MARISA.get(),
-				List.of(visiting()),
+		prefix("marisa/visit_kourindou");
+		chat("marisa/visit_kourindou_wander", GLEntities.MARISA.get(),
+				List.of(visitingAt(GLStructureGen.MORICHIKA_SHOP)),
 				starterText("wander", "Nice place you've got here!"),
 				dialog("wander", "Not bad, not bad! Kinda cramped, but honestly? I like it. There's more room to think in here than in my own shop, somehow.",
 						option("stay", "You planning to move in?",
 								dialog("stay_ans", "Heh, don't tempt me. My mushrooms won't pack themselves — but I come out here more than I let on, if I'm honest.",
 										option("stay/end", "Honest. Rare.")))),
 				CHAT_MISC);
+
+		prefix("marisa/visit_shrine");
+		chat("marisa/visit_shrine_donate", GLEntities.MARISA.get(),
+				List.of(visitingAt(GLStructureGen.HAKUREI_SHRINE)),
+				starterText("donate", "Is the donation box as empty as it looks?"),
+				dialog("donate", "Oh, it's always empty — that's the whole problem. I come by sometimes to see if anyone's dropped anything in, and to make sure she hasn't floated off again. She never has, but you can never be sure.",
+						option("leave", "Should I put something in it?",
+								dialog("leave_ans", "...Would you? That's decent of you. She'd never say so — she'd just float a little higher. But she'd mean it.",
+										option("leave/end", "Consider it done.")))),
+				CHAT_MISC);
+
+		chat("marisa/visit_shrine_calm", GLEntities.MARISA.get(),
+				List.of(visitingAt(GLStructureGen.HAKUREI_SHRINE)),
+				starterText("calm", "It's quiet up here, isn't it?"),
+				dialog("calm", "Too quiet. I need a fuse going or my brain just stops. A shrine with nothing happening is basically a library, and I've never once been good at those.",
+						option("bye", "I won't keep you.")),
+				CHAT_DEFAULT);
 	}
 
 	private void chats() {

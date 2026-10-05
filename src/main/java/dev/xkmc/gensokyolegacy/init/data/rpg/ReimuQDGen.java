@@ -25,6 +25,7 @@ import dev.xkmc.gensokyolegacy.content.rpg.trade.TradeOffer;
 import dev.xkmc.gensokyolegacy.content.rpg.trade.TradeRecurrence;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.GLAdvGen;
+import dev.xkmc.gensokyolegacy.init.data.structure.GLStructureGen;
 import dev.xkmc.gensokyolegacy.init.registrate.GLEffects;
 import dev.xkmc.gensokyolegacy.init.registrate.GLEntities;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
@@ -182,21 +183,27 @@ public class ReimuQDGen extends QuestDialogData {
 	 * covers every house she drops into, and {@code visiting()} keeps them off
 	 * her own doorstep.
 	 */
+	/**
+	 * Reimu out visiting. Kourindou is her only host so far, so one set - written
+	 * for that house rather than left host-agnostic, because a guest says
+	 * different things in different rooms. {@code visitingAt} implies she is a
+	 * guest at all, so nothing here can surface on her own doorstep.
+	 */
 	private void visitChats() {
-		prefix("reimu/visit");
-		chat("reimu/visit_shop", GLEntities.REIMU.get(),
-				List.of(visiting()),
-				starterText("shop", "This place has more stuff than I'd like."),
-				dialog("shop", "Huh. This is the shop Marisa goes on about. Not what I expected — I mostly came for the look, and because there's nothing at the shrine today.",
+		prefix("reimu/visit_kourindou");
+		chat("reimu/visit_kourindou_stock", GLEntities.REIMU.get(),
+				List.of(visitingAt(GLStructureGen.MORICHIKA_SHOP)),
+				starterText("stock", "This place has more stuff than I'd like."),
+				dialog("stock", "Huh. This is the shop Marisa goes on about. Not what I expected — I mostly came for the look, and because there's nothing at the shrine today.",
 						option("browse", "Anything worth buying?",
 								dialog("browse_ans", "Junk, mostly. ... Well. Some of it's decent. Don't tell Marisa I said that.",
 										option("browse/end", "Your secret's safe.")))),
 				CHAT_MISC);
 
-		chat("reimu/visit_greeting", GLEntities.REIMU.get(),
-				List.of(visiting()),
-				starterText("greeting", "Are you going to keep me company?"),
-				dialog("greeting", "... What? No, I'm not staying. I have things to do. I just happened to be in the area — don't read into it.",
+		chat("reimu/visit_kourindou_stay", GLEntities.REIMU.get(),
+				List.of(visitingAt(GLStructureGen.MORICHIKA_SHOP)),
+				starterText("stay", "Are you going to keep me company?"),
+				dialog("stay", "... What? No, I'm not staying. I have things to do. I just happened to be in the area — don't read into it.",
 						option("bye", "Sure, I won't.")),
 				CHAT_DEFAULT);
 	}
