@@ -58,17 +58,35 @@ than inventing a property, so the property name and the state id match vanilla's
 `FLAME_OFFSETS` is the one piece of model knowledge in the block. The candlestick model has
 three candles, each with its own wick element:
 
-| Candle | Wick top (model units) | Flame offset |
+| Candle | Wick top (model units) | North-facing offset |
 |---|---|---|
 | centre | y 14 | `(0.5, 15/16, 0.5)` |
 | left arm | y 12 | `(3/16, 13/16, 0.5)` |
 | right arm | y 12 | `(13/16, 13/16, 0.5)` |
 
 Each flame sits **one texel above its wick tip**, which is what vanilla does too (its single
-candle's wick tops out at y 7 and the particle is at y 8). Keeping them in one `List` in the
-block is the same shape as vanilla's `CandleBlock#PARTICLE_OFFSETS`, which is an
-`Int2ObjectMap` keyed on candle count — a map is unnecessary for a fixed three, so this is
-a plain `List.of`.
+candle's wick tops out at y 7 and the particle is at y 8).
+
+**The offsets rotate with `FACING`.** Only the north-facing set is written down; the other
+three are turned out at class-init by a local `allFaces` that reuses
+`VoxelBuilder#rotateFromNorth`'s angle (`180 - toYRot`), so the flames land on the same
+arm the rendered model does — the arms are modelled along x, and the blockstate turns the
+model by `toYRot + 180`, so they swing onto the z axis for the east/west facings. Without
+this, an east- or west-facing candlestick burned with its two outer flames floating off the
+side of the block. `extinguish` reads the offsets through the same `flames(state)` helper,
+so the smoke puffs follow too.
+
+Two details in that rotation, both inherited from `VoxelBuilder` rather than invented:
+
+- `Vec3#yRot` pivots about the **origin**, so the offsets are shifted to the block centre
+  (0.5, 0.5) before rotating and shifted back after — the same `−8 / yRot / +8` sandwich
+  `VoxelBuilder` uses. Skipping it sends the side flames to negative coordinates, outside
+  the block.
+- `Vec3#yRot` and the blockstate's model rotation are **inverse** rotations of each other,
+  so the sign does not strictly agree. It is invisible here because the two side flames are
+  exact mirrors about the block centre, so a 180° flip of the pair yields the same pair, and
+  only the x↔z axis flip is load-bearing. A deliberately asymmetric candlestick would need
+  the sign re-derived.
 
 `animateTick` then runs vanilla's `addParticlesAndSound` per offset unchanged: a
 `small_flame` particle every tick, a `smoke` particle 30% of the time, and a

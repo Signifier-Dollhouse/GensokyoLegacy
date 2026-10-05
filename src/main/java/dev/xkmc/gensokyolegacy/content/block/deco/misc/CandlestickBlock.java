@@ -43,13 +43,12 @@ import net.neoforged.neoforge.common.ItemAbilities;
 import net.neoforged.neoforge.common.ItemAbility;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
-
 /**
  * 烛台。落地摆件，底下要能站东西；可以像原版蜡烛一样点起来，只有点着的时候才发光。
  *
  * <p>模型来自 32×32 的单块贴图，四面基本对称，朝向状态只用来转模型角度。
- * 三个烛芯的顶端坐标在 {@link #FLAME_OFFSETS} 里，火焰粒子和熄灭的烟都从那三点出。
+ * 三个烛芯的顶端坐标在 {@link #FLAME_OFFSETS} 里，火焰粒子和熄灭的烟都从那三点出，
+ * 并且跟着 {@link #FACING} 一起转。
  *
  * <p>点亮/熄灭照搬原版 {@code AbstractCandleBlock}：打火石（以及火球）经
  * {@link ItemAbilities#FIRESTARTER_LIGHT} 把它设成 lit，空手右键再掐灭。
@@ -74,15 +73,35 @@ public class CandlestickBlock implements CreateBlockStateBlockMethod, DefaultSta
 			MagicTableBlock.allFaces(new VoxelBuilder(1, 0, 6, 15, 13, 10));
 
 	/**
-	 * 三支蜡烛的火焰位置，相对方块原点的偏移。中间那支的烛芯顶端在 y 14，两侧两支在
-	 * y 12；火焰都比芯尖高一格，和原版把粒子放在 y 8（芯尖 y 7 之上）一样。
-	 * 和原版 {@code CandleBlock#PARTICLE_OFFSETS} 同一个用法——原版按蜡烛数量查表，
-	 * 这里是固定三支，直接列出来。
+	 * 三支蜡烛的火焰位置，相对方块原点的偏移，按 {@link Direction#get2DDataValue()} 索引，
+	 * 和 {@link #SHAPES} 同一套查法。中间那支的烛芯顶端在 y 14，两侧两支在 y 12；
+	 * 火焰都比芯尖高一格，和原版把粒子放在 y 8（芯尖 y 7 之上）一样。
+	 *
+	 * <p>只列朝北的一份再转出来：两条侧臂要跟着朝向从 x 轴转到 z 轴上去。
+	 * 转法照抄 {@link VoxelBuilder#rotateFromNorth}，也就是 {@link MagicTableBlock#allFaces}
+	 * 用的那个，这样火焰跟碰撞盒、跟 blockstate 里转过 {@code toYRot + 180} 的模型是一处的。
+	 * （`Vec3#yRot` 和 blockstate 的模型旋转互为逆旋转，严格说正负号是对不上的；这里看不出来，
+	 * 因为两点关于方块中心对称，转哪边都是同一对。换成人造的不对称烛台就要重新对了。）
 	 */
-	private static final List<Vec3> FLAME_OFFSETS = List.of(
+	private static final Vec3[][] FLAME_OFFSETS = allFaces(
 			new Vec3(0.5D, 15 / 16D, 0.5D),
 			new Vec3(3 / 16D, 13 / 16D, 0.5D),
 			new Vec3(13 / 16D, 13 / 16D, 0.5D));
+
+	/** 朝北的三个点转出四个朝向，角度与 {@link VoxelBuilder#rotateFromNorth} 一致。 */
+	private static Vec3[][] allFaces(Vec3... northPoints) {
+		Vec3[][] ans = new Vec3[4][];
+		for (var dir : Direction.Plane.HORIZONTAL) {
+			float angle = (float) ((180 - dir.toYRot()) / 180 * Math.PI);
+			Vec3[] turned = new Vec3[northPoints.length];
+			for (int i = 0; i < northPoints.length; i++) {
+				// yRot 是绕原点转的，偏移得先挪到方块中心再转回来，跟 VoxelBuilder 减 8 加 8 一个意思
+				turned[i] = northPoints[i].subtract(0.5D, 0, 0.5D).yRot(angle).add(0.5D, 0, 0.5D);
+			}
+			ans[dir.get2DDataValue()] = turned;
+		}
+		return ans;
+	}
 
 	@Override
 	public void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
@@ -138,16 +157,24 @@ public class CandlestickBlock implements CreateBlockStateBlockMethod, DefaultSta
 	@Override
 	public void animateTick(BlockState state, Level level, BlockPos pos, RandomSource random) {
 		if (state.getValue(LIT)) {
-			FLAME_OFFSETS.forEach(each -> addFlame(level,
-					each.add(pos.getX(), pos.getY(), pos.getZ()), random));
+			for (Vec3 each : flames(state)) {
+				addFlame(level, each.add(pos.getX(), pos.getY(), pos.getZ()), random);
+			}
 		}
+	}
+
+	/** 当前朝向下三个火焰的位置。 */
+	private static Vec3[] flames(BlockState state) {
+		return FLAME_OFFSETS[state.getValue(FACING).get2DDataValue()];
 	}
 
 	/** 掐灭：改状态、三点冒烟、播 {@code candle_extinguish}。 */
 	public static void extinguish(@Nullable Player player, LevelAccessor level, BlockPos pos, BlockState state) {
 		level.setBlock(pos, state.setValue(LIT, false), 11);
-		FLAME_OFFSETS.forEach(each -> level.addParticle(ParticleTypes.SMOKE,
-				pos.getX() + each.x, pos.getY() + each.y, pos.getZ() + each.z, 0, 0.1F, 0));
+		for (Vec3 each : flames(state)) {
+			level.addParticle(ParticleTypes.SMOKE,
+					pos.getX() + each.x, pos.getY() + each.y, pos.getZ() + each.z, 0, 0.1F, 0);
+		}
 		level.playSound(null, pos, SoundEvents.CANDLE_EXTINGUISH, SoundSource.BLOCKS, 1.0F, 1.0F);
 		level.gameEvent(player, GameEvent.BLOCK_CHANGE, pos);
 	}

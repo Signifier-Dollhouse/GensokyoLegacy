@@ -2,7 +2,8 @@
 - Add alice structure and doll lance. Dolls can use talisman in core slot now.
 - Add dagger glove and iron dagger
 - Morichika sells the dagger glove once you have an iron dagger
-- Candlestick can be lit with flint and steel, and only glows while lit
+- Candlestick can be lit with flint and steel, only glows while lit, and its
+  flames follow the block's facing
 - Sealing pot barrier is tinted the pot's own green
 - Add broom
 - decorative blocks: noren curtains, wrought iron bars
