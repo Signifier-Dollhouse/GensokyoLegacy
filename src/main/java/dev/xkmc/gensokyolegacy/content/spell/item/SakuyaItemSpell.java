@@ -9,18 +9,18 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Sakuya's third move on its own: the knife storm, at a quarter of the rate the spellcard throws it.
  * The twenty knives per tick are what keeps a player-cast version of this readable and survivable —
- * the card's eighty is eighty times twenty knives inside a second, which is a fair fight for a boss
- * and an unfair one for something a player presses once off a cooldown.
+ * the card's eighty is four times as many knives per tick over the same window, which is a fair fight
+ * for a boss and an unfair one for something a player presses once off a cooldown.
  * <p>
  * The window is otherwise identical to the card's, so what a player gets is the same burst the card
- * throws when hit, just thinner: same sphere, same start-at-rest, same twenty-to-twenty-five tick
+ * throws when hit, just thinner: same sphere, same hold-then-launch, same twenty-to-twenty-five tick
  * life.
  */
 @SerialClass
 public class SakuyaItemSpell extends ItemSpell {
 
 	private static final int PER_TICK = 20;
-	private static final int DURATION = 20;
+	private static final int DURATION = 10;
 
 	/**
 	 * A storm with no target would spawn nothing at all — every knife is thrown at one — so the item

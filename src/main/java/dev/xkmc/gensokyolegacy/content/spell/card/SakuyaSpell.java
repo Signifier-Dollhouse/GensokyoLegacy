@@ -51,7 +51,7 @@ public class SakuyaSpell extends ActualSpellCard {
 	private static final int KNIFE_TRAIL_LIFE = 40;
 	private static final int HURT_COOLDOWN = 20;
 	private static final int HURT_PER_TICK = 80;
-	private static final int HURT_DURATION = 20;
+	private static final int HURT_DURATION = 10;
 
 	@SerialField
 	private int hurtCooldown;

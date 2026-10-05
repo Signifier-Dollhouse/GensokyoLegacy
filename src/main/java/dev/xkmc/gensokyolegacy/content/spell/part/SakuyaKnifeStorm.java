@@ -1,6 +1,8 @@
 package dev.xkmc.gensokyolegacy.content.spell.part;
 
+import dev.xkmc.danmakuapi.content.spell.mover.CompositeMover;
 import dev.xkmc.danmakuapi.content.spell.mover.RectMover;
+import dev.xkmc.danmakuapi.content.spell.mover.ZeroMover;
 import dev.xkmc.danmakuapi.content.spell.spellcard.CardHolder;
 import dev.xkmc.danmakuapi.content.spell.spellcard.Ticker;
 import dev.xkmc.danmakuapi.init.registrate.DanmakuItems;
@@ -18,27 +20,43 @@ import net.minecraft.world.phys.Vec3;
  * {@code SakuyaItemSpell} — the only difference between the two is {@link #perTick}, which is why the
  * part is generic in its parent and takes the rate from its constructor rather than hard-coding it.
  * <p>
- * <b>Why the knives start at rest.</b> A knife on the sphere is heading at the target's centre, but
- * it is also already close — six blocks, which is inside its own hitbox — so a knife launched at
- * speed would resolve against the target on its first tick and the shell would read as one solid
- * ring rather than a converging burst. Starting every knife at zero and accelerating along the same
- * heading at {@link #accel} separates the shell into an expanding-looking front instead: at tick
- * {@code t} a knife has covered {@code 0.5 * accel * t^2}, which is under a block at {@code t = 2}
- * and about six at {@code t = 8}, roughly where the target sits. The life window of twenty to
- * twenty-five ticks is deliberately longer than that crossing, so the survivors sail past the target
- * and fade behind it rather than all vanishing on the same tick.
+ * <b>Why the knives start at rest, and hold there.</b> A knife on the sphere is heading at the
+ * target's centre, but it is also already close — which puts it inside its own hitbox — so a knife
+ * launched at speed would resolve against the target on its first tick and the shell would read as
+ * one solid ring rather than a converging burst. Every knife therefore sits still for {@link #delay}
+ * ticks and only then accelerates along its own heading at {@link #accel}, so the shell is legible as
+ * a shell: it hangs there first, then goes.
  * <p>
- * The acceleration is expressed as a {@link RectMover} with a zero initial velocity rather than by
- * stepping the movement by hand, which keeps the whole flight one fixed geometric path that the
- * client can draw from the spawn packet alone.
+ * The hold is what makes the delay readable rather than merely slow. It also buys the aiming room
+ * the crossing needs — measuring {@code t} from the end of the hold, a knife has covered
+ * {@code 0.5 * accel * t^2}, so crossing the twelve-block radius takes about {@code t = 11}. Added to
+ * the ten-tick hold that lands near tick twenty-one, inside the twenty-to-twenty-five tick life but
+ * not by much, and the overshoot that follows is short. Raising {@link #accel} buys back that margin
+ * if the knives need to arrive sooner; widening {@link #radius} without raising it makes them
+ * expire short of the target instead.
+ * <p>
+ * The hold and the acceleration are two legs of a {@link CompositeMover} — a {@link ZeroMover} for
+ * the former and a {@link RectMover} for the latter — rather than a mover stepped by hand, matching
+ * {@code MystiaPart}'s hold-then-launch. That keeps the whole flight one path fixed by the spawn
+ * packet alone, and the {@code RectMover} leg starts from the knife's own spawn point with its tick
+ * offset by the hold, so the delay costs no accuracy: the knife accelerates along exactly the line it
+ * was aimed on, only later. The two legs are handed {@link #delay} and {@code life - delay} ticks
+ * respectively, so their windows add up to the knife's life.
  */
 @SerialClass
 public class SakuyaKnifeStorm<T> extends Ticker<T> {
 
 	@SerialField
-	private int perTick = 80, duration = 20;
+	private int perTick = 80, duration = 10;
 	@SerialField
 	private double radius = 12, accel = 0.2;
+	/**
+	 * Ticks a knife hangs at its spawn point before it starts accelerating, so the shell is legible
+	 * as a shell before it collapses inward. Comfortably shorter than a knife's life, so there is
+	 * always flight left after the hold.
+	 */
+	@SerialField
+	private int delay = 10;
 
 	public SakuyaKnifeStorm() {
 	}
@@ -69,10 +87,15 @@ public class SakuyaKnifeStorm<T> extends Ticker<T> {
 			var pos = target.add(onSphere(r, radius));
 			var heading = target.subtract(pos);
 			if (heading.lengthSqr() < 1e-4) continue;
-			var e = holder.prepareDanmaku(20 + r.nextInt(6), Vec3.ZERO,
+			var dir = heading.normalize();
+			int life = 20 + r.nextInt(6);
+			var e = holder.prepareDanmaku(life, Vec3.ZERO,
 					DanmakuItems.Bullet.DAGGER, DyeColor.LIGHT_BLUE);
 			e.setPos(pos);
-			e.mover = new RectMover(pos, Vec3.ZERO, heading.normalize().scale(accel));
+			var mover = new CompositeMover();
+			mover.add(delay, new ZeroMover(dir, dir, delay));
+			mover.add(life - delay, new RectMover(pos, Vec3.ZERO, dir.scale(accel)));
+			e.mover = mover;
 			holder.shoot(e);
 		}
 	}
