@@ -48,6 +48,16 @@
       ],
       "title": "Lanterns",
       "text": "Four paper lanterns, red and white, plain or lettered, and all of them lit brightly enough to light a whole room on their own. They turn to face you as you place them, and the lettered pair turns its written side out toward you as well. Set one on top of another and the lower lantern switches to its hanging model by itself, so a column of them reads as a single string. There is no recipe for them; look for them in the houses."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": [
+        "gensokyolegacy:wrought_iron_bars",
+        "gensokyolegacy:wrought_iron_pillar",
+        "gensokyolegacy:candlestick"
+      ],
+      "title": "Wrought Iron",
+      "text": "Blackened iron, for the heavier trim of a room. Eight iron bars go around a single black dye and come out as eight wrought iron bars, and everything after that is assembly: two bars stack into a pillar, and one bar laid flat carries three candles into a candlestick. The bars keep the connection rules of vanilla iron bars, joining their neighbours and whatever solid block they touch. The candlestick is dark when placed — set it alight with flint and steel, and snuff it again with an empty hand."
     }
   ]
 }

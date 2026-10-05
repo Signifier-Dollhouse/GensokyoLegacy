@@ -78,6 +78,36 @@ public class GLRecipeGen {
 					.save(pvd, GensokyoLegacy.loc("miasma_hexbrew"));
 		}
 
+		// the elixir is a carrier, not a brew of its own: a full tank of it plus
+		// the one ingredient that decides which of the three comes out
+		{
+			unlock(pvd, new UnorderedAlchemyRecipeBuilder()
+					.fluid(HexBrew.HEXBREW_ELIXIR.getSource())
+					.add(Items.SHULKER_SHELL)
+					.time(400)
+					.resultFluid(HexBrew.SHIELD_HEXBREW.getSource(), 1000)
+					::unlockedBy, Items.SHULKER_SHELL)
+					.save(pvd, GensokyoLegacy.loc("shield_hexbrew"));
+
+			unlock(pvd, new UnorderedAlchemyRecipeBuilder()
+					.fluid(HexBrew.HEXBREW_ELIXIR.getSource())
+					.add(GLNaturalBlocks.STAR_FLOWER).add(GLNaturalBlocks.STAR_FLOWER)
+					.add(GLNaturalBlocks.STAR_FLOWER).add(GLNaturalBlocks.STAR_FLOWER)
+					.time(400)
+					.resultFluid(HexBrew.STARLIGHT_HEXBREW.getSource(), 1000)
+					::unlockedBy, GLNaturalBlocks.STAR_FLOWER.asItem())
+					.save(pvd, GensokyoLegacy.loc("starlight_hexbrew"));
+
+			var miasmaCap = GLNaturalBlocks.DEMONIC_MIASMA_MUSHROOM_SET.cap.get();
+			unlock(pvd, new UnorderedAlchemyRecipeBuilder()
+					.fluid(HexBrew.HEXBREW_ELIXIR.getSource())
+					.add(miasmaCap).add(miasmaCap).add(miasmaCap).add(miasmaCap)
+					.time(400)
+					.resultFluid(HexBrew.HYPHAE_HEXBREW.getSource(), 1000)
+					::unlockedBy, miasmaCap.asItem())
+					.save(pvd, GensokyoLegacy.loc("hyphae_hexbrew"));
+		}
+
 		// potion
 		{
 			unlock(pvd, new PotionStageBuilder(GensokyoLegacy.loc("potion_stage"))::unlockedBy, Items.POTION).save(pvd);
@@ -270,8 +300,9 @@ public class GLRecipeGen {
 
 	/**
 	 * Wrought iron: iron bars welded into a ring and blackened with a single
-	 * black dye, then two bars stacked into a pillar. Neither step loses bars,
-	 * so the cost of the metal is the same as vanilla iron bars throughout.
+	 * black dye, then two bars stacked into a pillar and one bar carrying three
+	 * candles. The bar steps never lose a bar, so the cost of the metal is the
+	 * same as vanilla iron bars throughout.
 	 */
 	private static void wroughtIron(RegistrateRecipeProvider pvd) {
 		// 8 bars around the dye, 8 bars out
@@ -285,6 +316,13 @@ public class GLRecipeGen {
 				GLDecoBlocks.WROUGHT_IRON_BARS.get().asItem())
 				.pattern("W").pattern("W")
 				.define('W', GLDecoBlocks.WROUGHT_IRON_BARS.get()).save(pvd);
+		// a bar laid flat as the stand, three candles on top: the block burns
+		// three wicks, so the candles are consumed instead of placed
+		unlock(pvd, ShapedRecipeBuilder.shaped(
+				RecipeCategory.DECORATIONS, GLFurniture.CANDLESTICK.get())::unlockedBy,
+				GLDecoBlocks.WROUGHT_IRON_BARS.get().asItem())
+				.pattern("CCC").pattern(" W ")
+				.define('W', GLDecoBlocks.WROUGHT_IRON_BARS.get()).define('C', Items.CANDLE).save(pvd);
 	}
 
 	/**
