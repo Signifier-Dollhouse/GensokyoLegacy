@@ -1,0 +1,23 @@
+{
+  "character": "gensokyolegacy:morichika_rinnosuke",
+  "conditions": [
+    {
+      "type": "gensokyolegacy:has_advancement",
+      "advancement": "gensokyolegacy:main/obtain_iron_dagger"
+    }
+  ],
+  "ingredients": [
+    {
+      "count": 24,
+      "item": "minecraft:emerald"
+    }
+  ],
+  "recurrence": {
+    "maxStock": 1,
+    "restockTime": 168000
+  },
+  "result": {
+    "count": 1,
+    "id": "gensokyolegacy:dagger_glove"
+  }
+}

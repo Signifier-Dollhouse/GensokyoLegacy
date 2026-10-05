@@ -266,6 +266,10 @@ strange glasses or holds a sealing pot (otherwise empty).
   `POSITION_TEX_COLOR` quads using the visual's texture
   (`gensokyolegacy:textures/barriers/sealing_pot.png`, copied from vanilla
   `textures/misc/forcefield.png`), tiled every 16 blocks via repeat wrap (UV beyond `[0,1]`).
+- Vertex colour **tints** that texture: `0.35 / 1.0 / 0.45` — the pot's own green, whose
+  hue is sampled off `textures/block/utensil/sealing_pot.png`'s main highlight
+  (RGB 89,186,114), with the green channel pinned to 1.0 so the wall keeps the brightness
+  the untinted grey had. Alpha stays `0.35`.
 - Texture scrolls **vertically** on walls: V offsets by `speed * time` (tiles/second, time from
   game time + partial tick); sealing uses `0.5` tiles/s.
 - Walls on the **negative X/Z sides are UV-flipped** so adjacent sides read consistently from inside.
@@ -285,7 +289,7 @@ strange glasses or holds a sealing pot (otherwise empty).
 | Block shape | separate `SealingPotShape` `BlockMethod` | Decided: shape decoupled from `SealingPotBlock` so both are reusable by other blocks. |
 | Spawn hook | `NaturalSpawner` mixin (§5) | Hostile-natural-only; programmatic spawns untouched; cheaper than per-mob events. |
 | Spawn scope | **Hostile (`MONSTER`) natural spawns only** | Decided: friendly mobs still spawn; youkai indifferent (programmatic → unaffected). |
-| Visual | forcefield-texture walls | Decided: `textures/barriers/sealing_pot.png` (copied from vanilla `textures/misc/forcefield.png`) placeholder until a proper effect render/art exists. |
+| Visual | forcefield-texture walls | Decided: `textures/barriers/sealing_pot.png` (copied from vanilla `textures/misc/forcefield.png`) placeholder until a proper effect render/art exists. Tinted the pot's own green so the placeholder at least reads as the pot's magic. |
 | Visual API | `EffectData.getClientVisual(viewer)` → `List<AreaEffectVisual>` | Decided: per-effect visuals (texture/color/speed/faces) with per-viewer visibility; one entry → multiple render passes; renderer batches by texture. Culling happens before any buffer is built. |
 | Visual scroll | V offset `speed*time` on walls, `0.5` tiles/s | Decided: textures move vertically; speed is per-visual. |
 | Config | `sealingPotRadius` default 4 | Decided: server-synced config, range `[1, 8]`. |

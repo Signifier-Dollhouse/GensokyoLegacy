@@ -50,6 +50,9 @@ Stock = max times tradeable per refresh; Refresh = ticks until restock (20 ticks
   mod, which is the point: it is the entry-level replacement for the dagger
   glove, and `main/obtain_iron_dagger` (already parented off
   `main/enter_morichika_shop`) now has a real source.
+- That advancement is also what unlocks Morichika's `offer_dagger_glove`
+  ([morichika.md](morichika.md)), so the pair reads as one ladder: her daggers
+  first, then the glove that spends them.
 
 ## Deliberate gaps
 

@@ -68,6 +68,15 @@ public class MorichikaQDGen extends QuestDialogData {
 				List.of(new HasAdvancementCondition(GLAdvGen.WELCOME)),
 				PatchouliHelper.getBook(GensokyoLegacy.loc("tools_guide")),
 				new TradeRecurrence(1, 24000), List.of(item(Items.EMERALD, 1))));
+		// The glove is a weapon rather than a tool, and it is worthless to someone
+		// who cannot yet throw a dagger: it spends the whole inventory's daggers to
+		// turn a stack into a pattern. So the gate is Sakuya's iron dagger
+		// advancement, not the glove's own one - by the time it shows, the player
+		// has already seen that shop sell the ammunition.
+		trade("offer_dagger_glove", new TradeOffer(GLEntities.MORICHIKA.get(),
+				List.of(new HasAdvancementCondition(GLAdvGen.OBTAIN_IRON_DAGGER)),
+				new ItemStack(GLItems.DAGGER_GLOVE.get()),
+				new TradeRecurrence(1, 168000), List.of(item(Items.EMERALD, 24))));
 	}
 
 }
