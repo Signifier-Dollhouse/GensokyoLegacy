@@ -114,20 +114,52 @@ public class StructureConfigBuilder {
 	// alice_house root is 29x23x18 with bed at local (12,6,6)-(12,6,7);
 	// the other five jigsaw parts (gate, garden, path, tree, backyard) are
 	// pure yard and hold no building, so they need no boxes.
-	// Single box lifted by one to exclude the ground plate, spanning the
+	// House box lifted by one to exclude the ground plate, spanning the
 	// whole shell: west tower x1-10 y1-17 plus its hip roof up to y22, east
 	// wing x11-25 under a gable roof up to y13, the iron awning at z1-5 and
 	// the entry porch out to x28. Only the roof eave overhangs past it
 	// (x=0 and z=17, both at y18) and the yard soil stay outside.
-	// No room boxes yet: getRoomBounds then falls back to the whole root
-	// piece box, which still contains every indoor space.
+	// Room boxes are disjoint and hold in-room air, shell blocks and
+	// furniture only. The tower hall is a single open shaft: no intermediate
+	// floors, so it runs from the y0 plank floor up to the hip roof at y18.
+	// The x10-11 arcade is walled off from the wing above y4 (x11 turns
+	// solid from y5 on) and dead-ends there, so the tower side and the wing
+	// ground floor are its only links. The wing splits at the y5 plank
+	// floor: ground y1-4, upper y5-8 with Alice's bed in its northwest
+	// corner. Indoor air left out on purpose: the wing attic under the gable
+	// (y9-13, ridge z10) and the tower roof interior (y18-21).
 	public static StructureConfig.Builder alice() {
 		return StructureConfig.builder()
+				.interior(aliceInterior())
 				.house(List.of(
-						new BoundingBox(0, 0, 0, 29, 23, 18)
+						new BoundingBox(0, 0, 0, 18, 22, 17)
 				))
 				.primary(GLStructureTagGen.ALICE_PRIMARY)
 				.wouldFix(GLStructureTagGen.ALICE_FIX);
+	}
+
+	// Ground level runs tower -> arcade -> wing in a straight line along
+	// z9-13 at y1, both doorways being wall-less gaps. The stair node is the
+	// only way up; its two staging cells are flat ground just clear of the
+	// stair run, on the ground floor before the lowest step and on the upper
+	// floor past the top one, as for marisa's east shaft. Both exterior
+	// doors are entries: the north door into the ground floor and the
+	// balcony door out of the upper floor at x26.
+	private static StructureInterior aliceInterior() {
+		var rooms = new ArrayList<>(List.of(
+				new InteriorRoom("tower_hall", new BoundingBox(2, 1, 7, 9, 17, 15)),
+				new InteriorRoom("arcade", new BoundingBox(10, 1, 9, 11, 9, 13)),
+				new InteriorRoom("wing_ground", new BoundingBox(12, 1, 6, 25, 4, 14)),
+				new InteriorRoom("wing_upper", new BoundingBox(12, 5, 6, 25, 8, 14))
+		));
+		var nodes = new ArrayList<>(List.of(
+				new InteriorNode(new BlockPos(9, 1, 11), new BlockPos(9, 1, 11), 0, 1),
+				new InteriorNode(new BlockPos(11, 1, 11), new BlockPos(11, 1, 11), 1, 2),
+				new InteriorNode(new BlockPos(24, 1, 8), new BlockPos(24, 6, 14), 2, 3),
+				new InteriorNode(new BlockPos(18, 1, 6), new BlockPos(18, 1, 6), 2, -1),
+				new InteriorNode(new BlockPos(25, 6, 7), new BlockPos(25, 6, 7), 3, -1)
+		));
+		return new StructureInterior(rooms, nodes);
 	}
 
 }
