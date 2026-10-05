@@ -1,0 +1,17 @@
+{
+  "character": "gensokyolegacy:kirisame_marisa",
+  "conditions": [
+    {
+      "type": "gensokyolegacy:has_advancement",
+      "advancement": "gensokyolegacy:main/enter_alice_house",
+      "invert": true
+    },
+    {
+      "type": "gensokyolegacy:self_reputation",
+      "reputation": 50
+    }
+  ],
+  "dialog": "gensokyolegacy:marisa/chat_alice/talk",
+  "text": "gensokyolegacy/marisa/chat_alice/starter/start",
+  "weight": 100
+}

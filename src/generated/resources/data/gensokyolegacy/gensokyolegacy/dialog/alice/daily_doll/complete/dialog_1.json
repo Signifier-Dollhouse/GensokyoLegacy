@@ -1,0 +1,19 @@
+{
+  "animations": [
+    "dialog_agree"
+  ],
+  "options": [
+    {
+      "type": "gensokyolegacy:simple",
+      "actions": [
+        {
+          "type": "gensokyolegacy:complete_quest"
+        }
+      ],
+      "conditions": [],
+      "next": "gensokyolegacy:alice/daily_doll/complete/handover/dialog_1",
+      "text": "gensokyolegacy/alice/daily_doll/option/complete/handover"
+    }
+  ],
+  "text": "gensokyolegacy/alice/daily_doll/dialog/alice/daily_doll/complete/dialog_1"
+}

@@ -6,7 +6,7 @@
       "invert": true
     }
   ],
-  "dialog": "gensokyolegacy:alice/visit/marisa",
-  "text": "gensokyolegacy/alice/visit/starter/marisa",
+  "dialog": "gensokyolegacy:alice/visit/call",
+  "text": "gensokyolegacy/alice/visit/starter/call",
   "weight": 30
 }

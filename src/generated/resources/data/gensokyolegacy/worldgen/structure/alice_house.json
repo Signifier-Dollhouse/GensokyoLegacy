@@ -1,0 +1,17 @@
+{
+  "type": "gensokyolegacy:flat_check",
+  "attempts": 24,
+  "biomes": "#gensokyolegacy:has_structure/alice_house",
+  "height_tolerance": 5,
+  "max_distance_from_center": 80,
+  "salt": 2026165872,
+  "set_count": 4,
+  "set_index": 2,
+  "size": 6,
+  "spacing": 32,
+  "spawn_overrides": {},
+  "start_pool": "gensokyolegacy:alice_house/root",
+  "step": "underground_decoration",
+  "terrain_adaptation": "beard_thin",
+  "use_expansion_hack": false
+}

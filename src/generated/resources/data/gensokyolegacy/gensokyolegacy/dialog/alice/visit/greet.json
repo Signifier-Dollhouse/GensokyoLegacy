@@ -1,0 +1,11 @@
+{
+  "options": [
+    {
+      "type": "gensokyolegacy:simple",
+      "actions": [],
+      "conditions": [],
+      "text": "gensokyolegacy/alice/visit/option/greet/end"
+    }
+  ],
+  "text": "gensokyolegacy/alice/visit/dialog/alice/visit/greet"
+}

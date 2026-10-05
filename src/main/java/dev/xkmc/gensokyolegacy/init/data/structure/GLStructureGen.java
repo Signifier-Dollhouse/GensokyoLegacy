@@ -103,6 +103,29 @@ public class GLStructureGen {
 							GLEntities.MARISA.get(), visit(0.30f, 2400, 6000))),
 					new StructFlatBuilding(List.of(), Map.of(), 5, 64, 24, 32, 8),
 						FOREST_HOUSES
+				),
+				// Alice's house in the modded magical forest (root 29x23x18,
+				// bed at local (12,6,6)-(12,6,7)). Five jigsaw parts hang off
+				// the root: gate, garden, path, tree and backyard. They all
+				// sit on solid ground, so unlike the hakurei shrine paths
+				// every part is rigid rather than terrain matching.
+				new StructStructure(
+						GensokyoLegacy.loc("alice_house"), GLStructureTagGen.ALICE_HOUSE, 32, 24,
+						StructureConfigBuilder.alice(),
+						List.of(new StructBed(
+								GLEntities.ALICE,
+								CharacterConfig.forStructure(6000, 12000, 12, 30),
+								GLBlocks.Beds.ALICE.holder()
+						)),
+						new StructFlatJigsawBuilding(6, List.of(
+								new StructFlatJigsawBuilding.Part("root", true, List.of()),
+								new StructFlatJigsawBuilding.Part("gate", true, List.of()),
+								new StructFlatJigsawBuilding.Part("garden", true, List.of()),
+								new StructFlatJigsawBuilding.Part("path", true, List.of()),
+								new StructFlatJigsawBuilding.Part("tree", true, List.of()),
+								new StructFlatJigsawBuilding.Part("backyard", true, List.of())
+						), Map.of(), 5, 80, 24, 32, 8),
+						FOREST_HOUSES
 				)
 		);
 	}
@@ -142,12 +165,6 @@ public class GLStructureGen {
 
 		bedReg.add(GLBlocks.BEDS[GLBlocks.Beds.CIRNO.ordinal()], new BedData(GLEntities.CIRNO.get()), false);
 		bedReg.add(GLBlocks.BEDS[GLBlocks.Beds.RUMIA.ordinal()], new BedData(GLEntities.RUMIA.get()), false);
-
-		// Alice has no preset house yet: her bed binds to any CUSTOM home
-		// (StructureKey.support() accepts every custom key), so a player-built
-		// room holding an alice bed claims her and respawns her there.
-		bedReg.add(GLBlocks.BEDS[GLBlocks.Beds.ALICE.ordinal()], new BedData(GLEntities.ALICE.get()), false);
-		entityReg.add(GLEntities.ALICE, CharacterConfig.forStructure(6000, 12000, 12, 30), false);
 	}
 
 	public static void init(DataProviderInitializer init) {

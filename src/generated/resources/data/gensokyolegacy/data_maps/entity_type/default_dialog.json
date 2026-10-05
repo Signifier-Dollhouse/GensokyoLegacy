@@ -1,9 +1,9 @@
 {
   "values": {
     "gensokyolegacy:alice_margatroid": {
-      "greeting": "gensokyolegacy/alice/greeting",
-      "trade": "gensokyolegacy/alice/trade",
-      "visitGreeting": "gensokyolegacy/alice/visit_greeting"
+      "greeting": "gensokyolegacy/alice/chat/greeting",
+      "trade": "gensokyolegacy/alice/chat/trade",
+      "visitGreeting": "gensokyolegacy/alice/chat/visit_greeting"
     },
     "gensokyolegacy:hakurei_reimu": {
       "greeting": "gensokyolegacy/reimu/chat/greeting",

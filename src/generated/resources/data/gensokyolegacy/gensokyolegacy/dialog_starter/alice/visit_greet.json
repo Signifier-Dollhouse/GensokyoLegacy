@@ -1,0 +1,11 @@
+{
+  "character": "gensokyolegacy:alice_margatroid",
+  "conditions": [
+    {
+      "type": "gensokyolegacy:home_bound",
+      "invert": true
+    }
+  ],
+  "dialog": "gensokyolegacy:alice/visit/greet",
+  "text": "gensokyolegacy/alice/visit/starter/greet"
+}

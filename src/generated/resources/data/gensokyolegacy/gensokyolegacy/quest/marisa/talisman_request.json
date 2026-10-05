@@ -13,8 +13,17 @@
       "reputation": 100
     },
     {
-      "type": "gensokyolegacy:has_quest_completed",
-      "quest": "gensokyolegacy:reimu/talisman_materials"
+      "type": "gensokyolegacy:any",
+      "conditions": [
+        {
+          "type": "gensokyolegacy:has_quest_completed",
+          "quest": "gensokyolegacy:reimu/talisman_materials"
+        },
+        {
+          "type": "gensokyolegacy:has_quest_completed",
+          "quest": "gensokyolegacy:alice/seven_colors"
+        }
+      ]
     }
   ],
   "description": "gensokyolegacy/marisa/talisman_request/quest/desc",

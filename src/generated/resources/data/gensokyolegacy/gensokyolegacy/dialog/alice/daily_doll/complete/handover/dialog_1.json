@@ -1,0 +1,11 @@
+{
+  "options": [
+    {
+      "type": "gensokyolegacy:simple",
+      "actions": [],
+      "conditions": [],
+      "text": "gensokyolegacy/alice/shared/option/daily_thanks"
+    }
+  ],
+  "text": "gensokyolegacy/alice/daily_doll/dialog/alice/daily_doll/complete/handover/dialog_1"
+}

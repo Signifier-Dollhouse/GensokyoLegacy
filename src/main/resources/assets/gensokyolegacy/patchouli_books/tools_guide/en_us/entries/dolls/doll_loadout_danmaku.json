@@ -1,0 +1,19 @@
+{
+  "name": "Danmaku Fire",
+  "icon": "gensokyolegacy:star_wand",
+  "category": "gensokyolegacy:dolls",
+  "advancement": "gensokyolegacy:main/obtain_doll_glove",
+  "sortnum": 6,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "gensokyolegacy:star_wand",
+      "title": "Danmaku Fire",
+      "text": "A doll can fire danmaku with a Star Wand or an Iron Dagger. Once the order is given, one doll fires at the target and then hands the attack on to the next."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Reach and aim$(br)Shots are led for their own flight time, so a target that keeps moving is still hit, and they carry up to 48 blocks.$(br)$(bold)One volley, the whole squad$(br)An attack order walks down your dolls one after another instead of firing them all at once, each doll taking a single shot before the next is sent."
+    }
+  ]
+}

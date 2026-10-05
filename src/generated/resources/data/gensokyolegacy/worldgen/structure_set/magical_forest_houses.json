@@ -13,6 +13,10 @@
     {
       "structure": "gensokyolegacy:morichika_shop",
       "weight": 1
+    },
+    {
+      "structure": "gensokyolegacy:alice_house",
+      "weight": 1
     }
   ]
 }

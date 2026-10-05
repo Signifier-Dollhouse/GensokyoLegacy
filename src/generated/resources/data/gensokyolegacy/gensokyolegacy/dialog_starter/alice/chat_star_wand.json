@@ -1,0 +1,12 @@
+{
+  "character": "gensokyolegacy:alice_margatroid",
+  "conditions": [
+    {
+      "type": "gensokyolegacy:has_quest_completed",
+      "quest": "gensokyolegacy:alice/seven_colors"
+    }
+  ],
+  "dialog": "gensokyolegacy:alice/chat_star_wand/talk",
+  "text": "gensokyolegacy/alice/chat_star_wand/starter/start",
+  "weight": 100
+}

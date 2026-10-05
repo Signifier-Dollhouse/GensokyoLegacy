@@ -1,0 +1,12 @@
+{
+  "options": [
+    {
+      "type": "gensokyolegacy:simple",
+      "actions": [],
+      "conditions": [],
+      "next": "gensokyolegacy:alice/visit/terms_ans",
+      "text": "gensokyolegacy/alice/visit/option/terms"
+    }
+  ],
+  "text": "gensokyolegacy/alice/visit/dialog/alice/visit/call"
+}

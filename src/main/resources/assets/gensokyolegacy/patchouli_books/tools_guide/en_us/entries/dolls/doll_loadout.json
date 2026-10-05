@@ -1,23 +1,21 @@
 {
   "name": "Doll Loadouts",
-  "icon": "gensokyolegacy:doll_lance",
+  "icon": "gensokyolegacy:doll",
   "category": "gensokyolegacy:dolls",
   "advancement": "gensokyolegacy:main/obtain_doll_glove",
   "sortnum": 4,
   "pages": [
     {
-      "type": "patchouli:spotlight",
-      "item": "gensokyolegacy:doll_lance",
-      "title": "Four Slots",
-      "text": "A doll's loadout is a cross of four slots: a main hand, an off hand, a core and a cloth. Each one only accepts what that slot can actually do something with, and anything else is refused outright. Open it by right-clicking the doll item in your inventory, or right-clicking one of your dolls from the glove — from up to 16 blocks away."
+      "type": "patchouli:text",
+      "text": "$(bold)Four Slots$(br)A doll's loadout is a cross of four slots: a main hand, an off hand, a core and a cloth. Each one only accepts what that slot can actually do something with, and anything else is refused outright. Open it by right-clicking the doll item in your inventory, or right-clicking one of your dolls from the glove — from up to 16 blocks away."
     },
     {
       "type": "patchouli:text",
-      "text": "$(bold)What a hand takes$(br)Any danmaku item is fired as the doll's normal attack — the Star Wand and the Iron Dagger among them, as well as the danmaku bullet items. The Doll Lance is what a doll charges with instead, and it is the only weapon that arms one: a sword in the hand does nothing at all. A doll holding both keeps shooting, since a danmaku shot has no range limit while the charge gives up past 16 blocks.$(br2)A laser item, or a throwable hexbrew bottle — explosive, miasma, starlight or hyphae — is spent on the doll's super attack. TNT is spent on a suicide dive, and takes the doll with it. A folded Healing talisman makes the doll walk over to a wounded ally and spend itself healing them."
+      "text": "$(bold)What fits where$(br)Either hand takes anything a doll can act with — the lance, danmaku, laser, hexbrew, TNT and healing talisman entries that follow — plus a vanilla shield. The core takes a folded talisman, which the doll wears on itself and never spends on anyone else, and the cloth slot is laid out and saved but takes nothing yet.$(br2)$(bold)Ammunition$(br)Lasers, throwable hexbrew bottles and TNT are ammunition: they stack in the hand, and N in the hand is N uses. Everything else is one item per hand, however big its own stack is."
     },
     {
       "type": "patchouli:text",
-      "text": "$(bold)Ammunition$(br)Lasers, throwable hexbrew bottles and TNT are ammunition: they stack in the hand, and N in the hand is N uses. Everything else is one item per hand, however big its own stack is.$(br)$(bold)A shield in the off hand$(br)A vanilla shield is not a weapon, but a doll holding one in its off hand blocks incoming projectiles and wears the shield down as it does. In the main hand it does nothing. Both hands otherwise take the same set of items, and a doll acts with whichever hand holds the better weapon for the order it was given, sticking with that hand until the next order."
+      "text": "$(bold)A shield in the off hand$(br)A vanilla shield is not a weapon, but a doll holding one in its off hand blocks incoming projectiles and wears the shield down as it does. In the main hand it does nothing. Both hands otherwise take the same set of items, and a doll acts with whichever hand holds the better weapon for the order it was given, sticking with that hand until the next order."
     },
     {
       "type": "patchouli:text",

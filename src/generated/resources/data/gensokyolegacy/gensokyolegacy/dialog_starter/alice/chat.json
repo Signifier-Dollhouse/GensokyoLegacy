@@ -5,6 +5,6 @@
       "type": "gensokyolegacy:home_bound"
     }
   ],
-  "dialog": "gensokyolegacy:alice/hi",
-  "text": "gensokyolegacy/alice/starter/start"
+  "dialog": "gensokyolegacy:alice/chat/hi",
+  "text": "gensokyolegacy/alice/chat/starter/start"
 }

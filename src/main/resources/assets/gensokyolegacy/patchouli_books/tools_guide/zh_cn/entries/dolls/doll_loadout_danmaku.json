@@ -1,0 +1,19 @@
+{
+  "name": "弹幕射击",
+  "icon": "gensokyolegacy:star_wand",
+  "category": "gensokyolegacy:dolls",
+  "advancement": "gensokyolegacy:main/obtain_doll_glove",
+  "sortnum": 6,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "gensokyolegacy:star_wand",
+      "title": "弹幕射击",
+      "text": "人偶可以使用星星魔杖与铁匕首进行弹幕射击。发起命令后，一只人偶会向目标发射弹幕，然后把攻击指令传递给下一只人偶。"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)射程与瞄准$(br)射击会按飞行时间提前量修正，因此持续移动的目标照样会被打中；射程可达 48 格。$(br)$(bold)一轮齐射，全队轮流出手$(br)攻击命令会让人偶依次出手，而不是同时开火，每个人偶打一发之后才轮到下一只。"
+    }
+  ]
+}

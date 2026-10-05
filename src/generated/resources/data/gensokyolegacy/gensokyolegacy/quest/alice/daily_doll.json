@@ -1,0 +1,79 @@
+{
+  "character": "gensokyolegacy:alice_margatroid",
+  "completionDialog": {
+    "type": "gensokyolegacy:group",
+    "actions": [],
+    "group": "gensokyolegacy/alice/shared/option/daily_group",
+    "next": "gensokyolegacy:alice/daily_doll/complete/dialog_1",
+    "text": "gensokyolegacy/alice/daily_doll/option/complete"
+  },
+  "conditions": [
+    {
+      "type": "gensokyolegacy:has_quest_completed",
+      "quest": "gensokyolegacy:alice/seven_colors"
+    }
+  ],
+  "description": "gensokyolegacy/alice/daily_doll/quest/desc",
+  "followUpDialog": {
+    "type": "gensokyolegacy:group",
+    "actions": [],
+    "group": "gensokyolegacy/alice/shared/option/daily_group",
+    "next": "gensokyolegacy:alice/daily_doll/follow_up/dialog_1",
+    "text": "gensokyolegacy/alice/shared/option/daily_follow"
+  },
+  "initialDialog": {
+    "type": "gensokyolegacy:group",
+    "actions": [],
+    "group": "gensokyolegacy/alice/shared/option/daily_group",
+    "next": "gensokyolegacy:alice/daily_doll/start/dialog_1",
+    "text": "gensokyolegacy/alice/shared/option/daily_start"
+  },
+  "recurrence": {
+    "cooldown": 24000
+  },
+  "requirements": {
+    "a-materials": {
+      "type": "gensokyolegacy:submit_item",
+      "ingredients": [
+        {
+          "count": 8,
+          "item": "minecraft:string"
+        },
+        {
+          "count": 8,
+          "tag": "minecraft:wool"
+        },
+        {
+          "count": 8,
+          "item": "gensokyolegacy:broom_grass"
+        }
+      ]
+    },
+    "b-iron": {
+      "type": "gensokyolegacy:roll_item",
+      "table": "gensokyolegacy:quest_req/alice/daily_doll/daily_doll_iron"
+    },
+    "c-dye": {
+      "type": "gensokyolegacy:roll_item",
+      "table": "gensokyolegacy:quest_req/alice/daily_doll/daily_doll"
+    }
+  },
+  "rewards": [
+    {
+      "type": "gensokyolegacy:exp",
+      "point": 60
+    },
+    {
+      "type": "gensokyolegacy:reputation",
+      "cap_increase": 0,
+      "max_cap": 0,
+      "reputation": 10,
+      "soft_cap": 150
+    },
+    {
+      "type": "gensokyolegacy:loot_table",
+      "table": "gensokyolegacy:alice/daily_doll"
+    }
+  ],
+  "title": "gensokyolegacy/alice/daily_doll/quest/title"
+}

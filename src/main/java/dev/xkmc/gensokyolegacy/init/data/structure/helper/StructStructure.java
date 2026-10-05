@@ -35,6 +35,15 @@ public record StructStructure(
 		this(id, biomes, spacing, attempts, config, beds, new LinkedHashMap<>(), building, id);
 	}
 
+	public StructStructure(
+			ResourceLocation id, TagKey<Biome> biomes, int spacing, int attempts,
+			StructureConfig.Builder config,
+			List<StructBed> beds,
+			StructBuilding building,
+			ResourceLocation set) {
+		this(id, biomes, spacing, attempts, config, beds, new LinkedHashMap<>(), building, set);
+	}
+
 	public static int saltFor(ResourceLocation id) {
 		return id.hashCode() & 0x7fffffff;
 	}
