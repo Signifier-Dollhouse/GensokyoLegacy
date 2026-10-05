@@ -122,6 +122,7 @@
 		"spell_mystia": "夜雀「午夜的合唱指挥」",
 		"spell_yukari_butterfly": "魍魉「二重黑死蝶」",
 		"spell_yukari_laser": "结界「光与暗的网目」",
+		"spell_sakuya": "时符「无限之刃」",
 		"mundane_hexbrew_bottle": "魔药溶剂",
 		"hexbrew_elixir_bottle": "魔药精华",
 		"explosive_hexbrew_bottle": "爆爆魔药",
@@ -167,7 +168,8 @@
 					"star_sapphire": "斯塔",
 					"sunny_milk": "桑尼",
 					"morichika_rinnosuke": "森近霖之助",
-					"alice_margatroid": "爱丽丝·玛格特罗伊德"
+					"alice_margatroid": "爱丽丝·玛格特罗伊德",
+					"izayoi_sakuya": "十六夜咲夜"
 				},
 				{
 					"entity.gensokyolegacy.*": ""

@@ -16,6 +16,8 @@ import dev.xkmc.gensokyolegacy.content.entity.characters.merchant.MorichikaEntit
 import dev.xkmc.gensokyolegacy.content.entity.characters.merchant.MorichikaRenderer;
 import dev.xkmc.gensokyolegacy.content.entity.characters.rumia.RumiaEntity;
 import dev.xkmc.gensokyolegacy.content.entity.characters.rumia.RumiaRenderer;
+import dev.xkmc.gensokyolegacy.content.entity.characters.sakuya.SakuyaEntity;
+import dev.xkmc.gensokyolegacy.content.entity.characters.sakuya.SakuyaRenderer;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.DollEntity;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.render.DollRenderer;
 import dev.xkmc.gensokyolegacy.content.entity.misc.FairyIce;
@@ -50,6 +52,8 @@ public class GLEntities {
 	public static final EntityEntry<MarisaEntity> MARISA;
 	public static final EntityEntry<MorichikaEntity> MORICHIKA;
 	public static final EntityEntry<AliceEntity> ALICE;
+	/** No home of her own: she only ever appears as a guest, see {@code GLStructureGen}. */
+	public static final EntityEntry<SakuyaEntity> IZAYOI_SAKUYA;
 	public static final EntityEntry<GeneralYoukaiEntity> MYSTIA;
 	public static final EntityEntry<BossYoukaiEntity> YUKARI, KOISHI;
 	public static final EntityEntry<FairyEntity> SUNNY, LUNA, STAR;
@@ -163,6 +167,14 @@ public class GLEntities {
 					.properties(e -> e.sized(0.4F, 1.8f).clientTrackingRange(10))
 					.attributes(GeneralYoukaiEntity::createAttributes)
 					.renderer(() -> AliceRenderer::new)
+					.loot(EntityLootGen::noLoot)
+					.register();
+
+			IZAYOI_SAKUYA = GensokyoLegacy.REGISTRATE
+					.entity("izayoi_sakuya", SakuyaEntity::new, MobCategory.MONSTER)
+					.properties(e -> e.sized(0.4F, 1.8f).clientTrackingRange(10))
+					.attributes(BossYoukaiEntity::createAttributes)
+					.renderer(() -> SakuyaRenderer::new)
 					.loot(EntityLootGen::noLoot)
 					.register();
 

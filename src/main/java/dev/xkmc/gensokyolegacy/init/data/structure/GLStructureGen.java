@@ -107,7 +107,8 @@ public class GLStructureGen {
 						)),
 						visits(Map.of(
 							GLEntities.REIMU.get(), visit(0.30f, 2400, 6000),
-							GLEntities.MARISA.get(), visit(0.30f, 2400, 6000))),
+							GLEntities.MARISA.get(), visit(0.30f, 2400, 6000),
+							GLEntities.IZAYOI_SAKUYA.get(), visit(0.30f, 2400, 6000))),
 					new StructFlatBuilding(List.of(), Map.of(), 5, 64, 24, 32, 8),
 						FOREST_HOUSES
 				),

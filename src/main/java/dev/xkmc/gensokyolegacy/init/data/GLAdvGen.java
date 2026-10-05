@@ -123,27 +123,24 @@ public class GLAdvGen {
 		morichika.create("obtain_mini_hakkero", GLItems.MINI_FURNACE_1.get(),
 						CriterionBuilder.item(GLItems.MINI_FURNACE_1.get()),
 						"Mini Hakkero", "Obtain a Mini Hakkero Prototype")
-				.type(AdvancementType.TASK, false, false, false);
-		morichika.create("obtain_cat_bell", GLItems.CAT_BELL.get(),
+				.type(AdvancementType.TASK, false, false, false)
+				.create("obtain_cat_bell", GLItems.CAT_BELL.get(),
 						CriterionBuilder.item(GLItems.CAT_BELL.get()),
 						"Cat Bell", "Obtain a Cat Bell")
-				.type(AdvancementType.TASK, false, false, false);
-		morichika.create("obtain_centipickaxe", GLItems.CENTIPICKAXE.get(),
+				.type(AdvancementType.TASK, false, false, false)
+				.create("obtain_centipickaxe", GLItems.CENTIPICKAXE.get(),
 						CriterionBuilder.item(GLItems.CENTIPICKAXE.get()),
 						"Centipeck", "Obtain a Centipeck")
-				.type(AdvancementType.TASK, false, false, false);
-		morichika.create("obtain_dowser", GLItems.DOWSER.get(),
+				.type(AdvancementType.TASK, false, false, false)
+				.create("obtain_dowser", GLItems.DOWSER.get(),
 						CriterionBuilder.item(GLItems.DOWSER.get()),
 						"Dowser", "Obtain Nazrin's Dowser")
-				.type(AdvancementType.TASK, false, false, false);
-		morichika.create("obtain_mermaid_pearl", GLItems.MERMAID_PEARL.get(),
+				.type(AdvancementType.TASK, false, false, false)
+				.create("obtain_mermaid_pearl", GLItems.MERMAID_PEARL.get(),
 						CriterionBuilder.item(GLItems.MERMAID_PEARL.get()),
 						"Mermaid's Pearl", "Obtain a Mermaid's Pearl")
-				.type(AdvancementType.TASK, false, false, false)
-				// The dagger pair: the glove is spent iron daggers, so it follows the dagger
-				// rather than sitting beside it. Neither has a source of its own yet, so they
-				// hang off Morichika as a placeholder until one does.
-				.create("obtain_iron_dagger", GLItems.IRON_DAGGER.get(),
+				.type(AdvancementType.TASK, false, false, false);
+		morichika.create("obtain_iron_dagger", GLItems.IRON_DAGGER.get(),
 						CriterionBuilder.item(GLItems.IRON_DAGGER.get()),
 						"Iron Dagger", "Obtain an Iron Dagger")
 				.type(AdvancementType.TASK, false, false, false)

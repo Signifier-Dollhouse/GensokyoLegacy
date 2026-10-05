@@ -73,7 +73,7 @@ public class GLItems {
 
 	public static final ItemEntry<Item> HAKUREI_GOHEI;
 
-	public static final ItemEntry<SpellItem> REIMU_SPELL, MARISA_SPELL, SANAE_SPELL, YUKARI_SPELL_BUTTERFLY, YUKARI_SPELL_LASER, MYSTIA_SPELL;
+	public static final ItemEntry<SpellItem> REIMU_SPELL, MARISA_SPELL, SANAE_SPELL, YUKARI_SPELL_BUTTERFLY, YUKARI_SPELL_LASER, MYSTIA_SPELL, SAKUYA_SPELL;
 
 	public static final ItemEntry<StrawHatItem> STRAW_HAT;
 	public static final ItemEntry<SuwakoHatItem> SUWAKO_HAT;
@@ -227,6 +227,15 @@ public class GLItems {
 								() -> DanmakuItems.Bullet.MENTOS.get(DyeColor.GREEN).get()))
 						.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/spell/" + ctx.getName())))
 						.lang("Night Sparrow \"Midnight Chorus Master\"")
+						.tag(DanmakuTagGen.PRESET_SPELL)
+						.register();
+
+				SAKUYA_SPELL = reg
+						.item("spell_sakuya", p -> new SpellItem(
+								p.stacksTo(1), SakuyaItemSpell::new, true,
+								() -> DanmakuItems.Bullet.DAGGER.get(DyeColor.LIGHT_BLUE).get()))
+						.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/spell/" + ctx.getName())))
+						.lang("Time Sign \"Infinity Blade\"")
 						.tag(DanmakuTagGen.PRESET_SPELL)
 						.register();
 			}
