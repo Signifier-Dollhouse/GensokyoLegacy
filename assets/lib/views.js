@@ -1159,20 +1159,25 @@ function dropSourceRow(drop, links) {
  * One entry of the guide book, as the book writes it: every page in the order the book
  * puts them in, the spotlights naming what they document. The item page reads the same
  * prose from the item's side, so this is the view for a reader who came for the entry.
+ *
+ * It is a modal rather than a panel, since the panel is reached by a category and lists
+ * the entries under it: an entry is picked from there and read here, exactly as an item
+ * is picked from a category and read in the item viewer.
  */
-export function guideEntryCard(entry, links = {}) {
+export function openGuideEntryViewer(entry, links = {}) {
   const data = entry.page?.data ?? {};
   const pages = data.pages ?? [];
-  return h(
-    "article",
-    { class: "card" },
-    cardHead(guideEntryName(entry), entry.id, [
-      // The category the book files it under, named as the book names it.
-      data.category ? pill("accent", categoryName(entry.book, data.category)) : null,
-    ]),
+
+  mountViewer();
+  openViewer(
+    guideEntryName(entry),
+    h("p", { class: "card-id mono", text: entry.id }),
     h(
       "p",
       { class: "entry-note" },
+      // The category the book files it under, named as the book names it, and how much
+      // of the entry there is: a page being the unit the book is written in.
+      data.category ? categoryName(entry.book, data.category) : null,
       trPlural("guide.pages", pages.length, pages.length),
       data.advancement ? ` · ${tr("item.advancement")}: ${advancementLabel(data.advancement)}` : null,
     ),
@@ -1181,14 +1186,15 @@ export function guideEntryCard(entry, links = {}) {
   );
 }
 
-/** One row of the book index: an entry, the category it sits in, and how long it is. */
+/** One row of a category's entry list: its name, its id, and how long it is. */
 export function guideEntryRow(entry, onOpen) {
+  const pages = entry.page?.data?.pages ?? [];
   return h(
     "li",
     { class: "starter-row" },
     h("button", { class: "linkish", type: "button", text: guideEntryName(entry), title: entry.id, onclick: onOpen }),
     h("span", { class: "card-id mono", text: entry.id }),
-    h("span", { class: "entry-note", text: categoryName(entry.book, entry.category) }),
+    h("span", { class: "entry-note", text: trPlural("guide.pages", pages.length, pages.length) }),
   );
 }
 

@@ -200,10 +200,12 @@ const en_us = {
   "item.openItem": "open item ->",
 
   // -- guide book ----------------------------------------------------------
+  "guide.all": "All entries",
   "guide.note":
-    "The guide book's own entries, page by page, exactly as the book writes them - the item list beside it is the same prose read from each item instead.",
+    "The guide book's own entries, one category at a time. Selecting one shows the entry as the book writes it, page by page - the item list beside it is the same prose read from each item instead.",
   "guide.pages.one": "{0} page",
   "guide.pages.many": "{0} pages",
+  "guide.uncategorised": "No category",
 
   // -- recipes --------------------------------------------------------------
   "recipe.type.crafting_shaped": "Crafting",
@@ -418,9 +420,11 @@ const zh_cn = {
   "item.openItem": "查看该物品 ->",
 
   // -- 指南书 --------------------------------------------------------------
-  "guide.note": "指南书自身的条目，逐页照原样呈现——旁边的物品列表是同一段文字从每件物品的角度出发。",
+  "guide.all": "全部条目",
+  "guide.note": "指南书自身的条目，按分类逐个列出。选择某个条目即照原样逐页呈现——旁边的物品列表是同一段文字从每件物品的角度出发。",
   "guide.pages.one": "{0} 页",
   "guide.pages.many": "{0} 页",
+  "guide.uncategorised": "未归类",
 
   // -- 配方 ------------------------------------------------------------------
   "recipe.type.crafting_shaped": "合成",

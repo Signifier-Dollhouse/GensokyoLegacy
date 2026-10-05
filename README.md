@@ -34,9 +34,9 @@ and where each item comes from) and **patchouli** (the guide book's own entries)
 Neither of the last two belongs to a character, so each is a section of its own rather
 than a sixth tab; picking one hides the tab bar, and picking a character brings it back.
 All three are addressable: `#quest/reimu`, `#trade/all`, `#dialog/marisa`,
-`#items/decoration`, `#items/undocumented`, `#patchouli/dolls/doll_loadout`. Each is a
-heading that folds its list away, so a reader working through one does not have to
-scroll past the others; all three start open.
+`#items/decoration`, `#items/undocumented`, `#patchouli/alchemy`. Each is a heading that
+folds its list away, so a reader working through one does not have to scroll past the
+others; all three start open.
 
 The item entries are the guide's own categories, in its order, plus one for the items it
 never mentions. Selecting one lays its items out in the panel: the items the guide names
@@ -121,23 +121,31 @@ written into the line in place so the sidebar does not have to be rebuilt on eve
 
 ### The patchouli section
 
-The third sidebar list is the guide book itself rather than what it documents: one entry
-per guide entry, in the order the book presents them in, showing an entry's pages as it
-writes them. The item list is reached *through* an item, so it splits an entry across
-every item it documents and keeps only the pages about that one - seventeen cushions see
-the prose about cushions and nothing else. This one is reached by the entry, so it reads
-whole: the same pages, in the book's own order, each spotlight naming what it documents
-with an item leading to that item's page and a tag leading to its members.
+The third sidebar list is the guide book itself rather than what it documents, and it is
+navigated the same way as the item list beside it: one entry per **category**, the book's
+own, in the book's own order, counted by how many entries each holds. Selecting one lays
+its **entries** out in the panel, and selecting an entry opens its pages in the viewer -
+the same two steps as picking an item section and then an item. `#patchouli/alchemy` is
+a category, `#patchouli` is the whole book.
 
-The two are read from the same files, and neither is written down anywhere, so a new
-guide entry appears in the list and in its panel with nothing else to update. It is worth
-having beside the item list rather than instead of it, since a reader usually arrives
-with one of two questions: *what is this thing* - the item, with every way to get one -
-or *what does the book say about it*, which is only whole from here.
+The item list reaches an entry *through* an item, so it splits the entry across every
+item it documents and keeps only the pages about that one - seventeen cushions see the
+prose about cushions and nothing else. The entry's own page reads whole: the same pages,
+in the book's order, each spotlight naming what it documents with an item leading to that
+item's page and a tag leading to its members. It is worth having beside the item list
+rather than instead of it, since a reader usually arrives with one of two questions:
+*what is this thing* - the item, with every way to get one - or *what does the book say
+about it*, which is only whole from here.
 
-An entry's sidebar count is how many pages it has, a page being the unit the book is
-written in. An unknown slug, or `#patchouli` with none, shows the book's index rather
-than a blank panel.
+Both lists are read from the same files and neither is written down anywhere, so a new
+category or entry appears with nothing else to update. The categories come from the book's
+own category files rather than from the entries, so a category it declares but writes no
+entry for is still listed - it is a page of the book, and an empty one is better than a
+missing link. An entry naming no category, or one no file declares, is filed under *No
+category* rather than dropped; the book renders it as a page outside its own sections, and
+so does this. Two categories can share a `sortnum`, and the book presents them one after
+the other rather than interleaved, so a category's own id breaks that tie. An unknown slug,
+or `#patchouli` with none, shows every entry rather than a blank panel.
 
 ### Caching
 

@@ -13,6 +13,7 @@ import {
   buildItemIndex,
   characterKeyOf,
   fetchJson,
+  guideCategoryIds,
   guideEntryIds,
   guideEntryOf,
   guideFileCount,
@@ -34,13 +35,13 @@ import {
 import {
   categoryName,
   collapsible,
-  guideEntryCard,
   guideEntryName,
   guideEntryRow,
   guideGroupName,
   guideSortnum,
   itemRow,
   openDialogViewer,
+  openGuideEntryViewer,
   openItemViewer,
   questCard,
   starterCard,
@@ -55,10 +56,9 @@ import {
 
 /**
  * The view is addressable: `#trade`, `#dialog/reimu`, `#quest/all`, `#items/alchemy`,
- * `#patchouli/dolls/doll_loadout`. Characters are slugged by their registry folder
- * (`reimu`), guide categories by their own folder (`alchemy`) and a guide entry by its
- * path inside the book (`dolls/doll_loadout`) - all rather than the full id, so the URL
- * stays readable; an unknown slug falls back to showing everything.
+ * `#patchouli/dolls`. Characters are slugged by their registry folder (`reimu`) and
+ * guide categories by their own folder (`alchemy`), rather than by the full id, so the
+ * URL stays readable; an unknown slug falls back to showing everything.
  */
 function slugOf(key) {
   if (key === "all") return "all";
@@ -91,18 +91,22 @@ function categoryFromSlug(slug) {
 }
 
 /**
- * The URL slug for a guide entry: its own path inside the book, so
- * `dolls/doll_loadout` rather than the full `gensokyolegacy:tools_guide/dolls/doll_loadout`.
- * Null - the whole book, which the panel answers with its index - is "all".
+ * The URL slug for a guide category: its own folder, the same spelling the item list's
+ * categories use, since they are the same folders. Null - the whole book, which the panel
+ * answers with every entry - is "all"; the bucket for entries that name no category has no
+ * folder to be named by, so it spells itself out rather than borrowing "all" and
+ * colliding with it.
  */
-function guideEntrySlug(id) {
-  return id ? String(id).split("/").slice(1).join("/") : "all";
+function guideCategorySlug(category) {
+  if (category === null) return "all";
+  if (category === UNCATEGORISED) return "uncategorised";
+  return String(category).split(":").pop();
 }
 
-/** The id of the entry a slug names, or null - which lands on the book's index. */
-function guideEntryIdFromSlug(slug) {
+/** The category a slug names, or null - which lands on every entry in the book. */
+function guideCategoryFromSlug(slug) {
   if (!slug || slug === "all") return null;
-  return guideEntries().find((entry) => guideEntrySlug(entry.id) === slug)?.id ?? null;
+  return guideSections().find((section) => guideCategorySlug(section.category) === slug)?.category ?? null;
 }
 
 function readLocation() {
@@ -120,36 +124,35 @@ function readLocation() {
 }
 
 /**
- * The item category or the guide entry the hash names, once the book is in. Separate
+ * The item category or the guide category the hash names, once the book is in. Separate
  * from `readLocation` because the guide book is fetched behind the first render, so a
- * link straight to `#items/decoration` or `#patchouli/dolls/doll_loadout` can only be
- * answered once it arrives - and answering it must not disturb the character the reader
- * was on.
+ * link straight to `#items/decoration` or `#patchouli/dolls` can only be answered once
+ * it arrives - and answering it must not disturb the character the reader was on.
  */
 function readLazySelection() {
   if (!store.guide) return;
   const slug = hashParts()[1];
   if (state.section === "item") state.category = categoryFromSlug(slug);
-  if (state.section === "guide") state.entry = guideEntryIdFromSlug(slug);
+  if (state.section === "guide") state.guideCategory = guideCategoryFromSlug(slug);
 }
 
-/** Only the first `/` separates the section from its slug; a guide entry's has more. */
+/** Only the first `/` separates the section from its slug; an id may hold more. */
 function hashParts() {
   const [section, ...rest] = decodeURIComponent(location.hash.replace(/^#/, "")).split("/");
   return [section, rest.join("/")];
 }
 
 function writeLocation() {
-  // Neither the item category nor the guide entry can be resolved until the book is in,
-  // and the hash is then the only record of what was linked to, so it is left as it is
-  // rather than overwritten with "all".
+  // Neither the item category nor the guide category can be resolved until the book is
+  // in, and the hash is then the only record of what was linked to, so it is left as it
+  // is rather than overwritten with "all".
   if (state.section !== "character" && !state.itemsLoaded) return;
 
   const slug =
     state.section === "item"
       ? categorySlug(state.category)
       : state.section === "guide"
-        ? guideEntrySlug(state.entry)
+        ? guideCategorySlug(state.guideCategory)
         : encodeURIComponent(slugOf(state.character));
   // Each section is named after the sidebar list it belongs to; a character is named
   // after its tab rather than after the character.
@@ -204,13 +207,9 @@ function selectCategory(category) {
   render();
 }
 
-/**
- * Switches to the guide book, showing one entry of it. The id rather than the entry
- * itself, so the selection survives the book being fetched again and of the language
- * being switched - both of which rebuild the list it would otherwise point into.
- */
-function selectGuideEntry(id) {
-  state.entry = id;
+/** Switches to the guide book, showing one of its categories or every entry. */
+function selectGuideCategory(category) {
+  state.guideCategory = category;
   state.section = "guide";
   setQuery("");
   render();
@@ -372,32 +371,33 @@ async function renderItemPanel(panel) {
 }
 
 /**
- * One entry of the guide book, page by page, as the book writes it. The item section
- * beside it is organised around the items an entry documents, so the same prose appears
- * under both headings from the two sides: this one for the entry, that one for the item.
+ * One category of the guide book: its entries listed, each opening its own pages. The
+ * sidebar navigates by category, as the item list beside it does, so the panel is reached
+ * by a category and the entry is the thing picked inside it - the same two steps as picking
+ * an item section and then an item, only here the entry is the book written whole rather
+ * than the prose about one item.
  */
 async function renderGuidePanel(panel) {
   if (!(await itemsReady(panel, "guide"))) return;
 
-  const entries = guideEntries();
-  const entry = entries.find((candidate) => candidate.id === state.entry);
+  const sections = guideSections();
+  // No category selected - `#patchouli` on its own, or a slug the book does not have -
+  // so every entry is listed rather than the panel showing nothing at all.
+  const section =
+    state.guideCategory === null ? null : sections.find((candidate) => candidate.category === state.guideCategory);
+  const entries = section ? guideSectionEntries(section) : guideEntries();
 
   panel.append(h("p", { class: "card-id", text: tr("guide.note") }));
-  // Nothing selected, whether because the link carried no slug or because it named an
-  // entry that is not in the book: the book's own index is the honest answer.
-  if (!entry) {
-    panel.append(
-      entries.length
-        ? h(
-            "ul",
-            { class: "list" },
-            ...entries.map((candidate) => guideEntryRow(candidate, () => selectGuideEntry(candidate.id))),
-          )
-        : emptyState(tr("noun.entries")),
-    );
-    return;
-  }
-  panel.append(guideEntryCard(entry, { item: openItem }));
+  const shown = entries.filter(matchesGuideEntry);
+  if (!shown.length) return panel.append(emptyState(tr("noun.entries")));
+
+  panel.append(
+    h(
+      "ul",
+      { class: "list" },
+      ...shown.map((entry) => guideEntryRow(entry, () => openGuideEntry(entry.id))),
+    ),
+  );
 }
 
 /** A group of the item panel: folded until the reader opens it, then remembered. */
@@ -498,34 +498,97 @@ function sectionSortnum(section) {
 }
 
 /**
- * Every entry of every guide book, in the order the book presents them in: the
- * category's own `sortnum`, then the entry's, then its name. Every entry is listed,
- * including one that spotlights nothing - the book is listed as it is written, which is
- * a different thing from the item list beside it, since that one only holds the items
- * some entry happens to document.
- *
- * Two categories can share a `sortnum`, and the book presents them one after the other
- * rather than interleaved, so the category's own id breaks that tie: by name it would
- * depend on the language, and by entry name it would mix two categories together.
+ * Every entry of every guide book, tagged with the category it sits in and the book it
+ * belongs to. Read from the book's own entry files, so an entry that documents no item
+ * is here all the same - the book is listed as it is written, which is a different thing
+ * from the item list beside it, since that one only holds the items some entry happens to
+ * document.
  *
  * The pages are per locale, so each entry is resolved through `guideEntryOf` as it is
- * listed: the prose follows the language toggle without the list being built twice.
+ * read: the prose follows the language toggle without the list being built twice.
  */
 function guideEntries() {
-  return (store.guide?.books ?? [])
-    .flatMap((book) =>
-      [...guideEntryIds(book)]
-        .map((id) => ({ book, id, page: guideEntryOf(book, id) }))
-        .filter((entry) => entry.page)
-        .map((entry) => ({ ...entry, category: entry.page.data?.category ?? null })),
-    )
-    .sort(
-      (a, b) =>
-        guideSortnum(a.book, a.category) - guideSortnum(b.book, b.category) ||
-        String(a.category).localeCompare(String(b.category)) ||
-        (a.page.data?.sortnum ?? Infinity) - (b.page.data?.sortnum ?? Infinity) ||
-        guideEntryName(a).localeCompare(guideEntryName(b)),
-    );
+  return (store.guide?.books ?? []).flatMap((book) =>
+    [...guideEntryIds(book)]
+      .map((id) => ({ book, id, page: guideEntryOf(book, id) }))
+      .filter((entry) => entry.page)
+      .map((entry) => ({ ...entry, category: entry.page.data?.category ?? null })),
+  );
+}
+
+/**
+ * An entry that names no category, or one no category file declares, is filed under this
+ * rather than dropped. A symbol, because it is not a category id and must never be
+ * mistaken for one - nor for the "all entries" selection, which is `null`.
+ */
+const UNCATEGORISED = Symbol("uncategorised");
+
+/**
+ * One sidebar entry per guide category: the category and the entries filed under it, in
+ * the order the book presents them in.
+ *
+ * The categories come from the book's own category files rather than from the entries, so
+ * a category the book declares but writes no entry for is still listed - it is a page of
+ * the book, and an empty one is better than a missing link. An entry's `category` names a
+ * category in the book's own namespace rather than the book's id, so a section is keyed by
+ * book and id together, in case a second book ever declares the same category id.
+ */
+function guideSections() {
+  const sections = new Map();
+  // The uncategorised bucket is keyed by its name rather than interpolated: a symbol has
+  // no string form, and the key is all that has to be unique here.
+  const sectionFor = (book, category) => {
+    const key = `${book.id}|${category === UNCATEGORISED ? "uncategorised" : category}`;
+    return sections.get(key) ?? { key, book, category, name: null, entries: [] };
+  };
+
+  for (const entry of guideEntries()) {
+    const declared = entry.category && guideCategoryIds(entry.book).has(entry.category);
+    const section = sectionFor(entry.book, declared ? entry.category : UNCATEGORISED);
+    section.entries.push(entry);
+    sections.set(section.key, section);
+  }
+  // A category the book declares but writes no entry for is a page of the book all the
+  // same, so it is listed rather than left out of the navigation entirely.
+  for (const book of store.guide?.books ?? []) {
+    for (const id of guideCategoryIds(book)) {
+      const section = sectionFor(book, id);
+      sections.set(section.key, section);
+    }
+  }
+
+  for (const section of sections.values()) section.name = guideSectionName(section);
+  return [...sections.values()].sort(
+    (a, b) =>
+      guideSectionSortnum(a) - guideSectionSortnum(b) ||
+      String(a.category).localeCompare(String(b.category)) ||
+      a.name.localeCompare(b.name),
+  );
+}
+
+/** The name a category is listed under, which is the book's own. */
+function guideSectionName(section) {
+  if (section.category === UNCATEGORISED) return tr("guide.uncategorised");
+  return categoryName(section.book, section.category);
+}
+
+/** A category's place in the book; an entry filed under no category comes last. */
+function guideSectionSortnum(section) {
+  return section.category === UNCATEGORISED ? Infinity : guideSortnum(section.book, section.category);
+}
+
+/**
+ * The entries of one category in the book's order: the entry's own `sortnum`, then its
+ * name. An entry that declares no `sortnum` falls to the end rather than the front - the
+ * book would leave it wherever the file system puts it, and leading the list is a claim
+ * about the book that its own files do not make.
+ */
+function guideSectionEntries(section) {
+  return [...section.entries].sort(
+    (a, b) =>
+      (a.page.data?.sortnum ?? Infinity) - (b.page.data?.sortnum ?? Infinity) ||
+      guideEntryName(a).localeCompare(guideEntryName(b)),
+  );
 }
 
 /**
@@ -564,6 +627,18 @@ function itemGroups(section) {
 /** Opens one item's page, wiring the jumps back to the quest and trade panels. */
 function openItem(id) {
   openItemViewer(id, { quest: onQuestLink, trade: onTradeLink, item: openItem });
+}
+
+/** Opens one guide entry's pages, wiring the jumps from its spotlights to their items. */
+function openGuideEntry(id) {
+  const entry = guideEntries().find((candidate) => candidate.id === id);
+  if (!entry) return;
+  openGuideEntryViewer(entry, { item: openItem });
+}
+
+/** Free text match over a guide entry's id and the name the book gives it. */
+function matchesGuideEntry(entry) {
+  return matchesQuery(entry.id, guideEntryName(entry));
 }
 
 async function renderDialogPanel(panel) {
@@ -790,10 +865,10 @@ function itemEntries() {
 }
 
 /**
- * The guide book's own entries, in the book's order, each counted by how many pages it
- * has - a page being the unit the book is written in. Every entry is listed, including
- * one that documents no item at all, since this list is the book rather than its
- * contents.
+ * The guide book's categories, counted by how many entries each holds - an entry being
+ * the unit the sidebar navigates by, since the entries themselves are what the panel
+ * lists. The count is of entries rather than of pages or items, so the number beside a
+ * category is the number of things selecting it shows.
  */
 function guideNavEntries() {
   // The book arrives with the item list, so there is nothing to list until then.
@@ -802,16 +877,20 @@ function guideNavEntries() {
     return [h("li", {}, guideLoading)];
   }
 
-  const here = (id) => state.section === "guide" && state.entry === id;
-  return guideEntries().map((entry) =>
-    navEntry(
-      here(entry.id),
-      guideEntryName(entry),
-      (entry.page.data?.pages ?? []).length,
-      entry.id,
-      () => selectGuideEntry(entry.id),
+  const sections = guideSections();
+  const here = (category) => state.section === "guide" && state.guideCategory === category;
+  return [
+    navEntry(here(null), tr("guide.all"), guideEntries().length, null, () => selectGuideCategory(null)),
+    ...sections.map((section) =>
+      navEntry(
+        here(section.category),
+        section.name,
+        section.entries.length,
+        section.category === UNCATEGORISED ? tr("guide.uncategorised") : String(section.category),
+        () => selectGuideCategory(section.category),
+      ),
     ),
-  );
+  ];
 }
 
 /**
@@ -1037,8 +1116,8 @@ function loadItems(onProgress) {
     // the three arrived first - and this is the build that has all of them.
     await buildItemIndex();
     state.itemsLoaded = true;
-    // A link straight to `#items/decoration` or `#patchouli/dolls/doll_loadout` could
-    // only be answered now.
+    // A link straight to `#items/decoration` or `#patchouli/alchemy` could only be
+    // answered now.
     readLazySelection();
     renderSidebar();
   })().catch((error) => {

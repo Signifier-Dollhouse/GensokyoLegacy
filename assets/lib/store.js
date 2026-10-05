@@ -524,6 +524,28 @@ export function guideEntryIds(book) {
 }
 
 /**
+ * Every category a book declares, across its locales. Read from the category files
+ * rather than from the entries that sit in them, since a category the book declares
+ * but writes no entry for is still a page in the book - and one is worth listing even
+ * when it is empty.
+ */
+export function guideCategoryIds(book) {
+  const ids = new Set();
+  for (const locale of Object.values(book.locales)) for (const id of locale.categories.keys()) ids.add(id);
+  return ids;
+}
+
+/** One category of a book in the language being read, as `guideEntryOf` does for an entry. */
+export function guideCategoryOf(book, id) {
+  if (!book) return null;
+  return (
+    guideLocale(book).categories.get(id) ??
+    Object.values(book.locales).find((locale) => locale.categories.has(id))?.categories.get(id) ??
+    null
+  );
+}
+
+/**
  * The item a recipe hands out. The crafting types produce one directly; the alchemy
  * and brewing types produce a fluid, which the game fills a `<fluid>_bottle` item
  * from - `HexBrew.java` registers the bottle under exactly that name - so the recipe

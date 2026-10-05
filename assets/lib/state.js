@@ -37,8 +37,8 @@ export const state = {
   character: "all",
   /** The guide category being listed, or null for every item. */
   category: null,
-  /** The guide entry being read, or null for the book's index. */
-  entry: null,
+  /** The guide category being listed, or null for every entry in the book. */
+  guideCategory: null,
   /**
    * Item groups the reader has opened. A group starts folded: the panel is a list of
    * seventy groups at worst, and the point of one is to open it. Kept here because the
