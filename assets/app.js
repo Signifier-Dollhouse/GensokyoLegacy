@@ -442,7 +442,7 @@ function itemGroups(section) {
 
 /** Opens one item's page, wiring the jumps back to the quest and trade panels. */
 function openItem(id) {
-  openItemViewer(id, { quest: onQuestLink, trade: onTradeLink });
+  openItemViewer(id, { quest: onQuestLink, trade: onTradeLink, item: openItem });
 }
 
 async function renderDialogPanel(panel) {

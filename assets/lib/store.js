@@ -513,9 +513,57 @@ export function recipeOutputs(recipe) {
   return typeof recipe?.resultFluid?.id === "string" ? [`${recipe.resultFluid.id}_bottle`] : [];
 }
 
+/** `minecraft:crafting_shaped` -> `crafting_shaped`, spelled out here rather than imported. */
+function recipeKind(recipe) {
+  return String(recipe?.type ?? "?").split(":").pop();
+}
+
+/**
+ * Every item a recipe names as an ingredient, and so consumes.
+ *
+ * The twin of `recipeInputs` in views.js, which draws these same fields: a shaped recipe
+ * spells its ingredients out in `key`, every other type in a field of its own. Only what
+ * the recipe names directly is collected. A `tag` is a group rather than an item, so a
+ * recipe taking `#gensokyolegacy:cushions` is not an ingredient of each cushion in it,
+ * and a fluid is not an item at all - neither can be looked up in the item index.
+ */
+export function recipeIngredients(recipe) {
+  const ids = new Set();
+  const add = (value) => {
+    if (typeof value === "string") {
+      ids.add(value);
+      return;
+    }
+    if (typeof value?.item === "string") ids.add(value.item);
+    // A NeoForge component set spells its one item `items`; `tag` is left out above.
+    else if (typeof value?.items === "string") ids.add(value.items);
+  };
+  const addAll = (value) => (Array.isArray(value) ? value : [value]).forEach(add);
+
+  switch (recipeKind(recipe)) {
+    case "crafting_shaped":
+      for (const ingredient of Object.values(recipe?.key ?? {})) addAll(ingredient);
+      break;
+    case "stonecutting":
+      addAll(recipe?.ingredient);
+      break;
+    case "unordered_alchemy":
+      addAll(recipe?.input);
+      break;
+    case "witch_enhance":
+    case "witch_merge":
+      addAll(recipe?.extra);
+      addAll(recipe?.potionIngredient);
+      break;
+    default:
+      addAll(recipe?.ingredients);
+  }
+  return ids;
+}
+
 /**
  * Builds the item index: for every item the mod adds or hands out, the guide entry
- * that documents it and every way to get one.
+ * that documents it, every way to get one and every way it is used.
  *
  * The item list is derived, never written down: the mod's own lang files enumerate
  * everything it registers, and the sources below add the handful of items from other
@@ -527,7 +575,9 @@ export async function buildItemIndex() {
   const items = new Map();
   const entryFor = (id) => {
     let item = items.get(id);
-    if (!item) items.set(id, (item = { id, guide: null, recipes: [], trades: [], drops: [], shelf: null }));
+    if (!item) {
+      items.set(id, (item = { id, guide: null, recipes: [], usedIn: [], trades: [], drops: [], shelf: null }));
+    }
     return item;
   };
 
@@ -600,6 +650,19 @@ export async function buildItemIndex() {
   // processed golden apple, say - is dropped rather than given a page of its own. It is
   // still named wherever it is traded for, since the lang table covers that.
   for (const id of items.keys()) if (id.startsWith("minecraft:")) items.delete(id);
+
+  // The recipes read backwards, which is what answers "what do I make this into". Both
+  // ends have to be on the list: a recipe naming an item from another namespace produces
+  // something with no page to land on, and the ingredient is only ever an item here
+  // because the list is indexed by item.
+  for (const source of store.recipes.values()) {
+    if (!source) continue;
+    const outputs = recipeOutputs(source.recipe).filter((id) => items.has(id));
+    if (!outputs.length) continue;
+    for (const input of recipeIngredients(source.recipe)) {
+      for (const output of outputs) items.get(input)?.usedIn.push({ ...source, output });
+    }
+  }
 
   store.items = items;
 }

@@ -92,7 +92,12 @@ documents.
 An item page is its guide entry - the category it sits in, the advancement that grants
 it, and the entry's prose under a heading that folds away - followed by every way to get
 one, one collapsible section per kind of source, with jumps back to the quest or the
-offer it came from.
+offer it came from. Below that, **Used in** reads the same recipe files backwards: what
+this item is an ingredient for, each result jumping to its own page. Only recipes naming
+the item directly count. A recipe taking a *tag* is not listed against its members - a
+tag is a group, and crediting every cushion with every `#cushions` recipe would bury the
+ones that truly need it. A brew counts, since the game fills a `<fluid>_bottle` from the
+fluid and the bottle is what the player carries.
 
 A guide page is about one item *or a whole tag of them*: Patchouli writes a tag
 reference as `tag:namespace:path`, and a spotlight may name several at once under one

@@ -864,6 +864,7 @@ export function openItemViewer(id, links = {}) {
     h("p", { class: "card-id mono", text: id }),
     item.guide ? guideSection(item) : h("p", { class: "entry-note", text: tr("item.noGuide") }),
     sourcesSection(item, links),
+    usageSection(item, links),
   );
 }
 
@@ -954,6 +955,38 @@ function guideText(text, itemId) {
         write(`$(${part})`);
     }
   }
+  return node;
+}
+
+/**
+ * What the item is an ingredient for: the same recipes, read backwards.
+ *
+ * The mirror of the sources section, and built the same way from the recipe index, so
+ * the two never disagree about what a recipe makes. A recipe naming a tag is not
+ * counted, since a tag is a group rather than an ingredient of each of its members - the
+ * recipe that takes `#gensokyolegacy:cushions` is not listed here for a particular
+ * cushion. A brew counts, since the game fills a bottle from the fluid and the bottle is
+ * what the player carries.
+ */
+function usageSection(item, links) {
+  if (!item.usedIn.length) return null;
+  return section(
+    tr("item.usedIn"),
+    ...item.usedIn.map((usage) =>
+      entry(
+        tr(`recipe.type.${kindOf(usage.recipe)}`),
+        usageOutput(usage),
+        links.item ? focusLink(tr("item.openItem"), () => links.item(usage.output), usage.output) : null,
+      ),
+    ),
+  );
+}
+
+/** The item a recipe makes, which for a brew is the bottle the game fills from the fluid. */
+function usageOutput(usage) {
+  const count = usage.recipe.result?.count;
+  const node = pill("reward", itemLabel(usage.output), usage.output);
+  if (count > 1) node.append(h("span", { class: "n", text: ` x${count}` }));
   return node;
 }
 

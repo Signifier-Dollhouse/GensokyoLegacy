@@ -422,6 +422,7 @@
       "src/generated/resources/data/gensokyolegacy/recipe/brown_tiles_vertical_slab_from_brown_tiles_stonecutting.json",
       "src/generated/resources/data/gensokyolegacy/recipe/brown_wavy_noren.json",
       "src/generated/resources/data/gensokyolegacy/recipe/brown_wavy_noren_from_brown_wool_stonecutting.json",
+      "src/generated/resources/data/gensokyolegacy/recipe/candlestick.json",
       "src/generated/resources/data/gensokyolegacy/recipe/carton_blue.json",
       "src/generated/resources/data/gensokyolegacy/recipe/carton_default.json",
       "src/generated/resources/data/gensokyolegacy/recipe/carton_white.json",
@@ -599,8 +600,11 @@
       "src/generated/resources/data/gensokyolegacy/recipe/tatami_from_tatami_block_stonecutting.json",
       "src/generated/resources/data/gensokyolegacy/recipe/tea_table_from_dark_oak_log_stonecutting.json",
       "src/generated/resources/data/gensokyolegacy/recipe/unordered_alchemy/explosive_hexbrew.json",
+      "src/generated/resources/data/gensokyolegacy/recipe/unordered_alchemy/hyphae_hexbrew.json",
       "src/generated/resources/data/gensokyolegacy/recipe/unordered_alchemy/miasma_hexbrew.json",
       "src/generated/resources/data/gensokyolegacy/recipe/unordered_alchemy/mundane_hexbrew.json",
+      "src/generated/resources/data/gensokyolegacy/recipe/unordered_alchemy/shield_hexbrew.json",
+      "src/generated/resources/data/gensokyolegacy/recipe/unordered_alchemy/starlight_hexbrew.json",
       "src/generated/resources/data/gensokyolegacy/recipe/unordered_alchemy/witch_splash_from_hexbrew.json",
       "src/generated/resources/data/gensokyolegacy/recipe/warped_chair_from_warped_planks_stonecutting.json",
       "src/generated/resources/data/gensokyolegacy/recipe/warped_large_chair_from_warped_planks_stonecutting.json",
@@ -821,14 +825,14 @@
     "assets/lang/vanilla/en_us.json",
     "assets/lang/vanilla/zh_cn.json"
   ],
-  "revision": "ee7279d1b7ce266f9b4e78fa2b07f9f6",
+  "revision": "cc05010e6743f057af9bafb7bf51e19d",
   "stats": {
     "quest": 26,
     "dialog": 227,
     "dialog_starter": 26,
     "trade": 46,
     "files": 325,
-    "recipes": 290,
+    "recipes": 294,
     "guideEntries": 76
   }
 }

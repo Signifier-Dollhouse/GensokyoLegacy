@@ -193,6 +193,8 @@ const en_us = {
   "item.stock": "stock {0}",
   "item.restock": "restock {0}",
   "item.perBrew": "{0} per brew",
+  "item.usedIn": "Used in",
+  "item.openItem": "open item ->",
 
   // -- recipes --------------------------------------------------------------
   "recipe.type.crafting_shaped": "Crafting",
@@ -400,6 +402,8 @@ const zh_cn = {
   "item.stock": "库存 {0}",
   "item.restock": "补货 {0}",
   "item.perBrew": "每次酿造 {0}",
+  "item.usedIn": "可用于制作",
+  "item.openItem": "查看该物品 ->",
 
   // -- 配方 ------------------------------------------------------------------
   "recipe.type.crafting_shaped": "合成",
