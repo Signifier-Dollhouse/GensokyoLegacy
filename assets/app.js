@@ -13,6 +13,8 @@ import {
   buildItemIndex,
   characterKeyOf,
   fetchJson,
+  guideEntryIds,
+  guideEntryOf,
   guideFileCount,
   loadAllDialogs,
   loadCurrencyTag,
@@ -32,7 +34,9 @@ import {
 import {
   categoryName,
   collapsible,
+  guideEntryCard,
   guideEntryName,
+  guideEntryRow,
   guideGroupName,
   guideSortnum,
   itemRow,
@@ -50,10 +54,11 @@ import {
 // ---------------------------------------------------------------------------
 
 /**
- * The view is addressable: `#trade`, `#dialog/reimu`, `#quest/all`, `#items/alchemy`.
- * Characters are slugged by their registry folder (`reimu`) and guide categories by
- * their own folder (`alchemy`), both rather than the full id, so the URL stays
- * readable; an unknown slug falls back to showing everything.
+ * The view is addressable: `#trade`, `#dialog/reimu`, `#quest/all`, `#items/alchemy`,
+ * `#patchouli/dolls/doll_loadout`. Characters are slugged by their registry folder
+ * (`reimu`), guide categories by their own folder (`alchemy`) and a guide entry by its
+ * path inside the book (`dolls/doll_loadout`) - all rather than the full id, so the URL
+ * stays readable; an unknown slug falls back to showing everything.
  */
 function slugOf(key) {
   if (key === "all") return "all";
@@ -85,43 +90,71 @@ function categoryFromSlug(slug) {
   return itemSections().find((section) => categorySlug(section.category) === slug)?.category ?? null;
 }
 
+/**
+ * The URL slug for a guide entry: its own path inside the book, so
+ * `dolls/doll_loadout` rather than the full `gensokyolegacy:tools_guide/dolls/doll_loadout`.
+ * Null - the whole book, which the panel answers with its index - is "all".
+ */
+function guideEntrySlug(id) {
+  return id ? String(id).split("/").slice(1).join("/") : "all";
+}
+
+/** The id of the entry a slug names, or null - which lands on the book's index. */
+function guideEntryIdFromSlug(slug) {
+  if (!slug || slug === "all") return null;
+  return guideEntries().find((entry) => guideEntrySlug(entry.id) === slug)?.id ?? null;
+}
+
 function readLocation() {
   const [tab, slug] = hashParts();
   if (tab === "items") {
     state.section = "item";
+  } else if (tab === "patchouli") {
+    state.section = "guide";
   } else if (TABS.includes(tab)) {
     state.section = "character";
     state.tab = tab;
   }
   if (store.characters.size) state.character = keyFromSlug(slug);
-  if (state.section === "item" && store.guide) state.category = categoryFromSlug(slug);
+  readLazySelection();
 }
 
 /**
- * The item category the hash names. Separate from `readLocation` because the guide book
- * is fetched behind the first render, so a link straight to `#items/decoration` can only
- * be answered once it arrives - and answering it must not disturb the character the
- * reader was on.
+ * The item category or the guide entry the hash names, once the book is in. Separate
+ * from `readLocation` because the guide book is fetched behind the first render, so a
+ * link straight to `#items/decoration` or `#patchouli/dolls/doll_loadout` can only be
+ * answered once it arrives - and answering it must not disturb the character the reader
+ * was on.
  */
-function readItemCategory() {
-  if (state.section === "item" && store.guide) state.category = categoryFromSlug(hashParts()[1]);
+function readLazySelection() {
+  if (!store.guide) return;
+  const slug = hashParts()[1];
+  if (state.section === "item") state.category = categoryFromSlug(slug);
+  if (state.section === "guide") state.entry = guideEntryIdFromSlug(slug);
 }
 
+/** Only the first `/` separates the section from its slug; a guide entry's has more. */
 function hashParts() {
-  return decodeURIComponent(location.hash.replace(/^#/, "")).split("/");
+  const [section, ...rest] = decodeURIComponent(location.hash.replace(/^#/, "")).split("/");
+  return [section, rest.join("/")];
 }
 
 function writeLocation() {
-  // Until the guide book is in, the item category in the hash cannot be resolved -
-  // and it is the only record of what was linked to, so it is left as it is rather
-  // than overwritten with "all items".
-  if (state.section === "item" && !state.itemsLoaded) return;
+  // Neither the item category nor the guide entry can be resolved until the book is in,
+  // and the hash is then the only record of what was linked to, so it is left as it is
+  // rather than overwritten with "all".
+  if (state.section !== "character" && !state.itemsLoaded) return;
 
   const slug =
     state.section === "item"
       ? categorySlug(state.category)
-      : encodeURIComponent(slugOf(state.character));
-  const next = `#${state.section === "item" ? "items" : state.tab}/${slug}`;
+      : state.section === "guide"
+        ? guideEntrySlug(state.entry)
+        : encodeURIComponent(slugOf(state.character));
+  // Each section is named after the sidebar list it belongs to; a character is named
+  // after its tab rather than after the character.
+  const section = { character: state.tab, item: "items", guide: "patchouli" }[state.section];
+  const next = `#${section}/${slug}`;
   if (location.hash !== next) history.replaceState(null, "", next);
 }
 
@@ -171,6 +204,18 @@ function selectCategory(category) {
   render();
 }
 
+/**
+ * Switches to the guide book, showing one entry of it. The id rather than the entry
+ * itself, so the selection survives the book being fetched again and of the language
+ * being switched - both of which rebuild the list it would otherwise point into.
+ */
+function selectGuideEntry(id) {
+  state.entry = id;
+  state.section = "guide";
+  setQuery("");
+  render();
+}
+
 // ---------------------------------------------------------------------------
 // panels
 // ---------------------------------------------------------------------------
@@ -179,9 +224,11 @@ function renderPanel() {
   const panel = clear(document.querySelector("#panel"));
   if (!panel) return;
 
-  // The tab bar only means something for a character, so the item section hides it.
+  // The tab bar only means something for a character, so the sections that belong to no
+  // character hide it: the items and the book that documents them.
   const tabs = document.querySelector(".tabs");
-  if (tabs) tabs.hidden = state.section === "item";
+  if (tabs) tabs.hidden = state.section !== "character";
+  if (state.section === "guide") return renderGuidePanel(panel);
   if (state.section === "item") return renderItemPanel(panel);
   if (state.tab === "dialog") return renderDialogPanel(panel);
   if (state.tab === "starters") return renderStartersPanel(panel);
@@ -265,26 +312,38 @@ function emptyState(what) {
 }
 
 /**
+ * The item section and the guide book section both wait on the same late load - the
+ * book, the tags it names, the recipes and the reward tables. A reader who opens one of
+ * them before it has landed joins that load rather than starting a second.
+ *
+ * False means the reader moved on while it was going, so this panel is no longer the one
+ * on screen and must not be painted over it.
+ */
+async function itemsReady(panel, section) {
+  if (state.itemsLoaded) return true;
+
+  const counter = h("span", { text: "0 / 0" });
+  const bar = h("div", { class: "progress-track" }, h("div", { class: "progress-fill" }), counter);
+  panel.append(h("p", { class: "status", text: tr("status.loadingItems") }), bar);
+
+  await loadItems((done, total) => {
+    counter.textContent = `${done} / ${total}`;
+    bar.firstChild.style.width = `${Math.round((done / Math.max(1, total)) * 100)}%`;
+  });
+  if (state.section !== section) return false;
+
+  clear(panel);
+  setStatus("");
+  return true;
+}
+
+/**
  * The item section. Everything it is made of - the guide book, the tags it names, the
  * recipes and the reward tables - is fetched behind the first render, so this waits for
  * that load if the reader gets here before it has landed.
  */
 async function renderItemPanel(panel) {
-  if (!state.itemsLoaded) {
-    const counter = h("span", { text: "0 / 0" });
-    const bar = h("div", { class: "progress-track" }, h("div", { class: "progress-fill" }), counter);
-    panel.append(h("p", { class: "status", text: tr("status.loadingItems") }), bar);
-
-    await loadItems((done, total) => {
-      counter.textContent = `${done} / ${total}`;
-      bar.firstChild.style.width = `${Math.round((done / Math.max(1, total)) * 100)}%`;
-    });
-    // Several hundred files take a moment; if the reader moved on meanwhile, this
-    // panel is no longer the one on screen and must not be repainted over it.
-    if (state.section !== "item") return;
-    clear(panel);
-    setStatus("");
-  }
+  if (!(await itemsReady(panel, "item"))) return;
 
   const section = itemSections().find((entry) => entry.category === state.category);
   const row = (item) => itemRow(item, () => openItem(item.id));
@@ -310,6 +369,35 @@ async function renderItemPanel(panel) {
         : h("ul", { class: "list" }, ...group.items.sort(byName).map(row)),
     ),
   );
+}
+
+/**
+ * One entry of the guide book, page by page, as the book writes it. The item section
+ * beside it is organised around the items an entry documents, so the same prose appears
+ * under both headings from the two sides: this one for the entry, that one for the item.
+ */
+async function renderGuidePanel(panel) {
+  if (!(await itemsReady(panel, "guide"))) return;
+
+  const entries = guideEntries();
+  const entry = entries.find((candidate) => candidate.id === state.entry);
+
+  panel.append(h("p", { class: "card-id", text: tr("guide.note") }));
+  // Nothing selected, whether because the link carried no slug or because it named an
+  // entry that is not in the book: the book's own index is the honest answer.
+  if (!entry) {
+    panel.append(
+      entries.length
+        ? h(
+            "ul",
+            { class: "list" },
+            ...entries.map((candidate) => guideEntryRow(candidate, () => selectGuideEntry(candidate.id))),
+          )
+        : emptyState(tr("noun.entries")),
+    );
+    return;
+  }
+  panel.append(guideEntryCard(entry, { item: openItem }));
 }
 
 /** A group of the item panel: folded until the reader opens it, then remembered. */
@@ -369,11 +457,13 @@ function allItems() {
 const UNDOCUMENTED = Symbol("undocumented");
 
 /**
- * The sidebar's "loading items" line, so the loader can write the count into it without
- * redrawing the whole sidebar on every file. `itemEntries` hands over the current one
- * on each redraw, so this never names a node that has been replaced.
+ * The sidebar's "loading items" and "loading the guide" lines, so the loader can write
+ * the count into them without redrawing the whole sidebar on every file. `itemEntries`
+ * and `guideNavEntries` hand over the current ones on each redraw, so these never name
+ * a node that has been replaced.
  */
 let itemLoading = null;
+let guideLoading = null;
 
 /** The item list's one load, shared by every caller. Not view state, so not on it. */
 let itemsPromise = null;
@@ -405,6 +495,37 @@ function sectionName(section) {
 function sectionSortnum(section) {
   const book = section.items[0].guide?.book;
   return section.category === UNDOCUMENTED || !book ? Infinity : guideSortnum(book, section.category);
+}
+
+/**
+ * Every entry of every guide book, in the order the book presents them in: the
+ * category's own `sortnum`, then the entry's, then its name. Every entry is listed,
+ * including one that spotlights nothing - the book is listed as it is written, which is
+ * a different thing from the item list beside it, since that one only holds the items
+ * some entry happens to document.
+ *
+ * Two categories can share a `sortnum`, and the book presents them one after the other
+ * rather than interleaved, so the category's own id breaks that tie: by name it would
+ * depend on the language, and by entry name it would mix two categories together.
+ *
+ * The pages are per locale, so each entry is resolved through `guideEntryOf` as it is
+ * listed: the prose follows the language toggle without the list being built twice.
+ */
+function guideEntries() {
+  return (store.guide?.books ?? [])
+    .flatMap((book) =>
+      [...guideEntryIds(book)]
+        .map((id) => ({ book, id, page: guideEntryOf(book, id) }))
+        .filter((entry) => entry.page)
+        .map((entry) => ({ ...entry, category: entry.page.data?.category ?? null })),
+    )
+    .sort(
+      (a, b) =>
+        guideSortnum(a.book, a.category) - guideSortnum(b.book, b.category) ||
+        String(a.category).localeCompare(String(b.category)) ||
+        (a.page.data?.sortnum ?? Infinity) - (b.page.data?.sortnum ?? Infinity) ||
+        guideEntryName(a).localeCompare(guideEntryName(b)),
+    );
 }
 
 /**
@@ -558,14 +679,15 @@ function orderedCharacters() {
 }
 
 /**
- * The sidebar: one list of characters and, beside it, one list of item sections -
- * the guide's categories and everything it does not document. Picking a character
- * shows their content behind the tab bar; picking an item section shows the item
- * list without it, since neither belongs to a character.
+ * The sidebar: one list of characters, beside it one list of item sections - the guide's
+ * categories and everything it does not document - and beside that the guide book's own
+ * entries. Picking a character shows their content behind the tab bar; picking anything
+ * else hides it, since neither items nor a book entry belongs to a character.
  */
 function renderSidebar() {
   fill(clear(document.querySelector("#characters")), ...characterEntries());
   fill(clear(document.querySelector("#items")), ...itemEntries());
+  fill(clear(document.querySelector("#guide")), ...guideNavEntries());
 
   fill(
     clear(document.querySelector("#source")),
@@ -665,6 +787,31 @@ function itemEntries() {
       ),
     ),
   ];
+}
+
+/**
+ * The guide book's own entries, in the book's order, each counted by how many pages it
+ * has - a page being the unit the book is written in. Every entry is listed, including
+ * one that documents no item at all, since this list is the book rather than its
+ * contents.
+ */
+function guideNavEntries() {
+  // The book arrives with the item list, so there is nothing to list until then.
+  if (!state.itemsLoaded) {
+    guideLoading = h("span", { class: "nav-note", text: tr("nav.loadingGuide") });
+    return [h("li", {}, guideLoading)];
+  }
+
+  const here = (id) => state.section === "guide" && state.entry === id;
+  return guideEntries().map((entry) =>
+    navEntry(
+      here(entry.id),
+      guideEntryName(entry),
+      (entry.page.data?.pages ?? []).length,
+      entry.id,
+      () => selectGuideEntry(entry.id),
+    ),
+  );
 }
 
 /**
@@ -785,9 +932,14 @@ function wireChrome() {
     applyTheme();
   });
 
-  // The sidebar's two groups fold away so one can have the room to itself. Their state
-  // is remembered here, since the elements themselves are never rebuilt.
-  for (const [selector, key] of [["#nav-characters", "characters"], ["#nav-items", "items"]]) {
+  // The sidebar's groups fold away so one can have the room to itself. Their state is
+  // remembered here, since the elements themselves are never rebuilt.
+  const folds = [
+    ["#nav-characters", "characters"],
+    ["#nav-items", "items"],
+    ["#nav-patchouli", "patchouli"],
+  ];
+  for (const [selector, key] of folds) {
     const group = document.querySelector(selector);
     group.open = !state.navFolded.has(key);
     group.addEventListener("toggle", () => {
@@ -804,7 +956,7 @@ function wireChrome() {
 async function boot() {
   applyTheme();
   wireChrome();
-  readLocation(); // tab only; the character slug needs the loaded registries
+  readLocation(); // the section only; the character slug needs the loaded registries
   addEventListener("hashchange", () => {
     // Following a URL is a navigation too, so a stale search must not survive it.
     readLocation();
@@ -885,8 +1037,9 @@ function loadItems(onProgress) {
     // the three arrived first - and this is the build that has all of them.
     await buildItemIndex();
     state.itemsLoaded = true;
-    // A link straight to `#items/decoration` could only be answered now.
-    readItemCategory();
+    // A link straight to `#items/decoration` or `#patchouli/dolls/doll_loadout` could
+    // only be answered now.
+    readLazySelection();
     renderSidebar();
   })().catch((error) => {
     // A failed load is not kept: the reader who opens the item section afterwards
@@ -898,9 +1051,10 @@ function loadItems(onProgress) {
   return itemsPromise;
 }
 
-/** The sidebar's own progress line, which is all it can say until the list is in. */
+/** The sidebar's own progress lines, which are all it can say until the list is in. */
 function reportItemProgress(done, total) {
   if (itemLoading) itemLoading.textContent = `${tr("nav.loadingItems")} ${done} / ${total}`;
+  if (guideLoading) guideLoading.textContent = `${tr("nav.loadingGuide")} ${done} / ${total}`;
 }
 
 /**

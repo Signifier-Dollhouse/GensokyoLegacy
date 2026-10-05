@@ -31,11 +31,14 @@ function write(key, value) {
 export const state = {
   lang: read("lang", (navigator.language || "en").toLowerCase().startsWith("zh") ? "zh_cn" : "en_us"),
   theme: read("theme", null),
-  /** Which sidebar section is showing: a character's content, or the item guide. */
+  /** Which sidebar section is showing: a character's content, the item guide, or the
+   *  guide book's own pages. Neither of the last two belongs to a character. */
   section: "character",
   character: "all",
   /** The guide category being listed, or null for every item. */
   category: null,
+  /** The guide entry being read, or null for the book's index. */
+  entry: null,
   /**
    * Item groups the reader has opened. A group starts folded: the panel is a list of
    * seventy groups at worst, and the point of one is to open it. Kept here because the
@@ -44,16 +47,17 @@ export const state = {
    * group's own key, which is the same in every language.
    */
   expanded: new Set(),
-  /** The two sidebar groups the reader has folded away. They start open. */
+  /** The sidebar groups the reader has folded away. They start open. */
   navFolded: new Set(),
   tab: "quest",
   query: "",
   /** Dialog files are only fetched the first time the dialog tab is opened. */
   dialogsLoaded: false,
   /**
-   * Nor is the item list - the guide, the tags it names, the recipes and the reward
-   * tables. It is a few hundred files that no character content needs, so it is fetched
-   * behind the first render and the sidebar says it is loading meanwhile.
+   * Nor is the item list or the guide book - the book, the tags it names, the recipes
+   * and the reward tables. They are a few hundred files that no character content
+   * needs, so they are fetched behind the first render and the sidebar says it is
+   * loading meanwhile.
    */
   itemsLoaded: false,
 };

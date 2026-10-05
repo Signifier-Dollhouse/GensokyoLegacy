@@ -31,6 +31,7 @@ const en_us = {
   "nav.characters": "Characters",
   "nav.allCharacters": "All characters",
   "nav.items": "Items",
+  "nav.patchouli": "Patchouli",
   "tab.quest": "Quests",
   "tab.daily": "Dailies",
   "tab.trade": "Trades",
@@ -56,9 +57,11 @@ const en_us = {
   "noun.starters": "starters",
   "noun.dialogs": "dialogs",
   "noun.items": "items",
+  "noun.entries": "guide entries",
   "empty.match": "No {0} match the current filters.",
   "status.loadingDialogs": "Loading dialog files...",
   "nav.loadingItems": "Loading items...",
+  "nav.loadingGuide": "Loading the guide book...",
   "status.loadingItems": "Loading recipes, the guide book and quest rewards...",
   "status.refreshed.one": "Index refreshed from GitHub: {0} new file found on this branch.",
   "status.refreshed.many": "Index refreshed from GitHub: {0} new files found on this branch.",
@@ -196,6 +199,12 @@ const en_us = {
   "item.usedIn": "Used in",
   "item.openItem": "open item ->",
 
+  // -- guide book ----------------------------------------------------------
+  "guide.note":
+    "The guide book's own entries, page by page, exactly as the book writes them - the item list beside it is the same prose read from each item instead.",
+  "guide.pages.one": "{0} page",
+  "guide.pages.many": "{0} pages",
+
   // -- recipes --------------------------------------------------------------
   "recipe.type.crafting_shaped": "Crafting",
   "recipe.type.crafting_shapeless": "Crafting, shapeless",
@@ -243,6 +252,7 @@ const zh_cn = {
   "nav.characters": "角色",
   "nav.allCharacters": "全部角色",
   "nav.items": "物品",
+  "nav.patchouli": "Patchouli 指南书",
   "tab.quest": "任务",
   "tab.daily": "日常",
   "tab.trade": "交易",
@@ -267,10 +277,12 @@ const zh_cn = {
   "noun.starters": "对话入口",
   "noun.dialogs": "对话",
   "noun.items": "物品",
+  "noun.entries": "指南条目",
   "empty.match": "没有符合当前筛选条件的{0}。",
   "status.loadingDialogs": "正在加载对话文件……",
   "status.loadingItems": "正在加载配方、指南书与任务奖励……",
   "nav.loadingItems": "正在加载物品……",
+  "nav.loadingGuide": "正在加载指南书……",
   "status.refreshed.one": "已从 GitHub 刷新索引：该分支上有 {0} 个新文件。",
   "status.refreshed.many": "已从 GitHub 刷新索引：该分支上有 {0} 个新文件。",
 
@@ -404,6 +416,11 @@ const zh_cn = {
   "item.perBrew": "每次酿造 {0}",
   "item.usedIn": "可用于制作",
   "item.openItem": "查看该物品 ->",
+
+  // -- 指南书 --------------------------------------------------------------
+  "guide.note": "指南书自身的条目，逐页照原样呈现——旁边的物品列表是同一段文字从每件物品的角度出发。",
+  "guide.pages.one": "{0} 页",
+  "guide.pages.many": "{0} 页",
 
   // -- 配方 ------------------------------------------------------------------
   "recipe.type.crafting_shaped": "合成",

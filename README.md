@@ -28,13 +28,15 @@ fetch 404s - Pages cannot serve files from outside the directory it publishes.
 | Starters | `gensokyolegacy:dialog_starter` | the gated entry points into a conversation, with their conditions |
 | Dialogs | `gensokyolegacy:dialog` | every dialog node, grouped by the conversation it belongs to, with a viewer that walks each branch |
 
-The sidebar carries two lists side by side, and the tabs belong to the first: **characters**
-(quests, dailies, trades, starters and dialogs) and **items** (the guide, and where each
-item comes from). Items belong to no character, so they are a section of their own rather
+The sidebar carries three lists side by side, and the tabs belong to the first:
+**characters** (quests, dailies, trades, starters and dialogs), **items** (the guide,
+and where each item comes from) and **patchouli** (the guide book's own entries).
+Neither of the last two belongs to a character, so each is a section of its own rather
 than a sixth tab; picking one hides the tab bar, and picking a character brings it back.
-Both are addressable: `#quest/reimu`, `#trade/all`, `#dialog/marisa`, `#items/decoration`,
-`#items/undocumented`. Each of the two is a heading that folds its list away, so a reader
-working through one does not have to scroll past the other; both start open.
+All three are addressable: `#quest/reimu`, `#trade/all`, `#dialog/marisa`,
+`#items/decoration`, `#items/undocumented`, `#patchouli/dolls/doll_loadout`. Each is a
+heading that folds its list away, so a reader working through one does not have to
+scroll past the others; all three start open.
 
 The item entries are the guide's own categories, in its order, plus one for the items it
 never mentions. Selecting one lays its items out in the panel: the items the guide names
@@ -112,9 +114,30 @@ The item list is the slow half of the page - the guide book, the tags it spotlig
 recipes and the quest reward tables, some 380 files - and no character content needs any
 of it. So it is fetched *behind* the first render rather than in front of it: the
 characters are readable while it arrives, and the sidebar's items heading says
-`Loading items... 140 / 385` until it lands. Opening the item section before then waits
-for the same load rather than starting a second one, and the count is written into the
-line in place so the sidebar does not have to be rebuilt on every file.
+`Loading items... 140 / 385` until it lands. The patchouli list is read from the same
+book and so counts the same load, saying so in its own heading; opening either section
+before then waits for that load rather than starting a second one, and the count is
+written into the line in place so the sidebar does not have to be rebuilt on every file.
+
+### The patchouli section
+
+The third sidebar list is the guide book itself rather than what it documents: one entry
+per guide entry, in the order the book presents them in, showing an entry's pages as it
+writes them. The item list is reached *through* an item, so it splits an entry across
+every item it documents and keeps only the pages about that one - seventeen cushions see
+the prose about cushions and nothing else. This one is reached by the entry, so it reads
+whole: the same pages, in the book's own order, each spotlight naming what it documents
+with an item leading to that item's page and a tag leading to its members.
+
+The two are read from the same files, and neither is written down anywhere, so a new
+guide entry appears in the list and in its panel with nothing else to update. It is worth
+having beside the item list rather than instead of it, since a reader usually arrives
+with one of two questions: *what is this thing* - the item, with every way to get one -
+or *what does the book say about it*, which is only whole from here.
+
+An entry's sidebar count is how many pages it has, a page being the unit the book is
+written in. An unknown slug, or `#patchouli` with none, shows the book's index rather
+than a blank panel.
 
 ### Caching
 

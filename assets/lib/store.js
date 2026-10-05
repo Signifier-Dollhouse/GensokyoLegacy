@@ -502,6 +502,28 @@ export function guideLocale(book) {
 }
 
 /**
+ * One entry of a book in the language being read: the active locale's page where it
+ * has one, English otherwise. The entries are per locale - only their ids and the ids
+ * they name are the same in each - so an entry is looked up rather than kept, which is
+ * also what lets the prose follow the language toggle.
+ */
+export function guideEntryOf(book, id) {
+  if (!book) return null;
+  return (
+    guideLocale(book).entries.get(id) ??
+    Object.values(book.locales).find((locale) => locale.entries.has(id))?.entries.get(id) ??
+    null
+  );
+}
+
+/** Every entry id a book holds, across its locales. */
+export function guideEntryIds(book) {
+  const ids = new Set();
+  for (const locale of Object.values(book.locales)) for (const id of locale.entries.keys()) ids.add(id);
+  return ids;
+}
+
+/**
  * The item a recipe hands out. The crafting types produce one directly; the alchemy
  * and brewing types produce a fluid, which the game fills a `<fluid>_bottle` item
  * from - `HexBrew.java` registers the bottle under exactly that name - so the recipe

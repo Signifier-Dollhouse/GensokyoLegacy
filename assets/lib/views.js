@@ -17,7 +17,7 @@ import {
   prettify,
 } from "./format.js";
 import { tr, trPlural } from "./i18n.js";
-import { guideLocale, guideSubjects, loadDialog, loadEntityTag, loadItemTag, loadLootTable, store } from "./store.js";
+import { guideEntryOf, guideLocale, guideSubjects, loadDialog, loadEntityTag, loadItemTag, loadLootTable, store } from "./store.js";
 
 // ---------------------------------------------------------------------------
 // fragments
@@ -838,11 +838,7 @@ export function guideSortnum(book, id) {
  * back to the English one instead of disappearing.
  */
 function guideEntry(guide) {
-  const locales = Object.values(guide.book.locales);
-  return (
-    guideLocale(guide.book).entries.get(guide.id) ??
-    locales.find((locale) => locale.entries.has(guide.id))?.entries.get(guide.id)
-  );
+  return guideEntryOf(guide.book, guide.id);
 }
 
 /** The entry's own title, which the book spells out per locale. */
@@ -1153,5 +1149,97 @@ function dropSourceRow(drop, links) {
     h("span", { class: "entry-note", text: tr("loot.rolls", Math.round(drop.rolls)) }),
     links.quest ? focusLink(tr("item.openQuest"), () => links.quest(drop.questId), drop.questId) : null,
   );
+}
+
+// ---------------------------------------------------------------------------
+// the guide book
+// ---------------------------------------------------------------------------
+
+/**
+ * One entry of the guide book, as the book writes it: every page in the order the book
+ * puts them in, the spotlights naming what they document. The item page reads the same
+ * prose from the item's side, so this is the view for a reader who came for the entry.
+ */
+export function guideEntryCard(entry, links = {}) {
+  const data = entry.page?.data ?? {};
+  const pages = data.pages ?? [];
+  return h(
+    "article",
+    { class: "card" },
+    cardHead(guideEntryName(entry), entry.id, [
+      // The category the book files it under, named as the book names it.
+      data.category ? pill("accent", categoryName(entry.book, data.category)) : null,
+    ]),
+    h(
+      "p",
+      { class: "entry-note" },
+      trPlural("guide.pages", pages.length, pages.length),
+      data.advancement ? ` · ${tr("item.advancement")}: ${advancementLabel(data.advancement)}` : null,
+    ),
+    ...pages.map((page) => guidePage(page, links)),
+    rawJson(entry.page?.file, data),
+  );
+}
+
+/** One row of the book index: an entry, the category it sits in, and how long it is. */
+export function guideEntryRow(entry, onOpen) {
+  return h(
+    "li",
+    { class: "starter-row" },
+    h("button", { class: "linkish", type: "button", text: guideEntryName(entry), title: entry.id, onclick: onOpen }),
+    h("span", { class: "card-id mono", text: entry.id }),
+    h("span", { class: "entry-note", text: categoryName(entry.book, entry.category) }),
+  );
+}
+
+/**
+ * One page of the book. A spotlight introduces what it documents, so its title comes
+ * first and the subjects it names sit above the prose; a text page is prose alone, with
+ * whatever heading the text itself carries. The item page puts the title last, since
+ * there the page is one of several and the item is the subject.
+ */
+function guidePage(page, links = {}) {
+  const subjects = page.type === "patchouli:spotlight" ? spotlightSubjects(page.item) : [];
+  const node = h("div", { class: subjects.length ? "guide-spotlight" : null });
+  if (subjects.length) node.append(guideSubjectsNode(subjects, links));
+  if (page.title) node.append(h("p", { class: "guide-title", text: page.title }));
+  // `$(item)` names the thing the page is about, so the macro needs one of the
+  // subjects - a tag names a group rather than an item and cannot stand in for it.
+  node.append(guideText(page.text, subjects.find((subject) => !subject.tag)?.id));
+  return node;
+}
+
+/** What a spotlight names: one item or tag, or several of either under one title. */
+function spotlightSubjects(item) {
+  return (Array.isArray(item) ? item : [item])
+    .filter((subject) => typeof subject === "string")
+    .map((subject) => (subject.startsWith("tag:") ? { id: subject.slice(4), tag: true } : { id: subject, tag: false }));
+}
+
+/**
+ * The subjects of a spotlight as pills. An item opens its own page, which is where its
+ * ways to get one are; a tag is a group rather than an item, so what a spotlight naming
+ * one is really about is the members behind it. An item the index does not hold has no
+ * page to open, so it is named and left alone.
+ */
+function guideSubjectsNode(subjects, links) {
+  const node = h("div", { class: "pill-stack" });
+  const tags = [];
+
+  for (const subject of subjects) {
+    if (subject.tag) {
+      node.append(pill("item tag", `#${prettify(subject.id)}`, subject.id));
+      tags.push(subject.id);
+    } else {
+      node.append(
+        links.item && store.items.has(subject.id)
+          ? focusLink(itemLabel(subject.id), () => links.item(subject.id), subject.id)
+          : pill("item", itemLabel(subject.id), subject.id),
+      );
+    }
+  }
+  for (const id of tags) node.append(focusLink(tr("tag.showMembers"), () => showItemTag(id), id));
+
+  return node;
 }
 
