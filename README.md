@@ -42,7 +42,9 @@ on their own, listed straight in, then a group for every spotlight that names mo
 one thing - *Take a Seat* for the seventeen cushions, *Noren Curtains* for the
 sixty-four, *Somebody's Bed* for the three beds, *Cartons, Crates and Books* for the six.
 The unit is the spotlight page, not the tag: three beds named together under one title
-are as much a group as four noren tags, and the groups follow the book's own order. The groups start
+are as much a group as four noren tags, and the groups run fewest items first, so the three
+beds come before the sixty-four noren - counted as the search box leaves them, so a group it
+empties leaves the order with it, and a tie falls back to the book's own order. The groups start
 folded, since the panel can hold seventy of them and the point of one is to open it; an
 opened group stays open across a redraw or a language switch, since the panel is rebuilt
 on every keystroke of the search box and a `<details>` would otherwise forget.
@@ -75,7 +77,7 @@ all it takes for the page to show it.
 | The guide | `src/main/resources/assets/gensokyolegacy/patchouli_books/<book>/<locale>/` - the in-game book's own categories and entries, with its `$(bold)`, `$(br)` and `$(br2)` macros rendered, and its spotlights followed into the item tags they name |
 | Ways to obtain | `recipe/**`, including the mod's alchemy and brewing types; `trade/**`, for the offers that hand out something other than currency; the `loot_table` each quest reward names; and the `morichika_offers` item tag, which is what Rinnosuke stocks his shelves from |
 | The sidebar entries | the guide's own categories, in the book's order, plus one entry for everything it does not document |
-| The panel groups | within an entry, the items the guide names on their own are listed straight in, then one collapsible group per spotlight that names several things - a tag or a list of ids - named by that page's own translated title |
+| The panel groups | within an entry, the items the guide names on their own are listed straight in, then one collapsible group per spotlight that names several things - a tag or a list of ids - named by that page's own translated title, ordered by how many items each holds, fewest first |
 
 Three files are listed for the viewer rather than found by following the content, because
 nothing in the RPG registries refers to them: the `currency` tag, which decides whether a

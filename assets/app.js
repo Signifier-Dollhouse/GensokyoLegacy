@@ -297,7 +297,8 @@ async function renderItemPanel(panel) {
 
   const shown = groups
     .map((group) => ({ ...group, items: group.items.filter(matchesItem) }))
-    .filter((group) => group.items.length);
+    .filter((group) => group.items.length)
+    .sort(byGroupSize);
   if (!shown.length) return panel.append(emptyState(tr("noun.items")));
 
   panel.append(
@@ -334,6 +335,19 @@ function itemGroup(group, row) {
 
 function byName(a, b) {
   return itemLabel(a.id).localeCompare(itemLabel(b.id));
+}
+
+/**
+ * The panel's groups, fewest items first, so the short ones are met before the long ones
+ * and the count beside each name reads upwards. Ordered by what is on screen rather than
+ * by what the book holds, so a group emptied by the search box is gone from the order too
+ * instead of holding the place its full size earned it. The unheaded group of items the
+ * guide names one by one leads, since it is a list rather than a group, and a tie between
+ * two groups falls back to the book's own order.
+ */
+function byGroupSize(a, b) {
+  if (a.key === null || b.key === null) return a.key === b.key ? 0 : a.key === null ? -1 : 1;
+  return a.items.length - b.items.length || (a.order ?? 0) - (b.order ?? 0);
 }
 
 /** Free text match over an item's id and the names it is shown and documented under. */
@@ -418,7 +432,8 @@ function itemGroups(section) {
   // The items the guide names one by one have no heading of their own: they are listed
   // straight into the panel, ahead of the groups a spotlit tag makes.
   const groups = direct.length ? [{ key: null, items: direct }] : [];
-  // The book's own order, which for a spotlit tag is the order it presents them in.
+  // The book's own order, which is what the panel falls back on to break a tie; for a
+  // spotlit tag it is the order the book presents them in.
   groups.push(...[...tagged.values()].sort((a, b) => (a.order ?? 0) - (b.order ?? 0)));
   for (const group of groups) group.items.sort((a, b) => itemLabel(a.id).localeCompare(itemLabel(b.id)));
   return groups;

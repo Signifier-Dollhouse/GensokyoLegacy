@@ -796,7 +796,7 @@ export function guideGroupName(guide) {
   return guideSubjects(data).entries.get(guide.subject)?.pages[0]?.title ?? prettify(guide.tag ?? guide.subject);
 }
 
-/** A category's position in the book, which is the order the item groups follow. */
+/** A category's position in the book, which is the order the sidebar entries follow. */
 export function guideSortnum(book, id) {
   return guideLocale(book).categories.get(id)?.data?.sortnum ?? Infinity;
 }

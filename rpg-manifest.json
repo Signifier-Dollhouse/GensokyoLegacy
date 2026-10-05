@@ -63,6 +63,9 @@
         "src/generated/resources/data/gensokyolegacy/gensokyolegacy/dialog/alice/seven_colors/start/accept/dialog_1.json",
         "src/generated/resources/data/gensokyolegacy/gensokyolegacy/dialog/alice/seven_colors/start/dialog_1.json",
         "src/generated/resources/data/gensokyolegacy/gensokyolegacy/dialog/alice/seven_colors/start/reject/dialog_1.json",
+        "src/generated/resources/data/gensokyolegacy/gensokyolegacy/dialog/alice/visit_marisa_house/call.json",
+        "src/generated/resources/data/gensokyolegacy/gensokyolegacy/dialog/alice/visit_marisa_house/greet.json",
+        "src/generated/resources/data/gensokyolegacy/gensokyolegacy/dialog/alice/visit_marisa_house/terms_ans.json",
         "src/generated/resources/data/gensokyolegacy/gensokyolegacy/dialog/marisa/brewing/complete/dialog_1.json",
         "src/generated/resources/data/gensokyolegacy/gensokyolegacy/dialog/marisa/brewing/complete/handover/dialog_1.json",
         "src/generated/resources/data/gensokyolegacy/gensokyolegacy/dialog/marisa/brewing/follow_up/dialog_1.json",
@@ -160,6 +163,11 @@
         "src/generated/resources/data/gensokyolegacy/gensokyolegacy/dialog/marisa/talisman_request/start/accept/dialog_1.json",
         "src/generated/resources/data/gensokyolegacy/gensokyolegacy/dialog/marisa/talisman_request/start/dialog_1.json",
         "src/generated/resources/data/gensokyolegacy/gensokyolegacy/dialog/marisa/talisman_request/start/reject/dialog_1.json",
+        "src/generated/resources/data/gensokyolegacy/gensokyolegacy/dialog/marisa/visit_kourindou/stay_ans.json",
+        "src/generated/resources/data/gensokyolegacy/gensokyolegacy/dialog/marisa/visit_kourindou/wander.json",
+        "src/generated/resources/data/gensokyolegacy/gensokyolegacy/dialog/marisa/visit_shrine/calm.json",
+        "src/generated/resources/data/gensokyolegacy/gensokyolegacy/dialog/marisa/visit_shrine/donate.json",
+        "src/generated/resources/data/gensokyolegacy/gensokyolegacy/dialog/marisa/visit_shrine/leave_ans.json",
         "src/generated/resources/data/gensokyolegacy/gensokyolegacy/dialog/morichika/chat/hi.json",
         "src/generated/resources/data/gensokyolegacy/gensokyolegacy/dialog/morichika/chat_marisa/talk.json",
         "src/generated/resources/data/gensokyolegacy/gensokyolegacy/dialog/morichika/chat_marisa/where_ans.json",
@@ -251,7 +259,10 @@
         "src/generated/resources/data/gensokyolegacy/gensokyolegacy/dialog/reimu/talisman_materials/follow_up/end/dialog_1.json",
         "src/generated/resources/data/gensokyolegacy/gensokyolegacy/dialog/reimu/talisman_materials/start/accept/dialog_1.json",
         "src/generated/resources/data/gensokyolegacy/gensokyolegacy/dialog/reimu/talisman_materials/start/dialog_1.json",
-        "src/generated/resources/data/gensokyolegacy/gensokyolegacy/dialog/reimu/talisman_materials/start/reject/dialog_1.json"
+        "src/generated/resources/data/gensokyolegacy/gensokyolegacy/dialog/reimu/talisman_materials/start/reject/dialog_1.json",
+        "src/generated/resources/data/gensokyolegacy/gensokyolegacy/dialog/reimu/visit_kourindou/browse_ans.json",
+        "src/generated/resources/data/gensokyolegacy/gensokyolegacy/dialog/reimu/visit_kourindou/stay.json",
+        "src/generated/resources/data/gensokyolegacy/gensokyolegacy/dialog/reimu/visit_kourindou/stock.json"
       ]
     },
     "dialog_starter": {
@@ -259,10 +270,15 @@
       "files": [
         "src/generated/resources/data/gensokyolegacy/gensokyolegacy/dialog_starter/alice/chat.json",
         "src/generated/resources/data/gensokyolegacy/gensokyolegacy/dialog_starter/alice/chat_star_wand.json",
+        "src/generated/resources/data/gensokyolegacy/gensokyolegacy/dialog_starter/alice/visit_marisa_house_call.json",
+        "src/generated/resources/data/gensokyolegacy/gensokyolegacy/dialog_starter/alice/visit_marisa_house_greet.json",
         "src/generated/resources/data/gensokyolegacy/gensokyolegacy/dialog_starter/marisa/chat.json",
         "src/generated/resources/data/gensokyolegacy/gensokyolegacy/dialog_starter/marisa/chat_alice.json",
         "src/generated/resources/data/gensokyolegacy/gensokyolegacy/dialog_starter/marisa/chat_morichika.json",
         "src/generated/resources/data/gensokyolegacy/gensokyolegacy/dialog_starter/marisa/chat_reimu.json",
+        "src/generated/resources/data/gensokyolegacy/gensokyolegacy/dialog_starter/marisa/visit_kourindou_wander.json",
+        "src/generated/resources/data/gensokyolegacy/gensokyolegacy/dialog_starter/marisa/visit_shrine_calm.json",
+        "src/generated/resources/data/gensokyolegacy/gensokyolegacy/dialog_starter/marisa/visit_shrine_donate.json",
         "src/generated/resources/data/gensokyolegacy/gensokyolegacy/dialog_starter/morichika/chat.json",
         "src/generated/resources/data/gensokyolegacy/gensokyolegacy/dialog_starter/morichika/chat_marisa.json",
         "src/generated/resources/data/gensokyolegacy/gensokyolegacy/dialog_starter/morichika/chat_reimu.json",
@@ -274,7 +290,9 @@
         "src/generated/resources/data/gensokyolegacy/gensokyolegacy/dialog_starter/reimu/chat_money.json",
         "src/generated/resources/data/gensokyolegacy/gensokyolegacy/dialog_starter/reimu/chat_power.json",
         "src/generated/resources/data/gensokyolegacy/gensokyolegacy/dialog_starter/reimu/chat_shrine.json",
-        "src/generated/resources/data/gensokyolegacy/gensokyolegacy/dialog_starter/reimu/chat_shrine_close.json"
+        "src/generated/resources/data/gensokyolegacy/gensokyolegacy/dialog_starter/reimu/chat_shrine_close.json",
+        "src/generated/resources/data/gensokyolegacy/gensokyolegacy/dialog_starter/reimu/visit_kourindou_stay.json",
+        "src/generated/resources/data/gensokyolegacy/gensokyolegacy/dialog_starter/reimu/visit_kourindou_stock.json"
       ]
     },
     "trade": {
@@ -654,6 +672,11 @@
             "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/en_us/entries/dolls/doll.json",
             "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/en_us/entries/dolls/doll_glove.json",
             "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/en_us/entries/dolls/doll_loadout.json",
+            "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/en_us/entries/dolls/doll_loadout_danmaku.json",
+            "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/en_us/entries/dolls/doll_loadout_heal.json",
+            "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/en_us/entries/dolls/doll_loadout_hexbrew.json",
+            "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/en_us/entries/dolls/doll_loadout_melee.json",
+            "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/en_us/entries/dolls/doll_loadout_tnt.json",
             "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/en_us/entries/dolls/doll_mechanics.json",
             "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/en_us/entries/hats/koishi_hat.json",
             "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/en_us/entries/hats/suwako_hat.json",
@@ -664,7 +687,10 @@
             "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/en_us/entries/misc_tools/strange_glasses.json",
             "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/en_us/entries/nature/magical_forest.json",
             "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/en_us/entries/special_tools/border_umbrella.json",
+            "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/en_us/entries/special_tools/broom.json",
+            "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/en_us/entries/special_tools/dagger_glove.json",
             "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/en_us/entries/special_tools/gap_portal.json",
+            "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/en_us/entries/special_tools/iron_dagger.json",
             "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/en_us/entries/special_tools/mini_hakkero.json",
             "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/en_us/entries/special_tools/sealing_pot.json",
             "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/en_us/entries/talismans/talisman_basics.json",
@@ -698,6 +724,11 @@
             "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/zh_cn/entries/dolls/doll.json",
             "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/zh_cn/entries/dolls/doll_glove.json",
             "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/zh_cn/entries/dolls/doll_loadout.json",
+            "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/zh_cn/entries/dolls/doll_loadout_danmaku.json",
+            "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/zh_cn/entries/dolls/doll_loadout_heal.json",
+            "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/zh_cn/entries/dolls/doll_loadout_hexbrew.json",
+            "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/zh_cn/entries/dolls/doll_loadout_melee.json",
+            "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/zh_cn/entries/dolls/doll_loadout_tnt.json",
             "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/zh_cn/entries/dolls/doll_mechanics.json",
             "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/zh_cn/entries/hats/koishi_hat.json",
             "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/zh_cn/entries/hats/suwako_hat.json",
@@ -708,7 +739,10 @@
             "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/zh_cn/entries/misc_tools/strange_glasses.json",
             "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/zh_cn/entries/nature/magical_forest.json",
             "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/zh_cn/entries/special_tools/border_umbrella.json",
+            "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/zh_cn/entries/special_tools/broom.json",
+            "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/zh_cn/entries/special_tools/dagger_glove.json",
             "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/zh_cn/entries/special_tools/gap_portal.json",
+            "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/zh_cn/entries/special_tools/iron_dagger.json",
             "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/zh_cn/entries/special_tools/mini_hakkero.json",
             "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/zh_cn/entries/special_tools/sealing_pot.json",
             "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/zh_cn/entries/talismans/talisman_basics.json",
@@ -782,14 +816,14 @@
     "assets/lang/vanilla/en_us.json",
     "assets/lang/vanilla/zh_cn.json"
   ],
-  "revision": "1383e7a1a511625ae4a3b9b4ce7cbe5a",
+  "revision": "927bd85834bf013843032c0686b84a42",
   "stats": {
     "quest": 26,
-    "dialog": 215,
-    "dialog_starter": 18,
+    "dialog": 226,
+    "dialog_starter": 25,
     "trade": 44,
-    "files": 303,
+    "files": 321,
     "recipes": 290,
-    "guideEntries": 60
+    "guideEntries": 76
   }
 }
