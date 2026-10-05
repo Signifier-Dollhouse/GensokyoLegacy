@@ -8,6 +8,7 @@ import dev.xkmc.gensokyolegacy.content.rpg.action.StartQuestAction;
 import dev.xkmc.gensokyolegacy.content.rpg.condition.HasAdvancementCondition;
 import dev.xkmc.gensokyolegacy.content.rpg.condition.HasItemCondition;
 import dev.xkmc.gensokyolegacy.content.rpg.condition.HasQuestCompletedCondition;
+import dev.xkmc.gensokyolegacy.content.rpg.condition.HomeBoundCondition;
 import dev.xkmc.gensokyolegacy.content.rpg.condition.OtherReputationCondition;
 import dev.xkmc.gensokyolegacy.content.rpg.condition.SelfReputationCondition;
 import dev.xkmc.gensokyolegacy.content.rpg.condition.TimerCondition;
@@ -16,11 +17,6 @@ import dev.xkmc.gensokyolegacy.content.rpg.dialog.DialogOption;
 import dev.xkmc.gensokyolegacy.content.rpg.dialog.DialogStarter;
 import dev.xkmc.gensokyolegacy.content.rpg.dialog.GroupDialogOption;
 import dev.xkmc.gensokyolegacy.content.rpg.dialog.RandomDialogOption;
-import dev.xkmc.gensokyolegacy.content.rpg.dialog.SimpleDialogOption;
-import dev.xkmc.gensokyolegacy.content.rpg.dialog.Dialog;
-import dev.xkmc.gensokyolegacy.content.rpg.dialog.DialogOption;
-import dev.xkmc.gensokyolegacy.content.rpg.dialog.DialogStarter;
-import dev.xkmc.gensokyolegacy.content.rpg.dialog.GroupDialogOption;
 import dev.xkmc.gensokyolegacy.content.rpg.dialog.SimpleDialogOption;
 import dev.xkmc.gensokyolegacy.content.rpg.quest.Quest;
 import dev.xkmc.gensokyolegacy.content.rpg.quest.QuestCondition;
@@ -73,6 +69,7 @@ public class CodecRegistry {
 	public static final CdcVal<TimerCondition> TIMER = CONDITION.reg("timer", TimerCondition.CODEC);
 	public static final CdcVal<SelfReputationCondition> SELF_REP = CONDITION.reg("self_reputation", SelfReputationCondition.CODEC);
 	public static final CdcVal<OtherReputationCondition> OTHER_REP = CONDITION.reg("other_reputation", OtherReputationCondition.CODEC);
+	public static final CdcVal<HomeBoundCondition> HOME_BOUND = CONDITION.reg("home_bound", HomeBoundCondition.CODEC);
 
 	public static final CdcVal<KillMobRequirement> KILL_MOB_REQ = REQUIREMENT.reg("kill_mob", KillMobRequirement.CODEC);
 	public static final CdcVal<KillEnemyRequirement> KILL_ENEMY_REQ = REQUIREMENT.reg("kill_enemy", KillEnemyRequirement.CODEC);

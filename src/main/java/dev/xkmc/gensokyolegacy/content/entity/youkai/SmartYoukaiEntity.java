@@ -91,7 +91,8 @@ public class SmartYoukaiEntity extends YoukaiEntity {
 		board.addExclusive(0, new YoukaiTalkTask<>(), GLBrains.TALK.get());
 		board.addExclusive(100, new YoukaiGoHomeTask<>(), Activity.IDLE, GLBrains.AT_HOME.get());
 		board.addExclusive(200, new YoukaiRepairHouseTask<>(), GLBrains.AT_HOME.get());
-		board.addExclusive(1100, SetEntityLookTarget.create(EntityType.PLAYER, 32), Activity.IDLE, Activity.PLAY, GLBrains.AT_HOME.get());
+		board.addExclusive(1100, SetEntityLookTarget.create(EntityType.PLAYER, 32),
+				Activity.IDLE, Activity.PLAY, GLBrains.AT_HOME.get(), GLBrains.VISITING.get());
 		board.addExclusive(1200, SetEntityLookTarget.create(24), Activity.IDLE, Activity.PLAY);
 
 		board.addRandom(RandomStroll.stroll(0.8f), Activity.IDLE, Activity.PLAY);
@@ -102,6 +103,12 @@ public class SmartYoukaiEntity extends YoukaiEntity {
 				.cooldownFor(e -> e.getRandom().nextInt(200, 400)), GLBrains.AT_HOME.get());
 		board.addRandom(new YoukaiDoNothing<>(30, 60),
 				Activity.IDLE, Activity.PLAY, GLBrains.AT_HOME.get());
+		// A visitor keeps to the host's premises, so the stay tasks that key off
+		// her own home are useless to her; stroll and idle are what is left.
+		// FetchTargetTask is not repeated here: TALK outranks VISITING, so it is
+		// already running whenever there is somebody to talk to.
+		board.addRandom(RandomStroll.stroll(0.8f), GLBrains.VISITING.get());
+		board.addRandom(new YoukaiDoNothing<>(30, 60), GLBrains.VISITING.get());
 
 		board.addSensor(new NearbyPlayerSensor<SmartYoukaiEntity>().setRadius(32, 32).setScanRate(e -> 5));
 		board.addSensor(new NearbyLivingEntitySensor<SmartYoukaiEntity>().setRadius(32, 16)
@@ -114,6 +121,11 @@ public class SmartYoukaiEntity extends YoukaiEntity {
 		board.addScheduledActivity(Activity.PLAY, null);
 		board.addScheduledActivity(Activity.IDLE, null);
 		board.addPrioritizedActivity(GLBrains.TALK.get(), GLBrains.MEM_TALK.get(), 100);
+		// 150 is deliberate: TaskBoard injects a prioritized activity's memory as
+		// VALUE_ABSENT into every less prioritized activity, so this has to sit
+		// below TALK (a visitor must stay able to talk and trade) and above the
+		// scheduled activities (a visitor must never sleep or go home).
+		board.addPrioritizedActivity(GLBrains.VISITING.get(), GLBrains.MEM_VISIT.get(), 150);
 
 		board.setSchedule(new ScheduleBuilder(new Schedule())
 				.changeActivityAt(10, GLBrains.AT_HOME.get())

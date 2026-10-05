@@ -85,6 +85,10 @@ public class ServerCharacterDialogManager {
 		Holder<DialogStarter> chat = pickChat(sp, ch);
 		if (chat != null)
 			ans.add(new DialogHandle(chat));
+		// A guest can hand over what is already finished and pick up a follow-up,
+		// but she never hands out new work - see StartQuestAction for the other
+		// half of that rule.
+		boolean visiting = ch.isVisiting();
 		var questData = GLMeta.QUEST.type().getOrCreate(sp);
 		for (var e : quests) {
 			var data = questData.getData(e.unwrapKey().orElseThrow().location());
@@ -92,7 +96,7 @@ public class ServerCharacterDialogManager {
 				ans.add(new QuestHandle(e, e.value().completionDialog(), QuestHandle.Kind.COMPLETE));
 			else if (data.hasStarted(e.value()))
 				ans.add(new QuestHandle(e, e.value().followUpDialog(), QuestHandle.Kind.FOLLOW_UP));
-			else if (data.canStart(sp, e.value()) && e.value().match(sp, ch))
+			else if (!visiting && data.canStart(sp, e.value()) && e.value().match(sp, ch))
 				ans.add(new QuestHandle(e, e.value().initialDialog(), QuestHandle.Kind.START));
 		}
 		groupHandles(ans);

@@ -52,8 +52,14 @@ public class FirstDialogScreen extends DialogScreen {
 		if (body != null) return Optional.of(body);
 		if (character == null) return Optional.empty();
 		var cfg = DialogConfig.of(character.getType());
-		if (cfg == null || cfg.greeting().isEmpty()) return Optional.empty();
-		return Optional.of(Component.translatable(cfg.greeting()));
+		if (cfg == null) return Optional.empty();
+		// A guest is greeted as a guest; her home line would read as if the
+		// player had come to see her.
+		var key = character.isVisiting() && !cfg.visitGreeting().isEmpty()
+				? cfg.visitGreeting()
+				: cfg.greeting();
+		if (key.isEmpty()) return Optional.empty();
+		return Optional.of(Component.translatable(key));
 	}
 
 }

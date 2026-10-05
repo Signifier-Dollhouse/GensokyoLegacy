@@ -1,0 +1,10 @@
+{
+  "character": "gensokyolegacy:alice_margatroid",
+  "conditions": [
+    {
+      "type": "gensokyolegacy:home_bound"
+    }
+  ],
+  "dialog": "gensokyolegacy:alice/hi",
+  "text": "gensokyolegacy/alice/starter/start"
+}

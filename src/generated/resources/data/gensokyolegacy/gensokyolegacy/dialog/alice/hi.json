@@ -1,0 +1,11 @@
+{
+  "options": [
+    {
+      "type": "gensokyolegacy:simple",
+      "actions": [],
+      "conditions": [],
+      "text": "gensokyolegacy/alice/option/hi/end"
+    }
+  ],
+  "text": "gensokyolegacy/alice/dialog/alice/hi"
+}

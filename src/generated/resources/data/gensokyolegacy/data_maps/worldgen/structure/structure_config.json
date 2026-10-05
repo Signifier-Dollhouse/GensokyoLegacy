@@ -37,6 +37,13 @@
           7
         ]
       ],
+      "visitors": {
+        "gensokyolegacy:kirisame_marisa": {
+          "chance": 0.2,
+          "maxStay": 3600,
+          "minStay": 2400
+        }
+      },
       "wouldFix": "gensokyolegacy:structure_fix/hakurei_shrine/would_fix"
     },
     "gensokyolegacy:marisa_house": {
@@ -233,6 +240,13 @@
       },
       "primaryFix": "gensokyolegacy:structure_fix/marisa_house/primary",
       "rooms": [],
+      "visitors": {
+        "gensokyolegacy:alice_margatroid": {
+          "chance": 0.2,
+          "maxStay": 3600,
+          "minStay": 2400
+        }
+      },
       "wouldFix": "gensokyolegacy:structure_fix/marisa_house/would_fix"
     },
     "gensokyolegacy:morichika_shop": {
@@ -288,6 +302,18 @@
           25
         ]
       ],
+      "visitors": {
+        "gensokyolegacy:hakurei_reimu": {
+          "chance": 0.3,
+          "maxStay": 6000,
+          "minStay": 2400
+        },
+        "gensokyolegacy:kirisame_marisa": {
+          "chance": 0.3,
+          "maxStay": 6000,
+          "minStay": 2400
+        }
+      },
       "wouldFix": "gensokyolegacy:structure_fix/morichika_shop/would_fix"
     }
   }

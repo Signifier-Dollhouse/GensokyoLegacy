@@ -4,6 +4,7 @@ import com.tterrag.registrate.providers.DataProviderInitializer;
 import com.tterrag.registrate.providers.RegistrateDataMapProvider;
 import dev.xkmc.gensokyolegacy.content.attachment.datamap.BedData;
 import dev.xkmc.gensokyolegacy.content.attachment.datamap.CharacterConfig;
+import dev.xkmc.gensokyolegacy.content.attachment.datamap.StructureConfig;
 import dev.xkmc.gensokyolegacy.init.data.structure.helper.StructBed;
 import dev.xkmc.gensokyolegacy.init.data.structure.helper.SetContext;
 import dev.xkmc.gensokyolegacy.init.data.structure.helper.StructFlatBuilding;
@@ -17,6 +18,7 @@ import dev.xkmc.gensokyolegacy.init.registrate.block.GLBlocks;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.levelgen.structure.StructureSet;
 import net.minecraft.world.level.levelgen.structure.placement.RandomSpreadType;
 import net.neoforged.neoforge.common.util.Lazy;
@@ -50,6 +52,8 @@ public class GLStructureGen {
 								CharacterConfig.forStructure(6000, 12000, 12, 30),
 								GLBlocks.Beds.MARISA.holder()
 						)),
+						visits(Map.of(
+								GLEntities.ALICE.get(), visit(0.20f, 2400, 3600))),
 						new StructFlatBuilding(List.of(), Map.of(), 5, 60, 24, 32, 8),
 						FOREST_HOUSES
 				),
@@ -62,6 +66,8 @@ public class GLStructureGen {
 							CharacterConfig.forStructure(6000, 12000, 16, 30),
 							GLBlocks.Beds.REIMU.holder()
 					)),
+					visits(Map.of(
+							GLEntities.MARISA.get(), visit(0.20f, 2400, 3600))),
 					new StructFlatJigsawBuilding(6, List.of(
 							new StructFlatJigsawBuilding.Part("root", true, List.of()),
 							new StructFlatJigsawBuilding.Part("road", true, List.of()),
@@ -79,7 +85,9 @@ public class GLStructureGen {
 							new StructFlatJigsawBuilding.Part("tree2", true, List.of()),
 							new StructFlatJigsawBuilding.Part("tree2_top", true, List.of()),
 							new StructFlatJigsawBuilding.Part("tree3", true, List.of())
-					), Map.of(), 5, 80, 24, 32, 8)
+					), Map.of(), 5, 80, 24, 32, 8),
+				// its own set: the shrine is not part of the forest houses
+				GensokyoLegacy.loc("hakurei_shrine")
 			),
 				// Kourindou (Morichika's shop) in the modded magical forest (template 33x18x33, bed at local (27,8,16)-(27,8,17))
 				new StructStructure(
@@ -90,10 +98,27 @@ public class GLStructureGen {
 								CharacterConfig.forStructure(6000, 12000, 12, 30),
 								GLBlocks.Beds.MORICHIKA.holder()
 						)),
-						new StructFlatBuilding(List.of(), Map.of(), 5, 64, 24, 32, 8),
+						visits(Map.of(
+							GLEntities.REIMU.get(), visit(0.30f, 2400, 6000),
+							GLEntities.MARISA.get(), visit(0.30f, 2400, 6000))),
+					new StructFlatBuilding(List.of(), Map.of(), 5, 64, 24, 32, 8),
 						FOREST_HOUSES
 				)
 		);
+	}
+
+	/**
+	 * A guest slot: the share of days the character shows up at all, and how long
+	 * she stays when she does. The window inside the day is derived from the
+	 * structure position and the day - see {@code VisitTable}.
+	 */
+	private static StructureConfig.CharacterVisit visit(float chance, int minStay, int maxStay) {
+		return new StructureConfig.CharacterVisit(chance, minStay, maxStay);
+	}
+
+	private static LinkedHashMap<EntityType<?>, StructureConfig.CharacterVisit> visits(
+			Map<EntityType<?>, StructureConfig.CharacterVisit> visits) {
+		return new LinkedHashMap<>(visits);
 	}
 
 	private static final Supplier<List<StructStructure>> STRUCTURES = Lazy.of(GLStructureGen::initStructures);
@@ -110,6 +135,8 @@ public class GLStructureGen {
 				entityReg.add(bedData.entity(), bedData.data().withId(e.id()), false);
 				config.addEntity(bedData.entity().value());
 			}
+			for (var entry : e.visits().entrySet())
+				config.visit(entry.getKey(), entry.getValue());
 			structureReg.add(e.id(), config.build(), false);
 		}
 

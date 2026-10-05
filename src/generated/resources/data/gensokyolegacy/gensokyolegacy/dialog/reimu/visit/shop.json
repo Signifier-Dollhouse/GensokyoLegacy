@@ -1,0 +1,12 @@
+{
+  "options": [
+    {
+      "type": "gensokyolegacy:simple",
+      "actions": [],
+      "conditions": [],
+      "next": "gensokyolegacy:reimu/visit/browse_ans",
+      "text": "gensokyolegacy/reimu/visit/option/browse"
+    }
+  ],
+  "text": "gensokyolegacy/reimu/visit/dialog/reimu/visit/shop"
+}

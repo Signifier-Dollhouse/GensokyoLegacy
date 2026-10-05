@@ -1,16 +1,24 @@
 {
   "values": {
+    "gensokyolegacy:alice_margatroid": {
+      "greeting": "gensokyolegacy/alice/greeting",
+      "trade": "gensokyolegacy/alice/trade",
+      "visitGreeting": "gensokyolegacy/alice/visit_greeting"
+    },
     "gensokyolegacy:hakurei_reimu": {
       "greeting": "gensokyolegacy/reimu/chat/greeting",
-      "trade": "gensokyolegacy/reimu/chat/trade"
+      "trade": "gensokyolegacy/reimu/chat/trade",
+      "visitGreeting": "gensokyolegacy/reimu/chat/visit_greeting"
     },
     "gensokyolegacy:kirisame_marisa": {
       "greeting": "gensokyolegacy/marisa/chat/greeting",
-      "trade": "gensokyolegacy/marisa/chat/trade"
+      "trade": "gensokyolegacy/marisa/chat/trade",
+      "visitGreeting": "gensokyolegacy/marisa/chat/visit_greeting"
     },
     "gensokyolegacy:morichika_rinnosuke": {
       "greeting": "gensokyolegacy/morichika/chat/greeting",
-      "trade": "gensokyolegacy/morichika/chat/trade"
+      "trade": "gensokyolegacy/morichika/chat/trade",
+      "visitGreeting": "gensokyolegacy/morichika/chat/visit_greeting"
     }
   }
 }

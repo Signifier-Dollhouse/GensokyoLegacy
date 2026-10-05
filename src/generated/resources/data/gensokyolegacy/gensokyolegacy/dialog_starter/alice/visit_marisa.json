@@ -1,0 +1,12 @@
+{
+  "character": "gensokyolegacy:alice_margatroid",
+  "conditions": [
+    {
+      "type": "gensokyolegacy:home_bound",
+      "invert": true
+    }
+  ],
+  "dialog": "gensokyolegacy:alice/visit/marisa",
+  "text": "gensokyolegacy/alice/visit/starter/marisa",
+  "weight": 30
+}
