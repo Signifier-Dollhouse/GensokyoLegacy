@@ -1,12 +1,9 @@
 1.0.2
 - Add alice structure and doll lance. Dolls can use talisman in core slot now.
-- Add dagger glove and iron dagger
-- Morichika sells the dagger glove once you have an iron dagger
-- Candlestick can be lit with flint and steel, only glows while lit, and its
-  flames follow the block's facing
+- Add Sakuya, iron dagger, and dagger glove. Currently rarely appearing in Morichika's Shop
 - Sealing pot barrier is tinted the pot's own green
-- Add broom
-- decorative blocks: noren curtains, wrought iron bars
+- Add broom, rework marisa quest rewards
+- decorative blocks: noren curtains, wrought iron bars, candlestick
 - JEI for quest reward and trade
 - Patchouli improvement
 - Fix lithium compat
