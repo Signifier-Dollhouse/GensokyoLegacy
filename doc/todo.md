@@ -1,2 +1,3 @@
-# TODO
-- quest reward jei doesn't work
+- dialog review
+- patchouli review
+- chat chance review
