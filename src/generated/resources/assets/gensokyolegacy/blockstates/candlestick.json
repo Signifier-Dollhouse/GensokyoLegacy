@@ -1,17 +1,32 @@
 {
   "variants": {
-    "facing=east": {
+    "facing=east,lit=false": {
       "model": "gensokyolegacy:block/candlestick",
       "y": 90
     },
-    "facing=north": {
+    "facing=east,lit=true": {
+      "model": "gensokyolegacy:block/candlestick",
+      "y": 90
+    },
+    "facing=north,lit=false": {
       "model": "gensokyolegacy:block/candlestick"
     },
-    "facing=south": {
+    "facing=north,lit=true": {
+      "model": "gensokyolegacy:block/candlestick"
+    },
+    "facing=south,lit=false": {
       "model": "gensokyolegacy:block/candlestick",
       "y": 180
     },
-    "facing=west": {
+    "facing=south,lit=true": {
+      "model": "gensokyolegacy:block/candlestick",
+      "y": 180
+    },
+    "facing=west,lit=false": {
+      "model": "gensokyolegacy:block/candlestick",
+      "y": 270
+    },
+    "facing=west,lit=true": {
       "model": "gensokyolegacy:block/candlestick",
       "y": 270
     }

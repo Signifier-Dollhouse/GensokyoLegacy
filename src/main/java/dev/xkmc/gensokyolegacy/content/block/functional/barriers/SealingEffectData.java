@@ -17,8 +17,17 @@ import java.util.List;
 @SerialClass
 public class SealingEffectData extends EffectData {
 
+	/**
+	 * The tint multiplies into the forcefield texture, so a white one read as a
+	 * generic magic shield. The pot is a green ceramic, so the wall takes the pot's
+	 * own green: the hue comes from
+	 * {@code textures/block/utensil/sealing_pot.png}'s main highlight, RGB(89,
+	 * 186, 114), i.e. 0.35 / 0.73 / 0.45. Only the hue is taken - the green
+	 * channel is pinned to 1.0, because the texture is already a dim grey and
+	 * using the pot's raw luminance would have made the wall barely visible.
+	 */
 	private static final AreaEffectVisual VISUAL = new AreaEffectVisual(GensokyoLegacy.loc("textures/barriers/sealing_pot.png"),
-			1, 1, 1, 0.35F, -0.5F, true, false, false);
+			0.35F, 1F, 0.45F, 0.35F, -0.5F, true, false, false);
 
 	public SealingEffectData() {
 	}

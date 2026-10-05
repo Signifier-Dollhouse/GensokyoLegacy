@@ -45,6 +45,7 @@ Stock = max times tradeable per refresh; Refresh = ticks until restock (20 ticks
 | `offer_strange_glasses` | none | emerald ×8 | strange glasses ×1 | 1 | 24000 |
 | `offer_guide_book` | adv `main/welcome` | emerald ×1 | tools guide (Patchouli book) ×1 | 1 | 24000 |
 | `offer_koishi_hat` | adv `gensokyolegacy:koishi_hat` | emerald ×32 | koishi hat ×1 | 1 | 168000 |
+| `offer_dagger_glove` | adv `main/obtain_iron_dagger` | emerald ×24 | dagger glove ×1 | 1 | 168000 |
 
 - `offer_guide_book` is gated on the vanilla intro advancement rather than
   anything of Rinnosuke's, so a player who never speaks to him can still pick
@@ -55,8 +56,18 @@ Stock = max times tradeable per refresh; Refresh = ticks until restock (20 ticks
   *earned* in the Nether, then sold back to you by the shop you have to find
   first. 32 emeralds and a weekly restock keep it a reward rather than a
   purchase.
+- `offer_dagger_glove` is the one weapon he sells, and it is gated on Sakuya's
+  `main/obtain_iron_dagger` rather than on its own `main/obtain_dagger_glove`:
+  the glove spends the whole inventory's daggers to turn a stack into a
+  pattern, so it is worthless to a player who cannot yet throw one — and by the
+  time the offer appears, the player has already seen the counterparty who sells
+  the ammunition ([izayoi_sakuya.md](izayoi_sakuya.md)). 24 emeralds and the same
+  weekly restock as the hat, less than the hat's 32, because unlike the hat this
+  one is a tool the player is expected to keep using.
 - `offer_doll_glove` used to live here; it moved to Alice, who actually makes
-  the glove (see [alice.md](alice.md)). There is no replacement trade here.
+  the glove (see [alice.md](alice.md)). `offer_dagger_glove` is its replacement —
+  one he resells rather than makes, which is the same relationship he has to
+  Sakuya.
 
 ## Deliberate gaps
 

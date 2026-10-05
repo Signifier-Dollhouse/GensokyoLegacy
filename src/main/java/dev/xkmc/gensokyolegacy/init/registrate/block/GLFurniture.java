@@ -295,11 +295,12 @@ public class GLFurniture {
 					.item().tab(GLDecoBlocks.TAB.key()).build()
 					.register();
 
-			// 烛台：落地摆件，自带光源
+			// 烛台：落地摆件，点着的时候才发光
 			CANDLESTICK = reg.block("candlestick", p -> DelegateBlock.newBaseBlock(p,
 							BlockTemplates.HORIZONTAL, new CandlestickBlock()))
 					.properties(p -> p.mapColor(MapColor.WOOD).strength(0.5F).sound(SoundType.WOOD)
-							.noOcclusion().pushReaction(PushReaction.DESTROY).lightLevel(s -> 15))
+							.noOcclusion().pushReaction(PushReaction.DESTROY)
+							.lightLevel(s -> s.getValue(CandlestickBlock.LIT) ? 15 : 0))
 					.blockstate((ctx, pvd) -> CandlestickBlock.buildStates(ctx.get(), pvd, ctx.getName()))
 					.tag(BlockTags.MINEABLE_WITH_AXE)
 					.item().tab(GLDecoBlocks.TAB.key()).build()
