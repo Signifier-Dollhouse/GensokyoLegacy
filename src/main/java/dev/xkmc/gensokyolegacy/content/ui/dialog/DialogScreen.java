@@ -13,6 +13,7 @@ import dev.xkmc.gensokyolegacy.content.rpg.network.DialogCloseToServer;
 import dev.xkmc.gensokyolegacy.content.ui.quest.QuestInfo;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
+import dev.xkmc.gensokyolegacy.init.registrate.GLSounds;
 import dev.xkmc.l2itemselector.overlay.TextBox;
 import dev.xkmc.l2serial.network.SimplePacketBase;
 import net.minecraft.client.Minecraft;
@@ -21,13 +22,16 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
+import net.minecraft.client.resources.sounds.SoundInstance;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -128,6 +132,18 @@ public abstract class DialogScreen extends Screen {
 	private static final float TYPE_SPEED = 1.5F;
 
 	/**
+	 * Voice of the typewriter. The blip is voiced once every
+	 * {@link #BLIP_STRIDE_MIN} to {@link #BLIP_STRIDE_MAX} characters instead of on
+	 * every one, and its pitch is drawn from these semitone offsets, so a line is
+	 * spoken in a slower, wandering voice rather than a flat buzz. The blip itself
+	 * is as long as the gap between two of them - see tools/gen_dialog_blip.ps1.
+	 */
+	private static final int[] BLIP_SEMITONES = {0, -2, 1, -1, 2};
+	private static final float BLIP_VOLUME = 0.15F;
+	private static final int BLIP_STRIDE_MIN = 2;
+	private static final int BLIP_STRIDE_MAX = 3;
+
+	/**
 	 * The dialog screen on top right now, if any. Stamped <em>before</em> the
 	 * screen reaches {@code setScreen}, so the outgoing screen's
 	 * {@link #removed()} can tell "replaced by another dialog" from "actually
@@ -170,6 +186,14 @@ public abstract class DialogScreen extends Screen {
 	private float typedChars;
 	private int typedTotal = -1;
 
+	/** Body text as flat code points, so a reveal can tell a glyph from a space. */
+	private int[] glyphs = new int[0];
+
+	private final RandomSource blipRandom = RandomSource.create();
+
+	/** Characters left before the next blip, so the voice runs on a stride. */
+	private int blipCountdown;
+
 	protected DialogScreen(int session, int characterId) {
 		super(Component.empty());
 		this.session = session;
@@ -207,7 +231,9 @@ public abstract class DialogScreen extends Screen {
 	public void tick() {
 		super.tick();
 		if (typedTotal > 0 && typedChars < typedTotal) {
+			int from = (int) typedChars;
 			typedChars = Math.min(typedTotal, typedChars + TYPE_SPEED);
+			blip(from, (int) typedChars);
 		}
 		if (minecraft.player == null || !minecraft.player.isAlive() || minecraft.player.isRemoved()) {
 			onClose();
@@ -225,6 +251,36 @@ public abstract class DialogScreen extends Screen {
 
 	private void finishTyping() {
 		if (typedTotal > 0) typedChars = typedTotal;
+	}
+
+	/**
+	 * Voice the characters revealed this tick. The voice runs on a stride of
+	 * {@link #BLIP_STRIDE_MIN} to {@link #BLIP_STRIDE_MAX} characters instead of one
+	 * per character - which is why the blip is as long as the gap between two of
+	 * them. Spaces are skipped without advancing the stride, so the voice breaks at
+	 * word boundaries the way speech does, and at most one blip is voiced per tick:
+	 * the text can advance two characters in one, and a second blip would only sound
+	 * louder, not faster.
+	 */
+	private void blip(int from, int to) {
+		boolean voice = false;
+		for (int i = from; i < to && i < glyphs.length; i++) {
+			if (Character.isWhitespace(glyphs[i])) continue;
+			if (--blipCountdown > 0) continue;
+			blipCountdown = BLIP_STRIDE_MIN + blipRandom.nextInt(BLIP_STRIDE_MAX - BLIP_STRIDE_MIN + 1);
+			voice = true;
+		}
+		if (voice)
+			playBlip((float) Math.pow(2.0, BLIP_SEMITONES[blipRandom.nextInt(BLIP_SEMITONES.length)] / 12.0));
+	}
+
+	private void playBlip(float pitch) {
+		// VOICE rather than MASTER, which is what SimpleSoundInstance.forUI picks:
+		// a blip per character fires up to thirty times a second, so it deserves a
+		// slider of its own instead of riding on the master volume
+		minecraft.getSoundManager().play(new SimpleSoundInstance(
+				GLSounds.DIALOG_BLIP.get().getLocation(), SoundSource.VOICE, BLIP_VOLUME, pitch,
+				SoundInstance.createUnseededRandom(), false, 0, SoundInstance.Attenuation.NONE, 0, 0, 0, true));
 	}
 
 	@Override
@@ -356,7 +412,10 @@ public abstract class DialogScreen extends Screen {
 			var lines = font.split(body.get(), Math.max(1, Math.round((boxW - 2 * TEXT_PAD_X) / TEXT_SCALE)));
 			// laid out once: the code point total does not depend on the wrap
 			// width, so it stays valid when the window is resized mid-sentence
-			if (typedTotal < 0) typedTotal = countChars(lines);
+			if (typedTotal < 0) {
+				glyphs = flatten(lines);
+				typedTotal = glyphs.length;
+			}
 			typing = typedChars < typedTotal;
 			drawLines(g, lines, boxX + TEXT_PAD_X, textTop, TEXT_COLOR,
 					typing ? (int) typedChars : Integer.MAX_VALUE);
@@ -514,6 +573,19 @@ public abstract class DialogScreen extends Screen {
 		int total = 0;
 		for (var line : lines) total += countChars(line);
 		return total;
+	}
+
+	/** The body text as a flat array of code points, in drawing order. */
+	private static int[] flatten(List<FormattedCharSequence> lines) {
+		int[] out = new int[countChars(lines)];
+		int[] at = {0};
+		for (var line : lines) {
+			line.accept((index, style, codePoint) -> {
+				out[at[0]++] = codePoint;
+				return true;
+			});
+		}
+		return out;
 	}
 
 	private static int countChars(FormattedCharSequence line) {
