@@ -138,7 +138,7 @@ public class MarisaQDGen extends QuestDialogData {
 				starterText("calm", "It's quiet up here, isn't it?"),
 				dialog("calm", "Too quiet. I need a fuse going or my brain just stops. A shrine with nothing happening is basically a library, and I've never once been good at those.",
 						option("bye", "I won't keep you.")),
-				CHAT_DEFAULT);
+				CHAT_MISC);
 	}
 
 	private void chats() {

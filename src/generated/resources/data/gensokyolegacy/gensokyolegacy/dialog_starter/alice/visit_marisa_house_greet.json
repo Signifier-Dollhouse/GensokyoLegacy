@@ -7,5 +7,6 @@
     }
   ],
   "dialog": "gensokyolegacy:alice/visit_marisa_house/greet",
-  "text": "gensokyolegacy/alice/visit_marisa_house/starter/greet"
+  "text": "gensokyolegacy/alice/visit_marisa_house/starter/greet",
+  "weight": 30
 }

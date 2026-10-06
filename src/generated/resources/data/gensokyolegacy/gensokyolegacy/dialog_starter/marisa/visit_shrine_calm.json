@@ -7,5 +7,6 @@
     }
   ],
   "dialog": "gensokyolegacy:marisa/visit_shrine/calm",
-  "text": "gensokyolegacy/marisa/visit_shrine/starter/calm"
+  "text": "gensokyolegacy/marisa/visit_shrine/starter/calm",
+  "weight": 30
 }
