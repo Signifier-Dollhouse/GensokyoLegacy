@@ -12,6 +12,8 @@ public class GLSounds {
 
 	public static final SimpleEntry<SoundEvent> DIALOG_BLIP = reg("dialog_blip");
 
+	public static final SimpleEntry<SoundEvent> DOLL_ATTACK = reg("doll_attack");
+
 	private static SimpleEntry<SoundEvent> reg(String id) {
 		ResourceLocation rl = GensokyoLegacy.loc(id);
 		return new SimpleEntry<>(GensokyoLegacy.REGISTRATE.simple(id, Registries.SOUND_EVENT, () -> SoundEvent.createVariableRangeEvent(rl)));

@@ -15,5 +15,13 @@
 		"name": "gensokyolegacy:dialog_blip"
 	  }
 	]
+  },
+  "doll_attack": {
+	"sounds": [
+	  {
+		"type": "file",
+		"name": "gensokyolegacy:doll_attack"
+	  }
+	]
   }
 }
