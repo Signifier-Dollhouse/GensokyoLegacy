@@ -80,6 +80,7 @@ public class GLItems {
 	public static final ItemEntry<KoishiHatItem> KOISHI_HAT;
 
 	public static final ItemEntry<MiniFurnace1> MINI_FURNACE_1;
+	public static final ItemEntry<MiniFurnace2> MINI_FURNACE_2;
 	public static final ItemEntry<CentiPickaxe> CENTIPICKAXE;
 	public static final ItemEntry<Dowser> DOWSER;
 	public static final ItemEntry<Item> DOWSER_LEFT, DOWSER_RIGHT;
@@ -114,6 +115,7 @@ public class GLItems {
 
 	private static final DCReg DC = DCReg.of(GensokyoLegacy.REG);
 	public static final DCVal<MiniFurnace1.Data> DC_FURNACE_1 = DC.reg("mini_furnace_1_data", MiniFurnace1.Data.class, false);
+	public static final DCVal<MiniFurnace2.Mode> DC_FURNACE_2 = DC.enumVal("mini_furnace_2_mode", EnumCodec.of(MiniFurnace2.Mode.class, MiniFurnace2.Mode.values()));
 	public static final DCVal<UUID> DC_UUID = DC.uuid("uuid");
 	public static final DCVal<PortalSide> DC_PORTAL_SIDE = DC.enumVal("portal_side", EnumCodec.of(PortalSide.class, PortalSide.values()));
 	public static final DCVal<UUID> DC_DEBUG_YOUKAI = DC.uuid("debug_youkai");
@@ -285,6 +287,11 @@ public class GLItems {
 					.tag(GLTagGen.MORICHIKA_OFFERS)
 					.dataMap(GLMeta.MORICHIKA_OFFER.reg(), new MorichikaOfferData(16, 24, 1, 1))
 					.lang("Mini Hakkero [Prototype]").register();
+
+			// improved copy of the prototype: shares its texture until a new one is drawn
+			MINI_FURNACE_2 = reg.item("mini_hakkero", MiniFurnace2::new)
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/tool/mini_hakkero_prototype")))
+					.lang("Mini Hakkero").register();
 
 			CENTIPICKAXE = reg.item("centipickaxe", CentiPickaxe::new)
 					.model((ctx, pvd) -> pvd.handheld(ctx, pvd.modLoc("item/tool/" + ctx.getName())))

@@ -375,7 +375,8 @@ public final class GLLang {
 	public enum ItemFurnace implements LangEntry {
 		FURNACE_1_USE("Right click the item in inventory to switch modes.", 0, ChatFormatting.GRAY),
 		FURNACE_1_OFF("Mode: OFF", 0, ChatFormatting.GRAY),
-		FURNACE_1_DESC("Mode: %s", 1, ChatFormatting.GRAY);
+		FURNACE_1_DESC("Mode: %s", 1, ChatFormatting.GRAY),
+		FURNACE_2_USE("Right click the item in inventory to open its menu. Click the hakkero in the center to switch modes.", 0, ChatFormatting.GRAY);
 
 		private final String def;
 		private final int argn;
@@ -430,6 +431,7 @@ public final class GLLang {
 		IRON_DAGGER_LORE("Thrown, not dropped — it knows the way back.", 0, ChatFormatting.GRAY),
 		STRANGE_GLASSES_LORE("Someone else's idea of what counts as real.", 0, ChatFormatting.GRAY),
 		FURNACE_1_LORE("A portable magical furnace that emits heat. Can slowly smelt adjacent items when placed in inventory.", 0, ChatFormatting.GRAY),
+		FURNACE_2_LORE("A portable magical furnace with the leaks sealed. Smelts what you put in it, and rather too fast at that.", 0, ChatFormatting.GRAY),
 		STRAW_HAT_LORE("Woven by someone with four legs, for a frog with a very large appetite.", 0, ChatFormatting.GRAY),
 		SUWAKO_HAT_LORE("A river god's hat, traded for a frog's very specific appetite.", 0, ChatFormatting.GRAY),
 		KOISHI_HAT_LORE("Taken off a third party, and it never stopped sulking about it.", 0, ChatFormatting.GRAY);

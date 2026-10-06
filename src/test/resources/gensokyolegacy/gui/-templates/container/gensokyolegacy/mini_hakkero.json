@@ -1,0 +1,92 @@
+{
+	"height": 218,
+	"isContainer": true,
+	"side": [],
+	"comp": {
+		"out0": {
+			"sprite": "slot",
+			"x": 51,
+			"y": 10
+		},
+		"out1": {
+			"sprite": "slot",
+			"x": 87,
+			"y": 10
+		},
+		"out2": {
+			"sprite": "slot",
+			"x": 123,
+			"y": 10
+		},
+		"in0": {
+			"sprite": "slot",
+			"x": 69,
+			"y": 28
+		},
+		"in1": {
+			"sprite": "slot",
+			"x": 87,
+			"y": 28
+		},
+		"in2": {
+			"sprite": "slot",
+			"x": 105,
+			"y": 28
+		},
+		"out3": {
+			"sprite": "slot",
+			"x": 51,
+			"y": 46
+		},
+		"in3": {
+			"sprite": "slot",
+			"x": 69,
+			"y": 46
+		},
+		"core": {
+			"sprite": "empty_slot",
+			"x": 87,
+			"y": 46
+		},
+		"in4": {
+			"sprite": "slot",
+			"x": 105,
+			"y": 46
+		},
+		"out4": {
+			"sprite": "slot",
+			"x": 123,
+			"y": 46
+		},
+		"in5": {
+			"sprite": "slot",
+			"x": 69,
+			"y": 64
+		},
+		"in6": {
+			"sprite": "slot",
+			"x": 87,
+			"y": 64
+		},
+		"in7": {
+			"sprite": "slot",
+			"x": 105,
+			"y": 64
+		},
+		"out5": {
+			"sprite": "slot",
+			"x": 51,
+			"y": 82
+		},
+		"out6": {
+			"sprite": "slot",
+			"x": 87,
+			"y": 82
+		},
+		"out7": {
+			"sprite": "slot",
+			"x": 123,
+			"y": 82
+		}
+	}
+}
