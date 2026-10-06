@@ -72,13 +72,13 @@ public class AliceQDGen extends QuestDialogData {
 
 	public AliceQDGen() {
 		prefix("alice/shared");
-		byeKey = text("option", "bye", "Farewell.");
+		byeKey = text("option", "bye", "(Leave)");
 		dailyGroupKey = text("option", "daily_group", "Daily Tasks");
-		dailyStartKey = text("option", "daily_start", "Is there work today?");
+		dailyStartKey = text("option", "daily_start", "[Daily] Do you need help?");
 		dailyAcceptKey = text("option", "daily_accept", "I'll see to it.");
-		dailyRejectKey = text("option", "daily_reject", "Another time.");
-		dailyFollowKey = text("option", "daily_follow", "Could you repeat the task?");
-		dailyFollowEndKey = text("option", "daily_follow_end", "Understood. I'll get to it.");
+		dailyRejectKey = text("option", "daily_reject", "That might be difficult.");
+		dailyFollowKey = text("option", "daily_follow", "[Daily] Sorry, I forgot what the list said.");
+		dailyFollowEndKey = text("option", "daily_follow_end", "Understood.");
 		dailyThanksKey = text("option", "daily_thanks", "The pleasure was mine.");
 
 		chats();
@@ -89,14 +89,14 @@ public class AliceQDGen extends QuestDialogData {
 	private void chats() {
 		prefix("alice/chat");
 		defaultDialog(GLEntities.ALICE.get(),
-				"Oh - a visitor. Do come in; the Magical Forest is loud enough already.",
-				"...Forgive me. I had not expected company today.",
-				"Is there something you'd like made?");
+				"Oh - a visitor. Do come in. Is there something you need?",
+				"...What a coincidence. You are a guest as well.",
+				"I would like to trade for something.");
 		// home-bound: the reply below is about living out here, which is not what
 		// a guest standing on someone else's doorstep should say
 		starter("alice/chat", new DialogStarter(GLEntities.ALICE.get(), List.of(homeBound()),
-				starterText("start", "You live out here all by yourself?"),
-				dialog("hi", "All by myself? Not quite. The forest keeps me company, and the dolls keep me busy. I live here in the Magical Forest - a quiet stretch of it, far from the noise. Was there something you needed?",
+				starterText("start", "Do you live out here all by yourself?"),
+				dialog("hi", "All by myself? Not quite. I have the forest and my dolls for company, and my magic research besides - was there something you needed?",
 						option("hi/end", "Not right now."))
 		));
 
@@ -109,10 +109,10 @@ public class AliceQDGen extends QuestDialogData {
 		prefix("alice/chat_star_wand");
 		chat("alice/chat_star_wand", GLEntities.ALICE.get(),
 				List.of(hasQuest(QUEST_SEVEN_COLORS)),
-				starterText("start", "How does a doll of yours actually fight?"),
-				dialog("talk", "Badly, on its own. Cloth and straw will not throw a punch. The lance I gave you is the simplest thing I can put in a doll's hand - it has to come to the fight, and it does. If you would rather keep your distance instead, a magician lives deeper in this forest and trades star wands: a focus that carries its will out to where it can be seen. I cannot make one; she is the only one I would trust with the work.",
-						option("where", "Which magician?",
-								dialog("where_ans", "The one with the house full of mushrooms and the roof that keeps exploding. She does not advertise, but she always has stock. Point a doll at what you want it to hit, and the wand will do the rest.",
+				starterText("start", "What are a doll's methods of attack?"),
+				dialog("talk", "A doll is a delicate piece of magic equipment - it cannot do much on its own. The lance I gave you is the simplest thing I can put in a doll's hand: it charges in like a wasp, and it delivers. But if you would rather keep your distance, the doll has to have a wand in its hand.",
+						option("where", "How does one get hold of that wand?",
+								dialog("where_ans", "Another resident of the Magical Forest - the owner of the Kirisame Magic Shop makes the things. She does not advertise, but she always has stock.",
 										option("where/end", "Then I'll go and see her.")))),
 				CHAT_INFO);
 	}
@@ -126,25 +126,25 @@ public class AliceQDGen extends QuestDialogData {
 		prefix("alice/visit_marisa_house");
 		chat("alice/visit_marisa_house_call", GLEntities.ALICE.get(),
 				List.of(visitingAt(GLStructureGen.MARISA_HOUSE)),
-				starterText("call", "Is she in today, do you think?"),
-				dialog("call", "...She is at her own house, I am afraid. I came for the mushrooms - the large ones she keeps in the east room. I would not normally ask a stranger for leave to rifle through a magician's shelves, but you may know the terms on which one does that.",
-						option("terms", "What terms?",
-								dialog("terms_ans", "Bring something she wants, ask plainly, and take only what was offered. She is not unfriendly - she simply does not do business from behind her own door. You will find she is reasonable.",
-										option("terms/end", "Then I shall ask her myself.")))),
+				starterText("call", "What a coincidence - you are here to see her as well?"),
+				dialog("call", "Good day. I came for some magical materials - are you here for the same?",
+						option("terms", "I heard she sells more than materials?",
+								dialog("terms_ans", "Yes. She does not do everything by herself - she hands out commissions, brews potions, and now and then turns up with tools of unclear provenance. That last part is better left unasked about.",
+										option("terms/end", "Thank you for the warning.")))),
 				CHAT_MISC);
 
 		chat("alice/visit_marisa_house_greet", GLEntities.ALICE.get(),
 				List.of(visitingAt(GLStructureGen.MARISA_HOUSE)),
-				starterText("greet", "This is all rather far from my workshop."),
-				dialog("greet", "It is. I am not often away - the dolls do not sew themselves, and the mushrooms here are not the ones I want. Still. It is restful, being somewhere that is not mine to keep tidy.",
-						option("greet/end", "Take your time.")),
+				starterText("greet", "This is all rather far from your mansion."),
+				dialog("greet", "It is. I am not often away - but materials still have to be restocked, and getting out for a while is not unpleasant.",
+						option("greet/end", "Do as you like. I have business of my own with her.")),
 				CHAT_MISC);
 	}
 
 	private void quests() {
 		prefix("alice/first_doll");
 		quest("alice/first_doll", new Quest(GLEntities.ALICE.get(), List.of(),
-				questTitle("Doll Materials"), questDesc("Bring Alice the string, wool and mystical straw every doll is made of."),
+				questTitle("Doll Materials"), questDesc("Bring Alice the materials every doll is made of."),
 				Optional.empty(),
 				new TreeMap<>(Map.of(
 						"a-materials", new SubmitItemRequirement(List.of(
@@ -155,17 +155,17 @@ public class AliceQDGen extends QuestDialogData {
 				List.of(new ExpReward(50), new ReputationReward(10, 300, 10, 300),
 						loot("alice/first_doll", LootTable.lootTable()
 								.withPool(lootItem(Items.EMERALD, 4)))),
-				start("Are those dolls really handmade?",
-						"Every one of them. Cloth, thread, straw - that is the whole of a doll, and all of it has to come from somewhere. My stores are empty. Bring me string, some wool, and a little of the mystical straw that grows under the canopy, and I will put something back in your hands.",
-						"I'll gather the materials.", "Thank you. String, wool, mystical straw - I will have a doll finished before you can blink.", "I'll be right back.",
-						"Why not just make them yourself?", "I could, if the forest handed over its thread. Bring me the raw cloth and the straw and this stops being tedious.", "As you like."),
-				follow("What was it you needed again?",
-						"String, wool, and mystical straw. The straw is the awkward one - it grows in patches beneath the trees.",
-						"I'm still looking.", "Take your time. Break the broom grass by hand and it gives up the straw; cut it with shears and you would only get the grass back.", null),
+				start("Are these dolls really handmade?",
+						"Every one of them. The materials are simple, but the technique behind them is not. My stores are empty - bring me what I need and I will show you what a doll can do.",
+						"I'll gather the materials.", "These are the materials I need. With these I can make a doll.", "I'll be right back.",
+						"Do you not gather your own materials?", "If nobody helped me, I would go and get them myself.", "I have things to do."),
+				follow("I would like to see the list again.",
+						"Let me show you the list again. One of the items is fairly common under the canopy.",
+						"I see.", "Take your time. None of those materials are hard to come by.", null),
 				complete("I have everything you asked for.",
-						"Let me see... ah, good. This thread is tight and this wool is soft - you have been careful with it.",
-						"Here you go.", "Then take these, and a little payment for the trouble. Emeralds, since you will want something practical.", "Thank you.",
-						"Some of it is still missing.", "No rush. Bring it all at once and I will start the moment you walk in.", "Understood.")
+						"Very well. Let me look at the materials.",
+						"Here you go.", "Thank you for your help. This is the payment we agreed on.", "Then I will take it.",
+						"Um, some of it still seems to be missing.", "No rush. Gather it all together and I will start.", "Understood.")
 		));
 
 		prefix("alice/seven_colors");
@@ -179,19 +179,19 @@ public class AliceQDGen extends QuestDialogData {
 								.withPool(lootItem(GLItems.DOLL_GLOVE.get(), 1))
 								.withPool(lootItem(GLItems.DOLL.get(), 1))
 								.withPool(lootItem(GLItems.DOLL_LANCE.get(), 1)))),
-				start("What are the seven colors for, exactly?",
-						"For the glove. Seven strands, seven colors - red, orange, yellow, green, cyan, blue, purple. Give me four of each dye and I can bind the whole set into a single piece. It is slow work, so I will not hand over anything half finished: the glove, a doll to put in it, and a lance to give it something to fight with. Worth the trip?",
-						"Consider it done.", "Then it is settled. Four of each - red, orange, yellow, light green, cyan, light blue, purple. Take your time finding them.", "I'll be back.",
-						"That's a lot of hunting for one glove.", "It is. But I would rather make one glove properly than ten carelessly. Do think it over.", "I'll think about it."),
-				follow("Remind me of the seven colors.",
-						"Red, orange, yellow, light green, cyan, light blue, purple - four of each. I only need the complete set, so spend the dyes carefully.",
-						"Noted.", "Good. The forest is not short of colors. Patience, on the other hand, may run out.", null),
+				start("How are dolls controlled?",
+						"Controlling a doll is not easy to learn. But I have a project going now: getting people who know no magic to work a doll. It takes seven dyes, four of each - the colors tell the different commands apart. Will you help me?",
+						"Consider it done.", "Then it is settled. Four of each - read the requirements over carefully before you go.", "I'll be back.",
+						"I have more important things to do first.", "Very well. Do think it over.", "(Leave)"),
+				follow("I seem to have forgotten which colors they were.",
+						"Red, orange, yellow, light green, cyan, light blue, purple - four of each.",
+						"Noted.", "The forest is never short of colors. What it lacks is persistence.", "I'll go on collecting."),
 				complete("All seven colors, four of each.",
-						"...Red. Orange. Yellow. Green. Cyan. Blue. Purple. Every one present.",
-						"Here - your reward.",
-						"The glove, a doll to match it, and a lance. A doll with an empty hand is a doll in danger - the lance is the least I can send her out with.",
+						"I have brought the dyes.",
+						"These are the dyes you asked for.",
+						"Here: the glove, a doll to match it, and a lance. Go and try it out - I will ask you now and then how it feels in use.",
 						"Then I'll put them to good use.",
-						"These aren't what you asked for.", "...Let me look again. Show me what you brought and I will tell you which are short.", "Very well.")
+						"These aren't what you asked for.", "Then I will wait. The exact shades matter - nothing else quite substitutes for them.", "Very well.")
 		));
 
 		dailyQuest();
@@ -210,15 +210,15 @@ public class AliceQDGen extends QuestDialogData {
 		var ironTable = requestTable("daily_doll_iron", LootTable.lootTable()
 				.withPool(lootItem(Items.IRON_INGOT, 6, 8)));
 
-		daily("alice/daily_doll", "Doll Restock", "Bring Alice the cloth and straw for one day's dolls, iron for her spear heads, plus three dyes of her choosing.",
+		daily("alice/daily_doll", "Doll Restock", "Collect the cloth, straw and iron Alice needs for her dolls, plus a few dyes.",
 				new QuestRecurrence(24000), List.of(new HasQuestCompletedCondition(QUEST_SEVEN_COLORS)), 60, 10, 150, 0, 0,
-				"I have more orders than doll parts today. Bring me string, wool, some broom grass, iron for the spear heads - enough of it, and no more than I can use - and three dyes, any three you like, I am not particular. In return you may keep whatever I finish.",
-				"Very well. String, wool, broom grass, iron, and three dyes.",
-				"Then I shall make do with what I have.",
-				"String, wool, broom grass, iron for the spear heads - I asked for six, and not one more than eight - and three dyes. Any three; I have no preference.",
-				null, "Very good. Do not spend the dyes on anything else.",
-				"I have what you asked for.", "Oh, good. Let me look at the colors you picked.",
-				"Here.", "Then these are yours. A doll, and a lance for its hand - that is all she needs. Keep them close.",
+				"I need a few things for a magic project. I have had one of my dolls write the list out for you - gather it for me. In return, I will make a doll of your own.",
+				"Very well. Everything I need is on this list.",
+				"Very well. Then another time.",
+				"Then I will write you a fresh list.",
+				null, "Good. I will leave it to you.",
+				"I have what you asked for.", "Thank you. Let me just check the materials.",
+				"Here.", "The quality is very good, I accept them. As payment, here is a doll and a custom-made cavalry lance - take good care of it.",
 				"You're welcome.",
 				new TreeMap<>(Map.of(
 						"a-materials", new SubmitItemRequirement(List.of(
