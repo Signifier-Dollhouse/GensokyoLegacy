@@ -14,6 +14,7 @@ import dev.xkmc.gensokyolegacy.content.block.deco.bed.YoukaiBedBlock;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.combat.*;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.move.YoukaiNavigationControl;
 import dev.xkmc.gensokyolegacy.content.entity.foundation.DamageClampEntity;
+import dev.xkmc.gensokyolegacy.content.entity.foundation.IDimensionBoundEntity;
 import dev.xkmc.gensokyolegacy.content.entity.foundation.ISleepOffsetEntity;
 import dev.xkmc.gensokyolegacy.content.entity.module.*;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
@@ -58,7 +59,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 @SerialClass
-public abstract class YoukaiEntity extends DamageClampEntity implements SpellCircleHolder, IYoukaiEntity, ISleepOffsetEntity {
+public abstract class YoukaiEntity extends DamageClampEntity implements SpellCircleHolder, IYoukaiEntity, ISleepOffsetEntity, IDimensionBoundEntity {
 
 	private static <T> EntityDataAccessor<T> defineId(EntityDataSerializer<T> ser) {
 		return SynchedEntityData.defineId(YoukaiEntity.class, ser);
@@ -554,6 +555,26 @@ public abstract class YoukaiEntity extends DamageClampEntity implements SpellCir
 	public void push(Entity entity) {
 		if (isSleeping()) return;
 		super.push(entity);
+	}
+
+	// ---- dimension-bound ----
+	// A character is anchored to the home or visit site its index entry names,
+	// and that entry names one level. A portal would drop it in a level the
+	// index does not describe, where the only recovery is the discard-and-respawn
+	// watchdog — so refuse the portal outright and let the character walk
+	// through it like scenery. canUsePortal is the gate every portal block
+	// consults (nether, end, end gateway, and the mod's own gap portal);
+	// canChangeDimensions is the same rule stated at the transition itself, so a
+	// destination latched some other way (mixin, command) is refused too.
+
+	@Override
+	public boolean canUsePortal(boolean allowPassengers) {
+		return false;
+	}
+
+	@Override
+	public boolean canChangeDimensions(Level oldLevel, Level newLevel) {
+		return false;
 	}
 
 	public boolean mayFly() {

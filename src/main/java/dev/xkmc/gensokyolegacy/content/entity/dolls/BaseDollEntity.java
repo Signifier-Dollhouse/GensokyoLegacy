@@ -10,6 +10,7 @@ import dev.xkmc.gensokyolegacy.content.entity.dolls.impl.DollModule;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.impl.DollTint;
 import dev.xkmc.gensokyolegacy.content.entity.foundation.CombatToClient;
 import dev.xkmc.gensokyolegacy.content.entity.foundation.DamageRefactorEntity;
+import dev.xkmc.gensokyolegacy.content.entity.foundation.IDimensionBoundEntity;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
@@ -39,7 +40,7 @@ import net.minecraft.world.phys.Vec3;
 import javax.annotation.Nullable;
 import java.util.*;
 
-public abstract class BaseDollEntity extends DamageRefactorEntity implements OwnableEntity, DollTint {
+public abstract class BaseDollEntity extends DamageRefactorEntity implements OwnableEntity, DollTint, IDimensionBoundEntity {
 	private static final int SYNC_INTERVAL = 10;
 	private static final int INVERSE_INTERVAL = 20;
 
@@ -402,6 +403,26 @@ public abstract class BaseDollEntity extends DamageRefactorEntity implements Own
 		}
 		return InteractionResult.CONSUME;
 	}
+
+	// ---- dimension-bound ----
+	// A doll is a projection of a ledger entry that names exactly one level, so
+	// there is nowhere for a portal to take it that its ledger could still
+	// describe. Refusing at canUsePortal covers every entry point at once —
+	// vanilla nether/end/end-gateway blocks and the mod's own gap portal all
+	// gate on it — and the doll simply walks through the portal block like any
+	// other scenery.
+
+	@Override
+	public boolean canUsePortal(boolean allowPassengers) {
+		return false;
+	}
+
+	@Override
+	public boolean canChangeDimensions(Level oldLevel, Level newLevel) {
+		return false;
+	}
+
+	// ---- never leashed, never a passenger ----
 
 	@Override
 	public boolean canBeLeashed() {
