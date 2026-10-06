@@ -22,12 +22,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(ItemInHandRenderer.class)
 public abstract class DowserHandRendererMixin {
 
-	@Unique
-	private static final ItemStack gensokyolegacy$DOWSER_LEFT_VIEW = new ItemStack(GLItems.DOWSER_LEFT.get());
-
-	@Unique
-	private static final ItemStack gensokyolegacy$DOWSER_RIGHT_VIEW = new ItemStack(GLItems.DOWSER_RIGHT.get());
-
 	@Shadow
 	private void renderArmWithItem(AbstractClientPlayer player, float partialTicks, float pitch,
 	                               InteractionHand hand, float swingProgress, ItemStack stack,
@@ -46,9 +40,9 @@ public abstract class DowserHandRendererMixin {
 		if (!player.getOffhandItem().isEmpty()) return;
 		ci.cancel();
 		this.renderArmWithItem(player, partialTicks, pitch, InteractionHand.MAIN_HAND, swingProgress,
-				gensokyolegacy$DOWSER_LEFT_VIEW, equippedProgress, poseStack, buffer, combinedLight);
+				new ItemStack(GLItems.DOWSER_LEFT.get()), equippedProgress, poseStack, buffer, combinedLight);
 		this.renderArmWithItem(player, partialTicks, pitch, InteractionHand.OFF_HAND, 0,
-				gensokyolegacy$DOWSER_RIGHT_VIEW, equippedProgress, poseStack, buffer, combinedLight);
+				new ItemStack(GLItems.DOWSER_RIGHT.get()), equippedProgress, poseStack, buffer, combinedLight);
 	}
 
 }

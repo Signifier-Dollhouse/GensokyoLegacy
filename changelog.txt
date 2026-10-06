@@ -1,4 +1,5 @@
 1.0.2
+NOTE: This version contains underpolished text in dialog and patchouli
 - Add alice structure and doll lance. Dolls can use talisman in core slot now.
 - Add Sakuya, iron dagger, and dagger glove. Currently rarely appearing in Morichika's Shop
 - Add broom, rework marisa quest rewards
@@ -7,7 +8,7 @@
 - decorative blocks: noren curtains, wrought iron bars, candlestick
 - JEI for quest reward and trade
 - Patchouli improvement
-- Fix lithium compat
+- Fix several compatibility crash
 
 1.0.1
 - mark curios and patchouli as required prerequisite
