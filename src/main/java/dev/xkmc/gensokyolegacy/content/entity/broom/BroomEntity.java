@@ -47,6 +47,18 @@ public class BroomEntity extends SimplifiedEntity implements GeoEntity {
 	private static final double SEAT_UP = 0.7;
 	private static final double SEAT_FORWARD = 0.4;
 
+	/**
+	 * A Multi Fakkero in the rider's other hand adds thrust on top of the keys for a while.
+	 * Held as a timer rather than a decaying force so the client, which owns the flight
+	 * model, is the only side that counts it down and the two can never disagree about how
+	 * much is left.
+	 */
+	@Nullable
+	private Boost boost;
+
+	private record Boost(float power, int ticks) {
+	}
+
 	/** Per-tick speed gain at full input, in blocks per tick squared. */
 	private static final double THRUST = 0.05;
 	private static final double STRAFE = 0.04;
@@ -133,6 +145,11 @@ public class BroomEntity extends SimplifiedEntity implements GeoEntity {
 		double ahead = rider.zza;
 		double aside = rider.xxa;
 		double up = (isJumping(rider) ? 1 : 0) - (rider.isShiftKeyDown() ? 1 : 0);
+		// A boost acts as if the forward key were held, so it still needs to be cancelled
+		// by actually pushing back — otherwise a rider could never slow down while it ran.
+		if (boost != null && ahead < 0) boost = null;
+		float power = boostPower();
+		if (power > 0) ahead = Math.max(ahead, 0) + power;
 		if (ahead == 0 && aside == 0 && up == 0) return coast();
 		Vec3 motion = getDeltaMovement();
 		Vec3 push = getLookAngle().scale(ahead * THRUST)
@@ -143,11 +160,35 @@ public class BroomEntity extends SimplifiedEntity implements GeoEntity {
 		if (push.dot(motion) < 0) push = push.scale(BRAKE);
 		motion = motion.add(push);
 		double flat = Math.sqrt(motion.x * motion.x + motion.z * motion.z);
-		if (flat > MAX_SPEED) {
-			double shrink = MAX_SPEED / flat;
+		// a boosted broom is allowed past the normal cap, or the extra thrust would only
+		// buy it the first few ticks before friction pinned it at the usual ceiling
+		double cap = MAX_SPEED * Math.max(1.0F, power);
+		if (flat > cap) {
+			double shrink = cap / flat;
 			motion = new Vec3(motion.x * shrink, motion.y, motion.z * shrink);
 		}
 		return motion.with(Direction.Axis.Y, Mth.clamp(motion.y, -MAX_RISE, MAX_RISE));
+	}
+
+	/** The boost's share of the forward input, or 0 when there is none left. */
+	private float boostPower() {
+		if (boost == null) return 0;
+		if (boost.ticks <= 1) {
+			boost = null;
+			return 0;
+		}
+		boost = new Boost(boost.power, boost.ticks - 1);
+		return boost.power;
+	}
+
+	/**
+	 * Adds thrust for {@code ticks} ticks. Sent by the server on the hakkero's behalf and
+	 * applied here on the client, which is where the flight model actually runs.
+	 */
+	public void boost(float power, int ticks) {
+		Boost next = new Boost(power, ticks);
+		// a fresh, stronger kick replaces a weaker one still running
+		boost = boost == null || boost.power <= power ? next : boost;
 	}
 
 	/**
