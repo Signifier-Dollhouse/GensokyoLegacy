@@ -7,6 +7,7 @@ import dev.xkmc.gensokyolegacy.content.item.dagger.DaggerGloveRunes;
 import dev.xkmc.gensokyolegacy.content.item.tool.IronDaggerItem;
 import dev.xkmc.l2serial.serialization.marker.SerialClass;
 import dev.xkmc.l2serial.serialization.marker.SerialField;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -20,6 +21,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.entity.PartEntity;
 import org.jetbrains.annotations.Nullable;
 
@@ -47,7 +49,7 @@ import org.jetbrains.annotations.Nullable;
  * other half of that case, and the one that used to hand out a second dagger.
  * <p>
  * A dagger can also carry a {@link DaggerGloveRune}, the glove's extra on-hit effect, which only
- * the {@link DaggerGloveItem} ever sets. It rides the bullet rather than the stack because the
+ * the {@link dev.xkmc.gensokyolegacy.content.item.dagger.DaggerGloveItem} ever sets. It rides the bullet rather than the stack because the
  * stack is long gone by the time anything is hit: the rune's whole job is to act at the moment of
  * impact, on a dagger that is about to be handed back and may not even come back at all.
  */
@@ -143,6 +145,18 @@ public class IronDaggerBulletEntity extends ItemBulletEntity {
 		runRune(pResult);
 		giveBack();
 		super.onHitEntity(pResult);
+	}
+
+	@Override
+	public void tick() {
+		super.tick();
+		Vec3 vec3 = this.getDeltaMovement();
+		double d5 = vec3.x;
+		double d6 = vec3.y;
+		double d1 = vec3.z;
+		for(int i = 0; i < 4; ++i) {
+			this.level().addParticle(ParticleTypes.CRIT, this.getX() + d5 * (double)i / (double)4.0F, this.getY() + d6 * (double)i / (double)4.0F, this.getZ() + d1 * (double)i / (double)4.0F, -d5, -d6 + 0.2, -d1);
+		}
 	}
 
 	/**
