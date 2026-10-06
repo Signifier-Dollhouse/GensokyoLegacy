@@ -1,8 +1,15 @@
 {
 	"height": 218,
 	"isContainer": true,
-	"side": [],
+	"side": [
+		"slot"
+	],
 	"comp": {
+		"fuel": {
+			"sprite": "slot",
+			"x": 16,
+			"y": 82
+		},
 		"out0": {
 			"sprite": "slot",
 			"x": 51,

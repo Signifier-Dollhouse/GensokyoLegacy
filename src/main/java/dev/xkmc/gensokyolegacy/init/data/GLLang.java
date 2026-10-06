@@ -376,7 +376,9 @@ public final class GLLang {
 		FURNACE_1_USE("Right click the item in inventory to switch modes.", 0, ChatFormatting.GRAY),
 		FURNACE_1_OFF("Mode: OFF", 0, ChatFormatting.GRAY),
 		FURNACE_1_DESC("Mode: %s", 1, ChatFormatting.GRAY),
-		FURNACE_2_USE("Right click the item in inventory to open its menu. Click the hakkero in the center to switch modes.", 0, ChatFormatting.GRAY);
+		FURNACE_2_USE("Right click the item in inventory to open its menu. Click the hakkero in the center to switch modes.", 0, ChatFormatting.GRAY),
+		FURNACE_2_FUEL("Feed it fuel to reach ten times furnace speed.", 0, ChatFormatting.GRAY),
+		FURNACE_2_BOOST("Held in the off hand while riding a broom, right click to kick.", 0, ChatFormatting.GRAY);
 
 		private final String def;
 		private final int argn;

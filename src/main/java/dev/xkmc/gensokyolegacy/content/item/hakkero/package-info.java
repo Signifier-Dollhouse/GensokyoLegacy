@@ -1,7 +1,7 @@
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
 
-package dev.xkmc.gensokyolegacy.content.ui.furnace;
+package dev.xkmc.gensokyolegacy.content.item.hakkero;
 
 import net.minecraft.MethodsReturnNonnullByDefault;
 

@@ -9,6 +9,7 @@ import dev.xkmc.gensokyolegacy.content.attachment.doll.DollInventory;
 import dev.xkmc.gensokyolegacy.content.block.deco.shelf.MorichikaOfferData;
 import dev.xkmc.gensokyolegacy.content.block.functional.portal.PortalSide;
 import dev.xkmc.gensokyolegacy.content.client.model.*;
+import dev.xkmc.gensokyolegacy.content.item.hakkero.*;
 import dev.xkmc.gensokyolegacy.content.item.tool.BroomItem;
 import dev.xkmc.gensokyolegacy.content.item.character.*;
 import dev.xkmc.gensokyolegacy.content.item.debug.DebugGlasses;
@@ -79,8 +80,8 @@ public class GLItems {
 	public static final ItemEntry<SuwakoHatItem> SUWAKO_HAT;
 	public static final ItemEntry<KoishiHatItem> KOISHI_HAT;
 
-	public static final ItemEntry<MiniFurnace1> MINI_FURNACE_1;
-	public static final ItemEntry<MiniFurnace2> MINI_FURNACE_2;
+	public static final ItemEntry<HakkeroPrototype> MINI_HAKKERO_PROTOTYPE;
+	public static final ItemEntry<Hakkero> MINI_HAKKERO;
 	public static final ItemEntry<CentiPickaxe> CENTIPICKAXE;
 	public static final ItemEntry<Dowser> DOWSER;
 	public static final ItemEntry<Item> DOWSER_LEFT, DOWSER_RIGHT;
@@ -114,8 +115,10 @@ public class GLItems {
 	public static final ItemEntry<StrangeGlassesItem> STRANGE_GLASSES;
 
 	private static final DCReg DC = DCReg.of(GensokyoLegacy.REG);
-	public static final DCVal<MiniFurnace1.Data> DC_FURNACE_1 = DC.reg("mini_furnace_1_data", MiniFurnace1.Data.class, false);
-	public static final DCVal<MiniFurnace2.Mode> DC_FURNACE_2 = DC.enumVal("mini_furnace_2_mode", EnumCodec.of(MiniFurnace2.Mode.class, MiniFurnace2.Mode.values()));
+	public static final DCVal<HakkeroPrototype.Data> DC_HAKKERO_PROTOTYPE = DC.reg("mini_furnace_1_data", HakkeroPrototype.Data.class, false);
+	// only the lit modes: a sealed firebox cannot be switched off, so OFF is never stored here
+	public static final DCVal<HakkeroMode> DC_HAKKERO_MODE = DC.enumVal("mini_furnace_2_mode", EnumCodec.of(HakkeroMode.class, HakkeroMode.lit()));
+	public static final DCVal<HakkeroData> DC_HAKKERO_INV = DC.reg("mini_furnace_2_inv", HakkeroData.class, false);
 	public static final DCVal<UUID> DC_UUID = DC.uuid("uuid");
 	public static final DCVal<PortalSide> DC_PORTAL_SIDE = DC.enumVal("portal_side", EnumCodec.of(PortalSide.class, PortalSide.values()));
 	public static final DCVal<UUID> DC_DEBUG_YOUKAI = DC.uuid("debug_youkai");
@@ -282,14 +285,14 @@ public class GLItems {
 		// tools
 		{
 			var head = ItemTags.create(ResourceLocation.fromNamespaceAndPath("curios", "head"));
-			MINI_FURNACE_1 = reg.item("mini_hakkero_prototype", MiniFurnace1::new)
+			MINI_HAKKERO_PROTOTYPE = reg.item("mini_hakkero_prototype", HakkeroPrototype::new)
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/tool/" + ctx.getName())))
 					.tag(GLTagGen.MORICHIKA_OFFERS)
 					.dataMap(GLMeta.MORICHIKA_OFFER.reg(), new MorichikaOfferData(16, 24, 1, 1))
 					.lang("Mini Hakkero [Prototype]").register();
 
 			// improved copy of the prototype: shares its texture until a new one is drawn
-			MINI_FURNACE_2 = reg.item("mini_hakkero", MiniFurnace2::new)
+			MINI_HAKKERO = reg.item("mini_hakkero", Hakkero::new)
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/tool/mini_hakkero_prototype")))
 					.lang("Mini Hakkero").register();
 

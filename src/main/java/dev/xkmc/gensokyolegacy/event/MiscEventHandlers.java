@@ -10,7 +10,7 @@ import dev.xkmc.gensokyolegacy.content.item.glove.network.DollGloveSwingPacket;
 import dev.xkmc.gensokyolegacy.content.item.tool.CatBell;
 import dev.xkmc.gensokyolegacy.content.item.umbrella.BorderUmbrellaItem;
 import dev.xkmc.gensokyolegacy.content.item.umbrella.data.BorderUmbrellaUnlock;
-import dev.xkmc.gensokyolegacy.content.ui.furnace.MiniFurnace2Menu;
+import dev.xkmc.gensokyolegacy.content.item.hakkero.HakkeroMenu;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.GLDamageTypes;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
@@ -61,7 +61,7 @@ public class MiscEventHandlers {
 	@SubscribeEvent
 	public static void onPlayerTick(PlayerTickEvent.Post event) {
 		if (!(event.getEntity() instanceof ServerPlayer sp)) return;
-		if (sp.containerMenu instanceof MiniFurnace2Menu furnace) furnace.tick();
+		if (sp.containerMenu instanceof HakkeroMenu furnace) furnace.tick();
 		if (sp.tickCount % 20 != 0) return;
 		var storage = PendingItemStorage.get(sp.serverLevel());
 		if (!storage.hasPending(sp.getUUID())) return;
