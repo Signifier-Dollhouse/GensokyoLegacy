@@ -17,6 +17,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.neoforged.neoforge.common.Tags;
 
+
 public class GLTagGen {
 
 	public static final TagKey<Item> CURRENCY = item("currency");
@@ -59,6 +60,25 @@ public class GLTagGen {
 	public static final TagKey<Block> LARGE_TABLE = block("large_table");
 	public static final TagKey<Block> CHAIR = block("chair");
 	public static final TagKey<Block> STOOL = block("stool");
+
+	/**
+	 * Tables a party may be laid out on. Built from {@link #LARGE_TABLE} rather than
+	 * {@link #TABLE} on purpose: {@code tea_table} and {@code magic_table} are excluded
+	 * from the party feature, see doc/design/party.md §2.3.
+	 */
+	public static final TagKey<Block> PARTY_TABLE = block("party_table");
+	/**
+	 * Seats a guest may take. Chairs are a hard requirement for a party, so this is
+	 * not advisory.
+	 */
+	public static final TagKey<Block> PARTY_SEAT = block("party_seat");
+	/**
+	 * Block foods a guest will eat, when standing on a {@link #PARTY_TABLE}. Items are
+	 * never party food. A block listed here with no {@code party_food} data map entry
+	 * falls back to a generic appeal, so a foreign mod's food needs one tag entry.
+	 */
+	public static final TagKey<Block> PARTY_FOOD = block("party_food");
+
 	public static final TagKey<Block> SLIDING_DOOR = block("sliding_door");
 	public static final TagKey<Block> PLANK_WALL = block("plank_wall");
 

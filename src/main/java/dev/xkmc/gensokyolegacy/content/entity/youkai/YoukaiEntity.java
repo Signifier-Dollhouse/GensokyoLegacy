@@ -222,7 +222,7 @@ public abstract class YoukaiEntity extends DamageClampEntity implements SpellCir
 	}
 
 	protected List<AbstractYoukaiModule> createModules() {
-		return List.of(new HomeModule(this), new VisitModule(this),
+		return List.of(new HomeModule(this), new VisitModule(this), new PartyModule(this),
 				//new GiftModule(this), new FeedModule(this),
 				new TalkModule(this));
 	}
@@ -234,6 +234,14 @@ public abstract class YoukaiEntity extends DamageClampEntity implements SpellCir
 	 */
 	public boolean isVisiting() {
 		return getFlag(YoukaiFlags.VISITING);
+	}
+
+	/**
+	 * Whether this character is a guest at somebody's party. Like a visitor she has
+	 * no {@link HomeModule} binding, and the quest/dialog layer treats her as a guest.
+	 */
+	public boolean isPartying() {
+		return getFlag(YoukaiFlags.PARTYING);
 	}
 
 	@Override

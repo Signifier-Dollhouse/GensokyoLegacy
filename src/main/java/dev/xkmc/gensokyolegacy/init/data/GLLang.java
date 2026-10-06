@@ -210,6 +210,62 @@ public final class GLLang {
 		}
 	}
 
+	// ========== Party ==========
+	public enum Party implements LangEntry {
+		NO_FOOD("There is no food laid out on the tables"),
+		NO_SEATS("There is nowhere to sit - put some chairs around the table"),
+		PARTY_EXISTS("There is already a party here"),
+		NOBODY_CAME("Nobody came. Lay out more food, or get to know someone better"),
+		NEAR_TOO_PLAIN("%s would come, but wants a grander spread than this", 1),
+		NEAR_NO_SEAT("%s would come, but there is no seat free", 1),
+		SENT("Invitations sent. %s guest(s) are on the way", 1),
+		ENDED("The party is over"),
+		NO_PARTY("There is no party here"),
+		PREVIEW_TITLE("Spread appeal: %s, seats: %s", 2),
+		PREVIEW_HEADER("%s would come:", 1),
+		PREVIEW_GUEST("  %s  weight %.2f  rep %s  wants %s appeal", 4),
+		PREVIEW_NONE("Nobody would come"),
+		INFO_PHASE("Phase: %s", 1),
+		INFO_ROSTER("Invited: %s", 1),
+		INFO_SERVED("Served %s of %s appeal", 2),
+		INFO_GUESTS("Guests present: %s", 1),
+		LETTER_HINT("Right-click a table to send it out");
+
+		private final String def;
+		private final int argn;
+		private final String key;
+
+		Party(String def) {
+			this(def, 0);
+		}
+
+		Party(String def, int argn) {
+			this.def = def;
+			this.argn = argn;
+			this.key = GensokyoLegacy.MODID + ".party." + name().toLowerCase(Locale.ROOT);
+		}
+
+		@Override
+		public String key() {
+			return key;
+		}
+
+		@Override
+		public String def() {
+			return def;
+		}
+
+		@Override
+		public int argn() {
+			return argn;
+		}
+
+		@Override
+		public @Nullable ChatFormatting format() {
+			return null;
+		}
+	}
+
 	// ========== Trade ==========
 	public enum Trade implements LangEntry {
 		STOCK("Stock: %s/%s", 2),
@@ -906,7 +962,7 @@ public final class GLLang {
 		for (var group : new LangEntry[][]{
 				Quest.values(), Info.values(), Trade.values(), Misc.values(),
 				ItemDebug.values(), ItemFurnace.values(), ItemLores.values(), ItemCommon.values(), ItemUmbrella.values(), ItemGlove.values(), ItemDaggerGlove.values(), Alchemy.values(), Jei.values(), JeiExtra.values(),
-				Talisman.values(), Doll.values()}) {
+				Talisman.values(), Doll.values(), Party.values()}) {
 			for (var e : group) {
 				pvd.add(e.key(), e.def());
 			}

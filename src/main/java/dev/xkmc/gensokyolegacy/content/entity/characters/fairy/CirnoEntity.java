@@ -140,6 +140,7 @@ public class CirnoEntity extends FairyEntity implements GeoYoukaiAnim {
 		return List.of(
 				new HomeModule(this),
 				new FeedModule(this),
+				new PartyModule(this),
 				new TalkModule(this),
 				new CountPickupModule(this, e -> e.getItem() instanceof FrozenFrogItem)
 		);

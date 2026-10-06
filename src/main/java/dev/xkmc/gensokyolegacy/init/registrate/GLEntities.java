@@ -29,6 +29,7 @@ import dev.xkmc.gensokyolegacy.content.entity.youkai.GeneralYoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.GeneralYoukaiRenderer;
 import dev.xkmc.gensokyolegacy.content.item.gift.GiftPreference;
 import dev.xkmc.gensokyolegacy.content.item.gift.GiftType;
+import dev.xkmc.gensokyolegacy.content.party.core.PartyTaste;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.loot.EntityLootGen;
 import net.minecraft.client.renderer.entity.ThrownItemRenderer;
@@ -63,6 +64,22 @@ public class GLEntities {
 	public static final EntityEntry<FairyIce> FAIRY_ICE;
 	public static final EntityEntry<HexBrewBottleEntity> HEXBREW_BOTTLE;
 	public static final EntityEntry<IronDaggerBulletEntity> IRON_DAGGER;
+
+	// Party tastes. Every character is party-eligible and falls back to
+	// PartyTaste.DEFAULT; these only make a particular character pickier about the
+	// spread, or hungrier once she is there. Authored per character rather than
+	// generated, because the numbers are balance, not structure.
+	//
+	// Scaled to the appeal PartyFoodValue derives from real food properties, where
+	// a vanilla cake is worth about 8 and a Farmer's Delight feast about 17. So one
+	// cake seats one guest, four cakes seat four, and a properly laid banquet seats
+	// the cast.                        minRep maxRep bonus minAppeal maxAppeal fulfillment
+	private static final PartyTaste TASTE_CIRNO = new PartyTaste(50, 150, 0.30, 4, 20, 6);
+	private static final PartyTaste TASTE_REIMU = new PartyTaste(100, 200, 0.30, 8, 32, 8);
+	private static final PartyTaste TASTE_MARISA = new PartyTaste(100, 200, 0.30, 8, 32, 8);
+	private static final PartyTaste TASTE_MORICHIKA = new PartyTaste(100, 200, 0.30, 10, 32, 8);
+	private static final PartyTaste TASTE_ALICE = new PartyTaste(150, 250, 0.15, 12, 40, 10);
+	private static final PartyTaste TASTE_SAKUYA = new PartyTaste(150, 250, 0.15, 16, 48, 12);
 
 	// Spawn eggs are only registered for the three fully implemented characters
 	// (Reimu, Marisa, Morichika); every other mob and the doll are obtained in-world only.
@@ -103,6 +120,7 @@ public class GLEntities {
 							GiftType.DRINK, 2.0,
 							GiftType.BOOK, 1.5
 					)))
+					.dataMap(GLMeta.PARTY_TASTE.reg(), TASTE_REIMU)
 					.register();
 
 			CIRNO = GensokyoLegacy.REGISTRATE
@@ -116,6 +134,7 @@ public class GLEntities {
 							GiftType.FOOD, 1.5,
 							GiftType.BOOK, 0.5
 					)))
+					.dataMap(GLMeta.PARTY_TASTE.reg(), TASTE_CIRNO)
 					.register();
 		}
 
@@ -151,6 +170,7 @@ public class GLEntities {
 					.renderer(() -> MarisaRenderer::new)
 					.spawnEgg(0x52403C, 0xFAF2EF).build()
 					.loot(EntityLootGen::marisa)
+					.dataMap(GLMeta.PARTY_TASTE.reg(), TASTE_MARISA)
 					.register();
 
 			MORICHIKA = GensokyoLegacy.REGISTRATE
@@ -160,6 +180,7 @@ public class GLEntities {
 					.renderer(() -> MorichikaRenderer::new)
 					.spawnEgg(0x52403C, 0xFAF2EF).build()
 					.loot(EntityLootGen::noLoot)
+					.dataMap(GLMeta.PARTY_TASTE.reg(), TASTE_MORICHIKA)
 					.register();
 
 			ALICE = GensokyoLegacy.REGISTRATE
@@ -168,6 +189,7 @@ public class GLEntities {
 					.attributes(GeneralYoukaiEntity::createAttributes)
 					.renderer(() -> AliceRenderer::new)
 					.loot(EntityLootGen::noLoot)
+					.dataMap(GLMeta.PARTY_TASTE.reg(), TASTE_ALICE)
 					.register();
 
 			IZAYOI_SAKUYA = GensokyoLegacy.REGISTRATE
@@ -176,6 +198,7 @@ public class GLEntities {
 					.attributes(BossYoukaiEntity::createAttributes)
 					.renderer(() -> SakuyaRenderer::new)
 					.loot(EntityLootGen::noLoot)
+					.dataMap(GLMeta.PARTY_TASTE.reg(), TASTE_SAKUYA)
 					.register();
 
 			MYSTIA = GensokyoLegacy.REGISTRATE

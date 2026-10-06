@@ -11,6 +11,7 @@ import dev.xkmc.gensokyolegacy.content.entity.behavior.sensor.YoukaiUpdateHomeSe
 import dev.xkmc.gensokyolegacy.content.entity.behavior.task.combat.*;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.task.core.*;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.task.home.*;
+import dev.xkmc.gensokyolegacy.content.entity.behavior.task.party.YoukaiPartyTask;
 import dev.xkmc.gensokyolegacy.content.ui.dialog.FirstDialogSession;
 import dev.xkmc.gensokyolegacy.init.registrate.GLBrains;
 import dev.xkmc.gensokyolegacy.util.BrainUtils;
@@ -126,6 +127,11 @@ public class SmartYoukaiEntity extends YoukaiEntity {
 		// below TALK (a visitor must stay able to talk and trade) and above the
 		// scheduled activities (a visitor must never sleep or go home).
 		board.addPrioritizedActivity(GLBrains.VISITING.get(), GLBrains.MEM_VISIT.get(), 150);
+		// 200 for the same reason, one rung further up: a party guest keeps the
+		// ability to talk and trade (TALK is walked first), and every scheduled
+		// activity below requires MEM_PARTY absent, so she never sleeps or goes home.
+		board.addPrioritizedActivity(GLBrains.PARTY.get(), GLBrains.MEM_PARTY.get(), 200);
+		board.addExclusive(0, new YoukaiPartyTask(), GLBrains.PARTY.get());
 
 		board.setSchedule(new ScheduleBuilder(new Schedule())
 				.changeActivityAt(10, GLBrains.AT_HOME.get())

@@ -42,6 +42,9 @@ public class GLModConfig {
 
 		public final ModConfigSpec.IntValue sealingPotRadius;
 
+		public final ModConfigSpec.IntValue partyScanRadius;
+		public final ModConfigSpec.IntValue partyGuestRadius;
+
 		Server(Builder builder) {
 			markL2();
 			builder.push("reputation", "Reputation");
@@ -62,6 +65,15 @@ public class GLModConfig {
 			{
 				sealingPotRadius = builder.text("Radius in chunks of the area around sealing pot that prevents hostile natural mob spawning")
 						.defineInRange("sealingPotRadius", 4, 1, 8);
+			}
+			builder.pop();
+
+			builder.push("party", "Party");
+			{
+				partyScanRadius = builder.text("Radius in blocks around the table that a party occupies; food, seats and the walk radius all derive from this")
+						.defineInRange("partyScanRadius", 6, 2, 16);
+				partyGuestRadius = builder.text("How far a party guest may wander from the table she is eating at")
+						.defineInRange("partyGuestRadius", 24, 4, 64);
 			}
 			builder.pop();
 

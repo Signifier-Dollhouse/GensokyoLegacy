@@ -24,6 +24,9 @@ import dev.xkmc.gensokyolegacy.content.item.glove.DollGloveModel;
 import dev.xkmc.gensokyolegacy.content.item.hexbrew.StarDanmakuItem;
 import dev.xkmc.gensokyolegacy.content.item.ingredient.FairyIceItem;
 import dev.xkmc.gensokyolegacy.content.item.ingredient.FrozenFrogItem;
+import dev.xkmc.gensokyolegacy.content.party.core.BlockFoodHandler;
+import dev.xkmc.gensokyolegacy.content.party.core.PartyFoodValue;
+import dev.xkmc.gensokyolegacy.content.party.item.InvitationLetterItem;
 import dev.xkmc.gensokyolegacy.content.item.talisman.core.GLTalismans;
 import dev.xkmc.gensokyolegacy.content.item.dagger.DaggerGloveItem;
 import dev.xkmc.gensokyolegacy.content.item.dagger.DaggerGloveMode;
@@ -46,6 +49,7 @@ import dev.xkmc.l2core.init.reg.simple.DCVal;
 import dev.xkmc.l2core.init.reg.simple.EnumCodec;
 import dev.xkmc.l2itemselector.init.data.L2ISTagGen;
 import net.minecraft.client.renderer.block.model.BlockModel;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Unit;
 import net.minecraft.tags.ItemTags;
@@ -56,11 +60,15 @@ import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.Rarity;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
 import net.neoforged.neoforge.client.model.generators.loaders.SeparateTransformsModelBuilder;
 import net.neoforged.neoforge.registries.datamaps.builtin.FurnaceFuel;
 import net.neoforged.neoforge.registries.datamaps.builtin.NeoForgeDataMaps;
+import org.jetbrains.annotations.Nullable;
 
+import java.util.Map;
 import java.util.UUID;
 
 public class GLItems {
@@ -112,8 +120,24 @@ public class GLItems {
 	public static final ItemEntry<StarWandItem> STAR_WAND;
 	public static final ItemEntry<StrangeGlassesItem> STRANGE_GLASSES;
 
-	private static final DCReg DC = DCReg.of(GensokyoLegacy.REG);
-	public static final DCVal<MiniFurnace1.Data> DC_FURNACE_1 = DC.reg("mini_furnace_1_data", MiniFurnace1.Data.class, false);
+	public static final ItemEntry<InvitationLetterItem> INVITATION_LETTER;
+
+	/**
+	 * The block behind a namespaced id, or null when that mod is not loaded.
+	 * Used only to register a party food handler by name: a mod that is absent
+	 * simply contributes no handler, and its food — if a datapack added it to the
+	 * tag anyway — is scored generically instead.
+	 */
+	@Nullable
+	private static Block byId(String namespace, String path) {
+		var id = ResourceLocation.fromNamespaceAndPath(namespace, path);
+		var block = BuiltInRegistries.BLOCK.get(id);
+		return block == Blocks.AIR ? null : block;
+	}
+
+	
+
+	private static final DCReg DC = DCReg.of(GensokyoLegacy.REG);	public static final DCVal<MiniFurnace1.Data> DC_FURNACE_1 = DC.reg("mini_furnace_1_data", MiniFurnace1.Data.class, false);
 	public static final DCVal<UUID> DC_UUID = DC.uuid("uuid");
 	public static final DCVal<PortalSide> DC_PORTAL_SIDE = DC.enumVal("portal_side", EnumCodec.of(PortalSide.class, PortalSide.values()));
 	public static final DCVal<UUID> DC_DEBUG_YOUKAI = DC.uuid("debug_youkai");
@@ -470,6 +494,20 @@ public class GLItems {
 		GLFluids.register();
 
 		GLBlocks.register();
+
+		// party food: which block classes the party system can read, and how. Its own
+		// file, called here, gated per mod so nothing costs anything when absent.
+		BlockFoods.register();
+
+		// party
+		{
+			// right-clicked on a party table to send it out. The model borrows vanilla
+			// paper for now; swap the texture when the letter gets real art.
+			INVITATION_LETTER = reg.item("invitation_letter", InvitationLetterItem::new)
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.mcLoc("item/paper")))
+					.properties(p -> p.stacksTo(16))
+					.lang("Invitation Letter").register();
+		}
 
 		// debug
 		{

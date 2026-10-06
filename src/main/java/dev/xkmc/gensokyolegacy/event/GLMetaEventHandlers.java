@@ -2,17 +2,20 @@ package dev.xkmc.gensokyolegacy.event;
 
 import dev.xkmc.gensokyolegacy.content.attachment.area.AreaChunkHolder;
 import dev.xkmc.gensokyolegacy.content.attachment.area.AreaEffectManager;
+import dev.xkmc.gensokyolegacy.content.party.core.PartyTicker;
 import dev.xkmc.gensokyolegacy.content.rpg.core.ServerCharacterDialogManager;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.OnDatapackSyncEvent;
 import net.neoforged.neoforge.event.level.ChunkEvent;
 import net.neoforged.neoforge.event.level.ChunkWatchEvent;
+import net.neoforged.neoforge.event.level.LevelEvent;
 import net.neoforged.neoforge.event.tick.LevelTickEvent;
 
 @EventBusSubscriber(modid = GensokyoLegacy.MODID)
@@ -30,6 +33,13 @@ public class GLMetaEventHandlers {
 		if (!(event.getLevel() instanceof ServerLevel sl)) return;
 		AreaEffectManager.tickValidation(sl);
 		AreaEffectManager.tickPendingFlush(sl);
+		PartyTicker.tick(sl);
+	}
+
+	/** A party lives on its chunk, so a level going away takes the whole list with it. */
+	@SubscribeEvent
+	public static void onLevelUnload(LevelEvent.Unload event) {
+		if (event.getLevel() instanceof ServerLevel sl) PartyTicker.clear(sl);
 	}
 
 	@SubscribeEvent

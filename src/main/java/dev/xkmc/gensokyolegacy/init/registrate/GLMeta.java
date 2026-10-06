@@ -15,6 +15,9 @@ import dev.xkmc.gensokyolegacy.content.attachment.misc.KoishiAttackCapability;
 import dev.xkmc.gensokyolegacy.content.block.deco.shelf.MorichikaOfferData;
 import dev.xkmc.gensokyolegacy.content.item.gift.GiftItemData;
 import dev.xkmc.gensokyolegacy.content.item.gift.GiftPreference;
+import dev.xkmc.gensokyolegacy.content.party.core.PartyAttachment;
+import dev.xkmc.gensokyolegacy.content.party.core.PartyFood;
+import dev.xkmc.gensokyolegacy.content.party.core.PartyTaste;
 import dev.xkmc.gensokyolegacy.content.rpg.quest.QuestAttachment;
 import dev.xkmc.gensokyolegacy.content.rpg.trade.TradeAttachment;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
@@ -73,6 +76,24 @@ public class GLMeta {
 
 	public static final DataMapReg<Block, BedData> BED_DATA =
 			GensokyoLegacy.REG.dataMap("bed_data", Registries.BLOCK, BedData.class);
+
+	/**
+	 * The active party in a chunk, stored on the chunk holding the centre of its
+	 * food. A chunk capability rather than a player one, so it is chunk-scoped for
+	 * free and survives host logout.
+	 */
+	public static final AttVal.CapVal<LevelChunk, PartyAttachment> PARTY =
+			ATT.entity("party_data", PartyAttachment.class, PartyAttachment::new, LevelChunk.class, e -> true);
+
+	/** How attractive a block of food is at a party table. */
+	public static final DataMapReg<Block, PartyFood> PARTY_FOOD =
+			GensokyoLegacy.REG.dataMap("party_food", Registries.BLOCK, PartyFood.class);
+	/**
+	 * What sort of party a character will attend. No entry means not party-eligible,
+	 * which is the whitelist.
+	 */
+	public static final DataMapReg<EntityType<?>, PartyTaste> PARTY_TASTE =
+			GensokyoLegacy.REG.dataMap("party_taste", Registries.ENTITY_TYPE, PartyTaste.class);
 	public static final DataMapReg<EntityType<?>, CharacterConfig> ENTITY_DATA =
 			GensokyoLegacy.REG.dataMap("character_config", Registries.ENTITY_TYPE, CharacterConfig.class);
 	public static final DataMapReg<EntityType<?>, DialogConfig> DIALOG_DATA =

@@ -41,6 +41,11 @@ public class GLBrains {
 	 * {@link #VISITING} instead of following her schedule.
 	 */
 	public static final Val<MemoryModuleType<GlobalPos>> MEM_VISIT = MEMORIES.reg("visit", () -> new MemoryModuleType<>(Optional.empty()));
+	/**
+	 * Where a party guest is eating. Its presence is what puts her in
+	 * {@link #PARTY} instead of following her schedule.
+	 */
+	public static final Val<MemoryModuleType<GlobalPos>> MEM_PARTY = MEMORIES.reg("party", () -> new MemoryModuleType<>(Optional.empty()));
 
 	public static final Val<Activity> AT_HOME = ACTIVITIES.reg("at_home", () -> new Activity("at_home"));
 	public static final Val<Activity> HUNT = ACTIVITIES.reg("hunt", () -> new Activity("hunt"));
@@ -51,6 +56,12 @@ public class GLBrains {
 	 * and TALK(100), so a visitor still stops to talk - see the design doc.
 	 */
 	public static final Val<Activity> VISITING = ACTIVITIES.reg("visiting", () -> new Activity("visiting"));
+	/**
+	 * Eating at somebody's party. Priority 200 puts it above both TALK(100) and
+	 * VISITING(150): a party guest can still talk and trade, but she never wanders
+	 * off to visit, and never sleeps or goes home.
+	 */
+	public static final Val<Activity> PARTY = ACTIVITIES.reg("party", () -> new Activity("party"));
 
 	public static void register() {
 	}

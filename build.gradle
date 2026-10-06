@@ -183,8 +183,14 @@ dependencies {
     implementation jarJar(group: 'software.bernie.geckolib', name: 'geckolib-neoforge-1.21.1', version: "[4.6.6,)")
     implementation jarJar(group: 'com.github.glitchfiend', name: 'TerraBlender-neoforge', version: "${terrablender_ver}")
 
-    implementation "curse.maven:farmers-delight-398521:8765184"
-    implementation "curse.maven:gensokyo-delight-youkais-feasts-1309991:8004770"
+    // Farmer's Delight and Youkai's Feasts are compile-time only. Nothing here
+    // references their classes - party food is reached purely through tags and
+    // registry lookups - and keeping them off the runtime classpath avoids a JPMS
+    // split-package failure in the dev launcher that no scope of an on-classpath
+    // dependency can work around. Their block entries in party_food / party_table
+    // are optional, so a dev run without them simply finds fewer foods.
+    compileOnly "dev.xkmc:farmersdelight:1.3.4"
+    compileOnly "dev.xkmc:youkaisfeasts:1.1.0"
 
     implementation "mezz.jei:jei-${jei_minecraft_version}:${jei_version}"
 

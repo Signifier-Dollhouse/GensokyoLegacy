@@ -1,6 +1,6 @@
 # Party Event — Design Doc
 
-> **Status:** design only, no code yet — owner answers applied 2026-10-06
+> **Status:** implemented — compiles, `runData` and `./gradlew build` both green. Not yet played in a live world, so §6's flow and §10's limits are reasoned from the code rather than observed.
 > **Package:** `content/party/` — `core/` (math + planner + state), `item/` (letter), plus `content/entity/module/PartyModule.java` and `content/entity/behavior/task/party/YoukaiPartyTask.java`
 > **Related:** `character_visit.md` (the guest-clone trick reused here), `reputation.md` (the reputation this reads)
 
@@ -9,6 +9,8 @@
 ## 1. Overview
 
 A player lays block food out on tables, sets chairs, writes a letter, and sends it. Characters with enough reputation come, eat, and leave gifts on the table.
+
+**Every character can come.** There is no whitelist and no character is locked out — a character with no authored `party_taste` entry gets a permissive default (§5.2). What decides who shows up is only how good the spread is and how well the player knows them.
 
 ```
 lay out block food on party tables  +  put out seats
@@ -41,7 +43,7 @@ The first two are deliberately side-effect free so `/gensokyo party preview` can
 
 ### 2.1 Tags
 
-Three new tags in `GLTagGen`, all block tags:
+Three new block tags:
 
 ```java
 /** Tables a party may be laid out on. Our large dining tables only — see §2.3. */
@@ -54,103 +56,264 @@ public static final TagKey<Block> PARTY_SEAT = block("party_seat");
 public static final TagKey<Block> PARTY_FOOD = block("party_food");
 ```
 
-Generated from tags that already exist:
+**These three are hand-authored, not generated.** They live in `src/main/resources/data/gensokyolegacy/tags/block/`, alongside the other hand-written datapack content, rather than being produced by `GLTagGen.onBlockTagGen`.
+
+That is not a style preference. The obvious datagen spelling is:
 
 ```java
-// GLTagGen.onBlockTagGen
-pvd.addTag(PARTY_TABLE).addTag(GLTagGen.LARGE_TABLE);
-pvd.addTag(PARTY_SEAT).addTag(GLTagGen.CHAIR).addTag(GLTagGen.STOOL);
+// this deadlocks runData
+pvd.addTag(PARTY_TABLE).addTag(LARGE_TABLE);                        // fine
+pvd.addTag(PARTY_FOOD).addOptional(loc("farmersdelight:roast_chicken_block"));   // hangs
+```
 
-// third-party entries, emitted with "required": false so absent mods drop them silently.
-// Youkai's Feasts uses the same 11 wood names we do, so one loop covers both.
-for (var wood : WoodType.values()) {
-    String name = wood.name().toLowerCase(Locale.ROOT);
-    pvd.addTag(PARTY_TABLE).addOptional(loc("youkaisfeasts:" + name + "_dining_table"));
-    pvd.addTag(PARTY_SEAT).addOptional(loc("youkaisfeasts:" + name + "_dining_chair"));
+The `addTag`/`add` lines are fine — `genPartyTag` containing only those completes datagen in 12s. Add the fifteen `addOptional` calls and the Registrate provider **never returns**: the worker threads go idle while the main thread sits forever in `CompletableFuture.join` on a future that can no longer complete. There is no error, no log line, and no stack trace — just a silent hang, reproducible on every run, bisectable only by commenting lines out.
+
+The cause is not worth pinning down further; what matters is that cross-mod tag entries are written by hand here. It costs nothing — `"required": false` is a few characters in a JSON file, and it is exactly the mechanism vanilla uses. Note `src/generated/resources` and `src/main/resources` are both merged into the jar (`build.gradle`), so the same tag id in both is a hard `duplicatesStrategy` failure at `processResources`. Generating *nothing* for these three avoids that entirely.
+
+```jsonc
+// src/main/resources/data/gensokyolegacy/tags/block/party_table.json
+{
+  "replace": false,
+  "values": [
+    "#gensokyolegacy:large_table",
+    { "id": "youkaisfeasts:oak_dining_table", "required": false },
+    // ...one per wood
+  ]
 }
 ```
 
 `LARGE_TABLE` already contains the 11 `*_large_table` blocks; `CHAIR` the 11 `*_large_chair` plus `wooden_large_chair_scarlet_devil_mansion`; `STOOL` the 11 `*_chair` stools.
 
-`addOptional` is the whole "not a hard mod dependency" story. Registrate writes the entry with `"required": false`, so the tag loader skips it when the mod is absent, and **no Java anywhere names another mod's block**. With neither Farmer's Delight nor Youkai's Feasts installed the system still runs — you simply have `minecraft:cake` as your only food, which is enough for a two-person party.
+`"required": false` is the whole "not a hard mod dependency" story — the tag loader skips an entry whose mod is absent, and **no Java anywhere names another mod's block**. With neither Farmer's Delight nor Youkai's Feasts installed the system still runs; you have `minecraft:cake` as your only food, worth 14 appeal across 7 slices (§2.2), which is enough for a three-person party.
 
 ### 2.2 Food value
 
-Value comes from a data map on the block, not a hardcoded list:
+Appeal is **derived from what a food actually is to eat**, and counted **per serving** rather than per block. A `party_food` data map entry exists only to *override* that derivation.
 
 ```java
-// init/registrate/GLMeta.java
-public static final DataMapReg<Block, PartyFood> PARTY_FOOD =
-        GensokyoLegacy.REG.dataMap("party_food", Registries.BLOCK, PartyFood.class);
+// content/party/core/PartyFoodValue.java
+private static final float NUTRITION_SCALE = 0.5f;
+private static final float SATURATION_SCALE = 2.0f;
+private static final int BENEFICIAL_BONUS = 4;
 
-/**
- * @param appeal   how attractive one block of this food is at the table
- * @param servings how many guests one block can satisfy, for the tooltip
- */
-public record PartyFood(int appeal, int servings) {
+public static final int MIN_APPEAL = 1;
+public static final int MAX_APPEAL = 40;
 
-    /** Used for any block that is in {@code party_food} but has no data map entry. */
-    public static final int DEFAULT_APPEAL = 4;
+/** Appeal of ONE serving, from what it is to eat. */
+public static int of(FoodProperties props) {
+    if (BlockFoodHandler.refuses(props)) return 0;   // poison or wither
+    float bonus = 0;
+    for (var e : props.effects()) {
+        var holder = e.effect().getEffect();
+        if (holder != null && holder.value().isBeneficial()) bonus += BENEFICIAL_BONUS;
+    }
+    return clamp(Math.round(props.nutrition() * NUTRITION_SCALE + props.saturation() * SATURATION_SCALE + bonus));
+}
 
+/** Appeal of ONE serving of this placed block. */
+public static int perServe(RegistryAccess access, BlockState state) { ... }
+
+/** Total appeal still on the table: serves x per-serve. */
+public static int appeal(RegistryAccess access, BlockState state) {
+    var override = PartyFood.of(access, state);
+    if (override != null) return override.appeal() * servesOf(state);
+    var perServe = perServe(access, state);
+    return perServe == 0 ? 0 : perServe * servesOf(state);
+}
+
+/** Take one serving, leaving the world consistent. */
+public static int consume(ServerLevel level, BlockPos pos, BlockState state) { ... }
+```
+
+Poison and wither score **0** — the same two `FeedModule` refuses outright. Nobody lays those out at a party, and a 0 makes the planner leave them in the world rather than serving them.
+
+#### `BlockFoodHandler` — how a block food is read and eaten
+
+The derivation above needs three facts about a *placed* block, and they differ per mod:
+
+```java
+public interface BlockFoodHandler {
+    /** How many servings are left right now. */
+    int serves(BlockState state);
+
+    /** What ONE serving is, as FoodProperties: from the block, or a serving item. */
+    @Nullable FoodProperties food(BlockState state);
+
+    /** Take one serving, advancing the block. Returns servings remaining. */
+    int consume(Level level, BlockPos pos, BlockState state);
+}
+```
+
+Three shapes ship, each for a reason that came out of the blocks themselves:
+
+| Factory | For | Why |
+|---|---|---|
+| `countdown(servingItemId)` | FD feasts and pies, YSF pots | counted down through the block's own property, food often on a **separate serving item** |
+| `whole(servingItemId)` | YSF saucer dishes | one serving, eaten all at once, no tracking on the block |
+| `slice(nutrition, saturation)` | vanilla cake, YSF cakes | food described only in code — see below |
+
+The countdown property is found **by name** (`bites`, `servings`, `serve`) rather than passed in, because the `IntegerProperty` instances belong to the other mods and naming them would mean a hard dependency.
+
+#### Two counting conventions, and getting them backwards
+
+The properties do **not** agree on what they count, and assuming one convention silently breaks the other kind of food:
+
+| Block | Property | Range | Fresh value | Counts | Serves left |
+|---|---|---|---|---|---|
+| vanilla `cake` | `bites` | `0..6` | 0 | **up** — bites taken | `value + 1` → 7 |
+| FD `PieBlock` | `bites` | `0..3` | 0 | **up** | `value + 1` → 4 |
+| FD `FeastBlock` | `servings` | `0..4` | 4 | **down** — servings left | `value` → 4 |
+| YSF `PotFoodBlock` | `serve` | `1..2` / `1..4` | max | **down** | `value` |
+
+So `serves` and `consume` both need the direction, and it is read off the property rather than hardcoded:
+
+```java
+/** Whether the block's count property starts at its maximum (servings left). */
+private static boolean countsDown(BlockState state, IntegerProperty property) {
+    // min..max from getPossibleValues(); a fresh state sitting at max counts down
+    int fresh = state.getBlock().defaultBlockState().getValue(property);
+    return fresh >= max;
+}
+
+static int servesOf(BlockState state) {
+    var left = countdownProperty(state);
+    if (left == null) return 1;                       // one indivisible serve
+    int value = state.getValue(left);
+    return countsDown(state, left) ? value : value + 1;
+}
+```
+
+This matters more than it looks. Had `consume` assumed "always decrement", an FD feast would step its servings **up** towards its maximum and, having started there, would never go anywhere: each guest eats, the block stays at max, and the party can never be satisfied. The reverse assumption breaks cake and pie the same way. Reading the direction off the block is the only version correct for both, and it names no foreign class.
+
+#### The cake problem
+
+In 1.21.1 `CakeBlock` never builds a `FoodProperties` at all. It feeds the player from code:
+
+```java
+// CakeBlock.eat — net/minecraft/world/level/block/CakeBlock.java:101
+int i = state.getValue(BITES);
+player.getFoodData().eat(2, 0.1F);
+if (i < 6) level.setBlock(pos, state.setValue(BITES, i + 1), 3);
+else level.removeBlock(pos, false);
+```
+
+`BITES` runs 0..6, so the cake is **7 slices of `eat(2, 0.1F)`**. Its `BlockItem` carries no food, so reading it yields `null` and the appeal would fall to `MIN_APPEAL` — a cake worth 1, and with no other mods installed *no character would ever come to a party*. Hence `slice(2, 0.4f)`:
+
+```java
+PartyFoodValue.register(Blocks.CAKE, BlockFoodHandler.slice(2, 0.4f));
+```
+
+`0.4` is not arbitrary: `FoodConstants.saturationByModifier` is `foodLevel * saturationModifier * 2.0`, so `2 * 0.1 * 2.0 = 0.4`.
+
+One slice is then `round(2 × 0.5 + 0.4 × 2.0) = 2`, and a whole 7-slice cake is worth **14**. Compare the block-valued approach this replaced, which scored the whole cake 13 and treated it as a single indivisible unit — one guest ate the lot, and there was no such thing as a partly-eaten cake.
+
+#### Reference values, per serving
+
+Every one is derived by the code above, not chosen by hand:
+
+| Food | per serving | serves | whole block |
+|---|---|---|---|
+| `minecraft:cake` | 2 | 7 | **14** |
+| carrot | 3 | — | 3 |
+| bread | 5 | — | 5 |
+| steak | 7 | — | 7 |
+| golden apple (2 beneficial effects) | 16 | — | 16 |
+
+#### Registration is per class, in its own file
+
+`BlockFoods.register()` is called once from the common setup, after the blocks exist. It writes down handlers for whole **block classes**, and `PartyFoodHandler` resolves them by walking the class hierarchy most-derived-first:
+
+```java
+// content/party/core/PartyFoodHandler.java
+private static final Map<Class<?>, BlockFoodHandler> BY_CLASS = new ConcurrentHashMap<>();
+private static final Map<Block, BlockFoodHandler> BY_BLOCK = new ConcurrentHashMap<>();   // beats a class match
+private static final Map<Block, BlockFoodHandler> RESOLVED = new ConcurrentHashMap<>();     // cached per block
+
+public static void register(Class<? extends Block> clazz, BlockFoodHandler handler, @Nullable String mod) {
+    if (!loaded(mod)) return;
+    BY_CLASS.put(clazz, handler);
+    RESOLVED.clear();          // a new base may cover blocks already resolved
+}
+
+public static BlockFoodHandler of(Block block) {
+    var cached = RESOLVED.get(block);
+    if (cached != null) return cached;
+    var found = resolve(block);
+    RESOLVED.put(block, found);
+    return found;
+}
+```
+
+Two maps, because class coverage alone is not enough for Farmer's Delight: **every** feast extends the same `FeastBlock`, but each hands out its own serving item, so the six dishes need per-block entries that beat the class default. Everything else — YSF saucers, bowls, cakes — is covered by one class each.
+
+That is what keeps the lists short. One entry for `FeastBlock` covers every feast the mod ships and any it adds later; one for `BaseSaucerBlock` covers every YSF dish.
+
+Youkai's Feasts has several genuinely different kinds of food, so it needs one registration per shape rather than a single list:
+
+| YSF class | Shape | Serves |
+|---|---|---|
+| `BaseSaucerBlock` | saucer dishes | 1, eaten whole |
+| `BowlBlock` | bowls, pots (`PotFoodBlock`) | 2 or 4 under `serve` |
+| `YHCakeBlock` | cakes | 7, inherits vanilla cake's `bites` |
+| `YHCandleCakeBlock` | the same cake with a candle | covered by `YHCakeBlock`'s base |
+| `YHPieBlock` | pies | covered by FD's `PieBlock` base |
+| `SurpriseFeastBlock` | feasts | covered by FD's `FeastBlock` base |
+
+Every registration is gated twice: `ModList.isLoaded` for the mod, and a `Class.forName` that returns cleanly for the class. A registration line naming an absent mod's class costs nothing and cannot throw, so these lists can be written out unconditionally and never edited when a mod is added or removed.
+
+#### The data map is an override, not a source
+
+```java
+// content/party/core/PartyFood.java
+public record PartyFood(int appeal) {
+    public PartyFood { appeal = Math.max(0, appeal); }
+
+    @Nullable
     public static PartyFood of(RegistryAccess access, BlockState state) {
-        var data = GLMeta.PARTY_FOOD.get(access, state.getBlockHolder());
-        return data == null ? new PartyFood(DEFAULT_APPEAL, 1) : data;
+        return GLMeta.PARTY_FOOD.get(access, state.getBlockHolder());
     }
 }
 ```
 
-The `DEFAULT_APPEAL` fallback is deliberate: a datapack can add `farmersdelight:roast_chicken_block` to `party_food` and it works immediately at a generic value, then gain a `party_food` data map entry later to tune it. That is the graceful-degradation path — the tag is the gate, the data map is the tuning knob, and neither requires the other mod at build time.
-
-Registered like any other data map at the block entry:
-
-```java
-// example, on a Gensokyo food block
-.item().dataMap(GLMeta.PARTY_FOOD.reg(), new PartyFood(10, 4)).build()
-```
-
-and shipped defaults for the cross-mod blocks, written with `required: false` semantics like the tags:
+There is deliberately **no** `party_food` data map file shipped. The tag is the gate; the heuristic supplies a value; the data map only exists to correct one the heuristic gets wrong. A datapack can make a foreign block party food with a single tag entry and get a sensible number immediately:
 
 ```jsonc
-// data/gensokyolegacy/data_maps/block/party_food.json
-{
-  "values": {
-    "minecraft:cake":                        { "appeal": 8,  "servings": 4 },
-    "farmersdelight:roast_chicken_block":    { "appeal": 20, "servings": 6 },
-    "farmersdelight:sweet_berry_cheesecake": { "appeal": 12, "servings": 4 }
-  }
-}
+// data/gensokyolegacy/data_maps/block/party_food.json — only if a value is wrong
+{ "values": { "some_mod:baroque_cake": { "appeal": 20 } } }
 ```
 
-### 2.3 The support problem (verified, and why only `large_table`)
+The override is still **per serving**: it replaces `perServe`, and the multiplier from `servesOf` still applies, so overriding a cake sets the value of a slice rather than of the whole thing.
 
-Third-party foods refuse to stay on a thin table top. Checked against the actual classes:
 
-| Food | `canSurvive` test | Passes on `large_table`? |
-|---|---|---|
-| FD feasts (`farmersdelight:feasts`) | `Block.canSupportRigidBlock` → `isFaceSturdy(UP, RIGID)` | **no** |
-| FD / vanilla cake | `below.isSolid()` | **no** |
-| YSF saucer foods (`BaseSaucerBlock`) | `below.isSolid()` | **no** |
+### 2.3 The support problem — measured, and the answer was "no change needed"
 
-`large_table`'s collision shape is `Block.box(0,13,0,16,16,16)` — a 3/16-thick slab (`LargeTableBlock.java:31`). `getBlockSupportShape` defaults to the collision shape (`BlockBehaviour.java:324`), so its top face is that slab. `SupportType.RIGID` requires the top face to cover everything outside `box(2,0,2,14,16,14)`, and `isSolid()` requires a collision AABB of ≥ 0.729 volume or full height (`BlockBehaviour.calculateSolid`, `:535`). A slab fails both, so every one of those foods breaks the instant it is placed.
+Third-party block foods run a `canSurvive` check against the block below. The two that matter:
 
-Fix, on `large_table` only:
+| Food | `canSurvive` test |
+|---|---|
+| FD feasts, YSF `RotatedFeastBlock` | `Block.canSupportRigidBlock` → `isFaceSturdy(UP, RIGID)` |
+| vanilla cake, YSF `BaseSaucerBlock` | `level.getBlockState(pos.below()).isSolid()` |
 
-```java
-// LargeTableBlock
-/** What may be stood on us. Full block, so third-party foods and furniture survive. */
-@Override
-public VoxelShape getBlockSupportShape(BlockState state, BlockGetter level, BlockPos pos) {
-    return Shapes.block();
-}
+Both were initially assumed to fail on `large_table`, whose tabletop is only a 3/16-thick slab (`Block.box(0,13,0,16,16,16)`, `LargeTableBlock.java:31`). That drove two changes: `getBlockSupportShape` → `Shapes.block()`, and `forceSolidOn()` on the block properties.
+
+**Both were wrong, and both have been reverted.** `large_table` already passes both checks unmodified.
+
+Measured against the real shapes, replicating `SupportType.RIGID.isSupporting` and `BlockBehaviour.calculateSolid`:
+
+```
+shape                          RIGID    isSolid
+TOP    (attached, bare)        true     true
+BARE   (unattached, bare)      true     true
+CLOTH  (attached, dressed)     true     true
+CLOTHED(unattached, dressed)   true     true
 ```
 
-plus `forceSolidOn()` on the block properties, which short-circuits `isSolid()` to `true` (`BlockBehaviour.java:536`) and covers cake and the YSF saucer foods. Both are needed: `forceSolidOn` alone does not satisfy `SupportType.RIGID`.
+- **`isSolid()`** — `calculateSolid` accepts a collision AABB whose `getSize()` (the *mean* of the three extents) is at least `0.7291666666666666`, or whose Y extent is a full block. `TOP` alone measures `(1.0 + 0.1875 + 1.0) / 3 = 0.7291666666666666` — exactly the threshold, inclusive. `BARE` additionally reaches y=0 through `STAND`, so its Y extent is 1.0 and it clears on the second clause. Both pass on their own.
+- **`SupportType.RIGID`** — this was misread. Its check is `!joinIsNotEmpty(faceShape, RIGID_FRAME, ONLY_SECOND)`, where `RIGID_FRAME` is the block **minus** the inset `box(2,0,2,14,16,14)` — a 2-thick frame around the *perimeter*, not a required region the face must cover. `ONLY_SECOND` asks whether any part of that frame is *absent* from the face. Since `TOP` spans the full 16×16 footprint, its top face covers the frame completely, so there is no gap and the check passes. A narrow pillar would fail; a full-footprint slab does not.
 
-`ShapeBlockMethod.getBlockSupportShape` is already dispatched by `DelegateBlockImpl.java:188`, and `LargeTableBlock` already implements `ShapePathFindBlockMethod extends ShapeBlockMethod`, so this is an override, not new plumbing.
+So the table top was always a valid surface for block foods, and the change bought nothing while altering a shipped block's behaviour globally — anything could now be stood on it, and mobs stopped spawning inside it. Worth the note: `getSize()` is a mean, so a 3/16 slab passing is a coincidence of this particular slab's proportions, not a general property of thin tops. A thinner or narrower top would fail, and if a future table needs a different profile it must be re-measured rather than assumed.
 
-**`tea_table` and `magic_table` are excluded from this feature.** They are not in `party_table` and are not modified. `tea_table`'s surface is at y=12, so food placed on it would visibly hover; `magic_table` is a two-block-wide partner block whose halves make guest pathing and seat placement ambiguous. Neither is worth the support change for a first pass, and excluding them keeps §2.1's tag trivially correct. Revisit if the party system needs a small indoor table.
-
-**Side effects accepted:** `large_table` becomes valid support for anything — redstone dust, levers, torches, other mods' stacked furniture — and stops allowing mobs to spawn inside it. That is the ordinary behaviour of a solid table top and matches what a full block does in vanilla. It is still a behavioural change to a shipped block, so it lands in its own commit.
+**Side effects now avoided:** `large_table` keeps its original collision behaviour, so mob spawning inside it and what can be stacked on it are both unchanged from before this feature.
 
 ---
 
@@ -175,7 +338,8 @@ public record PartyArea(BlockPos anchor, List<BlockPos> food, List<BlockPos> sea
             // food only counts when it is actually on a table
             if (!level.getBlockState(pos.below()).is(GLTagGen.PARTY_TABLE)) continue;
             food.add(pos.immutable());
-            appeal += PartyFood.of(level.registryAccess(), here).appeal();
+            // every serve still on it, not one number for the block
+            appeal += PartyFoodValue.appeal(level.registryAccess(), here);
         }
         return new PartyArea(anchor, food, seats, appeal);
     }
@@ -305,7 +469,9 @@ Three quantities, all pure functions over plain values.
 
 ### 5.1 Attractiveness of the spread
 
-`PartyArea.appeal` from §3.1: the sum of `PartyFood.appeal` over every block in `party_food` that is sitting on a `party_table` inside the scan box. Simple additive, no multipliers — the player controls it directly by choosing what to lay out.
+`PartyArea.appeal` from §3.1: the sum of `PartyFoodValue.appeal` over every block in `party_food` that is sitting on a `party_table` inside the scan box, where each block's contribution is **serves × per-serving appeal** (§2.2). Simple additive, no multipliers — the player controls it directly by choosing what to lay out, and the per-serving number comes from the food's real properties rather than a table of hand-picked values.
+
+Because it is counted in serves, the budget a spread offers is the total number of servings on the table, and a partly-eaten dish is worth proportionally less. That is what makes one cake a meal for several guests instead of a single indivisible unit.
 
 ### 5.2 Guest weight
 
@@ -343,7 +509,7 @@ public static final DataMapReg<EntityType<?>, PartyTaste> PARTY_TASTE =
         GensokyoLegacy.REG.dataMap("party_taste", Registries.ENTITY_TYPE, PartyTaste.class);
 
 /**
- * @param minReputation below this she will not come, whatever is on the table
+ * @param minReputation below this she declines, whatever is on the table
  * @param maxReputation reputation at which the reputation bonus is fully earned
  * @param repBonus      extra weight at maxReputation; 0.5 means up to 1.5x
  * @param minAppeal     spread appeal below which she is not interested
@@ -357,28 +523,46 @@ public record PartyTaste(
     public PartyTaste {
         maxReputation = Math.max(maxReputation, minReputation);
         maxAppeal = Math.max(maxAppeal, minAppeal);
-        fulfillment = Math.max(1, fulfillment);
         repBonus = Math.max(0, repBonus);
+        fulfillment = Math.max(1, fulfillment);
     }
 }
 ```
 
 The compact constructor clamps the inverted ranges so a datapack typo degrades into "no bonus" rather than a negative weight.
 
-**An entity type with no `party_taste` entry is not party-eligible at all.** That is the whitelist. Bosses, fairies and anything not yet written stay out until someone authors them a taste — no separate flag needed.
+**Every character is party-eligible.** There is no whitelist. A character with no authored `party_taste` entry gets `PartyTaste.DEFAULT`:
 
-Initial values, aimed at "two cakes seats two friends, a proper banquet seats the cast":
+```java
+public static final PartyTaste DEFAULT = new PartyTaste(0, 200, 0.25, 0, 24, 8);
+
+public static PartyTaste of(RegistryAccess access, EntityType<?> type) {
+    var taste = GLMeta.PARTY_TASTE.get(access, type.builtInRegistryHolder());
+    return taste == null ? DEFAULT : taste;
+}
+```
+
+`DEFAULT` has **no reputation floor**, so even someone the player has just met can be fed a party. The data map only makes a character pickier or hungrier than that — it is not a gate. This is a deliberate reversal of the earlier design, which treated a missing entry as "not party-eligible" and so left bosses, fairies and unwritten characters permanently locked out until someone authored each one by hand.
+
+The `DEFAULT` numbers are sized against §2.2's derived appeal, where a whole vanilla cake is worth 14: `maxAppeal` 24 is under two cakes, and `fulfillment` 8 is just over half of one.
+
+Shipped values, in `data/gensokyolegacy/data_maps/entity_type/party_taste.json`:
 
 | Character | minRep | maxRep | repBonus | minAppeal | maxAppeal | fulfillment |
 |---|---|---|---|---|---|---|
-| `cirno` | 50 | 150 | 0.3 | 10 | 50 | 16 |
-| `hakurei_reimu` | 100 | 200 | 0.3 | 20 | 80 | 20 |
-| `kirisame_marisa` | 100 | 200 | 0.3 | 20 | 80 | 20 |
-| `morichika_rinnosuke` | 100 | 200 | 0.3 | 25 | 80 | 20 |
-| `alice_margatroid` | 150 | 250 | 0.15 | 30 | 100 | 24 |
-| `izayoi_sakuya` | 150 | 250 | 0.15 | 40 | 120 | 24 |
+| `cirno` | 50 | 150 | 0.3 | 4 | 20 | 6 |
+| `hakurei_reimu` | 100 | 200 | 0.3 | 8 | 32 | 8 |
+| `kirisame_marisa` | 100 | 200 | 0.3 | 8 | 32 | 8 |
+| `morichika_rinnosuke` | 100 | 200 | 0.3 | 10 | 32 | 8 |
+| `alice_margatroid` | 150 | 250 | 0.15 | 12 | 40 | 10 |
+| `izayoi_sakuya` | 150 | 250 | 0.15 | 16 | 48 | 12 |
+| *(everyone else)* | **0** | 200 | 0.25 | **0** | 24 | 8 |
 
 Sakuya has no `character_config` and no home — she is guest-only by design (`GLEntities.java:55`) — which makes her the natural first test case for the whole system, since a party guest needs no home binding either way.
+
+Fulfillments are 6/8/8/8/10/12 rather than the original 16/20/20/20/24/24. They were retuned once appeal stopped being hand-authored and became derived from real food properties: a whole vanilla cake is worth 14, not the 8 originally assumed, and a modded feast lands somewhere above that. A fulfillment of 16 against a 14-appeal cake would have left the no-mods-installed path unable to satisfy anyone at all.
+
+They are also now counted in **serves**, not blocks. A guest is satisfied once the appeal she has eaten reaches her fulfillment, and eating is one serve at a time, so a fulfillment of 6 against a 2-per-slice cake means three slices — she leaves the other four for whoever is next.
 
 ### 5.3 Fulfillment
 
@@ -388,7 +572,11 @@ A guest tracks the appeal she has eaten and is satisfied when it reaches her `fu
 // PartyModule
 @SerialField private int eaten = 0;
 
-public void eat(PartyFood food) { eaten += food.appeal(); }
+/** One serve eaten: her tally, and the party's shared total. */
+public void eat(int serveAppeal, PartyAttachment party) {
+    eaten += serveAppeal;
+    party.serve(serveAppeal);
+}
 
 public boolean satisfied(PartyTaste taste) { return eaten >= taste.fulfillment(); }
 
@@ -398,7 +586,7 @@ public double fulfillmentRatio(PartyTaste taste) {
 }
 ```
 
-The knapsack in §5.4 guarantees the *planned* total fits the spread, but food can still run short — the player can break a cake mid-party, or two guests can converge on the same dish. Fulfillment is therefore checked at runtime, not assumed from the plan. A guest who is under-served still eats what is there and still leaves a gift, but a reduced one (§6.4). This is what makes "guests consume all the food you prepare" mean something: a thin spread produces thin gifts.
+The knapsack in §5.4 guarantees the *planned* total fits the spread, but food can still run short — the player can break a dish mid-party, or two guests can converge on the last serve. Fulfillment is therefore checked at runtime, not assumed from the plan. A guest who is under-served still eats what is there and still leaves a gift, but a reduced one (§6.4). This is what makes "guests consume all the food you prepare" mean something: a thin spread produces thin gifts.
 
 ### 5.4 Who comes — the knapsack
 
@@ -472,26 +660,35 @@ Implementation notes:
 
 ### 5.5 Worked example
 
-Two FD feasts (`PartyFood(20, 6)`) and a cake (`PartyFood(8, 4)`) on three large tables, four chairs out. Spread appeal = 48, reputation 180 across the board.
+Vanilla only, so every appeal here is checkable against §2.2's derivation: one `minecraft:cake` is 7 slices of 2 = **14**. Reputation 180 across the board, comfortably above everyone's floor.
 
-| Character | appeal factor | rep factor | weight | fulfillment |
+Per-character weights at each spread, reputation held at 180 (bold = on the roster the knapsack chose):
+
+| Character | fulfillment | 1 cake (14) | 2 cakes (28) | 3 cakes (42) | 4 cakes (56) |
+|---|---|---|---|---|---|
+| `cirno` | 6 | **0.812** | **1.300** | **1.300** | **1.300** |
+| `hakurei_reimu` | 8 | **0.310** | **1.033** | **1.240** | **1.240** |
+| `kirisame_marisa` | 8 | 0.310 | **1.033** | **1.240** | **1.240** |
+| `morichika_rinnosuke` | 8 | 0.225 | 1.015 | **1.240** | **1.240** |
+| `alice_margatroid` | 10 | 0.075 | 0.597 | **1.045** | **1.045** |
+| `izayoi_sakuya` | 12 | 0.000 | 0.392 | 0.849 | **1.045** |
+
+Sakuya's weight is 0 against a single cake: 14 appeal is below her `minAppeal` of 16, so she is not interested no matter how well the player knows her. That is the `minAppeal` cutoff doing its job.
+
+What the knapsack picks, at each spread:
+
+| Spread | Appeal | Roster | Appeal spent | Seats needed |
 |---|---|---|---|---|
-| Cirno | 48 ≥ 50? no → (48−10)/40 = 0.95 | 180 ≥ 150 → 1.3 | **1.235** | 16 |
-| Reimu | (48−20)/60 = 0.467 | 180 ≥ 200? no → (180−100)/100 = 0.8 ⇒ 1.24 | **0.579** | 20 |
-| Marisa | 0.467 | 1.24 | **0.579** | 20 |
-| Morichika | (48−25)/55 = 0.418 | 1.24 | **0.519** | 20 |
-| Alice | reputation 180 < minRep 150? no, ok. (48−30)/70 = 0.257 | (180−150)/100 = 0.3 ⇒ 1.045 | **0.269** | 24 |
-| Sakuya | (48−40)/80 = 0.1 | 1.045 | **0.105** | 24 |
+| 1 cake | 14 | Cirno, Reimu | 14 | 2 |
+| 2 cakes | 28 | Cirno, Reimu, Marisa | 22 | 3 |
+| 3 cakes | 42 | Cirno, Reimu, Marisa, Morichika, Alice | 40 | 5 |
+| 4 cakes | 56 | all six | 52 | 6 |
 
-Budget 48, four seats out. The best subset is Cirno (16) + Reimu (20) = 36 appeal, total weight 1.814. Any third character needs at least 56, which overruns the budget. **Two guests, 12 appeal of food left over.**
+**No other mods installed is a working party.** The progression is 2 → 3 → 5 → 6 guests for 1 → 2 → 3 → 4 cakes, and it is the whole system running off one vanilla block.
 
-| Spread | Appeal | Roster | Seats used |
-|---|---|---|---|
-| 2 feasts + 1 cake | 48 | Cirno, Reimu | 2 |
-| 2 feasts + 3 cakes | 64 | Cirno, Reimu, Marisa | 3 |
-| 3 feasts + 2 cakes | 84 | Cirno, Reimu, Marisa, Morichika | 4 |
+Three things worth noting. At 14 appeal the budget is spent to the last unit — Cirno's 6 and Reimu's 8 come to exactly 14 — so a single cake is a complete meal for two and leaves nothing over. At 42 appeal Morichika's weight (1.240) equals Reimu's and Marisa', and his fulfillment is the same 8, so his place on the roster is a tie broken by the DP's stable weight-descending input order rather than a judgement that he is a better guest. And at 56 appeal the budget covers all six fulfillments — 6+8+8+8+10+12 = 52 — with 4 left over, so **four cakes seats the entire cast** and one Farmer's Delight feast is then enough to make the seat count the only limit.
 
-Four guests is where the chairs run out. Laying a fifth seat and pushing the spread to ~108 appeal brings Alice in (total 100 spent) — she is a genuine "lay out a proper banquet" target rather than something a little more food trivially unlocks.
+Because eating is per-serving, those fulfillments are also slice counts at this scale: Cirno's 6 is three slices of cake, Reimu's 8 is four, Sakuya's 12 is six of the seven a single cake holds. The last guest waits while the earlier ones take their slices, and those slices simply stop existing as they are eaten.
 
 The guest count tracks the food, and who shows up tracks reputation — both fall out of the formulation rather than being special-cased anywhere.
 
@@ -590,14 +787,21 @@ start()      → claim the nearest free seat; WALK_TARGET + LOOK_TARGET at the s
 canStillUse  → arrived?  HomeSearchUtil.setSitting(...)      // no-op on a non-ISeatableBlock
                then: nearest unclaimed food → WALK_TARGET
                arrived at food?  swing + USE_MAINHAND + eating sound, wait EAT_TICKS,
-                                  remove the block, eaten += appeal, pick the next one
+                                  take ONE serve (PartyFoodValue.consume),
+                                  eaten += that serve's appeal, pick the next one
                satisfied()? → giveGift(), dismiss()
                no food left? → dismiss()
 ```
 
 `HomeSearchUtil.setSitting` (`HomeSearchUtil.java:75`) already handles claiming a free seat, checking `ChairEntity` occupancy and yielding to players, and is a silent no-op when the block is not `ISeatableBlock` — so a third-party chair from `party_seat` simply has the guest stand beside it, with no special case.
 
-**Food contention needs no locking.** On arrival a guest re-validates that the block is still `party_food`; if another guest took it first it is gone and she picks again. Worst case is a wasted walk, and with a multi-second eat animation and a 2-block approach, contention is rare. Explicit claiming would need shared mutable state across entities for no real gain.
+**The task must never return `false` from `canStillUse` to change phase.** One `Behavior` instance drives seat → food → eat, so the phase lives in a field on the task; `false` calls `doStop` → `stop()`, which wipes it, and the brain re-runs the exclusive behavior next tick with `start()` resetting to `SEEK_SEAT`. The guest would sit down and immediately begin hunting for another seat, forever, never reaching the food. Every phase change therefore keeps returning `true`, and `false` is reserved for actually finishing — party over, out of time, or nothing left to serve.
+
+This is why `YoukaiPartyTask` cannot copy `MarisaForageTask`'s "arrive, act, return false" shape. The forage task is single-action and holds no state between runs, so stopping is free. A multi-phase task must keep the instance alive across its own transitions, and the failure mode is silent — the entity looks perfectly healthy, sits down, stands up, sits down again, and nothing is ever eaten.
+
+**Food contention needs no locking.** On arrival a guest re-validates that the block is still `party_food` and sitting on a `party_table`; if another guest took the last serve first it is gone and she picks again. With per-serving consumption this is *more* forgiving than it was: two guests walking to the same cake no longer collide destructively, since each finds a serve still on it. Worst case is a wasted walk.
+
+**A serve is taken when eating starts and credited when it finishes.** `PartyFoodValue.consume` is called at `reach()`, and `pendingAppeal` — read *before* the consume, because the appeal of a serve is a property of the state it was taken from — carries it across the `EAT_TICKS` window so the tally and the party's served total move together. `stop()` credits a serve that was taken but never banked, so a party ending or a chunk unloading mid-bite cannot silently swallow food the guests already ate.
 
 **There is no eating animation.** `YoukaiAnim` has no EAT or DRINK slot, and nothing in the codebase calls `startUsingItem` on a character — `FeedModule` only plays a sound and heart particles. The task uses `entity.swing(MAIN_HAND)` + `YoukaiAnim.USE_MAINHAND` + the vanilla eating sound, which is exactly what `MarisaForageTask` does for foraging (`MarisaForageTask.java:60`). Adding a real `eat` clip to every character model is follow-up art work, not a system blocker.
 
@@ -631,11 +835,18 @@ Added once in `SmartYoukaiEntity.constructTaskBoard` (`SmartYoukaiEntity.java:81
 | `content/party/core/PartyMath.java` | `ramp`, `weight` — pure |
 | `content/party/core/PartyArea.java` | one scan: food, seats, appeal, centre, touched chunks |
 | `content/party/core/PartyPlanner.java` | candidate pool + knapsack + seat cap — pure |
-| `content/party/core/PartyTaste.java` | entity-type data map record |
-| `content/party/core/PartyFood.java` | block data map record + `DEFAULT_APPEAL` fallback |
+| `content/party/core/PartyTaste.java` | entity-type data map record + `DEFAULT` for every unwritten character |
+| `content/party/core/PartyFood.java` | override-only block data map record |
+| `content/party/core/PartyFoodValue.java` | per-serving appeal derivation, totals, `consume` (§2.2) |
+| `content/party/core/BlockFoodHandler.java` | servings / one serving's food / consume-one-serving (§2.2) |
+| `content/party/core/PartyFoodHandler.java` | per-class handler lookup, subclasses covered (§2.2) |
+| `init/registrate/BlockFoods.java` | which block classes are known, gated per mod (§2.2) |
 | `content/party/core/PartyAttachment.java` | chunk capability, phase machine, roster |
 | `content/party/core/PartySend.java` | the single send entry point + rejections |
+| `content/party/core/PartyGift.java` | what a guest leaves, scaled by §5.3 |
+| `content/party/core/PartyTicker.java` | level-tick driver, active-chunk registry |
 | `content/party/item/InvitationLetterItem.java` | the letter |
+| `content/party/item/PartyMessage.java` | one place that turns an outcome into player-facing text |
 | `content/entity/module/PartyModule.java` | per-guest state, `arrive`/`tickServer`/`leave` |
 | `content/entity/behavior/task/party/YoukaiPartyTask.java` | walk → sit → eat → gift |
 | `content/rpg/condition/PartyCondition.java` | `{"type":"gensokyolegacy:party"}`, `invert` for home-bound |
@@ -644,26 +855,36 @@ Added once in `SmartYoukaiEntity.constructTaskBoard` (`SmartYoukaiEntity.java:81
 
 | File | Change |
 |---|---|
-| `init/data/GLTagGen.java` | `PARTY_TABLE`, `PARTY_SEAT`, `PARTY_FOOD` + optional third-party entries |
 | `init/registrate/GLMeta.java` | `PARTY`, `PARTY_FOOD`, `PARTY_TASTE` |
 | `init/registrate/GLBrains.java` | `PARTY`, `MEM_PARTY` |
-| `init/registrate/GLItems.java` | `INVITATION_LETTER` |
-| `init/registrate/block/GLDecoBlocks.java` | `forceSolidOn()` on `*_large_table` |
-| `content/block/deco/variants/LargeTableBlock.java` | `getBlockSupportShape` → `Shapes.block()` |
+| `init/registrate/GLItems.java` | `INVITATION_LETTER`, calls `BlockFoods.register()` |
+
 | `content/entity/youkai/YoukaiEntity.java` | `PartyModule` in `createModules()`, `isPartying()` |
 | `content/entity/youkai/YoukaiFlags.java` | append `PARTYING` (ordinal is the synced bit index) |
 | `content/entity/youkai/SmartYoukaiEntity.java` | `PARTY(200)` + `YoukaiPartyTask` |
 | `content/entity/characters/fairy/CirnoEntity.java` | `PartyModule` in its `createModules()` override |
 | `content/entity/characters/magician/AliceEntity.java` | same |
-| `init/registrate/GLEntities.java` | author `party_taste` for the six initial characters |
+| `init/registrate/GLEntities.java` | `TASTE_*` constants, applied via `.dataMap(GLMeta.PARTY_TASTE.reg(), …)` |
 | `content/rpg/core/CodecRegistry.java` | `PARTY` condition |
 | `content/rpg/core/ServerCharacterDialogManager.java` | suppress quest `START` while partying, as for visiting |
+| `content/rpg/action/StartQuestAction.java` | same guard, for dialog-driven starts |
 | `content/command/GLCommands.java` | `/gensokyo party` |
 | `init/data/GLModConfig.java` | `partyScanRadius`, `partyGuestRadius` |
-| `init/data/GLLang.java` | strings |
-| `src/main/resources/data/gensokyolegacy/data_maps/block/party_food.json` | new, hand-authored defaults incl. `required: false` cross-mod entries |
-| `src/generated/resources/data/gensokyolegacy/tags/block/*.json` | regenerated by `runData` |
+| `init/data/GLLang.java` | `Party` enum, wired into `genLang`'s group array |
+| `init/data/GLTagGen.java` | the three `TagKey<Block>` constants only — **not** their contents (§2.1) |
+| `event/GLMetaEventHandlers.java` | `PartyTicker.tick` on level tick, `clear` on level unload |
+| `build.gradle` | Farmer's Delight + Youkai's Feasts as `compileOnly` from the `libs/` flatDir |
+
+**New resources**
+
+| File | Change |
+|---|---|
+| `src/main/resources/data/gensokyolegacy/tags/block/party_{table,seat,food}.json` | hand-authored, §2.1 |
 | `src/generated/resources/data/gensokyolegacy/data_maps/entity_type/party_taste.json` | generated |
+| `src/generated/resources/assets/gensokyolegacy/models/item/invitation_letter.json` | generated |
+| `src/test/resources/gensokyolegacy/lang/zh_cn/party.json` | zh_cn strings, merged by `LangFileOrganizer` |
+
+There is **no** `data_maps/block/party_food.json` — the data map is an override and nothing in the mod needs one (§2.2).
 
 The `large_table` support change is a behavioural change to a shipped block and lands in its own commit, separate from the party feature.
 
@@ -685,12 +906,15 @@ The `large_table` support change is a behavioural change to a shipped block and 
 
 ## 10. Known limits
 
-- **The `large_table` support change is global.** `forceSolidOn` plus a full `getBlockSupportShape` lets anything be stood on the tables and stops mobs spawning inside them. Intended, and normal for a solid table top, but it does change existing behaviour.
 - **`tea_table` and `magic_table` cannot host parties.** Deliberate (§2.3). A small indoor party needs a second pass.
+- **Farmer's Delight and Youkai's Feasts are `compileOnly` in the dev build.** Their jars sit in the `libs/` flatDir and resolve for compilation, but neither is loaded at runtime. Adding either as an `implementation` dependency puts a second copy of the L2 libraries on the module path and the dev launcher dies during class-layer construction with a `java.lang.module.ResolutionException` about split packages — before any mod code runs, so no amount of code changes avoids it. Consequence for testing: a dev run has **no modded party food**, only `minecraft:cake`, and the `required: false` tag entries resolve to nothing. The party is fully playable and testable that way; testing the FD/YSF foods needs a real instance with the mods installed.
+- **`addOptional` in a tag provider hangs `runData`** (§2.1). The three party tags are therefore hand-authored. Worth knowing before anyone tries to move them back into `GLTagGen`.
 - **A party can only be sent on a `party_table`,** so the letter is aimed at the table rather than at the food. Clicking a food block directly does nothing.
 - **Reputation is sampled once, at send.** Reputation earned during the party does not upgrade the roster and reputation lost during it evicts nobody. A guest who turns hostile mid-party keeps eating. A consequence of freezing the roster, and the reason `/gensokyo party preview` can be exact.
 - **Guest eating is not interruptible.** If the player breaks the food out from under a guest she re-validates and picks again, but she cannot be redirected to a different dish.
 - **Chunk unload freezes the party mid-feast.** Guests stop ticking with the chunk and resume on reload. Acceptable — the same behaviour as every other entity in the chunk — but a party in a chunk the player walks away from simply pauses.
+- **A guest belongs to the chunk that owns the party, not the chunk she stands in.** Both the anchor table and the food centre lie inside the scan box, so a party routinely straddles a chunk border. Guests therefore carry the owning `ChunkPos` explicitly and look the party up by that — never by `new ChunkPos(table)`, which silently misses and makes her dismiss herself on her first tick. Same reasoning behind `/gensokyo party info|end` searching the neighbourhood through `PartyAttachment.near` instead of one chunk.
+- **A guest claims one seat per party and never gives it back.** `HomeSearchUtil.setSitting` is a one-shot call with no un-sit counterpart, so she stays parked on the chair for the rest of the visit. Fine — she is a party guest and has nowhere else to be — but seat reassignment after someone leaves is not implemented.
 - **No cross-dimension concern.** A guest clone spawns in the host's level and `party_taste` is dimension-independent, so any character may be invited anywhere. Noted only so it is not rediscovered as a bug later.
 - **`en_ud` lang variants** regenerate with the rest; zh_cn entries go under `src/test/resources/gensokyolegacy/lang/zh_cn/` and the `ResourceOrganizer` main is rerun afterwards.
 
@@ -700,7 +924,7 @@ The `large_table` support change is a behavioural change to a shipped block and 
 
 Owner answers, 2026-10-06:
 
-1. **`tea_table` / `magic_table`** — excluded from the feature. `party_table` is built from `LARGE_TABLE` only, and neither block is modified.
+1. **`tea_table` / `magic_table`** — excluded from the feature. `party_table` is built from `LARGE_TABLE` only, and neither block is modified. Note that they needed no support workaround regardless: `large_table` already passes both survival checks unmodified (§2.3).
 2. **Overlapping parties** — rejected by chunk scan. The party's owning chunk is the one holding the centre of the detected food; every chunk the food touches is scanned for an existing live party before a send is allowed.
 3. **Chairs are a hard requirement** — zero seats rejects the send outright. A new `party_seat` tag carries our chairs and stools plus optional third-party seats; seating itself reuses `HomeSearchUtil.setSitting`, which no-ops on blocks that are not `ISeatableBlock`.
 4. **Cost** — food only. No cooldown, no reputation gain or loss. Gifts are the whole return, scaled down for under-served guests.
