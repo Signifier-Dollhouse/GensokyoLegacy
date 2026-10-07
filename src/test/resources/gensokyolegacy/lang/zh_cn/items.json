@@ -21,6 +21,7 @@
 		"donation_box": "赛钱箱",
 		"evergreen_vine": "常青垂藤",
 		"cedar_fallen_leaves": "青杉落叶",
+		"ice_bricks": "冰砖",
 		"darkstone": "宵暗石",
 		"darkstone_bricks": "宵暗瓦片",
 		"chiseled_darkstone_bricks": "雕纹宵暗瓦片",
@@ -183,6 +184,7 @@
 				{
 					"packed_ice": "浮冰",
 					"snow": "雪",
+					"ice_brick": "冰砖",
 					"darkstone": "宵暗石",
 					"darkstone_brick": "宵暗瓦"
 				},

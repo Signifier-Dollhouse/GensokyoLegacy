@@ -1,0 +1,26 @@
+{
+  "animations": [
+    "dialog_agree"
+  ],
+  "options": [
+    {
+      "type": "gensokyolegacy:simple",
+      "actions": [],
+      "conditions": [],
+      "next": "gensokyolegacy:marisa/hakkero/complete/reject/dialog_1",
+      "text": "gensokyolegacy/marisa/hakkero/option/complete/reject"
+    },
+    {
+      "type": "gensokyolegacy:simple",
+      "actions": [
+        {
+          "type": "gensokyolegacy:complete_quest"
+        }
+      ],
+      "conditions": [],
+      "next": "gensokyolegacy:marisa/hakkero/complete/handover/dialog_1",
+      "text": "gensokyolegacy/marisa/hakkero/option/complete/handover"
+    }
+  ],
+  "text": "gensokyolegacy/marisa/hakkero/dialog/marisa/hakkero/complete/dialog_1"
+}

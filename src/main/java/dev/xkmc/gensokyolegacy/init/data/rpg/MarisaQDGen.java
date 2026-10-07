@@ -59,6 +59,7 @@ public class MarisaQDGen extends QuestDialogData {
 	private static final ResourceLocation QUEST_NETHER_MUSHROOM = GensokyoLegacy.loc("marisa/nether_mushroom_prep");
 	private static final ResourceLocation QUEST_SHROOMLIGHT = GensokyoLegacy.loc("marisa/shroomlight");
 	private static final ResourceLocation QUEST_BREWING = GensokyoLegacy.loc("marisa/brewing");
+	public static final ResourceLocation QUEST_HAKKERO = GensokyoLegacy.loc("marisa/hakkero");
 	public static final ResourceLocation QUEST_KOISHI = GensokyoLegacy.loc("marisa/koishi_hat");
 	public static final ResourceLocation QUEST_TALISMAN_REQUEST = GensokyoLegacy.loc("marisa/talisman_request");
 	private static final ResourceLocation QUEST_DAILY_TALISMAN = GensokyoLegacy.loc("marisa/daily_talisman");
@@ -299,6 +300,44 @@ public class MarisaQDGen extends QuestDialogData {
 				complete("I got the stuff.",
 						"Blaze rods and nether wart — now I can finally study this 'brewing' business. Thanks again this time!",
 						"We each get what we need.", "Oh right — here's your reward.", "Thanks.")
+		));
+
+		prefix("marisa/hakkero");
+		// Offered to anyone holding the prototype who has not been given the
+		// repaired one yet - the two advancement conditions say exactly that,
+		// and the inverted second one closes the quest for good once it fires.
+		quest("marisa/hakkero", new Quest(GLEntities.MARISA.get(),
+				List.of(new HasAdvancementCondition(GLAdvGen.OBTAIN_MINI_HAKKERO),
+						new HasAdvancementCondition(GLAdvGen.OBTAIN_MINI_HAKKERO_REPAIRED, true),
+						homeBound()),
+				questTitle("A Proper Hakkero"), questDesc("Hand Marisa your Mini Hakkero Prototype and the parts to repair it."),
+				Optional.empty(),
+				new TreeMap<>(Map.of(
+						"a-parts", new SubmitItemRequirement(List.of(
+								item(Items.REDSTONE, 8),
+								item(Items.GOLD_INGOT, 4),
+								item(Items.IRON_INGOT, 16),
+								item(Items.NETHERITE_SCRAP, 1))),
+						"a-prototype", new SubmitItemRequirement(List.of(
+								item(GLItems.MINI_HAKKERO_PROTOTYPE.get(), 1)))
+				)),
+				List.of(new ExpReward(300), new ReputationReward(20, 300, 10, 300),
+						loot("marisa/hakkero", LootTable.lootTable()
+								.withPool(lootItem(GLItems.MINI_HAKKERO.get(), 1)))),
+				start("Say, is that prototype of yours working out for you?",
+						"There it is! Say, I've had a look at that little prototype of yours - the old man sells them as curiosities, but the shape of that thing is interesting. It's a furnace that runs off nothing but itself, and it shouldn't be possible - the casing alone is a problem. There's real magic potential in there if somebody sat down and finished it properly. I could do that, if I had the parts.",
+						"What would you need?", "A little of everything: eight redstone to run the circuit, four gold for the contacts, sixteen iron to shore up the casing, and one netherite scrap to anchor the whole thing. Don't think that leaves your prototype in a bad way - I'll hand you back something better than what you gave me.",
+						"Off you go, then! One netherite scrap - don't get clever and try to fake it, I can tell.",
+						"I'm not going to part with any netherite.", "It's one scrap, not a nugget. And you'll get a proper hakkero out of it - that's worth more than the scrap in your pocket, trust me.",
+						"I'll think about it."),
+				follow("Just to confirm - the parts for the repair?",
+						"Eight redstone, four gold, sixteen iron, one netherite scrap - and don't forget the prototype itself, I can't work on a copy!",
+						"Still getting them together.", "Take your time. The prototype isn't going anywhere without you.",
+						null),
+				complete("Here - the parts, and the prototype.",
+						"Right, let's see... redstone for the circuit, gold to carry it, iron to hold it all together, and there we go - netherite, the part that actually matters. Hold still. ...There! Feel the difference? It runs cooler now, and it doesn't take nearly so long to finish a job. Morichika can have his little curiosity back.",
+						"Now that's a proper hakkero.", "A deal's a deal - it's yours.", "Huh, you know, that thing's practically a whole workshop in one hand.",
+						"Sorry, I don't have everything yet.", "No rush. Get the rest and come back.", "Okay.")
 		));
 
 		prefix("marisa/golden_apple");
@@ -555,6 +594,16 @@ public class MarisaQDGen extends QuestDialogData {
 				List.of(new HasQuestCompletedCondition(QUEST_TALISMAN_REQUEST)),
 				new ItemStack(GLItems.BROOM.get()),
 				new TradeRecurrence(1, 24000), List.of(item(GLItems.MYSTICAL_STRAW.get(), 8))));
+
+		// The repaired hakkero, once she has shown she can build one: the same
+		// bill of materials as the quest, but only ever one a week, since the
+		// netherite scrap is the part she cannot make more of.
+		trade("offer_hakkero", new TradeOffer(GLEntities.MARISA.get(),
+				List.of(homeBound(), new HasQuestCompletedCondition(QUEST_HAKKERO)),
+				new ItemStack(GLItems.MINI_HAKKERO.get()),
+				new TradeRecurrence(1, 168000),
+				List.of(item(Items.REDSTONE, 8), item(Items.GOLD_INGOT, 4),
+						item(Items.IRON_INGOT, 16), item(Items.NETHERITE_SCRAP, 1))));
 
 		// Processing trades - these need her own workshop, so she only offers them
 		// from the shop rather than from wherever she happens to be visiting.

@@ -1,0 +1,15 @@
+{
+  "animations": [
+    "dialog_think"
+  ],
+  "options": [
+    {
+      "type": "gensokyolegacy:simple",
+      "actions": [],
+      "conditions": [],
+      "next": "gensokyolegacy:marisa/hakkero/follow_up/end/dialog_1",
+      "text": "gensokyolegacy/marisa/hakkero/option/follow_up/end"
+    }
+  ],
+  "text": "gensokyolegacy/marisa/hakkero/dialog/marisa/hakkero/follow_up/dialog_1"
+}

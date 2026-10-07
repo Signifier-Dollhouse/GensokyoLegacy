@@ -29,7 +29,8 @@ import java.util.Locale;
 public class GLBlocks {
 
 	public enum Beds {
-		CIRNO(Blocks.BLUE_BED, new FlatBedShape()),
+		// Cirno's bed is a full four-poster, matching her western-style texture layout
+		CIRNO(Blocks.BLUE_BED, new WesternBedShape()),
 		RUMIA(Blocks.BLACK_BED, new FlatBedShape()),
 		REIMU(Blocks.RED_BED, new FlatBedShape()),
 		MORICHIKA(Blocks.LIGHT_BLUE_BED, new FlatBedShape()),
