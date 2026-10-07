@@ -20,6 +20,7 @@ import dev.xkmc.gensokyolegacy.content.entity.characters.sakuya.SakuyaEntity;
 import dev.xkmc.gensokyolegacy.content.entity.characters.sakuya.SakuyaRenderer;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.DollEntity;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.render.DollRenderer;
+import dev.xkmc.gensokyolegacy.content.entity.dolls.render.IronDaggerBulletRenderer;
 import dev.xkmc.gensokyolegacy.content.entity.misc.FairyIce;
 import dev.xkmc.gensokyolegacy.content.entity.misc.FrozenFrog;
 import dev.xkmc.gensokyolegacy.content.entity.misc.HexBrewBottleEntity;
@@ -245,7 +246,7 @@ public class GLEntities {
 			IRON_DAGGER = GensokyoLegacy.REGISTRATE
 					.<IronDaggerBulletEntity>entity("iron_dagger", IronDaggerBulletEntity::new, MobCategory.MISC)
 					.properties(p -> p.sized(0.4F, 0.4F).clientTrackingRange(4).updateInterval(1 << 16))
-					.renderer(() -> ItemBulletRenderer::new)
+					.renderer(() -> IronDaggerBulletRenderer::new)
 					.register();
 		}
 

@@ -49,7 +49,7 @@ public class DollLanceItem extends Item {
 			.build();
 
 	public DollLanceItem(Properties properties) {
-		super(properties.attributes(ATTRIBUTES));
+		super(properties.attributes(ATTRIBUTES).stacksTo(1));
 	}
 
 	@Override
