@@ -16,12 +16,21 @@ Two supporting generalizations came with it:
 > **The host must be the entity, not the module.** Alice keeps her ledger in an
 > `AliceDollHost` module, because that is where module data belongs — it rides her
 > chunk save for free. But `getHost()` can only ask an *entity*, so `AliceEntity`
-> has to implement `DollHost` itself and delegate every method to the module.
-> Without that, `getHost()` returns null for all of her dolls and each one
-> self-discards on its next tick, and the symptoms are extremely misleading: the
-> dolls appear, they never move, they never fight, and the roster seems to ignore
-> its own cap — because what the player is watching is a conjure/discard churn,
-> not a working retinue.
+> has to be the host herself and forward every method to the module. She does that
+> by implementing **`DelegateDollHost`** and writing only its `dolls()` method:
+> the interface forwards the whole surface, pairing half included, so a character
+> that keeps its dolls in a module never has to repeat ten one-line delegates.
+> Without the forwarding, `getHost()` returns null for all of her dolls and each
+> one self-discards on its next tick, and the symptoms are extremely misleading:
+> the dolls appear, they never move, they never fight, and the roster seems to
+> ignore its own cap — because what the player is watching is a conjure/discard
+> churn, not a working retinue.
+
+`DelegateDollHost` is the mirror image of `DollLedger`, and the two are not
+alternatives. `DollLedger` **is** the ledger and holds nothing but a commander;
+`DelegateDollHost` holds nothing at all and forwards *everything* to a real host.
+A character entity needs the delegate (its state is in a module), the module
+itself needs the ledger (its state is the ledger).
 
 ## 2. What a character host looks like
 

@@ -1,5 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.entity.characters.magician;
 
+import dev.xkmc.gensokyolegacy.content.attachment.doll.DelegateDollHost;
 import dev.xkmc.gensokyolegacy.content.attachment.doll.DollCommander;
 import dev.xkmc.gensokyolegacy.content.attachment.doll.DollData;
 import dev.xkmc.gensokyolegacy.content.attachment.doll.DollHost;
@@ -126,7 +127,8 @@ public class AliceDollHost extends AbstractYoukaiModule implements DollLedger {
 	 * The retinue ledger, exposed on {@link AliceEntity} itself. The module cannot
 	 * be the doll's host: {@link BaseDollEntity#getHost} resolves the host by
 	 * asking the <b>owning entity</b> for a {@link DollHost}, and a module is not
-	 * an entity. So Alice delegates the whole host surface to her module.
+	 * an entity. So Alice answers as the host and forwards to us — through
+	 * {@link DelegateDollHost}, which is what makes that one method instead of ten.
 	 */
 	public static DollHost hostOf(AliceEntity alice) {
 		return alice.getModule(AliceDollHost.class)
