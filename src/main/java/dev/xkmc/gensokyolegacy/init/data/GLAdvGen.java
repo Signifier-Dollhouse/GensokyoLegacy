@@ -120,8 +120,8 @@ public class GLAdvGen {
 						CriterionBuilder.item(GLItems.BORDER_UMBRELLA.get()),
 						"Border Umbrella", "Obtain a Border Umbrella")
 				.type(AdvancementType.TASK, false, false, false);
-		morichika.create("obtain_mini_hakkero", GLItems.MINI_FURNACE_1.get(),
-						CriterionBuilder.item(GLItems.MINI_FURNACE_1.get()),
+		morichika.create("obtain_mini_hakkero", GLItems.MINI_HAKKERO_PROTOTYPE.get(),
+						CriterionBuilder.item(GLItems.MINI_HAKKERO_PROTOTYPE.get()),
 						"Mini Hakkero", "Obtain a Mini Hakkero Prototype")
 				.type(AdvancementType.TASK, false, false, false)
 				.create("obtain_cat_bell", GLItems.CAT_BELL.get(),

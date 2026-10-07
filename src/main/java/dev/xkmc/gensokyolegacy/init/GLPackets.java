@@ -23,6 +23,7 @@ import dev.xkmc.gensokyolegacy.content.item.common.network.SelectorSelectPacket;
 import dev.xkmc.gensokyolegacy.content.item.glove.network.DollGloveSwingPacket;
 import dev.xkmc.gensokyolegacy.content.item.tool.CatBell;
 import dev.xkmc.gensokyolegacy.content.item.tool.Dowser;
+import dev.xkmc.gensokyolegacy.content.item.hakkero.Hakkero;
 import dev.xkmc.gensokyolegacy.content.item.umbrella.network.BorderUmbrellaConfirmRecordPacket;
 import dev.xkmc.gensokyolegacy.content.item.umbrella.network.BorderUmbrellaDeletePacket;
 import dev.xkmc.gensokyolegacy.content.item.umbrella.network.BorderUmbrellaOpenRenamePacket;
@@ -93,6 +94,7 @@ public class GLPackets {
 				.toClient(KoishiStartPacket.class)
 				.toClient(Dowser.DowserToClient.class)
 				.toClient(CatBell.MountToClient.class)
+				.toClient(Hakkero.BroomBoostToClient.class)
 
 				.toServer(BorderUmbrellaWheelSelectPacket.class)
 				.toServer(BorderUmbrellaRenamePacket.class)

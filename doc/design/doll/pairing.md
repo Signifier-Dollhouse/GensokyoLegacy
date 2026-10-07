@@ -220,7 +220,7 @@ Both are O(#parked) small operations per tick; state only *moves forward* once a
 | `PlayerRespawnEvent` | `restore(player)` (§3.4). |
 | `EntityJoinLevelEvent` (ServerLevel) | Belt-and-braces: freshly-spawned / loaded-from-disk doll → immediate inverse check against `findSummoned(uuid)` (§4.8, §5.2). |
 
-Dimension changes need no handler: when the owner leaves the dimension the doll's `getHost()` resolves to null (owner not in that level), so the doll self-discards (§5.2) and its entry reconciles to TEMP, then `trySummon` respawns a fresh doll near the player in the new dimension — uniformly, regardless of chunk load state.
+Dimension changes need no handler: a doll cannot change dimension in the first place (entity.md §3.1a — `canUsePortal` / `canChangeDimensions` are both `false`), so the owner leaving never leaves its doll behind. The self-healing below remains the uniform answer for the paths that do bypass that lock — `/tp`, a mixin, a scripted move — and it also covers the routine cases: when the owner leaves, the doll's `getHost()` resolves to null (owner not in that level), so the doll self-discards (§5.2) and its entry reconciles to TEMP, then `trySummon` respawns a fresh doll near the player in the new dimension, regardless of chunk load state.
 
 ## 5. Integrity: reconciliation backup + anti-dupe
 

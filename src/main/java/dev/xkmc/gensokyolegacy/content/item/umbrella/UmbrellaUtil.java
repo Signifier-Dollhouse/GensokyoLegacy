@@ -1,5 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.item.umbrella;
 
+import dev.xkmc.gensokyolegacy.content.entity.foundation.IDimensionBoundEntity;
 import dev.xkmc.gensokyolegacy.content.item.umbrella.data.BorderSlot;
 import dev.xkmc.gensokyolegacy.content.item.umbrella.data.BorderUmbrellaSlots;
 import dev.xkmc.gensokyolegacy.content.item.umbrella.network.BorderUmbrellaOpenRenamePacket;
@@ -57,6 +58,13 @@ public class UmbrellaUtil {
 		ServerLevel targetLevel = sp.server.getLevel(ResourceKey.create(Registries.DIMENSION, slot.dim()));
 		if (targetLevel == null) {
 			sp.displayClientMessage(GLLang.ItemUmbrella.DIM_MISSING.get(slot.dim().toString()), true);
+			return;
+		}
+		// A doll or a character is dimension-bound, so the capture may only move it
+		// around inside its own level; refuse rather than strand it somewhere its
+		// ledger / index cannot describe.
+		if (target instanceof IDimensionBoundEntity && target.level() != targetLevel) {
+			sp.displayClientMessage(GLLang.ItemUmbrella.CAPTURE_FAIL.get(), true);
 			return;
 		}
 		Vec3 dst = Vec3.atBottomCenterOf(slot.pos());
