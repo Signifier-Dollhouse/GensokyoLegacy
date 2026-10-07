@@ -3,8 +3,10 @@ package dev.xkmc.gensokyolegacy.content.entity.dolls.goals;
 import dev.xkmc.gensokyolegacy.content.attachment.doll.DollData;
 import dev.xkmc.gensokyolegacy.content.attachment.doll.DollHost;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.BaseDollEntity;
+import dev.xkmc.gensokyolegacy.content.entity.dolls.DollEntity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.Goal;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
@@ -21,9 +23,31 @@ public class FollowDollOwnerGoal extends Goal {
     private static final double FORMATION_MIN_RADIUS = 2.0;
     private static final double FORMATION_MAX_RADIUS = 6.0;
 
+    /**
+     * Catch-up range, squared: past 5 blocks from the slot the doll is not
+     * lagging in the formation, it is somewhere the pathfinder never reached.
+     */
+    private static final double LOST_RANGE_SQ = 25;
+
+    /**
+     * How long the owner must stay out of sight before the doll treats itself
+     * as lost and blinks back. One second, matching the grace period Alice's
+     * escort gets before charging a target it lost line of sight on
+     * (host.md §5).
+     */
+    private static final int BLIND_TICKS = 20;
+
     private final BaseDollEntity doll;
     private LivingEntity owner;
     private int timeToRecalcPath;
+
+    /**
+     * Game time the owner was first lost from sight, -1 while it is visible.
+     * Game time rather than a tick counter: a goal that does not override
+     * {@code requiresUpdateEveryTick} is only ticked every other pass, so a
+     * per-tick counter would silently measure half the window.
+     */
+    private long unseenSince = -1;
 
     public FollowDollOwnerGoal(BaseDollEntity doll) {
         this.doll = doll;
@@ -78,24 +102,77 @@ public class FollowDollOwnerGoal extends Goal {
     }
 
     /**
-     * Snap to the formation slot when the owner has outrun us. Same level only:
-     * a doll is dimension-bound ({@code BaseDollEntity#canUsePortal}), so once
-     * the owner is gone the doll cannot follow across, and its ledger entry
-     * reconciles it away and re-conjures it at the owner's side in the new
-     * level instead. Teleporting does not violate the movement cap — it is not
-     * velocity.
+     * Snap to the formation slot when the doll is lost. Four conditions, all
+     * required: the owner resolves to a live entity in this doll's own level,
+     * the doll holds no command, the slot is more than {@link #LOST_RANGE_SQ}
+     * blocks away, and the owner has been out of sight for {@link #BLIND_TICKS},
+     * in which case the slot itself must also be standable ({@link #landingSafe}).
+     * Same level only: a doll is dimension-bound
+     * ({@code BaseDollEntity#canUsePortal}), so once the owner is gone the doll
+     * cannot follow across, and its ledger entry reconciles it away and
+     * re-conjures it at the owner's side in the new level instead. Teleporting
+     * does not violate the movement cap — it is not velocity.
+     * <p>
+     * Each condition rules out one way this could misfire. Sight is the real
+     * test: a doll that can see the owner can still path to it, so walls
+     * between them are no excuse and a blink behind a pillar costs nothing. The
+     * command gate is the other half — a doll that is attacking or still
+     * preparing to is where the glove put it, and dragging it back to the
+     * formation would cancel the order's positioning. Distance only keeps the
+     * two near misses (owner behind the doll mid-turn, doll freshly out of slot)
+     * from ever reaching the sight test.
+     * <p>
+     * A slot that is not standable is not rescued at all: the formation arc is
+     * a pure function of the owner's yaw, so it sweeps straight through walls,
+     * ceilings and closed rooms, and teleporting into one strands the doll
+     * somewhere worse than wherever it already was. It lands on the owner
+     * instead — see {@link #landingSafe}.
      */
     private boolean teleportToOwnerPos(Vec3 destination) {
-        if (this.doll.level() != this.owner.level()) return false;
-        double dx = destination.x - this.doll.getX();
-        double dy = destination.y - this.doll.getY();
-        double dz = destination.z - this.doll.getZ();
-        double distanceSq = dx * dx + dy * dy + dz * dz;
-        if (distanceSq > 144) {
-            this.doll.teleportTo(destination.x, destination.y, destination.z);
-            return true;
+        if (this.owner == null || this.doll.level() != this.owner.level()) return false;
+        // pending tickets count as commands too: a doll still winding up to
+        // attack is being placed deliberately as well.
+        if (this.doll instanceof DollEntity dollEntity && dollEntity.actions.isActive()) return false;
+        if (this.doll.distanceToSqr(destination) <= LOST_RANGE_SQ) return false;
+        long gameTime = this.doll.level().getGameTime();
+        if (this.unseenSince < 0 || gameTime - this.unseenSince < BLIND_TICKS) return false;
+        // The fallback is deliberately not re-tested. The owner is standing
+        // there, so its position is as safe as the owner's own, and a collision
+        // query at that point would hit the owner's own hitbox every single time
+        // and void the fallback.
+        Vec3 landing = landingSafe(destination) ? destination : this.owner.position();
+        this.doll.teleportTo(landing.x, landing.y, landing.z);
+        // the path that led here is meaningless from the landing point: drop
+        // it so the next tick re-paths instead of walking the doll back off.
+        this.doll.getNavigation().stop();
+        this.timeToRecalcPath = 0;
+        return true;
+    }
+
+    /**
+     * Whether the doll's own bounding box fits at {@code target}, translated
+     * from where the doll currently stands. {@code CollisionGetter#noCollision}
+     * answers blocks, entities and the world border in one query. The target is
+     * always within a few blocks of the owner, hence inside loaded chunks, so
+     * this never forces a chunk load.
+     */
+    private boolean landingSafe(Vec3 target) {
+        AABB box = this.doll.getBoundingBox().move(target.subtract(this.doll.position()));
+        return this.doll.level().noCollision(this.doll, box);
+    }
+
+    /**
+     * Restarts the blindness clock: a fresh follow run owes the owner a full
+     * grace period, so a doll that just came into range is never blinked back
+     * on a stale window.
+     */
+    private void trackSight() {
+        if (this.doll.hasLineOfSight(this.owner)) {
+            this.unseenSince = -1;
+            return;
         }
-        return false;
+        long gameTime = this.doll.level().getGameTime();
+        if (this.unseenSince < 0) this.unseenSince = gameTime;
     }
 
     @Override
@@ -110,6 +187,7 @@ public class FollowDollOwnerGoal extends Goal {
     @Override
     public void start() {
         this.timeToRecalcPath = 0;
+        this.unseenSince = -1;
         Vec3 targetPos = this.getTargetPos();
         if (targetPos == null) return;
         this.doll.getNavigation().moveTo(targetPos.x, targetPos.y, targetPos.z, this.doll.speedModifier);
@@ -122,6 +200,7 @@ public class FollowDollOwnerGoal extends Goal {
         // only when isEffectiveAi, i.e. never on the client).
         Vec3 targetPos = this.getTargetPos();
         if (targetPos == null) return;
+        this.trackSight();
         if (this.teleportToOwnerPos(targetPos)) {
             return;
         }
