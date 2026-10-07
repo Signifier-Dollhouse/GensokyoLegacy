@@ -20,12 +20,12 @@ public class MorichikaQDGen extends QuestDialogData {
 		prefix("morichika/chat");
 		defaultDialog(GLEntities.MORICHIKA.get(),
 				"Welcome to Kourindou! Feel free to look around.",
-				"Ah, a guest. Mind the clutter.",
-				"Any special offers for a special customer?");
+				"Good to see you again. Everything going alright?",
+				"Let me see what you are selling?");
 		starter("morichika/chat", new DialogStarter(GLEntities.MORICHIKA.get(), List.of(homeBound()),
-				starterText("start", "Welcome!"),
+				starterText("start", "A shop like this, out in the forest?"),
 				dialog("hi", "Welcome to Kourindou! Let me know if anything catches your eye.",
-						option("bye", "Bye!"))
+						option("bye", "I'll browse the shelves."))
 		));
 
 		chats();
@@ -47,9 +47,9 @@ public class MorichikaQDGen extends QuestDialogData {
 		chat("morichika/chat_reimu", GLEntities.MORICHIKA.get(),
 				List.of(homeBound(), missingAdv(GLAdvGen.ENTER_HAKUREI_SHRINE)),
 				starterText("start", "It's dangerous out there…"),
-				dialog("talk", "There's a shrine maiden in the cherry grove. If raiders trouble you, she's the one to see — she may provide something to aid you in a fight.",
+				dialog("talk", "There's a shrine maiden in the cherry grove. If you feel short of ways to protect yourself, go and ask her for a talisman - it will keep you alive when danger comes.",
 						option("donation", "Anything I should know?",
-								dialog("donation_ans", "Just don't forget a donation. A shrine maiden with an empty donation box is a grumpy shrine maiden.",
+								dialog("donation_ans", "She's easygoing. As long as you don't do anything out of the ordinary, there are no real restrictions.",
 										option("bye", "Thanks!")))),
 				CHAT_INFO);
 	}

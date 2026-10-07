@@ -4,6 +4,7 @@ import dev.xkmc.danmakuapi.api.DanmakuDamageEvent;
 import dev.xkmc.gensokyolegacy.content.attachment.misc.FrogGodCapability;
 import dev.xkmc.gensokyolegacy.content.attachment.storage.PendingItemStorage;
 import dev.xkmc.gensokyolegacy.content.entity.characters.rumia.RumiaEntity;
+import dev.xkmc.gensokyolegacy.content.entity.foundation.IDimensionBoundEntity;
 import dev.xkmc.gensokyolegacy.content.item.character.TouhouHatItem;
 import dev.xkmc.gensokyolegacy.content.item.glove.DollGloveItem;
 import dev.xkmc.gensokyolegacy.content.item.glove.network.DollGloveSwingPacket;
@@ -26,6 +27,7 @@ import net.minecraft.world.item.Items;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.AnvilUpdateEvent;
+import net.neoforged.neoforge.event.entity.EntityTravelToDimensionEvent;
 import net.neoforged.neoforge.event.entity.living.LivingShieldBlockEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
@@ -109,6 +111,28 @@ public class MiscEventHandlers {
 					}
 				}
 			}
+		}
+	}
+
+	/**
+	 * Backstop for the dimension lock on dolls and characters.
+	 * <p>
+	 * Both bases already refuse at {@code canUsePortal} /
+	 * {@code canChangeDimensions}, which covers every portal path (vanilla nether /
+	 * end / end gateway and the mod's own gap portal) because they all route
+	 * through {@code Entity#changeDimension}. This cancels the same transition one
+	 * step lower, for anything that reaches {@code changeDimension} without
+	 * asking first — a mixin, another mod, a scripted move. It is deliberately not
+	 * a way to reach {@code Entity#teleportTo(ServerLevel, ...)}, which the
+	 * {@code /tp} command uses for mobs and which never fires this event; that one
+	 * is left working on purpose, since an operator forcing an entity across is an
+	 * explicit act and the existing discard/respawn watchdogs already reconcile
+	 * the result.
+	 */
+	@SubscribeEvent
+	public static void onTravelToDimension(EntityTravelToDimensionEvent event) {
+		if (event.getEntity() instanceof IDimensionBoundEntity) {
+			event.setCanceled(true);
 		}
 	}
 

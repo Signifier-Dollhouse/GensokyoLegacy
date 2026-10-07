@@ -3,14 +3,12 @@ package dev.xkmc.gensokyolegacy.content.entity.dolls.goals;
 import dev.xkmc.gensokyolegacy.content.attachment.doll.DollData;
 import dev.xkmc.gensokyolegacy.content.attachment.doll.DollHost;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.BaseDollEntity;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
 import java.util.EnumSet;
-import java.util.Set;
 
 public class FollowDollOwnerGoal extends Goal {
     /**
@@ -79,14 +77,16 @@ public class FollowDollOwnerGoal extends Goal {
         return formationPos(owner.position(), owner.getY(), host.getFormationYaw(), data.formationIndex, data.formationTotal);
     }
 
+    /**
+     * Snap to the formation slot when the owner has outrun us. Same level only:
+     * a doll is dimension-bound ({@code BaseDollEntity#canUsePortal}), so once
+     * the owner is gone the doll cannot follow across, and its ledger entry
+     * reconciles it away and re-conjures it at the owner's side in the new
+     * level instead. Teleporting does not violate the movement cap — it is not
+     * velocity.
+     */
     private boolean teleportToOwnerPos(Vec3 destination) {
-        if (!this.doll.level().dimension().equals(this.owner.level().dimension())) {
-            ServerLevel targetLevel = this.doll.level().getServer().getLevel(this.owner.level().dimension());
-            if (targetLevel != null){
-                this.doll.teleportTo(targetLevel, destination.x, destination.y, destination.z, Set.of(), this.doll.getYRot(), this.doll.getXRot());
-            }
-            return true;
-        }
+        if (this.doll.level() != this.owner.level()) return false;
         double dx = destination.x - this.doll.getX();
         double dy = destination.y - this.doll.getY();
         double dz = destination.z - this.doll.getZ();

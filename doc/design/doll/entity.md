@@ -55,7 +55,27 @@ Every tick, the ellipsoidal velocity vector is hard-clamped: if its length excee
 
 The enforced value is a field (`speedCap`, `setSpeedCap`), `MAX_SPEED` by default. It exists for one sanctioned exception: a behavior that deliberately spends speed on an attack — the melee charge raises it to twice the cap for the lunge and drops it back in its `stop` (control.md §5.1b). Nothing else may touch it, and it is not synced: a burst belongs to the tick that pays for it, so a doll always resumes under the ordinary cap.
 
-The follow goal's >12-block / cross-dimension **teleport** remains the catch-up mechanism (it does not violate the cap — teleporting is not velocity). `canChangeDimensions()` may be overridden to `true` as optional hardening.
+The follow goal's >12-block **teleport** remains the catch-up mechanism (it does not violate the cap — teleporting is not velocity). It is same-level only: a doll is dimension-bound (§3.1a), so there is no cross-dimension catch-up to perform.
+
+### 3.1a Dimension lock
+
+```java
+@Override
+public boolean canUsePortal(boolean allowPassengers) {
+    return false;
+}
+
+@Override
+public boolean canChangeDimensions(Level oldLevel, Level newLevel) {
+    return false;
+}
+```
+
+A doll is a projection of a ledger entry that names exactly one level, so a portal would strand it where no ledger can describe it. `canUsePortal` is the single gate every portal entry point consults — `NetherPortalBlock`, `EndPortalBlock`, `EndGatewayBlock`, and the mod's own `BasePortalBlock` all branch on it — so refusing there covers vanilla and the gap dimension at once, and the doll simply walks through the portal block like any other scenery. `canChangeDimensions` states the same rule at the transition itself, in case a destination is latched by some other route.
+
+`IDimensionBoundEntity` (`content/entity/foundation/`) is the shared marker. It carries no methods: the two overrides above and the equivalent pair on `YoukaiEntity` live in the concrete bases because a Java interface default would be silently shadowed by the superclass methods. Call sites that move other entities around check the marker instead of naming both bases — currently the umbrella capture, which refuses to send a doll to a slot in another dimension (`UmbrellaUtil.teleportEntityToSlot`).
+
+Two paths are deliberately left working, because an operator forcing an entity across is an explicit act and the existing watchdogs already reconcile the result: `/tp` (which uses `Entity#teleportTo(ServerLevel, ...)`, not `changeDimension`, and never fires the NeoForge event) and `EntityTravelToDimensionEvent` is cancelled as a backstop for mixin/mod-initiated moves.
 
 ### 3.2 Goals
 
