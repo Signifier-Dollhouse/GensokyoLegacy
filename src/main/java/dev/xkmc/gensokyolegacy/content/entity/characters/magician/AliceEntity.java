@@ -11,6 +11,7 @@ import dev.xkmc.gensokyolegacy.content.entity.dolls.BaseDollEntity;
 import dev.xkmc.gensokyolegacy.content.entity.module.AbstractYoukaiModule;
 import dev.xkmc.gensokyolegacy.content.entity.module.HomeModule;
 import dev.xkmc.gensokyolegacy.content.entity.module.TalkModule;
+import dev.xkmc.gensokyolegacy.content.entity.module.VisitModule;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.GeoYoukaiAnim;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.GeneralYoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiAnim;
@@ -67,6 +68,9 @@ public class AliceEntity extends GeneralYoukaiEntity implements GeoYoukaiAnim, D
 	protected List<AbstractYoukaiModule> createModules() {
 		return List.of(
 				new HomeModule(this),
+				// she is a declared guest at Marisa's house (GLStructureGen), so she
+				// needs the visit module like everyone else
+				new VisitModule(this),
 				new TalkModule(this),
 				new AliceDollHost(this)
 		);

@@ -109,6 +109,7 @@ public class TaskBoard {
 	 * the activity will not be executed without presence of that memory.
 	 */
 	public void addScheduledActivity(Activity activity, @Nullable MemoryModuleType<?> test) {
+		addActivityMemory(test);
 		activities.put(activity, new ActivityEntry(activity, test, Integer.MAX_VALUE));
 	}
 
@@ -121,9 +122,22 @@ public class TaskBoard {
 	 * must-be-absent memory requirements of all other less prioritized activities.
 	 */
 	public void addPrioritizedActivity(Activity activity, @Nullable MemoryModuleType<?> test, int priority) {
+		addActivityMemory(test);
 		var e = new ActivityEntry(activity, test, priority);
 		activities.put(activity, e);
 		priorities.add(e);
+	}
+
+	/**
+	 * An activity's memory has to be registered with the brain, not just named in
+	 * its requirements. {@code Brain.checkMemory} answers {@code false} for an
+	 * unregistered type whatever status is asked for, and {@link #buildBrain}
+	 * injects each prioritized memory as VALUE_ABSENT into every less prioritized
+	 * activity - so one unregistered activity memory silently blocks all of them,
+	 * the scheduled ones included.
+	 */
+	private void addActivityMemory(@Nullable MemoryModuleType<?> test) {
+		if (test != null) memories.add(test);
 	}
 
 	public void setSchedule(Schedule schedule) {
