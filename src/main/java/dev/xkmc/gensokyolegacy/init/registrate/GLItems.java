@@ -116,8 +116,11 @@ public class GLItems {
 
 	private static final DCReg DC = DCReg.of(GensokyoLegacy.REG);
 	public static final DCVal<HakkeroPrototype.Data> DC_HAKKERO_PROTOTYPE = DC.reg("mini_furnace_1_data", HakkeroPrototype.Data.class, false);
-	// only the lit modes: a sealed firebox cannot be switched off, so OFF is never stored here
-	public static final DCVal<HakkeroMode> DC_HAKKERO_MODE = DC.enumVal("mini_furnace_2_mode", EnumCodec.of(HakkeroMode.class, HakkeroMode.lit()));
+	// all four constants, not just the lit ones: EnumCodec writes the enum ordinal and reads it
+	// back as an index into the array it was given, so a subset decodes every mode to the wrong
+	// one and BLAST (ordinal 3) out of bounds entirely. OFF is still never stored here — the
+	// sealed firebox only ever cycles lit modes (HakkeroMode#nextLit).
+	public static final DCVal<HakkeroMode> DC_HAKKERO_MODE = DC.enumVal("mini_furnace_2_mode", EnumCodec.of(HakkeroMode.class, HakkeroMode.values()));
 	public static final DCVal<HakkeroData> DC_HAKKERO_INV = DC.reg("mini_furnace_2_inv", HakkeroData.class, false);
 	public static final DCVal<UUID> DC_UUID = DC.uuid("uuid");
 	public static final DCVal<PortalSide> DC_PORTAL_SIDE = DC.enumVal("portal_side", EnumCodec.of(PortalSide.class, PortalSide.values()));

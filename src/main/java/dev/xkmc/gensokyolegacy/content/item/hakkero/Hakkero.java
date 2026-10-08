@@ -70,10 +70,14 @@ public class Hakkero extends Item implements InvClickItem {
 	}
 
 	public static HakkeroMode getMode(ItemStack stack) {
-		return GLItems.DC_HAKKERO_MODE.getOrDefault(stack, HakkeroMode.FURNACE);
+		HakkeroMode mode = GLItems.DC_HAKKERO_MODE.getOrDefault(stack, HakkeroMode.FURNACE);
+		// OFF belongs to the prototype. The component's codec takes the whole enum, so hand-written
+		// data or a command could still name it; a sealed firebox has nothing to switch off.
+		return mode == HakkeroMode.OFF ? HakkeroMode.FURNACE : mode;
 	}
 
 	public static ItemStack setMode(ItemStack stack, HakkeroMode mode) {
+		mode = mode == HakkeroMode.OFF ? HakkeroMode.FURNACE : mode;
 		stack.set(GLItems.DC_HAKKERO_MODE, mode);
 		return stack;
 	}
