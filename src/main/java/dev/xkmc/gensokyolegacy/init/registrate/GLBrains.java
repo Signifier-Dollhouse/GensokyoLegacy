@@ -52,7 +52,7 @@ public class GLBrains {
 	public static final Val<Activity> DOWN = ACTIVITIES.reg("down", () -> new Activity("down"));
 	public static final Val<Activity> TALK = ACTIVITIES.reg("talk", () -> new Activity("talk"));
 	/**
-	 * Being a guest in someone else's home. Priority 50 puts it between FIGHT(0)
+	 * Being a guest in someone else's home. Priority 150 puts it between FIGHT(0)
 	 * and TALK(100), so a visitor still stops to talk - see the design doc.
 	 */
 	public static final Val<Activity> VISITING = ACTIVITIES.reg("visiting", () -> new Activity("visiting"));

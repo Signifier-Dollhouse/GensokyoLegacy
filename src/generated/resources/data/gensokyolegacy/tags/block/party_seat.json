@@ -1,0 +1,50 @@
+{
+  "values": [
+    "#gensokyolegacy:chair",
+    "#gensokyolegacy:stool",
+    {
+      "id": "youkaisfeasts:oak_dining_chair",
+      "required": false
+    },
+    {
+      "id": "youkaisfeasts:birch_dining_chair",
+      "required": false
+    },
+    {
+      "id": "youkaisfeasts:spruce_dining_chair",
+      "required": false
+    },
+    {
+      "id": "youkaisfeasts:jungle_dining_chair",
+      "required": false
+    },
+    {
+      "id": "youkaisfeasts:dark_oak_dining_chair",
+      "required": false
+    },
+    {
+      "id": "youkaisfeasts:acacia_dining_chair",
+      "required": false
+    },
+    {
+      "id": "youkaisfeasts:crimson_dining_chair",
+      "required": false
+    },
+    {
+      "id": "youkaisfeasts:warped_dining_chair",
+      "required": false
+    },
+    {
+      "id": "youkaisfeasts:mangrove_dining_chair",
+      "required": false
+    },
+    {
+      "id": "youkaisfeasts:cherry_dining_chair",
+      "required": false
+    },
+    {
+      "id": "youkaisfeasts:bamboo_dining_chair",
+      "required": false
+    }
+  ]
+}

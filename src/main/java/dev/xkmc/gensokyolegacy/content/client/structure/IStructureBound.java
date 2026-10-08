@@ -1,6 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.client.structure;
 
-import dev.xkmc.gensokyolegacy.content.attachment.datamap.StructureInterior;
+import dev.xkmc.gensokyolegacy.content.attachment.home.datamap.StructureInterior;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 
 import java.util.List;

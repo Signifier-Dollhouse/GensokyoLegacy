@@ -1,11 +1,11 @@
 {
   "values": {
     "gensokyolegacy:alice_margatroid": {
-      "fulfillment": 10,
+      "fulfillment": 12,
       "maxAppeal": 40,
       "maxReputation": 250,
-      "minAppeal": 12,
-      "minReputation": 150,
+      "minAppeal": 24,
+      "minReputation": 50,
       "repBonus": 0.15
     },
     "gensokyolegacy:cirno": {
@@ -13,39 +13,39 @@
       "maxAppeal": 20,
       "maxReputation": 150,
       "minAppeal": 4,
-      "minReputation": 50,
+      "minReputation": 0,
       "repBonus": 0.3
     },
     "gensokyolegacy:hakurei_reimu": {
-      "fulfillment": 8,
-      "maxAppeal": 32,
-      "maxReputation": 200,
-      "minAppeal": 8,
-      "minReputation": 100,
-      "repBonus": 0.3
-    },
-    "gensokyolegacy:izayoi_sakuya": {
-      "fulfillment": 12,
-      "maxAppeal": 48,
-      "maxReputation": 250,
-      "minAppeal": 16,
-      "minReputation": 150,
-      "repBonus": 0.15
-    },
-    "gensokyolegacy:kirisame_marisa": {
-      "fulfillment": 8,
-      "maxAppeal": 32,
-      "maxReputation": 200,
-      "minAppeal": 8,
-      "minReputation": 100,
-      "repBonus": 0.3
-    },
-    "gensokyolegacy:morichika_rinnosuke": {
-      "fulfillment": 8,
+      "fulfillment": 20,
       "maxAppeal": 32,
       "maxReputation": 200,
       "minAppeal": 10,
-      "minReputation": 100,
+      "minReputation": 50,
+      "repBonus": 0.3
+    },
+    "gensokyolegacy:izayoi_sakuya": {
+      "fulfillment": 20,
+      "maxAppeal": 48,
+      "maxReputation": 250,
+      "minAppeal": 30,
+      "minReputation": 50,
+      "repBonus": 0.15
+    },
+    "gensokyolegacy:kirisame_marisa": {
+      "fulfillment": 20,
+      "maxAppeal": 32,
+      "maxReputation": 200,
+      "minAppeal": 20,
+      "minReputation": 50,
+      "repBonus": 0.3
+    },
+    "gensokyolegacy:morichika_rinnosuke": {
+      "fulfillment": 20,
+      "maxAppeal": 32,
+      "maxReputation": 200,
+      "minAppeal": 20,
+      "minReputation": 50,
       "repBonus": 0.3
     }
   }

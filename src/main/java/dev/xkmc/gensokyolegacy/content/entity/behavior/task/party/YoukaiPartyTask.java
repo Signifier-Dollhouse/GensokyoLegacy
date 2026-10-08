@@ -4,9 +4,9 @@ import dev.xkmc.gensokyolegacy.content.attachment.home.core.HomeSearchUtil;
 import dev.xkmc.gensokyolegacy.content.entity.module.PartyModule;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.SmartYoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiAnim;
-import dev.xkmc.gensokyolegacy.content.party.core.PartyAttachment;
-import dev.xkmc.gensokyolegacy.content.party.core.PartyFoodValue;
-import dev.xkmc.gensokyolegacy.content.party.core.PartyGift;
+import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyAttachment;
+import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyFoodValue;
+import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyGift;
 import dev.xkmc.gensokyolegacy.init.data.GLModConfig;
 import dev.xkmc.gensokyolegacy.init.data.GLTagGen;
 import dev.xkmc.gensokyolegacy.init.registrate.GLBrains;
@@ -15,17 +15,17 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.tags.TagKey;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.ai.behavior.Behavior;
 import net.minecraft.world.entity.ai.behavior.BlockPosTracker;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.entity.ai.memory.WalkTarget;
-import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
+import java.util.function.Predicate;
 
 /**
  * A guest's whole visit: claim a seat, walk to the food, eat until satisfied,
@@ -146,7 +146,7 @@ public class YoukaiPartyTask extends Behavior<SmartYoukaiEntity> {
 	private boolean seek(ServerLevel level, SmartYoukaiEntity entity, PartyModule party,
 			PartyAttachment attachment, long gameTime) {
 		if (phase == Phase.SEEK_SEAT) {
-			var seat = nearest(level, entity, party.table(), GLTagGen.PARTY_SEAT);
+			var seat = nearestSeat(level, entity, party.table());
 			if (seat == null) {
 				// no reachable seat yet: the player may still be placing chairs, so
 				// keep the guest alive and look again shortly
@@ -159,7 +159,7 @@ public class YoukaiPartyTask extends Behavior<SmartYoukaiEntity> {
 			deadline = gameTime + WALK_TIMEOUT;
 			return true;
 		}
-		var food = nearest(level, entity, party.table(), GLTagGen.PARTY_FOOD);
+		var food = nearestFood(level, entity, party.table());
 		if (food == null) {
 			// nothing left to serve; she leaves, satisfied or not
 			dismiss(entity);
@@ -184,7 +184,8 @@ public class YoukaiPartyTask extends Behavior<SmartYoukaiEntity> {
 		}
 		// re-validate: another guest may have taken this while she walked over
 		var state = level.getBlockState(target);
-		if (!state.is(GLTagGen.PARTY_FOOD) || !level.getBlockState(target.below()).is(GLTagGen.PARTY_TABLE)) {
+		if (!PartyFoodValue.isFood(level.registryAccess(), state)
+				|| !level.getBlockState(target.below()).is(GLTagGen.PARTY_TABLE)) {
 			target = null;
 			return;
 		}
@@ -212,21 +213,35 @@ public class YoukaiPartyTask extends Behavior<SmartYoukaiEntity> {
 		BrainUtils.clearMemory(entity, MemoryModuleType.LOOK_TARGET);
 	}
 
-	/** The nearest block in the tag, searching outward from the table. */
+	/** The nearest seat in the tag, searching outward from the table. */
+	@Nullable
+	private static BlockPos nearestSeat(ServerLevel level, SmartYoukaiEntity entity, @Nullable BlockPos table) {
+		return nearest(level, entity, table, state -> state.is(GLTagGen.PARTY_SEAT));
+	}
+
+	/**
+	 * The nearest food worth eating. Food is not a tag: a block qualifies when a handler
+	 * recognises it or a datapack opted it in, and when there is something on it to eat.
+	 * Worthless food is skipped, because walking over and eating it would cost this
+	 * guest her whole visit for no fulfillment at all.
+	 */
+	@Nullable
+	private static BlockPos nearestFood(ServerLevel level, SmartYoukaiEntity entity, @Nullable BlockPos table) {
+		return nearest(level, entity, table, state ->
+				PartyFoodValue.isFood(level.registryAccess(), state) && PartyFoodValue.result(state).valid());
+	}
+
+	/** The nearest position matching the test, searching outward from the table. */
 	@Nullable
 	private static BlockPos nearest(ServerLevel level, SmartYoukaiEntity entity, @Nullable BlockPos table,
-			TagKey<Block> tag) {
+			Predicate<BlockState> accept) {
 		if (table == null) return null;
 		BlockPos from = entity.blockPosition();
 		BlockPos best = null;
 		double bestDist = Double.MAX_VALUE;
 		int radius = GLModConfig.SERVER.partyScanRadius.get();
 		for (var pos : BlockPos.betweenClosed(table, table.offset(radius, radius, radius))) {
-			var state = level.getBlockState(pos);
-			if (!state.is(tag)) continue;
-			// tagged as food, but worth nothing to eat: walking over and eating it
-			// would cost this guest the whole visit for no fulfillment at all
-			if (!PartyFoodValue.result(state).valid()) continue;
+			if (!accept.test(level.getBlockState(pos))) continue;
 			double dist = pos.distSqr(from);
 			if (dist >= bestDist) continue;
 			bestDist = dist;

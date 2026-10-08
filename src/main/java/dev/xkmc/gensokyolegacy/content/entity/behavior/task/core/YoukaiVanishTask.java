@@ -1,6 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.entity.behavior.task.core;
 
-import dev.xkmc.gensokyolegacy.content.attachment.datamap.CharacterConfig;
+import dev.xkmc.gensokyolegacy.content.attachment.character.CharacterConfig;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.SmartYoukaiEntity;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.ai.behavior.Behavior;

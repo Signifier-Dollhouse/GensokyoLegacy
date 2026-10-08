@@ -3,7 +3,7 @@ package dev.xkmc.gensokyolegacy.content.block.deco.donation;
 import dev.xkmc.gensokyolegacy.content.attachment.character.CharDataHolder;
 import dev.xkmc.gensokyolegacy.content.attachment.character.ReputationConstants;
 import dev.xkmc.gensokyolegacy.content.attachment.character.ReputationState;
-import dev.xkmc.gensokyolegacy.content.attachment.datamap.BedData;
+import dev.xkmc.gensokyolegacy.content.attachment.home.datamap.BedData;
 import dev.xkmc.gensokyolegacy.content.block.base.IDebugInfoBlockEntity;
 import dev.xkmc.gensokyolegacy.content.block.base.LocatedBlockEntity;
 import dev.xkmc.gensokyolegacy.content.client.debug.BlockInfoToClient;

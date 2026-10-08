@@ -2,14 +2,13 @@ package dev.xkmc.gensokyolegacy.event;
 
 import dev.xkmc.gensokyolegacy.content.attachment.area.AreaChunkHolder;
 import dev.xkmc.gensokyolegacy.content.attachment.area.AreaEffectManager;
-import dev.xkmc.gensokyolegacy.content.party.core.PartyTicker;
-import dev.xkmc.gensokyolegacy.content.party.core.food.FoodResultCache;
+import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyTicker;
+import dev.xkmc.gensokyolegacy.content.attachment.party.food.FoodResultCache;
 import dev.xkmc.gensokyolegacy.content.rpg.core.ServerCharacterDialogManager;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;

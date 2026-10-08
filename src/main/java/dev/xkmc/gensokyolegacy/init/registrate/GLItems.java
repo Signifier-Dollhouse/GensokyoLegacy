@@ -25,8 +25,8 @@ import dev.xkmc.gensokyolegacy.content.item.glove.DollGloveModel;
 import dev.xkmc.gensokyolegacy.content.item.hexbrew.StarDanmakuItem;
 import dev.xkmc.gensokyolegacy.content.item.ingredient.FairyIceItem;
 import dev.xkmc.gensokyolegacy.content.item.ingredient.FrozenFrogItem;
-import dev.xkmc.gensokyolegacy.content.party.core.PartyFoodValue;
-import dev.xkmc.gensokyolegacy.content.party.item.InvitationLetterItem;
+import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyFoodValue;
+import dev.xkmc.gensokyolegacy.content.attachment.party.item.InvitationLetterItem;
 import dev.xkmc.gensokyolegacy.content.item.talisman.core.GLTalismans;
 import dev.xkmc.gensokyolegacy.content.item.dagger.DaggerGloveItem;
 import dev.xkmc.gensokyolegacy.content.item.dagger.DaggerGloveMode;
@@ -122,21 +122,6 @@ public class GLItems {
 	public static final ItemEntry<StrangeGlassesItem> STRANGE_GLASSES;
 
 	public static final ItemEntry<InvitationLetterItem> INVITATION_LETTER;
-
-	/**
-	 * The block behind a namespaced id, or null when that mod is not loaded.
-	 * Used only to register a party food handler by name: a mod that is absent
-	 * simply contributes no handler, and its food — if a datapack added it to the
-	 * tag anyway — is scored generically instead.
-	 */
-	@Nullable
-	private static Block byId(String namespace, String path) {
-		var id = ResourceLocation.fromNamespaceAndPath(namespace, path);
-		var block = BuiltInRegistries.BLOCK.get(id);
-		return block == Blocks.AIR ? null : block;
-	}
-
-
 
 	private static final DCReg DC = DCReg.of(GensokyoLegacy.REG);	public static final DCVal<HakkeroPrototype.Data> DC_HAKKERO_PROTOTYPE = DC.reg("mini_furnace_1_data", HakkeroPrototype.Data.class, false);
 	// only the lit modes: a sealed firebox cannot be switched off, so OFF is never stored here
@@ -503,10 +488,6 @@ public class GLItems {
 		GLFluids.register();
 
 		GLBlocks.register();
-
-		// party food: which block classes the party system can read, and how. Its own
-		// file, called here, gated per mod so nothing costs anything when absent.
-		BlockFoods.register();
 
 		// party
 		{

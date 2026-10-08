@@ -1,7 +1,10 @@
 # Party Event — Design Doc
 
 > **Status:** implemented — compiles, `runData` and `./gradlew build` both green. Not yet played in a live world, so §6's flow and §10's limits are reasoned from the code rather than observed.
-> **Package:** `content/party/` — `core/` (math + planner + state), `item/` (letter), plus `content/entity/module/PartyModule.java` and `content/entity/behavior/task/party/YoukaiPartyTask.java`
+> **Package:** `content/attachment/party/` — `core/` (math, planner, state, handler lookup), `food/` (one handler class per kind of block food), `item/` (letter), plus `content/entity/module/PartyModule.java` and `content/entity/behavior/task/party/YoukaiPartyTask.java`
+>
+> Party state is attachment-shaped, so the whole feature lives under `content/attachment/` alongside the other per-feature packages. That puts `PartyArea`'s neighbour `ChunkPosRange` in `content/attachment/area/` next to it rather than across the tree.
+>
 > **Related:** `character_visit.md` (the guest-clone trick reused here), `reputation.md` (the reputation this reads)
 
 ---
@@ -30,8 +33,8 @@ Four pieces:
 
 | Piece | Lives in | Job |
 |---|---|---|
-| **Attractiveness / fulfillment math** | `content/party/core/PartyMath.java` | pure functions, no world writes |
-| **Roster selection** | `content/party/core/PartyPlanner.java` | knapsack + seat cap, pure |
+| **Attractiveness / fulfillment math** | `content/attachment/party/core/PartyMath.java` | pure functions, no world writes |
+| **Roster selection** | `content/attachment/party/core/PartyPlanner.java` | knapsack + seat cap, pure |
 | **Party state** | `GLMeta.PARTY`, a `LevelChunk` capability | host, anchor, roster, phase, counters |
 | **Guest behaviour** | `PartyModule` + `YoukaiPartyTask` | walk, sit, eat, gift, dismiss |
 
@@ -43,7 +46,7 @@ The first two are deliberately side-effect free so `/gensokyo party preview` can
 
 ### 2.1 Tags
 
-Three new block tags:
+Two block tags, both **generated** by `GLTagGen.onBlockTagGen`:
 
 ```java
 /** Tables a party may be laid out on. Our large dining tables only — see §2.3. */
@@ -51,57 +54,54 @@ public static final TagKey<Block> PARTY_TABLE = block("party_table");
 
 /** Seats. A guest needs somewhere to sit; no seats, no party. */
 public static final TagKey<Block> PARTY_SEAT = block("party_seat");
-
-/** Block foods a guest will eat. Items are never party food. */
-public static final TagKey<Block> PARTY_FOOD = block("party_food");
 ```
-
-**These three are hand-authored, not generated.** They live in `src/main/resources/data/gensokyolegacy/tags/block/`, alongside the other hand-written datapack content, rather than being produced by `GLTagGen.onBlockTagGen`.
-
-That is not a style preference. The obvious datagen spelling is:
 
 ```java
-// this deadlocks runData
-pvd.addTag(PARTY_TABLE).addTag(LARGE_TABLE);                        // fine
-pvd.addTag(PARTY_FOOD).addOptional(loc("farmersdelight:roast_chicken_block"));   // hangs
-```
-
-The `addTag`/`add` lines are fine — `genPartyTag` containing only those completes datagen in 12s. Add the fifteen `addOptional` calls and the Registrate provider **never returns**: the worker threads go idle while the main thread sits forever in `CompletableFuture.join` on a future that can no longer complete. There is no error, no log line, and no stack trace — just a silent hang, reproducible on every run, bisectable only by commenting lines out.
-
-The cause is not worth pinning down further; what matters is that cross-mod tag entries are written by hand here. It costs nothing — `"required": false` is a few characters in a JSON file, and it is exactly the mechanism vanilla uses. Note `src/generated/resources` and `src/main/resources` are both merged into the jar (`build.gradle`), so the same tag id in both is a hard `duplicatesStrategy` failure at `processResources`. Generating *nothing* for these three avoids that entirely.
-
-```jsonc
-// src/main/resources/data/gensokyolegacy/tags/block/party_table.json
-{
-  "replace": false,
-  "values": [
-    "#gensokyolegacy:large_table",
-    { "id": "youkaisfeasts:oak_dining_table", "required": false },
-    // ...one per wood
-  ]
+private static void genPartyTag(RegistrateTagsProvider.IntrinsicImpl<Block> pvd) {
+    pvd.addTag(PARTY_TABLE).addTag(LARGE_TABLE);
+    pvd.addTag(PARTY_SEAT).addTag(CHAIR).addTag(STOOL);
+    for (var wood : YSF_WOODS) {
+        pvd.addTag(PARTY_TABLE).addOptional(ResourceLocation.parse("youkaisfeasts:" + wood + "_dining_table"));
+        pvd.addTag(PARTY_SEAT).addOptional(ResourceLocation.parse("youkaisfeasts:" + wood + "_dining_chair"));
+    }
 }
 ```
 
-`LARGE_TABLE` already contains the 11 `*_large_table` blocks; `CHAIR` the 11 `*_large_chair` plus `wooden_large_chair_scarlet_devil_mansion`; `STOOL` the 11 `*_chair` stools.
+`LARGE_TABLE` already contains the 11 `*_large_table` blocks; `CHAIR` the 11 `*_large_chair` plus `wooden_large_chair_scarlet_devil_mansion`; `STOOL` the 11 `*_chair` stools. Nesting those rather than listing them keeps the party tags in step as blocks are added.
 
-`"required": false` is the whole "not a hard mod dependency" story — the tag loader skips an entry whose mod is absent, and **no Java anywhere names another mod's block**. With neither Farmer's Delight nor Youkai's Feasts installed the system still runs; you have `minecraft:cake` as your only food, worth 14 appeal across 7 slices (§2.2), which is enough for a three-person party.
+Youkai's Feasts' dining tables and chairs go in as optional entries, which the tag loader drops when the mod is absent — that is what keeps it optional rather than a hard dependency, and no Java here names one of its blocks. It uses the same 11 wood names we do, so one loop covers both tags.
+
+**There is no `party_food` tag.** Food is decided by code and by datapack, not by a tag — see §2.2's `isFood`. A handler recognising the block, or a `party_food` data map entry, is what makes something food; there is no third way, and no tag to keep in step.
+
+#### One trap worth naming: `loc()` is not a parser
+
+```java
+public static ResourceLocation loc(String id) {
+    return ResourceLocation.fromNamespaceAndPath(MODID, id);   // namespaces a bare path
+}
+```
+
+`loc()` prepends **our** modid, so `loc("youkaisfeasts:oak_dining_table")` builds `gensokyolegacy:youkaisfeasts:oak_dining_table` — a namespace plus a path containing a colon. Foreign ids must go through `ResourceLocation.parse`.
+
+This cost real time. The symptom was that **any** `addOptional` call in this tag provider made `runData` hang: the Registrate provider never returned, workers went idle, and the main thread sat forever in `CompletableFuture.join` with no error and no stack trace. It was bisectable only by commenting lines out, and two plausible-sounding culprits were blamed first — `addOptional` itself, then `GLDecoBlocks.WoodType.values()` class-initialising mid-provider — before the malformed id turned up. Neither was the cause: `addOptionalElement` only appends to a list, and the wood list is a literal. One bad id, and a silent hang that looks exactly like a deadlock in someone else's code.
 
 ### 2.2 Food value
 
-Appeal is **derived from what a food actually is to eat**, and counted **per serving** rather than per block. A `party_food` data map entry exists only to *override* that derivation.
+Appeal is **derived from what a food actually is to eat**, and counted **per serving** rather than per block.
 
 ```java
-// content/party/core/PartyFoodValue.java
+// content/attachment/party/core/PartyFoodValue.java
 private static final float NUTRITION_SCALE = 0.5f;
 private static final float SATURATION_SCALE = 2.0f;
 private static final int BENEFICIAL_BONUS = 4;
 
+/** The floor for anything that IS food; invalid food scores 0 instead. */
 public static final int MIN_APPEAL = 1;
 public static final int MAX_APPEAL = 40;
 
 /** Appeal of ONE serving, from what it is to eat. */
 public static int of(FoodProperties props) {
-    if (BlockFoodHandler.refuses(props)) return 0;   // poison or wither
+    if (props.nutrition() <= 0 || Servings.refuses(props)) return 0;
     float bonus = 0;
     for (var e : props.effects()) {
         var holder = e.effect().getEffect();
@@ -110,20 +110,31 @@ public static int of(FoodProperties props) {
     return clamp(Math.round(props.nutrition() * NUTRITION_SCALE + props.saturation() * SATURATION_SCALE + bonus));
 }
 
-/** Appeal of ONE serving of this placed block. */
-public static int perServe(RegistryAccess access, BlockState state) { ... }
+/** Whether this block is party food at all. */
+public static boolean isFood(RegistryAccess access, BlockState state) {
+    return PartyFoodHandler.claims(state.getBlock()) != null || PartyFood.of(access, state) != null;
+}
 
 /** Total appeal still on the table: serves x per-serve. */
 public static int appeal(RegistryAccess access, BlockState state) {
     var override = PartyFood.of(access, state);
-    if (override != null) return override.appeal() * servesOf(state);
-    var perServe = perServe(access, state);
-    return perServe == 0 ? 0 : perServe * servesOf(state);
+    if (override != null) return override.appeal() * result(state).serves();
+    var result = result(state);
+    return result.valid() ? of(result.food()) * result.serves() : 0;
 }
 
 /** Take one serving, leaving the world consistent. */
 public static int consume(ServerLevel level, BlockPos pos, BlockState state) { ... }
 ```
+
+#### What makes a block food
+
+There is no `party_food` tag. A block is party food if **either**:
+
+- a registered `BlockFoodHandler` recognises its class — `CakeFood` claims anything that is a `CakeBlock`, `FeastFood` anything that is a `FeastBlock`, and so on; or
+- a datapack gave it a `party_food` data map entry.
+
+The second is how a foreign block is opted in, and it is also how an override corrects a value the heuristic got wrong, so one mechanism does both jobs. The catch-all handler is deliberately **not** enough on its own: it exists to score a block something has already declared food, so it must not make every block on the table a cake.
 
 #### Invalid food is not food
 
@@ -149,7 +160,7 @@ So a datapack author who adds a dud id to `party_food` gets a no-op rather than 
 
 #### `BlockFoodHandler` — how a block food is read and eaten
 
-The derivation above needs three facts about a *placed* block, and they differ per mod, so there is one implementation per kind of food in `content/party/core/food/`:
+The derivation above needs three facts about a *placed* block, and they differ per mod, so there is one implementation per kind of food in `content/attachment/party/food/`:
 
 ```java
 public interface BlockFoodHandler {
@@ -322,7 +333,7 @@ Every one is derived by the code above, not chosen by hand:
 `BlockFoods.register()` is called once from the common setup, after the blocks exist. `PartyFoodHandler` maps a handler to a block **class** and resolves by walking the hierarchy most-derived-first:
 
 ```java
-// content/party/core/PartyFoodHandler.java
+// content/attachment/party/core/PartyFoodHandler.java
 private static final Map<Class<?>, BlockFoodHandler> BY_CLASS = new ConcurrentHashMap<>();
 private static final Map<Block, BlockFoodHandler> RESOLVED = new ConcurrentHashMap<>();   // cached per block
 
@@ -338,7 +349,7 @@ public static BlockFoodHandler of(Block block) {
 There is **no per-block map and no class→handler map**. The handlers are one ordered list, and each decides for itself which blocks it covers:
 
 ```java
-// content/party/core/PartyFoodHandler.java
+// content/attachment/party/core/PartyFoodHandler.java
 private static final List<BlockFoodHandler> HANDLERS = new CopyOnWriteArrayList<>();
 
 public static BlockFoodHandler of(Block block) {
@@ -388,7 +399,7 @@ Each mod's handlers are constructed only when `ModList.isLoaded` says so, so a l
 #### The data map is an override, not a source
 
 ```java
-// content/party/core/PartyFood.java
+// content/attachment/party/core/PartyFood.java
 public record PartyFood(int appeal) {
     public PartyFood { appeal = Math.max(0, appeal); }
 
@@ -399,14 +410,18 @@ public record PartyFood(int appeal) {
 }
 ```
 
-There is deliberately **no** `party_food` data map file shipped. The tag is the gate; the heuristic supplies a value; the data map only exists to correct one the heuristic gets wrong. A datapack can make a foreign block party food with a single tag entry and get a sensible number immediately:
+There is deliberately **no** `party_food` data map file shipped. A handler recognises every food we know about, so nothing needs one; the data map is for the two cases code cannot cover.
+
+**Opting a foreign block in.** With no tag, a block from another mod becomes party food by giving it an entry:
 
 ```jsonc
-// data/gensokyolegacy/data_maps/block/party_food.json — only if a value is wrong
+// data/gensokyolegacy/data_maps/block/party_food.json
 { "values": { "some_mod:baroque_cake": { "appeal": 20 } } }
 ```
 
-The override is still **per serving**: it replaces `perServe`, and the multiplier from `servesOf` still applies, so overriding a cake sets the value of a slice rather than of the whole thing.
+That entry is also the declaration of "this is food", and the appeal is read from the block's own item by the fallback handler unless overridden — so one line is enough to put a modded dish on the table.
+
+**Correcting a value the heuristic got wrong.** The same file, for a block a handler already recognises but which scores badly: it replaces `perServe`, and the serve multiplier still applies, so overriding a cake sets the value of a *slice* rather than of the whole thing.
 
 
 ### 2.3 The support problem — measured, and the answer was "no change needed"
@@ -458,19 +473,21 @@ public record PartyArea(BlockPos anchor, List<BlockPos> food, List<BlockPos> sea
         for (var pos : BlockPos.betweenClosed(anchor, radius)) {
             var here = level.getBlockState(pos);
             if (here.is(GLTagGen.PARTY_SEAT)) seats.add(pos.immutable());
-            if (!here.is(GLTagGen.PARTY_FOOD)) continue;
+            if (!PartyFoodValue.isFood(level.registryAccess(), here)) continue;
             // food only counts when it is actually on a table
             if (!level.getBlockState(pos.below()).is(GLTagGen.PARTY_TABLE)) continue;
+            int worth = PartyFoodValue.appeal(level.registryAccess(), here);
+            if (worth <= 0 || !PartyFoodValue.result(here).valid()) continue;   // claimed, but not food
             food.add(pos.immutable());
             // every serve still on it, not one number for the block
-            appeal += PartyFoodValue.appeal(level.registryAccess(), here);
+            appeal += worth;
         }
         return new PartyArea(anchor, food, seats, appeal);
     }
 }
 ```
 
-Two rules in six lines, and they are the whole of "strictly requires block food placed on table blocks": the food block must be in `party_food`, **and** the block directly below it must be in `party_table`. A cake on the floor contributes nothing and is never eaten.
+Three rules in nine lines, and they are the whole of "block food placed on a table, that is actually food": something must recognise the block as food or a datapack must have opted it in, the block directly below must be in `party_table`, and the block must still have something worth eating on it. A cake on the floor contributes nothing and is never eaten; neither does a decorative block someone tagged by mistake in a previous version of this design.
 
 `BlockPos.betweenClosed(anchor, radius)` at radius 6 is a 13×13×13 box, ~2200 block reads, run **once per send** and once per `/gensokyo party preview`. Never per tick.
 
@@ -593,7 +610,7 @@ Three quantities, all pure functions over plain values.
 
 ### 5.1 Attractiveness of the spread
 
-`PartyArea.appeal` from §3.1: the sum of `PartyFoodValue.appeal` over every block in `party_food` that is sitting on a `party_table` inside the scan box, where each block's contribution is **serves × per-serving appeal** (§2.2). Simple additive, no multipliers — the player controls it directly by choosing what to lay out, and the per-serving number comes from the food's real properties rather than a table of hand-picked values.
+`PartyArea.appeal` from §3.1: the sum of `PartyFoodValue.appeal` over every block that is food and is sitting on a `party_table` inside the scan box, where each block's contribution is **serves × per-serving appeal** (§2.2). Simple additive, no multipliers — the player controls it directly by choosing what to lay out, and the per-serving number comes from the food's real properties rather than a table of hand-picked values.
 
 Because it is counted in serves, the budget a spread offers is the total number of servings on the table, and a partly-eaten dish is worth proportionally less. That is what makes one cake a meal for several guests instead of a single indivisible unit.
 
@@ -923,7 +940,7 @@ canStillUse  → arrived?  HomeSearchUtil.setSitting(...)      // no-op on a non
 
 This is why `YoukaiPartyTask` cannot copy `MarisaForageTask`'s "arrive, act, return false" shape. The forage task is single-action and holds no state between runs, so stopping is free. A multi-phase task must keep the instance alive across its own transitions, and the failure mode is silent — the entity looks perfectly healthy, sits down, stands up, sits down again, and nothing is ever eaten.
 
-**Food contention needs no locking.** On arrival a guest re-validates that the block is still `party_food` and sitting on a `party_table`; if another guest took the last serve first it is gone and she picks again. With per-serving consumption this is *more* forgiving than it was: two guests walking to the same cake no longer collide destructively, since each finds a serve still on it. Worst case is a wasted walk.
+**Food contention needs no locking.** On arrival a guest re-validates that the block is still food and sitting on a `party_table`; if another guest took the last serve first it is gone and she picks again. With per-serving consumption this is *more* forgiving than it was: two guests walking to the same cake no longer collide destructively, since each finds a serve still on it. Worst case is a wasted walk.
 
 **A serve is taken when eating starts and credited when it finishes.** `PartyFoodValue.consume` is called at `reach()`, and `pendingAppeal` — read *before* the consume, because the appeal of a serve is a property of the state it was taken from — carries it across the `EAT_TICKS` window so the tally and the party's served total move together. `stop()` credits a serve that was taken but never banked, so a party ending or a chunk unloading mid-bite cannot silently swallow food the guests already ate.
 
@@ -956,32 +973,32 @@ Added once in `SmartYoukaiEntity.constructTaskBoard` (`SmartYoukaiEntity.java:81
 
 | File | Role |
 |---|---|
-| `content/party/core/PartyMath.java` | `ramp`, `weight` — pure |
-| `content/party/core/PartyArea.java` | one scan: food, seats, appeal, centre, touched chunks |
-| `content/party/core/PartyPlanner.java` | candidate pool + knapsack + seat cap — pure |
-| `content/party/core/PartyTaste.java` | entity-type data map record + `DEFAULT` for every unwritten character |
-| `content/party/core/PartyFood.java` | override-only block data map record |
-| `content/party/core/PartyFoodValue.java` | per-serving appeal derivation, totals, `consume` (§2.2) |
-| `content/party/core/PartyFoodHandler.java` | per-class handler lookup, subclasses covered (§2.2) |
-| `content/party/core/food/BlockFoodHandler.java` | the serves / food / consume interface (§2.2) |
-| `content/party/core/food/AbstractCountdownFood.java` | shared serve counting and stepping, both directions |
-| `content/party/core/food/CakeFood.java` | slices, food from code only |
-| `content/party/core/food/FeastFood.java` | FD feast: 4 servings down, serving item from the block |
-| `content/party/core/food/PieFood.java` | FD pie: 4 bites up, slice from the block |
-| `content/party/core/food/PotFood.java` | YSF pot: 2 or 4 serves down, food from the block |
-| `content/party/core/food/SaucerFood.java` | YSF saucer dish: one serve, also the default handler |
-| `content/party/core/food/FoodResult.java` | serves + properties + consume, and the valid/not-valid rule |
-| `content/party/core/food/FoodResultCache.java` | resolves each state once; invalidated on datapack sync |
-| `content/party/core/food/Permutations.java` | finds the item form of a block food by id suffix |
-| `content/party/core/food/BlockItemFood.java` | one serve from the block's own item; the catch-all |
-| `content/party/core/food/Servings.java` | shared read of one serving's `FoodProperties`, and the invalid-food rule |
+| `content/attachment/party/core/PartyMath.java` | `ramp`, `weight` — pure |
+| `content/attachment/party/core/PartyArea.java` | one scan: food, seats, appeal, centre, touched chunks |
+| `content/attachment/party/core/PartyPlanner.java` | candidate pool + knapsack + seat cap — pure |
+| `content/attachment/party/core/PartyTaste.java` | entity-type data map record + `DEFAULT` for every unwritten character |
+| `content/attachment/party/core/PartyFood.java` | override-only block data map record |
+| `content/attachment/party/core/PartyFoodValue.java` | per-serving appeal derivation, totals, `consume` (§2.2) |
+| `content/attachment/party/core/PartyFoodHandler.java` | the handler list and the `claims` test that replaces the food tag (§2.2) |
+| `content/attachment/party/food/BlockFoodHandler.java` | the serves / food / consume interface (§2.2) |
+| `content/attachment/party/food/AbstractCountdownFood.java` | shared serve counting and stepping, both directions |
+| `content/attachment/party/food/CakeFood.java` | slices: a permuted `*_slice` item, else vanilla's numbers |
+| `content/attachment/party/food/FeastFood.java` | FD feast: 4 servings down, serving item from the block |
+| `content/attachment/party/food/PieFood.java` | FD pie: 4 bites up, slice from the block |
+| `content/attachment/party/food/PotFood.java` | YSF pot: 2 or 4 serves down, permuted item or the block's field |
+| `content/attachment/party/food/SaucerFood.java` | YSF saucer dish: one serve, food on the block's own item |
+| `content/attachment/party/food/FoodResult.java` | serves + properties + consume, and the valid/not-valid rule |
+| `content/attachment/party/food/FoodResultCache.java` | resolves each state once; invalidated on datapack sync |
+| `content/attachment/party/food/Permutations.java` | finds the item form of a block food by id suffix |
+| `content/attachment/party/food/BlockItemFood.java` | one serve from the block's own item; the catch-all |
+| `content/attachment/party/food/Servings.java` | shared read of one serving's `FoodProperties`, and the invalid-food rule |
 | `init/registrate/BlockFoods.java` | which block classes are known, gated per mod (§2.2) |
-| `content/party/core/PartyAttachment.java` | chunk capability, phase machine, roster |
-| `content/party/core/PartySend.java` | the single send entry point + rejections |
-| `content/party/core/PartyGift.java` | what a guest leaves, scaled by §5.3 |
-| `content/party/core/PartyTicker.java` | level-tick driver, active-chunk registry |
-| `content/party/item/InvitationLetterItem.java` | the letter |
-| `content/party/item/PartyMessage.java` | one place that turns an outcome into player-facing text |
+| `content/attachment/party/core/PartyAttachment.java` | chunk capability, phase machine, roster |
+| `content/attachment/party/core/PartySend.java` | the single send entry point + rejections |
+| `content/attachment/party/core/PartyGift.java` | what a guest leaves, scaled by §5.3 |
+| `content/attachment/party/core/PartyTicker.java` | level-tick driver, active-chunk registry |
+| `content/attachment/party/item/InvitationLetterItem.java` | the letter |
+| `content/attachment/party/item/PartyMessage.java` | one place that turns an outcome into player-facing text |
 | `content/entity/module/PartyModule.java` | per-guest state, `arrive`/`tickServer`/`leave` |
 | `content/entity/behavior/task/party/YoukaiPartyTask.java` | walk → sit → eat → gift |
 | `content/rpg/condition/PartyCondition.java` | `{"type":"gensokyolegacy:party"}`, `invert` for home-bound |
@@ -1006,7 +1023,7 @@ Added once in `SmartYoukaiEntity.constructTaskBoard` (`SmartYoukaiEntity.java:81
 | `content/command/GLCommands.java` | `/gensokyo party` |
 | `init/data/GLModConfig.java` | `partyScanRadius`, `partyGuestRadius` |
 | `init/data/GLLang.java` | `Party` enum, wired into `genLang`'s group array |
-| `init/data/GLTagGen.java` | the three `TagKey<Block>` constants only — **not** their contents (§2.1) |
+| `init/data/GLTagGen.java` | `PARTY_TABLE`, `PARTY_SEAT` and `genPartyTag` (§2.1) |
 | `event/GLMetaEventHandlers.java` | `PartyTicker.tick` on level tick, `clear` on level unload |
 | `build.gradle` | Farmer's Delight + Youkai's Feasts as `compileOnly` from the `libs/` flatDir |
 
@@ -1014,7 +1031,7 @@ Added once in `SmartYoukaiEntity.constructTaskBoard` (`SmartYoukaiEntity.java:81
 
 | File | Change |
 |---|---|
-| `src/main/resources/data/gensokyolegacy/tags/block/party_{table,seat,food}.json` | hand-authored, §2.1 |
+| `src/generated/resources/data/gensokyolegacy/tags/block/party_{table,seat}.json` | generated by `runData`, §2.1 |
 | `src/generated/resources/data/gensokyolegacy/data_maps/entity_type/party_taste.json` | generated |
 | `src/generated/resources/assets/gensokyolegacy/models/item/invitation_letter.json` | generated |
 | `src/test/resources/gensokyolegacy/lang/zh_cn/party.json` | zh_cn strings, merged by `LangFileOrganizer` |
@@ -1043,7 +1060,8 @@ The `large_table` support change is a behavioural change to a shipped block and 
 
 - **`tea_table` and `magic_table` cannot host parties.** Deliberate (§2.3). A small indoor party needs a second pass.
 - **Farmer's Delight and Youkai's Feasts are `compileOnly` in the dev build.** Their jars sit in the `libs/` flatDir and resolve for compilation, but neither is loaded at runtime. Adding either as an `implementation` dependency puts a second copy of the L2 libraries on the module path and the dev launcher dies during class-layer construction with a `java.lang.module.ResolutionException` about split packages — before any mod code runs, so no amount of code changes avoids it. Consequence for testing: a dev run has **no modded party food**, only `minecraft:cake`, and the `required: false` tag entries resolve to nothing. The party is fully playable and testable that way; testing the FD/YSF foods needs a real instance with the mods installed.
-- **`addOptional` in a tag provider hangs `runData`** (§2.1). The three party tags are therefore hand-authored. Worth knowing before anyone tries to move them back into `GLTagGen`.
+- **A malformed id in a tag provider hangs `runData`, silently** (§2.1). `GensokyoLegacy.loc()` namespaces a bare path with our modid, so passing it a foreign id produces a path containing a colon; the provider then never returns, with no error and no stack trace, and it looks exactly like a deadlock in Registrate. Foreign ids must go through `ResourceLocation.parse`.
+- **`YSF_WOODS` is a hand-kept list in `GLTagGen`.** It exists because a tag provider must not touch `GLDecoBlocks`, and it must be kept in step with `WoodType` by hand.
 - **A party can only be sent on a `party_table`,** so the letter is aimed at the table rather than at the food. Clicking a food block directly does nothing.
 - **Reputation is sampled once, at send.** Reputation earned during the party does not upgrade the roster and reputation lost during it evicts nobody. A guest who turns hostile mid-party keeps eating. A consequence of freezing the roster, and the reason `/gensokyo party preview` can be exact.
 - **Guest eating is not interruptible.** If the player breaks the food out from under a guest she re-validates and picks again, but she cannot be redirected to a different dish.

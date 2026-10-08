@@ -2,8 +2,8 @@ package dev.xkmc.gensokyolegacy.content.entity.module;
 
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiFlags;
-import dev.xkmc.gensokyolegacy.content.party.core.PartyAttachment;
-import dev.xkmc.gensokyolegacy.content.party.core.PartyTaste;
+import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyAttachment;
+import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyTaste;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.registrate.GLBrains;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;

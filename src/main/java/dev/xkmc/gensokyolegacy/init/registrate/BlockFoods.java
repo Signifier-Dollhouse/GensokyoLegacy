@@ -1,12 +1,12 @@
 package dev.xkmc.gensokyolegacy.init.registrate;
 
-import dev.xkmc.gensokyolegacy.content.party.core.PartyFoodHandler;
-import dev.xkmc.gensokyolegacy.content.party.core.food.BlockItemFood;
-import dev.xkmc.gensokyolegacy.content.party.core.food.CakeFood;
-import dev.xkmc.gensokyolegacy.content.party.core.food.FeastFood;
-import dev.xkmc.gensokyolegacy.content.party.core.food.PieFood;
-import dev.xkmc.gensokyolegacy.content.party.core.food.PotFood;
-import dev.xkmc.gensokyolegacy.content.party.core.food.SaucerFood;
+import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyFoodHandler;
+import dev.xkmc.gensokyolegacy.content.attachment.party.food.BlockItemFood;
+import dev.xkmc.gensokyolegacy.content.attachment.party.food.CakeFood;
+import dev.xkmc.gensokyolegacy.content.attachment.party.food.FeastFood;
+import dev.xkmc.gensokyolegacy.content.attachment.party.food.PieFood;
+import dev.xkmc.gensokyolegacy.content.attachment.party.food.PotFood;
+import dev.xkmc.gensokyolegacy.content.attachment.party.food.SaucerFood;
 import net.neoforged.fml.ModList;
 
 /**

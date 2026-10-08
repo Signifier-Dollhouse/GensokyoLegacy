@@ -30,8 +30,8 @@ NeoForge 1.21.1 mod (Gensokyo Legacy, Touhou characters/structures). Java 21, Gr
 
 ## Code layout
 - `content/entity/characters/<character>/` — per-character Entity/Model/Renderer (fairy, maiden, rumia, merchant, boss); shared youkai base classes in `content/entity/youkai/`; AI in `content/entity/behavior/` (brain/sensor/task/move/combat).
-- `content/attachment/` — player/entity data (character data, homes/structures, gap mapping).
-- `content/rpg/` — quest/dialog/trade system (condition/requirement/action/reward). Actively developed.
+- `content/attachment/` — player/entity data, one subpackage per feature: `character/` (character data, `CharacterConfig`), `home/` (`core/`, `custom/`, `structure/`, and its `datamap/` records), `party/` (parties: `core/`, `food/`, `item/`), plus `area/`, `gap/`, `doll/`, `glove/`, `index/`, `misc/`, `storage/`.
+- `content/rpg/` — quest/dialog/trade system (condition/requirement/action/reward); `core/` holds `DialogConfig` and the codec registry. Actively developed.
 - `content/spell/` — danmaku/spell cards. `content/ui/` — menus and screens.
 
 ## Lang

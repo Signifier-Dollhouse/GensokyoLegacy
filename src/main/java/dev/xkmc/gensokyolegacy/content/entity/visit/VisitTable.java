@@ -1,6 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.entity.visit;
 
-import dev.xkmc.gensokyolegacy.content.attachment.datamap.StructureConfig;
+import dev.xkmc.gensokyolegacy.content.attachment.home.datamap.StructureConfig;
 import dev.xkmc.gensokyolegacy.content.attachment.index.StructureKey;
 import dev.xkmc.gensokyolegacy.init.data.GLModConfig;
 import net.minecraft.core.registries.BuiltInRegistries;
