@@ -15,6 +15,7 @@ import dev.xkmc.gensokyolegacy.content.item.character.*;
 import dev.xkmc.gensokyolegacy.content.item.debug.DebugGlasses;
 import dev.xkmc.gensokyolegacy.content.item.debug.DebugWand;
 import dev.xkmc.gensokyolegacy.content.item.debug.DoorDebugItem;
+import dev.xkmc.gensokyolegacy.content.item.debug.PartyWand;
 import dev.xkmc.gensokyolegacy.content.item.debug.StructureWand;
 import dev.xkmc.gensokyolegacy.content.item.doll.DollItem;
 import dev.xkmc.gensokyolegacy.content.item.doll.DollItemData;
@@ -106,6 +107,7 @@ public class GLItems {
 	public static final ItemEntry<DebugWand> DEBUG_WAND;
 	public static final ItemEntry<StructureWand> STRUCTURE_WAND;
 	public static final ItemEntry<DoorDebugItem> DOOR_DEBUG_WAND;
+	public static final ItemEntry<PartyWand> PARTY_WAND;
 
 	public static final ItemEntry<BorderUmbrellaItem> BORDER_UMBRELLA;
 
@@ -516,6 +518,12 @@ public class GLItems {
 
 			DOOR_DEBUG_WAND = reg.item("door_debug_wand", p -> new DoorDebugItem(p.stacksTo(1)))
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/debug/" + ctx.getName())))
+					.defaultLang().register();
+
+			// borrows the existing debug wand texture until it gets its own art, the
+			// same way the invitation letter borrows vanilla paper
+			PARTY_WAND = reg.item("party_wand", p -> new PartyWand(p.stacksTo(1)))
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/debug/debug_wand")))
 					.defaultLang().register();
 
 		}

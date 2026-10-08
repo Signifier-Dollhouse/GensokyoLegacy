@@ -152,7 +152,24 @@
 		"kirisame_marisa_spawn_egg": "雾雨魔理沙生成蛋",
 		"morichika_rinnosuke_spawn_egg": "森近霖之助生成蛋",
 		"star_danmaku": "星星弹幕",
-		"structure_wand": "结构杖"
+		"structure_wand": "结构杖",
+		"party_wand": "宴会调试杖",
+		"party_wand_hover": "注视食物方块以查看它的价值",
+		"party_wand_eat": "点击食物方块，取走一份食物",
+		"party_wand_simulate": "点击宴会桌以模拟一场宴会",
+		"party_wand_invalid": "已标记为食物，但没有什么可吃的",
+		"party_wand_food": "%s",
+		"party_wand_serves": "份数：%s",
+		"party_wand_food_values": "饱食值：%s　饱和度：%s",
+		"party_wand_attraction": "吸引力：每份 %s（共 %s）",
+		"party_wand_fulfillment": "喂饱一位客人需要：%s 份",
+		"party_wand_fulfillment_none": "喂饱一位客人需要：-",
+		"party_wand_party": "在 (%s, %s, %s) 处模拟的宴会",
+		"party_wand_counts": "桌子：%s　座位：%s　食物：%s",
+		"party_wand_totals": "吸引力：%s　需要满足：%s",
+		"party_wand_nobody": "没有人会来",
+		"party_wand_candidate": "  %s　权重 %s　好感 %s　需要 %s　%s",
+		"party_wand_stale": "（已离开那张桌子，数据可能过时）"
 	},
 	"-cartesian": {
 		"entity": {

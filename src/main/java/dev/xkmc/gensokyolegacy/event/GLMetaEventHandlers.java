@@ -4,6 +4,8 @@ import dev.xkmc.gensokyolegacy.content.attachment.area.AreaChunkHolder;
 import dev.xkmc.gensokyolegacy.content.attachment.area.AreaEffectManager;
 import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyTicker;
 import dev.xkmc.gensokyolegacy.content.attachment.party.food.FoodResultCache;
+import dev.xkmc.gensokyolegacy.content.item.debug.PartyWand;
+import dev.xkmc.gensokyolegacy.content.item.debug.PartyWandComponent;
 import dev.xkmc.gensokyolegacy.content.rpg.core.ServerCharacterDialogManager;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
@@ -17,6 +19,7 @@ import net.neoforged.neoforge.event.level.ChunkEvent;
 import net.neoforged.neoforge.event.level.ChunkWatchEvent;
 import net.neoforged.neoforge.event.level.LevelEvent;
 import net.neoforged.neoforge.event.tick.LevelTickEvent;
+import net.neoforged.neoforge.registries.RegisterEvent;
 
 @EventBusSubscriber(modid = GensokyoLegacy.MODID)
 public class GLMetaEventHandlers {
@@ -28,7 +31,15 @@ public class GLMetaEventHandlers {
 			// a party_food override is part of what a cached block food result is
 			// derived from, and a reload can change it without touching a block state
 			FoodResultCache.invalidate();
+			// party_taste is datapack data too, and the wand caches its appetite range
+			PartyWand.invalidate();
 		}
+	}
+
+	/** Vanilla-registry entries the mod adds that Registrate does not own. */
+	@SubscribeEvent
+	public static void register(RegisterEvent event) {
+		PartyWandComponent.register(event);
 	}
 
 	@SubscribeEvent

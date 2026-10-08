@@ -1021,6 +1021,9 @@ Added once in `SmartYoukaiEntity.constructTaskBoard` (`SmartYoukaiEntity.java:81
 | `content/rpg/core/ServerCharacterDialogManager.java` | suppress quest `START` while partying, as for visiting |
 | `content/rpg/action/StartQuestAction.java` | same guard, for dialog-driven starts |
 | `content/command/GLCommands.java` | `/gensokyo party` |
+| `content/item/debug/PartyWand.java` | the debug wand: hover, eat, simulate (§9.1) |
+| `content/item/debug/PartyWandData.java` | the simulated result, as the wand's data component payload |
+| `content/item/debug/PartyWandComponent.java` | the `DataComponentType`, registered on the mod bus |
 | `init/data/GLModConfig.java` | `partyScanRadius`, `partyGuestRadius` |
 | `init/data/GLLang.java` | `Party` enum, wired into `genLang`'s group array |
 | `init/data/GLTagGen.java` | `PARTY_TABLE`, `PARTY_SEAT` and `genPartyTag` (§2.1) |
@@ -1053,6 +1056,29 @@ The `large_table` support change is a behavioural change to a shipped block and 
 ```
 
 `preview` is the tuning tool and the reason the planner is pure: it calls the identical `PartyPlanner.select`, so what it prints is exactly what `send` will do. Without it, tuning `party_taste` numbers through a 30-second party with a letter to spend each attempt is miserable. `SUGGEST_PARTY_ELIGIBLE` is built off `party_taste`, mirroring how `SUGGEST_VISITORS` reads `StructureConfig.visitors()`.
+
+### 9.1 The debug wand
+
+`party_wand` is the other tuning tool, and it works differently from `preview` on purpose: `preview` prints, the wand **holds** its answer on the item.
+
+| Action | Runs on | Shows |
+|---|---|---|
+| hover a food block | client | serves, hunger, saturation, attraction, serves-to-satisfy |
+| click a food block | server | — takes one serving, as a guest would |
+| click a party table | server | bound position, table/seat/food counts, attraction, fulfillment needed, every candidate with her weight |
+
+The hover readout is computed **client-side** from the block state and the item registry, both of which the client already holds. That is not laziness: a live readout re-asks every frame, and a server round trip per frame — or a packet per block looked at — would be paid for numbers that cannot disagree with the client's own copy.
+
+The party simulation is the opposite case. Scoring characters by reputation needs server state, so the click runs the identical `PartySend.plan` a real send calls before it commits — no party is opened, no guest spawned, no letter spent — and the answer is written to an item data component:
+
+```java
+public record PartyWandData(BlockPos bound, int tables, int seats, int foods,
+        int appeal, int fulfillment, List<Candidate> candidates) { ... }
+```
+
+A **component** rather than a packet or a chat message, because vanilla already keeps item components in sync to the client; the overlay reads it back whenever the wand is held, with no machinery of its own.
+
+Two details worth knowing. The result is a snapshot of a party that was only simulated — the food is being eaten while the wand sits in a hand — so the overlay flags a reading taken more than 8 blocks from its table as possibly stale. And `PartyArea` collects only food and seats, so the wand counts tables with its own scan; folding that into the area would mean changing `PartyArea`'s record and every caller of it, for a debug-only number.
 
 ---
 

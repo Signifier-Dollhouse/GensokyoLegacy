@@ -384,7 +384,23 @@ public final class GLLang {
 		DOOR_DEBUG_UNBOUND("Not bound to a youkai. Right-click to bind."),
 		DOOR_DEBUG_BOUND("Bound to %s", 1),
 		DOOR_DEBUG_MISSING("Bound youkai is not loaded"),
-		DOOR_DEBUG_MOVING("Youkai moving to (%s, %s, %s)", 3);
+		DOOR_DEBUG_MOVING("Youkai moving to (%s, %s, %s)", 3),
+		PARTY_WAND_HOVER("Look at a food block to see what it is worth"),
+		PARTY_WAND_EAT("Click a food block to take one serving"),
+		PARTY_WAND_SIMULATE("Click a party table to simulate a party"),
+		PARTY_WAND_INVALID("That is tagged food but nothing to eat"),
+		PARTY_WAND_FOOD("%s", 1),
+		PARTY_WAND_SERVES("serves: %s", 1),
+		PARTY_WAND_FOOD_VALUES("hunger: %s   saturation: %s", 2),
+		PARTY_WAND_ATTRACTION("attraction: %s per serve (%s total)", 2),
+		PARTY_WAND_FULFILLMENT("serves to satisfy a guest: %s", 1),
+		PARTY_WAND_FULFILLMENT_NONE("serves to satisfy a guest: -"),
+		PARTY_WAND_PARTY("Party simulated at (%s, %s, %s)", 3),
+		PARTY_WAND_COUNTS("tables: %s   seats: %s   food: %s", 3),
+		PARTY_WAND_TOTALS("attraction: %s   fulfillment needed: %s", 2),
+		PARTY_WAND_NOBODY("Nobody would come"),
+		PARTY_WAND_CANDIDATE("  %s  weight %s  rep %s  wants %s  %s", 5),
+		PARTY_WAND_STALE("(taken away from that table - may be out of date)");
 
 		private final String def;
 		private final int argn;

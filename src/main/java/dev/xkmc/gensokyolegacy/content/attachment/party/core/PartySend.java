@@ -71,7 +71,7 @@ public class PartySend {
 	 *                   send cannot drift apart
 	 */
 	public static Outcome plan(ServerLevel level, ServerPlayer sp, BlockPos anchor,
-			java.util.function.ToIntFunction<EntityType<?>> reputation) {
+			ToIntFunction<EntityType<?>> reputation) {
 		var area = PartyArea.scan(level, anchor, GLModConfig.SERVER.partyScanRadius.get());
 		if (area.food().isEmpty()) return new Outcome(null, Refusal.NO_FOOD, null);
 		// chairs are a hard requirement: no seats, no party
