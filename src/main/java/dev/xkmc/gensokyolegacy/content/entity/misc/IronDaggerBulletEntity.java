@@ -5,6 +5,7 @@ import dev.xkmc.danmakuapi.content.entity.ItemBulletEntity;
 import dev.xkmc.gensokyolegacy.content.item.dagger.DaggerGloveRune;
 import dev.xkmc.gensokyolegacy.content.item.dagger.DaggerGloveRunes;
 import dev.xkmc.gensokyolegacy.content.item.tool.IronDaggerItem;
+import dev.xkmc.gensokyolegacy.init.registrate.GLParticles;
 import dev.xkmc.l2serial.serialization.marker.SerialClass;
 import dev.xkmc.l2serial.serialization.marker.SerialField;
 import net.minecraft.core.particles.ParticleTypes;
@@ -155,7 +156,7 @@ public class IronDaggerBulletEntity extends ItemBulletEntity {
 		double d6 = vec3.y;
 		double d1 = vec3.z;
 		for(int i = 0; i < 4; ++i) {
-			this.level().addParticle(ParticleTypes.CRIT, this.getX() + d5 * (double)i / (double)4.0F, this.getY() + d6 * (double)i / (double)4.0F, this.getZ() + d1 * (double)i / (double)4.0F, -d5, -d6 + 0.2, -d1);
+			this.level().addParticle(GLParticles.KNIFE.get(), this.getX() + d5 * (double)i / (double)4.0F, this.getY() + d6 * (double)i / (double)4.0F, this.getZ() + d1 * (double)i / (double)4.0F, -d5, -d6 + 0.2, -d1);
 		}
 	}
 
