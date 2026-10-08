@@ -3,7 +3,7 @@ package dev.xkmc.gensokyolegacy.event;
 import dev.xkmc.gensokyolegacy.content.attachment.area.AreaEffectRenderer;
 import dev.xkmc.gensokyolegacy.content.attachment.area.ClientAreaEffectTracker;
 import dev.xkmc.gensokyolegacy.content.client.deco.DowserRenderer;
-import dev.xkmc.gensokyolegacy.content.client.deco.FurnaceItemDeco;
+import dev.xkmc.gensokyolegacy.content.item.hakkero.HakkeroPrototypeDeco;
 import dev.xkmc.gensokyolegacy.content.client.structure.StructureOutlineRenderer;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
@@ -72,7 +72,7 @@ public class GLClientEventHandlers {
 	public static void onSlotRender(GuiGraphics g, ItemStack stack, Slot slot) {
 		if (slot.container instanceof Inventory inv) {
 			int index = slot.getSlotIndex();
-			FurnaceItemDeco.renderSlot(g, stack, inv, index, slot.x, slot.y);
+			HakkeroPrototypeDeco.renderSlot(g, stack, inv, index, slot.x, slot.y);
 		}
 	}
 

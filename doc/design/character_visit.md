@@ -20,7 +20,10 @@ another character's home.
 
 Spawning a clone rather than teleporting the resident matters: the resident back
 home keeps living its day, keeps its bed binding, and cannot be yanked out from
-under a player who came to the shrine.
+under a player who came to the shrine. It is also the only option available — a
+character is level-bound (`YoukaiEntity#canUsePortal` / `canChangeDimensions`
+are both `false`, the same lock dolls carry), so a visit is always a fresh spawn
+in the host's level, never a relocation of the resident.
 
 Not setting `HomeModule.home` is what makes a visitor un-bed-bound. Nothing else
 has to know about it — the whole sleep/bed subsystem is already gated on `HOME`.

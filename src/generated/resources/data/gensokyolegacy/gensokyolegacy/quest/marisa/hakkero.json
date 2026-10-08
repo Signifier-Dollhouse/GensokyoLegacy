@@ -1,0 +1,89 @@
+{
+  "character": "gensokyolegacy:kirisame_marisa",
+  "completionDialog": {
+    "type": "gensokyolegacy:simple",
+    "actions": [],
+    "conditions": [],
+    "next": "gensokyolegacy:marisa/hakkero/complete/dialog_1",
+    "text": "gensokyolegacy/marisa/hakkero/option/complete"
+  },
+  "conditions": [
+    {
+      "type": "gensokyolegacy:has_advancement",
+      "advancement": "gensokyolegacy:main/obtain_mini_hakkero"
+    },
+    {
+      "type": "gensokyolegacy:has_advancement",
+      "advancement": "gensokyolegacy:main/obtain_mini_hakkero_repaired",
+      "invert": true
+    },
+    {
+      "type": "gensokyolegacy:home_bound"
+    }
+  ],
+  "description": "gensokyolegacy/marisa/hakkero/quest/desc",
+  "followUpDialog": {
+    "type": "gensokyolegacy:simple",
+    "actions": [],
+    "conditions": [],
+    "next": "gensokyolegacy:marisa/hakkero/follow_up/dialog_1",
+    "text": "gensokyolegacy/marisa/hakkero/option/follow_up"
+  },
+  "initialDialog": {
+    "type": "gensokyolegacy:simple",
+    "actions": [],
+    "conditions": [],
+    "next": "gensokyolegacy:marisa/hakkero/start/dialog_1",
+    "text": "gensokyolegacy/marisa/hakkero/option/start"
+  },
+  "requirements": {
+    "a-parts": {
+      "type": "gensokyolegacy:submit_item",
+      "ingredients": [
+        {
+          "count": 8,
+          "item": "minecraft:redstone"
+        },
+        {
+          "count": 4,
+          "item": "minecraft:gold_ingot"
+        },
+        {
+          "count": 16,
+          "item": "minecraft:iron_ingot"
+        },
+        {
+          "count": 1,
+          "item": "minecraft:netherite_scrap"
+        }
+      ]
+    },
+    "a-prototype": {
+      "type": "gensokyolegacy:submit_item",
+      "ingredients": [
+        {
+          "count": 1,
+          "item": "gensokyolegacy:mini_hakkero_prototype"
+        }
+      ]
+    }
+  },
+  "rewards": [
+    {
+      "type": "gensokyolegacy:exp",
+      "point": 300
+    },
+    {
+      "type": "gensokyolegacy:reputation",
+      "cap_increase": 10,
+      "max_cap": 300,
+      "reputation": 20,
+      "soft_cap": 300
+    },
+    {
+      "type": "gensokyolegacy:loot_table",
+      "table": "gensokyolegacy:marisa/hakkero"
+    }
+  ],
+  "title": "gensokyolegacy/marisa/hakkero/quest/title"
+}

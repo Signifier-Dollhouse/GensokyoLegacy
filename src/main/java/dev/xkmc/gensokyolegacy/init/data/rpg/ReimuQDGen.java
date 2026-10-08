@@ -132,7 +132,7 @@ public class ReimuQDGen extends QuestDialogData {
 				List.of(homeBound(), new SelfReputationCondition(100)),
 				starterText("start", "What are your duties, exactly?"),
 				dialog("talk", "Back in Gensokyo, my job was simple, really — keeping Gensokyo in order. Put bluntly: wherever trouble broke out, I'd rush over and beat up whoever started it... Sounds exhausting, right? And it's year-round with no pay.",
-						option("bye", "I see.")),
+						option("bye", "That sounds like important work.")),
 				CHAT_MISC);
 
 		prefix("reimu/chat_guests");
@@ -165,10 +165,10 @@ public class ReimuQDGen extends QuestDialogData {
 		chat("reimu/chat_frog", GLEntities.REIMU.get(),
 				List.of(homeBound(), hasItem(item(GLItems.STRAW_HAT.get(), 1)), hasQuest(QUEST_OMINOUS_BANNER), timer(FROG_KEY)),
 				starterText("start", "About this straw hat..."),
-				dialog("talk", "That straw hat... it would look funny on a frog, wouldn't it?",
-						option("ask", "A frog?",
+				dialog("talk", "That straw hat... it doesn't seem ordinary.",
+						option("ask", "This straw hat? Now that I have it, it does feel strange.",
 								setTimer(FROG_KEY, FROG_CHAT_COOLDOWN),
-								dialog("idea", "Suwako is a frog goddess, after all. If she blessed frogs like that, maybe they'd develop a taste for raiders. Faith from frogs... heh, that'd be one way to gather it.",
+								dialog("idea", "Have you heard the legend of the frog god? They say frogs wearing a hat like that guard the village the way they catch pests, and gather faith by swallowing raiders... though maybe it's only a story. Who knows.",
 										option("bye", "Heh, maybe.")))),
 				CHAT_SPECIAL);
 
@@ -198,18 +198,18 @@ public class ReimuQDGen extends QuestDialogData {
 		prefix("reimu/visit_kourindou");
 		chat("reimu/visit_kourindou_stock", GLEntities.REIMU.get(),
 				List.of(visitingAt(GLStructureGen.MORICHIKA_SHOP)),
-				starterText("stock", "This place has more stuff than I'd like."),
-				dialog("stock", "Huh. This is the shop Marisa goes on about. Not what I expected — I mostly came for the look, and because there's nothing at the shrine today.",
+				starterText("stock", "This shop has a good deal more in stock than it looks."),
+				dialog("stock", "Huh. Not what I expected - I mostly came for the look, and because there is nothing at the shrine today.",
 						option("browse", "Anything worth buying?",
-								dialog("browse_ans", "Junk, mostly. ... Well. Some of it's decent. Don't tell Marisa I said that.",
-										option("browse/end", "Your secret's safe.")))),
+								dialog("browse_ans", "Hard to say. Most of it is no use to me... and sometimes the shopkeeper doesn't know how to use his own tools either.",
+										option("browse/end", "That sounds... unsettling.")))),
 				CHAT_MISC);
 
 		chat("reimu/visit_kourindou_stay", GLEntities.REIMU.get(),
 				List.of(visitingAt(GLStructureGen.MORICHIKA_SHOP)),
-				starterText("stay", "Are you going to keep me company?"),
-				dialog("stay", "... What? No, I'm not staying. I have things to do. I just happened to be in the area — don't read into it.",
-						option("bye", "Sure, I won't.")),
+				starterText("stay", "What a coincidence - you are shopping here too?"),
+				dialog("stay", "Oh? It's you. I have some things to buy - a good deal of what the shrine uses is actually sourced here.",
+						option("bye", "I see.")),
 				CHAT_DEFAULT);
 	}
 

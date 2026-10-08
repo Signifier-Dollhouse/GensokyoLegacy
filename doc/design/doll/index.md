@@ -23,7 +23,7 @@ Entity ↔ `DollData` identity is the entity's **own game uuid**, minted fresh o
 - **No item loss, no duplication** — item and `DollData` never coexist (itemization removes the data first, atomic).
 - **Fresh uuid per summon** — clones of an item always summon independent dolls; a stale entity whose uuid lost its `SUMMONED` entry discards itself.
 - **No expensive per-tick state capture** — only *significant values* (uuid, type, dimension, position, facing, name) + `CombatData` are tracked, updated lazily; never a full `CompoundTag` snapshot.
-- The doll **follows the player**, survives logout/death (parked with a restore intent), and keeps health/name/position; dimension changes are handled uniformly by store + resummon.
+- The doll **follows the player**, survives logout/death (parked with a restore intent), and keeps health/name/position. A doll **cannot change dimension** — it is level-bound to its ledger entry (entity.md §3.1a) — so the owner leaving simply leaves the doll where it stands until the owner returns.
 - **Guard against unauthorized external changes**.
 - Dolls are **not targetable by hostile mobs** but **still take damage**.
 - Player-hosted dolls have **behaviors driven by the items they hold** (§ loadout / control / glove) — combat actions under a single-ticket system, plus a glove item to mark heal targets and issue attack commands.

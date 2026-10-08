@@ -3,6 +3,7 @@ package dev.xkmc.gensokyolegacy.event;
 import dev.xkmc.gensokyolegacy.content.attachment.area.AreaChunkHolder;
 import dev.xkmc.gensokyolegacy.content.attachment.area.AreaEffectManager;
 import dev.xkmc.gensokyolegacy.content.party.core.PartyTicker;
+import dev.xkmc.gensokyolegacy.content.party.core.food.FoodResultCache;
 import dev.xkmc.gensokyolegacy.content.rpg.core.ServerCharacterDialogManager;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
@@ -25,6 +26,9 @@ public class GLMetaEventHandlers {
 	public static void reload(OnDatapackSyncEvent event) {
 		if (event.getPlayer() == null) {
 			ServerCharacterDialogManager.clearCache();
+			// a party_food override is part of what a cached block food result is
+			// derived from, and a reload can change it without touching a block state
+			FoodResultCache.invalidate();
 		}
 	}
 

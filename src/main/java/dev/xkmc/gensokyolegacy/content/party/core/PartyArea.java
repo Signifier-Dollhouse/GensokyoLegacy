@@ -30,6 +30,12 @@ public record PartyArea(BlockPos anchor, List<BlockPos> food, List<BlockPos> sea
 	 * A food block only counts when the block directly below it is a party table.
 	 * That single check is the whole of "block food placed on a table": a cake on
 	 * the floor is neither counted nor ever eaten.
+	 * <p>
+	 * A block that is tagged as party food but is not <i>valid</i> food — no hunger
+	 * value, nothing to eat, something refused outright — is dropped here as well. It
+	 * is left standing in the world, but it is neither counted towards the spread nor
+	 * ever walked to, so a datapack entry that turns out to be a dud costs the player
+	 * nothing and costs a guest no time.
 	 */
 	public static PartyArea scan(ServerLevel level, BlockPos anchor, int radius) {
 		var food = new ArrayList<BlockPos>();
@@ -40,8 +46,10 @@ public record PartyArea(BlockPos anchor, List<BlockPos> food, List<BlockPos> sea
 			if (here.is(GLTagGen.PARTY_SEAT)) seats.add(pos.immutable());
 			if (!here.is(GLTagGen.PARTY_FOOD)) continue;
 			if (!level.getBlockState(pos.below()).is(GLTagGen.PARTY_TABLE)) continue;
+			int worth = PartyFoodValue.appeal(level.registryAccess(), here);
+			if (worth <= 0 || !PartyFoodValue.result(here).valid()) continue;   // tagged, but not food
 			food.add(pos.immutable());
-			appeal += PartyFoodValue.appeal(level.registryAccess(), here);
+			appeal += worth;
 		}
 		return new PartyArea(anchor.immutable(), food, seats, appeal);
 	}

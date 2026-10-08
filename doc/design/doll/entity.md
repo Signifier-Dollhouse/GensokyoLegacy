@@ -55,7 +55,38 @@ Every tick, the ellipsoidal velocity vector is hard-clamped: if its length excee
 
 The enforced value is a field (`speedCap`, `setSpeedCap`), `MAX_SPEED` by default. It exists for one sanctioned exception: a behavior that deliberately spends speed on an attack — the melee charge raises it to twice the cap for the lunge and drops it back in its `stop` (control.md §5.1b). Nothing else may touch it, and it is not synced: a burst belongs to the tick that pays for it, so a doll always resumes under the ordinary cap.
 
-The follow goal's >12-block / cross-dimension **teleport** remains the catch-up mechanism (it does not violate the cap — teleporting is not velocity). `canChangeDimensions()` may be overridden to `true` as optional hardening.
+The follow goal's **teleport** is the rescue, not the catch-up: it fires only when the doll is genuinely lost, and never while it is working (it does not violate the cap — teleporting is not velocity). Four conditions, all required (`FollowDollOwnerGoal#teleportToOwnerPos`):
+
+- the owner resolves to a live entity in the doll's own level;
+- the doll holds no command ticket (`actions.isActive()`), so an attack or a still-pending order is never cancelled mid-flight;
+- the formation slot is more than **5 blocks** away (`LOST_RANGE_SQ = 25`);
+- the owner has been out of **line of sight for 20 ticks** (`BLIND_TICKS`, one second — the same grace period Alice's escort gets in host.md §5).
+
+Sight is the real test: a doll that can see its owner can still path to it, so a wall between them is no excuse and a blink behind a pillar costs nothing. The blindness clock is game time, not a tick counter — a goal that does not override `requiresUpdateEveryTick` is only ticked every other pass — and it is cleared in `start()` so a fresh follow run owes a full grace period. After the blink the stale path is dropped, so the doll re-paths from the slot instead of walking straight back off it.
+
+**The landing point is checked.** A slot that will not hold the doll's bounding box (`CollisionGetter#noCollision`, translated to the target) is not rescued at all — the arc is a pure function of the owner's yaw, so it sweeps through walls and closed rooms, and teleporting into one strands the doll worse than before. Those blinks land on the **owner's position** instead. That fallback is not re-tested: the owner is standing there, so its position is as safe as the owner's own, and a query at that point would hit the owner's hitbox and void the fallback every time.
+
+It is same-level only: a doll is dimension-bound (§3.1a), so there is no cross-dimension rescue to perform.
+
+### 3.1a Dimension lock
+
+```java
+@Override
+public boolean canUsePortal(boolean allowPassengers) {
+    return false;
+}
+
+@Override
+public boolean canChangeDimensions(Level oldLevel, Level newLevel) {
+    return false;
+}
+```
+
+A doll is a projection of a ledger entry that names exactly one level, so a portal would strand it where no ledger can describe it. `canUsePortal` is the single gate every portal entry point consults — `NetherPortalBlock`, `EndPortalBlock`, `EndGatewayBlock`, and the mod's own `BasePortalBlock` all branch on it — so refusing there covers vanilla and the gap dimension at once, and the doll simply walks through the portal block like any other scenery. `canChangeDimensions` states the same rule at the transition itself, in case a destination is latched by some other route.
+
+`IDimensionBoundEntity` (`content/entity/foundation/`) is the shared marker. It carries no methods: the two overrides above and the equivalent pair on `YoukaiEntity` live in the concrete bases because a Java interface default would be silently shadowed by the superclass methods. Call sites that move other entities around check the marker instead of naming both bases — currently the umbrella capture, which refuses to send a doll to a slot in another dimension (`UmbrellaUtil.teleportEntityToSlot`).
+
+Two paths are deliberately left working, because an operator forcing an entity across is an explicit act and the existing watchdogs already reconcile the result: `/tp` (which uses `Entity#teleportTo(ServerLevel, ...)`, not `changeDimension`, and never fires the NeoForge event) and `EntityTravelToDimensionEvent` is cancelled as a backstop for mixin/mod-initiated moves.
 
 ### 3.2 Goals
 

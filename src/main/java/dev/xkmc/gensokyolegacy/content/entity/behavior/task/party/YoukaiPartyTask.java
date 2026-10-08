@@ -222,7 +222,11 @@ public class YoukaiPartyTask extends Behavior<SmartYoukaiEntity> {
 		double bestDist = Double.MAX_VALUE;
 		int radius = GLModConfig.SERVER.partyScanRadius.get();
 		for (var pos : BlockPos.betweenClosed(table, table.offset(radius, radius, radius))) {
-			if (!level.getBlockState(pos).is(tag)) continue;
+			var state = level.getBlockState(pos);
+			if (!state.is(tag)) continue;
+			// tagged as food, but worth nothing to eat: walking over and eating it
+			// would cost this guest the whole visit for no fulfillment at all
+			if (!PartyFoodValue.result(state).valid()) continue;
 			double dist = pos.distSqr(from);
 			if (dist >= bestDist) continue;
 			bestDist = dist;

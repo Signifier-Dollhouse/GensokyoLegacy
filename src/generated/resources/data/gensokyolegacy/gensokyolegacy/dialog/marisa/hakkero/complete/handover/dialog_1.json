@@ -1,0 +1,11 @@
+{
+  "options": [
+    {
+      "type": "gensokyolegacy:simple",
+      "actions": [],
+      "conditions": [],
+      "text": "gensokyolegacy/marisa/hakkero/option/complete/handover/end"
+    }
+  ],
+  "text": "gensokyolegacy/marisa/hakkero/dialog/marisa/hakkero/complete/handover/dialog_1"
+}

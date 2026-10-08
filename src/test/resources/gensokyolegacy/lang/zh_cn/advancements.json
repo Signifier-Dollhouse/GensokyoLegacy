@@ -54,6 +54,10 @@
 					"title": "迷你八卦炉",
 					"description": "获得迷你八卦炉·原型"
 				},
+				"obtain_mini_hakkero_repaired": {
+					"title": "迷你八卦炉【修复】",
+					"description": "让魔理沙修复你的迷你八卦炉"
+				},
 				"obtain_cat_bell": {
 					"title": "猫铃铛",
 					"description": "获得猫铃铛"

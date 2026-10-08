@@ -1,6 +1,8 @@
 package dev.xkmc.gensokyolegacy.content.entity.dolls.impl;
 
 import dev.xkmc.gensokyolegacy.content.entity.dolls.DollEntity;
+import dev.xkmc.gensokyolegacy.init.registrate.GLSounds;
+import net.minecraft.sounds.SoundSource;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.animation.*;
@@ -40,6 +42,9 @@ public interface DollGeo extends DollBaseImpl, GeoEntity {
 	byte EVENT_SKILL = 69;
 	byte EVENT_SLAP = 70;
 
+	/** Volume of the attack voice; the clip is short, so a volley does not build up. */
+	float ATTACK_VOLUME = 1.0F;
+
 	private DollGeoModule geo() {
 		return asDoll().getModule(DollGeoModule.class);
 	}
@@ -74,9 +79,22 @@ public interface DollGeo extends DollBaseImpl, GeoEntity {
 		else if (id == EVENT_SKILL) triggerAnim("all", "skill");
 	}
 
+	/**
+	 * The swung attack, animation and voice together: the {@code toy_attack} clip is
+	 * silent on its own, so {@link GLSounds#DOLL_ATTACK} is what makes a strike
+	 * audible, and it is played from the same place as the broadcast so the two
+	 * cannot drift apart.
+	 * <p>
+	 * The pitch is the entity's own {@link net.minecraft.world.entity.LivingEntity#getVoicePitch()},
+	 * i.e. the vanilla voice jitter, which keeps a volley of dolls striking on the
+	 * same tick from stacking into one louder, phasey hit. The sound is
+	 * {@link SoundSource#NEUTRAL}, the source a mob's own voice uses.
+	 */
 	default void broadcastAttackAnim() {
-		if (!asDoll().level().isClientSide())
-			asDoll().level().broadcastEntityEvent(asDoll(), EVENT_ATTACK);
+		if (asDoll().level().isClientSide()) return;
+		asDoll().level().broadcastEntityEvent(asDoll(), EVENT_ATTACK);
+		asDoll().level().playSound(null, asDoll(), GLSounds.DOLL_ATTACK.get(),
+				SoundSource.NEUTRAL, ATTACK_VOLUME, asDoll().getVoicePitch());
 	}
 
 	/** The bare-handed swing: {@link #EVENT_SLAP} rather than the lance clip. */

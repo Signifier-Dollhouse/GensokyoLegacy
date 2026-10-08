@@ -1,14 +1,15 @@
-package dev.xkmc.gensokyolegacy.content.client.deco;
+package dev.xkmc.gensokyolegacy.content.item.hakkero;
 
-import dev.xkmc.gensokyolegacy.content.item.tool.MiniFurnace1;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 
-public class FurnaceItemDeco {
+/**
+ * Draws each of the prototype's four cooking neighbours' progress over its slot in the
+ * player inventory. Client-only, so nothing on the common side may reference it.
+ */
+public class HakkeroPrototypeDeco {
 
 	public static void renderSlot(GuiGraphics g, ItemStack stack, Inventory inv, int i, int x, int y) {
 		if (i < 9 || i >= 36) return;
@@ -21,22 +22,16 @@ public class FurnaceItemDeco {
 	}
 
 	private static void renderImpl(GuiGraphics g, Inventory inv, int i, int x, int y, int r0, int c0, int r1, int c1) {
-
 		if (r0 < 0 || r0 >= 3 || c0 < 0 || c0 >= 9) return;
 		int s0 = r0 * 9 + c0 + 9;
 		var stack = inv.getItem(s0);
-		if (!stack.is(GLItems.MINI_FURNACE_1)) return;
-		var data = stack.getOrDefault(GLItems.DC_FURNACE_1, MiniFurnace1.Data.DEF);
-		if (data.state() == MiniFurnace1.State.OFF) return;
+		if (!stack.is(GLItems.MINI_HAKKERO_PROTOTYPE)) return;
+		var data = stack.getOrDefault(GLItems.DC_HAKKERO_PROTOTYPE, HakkeroPrototype.Data.DEF);
+		if (data.state() == HakkeroMode.OFF) return;
 
 		var entry = data.data()[i];
 		if (entry == null) return;
-		float f = 1f * entry.time() / entry.max();
-		if (f > 0.0F) {
-			int y0 = y + Mth.floor(16.0F * (1 - f));
-			int y1 = y0 + Mth.ceil(16.0F * f);
-			g.fill(RenderType.guiOverlay(), x, y0, x + 16, y1, Integer.MAX_VALUE);
-		}
+		HakkeroProgressBar.draw(g, x, y, 1f * entry.time() / entry.max());
 	}
 
 }

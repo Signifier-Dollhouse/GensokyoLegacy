@@ -125,11 +125,31 @@ public static int appeal(RegistryAccess access, BlockState state) {
 public static int consume(ServerLevel level, BlockPos pos, BlockState state) { ... }
 ```
 
-Poison and wither score **0** — the same two `FeedModule` refuses outright. Nobody lays those out at a party, and a 0 makes the planner leave them in the world rather than serving them.
+#### Invalid food is not food
+
+Three things make a tagged block worth nothing, and all three score **0** rather than the minimum:
+
+- **No hunger value** — `nutrition() <= 0`. A block item can carry `FoodProperties` while being worth nothing to eat: a decorative item, a husk, another mod's placeholder. There is deliberately no "minimum appeal" fallback for a missing or empty serving, because a placeholder scoring 1 would still count towards the party's budget *and* still be walked to and eaten by a guest, costing a guest their whole visit for no fulfillment at all.
+- **Poison or wither** — the same two `FeedModule` refuses outright.
+- **Nothing to read** — no `FoodProperties` on the block, its serving item, or any permuted id.
+
+A 0 is the signal that the block is **not party food at all**, and both consumers act on it — see `FoodResult` below for where the rule lives:
+
+```java
+// PartyArea.scan - dropped from the spread entirely, left standing in the world
+if (worth <= 0 || !PartyFoodValue.result(here).valid()) continue;   // tagged, but not food
+food.add(pos.immutable());
+appeal += worth;
+
+// YoukaiPartyTask.nearest - never walked to, so no guest's time is wasted
+if (!PartyFoodValue.result(state).valid()) continue;
+```
+
+So a datapack author who adds a dud id to `party_food` gets a no-op rather than a bug: nothing is counted, nothing is eaten, and the block simply stays on the table.
 
 #### `BlockFoodHandler` — how a block food is read and eaten
 
-The derivation above needs three facts about a *placed* block, and they differ per mod:
+The derivation above needs three facts about a *placed* block, and they differ per mod, so there is one implementation per kind of food in `content/party/core/food/`:
 
 ```java
 public interface BlockFoodHandler {
@@ -144,15 +164,87 @@ public interface BlockFoodHandler {
 }
 ```
 
-Three shapes ship, each for a reason that came out of the blocks themselves:
+| Handler | Kind | Serves | Where the food is |
+|---|---|---|---|
+| `CakeFood` | vanilla cake, YSF cakes | 7, counted up | a permuted `*_slice` item, else vanilla's own numbers |
+| `FeastFood` | FD feasts, YSF feasts | `servings` 0..4, counted **down** | the block's own `getServingItem` |
+| `PieFood` | FD pies, YSF pies | 4, counted up | the block's own `getPieSliceItem` |
+| `PotFood` | YSF bowls and pots | 2 or 4, counted **down** | a permuted item, else the block's `food` field |
+| `SaucerFood` | YSF saucer dishes | 1, eaten whole | the block's own item |
+| `BlockItemFood` | anything else, and the fallback | 1 | the block's own item |
 
-| Factory | For | Why |
-|---|---|---|
-| `countdown(servingItemId)` | FD feasts and pies, YSF pots | counted down through the block's own property, food often on a **separate serving item** |
-| `whole(servingItemId)` | YSF saucer dishes | one serving, eaten all at once, no tracking on the block |
-| `slice(nutrition, saturation)` | vanilla cake, YSF cakes | food described only in code — see below |
+#### `FoodResult` — one resolution, three answers
 
-The countdown property is found **by name** (`bites`, `servings`, `serve`) rather than passed in, because the `IntegerProperty` instances belong to the other mods and naming them would mean a hard dependency.
+Everything above is derived from the same block state and is always wanted together: the planner needs the serve count, the appeal needs the properties, the guest needs the action. So it is resolved once and kept.
+
+```java
+public record FoodResult(int serves, @Nullable FoodProperties food, FoodConsume consume) {
+    public static final FoodResult INVALID = new FoodResult(0, null, (level, pos, state) -> 0);
+
+    public boolean valid() {
+        if (serves <= 0 || food == null) return false;
+        return food.nutrition() > 0 && !Servings.refuses(food);
+    }
+}
+```
+
+All four kinds of invalid food collapse to that one `INVALID`:
+
+| Invalid because | Caught by |
+|---|---|
+| a container with 0 servings left | `serves <= 0` |
+| no food properties anywhere | `food == null` |
+| no hunger value | `food.nutrition() > 0` |
+| poison or wither | `!Servings.refuses(food)` |
+
+Mapping them to one value rather than four different near-zero scores is the point: callers ask `valid()` instead of each re-deciding what "worthless" means, and a handler that forgets to filter cannot accidentally make a dud look like food.
+
+`consume` takes the state as a parameter rather than closing over it. The cached result belongs to the state it was built from, but by the time a guest gets round to eating, the world may have moved on — another guest took a slice, the player broke the block — and consuming against a stale state would put it back or resurrect it.
+
+#### `FoodResultCache` — resolving it once
+
+```java
+private static final Map<BlockState, FoodResult> RESULTS = new ConcurrentHashMap<>();
+
+public static FoodResult of(BlockState state) {
+    var cached = RESULTS.get(state);
+    if (cached != null) return cached;
+    var resolved = resolve(state);
+    RESULTS.put(state, resolved);
+    return resolved;
+}
+```
+
+Resolving is not cheap: a serving item costs a registry lookup and a string build, a serve count asks the block for its default state and walks the property's range, and a feast allocates an `ItemStack` to do it. `PartyArea.scan` walks up to a thirteen-cube box on every send and every guest re-reads the dish it is eating, so the same few hundred states were being resolved over and over.
+
+The cache needs **no eviction policy**. States are interned per block, so it can never hold more entries than the blocks asked about have states between them — seven for a cake, five for a feast. It does not grow with world size, uptime, or how many parties have happened.
+
+It is also **not datapack data**. What goes into a result is the serve count, the food properties and the consume action, and all three come from registration: the block's state definition, the item registry, and the handler. The `party_food` override is deliberately resolved by the caller in `PartyFoodValue` and never enters the cache, so a reload cannot leave a stale appeal behind here. `invalidate()` is still wired to the server's datapack sync as belt and braces — it costs nothing, and it removes a whole class of bug if the derivation ever grows a datapack input.
+
+#### Finding the item form by permuting the id
+
+Block foods commonly ship a matching item that holds the real food values — the slice of a cake, the contents of a bowl — and those items are named after the block rather than being reachable from it. Youkai's Feasts forms them by concatenating `"_slice"` onto the block name, so `youkaisfeasts:tarte_lune` has a `youkaisfeasts:tarte_lune_slice`.
+
+`Permutations` exploits that: take the block's registry id, append each candidate suffix, and see whether the item registry has it.
+
+```java
+private static final String[] SUFFIXES = {"_slice", "_dish", "_piece"};
+
+public static FoodProperties foodOf(Block block) {
+    var id = BuiltInRegistries.BLOCK.getKey(block);
+    for (var suffix : SUFFIXES) {
+        var candidate = ResourceLocation.tryParse(id.getNamespace() + ":" + id.getPath() + suffix);
+        if (candidate == null) continue;
+        var props = propsAt(candidate);
+        if (props != null) return props;      // a suffix that does not exist just misses
+    }
+    return null;
+}
+```
+
+This is preferred over reflecting a field because it survives a mod update. YSF's `BowlBlock` keeps its food in a `protected final ItemLike food` with no accessor, so that read is still there as a **fallback** behind the permutation — it works today, but a rename would break it silently, and reflection against another mod is exactly the kind of thing that fails without a stack trace.
+
+The four countdown kinds share `AbstractCountdownFood`, which owns the serve count and the step. **No handler names a foreign block class** — each takes a `Function<BlockState, ItemStack>` for its serving item, supplied in `BlockFoods` inside the mod's gated section. So a handler class cannot fail to load when its mod is absent, and the foreign types appear exactly once each.
 
 #### Two counting conventions, and getting them backwards
 
@@ -165,25 +257,25 @@ The properties do **not** agree on what they count, and assuming one convention 
 | FD `FeastBlock` | `servings` | `0..4` | 4 | **down** — servings left | `value` → 4 |
 | YSF `PotFoodBlock` | `serve` | `1..2` / `1..4` | max | **down** | `value` |
 
-So `serves` and `consume` both need the direction, and it is read off the property rather than hardcoded:
+`serves` and `consume` both need the direction, and `AbstractCountdownFood` reads it off the property rather than being configured with it:
 
 ```java
 /** Whether the block's count property starts at its maximum (servings left). */
 private static boolean countsDown(BlockState state, IntegerProperty property) {
-    // min..max from getPossibleValues(); a fresh state sitting at max counts down
-    int fresh = state.getBlock().defaultBlockState().getValue(property);
-    return fresh >= max;
+    // a fresh state sitting at the maximum counts down; one at the minimum counts up
+    return state.getBlock().defaultBlockState().getValue(property) >= maximum(property);
 }
 
-static int servesOf(BlockState state) {
-    var left = countdownProperty(state);
-    if (left == null) return 1;                       // one indivisible serve
+@Override
+public int serves(BlockState state) {
+    var left = countProperty(state);
+    if (left == null) return 1;                       // no counter: one indivisible serve
     int value = state.getValue(left);
     return countsDown(state, left) ? value : value + 1;
 }
 ```
 
-This matters more than it looks. Had `consume` assumed "always decrement", an FD feast would step its servings **up** towards its maximum and, having started there, would never go anywhere: each guest eats, the block stays at max, and the party can never be satisfied. The reverse assumption breaks cake and pie the same way. Reading the direction off the block is the only version correct for both, and it names no foreign class.
+This matters more than it looks. Had `consume` assumed "always decrement", an FD feast would step its servings **up** towards its maximum and, having started there, would never go anywhere: each guest eats, the block stays at max, and the party can never be satisfied. The reverse assumption breaks cake and pie the same way. Reading the direction off the block is the only version correct for both, and it names no foreign property.
 
 #### The cake problem
 
@@ -197,13 +289,19 @@ if (i < 6) level.setBlock(pos, state.setValue(BITES, i + 1), 3);
 else level.removeBlock(pos, false);
 ```
 
-`BITES` runs 0..6, so the cake is **7 slices of `eat(2, 0.1F)`**. Its `BlockItem` carries no food, so reading it yields `null` and the appeal would fall to `MIN_APPEAL` — a cake worth 1, and with no other mods installed *no character would ever come to a party*. Hence `slice(2, 0.4f)`:
+`BITES` runs 0..6, so the cake is **7 slices of `eat(2, 0.1F)`**. Its `BlockItem` carries no food, so reading it yields `null` — a cake worth nothing, and with no other mods installed *no character would ever come to a party*.
+
+So `CakeFood` tries the id permutation first, and only falls back to vanilla's own numbers:
 
 ```java
-PartyFoodValue.register(Blocks.CAKE, BlockFoodHandler.slice(2, 0.4f));
+@Override
+public @Nullable FoodProperties food(BlockState state) {
+    var permuted = Permutations.foodOf(state.getBlock());
+    return permuted == null ? fallback : permuted;
+}
 ```
 
-`0.4` is not arbitrary: `FoodConstants.saturationByModifier` is `foodLevel * saturationModifier * 2.0`, so `2 * 0.1 * 2.0 = 0.4`.
+The order matters. A mod's cake is read from **its own** slice item, which is authoritative; vanilla's numbers are a last resort that only applies when no slice item exists. `0.4` is not arbitrary: `FoodConstants.saturationByModifier` is `foodLevel * saturationModifier * 2.0`, so `2 * 0.1 * 2.0 = 0.4`.
 
 One slice is then `round(2 × 0.5 + 0.4 × 2.0) = 2`, and a whole 7-slice cake is worth **14**. Compare the block-valued approach this replaced, which scored the whole cake 13 and treated it as a single indivisible unit — one guest ate the lot, and there was no such thing as a partly-eaten cake.
 
@@ -219,21 +317,14 @@ Every one is derived by the code above, not chosen by hand:
 | steak | 7 | — | 7 |
 | golden apple (2 beneficial effects) | 16 | — | 16 |
 
-#### Registration is per class, in its own file
+#### Registration is per class only — no block ids anywhere
 
-`BlockFoods.register()` is called once from the common setup, after the blocks exist. It writes down handlers for whole **block classes**, and `PartyFoodHandler` resolves them by walking the class hierarchy most-derived-first:
+`BlockFoods.register()` is called once from the common setup, after the blocks exist. `PartyFoodHandler` maps a handler to a block **class** and resolves by walking the hierarchy most-derived-first:
 
 ```java
 // content/party/core/PartyFoodHandler.java
 private static final Map<Class<?>, BlockFoodHandler> BY_CLASS = new ConcurrentHashMap<>();
-private static final Map<Block, BlockFoodHandler> BY_BLOCK = new ConcurrentHashMap<>();   // beats a class match
-private static final Map<Block, BlockFoodHandler> RESOLVED = new ConcurrentHashMap<>();     // cached per block
-
-public static void register(Class<? extends Block> clazz, BlockFoodHandler handler, @Nullable String mod) {
-    if (!loaded(mod)) return;
-    BY_CLASS.put(clazz, handler);
-    RESOLVED.clear();          // a new base may cover blocks already resolved
-}
+private static final Map<Block, BlockFoodHandler> RESOLVED = new ConcurrentHashMap<>();   // cached per block
 
 public static BlockFoodHandler of(Block block) {
     var cached = RESOLVED.get(block);
@@ -244,22 +335,55 @@ public static BlockFoodHandler of(Block block) {
 }
 ```
 
-Two maps, because class coverage alone is not enough for Farmer's Delight: **every** feast extends the same `FeastBlock`, but each hands out its own serving item, so the six dishes need per-block entries that beat the class default. Everything else — YSF saucers, bowls, cakes — is covered by one class each.
+There is **no per-block map and no class→handler map**. The handlers are one ordered list, and each decides for itself which blocks it covers:
 
-That is what keeps the lists short. One entry for `FeastBlock` covers every feast the mod ships and any it adds later; one for `BaseSaucerBlock` covers every YSF dish.
+```java
+// content/party/core/PartyFoodHandler.java
+private static final List<BlockFoodHandler> HANDLERS = new CopyOnWriteArrayList<>();
 
-Youkai's Feasts has several genuinely different kinds of food, so it needs one registration per shape rather than a single list:
+public static BlockFoodHandler of(Block block) {
+    for (var handler : HANDLERS) {
+        if (handler.handles(block)) return handler;   // first match wins
+    }
+    return MISSING;
+}
+```
 
-| YSF class | Shape | Serves |
+Every handler answers `handles` with an `instanceof` against the one class it was written for — `CakeFood` tests `CakeBlock`, `FeastFood` tests `FeastBlock`, and so on — so subclasses are covered without anything enumerating them. The fallback is not a special path either: `BlockItemFood` accepts every block and simply sits **last** in the list, which is the only thing keeping it from swallowing the rest. There are no block ids in the party food setup at all.
+
+The catch-all earns its place. Farmer's Delight's feasts are all the same `FeastBlock` class and each hands out a different serving item, which at one point looked like it needed a per-block table; it does not, because `FeastBlock.getServingItem(BlockState)` and `PieBlock.getPieSliceItem()` are both public and the handler simply asks the block.
+
+```java
+// init/registrate/BlockFoods.java
+public static void register() {
+    PartyFoodHandler.register(new CakeFood());       // instanceof CakeBlock
+    if (loaded(FD)) {
+        PartyFoodHandler.register(new FeastFood());   // instanceof FeastBlock
+        PartyFoodHandler.register(new PieFood());     // instanceof PieBlock
+    }
+    if (loaded(YSF)) {
+        PartyFoodHandler.register(new SaucerFood());  // instanceof FoodSaucerBlock
+        PartyFoodHandler.register(new PotFood());     // instanceof BowlBlock
+    }
+    PartyFoodHandler.register(new BlockItemFood());   // last: accepts everything
+}
+```
+
+Handlers are only **constructed** when their mod is present. A handler that was never constructed is never asked, so its class is never loaded and its foreign types never resolve — which is what keeps the two mods optional without reflection or a hard dependency.
+
+Youkai's Feasts has several genuinely different kinds, so it needs one entry per shape — but three of its block classes are covered by registrations made elsewhere, because it builds on the other two mods:
+
+| YSF class | Shape | Covered by |
 |---|---|---|
-| `BaseSaucerBlock` | saucer dishes | 1, eaten whole |
-| `BowlBlock` | bowls, pots (`PotFoodBlock`) | 2 or 4 under `serve` |
-| `YHCakeBlock` | cakes | 7, inherits vanilla cake's `bites` |
-| `YHCandleCakeBlock` | the same cake with a candle | covered by `YHCakeBlock`'s base |
-| `YHPieBlock` | pies | covered by FD's `PieBlock` base |
-| `SurpriseFeastBlock` | feasts | covered by FD's `FeastBlock` base |
+| `FoodSaucerBlock` | saucer dishes, 1 serve | `SaucerFood` |
+| `BowlBlock` (incl. `IronBowlBlock`, `PotFoodBlock`) | bowls and pots, 2 or 4 | `PotFood` |
+| `YHCakeBlock`, `YHCandleCakeBlock` | cakes, 7 slices | `CakeFood`'s `instanceof CakeBlock` |
+| `YHPieBlock` | pies, 4 bites | `PieFood`'s `instanceof PieBlock` |
+| `SurpriseFeastBlock` | feasts, 4 servings | `FeastFood`'s `instanceof FeastBlock` |
 
-Every registration is gated twice: `ModList.isLoaded` for the mod, and a `Class.forName` that returns cleanly for the class. A registration line naming an absent mod's class costs nothing and cannot throw, so these lists can be written out unconditionally and never edited when a mod is added or removed.
+`SaucerFood` tests `FoodSaucerBlock` rather than its `BaseSaucerBlock` parent on purpose: the parent also covers `EmptySaucerBlock`, which serves nothing, and being precise here is what lets `BlockItemFood` stay a blunt catch-all.
+
+Each mod's handlers are constructed only when `ModList.isLoaded` says so, so a line naming an absent mod's classes costs nothing and cannot throw. Nothing here needs editing when a mod is added or removed.
 
 #### The data map is an override, not a source
 
@@ -838,8 +962,19 @@ Added once in `SmartYoukaiEntity.constructTaskBoard` (`SmartYoukaiEntity.java:81
 | `content/party/core/PartyTaste.java` | entity-type data map record + `DEFAULT` for every unwritten character |
 | `content/party/core/PartyFood.java` | override-only block data map record |
 | `content/party/core/PartyFoodValue.java` | per-serving appeal derivation, totals, `consume` (§2.2) |
-| `content/party/core/BlockFoodHandler.java` | servings / one serving's food / consume-one-serving (§2.2) |
 | `content/party/core/PartyFoodHandler.java` | per-class handler lookup, subclasses covered (§2.2) |
+| `content/party/core/food/BlockFoodHandler.java` | the serves / food / consume interface (§2.2) |
+| `content/party/core/food/AbstractCountdownFood.java` | shared serve counting and stepping, both directions |
+| `content/party/core/food/CakeFood.java` | slices, food from code only |
+| `content/party/core/food/FeastFood.java` | FD feast: 4 servings down, serving item from the block |
+| `content/party/core/food/PieFood.java` | FD pie: 4 bites up, slice from the block |
+| `content/party/core/food/PotFood.java` | YSF pot: 2 or 4 serves down, food from the block |
+| `content/party/core/food/SaucerFood.java` | YSF saucer dish: one serve, also the default handler |
+| `content/party/core/food/FoodResult.java` | serves + properties + consume, and the valid/not-valid rule |
+| `content/party/core/food/FoodResultCache.java` | resolves each state once; invalidated on datapack sync |
+| `content/party/core/food/Permutations.java` | finds the item form of a block food by id suffix |
+| `content/party/core/food/BlockItemFood.java` | one serve from the block's own item; the catch-all |
+| `content/party/core/food/Servings.java` | shared read of one serving's `FoodProperties`, and the invalid-food rule |
 | `init/registrate/BlockFoods.java` | which block classes are known, gated per mod (§2.2) |
 | `content/party/core/PartyAttachment.java` | chunk capability, phase machine, roster |
 | `content/party/core/PartySend.java` | the single send entry point + rejections |

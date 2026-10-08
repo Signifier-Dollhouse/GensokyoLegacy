@@ -1,0 +1,38 @@
+{
+  "character": "gensokyolegacy:kirisame_marisa",
+  "conditions": [
+    {
+      "type": "gensokyolegacy:home_bound"
+    },
+    {
+      "type": "gensokyolegacy:has_quest_completed",
+      "quest": "gensokyolegacy:marisa/hakkero"
+    }
+  ],
+  "ingredients": [
+    {
+      "count": 8,
+      "item": "minecraft:redstone"
+    },
+    {
+      "count": 4,
+      "item": "minecraft:gold_ingot"
+    },
+    {
+      "count": 16,
+      "item": "minecraft:iron_ingot"
+    },
+    {
+      "count": 1,
+      "item": "minecraft:netherite_scrap"
+    }
+  ],
+  "recurrence": {
+    "maxStock": 1,
+    "restockTime": 168000
+  },
+  "result": {
+    "count": 1,
+    "id": "gensokyolegacy:mini_hakkero"
+  }
+}

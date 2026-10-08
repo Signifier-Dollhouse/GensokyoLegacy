@@ -1,13 +1,14 @@
 package dev.xkmc.gensokyolegacy.content.party.core;
 
+import dev.xkmc.gensokyolegacy.content.party.core.food.FoodResult;
+import dev.xkmc.gensokyolegacy.content.party.core.food.FoodResultCache;
+import dev.xkmc.gensokyolegacy.content.party.core.food.Servings;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * How appealing one serving of food is, derived from what it actually is to eat.
@@ -32,6 +33,7 @@ public class PartyFoodValue {
 	/** A beneficial effect is worth a flat bonus per serving. */
 	private static final int BENEFICIAL_BONUS = 4;
 
+	/** The floor for anything that <i>is</i> food; invalid food scores 0 instead. */
 	public static final int MIN_APPEAL = 1;
 	public static final int MAX_APPEAL = 40;
 
@@ -40,10 +42,10 @@ public class PartyFoodValue {
 	 * carry the value, beneficial effects push it up, and poison or wither makes
 	 * it unservable.
 	 *
-	 * @return the appeal of one serving, or 0 for something nobody would put out
+	 * @return the appeal of one serving, or 0 for something not worth serving
 	 */
 	public static int of(FoodProperties props) {
-		if (BlockFoodHandler.refuses(props)) return 0;
+		if (props.nutrition() <= 0 || Servings.refuses(props)) return 0;
 		float bonus = 0;
 		for (var e : props.effects()) {
 			var holder = e.effect().getEffect();
@@ -52,23 +54,38 @@ public class PartyFoodValue {
 		return clamp(Math.round(props.nutrition() * NUTRITION_SCALE + props.saturation() * SATURATION_SCALE + bonus));
 	}
 
-	/** The same reading, from a stack. */
+	/**
+	 * The same reading, from a stack. A stack with no hunger value is worth nothing, not
+	 * the minimum — see {@link Servings#of}.
+	 */
 	public static int of(ItemStack stack) {
-		var props = stack.getFoodProperties(null);
-		return props == null ? MIN_APPEAL : of(props);
+		return Servings.of(stack) == null ? 0 : of(stack);
+	}
+
+	/**
+	 * The resolved result for this placed block, from {@link FoodResultCache}.
+	 * <p>
+	 * This is the one entry point everything else goes through: the appeal, the serve
+	 * count and consuming are all read off a single cached result rather than each
+	 * resolving the block independently.
+	 */
+	public static FoodResult result(BlockState state) {
+		return FoodResultCache.of(state);
 	}
 
 	/**
 	 * Appeal of one serving of this placed block, honouring its handler and then
 	 * any override.
 	 *
-	 * @return the appeal of one serving, or 0 for something not worth serving
+	 * @return the appeal of one serving, or 0 when the block is not valid food. A 0 is
+	 *         the signal that the block should be treated as not party food at all:
+	 *         it is neither counted towards the budget nor walked to and eaten.
 	 */
 	public static int perServe(RegistryAccess access, BlockState state) {
 		var override = PartyFood.of(access, state);
 		if (override != null) return override.appeal();
-		var props = foodOf(state);
-		return props == null ? MIN_APPEAL : of(props);
+		var result = result(state);
+		return result.valid() ? of(result.food()) : 0;
 	}
 
 	/**
@@ -78,55 +95,30 @@ public class PartyFoodValue {
 	 */
 	public static int appeal(RegistryAccess access, BlockState state) {
 		var override = PartyFood.of(access, state);
-		if (override != null) return override.appeal() * servesOf(state);
-		var perServe = perServe(access, state);
-		return perServe == 0 ? 0 : perServe * servesOf(state);
+		if (override != null) return override.appeal() * result(state).serves();
+		var result = result(state);
+		return result.valid() ? of(result.food()) * result.serves() : 0;
 	}
 
-	/** How many servings are left on this placed block. */
+	/** How many servings are left on this placed block; 0 when it is not valid food. */
 	public static int servesOf(BlockState state) {
-		var handler = handlerOf(state.getBlock());
-		return handler == null ? 1 : handler.serves(state);
+		return result(state).serves();
 	}
 
 	/**
-	 * Take one serving from a placed block, keeping the world's own block state
-	 * in step. The caller must read {@link #perServe} <i>before</i> calling, since
+	 * Take one serving from a placed block, keeping the world's own block state in
+	 * step. The caller must read {@link #perServe} <i>before</i> calling, since
 	 * consuming changes the state the appeal is derived from.
 	 *
 	 * @return servings remaining afterwards
 	 */
 	public static int consume(ServerLevel level, BlockPos pos, BlockState state) {
-		var handler = handlerOf(state.getBlock());
-		if (handler == null) {
-			level.destroyBlock(pos, false);
-			return 0;
-		}
-		return handler.consume(level, pos, state);
-	}
-
-	/** One serving's food properties, or null when there is nothing to read. */
-	@Nullable
-	private static FoodProperties foodOf(BlockState state) {
-		var handler = handlerOf(state.getBlock());
-		if (handler != null) return handler.food(state);
-		Block block = state.getBlock();
-		return new ItemStack(block).getFoodProperties(null);
+		return result(state).consume().consume(level, pos, state);
 	}
 
 	private static int clamp(int value) {
 		if (value < MIN_APPEAL) return 0;
 		return Math.min(value, MAX_APPEAL);
-	}
-
-	@Nullable
-	private static BlockFoodHandler handlerOf(Block block) {
-		// per-class, so a registered base covers its subclasses
-		return PartyFoodHandler.of(block);
-	}
-
-	public static boolean isRegistered(Block block) {
-		return PartyFoodHandler.isRegistered(block);
 	}
 
 	private PartyFoodValue() {

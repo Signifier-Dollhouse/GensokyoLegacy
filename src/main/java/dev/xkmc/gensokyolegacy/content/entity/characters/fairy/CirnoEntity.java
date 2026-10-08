@@ -139,6 +139,7 @@ public class CirnoEntity extends FairyEntity implements GeoYoukaiAnim {
 	protected List<AbstractYoukaiModule> createModules() {
 		return List.of(
 				new HomeModule(this),
+				new VisitModule(this),
 				new FeedModule(this),
 				new PartyModule(this),
 				new TalkModule(this),
