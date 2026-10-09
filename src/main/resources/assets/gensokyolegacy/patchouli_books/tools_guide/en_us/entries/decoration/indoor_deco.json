@@ -11,7 +11,7 @@
         "gensokyolegacy:tatami_block"
       ],
       "title": "Tatami and Tatami Mats",
-      "text": "Tatami mats are made for Gensokyo-style rooms. Place one while holding at least two and the pair joins into a connected two-part mat for a neat floor; with only one in hand, or no room in front of you, a single square mat goes down instead. Breaking a pair separates it again and each half gives a mat back. The full-height tatami block pairs the same way. Both are woven from hay and string, and a block stonecuts into eight mats."
+      "text": "Tatami mats are made for Japanese-style rooms. Placing one normally lays down a connected pair, which keeps the floor neater; with only one in hand, or no room in front of you, a single square mat goes down instead. Breaking a pair separates it again and each half gives a mat back, and the full-height tatami block pairs the same way. Both are woven from hay bales and string, and a block stonecuts into eight mats."
     },
     {
       "type": "patchouli:spotlight",
@@ -20,7 +20,7 @@
         "gensokyolegacy:door_cabinet"
       ],
       "title": "Cabinets",
-      "text": "Two cabinets of twenty-seven slots each, one with drawers and one with two doors. Right-click to open the storage. Sneak-right-click instead swings the front open or shut without taking anything out. Either one stonecuts straight from a dark oak log, and both count as storage when a room is being measured for a home."
+      "text": "Two cabinets of twenty-seven slots each, one with drawers and one with two doors. Right-click to open the storage; sneak-right-click only swings the drawer or the door open and shut without opening the interface at all. Either one stonecuts straight from a dark oak log, and both count as storage when a room is being measured for a home."
     },
     {
       "type": "patchouli:spotlight",
@@ -33,7 +33,7 @@
         "gensokyolegacy:book_stack"
       ],
       "title": "Cartons, Crates and Books",
-      "text": "$(bold)Cartons.$() Plain, white and blue, all the same low open crate. Six paper makes two, and dyeing one gives you the others.$(br2)$(bold)Crates.$() A full block. Stonecut it from dark oak planks, or build one from planks and sticks.$(br2)$(bold)Books.$() A pile and a stack both come from five books. A pile lies flat in three sizes, and you can click it to cycle between them. A stack stands upright, and string ties it into a bundle that shears can open again. Neither gives the block back when broken: a pile returns five books, a stack six."
+      "text": "$(bold)Cartons$() They come in three colors, and dyeing any one of them gives you the other two.$(br2)$(bold)Crates$() A purely decorative block, made on the stonecutter from dark oak planks or crafted from planks and sticks.$(br2)$(bold)Books$() A pile and a stack both come from five books. A pile has three sizes you can cycle through by right-clicking it. A stack can be tied up with string, and shears open the string again. Broken piles and stacks only drop their original crafting materials."
     }
   ]
 }

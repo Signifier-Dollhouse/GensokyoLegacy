@@ -8,12 +8,12 @@
     {
       "type": "patchouli:spotlight",
       "item": "gensokyolegacy:broom",
-      "title": "A Broom That Flies Itself",
-      "text": "Right-click to summon a broom just ahead of you and mount it; right-click again to get off. You fly it exactly as you walk — your view aims the broom, and nothing but your view turns it."
+      "title": "A Quality Seat",
+      "text": "Right-click to mount the broom in your hand, and right-click again to dismount. Your view aims the broom."
     },
     {
       "type": "patchouli:text",
-      "text": "$(bold)Flight$(br)Forward and back thrust along your view, the strafe keys push you sideways along the way you are facing, and jump and shift climb and drop. Top speed is 20 blocks per second, about as fast as a sprinting horse.$(br2)Let go of every key and the broom coasts to a stop instead of dropping out of the sky — it holds its altitude on its own, and only the climb and drop keys change your height.$(br2)$(bold)Keep holding it$(br)Mounting never consumes the broom; the item stays in your hand and the broom exists exactly as long as one is in either hand. Put it away in mid-flight and the flight ends with it.$(br2)$(bold)Getting off$(br)Right-click while you are riding, or right-click the broom itself.$(br2)$(bold)No fall damage$(br)A rider never takes fall damage, however hard the broom dives."
+      "text": "Top speed is 20 blocks per second, about as fast as a sprinting horse.$(br2)Let go of every key and the broom coasts to a stop instead of dropping out of the sky — it holds its altitude on its own.$(br2)$(bold)Keep it in hand to stay mounted$()$(br2)The broom stays in your hand the whole time you ride, in either hand; put it away in mid-flight and the flight ends with it.$(br2)$(bold)Getting off$()$(br2)Right-click while you are riding, or right-click the broom itself.$(br2)$(bold)No fall damage$()$(br2)A rider never takes fall damage, however hard the broom dives.$(br2)$(bold)Hakkero boost$()$(br2)Tap with a hakkero in your main hand to greatly raise the broom's speed."
     }
   ]
 }

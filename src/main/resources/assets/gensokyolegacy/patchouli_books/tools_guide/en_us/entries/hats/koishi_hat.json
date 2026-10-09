@@ -1,5 +1,5 @@
 {
-  "name": "Koishi Hat",
+  "name": "Mr. Hat",
   "icon": "gensokyolegacy:koishi_hat",
   "category": "gensokyolegacy:hats",
   "sortnum": 3,
@@ -7,12 +7,12 @@
     {
       "type": "patchouli:spotlight",
       "item": "gensokyolegacy:koishi_hat",
-      "title": "Taken Off Koishi",
-      "text": "Koishi removes her hat herself, if you can block her attack often enough in a row to earn it. How many times is a server setting, so ask if you are playing on a server."
+      "title": "Doffing the Hat",
+      "text": "Koishi would have struck at a guest, but the attempt bore no fruit; three times was one time too many, and in her fury she threw the hat aside and walked off."
     },
     {
       "type": "patchouli:text",
-      "text": "$(bold)While worn$(br)The hat refreshes Unconscious on you every tick, so mobs will not pick you as a target — and the moment you attack something yourself or open a loot chest, it is gone. You have to go and take what you came for.$(br2)$(bold)Blocking her$(br)Her attack has to land on you and be blocked, over and over. Take one hit you fail to block and the count starts again from zero. When it reaches the number, the hat drops at your feet and the count resets — so the next one is as much work as this one was."
+      "text": "While worn$(br)Grants Unconscious, so hostile mobs will not pick you as a target — the moment you attack something yourself or open a container, it is gone.$(br2)How to block$(br2)During Marisa's Nether quest, the player hears ringing down there; after the third telephone ring ends, raise a shield behind you and block. A successful block scores one count, a single failure resets it to zero, and reaching the number gives you the hat."
     }
   ]
 }

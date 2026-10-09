@@ -7,24 +7,24 @@
     {
       "type": "patchouli:spotlight",
       "item": "tag:gensokyolegacy:cushions",
-      "title": "坐下来歇会儿",
+      "title": "不是交通工具！",
       "text": "软垫用羊毛絮制，拥有全部 16 种羊毛颜色。对着座椅右键即可入座。"
     },
     {
       "type": "patchouli:spotlight",
       "item": "tag:gensokyolegacy:chair",
-      "title": "大椅子",
-      "text": "大椅子有两格高，各种木材都有，同样用对应的木板在切石机里切出来。红魔馆里还有一把颜色更深、铺着红布的椅子，只有那里才有。"
+      "title": "靠背椅",
+      "text": "用对应的木板在切石机里切出来，只能放在两格高的空间。"
     },
     {
       "type": "patchouli:spotlight",
       "item": "tag:gensokyolegacy:stool",
       "title": "木凳",
-      "text": "木凳只有一格高，各种木材都有，用对应的木板在切石机里切出来。"
+      "text": "木凳只有一格高，用对应的木板在切石机里切出来。"
     },
     {
       "type": "patchouli:text",
-      "text": "大椅子也能像桌子一样装饰：手持地毯或榻榻米右键即可铺上坐垫布。用剪刀可以取下坐垫布，并把它收回来。"
+      "text": "靠背椅也能像桌子一样装饰：手持地毯或榻榻米右键即可铺上各种颜色的坐垫布。用剪刀可以取下坐垫布，并把它收回来。"
     }
   ]
 }

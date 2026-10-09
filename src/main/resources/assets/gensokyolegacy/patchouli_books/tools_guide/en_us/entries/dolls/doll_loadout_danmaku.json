@@ -13,7 +13,7 @@
     },
     {
       "type": "patchouli:text",
-      "text": "$(bold)Reach and aim$(br)Shots are led for their own flight time, so a target that keeps moving is still hit, and they carry up to 48 blocks.$(br)$(bold)One volley, the whole squad$(br)An attack order walks down your dolls one after another instead of firing them all at once, each doll taking a single shot before the next is sent."
+      "text": "Range and aim$(br2)Shots are led for their own flight time, so a target that keeps moving is still hit, and they carry up to 48 blocks.$(br2)Turn-based?$(br2)An attack order walks down your dolls one after another instead of firing them all at once."
     }
   ]
 }

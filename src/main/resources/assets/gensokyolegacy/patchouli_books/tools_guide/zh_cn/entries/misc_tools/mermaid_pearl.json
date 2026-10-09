@@ -1,5 +1,5 @@
 {
-  "name": "人鱼之珠",
+  "name": "人鱼珍珠",
   "icon": "gensokyolegacy:mermaid_pearl",
   "category": "gensokyolegacy:misc_tools",
   "advancement": "gensokyolegacy:main/obtain_mermaid_pearl",
@@ -13,7 +13,7 @@
     },
     {
       "type": "patchouli:text",
-      "text": "人鱼之珠共有 16 次使用次数，每次发动后有 5 秒冷却。与药水不同，它不需要酿造台——只要空出一只手，就能让它为你歌唱。"
+      "text": "人鱼珍珠共有 16 次使用次数，每次发动后有 5 秒冷却。"
     }
   ]
 }

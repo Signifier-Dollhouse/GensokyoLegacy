@@ -8,16 +8,16 @@
     {
       "type": "patchouli:spotlight",
       "item": "gensokyolegacy:dagger_glove",
-      "title": "A Stack of Daggers, As a Pattern",
-      "text": "The Dagger Glove fires Iron Daggers as a pattern instead of one at a time. Hold the selection key while carrying the glove to open its mode wheel, then use the glove to fire. The gloves stack to one."
+      "title": "Juggling Trick",
+      "text": "The Dagger Glove throws daggers out in patterns, or homes them onto a target. Carry the glove to switch the wheel, then use the glove to pour out fire."
     },
     {
       "type": "patchouli:text",
-      "text": "$(bold)Single$(br)One dagger, straight ahead.$(br)$(bold)Fan$(br)Seven daggers across a 30-degree spread, symmetric about where you are looking.$(br)$(bold)Homing$(br)Ten daggers, five to a side, each of which turns onto the target you are looking at and closes on it. The target is outlined in red while you aim at it, and walls do not block it — the daggers turn, so the glove will happily lock on to someone through one.$(br2)With nothing under the crosshair, homing fires nothing and costs you nothing."
+      "text": "$(bold)Single$()$(br)One dagger, straight ahead.$(br)$(bold)Fan$()$(br)Seven daggers spreading out in a fan before you.$(br)$(bold)Homing$()$(br)Several daggers are thrown, each of which turns onto the target you are looking at.$(br2)The target is outlined in red while you aim at it, and walls do not block it — the daggers turn, so the glove will happily lock on to someone through one.$(br2)With nothing under the crosshair, homing fires nothing and costs you nothing."
     },
     {
       "type": "patchouli:text",
-      "text": "$(bold)The daggers are the ammunition$(br)A shot draws its daggers out of your whole inventory — main hand, off hand, armour and every slot — not off the held stack: the glove is the weapon, the daggers are the arrows. It needs its whole count there before it fires, and a volley it cannot pay for in full is refused outright rather than fired short.$(br2)$(bold)They come back too$(br)Every dagger the glove throws returns exactly as a hand-thrown one does, so what a volley spends it also gets back.$(br2)$(bold)Cooldowns$(br)Single takes 5 ticks, fan 10, homing 20. A cooldown belongs to the glove rather than to the mode, so switching modes does not clear one that is already running — you cannot dodge homing's price by toggling.$(br2)$(bold)No free daggers$(br)The glove spends real daggers even in creative mode."
+      "text": "$(bold)The daggers are the ammunition$()$(br)The glove draws its daggers out of your whole inventory, and the count it needs must all be there before it fires — a volley it cannot pay for in full simply does not happen.$(br2)Even in creative mode, the glove has to spend real daggers to be used."
     }
   ]
 }

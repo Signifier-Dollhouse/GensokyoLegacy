@@ -1,0 +1,19 @@
+{
+  "name": "迷你八卦炉",
+  "icon": "gensokyolegacy:mini_hakkero",
+  "category": "gensokyolegacy:special_tools",
+  "advancement": "gensokyolegacy:main/obtain_mini_hakkero",
+  "sortnum": 1,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "gensokyolegacy:mini_hakkero_prototype",
+      "title": "民用小型魔源核聚变炉",
+      "text": "一座可以放在物品栏里工作的迷你魔法熔炉。封住了盖板的间隙，使得逸散的热量得以高效利用，还提升了内部空间利用效率。"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)切换模式$()$(br)右键打开八卦炉，对中心八卦炉左键，可以循环切换 $(bold)关闭 → 烟熏炉 → 熔炉 → 高炉$()。不同模式会接受对应类型的配方。$(br2)八卦炉会对周围的物品栏加热，再把成品输出到外围。想让它自动工作，就要给周围留好物品流转的空间。$(br2)当置入染料时，加热速率会显著提升。"
+    }
+  ]
+}

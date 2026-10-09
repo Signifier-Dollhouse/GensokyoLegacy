@@ -7,11 +7,11 @@
   "pages": [
     {
       "type": "patchouli:text",
-      "text": "$(bold)A talisman spent on someone else$(br)A folded Healing talisman in either hand makes a doll a medic. It walks to within a couple of blocks of whoever needs it and spends one use of the paper healing them for 30% of their maximum health, on the same terms as wearing the talisman yourself. The paper wears down a use at a time like any other folded talisman, and one in the hand is one heal per trip however many uses are left on it."
+      "text": "Field medic$(br2)A folded Healing talisman in either hand slot makes a doll a medic. It moves to within a couple of blocks of whoever needs it, spends one use, and restores 30% of their maximum health."
     },
     {
       "type": "patchouli:text",
-      "text": "$(bold)Nobody commands this$(br)Dolls schedule their own healing: a doll holding the paper walks over and spends it only when someone is actually hurt, and it does nothing at all to a target already at full health. The order of preference is you, then the doll itself, then the nearest wounded fellow doll — which is why a squad keeps patching up its own hurt members while you fight.$(br2)Any order you give interrupts a heal in progress, and the paper stays in the hand for the moment it takes to finish the swing, so it can never be pulled away mid-use.$(br2)$(bold)Talisman or hand?$(br)A doll heals itself from a hand talisman quite happily, but a core talisman is never spent on anyone else at all — the core works on the doll wearing it, and nobody else."
+      "text": "Dolls patch themselves up$(br2)Dolls schedule their own healing, preferring you, then itself, and finally the nearest wounded fellow doll — which is why a squad keeps patching up its own hurt members while you fight.$(br2)Any order you give interrupts a heal in progress, and the paper stays in the hand until it has been used, so it can never be pulled away mid-use.$(br2)When it sits in the core...$(br2)A doll is happy to heal itself from a hand talisman, and no happier when the talisman is in the core instead — it only ever heals itself."
     }
   ]
 }

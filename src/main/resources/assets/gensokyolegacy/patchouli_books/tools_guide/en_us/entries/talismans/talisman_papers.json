@@ -17,11 +17,19 @@
     },
     {
       "type": "patchouli:text",
-      "text": "$(bold)Speed Boost — 180 uses$()$(br)While sprinting, keeps Speed II active.$(br)$(bold)Hydrophobic — 180 uses$()$(br)When your air supply is running low, restores 40 air per tick to help you stay underwater.$(br2)$(bold)Lava Affinity — 180 uses$()$(br)When you are burning, in lava, or taking fire damage, grants Lava Affinity: faster swimming, clear vision in lava, and immunity to fire."
+      "text": "$(bold)Speed Boost — 180 uses$()$(br)While sprinting, keeps Speed II active."
     },
     {
       "type": "patchouli:text",
-      "text": "$(bold)Shelter — 16 uses$()$(br)If one hit would deal at least 20% of your current health, Shelter reduces that hit to exactly 20% of your current health. It has a 5-second cooldown, making it especially useful against sudden heavy attacks."
+      "text": "$(bold)Hydrophobic — 180 uses$()$(br)When your air supply is running low, restores 40 air per tick to help you stay underwater."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Lava Affinity — 180 uses$()$(br)When you are burning, in lava, or taking fire damage, grants Lava Affinity: faster swimming, clear vision in lava, and immunity to fire."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Shelter — 16 uses$()$(br)Cuts down the huge hits you take, on a 5 second cooldown."
     }
   ]
 }
