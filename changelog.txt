@@ -3,6 +3,7 @@
 - add repaired mini hakkero
 - fix koishi hat quest
 - fix broom fall damage
+- improve dialog and patchouli
 
 1.0.2
 NOTE: This version contains underpolished text in dialog and patchouli

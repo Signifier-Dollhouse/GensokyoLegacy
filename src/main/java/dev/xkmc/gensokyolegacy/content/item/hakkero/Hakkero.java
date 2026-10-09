@@ -114,6 +114,11 @@ public class Hakkero extends Item implements InvClickItem {
 		process(stack, level, elapsed);
 	}
 
+	@Override
+	public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged) {
+		return false;
+	}
+
 	/**
 	 * Runs {@code ticks} ticks of smelting on the item in one go and stamps it.
 	 *

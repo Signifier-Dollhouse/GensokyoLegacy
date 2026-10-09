@@ -294,9 +294,9 @@ public class GLItems {
 					.dataMap(GLMeta.MORICHIKA_OFFER.reg(), new MorichikaOfferData(16, 24, 1, 1))
 					.lang("Mini Hakkero [Prototype]").register();
 
-			// improved copy of the prototype: shares its texture until a new one is drawn
+			// Marisa's rebuild of the prototype: same shape, its own darker texture
 			MINI_HAKKERO = reg.item("mini_hakkero", Hakkero::new)
-					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/tool/mini_hakkero_prototype")))
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/tool/" + ctx.getName())))
 					.lang("Mini Hakkero").register();
 
 			CENTIPICKAXE = reg.item("centipickaxe", CentiPickaxe::new)
