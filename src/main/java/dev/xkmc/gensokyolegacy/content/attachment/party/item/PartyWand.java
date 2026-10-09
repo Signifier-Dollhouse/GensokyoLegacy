@@ -82,7 +82,7 @@ public class PartyWand extends Item implements IDebugOverlayWand {
 			var stack = context.getItemInHand();
 			var pos = context.getClickedPos();
 			var state = level.getBlockState(pos);
-			if (PartyFoodValue.isFood(level.registryAccess(), state)) {
+			if (PartyFoodValue.isFood(state)) {
 				PartyFoodValue.consume(level, pos, state);
 				return InteractionResult.SUCCESS;
 			}
@@ -117,7 +117,7 @@ public class PartyWand extends Item implements IDebugOverlayWand {
 				.sum();
 		var candidates = new ArrayList<PartyWandData.Candidate>(plan.pool().size());
 		plan.pool().stream()
-				.sorted(Comparator.comparingDouble(PartyPlanner.Candidate::weight).reversed())
+				.sorted(Comparator.comparingInt(PartyPlanner.Candidate::weight).reversed())
 				.forEach(c -> candidates.add(new PartyWandData.Candidate(
 						c.type(), c.weight(), c.fulfillment(), c.reputation(), roster.contains(c.type()))));
 		return new PartyWandData(table, area.tables(), area.seats(), area.food(),
@@ -157,14 +157,14 @@ public class PartyWand extends Item implements IDebugOverlayWand {
 		if (!(player.pick(REACH, 0.0f, false) instanceof BlockHitResult hit)) return;
 		var level = player.level();
 		var state = level.getBlockState(hit.getBlockPos());
-		if (!PartyFoodValue.isFood(level.registryAccess(), state)) return;
+		if (!PartyFoodValue.isFood(state)) return;
 		var result = PartyFoodValue.result(state);
 		if (!result.valid()) {
 			lines.add(GLLang.ItemDebug.PARTY_WAND_INVALID.get().withStyle(ChatFormatting.DARK_RED));
 			return;
 		}
 		var food = result.food();
-		int perServe = PartyFoodValue.of(food);
+		int perServe = PartyFoodValue.appealOf(food);
 		lines.add(GLLang.ItemDebug.PARTY_WAND_FOOD.get(state.getBlock().getName()).withStyle(ChatFormatting.AQUA));
 		lines.add(GLLang.ItemDebug.PARTY_WAND_SERVES.get(result.serves()).withStyle(ChatFormatting.GRAY));
 		lines.add(GLLang.ItemDebug.PARTY_WAND_FOOD_VALUES.get(food.nutrition(), String.format("%.1f", food.saturation()))
@@ -198,17 +198,25 @@ public class PartyWand extends Item implements IDebugOverlayWand {
 		return low == high ? String.valueOf(low) : low + "-" + high;
 	}
 
-	/** The smallest and largest fulfillment any character asks for, or null if none. */
+	/**
+	 * The smallest and largest fulfillment any <b>eligible</b> character asks for, or
+	 * null if no character is eligible at all.
+	 * <p>
+	 * Skips characters with no {@code party_taste}, because they cannot be invited and
+	 * their numbers would otherwise drag the range away from the characters the host
+	 * can actually seat.
+	 */
 	private static int[] buildFulfillmentRange(Level level) {
 		int low = Integer.MAX_VALUE;
 		int high = 0;
 		boolean any = false;
 		for (var type : BuiltInRegistries.ENTITY_TYPE) {
 			if (!PartySend.isCharacter(type)) continue;
+			var taste = PartyTaste.of(level.registryAccess(), (EntityType<?>) type);
+			if (taste == null) continue;
 			any = true;
-			int need = PartyTaste.of(level.registryAccess(), (EntityType<?>) type).fulfillment();
-			low = Math.min(low, need);
-			high = Math.max(high, need);
+			low = Math.min(low, taste.fulfillment());
+			high = Math.max(high, taste.fulfillment());
 		}
 		return any ? new int[]{low, high} : null;
 	}
@@ -239,7 +247,7 @@ public class PartyWand extends Item implements IDebugOverlayWand {
 		var style = candidate.invited() ? ChatFormatting.GREEN
 				: candidate.declined() ? ChatFormatting.DARK_GRAY : ChatFormatting.GRAY;
 		return GLLang.ItemDebug.PARTY_WAND_CANDIDATE.get(candidate.type().getDescription(),
-				String.format("%.3f", candidate.weight()), candidate.reputation(),
+				String.valueOf(candidate.weight()), candidate.reputation(),
 				candidate.fulfillment(), candidate.invited() ? "+" : "-").withStyle(style);
 	}
 

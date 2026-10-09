@@ -84,12 +84,12 @@ public class GLEntities {
 				.renderer(() -> BroomRenderer::new)
 				.register();
 
-		PartyTaste TASTE_CIRNO = new PartyTaste(0, 150, 0.30, 4, 20, 6);
-		PartyTaste TASTE_REIMU = new PartyTaste(50, 200, 0.30, 10, 32, 20);
-		PartyTaste TASTE_MARISA = new PartyTaste(50, 200, 0.30, 20, 32, 20);
-		PartyTaste TASTE_MORICHIKA = new PartyTaste(50, 200, 0.30, 20, 32, 20);
-		PartyTaste TASTE_ALICE = new PartyTaste(50, 250, 0.15, 24, 40, 12);
-		PartyTaste TASTE_SAKUYA = new PartyTaste(50, 250, 0.15, 30, 48, 20);
+		PartyTaste TASTE_CIRNO = new PartyTaste(100, 0, 150, 0.30, 4, 20, 6);
+		PartyTaste TASTE_REIMU = new PartyTaste(100, 50, 200, 0.30, 10, 32, 20);
+		PartyTaste TASTE_MARISA = new PartyTaste(100, 50, 200, 0.30, 20, 32, 20);
+		PartyTaste TASTE_MORICHIKA = new PartyTaste(100, 50, 200, 0.30, 20, 32, 20);
+		PartyTaste TASTE_ALICE = new PartyTaste(100, 50, 250, 0.15, 24, 40, 12);
+		PartyTaste TASTE_SAKUYA = new PartyTaste(100, 50, 250, 0.15, 30, 48, 20);
 
 		{
 

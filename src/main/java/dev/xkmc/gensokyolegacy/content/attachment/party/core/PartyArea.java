@@ -121,8 +121,8 @@ public record PartyArea(BlockPos anchor, List<BlockPos> food, List<BlockPos> sea
 			// carries it past: the guest-side air, the dishes on top, and the floor
 			// beyond are all inside, and the walk resumes from those.
 			if (furniture) poke(queue, pos);
-			if (PartyFoodValue.isFood(access, state) && isLaidOut(level, pos)) {
-				int worth = PartyFoodValue.appeal(access, state);
+			if (PartyFoodValue.isFood(state) && isLaidOut(level, pos)) {
+				int worth = PartyFoodValue.totalAppeal(access, state);
 				if (worth > 0 && PartyFoodValue.result(state).valid()) {   // claimed, but not food
 					food.add(pos);
 					appeal += worth;

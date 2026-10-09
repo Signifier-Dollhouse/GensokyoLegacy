@@ -28,8 +28,11 @@ public class GLMetaEventHandlers {
 	public static void reload(OnDatapackSyncEvent event) {
 		if (event.getPlayer() == null) {
 			ServerCharacterDialogManager.clearCache();
-			// a party_food override is part of what a cached block food result is
-			// derived from, and a reload can change it without touching a block state
+			// Nothing here is required. The party_food override is deliberately resolved
+			// by the caller in PartyFoodValue and never enters the cache, so a reload
+			// cannot leave a stale appeal behind. Kept as belt-and-braces: the cache is
+			// keyed on BlockState alone, and if a derivation ever grows a datapack input
+			// this is what stops it going stale.
 			FoodResultCache.invalidate();
 			// party_taste is datapack data too, and the wand caches its appetite range
 			PartyWand.invalidate();

@@ -1,5 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.attachment.party.core;
 
+import dev.xkmc.gensokyolegacy.content.attachment.party.food.BlockFoodHandler;
 import dev.xkmc.gensokyolegacy.content.attachment.party.food.FoodResult;
 import dev.xkmc.gensokyolegacy.content.attachment.party.food.FoodResultCache;
 import dev.xkmc.gensokyolegacy.content.attachment.party.food.Servings;
@@ -7,7 +8,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.food.FoodProperties;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 
 /**
@@ -19,11 +19,12 @@ import net.minecraft.world.level.block.state.BlockState;
  * through a {@link BlockFoodHandler}, which is what knows how many servings a
  * placed block has left and how to take one.
  * <p>
- * The {@code party_food} data map is an <b>override only</b>: an entry replaces
- * the whole calculation outright, and a block with no entry is scored from its
- * handler. A datapack can therefore make a foreign block party food with a
- * single tag entry and still get a sensible number, and the data map is only
- * needed to correct a value the heuristic gets wrong.
+ * The {@code party_food} data map <b>revalues, it does not opt in</b>. Whether a block
+ * is party food at all is decided entirely by code: a registered
+ * {@link BlockFoodHandler} must recognise it and find something worth eating in it. A
+ * datapack row is consulted only afterwards, and only to replace the number the
+ * heuristic derived — it can say "this cake is worth twice what its properties imply",
+ * never "this barrel is a cake".
  */
 public class PartyFoodValue {
 
@@ -41,7 +42,7 @@ public class PartyFoodValue {
 	 * The floor for anything that <i>is</i> food; invalid food scores 0 instead.
 	 */
 	public static final int MIN_APPEAL = 1;
-	public static final int MAX_APPEAL = 40;
+	public static final int MAX_APPEAL = 4000;
 
 	/**
 	 * Appeal of one serving, from its food properties. Nutrition and saturation
@@ -50,7 +51,7 @@ public class PartyFoodValue {
 	 *
 	 * @return the appeal of one serving, or 0 for something not worth serving
 	 */
-	public static int of(FoodProperties props) {
+	public static int appealOf(FoodProperties props) {
 		if (props.nutrition() <= 0 || Servings.refuses(props)) return 0;
 		float bonus = 0;
 		for (var e : props.effects()) {
@@ -58,14 +59,6 @@ public class PartyFoodValue {
 			if (holder != null && holder.value().isBeneficial()) bonus += BENEFICIAL_BONUS;
 		}
 		return clamp(Math.round(props.nutrition() * NUTRITION_SCALE + props.saturation() * SATURATION_SCALE + bonus));
-	}
-
-	/**
-	 * The same reading, from a stack. A stack with no hunger value is worth nothing, not
-	 * the minimum — see {@link Servings#of}.
-	 */
-	public static int of(ItemStack stack) {
-		return Servings.of(stack) == null ? 0 : of(stack);
 	}
 
 	/**
@@ -82,32 +75,37 @@ public class PartyFoodValue {
 	/**
 	 * Whether this block is party food at all.
 	 * <p>
-	 * There is no {@code party_food} tag. A block is food because a registered handler
-	 * recognises its class, or because a datapack gave it a {@code party_food} data map
-	 * entry — which is also how a foreign block is opted in, and how an override
-	 * corrects a value the heuristic got wrong.
+	 * There is no {@code party_food} tag and no datapack opt-in: a block is food
+	 * because a registered {@link BlockFoodHandler} recognises it <i>and</i> there is
+	 * something on it worth eating. Nothing a datapack can write changes that answer.
 	 * <p>
-	 * The catch-all handler is deliberately not enough on its own: it exists to score a
-	 * block something has already declared food, so it must not make every block on the
-	 * table a cake.
+	 * {@code party_food} is read further down, by {@link #appealPerServe}, and only to
+	 * replace a number for a block that already passed here.
 	 */
-	public static boolean isFood(RegistryAccess access, BlockState state) {
-		return FoodResultCache.of(state).valid() || PartyFood.of(access, state) != null;
+	public static boolean isFood(BlockState state) {
+		return result(state).valid();
 	}
 
 	/**
 	 * Appeal of one serving of this placed block, honouring its handler and then
 	 * any override.
+	 * <p>
+	 * The override is consulted <b>only after</b> validity, so it can revalue a dish
+	 * but cannot conjure one: a {@code party_food} row on a block no handler can serve
+	 * scores 0 exactly as it would without the row. Validated first, therefore, rather
+	 * than checking the override first and letting it short-circuit the test — that way
+	 * this method's "0 when not valid food" is true on every path and not just the
+	 * common one.
 	 *
 	 * @return the appeal of one serving, or 0 when the block is not valid food. A 0 is
 	 * the signal that the block should be treated as not party food at all:
 	 * it is neither counted towards the budget nor walked to and eaten.
 	 */
-	public static int perServe(RegistryAccess access, BlockState state) {
-		var override = PartyFood.of(access, state);
-		if (override != null) return override.appeal();
+	public static int appealPerServe(RegistryAccess access, BlockState state) {
 		var result = result(state);
-		return result.valid() ? of(result.food()) : 0;
+		if (!result.valid()) return 0;
+		var override = PartyFood.of(access, state);
+		return override != null ? override.appeal() : appealOf(result.food());
 	}
 
 	/**
@@ -115,23 +113,13 @@ public class PartyFoodValue {
 	 *
 	 * @return the appeal, or 0 for something not worth serving
 	 */
-	public static int appeal(RegistryAccess access, BlockState state) {
-		var override = PartyFood.of(access, state);
-		if (override != null) return override.appeal() * result(state).serves();
-		var result = result(state);
-		return result.valid() ? of(result.food()) * result.serves() : 0;
-	}
-
-	/**
-	 * How many servings are left on this placed block; 0 when it is not valid food.
-	 */
-	public static int servesOf(BlockState state) {
-		return result(state).serves();
+	public static int totalAppeal(RegistryAccess access, BlockState state) {
+		return appealPerServe(access, state) * result(state).serves();
 	}
 
 	/**
 	 * Take one serving from a placed block, keeping the world's own block state in
-	 * step. The caller must read {@link #perServe} <i>before</i> calling, since
+	 * step. The caller must read {@link #appealPerServe} <i>before</i> calling, since
 	 * consuming changes the state the appeal is derived from.
 	 *
 	 * @return servings remaining afterwards

@@ -428,7 +428,7 @@ public class GLCommands {
 			if (miss != null) {
 				var c = miss.getKey();
 				src.sendSuccess(() -> GLLang.Party.PREVIEW_GUEST.get(c.type().getDescription(),
-						String.format("%.2f", c.weight()), c.reputation(), c.fulfillment()), false);
+						String.valueOf(c.weight()), c.reputation(), c.fulfillment()), false);
 			}
 			return 0;
 		}
@@ -438,7 +438,7 @@ public class GLCommands {
 		for (var c : plan.pool()) {
 			if (c.weight() <= 0) continue;   // declined, nothing to tune
 			src.sendSuccess(() -> GLLang.Party.PREVIEW_GUEST.get(c.type().getDescription(),
-					String.format("%.2f", c.weight()), c.reputation(), c.fulfillment()), false);
+					String.valueOf(c.weight()), c.reputation(), c.fulfillment()), false);
 		}
 		return 1;
 	}

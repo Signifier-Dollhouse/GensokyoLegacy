@@ -195,13 +195,13 @@ public class YoukaiPartyTask extends Behavior<SmartYoukaiEntity> {
 		// re-validate: another guest may have taken this while she walked over, and a
 		// dish is only part of the spread if the table it was put out on is still there
 		var state = level.getBlockState(target);
-		if (!PartyFoodValue.isFood(level.registryAccess(), state) || !PartyArea.isLaidOut(level, target)) {
+		if (!PartyFoodValue.isFood(state) || !PartyArea.isLaidOut(level, target)) {
 			target = null;
 			return;
 		}
 		// appeal of the serving she is about to take, read from the state BEFORE
 		// consuming - one slice of a cake, one serving of a feast
-		pendingAppeal = PartyFoodValue.perServe(level.registryAccess(), state);
+		pendingAppeal = PartyFoodValue.appealPerServe(level.registryAccess(), state);
 		phase = Phase.EATING;
 		eatEnd = level.getGameTime() + EAT_TICKS;
 		entity.swing(InteractionHand.MAIN_HAND);
@@ -238,7 +238,7 @@ public class YoukaiPartyTask extends Behavior<SmartYoukaiEntity> {
 	@Nullable
 	private static BlockPos nearestFood(ServerLevel level, SmartYoukaiEntity entity, @Nullable BlockPos table) {
 		return nearest(level, entity, table, state ->
-				PartyFoodValue.isFood(level.registryAccess(), state) && PartyFoodValue.result(state).valid());
+				PartyFoodValue.isFood(state) && PartyFoodValue.result(state).valid());
 	}
 
 	/**

@@ -49,17 +49,19 @@ public record PartyWandData(
 	 *
 	 * @param invited whether the knapsack actually chose her
 	 */
-	public record Candidate(EntityType<?> type, double weight, int fulfillment, int reputation, boolean invited) {
+	public record Candidate(EntityType<?> type, int weight, int fulfillment, int reputation, boolean invited) {
 
 		public static final Codec<Candidate> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				BuiltInRegistries.ENTITY_TYPE.byNameCodec().fieldOf("type").forGetter(Candidate::type),
-				Codec.DOUBLE.optionalFieldOf("weight", 0.0d).forGetter(Candidate::weight),
+				// was a double until the weight became an integer; a wand saved with the
+				// old field no longer decodes and simply loses its readout until re-scanned
+				Codec.INT.optionalFieldOf("weight", 0).forGetter(Candidate::weight),
 				Codec.INT.optionalFieldOf("fulfillment", 0).forGetter(Candidate::fulfillment),
 				Codec.INT.optionalFieldOf("reputation", 0).forGetter(Candidate::reputation),
 				Codec.BOOL.optionalFieldOf("invited", false).forGetter(Candidate::invited)
 		).apply(instance, Candidate::new));
 
-		public Candidate(EntityType<?> type, double weight, int fulfillment, int reputation) {
+		public Candidate(EntityType<?> type, int weight, int fulfillment, int reputation) {
 			this(type, weight, fulfillment, reputation, false);
 		}
 

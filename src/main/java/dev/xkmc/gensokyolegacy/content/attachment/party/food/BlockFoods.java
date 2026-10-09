@@ -57,7 +57,9 @@ public final class BlockFoods {
 		}
 
 		// The catch-all, last: it accepts every block, so anything earlier must come
-		// first. This is what gives a datapack's foreign party_food entry a value.
+		// first. This is what makes a foreign dish party food without any datapack help —
+		// any block whose item carries food properties is served by it. The party_food
+		// data map is not needed for that and cannot do it; it only revalues.
 		PartyFoodHandler.register(new BlockItemFood());
 	}
 

@@ -88,7 +88,16 @@ public class PartyModule extends AbstractYoukaiModule {
 		return eaten;
 	}
 
-	/** This character's taste. Never null: a character with no entry gets the default. */
+	/**
+	 * This character's taste, or null when she has no authored {@code party_taste}.
+	 * <p>
+	 * Null is only reachable by a guest who should not be here: she is spawned from a
+	 * roster that requires a taste, so this can happen if a datapack removes the entry
+ * mid-party, or for an entity saved before the entry became the eligibility list.
+	 * {@link #satisfied()} and {@link #fulfillment()} both treat it as "she cannot be
+	 * satisfied" rather than throwing.
+	 */
+	@Nullable
 	public PartyTaste taste() {
 		return PartyTaste.of(self.registryAccess(), self.getType());
 	}
@@ -111,7 +120,9 @@ public class PartyModule extends AbstractYoukaiModule {
 	}
 
 	public boolean satisfied() {
-		return eaten >= taste().fulfillment();
+		var taste = taste();
+		// no taste means she should not be here at all, so she never counts as done
+		return taste != null && eaten >= taste.fulfillment();
 	}
 
 	/**
@@ -119,7 +130,8 @@ public class PartyModule extends AbstractYoukaiModule {
 	 * who got less than she needed still leaves a gift, but a smaller one.
 	 */
 	public double fulfillment() {
-		return Math.min(1.0, eaten / (double) taste().fulfillment());
+		var taste = taste();
+		return taste == null ? 0.0 : Math.min(1.0, eaten / (double) taste.fulfillment());
 	}
 
 	@Override

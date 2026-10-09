@@ -223,7 +223,7 @@ public final class GLLang {
 		NO_PARTY("There is no party here"),
 		PREVIEW_TITLE("Spread appeal: %s, seats: %s", 2),
 		PREVIEW_HEADER("%s would come:", 1),
-		PREVIEW_GUEST("  %s  weight %.2f  rep %s  wants %s appeal", 4),
+		PREVIEW_GUEST("  %s  weight %s  rep %s  wants %s appeal", 4),
 		PREVIEW_NONE("Nobody would come"),
 		INFO_PHASE("Phase: %s", 1),
 		INFO_ROSTER("Invited: %s", 1),

@@ -23,14 +23,11 @@ import java.util.Map;
  */
 public class PartyPlanner {
 
-	/** Float-tie tolerance, so a tie resolves the same way on every run. */
-	private static final double EPS = 1e-9;
-
 	/**
 	 * @param weight      {@link PartyMath#weight} against this player's reputation
 	 * @param fulfillment appeal she needs before she counts as satisfied
 	 */
-	public record Candidate(EntityType<?> type, double weight, int fulfillment, int reputation) {
+	public record Candidate(EntityType<?> type, int weight, int fulfillment, int reputation) {
 	}
 
 	/**
@@ -47,19 +44,22 @@ public class PartyPlanner {
 		// produces a guest who leaves hungry.
 		var items = pool.stream()
 				.filter(e -> e.weight() > 0 && e.fulfillment() <= appeal)
-				.sorted(Comparator.comparingDouble(Candidate::weight).reversed())
+				.sorted(Comparator.comparingInt(Candidate::weight).reversed())
 				.toList();
 
 		int n = items.size();
-		double[] best = new double[appeal + 1];
+		// Integer weights, so the comparison is exact. A float needed an epsilon to
+		// keep a tie resolving the same way twice; there is no such gap here, and a
+		// tie is now genuinely a tie rather than a near-tie inside the tolerance.
+		int[] best = new int[appeal + 1];
 		boolean[][] took = new boolean[n][appeal + 1];
 
 		for (int i = 0; i < n; i++) {
 			int cost = items.get(i).fulfillment();
 			// descending a => 0/1, each character can be invited at most once
 			for (int a = appeal; a >= cost; a--) {
-				double cand = best[a - cost] + items.get(i).weight();
-				if (cand > best[a] + EPS) {
+				int cand = best[a - cost] + items.get(i).weight();
+				if (cand > best[a]) {
 					best[a] = cand;
 					took[i][a] = true;
 				}
@@ -105,7 +105,7 @@ public class PartyPlanner {
 	public static Map.Entry<Candidate, Miss> nearestMiss(List<Candidate> pool, int appeal) {
 		var viable = pool.stream()
 				.filter(e -> e.weight() > 0)
-				.sorted(Comparator.comparingDouble(Candidate::weight).reversed())
+				.sorted(Comparator.comparingInt(Candidate::weight).reversed())
 				.toList();
 		if (viable.isEmpty()) return null;
 		var best = viable.getFirst();

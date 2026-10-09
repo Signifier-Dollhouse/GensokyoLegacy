@@ -13,7 +13,7 @@
 
 A player lays block food out on tables, sets chairs, writes a letter, and sends it. Characters with enough reputation come, eat, and leave gifts on the table.
 
-**Every character can come.** There is no whitelist and no character is locked out — a character with no authored `party_taste` entry gets a permissive default (§5.2). What decides who shows up is only how good the spread is and how well the player knows them.
+**Only a character with a `party_taste` entry can come.** There is no separate whitelist: the data map is the eligibility list, so a character nobody has written down never attends (§5.2). Among those who are eligible, what decides who shows up is how good the spread is and how well the player knows them.
 
 ```
 lay out block food on party tables  +  put out seats
@@ -71,7 +71,7 @@ private static void genPartyTag(RegistrateTagsProvider.IntrinsicImpl<Block> pvd)
 
 Youkai's Feasts' dining tables and chairs go in as optional entries, which the tag loader drops when the mod is absent — that is what keeps it optional rather than a hard dependency, and no Java here names one of its blocks. It uses the same 11 wood names we do, so one loop covers both tags.
 
-**There is no `party_food` tag.** Food is decided by code and by datapack, not by a tag — see §2.2's `isFood`. A handler recognising the block, or a `party_food` data map entry, is what makes something food; there is no third way, and no tag to keep in step.
+**There is no `party_food` tag.** Food is decided entirely in code, not by a tag and not by a datapack — see §2.2's `isFood`. A `BlockFoodHandler` recognising the block, and finding something worth eating in it, is the whole test; the `party_food` data map only revalues a block that already passed it. There is no third way, and no tag to keep in step.
 
 #### One trap worth naming: `loc()` is not a parser
 
@@ -129,16 +129,48 @@ public static int consume(ServerLevel level, BlockPos pos, BlockState state) { .
 
 #### What makes a block food
 
-There is no `party_food` tag. A block is party food if **either**:
+There is no `party_food` tag, and there is no datapack opt-in. A block is party food if
+**all** of:
 
-- a registered `BlockFoodHandler` recognises its class — `CakeFood` claims anything that is a `CakeBlock`, `FeastFood` anything that is a `FeastBlock`, and so on; or
-- a datapack gave it a `party_food` data map entry.
+- a registered `BlockFoodHandler` recognises its class — `CakeFood` claims anything that is a `CakeBlock`, `FeastFood` anything that is a `FeastBlock`, and so on;
+- that handler reports servings left on the placed block; and
+- one of those servings is worth eating.
 
-The second is how a foreign block is opted in, and it is also how an override corrects a value the heuristic got wrong, so one mechanism does both jobs. The catch-all handler is deliberately **not** enough on its own: it exists to score a block something has already declared food, so it must not make every block on the table a cake.
+```java
+// PartyFoodValue - the whole of "is this block party food", and it reads no datapack
+public static boolean isFood(BlockState state) {
+    return result(state).valid();
+}
+```
+
+The `party_food` data map is consulted *after* that, and only to replace the number:
+
+```java
+public static int appealPerServe(RegistryAccess access, BlockState state) {
+    var result = result(state);
+    if (!result.valid()) return 0;                 // validated first, deliberately
+    var override = PartyFood.of(access, state);
+    return override != null ? override.appeal() : appealOf(result.food());
+}
+```
+
+The ordering is the point. An earlier version consulted the override *first* and let it
+short-circuit validity, which made a `party_food` row a way to declare a block edible. It
+looked harmless because a non-food block has no servings, so the block's total appeal
+came to 0 anyway — but "is this food" and "is this worth anything" had stopped being the
+same question, and the block would still answer `true` to `isFood` and swallow a click in
+`PartyWand.useOn`.
+
+**Opting a foreign dish in is already handled in code**, by the `BlockItemFood` catch-all:
+it accepts any block whose item carries food properties, so a modded cake is party food
+with no datapack help at all. What the data map is for is the case code cannot know — a
+mod has balanced its feast to be worth far more than its properties suggest, and the
+heuristic cannot see that. Revalue, don't opt in.
 
 #### Invalid food is not food
 
-Three things make a tagged block worth nothing, and all three score **0** rather than the minimum:
+Three things make a handler-recognised block worth nothing, and all three score **0**
+rather than the minimum:
 
 - **No hunger value** — `nutrition() <= 0`. A block item can carry `FoodProperties` while being worth nothing to eat: a decorative item, a husk, another mod's placeholder. There is deliberately no "minimum appeal" fallback for a missing or empty serving, because a placeholder scoring 1 would still count towards the party's budget *and* still be walked to and eaten by a guest, costing a guest their whole visit for no fulfillment at all.
 - **Poison or wither** — the same two `FeedModule` refuses outright.
@@ -148,7 +180,7 @@ A 0 is the signal that the block is **not party food at all**, and both consumer
 
 ```java
 // PartyArea.scan - dropped from the spread entirely, left standing in the world
-if (worth <= 0 || !PartyFoodValue.result(here).valid()) continue;   // tagged, but not food
+if (worth <= 0 || !PartyFoodValue.result(here).valid()) continue;   // recognised, but not food
 food.add(pos.immutable());
 appeal += worth;
 
@@ -156,7 +188,10 @@ appeal += worth;
 if (!PartyFoodValue.result(state).valid()) continue;
 ```
 
-So a datapack author who adds a dud id to `party_food` gets a no-op rather than a bug: nothing is counted, nothing is eaten, and the block simply stays on the table.
+So a datapack author who adds a dud id to `party_food` gets a no-op rather than a bug:
+nothing is counted, nothing is eaten, and the block simply stays on the table. The same
+goes for a **valid-looking** id that names a block no handler can serve — it is inert,
+because the row is never reached.
 
 #### `BlockFoodHandler` — how a block food is read and eaten
 
@@ -473,18 +508,30 @@ public record PartyFood(int appeal) {
 }
 ```
 
-There is deliberately **no** `party_food` data map file shipped. A handler recognises every food we know about, so nothing needs one; the data map is for the two cases code cannot cover.
+There is deliberately **no** `party_food` data map file shipped. A handler — including the
+`BlockItemFood` catch-all — recognises every food we know about, so nothing needs one.
 
-**Opting a foreign block in.** With no tag, a block from another mod becomes party food by giving it an entry:
+**Correcting a value the heuristic got wrong.** This is the *only* thing the map does. A
+block a handler already recognises but which scores badly gets a row:
 
 ```jsonc
 // data/gensokyolegacy/data_maps/block/party_food.json
 { "values": { "some_mod:baroque_cake": { "appeal": 20 } } }
 ```
 
-That entry is also the declaration of "this is food", and the appeal is read from the block's own item by the fallback handler unless overridden — so one line is enough to put a modded dish on the table.
+The row replaces the per-serving appeal, and the serve multiplier still applies on top, so
+overriding a cake sets the value of a *slice* rather than of the whole thing.
 
-**Correcting a value the heuristic got wrong.** The same file, for a block a handler already recognises but which scores badly: it replaces `perServe`, and the serve multiplier still applies, so overriding a cake sets the value of a *slice* rather than of the whole thing.
+A row on a block that is **not** already party food does nothing at all — `isFood` never
+reads this map, and `appealPerServe` validates before consulting it. A foreign dish is not
+opted in here; the catch-all already serves any block whose item carries food properties.
+A row naming a block with no food properties is inert, not a broken dish.
+
+This is the safer shape of the two. The alternative — treating a row as a declaration of
+edibility — reads as a natural thing for a datapack to want, and it was briefly what the
+code did. It is wrong because it splits one question in two: the block answers `true` to
+"is this food" while being worth nothing, which then leaks into `PartyWand.useOn`, where
+clicking such a block consumes nothing and still swallows the interaction.
 
 
 ### 2.3 The support problem — measured, and the answer was "no change needed"
@@ -711,19 +758,20 @@ Each character is scored on the two axes the design calls for: how much the spre
 
 ```java
 /**
- * How much this character wants to come, 0 .. ~(1 + repBonus).
+ * How much this character wants to come, as the value the knapsack adds up.
  *
- * @param appealFactor 0 below minAppeal, 1 at or above maxAppeal, linear between:
- *                     a spread too plain for her is worth nothing to her.
- * @param repFactor    1.0 at exactly minReputation, rising to 1.0 + repBonus at
+ * @param spreadAppeal 0 at or below minAppeal, 1 at or above maxAppeal, linear
+ *                     between: a spread too plain for her is worth nothing to her.
+ * @param reputation   1.0 at exactly minReputation, rising to 1 + repBonus at
  *                     maxReputation: being genuinely well liked turns a maybe into a yes.
+ * @return 0 when she declines outright, below minReputation
  */
-public static double weight(PartyTaste taste, int spreadAppeal, int reputation) {
+public static int weight(PartyTaste taste, int spreadAppeal, int reputation) {
     if (reputation < taste.minReputation()) return 0;      // she declines outright
     double appealFactor = ramp(spreadAppeal, taste.minAppeal(), taste.maxAppeal());
     double repFactor = 1.0 + taste.repBonus()
             * ramp(reputation, taste.minReputation(), taste.maxReputation());
-    return appealFactor * repFactor;
+    return (int) Math.round(taste.weight() * appealFactor * repFactor);
 }
 
 /** 0 at or below lo, 1 at or above hi, linear in between. */
@@ -733,6 +781,19 @@ public static double ramp(int value, int lo, int hi) {
     return (value - lo) / (double) (hi - lo);
 }
 ```
+
+`weight` is her value at **full** interest, and `100` is ordinary: an uninterested
+character scores 0 whatever her `weight`, and a fully-interested average-reputation one
+scores her `weight` times `1 + repBonus`. So `weight` is a third, independent axis — not
+another name for the same thing as `repBonus`. `repBonus` scales with *how well liked*
+you are; `weight` scales with *who she is*, and does it whether you are her best friend
+or merely an acquaintance. A popular character (high `weight`, low `minReputation`)
+fills a room; a character you must work hard for (low `weight`, high `minReputation`)
+earns one place in it.
+
+The return is an **integer** because that is what §5.4's knapsack sums. A fractional
+weight buys nothing the DP cannot use, and rounding at the end instead of carrying a
+double through every cell makes ties exact rather than epsilon-dependent — see §5.4.
 
 `PartyTaste` is a new entity-type data map, mirroring the existing `GIFT_PREFERENCE`:
 
@@ -747,12 +808,15 @@ public static final DataMapReg<EntityType<?>, PartyTaste> PARTY_TASTE =
  * @param minAppeal     spread appeal below which she is not interested
  * @param maxAppeal     spread appeal at which she is fully interested
  * @param fulfillment   appeal she must be served before she counts as satisfied
+ * @param weight        her weight at full interest; 100 is ordinary
  */
 public record PartyTaste(
+        int weight,
         int minReputation, int maxReputation, double repBonus,
         int minAppeal, int maxAppeal, int fulfillment
 ) {
     public PartyTaste {
+        weight = Math.max(0, weight);
         maxReputation = Math.max(maxReputation, minReputation);
         maxAppeal = Math.max(maxAppeal, minAppeal);
         repBonus = Math.max(0, repBonus);
@@ -761,34 +825,75 @@ public record PartyTaste(
 }
 ```
 
-The compact constructor clamps the inverted ranges so a datapack typo degrades into "no bonus" rather than a negative weight.
+The compact constructor clamps the inverted ranges so a datapack typo degrades into "no bonus" rather than a negative weight, and floors `weight` at 0 — where 0 means she is never picked, which is a legitimate thing for a datapack to say.
 
-**Every character is party-eligible.** There is no whitelist. A character with no authored `party_taste` entry gets `PartyTaste.DEFAULT`:
+**A character with no authored `party_taste` does not come to parties.** There is no
+separate whitelist — the data map *is* the eligibility list:
 
 ```java
-public static final PartyTaste DEFAULT = new PartyTaste(0, 200, 0.25, 0, 24, 8);
-
+/** This character's taste, or null when she has no authored entry. */
+@Nullable
 public static PartyTaste of(RegistryAccess access, EntityType<?> type) {
-    var taste = GLMeta.PARTY_TASTE.get(access, type.builtInRegistryHolder());
-    return taste == null ? DEFAULT : taste;
+    return GLMeta.PARTY_TASTE.get(access, type.builtInRegistryHolder());
 }
 ```
 
-`DEFAULT` has **no reputation floor**, so even someone the player has just met can be fed a party. The data map only makes a character pickier or hungrier than that — it is not a gate. This is a deliberate reversal of the earlier design, which treated a missing entry as "not party-eligible" and so left bosses, fairies and unwritten characters permanently locked out until someone authored each one by hand.
+`PartySend.plan` skips a null taste when it builds the candidate pool, so a character is
+invited only if `isCharacter(type) && taste != null`. Two gates, not one:
+`isCharacter` keeps the chair, the broom, the doll and the projectiles out of a pool they
+have no business in, and the data map decides who among the actual characters is
+invitable.
 
-The `DEFAULT` numbers are sized against §2.2's derived appeal, where a whole vanilla cake is worth 14: `maxAppeal` 24 is under two cakes, and `fulfillment` 8 is just over half of one.
+```java
+for (var type : BuiltInRegistries.ENTITY_TYPE) {
+    if (!isCharacter(type)) continue;
+    var taste = PartyTaste.of(level.registryAccess(), type);
+    if (taste == null) continue;                          // not party-eligible
+    int rep = reputation.applyAsInt(type);
+    pool.add(new PartyPlanner.Candidate(type,
+            PartyMath.weight(taste, area.appeal(), rep), taste.fulfillment(), rep));
+}
+```
 
-Shipped values, in `data/gensokyolegacy/data_maps/entity_type/party_taste.json`:
+`DEFAULT` survives as a **template to copy**, not a fallback — nothing reads it at
+runtime, and it exists so a datapack author has seven concrete numbers to start from
+rather than a blank row.
 
-| Character | minRep | maxRep | repBonus | minAppeal | maxAppeal | fulfillment |
-|---|---|---|---|---|---|---|
-| `cirno` | 50 | 150 | 0.3 | 4 | 20 | 6 |
-| `hakurei_reimu` | 100 | 200 | 0.3 | 8 | 32 | 8 |
-| `kirisame_marisa` | 100 | 200 | 0.3 | 8 | 32 | 8 |
-| `morichika_rinnosuke` | 100 | 200 | 0.3 | 10 | 32 | 8 |
-| `alice_margatroid` | 150 | 250 | 0.15 | 12 | 40 | 10 |
-| `izayoi_sakuya` | 150 | 250 | 0.15 | 16 | 48 | 12 |
-| *(everyone else)* | **0** | 200 | 0.25 | **0** | 24 | 8 |
+This is a deliberate reversal of an earlier decision, which fell back to `DEFAULT` and so
+made every character eligible with no whitelist at all. The problem was that "no data"
+silently meant "a generic guest on default terms" — a newly registered character showed up
+to parties automatically, and no row in the file recorded that it was allowed to. Putting
+eligibility in the data map makes the file the single place that says who comes, so an
+absent character is absent on purpose rather than by accident.
+
+The cost is that a character nobody has written down never appears, which is the
+trade being made deliberately: an unwritten character is a decision not yet taken, not a
+decision taken for you.
+
+The `DEFAULT` template is sized against §2.2's derived appeal, where a whole vanilla cake
+is worth 14: `maxAppeal` 24 is under two cakes, and `fulfillment` 8 is just over half of
+one.
+
+Shipped values, in `data/gensokyolegacy/data_maps/entity_type/party_taste.json`. **These
+six rows are the whole eligible cast** — every other character, including the remaining
+eight youkai, has no entry and does not come:
+
+| Character | weight | minRep | maxRep | repBonus | minAppeal | maxAppeal | fulfillment |
+|---|---|---|---|---|---|---|---|
+| `cirno` | 100 | **0** | 150 | 0.3 | 4 | 20 | 6 |
+| `hakurei_reimu` | 100 | 50 | 200 | 0.3 | 10 | 32 | 20 |
+| `kirisame_marisa` | 100 | 50 | 200 | 0.3 | 20 | 32 | 20 |
+| `morichika_rinnosuke` | 100 | 50 | 200 | 0.3 | 20 | 32 | 20 |
+| `alice_margatroid` | 100 | 50 | 250 | 0.15 | 24 | 40 | 12 |
+| `izayoi_sakuya` | 100 | 50 | 250 | 0.15 | 30 | 48 | 20 |
+| *(everyone else)* | — | — | — | — | — | — | **not eligible** |
+
+Every one ships `weight` 100, so these are exactly the pre-`weight` numbers scaled by 100
+— the axis is authored but not yet tuned, and moving one is a datapack edit.
+
+Cirno is the one entry with no reputation floor and the lowest fulfillment, which is what
+makes her the reliable first guest at an early game. The other five all need a standing
+reputation of at least 50, so an unwritten save invites nobody until someone has met them.
 
 Sakuya has no `character_config` and no home — she is guest-only by design (`GLEntities.java:55`) — which makes her the natural first test case for the whole system, since a party guest needs no home binding either way.
 
@@ -825,17 +930,14 @@ The knapsack in §5.4 guarantees the *planned* total fits the spread, but food c
 Choose the subset of eligible characters maximising total weight subject to total fulfillment ≤ available appeal. This is exactly **0/1 knapsack**, and it is what lets both requirements hold at once: *how much food you provide* sets the budget, *who you have good reputation with* sets the weights.
 
 ```java
-public record Candidate(EntityType<?> type, double weight, int fulfillment, int reputation) { }
-
-/** Float-tie tolerance; keeps the roster stable across runs. */
-private static final double EPS = 1e-9;
+public record Candidate(EntityType<?> type, int weight, int fulfillment, int reputation) { }
 
 /**
  * Pick the guests. Maximises total weight subject to sum(fulfillment) <= appeal,
  * then truncates to the number of available seats.
  *
- * Deterministic: a 1e-9 epsilon makes float ties resolve identically every run, so
- * /gensokyo party preview predicts a real send exactly.
+ * Deterministic: integer weights make ties exactly ties, so /gensokyo party preview
+ * predicts a real send exactly and no epsilon is needed.
  *
  * @return chosen characters, highest weight first
  */
@@ -846,19 +948,19 @@ public static List<EntityType<?>> select(List<Candidate> pool, int appeal, int s
     // satisfied, so inviting her only to leave hungry is worse than not inviting her.
     var items = pool.stream()
             .filter(e -> e.weight() > 0 && e.fulfillment() <= appeal)
-            .sorted(Comparator.comparingDouble(Candidate::weight).reversed())   // stable input order
+            .sorted(Comparator.comparingInt(Candidate::weight).reversed())   // stable input order
             .toList();
 
     int n = items.size();
-    double[] best = new double[appeal + 1];
+    int[] best = new int[appeal + 1];
     boolean[] took = new boolean[n][appeal + 1];
 
     for (int i = 0; i < n; i++) {
         int cost = items.get(i).fulfillment();
         // descending a => 0/1, each character can be invited at most once
         for (int a = appeal; a >= cost; a--) {
-            double cand = best[a - cost] + items.get(i).weight();
-            if (cand > best[a] + EPS) {
+            int cand = best[a - cost] + items.get(i).weight();
+            if (cand > best[a]) {
                 best[a] = cand;
                 took[i][a] = true;
             }
@@ -887,40 +989,43 @@ Implementation notes:
 - **Candidates are sorted by weight, descending, before the DP**, and the reconstruction reverses its output. Sorting does not bias the result — the DP explores every subset regardless of input order — it only makes the final roster come out in weight order, so guests arrive best-first and the seat truncation drops the least valuable arrivals.
 - **The reconstruction walks backwards.** `took[i][a]` records whether item `i` improved `best[a]` *using items 0..i*, so the decision chain is only coherent from the last item down. A forward walk compiles and runs, and quietly returns a roster one-or-two characters short of optimal — worth a comment in the real code, because the wrong version looks correct in every other respect.
 - **Two filters run before the DP.** `weight() <= 0` means she declines outright and must not occupy budget or appear in the roster. `fulfillment > appeal` means she could never be satisfied even by eating everything, so inviting her would only produce a guest who leaves hungry — worse than not inviting her.
+- **`best` is an `int[]` and there is no epsilon.** Weights are integers (§5.2), so `cand > best[a]` is exact. The previous `double[]` needed a `1e-9` tolerance purely so that two weights differing far below display precision would not flip the roster between runs; quantising at the source removes the whole problem rather than papering over it. The trade is that genuinely-equal weights now tie often — every character sharing a `party_taste` shape ties by construction — and a tie is broken by pool order, which is fixed, so the outcome is still deterministic.
 - `n <= 14` entity types and `appeal` in the low hundreds, so this is a few thousand iterations, once per send. A greedy sort by weight-per-appeal would be simpler but wrong: it cannot see that one greedy pick crowds out two better ones.
 - **Seats are applied after the DP** by truncating the weight-ordered list. Folding the seat count into the DP would need a second dimension for no real gain, because a heavier guest is always at least as good a use of a seat as a lighter one.
 
 ### 5.5 Worked example
 
-Vanilla only, so every appeal here is checkable against §2.2's derivation: one `minecraft:cake` is 7 slices of 2 = **14**. Reputation 180 across the board, comfortably above everyone's floor.
+Vanilla only, so every appeal here is checkable against §2.2's derivation: one `minecraft:cake` is 7 slices of 2 = **14**. Reputation 180 across the board, above everyone's floor. Recomputed against the shipped `party_taste.json` after `weight` was added.
 
-Per-character weights at each spread, reputation held at 180 (bold = on the roster the knapsack chose):
+Per-character weight at each spread, reputation held at 180:
 
 | Character | fulfillment | 1 cake (14) | 2 cakes (28) | 3 cakes (42) | 4 cakes (56) |
 |---|---|---|---|---|---|
-| `cirno` | 6 | **0.812** | **1.300** | **1.300** | **1.300** |
-| `hakurei_reimu` | 8 | **0.310** | **1.033** | **1.240** | **1.240** |
-| `kirisame_marisa` | 8 | 0.310 | **1.033** | **1.240** | **1.240** |
-| `morichika_rinnosuke` | 8 | 0.225 | 1.015 | **1.240** | **1.240** |
-| `alice_margatroid` | 10 | 0.075 | 0.597 | **1.045** | **1.045** |
-| `izayoi_sakuya` | 12 | 0.000 | 0.392 | 0.849 | **1.045** |
+| `cirno` | 6 | **81** | **130** | **130** | **130** |
+| `hakurei_reimu` | 20 | **23** | **103** | **126** | **126** |
+| `izayoi_sakuya` | 20 | 0 | 0 | 73 | 110 |
+| `kirisame_marisa` | 20 | 0 | 84 | **126** | **126** |
+| `morichika_rinnosuke` | 20 | 0 | 84 | 126 | **126** |
+| `alice_margatroid` | 12 | 0 | 27 | **110** | 110 |
 
-Sakuya's weight is 0 against a single cake: 14 appeal is below her `minAppeal` of 16, so she is not interested no matter how well the player knows her. That is the `minAppeal` cutoff doing its job.
+Bold is on the roster the knapsack chose.
 
 What the knapsack picks, at each spread:
 
-| Spread | Appeal | Roster | Appeal spent | Seats needed |
+| Spread | Appeal | Roster | Appeal spent | Seats |
 |---|---|---|---|---|
-| 1 cake | 14 | Cirno, Reimu | 14 | 2 |
-| 2 cakes | 28 | Cirno, Reimu, Marisa | 22 | 3 |
-| 3 cakes | 42 | Cirno, Reimu, Marisa, Morichika, Alice | 40 | 5 |
-| 4 cakes | 56 | all six | 52 | 6 |
+| 1 cake | 14 | Cirno | 6 | 1 |
+| 2 cakes | 28 | Cirno, Reimu | 26 | 2 |
+| 3 cakes | 42 | Cirno, Reimu, Alice | 38 | 3 |
+| 4 cakes | 56 | Cirno, Reimu, Marisa | 46 | 3 |
 
-**No other mods installed is a working party.** The progression is 2 → 3 → 5 → 6 guests for 1 → 2 → 3 → 4 cakes, and it is the whole system running off one vanilla block.
+**The progression is 1 → 2 → 3 → 3 guests, and it flattens at three.** That is a real property of the shipped fulfillments, not a bug in the knapsack: with five of six characters needing 20, the fourth guest costs at least 20 more appeal, and four guests needs 6+12+20+20 = 58. Four cakes buys 56. A fifth guest would need 78 — six cakes.
 
-Three things worth noting. At 14 appeal the budget is spent to the last unit — Cirno's 6 and Reimu's 8 come to exactly 14 — so a single cake is a complete meal for two and leaves nothing over. At 42 appeal Morichika's weight (1.240) equals Reimu's and Marisa', and his fulfillment is the same 8, so his place on the roster is a tie broken by the DP's stable weight-descending input order rather than a judgement that he is a better guest. And at 56 appeal the budget covers all six fulfillments — 6+8+8+8+10+12 = 52 — with 4 left over, so **four cakes seats the entire cast** and one Farmer's Delight feast is then enough to make the seat count the only limit.
+Two things follow. The seat cap is currently doing nothing above two guests, because appeal binds first; and `weight` cannot fix that, since a character who does not fit the budget is filtered out before weight is ever compared. Raising appeal or lowering fulfillments is the lever, and a Farmer's Delight feast (well above a cake) is the intended way to push past three.
 
-Because eating is per-serving, those fulfillments are also slice counts at this scale: Cirno's 6 is three slices of cake, Reimu's 8 is four, Sakuya's 12 is six of the seven a single cake holds. The last guest waits while the earlier ones take their slices, and those slices simply stop existing as they are eaten.
+Sakuya's weight is 0 at both 14 and 28: 28 is below her `minAppeal` of 30, so she is not interested however well the player knows her. That is the `minAppeal` cutoff doing its job. At 42 and 56 she is affordable and willing but simply out-ranked — 73 and 110 against Marisa's 126 — so the tie-break and the seat cap both work against her, correctly.
+
+Because eating is per-serving, those fulfillments are slice counts at this scale: Cirno's 6 is three slices of cake, Reimu's 20 is all seven slices plus two thirds of a second cake. The last guest waits while the earlier ones take their slices, and those slices simply stop existing as they are eaten.
 
 The guest count tracks the food, and who shows up tracks reputation — both fall out of the formulation rather than being special-cased anywhere.
 
@@ -1067,7 +1172,7 @@ Added once in `SmartYoukaiEntity.constructTaskBoard` (`SmartYoukaiEntity.java:81
 | `content/attachment/party/core/PartyMath.java` | `ramp`, `weight` — pure |
 | `content/attachment/party/core/PartyArea.java` | one scan: food, seats, appeal, centre, touched chunks |
 | `content/attachment/party/core/PartyPlanner.java` | candidate pool + knapsack + seat cap — pure |
-| `content/attachment/party/core/PartyTaste.java` | entity-type data map record + `DEFAULT` for every unwritten character |
+| `content/attachment/party/core/PartyTaste.java` | entity-type data map record; an absent entry means **not eligible**, `DEFAULT` is a copyable template |
 | `content/attachment/party/core/PartyFood.java` | override-only block data map record |
 | `content/attachment/party/core/PartyFoodValue.java` | per-serving appeal derivation, totals, `consume` (§2.2) |
 | `content/attachment/party/core/PartyFoodHandler.java` | the handler list and the `claims` test that replaces the food tag (§2.2) |
@@ -1217,7 +1322,7 @@ One detail of the text readout survives unchanged: the result is a snapshot of a
 
 ## 11. Resolved questions
 
-Owner answers, 2026-10-06:
+Owner answers, 2026-10-06.
 
 1. **`tea_table` / `magic_table`** — excluded from the feature. `party_table` is built from `LARGE_TABLE` only, and neither block is modified. Note that they needed no support workaround regardless: `large_table` already passes both survival checks unmodified (§2.3).
 2. **Overlapping parties** — rejected by chunk scan. The party's owning chunk is the one holding the centre of the detected food; every chunk the food touches is scanned for an existing live party before a send is allowed.
@@ -1225,3 +1330,4 @@ Owner answers, 2026-10-06:
 4. **Cost** — food only. No cooldown, no reputation gain or loss. Gifts are the whole return, scaled down for under-served guests.
 5. **No letter cooldown** — the letter names no character, so there is nothing to rate-limit; a repeated send simply re-runs the same deterministic check.
 6. **Cross-dimension guests** — no issue.
+7. **Eligibility lives in `party_taste`** (later decision, reversing the earlier fallback). A character with no entry does not come to parties at all; `PartyTaste.of` returns null and `PartySend.plan` skips her. There is no separate whitelist, so the data map is the single place that says who is invitable, and an unwritten character is absent by decision rather than accidentally. `PartyTaste.DEFAULT` remains only as a template to copy — nothing reads it at runtime. See §5.2.

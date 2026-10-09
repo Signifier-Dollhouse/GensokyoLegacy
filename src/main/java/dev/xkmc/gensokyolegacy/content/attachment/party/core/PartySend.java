@@ -89,10 +89,12 @@ public class PartySend {
 
 		var pool = new ArrayList<PartyPlanner.Candidate>();
 		for (var type : BuiltInRegistries.ENTITY_TYPE) {
-			// every character is party-eligible; the taste only sets how fussy she is.
-			// Only youkai are candidates, so the chair entity and the doll stay out.
+			// Two gates. Only youkai are candidates at all, so the chair entity, the
+			// broom, the doll and the projectiles stay out; and a character with no
+			// authored party_taste is not party-eligible, so she stays out too.
 			if (!isCharacter(type)) continue;
 			var taste = PartyTaste.of(level.registryAccess(), type);
+			if (taste == null) continue;
 			int rep = reputation.applyAsInt(type);
 			pool.add(new PartyPlanner.Candidate(type,
 					PartyMath.weight(taste, area.appeal(), rep), taste.fulfillment(), rep));
@@ -111,14 +113,15 @@ public class PartySend {
 	}
 
 	/**
-	 * Whether this entity type is a character who could be invited. Every one of
-	 * them is eligible; the {@code party_taste} data map only makes a particular
-	 * character pickier or more generous than the default.
+	 * Whether this entity type is a character at all, as opposed to furniture, a
+	 * projectile or a summon. Necessary but <b>not sufficient</b> for party
+	 * eligibility: a character also needs an authored {@code party_taste} entry, so
+	 * this only answers the cheaper half of the question.
 	 * <p>
 	 * All fourteen characters are registered as {@link MobCategory#MONSTER}, which is
 	 * what separates them from the chair, the broom, the doll and the projectile
-	 * entities — all {@code MISC}. Structural rather than a hand-kept list, so a
-	 * character added later is party-eligible without a second edit.
+	 * entities — all {@code MISC}. Structural rather than a hand-kept list, so
+	 * {@code party_taste} is the only place eligibility is written down.
 	 */
 	public static boolean isCharacter(EntityType<?> type) {
 		return type.getCategory() == MobCategory.MONSTER;

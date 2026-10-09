@@ -127,9 +127,10 @@ public class GLTagGen {
 	 * here names one of its blocks. It uses the same 11 wood names we do, so one loop
 	 * covers both tags.
 	 * <p>
-	 * There is deliberately no {@code party_food} tag. Food is decided by whether a
-	 * {@code BlockFoodHandler} recognises the block, or a datapack gave it a
-	 * {@code party_food} data map entry — see {@code PartyFoodValue#isFood}.
+	 * There is deliberately no {@code party_food} tag. Food is decided entirely in code,
+	 * by whether a {@code BlockFoodHandler} recognises the block and finds something
+	 * worth eating in it — see {@code PartyFoodValue#isFood}. The {@code party_food}
+	 * data map only revalues such a block; it cannot make one.
 	 */
 	private static void genPartyTag(RegistrateTagsProvider.IntrinsicImpl<Block> pvd) {
 		pvd.addTag(PARTY_TABLE).addTag(LARGE_TABLE);

@@ -47,11 +47,12 @@ public final class PartyFoodHandler {
 	/**
 	 * The handler that recognises this block as a kind of food, or null if none does.
 	 * <p>
-	 * This is the "is this block party food" test, and it is what replaces a
-	 * {@code party_food} tag: a block is food because a handler recognises its class, or
-	 * because a datapack gave it a {@code party_food} data map entry. The fallback is
-	 * never returned from here, so an unclaimed block is not food just because food
-	 * happened to be looking at it.
+	 * This is the "is this block party food" test, and it is the <b>whole</b> of it: a
+	 * block is food because a handler recognises its class and finds something worth
+	 * eating in it. The {@code party_food} data map is not consulted here and cannot opt
+	 * anything in — it only revalues a block that already passed. The fallback is never
+	 * returned from here, so an unclaimed block is not food just because food happened to
+	 * be looking at it.
 	 */
 	@Nullable
 	public static BlockFoodHandler claims(Block block) {

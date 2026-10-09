@@ -6,7 +6,8 @@
       "maxReputation": 250,
       "minAppeal": 24,
       "minReputation": 50,
-      "repBonus": 0.15
+      "repBonus": 0.15,
+      "weight": 100
     },
     "gensokyolegacy:cirno": {
       "fulfillment": 6,
@@ -14,7 +15,8 @@
       "maxReputation": 150,
       "minAppeal": 4,
       "minReputation": 0,
-      "repBonus": 0.3
+      "repBonus": 0.3,
+      "weight": 100
     },
     "gensokyolegacy:hakurei_reimu": {
       "fulfillment": 20,
@@ -22,7 +24,8 @@
       "maxReputation": 200,
       "minAppeal": 10,
       "minReputation": 50,
-      "repBonus": 0.3
+      "repBonus": 0.3,
+      "weight": 100
     },
     "gensokyolegacy:izayoi_sakuya": {
       "fulfillment": 20,
@@ -30,7 +33,8 @@
       "maxReputation": 250,
       "minAppeal": 30,
       "minReputation": 50,
-      "repBonus": 0.15
+      "repBonus": 0.15,
+      "weight": 100
     },
     "gensokyolegacy:kirisame_marisa": {
       "fulfillment": 20,
@@ -38,7 +42,8 @@
       "maxReputation": 200,
       "minAppeal": 20,
       "minReputation": 50,
-      "repBonus": 0.3
+      "repBonus": 0.3,
+      "weight": 100
     },
     "gensokyolegacy:morichika_rinnosuke": {
       "fulfillment": 20,
@@ -46,7 +51,8 @@
       "maxReputation": 200,
       "minAppeal": 20,
       "minReputation": 50,
-      "repBonus": 0.3
+      "repBonus": 0.3,
+      "weight": 100
     }
   }
 }

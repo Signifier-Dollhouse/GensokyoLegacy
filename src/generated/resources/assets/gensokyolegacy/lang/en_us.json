@@ -524,7 +524,7 @@
   "gensokyolegacy.party.no_seats": "There is nowhere to sit - put some chairs around the table",
   "gensokyolegacy.party.nobody_came": "Nobody came. Lay out more food, or get to know someone better",
   "gensokyolegacy.party.party_exists": "There is already a party here",
-  "gensokyolegacy.party.preview_guest": "  %s  weight %.2f  rep %s  wants %s appeal",
+  "gensokyolegacy.party.preview_guest": "  %s  weight %s  rep %s  wants %s appeal",
   "gensokyolegacy.party.preview_header": "%s would come:",
   "gensokyolegacy.party.preview_none": "Nobody would come",
   "gensokyolegacy.party.preview_title": "Spread appeal: %s, seats: %s",
