@@ -4,6 +4,7 @@ import com.github.tartaricacid.touhoulittlemaid.TouhouLittleMaid;
 import com.tterrag.registrate.providers.ProviderType;
 import dev.xkmc.gensokyolegacy.compat.touhoulittlemaid.TLMCompat;
 import dev.xkmc.gensokyolegacy.compat.touhoulittlemaid.TouhouSpellCards;
+import dev.xkmc.gensokyolegacy.content.attachment.party.food.BlockFoods;
 import dev.xkmc.gensokyolegacy.content.dimension.GLDimensionGen;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.move.YoukaiNodeEvaluatorRegistry;
 import dev.xkmc.gensokyolegacy.content.item.glove.DollGloveSelectionListener;
@@ -125,6 +126,8 @@ public class GensokyoLegacy {
 	@SubscribeEvent
 	public static void commonSetup(FMLCommonSetupEvent event) {
 		event.enqueueWork(() -> {
+			BlockFoods.register();
+
 			DispenserBlock.registerProjectileBehavior(GLItems.FROZEN_FROG_COLD.get());
 			DispenserBlock.registerProjectileBehavior(GLItems.FROZEN_FROG_WARM.get());
 			DispenserBlock.registerProjectileBehavior(GLItems.FROZEN_FROG_TEMPERATE.get());
