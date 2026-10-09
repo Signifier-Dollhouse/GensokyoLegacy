@@ -2,6 +2,7 @@ package dev.xkmc.gensokyolegacy.content.client.debug;
 
 import dev.xkmc.gensokyolegacy.content.attachment.index.BedRefData;
 import dev.xkmc.gensokyolegacy.content.attachment.index.StructureKey;
+import dev.xkmc.gensokyolegacy.content.entity.module.FairyCakeModule;
 import dev.xkmc.gensokyolegacy.content.entity.module.FeedModule;
 import dev.xkmc.gensokyolegacy.content.entity.module.GiftModule;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.SmartYoukaiEntity;
@@ -22,7 +23,11 @@ public record CharacterRequestToServer(UUID id) implements SerialPacketBase<Char
 		var home = StructureKey.of(e);
 		var bed = home.map(k -> BedRefData.of(sp.serverLevel(), k, e.getType()))
 				.map(BedRefData::getBedPos);
-		int feedCD = e.getModule(FeedModule.class).map(FeedModule::getCoolDown).orElse(0);
+		// a character carries at most one feed module, but which kind varies:
+		// the plain fairy's is cake-only and flat-rate
+		int feedCD = Math.max(
+				e.getModule(FeedModule.class).map(FeedModule::getCoolDown).orElse(0),
+				e.getModule(FairyCakeModule.class).map(FairyCakeModule::getCoolDown).orElse(0));
 		int giftCD = e.getModule(GiftModule.class).map(GiftModule::getCoolDown).orElse(0);
 		String activity = e instanceof SmartYoukaiEntity smart ? smart.getBrainDebugInfo() : "";
 		e.getData(sp).ifPresent(data -> GensokyoLegacy.HANDLER.toClientPlayer(CharacterInfoToClient.ofEntity(
