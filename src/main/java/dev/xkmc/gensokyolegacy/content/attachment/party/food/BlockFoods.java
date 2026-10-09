@@ -19,13 +19,14 @@ import net.neoforged.fml.ModList;
  * Most handlers name a block class belonging to another mod, so each is only
  * <b>constructed</b> when that mod is present. A handler that was never constructed is
  * never asked, so its class is never loaded and its absent types are never resolved —
- * which is what keeps Farmer's Delight and Youkai's Feasts optional without reflection
- * or a hard dependency.
+ * which is what keeps Farmer's Delight, Youkai's Feasts and Kaleidoscope Cookery
+ * optional without reflection or a hard dependency.
  */
 public final class BlockFoods {
 
 	private static final String FD = "farmersdelight";
 	private static final String YSF = "youkaisfeasts";
+	private static final String KC = "kaleidoscope_cookery";
 
 	/** Register every known kind of block food. Call once, after the blocks exist. */
 	public static void register() {
@@ -43,6 +44,16 @@ public final class BlockFoods {
 		if (loaded(YSF)) {
 			PartyFoodHandler.register(new SaucerFood());
 			PartyFoodHandler.register(new PotFood());
+		}
+
+		if (loaded(KC)) {
+			// The mod's ~37 dishes and its one-by-two variant are all FoodBiteBlock, so
+			// this one entry covers the lot — see BiteFood for why it cannot share
+			// AbstractCountdownFood with the cake and pie.
+			PartyFoodHandler.register(new BiteFood());
+			// The eleven plates and platters are all PlateBlock, and count down like a
+			// feast, so this one really is an AbstractCountdownFood.
+			PartyFoodHandler.register(new PlateFood());
 		}
 
 		// The catch-all, last: it accepts every block, so anything earlier must come

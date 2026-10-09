@@ -182,6 +182,8 @@ public interface BlockFoodHandler {
 | `PieFood` | FD pies, YSF pies | 4, counted up | the block's own `getPieSliceItem` |
 | `PotFood` | YSF bowls and pots | 2 or 4, counted **down** | a permuted item, else the block's `food` field |
 | `SaucerFood` | YSF saucer dishes | 1, eaten whole | the block's own item |
+| `BiteFood` | KC dishes and one-by-two dishes | `maxBites - bites`, 1 to 6 | `FoodBiteRegistry`'s entry for the block id |
+| `PlateFood` | KC plates and platters | `servings` 3..5, counted **down** | `PlateRegistry`'s serving items for the block id |
 | `BlockItemFood` | anything else, and the fallback | 1 | the block's own item |
 
 #### `FoodResult` — one resolution, three answers
@@ -255,7 +257,7 @@ public static FoodProperties foodOf(Block block) {
 
 This is preferred over reflecting a field because it survives a mod update. YSF's `BowlBlock` keeps its food in a `protected final ItemLike food` with no accessor, so that read is still there as a **fallback** behind the permutation — it works today, but a rename would break it silently, and reflection against another mod is exactly the kind of thing that fails without a stack trace.
 
-The four countdown kinds share `AbstractCountdownFood`, which owns the serve count and the step. **No handler names a foreign block class** — each takes a `Function<BlockState, ItemStack>` for its serving item, supplied in `BlockFoods` inside the mod's gated section. So a handler class cannot fail to load when its mod is absent, and the foreign types appear exactly once each.
+The four countdown kinds share `AbstractCountdownFood`, which owns the serve count and the step. Each of them **does** name its foreign block class in `handles` — that is the whole mechanism, and it is safe because the class is never constructed when its mod is absent (see below). Cookery contributes one of each sort: `PlateFood` is a fifth countdown kind that joins them, and `BiteFood` is a sixth that deliberately does *not*, for the reason in the next table.
 
 #### Two counting conventions, and getting them backwards
 
@@ -267,6 +269,8 @@ The properties do **not** agree on what they count, and assuming one convention 
 | FD `PieBlock` | `bites` | `0..3` | 0 | **up** | `value + 1` → 4 |
 | FD `FeastBlock` | `servings` | `0..4` | 4 | **down** — servings left | `value` → 4 |
 | YSF `PotFoodBlock` | `serve` | `1..2` / `1..4` | max | **down** | `value` |
+| KC `FoodBiteBlock` | `bites` | `0..maxBites` | 0 | **up**, but see below | `maxBites - value` |
+| KC `PlateBlock` | `servings` | `0..maxCount` | **max** | **down** — servings left | `value` |
 
 `serves` and `consume` both need the direction, and `AbstractCountdownFood` reads it off the property rather than being configured with it:
 
@@ -287,6 +291,20 @@ public int serves(BlockState state) {
 ```
 
 This matters more than it looks. Had `consume` assumed "always decrement", an FD feast would step its servings **up** towards its maximum and, having started there, would never go anywhere: each guest eats, the block stays at max, and the party can never be satisfied. The reverse assumption breaks cake and pie the same way. Reading the direction off the block is the only version correct for both, and it names no foreign property.
+
+##### And one counter whose range lies by one
+
+Kaleidoscope Cookery also counts **up**, and also calls it `bites` — which is exactly why it is worth spelling out that this handler does not go through `AbstractCountdownFood`.
+
+Vanilla cake's property runs one *past* the last slice (`BITES` 0..6 for seven slices) because `CakeBlock.eat` needs somewhere to land after the seventh and removes the block from there. Cookery instead builds `IntegerProperty.create("bites", 0, maxBites)` and stops incrementing at the maximum, leaving an emptied block standing:
+
+```java
+// FoodBiteBlock.eat — the whole counter, abridged
+int bites = state.getValue(this.bites);
+if (bites < this.getMaxBites()) level.setBlock(pos, state.setValue(this.bites, bites + 1), 3);
+```
+
+So the true count is `maxBites - bites`, not `bites + 1`. Sharing `AbstractCountdownFood` would report one serve too many on a fresh dish, and `consume` would compute `0 + 1 > maxBites` on the very first bite and **destroy a whole untouched dish**. `BiteFood` therefore asks the block for `getMaxBites()` — a public accessor — rather than deriving the count from the property's range. This is the general lesson: a counter's *range* is not its *count*, and the two agreeing on four kinds of food is no reason to assume it on a fifth.
 
 #### The cake problem
 
@@ -376,11 +394,15 @@ public static void register() {
         PartyFoodHandler.register(new SaucerFood());  // instanceof FoodSaucerBlock
         PartyFoodHandler.register(new PotFood());     // instanceof BowlBlock
     }
+    if (loaded(KC)) {
+        PartyFoodHandler.register(new BiteFood());     // instanceof FoodBiteBlock
+        PartyFoodHandler.register(new PlateFood());    // instanceof PlateBlock
+    }
     PartyFoodHandler.register(new BlockItemFood());   // last: accepts everything
 }
 ```
 
-Handlers are only **constructed** when their mod is present. A handler that was never constructed is never asked, so its class is never loaded and its foreign types never resolve — which is what keeps the two mods optional without reflection or a hard dependency.
+Handlers are only **constructed** when their mod is present. A handler that was never constructed is never asked, so its class is never loaded and its foreign types never resolve — which is what keeps the three mods optional without reflection or a hard dependency.
 
 Youkai's Feasts has several genuinely different kinds, so it needs one entry per shape — but three of its block classes are covered by registrations made elsewhere, because it builds on the other two mods:
 
@@ -393,6 +415,47 @@ Youkai's Feasts has several genuinely different kinds, so it needs one entry per
 | `SurpriseFeastBlock` | feasts, 4 servings | `FeastFood`'s `instanceof FeastBlock` |
 
 `SaucerFood` tests `FoodSaucerBlock` rather than its `BaseSaucerBlock` parent on purpose: the parent also covers `EmptySaucerBlock`, which serves nothing, and being precise here is what lets `BlockItemFood` stay a blunt catch-all.
+
+Kaleidoscope Cookery is close to the opposite case: two block classes cover its whole food set, because the mod builds every dish from the registry entry of the same id. `CommonRegistry` constructs each block from the `FoodData` of the id it is about to register, so no per-block entries are needed:
+
+| KC class | Shape | Serves |
+|---|---|---|
+| `FoodBiteBlock` | the bulk of the Chinese-cuisine set, 1 to 6 bites (`golden_salad` is the six) | `maxBites - bites` |
+| `FoodBiteOneByTwoBlock` | the wider dishes, 3 to 5 bites per half | `maxBites - bites` |
+| `PlateBlock` | the eleven plates and platters, 3 to 5 servings | `servings`, counted down |
+
+Its `foodProperties` field is `protected` with no accessor, but that is no obstacle: `FoodBiteRegistry.FOOD_DATA_MAP` is public and holds an entry for every bite block, and `FoodData.blockFood()` is the very properties instance the block feeds per bite. The same entry's `itemFood()` must **not** be used — that is the whole dish, not a bite of it, and valuing each serve at the entire meal would score a single plate of Dark Cuisine above a golden apple. This is the case the `Permutations` rationale above was written for: reach for the mod's own public table before reflecting a private field.
+
+##### A plate is not a container
+
+`PlateBlock` *looks* like the hard case in this feature: its state holds a bare `servings` count and nothing about what is on it, so a plate of spring rolls and a plate of century eggs read as the same block. The first draft of this handler concluded from that it was unpriceable, and skipped it. That was wrong, and wrong for a boring reason — the mod does not have one generic plate.
+
+`PlateRegistry` gives each of the eleven a `PlateData` of its own, listing the items that plate may carry, and `CommonRegistry` builds the `PlateBlock` from that list:
+
+```java
+// PlateRegistry.init, abridged
+registerPlateData(mcLoc("shengjian_mantou_plate"),
+        PlateData.create(5).setServingItems(ModItems.SHENGJIAN_MANTOU));
+registerPlateData(mcLoc("berry_platter"),
+        PlateData.create(4).addServingItems(() -> Items.SWEET_BERRIES, () -> Items.GLOW_BERRIES));
+```
+
+So the state says **how many** and the registry says **of what**, and the two together answer the question exactly. `PlateFood.food` reads `PLATE_DATA_MAP.get(blockId).getServingItems()` — the same shape of answer as `BiteFood`, and for the same reason: the serving item list is the mod's own public table.
+
+| KC block | Serves | Of |
+|---|---|---|
+| `shengjian_mantou_plate`, `baozi_plate` | 5 | the matching mod item |
+| `sticky_rice_cake_plate`, `tomato_platter`, `chorus_fruit_platter` | 5 | the matching mod item |
+| `qingtuan_plate`, `sticky_candy_plate`, `zongzi_plate`, `apple_platter` | 4 | the matching mod item |
+| `berry_platter` | 4 | sweet berries **and** glow berries |
+| `watermelon_platter` | 3 | melon slices |
+
+Two details make `PlateFood` an ordinary `AbstractCountdownFood` rather than a special case like `BiteFood`:
+
+- **The default state is `maxCount`, not zero.** A freshly placed plate is *full* and the count falls as food is taken off — the "servings left" convention, so `countsDown` reads it off the block correctly and `serves` is the property value verbatim. Assuming a plate starts at zero would have inverted every count in the mod.
+- **`consume` is inherited unchanged.** Taking the last serving steps the count to zero and leaves the empty plate standing, which is what the mod does: `PlateBlock` only removes itself when a player right-clicks an *empty* plate to pick it up, and that is a player gesture the party system should not imitate. An emptied plate is inert — `serves` is 0, so `FoodResult` is `INVALID` and `PartyArea.scan` drops it from the count without deleting anything.
+
+`berry_platter` hands out two items per serving, and one serve of two things has no single taste to price it by. It is scored by the first serving item that carries food, which undervalues it by roughly half — a deliberate approximation on one decorative platter rather than a rule invented to accommodate it. (It is take-only in the mod regardless: `canRefill` refuses any plate not holding exactly one item, so a two-item platter can never be refilled by hand.)
 
 Each mod's handlers are constructed only when `ModList.isLoaded` says so, so a line naming an absent mod's classes costs nothing and cannot throw. Nothing here needs editing when a mod is added or removed.
 
@@ -432,6 +495,7 @@ Third-party block foods run a `canSurvive` check against the block below. The tw
 |---|---|
 | FD feasts, YSF `RotatedFeastBlock` | `Block.canSupportRigidBlock` → `isFaceSturdy(UP, RIGID)` |
 | vanilla cake, YSF `BaseSaucerBlock` | `level.getBlockState(pos.below()).isSolid()` |
+| KC `FoodBiteBlock`, `PlateBlock` | none — no `canSurvive` override, so they sit anywhere |
 
 Both were initially assumed to fail on `large_table`, whose tabletop is only a 3/16-thick slab (`Block.box(0,13,0,16,16,16)`, `LargeTableBlock.java:31`). That drove two changes: `getBlockSupportShape` → `Shapes.block()`, and `forceSolidOn()` on the block properties.
 
@@ -987,6 +1051,8 @@ Added once in `SmartYoukaiEntity.constructTaskBoard` (`SmartYoukaiEntity.java:81
 | `content/attachment/party/food/PieFood.java` | FD pie: 4 bites up, slice from the block |
 | `content/attachment/party/food/PotFood.java` | YSF pot: 2 or 4 serves down, permuted item or the block's field |
 | `content/attachment/party/food/SaucerFood.java` | YSF saucer dish: one serve, food on the block's own item |
+| `content/attachment/party/food/BiteFood.java` | KC dish: `maxBites - bites`, food from `FoodBiteRegistry` |
+| `content/attachment/party/food/PlateFood.java` | KC plate/platter: `servings` down, food from `PlateRegistry`'s serving items |
 | `content/attachment/party/food/FoodResult.java` | serves + properties + consume, and the valid/not-valid rule |
 | `content/attachment/party/food/FoodResultCache.java` | resolves each state once; invalidated on datapack sync |
 | `content/attachment/party/food/Permutations.java` | finds the item form of a block food by id suffix |
