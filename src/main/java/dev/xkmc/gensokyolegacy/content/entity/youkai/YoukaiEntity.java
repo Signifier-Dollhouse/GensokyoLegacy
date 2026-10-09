@@ -14,6 +14,7 @@ import dev.xkmc.gensokyolegacy.content.block.deco.bed.YoukaiBedBlock;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.combat.*;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.move.YoukaiNavigationControl;
 import dev.xkmc.gensokyolegacy.content.entity.foundation.DamageClampEntity;
+import dev.xkmc.gensokyolegacy.content.entity.foundation.IDimensionBoundEntity;
 import dev.xkmc.gensokyolegacy.content.entity.foundation.ISleepOffsetEntity;
 import dev.xkmc.gensokyolegacy.content.entity.module.*;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
@@ -45,6 +46,7 @@ import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.schedule.Activity;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -58,7 +60,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 @SerialClass
-public abstract class YoukaiEntity extends DamageClampEntity implements SpellCircleHolder, IYoukaiEntity, ISleepOffsetEntity {
+public abstract class YoukaiEntity extends DamageClampEntity implements SpellCircleHolder, IYoukaiEntity, ISleepOffsetEntity, IDimensionBoundEntity {
 
 	private static <T> EntityDataAccessor<T> defineId(EntityDataSerializer<T> ser) {
 		return SynchedEntityData.defineId(YoukaiEntity.class, ser);
@@ -177,13 +179,19 @@ public abstract class YoukaiEntity extends DamageClampEntity implements SpellCir
 		return (this.entityData.get(DATA_FLAGS_ID) & flag) != 0;
 	}
 
+	/**
+	 * The bitfield is an {@code int} and has to stay one: these used to be cast to
+	 * {@code byte}, which silently dropped any flag past the eighth bit on the way in.
+	 * Harmless while {@link YoukaiFlags} only reached ordinal 7, but it made the ninth
+	 * flag - and every flag after it - impossible to set at all.
+	 */
 	public void setFlag(YoukaiFlags val, boolean enable) {
 		int b0 = this.entityData.get(DATA_FLAGS_ID);
 		int flag = 1 << val.ordinal();
 		if (enable) {
-			b0 = (byte) (b0 | flag);
+			b0 |= flag;
 		} else {
-			b0 = (byte) (b0 & (-1 - flag));
+			b0 &= -1 - flag;
 		}
 		this.entityData.set(DATA_FLAGS_ID, b0);
 	}
@@ -325,7 +333,7 @@ public abstract class YoukaiEntity extends DamageClampEntity implements SpellCir
 		holder.ifPresent(e -> e.onHurt(source, amount));
 		if (!level().isClientSide()) {
 			holder.ifPresent(e -> {
-				if (e.data().reputation < ReputationConstants.DISCARD_REP_THRESHOLD &&
+				if (vanishOnDislike() && e.data().reputation < ReputationConstants.DISCARD_REP_THRESHOLD &&
 						e.player() instanceof ServerPlayer sp) {
 					sp.displayClientMessage(GLLang.Info.YOUKAI_AVOID.get(getDisplayName()), false);
 					discard();
@@ -333,6 +341,20 @@ public abstract class YoukaiEntity extends DamageClampEntity implements SpellCir
 			});
 		}
 		super.actuallyHurt(source, amount);
+	}
+
+	/**
+	 * Whether losing the last of a player's favour makes this character give up
+	 * and disappear, the {@code avoid} reaction of a youkai that will not share a
+	 * world with whoever mistreated her.
+	 * <p>
+	 * A character whose answer to a beating is to run rather than to sulk turns
+	 * this off: the threshold would otherwise delete her on the very tick the
+	 * flee is meant to begin. The reputation cost of hitting her still stands,
+	 * so she simply ends up a stranger-or-worse instead of gone.
+	 */
+	public boolean vanishOnDislike() {
+		return true;
 	}
 
 	@Override
@@ -529,6 +551,22 @@ public abstract class YoukaiEntity extends DamageClampEntity implements SpellCir
 		return !isHostileTo(player) && getModule(TalkModule.class).map(e -> !e.isTalking()).orElse(true);
 	}
 
+	/**
+	 * Whether an interaction belonging to {@code activity} may happen now.
+	 * <p>
+	 * The one-argument form is the blanket gate - hostile, or already mid-conversation.
+	 * This adds the urgency question, and a character whose activities are prioritized
+	 * answers it properly: being fed or talked to is not something that should pull her
+	 * out of a fight or a panic, and equally should not happen while she is already
+	 * doing the thing the interaction would ask for. The base class has no priority
+	 * scale to compare against and simply defers.
+	 *
+	 * @see SmartYoukaiEntity#mayInteract(Player, Activity)
+	 */
+	public boolean mayInteract(Player player, Activity activity) {
+		return mayInteract(player);
+	}
+
 	public ReputationState getReputation(LivingEntity le) {
 		return getData(le).map(e -> e.data().getState()).orElse(ReputationState.STRANGER);
 	}
@@ -556,7 +594,38 @@ public abstract class YoukaiEntity extends DamageClampEntity implements SpellCir
 		super.push(entity);
 	}
 
+	// ---- dimension-bound ----
+	// A character is anchored to the home or visit site its index entry names,
+	// and that entry names one level. A portal would drop it in a level the
+	// index does not describe, where the only recovery is the discard-and-respawn
+	// watchdog — so refuse the portal outright and let the character walk
+	// through it like scenery. canUsePortal is the gate every portal block
+	// consults (nether, end, end gateway, and the mod's own gap portal);
+	// canChangeDimensions is the same rule stated at the transition itself, so a
+	// destination latched some other way (mixin, command) is refused too.
+
+	@Override
+	public boolean canUsePortal(boolean allowPassengers) {
+		return false;
+	}
+
+	@Override
+	public boolean canChangeDimensions(Level oldLevel, Level newLevel) {
+		return false;
+	}
+
 	public boolean mayFly() {
+		return true;
+	}
+
+	/**
+	 * Whether she ever settles onto the ground. Flying characters normally land
+	 * when the ground is under them and a route needs walking; a character that
+	 * hovers has no walkable start node - a walk node wants solid ground under
+	 * the feet, and hers is a block of air - so landing her would leave her
+	 * unable to path anywhere at all, and she would have to climb again next tick.
+	 */
+	public boolean mayLand() {
 		return true;
 	}
 

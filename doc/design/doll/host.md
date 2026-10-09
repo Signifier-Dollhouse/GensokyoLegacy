@@ -16,12 +16,21 @@ Two supporting generalizations came with it:
 > **The host must be the entity, not the module.** Alice keeps her ledger in an
 > `AliceDollHost` module, because that is where module data belongs — it rides her
 > chunk save for free. But `getHost()` can only ask an *entity*, so `AliceEntity`
-> has to implement `DollHost` itself and delegate every method to the module.
-> Without that, `getHost()` returns null for all of her dolls and each one
-> self-discards on its next tick, and the symptoms are extremely misleading: the
-> dolls appear, they never move, they never fight, and the roster seems to ignore
-> its own cap — because what the player is watching is a conjure/discard churn,
-> not a working retinue.
+> has to be the host herself and forward every method to the module. She does that
+> by implementing **`DelegateDollHost`** and writing only its `dolls()` method:
+> the interface forwards the whole surface, pairing half included, so a character
+> that keeps its dolls in a module never has to repeat ten one-line delegates.
+> Without the forwarding, `getHost()` returns null for all of her dolls and each
+> one self-discards on its next tick, and the symptoms are extremely misleading:
+> the dolls appear, they never move, they never fight, and the roster seems to
+> ignore its own cap — because what the player is watching is a conjure/discard
+> churn, not a working retinue.
+
+`DelegateDollHost` is the mirror image of `DollLedger`, and the two are not
+alternatives. `DollLedger` **is** the ledger and holds nothing but a commander;
+`DelegateDollHost` holds nothing at all and forwards *everything* to a real host.
+A character entity needs the delegate (its state is in a module), the module
+itself needs the ledger (its state is the ledger).
 
 ## 2. What a character host looks like
 
@@ -319,7 +328,7 @@ Other edge cases:
   1. `shouldBeSaved` is false for a paired doll, so it is never written to a chunk in the first place (entity.md §5). A load-time `setRemoved` on the marker is *not* enough and was actively worse: the level callback is attached after `readAdditionalSaveData` and `addEntityWithoutEvent` ignores the removal reason, so the doll landed in the world anyway — in the level, in the uuid lookup and in the live count, but frozen and hostless. That is precisely the reported symptom.
   2. `DollCommander`'s resolution refuses to return a doll whose host it cannot resolve, so a useless doll is never counted live and can never suppress its own conjure. This is what makes any ledger heal out of a wedged roster rather than needing the one above to hold.
   3. `reconcile` parks a hostless doll like any other unusable one, and `reconcile` reports whether it repaired anything so the conjure happens in the same tick rather than up to a second later.
-- **A doll drifts off.** Past `DollHost.PULLBACK_DISTANCE` (or into another dimension) the reconcile pass discards it and parks the entry; the next conjure brings it back at her side.
+- **A doll drifts off.** Past `DollHost.PULLBACK_DISTANCE` the reconcile pass discards it and parks the entry; the next conjure brings it back at her side. Her dolls are dimension-bound (entity.md §3.1a), so the "or into another dimension" case can no longer arise on its own — the reconcile arm stays as the backstop for a forced `/tp`.
 - **A retired doll stays armed.** `arm` walks the whole ledger, not just the live dolls, so a doll parked mid-fight does not carry a weapon back out the next time she goes to the park — a lance or a wand, whichever its slot says.
 - **A destroyed doll shifts the split.** Slots are parity over ledger order and the ledger drops a destroyed entry outright (§2.1), so every doll after it moves one slot and swaps weapon. Only the frame of the fight, only by one, and the alternative is a second field to serialize and keep in step with a roster that is already rebuilt every tick.
 - **Dolls never itemize.** `mobInteract`'s empty-hand recall is gated on `isPlayerOwned()`, so a creative player cannot pull one of Alice's dolls into their inventory. Her dolls have no item form at all.

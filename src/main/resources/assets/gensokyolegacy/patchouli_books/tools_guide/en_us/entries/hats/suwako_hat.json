@@ -7,12 +7,8 @@
     {
       "type": "patchouli:spotlight",
       "item": "gensokyolegacy:suwako_hat",
-      "title": "Earned by a Well-Fed Frog",
-      "text": "Get it the way Suwako would: put a straw hat on a frog, then let that frog eat raiders. Once it has swallowed enough different raider types, the hat comes off. How many is a server setting, so ask if you are playing on a server."
-    },
-    {
-      "type": "patchouli:text",
-      "text": "$(bold)While worn$(br)The hat refreshes Native God's Bless on you every tick, so it never runs out — it raises your movement speed and your reach — and it adds 25% magic damage on top of everything else you are wearing.$(br2)$(bold)Counting the meal$(br)Each distinct raider type the frog swallows counts once, and the tally belongs to the frog, not the hat: a second frog needs its own hatful. Only one frog can wear the straw hat at a time, and a frog without it will not touch raiders at all."
+      "title": "While Worn",
+      "text": "The hat grants Native God's Bless — it raises your movement speed and your reach, and adds 25% magic damage on top of everything else you are wearing."
     }
   ]
 }

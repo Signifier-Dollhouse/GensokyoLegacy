@@ -167,8 +167,41 @@ public class SmartYoukaiEntity extends YoukaiEntity {
 		if (level().isClientSide()) {
 			return !isSleeping() && !isAggressive();
 		}
-		var act = getActivity();
-		return act != Activity.REST && act != Activity.FIGHT;
+		if (getActivity() == Activity.REST) return false;
+		// FIGHT is priority 0, so this covers it as a case rather than a special
+		// one: nothing she would rather be doing than a conversation may be
+		// interrupted for a conversation
+		return !outrankedBy(GLBrains.TALK.get());
+	}
+
+	@Override
+	public boolean mayInteract(Player player, Activity activity) {
+		return mayInteract(player) && !outrankedBy(activity);
+	}
+
+	/**
+	 * Whether whatever she is doing now is more urgent than {@code activity}, in which
+	 * case nothing belonging to that activity may be started on her.
+	 * <p>
+	 * Same activity is never an outranking: a character already doing the thing is the
+	 * one case where the interaction should go ahead. Everything else is a straight
+	 * comparison - FEAST(50) while eating outranks TALK(100), so talking is refused
+	 * until the cake is gone; FEAR(25) outranks both, so neither is offered at all
+	 * until she has stopped running.
+	 */
+	protected boolean outrankedBy(Activity activity) {
+		var current = getActivity();
+		if (current == activity) return false;
+		return priorityOf(current) < priorityOf(activity);
+	}
+
+	/**
+	 * The number an activity was registered with, lowest wins. Falls back to sorting
+	 * below everything before the board exists, so that a character asked during
+	 * construction is never wrongly considered busy.
+	 */
+	protected int priorityOf(Activity activity) {
+		return board == null ? Integer.MAX_VALUE : board.priorityOf(activity);
 	}
 
 	@Override

@@ -21,6 +21,7 @@
 		"donation_box": "赛钱箱",
 		"evergreen_vine": "常青垂藤",
 		"cedar_fallen_leaves": "青杉落叶",
+		"ice_bricks": "冰砖",
 		"darkstone": "宵暗石",
 		"darkstone_bricks": "宵暗瓦片",
 		"chiseled_darkstone_bricks": "雕纹宵暗瓦片",
@@ -145,6 +146,7 @@
 		"door_debug_wand": "门调试杖",
 		"mermaid_pearl": "人鱼珍珠",
 		"mini_hakkero_prototype": "迷你八卦炉【原型】",
+		"mini_hakkero": "迷你八卦炉",
 		"hakurei_reimu_spawn_egg": "博丽灵梦生成蛋",
 		"kirisame_marisa_spawn_egg": "雾雨魔理沙生成蛋",
 		"morichika_rinnosuke_spawn_egg": "森近霖之助生成蛋",
@@ -165,6 +167,7 @@
 					"kirisame_marisa": "雾雨魔理沙",
 					"mystia_lorelei": "米斯蒂亚",
 					"luna_child": "露娜",
+					"plain_fairy": "普通妖精",
 					"star_sapphire": "斯塔",
 					"sunny_milk": "桑尼",
 					"morichika_rinnosuke": "森近霖之助",
@@ -182,6 +185,7 @@
 				{
 					"packed_ice": "浮冰",
 					"snow": "雪",
+					"ice_brick": "冰砖",
 					"darkstone": "宵暗石",
 					"darkstone_brick": "宵暗瓦"
 				},

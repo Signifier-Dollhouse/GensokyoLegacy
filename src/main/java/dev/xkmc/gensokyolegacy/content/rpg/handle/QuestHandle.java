@@ -1,6 +1,7 @@
 package dev.xkmc.gensokyolegacy.content.rpg.handle;
 
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
+import dev.xkmc.gensokyolegacy.content.rpg.action.ActionContext;
 import dev.xkmc.gensokyolegacy.content.rpg.dialog.DialogOption;
 import dev.xkmc.gensokyolegacy.content.rpg.quest.Quest;
 import dev.xkmc.gensokyolegacy.content.ui.dialog.SimpleDialogSession;
@@ -35,7 +36,16 @@ public record QuestHandle(Holder<Quest> quest, DialogOption<?> dialog, Kind kind
 
 	@Override
 	public void open(ServerPlayer sp, YoukaiEntity character) {
-		var next = dialog.resolve(sp.getRandom()).next();
+		var result = dialog.resolve(sp.getRandom());
+		if (result == null) return;
+		// The topic option is a step of the conversation like any other, so its
+		// actions run on click - a quest may be started here rather than from an
+		// option inside the first dialog.
+		var context = new ActionContext(sp, character, getQuest());
+		for (var e : result.actions()) {
+			e.execute(context);
+		}
+		var next = result.next();
 		if (next.isEmpty()) return;
 		SimpleDialogSession.open(sp, character, this, next.get());
 	}

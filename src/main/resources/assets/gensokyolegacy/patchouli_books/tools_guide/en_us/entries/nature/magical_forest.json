@@ -8,11 +8,7 @@
     {
       "type": "patchouli:text",
       "title": "Forest of Magic",
-      "text": "A dense overworld biome of towering blue firs and giant mushrooms: Ghost Fire, Dream, and Demonic Miasma. Entering it earns you this guide. Watch the haze between the great caps: some of it bites."
-    },
-    {
-      "type": "patchouli:text",
-      "text": "Giant firs and mushroom trees crowd around clearings, ponds, and mushroom glades, with the oldest and tallest standing over everything else. The forest floor is never bare: grass, ferns, and flowers run right underneath the giant crowns."
+      "text": "Towering blue firs and giant mushrooms shut out the sky; Ghost Fire, Dream and Demonic Miasma mushrooms grow wild, and a miasma that makes the weak fills the trees. Who could settle down here?"
     },
     {
       "type": "patchouli:spotlight",
@@ -42,7 +38,7 @@
         "gensokyolegacy:red_mushroom_stem"
       ],
       "title": "Demonic Miasma Mushrooms",
-      "text": "The red ones. They breathe out a heavy haze that pools beneath their caps and creeps along the forest floor, and standing in it is genuinely bad for you — the air itself seems to fight back. Everything about them is a warning, down to the colour."
+      "text": "The least conspicuous of the three breathes out a heavy miasma, which billows beneath the cap and then creeps along the forest floor. Standing in it is never a good idea — living things grow weak."
     },
     {
       "type": "patchouli:spotlight",
@@ -53,7 +49,7 @@
         "gensokyolegacy:blue_fir_leaves"
       ],
       "title": "Blue Fir",
-      "text": "The reason the forest has a canopy at all. Tall straight trunks under long, flat tiers of needles, where most trees carry a rounded crown. The oldest of them stand far above everything else in Gensokyo."
+      "text": "A boreal lineage reshaped by a warmer, wetter climate: tall, winding trunks under layers of flat-spread needles, dotted with mushrooms and trailing sparse vines."
     },
     {
       "type": "patchouli:spotlight",
@@ -63,8 +59,8 @@
         "gensokyolegacy:eugune_ghost_fire",
         "gensokyolegacy:evergreen_vine"
       ],
-      "title": "Trunks and Branches",
-      "text": "What grows on the trees rather than under them. Eugune are small bracket mushrooms that stick out sideways from bark and logs, and there are three kinds: a red one, a brown one, and a glowing one. Evergreen vines hang from the branches in long strands, deepest in the oldest stands."
+      "title": "Eugune and Vines",
+      "text": "Eugune bracket fungi grow out of the trunks, in three colors; evergreen vines hang from the branches in long strands."
     },
     {
       "type": "patchouli:spotlight",
@@ -77,7 +73,7 @@
         "gensokyolegacy:cedar_fallen_leaves"
       ],
       "title": "Forest Floor",
-      "text": "The undergrowth. Star flowers, tall enough to be noticed and bright enough to be worth the detour; flame cattails standing in and around the ponds; broom grass in the drifts; and bracken threading through all of it. This is what makes the floor of the Magical Forest feel like a garden nobody planted."
+      "text": "Star flowers, tall enough to reach and bright enough to notice; flame cattails growing in and around the ponds; broom grass as common as any weed; bracken threaded through it all. The floor of the Magical Forest looks like an untended herbalist's storehouse."
     }
   ]
 }

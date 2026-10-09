@@ -46,6 +46,7 @@ import net.minecraft.world.item.Rarity;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.material.PushReaction;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
@@ -77,6 +78,9 @@ public class GLDecoBlocks {
 
 	/** The tile set of every color in {@link #TILE_COLORS}, in the same order. */
 	public static final BrickSet[] TILE_SETS = new BrickSet[TILE_COLORS.length];
+
+	/** 冰砖:浮冰切出的冰系砖块,附带台阶、楼梯和墙 */
+	public static final BrickSet ICE_BRICK_SET;
 
 	static {
 		var reg = GensokyoLegacy.REGISTRATE;
@@ -348,6 +352,12 @@ public class GLDecoBlocks {
 
 		// brick sets
 		{
+			// 冰砖:和浮冰同材质,只能用切石机从浮冰切出
+			ICE_BRICK_SET = new BrickSet(reg, "ice", BlockBehaviour.Properties.of().mapColor(MapColor.ICE)
+					.instrument(NoteBlockInstrument.CHIME)
+					.requiresCorrectToolForDrops().strength(0.5F).sound(SoundType.GLASS),
+					(ctx, pvd) -> pvd.stonecutting(DataIngredient.items(Blocks.PACKED_ICE), RecipeCategory.BUILDING_BLOCKS, ctx));
+
 			for (int i = 0; i < TILE_COLORS.length; i++) {
 				var col = TILE_COLORS[i];
 				TILE_SETS[i] = new BrickSet(reg, col.getName() + "_tiles",

@@ -8,12 +8,12 @@
     {
       "type": "patchouli:spotlight",
       "item": "gensokyolegacy:centipickaxe",
-      "title": "The Hungry Pickaxe",
-      "text": "This gold-tier pickaxe comes with Efficiency V, Fortune III, and Mending. Simply holding it grants Haste II, making it exceptionally quick for mining."
+      "title": "Blood Thirst",
+      "text": "This pickaxe comes with Efficiency V, Fortune III and Mending. Simply holding it grants Haste II, making it exceptionally quick for mining."
     },
     {
       "type": "patchouli:text",
-      "text": "$(bold)A pickaxe with a taste for blood$()$(br)When the Centipeck reaches the end of its durability, it can keep working by draining your own health instead of breaking—as long as you have enough health to survive.$(br2)Mending still works normally, so keep gaining experience while you mine."
+      "text": "$(bold)But at what cost?$()$(br)It has the durability of a gold-tier tool, and rather than breaking when that runs out it keeps working by draining your own health — as long as you can afford the price.$(br2)Mending still works normally, so keep gaining experience while you mine."
     }
   ]
 }

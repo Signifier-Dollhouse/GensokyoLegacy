@@ -1,0 +1,19 @@
+{
+  "name": "Mini Hakkero",
+  "icon": "gensokyolegacy:mini_hakkero",
+  "category": "gensokyolegacy:special_tools",
+  "advancement": "gensokyolegacy:main/obtain_mini_hakkero",
+  "sortnum": 1,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "gensokyolegacy:mini_hakkero",
+      "title": "Consumer Mini Fusion Reactor",
+      "text": "A tiny magical furnace that works from your inventory. Sealing the gap in its lid traps the escaping heat, so it is put to efficient use and the internal space is better packed."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Changing its mood$()$(br)Right-click the hakkero to open it, then left-click the hakkero to cycle through $(bold)Smoker → Furnace → Blast Furnace$(). Each mode accepts the recipes of that type.$(br2)Unlike the prototype, the finished hakkero keeps its fire inside and carries its own eight channels and one fuel slot, so it only ever smelts what was put inside it.$(br2)Put in a fuel and the heating rate rises tenfold — and the fuel itself burns away ten times faster than it would in a block furnace."
+    }
+  ]
+}

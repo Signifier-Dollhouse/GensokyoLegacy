@@ -5,6 +5,8 @@ import dev.xkmc.gensokyolegacy.content.entity.dolls.menu.DollLoadoutMenu;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.menu.DollLoadoutScreen;
 import dev.xkmc.gensokyolegacy.content.item.talisman.pocket.TalismanPocketMenu;
 import dev.xkmc.gensokyolegacy.content.item.talisman.pocket.TalismanPocketScreen;
+import dev.xkmc.gensokyolegacy.content.item.hakkero.HakkeroMenu;
+import dev.xkmc.gensokyolegacy.content.item.hakkero.HakkeroScreen;
 import dev.xkmc.gensokyolegacy.content.ui.quest.QuestTab;
 import dev.xkmc.gensokyolegacy.content.ui.trade.TradeMenu;
 import dev.xkmc.gensokyolegacy.content.ui.trade.TradeScreen;
@@ -31,6 +33,9 @@ public class GLMisc {
 
 	public static final MenuEntry<DollLoadoutMenu> DOLL_LOADOUT = GensokyoLegacy.REGISTRATE.menu("doll_loadout",
 			DollLoadoutMenu::fromNetwork, () -> DollLoadoutScreen::new).register();
+
+	public static final MenuEntry<HakkeroMenu> MINI_HAKKERO = GensokyoLegacy.REGISTRATE.menu("mini_hakkero",
+			HakkeroMenu::fromNetwork, () -> HakkeroScreen::new).register();
 
 
 	public static final ResourceLocation DUMMY = L2Tabs.loc(GensokyoLegacy.MODID);

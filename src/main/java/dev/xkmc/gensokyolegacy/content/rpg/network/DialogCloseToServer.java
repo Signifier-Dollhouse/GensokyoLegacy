@@ -17,7 +17,8 @@ public record DialogCloseToServer(
 
 	@Override
 	public void handle(Player player) {
-		DialogSession.resolve(player, session, character).release();
+		var opt = DialogSession.resolve(player, session, character);
+		if (opt != null) opt.release();
 	}
 
 }

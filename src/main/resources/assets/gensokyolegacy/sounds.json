@@ -7,5 +7,21 @@
 	  }
 	],
 	"subtitle": "gensokyolegacy.subtitle.koishi_ring"
+  },
+  "dialog_blip": {
+	"sounds": [
+	  {
+		"type": "file",
+		"name": "gensokyolegacy:dialog_blip"
+	  }
+	]
+  },
+  "doll_attack": {
+	"sounds": [
+	  {
+		"type": "file",
+		"name": "gensokyolegacy:doll_attack"
+	  }
+	]
   }
 }

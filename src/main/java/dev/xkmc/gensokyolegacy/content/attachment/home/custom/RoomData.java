@@ -89,7 +89,13 @@ public class RoomData {
 	}
 
 	public boolean isInside(BlockPos p) {
-		return getColumn(p.getX(), p.getZ()).isInside(p.getY());
+		int px = p.getX();
+		int pz = p.getZ();
+		int x = px - xOffset;
+		int z = pz - zOffset;
+		if (x < 0 || x >= xSize || z < 0 || z >= zSize)
+			return false;
+		return columns[x][z].isInside(p.getY());
 	}
 
 }

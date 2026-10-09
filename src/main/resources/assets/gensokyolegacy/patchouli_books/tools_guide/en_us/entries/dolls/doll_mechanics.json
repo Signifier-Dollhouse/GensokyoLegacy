@@ -1,5 +1,5 @@
 {
-  "name": "Doll Mechanics",
+  "name": "Mechanics Primer",
   "icon": "gensokyolegacy:doll",
   "category": "gensokyolegacy:dolls",
   "advancement": "gensokyolegacy:main/obtain_doll_glove",
@@ -7,11 +7,11 @@
   "pages": [
     {
       "type": "patchouli:text",
-      "text": "$(bold)Your Doll Army$()$(br)A doll has 20 health and is bound to you. You can have up to 8 dolls active at once. They follow you, fight using the equipment in their loadouts, and can be ordered to heal a marked ally."
+      "text": "Your little army$(br2)A doll has 20 health and is bound to you. You can have up to 8 dolls active at once. They follow you, fight using the equipment in their loadouts, and heal their own allies when they are holding a talisman."
     },
     {
       "type": "patchouli:text",
-      "text": "$(bold)They won't be lost$()$(br)If you log out or die, your active dolls are safely put away and restored with you later. Their names, colors, health, and equipment stay with each doll.$(br2)When a doll reaches zero health, it breaks and cannot be summoned until you repair it in an anvil with wool. You can edit its loadout directly from the doll item, or use the glove's Edit Loadout mode to manage one from a distance."
+      "text": "They won't be lost$(br2)If you log out or die, your active dolls are safely put away and restored with you later."
     }
   ]
 }

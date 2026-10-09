@@ -23,13 +23,15 @@ import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Locale;
 
 public class GLBlocks {
 
 	public enum Beds {
-		CIRNO(Blocks.BLUE_BED, new FlatBedShape()),
+		// Cirno's bed is a full four-poster, matching her western-style texture layout
+		CIRNO(Blocks.BLUE_BED, new WesternBedShape(), SoundType.GLASS),
 		RUMIA(Blocks.BLACK_BED, new FlatBedShape()),
 		REIMU(Blocks.RED_BED, new FlatBedShape()),
 		MORICHIKA(Blocks.LIGHT_BLUE_BED, new FlatBedShape()),
@@ -39,11 +41,30 @@ public class GLBlocks {
 		private final BedBlock template;
 		private final BedShape shape;
 		private final DyeColor wool;
+		@Nullable
+		private final SoundType sound;
 
 		Beds(Block template, BedShape shape) {
+			this(template, shape, null);
+		}
+
+		/**
+		 * @param sound sound type for this one bed, or {@code null} to keep whatever the builder
+		 *              copies from {@link #template}
+		 */
+		Beds(Block template, BedShape shape, @Nullable SoundType sound) {
 			this.template = (BedBlock) template;
 			this.shape = shape;
 			this.wool = this.template.getColor();
+			this.sound = sound;
+		}
+
+		/**
+		 * Applies {@link #sound} through {@code BlockBuilder#properties}, which runs after the copy
+		 * made by {@code initialProperties} and therefore wins over the template's sound type.
+		 */
+		public BlockBehaviour.Properties applySound(BlockBehaviour.Properties props) {
+			return sound == null ? props : props.sound(sound);
 		}
 
 		public YoukaiBedBlock get() {
@@ -130,6 +151,7 @@ public class GLBlocks {
 			String name = e.name().toLowerCase(Locale.ROOT);
 			BEDS[e.ordinal()] = GensokyoLegacy.REGISTRATE.block(name + "_bed", p -> new YoukaiBedBlock(p, e.shape))
 					.initialProperties(() -> e.template)
+					.properties(e::applySound)
 					.blockstate(e.shape::buildStates)
 					.tag(BlockTags.MINEABLE_WITH_AXE)
 					.item(BedItem::new)

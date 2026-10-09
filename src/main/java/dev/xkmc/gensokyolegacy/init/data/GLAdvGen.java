@@ -40,6 +40,7 @@ public class GLAdvGen {
 	public static final ResourceLocation OBTAIN_DOLL_GLOVE = GensokyoLegacy.loc("main/obtain_doll_glove");
 	public static final ResourceLocation OBTAIN_TALISMAN = GensokyoLegacy.loc("main/obtain_talisman");
 	public static final ResourceLocation OBTAIN_MINI_HAKKERO = GensokyoLegacy.loc("main/obtain_mini_hakkero");
+	public static final ResourceLocation OBTAIN_MINI_HAKKERO_REPAIRED = GensokyoLegacy.loc("main/obtain_mini_hakkero_repaired");
 	public static final ResourceLocation OBTAIN_CAT_BELL = GensokyoLegacy.loc("main/obtain_cat_bell");
 	public static final ResourceLocation OBTAIN_CENTIPICKAXE = GensokyoLegacy.loc("main/obtain_centipickaxe");
 	public static final ResourceLocation OBTAIN_DOWSER = GensokyoLegacy.loc("main/obtain_dowser");
@@ -120,11 +121,17 @@ public class GLAdvGen {
 						CriterionBuilder.item(GLItems.BORDER_UMBRELLA.get()),
 						"Border Umbrella", "Obtain a Border Umbrella")
 				.type(AdvancementType.TASK, false, false, false);
-		morichika.create("obtain_mini_hakkero", GLItems.MINI_FURNACE_1.get(),
-						CriterionBuilder.item(GLItems.MINI_FURNACE_1.get()),
+		// The repaired copy hangs off the prototype rather than continuing the
+		// Morichika chain: it comes from Marisa's bench, not from his shelf.
+		var miniHakkero = morichika.create("obtain_mini_hakkero", GLItems.MINI_HAKKERO_PROTOTYPE.get(),
+						CriterionBuilder.item(GLItems.MINI_HAKKERO_PROTOTYPE.get()),
 						"Mini Hakkero", "Obtain a Mini Hakkero Prototype")
-				.type(AdvancementType.TASK, false, false, false)
-				.create("obtain_cat_bell", GLItems.CAT_BELL.get(),
+				.type(AdvancementType.TASK, false, false, false);
+		miniHakkero.create("obtain_mini_hakkero_repaired", GLItems.MINI_HAKKERO.get(),
+						CriterionBuilder.item(GLItems.MINI_HAKKERO.get()),
+						"Mini Hakkero [Repaired]", "Have Marisa repair your Mini Hakkero")
+				.type(AdvancementType.TASK, false, false, false);
+		miniHakkero.create("obtain_cat_bell", GLItems.CAT_BELL.get(),
 						CriterionBuilder.item(GLItems.CAT_BELL.get()),
 						"Cat Bell", "Obtain a Cat Bell")
 				.type(AdvancementType.TASK, false, false, false)

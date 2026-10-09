@@ -20,9 +20,11 @@ import dev.xkmc.gensokyolegacy.content.item.glove.DollGloveItem;
 import dev.xkmc.gensokyolegacy.content.item.common.client.GloveTargetCache;
 import dev.xkmc.gensokyolegacy.content.item.dagger.DaggerGloveItem;
 import dev.xkmc.gensokyolegacy.content.item.common.ClientInvTooltip;
+import dev.xkmc.gensokyolegacy.content.item.hakkero.ClientHakkeroTooltip;
 import dev.xkmc.gensokyolegacy.content.item.common.InvTooltip;
 import dev.xkmc.gensokyolegacy.content.item.hexbrew.HexBrew;
 import dev.xkmc.gensokyolegacy.content.item.umbrella.BorderUmbrellaItem;
+import dev.xkmc.gensokyolegacy.content.item.hakkero.HakkeroTooltip;
 import dev.xkmc.gensokyolegacy.content.ui.quest.QuestOverlay;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import net.minecraft.client.model.HumanoidModel;
@@ -98,11 +100,12 @@ public class GLClient {
 		event.register(TileTooltip.class, TileClientTooltip::new);
 		event.register(InvTooltip.class, ClientInvTooltip::new);
 		event.register(DollLoadoutTooltip.class, DollClientLoadoutTooltip::new);
+		event.register(HakkeroTooltip.class, ClientHakkeroTooltip::new);
 	}
 
 	@SubscribeEvent
 	public static void addDeco(RegisterItemDecorationsEvent event) {
-		//event.register(GLItems.MINI_FURNACE_1.get(), new FurnaceItemDeco());
+		//event.register(GLItems.MINI_HAKKERO_PROTOTYPE.get(), new HakkeroPrototypeDeco());
 	}
 
 	@SubscribeEvent

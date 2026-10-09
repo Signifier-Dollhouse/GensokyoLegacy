@@ -13,6 +13,7 @@ import dev.xkmc.gensokyolegacy.content.rpg.network.DialogCloseToServer;
 import dev.xkmc.gensokyolegacy.content.ui.quest.QuestInfo;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
+import dev.xkmc.gensokyolegacy.init.registrate.GLSounds;
 import dev.xkmc.l2itemselector.overlay.TextBox;
 import dev.xkmc.l2serial.network.SimplePacketBase;
 import net.minecraft.client.Minecraft;
@@ -21,13 +22,16 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
+import net.minecraft.client.resources.sounds.SoundInstance;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -121,6 +125,25 @@ public abstract class DialogScreen extends Screen {
 	private static final int HOVER_FILL = 0x30FFFFFF;
 
 	/**
+	 * Typewriter speed for the body text, in characters per tick. The text is
+	 * revealed a little at a time; a click or a key press skips straight to the
+	 * end, and the options only appear once it has been fully shown.
+	 */
+	private static final float TYPE_SPEED = 1.5F;
+
+	/**
+	 * Voice of the typewriter. The blip is voiced once every
+	 * {@link #BLIP_STRIDE_MIN} to {@link #BLIP_STRIDE_MAX} characters instead of on
+	 * every one, and its pitch is drawn from these semitone offsets, so a line is
+	 * spoken in a slower, wandering voice rather than a flat buzz. The blip itself
+	 * is as long as the gap between two of them - see tools/gen_dialog_blip.ps1.
+	 */
+	private static final int[] BLIP_SEMITONES = {0, -2, 1, -1, 2};
+	private static final float BLIP_VOLUME = 0.15F;
+	private static final int BLIP_STRIDE_MIN = 2;
+	private static final int BLIP_STRIDE_MAX = 3;
+
+	/**
 	 * The dialog screen on top right now, if any. Stamped <em>before</em> the
 	 * screen reaches {@code setScreen}, so the outgoing screen's
 	 * {@link #removed()} can tell "replaced by another dialog" from "actually
@@ -154,6 +177,22 @@ public abstract class DialogScreen extends Screen {
 	protected final @Nullable YoukaiEntity character;
 
 	protected int sel = -1;
+
+	/**
+	 * How much of the body text has been typed out so far, and how much there
+	 * is in total, both counted in code points. {@code typedTotal} is -1 until
+	 * the text has been laid out once, and 0 when this screen has none.
+	 */
+	private float typedChars;
+	private int typedTotal = -1;
+
+	/** Body text as flat code points, so a reveal can tell a glyph from a space. */
+	private int[] glyphs = new int[0];
+
+	private final RandomSource blipRandom = RandomSource.create();
+
+	/** Characters left before the next blip, so the voice runs on a stride. */
+	private int blipCountdown;
 
 	protected DialogScreen(int session, int characterId) {
 		super(Component.empty());
@@ -191,9 +230,57 @@ public abstract class DialogScreen extends Screen {
 	@Override
 	public void tick() {
 		super.tick();
+		if (typedTotal > 0 && typedChars < typedTotal) {
+			int from = (int) typedChars;
+			typedChars = Math.min(typedTotal, typedChars + TYPE_SPEED);
+			blip(from, (int) typedChars);
+		}
 		if (minecraft.player == null || !minecraft.player.isAlive() || minecraft.player.isRemoved()) {
 			onClose();
 		}
+	}
+
+	/**
+	 * True while the body text is still being typed out, so that a click or a
+	 * key press finishes it rather than closing the screen or taking an option,
+	 * which is not drawn before the text is complete.
+	 */
+	protected boolean isTyping() {
+		return typedTotal > 0 && typedChars < typedTotal;
+	}
+
+	private void finishTyping() {
+		if (typedTotal > 0) typedChars = typedTotal;
+	}
+
+	/**
+	 * Voice the characters revealed this tick. The voice runs on a stride of
+	 * {@link #BLIP_STRIDE_MIN} to {@link #BLIP_STRIDE_MAX} characters instead of one
+	 * per character - which is why the blip is as long as the gap between two of
+	 * them. Spaces are skipped without advancing the stride, so the voice breaks at
+	 * word boundaries the way speech does, and at most one blip is voiced per tick:
+	 * the text can advance two characters in one, and a second blip would only sound
+	 * louder, not faster.
+	 */
+	private void blip(int from, int to) {
+		boolean voice = false;
+		for (int i = from; i < to && i < glyphs.length; i++) {
+			if (Character.isWhitespace(glyphs[i])) continue;
+			if (--blipCountdown > 0) continue;
+			blipCountdown = BLIP_STRIDE_MIN + blipRandom.nextInt(BLIP_STRIDE_MAX - BLIP_STRIDE_MIN + 1);
+			voice = true;
+		}
+		if (voice)
+			playBlip((float) Math.pow(2.0, BLIP_SEMITONES[blipRandom.nextInt(BLIP_SEMITONES.length)] / 12.0));
+	}
+
+	private void playBlip(float pitch) {
+		// VOICE rather than MASTER, which is what SimpleSoundInstance.forUI picks:
+		// a blip per character fires up to thirty times a second, so it deserves a
+		// slider of its own instead of riding on the master volume
+		minecraft.getSoundManager().play(new SimpleSoundInstance(
+				GLSounds.DIALOG_BLIP.get().getLocation(), SoundSource.VOICE, BLIP_VOLUME, pitch,
+				SoundInstance.createUnseededRandom(), false, 0, SoundInstance.Attenuation.NONE, 0, 0, 0, true));
 	}
 
 	@Override
@@ -237,6 +324,10 @@ public abstract class DialogScreen extends Screen {
 
 	@Override
 	public boolean mouseClicked(double mx, double my, int btn) {
+		if (isTyping()) {
+			finishTyping();
+			return true;
+		}
 		if (getOptions().isEmpty()) {
 			onClose();
 			return true;
@@ -249,6 +340,10 @@ public abstract class DialogScreen extends Screen {
 
 	@Override
 	public boolean keyPressed(int key, int scan, int mod) {
+		if (isTyping()) {
+			finishTyping();
+			return true;
+		}
 		if (getOptions().isEmpty()) {
 			onClose();
 			return true;
@@ -309,13 +404,26 @@ public abstract class DialogScreen extends Screen {
 		g.pose().pushPose();
 		g.pose().scale(s, s, 1.0F);
 
+		// the options stay hidden until the text has been typed out, so this
+		// also decides whether the hover state below is meaningful at all
+		boolean typing = false;
 		if (framed) {
 			blitBlend(g, FRAME, Math.round(boxX), Math.round(boxY), 0, Math.round(boxW), BOX_H);
 			var lines = font.split(body.get(), Math.max(1, Math.round((boxW - 2 * TEXT_PAD_X) / TEXT_SCALE)));
-			drawLines(g, lines, boxX + TEXT_PAD_X, textTop, TEXT_COLOR);
+			// laid out once: the code point total does not depend on the wrap
+			// width, so it stays valid when the window is resized mid-sentence
+			if (typedTotal < 0) {
+				glyphs = flatten(lines);
+				typedTotal = glyphs.length;
+			}
+			typing = typedChars < typedTotal;
+			drawLines(g, lines, boxX + TEXT_PAD_X, textTop, TEXT_COLOR,
+					typing ? (int) typedChars : Integer.MAX_VALUE);
+		} else {
+			typedTotal = 0;
 		}
 
-		if (n > 0) {
+		if (n > 0 && !typing) {
 			float stackTop = framed ? boxY - OPT_BOTTOM_GAP - totalH : (SCREEN_H - totalH) / 2.0F;
 			float boxRight = boxX + boxW;
 			float dmx = mx / s;
@@ -436,16 +544,74 @@ public abstract class DialogScreen extends Screen {
 		blitBlend(g, AVATAR, fx, fy, 100, fw, fh);
 	}
 
-	private void drawLines(GuiGraphics g, List<FormattedCharSequence> lines, float x, float y, int color) {
+	private void drawLines(GuiGraphics g, List<FormattedCharSequence> lines, float x, float y, int color, int limit) {
 		g.pose().pushPose();
 		g.pose().translate(x, y, 400);
 		g.pose().scale(TEXT_SCALE, TEXT_SCALE, 1.0F);
 		int ly = 0;
 		for (var line : lines) {
-			g.drawString(font, line, 0, ly, color, false);
+			if (limit <= 0) break;
+			int len = countChars(line);
+			if (len <= limit) {
+				g.drawString(font, line, 0, ly, color, false);
+				limit -= len;
+			} else {
+				// only the line being typed right now is cut short
+				g.drawString(font, truncate(line, limit), 0, ly, color, false);
+				limit = 0;
+			}
 			ly += font.lineHeight;
 		}
 		g.pose().popPose();
+	}
+
+	/**
+	 * Number of characters in the laid out body text, counted the same way
+	 * {@link #truncate} counts them.
+	 */
+	private static int countChars(List<FormattedCharSequence> lines) {
+		int total = 0;
+		for (var line : lines) total += countChars(line);
+		return total;
+	}
+
+	/** The body text as a flat array of code points, in drawing order. */
+	private static int[] flatten(List<FormattedCharSequence> lines) {
+		int[] out = new int[countChars(lines)];
+		int[] at = {0};
+		for (var line : lines) {
+			line.accept((index, style, codePoint) -> {
+				out[at[0]++] = codePoint;
+				return true;
+			});
+		}
+		return out;
+	}
+
+	private static int countChars(FormattedCharSequence line) {
+		int[] count = {0};
+		line.accept((index, style, codePoint) -> {
+			count[0]++;
+			return true;
+		});
+		return count[0];
+	}
+
+	/**
+	 * The first {@code limit} characters of a line. The original sink calls are
+	 * forwarded unchanged - index, style and code point - so the partial line is
+	 * drawn exactly like the full one, just cut short.
+	 */
+	private static FormattedCharSequence truncate(FormattedCharSequence line, int limit) {
+		if (limit <= 0) return FormattedCharSequence.EMPTY;
+		return sink -> {
+			int[] count = {0};
+			return line.accept((index, style, codePoint) -> {
+				if (count[0] >= limit) return false;
+				count[0]++;
+				return sink.accept(index, style, codePoint);
+			});
+		};
 	}
 
 	private void drawLinesCentered(GuiGraphics g, List<FormattedCharSequence> lines, float cx, float y, int color) {

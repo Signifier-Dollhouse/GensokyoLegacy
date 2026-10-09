@@ -9,11 +9,11 @@
       "type": "patchouli:spotlight",
       "item": "gensokyolegacy:mini_hakkero_prototype",
       "title": "Portable Furnace",
-      "text": "A tiny magical furnace that works from your inventory. It slowly smelts items without fuel, taking twice as long as ordinary smelting."
+      "text": "A tiny magical furnace that works from your inventory. It needs no fuel: the heat it lets escape is enough to smelt items slowly by itself, though at only half the speed of ordinary smelting."
     },
     {
       "type": "patchouli:text",
-      "text": "$(bold)Changing its mood$()$(br)Right-click the hakkero while it is in your inventory to cycle through $(bold)OFF → Smoker → Furnace → Blast Furnace$(). Each mode accepts the recipes of that type.$(br2)The hakkero has four internal slots. It draws materials from nearby inventory slots and places finished results into other nearby slots, so leave room around it for items to move."
+      "text": "$(bold)Changing its mood$()$(br)Right-click the hakkero while it is in your inventory to cycle through $(bold)OFF → Smoker → Furnace → Blast Furnace$(). Each mode accepts the recipes of that type.$(br2)The hakkero heats the inventory slots right beside it and puts finished results out along the diagonals. Leave room around it for items to move."
     }
   ]
 }
