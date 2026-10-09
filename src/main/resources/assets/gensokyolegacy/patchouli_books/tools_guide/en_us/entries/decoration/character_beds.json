@@ -17,7 +17,7 @@
     },
     {
       "type": "patchouli:text",
-      "text": "$(bold)What they do$()$(br)Right-clicking a bed does nothing at all — there is nothing to assign and nothing to check. Once a character has claimed one, she sleeps in it through the night, and if she dies a fresh copy of her lies in it again about ten minutes later.$(br2)$(bold)Where to put it$()$(br)A claimed bed has to stay in one of that house's rooms. Carry it out into the world and it is destroyed, so pick a real room and leave it there."
+      "text": "$(bold)What they do$()$(br)Right-clicking a bed does nothing at all. Once a character has claimed one, she sleeps in it through the night, and works as her respawn point."
     }
   ]
 }

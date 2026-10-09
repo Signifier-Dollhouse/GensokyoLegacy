@@ -13,18 +13,12 @@
     {
       "type": "patchouli:spotlight",
       "item": "tag:gensokyolegacy:chair",
-      "title": "Back Chairs",
-      "text": "They only fit where there are two blocks of headroom."
+      "text": "They only fit where there are two blocks of headroom.$(br2)Chairs can be decorated just like tables: right-click with a carpet or tatami to lay down a seat cloth in any color. Shears take the cloth off again and hand it back to you."
     },
     {
       "type": "patchouli:spotlight",
       "item": "tag:gensokyolegacy:stool",
-      "title": "Wooden Stools",
       "text": "Stools are one block tall."
-    },
-    {
-      "type": "patchouli:text",
-      "text": "Back chairs can be decorated just like tables: right-click with a carpet or tatami to lay down a seat cloth in any color. Shears take the cloth off again and hand it back to you."
     }
   ]
 }

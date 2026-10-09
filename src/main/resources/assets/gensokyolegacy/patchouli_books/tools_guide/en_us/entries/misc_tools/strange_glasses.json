@@ -12,7 +12,7 @@
     },
     {
       "type": "patchouli:text",
-      "text": "$(bold)Tournament Champion$()$(br2)The glasses grant no stats at all. All they do is make every entity glow, and they reveal the barrier of every Sealing Pot nearby as well."
+      "text": "$(bold)Tournament Champion$()$(br2)All they do is make every entity glow, and they reveal the barrier of every Sealing Pot nearby as well."
     }
   ]
 }

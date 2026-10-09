@@ -1,5 +1,5 @@
 {
-  "name": "Flying Dagger",
+  "name": "Iron Dagger",
   "icon": "gensokyolegacy:iron_dagger",
   "category": "gensokyolegacy:special_tools",
   "advancement": "gensokyolegacy:main/obtain_iron_dagger",
@@ -8,12 +8,11 @@
     {
       "type": "patchouli:spotlight",
       "item": "gensokyolegacy:iron_dagger",
-      "title": "Ring of the Serpent",
       "text": "Right-click to throw one iron dagger down your view. It strikes what is in the way for 6 damage and then comes back to you — the dagger leaves your stack for the throw, not out of your life."
     },
     {
       "type": "patchouli:text",
-      "text": "Each throw spends one dagger, and it is back in your hand after 1s. The $(bold)Dagger Glove$() is the same blade with more ways to throw it.$(br2)A thrown dagger returns to your inventory, or drops at your feet when you have no room for it, as soon as it hits a block, hits a creature, or has flown its full two seconds. There is no way to lose a dagger by throwing it; the only dagger you ever lose is one with nobody left to return it to."
+      "text": "Each throw spends one dagger, and it is back in your hand after landing. The $(bold)Dagger Glove$() is the same blade with more ways to throw it.$(br2)A thrown dagger returns to your inventory, or drops at your feet when you have no room for it, as soon as it hits a block, hits a creature, or has flown its full two seconds."
     }
   ]
 }

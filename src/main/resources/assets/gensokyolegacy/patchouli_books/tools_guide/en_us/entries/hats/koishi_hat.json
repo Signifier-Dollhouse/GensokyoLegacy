@@ -8,7 +8,7 @@
       "type": "patchouli:spotlight",
       "item": "gensokyolegacy:koishi_hat",
       "title": "While Worn",
-      "text": "Grants Unconscious, so hostile mobs will not pick you as a target — the moment you attack something yourself or open a container, it is gone."
+      "text": "Grants Unconscious, so hostile mobs will not pick you as a target — the moment you attack something yourself or open a container, it is gone for a while."
     }
   ]
 }
