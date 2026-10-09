@@ -1,4 +1,4 @@
-package dev.xkmc.gensokyolegacy.content.item.debug;
+package dev.xkmc.gensokyolegacy.content.attachment.party.item;
 
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import net.minecraft.core.component.DataComponentType;

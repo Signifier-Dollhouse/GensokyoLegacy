@@ -54,7 +54,7 @@ public class PartyModule extends AbstractYoukaiModule {
 	 * The chunk that owns the party.
 	 * <p>
 	 * Not derivable from {@link #table}: a party is owned by the chunk holding the
-	 * <b>centre of its food</b>, which is anywhere within the scan radius of the
+	 * <b>centre of its food</b>, which is anywhere within the scan's reach of the
 	 * anchor table and so often in the next chunk over. Looking the party up with
 	 * {@code new ChunkPos(table)} would miss it and the guest would dismiss herself
 	 * on her first tick.

@@ -55,8 +55,15 @@ public class PartySend {
 		NO_FOOD, NO_SEATS, PARTY_EXISTS, NOBODY_CAME
 	}
 
-	/** The full outcome, so the caller can message the player without re-deriving anything. */
-	public record Outcome(@Nullable Plan plan, @Nullable Refusal refusal,
+	/**
+	 * The full outcome, so the caller can message the player without re-deriving anything.
+	 * <p>
+	 * The scanned {@link #area} rides along even on a refusal, because that is the
+	 * interesting half of a refusal: the debug wand wants to show what the planner
+	 * could and could not see around that table, and re-scanning it would be a second
+	 * walk over the same blocks.
+	 */
+	public record Outcome(@Nullable PartyArea area, @Nullable Plan plan, @Nullable Refusal refusal,
 			@Nullable Map.Entry<PartyPlanner.Candidate, PartyPlanner.Miss> miss) {
 
 		public boolean ok() {
@@ -72,13 +79,13 @@ public class PartySend {
 	 */
 	public static Outcome plan(ServerLevel level, ServerPlayer sp, BlockPos anchor,
 			ToIntFunction<EntityType<?>> reputation) {
-		var area = PartyArea.scan(level, anchor, GLModConfig.SERVER.partyScanRadius.get());
-		if (area.food().isEmpty()) return new Outcome(null, Refusal.NO_FOOD, null);
+		var area = PartyArea.scan(level, anchor, GLModConfig.SERVER.partyScanDistance.get());
+		if (area.food().isEmpty()) return new Outcome(area, null, Refusal.NO_FOOD, null);
 		// chairs are a hard requirement: no seats, no party
-		if (area.seats().isEmpty()) return new Outcome(null, Refusal.NO_SEATS, null);
+		if (area.seats().isEmpty()) return new Outcome(area, null, Refusal.NO_SEATS, null);
 		var touched = PartyArea.touchedChunks(area.food());
 		if (touched != null && PartyAttachment.existing(level, touched) != null)
-			return new Outcome(null, Refusal.PARTY_EXISTS, null);
+			return new Outcome(area, null, Refusal.PARTY_EXISTS, null);
 
 		var pool = new ArrayList<PartyPlanner.Candidate>();
 		for (var type : BuiltInRegistries.ENTITY_TYPE) {
@@ -92,9 +99,9 @@ public class PartySend {
 		}
 		var roster = PartyPlanner.select(pool, area.appeal(), area.seats().size());
 		if (roster.isEmpty()) {
-			return new Outcome(null, Refusal.NOBODY_CAME, PartyPlanner.nearestMiss(pool, area.appeal()));
+			return new Outcome(area, null, Refusal.NOBODY_CAME, PartyPlanner.nearestMiss(pool, area.appeal()));
 		}
-		return new Outcome(new Plan(area, pool, roster), null, null);
+		return new Outcome(area, new Plan(area, pool, roster), null, null);
 	}
 
 	/** The player's own reputation with a character type, for {@link #plan}. */
@@ -124,19 +131,19 @@ public class PartySend {
 	 */
 	public static Outcome send(ServerPlayer sp, BlockPos anchor, ItemStack letter) {
 		var level = sp.serverLevel();
-		if (!level.getBlockState(anchor).is(GLTagGen.PARTY_TABLE)) return new Outcome(null, Refusal.NO_FOOD, null);
+		if (!level.getBlockState(anchor).is(GLTagGen.PARTY_TABLE)) return new Outcome(null, null, Refusal.NO_FOOD, null);
 		var outcome = plan(level, sp, anchor, reputationOf(sp));
 		if (!outcome.ok()) return outcome;
 
 		var plan = outcome.plan();
 		var center = PartyArea.center(plan.area().food());
-		if (center == null) return new Outcome(null, Refusal.NO_FOOD, null);
+		if (center == null) return new Outcome(plan.area(), null, Refusal.NO_FOOD, null);
 
 		// the party is owned by the chunk holding the food centre, which need not be
 		// the chunk holding the anchor table, so guests are told which chunk it is
 		var partyChunk = new ChunkPos(center);
 		var party = PartyAttachment.of(level, partyChunk);
-		if (party == null || party.active()) return new Outcome(null, Refusal.PARTY_EXISTS, null);
+		if (party == null || party.active()) return new Outcome(plan.area(), null, Refusal.PARTY_EXISTS, null);
 		party.start(level.getChunkAt(center), level.getGameTime(), sp.getUUID(), anchor,
 				plan.roster(), plan.appeal());
 		PartyTicker.register(level, partyChunk);

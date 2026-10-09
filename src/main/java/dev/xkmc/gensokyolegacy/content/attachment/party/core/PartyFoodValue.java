@@ -27,13 +27,19 @@ import net.minecraft.world.level.block.state.BlockState;
  */
 public class PartyFoodValue {
 
-	/** Nutrition and saturation are worth this much appeal per point. */
+	/**
+	 * Nutrition and saturation are worth this much appeal per point.
+	 */
 	private static final float NUTRITION_SCALE = 0.5f;
 	private static final float SATURATION_SCALE = 2.0f;
-	/** A beneficial effect is worth a flat bonus per serving. */
+	/**
+	 * A beneficial effect is worth a flat bonus per serving.
+	 */
 	private static final int BENEFICIAL_BONUS = 4;
 
-	/** The floor for anything that <i>is</i> food; invalid food scores 0 instead. */
+	/**
+	 * The floor for anything that <i>is</i> food; invalid food scores 0 instead.
+	 */
 	public static final int MIN_APPEAL = 1;
 	public static final int MAX_APPEAL = 40;
 
@@ -86,7 +92,7 @@ public class PartyFoodValue {
 	 * table a cake.
 	 */
 	public static boolean isFood(RegistryAccess access, BlockState state) {
-		return PartyFoodHandler.claims(state.getBlock()) != null || PartyFood.of(access, state) != null;
+		return FoodResultCache.of(state).valid() || PartyFood.of(access, state) != null;
 	}
 
 	/**
@@ -94,8 +100,8 @@ public class PartyFoodValue {
 	 * any override.
 	 *
 	 * @return the appeal of one serving, or 0 when the block is not valid food. A 0 is
-	 *         the signal that the block should be treated as not party food at all:
-	 *         it is neither counted towards the budget nor walked to and eaten.
+	 * the signal that the block should be treated as not party food at all:
+	 * it is neither counted towards the budget nor walked to and eaten.
 	 */
 	public static int perServe(RegistryAccess access, BlockState state) {
 		var override = PartyFood.of(access, state);
@@ -116,7 +122,9 @@ public class PartyFoodValue {
 		return result.valid() ? of(result.food()) * result.serves() : 0;
 	}
 
-	/** How many servings are left on this placed block; 0 when it is not valid food. */
+	/**
+	 * How many servings are left on this placed block; 0 when it is not valid food.
+	 */
 	public static int servesOf(BlockState state) {
 		return result(state).serves();
 	}

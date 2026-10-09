@@ -522,40 +522,67 @@ So the table top was always a valid surface for block foods, and the change boug
 
 ## 3. Finding the party area
 
-Everything the party touches — food, seats, guests, the anchor — lives inside one scan box around the block the player clicked. The scan is the unit of "a party".
+Everything the party touches — food, seats, tables, guests, the anchor — is found by walking out from the block the player clicked. The walk is the unit of "a party": it covers the connected space the host laid the party out in, and stops at a wall.
 
-### 3.1 One scan, three collections
+### 3.1 A walk, not a box
 
 ```java
-/** Everything a party occupies, found in a single pass over the scan box. */
-public record PartyArea(BlockPos anchor, List<BlockPos> food, List<BlockPos> seats, int appeal) {
+public record PartyArea(BlockPos anchor, List<BlockPos> food, List<BlockPos> seats,
+        List<BlockPos> tables, int appeal) {
 
-    public static PartyArea scan(ServerLevel level, BlockPos anchor, int radius) {
+    /** The box each piece of furniture queues around itself: 5 x 3 x 5, centred. */
+    private static final int POKE_X = 2, POKE_Y = 1, POKE_Z = 2;
+    private static final int MAX_VISITED = 1 << 16;
+
+    public static PartyArea scan(ServerLevel level, BlockPos anchor, int distance) {
         var food = new ArrayList<BlockPos>();
         var seats = new ArrayList<BlockPos>();
+        var tables = new ArrayList<BlockPos>();
         int appeal = 0;
-        for (var pos : BlockPos.betweenClosed(anchor, radius)) {
-            var here = level.getBlockState(pos);
-            if (here.is(GLTagGen.PARTY_SEAT)) seats.add(pos.immutable());
-            if (!PartyFoodValue.isFood(level.registryAccess(), here)) continue;
-            // food only counts when it is actually on a table
-            if (!level.getBlockState(pos.below()).is(GLTagGen.PARTY_TABLE)) continue;
-            int worth = PartyFoodValue.appeal(level.registryAccess(), here);
-            if (worth <= 0 || !PartyFoodValue.result(here).valid()) continue;   // claimed, but not food
-            food.add(pos.immutable());
-            // every serve still on it, not one number for the block
-            appeal += worth;
+        long reach = (long) distance * distance;
+        var seen = new HashSet<BlockPos>();
+        var queue = new ArrayDeque<BlockPos>();
+        queue.add(anchor.immutable());
+        while (!queue.isEmpty() && seen.size() < MAX_VISITED) {
+            var pos = queue.poll();
+            if (!seen.add(pos)) continue;
+            if (!within(anchor, pos, reach) || !level.isLoaded(pos)) continue;
+            var state = level.getBlockState(pos);
+            var furniture = false;
+            if (state.is(GLTagGen.PARTY_SEAT)) { seats.add(pos); furniture = true; }
+            if (state.is(GLTagGen.PARTY_TABLE)) { tables.add(pos); furniture = true; }
+            // a chair or table is solid, so its box is what carries the walk past it
+            if (furniture) poke(queue, pos);
+            if (PartyFoodValue.isFood(level.registryAccess(), state) && isLaidOut(level, pos)) {
+                int worth = PartyFoodValue.appeal(level.registryAccess(), state);
+                if (worth <= 0 || !PartyFoodValue.result(state).valid()) continue;
+                food.add(pos);
+                appeal += worth;
+            }
+            if (!furniture && state.getCollisionShape(level, pos).isEmpty())
+                for (var face : FACES) queue.add(pos.relative(face));
         }
-        return new PartyArea(anchor, food, seats, appeal);
+        return new PartyArea(anchor.immutable(), food, seats, tables, appeal);
     }
 }
 ```
 
-Three rules in nine lines, and they are the whole of "block food placed on a table, that is actually food": something must recognise the block as food or a datapack must have opted it in, the block directly below must be in `party_table`, and the block must still have something worth eating on it. A cake on the floor contributes nothing and is never eaten; neither does a decorative block someone tagged by mistake in a previous version of this design.
+Four rules, and together they are the whole of what counts as a party's spread:
 
-`BlockPos.betweenClosed(anchor, radius)` at radius 6 is a 13×13×13 box, ~2200 block reads, run **once per send** and once per `/gensokyo party preview`. Never per tick.
+1. **The walk passes only through space a guest could stand in** — empty collision shape. A wall ends it; a doorway does not. So a party is the *room* it was set in, not the building around it, and a table in a neighbouring hall is a different party.
+2. **Furniture extends the walk by a 5×3×5 box**, centred on itself: two out sideways, one up and down. A chair cannot be walked through, only reached, so without this the walk would stop at the first chair and never find the rest of a long table. Because the box's contents are then read and walked *in the ordinary way*, the walk resumes from the air on the guest side of the chair and carries on — a whole row of seating extends the walk along its length without the rule being applied twice. It also reaches furniture the walk could never have stood near: a chair pushed into a nook, a dish tight against a wall.
+3. **Food counts on a table or touching one** (`PartyArea.isLaidOut`, shared with `YoukaiPartyTask` so a guest can never be handed something the scan would not have counted). On the table is the block below; touching means the four horizontal faces plus up, but **not** down — a dish tucked under a table is not laid out for anyone.
+4. **Nothing beyond `partyScanDistance` from the anchor counts**, however it was reached, and nothing in an unloaded chunk is read at all. The scan runs inside one click and must not drag a chunk in to answer a question about a party.
 
-Seats are collected in the same pass because they are in the same box; no second scan.
+Two more things the walk gets right that a box sweep did not: a food block is solid, so the walk only ever meets one by reading it off a seat's or table's box, which is exactly where laid-out food is; and an unclaimed food block sitting on the floor is never reached at all.
+
+`MAX_VISITED` is a safety valve, not the limit. The 32-block distance cap alone allows the better part of a million blocks of open air — a stall the player cannot see or stop — so the walk stops at 65536 blocks. It only ever bites in a large empty space, where there is by then nothing to find.
+
+`PartyArea` collects tables alongside food and seats, so nothing needs a second scan of its own.
+
+### 3.1.1 What a refusal still knows
+
+`PartySend.Outcome` carries the scanned `area` even when `plan` is null. That is the interesting half of a refusal: the host wants to see what the walk did and did not take around a table that was refused, and re-scanning it would be a second walk over the same blocks. The wand renders the area whether or not the plan succeeded.
 
 ### 3.2 Centre, and the chunk the party belongs to
 
@@ -573,7 +600,7 @@ public static BlockPos center(List<BlockPos> food) {
 
 `floorDiv` rather than `/` so a negative-coordinate spread does not bias the centre toward zero. The mean, not the midpoint of the bounding box, because a spread of one cake and one far-away pie should centre nearer the cake.
 
-With `radius <= 7` the whole scan box spans at most 3×3 chunks, so the set of chunks a party can possibly touch is tiny and bounded.
+At `partyScanDistance = 32` the reachable area spans at most 5×5 chunks, so the set of chunks a party can possibly touch is small and bounded.
 
 ### 3.3 One party per area, enforced by chunk scan
 
@@ -674,7 +701,7 @@ Three quantities, all pure functions over plain values.
 
 ### 5.1 Attractiveness of the spread
 
-`PartyArea.appeal` from §3.1: the sum of `PartyFoodValue.appeal` over every block that is food and is sitting on a `party_table` inside the scan box, where each block's contribution is **serves × per-serving appeal** (§2.2). Simple additive, no multipliers — the player controls it directly by choosing what to lay out, and the per-serving number comes from the food's real properties rather than a table of hand-picked values.
+`PartyArea.appeal` from §3.1: the sum of `PartyFoodValue.appeal` over every block the walk found that is food and is laid out on or against a `party_table`/`party_seat`, where each block's contribution is **serves × per-serving appeal** (§2.2). Simple additive, no multipliers — the player controls it directly by choosing what to lay out, and the per-serving number comes from the food's real properties rather than a table of hand-picked values.
 
 Because it is counted in serves, the budget a spread offers is the total number of servings on the table, and a partly-eaten dish is worth proportionally less. That is what makes one cake a meal for several guests instead of a single indivisible unit.
 
@@ -936,7 +963,7 @@ public InteractionResultHolder<ItemStack> useOn(UseOnContext ctx) {
 
 In order:
 
-1. `PartyArea.scan(level, clicked, GLModConfig.SERVER.partyScanRadius)` (§3.1).
+1. `PartyArea.scan(level, clicked, GLModConfig.SERVER.partyScanDistance.get())` (§3.1).
 2. **Reject** if `food.isEmpty()` — "there is no food on the table".
 3. **Reject** if `seats.isEmpty()` — chairs are a hard requirement, so no chairs means no party at all, and the player is told to put some out.
 4. **Reject** if `existingParty(level, touchedChunks(food))` is non-`IDLE` (§3.3) — "there is already a party here".
@@ -1090,7 +1117,7 @@ Added once in `SmartYoukaiEntity.constructTaskBoard` (`SmartYoukaiEntity.java:81
 | `content/item/debug/PartyWand.java` | the debug wand: hover, eat, simulate (§9.1) |
 | `content/item/debug/PartyWandData.java` | the simulated result, as the wand's data component payload |
 | `content/item/debug/PartyWandComponent.java` | the `DataComponentType`, registered on the mod bus |
-| `init/data/GLModConfig.java` | `partyScanRadius`, `partyGuestRadius` |
+| `init/data/GLModConfig.java` | `partyScanDistance`, `partyGuestRadius` |
 | `init/data/GLLang.java` | `Party` enum, wired into `genLang`'s group array |
 | `init/data/GLTagGen.java` | `PARTY_TABLE`, `PARTY_SEAT` and `genPartyTag` (§2.1) |
 | `event/GLMetaEventHandlers.java` | `PartyTicker.tick` on level tick, `clear` on level unload |
@@ -1131,7 +1158,7 @@ The `large_table` support change is a behavioural change to a shipped block and 
 |---|---|---|
 | hover a food block | client | serves, hunger, saturation, attraction, serves-to-satisfy |
 | click a food block | server | — takes one serving, as a guest would |
-| click a party table | server | bound position, table/seat/food counts, attraction, fulfillment needed, every candidate with her weight |
+| click a party table | server | bound position, table/seat/food counts, attraction, fulfillment needed, every candidate with her weight, **and the area drawn in the world** |
 
 The hover readout is computed **client-side** from the block state and the item registry, both of which the client already holds. That is not laziness: a live readout re-asks every frame, and a server round trip per frame — or a packet per block looked at — would be paid for numbers that cannot disagree with the client's own copy.
 
@@ -1144,7 +1171,28 @@ public record PartyWandData(BlockPos bound, int tables, int seats, int foods,
 
 A **component** rather than a packet or a chat message, because vanilla already keeps item components in sync to the client; the overlay reads it back whenever the wand is held, with no machinery of its own.
 
-Two details worth knowing. The result is a snapshot of a party that was only simulated — the food is being eaten while the wand sits in a hand — so the overlay flags a reading taken more than 8 blocks from its table as possibly stale. And `PartyArea` collects only food and seats, so the wand counts tables with its own scan; folding that into the area would mean changing `PartyArea`'s record and every caller of it, for a debug-only number.
+### 9.2 Drawing the area
+
+The readout is text, and text cannot say *where* the food it counted is. A spread across two rooms, or a chair the walk never reached, is only visible in the world, so `PartyAreaRenderer` draws the scan: a green cube per dish, blue per seat, gold per table, inside one wireframe box over the extent of all of them.
+
+**The positions live on the component, not on a packet.** That was the first design and it was wrong twice over. A separate `PartyAreaToClient` packet put the same facts on two transports — counts on the item, positions on the wire — so the picture and the numbers could disagree, and it needed its own lifecycle (`init`, `tickClient`, expiry, clear-on-logout, clear-on-level-unload) to stay in step with the item that already had none of that.
+
+Storing the positions instead of the counts removes all of it:
+
+```java
+public record PartyWandData(BlockPos bound, List<BlockPos> tables, List<BlockPos> seats,
+        List<BlockPos> foods, int appeal, int fulfillment, List<Candidate> candidates) { ... }
+```
+
+"How many chairs" is `seats.size()`, so the counts are not data to transmit — they are a projection of the positions. One transport, one copy, and the renderer holds **no state at all**: it reads the held wand's component each frame and returns immediately when no wand is held. Nothing to expire, nothing to clear, no tick handler, and no way for the drawing to disagree with the overlay because both read the same field.
+
+`/gensokyo party preview` records onto the wand in the sender's hand (`PartyWand.recordIfHeld`), taking the already-planned `Outcome` so preview does not walk the room twice and report on a different area than it just printed. A **send** deliberately does not: the host is holding a letter, and silently rewriting a wand somewhere in their inventory because they sent a party is a surprising thing for a debug tool to do to an item. The wand records *scans*, and a send is not one.
+
+Staleness is unchanged and is now the only staleness there is: the food is being eaten while the wand is held, which the overlay already flags by distance.
+
+`StructureOutlineRenderer.renderPosSet` and the new `renderBound` are the shared primitives; `renderPosSet` takes a colour so the three sets can be told apart.
+
+One detail of the text readout survives unchanged: the result is a snapshot of a party that was only *simulated* — the food is being eaten while the wand sits in a hand — so the overlay flags a reading taken more than 8 blocks from its table as possibly stale.
 
 ---
 
@@ -1158,9 +1206,11 @@ Two details worth knowing. The result is a snapshot of a party that was only sim
 - **Reputation is sampled once, at send.** Reputation earned during the party does not upgrade the roster and reputation lost during it evicts nobody. A guest who turns hostile mid-party keeps eating. A consequence of freezing the roster, and the reason `/gensokyo party preview` can be exact.
 - **Guest eating is not interruptible.** If the player breaks the food out from under a guest she re-validates and picks again, but she cannot be redirected to a different dish.
 - **Chunk unload freezes the party mid-feast.** Guests stop ticking with the chunk and resume on reload. Acceptable — the same behaviour as every other entity in the chunk — but a party in a chunk the player walks away from simply pauses.
-- **A guest belongs to the chunk that owns the party, not the chunk she stands in.** Both the anchor table and the food centre lie inside the scan box, so a party routinely straddles a chunk border. Guests therefore carry the owning `ChunkPos` explicitly and look the party up by that — never by `new ChunkPos(table)`, which silently misses and makes her dismiss herself on her first tick. Same reasoning behind `/gensokyo party info|end` searching the neighbourhood through `PartyAttachment.near` instead of one chunk.
+- **A guest belongs to the chunk that owns the party, not the chunk she stands in.** Both the anchor table and the food centre lie inside the walk's reach, so a party routinely straddles a chunk border. Guests therefore carry the owning `ChunkPos` explicitly and look the party up by that — never by `new ChunkPos(table)`, which silently misses and makes her dismiss herself on her first tick. Same reasoning behind `/gensokyo party info|end` searching the neighbourhood through `PartyAttachment.near` instead of one chunk.
 - **A guest claims one seat per party and never gives it back.** `HomeSearchUtil.setSitting` is a one-shot call with no un-sit counterpart, so she stays parked on the chair for the rest of the visit. Fine — she is a party guest and has nowhere else to be — but seat reassignment after someone leaves is not implemented.
 - **No cross-dimension concern.** A guest clone spawns in the host's level and `party_taste` is dimension-independent, so any character may be invited anywhere. Noted only so it is not rediscovered as a bug later.
+- **A guest's seat and dish search is a fixed 6-block sweep, not `PartyArea.scan`.** That scan walks a whole room; `nearest` runs on a behaviour tick for every guest, so its cost is squared in the guest count. A banquet laid out over tens of blocks is not something a guest walks to and back anyway — she eats what is at her table and leaves. This is the one place the scan distance deliberately does not apply.
+- **The area draw is wand-only, and scan-only.** It never renders for a player not holding a party wand, so it is debug output with no gameplay footprint. It is also not refreshed by a real send (§9.2) — only by a wand click and by `preview`.
 - **`en_ud` lang variants** regenerate with the rest; zh_cn entries go under `src/test/resources/gensokyolegacy/lang/zh_cn/` and the `ResourceOrganizer` main is rerun afterwards.
 
 ---

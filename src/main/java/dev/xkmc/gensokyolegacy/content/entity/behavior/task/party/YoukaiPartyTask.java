@@ -4,10 +4,10 @@ import dev.xkmc.gensokyolegacy.content.attachment.home.core.HomeSearchUtil;
 import dev.xkmc.gensokyolegacy.content.entity.module.PartyModule;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.SmartYoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiAnim;
+import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyArea;
 import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyAttachment;
 import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyFoodValue;
 import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyGift;
-import dev.xkmc.gensokyolegacy.init.data.GLModConfig;
 import dev.xkmc.gensokyolegacy.init.data.GLTagGen;
 import dev.xkmc.gensokyolegacy.init.registrate.GLBrains;
 import dev.xkmc.gensokyolegacy.util.BrainUtils;
@@ -51,6 +51,16 @@ public class YoukaiPartyTask extends Behavior<SmartYoukaiEntity> {
 	private static final int SEAT_RETRY = 40;
 	private static final double ARRIVE_RANGE = 3.5;
 	private static final double EAT_RANGE = 2.5;
+
+	/**
+	 * How far around the table a guest looks for the next seat or dish.
+	 * <p>
+	 * Fixed, and much smaller than the party scan distance: this sweep runs on a
+	 * behaviour tick for every guest, so its cost is squared in the guest count,
+	 * while a banquet laid out over tens of blocks is not something a guest will
+	 * walk to and back anyway — she eats what is at her table and leaves.
+	 */
+	private static final int SEARCH_RADIUS = 6;
 
 	private enum Phase { SEEK_SEAT, SEEK_FOOD, EATING }
 
@@ -182,10 +192,10 @@ public class YoukaiPartyTask extends Behavior<SmartYoukaiEntity> {
 			clearWalk(entity);
 			return;
 		}
-		// re-validate: another guest may have taken this while she walked over
+		// re-validate: another guest may have taken this while she walked over, and a
+		// dish is only part of the spread if the table it was put out on is still there
 		var state = level.getBlockState(target);
-		if (!PartyFoodValue.isFood(level.registryAccess(), state)
-				|| !level.getBlockState(target.below()).is(GLTagGen.PARTY_TABLE)) {
+		if (!PartyFoodValue.isFood(level.registryAccess(), state) || !PartyArea.isLaidOut(level, target)) {
 			target = null;
 			return;
 		}
@@ -231,7 +241,14 @@ public class YoukaiPartyTask extends Behavior<SmartYoukaiEntity> {
 				PartyFoodValue.isFood(level.registryAccess(), state) && PartyFoodValue.result(state).valid());
 	}
 
-	/** The nearest position matching the test, searching outward from the table. */
+	/**
+	 * The nearest position matching the test, searching outward from the table.
+	 * <p>
+	 * Deliberately not {@link PartyArea#scan}: that runs once, on a player action,
+	 * and walks the whole room. This runs on a behaviour tick, once per guest, so it
+	 * stays a short sweep around the table instead. A guest is already at the table
+	 * when she asks, so the spread she is looking for is the one around her.
+	 */
 	@Nullable
 	private static BlockPos nearest(ServerLevel level, SmartYoukaiEntity entity, @Nullable BlockPos table,
 			Predicate<BlockState> accept) {
@@ -239,8 +256,8 @@ public class YoukaiPartyTask extends Behavior<SmartYoukaiEntity> {
 		BlockPos from = entity.blockPosition();
 		BlockPos best = null;
 		double bestDist = Double.MAX_VALUE;
-		int radius = GLModConfig.SERVER.partyScanRadius.get();
-		for (var pos : BlockPos.betweenClosed(table, table.offset(radius, radius, radius))) {
+		for (var pos : BlockPos.betweenClosed(table.offset(-SEARCH_RADIUS, -SEARCH_RADIUS, -SEARCH_RADIUS),
+				table.offset(SEARCH_RADIUS, SEARCH_RADIUS, SEARCH_RADIUS))) {
 			if (!accept.test(level.getBlockState(pos))) continue;
 			double dist = pos.distSqr(from);
 			if (dist >= bestDist) continue;

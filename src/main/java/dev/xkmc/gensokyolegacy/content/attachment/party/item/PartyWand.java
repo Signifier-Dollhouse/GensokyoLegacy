@@ -1,4 +1,4 @@
-package dev.xkmc.gensokyolegacy.content.item.debug;
+package dev.xkmc.gensokyolegacy.content.attachment.party.item;
 
 import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyFoodValue;
 import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyPlanner;
@@ -6,7 +6,6 @@ import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartySend;
 import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyTaste;
 import dev.xkmc.gensokyolegacy.content.client.debug.IDebugOverlayWand;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
-import dev.xkmc.gensokyolegacy.init.data.GLModConfig;
 import dev.xkmc.gensokyolegacy.init.data.GLTagGen;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -14,8 +13,8 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.tags.TagKey;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -23,12 +22,10 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.BlockHitResult;
 
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -50,7 +47,10 @@ import java.util.List;
  * that is server state. It calls the identical {@link PartySend#plan} a real send calls
  * before it commits, so the readout cannot drift from what would actually happen — no
  * party is opened, no guest is spawned and no letter is spent. The answer travels back as
- * an item data component, which vanilla already keeps in sync.
+ * an item data component, which vanilla already keeps in sync. The blocks the scan found
+ * travel with it as a packet, and are drawn in the world for as long as the wand is held —
+ * the counts on the overlay say <em>how many</em> chairs and dishes, the draw says
+ * <em>where</em>.
  */
 public class PartyWand extends Item implements IDebugOverlayWand {
 
@@ -87,26 +87,28 @@ public class PartyWand extends Item implements IDebugOverlayWand {
 				return InteractionResult.SUCCESS;
 			}
 			if (state.is(GLTagGen.PARTY_TABLE)) {
-				stack.set(PartyWandComponent.TYPE, simulate(sp, pos));
+				var outcome = PartySend.plan(level, sp, pos, PartySend.reputationOf(sp));
+				stack.set(PartyWandComponent.TYPE, readout(pos, outcome));
 				return InteractionResult.SUCCESS;
 			}
 		}
-		return InteractionResult.PASS;
+		return InteractionResult.CONSUME;
 	}
 
 	/**
-	 * Run the planner over a table and summarise it. Pure — the same call a real send makes
-	 * before it commits anything.
+	 * Summarise an already-planned outcome. Pure — it reads the plan and changes nothing.
+	 * <p>
+	 * Takes the {@link PartySend.Outcome} rather than planning itself, so a caller that
+	 * has already planned (preview, which prints the same plan) does not walk the room a
+	 * second time and risk reporting on a different area than the one it printed.
 	 */
-	private static PartyWandData simulate(ServerPlayer sp, BlockPos table) {
-		var level = sp.serverLevel();
-		var outcome = PartySend.plan(level, sp, table, PartySend.reputationOf(sp));
-		var area = outcome.plan() == null ? null : outcome.plan().area();
-		int tables = count(level, table, GLTagGen.PARTY_TABLE);
-		int seats = area != null ? area.seats().size() : count(level, table, GLTagGen.PARTY_SEAT);
-		int foods = area != null ? area.food().size() : 0;
+	public static PartyWandData readout(BlockPos table, PartySend.Outcome outcome) {
+		// the area rides along even on a refusal: a table the wand refuses is exactly
+		// the case where the host needs to see what the scan did and did not take
+		var area = outcome.area();
+		if (area == null) return PartyWandData.refused(table, List.of(), List.of(), List.of());
 		var plan = outcome.plan();
-		if (plan == null) return PartyWandData.refused(table, tables, seats, foods);
+		if (plan == null) return PartyWandData.refused(table, area.tables(), area.seats(), area.food());
 
 		var roster = plan.roster();
 		int spent = plan.pool().stream()
@@ -118,17 +120,28 @@ public class PartyWand extends Item implements IDebugOverlayWand {
 				.sorted(Comparator.comparingDouble(PartyPlanner.Candidate::weight).reversed())
 				.forEach(c -> candidates.add(new PartyWandData.Candidate(
 						c.type(), c.weight(), c.fulfillment(), c.reputation(), roster.contains(c.type()))));
-		return new PartyWandData(table, tables, seats, foods, plan.appeal(), spent, candidates);
+		return new PartyWandData(table, area.tables(), area.seats(), area.food(),
+				plan.appeal(), spent, candidates);
 	}
 
-	/** Distinct blocks in the scan box; a spread often spans several tables. */
-	private static int count(ServerLevel level, BlockPos anchor, TagKey<Block> tag) {
-		int radius = GLModConfig.SERVER.partyScanRadius.get();
-		var seen = new HashSet<BlockPos>();
-		for (var pos : BlockPos.betweenClosed(anchor, anchor.offset(radius, radius, radius))) {
-			if (level.getBlockState(pos).is(tag)) seen.add(pos.immutable());
+	/**
+	 * Record an outcome on the wand in this player's hand, if they are holding one.
+	 * <p>
+	 * For {@code /gensokyo party preview}, which is a scan the wand should show. A
+	 * <em>send</em> deliberately does not go through here: the host is holding a letter,
+	 * not the wand, and silently rewriting a wand somewhere in their inventory because
+	 * they sent a party would be a surprising thing for a debug tool to do to an item.
+	 *
+	 * @return whether a wand was there to record it
+	 */
+	public static boolean recordIfHeld(ServerPlayer sp, BlockPos table, PartySend.Outcome outcome) {
+		for (var hand : InteractionHand.values()) {
+			var stack = sp.getItemInHand(hand);
+			if (!(stack.getItem() instanceof PartyWand)) continue;
+			stack.set(PartyWandComponent.TYPE, readout(table, outcome));
+			return true;
 		}
-		return seen.size();
+		return false;
 	}
 
 	// --- overlay ---
@@ -206,7 +219,7 @@ public class PartyWand extends Item implements IDebugOverlayWand {
 		var bound = data.bound();
 		lines.add(GLLang.ItemDebug.PARTY_WAND_PARTY.get(bound.getX(), bound.getY(), bound.getZ())
 				.withStyle(ChatFormatting.GOLD));
-		lines.add(GLLang.ItemDebug.PARTY_WAND_COUNTS.get(data.tables(), data.seats(), data.foods())
+		lines.add(GLLang.ItemDebug.PARTY_WAND_COUNTS.get(data.tables().size(), data.seats().size(), data.foods().size())
 				.withStyle(ChatFormatting.GRAY));
 		lines.add(GLLang.ItemDebug.PARTY_WAND_TOTALS.get(data.appeal(), data.fulfillment())
 				.withStyle(ChatFormatting.GRAY));

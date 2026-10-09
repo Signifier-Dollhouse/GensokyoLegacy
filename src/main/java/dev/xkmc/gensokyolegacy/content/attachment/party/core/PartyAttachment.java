@@ -218,7 +218,7 @@ public class PartyAttachment extends GeneralCapabilityTemplate<LevelChunk, Party
 	 * A party lives in the chunk holding the <b>centre of its food</b>, which is not
 	 * necessarily the chunk holding its anchor table. Asking "is there a party at
 	 * this table?" therefore needs the neighbourhood and not the one chunk — the
-	 * centre is within the scan radius of the table by construction, so the scan
+	 * centre is within the scan's reach of the table by construction, so the scan
 	 * always finds it.
 	 */
 	@Nullable

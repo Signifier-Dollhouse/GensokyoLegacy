@@ -42,7 +42,7 @@ public class GLModConfig {
 
 		public final ModConfigSpec.IntValue sealingPotRadius;
 
-		public final ModConfigSpec.IntValue partyScanRadius;
+		public final ModConfigSpec.IntValue partyScanDistance;
 		public final ModConfigSpec.IntValue partyGuestRadius;
 
 		Server(Builder builder) {
@@ -70,8 +70,8 @@ public class GLModConfig {
 
 			builder.push("party", "Party");
 			{
-				partyScanRadius = builder.text("Radius in blocks around the table that a party occupies; food, seats and the walk radius all derive from this")
-						.defineInRange("partyScanRadius", 6, 2, 16);
+				partyScanDistance = builder.text("How far in blocks from the clicked table a party may reach; the walk covers the connected space, chairs and tables extend it, and nothing beyond this distance counts")
+						.defineInRange("partyScanDistance", 32, 4, 64);
 				partyGuestRadius = builder.text("How far a party guest may wander from the table she is eating at")
 						.defineInRange("partyGuestRadius", 24, 4, 64);
 			}

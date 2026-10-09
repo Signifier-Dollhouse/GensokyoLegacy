@@ -44,6 +44,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import dev.xkmc.gensokyolegacy.content.attachment.party.item.PartyWand;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.ItemStack;
@@ -419,6 +420,8 @@ public class GLCommands {
 		if (anchor == null) throw ERROR_NO_PARTY_TABLE.create();
 
 		var outcome = PartySend.plan(level, sp, anchor, PartySend.reputationOf(sp));
+		// a preview is a scan, so a wand in the sender's hand records it and draws it
+		PartyWand.recordIfHeld(sp, anchor, outcome);
 		src.sendSuccess(() -> refusalText(outcome), false);
 		if (!outcome.ok()) {
 			var miss = outcome.miss();
@@ -491,13 +494,13 @@ public class GLCommands {
 	/**
 	 * The party at, or near, where the player is looking. Searches the neighbourhood
 	 * rather than the single chunk, because a party is owned by the chunk holding the
-	 * centre of its food, which is within the scan radius of the table and so often in
+	 * centre of its food, which is within the scan's reach of the table and so often in
 	 * the next chunk over.
 	 */
 	@Nullable
 	private static PartyAttachment partyNear(CommandContext<CommandSourceStack> ctx, ServerPlayer sp) {
 		return PartyAttachment.near(sp.serverLevel(), partyTableOrPosition(ctx, sp),
-				GLModConfig.SERVER.partyScanRadius.get());
+				GLModConfig.SERVER.partyScanDistance.get());
 	}
 
 	private static ServerPlayer partyPlayer(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
