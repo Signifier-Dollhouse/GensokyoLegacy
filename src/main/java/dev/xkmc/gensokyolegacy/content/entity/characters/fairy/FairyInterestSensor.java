@@ -32,7 +32,9 @@ import java.util.Set;
  */
 public class FairyInterestSensor extends DynamicSensor<PlainFairyEntity> {
 
-	/** Vanilla's own temptation range, and the point past which she loses interest. */
+	/**
+	 * Vanilla's own temptation range, and the point past which she loses interest.
+	 */
 	private static final double RANGE = 10.0;
 
 	@Override
@@ -42,6 +44,14 @@ public class FairyInterestSensor extends DynamicSensor<PlainFairyEntity> {
 
 	@Override
 	protected void doTick(ServerLevel level, PlainFairyEntity entity) {
+		// While she is still busy with the last cake she is drawn to nobody at all:
+		// not the player holding one, and not an interesting person either. Said once
+		// per scan rather than once per player in range, because it is not about any
+		// particular one of them.
+		if (!availableForTemptation(entity)) {
+			BrainUtils.clearMemory(entity, MemoryModuleType.TEMPTING_PLAYER);
+			return;
+		}
 		var target = level.players().stream()
 				.filter(EntitySelector.NO_SPECTATORS)
 				.filter(player -> entity.closerThan(player, RANGE) && entity.hasLineOfSight(player))
@@ -55,34 +65,23 @@ public class FairyInterestSensor extends DynamicSensor<PlainFairyEntity> {
 	}
 
 	/**
-	 * A cake in either hand is a standing invitation - unless she has just been fed,
-	 * or is still busy with the last one. A full fairy is not lured by more cake, and
-	 * the same cooldown that keeps her from being farmed keeps her from trailing the
-	 * player around with a hand out for another slice.
-	 * <p>
-	 * Failing that, being at or above the combat-safe threshold is enough on its own -
-	 * which is exactly "she is not their enemy", so a player who has earned it gets her
-	 * attention and a player who has not does not, with no separate notion of curiosity
-	 * to maintain. Note this half is not gated on the cooldown: she would still come
-	 * over and say hello, she just would not follow them for a cake they are not
-	 * actually offering.
+	 * Whether she will follow anyone at all yet. The same cooldown that keeps her
+	 * from being farmed keeps her from trailing the player around with her hand out
+	 * for a slice she cannot have.
 	 */
-	private static boolean drawsHer(PlainFairyEntity entity, Player player) {
-		if (wantsCake(entity)
-				&& (FairyCakeModule.isCake(player.getMainHandItem())
-				|| FairyCakeModule.isCake(player.getOffhandItem()))) {
-			return true;
-		}
-		return entity.getData(player)
-				.map(data -> data.data().reputation >= ReputationConstants.COMBAT_SAFE_THRESHOLD)
-				.orElse(false);
-	}
-
-	private static boolean wantsCake(PlainFairyEntity entity) {
+	private static boolean availableForTemptation(PlainFairyEntity entity) {
 		return entity.getModule(FairyCakeModule.class)
 				.map(FairyCakeModule::getCoolDown)
 				.map(coolDown -> coolDown == 0)
 				.orElse(true);
+	}
+
+	private static boolean drawsHer(PlainFairyEntity entity, Player player) {
+		if (FairyCakeModule.isCake(player.getMainHandItem())
+				|| FairyCakeModule.isCake(player.getOffhandItem())) {
+			return true;
+		}
+		return false;
 	}
 
 }

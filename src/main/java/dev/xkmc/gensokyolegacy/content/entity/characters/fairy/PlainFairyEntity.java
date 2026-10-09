@@ -24,7 +24,6 @@ import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.behavior.CountDownCooldownTicks;
-import net.minecraft.world.entity.ai.behavior.FollowTemptation;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.schedule.Activity;
 import net.minecraft.world.level.ClipContext;
@@ -58,16 +57,22 @@ public class PlainFairyEntity extends FairyEntity implements GeoYoukaiAnim {
 	 */
 	public static final int VARIANT_COUNT = 4;
 
-	/** Ticks she keeps running for after a hit before the scare wears off. */
+	/**
+	 * Ticks she keeps running for after a hit before the scare wears off.
+	 */
 	private static final int FLEE_DURATION = 100;
 
-	/** The clearance she wants under her feet: hovering, not standing. */
+	/**
+	 * The clearance she wants under her feet: hovering, not standing.
+	 */
 	private static final double HOVER_CLEARANCE = 1.0;
-	/** How close she is willing to come when following someone. */
-	private static final double CLOSE_ENOUGH = 2.5;
-	/** How far down a floor is looked for; past that there is nothing to hover over. */
+	/**
+	 * How far down a floor is looked for; past that there is nothing to hover over.
+	 */
 	private static final double HOVER_SCAN = 4.0;
-	/** Spring rate of the hover, and the fastest it will climb back to her spot. */
+	/**
+	 * Spring rate of the hover, and the fastest it will climb back to her spot.
+	 */
 	private static final double HOVER_STIFFNESS = 0.2;
 	private static final double HOVER_MAX_RISE = 0.25;
 	/**
@@ -79,7 +84,9 @@ public class PlainFairyEntity extends FairyEntity implements GeoYoukaiAnim {
 	 */
 	private static final float HOVER_DRIFT = 0.06f;
 
-	/** How many times her movement speed she covers while panicking. */
+	/**
+	 * How many times her movement speed she covers while panicking.
+	 */
 	private static final double FLEE_SPEED_MULTIPLIER = 3.0;
 	/**
 	 * Share of the gap to the panic speed closed each tick, i.e. roughly half a second
@@ -136,7 +143,9 @@ public class PlainFairyEntity extends FairyEntity implements GeoYoukaiAnim {
 		}
 	}
 
-	/** Her own entity data, layered over the generic youkai/spell-data layers. */
+	/**
+	 * Her own entity data, layered over the generic youkai/spell-data layers.
+	 */
 	protected static final SyncedData PLAIN_FAIRY_DATA = new SyncedData(PlainFairyEntity::defineId, SPELL_DATA);
 
 	private static final EntityDataAccessor<Integer> DATA_VARIANT = PLAIN_FAIRY_DATA.define(SyncedData.INT, 0, "variant");
@@ -226,9 +235,10 @@ public class PlainFairyEntity extends FairyEntity implements GeoYoukaiAnim {
 	private void hoverStep() {
 		var hit = level().clip(new ClipContext(position(), position().add(0.0, -HOVER_SCAN, 0.0),
 				ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, this));
-		if (hit.getType() != HitResult.Type.BLOCK) return;
+		double hity = hit.getType() != HitResult.Type.BLOCK ? getY() - HOVER_SCAN : hit.getLocation().y;
 		var v = getDeltaMovement();
-		double diff = hit.getLocation().y + HOVER_CLEARANCE - getY();
+		double diff = hity + HOVER_CLEARANCE - getY();
+		if (!getNavigation().isDone() && diff < 0) return;
 		if (Math.abs(diff) < 0.02) {
 			setDeltaMovement(v.x, 0.0, v.z);
 			return;
@@ -247,7 +257,9 @@ public class PlainFairyEntity extends FairyEntity implements GeoYoukaiAnim {
 	 *
 	 * @see #FLEE_SPEED_MULTIPLIER
 	 */
-	/** @see #HOVER_DRIFT */
+	/**
+	 * @see #HOVER_DRIFT
+	 */
 	@Override
 	protected float getFlyingSpeed() {
 		return HOVER_DRIFT;
@@ -390,11 +402,8 @@ public class PlainFairyEntity extends FairyEntity implements GeoYoukaiAnim {
 		// hostile towards. FollowTemptation is only half of it - without the
 		// countdown the cooldown it sets on stopping is never cleared and she can
 		// only ever be tempted once in her life.
-		// The 1.0 is the standoff: vanilla's 2.5 is an allay's idea of personal space
-		// and leaves a fairy standing in the player's chest.
 		board.addAlways(new CountDownCooldownTicks(MemoryModuleType.TEMPTATION_COOLDOWN_TICKS), Activity.CORE);
-		board.addExclusive(50, new FollowTemptation(e -> 1f, e -> CLOSE_ENOUGH),
-				Activity.IDLE, Activity.PLAY, GLBrains.AT_HOME.get());
+		board.addExclusive(50, new FairyFollowTask(), Activity.IDLE, Activity.PLAY, GLBrains.AT_HOME.get());
 		board.addSensor(new FairyInterestSensor());
 	}
 
