@@ -48,7 +48,7 @@ public record YoukaiFeatureSet(
 		private boolean trueDamageOnImmune = false;
 		private int limiter = 1;
 		private int noPlayerDiscardTime = -1;
-		private final double maxSpeed = 0.5;
+		private double maxSpeed = 0.5;
 		private float dynamicReductionRate = 0;
 
 		public Builder markBoss() {
@@ -84,6 +84,17 @@ public record YoukaiFeatureSet(
 
 		public Builder noPlayerTime(int time) {
 			noPlayerDiscardTime = time;
+			return this;
+		}
+
+		/**
+		 * Ceiling on velocity, in blocks per tick, applied to the whole vector. The
+		 * stock 0.5 suits a walking youkai and quietly clips anything that moves on
+		 * air friction instead, which a hovering character does - so she needs a
+		 * ceiling that clears her own top speed rather than her ordinary one.
+		 */
+		public Builder maxSpeed(double speed) {
+			maxSpeed = speed;
 			return this;
 		}
 
