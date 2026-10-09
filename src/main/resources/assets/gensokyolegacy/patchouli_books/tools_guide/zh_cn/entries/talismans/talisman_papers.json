@@ -21,7 +21,7 @@
     },
     {
       "type": "patchouli:text",
-      "text": "$(bold)避水符 — 180 次$()$(br)空气值不足时，每 tick 恢复 40 点空气，帮助你长时间潜水。"
+      "text": "$(bold)避水符 — 180 次$()$(br)空气值不足时点空气，帮助你长时间潜水。"
     },
     {
       "type": "patchouli:text",

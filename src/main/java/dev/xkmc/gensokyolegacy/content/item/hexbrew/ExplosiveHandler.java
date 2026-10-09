@@ -18,8 +18,9 @@ public class ExplosiveHandler implements HexBrewHandler {
 
 	@Override
 	public void onHit(Level level, Vec3 pos, @Nullable Entity thrower, ItemStack stack) {
+		int r = 3;
 		if (level.isClientSide) return;
-		BaseExplosionContext base = new BaseExplosionContext(level, pos.x, pos.y, pos.z, 4.0f);
+		BaseExplosionContext base = new BaseExplosionContext(level, pos.x, pos.y, pos.z, r);
 		VanillaExplosionContext vanilla = new VanillaExplosionContext(
 				thrower,
 				thrower instanceof LivingEntity le ? level.damageSources().explosion(null, le) : null,
@@ -32,6 +33,6 @@ public class ExplosiveHandler implements HexBrewHandler {
 			if (thrower != null && (entity.isAlliedTo(thrower) || thrower.isAlliedTo(entity))) return false;
 			return entity instanceof LivingEntity;
 		};
-		ExplosionHandler.explode(new BaseExplosion(base, vanilla, mod, ParticleExplosionContext.of(4.0f)));
+		ExplosionHandler.explode(new BaseExplosion(base, vanilla, mod, ParticleExplosionContext.of(r)));
 	}
 }
