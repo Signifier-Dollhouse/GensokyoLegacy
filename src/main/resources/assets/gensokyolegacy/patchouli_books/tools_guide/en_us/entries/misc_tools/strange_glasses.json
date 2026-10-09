@@ -12,7 +12,7 @@
     },
     {
       "type": "patchouli:text",
-      "text": "$(bold)Tournament Champion$()$(br2)The glasses grant no stats at all. All they do is make every entity glow, and they reveal the barrier of every Sealing Pot nearby as well.$(br2)Where they come from$(br2)Traded by Rinnosuke Morichika."
+      "text": "$(bold)Tournament Champion$()$(br2)The glasses grant no stats at all. All they do is make every entity glow, and they reveal the barrier of every Sealing Pot nearby as well."
     }
   ]
 }

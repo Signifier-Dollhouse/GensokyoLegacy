@@ -7,12 +7,8 @@
     {
       "type": "patchouli:spotlight",
       "item": "gensokyolegacy:suwako_hat",
-      "title": "An Ominous Buffet",
-      "text": "Put a straw hat on a frog and it will start swallowing raiders by itself; once it has eaten enough different kinds of raider, the hat falls off and the change completes.$(br2)How it is counted$(br2)Each distinct raider type the frog swallows counts once, and the tally belongs to the frog rather than to the hat, so a second frog means starting over. Only one frog can wear the straw hat at a time, and a frog without it will not touch raiders at all."
-    },
-    {
-      "type": "patchouli:text",
-      "text": "While worn$(br2)The hat grants Native God's Bless — it raises your movement speed and your reach, and adds 25% magic damage on top of everything else you are wearing."
+      "title": "While Worn",
+      "text": "The hat grants Native God's Bless — it raises your movement speed and your reach, and adds 25% magic damage on top of everything else you are wearing."
     }
   ]
 }

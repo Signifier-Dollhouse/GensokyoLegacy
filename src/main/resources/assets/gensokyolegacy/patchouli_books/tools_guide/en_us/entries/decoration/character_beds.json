@@ -17,15 +17,7 @@
     },
     {
       "type": "patchouli:text",
-      "text": "$(bold)Where they come from$()$(br)They are already standing in generated structures and have no recipe, so in survival the only way to get one is to carry it out of the structure."
-    },
-    {
-      "type": "patchouli:text",
       "text": "$(bold)What they do$()$(br)Right-clicking a bed does nothing at all — there is nothing to assign and nothing to check. Once a character has claimed one, she sleeps in it through the night, and if she dies a fresh copy of her lies in it again about ten minutes later.$(br2)$(bold)Where to put it$()$(br)A claimed bed has to stay in one of that house's rooms. Carry it out into the world and it is destroyed, so pick a real room and leave it there."
-    },
-    {
-      "type": "patchouli:text",
-      "text": "$(bold)Other kinds of character bed$()$(br)Cirno's, Rumia's and Alice's beds exist as blocks and are bound to their characters, but they have no complete structure yet, so wherever you put one it simply does nothing."
     }
   ]
 }

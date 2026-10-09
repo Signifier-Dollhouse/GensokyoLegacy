@@ -14,13 +14,13 @@
       "type": "patchouli:spotlight",
       "item": "tag:gensokyolegacy:chair",
       "title": "靠背椅",
-      "text": "用对应的木板在切石机里切出来，只能放在两格高的空间。"
+      "text": "只能放在两格高的空间。"
     },
     {
       "type": "patchouli:spotlight",
       "item": "tag:gensokyolegacy:stool",
       "title": "木凳",
-      "text": "木凳只有一格高，用对应的木板在切石机里切出来。"
+      "text": "木凳只有一格高。"
     },
     {
       "type": "patchouli:text",

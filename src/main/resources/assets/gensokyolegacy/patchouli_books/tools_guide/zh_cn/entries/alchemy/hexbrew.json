@@ -27,25 +27,25 @@
       "type": "patchouli:spotlight",
       "item": "gensokyolegacy:hexbrew_elixir_bottle",
       "title": "魔酿精华",
-      "text": "魔理沙特制，可以用来制作独特的魔药，与魔理沙交易、委托获得。"
+      "text": "可以用来制作独特的魔药。"
     },
     {
       "type": "patchouli:spotlight",
       "item": "gensokyolegacy:shield_hexbrew_bottle",
       "title": "护盾魔酿",
-      "text": "饮用后获得持续 3 分钟的星光护盾，并提供额外吸收值，魔酿精华和潜影壳酿造；魔理沙 50 声望解锁。"
+      "text": "饮用后获得持续 3 分钟的星光护盾，并提供额外吸收值。"
     },
     {
       "type": "patchouli:spotlight",
       "item": "gensokyolegacy:starlight_hexbrew_bottle",
       "title": "星光魔酿",
-      "text": "投掷后散开星芒，并使目标获得持续 3 分钟的闪耀效果，闪耀目标每次受到攻击时，都会爆发出一圈星弹，为你攻击敌人。魔酿精华和星星花酿造；魔理沙 120 声望解锁。"
+      "text": "投掷后散开星芒，并使目标获得持续 3 分钟的闪耀效果，闪耀目标每次受到攻击时，都会爆发出一圈星弹，为你攻击敌人。"
     },
     {
       "type": "patchouli:spotlight",
       "item": "gensokyolegacy:hyphae_hexbrew_bottle",
       "title": "菌丝魔酿",
-      "text": "投掷后使目标获得持续 3 分钟的菌丝感染，每秒造成 1 点魔法伤害。同时会短暂生成菌丝，并将 4 格范围内附近的泥土变成菌丝土。魔酿精华加妖瘴菇酿造；完成魔理沙的「巨大蘑菇」任务后解锁交易。"
+      "text": "投掷后使目标获得持续 3 分钟的菌丝感染，每秒造成 1 点魔法伤害。同时会短暂生成菌丝，并将 4 格范围内附近的泥土变成菌丝土。"
     }
   ]
 }

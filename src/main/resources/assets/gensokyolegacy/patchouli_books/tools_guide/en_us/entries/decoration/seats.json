@@ -14,13 +14,13 @@
       "type": "patchouli:spotlight",
       "item": "tag:gensokyolegacy:chair",
       "title": "Back Chairs",
-      "text": "Cut from the matching planks on the stonecutter, and they only fit where there are two blocks of headroom."
+      "text": "They only fit where there are two blocks of headroom."
     },
     {
       "type": "patchouli:spotlight",
       "item": "tag:gensokyolegacy:stool",
       "title": "Wooden Stools",
-      "text": "Stools are one block tall, cut from the matching planks on the stonecutter."
+      "text": "Stools are one block tall."
     },
     {
       "type": "patchouli:text",

@@ -7,12 +7,8 @@
     {
       "type": "patchouli:spotlight",
       "item": "gensokyolegacy:koishi_hat",
-      "title": "Doffing the Hat",
-      "text": "Koishi would have struck at a guest, but the attempt bore no fruit; three times was one time too many, and in her fury she threw the hat aside and walked off."
-    },
-    {
-      "type": "patchouli:text",
-      "text": "While worn$(br)Grants Unconscious, so hostile mobs will not pick you as a target — the moment you attack something yourself or open a container, it is gone.$(br2)How to block$(br2)During Marisa's Nether quest, the player hears ringing down there; after the third telephone ring ends, raise a shield behind you and block. A successful block scores one count, a single failure resets it to zero, and reaching the number gives you the hat."
+      "title": "While Worn",
+      "text": "Grants Unconscious, so hostile mobs will not pick you as a target — the moment you attack something yourself or open a container, it is gone."
     }
   ]
 }

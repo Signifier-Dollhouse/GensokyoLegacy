@@ -13,19 +13,19 @@
         "tag:gensokyolegacy:long_noren"
       ],
       "title": "Noren Curtains",
-      "text": "Noren are the split curtains that hang in doorways. Cut a block of wool on the stonecutter to get one in that color, or dye an existing noren instead: the dye changes the color and the pattern is kept. Four patterns exist — plain, striped, wavy and long — in all 16 wool colors."
+      "text": "Noren are the split curtains that hang in doorways. Four patterns exist — plain, striped, wavy and long — in all 16 wool colors."
     },
     {
       "type": "patchouli:spotlight",
       "item": "tag:gensokyolegacy:plank_wall",
       "title": "Plank Walls",
-      "text": "Plank walls come in every wood type, cut two at a time from the matching planks on the stonecutter — for the careful of purse."
+      "text": "Plank walls come in every wood type — for the careful of purse."
     },
     {
       "type": "patchouli:spotlight",
       "item": "tag:gensokyolegacy:tile_variants",
       "title": "Tiles",
-      "text": "Tiles come in seven colors: cyan, orange, yellow, brown, blue, black and gray, made from deepslate tiles plus a dye. Every color has stairs, slabs and wall panels, and all of them can be made on the stonecutter."
+      "text": "Tiles come in seven colors: cyan, orange, yellow, brown, blue, black and gray. Every color has stairs, slabs and wall panels."
     },
     {
       "type": "patchouli:spotlight",
@@ -36,7 +36,7 @@
         "gensokyolegacy:paper_window_pane"
       ],
       "title": "Paper Goods",
-      "text": "Two paper-made building blocks, each in a solid and a thin pane form. Both are cheap — sticks and paper — and both can be shaped into their variants on the stonecutter. They let light through rather than blocking it, so a room sealed with them stays bright, and they burn as fuel."
+      "text": "Two paper-made building blocks, each in a solid and a thin pane form. They let light through rather than blocking it, so a room sealed with them stays bright, and they burn as fuel."
     },
     {
       "type": "patchouli:spotlight",
@@ -47,7 +47,7 @@
         "gensokyolegacy:lettered_white_lantern"
       ],
       "title": "Lanterns",
-      "text": "Four paper lanterns, red and white, plain or lettered, each bright enough on its own to light a whole room. A column of them reads as a single string. They have no recipe and are only found where structures generate."
+      "text": "Four paper lanterns, red and white, plain or lettered, each bright enough on its own to light a whole room. A column of them reads as a single string."
     },
     {
       "type": "patchouli:spotlight",
@@ -57,7 +57,7 @@
         "gensokyolegacy:candlestick"
       ],
       "title": "Wrought Iron Railings",
-      "text": "Blackened ironwork, which lends a room some gravity. It is stained from iron bars, and goes on to make pillars and candlesticks."
+      "text": "Blackened ironwork, which lends a room some gravity."
     }
   ]
 }

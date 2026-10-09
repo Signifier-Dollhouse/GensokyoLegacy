@@ -18,7 +18,7 @@
       "type": "patchouli:spotlight",
       "item": "gensokyolegacy:book_shelf",
       "title": "Book Shelf",
-      "text": "A lending shelf for plain books, holding up to 12. Right-click with a book to shelve it, sneak-right-click to take one book back, and breaking the shelf drops all stored books. Stonecut it from a dark oak log."
+      "text": "A lending shelf for plain books, holding up to 12. Right-click with a book to shelve it, sneak-right-click to take one book back, and breaking the shelf drops all stored books."
     },
     {
       "type": "patchouli:text",

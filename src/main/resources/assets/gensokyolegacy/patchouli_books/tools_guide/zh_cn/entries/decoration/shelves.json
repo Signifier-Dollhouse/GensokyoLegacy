@@ -18,7 +18,7 @@
       "type": "patchouli:spotlight",
       "item": "gensokyolegacy:book_shelf",
       "title": "藏书架",
-      "text": "用来存放普通书本的架子，最多可放 12 本；手持书本右键放入，潜行右键取回一本，拆掉架子时会掉出里面所有的书，用深色橡木原木在切石机制作。"
+      "text": "用来存放普通书本的架子，最多可放 12 本；手持书本右键放入，潜行右键取回一本，拆掉架子时会掉出里面所有的书。"
     },
     {
       "type": "patchouli:text",

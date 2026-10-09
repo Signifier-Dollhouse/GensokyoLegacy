@@ -27,25 +27,25 @@
       "type": "patchouli:spotlight",
       "item": "gensokyolegacy:hexbrew_elixir_bottle",
       "title": "Hexbrew Elixir",
-      "text": "Marisa brews it herself. It is the ingredient behind the most unusual hexbrews, and you obtain it by trading with her or finishing her commissions."
+      "text": "It is the ingredient behind the most unusual hexbrews."
     },
     {
       "type": "patchouli:spotlight",
       "item": "gensokyolegacy:shield_hexbrew_bottle",
       "title": "Shield Hexbrew",
-      "text": "Drunk, it grants Starlight Shield for 3 minutes with extra absorption. Brewed from Hexbrew Elixir and a shulker shell; unlocked at 50 reputation with Marisa."
+      "text": "Drunk, it grants Starlight Shield for 3 minutes with extra absorption."
     },
     {
       "type": "patchouli:spotlight",
       "item": "gensokyolegacy:starlight_hexbrew_bottle",
       "title": "Starlight Hexbrew",
-      "text": "Thrown, it bursts into starlight and inflicts Sparkling for 3 minutes; every time a Sparkling target is hit, it erupts in a ring of star bullets that fight for you. Brewed from Hexbrew Elixir and Star Flowers; unlocked at 120 reputation with Marisa."
+      "text": "Thrown, it bursts into starlight and inflicts Sparkling for 3 minutes; every time a Sparkling target is hit, it erupts in a ring of star bullets that fight for you."
     },
     {
       "type": "patchouli:spotlight",
       "item": "gensokyolegacy:hyphae_hexbrew_bottle",
       "title": "Hyphae Hexbrew",
-      "text": "Thrown, it inflicts Hyphae Infection for 3 minutes, dealing 1 magic damage each second. It also briefly grows hyphae and turns the dirt within 4 blocks into mycelium. Brewed from Hexbrew Elixir and Demonic Miasma mushrooms; trading unlocks once you finish Marisa's Giant Mushrooms quest."
+      "text": "Thrown, it inflicts Hyphae Infection for 3 minutes, dealing 1 magic damage each second. It also briefly grows hyphae and turns the dirt within 4 blocks into mycelium."
     }
   ]
 }
