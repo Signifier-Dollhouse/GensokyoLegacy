@@ -1,3 +1,9 @@
+1.0.3
+- refurnish alice house
+- add repaired mini hakkero
+- fix koishi hat quest
+- fix broom fall damage
+
 1.0.2
 NOTE: This version contains underpolished text in dialog and patchouli
 - Add alice structure and doll lance. Dolls can use talisman in core slot now.
