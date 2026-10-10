@@ -36,8 +36,12 @@ import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.loot.EntityLootGen;
 import net.minecraft.client.renderer.entity.ThrownItemRenderer;
 import net.minecraft.tags.EntityTypeTags;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.entity.SpawnPlacementTypes;
 import net.minecraft.world.item.CreativeModeTabs;
+import net.minecraft.world.level.levelgen.Heightmap;
+import net.neoforged.neoforge.event.entity.RegisterSpawnPlacementsEvent;
 
 import java.util.Map;
 
@@ -92,7 +96,7 @@ public class GLEntities {
 		{
 
 			RUMIA = GensokyoLegacy.REGISTRATE
-					.entity("rumia", RumiaEntity::new, MobCategory.MONSTER)
+					.entity("rumia", RumiaEntity::new, MobCategory.CREATURE)
 					.properties(e -> e.sized(0.4F, 1.7f).clientTrackingRange(10))
 					.attributes(RumiaEntity::createAttributes)
 					.renderer(() -> RumiaRenderer::new)
@@ -100,7 +104,7 @@ public class GLEntities {
 					.register();
 
 			REIMU = GensokyoLegacy.REGISTRATE
-					.entity("hakurei_reimu", ReimuEntity::new, MobCategory.MONSTER)
+					.entity("hakurei_reimu", ReimuEntity::new, MobCategory.CREATURE)
 					.properties(e -> e.sized(0.4F, 1.8f).clientTrackingRange(10))
 					.attributes(BossYoukaiEntity::createAttributes)
 					.renderer(() -> ReimuRenderer::new)
@@ -113,7 +117,7 @@ public class GLEntities {
 					.register();
 
 			CIRNO = GensokyoLegacy.REGISTRATE
-					.entity("cirno", CirnoEntity::new, MobCategory.MONSTER)
+					.entity("cirno", CirnoEntity::new, MobCategory.CREATURE)
 					.properties(e -> e.sized(0.4F, 1.8f).clientTrackingRange(10))
 					.attributes(CirnoEntity::createAttributes)
 					.renderer(() -> CirnoRenderer::new)
@@ -128,7 +132,7 @@ public class GLEntities {
 
 		{
 			YUKARI = GensokyoLegacy.REGISTRATE
-					.entity("yukari_yakumo", BossYoukaiEntity::new, MobCategory.MONSTER)
+					.entity("yukari_yakumo", BossYoukaiEntity::new, MobCategory.CREATURE)
 					.properties(e -> e.sized(0.4F, 1.8f).clientTrackingRange(10))
 					.attributes(BossYoukaiEntity::createAttributes)
 					.renderer(() -> GeneralYoukaiRenderer::new)
@@ -136,7 +140,7 @@ public class GLEntities {
 					.register();
 
 			SANAE = GensokyoLegacy.REGISTRATE
-					.entity("kochiya_sanae", MaidenEntity::new, MobCategory.MONSTER)
+					.entity("kochiya_sanae", MaidenEntity::new, MobCategory.CREATURE)
 					.properties(e -> e.sized(0.4F, 1.8f).clientTrackingRange(10))
 					.attributes(BossYoukaiEntity::createAttributes)
 					.renderer(() -> GeneralYoukaiRenderer::new)
@@ -144,7 +148,7 @@ public class GLEntities {
 					.register();
 
 			KOISHI = GensokyoLegacy.REGISTRATE
-					.entity("komeiji_koishi", BossYoukaiEntity::new, MobCategory.MONSTER)
+					.entity("komeiji_koishi", BossYoukaiEntity::new, MobCategory.CREATURE)
 					.properties(e -> e.sized(0.4F, 1.8f).clientTrackingRange(10))
 					.attributes(BossYoukaiEntity::createAttributes)
 					.renderer(() -> GeneralYoukaiRenderer::new)
@@ -152,7 +156,7 @@ public class GLEntities {
 					.register();
 
 			MARISA = GensokyoLegacy.REGISTRATE
-					.entity("kirisame_marisa", MarisaEntity::new, MobCategory.MONSTER)
+					.entity("kirisame_marisa", MarisaEntity::new, MobCategory.CREATURE)
 					.properties(e -> e.sized(0.4F, 1.8f).clientTrackingRange(10))
 					.attributes(BossYoukaiEntity::createAttributes)
 					.renderer(() -> MarisaRenderer::new)
@@ -161,7 +165,7 @@ public class GLEntities {
 					.register();
 
 			MORICHIKA = GensokyoLegacy.REGISTRATE
-					.entity("morichika_rinnosuke", MorichikaEntity::new, MobCategory.MONSTER)
+					.entity("morichika_rinnosuke", MorichikaEntity::new, MobCategory.CREATURE)
 					.properties(e -> e.sized(0.4F, 1.8f).clientTrackingRange(10))
 					.attributes(GeneralYoukaiEntity::createAttributes)
 					.renderer(() -> MorichikaRenderer::new)
@@ -170,7 +174,7 @@ public class GLEntities {
 					.register();
 
 			ALICE = GensokyoLegacy.REGISTRATE
-					.entity("alice_margatroid", AliceEntity::new, MobCategory.MONSTER)
+					.entity("alice_margatroid", AliceEntity::new, MobCategory.CREATURE)
 					.properties(e -> e.sized(0.4F, 1.8f).clientTrackingRange(10))
 					.attributes(GeneralYoukaiEntity::createAttributes)
 					.renderer(() -> AliceRenderer::new)
@@ -178,7 +182,7 @@ public class GLEntities {
 					.register();
 
 			IZAYOI_SAKUYA = GensokyoLegacy.REGISTRATE
-					.entity("izayoi_sakuya", SakuyaEntity::new, MobCategory.MONSTER)
+					.entity("izayoi_sakuya", SakuyaEntity::new, MobCategory.CREATURE)
 					.properties(e -> e.sized(0.4F, 1.8f).clientTrackingRange(10))
 					.attributes(BossYoukaiEntity::createAttributes)
 					.renderer(() -> SakuyaRenderer::new)
@@ -186,7 +190,7 @@ public class GLEntities {
 					.register();
 
 			MYSTIA = GensokyoLegacy.REGISTRATE
-					.entity("mystia_lorelei", GeneralYoukaiEntity::new, MobCategory.MONSTER)
+					.entity("mystia_lorelei", GeneralYoukaiEntity::new, MobCategory.CREATURE)
 					.properties(e -> e.sized(0.4F, 1.8f).clientTrackingRange(10))
 					.attributes(GeneralYoukaiEntity::createAttributes)
 					.renderer(() -> GeneralYoukaiRenderer::new)
@@ -194,7 +198,7 @@ public class GLEntities {
 					.register();
 
 			SUNNY = GensokyoLegacy.REGISTRATE
-					.entity("sunny_milk", FairyEntity::new, MobCategory.MONSTER)
+					.entity("sunny_milk", FairyEntity::new, MobCategory.CREATURE)
 					.properties(e -> e.sized(0.4F, 1.8f).clientTrackingRange(10))
 					.attributes(FairyEntity::createAttributes)
 					.renderer(() -> GeneralYoukaiRenderer::new)
@@ -202,7 +206,7 @@ public class GLEntities {
 					.register();
 
 			LUNA = GensokyoLegacy.REGISTRATE
-					.entity("luna_child", FairyEntity::new, MobCategory.MONSTER)
+					.entity("luna_child", FairyEntity::new, MobCategory.CREATURE)
 					.properties(e -> e.sized(0.4F, 1.8f).clientTrackingRange(10))
 					.attributes(FairyEntity::createAttributes)
 					.renderer(() -> GeneralYoukaiRenderer::new)
@@ -210,7 +214,7 @@ public class GLEntities {
 					.register();
 
 			STAR = GensokyoLegacy.REGISTRATE
-					.entity("star_sapphire", FairyEntity::new, MobCategory.MONSTER)
+					.entity("star_sapphire", FairyEntity::new, MobCategory.CREATURE)
 					.properties(e -> e.sized(0.4F, 1.8f).clientTrackingRange(10))
 					.attributes(FairyEntity::createAttributes)
 					.renderer(() -> GeneralYoukaiRenderer::new)
@@ -218,11 +222,14 @@ public class GLEntities {
 					.register();
 
 			PLAIN_FAIRY = GensokyoLegacy.REGISTRATE
-					.entity("plain_fairy", PlainFairyEntity::new, MobCategory.MONSTER)
+					.entity("plain_fairy", PlainFairyEntity::new, MobCategory.CREATURE)
 					.properties(e -> e.sized(0.4F, 1.8f).clientTrackingRange(10))
 					.attributes(FairyEntity::createAttributes)
 					.renderer(() -> PlainFairyRenderer::new)
 					.loot(EntityLootGen::noLoot)
+					.spawnPlacement(SpawnPlacementTypes.ON_GROUND,
+							Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Mob::checkMobSpawnRules,
+							RegisterSpawnPlacementsEvent.Operation.REPLACE)
 					.register();
 		}
 

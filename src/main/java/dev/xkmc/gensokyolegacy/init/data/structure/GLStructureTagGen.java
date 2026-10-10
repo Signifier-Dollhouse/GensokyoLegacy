@@ -24,6 +24,7 @@ public class GLStructureTagGen {
 	public static final TagKey<Biome> MARISA_HOUSE = biomeTag("has_structure/marisa_house");
 	public static final TagKey<Biome> MORICHIKA_SHOP = biomeTag("has_structure/morichika_shop");
 	public static final TagKey<Biome> ALICE_HOUSE = biomeTag("has_structure/alice_house");
+	public static final TagKey<Biome> PLAIN_FAIRY_SPAWN = biomeTag("has_spawn/plain_fairy");
 
 	public static final TagKey<Block> CIRNO_PRIMARY = blockTag("structure_fix/cirno_nest/primary");
 	public static final TagKey<Block> CIRNO_FIX = blockTag("structure_fix/cirno_nest/would_fix");
@@ -63,6 +64,9 @@ public class GLStructureTagGen {
 				.add(GLBiomes.MAGICAL_FOREST);
 		pvd.addTag(ALICE_HOUSE)
 				.add(GLBiomes.MAGICAL_FOREST);
+		pvd.addTag(PLAIN_FAIRY_SPAWN)
+				.addTag(Tags.Biomes.IS_FOREST)
+				.addTag(Tags.Biomes.IS_PLAINS);
 		pvd.addTag(Tags.Biomes.IS_MAGICAL).add(GLBiomes.MAGICAL_FOREST).add(GLBiomes.SAKURA_FOREST);
 		pvd.addTag(Tags.Biomes.IS_FOREST).add(GLBiomes.MAGICAL_FOREST).add(GLBiomes.SAKURA_FOREST);
 	}
