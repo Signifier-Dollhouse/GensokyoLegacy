@@ -11,6 +11,10 @@
   ],
   "ingredients": [
     {
+      "count": 1,
+      "item": "gensokyolegacy:mini_hakkero_prototype"
+    },
+    {
       "count": 8,
       "item": "minecraft:redstone"
     },

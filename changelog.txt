@@ -1,8 +1,8 @@
 1.0.3
 - refurnish alice house
-- add repaired mini hakkero
+- add repaired mini hakkero, allow it to boost broom
 - fix koishi hat quest
-- fix broom fall damage
+- fix broom fall damage and bounding box
 - improve dialog and patchouli
 
 1.0.2
