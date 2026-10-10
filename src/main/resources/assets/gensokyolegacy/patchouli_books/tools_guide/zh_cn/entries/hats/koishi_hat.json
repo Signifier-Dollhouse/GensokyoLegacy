@@ -7,8 +7,12 @@
     {
       "type": "patchouli:spotlight",
       "item": "gensokyolegacy:koishi_hat",
-      "title": "佩戴时",
-      "text": "给予无意识效果，使得敌对生物不会把你当成目标——一旦攻击或打开一个容器，效果立刻消失。"
+      "title": "脱帽致意",
+      "text": "恋欲行刺于客，尝而未果，事不过三，遂大怒，弃帽而归。"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "佩戴时$(br)给予无意识效果，使得敌对生物不会把你当成目标——一旦攻击或打开一个容器，效果立刻消失。"
     }
   ]
 }

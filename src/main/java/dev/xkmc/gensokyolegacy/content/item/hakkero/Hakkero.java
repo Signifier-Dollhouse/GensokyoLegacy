@@ -49,9 +49,13 @@ import java.util.Optional;
  */
 public class Hakkero extends Item implements InvClickItem {
 
-	/** Cooking time divisor with a lit fuel: {@code 200 / 10}, i.e. ten times a vanilla furnace. */
+	/**
+	 * Cooking time divisor with a lit fuel: {@code 200 / 10}, i.e. ten times a vanilla furnace.
+	 */
 	public static final int MAX_SPEED = 10;
-	/** A fuel burns this many times faster than it would in a block furnace. */
+	/**
+	 * A fuel burns this many times faster than it would in a block furnace.
+	 */
 	public static final int FUEL_DIVISOR = 10;
 	/**
 	 * How often the item does a catch-up batch while nobody is looking at it. A hakkero in a
@@ -59,7 +63,7 @@ public class Hakkero extends Item implements InvClickItem {
 	 * tooltip replays at.
 	 */
 	public static final int IDLE_BATCH = 20;
-	/** Thrust given by an unboosted kick, and how long it lasts. */
+/** Thrust given by an unboosted kick, and how long it lasts. */
 	public static final float THRUST_PLAIN = 1.2F;
 	public static final int THRUST_PLAIN_TICKS = 20;
 	/** Thrust given by a kick paid for out of the fuel slot. */
@@ -216,7 +220,9 @@ public class Hakkero extends Item implements InvClickItem {
 		return changed;
 	}
 
-	/** Whether {@code out} could take one more {@code result}, or is empty and waiting. */
+	/**
+	 * Whether {@code out} could take one more {@code result}, or is empty and waiting.
+	 */
 	public static boolean accepts(ItemStack out, ItemStack result) {
 		if (out.isEmpty()) return true;
 		if (!ItemStack.isSameItemSameComponents(out, result)) return false;
@@ -240,7 +246,7 @@ public class Hakkero extends Item implements InvClickItem {
 		return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
 	}
 
-	/**
+/**
 	 * Kicks the broom, spending one item out of the fuel slot for the privilege: a fuelled
 	 * kick is {@link #THRUST_FUELLED} for a {@link #FUEL_DIVISOR}th of that item's burn
 	 * time, and an empty slot gives the small {@link #THRUST_PLAIN} nudge instead. Either
@@ -399,8 +405,11 @@ public class Hakkero extends Item implements InvClickItem {
 		}
 	}
 
-	/** Client-side mirror of a {@link #boost} kick, sent because the broom flies client side. */
-	public record BroomBoostToClient(int broomId, float power, int ticks) implements SerialPacketBase<BroomBoostToClient> {
+	/**
+	 * Client-side mirror of a {@link #boost} kick, sent because the broom flies client side.
+	 */
+	public record BroomBoostToClient(int broomId, float power,
+	                                 int ticks) implements SerialPacketBase<BroomBoostToClient> {
 
 		@Override
 		public void handle(Player player) {
