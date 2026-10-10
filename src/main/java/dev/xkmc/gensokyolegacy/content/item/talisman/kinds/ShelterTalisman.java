@@ -24,7 +24,7 @@ public class ShelterTalisman extends TalismanPaperItem {
 			if (f >= event.getTarget().getHealth() * 0.2) {
 				ctx.addCooldown(100);
 				ctx.hurtItem();
-				return f * 0.2f;
+				return f * 0.5f;
 			}
 			return f;
 		}, GensokyoLegacy.loc("shelter_talisman")));
