@@ -219,6 +219,7 @@ public final class GLLang {
 		NEAR_TOO_PLAIN("%s would come, but wants a grander spread than this", 1),
 		NEAR_NO_SEAT("%s would come, but there is no seat free", 1),
 		SENT("Invitations sent. %s guest(s) are on the way", 1),
+		NO_CHAIR("%s gave up - no chair was free for her. Put out another chair", 1),
 		ENDED("The party is over"),
 		NO_PARTY("There is no party here"),
 		PREVIEW_TITLE("Spread appeal: %s, seats: %s", 2),

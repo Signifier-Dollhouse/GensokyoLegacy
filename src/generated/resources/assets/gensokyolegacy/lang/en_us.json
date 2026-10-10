@@ -530,6 +530,7 @@
   "gensokyolegacy.party.preview_none": "Nobody would come",
   "gensokyolegacy.party.preview_title": "Spread appeal: %s, seats: %s",
   "gensokyolegacy.party.sent": "Invitations sent. %s guest(s) are on the way",
+  "gensokyolegacy.party.no_chair": "%s gave up - no chair was free for her. Put out another chair",
   "gensokyolegacy.quest.character": "For %s",
   "gensokyolegacy.quest.item_submit_fail": "Some criteria are not met or used overlapped items",
   "gensokyolegacy.quest.item_submit_pass": "All criteria are met",

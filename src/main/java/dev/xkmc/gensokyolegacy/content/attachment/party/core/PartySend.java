@@ -182,7 +182,8 @@ public class PartySend {
 		var party = PartyAttachment.of(level, partyChunk);
 		if (party == null || party.active()) return new Outcome(plan.area(), null, Refusal.PARTY_EXISTS, null);
 		party.start(level.getChunkAt(center), level.getGameTime(), sp.getUUID(), anchor,
-				plan.roster(), plan.capacity());
+				plan.roster(), plan.capacity(),
+				PartyArea.foodAround(level, anchor), PartyArea.seatsAround(level, anchor));
 		PartyTicker.register(level, partyChunk);
 
 		for (var type : plan.roster()) {

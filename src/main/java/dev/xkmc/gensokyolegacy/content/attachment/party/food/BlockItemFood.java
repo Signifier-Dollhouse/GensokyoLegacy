@@ -1,6 +1,8 @@
 package dev.xkmc.gensokyolegacy.content.attachment.party.food;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -45,5 +47,14 @@ public class BlockItemFood implements BlockFoodHandler {
 	public int consume(Level level, BlockPos pos, BlockState state) {
 		level.destroyBlock(pos, false);
 		return 0;
+	}
+
+	/**
+	 * Named by the block's own item, because that item <i>is</i> the food — {@link #food}
+	 * reads it and this handler exists to serve exactly one of them, eaten whole.
+	 */
+	@Override
+	public ResourceLocation id(BlockState state) {
+		return BuiltInRegistries.ITEM.getKey(state.getBlock().asItem());
 	}
 }

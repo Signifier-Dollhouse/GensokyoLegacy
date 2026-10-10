@@ -8,7 +8,10 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.food.FoodProperties;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+
+import java.util.List;
 
 /**
  * How appealing one serving of food is, derived from what it actually is to eat.
@@ -32,6 +35,22 @@ import net.minecraft.world.level.block.state.BlockState;
  * datapack row is consulted only afterwards, and only to replace the number the
  * heuristic derived — it can say "this cake is worth twice what its properties imply",
  * never "this barrel is a cake".
+ *
+ * <p>
+ * <b>Everything here takes a level and a position</b>, not just a block state. Most food
+ * describes itself entirely by its state and is cached; food in a container cannot be,
+ * because the same block holds different things on different ticks. Rather than have two
+ * parallel sets of methods — one state-only, one not — there is one set that takes the
+ * world and routes each block the way it has to be answered. The cost is that the common
+ * case carries two arguments it does not use.
+ *
+ * <p>
+ * That has a price worth naming: the answers below are <b>a snapshot, not a transaction</b>.
+ * Reading the serves and then consuming is two separate looks at the world, so two guests
+ * converging on the same dish can both read it as present and the second finds nothing
+ * there. The consequence is bounded — a guest occasionally eats one dish less than she
+ * banked — and closing it properly would mean holding a reservation across ticks, which
+ * is a far larger change than the window is worth.
  */
 public class PartyFoodValue {
 
@@ -69,14 +88,32 @@ public class PartyFoodValue {
 	}
 
 	/**
-	 * The resolved result for this placed block, from {@link FoodResultCache}.
+	 * Every food this placed block offers, as a fresh list.
+	 *
 	 * <p>
-	 * This is the one entry point everything else goes through: the appeal, the serve
-	 * count and consuming are all read off a single cached result rather than each
-	 * resolving the block independently.
+	 * One entry for nearly everything: the whole serving count of one kind of food. A
+	 * container is the exception and reports <b>one entry per kind of thing it holds</b>,
+	 * with {@code serves} set to how many of that item there are — two apples are two
+	 * servings of one entry, not two entries, because they are one food a guest comes
+	 * back to.
+	 *
+	 * <p>
+	 * Never a retained reference. A container's answer describes this instant; a
+	 * state-derived one is safely cached and shared, but nothing here lets a caller tell
+	 * the two apart, so all of them are treated as a snapshot.
 	 */
-	public static FoodResult result(BlockState state) {
-		return FoodResultCache.of(state);
+	public static List<FoodResult> results(Level level, BlockPos pos, BlockState state) {
+		var container = PartyFoodHandler.containerOf(state.getBlock());
+		// a container is never answered from the cache: its contents are not in the state
+		if (container != null) return container.contents(level, pos, state);
+		return List.of(FoodResultCache.of(state));
+	}
+
+	/** How many servings of anything this block offers. */
+	public static int serves(Level level, BlockPos pos, BlockState state) {
+		int total = 0;
+		for (var result : results(level, pos, state)) total += Math.max(0, result.serves());
+		return total;
 	}
 
 	/**
@@ -89,30 +126,35 @@ public class PartyFoodValue {
 	 * {@code party_food} is read further down, by {@link #appealPerServe}, and only to
 	 * replace a number for a block that already passed here.
 	 */
-	public static boolean isFood(BlockState state) {
-		return result(state).valid();
+	public static boolean isFood(Level level, BlockPos pos, BlockState state) {
+		for (var result : results(level, pos, state)) {
+			if (result.valid()) return true;
+		}
+		return false;
 	}
 
 	/**
 	 * Appeal of one serving of this placed block, honouring its handler and then
 	 * any override.
 	 * <p>
+	 * For a container this is the <b>average across what it holds</b>, not the appeal of
+	 * any one thing on it: a board of apples and Roquefort is worth what its servings are
+	 * collectively worth, and there is no single dish there to price. Uniform contents —
+	 * which is most containers in practice — make the average exactly the one value.
+	 * <p>
 	 * The override is consulted <b>only after</b> validity, so it can revalue a dish
 	 * but cannot conjure one: a {@code party_food} row on a block no handler can serve
-	 * scores 0 exactly as it would without the row. Validated first, therefore, rather
-	 * than checking the override first and letting it short-circuit the test — that way
-	 * this method's "0 when not valid food" is true on every path and not just the
-	 * common one.
+	 * scores 0 exactly as it would without the row. Nothing invalid is counted at all,
+	 * rather than being counted as a zero the override could then fill in — that is what
+	 * makes "0 when not valid food" true on every path and not just the common one.
 	 *
 	 * @return the appeal of one serving, or 0 when the block is not valid food. A 0 is
 	 * the signal that the block should be treated as not party food at all:
 	 * it is neither counted towards the budget nor walked to and eaten.
 	 */
-	public static int appealPerServe(RegistryAccess access, BlockState state) {
-		var result = result(state);
-		if (!result.valid()) return 0;
-		var override = PartyFood.of(access, state);
-		return override != null ? override.appeal() : appealOf(result.food());
+	public static int appealPerServe(RegistryAccess access, Level level, BlockPos pos, BlockState state) {
+		var totals = totals(access, level, pos, state);
+		return totals[0] <= 0 ? 0 : totals[1] / totals[0];
 	}
 
 	/**
@@ -120,8 +162,38 @@ public class PartyFoodValue {
 	 *
 	 * @return the appeal, or 0 for something not worth serving
 	 */
-	public static int totalAppeal(RegistryAccess access, BlockState state) {
-		return appealPerServe(access, state) * result(state).serves();
+	public static int totalAppeal(RegistryAccess access, Level level, BlockPos pos, BlockState state) {
+		return totals(access, level, pos, state)[1];
+	}
+
+	/**
+	 * {@code {serves, totalAppeal, totalHunger}}, from one pass over the block's results.
+	 *
+	 * <p>
+	 * One pass because these three are asked together and because the third reason matters:
+	 * for a container each pass is a fresh look at a block entity, and reading it three
+	 * times to compute one number invites three different answers.
+	 *
+	 * <p>
+	 * An index triple rather than three small records, because it is built once per block
+	 * for the whole of a party — a scan asks this of every position it walks — and a
+	 * three-field record per query is a heap cost the arithmetic reads perfectly well
+	 * without.
+	 */
+	private static int[] totals(RegistryAccess access, Level level, BlockPos pos, BlockState state) {
+		var override = PartyFood.of(access, state);
+		int serves = 0, appeal = 0, hunger = 0;
+		for (var result : results(level, pos, state)) {
+			if (!result.valid()) continue;
+			serves += result.serves();
+			// the override revalues the block. On a container that means everything on it:
+			// there is no finer key to reach for, and a row saying what a board is worth
+			// should mean the whole board rather than one apple on it
+			int per = override != null ? clamp(override.appeal()) : appealOf(result.food());
+			appeal += per * result.serves();
+			hunger += hungerOf(result.food()) * result.serves();
+		}
+		return new int[]{serves, appeal, hunger};
 	}
 
 	/**
@@ -145,7 +217,9 @@ public class PartyFoodValue {
 	}
 
 	/**
-	 * Hunger of one serving of this placed block.
+	 * Hunger of one serving of this placed block, averaged the same way
+	 * {@link #appealPerServe} averages appeal.
+	 *
 	 * <p>
 	 * Never reads the {@code party_food} override, and takes no {@code RegistryAccess}:
 	 * that map revalues <em>appeal</em>, and letting it reach the planning quantity would
@@ -154,14 +228,14 @@ public class PartyFoodValue {
 	 *
 	 * @return the hunger of one serving, or 0 when the block is not valid food
 	 */
-	public static int hungerPerServe(BlockState state) {
-		var result = result(state);
-		return result.valid() ? hungerOf(result.food()) : 0;
+	public static int hungerPerServe(Level level, BlockPos pos, BlockState state) {
+		var totals = totals(level.registryAccess(), level, pos, state);
+		return totals[0] <= 0 ? 0 : totals[2] / totals[0];
 	}
 
 	/** Hunger of this placed block — every serving still on it. */
-	public static int totalHunger(BlockState state) {
-		return hungerPerServe(state) * result(state).serves();
+	public static int totalHunger(Level level, BlockPos pos, BlockState state) {
+		return totals(level.registryAccess(), level, pos, state)[2];
 	}
 
 	/**
@@ -169,10 +243,18 @@ public class PartyFoodValue {
 	 * step. The caller must read {@link #appealPerServe} <i>before</i> calling, since
 	 * consuming changes the state the appeal is derived from.
 	 *
+	 * <p>
+	 * On a container this takes one item, and specifically one of the kind that was
+	 * read: a guest who drew for an apple takes an apple, even if the cheese was on top
+	 * of the pile.
+	 *
 	 * @return servings remaining afterwards
 	 */
 	public static int consume(ServerLevel level, BlockPos pos, BlockState state) {
-		return result(state).consume().consume(level, pos, state);
+		for (var result : results(level, pos, state)) {
+			if (result.valid()) return result.consume().consume(level, pos, state);
+		}
+		return 0;
 	}
 
 	private static int clamp(int value) {

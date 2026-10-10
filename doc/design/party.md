@@ -221,13 +221,14 @@ public interface BlockFoodHandler {
 | `PlateFood` | KC plates and platters | `servings` 3..5, counted **down** | `PlateRegistry`'s serving items for the block id |
 | `BlockItemFood` | anything else, and the fallback | 1 | the block's own item |
 
-#### `FoodResult` — one resolution, three answers
+#### `FoodResult` — one resolution, four answers
 
-Everything above is derived from the same block state and is always wanted together: the planner needs the serve count, the appeal needs the properties, the guest needs the action. So it is resolved once and kept.
+Everything above is derived from the same block state and is always wanted together: the planner needs the serve count, the appeal needs the properties, the readout wants to name it, and the guest needs the action. So it is resolved once and kept.
 
 ```java
-public record FoodResult(int serves, @Nullable FoodProperties food, FoodConsume consume) {
-    public static final FoodResult INVALID = new FoodResult(0, null, (level, pos, state) -> 0);
+public record FoodResult(ResourceLocation id, int serves, @Nullable FoodProperties food,
+        FoodConsume consume) {
+    public static final FoodResult INVALID = new FoodResult(INVALID_ID, 0, null, (level, pos, state) -> 0);
 
     public boolean valid() {
         if (serves <= 0 || food == null) return false;
@@ -248,6 +249,29 @@ All four kinds of invalid food collapse to that one `INVALID`:
 Mapping them to one value rather than four different near-zero scores is the point: callers ask `valid()` instead of each re-deciding what "worthless" means, and a handler that forgets to filter cannot accidentally make a dud look like food.
 
 `consume` takes the state as a parameter rather than closing over it. The cached result belongs to the state it was built from, but by the time a guest gets round to eating, the world may have moved on — another guest took a slice, the player broke the block — and consuming against a stale state would put it back or resurrect it.
+
+**The `id` names the food by one rule: the serving item's where there is one, the block's otherwise.** A cake is named by the cake block's own item, because that item *is* the food; a Farmer's Delight feast is named by its `*_slice` item, because that is the thing a guest is actually handed; vanilla cake, which has no slice item at all, falls back to the block. It is identity for display and diagnostics, and it is deliberately **not** an override key — `party_food` stays keyed by block, so a row on a cutting board revalues the whole board rather than one apple on it.
+
+#### `ContainerFoodHandler` — food that is not in the block state
+
+Most block foods describe themselves entirely by their state, which is what makes the cache below possible. A **container** does not: the same `steamer_rack` block holds bread on one tick and nothing on the next, and the block state does not change when a guest eats from it. Anything derived from a container's contents therefore **cannot** be cached — a cached answer about them would be right once and wrong for ever after — so it is a second interface, in a second list, never routed through `FoodResultCache`:
+
+```java
+public interface ContainerFoodHandler {
+    boolean handles(Block block);
+    List<FoodResult> contents(Level level, BlockPos pos, BlockState state);
+    boolean isPutOut(Level level, BlockPos pos, BlockState state);
+    int consume(Level level, BlockPos pos, BlockState state);
+}
+```
+
+Two things about it are not obvious.
+
+**A container reports a list, not one food.** A board with apples, cheese and a carrot is three answers with three values, and averaging them into one would misprice both the spread and the draw. Each entry is one *kind* with `serves` set to how many of it there are — two apples are two servings of one entry, not two entries, because they are one food a guest comes back to.
+
+**A container decides its own layout.** `isPutOut` is not the shared furniture test, because the rule genuinely differs by block (see below). One rule for all containers would have to be the loosest of them, which would put cutting boards on the floor into the spread.
+
+Everything downstream of this is why `PartyFoodValue` now takes a `Level` and a `BlockPos` everywhere instead of just a `BlockState`. There is one set of methods rather than two parallel ones, and the cost is that the common case carries two arguments it does not use. The answers are a **snapshot, not a transaction**: reading the serves and then consuming is two looks at the world, so two guests converging on one dish can both read it present and the second finds nothing there. The consequence is bounded — a guest occasionally eats one dish less than she banked — and closing it properly would mean holding a reservation across ticks, which is a far larger change than the window is worth.
 
 #### `FoodResultCache` — resolving it once
 
@@ -381,7 +405,7 @@ Every one is derived by the code above, not chosen by hand:
 | steak | 7 | — | 7 |
 | golden apple (2 beneficial effects) | 16 | — | 16 |
 
-#### Registration is per class only — no block ids anywhere
+#### Registration is by class — and by identity for the two that have no class
 
 `BlockFoods.register()` is called once from the common setup, after the blocks exist. `PartyFoodHandler` maps a handler to a block **class** and resolves by walking the hierarchy most-derived-first:
 
@@ -414,6 +438,18 @@ public static BlockFoodHandler of(Block block) {
 ```
 
 Every handler answers `handles` with an `instanceof` against the one class it was written for — `CakeFood` tests `CakeBlock`, `FeastFood` tests `FeastBlock`, and so on — so subclasses are covered without anything enumerating them. The fallback is not a special path either: `BlockItemFood` accepts every block and simply sits **last** in the list, which is the only thing keeping it from swallowing the rest. There are no block ids in the party food setup at all.
+
+**Two handlers cannot use `instanceof`, because the blocks they name have no class.** Youkai's Feasts registers its cutting board and both halves of its steamer as `DelegateBlock`s built from `BlockMethod`s — `CuisineBoardBlock` is a method, not a `Block`, so there is nothing to test a block against — and the only way to name one is identity:
+
+```java
+// content/attachment/party/food/SteamerRackFood.java
+@Override
+public boolean handles(Block block) {
+    return block == YHBlocks.STEAMER_RACK.get() || block == YHBlocks.STEAMER_POT.get();
+}
+```
+
+Both live in the **container** list, not this one, because they are containers. That is the whole reason there are two lists: a state-derived handler that happened to match a container's class first would route it through the cache, and a cached answer about a block entity is a wrong answer kept for ever.
 
 The catch-all earns its place. Farmer's Delight's feasts are all the same `FeastBlock` class and each hands out a different serving item, which at one point looked like it needed a per-block table; it does not, because `FeastBlock.getServingItem(BlockState)` and `PieBlock.getPieSliceItem()` are both public and the handler simply asks the block.
 
@@ -533,6 +569,18 @@ code did. It is wrong because it splits one question in two: the block answers `
 "is this food" while being worth nothing, which then leaks into `PartyWand.useOn`, where
 clicking such a block consumes nothing and still swallows the interaction.
 
+
+#### The two Youkai's Feasts containers
+
+Neither is a plate of food in the usual sense — both are vessels you fill — and both are party food anyway, because a host who has put out a cutting board of ingredients or a steaming pot has laid out a party.
+
+**`CuisineBoardFood` — a cutting board.** Whatever is lying on it, one entry per kind of thing. Whether there is anything to eat is decided by resolving the board's `TableItem` model and asking whether it came back as a `FoodTableItem`: that is the form that carries contents, and an empty board never gets one. Reading the list is then done from the block entity rather than from the model, because the model's copy is the snapshot taken when the recipe matched while the block entity's is live — and because a guest taking one item has to take it from the board itself, or the next guest is offered food that is no longer there.
+
+**`SteamerRackFood` — a steamer, both halves of it.** The pot carries up to two rack tiers of its own (the `pot_racks` property, which is how you steam with no rack at all) and each rack block stands in the pot with up to four tiers. They are separate block entities with separate storage, so a full steamer is genuinely two food sources and neither shadows the other. Unlike the board this needs no reflection — the contents are public fields on `RackData` and `RackItemData`.
+
+**Their placement rules differ, and that asymmetry is the design.** A board is food only on the table, exactly like any other dish. A pot is food **wherever it stands** — on a stove, on the table, on the ground — because a pot of food on a kitchen floor is a thing a host has actually done, and refusing it would put the feature out of reach in the one room it was made for. A rack is food on the table, or in a pot, and on the ground it is not: a rack is a part of a steamer rather than a dish in its own right, and it needs a pot or a table to be part of anything. The pot has to be looked *through* to work that out — a rack inside one has pot interior below it, not the pot block, so the block that carries it is two or three down.
+
+**The board's contents are read reflectively, and that is forced.** Both the board's list and the model's are private with no accessor. The alternatives were a mixin accessor — which would need a config plugin to survive Youkai's Feasts being absent, and it *is* absent from a dev launch where it is `compileOnly`, so an unguarded mixin would fail the game every time rather than only when the feature is used — or `getHints`, which describes what the board could become rather than what is on it: a board holding one apple out of a three-part recipe would report three ingredients, and the party would be budgeted against food the host never put out. The field is resolved once and never again, and a board whose field has been renamed by an update reads as "no food on it" rather than taking the party down.
 
 ### 2.3 The support problem — measured, and the answer was "no change needed"
 
@@ -1253,13 +1301,25 @@ EATING       → swing + USE_MAINHAND + eating sound, wait EAT_TICKS,
                take ONE serve, credit hunger AND appeal
                then RETURNING if she left her chair, else RESTING
 RETURNING    → walk back to her chair, sit again
-RESTING      → wait 1s if still hungry, 5s once satisfied, then SEEK_FOOD
+RESTING      → wait hungrySeat (1s) if still hungry, fullSeat (5s) once satisfied
+               roll leaveChance after a satisfied sit — and go, if it comes up
+no chair in 10s → leave the party, so the table can go on without her
 no dish left → giveGift(), dismiss()
 ```
 
-**The dish is drawn, not found.** `drawDish` sweeps the search box, keeps everything that is laid out and still worth eating, and picks one with probability proportional to `appealPerServe`. That is what makes a guest work across the spread instead of clearing the nearest plate first and working outwards, and what makes the tasty things go before the plain ones. It replaced a `nearestFood` search, which had the opposite property by construction.
+**The party caches its own spread and its own chairs.** `PartyAttachment` holds both lists and refreshes them on two schedules from `PartyTicker`: the food every two seconds, the layout every ten. A guest needs the food list every time she draws a dish, which is every few seconds for the length of her visit, so having each guest sweep a box for herself made the party cost far more to run than the party itself. Two rates because the two change at very different speeds — every dish a guest eats is one fewer, while a chair that moved a second ago will still be there in four more — and because conflating them would either make a refilled dish take ten seconds to appear or rebuild the chair list four times a second for nothing.
 
-**She never leaves on being satisfied.** Reaching her fulfillment only lengthens the sit between dishes, from `HUNGRY_REST` (1s) to `FULL_REST` (5s). The visit ends when `drawDish` can find nothing she can reach — the host's food, not her appetite, is what ends it.
+The fast rate is also what makes **refilling work at all**. The scan runs once per send and freezes a roster against it; without a rescan a host putting out a second course would have it ignored until everyone had left, and a guest would walk to a dish another guest had just finished. The lists are re-checked per use rather than trusted — the cache is two seconds old, and in those two seconds a dish may have been eaten or moved.
+
+One consequence worth stating: `hungerBudget` now tracks what the guests can actually reach, and moves as the host refills. It therefore **narrows** after a send, from "the whole scanned room" to "the guest box" — which is the honest answer, since nothing outside that box can be eaten, but it is a different number from the one the send printed.
+
+**The dish is drawn, not found.** `drawDish` reads the party's cached food list, keeps everything still laid out and still worth eating, and picks one with probability proportional to `appealPerServe`. That is what makes a guest work across the spread instead of clearing the nearest plate first and working outwards, and what makes the tasty things go before the plain ones. It replaced a `nearestFood` search, which had the opposite property by construction.
+
+**She never leaves on being satisfied — but she does leave eventually.** Reaching her fulfillment only lengthens the sit between dishes, from her `hungrySeat` (1s) to her `fullSeat` (5s), both per character in `party_taste` rather than constants: a glutton plausibly dawdles between courses and a nibbler plausibly does not. After each *satisfied* sit she rolls `leaveChance` (5%) and goes if it comes up. That is the only thing that ends a party before the food does, and it has to exist — otherwise a guest who is already full has no reason ever to go home and the table stays occupied until the host's spread is gone. It is a chance per sit rather than a flat timer so that the two per-character fields mean something together: a long `fullSeat` also means a slow departure. In simulation, a guest facing a 200-dish spread leaves after about eleven dishes, every time.
+
+**Ten seconds without a chair and she is expelled.** The party-wide feast gate (§4) waits for *every* guest to be seated, so one guest who cannot find a chair would otherwise hold the whole table out of the feast until the ten-minute `PARTY_TIMEOUT`. After ten seconds she leaves the party instead — no gift, since she never ate, and a word to the host, since "there are not enough chairs for the number of guests I invited" is something the host can act on and a silently emptier table is not. This is the same ten seconds whether she never found a chair or lost the one she had.
+
+**Her chair is re-checked, so a removed one does not strand her.** The layout rescan (§4) bumps a version counter when the chair list changes, and the guest compares it against the version she last saw. A chair that has been broken is no longer hers to sit on, so she drops the claim and starts looking again — on the same ten seconds, and expelling herself if there is nothing else. Without this, a guest removed from her `ChairEntity` would stand beside the table in GATHERING for ever, holding the party with her.
 
 **Most rounds she does not move.** A dish within `REACH` (3 blocks) of where she sits is eaten from the chair. Only a dish further out sends her across the room — which costs a dismount, because **sitting means riding** a `ChairEntity` (`ISeatableBlock.sitDown` calls `startRiding(seat, true)`) and a passenger does not walk. Every departure therefore owes a return, or the second trip out would be measured from wherever the first one left her.
 
@@ -1451,8 +1511,8 @@ One detail of the text readout survives unchanged: the result is a snapshot of a
 - **A guest belongs to the chunk that owns the party, not the chunk she stands in.** Both the anchor table and the food centre lie inside the walk's reach, so a party routinely straddles a chunk border. Guests therefore carry the owning `ChunkPos` explicitly and look the party up by that — never by `new ChunkPos(table)`, which silently misses and makes her dismiss herself on her first tick. Same reasoning behind `/gensokyo party info|end` searching the neighbourhood through `PartyAttachment.near` instead of one chunk.
 - **A guest claims one chair per party and keeps it for the visit.** `HomeSearchUtil.setSitting` is a one-shot call with no un-sit counterpart, so once seated she stays on *that* chair — she dismounts to walk to a dish beyond her reach and sits back down on the same one, and `claimSeat` is first-write-wins so a rearranged table cannot walk her off it. Seat reassignment after someone leaves is not implemented.
 - **No cross-dimension concern.** A guest clone spawns in the host's level and `party_taste` is dimension-independent, so any character may be invited anywhere. Noted only so it is not rediscovered as a bug later.
-- **A guest's seat and dish search is a fixed 6-block sweep, not `PartyArea.scan`.** That scan walks a whole room and hands back a resolved spread; a guest doing it on a behaviour tick, for every guest, would cost more than the party, squared in the guest count. `drawDish` runs once per dish rather than per tick, which is already far cheaper than the `nearestFood` search it replaced, but the box stays small — a banquet laid out over tens of blocks is not something a guest walks to and back anyway. This is the one place the scan distance deliberately does not apply.
-- **A guest leaves when the spread runs out, so a large table keeps her a long time.** Nothing bounds a visit except the food, and the timeout behind that is 10 minutes. A host who lays out a banquet can expect the table to be occupied for most of it, with guests dropping away one by one as the last dishes go. `partyGuestRadius` keeps them inside the room, but it does not stop the visit being long.
+- **A guest's seat and dish search is a fixed 6-block box, not `PartyArea.scan`.** `PartyArea.scan` walks a whole room; this is a triple loop over `GUEST_RADIUS`, swept by the **party** on a timer (§6.5) rather than by each guest for herself, because a guest asks for the list every time she draws a dish and that is every few seconds for the length of her visit. A banquet laid out over tens of blocks is not something a guest walks to and back anyway. This is the one place the scan distance deliberately does not apply, and the reason the scan radius and the guest radius are two different numbers.
+- **A guest leaves when her `leaveChance` comes up, so a big table empties on its own.** A satisfied guest rolls 5% after each 5-second sit, which in simulation means a guest facing a 200-dish spread leaves after about eleven dishes — always by the roll, never by running the spread out. That is the intended shape and it is also a real tuning decision: 5% per sit is tuned so a guest lingers about a hundred seconds of sitting before wandering off, and a datapack author who wants a longer party raises `fullSeat` *or* lowers `leaveChance`, which are two different flavours of the same dial. `partyGuestRadius` keeps everyone inside the room but does not affect this.
 - **The area draw is wand-only, and scan-only.** It never renders for a player not holding a party wand, so it is debug output with no gameplay footprint. It is also not refreshed by a real send (§9.2) — only by a wand click and by `preview`.
 - **`en_ud` lang variants** regenerate with the rest; zh_cn entries go under `src/test/resources/gensokyolegacy/lang/zh_cn/` and the `ResourceOrganizer` main is rerun afterwards.
 

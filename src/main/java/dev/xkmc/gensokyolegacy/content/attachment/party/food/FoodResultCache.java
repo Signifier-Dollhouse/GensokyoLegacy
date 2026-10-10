@@ -24,6 +24,12 @@ import java.util.concurrent.ConcurrentHashMap;
  * grow with world size, with uptime, or with how many parties have happened.
  *
  * <p>
+ * <b>Containers never reach this cache.</b> A block entity's contents are not part of the
+ * block state, so a cached answer about them would be right once and wrong for ever
+ * after; {@link ContainerFoodHandler} is the other way round and reads the world every
+ * time. Anything routed here must be answerable from the state alone.
+ *
+ * <p>
  * <b>Nothing here is datapack data.</b> What goes in a result is the serve count, the
  * food properties and the consume action, and all three come from registration — the
  * block's state definition, the item registry, and the handler itself. The
@@ -62,7 +68,7 @@ public final class FoodResultCache {
 		if (serves <= 0) return FoodResult.INVALID;   // a container with nothing in it
 		var food = handler.food(state);
 		if (food == null || !servable(food)) return FoodResult.INVALID;
-		return new FoodResult(serves, food, handler::consume);
+		return new FoodResult(handler.id(state), serves, food, handler::consume);
 	}
 
 	private static boolean servable(FoodProperties food) {

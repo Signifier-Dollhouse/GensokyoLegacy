@@ -5,6 +5,7 @@ import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyArea;
 import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyAttachment;
 import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyFoodValue;
 import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyGift;
+import dev.xkmc.gensokyolegacy.content.attachment.party.item.PartyMessage;
 import dev.xkmc.gensokyolegacy.content.entity.module.PartyModule;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.SmartYoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiAnim;
@@ -35,8 +36,9 @@ import java.util.Map;
  * The shape is a cycle, not walk-then-finish. Each round she draws a dish weighted by its
  * appeal, eats one serving of it, goes back to her chair and sits for a while before the
  * next. How long that sit is depends on whether she has eaten her fill:
- * {@link #HUNGRY_REST} while she still needs the food, {@link #FULL_REST} once she has
- * had enough and is only grazing. She never leaves on being satisfied — the visit ends
+ * her {@code hungrySeat} while she still needs the food and her {@code fullSeat} once she
+ * has had enough and is only grazing — both per character, not constants. She never
+ * leaves on being satisfied; the visit ends when her {@code leaveChance} comes up, or
  * when the host's food does.
  * <p>
  * Most rounds she does not move at all. A dish within {@link #REACH} of where she sits is
@@ -67,26 +69,23 @@ public class YoukaiPartyTask extends Behavior<SmartYoukaiEntity> {
 	 * {@code PARTY_TIMEOUT} bounds the visit as a whole.
 	 */
 	private static final int LEG_TIMEOUT = 200;
+	/**
+	 * How long she will look for a chair before giving the party up. Ten seconds.
+	 *
+	 * <p>
+	 * The escape from a table that will never eat. Without it, one guest with nowhere to
+	 * sit holds the whole party in GATHERING — the party-wide feast gate waits for
+	 * everyone — and the host is told nothing until the ten-minute timeout calls the
+	 * party off. Ten seconds is long enough that a host still placing chairs is not
+	 * losing guests to their own furniture, and short enough that they find out they are
+	 * one chair short while there are still guests to seat.
+	 */
+	private static final int SEAT_TIMEOUT = 200;
 	/** How often a missing chair is re-checked, in ticks. */
 	private static final int SEAT_RETRY = 40;
 
 	/** How close to a dish counts as reaching it, squared. Three blocks. */
 	private static final double REACH_SQR = 9.0;
-
-	/** Sitting time between dishes while she is still hungry: one second. */
-	private static final int HUNGRY_REST = 20;
-	/** Sitting time between dishes once she is satisfied: five seconds. */
-	private static final int FULL_REST = 100;
-
-	/**
-	 * How far around the table she looks for a chair, and for a dish to draw.
-	 * <p>
-	 * Fixed, and much smaller than the party scan distance. The scan walks a whole room
-	 * once, for the party; this is walked per guest, once per dish, for the length of the
-	 * visit — and a guest is not going to walk tens of blocks for another helping anyway,
-	 * she eats what is at her table and takes what she can reach.
-	 */
-	private static final int SEARCH_RADIUS = 6;
 
 	private enum Phase {
 		/** Walking to a chair. */
@@ -109,12 +108,18 @@ public class YoukaiPartyTask extends Behavior<SmartYoukaiEntity> {
 	private long deadline;
 	/** Deadline of the current wait, for EATING and RESTING. */
 	private long until;
+	/** When she stops looking for a chair and leaves the party. */
+	private long seatDeadline;
+	/** Whether the sit in progress is a satisfied one, and so may roll for leaving. */
+	private boolean restingFull = false;
 	/** Hunger in the dish being eaten, read before it was removed. */
 	private int pendingHunger = 0;
 	/** Appeal in the same dish; her gift is sized on the running total of these. */
 	private int pendingAppeal = 0;
 	/** Whether she is away from her chair and owes it a return. */
 	private boolean away = false;
+	/** The chair list's version when she last checked her own chair was still on it. */
+	private int layoutVersion = -1;
 
 	public YoukaiPartyTask() {
 		super(Map.of(
@@ -149,6 +154,7 @@ public class YoukaiPartyTask extends Behavior<SmartYoukaiEntity> {
 		// starts a fresh one, so guessing would restart every guest at the chair and send
 		// them all out for another walk.
 		var party = entity.getModule(PartyModule.class).orElseThrow();
+		seatDeadline = gameTime + SEAT_TIMEOUT;
 		if (party.seat() == null) {
 			phase = Phase.SEEK_SEAT;
 		} else if (entity.isPassenger()) {
@@ -173,6 +179,21 @@ public class YoukaiPartyTask extends Behavior<SmartYoukaiEntity> {
 		if (gameTime > deadline) {
 			dismiss(entity);
 			return false;
+		}
+		// her chair was taken away under her: the layout rescan noticed, and she is
+		// standing with nothing to sit on. Back to looking for one, on the same ten
+		// seconds a first-time guest gets - if there is no other chair she leaves.
+		if (layoutVersion >= 0 && layoutVersion != attachment.layoutVersion()) {
+			layoutVersion = attachment.layoutVersion();
+			var seat = party.seat();
+			if (seat != null && !attachment.seats().contains(seat)) {
+				party.dropSeat();
+				if (entity.isPassenger()) entity.stopRiding();
+				phase = Phase.SEEK_SEAT;
+				target = null;
+				away = false;
+				seatDeadline = gameTime + SEAT_TIMEOUT;
+			}
 		}
 		step(level, entity, party, attachment, gameTime);
 		// Deliberately keeps the task running across a phase change instead of returning
@@ -201,6 +222,16 @@ public class YoukaiPartyTask extends Behavior<SmartYoukaiEntity> {
 			case RESTING -> {
 				if (gameTime < until) return;
 				until = 0;
+				// The only place a guest leaves while there is still food. Rolled once
+				// per satisfied sit and not on a timer, so a character who sits longer
+				// also dawdles about leaving - which is what a slow eater should do, and
+				// what makes the two per-character fields mean something together.
+				if (restingFull && entity.getRandom().nextDouble() < party.leaveChance()) {
+					PartyGift.give(level, entity, party);
+					dismiss(entity);
+					return;
+				}
+				restingFull = false;
 				phase = Phase.SEEK_FOOD;
 			}
 			case WAIT_TABLE -> {
@@ -212,7 +243,7 @@ public class YoukaiPartyTask extends Behavior<SmartYoukaiEntity> {
 			}
 			default -> {
 				if (target != null && !level.isLoaded(target)) target = null;
-				if (target == null) seek(level, entity, party, gameTime);
+				if (target == null) seek(level, entity, party, attachment, gameTime);
 				else if (inReach(entity, target)) arrive(level, entity, party, attachment);
 			}
 		}
@@ -224,11 +255,18 @@ public class YoukaiPartyTask extends Behavior<SmartYoukaiEntity> {
 	 * Records the destination in {@link #target}, so the next tick {@code step()} checks
 	 * arrival instead of seeking again.
 	 */
-	private void seek(ServerLevel level, SmartYoukaiEntity entity, PartyModule party, long gameTime) {
+	private void seek(ServerLevel level, SmartYoukaiEntity entity, PartyModule party,
+			PartyAttachment attachment, long gameTime) {
 		switch (phase) {
 			case SEEK_SEAT -> {
-				var seat = nearestSeat(level, entity, party.table());
+				var seat = nearestSeat(level, entity, party, attachment);
 				if (seat == null) {
+					// She has been given a chair already and has lost it, so the clock
+					// starts now rather than when she arrived.
+					if (gameTime > seatDeadline) {
+						expel(level, entity, party, attachment);
+						return;
+					}
 					// no chair in reach yet: the player may still be placing them, so keep
 					// the guest alive and look again shortly
 					if (gameTime % SEAT_RETRY == 0) deadline = gameTime + PartyModule.ARRIVE_TIMEOUT;
@@ -237,7 +275,7 @@ public class YoukaiPartyTask extends Behavior<SmartYoukaiEntity> {
 				walkTo(entity, seat.above().getCenter(), seat);
 			}
 			case SEEK_FOOD -> {
-				var dish = drawDish(level, entity, party);
+				var dish = drawDish(level, entity, party, attachment);
 				if (dish == null) {
 					// nothing of the spread left she can reach, so she settles up and goes
 					PartyGift.give(level, entity, party);
@@ -323,16 +361,17 @@ public class YoukaiPartyTask extends Behavior<SmartYoukaiEntity> {
 		// dish is only part of the spread if the table or chair it was put out on is
 		// still there
 		var state = level.getBlockState(dish);
-		if (!PartyFoodValue.isFood(state) || !PartyArea.isLaidOut(level, dish)) {
+		if (!PartyFoodValue.isFood(level, dish, state) || !PartyArea.isLaidOut(level, dish, state)) {
 			// someone else got there first, or the host broke it up; take the next turn
 			target = null;
 			beginRest(level, entity, entity.getModule(PartyModule.class).orElseThrow());
 			return;
 		}
-		// both readings are taken from the state BEFORE consuming — one slice of a cake,
-		// one serving of a feast
-		pendingHunger = PartyFoodValue.hungerPerServe(state);
-		pendingAppeal = PartyFoodValue.appealPerServe(level.registryAccess(), state);
+		// both readings are taken BEFORE consuming — one slice of a cake, one serving of a
+		// feast, or one item off a board or a rack where the answer is not in the block
+		// state at all and has to be read out of the block entity
+		pendingHunger = PartyFoodValue.hungerPerServe(level, dish, state);
+		pendingAppeal = PartyFoodValue.appealPerServe(level.registryAccess(), level, dish, state);
 		phase = Phase.EATING;
 		until = level.getGameTime() + EAT_TICKS;
 		entity.swing(InteractionHand.MAIN_HAND);
@@ -350,17 +389,18 @@ public class YoukaiPartyTask extends Behavior<SmartYoukaiEntity> {
 	 * The wait is longer once she has eaten her fill: a hungry guest is back for the next
 	 * course, a satisfied one is only grazing and takes her time over it.
 	 * <p>
-	 * The deadline is pushed out here too, because {@link #FULL_REST} is longer than the
-	 * gap between two seeks once a dish has been walked to and back from.
+	 * The deadline is pushed out here too, because a satisfied sit is longer than the gap
+	 * between two seeks once a dish has been walked to and back from.
 	 */
 	private void beginRest(ServerLevel level, SmartYoukaiEntity entity, PartyModule party) {
 		deadline = level.getGameTime() + LEG_TIMEOUT;
+		restingFull = party.satisfied();
 		if (away) {
 			phase = Phase.RETURNING;
 			return;
 		}
 		phase = Phase.RESTING;
-		until = level.getGameTime() + (party.satisfied() ? FULL_REST : HUNGRY_REST);
+		until = level.getGameTime() + (restingFull ? party.fullSeat() : party.hungrySeat());
 	}
 
 	/**
@@ -375,22 +415,22 @@ public class YoukaiPartyTask extends Behavior<SmartYoukaiEntity> {
 	 * wrap into a bound of the wrong sign and skew every draw after it.
 	 */
 	@Nullable
-	private BlockPos drawDish(ServerLevel level, SmartYoukaiEntity entity, PartyModule party) {
-		var table = party.table();
-		if (table == null) return null;
+	private BlockPos drawDish(ServerLevel level, SmartYoukaiEntity entity, PartyModule party,
+			PartyAttachment attachment) {
 		var access = level.registryAccess();
 		var dishes = new ArrayList<BlockPos>();
 		var weights = new ArrayList<Integer>();
 		long total = 0;
-		for (var pos : BlockPos.betweenClosed(
-				table.offset(-SEARCH_RADIUS, -SEARCH_RADIUS, -SEARCH_RADIUS),
-				table.offset(SEARCH_RADIUS, SEARCH_RADIUS, SEARCH_RADIUS))) {
-			if (!PartyArea.isLaidOut(level, pos)) continue;
+		// the party's own list, rebuilt every couple of seconds rather than swept per
+		// guest: this runs once per dish, for the length of the visit, and the party
+		// already has a fresher answer than a sweep here could produce
+		for (var pos : attachment.food()) {
 			var state = level.getBlockState(pos);
-			// worthless food is skipped: crossing the room and eating it would cost her a
-			// whole cycle for no fulfillment at all
-			if (!PartyFoodValue.isFood(state) || !PartyFoodValue.result(state).valid()) continue;
-			int appeal = PartyFoodValue.appealPerServe(access, state);
+			// re-checked, not trusted: the cache is two seconds old, and in those two
+			// seconds another guest may have emptied this and the host may have moved it
+			if (!PartyArea.isLaidOut(level, pos, state)) continue;
+			if (!PartyFoodValue.isFood(level, pos, state)) continue;
+			int appeal = PartyFoodValue.appealPerServe(access, level, pos, state);
 			if (appeal <= 0) continue;
 			dishes.add(pos.immutable());
 			weights.add(appeal);
@@ -412,23 +452,40 @@ public class YoukaiPartyTask extends Behavior<SmartYoukaiEntity> {
 		return entity.distanceToSqr(pos.getCenter()) <= REACH_SQR;
 	}
 
-	/** The nearest chair in the tag, searching outward from the table. */
+	/** The nearest chair in the party's list, searching outward from where she is. */
 	@Nullable
-	private static BlockPos nearestSeat(ServerLevel level, SmartYoukaiEntity entity, @Nullable BlockPos table) {
+	private static BlockPos nearestSeat(ServerLevel level, SmartYoukaiEntity entity, PartyModule party,
+			PartyAttachment attachment) {
+		var table = party.table();
 		if (table == null) return null;
 		BlockPos from = entity.blockPosition();
 		BlockPos best = null;
 		double bestDist = Double.MAX_VALUE;
-		for (var pos : BlockPos.betweenClosed(
-				table.offset(-SEARCH_RADIUS, -SEARCH_RADIUS, -SEARCH_RADIUS),
-				table.offset(SEARCH_RADIUS, SEARCH_RADIUS, SEARCH_RADIUS))) {
+		for (var pos : attachment.seats()) {
+			// the list is up to ten seconds old, so a chair broken since then would
+			// otherwise send her walking to a block that is no longer there
 			if (!level.getBlockState(pos).is(GLTagGen.PARTY_SEAT)) continue;
 			double dist = pos.distSqr(from);
 			if (dist >= bestDist) continue;
 			bestDist = dist;
-			best = pos.immutable();
+			best = pos;
 		}
 		return best;
+	}
+
+	/**
+	 * Give up on the party because there is nowhere to sit.
+	 * <p>
+	 * No gift: she never ate anything, and a guest carried in on the roster who found no
+	 * chair is not one the host owes anything to. Saying so is the point, though - the
+	 * host put out chairs and they were not enough, or one too many guests were invited,
+	 * and without a word the only visible sign is a table with fewer people at it than
+	 * the letter promised.
+	 */
+	private static void expel(ServerLevel level, SmartYoukaiEntity entity, PartyModule party,
+			PartyAttachment attachment) {
+		PartyMessage.reportEvicted(level, attachment, entity);
+		dismiss(entity);
 	}
 
 	private static void dismiss(SmartYoukaiEntity entity) {

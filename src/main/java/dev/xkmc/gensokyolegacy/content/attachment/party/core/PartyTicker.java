@@ -80,6 +80,10 @@ public class PartyTicker {
 			if (find(level, id) != null) continue;
 			party.removeGuest(id);
 		}
+		// refresh what the guests draw from, before anyone asks: a party whose food list
+		// is stale is a party that cannot see a second course, or one still offering a
+		// cake three guests have already eaten
+		party.refresh(level, level.getGameTime());
 		if (party.phase() == PartyAttachment.Phase.GATHERING && allSeated(level, party)) {
 			party.setPhase(PartyAttachment.Phase.FEASTING);
 		}

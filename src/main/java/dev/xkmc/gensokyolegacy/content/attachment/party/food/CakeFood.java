@@ -1,5 +1,7 @@
 package dev.xkmc.gensokyolegacy.content.attachment.party.food;
 
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.CakeBlock;
@@ -57,5 +59,20 @@ public class CakeFood extends AbstractCountdownFood {
 	public @Nullable FoodProperties food(BlockState state) {
 		var permuted = Permutations.foodOf(state.getBlock());
 		return permuted == null ? fallback : permuted;
+	}
+
+	/**
+	 * Named by the slice item when there is one, and by the cake otherwise.
+	 * <p>
+	 * The slice is what the guest is handed, so it is what the food is — and when a mod
+	 * supplies a real slice the block's id would hide which one it was. Vanilla cake has
+	 * no slice item, so it falls back to the block, which is the honest answer there.
+	 */
+	@Override
+	public ResourceLocation id(BlockState state) {
+		var slice = Permutations.itemOf(state.getBlock());
+		return slice == null
+				? BuiltInRegistries.BLOCK.getKey(state.getBlock())
+				: BuiltInRegistries.ITEM.getKey(slice);
 	}
 }

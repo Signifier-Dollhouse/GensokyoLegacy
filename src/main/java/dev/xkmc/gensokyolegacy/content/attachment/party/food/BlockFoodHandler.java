@@ -1,6 +1,8 @@
 package dev.xkmc.gensokyolegacy.content.attachment.party.food;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -60,4 +62,18 @@ public interface BlockFoodHandler {
 	 * @return how many servings remain afterwards
 	 */
 	int consume(Level level, BlockPos pos, BlockState state);
+
+	/**
+	 * The id naming this food.
+	 * <p>
+	 * The serving item's where the block has one that a guest is really being handed —
+	 * see {@link FoodResult#idOf}. The block's own id otherwise, which is the right
+	 * answer for vanilla cake, whose slices exist only as numbers in code.
+	 * <p>
+	 * Part of the cached answer, so it must depend on nothing but the state: a handler
+	 * that has to look at a block entity to name its food does not belong here at all.
+	 */
+	default ResourceLocation id(BlockState state) {
+		return BuiltInRegistries.BLOCK.getKey(state.getBlock());
+	}
 }

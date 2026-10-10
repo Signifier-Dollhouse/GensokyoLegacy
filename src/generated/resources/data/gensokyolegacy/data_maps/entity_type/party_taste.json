@@ -2,6 +2,9 @@
   "values": {
     "gensokyolegacy:alice_margatroid": {
       "fulfillment": 12,
+      "fullSeat": 100,
+      "hungrySeat": 20,
+      "leaveChance": 0.05,
       "maxAppeal": 40,
       "maxReputation": 250,
       "minAppeal": 24,
@@ -11,6 +14,9 @@
     },
     "gensokyolegacy:cirno": {
       "fulfillment": 6,
+      "fullSeat": 100,
+      "hungrySeat": 20,
+      "leaveChance": 0.05,
       "maxAppeal": 20,
       "maxReputation": 150,
       "minAppeal": 4,
@@ -20,6 +26,9 @@
     },
     "gensokyolegacy:hakurei_reimu": {
       "fulfillment": 20,
+      "fullSeat": 100,
+      "hungrySeat": 20,
+      "leaveChance": 0.05,
       "maxAppeal": 32,
       "maxReputation": 200,
       "minAppeal": 10,
@@ -29,6 +38,9 @@
     },
     "gensokyolegacy:izayoi_sakuya": {
       "fulfillment": 20,
+      "fullSeat": 100,
+      "hungrySeat": 20,
+      "leaveChance": 0.05,
       "maxAppeal": 48,
       "maxReputation": 250,
       "minAppeal": 30,
@@ -38,6 +50,9 @@
     },
     "gensokyolegacy:kirisame_marisa": {
       "fulfillment": 20,
+      "fullSeat": 100,
+      "hungrySeat": 20,
+      "leaveChance": 0.05,
       "maxAppeal": 32,
       "maxReputation": 200,
       "minAppeal": 20,
@@ -47,6 +62,9 @@
     },
     "gensokyolegacy:morichika_rinnosuke": {
       "fulfillment": 20,
+      "fullSeat": 100,
+      "hungrySeat": 20,
+      "leaveChance": 0.05,
       "maxAppeal": 32,
       "maxReputation": 200,
       "minAppeal": 20,

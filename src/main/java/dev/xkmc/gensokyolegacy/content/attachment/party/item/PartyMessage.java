@@ -1,10 +1,13 @@
 package dev.xkmc.gensokyolegacy.content.attachment.party.item;
 
+import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyAttachment;
 import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartySend;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 
 /**
@@ -46,6 +49,27 @@ public class PartyMessage {
 	/** The character name for a type, falling back to its registry id. */
 	public static Component name(EntityType<?> type) {
 		return type.getDescription();
+	}
+
+	/**
+	 * Tell the host a guest gave up because she could not be seated.
+	 *
+	 * <p>
+	 * The one mid-party message there is, and it is here because it reports something the
+	 * host can actually fix: too few chairs for the number of guests invited, or one too
+	 * many guests. Without it the only sign is a table with fewer people at it than the
+	 * letter promised, which reads as the feature not working rather than as a shortage.
+	 *
+	 * <p>
+	 * Silently does nothing if the host has logged off, moved dimension or walked away —
+	 * there is no queue of things that happened while they were not here.
+	 */
+	public static void reportEvicted(ServerLevel level, PartyAttachment party, Entity guest) {
+		var host = party.host();
+		if (host == null) return;
+		var player = level.getPlayerByUUID(host);
+		if (player == null) return;
+		player.sendSystemMessage(GLLang.Party.NO_CHAIR.get(name(guest.getType())));
 	}
 
 	/** A short roster line: "Reimu, Marisa". */

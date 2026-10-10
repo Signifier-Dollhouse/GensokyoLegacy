@@ -4,6 +4,7 @@ import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiFlags;
 import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyAttachment;
 import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyTaste;
+import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyTaste;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.registrate.GLBrains;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
@@ -145,11 +146,24 @@ public class PartyModule extends AbstractYoukaiModule {
 	}
 
 	/**
+	 * Give up her chair, because it is no longer there.
+	 *
+	 * <p>
+	 * Not first-write-wins any more: {@link #claimSeat} keeps her on the chair she took,
+	 * but the layout rescan can find that the block is gone, and a claim to a block that
+	 * is no longer a chair is a claim that would hold the party in GATHERING for ever.
+	 */
+	public void dropSeat() {
+		seat = null;
+		seated = false;
+	}
+
+	/**
 	 * This character's taste, or null when she has no authored {@code party_taste}.
 	 * <p>
 	 * Null is only reachable by a guest who should not be here: she is spawned from a
 	 * roster that requires a taste, so this can happen if a datapack removes the entry
- * mid-party, or for an entity saved before the entry became the eligibility list.
+	 * mid-party.
 	 * {@link #satisfied()} treats it as "she cannot be satisfied" rather than throwing.
 	 */
 	@Nullable
@@ -184,6 +198,39 @@ public class PartyModule extends AbstractYoukaiModule {
 		var taste = taste();
 		// no taste means she should not be here at all, so she never counts as done
 		return taste != null && eaten >= taste.fulfillment();
+	}
+
+	/**
+	 * How long she sits at her chair between dishes while she is still hungry.
+	 *
+	 * <p>
+	 * Falls back to the plain number for a guest with no taste, which should not exist -
+	 * see {@link #taste()}. The fallback is a real value rather than a zero: a sit of zero
+	 * would have her drawing, eating and drawing again inside a single tick, and it only
+	 * ever applies to a guest who was never going to be satisfied anyway.
+	 */
+	public int hungrySeat() {
+		var taste = taste();
+		return taste == null ? PartyTaste.DEFAULT_HUNGRY_SEAT : taste.hungrySeat();
+	}
+
+	/** How long she sits between dishes once she is satisfied. See {@link #hungrySeat}. */
+	public int fullSeat() {
+		var taste = taste();
+		return taste == null ? PartyTaste.DEFAULT_FULL_SEAT : taste.fullSeat();
+	}
+
+	/**
+	 * Chance she leaves after a satisfied sit, 0..1.
+	 *
+	 * <p>
+	 * The reason a guest ever stops eating. Being satisfied only lengthens her sit; on its
+	 * own that would keep her at the table until the host's food ran out, which is a long
+	 * time to occupy a chair at a party the player is trying to enjoy.
+	 */
+	public double leaveChance() {
+		var taste = taste();
+		return taste == null ? PartyTaste.DEFAULT_LEAVE_CHANCE : taste.leaveChance();
 	}
 
 	@Override

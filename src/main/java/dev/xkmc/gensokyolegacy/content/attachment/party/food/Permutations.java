@@ -3,6 +3,7 @@ package dev.xkmc.gensokyolegacy.content.attachment.party.food;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.food.FoodProperties;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import org.jetbrains.annotations.Nullable;
@@ -37,12 +38,26 @@ public final class Permutations {
 	 */
 	@Nullable
 	public static FoodProperties foodOf(Block block) {
+		var item = itemOf(block);
+		return item == null ? null : Servings.of(new ItemStack(item));
+	}
+
+	/**
+	 * The first permuted id that names a real item carrying food, or null.
+	 * <p>
+	 * The item and not just its properties, so a caller can also <i>name</i> the serving —
+	 * a food's id is its slice item's id where one exists, because that is the thing a
+	 * guest is actually handed.
+	 */
+	@Nullable
+	public static Item itemOf(Block block) {
 		var id = BuiltInRegistries.BLOCK.getKey(block);
 		for (var suffix : SUFFIXES) {
 			var candidate = ResourceLocation.tryParse(id.getNamespace() + ":" + id.getPath() + suffix);
 			if (candidate == null) continue;
-			var props = propsAt(candidate);
-			if (props != null) return props;
+			var item = BuiltInRegistries.ITEM.get(candidate);
+			if (item == net.minecraft.world.item.Items.AIR) continue;
+			if (Servings.of(new ItemStack(item)) != null) return item;
 		}
 		return null;
 	}

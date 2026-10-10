@@ -44,6 +44,12 @@ public final class BlockFoods {
 		if (loaded(YSF)) {
 			PartyFoodHandler.register(new SaucerFood());
 			PartyFoodHandler.register(new PotFood());
+			// Containers, and so a separate list: a cutting board and a steamer rack
+			// hold their food in a block entity rather than on the block state, which is
+			// what keeps their answers out of FoodResultCache. See ContainerFoodHandler
+			// for why that is not a matter of taste.
+			PartyFoodHandler.register(new CuisineBoardFood());
+			PartyFoodHandler.register(new SteamerRackFood());
 		}
 
 		if (loaded(KC)) {

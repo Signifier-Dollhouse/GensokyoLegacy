@@ -71,6 +71,57 @@ public class PartyAttachment extends GeneralCapabilityTemplate<LevelChunk, Party
 	@SerialField
 	private int hungerServed;
 
+	/**
+	 * How often the spread is looked at again, in ticks. Two seconds.
+	 *
+	 * <p>
+	 * Fast, because food is the thing that changes fastest at a party: every dish a
+	 * guest eats is one fewer, and a host putting out a second course wants it noticed
+	 * while the table is still full of people rather than after they have gone.
+	 */
+	private static final int FOOD_RESCAN = 40;
+
+	/**
+	 * How often the furniture is looked at again, in ticks. Ten seconds.
+	 *
+	 * <p>
+	 * Five times slower than the food, and for the same reason in reverse: chairs are not
+	 * eaten, so a chair that moved a second ago will still be there in four more, and the
+	 * list exists only so a guest knows where to sit and so a guest whose chair was taken
+	 * away can notice she is standing.
+	 */
+	private static final int LAYOUT_RESCAN = 200;
+
+	/**
+	 * The spread as of the last food rescan: every dish a guest could eat.
+	 *
+	 * <p>
+	 * A party's own copy rather than something each guest sweeps for herself. A guest
+	 * needs this list every time she draws a dish, and she draws one every few seconds
+	 * for the length of her visit; sweeping a box per guest per dish is the party
+	 * costing far more to run than the party itself.
+	 *
+	 * <p>
+	 * Serialized, so a party in a chunk that unloads resumes with the spread it had
+	 * rather than with an empty one it would have to notice was wrong.
+	 */
+	@SerialField
+	private final ArrayList<BlockPos> food = new ArrayList<>();
+
+	/** Every chair as of the last layout rescan. */
+	@SerialField
+	private final ArrayList<BlockPos> seats = new ArrayList<>();
+
+	/** When each of the two lists was last rebuilt. */
+	@SerialField
+	private long foodScannedAt;
+	@SerialField
+	private long layoutScannedAt;
+
+	/** Bumped whenever the chair list changes, so a guest can notice her chair is gone. */
+	@SerialField
+	private int layoutVersion;
+
 	// not SerialField -> not serialized. GeneralCapabilityTemplate hands the payload
 	// no level, so the owning chunk is bound by the lookup helpers instead.
 	@Nullable
@@ -124,9 +175,94 @@ public class PartyAttachment extends GeneralCapabilityTemplate<LevelChunk, Party
 		return guests.size();
 	}
 
+	/** The spread as of the last rescan: every dish a guest can eat. */
+	public List<BlockPos> food() {
+		return food;
+	}
+
+	/** Every chair as of the last layout rescan. */
+	public List<BlockPos> seats() {
+		return seats;
+	}
+
+	/** Bumped when the chair list changes; a guest compares it to notice her chair is gone. */
+	public int layoutVersion() {
+		return layoutVersion;
+	}
+
+	/**
+	 * Bring the cached lists up to date, each on its own schedule.
+	 *
+	 * <p>
+	 * Called from the ticker rather than from a guest, so the cost is paid once per party
+	 * per interval instead of once per guest per dish. The two lists are refreshed
+	 * independently because they change at very different rates, and because conflating
+	 * them would either make a refilled dish take ten seconds to appear or make the chair
+	 * list be rebuilt four times a second for nothing.
+	 *
+	 * <p>
+	 * Called on the server only. Both sweeps read block entities — a cutting board's
+	 * contents, a rack's racks — and asking for those on the client would be a second,
+	 * slightly different answer to a question the server is already answering.
+	 */
+	public void refresh(ServerLevel level, long gameTime) {
+		var at = anchor;
+		if (at == null) return;
+		boolean changed = false;
+		if (gameTime - foodScannedAt >= FOOD_RESCAN) {
+			foodScannedAt = gameTime;
+			var found = PartyArea.foodAround(level, at);
+			if (!found.equals(food)) changed = true;
+			food.clear();
+			food.addAll(found);
+			// The budget tracks what the guests can actually reach, and moves as the host
+			// refills. Two consequences worth stating: a second course raises the party's
+			// capacity instead of leaving the served count overtaking a stale number, and
+			// the figure narrows from "the whole scanned room" at send to "the guest box"
+			// afterwards - which is the honest answer, since nothing outside that box can
+			// be eaten.
+			var budget = 0;
+			for (var pos : food) budget += PartyFoodValue.totalHunger(level, pos, level.getBlockState(pos));
+			if (budget != hungerBudget) changed = true;
+			hungerBudget = budget;
+		}
+		if (gameTime - layoutScannedAt >= LAYOUT_RESCAN) {
+			layoutScannedAt = gameTime;
+			var found = PartyArea.seatsAround(level, at);
+			// a version bump on a change only, so a guest comparing it every tick is not
+			// woken up by a rebuild that found exactly what it found last time
+			if (!found.equals(seats)) {
+				layoutVersion++;
+				changed = true;
+			}
+			seats.clear();
+			seats.addAll(found);
+		}
+		// Only when something actually moved. This runs every twenty ticks for as long as
+		// the party is open, and marking the chunk unsaved every time would queue it for a
+		// save on a timer for the sake of a rebuild that found the same room.
+		if (changed) dirty();
+	}
+
 	/** Freeze the roster and open the party. Every rejection must happen before this. */
 	public void start(LevelChunk chunk, long gameTime, UUID host, BlockPos anchor,
 			List<EntityType<?>> roster, int hunger) {
+		start(chunk, gameTime, host, anchor, roster, hunger, List.of(), List.of());
+	}
+
+	/**
+	 * Freeze the roster, open the party, and seed the caches from the walk that just
+	 * found the spread.
+	 *
+	 * <p>
+	 * The lists are passed rather than swept again because the send has just walked the
+	 * whole room: asking a second time a moment later for an answer that is already in
+	 * hand is the exact waste the cache exists to avoid. Only the dishes and chairs
+	 * <i>inside the guest box</i> are seeded, though — the walk covers the room, and a
+	 * guest is only ever offered what she could walk to.
+	 */
+	public void start(LevelChunk chunk, long gameTime, UUID host, BlockPos anchor,
+			List<EntityType<?>> roster, int hunger, List<BlockPos> food, List<BlockPos> seats) {
 		this.owner = chunk;
 		this.host = host;
 		this.anchor = anchor.immutable();
@@ -138,6 +274,13 @@ public class PartyAttachment extends GeneralCapabilityTemplate<LevelChunk, Party
 		this.hungerServed = 0;
 		this.startedAt = gameTime;
 		this.phase = Phase.GATHERING;
+		this.foodScannedAt = gameTime;
+		this.layoutScannedAt = gameTime;
+		this.food.clear();
+		this.food.addAll(food);
+		this.seats.clear();
+		this.seats.addAll(seats);
+		layoutVersion++;
 		dirty();
 	}
 
@@ -170,6 +313,8 @@ public class PartyAttachment extends GeneralCapabilityTemplate<LevelChunk, Party
 		anchor = null;
 		phase = Phase.IDLE;
 		guests.clear();
+		food.clear();
+		seats.clear();
 		dirty();
 	}
 

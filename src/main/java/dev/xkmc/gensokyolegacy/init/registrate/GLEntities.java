@@ -57,12 +57,16 @@ public class GLEntities {
 	public static final EntityEntry<MarisaEntity> MARISA;
 	public static final EntityEntry<MorichikaEntity> MORICHIKA;
 	public static final EntityEntry<AliceEntity> ALICE;
-	/** No home of her own: she only ever appears as a guest, see {@code GLStructureGen}. */
+	/**
+	 * No home of her own: she only ever appears as a guest, see {@code GLStructureGen}.
+	 */
 	public static final EntityEntry<SakuyaEntity> IZAYOI_SAKUYA;
 	public static final EntityEntry<GeneralYoukaiEntity> MYSTIA;
 	public static final EntityEntry<BossYoukaiEntity> YUKARI, KOISHI;
 	public static final EntityEntry<FairyEntity> SUNNY, LUNA, STAR;
-	/** The unnamed fairy that actually wears the shared fairy rig, in four recolours. */
+	/**
+	 * The unnamed fairy that actually wears the shared fairy rig, in four recolours.
+	 */
 	public static final EntityEntry<PlainFairyEntity> PLAIN_FAIRY;
 	public static final EntityEntry<DollEntity> DOLL;
 
@@ -90,12 +94,12 @@ public class GLEntities {
 				.tag(EntityTypeTags.FALL_DAMAGE_IMMUNE)
 				.register();
 
-		PartyTaste TASTE_CIRNO = new PartyTaste(100, 0, 150, 1, 4, 20, 6);
-		PartyTaste TASTE_REIMU = new PartyTaste(100, 0, 200, 1, 10, 32, 20);
-		PartyTaste TASTE_MARISA = new PartyTaste(100, 0, 200, 1, 20, 32, 20);
-		PartyTaste TASTE_MORICHIKA = new PartyTaste(100, 0, 200, 1, 20, 32, 20);
-		PartyTaste TASTE_ALICE = new PartyTaste(100, 0, 250, 1, 24, 40, 12);
-		PartyTaste TASTE_SAKUYA = new PartyTaste(100, 0, 250, 1, 30, 48, 20);
+		PartyTaste TASTE_CIRNO = new PartyTaste(100, 0, 150, 1, 4, 20, 6, 20, 100, 0.05);
+		PartyTaste TASTE_REIMU = new PartyTaste(100, 0, 200, 1, 10, 32, 20, 20, 100, 0.05);
+		PartyTaste TASTE_MARISA = new PartyTaste(100, 0, 200, 1, 20, 32, 20, 20, 100, 0.05);
+		PartyTaste TASTE_MORICHIKA = new PartyTaste(100, 0, 200, 1, 20, 32, 20, 20, 100, 0.05);
+		PartyTaste TASTE_ALICE = new PartyTaste(100, 0, 250, 1, 24, 40, 12, 20, 100, 0.05);
+		PartyTaste TASTE_SAKUYA = new PartyTaste(100, 0, 250, 1, 30, 48, 20, 20, 100, 0.05);
 
 		{
 

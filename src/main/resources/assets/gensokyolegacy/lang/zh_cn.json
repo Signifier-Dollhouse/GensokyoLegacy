@@ -1042,6 +1042,7 @@
   "gensokyolegacy.party.near_too_plain": "%s 本会前来，但嫌这桌菜太过寒酸",
   "gensokyolegacy.party.near_no_seat": "%s 本会前来，只是没有空座了",
   "gensokyolegacy.party.sent": "邀请函已发出。%s 位客人正在赶来",
+  "gensokyolegacy.party.no_chair": "%s 没能入座，只能离开了——再摆一把椅子吧",
   "gensokyolegacy.party.ended": "宴会结束了",
   "gensokyolegacy.party.no_party": "这里并没有宴会",
   "gensokyolegacy.party.preview_title": "菜式吸引力：%s，座位：%s",

@@ -1,9 +1,11 @@
 package dev.xkmc.gensokyolegacy.content.attachment.party.item;
 
+import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyFoodHandler;
 import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyFoodValue;
 import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyPlanner;
 import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartySend;
 import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyTaste;
+import dev.xkmc.gensokyolegacy.content.attachment.party.food.FoodResult;
 import dev.xkmc.gensokyolegacy.content.client.debug.IDebugOverlayWand;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.gensokyolegacy.init.data.GLTagGen;
@@ -82,7 +84,7 @@ public class PartyWand extends Item implements IDebugOverlayWand {
 			var stack = context.getItemInHand();
 			var pos = context.getClickedPos();
 			var state = level.getBlockState(pos);
-			if (PartyFoodValue.isFood(state)) {
+			if (PartyFoodValue.isFood(level, pos, state)) {
 				PartyFoodValue.consume(level, pos, state);
 				return InteractionResult.SUCCESS;
 			}
@@ -156,20 +158,31 @@ public class PartyWand extends Item implements IDebugOverlayWand {
 	private void describeFood(Player player, List<Component> lines) {
 		if (!(player.pick(REACH, 0.0f, false) instanceof BlockHitResult hit)) return;
 		var level = player.level();
-		var state = level.getBlockState(hit.getBlockPos());
-		if (!PartyFoodValue.isFood(state)) return;
-		var result = PartyFoodValue.result(state);
-		if (!result.valid()) {
+		var pos = hit.getBlockPos();
+		var state = level.getBlockState(pos);
+		// a container's food lives in its block entity, so this reads the world and not
+		// the state - which works on the client as well, because a board's contents and
+		// a rack's racks are both synced. A container that is not loaded simply reports
+		// nothing and is left undescribed rather than guessed at.
+		var results = PartyFoodValue.results(level, pos, state);
+		var valid = results.stream().filter(FoodResult::valid).toList();
+		if (valid.isEmpty()) {
+			if (PartyFoodHandler.claims(state.getBlock()) == null) return;
 			lines.add(GLLang.ItemDebug.PARTY_WAND_INVALID.get().withStyle(ChatFormatting.DARK_RED));
 			return;
 		}
-		var food = result.food();
-		int perServe = PartyFoodValue.appealOf(food);
+		int servings = valid.stream().mapToInt(FoodResult::serves).sum();
+		// the first food on it, named as what it is - a container lists one entry per
+		// kind of thing it holds, and the block's own name is still what the player is
+		// looking at, so it is the block that gets named
+		var first = valid.get(0);
+		var props = first.food();
+		int perServe = PartyFoodValue.appealPerServe(level.registryAccess(), level, pos, state);
 		lines.add(GLLang.ItemDebug.PARTY_WAND_FOOD.get(state.getBlock().getName()).withStyle(ChatFormatting.AQUA));
-		lines.add(GLLang.ItemDebug.PARTY_WAND_SERVES.get(result.serves()).withStyle(ChatFormatting.GRAY));
-		lines.add(GLLang.ItemDebug.PARTY_WAND_FOOD_VALUES.get(food.nutrition(), String.format("%.1f", food.saturation()))
+		lines.add(GLLang.ItemDebug.PARTY_WAND_SERVES.get(servings).withStyle(ChatFormatting.GRAY));
+		lines.add(GLLang.ItemDebug.PARTY_WAND_FOOD_VALUES.get(props.nutrition(), String.format("%.1f", props.saturation()))
 				.withStyle(ChatFormatting.GRAY));
-		lines.add(GLLang.ItemDebug.PARTY_WAND_ATTRACTION.get(perServe, perServe * result.serves())
+		lines.add(GLLang.ItemDebug.PARTY_WAND_ATTRACTION.get(perServe, perServe * servings)
 				.withStyle(ChatFormatting.GRAY));
 		var range = servesToSatisfy(player, perServe);
 		lines.add((range == null
