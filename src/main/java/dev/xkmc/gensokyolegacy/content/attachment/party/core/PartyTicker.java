@@ -80,11 +80,42 @@ public class PartyTicker {
 			if (find(level, id) != null) continue;
 			party.removeGuest(id);
 		}
+		if (party.phase() == PartyAttachment.Phase.GATHERING && allSeated(level, party)) {
+			party.setPhase(PartyAttachment.Phase.FEASTING);
+		}
 		boolean overdue = level.getGameTime() - party.startedAt() > PARTY_TIMEOUT;
 		if (!party.guests().isEmpty() && !overdue) return;
 		// everyone has gone, or the banquet has run long enough
 		PartySend.dismissAll(level, party);
 		unregister(level, party.chunk() == null ? pos : party.chunk());
+	}
+
+	/**
+	 * Whether every guest has a chair.
+	 * <p>
+	 * The gate out of GATHERING, and deliberately party-wide rather than per-guest: the
+	 * table feasts as a table, and a guest who has just sat down should not start eating
+	 * out of an empty room while the others are still walking in.
+	 * <p>
+	 * The cost of that choice is that one guest with no chair holds the whole table out of
+	 * the feast until {@link #PARTY_TIMEOUT} calls the party off. A per-guest gate would
+	 * not stall, but it would also have the last guest to arrive eating alone at an
+	 * ungathered table, which reads as a bug rather than as a party. Seating is a host
+	 * problem either way — the fix is to put out another chair — and the timeout is the
+	 * backstop for a host who never does.
+	 * <p>
+	 * Vacuously true with no guests at all, so a party whose roster is entirely dead moves
+	 * on rather than sitting in GATHERING until the timeout.
+	 */
+	private static boolean allSeated(ServerLevel level, PartyAttachment party) {
+		for (var id : party.guests()) {
+			var guest = find(level, id);
+			if (guest == null) continue;
+			if (!(guest instanceof YoukaiEntity youkai)) continue;
+			if (youkai.getModule(PartyModule.class).map(m -> m.seated()).orElse(false)) continue;
+			return false;
+		}
+		return true;
 	}
 
 	/** The live guest with this id, or null if she died, left, or unloaded. */

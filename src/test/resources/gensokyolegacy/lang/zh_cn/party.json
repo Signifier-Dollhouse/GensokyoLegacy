@@ -15,7 +15,7 @@
 		"preview_none": "没有客人会来",
 		"info_phase": "阶段：%s",
 		"info_roster": "已邀请：%s",
-		"info_served": "已上菜 %s／%s 吸引力",
+		"info_served": "已上菜 %s／%s 饱食量",
 		"info_guests": "在场客人：%s",
 		"letter_hint": "右键餐桌，将邀请函送出"
 	}

@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * What a satisfied guest leaves behind.
+ * What a guest leaves behind when the spread runs out.
  * <p>
  * Reuses the existing gift items rather than inventing new ones:
  * {@code GLMeta.GIFT_DATA} already scores favour per item and
@@ -29,22 +29,30 @@ import java.util.List;
  */
 public class PartyGift {
 
-	/** A guest who was not fully served gives away a smaller gift. */
-	public static final int UNFULFILLED_DIVISOR = 2;
+	/** Appeal at which the guest's gift gains one item over the item's own count. */
+	public static final int APPEAL_PER_EXTRA = 8;
+
+	/** Ceiling on those extra items, so a lavish banquet does not bury the table. */
+	public static final int MAX_EXTRA = 4;
 
 	/**
 	 * Drop a gift on the guest's table. A guest with nothing tasteful to give
 	 * leaves nothing rather than something arbitrary.
+	 * <p>
+	 * Sized on the <b>appeal she personally consumed</b>, not on whether she was
+	 * satisfied. Those are the two food measurements (design doc §5.2) and they answer
+	 * different questions: rare-effect delicacies fill her up no better than plain bread
+	 * does, and she is still more moved by them. This version halved the gift for an
+	 * under-served guest, which made a beautiful thin spread read as stingy rather than
+	 * as modest — the host's generosity and the guest's appetite are not one axis.
 	 */
 	public static void give(ServerLevel level, YoukaiEntity guest, PartyModule party) {
 		var table = party.table();
 		if (table == null) return;
 		ItemStack gift = pick(level, guest);
 		if (gift.isEmpty()) return;
-		int count = gift.getCount();
-		// under-served guests are less generous
-		if (party.fulfillment() < 1.0) count = Math.max(1, count / UNFULFILLED_DIVISOR);
-		Block.popResource(level, table.above(), gift.copyWithCount(count));
+		int extra = Math.min(MAX_EXTRA, party.appealEaten() / APPEAL_PER_EXTRA);
+		Block.popResource(level, table.above(), gift.copyWithCount(gift.getCount() + extra));
 	}
 
 	/**

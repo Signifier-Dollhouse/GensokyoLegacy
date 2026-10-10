@@ -166,7 +166,7 @@
 		"party_wand_fulfillment_none": "喂饱一位客人需要：-",
 		"party_wand_party": "在 (%s, %s, %s) 处模拟的宴会",
 		"party_wand_counts": "桌子：%s　座位：%s　食物：%s",
-		"party_wand_totals": "吸引力：%s　需要满足：%s",
+		"party_wand_totals": "饱食量：%s　客人需要：%s",
 		"party_wand_nobody": "没有人会来",
 		"party_wand_candidate": "  %s　权重 %s　好感 %s　需要 %s　%s",
 		"party_wand_stale": "（已离开那张桌子，数据可能过时）"

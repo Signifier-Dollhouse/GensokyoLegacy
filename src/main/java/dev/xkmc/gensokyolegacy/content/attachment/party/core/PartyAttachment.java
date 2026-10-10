@@ -59,12 +59,17 @@ public class PartyAttachment extends GeneralCapabilityTemplate<LevelChunk, Party
 	@SerialField
 	private final ArrayList<UUID> guests = new ArrayList<>();
 
-	/** The spread's appeal at send time; also the guests' shared budget. */
+	/**
+	 * The spread's hunger at send time: how much it could feed, and so the guests'
+	 * shared budget. Renamed from {@code appealBudget}, which is the quantity this stopped
+	 * being — an existing save's party reads back as a 0 budget until the next send.
+	 */
 	@SerialField
-	private int appealBudget;
+	private int hungerBudget;
 
+	/** Hunger the guests have actually been served, against {@link #hungerBudget}. */
 	@SerialField
-	private int appealServed;
+	private int hungerServed;
 
 	// not SerialField -> not serialized. GeneralCapabilityTemplate hands the payload
 	// no level, so the owning chunk is bound by the lookup helpers instead.
@@ -107,12 +112,12 @@ public class PartyAttachment extends GeneralCapabilityTemplate<LevelChunk, Party
 		return guests;
 	}
 
-	public int appealBudget() {
-		return appealBudget;
+	public int hungerBudget() {
+		return hungerBudget;
 	}
 
-	public int appealServed() {
-		return appealServed;
+	public int hungerServed() {
+		return hungerServed;
 	}
 
 	public int seatsUsed() {
@@ -121,7 +126,7 @@ public class PartyAttachment extends GeneralCapabilityTemplate<LevelChunk, Party
 
 	/** Freeze the roster and open the party. Every rejection must happen before this. */
 	public void start(LevelChunk chunk, long gameTime, UUID host, BlockPos anchor,
-			List<EntityType<?>> roster, int appeal) {
+			List<EntityType<?>> roster, int hunger) {
 		this.owner = chunk;
 		this.host = host;
 		this.anchor = anchor.immutable();
@@ -129,8 +134,8 @@ public class PartyAttachment extends GeneralCapabilityTemplate<LevelChunk, Party
 		this.roster.clear();
 		this.roster.addAll(roster);
 		this.guests.clear();
-		this.appealBudget = appeal;
-		this.appealServed = 0;
+		this.hungerBudget = hunger;
+		this.hungerServed = 0;
 		this.startedAt = gameTime;
 		this.phase = Phase.GATHERING;
 		dirty();
@@ -151,10 +156,10 @@ public class PartyAttachment extends GeneralCapabilityTemplate<LevelChunk, Party
 		}
 	}
 
-	/** Appeal actually consumed by the guests so far. */
-	public void serve(int appeal) {
-		if (appeal > 0) {
-			appealServed += appeal;
+	/** Hunger actually consumed by the guests so far. */
+	public void serve(int hunger) {
+		if (hunger > 0) {
+			hungerServed += hunger;
 			dirty();
 		}
 	}

@@ -30,8 +30,8 @@ import java.util.List;
  * @param tables      party tables the scan walked to
  * @param seats       seats it found
  * @param foods       food blocks it counted towards the spread
- * @param appeal      the spread's total attraction, which is also the guests' budget
- * @param fulfillment total fulfillment the chosen roster needs, i.e. budget actually spent
+ * @param hunger      how much the spread can feed, and the budget the planner spent
+ * @param needed      total fulfillment the chosen roster needs, i.e. budget consumed
  * @param candidates  every eligible character and the weight the planner gave her
  */
 public record PartyWandData(
@@ -39,15 +39,15 @@ public record PartyWandData(
 		List<BlockPos> tables,
 		List<BlockPos> seats,
 		List<BlockPos> foods,
-		int appeal,
-		int fulfillment,
+		int hunger,
+		int needed,
 		List<Candidate> candidates
 ) {
 
 	/**
 	 * One character's line in the readout.
 	 *
-	 * @param invited whether the knapsack actually chose her
+	 * @param invited whether the draw chose her
 	 */
 	public record Candidate(EntityType<?> type, int weight, int fulfillment, int reputation, boolean invited) {
 
@@ -76,8 +76,8 @@ public record PartyWandData(
 			BlockPos.CODEC.listOf().optionalFieldOf("tables", List.of()).forGetter(PartyWandData::tables),
 			BlockPos.CODEC.listOf().optionalFieldOf("seats", List.of()).forGetter(PartyWandData::seats),
 			BlockPos.CODEC.listOf().optionalFieldOf("foods", List.of()).forGetter(PartyWandData::foods),
-			Codec.INT.optionalFieldOf("appeal", 0).forGetter(PartyWandData::appeal),
-			Codec.INT.optionalFieldOf("fulfillment", 0).forGetter(PartyWandData::fulfillment),
+			Codec.INT.optionalFieldOf("hunger", 0).forGetter(PartyWandData::hunger),
+			Codec.INT.optionalFieldOf("needed", 0).forGetter(PartyWandData::needed),
 			Candidate.CODEC.listOf().optionalFieldOf("candidates", List.of()).forGetter(PartyWandData::candidates)
 	).apply(instance, PartyWandData::new));
 

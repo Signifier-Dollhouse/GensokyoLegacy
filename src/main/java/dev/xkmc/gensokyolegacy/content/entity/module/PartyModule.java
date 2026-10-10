@@ -27,10 +27,11 @@ import java.util.UUID;
  * living her own day. What she is here for is different: she eats, and she leaves
  * a gift.
  * <p>
- * {@code eaten} is her own tally of the appeal she has been served. The planner
- * guarantees the *planned* total fits the spread, but the player can break a
- * cake mid-party and two guests can converge on the same dish, so fulfillment is
- * checked at runtime rather than assumed from the plan.
+ * {@code eaten} is her own tally of the hunger she has been served, and
+ * {@code appealEaten} the matching tally of appeal — the two quantities the food is
+ * measured in (design doc §5.2). The planner guarantees the *planned* total fits the
+ * spread, but the player can break a cake mid-party and two guests can converge on the
+ * same dish, so fulfillment is checked at runtime rather than assumed from the plan.
  */
 @SerialClass
 public class PartyModule extends AbstractYoukaiModule {
@@ -62,9 +63,37 @@ public class PartyModule extends AbstractYoukaiModule {
 	@SerialField
 	private ChunkPos partyChunk;
 
-	/** Appeal this guest has personally been served. */
+	/**
+	 * The chair she claimed, so she can go back to it between dishes.
+	 * <p>
+	 * Held here rather than in the behaviour: a guest's visit spans many dish cycles and
+	 * can be interrupted at any point by the chunk unloading, which stops the task and
+	 * starts a fresh one. Losing her chair across that would strand her standing at
+	 * whichever table she happened to be eating from.
+	 */
+	@SerialField
+	private BlockPos seat;
+
+	/**
+	 * Whether she has claimed it. The party stays in GATHERING until every guest has,
+	 * and nobody eats until then.
+	 */
+	@SerialField
+	private boolean seated;
+
+	/** Hunger this guest has personally been served; measured against her fulfillment. */
 	@SerialField
 	private int eaten = 0;
+
+	/**
+	 * Appeal this guest has personally been served, tracked alongside {@link #eaten}.
+	 * <p>
+	 * The second of the two food measurements (design doc §5.2), and the only one her
+	 * gift depends on: a guest who ate rare-effect delicacies is generous even where they
+	 * fed her no more than plain bread would have.
+	 */
+	@SerialField
+	private int appealEaten = 0;
 
 	public PartyModule(YoukaiEntity self) {
 		super(ID, self);
@@ -88,14 +117,40 @@ public class PartyModule extends AbstractYoukaiModule {
 		return eaten;
 	}
 
+	/** Appeal she has personally been served; what her gift is sized on. */
+	public int appealEaten() {
+		return appealEaten;
+	}
+
+	/** Her claimed chair, or null before she has found one. */
+	@Nullable
+	public BlockPos seat() {
+		return seat;
+	}
+
+	/**
+	 * Claim {@code pos} as her chair. First claim wins: a guest who has already sat down
+	 * keeps her seat even if another chair is nearer on a later pass, so a guest cannot be
+	 * walked off her chair by a table that has been rearranged under her.
+	 */
+	public void claimSeat(BlockPos pos) {
+		if (seat != null) return;
+		this.seat = pos.immutable();
+		this.seated = true;
+	}
+
+	/** Whether she has claimed a chair. Gates the party's GATHERING -> FEASTING move. */
+	public boolean seated() {
+		return seated;
+	}
+
 	/**
 	 * This character's taste, or null when she has no authored {@code party_taste}.
 	 * <p>
 	 * Null is only reachable by a guest who should not be here: she is spawned from a
 	 * roster that requires a taste, so this can happen if a datapack removes the entry
  * mid-party, or for an entity saved before the entry became the eligibility list.
-	 * {@link #satisfied()} and {@link #fulfillment()} both treat it as "she cannot be
-	 * satisfied" rather than throwing.
+	 * {@link #satisfied()} treats it as "she cannot be satisfied" rather than throwing.
 	 */
 	@Nullable
 	public PartyTaste taste() {
@@ -111,27 +166,24 @@ public class PartyModule extends AbstractYoukaiModule {
 	}
 
 	/**
-	 * Account for one dish just eaten: her own tally, and the party's shared total.
-	 * Read the appeal before the block was removed.
+	 * Account for one dish just eaten.
+	 * <p>
+	 * Both readings are taken before the block was removed, and both are kept, because
+	 * they answer different questions: {@code hunger} is what decides whether she is
+	 * {@link #satisfied()}, and {@code appeal} is what her gift is later sized on. A guest
+	 * fed plain bread is satisfied by it and pays for it accordingly; a guest fed
+	 * delicacies that fill her up no better pays more.
 	 */
-	public void eat(int appeal, PartyAttachment party) {
-		eaten += appeal;
-		party.serve(appeal);
+	public void eat(int hunger, int appeal, PartyAttachment party) {
+		eaten += hunger;
+		appealEaten += appeal;
+		party.serve(hunger);
 	}
 
 	public boolean satisfied() {
 		var taste = taste();
 		// no taste means she should not be here at all, so she never counts as done
 		return taste != null && eaten >= taste.fulfillment();
-	}
-
-	/**
-	 * 0..1 — how well she was actually served, against what she wanted. A guest
-	 * who got less than she needed still leaves a gift, but a smaller one.
-	 */
-	public double fulfillment() {
-		var taste = taste();
-		return taste == null ? 0.0 : Math.min(1.0, eaten / (double) taste.fulfillment());
 	}
 
 	@Override
@@ -180,6 +232,8 @@ public class PartyModule extends AbstractYoukaiModule {
 		host = null;
 		table = null;
 		partyChunk = null;
+		seat = null;
+		seated = false;
 	}
 
 	@Override

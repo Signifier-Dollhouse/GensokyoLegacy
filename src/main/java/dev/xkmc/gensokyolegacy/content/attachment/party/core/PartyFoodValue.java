@@ -19,6 +19,13 @@ import net.minecraft.world.level.block.state.BlockState;
  * through a {@link BlockFoodHandler}, which is what knows how many servings a
  * placed block has left and how to take one.
  * <p>
+ * <b>Two quantities, deliberately not the same one.</b> Appeal is how much a dish
+ * draws a guest in — it is what {@link PartyMath#weight} scales by, and nothing else
+ * consumes it. Hunger is how much the dish actually feeds anyone, and that is what the
+ * planner budgets and what a guest's {@code fulfillment} is measured against. Splitting
+ * them is what lets a rare-effect delicacy be worth drawing a crowd without seating one.
+ *
+ * <p>
  * The {@code party_food} data map <b>revalues, it does not opt in</b>. Whether a block
  * is party food at all is decided entirely by code: a registered
  * {@link BlockFoodHandler} must recognise it and find something worth eating in it. A
@@ -115,6 +122,46 @@ public class PartyFoodValue {
 	 */
 	public static int totalAppeal(RegistryAccess access, BlockState state) {
 		return appealPerServe(access, state) * result(state).serves();
+	}
+
+	/**
+	 * Hunger one serving restores: the actual food value, before any seasoning.
+	 * <p>
+	 * This is the quantity the party system <b>plans</b> in, and it is deliberately not
+	 * the appeal. Appeal answers "how nice is this to eat" and feeds nothing but
+	 * {@link PartyMath#weight}; hunger answers "how much does this actually sustain
+	 * anyone", and is what a guest's {@code fulfillment} is measured against. A dish with
+	 * a rare effect is worth more than its ingredients suggest — that is appeal — without
+	 * filling anyone up, so a spread of such dishes looks magnificent and feeds nobody.
+	 * <p>
+	 * Plain {@code nutrition()}, because that is literally the hunger bar. Inventing a
+	 * second weighting here would only make the number harder to predict against the
+	 * vanilla food a host is actually laying out on their tables.
+	 *
+	 * @return the hunger of one serving, 0 when the block is not valid food
+	 */
+	public static int hungerOf(FoodProperties props) {
+		return props.nutrition() <= 0 || Servings.refuses(props) ? 0 : props.nutrition();
+	}
+
+	/**
+	 * Hunger of one serving of this placed block.
+	 * <p>
+	 * Never reads the {@code party_food} override, and takes no {@code RegistryAccess}:
+	 * that map revalues <em>appeal</em>, and letting it reach the planning quantity would
+	 * let a datapack silently change how many guests a spread seats — a much larger claim
+	 * than adjusting how attractive the food looks.
+	 *
+	 * @return the hunger of one serving, or 0 when the block is not valid food
+	 */
+	public static int hungerPerServe(BlockState state) {
+		var result = result(state);
+		return result.valid() ? hungerOf(result.food()) : 0;
+	}
+
+	/** Hunger of this placed block — every serving still on it. */
+	public static int totalHunger(BlockState state) {
+		return hungerPerServe(state) * result(state).serves();
 	}
 
 	/**

@@ -20,6 +20,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.UUID;
 import java.util.function.ToIntFunction;
 
@@ -37,8 +38,14 @@ public class PartySend {
 	 */
 	public record Plan(PartyArea area, List<PartyPlanner.Candidate> pool, List<EntityType<?>> roster) {
 
+		/** The spread's total attraction. Scales weights; is not the budget. */
 		public int appeal() {
 			return area.appeal();
+		}
+
+		/** How much the spread can actually feed — the budget the planner spent. */
+		public int capacity() {
+			return area.fulfillment();
 		}
 
 		public int seats() {
@@ -99,11 +106,38 @@ public class PartySend {
 			pool.add(new PartyPlanner.Candidate(type,
 					PartyMath.weight(taste, area.appeal(), rep), taste.fulfillment(), rep));
 		}
-		var roster = PartyPlanner.select(pool, area.appeal(), area.seats().size());
+		var roster = PartyPlanner.select(pool, area.fulfillment(), area.seats().size(),
+				drawOf(PartyArea.center(area.food())));
 		if (roster.isEmpty()) {
-			return new Outcome(area, null, Refusal.NOBODY_CAME, PartyPlanner.nearestMiss(pool, area.appeal()));
+			return new Outcome(area, null, Refusal.NOBODY_CAME,
+					PartyPlanner.nearestMiss(pool, area.fulfillment(), roster));
 		}
 		return new Outcome(area, new Plan(area, pool, roster), null, null);
+	}
+
+	/**
+	 * The random the guest draw runs on, seeded from where the food is.
+	 * <p>
+	 * The seed is the <b>centre of the spread</b> and not the block the player clicked,
+	 * so clicking either end of a long table draws the same party. That is what keeps
+	 * {@code /gensokyo party preview} an exact prediction: preview, a real send and a
+	 * wand simulation all seed from the same place, so they cannot disagree, while moving
+	 * the party's food a block or two gives a different draw.
+	 * <p>
+	 * The coordinates are scrambled rather than packed straight into the seed. Adjacent
+	 * centres must not produce adjacent draws, or neighbouring parties would come out
+	 * alike — which is exactly what a plain {@code (x << 32) ^ (z << 16) ^ y} gives you,
+	 * since neighbouring centres then differ only in the low bits.
+	 */
+	private static Random drawOf(BlockPos center) {
+		long seed = (long) center.getX() * 0x9E3779B97F4A7C15L
+				+ (long) center.getY() * 0xC2B2AE3D27D4EB4FL
+				+ (long) center.getZ() * 0x165667B19E3779F9L;
+		// splitmix64 finaliser, so a one-block move reshuffles the whole draw
+		seed ^= seed >>> 33;
+		seed *= 0xFF51AFD7ED558CCDL;
+		seed ^= seed >>> 33;
+		return new Random(seed);
 	}
 
 	/** The player's own reputation with a character type, for {@link #plan}. */
@@ -148,7 +182,7 @@ public class PartySend {
 		var party = PartyAttachment.of(level, partyChunk);
 		if (party == null || party.active()) return new Outcome(plan.area(), null, Refusal.PARTY_EXISTS, null);
 		party.start(level.getChunkAt(center), level.getGameTime(), sp.getUUID(), anchor,
-				plan.roster(), plan.appeal());
+				plan.roster(), plan.capacity());
 		PartyTicker.register(level, partyChunk);
 
 		for (var type : plan.roster()) {

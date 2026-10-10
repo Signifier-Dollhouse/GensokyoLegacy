@@ -121,7 +121,7 @@ public class PartyWand extends Item implements IDebugOverlayWand {
 				.forEach(c -> candidates.add(new PartyWandData.Candidate(
 						c.type(), c.weight(), c.fulfillment(), c.reputation(), roster.contains(c.type()))));
 		return new PartyWandData(table, area.tables(), area.seats(), area.food(),
-				plan.appeal(), spent, candidates);
+				plan.capacity(), spent, candidates);
 	}
 
 	/**
@@ -229,7 +229,7 @@ public class PartyWand extends Item implements IDebugOverlayWand {
 				.withStyle(ChatFormatting.GOLD));
 		lines.add(GLLang.ItemDebug.PARTY_WAND_COUNTS.get(data.tables().size(), data.seats().size(), data.foods().size())
 				.withStyle(ChatFormatting.GRAY));
-		lines.add(GLLang.ItemDebug.PARTY_WAND_TOTALS.get(data.appeal(), data.fulfillment())
+		lines.add(GLLang.ItemDebug.PARTY_WAND_TOTALS.get(data.hunger(), data.needed())
 				.withStyle(ChatFormatting.GRAY));
 		if (data.empty()) {
 			lines.add(GLLang.ItemDebug.PARTY_WAND_NOBODY.get().withStyle(ChatFormatting.DARK_RED));

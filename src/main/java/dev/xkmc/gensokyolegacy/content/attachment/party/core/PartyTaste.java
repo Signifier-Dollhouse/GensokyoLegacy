@@ -16,10 +16,10 @@ import org.jetbrains.annotations.Nullable;
  * character is absent until someone writes one rather than appearing on the
  * default terms.
  *
- * @param weight        her weight at full interest — the value the knapsack
- *                      actually adds up. 100 is ordinary; 250 makes her twice as
- *                      worth a seat as an ordinary guest, 0 means she is never
- *                      picked however much she likes the spread
+ * @param weight        her share of the guest draw at full interest. 100 is
+ *                      ordinary; 250 makes her twice as likely to be drawn as an
+ *                      ordinary guest, 0 means she is never drawn however much she
+ *                      likes the spread
  * @param minReputation below this she declines, whatever is on the table
  * @param maxReputation reputation at which the reputation bonus is fully earned
  * @param repBonus      extra share at {@code maxReputation}; 0.5 means up to 1.5x

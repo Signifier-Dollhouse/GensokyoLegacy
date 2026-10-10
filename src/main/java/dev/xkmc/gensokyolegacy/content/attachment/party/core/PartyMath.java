@@ -8,14 +8,14 @@ package dev.xkmc.gensokyolegacy.content.attachment.party.core;
 public class PartyMath {
 
 	/**
-	 * How much this character wants to come, as the value the knapsack adds up.
+	 * How much this character wants to come, as her share of the next guest draw.
 	 * <p>
-	 * {@code weight} is her value at full interest, so the answer is bounded by
+	 * {@code weight} is her share at full interest, so the answer is bounded by
 	 * {@code weight * (1 + repBonus)} and is 100 for an ordinary, fully-interested,
 	 * average-reputation guest. An <b>integer</b>, because that is what
-	 * {@link PartyPlanner} sums: a fractional weight buys nothing the knapsack cannot
-	 * use, and rounding it at the end rather than carrying a double through every DP
-	 * cell makes ties exact instead of epsilon-dependent.
+	 * {@link PartyPlanner} draws against: a fractional weight would buy nothing, and
+	 * rounding here rather than carrying a double keeps every candidate's weight exactly
+	 * the number the data map asks for.
 	 *
 	 * @param spreadAppeal 0 at or below {@code minAppeal}, 1 at or above
 	 *                     {@code maxAppeal}, linear between: a spread too plain

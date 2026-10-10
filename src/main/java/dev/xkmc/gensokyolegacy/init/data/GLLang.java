@@ -227,7 +227,7 @@ public final class GLLang {
 		PREVIEW_NONE("Nobody would come"),
 		INFO_PHASE("Phase: %s", 1),
 		INFO_ROSTER("Invited: %s", 1),
-		INFO_SERVED("Served %s of %s appeal", 2),
+		INFO_SERVED("Served %s of %s hunger", 2),
 		INFO_GUESTS("Guests present: %s", 1),
 		LETTER_HINT("Right-click a table to send it out");
 
@@ -397,7 +397,7 @@ public final class GLLang {
 		PARTY_WAND_FULFILLMENT_NONE("serves to satisfy a guest: -"),
 		PARTY_WAND_PARTY("Party simulated at (%s, %s, %s)", 3),
 		PARTY_WAND_COUNTS("tables: %s   seats: %s   food: %s", 3),
-		PARTY_WAND_TOTALS("attraction: %s   fulfillment needed: %s", 2),
+		PARTY_WAND_TOTALS("hunger: %s   guests need: %s", 2),
 		PARTY_WAND_NOBODY("Nobody would come"),
 		PARTY_WAND_CANDIDATE("  %s  weight %s  rep %s  wants %s  %s", 5),
 		PARTY_WAND_STALE("(taken away from that table - may be out of date)");

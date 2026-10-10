@@ -25,10 +25,13 @@ import java.util.List;
  * @param food   every party-food block laid out for the spread, in walk order
  * @param seats  every seat block the walk reached
  * @param tables every table block the walk reached
- * @param appeal total appeal of {@link #food}
+ * @param appeal total attraction of {@link #food}; scales {@link PartyMath#weight} and
+ *               is otherwise unused — it is not what the spread can feed
+ * @param fulfillment total hunger in {@link #food}; this is the capacity the planner
+ *                    budgets and the number a guest's own fulfillment is measured against
  */
 public record PartyArea(BlockPos anchor, List<BlockPos> food, List<BlockPos> seats,
-		List<BlockPos> tables, int appeal) {
+		List<BlockPos> tables, int appeal, int fulfillment) {
 
 	/**
 	 * How far the walk reaches around each chair or table it finds: a 5 x 3 x 5 box,
@@ -99,6 +102,7 @@ public record PartyArea(BlockPos anchor, List<BlockPos> food, List<BlockPos> sea
 		var seats = new ArrayList<BlockPos>();
 		var tables = new ArrayList<BlockPos>();
 		int appeal = 0;
+		int fulfillment = 0;
 		long reach = (long) distance * distance;
 		var seen = new HashSet<BlockPos>();
 		var queue = new ArrayDeque<BlockPos>();
@@ -126,6 +130,9 @@ public record PartyArea(BlockPos anchor, List<BlockPos> food, List<BlockPos> sea
 				if (worth > 0 && PartyFoodValue.result(state).valid()) {   // claimed, but not food
 					food.add(pos);
 					appeal += worth;
+					// gathered alongside the appeal, but it is the one the planner
+					// budgets: see PartyFoodValue's two-quantities note
+					fulfillment += PartyFoodValue.totalHunger(state);
 				}
 			}
 			// everything else the walk can pass through: dishes are solid, so the
@@ -134,7 +141,7 @@ public record PartyArea(BlockPos anchor, List<BlockPos> food, List<BlockPos> sea
 				for (var face : FACES) queue.add(pos.relative(face));
 			}
 		}
-		return new PartyArea(anchor.immutable(), food, seats, tables, appeal);
+		return new PartyArea(anchor.immutable(), food, seats, tables, appeal, fulfillment);
 	}
 
 	/** Whether a position is within the scan distance of the anchor. */
@@ -157,13 +164,19 @@ public record PartyArea(BlockPos anchor, List<BlockPos> food, List<BlockPos> sea
 	}
 
 	/**
-	 * Whether a dish was put out for the party: on a table, or touching a seat or a
-	 * table. The one test, shared with {@code YoukaiPartyTask}, so a guest can only
-	 * eat a dish the scan would have counted — otherwise a guest could be handed
-	 * something off the floor that never counted towards the spread she is fed by.
+	 * Whether a dish was put out for the party: standing on a table or a chair, or
+	 * touching a seat or a table. The one test, shared with {@code YoukaiPartyTask}, so a
+	 * guest can only eat a dish the scan would have counted — otherwise a guest could be
+	 * handed something off the floor that never counted towards the spread she is fed by.
+	 * <p>
+	 * A chair counts as a surface as well as a seat, so a plate set on a guest's own seat
+	 * is hers to eat. That is not a special case bolted on for the eating rule: the same
+	 * test decides what the scan collects, so a dish on a chair is part of the spread and
+	 * is budgeted for like any other, rather than being edible but unaccounted.
 	 */
 	public static boolean isLaidOut(ServerLevel level, BlockPos pos) {
-		if (level.getBlockState(pos.below()).is(GLTagGen.PARTY_TABLE)) return true;
+		var under = level.getBlockState(pos.below());
+		if (under.is(GLTagGen.PARTY_TABLE) || under.is(GLTagGen.PARTY_SEAT)) return true;
 		for (var face : TOUCHING) {
 			var touching = level.getBlockState(pos.relative(face));
 			if (touching.is(GLTagGen.PARTY_TABLE) || touching.is(GLTagGen.PARTY_SEAT)) return true;

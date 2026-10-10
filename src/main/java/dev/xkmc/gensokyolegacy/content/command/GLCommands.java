@@ -471,7 +471,7 @@ public class GLCommands {
 		if (party == null) throw ERROR_NO_PARTY.create();
 		src.sendSuccess(() -> GLLang.Party.INFO_PHASE.get(party.phase().name()), false);
 		src.sendSuccess(() -> GLLang.Party.INFO_ROSTER.get(PartyMessage.roster(party.roster())), false);
-		src.sendSuccess(() -> GLLang.Party.INFO_SERVED.get(party.appealServed(), party.appealBudget()), false);
+		src.sendSuccess(() -> GLLang.Party.INFO_SERVED.get(party.hungerServed(), party.hungerBudget()), false);
 		src.sendSuccess(() -> GLLang.Party.INFO_GUESTS.get(party.seatsUsed()), false);
 		return 1;
 	}

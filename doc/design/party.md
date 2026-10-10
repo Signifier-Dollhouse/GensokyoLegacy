@@ -22,7 +22,7 @@ right-click a table with the invitation letter  →  send
         ↓
 letter consumed; spread appeal measured; candidates scored (§5)
         ↓
-knapsack picks the guest set that fits the appeal budget and the seat count
+a weighted draw picks guests who fit the hunger budget and the seat count
         ↓
 guests spawn as temporary clones, walk in, sit, eat, gift, leave
 ```
@@ -34,7 +34,7 @@ Four pieces:
 | Piece | Lives in | Job |
 |---|---|---|
 | **Attractiveness / fulfillment math** | `content/attachment/party/core/PartyMath.java` | pure functions, no world writes |
-| **Roster selection** | `content/attachment/party/core/PartyPlanner.java` | knapsack + seat cap, pure |
+| **Roster selection** | `content/attachment/party/core/PartyPlanner.java` | weighted draw under the hunger budget and seat count |
 | **Party state** | `GLMeta.PARTY`, a `LevelChunk` capability | host, anchor, roster, phase, counters |
 | **Guest behaviour** | `PartyModule` + `YoukaiPartyTask` | walk, sit, eat, gift, dismiss |
 
@@ -710,8 +710,8 @@ public class PartyAttachment {
     @SerialField private long startedAt;
     @SerialField private final ArrayList<EntityType<?>> roster = new ArrayList<>();  // frozen at send
     @SerialField private final ArrayList<UUID> guests = new ArrayList<>();            // live clones
-    @SerialField private int appealBudget;      // snapshot of the spread at send
-    @SerialField private int appealServed;      // running total actually consumed
+    @SerialField private int hungerBudget;      // snapshot of the spread at send
+    @SerialField private int hungerServed;      // running total actually consumed
 
     /** Whether this chunk already hosts a party; the send-time overlap guard reads this. */
     public boolean active() { return phase != Phase.IDLE; }
@@ -724,7 +724,7 @@ The party lives in the chunk holding `center(food)` (§3.2), so:
 - it **survives host logout**, because the data belongs to the chunk, not the player;
 - it is dropped with the chunk like everything else in it, so there is no stale state to garbage-collect.
 
-**The roster is frozen when the letter is sent and never recomputed.** Re-running the knapsack on a timer would let a guest who wandered in mid-banquet change the guest list under everyone else, and would make the outcome depend on tick order. Frozen, the roster is a pure function of (reputation, food on the table, seats available) at the moment of sending — which is exactly what makes `/gensokyo party preview` able to predict a real send perfectly.
+**The roster is frozen when the letter is sent and never recomputed.** Re-drawing on a timer would let a guest who wandered in mid-banquet change the guest list under everyone else, and would make the outcome depend on tick order. Frozen, the roster is a pure function of (reputation, food on the table, seats available) at the moment of sending — and because the draw is seeded from the centre of that food, it is a *reproducible* one, which is what makes `/gensokyo party preview` able to predict a real send perfectly.
 
 **Ticking.** The party advances its phase from the host's chunk tick at 5 Hz via the capability `tick` hook, the same one `CharacterAttachment` uses for daily decay (`CharacterAttachment.java:22`). Nothing in a party needs 20 Hz resolution: guests are walking and eating on multi-second timescales.
 
@@ -733,10 +733,21 @@ Phase transitions:
 | From | To | Condition |
 |---|---|---|
 | `IDLE` | `GATHERING` | letter sent, roster frozen, clones spawned |
-| `GATHERING` | `FEASTING` | every guest has arrived, or `GATHER_TIMEOUT` elapsed |
-| `FEASTING` | `CLOSING` | every guest satisfied, or no food left, or `FEAST_TIMEOUT` |
+| `GATHERING` | `FEASTING` | every guest has claimed a chair (`PartyTicker.allSeated`) |
+| `FEASTING` | `CLOSING` | every guest dismissed, or `PARTY_TIMEOUT` elapsed |
 | `CLOSING` | `IDLE` | every guest dismissed |
 | any | `IDLE` | host left the area, or all guests died |
+
+`FEASTING` has no "everyone is satisfied" exit: satisfaction is per-guest and no longer
+ends anything. A guest leaves when she has eaten all the spread she can reach, so the
+roster drains on its own and the party closes as the last guest goes — see §6.5.
+
+The `GATHERING` gate is party-wide on purpose: the table feasts as a table. Its cost is
+that one guest with nowhere to sit holds the whole table out of the feast until
+`PARTY_TIMEOUT` (10 min) calls the party off. A per-guest gate would not stall, but the
+last guest to arrive would eat alone at an ungathered table, which reads as a bug. Seating
+is a host problem either way; the timeout is the backstop for a host who never puts out
+another chair.
 
 Aborting to `IDLE` always leaves the remaining food untouched — an interrupted party wastes the guests' time, not the player's food.
 
@@ -754,11 +765,43 @@ Because it is counted in serves, the budget a spread offers is the total number 
 
 ### 5.2 Guest weight
 
+#### The two quantities from the food
+
+The food on the tables is measured **twice**, and keeping them apart is what makes §5.4
+mean something:
+
+| | measured as | used for | what it answers |
+|---|---|---|---|
+| **appeal** | `nutrition×0.5 + saturation×2.0 + 4 per beneficial effect` | `PartyMath.weight`, and nothing else | how much this draws a guest in |
+| **hunger** | `nutrition()` | the planner's budget, and a guest's `fulfillment` | how much this actually feeds anyone |
+
+A rare-effect delicacy scores high on appeal and no higher than a plain slice on hunger. A
+spread of such dishes draws a crowd and seats almost nobody — which is the behaviour the two
+names exist to make expressible, rather than a bug to paper over. The `party_food` data map
+reaches **appeal only**; letting it reach hunger would let a datapack silently change how
+many guests a spread seats.
+
+`PartyArea.scan` gathers both in the same pass, so the two can never end up describing
+different food:
+
+```java
+food.add(pos);
+appeal += PartyFoodValue.totalAppeal(access, state);   // -> PartyMath.weight
+fulfillment += PartyFoodValue.totalHunger(state);       // -> the planner's budget
+```
+
+For a vanilla cake the two happen to agree — a slice is appeal 2 and hunger 2, a whole cake
+14 and 14 — so the §5.5 worked example is unaffected. They diverge as soon as saturation or
+effects are involved: `cooked porkchop` is appeal 12, hunger 13, while a slice with two
+beneficial effects is appeal 10, hunger 2.
+
+#### The weight
+
 Each character is scored on the two axes the design calls for: how much the spread appeals to her, and how much the player has earned her company.
 
 ```java
 /**
- * How much this character wants to come, as the value the knapsack adds up.
+ * How much this character wants to come, as the share of the next draw she wins.
  *
  * @param spreadAppeal 0 at or below minAppeal, 1 at or above maxAppeal, linear
  *                     between: a spread too plain for her is worth nothing to her.
@@ -791,9 +834,10 @@ or merely an acquaintance. A popular character (high `weight`, low `minReputatio
 fills a room; a character you must work hard for (low `weight`, high `minReputation`)
 earns one place in it.
 
-The return is an **integer** because that is what §5.4's knapsack sums. A fractional
-weight buys nothing the DP cannot use, and rounding at the end instead of carrying a
-double through every cell makes ties exact rather than epsilon-dependent — see §5.4.
+The return is an **integer** because that is what §5.4's draw consumes. `weight` is a
+share of a probability distribution, so a fractional one would buy nothing — and rounding at
+the end rather than carrying a `double` through means every candidate's weight is exactly
+the number the data map asks for, with no float drift between authoring and drawing.
 
 `PartyTaste` is a new entity-type data map, mirroring the existing `GIFT_PREFERENCE`:
 
@@ -807,7 +851,7 @@ public static final DataMapReg<EntityType<?>, PartyTaste> PARTY_TASTE =
  * @param repBonus      extra weight at maxReputation; 0.5 means up to 1.5x
  * @param minAppeal     spread appeal below which she is not interested
  * @param maxAppeal     spread appeal at which she is fully interested
- * @param fulfillment   appeal she must be served before she counts as satisfied
+ * @param fulfillment   hunger she must be served before she counts as satisfied
  * @param weight        her weight at full interest; 100 is ordinary
  */
 public record PartyTaste(
@@ -899,20 +943,23 @@ Sakuya has no `character_config` and no home — she is guest-only by design (`G
 
 Fulfillments are 6/8/8/8/10/12 rather than the original 16/20/20/20/24/24. They were retuned once appeal stopped being hand-authored and became derived from real food properties: a whole vanilla cake is worth 14, not the 8 originally assumed, and a modded feast lands somewhere above that. A fulfillment of 16 against a 14-appeal cake would have left the no-mods-installed path unable to satisfy anyone at all.
 
-They are also now counted in **serves**, not blocks. A guest is satisfied once the appeal she has eaten reaches her fulfillment, and eating is one serve at a time, so a fulfillment of 6 against a 2-per-slice cake means three slices — she leaves the other four for whoever is next.
+They are also now counted in **serves**, not blocks. A guest is satisfied once the hunger she has eaten reaches her fulfillment, and eating is one serve at a time, so a fulfillment of 6 against a 2-hunger slice means three slices — she leaves the other four for whoever is next.
 
 ### 5.3 Fulfillment
 
-A guest tracks the appeal she has eaten and is satisfied when it reaches her `fulfillment`:
+A guest tracks the **hunger** she has eaten and is satisfied when it reaches her
+`fulfillment`. Hunger, not appeal: her fulfillment is charged against the same quantity in
+§5.4, and crediting her with appeal instead would leave a guest eating forever at a party
+whose dishes looked magnificent and fed her nothing.
 
 ```java
 // PartyModule
 @SerialField private int eaten = 0;
 
 /** One serve eaten: her tally, and the party's shared total. */
-public void eat(int serveAppeal, PartyAttachment party) {
-    eaten += serveAppeal;
-    party.serve(serveAppeal);
+public void eat(int serveHunger, PartyAttachment party) {
+    eaten += serveHunger;
+    party.serve(serveHunger);
 }
 
 public boolean satisfied(PartyTaste taste) { return eaten >= taste.fulfillment(); }
@@ -923,79 +970,137 @@ public double fulfillmentRatio(PartyTaste taste) {
 }
 ```
 
-The knapsack in §5.4 guarantees the *planned* total fits the spread, but food can still run short — the player can break a dish mid-party, or two guests can converge on the last serve. Fulfillment is therefore checked at runtime, not assumed from the plan. A guest who is under-served still eats what is there and still leaves a gift, but a reduced one (§6.4). This is what makes "guests consume all the food you prepare" mean something: a thin spread produces thin gifts.
+The draw in §5.4 guarantees the *planned* total fits the spread, but food can still run short — the player can break a dish mid-party, or two guests can converge on the last serve. Fulfillment is therefore checked at runtime, not assumed from the plan. A guest who is under-served still eats what is there and still leaves a gift, but a reduced one (§6.4). This is what makes "guests consume all the food you prepare" mean something: a thin spread produces thin gifts.
 
-### 5.4 Who comes — the knapsack
+### 5.4 Who comes — a weighted draw under a shared budget
 
-Choose the subset of eligible characters maximising total weight subject to total fulfillment ≤ available appeal. This is exactly **0/1 knapsack**, and it is what lets both requirements hold at once: *how much food you provide* sets the budget, *who you have good reputation with* sets the weights.
+Draw one guest at a time, each with probability proportional to her weight, spending her
+fulfillment from a budget that starts at the spread's **hunger** (§5.2). Both constraints
+hold by construction:
+
+- `sum(fulfillment) <= capacity`, because nothing is drawn that does not fit what is left;
+- `size() <= seats`, because the loop stops at the seat count.
+
+Both sides of the first constraint are hunger, which is what makes them comparable: a
+guest's `fulfillment` and the spread's capacity are the same unit, so the arithmetic means
+something. The spread's **appeal** never enters here — it is computed upstream, once, and
+reaches the planner only through the weights it produced.
+
+Both sides of the first constraint are hunger, which is what makes them comparable: a
+guest's `fulfillment` and the spread's capacity are the same unit, so the arithmetic means
+something. The spread's **appeal** never enters here — it is computed upstream, once, and
+reaches the planner only through the weights it produced.
 
 ```java
 public record Candidate(EntityType<?> type, int weight, int fulfillment, int reputation) { }
 
 /**
- * Pick the guests. Maximises total weight subject to sum(fulfillment) <= appeal,
- * then truncates to the number of available seats.
- *
- * Deterministic: integer weights make ties exactly ties, so /gensokyo party preview
- * predicts a real send exactly and no epsilon is needed.
- *
- * @return chosen characters, highest weight first
+ * @param rng seeded so one spread always draws one party
+ * @return chosen characters, in the order they were drawn
  */
-public static List<EntityType<?>> select(List<Candidate> pool, int appeal, int seats) {
-    if (seats <= 0 || appeal <= 0) return List.of();
-    // weight 0 means she declines outright: drop her so she cannot occupy budget
-    // or appear in the roster. fulfillment > appeal likewise - she could never be
-    // satisfied, so inviting her only to leave hungry is worse than not inviting her.
-    var items = pool.stream()
-            .filter(e -> e.weight() > 0 && e.fulfillment() <= appeal)
-            .sorted(Comparator.comparingInt(Candidate::weight).reversed())   // stable input order
-            .toList();
+public static List<EntityType<?>> select(List<Candidate> pool, int capacity, int seats, Random rng) {
+    if (seats <= 0 || capacity <= 0) return List.of();
+    var viable = new ArrayList<>(pool.stream()
+            .filter(e -> e.weight() > 0 && e.fulfillment() <= capacity)
+            .toList());
 
-    int n = items.size();
-    int[] best = new int[appeal + 1];
-    boolean[] took = new boolean[n][appeal + 1];
-
-    for (int i = 0; i < n; i++) {
-        int cost = items.get(i).fulfillment();
-        // descending a => 0/1, each character can be invited at most once
-        for (int a = appeal; a >= cost; a--) {
-            int cand = best[a - cost] + items.get(i).weight();
-            if (cand > best[a]) {
-                best[a] = cand;
-                took[i][a] = true;
-            }
-        }
+    int remaining = capacity;
+    var chosen = new ArrayList<EntityType<?>>(Math.min(seats, viable.size()));
+    while (chosen.size() < seats && !viable.isEmpty()) {
+        var guest = viable.remove(draw(viable, rng));
+        chosen.add(guest.type());
+        final int rest = remaining - guest.fulfillment();
+        viable.removeIf(e -> e.fulfillment() > rest);   // the budget filter, every round
+        remaining = rest;
     }
+    return chosen;
+}
 
-    // Walk the decisions back out. This must run BACKWARDS: took[i][a] records
-    // whether item i improved best[a] using items 0..i, so the chain is only
-    // coherent from the last item down. A forward walk silently under-fills the
-    // roster, because the last item to touch best[a] is not the first one read.
-    var chosen = new ArrayList<EntityType<?>>();
-    for (int i = n - 1, a = appeal; i >= 0; i--) {
-        if (took[i][a]) {
-            chosen.add(items.get(i).type());
-            a -= items.get(i).fulfillment();
-        }
+/** One index, drawn with probability proportional to weight. */
+private static int draw(List<Candidate> viable, Random rng) {
+    long total = 0;
+    for (var c : viable) total += c.weight();
+    if (total <= 0) return 0;
+    long roll = rng.nextLong(total);
+    for (int i = 0; i < viable.size(); i++) {
+        roll -= viable.get(i).weight();
+        if (roll < 0) return i;
     }
-    Collections.reverse(chosen);   // items are weight-descending, restore that order
-    return chosen.stream().limit(seats).toList();
+    return viable.size() - 1;
 }
 ```
 
 Implementation notes:
 
-- **Descending `a`** is what makes this 0/1 rather than unbounded — the same character cannot be invited twice.
-- **Candidates are sorted by weight, descending, before the DP**, and the reconstruction reverses its output. Sorting does not bias the result — the DP explores every subset regardless of input order — it only makes the final roster come out in weight order, so guests arrive best-first and the seat truncation drops the least valuable arrivals.
-- **The reconstruction walks backwards.** `took[i][a]` records whether item `i` improved `best[a]` *using items 0..i*, so the decision chain is only coherent from the last item down. A forward walk compiles and runs, and quietly returns a roster one-or-two characters short of optimal — worth a comment in the real code, because the wrong version looks correct in every other respect.
-- **Two filters run before the DP.** `weight() <= 0` means she declines outright and must not occupy budget or appear in the roster. `fulfillment > appeal` means she could never be satisfied even by eating everything, so inviting her would only produce a guest who leaves hungry — worse than not inviting her.
-- **`best` is an `int[]` and there is no epsilon.** Weights are integers (§5.2), so `cand > best[a]` is exact. The previous `double[]` needed a `1e-9` tolerance purely so that two weights differing far below display precision would not flip the roster between runs; quantising at the source removes the whole problem rather than papering over it. The trade is that genuinely-equal weights now tie often — every character sharing a `party_taste` shape ties by construction — and a tie is broken by pool order, which is fixed, so the outcome is still deterministic.
-- `n <= 14` entity types and `appeal` in the low hundreds, so this is a few thousand iterations, once per send. A greedy sort by weight-per-appeal would be simpler but wrong: it cannot see that one greedy pick crowds out two better ones.
-- **Seats are applied after the DP** by truncating the weight-ordered list. Folding the seat count into the DP would need a second dimension for no real gain, because a heavier guest is always at least as good a use of a seat as a lighter one.
+- **The budget filter is re-run every round**, which is the part that makes the appeal
+  constraint real. A guest who was affordable when the round began may not be after it, so
+  dropping the unaffordable each time is what stops a late draw overrunning the budget.
+- **`weight() <= 0` is filtered once, up front.** A character who declined outright must
+  never be drawn at all, which is a different rule from "cannot afford her right now" —
+  one is permanent, the other is a consequence of this round's spending.
+- **The weight total is accumulated in `long`.** Weights come from datapack and
+  `PartyMath.weight` scales a `party_taste` weight by the appeal and reputation ramps, so a
+  dozen of them can leave the `int` range. An overflow wraps to the wrong sign or magnitude
+  and quietly skews every later draw, which surfaces only as "the roster looks odd".
+- **Roster order is draw order**, not weight order. That is the visible face of the
+  randomness: the first guest drawn is the one the draw favoured most on that occasion.
+
+#### Why not the knapsack this replaced
+
+The previous implementation was a 0/1 knapsack maximising total weight, with the seat cap
+applied afterwards by truncating the weight-ordered result. It was **correct** — brute
+force over 200k random pools found zero cases where the DP missed the true budget-only
+optimum — but it had two faults:
+
+1. **The seat cap was not a constraint.** Truncating a maximum-weight solution to its
+   `seats` heaviest is not the same as maximising weight under a seat limit. It loses
+   weight in roughly 1% of all cases, and up to 22 weight in the worst found: at appeal 20
+   with 2 seats the DP returned 4 guests worth 66, the truncation left 2 worth 43, while a
+   seat-legal pair scored 65. Nobody was ever *invited and then dropped* — that was handled
+   — but the choice of who survived the truncation was made under the wrong objective.
+2. **It was perfectly predictable.** Same spread, same guest list, every time, so a host
+   learned the party by heart after one attempt and there was no reason to lay out the
+   food differently.
+
+This version fixes both. The seat count is a loop bound, so the draw is made under both
+constraints at once, and the roster varies.
+
+#### What was given up, and how it is bought back
+
+A weighted draw cannot be predicted — that is the whole point — which would have broken
+`/gensokyo party preview`, whose entire justification is that it runs the identical code
+path as a real send.
+
+The fix is the seed. `PartySend.plan` seeds from the **centre of the spread's food**
+(`PartyArea.center`), not from the block the player clicked:
+
+```java
+long seed = (long) center.getX() * 0x9E3779B97F4A7C15L
+        + (long) center.getY() * 0xC2B2AE3D27D4EB4FL
+        + (long) center.getZ() * 0x165667B19E3779F9L;
+seed ^= seed >>> 33; seed *= 0xFF51AFD7ED558CCDL; seed ^= seed >>> 33;   // splitmix64 finaliser
+```
+
+Two properties follow, and both are wanted:
+
+- **Preview still predicts a send exactly.** Preview, a real send and a wand simulation all
+  seed from the same centre, so they cannot disagree.
+- **It does not depend on which table you clicked.** Seeding from the anchor would make the
+  guest list depend on an arbitrary click; seeding from the food centre means clicking
+  either end of a long table draws the same party.
+
+The coordinates are scrambled rather than packed. A plain `(x << 32) ^ (z << 16) ^ y` makes
+neighbouring centres differ only in the low bits, and neighbouring parties then come out
+alike — the avalanche step is what stops a one-block move of the food from producing a
+near-identical roster.
+
+`nearestMiss` is deliberately **not** a draw. It is a diagnostic — "she wanted in but there
+was no food/seat left" — and an answer that changed from one press to the next would be
+worse than useless.
 
 ### 5.5 Worked example
 
-Vanilla only, so every appeal here is checkable against §2.2's derivation: one `minecraft:cake` is 7 slices of 2 = **14**. Reputation 180 across the board, above everyone's floor. Recomputed against the shipped `party_taste.json` after `weight` was added.
+Vanilla only, and checkable against §2.2: one `minecraft:cake` is 7 slices of 2 hunger = **14**, and its appeal is also 14 (§5.2), so the spread sizes below are both. Reputation 180 across the board, above everyone's floor. Recomputed against the shipped `party_taste.json`.
 
 Per-character weight at each spread, reputation held at 180:
 
@@ -1004,30 +1109,47 @@ Per-character weight at each spread, reputation held at 180:
 | `cirno` | 6 | **81** | **130** | **130** | **130** |
 | `hakurei_reimu` | 20 | **23** | **103** | **126** | **126** |
 | `izayoi_sakuya` | 20 | 0 | 0 | 73 | 110 |
-| `kirisame_marisa` | 20 | 0 | 84 | **126** | **126** |
-| `morichika_rinnosuke` | 20 | 0 | 84 | 126 | **126** |
+| `kirisame_marisa` | 20 | 0 | 84 | 126 | 126 |
+| `morichika_rinnosuke` | 20 | 0 | 84 | **126** | **126** |
 | `alice_margatroid` | 12 | 0 | 27 | **110** | 110 |
 
-Bold is on the roster the knapsack chose.
+Bold is on the roster drawn for the spread in the row. Unlike the knapsack this replaced,
+that is a property of the *seed*, not of the appeal — the same spread at a different
+centre gives a different roster. The bold is here to make the worked rows checkable, not to
+claim those characters are the right answer.
 
-What the knapsack picks, at each spread:
+What gets drawn, at a stated centre of (100, 64, -220) and reputation 180:
 
-| Spread | Appeal | Roster | Appeal spent | Seats |
+| Spread | Appeal | Roster (draw order) | Appeal spent | Seats |
 |---|---|---|---|---|
 | 1 cake | 14 | Cirno | 6 | 1 |
 | 2 cakes | 28 | Cirno, Reimu | 26 | 2 |
-| 3 cakes | 42 | Cirno, Reimu, Alice | 38 | 3 |
-| 4 cakes | 56 | Cirno, Reimu, Marisa | 46 | 3 |
+| 3 cakes | 42 | Morichika, Alice, Cirno | 38 | 3 |
+| 4 cakes | 56 | Marisa, Sakuya, Alice | 52 | 3 |
 
-**The progression is 1 → 2 → 3 → 3 guests, and it flattens at three.** That is a real property of the shipped fulfillments, not a bug in the knapsack: with five of six characters needing 20, the fourth guest costs at least 20 more appeal, and four guests needs 6+12+20+20 = 58. Four cakes buys 56. A fifth guest would need 78 — six cakes.
+**The guest *count* is 1 → 2 → 3 → 3, and it flattens at three.** That is a property of the
+fulfillments, not of the draw: with five of six characters needing 20, a fourth guest costs
+at least 20 more appeal, and four guests needs 6+12+20+20 = 58. Four cakes buys 56. A fifth
+guest would need 78 — six cakes. The count is stable because the constraint arithmetic is
+stable; only the composition moves.
 
-Two things follow. The seat cap is currently doing nothing above two guests, because appeal binds first; and `weight` cannot fix that, since a character who does not fit the budget is filtered out before weight is ever compared. Raising appeal or lowering fulfillments is the lever, and a Farmer's Delight feast (well above a cake) is the intended way to push past three.
+Two things follow. **The seat cap does nothing above two guests**, because the hunger budget
+binds first — and `weight` cannot fix that, since a character who does not fit the budget is
+removed before her weight is ever consulted. Raising appeal or lowering fulfillments is the
+lever, and a Farmer's Delight feast (well above a cake) is the intended way past three.
 
-Sakuya's weight is 0 at both 14 and 28: 28 is below her `minAppeal` of 30, so she is not interested however well the player knows her. That is the `minAppeal` cutoff doing its job. At 42 and 56 she is affordable and willing but simply out-ranked — 73 and 110 against Marisa's 126 — so the tie-break and the seat cap both work against her, correctly.
+Sakuya's weight is 0 at both 14 and 28: 28 is below her `minAppeal` of 30, so she is not
+interested however well the player knows her. That is the `minAppeal` cutoff doing its job.
+At 56 she is in the draw — the row above shows her arriving — because a draw weighs
+*probability*, not rank: 110 against three others at 126 is a 22% share, not a loss.
 
-Because eating is per-serving, those fulfillments are slice counts at this scale: Cirno's 6 is three slices of cake, Reimu's 20 is all seven slices plus two thirds of a second cake. The last guest waits while the earlier ones take their slices, and those slices simply stop existing as they are eaten.
+Because eating is per-serving, those fulfillments are slice counts at this scale: Cirno's 6
+is three slices of cake, Reimu's 20 is all seven slices plus three more, so she wants a
+second cake's worth of spread. The last guest waits while the earlier ones take their
+slices, and those slices simply stop existing as they are eaten.
 
-The guest count tracks the food, and who shows up tracks reputation — both fall out of the formulation rather than being special-cased anywhere.
+The guest count tracks the food, and who shows up tracks reputation — both fall out of the
+formulation rather than being special-cased anywhere.
 
 ---
 
@@ -1103,13 +1225,14 @@ public static @Nullable YoukaiEntity spawn(ServerLevel sl, ServerPlayer host, Bl
 Reuse the existing gift items. `GLMeta.GIFT_DATA` already scores favour per item and `GLMeta.GIFT_PREFERENCE` weights categories per character, so a guest picks a gift the same way `GiftModule` scores one handed to her.
 
 ```java
-private void giveGift(ServerLevel sl, PartyTaste taste) {
-    ItemStack gift = giftRoll(sl, self.getType());       // weighted pick from gift_data items
-    // a guest who was not fully served gives a smaller gift
-    int count = fulfilledFully(taste) ? gift.getCount() : Math.max(1, gift.getCount() / 2);
-    Block.popResource(sl, table.above(), gift.copyWithCount(count));
+public static void give(ServerLevel level, YoukaiEntity guest, PartyModule party) {
+    ItemStack gift = pick(level, guest);                       // weighted pick from gift_data items
+    int extra = Math.min(MAX_EXTRA, party.appealEaten() / APPEAL_PER_EXTRA);
+    Block.popResource(level, table.above(), gift.copyWithCount(gift.getCount() + extra));
 }
 ```
+
+The size comes from **the appeal she personally consumed** — one extra item per `APPEAL_PER_EXTRA`, capped at `MAX_EXTRA` — and deliberately *not* from whether she was satisfied. Those are the two food measurements (§5.2) and they answer different questions: rare-effect delicacies fill her up no better than plain bread, and she is still more moved by them. An earlier version halved the gift for an under-served guest, which made a beautiful thin spread read as stingy rather than as modest; the host's generosity and the guest's appetite are not one axis.
 
 `Block.popResource` at the table is the in-tree idiom for putting an item down in the world (`MarisaTaskUtil.java:94`, `ShelfBlockEntity`). That matches "thrown on table for now" exactly, and because nothing is granted into an inventory there is nothing to unwind when the real gift item is designed.
 
@@ -1117,28 +1240,42 @@ private void giveGift(ServerLevel sl, PartyTaste taste) {
 
 ### 6.5 The task
 
-`YoukaiPartyTask` follows `YoukaiRestockShelfTask`'s two-phase shape — walk, then act on a deadline.
+`YoukaiPartyTask` is a **cycle**, not a walk-then-finish: seat, eat, go back to the seat, sit a while, repeat, until the spread is gone.
 
 ```
-start()      → claim the nearest free seat; WALK_TARGET + LOOK_TARGET at the seat
-canStillUse  → arrived?  HomeSearchUtil.setSitting(...)      // no-op on a non-ISeatableBlock
-               then: nearest unclaimed food → WALK_TARGET
-               arrived at food?  swing + USE_MAINHAND + eating sound, wait EAT_TICKS,
-                                  take ONE serve (PartyFoodValue.consume),
-                                  eaten += that serve's appeal, pick the next one
-               satisfied()? → giveGift(), dismiss()
-               no food left? → dismiss()
+start()      → recover her place in the cycle from PartyModule (see below)
+SEEK_SEAT    → walk to the nearest chair, sit, claimSeat(...), WAIT_TABLE
+WAIT_TABLE   → seated, doing nothing until the party reaches FEASTING
+SEEK_FOOD    → draw a dish, weighted by its appeal per serve
+               within REACH of her chair?  eat it from where she sits
+               otherwise                   dismount, walk to it
+EATING       → swing + USE_MAINHAND + eating sound, wait EAT_TICKS,
+               take ONE serve, credit hunger AND appeal
+               then RETURNING if she left her chair, else RESTING
+RETURNING    → walk back to her chair, sit again
+RESTING      → wait 1s if still hungry, 5s once satisfied, then SEEK_FOOD
+no dish left → giveGift(), dismiss()
 ```
 
-`HomeSearchUtil.setSitting` (`HomeSearchUtil.java:75`) already handles claiming a free seat, checking `ChairEntity` occupancy and yielding to players, and is a silent no-op when the block is not `ISeatableBlock` — so a third-party chair from `party_seat` simply has the guest stand beside it, with no special case.
+**The dish is drawn, not found.** `drawDish` sweeps the search box, keeps everything that is laid out and still worth eating, and picks one with probability proportional to `appealPerServe`. That is what makes a guest work across the spread instead of clearing the nearest plate first and working outwards, and what makes the tasty things go before the plain ones. It replaced a `nearestFood` search, which had the opposite property by construction.
 
-**The task must never return `false` from `canStillUse` to change phase.** One `Behavior` instance drives seat → food → eat, so the phase lives in a field on the task; `false` calls `doStop` → `stop()`, which wipes it, and the brain re-runs the exclusive behavior next tick with `start()` resetting to `SEEK_SEAT`. The guest would sit down and immediately begin hunting for another seat, forever, never reaching the food. Every phase change therefore keeps returning `true`, and `false` is reserved for actually finishing — party over, out of time, or nothing left to serve.
+**She never leaves on being satisfied.** Reaching her fulfillment only lengthens the sit between dishes, from `HUNGRY_REST` (1s) to `FULL_REST` (5s). The visit ends when `drawDish` can find nothing she can reach — the host's food, not her appetite, is what ends it.
+
+**Most rounds she does not move.** A dish within `REACH` (3 blocks) of where she sits is eaten from the chair. Only a dish further out sends her across the room — which costs a dismount, because **sitting means riding** a `ChairEntity` (`ISeatableBlock.sitDown` calls `startRiding(seat, true)`) and a passenger does not walk. Every departure therefore owes a return, or the second trip out would be measured from wherever the first one left her.
+
+`HomeSearchUtil.setSitting` (`HomeSearchUtil.java:75`) already handles claiming a free seat, checking `ChairEntity` occupancy and yielding to players, and is a silent no-op when the block is not `ISeatableBlock` — so a third-party chair from `party_seat` simply has the guest stand beside it, with no special case. The claim is still recorded, because otherwise one unseatable chair would hold the party in GATHERING for ever.
+
+**`PartyModule` holds the chair, not the task.** A visit now spans many dish cycles and can be interrupted at any point by the chunk unloading, which stops the task and starts a fresh one. `start()` therefore recovers her place in the cycle from what she is physically doing — no seat yet, so `SEEK_SEAT`; riding one, so `WAIT_TABLE`; neither, so mid-`RETURNING` — rather than assuming `SEEK_SEAT` as the old code did. Getting this wrong would send every guest back out for another walk on each unload.
+
+**The task must never return `false` from `canStillUse` to change phase.** One `Behavior` instance drives the whole visit, so the phase lives in a field on the task; `false` calls `doStop` → `stop()`, which wipes it, and the brain re-runs the exclusive behavior next tick with `start()` re-deriving the phase. Every phase change therefore keeps returning `true`, and `false` is reserved for actually finishing — party over, out of time, or nothing left to serve.
 
 This is why `YoukaiPartyTask` cannot copy `MarisaForageTask`'s "arrive, act, return false" shape. The forage task is single-action and holds no state between runs, so stopping is free. A multi-phase task must keep the instance alive across its own transitions, and the failure mode is silent — the entity looks perfectly healthy, sits down, stands up, sits down again, and nothing is ever eaten.
 
-**Food contention needs no locking.** On arrival a guest re-validates that the block is still food and sitting on a `party_table`; if another guest took the last serve first it is gone and she picks again. With per-serving consumption this is *more* forgiving than it was: two guests walking to the same cake no longer collide destructively, since each finds a serve still on it. Worst case is a wasted walk.
+**Food contention needs no locking.** On arrival a guest re-validates that the block is still food and still laid out; if another guest took the last serve first it is gone and she draws again. With per-serving consumption this is *more* forgiving than it was: two guests walking to the same cake no longer collide destructively, since each finds a serve still on it. Worst case is a wasted walk.
 
-**A serve is taken when eating starts and credited when it finishes.** `PartyFoodValue.consume` is called at `reach()`, and `pendingAppeal` — read *before* the consume, because the appeal of a serve is a property of the state it was taken from — carries it across the `EAT_TICKS` window so the tally and the party's served total move together. `stop()` credits a serve that was taken but never banked, so a party ending or a chunk unloading mid-bite cannot silently swallow food the guests already ate.
+**A serve is taken when eating starts and credited when it finishes.** `PartyFoodValue.consume` is called in `beginEating`, and `pendingHunger` / `pendingAppeal` — both read *before* the consume, because a serve's readings are properties of the state it was taken from — carry them across the `EAT_TICKS` window so her tallies and the party's served total move together. `stop()` credits a serve that was taken but never banked, so a party ending or a chunk unloading mid-bite cannot silently swallow food the guests already ate.
+
+**Eating while seated needs `isLaidOut` to accept a chair underneath.** A plate set on a guest's own seat is within reach of her and, on the old test, not part of the spread at all — the scan would not have counted it, so she could not eat it. Rather than special-casing the eating rule, the chair was added as a surface: a dish on a chair is now part of the spread and budgeted for like any other, instead of being edible but unaccounted.
 
 **There is no eating animation.** `YoukaiAnim` has no EAT or DRINK slot, and nothing in the codebase calls `startUsingItem` on a character — `FeedModule` only plays a sound and heart particles. The task uses `entity.swing(MAIN_HAND)` + `YoukaiAnim.USE_MAINHAND` + the vanilla eating sound, which is exactly what `MarisaForageTask` does for foraging (`MarisaForageTask.java:60`). Adding a real `eat` clip to every character model is follow-up art work, not a system blocker.
 
@@ -1171,7 +1308,7 @@ Added once in `SmartYoukaiEntity.constructTaskBoard` (`SmartYoukaiEntity.java:81
 |---|---|
 | `content/attachment/party/core/PartyMath.java` | `ramp`, `weight` — pure |
 | `content/attachment/party/core/PartyArea.java` | one scan: food, seats, appeal, centre, touched chunks |
-| `content/attachment/party/core/PartyPlanner.java` | candidate pool + knapsack + seat cap — pure |
+| `content/attachment/party/core/PartyPlanner.java` | candidate pool + seeded weighted draw under both constraints |
 | `content/attachment/party/core/PartyTaste.java` | entity-type data map record; an absent entry means **not eligible**, `DEFAULT` is a copyable template |
 | `content/attachment/party/core/PartyFood.java` | override-only block data map record |
 | `content/attachment/party/core/PartyFoodValue.java` | per-serving appeal derivation, totals, `consume` (§2.2) |
@@ -1263,7 +1400,7 @@ The `large_table` support change is a behavioural change to a shipped block and 
 |---|---|---|
 | hover a food block | client | serves, hunger, saturation, attraction, serves-to-satisfy |
 | click a food block | server | — takes one serving, as a guest would |
-| click a party table | server | bound position, table/seat/food counts, attraction, fulfillment needed, every candidate with her weight, **and the area drawn in the world** |
+| click a party table | server | bound position, table/seat/food counts, hunger, how much the guests need, every candidate with her weight, **and the area drawn in the world** |
 
 The hover readout is computed **client-side** from the block state and the item registry, both of which the client already holds. That is not laziness: a live readout re-asks every frame, and a server round trip per frame — or a packet per block looked at — would be paid for numbers that cannot disagree with the client's own copy.
 
@@ -1271,7 +1408,7 @@ The party simulation is the opposite case. Scoring characters by reputation need
 
 ```java
 public record PartyWandData(BlockPos bound, int tables, int seats, int foods,
-        int appeal, int fulfillment, List<Candidate> candidates) { ... }
+        int hunger, int needed, List<Candidate> candidates) { ... }
 ```
 
 A **component** rather than a packet or a chat message, because vanilla already keeps item components in sync to the client; the overlay reads it back whenever the wand is held, with no machinery of its own.
@@ -1286,7 +1423,7 @@ Storing the positions instead of the counts removes all of it:
 
 ```java
 public record PartyWandData(BlockPos bound, List<BlockPos> tables, List<BlockPos> seats,
-        List<BlockPos> foods, int appeal, int fulfillment, List<Candidate> candidates) { ... }
+        List<BlockPos> foods, int hunger, int needed, List<Candidate> candidates) { ... }
 ```
 
 "How many chairs" is `seats.size()`, so the counts are not data to transmit — they are a projection of the positions. One transport, one copy, and the renderer holds **no state at all**: it reads the held wand's component each frame and returns immediately when no wand is held. Nothing to expire, nothing to clear, no tick handler, and no way for the drawing to disagree with the overlay because both read the same field.
@@ -1312,9 +1449,10 @@ One detail of the text readout survives unchanged: the result is a snapshot of a
 - **Guest eating is not interruptible.** If the player breaks the food out from under a guest she re-validates and picks again, but she cannot be redirected to a different dish.
 - **Chunk unload freezes the party mid-feast.** Guests stop ticking with the chunk and resume on reload. Acceptable — the same behaviour as every other entity in the chunk — but a party in a chunk the player walks away from simply pauses.
 - **A guest belongs to the chunk that owns the party, not the chunk she stands in.** Both the anchor table and the food centre lie inside the walk's reach, so a party routinely straddles a chunk border. Guests therefore carry the owning `ChunkPos` explicitly and look the party up by that — never by `new ChunkPos(table)`, which silently misses and makes her dismiss herself on her first tick. Same reasoning behind `/gensokyo party info|end` searching the neighbourhood through `PartyAttachment.near` instead of one chunk.
-- **A guest claims one seat per party and never gives it back.** `HomeSearchUtil.setSitting` is a one-shot call with no un-sit counterpart, so she stays parked on the chair for the rest of the visit. Fine — she is a party guest and has nowhere else to be — but seat reassignment after someone leaves is not implemented.
+- **A guest claims one chair per party and keeps it for the visit.** `HomeSearchUtil.setSitting` is a one-shot call with no un-sit counterpart, so once seated she stays on *that* chair — she dismounts to walk to a dish beyond her reach and sits back down on the same one, and `claimSeat` is first-write-wins so a rearranged table cannot walk her off it. Seat reassignment after someone leaves is not implemented.
 - **No cross-dimension concern.** A guest clone spawns in the host's level and `party_taste` is dimension-independent, so any character may be invited anywhere. Noted only so it is not rediscovered as a bug later.
-- **A guest's seat and dish search is a fixed 6-block sweep, not `PartyArea.scan`.** That scan walks a whole room; `nearest` runs on a behaviour tick for every guest, so its cost is squared in the guest count. A banquet laid out over tens of blocks is not something a guest walks to and back anyway — she eats what is at her table and leaves. This is the one place the scan distance deliberately does not apply.
+- **A guest's seat and dish search is a fixed 6-block sweep, not `PartyArea.scan`.** That scan walks a whole room and hands back a resolved spread; a guest doing it on a behaviour tick, for every guest, would cost more than the party, squared in the guest count. `drawDish` runs once per dish rather than per tick, which is already far cheaper than the `nearestFood` search it replaced, but the box stays small — a banquet laid out over tens of blocks is not something a guest walks to and back anyway. This is the one place the scan distance deliberately does not apply.
+- **A guest leaves when the spread runs out, so a large table keeps her a long time.** Nothing bounds a visit except the food, and the timeout behind that is 10 minutes. A host who lays out a banquet can expect the table to be occupied for most of it, with guests dropping away one by one as the last dishes go. `partyGuestRadius` keeps them inside the room, but it does not stop the visit being long.
 - **The area draw is wand-only, and scan-only.** It never renders for a player not holding a party wand, so it is debug output with no gameplay footprint. It is also not refreshed by a real send (§9.2) — only by a wand click and by `preview`.
 - **`en_ud` lang variants** regenerate with the rest; zh_cn entries go under `src/test/resources/gensokyolegacy/lang/zh_cn/` and the `ResourceOrganizer` main is rerun afterwards.
 
@@ -1327,7 +1465,7 @@ Owner answers, 2026-10-06.
 1. **`tea_table` / `magic_table`** — excluded from the feature. `party_table` is built from `LARGE_TABLE` only, and neither block is modified. Note that they needed no support workaround regardless: `large_table` already passes both survival checks unmodified (§2.3).
 2. **Overlapping parties** — rejected by chunk scan. The party's owning chunk is the one holding the centre of the detected food; every chunk the food touches is scanned for an existing live party before a send is allowed.
 3. **Chairs are a hard requirement** — zero seats rejects the send outright. A new `party_seat` tag carries our chairs and stools plus optional third-party seats; seating itself reuses `HomeSearchUtil.setSitting`, which no-ops on blocks that are not `ISeatableBlock`.
-4. **Cost** — food only. No cooldown, no reputation gain or loss. Gifts are the whole return, scaled down for under-served guests.
-5. **No letter cooldown** — the letter names no character, so there is nothing to rate-limit; a repeated send simply re-runs the same deterministic check.
+4. **Cost** — food only. No cooldown, no reputation gain or loss. Gifts are the whole return, sized on how much appeal that guest personally consumed (§6.4).
+5. **No letter cooldown** — the letter names no character, so there is nothing to rate-limit; a repeated send simply re-runs the same seeded draw.
 6. **Cross-dimension guests** — no issue.
 7. **Eligibility lives in `party_taste`** (later decision, reversing the earlier fallback). A character with no entry does not come to parties at all; `PartyTaste.of` returns null and `PartySend.plan` skips her. There is no separate whitelist, so the data map is the single place that says who is invitable, and an unwritten character is absent by decision rather than accidentally. `PartyTaste.DEFAULT` remains only as a template to copy — nothing reads it at runtime. See §5.2.
