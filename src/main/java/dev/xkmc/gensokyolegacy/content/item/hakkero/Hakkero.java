@@ -49,9 +49,13 @@ import java.util.Optional;
  */
 public class Hakkero extends Item implements InvClickItem {
 
-	/** Cooking time divisor with a lit fuel: {@code 200 / 10}, i.e. ten times a vanilla furnace. */
+	/**
+	 * Cooking time divisor with a lit fuel: {@code 200 / 10}, i.e. ten times a vanilla furnace.
+	 */
 	public static final int MAX_SPEED = 10;
-	/** A fuel burns this many times faster than it would in a block furnace. */
+	/**
+	 * A fuel burns this many times faster than it would in a block furnace.
+	 */
 	public static final int FUEL_DIVISOR = 10;
 	/**
 	 * How often the item does a catch-up batch while nobody is looking at it. A hakkero in a
@@ -59,10 +63,9 @@ public class Hakkero extends Item implements InvClickItem {
 	 * tooltip replays at.
 	 */
 	public static final int IDLE_BATCH = 20;
-	/** Thrust given by an unboosted kick, and how long it lasts. */
-	public static final float THRUST_PLAIN = 1.2F;
-	public static final int THRUST_PLAIN_TICKS = 20;
-	/** Thrust given by a kick off burning fuel. */
+	/**
+	 * Thrust given by a kick off burning fuel.
+	 */
 	public static final float THRUST_FUELLED = 3.0F;
 
 	public Hakkero(Properties properties) {
@@ -216,7 +219,9 @@ public class Hakkero extends Item implements InvClickItem {
 		return changed;
 	}
 
-	/** Whether {@code out} could take one more {@code result}, or is empty and waiting. */
+	/**
+	 * Whether {@code out} could take one more {@code result}, or is empty and waiting.
+	 */
 	public static boolean accepts(ItemStack out, ItemStack result) {
 		if (out.isEmpty()) return true;
 		if (!ItemStack.isSameItemSameComponents(out, result)) return false;
@@ -240,17 +245,12 @@ public class Hakkero extends Item implements InvClickItem {
 		return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
 	}
 
-	/**
-	 * Kicks the broom. A burning fuel gives {@link #THRUST_FUELLED} for a tenth of the fuel
-	 * it has left; with none it gives a small {@link #THRUST_PLAIN} nudge. Either way the
-	 * hakkero goes on cooldown for exactly as long as the thrust lasts, so it cannot be
-	 * spammed to hold a permanent boost.
-	 */
 	private InteractionResultHolder<ItemStack> boost(ItemStack stack, BroomEntity broom, Player player, Level level) {
 		HakkeroData data = HakkeroData.of(stack);
 		int fuel = data.burnTime();
-		float power = fuel > 0 ? THRUST_FUELLED : THRUST_PLAIN;
-		int ticks = fuel > 0 ? Math.max(1, fuel / FUEL_DIVISOR) : THRUST_PLAIN_TICKS;
+		if (fuel <= 0) return InteractionResultHolder.consume(stack);
+		float power = THRUST_FUELLED;
+		int ticks = Math.max(1, fuel / FUEL_DIVISOR);
 		if (!level.isClientSide && player instanceof ServerPlayer sp) {
 			// a hakkero already cooling down from an earlier kick cannot be kicked again
 			if (player.getCooldowns().isOnCooldown(this)) return InteractionResultHolder.pass(stack);
@@ -382,8 +382,11 @@ public class Hakkero extends Item implements InvClickItem {
 		}
 	}
 
-	/** Client-side mirror of a {@link #boost} kick, sent because the broom flies client side. */
-	public record BroomBoostToClient(int broomId, float power, int ticks) implements SerialPacketBase<BroomBoostToClient> {
+	/**
+	 * Client-side mirror of a {@link #boost} kick, sent because the broom flies client side.
+	 */
+	public record BroomBoostToClient(int broomId, float power,
+	                                 int ticks) implements SerialPacketBase<BroomBoostToClient> {
 
 		@Override
 		public void handle(Player player) {
