@@ -32,6 +32,15 @@ public class PartyTicker {
 	/** A party open this long with nothing left happening is called off. */
 	public static final int PARTY_TIMEOUT = 12000;
 
+	/**
+	 * How long a closing party waits for its last guest before giving up on her.
+	 * <p>
+	 * Closing normally ends when the roster drains, and a guest walks off in a couple of
+	 * hundred ticks. This is what stops one who cannot — blocked in a doorway, pathing
+	 * into a wall — pinning the chunk's party open for ever.
+	 */
+	public static final int CLOSING_TIMEOUT = 600;
+
 	/** Level -> the chunks currently hosting a party. */
 	private static final Map<ServerLevel, Set<ChunkPos>> ACTIVE = new ConcurrentHashMap<>();
 
@@ -84,14 +93,51 @@ public class PartyTicker {
 		// is stale is a party that cannot see a second course, or one still offering a
 		// cake three guests have already eaten
 		party.refresh(level, level.getGameTime());
-		if (party.phase() == PartyAttachment.Phase.GATHERING && allSeated(level, party)) {
+		// One arrival a second. This pass is the clock: the ticker runs at 1 Hz, so one
+		// admission per pass needs no timer of its own, and a table that fills in a
+		// single frame reads as a cutscene rather than as people turning up.
+		PartySend.admitNext(level, party);
+		// the admitted half matters because allSeated is vacuously true with no guests at
+		// all, and with staggered arrival an empty guest list is the normal state of a
+		// party in its first few seconds: without it every party would feast before
+		// anybody arrived
+		if (party.phase() == PartyAttachment.Phase.GATHERING && party.admitted() && allSeated(level, party)) {
 			party.setPhase(PartyAttachment.Phase.FEASTING);
 		}
-		boolean overdue = level.getGameTime() - party.startedAt() > PARTY_TIMEOUT;
-		if (!party.guests().isEmpty() && !overdue) return;
-		// everyone has gone, or the banquet has run long enough
-		PartySend.dismissAll(level, party);
+		// Two ways out of a feast, and the guests' is the stronger: the spread gone for
+		// two rescans running, or the last of them gone with the food still on the table.
+		if (party.phase() == PartyAttachment.Phase.FEASTING
+				&& (party.spreadGone() || party.guests().isEmpty() && party.admitted())) {
+			PartySend.close(level, party);
+		}
+		if (level.getGameTime() - party.startedAt() > PARTY_TIMEOUT) {
+			PartySend.close(level, party);
+		}
+		if (!finished(level, party)) return;
+		// everyone has walked off, or nobody was ever seated
+		party.reset();
 		unregister(level, party.chunk() == null ? pos : party.chunk());
+	}
+
+	/**
+	 * Whether the party is over.
+	 * <p>
+	 * A closing party is over when its roster has drained — each guest removes herself as
+	 * she finishes leaving, so the list emptying <i>is</i> the last one gone. An open one
+	 * is over when the roster is empty and there is nobody left to invite: every guest
+	 * died, or the host's furniture turned out to seat nobody.
+	 * <p>
+	 * The admitted check is what makes staggered arrival safe. Guests arrive one a second,
+	 * so an empty guest list is the normal state of a party in its first few seconds, and
+	 * reading it as "everyone has gone" would end every party immediately.
+	 */
+	private static boolean finished(ServerLevel level, PartyAttachment party) {
+		if (party.guests().isEmpty()) {
+			return party.phase() == PartyAttachment.Phase.CLOSING || party.admitted();
+		}
+		// a guest who cannot walk off must not pin the chunk's party open
+		return party.phase() == PartyAttachment.Phase.CLOSING
+				&& party.closingAt() > 0 && level.getGameTime() - party.closingAt() > CLOSING_TIMEOUT;
 	}
 
 	/**

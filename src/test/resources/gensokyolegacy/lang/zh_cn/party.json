@@ -7,6 +7,7 @@
 		"near_too_plain": "%s 本会前来，但嫌这桌菜太过寒酸",
 		"near_no_seat": "%s 本会前来，只是没有空座了",
 		"sent": "邀请函已发出。%s 位客人正在赶来",
+		"looking_for_chair": "%s 还没找到椅子——再摆一把吧",
 		"no_chair": "%s 没能入座，只能离开了——再摆一把椅子吧",
 		"ended": "宴会结束了",
 		"no_party": "这里并没有宴会",
@@ -17,6 +18,7 @@
 		"info_phase": "阶段：%s",
 		"info_roster": "已邀请：%s",
 		"info_served": "已上菜 %s／%s 饱食量",
+		"info_appeal": "已上菜吸引力：%s",
 		"info_guests": "在场客人：%s",
 		"letter_hint": "右键餐桌，将邀请函送出"
 	}

@@ -136,7 +136,12 @@ public class PlainFairyEntity extends FairyEntity implements GeoYoukaiAnim {
 	/**
 	 * Start the chew. Server-side; the play itself is an entity event, so the client
 	 * sees the same animation the server timed the flower throw against.
+	 * <p>
+	 * Overrides the base no-op rather than being a fairy's own invention: a party guest
+	 * holding a plate calls this on whatever character she is, and only a rig with a
+	 * {@code 吃} clip answers.
 	 */
+	@Override
 	public void broadcastEat() {
 		if (!level().isClientSide()) {
 			level().broadcastEntityEvent(this, EAT_EVENT);

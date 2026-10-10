@@ -6,7 +6,6 @@ import dev.xkmc.youkaishomecoming.content.pot.table.item.FoodTableItem;
 import dev.xkmc.youkaishomecoming.content.pot.table.item.TableItem;
 import dev.xkmc.youkaishomecoming.init.registrate.YHBlocks;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -122,8 +121,13 @@ public class CuisineBoardFood implements ContainerFoodHandler {
 			// nutrition, a husk. Left on the board; simply not part of the spread.
 			if (props == null) continue;
 			var item = stack.getItem();
-			ans.add(new FoodResult(BuiltInRegistries.ITEM.getKey(item), 1, props,
-					(l, p, s) -> {
+			// The serving is the whole stack, at its own count: two nigiri came off the
+			// board together and go into the guest together, so she picks up the pair and
+			// not one piece of it. This is the only food in the system whose serving is
+			// more than one item, and the reason is a property of the board rather than
+			// of the food.
+			ans.add(FoodResult.of(new ItemStack(item, stack.getCount()),
+					state.getBlock(), 1, props, (l, p, s) -> {
 						take(be, item);
 						return 0;
 					}));

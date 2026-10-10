@@ -1,7 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.attachment.party.food;
 
 import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyFoodHandler;
-import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.Map;
@@ -63,16 +62,10 @@ public final class FoodResultCache {
 	}
 
 	private static FoodResult resolve(BlockState state) {
-		var handler = PartyFoodHandler.of(state.getBlock());
-		int serves = Math.max(0, handler.serves(state));
-		if (serves <= 0) return FoodResult.INVALID;   // a container with nothing in it
-		var food = handler.food(state);
-		if (food == null || !servable(food)) return FoodResult.INVALID;
-		return new FoodResult(handler.id(state), serves, food, handler::consume);
-	}
-
-	private static boolean servable(FoodProperties food) {
-		return food.nutrition() > 0 && !Servings.refuses(food);
+		// the handler answers in one call: what a guest is handed, how many are left,
+		// what it is worth and how to take one. See BlockFoodHandler for why it is not
+		// four, and FoodResult#of for where "worthless" is decided.
+		return PartyFoodHandler.of(state.getBlock()).result(state);
 	}
 
 	private FoodResultCache() {

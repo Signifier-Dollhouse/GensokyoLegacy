@@ -252,6 +252,19 @@ public abstract class YoukaiEntity extends DamageClampEntity implements SpellCir
 		return getFlag(YoukaiFlags.PARTYING);
 	}
 
+	/**
+	 * Play this character's chew, if she has one.
+	 * <p>
+	 * A no-op on the base class because the clip is per rig and most rigs have none: an
+	 * eat animation is missing art rather than a missing system, and the party should not
+	 * have to know which characters are still waiting for theirs. A rig that maps one
+	 * overrides this — {@code PlainFairyEntity} is the only one so far, firing its chew as
+	 * an entity event so the client sees the same animation the server timed the rest of
+	 * the meal against.
+	 */
+	public void broadcastEat() {
+	}
+
 	@Override
 	protected InteractionResult mobInteract(Player player, InteractionHand hand) {
 		for (var e : modules) {

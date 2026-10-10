@@ -124,6 +124,10 @@ public class VisitModule extends AbstractYoukaiModule {
 		if (!(self.level() instanceof ServerLevel sl)) return;
 		if (noDisappear > 0) noDisappear--;
 		if (host == null) return;
+		// She is at a party, not on her visit. Nothing here may be acted on until she is
+		// let go: renewing the memory would make her a visitor while PARTY(200) is
+		// running, and dismissing her would delete a guest the host is still feeding.
+		if (self.isPartying()) return;
 		if (remaining(sl) > 0) {
 			// set on the first tick rather than in enter(): the brain does not
 			// necessarily exist yet at spawn time

@@ -1,6 +1,7 @@
 package dev.xkmc.gensokyolegacy.content.attachment.party.core;
 
 import dev.xkmc.gensokyolegacy.content.attachment.area.ChunkPosRange;
+import dev.xkmc.gensokyolegacy.init.data.GLTagGen;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
 import dev.xkmc.l2core.capability.attachment.GeneralCapabilityTemplate;
 import dev.xkmc.l2serial.serialization.marker.SerialClass;
@@ -13,6 +14,7 @@ import net.minecraft.world.level.chunk.LevelChunk;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
@@ -72,6 +74,16 @@ public class PartyAttachment extends GeneralCapabilityTemplate<LevelChunk, Party
 	private int hungerServed;
 
 	/**
+	 * Appeal the guests have actually been served.
+	 * <p>
+	 * The third counter, and the one the host is paid from: what the table was worth by
+	 * the end rather than what it was worth when the letter went out, so a second course
+	 * counts and a dish nobody ever touched does not.
+	 */
+	@SerialField
+	private int appealServed;
+
+	/**
 	 * How often the spread is looked at again, in ticks. Two seconds.
 	 *
 	 * <p>
@@ -112,6 +124,22 @@ public class PartyAttachment extends GeneralCapabilityTemplate<LevelChunk, Party
 	@SerialField
 	private final ArrayList<BlockPos> seats = new ArrayList<>();
 
+	/**
+	 * Which guest holds which chair.
+	 * <p>
+	 * The party's own seating plan, and the reason guests no longer fight for chairs. Left
+	 * to themselves they all walk to the <i>nearest</i> free one, which at a laid table is
+	 * the same chair — {@code HomeSearchUtil.setSitting} ejects whoever is sitting there,
+	 * so the second arrival wins and the first is stood up mid-party.
+	 * <p>
+	 * A claim is first-write-wins and survives everything except the chair disappearing:
+	 * re-arranging the table does not move anyone, and a guest who stood up for a dish
+	 * comes back to the same chair. Only a chair that is no longer there releases it, and
+	 * that is what the layout rescan prunes.
+	 */
+	@SerialField
+	private final HashMap<BlockPos, UUID> claims = new HashMap<>();
+
 	/** When each of the two lists was last rebuilt. */
 	@SerialField
 	private long foodScannedAt;
@@ -121,6 +149,35 @@ public class PartyAttachment extends GeneralCapabilityTemplate<LevelChunk, Party
 	/** Bumped whenever the chair list changes, so a guest can notice her chair is gone. */
 	@SerialField
 	private int layoutVersion;
+
+	/**
+	 * How many roster entries have been admitted, so the rest arrive one a second.
+	 * <p>
+	 * The roster is frozen at send (§4) but the guests are not all spawned by the send
+	 * itself: {@link PartyTicker} admits one per pass, which is one a second because the
+	 * ticker already runs at 1 Hz. A table that fills in a single frame reads as a cutscene.
+	 */
+	@SerialField
+	private int admitted = 0;
+
+	/**
+	 * Consecutive food rescans that found nothing on the table.
+	 * <p>
+	 * One empty scan is not evidence of anything — the host may be carrying the second
+	 * course in — so the party ends on the <b>second</b> one, 40 ticks after the first.
+	 */
+	@SerialField
+	private int emptyScans = 0;
+
+	/**
+	 * When the party went to CLOSING.
+	 * <p>
+	 * A backstop for a guest whose walk home never finishes: the closing phase ends when
+	 * the last guest has left, and this is what stops one stuck guest pinning the chunk's
+	 * party open for ever.
+	 */
+	@SerialField
+	private long closingAt = 0;
 
 	// not SerialField -> not serialized. GeneralCapabilityTemplate hands the payload
 	// no level, so the owning chunk is bound by the lookup helpers instead.
@@ -171,6 +228,11 @@ public class PartyAttachment extends GeneralCapabilityTemplate<LevelChunk, Party
 		return hungerServed;
 	}
 
+	/** Appeal the guests have actually been served; what the host is paid from. */
+	public int appealServed() {
+		return appealServed;
+	}
+
 	public int seatsUsed() {
 		return guests.size();
 	}
@@ -188,6 +250,117 @@ public class PartyAttachment extends GeneralCapabilityTemplate<LevelChunk, Party
 	/** Bumped when the chair list changes; a guest compares it to notice her chair is gone. */
 	public int layoutVersion() {
 		return layoutVersion;
+	}
+
+	/**
+	 * The chair this guest gets, claiming it for her.
+	 * <p>
+	 * Her own chair if she has one and it is still on the list — first-write-wins, so a
+	 * table rearranged under the party does not walk anyone off a chair they are already
+	 * sitting on. Otherwise the free chair nearest where she is standing, so guests take
+	 * the chair on their own side of the table rather than all crossing to one end of it.
+	 * <p>
+	 * <b>Null means there is nothing to give her</b>: every chair on the list is already
+	 * claimed, or there are none. That is the whole of "no chair" — the caller asks
+	 * whether a chair is hers rather than whether a chair exists, because another guest's
+	 * chair is never offered to her twice.
+	 *
+	 * @param guest who is asking, by id: her position is what "nearest" is nearest to
+	 * @param hers  the chair she believes she has, or null when she has none. Advisory
+	 *              only — the party answers from its own record, so a guest that lost
+	 *              hers to an interrupted walk is not given a second chair
+	 */
+	@Nullable
+	public BlockPos claimSeat(ServerLevel level, UUID guest, @Nullable BlockPos hers) {
+		// Her own claim first, whatever she believes about it. Asked by what the party
+		// has on record rather than by what she has, because she does not record a chair
+		// until she is actually sitting on it: a guest whose walk was interrupted before
+		// she arrived would otherwise be handed a second chair on the next attempt and
+		// leave the first one claimed for ever.
+		for (var entry : claims.entrySet()) {
+			if (!guest.equals(entry.getValue())) continue;
+			if (seats.contains(entry.getKey())) return entry.getKey();
+			claims.remove(entry.getKey());   // gone: the layout rescan has not caught up
+			break;
+		}
+		// hers can only be stale here - it was not the party that granted it, or the chair
+		// has already left the list above - so it is safe to give back
+		if (hers != null) claims.remove(hers);
+		var entity = level.getEntity(guest);
+		BlockPos from = entity == null ? anchor : entity.blockPosition();
+		BlockPos best = null;
+		double bestDist = Double.MAX_VALUE;
+		for (var pos : seats) {
+			if (claims.containsKey(pos)) continue;
+			// the list is up to ten seconds old, so a chair broken since then would
+			// otherwise hand out a block that is no longer there
+			if (!level.getBlockState(pos).is(GLTagGen.PARTY_SEAT)) continue;
+			double dist = pos.distSqr(from);
+			if (dist >= bestDist) continue;
+			bestDist = dist;
+			best = pos;
+		}
+		if (best == null) return null;
+		claims.put(best, guest);
+		dirty();
+		return best;
+	}
+
+	/**
+	 * Give up this guest's claim on any chair, because she is leaving or has been sent
+	 * to look again.
+	 * <p>
+	 * Without it a guest who left early would sit on the party's books for ever and the
+	 * table could never fill: the seat count is not a limit on the roster, but a claim is
+	 * a limit on the chairs, and those are the same number.
+	 */
+	public void releaseSeat(UUID guest) {
+		if (claims.values().removeIf(guest::equals)) dirty();
+	}
+
+	/** Whether the whole roster has been admitted. */
+	public boolean admitted() {
+		return admitted >= roster.size();
+	}
+
+	/** How many of the roster are still to arrive. */
+	public int pending() {
+		return Math.max(0, roster.size() - admitted);
+	}
+
+	/**
+	 * The next character to admit, or null when the roster is exhausted.
+	 * <p>
+	 * {@code null} rather than a bounds-checked index because "the roster is finished" and
+	 * "this entry is missing" are the same question to the caller, and one answer is
+	 * enough.
+	 */
+	@Nullable
+	public EntityType<?> nextGuest() {
+		return admitted < roster.size() ? roster.get(admitted) : null;
+	}
+
+	/** Mark one roster entry as dealt with, whether or not it produced a guest. */
+	public void admit() {
+		if (admitted < roster.size()) {
+			admitted++;
+			dirty();
+		}
+	}
+
+	/**
+	 * Whether the spread has been gone for two rescans running.
+	 * <p>
+	 * The debounce is the whole point: one empty scan is what a party looks like in the
+	 * two seconds between a guest taking the last slice and the host putting down the cake.
+	 */
+	public boolean spreadGone() {
+		return emptyScans >= 2;
+	}
+
+	/** When the party entered CLOSING, or 0 while it has not. */
+	public long closingAt() {
+		return closingAt;
 	}
 
 	/**
@@ -215,6 +388,10 @@ public class PartyAttachment extends GeneralCapabilityTemplate<LevelChunk, Party
 			if (!found.equals(food)) changed = true;
 			food.clear();
 			food.addAll(found);
+			// two empty scans in a row end the party, one never does: the rescan is fast
+			// so that a second course is noticed while there is still a table to notice it
+			// at, and that same speed makes a single empty scan ambiguous
+			emptyScans = found.isEmpty() ? emptyScans + 1 : 0;
 			// The budget tracks what the guests can actually reach, and moves as the host
 			// refills. Two consequences worth stating: a second course raises the party's
 			// capacity instead of leaving the served count overtaking a stale number, and
@@ -237,6 +414,15 @@ public class PartyAttachment extends GeneralCapabilityTemplate<LevelChunk, Party
 			}
 			seats.clear();
 			seats.addAll(found);
+			// A chair that is gone releases its claim, and that is the only thing that
+			// does. Without the prune the claim outlives the block and the guest cannot
+			// be given a seat she has no claim to, which holds the party in GATHERING.
+			int before = claims.size();
+			claims.keySet().removeIf(seat -> !seats.contains(seat));
+			if (claims.size() != before) {
+				layoutVersion++;
+				changed = true;
+			}
 		}
 		// Only when something actually moved. This runs every twenty ticks for as long as
 		// the party is open, and marking the chunk unsaved every time would queue it for a
@@ -272,8 +458,13 @@ public class PartyAttachment extends GeneralCapabilityTemplate<LevelChunk, Party
 		this.guests.clear();
 		this.hungerBudget = hunger;
 		this.hungerServed = 0;
+		this.appealServed = 0;
+		this.claims.clear();
 		this.startedAt = gameTime;
 		this.phase = Phase.GATHERING;
+		this.admitted = 0;
+		this.emptyScans = 0;
+		this.closingAt = 0;
 		this.foodScannedAt = gameTime;
 		this.layoutScannedAt = gameTime;
 		this.food.clear();
@@ -299,12 +490,32 @@ public class PartyAttachment extends GeneralCapabilityTemplate<LevelChunk, Party
 		}
 	}
 
+	/**
+	 * Move to CLOSING and stamp when it happened.
+	 * <p>
+	 * The stamp is the backstop for a guest whose walk off never finishes: closing ends
+	 * when the last guest has left, and this is what stops one stuck guest from pinning
+	 * the chunk's party open for ever.
+	 */
+	public void close(long gameTime) {
+		if (phase == Phase.CLOSING) return;
+		closingAt = gameTime;
+		setPhase(Phase.CLOSING);
+	}
+
 	/** Hunger actually consumed by the guests so far. */
 	public void serve(int hunger) {
 		if (hunger > 0) {
 			hungerServed += hunger;
 			dirty();
 		}
+	}
+
+	/** Hunger and appeal actually consumed by one serve, in their own units. */
+	public void serve(int hunger, int appeal) {
+		if (hunger > 0) hungerServed += hunger;
+		if (appeal > 0) appealServed += appeal;
+		if (hunger > 0 || appeal > 0) dirty();
 	}
 
 	/** Back to idle. The roster is kept so a command can still report on it. */
@@ -315,6 +526,10 @@ public class PartyAttachment extends GeneralCapabilityTemplate<LevelChunk, Party
 		guests.clear();
 		food.clear();
 		seats.clear();
+		claims.clear();
+		admitted = 0;
+		emptyScans = 0;
+		closingAt = 0;
 		dirty();
 	}
 

@@ -165,6 +165,8 @@ public final class GLLang {
 		YOUKAI_AVOID("%s might not want to see you for a while", 1),
 		ENTITY_FEED("Feed cool down: %s", 1),
 		ENTITY_GIFT("Gift cool down: %s", 1),
+		ENTITY_PARTY_EATEN("At the party: eaten %s of %s hunger", 2),
+		ENTITY_PARTY_APPEAL("At the party: appeal eaten %s", 1),
 		STRUCTURE_SCANNING("Scanning Structure...", 0),
 		STRUCTURE_ABNORMAL("Found %s invalid blocks", 1),
 		DOORS_TO_CLOSE("Doors to close (%s):", 1);
@@ -219,6 +221,7 @@ public final class GLLang {
 		NEAR_TOO_PLAIN("%s would come, but wants a grander spread than this", 1),
 		NEAR_NO_SEAT("%s would come, but there is no seat free", 1),
 		SENT("Invitations sent. %s guest(s) are on the way", 1),
+		LOOKING_FOR_CHAIR("%s cannot find a chair yet - put another one out if you can", 1),
 		NO_CHAIR("%s gave up - no chair was free for her. Put out another chair", 1),
 		ENDED("The party is over"),
 		NO_PARTY("There is no party here"),
@@ -229,6 +232,7 @@ public final class GLLang {
 		INFO_PHASE("Phase: %s", 1),
 		INFO_ROSTER("Invited: %s", 1),
 		INFO_SERVED("Served %s of %s hunger", 2),
+		INFO_APPEAL("Appeal served: %s", 1),
 		INFO_GUESTS("Guests present: %s", 1),
 		LETTER_HINT("Right-click a table to send it out");
 

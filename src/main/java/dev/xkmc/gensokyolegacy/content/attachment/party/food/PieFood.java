@@ -1,10 +1,9 @@
 package dev.xkmc.gensokyolegacy.content.attachment.party.food;
 
-import net.minecraft.world.food.FoodProperties;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import vectorwing.farmersdelight.common.block.PieBlock;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * A Farmer's Delight pie: bites that count <em>up</em>, food on a slice item.
@@ -31,9 +30,11 @@ public class PieFood extends AbstractCountdownFood {
 		return block instanceof PieBlock;
 	}
 
+	/** The cut slice, which is both the item handed over and where its food is read. */
 	@Override
-	public @Nullable FoodProperties food(BlockState state) {
-		if (!(state.getBlock() instanceof PieBlock pie)) return null;
-		return Servings.of(pie.getPieSliceItem());
+	public ItemStack serving(BlockState state) {
+		if (!(state.getBlock() instanceof PieBlock pie)) return ItemStack.EMPTY;
+		// already a stack and already one slice; copied because the result is shared
+		return pie.getPieSliceItem().copy();
 	}
 }

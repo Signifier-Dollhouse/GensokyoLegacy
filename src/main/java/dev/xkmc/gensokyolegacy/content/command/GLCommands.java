@@ -459,7 +459,7 @@ public class GLCommands {
 		var sp = partyPlayer(ctx);
 		var party = partyNear(ctx, sp);
 		if (party == null) throw ERROR_NO_PARTY.create();
-		PartySend.dismissAll(sp.serverLevel(), party);
+		PartySend.close(sp.serverLevel(), party);
 		src.sendSuccess(() -> GLLang.Party.ENDED.get(), true);
 		return 1;
 	}
@@ -472,6 +472,10 @@ public class GLCommands {
 		src.sendSuccess(() -> GLLang.Party.INFO_PHASE.get(party.phase().name()), false);
 		src.sendSuccess(() -> GLLang.Party.INFO_ROSTER.get(PartyMessage.roster(party.roster())), false);
 		src.sendSuccess(() -> GLLang.Party.INFO_SERVED.get(party.hungerServed(), party.hungerBudget()), false);
+		// appeal is the figure the reputation payout is a share of, so a host tuning
+		// repGain needs to see what the party was actually worth rather than what it was
+		// planned to be worth - the wand's readout is the latter
+		src.sendSuccess(() -> GLLang.Party.INFO_APPEAL.get(party.appealServed()), false);
 		src.sendSuccess(() -> GLLang.Party.INFO_GUESTS.get(party.seatsUsed()), false);
 		return 1;
 	}

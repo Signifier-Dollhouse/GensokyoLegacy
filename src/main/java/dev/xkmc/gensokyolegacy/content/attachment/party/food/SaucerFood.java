@@ -2,12 +2,9 @@ package dev.xkmc.gensokyolegacy.content.attachment.party.food;
 
 import dev.xkmc.youkaishomecoming.content.block.food.FoodSaucerBlock;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.food.FoodProperties;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * A Youkai's Feasts saucer dish: a single serving, eaten whole, food on the block's own
@@ -31,16 +28,6 @@ public class SaucerFood extends BlockItemFood {
 	@Override
 	public boolean handles(Block block) {
 		return block instanceof FoodSaucerBlock;
-	}
-
-	@Override
-	public int serves(BlockState state) {
-		return 1;
-	}
-
-	@Override
-	public @Nullable FoodProperties food(BlockState state) {
-		return Servings.of(new ItemStack(state.getBlock()));
 	}
 
 	@Override

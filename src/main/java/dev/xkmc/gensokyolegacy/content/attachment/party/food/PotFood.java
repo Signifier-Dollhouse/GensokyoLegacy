@@ -1,12 +1,10 @@
 package dev.xkmc.gensokyolegacy.content.attachment.party.food;
 
 import dev.xkmc.youkaishomecoming.content.block.food.BowlBlock;
-import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Field;
 
@@ -38,17 +36,26 @@ public class PotFood extends AbstractCountdownFood {
 		return block instanceof BowlBlock;
 	}
 
+	/**
+	 * The bowl the pot fills: the mod's own item where it ships one, the block's hidden
+	 * field otherwise.
+	 * <p>
+	 * The permutation first, for the same reason {@link CakeFood} tries it first — it is
+	 * the mod's own public naming rather than a private field an update can rename — and
+	 * the reflection is a fallback rather than the mechanism. A bowl whose field has gone
+	 * serves nothing at all, which is the same answer it gave as food with no properties.
+	 */
 	@Override
-	public @Nullable FoodProperties food(BlockState state) {
+	public ItemStack serving(BlockState state) {
 		var block = state.getBlock();
-		var permuted = Permutations.foodOf(block);
-		if (permuted != null) return permuted;
-		if (FOOD == null || !(block instanceof BowlBlock bowl)) return null;
+		var permuted = Permutations.itemOf(block);
+		if (permuted != null) return new ItemStack(permuted);
+		if (FOOD == null || !(block instanceof BowlBlock bowl)) return ItemStack.EMPTY;
 		try {
 			var food = (ItemLike) FOOD.get(bowl);
-			return food == null ? null : Servings.of(new ItemStack(food));
+			return food == null ? ItemStack.EMPTY : new ItemStack(food);
 		} catch (IllegalAccessException | RuntimeException e) {
-			return null;   // the field went away; this bowl simply serves nothing
+			return ItemStack.EMPTY;   // the field went away; this bowl serves nothing
 		}
 	}
 

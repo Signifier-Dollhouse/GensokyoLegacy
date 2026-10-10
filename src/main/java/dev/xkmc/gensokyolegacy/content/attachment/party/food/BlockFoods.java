@@ -30,13 +30,9 @@ public final class BlockFoods {
 
 	/** Register every known kind of block food. Call once, after the blocks exist. */
 	public static void register() {
-		// Vanilla cake. Registered against CakeBlock inside the handler, which is also
-		// why Youkai's Feasts' YHCakeBlock and YHCandleCakeBlock need no entry here.
 		PartyFoodHandler.register(new CakeFood());
 
 		if (loaded(FD)) {
-			// Youkai's Feasts' SurpriseFeastBlock extends FeastBlock and YHPieBlock
-			// extends PieBlock, so these two cover those as well.
 			PartyFoodHandler.register(new FeastFood());
 			PartyFoodHandler.register(new PieFood());
 		}
@@ -44,28 +40,15 @@ public final class BlockFoods {
 		if (loaded(YSF)) {
 			PartyFoodHandler.register(new SaucerFood());
 			PartyFoodHandler.register(new PotFood());
-			// Containers, and so a separate list: a cutting board and a steamer rack
-			// hold their food in a block entity rather than on the block state, which is
-			// what keeps their answers out of FoodResultCache. See ContainerFoodHandler
-			// for why that is not a matter of taste.
 			PartyFoodHandler.register(new CuisineBoardFood());
 			PartyFoodHandler.register(new SteamerRackFood());
 		}
 
 		if (loaded(KC)) {
-			// The mod's ~37 dishes and its one-by-two variant are all FoodBiteBlock, so
-			// this one entry covers the lot — see BiteFood for why it cannot share
-			// AbstractCountdownFood with the cake and pie.
 			PartyFoodHandler.register(new BiteFood());
-			// The eleven plates and platters are all PlateBlock, and count down like a
-			// feast, so this one really is an AbstractCountdownFood.
 			PartyFoodHandler.register(new PlateFood());
 		}
 
-		// The catch-all, last: it accepts every block, so anything earlier must come
-		// first. This is what makes a foreign dish party food without any datapack help —
-		// any block whose item carries food properties is served by it. The party_food
-		// data map is not needed for that and cannot do it; it only revalues.
 		PartyFoodHandler.register(new BlockItemFood());
 	}
 

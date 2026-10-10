@@ -5,7 +5,6 @@ import dev.xkmc.youkaishomecoming.content.pot.steamer.RackItemData;
 import dev.xkmc.youkaishomecoming.content.pot.steamer.SteamerBlockEntity;
 import dev.xkmc.youkaishomecoming.init.registrate.YHBlocks;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -69,7 +68,7 @@ public class SteamerRackFood implements ContainerFoodHandler {
 		for (var rack : be.racks) {
 			for (var slot : rack.list) {
 				if (slot == null || slot.stack.isEmpty()) continue;
-				FoodResult result = describe(slot, be);
+				FoodResult result = describe(slot, be, state);
 				if (result != null) ans.add(result);
 			}
 		}
@@ -85,14 +84,17 @@ public class SteamerRackFood implements ContainerFoodHandler {
 	 * should not be served a board that lists it four times.
 	 */
 	@SuppressWarnings("unused")
-	private FoodResult describe(RackItemData slot, SteamerBlockEntity be) {
+	private FoodResult describe(RackItemData slot, SteamerBlockEntity be, BlockState state) {
 		var stack = slot.stack;
 		var props = Servings.of(stack);
 		// unlike the board, the rack has no idea whether what is on it is fit to eat:
 		// it will happily steam a bone. Worthless food is skipped, not refused wholesale.
 		if (props == null) return null;
+		// One item, however many the slot holds: a rack hands its contents over one at a
+		// time, so a guest comes back for seconds. The stack it holds is what makes this
+		// many serves, not what makes the serving big.
 		var item = stack.getItem();
-		return new FoodResult(BuiltInRegistries.ITEM.getKey(item), stack.getCount(), props,
+		return FoodResult.of(new ItemStack(item), state.getBlock(), stack.getCount(), props,
 				(l, p, s) -> take(be, item));
 	}
 
@@ -104,8 +106,10 @@ public class SteamerRackFood implements ContainerFoodHandler {
 			for (int i = 0; i < merged.size(); i++) {
 				var have = merged.get(i);
 				if (!have.id().equals(result.id())) continue;
-				merged.set(i, new FoodResult(have.id(), have.serves() + result.serves(),
-						have.food(), have.consume()));
+				// two slots of the same thing are one food with twice the servings,
+				// still handed over one item at a time
+				merged.set(i, new FoodResult(have.serving(), have.blockId(),
+						have.serves() + result.serves(), have.food(), have.consume()));
 				folded = true;
 				break;
 			}

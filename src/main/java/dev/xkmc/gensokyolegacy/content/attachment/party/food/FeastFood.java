@@ -1,10 +1,9 @@
 package dev.xkmc.gensokyolegacy.content.attachment.party.food;
 
-import net.minecraft.world.food.FoodProperties;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import vectorwing.farmersdelight.common.block.FeastBlock;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * A Farmer's Delight feast: a set number of servings that counts <em>down</em>, and whose
@@ -36,9 +35,15 @@ public class FeastFood extends AbstractCountdownFood {
 		return block instanceof FeastBlock;
 	}
 
+	/**
+	 * The slice a feast hands over, which is both the item and the food: the properties
+	 * come off it, so {@link BlockFoodHandler#food} needs no override.
+	 */
 	@Override
-	public @Nullable FoodProperties food(BlockState state) {
-		if (!(state.getBlock() instanceof FeastBlock feast)) return null;
-		return Servings.of(feast.getServingItem(state));
+	public ItemStack serving(BlockState state) {
+		if (!(state.getBlock() instanceof FeastBlock feast)) return ItemStack.EMPTY;
+		// already a stack, and one item: a feast's serving count is what it hands out per
+		// slice, so this is already the serving rather than something to scale
+		return feast.getServingItem(state).copy();
 	}
 }

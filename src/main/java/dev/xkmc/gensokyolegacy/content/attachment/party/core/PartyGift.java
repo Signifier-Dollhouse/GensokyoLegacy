@@ -36,8 +36,10 @@ public class PartyGift {
 	public static final int MAX_EXTRA = 4;
 
 	/**
-	 * Drop a gift on the guest's table. A guest with nothing tasteful to give
-	 * leaves nothing rather than something arbitrary.
+	 * Drop a gift on the guest's table, once per visit.
+	 * <p>
+	 * A guest with nothing tasteful to give leaves nothing rather than something
+	 * arbitrary.
 	 * <p>
 	 * Sized on the <b>appeal she personally consumed</b>, not on whether she was
 	 * satisfied. Those are the two food measurements (design doc §5.2) and they answer
@@ -45,14 +47,24 @@ public class PartyGift {
 	 * does, and she is still more moved by them. This version halved the gift for an
 	 * under-served guest, which made a beautiful thin spread read as stingy rather than
 	 * as modest — the host's generosity and the guest's appetite are not one axis.
+	 * <p>
+	 * <b>Once.</b> She leaves through two doors — running out of food she can reach, or
+	 * rolling {@code leaveChance} — and a visit can pass near enough to both that she
+	 * would otherwise thank the host twice for one banquet. The flag lives on her module
+	 * rather than here, so it survives the two calls and any task restart between them.
+	 *
+	 * @return whether a gift was left
 	 */
-	public static void give(ServerLevel level, YoukaiEntity guest, PartyModule party) {
+	public static boolean give(ServerLevel level, YoukaiEntity guest, PartyModule party) {
+		if (party.gifted()) return false;
 		var table = party.table();
-		if (table == null) return;
+		if (table == null) return false;
 		ItemStack gift = pick(level, guest);
-		if (gift.isEmpty()) return;
+		if (gift.isEmpty()) return false;
+		party.markGifted();
 		int extra = Math.min(MAX_EXTRA, party.appealEaten() / APPEAL_PER_EXTRA);
 		Block.popResource(level, table.above(), gift.copyWithCount(gift.getCount() + extra));
+		return true;
 	}
 
 	/**

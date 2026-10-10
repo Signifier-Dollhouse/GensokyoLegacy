@@ -1,14 +1,9 @@
 package dev.xkmc.gensokyolegacy.content.attachment.party.food;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.food.FoodProperties;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * Food whose only description is the block's own item: one serving, eaten whole.
@@ -34,16 +29,6 @@ public class BlockItemFood implements BlockFoodHandler {
 	}
 
 	@Override
-	public int serves(BlockState state) {
-		return 1;   // no serve counter: one indivisible serving
-	}
-
-	@Override
-	public @Nullable FoodProperties food(BlockState state) {
-		return Servings.of(new ItemStack(state.getBlock()));
-	}
-
-	@Override
 	public int consume(Level level, BlockPos pos, BlockState state) {
 		level.destroyBlock(pos, false);
 		return 0;
@@ -53,8 +38,4 @@ public class BlockItemFood implements BlockFoodHandler {
 	 * Named by the block's own item, because that item <i>is</i> the food — {@link #food}
 	 * reads it and this handler exists to serve exactly one of them, eaten whole.
 	 */
-	@Override
-	public ResourceLocation id(BlockState state) {
-		return BuiltInRegistries.ITEM.getKey(state.getBlock().asItem());
-	}
 }

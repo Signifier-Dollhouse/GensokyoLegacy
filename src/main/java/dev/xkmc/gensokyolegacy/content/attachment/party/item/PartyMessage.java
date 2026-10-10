@@ -52,6 +52,27 @@ public class PartyMessage {
 	}
 
 	/**
+	 * Tell the host a guest is looking for a chair.
+	 *
+	 * <p>
+	 * The first half of the chair shortage, and the half that arrives while the host can
+	 * still do something about it. It is sent once per episode rather than once per
+	 * attempt: three attempts at three seconds apart would otherwise be three identical
+	 * lines, which reads as a bug rather than as news.
+	 *
+	 * <p>
+	 * Silently does nothing if the host has logged off, moved dimension or walked away —
+	 * there is no queue of things that happened while they were not here.
+	 */
+	public static void reportLookingForSeat(ServerLevel level, PartyAttachment party, Entity guest) {
+		var host = party.host();
+		if (host == null) return;
+		var player = level.getPlayerByUUID(host);
+		if (player == null) return;
+		player.sendSystemMessage(GLLang.Party.LOOKING_FOR_CHAIR.get(name(guest.getType())));
+	}
+
+	/**
 	 * Tell the host a guest gave up because she could not be seated.
 	 *
 	 * <p>

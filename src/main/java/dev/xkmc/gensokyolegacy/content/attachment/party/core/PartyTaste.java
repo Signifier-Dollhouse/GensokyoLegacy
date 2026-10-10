@@ -40,18 +40,24 @@ import org.jetbrains.annotations.Nullable;
  * @param leaveChance   chance, per {@code fullSeat} spent, that she leaves after
  *                      coming to her senses. The reason a party ends at all: a guest
  *                      who is already full would otherwise eat until the food is gone
+ * @param repGain       share of the party's total consumed appeal that attending it
+ *                      is worth, as reputation with her. 0.05 means 5% of what the
+ *                      table was worth — the host's payment for the banquet, and the
+ *                      one number here that rewards the host rather than the guest
  */
 public record PartyTaste(
 		int weight,
 		int minReputation, int maxReputation, double repBonus,
 		int minAppeal, int maxAppeal, int fulfillment,
-		int hungrySeat, int fullSeat, double leaveChance
+		int hungrySeat, int fullSeat, double leaveChance,
+		double repGain
 ) {
 
 	public static final PartyTaste DEF = new PartyTaste(
 			0, 0, 100, 0,
 			0, 40, 20,
-			20, 100, 0.05
+			60, 160, 0.05,
+			0.05
 	);
 
 	public PartyTaste {
@@ -67,14 +73,62 @@ public record PartyTaste(
 		// clamped rather than trusted: a chance above 1 would leave her certain and
 		// certain reads as a bug, and a negative one never fires at all
 		leaveChance = Math.clamp(leaveChance, 0, 1);
+		// clamped for the same reason: a share above 1 would pay out more reputation
+		// than the party was worth, which reads as a bug rather than as generosity
+		repGain = Math.clamp(repGain, 0, 1);
+	}
+
+	/**
+	 * The reputation this guest's visit is worth to the host.
+	 * <p>
+	 * <b>Always at least one, for anyone who ate at all.</b> The share is of what
+	 * <i>she</i> consumed, which is small by construction: five percent of a guest's own
+	 * three slices of cake is 0.3, and that floors to nothing. A rule that pays nothing
+	 * for an ordinary party is not a rule the host can learn from, and the alternative —
+	 * scaling {@code repGain} up until small parties pay — would make the number mean
+	 * something different for every character. The floor costs nothing in practice,
+	 * because {@code gainReputation} refuses to move a reputation that is already at its
+	 * cap anyway, so it only ever speaks for a guest who ate.
+	 *
+	 * @param appeal the appeal <i>this guest</i> consumed, the same figure her gift is
+	 *               sized on — a host is paid for feeding her, not for the size of the
+	 *               table she sat at
+	 */
+	public int reputationFor(int appeal) {
+		if (appeal <= 0) return 0;
+		return Math.max(1, (int) Math.floor(appeal * repGain));
 	}
 
 	/**
 	 * This character's taste, or <b>null</b> when she has no authored entry — which
 	 * means she is not party-eligible and must not be invited.
+	 * <p>
+	 * Null rather than {@link #DEF}, and that is the whole eligibility rule: the data
+	 * map is the list of who comes to parties, so a character nobody has written down is
+	 * absent on purpose rather than appearing on default terms. The {@code null} check in
+	 * {@code PartySend.plan} depends on it, and a fallback here makes that check dead
+	 * code — every character joins the candidate pool, and an unwritten one then shows up
+	 * in the wand and preview readouts with a weight of 0 and everybody else's numbers.
+	 * <p>
+	 * {@link #DEF} stays as the template to copy, which is all it is for: nothing reads
+	 * it at runtime. {@link #ofOrDefault} exists for the one caller that needs a value
+	 * for a character who may legitimately have no row.
 	 */
+	@Nullable
 	public static PartyTaste of(RegistryAccess access, EntityType<?> type) {
-		var ans = GLMeta.PARTY_TASTE.get(access, type.builtInRegistryHolder());
+		return GLMeta.PARTY_TASTE.get(access, type.builtInRegistryHolder());
+	}
+
+	/**
+	 * This character's taste, or the {@link #DEF} template if she has no row.
+	 * <p>
+	 * For reading a guest's <i>behaviour</i> mid-visit rather than for deciding whether
+	 * to invite her. A datapack can pull a row while a guest is at the table, and a
+	 * guest who starts throwing a null because her tuning data was edited under her is a
+	 * worse outcome than one eating on default numbers for the rest of her visit.
+	 */
+	public static PartyTaste ofOrDefault(RegistryAccess access, EntityType<?> type) {
+		var ans = of(access, type);
 		return ans == null ? DEF : ans;
 	}
 

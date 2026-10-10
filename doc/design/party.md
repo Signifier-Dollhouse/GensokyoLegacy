@@ -1,7 +1,7 @@
 # Party Event — Design Doc
 
 > **Status:** implemented — compiles, `runData` and `./gradlew build` both green. Not yet played in a live world, so §6's flow and §10's limits are reasoned from the code rather than observed.
-> **Package:** `content/attachment/party/` — `core/` (math, planner, state, handler lookup), `food/` (one handler class per kind of block food), `item/` (letter), plus `content/entity/module/PartyModule.java` and `content/entity/behavior/task/party/YoukaiPartyTask.java`
+> **Package:** `content/attachment/party/` — `core/` (math, planner, state, handler lookup), `food/` (one handler class per kind of block food), `item/` (letter, wand), plus `content/entity/module/PartyModule.java` and `content/entity/behavior/task/party/YoukaiPartyTask.java`
 >
 > Party state is attachment-shaped, so the whole feature lives under `content/attachment/` alongside the other per-feature packages. That puts `PartyArea`'s neighbour `ChunkPosRange` in `content/attachment/area/` next to it rather than across the tree.
 >
@@ -195,20 +195,30 @@ because the row is never reached.
 
 #### `BlockFoodHandler` — how a block food is read and eaten
 
-The derivation above needs three facts about a *placed* block, and they differ per mod, so there is one implementation per kind of food in `content/attachment/party/food/`:
+The derivation above needs three facts about a *placed* block, and they differ per mod, so there is one implementation per kind of food in `content/attachment/party/food/`. A handler answers them **in one call**, and assembles the `FoodResult` itself:
 
 ```java
 public interface BlockFoodHandler {
-    /** How many servings are left right now. */
-    int serves(BlockState state);
+    /** Everything one serving is, or INVALID. Assembled from the four below. */
+    default FoodResult result(BlockState state) {
+        return result(serving(state), state.getBlock(), serves(state), food(state));
+    }
 
-    /** What ONE serving is, as FoodProperties: from the block, or a serving item. */
-    @Nullable FoodProperties food(BlockState state);
+    /** How many servings are left right now. One by default. */
+    default int serves(BlockState state) { return 1; }
+
+    /** The stack a guest is handed for one serving. The block's own item by default. */
+    default ItemStack serving(BlockState state) { return new ItemStack(state.getBlock()); }
+
+    /** What ONE serving is worth, read off the serving stack by default. */
+    @Nullable default FoodProperties food(BlockState state) { return Servings.of(serving(state)); }
 
     /** Take one serving, advancing the block. Returns servings remaining. */
     int consume(Level level, BlockPos pos, BlockState state);
 }
 ```
+
+**One call, not four, and the reason is the serving stack.** It used to be `serves` plus `food` plus an `id(BlockState)` that the cache assembled from. That split is where two rules that matter ended up with nowhere to live: the *id* was a default method that only two handlers overrode and everyone else inherited, and the stack a guest picks up was reconstructed from that id by the caller. Both are now inside the result, so a handler cannot name a food one way and hand over another. `food` defaulting to `Servings.of(serving(state))` is the same consolidation seen from the other side — for every food with an item form, the properties *are* on the serving, and only the two handlers whose food lives elsewhere (vanilla cake's hard-coded numbers, Cookery's registry entry) override it at all.
 
 | Handler | Kind | Serves | Where the food is |
 |---|---|---|---|
@@ -226,16 +236,27 @@ public interface BlockFoodHandler {
 Everything above is derived from the same block state and is always wanted together: the planner needs the serve count, the appeal needs the properties, the readout wants to name it, and the guest needs the action. So it is resolved once and kept.
 
 ```java
-public record FoodResult(ResourceLocation id, int serves, @Nullable FoodProperties food,
-        FoodConsume consume) {
-    public static final FoodResult INVALID = new FoodResult(INVALID_ID, 0, null, (level, pos, state) -> 0);
+public record FoodResult(ItemStack serving, ResourceLocation blockId, int serves,
+        @Nullable FoodProperties food, FoodConsume consume) {
+    public static final FoodResult INVALID =
+            new FoodResult(ItemStack.EMPTY, INVALID_ID, 0, null, (level, pos, state) -> 0);
 
-    public boolean valid() {
-        if (serves <= 0 || food == null) return false;
-        return food.nutrition() > 0 && !Servings.refuses(food);
+    /** The serving item's id where there is one; the block's own otherwise. */
+    public ResourceLocation id() {
+        if (serving.isEmpty()) return blockId;
+        return BuiltInRegistries.ITEM.getKey(serving.getItem());
     }
+
+    /** A stack of this serving, hers to keep — the result is one shared object. */
+    public ItemStack servingCopy() { return serving.copy(); }
 }
 ```
+
+**`serving` is what a guest is handed, at the count one serving is worth.** It is nearly always one item — a feast's slice, a pie's piece, a pot's bowl, a plate's serving, a rack's bread. The exception is a **cutting board**, whose serving is the whole stack it holds: Youkai's Feasts writes its nigiri and gunkan recipes to yield two at a time and `addToPlayer` hands both over together, so a pair of sushi is one serving of a guest's `serves`, worth `Servings.of(stack, count)`, and *picked up as a pair*. That is the only food in the system whose serving is more than one item, and the reason is a property of the board rather than of the food.
+
+**`id()` is derived, not stored.** A result carries both the serving and the block, and the serving is the more specific of the two, so the id is the serving item's wherever there is one. The fallback is the block's — and **vanilla cake is the only food that takes it**, because it is the only food in the game whose slices exist only as numbers in code: `CakeBlock.eat` feeds the player from source and the `BlockItem` carries no food, so there is no slice item to hand over and none to name. Every other dish names itself after the item a guest is given, which is what makes the readout say "youkai_sake" rather than "whatever block that was".
+
+**`serving` is shared and mutable, so nobody hands it out.** `FoodResultCache` keeps one result per block state for the whole run; a guest holding that stack would be editing the party's answer for every other guest. `servingCopy()` is what callers use.
 
 All four kinds of invalid food collapse to that one `INVALID`:
 
@@ -786,15 +807,19 @@ Phase transitions:
 
 | From | To | Condition |
 |---|---|---|
-| `IDLE` | `GATHERING` | letter sent, roster frozen, clones spawned |
+| `IDLE` | `GATHERING` | letter sent, roster frozen; guests are admitted one a second from here (§6.6) |
 | `GATHERING` | `FEASTING` | every guest has claimed a chair (`PartyTicker.allSeated`) |
-| `FEASTING` | `CLOSING` | every guest dismissed, or `PARTY_TIMEOUT` elapsed |
-| `CLOSING` | `IDLE` | every guest dismissed |
+| `FEASTING` | `CLOSING` | the spread was empty on two consecutive food scans, **or** the last guest left with food still on the table (§6.6) |
+| `CLOSING` | `IDLE` | every guest has finished leaving (§6.6) |
 | any | `IDLE` | host left the area, or all guests died |
 
 `FEASTING` has no "everyone is satisfied" exit: satisfaction is per-guest and no longer
 ends anything. A guest leaves when she has eaten all the spread she can reach, so the
 roster drains on its own and the party closes as the last guest goes — see §6.5.
+
+**There are exactly two ways out of a feast, and food is the weaker of them.** The spread
+running out ends the party; the last guest walking out ends it just as surely, with the
+host's food untouched. §6.6 says why that is deliberate.
 
 The `GATHERING` gate is party-wide on purpose: the table feasts as a table. Its cost is
 that one guest with nowhere to sit holds the whole table out of the feast until
@@ -906,12 +931,19 @@ public static final DataMapReg<EntityType<?>, PartyTaste> PARTY_TASTE =
  * @param minAppeal     spread appeal below which she is not interested
  * @param maxAppeal     spread appeal at which she is fully interested
  * @param fulfillment   hunger she must be served before she counts as satisfied
+ * @param hungrySeat    ticks between dishes while she is still hungry; 60
+ * @param fullSeat      ticks between dishes once she is only grazing; 160
+ * @param leaveChance   chance per fullSeat that she calls it a day; 0.05
+ * @param repGain       share of the appeal she consumed that the host is paid in
+ *                      reputation with her; 0.05
  * @param weight        her weight at full interest; 100 is ordinary
  */
 public record PartyTaste(
         int weight,
         int minReputation, int maxReputation, double repBonus,
-        int minAppeal, int maxAppeal, int fulfillment
+        int minAppeal, int maxAppeal, int fulfillment,
+        int hungrySeat, int fullSeat, double leaveChance,
+        double repGain
 ) {
     public PartyTaste {
         weight = Math.max(0, weight);
@@ -930,6 +962,7 @@ separate whitelist — the data map *is* the eligibility list:
 
 ```java
 /** This character's taste, or null when she has no authored entry. */
+@Nullable
 @Nullable
 public static PartyTaste of(RegistryAccess access, EntityType<?> type) {
     return GLMeta.PARTY_TASTE.get(access, type.builtInRegistryHolder());
@@ -968,6 +1001,17 @@ The cost is that a character nobody has written down never appears, which is the
 trade being made deliberately: an unwritten character is a decision not yet taken, not a
 decision taken for you.
 
+**That null is load-bearing, and it was quietly given back once.** `PartyTaste.of` briefly
+fell back to `DEF` — the same record, with `weight` 0 — and nothing broke visibly: she had
+weight 0, so `PartyPlanner.select` dropped her before she could be drawn, and only the
+readouts showed it. The wand and `/gensokyo party preview` list **every** candidate rather
+than every guest, so Koishi appeared in both as a dark-grey line with weight 0 and the
+whole of `DEF`'s numbers, reading as a candidate rather than as an absence. A character who
+could never come was being shown to the host as one who might. `DEF` is a template that
+nothing reads at runtime now, and `PartyModule` uses `ofOrDefault()` for the one case that
+genuinely needs a value: reading a guest's manners mid-visit, where a row pulled out from
+under her should cost her the rest of her manners and not the rest of her meal.
+
 The `DEFAULT` template is sized against §2.2's derived appeal, where a whole vanilla cake
 is worth 14: `maxAppeal` 24 is under two cakes, and `fulfillment` 8 is just over half of
 one.
@@ -976,15 +1020,17 @@ Shipped values, in `data/gensokyolegacy/data_maps/entity_type/party_taste.json`.
 six rows are the whole eligible cast** — every other character, including the remaining
 eight youkai, has no entry and does not come:
 
-| Character | weight | minRep | maxRep | repBonus | minAppeal | maxAppeal | fulfillment |
-|---|---|---|---|---|---|---|---|
-| `cirno` | 100 | **0** | 150 | 0.3 | 4 | 20 | 6 |
-| `hakurei_reimu` | 100 | 50 | 200 | 0.3 | 10 | 32 | 20 |
-| `kirisame_marisa` | 100 | 50 | 200 | 0.3 | 20 | 32 | 20 |
-| `morichika_rinnosuke` | 100 | 50 | 200 | 0.3 | 20 | 32 | 20 |
-| `alice_margatroid` | 100 | 50 | 250 | 0.15 | 24 | 40 | 12 |
-| `izayoi_sakuya` | 100 | 50 | 250 | 0.15 | 30 | 48 | 20 |
-| *(everyone else)* | — | — | — | — | — | — | **not eligible** |
+| Character | weight | minRep | maxRep | repBonus | minAppeal | maxAppeal | fulfillment | repGain |
+|---|---|---|---|---|---|---|---|---|
+| `cirno` | 100 | **0** | 150 | 0.3 | 4 | 20 | 6 | 0.05 |
+| `hakurei_reimu` | 100 | 50 | 200 | 0.3 | 10 | 32 | 20 | 0.05 |
+| `kirisame_marisa` | 100 | 50 | 200 | 0.3 | 20 | 32 | 20 | 0.05 |
+| `morichika_rinnosuke` | 100 | 50 | 200 | 0.3 | 20 | 32 | 20 | 0.05 |
+| `alice_margatroid` | 100 | 50 | 250 | 0.15 | 24 | 40 | 12 | 0.05 |
+| `izayoi_sakuya` | 100 | 50 | 250 | 0.15 | 30 | 48 | 20 | 0.05 |
+| *(everyone else)* | — | — | — | — | — | — | **not eligible** | — |
+
+The last three fields — `hungrySeat` 60, `fullSeat` 160 and `leaveChance` 0.05 — are the same for all six and are not shown above; they are per character so that a glutton and a nibbler can be told apart, not because anything currently is.
 
 Every one ships `weight` 100, so these are exactly the pre-`weight` numbers scaled by 100
 — the axis is authored but not yet tuned, and moving one is a datapack edit.
@@ -1261,18 +1307,23 @@ Every rejection happens **before** the letter is consumed, so a refused send cos
 Spawned as temporary clones, exactly as `VisitScheduler.spawn` does (`VisitScheduler.java:71`), and for the same reason: **do not touch `HomeModule`**. With no home binding the clone never receives a `HOME` memory, so the entire sleep and bed subsystem stays unreachable, and the real resident keeps living her ordinary day at home.
 
 ```java
-public static @Nullable YoukaiEntity spawn(ServerLevel sl, ServerPlayer host, BlockPos table, EntityType<?> type) {
-    if (!(type.create(sl) instanceof YoukaiEntity youkai)) return null;
-    youkai.setPos(table.getCenter().offset(0, 1, 0));
+public static YoukaiEntity spawn(ServerLevel level, UUID host, BlockPos table, ChunkPos partyChunk,
+        EntityType<?> type) {
+    if (!(type.create(level) instanceof YoukaiEntity youkai)) return null;
+    var module = youkai.getModule(PartyModule.class);
+    if (module.isEmpty()) return null;
+    youkai.setPos(arrivalNear(level, table, youkai));   // §6.6: on the ground, near the party, never in the furniture
     youkai.initSpellCard();
-    youkai.restrictTo(table.getCenter(), GLModConfig.SERVER.partyGuestRadius.get());
-    youkai.getModule(PartyModule.class).ifPresent(e -> e.arrive(host.getUUID(), table));
-    sl.addFreshEntity(youkai);
+    youkai.restrictTo(table, GLModConfig.SERVER.partyGuestRadius.get());
+    module.get().arrive(host, table, partyChunk);
+    level.addFreshEntity(youkai);
     return youkai;
 }
 ```
 
 `PartyModule` must be in **every** character's module list. The base `YoukaiEntity.createModules()` (`YoukaiEntity.java:224`) is overridden by `CirnoEntity` (`:139`) and `AliceEntity` (`:72`), so the module goes into all three lists, not just the base.
+
+**A send does not spawn anybody on the spot.** It freezes the roster and opens the party; the guests are admitted from there, one a second, wherever they appear (§6.6). The two exceptions to "a clone" are also §6.6's: a character already on site comes as herself rather than as a second copy of her, and a guest with nowhere to sit is told so before she gives up.
 
 ### 6.4 Gifts
 
@@ -1290,7 +1341,25 @@ The size comes from **the appeal she personally consumed** — one extra item pe
 
 `Block.popResource` at the table is the in-tree idiom for putting an item down in the world (`MarisaTaskUtil.java:94`, `ShelfBlockEntity`). That matches "thrown on table for now" exactly, and because nothing is granted into an inventory there is nothing to unwind when the real gift item is designed.
 
-**There is no reputation change and no cooldown.** The food is the entire cost and the gifts are the entire return. Reputation is read once, at send, to decide the roster, and is never modified by the party itself. The letter names no character, so there is nothing to prevent being re-sent — repeating a successful spread simply works, and repeating an unsuccessful one fails the same way.
+**A guest leaves one gift, ever.** She has two ways out — the spread she can reach runs out, or `leaveChance` comes up — and a visit can pass close enough to both that she would otherwise thank the host twice for one banquet. The flag is on `PartyModule` rather than in `PartyGift`, so it survives the two call sites and any task restart between them. A guest with nothing tasteful to give still leaves nothing rather than something arbitrary, as before.
+
+**The host is paid in reputation, once per guest.** Every guest who ate from the party rates it, and the host gains `repGain` of the appeal **she personally consumed**:
+
+```java
+int value = taste.reputationFor(appealEaten);   // floor(appealEaten * repGain), at least 1
+CharDataHolder.getUnbounded(player, self.getType()).gain(value, 0, 0, 0);
+```
+
+Four decisions inside that one line, each of which would be worth arguing about:
+
+- **Her own appeal, not the party's.** This is the same quantity her gift is sized on (§6.4, one paragraph above) and for the same reason: a host is paid for feeding *her*, not for the size of the table she happened to sit at. Two guests at one party are worth different amounts, and that is the honest reading — a character served a delicacy and left content is a better advertisement for the host than one handed a slice of bread and left because she was still hungry.
+- **Appeal, not hunger.** Appeal is what the food was worth; hunger is what it fed. Feeding someone is not the same as impressing them, and §5.2 keeps the two apart everywhere else. `PartyAttachment.appealServed` is still tracked, for `party info`; the payout reads her own tally.
+- **Paid at leave, not at close.** A guest who walked out mid-party has still been paid for what she ate. It also means a guest who never ate — expelled for want of a chair — pays nothing, so putting out too few chairs is not a way to farm reputation.
+- **Floored at one, never at zero.** This is now load-bearing rather than a nicety: five percent of a guest's own three slices of cake is 0.3, and it would floor to nothing. A rule that pays nothing for an ordinary party is not a rule the host can learn from, and the alternative — scaling `repGain` until small parties pay — would give every character a different meaning for the same number. It costs nothing, because `gainReputation` refuses to move a reputation that is already at its cap anyway.
+
+Nothing is paid to a host who has logged off or changed dimension — the same rule as the party's messages, and for the same reason: there is no queue of things that happened while they were not here.
+
+**There is no cooldown.** Reputation is read once, at send, to decide the roster, and the party never spends it — there is no loss anywhere in the system. The letter names no character, so there is nothing to rate-limit; a repeated send simply draws again, and an unsuccessful one fails the same way.
 
 ### 6.5 The task
 
@@ -1301,16 +1370,18 @@ start()      → recover her place in the cycle from PartyModule (see below)
 SEEK_SEAT    → walk to the nearest chair, sit, claimSeat(...), WAIT_TABLE
 WAIT_TABLE   → seated, doing nothing until the party reaches FEASTING
 SEEK_FOOD    → draw a dish, weighted by its appeal per serve
-               within REACH of her chair?  eat it from where she sits
-               otherwise                   dismount, walk to it
-EATING       → swing + USE_MAINHAND + eating sound, wait EAT_TICKS,
-               take ONE serve, credit hunger AND appeal
-               then RETURNING if she left her chair, else RESTING
+DELAY        → 10..40 ticks before she reaches for it (§6.6)
+              within REACH of her chair?  taken where she stands
+              otherwise                   dismount, walk to it, then carry it back
+PICKUP       → USE_MAINHAND, then the serving in her hand (§6.6)
+EATING       → seated: the eat animation if her rig has one, the item leaving
+               her hand during it; hunger AND appeal credited when it ends
 RETURNING    → walk back to her chair, sit again
 RESTING      → wait hungrySeat (1s) if still hungry, fullSeat (5s) once satisfied
                roll leaveChance after a satisfied sit — and go, if it comes up
-no chair in 10s → leave the party, so the table can go on without her
-no dish left → giveGift(), dismiss()
+no chair      → tell the host, look again every 3s, leave after three failures (§6.6)
+no dish left  → giveGift(), then the exit
+LEAVING      → stand up after 0..60 ticks, walk away or go back (§6.6)
 ```
 
 **The party caches its own spread and its own chairs.** `PartyAttachment` holds both lists and refreshes them on two schedules from `PartyTicker`: the food every two seconds, the layout every ten. A guest needs the food list every time she draws a dish, which is every few seconds for the length of her visit, so having each guest sweep a box for herself made the party cost far more to run than the party itself. Two rates because the two change at very different speeds — every dish a guest eats is one fewer, while a chair that moved a second ago will still be there in four more — and because conflating them would either make a refilled dish take ten seconds to appear or rebuild the chair list four times a second for nothing.
@@ -1323,9 +1394,9 @@ One consequence worth stating: `hungerBudget` now tracks what the guests can act
 
 **She never leaves on being satisfied — but she does leave eventually.** Reaching her fulfillment only lengthens the sit between dishes, from her `hungrySeat` (1s) to her `fullSeat` (5s), both per character in `party_taste` rather than constants: a glutton plausibly dawdles between courses and a nibbler plausibly does not. After each *satisfied* sit she rolls `leaveChance` (5%) and goes if it comes up. That is the only thing that ends a party before the food does, and it has to exist — otherwise a guest who is already full has no reason ever to go home and the table stays occupied until the host's spread is gone. It is a chance per sit rather than a flat timer so that the two per-character fields mean something together: a long `fullSeat` also means a slow departure. In simulation, a guest facing a 200-dish spread leaves after about eleven dishes, every time.
 
-**Ten seconds without a chair and she is expelled.** The party-wide feast gate (§4) waits for *every* guest to be seated, so one guest who cannot find a chair would otherwise hold the whole table out of the feast until the ten-minute `PARTY_TIMEOUT`. After ten seconds she leaves the party instead — no gift, since she never ate, and a word to the host, since "there are not enough chairs for the number of guests I invited" is something the host can act on and a silently emptier table is not. This is the same ten seconds whether she never found a chair or lost the one she had.
+**No chair: tell the host, wait three seconds, look again.** The rule is in §6.6 — the host hears about it on the first failure, the guest re-checks every `SEAT_RETRY`, and the third consecutive failure is what ends it. What matters here is *why* it exists at all: the party-wide feast gate (§4) waits for *every* guest to be seated, so one guest who cannot find a chair would otherwise hold the whole table out of the feast until the ten-minute `PARTY_TIMEOUT`, and the host would be told nothing until the party was called off. Saying so is the point — the host put out chairs and they were not enough, or one too many guests were invited, and without a word the only visible sign is a table with fewer people at it than the letter promised. No gift either way, since she never ate; and the same rule covers a chair taken away under her, because the layout rescan (§4) puts her back in `SEEK_SEAT` on the same terms.
 
-**Her chair is re-checked, so a removed one does not strand her.** The layout rescan (§4) bumps a version counter when the chair list changes, and the guest compares it against the version she last saw. A chair that has been broken is no longer hers to sit on, so she drops the claim and starts looking again — on the same ten seconds, and expelling herself if there is nothing else. Without this, a guest removed from her `ChairEntity` would stand beside the table in GATHERING for ever, holding the party with her.
+**Her chair is re-checked, so a removed one does not strand her.** The layout rescan (§4) bumps a version counter when the chair list changes, and the guest compares it against the version she last saw. A chair that has been broken is no longer hers to sit on, so she drops the claim and starts looking again — on the same terms as a guest who never found one, giving up if there is nothing else (§6.6). Without this, a guest removed from her `ChairEntity` would stand beside the table in GATHERING for ever, holding the party with her.
 
 **Most rounds she does not move.** A dish within `REACH` (3 blocks) of where she sits is eaten from the chair. Only a dish further out sends her across the room — which costs a dismount, because **sitting means riding** a `ChairEntity` (`ISeatableBlock.sitDown` calls `startRiding(seat, true)`) and a passenger does not walk. Every departure therefore owes a return, or the second trip out would be measured from wherever the first one left her.
 
@@ -1343,7 +1414,162 @@ This is why `YoukaiPartyTask` cannot copy `MarisaForageTask`'s "arrive, act, ret
 
 **Eating while seated needs `isLaidOut` to accept a chair underneath.** A plate set on a guest's own seat is within reach of her and, on the old test, not part of the spread at all — the scan would not have counted it, so she could not eat it. Rather than special-casing the eating rule, the chair was added as a surface: a dish on a chair is now part of the spread and budgeted for like any other, instead of being edible but unaccounted.
 
-**There is no eating animation.** `YoukaiAnim` has no EAT or DRINK slot, and nothing in the codebase calls `startUsingItem` on a character — `FeedModule` only plays a sound and heart particles. The task uses `entity.swing(MAIN_HAND)` + `YoukaiAnim.USE_MAINHAND` + the vanilla eating sound, which is exactly what `MarisaForageTask` does for foraging (`MarisaForageTask.java:60`). Adding a real `eat` clip to every character model is follow-up art work, not a system blocker.
+**The bite is four beats, not one, and two of them are art work in progress.** `§6.6` has the sequence: a delay, a pickup animation with the serving item actually in her hand, a walk back to the chair if she left it, and an eat animation on arrival during which the item leaves her hand. What exists today is uneven, and the two gaps are worth naming because they are not the same gap:
+
+- **The chew exists for one rig.** `PlainFairyEntity` maps `吃` as `thenPlayAndHold` and fires it as entity event **80** (`PlainFairyEntity.java:123`, `:134`) — deliberately outside `YoukaiAnim`, which is the dialog vocabulary and whose 71–79 are its wire ids (`GeoYoukaiAnim.java:30`). `FairyCakeTask` is the precedent for the whole shape: a chew, then a `USE_MAINHAND` gesture timed against the clip's own length. No party-eligible character has it, so for the shipped roster the eat beat is skipped, not faked.
+- **Holding an item is a per-renderer question.** The data side is one `setItemInHand(MAIN_HAND, …)` and `YoukaiHeldItemLayer` already renders a character's `MAINHAND` at her `RightHandLocator` bone — but only `CirnoRenderer` and `PlainFairyRenderer` register it, so of the six eligible characters only Cirno would visibly carry a slice. Adding one `addRenderLayer` per renderer is the whole fix, and the layer is written to serve every rig in the mod.
+
+What is left of the old treatment is the sound: `entity.swing(MAIN_HAND)` + `YoukaiAnim.USE_MAINHAND` + `SoundEvents.GENERIC_EAT`, which is exactly what `MarisaForageTask` does for foraging (`MarisaForageTask.java:60`).
+
+---
+
+### 6.6 The three phases, one at a time
+
+§6.5 is one guest's loop. This is the party's: what happens between the letter being sent and the last character walking away from the table. It is the part of the feature most likely to be read as obvious and least likely to be right — an arrival that puts four characters on one tile, a guest who stands beside a chair for ever, a party that ends and takes its guests with it — so every rule below is written out with the thing it is protecting against.
+
+The phases themselves are in §4; this is the procedure inside them. Everything below is built; the table at the end says which parts of it needed anything that was not obvious from the rule.
+
+#### Arriving — GATHERING
+
+**One guest a second, not the whole roster in one tick.** The party admits one roster entry per pass, and `PartyTicker` already runs at 1 Hz (§4), so one admission per pass is one arrival per second with no timer of its own: `PartyAttachment` keeps a cursor into `roster`, and `PartySend.send` opens the party and returns.
+
+| | roster spawned in one tick | one a second |
+|---|---|---|
+| what the host sees | a table that fills in a single frame | people arriving |
+| pathfinding | every guest paths on the same tick | spread across the first few ticks |
+| who is invited | — | unchanged: the draw is still frozen at send (§4) |
+
+The roster is still a frozen list. This is about *when* a guest enters the world, not about whether she is still coming — a draw re-run per second would let the guest list change under everyone, which is exactly what §4's freeze exists to prevent.
+
+**She appears out in the room, on the ground, never in the furniture.** A spawn is a random position within `partyScanDistance` (32) of the anchor, preferring somewhere she can stand:
+
+```java
+// §6.3's spawn, with an arrival position instead of the middle of the table
+Vec3 arrival = RandomPos.generateRandomPos(youkai, () -> {
+    var spot = randomXZAround(anchor, GLModConfig.SERVER.partyScanDistance.get());
+    if (!youkai.getNavigation().isStableDestination(spot)) return null;
+    return LandRandomPos.movePosUpOutOfSolid(youkai, spot);
+});
+// null, or standing in a chair or a table, and the guest is not spawned here at all
+if (arrival == null || furnitureAt(level, arrival)) return null;
+```
+
+`RandomPos` + `LandRandomPos` is the pair `HomeSearchUtil.getRandomPos` already uses to put a character somewhere in a house she can stand in (`HomeSearchUtil.java:244`), and `generateRandomPos` tries ten positions before it gives up — the fallback is a real case, not a formality.
+
+It is deliberately **not** `partyGuestRadius` (24). That is how far she may wander once she is *at* the party (§10); 32 is how far away she may appear. A guest who materialised inside the guest radius would already be at the table, which is the thing the rule exists to prevent — and the furniture test is the same one on both the spawn and the teleport below, because the teleport is the path most likely to land in the middle of the table.
+
+**She walks in, and if she cannot walk in she is moved rather than stranded.** The walk out to her chair gets the ordinary leg timeout; a guest who never arrives is teleported to a free, standable block *beside* her seat and carries on from there. The seat is only worth sitting in if she can get to it, and a character standing in a doorway for the rest of a party is worse than one that blinks into place. This only ever fires when the pathfinder has already failed, so the teleport is a repair and not a shortcut.
+
+**The party seats them, so they do not fight over chairs.** Left to themselves every guest walks to the *nearest* free chair, and at a laid table the nearest chair is the same chair: `HomeSearchUtil.setSitting` ejects whoever is sitting there, so the second arrival wins and the first is stood up mid-meal. `PartyAttachment` therefore keeps the seating plan — a chair → guest map — and a guest asks it for a chair instead of picking one:
+
+| | what the party does |
+|---|---|
+| she has a chair and it is still there | **the same one.** First-write-wins, and a table rearranged under the party does not walk anyone off a chair they are on |
+| she does not have one | the free chair **nearest where she is standing**, so guests take the chair on their own side rather than all crossing to one end of the table |
+| every chair is claimed | nothing. That is the whole of "no chair" — she is never offered another guest's chair a second time |
+| her chair stops being a chair | the claim is released, and she looks again |
+
+Only the **last** row reassigns anyone, which is the rule that matters: re-arranging furniture, a guest standing up for a dish and a chair being briefly unreachable are all reasons to keep the seat you had. The claim is released exactly once otherwise — when she leaves, which is what stops an early guest's chair staying claimed for ever and the table never filling.
+
+The plan is answered from the party's own record rather than from what the guest believes, because a guest does not record a chair until she is sitting on it: a guest whose walk was interrupted mid-approach would otherwise be handed a *second* chair on the next attempt and leave the first claimed for ever.
+
+**No chair: say so at once, wait three seconds, try again.**
+
+| when | what |
+|---|---|
+| the first time she cannot find a chair | the host is told — `<name> is looking for a chair` |
+| every `SEAT_RETRY` — 3 s, where it is 40 ticks today | look again |
+| the third consecutive failure | leave the party, and tell the host she gave up |
+
+The window is about nine seconds, which is what the old single ten-second timeout bought — but the host hears about it at the first failure instead of at the end, and a chair put out in the middle of the window is picked up without the clock having run out. It is `PartyMessage`'s existing `GLLang.Party.NO_CHAIR` line split into a *still looking* and a *gave up* form, because only the second one is terminal and only the second one should read like an ending. No gift either way: she never ate, and a guest carried in on the roster who found no chair is not one the host owes anything to.
+
+**The roster names characters, not clones.** Before spawning one, the party looks for her already being on site: a visitor inside a nearby home (`VisitModule.visiting()`) or a resident standing near her own structure (`HomeModule.home()`), within reach of the party's own guest box (§6.5). Found, she joins **as herself** — no second copy of a Reimu at one table — and what she was doing before is recorded on her `PartyModule` so it can be given back:
+
+| she was | she is given back to |
+|---|---|
+| visiting a `StructureKey` | that visit, and the ten seconds of grace below |
+| homed near a `StructureKey` | her own home and her ordinary schedule |
+| neither — the ordinary clone | nothing; she walks away and is gone |
+
+This is the one place the party writes onto an entity that has a life of her own, and it is why the exit is a walk rather than a `discard()`. It also means a reused character's tallies start at whatever she had already eaten *at this party* — the counters belong to the party, not to her, so joining is `arrive()` and not a reset.
+
+**A visitor who outlives her window gets ten seconds.** A guest who was visiting when her visit ended mid-party does not blink out: she is given `VisitModule.hold(200)` when she leaves, so she has ten seconds to walk off and be seen leaving. `hold` rather than a window extension because the visit window is a pure function of `(structure pos, type, day)` (`character_visit.md` §2) and has no field to extend — `hold` is the mechanism that already exists for exactly this ("a conversation buys 20 seconds", `TALK_HOLD`), and it expires on its own.
+
+#### Feasting — the bite
+
+**Every bite waits first.** After a dish is drawn the guest holds for a random **10–40 ticks** before she touches it. Nothing else changes — it is a delay in front of picking the serving up — but it is the difference between a table of guests moving as one organism and a table of people. The floor matters as much as the ceiling: an instant draw reads as the character reacting to the player rather than deciding on anything, and half a second is the shortest delay that still looks like a choice. Forty ticks is two seconds, and `hungrySeat` (60 ticks, three seconds) still sets the pace of the meal — a guest who is genuinely hungry comes back for the next course sooner than she hesitates over the one she just finished.
+
+**Then four beats.**
+
+```
+draw ─ 0..40t ─ pick it up ─ back to the chair ─ eat it
+                   (use anim)    (if she left it)   (item vanishes)
+```
+
+| beat | what happens |
+|---|---|
+| **pick it up** | `swing(MAIN_HAND)` + `YoukaiAnim.USE_MAINHAND`, then **the serving item in her main hand** — the item a guest is actually handed, not the block it came off. A dish with no item form of its own (`SaucerFood`, `BlockItemFood` — eaten where it lies) plays the beat with an empty hand. |
+| **back to the chair** | if she left it to reach the dish she dismounts, walks and sits again. A dish already within `REACH` skips this — she is already where she is going to eat. |
+| **eat** | seated, she plays the eat animation **if her rig has one**, and the item leaves her hand during it. |
+| **credit** | hunger and appeal are banked when the animation ends, unchanged from §6.5. |
+
+The two rules that made the serve safe still hold, and the pickup beat is where they now sit: the block is consumed **once**, at pickup, with both readings taken before it is consumed, and a serve taken and never credited is still banked by `stop()`. The item in her hand is presentation over that same serve — it is emptied during the animation and is never a second one.
+
+#### Closing — leaving
+
+**Two ways a party ends, and food is the weaker of them.**
+
+| trigger | rule |
+|---|---|
+| **the spread ran out** | the food list was empty at one rescan **and** still empty at the next — two consecutive empty scans, `FOOD_RESCAN` (40 ticks) apart |
+| **everybody left** | the last guest goes, for any of the reasons above — `leaveChance`, the leg timeout, no chair to be found |
+
+The two-scan debounce costs nothing and is not the same as "empty". The food list is refreshed every two seconds for the express reason that a host putting out a second course should see it noticed while the table is still full (§6.5); deciding on a single empty scan would end the party in the two seconds between one guest taking the last slice and the host putting down the cake. Either way the party's food is never touched on the way out (§4).
+
+The second trigger is a tuning statement as much as a rule. §6.5 already gives a satisfied guest a 5% chance per sit to leave, and with a large enough spread every guest eventually rolls it — so **a party is bounded by its guests' patience, not by its food**. The spread decides how *well* a party goes; the guests decide how *long* it lasts. A host who laid out forty dishes has bought a better party, not a longer one, and the counter to that is `fullSeat` and `leaveChance` on the character, not more food on the table.
+
+**Leaving is staggered, and it is not a dismissal.** The end of a party and a guest walking out mid-party run the same exit:
+
+| step | rule |
+|---|---|
+| **unseat** | after a random **0–60 tick** delay, so a table does not empty in one frame |
+| **go** | summoned by the party → walk away from the table and be gone once she is outside it; at home, or visiting → walk back to where she came from and pick up what she was doing |
+
+The delay is per guest and random, not a party-wide countdown, because the thing it avoids is a table going from full to empty inside a single tick — which reads as a cutscene, and which is what a loop that discarded every guest on the chunk was.
+
+**Where she came from is recorded when she joins, not worked out at the end.** The `arrive` field above is the whole of it, and the ordering is load-bearing: walk *first*, clear the party state *after*. Clearing first resumes her schedule while she is still walking to the table, and a character with a `HOME` memory and a walk target is a character who goes home and out of the room at the same time.
+
+Leftover food is untouched, as ever (§4). A party that ends with half the spread on it costs the host nothing but the guests' evening.
+
+| rule | state |
+|---|---|
+| one guest a second; random arrival on the ground, never in the furniture | built |
+| teleport beside the chair when the walk fails | built |
+| chair retry — tell the host, 3 s, leave after three failures | built |
+| an on-site character joins as herself | built |
+| ten seconds of grace for a visitor whose window closed | built |
+| 10–40 tick delay before each bite | built |
+| hold the serving item; it leaves her hand during the eat animation | built; the eat animation itself is one rig's art (§6.5) |
+| the party seats its guests, so they do not fight over chairs | built |
+| one gift per guest, ever | built |
+| the host is paid `repGain` of each guest's own consumed appeal | built |
+| staggered unseat; walk away, or go back to where she came from | built |
+| two empty scans end the party; the last guest out also ends it | built |
+
+**Four things the code needed that this section did not ask for**, all consequences rather than choices:
+
+- **The gathering gate had to wait for admission.** `PartyTicker.allSeated` is vacuously true with no guests, which was harmless when a send spawned the whole roster in one tick and is fatal now that an empty guest list is the normal state of a party in its first few seconds — every party would have feasted before anybody arrived. The gate is `admitted() && allSeated`.
+- **"Everyone has gone" needed the same guard.** An empty roster no longer means the party is over; it means it has not finished introducing itself. A party is finished when the roster is empty *and* has been worked through, or when a closing party has drained.
+- **A closing party needs its own backstop.** Closing ends when the last guest finishes leaving, and a guest who cannot path to her destination would otherwise hold the chunk's party open for ever. `CLOSING_TIMEOUT` (30 s) is the answer; past it the party resets and anyone still attached is dismissed by the ordinary "my party is gone" path.
+- **`restrictTo` has no getter**, so a reused character's wander area has to be re-applied from her home on the way out rather than read back. Left out, a resident who wandered to a party could never go home again.
+
+**Three more that are load-bearing**, in the order they bite:
+
+1. **`PartyModule.party()` no longer returns null for a CLOSING party.** It used to, and that was the signal to self-dismiss. A closing party is still hers — she needs it to run her exit — and it only goes null once the party has reset, by which time she has already left.
+2. **`dismiss()` is no longer `discard()`.** A summoned clone is discarded; a character who came as herself is put back, because discarding a resident deletes a real character out of the world over a party. Both go through `completeLeave`, which reads `origin` before clearing it — walk first, clear after, or she resumes her schedule while still walking to the table.
+3. **`VisitModule` stands down while she is partying.** It renews its visit memory every tick and dismisses when the window closes; left alone it fights the party for the entity, dismissing a guest the host is still feeding. One early return on `isPartying()`, and it resumes by itself when the party lets go.
+
+**One number that came from the rig rather than from taste:** `PICKUP_TICKS` is 6, because that is how long `使用主手物品` runs — the same figure `FairyCakeTask` times a gesture against. The two gestures are the same clip, so the two timings should be the same number rather than two independently plausible ones.
 
 ---
 
@@ -1400,8 +1626,8 @@ Added once in `SmartYoukaiEntity.constructTaskBoard` (`SmartYoukaiEntity.java:81
 | `content/attachment/party/core/PartyTicker.java` | level-tick driver, active-chunk registry |
 | `content/attachment/party/item/InvitationLetterItem.java` | the letter |
 | `content/attachment/party/item/PartyMessage.java` | one place that turns an outcome into player-facing text |
-| `content/entity/module/PartyModule.java` | per-guest state, `arrive`/`tickServer`/`leave` |
-| `content/entity/behavior/task/party/YoukaiPartyTask.java` | walk → sit → eat → gift |
+| `content/entity/module/PartyModule.java` | per-guest state, `arrive`/`join`/`beginLeave`/`completeLeave`, and `Origin` |
+| `content/entity/behavior/task/party/YoukaiPartyTask.java` | seat → delay → pickup → chew → rest, and the exit |
 | `content/rpg/condition/PartyCondition.java` | `{"type":"gensokyolegacy:party"}`, `invert` for home-bound |
 
 **Modified**
@@ -1412,11 +1638,15 @@ Added once in `SmartYoukaiEntity.constructTaskBoard` (`SmartYoukaiEntity.java:81
 | `init/registrate/GLBrains.java` | `PARTY`, `MEM_PARTY` |
 | `init/registrate/GLItems.java` | `INVITATION_LETTER`, calls `BlockFoods.register()` |
 
-| `content/entity/youkai/YoukaiEntity.java` | `PartyModule` in `createModules()`, `isPartying()` |
+| `content/entity/youkai/YoukaiEntity.java` | `PartyModule` in `createModules()`, `isPartying()`, `broadcastEat()` |
 | `content/entity/youkai/YoukaiFlags.java` | append `PARTYING` (ordinal is the synced bit index) |
 | `content/entity/youkai/SmartYoukaiEntity.java` | `PARTY(200)` + `YoukaiPartyTask` |
 | `content/entity/characters/fairy/CirnoEntity.java` | `PartyModule` in its `createModules()` override |
 | `content/entity/characters/magician/AliceEntity.java` | same |
+| `content/entity/characters/fairy/PlainFairyEntity.java` | `broadcastEat()` as the override of the base no-op |
+| `content/entity/module/VisitModule.java` | stand down while she is partying (§6.6) |
+| `content/client/debug/CharacterRequestToServer.java` | carry a guest's tally in the existing character-info answer (§9.3) |
+| `content/client/debug/CharacterInfoToClient.java` | the `PartyTally` record and its two lines |
 | `init/registrate/GLEntities.java` | `TASTE_*` constants, applied via `.dataMap(GLMeta.PARTY_TASTE.reg(), …)` |
 | `content/rpg/core/CodecRegistry.java` | `PARTY` condition |
 | `content/rpg/core/ServerCharacterDialogManager.java` | suppress quest `START` while partying, as for visiting |
@@ -1458,15 +1688,19 @@ The `large_table` support change is a behavioural change to a shipped block and 
 
 `preview` is the tuning tool and the reason the planner is pure: it calls the identical `PartyPlanner.select`, so what it prints is exactly what `send` will do. Without it, tuning `party_taste` numbers through a 30-second party with a letter to spend each attempt is miserable. `SUGGEST_PARTY_ELIGIBLE` is built off `party_taste`, mirroring how `SUGGEST_VISITORS` reads `StructureConfig.visitors()`.
 
+`end` runs the same exit as a party that ends on its own (§6.6) — unseat, then walk away — rather than dropping every guest in one tick. A host calling it mid-banquet should watch a table wind down, not disappear. Leftover food is still untouched either way.
+
 ### 9.1 The debug wand
 
 `party_wand` is the other tuning tool, and it works differently from `preview` on purpose: `preview` prints, the wand **holds** its answer on the item.
 
 | Action | Runs on | Shows |
 |---|---|---|
-| hover a food block | client | serves, hunger, saturation, attraction, serves-to-satisfy |
+| hover a food block | client | serves, nutrition, saturation, attraction, serves-to-satisfy |
+| hover a character | client, from synced tallies | how much she has eaten — hunger and appeal, against what she wants (§9.3) |
 | click a food block | server | — takes one serving, as a guest would |
 | click a party table | server | bound position, table/seat/food counts, hunger, how much the guests need, every candidate with her weight, **and the area drawn in the world** |
+| click anything the wand cannot read | server | — clears the held reading, so a stale simulation is not left on the item (§9.3) |
 
 The hover readout is computed **client-side** from the block state and the item registry, both of which the client already holds. That is not laziness: a live readout re-asks every frame, and a server round trip per frame — or a packet per block looked at — would be paid for numbers that cannot disagree with the client's own copy.
 
@@ -1502,6 +1736,51 @@ Staleness is unchanged and is now the only staleness there is: the food is being
 
 One detail of the text readout survives unchanged: the result is a snapshot of a party that was only *simulated* — the food is being eaten while the wand sits in a hand — so the overlay flags a reading taken more than 8 blocks from its table as possibly stale.
 
+### 9.3 One reading at a time
+
+The wand can describe a dish, a character, or a whole simulated party, and it has room on the overlay for exactly one of them at once. Three rules settle which, and they are not three independent decisions — they are one rule (**one reading, and a live thing beats a stored one**) applied three times:
+
+| the player is looking at | the overlay shows |
+|---|---|
+| a block that is party food | **the food readout**, and no party detail |
+| a character at a party | **her consumption**, and no party detail |
+| anything else | **the party detail**, if the wand is holding one |
+
+**Hovering food hides the party detail.** The two are answering different questions at the same moment — what is this dish worth, and what would this table do — and stacking them produces a twenty-line tooltip where the second half is about a table thirty blocks away. The stored reading loses to the live one every time; the wand is not a clipboard, it is a magnifier.
+
+**A click on a block the wand cannot read clears the held reading.** Not only an invalid food block — *any* block that is neither food with something on it nor a party table, a wall included. A click that produces no reading at all means the honest result is no reading rather than the last one it happened to compute: without the clear, a simulation sits on the item indefinitely, and the player is still being told what a table downstairs would do with no sign that anything replaced it. Clicking a *table* replaces it with a fresh simulation and clicking valid food replaces it with a serving taken, so the clear only ever fires where the wand would otherwise have nothing to say.
+
+**The invalid-food message is suppressed while a party detail is on screen.** It is the food branch's way of saying "there is nothing here", and if the party detail is showing, something *is* here — the player is simply not looking at it. The message therefore appears only when the wand holds nothing, which is exactly when it is the only thing it can honestly say. The three rules compose into one sentence: *what you are looking at wins, and what you are not looking at is dropped when it is wrong.*
+
+#### Hovering a character — the one readout that cannot be client-side
+
+The food readout is computed on the client because the client already holds everything it needs (§9.1). A guest's consumption is the exception: `PartyModule.eaten` and `appealEaten` are server state, and **nothing syncs a module's fields** — characters reach the client through `YoukaiFlags`, one bit each, and there is no module payload packet in `GLPackets`. So a client-side hover would read two zeroes off a module instance the client built itself.
+
+The number is worth having: "eaten 8 of 12 hunger" beside a guest who is visibly still going, and the appeal total with it, is the fastest way to tell a thin spread from a generous one mid-party — and appeal is the quantity that is otherwise invisible anywhere in the whole feature (§5.2).
+
+**It rides the entity debug overlay rather than a packet of its own.** `DebugCharacterTooltip` already asks the server about a character the player is looking at — `CharacterRequestToServer` gathers her home, her bed, her reputation and her cooldowns and answers with formatted lines, re-requested every ten ticks and cached client-side. A guest's two numbers join that answer as two more lines:
+
+```java
+public record PartyTally(int eaten, int appeal, int wanted) { }
+
+// CharacterRequestToServer, for anyone at a party
+var party = e.getModule(PartyModule.class)
+        .map(m -> m.partying()
+                ? new CharacterInfoToClient.PartyTally(m.eaten(), m.appealEaten(), wanted(m))
+                : null)
+        .orElse(null);
+```
+
+That is strictly better than the packet this section originally called for, and worth saying why:
+
+- **no new transport, no lifecycle.** A packet needs a client-side map keyed by entity, plus clearing it on logout and on level unload. This needs neither, because the store that already exists is the one being asked.
+- **it only goes to players who can see her,** because that is who the existing requester serves; a second packet would have to re-derive that.
+- **the party wand, the debug wand and the debug glasses all show it.** A debug tool should say what a guest has eaten whichever debug tool you happen to be holding, and asking three tools to each carry their own copy of the same number is how they drift apart.
+
+**Both numbers travel, not the ratio.** `eaten` against her `party_taste` fulfillment, and `appealEaten` on its own. A ratio is what the entity can already compute and is exactly what a client cannot reconstruct from the halves without also being sent the taste — so sending the halves costs the same and is more useful.
+
+The rejected alternative, for the record: writing it onto the wand component like the party simulation. The component is a snapshot and this is a number that moves while the player watches it, so it would be a readout that only updates when you click — which is a readout nobody looks at twice.
+
 ---
 
 ## 10. Known limits
@@ -1515,10 +1794,14 @@ One detail of the text readout survives unchanged: the result is a snapshot of a
 - **Guest eating is not interruptible.** If the player breaks the food out from under a guest she re-validates and picks again, but she cannot be redirected to a different dish.
 - **Chunk unload freezes the party mid-feast.** Guests stop ticking with the chunk and resume on reload. Acceptable — the same behaviour as every other entity in the chunk — but a party in a chunk the player walks away from simply pauses.
 - **A guest belongs to the chunk that owns the party, not the chunk she stands in.** Both the anchor table and the food centre lie inside the walk's reach, so a party routinely straddles a chunk border. Guests therefore carry the owning `ChunkPos` explicitly and look the party up by that — never by `new ChunkPos(table)`, which silently misses and makes her dismiss herself on her first tick. Same reasoning behind `/gensokyo party info|end` searching the neighbourhood through `PartyAttachment.near` instead of one chunk.
-- **A guest claims one chair per party and keeps it for the visit.** `HomeSearchUtil.setSitting` is a one-shot call with no un-sit counterpart, so once seated she stays on *that* chair — she dismounts to walk to a dish beyond her reach and sits back down on the same one, and `claimSeat` is first-write-wins so a rearranged table cannot walk her off it. Seat reassignment after someone leaves is not implemented.
+- **A guest keeps her chair for the visit, and loses it only to a broken chair.** §6.6: the party's seating plan is first-write-wins, so she dismounts to walk to a dish beyond her reach and comes back to the same one, and a rearranged table cannot walk her off it. `HomeSearchUtil.setSitting` is a one-shot call with no un-sit counterpart, so the dismount is an explicit `stopRiding` and the claim is the party's own record — which also means a guest whose chair is destroyed while she is away is re-seated by the normal rule rather than by anything special.
+- **The host's reputation payout needs the host online.** §6.4: `GLMeta.CHAR` is a player attachment, so a host who logs off or changes dimension before her guests leave is paid nothing for that party. This is the same rule as the party's messages and for the same reason, but it is a loss of a reward rather than of a notification, which is the part worth knowing.
 - **No cross-dimension concern.** A guest clone spawns in the host's level and `party_taste` is dimension-independent, so any character may be invited anywhere. Noted only so it is not rediscovered as a bug later.
 - **A guest's seat and dish search is a fixed 6-block box, not `PartyArea.scan`.** `PartyArea.scan` walks a whole room; this is a triple loop over `GUEST_RADIUS`, swept by the **party** on a timer (§6.5) rather than by each guest for herself, because a guest asks for the list every time she draws a dish and that is every few seconds for the length of her visit. A banquet laid out over tens of blocks is not something a guest walks to and back anyway. This is the one place the scan distance deliberately does not apply, and the reason the scan radius and the guest radius are two different numbers.
-- **A guest leaves when her `leaveChance` comes up, so a big table empties on its own.** A satisfied guest rolls 5% after each 5-second sit, which in simulation means a guest facing a 200-dish spread leaves after about eleven dishes — always by the roll, never by running the spread out. That is the intended shape and it is also a real tuning decision: 5% per sit is tuned so a guest lingers about a hundred seconds of sitting before wandering off, and a datapack author who wants a longer party raises `fullSeat` *or* lowers `leaveChance`, which are two different flavours of the same dial. `partyGuestRadius` keeps everyone inside the room but does not affect this.
+- **A guest leaves when her `leaveChance` comes up, so a big table empties on its own.** A satisfied guest rolls 5% after each 5-second sit, which in simulation means a guest facing a 200-dish spread leaves after about eleven dishes — always by the roll, never by running the spread out. That is the intended shape and it is also a real tuning decision: 5% per sit is tuned so a guest lingers about a hundred seconds of sitting before wandering off, and a datapack author who wants a longer party raises `fullSeat` *or* lowers `leaveChance`, which are two different flavours of the same dial. `partyGuestRadius` keeps everyone inside the room but does not affect this. §6.6 makes the second half explicit: the last guest out ends the **party**, with the spread untouched.
+- **Only one rig has a chew, and only two renderers draw a held item.** §6.5: `吃` exists for `PlainFairyEntity` (event 80), and `YoukaiHeldItemLayer` is registered by `CirnoRenderer` and `PlainFairyRenderer` only — so of the six characters in `party_taste`, one would visibly carry a slice and none would chew it. Both are one-line-per-renderer fixes, and both are art-side.
+- **A reused character restores her wander area from her home, not from a saved value.** `restrictTo` has no getter, so `PartyModule.restoreWander` re-applies it from the `IHomeHolder` on the way out (§6.6). If a datapack or a structure change makes her home unreadable while she is away, the restore silently does nothing and she keeps the party's guest radius until her next chunk unload; a resident who cannot path home is the visible symptom.
+- **A visitor whose window closes at a party never gets her walk back.** §6.6: she finishes leaving at the table and is given `hold(200)`. That is the intended ending and it means a visitor cannot be seen returning to a house that is no longer having her — but it also means nothing watches her walk, so if the hold expires while a player is watching she is removed by the visit module's own "nobody can see me" rule rather than by anything party-side.
 - **The area draw is wand-only, and scan-only.** It never renders for a player not holding a party wand, so it is debug output with no gameplay footprint. It is also not refreshed by a real send (§9.2) — only by a wand click and by `preview`.
 - **`en_ud` lang variants** regenerate with the rest; zh_cn entries go under `src/test/resources/gensokyolegacy/lang/zh_cn/` and the `ResourceOrganizer` main is rerun afterwards.
 

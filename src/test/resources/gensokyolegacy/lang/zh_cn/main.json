@@ -22,7 +22,9 @@
 			"structure_abnormal": "发现%s个错误方块",
 			"loading": "加载中...",
 			"doors_to_close": "待关闭的门（%s）：",
-			"youkai_avoid": "%s可能暂时不想见你"
+			"youkai_avoid": "%s可能暂时不想见你",
+			"entity_party_eaten": "宴席上：已吃 %s／%s 饱食量",
+			"entity_party_appeal": "宴席上：已吃下 %s 吸引力"
 		},
 		"msg": {
 			"reset": "角色已重置",

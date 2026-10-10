@@ -79,6 +79,15 @@ public class BiteFood implements BlockFoodHandler {
 		return Math.max(0, bite.getMaxBites() - state.getValue(bite.getBites()));
 	}
 
+	/**
+	 * From the registry rather than off a serving item, because Cookery has no item for a
+	 * single bite — the dish item is the whole plate, which is the thing this handler
+	 * exists not to value.
+	 * <p>
+	 * The block's own item is what a guest is handed, so a bite block is named after its
+	 * block exactly like vanilla cake, but for a different and more mundane reason: there
+	 * is no bite in the game to hand over.
+	 */
 	@Override
 	public @Nullable FoodProperties food(BlockState state) {
 		var id = BuiltInRegistries.BLOCK.getKey(state.getBlock());

@@ -6,10 +6,13 @@ import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyPlanner;
 import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartySend;
 import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyTaste;
 import dev.xkmc.gensokyolegacy.content.attachment.party.food.FoodResult;
+import dev.xkmc.gensokyolegacy.content.client.debug.CharacterInfoClientManager;
 import dev.xkmc.gensokyolegacy.content.client.debug.IDebugOverlayWand;
+import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.gensokyolegacy.init.data.GLTagGen;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
@@ -25,6 +28,7 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.EntityHitResult;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -93,6 +97,12 @@ public class PartyWand extends Item implements IDebugOverlayWand {
 				stack.set(PartyWandComponent.TYPE, readout(pos, outcome));
 				return InteractionResult.SUCCESS;
 			}
+			// nothing here the wand can read, so it holds nothing either. Without the
+			// clear a simulation sits on the item indefinitely: the player clicks a wall,
+			// walks upstairs, and is still being told what that table would do with no
+			// sign that anything replaced it. Both readable cases above replace it, so
+			// this only ever fires where the wand would otherwise have nothing to say.
+			stack.remove(PartyWandComponent.TYPE);
 		}
 		return InteractionResult.CONSUME;
 	}
@@ -148,15 +158,44 @@ public class PartyWand extends Item implements IDebugOverlayWand {
 
 	// --- overlay ---
 
+	/**
+	 * One reading at a time, and what the player is looking at wins.
+	 *
+	 * <p>
+	 * The wand can describe a dish, a character or a whole simulated party, and stacking
+	 * them produces a twenty-line tooltip where the lower half is about a table thirty
+	 * blocks away. So: a character is her own readout, a food block is the food readout,
+	 * and the party detail is what is left over when the player is looking at neither.
+	 *
+	 * <p>
+	 * The character half rides the existing entity debug overlay rather than a new packet
+	 * — the same request, the same ten-tick throttle and the same cached response — so a
+	 * guest's consumption also shows up under the debug wand and the glasses, which is
+	 * where a debug tool belongs anyway.
+	 */
 	@Override
 	public void addTooltip(Player player, ItemStack stack, List<Component> lines, long gameTime) {
-		describeFood(player, lines);
-		describeParty(player, stack, lines);
+		if (Minecraft.getInstance().hitResult instanceof EntityHitResult hit
+				&& hit.getEntity() instanceof YoukaiEntity youkai) {
+			CharacterInfoClientManager.tooltip(lines, gameTime, youkai);
+			return;
+		}
+		var data = stack.get(PartyWandComponent.TYPE);
+		// an invalid-food message is only honest when the wand holds nothing: with a
+		// party detail on screen, something *is* here, the player just is not looking
+		// at it
+		if (describeFood(player, lines, data == null)) return;
+		if (data != null) describeParty(player, data, lines);
 	}
 
-	/** The hovered food block, if the player is looking at one worth reading. */
-	private void describeFood(Player player, List<Component> lines) {
-		if (!(player.pick(REACH, 0.0f, false) instanceof BlockHitResult hit)) return;
+	/**
+	 * The hovered food block, if the player is looking at one worth reading.
+	 *
+	 * @param allowInvalid whether to say so when there is a food block but nothing on it
+	 * @return whether the food branch owns the overlay, and nothing else should be added
+	 */
+	private boolean describeFood(Player player, List<Component> lines, boolean allowInvalid) {
+		if (!(player.pick(REACH, 0.0f, false) instanceof BlockHitResult hit)) return false;
 		var level = player.level();
 		var pos = hit.getBlockPos();
 		var state = level.getBlockState(pos);
@@ -167,9 +206,10 @@ public class PartyWand extends Item implements IDebugOverlayWand {
 		var results = PartyFoodValue.results(level, pos, state);
 		var valid = results.stream().filter(FoodResult::valid).toList();
 		if (valid.isEmpty()) {
-			if (PartyFoodHandler.claims(state.getBlock()) == null) return;
+			if (PartyFoodHandler.claims(state.getBlock()) == null) return false;
+			if (!allowInvalid) return false;
 			lines.add(GLLang.ItemDebug.PARTY_WAND_INVALID.get().withStyle(ChatFormatting.DARK_RED));
-			return;
+			return true;
 		}
 		int servings = valid.stream().mapToInt(FoodResult::serves).sum();
 		// the first food on it, named as what it is - a container lists one entry per
@@ -189,6 +229,7 @@ public class PartyWand extends Item implements IDebugOverlayWand {
 				? GLLang.ItemDebug.PARTY_WAND_FULFILLMENT_NONE.get()
 				: GLLang.ItemDebug.PARTY_WAND_FULFILLMENT.get(range))
 				.withStyle(ChatFormatting.GRAY));
+		return true;
 	}
 
 	/**
@@ -234,9 +275,7 @@ public class PartyWand extends Item implements IDebugOverlayWand {
 		return any ? new int[]{low, high} : null;
 	}
 
-	private void describeParty(Player player, ItemStack stack, List<Component> lines) {
-		var data = stack.get(PartyWandComponent.TYPE);
-		if (data == null) return;
+	private void describeParty(Player player, PartyWandData data, List<Component> lines) {
 		var bound = data.bound();
 		lines.add(GLLang.ItemDebug.PARTY_WAND_PARTY.get(bound.getX(), bound.getY(), bound.getZ())
 				.withStyle(ChatFormatting.GOLD));

@@ -3,10 +3,9 @@ package dev.xkmc.gensokyolegacy.content.attachment.party.food;
 import com.github.ysbbbbbb.kaleidoscopecookery.block.decoration.PlateBlock;
 import com.github.ysbbbbbb.kaleidoscopecookery.init.registry.PlateRegistry;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.world.food.FoodProperties;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * A Kaleidoscope Cookery plate or platter: a stack of one named food, up to five of it.
@@ -62,17 +61,24 @@ public class PlateFood extends AbstractCountdownFood {
 		return block instanceof PlateBlock;
 	}
 
+	/**
+	 * The first of the plate's serving items that carries food.
+	 * <p>
+	 * This is the plate's whole answer in one method, and the reason it overrides
+	 * {@code serving} rather than {@code food}: the value is read off the item, so naming
+	 * the item <i>is</i> naming the value, and the two cannot drift apart. The loop
+	 * rather than a getFirst, so a plate whose items are not all food still resolves;
+	 * and so the two-item berry platter is both priced and handed over by its first item.
+	 */
 	@Override
-	public @Nullable FoodProperties food(BlockState state) {
+	public ItemStack serving(BlockState state) {
 		var id = BuiltInRegistries.BLOCK.getKey(state.getBlock());
 		var data = PlateRegistry.PLATE_DATA_MAP.get(id);
-		if (data == null) return null;   // not a registered plate after all
+		if (data == null) return ItemStack.EMPTY;   // not a registered plate after all
 		for (var serving : data.getServingItems()) {
-			// The loop rather than a getFirst, so a plate whose items are not all food
-			// still resolves; and so the two-item berry platter is priced by its first.
-			var props = Servings.of(serving.get().getDefaultInstance());
-			if (props != null) return props;
+			if (Servings.of(serving.get().getDefaultInstance()) == null) continue;
+			return serving.get().getDefaultInstance();
 		}
-		return null;
+		return ItemStack.EMPTY;
 	}
 }

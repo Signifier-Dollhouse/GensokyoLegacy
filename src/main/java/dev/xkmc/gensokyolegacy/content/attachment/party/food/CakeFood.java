@@ -1,8 +1,7 @@
 package dev.xkmc.gensokyolegacy.content.attachment.party.food;
 
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.food.FoodProperties;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.CakeBlock;
 import net.minecraft.world.level.block.state.BlockState;
@@ -55,24 +54,28 @@ public class CakeFood extends AbstractCountdownFood {
 		return block instanceof CakeBlock;
 	}
 
+	/**
+	 * The slice where the mod ships one, and <b>nothing at all for vanilla cake</b>.
+	 * <p>
+	 * That empty answer is the only thing in the whole party system that falls back to a
+	 * block's id rather than a serving item's, and it is the honest answer: vanilla cake
+	 * has no slice item and its block item carries no food, so there is nothing a guest
+	 * could be handed that exists in the game.
+	 */
+	@Override
+	public ItemStack serving(BlockState state) {
+		var slice = Permutations.itemOf(state.getBlock());
+		return slice == null ? ItemStack.EMPTY : new ItemStack(slice);
+	}
+
+	/**
+	 * The slice's own values where there is one, and vanilla's hard-coded numbers where
+	 * there is not — which is the whole of this handler's awkward case, and why it is the
+	 * only one that overrides {@code food} rather than letting it read off the serving.
+	 */
 	@Override
 	public @Nullable FoodProperties food(BlockState state) {
 		var permuted = Permutations.foodOf(state.getBlock());
 		return permuted == null ? fallback : permuted;
-	}
-
-	/**
-	 * Named by the slice item when there is one, and by the cake otherwise.
-	 * <p>
-	 * The slice is what the guest is handed, so it is what the food is — and when a mod
-	 * supplies a real slice the block's id would hide which one it was. Vanilla cake has
-	 * no slice item, so it falls back to the block, which is the honest answer there.
-	 */
-	@Override
-	public ResourceLocation id(BlockState state) {
-		var slice = Permutations.itemOf(state.getBlock());
-		return slice == null
-				? BuiltInRegistries.BLOCK.getKey(state.getBlock())
-				: BuiltInRegistries.ITEM.getKey(slice);
 	}
 }
