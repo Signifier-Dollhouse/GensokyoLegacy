@@ -75,9 +75,11 @@ import java.util.UUID;
  * module data, so an <b>unload</b> keeps the roster — dolls and all their values —
  * and the reconcile pass re-conjures them on the next tick. Dolls themselves are
  * never chunk-serialized (§5.8), so a SUMMONED entry without a live entity is by
- * definition gone. A <b>discard or a kill</b> drops the whole thing: the host
- * becomes unreachable and every doll self-discards, and her data is never written
- * back. There is nothing of hers left in the world to come back to.
+ * definition gone. A <b>discard or a kill</b> drops the whole thing, and neither
+ * leaves a doll behind: a kill runs {@link #onKilled()} here, and a discard has
+ * no ledger left to consult at all — the owner stops resolving for every doll,
+ * each one fails its own check and discards itself. Her data is never written
+ * back either way, so there is nothing of hers left to come back to.
  */
 @SerialClass
 public class AliceDollHost extends AbstractYoukaiModule implements DollLedger {
@@ -91,10 +93,14 @@ public class AliceDollHost extends AbstractYoukaiModule implements DollLedger {
 	 */
 	public static final int MAX_DOLLS = 8;
 
-	/** Reconjure at most this often, so a doll dying never becomes a spawn loop. */
+	/**
+	 * Reconjure at most this often, so a doll dying never becomes a spawn loop.
+	 */
 	private static final int CONJURE_INTERVAL = 20;
 
-	/** Order pass period. The dolls' own shot cooldowns pace the actual firing. */
+	/**
+	 * Order pass period. The dolls' own shot cooldowns pace the actual firing.
+	 */
 	private static final int COMMAND_INTERVAL = 5;
 
 	/**
@@ -106,11 +112,15 @@ public class AliceDollHost extends AbstractYoukaiModule implements DollLedger {
 	@SerialField
 	private final List<DollData> dolls = new ArrayList<>();
 
-	/** Ordinal of the {@link Post} she last rolled a roster size for, -1 before the first. */
+	/**
+	 * Ordinal of the {@link Post} she last rolled a roster size for, -1 before the first.
+	 */
 	@SerialField
 	private int post = -1;
 
-	/** How many dolls to keep out in {@link #post}. Re-rolled only when the post changes. */
+	/**
+	 * How many dolls to keep out in {@link #post}. Re-rolled only when the post changes.
+	 */
 	@SerialField
 	private int quota = Post.INDOOR.min;
 
@@ -178,7 +188,7 @@ public class AliceDollHost extends AbstractYoukaiModule implements DollLedger {
 	@Override
 	public void tickServer() {
 		if (!(owner.level() instanceof ServerLevel sl)) return;
-		if (owner.isDeadOrDying()) return;
+		if (owner.isDeadOrDying() || owner.isRemoved()) return;
 		// a chunk reload is the one case that can invalidate the whole roster at
 		// once, so repair and re-conjure land in the same tick instead of letting
 		// the conjure gate below hide the repair for up to a second
@@ -239,7 +249,7 @@ public class AliceDollHost extends AbstractYoukaiModule implements DollLedger {
 	 * parking it here lets the conjure pass bring a working doll back.
 	 *
 	 * @return whether any entry was parked or dropped, so the caller can re-conjure
-	 *         immediately instead of waiting for its own interval
+	 * immediately instead of waiting for its own interval
 	 */
 	private boolean reconcile(ServerLevel sl) {
 		boolean repaired = false;
@@ -276,7 +286,9 @@ public class AliceDollHost extends AbstractYoukaiModule implements DollLedger {
 		}
 	}
 
-	/** Parks every doll past {@code want}, newest first, so the elders keep their posts. */
+	/**
+	 * Parks every doll past {@code want}, newest first, so the elders keep their posts.
+	 */
 	private void retire(int want) {
 		int live = liveCount();
 		for (int i = dolls.size() - 1; i >= 0 && live > want; i--) {
@@ -287,7 +299,9 @@ public class AliceDollHost extends AbstractYoukaiModule implements DollLedger {
 		}
 	}
 
-	/** Writes the doll's values back, drops the entity, and parks the entry. */
+	/**
+	 * Writes the doll's values back, drops the entity, and parks the entry.
+	 */
 	private void park(DollData data) {
 		if (resolve(data) instanceof BaseDollEntity doll) {
 			doll.writeValuesTo(data);
@@ -296,7 +310,9 @@ public class AliceDollHost extends AbstractYoukaiModule implements DollLedger {
 		data.state = DollState.TEMP;
 	}
 
-	/** Brings the roster up to {@code want}, re-conjuring parked dolls before making new ones. */
+	/**
+	 * Brings the roster up to {@code want}, re-conjuring parked dolls before making new ones.
+	 */
 	private void conjure(ServerLevel sl, int want) {
 		int live = liveCount();
 		while (live < want) {
@@ -326,7 +342,9 @@ public class AliceDollHost extends AbstractYoukaiModule implements DollLedger {
 		}
 	}
 
-	/** The first parked entry ready to come back, or null when they are all out. */
+	/**
+	 * The first parked entry ready to come back, or null when they are all out.
+	 */
 	@Nullable
 	private DollData parkedEntry() {
 		for (DollData data : dolls) {
@@ -345,7 +363,9 @@ public class AliceDollHost extends AbstractYoukaiModule implements DollLedger {
 		return dolls.size() >= MAX_DOLLS;
 	}
 
-	/** A brand new doll entry: full health, unarmament, Alice's red. */
+	/**
+	 * A brand new doll entry: full health, unarmament, Alice's red.
+	 */
 	private DollData conjurer() {
 		DollData data = new DollData();
 		data.type = DollItem.TYPE;
@@ -454,7 +474,9 @@ public class AliceDollHost extends AbstractYoukaiModule implements DollLedger {
 		}
 	}
 
-	/** Whether a hand holds folded paper — a talisman of any kind, spent or not. */
+	/**
+	 * Whether a hand holds folded paper — a talisman of any kind, spent or not.
+	 */
 	private static boolean isTalisman(ItemStack stack) {
 		return stack.getItem() instanceof FoldedPaperTalisman;
 	}
@@ -515,7 +537,9 @@ public class AliceDollHost extends AbstractYoukaiModule implements DollLedger {
 		}
 	}
 
-	/** One-time attack order on a named target. Records it so the doll treats it as an enemy. */
+	/**
+	 * One-time attack order on a named target. Records it so the doll treats it as an enemy.
+	 */
 	private void issue(DollEntity doll, LivingEntity target, Set<UUID> claimed) {
 		var order = DollAction.oneTime(DollActionType.REGULAR_ATTACK, target.getUUID());
 		if (!commander.issueTo(doll, order)) return;
@@ -589,13 +613,21 @@ public class AliceDollHost extends AbstractYoukaiModule implements DollLedger {
 		return level.getEntity(data.uuid) instanceof BaseDollEntity doll ? doll : null;
 	}
 
-	/** How many dolls Alice commands at once, by what she is doing. */
+	/**
+	 * How many dolls Alice commands at once, by what she is doing.
+	 */
 	public enum Post {
-		/** At home, asleep, or talking: a couple of dolls minding the house. */
+		/**
+		 * At home, asleep, or talking: a couple of dolls minding the house.
+		 */
 		INDOOR(1, 2),
-		/** Out and about: a small escort. */
+		/**
+		 * Out and about: a small escort.
+		 */
 		OUTDOOR(3, 4),
-		/** Hunting or fighting: the full set, all armed. */
+		/**
+		 * Hunting or fighting: the full set, all armed.
+		 */
 		COMBAT(6, 8);
 
 		private final int min, max;

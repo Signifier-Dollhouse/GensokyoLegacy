@@ -166,7 +166,6 @@ public class PartyModule extends AbstractYoukaiModule {
 	 * mid-party.
 	 * {@link #satisfied()} treats it as "she cannot be satisfied" rather than throwing.
 	 */
-	@Nullable
 	public PartyTaste taste() {
 		return PartyTaste.of(self.registryAccess(), self.getType());
 	}
@@ -197,7 +196,7 @@ public class PartyModule extends AbstractYoukaiModule {
 	public boolean satisfied() {
 		var taste = taste();
 		// no taste means she should not be here at all, so she never counts as done
-		return taste != null && eaten >= taste.fulfillment();
+		return eaten >= taste.fulfillment();
 	}
 
 	/**
@@ -211,13 +210,13 @@ public class PartyModule extends AbstractYoukaiModule {
 	 */
 	public int hungrySeat() {
 		var taste = taste();
-		return taste == null ? PartyTaste.DEFAULT_HUNGRY_SEAT : taste.hungrySeat();
+		return taste.hungrySeat();
 	}
 
 	/** How long she sits between dishes once she is satisfied. See {@link #hungrySeat}. */
 	public int fullSeat() {
 		var taste = taste();
-		return taste == null ? PartyTaste.DEFAULT_FULL_SEAT : taste.fullSeat();
+		return taste.fullSeat();
 	}
 
 	/**
@@ -230,7 +229,7 @@ public class PartyModule extends AbstractYoukaiModule {
 	 */
 	public double leaveChance() {
 		var taste = taste();
-		return taste == null ? PartyTaste.DEFAULT_LEAVE_CHANCE : taste.leaveChance();
+		return taste.leaveChance();
 	}
 
 	@Override

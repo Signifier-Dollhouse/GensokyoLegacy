@@ -243,6 +243,7 @@ public abstract class BaseDollEntity extends DamageRefactorEntity implements Own
 				return null;
 			}
 			Entity owner = sl.getEntity(ownerUUID);
+			if (owner == null || owner.isRemoved() || !owner.isAddedToLevel()) return null;
 			if (owner instanceof ServerPlayer sp) {
 				return GLMeta.DOLL.type().getOrCreate(sp);
 			}

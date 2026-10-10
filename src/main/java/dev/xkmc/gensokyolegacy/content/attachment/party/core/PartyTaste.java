@@ -48,6 +48,12 @@ public record PartyTaste(
 		int hungrySeat, int fullSeat, double leaveChance
 ) {
 
+	public static final PartyTaste DEF = new PartyTaste(
+			0, 0, 100, 0,
+			0, 40, 20,
+			20, 100, 0.05
+	);
+
 	public PartyTaste {
 		weight = Math.max(0, weight);
 		maxReputation = Math.max(maxReputation, minReputation);
@@ -67,9 +73,9 @@ public record PartyTaste(
 	 * This character's taste, or <b>null</b> when she has no authored entry — which
 	 * means she is not party-eligible and must not be invited.
 	 */
-	@Nullable
 	public static PartyTaste of(RegistryAccess access, EntityType<?> type) {
-		return GLMeta.PARTY_TASTE.get(access, type.builtInRegistryHolder());
+		var ans = GLMeta.PARTY_TASTE.get(access, type.builtInRegistryHolder());
+		return ans == null ? DEF : ans;
 	}
 
 }
