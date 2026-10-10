@@ -44,7 +44,7 @@ import java.util.Optional;
  * pushes it to {@link #MAX_SPEED}x while the fuel itself is consumed {@link #FUEL_DIVISOR}
  * times faster than it would be in a block furnace.
  *
- * <p>Worn in the offhand next to a broom it is a flight booster instead — see
+ * <p>Held in the mainhand with a broom in the offhand it is a flight booster instead — see
  * {@link #use(Level, Player, InteractionHand)}.
  */
 public class Hakkero extends Item implements InvClickItem {
@@ -63,9 +63,6 @@ public class Hakkero extends Item implements InvClickItem {
 	 * tooltip replays at.
 	 */
 	public static final int IDLE_BATCH = 20;
-/** Thrust given by an unboosted kick, and how long it lasts. */
-	public static final float THRUST_PLAIN = 1.2F;
-	public static final int THRUST_PLAIN_TICKS = 20;
 	/** Thrust given by a kick paid for out of the fuel slot. */
 	public static final float THRUST_FUELLED = 3.0F;
 
@@ -246,12 +243,12 @@ public class Hakkero extends Item implements InvClickItem {
 		return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
 	}
 
-/**
-	 * Kicks the broom, spending one item out of the fuel slot for the privilege: a fuelled
-	 * kick is {@link #THRUST_FUELLED} for a {@link #FUEL_DIVISOR}th of that item's burn
-	 * time, and an empty slot gives the small {@link #THRUST_PLAIN} nudge instead. Either
-	 * way the hakkero goes on cooldown for exactly as long as the thrust lasts, so it cannot
-	 * be spammed to hold a permanent boost.
+	/**
+	 * Kicks the broom, spending one item out of the fuel slot for the privilege: it gives
+	 * {@link #THRUST_FUELLED} for a {@link #FUEL_DIVISOR}th of that item's burn time, and an
+	 * empty slot gets no kick at all — every thrust is paid for. Once it does fire, the
+	 * hakkero goes on cooldown for exactly as long as the thrust lasts, so it cannot be
+	 * spammed to hold a permanent boost.
 	 *
 	 * <p>The tick count comes from the item just consumed, never from
 	 * {@link HakkeroData#burnTime()} — that is the fuel already lit for smelting, and it is
@@ -261,24 +258,22 @@ public class Hakkero extends Item implements InvClickItem {
 	 * kick on the same frozen value indefinitely.
 	 */
 	private InteractionResultHolder<ItemStack> boost(ItemStack stack, BroomEntity broom, Player player, Level level) {
+		int time = burnTime(HakkeroData.of(stack).raw(HakkeroData.FUEL));
+		// no fuel, no kick: an empty slot falls through to consume and never reaches the
+		// broom at all. Checked on both sides, so the client shows no swing either.
+		if (time <= 0) return InteractionResultHolder.consume(stack);
 		if (!level.isClientSide && player instanceof ServerPlayer sp) {
 			// a hakkero already cooling down from an earlier kick cannot be kicked again
 			if (player.getCooldowns().isOnCooldown(this)) return InteractionResultHolder.pass(stack);
 			// a working copy: the stored record is shared with the menu and the tooltip
 			HakkeroData data = HakkeroData.of(stack).workingCopy();
 			ItemStack fuel = data.raw(HakkeroData.FUEL);
-			int time = burnTime(fuel);
-			float power = THRUST_PLAIN;
-			int ticks = THRUST_PLAIN_TICKS;
-			if (time > 0) {
-				fuel.shrink(1);
-				if (fuel.isEmpty()) data.setRaw(HakkeroData.FUEL, ItemStack.EMPTY);
-				stack.set(GLItems.DC_HAKKERO_INV, data);
-				power = THRUST_FUELLED;
-				ticks = Math.max(1, time / FUEL_DIVISOR);
-			}
-			broom.boost(power, ticks);
-			GensokyoLegacy.HANDLER.toClientPlayer(new BroomBoostToClient(broom.getId(), power, ticks), sp);
+			fuel.shrink(1);
+			if (fuel.isEmpty()) data.setRaw(HakkeroData.FUEL, ItemStack.EMPTY);
+			stack.set(GLItems.DC_HAKKERO_INV, data);
+			int ticks = Math.max(1, time / FUEL_DIVISOR);
+			broom.boost(THRUST_FUELLED, ticks);
+			GensokyoLegacy.HANDLER.toClientPlayer(new BroomBoostToClient(broom.getId(), THRUST_FUELLED, ticks), sp);
 			player.getCooldowns().addCooldown(this, ticks);
 		}
 		return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
