@@ -454,7 +454,7 @@
   "gensokyolegacy.item.furnace_1_desc": "Mode: %s",
   "gensokyolegacy.item.furnace_1_off": "Mode: OFF",
   "gensokyolegacy.item.furnace_1_use": "Right click the item in inventory to switch modes.",
-  "gensokyolegacy.item.furnace_2_boost": "Held in the off hand while riding a broom, right click to kick.",
+  "gensokyolegacy.item.furnace_2_boost": "Held in the off hand while riding a broom, right click to burn fuel and boost.",
   "gensokyolegacy.item.furnace_2_fuel": "Feed it fuel to reach ten times furnace speed.",
   "gensokyolegacy.item.furnace_2_use": "Right click the item in inventory to open its menu. Click the hakkero in the center to switch modes.",
   "gensokyolegacy.item.gift_favor": "Favor: %s",
