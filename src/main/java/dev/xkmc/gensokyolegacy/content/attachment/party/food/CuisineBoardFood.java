@@ -3,10 +3,10 @@ package dev.xkmc.gensokyolegacy.content.attachment.party.food;
 import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyArea;
 import dev.xkmc.youkaishomecoming.content.pot.table.board.CuisineBoardBlockEntity;
 import dev.xkmc.youkaishomecoming.content.pot.table.item.FoodTableItem;
+import dev.xkmc.youkaishomecoming.content.pot.table.item.TableItem;
 import dev.xkmc.youkaishomecoming.init.registrate.YHBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -22,22 +22,30 @@ import java.util.List;
  * A Youkai's Feasts cutting board: whatever is lying on it, however much of it there is.
  *
  * <p>
- * A board is a container in the ordinary sense — you put ingredients on it and a tool
- * turns them into a dish — and that is exactly why it needs
+ * A board is a container in the ordinary sense — you put things on it and a tool turns
+ * them into a dish — and that is exactly why it needs
  * {@link ContainerFoodHandler} rather than {@link BlockFoodHandler}. Its food is a list of
  * <i>items</i> with item ids and item values, not a number on a block, and none of it is
- * visible in the block state. A guest at a party eats the ingredients off the board, not
- * the recipe the board is part-way through making.
+ * visible in the block state. A guest at a party eats what is on the board, not the recipe
+ * the board is part-way through making — a board holding half a maki is not half a party
+ * lunch.
  *
  * <p>
- * Whether there is anything to eat is decided by resolving the board's
- * {@link dev.xkmc.youkaishomecoming.content.pot.table.item.TableItem} model and asking
- * whether it came back as a {@code FoodTableItem}: that is the form that carries
- * contents, and an empty board never gets one. Reading the list is then done from the
- * block entity rather than from the model, because the model's copy is the snapshot taken
- * when the recipe matched while the block entity's is live — and because a guest taking
- * one item has to take it from the board itself, or the next guest will be offered food
- * that is no longer there.
+ * Whether there is anything to eat is decided by asking the board what it is holding —
+ * see {@link #isDish}. Reading the list is then done from the block entity rather than
+ * from the model, because the model's copy is the snapshot taken when the recipe matched
+ * while the block entity's is live — and because a guest taking a plate has to take it
+ * from the board itself, or the next guest is offered food that is no longer there.
+ *
+ * <p>
+ * <b>A stack on a board is one plate, not a number of servings.</b> Youkai's Feasts
+ * writes its sushi and gunkan recipes to yield two at a time, and a board handed a pair
+ * keeps the pair as one stack that {@code addToPlayer} gives over whole — there is no
+ * interaction that lifts one off and leaves the other. So each stack is reported as one
+ * serving carrying the properties of all of them, via {@link Servings#of(ItemStack, int)},
+ * and taking one empties it. Reporting the count as servings instead would value the
+ * board at the same total but let two guests each eat one, which is not what the mod
+ * allows.
  *
  * <p>
  * <b>The contents are read reflectively, and that is forced.</b> Both the board's list and
@@ -94,26 +102,62 @@ public class CuisineBoardFood implements ContainerFoodHandler {
 	@Override
 	public List<FoodResult> contents(Level level, BlockPos pos, BlockState state) {
 		if (!(level.getBlockEntity(pos) instanceof CuisineBoardBlockEntity be)) return List.of();
-		// The gate. A board's own model is a bare TableItem until something on it matches a
-		// food table; only then is it a FoodTableItem, and only a FoodTableItem has food
-		// on it. An empty board, or one holding things that are not ingredients for any
-		// registered table, is not party food — which is the right answer for both, since
-		// there is nothing on it that a guest could eat.
-		if (!(be.getModel() instanceof FoodTableItem)) return List.of();
+		// resolved first and before anything is read out of the list, because a board whose
+		// model was dropped on a chunk load rebuilds it from the contents - and may rewrite
+		// the contents doing so
+		var model = be.getModel();
 		var raw = of(be);
 		if (raw == null) return List.of();
+		// The gate. A board is party food when what is lying on it is a dish rather than a
+		// step towards one; see isDish for how that is told apart, since the two look the
+		// same to a guest and very different to the mod.
+		if (!isDish(model, raw)) return List.of();
 		var ans = new ArrayList<FoodResult>();
 		for (var stack : raw) {
 			if (stack == null || stack.isEmpty()) continue;
-			var props = Servings.of(stack);
+			// the whole stack, at its worth: two nigiri came off the board together and
+			// go back into the guest together, so they are one plate of twice the size
+			var props = Servings.of(stack, stack.getCount());
 			// nothing worth eating, or nothing worth eating to a guest - poison, no
 			// nutrition, a husk. Left on the board; simply not part of the spread.
 			if (props == null) continue;
 			var item = stack.getItem();
-			ans.add(new FoodResult(BuiltInRegistries.ITEM.getKey(item), stack.getCount(), props,
-					(l, p, s) -> take(be, item)));
+			ans.add(new FoodResult(BuiltInRegistries.ITEM.getKey(item), 1, props,
+					(l, p, s) -> {
+						take(be, item);
+						return 0;
+					}));
 		}
 		return ans;
+	}
+
+	/**
+	 * Whether the board holds a finished dish rather than a recipe part-way through.
+	 *
+	 * <p>
+	 * A {@link FoodTableItem} is the mod's own answer to this: the model a board's
+	 * contents resolve to once they match a registered food table, and never produced by
+	 * anything short of a whole dish. A board that is empty, or holding cooked rice and
+	 * nothing else, resolves to a bare {@code TableItem} instead and is not party food —
+	 * which is the right answer, because there is nothing on it a guest could eat.
+	 *
+	 * <p>
+	 * <b>A nigiri or a gunkan is not a {@code FoodTableItem}, and this is why that does not
+	 * stop it counting.</b> Those two are put on the board as the finished item rather than
+	 * assembled there, and the model the board resolves to is the one the mod uses to
+	 * <i>assemble</i> them — so it carries both the recipe and the dish, and there is no
+	 * second form of it to ask which of the two you are looking at. What is on the board
+	 * is. The answer is therefore read off the contents directly: a dish is made of
+	 * nothing but food, and a recipe in progress is not — there is rice, kelp or a sauce
+	 * on every one of them, none of which is anything a guest can eat.
+	 */
+	private static boolean isDish(TableItem model, List<ItemStack> raw) {
+		if (model instanceof FoodTableItem) return true;
+		for (var stack : raw) {
+			if (stack == null || stack.isEmpty()) continue;
+			if (Servings.of(stack) == null) return false;
+		}
+		return true;
 	}
 
 	/**
@@ -136,36 +180,41 @@ public class CuisineBoardFood implements ContainerFoodHandler {
 		if (raw == null) return 0;
 		for (var stack : raw) {
 			if (stack == null || stack.isEmpty()) continue;
-			// the first item worth eating, which is not necessarily the first item: the
-			// board may be holding a husk underneath the cheese
+			// the first thing worth eating, which is not necessarily the first thing: the
+			// board may be holding a husk underneath the sushi
 			if (Servings.of(stack) == null) continue;
-			var item = stack.getItem();
-			int before = stack.getCount();
-			int left = take(be, item);
-			if (left != before) return left;   // something was actually taken
+			take(be, stack.getItem());
+			break;
 		}
 		return countItems(raw);
 	}
 
 	/**
-	 * Remove one {@code item} from the board and report how many are left.
+	 * Take the whole plate of {@code item} off the board.
 	 *
 	 * <p>
-	 * Shrinks the stack in place rather than replacing the list, so the board's own recipe
+	 * Empties the stack in place rather than replacing the list, so the board's own recipe
 	 * bookkeeping keeps working — {@code addItem} matches against this very list, and
 	 * swapping it out from under the block entity would leave the board believing it held
 	 * something it does not.
+	 *
+	 * <p>
+	 * <b>The whole stack, because that is what a board hands over.</b> A nigiri recipe
+	 * yields two at once and {@code addToPlayer} puts both in the guest's inventory
+	 * together; there is no way to lift one off a board and leave its partner, so a guest
+	 * cannot come back for seconds either. The stack is emptied here to match, rather than
+	 * shrinking by one and leaving a lone piece of sushi on a board whose model still
+	 * describes a pair.
 	 */
-	private int take(CuisineBoardBlockEntity be, Item item) {
+	private void take(CuisineBoardBlockEntity be, Item item) {
 		var raw = of(be);
-		if (raw == null) return 0;
+		if (raw == null) return;
 		for (var stack : raw) {
 			if (stack == null || stack.isEmpty() || stack.getItem() != item) continue;
-			stack.shrink(1);
+			stack.setCount(0);
 			be.notifyTile();
-			return stack.getCount();
+			return;
 		}
-		return 0;
 	}
 
 	private static int countItems(List<ItemStack> raw) {

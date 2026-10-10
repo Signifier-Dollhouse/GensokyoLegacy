@@ -22,8 +22,10 @@ import org.jetbrains.annotations.Nullable;
  *                to, or the block's own id when it does not correspond to any single
  *                item. Identity for display and diagnostics — see {@link #idOf}.
  * @param serves  how many servings are left; 0 for a container with nothing in it, and
- *                always 1 for one entry of a container's list, because a container
- *                reports each of its foods separately
+ *                however many times a guest can come back for this entry on a container
+ *                that hands out part of a stack at a time. A container that hands the
+ *                whole stack over at once reports 1 and puts the rest of the stack's
+ *                worth into {@code food} — see {@link ContainerFoodHandler#contents}
  * @param food    what one serving is, or null when there is nothing servable
  * @param consume takes one serving, advancing the block
  *

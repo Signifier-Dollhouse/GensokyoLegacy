@@ -40,10 +40,12 @@ public interface ContainerFoodHandler {
 	/**
 	 * Every food in this placed container, one entry per kind of thing held.
 	 * <p>
-	 * Each entry is a single serving of one item — {@code serves} is always 1 — because
-	 * a container's contents are items, and an item is one serving however many of them
-	 * are stacked. Two apples are two entries, not one entry with two serves, because
-	 * they are two servings a guest can come back for.
+	 * {@code serves} is however many times a guest can come back for that entry, which is
+	 * a property of the container and not of the item. A steamer hands out one item at a
+	 * time, so a stack of three on a rack is three. A cutting board hands the whole stack
+	 * over at once — Youkai's Feasts yields its nigiri two at a time, and there is no
+	 * interaction that lifts one off a board — so the same stack there is one serving
+	 * whose {@link FoodResult#food()} has already been scaled up to the plate.
 	 * <p>
 	 * The returned list is freshly built every call and must never be retained: it
 	 * describes this instant of this world, and holding on to it is exactly the bug the
@@ -64,11 +66,13 @@ public interface ContainerFoodHandler {
 	boolean isPutOut(Level level, BlockPos pos, BlockState state);
 
 	/**
-	 * Take one serving — one item — out of this container.
+	 * Take one serving out of this container.
 	 * <p>
 	 * Consumes whatever is there, not a specific item, so a guest handed an apple takes
-	 * an apple. The container itself stays: it is furniture the host laid out, and
-	 * emptying it is not the same as eating it.
+	 * an apple. How much of it counts as the serving is the same question
+	 * {@link #contents} answered: one item off a rack, the whole plate off a board. The
+	 * container itself stays either way: it is furniture the host laid out, and emptying
+	 * it is not the same as eating it.
 	 *
 	 * @return how many items remain afterwards
 	 */

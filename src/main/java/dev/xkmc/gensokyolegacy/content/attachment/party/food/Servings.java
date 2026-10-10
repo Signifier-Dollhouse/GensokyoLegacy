@@ -1,8 +1,12 @@
 package dev.xkmc.gensokyolegacy.content.attachment.party.food;
 
+import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyFoodValue;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Shared reading of a serving's {@link FoodProperties}.
@@ -12,7 +16,9 @@ import org.jetbrains.annotations.Nullable;
  */
 public final class Servings {
 
-	/** Poison or wither on a serving: the same two {@code FeedModule} refuses. */
+	/**
+	 * Poison or wither on a serving: the same two {@code FeedModule} refuses.
+	 */
 	public static boolean refuses(FoodProperties props) {
 		for (var effect : props.effects()) {
 			var holder = effect.effect().getEffect();
@@ -41,6 +47,44 @@ public final class Servings {
 		var props = stack.getFoodProperties(null);
 		if (props == null || props.nutrition() <= 0 || refuses(props)) return null;
 		return props;
+	}
+
+	/**
+	 * The properties of {@code count} of {@code stack} eaten as <b>one plate</b>.
+	 *
+	 * <p>
+	 * Not the same thing as {@code count} servings, and the party system needs it to be
+	 * exact: a guest cannot eat one of the two nigiri off a board and leave the other,
+	 * because the board hands the stack over whole. That makes the pair one dish twice
+	 * the size, not two dishes — and {@link PartyFoodValue} prices a dish as
+	 * {@code serves × perServeAppeal}, so the count has to move into the properties or
+	 * the board is valued as a single piece of sushi.
+	 *
+	 * <p>
+	 * Nutrition, saturation and eating time all multiply, because a guest really does sit
+	 * through both. An effect does not: it is rolled once per item eaten, so
+	 * {@code n} chances of {@code p} are {@code 1 − (1 − p)ⁿ}, which is the only reading
+	 * of "doubles the odds" that is actually true. {@code canAlwaysEat} and the container
+	 * are properties of the item rather than of the portion, and pass through.
+	 *
+	 * <p>
+	 * A count of one returns the item's own properties unchanged rather than a rebuilt
+	 * copy of them, because that is the overwhelmingly common case and it is the case
+	 * where a copy would be pure waste.
+	 */
+	@Nullable
+	public static FoodProperties of(ItemStack stack, int count) {
+		var one = of(stack);
+		if (one == null || count <= 1) return one;
+		return plate(one, count);
+	}
+
+	private static FoodProperties plate(FoodProperties props, int count) {
+		var list = new ArrayList<FoodProperties.PossibleEffect>();
+		for (int i = 0; i < count; i++)
+			list.addAll(props.effects());
+		return new FoodProperties(props.nutrition() * count, props.saturation() * count,
+				props.canAlwaysEat(), props.eatSeconds() * count, props.usingConvertsTo(), list);
 	}
 
 	private Servings() {

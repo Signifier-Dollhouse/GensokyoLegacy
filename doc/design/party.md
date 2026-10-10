@@ -267,7 +267,7 @@ public interface ContainerFoodHandler {
 
 Two things about it are not obvious.
 
-**A container reports a list, not one food.** A board with apples, cheese and a carrot is three answers with three values, and averaging them into one would misprice both the spread and the draw. Each entry is one *kind* with `serves` set to how many of it there are — two apples are two servings of one entry, not two entries, because they are one food a guest comes back to.
+**A container reports a list, not one food.** A board with apples, cheese and a carrot is three answers with three values, and averaging them into one would misprice both the spread and the draw. Each entry is one *kind* with `serves` set to how many times a guest can come back for it — which is a property of the container, not of the item: a rack hands out one item at a time, a board hands over the whole stack.
 
 **A container decides its own layout.** `isPutOut` is not the shared furniture test, because the rule genuinely differs by block (see below). One rule for all containers would have to be the loosest of them, which would put cutting boards on the floor into the spread.
 
@@ -574,7 +574,13 @@ clicking such a block consumes nothing and still swallows the interaction.
 
 Neither is a plate of food in the usual sense — both are vessels you fill — and both are party food anyway, because a host who has put out a cutting board of ingredients or a steaming pot has laid out a party.
 
-**`CuisineBoardFood` — a cutting board.** Whatever is lying on it, one entry per kind of thing. Whether there is anything to eat is decided by resolving the board's `TableItem` model and asking whether it came back as a `FoodTableItem`: that is the form that carries contents, and an empty board never gets one. Reading the list is then done from the block entity rather than from the model, because the model's copy is the snapshot taken when the recipe matched while the block entity's is live — and because a guest taking one item has to take it from the board itself, or the next guest is offered food that is no longer there.
+**`CuisineBoardFood` — a cutting board.** Whatever is lying on it, one entry per kind of thing. Reading the list is done from the block entity rather than from the model, because the model's copy is the snapshot taken when the recipe matched while the block entity's is live — and because a guest taking a plate has to take it from the board itself, or the next guest is offered food that is no longer there.
+
+**A stack on a board is one plate, not a number of servings.** YSF writes its nigiri and gunkan recipes to `count: 2`, and a board handed a pair keeps the pair as one stack that `addToPlayer` hands over whole — there is no interaction that lifts one off and leaves its partner. So `contents` reports `serves = 1` with the stack's `FoodProperties` scaled to the plate, and `take` empties the stack rather than shrinking it by one.
+
+Both halves matter, and only doing the first is a quiet failure. Leaving `serves` at the stack count values the board at exactly the same total — the planner multiplies — but lets two guests each eat one nigiri off a board that only ever gave them out in pairs. The scaling is `Servings.of(stack, stack.getCount())`: nutrition, saturation and eating time multiply, and an effect's probability combines as `1 − (1 − p)ⁿ` rather than doubling, because it is rolled once per item eaten and that is the only reading of "twice the odds" that is true.
+
+**The board's dish is told apart from a recipe in progress by what is on it, not by the model's class alone.** A `FoodTableItem` is the mod's own "this is the whole dish" form and covers every roll. A nigiri or a gunkan does **not** produce one: it is put on the board as the finished item rather than assembled there, and the model the board resolves to is the one YSF uses to *assemble* it, so it carries both the recipe and the dish and there is no second form to ask which is which. The remaining test is the contents themselves — a dish is made of nothing but food, and a half-built one always has rice, kelp or a sauce on it, none of which is anything a guest can eat. That is also what keeps an empty board and a bare rice bowl out of the spread.
 
 **`SteamerRackFood` — a steamer, both halves of it.** The pot carries up to two rack tiers of its own (the `pot_racks` property, which is how you steam with no rack at all) and each rack block stands in the pot with up to four tiers. They are separate block entities with separate storage, so a full steamer is genuinely two food sources and neither shadows the other. Unlike the board this needs no reflection — the contents are public fields on `RackData` and `RackItemData`.
 

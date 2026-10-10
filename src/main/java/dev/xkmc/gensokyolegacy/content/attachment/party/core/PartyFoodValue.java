@@ -93,9 +93,11 @@ public class PartyFoodValue {
 	 * <p>
 	 * One entry for nearly everything: the whole serving count of one kind of food. A
 	 * container is the exception and reports <b>one entry per kind of thing it holds</b>,
-	 * with {@code serves} set to how many of that item there are — two apples are two
-	 * servings of one entry, not two entries, because they are one food a guest comes
-	 * back to.
+	 * with {@code serves} set to how many times a guest can come back for it — a steamer
+	 * hands out one item at a time, so a stack of three is three servings of one entry,
+	 * while a cutting board hands the whole stack over at once, so the same stack there is
+	 * one serving carrying three items' worth of properties. Either way the two numbers
+	 * agree on the total, and they differ on what a guest actually does.
 	 *
 	 * <p>
 	 * Never a retained reference. A container's answer describes this instant; a
