@@ -7,19 +7,19 @@
   "pages": [
     {
       "type": "patchouli:text",
-      "text": "$(bold)Four Slots$(br)A doll's loadout is a cross of four slots: a main hand, an off hand, a core and a cloth. Each one only accepts what that slot can actually do something with, and anything else is refused outright. Open it by right-clicking the doll item in your inventory, or right-clicking one of your dolls from the glove — from up to 16 blocks away."
+      "text": "Loadout slots$(br2)A doll's loadout is a cross of four slots: a main hand, an off hand, a core and a cloth. Open it by right-clicking the doll item in your inventory, or right-clicking one of your dolls from the glove — from up to 16 blocks away. The cloth slot is not finished yet, so nothing goes in it."
     },
     {
       "type": "patchouli:text",
-      "text": "$(bold)What fits where$(br)Either hand takes anything a doll can act with — the lance, danmaku, laser, hexbrew, TNT and healing talisman entries that follow — plus a vanilla shield. The core takes a folded talisman, which the doll wears on itself and never spends on anyone else, and the cloth slot is laid out and saved but takes nothing yet.$(br2)$(bold)Ammunition$(br)Lasers, throwable hexbrew bottles and TNT are ammunition: they stack in the hand, and N in the hand is N uses. Everything else is one item per hand, however big its own stack is."
+      "text": "Hand slots$(br2)Both hand slots take anything a doll can use — lance, danmaku, spell cards, potions, TNT and so on.$(br2)About consumables$(br2)Danmaku, throwable bottles and TNT are consumables, so they stack in the hand: N in the hand is N uses. Everything else is one item per hand, however big its own stack is."
     },
     {
       "type": "patchouli:text",
-      "text": "$(bold)A shield in the off hand$(br)A vanilla shield is not a weapon, but a doll holding one in its off hand blocks incoming projectiles and wears the shield down as it does. In the main hand it does nothing. Both hands otherwise take the same set of items, and a doll acts with whichever hand holds the better weapon for the order it was given, sticking with that hand until the next order."
+      "text": "About shields$(br2)A vanilla shield is not a weapon, but a doll holding one in its off hand blocks incoming projectiles and wears the shield down as it does; in the main hand it does nothing at all. When both hand slots hold the same item, the doll acts with whichever hand suits the order better."
     },
     {
       "type": "patchouli:text",
-      "text": "$(bold)Core$(br)A folded talisman goes in the core, where it acts on the doll itself and on nobody else — the same charm you would wear yourself, worn by the doll instead. Healing tops the doll back up as it wears down, Speed keeps it moving while it charges, Shelter softens one heavy hit, Lava Affinity keeps it standing in fire, and Hydrophobic keeps its air up underwater. A doll will never spend a core talisman on an ally; that is what a Healing talisman in a hand is for.$(br2)$(bold)Cloth$(br)Reserved. The slot is laid out, stored and shown, but nothing fits in it yet."
+      "text": "Core slot$(br2)A folded talisman goes in the core, where it acts on the doll itself and nobody else — much like the player's charm slot."
     }
   ]
 }

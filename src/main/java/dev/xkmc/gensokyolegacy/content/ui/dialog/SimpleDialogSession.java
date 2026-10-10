@@ -10,7 +10,6 @@ import dev.xkmc.gensokyolegacy.content.rpg.network.SimpleDialogToClient;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerPlayer;
-import org.checkerframework.checker.units.qual.A;
 
 import java.util.ArrayList;
 import java.util.List;

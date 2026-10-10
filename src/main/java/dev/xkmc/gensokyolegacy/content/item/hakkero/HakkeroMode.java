@@ -43,8 +43,10 @@ public enum HakkeroMode {
 	}
 
 	/**
-	 * The modes a sealed hakkero can hold, {@link #OFF} excluded. For its data component's
-	 * codec and for its mode cycle.
+	 * The modes a sealed hakkero can hold, {@link #OFF} excluded. For its mode cycle.
+	 *
+	 * <p>Not for its data component's codec: the enum codec numbers values by the enum's own
+	 * ordinals, so it has to be given every constant (see {@code GLItems#DC_HAKKERO_MODE}).
 	 */
 	public static HakkeroMode[] lit() {
 		return LIT.clone();

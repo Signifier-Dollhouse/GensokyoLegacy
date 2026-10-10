@@ -7,8 +7,7 @@
     {
       "type": "patchouli:spotlight",
       "item": "tag:gensokyolegacy:sliding_door",
-      "title": "Shoji Doors",
-      "text": "Tall sliding doors are available in every wood type, including bamboo. Right-click an empty-handed door to slide it open or closed. Panels can stack together, allowing up to four panels in one door."
+      "text": "Tall sliding doors are available in every wood type, including bamboo. Right-click an empty-handed door to work it. Panels can stack together, allowing up to four panels in one door.$(br2)Which side you click decides which way it goes: click the half the panels are hinged on to slide the door open, or click the other half to slide it shut."
     },
     {
       "type": "patchouli:text",

@@ -2,6 +2,8 @@ package dev.xkmc.gensokyolegacy.content.entity.dolls.impl;
 
 import dev.xkmc.gensokyolegacy.content.entity.dolls.DollEntity;
 import dev.xkmc.gensokyolegacy.init.registrate.GLSounds;
+import dev.xkmc.l2core.init.reg.registrate.SimpleEntry;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
@@ -42,7 +44,10 @@ public interface DollGeo extends DollBaseImpl, GeoEntity {
 	byte EVENT_SKILL = 69;
 	byte EVENT_SLAP = 70;
 
-	/** Volume of the attack voice; the clip is short, so a volley does not build up. */
+	/**
+	 * Volume of a strike voice, both melee shapes alike. The clips are short, so a
+	 * volley of dolls striking together does not build up.
+	 */
 	float ATTACK_VOLUME = 1.0F;
 
 	private DollGeoModule geo() {
@@ -80,8 +85,8 @@ public interface DollGeo extends DollBaseImpl, GeoEntity {
 	}
 
 	/**
-	 * The swung attack, animation and voice together: the {@code toy_attack} clip is
-	 * silent on its own, so {@link GLSounds#DOLL_ATTACK} is what makes a strike
+	 * The lance swing, animation and voice together: the {@code toy_attack} clip is
+	 * silent on its own, so {@link GLSounds#DOLL_LANCE} is what makes the strike
 	 * audible, and it is played from the same place as the broadcast so the two
 	 * cannot drift apart.
 	 * <p>
@@ -91,16 +96,28 @@ public interface DollGeo extends DollBaseImpl, GeoEntity {
 	 * {@link SoundSource#NEUTRAL}, the source a mob's own voice uses.
 	 */
 	default void broadcastAttackAnim() {
-		if (asDoll().level().isClientSide()) return;
-		asDoll().level().broadcastEntityEvent(asDoll(), EVENT_ATTACK);
-		asDoll().level().playSound(null, asDoll(), GLSounds.DOLL_ATTACK.get(),
-				SoundSource.NEUTRAL, ATTACK_VOLUME, asDoll().getVoicePitch());
+		broadcastStrike(EVENT_ATTACK, GLSounds.DOLL_LANCE);
 	}
 
-	/** The bare-handed swing: {@link #EVENT_SLAP} rather than the lance clip. */
+	/**
+	 * The bare-handed swing: {@link #EVENT_SLAP} rather than the lance clip, voiced
+	 * with {@link GLSounds#DOLL_SLAP} so a slap and a poke are told apart by ear
+	 * alone.
+	 */
 	default void broadcastSlapAnim() {
-		if (!asDoll().level().isClientSide())
-			asDoll().level().broadcastEntityEvent(asDoll(), EVENT_SLAP);
+		broadcastStrike(EVENT_SLAP, GLSounds.DOLL_SLAP);
+	}
+
+	/**
+	 * One broadcast and one voice, together and server-side only. Shared by both
+	 * melee shapes so the animation and its sound cannot come apart: a silent strike
+	 * is the one thing a swing must never be.
+	 */
+	private void broadcastStrike(byte event, SimpleEntry<SoundEvent> sound) {
+		if (asDoll().level().isClientSide()) return;
+		asDoll().level().broadcastEntityEvent(asDoll(), event);
+		asDoll().level().playSound(null, asDoll(), sound.get(),
+				SoundSource.NEUTRAL, ATTACK_VOLUME, asDoll().getVoicePitch());
 	}
 
 	default void broadcastBowAnim() {

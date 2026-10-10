@@ -35,6 +35,12 @@ public class GLBrains {
 	public static final Val<MemoryModuleType<LivingEntity>> MEM_PREY = MEMORIES.reg("prey", () -> new MemoryModuleType<>(Optional.empty()));
 	public static final Val<MemoryModuleType<Unit>> MEM_DOWN = MEMORIES.reg("down", () -> new MemoryModuleType<>(Optional.of(Unit.CODEC)));
 	public static final Val<MemoryModuleType<Player>> MEM_TALK = MEMORIES.reg("talk", () -> new MemoryModuleType<>(Optional.empty()));
+	/**
+	 * Whoever just fed her, held for the length of the animation she plays about it.
+	 * Its presence is what starts {@code FairyCakeTask}, which eats first and only
+	 * then hands something back.
+	 */
+	public static final Val<MemoryModuleType<Player>> MEM_FEED = MEMORIES.reg("feed", () -> new MemoryModuleType<>(Optional.empty()));
 	public static final Val<MemoryModuleType<List<ItemEntity>>> MEM_ITEMS = MEMORIES.reg("nearby_items", () -> new MemoryModuleType<>(Optional.empty()));
 	/**
 	 * Where the character is visiting. Its presence is what puts her in
@@ -46,6 +52,11 @@ public class GLBrains {
 	 * {@link #PARTY} instead of following her schedule.
 	 */
 	public static final Val<MemoryModuleType<GlobalPos>> MEM_PARTY = MEMORIES.reg("party", () -> new MemoryModuleType<>(Optional.empty()));
+	/**
+	 * Whoever last hurt her, kept only until the scare wears off. Its presence is
+	 * what puts a plain fairy in {@link #FEAR}.
+	 */
+	public static final Val<MemoryModuleType<LivingEntity>> MEM_FEAR = MEMORIES.reg("fear", () -> new MemoryModuleType<>(Optional.empty()));
 
 	public static final Val<Activity> AT_HOME = ACTIVITIES.reg("at_home", () -> new Activity("at_home"));
 	public static final Val<Activity> HUNT = ACTIVITIES.reg("hunt", () -> new Activity("hunt"));
@@ -62,6 +73,17 @@ public class GLBrains {
 	 * off to visit, and never sleeps or goes home.
 	 */
 	public static final Val<Activity> PARTY = ACTIVITIES.reg("party", () -> new Activity("party"));
+	/**
+	 * Running from whatever just hit her. Outranks eating, so a cake offered mid-panic
+	 * waits for her to stop running rather than stopping her - see the priority scale
+	 * in {@code PlainFairyEntity#constructTaskBoard}.
+	 */
+	public static final Val<Activity> FEAR = ACTIVITIES.reg("fear", () -> new Activity("fear"));
+	/**
+	 * Standing still with a cake in her hands. Being fed cuts in on talking and on her
+	 * schedule, but not on a panic, and not on a hunt.
+	 */
+	public static final Val<Activity> FEAST = ACTIVITIES.reg("feast", () -> new Activity("feast"));
 
 	public static void register() {
 	}

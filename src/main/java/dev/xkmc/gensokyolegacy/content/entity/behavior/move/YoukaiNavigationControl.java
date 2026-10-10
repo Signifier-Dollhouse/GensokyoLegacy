@@ -107,6 +107,10 @@ public class YoukaiNavigationControl {
 		return self.isAggressive();
 	}
 
+	private boolean shouldLand() {
+		return self.mayLand();
+	}
+
 	public void stopMoving() {
 		walkCtrl.stop();
 		flyCtrl.stop();
@@ -157,14 +161,28 @@ public class YoukaiNavigationControl {
 			if (!isFlying()) {
 				walkNav.moveTo(path.path(), speedModifier);
 				return true;
-			} else if (isCloseToGround()) {
+			} else if (shouldLand() && isCloseToGround()) {
 				setWalking();
 				walkNav.moveTo(path.path(), speedModifier);
 				return true;
 			} else {
-				return false;
+				// hovering: a walk route is still a perfectly good route, so follow
+				// it through the flying navigation instead of refusing it - she
+				// would otherwise simply never move again
+				flyNav.moveTo(path.path(), speedModifier);
+				return true;
 			}
 		}
+	}
+
+	/**
+	 * The flying navigation, for callers that want to path somewhere themselves
+	 * rather than going through {@link #moveTo}. A hovering character has no
+	 * walkable start node, so anything that actually has to get her somewhere has
+	 * to ask for a route in the air.
+	 */
+	public Flying flying() {
+		return flyNav;
 	}
 
 	@Nullable
@@ -232,7 +250,7 @@ public class YoukaiNavigationControl {
 
 		@Override
 		public boolean moveTo(double x, double y, double z, int accuracy, double speed) {
-			if (isCloseToGround() && !isCombatActivity()) {
+			if (shouldLand() && isCloseToGround() && !isCombatActivity()) {
 				setWalking();
 				return walkNav.moveTo(x, y, z, accuracy, speed);
 			}
@@ -241,7 +259,7 @@ public class YoukaiNavigationControl {
 
 		@Override
 		public boolean moveTo(Entity entity, double speed) {
-			if (isCloseToGround() && !isCombatActivity()) {
+			if (shouldLand() && isCloseToGround() && !isCombatActivity()) {
 				setWalking();
 				return walkNav.moveTo(entity, speed);
 			}

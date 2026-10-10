@@ -9,6 +9,8 @@ import dev.xkmc.gensokyolegacy.content.entity.broom.BroomRenderer;
 import dev.xkmc.gensokyolegacy.content.entity.characters.fairy.CirnoEntity;
 import dev.xkmc.gensokyolegacy.content.entity.characters.fairy.CirnoRenderer;
 import dev.xkmc.gensokyolegacy.content.entity.characters.fairy.FairyEntity;
+import dev.xkmc.gensokyolegacy.content.entity.characters.fairy.PlainFairyEntity;
+import dev.xkmc.gensokyolegacy.content.entity.characters.fairy.PlainFairyRenderer;
 import dev.xkmc.gensokyolegacy.content.entity.characters.maiden.*;
 import dev.xkmc.gensokyolegacy.content.entity.characters.magician.AliceEntity;
 import dev.xkmc.gensokyolegacy.content.entity.characters.magician.AliceRenderer;
@@ -34,6 +36,7 @@ import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyTaste;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.loot.EntityLootGen;
 import net.minecraft.client.renderer.entity.ThrownItemRenderer;
+import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.item.CreativeModeTabs;
 
@@ -59,6 +62,8 @@ public class GLEntities {
 	public static final EntityEntry<GeneralYoukaiEntity> MYSTIA;
 	public static final EntityEntry<BossYoukaiEntity> YUKARI, KOISHI;
 	public static final EntityEntry<FairyEntity> SUNNY, LUNA, STAR;
+	/** The unnamed fairy that actually wears the shared fairy rig, in four recolours. */
+	public static final EntityEntry<PlainFairyEntity> PLAIN_FAIRY;
 	public static final EntityEntry<DollEntity> DOLL;
 
 	public static final EntityEntry<FrozenFrog> FROZEN_FROG;
@@ -82,6 +87,7 @@ public class GLEntities {
 				.<BroomEntity>entity("broom", BroomEntity::new, MobCategory.MISC)
 				.properties(e -> e.sized(0.4F, 0.3F).clientTrackingRange(10).updateInterval(2))
 				.renderer(() -> BroomRenderer::new)
+				.tag(EntityTypeTags.FALL_DAMAGE_IMMUNE)
 				.register();
 
 		PartyTaste TASTE_CIRNO = new PartyTaste(100, 0, 150, 1, 4, 20, 6);
@@ -222,6 +228,14 @@ public class GLEntities {
 					.properties(e -> e.sized(0.4F, 1.8f).clientTrackingRange(10))
 					.attributes(FairyEntity::createAttributes)
 					.renderer(() -> GeneralYoukaiRenderer::new)
+					.loot(EntityLootGen::noLoot)
+					.register();
+
+			PLAIN_FAIRY = GensokyoLegacy.REGISTRATE
+					.entity("plain_fairy", PlainFairyEntity::new, MobCategory.MONSTER)
+					.properties(e -> e.sized(0.4F, 1.8f).clientTrackingRange(10))
+					.attributes(FairyEntity::createAttributes)
+					.renderer(() -> PlainFairyRenderer::new)
 					.loot(EntityLootGen::noLoot)
 					.register();
 		}

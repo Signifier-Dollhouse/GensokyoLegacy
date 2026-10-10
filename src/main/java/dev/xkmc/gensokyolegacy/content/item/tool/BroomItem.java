@@ -3,6 +3,7 @@ package dev.xkmc.gensokyolegacy.content.item.tool;
 import dev.xkmc.gensokyolegacy.content.entity.broom.BroomEntity;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.gensokyolegacy.init.registrate.GLEntities;
+import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
@@ -23,7 +24,9 @@ import java.util.List;
  */
 public class BroomItem extends Item {
 
-	/** How far ahead of the player the broom is conjured, in blocks. */
+	/**
+	 * How far ahead of the player the broom is conjured, in blocks.
+	 */
 	private static final double MOUNT_DISTANCE = 1.2;
 
 	public BroomItem(Properties properties) {
@@ -37,8 +40,9 @@ public class BroomItem extends Item {
 	@Override
 	public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
 		ItemStack stack = player.getItemInHand(hand);
-		if (player.isShiftKeyDown()) return InteractionResultHolder.pass(stack);
 		if (player.getVehicle() instanceof BroomEntity) {
+			if (player.getMainHandItem().is(GLItems.MINI_HAKKERO))
+				return InteractionResultHolder.pass(stack);
 			if (!level.isClientSide) player.stopRiding();
 			return InteractionResultHolder.success(stack);
 		}

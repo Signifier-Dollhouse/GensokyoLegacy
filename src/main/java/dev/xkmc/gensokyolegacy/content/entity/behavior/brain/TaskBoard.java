@@ -160,6 +160,19 @@ public class TaskBoard {
 		return sensors;
 	}
 
+	/**
+	 * The number an activity was registered with, lowest wins - the same ordering
+	 * {@link #build()} sorts by, read back by anything that has to ask "is what she is
+	 * doing now more urgent than this". A scheduled activity was never prioritized and
+	 * so sorts below everything, hence {@link Integer#MAX_VALUE}.
+	 */
+	public int priorityOf(Activity activity) {
+		for (var e : priorities) {
+			if (e.activity().equals(activity)) return e.priority();
+		}
+		return Integer.MAX_VALUE;
+	}
+
 	@SuppressWarnings({"unchecked", "rawtypes"})
 	public void buildBrain(SmartBrain<?> brain) {
 		var list = new ArrayList<Activity>();

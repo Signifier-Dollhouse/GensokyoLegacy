@@ -7,11 +7,11 @@
   "pages": [
     {
       "type": "patchouli:text",
-      "text": "$(bold)A doll that takes itself with it$(br)A block of TNT in either hand is the one order a doll does not come back from. On the glove's Suicide order it cuts loose from you, flies straight at the target and detonates on contact, taking itself along. The blast is the same power-4 explosion an Explosive Hexbrew bottle makes: enemies are hurt, terrain is untouched, and you and your dolls are spared.$(br2)Only one doll is sent per order, picked at random from the dolls carrying TNT — and the glove only offers the order at all while some doll is carrying one."
+      "text": "Alice Above All$(br2)When any of a doll's hand slots holds TNT, this order is offered. On the Suicide order the doll flies straight at the target and detonates on contact, taking itself along with it. The terrain takes no damage, and the blast never reaches the player.$(br2)If the target dies before the dive lands, the order is called off and the doll rejoins your squad."
     },
     {
       "type": "patchouli:text",
-      "text": "$(bold)Nothing is lost but the doll$(br)A dive leaves your ledger before it starts, so none of its gear can drop along the way: when it dies it comes back as the doll item it started as, loadout and health bar intact, ready to be repaired with wool and summoned again.$(br2)$(bold)And the cut is never permanent$(brIf the dive never lands — the target dies or gets away, or the TNT is gone — the doll simply rejoins you, whole, with nothing spent. A doll left wandering where you cannot reach it is swept up by the next recall."
+      "text": "Only a parting$(br2)After a dive the doll becomes a dropped item, with its equipment safely preserved inside."
     }
   ]
 }
