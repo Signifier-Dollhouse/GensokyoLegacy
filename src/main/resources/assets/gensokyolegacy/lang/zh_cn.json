@@ -1055,6 +1055,7 @@
   "gensokyolegacy.party.info_phase": "阶段：%s",
   "gensokyolegacy.party.info_roster": "已邀请：%s",
   "gensokyolegacy.party.info_served": "已上菜 %s／%s 饱食量",
+  "gensokyolegacy.party.info_appeal": "已上菜吸引力：%s",
   "gensokyolegacy.party.info_guests": "在场客人：%s",
   "gensokyolegacy.party.letter_hint": "右键餐桌，将邀请函送出",
   "gensokyolegacy/marisa/chat/greeting": "哟，你好~欢迎光顾雾雨魔法店！",

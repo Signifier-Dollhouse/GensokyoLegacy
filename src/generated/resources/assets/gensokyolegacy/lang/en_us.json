@@ -515,6 +515,7 @@
   "gensokyolegacy.msg.reset": "Character reset",
   "gensokyolegacy.msg.shelf_returned": "Your shop shelf was broken while you were away; its stock and earnings have been returned to you.",
   "gensokyolegacy.party.ended": "The party is over",
+  "gensokyolegacy.party.info_appeal": "Appeal served: %s",
   "gensokyolegacy.party.info_guests": "Guests present: %s",
   "gensokyolegacy.party.info_phase": "Phase: %s",
   "gensokyolegacy.party.info_roster": "Invited: %s",

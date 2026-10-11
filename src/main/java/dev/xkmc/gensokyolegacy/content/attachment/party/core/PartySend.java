@@ -8,6 +8,7 @@ import dev.xkmc.gensokyolegacy.init.data.GLModConfig;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
 import dev.xkmc.gensokyolegacy.init.data.GLTagGen;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -357,6 +358,58 @@ public class PartySend {
 		// ten random spots found nothing — a small sealed room, or one where every
 		// landing is on the table. Stand her somewhere definite rather than not at all.
 		return freeSpaceNear(level, anchor, 4);
+	}
+
+	/**
+	 * Somewhere she can stand to reach {@code pos}: a standable block right beside it, or
+	 * one beside whatever it is standing on.
+	 *
+	 * <p>
+	 * This is the walk target for both a chair and a dish, and neither of them is ever
+	 * walked to directly. A chair's own block is furniture — the guest has to stand
+	 * <i>next</i> to it and then sit, and asking a pathfinder to reach the chair itself
+	 * either fails or leaves her standing on the seat, which is the most visible way this
+	 * feature can look broken. A dish on a table is worse: the block beside it is air at
+	 * table height with nothing to stand on, so the answer is the floor beside the table.
+	 *
+	 * <p>
+	 * Two rings, in order: the block's own neighbours first, then its neighbours one
+	 * support down. A dish on the floor finds its answer in the first ring and a dish on
+	 * a laid table only in the second, which is why both are tried rather than the second
+	 * being computed.
+	 *
+	 * <p>
+	 * Not checked for reachability — whether she can actually path there is the
+	 * pathfinder's question, and {@code YoukaiPartyTask}'s walk-failure fallback already
+	 * covers the case where it cannot.
+	 *
+	 * @return the block to walk to, or null when there is nowhere to stand near it
+	 */
+	@Nullable
+	public static BlockPos standingNear(ServerLevel level, BlockPos pos) {
+		for (var face : SIDES) {
+			var beside = pos.relative(face);
+			if (isStandable(level, beside)) return beside;
+		}
+		// on a table, or on a chair: the floor beside whatever is holding it up
+		var support = PartyArea.supportOf(level, pos, SUPPORT_DROP);
+		if (support == null) return null;
+		for (var face : SIDES) {
+			var beside = support.relative(face);
+			if (isStandable(level, beside)) return beside;
+		}
+		return null;
+	}
+
+	/** The four horizontal directions: a chair and a dish are both reached from the side. */
+	private static final Direction[] SIDES = {
+			Direction.NORTH, Direction.SOUTH, Direction.EAST, Direction.WEST};
+
+	/** How far down to look for whatever a dish is sitting on. */
+	private static final int SUPPORT_DROP = 4;
+
+	private static boolean isStandable(ServerLevel level, BlockPos pos) {
+		return level.isLoaded(pos) && standable(level, pos) && !furniture(level, pos.getCenter());
 	}
 
 	/**

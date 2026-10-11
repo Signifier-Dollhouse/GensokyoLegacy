@@ -28,6 +28,7 @@ import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.entity.ai.memory.WalkTarget;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
@@ -48,9 +49,25 @@ import java.util.Map;
  * character, not constants. She never leaves on being satisfied; the visit ends when her
  * {@code leaveChance} comes up, or when the party's food does, or when the party closes.
  * <p>
- * Most rounds she does not move at all. A dish within {@link #REACH} of where she sits is
- * taken from her chair, which is the common case at a laid table and the reason the reach
- * exists. Only a dish further out than that sends her across the room and back.
+ * Most rounds she does not move at all. A dish within {@link #REACH_SEATED} of where she
+ * sits is taken from her chair, which is the common case at a laid table and the reason
+ * that reach is longer than the one she has on her feet. Only a dish further out than
+ * that sends her across the room and back.
+ *
+ * <p>
+ * She never walks to the chair or the dish herself: both walks go to a standable block
+ * next to them ({@link PartySend#standingNear}), and she has to be standing <i>on</i> it
+ * before she acts. A chair is furniture you sit down from beside, and a dish on a table
+ * has air beside it rather than floor, so in both cases "the block she walks to" and "the
+ * thing she is there for" are different blocks — and conflating them is what turns a
+ * reach into a fudge factor.
+ *
+ * <p>
+ * Neither a chair nor a dish is walked to directly — both walks go to a standable block
+ * next to them, and she must be standing <i>on</i> it before she acts. See
+ * {@link #REACH} and {@link PartySend#standingNear}. Neither detail is cosmetic: a guest
+ * who cannot sit in a chair she is standing next to, or who is asked to path into a
+ * chair's own collision box, looks broken in the most visible way this feature has.
  * <p>
  * Sitting means <em>riding</em> a {@code ChairEntity} (see {@code HomeSearchUtil.setSitting}),
  * and a passenger does not walk. So leaving a chair is an explicit dismount, and every
@@ -133,8 +150,56 @@ public class YoukaiPartyTask extends Behavior<SmartYoukaiEntity> {
 	 */
 	private static final int LEAVE_TIMEOUT = 200;
 
-	/** How close to a dish counts as reaching it, squared. Three blocks. */
-	private static final double REACH_SQR = 9.0;
+	/**
+	 * How close she must be to a dish once she has reached the block she walked to.
+	 *
+	 * <p>
+	 * <b>Two numbers, because she is holding a plate out over the table.</b> From her
+	 * chair she reaches three blocks, which is what makes most rounds of a laid banquet
+	 * happen without her standing up at all; from her feet it is two, so that standing up
+	 * and crossing to a dish three blocks away is not possible when she could have eaten
+	 * it from where she was sitting.
+	 *
+	 * <p>
+	 * Neither is the size of her arm — {@link PartySend#standingNear} has already put her
+	 * standing next to the dish she came for — so they are slack for being sent to the
+	 * wrong side of a long table, not reach proper.
+	 *
+	 * <p>
+	 * There is no third number for the chair, and that is the point of arriving on a block
+	 * <b>exactly</b>: the block she is sent to is adjacent to the chair by construction, so
+	 * "she got there" and "she is next to her seat" are the same statement and need no
+	 * separate tolerance to agree.
+	 *
+	 * <p>
+	 * Measured to the <b>block's box</b> rather than its centre, which is what makes these
+	 * numbers mean what they look like: standing on the block beside a dish is zero blocks
+	 * from it.
+	 */
+	private static final double REACH_SEATED = 3;
+	private static final double REACH_STANDING = 2;
+
+	/**
+	 * How close she must get to the block she is walking <i>to</i>. Zero: she has to be
+	 * standing on it.
+	 *
+	 * <p>
+	 * Exact, and the reason the walk target is a standable block rather than the thing
+	 * itself. There is nothing to be "near" about a floor tile — she either reached it or
+	 * she did not, and a tolerance here would have her act on a dish from the far end of
+	 * the table, which is exactly the case the reach above exists to keep small.
+	 */
+	private static final double ARRIVAL_REACH = 0;
+
+	/**
+	 * How close she must get to where she is walking when she is <b>leaving</b>.
+	 *
+	 * <p>
+	 * Loose, and the one place the exact rule does not apply: she is on her way out, not
+	 * picking anything up, so the last two steps of a departure are not worth the leave
+	 * timeout that would follow them.
+	 */
+	private static final double DEPART_REACH = 2;
 
 	private enum Phase {
 		/** Walking to a chair. */
@@ -180,6 +245,19 @@ public class YoukaiPartyTask extends Behavior<SmartYoukaiEntity> {
 	private int pendingAppeal = 0;
 	/** Whether she is away from her chair and owes it a return. */
 	private boolean away = false;
+
+	/**
+	 * The standable block she is walking to, which is <b>not</b> {@link #target}.
+	 *
+	 * <p>
+	 * The two are different things and conflating them is what made the old reach a
+	 * fudge: a chair and a dish are both things she acts on <i>from somewhere else</i>, so
+	 * the walk goes to the ground beside them while {@code target} stays the chair or the
+	 * dish. Arrival is therefore tested against this, exactly, and the action reach is
+	 * tested against {@code target}.
+	 */
+	@Nullable
+	private BlockPos standing;
 	/** The chair list's version when she last checked her own chair was still on it. */
 	private int layoutVersion = -1;
 
@@ -430,9 +508,15 @@ public class YoukaiPartyTask extends Behavior<SmartYoukaiEntity> {
 			}
 			case LEAVING -> stepLeaving(level, entity, party, gameTime);
 			default -> {
-				if (target != null && !level.isLoaded(target)) target = null;
+				// both halves go together: a destination whose subject has unloaded is no
+				// longer a destination, and arriving at a stale floor tile would have her
+				// act on a dish on the other side of the room
+				if (target != null && !level.isLoaded(target)) {
+					target = null;
+					standing = null;
+				}
 				if (target == null) seek(level, entity, party, attachment, gameTime);
-				else if (inReach(entity, target)) arrive(level, entity, party, attachment);
+				else if (arrived(entity)) arrive(level, entity, party, attachment);
 			}
 		}
 	}
@@ -446,7 +530,7 @@ public class YoukaiPartyTask extends Behavior<SmartYoukaiEntity> {
 	 */
 	private void reach(ServerLevel level, SmartYoukaiEntity entity, PartyModule party,
 			PartyAttachment attachment) {
-		if (inReach(entity, target)) {
+		if (dishInReach(entity, target)) {
 			takeServing(level, entity, party);
 			return;
 		}
@@ -457,7 +541,15 @@ public class YoukaiPartyTask extends Behavior<SmartYoukaiEntity> {
 		// and re-issuing the walk target that often restarts the pathfinding under her own
 		// feet, which is how a walk that would have succeeded ends up timing out.
 		if (BrainUtils.getMemory(entity, MemoryModuleType.WALK_TARGET) == null) {
-			walkTo(entity, target.getCenter(), target);
+			var ground = PartySend.standingNear(level, target);
+			if (ground == null) {
+				// nothing to stand on beside this dish, so walk at it and let the leg
+				// timeout decide. Reaching for a dish from mid-air is worse than not
+				// reaching, but standing still for ever is worse than both.
+				walkTo(entity, target.getCenter(), target);
+				return;
+			}
+			walkTo(entity, ground.getCenter(), target);
 		}
 	}
 
@@ -489,7 +581,12 @@ public class YoukaiPartyTask extends Behavior<SmartYoukaiEntity> {
 			walkTo(entity, dest.getCenter(), dest);
 			return;
 		}
-		if (inReach(entity, target) || gameTime > leaveDeadline) finishLeaving(level, entity);
+		// arriving is enough: she is walking away, not picking anything up, so the exact
+		// stand-on-it rule that governs a dish or a chair does not apply to the last few
+		// steps of a departure
+		if (standing == null || within(entity, standing, DEPART_REACH) || gameTime > leaveDeadline) {
+			finishLeaving(level, entity);
+		}
 	}
 
 	/**
@@ -578,7 +675,7 @@ public class YoukaiPartyTask extends Behavior<SmartYoukaiEntity> {
 				}
 				seatFailures = 0;
 				seatWarned = false;
-				walkTo(entity, seat.above().getCenter(), seat);
+				walkToSeat(level, entity, seat);
 			}
 			case SEEK_FOOD -> {
 				var dish = drawDish(level, entity, party, attachment);
@@ -607,11 +704,32 @@ public class YoukaiPartyTask extends Behavior<SmartYoukaiEntity> {
 					finishLeaving(level, entity);
 					return;
 				}
-				walkTo(entity, seat.above().getCenter(), seat);
+				walkToSeat(level, entity, seat);
 			}
 			default -> target = null;
 		}
 		deadline = gameTime + LEG_TIMEOUT;
+	}
+
+	/**
+	 * Walk to somewhere she can stand <b>beside</b> {@code seat}, and look at it.
+	 *
+	 * <p>
+	 * Not to the seat, and not to the block above it. The block above is where the rider
+	 * ends up, which is inside the chair's own collision box: asking a pathfinder to reach
+	 * it either fails outright or parks the guest standing on the seat, which is the one
+	 * place a party must never put anyone. Standing on the floor next to the chair is both
+	 * reachable and the position she actually sits down from — and arrival is then
+	 * measured on that floor tile exactly, so "she got there" and "she is next to her
+	 * chair" are the same statement.
+	 *
+	 * <p>
+	 * {@link PartySend#standingNear} has the answer; a chair walled in on every side has
+	 * none, and then the old target is still better than not arriving.
+	 */
+	private void walkToSeat(ServerLevel level, SmartYoukaiEntity entity, BlockPos seat) {
+		var beside = PartySend.standingNear(level, seat);
+		walkTo(entity, beside == null ? seat.above().getCenter() : beside.getCenter(), seat);
 	}
 
 	/**
@@ -624,6 +742,7 @@ public class YoukaiPartyTask extends Behavior<SmartYoukaiEntity> {
 	 */
 	private void walkTo(SmartYoukaiEntity entity, Vec3 to, BlockPos look) {
 		target = look.immutable();
+		standing = BlockPos.containing(to);
 		BrainUtils.setMemory(entity, MemoryModuleType.WALK_TARGET, new WalkTarget(to, 1, 1));
 		BrainUtils.setMemory(entity, MemoryModuleType.LOOK_TARGET, new BlockPosTracker(look));
 	}
@@ -815,9 +934,35 @@ public class YoukaiPartyTask extends Behavior<SmartYoukaiEntity> {
 		return dishes.getLast();
 	}
 
-	/** Whether she can act on {@code pos} from where she is standing or sitting. */
-	private static boolean inReach(SmartYoukaiEntity entity, BlockPos pos) {
-		return entity.distanceToSqr(pos.getCenter()) <= REACH_SQR;
+	/** Whether {@code pos} is within {@code blocks} of her, measured to the block's box. */
+	private static boolean within(SmartYoukaiEntity entity, BlockPos pos, double blocks) {
+		return new AABB(pos).distanceToSqr(entity.position()) <= blocks * blocks;
+	}
+
+	/**
+	 * Whether she has got where she is going: standing on the block she was sent to, with
+	 * no tolerance at all.
+	 * <p>
+	 * {@link #standing} rather than {@link #target}, because she never walks to the thing
+	 * she is going to act on — she walks to the floor beside it. Testing arrival against
+	 * the chair or the dish instead is how a guest ends up acting on a dish from across
+	 * the table and calling it "close enough".
+	 */
+	private boolean arrived(SmartYoukaiEntity entity) {
+		return standing != null && within(entity, standing, ARRIVAL_REACH);
+	}
+
+	/**
+	 * Whether she can take {@code dish} from where she is right now.
+	 *
+	 * <p>
+	 * Three blocks from the chair and two from the floor, and the difference is the whole
+	 * reason a laid banquet plays out without anyone standing up: a dish within three
+	 * blocks of her seat is taken from where she is sitting, and only a dish further out
+	 * than that costs a dismount and a walk.
+	 */
+	private static boolean dishInReach(SmartYoukaiEntity entity, BlockPos dish) {
+		return within(entity, dish, entity.isPassenger() ? REACH_SEATED : REACH_STANDING);
 	}
 
 	/**
@@ -836,14 +981,16 @@ public class YoukaiPartyTask extends Behavior<SmartYoukaiEntity> {
 	}
 
 	private static void dismiss(SmartYoukaiEntity entity) {
-		clearWalk(entity);
+		BrainUtils.clearMemory(entity, MemoryModuleType.WALK_TARGET);
+		BrainUtils.clearMemory(entity, MemoryModuleType.LOOK_TARGET);
 		dropServing(entity);
 		entity.getModule(PartyModule.class).ifPresent(PartyModule::dismiss);
 	}
 
-	private static void clearWalk(SmartYoukaiEntity entity) {
+	private void clearWalk(SmartYoukaiEntity entity) {
 		BrainUtils.clearMemory(entity, MemoryModuleType.WALK_TARGET);
 		BrainUtils.clearMemory(entity, MemoryModuleType.LOOK_TARGET);
+		standing = null;
 	}
 
 	@Override
