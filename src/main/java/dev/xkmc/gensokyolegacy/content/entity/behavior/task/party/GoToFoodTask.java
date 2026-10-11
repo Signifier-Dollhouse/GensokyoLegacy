@@ -1,8 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.entity.behavior.task.party;
 
 import dev.xkmc.gensokyolegacy.content.entity.youkai.SmartYoukaiEntity;
-import dev.xkmc.gensokyolegacy.init.registrate.GLBrains;
-import dev.xkmc.gensokyolegacy.util.BrainUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 
@@ -25,8 +23,8 @@ public class GoToFoodTask extends PartyTask {
 	protected boolean stillMine(SmartYoukaiEntity entity, PartyContext ctx) {
 		BlockPos dish = ctx.dish();
 		return dish != null
-				&& !BrainUtils.hasMemory(entity, GLBrains.MEM_PARTY_HESITATE.get())
-				&& !BrainUtils.hasMemory(entity, GLBrains.MEM_PARTY_GRAB.get());
+				&& !ctx.hesitating()
+				&& !ctx.grabbing();
 	}
 
 	@Override
@@ -43,7 +41,7 @@ public class GoToFoodTask extends PartyTask {
 			}
 			ctx.arrived();
 			// set before handing over, and never refreshed: Delay spends a wait without it
-			ctx.waitFor(GLBrains.MEM_PARTY_HESITATE.get(),
+			ctx.hesitate(
 					PartyTasks.BITE_DELAY_MIN + ctx.entity().getRandom()
 							.nextInt(PartyTasks.BITE_DELAY - PartyTasks.BITE_DELAY_MIN + 1));
 			return;

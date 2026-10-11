@@ -13,7 +13,6 @@ import dev.xkmc.gensokyolegacy.content.entity.module.VisitModule;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.SmartYoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiAnim;
 import dev.xkmc.gensokyolegacy.init.data.GLModConfig;
-import dev.xkmc.gensokyolegacy.init.registrate.GLBrains;
 import dev.xkmc.gensokyolegacy.util.BrainUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -90,20 +89,29 @@ public class PartyContext {
 		return party.seat() != null && entity.isPassenger();
 	}
 
-	// === memories ===
+	// === the machine ===
+	//
+	// These are fields on PartyModule, read and written in place. A brain memory would have
+	// been the tidier home for them; it is not, because a memory survives a save only if it
+	// carries a codec and the whole brain serialization lines up, and a guest who comes back
+	// without her state is a guest who has forgotten the party. See the module.
 
 	public boolean holding() {
-		return BrainUtils.hasMemory(entity, GLBrains.MEM_PARTY_SERVE.get());
+		return party.serve != null;
 	}
 
 	@Nullable
 	public PartyServe serve() {
-		return BrainUtils.getMemory(entity, GLBrains.MEM_PARTY_SERVE.get());
+		return party.serve;
 	}
 
 	@Nullable
 	public BlockPos dish() {
-		return BrainUtils.getMemory(entity, GLBrains.MEM_PARTY_DISH.get());
+		return party.serveDish;
+	}
+
+	public void dish(@Nullable BlockPos pos) {
+		party.serveDish = pos;
 	}
 
 	/** Whether the dish she committed to is close enough to take, from where she is now. */
@@ -113,37 +121,74 @@ public class PartyContext {
 		return PartyTarget.forDish(dish, standingNear(dish), seated()).inReach(this);
 	}
 
-	/** Arm one of the wait memories. Presence is the state; the value is ticks left. */
-	public void waitFor(MemoryModuleType<Integer> memory, int ticks) {
-		BrainUtils.setMemory(entity, memory, Math.max(ticks, 1));
+	/** One tick of a countdown, floored at zero so a spent timer stays spent. */
+	public static int step(int current) {
+		return current > 1 ? current - 1 : 0;
 	}
 
-	/**
-	 * Count one of the waits down a tick, erasing it when it runs out.
-	 *
-	 * @return the ticks still left, or 0 once it is over
-	 */
-	public int tick(MemoryModuleType<Integer> memory) {
-		Integer current = BrainUtils.getMemory(entity, memory);
-		if (current == null) return 0;
-		if (current <= 1) {
-			BrainUtils.clearMemory(entity, memory);
-			return 0;
-		}
-		BrainUtils.setMemory(entity, memory, current - 1);
-		return current - 1;
+	public void hesitate(int ticks) {
+		party.hesitate = Math.max(ticks, 0);
 	}
 
-	public void stopWaiting(MemoryModuleType<Integer> memory) {
-		BrainUtils.clearMemory(entity, memory);
+	public void grab(int ticks) {
+		party.grab = Math.max(ticks, 0);
+	}
+
+	public void rest(int ticks) {
+		party.rest = Math.max(ticks, 0);
+	}
+
+	public boolean hesitating() {
+		return party.hesitate > 0;
+	}
+
+	public int tickHesitate() {
+		party.hesitate = step(party.hesitate);
+		return party.hesitate;
+	}
+
+	public boolean grabbing() {
+		return party.grab > 0;
+	}
+
+	public int tickGrab() {
+		party.grab = step(party.grab);
+		return party.grab;
+	}
+
+	public boolean chewing() {
+		return party.chew > 0;
+	}
+
+	public int tickChew() {
+		party.chew = step(party.chew);
+		return party.chew;
+	}
+
+	public boolean resting() {
+		return party.rest > 0;
+	}
+
+	public int tickRest() {
+		party.rest = step(party.rest);
+		return party.rest;
 	}
 
 	// === the departure ===
 	//
-	// MEM_PARTY_LEAVE is the one wait that never expires on its own: its presence *is* the
-	// departure, so a value of zero means "she has stood up and is on her way", not "over".
-	// Erasing it here would drop the cascade back to whichever task matches an ordinary
+	// The leave timer is the one that never expires on its own: its being armed at all *is*
+	// the departure, so zero means "she has stood up and is on her way", not "over".
+	// Clearing it here would drop the cascade back to whichever task matches an ordinary
 	// guest, and she would sit back down on the way out of the door.
+
+	public boolean leaving() {
+		return party.leaveArmed;
+	}
+
+	/** Ticks left before she stands up; zero once she is already up. */
+	public int leaveWait() {
+		return party.leave;
+	}
 
 	/**
 	 * Arm the departure, waiting {@code ticks} before she stands up.
@@ -158,7 +203,8 @@ public class PartyContext {
 	 */
 	public void armLeave(int ticks) {
 		giveGift();
-		BrainUtils.setMemory(entity, GLBrains.MEM_PARTY_LEAVE.get(), Math.max(ticks, 0));
+		party.leave = Math.max(ticks, 0);
+		party.leaveArmed = true;
 	}
 
 	/** Arm the departure with a fresh per-guest wait, so a table does not empty at once. */
@@ -166,16 +212,9 @@ public class PartyContext {
 		armLeave(entity.getRandom().nextInt(PartyTasks.UNSEAT_DELAY + 1));
 	}
 
-	/** Ticks left before she stands up; zero once she is already up. */
-	public int leaveWait() {
-		Integer left = BrainUtils.getMemory(entity, GLBrains.MEM_PARTY_LEAVE.get());
-		return left == null ? 0 : left;
-	}
-
 	/** Count the unseat wait down, stopping at zero. */
 	public void countLeave() {
-		int left = leaveWait();
-		if (left > 0) BrainUtils.setMemory(entity, GLBrains.MEM_PARTY_LEAVE.get(), left - 1);
+		party.leave = step(party.leave);
 	}
 
 	// === movement ===
@@ -307,7 +346,7 @@ public class PartyContext {
 		entity.setItemInHand(InteractionHand.MAIN_HAND, stack);
 		entity.swing(InteractionHand.MAIN_HAND);
 		YoukaiAnim.USE_MAINHAND.play(entity);
-		BrainUtils.setMemory(entity, GLBrains.MEM_PARTY_SERVE.get(), serve);
+		party.serve = serve;
 		// one serve only, so the rest of the party can still reach it
 		PartyFoodValue.consume(level, dish, state);
 		return true;
@@ -353,7 +392,7 @@ public class PartyContext {
 		var serve = serve();
 		if (serve == null) return;
 		if (!serve.isEmpty()) party.eat(serve.hunger(), serve.appeal(), attachment);
-		BrainUtils.clearMemory(entity, GLBrains.MEM_PARTY_SERVE.get());
+		party.serve = null;
 	}
 
 	/**
@@ -368,7 +407,7 @@ public class PartyContext {
 		entity.broadcastEat();
 		level.playSound(null, entity.blockPosition(), SoundEvents.GENERIC_EAT,
 				SoundSource.PLAYERS, 0.8F, 1.0F);
-		waitFor(GLBrains.MEM_PARTY_CHEW.get(), PartyTasks.EAT_TICKS);
+		party.chew = PartyTasks.EAT_TICKS;
 	}
 
 	/** Halfway through a chew, in ticks — when the plate leaves her hand. */
@@ -450,7 +489,7 @@ public class PartyContext {
  */
 @Nullable
 public BlockPos destination() {
-		var drawn = party.leaveDestination();
+		var drawn = party.leaveDest;
 		if (drawn != null) return drawn;
 		drawn = pickDestination();
 		if (drawn != null) party.leaveTo(drawn);

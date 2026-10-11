@@ -76,11 +76,15 @@ public class PartyTicker {
 			unregister(level, pos);
 			return;
 		}
-		// drop guests that died or left, so one that is no longer standing cannot pin it open
-		for (var id : Set.copyOf(party.guests())) {
-			if (find(level, id) != null) continue;
-			party.removeGuest(id);
-		}
+		// No sweep for guests who cannot be found. Guests come off the roster from the two
+		// ends that actually mean it — PartyModule#onKilled, and completeLeave — because
+		// getEntity only finds LOADED entities, so a guest outside her own chunk is
+		// indistinguishable from a corpse. A restored party starts ticking from its chunk
+		// load, which is before the guests' entities are necessarily back, so a sweep would
+		// empty the roster, finished() would read the party as over, and reset() would wipe
+		// the very state the chunk had just restored. A guest removed by neither end stays
+		// until PARTY_TIMEOUT, which is a far better outcome than a party that deletes
+		// itself every time the server starts.
 		// refresh what the guests draw from before anyone asks: a stale list means no second course
 		party.refresh(level, level.getGameTime());
 		// one arrival a second — this 1 Hz pass is the clock, so no timer of its own is needed
@@ -126,8 +130,11 @@ public class PartyTicker {
 	private static boolean allSeated(ServerLevel level, PartyAttachment party) {
 		for (var id : party.guests()) {
 			var guest = find(level, id);
-			if (guest == null) continue;
-			if (!(guest instanceof YoukaiEntity youkai)) continue;
+			// a guest who is not loaded has not proved she has a chair. Counting her as
+			// seated let a restored party open its feast on the first tick after a rejoin,
+			// before anyone had sat down, and the whole staggered arrival became a
+			// formality nobody had to pass.
+			if (!(guest instanceof YoukaiEntity youkai)) return false;
 			if (youkai.getModule(PartyModule.class).map(m -> m.seated()).orElse(false)) continue;
 			return false;
 		}

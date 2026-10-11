@@ -1,12 +1,8 @@
 package dev.xkmc.gensokyolegacy.content.entity.behavior.task.party;
 
 import dev.xkmc.gensokyolegacy.content.entity.youkai.SmartYoukaiEntity;
-import dev.xkmc.gensokyolegacy.init.registrate.GLBrains;
-import dev.xkmc.gensokyolegacy.util.BrainUtils;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.ai.memory.MemoryStatus;
 
-import java.util.Map;
 
 /**
  * Sitting between dishes.
@@ -20,18 +16,15 @@ import java.util.Map;
  */
 public class RestTask extends PartyTask {
 
-	public RestTask() {
-		super(Map.of(GLBrains.MEM_PARTY_REST.get(), MemoryStatus.VALUE_PRESENT));
-	}
 
 	@Override
 	protected boolean stillMine(SmartYoukaiEntity entity, PartyContext ctx) {
-		return BrainUtils.hasMemory(entity, GLBrains.MEM_PARTY_REST.get());
+		return ctx.resting();
 	}
 
 	@Override
 	protected void step(ServerLevel level, SmartYoukaiEntity entity, PartyContext ctx) {
-		if (ctx.tick(GLBrains.MEM_PARTY_REST.get()) > 0) return;
+		if (ctx.tickRest() > 0) return;
 		// resting is over, so the gate drops to whichever task now fits — either back to
 		// finding a dish, or out of the door
 		if (ctx.party().satisfied() && entity.getRandom().nextDouble() < ctx.party().leaveChance()) {

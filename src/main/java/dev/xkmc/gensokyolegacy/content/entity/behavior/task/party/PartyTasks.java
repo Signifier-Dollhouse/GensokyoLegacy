@@ -1,8 +1,8 @@
 package dev.xkmc.gensokyolegacy.content.entity.behavior.task.party;
 
 import dev.xkmc.gensokyolegacy.content.entity.behavior.brain.TaskBoard;
-import dev.xkmc.gensokyolegacy.init.registrate.GLBrains;
 
+import dev.xkmc.gensokyolegacy.init.registrate.GLBrains;
 import java.util.List;
 
 /**
@@ -118,23 +118,8 @@ public final class PartyTasks {
 	 * The director is an <i>always</i> task and so runs alongside whichever of the eleven is
 	 * running; the eleven are exclusive, so exactly one of them is.
 	 */
-	/**
-	 * The whole machine, as one line for an entity class.
- *
- * <p>
-	 * All seven memories are registered explicitly rather than relying on the tasks that
- * name them in an entry condition: the fallback tasks at the bottom of the cascade read the
-	 * same memories without naming them, and {@code Brain.setMemory} is a silent no-op for a
-	 * type the brain does not know while {@code getMemory} throws.
-	 */
+	/** The whole machine, as one line for an entity class. */
 	public static void register(TaskBoard board) {
-		board.addMemory(GLBrains.MEM_PARTY_SERVE.get());
-		board.addMemory(GLBrains.MEM_PARTY_DISH.get());
-		board.addMemory(GLBrains.MEM_PARTY_HESITATE.get());
-		board.addMemory(GLBrains.MEM_PARTY_GRAB.get());
-		board.addMemory(GLBrains.MEM_PARTY_CHEW.get());
-		board.addMemory(GLBrains.MEM_PARTY_REST.get());
-		board.addMemory(GLBrains.MEM_PARTY_LEAVE.get());
 		board.addAlways(new PartyDirectorTask(), GLBrains.PARTY.get());
 		for (var task : ALL) board.addExclusive(0, task, GLBrains.PARTY.get());
 	}

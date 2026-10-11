@@ -2,6 +2,7 @@ package dev.xkmc.gensokyolegacy.event;
 
 import dev.xkmc.gensokyolegacy.content.attachment.area.AreaChunkHolder;
 import dev.xkmc.gensokyolegacy.content.attachment.area.AreaEffectManager;
+import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyAttachment;
 import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyTicker;
 import dev.xkmc.gensokyolegacy.content.attachment.party.food.FoodResultCache;
 import dev.xkmc.gensokyolegacy.content.attachment.party.item.PartyWandComponent;
@@ -60,6 +61,14 @@ public class GLMetaEventHandlers {
 	public static void onChunkLoad(ChunkEvent.Load event) {
 		if (!(event.getChunk() instanceof LevelChunk chunk)) return;
 		if (!(chunk.getLevel() instanceof ServerLevel sl)) return;
+		// A party outlives the server, because it lives on its chunk. The ticker that drives
+		// it does not, because ACTIVE is a plain map in memory, and only PartySend ever puts
+		// anything in it. So a party restored from disk came back with its whole state and
+		// nothing to advance it: no arrivals, no spread rescans, no closing, and no guest ever
+		// told to leave. Re-register on chunk load, which is where the restored attachment is
+		// already readable — ChunkStatusTasks posts the event after readAttachmentsFromNBT.
+		var party = PartyAttachment.of(sl, chunk.getPos());
+		if (party != null && party.active()) PartyTicker.register(sl, chunk.getPos());
 		String key = Long.toHexString(chunk.getPos().toLong());
 		var att = GLMeta.LEVEL_EFFECT.type().getOrCreate(sl);
 		var pendingIds = att.getPending().remove(key);

@@ -4,8 +4,6 @@ import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyAttachment;
 import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartySend;
 import dev.xkmc.gensokyolegacy.content.entity.module.PartyModule;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.SmartYoukaiEntity;
-import dev.xkmc.gensokyolegacy.init.registrate.GLBrains;
-import dev.xkmc.gensokyolegacy.util.BrainUtils;
 import net.minecraft.server.level.ServerLevel;
 
 /**
@@ -34,7 +32,7 @@ public class PartyDirectorTask extends PartyTask {
 		// rides along: this is the door the host calling it off sends her out by, and it
 		// used to be the one departure that left nothing on the table.
 		if ((module.leaving() || party.phase() == PartyAttachment.Phase.CLOSING)
-				&& !BrainUtils.hasMemory(entity, GLBrains.MEM_PARTY_LEAVE.get())) {
+				&& !ctx.leaving()) {
 			ctx.armLeave(entity.getRandom().nextInt(PartyTasks.UNSEAT_DELAY + 1));
 		}
 		// her chair was taken away under her. Dropping the claim is enough: a guest carrying

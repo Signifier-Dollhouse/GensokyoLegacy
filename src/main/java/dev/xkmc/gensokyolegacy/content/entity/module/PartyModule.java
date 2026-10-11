@@ -5,6 +5,7 @@ import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiFlags;
 import dev.xkmc.gensokyolegacy.content.attachment.home.core.IHomeHolder;
 import dev.xkmc.gensokyolegacy.content.attachment.index.StructureKey;
 import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyAttachment;
+import dev.xkmc.gensokyolegacy.content.entity.behavior.task.party.PartyServe;
 import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyTaste;
 import dev.xkmc.gensokyolegacy.content.attachment.character.CharDataHolder;
 import dev.xkmc.gensokyolegacy.content.attachment.character.CharacterConfig;
@@ -164,6 +165,54 @@ public class PartyModule extends AbstractYoukaiModule {
 	@SerialField
 	private long walkClosestAt = 0;
 
+	// --- the state machine ---
+	//
+	// These were brain memories once, and that was the wrong home for them: a guest
+	// reloaded from disk came back without them, so the cascade had no line of its own
+	// tree to resume on and she went back to her schedule as though the party had never
+	// happened. A memory only survives a save if it carries a codec, and the registered
+	// memory types and the brain's own serialization all have to line up with it; the one
+	// thing guaranteed to be written is this tag. So the machine lives here, beside the
+	// chair claim and the tallies that already survive a reload.
+	//
+	// One convention for all of them: 0 is not running, and a null dish or serve is not
+	// held. A restart mid-wait therefore resumes the wait rather than re-rolling it.
+
+	/** The dish she has committed to this round. */
+	@SerialField
+	public BlockPos serveDish;
+
+	/** What she is carrying and what it is worth; cleared when the chew banks it. */
+	@SerialField
+	public PartyServe serve;
+
+	@SerialField
+	public int hesitate = 0;
+
+	@SerialField
+	public int grab = 0;
+
+	@SerialField
+	public int chew = 0;
+
+	@SerialField
+	public int rest = 0;
+
+	/**
+	 * Whether the departure is in progress at all.
+	 *
+	 * <p>
+	 * Its own flag rather than a sentinel in the timer, because zero has to mean "armed and
+	 * already on her way" — the tick after the last of the unseat wait — and the timer alone
+	 * could not say whether the machine was leaving or merely sitting down to eat.
+	 */
+	@SerialField
+	public boolean leaveArmed = false;
+
+	/** Ticks before she stands up. */
+	@SerialField
+	public int leave = 0;
+
 	/**
 	 * Where she is going on her way out, drawn once.
 	 *
@@ -175,16 +224,23 @@ public class PartyModule extends AbstractYoukaiModule {
 	 * target it watches was itself moving. She paced about the party for ever.
 	 */
 	@SerialField
-	private BlockPos leaveDest;
+	public BlockPos leaveDest;
 
 	/** Remember the one place she is walking to. First writer wins. */
 	public void leaveTo(BlockPos dest) {
 		if (leaveDest == null) leaveDest = dest.immutable();
 	}
 
-	@Nullable
-	public BlockPos leaveDestination() {
-		return leaveDest;
+	/** The whole machine, wiped. Called on the way in and on the way out, never mid-visit. */
+	public void clearMachine() {
+		serveDish = null;
+		serve = null;
+		hesitate = 0;
+		grab = 0;
+		chew = 0;
+		rest = 0;
+		leaveArmed = false;
+		leave = 0;
 	}
 
 	public PartyModule(YoukaiEntity self) {
@@ -289,6 +345,7 @@ public class PartyModule extends AbstractYoukaiModule {
 		this.originKey = originKey;
 		this.leaving = false;
 		self.setFlag(YoukaiFlags.PARTYING, true);
+		clearMachine();
 		// and she arrives on the ground: the flag alone stops her hovering, but the
 		// flying navigation and no-gravity are already installed by then
 		self.navCtrl.setWalking();
@@ -482,6 +539,13 @@ public class PartyModule extends AbstractYoukaiModule {
 		return party;
 	}
 
+	/** Take her off the party's roster, so nobody has to go looking for her body. */
+	private void dropFromRoster(ServerLevel sl) {
+		if (partyChunk == null) return;
+		var party = PartyAttachment.of(sl, partyChunk);
+		if (party != null) party.removeGuest(self.getUUID());
+	}
+
 	/**
 	 * The hard exit, for when there is nothing to walk away from. A summoned clone is
 	 * discarded; a character who came as herself is put back — discarding a resident would
@@ -573,15 +637,8 @@ public class PartyModule extends AbstractYoukaiModule {
 
 	/** Clear the party state but leave her standing, so the caller decides. */
 	public void leave() {
-		BrainUtils.clearMemories(self,
-				GLBrains.MEM_PARTY.get(),
-				GLBrains.MEM_PARTY_SERVE.get(),
-				GLBrains.MEM_PARTY_DISH.get(),
-				GLBrains.MEM_PARTY_HESITATE.get(),
-				GLBrains.MEM_PARTY_GRAB.get(),
-				GLBrains.MEM_PARTY_CHEW.get(),
-				GLBrains.MEM_PARTY_REST.get(),
-				GLBrains.MEM_PARTY_LEAVE.get());
+		BrainUtils.clearMemory(self, GLBrains.MEM_PARTY.get());
+		clearMachine();
 		self.setFlag(YoukaiFlags.PARTYING, false);
 		host = null;
 		table = null;
@@ -601,6 +658,12 @@ public class PartyModule extends AbstractYoukaiModule {
 
 	@Override
 	public void onKilled() {
+		// Off the roster here, at the source. The ticker used to sweep for anyone whose
+		// entity it could not find instead, but getEntity only finds LOADED ones, so a
+		// guest outside her own chunk looked exactly like a corpse — and a party restored
+		// from disk begins ticking from its chunk load, before the guests are necessarily
+		// back, so the sweep emptied the roster and the party called itself off.
+		if (self.level() instanceof ServerLevel sl) dropFromRoster(sl);
 		leave();
 	}
 

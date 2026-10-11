@@ -38,7 +38,33 @@ The party lives in the chunk holding `center(food)` (area.md §3), so:
 
 **The roster is frozen when the letter is sent and never recomputed.** Re-drawing on a timer would let a guest who wandered in mid-banquet change the guest list under everyone else, and would make the outcome depend on tick order. Frozen, the roster is a pure function of (reputation, food on the table, seats available) at the moment of sending — and because the draw is seeded from the centre of that food, it is a *reproducible* one, which is what makes `/gensokyo party preview` able to predict a real send perfectly.
 
-**Ticking.** The party advances its phase from the host's chunk tick at 5 Hz via the capability `tick` hook, the same one `CharacterAttachment` uses for daily decay (`CharacterAttachment.java:22`). Nothing in a party needs 20 Hz resolution: guests are walking and eating on multi-second timescales.
+**Ticking.** `PartyTicker` advances every phase in the level at 1 Hz (`LevelTickEvent.Post`, `GLMetaEventHandlers.onLevelTick`). Nothing in a party needs 20 Hz resolution: guests are walking and eating on multi-second timescales. Parties are rare, so only the chunks actually hosting one are swept.
+
+### 1.1 The part that does not persist
+
+`PartyTicker.ACTIVE` — level → the chunks currently hosting a party — is a plain `ConcurrentHashMap` in memory. It is not serialised, because nothing about it *can* be: it is a cache of which chunks to look at, and the answer is already in the chunks. The problem is that nothing ever refills it. `PartySend.send` was the only writer, so after a restart `ACTIVE` was empty and every party that had just been faithfully restored from disk sat in whatever phase it was saved in, for ever: no arrivals, no spread rescans, no closing, no guest ever told to leave. The party looked like it was there and behaved like it was gone.
+
+The fix is to treat chunk load as a second writer:
+
+```java
+// event/GLMetaEventHandlers.java, in onChunkLoad
+var party = PartyAttachment.of(sl, chunk.getPos());
+if (party != null && party.active()) PartyTicker.register(sl, chunk.getPos());
+```
+
+`ChunkEvent.Load` is the right moment and is guaranteed late enough: `ChunkStatusTasks` posts it after `ChunkSerializer` has already run `readAttachmentsFromNBT`, so the restored party is readable there. It is also the right *scope*: a party whose chunk has not loaded cannot advance anyway, so registering on load rather than eagerly costs nothing and needs no scan of the region files.
+
+Going through `PartyAttachment.of` rather than `type().getOrCreate` is deliberate — `of` re-binds `owner`, which is not a `@SerialField` and is therefore `null` in a freshly deserialized attachment. Without it the restored party would mutate correctly but never mark its chunk unsaved, so the next change would be lost too.
+
+**Three consequences of parties resuming, all of which had to go with it:**
+
+| | what it did | why resuming made it worse |
+|---|---|---|
+| the roster sweep in `tickOne` | any guest whose entity `getEntity` could not find was dropped | `getEntity` only finds **loaded** entities, and a restored party starts ticking from its chunk load — *before* the guests' entities are necessarily back. The sweep emptied the roster, `finished()` read the party as over, `reset()` wiped the state the chunk had just restored. |
+| `allSeated` | an unloaded guest `continue`d, counting as seated | the party flipped `GATHERING` → `FEASTING` on the first tick after a rejoin, before anyone had sat down, and the staggered arrival became a formality nobody had to pass |
+| `PartyModule#onKilled` | only called `leave()`, which never touched the roster | it was the only other caller of `removeGuest`, so with the sweep gone a corpse would pin the party open until `PARTY_TIMEOUT` |
+
+The lesson is the same in all three: **`getEntity` returning null means "not loaded", not "not there"**, and a sweep built on it cannot tell a death from a chunk boundary. Guests now come off the roster from the two ends that can only mean it — death, and leaving.
 
 ## 2. Phase transitions
 

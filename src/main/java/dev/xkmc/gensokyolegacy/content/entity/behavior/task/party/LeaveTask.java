@@ -1,20 +1,16 @@
 package dev.xkmc.gensokyolegacy.content.entity.behavior.task.party;
 
 import dev.xkmc.gensokyolegacy.content.entity.youkai.SmartYoukaiEntity;
-import dev.xkmc.gensokyolegacy.init.registrate.GLBrains;
-import dev.xkmc.gensokyolegacy.util.BrainUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.ai.memory.MemoryStatus;
 
-import java.util.Map;
 
 /**
  * The party is over: stand up, then go.
  *
  * <p>
  * The first line of the cascade and the only task whose signature is a single memory, so
- * anything that can end a visit is the same thing here: arm {@code MEM_PARTY_LEAVE} and let
+ * anything that can end a visit is the same thing here: arm the departure and let
  * the gate find it — whether that was the spread running out, a roll on a satisfied sit, or
  * the party closing under her.
  *
@@ -29,13 +25,10 @@ import java.util.Map;
  */
 public class LeaveTask extends PartyTask {
 
-	public LeaveTask() {
-		super(Map.of(GLBrains.MEM_PARTY_LEAVE.get(), MemoryStatus.VALUE_PRESENT));
-	}
 
 	@Override
 	protected boolean stillMine(SmartYoukaiEntity entity, PartyContext ctx) {
-		return BrainUtils.hasMemory(entity, GLBrains.MEM_PARTY_LEAVE.get());
+		return ctx.leaving();
 	}
 
 	@Override

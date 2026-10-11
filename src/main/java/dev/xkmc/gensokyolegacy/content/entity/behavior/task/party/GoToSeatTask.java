@@ -1,12 +1,8 @@
 package dev.xkmc.gensokyolegacy.content.entity.behavior.task.party;
 
 import dev.xkmc.gensokyolegacy.content.entity.youkai.SmartYoukaiEntity;
-import dev.xkmc.gensokyolegacy.init.registrate.GLBrains;
-import dev.xkmc.gensokyolegacy.util.BrainUtils;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.ai.memory.MemoryStatus;
 
-import java.util.Map;
 
 /**
  * Carry the serving back to her chair.
@@ -24,9 +20,6 @@ import java.util.Map;
  */
 public class GoToSeatTask extends PartyTask {
 
-	public GoToSeatTask() {
-		super(Map.of(GLBrains.MEM_PARTY_SERVE.get(), MemoryStatus.VALUE_PRESENT));
-	}
 
 	@Override
 	protected boolean stillMine(SmartYoukaiEntity entity, PartyContext ctx) {
@@ -34,8 +27,8 @@ public class GoToSeatTask extends PartyTask {
 		// where a guest with no chair goes, and the departure. A running task keeps the
 		// gate, so staying true here would re-arm the chew every tick and starve Chew.
 		return ctx.holding() && !ctx.seated()
-				&& !BrainUtils.hasMemory(entity, GLBrains.MEM_PARTY_CHEW.get())
-				&& !BrainUtils.hasMemory(entity, GLBrains.MEM_PARTY_LEAVE.get());
+				&& !ctx.chewing()
+				&& !ctx.leaving();
 	}
 
 	@Override
