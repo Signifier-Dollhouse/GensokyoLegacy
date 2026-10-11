@@ -30,11 +30,12 @@ public class PartyDirectorTask extends PartyTask {
 			return;
 		}
 		// closing is a request, not a discard, and she may be halfway across the room.
-		// The wait is drawn here so a table does not empty inside one tick.
+		// The wait is drawn here so a table does not empty inside one tick, and the gift
+		// rides along: this is the door the host calling it off sends her out by, and it
+		// used to be the one departure that left nothing on the table.
 		if ((module.leaving() || party.phase() == PartyAttachment.Phase.CLOSING)
 				&& !BrainUtils.hasMemory(entity, GLBrains.MEM_PARTY_LEAVE.get())) {
-			BrainUtils.setMemory(entity, GLBrains.MEM_PARTY_LEAVE.get(),
-					entity.getRandom().nextInt(PartyTasks.UNSEAT_DELAY + 1));
+			ctx.armLeave(entity.getRandom().nextInt(PartyTasks.UNSEAT_DELAY + 1));
 		}
 		// her chair was taken away under her. Dropping the claim is enough: a guest carrying
 		// a serving goes to GoToSeat, finds no seat, and banks it standing.

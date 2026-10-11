@@ -35,7 +35,6 @@ public class RestTask extends PartyTask {
 		// resting is over, so the gate drops to whichever task now fits — either back to
 		// finding a dish, or out of the door
 		if (ctx.party().satisfied() && entity.getRandom().nextDouble() < ctx.party().leaveChance()) {
-			ctx.giveGift();
 			ctx.armLeave();
 		}
 	}

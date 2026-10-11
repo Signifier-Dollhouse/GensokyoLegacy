@@ -33,9 +33,41 @@ public interface GeoYoukaiAnim extends GeoEntity {
 	String WINK_CONTROLLER = "wink";
 
 	/**
+	 * The chew. Kept out of {@link YoukaiAnim} for the reason the clip is: it is an
+	 * appetite, not dialogue, and putting it in an enum addressed by trigger name from
+	 * dialog data would cost every character a dead case in an already exhaustive switch.
+	 * {@code GeoYoukaiAnim} owns 71-79, so the next id up is free.
+	 *
+	 * <p>
+	 * {@code thenPlayAndHold} rather than {@code thenPlay}, because the chew has to sit
+	 * there until she reaches for the next dish, and holding the last pose means a
+	 * slightly-off timing reads as her still chewing instead of snapping back to hovering
+	 * mid-bite.
+	 */
+	RawAnimation EAT = RawAnimation.begin().thenPlayAndHold("吃");
+
+	String EAT_TRIGGER = "eat";
+	byte EAT_EVENT = 80;
+
+	/**
 	 * The clip this character plays for the given slot, or empty when it has none.
 	 */
 	Optional<RawAnimation> getAnim(YoukaiAnim anim);
+
+	/**
+	 * Register the chew on the main controller.
+	 *
+	 * <p>
+	 * Called next to {@link #addDialogAnims} by every character whose rig has a
+	 * {@code 吃} clip. It is <b>not</b> folded into {@code addDialogAnims}: registering a
+	 * clip the rig does not have resolves it to {@code null}, {@code buildAnimationQueue}
+	 * then hands the controller an empty queue, and the next {@code process()} tick stops
+	 * it without writing any bones — pinning the character in the last pose written, i.e.
+	 * frozen mid-hover for the whole walk, silently. So this is opt-in per rig.
+	 */
+	default void addEatAnim(AnimationController<?> controller) {
+		controller.triggerableAnim(EAT_TRIGGER, EAT);
+	}
 
 	/**
 	 * Register a triggerable for every mapped slot on the main controller.
@@ -76,6 +108,12 @@ public interface GeoYoukaiAnim extends GeoEntity {
 	 * Client-side: play the one-shot. Returns true when the id was consumed.
 	 */
 	default boolean handleAnimEvent(byte id) {
+		// the chew, before the ordinal maths: EAT_EVENT sits just past the dialog range,
+		// so the two cannot collide
+		if (id == EAT_EVENT) {
+			triggerAnim(ANIM_CONTROLLER, EAT_TRIGGER);
+			return true;
+		}
 		int ord = id - ANIM_EVENT_BASE;
 		var values = YoukaiAnim.values();
 		if (ord < 0 || ord >= values.length) return false;

@@ -145,8 +145,19 @@ public class PartyContext {
 	// Erasing it here would drop the cascade back to whichever task matches an ordinary
 	// guest, and she would sit back down on the way out of the door.
 
-	/** Arm the departure, waiting {@code ticks} before she stands up. */
+	/**
+	 * Arm the departure, waiting {@code ticks} before she stands up.
+	 *
+	 * <p>
+	 * <b>The gift is given here, not at the call sites.</b> There are three ways a visit
+	 * ends — the spread running out, a roll on a satisfied sit, and the host calling it off
+	 * — and only the first two used to pass through here. The third is the ticker's, which
+	 * arms the departure directly, so a guest who ate a whole spread and left to a host who
+	 * called it off left nothing behind. One place, so a fourth cannot forget, and harmless
+	 * to repeat: {@link PartyGift} is a no-op once she has given.
+	 */
 	public void armLeave(int ticks) {
+		giveGift();
 		BrainUtils.setMemory(entity, GLBrains.MEM_PARTY_LEAVE.get(), Math.max(ticks, 0));
 	}
 
@@ -428,12 +439,26 @@ public class PartyContext {
 	}
 
 	/**
-	 * Where she goes when the party is over.
-	 *
-	 * @return a destination, or null to finish leaving here and now
-	 */
+ * Where she goes when the party is over.
+ *
+ * <p>
+ * Drawn once and kept on the module. This is asked for on every tick of the walkout, and a
+ * walk-away destination is a random roll: drawn per call, a guest re-rolls it each tick,
+ * walks toward a target that keeps moving, and never arrives anywhere.
+ *
+ * @return a destination, or null to finish leaving here and now
+ */
+@Nullable
+public BlockPos destination() {
+		var drawn = party.leaveDestination();
+		if (drawn != null) return drawn;
+		drawn = pickDestination();
+		if (drawn != null) party.leaveTo(drawn);
+		return drawn;
+	}
+
 	@Nullable
-	public BlockPos destination() {
+	private BlockPos pickDestination() {
 		var table = party.table();
 		if (table == null) return null;
 		if (party.origin() == PartyModule.Origin.SUMMONED) return walkOut(table);

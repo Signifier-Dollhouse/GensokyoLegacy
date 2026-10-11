@@ -37,7 +37,7 @@ public class FindFoodTask extends PartyTask {
 	protected void step(ServerLevel level, SmartYoukaiEntity entity, PartyContext ctx) {
 		BlockPos dish = ctx.drawDish();
 		if (dish == null) {
-			ctx.giveGift();
+			// armLeave leaves the gift as well
 			ctx.armLeave();
 			return;
 		}

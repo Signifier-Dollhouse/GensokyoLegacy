@@ -164,6 +164,29 @@ public class PartyModule extends AbstractYoukaiModule {
 	@SerialField
 	private long walkClosestAt = 0;
 
+	/**
+	 * Where she is going on her way out, drawn once.
+	 *
+	 * <p>
+	 * Drawn once and kept, because the obvious implementation draws it afresh every time it
+	 * is asked and a walk-away destination is random. That made the guest re-roll her
+	 * destination every tick, so she never arrived anywhere, never looked stuck — because
+	 * she was walking, constantly — and never triggered the stall repair either, since the
+	 * target it watches was itself moving. She paced about the party for ever.
+	 */
+	@SerialField
+	private BlockPos leaveDest;
+
+	/** Remember the one place she is walking to. First writer wins. */
+	public void leaveTo(BlockPos dest) {
+		if (leaveDest == null) leaveDest = dest.immutable();
+	}
+
+	@Nullable
+	public BlockPos leaveDestination() {
+		return leaveDest;
+	}
+
 	public PartyModule(YoukaiEntity self) {
 		super(ID, self);
 	}
@@ -570,6 +593,7 @@ public class PartyModule extends AbstractYoukaiModule {
 		leaving = false;
 		walkTarget = null;
 		walkClosest = Double.MAX_VALUE;
+		leaveDest = null;
 		seatFailures = 0;
 		seatWarned = false;
 		layoutVersion = -1;

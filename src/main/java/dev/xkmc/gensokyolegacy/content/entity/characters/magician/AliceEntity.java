@@ -153,6 +153,7 @@ public class AliceEntity extends GeneralYoukaiEntity implements GeoYoukaiAnim, D
 		// bones, so the always-looping blink yields to the main controller.
 		controllers.add(new AnimationController<>(this, WINK_CONTROLLER, 0, e -> e.setAndContinue(BLINK)));
 		var main = new AnimationController<>(this, ANIM_CONTROLLER, 5, this::idleAnimController);
+		addEatAnim(main);
 		addDialogAnims(main);
 		controllers.add(main);
 	}

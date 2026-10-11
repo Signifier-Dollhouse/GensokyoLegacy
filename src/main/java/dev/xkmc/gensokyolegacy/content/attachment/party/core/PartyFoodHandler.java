@@ -69,21 +69,4 @@ public final class PartyFoodHandler {
 		return null;
 	}
 
-	/**
-	 * Whether this block is party food <i>right now</i>. Separate from {@link #claims},
-	 * because a container may be claimed and empty.
-	 */
-	public static boolean claimsHere(Level level, BlockPos pos, BlockState state) {
-		var container = containerOf(state.getBlock());
-		if (container != null) {
-			for (var result : container.contents(level, pos, state)) {
-				if (result.valid()) return true;
-			}
-			return false;
-		}
-		return claims(state.getBlock()) != null;
-	}
-
-	private PartyFoodHandler() {
-	}
 }

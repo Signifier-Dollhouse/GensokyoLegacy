@@ -114,24 +114,7 @@ public class PlainFairyEntity extends FairyEntity implements GeoYoukaiAnim {
 	 */
 	private static final RawAnimation FLOAT = RawAnimation.begin().thenLoop("漂浮");
 	private static final RawAnimation USE_MAINHAND = RawAnimation.begin().thenPlay("使用主手物品");
-	/**
-	 * {@code 吃} played and held, rather than played once: the chew has to sit there
-	 * until she decides to reach for a flower, and holding the last pose means a
-	 * slightly-off timing reads as her still chewing instead of snapping back to
-	 * hovering mid-bite.
-	 */
-	private static final RawAnimation EAT = RawAnimation.begin().thenPlayAndHold("吃");
 
-	/**
-	 * Her eating slot, kept out of {@link YoukaiAnim}. That enum is the vocabulary of
-	 * conversation - its slots are addressed by trigger name from dialog data - and an
-	 * appetite is not dialogue. Putting it there would also have cost every other
-	 * character a dead {@code case} in an already exhaustive switch, for a clip only
-	 * this rig has. {@code GeoYoukaiAnim} owns 71-79 and the dolls 66-70, so the next
-	 * id up is free.
-	 */
-	private static final String EAT_TRIGGER = "eat";
-	private static final byte EAT_EVENT = 80;
 
 	/**
 	 * Start the chew. Server-side; the play itself is an entity event, so the client
@@ -141,13 +124,6 @@ public class PlainFairyEntity extends FairyEntity implements GeoYoukaiAnim {
 	 * holding a plate calls this on whatever character she is, and only a rig with a
 	 * {@code 吃} clip answers.
 	 */
-	@Override
-	public void broadcastEat() {
-		if (!level().isClientSide()) {
-			level().broadcastEntityEvent(this, EAT_EVENT);
-		}
-	}
-
 	/**
 	 * Her own entity data, layered over the generic youkai/spell-data layers.
 	 */
@@ -454,7 +430,7 @@ public class PlainFairyEntity extends FairyEntity implements GeoYoukaiAnim {
 		// bones, so the always-looping blink yields to the main controller.
 		controllers.add(new AnimationController<>(this, WINK_CONTROLLER, 0, e -> e.setAndContinue(BLINK)));
 		var main = new AnimationController<>(this, ANIM_CONTROLLER, 5, this::idleAnimController);
-		main.triggerableAnim(EAT_TRIGGER, EAT);
+		addEatAnim(main);
 		addDialogAnims(main);
 		controllers.add(main);
 	}
@@ -462,10 +438,6 @@ public class PlainFairyEntity extends FairyEntity implements GeoYoukaiAnim {
 	@Override
 	public void handleEntityEvent(byte id) {
 		if (level().isClientSide()) {
-			if (id == EAT_EVENT) {
-				triggerAnim(ANIM_CONTROLLER, EAT_TRIGGER);
-				return;
-			}
 			if (handleAnimEvent(id)) return;
 		}
 		super.handleEntityEvent(id);

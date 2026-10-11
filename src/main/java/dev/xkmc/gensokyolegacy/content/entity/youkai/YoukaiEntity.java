@@ -254,15 +254,19 @@ public abstract class YoukaiEntity extends DamageClampEntity implements SpellCir
 
 	/**
 	 * Play this character's chew, if she has one.
-	 * <p>
-	 * A no-op on the base class because the clip is per rig and most rigs have none: an
-	 * eat animation is missing art rather than a missing system, and the party should not
-	 * have to know which characters are still waiting for theirs. A rig that maps one
-	 * overrides this — {@code PlainFairyEntity} is the only one so far, firing its chew as
-	 * an entity event so the client sees the same animation the server timed the rest of
-	 * the meal against.
-	 */
-	public void broadcastEat() {
+ * <p>
+ * An entity event rather than a direct animation call, so the client sees the same
+ * animation the server timed the rest of the meal against.
+ * <p>
+ * Silent for a character that is not geo-animated at all, which is the honest answer: the
+ * clip is per rig, and an eat animation is missing art rather than a missing system. Every
+ * rig that has one registers it with {@code GeoYoukaiAnim#addEatAnim}, and the event is
+ * what picks it up, so nothing here has to know which characters those are.
+ */
+public void broadcastEat() {
+		if (this instanceof GeoYoukaiAnim && !level().isClientSide()) {
+			level().broadcastEntityEvent(this, GeoYoukaiAnim.EAT_EVENT);
+		}
 	}
 
 	@Override
