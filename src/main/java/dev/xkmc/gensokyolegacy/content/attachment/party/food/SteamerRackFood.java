@@ -107,9 +107,11 @@ public class SteamerRackFood implements ContainerFoodHandler {
 				var have = merged.get(i);
 				if (!have.id().equals(result.id())) continue;
 				// two slots of the same thing are one food with twice the servings,
-				// still handed over one item at a time
+				// still handed over one item at a time - and so with one appeal, since
+				// a food is priced once however many of it there are
 				merged.set(i, new FoodResult(have.serving(), have.blockId(),
-						have.serves() + result.serves(), have.food(), have.consume()));
+						have.serves() + result.serves(), have.nutrition(), have.saturation(),
+						have.appeal(), have.consume()));
 				folded = true;
 				break;
 			}

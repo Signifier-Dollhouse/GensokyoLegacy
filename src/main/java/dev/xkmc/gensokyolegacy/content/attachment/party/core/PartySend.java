@@ -46,7 +46,10 @@ public class PartySend {
 	 */
 	public record Plan(PartyArea area, List<PartyPlanner.Candidate> pool, List<EntityType<?>> roster) {
 
-		/** The spread's total attraction. Scales weights; is not the budget. */
+		/**
+		 * The spread's total attraction, each food counted once. Scales weights; is not
+		 * the budget, and does not grow with how much of it is left on the table.
+		 */
 		public int appeal() {
 			return area.appeal();
 		}

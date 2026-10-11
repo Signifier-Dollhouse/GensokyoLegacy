@@ -5,6 +5,7 @@ import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -53,14 +54,19 @@ public class PartyGift {
 	 * A guest with nothing tasteful to give leaves nothing rather than something
 	 * arbitrary.
 	 * <p>
-	 * How generous she is, is **the appeal she personally consumed** rather than whether
-	 * she was satisfied. Those are two of the three food measurements (design doc §5.2)
-	 * and they answer different questions: rare-effect delicacies fill her up no better
-	 * than plain bread does, and she is still more moved by them. An earlier version
-	 * halved the gift for an under-served guest, which made a beautiful thin spread read
-	 * as stingy rather than as modest — the host's generosity and the guest's appetite are
-	 * not one axis. The ladder of counts lives in her table, one pool per tier, gated by
-	 * {@link AppealConsumedCondition}.
+	 * What makes her generous is **the appeal she personally consumed** rather than whether
+	 * she was satisfied. Those are two of the three food measurements (design doc §5.2) and
+	 * they answer different questions: rare-effect delicacies fill her up no better than
+	 * plain bread does, and she is still more moved by them. An earlier version halved the
+	 * gift for an under-served guest, which made a beautiful thin spread read as stingy
+	 * rather than as modest — the host's generosity and the guest's appetite are not one
+	 * axis.
+	 * <p>
+	 * It never shows as a bigger stack: a gift is **always exactly one item**, and what the
+	 * appeal buys is <i>reach</i> — the better things, and eventually something of her own,
+	 * enter her table and are there to be picked. That lives in her loot table as entries
+	 * gated on {@link AppealConsumedCondition}, and it is why a single pool of one roll is
+	 * enough to express a whole ladder.
 	 * <p>
 	 * <b>Once.</b> She leaves through two doors — running out of food she can reach, or
 	 * rolling {@code leaveChance} — and a visit can pass near enough to both that she
@@ -99,11 +105,10 @@ public class PartyGift {
 				.create(LootContextParamSets.ADVANCEMENT_REWARD);
 		var stacks = new ArrayList<ItemStack>();
 		loot.getRandomItems(params, stacks::add);
-		// One gift, ever: the first stack is the whole of it. The tiers of a generated table
-		// are disjoint pools, so exactly one of them fires and this costs nothing — but a
-		// datapack that rewrites a table into two unconditional pools would otherwise bury
-		// the table under both, and that should read as a mistake in the data rather than
-		// one in here.
+		// One gift, ever. A generated table is a single pool of a single roll, so this costs
+		// nothing — but a datapack that rewrites a table into two pools would otherwise bury
+		// the table under both, and that should read as a mistake in the data rather than one
+		// in here.
 		return stacks.isEmpty() ? null : stacks.getFirst();
 	}
 
@@ -119,7 +124,8 @@ public class PartyGift {
 	private static LootTable tableOf(ServerLevel level, YoukaiEntity guest) {
 		var lookup = level.getServer().reloadableRegistries().get().lookup(Registries.LOOT_TABLE).orElse(null);
 		if (lookup == null) return null;
-		var id = guest.getType().builtInRegistryHolder().key().location();
+		var id = BuiltInRegistries.ENTITY_TYPE.getKey(guest.getType());
+		if (id == null) return null;
 		var own = ResourceKey.create(Registries.LOOT_TABLE,
 				ResourceLocation.fromNamespaceAndPath(id.getNamespace(), TABLE_DIR + "/" + id.getPath()));
 		return lookup.get(own).or(() -> lookup.get(DEFAULT_TABLE)).map(Holder::value).orElse(null);

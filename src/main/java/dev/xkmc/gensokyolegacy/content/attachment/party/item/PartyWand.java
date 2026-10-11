@@ -4,7 +4,6 @@ import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyFoodHandler;
 import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyFoodValue;
 import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyPlanner;
 import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartySend;
-import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyTaste;
 import dev.xkmc.gensokyolegacy.content.attachment.party.food.FoodResult;
 import dev.xkmc.gensokyolegacy.content.client.debug.CharacterInfoClientManager;
 import dev.xkmc.gensokyolegacy.content.client.debug.IDebugOverlayWand;
@@ -14,23 +13,19 @@ import dev.xkmc.gensokyolegacy.init.data.GLTagGen;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
@@ -38,11 +33,14 @@ import java.util.List;
  * A debug wand for the party system.
  *
  * <p>
- * <b>Hover a food block</b> to read what it is worth: serves, nutrition, saturation,
- * attraction, and how many serves of it a guest needs. Computed on the client from the
- * block state and the item registry, both of which the client already holds, so a live
- * readout costs no packets. Asking the server instead would mean a round trip per frame
- * for numbers that cannot disagree with the client's own copy.
+ * <b>Hover a food block</b> to read what it is worth. A block holding one dish is
+ * described by its serving — how many items that is, and what one is worth to eat. A
+ * container of several is described by its totals instead, since there is no single
+ * serving there to describe. Either way the last line is the appeal the block would
+ * contribute to a party. Computed on the client from the block state and the item
+ * registry, both of which the client already holds, so a live readout costs no packets.
+ * Asking the server instead would mean a round trip per frame for numbers that cannot
+ * disagree with the client's own copy.
  *
  * <p>
  * <b>Click a food block</b> to take one serving off it, exactly as a guest would.
@@ -63,21 +61,8 @@ public class PartyWand extends Item implements IDebugOverlayWand {
 	/** How far the overlay will look for a food block to describe. */
 	private static final double REACH = 6.0d;
 
-	/**
-	 * The cheapest and dearest appetite among all characters, as a serving count range.
-	 * <p>
-	 * Cached because it walks every entity type and the overlay asks every frame. Reset on
-	 * datapack sync, since {@code party_taste} is datapack data.
-	 */
-	private static int[] fulfillmentRange;
-
 	public PartyWand(Properties properties) {
 		super(properties);
-	}
-
-	/** Forget the cached appetite range; called on datapack sync. */
-	public static void invalidate() {
-		fulfillmentRange = null;
 	}
 
 	// --- click ---
@@ -118,22 +103,18 @@ public class PartyWand extends Item implements IDebugOverlayWand {
 		// the area rides along even on a refusal: a table the wand refuses is exactly
 		// the case where the host needs to see what the scan did and did not take
 		var area = outcome.area();
-		if (area == null) return PartyWandData.refused(table, List.of(), List.of(), List.of());
 		var plan = outcome.plan();
-		if (plan == null) return PartyWandData.refused(table, area.tables(), area.seats(), area.food());
-
-		var roster = plan.roster();
-		int spent = plan.pool().stream()
-				.filter(c -> roster.contains(c.type()))
-				.mapToInt(PartyPlanner.Candidate::fulfillment)
-				.sum();
-		var candidates = new ArrayList<PartyWandData.Candidate>(plan.pool().size());
-		plan.pool().stream()
+		if (area == null || plan == null) return PartyWandData.refused(table, area);
+		// the draw's roster, heaviest weight first. The weights are read here and then
+		// dropped: the readout says who would come and nothing about how close any of
+		// them was, so there is nothing to keep them on the item for.
+		var guests = plan.pool().stream()
+				.filter(c -> plan.roster().contains(c.type()))
 				.sorted(Comparator.comparingInt(PartyPlanner.Candidate::weight).reversed())
-				.forEach(c -> candidates.add(new PartyWandData.Candidate(
-						c.type(), c.weight(), c.fulfillment(), c.reputation(), roster.contains(c.type()))));
+				.map(PartyPlanner.Candidate::type)
+				.toList();
 		return new PartyWandData(table, area.tables(), area.seats(), area.food(),
-				plan.capacity(), spent, candidates);
+				plan.capacity(), plan.appeal(), guests);
 	}
 
 	/**
@@ -191,6 +172,15 @@ public class PartyWand extends Item implements IDebugOverlayWand {
 	/**
 	 * The hovered food block, if the player is looking at one worth reading.
 	 *
+	 * <p>
+	 * <b>One food on the block and several are read as two different questions.</b> A
+	 * single dish has a size — how many items one serving is, and what one of those is
+	 * worth — and those are the numbers that describe it. A container of mixed contents
+	 * has no such thing: there is no one serving to describe, only a pile, so it is
+	 * reported as the totals a party would actually count, which is serves, hunger and
+	 * appeal for the block as a whole. Reading the first entry of a mixed container, as
+	 * this used to, described one of its contents and silently implied it was the only one.
+	 *
 	 * @param allowInvalid whether to say so when there is a food block but nothing on it
 	 * @return whether the food branch owns the overlay, and nothing else should be added
 	 */
@@ -203,104 +193,81 @@ public class PartyWand extends Item implements IDebugOverlayWand {
 		// the state - which works on the client as well, because a board's contents and
 		// a rack's racks are both synced. A container that is not loaded simply reports
 		// nothing and is left undescribed rather than guessed at.
-		var results = PartyFoodValue.results(level, pos, state);
-		var valid = results.stream().filter(FoodResult::valid).toList();
+		var valid = PartyFoodValue.results(level, pos, state).stream()
+				.filter(FoodResult::valid).toList();
 		if (valid.isEmpty()) {
 			if (PartyFoodHandler.claims(state.getBlock()) == null) return false;
 			if (!allowInvalid) return false;
 			lines.add(GLLang.ItemDebug.PARTY_WAND_INVALID.get().withStyle(ChatFormatting.DARK_RED));
 			return true;
 		}
-		int servings = valid.stream().mapToInt(FoodResult::serves).sum();
-		// the first food on it, named as what it is - a container lists one entry per
-		// kind of thing it holds, and the block's own name is still what the player is
-		// looking at, so it is the block that gets named
-		var first = valid.get(0);
-		var props = first.food();
-		int perServe = PartyFoodValue.appealPerServe(level.registryAccess(), level, pos, state);
 		lines.add(GLLang.ItemDebug.PARTY_WAND_FOOD.get(state.getBlock().getName()).withStyle(ChatFormatting.AQUA));
-		lines.add(GLLang.ItemDebug.PARTY_WAND_SERVES.get(servings).withStyle(ChatFormatting.GRAY));
-		lines.add(GLLang.ItemDebug.PARTY_WAND_FOOD_VALUES.get(props.nutrition(), String.format("%.1f", props.saturation()))
-				.withStyle(ChatFormatting.GRAY));
-		lines.add(GLLang.ItemDebug.PARTY_WAND_ATTRACTION.get(perServe, perServe * servings)
-				.withStyle(ChatFormatting.GRAY));
-		var range = servesToSatisfy(player, perServe);
-		lines.add((range == null
-				? GLLang.ItemDebug.PARTY_WAND_FULFILLMENT_NONE.get()
-				: GLLang.ItemDebug.PARTY_WAND_FULFILLMENT.get(range))
-				.withStyle(ChatFormatting.GRAY));
+		if (valid.size() == 1) {
+			var only = valid.get(0);
+			// the size of a serving: two for a board that hands over a pair of nigiri,
+			// one for everything else. Whether the block has seven of those left is a
+			// question the multi branch below answers for the containers it applies to
+			lines.add(GLLang.ItemDebug.PARTY_WAND_SERVING.get(only.serving().getCount())
+					.withStyle(ChatFormatting.GRAY));
+			lines.add(GLLang.ItemDebug.PARTY_WAND_FOOD_VALUES.get(only.nutrition(),
+					String.format("%.1f", only.saturation())).withStyle(ChatFormatting.GRAY));
+		} else {
+			// summed here rather than through PartyFoodValue.totalHunger, because that
+			// asks the container a second time and this overlay runs every frame: the
+			// block entity has already been read once, above, and these are the same
+			// sums over the same list
+			int serves = 0, hunger = 0;
+			for (var result : valid) {
+				serves += result.serves();
+				hunger += result.nutrition() * result.serves();
+			}
+			lines.add(GLLang.ItemDebug.PARTY_WAND_SERVES.get(serves).withStyle(ChatFormatting.GRAY));
+			lines.add(GLLang.ItemDebug.PARTY_WAND_TOTAL_HUNGER.get(hunger).withStyle(ChatFormatting.GRAY));
+		}
+		// what this block is worth to a party: one appeal per food on it, with the
+		// serving count deliberately not multiplying - see PartyArea.scan, where a
+		// second cake somewhere else on the table would not be added again either
+		int worth = 0;
+		for (var entry : PartyFoodValue.appealPerFood(level.registryAccess(), level, pos, state)) {
+			worth += entry.appeal();
+		}
+		lines.add(GLLang.ItemDebug.PARTY_WAND_ATTRACTION.get(worth).withStyle(ChatFormatting.GRAY));
 		return true;
 	}
 
 	/**
-	 * Serves of this food needed by the easiest and the fussiest character, as one number
-	 * or a range. Both ends are worth seeing: the low end says whether the dish is worth
-	 * laying out at all, the high end whether it could ever feed everyone at the table.
+	 * The simulated party: what the scan found, what the spread is worth, and who the
+	 * draw chose.
 	 *
-	 * @return the range as text, or null when there are no characters to compare against
-	 */
-	private static String servesToSatisfy(Player player, int perServe) {
-		if (perServe <= 0) return null;
-		var range = fulfillmentRange;
-		if (range == null) {
-			range = buildFulfillmentRange(player.level());
-			fulfillmentRange = range;
-		}
-		if (range == null) return null;
-		int low = Math.max(1, (int) Math.ceil(range[0] / (double) perServe));
-		int high = Math.max(1, (int) Math.ceil(range[1] / (double) perServe));
-		return low == high ? String.valueOf(low) : low + "-" + high;
-	}
-
-	/**
-	 * The smallest and largest fulfillment any <b>eligible</b> character asks for, or
-	 * null if no character is eligible at all.
 	 * <p>
-	 * Skips characters with no {@code party_taste}, because they cannot be invited and
-	 * their numbers would otherwise drag the range away from the characters the host
-	 * can actually seat.
+	 * Three lines of numbers and then a list of names. The numbers are what a host tunes
+	 * against — the appeal figure is exactly the one every character was weighted by, so
+	 * a spread that attracts nobody says so here before the roster does. Past that the
+	 * readout stops: the weights, appetites and reputations that produced the draw are
+	 * not shown, because a wall of near-identical rows per character buries the two
+	 * things a reader actually came for.
 	 */
-	private static int[] buildFulfillmentRange(Level level) {
-		int low = Integer.MAX_VALUE;
-		int high = 0;
-		boolean any = false;
-		for (var type : BuiltInRegistries.ENTITY_TYPE) {
-			if (!PartySend.isCharacter(type)) continue;
-			var taste = PartyTaste.of(level.registryAccess(), (EntityType<?>) type);
-			if (taste == null) continue;
-			any = true;
-			low = Math.min(low, taste.fulfillment());
-			high = Math.max(high, taste.fulfillment());
-		}
-		return any ? new int[]{low, high} : null;
-	}
-
 	private void describeParty(Player player, PartyWandData data, List<Component> lines) {
 		var bound = data.bound();
 		lines.add(GLLang.ItemDebug.PARTY_WAND_PARTY.get(bound.getX(), bound.getY(), bound.getZ())
 				.withStyle(ChatFormatting.GOLD));
 		lines.add(GLLang.ItemDebug.PARTY_WAND_COUNTS.get(data.tables().size(), data.seats().size(), data.foods().size())
 				.withStyle(ChatFormatting.GRAY));
-		lines.add(GLLang.ItemDebug.PARTY_WAND_TOTALS.get(data.hunger(), data.needed())
+		lines.add(GLLang.ItemDebug.PARTY_WAND_TOTALS.get(data.hunger(), data.appeal())
 				.withStyle(ChatFormatting.GRAY));
 		if (data.empty()) {
 			lines.add(GLLang.ItemDebug.PARTY_WAND_NOBODY.get().withStyle(ChatFormatting.DARK_RED));
-			return;
+		} else {
+			for (var guest : data.guests()) {
+				lines.add(GLLang.ItemDebug.PARTY_WAND_GUEST.get(guest.getDescription())
+						.withStyle(ChatFormatting.GREEN));
+			}
 		}
-		for (var candidate : data.candidates()) lines.add(candidateLine(candidate));
 		// the food is being eaten while the wand sits in a hand, so a readout taken a
 		// while back is worth flagging rather than presenting as current
 		if (player.blockPosition().distSqr(bound) > 64) {
 			lines.add(GLLang.ItemDebug.PARTY_WAND_STALE.get().withStyle(ChatFormatting.DARK_GRAY));
 		}
-	}
-
-	private static Component candidateLine(PartyWandData.Candidate candidate) {
-		var style = candidate.invited() ? ChatFormatting.GREEN
-				: candidate.declined() ? ChatFormatting.DARK_GRAY : ChatFormatting.GRAY;
-		return GLLang.ItemDebug.PARTY_WAND_CANDIDATE.get(candidate.type().getDescription(),
-				String.valueOf(candidate.weight()), candidate.reputation(),
-				candidate.fulfillment(), candidate.invited() ? "+" : "-").withStyle(style);
 	}
 
 	// --- tooltip ---

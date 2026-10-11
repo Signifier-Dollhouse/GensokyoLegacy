@@ -143,6 +143,10 @@ public class YoukaiPartyTask extends Behavior<SmartYoukaiEntity> {
 	 */
 	private static final int UNSEAT_DELAY = 60;
 
+	/** How far past that floor a departing guest is sent, as a band on top of it. */
+	private static final int WALK_OUT_SPREAD = 32;
+	/** How many places are rolled before giving up on somewhere to walk off to. */
+	private static final int WALK_OUT_TRIES = 8;
 	/**
 	 * How long she may spend walking away or home before she is let go of the party
 	 * regardless. A guest who cannot reach her destination is not stuck holding a chair
@@ -166,10 +170,12 @@ public class YoukaiPartyTask extends Behavior<SmartYoukaiEntity> {
 	 * wrong side of a long table, not reach proper.
 	 *
 	 * <p>
-	 * There is no third number for the chair, and that is the point of arriving on a block
-	 * <b>exactly</b>: the block she is sent to is adjacent to the chair by construction, so
-	 * "she got there" and "she is next to her seat" are the same statement and need no
-	 * separate tolerance to agree.
+	 * <b>The chair has its own, and it is three.</b> The block she is sent to is adjacent
+	 * to the chair by construction, so arrival alone would be enough — but arriving and
+	 * <i>sitting</i> are two steps, and the second one is {@code setSitting} finding a
+	 * {@code ChairEntity} to put her on. Three blocks is the slack for a pathfinder that
+	 * stopped a block short of the tile it was sent to, which is the case that leaves a
+	 * guest standing next to her own chair with the party still waiting on her.
 	 *
 	 * <p>
 	 * Measured to the <b>block's box</b> rather than its centre, which is what makes these
@@ -178,6 +184,18 @@ public class YoukaiPartyTask extends Behavior<SmartYoukaiEntity> {
 	 */
 	private static final double REACH_SEATED = 3;
 	private static final double REACH_STANDING = 2;
+	/**
+	 * How close she must be to her chair to sit in it.
+	 *
+	 * <p>
+	 * Wider than the walk tolerance on purpose, and for a different reason from the
+	 * others. Arriving and sitting are two steps: reaching the tile she was sent to, and
+	 * then {@code setSitting} finding a {@code ChairEntity} to put her on. Three blocks is
+	 * the slack for a pathfinder that stopped a block short, which is what otherwise
+	 * leaves a guest standing beside her own chair with the whole party held in GATHERING
+	 * on her.
+	 */
+	private static final double SEAT_REACH = 3;
 
 	/**
 	 * How close she must get to the block she is walking <i>to</i>. Zero: she has to be
@@ -410,6 +428,11 @@ public class YoukaiPartyTask extends Behavior<SmartYoukaiEntity> {
 				entity.teleportTo(spot.x, spot.y, spot.z);
 				entity.getNavigation().stop();
 				entity.navCtrl.stopMoving();
+				// she has arrived, wherever that turned out to be. Without this the
+				// destination she was sent to is still the one she failed to reach, the
+				// arrival test never passes, and she is teleported again next timeout for
+				// as long as the party lasts.
+				standing = BlockPos.containing(spot);
 				deadline = gameTime + LEG_TIMEOUT;
 			} else {
 				dismiss(entity);
@@ -534,6 +557,12 @@ public class YoukaiPartyTask extends Behavior<SmartYoukaiEntity> {
 			takeServing(level, entity, party);
 			return;
 		}
+		// Still airborne: no order is given, so the walk control never starts and she
+		// falls instead of flying, and the leg clock waits with her.
+		if (!canWalk(entity)) {
+			deadline = level.getGameTime() + LEG_TIMEOUT;
+			return;
+		}
 		away = true;
 		// a passenger does not walk, and the chair she is riding will not go for her
 		if (entity.isPassenger()) entity.stopRiding();
@@ -577,6 +606,12 @@ public class YoukaiPartyTask extends Behavior<SmartYoukaiEntity> {
 				finishLeaving(level, entity);
 				return;
 			}
+			// airborne: no order, and the leg clock held off, or a guest who fell from
+			// above the table would be written off before she landed
+			if (!canWalk(entity)) {
+				deadline = gameTime + LEG_TIMEOUT;
+				return;
+			}
 			target = dest;
 			walkTo(entity, dest.getCenter(), dest);
 			return;
@@ -606,16 +641,7 @@ public class YoukaiPartyTask extends Behavior<SmartYoukaiEntity> {
 	private BlockPos destination(ServerLevel level, SmartYoukaiEntity entity, PartyModule party) {
 		var table = party.table();
 		if (table == null) return null;
-		if (party.origin() == PartyModule.Origin.SUMMONED) {
-			// out past the guest radius, so she is off the party's books and not merely
-			// standing at the edge of it
-			var reach = GLModConfig.SERVER.partyGuestRadius.get() + 8;
-			var random = entity.getRandom();
-			var spot = new BlockPos(table.getX() + random.nextInt(-reach, reach + 1),
-					table.getY(), table.getZ() + random.nextInt(-reach, reach + 1));
-			var away = PartySend.freeSpaceNear(level, spot, 4);
-			return away == null ? null : BlockPos.containing(away);
-		}
+		if (party.origin() == PartyModule.Origin.SUMMONED) return walkOut(level, entity, table);
 		var key = party.originKey();
 		if (key == null || !level.dimension().equals(key.getDim())) return null;
 		if (party.origin() == PartyModule.Origin.VISITING) {
@@ -625,6 +651,49 @@ public class YoukaiPartyTask extends Behavior<SmartYoukaiEntity> {
 		var home = IHomeHolder.of(level, key);
 		var center = home == null ? null : home.getWanderCenter();
 		return center == null ? key.pos() : center;
+	}
+
+	/**
+	 * Somewhere a summoned guest walks off to before she is put away.
+	 *
+	 * <p>
+	 * <b>Far.</b> The old version picked a random spot within the guest radius plus eight
+	 * and walked there, which meant the roll could land one block from the table — she
+	 * would stand up, take three steps and disappear in front of the host. Worse, a
+	 * character still holding her party memory in the same tick as the walk could be
+	 * pulled back towards it, so the party appeared to be reeling her in.
+	 *
+	 * <p>
+	 * The band starts past the guest radius and is checked twice: once on the spot that
+	 * was rolled, and again on the ground that was actually found for it, because a
+	 * search that walks outwards from a too-close roll can easily return a neighbouring
+	 * block and undo the whole point. Several rolls rather than one, since most of a
+	 * random spot in a room has no standable ground near it.
+	 *
+	 * @return somewhere to walk to, or null when nothing that far out is walkable — in
+	 *         which case she leaves from where she stands, which is dull but not wrong
+	 */
+	@Nullable
+	private BlockPos walkOut(ServerLevel level, SmartYoukaiEntity entity, BlockPos table) {
+		int min = GLModConfig.SERVER.partyGuestRadius.get() + 12;
+		int max = min + WALK_OUT_SPREAD;
+		var random = entity.getRandom();
+		for (int attempt = 0; attempt < WALK_OUT_TRIES; attempt++) {
+			var spot = new BlockPos(table.getX() + random.nextInt(-max, max + 1),
+					table.getY(), table.getZ() + random.nextInt(-max, max + 1));
+			if (!farEnough(spot, table, min)) continue;
+			var away = PartySend.freeSpaceNear(level, spot, 4);
+			if (away == null) continue;
+			var dest = BlockPos.containing(away);
+			if (farEnough(dest, table, min)) return dest;
+		}
+		return null;
+	}
+
+	private static boolean farEnough(BlockPos dest, BlockPos table, int min) {
+		long dx = (long) dest.getX() - table.getX();
+		long dz = (long) dest.getZ() - table.getZ();
+		return dx * dx + dz * dz >= (long) min * min;
 	}
 
 	/** Let the module finish the exit: come off the books, then restore or discard. */
@@ -675,7 +744,10 @@ public class YoukaiPartyTask extends Behavior<SmartYoukaiEntity> {
 				}
 				seatFailures = 0;
 				seatWarned = false;
-				walkToSeat(level, entity, seat);
+				// airborne: she waits and the leg clock waits with her, or a guest who
+				// fell from above the table would be written off before she landed
+				if (canWalk(entity)) walkToSeat(level, entity, seat);
+				else deadline = gameTime + LEG_TIMEOUT;
 			}
 			case SEEK_FOOD -> {
 				var dish = drawDish(level, entity, party, attachment);
@@ -704,7 +776,7 @@ public class YoukaiPartyTask extends Behavior<SmartYoukaiEntity> {
 					finishLeaving(level, entity);
 					return;
 				}
-				walkToSeat(level, entity, seat);
+				if (canWalk(entity)) walkToSeat(level, entity, seat);
 			}
 			default -> target = null;
 		}
@@ -747,6 +819,28 @@ public class YoukaiPartyTask extends Behavior<SmartYoukaiEntity> {
 		BrainUtils.setMemory(entity, MemoryModuleType.LOOK_TARGET, new BlockPosTracker(look));
 	}
 
+	/**
+	 * Whether she is in a state to start walking at all.
+	 *
+	 * <p>
+	 * <b>Not while she is off the ground.</b> A guest arrives from outside, dropped at a
+	 * random spot and free to fall, and a pathfinding order issued mid-air is how a
+	 * character <i>flies</i> to a party: the walk control and the fly control are both
+	 * live on these entities ({@code YoukaiEntity.mayFly} is true for every character),
+	 * and an order given while she is airborne is answered by the flying one.
+	 *
+	 * <p>
+	 * Tested with {@code navCtrl.isCloseToGround()} rather than {@code onGround()}, and
+	 * the difference matters: a walk node wants solid ground under the feet, so
+	 * {@code onGround} is exactly the condition {@code mayLand}'s own note says leaves a
+	 * hovering character unable to path anywhere. "Close to ground" is the condition this
+	 * codebase already uses to decide when a flyer should land and try walking, and it is
+	 * the one that answers the question.
+	 */
+	private static boolean canWalk(SmartYoukaiEntity entity) {
+		return entity.onGround() || entity.navCtrl.isCloseToGround();
+	}
+
 	private void arrive(ServerLevel level, SmartYoukaiEntity entity, PartyModule party,
 			PartyAttachment attachment) {
 		switch (phase) {
@@ -756,9 +850,18 @@ public class YoukaiPartyTask extends Behavior<SmartYoukaiEntity> {
 		}
 	}
 
-	/** Sit down on {@link #target}, which both callers have already reached. */
+	/**
+	 * Sit down on {@link #target}, if she is close enough to.
+	 *
+	 * <p>
+	 * Refuses rather than trying and failing: {@code setSitting} is a silent no-op on a
+	 * block that is not one of ours, and a guest who claims a chair she is not on holds
+	 * the party in GATHERING for ever. Out of reach, she simply does not claim it and the
+	 * next tick tries again — by which time she has walked the rest of the way.
+	 */
 	private void sit(ServerLevel level, SmartYoukaiEntity entity, PartyModule party,
 			PartyAttachment attachment) {
+		if (!within(entity, target, SEAT_REACH)) return;
 		// a no-op unless the block is one of ours; a third-party chair in party_seat
 		// simply leaves her standing beside it, and the claim is still recorded so the
 		// party is not held in GATHERING by a guest who will never be seated

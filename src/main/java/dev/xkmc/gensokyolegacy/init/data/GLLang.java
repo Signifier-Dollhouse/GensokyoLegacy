@@ -395,16 +395,16 @@ public final class GLLang {
 		PARTY_WAND_SIMULATE("Click a party table to simulate a party"),
 		PARTY_WAND_INVALID("That is tagged food but nothing to eat"),
 		PARTY_WAND_FOOD("%s", 1),
+		PARTY_WAND_SERVING("serving size: %s", 1),
 		PARTY_WAND_SERVES("serves: %s", 1),
 		PARTY_WAND_FOOD_VALUES("hunger: %s   saturation: %s", 2),
-		PARTY_WAND_ATTRACTION("attraction: %s per serve (%s total)", 2),
-		PARTY_WAND_FULFILLMENT("serves to satisfy a guest: %s", 1),
-		PARTY_WAND_FULFILLMENT_NONE("serves to satisfy a guest: -"),
+		PARTY_WAND_TOTAL_HUNGER("hunger total: %s", 1),
+		PARTY_WAND_ATTRACTION("attraction: %s", 1),
 		PARTY_WAND_PARTY("Party simulated at (%s, %s, %s)", 3),
 		PARTY_WAND_COUNTS("tables: %s   seats: %s   food: %s", 3),
-		PARTY_WAND_TOTALS("hunger: %s   guests need: %s", 2),
+		PARTY_WAND_TOTALS("hunger: %s   appeal: %s", 2),
 		PARTY_WAND_NOBODY("Nobody would come"),
-		PARTY_WAND_CANDIDATE("  %s  weight %s  rep %s  wants %s  %s", 5),
+		PARTY_WAND_GUEST("  %s", 1),
 		PARTY_WAND_STALE("(taken away from that table - may be out of date)");
 
 		private final String def;

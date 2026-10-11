@@ -56,9 +56,16 @@ public final class Servings {
 	 * Not the same thing as {@code count} servings, and the party system needs it to be
 	 * exact: a guest cannot eat one of the two nigiri off a board and leave the other,
 	 * because the board hands the stack over whole. That makes the pair one dish twice
-	 * the size, not two dishes — and {@link PartyFoodValue} prices a dish as
-	 * {@code serves × perServeAppeal}, so the count has to move into the properties or
-	 * the board is valued as a single piece of sushi.
+	 * the size, not two dishes.
+	 *
+	 * <p>
+	 * <b>Scaling these is a statement about hunger only.</b> They are the food value of
+	 * the plate a guest is handed, and a guest who picks up both nigiri really does sit
+	 * through both. Appeal is the other quantity and deliberately does not follow:
+	 * {@link FoodResult#appeal()} is priced off one item whatever the plate holds,
+	 * because a party counts each food once. So a board of two nigiri feeds twice and
+	 * attracts once, which is the whole reason this method and the appeal are not the
+	 * same number.
 	 *
 	 * <p>
 	 * Nutrition, saturation and eating time all multiply, because a guest really does sit

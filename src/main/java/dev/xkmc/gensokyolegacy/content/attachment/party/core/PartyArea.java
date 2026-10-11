@@ -4,6 +4,7 @@ import dev.xkmc.gensokyolegacy.content.attachment.area.ChunkPosRange;
 import dev.xkmc.gensokyolegacy.init.data.GLTagGen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
@@ -27,10 +28,13 @@ import java.util.List;
  * @param food   every party-food block laid out for the spread, in walk order
  * @param seats  every seat block the walk reached
  * @param tables every table block the walk reached
- * @param appeal total attraction of {@link #food}; scales {@link PartyMath#weight} and
- *               is otherwise unused — it is not what the spread can feed
+ * @param appeal attraction of {@link #food} counting each food once; scales
+ *               {@link PartyMath#weight} and is otherwise unused — it is not what the
+ *               spread can feed, and it is not a count of servings
  * @param fulfillment total hunger in {@link #food}; this is the capacity the planner
- *                    budgets and the number a guest's own fulfillment is measured against
+ *                    budgets and the number a guest's own fulfillment is measured against.
+ *                    Unlike {@link #appeal} this <b>does</b> scale with what is left on
+ *                    the table, because a second cake really does feed seven more people
  */
 public record PartyArea(BlockPos anchor, List<BlockPos> food, List<BlockPos> seats,
 		List<BlockPos> tables, int appeal, int fulfillment) {
@@ -107,6 +111,10 @@ public record PartyArea(BlockPos anchor, List<BlockPos> food, List<BlockPos> sea
 		int fulfillment = 0;
 		long reach = (long) distance * distance;
 		var seen = new HashSet<BlockPos>();
+		// The foods already paid for. This is the dedupe the appeal rule needs and the
+		// only place it can live: the scan is the one walk over the whole spread, so it
+		// is the one place that has seen all of it. Everything downstream gets a number.
+		var counted = new HashSet<ResourceLocation>();
 		var queue = new ArrayDeque<BlockPos>();
 		queue.add(anchor.immutable());
 		while (!queue.isEmpty() && seen.size() < MAX_VISITED) {
@@ -128,10 +136,17 @@ public record PartyArea(BlockPos anchor, List<BlockPos> food, List<BlockPos> sea
 			// beyond are all inside, and the walk resumes from those.
 			if (furniture) poke(queue, pos);
 			if (PartyFoodValue.isFood(level, pos, state) && isLaidOut(level, pos, state)) {
-				int worth = PartyFoodValue.totalAppeal(access, level, pos, state);
-				if (worth > 0) {
+				// what it is worth to the party, by food - never by block, so the set
+				// decides what is new since the last block and the rest is dropped
+				var worth = PartyFoodValue.appealPerFood(access, level, pos, state);
+				if (!worth.isEmpty()) {
+					// Into the spread whatever the dedupe says. A second cake adds no
+					// appeal but still feeds seven more guests, and dropping it here
+					// would take it out of the budget and off the guest's walk.
 					food.add(pos);
-					appeal += worth;
+					for (var entry : worth) {
+						if (counted.add(entry.id())) appeal += entry.appeal();
+					}
 					// gathered alongside the appeal, but it is the one the planner
 					// budgets: see PartyFoodValue's two-quantities note
 					fulfillment += PartyFoodValue.totalHunger(level, pos, state);
@@ -190,7 +205,11 @@ public record PartyArea(BlockPos anchor, List<BlockPos> food, List<BlockPos> sea
 			var state = level.getBlockState(pos);
 			if (!PartyFoodValue.isFood(level, pos, state)) continue;
 			if (!isLaidOut(level, pos, state)) continue;
-			if (PartyFoodValue.totalAppeal(access, level, pos, state) <= 0) continue;
+			// per block, not per party: this list is positions and nothing else, and a
+			// duplicate of a food the party already has is still a dish a guest may walk
+			// to and eat. The appeal rule dedupes in the scan, which is the only walk
+			// that has seen the whole spread.
+			if (!PartyFoodValue.attracts(access, level, pos, state)) continue;
 			ans.add(pos.immutable());
 		}
 		return ans;

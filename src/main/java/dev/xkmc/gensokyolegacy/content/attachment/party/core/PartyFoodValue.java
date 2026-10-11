@@ -1,6 +1,7 @@
 package dev.xkmc.gensokyolegacy.content.attachment.party.core;
 
 import dev.xkmc.gensokyolegacy.content.attachment.party.food.BlockFoodHandler;
+import dev.xkmc.gensokyolegacy.content.attachment.party.food.FoodAppeal;
 import dev.xkmc.gensokyolegacy.content.attachment.party.food.FoodResult;
 import dev.xkmc.gensokyolegacy.content.attachment.party.food.FoodResultCache;
 import dev.xkmc.gensokyolegacy.content.attachment.party.food.Servings;
@@ -11,22 +12,27 @@ import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * How appealing one serving of food is, derived from what it actually is to eat.
  * <p>
- * The appeal of a block food is {@code serves × perServeAppeal}, not a number
- * attached to the block. A vanilla cake is seven servings of a modest slice, a
- * Farmer's Delight feast is six servings of something richer; both are read
- * through a {@link BlockFoodHandler}, which is what knows how many servings a
- * placed block has left and how to take one.
+ * <b>Appeal is a property of a food, not of a quantity of it.</b> A vanilla cake is seven
+ * servings of a modest slice and a Farmer's Delight feast is six of something richer, and
+ * neither is worth seven or six times as much as one slice or one portion: a party counts
+ * each <i>food</i> once, so {@link #appealPerFood} answers in {@link FoodAppeal}s naming
+ * the food, and the caller is expected to keep a set of the ids it has already paid for.
+ * What it does multiply by is the serving count is the guest's own number,
+ * {@link #appealPerServe} — a guest eats seven slices and is moved by seven of them, which
+ * is why the same quantity is deliberately kept in two shapes.
  * <p>
  * <b>Two quantities, deliberately not the same one.</b> Appeal is how much a dish
  * draws a guest in — it is what {@link PartyMath#weight} scales by, and nothing else
  * consumes it. Hunger is how much the dish actually feeds anyone, and that is what the
  * planner budgets and what a guest's {@code fulfillment} is measured against. Splitting
  * them is what lets a rare-effect delicacy be worth drawing a crowd without seating one.
+ * Hunger is the quantity that scales with what is left on the block; appeal is not.
  *
  * <p>
  * The {@code party_food} data map <b>revalues, it does not opt in</b>. Whether a block
@@ -136,8 +142,92 @@ public class PartyFoodValue {
 	}
 
 	/**
+	 * What a placed block offers a party, appeal-wise: one entry per <b>distinct food</b>
+	 * on it.
+	 *
+	 * <p>
+	 * <b>A list rather than a number, and that is the whole point.</b> Appeal is counted
+	 * once per food id and not once per block, so the caller has to be able to recognise
+	 * the same food arriving twice — a second cake by the door is the same cake as the one
+	 * at the far end, and ten blocks of one casserole are one casserole. A bare {@code int}
+	 * carries no id and so can only be summed, which is exactly the answer this replaced.
+	 * The caller keeps the set of ids it has already paid for and drops the rest; see
+	 * {@code PartyArea.scan}.
+	 *
+	 * <p>
+	 * Neither {@link #serves()} nor the serving count multiplies anything here. A cake
+	 * with seven slices left is one entry worth one slice, because what the party is
+	 * measuring is how good the spread is and seven slices of one cake is not seven times
+	 * as good. That does not make the cake less worth putting out — it still feeds seven
+	 * guests, through {@link #totalHunger}, which is the other quantity and deliberately
+	 * does scale.
+	 *
+	 * <p>
+	 * The override is honoured per entry, exactly as {@link #appealPerServe} honours it
+	 * per serving: a {@code party_food} row revalues what is on the block, and there is
+	 * no finer key on a container to reach for.
+	 *
+	 * @return one entry per food id worth serving, empty when nothing here attracts
+	 */
+	public static List<FoodAppeal> appealPerFood(RegistryAccess access, Level level, BlockPos pos,
+			BlockState state) {
+		var override = PartyFood.of(access, state);
+		var ans = new ArrayList<FoodAppeal>();
+		for (var result : results(level, pos, state)) {
+			if (!result.valid()) continue;
+			int per = override != null ? clamp(override.appeal()) : result.appeal();
+			if (per <= 0) continue;
+			// A linear scan, because the list is one entry long for nearly every block
+			// there is and only a loaded steamer gets long. The point of the check is the
+			// steamer: two racks of the same bun are one food, not two.
+			boolean seen = false;
+			for (var entry : ans) {
+				if (!entry.id().equals(result.id())) continue;
+				seen = true;
+				break;
+			}
+			if (seen) continue;
+			ans.add(new FoodAppeal(result.id(), per));
+		}
+		return ans;
+	}
+
+	/**
+	 * Whether this block puts anything attractive on the table, without building the list
+	 * {@link #appealPerFood} would.
+	 *
+	 * <p>
+	 * The same test, short-circuiting on the first food that passes, because the guest
+	 * sweep asks it of every block in a thirteen-cube box and only ever wants the yes or
+	 * the no. Kept beside it rather than inlined as {@code !appealPerFood(..).isEmpty()}
+	 * so there is one definition of "attracts" that cannot drift into two answers.
+	 *
+	 * <p>
+	 * Deliberately <b>not</b> deduplicated against the rest of the party: this asks what
+	 * this block is worth, and a block is part of the spread whatever else the spread
+	 * already has. Dropping a duplicate here would quietly delete a second cake from the
+	 * food list and stop it feeding anybody.
+	 */
+	public static boolean attracts(RegistryAccess access, Level level, BlockPos pos, BlockState state) {
+		var override = PartyFood.of(access, state);
+		for (var result : results(level, pos, state)) {
+			if (!result.valid()) continue;
+			int per = override != null ? clamp(override.appeal()) : result.appeal();
+			return per > 0;
+		}
+		return false;
+	}
+
+	/**
 	 * Appeal of one serving of this placed block, honouring its handler and then
 	 * any override.
+	 * <p>
+	 * <b>This is the guest's number, not the party's.</b> It is what one plate is worth to
+	 * the guest who eats it, and it multiplies by the number of servings, because she eats
+	 * them all: the party adds up {@link FoodAppeal}s and dedupes them, while a single
+	 * guest accumulates {@link #appealPerServe} once per plate she finishes. The two are
+	 * meant to disagree — the same seven slices of cake are one entry of appeal to the
+	 * party and seven servings of it to whoever eats them.
 	 * <p>
 	 * For a container this is the <b>average across what it holds</b>, not the appeal of
 	 * any one thing on it: a board of apples and Roquefort is worth what its servings are
@@ -160,16 +250,14 @@ public class PartyFoodValue {
 	}
 
 	/**
-	 * Total appeal of this placed block — every serving still on it.
+	 * {@code {serves, weightedAppeal, totalHunger}}, from one pass over the block's
+	 * results.
 	 *
-	 * @return the appeal, or 0 for something not worth serving
-	 */
-	public static int totalAppeal(RegistryAccess access, Level level, BlockPos pos, BlockState state) {
-		return totals(access, level, pos, state)[1];
-	}
-
-	/**
-	 * {@code {serves, totalAppeal, totalHunger}}, from one pass over the block's results.
+	 * <p>
+	 * The appeal here is <b>weighted</b> rather than a total on purpose: it is the sum over
+	 * servings, because {@link #appealPerServe} averages it back out and a guest eating
+	 * three slices is moved by three of them. Nothing party-wide reads this number — that
+	 * is {@link #appealPerFood}, which does not weight at all.
 	 *
 	 * <p>
 	 * One pass because these three are asked together and because the third reason matters:
@@ -191,36 +279,33 @@ public class PartyFoodValue {
 			// the override revalues the block. On a container that means everything on it:
 			// there is no finer key to reach for, and a row saying what a board is worth
 			// should mean the whole board rather than one apple on it
-			int per = override != null ? clamp(override.appeal()) : appealOf(result.food());
+			int per = override != null ? clamp(override.appeal()) : result.appeal();
 			appeal += per * result.serves();
-			hunger += hungerOf(result.food()) * result.serves();
+			// the result's own nutrition, already the plate's: a cutting board hands over
+			// a pair of sushi and says so here, which is the one thing the appeal above
+			// is careful not to do
+			hunger += result.nutrition() * result.serves();
 		}
 		return new int[]{serves, appeal, hunger};
 	}
 
 	/**
-	 * Hunger one serving restores: the actual food value, before any seasoning.
+	 * Hunger of one serving of this placed block, averaged the same way
+	 * {@link #appealPerServe} averages appeal.
+	 *
 	 * <p>
-	 * This is the quantity the party system <b>plans</b> in, and it is deliberately not
-	 * the appeal. Appeal answers "how nice is this to eat" and feeds nothing but
+	 * <b>This is the quantity the party system <i>plans</i> in, and it is deliberately not
+	 * the appeal.</b> Appeal answers "how nice is this to eat" and feeds nothing but
 	 * {@link PartyMath#weight}; hunger answers "how much does this actually sustain
 	 * anyone", and is what a guest's {@code fulfillment} is measured against. A dish with
 	 * a rare effect is worth more than its ingredients suggest — that is appeal — without
 	 * filling anyone up, so a spread of such dishes looks magnificent and feeds nobody.
-	 * <p>
-	 * Plain {@code nutrition()}, because that is literally the hunger bar. Inventing a
-	 * second weighting here would only make the number harder to predict against the
-	 * vanilla food a host is actually laying out on their tables.
 	 *
-	 * @return the hunger of one serving, 0 when the block is not valid food
-	 */
-	public static int hungerOf(FoodProperties props) {
-		return props.nutrition() <= 0 || Servings.refuses(props) ? 0 : props.nutrition();
-	}
-
-	/**
-	 * Hunger of one serving of this placed block, averaged the same way
-	 * {@link #appealPerServe} averages appeal.
+	 * <p>
+	 * Plain {@link FoodResult#nutrition()} per result, summed over its servings, because
+	 * nutrition is literally the hunger bar. Inventing a second weighting here would only
+	 * make the number harder to predict against the vanilla food a host is actually laying
+	 * out on their tables.
 	 *
 	 * <p>
 	 * Never reads the {@code party_food} override, and takes no {@code RegistryAccess}:

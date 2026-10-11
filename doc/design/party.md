@@ -1341,23 +1341,46 @@ public static boolean give(ServerLevel level, YoukaiEntity guest, PartyModule pa
 }
 ```
 
-The size comes from **the appeal she personally consumed**, and it now comes from *the data* rather than from `APPEAL_PER_EXTRA` arithmetic. Every table is one pool per generosity tier, and each pool is gated on its own **disjoint band** of the new `gensokyolegacy:appeal_consumed` loot condition, which reads `PartyModule.appealEaten` off `THIS_ENTITY`:
+The generosity comes from **the appeal she personally consumed**, and it comes from *the data* rather than from arithmetic in `PartyGift`. Every table is **one pool of one roll**, and what an under-served guest is short of is not count — **a gift is always exactly one item** — but *reach*: entries are excluded from the weighted draw entirely until she has been served enough appeal, gated by the new `gensokyolegacy:appeal_consumed` loot condition, which reads `PartyModule.appealEaten` off `THIS_ENTITY`.
 
-| tier | `appeal_consumed` | count | |
-|---|---|---|---|
-| 0 | `max: 7` | 1 | she was barely fed |
-| 1 | `min: 8`, `max: 15` | 2 | |
-| 2 | `min: 16`, `max: 23` | 3 | |
-| 3 | `min: 24`, `max: 31` | 4 | |
-| 4 | `min: 32`, unbounded | 5 | a lavish banquet |
+```java
+{"type": "minecraft:item", "name": "gensokyolegacy:ghost_sake", "weight": 20}
+{"type": "minecraft:item", "name": "gensokyolegacy:magic_book", "weight": 15,
+ "conditions": [{"condition": "gensokyolegacy:appeal_consumed", "min": 40}]}
+```
 
-**Exactly one pool can ever fire, so the table yields exactly one stack.** That is the reason the generosity is a ladder of pools and not a count on the entry: a loot function cannot be conditional, so a per-guest count has to be a per-tier pool, and the bands have to be disjoint or several pools would fire and the table would hand over several times over. `PartyGift` still keeps only `stacks.getFirst()`, so a datapack that rewrites a table into two unconditional pools buries nothing — the mistake stays in the data.
+| step | opens at | what it adds |
+|---|---|---|
+| 1 | 20 appeal | one more common gift |
+| 2 | 40 appeal | the better gifts |
+| 3 | 60 appeal | (spare) |
+| 4 | 80 appeal | **her own pool** |
 
-What it is sized on is deliberately *not* whether she was satisfied. Those are two of the three food measurements (§5.2) and they answer different questions: rare-effect delicacies fill her up no better than plain bread, and she is still more moved by them. An earlier version halved the gift for an under-served guest, which made a beautiful thin spread read as stingy rather than as modest; the host's generosity and the guest's appetite are not one axis.
+Three things follow from gating at the *entry* rather than the pool, which is only possible because the count stopped varying:
 
-What each tier may *hand out* is a second lever the old code did not have: the good things join the pool as the generosity arrives rather than multiplying with it.
+- **One item, whatever the table says.** A conditioned entry never enters the weighted draw (`LootPool.addRandomItem` drops everything whose `expand` fails), so gating is subtraction from the pool rather than a second roll. The earlier ladder-of-disjoint-pools shape existed only because a loot function cannot be conditional; with the count pinned there is nothing left that needs one. `PartyGift` still keeps only `stacks.getFirst()`, so a datapack that rewrites a table into two pools buries nothing — the mistake stays in the data.
+- **A band is a floor, not a replacement.** She keeps everything the lower steps gave her and the new step joins it, so generosity reads as the pool widening rather than as one thing swapping for another.
+- **`APPEAL_PER_TIER` is 20, not 8.** A guest's own `appealEaten` is a handful of dishes at `nutrition × 0.5 + saturation × 2 + 4` per beneficial effect (§2.2), so it runs to tens, not units; at 8 a step the top of the ladder sat at 32 and the last step was barely reachable.
 
-`GLMeta.GIFT_PREFERENCE` still exists and still weights categories per character, but only on the *incoming* path — `GiftModule` scoring a gift handed **to** her, and its tooltip. The outgoing gift no longer reads it; `GiftLootGen` hardcodes Reimu's and Cirno's spreads at ×10 so a 1.5 survives into integer loot weights.
+**Her own pool.** On top of the generic gifts, each character may part with something that is actually hers — or at least what only she has:
+
+| | own pool | |
+|---|---|---|
+| Reimu | the six talismans | `#gensokyolegacy:talisman`, the tag her shop trades from |
+| Marisa | all nine hexbrew bottles | `HexBrew.values()`, which is already the whole of her stock |
+| Cirno | fairy ice and the three frozen frogs | what she crafts, `CirnoEntity.doCraft` |
+| Sakuya | the iron dagger | her only trade (`SakuyaQDGen:44`), and her signature weapon |
+| Alice | the doll lance and the star wand | the two weapons `AliceDollHost:465` hands her dolls, by slot parity |
+| Morichika | anything on his shelf | `#gensokyolegacy:morichika_offers` — he has no belongings of his own, only stock |
+| *default* | *(none)* | an unlisted character falls back to generic gifts only |
+
+Each of those opens at the **last** step, because it is the one gift that costs her something, and each is worth `OWN_WEIGHT` (8) against the generic gifts' 10..20: the step already decided she may, the weight only decides how often.
+
+The pools are written out rather than read from their tags. A loot entry can only name one item, so a tag has to be expanded at datagen either way — and the datagen holder lookup hands back tags that are still being constructed (`HolderSet.emptyNamed`, whose `contents()` throws). The table is what ships, so the list is what has to be right; each pool's javadoc names the tag it mirrors.
+
+What all this is sized on is deliberately *not* whether she was satisfied. Those are two of the three food measurements (§5.2) and they answer different questions: rare-effect delicacies fill her up no better than plain bread, and she is still more moved by them. An earlier version halved the gift for an under-served guest, which made a beautiful thin spread read as stingy rather than as modest; the host's generosity and the guest's appetite are not one axis.
+
+`GLMeta.GIFT_PREFERENCE` still exists and still weights categories per character, but only on the *incoming* path — `GiftModule` scoring a gift handed **to** her, and its tooltip. The outgoing gift no longer reads it; `GiftLootGen` copies Reimu's and Cirno's spreads at ×10 so a 1.5 survives into integer loot weights.
 
 `Block.popResource` at the table is the in-tree idiom for putting an item down in the world (`MarisaTaskUtil.java:94`, `ShelfBlockEntity`). That matches "thrown on table for now" exactly, and because nothing is granted into an inventory there is nothing to unwind when the real gift item is designed.
 
@@ -1433,9 +1456,10 @@ Because the walk target and the thing being acted on are **different blocks**, t
 | arriving at the block she walked to | **0** | she either reached that floor tile or she did not. There is nothing to be "near" about a block she is meant to be standing on, and a tolerance here would have her act on a dish from the far end of the table |
 | a dish, from her chair | **3** | she is holding a plate out over the table, and this is what makes most rounds of a laid banquet happen without her standing up at all |
 | a dish, from her feet | **2** | standing up and crossing to a dish three blocks away should not be possible when she could have eaten it from where she was sitting |
+| **her chair** | **3** | arriving and sitting are two steps, and the second one is `setSitting` finding a `ChairEntity` to put her on. Three blocks is the slack for a pathfinder that stopped a block short — the case that otherwise leaves a guest standing beside her own chair with the whole party held in GATHERING on her |
 | a dish with nothing to stand beside | — | she walks at it anyway and the leg timeout judges. Never being able to reach food is worse than reaching it badly |
 
-**There is no reach for the chair, and that is the point of arriving exactly.** The block she is sent to is adjacent to the chair by construction, so "she got there" and "she is next to her seat" are already the same statement and need no third tolerance to agree.
+`SEAT_REACH` is checked *before* the claim rather than around it: `setSitting` is a silent no-op on a block that is not one of ours, so a guest out of range does not claim a chair she is not on and tries again next tick, by which time she has walked the rest of the way.
 
 All three are measured to the **block's box rather than its centre** — standing on the block beside a chair is *zero* blocks from it, so the numbers mean what they look like. Measured to the centre, a guest standing next to her own chair is 1.1 blocks from its middle and could never sit in it.
 
@@ -1483,6 +1507,10 @@ The phases themselves are in §4; this is the procedure inside them. Everything 
 | who is invited | — | unchanged: the draw is still frozen at send (§4) |
 
 The roster is still a frozen list. This is about *when* a guest enters the world, not about whether she is still coming — a draw re-run per second would let the guest list change under everyone, which is exactly what §4's freeze exists to prevent.
+
+**She only starts walking once she can stand.** No walk order is issued while she is off the ground, which is what stops a guest *flying* to a party: these entities are all `mayFly()`, and both the walk control and the fly control are live, so an order given mid-air is answered by the flying one. She falls, lands, and is told where to go on a later tick — with the leg clock held off meanwhile, or a guest dropped from above the table would be written off before she landed.
+
+The test is `navCtrl.isCloseToGround()` rather than `onGround()`, and the difference is the whole point: a walk node wants solid ground under the feet, so `onGround` is exactly the condition `YoukaiEntity.mayLand`'s own note says leaves a hovering character unable to path anywhere at all. "Close to ground" is what this codebase already uses to decide when a flyer should land and try walking.
 
 **She appears out in the room, on the ground, never in the furniture.** A spawn is a random position within `partyScanDistance` (32) of the anchor, preferring somewhere she can stand:
 
@@ -1578,6 +1606,17 @@ The second trigger is a tuning statement as much as a rule. §6.5 already gives 
 | **unseat** | after a random **0–60 tick** delay, so a table does not empty in one frame |
 | **go** | summoned by the party → walk away from the table and be gone once she is outside it; at home, or visiting → walk back to where she came from and pick up what she was doing |
 
+**A summoned guest walks off *far*, and that is not decoration.** She is put away when she
+arrives, so how far she gets is how far the host sees her go — and a destination rolled
+within the guest radius meant standing up, taking three steps and vanishing in front of the
+table. Worse, a character still holding her party memory on the tick she starts walking
+could be pulled back toward it, so the party appeared to be reeling her in. The destination
+is therefore rolled outside the guest radius and checked **twice**: once on the spot, and
+again on the ground the search found for it, because a search that walks outward from a
+too-close roll can easily return a neighbouring block and undo the point. Several rolls,
+because most spots in a room have no standable ground near them; if none works she leaves
+from where she stands, which is dull but not wrong.
+
 The delay is per guest and random, not a party-wide countdown, because the thing it avoids is a table going from full to empty inside a single tick — which reads as a cutscene, and which is what a loop that discarded every guest on the chunk was.
 
 **Where she came from is recorded when she joins, not worked out at the end.** The `arrive` field above is the whole of it, and the ordering is load-bearing: walk *first*, clear the party state *after*. Clearing first resumes her schedule while she is still walking to the table, and a character with a `HOME` memory and a walk target is a character who goes home and out of the room at the same time.
@@ -1605,6 +1644,8 @@ Leftover food is untouched, as ever (§4). A party that ends with half the sprea
 - **"Everyone has gone" needed the same guard.** An empty roster no longer means the party is over; it means it has not finished introducing itself. A party is finished when the roster is empty *and* has been worked through, or when a closing party has drained.
 - **A closing party needs its own backstop.** Closing ends when the last guest finishes leaving, and a guest who cannot path to her destination would otherwise hold the chunk's party open for ever. `CLOSING_TIMEOUT` (30 s) is the answer; past it the party resets and anyone still attached is dismissed by the ordinary "my party is gone" path.
 - **`restrictTo` has no getter**, so a reused character's wander area has to be re-applied from her home on the way out rather than read back. Left out, a resident who wandered to a party could never go home again.
+
+**A fourth that only showed up once the walks were exact**: the walk-failure teleport has to say where it put her. It moved her to free space beside the seat and left `standing` pointing at the floor tile she had *failed* to reach, so the arrival test never passed and she was teleported again every timeout for as long as the party lasted — a guest standing near her chair for the whole banquet. A teleport is an arrival.
 
 **Three more that are load-bearing**, in the order they bite:
 

@@ -4,7 +4,6 @@ import dev.xkmc.gensokyolegacy.content.attachment.area.AreaChunkHolder;
 import dev.xkmc.gensokyolegacy.content.attachment.area.AreaEffectManager;
 import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyTicker;
 import dev.xkmc.gensokyolegacy.content.attachment.party.food.FoodResultCache;
-import dev.xkmc.gensokyolegacy.content.attachment.party.item.PartyWand;
 import dev.xkmc.gensokyolegacy.content.attachment.party.item.PartyWandComponent;
 import dev.xkmc.gensokyolegacy.content.rpg.core.ServerCharacterDialogManager;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
@@ -34,8 +33,6 @@ public class GLMetaEventHandlers {
 			// keyed on BlockState alone, and if a derivation ever grows a datapack input
 			// this is what stops it going stale.
 			FoodResultCache.invalidate();
-			// party_taste is datapack data too, and the wand caches its appetite range
-			PartyWand.invalidate();
 		}
 	}
 

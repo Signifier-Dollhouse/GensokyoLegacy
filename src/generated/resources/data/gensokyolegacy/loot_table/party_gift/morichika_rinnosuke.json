@@ -3,387 +3,125 @@
   "pools": [
     {
       "bonus_rolls": 0.0,
-      "conditions": [
-        {
-          "condition": "gensokyolegacy:appeal_consumed",
-          "max": 7
-        }
-      ],
       "entries": [
         {
           "type": "minecraft:item",
-          "functions": [
-            {
-              "add": false,
-              "count": 1.0,
-              "function": "minecraft:set_count"
-            }
-          ],
           "name": "gensokyolegacy:fairy_cake",
           "weight": 14
         },
         {
           "type": "minecraft:item",
-          "functions": [
-            {
-              "add": false,
-              "count": 1.0,
-              "function": "minecraft:set_count"
-            }
-          ],
           "name": "gensokyolegacy:tengu_sake",
           "weight": 14
         },
         {
           "type": "minecraft:item",
-          "functions": [
-            {
-              "add": false,
-              "count": 1.0,
-              "function": "minecraft:set_count"
-            }
-          ],
           "name": "gensokyolegacy:ghost_sake",
           "weight": 14
         },
         {
           "type": "minecraft:item",
-          "functions": [
-            {
-              "add": false,
-              "count": 1.0,
-              "function": "minecraft:set_count"
-            }
-          ],
-          "name": "gensokyolegacy:sturdy_teddy_bear",
-          "weight": 12
-        }
-      ],
-      "rolls": 1.0
-    },
-    {
-      "bonus_rolls": 0.0,
-      "conditions": [
-        {
-          "condition": "gensokyolegacy:appeal_consumed",
-          "max": 15,
-          "min": 8
-        }
-      ],
-      "entries": [
-        {
-          "type": "minecraft:item",
-          "functions": [
-            {
-              "add": false,
-              "count": 2.0,
-              "function": "minecraft:set_count"
-            }
-          ],
-          "name": "gensokyolegacy:fairy_cake",
-          "weight": 14
-        },
-        {
-          "type": "minecraft:item",
-          "functions": [
-            {
-              "add": false,
-              "count": 2.0,
-              "function": "minecraft:set_count"
-            }
-          ],
-          "name": "gensokyolegacy:tengu_sake",
-          "weight": 14
-        },
-        {
-          "type": "minecraft:item",
-          "functions": [
-            {
-              "add": false,
-              "count": 2.0,
-              "function": "minecraft:set_count"
-            }
-          ],
-          "name": "gensokyolegacy:ghost_sake",
-          "weight": 14
-        },
-        {
-          "type": "minecraft:item",
-          "functions": [
-            {
-              "add": false,
-              "count": 2.0,
-              "function": "minecraft:set_count"
-            }
-          ],
           "name": "gensokyolegacy:sturdy_teddy_bear",
           "weight": 12
         },
         {
           "type": "minecraft:item",
-          "functions": [
+          "conditions": [
             {
-              "add": false,
-              "count": 2.0,
-              "function": "minecraft:set_count"
+              "condition": "gensokyolegacy:appeal_consumed",
+              "min": 20
             }
           ],
           "name": "gensokyolegacy:star_flower",
           "weight": 10
-        }
-      ],
-      "rolls": 1.0
-    },
-    {
-      "bonus_rolls": 0.0,
-      "conditions": [
-        {
-          "condition": "gensokyolegacy:appeal_consumed",
-          "max": 23,
-          "min": 16
-        }
-      ],
-      "entries": [
-        {
-          "type": "minecraft:item",
-          "functions": [
-            {
-              "add": false,
-              "count": 3.0,
-              "function": "minecraft:set_count"
-            }
-          ],
-          "name": "gensokyolegacy:fairy_cake",
-          "weight": 14
         },
         {
           "type": "minecraft:item",
-          "functions": [
+          "conditions": [
             {
-              "add": false,
-              "count": 3.0,
-              "function": "minecraft:set_count"
-            }
-          ],
-          "name": "gensokyolegacy:tengu_sake",
-          "weight": 14
-        },
-        {
-          "type": "minecraft:item",
-          "functions": [
-            {
-              "add": false,
-              "count": 3.0,
-              "function": "minecraft:set_count"
-            }
-          ],
-          "name": "gensokyolegacy:ghost_sake",
-          "weight": 14
-        },
-        {
-          "type": "minecraft:item",
-          "functions": [
-            {
-              "add": false,
-              "count": 3.0,
-              "function": "minecraft:set_count"
-            }
-          ],
-          "name": "gensokyolegacy:sturdy_teddy_bear",
-          "weight": 12
-        },
-        {
-          "type": "minecraft:item",
-          "functions": [
-            {
-              "add": false,
-              "count": 3.0,
-              "function": "minecraft:set_count"
-            }
-          ],
-          "name": "gensokyolegacy:star_flower",
-          "weight": 12
-        },
-        {
-          "type": "minecraft:item",
-          "functions": [
-            {
-              "add": false,
-              "count": 3.0,
-              "function": "minecraft:set_count"
+              "condition": "gensokyolegacy:appeal_consumed",
+              "min": 40
             }
           ],
           "name": "gensokyolegacy:magic_book",
           "weight": 10
-        }
-      ],
-      "rolls": 1.0
-    },
-    {
-      "bonus_rolls": 0.0,
-      "conditions": [
-        {
-          "condition": "gensokyolegacy:appeal_consumed",
-          "max": 31,
-          "min": 24
-        }
-      ],
-      "entries": [
-        {
-          "type": "minecraft:item",
-          "functions": [
-            {
-              "add": false,
-              "count": 4.0,
-              "function": "minecraft:set_count"
-            }
-          ],
-          "name": "gensokyolegacy:fairy_cake",
-          "weight": 12
         },
         {
           "type": "minecraft:item",
-          "functions": [
+          "conditions": [
             {
-              "add": false,
-              "count": 4.0,
-              "function": "minecraft:set_count"
+              "condition": "gensokyolegacy:appeal_consumed",
+              "min": 80
             }
           ],
-          "name": "gensokyolegacy:tengu_sake",
-          "weight": 14
+          "name": "gensokyolegacy:mini_hakkero_prototype",
+          "weight": 8
         },
         {
           "type": "minecraft:item",
-          "functions": [
+          "conditions": [
             {
-              "add": false,
-              "count": 4.0,
-              "function": "minecraft:set_count"
+              "condition": "gensokyolegacy:appeal_consumed",
+              "min": 80
             }
           ],
-          "name": "gensokyolegacy:ghost_sake",
-          "weight": 14
+          "name": "gensokyolegacy:centipickaxe",
+          "weight": 8
         },
         {
           "type": "minecraft:item",
-          "functions": [
+          "conditions": [
             {
-              "add": false,
-              "count": 4.0,
-              "function": "minecraft:set_count"
+              "condition": "gensokyolegacy:appeal_consumed",
+              "min": 80
             }
           ],
-          "name": "gensokyolegacy:sturdy_teddy_bear",
-          "weight": 12
+          "name": "gensokyolegacy:dowser",
+          "weight": 8
         },
         {
           "type": "minecraft:item",
-          "functions": [
+          "conditions": [
             {
-              "add": false,
-              "count": 4.0,
-              "function": "minecraft:set_count"
+              "condition": "gensokyolegacy:appeal_consumed",
+              "min": 80
             }
           ],
-          "name": "gensokyolegacy:star_flower",
-          "weight": 14
+          "name": "gensokyolegacy:mermaid_pearl",
+          "weight": 8
         },
         {
           "type": "minecraft:item",
-          "functions": [
+          "conditions": [
             {
-              "add": false,
-              "count": 4.0,
-              "function": "minecraft:set_count"
+              "condition": "gensokyolegacy:appeal_consumed",
+              "min": 80
             }
           ],
-          "name": "gensokyolegacy:magic_book",
-          "weight": 12
-        }
-      ],
-      "rolls": 1.0
-    },
-    {
-      "bonus_rolls": 0.0,
-      "conditions": [
-        {
-          "condition": "gensokyolegacy:appeal_consumed",
-          "min": 32
-        }
-      ],
-      "entries": [
-        {
-          "type": "minecraft:item",
-          "functions": [
-            {
-              "add": false,
-              "count": 5.0,
-              "function": "minecraft:set_count"
-            }
-          ],
-          "name": "gensokyolegacy:fairy_cake",
-          "weight": 12
+          "name": "gensokyolegacy:cat_bell",
+          "weight": 8
         },
         {
           "type": "minecraft:item",
-          "functions": [
+          "conditions": [
             {
-              "add": false,
-              "count": 5.0,
-              "function": "minecraft:set_count"
+              "condition": "gensokyolegacy:appeal_consumed",
+              "min": 80
             }
           ],
-          "name": "gensokyolegacy:tengu_sake",
-          "weight": 14
+          "name": "gensokyolegacy:straw_hat",
+          "weight": 8
         },
         {
           "type": "minecraft:item",
-          "functions": [
+          "conditions": [
             {
-              "add": false,
-              "count": 5.0,
-              "function": "minecraft:set_count"
+              "condition": "gensokyolegacy:appeal_consumed",
+              "min": 80
             }
           ],
-          "name": "gensokyolegacy:ghost_sake",
-          "weight": 14
-        },
-        {
-          "type": "minecraft:item",
-          "functions": [
-            {
-              "add": false,
-              "count": 5.0,
-              "function": "minecraft:set_count"
-            }
-          ],
-          "name": "gensokyolegacy:sturdy_teddy_bear",
-          "weight": 12
-        },
-        {
-          "type": "minecraft:item",
-          "functions": [
-            {
-              "add": false,
-              "count": 5.0,
-              "function": "minecraft:set_count"
-            }
-          ],
-          "name": "gensokyolegacy:star_flower",
-          "weight": 16
-        },
-        {
-          "type": "minecraft:item",
-          "functions": [
-            {
-              "add": false,
-              "count": 5.0,
-              "function": "minecraft:set_count"
-            }
-          ],
-          "name": "gensokyolegacy:magic_book",
-          "weight": 16
+          "name": "gensokyolegacy:strange_glasses",
+          "weight": 8
         }
       ],
       "rolls": 1.0

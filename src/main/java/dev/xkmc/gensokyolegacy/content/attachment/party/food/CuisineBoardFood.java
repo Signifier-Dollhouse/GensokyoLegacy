@@ -1,6 +1,7 @@
 package dev.xkmc.gensokyolegacy.content.attachment.party.food;
 
 import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyArea;
+import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyFoodValue;
 import dev.xkmc.youkaishomecoming.content.pot.table.board.CuisineBoardBlockEntity;
 import dev.xkmc.youkaishomecoming.content.pot.table.item.FoodTableItem;
 import dev.xkmc.youkaishomecoming.content.pot.table.item.TableItem;
@@ -41,10 +42,15 @@ import java.util.List;
  * writes its sushi and gunkan recipes to yield two at a time, and a board handed a pair
  * keeps the pair as one stack that {@code addToPlayer} gives over whole — there is no
  * interaction that lifts one off and leaves the other. So each stack is reported as one
- * serving carrying the properties of all of them, via {@link Servings#of(ItemStack, int)},
- * and taking one empties it. Reporting the count as servings instead would value the
- * board at the same total but let two guests each eat one, which is not what the mod
- * allows.
+ * serving, and taking one empties it. Reporting the count as servings instead would let
+ * two guests each eat one, which is not what the mod allows.
+ *
+ * <p>
+ * <b>The plate feeds twice and is worth once.</b> A guest handed the pair really does eat
+ * both, so her fulfillment is the pair's; but the party counts each food once, so the
+ * board offers one nigiri's worth of appeal and no more. A spread's appeal is then a
+ * function of how many <i>kinds</i> of thing a host has put out rather than of how many
+ * plates of each — see {@link FoodResult#appeal()} and {@code PartyFoodValue.appealPerFood}.
  *
  * <p>
  * <b>The contents are read reflectively, and that is forced.</b> Both the board's list and
@@ -114,12 +120,19 @@ public class CuisineBoardFood implements ContainerFoodHandler {
 		var ans = new ArrayList<FoodResult>();
 		for (var stack : raw) {
 			if (stack == null || stack.isEmpty()) continue;
+			// One piece, for the appeal. Two pieces, for the plate. The board hands a
+			// guest both of whatever came off it together, so she is fed twice - but the
+			// party is counting how good the spread is, not how large its helpings are,
+			// and a food is priced once. Two nigiri on a board are therefore worth the
+			// appeal of one nigiri and the fulfillment of two, which is the whole of the
+			// difference between the two numbers below.
+			var dish = Servings.of(stack);
+			// nothing worth eating, or nothing worth eating to a guest - poison, no
+			// nutrition, a husk. Left on the board; simply not part of the spread.
+			if (dish == null) continue;
 			// the whole stack, at its worth: two nigiri came off the board together and
 			// go back into the guest together, so they are one plate of twice the size
 			var props = Servings.of(stack, stack.getCount());
-			// nothing worth eating, or nothing worth eating to a guest - poison, no
-			// nutrition, a husk. Left on the board; simply not part of the spread.
-			if (props == null) continue;
 			var item = stack.getItem();
 			// The serving is the whole stack, at its own count: two nigiri came off the
 			// board together and go into the guest together, so she picks up the pair and
@@ -127,7 +140,8 @@ public class CuisineBoardFood implements ContainerFoodHandler {
 			// more than one item, and the reason is a property of the board rather than
 			// of the food.
 			ans.add(FoodResult.of(new ItemStack(item, stack.getCount()),
-					state.getBlock(), 1, props, (l, p, s) -> {
+					state.getBlock(), 1, props, PartyFoodValue.appealOf(dish),
+					(l, p, s) -> {
 						take(be, item);
 						return 0;
 					}));
