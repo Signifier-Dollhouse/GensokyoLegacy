@@ -38,163 +38,60 @@ import java.util.Map;
 
 /**
  * A guest's whole visit: find a chair, wait for the table to fill, then eat her way
- * through the spread until there is none of it left within reach, and go when the party
- * ends or her host's food does.
- * <p>
- * The shape is a cycle, not walk-then-finish. Each round she draws a dish weighted by its
- * appeal, hesitates, picks the serving up, carries it back to her chair if she had to
- * leave it, eats it there, and sits for a while before the next. How long that sit is
- * depends on whether she has eaten her fill: her {@code hungrySeat} while she still needs
- * the food and her {@code fullSeat} once she has had enough and is only grazing — both per
- * character, not constants. She never leaves on being satisfied; the visit ends when her
- * {@code leaveChance} comes up, or when the party's food does, or when the party closes.
- * <p>
- * Most rounds she does not move at all. A dish within {@link #REACH_SEATED} of where she
- * sits is taken from her chair, which is the common case at a laid table and the reason
- * that reach is longer than the one she has on her feet. Only a dish further out than
- * that sends her across the room and back.
+ * through the spread, and go when the party ends or the food does. Sitting means riding a
+ * {@code ChairEntity}, so every departure from a chair owes a return.
  *
  * <p>
- * She never walks to the chair or the dish herself: both walks go to a standable block
- * next to them ({@link PartySend#standingNear}), and she has to be standing <i>on</i> it
- * before she acts. A chair is furniture you sit down from beside, and a dish on a table
- * has air beside it rather than floor, so in both cases "the block she walks to" and "the
- * thing she is there for" are different blocks — and conflating them is what turns a
- * reach into a fudge factor.
+ * One {@code Behavior} drives all of it and must never return {@code false} from
+ * {@link #canStillUse()} to change phase: {@code false} stops the instance and wipes the
+ * phase field. Every phase change keeps returning {@code true}.
  *
- * <p>
- * Neither a chair nor a dish is walked to directly — both walks go to a standable block
- * next to them, and she must be standing <i>on</i> it before she acts. See
- * {@link #REACH} and {@link PartySend#standingNear}. Neither detail is cosmetic: a guest
- * who cannot sit in a chair she is standing next to, or who is asked to path into a
- * chair's own collision box, looks broken in the most visible way this feature has.
- * <p>
- * Sitting means <em>riding</em> a {@code ChairEntity} (see {@code HomeSearchUtil.setSitting}),
- * and a passenger does not walk. So leaving a chair is an explicit dismount, and every
- * departure owes a return — otherwise the second trip out is measured from wherever the
- * first one left her. The same ride is why the unseat on the way out is its own beat.
- * <p>
- * The eating itself is one rig's art at present: {@code YoukaiAnim} has no EAT slot and
- * only a plain fairy maps a chew, so {@link #startEating} plays a no-op for everybody else
- * and the beat is carried by the sound, the held item and the wait.
+ * @see doc/design/party/guest.md
  */
 public class YoukaiPartyTask extends Behavior<SmartYoukaiEntity> {
 
 	/** Ticks spent eating one dish. */
 	private static final int EAT_TICKS = 40;
 
-	/**
-	 * How long the pickup gesture runs before the item is in her hand.
-	 * <p>
-	 * The {@code 使用主手物品} clip is 0.31s; {@link FairyCakeTask} times a gesture against
-	 * exactly this number, so the two agree rather than each guessing.
-	 */
+	/** Length of the {@code 使用主手物品} clip — the same number FairyCakeTask times against. */
 	private static final int PICKUP_TICKS = 6;
 
-	/**
-	 * How long she waits after drawing a dish before she reaches for it.
-	 * <p>
-	 * Random every time, and drawn per bite rather than once per guest. Without it a table
-	 * of guests draws, stands and eats in lockstep, which reads as one organism rather
-	 * than as people. The floor matters as much as the ceiling: an instant draw reads as
-	 * the character reacting to the player rather than deciding, and half a second is the
-	 * shortest delay that still looks like a choice. Forty ticks is two seconds — long
-	 * enough to see, short enough that {@code hungrySeat} still sets the pace.
-	 */
+	/** Random per bite, so a table of guests does not eat in lockstep. */
 	private static final int BITE_DELAY = 40;
-	/** The floor on that delay: half a second, so a draw is never acted on instantly. */
 	private static final int BITE_DELAY_MIN = 10;
 
 	/**
-	 * How long one engaged stretch may last before she is written off.
-	 * <p>
-	 * Refreshed at every seek <em>and</em> on sitting down to rest, so it has to cover a
-	 * whole round trip to a dish — walk out, eat, walk back, sit — and not merely the walk
-	 * itself. A guest eating from her chair never walks at all, so nothing would refresh
-	 * it for her, and she would be dismissed part-way through the fourth or fifth dish.
-	 * {@link PartyModule#ARRIVE_TIMEOUT} covers the single trip to her chair instead, and
-	 * {@code PARTY_TIMEOUT} bounds the visit as a whole.
+	 * Refreshed at every seek <em>and</em> on sitting down to rest, so it covers a whole
+	 * round trip — a guest eating from her chair never walks and would never refresh it.
 	 */
 	private static final int LEG_TIMEOUT = 200;
 
-	/**
-	 * How often a missing chair is re-checked, in ticks. Three seconds.
-	 * <p>
-	 * Long enough that the host has put out the chair rather than has not, short enough
-	 * that three of them plus a walk is still under the ten seconds the old single timeout
-	 * allowed — so the party is not held open any longer than it used to be, it is only
-	 * told about sooner.
-	 */
+	/** How often a missing chair is re-checked. */
 	private static final int SEAT_RETRY = 60;
 
-	/**
-	 * How many times she may fail to find a chair before she gives the party up.
-	 * <p>
-	 * Three failures three seconds apart is about nine seconds. The escape from a table
-	 * that will never eat: without it one guest with nowhere to sit holds the whole party
-	 * in GATHERING — the party-wide feast gate waits for everyone — and the host is told
-	 * nothing until the ten-minute timeout calls the party off.
-	 */
+	/** Three failures apart hold the table out of the feast for about nine seconds. */
 	private static final int SEAT_FAILURES = 3;
 
-	/**
-	 * How long she waits before standing up when the party ends, at most. Staggered per
-	 * guest so the table does not empty inside one tick.
-	 */
+	/** Staggered per guest so the table does not empty inside one tick. */
 	private static final int UNSEAT_DELAY = 60;
 
-	/** How far past that floor a departing guest is sent, as a band on top of it. */
 	private static final int WALK_OUT_SPREAD = 32;
-	/** How many places are rolled before giving up on somewhere to walk off to. */
 	private static final int WALK_OUT_TRIES = 8;
-	/**
-	 * How long she may spend walking away or home before she is let go of the party
-	 * regardless. A guest who cannot reach her destination is not stuck holding a chair
-	 * for ever.
-	 */
+
+	/** A guest who cannot reach her destination is not stuck holding a chair for ever. */
 	private static final int LEAVE_TIMEOUT = 200;
 
 	/**
-	 * How close she must be to a dish once she has reached the block she walked to.
+	 * Reach slack, not arm length — {@link PartySend#standingNear} has already put her
+	 * beside the dish. All three are measured to the block's <b>box</b>, not its centre, so
+	 * standing on the block beside a dish is zero blocks from it.
 	 *
 	 * <p>
-	 * <b>Two numbers, because she is holding a plate out over the table.</b> From her
-	 * chair she reaches three blocks, which is what makes most rounds of a laid banquet
-	 * happen without her standing up at all; from her feet it is two, so that standing up
-	 * and crossing to a dish three blocks away is not possible when she could have eaten
-	 * it from where she was sitting.
-	 *
-	 * <p>
-	 * Neither is the size of her arm — {@link PartySend#standingNear} has already put her
-	 * standing next to the dish she came for — so they are slack for being sent to the
-	 * wrong side of a long table, not reach proper.
-	 *
-	 * <p>
-	 * <b>The chair has its own, and it is three.</b> The block she is sent to is adjacent
-	 * to the chair by construction, so arrival alone would be enough — but arriving and
-	 * <i>sitting</i> are two steps, and the second one is {@code setSitting} finding a
-	 * {@code ChairEntity} to put her on. Three blocks is the slack for a pathfinder that
-	 * stopped a block short of the tile it was sent to, which is the case that leaves a
-	 * guest standing next to her own chair with the party still waiting on her.
-	 *
-	 * <p>
-	 * Measured to the <b>block's box</b> rather than its centre, which is what makes these
-	 * numbers mean what they look like: standing on the block beside a dish is zero blocks
-	 * from it.
+	 * The chair's is wider than the walk tolerance on purpose: arriving and sitting are
+	 * two steps, the second being {@code setSitting} finding a {@code ChairEntity}.
 	 */
 	private static final double REACH_SEATED = 3;
 	private static final double REACH_STANDING = 2;
-	/**
-	 * How close she must be to her chair to sit in it.
-	 *
-	 * <p>
-	 * Wider than the walk tolerance on purpose, and for a different reason from the
-	 * others. Arriving and sitting are two steps: reaching the tile she was sent to, and
-	 * then {@code setSitting} finding a {@code ChairEntity} to put her on. Three blocks is
-	 * the slack for a pathfinder that stopped a block short, which is what otherwise
-	 * leaves a guest standing beside her own chair with the whole party held in GATHERING
-	 * on her.
-	 */
 	private static final double SEAT_REACH = 3;
 
 	/**
@@ -226,14 +123,7 @@ public class YoukaiPartyTask extends Behavior<SmartYoukaiEntity> {
 		WAIT_TABLE,
 		/** Drawing the next dish. */
 		SEEK_FOOD,
-		/**
-		 * Holding the dish she just drew before she reaches for it.
-		 * <p>
-		 * A separate phase rather than a delay inside {@link #SEEK_FOOD}, because the two
-		 * ends of it do different things: a dish in reach is picked up on the spot, and one
-		 * that is not is walked to first. Folding the wait into the seek would put a delay
-		 * between drawing and walking, which is not what a guest does.
-		 */
+		/** Holding the dish she just drew: its two ends do different things, so it is its own phase. */
 		DELAY,
 		/** Picking the serving up: the use animation, and then it is in her hand. */
 		PICKUP,
@@ -264,50 +154,20 @@ public class YoukaiPartyTask extends Behavior<SmartYoukaiEntity> {
 	/** Whether she is away from her chair and owes it a return. */
 	private boolean away = false;
 
-	/**
-	 * The standable block she is walking to, which is <b>not</b> {@link #target}.
-	 *
-	 * <p>
-	 * The two are different things and conflating them is what made the old reach a
-	 * fudge: a chair and a dish are both things she acts on <i>from somewhere else</i>, so
-	 * the walk goes to the ground beside them while {@code target} stays the chair or the
-	 * dish. Arrival is therefore tested against this, exactly, and the action reach is
-	 * tested against {@code target}.
-	 */
+	/** The standable block she is walking to, which is <b>not</b> {@link #target}: arrival is tested against this, the action reach against that. */
 	@Nullable
 	private BlockPos standing;
 	/** The chair list's version when she last checked her own chair was still on it. */
 	private int layoutVersion = -1;
 
-	/**
-	 * Consecutive failures to find a chair, and whether the host has been told.
-	 * <p>
-	 * Two fields rather than one deadline because the host is told on the <i>first</i>
-	 * failure and she leaves on the <i>third</i>. One counter and one flag, because the
-	 * message means something different each time: "she is looking for a chair" is
-	 * actionable while it is happening, "she gave up" is only true at the end.
-	 */
+	/** The host is told on the first failure, she leaves on the third — two different messages. */
 	private int seatFailures = 0;
 	private boolean seatWarned = false;
 
-	/**
-	 * When the next "is there a chair?" check counts.
-	 * <p>
-	 * A separate clock from {@link #seatDeadline} because the two answer different
-	 * questions: this one paces the attempts, that one is the backstop for the whole
-	 * episode. Seeking runs every tick while she has nowhere to be, so without it the
-	 * failure counter would fill in a single frame.
-	 */
+	/** Paces the attempts; {@link #seatDeadline} is the backstop for the whole episode. */
 	private long seatCheckAt = 0;
 
-	/**
-	 * Whether a serving is in her hand, and when it leaves it.
-	 * <p>
-	 * The item is emptied part-way through the chew rather than at the end, so the food
-	 * visibly does not survive the whole animation. Tracked as a flag rather than assumed
-	 * from the phase because {@link #stop()} has to be able to empty her hand whatever
-	 * phase she was interrupted in.
-	 */
+	/** Tracked as a flag, not inferred from the phase, so {@link #stop()} can empty her hand in any phase. */
 	private boolean holding = false;
 	private long untilItemDrop = 0;
 
@@ -343,21 +203,14 @@ public class YoukaiPartyTask extends Behavior<SmartYoukaiEntity> {
 		until = 0;
 		away = false;
 		// pendingHunger / pendingAppeal are deliberately NOT cleared here: {@link #stop()}
-		// owns them, because it is the one that has to bank a serve that was taken off a
-		// dish and never credited. Clearing them in both places would mean whichever ran
-		// first won.
-		//
-		// A task restart is not a new visit. She keeps her chair and everything she has
-		// eaten, and only loses her place in the cycle — which is recovered from what she
-		// is physically doing, not guessed at. Chunk unload stops this task and the brain
-		// starts a fresh one, so guessing would restart every guest at the chair and send
-		// them all out for another walk.
+		// owns them, because it must bank a serve taken off a dish and never credited.
+		// A restart is not a new visit — she keeps her chair and her tally, and only loses
+		// her place in the cycle, which is recovered from what she is physically doing.
 		var party = entity.getModule(PartyModule.class).orElseThrow();
 		seatDeadline = gameTime + SEAT_FAILURES * SEAT_RETRY;
 		seatCheckAt = gameTime;
-		// A party that closed while this task was stopped is still a party she has to
-		// leave, and the exit is the one thing that must not be re-derived from what she
-		// happens to be doing: it is asked for, not inferred.
+		// The exit is asked for, never inferred: a party that closed while this task was
+		// stopped is still one she has to leave.
 		if (party.leaving() || party.party(level) == null
 				|| party.party(level).phase() == PartyAttachment.Phase.CLOSING) {
 			beginLeaving(level, entity, gameTime);
@@ -373,13 +226,7 @@ public class YoukaiPartyTask extends Behavior<SmartYoukaiEntity> {
 		}
 	}
 
-	/**
-	 * Start the exit: a random wait, then up and away.
-	 * <p>
-	 * The wait is per guest and drawn here rather than in the task's caller, so a task
-	 * restart mid-departure does not re-roll it and send her back to her chair for another
-	 * two seconds.
-	 */
+	/** The wait is drawn here, so a restart mid-departure does not re-roll it. */
 	private void beginLeaving(ServerLevel level, SmartYoukaiEntity entity, long gameTime) {
 		entity.getModule(PartyModule.class).ifPresent(PartyModule::beginLeave);
 		if (phase == Phase.LEAVING) return;
@@ -406,18 +253,13 @@ public class YoukaiPartyTask extends Behavior<SmartYoukaiEntity> {
 			return false;
 		}
 		// the party closed: she leaves, whichever phase she happened to be in. Not returned
-		// from: the exit is a phase like any other and is stepped like any other, and a
-		// guest who returned true here without stepping would stand up and then stand
-		// there for ever.
+		// from: a guest who returned true here without stepping would stand up and stand there.
 		boolean leaving = party.leaving() || attachment.phase() == PartyAttachment.Phase.CLOSING;
 		if (leaving) beginLeaving(level, entity, gameTime);
-		// the deadline does not apply to a guest who is on her way out: stepLeaving owns
-		// her own clock, and the leg timeout here would write her off mid-walk
+		// the deadline does not apply on the way out: stepLeaving owns her own clock
 		if (!leaving && gameTime > deadline) {
-			// She could not walk where she was going. Moved rather than written off: a
-			// guest standing in a doorway for the rest of a party is worse than one that
-			// blinks into place, and this only fires once the pathfinder has already
-			// failed, so the teleport is a repair and not a shortcut.
+			// A repair, not a shortcut: the pathfinder has already failed, and a guest
+			// standing in a doorway for the rest of a party is worse than one that blinks in.
 			if ((phase == Phase.SEEK_SEAT || phase == Phase.RETURNING) && target != null) {
 				var spot = PartySend.freeSpaceNear(level, target, 2);
 				if (spot == null) {
@@ -428,10 +270,8 @@ public class YoukaiPartyTask extends Behavior<SmartYoukaiEntity> {
 				entity.teleportTo(spot.x, spot.y, spot.z);
 				entity.getNavigation().stop();
 				entity.navCtrl.stopMoving();
-				// she has arrived, wherever that turned out to be. Without this the
-				// destination she was sent to is still the one she failed to reach, the
-				// arrival test never passes, and she is teleported again next timeout for
-				// as long as the party lasts.
+				// she has arrived, wherever that turned out to be — otherwise the arrival test never
+				// passes and she is teleported again on every timeout.
 				standing = BlockPos.containing(spot);
 				deadline = gameTime + LEG_TIMEOUT;
 			} else {
@@ -439,11 +279,8 @@ public class YoukaiPartyTask extends Behavior<SmartYoukaiEntity> {
 				return false;
 			}
 		}
-		// her chair was taken away under her: the layout rescan noticed, and she is
-		// standing with nothing to sit on. Back to looking for one, on the same terms a
-		// first-time guest gets - if there is no other chair she leaves. Never while she is
-		// on her way out: that would put a guest who was asked to go back into looking for
-		// a chair instead.
+		// her chair was taken away under her: back to looking for one on a first-time guest's
+		// terms. Never while leaving, which would send her back to looking instead.
 		if (!leaving && layoutVersion >= 0 && layoutVersion != attachment.layoutVersion()) {
 			layoutVersion = attachment.layoutVersion();
 			var seat = party.seat();
@@ -460,11 +297,8 @@ public class YoukaiPartyTask extends Behavior<SmartYoukaiEntity> {
 			}
 		}
 		step(level, entity, party, attachment, gameTime);
-		// Deliberately keeps the task running across a phase change instead of returning
-		// false for a tick. One Behaviour instance drives the whole visit, so the phase
-		// lives in this field; returning false stops the task, stop() wipes the state, and
-		// the brain re-runs it next tick — restarting the cycle from the chair every time
-		// she changed phase.
+		// Keeps running across a phase change: returning false would stop() the task, wipe
+		// the phase field, and restart her cycle from the chair.
 		return true;
 	}
 
@@ -488,10 +322,8 @@ public class YoukaiPartyTask extends Behavior<SmartYoukaiEntity> {
 			case RESTING -> {
 				if (gameTime < until) return;
 				until = 0;
-				// The only place a guest leaves while there is still food. Rolled once
-				// per satisfied sit and not on a timer, so a character who sits longer
-				// also dawdles about leaving - which is what a slow eater should do, and
-				// what makes the two per-character fields mean something together.
+				// The only place a guest leaves while food remains. Rolled per satisfied
+				// sit, not on a timer, so the two per-character fields mean something together.
 				if (restingFull && entity.getRandom().nextDouble() < party.leaveChance()) {
 					PartyGift.give(level, entity, party);
 					beginLeaving(level, entity, gameTime);
@@ -544,21 +376,15 @@ public class YoukaiPartyTask extends Behavior<SmartYoukaiEntity> {
 		}
 	}
 
-	/**
-	 * She is holding the serving: go where she is going to eat it.
-	 * <p>
-	 * Shared by the two ways a bite starts, because the decision is the same either way —
-	 * a dish within reach is taken from where she is standing, and anything further out
-	 * is walked to. The difference is entirely upstream, in {@link #DELAY}.
-	 */
+	/** Shared by the two ways a bite starts: a dish in reach is taken where she stands, one further out is walked to. */
 	private void reach(ServerLevel level, SmartYoukaiEntity entity, PartyModule party,
 			PartyAttachment attachment) {
 		if (dishInReach(entity, target)) {
 			takeServing(level, entity, party);
 			return;
 		}
-		// Still airborne: no order is given, so the walk control never starts and she
-		// falls instead of flying, and the leg clock waits with her.
+		// Still airborne: no order is given, so she falls instead of flying, and the leg clock
+		// waits with her.
 		if (!canWalk(entity)) {
 			deadline = level.getGameTime() + LEG_TIMEOUT;
 			return;
@@ -566,15 +392,13 @@ public class YoukaiPartyTask extends Behavior<SmartYoukaiEntity> {
 		away = true;
 		// a passenger does not walk, and the chair she is riding will not go for her
 		if (entity.isPassenger()) entity.stopRiding();
-		// told once, not once a tick. This case is stepped every tick until she arrives,
-		// and re-issuing the walk target that often restarts the pathfinding under her own
-		// feet, which is how a walk that would have succeeded ends up timing out.
+		// Told once, not once a tick: re-issuing that often restarts the pathfinding under
+		// her own feet, which is how a walk that would have succeeded ends up timing out.
 		if (BrainUtils.getMemory(entity, MemoryModuleType.WALK_TARGET) == null) {
 			var ground = PartySend.standingNear(level, target);
 			if (ground == null) {
-				// nothing to stand on beside this dish, so walk at it and let the leg
-				// timeout decide. Reaching for a dish from mid-air is worse than not
-				// reaching, but standing still for ever is worse than both.
+				// nothing to stand on beside it: walk at it and let the leg timeout decide,
+				// because standing still for ever is worse than reaching badly
 				walkTo(entity, target.getCenter(), target);
 				return;
 			}
@@ -583,11 +407,9 @@ public class YoukaiPartyTask extends Behavior<SmartYoukaiEntity> {
 	}
 
 	/**
-	 * The exit: stand up, then go — away from the party, or back to where she came from.
-	 * <p>
-	 * The unseat and the walk are separate beats because a table that empties inside one
-	 * tick reads as a cutscene. Everything after the walk is {@link PartyModule}'s: what
-	 * happens to her depends on where she came from, and only she knows that.
+	 * Unseat and walk are separate beats: a table that empties inside one tick reads as a
+	 * cutscene. Everything after the walk is {@link PartyModule}'s — only she knows where
+	 * she came from.
 	 */
 	private void stepLeaving(ServerLevel level, SmartYoukaiEntity entity, PartyModule party,
 			long gameTime) {
@@ -617,23 +439,16 @@ public class YoukaiPartyTask extends Behavior<SmartYoukaiEntity> {
 			return;
 		}
 		// arriving is enough: she is walking away, not picking anything up, so the exact
-		// stand-on-it rule that governs a dish or a chair does not apply to the last few
-		// steps of a departure
+		// stand-on-it rule for a dish or a chair does not apply to a departure
 		if (standing == null || within(entity, standing, DEPART_REACH) || gameTime > leaveDeadline) {
 			finishLeaving(level, entity);
 		}
 	}
 
 	/**
-	 * Where she goes when the party is over.
-	 * <p>
-	 * A summoned clone has nothing to go back to, so she walks off and is gone — anywhere
-	 * a little way beyond the table is as good as anywhere else, since there is nothing to
-	 * arrive at. A character who came as herself goes back: her home, or her visit.
-	 * <p>
-	 * A visitor whose window has already closed gets no walk at all. She is not going home
-	 * from the party; she is leaving a party, and a long walk to a house that is no longer
-	 * having her is a worse ending than being gone from the table in ten seconds.
+	 * A summoned clone walks off and is gone; a character who came as herself goes back.
+	 * A visitor whose window already closed gets no walk — she is leaving a party, not
+	 * going home.
 	 *
 	 * @return a destination, or null to finish leaving here and now
 	 */
@@ -654,24 +469,12 @@ public class YoukaiPartyTask extends Behavior<SmartYoukaiEntity> {
 	}
 
 	/**
-	 * Somewhere a summoned guest walks off to before she is put away.
+	 * Somewhere a summoned guest walks off to before she is put away. The band starts past
+	 * the guest radius and is checked twice — on the rolled spot and on the ground found
+	 * for it — because an outward search from a too-close roll can return a neighbouring
+	 * block and undo the point.
 	 *
-	 * <p>
-	 * <b>Far.</b> The old version picked a random spot within the guest radius plus eight
-	 * and walked there, which meant the roll could land one block from the table — she
-	 * would stand up, take three steps and disappear in front of the host. Worse, a
-	 * character still holding her party memory in the same tick as the walk could be
-	 * pulled back towards it, so the party appeared to be reeling her in.
-	 *
-	 * <p>
-	 * The band starts past the guest radius and is checked twice: once on the spot that
-	 * was rolled, and again on the ground that was actually found for it, because a
-	 * search that walks outwards from a too-close roll can easily return a neighbouring
-	 * block and undo the whole point. Several rolls rather than one, since most of a
-	 * random spot in a room has no standable ground near it.
-	 *
-	 * @return somewhere to walk to, or null when nothing that far out is walkable — in
-	 *         which case she leaves from where she stands, which is dull but not wrong
+	 * @return somewhere to walk to, or null when nothing that far out is walkable
 	 */
 	@Nullable
 	private BlockPos walkOut(ServerLevel level, SmartYoukaiEntity entity, BlockPos table) {
@@ -704,10 +507,8 @@ public class YoukaiPartyTask extends Behavior<SmartYoukaiEntity> {
 	}
 
 	/**
-	 * Choose what to walk to next, or dismiss her if there is nothing left to do.
-	 * <p>
-	 * Records the destination in {@link #target}, so the next tick {@code step()} checks
-	 * arrival instead of seeking again.
+	 * Choose what to walk to next, or dismiss her if there is nothing left to do. Records
+	 * it in {@link #target}, so the next tick checks arrival instead of seeking again.
 	 */
 	private void seek(ServerLevel level, SmartYoukaiEntity entity, PartyModule party,
 			PartyAttachment attachment, long gameTime) {
@@ -715,17 +516,15 @@ public class YoukaiPartyTask extends Behavior<SmartYoukaiEntity> {
 			case SEEK_SEAT -> {
 				var seat = attachment.claimSeat(level, entity.getUUID(), party.seat());
 				if (seat == null) {
-					// Counting once per window rather than once per tick: seek runs every
-					// tick while there is no destination, and three failures a tick would
-					// be three failures in no time at all.
+					// Once per window, not once per tick: seek runs every tick while
+					// there is no destination
 					if (gameTime < seatCheckAt) {
 						deadline = gameTime + LEG_TIMEOUT;
 						return;
 					}
 					seatCheckAt = gameTime + SEAT_RETRY;
-					// The host is told once, on the first failure, because the message is
-					// about a shortage she can still fix: worth saying while it is
-					// happening, not only at the end.
+					// told once, on the first failure: the message is about a shortage
+					// the host can still fix
 					if (!seatWarned) {
 						seatWarned = true;
 						seatFailures = 0;
@@ -736,23 +535,21 @@ public class YoukaiPartyTask extends Behavior<SmartYoukaiEntity> {
 						expel(level, entity, party, attachment);
 						return;
 					}
-					// no chair in reach yet: the host may still be putting them out, so
-					// keep looking. The deadline goes with it, or the leg timeout would
-					// write her off between checks.
+					// no chair in reach yet: keep looking, and push the deadline out
+					// with it or the leg timeout writes her off between checks
 					deadline = gameTime + LEG_TIMEOUT;
 					return;
 				}
 				seatFailures = 0;
 				seatWarned = false;
-				// airborne: she waits and the leg clock waits with her, or a guest who
-				// fell from above the table would be written off before she landed
+				// airborne: she waits, and so does the leg clock
 				if (canWalk(entity)) walkToSeat(level, entity, seat);
 				else deadline = gameTime + LEG_TIMEOUT;
 			}
 			case SEEK_FOOD -> {
 				var dish = drawDish(level, entity, party, attachment);
 				if (dish == null) {
-					// nothing of the spread left she can reach, so she settles up and goes
+					// nothing of the spread left she can reach: settle up and go
 					PartyGift.give(level, entity, party);
 					beginLeaving(level, entity, gameTime);
 					return;
@@ -760,11 +557,9 @@ public class YoukaiPartyTask extends Behavior<SmartYoukaiEntity> {
 				target = dish;
 				// a dish within reach is eaten from where she sits, without standing up.
 				// The deadline is set before this branch, not after it: a guest who never
-				// stands up never refreshes it anywhere else, and would be written off
-				// part-way through the meal.
+				// only standing up refreshes it anywhere else
 				deadline = gameTime + LEG_TIMEOUT;
-				// then she hesitates before reaching for it, so a table of guests does
-				// not draw, stand and eat in lockstep
+				// then she hesitates, so a table of guests does not eat in lockstep
 				phase = Phase.DELAY;
 				until = gameTime + BITE_DELAY_MIN
 						+ entity.getRandom().nextInt(BITE_DELAY - BITE_DELAY_MIN + 1);
@@ -784,20 +579,10 @@ public class YoukaiPartyTask extends Behavior<SmartYoukaiEntity> {
 	}
 
 	/**
-	 * Walk to somewhere she can stand <b>beside</b> {@code seat}, and look at it.
-	 *
-	 * <p>
-	 * Not to the seat, and not to the block above it. The block above is where the rider
-	 * ends up, which is inside the chair's own collision box: asking a pathfinder to reach
-	 * it either fails outright or parks the guest standing on the seat, which is the one
-	 * place a party must never put anyone. Standing on the floor next to the chair is both
-	 * reachable and the position she actually sits down from — and arrival is then
-	 * measured on that floor tile exactly, so "she got there" and "she is next to her
-	 * chair" are the same statement.
-	 *
-	 * <p>
-	 * {@link PartySend#standingNear} has the answer; a chair walled in on every side has
-	 * none, and then the old target is still better than not arriving.
+	 * Walk to somewhere she can stand <b>beside</b> {@code seat}, and look at it — never to
+	 * the block above, which is inside the chair's own collision box and is the one place a
+	 * party must never put anyone. A chair walled in on every side has no answer, and the
+	 * old target is then still better than not arriving.
 	 */
 	private void walkToSeat(ServerLevel level, SmartYoukaiEntity entity, BlockPos seat) {
 		var beside = PartySend.standingNear(level, seat);
@@ -805,12 +590,10 @@ public class YoukaiPartyTask extends Behavior<SmartYoukaiEntity> {
 	}
 
 	/**
-	 * Send her to {@code to}, and remember {@code look} as the thing being walked to.
-	 * <p>
-	 * {@code target} is set here rather than at the call sites because {@code step()}
-	 * reads it to decide between seeking and arriving: a seek that did not record its
-	 * destination would re-issue the walk every tick forever, never arrive, and — for a
-	 * chair — never sit down, which would hold the whole party in GATHERING.
+	 * Send her to {@code to}, and remember {@code look} as the thing being walked to. Set
+	 * here rather than at the call sites because {@code step()} reads it to choose between
+	 * seeking and arriving: a seek that did not record its destination would re-issue the
+	 * walk every tick and never sit down.
 	 */
 	private void walkTo(SmartYoukaiEntity entity, Vec3 to, BlockPos look) {
 		target = look.immutable();
@@ -820,22 +603,11 @@ public class YoukaiPartyTask extends Behavior<SmartYoukaiEntity> {
 	}
 
 	/**
-	 * Whether she is in a state to start walking at all.
-	 *
-	 * <p>
-	 * <b>Not while she is off the ground.</b> A guest arrives from outside, dropped at a
-	 * random spot and free to fall, and a pathfinding order issued mid-air is how a
-	 * character <i>flies</i> to a party: the walk control and the fly control are both
-	 * live on these entities ({@code YoukaiEntity.mayFly} is true for every character),
-	 * and an order given while she is airborne is answered by the flying one.
-	 *
-	 * <p>
-	 * Tested with {@code navCtrl.isCloseToGround()} rather than {@code onGround()}, and
-	 * the difference matters: a walk node wants solid ground under the feet, so
-	 * {@code onGround} is exactly the condition {@code mayLand}'s own note says leaves a
-	 * hovering character unable to path anywhere. "Close to ground" is the condition this
-	 * codebase already uses to decide when a flyer should land and try walking, and it is
-	 * the one that answers the question.
+	 * Whether she is in a state to start walking at all — <b>not while she is off the
+	 * ground</b>, because a pathfinding order issued mid-air is answered by the fly control
+	 * and she <i>flies</i> to the party. Tested with {@code isCloseToGround()} rather than
+	 * {@code onGround()}: a walk node wants solid ground, so {@code onGround} is exactly the
+	 * condition that leaves a hovering character unable to path anywhere.
 	 */
 	private static boolean canWalk(SmartYoukaiEntity entity) {
 		return entity.onGround() || entity.navCtrl.isCloseToGround();
@@ -851,20 +623,17 @@ public class YoukaiPartyTask extends Behavior<SmartYoukaiEntity> {
 	}
 
 	/**
-	 * Sit down on {@link #target}, if she is close enough to.
-	 *
-	 * <p>
-	 * Refuses rather than trying and failing: {@code setSitting} is a silent no-op on a
-	 * block that is not one of ours, and a guest who claims a chair she is not on holds
-	 * the party in GATHERING for ever. Out of reach, she simply does not claim it and the
-	 * next tick tries again — by which time she has walked the rest of the way.
+	 * Sit down on {@link #target}, if she is close enough to. Out of reach she does not
+	 * claim it and tries again next tick: {@code setSitting} is a silent no-op on a block
+	 * that is not one of ours, and a claim on a chair she is not on holds the party in
+	 * GATHERING for ever.
 	 */
 	private void sit(ServerLevel level, SmartYoukaiEntity entity, PartyModule party,
 			PartyAttachment attachment) {
 		if (!within(entity, target, SEAT_REACH)) return;
 		// a no-op unless the block is one of ours; a third-party chair in party_seat
-		// simply leaves her standing beside it, and the claim is still recorded so the
-		// party is not held in GATHERING by a guest who will never be seated
+		// leaves her standing beside it, and the claim is still recorded so the party is
+		// not held in GATHERING by a guest who will never be seated
 		HomeSearchUtil.setSitting(level, target, entity);
 		party.claimSeat(target);
 		away = false;
@@ -872,8 +641,8 @@ public class YoukaiPartyTask extends Behavior<SmartYoukaiEntity> {
 		until = 0;
 		clearWalk(entity);
 		if (eatingAfterSeat) {
-			// she came back from picking a dish up away from the table, which is why she
-			// was walking: the chew happens here, not standing over the plate
+			// she was walking because she picked the dish up away from the table: the
+			// chew happens here, not standing over the plate
 			eatingAfterSeat = false;
 			startEating(level, entity);
 			return;
@@ -883,15 +652,9 @@ public class YoukaiPartyTask extends Behavior<SmartYoukaiEntity> {
 	}
 
 	/**
-	 * The pickup beat: take one serving off {@link #target} and put it in her hand.
-	 * <p>
-	 * The gesture runs first and the item appears when it ends, so what she is holding is
-	 * something she was seen reaching for. The serve comes off the block here rather than
-	 * when she eventually eats it, so two guests converging on one cake cannot both be
-	 * counted for it.
-	 * <p>
-	 * Requires {@link #target} to be set: every call site is inside a branch that has
-	 * already drawn a dish or reached one.
+	 * The pickup beat: take one serving off {@link #target} and put it in her hand. The
+	 * serve comes off the block here, not when she eats, so two guests converging on one
+	 * cake cannot both be counted for it.
 	 */
 	private void takeServing(ServerLevel level, SmartYoukaiEntity entity, PartyModule party) {
 		var dish = target;
@@ -900,7 +663,7 @@ public class YoukaiPartyTask extends Behavior<SmartYoukaiEntity> {
 			return;
 		}
 		// re-validate: another guest may have taken this while she walked over, and a
-		// dish is only part of the spread if the table or chair it was put out on is
+		// dish counts only if the table or chair it was put out on is
 		// still there
 		var state = level.getBlockState(dish);
 		if (!PartyFoodValue.isFood(level, dish, state) || !PartyArea.isLaidOut(level, dish, state)) {
@@ -934,12 +697,8 @@ public class YoukaiPartyTask extends Behavior<SmartYoukaiEntity> {
 	/**
 	 * The stack one serving of this block is worth, or nothing.
 	 * <p>
-	 * Asked of the handler rather than rebuilt here, which is the point of the food
-	 * refactor: a cutting board's serving is two sushi because the board hands over
-	 * whole plates, and no amount of reading an id would have told anybody that.
-	 * <p>
-	 * The first entry that is valid, so a container is handed whichever of its foods the
-	 * guest has already picked — the same one whose serve was drawn and consumed.
+	 * The first valid entry, so a container is handed whichever of its foods the guest
+	 * already picked.
 	 */
 	private static ItemStack servingFor(ServerLevel level, BlockPos pos, BlockState state) {
 		for (var result : PartyFoodValue.results(level, pos, state)) {
@@ -949,17 +708,11 @@ public class YoukaiPartyTask extends Behavior<SmartYoukaiEntity> {
 		return ItemStack.EMPTY;
 	}
 
-	/**
-	 * The eat beat: seated, chewing, with the serving leaving her hand as she goes.
-	 * <p>
-	 * The sound belongs here rather than at the pickup, because this is the moment she
-	 * eats rather than the moment she picks the plate up.
-	 */
+	/** The eat beat: seated, chewing, with the serving leaving her hand as she goes. */
 	private void startEating(ServerLevel level, SmartYoukaiEntity entity) {
 		phase = Phase.EATING;
 		until = level.getGameTime() + EAT_TICKS;
-		// emptied part-way through rather than at the end, so the food visibly does not
-		// survive the whole chew
+		// emptied part-way through, so the food visibly does not survive the whole chew
 		untilItemDrop = level.getGameTime() + EAT_TICKS / 2;
 		entity.broadcastEat();
 		level.playSound(null, entity.blockPosition(), SoundEvents.GENERIC_EAT,
@@ -974,13 +727,9 @@ public class YoukaiPartyTask extends Behavior<SmartYoukaiEntity> {
 	}
 
 	/**
-	 * Go back to the chair if she left it, then sit for a while.
-	 * <p>
-	 * The wait is longer once she has eaten her fill: a hungry guest is back for the next
-	 * course, a satisfied one is only grazing and takes her time over it.
-	 * <p>
-	 * The deadline is pushed out here too, because a satisfied sit is longer than the gap
-	 * between two seeks once a dish has been walked to and back from.
+	 * Go back to the chair if she left it, then sit for a while — longer once she has eaten
+	 * her fill. The deadline goes out with it: a satisfied sit outlasts the gap between
+	 * two seeks.
 	 */
 	private void beginRest(ServerLevel level, SmartYoukaiEntity entity, PartyModule party) {
 		deadline = level.getGameTime() + LEG_TIMEOUT;
@@ -994,15 +743,11 @@ public class YoukaiPartyTask extends Behavior<SmartYoukaiEntity> {
 	}
 
 	/**
-	 * One dish, drawn at random with probability proportional to its appeal per serve.
+	 * One dish, drawn at random with probability proportional to its appeal per serve — so a
+	 * guest works across the spread rather than clearing the nearest plate first.
 	 * <p>
-	 * Random rather than nearest, and weighted rather than uniform, so a guest works her
-	 * way across the spread instead of clearing the nearest plate first and working
-	 * outwards — and so the tasty things get eaten before the plain ones.
-	 * <p>
-	 * The appeal total is accumulated in {@code long}: one dish is capped by
-	 * {@code MAX_APPEAL}, but this sums a whole search box of them, and an overflow would
-	 * wrap into a bound of the wrong sign and skew every draw after it.
+	 * The total is accumulated in {@code long}: this sums a whole box of dishes, and an
+	 * overflow would skew every draw after it.
 	 */
 	@Nullable
 	private BlockPos drawDish(ServerLevel level, SmartYoukaiEntity entity, PartyModule party,
@@ -1011,13 +756,12 @@ public class YoukaiPartyTask extends Behavior<SmartYoukaiEntity> {
 		var dishes = new ArrayList<BlockPos>();
 		var weights = new ArrayList<Integer>();
 		long total = 0;
-		// the party's own list, rebuilt every couple of seconds rather than swept per
-		// guest: this runs once per dish, for the length of the visit, and the party
-		// already has a fresher answer than a sweep here could produce
+		// the party's own list, not a sweep per guest: this runs once per dish for the
+		// whole visit, and the party already has a fresher answer
 		for (var pos : attachment.food()) {
 			var state = level.getBlockState(pos);
 			// re-checked, not trusted: the cache is two seconds old, and in those two
-			// seconds another guest may have emptied this and the host may have moved it
+			// seconds another guest may have emptied this
 			if (!PartyArea.isLaidOut(level, pos, state)) continue;
 			if (!PartyFoodValue.isFood(level, pos, state)) continue;
 			int appeal = PartyFoodValue.appealPerServe(access, level, pos, state);
@@ -1027,8 +771,7 @@ public class YoukaiPartyTask extends Behavior<SmartYoukaiEntity> {
 			total += appeal;
 		}
 		if (total <= 0) return null;
-		// RandomSource has no bounded nextLong, and casting a double keeps the bound off
-		// the int range entirely: nextDouble() is [0,1), so the roll lands in [0,total).
+		// nextDouble() is [0,1), so the roll lands in [0,total)
 		long roll = (long) (entity.getRandom().nextDouble() * total);
 		for (int i = 0; i < dishes.size(); i++) {
 			roll -= weights.get(i);
@@ -1043,26 +786,19 @@ public class YoukaiPartyTask extends Behavior<SmartYoukaiEntity> {
 	}
 
 	/**
-	 * Whether she has got where she is going: standing on the block she was sent to, with
-	 * no tolerance at all.
-	 * <p>
-	 * {@link #standing} rather than {@link #target}, because she never walks to the thing
-	 * she is going to act on — she walks to the floor beside it. Testing arrival against
-	 * the chair or the dish instead is how a guest ends up acting on a dish from across
-	 * the table and calling it "close enough".
+	 * Whether she is standing on the block she was sent to, with no tolerance at all.
+	 * {@link #standing}, not {@link #target}: she walks to the floor beside the thing she
+	 * acts on, and testing arrival against the chair or the dish lets her act on a dish
+	 * from across the table.
 	 */
 	private boolean arrived(SmartYoukaiEntity entity) {
 		return standing != null && within(entity, standing, ARRIVAL_REACH);
 	}
 
 	/**
-	 * Whether she can take {@code dish} from where she is right now.
-	 *
-	 * <p>
-	 * Three blocks from the chair and two from the floor, and the difference is the whole
-	 * reason a laid banquet plays out without anyone standing up: a dish within three
-	 * blocks of her seat is taken from where she is sitting, and only a dish further out
-	 * than that costs a dismount and a walk.
+	 * Whether she can take {@code dish} from where she is. Three blocks from the chair and
+	 * two from the floor: a dish within three of her seat is taken from where she is sitting,
+	 * and only a dish further out costs a dismount and a walk.
 	 */
 	private static boolean dishInReach(SmartYoukaiEntity entity, BlockPos dish) {
 		return within(entity, dish, entity.isPassenger() ? REACH_SEATED : REACH_STANDING);
@@ -1098,9 +834,8 @@ public class YoukaiPartyTask extends Behavior<SmartYoukaiEntity> {
 
 	@Override
 	protected void stop(ServerLevel level, SmartYoukaiEntity entity, long gameTime) {
-		// A dish destroyed when eating started but never credited — the party ended, or
-		// the chunk unloaded, mid-bite — still counts. The block is already gone, so
-		// dropping the tally would silently lose that food.
+		// A dish taken when eating started but never credited still counts: the block is
+		// already gone, so dropping the tally would silently lose that food.
 		if (pendingHunger > 0 || pendingAppeal > 0) {
 			var module = entity.getModule(PartyModule.class);
 			if (module.isPresent()) {
@@ -1109,8 +844,7 @@ public class YoukaiPartyTask extends Behavior<SmartYoukaiEntity> {
 			}
 		}
 		clearWalk(entity);
-		// whatever she was carrying goes back where it came from: a task that stops
-		// mid-bite would otherwise leave a slice of cake in her hand until she died
+		// otherwise a task stopping mid-bite leaves a slice of cake in her hand for good
 		dropServing(entity);
 		target = null;
 		pendingHunger = 0;

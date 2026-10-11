@@ -7,21 +7,12 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 
 /**
- * A Youkai's Feasts saucer dish: a single serving, eaten whole, food on the block's own
- * item.
+ * A Youkai's Feasts saucer dish: one serving, eaten whole, food on the block's own item.
  *
- * <p>
- * There is no serve counter to read — eating the dish empties the saucer rather than
- * stepping a property — so a dish is worth exactly one serve and is gone afterwards.
+ * <p>Narrowed to {@code FoodSaucerBlock} rather than its {@code BaseSaucerBlock} parent, which
+ * also covers {@code EmptySaucerBlock} and would serve nothing.
  *
- * <p>
- * Narrowed to {@code FoodSaucerBlock} rather than its {@code BaseSaucerBlock} parent,
- * because the parent also covers {@code EmptySaucerBlock}, which serves nothing. Being
- * precise here is what lets {@link BlockItemFood} stay a blunt catch-all.
- *
- * <p>
- * <b>Load order:</b> references {@code FoodSaucerBlock}, so it is only ever constructed
- * when Youkai's Feasts is present.
+ * @see doc/design/party/food_mods.md
  */
 public class SaucerFood extends BlockItemFood {
 

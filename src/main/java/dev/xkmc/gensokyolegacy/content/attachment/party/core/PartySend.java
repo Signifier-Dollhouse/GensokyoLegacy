@@ -33,23 +33,17 @@ import java.util.UUID;
 import java.util.function.ToIntFunction;
 
 /**
- * The one place a party is started, and the one place guests are spawned.
- * <p>
- * Every rejection happens before the letter is consumed, so a refused send costs
- * the player nothing and tells them why.
+ * The one place a party is started, and the one place guests are spawned. Every rejection
+ * happens before the letter is consumed, so a refused send costs the player nothing.
+ *
+ * @see doc/design/party/send.md
  */
 public class PartySend {
 
-	/**
-	 * A whole send attempt. Reusable by {@code /gensokyo party preview}, which
-	 * wants the plan without any of the side effects.
-	 */
+	/** A whole send attempt. Reusable by {@code /gensokyo party preview}, which wants the plan without the side effects. */
 	public record Plan(PartyArea area, List<PartyPlanner.Candidate> pool, List<EntityType<?>> roster) {
 
-		/**
-		 * The spread's total attraction, each food counted once. Scales weights; is not
-		 * the budget, and does not grow with how much of it is left on the table.
-		 */
+		/** The spread's attraction, each food counted once. Scales weights; is not the budget. */
 		public int appeal() {
 			return area.appeal();
 		}
@@ -75,11 +69,8 @@ public class PartySend {
 
 	/**
 	 * The full outcome, so the caller can message the player without re-deriving anything.
-	 * <p>
-	 * The scanned {@link #area} rides along even on a refusal, because that is the
-	 * interesting half of a refusal: the debug wand wants to show what the planner
-	 * could and could not see around that table, and re-scanning it would be a second
-	 * walk over the same blocks.
+	 * {@link #area} rides along even on a refusal: that is the interesting half of one, and
+	 * re-scanning would be a second walk over the same blocks.
 	 */
 	public record Outcome(@Nullable PartyArea area, @Nullable Plan plan, @Nullable Refusal refusal,
 			@Nullable Map.Entry<PartyPlanner.Candidate, PartyPlanner.Miss> miss) {
@@ -127,18 +118,10 @@ public class PartySend {
 	}
 
 	/**
-	 * The random the guest draw runs on, seeded from where the food is.
-	 * <p>
-	 * The seed is the <b>centre of the spread</b> and not the block the player clicked,
-	 * so clicking either end of a long table draws the same party. That is what keeps
-	 * {@code /gensokyo party preview} an exact prediction: preview, a real send and a
-	 * wand simulation all seed from the same place, so they cannot disagree, while moving
-	 * the party's food a block or two gives a different draw.
-	 * <p>
-	 * The coordinates are scrambled rather than packed straight into the seed. Adjacent
-	 * centres must not produce adjacent draws, or neighbouring parties would come out
-	 * alike — which is exactly what a plain {@code (x << 32) ^ (z << 16) ^ y} gives you,
-	 * since neighbouring centres then differ only in the low bits.
+	 * The random the guest draw runs on, seeded from the <b>centre of the spread</b> rather
+	 * than the clicked block, so either end of a long table draws the same party and
+	 * {@code preview} cannot disagree with a send. The coordinates are scrambled, not
+	 * packed, or adjacent centres would give near-identical draws.
 	 */
 	private static Random drawOf(BlockPos center) {
 		long seed = (long) center.getX() * 0x9E3779B97F4A7C15L
@@ -158,15 +141,9 @@ public class PartySend {
 	}
 
 	/**
-	 * Whether this entity type is a character at all, as opposed to furniture, a
-	 * projectile or a summon. Necessary but <b>not sufficient</b> for party
-	 * eligibility: a character also needs an authored {@code party_taste} entry, so
-	 * this only answers the cheaper half of the question.
-	 * <p>
-	 * All fourteen characters are registered as {@link MobCategory#MONSTER}, which is
-	 * what separates them from the chair, the broom, the doll and the projectile
-	 * entities — all {@code MISC}. Structural rather than a hand-kept list, so
-	 * {@code party_taste} is the only place eligibility is written down.
+	 * Whether this type is a character rather than furniture or a projectile — structural
+	 * ({@link MobCategory#MONSTER} against {@code MISC}), but only the cheap half of
+	 * eligibility: the other half is an authored {@code party_taste}.
 	 */
 	public static boolean isCharacter(EntityType<?> type) {
 		return type.getCategory() == MobCategory.MONSTER;
@@ -187,13 +164,12 @@ public class PartySend {
 		var center = PartyArea.center(plan.area().food());
 		if (center == null) return new Outcome(plan.area(), null, Refusal.NO_FOOD, null);
 
-		// the party is owned by the chunk holding the food centre, which need not be
-		// the chunk holding the anchor table, so guests are told which chunk it is
+		// guests are told which chunk owns the party: the food centre, not the anchor table
 		var partyChunk = new ChunkPos(center);
 		var party = PartyAttachment.of(level, partyChunk);
 		if (party == null || party.active()) return new Outcome(plan.area(), null, Refusal.PARTY_EXISTS, null);
-		// the roster is frozen here and the guests are admitted from the ticker, one a
-		// second — a send opens a party, it does not fill a table
+		// a send opens a party, it does not fill a table: the roster is frozen here and
+		// admitted from the ticker, one a second
 		party.start(level.getChunkAt(center), level.getGameTime(), sp.getUUID(), anchor,
 				plan.roster(), plan.capacity(),
 				PartyArea.foodAround(level, anchor), PartyArea.seatsAround(level, anchor));
@@ -205,20 +181,15 @@ public class PartySend {
 	}
 
 	/**
-	 * Admit the next character of the roster, one arrival a second.
+	 * Admit the next character of the roster, one arrival a second — the ticker already
+	 * runs at 1 Hz, so one pass is one arrival and no timer is needed.
 	 * <p>
-	 * Called from {@link PartyTicker} rather than from the send: the ticker already runs
-	 * at 1 Hz, so one admission per pass is one arrival per second with no timer of its
-	 * own, and a table that fills in a single frame reads as a cutscene rather than as
-	 * people turning up.
-	 * <p>
-	 * A character already on site comes as herself rather than as a second copy; anyone
-	 * else gets a fresh clone. Either way the roster entry is dealt with, so a type that
-	 * cannot be created costs one second rather than stalling the admission for ever.
+	 * The entry is always dealt with, so a type that cannot be created costs one second
+	 * rather than stalling admission for ever.
 	 */
 	public static void admitNext(ServerLevel level, PartyAttachment party) {
-		// a closing party admits nobody: it is winding down, and a guest who arrived into
-		// it would be told to leave on her first tick
+		// a closing party admits nobody: a guest arriving into one is told to leave
+		// on her first tick
 		if (party.phase() == PartyAttachment.Phase.CLOSING) return;
 		var type = party.nextGuest();
 		if (type == null) return;
@@ -242,16 +213,9 @@ public class PartySend {
 	}
 
 	/**
-	 * A character of this type who is already on site and could come as herself.
-	 * <p>
-	 * Two Reimus at one table is worse than one, and a character standing in the room is
-	 * the same person a clone would be pretending to be. Only two kinds qualify: a
-	 * {@link VisitModule visitor}, and a {@link HomeModule resident} who is at her own
-	 * house rather than having wandered out of it — both have somewhere to go back to,
-	 * which is what makes reusing them worth the bookkeeping.
-	 * <p>
-	 * The search reaches as far as the scan does, so a visitor inside a house across the
-	 * street is found rather than being shadowed by a clone of herself.
+	 * A character of this type already on site who could come as herself — two Reimus at one
+	 * table is worse than one. Only a {@link VisitModule visitor} and a {@link HomeModule
+	 * resident} standing at her own house qualify: both have somewhere to go back to.
 	 */
 	@Nullable
 	private static YoukaiEntity findOnSite(ServerLevel level, BlockPos anchor, EntityType<?> type) {
@@ -272,12 +236,9 @@ public class PartySend {
 	}
 
 	/**
-	 * Put an already-existing character on the party's books.
-	 * <p>
-	 * The same two lines {@link #spawn} does, and the same one thing it does not do: her
-	 * {@code HomeModule} is not touched, because she has one and it is hers. Where she was
-	 * before is what {@link PartyModule#join} records, and it is the only reason this is
-	 * more than a clone spawn.
+	 * Put an already-existing character on the party's books. As {@link #spawn}, but her
+	 * {@code HomeModule} is left alone — she has one, and it is hers. Where she came from
+	 * is what {@link PartyModule#join} records.
 	 */
 	private static void join(ServerLevel level, YoukaiEntity guest, @Nullable UUID host,
 			BlockPos table, @Nullable ChunkPos partyChunk) {
@@ -291,12 +252,9 @@ public class PartySend {
 	}
 
 	/**
-	 * End a party: every guest is told to leave, staggered, and the party itself is
-	 * finished when the last of them is gone.
-	 * <p>
-	 * Deliberately not a {@code discard()} over the roster. A guest stands up after her own
-	 * random delay and walks off, and only then leaves the party; a host who calls
-	 * {@code /gensokyo party end} mid-banquet should watch a table wind down, not vanish.
+	 * End a party: every guest is told to leave, staggered, and the party finishes when the
+	 * last of them is gone. Deliberately not a {@code discard()} over the roster — a host
+	 * calling {@code end} mid-banquet should watch a table wind down, not vanish.
 	 */
 	public static void close(ServerLevel level, PartyAttachment party) {
 		party.close(level.getGameTime());
@@ -306,12 +264,9 @@ public class PartySend {
 	}
 
 	/**
-	 * Put a guest on site.
-	 * <p>
-	 * Deliberately does not touch {@code HomeModule}: with no home binding she
-	 * never gets a {@code HOME} memory, so she can neither sleep nor claim a bed,
-	 * and the resident back home keeps living her ordinary day — the same trick
-	 * {@code VisitScheduler} uses, for the same reason.
+	 * Put a guest on site. Deliberately does not touch {@code HomeModule}: with no home
+	 * binding she never gets a {@code HOME} memory, so the resident back home keeps living
+	 * her ordinary day — the same trick {@code VisitScheduler} uses.
 	 *
 	 * @return the guest, or null if she could not be created or nowhere was found
 	 */
@@ -332,18 +287,9 @@ public class PartySend {
 	}
 
 	/**
-	 * Somewhere a guest can appear: a random spot within the scan distance of the
-	 * anchor, on the ground if there is any to be had, and never inside the furniture.
-	 * <p>
-	 * {@code RandomPos} plus {@code LandRandomPos} is the pair
-	 * {@code HomeSearchUtil.getRandomPos} already uses to put a character somewhere in a
-	 * house she can stand in, and it tries ten positions before it gives up — so the
-	 * fallback below is a real case rather than a formality.
-	 * <p>
-	 * Deliberately not the guest radius. That is how far she may wander once she is
-	 * <i>at</i> the party; this is how far away she may appear. A guest who materialised
-	 * inside the guest radius would already be at the table, which is the thing the rule
-	 * exists to prevent.
+	 * Somewhere a guest can appear: random, within the scan distance, on the ground if
+	 * there is any, never inside the furniture. Deliberately not the guest radius — that is
+	 * how far she may wander once she is <i>at</i> the party, not how far away she appears.
 	 */
 	@Nullable
 	private static Vec3 arrivalNear(ServerLevel level, BlockPos anchor, YoukaiEntity youkai) {
@@ -358,33 +304,20 @@ public class PartySend {
 			return LandRandomPos.movePosUpOutOfSolid(youkai, spot);
 		});
 		if (pos != null && !furniture(level, pos)) return pos;
-		// ten random spots found nothing — a small sealed room, or one where every
-		// landing is on the table. Stand her somewhere definite rather than not at all.
+		// ten random spots found nothing — a sealed room, or one where every landing is
+		// on the table. Stand her somewhere definite rather than not at all.
 		return freeSpaceNear(level, anchor, 4);
 	}
 
 	/**
-	 * Somewhere she can stand to reach {@code pos}: a standable block right beside it, or
-	 * one beside whatever it is standing on.
-	 *
+	 * The walk target for both a chair and a dish, neither of which is ever walked to
+	 * directly: a chair is furniture to sit down from <i>beside</i>, and the block beside a
+	 * dish on a table is air at table height. Two rings in order — the block's own
+	 * neighbours, then their neighbours one support down — so a dish on the floor answers
+	 * in the first ring and one on a laid table only in the second.
 	 * <p>
-	 * This is the walk target for both a chair and a dish, and neither of them is ever
-	 * walked to directly. A chair's own block is furniture — the guest has to stand
-	 * <i>next</i> to it and then sit, and asking a pathfinder to reach the chair itself
-	 * either fails or leaves her standing on the seat, which is the most visible way this
-	 * feature can look broken. A dish on a table is worse: the block beside it is air at
-	 * table height with nothing to stand on, so the answer is the floor beside the table.
-	 *
-	 * <p>
-	 * Two rings, in order: the block's own neighbours first, then its neighbours one
-	 * support down. A dish on the floor finds its answer in the first ring and a dish on
-	 * a laid table only in the second, which is why both are tried rather than the second
-	 * being computed.
-	 *
-	 * <p>
-	 * Not checked for reachability — whether she can actually path there is the
-	 * pathfinder's question, and {@code YoukaiPartyTask}'s walk-failure fallback already
-	 * covers the case where it cannot.
+	 * Not checked for reachability: that is the pathfinder's question, and the walk-failure
+	 * fallback covers it.
 	 *
 	 * @return the block to walk to, or null when there is nowhere to stand near it
 	 */
@@ -416,17 +349,9 @@ public class PartySend {
 	}
 
 	/**
-	 * A free, standable block within {@code radius} rings of {@code near}, or null.
-	 * <p>
-	 * The one place the party answers "where can somebody stand here", and it has two
-	 * callers because they want the same answer for the same reason: where a guest
-	 * appears, and where a guest is moved to when she cannot walk where she was going.
-	 * The walk failure is the more important of the two — a guest standing in a doorway
-	 * for the rest of a party is worse than one that blinks into place, and it only ever
-	 * happens once the pathfinder has already given up.
-	 * <p>
-	 * Rings outward rather than a box, so the closest free space wins: the caller wants
-	 * beside the chair, not as far from it as the search happened to reach.
+	 * A free, standable block within {@code radius} rings of {@code near}, or null. Rings
+	 * outward rather than a box, so the closest free space wins — the caller wants beside
+	 * the chair, not as far from it as the search reached.
 	 */
 	@Nullable
 	public static Vec3 freeSpaceNear(ServerLevel level, BlockPos near, int radius) {
@@ -447,12 +372,9 @@ public class PartySend {
 	}
 
 	/**
-	 * Prefer the ground: the first spot around {@code pos} with air to stand in and
-	 * something solid under it, looking up first and then down.
-	 * <p>
-	 * Bounded on purpose. An unbounded fall through a tall empty shaft would run to the
-	 * bottom of the world, and a party anchor is on a table at the top of a room — which
-	 * is exactly where an unbounded search starts.
+	 * The first spot around {@code pos} with air to stand in and something solid under it,
+	 * looking up then down. Bounded, or a tall empty shaft would run to the bottom of the
+	 * world — and a party anchor sits on a table at the top of a room.
 	 */
 	@Nullable
 	private static BlockPos groundNear(ServerLevel level, BlockPos pos) {
@@ -472,13 +394,9 @@ public class PartySend {
 	}
 
 	/**
-	 * Whether this spot is party furniture — a chair or a table.
-	 * <p>
-	 * Asked on every arrival and every teleport even though {@link #standable} has
-	 * already excluded anything solid, because it is the rule rather than a consequence
-	 * of one: a guest may not appear inside a chair any more than she may be moved into
-	 * one, and the fallback path is the one most likely to land in the middle of the
-	 * table.
+	 * Whether this spot is party furniture. Asked separately of {@link #standable} because
+	 * it is the rule, not a consequence: a guest may not appear inside a chair any more than
+	 * she may be moved into one, and the fallback is likeliest to land mid-table.
 	 */
 	private static boolean furniture(ServerLevel level, Vec3 pos) {
 		var at = BlockPos.containing(pos);

@@ -11,8 +11,8 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 
 /**
- * Player-facing text for a send attempt, shared by the letter and the command so
- * a refusal reads the same either way.
+ * Player-facing text for a send attempt, shared by the letter and the command so a refusal reads
+ * the same either way. Nothing is queued: a host who is not here is simply not told.
  */
 public class PartyMessage {
 
@@ -29,8 +29,8 @@ public class PartyMessage {
 			case NO_SEATS -> sp.sendSystemMessage(GLLang.Party.NO_SEATS.get());
 			case PARTY_EXISTS -> sp.sendSystemMessage(GLLang.Party.PARTY_EXISTS.get());
 			case NOBODY_CAME -> {
-				// name the character the player just missed, and whether to fix it
-				// with more food or a better relationship
+				// name the character just missed, and whether more food or a better
+				// relationship is what fixes it
 				var miss = outcome.miss();
 				if (miss == null) {
 					sp.sendSystemMessage(GLLang.Party.NOBODY_CAME.get());
@@ -52,17 +52,9 @@ public class PartyMessage {
 	}
 
 	/**
-	 * Tell the host a guest is looking for a chair.
+	 * Tell the host a guest is looking for a chair — once per episode, not once per retry.
 	 *
-	 * <p>
-	 * The first half of the chair shortage, and the half that arrives while the host can
-	 * still do something about it. It is sent once per episode rather than once per
-	 * attempt: three attempts at three seconds apart would otherwise be three identical
-	 * lines, which reads as a bug rather than as news.
-	 *
-	 * <p>
-	 * Silently does nothing if the host has logged off, moved dimension or walked away —
-	 * there is no queue of things that happened while they were not here.
+	 * @see doc/design/party/guest.md
 	 */
 	public static void reportLookingForSeat(ServerLevel level, PartyAttachment party, Entity guest) {
 		var host = party.host();
@@ -73,17 +65,10 @@ public class PartyMessage {
 	}
 
 	/**
-	 * Tell the host a guest gave up because she could not be seated.
+	 * Tell the host a guest gave up because she could not be seated — the one mid-party
+	 * message, because it reports something the host can actually fix.
 	 *
-	 * <p>
-	 * The one mid-party message there is, and it is here because it reports something the
-	 * host can actually fix: too few chairs for the number of guests invited, or one too
-	 * many guests. Without it the only sign is a table with fewer people at it than the
-	 * letter promised, which reads as the feature not working rather than as a shortage.
-	 *
-	 * <p>
-	 * Silently does nothing if the host has logged off, moved dimension or walked away —
-	 * there is no queue of things that happened while they were not here.
+	 * @see doc/design/party/guest.md
 	 */
 	public static void reportEvicted(ServerLevel level, PartyAttachment party, Entity guest) {
 		var host = party.host();

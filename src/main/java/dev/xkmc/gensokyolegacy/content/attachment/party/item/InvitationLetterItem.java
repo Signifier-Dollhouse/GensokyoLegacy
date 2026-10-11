@@ -15,14 +15,10 @@ import net.minecraft.world.item.context.UseOnContext;
 import java.util.List;
 
 /**
- * The invitation. Right-click a party table to send it out.
- * <p>
- * {@code useOn} rather than {@code use}, so the letter has to be aimed at a table
- * and cannot be fired into the air. It names nobody: it goes to everyone whose
- * reputation and taste make them a candidate, and the spread decides who that
- * ends up being.
- * <p>
- * The model reuses vanilla paper for now.
+ * The invitation. Right-click a party table to send it out; {@code useOn} rather than {@code use},
+ * so it has to be aimed at a table. It names nobody — the spread decides who that ends up being.
+ *
+ * @see doc/design/party/send.md
  */
 public class InvitationLetterItem extends Item {
 
@@ -42,8 +38,8 @@ public class InvitationLetterItem extends Item {
 			return InteractionResult.SUCCESS;
 		}
 		var outcome = PartySend.send(sp, pos, stack);
-		// every refusal happens before the letter is consumed, so a refused send
-		// costs nothing and says why
+		// every refusal happens before the letter is consumed, so a refused send costs
+		// nothing and says why
 		PartyMessage.report(sp, outcome);
 		return outcome.ok() ? InteractionResult.CONSUME : InteractionResult.PASS;
 	}

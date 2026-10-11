@@ -13,22 +13,11 @@ import net.minecraft.world.phys.Vec3;
 import java.util.List;
 
 /**
- * Draws the party the wand is holding: the tables, seats and dishes of the last scan,
- * inside a box over the extent of all of them.
- * <p>
- * The wand's readout is otherwise a line of text, which cannot say <em>where</em> the
- * food it counted is. A spread across two rooms, or a chair the walk never reached, is
- * only visible in the world.
- * <p>
- * There is no state here at all: the scan is read off the held wand's data component
- * every frame. Vanilla keeps that component in sync, so the picture cannot fall out of
- * step with the counts in the overlay, and there is no second copy to expire, clear or
- * push. Staleness is the same staleness the overlay already reports — the food is being
- * eaten while the wand is held.
- * <p>
- * Only drawn while the wand is in hand, which is the point: the render is a view of one
- * scan and the scan is the wand's, so it comes and goes with the wand rather than
- * following the player around all level.
+ * Draws the tables, seats and dishes of the scan held on the party wand, inside a box over their
+ * extent. Stateless — it reads the held wand's component each frame, so the picture cannot fall
+ * out of step with the counts in the overlay.
+ *
+ * @see doc/design/party/debug.md
  */
 public class PartyAreaRenderer {
 
@@ -50,8 +39,8 @@ public class PartyAreaRenderer {
 	}
 
 	/**
-	 * Called on every frame. Walks away immediately unless a wand is held, so there is
-	 * nothing to keep in step and nothing to clean up on a level change.
+	 * Called every frame. Returns immediately unless a wand is held, so there is nothing to keep
+	 * in step and nothing to clean up on a level change.
 	 */
 	public static void renderOutline(PoseStack pose, Vec3 camera) {
 		PartyWandData data = held();

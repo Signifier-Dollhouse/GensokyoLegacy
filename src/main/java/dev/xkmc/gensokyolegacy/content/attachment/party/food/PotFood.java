@@ -9,23 +9,13 @@ import net.minecraft.world.level.block.state.BlockState;
 import java.lang.reflect.Field;
 
 /**
- * A Youkai's Feasts bowl or pot: two or four servings counting <em>down</em>.
+ * A Youkai's Feasts bowl or pot: two or four servings counted <em>down</em>.
  *
- * <p>
- * {@code PotFoodBlock} extends {@code IntegerProperty.create("serve", 1, 2)} or
- * {@code create("serve", 1, 4)}, so a pot holds two or four servings and counts down —
- * the same direction as a feast and the opposite of a cake.
+ * <p>The food is found by permuting the block's id first — the mod's own naming — and only
+ * then by reflecting {@code BowlBlock.food}, which is a fallback that breaks silently if the
+ * field is ever renamed.
  *
- * <p>
- * The food is found by <b>permuting the block's id</b> first, which is how these mod's
- * own item forms are named, and only then by reading {@code BowlBlock.food}. That field
- * is {@code protected} with no accessor, so the reflective read is a last resort rather
- * than the primary route: it works today but breaks the day the field is renamed, and
- * reflection against another mod is the kind of thing that fails silently.
- *
- * <p>
- * <b>Load order:</b> references {@code BowlBlock}, so it is only ever constructed when
- * Youkai's Feasts is present.
+ * @see doc/design/party/food_mods.md
  */
 public class PotFood extends AbstractCountdownFood {
 
@@ -36,15 +26,7 @@ public class PotFood extends AbstractCountdownFood {
 		return block instanceof BowlBlock;
 	}
 
-	/**
-	 * The bowl the pot fills: the mod's own item where it ships one, the block's hidden
-	 * field otherwise.
-	 * <p>
-	 * The permutation first, for the same reason {@link CakeFood} tries it first — it is
-	 * the mod's own public naming rather than a private field an update can rename — and
-	 * the reflection is a fallback rather than the mechanism. A bowl whose field has gone
-	 * serves nothing at all, which is the same answer it gave as food with no properties.
-	 */
+	/** The bowl the pot fills: the mod's own item where it ships one, the block's hidden field otherwise. */
 	@Override
 	public ItemStack serving(BlockState state) {
 		var block = state.getBlock();

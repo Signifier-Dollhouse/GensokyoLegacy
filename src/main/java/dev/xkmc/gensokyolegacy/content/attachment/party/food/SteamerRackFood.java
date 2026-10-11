@@ -16,48 +16,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A Youkai's Feasts steamer: the food on its racks, whether it is reached as the pot or
- * as one of the racks standing in it.
+ * A Youkai's Feasts steamer, both halves of it — the pot's own tiers and the rack standing in
+ * it are separate block entities, so a full steamer is genuinely two food sources.
  *
- * <p>
- * Both halves of the same vessel. The pot carries up to two rack tiers of its own — the
- * {@code pot_racks} property, which is how you steam without a rack at all — and each
- * rack block stands in the pot with up to four tiers of its own. They are separate block
- * entities with separate storage, so a full steamer is genuinely two food sources and
- * neither shadows the other.
+ * <p>A pot is food wherever it stands; a rack only on the table or in a pot. Deliberately not
+ * the shared furniture test, because a rack inside a pot has to be found by falling.
  *
- * <p>
- * Unlike the cutting board this needs no reflection: the contents are public fields on
- * {@code RackData} and {@code RackItemData}. The whole of the difficulty is in
- * {@link #isPutOut}.
- *
- * <p>
- * <b>The two halves are placed differently, and that is the rule worth writing down.</b> A
- * pot may stand anywhere — on a stove, on the table, on the ground — because a pot of food
- * on a kitchen floor is a thing a host has actually done and refusing it would put the
- * feature out of reach in the one room it was made for. A rack may not: on the table like
- * anything else, or inside a pot, and on the ground it is not food. A rack is a part of a
- * steamer rather than a dish in its own right, so it needs a pot or a table to be part of
- * anything — which is the part the generic furniture test cannot express, because the pot
- * has to be looked <i>through</i>.
+ * @see doc/design/party/food_mods.md
  */
 public class SteamerRackFood implements ContainerFoodHandler {
 
-	/**
-	 * How far to fall looking for what a rack is standing in.
-	 *
-	 * <p>
-	 * A steamer is at most three blocks of pot with two rack tiers in it, so this is
-	 * generous; it only has to be larger than the tallest pot, because a rack on the
-	 * ground finds a solid floor immediately and a rack inside a pot falls past the pot's
-	 * interior before reaching the pot's own block.
-	 */
+	/** How far to fall looking for what a rack stands in; must exceed the tallest pot, since a rack inside one falls past the pot's interior first. */
 	private static final int SUPPORT_DROP = 4;
 
 	@Override
 	public boolean handles(Block block) {
-		// two DelegateBlocks, so identity against the registered blocks is the only way to
-		// name either of them; see the class note on why both are claimed
+		// two DelegateBlocks with no class of their own, so identity is the only way to name either
 		return block == YHBlocks.STEAMER_RACK.get() || block == YHBlocks.STEAMER_POT.get();
 	}
 
@@ -75,24 +49,16 @@ public class SteamerRackFood implements ContainerFoodHandler {
 		return merge(ans);
 	}
 
-	/**
-	 * One entry per item currently on the rack.
-	 *
-	 * <p>
-	 * Returned unmerged, one per occupied slot, and folded afterwards: the same item can
-	 * sit in several slots of several racks, and a guest coming back for a second slice
-	 * should not be served a board that lists it four times.
-	 */
+	/** One entry per occupied slot, unmerged; {@link #merge} folds the same item across slots and racks. */
 	@SuppressWarnings("unused")
 	private FoodResult describe(RackItemData slot, SteamerBlockEntity be, BlockState state) {
 		var stack = slot.stack;
 		var props = Servings.of(stack);
-		// unlike the board, the rack has no idea whether what is on it is fit to eat:
-		// it will happily steam a bone. Worthless food is skipped, not refused wholesale.
+		// a rack has no idea whether what is on it is fit to eat - it will steam a bone -
+		// so worthless food is skipped rather than the rack refused wholesale
 		if (props == null) return null;
-		// One item, however many the slot holds: a rack hands its contents over one at a
-		// time, so a guest comes back for seconds. The stack it holds is what makes this
-		// many serves, not what makes the serving big.
+		// one item per serve: a rack hands its contents over one at a time, so the stack's
+		// count is how many serves it makes, not how big one serving is
 		var item = stack.getItem();
 		return FoodResult.of(new ItemStack(item), state.getBlock(), stack.getCount(), props,
 				(l, p, s) -> take(be, item));
@@ -106,9 +72,8 @@ public class SteamerRackFood implements ContainerFoodHandler {
 			for (int i = 0; i < merged.size(); i++) {
 				var have = merged.get(i);
 				if (!have.id().equals(result.id())) continue;
-				// two slots of the same thing are one food with twice the servings,
-				// still handed over one item at a time - and so with one appeal, since
-				// a food is priced once however many of it there are
+				// one food with twice the servings, still handed over one item at a time -
+				// and so with one appeal, since a food is priced once however many there are
 				merged.set(i, new FoodResult(have.serving(), have.blockId(),
 						have.serves() + result.serves(), have.nutrition(), have.saturation(),
 						have.appeal(), have.consume()));
@@ -121,19 +86,10 @@ public class SteamerRackFood implements ContainerFoodHandler {
 	}
 
 	/**
-	 * The pot is food wherever it stands; a rack is food only on the table or in a pot.
-	 *
-	 * <p>
-	 * The pot has no placement test at all, which is the deliberate asymmetry and the
-	 * only reason this is not {@code PartyArea.touchingFurniture}. A steamer is a tall
-	 * object that belongs on a stove, and a host who has put one on the floor beside the
-	 * table has still laid out a party — the food is in the room, at the table's radius,
-	 * and it is absurd to make the vessel be on furniture when its own racks are not.
-	 *
-	 * <p>
-	 * A rack is found by falling rather than by looking up, because a rack <i>inside</i> a
-	 * pot has pot interior below it rather than the pot block: the block that actually
-	 * carries it is two or three down.
+	 * The pot is food wherever it stands — a steamer belongs on a stove, and requiring
+	 * furniture would put the vessel out of reach where its own racks are not. A rack is
+	 * food on furniture or inside a pot, and is found by falling: the block carrying a rack
+	 * inside a pot is two or three down, past the pot's interior.
 	 */
 	@Override
 	public boolean isPutOut(Level level, BlockPos pos, BlockState state) {
@@ -157,13 +113,9 @@ public class SteamerRackFood implements ContainerFoodHandler {
 	}
 
 	/**
-	 * Take one {@code item} off any rack, in slot order.
-	 *
-	 * <p>
-	 * Goes through {@code setStack} rather than shrinking the stack directly, because that
-	 * is the rack's own setter and it re-files the slot's recipe id and notifies the block
-	 * entity. Shrinking underneath it would leave the steaming recipe pointing at an
-	 * empty slot.
+	 * Take one {@code item} off any rack, in slot order. Goes through the rack's own
+	 * {@code setStack}, which re-files the slot's recipe id and notifies the block entity;
+	 * shrinking the stack underneath would leave the recipe pointing at an empty slot.
 	 */
 	private int take(SteamerBlockEntity be, Item item) {
 		for (var rack : be.racks) {

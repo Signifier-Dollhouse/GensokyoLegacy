@@ -6,11 +6,10 @@ import net.minecraft.core.registries.Registries;
 import net.neoforged.neoforge.registries.RegisterEvent;
 
 /**
- * The data component the party wand carries its simulated result on.
- * <p>
- * A component rather than a chat message or a packet because it needs no machinery at
- * all: vanilla keeps item components in sync to the client on its own, so the server can
- * plan a party once and the overlay can read the answer whenever the wand is held.
+ * The data component the party wand carries its simulated result on. Vanilla syncs item
+ * components, so the overlay and the renderer read it with no transport of their own.
+ *
+ * @see doc/design/party/debug.md
  */
 public final class PartyWandComponent {
 

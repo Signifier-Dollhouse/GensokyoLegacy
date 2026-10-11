@@ -10,9 +10,8 @@ import java.util.List;
 
 /**
  * Shared reading of a serving's {@link FoodProperties}.
- * <p>
- * Every block food whose food lives on an item — feasts, pies, pots, saucer dishes —
- * does the same three lines with it, so it lives here rather than in each handler.
+ *
+ * @see doc/design/party/food.md
  */
 public final class Servings {
 
@@ -31,16 +30,7 @@ public final class Servings {
 		return false;
 	}
 
-	/**
-	 * One serving's food properties, or null when there is nothing worth serving.
-	 * <p>
-	 * <b>Food with no hunger value is not food.</b> A block item can carry
-	 * {@link FoodProperties} while being worth nothing to eat — a decorative item, a
-	 * husk, a mod's placeholder. Such a serving is reported as absent rather than given
-	 * a nominal score, because a placeholder scoring the minimum would still count
-	 * towards a party's budget and still be walked to and eaten by a guest, costing a
-	 * guest's whole visit for nothing.
-	 */
+	/** One serving's food properties, or null when there is nothing worth serving. Food with no hunger value is not food. */
 	@Nullable
 	public static FoodProperties of(ItemStack stack) {
 		if (stack.isEmpty()) return null;
@@ -50,34 +40,15 @@ public final class Servings {
 	}
 
 	/**
-	 * The properties of {@code count} of {@code stack} eaten as <b>one plate</b>.
+	 * The properties of {@code count} of {@code stack} eaten as <b>one plate</b>, not as
+	 * {@code count} servings — a board hands a pair of nigiri over whole.
 	 *
-	 * <p>
-	 * Not the same thing as {@code count} servings, and the party system needs it to be
-	 * exact: a guest cannot eat one of the two nigiri off a board and leave the other,
-	 * because the board hands the stack over whole. That makes the pair one dish twice
-	 * the size, not two dishes.
+	 * <p>Nutrition, saturation and eating time multiply; an effect does not, because it is
+	 * rolled once per item eaten, so {@code n} chances of {@code p} are {@code 1 − (1 − p)ⁿ}.
+	 * {@code canAlwaysEat} and the container pass through.
 	 *
-	 * <p>
-	 * <b>Scaling these is a statement about hunger only.</b> They are the food value of
-	 * the plate a guest is handed, and a guest who picks up both nigiri really does sit
-	 * through both. Appeal is the other quantity and deliberately does not follow:
-	 * {@link FoodResult#appeal()} is priced off one item whatever the plate holds,
-	 * because a party counts each food once. So a board of two nigiri feeds twice and
-	 * attracts once, which is the whole reason this method and the appeal are not the
-	 * same number.
-	 *
-	 * <p>
-	 * Nutrition, saturation and eating time all multiply, because a guest really does sit
-	 * through both. An effect does not: it is rolled once per item eaten, so
-	 * {@code n} chances of {@code p} are {@code 1 − (1 − p)ⁿ}, which is the only reading
-	 * of "doubles the odds" that is actually true. {@code canAlwaysEat} and the container
-	 * are properties of the item rather than of the portion, and pass through.
-	 *
-	 * <p>
-	 * A count of one returns the item's own properties unchanged rather than a rebuilt
-	 * copy of them, because that is the overwhelmingly common case and it is the case
-	 * where a copy would be pure waste.
+	 * <p>{@link FoodResult#appeal()} deliberately does not scale with {@code count}: a party
+	 * counts each food once, so a pair feeds a guest twice and attracts once.
 	 */
 	@Nullable
 	public static FoodProperties of(ItemStack stack, int count) {

@@ -7,47 +7,17 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Resolves a block food state once and remembers the answer.
+ * Resolves a block food state once and remembers the answer. Bounded without a limit:
+ * states are interned per block. Containers never route through here — anything cached
+ * must be answerable from the state alone.
  *
- * <p>
- * Resolving is not cheap. Finding a serving item costs a registry lookup and a string
- * build, reading a serve count asks the block for its default state and walks the
- * property's range, and a feast allocates an {@code ItemStack} to do it. The party
- * planner scans up to a thirteen-cube box on every send and every guest re-reads the dish
- * it is eating, so the same few hundred states get resolved over and over.
- *
- * <p>
- * Keyed by {@link BlockState}, and therefore bounded without any limit of its own: states
- * are interned per block, so the map can never hold more entries than the blocks it is
- * asked about have states between them — seven for a cake, five for a feast. It does not
- * grow with world size, with uptime, or with how many parties have happened.
- *
- * <p>
- * <b>Containers never reach this cache.</b> A block entity's contents are not part of the
- * block state, so a cached answer about them would be right once and wrong for ever
- * after; {@link ContainerFoodHandler} is the other way round and reads the world every
- * time. Anything routed here must be answerable from the state alone.
- *
- * <p>
- * <b>Nothing here is datapack data.</b> What goes in a result is the serve count, the
- * food properties and the consume action, and all three come from registration — the
- * block's state definition, the item registry, and the handler itself. The
- * {@code party_food} data map is deliberately resolved by the caller in
- * {@code PartyFoodValue} and never enters the cache, so a reload cannot leave a stale
- * appeal behind here.
- *
- * <p>
- * {@link #invalidate()} is wired to the server's datapack sync anyway. It is belt and
- * braces rather than a correctness requirement, and it costs nothing.
+ * @see doc/design/party/food.md
  */
 public final class FoodResultCache {
 
 	private static final Map<BlockState, FoodResult> RESULTS = new ConcurrentHashMap<>();
 
-	/**
-	 * The result for this state. Never null, and never an invalid half-answer: a block
-	 * that is not food comes back as {@link FoodResult#INVALID}.
-	 */
+	/** Never null, and never a half-answer: a non-food block comes back as {@link FoodResult#INVALID}. */
 	public static FoodResult of(BlockState state) {
 		var cached = RESULTS.get(state);
 		if (cached != null) return cached;
@@ -56,15 +26,12 @@ public final class FoodResultCache {
 		return resolved;
 	}
 
-	/** Forget every resolved state. Called on datapack sync. */
+	/** Belt and braces on datapack sync: nothing cached here is itself datapack data. */
 	public static void invalidate() {
 		RESULTS.clear();
 	}
 
 	private static FoodResult resolve(BlockState state) {
-		// the handler answers in one call: what a guest is handed, how many are left,
-		// what it is worth and how to take one. See BlockFoodHandler for why it is not
-		// four, and FoodResult#of for where "worthless" is decided.
 		return PartyFoodHandler.of(state.getBlock()).result(state);
 	}
 

@@ -6,20 +6,10 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 
 /**
- * Food whose only description is the block's own item: one serving, eaten whole.
+ * Food whose only description is the block's own item: one serving, eaten whole. Also the
+ * catch-all, and registered last for that reason — {@link #handles} accepts every block.
  *
- * <p>
- * The base case, and the fallback. Youkai's Feasts' {@code FoodSaucerBlock} is the real
- * user — unlike feasts, pies and pots, a saucer carries its food directly, because
- * {@code FoodSaucerBlock.useWithoutItem} reads {@code state.asItem().getDefaultInstance()}
- * and feeds that to the player — but this class also serves as the last entry in the
- * handler list, which is what lets a datapack author's foreign block be worth something
- * from a tag entry alone.
- *
- * <p>
- * Registered <b>last</b>: {@link #handles} accepts everything, so order is the only
- * thing that keeps it from swallowing the specific handlers. It is an ordinary entry in
- * the list, not a special case in the lookup.
+ * @see doc/design/party/food_mods.md
  */
 public class BlockItemFood implements BlockFoodHandler {
 
@@ -33,9 +23,4 @@ public class BlockItemFood implements BlockFoodHandler {
 		level.destroyBlock(pos, false);
 		return 0;
 	}
-
-	/**
-	 * Named by the block's own item, because that item <i>is</i> the food — {@link #food}
-	 * reads it and this handler exists to serve exactly one of them, eaten whole.
-	 */
 }

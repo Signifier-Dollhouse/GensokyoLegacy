@@ -66,7 +66,7 @@ public class GLTagGen {
 	/**
 	 * Tables a party may be laid out on. Built from {@link #LARGE_TABLE} rather than
 	 * {@link #TABLE} on purpose: {@code tea_table} and {@code magic_table} are excluded
-	 * from the party feature, see doc/design/party.md §2.3.
+	 * from the party feature, see doc/design/party/food_mods.md §6.
 	 */
 	public static final TagKey<Block> PARTY_TABLE = block("party_table");
 	/**

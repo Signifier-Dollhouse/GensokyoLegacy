@@ -6,22 +6,11 @@ import net.minecraft.world.level.block.state.BlockState;
 import vectorwing.farmersdelight.common.block.PieBlock;
 
 /**
- * A Farmer's Delight pie: bites that count <em>up</em>, food on a slice item.
+ * A Farmer's Delight pie: four bites counted <em>up</em>, food on a slice item rather than on
+ * the block — whose own item carries none. Every pie is the same class but has its own slice,
+ * so the slice is asked of the block; Youkai's Feasts' {@code YHPieBlock} extends {@code PieBlock}.
  *
- * <p>
- * {@code PieBlock} extends {@code IntegerProperty.create("bites", 0, 3)} starting at
- * zero, so a whole pie is four bites. Its block item carries no food; the slice does,
- * and {@link AbstractCountdownFood} handles the counting.
- *
- * <p>
- * As with {@link FeastFood}, every pie is the same class but each has its own slice item,
- * so the slice is asked of the block through {@link PieBlock#getPieSliceItem}. Youkai's
- * Feasts' {@code YHPieBlock} extends {@code PieBlock} and so is covered by the same
- * {@code instanceof}.
- *
- * <p>
- * <b>Load order:</b> references {@code PieBlock}, so it is only ever constructed when
- * Farmer's Delight is present.
+ * @see doc/design/party/food_mods.md
  */
 public class PieFood extends AbstractCountdownFood {
 
@@ -30,11 +19,10 @@ public class PieFood extends AbstractCountdownFood {
 		return block instanceof PieBlock;
 	}
 
-	/** The cut slice, which is both the item handed over and where its food is read. */
+	/** The cut slice, which is both the item handed over and where its food is read; copied because the result is shared. */
 	@Override
 	public ItemStack serving(BlockState state) {
 		if (!(state.getBlock() instanceof PieBlock pie)) return ItemStack.EMPTY;
-		// already a stack and already one slice; copied because the result is shared
 		return pie.getPieSliceItem().copy();
 	}
 }

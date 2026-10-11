@@ -13,36 +13,19 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
- * The ordered list of block food handlers.
+ * The ordered block food handler lists: the first handler whose
+ * {@link BlockFoodHandler#handles} accepts the block wins. {@link ContainerFoodHandler}s
+ * are kept apart because their answers are never cacheable, and the catch-all fallback
+ * lives outside both lists.
  *
- * <p>
- * Resolution is a linear scan and the first handler whose {@link BlockFoodHandler#handles}
- * accepts the block wins. There is no block-to-handler table, and registering another
- * kind of food is a one-line change.
- *
- * <p>
- * Two lists, because there are two kinds of food. A {@link BlockFoodHandler} reads its
- * answer off the block state and can therefore be cached; a {@link ContainerFoodHandler}
- * reads it out of a block entity and must not be — see {@link ContainerFoodHandler}. The
- * two are never mixed, and the container list is consulted first, because a container is
- * not a food the catch-all should be reaching for.
- *
- * <p>
- * Only handlers that recognise a <em>kind</em> of food belong in the list. The
- * catch-all is not one of them — it lives outside the list as the lookup's fallback, so
- * order is only ever a tie-break between two handlers that both claim a block, never a
- * race against one that claims everything.
+ * @see doc/design/party/food.md
  */
 public final class PartyFoodHandler {
 
 	private static final List<BlockFoodHandler> HANDLERS = new CopyOnWriteArrayList<>();
 	private static final List<ContainerFoodHandler> CONTAINERS = new CopyOnWriteArrayList<>();
 
-	/**
-	 * The handler for blocks no registered handler claims. Deliberately
-	 * <b>not in the list</b>: it is how a datapack's foreign food is scored, not a
-	 * declaration that any block at all is food.
-	 */
+	/** Deliberately not in the list: it scores any block whose item is food, and claims nothing. */
 	private static final BlockFoodHandler FALLBACK = new BlockItemFood();
 
 	/** Add a handler. Later handlers are only consulted if earlier ones decline. */
@@ -51,11 +34,8 @@ public final class PartyFoodHandler {
 	}
 
 	/**
-	 * Add a handler whose food lives in a block entity.
-	 * <p>
-	 * Kept in its own list rather than interleaved, so that nothing can accidentally route
-	 * a container block through {@link FoodResultCache} by way of a state-derived handler
-	 * that happens to match its class first.
+	 * Add a handler whose food lives in a block entity. Kept in its own list so a container
+	 * can never be routed through the state-derived cache.
 	 */
 	public static void register(ContainerFoodHandler handler) {
 		CONTAINERS.add(handler);
@@ -68,14 +48,9 @@ public final class PartyFoodHandler {
 	}
 
 	/**
-	 * The handler that recognises this block as a kind of food, or null if none does.
-	 * <p>
-	 * This is the "is this block party food" test, and it is the <b>whole</b> of it: a
-	 * block is food because a handler recognises its class and finds something worth
-	 * eating in it. The {@code party_food} data map is not consulted here and cannot opt
-	 * anything in — it only revalues a block that already passed. The fallback is never
-	 * returned from here, so an unclaimed block is not food just because food happened to
-	 * be looking at it.
+	 * The handler that recognises this block as a kind of food, or null if none does — the
+	 * whole of the edibility test. The fallback is never returned, and the data map cannot
+	 * opt anything in.
 	 */
 	@Nullable
 	public static BlockFoodHandler claims(Block block) {
@@ -95,12 +70,8 @@ public final class PartyFoodHandler {
 	}
 
 	/**
-	 * Whether this block is party food <i>in this world, right now</i>.
-	 * <p>
-	 * A separate question from {@link #claims}, because a container that is food may be
-	 * empty: the block is claimed either way, but only a container holding something worth
-	 * eating is food. Callers that only need the block's class answered use
-	 * {@link #claims}, which cannot be answered without a level.
+	 * Whether this block is party food <i>right now</i>. Separate from {@link #claims},
+	 * because a container may be claimed and empty.
 	 */
 	public static boolean claimsHere(Level level, BlockPos pos, BlockState state) {
 		var container = containerOf(state.getBlock());

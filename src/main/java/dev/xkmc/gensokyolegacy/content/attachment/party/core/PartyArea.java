@@ -17,12 +17,8 @@ import java.util.HashSet;
 import java.util.List;
 
 /**
- * Everything one party occupies, found by walking out from the table the player
- * clicked.
- * <p>
- * The scan is the unit of "a party": food, seats, tables, the anchor and therefore
- * the guests are all inside it. It runs once per send and once per preview, never
- * per tick.
+ * Everything one party occupies, found by walking out from the clicked table. The scan
+ * is the unit of "a party" and runs once per send, never per tick.
  *
  * @param anchor the table block the player clicked
  * @param food   every party-food block laid out for the spread, in walk order
@@ -35,15 +31,12 @@ import java.util.List;
  *                    budgets and the number a guest's own fulfillment is measured against.
  *                    Unlike {@link #appeal} this <b>does</b> scale with what is left on
  *                    the table, because a second cake really does feed seven more people
+ * @see doc/design/party/area.md
  */
 public record PartyArea(BlockPos anchor, List<BlockPos> food, List<BlockPos> seats,
 		List<BlockPos> tables, int appeal, int fulfillment) {
 
-	/**
-	 * How far the walk reaches around each chair or table it finds: a 5 x 3 x 5 box,
-	 * centred on the block. Two out sideways and one up and down is about as far as
-	 * a dish can be from a seat and still read as put out for that seat.
-	 */
+	/** How far the walk reaches around each chair or table: a 5 x 3 x 5 box, centred. */
 	private static final int POKE_X = 2;
 	private static final int POKE_Y = 1;
 	private static final int POKE_Z = 2;
@@ -51,56 +44,32 @@ public record PartyArea(BlockPos anchor, List<BlockPos> food, List<BlockPos> sea
 	/** The six faces, for the walk itself. */
 	private static final Direction[] FACES = Direction.values();
 
-	/**
-	 * The five faces a dish may touch a seat or a table on — every face but the
-	 * underside, which is the separate "standing on a table" case.
-	 */
+	/** Every face but the underside, which is the separate "standing on a table" case. */
 	private static final Direction[] TOUCHING = {
 			Direction.NORTH, Direction.SOUTH, Direction.EAST, Direction.WEST, Direction.UP};
 
-	/**
-	 * A ceiling on how many blocks one scan may look at. The distance limit on its
-	 * own allows the better part of a million blocks of open air — a stall the player
-	 * cannot see or stop — so the walk stops here instead. It only ever bites in a
-	 * large empty space, where there is by then nothing to find.
-	 */
+	/** A safety valve: the distance limit alone allows the better part of a million blocks of open air. */
 	private static final int MAX_VISITED = 1 << 16;
 
 	/**
 	 * Walks out from the anchor and collects the furniture and the food of one party.
+	 *
 	 * <p>
-	 * The walk passes only through space a guest could stand in, so a party is the
-	 * room it was set in and not the building around it. A wall ends it; a doorway,
-	 * and anything else with no collision, does not.
+	 * The walk passes only through space a guest could stand in, so a party is the room
+	 * it was set in: a wall ends it, a doorway does not. Furniture is solid, so the walk
+	 * only ever reaches one — which is why each queues a box around itself, letting the
+	 * walk resume from the air on the guest's side and carry on along a long table. That
+	 * box also reaches what the walk could never have stood near, a chair in a nook or a
+	 * dish tight against a wall.
+	 *
 	 * <p>
-	 * A chair or a table is solid, so the walk stops when it meets one. That is fine,
-	 * because finding furniture is the walk's purpose: it cannot go <em>through</em>
-	 * a chair, only reach it. What it would otherwise miss is the space just past it
-	 * — the run of chairs along a long table, the far end of the spread — and that is
-	 * what the box below is for. Every chair and table found queues a
-	 * {@value #POKE_X} x {@value #POKE_Y} x {@value #POKE_Z} box around itself, whose
-	 * contents are then read and walked through in the ordinary way. The walk resumes
-	 * from the air on the guest side of the chair and carries on, so a whole row of
-	 * seating carries the walk along its length without the rule being applied twice.
+	 * Nothing beyond {@code distance} counts, and an unloaded chunk is never read: the
+	 * scan runs inside one click and must not drag a chunk in.
+	 *
 	 * <p>
-	 * It also reaches furniture the walk could never have stood near: a chair pushed
-	 * into a nook behind a pillar, a dish tight against a wall. The box is read
-	 * regardless of what surrounds it.
-	 * <p>
-	 * Nothing beyond {@code distance} from the anchor counts, however it was reached,
-	 * and nothing in an unloaded chunk is read at all: the scan runs inside one
-	 * click, so it must not drag a chunk in to answer a question about a party.
-	 * <p>
-	 * A dish counts when it stands on a party table or touches a seat or a table from
-	 * any face but below. That is the whole of "food laid out for the party": a cake
-	 * on the floor, or a dropped plate two blocks from the nearest chair, is neither
-	 * counted towards the spread nor ever eaten.
-	 * <p>
-	 * A block that is tagged as party food but is not <i>valid</i> food — no hunger
-	 * value, nothing to eat, something refused outright — is dropped here as well. It
-	 * is left standing in the world, but it is neither counted towards the spread nor
-	 * ever walked to, so a datapack entry that turns out to be a dud costs the player
-	 * nothing and costs a guest no time.
+	 * A dish counts when it stands on a table or touches one from any face but below. A
+	 * block that is recognised but not <i>valid</i> food is dropped too — left standing in
+	 * the world, but never counted and never walked to, so a dud costs nobody anything.
 	 */
 	public static PartyArea scan(ServerLevel level, BlockPos anchor, int distance) {
 		var access = level.registryAccess();
@@ -161,9 +130,7 @@ public record PartyArea(BlockPos anchor, List<BlockPos> food, List<BlockPos> sea
 		return new PartyArea(anchor.immutable(), food, seats, tables, appeal, fulfillment);
 	}
 
-	/**
-	 * Whether a position is within the scan distance of the anchor.
-	 */
+	/** Whether a position is within the scan distance of the anchor. */
 	private static boolean within(BlockPos anchor, BlockPos pos, long reach) {
 		long dx = pos.getX() - anchor.getX();
 		long dy = pos.getY() - anchor.getY();
@@ -172,31 +139,17 @@ public record PartyArea(BlockPos anchor, List<BlockPos> food, List<BlockPos> sea
 	}
 
 	/**
-	 * How far around the party table a guest looks for a chair and for a dish.
-	 *
-	 * <p>
-	 * A cube rather than a sphere, because the party is a room and the number is there to
-	 * be a cheap bound on a box sweep — a box is a triple loop, a sphere needs a square
-	 * root per candidate.
-	 *
-	 * <p>
-	 * Much smaller than the scan distance, and on purpose. The scan walks the whole room
-	 * once, for the party; this is swept per guest and refreshed on a timer, so the cost
-	 * of widening it is paid over and over for food no guest would walk that far to reach
-	 * anyway.
+	 * How far around the table a guest looks. A cheap cube for a triple loop, and much
+	 * smaller than the scan distance: the scan walks the room once for the party, this is
+	 * swept per guest on a timer.
 	 */
 	public static final int GUEST_RADIUS = 6;
 
 	/**
-	 * Every dish of the spread within {@link #GUEST_RADIUS} of the anchor, by the same
-	 * rules the scan uses.
-	 *
-	 * <p>
-	 * The box form of {@link #scan}, and the one the party re-runs while it is open. A
-	 * scan is a BFS over the whole room for one answer; this is a triple loop for an
-	 * answer that has to be current, and it deliberately does not try to walk through
-	 * walls — a guest eats what she can see from the table, and a party in a walled room
-	 * two rooms away is not hers.
+	 * Every dish within {@link #GUEST_RADIUS} of the anchor — the box form of
+	 * {@link #scan}, and the one the party re-runs while it is open so its answer stays
+	 * current. Deliberately does not walk through walls: a guest eats what she can see
+	 * from the table.
 	 */
 	public static List<BlockPos> foodAround(Level level, BlockPos anchor) {
 		var access = level.registryAccess();
@@ -215,14 +168,7 @@ public record PartyArea(BlockPos anchor, List<BlockPos> food, List<BlockPos> sea
 		return ans;
 	}
 
-	/**
-	 * Every chair within {@link #GUEST_RADIUS} of the anchor.
-	 *
-	 * <p>
-	 * Not filtered by layout, because a chair is a chair: whether it can be reached
-	 * through a wall is the walk's problem and not the list's. A guest that cannot get to
-	 * one gives up looking after ten seconds and leaves — see {@code YoukaiPartyTask}.
-	 */
+	/** Every chair within {@link #GUEST_RADIUS}, unfiltered: reachability is the walk's problem, not the list's. */
 	public static List<BlockPos> seatsAround(Level level, BlockPos anchor) {
 		var ans = new ArrayList<BlockPos>();
 		for (var pos : box(anchor)) {
@@ -251,18 +197,12 @@ public record PartyArea(BlockPos anchor, List<BlockPos> food, List<BlockPos> sea
 
 	/**
 	 * Whether a dish was put out for the party: standing on a table or a chair, or
-	 * touching a seat or a table. The one test, shared with {@code YoukaiPartyTask}, so a
-	 * guest can only eat a dish the scan would have counted — otherwise a guest could be
-	 * handed something off the floor that never counted towards the spread she is fed by.
+	 * touching a seat or a table. Shared with {@code YoukaiPartyTask} so a guest can only
+	 * eat a dish the scan would have counted. A chair counts as a surface too, so a plate
+	 * on a guest's own seat is budgeted rather than merely edible.
 	 * <p>
-	 * A chair counts as a surface as well as a seat, so a plate set on a guest's own seat
-	 * is hers to eat. That is not a special case bolted on for the eating rule: the same
-	 * test decides what the scan collects, so a dish on a chair is part of the spread and
-	 * is budgeted for like any other, rather than being edible but unaccounted.
-	 * <p>
-	 * This is the test for food that describes itself by its block state. Container food
-	 * — a cutting board, a steamer rack — is judged by its own handler instead, because
-	 * where those count from differs by block; see {@link #isLaidOut}.
+	 * For state-described food only; containers judge their own placement — see
+	 * {@link #isLaidOut}.
 	 */
 	public static boolean touchingFurniture(Level level, BlockPos pos) {
 		var under = level.getBlockState(pos.below());
@@ -275,14 +215,10 @@ public record PartyArea(BlockPos anchor, List<BlockPos> food, List<BlockPos> sea
 	}
 
 	/**
-	 * Whether a dish was put out for the party, whichever kind of food it is.
-	 * <p>
 	 * Dispatches to the container's own rule where there is one, and to
-	 * {@link #touchingFurniture} otherwise. The two are not the same question: a cutting
-	 * board on a table is the spread, a steamer pot standing on the ground is not — but
-	 * the rack inside that pot is, because the pot is what carries it. That is a fact
-	 * about steamers rather than about parties, so it belongs to the handler and not
-	 * here.
+	 * {@link #touchingFurniture} otherwise: a board on a table is the spread, a steamer pot
+	 * on the ground is not, but the rack inside it is. That is a fact about steamers
+	 * rather than about parties, so the handler owns it.
 	 */
 	public static boolean isLaidOut(Level level, BlockPos pos, BlockState state) {
 		var container = PartyFoodHandler.containerOf(state.getBlock());
@@ -292,13 +228,9 @@ public record PartyArea(BlockPos anchor, List<BlockPos> food, List<BlockPos> sea
 	}
 
 	/**
-	 * The first solid block under {@code pos}, found by falling through anything with no
-	 * collision shape.
-	 * <p>
-	 * For finding what a thing is standing <i>in</i>: the rack of a steamer is inside
-	 * the pot, not on it, so the block directly beneath it is pot interior rather than
-	 * the pot itself. Bounded, because an unbounded fall through a tall empty shaft would
-	 * otherwise run to the bottom of the world.
+	 * The first solid block under {@code pos}, falling through anything with no collision
+	 * shape — for what a thing is standing <i>in</i>, since a steamer's rack is inside the
+	 * pot. Bounded, so an empty shaft does not run to the bottom of the world.
 	 *
 	 * @return that block, or null if nothing solid is within {@code maxDrop}
 	 */
@@ -314,12 +246,7 @@ public record PartyArea(BlockPos anchor, List<BlockPos> food, List<BlockPos> sea
 		return null;
 	}
 
-	/**
-	 * The mean of the food positions. The chunk containing this owns the party.
-	 * <p>
-	 * The mean rather than the midpoint of the bounding box, so a spread of one
-	 * cake and one distant pie centres nearer the cake.
-	 */
+	/** The mean of the food positions — nearer the cake, where a far pie barely moves it. The chunk containing this owns the party. */
 	@Nullable
 	public static BlockPos center(List<BlockPos> food) {
 		if (food.isEmpty()) return null;

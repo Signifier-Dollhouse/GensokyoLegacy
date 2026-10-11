@@ -8,47 +8,17 @@ import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Shared behaviour for every block food that counts its servings down as it is eaten:
- * how many are left, and how to take one.
+ * Shared serve count and consume for block foods that count themselves down as they are eaten.
+ * The direction is read off the block, never assumed: a fresh state sitting at the property
+ * maximum counts down (servings left), one at the minimum counts up (bites taken).
  *
- * <p>
- * Two conventions are in use and they must not be confused, because assuming the wrong
- * one silently breaks a whole category of food:
- *
- * <table border="1">
- *   <caption>Counting conventions</caption>
- *   <tr><th>Block</th><th>Property</th><th>Fresh</th><th>Counts</th></tr>
- *   <tr><td>vanilla {@code CakeBlock}</td><td>{@code bites} 0..6</td><td>0</td>
- *       <td><b>up</b> — bites taken</td></tr>
- *   <tr><td>FD {@code PieBlock}</td><td>{@code bites} 0..3</td><td>0</td>
- *       <td><b>up</b></td></tr>
- *   <tr><td>FD {@code FeastBlock}</td><td>{@code servings} 0..4</td><td>4</td>
- *       <td><b>down</b> — servings left</td></tr>
- *   <tr><td>YSF {@code PotFoodBlock}</td><td>{@code serve} 1..2 / 1..4</td><td>max</td>
- *       <td><b>down</b></td></tr>
- * </table>
- *
- * <p>
- * The direction is read off the block rather than configured: a property whose
- * <em>default</em> state value is its maximum is a "servings left" counter, and one
- * whose default is its minimum is a "bites taken" counter. Getting this wrong is not a
- * cosmetic bug — assuming "always decrement" would step a feast's servings <em>up</em>
- * towards the maximum it already sits at, so every guest eats and the block never
- * changes, and the party can never be satisfied.
- *
- * <p>
- * The property is found by name because the {@code IntegerProperty} instances belong to
- * the other mods; naming one would mean a hard dependency.
+ * @see doc/design/party/food_mods.md
  */
 public abstract class AbstractCountdownFood implements BlockFoodHandler {
 
-	/** The property names these block classes actually use for their serve count. */
+	/** The property names these block classes use for their serve count; the properties themselves belong to the other mods. */
 	private static final String[] COUNT_NAMES = {"bites", "servings", "serve"};
 
-	/**
-	 * Each subclass tests the one block class it was written for; subclasses of that
-	 * class are covered by the same {@code instanceof}.
-	 */
 	@Override
 	public abstract boolean handles(Block block);
 
@@ -78,7 +48,10 @@ public abstract class AbstractCountdownFood implements BlockFoodHandler {
 	}
 
 	/**
-	 * The block's own remaining-count property, or null when it has none.
+	 * The block's own serve-count property, found by name because the
+	 * {@code IntegerProperty} instances belong to the other mods.
+	 *
+	 * @return null when the block has no counter
 	 */
 	@Nullable
 	protected static IntegerProperty countProperty(BlockState state) {
@@ -92,11 +65,7 @@ public abstract class AbstractCountdownFood implements BlockFoodHandler {
 		return null;
 	}
 
-	/**
-	 * Whether this block's counter counts down from its maximum as the food is eaten,
-	 * rather than up from zero. Decided from the property's own range, so no foreign
-	 * property has to be named.
-	 */
+	/** Whether a fresh block counts down from its maximum (servings left) rather than up from zero (bites taken). */
 	private static boolean countsDown(BlockState state, IntegerProperty property) {
 		return state.getBlock().defaultBlockState().getValue(property) >= maximum(property);
 	}

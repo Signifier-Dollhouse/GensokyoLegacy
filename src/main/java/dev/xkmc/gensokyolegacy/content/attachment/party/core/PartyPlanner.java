@@ -10,62 +10,34 @@ import java.util.Map;
 import java.util.Random;
 
 /**
- * Decides who comes to a party: a weighted draw, one guest at a time, against a shared
- * hunger budget.
- * <p>
- * The budget is how much the spread actually <b>feeds</b> — hunger, not appeal — and each
- * guest costs her fulfillment in the same unit. The weight decides <em>who</em>, by making
- * a guest's chance of being drawn proportional to how much she wants to be there; it is
- * computed from the spread's appeal and has no other role here.
- * <p>
- * This replaced a 0/1 knapsack that maximised total weight. The knapsack was correct —
- * verified optimal against brute force on 200k random pools — but it was also perfectly
- * predictable, so a host learned the party by heart after one attempt. Two things are
- * better this way:
- * <ul>
- * <li>the seat count is a loop bound rather than a truncation bolted on at the end, so a
- * guest is never invited and then dropped;</li>
- * <li>the roster varies with the spread, so two parties are not the same party.</li>
- * </ul>
- * What is <b>not</b> better is prediction, and that is bought back explicitly: the draw is
- * seeded from the centre of the spread's food (see {@code PartySend.plan}), so clicking a
- * different table of one party draws the same party and {@code /gensokyo party preview}
- * still predicts a real send exactly.
+ * Who comes: a weighted draw under a shared hunger budget, with the seat count as a loop
+ * bound. Prediction is bought back by seeding the draw from the centre of the spread's
+ * food ({@code PartySend.plan}), so preview predicts a send exactly.
+ *
+ * @see doc/design/party/select.md
  */
 public class PartyPlanner {
 
 	/**
-	 * @param weight      {@link PartyMath#weight} against this player's reputation; the
-	 *                    draw share, and nothing else
-	 * @param fulfillment hunger she must be served before she counts as satisfied, and
-	 *                    what she costs against the spread's capacity
+	 * @param weight      {@link PartyMath#weight}; her share of the draw and nothing else.
+	 *                    0 means never drawn
+	 * @param fulfillment what she costs against the spread's capacity, in the same unit
 	 */
 	public record Candidate(EntityType<?> type, int weight, int fulfillment, int reputation) {
 	}
 
 	/**
-	 * Picks the guests by repeated weighted draw, under both constraints at once.
-	 * <p>
-	 * Each round draws one guest with probability proportional to weight, spends her
-	 * fulfillment from the shared budget, and drops everyone the remaining budget can no
-	 * longer satisfy. That filter is what makes the capacity constraint real rather than
-	 * incidental: a guest who was affordable when the round began may not be after it, so
-	 * without the filter a late draw could leave the roster over budget.
-	 * <p>
-	 * Both constraints therefore hold by construction —
-	 * {@code sum(fulfillment) <= capacity}, because nothing is drawn that does not fit the
-	 * remainder, and {@code size() <= seats}, because the loop stops at the seat count.
+	 * Draws one guest at a time, spending her fulfillment from the shared budget and
+	 * dropping whoever the remainder can no longer satisfy — so both constraints hold by
+	 * construction: {@code sum(fulfillment) <= capacity} and {@code size() <= seats}.
 	 *
-	 * @param capacity how much hunger the spread provides; the guests' share of it is
-	 *                 measured in the same unit as their own fulfillment
+	 * @param capacity the hunger the spread provides
 	 * @param rng      seeded so one spread always draws one party
 	 * @return chosen characters, in the order they were drawn
 	 */
 	public static List<EntityType<?>> select(List<Candidate> pool, int capacity, int seats, Random rng) {
 		if (seats <= 0 || capacity <= 0) return List.of();
-		// weight 0 means she declines outright and must never be drawn. fulfillment >
-		// capacity means she could never be satisfied even by eating everything, so
-		// inviting her only produces a guest who leaves hungry.
+		// weight 0 declines outright; beyond capacity she could never be satisfied at all
 		var viable = new ArrayList<>(pool.stream()
 				.filter(e -> e.weight() > 0 && e.fulfillment() <= capacity)
 				.toList());
@@ -76,7 +48,7 @@ public class PartyPlanner {
 			var guest = viable.remove(draw(viable, rng));
 			chosen.add(guest.type());
 			final int rest = remaining - guest.fulfillment();
-			// anyone the rest of the budget can no longer satisfy is out of the running
+			// re-run the budget filter every round; what was affordable may no longer be
 			viable.removeIf(e -> e.fulfillment() > rest);
 			remaining = rest;
 		}
@@ -84,13 +56,9 @@ public class PartyPlanner {
 	}
 
 	/**
-	 * One index of {@code viable}, drawn with probability proportional to weight.
-	 * <p>
-	 * The total is accumulated in {@code long}, not {@code int}: weights come from
-	 * datapack and {@link PartyMath#weight} scales a {@code party_taste} weight by the
-	 * appeal and reputation ramps, so a dozen of them can leave the int range. An overflow
-	 * would wrap to a value of the wrong sign or magnitude and quietly skew every draw
-	 * after it, which is the kind of bug that only shows up as "the roster looks odd".
+	 * One index of {@code viable}, drawn with probability proportional to weight. The total
+	 * is accumulated in {@code long}: scaled datapack weights can leave the int range, and
+	 * an overflow would quietly skew every later draw.
 	 */
 	private static int draw(List<Candidate> viable, Random rng) {
 		long total = 0;
@@ -115,16 +83,8 @@ public class PartyPlanner {
 	}
 
 	/**
-	 * The highest-weighted candidate that did not come, and why.
-	 * <p>
-	 * A player whose spread is one appeal short should be told which character they were
-	 * short of, and whether to lay out more food or befriend someone, rather than just
-	 * that nobody came.
-	 * <p>
-	 * Deliberately <b>not</b> a draw. This is a diagnostic, and an answer that changed
-	 * from one press to the next would be worse than useless: it reports the best
-	 * character still off the roster, which is the one whose absence explains the party the
-	 * player actually got.
+	 * The highest-weighted candidate that did not come, and why — so the host is told which
+	 * character she was short of. Deliberately not a draw: it must answer the same twice.
 	 */
 	@Nullable
 	public static Map.Entry<Candidate, Miss> nearestMiss(List<Candidate> pool, int capacity,

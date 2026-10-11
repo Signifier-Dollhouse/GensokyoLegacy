@@ -4,23 +4,11 @@ import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyFoodHandler;
 import net.neoforged.fml.ModList;
 
 /**
- * The party system's block food handlers, in priority order.
+ * Registers one handler per kind of block food, in priority order. Most name a block class
+ * belonging to another mod, so each is only <b>constructed</b> when that mod is present:
+ * a handler that was never constructed is never asked, so its foreign types never load.
  *
- * <p>
- * Called from the common setup once the blocks themselves are registered. One entry per
- * <em>kind</em> of food, each handler deciding for itself which blocks it covers — see
- * {@link PartyFoodHandler}.
- *
- * <p>
- * Order is load-bearing: the specific handlers come first and {@link BlockItemFood},
- * which accepts every block, comes last.
- *
- * <p>
- * Most handlers name a block class belonging to another mod, so each is only
- * <b>constructed</b> when that mod is present. A handler that was never constructed is
- * never asked, so its class is never loaded and its absent types are never resolved —
- * which is what keeps Farmer's Delight, Youkai's Feasts and Kaleidoscope Cookery
- * optional without reflection or a hard dependency.
+ * @see doc/design/party/food_mods.md
  */
 public final class BlockFoods {
 
@@ -28,7 +16,7 @@ public final class BlockFoods {
 	private static final String YSF = "youkaisfeasts";
 	private static final String KC = "kaleidoscope_cookery";
 
-	/** Register every known kind of block food. Call once, after the blocks exist. */
+	/** Register every known kind of block food. Call once, after the blocks exist. {@link BlockItemFood} must stay last. */
 	public static void register() {
 		PartyFoodHandler.register(new CakeFood());
 

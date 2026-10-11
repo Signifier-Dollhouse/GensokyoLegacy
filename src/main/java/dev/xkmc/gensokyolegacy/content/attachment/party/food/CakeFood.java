@@ -8,38 +8,18 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * A cake: several slices, each with its own food values.
+ * A cake: several slices, each valued on its own. {@code instanceof CakeBlock}, so Youkai's
+ * Feasts' cakes land here too.
  *
- * <p>
- * Handled by {@code instanceof CakeBlock}, so Youkai's Feasts' {@code YHCakeBlock} and
- * {@code YHCandleCakeBlock} both land here with no registration of their own.
+ * <p>Vanilla {@code CakeBlock} carries no {@link FoodProperties} at all — it feeds the player
+ * from code — so its slice values are built as a fallback. A modded cake's own slice item is
+ * authoritative and is tried first.
  *
- * <p>
- * A cake's food is the awkward case. Vanilla {@code CakeBlock} has no
- * {@link FoodProperties} anywhere: {@code CakeBlock.eat} feeds the player with
- * {@code foodData.eat(2, 0.1F)} per slice from code, and the block item is foodless. So
- * one slice's values are built here as a fallback.
- *
- * <p>
- * Before falling back, the block's own id is permuted to look for a slice item — the
- * convention Youkai's Feasts uses, so its cakes are read from their real slice rather
- * than from vanilla's numbers. That matters: with no other mods installed the fallback
- * is all there is, and a cake that scored at nothing would mean no character ever came
- * to a party, but when a slice item does exist it is authoritative.
- *
- * <p>
- * Vanilla cake is {@code IntegerProperty.create("bites", 0, 6)} counting <em>up</em>, so
- * a fresh cake sits at 0 and still has all seven slices; {@link AbstractCountdownFood}
- * handles that.
- *
- * <p>
- * {@code 0.4} is not arbitrary: {@code FoodConstants.saturationByModifier} is
- * {@code foodLevel * saturationModifier * 2.0}, so one slice of {@code eat(2, 0.1F)}
- * carries {@code 2 * 0.1 * 2.0 = 0.4} saturation.
+ * @see doc/design/party/food_mods.md
  */
 public class CakeFood extends AbstractCountdownFood {
 
-	/** Nutrition and saturation of one slice, from {@code CakeBlock.eat}. */
+	/** Nutrition and saturation of one slice, from {@code CakeBlock.eat}'s {@code eat(2, 0.1F)}. */
 	public static final float SLICE_NUTRITION = 2f;
 	public static final float SLICE_SATURATION = 0.4f;
 
@@ -54,25 +34,14 @@ public class CakeFood extends AbstractCountdownFood {
 		return block instanceof CakeBlock;
 	}
 
-	/**
-	 * The slice where the mod ships one, and <b>nothing at all for vanilla cake</b>.
-	 * <p>
-	 * That empty answer is the only thing in the whole party system that falls back to a
-	 * block's id rather than a serving item's, and it is the honest answer: vanilla cake
-	 * has no slice item and its block item carries no food, so there is nothing a guest
-	 * could be handed that exists in the game.
-	 */
+	/** The slice item where the mod ships one; empty for vanilla cake, which has no slice item in the game. */
 	@Override
 	public ItemStack serving(BlockState state) {
 		var slice = Permutations.itemOf(state.getBlock());
 		return slice == null ? ItemStack.EMPTY : new ItemStack(slice);
 	}
 
-	/**
-	 * The slice's own values where there is one, and vanilla's hard-coded numbers where
-	 * there is not — which is the whole of this handler's awkward case, and why it is the
-	 * only one that overrides {@code food} rather than letting it read off the serving.
-	 */
+	/** The slice's own values where there is one, vanilla's hard-coded numbers where there is not. */
 	@Override
 	public @Nullable FoodProperties food(BlockState state) {
 		var permuted = Permutations.foodOf(state.getBlock());

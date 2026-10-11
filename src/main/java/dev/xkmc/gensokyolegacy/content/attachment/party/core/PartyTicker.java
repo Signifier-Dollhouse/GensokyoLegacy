@@ -19,11 +19,10 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Drives the phases of any party in this level.
- * <p>
- * Parties are rare — a handful at a time at most — so rather than sweeping every
- * loaded chunk on the level tick, each party registers its chunk here when it
- * opens and is driven from that list. Nothing here runs while no party is active.
+ * Drives the phases of every party in this level. Parties are rare, so each one registers
+ * its chunk here and only those chunks are swept — nothing runs while no party is active.
+ *
+ * @see doc/design/party/state.md
  */
 public class PartyTicker {
 
@@ -32,13 +31,7 @@ public class PartyTicker {
 	/** A party open this long with nothing left happening is called off. */
 	public static final int PARTY_TIMEOUT = 12000;
 
-	/**
-	 * How long a closing party waits for its last guest before giving up on her.
-	 * <p>
-	 * Closing normally ends when the roster drains, and a guest walks off in a couple of
-	 * hundred ticks. This is what stops one who cannot — blocked in a doorway, pathing
-	 * into a wall — pinning the chunk's party open for ever.
-	 */
+	/** How long a closing party waits for its last guest before giving up on a guest who cannot leave. */
 	public static final int CLOSING_TIMEOUT = 600;
 
 	/** Level -> the chunks currently hosting a party. */
@@ -83,29 +76,21 @@ public class PartyTicker {
 			unregister(level, pos);
 			return;
 		}
-		// drop guests that died or left, so a party cannot stay pinned open by a
-		// guest that is no longer standing
+		// drop guests that died or left, so one that is no longer standing cannot pin it open
 		for (var id : Set.copyOf(party.guests())) {
 			if (find(level, id) != null) continue;
 			party.removeGuest(id);
 		}
-		// refresh what the guests draw from, before anyone asks: a party whose food list
-		// is stale is a party that cannot see a second course, or one still offering a
-		// cake three guests have already eaten
+		// refresh what the guests draw from before anyone asks: a stale list means no second course
 		party.refresh(level, level.getGameTime());
-		// One arrival a second. This pass is the clock: the ticker runs at 1 Hz, so one
-		// admission per pass needs no timer of its own, and a table that fills in a
-		// single frame reads as a cutscene rather than as people turning up.
+		// one arrival a second — this 1 Hz pass is the clock, so no timer of its own is needed
 		PartySend.admitNext(level, party);
-		// the admitted half matters because allSeated is vacuously true with no guests at
-		// all, and with staggered arrival an empty guest list is the normal state of a
-		// party in its first few seconds: without it every party would feast before
-		// anybody arrived
+		// admitted() matters: allSeated is vacuously true with no guests, and an empty
+		// guest list is normal for the first few seconds of a staggered arrival
 		if (party.phase() == PartyAttachment.Phase.GATHERING && party.admitted() && allSeated(level, party)) {
 			party.setPhase(PartyAttachment.Phase.FEASTING);
 		}
-		// Two ways out of a feast, and the guests' is the stronger: the spread gone for
-		// two rescans running, or the last of them gone with the food still on the table.
+		// two ways out of a feast: the spread gone for two rescans, or the last guest gone
 		if (party.phase() == PartyAttachment.Phase.FEASTING
 				&& (party.spreadGone() || party.guests().isEmpty() && party.admitted())) {
 			PartySend.close(level, party);
@@ -120,16 +105,9 @@ public class PartyTicker {
 	}
 
 	/**
-	 * Whether the party is over.
-	 * <p>
-	 * A closing party is over when its roster has drained — each guest removes herself as
-	 * she finishes leaving, so the list emptying <i>is</i> the last one gone. An open one
-	 * is over when the roster is empty and there is nobody left to invite: every guest
-	 * died, or the host's furniture turned out to seat nobody.
-	 * <p>
-	 * The admitted check is what makes staggered arrival safe. Guests arrive one a second,
-	 * so an empty guest list is the normal state of a party in its first few seconds, and
-	 * reading it as "everyone has gone" would end every party immediately.
+	 * Whether the party is over: a closing one when its roster has drained, an open one
+	 * when nobody is left to invite. The {@code admitted()} check is what keeps staggered
+	 * arrival from reading an empty guest list as "everyone has gone".
 	 */
 	private static boolean finished(ServerLevel level, PartyAttachment party) {
 		if (party.guests().isEmpty()) {
@@ -141,21 +119,9 @@ public class PartyTicker {
 	}
 
 	/**
-	 * Whether every guest has a chair.
-	 * <p>
-	 * The gate out of GATHERING, and deliberately party-wide rather than per-guest: the
-	 * table feasts as a table, and a guest who has just sat down should not start eating
-	 * out of an empty room while the others are still walking in.
-	 * <p>
-	 * The cost of that choice is that one guest with no chair holds the whole table out of
-	 * the feast until {@link #PARTY_TIMEOUT} calls the party off. A per-guest gate would
-	 * not stall, but it would also have the last guest to arrive eating alone at an
-	 * ungathered table, which reads as a bug rather than as a party. Seating is a host
-	 * problem either way — the fix is to put out another chair — and the timeout is the
-	 * backstop for a host who never does.
-	 * <p>
-	 * Vacuously true with no guests at all, so a party whose roster is entirely dead moves
-	 * on rather than sitting in GATHERING until the timeout.
+	 * Whether every guest has a chair. Party-wide on purpose, so the table feasts as a
+	 * table; vacuously true with no guests at all, so an all-dead roster does not sit in
+	 * GATHERING until the timeout.
 	 */
 	private static boolean allSeated(ServerLevel level, PartyAttachment party) {
 		for (var id : party.guests()) {

@@ -9,23 +9,11 @@ import net.minecraft.world.level.block.Block;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Finds the item form of a block food by permuting the block's registry id.
+ * Finds the item form of a block food by appending a suffix to the block's registry id —
+ * {@code youkaisfeasts:tarte_lune} → {@code youkaisfeasts:tarte_lune_slice}. Preferred over
+ * reflecting a field, because a naming convention survives a mod update and a field name does not.
  *
- * <p>
- * Block foods commonly ship a matching item that holds the actual food values — the
- * slice of a cake, the contents of a bowl — and those items are named after the block
- * rather than being reachable from it. Youkai's Feasts, for instance, forms them by
- * concatenating {@code "_slice"} onto the block name, so {@code youkaisfeasts:tarte_lune}
- * has a {@code youkaisfeasts:tarte_lune_slice}.
- *
- * <p>
- * This is how those items are reached. Asking the block for its own item, or reflecting
- * a private field, both work less well: several of these blocks have no public accessor
- * at all, and a name convention survives a mod update that a field name does not.
- *
- * <p>
- * Every candidate is checked against the item registry, so a permutation that does not
- * exist simply misses.
+ * @see doc/design/party/food.md
  */
 public final class Permutations {
 
@@ -43,11 +31,8 @@ public final class Permutations {
 	}
 
 	/**
-	 * The first permuted id that names a real item carrying food, or null.
-	 * <p>
-	 * The item and not just its properties, so a caller can also <i>name</i> the serving —
-	 * a food's id is its slice item's id where one exists, because that is the thing a
-	 * guest is actually handed.
+	 * The first permuted id that names a real item carrying food, or null. The item rather
+	 * than just its properties, so a caller can also <i>name</i> the serving.
 	 */
 	@Nullable
 	public static Item itemOf(Block block) {

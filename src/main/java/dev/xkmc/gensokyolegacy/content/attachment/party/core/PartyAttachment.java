@@ -19,18 +19,11 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * The state of one party, stored on the chunk holding the centre of its food.
- * <p>
- * Living on the chunk rather than on the host makes the party chunk-scoped for
- * free — unload the chunk and it freezes rather than corrupts — and it survives
- * host logout, because the data belongs to the chunk and not to the player.
- * <p>
- * The roster is frozen when the letter is sent and never recomputed. Re-running
- * the planner on a timer would let a guest who wandered in mid-banquet change the
- * guest list under everyone else, and would make the outcome depend on tick
- * order. Frozen, the roster is a pure function of the spread, the seats and the
- * player's reputation at the moment of sending, which is what lets
- * {@code /gensokyo party preview} predict a send exactly.
+ * The state of one party, on the chunk holding the centre of its food — so it is
+ * chunk-scoped for free and survives host logout. The roster is frozen at send and never
+ * recomputed, which is what lets {@code /gensokyo party preview} predict a send exactly.
+ *
+ * @see doc/design/party/state.md
  */
 @SerialClass
 public class PartyAttachment extends GeneralCapabilityTemplate<LevelChunk, PartyAttachment> {
@@ -61,11 +54,7 @@ public class PartyAttachment extends GeneralCapabilityTemplate<LevelChunk, Party
 	@SerialField
 	private final ArrayList<UUID> guests = new ArrayList<>();
 
-	/**
-	 * The spread's hunger at send time: how much it could feed, and so the guests'
-	 * shared budget. Renamed from {@code appealBudget}, which is the quantity this stopped
-	 * being — an existing save's party reads back as a 0 budget until the next send.
-	 */
+	/** The spread's hunger at send time — the guests' shared budget. */
 	@SerialField
 	private int hungerBudget;
 
@@ -73,49 +62,20 @@ public class PartyAttachment extends GeneralCapabilityTemplate<LevelChunk, Party
 	@SerialField
 	private int hungerServed;
 
-	/**
-	 * Appeal the guests have actually been served.
-	 * <p>
-	 * The third counter, and the one the host is paid from: what the table was worth by
-	 * the end rather than what it was worth when the letter went out, so a second course
-	 * counts and a dish nobody ever touched does not.
-	 */
+	/** What the table was worth by the end — the counter the host is paid from. */
 	@SerialField
 	private int appealServed;
 
-	/**
-	 * How often the spread is looked at again, in ticks. Two seconds.
-	 *
-	 * <p>
-	 * Fast, because food is the thing that changes fastest at a party: every dish a
-	 * guest eats is one fewer, and a host putting out a second course wants it noticed
-	 * while the table is still full of people rather than after they have gone.
-	 */
+	/** Fast: a second course should be noticed while the table is still full of people. */
 	private static final int FOOD_RESCAN = 40;
 
-	/**
-	 * How often the furniture is looked at again, in ticks. Ten seconds.
-	 *
-	 * <p>
-	 * Five times slower than the food, and for the same reason in reverse: chairs are not
-	 * eaten, so a chair that moved a second ago will still be there in four more, and the
-	 * list exists only so a guest knows where to sit and so a guest whose chair was taken
-	 * away can notice she is standing.
-	 */
+	/** Five times slower than the food: chairs are not eaten, and the list only has to stay roughly right. */
 	private static final int LAYOUT_RESCAN = 200;
 
 	/**
-	 * The spread as of the last food rescan: every dish a guest could eat.
-	 *
-	 * <p>
-	 * A party's own copy rather than something each guest sweeps for herself. A guest
-	 * needs this list every time she draws a dish, and she draws one every few seconds
-	 * for the length of her visit; sweeping a box per guest per dish is the party
-	 * costing far more to run than the party itself.
-	 *
-	 * <p>
-	 * Serialized, so a party in a chunk that unloads resumes with the spread it had
-	 * rather than with an empty one it would have to notice was wrong.
+	 * The spread as of the last food rescan. The party's own copy rather than a sweep per
+	 * guest per dish, which would cost more than the party itself. Serialized, so a party
+	 * in an unloaded chunk resumes with the spread it had.
 	 */
 	@SerialField
 	private final ArrayList<BlockPos> food = new ArrayList<>();
@@ -125,17 +85,9 @@ public class PartyAttachment extends GeneralCapabilityTemplate<LevelChunk, Party
 	private final ArrayList<BlockPos> seats = new ArrayList<>();
 
 	/**
-	 * Which guest holds which chair.
-	 * <p>
-	 * The party's own seating plan, and the reason guests no longer fight for chairs. Left
-	 * to themselves they all walk to the <i>nearest</i> free one, which at a laid table is
-	 * the same chair — {@code HomeSearchUtil.setSitting} ejects whoever is sitting there,
-	 * so the second arrival wins and the first is stood up mid-party.
-	 * <p>
-	 * A claim is first-write-wins and survives everything except the chair disappearing:
-	 * re-arranging the table does not move anyone, and a guest who stood up for a dish
-	 * comes back to the same chair. Only a chair that is no longer there releases it, and
-	 * that is what the layout rescan prunes.
+	 * The party's seating plan, so guests do not all walk to the same nearest chair and
+	 * eject each other. First-write-wins and survives everything except the chair
+	 * disappearing, which is what the layout rescan prunes.
 	 */
 	@SerialField
 	private final HashMap<BlockPos, UUID> claims = new HashMap<>();
@@ -151,31 +103,18 @@ public class PartyAttachment extends GeneralCapabilityTemplate<LevelChunk, Party
 	private int layoutVersion;
 
 	/**
-	 * How many roster entries have been admitted, so the rest arrive one a second.
-	 * <p>
-	 * The roster is frozen at send (§4) but the guests are not all spawned by the send
-	 * itself: {@link PartyTicker} admits one per pass, which is one a second because the
-	 * ticker already runs at 1 Hz. A table that fills in a single frame reads as a cutscene.
+	 * Roster entries admitted so far. {@link PartyTicker} admits one per pass, which is one
+	 * a second because it already runs at 1 Hz — a table that fills in one frame reads as
+	 * a cutscene.
 	 */
 	@SerialField
 	private int admitted = 0;
 
-	/**
-	 * Consecutive food rescans that found nothing on the table.
-	 * <p>
-	 * One empty scan is not evidence of anything — the host may be carrying the second
-	 * course in — so the party ends on the <b>second</b> one, 40 ticks after the first.
-	 */
+	/** Consecutive empty food rescans. The party ends on the second: one may just mean the host is carrying the second course in. */
 	@SerialField
 	private int emptyScans = 0;
 
-	/**
-	 * When the party went to CLOSING.
-	 * <p>
-	 * A backstop for a guest whose walk home never finishes: the closing phase ends when
-	 * the last guest has left, and this is what stops one stuck guest pinning the chunk's
-	 * party open for ever.
-	 */
+	/** Backstop against one stuck guest pinning the chunk's party open for ever. */
 	@SerialField
 	private long closingAt = 0;
 
@@ -272,19 +211,16 @@ public class PartyAttachment extends GeneralCapabilityTemplate<LevelChunk, Party
 	 */
 	@Nullable
 	public BlockPos claimSeat(ServerLevel level, UUID guest, @Nullable BlockPos hers) {
-		// Her own claim first, whatever she believes about it. Asked by what the party
-		// has on record rather than by what she has, because she does not record a chair
-		// until she is actually sitting on it: a guest whose walk was interrupted before
-		// she arrived would otherwise be handed a second chair on the next attempt and
-		// leave the first one claimed for ever.
+		// Her own claim first, asked of the party's record rather than of her: she does
+		// not record a chair until she is sitting on it, so an interrupted walk would
+		// otherwise leave the first one claimed for ever.
 		for (var entry : claims.entrySet()) {
 			if (!guest.equals(entry.getValue())) continue;
 			if (seats.contains(entry.getKey())) return entry.getKey();
 			claims.remove(entry.getKey());   // gone: the layout rescan has not caught up
 			break;
 		}
-		// hers can only be stale here - it was not the party that granted it, or the chair
-		// has already left the list above - so it is safe to give back
+		// hers can only be stale: not granted by this party, or already pruned above
 		if (hers != null) claims.remove(hers);
 		var entity = level.getEntity(guest);
 		BlockPos from = entity == null ? anchor : entity.blockPosition();
@@ -292,8 +228,7 @@ public class PartyAttachment extends GeneralCapabilityTemplate<LevelChunk, Party
 		double bestDist = Double.MAX_VALUE;
 		for (var pos : seats) {
 			if (claims.containsKey(pos)) continue;
-			// the list is up to ten seconds old, so a chair broken since then would
-			// otherwise hand out a block that is no longer there
+			// the list is up to ten seconds old, so a chair broken since would be handed out
 			if (!level.getBlockState(pos).is(GLTagGen.PARTY_SEAT)) continue;
 			double dist = pos.distSqr(from);
 			if (dist >= bestDist) continue;
@@ -364,19 +299,9 @@ public class PartyAttachment extends GeneralCapabilityTemplate<LevelChunk, Party
 	}
 
 	/**
-	 * Bring the cached lists up to date, each on its own schedule.
-	 *
-	 * <p>
-	 * Called from the ticker rather than from a guest, so the cost is paid once per party
-	 * per interval instead of once per guest per dish. The two lists are refreshed
-	 * independently because they change at very different rates, and because conflating
-	 * them would either make a refilled dish take ten seconds to appear or make the chair
-	 * list be rebuilt four times a second for nothing.
-	 *
-	 * <p>
-	 * Called on the server only. Both sweeps read block entities — a cutting board's
-	 * contents, a rack's racks — and asking for those on the client would be a second,
-	 * slightly different answer to a question the server is already answering.
+	 * Bring the cached lists up to date, each on its own schedule and from the ticker, so
+	 * the cost is paid once per party rather than once per guest per dish. Server only:
+	 * both sweeps read block entities.
 	 */
 	public void refresh(ServerLevel level, long gameTime) {
 		var at = anchor;
@@ -388,16 +313,12 @@ public class PartyAttachment extends GeneralCapabilityTemplate<LevelChunk, Party
 			if (!found.equals(food)) changed = true;
 			food.clear();
 			food.addAll(found);
-			// two empty scans in a row end the party, one never does: the rescan is fast
-			// so that a second course is noticed while there is still a table to notice it
-			// at, and that same speed makes a single empty scan ambiguous
+			// two empty scans in a row end the party; one may just be the host
+			// carrying the second course in
 			emptyScans = found.isEmpty() ? emptyScans + 1 : 0;
-			// The budget tracks what the guests can actually reach, and moves as the host
-			// refills. Two consequences worth stating: a second course raises the party's
-			// capacity instead of leaving the served count overtaking a stale number, and
-			// the figure narrows from "the whole scanned room" at send to "the guest box"
-			// afterwards - which is the honest answer, since nothing outside that box can
-			// be eaten.
+			// Tracks what the guests can actually reach, so it narrows from "the whole
+			// scanned room" at send to "the guest box" afterwards - the honest answer,
+			// since nothing outside that box can be eaten
 			var budget = 0;
 			for (var pos : food) budget += PartyFoodValue.totalHunger(level, pos, level.getBlockState(pos));
 			if (budget != hungerBudget) changed = true;
@@ -406,17 +327,16 @@ public class PartyAttachment extends GeneralCapabilityTemplate<LevelChunk, Party
 		if (gameTime - layoutScannedAt >= LAYOUT_RESCAN) {
 			layoutScannedAt = gameTime;
 			var found = PartyArea.seatsAround(level, at);
-			// a version bump on a change only, so a guest comparing it every tick is not
-			// woken up by a rebuild that found exactly what it found last time
+			// bumped on a change only, so a guest comparing it every tick is not woken
+			// by a rebuild that found exactly what it found last time
 			if (!found.equals(seats)) {
 				layoutVersion++;
 				changed = true;
 			}
 			seats.clear();
 			seats.addAll(found);
-			// A chair that is gone releases its claim, and that is the only thing that
-			// does. Without the prune the claim outlives the block and the guest cannot
-			// be given a seat she has no claim to, which holds the party in GATHERING.
+			// A gone chair releases its claim; without this the claim outlives the
+			// block and holds the party in GATHERING.
 			int before = claims.size();
 			claims.keySet().removeIf(seat -> !seats.contains(seat));
 			if (claims.size() != before) {
@@ -424,9 +344,8 @@ public class PartyAttachment extends GeneralCapabilityTemplate<LevelChunk, Party
 				changed = true;
 			}
 		}
-		// Only when something actually moved. This runs every twenty ticks for as long as
-		// the party is open, and marking the chunk unsaved every time would queue it for a
-		// save on a timer for the sake of a rebuild that found the same room.
+		// Only when something moved: marking the chunk unsaved every twenty ticks would
+		// queue it for a save on a timer for a rebuild that found the same room.
 		if (changed) dirty();
 	}
 
@@ -437,15 +356,9 @@ public class PartyAttachment extends GeneralCapabilityTemplate<LevelChunk, Party
 	}
 
 	/**
-	 * Freeze the roster, open the party, and seed the caches from the walk that just
-	 * found the spread.
-	 *
-	 * <p>
-	 * The lists are passed rather than swept again because the send has just walked the
-	 * whole room: asking a second time a moment later for an answer that is already in
-	 * hand is the exact waste the cache exists to avoid. Only the dishes and chairs
-	 * <i>inside the guest box</i> are seeded, though — the walk covers the room, and a
-	 * guest is only ever offered what she could walk to.
+	 * Freeze the roster, open the party, and seed the caches from the walk the send has
+	 * just done rather than sweeping again. Only the dishes and chairs inside the guest
+	 * box are seeded: a guest is only ever offered what she could walk to.
 	 */
 	public void start(LevelChunk chunk, long gameTime, UUID host, BlockPos anchor,
 			List<EntityType<?>> roster, int hunger, List<BlockPos> food, List<BlockPos> seats) {
@@ -490,13 +403,7 @@ public class PartyAttachment extends GeneralCapabilityTemplate<LevelChunk, Party
 		}
 	}
 
-	/**
-	 * Move to CLOSING and stamp when it happened.
-	 * <p>
-	 * The stamp is the backstop for a guest whose walk off never finishes: closing ends
-	 * when the last guest has left, and this is what stops one stuck guest from pinning
-	 * the chunk's party open for ever.
-	 */
+	/** Move to CLOSING, stamping when — the backstop for a guest whose walk off never finishes. */
 	public void close(long gameTime) {
 		if (phase == Phase.CLOSING) return;
 		closingAt = gameTime;
@@ -556,9 +463,8 @@ public class PartyAttachment extends GeneralCapabilityTemplate<LevelChunk, Party
 	}
 
 	/**
-	 * The live party overlapping these chunks, or null. Unloaded chunks are
-	 * skipped rather than loaded: a party only exists while its chunk is loaded,
-	 * so an unloaded chunk cannot be hosting one.
+	 * The live party overlapping these chunks, or null. Unloaded chunks are skipped rather
+	 * than loaded: a party only exists while its chunk is loaded.
 	 */
 	@Nullable
 	public static PartyAttachment existing(ServerLevel level, ChunkPosRange range) {
@@ -578,13 +484,9 @@ public class PartyAttachment extends GeneralCapabilityTemplate<LevelChunk, Party
 	}
 
 	/**
-	 * The active party within {@code radius} blocks of this position, or null.
-	 * <p>
-	 * A party lives in the chunk holding the <b>centre of its food</b>, which is not
-	 * necessarily the chunk holding its anchor table. Asking "is there a party at
-	 * this table?" therefore needs the neighbourhood and not the one chunk — the
-	 * centre is within the scan's reach of the table by construction, so the scan
-	 * always finds it.
+	 * The active party within {@code radius} blocks. A party lives in the chunk holding the
+	 * <b>centre of its food</b>, not of its anchor table, so asking "is there a party at
+	 * this table?" needs the neighbourhood rather than one chunk.
 	 */
 	@Nullable
 	public static PartyAttachment near(ServerLevel level, BlockPos pos, int radius) {

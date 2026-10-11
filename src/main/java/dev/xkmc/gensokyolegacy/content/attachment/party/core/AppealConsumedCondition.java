@@ -15,26 +15,15 @@ import net.minecraft.world.level.storage.loot.predicates.LootItemConditionType;
 import java.util.Set;
 
 /**
- * Whether the guest standing in the loot context has been served enough appeal.
- * <p>
- * Reads {@link PartyModule#appealEaten} — the appeal <i>she personally consumed</i>, not
- * the party's {@code appealServed} and not whether she was satisfied. Those are three
- * different quantities (§5.2) and only one of them is hers: two guests at one table are
- * owed two different answers.
- * <p>
- * The guest is {@link LootContextParams#THIS_ENTITY}, which is what {@code PartyGift}
- * puts in the context when it rolls a table for her. Anything else in that slot — no
- * entity at all, a guest who somehow has no {@link PartyModule} — reads as zero appeal
- * rather than throwing, so a table that gates its whole pool on a threshold stays a table
- * that gives nothing rather than a crash inside somebody's party.
- * <p>
- * Both bounds are optional, so the three shapes a tiered table needs are all one field
- * away from each other: {@code min} alone for "at least", {@code max} alone for "at most",
- * and both for one disjoint band of a ladder.
+ * Whether the guest in the loot context has been served enough of her own appeal — her
+ * {@link PartyModule#appealEaten}, not the party's total and not whether she was satisfied.
+ * The guest is {@link LootContextParams#THIS_ENTITY}; anything else there reads as zero
+ * rather than throwing, so a fully gated table gives nothing instead of crashing.
  *
  * @param min lowest appeal that passes, inclusive
  * @param max highest appeal that passes, inclusive
  * @param invert pass when the comparison fails, as in {@code SelfReputationCondition}
+ * @see doc/design/party/send.md
  */
 public record AppealConsumedCondition(int min, int max, boolean invert) implements LootItemCondition {
 
@@ -45,9 +34,7 @@ public record AppealConsumedCondition(int min, int max, boolean invert) implemen
 	).apply(i, AppealConsumedCondition::new));
 
 	public AppealConsumedCondition {
-		// A band that ends before it starts would silently never match, which empties a whole
-		// pool and reads in game as "this gift no longer exists". Clamping turns the same typo
-		// into a band of one appeal point: wrong, but visibly wrong rather than invisible.
+		// a band ending before it starts would silently never match and empty a whole pool
 		max = Math.max(min, max);
 	}
 

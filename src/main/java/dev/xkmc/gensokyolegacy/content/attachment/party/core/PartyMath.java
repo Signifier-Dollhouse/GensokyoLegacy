@@ -1,12 +1,14 @@
 package dev.xkmc.gensokyolegacy.content.attachment.party.core;
 
 /**
- * The attractiveness / fulfillment math behind a party. Pure functions over
- * plain values, so {@code /gensokyo party preview} can run them and be
- * guaranteed to predict what a real send will do.
+ * The attractiveness math behind a party: pure functions over plain values, so
+ * preview runs the identical code and predicts a send exactly.
+ *
+ * @see doc/design/party/select.md
  */
 public class PartyMath {
 
+	/** @return 0 when she declines outright, below {@code minReputation} — and 0 means never drawn */
 	public static int weight(PartyTaste taste, int spreadAppeal, int reputation) {
 		if (reputation < taste.minReputation()) return 0;
 		double appealFactor = ramp(spreadAppeal, taste.minAppeal(), taste.maxAppeal());
