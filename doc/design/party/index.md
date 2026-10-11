@@ -1,7 +1,7 @@
 # Party Event — Design Doc
 
 > **Status:** implemented — compiles, `runData` and `./gradlew build` both green. Not yet played in a live world, so the flow (`send.md`, `guest.md`) and `limits.md` §1 are reasoned from the code rather than observed.
-> **Package:** `content/attachment/party/` — `core/` (math, planner, state, handler lookup), `food/` (one handler class per kind of block food), `item/` (letter, wand), plus `content/entity/module/PartyModule.java` and `content/entity/behavior/task/party/YoukaiPartyTask.java`
+> **Package:** `content/attachment/party/` — `core/` (math, planner, state, handler lookup), `food/` (one handler class per kind of block food), `item/` (letter, wand), plus `content/entity/module/PartyModule.java` and `content/entity/behavior/task/party/PartyTasks.java`
 >
 > Party state is attachment-shaped, so the whole feature lives under `content/attachment/` alongside the other per-feature packages. That puts `PartyArea`'s neighbour `ChunkPosRange` in `content/attachment/area/` next to it rather than across the tree.
 >
@@ -34,7 +34,7 @@ There is no monetary cost and no cooldown. The letter names no specific characte
 | **Attractiveness / fulfillment math** | `content/attachment/party/core/PartyMath.java` | pure functions, no world writes |
 | **Roster selection** | `content/attachment/party/core/PartyPlanner.java` | weighted draw under the hunger budget and seat count |
 | **Party state** | `GLMeta.PARTY`, a `LevelChunk` capability | host, anchor, roster, phase, counters |
-| **Guest behaviour** | `PartyModule` + `YoukaiPartyTask` | walk, sit, eat, gift, dismiss |
+| **Guest behaviour** | `PartyModule` + `PartyTasks` | walk, sit, eat, gift, dismiss |
 
 The first two are deliberately side-effect free so `/gensokyo party preview` can run the identical code path as a real send and be guaranteed to predict it.
 
@@ -48,7 +48,7 @@ The first two are deliberately side-effect free so `/gensokyo party preview` can
 | [state.md](state.md) | `PartyAttachment`, the chunk capability, the frozen roster, the ticker, and the phase machine | implemented |
 | [select.md](select.md) | spread appeal, `party_taste`, `PartyMath.weight`, fulfillment, the seeded weighted draw, and the worked example | implemented |
 | [send.md](send.md) | the invitation letter, `PartySend.send` and its rejections, guest clones, gifts and the reputation payout | implemented |
-| [guest.md](guest.md) | `YoukaiPartyTask` and the three phases — arriving, the bite, leaving — plus the brain wiring | implemented |
+| [guest.md](guest.md) | `PartyTasks` and the three phases — arriving, the bite, leaving — plus the brain wiring | implemented |
 | [debug.md](debug.md) | `/gensokyo party`, the debug wand, the area renderer, and the one-reading-at-a-time rule | implemented |
 | [checklist.md](checklist.md) | every file created and modified, and the generated resources | — |
 | [limits.md](limits.md) | known limits, and the owner answers that settled them | — |

@@ -1,30 +1,92 @@
-# The Guest — the task cycle and the three phases
+# The Guest — the state machine and the three phases
 
-`YoukaiPartyTask` is a cycle driven from a `PARTY` activity at priority 200: seat, eat, go back to the seat, sit a while, repeat, until the spread is gone.
+A guest's visit is a **cascade of eleven brain tasks**, routed by which of seven memories are set. There is no phase enum, no dispatcher, and no state to lose.
 
-## 1. The task
+## 1. The machine
 
-`YoukaiPartyTask` is a **cycle**, not a walk-then-finish: seat, eat, go back to the seat, sit a while, repeat, until the spread is gone.
+Driven from a `PARTY` activity at priority 200, and registered in one line:
+
+```java
+board.addPrioritizedActivity(GLBrains.PARTY.get(), GLBrains.MEM_PARTY.get(), 200);
+board.addPartyTasks();
+```
+
+**Which task runs is decided by memory presence, not by a variable.** Each task declares the memories that must be set (and those that must not) in its entry condition, and `checkExtraStartConditions` covers what a memory cannot know — whether she is actually a passenger, whether the party has reached FEASTING. `TaskBoard.fetch` collects every exclusive task under one activity into a single `GateBehavior(ORDERED, RUN_ONE)`, which tries them **in registration order and runs the first that matches**. So the order *is* the priority, and a task lower down can be given a signature as loose as "nothing" — everything more specific has already been claimed by then.
+
+### The memories
+
+| memory | type | means |
+|---|---|---|
+| `MEM_PARTY` | `GlobalPos` | she is at a party at all — the activity gate |
+| `MEM_PARTY_SERVE` | `PartyServe` | **has food in hand**, and it is not yet banked |
+| `MEM_PARTY_DISH` | `BlockPos` | **has a food target** — the dish she committed to |
+| `MEM_PARTY_HESITATE` | `Integer` | eat wait: deciding at the dish, ticks left |
+| `MEM_PARTY_GRAB` | `Integer` | the pickup gesture, ticks left |
+| `MEM_PARTY_CHEW` | `Integer` | eat wait: chewing, ticks left |
+| `MEM_PARTY_REST` | `Integer` | **post-eat wait**: sitting between dishes, ticks left |
+| `MEM_PARTY_LEAVE` | `Integer` | the unseat wait, then the walk out |
+
+**Every one of them carries a codec, and that is the whole of how a guest survives a save.** `Brain.MemoryValue.serialize` writes a memory only when `MemoryModuleType.getCodec()` is present, and `LivingEntity.saveWithoutId` hands `brain.serializeStart(...)` straight into `SmartBrain.construct` on load. A memory registered with `Optional.empty()` is *never* written out — which is why `MEM_PARTY` itself does not persist and `PartyModule.tickServer` re-asserts it instead.
+
+The timer memories hold *ticks remaining* and are erased at zero, so presence means "running" and a decrement is one write. `MEM_PARTY_LEAVE` is the exception: it counts down to zero and stays, because **its presence is the departure** — erasing it mid-walkout would drop the cascade back to whatever fits an ordinary guest, and she would sit back down on the way out of the door.
+
+### The cascade
+
+`✓` must be set, `✗` must be absent, `·` is don't care. Seated-ness and phase are physical checks, not memories.
+
+| # | task | S | D | H | G | C | R | L | seated | phase |
+|---|---|---|---|---|---|---|---|---|---|---|
+| 1 | Leave | · | · | · | · | · | · | ✓ | · | · |
+| 2 | Chew | ✓ | · | · | · | ✓ | · | · | · | · |
+| 3 | Eat | ✓ | · | · | · | ✗ | · | · | seated | · |
+| 4 | GoToSeat | ✓ | · | · | · | · | · | · | not seated | · |
+| 5 | Delay | ✗ | ✓ | ✓ | · | · | · | · | · | · |
+| 6 | Pickup | ✗ | ✓ | ✗ | ✓ | · | · | · | · | · |
+| 7 | GoToFood | · | · | · | · | · | · | · | · | · |
+| 8 | Rest | · | · | · | · | · | ✓ | · | · | · |
+| 9 | FindFood | · | · | · | · | · | · | · | seated | FEASTING |
+| 10 | WaitTable | · | · | · | · | · | · | · | seated | not FEASTING |
+| 11 | FindSeat | · | · | · | · | · | · | · | not seated | · |
+
+Read down as a decision tree:
 
 ```
-start()      → recover her place in the cycle from PartyModule (see below)
-SEEK_SEAT    → walk to the ground beside a free chair, stand on it, sit, claimSeat(...), WAIT_TABLE
-WAIT_TABLE   → seated, doing nothing until the party reaches FEASTING
-SEEK_FOOD    → draw a dish, weighted by its appeal per serve
-DELAY        → 10..40 ticks before she reaches for it (§2.2)
-              within seated reach of her chair?  taken from where she sits
-              otherwise                   dismount, walk to the ground beside it,
-                                           stand on it, then carry it back
-PICKUP       → USE_MAINHAND, then the serving in her hand (§2.2)
-EATING       → seated: the eat animation if her rig has one, the item leaving
-               her hand during it; hunger AND appeal credited when it ends
-RETURNING    → walk back to her chair, sit again
-RESTING      → wait hungrySeat (1s) if still hungry, fullSeat (5s) once satisfied
-               roll leaveChance after a satisfied sit — and go, if it comes up
-no chair      → tell the host, look again every 3s, leave after three failures (§2.1)
-no dish left  → giveGift(), then the exit
-LEAVING      → stand up after 0..60 ticks, walk away or go back (§2.3)
+leave armed?                    → Leave
+has serve, chewing?             → Chew
+has serve, seated?              → Eat
+has serve                       → GoToSeat
+has dish, hesitating?           → Delay
+has dish, grabbing?             → Pickup
+has dish                        → GoToFood
+resting?                        → Rest
+seated, party feasting?         → FindFood
+seated, party not feasting?     → WaitTable
+otherwise                       → FindSeat
 ```
+
+The bottom four constrain **no memory at all**, which is the point: by the time the gate reaches them, every specific state has been ruled out, so they are the terminal fallbacks that make the cascade total. A brute-force check of all 512 combinations (7 memories × seated × FEASTING) confirms every one resolves to exactly one task — 0 uncovered.
+
+`GoToFood` shows as all-don't-care because its `stillMine` carries the dish conditions instead; either way the combined signature is "has dish, not hesitating, not grabbing".
+
+### Walking is not a task
+
+Every party task carries `WALK_TARGET: VALUE_ABSENT`, and `PartyTask.canStillUse` yields the moment a walk order is outstanding: `YoukaiMoveTask` does the walking and clears the memory on arrival, at which point the gate re-picks the same task and it finds itself arrived.
+
+**That is why reach needs no memory.** Being out of reach and being in reach are the same task; the walk order stands in for the difference. It also means the state that moves her and the state where she thinks are genuinely two states rather than one state with an embedded pause — she crosses to the dish first and hesitates *at* it, which is the only arrangement in which changing her mind at the last moment is possible at all.
+
+### The un-banked serve
+
+`MEM_PARTY_SERVE` holds both "she is carrying something" and what it is worth, which is what makes the window durable. It used to be two task fields plus a `stop()` that banked them on the way out — a race with task shutdown. As a memory it is simply state: a guest interrupted mid-bite by an unload or a restart still has the serve when she comes back and is credited for it then.
+
+### The director
+
+One **always-task** under `PARTY`, running alongside whichever of the eleven is going, for the three things that are not states: the party ending under her, the party closing while she is mid-course (which arms `MEM_PARTY_LEAVE`, the wait drawn per guest so a table does not empty in one tick), and her chair being taken away by the layout rescan. It also owns the teleport fallback for a walk the pathfinder has already failed.
+
+### What is not a memory
+
+`PartyModule` is serialized with the entity under `YoukaiModules`, so the seat claim and the visit tallies (`eaten`, `appealEaten`, `gifted`) were already durable, and the seat-retry counters joined them there. The distinction is that memories say *which task*, the module records *what happened to her*.
+
+**`recoverPosition()` no longer exists**, which is the clearest sign the design is right: on reload the signature table plus physics fully determine what happens next — serve set and seated means Chew, dish set means GoToFood, neither and seated means FindFood.
 
 **The party caches its own spread and its own chairs.** `PartyAttachment` holds both lists and refreshes them on two schedules from `PartyTicker`: the food every two seconds, the layout every ten. A guest needs the food list every time she draws a dish, which is every few seconds for the length of her visit, so having each guest sweep a box for herself made the party cost far more to run than the party itself. Two rates because the two change at very different speeds — every dish a guest eats is one fewer, while a chair that moved a second ago will still be there in four more — and because conflating them would either make a refilled dish take ten seconds to appear or rebuild the chair list four times a second for nothing.
 
@@ -47,19 +109,19 @@ One consequence worth stating: `hungerBudget` now tracks what the guests can act
 - A chair is not something you walk into. It is furniture you sit down from *beside* — the old target was `seat.above()`, the block the rider ends up in, which is inside the chair's own collision box. A pathfinder asked to reach it either fails outright or parks the guest standing on the seat, and a character standing on a chair is the most visible way this feature can look broken.
 - A dish on a table has **air** beside it, not floor. The block next to a plate on a laid table is at table height with nothing under it, so the answer is the ground beside the *table*. Which is why `PartySend.standingNear` tries two rings: the block's own neighbours first, then its neighbours one support down. A dish on the floor is answered by the first ring, a dish on a table only by the second.
 
-Because the walk target and the thing being acted on are **different blocks**, the task keeps them in different fields — `standing` is where she is walking to, `target` is the chair or the dish — and tests them differently:
+Because the walk target and the thing being acted on are **different blocks**, `PartyTarget` carries both, plus a distance for each:
 
 | | reach | why |
 |---|---|---|
-| arriving at the block she walked to | **0** | she either reached that floor tile or she did not. There is nothing to be "near" about a block she is meant to be standing on, and a tolerance here would have her act on a dish from the far end of the table |
+| arriving at the block she walked to | **1** | **this used to be 0, and 0 was the bug.** It looked stricter and was worse: a pathfinder that stops one block short of the tile it was sent to — ordinary, and reliably produced by a chair beside a table — would never satisfy it, so the guest stood beside her own seat until the walk timeout rescued her. The interaction reach is what actually decides whether she can act; the arrival test only needs to mean "she is roughly there" |
 | a dish, from her chair | **3** | she is holding a plate out over the table, and this is what makes most rounds of a laid banquet happen without her standing up at all |
 | a dish, from her feet | **2** | standing up and crossing to a dish three blocks away should not be possible when she could have eaten it from where she was sitting |
-| **her chair** | **3** | arriving and sitting are two steps, and the second one is `setSitting` finding a `ChairEntity` to put her on. Three blocks is the slack for a pathfinder that stopped a block short — the case that otherwise leaves a guest standing beside her own chair with the whole party held in GATHERING on her |
+| **her chair** | **2** | she stands on the block beside it, which is *zero* blocks from its box, so two is ample and keeps her from sitting down from across the table |
 | a dish with nothing to stand beside | — | she walks at it anyway and the leg timeout judges. Never being able to reach food is worse than reaching it badly |
 
-`SEAT_REACH` is checked *before* the claim rather than around it: `setSitting` is a silent no-op on a block that is not one of ours, so a guest out of range does not claim a chair she is not on and tries again next tick, by which time she has walked the rest of the way.
+`PartyTarget`'s interaction reach is checked *before* the claim rather than around it: `setSitting` is a silent no-op on a block that is not one of ours, so a guest out of range does not claim a chair she is not on and tries again next tick, by which time she has walked the rest of the way.
 
-All three are measured to the **block's box rather than its centre** — standing on the block beside a chair is *zero* blocks from it, so the numbers mean what they look like. Measured to the centre, a guest standing next to her own chair is 1.1 blocks from its middle and could never sit in it.
+All of them are measured to the **block's box rather than its centre** — standing on the block beside a chair is *zero* blocks from it, so the numbers mean what they look like. Measured to the centre, a guest standing next to her own chair is 1.1 blocks from its middle and could never sit in it.
 
 **Departing is the one place the exact rule does not apply.** A guest on her way out is not picking anything up, so her arrival at the destination uses a loose 2 blocks rather than zero — the last two steps of a departure are not worth the leave timeout that would follow them.
 
@@ -67,22 +129,40 @@ The walk-failure fallback (§2.1) already lands where this wants it to — it te
 
 `HomeSearchUtil.setSitting` (`HomeSearchUtil.java:75`) already handles claiming a free seat, checking `ChairEntity` occupancy and yielding to players, and is a silent no-op when the block is not `ISeatableBlock` — so a third-party chair from `party_seat` simply has the guest stand beside it, with no special case. The claim is still recorded, because otherwise one unseatable chair would hold the party in GATHERING for ever.
 
-**`PartyModule` holds the chair, not the task.** A visit now spans many dish cycles and can be interrupted at any point by the chunk unloading, which stops the task and starts a fresh one. `start()` therefore recovers her place in the cycle from what she is physically doing — no seat yet, so `SEEK_SEAT`; riding one, so `WAIT_TABLE`; neither, so mid-`RETURNING` — rather than assuming `SEEK_SEAT` as the old code did. Getting this wrong would send every guest back out for another walk on each unload.
+**`PartyModule` holds the chair, not the memory.** The claim is serialized with the entity, so it survives a chunk unload and a restart; only the machine position lives in memories. `FindSeatTask` is the only task that runs while she is not seated, and it recovers her place from nothing more than that.
 
-**The task must never return `false` from `canStillUse` to change phase.** One `Behavior` instance drives the whole visit, so the phase lives in a field on the task; `false` calls `doStop` → `stop()`, which wipes it, and the brain re-runs the exclusive behavior next tick with `start()` re-deriving the phase. Every phase change therefore keeps returning `true`, and `false` is reserved for actually finishing — party over, out of time, or nothing left to serve.
+### How the split got wrong, twice
 
-This is why `YoukaiPartyTask` cannot copy `MarisaForageTask`'s "arrive, act, return false" shape. The forage task is single-action and holds no state between runs, so stopping is free. A multi-phase task must keep the instance alive across its own transitions, and the failure mode is silent — the entity looks perfectly healthy, sits down, stands up, sits down again, and nothing is ever eaten.
+The machine was a single `Behavior` with a `switch`, then nine behaviours behind a phase enum, and only now is it eleven tasks behind seven memories. Both intermediate shapes shipped broken, and the failure mode is the same each time: the entity looks perfectly healthy while doing nothing.
+
+| | symptom | why it is invisible |
+|---|---|---|
+| the draw lived in a task step | guests crossed the room forever, target replaced every tick | she is constantly walking, so nothing looks stuck |
+| the in-reach path cleared the target | **no guest ever ate anything**, in any round | the cycle runs perfectly; she just picks up air forever |
+| `seatCheckAt` set once, never advanced | gave up on finding a chair in under a tenth of a second | she does leave, and the message to the host is correct |
+| the per-tick deadline refresh dropped | guests written off mid-party, on their own chair | looks like a slow-loading or an empty spread |
+| a departure that renamed instead of arming | the party kept holding a chair nobody was in | the guest still leaves, so nothing looks wrong |
+| `stillMine` stayed true after the task acted | it re-acts every tick and starves the next task of the gate | the next task simply never runs |
+
+**The cascade's version of the last one is `MEM_PARTY_LEAVE`**: a departure is arming a memory, never just entering a state, and the memory must survive the walkout rather than expiring when the unseat wait is up.
+
+**One rule the cascade makes impossible to break by accident:** a task sets the memory that hands over, and the gate picks somebody else on the next tick. There is no "phase changed" moment to get wrong, because there is no phase.
+
+**The rule it is easy to break by accident:** `stillMine` must go false once a task has done its job. A running task keeps the gate — the brain only re-picks when *nothing* is running — so a signature that stays true after the task acts means the task simply keeps acting. Two of those shipped: `FindFoodTask` redrew the dish every tick, and `GoToSeatTask` re-armed its own chew every tick and starved `ChewTask` of the gate. Every task that sets a memory therefore tests for that memory in `stillMine`, and that test *is* the handoff.
+
 
 **Food contention needs no locking.** On arrival a guest re-validates that the block is still food and still laid out; if another guest took the last serve first it is gone and she draws again. With per-serving consumption this is *more* forgiving than it was: two guests walking to the same cake no longer collide destructively, since each finds a serve still on it. Worst case is a wasted walk.
 
-**A serve is taken when eating starts and credited when it finishes.** `PartyFoodValue.consume` is called in `beginEating`, and `pendingHunger` / `pendingAppeal` — both read *before* the consume, because a serve's readings are properties of the state it was taken from — carry them across the `EAT_TICKS` window so her tallies and the party's served total move together. `stop()` credits a serve that was taken but never banked, so a party ending or a chunk unloading mid-bite cannot silently swallow food the guests already ate.
+**A serve is taken when she picks it up and credited when she finishes it.** `PartyFoodValue.consume` is called in `PartyContext.takeServing`, and the readings are taken *before* the consume, because a serve's readings are properties of the state it was taken from — which is why they go into `MEM_PARTY_SERVE` rather than being re-read later. The serve then rides that memory across the `EAT_TICKS` window, so her tallies and the party's served total move together. A visit that ends mid-bite still credits it through `finishServe`, because the plate left a dish that is already gone.
 
 **Eating while seated needs `isLaidOut` to accept a chair underneath.** A plate set on a guest's own seat is within reach of her and, on the old test, not part of the spread at all — the scan would not have counted it, so she could not eat it. Rather than special-casing the eating rule, the chair was added as a surface: a dish on a chair is now part of the spread and budgeted for like any other, instead of being edible but unaccounted.
 
 **The bite is four beats, not one, and two of them are art work in progress.** `§2.2` has the sequence: a delay, a pickup animation with the serving item actually in her hand, a walk back to the chair if she left it, and an eat animation on arrival during which the item leaves her hand. What exists today is uneven, and the two gaps are worth naming because they are not the same gap:
 
 - **The chew exists for one rig.** `PlainFairyEntity` maps `吃` as `thenPlayAndHold` and fires it as entity event **80** (`PlainFairyEntity.java:123`, `:134`) — deliberately outside `YoukaiAnim`, which is the dialog vocabulary and whose 71–79 are its wire ids (`GeoYoukaiAnim.java:30`). `FairyCakeTask` is the precedent for the whole shape: a chew, then a `USE_MAINHAND` gesture timed against the clip's own length. No party-eligible character has it, so for the shipped roster the eat beat is skipped, not faked.
-- **Holding an item is a per-renderer question.** The data side is one `setItemInHand(MAIN_HAND, …)` and `YoukaiHeldItemLayer` already renders a character's `MAINHAND` at her `RightHandLocator` bone — but only `CirnoRenderer` and `PlainFairyRenderer` register it, so of the six eligible characters only Cirno would visibly carry a slice. Adding one `addRenderLayer` per renderer is the whole fix, and the layer is written to serve every rig in the mod.
+- **Holding an item was a per-renderer question, and it is now answered.** The data side is one `setItemInHand(MAIN_HAND, …)` and `YoukaiHeldItemLayer` renders a character's `MAINHAND` at her `RightHandLocator` bone — but a geo renderer draws no items by itself, where vanilla `MobRenderer` did, so a character that became geo-rendered lost whatever she was holding. For this feature that is most of what she does: the serving is in her hand for the whole walk back to her chair.
+
+**Only Cirno and `PlainFairy` carried a plate.** The layer was registered on two of eight renderers. It is now on all seven of the geo ones (Alice, Marisa, Reimu, Morichika, Sakuya added to Cirno and `PlainFairy`); `Rumia` is a plain `MobRenderer` and never lost it. The layer itself is unchanged: one layer serves every rig, because Blockbench exports the wrist bones under the same two names for all of them.
 
 What is left of the old treatment is the sound: `entity.swing(MAIN_HAND)` + `YoukaiAnim.USE_MAINHAND` + `SoundEvents.GENERIC_EAT`, which is exactly what `MarisaForageTask` does for foraging (`MarisaForageTask.java:60`).
 
@@ -125,7 +205,7 @@ if (arrival == null || furnitureAt(level, arrival)) return null;
 
 It is deliberately **not** `partyGuestRadius` (24). That is how far she may wander once she is *at* the party (limits.md §1); 32 is how far away she may appear. A guest who materialised inside the guest radius would already be at the table, which is the thing the rule exists to prevent — and the furniture test is the same one on both the spawn and the teleport below, because the teleport is the path most likely to land in the middle of the table.
 
-**She walks in, and if she cannot walk in she is moved rather than stranded.** The walk out to her chair gets the ordinary leg timeout; a guest who never arrives is teleported to a free, standable block *beside* her seat and carries on from there. The seat is only worth sitting in if she can get to it, and a character standing in a doorway for the rest of a party is worse than one that blinks into place. This only ever fires when the pathfinder has already failed, so the teleport is a repair and not a shortcut.
+**She walks in, and if she cannot walk in she is moved rather than stranded.** The walk out to her chair is watched for *lost ground*, not for elapsed time: the closest approach she has made to her target is kept, and reset whenever she beats it. Only three seconds of not getting any nearer teleports her to a free, standable block *beside* her seat, and she carries on from there. The test is this one because a fixed deadline from issuing the order was the wrong rule — a guest crossing a long room is slow and fine, and the deadline declared her stuck while she was halfway across it. The seat is only worth sitting in if she can get to it, and a character standing in a doorway for the rest of a party is worse than one that blinks into place. This only ever fires when the pathfinder has already failed, so the teleport is a repair and not a shortcut.
 
 **The party seats them, so they do not fight over chairs.** Left to themselves every guest walks to the *nearest* free chair, and at a laid table the nearest chair is the same chair: `HomeSearchUtil.setSitting` ejects whoever is sitting there, so the second arrival wins and the first is stood up mid-meal. `PartyAttachment` therefore keeps the seating plan — a chair → guest map — and a guest asks it for a chair instead of picking one:
 
@@ -267,3 +347,10 @@ Added once in `SmartYoukaiEntity.constructTaskBoard` (`SmartYoukaiEntity.java:81
 - `TALK` is walked **before** `PARTY`, so its conditions never mention `MEM_PARTY` — **a party guest can still talk and trade**;
 - `PARTY` requires `MEM_TALK` absent, so eating never interrupts a conversation already in progress;
 - every scheduled activity requires `MEM_PARTY` absent — **a guest never sleeps and never goes home**, the same guarantee `VISITING` gives a house guest, one rung up the board.
+
+**A guest walks. She does not hover.** These entities can fly, both controls are live at once, and the flying one answers an order given while airborne — so a guest told to walk to her chair would fly there instead, and the walk fallback would then be chasing a guest who is not stuck, just airborne. `SmartYoukaiEntity.mayFly` returns false while the party flag is set, which is enough for the pathfinding; the rest needs two more gates, because both of them would otherwise reinstall flight afterwards:
+
+- hovering characters re-assert the flying navigation on **every** awake tick, since loading an entity puts its control back on the ground, so `PlainFairyEntity.travel` tests `mayFly` and not just `isSleeping`;
+- `FairyFleeTask` reaches past `mayFly` for the flying navigation directly, so it repeats the gate and lets a guest who is attacked stand and take it rather than fly off over the host's table.
+
+Arrival is the third gate: `PartyModule.enter` puts her on the walking navigation straight away, and leaving clears the flag, after which the hovering character re-asserts flight for herself.

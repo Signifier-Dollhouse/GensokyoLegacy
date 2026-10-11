@@ -11,7 +11,6 @@ import dev.xkmc.gensokyolegacy.content.entity.behavior.sensor.YoukaiUpdateHomeSe
 import dev.xkmc.gensokyolegacy.content.entity.behavior.task.combat.*;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.task.core.*;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.task.home.*;
-import dev.xkmc.gensokyolegacy.content.entity.behavior.task.party.YoukaiPartyTask;
 import dev.xkmc.gensokyolegacy.content.ui.dialog.FirstDialogSession;
 import dev.xkmc.gensokyolegacy.init.registrate.GLBrains;
 import dev.xkmc.gensokyolegacy.util.BrainUtils;
@@ -73,6 +72,20 @@ public class SmartYoukaiEntity extends YoukaiEntity {
 		return SmartBrain.construct(board, dynamic);
 	}
 
+	/**
+	 * A party guest walks.
+	 *
+	 * <p>
+	 * Both the walk and the fly control are live on these entities and the fly one wins an
+	 * order given while airborne, so a guest would fly to her chair instead of walking to
+	 * it. The party flag rather than the activity, because a visit outlives any single
+	 * activity and the flag is what {@link PartyModule} actually knows by.
+	 */
+	@Override
+	public boolean mayFly() {
+		return !getFlag(YoukaiFlags.PARTYING) && super.mayFly();
+	}
+
 	protected void addFightTasks(TaskBoard board) {
 		board.addAlways(new YoukaiUpdateTargetTask<>(), Activity.FIGHT);
 		board.addAlways(new YoukaiAttackTask<>(16), Activity.FIGHT);
@@ -131,7 +144,7 @@ public class SmartYoukaiEntity extends YoukaiEntity {
 		// ability to talk and trade (TALK is walked first), and every scheduled
 		// activity below requires MEM_PARTY absent, so she never sleeps or goes home.
 		board.addPrioritizedActivity(GLBrains.PARTY.get(), GLBrains.MEM_PARTY.get(), 200);
-		board.addExclusive(0, new YoukaiPartyTask(), GLBrains.PARTY.get());
+		board.addPartyTasks();
 
 		board.setSchedule(new ScheduleBuilder(new Schedule())
 				.changeActivityAt(10, GLBrains.AT_HOME.get())

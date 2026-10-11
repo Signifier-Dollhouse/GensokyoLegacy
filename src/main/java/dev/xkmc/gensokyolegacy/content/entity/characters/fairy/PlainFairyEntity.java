@@ -207,7 +207,9 @@ public class PlainFairyEntity extends FairyEntity implements GeoYoukaiAnim {
 	 */
 	@Override
 	public void travel(Vec3 input) {
-		boolean hover = !isSleeping();
+		// mayFly rather than a bare awake test: a party guest is awake but must not hover,
+		// and this is the tick that would otherwise reinstall her flying navigation
+		boolean hover = !isSleeping() && mayFly();
 		// before super, so this tick's move is gravity-free too; the flying move
 		// control drops the flag on every idle tick, so it has to be re-asserted
 		if (hover) {

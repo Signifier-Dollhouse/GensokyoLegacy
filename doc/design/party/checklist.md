@@ -37,7 +37,7 @@ Every file the feature creates and modifies, and the resources it generates.
 | `content/attachment/party/item/InvitationLetterItem.java` | the letter |
 | `content/attachment/party/item/PartyMessage.java` | one place that turns an outcome into player-facing text |
 | `content/entity/module/PartyModule.java` | per-guest state, `arrive`/`join`/`beginLeave`/`completeLeave`, and `Origin` |
-| `content/entity/behavior/task/party/YoukaiPartyTask.java` | seat → delay → pickup → chew → rest, and the exit |
+| `content/entity/behavior/task/party/PartyTasks.java` | the 11-task cascade → delay → pickup → chew → rest, and the exit |
 | `content/rpg/condition/PartyCondition.java` | `{"type":"gensokyolegacy:party"}`, `invert` for home-bound |
 
 ## 2. Modified
@@ -50,7 +50,7 @@ Every file the feature creates and modifies, and the resources it generates.
 
 | `content/entity/youkai/YoukaiEntity.java` | `PartyModule` in `createModules()`, `isPartying()`, `broadcastEat()` |
 | `content/entity/youkai/YoukaiFlags.java` | append `PARTYING` (ordinal is the synced bit index) |
-| `content/entity/youkai/SmartYoukaiEntity.java` | `PARTY(200)` + `YoukaiPartyTask` |
+| `content/entity/youkai/SmartYoukaiEntity.java` | `PARTY(200)` + `board.addPartyTasks()` |
 | `content/entity/characters/fairy/CirnoEntity.java` | `PartyModule` in its `createModules()` override |
 | `content/entity/characters/magician/AliceEntity.java` | same |
 | `content/entity/characters/fairy/PlainFairyEntity.java` | `broadcastEat()` as the override of the base no-op |

@@ -101,7 +101,7 @@ if (worth <= 0 || !PartyFoodValue.result(here).valid()) continue;   // recognise
 food.add(pos.immutable());
 appeal += worth;
 
-// YoukaiPartyTask.nearest - never walked to, so no guest's time is wasted
+// PartyTasks - never walked to, so no guest's time is wasted
 if (!PartyFoodValue.result(state).valid()) continue;
 ```
 

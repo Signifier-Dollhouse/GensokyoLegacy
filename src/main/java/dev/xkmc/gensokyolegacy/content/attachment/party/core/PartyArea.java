@@ -197,7 +197,7 @@ public record PartyArea(BlockPos anchor, List<BlockPos> food, List<BlockPos> sea
 
 	/**
 	 * Whether a dish was put out for the party: standing on a table or a chair, or
-	 * touching a seat or a table. Shared with {@code YoukaiPartyTask} so a guest can only
+	 * touching a seat or a table. Shared with {@code PartyTasks} so a guest can only
 	 * eat a dish the scan would have counted. A chair counts as a surface too, so a plate
 	 * on a guest's own seat is budgeted rather than merely edible.
 	 * <p>

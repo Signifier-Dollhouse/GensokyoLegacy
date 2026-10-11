@@ -122,6 +122,48 @@ public class PartyModule extends AbstractYoukaiModule {
 	@SerialField
 	private boolean gifted = false;
 
+	// --- seat episode ---
+	//
+	// Durable visit bookkeeping rather than routing state, which is why it lives here and
+	// not in a brain memory: it records what happened to her, not which task she is in.
+	// A chunk unload or a restart must not reset the count, or a guest who cannot find a
+	// chair gives up in three ticks instead of nine seconds.
+
+	@SerialField
+	private int seatFailures = 0;
+
+	@SerialField
+	private boolean seatWarned = false;
+
+	/** Paces the attempts; {@link #seatDeadline} is the backstop for the whole episode. */
+	@SerialField
+	private long seatCheckAt = 0;
+
+	@SerialField
+	private long seatDeadline = 0;
+
+	/** The layout version when she last checked her own chair was still on the list. */
+	@SerialField
+	private int layoutVersion = -1;
+
+	/**
+	 * The thing she is walking to, and when she stopped closing on it.
+	 *
+	 * <p>
+	 * A deadline from issuing the order was the wrong test: a long walk to a far chair is
+	 * slow but fine, and it would be declared stuck while she was halfway across a room.
+	 * What actually distinguishes a stuck guest is that she stops getting nearer, so the
+	 * closest approach is kept and reset whenever she beats it.
+	 */
+	@SerialField
+	private BlockPos walkTarget;
+
+	@SerialField
+	private double walkClosest = Double.MAX_VALUE;
+
+	@SerialField
+	private long walkClosestAt = 0;
+
 	public PartyModule(YoukaiEntity self) {
 		super(ID, self);
 	}
@@ -224,6 +266,9 @@ public class PartyModule extends AbstractYoukaiModule {
 		this.originKey = originKey;
 		this.leaving = false;
 		self.setFlag(YoukaiFlags.PARTYING, true);
+		// and she arrives on the ground: the flag alone stops her hovering, but the
+		// flying navigation and no-gravity are already installed by then
+		self.navCtrl.setWalking();
 	}
 
 	/** Where she was before the party, and so what she is given back to. */
@@ -292,6 +337,101 @@ public class PartyModule extends AbstractYoukaiModule {
 	public PartyTaste ofOrDefault() {
 		var taste = taste();
 		return taste == null ? PartyTaste.DEF : taste;
+	}
+
+	// --- seat episode ---
+
+	/** Start a fresh attempt at finding a chair, forgetting the previous failures. */
+	public void beginSeatEpisode(long gameTime, int retry, int attempts) {
+		seatFailures = 0;
+		seatWarned = false;
+		seatDeadline = gameTime + (long) attempts * retry;
+		seatCheckAt = gameTime;
+	}
+
+	/** When the next "is there a chair?" check counts, so it counts once per window. */
+	public long seatCheckAt() {
+		return seatCheckAt;
+	}
+
+	public void nextSeatCheck(long gameTime, int retry) {
+		seatCheckAt = gameTime + retry;
+	}
+
+	/**
+	 * Count one failed attempt at a chair, warning the host on the first.
+	 *
+	 * @return whether this is the first failure, so the caller can send the message
+	 */
+	public boolean countSeatFailure() {
+		boolean first = !seatWarned;
+		if (first) {
+			seatWarned = true;
+			seatFailures = 0;
+		}
+		seatFailures++;
+		return first;
+	}
+
+	public boolean outOfSeatAttempts(long gameTime, int attempts) {
+		return seatFailures >= attempts || gameTime > seatDeadline;
+	}
+
+	/**
+	 * Whether the layout rescan has changed since she last looked, and if so whether her own
+	 * chair is the thing that changed.
+	 */
+	public boolean layoutChanged(PartyAttachment party) {
+		if (layoutVersion < 0 || layoutVersion == party.layoutVersion()) return false;
+		layoutVersion = party.layoutVersion();
+		return seat != null && !party.seats().contains(seat);
+	}
+
+	public void forgetLayoutVersion() {
+		layoutVersion = -1;
+	}
+
+	// --- walk fallback ---
+
+	/** Remember where she is walking to, and how close she has ever got. */
+	public void walkingTo(@Nullable BlockPos target, long gameTime) {
+		if (walkTarget != null && walkTarget.equals(target)) return;
+		walkTarget = target;
+		noteWalk(gameTime);
+	}
+
+	public void arrived() {
+		walkTarget = null;
+		walkClosest = Double.MAX_VALUE;
+	}
+
+	/** The thing she is currently walking to, for the teleport fallback. */
+	@Nullable
+	public BlockPos walkTarget() {
+		return walkTarget;
+	}
+
+	/**
+	 * Called every tick while she is walking somewhere. Records a new closest approach, and
+	 * with it the moment she last got nearer.
+	 */
+	public void noteWalk(long gameTime) {
+		if (walkTarget == null) return;
+		double distance = self.distanceToSqr(walkTarget.getCenter());
+		if (distance >= walkClosest) return;
+		walkClosest = distance;
+		walkClosestAt = gameTime;
+	}
+
+	/**
+	 * Whether she has stopped getting nearer to it for {@code timeout} ticks.
+	 *
+	 * <p>
+	 * Read together with {@link #noteWalk}, which is what makes this true: a guest
+	 * crossing a long room resets it every time she gains a block.
+	 */
+	public boolean walkStalled(long gameTime, int timeout) {
+		return walkTarget != null && gameTime - walkClosestAt >= timeout;
 	}
 
 	@Override
@@ -410,7 +550,15 @@ public class PartyModule extends AbstractYoukaiModule {
 
 	/** Clear the party state but leave her standing, so the caller decides. */
 	public void leave() {
-		BrainUtils.clearMemory(self, GLBrains.MEM_PARTY.get());
+		BrainUtils.clearMemories(self,
+				GLBrains.MEM_PARTY.get(),
+				GLBrains.MEM_PARTY_SERVE.get(),
+				GLBrains.MEM_PARTY_DISH.get(),
+				GLBrains.MEM_PARTY_HESITATE.get(),
+				GLBrains.MEM_PARTY_GRAB.get(),
+				GLBrains.MEM_PARTY_CHEW.get(),
+				GLBrains.MEM_PARTY_REST.get(),
+				GLBrains.MEM_PARTY_LEAVE.get());
 		self.setFlag(YoukaiFlags.PARTYING, false);
 		host = null;
 		table = null;
@@ -420,6 +568,11 @@ public class PartyModule extends AbstractYoukaiModule {
 		origin = Origin.SUMMONED;
 		originKey = null;
 		leaving = false;
+		walkTarget = null;
+		walkClosest = Double.MAX_VALUE;
+		seatFailures = 0;
+		seatWarned = false;
+		layoutVersion = -1;
 	}
 
 	@Override
