@@ -94,15 +94,12 @@ public class YoukaiNodeEvaluatorRegistry {
 		if (!(mob instanceof YoukaiEntity youkai) || !youkai.getFlag(YoukaiFlags.PARTYING)) return ans;
 		// a chair is furniture to stand beside, never a floor to walk over
 		if (state.is(GLTagGen.PARTY_SEAT)) return PathType.BLOCKED;
-		// isFood is a question about the world, and the pathfinding context only promises a
-		// CollisionGetter. In practice it is the level; where it is not, let the walk stand.
-		if (!(context.level() instanceof Level level)) return ans;
-		if (state.is(GLTagGen.PARTY_TABLE) || level.getBlockState(pos.below()).is(GLTagGen.PARTY_TABLE)) {
+		if (state.is(GLTagGen.PARTY_TABLE) || context.level().getBlockState(pos.below()).is(GLTagGen.PARTY_TABLE)) {
 			return PathType.BLOCKED;
 		}
 		// the block below is the one she would be standing on food with
-		return PartyFoodValue.isFood(level, pos, state)
-				|| PartyFoodValue.isFood(level, pos.below(), level.getBlockState(pos.below()))
+		return PartyFoodValue.isFood(context.level(), pos, state)
+				|| PartyFoodValue.isFood(context.level(), pos.below(), context.level().getBlockState(pos.below()))
 				? PathType.BLOCKED : ans;
 	}
 

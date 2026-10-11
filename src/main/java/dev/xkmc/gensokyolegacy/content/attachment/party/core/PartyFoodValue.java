@@ -9,6 +9,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.food.FoodProperties;
+import net.minecraft.world.level.CollisionGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -63,7 +64,7 @@ public class PartyFoodValue {
 	 * Every food this block offers. One entry, except a container, which reports one per
 	 * kind of thing held. A fresh list every call — never retained.
 	 */
-	public static List<FoodResult> results(Level level, BlockPos pos, BlockState state) {
+	public static List<FoodResult> results(CollisionGetter level, BlockPos pos, BlockState state) {
 		var container = PartyFoodHandler.containerOf(state.getBlock());
 		// a container is never answered from the cache: its contents are not in the state
 		if (container != null) return container.contents(level, pos, state);
@@ -78,7 +79,7 @@ public class PartyFoodValue {
 	}
 
 	/** Decided entirely in code; nothing a datapack can write changes the answer. */
-	public static boolean isFood(Level level, BlockPos pos, BlockState state) {
+	public static boolean isFood(CollisionGetter level, BlockPos pos, BlockState state) {
 		for (var result : results(level, pos, state)) {
 			if (result.valid()) return true;
 		}

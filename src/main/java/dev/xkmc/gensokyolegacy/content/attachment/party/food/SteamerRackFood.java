@@ -8,6 +8,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.CollisionGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
@@ -36,7 +37,7 @@ public class SteamerRackFood implements ContainerFoodHandler {
 	}
 
 	@Override
-	public List<FoodResult> contents(Level level, BlockPos pos, BlockState state) {
+	public List<FoodResult> contents(CollisionGetter level, BlockPos pos, BlockState state) {
 		if (!(level.getBlockEntity(pos) instanceof SteamerBlockEntity be)) return List.of();
 		var ans = new ArrayList<FoodResult>();
 		for (var rack : be.racks) {
