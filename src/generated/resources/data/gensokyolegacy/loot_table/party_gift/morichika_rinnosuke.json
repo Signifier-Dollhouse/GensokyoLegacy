@@ -3,125 +3,106 @@
   "pools": [
     {
       "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "condition": "gensokyolegacy:appeal_consumed",
+          "max": 50
+        }
+      ],
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "gensokyolegacy:fairy_cake",
-          "weight": 14
-        },
+          "name": "gensokyolegacy:star_flower",
+          "weight": 20
+        }
+      ],
+      "rolls": 1.0
+    },
+    {
+      "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "condition": "gensokyolegacy:appeal_consumed",
+          "max": 100,
+          "min": 50
+        }
+      ],
+      "entries": [
         {
           "type": "minecraft:item",
           "name": "gensokyolegacy:tengu_sake",
-          "weight": 14
+          "weight": 10
         },
         {
           "type": "minecraft:item",
           "name": "gensokyolegacy:ghost_sake",
-          "weight": 14
+          "weight": 10
         },
         {
           "type": "minecraft:item",
           "name": "gensokyolegacy:sturdy_teddy_bear",
-          "weight": 12
-        },
+          "weight": 20
+        }
+      ],
+      "rolls": 1.0
+    },
+    {
+      "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "condition": "gensokyolegacy:appeal_consumed",
+          "max": 200,
+          "min": 100
+        }
+      ],
+      "entries": [
         {
           "type": "minecraft:item",
-          "conditions": [
-            {
-              "condition": "gensokyolegacy:appeal_consumed",
-              "min": 20
-            }
-          ],
-          "name": "gensokyolegacy:star_flower",
-          "weight": 10
-        },
-        {
-          "type": "minecraft:item",
-          "conditions": [
-            {
-              "condition": "gensokyolegacy:appeal_consumed",
-              "min": 40
-            }
-          ],
-          "name": "gensokyolegacy:magic_book",
-          "weight": 10
-        },
-        {
-          "type": "minecraft:item",
-          "conditions": [
-            {
-              "condition": "gensokyolegacy:appeal_consumed",
-              "min": 80
-            }
-          ],
-          "name": "gensokyolegacy:mini_hakkero_prototype",
-          "weight": 8
-        },
-        {
-          "type": "minecraft:item",
-          "conditions": [
-            {
-              "condition": "gensokyolegacy:appeal_consumed",
-              "min": 80
-            }
-          ],
-          "name": "gensokyolegacy:centipickaxe",
-          "weight": 8
-        },
-        {
-          "type": "minecraft:item",
-          "conditions": [
-            {
-              "condition": "gensokyolegacy:appeal_consumed",
-              "min": 80
-            }
-          ],
-          "name": "gensokyolegacy:dowser",
-          "weight": 8
-        },
-        {
-          "type": "minecraft:item",
-          "conditions": [
-            {
-              "condition": "gensokyolegacy:appeal_consumed",
-              "min": 80
-            }
-          ],
-          "name": "gensokyolegacy:mermaid_pearl",
-          "weight": 8
-        },
-        {
-          "type": "minecraft:item",
-          "conditions": [
-            {
-              "condition": "gensokyolegacy:appeal_consumed",
-              "min": 80
-            }
-          ],
-          "name": "gensokyolegacy:cat_bell",
-          "weight": 8
-        },
-        {
-          "type": "minecraft:item",
-          "conditions": [
-            {
-              "condition": "gensokyolegacy:appeal_consumed",
-              "min": 80
-            }
-          ],
-          "name": "gensokyolegacy:straw_hat",
-          "weight": 8
-        },
-        {
-          "type": "minecraft:item",
-          "conditions": [
-            {
-              "condition": "gensokyolegacy:appeal_consumed",
-              "min": 80
-            }
-          ],
           "name": "gensokyolegacy:strange_glasses",
-          "weight": 8
+          "weight": 10
+        },
+        {
+          "type": "minecraft:item",
+          "name": "gensokyolegacy:cat_bell",
+          "weight": 10
+        },
+        {
+          "type": "minecraft:item",
+          "name": "gensokyolegacy:mermaid_pearl",
+          "weight": 10
+        },
+        {
+          "type": "minecraft:item",
+          "name": "gensokyolegacy:straw_hat",
+          "weight": 10
+        }
+      ],
+      "rolls": 1.0
+    },
+    {
+      "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "condition": "gensokyolegacy:appeal_consumed",
+          "max": 200,
+          "min": 200
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "gensokyolegacy:mini_hakkero_prototype",
+          "weight": 10
+        },
+        {
+          "type": "minecraft:item",
+          "name": "gensokyolegacy:centipickaxe",
+          "weight": 10
+        },
+        {
+          "type": "minecraft:item",
+          "name": "gensokyolegacy:dowser",
+          "weight": 10
         }
       ],
       "rolls": 1.0

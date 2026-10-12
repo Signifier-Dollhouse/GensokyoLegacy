@@ -3,6 +3,30 @@
   "pools": [
     {
       "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "condition": "gensokyolegacy:appeal_consumed",
+          "max": 50
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "gensokyolegacy:star_flower",
+          "weight": 12
+        }
+      ],
+      "rolls": 1.0
+    },
+    {
+      "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "condition": "gensokyolegacy:appeal_consumed",
+          "max": 100,
+          "min": 50
+        }
+      ],
       "entries": [
         {
           "type": "minecraft:item",
@@ -16,107 +40,64 @@
         },
         {
           "type": "minecraft:item",
-          "name": "gensokyolegacy:fairy_cake",
-          "weight": 10
-        },
-        {
-          "type": "minecraft:item",
-          "conditions": [
-            {
-              "condition": "gensokyolegacy:appeal_consumed",
-              "min": 20
-            }
-          ],
           "name": "gensokyolegacy:sturdy_teddy_bear",
+          "weight": 40
+        }
+      ],
+      "rolls": 1.0
+    },
+    {
+      "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "condition": "gensokyolegacy:appeal_consumed",
+          "max": 200,
+          "min": 100
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "gensokyolegacy:speed_talisman",
           "weight": 10
         },
         {
           "type": "minecraft:item",
-          "conditions": [
-            {
-              "condition": "gensokyolegacy:appeal_consumed",
-              "min": 40
-            }
-          ],
-          "name": "gensokyolegacy:star_flower",
-          "weight": 12
-        },
-        {
-          "type": "minecraft:item",
-          "conditions": [
-            {
-              "condition": "gensokyolegacy:appeal_consumed",
-              "min": 40
-            }
-          ],
-          "name": "gensokyolegacy:magic_book",
-          "weight": 15
-        },
-        {
-          "type": "minecraft:item",
-          "conditions": [
-            {
-              "condition": "gensokyolegacy:appeal_consumed",
-              "min": 80
-            }
-          ],
-          "name": "gensokyolegacy:heal_talisman",
-          "weight": 8
-        },
-        {
-          "type": "minecraft:item",
-          "conditions": [
-            {
-              "condition": "gensokyolegacy:appeal_consumed",
-              "min": 80
-            }
-          ],
-          "name": "gensokyolegacy:speed_talisman",
-          "weight": 8
-        },
-        {
-          "type": "minecraft:item",
-          "conditions": [
-            {
-              "condition": "gensokyolegacy:appeal_consumed",
-              "min": 80
-            }
-          ],
           "name": "gensokyolegacy:hydrophobic_talisman",
-          "weight": 8
+          "weight": 10
         },
         {
           "type": "minecraft:item",
-          "conditions": [
-            {
-              "condition": "gensokyolegacy:appeal_consumed",
-              "min": 80
-            }
-          ],
           "name": "gensokyolegacy:lava_talisman",
-          "weight": 8
+          "weight": 10
+        }
+      ],
+      "rolls": 1.0
+    },
+    {
+      "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "condition": "gensokyolegacy:appeal_consumed",
+          "max": 200,
+          "min": 200
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "gensokyolegacy:heal_talisman",
+          "weight": 20
         },
         {
           "type": "minecraft:item",
-          "conditions": [
-            {
-              "condition": "gensokyolegacy:appeal_consumed",
-              "min": 80
-            }
-          ],
           "name": "gensokyolegacy:shelter_talisman",
-          "weight": 8
+          "weight": 20
         },
         {
           "type": "minecraft:item",
-          "conditions": [
-            {
-              "condition": "gensokyolegacy:appeal_consumed",
-              "min": 80
-            }
-          ],
-          "name": "gensokyolegacy:folded_paper_talisman",
-          "weight": 8
+          "name": "gensokyolegacy:lava_talisman",
+          "weight": 10
         }
       ],
       "rolls": 1.0

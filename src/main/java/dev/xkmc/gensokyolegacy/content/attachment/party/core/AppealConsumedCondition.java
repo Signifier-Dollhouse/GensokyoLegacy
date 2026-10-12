@@ -20,8 +20,8 @@ import java.util.Set;
  * {@link LootContextParams#THIS_ENTITY}; anything else there reads as zero, so a fully
  * gated table gives nothing instead of crashing.
  *
- * @param min lowest appeal that passes, inclusive
- * @param max highest appeal that passes, inclusive
+ * @param min    lowest appeal that passes, inclusive
+ * @param max    highest appeal that passes, inclusive
  * @param invert pass when the comparison fails, as in {@code SelfReputationCondition}
  * @see doc/design/party/send.md
  */
@@ -38,12 +38,16 @@ public record AppealConsumedCondition(int min, int max, boolean invert) implemen
 		max = Math.max(min, max);
 	}
 
-	/** At least {@code min} appeal. */
+	/**
+	 * At least {@code min} appeal.
+	 */
 	public AppealConsumedCondition(int min) {
 		this(min, Integer.MAX_VALUE, false);
 	}
 
-	/** Between {@code min} and {@code max} appeal, both inclusive. */
+	/**
+	 * Between {@code min} and {@code max} appeal, both inclusive.
+	 */
 	public AppealConsumedCondition(int min, int max) {
 		this(min, max, false);
 	}
@@ -56,7 +60,7 @@ public record AppealConsumedCondition(int min, int max, boolean invert) implemen
 	@Override
 	public boolean test(LootContext context) {
 		int appeal = appealOf(context);
-		return invert != (appeal >= min && appeal <= max);
+		return invert != (appeal >= min && (max <= 0 || appeal < max));
 	}
 
 	@Override
@@ -64,7 +68,9 @@ public record AppealConsumedCondition(int min, int max, boolean invert) implemen
 		return Set.of(LootContextParams.THIS_ENTITY);
 	}
 
-	/** Appeal the guest in this context has consumed, or zero if there is no guest. */
+	/**
+	 * Appeal the guest in this context has consumed, or zero if there is no guest.
+	 */
 	private static int appealOf(LootContext context) {
 		if (!(context.getParam(LootContextParams.THIS_ENTITY) instanceof YoukaiEntity guest)) return 0;
 		return guest.getModule(PartyModule.class).map(PartyModule::appealEaten).orElse(0);

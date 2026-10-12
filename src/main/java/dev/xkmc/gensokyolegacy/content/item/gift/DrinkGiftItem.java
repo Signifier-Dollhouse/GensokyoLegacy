@@ -13,7 +13,7 @@ import net.minecraft.world.level.Level;
 public class DrinkGiftItem extends Item {
 
 	public DrinkGiftItem(Properties properties) {
-		super(properties.stacksTo(1));
+		super(properties);
 	}
 
 	@Override
