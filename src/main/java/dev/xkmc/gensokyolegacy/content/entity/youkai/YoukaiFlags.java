@@ -15,5 +15,11 @@ CHARGING, FAINTED, POWERED, NONE, FED, GIFTED, FLYING, VISITING,
 	 * At a party. Synced for the same reason as {@link #FLEEING} - it is what she
 	 * moves on, and it decides where she is standing.
 	 */
-	PARTYING
+	PARTYING,
+	/**
+	 * Lying down in {@code GLBrains.NAP}. Synced because the pose is a client-side
+	 * decision and the client has no way to ask the brain what it is doing, the same
+	 * reason {@code isSleeping()} and {@code isPassenger()} are authoritative poses.
+	 */
+	NAPPING
 }

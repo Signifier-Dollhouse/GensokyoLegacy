@@ -50,7 +50,7 @@ Every file the feature creates and modifies, and the resources it generates.
 
 | `content/entity/youkai/YoukaiEntity.java` | `PartyModule` in `createModules()`, `isPartying()`, `broadcastEat()` |
 | `content/entity/youkai/YoukaiFlags.java` | append `PARTYING` (ordinal is the synced bit index) |
-| `content/entity/youkai/SmartYoukaiEntity.java` | `PARTY(200)` + `board.addPartyTasks()` |
+| `content/entity/youkai/SmartYoukaiEntity.java` | `PARTY(400)` + `board.addPartyTasks()` |
 | `content/entity/characters/fairy/CirnoEntity.java` | `PartyModule` in its `createModules()` override |
 | `content/entity/characters/magician/AliceEntity.java` | same |
 | `content/entity/characters/fairy/PlainFairyEntity.java` | `broadcastEat()` as the override of the base no-op |

@@ -8,6 +8,7 @@ import dev.xkmc.gensokyolegacy.content.block.functional.alchemypot.recipe.WitchM
 import dev.xkmc.gensokyolegacy.content.block.functional.alchemypot.stage.PotionStageBuilder;
 import dev.xkmc.gensokyolegacy.content.item.hexbrew.HexBrew;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
+import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLBlocks;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLDecoBlocks;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLFurniture;
@@ -36,10 +37,35 @@ public class GLRecipeGen {
 		furniture(pvd);
 		wroughtIron(pvd);
 		hexbrew(pvd);
+		fairyFeed(pvd);
 
 		unlock(pvd, ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, GLBlocks.ALCHEMY_POT.get(), 1)::unlockedBy, Items.IRON_INGOT)
 				.pattern("I I").pattern("IFI").pattern("III")
 				.define('I', Items.IRON_INGOT).define('F', GLNaturalBlocks.STAR_FLOWER).save(pvd);
+	}
+
+	/**
+	 * The two ends of the fairy-dust loop, which is closed on purpose: a fairy hands
+	 * dust back for cake, and cake plus dust makes fairy cake, which is itself worth
+	 * feeding her. The twenty-second cooldown in {@code FairyFeedModule} is what
+	 * decides how fast that pays out.
+	 */
+	private static void fairyFeed(RegistrateRecipeProvider pvd) {
+		// one cake stirred with one dust comes out as seven: the dust is the whole
+		// reason a cake is worth feeding over a cookie, and seven is the ratio that
+		// makes feeding her worth the trip rather than a rounding error
+		unlock(pvd, ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, GLItems.FAIRY_CAKE.get(), 7)::unlockedBy,
+						GLItems.FAIRY_DUST.get())
+				.requires(Items.CAKE)
+				.requires(GLItems.FAIRY_DUST.get())
+				.save(pvd, GensokyoLegacy.loc("fairy_cake_from_cake_and_dust"));
+
+		// one crystal crushed down, the other way into the loop. Four, because it is the
+		// only source not gated on standing in front of a fairy
+		unlock(pvd, ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, GLItems.FAIRY_DUST.get(), 4)::unlockedBy,
+						GLItems.FAIRY_ICE_CRYSTAL.get())
+				.requires(GLItems.FAIRY_ICE_CRYSTAL.get())
+				.save(pvd, GensokyoLegacy.loc("fairy_dust_from_fairy_ice_crystal"));
 	}
 
 	public static void hexbrew(RegistrateRecipeProvider pvd) {

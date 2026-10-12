@@ -1,7 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.entity.characters.fairy;
 
-import com.google.common.collect.ImmutableMap;
-import dev.xkmc.gensokyolegacy.content.entity.module.FairyCakeModule;
+import dev.xkmc.gensokyolegacy.content.entity.module.FairyFeedModule;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiAnim;
 import dev.xkmc.gensokyolegacy.init.registrate.GLBrains;
 import dev.xkmc.gensokyolegacy.util.BrainUtils;
@@ -14,39 +13,45 @@ import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import java.util.Map;
 
 /**
- * Two beats of eating, in the order they have to happen in: she chews the cake
- * first, and only once she has actually had some of it does she reach over and
- * throw something back. Doing the gift inline at feed time would hand it over
- * while she is still mid-chew, which reads as two unrelated things happening at
- * once rather than one gesture.
+ * Two beats of eating, in the order they have to happen in: she chews first,
+ * and only once she has actually had some of it does she reach over and hand
+ * something back. Doing the gift inline at feed time would hand it over while
+ * she is still mid-chew, which reads as two unrelated things happening at once
+ * rather than one gesture.
  * <p>
- * {@code CakeFeedModule} leaves the player in {@link GLBrains#MEM_FEED} rather
- * than throwing itself, and that memory is the whole handoff. It is registered on
- * its own {@link GLBrains#FEAST} activity rather than on CORE, because eating is
- * the one thing she stops for: an activity is an exclusive set of behaviors, so
+ * {@code FairyFeedModule} leaves the feeding - player and the gift it earned -
+ * in {@link GLBrains#MEM_FEED} rather than handing anything over itself, and
+ * that memory is the whole handoff. It is registered on its own
+ * {@link GLBrains#FEAST} activity rather than on CORE, because eating is the
+ * one thing she stops for: an activity is an exclusive set of behaviors, so
  * this is what actually keeps the stroll and stay-tasks from queueing a walk
- * target underneath her while she has a cake in both hands.
+ * target underneath her while she has something in both hands.
+ * <p>
+ * What she hands back is not decided here: the module rolled it when she took
+ * the food, so this only has to carry it to her hand. A cookie bought a flower,
+ * a cake bought fairy dust, and either way the stack to throw is already in the
+ * memory.
  */
-public class FairyCakeTask extends Behavior<PlainFairyEntity> {
+public class FairyFeedTask extends Behavior<PlainFairyEntity> {
 
 	/**
-	 * How long she chews before reaching for the flower. Matched to the length of
+	 * How long she chews before reaching for the gift. Matched to the length of
 	 * the {@code 吃} clip, which is played and held, so she is mid-chew for the
 	 * whole of it and holds the last pose if anything runs long.
 	 */
 	private static final int EAT_TICKS = 45;
 	/**
-	 * The {@code 使用主手物品} clip runs 0.31s. The flower leaves her hand halfway
-	 * through it rather than at the start, so the gift arrives on the arm's way out
+	 * The {@code 使用主手物品} clip runs 0.31s. The gift leaves her hand halfway
+	 * through it rather than at the start, so it arrives on the arm's way out
 	 * instead of teleporting out of a gesture that has not begun - three ticks in is
 	 * where the hand has actually come up.
 	 */
 	private static final int USE_MAINHAND_TICKS = 6;
 	private static final int REACH_AHEAD_TICKS = USE_MAINHAND_TICKS / 2;
 
-	public FairyCakeTask() {
+	public FairyFeedTask() {
 		// runs past the throw: the behavior would otherwise time out mid-gesture and
-		// the flower would never leave her hand at all
+		// the gift would never leave her hand at all
 		super(Map.of(GLBrains.MEM_FEED.get(), MemoryStatus.VALUE_PRESENT),
 				EAT_TICKS + USE_MAINHAND_TICKS, EAT_TICKS + USE_MAINHAND_TICKS);
 	}
@@ -61,17 +66,17 @@ public class FairyCakeTask extends Behavior<PlainFairyEntity> {
 		reached = false;
 		thrown = false;
 		entity.broadcastEat();
-		var player = BrainUtils.getMemory(entity, GLBrains.MEM_FEED.get());
-		if (player == null) return;
+		var fed = BrainUtils.getMemory(entity, GLBrains.MEM_FEED.get());
+		if (fed == null) return;
 		// stop where she is. Clearing the target matters as much as stopping the
 		// navigation: anything still holding a walk target would re-issue it on the
-		// very next move task and walk off with the cake.
+		// very next move task and walk off with the food.
 		BrainUtils.clearMemory(entity, MemoryModuleType.WALK_TARGET);
 		entity.getNavigation().stop();
 		entity.navCtrl.stopMoving();
 		// she eats facing you. LookAtTargetSink is a CORE behavior, so it is already
 		// running in this activity and only needs somewhere to point.
-		BrainUtils.setMemory(entity, MemoryModuleType.LOOK_TARGET, new EntityTracker(player, true));
+		BrainUtils.setMemory(entity, MemoryModuleType.LOOK_TARGET, new EntityTracker(fed.player(), true));
 	}
 
 	/**
@@ -103,7 +108,7 @@ public class FairyCakeTask extends Behavior<PlainFairyEntity> {
 		}
 		if (reached && !thrown && age >= EAT_TICKS + REACH_AHEAD_TICKS) {
 			thrown = true;
-			throwFlower(entity);
+			throwGift(entity);
 		}
 	}
 
@@ -120,23 +125,24 @@ public class FairyCakeTask extends Behavior<PlainFairyEntity> {
 	}
 
 	/**
-	 * Still their enemy: the cake was food, not a peace offering, so no flower. Asked
-	 * here rather than carried over the wire, since a player can drop back below the
-	 * line while she is still chewing.
+	 * Still their enemy: what she was given was food, not a peace offering, so there
+	 * is no gift at all - the stack is simply never thrown. Asked here rather than
+	 * carried over the wire, since a player can drop back below the line while she
+	 * is still chewing.
 	 */
-	private static void throwFlower(PlainFairyEntity entity) {
-		var player = BrainUtils.getMemory(entity, GLBrains.MEM_FEED.get());
-		if (player == null) return;
-		entity.getData(player)
-				.filter(data -> FairyCakeModule.welcomed(data.data()))
-				.ifPresent(data -> entity.getModule(FairyCakeModule.class)
-						.ifPresent(cake -> cake.throwFlower(player)));
+	private static void throwGift(PlainFairyEntity entity) {
+		var fed = BrainUtils.getMemory(entity, GLBrains.MEM_FEED.get());
+		if (fed == null) return;
+		entity.getData(fed.player())
+				.filter(data -> FairyFeedModule.welcomed(data.data()))
+				.ifPresent(data -> entity.getModule(FairyFeedModule.class)
+						.ifPresent(feed -> feed.throwGift(fed.player(), fed.gift())));
 	}
 
 	/**
-	 * Cleared here rather than when the gift is paid, so that a second cake fed
+	 * Cleared here rather than when the gift is paid, so that a second dish fed
 	 * mid-chew is not swallowed by the run already in flight: this one ends, the
-	 * memory is still set by that second cake, and the behavior starts again for it.
+	 * memory is still set by that second dish, and the behavior starts again for it.
 	 */
 	@Override
 	protected void stop(ServerLevel level, PlainFairyEntity entity, long gameTime) {

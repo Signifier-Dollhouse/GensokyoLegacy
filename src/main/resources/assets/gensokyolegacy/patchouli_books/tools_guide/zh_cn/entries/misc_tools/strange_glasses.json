@@ -2,6 +2,7 @@
   "name": "奇怪的眼镜",
   "icon": "gensokyolegacy:strange_glasses",
   "category": "gensokyolegacy:misc_tools",
+  "advancement": "gensokyolegacy:main/obtain_strange_glasses",
   "sortnum": 5,
   "pages": [
     {

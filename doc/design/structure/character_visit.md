@@ -204,17 +204,26 @@ and killed like anyone else.
 ## 5. Brain
 
 ```java
-board.addPrioritizedActivity(GLBrains.VISITING.get(), GLBrains.MEM_VISIT.get(), 150);
+board.addPrioritizedActivity(GLBrains.VISITING.get(), GLBrains.MEM_VISIT.get(), 600);
 ```
 
-Priority 150 is load-bearing. `TaskBoard.buildBrain` walks
+Priority 600 is load-bearing. `TaskBoard.buildBrain` walks
 `[CORE] + priorities + scheduled` and injects each prioritized activity's memory
-as `VALUE_ABSENT` into every **later** entry. With `FIGHT(0) < TALK(100) <
-VISITING(150)`:
+as `VALUE_ABSENT` into every **later** entry. With `FIGHT(0) < TALK(300) <
+PARTY(400) < NAP(500) < VISITING(600) < scheduled`:
 
-* `TALK` is walked *before* `VISITING`, so its requirements never mention
-  `MEM_VISIT` — **a visitor can still talk and trade**;
-* `VISITING` requires `MEM_TALK` absent, so it never fights the talk task;
+* `TALK` and `PARTY` are walked *before* `VISITING`, so their requirements never
+  mention `MEM_VISIT` — **a visitor can still talk and trade**, and a guest who
+  has been drawn into a party stays in the party;
+* `VISITING` requires `MEM_TALK` and `MEM_PARTY` absent, so it never fights the
+  talk or party tasks;
+* `VISITING` outranks `HUNT(700)`, so a visitor does not go hunting in the
+  host's house — the same answer the prey sensors' `PLAY || HUNT` filter gives,
+  enforced in the ladder rather than left to the sensor;
+* `VISITING` sits below `NAP(500)`, so a nap already in progress holds the visit
+  off until it runs out. A nap is only ever offered while she is on her own
+  schedule, so the overlap is at most one nap's worth of seconds at the start of
+  a visit;
 * every scheduled activity requires `MEM_VISIT` absent — **a visitor can never
   sleep or go home**.
 
@@ -243,7 +252,7 @@ discards itself early and no change is needed there.
 | `content/rpg/core/DialogConfig.java` | `visitGreeting` component |
 | `content/entity/youkai/YoukaiFlags.java` | append `VISITING` |
 | `content/entity/youkai/YoukaiEntity.java` | `createModules()` += `VisitModule`, `isVisiting()` |
-| `content/entity/youkai/SmartYoukaiEntity.java` | board: `VISITING(150)` + behaviours |
+| `content/entity/youkai/SmartYoukaiEntity.java` | board: `VISITING(600)` + behaviours |
 | `content/entity/module/TalkModule.java` | `hold(400)` in `beginTalking` |
 | `init/registrate/GLBrains.java` | `MEM_VISIT`, `VISITING` |
 | `init/data/GLModConfig.java` | `visitStayMultiplier` |

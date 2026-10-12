@@ -14,7 +14,7 @@ Status as of the promotion (2026-10-12), re-checked against `main`:
 | 2.1 Bed-bound ownership | proposal unchanged; the one-shot bind became a retry-while-unlinked bind (see `structure_bed_entity.md` §3.3) |
 | 2.2 dual persistence | unchanged, plus `StructureRefData.structureTick` now doubles as the visit heartbeat |
 | 2.3 reputation magic numbers | **largely done** — `ReputationConstants` + `GLModConfig.SERVER.reputationDecayFloor`, documented in [reputation.md](../design/structure/reputation.md). What remains is per-entity override. |
-| 2.4 `TaskBoard` priority vs schedule | done — the priority scale is now spelled out in `youkai_character.md` §3.3, with `VISITING 150` / `PARTY 200` added between TALK and the scheduled activities |
+| 2.4 `TaskBoard` priority vs schedule | done — the priority scale is now spelled out as a block above the activity constants in `GLBrains` (and in `youkai_character.md` §3.3), 100 apart, with `PARTY 400` / `NAP 500` / `VISITING 600` / `HUNT 700` between TALK and the scheduled activities |
 | 3.1 `find` force-loading chunks | **fixed** — `IHomeHolder.find` returns early on `!sl.isLoaded(pos)` |
 | 3.2 verifier tags vs `isOutside` | unchanged |
 | 3.3 dawn map scan | unchanged |
@@ -80,10 +80,10 @@ When `StructureConfig` DataMap has no entry for a discovered `Structure`, a dumm
 
 ### 2.4 `TaskBoard` priority vs schedule interaction is subtle
 
-`addPrioritizedActivity` injects `VALUE_ABSENT` requirements for all *higher* priority memories into *lower* activities, enforcing exclusiveness via brain predicate. The `TALK` prioritized activity (`MEM_TALK,100`) plus `FIGHT` auto-injected at `build()` (`ATTACK_TARGET,0`) produce `FIGHT > TALK > …` but schedule still proposes `REST/AT_HOME` at night regardless of `MEM_TALK`. Readers expect `TALK` to interrupt `REST`.
+`addPrioritizedActivity` injects `VALUE_ABSENT` requirements for all *higher* priority memories into *lower* activities, enforcing exclusiveness via brain predicate. The `TALK` prioritized activity (`MEM_TALK,300`) plus `FIGHT` auto-injected at `build()` (`ATTACK_TARGET,0`) produce `FIGHT > TALK > …` but schedule still proposes `REST/AT_HOME` at night regardless of `MEM_TALK`. Readers expect `TALK` to interrupt `REST`.
 
 **Proposal:**
-- Document numerically in `youkai_character.md` diagram (already done) and add an inline comment in `TaskBoard.buildBrain` enumerating resulting `Activity` order for current boards.
+- Document numerically in `youkai_character.md` diagram (already done, and now as a block in `GLBrains` above the activity constants so the numbers are visible where they are written) and add an inline comment in `TaskBoard.buildBrain` enumerating resulting `Activity` order for current boards.
 - Add a debug overlay line for `getActivity()` vs `getBrain().getActiveNonCoreActivity()` to catch drift.
 
 ## 3. Performance & Robustness

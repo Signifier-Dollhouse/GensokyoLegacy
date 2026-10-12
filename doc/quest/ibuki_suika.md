@@ -70,10 +70,15 @@ back to the generic three-rung `DEFAULT` table until she has one of her own.
 - **No spell card**, unlike every other boss-tier character here. She is melee
   only and reaches through `BossYoukaiEntity`'s 200 HP and 10 damage instead.
 - **No dialog animations.** Her rig ships no `交流_*`, greeting or thinking
-  clips at all, so every `YoukaiAnim` slot but `USE_MAINHAND` and
-  `OUTDOOR_IDLE` resolves empty and her dialog plays without a body animation.
-  `SuikaEntity` also registers no blink controller, for the same reason. This
-  one is a rig limitation rather than a content choice, and it stands even once
-  chats are written.
+  clips at all, so every `YoukaiAnim` slot but `USE_MAINHAND` resolves empty and
+  her dialog plays without a body animation. `SuikaEntity` also registers no
+  blink controller, for the same reason. This one is a rig limitation rather than
+  a content choice, and it stands even once chats are written.
+- **No `OUTDOOR_IDLE` either.** She is the one character whose `侧卧` clip is not
+  spent as an idle flourish: `YoukaiAnim.OUTDOOR_IDLE` resolves empty for her and
+  she lies down through the `NAP` activity instead — rolled from `napChance`,
+  five to twenty seconds long, and cut short by anything above it on the priority
+  scale, a conversation included. She can still be talked to while she is down.
+  See `youkai_character.md` §3.3.
 - **One house only.** If a second host is ever added, both this page and the
   `visitingAt` gates have to grow with it.

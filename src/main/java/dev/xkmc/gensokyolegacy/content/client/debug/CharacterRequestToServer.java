@@ -2,7 +2,7 @@ package dev.xkmc.gensokyolegacy.content.client.debug;
 
 import dev.xkmc.gensokyolegacy.content.attachment.index.BedRefData;
 import dev.xkmc.gensokyolegacy.content.attachment.index.StructureKey;
-import dev.xkmc.gensokyolegacy.content.entity.module.FairyCakeModule;
+import dev.xkmc.gensokyolegacy.content.entity.module.FairyFeedModule;
 import dev.xkmc.gensokyolegacy.content.entity.module.FeedModule;
 import dev.xkmc.gensokyolegacy.content.entity.module.GiftModule;
 import dev.xkmc.gensokyolegacy.content.entity.module.PartyModule;
@@ -25,10 +25,10 @@ public record CharacterRequestToServer(UUID id) implements SerialPacketBase<Char
 		var bed = home.map(k -> BedRefData.of(sp.serverLevel(), k, e.getType()))
 				.map(BedRefData::getBedPos);
 		// a character carries at most one feed module, but which kind varies:
-		// the plain fairy's is cake-only and flat-rate
+		// the plain fairy's is a fixed menu and flat-rate
 		int feedCD = Math.max(
 				e.getModule(FeedModule.class).map(FeedModule::getCoolDown).orElse(0),
-				e.getModule(FairyCakeModule.class).map(FairyCakeModule::getCoolDown).orElse(0));
+				e.getModule(FairyFeedModule.class).map(FairyFeedModule::getCoolDown).orElse(0));
 		int giftCD = e.getModule(GiftModule.class).map(GiftModule::getCoolDown).orElse(0);
 		String activity = e instanceof SmartYoukaiEntity smart ? smart.getBrainDebugInfo() : "";
 		// a party guest's tallies are server state and reach the client with everything

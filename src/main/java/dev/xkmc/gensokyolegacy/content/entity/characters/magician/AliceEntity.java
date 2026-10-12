@@ -103,7 +103,10 @@ public class AliceEntity extends GeneralYoukaiEntity implements GeoYoukaiAnim, D
 		// hunt drops the moment it starts
 		board.addSensor(new YoukaiFindPreySensor<>(e -> e.getActivity() == Activity.PLAY
 				|| e.getActivity() == GLBrains.HUNT.get()));
-		board.addPrioritizedActivity(GLBrains.HUNT.get(), GLBrains.MEM_PREY.get(), 200);
+		// 700: the lowest rung on GLBrains' priority scale. Below VISITING(600), so she
+		// does not go hunting in someone else's house - the prey sensor is filtered
+		// to PLAY and HUNT for the same reason, and this is where it is enforced.
+		board.addPrioritizedActivity(GLBrains.HUNT.get(), GLBrains.MEM_PREY.get(), 700);
 	}
 
 	/**
