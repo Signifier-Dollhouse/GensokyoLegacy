@@ -27,7 +27,9 @@ public class YoukaiNodeEvaluatorRegistry {
 
 	private static final Map<Block, YoukaiPathTypeHandler> BLOCK_HANDLERS = new LinkedHashMap<>();
 	private static final Map<TagKey<Block>, YoukaiPathTypeHandler> TAG_HANDLERS = new LinkedHashMap<>();
-	/** Consulted for every block, in order. For rules that are not a property of one block. */
+	/**
+	 * Consulted for every block, in order. For rules that are not a property of one block.
+	 */
 	private static final List<YoukaiPathTypeHandler> GLOBAL_HANDLERS = new ArrayList<>();
 
 	public static void init() {
@@ -55,7 +57,9 @@ public class YoukaiNodeEvaluatorRegistry {
 		TAG_HANDLERS.put(tag, handler);
 	}
 
-	/** Register a rule consulted for every block, after the block and tag rules. */
+	/**
+	 * Register a rule consulted for every block, after the block and tag rules.
+	 */
 	public static void registerGlobal(YoukaiPathTypeHandler handler) {
 		GLOBAL_HANDLERS.add(handler);
 	}
@@ -77,21 +81,23 @@ public class YoukaiNodeEvaluatorRegistry {
 	 *
 	 * @see doc/design/party/guest.md
 	 */
-	private static PathType partyFurniture(PathType ans, PathfindingContext context, BlockPos pos,
+	public static PathType partyFurniture(
+			PathType ans, PathfindingContext context, BlockPos pos,
 			BlockState state, @Nullable Mob mob) {
 		if (ans == PathType.BLOCKED) return ans;
 		// the party flag lives on the entity rather than synced data, so anything else is
 		// somebody else's problem
 		if (!(mob instanceof YoukaiEntity youkai) || !youkai.getFlag(YoukaiFlags.PARTYING)) return ans;
+		if (youkai.blockPosition().getY() == pos.getY()) return ans;
 		// a chair is furniture to stand beside, never a floor to walk over
-		if (state.is(GLTagGen.PARTY_SEAT)) return PathType.BLOCKED;
-		if (state.is(GLTagGen.PARTY_TABLE) || context.level().getBlockState(pos.below()).is(GLTagGen.PARTY_TABLE)) {
-			return PathType.BLOCKED;
-		}
+		if (state.is(GLTagGen.PARTY_SEAT) || state.is(GLTagGen.PARTY_TABLE)) return PathType.BLOCKED;
+		if (context.level().getBlockState(pos.below()).is(GLTagGen.PARTY_TABLE))
+			return PathType.DANGER_OTHER;
 		// the block below is the one she would be standing on food with
-		return PartyFoodValue.isFood(context.level(), pos, state)
-				|| PartyFoodValue.isFood(context.level(), pos.below(), context.level().getBlockState(pos.below()))
-				? PathType.BLOCKED : ans;
+		if (PartyFoodValue.isFood(context.level(), pos, state)) return PathType.BLOCKED;
+		if (PartyFoodValue.isFood(context.level(), pos.below(), context.level().getBlockState(pos.below())))
+			return PathType.DANGER_OTHER;
+		return ans;
 	}
 
 	static PathType apply(PathType ans, PathfindingContext context, BlockPos pos, @Nullable Mob mob) {

@@ -90,46 +90,51 @@ public static boolean give(ServerLevel level, YoukaiEntity guest, PartyModule pa
 }
 ```
 
-The generosity comes from **the appeal she personally consumed**, and it comes from *the data* rather than from arithmetic in `PartyGift`. Every table is **one pool of one roll**, and what an under-served guest is short of is not count — **a gift is always exactly one item** — but *reach*: entries are excluded from the weighted draw entirely until she has been served enough appeal, gated by the new `gensokyolegacy:appeal_consumed` loot condition, which reads `PartyModule.appealEaten` off `THIS_ENTITY`. Anything else in that slot — no entity, or a guest with no `PartyModule` — reads as **zero appeal rather than throwing**, so a table whose whole pool is gated degrades into a table that gives nothing instead of a crash inside somebody's party.
+The generosity comes from **the appeal she personally consumed**, and it comes from *the data* rather than from arithmetic in `PartyGift`. Every table is a **ladder of pools, one per generosity rung**, each one roll, and what an under-served guest is short of is not count — **a gift is always exactly one item** — but *reach*. The ladder is picked by the new `gensokyolegacy:appeal_consumed` loot condition, which reads `PartyModule.appealEaten` off `THIS_ENTITY`. Anything else in that slot — no entity, or a guest with no `PartyModule` — reads as **zero appeal rather than throwing**, so a table whose whole ladder is gated degrades into a table that gives nothing instead of a crash inside somebody's party.
+
+The condition carries `min` and `max`, so it is a **band** rather than a floor, and it reads them as
 
 ```java
-{"type": "minecraft:item", "name": "gensokyolegacy:ghost_sake", "weight": 20}
-{"type": "minecraft:item", "name": "gensokyolegacy:magic_book", "weight": 15,
- "conditions": [{"condition": "gensokyolegacy:appeal_consumed", "min": 40}]}
+appeal >= min && (max <= 0 || appeal < max)      // max is EXCLUSIVE; max <= 0 means "no ceiling"
 ```
 
-| step | opens at | what it adds |
+**`max` is exclusive, and `max <= 0` is the open-ended sentinel.** Bands are written to tile the appeal range with no gap and no overlap — `[0, 50)`, `[50, 100)`, `[100, 200)`, `[200, ∞)` — so exactly one pool ever answers a roll, whatever the host put out.
+
+```json
+{"rolls": 1.0, "conditions": [{"condition": "gensokyolegacy:appeal_consumed", "min": 100, "max": 200}],
+ "entries": [{"type": "minecraft:item", "name": "gensokyolegacy:iron_dagger", "weight": 10}]}
+```
+
+Four things follow from gating at the *pool*:
+
+- **One item, whatever the table says.** Exactly one band matches, so exactly one pool runs its single roll. `PartyGift` still keeps only `stacks.getFirst()`, so a datapack that ungates two of the pools buries one of them — the mistake stays in the data.
+- **A band is exclusive, not a floor.** She does not keep everything the lower rungs would have given her; the ladder moves *up* to what she actually wants rather than widening into everything the host could afford. A lavish banquet narrows the draw to the good gifts, which is both what "generous" reads as to the player and cheaper to compute.
+- **The gate is one test per pool, not one per entry.** With the floor shape every entry in the table re-tested its condition on every roll, to decide which ones dropped out; now a pool that fails costs one test and is never expanded.
+- **Rungs are set per character, not on a global step size.** There is no `TIERS × APPEAL_PER_TIER` arithmetic any more: a rung is written `tier(min, max, …)` and means whatever the author put there. A guest's own `appealEaten` is a handful of dishes at `nutrition × 0.5 + saturation × 2 + 4` per beneficial effect (food.md §1), so it runs to tens, not units — and how many rungs of that she needs is a statement about how much she eats and how steeply her tastes run out, which one constant cannot carry. `APPEAL_PER_TIER` and `TIERS` survive in `GiftLootGen` as the numbers the bands were first derived from; nothing reads them.
+
+### The ladders
+
+| character | rungs (appeal) | her own stock, and where it sits |
 |---|---|---|
-| 1 | 20 appeal | one more common gift |
-| 2 | 40 appeal | the better gifts |
-| 3 | 60 appeal | (spare) |
-| 4 | 80 appeal | **her own pool** |
+| Reimu | 0–50, 50–100, 100–200, 200+ | five of the six talismans over the top two rungs, from `#gensokyolegacy:talisman`, the tag her shop trades from. The folded paper one stays — it is the cheapest of the six and she has no use for it |
+| Marisa | 0–50, 50–100, 100–200, 200+ | six of the nine hexbrew bottles, split over the top two. The two she keeps are `WITCH_HEXBREW` and `WITCH_SPLASH` — those are her staff, and she is not handing it over |
+| Cirno | 0–20, 20–40, 40+ | the three frozen frogs already on the middle rung, the fairy ice crystal on the top. The shortest ladder in the game: she eats least, so she climbs it fastest |
+| Sakuya | 0–50, 50–100, 100–400, 400+ | the iron dagger, then the dagger glove. The wide rung is 300 of appeal because it holds a single item, and a band as narrow as the ones below it would be walked past in one sitting |
+| Alice | 0–50, 50–100, 100–400, 400+ | the doll lance, then a doll — she gives up a doll, not the star wand |
+| Morichika | 0–50, 50–100, 100–200, 200+ | his stock, split by what it is: the curios (`strange_glasses`, `cat_bell`, `mermaid_pearl`, `straw_hat`) then the tools (`mini_hakkero_prototype`, `centipickaxe`, `dowser`). He has no belongings of his own, only stock |
+| *default* | 0–50, 50–100, 100–150 | *(none)* — an unlisted character has nothing that is hers, so her ladder is three generic rungs and stops there |
 
-Three things follow from gating at the *entry* rather than the pool, which is only possible because the count stopped varying:
+**Her own stock.** Each character parts with something that is actually hers, or at least what only she has. It is a *selection within* the top rungs rather than a block of its own, and the table above doubles as the record of what was deliberately left out — Marisa's staff, Alice's star wand, Reimu's folded paper talisman.
 
-- **One item, whatever the table says.** A conditioned entry never enters the weighted draw (`LootPool.addRandomItem` drops everything whose `expand` fails), so gating is subtraction from the pool rather than a second roll. The earlier ladder-of-disjoint-pools shape existed only because a loot function cannot be conditional; with the count pinned there is nothing left that needs one. `PartyGift` still keeps only `stacks.getFirst()`, so a datapack that rewrites a table into two pools buries nothing — the mistake stays in the data.
-- **A band is a floor, not a replacement.** She keeps everything the lower steps gave her and the new step joins it, so generosity reads as the pool widening rather than as one thing swapping for another.
-- **`APPEAL_PER_TIER` is 20, not 8.** A guest's own `appealEaten` is a handful of dishes at `nutrition × 0.5 + saturation × 2 + 4` per beneficial effect (food.md §1), so it runs to tens, not units; at 8 a step the top of the ladder sat at 32 and the last step was barely reachable.
+Two consequences of that shape are worth stating. Her own items **are** the top one or two rungs and the generic spread sits beneath them, so the top of a well-fed character's ladder is entirely her own rather than her own diluted against bottles of sake. And where one item spans two rungs it is **halved on the upper one** (Reimu's lava talisman, Cirno's frogs, 10 → 5), which is how the same object reads as "she is willing" and then as "she really is" without the ladder needing another rung for it.
 
-**Her own pool.** On top of the generic gifts, each character may part with something that is actually hers — or at least what only she has:
+The own-stock entries are at 10 throughout, against 10..40 for the generic items. But a rung holds **either** own stock **or** generic and never both, so a weight has nothing to be more or less frequent than — "the band already decided she may, this only decides how often" no longer means anything. Where a rung mixes two generics it still tilts the draw (Reimu's teddy bear at 40 against two sakes at 20); where it holds only her own, every weight is equal and the draw is flat.
 
-| | own pool | |
-|---|---|---|
-| Reimu | the six talismans | `#gensokyolegacy:talisman`, the tag her shop trades from |
-| Marisa | all nine hexbrew bottles | `HexBrew.values()`, which is already the whole of her stock |
-| Cirno | fairy ice and the three frozen frogs | what she crafts, `CirnoEntity.doCraft` |
-| Sakuya | the iron dagger | her only trade (`SakuyaQDGen:44`), and her signature weapon |
-| Alice | the doll lance and the star wand | the two weapons `AliceDollHost:465` hands her dolls, by slot parity |
-| Morichika | anything on his shelf | `#gensokyolegacy:morichika_offers` — he has no belongings of his own, only stock |
-| *default* | *(none)* | an unlisted character falls back to generic gifts only |
-
-Each of those opens at the **last** step, because it is the one gift that costs her something, and each is worth `OWN_WEIGHT` (8) against the generic gifts' 10..20: the step already decided she may, the weight only decides how often.
-
-The pools are written out rather than read from their tags. A loot entry can only name one item, so a tag has to be expanded at datagen either way — and the datagen holder lookup hands back tags that are still being constructed (`HolderSet.emptyNamed`, whose `contents()` throws). The table is what ships, so the list is what has to be right; each pool's javadoc names the tag it mirrors.
+The pools are written out rather than read from their tags. A loot entry can only name one item, so a tag has to be expanded at datagen either way — and the datagen holder lookup hands back tags that are still being constructed (`HolderSet.emptyNamed`, whose `contents()` throws). The table is what ships, so the list is what has to be right.
 
 What all this is sized on is deliberately *not* whether she was satisfied. Those are two of the three food measurements (select.md §2.1) and they answer different questions: rare-effect delicacies fill her up no better than plain bread, and she is still more moved by them. An earlier version halved the gift for an under-served guest, which made a beautiful thin spread read as stingy rather than as modest; the host's generosity and the guest's appetite are not one axis.
 
-`GLMeta.GIFT_PREFERENCE` still exists and still weights categories per character, but only on the *incoming* path — `GiftModule` scoring a gift handed **to** her, and its tooltip. The outgoing gift no longer reads it; `GiftLootGen` copies Reimu's and Cirno's spreads at ×10 so a 1.5 survives into integer loot weights.
+`GLMeta.GIFT_PREFERENCE` still exists and still weights categories per character, but only on the *incoming* path — `GiftModule` scoring a gift handed **to** her, and its tooltip. The outgoing gift does not read it at all: what a character gives is written into her ladder by hand, so the same numbers that once came out of a data map are now baked into `GiftLootGen`. The two can drift apart, and nothing catches it.
 
 `Block.popResource` at the table is the in-tree idiom for putting an item down in the world (`MarisaTaskUtil.java:94`, `ShelfBlockEntity`). That matches "thrown on table for now" exactly, and because nothing is granted into an inventory there is nothing to unwind when the real gift item is designed.
 

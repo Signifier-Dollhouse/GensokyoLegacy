@@ -3,65 +3,76 @@
   "pools": [
     {
       "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "condition": "gensokyolegacy:appeal_consumed",
+          "max": 50
+        }
+      ],
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "gensokyolegacy:ghost_sake",
-          "weight": 14
-        },
+          "name": "gensokyolegacy:star_flower",
+          "weight": 20
+        }
+      ],
+      "rolls": 1.0
+    },
+    {
+      "bonus_rolls": 0.0,
+      "conditions": [
         {
-          "type": "minecraft:item",
-          "name": "gensokyolegacy:fairy_cake",
-          "weight": 12
-        },
+          "condition": "gensokyolegacy:appeal_consumed",
+          "max": 100,
+          "min": 50
+        }
+      ],
+      "entries": [
         {
           "type": "minecraft:item",
           "name": "gensokyolegacy:tengu_sake",
-          "weight": 12
+          "weight": 10
         },
         {
           "type": "minecraft:item",
-          "conditions": [
-            {
-              "condition": "gensokyolegacy:appeal_consumed",
-              "min": 20
-            }
-          ],
-          "name": "gensokyolegacy:sturdy_teddy_bear",
-          "weight": 12
-        },
+          "name": "gensokyolegacy:ghost_sake",
+          "weight": 10
+        }
+      ],
+      "rolls": 1.0
+    },
+    {
+      "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "condition": "gensokyolegacy:appeal_consumed",
+          "max": 400,
+          "min": 100
+        }
+      ],
+      "entries": [
         {
           "type": "minecraft:item",
-          "conditions": [
-            {
-              "condition": "gensokyolegacy:appeal_consumed",
-              "min": 40
-            }
-          ],
-          "name": "gensokyolegacy:star_flower",
-          "weight": 12
-        },
-        {
-          "type": "minecraft:item",
-          "conditions": [
-            {
-              "condition": "gensokyolegacy:appeal_consumed",
-              "min": 40
-            }
-          ],
-          "name": "gensokyolegacy:magic_book",
-          "weight": 14
-        },
-        {
-          "type": "minecraft:item",
-          "conditions": [
-            {
-              "condition": "gensokyolegacy:appeal_consumed",
-              "min": 80
-            }
-          ],
           "name": "gensokyolegacy:iron_dagger",
-          "weight": 8
+          "weight": 10
+        }
+      ],
+      "rolls": 1.0
+    },
+    {
+      "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "condition": "gensokyolegacy:appeal_consumed",
+          "max": 0,
+          "min": 400
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "gensokyolegacy:dagger_glove",
+          "weight": 10
         }
       ],
       "rolls": 1.0

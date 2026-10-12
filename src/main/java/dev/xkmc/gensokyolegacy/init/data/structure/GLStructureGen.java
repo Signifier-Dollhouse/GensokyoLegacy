@@ -74,7 +74,8 @@ public class GLStructureGen {
 							GLBlocks.Beds.REIMU.holder()
 					)),
 					visits(Map.of(
-							GLEntities.MARISA.get(), visit(0.20f, 2400, 3600))),
+							GLEntities.MARISA.get(), visit(0.20f, 2400, 3600),
+							GLEntities.IBUKI_SUIKA.get(), visit(0.30f, 2400, 6000))),
 					new StructFlatJigsawBuilding(6, List.of(
 							new StructFlatJigsawBuilding.Part("root", true, List.of()),
 							new StructFlatJigsawBuilding.Part("road", true, List.of()),

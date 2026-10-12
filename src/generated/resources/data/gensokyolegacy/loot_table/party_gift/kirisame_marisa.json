@@ -3,147 +3,106 @@
   "pools": [
     {
       "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "condition": "gensokyolegacy:appeal_consumed",
+          "max": 50
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "gensokyolegacy:star_flower",
+          "weight": 20
+        }
+      ],
+      "rolls": 1.0
+    },
+    {
+      "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "condition": "gensokyolegacy:appeal_consumed",
+          "max": 100,
+          "min": 50
+        }
+      ],
       "entries": [
         {
           "type": "minecraft:item",
           "name": "gensokyolegacy:tengu_sake",
-          "weight": 12
+          "weight": 10
         },
         {
           "type": "minecraft:item",
           "name": "gensokyolegacy:ghost_sake",
-          "weight": 12
+          "weight": 10
         },
         {
           "type": "minecraft:item",
-          "name": "gensokyolegacy:fairy_cake",
-          "weight": 12
-        },
-        {
-          "type": "minecraft:item",
-          "name": "gensokyolegacy:sturdy_teddy_bear",
-          "weight": 12
-        },
-        {
-          "type": "minecraft:item",
-          "conditions": [
-            {
-              "condition": "gensokyolegacy:appeal_consumed",
-              "min": 20
-            }
-          ],
-          "name": "gensokyolegacy:star_flower",
-          "weight": 12
-        },
-        {
-          "type": "minecraft:item",
-          "conditions": [
-            {
-              "condition": "gensokyolegacy:appeal_consumed",
-              "min": 40
-            }
-          ],
           "name": "gensokyolegacy:magic_book",
-          "weight": 14
-        },
+          "weight": 20
+        }
+      ],
+      "rolls": 1.0
+    },
+    {
+      "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "condition": "gensokyolegacy:appeal_consumed",
+          "max": 200,
+          "min": 100
+        }
+      ],
+      "entries": [
         {
           "type": "minecraft:item",
-          "conditions": [
-            {
-              "condition": "gensokyolegacy:appeal_consumed",
-              "min": 80
-            }
-          ],
-          "name": "gensokyolegacy:mundane_hexbrew_bottle",
-          "weight": 8
-        },
-        {
-          "type": "minecraft:item",
-          "conditions": [
-            {
-              "condition": "gensokyolegacy:appeal_consumed",
-              "min": 80
-            }
-          ],
-          "name": "gensokyolegacy:hexbrew_elixir_bottle",
-          "weight": 8
-        },
-        {
-          "type": "minecraft:item",
-          "conditions": [
-            {
-              "condition": "gensokyolegacy:appeal_consumed",
-              "min": 80
-            }
-          ],
           "name": "gensokyolegacy:explosive_hexbrew_bottle",
-          "weight": 8
+          "weight": 10
         },
         {
           "type": "minecraft:item",
-          "conditions": [
-            {
-              "condition": "gensokyolegacy:appeal_consumed",
-              "min": 80
-            }
-          ],
           "name": "gensokyolegacy:miasma_hexbrew_bottle",
-          "weight": 8
+          "weight": 10
         },
         {
           "type": "minecraft:item",
-          "conditions": [
-            {
-              "condition": "gensokyolegacy:appeal_consumed",
-              "min": 80
-            }
-          ],
-          "name": "gensokyolegacy:shield_hexbrew_bottle",
-          "weight": 8
+          "name": "gensokyolegacy:mundane_hexbrew_bottle",
+          "weight": 10
         },
         {
           "type": "minecraft:item",
-          "conditions": [
-            {
-              "condition": "gensokyolegacy:appeal_consumed",
-              "min": 80
-            }
-          ],
-          "name": "gensokyolegacy:starlight_hexbrew_bottle",
-          "weight": 8
-        },
-        {
-          "type": "minecraft:item",
-          "conditions": [
-            {
-              "condition": "gensokyolegacy:appeal_consumed",
-              "min": 80
-            }
-          ],
           "name": "gensokyolegacy:hyphae_hexbrew_bottle",
-          "weight": 8
+          "weight": 10
+        }
+      ],
+      "rolls": 1.0
+    },
+    {
+      "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "condition": "gensokyolegacy:appeal_consumed",
+          "max": 0,
+          "min": 200
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "gensokyolegacy:hexbrew_elixir_bottle",
+          "weight": 10
         },
         {
           "type": "minecraft:item",
-          "conditions": [
-            {
-              "condition": "gensokyolegacy:appeal_consumed",
-              "min": 80
-            }
-          ],
-          "name": "gensokyolegacy:witch_hexbrew_bottle",
-          "weight": 8
+          "name": "gensokyolegacy:starlight_hexbrew_bottle",
+          "weight": 10
         },
         {
           "type": "minecraft:item",
-          "conditions": [
-            {
-              "condition": "gensokyolegacy:appeal_consumed",
-              "min": 80
-            }
-          ],
-          "name": "gensokyolegacy:witch_splash_bottle",
-          "weight": 8
+          "name": "gensokyolegacy:shield_hexbrew_bottle",
+          "weight": 10
         }
       ],
       "rolls": 1.0

@@ -2,6 +2,8 @@
 
 This document reflects the current implementation in `content/block/deco/bed/`, `content/block/base/`, `content/attachment/index/`, `content/attachment/home/datamap/`, `init/data/structure/`, and `content/entity/module/HomeModule`.
 
+Related: [home_index.md](home_index.md), [youkai_character.md](youkai_character.md).
+
 ## 1. Components
 
 | Class | File | Role |
@@ -9,24 +11,25 @@ This document reflects the current implementation in `content/block/deco/bed/`, 
 | `YoukaiBedBlock` | `content/block/deco/bed/YoukaiBedBlock.java` | `DelegateEntityBlockImpl` flat 2/16 double-bed (HEAD/FOOT via `YoukaiBedMethods`). Tag `beds`, `isBed=true`, bounce 0.66. Destroying either half auto-removes the other (updateShape → `AIR` + creative `playerWillDestroy`). |
 | `YoukaiBedMethods` | `content/block/deco/bed/YoukaiBedMethods.java` | `record` with `updateShape` (neighbour mismatch → `AIR`, so paired half vanishes) / `setPlacedBy` / `getStateForPlacement` for horizontal double-bed (`BedPart`). |
 | `FlatBedShape` | `content/block/deco/bed/FlatBedShape.java` | `VoxelShape 0,0,0-16,2,16` + datagen `bed_head/foot` models. |
-| `LocatedBlockEntity` | `content/block/base/LocatedBlockEntity.java:16` | `@SerialClass BaseBlockEntity` + `Tickable`. `@SerialField StructureKey key`, `located` flag. One-shot `tick()` → `IHomeHolder.find` + `BedData` + `supportEntity` → `key`. Structures and this BE are immovable, so the one-shot binding never needs re-resolution. |
+| `LocatedBlockEntity` | `content/block/base/LocatedBlockEntity.java:16` | `@SerialClass BaseBlockEntity` + `Tickable`. `@SerialField StructureKey key`, `located` flag. `tick()` binds `key` via `IHomeHolder.find` + `BedData` + `supportEntity`, and **retries every 100 ticks while `key` is still null** — template-placed beds ship baked `located=1, key=null` BE data, so a strictly one-shot bind would leave them unlinked forever. The key is still never rewritten once set: structures and this BE are immovable. |
 | `YoukaiBedBlockEntity` | `content/block/deco/bed/YoukaiBedBlockEntity.java:25` | `@SerialClass` extends `LocatedBlockEntity`. Server `tick()` (HEAD only) → `IndexStorage.blockTick` + `IHomeHolder.tick`. Debug `onDebugClick`/`getDebugPacket`. |
 | `BedData` | `content/attachment/home/datamap/BedData.java` | Datamap `Block → EntityType`. `record(EntityType<?> type)`, `of(Block)` via `GLMeta.BED_DATA`. |
 | `CharacterConfig` | `content/attachment/character/CharacterConfig.java` | Datamap `EntityType → CharacterConfig(structure RL, discardTime, respawnTime, wanderRadius, noPlayerVanishTime)`. `of(EntityType)`, `create(type,sl,bedPos,key)` spawns youkai. |
-| `StructureConfig` | `content/attachment/home/datamap/StructureConfig.java` | Datamap `Structure → StructureConfig(entities, room/house shrink, outside/primary/wouldFix tags)`. |
+| `StructureConfig` | `content/attachment/home/datamap/StructureConfig.java` | Datamap `Structure → StructureConfig(entities, visitors, rooms, interior, house, outside/primary/wouldFix tags)`. |
 | `StructureKey` | `content/attachment/index/StructureKey.java:16` | `record(structure RL, dim RL, pos BlockPos)`. `CUSTOM="gensokyolegacy:custom_structure"` constant. `support(config)` / `isCustom()` / `of(YoukaiEntity)` via `HomeModule`. |
-| `IndexStorage` | `content/attachment/index/IndexStorage.java` | `@SerialClass extends BaseSavedData` (`gensokyolegacy_reference_index` in overworld `DataStorage`). `LinkedHashMap<StructureKey, StructureRefData>`. `get(sl)` + `getOrCreate(key)`. |
-| `StructureRefData` | `content/attachment/index/StructureRefData.java` | Per-structure multi-entity map `Map<EntityType, BedRefData>`. `blockTick()` once/tick delegates to typed `BedRefData`. |
-| `BedRefData` | `content/attachment/index/BedRefData.java:24` | `@SerialClass` per-entity-type state: `UUID entityId`, `BlockPos bedPos`, `lastEntityTickedTime`, `lostEntityTick`. `blockTick`/`entityTick`/`onEntityDie`/`onDebugClick`. |
+| `IndexStorage` | `content/attachment/index/IndexStorage.java` | `@SerialClass extends BaseSavedData` (`gensokyolegacy_reference_index` in overworld `DataStorage`). `LinkedHashMap<StructureKey, StructureRefData>`. `get(sl)` + `getOrCreate(key)→StructureRef` + `remove(key)`. |
+| `StructureRef` | `content/attachment/index/StructureRef.java` | `record(storage, key, data)` cursor; `bedOf(type)` reads the per-entity map. |
+| `StructureRefData` | `content/attachment/index/StructureRefData.java` | Per-structure multi-entity map `Map<EntityType, BedRefData>` plus `structureTick`, a counter that advances once per game time regardless of bed count and doubles as the visit scheduler's heartbeat (`VisitScheduler.tick`). `blockTick()` delegates to typed `BedRefData`. |
+| `BedRefData` | `content/attachment/index/BedRefData.java:24` | `@SerialClass` per-entity-type state: `UUID entityId`, `BlockPos bedPos`, `lastEntityTickedTime`, `lostEntityTick`. `blockTick`/`entityTick`/`onEntityDie`/`removeEntity`/`onDebugClick`/`getDebugPacket`. |
 | `HomeModule` | `content/entity/module/HomeModule.java` | `@SerialClass AbstractYoukaiModule` `@SerialField StructureKey home`. `tickServer() → BedRefData.entityTick` else discard; `onKilled()`. |
-| `StructStructure` | `init/data/structure/helper/StructStructure.java` | Datagen descriptor `id, biomesTag, spacing, separation, StructureConfig.Builder, List<StructBed>, StructBuilding`. |
-| `StructBuilding` | `init/data/structure/helper/StructBuilding.java` | Sealed `StructSimpleBuilding` (processors, spawns) / `StructJigsawBuilding` (maxDepth, Part list, spawns) → `GLSinglePiece extends SinglePoolElement`. |
-| `GLStructureGen` | `init/data/structure/GLStructureGen.java:19` | Bootstraps `PROCESSOR_LIST/TEMPLATE_POOL/STRUCTURE/STRUCTURE_SET` via `L2Registrate DataProviderInitializer`; fills 3 `DataMapReg` in `dataMap()`. Currently `initStructures()` empty. |
+| `StructStructure` | `init/data/structure/helper/StructStructure.java` | Datagen descriptor `id, biomesTag, spacing, separation, StructureConfig.Builder, List<StructBed>, visitors, StructBuilding, structureSet`. |
+| `StructBuilding` | `init/data/structure/helper/` | Sealed `StructFlatBuilding` (processors, spawns, flat-check params) / `StructFlatJigsawBuilding` (maxDepth, `Part` list, spawns) → `GLSinglePiece extends SinglePoolElement`. |
+| `GLStructureGen` | `init/data/structure/GLStructureGen.java:19` | Bootstraps `PROCESSOR_LIST/TEMPLATE_POOL/STRUCTURE/STRUCTURE_SET` via `L2Registrate DataProviderInitializer`; fills 3 `DataMapReg` in `dataMap()`. `initStructures()` defines `marisa_house` / `hakurei_shrine` / `morichika_shop` / `alice_house`; Marisa/Morichika/Alice share the `magical_forest_houses` set, the shrine has its own. |
 
 ## 2. Relationships
 
 ```
-Datagen: StructStructure(id, config, beds:List<StructBed>, building:Simple/Jigsaw)
+Datagen: StructStructure(id, biomeTag, spacing/separation, config, beds:List<StructBed>, visitors, building:Flat/FlatJigsaw, set)
   │ contains
   ├─▶ StructBed(entityHolder, CharacterConfig, Holder<Block>... beds)  ─┬─▶ GLMeta.BED_DATA  Block→BedData
   └─▶ StructBuilding ──▶ GLSinglePiece / processors / spawns            ├─▶ GLMeta.ENTITY_DATA EntityType→CharacterConfig(withId)
@@ -48,14 +51,14 @@ HomeModule (per-YoukaiEntity) ←── StructureKey.of(entity) ──▶ BedRef
 ### 3.1 Registration (DataMap + Worldgen)
 
 ```java
-// GLStructureGen.dataMap(pvd) — active for marisa_house, hakurei_shrine, morichika_shop
+// GLStructureGen.dataMap(pvd) — active for marisa_house, hakurei_shrine, morichika_shop, alice_house
 for (StructStructure e : STRUCTURES) {
   for (StructBed bed : e.beds()) {
     for (Holder<Block> b : bed.bed()) bedReg.add(b, new BedData(bed.entity().value()));
     entityReg.add(bed.entity(), bed.data().withId(e.id()));
     config.addEntity(bed.entity().value());
   }
-  structureReg.add(e.id(), config.build()); // StructureConfig with shrink + tags
+  structureReg.add(e.id(), config.build()); // StructureConfig with room/house/interior boxes + tags
 }
 // hard-coded bindings for beds without structures yet (2 beds):
 bedReg.add(BEDS[CIRNO], new BedData(CIRNO_ENTITY));
@@ -66,7 +69,8 @@ bedReg.add(BEDS[RUMIA], new BedData(RUMIA_ENTITY));
 //   PROCESSOR_LIST: SetDataProcessor (marks data markers)
 //   TEMPLATE_POOL: single pool with GLSinglePiece entries (isRoad flag)
 //   STRUCTURE: JigsawStructure with biomes tag
-//   STRUCTURE_SET: RandomSpread(spacing, separation, LINEAR, hash)
+//   STRUCTURE_SET: MultiSpreadPlacement(spacing, LINEAR, salt, attempts) over one set per structure
+//                   (marisa/morichika/alice share `magical_forest_houses`, the shrine has its own set)
 ```
 
 Structure tags written via `GLStructureTagGen` per `has_structure/<id>.json`.
@@ -95,16 +99,20 @@ Structure tags written via `GLStructureTagGen` per `has_structure/<id>.json`.
 ### 3.3 Bed → Home Binding (LocatedBlockEntity)
 
 ```java
-// LocatedBlockEntity.tick() — server, once (located flag)
-if (!located) {
+// LocatedBlockEntity.tick() — server; binds once, then retries while still unlinked
+if (!located || key == null && sl.getGameTime() % 100 == 0) {
   located = true;
   var home = IHomeHolder.find(sl, getBlockPos());
   var bed  = BedData.of(getBlockState().getBlock()); // DataMap lookup
-  if (home != null && bed != null && home.supportEntity(bed.type()))
-      key = home.key(); // StructureKey(structure, dim, locatorPos or custom anchor)
+  if (home != null && bed != null && home.supportEntity(bed.type())) {
+      key = home.key(); setChanged(); // StructureKey(structure, dim, locatorPos or custom anchor)
+  }
 }
+// The retry exists because template-placed beds carry baked `located=1, key=null`
+// BE data; without it such a bed would never find its home and never spawn.
 
 // IHomeHolder.find(sl, pos):
+//  0) if (!sl.isLoaded(pos)) return null
 //  1) custom: scan 3×3 chunks (offsets ±16), att = chunk.getData(GLMeta.STRUCTURE.get())
 //       for (custom entry : att.custom) if entry.value.getTotalBound().isInside(pos) return CustomHomeHolder
 //  2) preset: sl.structureManager().getAllStructuresAt(pos)
@@ -113,7 +121,7 @@ if (!located) {
 //       return StructureHomeHolder.of(sl, new StructureKey(holder.key(), dim, root))
 ```
 
-`setLink(key)` via `StructureWand` directly assigns `LocatedBlockEntity.key` and `sync()` for custom homes. The key is write-once: BEs/structures are immovable, so no `relocate()` path is required (see §3.2 paired destruction).
+`setLink(key)` via `StructureWand` directly assigns `LocatedBlockEntity.key` and `sync()` for custom homes. Once set, the key is never rewritten: BEs/structures are immovable, so no `relocate()` path is required (see §3.2 paired destruction).
 
 ### 3.4 Per-Tick Block Logic (YoukaiBedBlockEntity.tick)
 
@@ -125,7 +133,7 @@ if (key != null && state.get(PART)==HEAD) {
   if (data != null) {
     var cfg = CharacterConfig.of(data.type()); // discard/respawn/wander
     if (cfg != null && key.support(cfg)) {     // CUSTOM always true; preset checks structure id
-      IndexStorage.get(sl).getOrCreate(key)    // LinkedHashMap computeIfAbsent → StructureRefData
+      IndexStorage.get(sl).getOrCreate(key)    // LinkedHashMap computeIfAbsent → StructureRef → StructureRefData
          .data().blockTick(sl, data, this, key); // per-entity-type typed BedRefData
     }
   }
@@ -140,7 +148,7 @@ if (key != null && state.get(PART)==HEAD) {
 // BedRefData.java:49 blockTick(bed, config, sl, be, key)
 var home = IHomeHolder.of(sl, key);
 if (home==null || !home.isInRoom(be.getBlockPos().above())) {
-    sl.removeBlock(be.getBlockPos(), false); return; // bed outside shrunk room → destroy HEAD → updateShape destroys FOOT automatically
+    sl.removeBlock(be.getBlockPos(), false); return; // bed outside the room bound → destroy HEAD → updateShape destroys FOOT automatically
 }
 if (bedPos==null) bedPos = be.getBlockPos();
 else if (!bedPos.equals(be.getBlockPos())) {
@@ -155,9 +163,10 @@ if (time >= lastEntityTickedTime + lostEntityTick) lostEntityTick++; else lostEn
 if (lostEntityTick > config.discardTime()) entityId = NIL_UUID; // considered lost
 if (entityId==NIL_UUID && time - lastEntityTickedTime > config.respawnTime()) {
     var e = config.create(bed.type(), sl, bedPos, key);
-    // create(): type.create(sl) → HomeModule.setHome(key) → IHomeHolder.of(key).getWanderCenter()
-    //           → setPos(center) → restrictTo(center, wanderBase+cfg.wanderRadius()) → initSpellCard()
-    if (e != null) { sl.addFreshEntity(e); entityId = e.getUUID(); lastEntityTickedTime=time; }
+    // create(): type.create(sl) → IHomeHolder.of(key).getWanderCenter() (null → give up)
+    //           → setPos(bedPos) → HomeModule.setHome(key) → initSpellCard()
+    //           → restrictTo(center, wanderBase+cfg.wanderRadius())
+    if (e != null) { sl.addFreshEntity(e); entityId = e.getUUID(); lostEntityTick=0; lastEntityTickedTime=time; }
 }
 ```
 
@@ -198,26 +207,27 @@ if (bed==null || !key.getDim().equals(level.dimension())) clear HOME else set HO
 
 ```java
 // 1) Define bed block (GLBlocks.java)
-public enum Beds { CIRNO, REIMU, RUMIA, MY_BED }
-public static final Map<Beds, Holder<Block>> BEDS = ... // YoukaiBedBlock via Registrate + FlatBedShape
+public enum Beds { CIRNO, REIMU, RUMIA, MARISA, MORICHIKA, ALICE, MY_BED }
+// GLBlocks.Beds.<NAME>.holder() — YoukaiBedBlock via Registrate + FlatBedShape
 
-// 2) Via preset structure (preferred, when GLStructureGen is populated):
+// 2) Via preset structure (preferred): add a StructStructure in GLStructureGen.initStructures()
 StructBed myBed = new StructBed(
     GLEntities.MY_YOUKAI,                          // Holder<EntityType>
     CharacterConfig.forStructure(6000, 12000, 12, 30), // discard, respawn, wander, vanish
-    bedHolder                                      // Holder<Block> for this bed
+    GLBlocks.Beds.MY_BED.holder()                  // Holder<Block> for this bed
 );
 StructStructure myStruct = new StructStructure(
-    GensokyoLegacy.loc("my_shrine"),
-    TagKey.create(Registries.BIOME, GensokyoLegacy.loc("has_structure/my_shrine")),
-    24, 8, StructureConfig.builder().room(...).house(...).outside(...).primary(...).wouldFix(...),
+    MY_SHRINE, GLStructureTagGen.MY_SHRINE, 32, 24,  // id, biome tag, spacing, separation
+    StructureConfig.builder(),                      // rooms/house/interior + outside/primary/wouldFix
     List.of(myBed),
-    new StructSimpleBuilding(...) // or Jigsaw
+    visits(Map.of()),                                // guest slots
+    new StructFlatBuilding(List.of(), Map.of(), 5, 60, 24, 32, 8), // or StructFlatJigsawBuilding
+    MY_SET                                           // structure set id
 );
 
 // 3) Or standalone (current pattern for non-worldgen testing):
 // in GLStructureGen.dataMap:
-bedReg.add(GLBlocks.BEDS[MY_BED.ordinal()], new BedData(GLEntities.MY_YOUKAI.get()), false);
+bedReg.add(GLBlocks.Beds.MY_BED.holder(), new BedData(GLEntities.MY_YOUKAI.get()), false);
 // also need CharacterConfig entry somewhere via Datamap provider or manual DataMapReg
 ```
 
@@ -261,8 +271,8 @@ BlockInfoToClient pkt = be.getDebugPacket(player); // respawn countdown or prese
 
 ## 5. Invariants and Caveats
 
-- **Immovable structures/BEs.** `Structure` worldgen pieces and `LocatedBlockEntity` are never moved by pistons/structure-blocks. `LocatedBlockEntity.tick()` therefore binds `key` once (`located` flag) and that is sufficient — no `relocate()` or move-tracking is needed or correct to add. Structure deletion means chunk unload/regeneration, not translation.
+- **Immovable structures/BEs.** `Structure` worldgen pieces and `LocatedBlockEntity` are never moved by pistons/structure-blocks, so a bound `key` never goes stale — no `relocate()` or move-tracking is needed or correct to add. The `located` flag plus the `key == null` retry is about *finding* a home, not tracking one: a template-placed bed ships with `located=1, key=null` and is re-probed every 100 ticks until it links. Structure deletion means chunk unload/regeneration, not translation.
 - **Paired destruction.** Destroying either half of a `YoukaiBedBlock` always removes the other half: survival via `YoukaiBedMethods.updateShape` (neighbour mismatch → `AIR`), creative FOOT via `YoukaiBedBlock.playerWillDestroy` (explicit `setBlock(HEAD, AIR)`). As a result a bed never leaves an orphan half; `BedRefData` dupe logic only handles a *second distinct bed of the same `EntityType`* in the same structure, not a dangling half. `YoukaiBedBlockEntity.tick()` running on `HEAD` only is therefore sufficient — there is no "destroy FOOT alone leaving stale HEAD" case.
-- `GLStructureGen.initStructures()` now defines `marisa_house`, `hakurei_shrine`, `morichika_shop` (flat-check structures); `character_config.json` / `structure_config.json` are populated by datagen. Unregistered structures still fall back to the synthetic CIRNO config (see suggestions 1.2).
+- `GLStructureGen.initStructures()` defines `marisa_house`, `hakurei_shrine`, `morichika_shop`, `alice_house` (flat-check structures); `character_config.json` / `structure_config.json` are populated by datagen. Unregistered structures still fall back to the synthetic CIRNO config (see `../../pending/suggestions.md` §1.2).
 - `StructureKey.support(config)` is `custom || config.structure.equals(structure)` (fixed; was inverted `!equals`). Tick path and `getDebugPacket` both use `equals` now.
 

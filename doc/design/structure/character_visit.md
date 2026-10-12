@@ -94,7 +94,7 @@ a 30% roll.
 
 ### 2.3 While she is partying
 
-A visitor can be claimed by a party (`party/guest.md` §2.1), which records the
+A visitor can be claimed by a party (`../party/guest.md` §2.1), which records the
 visit on her `PartyModule` so it can be given back. `VisitModule.tickServer`
 stands down entirely while she is partying: renewing `MEM_VISIT` would register
 her as a visitor in the middle of a party, and discarding her would delete a
@@ -277,6 +277,7 @@ inspected directly instead of waiting for a 30% roll.
 | `morichika_shop` | `kirisame_marisa` | 30% | 2400–6000 (2–5 min) |
 | `morichika_shop` | `izayoi_sakuya` | 30% | 2400–6000 (2–5 min) |
 | `hakurei_shrine` | `kirisame_marisa` | 20% | 2400–3600 (2–3 min) |
+| `hakurei_shrine` | `ibuki_suika` | 30% | 2400–6000 (2–5 min) |
 | `marisa_house` | `alice` | 20% | 2400–3600 (2–3 min) |
 
 ## 9. Known limits

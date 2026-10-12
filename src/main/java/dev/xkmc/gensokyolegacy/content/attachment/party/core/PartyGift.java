@@ -39,8 +39,9 @@ public class PartyGift {
 
 	/**
 	 * Drop a gift on the guest's table, once per visit — the once-only flag lives on her
-	 * module. Generosity is reach into her pool, not a bigger stack: a gift is always
-	 * exactly one item.
+	 * module. Generosity is how far up her table's ladder the appeal she ate reached, not
+	 * a bigger stack: a gift is always exactly one item, and one band of appeal is the
+	 * only part of the table that answers.
 	 *
 	 * @return whether a gift was left
 	 */
@@ -70,8 +71,9 @@ public class PartyGift {
 				.create(LootContextParamSets.ADVANCEMENT_REWARD);
 		var stacks = new ArrayList<ItemStack>();
 		loot.getRandomItems(params, stacks::add);
-		// a generated table is one pool of one roll; a datapack that adds a second pool
-		// buries both here, and that is its mistake
+		// a generated table is a ladder of pools whose bands partition the appeal range,
+		// so exactly one of them answers; a datapack that ungates two of them buries both
+		// here, and that is its mistake
 		return stacks.isEmpty() ? null : stacks.getFirst();
 	}
 

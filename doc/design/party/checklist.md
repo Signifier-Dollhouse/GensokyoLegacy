@@ -32,7 +32,7 @@ Every file the feature creates and modifies, and the resources it generates.
 | `content/attachment/party/core/PartySend.java` | the single send entry point + rejections |
 | `content/attachment/party/core/PartyGift.java` | what a guest leaves, rolled from her table |
 | `content/attachment/party/core/AppealConsumedCondition.java` | `{"condition":"gensokyolegacy:appeal_consumed"}`, `min`/`max`/`invert` — the gift tiers' gate |
-| `init/data/loot/GiftLootGen.java` | one `party_gift/<character>` table per guest, five appeal tiers each |
+| `init/data/loot/GiftLootGen.java` | one `party_gift/<character>` table per guest, a pool per generosity step, each banded on appeal |
 | `content/attachment/party/core/PartyTicker.java` | level-tick driver, active-chunk registry |
 | `content/attachment/party/item/InvitationLetterItem.java` | the letter |
 | `content/attachment/party/item/PartyMessage.java` | one place that turns an outcome into player-facing text |

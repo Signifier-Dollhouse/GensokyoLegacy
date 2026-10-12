@@ -1,6 +1,8 @@
 # 魔法森林植被代码评审（2026-09-22）
 
-范围：分支 `magical_forest_vegetation` 相对 `main` 的全部改动——Java 14 个文件（新增约 900 行）、`tools/template_export/` 7 个 Python 文件（约 1500 行）、35 个 NBT 模板、datagen 输出。角度：正确性、可读性、可维护性、可测试性、性能。设计背景见 `doc/design/magical_forest_vegetation.md`。
+范围：分支 `magical_forest_vegetation` 相对 `main` 的全部改动——Java 14 个文件（新增约 900 行）、`tools/template_export/` 7 个 Python 文件（约 1500 行）、35 个 NBT 模板、datagen 输出。角度：正确性、可读性、可维护性、可测试性、性能。设计背景见 [`doc/design/magical_forest_vegetation.md`](../design/magical_forest_vegetation.md)。
+
+代码已并入 `main`，本文档保留为评审记录；⏳ 条目仍未处理。
 
 标记：✅ 已在本次评审中修改；⏳ 建议，未改。条目按影响排序。
 

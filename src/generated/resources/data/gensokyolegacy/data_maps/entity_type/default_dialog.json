@@ -10,6 +10,11 @@
       "trade": "gensokyolegacy/reimu/chat/trade",
       "visitGreeting": "gensokyolegacy/reimu/chat/visit_greeting"
     },
+    "gensokyolegacy:ibuki_suika": {
+      "greeting": "gensokyolegacy/suika/chat/greeting",
+      "trade": "gensokyolegacy/suika/chat/trade",
+      "visitGreeting": "gensokyolegacy/suika/chat/visit_greeting"
+    },
     "gensokyolegacy:izayoi_sakuya": {
       "greeting": "gensokyolegacy/sakuya/chat/greeting",
       "trade": "gensokyolegacy/sakuya/chat/trade",

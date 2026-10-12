@@ -1,0 +1,12 @@
+{
+	"-slash": true,
+	"gensokyolegacy": {
+		"suika": {
+			"chat": {
+				"greeting": "嗯？哦。真有人走到这儿来了。",
+				"visit_greeting": "哦，是你啊。",
+				"trade": "有兴趣做个交易吗？"
+			}
+		}
+	}
+}

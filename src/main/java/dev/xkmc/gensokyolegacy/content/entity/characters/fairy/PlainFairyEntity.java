@@ -450,7 +450,8 @@ public class PlainFairyEntity extends FairyEntity implements GeoYoukaiAnim {
 	public Optional<RawAnimation> getAnim(YoukaiAnim anim) {
 		return switch (anim) {
 			case USE_MAINHAND -> Optional.of(USE_MAINHAND);
-			case GREET, TALK_01, TALK_02, TALK_03, THINK, AGREE, DECLINE, OUTDOOR_IDLE -> Optional.empty();
+			case GREET, TALK_01, TALK_02, TALK_03, TALK_04, TALK_05, THINK, THINK_02,
+					CONFUSED, AGREE, DECLINE, OUTDOOR_IDLE -> Optional.empty();
 		};
 	}
 

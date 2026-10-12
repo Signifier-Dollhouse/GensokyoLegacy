@@ -27,6 +27,7 @@ import dev.xkmc.gensokyolegacy.init.data.rpg.MorichikaQDGen;
 import dev.xkmc.gensokyolegacy.init.data.rpg.QuestDialogData;
 import dev.xkmc.gensokyolegacy.init.data.rpg.ReimuQDGen;
 import dev.xkmc.gensokyolegacy.init.data.rpg.SakuyaQDGen;
+import dev.xkmc.gensokyolegacy.init.data.rpg.SuikaQDGen;
 import dev.xkmc.gensokyolegacy.init.data.structure.GLStructureGen;
 import dev.xkmc.gensokyolegacy.init.data.structure.GLStructureLootGen;
 import dev.xkmc.gensokyolegacy.init.data.structure.GLStructureTagGen;
@@ -176,7 +177,8 @@ public class GensokyoLegacy {
 		var morichika = new MorichikaQDGen();
 		var alice = new AliceQDGen();
 		var sakuya = new SakuyaQDGen();
-		QuestDialogData.build(REGISTRATE, reimu, marisa, morichika, alice, sakuya);
+		var suika = new SuikaQDGen();
+		QuestDialogData.build(REGISTRATE, reimu, marisa, morichika, alice, sakuya, suika);
 
 		ReportBlocksInStructure.report();
 	}
