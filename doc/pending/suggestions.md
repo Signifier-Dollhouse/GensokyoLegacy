@@ -2,6 +2,25 @@
 
 This document synthesises issues and improvement directions across the three systems audited: `YoukaiEntity/CharacterData`, `Structure-Bed-Entity`, and `Home/Index (preset vs custom)`. Items are ordered by impact and grouped by risk.
 
+The three system guides it refers to now live in `doc/design/`: [home_index.md](../design/structure/home_index.md), [structure_bed_entity.md](../design/structure/structure_bed_entity.md), [youkai_character.md](../design/structure/youkai_character.md).
+
+Status as of the promotion (2026-10-12), re-checked against `main`:
+
+| Item | State |
+|---|---|
+| 1.1 `StructureKey.support` inverted | **fixed** |
+| 1.2 synthetic CIRNO fallback | **open** — `StructureHomeHolder.java:43` still has the `//TODO 结构自定义` |
+| 1.3 `RoomVerifier` culling heuristic | **open** — `RoomVerifier.java:57` still has `//TODO wrong implementation` |
+| 2.1 Bed-bound ownership | proposal unchanged; the one-shot bind became a retry-while-unlinked bind (see `structure_bed_entity.md` §3.3) |
+| 2.2 dual persistence | unchanged, plus `StructureRefData.structureTick` now doubles as the visit heartbeat |
+| 2.3 reputation magic numbers | **largely done** — `ReputationConstants` + `GLModConfig.SERVER.reputationDecayFloor`, documented in [reputation.md](../design/structure/reputation.md). What remains is per-entity override. |
+| 2.4 `TaskBoard` priority vs schedule | done — the priority scale is now spelled out in `youkai_character.md` §3.3, with `VISITING 150` / `PARTY 200` added between TALK and the scheduled activities |
+| 3.1 `find` force-loading chunks | **fixed** — `IHomeHolder.find` returns early on `!sl.isLoaded(pos)` |
+| 3.2 verifier tags vs `isOutside` | unchanged |
+| 3.3 dawn map scan | unchanged |
+| 3.4 `RoomVerifier` alloc | unchanged |
+| 4.6 structure container loot | unchanged, not started |
+
 ## 1. Correctness Bugs
 
 ### 1.1 `StructureKey.support` inverted for preset structures — HIGH — FIXED
@@ -98,7 +117,7 @@ Per player per 24000t iterates `LinkedHashMap values`. Cheap today (≤14 entrie
 1. ~~**Hotfix** `StructureKey.support` (1.1)~~ DONE + add regression test; remove synthetic fallback or gate behind `GLModConfig.debug` (1.2).
 2. **Fix `RoomVerifier` culling** (1.3) + add unit tests `RoomVerifierTest` covering thin wall, door, slab/slope cases. Include a test that destroying either half of the bed (`HEAD` or `FOOT`) leaves no orphan block (assert both positions `AIR` via `updateShape` / `playerWillDestroy`).
 3. **Unify lifecycle** — introduce `BedHomeLinker` for testability; do **not** add movement/`relocate()` (structures/BEs immovable); optional loaded-chunk-only stale-entry prune; avoid `getChunkAt` force-load (2.1, 2.2, 3.1).
-4. **Config surface** — move reputation params + `discard/respawn/wander` defaults to `GLModConfig` / `CharacterConfig` with datamap override (2.3).
+4. **Config surface** — done for the shared reputation numbers (`ReputationConstants` + `GLModConfig.SERVER.reputationDecayFloor`); what is left is per-entity override for `discard/respawn/wander` (2.3).
 5. **Observability** — debug packet consistency (`getDebugPacket` vs `support` predicate), brain debug overlay, `AbnormalCache` tag unification tests (2.4, 3.2).
 6. **Structure container loot (TODO, not started)** — `marisa_house` / `hakurei_shrine` / `morichika_shop` templates contain chests, barrels, cabinets and shelves that currently generate empty (no `LootTable` NBT). Add loot tables in `GLStructureLootGen` (e.g. books/magic supplies for Marisa, shrine offerings for Reimu, shop goods for Morichika) and inject them via `SetDataProcessor` mappings (`Block → RuleBlockEntityModifier(AppendLoot)`) in each structure's `StructFlatBuilding` processors, following the YH 1.20.1 `YHRuleProcessor(injectData(...))` pattern.
 

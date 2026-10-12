@@ -2,6 +2,8 @@
 
 This document reflects the current implementation in `content/entity/youkai/`, `content/entity/foundation/`, `content/attachment/character/`, `content/entity/behavior/`, `content/entity/module/` and `init/registrate/`.
 
+Related: [home_index.md](home_index.md), [structure_bed_entity.md](structure_bed_entity.md), [reputation.md](reputation.md), [character_visit.md](character_visit.md), [party/](party/).
+
 ## 1. Components
 
 | Class | File | Role |
@@ -13,17 +15,20 @@ This document reflects the current implementation in `content/entity/youkai/`, `
 | `FairyEntity` / `MaidenEntity` / `RumiaEntity` | `content/entity/characters/*/` | Concrete subclasses. `Fairy` overrides `FairyCombatManager` + reinforcement; `Maiden` marks human navigation; `Rumia` adds `RumiaStateMachine`, `POWERED` flag, attribute modifier `EXRUMIA`. |
 | `DamageRefactorEntity` | `content/entity/foundation/DamageRefactorEntity.java` | Replaces `LivingEntity.health` with `CombatProgress` (`@SerialField maxProgress/progress/oldProgress`). Guards `die`/`isDeadOrDying` via progress. |
 | `DamageClampEntity` | `content/entity/foundation/DamageClampEntity.java` | Adds boss bar, `hurtCD`, speed clamp via `maxSpeed`, non-danmaku damage division. |
-| `CharacterData` | `content/attachment/character/CharacterData.java:11` | `@SerialClass` per-character (`EntityType` key). `@SerialField int reputation`, `@SerialField FeedModuleData foodData`. Thresholds `150/ -50/ -150` → `FRIEND/STRANGER/JERK/ENEMY`. |
-| `CharacterAttachment` | `content/attachment/character/CharacterAttachment.java:15` | `PlayerCapabilityTemplate<CharacterAttachment>` (`l2core AttReg`). `@SerialField Map<EntityType<?>,CharacterData>` (LinkedHashMap). `tick` at `dayTime==0` calls `dailyUpdate`. |
-| `CharDataHolder` | `content/attachment/character/CharDataHolder.java` | `record(CharacterData data, Player player, EntityType<?> type, @Nullable YoukaiEntity e)` — transient facade. `sync()` sends `CharDataToClient`. |
-| `ReputationState` | `content/attachment/character/ReputationState.java` | `FRIEND/STRANGER/JERK/ENEMY`. `toInfo(int)` colored text, `asTargetKind()` → `WORTHY/NONE/ENEMY`. |
+| `CharacterData` | `content/attachment/character/CharacterData.java:11` | `@SerialClass` per-character (`EntityType` key). `@SerialField int reputation` **plus `int reputationCap`** (quests raise the ceiling; simple actions never pass it), `Map<String,Long> timers` (per-action cooldowns via `isAvailable`/`setTimer`), `@SerialField FeedModuleData foodData`. `gainReputation(val, softCap, capIncrease, maxCap)` halves the gain past `softCap`; `loseReputation` floors at `-150`. Design: `reputation.md`. |
+| `ReputationConstants` | `content/attachment/character/ReputationConstants.java` | Every tuning number in one place: bounds `-300..300`, `INITIAL_CAP 100`, thresholds `150/-50/-150`, `KILLED_RESTORE 0`, `COMBAT_SAFE_THRESHOLD 0`, `DEATH_LOSS 200`, hurt losses `1/5/10/20`, `FEED_SOFT_CAP`/`GIFT_SOFT_CAP 150`, `DAILY_DECAY_AMOUNT 1`. |
+| `CharacterAttachment` | `content/attachment/character/CharacterAttachment.java:15` | `PlayerCapabilityTemplate<CharacterAttachment>` (`l2core AttReg`). `@SerialField Map<EntityType<?>,CharacterData>` (LinkedHashMap). `tick` at `dayTime==0` calls `dailyUpdate` on every entry. `allTypes`/`reset`/`clearAll` for the quest and admin surfaces. |
+| `CharDataHolder` | `content/attachment/character/CharDataHolder.java` | `record(CharacterData data, Player player, EntityType<?> type, @Nullable YoukaiEntity e)` — transient facade. Every mutator (`onHurt`/`onKilledByCharacter`/`onKillCharacter`/`feed`/`gain`) syncs afterwards, so callers never sync by hand. |
+| `ReputationState` | `content/attachment/character/ReputationState.java:15` | `FRIEND/STRANGER/JERK/ENEMY`. `toInfo(reputation, cap)` colored text, `asTargetKind()` → `TargetKind.WORTHY/NONE/ENEMY`. |
 | `FeedModuleData` | `content/attachment/character/FeedModuleData.java` | `@SerialClass Map<Item,Integer> statistics` + `List<Item> history` (MEMORY 10, RATE 0.9). `feed()` returns diminishing multiplier `1/(1+sum(0.9^n))`. |
-| `CharacterConfig` | `content/attachment/character/CharacterConfig.java` | Datamap `DataMap<EntityType, CharacterConfig>`. Fields `structure RL, discardTime, respawnTime, wanderRadius, noPlayerVanishTime`. `create()` spawns `YoukaiEntity` + `HomeModule.setHome` + `restrictTo`. |
-| `TaskBoard` | `content/entity/behavior/brain/TaskBoard.java:28` | DSL for brain graph: `always / exclusive(priority) / random` behaviors, `scheduled / prioritized` activities, `sensors`, `schedule`. |
+| `CharacterConfig` | `content/attachment/character/CharacterConfig.java` | Datamap `DataMap<EntityType, CharacterConfig>`. Fields `structure RL, discardTime, respawnTime, wanderRadius, noPlayerVanishTime`. `create()` spawns `YoukaiEntity` at the bed, sets `HomeModule.home` and restricts it to the home's wander radius. |
+| `TaskBoard` | `content/entity/behavior/brain/TaskBoard.java:28` | DSL for brain graph: `always / exclusive(priority) / random` behaviors, `scheduled / prioritized` activities, `sensors`, `schedule`, plus `addPartyTasks()` for the shared guest behaviour. |
 | `SmartBrain` | `content/entity/behavior/brain/SmartBrain.java` | `Brain<E>` subclass. `construct(board,dynamic)` via `Provider` codec `Brain.codec(memoryTypes,sensorTypes)`. Priority scan `updateActivities`. |
-| `GLBrains` | `init/registrate/GLBrains.java:15` | `SR`-registered sensors `SN_HOME/SN_HUNT/SN_ITEM/SN_LE/SN_PLAYER`, memories `MEM_PATH/MEM_PREY/MEM_DOWN/MEM_TALK/MEM_ITEMS`, activities `AT_HOME/HUNT/DOWN/TALK`. |
+| `GLBrains` | `init/registrate/GLBrains.java:15` | `SR`-registered sensors `SN_HOME/SN_HUNT/SN_ITEM/SN_LE/SN_PLAYER/SN_HOME_BLOCKS`; memories `MEM_PATH/MEM_PREY/MEM_DOWN/MEM_TALK/MEM_ITEMS/MEM_FEED/MEM_VISIT/MEM_PARTY/MEM_FEAR`; activities `AT_HOME/HUNT/DOWN/TALK/VISITING(150)/PARTY(200)/FEAR/FEAST`. |
 | `YoukaiModuleHolder` | `content/entity/module/YoukaiModuleHolder.java` | `List<AbstractYoukaiModule>` + `Map<Class,Optional>` cache + `hasPickup` flag. Iterable. |
 | `HomeModule` | `content/entity/module/HomeModule.java` | `@SerialField StructureKey home` (immovable — structures/BEs never move, so no re-binding needed). `tickServer → BedRefData.entityTick`, `onKilled → onEntityDie`. |
+| `VisitModule` | `content/entity/module/VisitModule.java` | Drives `YoukaiFlags.VISITING` and the `MEM_VISIT` heartbeat; a visitor has no `HomeModule` binding, so she can neither sleep nor go home. See `character_visit.md`. |
+| `PartyModule` | `content/entity/module/PartyModule.java` | Drives `YoukaiFlags.PARTYING` and re-asserts `MEM_PARTY` every tick (that memory has no codec, so it does not survive a save). See `../party`. |
 | `YoukaiTargetContainer` | `content/entity/behavior/combat/YoukaiTargetContainer.java` | `@SerialField LinkedHashSet<UUID> list` (maxSize 10/8). Maintains hostile UUIDs; `tick()` promotes `lastHurtByMob`/target. |
 
 ## 2. Hierarchy
@@ -48,7 +53,7 @@ Character side:
 ```
 PlayerCapabilityTemplate<CharacterAttachment>  (GLMeta.CHAR, PlayerCapabilityNetworkHandler)
  └─ CharacterAttachment: Map<EntityType<?>, CharacterData>
-     └─ CharacterData: reputation(int) + FeedModuleData
+     └─ CharacterData: reputation(int) + reputationCap(int) + timers + FeedModuleData
          └─ ReputationState → TargetKind
              └─ CharDataHolder (facade) → CharDataToClient packet → client replace()
 ```
@@ -63,8 +68,8 @@ CharacterConfig cfg = CharacterConfig.of(GLEntities.REIMU.get());
 YoukaiEntity e = cfg.create(type, sl, bedPos, key);
 // inside create():
 //   type.create(sl) → youkai
-//   IHomeHolder.of(sl,key).getWanderCenter() → center
-//   youkai.setPos(center)
+//   IHomeHolder.of(sl,key).getWanderCenter() → center (null → give up, no spawn)
+//   youkai.setPos(bedPos)          // wakes up in her own bed
 //   HomeModule.setHome(key)
 //   youkai.initSpellCard()  // TouhouSpellCards
 //   youkai.restrictTo(center, home.getWanderBaseRadius() + cfg.wanderRadius())
@@ -89,12 +94,13 @@ customServerAiStep():
   tickTargeting()        // heal if noTarget+noTargetHealing, bossBar visibility, discard if noPlayerVanishTime
   tickSpell()            // cardHolder.tick if isAggressive && shouldShowSpellCircle else reset
   navCtrl.tickMove()     // flying combat, gravity factor 0.6/0.8, debugger
-  modules.tickServer()   // HomeModule keeps BedRefData alive, Gift/Feed cooldown, Talk validation
+  modules.tickServer()   // HomeModule keeps BedRefData alive, Visit/Party heartbeat, Talk validation
 SmartYoukaiEntity.customServerAiStep() extends:
   getBrain().tick(sl, this) // SmartBrain: forgetOutdated → tickSensors → updateActivities → startEachNonRunning → tickEachRunning
+  stale-sleep watchdog: isSleeping() && getActivity()!=REST → stopSleeping()
 ```
 
-`tickTargeting` detail `YoukaiEntity.java:329`:
+`tickTargeting` detail `YoukaiEntity.java:420`:
 - `noTargetTime++` if `getTarget()==null`; `doHeal` when `noTargetHealing && noTargetTime>=20 && tick%20==0` or `progress<maxHealth`; suppressed if `lastHurtByMob==creative Player` within 100 ticks.
 - BossBar visible only when `noTargetTime==0` and `hasBossBar`, hidden after 40 ticks.
 - Discard after `noPlayerTime>noPlayerDiscardTime` (MAIDEN 30 ticks worth of 20-tick checks ≈30s) when `level.getNearestPlayer(this,32)==null`.
@@ -125,22 +131,31 @@ SmartBrain.construct(board, dynamic)
 //   startEachNonRunningBehavior / tickEachRunningBehavior
 ```
 
-Default `constructTaskBoard` graph (`SmartYoukaiEntity.java:72`):
+Default `constructTaskBoard` graph (`SmartYoukaiEntity.java:95`):
 
 | Behaviour | Activity | Kind |
 |---|---|---|
-| `YoukaiLookAtTarget`, `YoukaiMoveTask`, `YoukaiSwimTask`, `YoukaiSmartDoorTask` | CORE | always |
+| `YoukaiLookAtTarget(40,300)`, `YoukaiMoveTask`, `YoukaiSwimTask(0.8)`, `YoukaiSmartDoorTask` | CORE | always |
 | `YoukaiUpdateTargetTask`, `YoukaiAttackTask(16)`, `StrafeTarget` | FIGHT | always |
 | `YoukaiFetchTargetTask` | TALK/AT_HOME/REST | always |
-| `YoukaiSearchTargetTask`, `YouKaiVanishTask` | IDLE/PLAY | always |
+| `YoukaiSearchTargetTask`, `YoukaiVanishTask` | IDLE/PLAY | always |
 | `YoukaiSleepTask` | REST p0 | exclusive |
 | `YoukaiTalkTask` | TALK p0 | exclusive |
 | `YoukaiGoHomeTask` | IDLE/AT_HOME p100 | exclusive |
 | `YoukaiRepairHouseTask` | AT_HOME p200 | exclusive |
-| `SetEntityLookTarget(player 32)`, `SetEntityLookTarget(24)` | IDLE/PLAY p1100/1200 | exclusive |
-| `RandomStroll(0.8)`, `YoukaiStayInRoom`, `YoukaiStayNearHouse`, `YoukaiSitTask`, `DoNothing` | IDLE/PLAY/AT_HOME | random (Gate SHUFFLED/RUN_ONE) |
+| `SetEntityLookTarget(player 32)` | IDLE/PLAY/AT_HOME/VISITING p1100 | exclusive |
+| `SetEntityLookTarget(24)` | IDLE/PLAY p1200 | exclusive |
+| `RandomStroll(0.8)` | IDLE/PLAY, and VISITING | random (Gate SHUFFLED/RUN_ONE) |
+| `YoukaiStayInRoomTask`, `YoukaiSitTask(100,200)` | AT_HOME | random |
+| `YoukaiStayNearHouseTask`, `YoukaiDoNothing(30,60)` | IDLE | random |
+| `YoukaiDoNothing(30,60)` | IDLE/PLAY/AT_HOME, and VISITING | random |
+| `board.addPartyTasks()` | PARTY | shared guest set |
+
+Sensors: `NearbyPlayerSensor(32,32)` every 5t, `NearbyLivingEntitySensor(32,16)` 10/20t adaptive, `YoukaiUpdateHomeSensor` 80t → HOME, `YoukaiHomeBlocksSensor(CHAIR)`.
 
 Schedule: `AT_HOME@10 → IDLE@2000 → PLAY@4000 → IDLE@8000 → AT_HOME@10000 → REST@12000`.
+
+Priority scale (lower wins): `FIGHT 0 < TALK 100 < VISITING 150 < PARTY 200 < scheduled`. The rungs are deliberate — `TaskBoard` injects a prioritized activity's memory as `VALUE_ABSENT` into every less prioritized activity, so a visitor keeps the ability to talk and trade, and a party guest additionally never sleeps or goes home.
 
 ### 3.4 Damage & Reputation
 
@@ -153,35 +168,39 @@ hurt(DamageSource, amount):
     actuallyHurt():
       spellCard.hurt(cardHolder, source, amount) // card damage handling
       CharDataHolder.get(player,this).onHurt(source, amount) // if non-danmaku → loseReputation
+      if vanishOnDislike() && reputation < DISCARD_REP_THRESHOLD → discard + tell the player
       actuallyHurtImpl():
         clampDamage: limit maxHealth/limiter, nonDanmakuProtection divides, damageFilter
         hurtFinal → combatProgress.set() → CombatToClient to tracking players
 
 die(source):
   modules.onKilled() // HomeModule clears BedRefData.entityId
-  if sourceEntity instanceof LivingEntity le → onKilledBy(le) → CharDataHolder.onKillCharacter() lose 200 to MIN(-300)
+  if sourceEntity instanceof LivingEntity le → onKilledBy(le) → CharDataHolder.onKillCharacter() // -200, floored at MIN -300
 
 killedEntity(level, entity):
-  CharDataHolder.get(entity,this).onKilledByCharacter() // gain 100 to -50
+  CharDataHolder.get(entity,this).onKilledByCharacter() // forgiveness: jumps straight up to KILLED_RESTORE (0)
 ```
 
-`CharacterData.onHurtCharacter` `CharacterData.java:56` (non-danmaku only):
+`CharacterData.onHurtCharacter` (`CharacterData.java:102`, danmaku exempt, every loss floored at `HURT_LOSS_FLOOR -150`):
 - `first = !targets.contains(player) && getLastHurtByMob()!=player`
-- `first && damage<=4`: `-1` if rep>=100 else `-5` if rep>=0 else `-10` (cap -100 or 0)
-- else: `-5` if first&&rep>=100 else `-10` if rep>=0 else `-20` (cap -150 or 0)
+- `first && damage<=4 && reputation>=100` → `-1` (one light tap on someone already friendly)
+- `first` otherwise → `-5`, at any reputation
+- repeated while still a STRANGER or better (`reputation>=-50`) → `-10`
+- repeated below `-50` → `-20`
+
+Daily decay: `dailyUpdate()` moves `DAILY_DECAY_AMOUNT 1` toward `reputationCap * GLModConfig.SERVER.reputationDecayFloor` when positive, and back up toward 0 when below `THRESHOLD_JERK`. Raising the cap via quests raises the floor with it.
 
 `CombatToClient` sync via `GensokyoLegacy.HANDLER.toTrackingPlayers` on every `CombatProgress.set`.
 
 ### 3.5 Interaction (Modules)
 
-`mobInteract` iterates `HomeModule → GiftModule → FeedModule → TalkModule` (order in `createModules()`), first non-PASS wins `YoukaiEntity.java:216`.
+`mobInteract` iterates `HomeModule → VisitModule → PartyModule → TalkModule` (order in `createModules()`, `YoukaiEntity.java:273`), first non-PASS wins.
 
 - **TalkModule**: requires `mayInteract` (`!isHostileTo && !isTalking && activity!=REST/FIGHT`), `reputation!=ENEMY`, empty hand. `beginTalking(sp)` is the single entry point for every conversation start (talking, feeding, gifting): it records `talkTarget` then calls `setTalkTo(sp,-1)` → `BrainUtils.setMemory(MEM_TALK, player)` + `FirstDialogSession.open`. Server validates `distance<=5` + that the player still has a talk UI: either a live `DialogSession` or a container menu implementing `ITalkMenu` (the trade screen, which takes over from a dialog).
-- **FeedModule**: `@SerialField feedCoolDown`. `getFavor(FoodProperties) = nutrition - poison penalties + beneficial`, capped 10. Only if `feedCoolDown==0 && favor>=0 && food != empty`. Server: `shrink(1)`, `coolDown += nutrition*100`, `CharDataHolder.feed(stack, favor)` → `foodData.feed()` multiplier + `gainReputation(round(val*favor), MAX)`, then `beginTalking(sp)` auto-talk.
-- **GiftModule**: via `GLMeta.GIFT_DATA` datamap `GiftData.getFavor(stack, self)` + `cooldown()`. On success `gain(favor, MAX)` + shrink + `GIFTED` flag + `HEART` event + levelup sound, then `beginTalking(sp)`. Takes priority over Feed (Gift before Feed in list).
-- **HomeModule**: not interactable; storage only.
+- **HomeModule / VisitModule / PartyModule**: not interactable; they are state, not verbs.
+- **FeedModule / GiftModule**: still implemented and still carry their own `interact`, but both are currently commented out of `createModules()` while the party/visit work settles, so neither is reachable in game. Feed was `gainReputation(round(rate*favor), FEED_SOFT_CAP, 0, 0)` + auto-talk; Gift used the `GLMeta.GIFT_DATA` datamap, set `GIFTED`, and auto-talked. Re-enabling them means putting them back in the `createModules()` list.
 
-Flags `YoukaiFlags` bitmask in `DATA_FLAGS_ID`: `CHARGING, FAINTED, POWERED, FED, GIFTED, FLYING`.
+Flags `YoukaiFlags` bitmask in `DATA_FLAGS_ID`, append-only (ordinal is the bit index): `CHARGING, FAINTED, POWERED, NONE, FED, GIFTED, FLYING, VISITING, FLEEING, PARTYING`.
 
 ### 3.6 Persistence & Networking
 
@@ -203,7 +222,8 @@ CharacterAttachment:
   NBT: player NBT, copyOnDeath handled by cap
   Sync: CharDataHolder.sync() → if ServerPlayer → HANDLER.toClientPlayer(new CharDataToClient(type, uuid, data))
   Client: CharDataToClient.handle → GLMeta.CHAR.type().getOrCreate(player).replace(target,data)
-  Tick: CharacterAttachment.tick(Player) server only at dayTime==0 → dailyUpdate: lose 1 to 150, gain 1 to -150
+  Tick: CharacterAttachment.tick(Player) server only at dayTime==0 → dailyUpdate: drift 1 toward
+        reputationCap*GLModConfig.SERVER.reputationDecayFloor, or back toward 0 when below -150
 ```
 
 ### 3.7 Navigation
@@ -242,7 +262,8 @@ public class MyEntity extends GeneralYoukaiEntity {
         board.addExclusive(50, new MyCustomTask<>(), GLBrains.AT_HOME.get());
     }
     @Override protected List<AbstractYoukaiModule> createModules() {
-        return List.of(new HomeModule(this), new MyGiftModule(this), new FeedModule(this), new TalkModule(this));
+        // keep the base order; feed/gift are commented out upstream, add them back there
+        return List.of(new HomeModule(this), new VisitModule(this), new PartyModule(this), new TalkModule(this));
     }
 }
 ```
@@ -251,17 +272,19 @@ public class MyEntity extends GeneralYoukaiEntity {
 
 ```java
 // query
-ReputationState state = youkai.getReputation(player); // STRANGER if unknown type
+ReputationState state = CharacterData.getState(data.reputation);
 if (state == ReputationState.FRIEND) { /* quest */ }
 
 // mutate via CharDataHolder (auto-sync)
-CharDataHolder.get(player, youkai).gain(10); // gainReputation(10, MAX)
+CharDataHolder.get(player, youkai).gain(10, 150, 0, 0);        // +10, halved past 150, cap untouched
+CharDataHolder.get(player, youkai).gain(10, 150, 25, 300);    // quest reward: also raises the cap by 25
 CharDataHolder.getUnbounded(player, GLEntities.REIMU.get()).onHurt(...);
 
 // direct
 CharacterAttachment att = GLMeta.CHAR.type().getOrCreate(player);
 CharacterData data = att.get(player, youkai).data();
-data.reputation // -300..300
+data.reputation     // -300..300
+data.reputationCap  // ceiling quests have lifted this relationship to
 ```
 
 ### Add a new Module

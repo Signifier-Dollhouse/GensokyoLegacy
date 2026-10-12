@@ -21,7 +21,7 @@ import java.util.Set;
  * gated table gives nothing instead of crashing.
  *
  * @param min    lowest appeal that passes, inclusive
- * @param max    highest appeal that passes, inclusive
+ * @param max    highest appeal that passes, exclusive
  * @param invert pass when the comparison fails, as in {@code SelfReputationCondition}
  * @see doc/design/party/send.md
  */
@@ -33,16 +33,11 @@ public record AppealConsumedCondition(int min, int max, boolean invert) implemen
 			Codec.BOOL.optionalFieldOf("invert", false).forGetter(AppealConsumedCondition::invert)
 	).apply(i, AppealConsumedCondition::new));
 
-	public AppealConsumedCondition {
-		// a band ending before it starts would silently never match and empty a whole pool
-		max = Math.max(min, max);
-	}
-
 	/**
 	 * At least {@code min} appeal.
 	 */
 	public AppealConsumedCondition(int min) {
-		this(min, Integer.MAX_VALUE, false);
+		this(min, 0, false);
 	}
 
 	/**

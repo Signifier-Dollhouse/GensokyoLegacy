@@ -94,7 +94,7 @@ a 30% roll.
 
 ### 2.3 While she is partying
 
-A visitor can be claimed by a party (`party/guest.md` §2.1), which records the
+A visitor can be claimed by a party (`../party/guest.md` §2.1), which records the
 visit on her `PartyModule` so it can be given back. `VisitModule.tickServer`
 stands down entirely while she is partying: renewing `MEM_VISIT` would register
 her as a visitor in the middle of a party, and discarding her would delete a

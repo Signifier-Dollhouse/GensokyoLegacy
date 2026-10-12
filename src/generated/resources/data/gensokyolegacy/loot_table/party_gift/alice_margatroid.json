@@ -59,7 +59,7 @@
       "conditions": [
         {
           "condition": "gensokyolegacy:appeal_consumed",
-          "max": 400,
+          "max": 0,
           "min": 400
         }
       ],
