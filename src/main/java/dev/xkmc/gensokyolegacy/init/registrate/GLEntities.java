@@ -16,6 +16,8 @@ import dev.xkmc.gensokyolegacy.content.entity.characters.magician.AliceEntity;
 import dev.xkmc.gensokyolegacy.content.entity.characters.magician.AliceRenderer;
 import dev.xkmc.gensokyolegacy.content.entity.characters.merchant.MorichikaEntity;
 import dev.xkmc.gensokyolegacy.content.entity.characters.merchant.MorichikaRenderer;
+import dev.xkmc.gensokyolegacy.content.entity.characters.oni.SuikaEntity;
+import dev.xkmc.gensokyolegacy.content.entity.characters.oni.SuikaRenderer;
 import dev.xkmc.gensokyolegacy.content.entity.characters.rumia.RumiaEntity;
 import dev.xkmc.gensokyolegacy.content.entity.characters.rumia.RumiaRenderer;
 import dev.xkmc.gensokyolegacy.content.entity.characters.sakuya.SakuyaEntity;
@@ -61,6 +63,11 @@ public class GLEntities {
 	 * No home of her own: she only ever appears as a guest, see {@code GLStructureGen}.
 	 */
 	public static final EntityEntry<SakuyaEntity> IZAYOI_SAKUYA;
+	/**
+	 * Also a guest only. The mod has no bamboo forest to put an oni's house in, so she is
+	 * declared at one of the magical forest houses instead - see {@code GLStructureGen}.
+	 */
+	public static final EntityEntry<SuikaEntity> IBUKI_SUIKA;
 	public static final EntityEntry<GeneralYoukaiEntity> MYSTIA;
 	public static final EntityEntry<BossYoukaiEntity> YUKARI, KOISHI;
 	public static final EntityEntry<FairyEntity> SUNNY, LUNA, STAR;
@@ -105,6 +112,8 @@ public class GLEntities {
 		PartyTaste TASTE_MORICHIKA = new PartyTaste(100, 0, 200, 1, 20, 32, 20, 60, 160, 0.05, 0.05);
 		PartyTaste TASTE_ALICE = new PartyTaste(100, 0, 250, 1, 24, 40, 12, 60, 160, 0.05, 0.05);
 		PartyTaste TASTE_SAKUYA = new PartyTaste(100, 0, 250, 1, 30, 48, 20, 60, 160, 0.05, 0.05);
+		// they eat a lot
+		PartyTaste TASTE_SUIKA = new PartyTaste(10, 0, 250, 1, 500, 1000, 400, 60, 160, 0.05, 0.01);
 
 		{
 
@@ -206,6 +215,19 @@ public class GLEntities {
 					.renderer(() -> SakuyaRenderer::new)
 					.loot(EntityLootGen::noLoot)
 					.dataMap(GLMeta.PARTY_TASTE.reg(), TASTE_SAKUYA)
+					.register();
+
+			IBUKI_SUIKA = GensokyoLegacy.REGISTRATE
+					.entity("ibuki_suika", SuikaEntity::new, MobCategory.MONSTER)
+					.properties(e -> e.sized(0.5F, 1.9f).clientTrackingRange(10))
+					.attributes(BossYoukaiEntity::createAttributes)
+					.renderer(() -> SuikaRenderer::new)
+					.loot(EntityLootGen::noLoot)
+					.dataMap(GLMeta.GIFT_PREFERENCE.reg(), GiftPreference.of(Map.of(
+							GiftType.DRINK, 2.0,
+							GiftType.FOOD, 1.5
+					)))
+					.dataMap(GLMeta.PARTY_TASTE.reg(), TASTE_SUIKA)
 					.register();
 
 			MYSTIA = GensokyoLegacy.REGISTRATE

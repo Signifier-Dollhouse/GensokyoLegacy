@@ -99,6 +99,7 @@ public class GiftLootGen {
 		gift(pvd, "izayoi_sakuya", sakuya());
 		gift(pvd, "alice_margatroid", alice());
 		gift(pvd, "morichika_rinnosuke", morichika());
+		gift(pvd, "ibuki_suika", suika());
 	}
 
 	private static List<Tier> reimu() {
@@ -179,6 +180,18 @@ public class GiftLootGen {
 	}
 
 	/**
+	 * An oni leaves you with drink, and only drink, and she is not fussy about which
+	 * kind: her ladder is short and the top rung is the expensive bottle rather than
+	 * something of her own, because she has nothing of her own worth giving.
+	 */
+	private static List<Tier> suika() {
+		return List.of(
+				tier(0, 50, gift(GLNaturalBlocks.STAR_FLOWER, 20)),
+				tier(50, 0, gift(GLItems.TENGU_SAKE, 20),
+						gift(GLItems.GHOST_SAKE, 20)));//TODO
+	}
+
+	/**
 	 * Her rungs.
 	 */
 	private static void gift(RegistrateLootTableProvider pvd, String character, List<Tier> tiers) {
@@ -236,7 +249,9 @@ public class GiftLootGen {
 	private record Entry(Item item, int weight) {
 	}
 
-	/** A rung of some width, holding what she will hand over over that whole band. */
+	/**
+	 * A rung of some width, holding what she will hand over over that whole band.
+	 */
 	private static Tier tier(int min, int max, Entry... gifts) {
 		return new Tier(List.of(gifts), min, max);
 	}

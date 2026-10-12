@@ -39,6 +39,19 @@
       "repGain": 0.05,
       "weight": 100
     },
+    "gensokyolegacy:ibuki_suika": {
+      "fulfillment": 400,
+      "fullSeat": 160,
+      "hungrySeat": 60,
+      "leaveChance": 0.05,
+      "maxAppeal": 1000,
+      "maxReputation": 250,
+      "minAppeal": 500,
+      "minReputation": 0,
+      "repBonus": 1.0,
+      "repGain": 0.01,
+      "weight": 10
+    },
     "gensokyolegacy:izayoi_sakuya": {
       "fulfillment": 20,
       "fullSeat": 160,

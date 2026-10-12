@@ -43,7 +43,9 @@ PathfinderMob
                  │   ├─ FairyEntity (FairyCombatManager)
                  │   │   └─ CirnoEntity (CountPickupModule, Hunt sensors)
                  │   ├─ MaidenEntity → BossYoukaiEntity (200HP, markHuman)
+                 │   │   └─ Marisa, Reimu, Sakuya
                  │   ├─ MorichikaEntity, Mystia, etc.
+                 │   ├─ BossYoukaiEntity → SuikaEntity (guest-only, no spell card)
                  │   └─ Boss entries (Yukari, Koishi) via GLEntities
                  └─ RumiaEntity (RumiaStateMachine, EX form, 1.7x0.4 fall dims)
 ```

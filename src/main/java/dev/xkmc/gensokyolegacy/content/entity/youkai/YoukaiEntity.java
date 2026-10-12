@@ -269,6 +269,40 @@ public void broadcastEat() {
 		}
 	}
 
+	/**
+	 * Ticks between two hurt reactions. A spell card lands danmaku every few ticks, and a
+	 * flinch restarted on each one reads as a stutter rather than as a hit, so the
+	 * reaction is rate-limited rather than fired once per damage instance. The clip itself
+	 * is half a second long, which is what sets the number.
+	 */
+	private static final int HURT_ANIM_COOLDOWN = 10;
+
+	private int lastHurtAnim = -HURT_ANIM_COOLDOWN;
+
+	/**
+	 * Play this character's flinch, if she has one.
+	 * <p>
+	 * An entity event rather than a direct animation call, for the same reason as
+	 * {@link #broadcastEat()}: the client has to see the reaction the server played.
+	 * <p>
+	 * Silent for a character that is not geo-animated, and for a rig with no
+	 * {@code 受伤} clip — the flinch is missing art, not a missing system, and every rig
+	 * that has one opts in with {@code GeoYoukaiAnim#addHurtAnim}.
+	 */
+	public void broadcastHurt() {
+		if (this instanceof GeoYoukaiAnim && !level().isClientSide()) {
+			level().broadcastEntityEvent(this, GeoYoukaiAnim.HURT_EVENT);
+		}
+	}
+
+	@Override
+	protected void postHurt(DamageSource source) {
+		super.postHurt(source);
+		if (tickCount - lastHurtAnim < HURT_ANIM_COOLDOWN) return;
+		lastHurtAnim = tickCount;
+		broadcastHurt();
+	}
+
 	@Override
 	protected InteractionResult mobInteract(Player player, InteractionHand hand) {
 		for (var e : modules) {

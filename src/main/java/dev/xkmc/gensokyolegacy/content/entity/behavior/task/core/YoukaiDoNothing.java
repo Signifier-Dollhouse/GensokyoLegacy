@@ -14,8 +14,8 @@ import net.minecraft.world.entity.schedule.Activity;
  * (idles for a random duration), except that when the current activity is
  * outdoor ({@link Activity#IDLE} or {@link Activity#PLAY}) and the entity
  * stands outside its house bound, a per-character outdoor idle one-shot is
- * broadcast at 10% chance and at most once per 10 seconds ({@code 伸懒腰}
- * for Marisa, {@code 眺望} for Reimu, none for Morichika).
+ * broadcast at 10% chance and at most once per 10 seconds (an {@code 闲置动画}
+ * fidget for most of them, none for Morichika and Sakuya).
  */
 public class YoukaiDoNothing<E extends SmartYoukaiEntity> implements BehaviorControl<E> {
 

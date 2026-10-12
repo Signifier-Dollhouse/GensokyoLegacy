@@ -185,29 +185,38 @@ is worth 14: `maxAppeal` 24 is under two cakes, and `fulfillment` 8 is just over
 one.
 
 Shipped values, in `data/gensokyolegacy/data_maps/entity_type/party_taste.json`. **These
-six rows are the whole eligible cast** — every other character, including the remaining
+seven rows are the whole eligible cast** — every other character, including the remaining
 eight youkai, has no entry and does not come:
 
 | Character | weight | minRep | maxRep | repBonus | minAppeal | maxAppeal | fulfillment | repGain |
 |---|---|---|---|---|---|---|---|---|
-| `cirno` | 100 | **0** | 150 | 0.3 | 4 | 20 | 6 | 0.05 |
-| `hakurei_reimu` | 100 | 50 | 200 | 0.3 | 10 | 32 | 20 | 0.05 |
-| `kirisame_marisa` | 100 | 50 | 200 | 0.3 | 20 | 32 | 20 | 0.05 |
-| `morichika_rinnosuke` | 100 | 50 | 200 | 0.3 | 20 | 32 | 20 | 0.05 |
-| `alice_margatroid` | 100 | 50 | 250 | 0.15 | 24 | 40 | 12 | 0.05 |
-| `izayoi_sakuya` | 100 | 50 | 250 | 0.15 | 30 | 48 | 20 | 0.05 |
+| `cirno` | 100 | **0** | 150 | 1.0 | 4 | 20 | 6 | 0.05 |
+| `hakurei_reimu` | 100 | 0 | 200 | 1.0 | 10 | 32 | 20 | 0.05 |
+| `kirisame_marisa` | 100 | 0 | 200 | 1.0 | 20 | 32 | 20 | 0.05 |
+| `morichika_rinnosuke` | 100 | 0 | 200 | 1.0 | 20 | 32 | 20 | 0.05 |
+| `alice_margatroid` | 100 | 0 | 250 | 1.0 | 24 | 40 | 12 | 0.05 |
+| `ibuki_suika` | 100 | 0 | 250 | 1.0 | 26 | 40 | 10 | 0.05 |
+| `izayoi_sakuya` | 100 | 0 | 250 | 1.0 | 30 | 48 | 20 | 0.05 |
 | *(everyone else)* | — | — | — | — | — | — | **not eligible** | — |
 
-The last three fields — `hungrySeat` 60, `fullSeat` 160 and `leaveChance` 0.05 — are the same for all six and are not shown above; they are per character so that a glutton and a nibbler can be told apart, not because anything currently is.
+`hungrySeat` 60 and `fullSeat` 160 are the same for all seven and are not shown above;
+`leaveChance` is 0.05 for all of them except Suika, who leaves at 0.1. Those three are per
+character so that a glutton and a nibbler can be told apart, not because much currently is.
 
 Every one ships `weight` 100, so these are exactly the pre-`weight` numbers scaled by 100
-— the axis is authored but not yet tuned, and moving one is a datapack edit.
+— the axis is authored but not yet tuned, and moving one is a datapack edit. Likewise
+`minRep` 0 and `repBonus` 1.0 everywhere: the reputation axis is wired but flat, so nobody
+is locked out and nobody gets extra draw for knowing them well.
 
-Cirno is the one entry with no reputation floor and the lowest fulfillment, which is what
-makes her the reliable first guest at an early game. The other five all need a standing
-reputation of at least 50, so an unwritten save invites nobody until someone has met them.
+Cirno has the lowest fulfillment (6), which is what makes her the reliable first guest at
+an early game. Suika is the other end of the same axis in a different direction — a
+fulfillment of 10 and a `leaveChance` of 0.1, so she eats less than the adults and is the
+quickest of the lot to call it a day. Sakuya asks the most (30) and wants the most
+(48) before she is fully interested.
 
-Sakuya has no `character_config` and no home — she is guest-only by design (`GLEntities.java:55`) — which makes her the natural first test case for the whole system, since a party guest needs no home binding either way.
+Sakuya and Suika have no `character_config` and no home — both are guest-only by design —
+which makes them the natural test cases for the whole system, since a party guest needs no
+home binding either way.
 
 Fulfillments are 6/8/8/8/10/12 rather than the original 16/20/20/20/24/24. They were retuned once appeal stopped being hand-authored and became derived from real food properties: a whole vanilla cake is worth 14, not the 8 originally assumed, and a modded feast lands somewhere above that. A fulfillment of 16 against a 14-appeal cake would have left the no-mods-installed path unable to satisfy anyone at all.
 
@@ -363,7 +372,12 @@ worse than useless.
 
 ## 5. Worked example
 
-Vanilla only, and checkable against food.md §1: one `minecraft:cake` is 7 slices of 2 hunger = **14**, and its appeal is also 14 (§2.1), so the spread sizes below are both. Reputation 180 across the board, above everyone's floor. Recomputed against the shipped `party_taste.json`.
+Vanilla only, and checkable against food.md §1: one `minecraft:cake` is 7 slices of 2 hunger = **14**, and its appeal is also 14 (§2.1), so the spread sizes below are both. Reputation 180 across the board. Recomputed against the shipped `party_taste.json`.
+
+> The roster below predates `ibuki_suika`, who is eligible and so should have a row here. It
+> is a seeded draw, so her weights have to be recomputed by running the selection rather than
+> worked out by hand — until someone does, read this as the shape of the result and not as the
+> full cast.
 
 Per-character weight at each spread, reputation held at 180:
 
