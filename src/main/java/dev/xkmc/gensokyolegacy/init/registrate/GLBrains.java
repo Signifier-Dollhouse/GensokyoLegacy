@@ -2,6 +2,7 @@ package dev.xkmc.gensokyolegacy.init.registrate;
 
 import dev.xkmc.gensokyolegacy.content.entity.behavior.move.CompoundPath;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.sensor.*;
+import dev.xkmc.gensokyolegacy.content.entity.module.FairyFeedModule;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.l2core.init.reg.simple.SR;
 import dev.xkmc.l2core.init.reg.simple.Val;
@@ -36,11 +37,14 @@ public class GLBrains {
 	public static final Val<MemoryModuleType<Unit>> MEM_DOWN = MEMORIES.reg("down", () -> new MemoryModuleType<>(Optional.of(Unit.CODEC)));
 	public static final Val<MemoryModuleType<Player>> MEM_TALK = MEMORIES.reg("talk", () -> new MemoryModuleType<>(Optional.empty()));
 	/**
-	 * Whoever just fed her, held for the length of the animation she plays about it.
-	 * Its presence is what starts {@code FairyCakeTask}, which eats first and only
+	 * Who just fed her and what she owes them for it, held for the length of the
+	 * animation she plays about it. Both halves travel together because the gift
+	 * depends on the food, and one of the two is a roll.
+	 * Its presence is what starts {@code FairyFeedTask}, which eats first and only
 	 * then hands something back.
 	 */
-	public static final Val<MemoryModuleType<Player>> MEM_FEED = MEMORIES.reg("feed", () -> new MemoryModuleType<>(Optional.empty()));
+	public static final Val<MemoryModuleType<FairyFeedModule.Fed>> MEM_FEED =
+			MEMORIES.reg("feed", () -> new MemoryModuleType<>(Optional.empty()));
 	public static final Val<MemoryModuleType<List<ItemEntity>>> MEM_ITEMS = MEMORIES.reg("nearby_items", () -> new MemoryModuleType<>(Optional.empty()));
 	/**
 	 * Where the character is visiting. Its presence is what puts her in
@@ -75,14 +79,14 @@ public class GLBrains {
 	 */
 	public static final Val<Activity> PARTY = ACTIVITIES.reg("party", () -> new Activity("party"));
 	/**
-	 * Running from whatever just hit her. Outranks eating, so a cake offered mid-panic
+	 * Running from whatever just hit her. Outranks eating, so a snack offered mid-panic
 	 * waits for her to stop running rather than stopping her - see the priority scale
 	 * in {@code PlainFairyEntity#constructTaskBoard}.
 	 */
 	public static final Val<Activity> FEAR = ACTIVITIES.reg("fear", () -> new Activity("fear"));
 	/**
-	 * Standing still with a cake in her hands. Being fed cuts in on talking and on her
-	 * schedule, but not on a panic, and not on a hunt.
+	 * Standing still with something in her hands. Being fed cuts in on talking and on
+	 * her schedule, but not on a panic, and not on a hunt.
 	 */
 	public static final Val<Activity> FEAST = ACTIVITIES.reg("feast", () -> new Activity("feast"));
 
