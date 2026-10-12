@@ -1,5 +1,5 @@
 {
-  "parent": "gensokyolegacy:main/obtain_mini_hakkero",
+  "parent": "gensokyolegacy:main/obtain_strange_glasses",
   "criteria": {
     "0": {
       "conditions": {
