@@ -184,6 +184,7 @@ public class SuikaEntity extends BossYoukaiEntity implements GeoYoukaiAnim {
 		var main = new AnimationController<>(this, ANIM_CONTROLLER, 5, this::idleAnimController);
 		addEatAnim(main);
 		addHurtAnim(main);
+		addGatherAnim(main);
 		addDialogAnims(main);
 		controllers.add(main);
 	}
