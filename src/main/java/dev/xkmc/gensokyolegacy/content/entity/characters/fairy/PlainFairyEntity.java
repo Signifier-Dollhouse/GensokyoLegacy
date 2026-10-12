@@ -361,15 +361,15 @@ public class PlainFairyEntity extends FairyEntity implements GeoYoukaiAnim {
 
 	/**
 	 * The whole scale she resolves against, lowest number wins:
-	 * {@code FIGHT(0) - FEAR(25) - FEAST(50) - TALK(100) - VISITING(150) - HUNT(200)}.
+	 * {@code FIGHT(0) - FEAR(100) - FEAST(200) - TALK(300) - NAP(500) - VISITING(600) - HUNT(700)}.
 	 * <p>
 	 * The part that matters to her: a fight outranks everything, because being
 	 * cornered beats every reason she had for standing still. Running beats eating,
 	 * so a snack handed to a panicking fairy is <em>not</em> enough to stop her - it
 	 * waits, and she eats it once she has put ground between them. Eating beats
 	 * talking, because she cannot be drawn into a conversation with her mouth full,
-	 * and beats the hunt for the same reason it beats the stroll. 25 and 50 rather
-	 * than two round numbers because TALK already holds 100.
+	 * and beats the hunt for the same reason it beats the stroll. She never naps, so
+	 * NAP is in the list only as a rung she skips over.
 	 */
 	@Override
 	protected void constructTaskBoard(TaskBoard board) {
@@ -377,9 +377,9 @@ public class PlainFairyEntity extends FairyEntity implements GeoYoukaiAnim {
 		// its own activity rather than CORE: eating is the one thing she stops for,
 		// and CORE would leave the stroll and stay-tasks running alongside it
 		board.addAlways(new FairyFeedTask(), GLBrains.FEAST.get());
-		board.addPrioritizedActivity(GLBrains.FEAST.get(), GLBrains.MEM_FEED.get(), 50);
+		board.addPrioritizedActivity(GLBrains.FEAST.get(), GLBrains.MEM_FEED.get(), 200);
 		board.addExclusive(0, new FairyFleeTask(), GLBrains.FEAR.get());
-		board.addPrioritizedActivity(GLBrains.FEAR.get(), GLBrains.MEM_FEAR.get(), 25);
+		board.addPrioritizedActivity(GLBrains.FEAR.get(), GLBrains.MEM_FEAR.get(), 100);
 
 		// Being drawn to someone: something she eats first, and failing that anyone
 		// she is not hostile towards. FollowTemptation is only half of it - without the

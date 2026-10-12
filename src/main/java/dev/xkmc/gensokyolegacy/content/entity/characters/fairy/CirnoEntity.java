@@ -172,7 +172,9 @@ public class CirnoEntity extends FairyEntity implements GeoYoukaiAnim {
 		board.addSensor(new NearbyItemsSensor<CirnoEntity>().setRadius(18, 6).setScanRate(e -> e.playOrHunt() ? 20 : 60));
 		board.addSensor(new YoukaiFindPreySensor<>(CirnoEntity::playOrHunt));
 
-		board.addPrioritizedActivity(GLBrains.HUNT.get(), GLBrains.MEM_PREY.get(), 200);
+		// 700: the lowest rung on GLBrains' priority scale, so a hunt is the least
+		// that can be talked out of.
+		board.addPrioritizedActivity(GLBrains.HUNT.get(), GLBrains.MEM_PREY.get(), 700);
 	}
 
 	private boolean playOrHunt() {

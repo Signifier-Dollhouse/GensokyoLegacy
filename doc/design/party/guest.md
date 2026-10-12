@@ -6,12 +6,14 @@ Those seven were brain memories once, and that was the wrong home: `Brain.Memory
 
 ## 1. The machine
 
-Driven from a `PARTY` activity at priority 200, and registered in one line:
+Driven from a `PARTY` activity at priority 400, and registered in one line:
 
 ```java
-board.addPrioritizedActivity(GLBrains.PARTY.get(), GLBrains.MEM_PARTY.get(), 200);
+board.addPrioritizedActivity(GLBrains.PARTY.get(), GLBrains.MEM_PARTY.get(), 400);
 board.addPartyTasks();
 ```
+
+400 sits just below `TALK(300)` and above `VISITING(600)` and everything scheduled, so a guest can still talk and trade, never wanders off to visit mid-party, and never sleeps or goes home.
 
 **Which task runs is decided by which of those seven are set, not by a variable.** Each task declares the ones that must be set (and those that must not) in its entry condition, and `checkExtraStartConditions` covers what they cannot know — whether she is actually a passenger, whether the party has reached FEASTING. `TaskBoard.fetch` collects every exclusive task under one activity into a single `GateBehavior(ORDERED, RUN_ONE)`, which tries them **in registration order and runs the first that matches**. So the order *is* the priority, and a task lower down can be given a signature as loose as "nothing" — everything more specific has already been claimed by then.
 

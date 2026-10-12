@@ -64,6 +64,30 @@ public class SmartYoukaiEntity extends YoukaiEntity {
 		if (isSleeping() && getActivity() != Activity.REST) {
 			stopSleeping();
 		}
+		// The same class of bug for the nap. YoukaiNapTask#canStillUse notices a nap
+		// being preempted every tick, so this only catches what it cannot: a brain
+		// rebuilt while she was down (invalidateBrain on a dimension change) drops
+		// the task instance without ever stopping it, and the pose - which the client
+		// reads from the synced flag and nothing else - would outlive the activity
+		// that owns it.
+		if (getFlag(YoukaiFlags.NAPPING) && getActivity() != GLBrains.NAP.get()) {
+			setFlag(YoukaiFlags.NAPPING, false);
+		}
+	}
+
+	/**
+	 * How readily she lies down and does nothing when she has nothing to do.
+	 *
+	 * <p>
+	 * Rolled once per idle stretch by {@code YoukaiDoNothing}, which offers the nap
+	 * before the outdoor idle fidget and shares its ten-second cooldown with it. Zero -
+	 * the default, and what every character but Suika returns - means she never naps.
+	 * A win is not instant: it sets {@link GLBrains#MEM_NAP} for five to twenty seconds,
+	 * and the brain puts her in {@link GLBrains#NAP} on the next tick, which is what
+	 * leaves a nap something a fight or a conversation can cut short.
+	 */
+	public float napChance() {
+		return 0;
 	}
 
 	@Override
@@ -119,8 +143,8 @@ public class SmartYoukaiEntity extends YoukaiEntity {
 				Activity.IDLE, Activity.PLAY, GLBrains.AT_HOME.get());
 		// A visitor keeps to the host's premises, so the stay tasks that key off
 		// her own home are useless to her; stroll and idle are what is left.
-		// FetchTargetTask is not repeated here: TALK outranks VISITING, so it is
-		// already running whenever there is somebody to talk to.
+		// FetchTargetTask is not repeated here: TALK(300) outranks VISITING(600), so
+		// it is already running whenever there is somebody to talk to.
 		board.addRandom(RandomStroll.stroll(0.8f), GLBrains.VISITING.get());
 		board.addRandom(new YoukaiDoNothing<>(30, 60), GLBrains.VISITING.get());
 
@@ -134,16 +158,17 @@ public class SmartYoukaiEntity extends YoukaiEntity {
 		board.addScheduledActivity(GLBrains.AT_HOME.get(), MemoryModuleType.HOME);
 		board.addScheduledActivity(Activity.PLAY, null);
 		board.addScheduledActivity(Activity.IDLE, null);
-		board.addPrioritizedActivity(GLBrains.TALK.get(), GLBrains.MEM_TALK.get(), 100);
-		// 150 is deliberate: TaskBoard injects a prioritized activity's memory as
-		// VALUE_ABSENT into every less prioritized activity, so this has to sit
-		// below TALK (a visitor must stay able to talk and trade) and above the
+		board.addPrioritizedActivity(GLBrains.TALK.get(), GLBrains.MEM_TALK.get(), 300);
+		// 600 is deliberate: TaskBoard injects a prioritized activity's memory as
+		// VALUE_ABSENT into every less prioritized activity, so this has to sit below
+		// TALK and PARTY (a visitor must stay able to talk and trade) and above the
 		// scheduled activities (a visitor must never sleep or go home).
-		board.addPrioritizedActivity(GLBrains.VISITING.get(), GLBrains.MEM_VISIT.get(), 150);
-		// 200 for the same reason, one rung further up: a party guest keeps the
-		// ability to talk and trade (TALK is walked first), and every scheduled
-		// activity below requires MEM_PARTY absent, so she never sleeps or goes home.
-		board.addPrioritizedActivity(GLBrains.PARTY.get(), GLBrains.MEM_PARTY.get(), 200);
+		board.addPrioritizedActivity(GLBrains.VISITING.get(), GLBrains.MEM_VISIT.get(), 600);
+		// 400 for the same reason, one rung further up: a party guest keeps the ability
+		// to talk and trade (TALK is walked first), beats VISITING so she never wanders
+		// off mid-party, and every scheduled activity below requires MEM_PARTY absent,
+		// so she never sleeps or goes home.
+		board.addPrioritizedActivity(GLBrains.PARTY.get(), GLBrains.MEM_PARTY.get(), 400);
 		board.addPartyTasks();
 
 		board.setSchedule(new ScheduleBuilder(new Schedule())
@@ -204,9 +229,10 @@ public class SmartYoukaiEntity extends YoukaiEntity {
 	 * <p>
 	 * Same activity is never an outranking: a character already doing the thing is the
 	 * one case where the interaction should go ahead. Everything else is a straight
-	 * comparison - FEAST(50) while eating outranks TALK(100), so talking is refused
-	 * until the cake is gone; FEAR(25) outranks both, so neither is offered at all
-	 * until she has stopped running.
+	 * comparison - FEAST(200) while eating outranks TALK(300), so talking is refused
+	 * until the cake is gone; FEAR(100) outranks both, so neither is offered at all
+	 * until she has stopped running. NAP(500) is the one that is <em>not</em> refused:
+	 * lying down is not a reason not to answer somebody.
 	 */
 	protected boolean outrankedBy(Activity activity) {
 		var current = getActivity();
