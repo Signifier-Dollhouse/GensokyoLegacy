@@ -1,0 +1,99 @@
+{
+  "type": "minecraft:advancement_reward",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "condition": "gensokyolegacy:appeal_consumed",
+          "max": 20
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "gensokyolegacy:star_flower",
+          "weight": 20
+        },
+        {
+          "type": "minecraft:item",
+          "name": "gensokyolegacy:fairy_cake",
+          "weight": 20
+        }
+      ],
+      "rolls": 1.0
+    },
+    {
+      "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "condition": "gensokyolegacy:appeal_consumed",
+          "max": 40,
+          "min": 20
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "gensokyolegacy:fairy_cake",
+          "weight": 20
+        },
+        {
+          "type": "minecraft:item",
+          "name": "gensokyolegacy:sturdy_teddy_bear",
+          "weight": 20
+        },
+        {
+          "type": "minecraft:item",
+          "name": "gensokyolegacy:frozen_frog_cold",
+          "weight": 10
+        },
+        {
+          "type": "minecraft:item",
+          "name": "gensokyolegacy:frozen_frog_warm",
+          "weight": 10
+        },
+        {
+          "type": "minecraft:item",
+          "name": "gensokyolegacy:frozen_frog_temperate",
+          "weight": 10
+        }
+      ],
+      "rolls": 1.0
+    },
+    {
+      "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "condition": "gensokyolegacy:appeal_consumed",
+          "max": 0,
+          "min": 40
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "gensokyolegacy:fairy_ice_crystal",
+          "weight": 20
+        },
+        {
+          "type": "minecraft:item",
+          "name": "gensokyolegacy:frozen_frog_cold",
+          "weight": 5
+        },
+        {
+          "type": "minecraft:item",
+          "name": "gensokyolegacy:frozen_frog_warm",
+          "weight": 5
+        },
+        {
+          "type": "minecraft:item",
+          "name": "gensokyolegacy:frozen_frog_temperate",
+          "weight": 5
+        }
+      ],
+      "rolls": 1.0
+    }
+  ],
+  "random_sequence": "gensokyolegacy:party_gift/cirno"
+}

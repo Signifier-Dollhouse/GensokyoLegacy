@@ -13,11 +13,10 @@ import java.util.Optional;
 
 /**
  * Suicide attack: go stray (cut from pairing, no leash), dive at the target and
- * explode — entities only, terrain never breaks. The TNT is consumed, then the
- * doll is guaranteed dead so the stray death drop returns the item form with all
- * other gear intact. A dive aborted before detonation (target died or left) never
- * reaches the blast, so on stop the doll rejoins its ledger instead — the order
- * costs the player nothing and the doll comes back whole.
+ * explode — entities only, terrain never breaks. The TNT is consumed, then the doll
+ * is guaranteed dead so the stray death drop returns the item form. A dive aborted
+ * before detonation rejoins the ledger instead, so the order costs the player nothing
+ * (control.md §5.4).
  */
 public class DollSuicideBehavior extends DollBehavior {
 
@@ -63,8 +62,8 @@ public class DollSuicideBehavior extends DollBehavior {
 		navCooldown = 0;
 		doll.actions.setKamikaze(false);
 		// A dive that never detonated (target died or left, weapon gone) is not a
-		// death: hand the doll back to its ledger as TEMP instead of leaving a
-		// stray nothing can reach. No-op once the entry went to the death drop.
+		// death: hand the doll back to its ledger as TEMP instead of leaving a stray
+		// nothing can reach. No-op once the entry went to the death drop.
 		doll.rejoinOwner();
 	}
 
@@ -93,9 +92,8 @@ public class DollSuicideBehavior extends DollBehavior {
 			doll.actions.complete(doll);
 			return;
 		}
-		// same blast as an explosive hexbrew: power 4, terrain kept, thrower and
-		// allies excluded — the doll itself is excluded as thrower, so death below
-		// is guaranteed by the fallback, not the blast.
+		// same blast as an explosive hexbrew, thrower excluded — the doll is the
+		// thrower, so the death below is guaranteed by the fallback, not the blast
 		HexBrew.EXPLOSIVE_HEXBREW.handler.onHit(level, dest, doll, match.get().stack());
 		doll.consumeLoadoutItem(match.get().hand(), 1);
 		if (!doll.isDeadOrDying()) doll.hurt(doll.damageSources().genericKill(), Float.MAX_VALUE);

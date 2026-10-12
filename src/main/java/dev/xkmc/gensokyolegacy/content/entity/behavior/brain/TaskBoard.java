@@ -4,6 +4,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.mojang.datafixers.util.Pair;
+import dev.xkmc.gensokyolegacy.content.entity.behavior.task.party.PartyTasks;
+import dev.xkmc.gensokyolegacy.init.registrate.GLBrains;
 import net.minecraft.world.entity.ai.behavior.Behavior;
 import net.minecraft.world.entity.ai.behavior.BehaviorControl;
 import net.minecraft.world.entity.ai.behavior.GateBehavior;
@@ -49,6 +51,31 @@ public class TaskBoard {
 		if (ctrl instanceof Behavior<?> beh) {
 			memories.addAll(beh.entryCondition.keySet());
 		}
+	}
+
+
+	/**
+	 * Register a memory with the brain without attaching a task to it.
+	 *
+	 * <p>
+	 * {@link Brain#setMemory} is a silent no-op for a type the brain does not know, and
+	 * {@code getMemory} throws outright, so a task that reads or writes a memory it never
+	 * names in its entry condition has to have that memory registered here.
+	 */
+	public void addMemory(MemoryModuleType<?> memory) {
+		memories.add(memory);
+	}
+
+	/**
+	 * Register the whole party machine — the director and all eleven state tasks — under
+	 * {@link GLBrains#PARTY}.
+	 *
+	 * <p>
+	 * The machine is a cascade rather than a task, so an entity class should not be the
+	 * place that knows how many pieces it has or in what order. See {@code PartyTasks}.
+	 */
+	public void addPartyTasks() {
+		PartyTasks.register(this);
 	}
 
 	public Set<MemoryModuleType<?>> memories() {

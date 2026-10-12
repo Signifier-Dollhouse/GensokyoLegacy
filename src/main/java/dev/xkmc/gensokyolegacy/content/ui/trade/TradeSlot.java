@@ -31,6 +31,11 @@ public class TradeSlot extends Slot {
 	}
 
 	@Override
+	public boolean mayPickup(Player player) {
+		return false;
+	}
+
+	@Override
 	public boolean isFake() {
 		return true;
 	}

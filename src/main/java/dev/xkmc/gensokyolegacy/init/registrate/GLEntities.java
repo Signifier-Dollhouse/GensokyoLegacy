@@ -16,6 +16,8 @@ import dev.xkmc.gensokyolegacy.content.entity.characters.magician.AliceEntity;
 import dev.xkmc.gensokyolegacy.content.entity.characters.magician.AliceRenderer;
 import dev.xkmc.gensokyolegacy.content.entity.characters.merchant.MorichikaEntity;
 import dev.xkmc.gensokyolegacy.content.entity.characters.merchant.MorichikaRenderer;
+import dev.xkmc.gensokyolegacy.content.entity.characters.oni.SuikaEntity;
+import dev.xkmc.gensokyolegacy.content.entity.characters.oni.SuikaRenderer;
 import dev.xkmc.gensokyolegacy.content.entity.characters.rumia.RumiaEntity;
 import dev.xkmc.gensokyolegacy.content.entity.characters.rumia.RumiaRenderer;
 import dev.xkmc.gensokyolegacy.content.entity.characters.sakuya.SakuyaEntity;
@@ -32,6 +34,7 @@ import dev.xkmc.gensokyolegacy.content.entity.youkai.GeneralYoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.GeneralYoukaiRenderer;
 import dev.xkmc.gensokyolegacy.content.item.gift.GiftPreference;
 import dev.xkmc.gensokyolegacy.content.item.gift.GiftType;
+import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyTaste;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.loot.EntityLootGen;
 import net.minecraft.client.renderer.entity.ThrownItemRenderer;
@@ -56,12 +59,21 @@ public class GLEntities {
 	public static final EntityEntry<MarisaEntity> MARISA;
 	public static final EntityEntry<MorichikaEntity> MORICHIKA;
 	public static final EntityEntry<AliceEntity> ALICE;
-	/** No home of her own: she only ever appears as a guest, see {@code GLStructureGen}. */
+	/**
+	 * No home of her own: she only ever appears as a guest, see {@code GLStructureGen}.
+	 */
 	public static final EntityEntry<SakuyaEntity> IZAYOI_SAKUYA;
+	/**
+	 * Also a guest only. The mod has no bamboo forest to put an oni's house in, so she is
+	 * declared at one of the magical forest houses instead - see {@code GLStructureGen}.
+	 */
+	public static final EntityEntry<SuikaEntity> IBUKI_SUIKA;
 	public static final EntityEntry<GeneralYoukaiEntity> MYSTIA;
 	public static final EntityEntry<BossYoukaiEntity> YUKARI, KOISHI;
 	public static final EntityEntry<FairyEntity> SUNNY, LUNA, STAR;
-	/** The unnamed fairy that actually wears the shared fairy rig, in four recolours. */
+	/**
+	 * The unnamed fairy that actually wears the shared fairy rig, in four recolours.
+	 */
 	public static final EntityEntry<PlainFairyEntity> PLAIN_FAIRY;
 	public static final EntityEntry<DollEntity> DOLL;
 
@@ -89,6 +101,20 @@ public class GLEntities {
 				.tag(EntityTypeTags.FALL_DAMAGE_IMMUNE)
 				.register();
 
+		// weight, minRep, maxRep, repBonus, minAppeal, maxAppeal, fulfillment,
+		// hungrySeat, fullSeat, leaveChance, repGain.
+		// The two sits are 60 and 160 ticks — three and eight seconds — so a guest who is
+		// still hungry comes back for the next course quickly and one who is only grazing
+		// takes her time, and the 0.05 is what a party pays the host.
+		PartyTaste TASTE_CIRNO = new PartyTaste(100, 0, 150, 1, 4, 20, 6, 60, 160, 0.05, 0.05);
+		PartyTaste TASTE_REIMU = new PartyTaste(100, 0, 200, 1, 10, 32, 20, 60, 160, 0.05, 0.05);
+		PartyTaste TASTE_MARISA = new PartyTaste(100, 0, 200, 1, 20, 32, 20, 60, 160, 0.05, 0.05);
+		PartyTaste TASTE_MORICHIKA = new PartyTaste(100, 0, 200, 1, 20, 32, 20, 60, 160, 0.05, 0.05);
+		PartyTaste TASTE_ALICE = new PartyTaste(100, 0, 250, 1, 24, 40, 12, 60, 160, 0.05, 0.05);
+		PartyTaste TASTE_SAKUYA = new PartyTaste(100, 0, 250, 1, 30, 48, 20, 60, 160, 0.05, 0.05);
+		// they eat a lot
+		PartyTaste TASTE_SUIKA = new PartyTaste(10, 0, 250, 1, 500, 1000, 400, 60, 160, 0.05, 0.01);
+
 		{
 
 			RUMIA = GensokyoLegacy.REGISTRATE
@@ -110,6 +136,7 @@ public class GLEntities {
 							GiftType.DRINK, 2.0,
 							GiftType.BOOK, 1.5
 					)))
+					.dataMap(GLMeta.PARTY_TASTE.reg(), TASTE_REIMU)
 					.register();
 
 			CIRNO = GensokyoLegacy.REGISTRATE
@@ -123,6 +150,7 @@ public class GLEntities {
 							GiftType.FOOD, 1.5,
 							GiftType.BOOK, 0.5
 					)))
+					.dataMap(GLMeta.PARTY_TASTE.reg(), TASTE_CIRNO)
 					.register();
 		}
 
@@ -158,6 +186,7 @@ public class GLEntities {
 					.renderer(() -> MarisaRenderer::new)
 					.spawnEgg(0x52403C, 0xFAF2EF).build()
 					.loot(EntityLootGen::marisa)
+					.dataMap(GLMeta.PARTY_TASTE.reg(), TASTE_MARISA)
 					.register();
 
 			MORICHIKA = GensokyoLegacy.REGISTRATE
@@ -167,6 +196,7 @@ public class GLEntities {
 					.renderer(() -> MorichikaRenderer::new)
 					.spawnEgg(0x52403C, 0xFAF2EF).build()
 					.loot(EntityLootGen::noLoot)
+					.dataMap(GLMeta.PARTY_TASTE.reg(), TASTE_MORICHIKA)
 					.register();
 
 			ALICE = GensokyoLegacy.REGISTRATE
@@ -175,6 +205,7 @@ public class GLEntities {
 					.attributes(GeneralYoukaiEntity::createAttributes)
 					.renderer(() -> AliceRenderer::new)
 					.loot(EntityLootGen::noLoot)
+					.dataMap(GLMeta.PARTY_TASTE.reg(), TASTE_ALICE)
 					.register();
 
 			IZAYOI_SAKUYA = GensokyoLegacy.REGISTRATE
@@ -183,6 +214,20 @@ public class GLEntities {
 					.attributes(BossYoukaiEntity::createAttributes)
 					.renderer(() -> SakuyaRenderer::new)
 					.loot(EntityLootGen::noLoot)
+					.dataMap(GLMeta.PARTY_TASTE.reg(), TASTE_SAKUYA)
+					.register();
+
+			IBUKI_SUIKA = GensokyoLegacy.REGISTRATE
+					.entity("ibuki_suika", SuikaEntity::new, MobCategory.MONSTER)
+					.properties(e -> e.sized(0.5F, 1.9f).clientTrackingRange(10))
+					.attributes(BossYoukaiEntity::createAttributes)
+					.renderer(() -> SuikaRenderer::new)
+					.loot(EntityLootGen::noLoot)
+					.dataMap(GLMeta.GIFT_PREFERENCE.reg(), GiftPreference.of(Map.of(
+							GiftType.DRINK, 2.0,
+							GiftType.FOOD, 1.5
+					)))
+					.dataMap(GLMeta.PARTY_TASTE.reg(), TASTE_SUIKA)
 					.register();
 
 			MYSTIA = GensokyoLegacy.REGISTRATE

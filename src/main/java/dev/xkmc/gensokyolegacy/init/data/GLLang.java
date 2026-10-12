@@ -165,6 +165,8 @@ public final class GLLang {
 		YOUKAI_AVOID("%s might not want to see you for a while", 1),
 		ENTITY_FEED("Feed cool down: %s", 1),
 		ENTITY_GIFT("Gift cool down: %s", 1),
+		ENTITY_PARTY_EATEN("At the party: eaten %s of %s hunger", 2),
+		ENTITY_PARTY_APPEAL("At the party: appeal eaten %s", 1),
 		STRUCTURE_SCANNING("Scanning Structure...", 0),
 		STRUCTURE_ABNORMAL("Found %s invalid blocks", 1),
 		DOORS_TO_CLOSE("Doors to close (%s):", 1);
@@ -207,6 +209,65 @@ public final class GLLang {
 		@Override
 		public @Nullable ChatFormatting format() {
 			return format;
+		}
+	}
+
+	// ========== Party ==========
+	public enum Party implements LangEntry {
+		NO_FOOD("There is no food laid out on the tables"),
+		NO_SEATS("There is nowhere to sit - put some chairs around the table"),
+		PARTY_EXISTS("There is already a party here"),
+		NOBODY_CAME("Nobody came. Lay out more food, or get to know someone better"),
+		NEAR_TOO_PLAIN("%s would come, but wants a grander spread than this", 1),
+		NEAR_NO_SEAT("%s would come, but there is no seat free", 1),
+		SENT("Invitations sent. %s guest(s) are on the way", 1),
+		LOOKING_FOR_CHAIR("%s cannot find a chair yet - put another one out if you can", 1),
+		NO_CHAIR("%s gave up - no chair was free for her. Put out another chair", 1),
+		ENDED("The party is over"),
+		NO_PARTY("There is no party here"),
+		PREVIEW_TITLE("Spread appeal: %s, seats: %s", 2),
+		PREVIEW_HEADER("%s would come:", 1),
+		PREVIEW_GUEST("  %s  weight %s  rep %s  wants %s appeal", 4),
+		PREVIEW_NONE("Nobody would come"),
+		INFO_PHASE("Phase: %s", 1),
+		INFO_ROSTER("Invited: %s", 1),
+		INFO_SERVED("Served %s of %s hunger", 2),
+		INFO_APPEAL("Appeal served: %s", 1),
+		INFO_GUESTS("Guests present: %s", 1),
+		LETTER_HINT("Right-click a table to send it out");
+
+		private final String def;
+		private final int argn;
+		private final String key;
+
+		Party(String def) {
+			this(def, 0);
+		}
+
+		Party(String def, int argn) {
+			this.def = def;
+			this.argn = argn;
+			this.key = GensokyoLegacy.MODID + ".party." + name().toLowerCase(Locale.ROOT);
+		}
+
+		@Override
+		public String key() {
+			return key;
+		}
+
+		@Override
+		public String def() {
+			return def;
+		}
+
+		@Override
+		public int argn() {
+			return argn;
+		}
+
+		@Override
+		public @Nullable ChatFormatting format() {
+			return null;
 		}
 	}
 
@@ -328,7 +389,23 @@ public final class GLLang {
 		DOOR_DEBUG_UNBOUND("Not bound to a youkai. Right-click to bind."),
 		DOOR_DEBUG_BOUND("Bound to %s", 1),
 		DOOR_DEBUG_MISSING("Bound youkai is not loaded"),
-		DOOR_DEBUG_MOVING("Youkai moving to (%s, %s, %s)", 3);
+		DOOR_DEBUG_MOVING("Youkai moving to (%s, %s, %s)", 3),
+		PARTY_WAND_HOVER("Look at a food block to see what it is worth"),
+		PARTY_WAND_EAT("Click a food block to take one serving"),
+		PARTY_WAND_SIMULATE("Click a party table to simulate a party"),
+		PARTY_WAND_INVALID("That is tagged food but nothing to eat"),
+		PARTY_WAND_FOOD("%s", 1),
+		PARTY_WAND_SERVING("serving size: %s", 1),
+		PARTY_WAND_SERVES("serves: %s", 1),
+		PARTY_WAND_FOOD_VALUES("hunger: %s   saturation: %s", 2),
+		PARTY_WAND_TOTAL_HUNGER("hunger total: %s", 1),
+		PARTY_WAND_ATTRACTION("attraction: %s", 1),
+		PARTY_WAND_PARTY("Party simulated at (%s, %s, %s)", 3),
+		PARTY_WAND_COUNTS("tables: %s   seats: %s   food: %s", 3),
+		PARTY_WAND_TOTALS("hunger: %s   appeal: %s", 2),
+		PARTY_WAND_NOBODY("Nobody would come"),
+		PARTY_WAND_GUEST("  %s", 1),
+		PARTY_WAND_STALE("(taken away from that table - may be out of date)");
 
 		private final String def;
 		private final int argn;
@@ -910,7 +987,7 @@ FURNACE_2_BOOST("Held in main hand while riding a broom, right click to burn fue
 		for (var group : new LangEntry[][]{
 				Quest.values(), Info.values(), Trade.values(), Misc.values(),
 				ItemDebug.values(), ItemFurnace.values(), ItemLores.values(), ItemCommon.values(), ItemUmbrella.values(), ItemGlove.values(), ItemDaggerGlove.values(), Alchemy.values(), Jei.values(), JeiExtra.values(),
-				Talisman.values(), Doll.values()}) {
+				Talisman.values(), Doll.values(), Party.values()}) {
 			for (var e : group) {
 				pvd.add(e.key(), e.def());
 			}

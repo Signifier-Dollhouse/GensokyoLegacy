@@ -5,6 +5,12 @@ import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 
+/**
+ * How a character feels about the player, derived from the reputation value against the
+ * thresholds in {@link ReputationConstants}. {@link #asTargetKind} is what combat reads.
+ *
+ * @see doc/design/reputation.md
+ */
 public enum ReputationState {
 	FRIEND, STRANGER, JERK, ENEMY;
 

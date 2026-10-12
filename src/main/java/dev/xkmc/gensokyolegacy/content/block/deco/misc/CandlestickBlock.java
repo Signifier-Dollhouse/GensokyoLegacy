@@ -44,17 +44,10 @@ import net.neoforged.neoforge.common.ItemAbility;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * 烛台。落地摆件，底下要能站东西；可以像原版蜡烛一样点起来，只有点着的时候才发光。
+ * 落地烛台。点火、掐灭和火焰粒子的做法照搬原版 {@code AbstractCandleBlock}，但自己实现：
+ * 那条路径要求方块同时带 {@code lit} 和 {@code waterlogged}，烛台不蓄水。
  *
- * <p>模型来自 32×32 的单块贴图，四面基本对称，朝向状态只用来转模型角度。
- * 三个烛芯的顶端坐标在 {@link #FLAME_OFFSETS} 里，火焰粒子和熄灭的烟都从那三点出，
- * 并且跟着 {@link #FACING} 一起转。
- *
- * <p>点亮/熄灭照搬原版 {@code AbstractCandleBlock}：打火石（以及火球）经
- * {@link ItemAbilities#FIRESTARTER_LIGHT} 把它设成 lit，空手右键再掐灭。
- * 没有用原版的 {@code CandleBlock#canLight}，因为那条路径要求方块在
- * {@code #minecraft:candles} 标签里、并且同时带 {@code lit} 和 {@code waterlogged}
- * 两个属性，而烛台不蓄水。
+ * @see doc/design/candlestick.md
  */
 public class CandlestickBlock implements CreateBlockStateBlockMethod, DefaultStateBlockMethod,
 		SurviveBlockMethod, ShapeUpdateBlockMethod, ShapeBlockMethod,
@@ -73,15 +66,8 @@ public class CandlestickBlock implements CreateBlockStateBlockMethod, DefaultSta
 			MagicTableBlock.allFaces(new VoxelBuilder(1, 0, 6, 15, 13, 10));
 
 	/**
-	 * 三支蜡烛的火焰位置，相对方块原点的偏移，按 {@link Direction#get2DDataValue()} 索引，
-	 * 和 {@link #SHAPES} 同一套查法。中间那支的烛芯顶端在 y 14，两侧两支在 y 12；
-	 * 火焰都比芯尖高一格，和原版把粒子放在 y 8（芯尖 y 7 之上）一样。
-	 *
-	 * <p>只列朝北的一份再转出来：两条侧臂要跟着朝向从 x 轴转到 z 轴上去。
-	 * 转法照抄 {@link VoxelBuilder#rotateFromNorth}，也就是 {@link MagicTableBlock#allFaces}
-	 * 用的那个，这样火焰跟碰撞盒、跟 blockstate 里转过 {@code toYRot + 180} 的模型是一处的。
-	 * （`Vec3#yRot` 和 blockstate 的模型旋转互为逆旋转，严格说正负号是对不上的；这里看不出来，
-	 * 因为两点关于方块中心对称，转哪边都是同一对。换成人造的不对称烛台就要重新对了。）
+	 * 三支蜡烛的火焰位置，相对方块原点的偏移，按 {@link Direction#get2DDataValue()} 索引。
+	 * 只列朝北的一份，转向交给 {@link #allFaces}。
 	 */
 	private static final Vec3[][] FLAME_OFFSETS = allFaces(
 			new Vec3(0.5D, 15 / 16D, 0.5D),
@@ -135,9 +121,7 @@ public class CandlestickBlock implements CreateBlockStateBlockMethod, DefaultSta
 	@Override
 	public @Nullable BlockState getToolModifiedState(Block self, @Nullable BlockState current, BlockState old,
 			UseOnContext ctx, ItemAbility ability, boolean simulate) {
-		// 打火石和火焰弹都走 FIRESTARTER_LIGHT 这条路：前者自带音效和耐久，
-		// 后者因此不会在地上放火，而是点着烛台——和原版蜡烛一致。
-		// 其他能力交回 current，别把 delegate 已经算出来的结果抹掉。
+		// 打火石和火焰弹都走 FIRESTARTER_LIGHT；其他能力交回 current，别抹掉 delegate 自己算出的结果。
 		return ability == ItemAbilities.FIRESTARTER_LIGHT && !old.getValue(LIT)
 				? old.setValue(LIT, true)
 				: current;
@@ -163,7 +147,6 @@ public class CandlestickBlock implements CreateBlockStateBlockMethod, DefaultSta
 		}
 	}
 
-	/** 当前朝向下三个火焰的位置。 */
 	private static Vec3[] flames(BlockState state) {
 		return FLAME_OFFSETS[state.getValue(FACING).get2DDataValue()];
 	}
@@ -179,7 +162,7 @@ public class CandlestickBlock implements CreateBlockStateBlockMethod, DefaultSta
 		level.gameEvent(player, GameEvent.BLOCK_CHANGE, pos);
 	}
 
-	/** 一处火焰：常驻的小火焰粒子，外加三成概率的烟和一成七概率的噼啪声。比例抄自原版。 */
+	/** 一处火焰：常驻的小火焰粒子，外加原版同款的烟和噼啪声。 */
 	private static void addFlame(Level level, Vec3 pos, RandomSource random) {
 		float f = random.nextFloat();
 		if (f < 0.3F) {
@@ -199,8 +182,6 @@ public class CandlestickBlock implements CreateBlockStateBlockMethod, DefaultSta
 				.texture("all", pvd.modLoc("block/deco/candlestick"))
 				.texture("particle", pvd.modLoc("block/deco/candlestick"))
 				.renderType("cutout");
-		// 点亮和不点亮共用一个模型，跟原版一样——原版那张 candle_lit 贴图只是把烛身顶端
-		// 烘了一点暖色进去，真正说明"点着了"的是三点火焰粒子和 15 级光照。
 		pvd.horizontalBlock(block, state -> model);
 	}
 

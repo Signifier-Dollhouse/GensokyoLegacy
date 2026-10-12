@@ -1,6 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.client.structure;
 
-import dev.xkmc.gensokyolegacy.content.attachment.datamap.StructureInterior;
+import dev.xkmc.gensokyolegacy.content.attachment.home.datamap.StructureInterior;
 import dev.xkmc.gensokyolegacy.content.attachment.home.core.IHomeHolder;
 import dev.xkmc.gensokyolegacy.content.attachment.index.StructureKey;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;

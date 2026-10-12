@@ -9,8 +9,9 @@ import java.util.UUID;
 /**
  * One doll command. {@code done} is the shared iterative progress set: dolls of one
  * volley pass the same instance along, each adding itself on completion. It is
- * mutated, never copied — compare and dedup by {@code (type, mode, target)} only,
- * never by record equality. Empty (and unused) for {@code ONE_TIME}.
+ * mutated, never copied — compare and dedup by {@code (type, mode, target)} only, via
+ * {@link #sameOrder}, never by record equality. Empty and unused for
+ * {@code ONE_TIME}.
  */
 public record DollAction(DollActionType type, DollActionMode mode, @Nullable UUID target, Set<UUID> done) {
 

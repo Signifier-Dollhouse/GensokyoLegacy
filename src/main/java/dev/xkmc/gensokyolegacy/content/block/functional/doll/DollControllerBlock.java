@@ -25,14 +25,10 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * The doll controller block. Hosts a resident {@link dev.xkmc.gensokyolegacy.content.attachment.doll.DollData}
- * via {@link DollControllerBlockEntity} and is the interaction surface for it (doc/design/doll/controller.md).
- * <ul>
- *   <li>Use with a doll item in an empty controller: install the doll into the block (consumes the item).</li>
- *   <li>Use with empty hand: deploy the stored doll, or recall the deployed doll back into the block.</li>
- *   <li>Sneak-use with empty hand: reclaim the resident doll as a doll item.</li>
- *   <li>Breaking the block never loses the doll: it is dropped as a doll item.</li>
- * </ul>
+ * The doll controller block: a placeable pedestal that hosts its own resident dolls and deploys
+ * them as hovering companions, with no player owner. The interaction surface for its block entity.
+ *
+ * @see doc/design/doll/controller.md
  */
 public class DollControllerBlock implements ShapeBlockMethod, UseWithoutItemBlockMethod, UseItemOnBlockMethod, OnReplacedBlockMethod {
 
@@ -52,8 +48,8 @@ public class DollControllerBlock implements ShapeBlockMethod, UseWithoutItemBloc
 			return ItemInteractionResult.SUCCESS;
 		}
 		if (player instanceof ServerPlayer sp && be.install(stack)) {
-			// always consume, even in creative (mirror ModularGolems GolemHolder):
-			// shrink, then force-write the hand slot so it sticks.
+			// always consume, even in creative: shrink, then force-write the hand slot
+			// so it sticks (a bare shrink alone does not).
 			stack.shrink(1);
 			sp.setItemInHand(hand, stack);
 			return ItemInteractionResult.SUCCESS;
@@ -67,7 +63,6 @@ public class DollControllerBlock implements ShapeBlockMethod, UseWithoutItemBloc
 			return InteractionResult.PASS;
 		}
 		if (player.isSecondaryUseActive()) {
-			// sneaking: reclaim the resident doll as an item
 			if (player instanceof ServerPlayer sp && be.eject(sp)) {
 				return InteractionResult.SUCCESS;
 			}

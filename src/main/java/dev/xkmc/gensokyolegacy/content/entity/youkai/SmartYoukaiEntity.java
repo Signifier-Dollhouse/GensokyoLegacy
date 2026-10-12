@@ -72,6 +72,20 @@ public class SmartYoukaiEntity extends YoukaiEntity {
 		return SmartBrain.construct(board, dynamic);
 	}
 
+	/**
+	 * A party guest walks.
+	 *
+	 * <p>
+	 * Both the walk and the fly control are live on these entities and the fly one wins an
+	 * order given while airborne, so a guest would fly to her chair instead of walking to
+	 * it. The party flag rather than the activity, because a visit outlives any single
+	 * activity and the flag is what {@link PartyModule} actually knows by.
+	 */
+	@Override
+	public boolean mayFly() {
+		return !getFlag(YoukaiFlags.PARTYING) && super.mayFly();
+	}
+
 	protected void addFightTasks(TaskBoard board) {
 		board.addAlways(new YoukaiUpdateTargetTask<>(), Activity.FIGHT);
 		board.addAlways(new YoukaiAttackTask<>(16), Activity.FIGHT);
@@ -126,6 +140,11 @@ public class SmartYoukaiEntity extends YoukaiEntity {
 		// below TALK (a visitor must stay able to talk and trade) and above the
 		// scheduled activities (a visitor must never sleep or go home).
 		board.addPrioritizedActivity(GLBrains.VISITING.get(), GLBrains.MEM_VISIT.get(), 150);
+		// 200 for the same reason, one rung further up: a party guest keeps the
+		// ability to talk and trade (TALK is walked first), and every scheduled
+		// activity below requires MEM_PARTY absent, so she never sleeps or goes home.
+		board.addPrioritizedActivity(GLBrains.PARTY.get(), GLBrains.MEM_PARTY.get(), 200);
+		board.addPartyTasks();
 
 		board.setSchedule(new ScheduleBuilder(new Schedule())
 				.changeActivityAt(10, GLBrains.AT_HOME.get())

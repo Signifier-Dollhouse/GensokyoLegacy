@@ -10,13 +10,19 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+/**
+ * Per-chunk effect id set; all resolving logic lives in {@link AreaChunkHolder}.
+ *
+ * @see doc/design/area_effect.md
+ */
 @SerialClass
 public class ChunkAreaAttachment extends GeneralCapabilityTemplate<LevelChunk, ChunkAreaAttachment> {
 
 	@SerialField
 	private final Set<UUID> effectIds = new LinkedHashSet<>();
 
-	// not SerialField -> not serialized (no transient keyword needed)
+	// unannotated, so not serialized (l2serial needs no transient keyword); the resolved list is
+	// reused only while the game tick matches, and is rebuilt on demand
 	private long cachedTick = Long.MIN_VALUE;
 	private List<AreaEffectEntry> cachedResolved = List.of();
 	private boolean cacheValid = false;

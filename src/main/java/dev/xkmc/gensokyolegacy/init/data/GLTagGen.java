@@ -16,6 +16,9 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.neoforged.neoforge.common.Tags;
+import java.util.Locale;
+import net.minecraft.resources.ResourceLocation;
+
 
 public class GLTagGen {
 
@@ -59,6 +62,15 @@ public class GLTagGen {
 	public static final TagKey<Block> LARGE_TABLE = block("large_table");
 	public static final TagKey<Block> CHAIR = block("chair");
 	public static final TagKey<Block> STOOL = block("stool");
+
+	/**
+	 * Tables a party may be laid out on. Built from {@link #LARGE_TABLE} rather than
+	 * {@link #TABLE}, which also carries {@code tea_table} and {@code magic_table}.
+	 */
+	public static final TagKey<Block> PARTY_TABLE = block("party_table");
+	/** Seats a guest may take. Chairs are a hard requirement for a party. */
+	public static final TagKey<Block> PARTY_SEAT = block("party_seat");
+
 	public static final TagKey<Block> SLIDING_DOOR = block("sliding_door");
 	public static final TagKey<Block> PLANK_WALL = block("plank_wall");
 
@@ -96,7 +108,45 @@ public class GLTagGen {
 				GLNaturalBlocks.CYAN_MUSHROOM_STEM.get(), GLNaturalBlocks.PURPLE_MUSHROOM_STEM.get(),
 				GLNaturalBlocks.RED_MUSHROOM_STEM.get());
 		addTiles(pvd, TILE_VARIANTS);
+		genPartyTag(pvd);
 	}
+
+	/**
+	 * The party table and seat tags.
+	 * <p>
+	 * Generated, not hand-written: our own tables and seats come from the tags they already
+	 * belong to. Youkai's Feasts' dining tables and chairs go in as optional entries, which
+	 * is what keeps that mod optional, and it uses the same 11 wood names we do.
+	 * <p>
+	 * There is deliberately no {@code party_food} tag. Food is decided entirely in code, by
+	 * whether a handler recognises the block and finds something worth eating in it; the
+	 * {@code party_food} data map only revalues such a block and cannot make one.
+	 */
+	private static void genPartyTag(RegistrateTagsProvider.IntrinsicImpl<Block> pvd) {
+		pvd.addTag(PARTY_TABLE).addTag(LARGE_TABLE);
+		pvd.addTag(PARTY_SEAT).addTag(CHAIR).addTag(STOOL);
+		for (var wood : YSF_WOODS) {
+			// ResourceLocation.parse, not GensokyoLegacy.loc: loc() namespaces a bare
+			// path with our own modid, so handing it "youkaisfeasts:x" would build
+			// "gensokyolegacy:youkaisfeasts:x" — a path with a colon in it.
+			pvd.addTag(PARTY_TABLE).addOptional(ResourceLocation.parse("youkaisfeasts:" + wood + "_dining_table"));
+			pvd.addTag(PARTY_SEAT).addOptional(ResourceLocation.parse("youkaisfeasts:" + wood + "_dining_chair"));
+		}
+	}
+
+	/**
+	 * The wood names {@code GLDecoBlocks.WoodType} covers, spelled out rather than
+	 * read from it.
+	 * <p>
+	 * A tag provider runs while the registries are still being walked, and touching
+	 * {@code GLDecoBlocks} from there class-initialises it, which registers blocks and
+	 * mutates the provider list mid-iteration. Datagen does not fail loudly — it simply
+	 * never returns. Keep this list in step with {@code WoodType} by hand.
+	 */
+	private static final String[] YSF_WOODS = {
+			"oak", "birch", "spruce", "jungle", "dark_oak", "acacia",
+			"crimson", "warped", "mangrove", "cherry", "bamboo"
+	};
 
 	public static void onItemTagGen(RegistrateItemTagsProvider pvd) {
 		pvd.addTag(CURRENCY).add(Items.EMERALD, Items.GOLD_INGOT);

@@ -42,6 +42,30 @@ produce them.
 | `void.py` | renders only the sealed indoor void per layer, so room volumes are readable without furniture noise |
 | `checkinterior.py` | validates a *proposed* room/node set (the values are duplicated in the file header) |
 | `checkconfig.py` | validates the **generated datamap JSON** against the shipped template — this is the one that gates |
+| `stripjarjar.py` | strips the jar-in-jar payload from a `libs/` mod jar — unrelated to structures, listed here because it lives in `tools/` |
+
+### Stripping jarJar from a dev jar
+
+The mod jars under `libs/` are real published builds, so `youkaisfeasts` carries
+`META-INF/jarjar/` — `metadata.json` plus a copy of Registrate, `l2core`,
+`l2serial`, `l2damagetracker`, `l2modularblocks`, `l2harvester` and TerraBlender.
+That duplicates libraries this project already declares as `jarJar(...)`, which is
+the JPMS split-package failure the dev launcher cannot work around from any
+dependency scope. Strip the payload so the host mod supplies them:
+
+```sh
+python3 tools/stripjarjar.py libs/youkaisfeasts-1.1.0.jar --dry-run   # report first
+python3 tools/stripjarjar.py libs/youkaisfeasts-1.1.0.jar --backup    # rewrite in place
+python3 tools/stripjarjar.py libs/*.jar --dry-run                    # audit every dev jar
+```
+
+It rewrites the archive entry by entry (preserving each entry's compression and
+the archive comment) rather than mutating in place, since `zipfile` cannot delete
+entries, then re-opens the result and checks it: `testzip()`, no surviving
+`META-INF/jarjar/`, and no metadata file still mentioning jarJar. A strip is easy
+to get wrong silently — the result is still a valid zip and `mods.toml` keeps its
+`[[dependencies]]` blocks either way — so the verification is the point of the
+tool, not the deletion. Re-running on a clean jar is a no-op.
 
 ### Reading a template
 

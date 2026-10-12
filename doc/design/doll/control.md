@@ -30,7 +30,7 @@ Deliberate divergences from MobWeaponAPI / ModularGolems:
 |---|---|---|
 | `SUICIDE` | either hand `Items.TNT` | one TNT (§5.4) |
 | `SUPER_ATTACK` | `LaserItem` anywhere, else throwable `HexBrewBottleItem` (cf. `HexBrewBottleItem.use`) anywhere | one laser / one bottle |
-| `REGULAR_ATTACK` | `DanmakuItem` in either hand, else a `DollLanceItem` in either hand | nothing |
+| `REGULAR_ATTACK` | `DanmakuItem` in either hand, else a `DollLanceItem` in either hand, else a bare hand (§5.1b) | nothing |
 | `HEAL` | folded heal talisman in either hand, with remaining durability | nothing — talisman durability wears instead (§5.5; scheduler-issued auto only) |
 | shield block | off hand shield | nothing — shield durability wears instead (§5.6, reactive — never queued) |
 
@@ -102,7 +102,7 @@ One danmaku, **item not consumed**.
 
 ### 5.1b `REGULAR_ATTACK` — lance charge
 
-Charge the target, cut the swing on contact, recoil off it, hold the spot for 6 ticks, then fly back to where the charge began. **`DollLanceItem` only** (`content/item/doll/DollLanceItem.java`, item.md §9); the item is **not consumed**. Registered below danmaku (§3), so this only runs on a doll with no danmaku item anywhere.
+Charge the target, cut the swing on contact, recoil off it, hold the spot for 6 ticks, then fly back to where the charge began. A **`DollLanceItem`** (`content/item/doll/DollLanceItem.java`, item.md §9) is the intended weapon and is **not consumed**; registered below danmaku (§3), it runs on a doll with no danmaku item anywhere. A **bare hand** is the fallback (below).
 
 - Capability: a doll lance in either hand. Engage range 16 (further targets are left to the ranged behaviors); strike at contact range 2.5 (bounding-box distance). The engage range is a **start** gate, not a moving one: `canReach` reports a target past it unreachable and the delegating goal gives the ticket up that same tick, because a doll idling in formation does not close that gap by standing there — so an out-of-range volley drains instantly instead of each doll burning its 3s abort timer, and the glove refuses to order it at all (`DollCommander.canAttack` → `glove.too_far`, glove.md §1). Once started, the charge ignores the range: closing the distance is the point.
 - Charge: plain velocity along the target's center, **twice the movement cap** (1.0 vs `MAX_SPEED` 0.5 blocks/tick — entity.md §3.1), no pathing: a lunge is a straight line. To outrun the cap the behavior raises it (`BaseDollEntity.setSpeedCap`) and restores `MAX_SPEED` in `stop()`. Budgets: the 20-block reach below, a 40-tick cap for a target that circles inside it without ever being caught, and a 10-tick stall guard, since a straight line into a wall never gets anywhere.
@@ -111,6 +111,8 @@ Charge the target, cut the swing on contact, recoil off it, hold the spot for 6 
 - Hold: after the swing the doll **parks on the spot for 6 ticks** (`HOLD_TICKS`) before turning for home, velocity pinned to zero each tick so the recoil is eaten in place and the doll — no gravity — does not drift off the mark the strike just made. The lunge ends on contact, so without this beat the doll snaps straight from "in the target's face" to "flying away" and the swing never reads. The beat is a fixed count, not a budget: it ends on its own, so unlike the return it can never strand a ticket-less doll mid-air. The doubled movement cap drops back to the ordinary one here, at the end of the charge (entity.md §3.1); `stop()` remains the backstop.
 - Return: plain velocity at ordinary flight speed (the cap again, `0.5`) toward the charge origin, released through `selfDriven` once the doll is **at least half way back** — the follow goal takes over from there and finishes the trip. A return that stalls (wall, corner) ends after 60 ticks, so a doll can never be stuck mid-air holding no ticket. The tail never outlives an order: a new ticket during either the hold or the flight preempts it (`canContinueToUse` refuses outside `CHARGE`), and `selfDriven` keeps ticking through the hold so the goal does not cut it short on the very tick the ticket went out.
 - Damage is not durability: the lance has none to begin with (item.md §9), so the charge cannot wear it.
+
+**The same charge, bare-handed.** `DollBehaviorRegistry.registerBareHand` binds `REGULAR_ATTACK` to an *empty* hand, so a doll holding nothing that attacks — a laser, a talisman, a shield — with one hand free still answers a volley instead of being silently skipped. An empty stack is never an item-table match, so it cannot be a predicate: it is matched against the empty hand itself, and only after every item binding for the type has come up empty — which is why it takes no priority and never competes with a weapon. Main hand is offered first, so two empty hands need no swap. `ensureMainHand` then swaps whatever sat in the main hand to the off hand to free the striking one, and `meleeDamage` folds in that hand's weapon modifiers — of which an empty hand has none, so a slap is the bare attribute **1** and plays `toy_slapattack` with the `doll_slap` voice instead of the lance clip. Identical engage range, budget and leash: it is the same behavior with an empty match.
 
 ### 5.2 `SUPER_ATTACK` — Laser
 
@@ -224,7 +226,7 @@ Created (`content/entity/dolls/action/`, behaviors in `.../behavior/`, all goals
 - `DollActionMode.java` — `ONE_TIME`, `ITERATIVE`, `AUTO` (§3)
 - `DollAction.java` — `record DollAction(DollActionType type, DollActionMode mode, @Nullable UUID target, Set<UUID> done)` (shared-mutable `done` for `ITERATIVE`, §8)
 - `DollActionHandler.java` — single-ticket state + cooldowns + suppress stamp + KAMIKAZE flag (§4)
-- `DollBehaviorRegistry.java` (`behavior/`) — `(id, predicate, type, priority, factory)` entries; `findHand` for capability, `createFor` for per-execution construction (§1–2)
+- `DollBehaviorRegistry.java` (`behavior/`) — `(id, predicate, type, priority, factory)` entries plus `registerBareHand` for the bare-handed fallback (§5.1b); `findHand` for capability, `createFor` for per-execution construction (§1–2)
 - `DollBehaviors.java` — built-in registration (danmaku / laser / hexbrew / TNT / heal-talis­man / shield-offhand)
 - `DollCardHolder.java` — `implements CardHolder` for the doll (§5)
 - `DollBehavior.java` + `DollDanmakuBehavior`, `DollLaserBehavior`, `DollThrowBehavior`, `DollSuicideBehavior`, `DollHealBehavior`, `DollMeleeBehavior` (`behavior/`, §5; laser before throw for super, danmaku before lance for regular). `ensureMainHand` is also the single place a spend is recorded, so every behavior holds its item for the swing without repeating it; `selfDriven` is how one outlives its ticket and `canReach` is the ticket-free reach gate (§5, §5.1b)

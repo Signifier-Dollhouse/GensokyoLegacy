@@ -56,9 +56,8 @@ public final class ClientGlowManager {
 	private static void ensureInit() {
 		if (ready) return;
 		ready = true;
-		// glove target highlight (glove.md §2–2b): the doll under the vanilla
-		// crosshair glows gold via GloveDollHover, while the client-cached
-		// ray-trace target glows in the held mode's color.
+		// glove target highlight (glove.md §2–2b): the doll under the vanilla crosshair
+		// glows gold via GloveDollHover, the cached ray-trace target in its mode's color.
 		register(GloveDollHover::isHovered, GloveDollHover::hoverColor);
 		register(GloveTargetCache::isMarked, GloveTargetCache::hoverColor);
 		// strange glasses: everything glows white while the viewer wears them.

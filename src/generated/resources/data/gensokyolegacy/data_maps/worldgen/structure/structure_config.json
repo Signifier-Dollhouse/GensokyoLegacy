@@ -302,6 +302,11 @@
         ]
       ],
       "visitors": {
+        "gensokyolegacy:ibuki_suika": {
+          "chance": 0.3,
+          "maxStay": 6000,
+          "minStay": 2400
+        },
         "gensokyolegacy:kirisame_marisa": {
           "chance": 0.2,
           "maxStay": 3600,

@@ -9,6 +9,12 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
+/**
+ * Server-owned payload of an effect, sent to the client as-is. Subclasses decide how long the owner
+ * block keeps the effect alive and what it looks like.
+ *
+ * @see doc/design/area_effect.md
+ */
 @SerialClass
 public abstract class EffectData {
 
@@ -16,9 +22,8 @@ public abstract class EffectData {
 		return !state.isAir();
 	}
 
-	// pure data; only read client-side. Subclasses return one or more visuals
-	// (one per render pass they want to appear in) or empty for invisible.
-	// The viewer decides per-type visibility (e.g. goggles or held items).
+	// one visual per render pass; empty means invisible. The viewer is passed so a subclass can
+	// gate on what they carry or wear.
 	public List<AreaEffectVisual> getClientVisual(@Nullable Player viewer) {
 		return List.of();
 	}

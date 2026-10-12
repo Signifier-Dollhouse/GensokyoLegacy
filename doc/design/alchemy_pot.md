@@ -1,8 +1,8 @@
 # Alchemy Pot — Design Doc
 
-> **Status:** design only; no code yet — updated 2026-08-31 with owner answers
+> **Status:** implemented (`content/block/functional/alchemypot/`); this doc is the original design and still records the reasoning behind it. Where the code diverged, see the list at the end of §1.
 > **Block id:** `gensokyolegacy:alchemy_pot` (`GLBlocks.ALCHEMY_POT`, `DelegateBlock.newBaseBlock`) — model at `assets/.../custom/utensil/alchemy_pot.json`, blockstate generated in `GLBlocks.java:176`
-> **Package suggestion:** `content/block/functional/alchemypot/` (`AlchemyPotBlock`, `AlchemyPotBlockEntity`, `AlchemyPotRenderer`) + `recipe/`, `stage/`, `overlay/`
+> **Package:** `content/block/functional/alchemypot/` (`AlchemyPotBlock`, `AlchemyPotBlockEntity`, `AlchemyPotRenderer`) + `recipe/`, `stage/`, `overlay/`
 
 ---
 
@@ -18,6 +18,14 @@ The alchemy pot is a single-block in-world vessel (no menu):
 - items are filtered on insertion to **only those that could still match at least one recipe** (YH `tryAddItem` logic) and a look-at overlay hints the next valid ingredients. Potion NBT (components patch) is significant.
 
 It is the Gensokyo Legacy analogue of YoukaisFeasts' cooking pots, with fluid as first-class state and color-only intermediates (water texture).
+
+### 1.1 Where the implementation diverged from this doc
+
+- The pot does **not** extend `TimedRecipeBlockEntity`: `AlchemyPotBlockEntity` runs its own tick loop, and the tank is an l2core `BaseTank` field named `tank` rather than a raw `FluidStack fluid`.
+- Stage recipes have **no `time` field**. `AlchemyStageHolder` picks the best match by `getPriority()` (ingredient count for `SimpleAlchemyStageRecipe`, fixed 12 for `PotionStageRecipe`), tie-broken by recipe id, and keeps only `current` plus `floating` — there is no `next` stage and no colour crossfade.
+- Dynamic colour is `PotionStageRecipe`, which averages the colours of the potion **items** in the pot; there is no separate `DynamicAlchemyStageRecipe` serializer.
+- The renderer lerps the fluid **height** from the tank amount to the recipe's `resultFluid` amount while reacting, instead of crossfading two boxes.
+- Registered recipe types are `ALCHEMY_UNORDERED`, `ALCHEMY_WITCH_ENHANCE`, `ALCHEMY_WITCH_MERGE`, `ALCHEMY_STAGE_SIMPLE` and `ALCHEMY_STAGE_POTION`; `ALCHEMY_STAGE_DYNAMIC_RT` was never needed. The JEI category is still not implemented.
 
 ---
 

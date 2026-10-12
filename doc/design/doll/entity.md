@@ -24,6 +24,12 @@ DollEntity extends BaseDollEntity implements GeoEntity
 
 Subclasses are the concrete doll kinds (player doll now, character dolls later); `BaseDollEntity` is abstract. All `dolls.entity.doll` registration goes through the base type; `DollData.type` (from `getDollTypeId()`) records which concrete type a given ledger entry refers to so reconciliation can validate it (pairing.md §5).
 
+### 1.1 Doll modules — where the per-entity slices live
+
+Anything a doll kind adds that has to be persisted goes through a `DollModule` (`impl/`): the synced-accessor definitions, the `DollData` read/write round trip, and an optional `interact` hook. `BaseDollEntity` keeps the list and exposes `getModule(Class)`; subclasses append their own in `createDollModules(List)`, chaining through `super`. Present modules today: `DollGeo`, `DollTint`, `DollLoadout`, `DollStatus`.
+
+The one hard constraint is **construction timing**: `defineSynchedData` runs inside the vanilla `Entity` constructor, before any subclass state exists. Module creation is therefore called there too — with a local list, since the field does not exist yet — so registration must be static-safe (fresh instances, no instance state) and the synced snapshot, not the entity, is handed to each module. A module with synced accessors that is not registered here has those accessors never defined.
+
 ## 2. Entity type and registration
 
 - Entity registered in `GLDolls` as `doll` (final class name `doll`, not re-registered twice). Uses `EntityType.Builder` / L2R "fixed" egg-free registration.
@@ -99,17 +105,20 @@ Goals live in `content/entity/dolls/goals/` (moved out of `content/entity/behavi
 
 ## 4. Owner, home, and host resolution (`getHost`)
 
-The doll's pairing anchor is either a **player owner** (`ownerUUID`) or a **controller block** (`homePos`):
+The doll's pairing anchor is either a **living owner** (`ownerUUID`) or a **controller block** (`homePos`):
 
 ```java
-public void setOwner(Player owner) { this.ownerUUID = owner.getUUID(); }
-public boolean isOwner(Player player) { ... }
+public void setOwner(LivingEntity owner) { this.ownerUUID = owner.getUUID(); }
+public boolean isOwner(LivingEntity entity) { ... }
 public @Nullable UUID getOwnerUUID() { return ownerUUID; }   // OwnableEntity
+public boolean isPlayerOwned() { ... }                       // gates itemize
 
 public void setHome(BlockPos pos) { this.homePos = pos.immutable(); }
 public boolean isBlockHosted() { return homePos != null; }   // player-owned ⇔ block-hosted
 public boolean isHomedTo(BlockPos pos) { ... }
 ```
+
+The owner is any living entity, not just a player — a character hosts her own dolls (host.md §1). `isPlayerOwned()` is the separate question that matters for recall: only a doll deployed from a player ledger can be converted back to an item, since a character conjures her dolls out of nothing and has no inventory to hand them to.
 
 `getHost()` resolves the pairing ledger one way or the other:
 
@@ -210,6 +219,6 @@ When the four-slot loadout ships, the per-slot synced item accessors land **here
 
 ## 9. Interaction and damage (pairing logic, lives in the base)
 
-- **`mobInteract`**: sneak-interact (owner or creative, both sides) opens the loadout editor (`DollLoadoutMenu`, loadout.md §4); empty main hand, owner or creative on the server: `DollAttachment.itemize(...)` — the entity → item conversion (pairing.md §3.2). Block-hosted dolls are *not* itemized here (they belong to the controller block; controller.md). Non-sneak interactions with items pass through.
+- **`mobInteract`**: modules first, in registration order, first non-`PASS` wins (that is how sneak-interact opens the loadout editor, `DollLoadoutMenu`, loadout.md §4); then empty main hand + owner or creative on the server: `DollAttachment.itemize(...)` — the entity → item conversion (pairing.md §3.2), gated on `isPlayerOwned()`. Block-hosted dolls are *not* itemized here (they belong to the controller block; controller.md) and neither are a character's (host.md §6). Non-sneak interactions with items pass through.
 - **Deferred damage pipeline**: `takeDamage` (intercept) and `onHeal` (hook) both call `resolveDollData()` first. If a paired SUMMONED entry exists, the change lands in `DollData.combat` first (via `deferCombatData`), then is mirrored into the entity's `CombatData` (+ `CombatToClient.send` when the amount actually changed). No paired entry → plain damage path (`super.takeDamage`) — never a dropped hit, since silently swallowing it would make an unpaired doll immune to *every* source, which reads as invulnerability and hides whatever fault left it unpaired. Death-would-be and expressions flow through `DamageRefactorEntity`'s `preventDeath`/`actuallyHurt` untouched.
 - **Targetability**: `canBeSeenAsEnemy()` returns `false` (pairing.md §6) — never targeted by hostile mobs, still takes damage.

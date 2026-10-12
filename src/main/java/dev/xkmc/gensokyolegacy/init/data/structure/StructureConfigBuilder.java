@@ -1,9 +1,9 @@
 package dev.xkmc.gensokyolegacy.init.data.structure;
 
-import dev.xkmc.gensokyolegacy.content.attachment.datamap.InteriorNode;
-import dev.xkmc.gensokyolegacy.content.attachment.datamap.InteriorRoom;
-import dev.xkmc.gensokyolegacy.content.attachment.datamap.StructureConfig;
-import dev.xkmc.gensokyolegacy.content.attachment.datamap.StructureInterior;
+import dev.xkmc.gensokyolegacy.content.attachment.home.datamap.InteriorNode;
+import dev.xkmc.gensokyolegacy.content.attachment.home.datamap.InteriorRoom;
+import dev.xkmc.gensokyolegacy.content.attachment.home.datamap.StructureConfig;
+import dev.xkmc.gensokyolegacy.content.attachment.home.datamap.StructureInterior;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 

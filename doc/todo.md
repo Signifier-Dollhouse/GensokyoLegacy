@@ -1,3 +1,0 @@
-- dialog review
-- patchouli review
-- chat chance review

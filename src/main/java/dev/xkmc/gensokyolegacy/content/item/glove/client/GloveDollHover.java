@@ -16,13 +16,13 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Doll hover readout (glove.md §2b): while the local player holds the glove,
- * the doll under the crosshair (own ray trace out to
- * {@code DollGloveHandler.EDITOR_RANGE} blocks, occluded by blocks) glows
- * gold and shows its loadout overlay. This deliberately bypasses
- * {@code GloveTargetCache}: the trace runs fresh every client tick with no
- * packets and no TTL linger, and the server re-traces on every use — so what
- * the holder sees is exactly what right-click will open.
+ * Doll hover readout (glove.md §2b): while the local player holds the glove, the doll under the
+ * crosshair (own ray trace out to {@code DollGloveHandler.EDITOR_RANGE} blocks, occluded by blocks)
+ * glows gold and shows its loadout overlay. Deliberately bypasses {@code GloveTargetCache}: the
+ * trace runs fresh every client tick with no packets and no TTL linger, and the server re-traces on
+ * every use, so what the holder sees is exactly what right-click will open.
+ *
+ * @see doc/design/doll/glove.md
  */
 public final class GloveDollHover {
 
@@ -43,9 +43,8 @@ public final class GloveDollHover {
 	}
 
 	/**
-	 * The doll under the crosshair while the holder carries the glove, or
-	 * null. Re-traced at most once per client tick (the glow mixin queries
-	 * this once per entity per frame). Client-side only.
+	 * The doll under the crosshair while the holder carries the glove, or null. Re-traced at most
+	 * once per client tick (the glow mixin queries this once per entity per frame).
 	 */
 	@Nullable
 	public static DollEntity hoveredDoll() {
@@ -76,8 +75,8 @@ public final class GloveDollHover {
 
 	/**
 	 * Fresh crosshair trace for dolls, mirroring the server editor trace in
-	 * {@code DollGloveHandler}: same range, same block occlusion, type-only
-	 * filter (ownership is server-side, enforced on open).
+	 * {@code DollGloveHandler}: same range, same block occlusion, type-only filter (ownership is
+	 * server-side, enforced on open).
 	 */
 	@Nullable
 	private static DollEntity traceDoll() {

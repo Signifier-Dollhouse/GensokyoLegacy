@@ -9,12 +9,10 @@ import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent
 import net.minecraft.world.item.ItemStack;
 
 /**
- * Renders {@link DollLoadoutTooltip} with the loadout menu's cross layout —
- * core top-center, main left, cloth center, off right — mirroring
- * ModularGolems' {@code GolemEquipmentTooltip.renderSlot}: the slot frame
- * comes from the {@code slot} side sprite, empty slots show their ghost icon
- * ({@code slotbg_*}, drawn at +1,+1 like the menu screen), filled slots draw
- * the item with decorations.
+ * Renders {@link DollLoadoutTooltip} in the loadout menu's cross layout — core top-center, main
+ * left, cloth center, off right — mirroring ModularGolems' equipment tooltip. Every cell draws the
+ * menu atlas' {@code slot} frame, plus its {@code slotbg_*} ghost icon at +1,+1 (as the menu screen
+ * does) when empty; a filled cell draws the item with decorations.
  */
 public record DollClientLoadoutTooltip(DollLoadoutTooltip inv) implements ClientTooltipComponent {
 

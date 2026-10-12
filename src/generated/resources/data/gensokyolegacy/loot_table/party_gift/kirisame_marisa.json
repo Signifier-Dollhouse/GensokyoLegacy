@@ -1,0 +1,112 @@
+{
+  "type": "minecraft:advancement_reward",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "condition": "gensokyolegacy:appeal_consumed",
+          "max": 50
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "gensokyolegacy:star_flower",
+          "weight": 20
+        }
+      ],
+      "rolls": 1.0
+    },
+    {
+      "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "condition": "gensokyolegacy:appeal_consumed",
+          "max": 100,
+          "min": 50
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "gensokyolegacy:tengu_sake",
+          "weight": 10
+        },
+        {
+          "type": "minecraft:item",
+          "name": "gensokyolegacy:ghost_sake",
+          "weight": 10
+        },
+        {
+          "type": "minecraft:item",
+          "name": "gensokyolegacy:magic_book",
+          "weight": 20
+        }
+      ],
+      "rolls": 1.0
+    },
+    {
+      "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "condition": "gensokyolegacy:appeal_consumed",
+          "max": 200,
+          "min": 100
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "gensokyolegacy:explosive_hexbrew_bottle",
+          "weight": 10
+        },
+        {
+          "type": "minecraft:item",
+          "name": "gensokyolegacy:miasma_hexbrew_bottle",
+          "weight": 10
+        },
+        {
+          "type": "minecraft:item",
+          "name": "gensokyolegacy:mundane_hexbrew_bottle",
+          "weight": 10
+        },
+        {
+          "type": "minecraft:item",
+          "name": "gensokyolegacy:hyphae_hexbrew_bottle",
+          "weight": 10
+        }
+      ],
+      "rolls": 1.0
+    },
+    {
+      "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "condition": "gensokyolegacy:appeal_consumed",
+          "max": 0,
+          "min": 200
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "gensokyolegacy:hexbrew_elixir_bottle",
+          "weight": 10
+        },
+        {
+          "type": "minecraft:item",
+          "name": "gensokyolegacy:starlight_hexbrew_bottle",
+          "weight": 10
+        },
+        {
+          "type": "minecraft:item",
+          "name": "gensokyolegacy:shield_hexbrew_bottle",
+          "weight": 10
+        }
+      ],
+      "rolls": 1.0
+    }
+  ],
+  "random_sequence": "gensokyolegacy:party_gift/kirisame_marisa"
+}

@@ -31,17 +31,12 @@ import java.util.UUID;
  * {@code ClientGlowManager} in the held mode's colour. Stale entries linger until the TTL instead
  * of flickering on every miss — the server re-validates anyway.
  * <p>
- * One entry per glove rather than one slot for the whole player: main hand and off hand tick in
- * the same call, and a doll glove and a dagger glove trace with different ranges, different wall
- * rules and different predicates, so a shared slot would have them overwrite each other.
- * <p>
- * Driven by one client tick rather than by {@code Item#inventoryTick}, which would have to be
- * overridden identically in every glove: what feeds the cache is the same decision for all of them.
- * <p>
- * Dolls are not special-cased here. Doll hovering (gold glow, loadout overlay, editor open) runs
- * on a fresh 16-block ray trace through {@code GloveDollHover} (client) and
- * {@code DollGloveHandler.tryOpenEditor} (server) instead, and registers first in
- * {@code ClientGlowManager} (glove.md §2b).
+ * One entry per glove rather than one slot for the whole player: both hands tick in the same call,
+ * and two gloves trace with different ranges, wall rules and predicates, so a shared slot would
+ * have them overwrite each other. Driven by one client tick rather than {@code Item#inventoryTick},
+ * which every glove would otherwise override identically.
+ *
+ * @see doc/design/dagger_glove.md
  */
 public final class GloveTargetCache {
 
@@ -74,8 +69,8 @@ public final class GloveTargetCache {
 
 	/**
 	 * Traces the crosshair for one held stack and, on a hit, caches and re-syncs the target.
-	 * Nothing at all happens when the stack is not a targeting glove or its mode wants no target,
-	 * which is what keeps an aimed mode from ever lighting something up.
+	 * Nothing happens when the stack is not a targeting glove or its mode wants no target, which
+	 * is what keeps an aimed mode from ever lighting something up.
 	 */
 	private static void trace(Player player, ItemStack stack) {
 		Minecraft mc = Minecraft.getInstance();
@@ -119,9 +114,9 @@ public final class GloveTargetCache {
 	}
 
 	/**
-	 * Whether this stack is a glove that marks this entity right now: it must be a targeting glove
-	 * whose current mode draws a marker at all, and its own cache entry must still be inside the
-	 * glove's TTL — the same window the server would still accept the hint in.
+	 * Whether this stack is a glove that marks this entity right now: a targeting glove whose
+	 * current mode draws a marker at all, whose own cache entry still matches, and still inside the
+	 * glove's TTL — the same window the server would accept the hint in.
 	 */
 	private static boolean marks(ItemStack stack, LivingEntity target) {
 		if (!(stack.getItem() instanceof GloveTargeting glove)) return false;
@@ -133,8 +128,8 @@ public final class GloveTargetCache {
 
 	/**
 	 * Outline color for the cached target: the held glove's own color, or null when nothing is
-	 * marked. Display-only, and read per frame, so recoloring follows mode switches while the
-	 * stale-target TTL still applies.
+	 * marked. Read per frame, so recoloring follows mode switches while the stale-target TTL
+	 * still applies.
 	 */
 	@Nullable
 	public static Integer hoverColor(@Nullable Entity entity) {

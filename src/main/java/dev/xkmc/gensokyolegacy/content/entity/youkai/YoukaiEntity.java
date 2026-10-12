@@ -230,7 +230,7 @@ public abstract class YoukaiEntity extends DamageClampEntity implements SpellCir
 	}
 
 	protected List<AbstractYoukaiModule> createModules() {
-		return List.of(new HomeModule(this), new VisitModule(this),
+		return List.of(new HomeModule(this), new VisitModule(this), new PartyModule(this),
 				//new GiftModule(this), new FeedModule(this),
 				new TalkModule(this));
 	}
@@ -242,6 +242,65 @@ public abstract class YoukaiEntity extends DamageClampEntity implements SpellCir
 	 */
 	public boolean isVisiting() {
 		return getFlag(YoukaiFlags.VISITING);
+	}
+
+	/**
+	 * Whether this character is a guest at somebody's party. Like a visitor she has
+	 * no {@link HomeModule} binding, and the quest/dialog layer treats her as a guest.
+	 */
+	public boolean isPartying() {
+		return getFlag(YoukaiFlags.PARTYING);
+	}
+
+	/**
+	 * Play this character's chew, if she has one.
+ * <p>
+ * An entity event rather than a direct animation call, so the client sees the same
+ * animation the server timed the rest of the meal against.
+ * <p>
+ * Silent for a character that is not geo-animated at all, which is the honest answer: the
+ * clip is per rig, and an eat animation is missing art rather than a missing system. Every
+ * rig that has one registers it with {@code GeoYoukaiAnim#addEatAnim}, and the event is
+ * what picks it up, so nothing here has to know which characters those are.
+ */
+public void broadcastEat() {
+		if (this instanceof GeoYoukaiAnim && !level().isClientSide()) {
+			level().broadcastEntityEvent(this, GeoYoukaiAnim.EAT_EVENT);
+		}
+	}
+
+	/**
+	 * Ticks between two hurt reactions. A spell card lands danmaku every few ticks, and a
+	 * flinch restarted on each one reads as a stutter rather than as a hit, so the
+	 * reaction is rate-limited rather than fired once per damage instance. The clip itself
+	 * is half a second long, which is what sets the number.
+	 */
+	private static final int HURT_ANIM_COOLDOWN = 10;
+
+	private int lastHurtAnim = -HURT_ANIM_COOLDOWN;
+
+	/**
+	 * Play this character's flinch, if she has one.
+	 * <p>
+	 * An entity event rather than a direct animation call, for the same reason as
+	 * {@link #broadcastEat()}: the client has to see the reaction the server played.
+	 * <p>
+	 * Silent for a character that is not geo-animated, and for a rig with no
+	 * {@code 受伤} clip — the flinch is missing art, not a missing system, and every rig
+	 * that has one opts in with {@code GeoYoukaiAnim#addHurtAnim}.
+	 */
+	public void broadcastHurt() {
+		if (this instanceof GeoYoukaiAnim && !level().isClientSide()) {
+			level().broadcastEntityEvent(this, GeoYoukaiAnim.HURT_EVENT);
+		}
+	}
+
+	@Override
+	protected void postHurt(DamageSource source) {
+		super.postHurt(source);
+		if (tickCount - lastHurtAnim < HURT_ANIM_COOLDOWN) return;
+		lastHurtAnim = tickCount;
+		broadcastHurt();
 	}
 
 	@Override
