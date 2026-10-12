@@ -57,7 +57,9 @@ public class YoukaiNodeEvaluatorRegistry {
 		TAG_HANDLERS.put(tag, handler);
 	}
 
-	/** Register a rule consulted for every block, after the block and tag rules. */
+	/**
+	 * Register a rule consulted for every block, after the block and tag rules.
+	 */
 	public static void registerGlobal(YoukaiPathTypeHandler handler) {
 		GLOBAL_HANDLERS.add(handler);
 	}
@@ -88,14 +90,14 @@ public class YoukaiNodeEvaluatorRegistry {
 		if (!(mob instanceof YoukaiEntity youkai) || !youkai.getFlag(YoukaiFlags.PARTYING)) return ans;
 		if (youkai.blockPosition().getY() == pos.getY()) return ans;
 		// a chair is furniture to stand beside, never a floor to walk over
-		if (state.is(GLTagGen.PARTY_SEAT)) return PathType.BLOCKED;
-		if (state.is(GLTagGen.PARTY_TABLE) || context.level().getBlockState(pos.below()).is(GLTagGen.PARTY_TABLE)) {
-			return PathType.BLOCKED;
-		}
+		if (state.is(GLTagGen.PARTY_SEAT) || state.is(GLTagGen.PARTY_TABLE)) return PathType.BLOCKED;
+		if (context.level().getBlockState(pos.below()).is(GLTagGen.PARTY_TABLE))
+			return PathType.DANGER_OTHER;
 		// the block below is the one she would be standing on food with
-		return PartyFoodValue.isFood(context.level(), pos, state)
-				|| PartyFoodValue.isFood(context.level(), pos.below(), context.level().getBlockState(pos.below()))
-				? PathType.BLOCKED : ans;
+		if (PartyFoodValue.isFood(context.level(), pos, state)) return PathType.BLOCKED;
+		if (PartyFoodValue.isFood(context.level(), pos.below(), context.level().getBlockState(pos.below())))
+			return PathType.DANGER_OTHER;
+		return ans;
 	}
 
 	static PathType apply(PathType ans, PathfindingContext context, BlockPos pos, @Nullable Mob mob) {
