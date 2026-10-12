@@ -69,9 +69,14 @@ public class SmartYoukaiEntity extends YoukaiEntity {
 		// rebuilt while she was down (invalidateBrain on a dimension change) drops
 		// the task instance without ever stopping it, and the pose - which the client
 		// reads from the synced flag and nothing else - would outlive the activity
-		// that owns it.
-		if (getFlag(YoukaiFlags.NAPPING) && getActivity() != GLBrains.NAP.get()) {
-			setFlag(YoukaiFlags.NAPPING, false);
+		// that owns it. A conversation is not a preemption: the nap task holds the
+		// pose across one on purpose, so TALK is spelled out here rather than the
+		// test being left to look like it should say "not NAP" and mean "not NAP
+		// and not talking".
+		if (getFlag(YoukaiFlags.NAPPING)) {
+			var activity = getActivity();
+			if (activity != GLBrains.NAP.get() && activity != GLBrains.TALK.get())
+				setFlag(YoukaiFlags.NAPPING, false);
 		}
 	}
 
@@ -83,8 +88,7 @@ public class SmartYoukaiEntity extends YoukaiEntity {
 	 * before the outdoor idle fidget and shares its ten-second cooldown with it. Zero -
 	 * the default, and what every character but Suika returns - means she never naps.
 	 * A win is not instant: it sets {@link GLBrains#MEM_NAP} for five to twenty seconds,
-	 * and the brain puts her in {@link GLBrains#NAP} on the next tick, which is what
-	 * leaves a nap something a fight or a conversation can cut short.
+	 * and the brain puts her in {@link GLBrains#NAP} on the next tick.
 	 */
 	public float napChance() {
 		return 0;
@@ -232,7 +236,8 @@ public class SmartYoukaiEntity extends YoukaiEntity {
 	 * comparison - FEAST(200) while eating outranks TALK(300), so talking is refused
 	 * until the cake is gone; FEAR(100) outranks both, so neither is offered at all
 	 * until she has stopped running. NAP(500) is the one that is <em>not</em> refused:
-	 * lying down is not a reason not to answer somebody.
+	 * lying down is not a reason not to answer somebody, and {@code YoukaiNapTask}
+	 * holds the pose across the conversation that follows.
 	 */
 	protected boolean outrankedBy(Activity activity) {
 		var current = getActivity();
