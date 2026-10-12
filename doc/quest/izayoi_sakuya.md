@@ -23,7 +23,7 @@ Consequences that shape everything below:
   `FALLBACK_WANDER` of 12 blocks for her wander radius.
 
 See [quest_design.md](quest_design.md) for the authoring rules and
-[../design/character_visit.md](../design/character_visit.md) for the visit system.
+[../design/character_visit.md](../design/structure/character_visit.md) for the visit system.
 
 ## Chats
 

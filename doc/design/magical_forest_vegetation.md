@@ -359,7 +359,7 @@ tools/template_export/               导出器、巨橡生成器、预览、布�
 
 ### 代码评审
 
-2026-09-22 对本分支全部代码做了一次可读性 / 可维护性评审，结论与修改清单见 `doc/pending/magical_forest_vegetation_review.md`。
+2026-09-22 对本分支全部代码做了一次可读性 / 可维护性评审，结论与修改清单见 [`doc/pending/magical_forest_vegetation_review.md`](../pending/magical_forest_vegetation_review.md)。
 
 ### 游戏内验证清单
 
