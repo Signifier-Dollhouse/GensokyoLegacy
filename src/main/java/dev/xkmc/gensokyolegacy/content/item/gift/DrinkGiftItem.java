@@ -1,15 +1,20 @@
 package dev.xkmc.gensokyolegacy.content.item.gift;
 
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.ItemUtils;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.UseAnim;
-import net.minecraft.world.level.Level;
+import net.minecraft.world.item.alchemy.PotionContents;
 
+import java.util.List;
+
+/**
+ * A drink that can be given to characters (GiftType.DRINK). It carries its drinking
+ * effects as {@link FoodProperties}, so drinking it consumes the stack and gives back
+ * whatever the properties say (a glass bottle, for the sakes).
+ */
 public class DrinkGiftItem extends Item {
 
 	public DrinkGiftItem(Properties properties) {
@@ -17,23 +22,19 @@ public class DrinkGiftItem extends Item {
 	}
 
 	@Override
-	public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
-		return ItemUtils.startUsingInstantly(level, player, hand);
-	}
-
-	@Override
-	public ItemStack finishUsingItem(ItemStack stack, Level level, LivingEntity user) {
-		return ItemStack.EMPTY;
-	}
-
-	@Override
-	public int getUseDuration(ItemStack stack, LivingEntity user) {
-		return 32;
-	}
-
-	@Override
 	public UseAnim getUseAnimation(ItemStack stack) {
 		return UseAnim.DRINK;
+	}
+
+	@Override
+	public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> list, TooltipFlag flag) {
+		super.appendHoverText(stack, context, list, flag);
+		FoodProperties props = stack.getFoodProperties(null);
+		if (props == null || props.effects().isEmpty()) return;
+		// listed like the witch's hex brew: effect name with its potency and remaining
+		// duration, followed by the attribute lines a potion of the same effect would show
+		PotionContents.addPotionTooltip(props.effects().stream().map(FoodProperties.PossibleEffect::effect).toList(),
+				list::add, 1.0F, context.tickRate());
 	}
 
 }
