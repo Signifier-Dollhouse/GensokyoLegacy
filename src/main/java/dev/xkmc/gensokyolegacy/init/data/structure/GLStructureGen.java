@@ -2,9 +2,9 @@ package dev.xkmc.gensokyolegacy.init.data.structure;
 
 import com.tterrag.registrate.providers.DataProviderInitializer;
 import com.tterrag.registrate.providers.RegistrateDataMapProvider;
-import dev.xkmc.gensokyolegacy.content.attachment.datamap.BedData;
-import dev.xkmc.gensokyolegacy.content.attachment.datamap.CharacterConfig;
-import dev.xkmc.gensokyolegacy.content.attachment.datamap.StructureConfig;
+import dev.xkmc.gensokyolegacy.content.attachment.home.datamap.BedData;
+import dev.xkmc.gensokyolegacy.content.attachment.character.CharacterConfig;
+import dev.xkmc.gensokyolegacy.content.attachment.home.datamap.StructureConfig;
 import dev.xkmc.gensokyolegacy.init.data.structure.helper.StructBed;
 import dev.xkmc.gensokyolegacy.init.data.structure.helper.SetContext;
 import dev.xkmc.gensokyolegacy.init.data.structure.helper.StructFlatBuilding;

@@ -230,7 +230,7 @@ public abstract class YoukaiEntity extends DamageClampEntity implements SpellCir
 	}
 
 	protected List<AbstractYoukaiModule> createModules() {
-		return List.of(new HomeModule(this), new VisitModule(this),
+		return List.of(new HomeModule(this), new VisitModule(this), new PartyModule(this),
 				//new GiftModule(this), new FeedModule(this),
 				new TalkModule(this));
 	}
@@ -242,6 +242,31 @@ public abstract class YoukaiEntity extends DamageClampEntity implements SpellCir
 	 */
 	public boolean isVisiting() {
 		return getFlag(YoukaiFlags.VISITING);
+	}
+
+	/**
+	 * Whether this character is a guest at somebody's party. Like a visitor she has
+	 * no {@link HomeModule} binding, and the quest/dialog layer treats her as a guest.
+	 */
+	public boolean isPartying() {
+		return getFlag(YoukaiFlags.PARTYING);
+	}
+
+	/**
+	 * Play this character's chew, if she has one.
+ * <p>
+ * An entity event rather than a direct animation call, so the client sees the same
+ * animation the server timed the rest of the meal against.
+ * <p>
+ * Silent for a character that is not geo-animated at all, which is the honest answer: the
+ * clip is per rig, and an eat animation is missing art rather than a missing system. Every
+ * rig that has one registers it with {@code GeoYoukaiAnim#addEatAnim}, and the event is
+ * what picks it up, so nothing here has to know which characters those are.
+ */
+public void broadcastEat() {
+		if (this instanceof GeoYoukaiAnim && !level().isClientSide()) {
+			level().broadcastEntityEvent(this, GeoYoukaiAnim.EAT_EVENT);
+		}
 	}
 
 	@Override

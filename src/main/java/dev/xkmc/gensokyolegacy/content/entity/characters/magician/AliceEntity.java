@@ -10,6 +10,7 @@ import dev.xkmc.gensokyolegacy.content.entity.behavior.task.play.YoukaiHuntTask;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.BaseDollEntity;
 import dev.xkmc.gensokyolegacy.content.entity.module.AbstractYoukaiModule;
 import dev.xkmc.gensokyolegacy.content.entity.module.HomeModule;
+import dev.xkmc.gensokyolegacy.content.entity.module.PartyModule;
 import dev.xkmc.gensokyolegacy.content.entity.module.TalkModule;
 import dev.xkmc.gensokyolegacy.content.entity.module.VisitModule;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.GeoYoukaiAnim;
@@ -71,6 +72,7 @@ public class AliceEntity extends GeneralYoukaiEntity implements GeoYoukaiAnim, D
 				// she is a declared guest at Marisa's house (GLStructureGen), so she
 				// needs the visit module like everyone else
 				new VisitModule(this),
+				new PartyModule(this),
 				new TalkModule(this),
 				new AliceDollHost(this)
 		);
@@ -151,6 +153,7 @@ public class AliceEntity extends GeneralYoukaiEntity implements GeoYoukaiAnim, D
 		// bones, so the always-looping blink yields to the main controller.
 		controllers.add(new AnimationController<>(this, WINK_CONTROLLER, 0, e -> e.setAndContinue(BLINK)));
 		var main = new AnimationController<>(this, ANIM_CONTROLLER, 5, this::idleAnimController);
+		addEatAnim(main);
 		addDialogAnims(main);
 		controllers.add(main);
 	}

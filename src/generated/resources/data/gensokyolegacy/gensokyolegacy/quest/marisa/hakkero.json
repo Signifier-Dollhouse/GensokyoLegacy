@@ -13,11 +13,6 @@
       "advancement": "gensokyolegacy:main/obtain_mini_hakkero"
     },
     {
-      "type": "gensokyolegacy:has_advancement",
-      "advancement": "gensokyolegacy:main/obtain_mini_hakkero_repaired",
-      "invert": true
-    },
-    {
       "type": "gensokyolegacy:home_bound"
     }
   ],

@@ -141,6 +141,7 @@ public class CirnoEntity extends FairyEntity implements GeoYoukaiAnim {
 				new HomeModule(this),
 				new VisitModule(this),
 				new FeedModule(this),
+				new PartyModule(this),
 				new TalkModule(this),
 				new CountPickupModule(this, e -> e.getItem() instanceof FrozenFrogItem)
 		);
@@ -234,6 +235,7 @@ public class CirnoEntity extends FairyEntity implements GeoYoukaiAnim {
 		// bones, so the always-looping blink yields to the main controller.
 		controllers.add(new AnimationController<>(this, WINK_CONTROLLER, 0, e -> e.setAndContinue(BLINK)));
 		var main = new AnimationController<>(this, ANIM_CONTROLLER, 5, this::idleAnimController);
+		addEatAnim(main);
 		addDialogAnims(main);
 		controllers.add(main);
 	}

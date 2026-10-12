@@ -117,6 +117,13 @@ public class FairyFleeTask extends Behavior<PlainFairyEntity> {
 	private static void run(ServerLevel level, PlainFairyEntity entity) {
 		var attacker = attacker(entity);
 		if (attacker == null) return;
+		// fleeing is the one behaviour that reaches past mayFly for the flying navigation
+		// directly, so the gate has to be repeated here: a party guest walks, and a guest
+		// who cannot walk away simply stands and takes it
+		if (!entity.mayFly()) {
+			entity.getNavigation().stop();
+			return;
+		}
 		var nav = entity.navCtrl.flying();
 		for (int attempt = 0; attempt < SPOT_ATTEMPTS; attempt++) {
 			var path = nav.createPath(Set.of(spot(level, entity, attacker)), 18);

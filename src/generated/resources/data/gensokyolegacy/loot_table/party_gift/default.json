@@ -1,0 +1,54 @@
+{
+  "type": "minecraft:advancement_reward",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "gensokyolegacy:fairy_cake",
+          "weight": 10
+        },
+        {
+          "type": "minecraft:item",
+          "name": "gensokyolegacy:tengu_sake",
+          "weight": 10
+        },
+        {
+          "type": "minecraft:item",
+          "name": "gensokyolegacy:ghost_sake",
+          "weight": 10
+        },
+        {
+          "type": "minecraft:item",
+          "name": "gensokyolegacy:sturdy_teddy_bear",
+          "weight": 10
+        },
+        {
+          "type": "minecraft:item",
+          "conditions": [
+            {
+              "condition": "gensokyolegacy:appeal_consumed",
+              "min": 20
+            }
+          ],
+          "name": "gensokyolegacy:star_flower",
+          "weight": 10
+        },
+        {
+          "type": "minecraft:item",
+          "conditions": [
+            {
+              "condition": "gensokyolegacy:appeal_consumed",
+              "min": 40
+            }
+          ],
+          "name": "gensokyolegacy:magic_book",
+          "weight": 10
+        }
+      ],
+      "rolls": 1.0
+    }
+  ],
+  "random_sequence": "gensokyolegacy:party_gift/default"
+}

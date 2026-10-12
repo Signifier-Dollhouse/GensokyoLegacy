@@ -48,6 +48,11 @@ public class GLBrains {
 	 */
 	public static final Val<MemoryModuleType<GlobalPos>> MEM_VISIT = MEMORIES.reg("visit", () -> new MemoryModuleType<>(Optional.empty()));
 	/**
+	 * Where a party guest is eating. Its presence is what puts her in
+	 * {@link #PARTY} instead of following her schedule.
+	 */
+	public static final Val<MemoryModuleType<GlobalPos>> MEM_PARTY = MEMORIES.reg("party", () -> new MemoryModuleType<>(Optional.empty()));
+	/**
 	 * Whoever last hurt her, kept only until the scare wears off. Its presence is
 	 * what puts a plain fairy in {@link #FEAR}.
 	 */
@@ -58,11 +63,16 @@ public class GLBrains {
 	public static final Val<Activity> DOWN = ACTIVITIES.reg("down", () -> new Activity("down"));
 	public static final Val<Activity> TALK = ACTIVITIES.reg("talk", () -> new Activity("talk"));
 	/**
-	 * Being a guest in someone else's home. Priority 150 puts it below TALK(100), so
-	 * a visitor must still be able to stop and talk and trade, and above the scheduled
-	 * activities, so she never sleeps or goes home while a guest - see the design doc.
+	 * Being a guest in someone else's home. Priority 150 puts it between FIGHT(0)
+	 * and TALK(100), so a visitor still stops to talk - see the design doc.
 	 */
 	public static final Val<Activity> VISITING = ACTIVITIES.reg("visiting", () -> new Activity("visiting"));
+	/**
+	 * Eating at somebody's party. Priority 200 puts it above both TALK(100) and
+	 * VISITING(150): a party guest can still talk and trade, but she never wanders
+	 * off to visit, and never sleeps or goes home.
+	 */
+	public static final Val<Activity> PARTY = ACTIVITIES.reg("party", () -> new Activity("party"));
 	/**
 	 * Running from whatever just hit her. Outranks eating, so a cake offered mid-panic
 	 * waits for her to stop running rather than stopping her - see the priority scale

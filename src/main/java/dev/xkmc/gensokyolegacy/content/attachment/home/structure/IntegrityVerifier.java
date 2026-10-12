@@ -1,6 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.attachment.home.structure;
 
-import dev.xkmc.gensokyolegacy.content.attachment.datamap.StructureConfig;
+import dev.xkmc.gensokyolegacy.content.attachment.home.datamap.StructureConfig;
 import dev.xkmc.gensokyolegacy.content.attachment.home.core.MultiStructureBound;
 import dev.xkmc.gensokyolegacy.content.attachment.home.core.PerformanceConstants;
 import dev.xkmc.gensokyolegacy.content.attachment.home.core.StructureBound;

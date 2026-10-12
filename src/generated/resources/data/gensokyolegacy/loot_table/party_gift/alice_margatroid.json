@@ -1,0 +1,82 @@
+{
+  "type": "minecraft:advancement_reward",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "gensokyolegacy:sturdy_teddy_bear",
+          "weight": 14
+        },
+        {
+          "type": "minecraft:item",
+          "name": "gensokyolegacy:ghost_sake",
+          "weight": 12
+        },
+        {
+          "type": "minecraft:item",
+          "name": "gensokyolegacy:fairy_cake",
+          "weight": 12
+        },
+        {
+          "type": "minecraft:item",
+          "conditions": [
+            {
+              "condition": "gensokyolegacy:appeal_consumed",
+              "min": 20
+            }
+          ],
+          "name": "gensokyolegacy:tengu_sake",
+          "weight": 12
+        },
+        {
+          "type": "minecraft:item",
+          "conditions": [
+            {
+              "condition": "gensokyolegacy:appeal_consumed",
+              "min": 40
+            }
+          ],
+          "name": "gensokyolegacy:star_flower",
+          "weight": 12
+        },
+        {
+          "type": "minecraft:item",
+          "conditions": [
+            {
+              "condition": "gensokyolegacy:appeal_consumed",
+              "min": 40
+            }
+          ],
+          "name": "gensokyolegacy:magic_book",
+          "weight": 12
+        },
+        {
+          "type": "minecraft:item",
+          "conditions": [
+            {
+              "condition": "gensokyolegacy:appeal_consumed",
+              "min": 80
+            }
+          ],
+          "name": "gensokyolegacy:doll_lance",
+          "weight": 8
+        },
+        {
+          "type": "minecraft:item",
+          "conditions": [
+            {
+              "condition": "gensokyolegacy:appeal_consumed",
+              "min": 80
+            }
+          ],
+          "name": "gensokyolegacy:star_wand",
+          "weight": 8
+        }
+      ],
+      "rolls": 1.0
+    }
+  ],
+  "random_sequence": "gensokyolegacy:party_gift/alice_margatroid"
+}

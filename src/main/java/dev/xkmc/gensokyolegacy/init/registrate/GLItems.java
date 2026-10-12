@@ -15,6 +15,7 @@ import dev.xkmc.gensokyolegacy.content.item.character.*;
 import dev.xkmc.gensokyolegacy.content.item.debug.DebugGlasses;
 import dev.xkmc.gensokyolegacy.content.item.debug.DebugWand;
 import dev.xkmc.gensokyolegacy.content.item.debug.DoorDebugItem;
+import dev.xkmc.gensokyolegacy.content.attachment.party.item.PartyWand;
 import dev.xkmc.gensokyolegacy.content.item.debug.StructureWand;
 import dev.xkmc.gensokyolegacy.content.item.doll.DollItem;
 import dev.xkmc.gensokyolegacy.content.item.doll.DollItemData;
@@ -25,6 +26,7 @@ import dev.xkmc.gensokyolegacy.content.item.glove.DollGloveModel;
 import dev.xkmc.gensokyolegacy.content.item.hexbrew.StarDanmakuItem;
 import dev.xkmc.gensokyolegacy.content.item.ingredient.FairyIceItem;
 import dev.xkmc.gensokyolegacy.content.item.ingredient.FrozenFrogItem;
+import dev.xkmc.gensokyolegacy.content.attachment.party.item.InvitationLetterItem;
 import dev.xkmc.gensokyolegacy.content.item.talisman.core.GLTalismans;
 import dev.xkmc.gensokyolegacy.content.item.dagger.DaggerGloveItem;
 import dev.xkmc.gensokyolegacy.content.item.dagger.DaggerGloveMode;
@@ -99,6 +101,7 @@ public class GLItems {
 	public static final ItemEntry<DebugWand> DEBUG_WAND;
 	public static final ItemEntry<StructureWand> STRUCTURE_WAND;
 	public static final ItemEntry<DoorDebugItem> DOOR_DEBUG_WAND;
+	public static final ItemEntry<PartyWand> PARTY_WAND;
 
 	public static final ItemEntry<BorderUmbrellaItem> BORDER_UMBRELLA;
 
@@ -113,6 +116,8 @@ public class GLItems {
 	public static final ItemEntry<StarDanmakuItem> STAR;
 	public static final ItemEntry<StarWandItem> STAR_WAND;
 	public static final ItemEntry<StrangeGlassesItem> STRANGE_GLASSES;
+
+public static final ItemEntry<InvitationLetterItem> INVITATION_LETTER;
 
 	private static final DCReg DC = DCReg.of(GensokyoLegacy.REG);
 	public static final DCVal<HakkeroPrototype.Data> DC_HAKKERO_PROTOTYPE = DC.reg("mini_furnace_1_data", HakkeroPrototype.Data.class, false);
@@ -484,6 +489,16 @@ public class GLItems {
 
 		GLBlocks.register();
 
+		// party
+		{
+			// right-clicked on a party table to send it out. The model borrows vanilla
+			// paper for now; swap the texture when the letter gets real art.
+			INVITATION_LETTER = reg.item("invitation_letter", InvitationLetterItem::new)
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.mcLoc("item/paper")))
+					.properties(p -> p.stacksTo(16))
+					.lang("Invitation Letter").register();
+		}
+
 		// debug
 		{
 
@@ -501,6 +516,12 @@ public class GLItems {
 
 			DOOR_DEBUG_WAND = reg.item("door_debug_wand", p -> new DoorDebugItem(p.stacksTo(1)))
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/debug/" + ctx.getName())))
+					.defaultLang().register();
+
+			// borrows the existing debug wand texture until it gets its own art, the
+			// same way the invitation letter borrows vanilla paper
+			PARTY_WAND = reg.item("party_wand", p -> new PartyWand(p.stacksTo(1)))
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/debug/debug_wand")))
 					.defaultLang().register();
 
 		}

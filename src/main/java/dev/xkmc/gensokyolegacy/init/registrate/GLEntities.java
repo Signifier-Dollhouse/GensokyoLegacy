@@ -32,6 +32,7 @@ import dev.xkmc.gensokyolegacy.content.entity.youkai.GeneralYoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.GeneralYoukaiRenderer;
 import dev.xkmc.gensokyolegacy.content.item.gift.GiftPreference;
 import dev.xkmc.gensokyolegacy.content.item.gift.GiftType;
+import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyTaste;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.loot.EntityLootGen;
 import net.minecraft.client.renderer.entity.ThrownItemRenderer;
@@ -60,12 +61,16 @@ public class GLEntities {
 	public static final EntityEntry<MarisaEntity> MARISA;
 	public static final EntityEntry<MorichikaEntity> MORICHIKA;
 	public static final EntityEntry<AliceEntity> ALICE;
-	/** No home of her own: she only ever appears as a guest, see {@code GLStructureGen}. */
+	/**
+	 * No home of her own: she only ever appears as a guest, see {@code GLStructureGen}.
+	 */
 	public static final EntityEntry<SakuyaEntity> IZAYOI_SAKUYA;
 	public static final EntityEntry<GeneralYoukaiEntity> MYSTIA;
 	public static final EntityEntry<BossYoukaiEntity> YUKARI, KOISHI;
 	public static final EntityEntry<FairyEntity> SUNNY, LUNA, STAR;
-	/** The unnamed fairy that actually wears the shared fairy rig, in four recolours. */
+	/**
+	 * The unnamed fairy that actually wears the shared fairy rig, in four recolours.
+	 */
 	public static final EntityEntry<PlainFairyEntity> PLAIN_FAIRY;
 	public static final EntityEntry<DollEntity> DOLL;
 
@@ -88,10 +93,22 @@ public class GLEntities {
 
 		BROOM = GensokyoLegacy.REGISTRATE
 				.<BroomEntity>entity("broom", BroomEntity::new, MobCategory.MISC)
-				.properties(e -> e.sized(0.4F, 0.3F).clientTrackingRange(10).updateInterval(2))
+				.properties(e -> e.sized(0.6f,1.8f).clientTrackingRange(10).updateInterval(2))
 				.renderer(() -> BroomRenderer::new)
 				.tag(EntityTypeTags.FALL_DAMAGE_IMMUNE)
 				.register();
+
+		// weight, minRep, maxRep, repBonus, minAppeal, maxAppeal, fulfillment,
+		// hungrySeat, fullSeat, leaveChance, repGain.
+		// The two sits are 60 and 160 ticks — three and eight seconds — so a guest who is
+		// still hungry comes back for the next course quickly and one who is only grazing
+		// takes her time, and the 0.05 is what a party pays the host.
+		PartyTaste TASTE_CIRNO = new PartyTaste(100, 0, 150, 1, 4, 20, 6, 60, 160, 0.05, 0.05);
+		PartyTaste TASTE_REIMU = new PartyTaste(100, 0, 200, 1, 10, 32, 20, 60, 160, 0.05, 0.05);
+		PartyTaste TASTE_MARISA = new PartyTaste(100, 0, 200, 1, 20, 32, 20, 60, 160, 0.05, 0.05);
+		PartyTaste TASTE_MORICHIKA = new PartyTaste(100, 0, 200, 1, 20, 32, 20, 60, 160, 0.05, 0.05);
+		PartyTaste TASTE_ALICE = new PartyTaste(100, 0, 250, 1, 24, 40, 12, 60, 160, 0.05, 0.05);
+		PartyTaste TASTE_SAKUYA = new PartyTaste(100, 0, 250, 1, 30, 48, 20, 60, 160, 0.05, 0.05);
 
 		{
 
@@ -114,6 +131,7 @@ public class GLEntities {
 							GiftType.DRINK, 2.0,
 							GiftType.BOOK, 1.5
 					)))
+					.dataMap(GLMeta.PARTY_TASTE.reg(), TASTE_REIMU)
 					.register();
 
 			CIRNO = GensokyoLegacy.REGISTRATE
@@ -127,6 +145,7 @@ public class GLEntities {
 							GiftType.FOOD, 1.5,
 							GiftType.BOOK, 0.5
 					)))
+					.dataMap(GLMeta.PARTY_TASTE.reg(), TASTE_CIRNO)
 					.register();
 		}
 
@@ -162,6 +181,7 @@ public class GLEntities {
 					.renderer(() -> MarisaRenderer::new)
 					.spawnEgg(0x52403C, 0xFAF2EF).build()
 					.loot(EntityLootGen::marisa)
+					.dataMap(GLMeta.PARTY_TASTE.reg(), TASTE_MARISA)
 					.register();
 
 			MORICHIKA = GensokyoLegacy.REGISTRATE
@@ -171,6 +191,7 @@ public class GLEntities {
 					.renderer(() -> MorichikaRenderer::new)
 					.spawnEgg(0x52403C, 0xFAF2EF).build()
 					.loot(EntityLootGen::noLoot)
+					.dataMap(GLMeta.PARTY_TASTE.reg(), TASTE_MORICHIKA)
 					.register();
 
 			ALICE = GensokyoLegacy.REGISTRATE
@@ -179,6 +200,7 @@ public class GLEntities {
 					.attributes(GeneralYoukaiEntity::createAttributes)
 					.renderer(() -> AliceRenderer::new)
 					.loot(EntityLootGen::noLoot)
+					.dataMap(GLMeta.PARTY_TASTE.reg(), TASTE_ALICE)
 					.register();
 
 			IZAYOI_SAKUYA = GensokyoLegacy.REGISTRATE
@@ -187,6 +209,7 @@ public class GLEntities {
 					.attributes(BossYoukaiEntity::createAttributes)
 					.renderer(() -> SakuyaRenderer::new)
 					.loot(EntityLootGen::noLoot)
+					.dataMap(GLMeta.PARTY_TASTE.reg(), TASTE_SAKUYA)
 					.register();
 
 			MYSTIA = GensokyoLegacy.REGISTRATE

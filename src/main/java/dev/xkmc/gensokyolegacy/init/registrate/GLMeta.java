@@ -1,12 +1,14 @@
 package dev.xkmc.gensokyolegacy.init.registrate;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.xkmc.gensokyolegacy.content.attachment.area.ChunkAreaAttachment;
 import dev.xkmc.gensokyolegacy.content.attachment.area.LevelAreaAttachment;
 import dev.xkmc.gensokyolegacy.content.attachment.character.CharacterAttachment;
-import dev.xkmc.gensokyolegacy.content.attachment.datamap.BedData;
-import dev.xkmc.gensokyolegacy.content.attachment.datamap.CharacterConfig;
-import dev.xkmc.gensokyolegacy.content.attachment.datamap.DialogConfig;
-import dev.xkmc.gensokyolegacy.content.attachment.datamap.StructureConfig;
+import dev.xkmc.gensokyolegacy.content.attachment.home.datamap.BedData;
+import dev.xkmc.gensokyolegacy.content.attachment.character.CharacterConfig;
+import dev.xkmc.gensokyolegacy.content.rpg.core.DialogConfig;
+import dev.xkmc.gensokyolegacy.content.attachment.home.datamap.StructureConfig;
 import dev.xkmc.gensokyolegacy.content.attachment.doll.DollAttachment;
 import dev.xkmc.gensokyolegacy.content.attachment.glove.GloveTargetAttachment;
 import dev.xkmc.gensokyolegacy.content.attachment.home.core.StructureAttachment;
@@ -15,6 +17,9 @@ import dev.xkmc.gensokyolegacy.content.attachment.misc.KoishiAttackCapability;
 import dev.xkmc.gensokyolegacy.content.block.deco.shelf.MorichikaOfferData;
 import dev.xkmc.gensokyolegacy.content.item.gift.GiftItemData;
 import dev.xkmc.gensokyolegacy.content.item.gift.GiftPreference;
+import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyAttachment;
+import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyFood;
+import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyTaste;
 import dev.xkmc.gensokyolegacy.content.rpg.quest.QuestAttachment;
 import dev.xkmc.gensokyolegacy.content.rpg.trade.TradeAttachment;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
@@ -32,6 +37,7 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.animal.frog.Frog;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
@@ -73,6 +79,13 @@ public class GLMeta {
 
 	public static final DataMapReg<Block, BedData> BED_DATA =
 			GensokyoLegacy.REG.dataMap("bed_data", Registries.BLOCK, BedData.class);
+
+	public static final AttVal.CapVal<LevelChunk, PartyAttachment> PARTY =
+			ATT.entity("party_data", PartyAttachment.class, PartyAttachment::new, LevelChunk.class, e -> true);
+	public static final DataMapReg<Block, PartyFood> PARTY_FOOD =
+			GensokyoLegacy.REG.dataMap("party_food", Registries.BLOCK, PartyFood.class);
+	public static final DataMapReg<EntityType<?>, PartyTaste> PARTY_TASTE =
+			GensokyoLegacy.REG.dataMap("party_taste", Registries.ENTITY_TYPE, PartyTaste.class);
 	public static final DataMapReg<EntityType<?>, CharacterConfig> ENTITY_DATA =
 			GensokyoLegacy.REG.dataMap("character_config", Registries.ENTITY_TYPE, CharacterConfig.class);
 	public static final DataMapReg<EntityType<?>, DialogConfig> DIALOG_DATA =
@@ -91,8 +104,11 @@ public class GLMeta {
 		Handlers.enableVanilla(Fluid.class, BuiltInRegistries.FLUID);
 		new CodecHandler<>(FluidIngredient.class, FluidIngredient.CODEC, FluidIngredient.STREAM_CODEC);
 		new CodecHandler<>(BoundingBox.class, BoundingBox.CODEC, ByteBufCodecs.fromCodecWithRegistries(BoundingBox.CODEC));
-		new CodecHandler<>(BlockPos.class, BlockPos.CODEC, ByteBufCodecs.fromCodecWithRegistries(BlockPos.CODEC));
 		new CodecHandler<>(BlockState.class, BlockState.CODEC, ByteBufCodecs.fromCodecWithRegistries(BlockState.CODEC));
+		new CodecHandler<>(ChunkPos.class, RecordCodecBuilder.create(i -> i.group(
+				Codec.INT.fieldOf("x").forGetter(e -> e.x),
+				Codec.INT.fieldOf("z").forGetter(e -> e.z)
+		).apply(i, ChunkPos::new)), ByteBufCodecs.fromCodecWithRegistries(Codec.LONG).map(ChunkPos::new, ChunkPos::toLong));
 	}
 
 }

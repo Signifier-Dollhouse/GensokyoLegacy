@@ -1,6 +1,6 @@
 package dev.xkmc.gensokyolegacy.init.data.structure.helper;
 
-import dev.xkmc.gensokyolegacy.content.attachment.datamap.StructureConfig;
+import dev.xkmc.gensokyolegacy.content.attachment.home.datamap.StructureConfig;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.EntityType;

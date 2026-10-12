@@ -1,7 +1,7 @@
 package dev.xkmc.gensokyolegacy.content.entity.visit;
 
-import dev.xkmc.gensokyolegacy.content.attachment.datamap.CharacterConfig;
-import dev.xkmc.gensokyolegacy.content.attachment.datamap.StructureConfig;
+import dev.xkmc.gensokyolegacy.content.attachment.character.CharacterConfig;
+import dev.xkmc.gensokyolegacy.content.attachment.home.datamap.StructureConfig;
 import dev.xkmc.gensokyolegacy.content.attachment.home.core.IHomeHolder;
 import dev.xkmc.gensokyolegacy.content.attachment.index.StructureKey;
 import dev.xkmc.gensokyolegacy.content.entity.module.VisitModule;

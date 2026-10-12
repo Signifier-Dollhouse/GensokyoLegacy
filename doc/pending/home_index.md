@@ -1,6 +1,6 @@
 # Home and Index System (Preset vs Custom) — Implementation & Usage Guide
 
-This document reflects the current implementation in `content/attachment/home/`, `content/attachment/index/`, `content/attachment/datamap/`, `content/block/base/`, `content/client/structure/` and `init/registrate/GLMeta`.
+This document reflects the current implementation in `content/attachment/home/`, `content/attachment/index/`, `content/attachment/home/datamap/`, `content/block/base/`, `content/client/structure/` and `init/registrate/GLMeta`.
 
 ## 1. Components
 

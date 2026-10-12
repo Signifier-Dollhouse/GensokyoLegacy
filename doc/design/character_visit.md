@@ -228,10 +228,10 @@ discards itself early and no change is needed there.
 
 | File | Change |
 |---|---|
-| `content/attachment/datamap/StructureConfig.java` | `visitors` + `CharacterVisit` + `visitOf` + builder |
+| `content/attachment/home/datamap/StructureConfig.java` | `visitors` + `CharacterVisit` + `visitOf` + builder |
 | `content/attachment/home/structure/StructureHomeHolder.java` | synthetic fallback constructor |
 | `content/attachment/index/StructureRefData.java` | expose `structureTick()`, call the scheduler |
-| `content/attachment/datamap/DialogConfig.java` | `visitGreeting` component |
+| `content/rpg/core/DialogConfig.java` | `visitGreeting` component |
 | `content/entity/youkai/YoukaiFlags.java` | append `VISITING` |
 | `content/entity/youkai/YoukaiEntity.java` | `createModules()` += `VisitModule`, `isVisiting()` |
 | `content/entity/youkai/SmartYoukaiEntity.java` | board: `VISITING(150)` + behaviours |

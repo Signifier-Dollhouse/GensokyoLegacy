@@ -10,7 +10,7 @@ import com.mojang.brigadier.suggestion.SuggestionProvider;
 import dev.xkmc.gensokyolegacy.content.attachment.character.CharDataHolder;
 import dev.xkmc.gensokyolegacy.content.attachment.character.CharacterData;
 import dev.xkmc.gensokyolegacy.content.attachment.character.ReputationConstants;
-import dev.xkmc.gensokyolegacy.content.attachment.datamap.StructureConfig;
+import dev.xkmc.gensokyolegacy.content.attachment.home.datamap.StructureConfig;
 import dev.xkmc.gensokyolegacy.content.attachment.home.core.IHomeHolder;
 import dev.xkmc.gensokyolegacy.content.entity.module.VisitModule;
 import dev.xkmc.gensokyolegacy.content.entity.visit.VisitScheduler;
@@ -25,7 +25,13 @@ import dev.xkmc.gensokyolegacy.content.rpg.reward.ReputationReward;
 import dev.xkmc.gensokyolegacy.content.rpg.trade.TradeData;
 import dev.xkmc.gensokyolegacy.content.rpg.trade.TradeOffer;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
+import dev.xkmc.gensokyolegacy.init.data.GLLang;
+import dev.xkmc.gensokyolegacy.init.data.GLModConfig;
+import dev.xkmc.gensokyolegacy.init.data.GLTagGen;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
+import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyAttachment;
+import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartySend;
+import dev.xkmc.gensokyolegacy.content.attachment.party.item.PartyMessage;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
@@ -38,8 +44,12 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import dev.xkmc.gensokyolegacy.content.attachment.party.item.PartyWand;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.BlockHitResult;
+import org.jetbrains.annotations.Nullable;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
@@ -68,6 +78,15 @@ public class GLCommands {
 			new SimpleCommandExceptionType(Component.literal("You are not inside a home"));
 	private static final SimpleCommandExceptionType ERROR_NO_VISITOR =
 			new SimpleCommandExceptionType(Component.literal("No visitor here to dismiss"));
+	private static final SimpleCommandExceptionType ERROR_NO_PARTY_TABLE =
+			new SimpleCommandExceptionType(Component.literal("Look at a party table first"));
+	private static final SimpleCommandExceptionType ERROR_NO_PARTY =
+			new SimpleCommandExceptionType(Component.literal("There is no party here"));
+	private static final SimpleCommandExceptionType ERROR_NO_PARTY_PLAYER =
+			new SimpleCommandExceptionType(Component.literal("A party is planned against a player's reputation"));
+
+	/** How far {@code /gensokyo party} will look for the table being aimed at. */
+	private static final double PARTY_TABLE_REACH = 8;
 
 	private static final SuggestionProvider<CommandSourceStack> SUGGEST_CHARACTER = (ctx, builder) -> {
 		var access = ctx.getSource().registryAccess();
@@ -264,7 +283,17 @@ public class GLCommands {
 								.executes(GLCommands::executeVisit)
 								.then(Commands.argument("ticks", IntegerArgumentType.integer(20, 24000))
 										.executes(ctx -> forceVisit(ctx,
-												IntegerArgumentType.getInteger(ctx, "ticks")))))));
+												IntegerArgumentType.getInteger(ctx, "ticks"))))))
+				.then(Commands.literal("party")
+						.then(Commands.argument("player", EntityArgument.player())
+								.then(Commands.literal("preview")
+										.executes(GLCommands::executePartyPreview))
+								.then(Commands.literal("send")
+										.executes(GLCommands::executePartySend))
+								.then(Commands.literal("end")
+										.executes(GLCommands::executePartyEnd))
+								.then(Commands.literal("info")
+										.executes(GLCommands::executePartyInfo)))));
 	}
 
 	private static com.mojang.brigadier.builder.LiteralArgumentBuilder<CommandSourceStack> literal(String str) {
@@ -373,6 +402,128 @@ public class GLCommands {
 					+ (left > 0 ? left + "t left" : "not visiting") + (here ? " (on site)" : "")), false);
 		}
 		return 1;
+	}
+
+	// --- party ---
+
+	/**
+	 * Dump the whole plan for the table the player is looking at: spread appeal, seat
+	 * count, every eligible character with the weight the planner gave them, and the
+	 * roster that would actually come. Runs the identical planner a send runs, so this
+	 * predicts it exactly — and consumes nothing.
+	 */
+	private static int executePartyPreview(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+		var src = ctx.getSource();
+		var sp = partyPlayer(ctx);
+		var level = sp.serverLevel();
+		var anchor = partyTable(ctx, sp);
+		if (anchor == null) throw ERROR_NO_PARTY_TABLE.create();
+
+		var outcome = PartySend.plan(level, sp, anchor, PartySend.reputationOf(sp));
+		// a preview is a scan, so a wand in the sender's hand records it and draws it
+		PartyWand.recordIfHeld(sp, anchor, outcome);
+		src.sendSuccess(() -> refusalText(outcome), false);
+		if (!outcome.ok()) {
+			var miss = outcome.miss();
+			if (miss != null) {
+				var c = miss.getKey();
+				src.sendSuccess(() -> GLLang.Party.PREVIEW_GUEST.get(c.type().getDescription(),
+						String.valueOf(c.weight()), c.reputation(), c.fulfillment()), false);
+			}
+			return 0;
+		}
+		var plan = outcome.plan();
+		src.sendSuccess(() -> GLLang.Party.PREVIEW_TITLE.get(plan.appeal(), plan.seats()), false);
+		src.sendSuccess(() -> GLLang.Party.PREVIEW_HEADER.get(PartyMessage.roster(plan.roster())), false);
+		for (var c : plan.pool()) {
+			if (c.weight() <= 0) continue;   // declined, nothing to tune
+			src.sendSuccess(() -> GLLang.Party.PREVIEW_GUEST.get(c.type().getDescription(),
+					String.valueOf(c.weight()), c.reputation(), c.fulfillment()), false);
+		}
+		return 1;
+	}
+
+	private static int executePartySend(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+		var src = ctx.getSource();
+		var sp = partyPlayer(ctx);
+		var anchor = partyTable(ctx, sp);
+		if (anchor == null) throw ERROR_NO_PARTY_TABLE.create();
+		// an empty stack, so the command spends no letter; only the item does
+		var outcome = PartySend.send(sp, anchor, ItemStack.EMPTY);
+		PartyMessage.report(sp, outcome);
+		return outcome.ok() ? 1 : 0;
+	}
+
+	private static int executePartyEnd(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+		var src = ctx.getSource();
+		var sp = partyPlayer(ctx);
+		var party = partyNear(ctx, sp);
+		if (party == null) throw ERROR_NO_PARTY.create();
+		PartySend.close(sp.serverLevel(), party);
+		src.sendSuccess(() -> GLLang.Party.ENDED.get(), true);
+		return 1;
+	}
+
+	private static int executePartyInfo(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+		var src = ctx.getSource();
+		var sp = partyPlayer(ctx);
+		var party = partyNear(ctx, sp);
+		if (party == null) throw ERROR_NO_PARTY.create();
+		src.sendSuccess(() -> GLLang.Party.INFO_PHASE.get(party.phase().name()), false);
+		src.sendSuccess(() -> GLLang.Party.INFO_ROSTER.get(PartyMessage.roster(party.roster())), false);
+		src.sendSuccess(() -> GLLang.Party.INFO_SERVED.get(party.hungerServed(), party.hungerBudget()), false);
+		// appeal is the figure the reputation payout is a share of, so a host tuning
+		// repGain needs to see what the party was actually worth rather than what it was
+		// planned to be worth - the wand's readout is the latter
+		src.sendSuccess(() -> GLLang.Party.INFO_APPEAL.get(party.appealServed()), false);
+		src.sendSuccess(() -> GLLang.Party.INFO_GUESTS.get(party.seatsUsed()), false);
+		return 1;
+	}
+
+	/** The party table the player is looking at, or null when they are not looking at one. */
+	@Nullable
+	private static BlockPos partyTable(CommandContext<CommandSourceStack> ctx, ServerPlayer sp) {
+		var hit = sp.pick(PARTY_TABLE_REACH, 0, false);
+		if (!(hit instanceof BlockHitResult block)) return null;
+		BlockPos pos = block.getBlockPos();
+		return sp.serverLevel().getBlockState(pos).is(GLTagGen.PARTY_TABLE) ? pos : null;
+	}
+
+	/** Where the party is looked for when not aimed at a table: where the player stands. */
+	private static BlockPos partyTableOrPosition(CommandContext<CommandSourceStack> ctx, ServerPlayer sp) {
+		var table = partyTable(ctx, sp);
+		return table != null ? table : sp.blockPosition();
+	}
+
+	/**
+	 * The party at, or near, where the player is looking. Searches the neighbourhood
+	 * rather than the single chunk, because a party is owned by the chunk holding the
+	 * centre of its food, which is within the scan's reach of the table and so often in
+	 * the next chunk over.
+	 */
+	@Nullable
+	private static PartyAttachment partyNear(CommandContext<CommandSourceStack> ctx, ServerPlayer sp) {
+		return PartyAttachment.near(sp.serverLevel(), partyTableOrPosition(ctx, sp),
+				GLModConfig.SERVER.partyScanDistance.get());
+	}
+
+	private static ServerPlayer partyPlayer(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+		if (!(EntityArgument.getPlayer(ctx, "player") instanceof ServerPlayer sp)) {
+			throw ERROR_NO_PARTY_PLAYER.create();
+		}
+		return sp;
+	}
+
+	/** Why a plan failed, or the appeal line when it succeeded. */
+	private static Component refusalText(PartySend.Outcome outcome) {
+		var refusal = outcome.refusal();
+		if (refusal == null) return Component.empty();
+		return switch (refusal) {
+			case NO_FOOD -> GLLang.Party.NO_FOOD.get();
+			case NO_SEATS -> GLLang.Party.NO_SEATS.get();
+			case PARTY_EXISTS -> GLLang.Party.PARTY_EXISTS.get();
+			case NOBODY_CAME -> GLLang.Party.NOBODY_CAME.get();
+		};
 	}
 
 	// --- reputation ---

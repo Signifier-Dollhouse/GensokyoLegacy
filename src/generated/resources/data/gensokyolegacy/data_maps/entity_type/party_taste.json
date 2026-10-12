@@ -1,0 +1,82 @@
+{
+  "values": {
+    "gensokyolegacy:alice_margatroid": {
+      "fulfillment": 12,
+      "fullSeat": 160,
+      "hungrySeat": 60,
+      "leaveChance": 0.05,
+      "maxAppeal": 40,
+      "maxReputation": 250,
+      "minAppeal": 24,
+      "minReputation": 0,
+      "repBonus": 1.0,
+      "repGain": 0.05,
+      "weight": 100
+    },
+    "gensokyolegacy:cirno": {
+      "fulfillment": 6,
+      "fullSeat": 160,
+      "hungrySeat": 60,
+      "leaveChance": 0.05,
+      "maxAppeal": 20,
+      "maxReputation": 150,
+      "minAppeal": 4,
+      "minReputation": 0,
+      "repBonus": 1.0,
+      "repGain": 0.05,
+      "weight": 100
+    },
+    "gensokyolegacy:hakurei_reimu": {
+      "fulfillment": 20,
+      "fullSeat": 160,
+      "hungrySeat": 60,
+      "leaveChance": 0.05,
+      "maxAppeal": 32,
+      "maxReputation": 200,
+      "minAppeal": 10,
+      "minReputation": 0,
+      "repBonus": 1.0,
+      "repGain": 0.05,
+      "weight": 100
+    },
+    "gensokyolegacy:izayoi_sakuya": {
+      "fulfillment": 20,
+      "fullSeat": 160,
+      "hungrySeat": 60,
+      "leaveChance": 0.05,
+      "maxAppeal": 48,
+      "maxReputation": 250,
+      "minAppeal": 30,
+      "minReputation": 0,
+      "repBonus": 1.0,
+      "repGain": 0.05,
+      "weight": 100
+    },
+    "gensokyolegacy:kirisame_marisa": {
+      "fulfillment": 20,
+      "fullSeat": 160,
+      "hungrySeat": 60,
+      "leaveChance": 0.05,
+      "maxAppeal": 32,
+      "maxReputation": 200,
+      "minAppeal": 20,
+      "minReputation": 0,
+      "repBonus": 1.0,
+      "repGain": 0.05,
+      "weight": 100
+    },
+    "gensokyolegacy:morichika_rinnosuke": {
+      "fulfillment": 20,
+      "fullSeat": 160,
+      "hungrySeat": 60,
+      "leaveChance": 0.05,
+      "maxAppeal": 32,
+      "maxReputation": 200,
+      "minAppeal": 20,
+      "minReputation": 0,
+      "repBonus": 1.0,
+      "repGain": 0.05,
+      "weight": 100
+    }
+  }
+}
