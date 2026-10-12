@@ -104,6 +104,7 @@ public class GLMeta {
 		Handlers.enableVanilla(Fluid.class, BuiltInRegistries.FLUID);
 		new CodecHandler<>(FluidIngredient.class, FluidIngredient.CODEC, FluidIngredient.STREAM_CODEC);
 		new CodecHandler<>(BoundingBox.class, BoundingBox.CODEC, ByteBufCodecs.fromCodecWithRegistries(BoundingBox.CODEC));
+		new CodecHandler<>(BlockPos.class, BlockPos.CODEC, ByteBufCodecs.fromCodecWithRegistries(BlockPos.CODEC));
 		new CodecHandler<>(BlockState.class, BlockState.CODEC, ByteBufCodecs.fromCodecWithRegistries(BlockState.CODEC));
 		new CodecHandler<>(ChunkPos.class, RecordCodecBuilder.create(i -> i.group(
 				Codec.INT.fieldOf("x").forGetter(e -> e.x),
