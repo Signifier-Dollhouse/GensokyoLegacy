@@ -13,9 +13,10 @@ import net.minecraft.world.item.ItemStack;
 import java.util.List;
 
 /**
- * Client side of wheel visibility: super / suicide show while a summoned doll
- * carries a matching weapon, read off the synced roster plus each doll's
- * server-computed validity mask. No capability access.
+ * Client half of wheel visibility: super / suicide show while a summoned doll carries a matching
+ * weapon, read off the synced roster plus each doll's server-computed validity mask.
+ *
+ * @see doc/design/doll/glove.md
  */
 public final class DollGloveClientModes {
 
@@ -29,9 +30,8 @@ public final class DollGloveClientModes {
 	}
 
 	/**
-	 * Display list for the scroll sidebar ({@code getList} has no player
-	 * param): resolves the client player internally. Falls back to the static
-	 * set when no player is at hand.
+	 * Display list for the scroll sidebar, which has no player param: resolves the client player
+	 * internally, falling back to the static set when there is none.
 	 */
 	public static List<DollGloveMode> availableForDisplay(ItemStack stack) {
 		var mc = Minecraft.getInstance();

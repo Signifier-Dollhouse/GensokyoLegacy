@@ -16,12 +16,12 @@ import java.util.Optional;
 
 /**
  * Selector listener for the {@link DaggerGloveItem}'s firing mode, mirroring
- * {@code DollGloveSelectionListener} (glove.md §3).
- * <p>
- * Simpler than the doll glove's because all three modes are always available: there is no
- * availability filter, no client/server split over what is visible, and no hidden modes to keep
- * out of the wheel. The mode is the enum ordinal in a data component, so both the wheel and the
- * scroll selector speak ordinals and neither can name a mode that does not exist.
+ * {@code DollGloveSelectionListener} (glove.md §3). Simpler than the doll glove's because all three
+ * modes are always available: no availability filter, no client/server split over what is visible.
+ * The mode is the enum ordinal in a data component, so the wheel and the scroll selector both speak
+ * ordinals and neither can name a mode that does not exist.
+ *
+ * @see doc/design/dagger_glove.md
  */
 public class DaggerGloveSelectionListener extends IItemSelector implements WheelAdaptor.Provider {
 
@@ -59,7 +59,7 @@ public class DaggerGloveSelectionListener extends IItemSelector implements Wheel
 		List<ItemStack> list = new ArrayList<>();
 		for (var mode : DaggerGloveMode.values()) {
 			// the flat icon variant, not the held separate-transforms model: the sidebar is
-			// gui-only, so it wants the mode's own 16x16 icon like the wheel does
+			// gui-only, so it wants the mode's own icon like the wheel does
 			ItemStack icon = DaggerGloveItem.iconStack(mode);
 			icon.set(DataComponents.ITEM_NAME, mode.displayName());
 			list.add(icon);

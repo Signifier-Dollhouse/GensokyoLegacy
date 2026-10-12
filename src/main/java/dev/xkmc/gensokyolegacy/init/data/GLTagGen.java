@@ -65,14 +65,10 @@ public class GLTagGen {
 
 	/**
 	 * Tables a party may be laid out on. Built from {@link #LARGE_TABLE} rather than
-	 * {@link #TABLE} on purpose: {@code tea_table} and {@code magic_table} are excluded
-	 * from the party feature, see doc/design/party/food_mods.md §6.
+	 * {@link #TABLE}, which also carries {@code tea_table} and {@code magic_table}.
 	 */
 	public static final TagKey<Block> PARTY_TABLE = block("party_table");
-	/**
-	 * Seats a guest may take. Chairs are a hard requirement for a party, so this is
-	 * not advisory.
-	 */
+	/** Seats a guest may take. Chairs are a hard requirement for a party. */
 	public static final TagKey<Block> PARTY_SEAT = block("party_seat");
 
 	public static final TagKey<Block> SLIDING_DOOR = block("sliding_door");
@@ -118,19 +114,13 @@ public class GLTagGen {
 	/**
 	 * The party table and seat tags.
 	 * <p>
-	 * Generated, not hand-written. Our own tables and seats come from the tags they
-	 * already belong to, so they stay in step automatically as blocks are added.
+	 * Generated, not hand-written: our own tables and seats come from the tags they already
+	 * belong to. Youkai's Feasts' dining tables and chairs go in as optional entries, which
+	 * is what keeps that mod optional, and it uses the same 11 wood names we do.
 	 * <p>
-	 * Youkai's Feasts' dining tables and chairs are added as optional entries —
-	 * {@code "required": false} — so the tag loader drops them when the mod is absent.
-	 * That is what keeps the mod optional rather than a hard dependency, and no Java
-	 * here names one of its blocks. It uses the same 11 wood names we do, so one loop
-	 * covers both tags.
-	 * <p>
-	 * There is deliberately no {@code party_food} tag. Food is decided entirely in code,
-	 * by whether a {@code BlockFoodHandler} recognises the block and finds something
-	 * worth eating in it — see {@code PartyFoodValue#isFood}. The {@code party_food}
-	 * data map only revalues such a block; it cannot make one.
+	 * There is deliberately no {@code party_food} tag. Food is decided entirely in code, by
+	 * whether a handler recognises the block and finds something worth eating in it; the
+	 * {@code party_food} data map only revalues such a block and cannot make one.
 	 */
 	private static void genPartyTag(RegistrateTagsProvider.IntrinsicImpl<Block> pvd) {
 		pvd.addTag(PARTY_TABLE).addTag(LARGE_TABLE);

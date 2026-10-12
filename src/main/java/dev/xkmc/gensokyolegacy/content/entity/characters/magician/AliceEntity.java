@@ -31,12 +31,10 @@ import java.util.Optional;
 
 /**
  * Alice Margatroid, the doll master. She is a {@link DollHost} in her own right:
- * her dolls are hosted by {@link AliceDollHost}, which is where the roster, the
- * arming, and the orders live. This class exists only to <b>be</b> the host —
- * {@link BaseDollEntity#getHost} resolves a doll's host by asking its owning
- * entity, so without this every one of her dolls would find no host and discard
- * itself on the next tick. {@link DelegateDollHost} forwards the whole surface to
- * the module, so only {@link #dolls()} has to be written here.
+ * the roster, the arming and the orders live in {@link AliceDollHost}, and this class
+ * exists only to <b>be</b> the host, since {@link BaseDollEntity#getHost} resolves a
+ * doll's host by asking its owning entity. {@link DelegateDollHost} forwards the whole
+ * surface, so only {@link #dolls()} is written here (host.md §1).
  */
 @SerialClass
 public class AliceEntity extends GeneralYoukaiEntity implements GeoYoukaiAnim, DelegateDollHost {
@@ -81,7 +79,7 @@ public class AliceEntity extends GeneralYoukaiEntity implements GeoYoukaiAnim, D
 	// ---------- doll host ----------
 	// The state lives in the module; every host method is forwarded there by
 	// DelegateDollHost. A doll resolves its host by asking its owner, so Alice
-	// has to answer even though she keeps nothing here.
+	// answers even though she keeps nothing here.
 
 	/** Her retinue: the ledger she conjures from and hands her orders. */
 	@Override

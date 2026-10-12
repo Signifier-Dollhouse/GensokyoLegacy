@@ -14,7 +14,7 @@ import org.jetbrains.annotations.Nullable;
  * A Kaleidoscope Cookery dish: a placed block eaten one bite at a time.
  *
  * <p>Not an {@link AbstractCountdownFood}: Cookery's counter stops at the maximum and leaves
- * an emptied block standing, so serves are {@code maxBites - bites}, not {@code bites + 1}.
+ * an emptied block standing, so serves are {@code maxBites - bites}. food_mods.md §1.1.
  *
  * @see doc/design/party/food_mods.md
  */
@@ -33,9 +33,8 @@ public class BiteFood implements BlockFoodHandler {
 	}
 
 	/**
-	 * Cookery has no item for a single bite — the dish item is the whole plate — so the
-	 * properties come from the mod's own public registry table, never from a serving item.
-	 * {@code itemFood()} there is the whole dish and must not be used.
+	 * Cookery has no item for a single bite, so the properties come from the mod's own
+	 * public registry table. {@code itemFood()} there is the whole dish; do not use it.
 	 */
 	@Override
 	public @Nullable FoodProperties food(BlockState state) {
@@ -48,8 +47,7 @@ public class BiteFood implements BlockFoodHandler {
 	@Override
 	public int consume(Level level, BlockPos pos, BlockState state) {
 		if (!(state.getBlock() instanceof FoodBiteBlock bite) || serves(state) <= 1) {
-			// Cookery leaves an emptied dish standing; we remove it, so a spent dish does
-			// not sit on the table forever.
+			// Cookery leaves an emptied dish standing; we remove it
 			level.destroyBlock(pos, false);
 			return 0;
 		}

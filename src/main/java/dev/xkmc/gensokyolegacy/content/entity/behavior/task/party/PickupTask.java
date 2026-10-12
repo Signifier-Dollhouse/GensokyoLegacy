@@ -13,6 +13,8 @@ import net.minecraft.server.level.ServerLevel;
  * converging on one cake cannot both be counted for it. It is also the re-validation that
  * sends her back for another dish if the one she hesitated over was eaten while she stood
  * there thinking.
+ *
+ * @see doc/design/party/guest.md
  */
 public class PickupTask extends PartyTask {
 
@@ -26,7 +28,7 @@ public class PickupTask extends PartyTask {
 	protected void step(ServerLevel level, SmartYoukaiEntity entity, PartyContext ctx) {
 		if (ctx.tickGrab() > 0) return;
 		BlockPos dish = ctx.dish();
-		// reach is read before the memory is dropped: dishInReach looks the dish up
+		// reach is read before the dish is dropped: dishInReach looks the dish up
 		boolean takeable = dish != null && ctx.dishInReach();
 		ctx.dish(null);
 		// someone else got there first, or the host broke it up: draw again

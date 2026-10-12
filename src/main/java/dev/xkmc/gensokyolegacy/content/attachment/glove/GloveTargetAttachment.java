@@ -14,16 +14,14 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * The server half of the shared glove target cache (glove.md §2): one cached ray-trace hint per
- * glove per player, written by {@code GloveTargetPacket} and read by whichever glove asks for it.
+ * The server half of the shared glove target cache (glove.md §2): one ray-trace hint per glove per
+ * player, written by {@code GloveTargetPacket} and read by whichever glove asks for it.
  * <p>
- * Deliberately session-only — the entries carry no {@code SerialField}, exactly like the doll
- * glove's old commander fields. A hint is worth nothing across a logout: the client re-traces every
- * few ticks anyway, and a target that survived being written is re-validated on every read.
- * <p>
- * The client cache is a hint, never authority. {@link #resolve} re-checks the glove's own TTL, the
- * level, the entity and the range server-side, and the glove itself re-checks what it will accept
+ * Session-only, and never authority: {@link #resolve} re-checks the glove's own TTL, the level, the
+ * entity and the range, and the glove re-checks what it will accept
  * ({@link GloveTargeting#acceptsTarget}), so a modified client cannot buy itself a target.
+ *
+ * @see doc/design/doll/glove.md
  */
 @SerialClass
 public class GloveTargetAttachment extends PlayerCapabilityTemplate<GloveTargetAttachment> {
@@ -33,15 +31,14 @@ public class GloveTargetAttachment extends PlayerCapabilityTemplate<GloveTargetA
 
 	/**
 	 * One slot per glove item, so main hand and off hand never overwrite each other. Never
-	 * serialized; {@link #mark} drops expired entries, which keeps it from outliving a removed
-	 * item.
+	 * serialized; {@link #mark} drops expired entries, so it cannot outlive a removed item.
 	 */
 	private final Map<Item, Entry> entries = new HashMap<>();
 
 	/**
 	 * Records a client trace result as this glove's hint, stamped with the level's game time.
-	 * Expired entries for every glove are dropped on the way in — the write happens every few
-	 * ticks while the glove is held, so that is a natural place to prune.
+	 * Expired entries for every glove are dropped here — the write happens every few ticks while
+	 * the glove is held, a natural place to prune.
 	 */
 	public void mark(Item glove, @Nullable UUID target, long now) {
 		entries.entrySet().removeIf(e -> e.getKey() instanceof GloveTargeting g && now - e.getValue().time > g.targetTtl());
@@ -49,8 +46,8 @@ public class GloveTargetAttachment extends PlayerCapabilityTemplate<GloveTargetA
 	}
 
 	/**
-	 * The hinted target for this stack's glove, or null. A missing, stale, dead, out-of-level or
-	 * out-of-range hint all read the same way; on a hit the timestamp is restamped, so a target the
+	 * The hinted target for this stack's glove, or null: missing, stale, dead, out-of-level and
+	 * out-of-range hints all read the same way. A hit restamps the timestamp, so a target the
 	 * holder keeps looking at stays live however slowly they use the glove.
 	 */
 	@Nullable

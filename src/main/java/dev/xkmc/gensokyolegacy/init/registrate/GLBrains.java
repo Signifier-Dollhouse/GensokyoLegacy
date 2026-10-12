@@ -49,7 +49,8 @@ public class GLBrains {
 	public static final Val<MemoryModuleType<GlobalPos>> MEM_VISIT = MEMORIES.reg("visit", () -> new MemoryModuleType<>(Optional.empty()));
 	/**
 	 * Where a party guest is eating. Its presence is what puts her in
-	 * {@link #PARTY} instead of following her schedule.
+	 * {@link #PARTY} instead of following her schedule. No codec, so it does not
+	 * survive a save and {@code PartyModule} re-asserts it every tick.
 	 */
 	public static final Val<MemoryModuleType<GlobalPos>> MEM_PARTY = MEMORIES.reg("party", () -> new MemoryModuleType<>(Optional.empty()));
 	/**

@@ -1,6 +1,8 @@
 # The Guest — the state machine and the three phases
 
-A guest's visit is a **cascade of eleven brain tasks**, routed by which of seven memories are set. There is no phase enum, no dispatcher, and no state to lose.
+A guest's visit is a **cascade of eleven brain tasks**, routed by which of seven pieces of her own state are set. There is no phase enum, no dispatcher, and no state to lose.
+
+Those seven were brain memories once, and that was the wrong home: `Brain.MemoryValue.serialize` writes a memory only when its type carries a codec, and a guest reloaded from disk came back without any of them — no line of the tree to resume on, so she went back to her schedule as though the party had never happened. The machine position is therefore **fields on `PartyModule`**, serialized with the entity beside the chair claim and the tallies that already survived a reload. The only party memory left is `MEM_PARTY`, the activity gate, and it is re-asserted every tick rather than saved.
 
 ## 1. The machine
 
@@ -11,28 +13,28 @@ board.addPrioritizedActivity(GLBrains.PARTY.get(), GLBrains.MEM_PARTY.get(), 200
 board.addPartyTasks();
 ```
 
-**Which task runs is decided by memory presence, not by a variable.** Each task declares the memories that must be set (and those that must not) in its entry condition, and `checkExtraStartConditions` covers what a memory cannot know — whether she is actually a passenger, whether the party has reached FEASTING. `TaskBoard.fetch` collects every exclusive task under one activity into a single `GateBehavior(ORDERED, RUN_ONE)`, which tries them **in registration order and runs the first that matches**. So the order *is* the priority, and a task lower down can be given a signature as loose as "nothing" — everything more specific has already been claimed by then.
+**Which task runs is decided by which of those seven are set, not by a variable.** Each task declares the ones that must be set (and those that must not) in its entry condition, and `checkExtraStartConditions` covers what they cannot know — whether she is actually a passenger, whether the party has reached FEASTING. `TaskBoard.fetch` collects every exclusive task under one activity into a single `GateBehavior(ORDERED, RUN_ONE)`, which tries them **in registration order and runs the first that matches**. So the order *is* the priority, and a task lower down can be given a signature as loose as "nothing" — everything more specific has already been claimed by then.
 
-### The memories
+### The seven
 
-| memory | type | means |
+| field | type | means |
 |---|---|---|
-| `MEM_PARTY` | `GlobalPos` | she is at a party at all — the activity gate |
-| `MEM_PARTY_SERVE` | `PartyServe` | **has food in hand**, and it is not yet banked |
-| `MEM_PARTY_DISH` | `BlockPos` | **has a food target** — the dish she committed to |
-| `MEM_PARTY_HESITATE` | `Integer` | eat wait: deciding at the dish, ticks left |
-| `MEM_PARTY_GRAB` | `Integer` | the pickup gesture, ticks left |
-| `MEM_PARTY_CHEW` | `Integer` | eat wait: chewing, ticks left |
-| `MEM_PARTY_REST` | `Integer` | **post-eat wait**: sitting between dishes, ticks left |
-| `MEM_PARTY_LEAVE` | `Integer` | the unseat wait, then the walk out |
+| `MEM_PARTY` | `GlobalPos` | she is at a party at all — the activity gate, and the one that is still a memory |
+| `party.serve` | `PartyServe` | **has food in hand**, and it is not yet banked |
+| `party.serveDish` | `BlockPos` | **has a food target** — the dish she committed to |
+| `party.hesitate` | `int` | eat wait: deciding at the dish, ticks left |
+| `party.grab` | `int` | the pickup gesture, ticks left |
+| `party.chew` | `int` | eat wait: chewing, ticks left |
+| `party.rest` | `int` | **post-eat wait**: sitting between dishes, ticks left |
+| `party.leaveArmed` / `party.leave` | `boolean` / `int` | the unseat wait, then the walk out |
 
-**Every one of them carries a codec, and that is the whole of how a guest survives a save.** `Brain.MemoryValue.serialize` writes a memory only when `MemoryModuleType.getCodec()` is present, and `LivingEntity.saveWithoutId` hands `brain.serializeStart(...)` straight into `SmartBrain.construct` on load. A memory registered with `Optional.empty()` is *never* written out — which is why `MEM_PARTY` itself does not persist and `PartyModule.tickServer` re-asserts it instead.
+**One convention for all of them: 0 is not running, and a null dish or serve is not held**, so a restart mid-wait resumes the wait rather than re-rolling it. `leaveArmed` is the exception that proves it: the departure is a separate flag precisely because zero has to mean "armed and already on her way" — the tick after the last of the unseat wait — and the timer alone could not say whether she was leaving or merely sitting down to eat. Clearing it mid-walkout would drop the cascade back to whatever fits an ordinary guest, and she would sit back down on the way out of the door.
 
-The timer memories hold *ticks remaining* and are erased at zero, so presence means "running" and a decrement is one write. `MEM_PARTY_LEAVE` is the exception: it counts down to zero and stays, because **its presence is the departure** — erasing it mid-walkout would drop the cascade back to whatever fits an ordinary guest, and she would sit back down on the way out of the door.
+`MEM_PARTY` is registered with `Optional.empty()` and is therefore *never* written out, which is why `PartyModule.tickServer` re-asserts it from the module every tick instead.
 
 ### The cascade
 
-`✓` must be set, `✗` must be absent, `·` is don't care. Seated-ness and phase are physical checks, not memories.
+`✓` must be set, `✗` must be clear, `·` is don't care. Seated-ness and phase are physical checks, not machine state.
 
 | # | task | S | D | H | G | C | R | L | seated | phase |
 |---|---|---|---|---|---|---|---|---|---|---|
@@ -64,7 +66,7 @@ seated, party not feasting?     → WaitTable
 otherwise                       → FindSeat
 ```
 
-The bottom four constrain **no memory at all**, which is the point: by the time the gate reaches them, every specific state has been ruled out, so they are the terminal fallbacks that make the cascade total. A brute-force check of all 512 combinations (7 memories × seated × FEASTING) confirms every one resolves to exactly one task — 0 uncovered.
+The bottom four constrain **nothing at all**, which is the point: by the time the gate reaches them, every specific state has been ruled out, so they are the terminal fallbacks that make the cascade total. A brute-force check of all 512 combinations (7 pieces of state × seated × FEASTING) confirms every one resolves to exactly one task — 0 uncovered.
 
 `GoToFood` shows as all-don't-care because its `stillMine` carries the dish conditions instead; either way the combined signature is "has dish, not hesitating, not grabbing".
 
@@ -72,19 +74,19 @@ The bottom four constrain **no memory at all**, which is the point: by the time 
 
 Every party task carries `WALK_TARGET: VALUE_ABSENT`, and `PartyTask.canStillUse` yields the moment a walk order is outstanding: `YoukaiMoveTask` does the walking and clears the memory on arrival, at which point the gate re-picks the same task and it finds itself arrived.
 
-**That is why reach needs no memory.** Being out of reach and being in reach are the same task; the walk order stands in for the difference. It also means the state that moves her and the state where she thinks are genuinely two states rather than one state with an embedded pause — she crosses to the dish first and hesitates *at* it, which is the only arrangement in which changing her mind at the last moment is possible at all.
+**That is why reach needs no state of its own.** Being out of reach and being in reach are the same task; the walk order stands in for the difference. It also means the state that moves her and the state where she thinks are genuinely two states rather than one state with an embedded pause — she crosses to the dish first and hesitates *at* it, which is the only arrangement in which changing her mind at the last moment is possible at all.
 
 ### The un-banked serve
 
-`MEM_PARTY_SERVE` holds both "she is carrying something" and what it is worth, which is what makes the window durable. It used to be two task fields plus a `stop()` that banked them on the way out — a race with task shutdown. As a memory it is simply state: a guest interrupted mid-bite by an unload or a restart still has the serve when she comes back and is credited for it then.
+`party.serve` holds both "she is carrying something" and what it is worth, which is what makes the window durable. It used to be two task fields plus a `stop()` that banked them on the way out — a race with task shutdown. Serialized on the module it is simply state: a guest interrupted mid-bite by an unload or a restart still has the serve when she comes back and is credited for it then.
 
 ### The director
 
-One **always-task** under `PARTY`, running alongside whichever of the eleven is going, for the three things that are not states: the party ending under her, the party closing while she is mid-course (which arms `MEM_PARTY_LEAVE`, the wait drawn per guest so a table does not empty in one tick), and her chair being taken away by the layout rescan. It also owns the teleport fallback for a walk the pathfinder has already failed.
+One **always-task** under `PARTY`, running alongside whichever of the eleven is going, for the three things that are not states: the party ending under her, the party closing while she is mid-course (which arms the departure, the wait drawn per guest so a table does not empty in one tick), and her chair being taken away by the layout rescan. It also owns the teleport fallback for a walk the pathfinder has already failed.
 
-### What is not a memory
+### What the module records
 
-`PartyModule` is serialized with the entity under `YoukaiModules`, so the seat claim and the visit tallies (`eaten`, `appealEaten`, `gifted`) were already durable, and the seat-retry counters joined them there. The distinction is that memories say *which task*, the module records *what happened to her*.
+`PartyModule` is serialized with the entity under `YoukaiModules`, so the seat claim and the visit tallies (`eaten`, `appealEaten`, `gifted`) were already durable, and the seat-retry counters joined them there. The distinction that held before the machine moved was that memories said *which task* while the module recorded *what happened to her*; now both live here, and the seat episode's reason for it still stands — it is visit bookkeeping, and a reload must not reset the count, or a guest who cannot find a chair gives up in three ticks instead of nine seconds.
 
 **`recoverPosition()` no longer exists**, which is the clearest sign the design is right: on reload the signature table plus physics fully determine what happens next — serve set and seated means Chew, dish set means GoToFood, neither and seated means FindFood.
 
@@ -143,11 +145,11 @@ The walk-failure fallback (§2.1) already lands where this wants it to — it te
 
 `HomeSearchUtil.setSitting` (`HomeSearchUtil.java:75`) already handles claiming a free seat, checking `ChairEntity` occupancy and yielding to players, and is a silent no-op when the block is not `ISeatableBlock` — so a third-party chair from `party_seat` simply has the guest stand beside it, with no special case. The claim is still recorded, because otherwise one unseatable chair would hold the party in GATHERING for ever.
 
-**`PartyModule` holds the chair, not the memory.** The claim is serialized with the entity, so it survives a chunk unload and a restart; only the machine position lives in memories. `FindSeatTask` is the only task that runs while she is not seated, and it recovers her place from nothing more than that.
+**`PartyModule` holds the chair.** The claim is serialized with the entity, so it survives a chunk unload and a restart, as does the machine position beside it. `FindSeatTask` is the only task that runs while she is not seated, and it recovers her place from nothing more than that.
 
-### How the split got wrong, twice
+### How the split went wrong, three times
 
-The machine was a single `Behavior` with a `switch`, then nine behaviours behind a phase enum, and only now is it eleven tasks behind seven memories. Both intermediate shapes shipped broken, and the failure mode is the same each time: the entity looks perfectly healthy while doing nothing.
+The machine was a single `Behavior` with a `switch`, then nine behaviours behind a phase enum, then eleven tasks behind seven brain memories, and finally eleven tasks over seven fields on the module. The first three shipped broken, and the failure mode is the same each time: the entity looks perfectly healthy while doing nothing.
 
 | | symptom | why it is invisible |
 |---|---|---|
@@ -158,16 +160,16 @@ The machine was a single `Behavior` with a `switch`, then nine behaviours behind
 | a departure that renamed instead of arming | the party kept holding a chair nobody was in | the guest still leaves, so nothing looks wrong |
 | `stillMine` stayed true after the task acted | it re-acts every tick and starves the next task of the gate | the next task simply never runs |
 
-**The cascade's version of the last one is `MEM_PARTY_LEAVE`**: a departure is arming a memory, never just entering a state, and the memory must survive the walkout rather than expiring when the unseat wait is up.
+**The cascade's version of the last one is the departure flag**: a departure is arming state, never just entering a state, and it must survive the walkout rather than expiring when the unseat wait is up.
 
-**One rule the cascade makes impossible to break by accident:** a task sets the memory that hands over, and the gate picks somebody else on the next tick. There is no "phase changed" moment to get wrong, because there is no phase.
+**One rule the cascade makes impossible to break by accident:** a task sets the field that hands over, and the gate picks somebody else on the next tick. There is no "phase changed" moment to get wrong, because there is no phase.
 
-**The rule it is easy to break by accident:** `stillMine` must go false once a task has done its job. A running task keeps the gate — the brain only re-picks when *nothing* is running — so a signature that stays true after the task acts means the task simply keeps acting. Two of those shipped: `FindFoodTask` redrew the dish every tick, and `GoToSeatTask` re-armed its own chew every tick and starved `ChewTask` of the gate. Every task that sets a memory therefore tests for that memory in `stillMine`, and that test *is* the handoff.
+**The rule it is easy to break by accident:** `stillMine` must go false once a task has done its job. A running task keeps the gate — the brain only re-picks when *nothing* is running — so a signature that stays true after the task acts means the task simply keeps acting. Two of those shipped: `FindFoodTask` redrew the dish every tick, and `GoToSeatTask` re-armed its own chew every tick and starved `ChewTask` of the gate. Every task that sets a field therefore tests for that field in `stillMine`, and that test *is* the handoff.
 
 
 **Food contention needs no locking.** On arrival a guest re-validates that the block is still food and still laid out; if another guest took the last serve first it is gone and she draws again. With per-serving consumption this is *more* forgiving than it was: two guests walking to the same cake no longer collide destructively, since each finds a serve still on it. Worst case is a wasted walk.
 
-**A serve is taken when she picks it up and credited when she finishes it.** `PartyFoodValue.consume` is called in `PartyContext.takeServing`, and the readings are taken *before* the consume, because a serve's readings are properties of the state it was taken from — which is why they go into `MEM_PARTY_SERVE` rather than being re-read later. The serve then rides that memory across the `EAT_TICKS` window, so her tallies and the party's served total move together. A visit that ends mid-bite still credits it through `finishServe`, because the plate left a dish that is already gone.
+**A serve is taken when she picks it up and credited when she finishes it.** `PartyFoodValue.consume` is called in `PartyContext.takeServing`, and the readings are taken *before* the consume, because a serve's readings are properties of the state it was taken from — which is why they are read into the serve rather than re-read later. The serve then rides that state across the `EAT_TICKS` window, so her tallies and the party's served total move together. A visit that ends mid-bite still credits it through `finishServe`, because the plate left a dish that is already gone.
 
 **Eating while seated needs `isLaidOut` to accept a chair underneath.** A plate set on a guest's own seat is within reach of her and, on the old test, not part of the spread at all — the scan would not have counted it, so she could not eat it. Rather than special-casing the eating rule, the chair was added as a surface: a dish on a chair is now part of the spread and budgeted for like any other, instead of being edible but unaccounted.
 

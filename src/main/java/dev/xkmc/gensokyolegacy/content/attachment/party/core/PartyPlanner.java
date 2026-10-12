@@ -11,8 +11,7 @@ import java.util.Random;
 
 /**
  * Who comes: a weighted draw under a shared hunger budget, with the seat count as a loop
- * bound. Prediction is bought back by seeding the draw from the centre of the spread's
- * food ({@code PartySend.plan}), so preview predicts a send exactly.
+ * bound. The seed comes from the centre of the spread's food, so preview predicts a send.
  *
  * @see doc/design/party/select.md
  */
@@ -57,8 +56,7 @@ public class PartyPlanner {
 
 	/**
 	 * One index of {@code viable}, drawn with probability proportional to weight. The total
-	 * is accumulated in {@code long}: scaled datapack weights can leave the int range, and
-	 * an overflow would quietly skew every later draw.
+	 * is accumulated in {@code long}: an overflow would quietly skew every later draw.
 	 */
 	private static int draw(List<Candidate> viable, Random rng) {
 		long total = 0;

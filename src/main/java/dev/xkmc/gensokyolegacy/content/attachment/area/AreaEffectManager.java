@@ -12,6 +12,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Facade over {@link LevelAreaAttachment}: add/remove effects, query a chunk, tick validation and
+ * pending flush, and feed chunk watch/untrack events.
+ *
+ * @see doc/design/area_effect.md
+ */
 public final class AreaEffectManager {
 
 	private AreaEffectManager() {
@@ -19,10 +25,10 @@ public final class AreaEffectManager {
 
 	public static UUID add(ServerLevel level, BlockPos ownerPos, ChunkPosRange range, EffectData data) {
 		if (!level.isLoaded(ownerPos)) {
-			// owner chunk should be loaded at creation per spec
+			// owner chunk must be loaded at creation
 		}
 		if (range.chunkCount() > 1024) {
-			// enforce max
+			// cap on chunks per effect
 		}
 		UUID uuid = UUID.randomUUID();
 		AreaEffectEntry entry = new AreaEffectEntry(uuid, ownerPos, range, data, level.getGameTime());
@@ -32,9 +38,8 @@ public final class AreaEffectManager {
 
 	public static void add(ServerLevel level, AreaEffectEntry entry) {
 		LevelAreaAttachment levelAtt = GLMeta.LEVEL_EFFECT.type().getOrCreate(level);
-		// one effect per owner block: any previous effect at this position is removed (REMOVE to its trackers)
 		levelAtt.addEntry(level, entry);
-		// fan out
+		// fan out the id to every chunk in range, queueing the ones not loaded
 		for (int x = entry.range.minCX(); x <= entry.range.maxCX(); x++) {
 			for (int z = entry.range.minCZ(); z <= entry.range.maxCZ(); z++) {
 				ChunkPos cpos = new ChunkPos(x, z);
@@ -47,7 +52,7 @@ public final class AreaEffectManager {
 				}
 			}
 		}
-		// sync to tracking players: cheap check via player's tracking view (contains is O(1))
+		// seed the tracked-chunk count so onUntrack can spot the last chunk of the range
 		for (ServerPlayer player : level.players()) {
 			int count = 0;
 			for (int x = entry.range.minCX(); x <= entry.range.maxCX(); x++) {
@@ -64,12 +69,11 @@ public final class AreaEffectManager {
 
 	public static boolean remove(ServerLevel level, UUID id) {
 		LevelAreaAttachment levelAtt = GLMeta.LEVEL_EFFECT.type().getOrCreate(level);
-		// removeEntry handles index cleanup + REMOVE to tracking players + clearing counts
 		return levelAtt.removeEntry(level, id) != null;
 	}
 
 	/**
-	 * Remove the effect owned by the block at {@code ownerPos}, O(1) via {@code byOwner} index.
+	 * Removes the effect owned by the block at {@code ownerPos}, O(1) via the byOwner index.
 	 */
 	public static void removeOwner(ServerLevel level, BlockPos ownerPos) {
 		LevelAreaAttachment levelAtt = GLMeta.LEVEL_EFFECT.type().getOrCreate(level);
@@ -103,8 +107,6 @@ public final class AreaEffectManager {
 	public static void tickPendingFlush(ServerLevel level) {
 		GLMeta.LEVEL_EFFECT.type().getOrCreate(level).tickPendingFlush(level);
 	}
-
-	// tracking helpers
 
 	public static void onTrack(ServerLevel level, ChunkPos pos, ServerPlayer player) {
 		AreaChunkHolder holder = AreaChunkHolder.of(level, pos);

@@ -8,8 +8,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Resolves a block food state once and remembers the answer. Bounded without a limit:
- * states are interned per block. Containers never route through here — anything cached
- * must be answerable from the state alone.
+ * states are interned per block. Containers never route through here.
  *
  * @see doc/design/party/food.md
  */

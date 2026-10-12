@@ -15,9 +15,9 @@ import net.minecraft.world.phys.Vec3;
 import java.util.Optional;
 
 /**
- * Super attack, laser variant: setup → emit (ammo committed) → hold → close.
- * One laser, consuming the stack at emission. Sidesteps while an ally blocks the
- * lane during setup, firing anyway past the strafe budget.
+ * Super attack, laser variant: setup → emit (ammo committed) → hold → close. One
+ * laser, consuming the stack at emission. Sidesteps while an ally blocks the lane
+ * during setup, firing anyway past the strafe budget (control.md §5.2).
  */
 public class DollLaserBehavior extends DollBehavior {
 

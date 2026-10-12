@@ -41,8 +41,7 @@ public class PartyModule extends AbstractYoukaiModule {
 
 	/**
 	 * Ticks a visitor is given to walk off after a party that outlasted her visit. A
-	 * {@link VisitModule#hold} rather than an extended window: the window is a pure
-	 * function of (structure pos, type, day) with nothing to extend.
+	 * {@link VisitModule#hold}: the visit window has nothing on it to extend.
 	 */
 	public static final int VISIT_GRACE = 200;
 
@@ -50,8 +49,8 @@ public class PartyModule extends AbstractYoukaiModule {
 	private static final int FALLBACK_WANDER = 12;
 
 	/**
-	 * What she was doing before the party. Recorded at join, not worked out at the end:
-	 * by then her visit may be over and there is nothing left to work it out from.
+	 * What she was doing before the party. Recorded at join: by the end her visit may
+	 * be over and there is nothing left to work it out from.
 	 */
 	public enum Origin {
 		/** A clone the party made: no home, nothing to return to, walks away and is gone. */
@@ -84,24 +83,20 @@ public class PartyModule extends AbstractYoukaiModule {
 	private boolean leaving = false;
 
 	/**
-	 * The chunk that owns the party — <b>not</b> derivable from {@link #table}, which is
-	 * often in the next chunk over. Looking the party up by the table would miss it and the
-	 * guest would dismiss herself on her first tick.
+	 * The chunk that owns the party — not derivable from {@link #table}, which is often in
+	 * the next chunk over, and looking the party up by the table makes her dismiss herself.
 	 */
 	@SerialField
 	private ChunkPos partyChunk;
 
 	/**
-	 * The chair she claimed, held here rather than in the behaviour: a visit spans many dish
-	 * cycles and the task is restarted on chunk unload, which would strand her.
+	 * The chair she claimed. Held here rather than in the behaviour: a visit spans many dish
+	 * cycles and the task is restarted on chunk unload.
 	 */
 	@SerialField
 	private BlockPos seat;
 
-	/**
-	 * Whether she has claimed it. The party stays in GATHERING until every guest has,
-	 * and nobody eats until then.
-	 */
+	/** Whether she has claimed it. Gates the party's GATHERING -> FEASTING move. */
 	@SerialField
 	private boolean seated;
 
@@ -110,8 +105,8 @@ public class PartyModule extends AbstractYoukaiModule {
 	private int eaten = 0;
 
 	/**
-	 * Appeal this guest has personally been served — the food measurement her gift depends
-	 * on, since a delicacy moves her without feeding her any more than bread would.
+	 * Appeal this guest has personally been served — what her gift and the host's payout
+	 * are sized on, since a delicacy moves her without feeding her any more than bread would.
 	 */
 	@SerialField
 	private int appealEaten = 0;
@@ -125,10 +120,8 @@ public class PartyModule extends AbstractYoukaiModule {
 
 	// --- seat episode ---
 	//
-	// Durable visit bookkeeping rather than routing state, which is why it lives here and
-	// not in a brain memory: it records what happened to her, not which task she is in.
-	// A chunk unload or a restart must not reset the count, or a guest who cannot find a
-	// chair gives up in three ticks instead of nine seconds.
+	// Durable visit bookkeeping, not routing state: a reload must not reset the count, or a
+	// guest who cannot find a chair gives up in three ticks instead of nine seconds.
 
 	@SerialField
 	private int seatFailures = 0;
@@ -148,13 +141,8 @@ public class PartyModule extends AbstractYoukaiModule {
 	private int layoutVersion = -1;
 
 	/**
-	 * The thing she is walking to, and when she stopped closing on it.
-	 *
-	 * <p>
-	 * A deadline from issuing the order was the wrong test: a long walk to a far chair is
-	 * slow but fine, and it would be declared stuck while she was halfway across a room.
-	 * What actually distinguishes a stuck guest is that she stops getting nearer, so the
-	 * closest approach is kept and reset whenever she beats it.
+	 * The thing she is walking to. A deadline from issuing the order is the wrong test — a
+	 * long walk to a far chair is slow but fine — so the closest approach is kept instead.
 	 */
 	@SerialField
 	private BlockPos walkTarget;
@@ -167,13 +155,9 @@ public class PartyModule extends AbstractYoukaiModule {
 
 	// --- the state machine ---
 	//
-	// These were brain memories once, and that was the wrong home for them: a guest
-	// reloaded from disk came back without them, so the cascade had no line of its own
-	// tree to resume on and she went back to her schedule as though the party had never
-	// happened. A memory only survives a save if it carries a codec, and the registered
-	// memory types and the brain's own serialization all have to line up with it; the one
-	// thing guaranteed to be written is this tag. So the machine lives here, beside the
-	// chair claim and the tallies that already survive a reload.
+	// Serialized here rather than in brain memories: a memory only survives a save if it
+	// carries a codec, and a guest who comes back without her state has forgotten the
+	// party. This tag is the one thing guaranteed to be written.
 	//
 	// One convention for all of them: 0 is not running, and a null dish or serve is not
 	// held. A restart mid-wait therefore resumes the wait rather than re-rolling it.
@@ -199,12 +183,8 @@ public class PartyModule extends AbstractYoukaiModule {
 	public int rest = 0;
 
 	/**
-	 * Whether the departure is in progress at all.
-	 *
-	 * <p>
-	 * Its own flag rather than a sentinel in the timer, because zero has to mean "armed and
-	 * already on her way" — the tick after the last of the unseat wait — and the timer alone
-	 * could not say whether the machine was leaving or merely sitting down to eat.
+	 * Whether the departure is in progress. Its own flag rather than a sentinel in the timer,
+	 * because zero has to mean "armed and already on her way".
 	 */
 	@SerialField
 	public boolean leaveArmed = false;
@@ -214,14 +194,8 @@ public class PartyModule extends AbstractYoukaiModule {
 	public int leave = 0;
 
 	/**
-	 * Where she is going on her way out, drawn once.
-	 *
-	 * <p>
-	 * Drawn once and kept, because the obvious implementation draws it afresh every time it
-	 * is asked and a walk-away destination is random. That made the guest re-roll her
-	 * destination every tick, so she never arrived anywhere, never looked stuck — because
-	 * she was walking, constantly — and never triggered the stall repair either, since the
-	 * target it watches was itself moving. She paced about the party for ever.
+	 * Where she is going on her way out, drawn once: a walk-away destination is random, so
+	 * drawn per tick she never arrives anywhere.
 	 */
 	@SerialField
 	public BlockPos leaveDest;
@@ -298,10 +272,7 @@ public class PartyModule extends AbstractYoukaiModule {
 		return seated;
 	}
 
-	/**
-	 * Give up her chair because it is no longer there. A claim on a block that is no longer
-	 * a chair would hold the party in GATHERING for ever.
-	 */
+	/** Give up her chair because it is no longer there. A claim on a non-chair holds the party in GATHERING for ever. */
 	public void dropSeat(ServerLevel sl) {
 		seat = null;
 		seated = false;
@@ -346,8 +317,8 @@ public class PartyModule extends AbstractYoukaiModule {
 		this.leaving = false;
 		self.setFlag(YoukaiFlags.PARTYING, true);
 		clearMachine();
-		// and she arrives on the ground: the flag alone stops her hovering, but the
-		// flying navigation and no-gravity are already installed by then
+		// the flag alone stops her hovering; the flying navigation and no-gravity are
+		// already installed by then
 		self.navCtrl.setWalking();
 	}
 
@@ -373,8 +344,8 @@ public class PartyModule extends AbstractYoukaiModule {
 	}
 
 	/**
-	 * Account for one dish just eaten. Both readings are taken before the block was
-	 * removed, and both are kept because they answer different questions.
+	 * Account for one dish just eaten. Both readings are taken before the block is consumed,
+	 * and both are kept because they answer different questions.
 	 */
 	public void eat(int hunger, int appeal, PartyAttachment party) {
 		eaten += hunger;
@@ -390,8 +361,7 @@ public class PartyModule extends AbstractYoukaiModule {
 
 	/**
 	 * How long she sits between dishes while still hungry. The fallback for a tasteless
-	 * guest is a real number, not zero — a sit of zero would have her draw, eat and draw
-	 * again inside one tick.
+	 * guest is a real number, not zero — a sit of zero draws, eats and draws inside one tick.
 	 */
 	public int hungrySeat() {
 		return ofOrDefault().hungrySeat();
@@ -411,8 +381,8 @@ public class PartyModule extends AbstractYoukaiModule {
 	}
 
 	/**
-	 * Her tuning numbers, or the template if her row has gone — for reading a guest already
-	 * at the table, where a row pulled mid-visit should cost her her manners, not her meal.
+	 * Her tuning numbers, or the template if her row has gone: a row pulled mid-visit should
+	 * cost her her manners, not her meal.
 	 */
 	public PartyTaste ofOrDefault() {
 		var taste = taste();
@@ -504,11 +474,8 @@ public class PartyModule extends AbstractYoukaiModule {
 	}
 
 	/**
-	 * Whether she has stopped getting nearer to it for {@code timeout} ticks.
-	 *
-	 * <p>
-	 * Read together with {@link #noteWalk}, which is what makes this true: a guest
-	 * crossing a long room resets it every time she gains a block.
+	 * Whether she has stopped getting nearer to {@link #walkTarget} for {@code timeout} ticks.
+	 * A guest crossing a long room resets this every time she gains a block.
 	 */
 	public boolean walkStalled(long gameTime, int timeout) {
 		return walkTarget != null && gameTime - walkClosestAt >= timeout;
@@ -534,8 +501,8 @@ public class PartyModule extends AbstractYoukaiModule {
 		if (where == null) return null;
 		var party = PartyAttachment.of(sl, where);
 		if (party == null || !party.active()) return null;
-		// a CLOSING party is still hers: she needs it to run her exit, and it only goes
-		// null once the party has reset, by which time she has left
+		// a CLOSING party is still hers: she needs it to run her exit, and it only goes null
+		// once the party has reset, by which time she has left
 		return party;
 	}
 
@@ -548,8 +515,8 @@ public class PartyModule extends AbstractYoukaiModule {
 
 	/**
 	 * The hard exit, for when there is nothing to walk away from. A summoned clone is
-	 * discarded; a character who came as herself is put back — discarding a resident would
-	 * delete a real character out of the world over a party.
+	 * discarded; a character who came as herself is put back, because discarding a resident
+	 * deletes a real character out of the world over a party.
 	 */
 	public void dismiss() {
 		if (!(self.level() instanceof ServerLevel sl)) {
@@ -586,12 +553,9 @@ public class PartyModule extends AbstractYoukaiModule {
 	}
 
 	/**
-	 * Pay the host a share of the appeal <b>she personally consumed</b> — the same quantity
-	 * her gift is sized on, because a host is paid for feeding <i>her</i>, not for the size
-	 * of the table she sat at.
-	 * <p>
-	 * Skipped when she never ate: a guest who found no chair enjoyed nothing, and paying
-	 * out for her would make putting out too few chairs a way to farm reputation.
+	 * Pay the host a share of the appeal <b>she personally consumed</b>, the same quantity
+	 * her gift is sized on. Skipped when she never ate, or putting out too few chairs becomes
+	 * a way to farm reputation.
 	 */
 	private void payHost(ServerLevel sl, PartyAttachment party) {
 		if (appealEaten <= 0) return;
@@ -607,8 +571,7 @@ public class PartyModule extends AbstractYoukaiModule {
 
 	/**
 	 * Put a resident back inside her own wander area. {@code restrictTo} has no getter, so
-	 * it has to be re-applied from her home — otherwise she keeps the party's guest radius
-	 * for life and a resident can never go home again.
+	 * it is re-applied from her home — otherwise she keeps the party's guest radius for life.
 	 */
 	private void restoreWander(ServerLevel sl, @Nullable StructureKey key) {
 		if (key == null) return;
@@ -621,9 +584,9 @@ public class PartyModule extends AbstractYoukaiModule {
 	}
 
 	/**
-	 * Give a visitor back to her visit, or ten seconds to walk off if her window closed
-	 * while she was eating. A {@link VisitModule#hold} rather than a discard: the visit
-	 * module refuses to remove a character somebody can see, for as long as the hold runs.
+	 * Give a visitor back to her visit, or ten seconds to walk off if her window closed while
+	 * she was eating. A {@link VisitModule#hold} rather than a discard: the visit module
+	 * refuses to remove a character somebody can see.
 	 */
 	private void restoreVisit(ServerLevel sl, @Nullable StructureKey key) {
 		var visit = self.getModule(VisitModule.class).orElse(null);
@@ -658,11 +621,8 @@ public class PartyModule extends AbstractYoukaiModule {
 
 	@Override
 	public void onKilled() {
-		// Off the roster here, at the source. The ticker used to sweep for anyone whose
-		// entity it could not find instead, but getEntity only finds LOADED ones, so a
-		// guest outside her own chunk looked exactly like a corpse — and a party restored
-		// from disk begins ticking from its chunk load, before the guests are necessarily
-		// back, so the sweep emptied the roster and the party called itself off.
+		// Off the roster here, at the source: getEntity only finds loaded entities, so a
+		// sweep for "missing" guests cannot tell an unloaded guest from a corpse.
 		if (self.level() instanceof ServerLevel sl) dropFromRoster(sl);
 		leave();
 	}

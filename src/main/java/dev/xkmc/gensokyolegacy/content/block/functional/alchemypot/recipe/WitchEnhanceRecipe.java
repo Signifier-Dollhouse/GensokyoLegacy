@@ -21,7 +21,7 @@ import java.util.Optional;
 @SerialClass
 public class WitchEnhanceRecipe extends AlchemyRecipe<WitchEnhanceRecipe> {
 
-	private static final int CAP = 8 * 60 * 20;
+	private static final int CAP = 8 * 60 * 20; // 8 minutes; a potion already at the cap cannot be enhanced again
 
 	@SerialField
 	public final ArrayList<Ingredient> extra = new ArrayList<>();

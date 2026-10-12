@@ -19,8 +19,8 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Drives the phases of every party in this level. Parties are rare, so each one registers
- * its chunk here and only those chunks are swept — nothing runs while no party is active.
+ * Drives the phases of every party in this level. Each one registers its chunk here and
+ * only those chunks are swept.
  *
  * @see doc/design/party/state.md
  */
@@ -76,15 +76,11 @@ public class PartyTicker {
 			unregister(level, pos);
 			return;
 		}
-		// No sweep for guests who cannot be found. Guests come off the roster from the two
-		// ends that actually mean it — PartyModule#onKilled, and completeLeave — because
-		// getEntity only finds LOADED entities, so a guest outside her own chunk is
-		// indistinguishable from a corpse. A restored party starts ticking from its chunk
-		// load, which is before the guests' entities are necessarily back, so a sweep would
-		// empty the roster, finished() would read the party as over, and reset() would wipe
-		// the very state the chunk had just restored. A guest removed by neither end stays
-		// until PARTY_TIMEOUT, which is a far better outcome than a party that deletes
-		// itself every time the server starts.
+		// No sweep for guests who cannot be found: getEntity only finds LOADED entities, so
+		// one outside her own chunk is indistinguishable from a corpse, and a sweep on a
+		// restored party would empty the roster before the guests are back. They come off
+		// from the two ends that mean it — PartyModule#onKilled and completeLeave
+		// (state.md §1.1).
 		// refresh what the guests draw from before anyone asks: a stale list means no second course
 		party.refresh(level, level.getGameTime());
 		// one arrival a second — this 1 Hz pass is the clock, so no timer of its own is needed
@@ -110,8 +106,8 @@ public class PartyTicker {
 
 	/**
 	 * Whether the party is over: a closing one when its roster has drained, an open one
-	 * when nobody is left to invite. The {@code admitted()} check is what keeps staggered
-	 * arrival from reading an empty guest list as "everyone has gone".
+	 * when nobody is left to invite. The {@code admitted()} check keeps staggered arrival
+	 * from reading an empty guest list as "everyone has gone".
 	 */
 	private static boolean finished(ServerLevel level, PartyAttachment party) {
 		if (party.guests().isEmpty()) {
@@ -124,16 +120,12 @@ public class PartyTicker {
 
 	/**
 	 * Whether every guest has a chair. Party-wide on purpose, so the table feasts as a
-	 * table; vacuously true with no guests at all, so an all-dead roster does not sit in
-	 * GATHERING until the timeout.
+	 * table; vacuously true with no guests at all.
 	 */
 	private static boolean allSeated(ServerLevel level, PartyAttachment party) {
 		for (var id : party.guests()) {
 			var guest = find(level, id);
-			// a guest who is not loaded has not proved she has a chair. Counting her as
-			// seated let a restored party open its feast on the first tick after a rejoin,
-			// before anyone had sat down, and the whole staggered arrival became a
-			// formality nobody had to pass.
+			// a guest who is not loaded has not proved she has a chair
 			if (!(guest instanceof YoukaiEntity youkai)) return false;
 			if (youkai.getModule(PartyModule.class).map(m -> m.seated()).orElse(false)) continue;
 			return false;
@@ -147,9 +139,7 @@ public class PartyTicker {
 		return level.getEntity(id);
 	}
 
-	/**
-	 * Every guest of this party still standing, for the command and for teardown.
-	 */
+	/** Every guest of this party still standing, for the command and for teardown. */
 	public static List<YoukaiEntity> guests(ServerLevel level, PartyAttachment party) {
 		var ans = new ArrayList<YoukaiEntity>();
 		BlockPos anchor = party.anchor();

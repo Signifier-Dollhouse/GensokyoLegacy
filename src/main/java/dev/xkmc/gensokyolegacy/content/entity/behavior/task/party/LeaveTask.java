@@ -9,19 +9,15 @@ import net.minecraft.server.level.ServerLevel;
  * The party is over: stand up, then go.
  *
  * <p>
- * The first line of the cascade and the only task whose signature is a single memory, so
- * anything that can end a visit is the same thing here: arm the departure and let
- * the gate find it — whether that was the spread running out, a roll on a satisfied sit, or
- * the party closing under her.
+ * The first line of the cascade, so anything that can end a visit is the same thing here:
+ * arm the departure and let the gate find it.
  *
  * <p>
- * Unseating and walking are separate so a table does not empty inside one tick, which reads
- * as a cutscene; the wait before it is drawn per guest rather than counted down party-wide
- * for the same reason.
+ * Unseating and walking are separate so a table does not empty inside one tick, and the wait
+ * is drawn per guest for the same reason. Everything after the walk is the module's business:
+ * where a summoned clone goes, and what happens to a character who came as herself.
  *
- * <p>
- * Everything after the walk is the module's business rather than this one's: where a
- * summoned clone goes, and what happens to a character who came as herself.
+ * @see doc/design/party/guest.md
  */
 public class LeaveTask extends PartyTask {
 
@@ -45,14 +41,14 @@ public class LeaveTask extends PartyTask {
 
 	@Override
 	protected void step(ServerLevel level, SmartYoukaiEntity entity, PartyContext ctx) {
-		// the memory counts down but never goes away: see PartyContext#countLeave
+		// the leave timer counts down but is never cleared: see PartyContext#armLeave
 		if (ctx.leaveWait() > 0) {
 			ctx.countLeave();
 			return;
 		}
 		if (ctx.seated()) ctx.dropSeat();
-		// the plate leaves a dish that is already gone, so it still counts even though the
-		// party is ending before the chew does
+		// the plate left a dish that is already gone, so it still counts even though the party
+		// is ending before the chew does
 		ctx.finishServe();
 		BlockPos dest = ctx.destination();
 		if (dest == null) {

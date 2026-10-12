@@ -11,7 +11,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Finds the item form of a block food by appending a suffix to the block's registry id —
  * {@code youkaisfeasts:tarte_lune} → {@code youkaisfeasts:tarte_lune_slice}. Preferred over
- * reflecting a field, because a naming convention survives a mod update and a field name does not.
+ * reflecting a field, because a naming convention survives a mod update.
  *
  * @see doc/design/party/food.md
  */

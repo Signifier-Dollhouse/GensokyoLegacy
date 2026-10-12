@@ -13,8 +13,7 @@ import org.jetbrains.annotations.Nullable;
  * name a food one way and hand over another.
  *
  * <p>
- * Handlers form one ordered list; the first whose {@link #handles} matches wins, and the
- * catch-all sits last like any other entry.
+ * Handlers form one ordered list; the first whose {@link #handles} matches wins.
  *
  * @see dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyFoodHandler for the list
  * @see doc/design/party/food.md

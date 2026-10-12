@@ -7,7 +7,7 @@ This document reflects the current implementation in `content/attachment/area` (
 | Class | File | Role |
 |---|---|---|
 | `ChunkPosRange` | `area/ChunkPosRange.java` | `record(int minCX, minCZ, maxCX, maxCZ)` — no `@SerialClass` needed for records. `contains(ChunkPos)`, `stream()`, `forEach`, `chunkCount()`, factories `ofChunks/ofRadius/ofOwner/ofBlocks/ofBoundingBox`. |
-| `EffectData` | `area/EffectData.java` | `@SerialClass abstract class` — `isOwnerStillValid(ServerLevel,BlockPos,BlockState)` default `!isAir()`. Subclasses `@SerialClass` (e.g., `BeaconEffectData`). `TagCodec` handles inheritance when field handle `EffectData` is `@SerialClass`. |
+| `EffectData` | `area/EffectData.java` | `@SerialClass abstract class` — `isOwnerStillValid(ServerLevel,BlockPos,BlockState)` default `!isAir()`, `getClientVisual(Player)` default empty. Subclasses `@SerialClass` (e.g., `SealingEffectData`). `TagCodec` handles inheritance when field handle `EffectData` is `@SerialClass`. |
 | `AreaEffectEntry` | `area/AreaEffectEntry.java` | `@SerialClass` — `@SerialField UUID id, BlockPos ownerPos, ChunkPosRange range, EffectData data, long createdGameTime`. Transient `Map<UUID,Integer> trackingCounts` (player `UUID` → tracked chunk count, not serialized) with `incrementTracking(ServerPlayer)→bool first`, `decrementTracking→bool last`, `getTrackingPlayers()`, `sync(ServerLevel)`, `cleanupPlayers(ServerLevel)`, `isOwnerValid(ServerLevel)`. |
 | `LevelAreaAttachment` | `area/LevelAreaAttachment.java` | `GeneralCapabilityTemplate<Level>` — `@SerialField Map<UUID,AreaEffectEntry> byId` + `@SerialField Map<BlockPos,UUID> byOwner` (owner block pos → owned effect `UUID`, one per block; so an owner block can find/remove its entry without iterating `byId`; maintained by `addEntry`/`removeEntry`/`tickValidation`) + `Map<String,List<UUID>> pending` (hex `Long.toHexString(ChunkPos.toLong())` → `List<UUID>`, coalesced per chunk, discarded as unit). Transient `lastPendingFlushTick`. `tickValidation` `O(M/100)` per tick via `floorMod(id.hashCode(),100)==tick%100`: per-bucket entries run `cleanupPlayers` + re-`byOwner.put(ownerPos,id)` (repairs legacy entries with no mapping); every 100 ticks stale `byOwner` ids missing from `byId` are dropped; owner `getChunkNow` check drives `removeEntry` (REMOVE to trackers). `tickPendingFlush` every 5s if `P>10` offthread `getChunk(...,false)`. |
 | `ChunkAreaAttachment` | `area/ChunkAreaAttachment.java` | `GeneralCapabilityTemplate<LevelChunk>` — `@SerialField Set<UUID> effectIds` + transient `cachedTick/Resolved/cacheValid` (no `transient` keyword). Pure data; logic lives in holder. |
@@ -15,9 +15,12 @@ This document reflects the current implementation in `content/attachment/area` (
 | `AreaEffectManager` | `area/AreaEffectManager.java` | Facade — `add/remove/removeOwner/getAffecting/tickValidation/tickPendingFlush/onTrack/onUntrack`. `add` (one effect per owner block, replacing any previous effect at `ownerPos`), `remove`/`removeOwner` route through the single notifying removal path in `LevelAreaAttachment.removeEntry` (index cleanup + REMOVE to trackers). Uses `GLMeta.LEVEL_EFFECT/CHUNK_EFFECT.type().getOrCreate` (not `chunk.getData`). `getAffecting` never forces load (`holder` nullable). |
 | `AreaEffectSyncPacket` | `area/AreaEffectSyncPacket.java` | `record(Action,UUID,AreaEffectEntry) implements SerialPacketBase` — `ADD/UPDATE/REMOVE`, no `@SerialClass` (records handled directly). Via `GensokyoLegacy.HANDLER` `PLAY_TO_CLIENT`. |
 | `ClientAreaEffectTracker` | `area/ClientAreaEffectTracker.java` | Client `Map<UUID,AreaEffectEntry> TRACKED`, `onSync`, `getTracked`, `getAffecting(BlockPos)` filter, `clear()`. |
-| `AreaEffectEvents` | `area/AreaEffectEvents.java` | `LevelTickEvent.Post` → `tickValidation` + `tickPendingFlush`; `ChunkEvent.Load` → pending drain `holder.addId`; `ChunkWatchEvent.Watch/UnWatch` → `onTrack`/`onUntrack`. |
-| `ClientAreaEffectEvents` | `area/ClientAreaEffectEvents.java` | `Dist.CLIENT` `ClientPlayerNetworkEvent.LoggingOut` + `LevelEvent.Unload` (client) → `clear()`. |
-| `GLMeta` | `init/registrate/GLMeta.java:48` | `LEVEL_EFFECT: CapVal<Level, LevelAreaAttachment>` `level_area` + `CHUNK_EFFECT: CapVal<LevelChunk, ChunkAreaAttachment>` `chunk_area`. |
+| `AreaEffectVisual` | `area/AreaEffectVisual.java` | `record(texture, r,g,b,a, speed, walls, top, bottom)` — one render pass over an entry's chunk range. Supplied by `EffectData.getClientVisual`. |
+| `RegionBorderVisual` | `area/RegionBorderVisual.java` | package-private `record(range, visual)` — one entry's contribution to one pass. |
+| `AreaEffectRenderer` | `area/AreaEffectRenderer.java` | Client-only. Groups visuals by texture into passes, frustum-culls each region, draws walls/top/bottom as translucent tiled quads (see §3). |
+| `GLMetaEventHandlers` | `event/GLMetaEventHandlers.java` | `LevelTickEvent.Post` → `tickValidation` + `tickPendingFlush`; `ChunkEvent.Load` → pending drain `holder.addId`; `ChunkWatchEvent.Watch/UnWatch` → `onTrack`/`onUntrack`. |
+| `GLClientEventHandlers` | `event/GLClientEventHandlers.java` | `Dist.CLIENT` `ClientPlayerNetworkEvent.LoggingOut` + `LevelEvent.Unload` (client) → `clear()`; `RenderLevelStageEvent.AFTER_ENTITIES` → `AreaEffectRenderer.onRenderLevel`. |
+| `GLMeta` | `init/registrate/GLMeta.java:74` | `LEVEL_EFFECT: CapVal<Level, LevelAreaAttachment>` `level_area` + `CHUNK_EFFECT: CapVal<LevelChunk, ChunkAreaAttachment>` `chunk_area`. |
 
 ## 2. Workflows
 
@@ -34,7 +37,7 @@ AreaEffectManager.add(level, ownerPos, ChunkPosRange.ofOwner(ownerPos, R), data)
       count = #{ (x,z) in range | player.getChunkTrackingView().contains(x,z) } // O(1) cheap view check
       if count>0 { entry.trackingCounts.put(playerUUID,count); send ADD }
 ```
-`O(P*N)` with cheap `contains`, `P` players, `N≤289`.
+`O(P*N)` with cheap `contains`, `P` players, `N≤289`. The two guards at the top of `add` (owner chunk loaded, ≤1024 chunks) are currently empty blocks — both are caller responsibilities.
 
 ### Remove
 ```
@@ -94,7 +97,24 @@ Every 100 ticks (`tick % 100 == 0`), stale `byOwner` entries whose id is gone fr
 * `UNTRACK`: same holder, `decrementTracking(P)` → send `REMOVE` only when last chunk (`count 1→0`). Counter fixes “untracking any chunk untracks effect” bug; iterating only affecting data `O(k)` not all `M`.
 * `UPDATE` data-only, range immutable (`REMOVE`+`ADD` for range change): `entry.data = newData; entry.sync(level)` → `UPDATE` to `trackingCounts.keySet()`.
 
-## 3. Usage Guide
+## 3. Client rendering
+
+`EffectData.getClientVisual(viewer)` decides what an entry looks like, per viewer and per frame, so
+one entry can take part in several render passes and the same entry can be invisible to some
+viewers. `AreaEffectRenderer.onRenderLevel` runs at `RenderLevelStageEvent.AFTER_ENTITIES` and:
+
+- groups every tracked entry's visuals by texture — one `BufferBuilder` and one draw per texture;
+- frustum-culls each region (the chunk range as a build-height AABB) before building any buffer, and
+  skips a pass with no visible region entirely;
+- draws the faces a visual asks for (`walls`/`top`/`bottom`) over the full build height, as
+  translucent `POSITION_TEX_COLOR` quads, camera-relative;
+- tiles UVs every 16 blocks with `GL_REPEAT` wrap, so quads larger than the texture repeat;
+- offsets V by `speed * (gameTime + partialTick) / 20` on walls, flipping U on the negative X/Z sides
+  so neighbouring walls read the same from inside.
+
+See `doc/design/barriers.md` §8 for the sealing pot's concrete visuals.
+
+## 4. Usage Guide
 
 ### Define a payload
 ```java
@@ -162,11 +182,11 @@ Tick `O(M/100)` per tick handles missed `onRemove` (explosion, `/setblock`). No 
 }
 ```
 
-## 4. Performance
+## 5. Performance
 
 * **Add** `O(P*N)` cheap `contains` checks, `N≤289` (plus `O(T_prev)` when replacing an existing entry at the owner block). **Remove** `O(T)`; owner-block `removeOwner` `O(1)` via `byOwner` index. **Fetch** `O(k)` miss / `O(1)` hit. **Validation** `O(M/100)`/tick (owner check + `cleanupPlayers` + `byOwner.put` per bucketed entry; every 5s also `O(M)` stale-`byOwner` scrub), **pending** `ChunkEvent.Load` `O(L)` per chunk + 5s bulge `O(P)` only if `P>10`. **Track** `O(k)` per chunk via holder, `UNTRACK` `O(k)`. Memory `effectIds` small, `byOwner` `O(M)` pos-keyed `UUID`s, `pending` short-lived hex strings, `trackingCounts` `O(M*players)` transient `UUID` keys (offline cleaned per entry in its bucket).
 
-## 5. Registration
+## 6. Registration
 
-`GLMeta.java:48` already registers `LEVEL_EFFECT`/`CHUNK_EFFECT`. Packets `AreaEffectSyncPacket` via `GensokyoLegacy.HANDLER` `PLAY_TO_CLIENT`. Events `AreaEffectEvents` (GAME bus) and `ClientAreaEffectEvents` (CLIENT `LoggingOut`/`Level.Unload`).
+`GLMeta.java:74` already registers `LEVEL_EFFECT`/`CHUNK_EFFECT`. Packet `AreaEffectSyncPacket` via `GensokyoLegacy.HANDLER` (`init/GLPackets.java`). Events live in `event/GLMetaEventHandlers.java` (GAME bus) and `event/GLClientEventHandlers.java` (CLIENT `LoggingOut`/`Level.Unload`/render stage).
 

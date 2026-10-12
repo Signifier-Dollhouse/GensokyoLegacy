@@ -9,10 +9,10 @@ import net.minecraft.server.level.ServerLevel;
  *
  * <p>
  * Leaving is rolled here, and only here. It is the reason a guest ever goes home while there
- * is still food on the table, and it has to exist — otherwise a guest who is already full
- * would occupy a chair at a party someone is trying to enjoy until the spread is gone.
- * Rolled per satisfied sit rather than on a timer, so the two per-character fields mean
- * something together: a long {@code fullSeat} also means a slow departure.
+ * is still food on the table, and it has to exist. Rolled per satisfied sit rather than on a
+ * timer, so a long {@code fullSeat} also means a slow departure.
+ *
+ * @see doc/design/party/guest.md
  */
 public class RestTask extends PartyTask {
 

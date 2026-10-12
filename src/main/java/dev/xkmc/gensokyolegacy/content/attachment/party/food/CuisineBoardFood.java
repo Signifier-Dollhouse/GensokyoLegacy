@@ -42,9 +42,9 @@ public class CuisineBoardFood implements ContainerFoodHandler {
 	}
 
 	/**
-	 * The board's own list of item stacks, or null when it cannot be read. A checked exception
-	 * is swallowed into a null on purpose: a renamed field should read as "no food on it"
-	 * rather than take the party down from a food handler on the server tick.
+	 * The board's own list of item stacks, or null when it cannot be read. A checked
+	 * exception becomes a null on purpose: a renamed field should read as "no food on it"
+	 * rather than take the party down from the server tick.
 	 */
 	@SuppressWarnings("unchecked")
 	@Nullable
@@ -59,16 +59,15 @@ public class CuisineBoardFood implements ContainerFoodHandler {
 
 	@Override
 	public boolean handles(Block block) {
-		// a DelegateBlock has no class to test for - CuisineBoardBlock is a BlockMethod, not a
-		// Block - so identity is the only way to name it
+		// a DelegateBlock has no class to test for, so identity is the only way to name it
 		return block == YHBlocks.CUISINE_BOARD.get();
 	}
 
 	@Override
 	public List<FoodResult> contents(CollisionGetter level, BlockPos pos, BlockState state) {
 		if (!(level.getBlockEntity(pos) instanceof CuisineBoardBlockEntity be)) return List.of();
-		// resolved before anything is read out of the list, because a board whose model was
-		// dropped on a chunk load rebuilds it from the contents - and may rewrite them
+		// resolved before anything is read out of the list: a board whose model was
+		// dropped on a chunk load rebuilds it from the contents, and may rewrite them
 		var model = be.getModel();
 		var raw = of(be);
 		if (raw == null) return List.of();
@@ -76,11 +75,10 @@ public class CuisineBoardFood implements ContainerFoodHandler {
 		var ans = new ArrayList<FoodResult>();
 		for (var stack : raw) {
 			if (stack == null || stack.isEmpty()) continue;
-			// One piece for the appeal, the whole stack for the plate: two nigiri came off the
-			// board together, so they feed the guest twice but are priced once.
+			// One piece for the appeal, the whole stack for the plate: two nigiri came
+			// off the board together, so they feed the guest twice but are priced once.
 			var dish = Servings.of(stack);
 			if (dish == null) continue;   // nothing worth eating; left on the board, just not part of the spread
-			// the whole stack, at its worth: she picks up the pair, not one piece of it
 			var props = Servings.of(stack, stack.getCount());
 			var item = stack.getItem();
 			ans.add(FoodResult.of(new ItemStack(item, stack.getCount()),
@@ -95,10 +93,9 @@ public class CuisineBoardFood implements ContainerFoodHandler {
 
 	/**
 	 * Whether the board holds a finished dish rather than a recipe part-way through. A
-	 * {@link FoodTableItem} is the mod's own answer, but a nigiri or gunkan is placed on the
-	 * board as the finished item and resolves to the model used to <i>assemble</i> it, so
-	 * there is no second form to ask: the answer is read off the contents instead — a dish
-	 * is made of nothing but food, and a recipe in progress is not.
+	 * {@link FoodTableItem} is the mod's own answer, but a nigiri or gunkan is placed on
+	 * the board as the finished item and resolves to the model used to <i>assemble</i> it,
+	 * so the answer is read off the contents: a dish is made of nothing but food.
 	 */
 	private static boolean isDish(TableItem model, List<ItemStack> raw) {
 		if (model instanceof FoodTableItem) return true;
@@ -109,7 +106,7 @@ public class CuisineBoardFood implements ContainerFoodHandler {
 		return true;
 	}
 
-	/** Only a board actually <i>on the table</i> is party food, the same furniture test every other dish uses. */
+	/** Only a board on the table is party food, the same test every other dish uses. */
 	@Override
 	public boolean isPutOut(Level level, BlockPos pos, BlockState state) {
 		return PartyArea.touchingFurniture(level, pos);
@@ -132,10 +129,9 @@ public class CuisineBoardFood implements ContainerFoodHandler {
 	}
 
 	/**
-	 * Take the whole plate of {@code item} off the board — a nigiri recipe yields two at once
-	 * and {@code addToPlayer} puts both in the guest's inventory together, so shrinking by one
-	 * would leave a lone piece on a board whose model still describes a pair. Emptied in place
-	 * rather than replacing the list, because the board's own {@code addItem} matches against
+	 * Take the whole plate of {@code item} off the board — shrinking by one would leave a
+	 * lone piece on a board whose model still describes a pair. Emptied in place rather
+	 * than replacing the list, because the board's own {@code addItem} matches against
 	 * this very list.
 	 */
 	private void take(CuisineBoardBlockEntity be, Item item) {

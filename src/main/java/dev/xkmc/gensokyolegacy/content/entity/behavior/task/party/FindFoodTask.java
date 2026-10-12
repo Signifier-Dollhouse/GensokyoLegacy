@@ -16,15 +16,16 @@ import net.minecraft.server.level.ServerLevel;
  * <p>
  * Nothing left she can reach is the end of her visit rather than another draw: she settles
  * up with a gift and goes.
+ *
+ * @see doc/design/party/guest.md
  */
 public class FindFoodTask extends PartyTask {
 
 	@Override
 	protected boolean stillMine(SmartYoukaiEntity entity, PartyContext ctx) {
 		var party = ctx.attachment();
-		// the two fields this task sets are also what ends it. Without them in here it would
-		// keep running after drawing, redrawing the dish every tick, and would sit on top of
-		// LeaveTask holding the gate with the spread already gone.
+		// the two fields this task sets are also what ends it: without them it would redraw the dish
+		// every tick, and would sit on top of LeaveTask holding the gate with the spread gone
 		return ctx.seated()
 				&& party != null && party.phase() == PartyAttachment.Phase.FEASTING
 				&& ctx.dish() == null

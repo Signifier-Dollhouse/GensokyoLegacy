@@ -28,14 +28,12 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 
 /**
- * Every move a guest can be asked to make, and every memory she remembers by.
+ * Every move a guest can be asked to make, over the state on {@link PartyModule}.
  *
  * <p>
- * <b>This object holds no state.</b> All of it is in the seven brain memories that route
- * the machine and in {@link PartyModule}, which is serialized with the entity. That is what
- * makes a guest survive a save: there is nothing here to lose. It is rebuilt each tick and
- * thrown away, so a task switch, a chunk unload and a server restart are all the same
- * event to it.
+ * <b>This object holds no state of its own.</b> It is rebuilt each tick and thrown away, so a
+ * task switch, a chunk unload and a server restart are all the same event to it; the durable
+ * state is serialized with the entity, which is what lets a guest survive a save.
  *
  * <p>
  * The movement helpers keep to one rule that is easy to break by accident: <b>no walk order
@@ -44,7 +42,8 @@ import java.util.ArrayList;
  * {@code navCtrl.isCloseToGround} rather than {@code onGround}, because a walk node wants
  * solid ground under the feet.
  *
- * @see PartyTasks for the state machine these memories describe
+ * @see PartyTasks for the machine these moves drive
+ * @see doc/design/party/guest.md
  */
 public class PartyContext {
 
@@ -84,7 +83,7 @@ public class PartyContext {
 		return gameTime;
 	}
 
-	/** Whether she is actually in a chair, which no memory can know. */
+	/** Whether she is actually in a chair, which no field on the module can know. */
 	public boolean seated() {
 		return party.seat() != null && entity.isPassenger();
 	}
@@ -92,9 +91,8 @@ public class PartyContext {
 	// === the machine ===
 	//
 	// These are fields on PartyModule, read and written in place. A brain memory would have
-	// been the tidier home for them; it is not, because a memory survives a save only if it
-	// carries a codec and the whole brain serialization lines up, and a guest who comes back
-	// without her state is a guest who has forgotten the party. See the module.
+	// been the tidier home for them, but a memory only survives a save if it carries a codec,
+	// and a guest who comes back without her state has forgotten the party.
 
 	public boolean holding() {
 		return party.serve != null;
@@ -176,10 +174,10 @@ public class PartyContext {
 
 	// === the departure ===
 	//
-	// The leave timer is the one that never expires on its own: its being armed at all *is*
-	// the departure, so zero means "she has stood up and is on her way", not "over".
-	// Clearing it here would drop the cascade back to whichever task matches an ordinary
-	// guest, and she would sit back down on the way out of the door.
+	// The leave timer is the one that never expires on its own: its being armed at all *is* the
+	// departure, so zero means "she has stood up and is on her way", not "over". Clearing it
+	// would drop the cascade back to an ordinary guest, and she would sit back down on the way
+	// out of the door.
 
 	public boolean leaving() {
 		return party.leaveArmed;
@@ -194,12 +192,10 @@ public class PartyContext {
 	 * Arm the departure, waiting {@code ticks} before she stands up.
 	 *
 	 * <p>
-	 * <b>The gift is given here, not at the call sites.</b> There are three ways a visit
-	 * ends — the spread running out, a roll on a satisfied sit, and the host calling it off
-	 * — and only the first two used to pass through here. The third is the ticker's, which
-	 * arms the departure directly, so a guest who ate a whole spread and left to a host who
-	 * called it off left nothing behind. One place, so a fourth cannot forget, and harmless
-	 * to repeat: {@link PartyGift} is a no-op once she has given.
+	 * <b>The gift is given here, not at the call sites.</b> Three things can end a visit — the
+	 * spread running out, a roll on a satisfied sit, and the host calling it off — and only the
+	 * first two pass through here, so one place means a fourth cannot forget. Harmless to
+	 * repeat: {@link PartyGift} is a no-op once she has given.
 	 */
 	public void armLeave(int ticks) {
 		giveGift();
@@ -234,8 +230,8 @@ public class PartyContext {
 	 * Point her at {@code target}, issuing the walk order if she is not already walking.
 	 *
 	 * <p>
-	 * Issued once rather than once a tick: re-issuing restarts the pathfinding under her
-	 * own feet, which is how a walk that would have succeeded ends up timing out.
+	 * Issued once rather than once a tick: re-issuing restarts the pathfinding under her own
+	 * feet, which is how a walk that would have succeeded ends up timing out.
 	 *
 	 * @return whether she is in range to act on it already
 	 */
@@ -368,12 +364,8 @@ public class PartyContext {
 	}
 
 	/**
-	 * Credit and put down whatever she is carrying, for a visit that ends mid-bite.
-	 *
-	 * <p>
-	 * The plate left a dish that is already gone, so dropping it uncredited would swallow
-	 * food the guests did eat — which is what used to happen whenever the task was stopped
-	 * before it could bank.
+	 * Credit and put down whatever she is carrying, for a visit that ends mid-bite. The plate
+	 * left a dish that is already gone, so dropping it uncredited swallows food she did eat.
 	 */
 	public void finishServe() {
 		bankServe();
@@ -381,12 +373,8 @@ public class PartyContext {
 	}
 
 	/**
-	 * Credit the serving she was carrying and stop carrying it.
-	 *
-	 * <p>
-	 * The memory is what makes this safe: a guest who is interrupted mid-bite — a chunk
-	 * unload, a restart — still has the serve when she comes back, and is credited for it
-	 * then rather than losing it.
+	 * Credit the serving she was carrying and stop carrying it. The serialized serve is what
+	 * makes this safe: a guest interrupted mid-bite still has it when she comes back.
 	 */
 	public void bankServe() {
 		var serve = serve();
@@ -397,11 +385,8 @@ public class PartyContext {
 
 	/**
 	 * Begin the chew: the eat sound and animation, the timer, and the plate leaving her hand
-	 * part-way through.
-	 *
-	 * <p>
-	 * Works seated or standing. The only guest who ever chews off a chair is one whose chair
-	 * was taken away while she was carrying a plate, and she is still holding food.
+	 * part-way through. Works seated or standing — the only guest who ever chews off a chair is
+	 * one whose chair was taken away while she was carrying a plate.
 	 */
 	public void beginChew() {
 		entity.broadcastEat();
@@ -478,12 +463,8 @@ public class PartyContext {
 	}
 
 	/**
- * Where she goes when the party is over.
- *
- * <p>
- * Drawn once and kept on the module. This is asked for on every tick of the walkout, and a
- * walk-away destination is a random roll: drawn per call, a guest re-rolls it each tick,
- * walks toward a target that keeps moving, and never arrives anywhere.
+ * Where she goes when the party is over. Asked for on every tick of the walkout, so it is
+ * drawn once and kept: drawn per call, a guest re-rolls it each tick and never arrives.
  *
  * @return a destination, or null to finish leaving here and now
  */
@@ -515,10 +496,9 @@ public BlockPos destination() {
 	}
 
 	/**
-	 * Somewhere a summoned guest walks off to before she is put away — far, because how far
-	 * she gets is how far the host sees her go. Checked twice, on the roll and on the ground
-	 * found for it, since a search outward from a too-close roll can return a neighbouring
-	 * block.
+	 * Somewhere a summoned guest walks off to before she is put away — far, because how far she
+	 * gets is how far the host sees her go. Checked twice, on the roll and on the ground found
+	 * for it, since a search outward from a too-close roll can return a neighbouring block.
 	 *
 	 * @return somewhere to walk to, or null when nothing that far out is walkable
 	 */

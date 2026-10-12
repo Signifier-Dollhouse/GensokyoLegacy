@@ -30,27 +30,14 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * A doll controller block — a block that hosts its own resident {@link DollData} and acts as the
- * {@link DollHost} for deployed {@link BaseDollEntity} instances (doc/design/doll/controller.md).
- * <p>
- * Pairing is identical to the player ledger (§8.2, §5.8): each DollData key is the deployed
- * entity's own game uuid (fresh on every materialization, never stored on item or entity), the
- * entry is inserted BEFORE {@code addFreshEntity}, and the entity's inverse check resolves its
- * host through {@link BaseDollEntity#getHost()} — a player-owned doll looks up the player
- * capability, a block-hosted doll looks up this block entity.
- * <p>
- * Unlike the player ledger the block keeps an ordered <b>list</b> of resident dolls (up to
- * {@link #MAX_DOLLS}); installed dolls are STORED (no uuid yet), deployed ones are keyed by the
- * live entity's uuid and SUMMONED:
- * <ul>
- *   <li>STORED — the doll rests inside the block (installed from a doll item, or recalled).</li>
- *   <li>SUMMONED — the doll is materialized and hovers in front of the block; its values are
- *       continuously written back into its {@link DollData}, and a vanished entity is respawned
- *       from the recorded values (a dead or invalid one reverts to STORED).</li>
- * </ul>
- * The block is never "owned" by a player: the deployed doll has no owner, so the follow/look goals
- * stay dormant (§13.4). Future work tasks (e.g. mining) will attach worker goals to the deployed
- * entity via {@link #getDeployedDoll()}.
+ * A doll controller block: it hosts its own resident {@link DollData} list (up to
+ * {@link #MAX_DOLLS}) and is the {@link DollHost} of the {@link BaseDollEntity} instances it
+ * deploys. Pairing is identical to the player ledger — each key is the deployed entity's own game
+ * uuid, re-keyed before {@code addFreshEntity}, so a doll can never be in the world without a
+ * SUMMONED entry here. Installed dolls are STORED with no uuid; the block is never owned by a
+ * player, so a deployed doll has no owner and its follow/look goals stay dormant.
+ *
+ * @see doc/design/doll/controller.md
  */
 @SerialClass
 public class DollControllerBlockEntity extends BaseBlockEntity implements TickableBlockEntity, DollHost {
@@ -113,11 +100,10 @@ public class DollControllerBlockEntity extends BaseBlockEntity implements Tickab
 	}
 
 	/**
-	 * Installs a doll item into a controller with free space. The item is consumed; the doll
-	 * becomes one of the block's residents (STORED). Item -> stored data conversion mirrors
-	 * {@code DollAttachment.summon} (via {@link DollData#fromItemData}): significant values
-	 * only, no uuid. The initial spot is the center of the block directly above the controller,
-	 * so a deployed doll naturally hovers right above the block.
+	 * Installs a doll item as a resident (STORED); the item is consumed. Item -> stored data
+	 * conversion mirrors {@code DollAttachment.summon} via {@link DollData#fromItemData}:
+	 * significant values only, no uuid. The initial spot is the center of the block above, so a
+	 * deployed doll hovers right above the block.
 	 */
 	public boolean install(ItemStack stack) {
 		if (!hasSpace()) return false;
@@ -131,9 +117,7 @@ public class DollControllerBlockEntity extends BaseBlockEntity implements Tickab
 	}
 
 	/**
-	 * Deploy the next stored resident (STORED -> SUMMONED). Creates a fresh entity of the
-	 * recorded type, keys the doll entry by its new game uuid BEFORE {@code addFreshEntity}, and
-	 * homes the entity at this block so its inverse check finds this host (§8.2).
+	 * Deploy the next stored resident (STORED -> SUMMONED), facing the block's horizontal facing.
 	 */
 	public boolean deploy() {
 		if (!(level instanceof ServerLevel)) return false;
@@ -153,9 +137,9 @@ public class DollControllerBlockEntity extends BaseBlockEntity implements Tickab
 	}
 
 	/**
-	 * Materializes a resident doll entry as a live entity homed to this block and re-keys the
-	 * entry to the entity's fresh game uuid BEFORE {@code addFreshEntity}, so the join-level
-	 * inverse check finds its SUMMONED entry (§8.2). The block's own sync is left to the caller.
+	 * Materializes a resident entry homed to this block and re-keys it to the entity's fresh game
+	 * uuid BEFORE {@code addFreshEntity}, so the join-level inverse check finds its SUMMONED entry.
+	 * The block's own sync is left to the caller.
 	 */
 	private boolean spawnFromData(DollData data, Vec3 pos) {
 		if (!(level instanceof ServerLevel sl) || data.type == null) return false;
@@ -179,7 +163,7 @@ public class DollControllerBlockEntity extends BaseBlockEntity implements Tickab
 
 	/**
 	 * Recall one deployed doll into the block (SUMMONED -> STORED). Values are written back before
-	 * the entity is discarded, so the resident data always tracks the last materialized form.
+	 * the entity is discarded, so the resident data tracks the last materialized form.
 	 */
 	public boolean recall() {
 		if (!(level instanceof ServerLevel sl)) return false;
@@ -202,9 +186,8 @@ public class DollControllerBlockEntity extends BaseBlockEntity implements Tickab
 	}
 
 	/**
-	 * Remove one resident doll from the block and hand its item to the player. A deployed doll is
-	 * recalled first (values written back, entity discarded); otherwise the first installed one is
-	 * reclaimed. Deploys nothing.
+	 * Hand one resident's item to the player. A deployed doll is recalled first; otherwise the first
+	 * installed one is reclaimed. Deploys nothing.
 	 */
 	public boolean eject(ServerPlayer player) {
 		DollData data = null;
@@ -239,9 +222,9 @@ public class DollControllerBlockEntity extends BaseBlockEntity implements Tickab
 	}
 
 	/**
-	 * The block was broken: never lose a doll. A deployed doll's entity is discarded and its item
-	 * dropped where the doll currently is; a summoned entry with no live entity is reclaimed at
-	 * its last recorded spot if known, and every stored doll drops at the block position.
+	 * The block was broken: never lose a doll. A deployed doll's item is dropped where the doll
+	 * currently is (its recorded spot if it has no live entity); every stored doll drops at the
+	 * block position.
 	 */
 	public void onDestroy() {
 		if (level == null || level.isClientSide() || dolls.isEmpty()) return;
@@ -300,9 +283,8 @@ public class DollControllerBlockEntity extends BaseBlockEntity implements Tickab
 	@Override
 	public void tick() {
 		if (level == null || level.isClientSide()) return;
-		// dolls are never chunk-serialized (§5.8): keep deployed entries in sync or respawn a
-		// vanished summoned doll from its recorded values. Only an unrespawnable entry (bad type
-		// / dead) reverts to STORED.
+		// dolls are never chunk-serialized (entity.md §5), so a vanished deployed doll is
+		// respawned from its recorded values; only an unrespawnable entry reverts to STORED.
 		if (level.getGameTime() % 20 != 0) return;
 		ServerLevel sl = (ServerLevel) level;
 		boolean changed = false;
@@ -335,8 +317,8 @@ public class DollControllerBlockEntity extends BaseBlockEntity implements Tickab
 	public void onLoad() {
 		super.onLoad();
 		if (level == null || level.isClientSide() || dolls.isEmpty()) return;
-		// the deployed entity is never saved: on reload a SUMMONED entry has no live entity,
-		// revert it to STORED and let the owner redeploy.
+		// the deployed entity is never saved: on reload a SUMMONED entry has no live
+		// entity, so it reverts to STORED and the owner redeploys.
 		boolean changed = false;
 		for (var data : dolls) {
 			if (data != null && data.isSummoned()) {

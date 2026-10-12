@@ -21,14 +21,14 @@ public interface ContainerFoodHandler {
 
 	/**
 	 * Every food held, one entry per kind of thing — never a single averaged answer.
-	 * {@code serves} is how often a guest can come back, a property of the container:
-	 * a rack hands out one item at a time, a cutting board hands over the whole plate.
+	 * {@code serves} is how often a guest can come back, a property of the container: a
+	 * rack hands out one item at a time, a cutting board hands over the whole plate.
 	 * <p>
 	 * Freshly built every call, never retained.
 	 */
 	List<FoodResult> contents(CollisionGetter level, BlockPos pos, BlockState state);
 
-	/** Not {@link dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyArea#isLaidOut}: the rule genuinely differs by container. */
+	/** Not the shared furniture test: the rule genuinely differs by container. */
 	boolean isPutOut(Level level, BlockPos pos, BlockState state);
 
 	/** Takes whatever is there, not a specific item; the container itself stays. */

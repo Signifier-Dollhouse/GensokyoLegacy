@@ -13,13 +13,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Hover readout (glove.md §2b): while holding the glove in any mode with no
- * screen open, hovering a doll shows its name plus the loadout in the menu's
- * cross arrangement, the same presentation as ModularGolems' equipment overlay
- * ({@code GolemStatusOverlay} + {@code GolemEquipmentTooltip}). Loadout stacks
- * come from the doll's synced client mirror, so this is display-only. The
- * hovered doll comes from the vanilla crosshair via {@code GloveDollHover},
- * never the target cache.
+ * Hover readout (glove.md §2b): while holding the glove with no screen open, hovering a doll shows
+ * its name plus the loadout in the menu's cross arrangement, the same presentation as
+ * ModularGolems' equipment overlay. Loadout stacks come from the doll's synced client mirror, and
+ * the hovered doll comes from {@code GloveDollHover}, never the target cache. Display-only.
+ *
+ * @see doc/design/doll/glove.md
  */
 public class DollGloveOverlay implements LayeredDraw.Layer {
 
@@ -34,8 +33,8 @@ public class DollGloveOverlay implements LayeredDraw.Layer {
 		tip.add(new DollClientLoadoutTooltip(new DollLoadoutTooltip(
 				doll.getLoadoutItem(DollSlot.MAIN_HAND), doll.getLoadoutItem(DollSlot.OFF_HAND),
 				doll.getLoadoutItem(DollSlot.CORE), doll.getLoadoutItem(DollSlot.CLOTH))));
-		// right half: left edge at the right half's midpoint; y -1 keeps the
-		// default vertical centering, maxW -1 the default quarter-screen wrap.
+		// right half: left edge at 60% of the width, quarter-screen wrap; -1 keeps the
+		// default vertical centering.
 		new OverlayUtil(g, Math.round(g.guiWidth() * 0.6f), -1, Math.round(g.guiWidth() * 0.25f)).renderTooltipInternal(mc.font, tip);
 	}
 

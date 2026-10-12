@@ -9,11 +9,8 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * A cake: several slices, each valued on its own. {@code instanceof CakeBlock}, so Youkai's
- * Feasts' cakes land here too.
- *
- * <p>Vanilla {@code CakeBlock} carries no {@link FoodProperties} at all — it feeds the player
- * from code — so its slice values are built as a fallback. A modded cake's own slice item is
- * authoritative and is tried first.
+ * Feasts' cakes land here too. Vanilla {@code CakeBlock} carries no {@link FoodProperties}
+ * at all, so its slice values are a fallback and a modded slice item is authoritative.
  *
  * @see doc/design/party/food_mods.md
  */

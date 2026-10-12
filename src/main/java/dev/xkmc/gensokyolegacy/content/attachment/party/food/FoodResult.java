@@ -15,8 +15,8 @@ import org.jetbrains.annotations.Nullable;
  * Everything needed to know about one food, resolved once and reused.
  *
  * <p>
- * {@code serving} is shared with every guest and draw — use {@link #servingCopy()} to hand
- * it out. {@code appeal} is per food id, not per serving; {@code nutrition} and
+ * {@code serving} is shared and mutable — use {@link #servingCopy()} to hand it out.
+ * {@code appeal} is per food id, not per serving; {@code nutrition} and
  * {@code saturation} are for the whole serving and may exceed one item's worth.
  *
  * @see doc/design/party/food.md

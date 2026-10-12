@@ -38,8 +38,7 @@ public class InvitationLetterItem extends Item {
 			return InteractionResult.SUCCESS;
 		}
 		var outcome = PartySend.send(sp, pos, stack);
-		// every refusal happens before the letter is consumed, so a refused send costs
-		// nothing and says why
+		// every refusal happens before the letter is consumed, so a refused send costs nothing
 		PartyMessage.report(sp, outcome);
 		return outcome.ok() ? InteractionResult.CONSUME : InteractionResult.PASS;
 	}

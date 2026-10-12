@@ -63,8 +63,7 @@ public class PartyWand extends Item implements IDebugOverlayWand {
 				stack.set(PartyWandComponent.TYPE, readout(pos, outcome));
 				return InteractionResult.SUCCESS;
 			}
-			// a click the wand cannot read clears the held reading: a reading is only
-			// honest while something was actually looked at
+			// a click the wand cannot read clears the held reading
 			stack.remove(PartyWandComponent.TYPE);
 		}
 		return InteractionResult.CONSUME;
@@ -74,16 +73,16 @@ public class PartyWand extends Item implements IDebugOverlayWand {
 	 * Summarise an already-planned outcome. Pure — it reads the plan and changes nothing.
 	 * <p>
 	 * Takes the {@link PartySend.Outcome} rather than planning itself, so a caller that has
-	 * already planned does not walk the room twice and report on a different area.
+	 * already planned does not walk the room twice.
 	 */
 	public static PartyWandData readout(BlockPos table, PartySend.Outcome outcome) {
-		// the area rides along even on a refusal: a table the wand refuses is exactly the
-		// case where the host needs to see what the scan did and did not take
+		// the area rides along even on a refusal: that is where the host needs to see
+		// what the scan did and did not take
 		var area = outcome.area();
 		var plan = outcome.plan();
 		if (area == null || plan == null) return PartyWandData.refused(table, area);
-		// the chosen roster only, heaviest weight first: the readout says who would come
-		// and nothing about how close any of them was, so the weights are not kept
+		// the chosen roster only, heaviest weight first: the readout says who would
+		// come, and nothing about how close any of them was
 		var guests = plan.pool().stream()
 				.filter(c -> plan.roster().contains(c.type()))
 				.sorted(Comparator.comparingInt(PartyPlanner.Candidate::weight).reversed())
@@ -94,11 +93,9 @@ public class PartyWand extends Item implements IDebugOverlayWand {
 	}
 
 	/**
-	 * Record an outcome on the wand in this player's hand, if they are holding one.
-	 * <p>
-	 * For {@code /gensokyo party preview}, which is a scan. A <em>send</em> deliberately does
-	 * not go through here: the host is holding a letter, and silently rewriting a wand somewhere
-	 * in their inventory is a surprising thing for a debug tool to do to an item.
+	 * Record an outcome on the wand in this player's hand, if they are holding one. For
+	 * preview, which is a scan; a <em>send</em> deliberately does not go through here,
+	 * because silently rewriting a wand in the host's inventory is surprising.
 	 *
 	 * @return whether a wand was there to record it
 	 */
@@ -148,8 +145,8 @@ public class PartyWand extends Item implements IDebugOverlayWand {
 		var level = player.level();
 		var pos = hit.getBlockPos();
 		var state = level.getBlockState(pos);
-		// a container's food lives in its block entity, not its state, and that is synced —
-		// which is why this works on the client. An unloaded one simply reports nothing.
+		// a container's food lives in its block entity, and that is synced, which is why
+		// this works on the client
 		var valid = PartyFoodValue.results(level, pos, state).stream()
 				.filter(FoodResult::valid).toList();
 		if (valid.isEmpty()) {
@@ -161,15 +158,15 @@ public class PartyWand extends Item implements IDebugOverlayWand {
 		lines.add(GLLang.ItemDebug.PARTY_WAND_FOOD.get(state.getBlock().getName()).withStyle(ChatFormatting.AQUA));
 		if (valid.size() == 1) {
 			var only = valid.get(0);
-			// the size of a serving, which is not always one: a cutting board hands over the
-			// whole stack it holds, food.md §1
+			// a serving's size, which is not always one: a cutting board hands over the
+			// whole stack it holds
 			lines.add(GLLang.ItemDebug.PARTY_WAND_SERVING.get(only.serving().getCount())
 					.withStyle(ChatFormatting.GRAY));
 			lines.add(GLLang.ItemDebug.PARTY_WAND_FOOD_VALUES.get(only.nutrition(),
 					String.format("%.1f", only.saturation())).withStyle(ChatFormatting.GRAY));
 		} else {
-			// summed here rather than through PartyFoodValue.totalHunger, which would ask
-			// the container a second time in an overlay that runs every frame
+			// summed here rather than through PartyFoodValue.totalHunger, which would
+			// ask the container a second time in an overlay that runs every frame
 			int serves = 0, hunger = 0;
 			for (var result : valid) {
 				serves += result.serves();
@@ -178,8 +175,8 @@ public class PartyWand extends Item implements IDebugOverlayWand {
 			lines.add(GLLang.ItemDebug.PARTY_WAND_SERVES.get(serves).withStyle(ChatFormatting.GRAY));
 			lines.add(GLLang.ItemDebug.PARTY_WAND_TOTAL_HUNGER.get(hunger).withStyle(ChatFormatting.GRAY));
 		}
-		// what this block is worth to a party: one appeal per distinct food, with the serve
-		// count deliberately not multiplying, exactly as the scan counts it — select.md §1
+		// one appeal per distinct food, with the serve count deliberately not
+		// multiplying, exactly as the scan counts it — select.md §1
 		int worth = 0;
 		for (var entry : PartyFoodValue.appealPerFood(level.registryAccess(), level, pos, state)) {
 			worth += entry.appeal();
@@ -208,8 +205,8 @@ public class PartyWand extends Item implements IDebugOverlayWand {
 						.withStyle(ChatFormatting.GREEN));
 			}
 		}
-		// the food is being eaten while the wand sits in a hand, so a reading taken a
-		// while back is flagged rather than presented as current
+		// the food is being eaten while the wand sits in a hand, so a stale reading
+		// is flagged rather than presented as current
 		if (player.blockPosition().distSqr(bound) > 64) {
 			lines.add(GLLang.ItemDebug.PARTY_WAND_STALE.get().withStyle(ChatFormatting.DARK_GRAY));
 		}

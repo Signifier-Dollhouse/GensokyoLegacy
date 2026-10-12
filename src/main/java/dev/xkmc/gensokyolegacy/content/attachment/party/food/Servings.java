@@ -41,14 +41,11 @@ public final class Servings {
 
 	/**
 	 * The properties of {@code count} of {@code stack} eaten as <b>one plate</b>, not as
-	 * {@code count} servings — a board hands a pair of nigiri over whole.
-	 *
+	 * {@code count} servings.
 	 * <p>Nutrition, saturation and eating time multiply; an effect does not, because it is
 	 * rolled once per item eaten, so {@code n} chances of {@code p} are {@code 1 − (1 − p)ⁿ}.
-	 * {@code canAlwaysEat} and the container pass through.
-	 *
-	 * <p>{@link FoodResult#appeal()} deliberately does not scale with {@code count}: a party
-	 * counts each food once, so a pair feeds a guest twice and attracts once.
+	 * {@link FoodResult#appeal()} deliberately does not scale: a pair feeds a guest twice
+	 * and attracts once.
 	 */
 	@Nullable
 	public static FoodProperties of(ItemStack stack, int count) {

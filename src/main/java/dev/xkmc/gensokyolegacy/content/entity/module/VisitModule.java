@@ -16,18 +16,13 @@ import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Whether this character is currently paying a visit to someone else's home,
- * and for how much longer.
- * <p>
- * A visitor has no {@link HomeModule} binding, so {@code MemoryModuleType.HOME}
- * is never set for it and the whole sleep/bed subsystem stays unreachable - that
- * is what "not bound to a bed" means here, and it needs no extra machinery.
- * <p>
- * The visit is not stored as a countdown. A natural visit's remaining time is
- * recomputed from {@link VisitTable} every tick, which is a pure function of the
- * host position, this character's type and the game day - so day rollover, chunk
- * unload and {@code /reload} all need no bookkeeping. Only a command-forced
- * visit carries an explicit deadline.
+ * Whether this character is currently visiting someone else's home, and for how
+ * much longer. A visitor has no {@link HomeModule} binding, so the sleep/bed
+ * subsystem stays unreachable, and the visit is not stored as a countdown: a
+ * natural one is recomputed from {@link VisitTable} every tick, only a forced one
+ * carries a deadline.
+ *
+ * @see doc/design/character_visit.md
  */
 @SerialClass
 public class VisitModule extends AbstractYoukaiModule {
@@ -35,15 +30,13 @@ public class VisitModule extends AbstractYoukaiModule {
 	private static final ResourceLocation ID = GensokyoLegacy.loc("visit");
 
 	/**
-	 * Ticks a conversation keeps the character on site after her window closed.
-	 * Long enough to finish a trade, short enough not to pin her there.
+	 * Ticks a conversation keeps her on site after her window closed.
 	 */
 	public static final int TALK_HOLD = 400;
 
 	/**
-	 * How close a player has to be for the character to refuse to disappear.
-	 * Without this she blinks out mid-sentence in front of the player - but only
-	 * counts players who can actually see her, see {@link #seenByAPlayer}.
+	 * Range for {@link #seenByAPlayer}: she must not blink out mid-sentence in
+	 * front of a player, but proximity alone does not count.
 	 */
 	public static final int VISIBLE_HOLD_RANGE = 32;
 
@@ -78,8 +71,8 @@ public class VisitModule extends AbstractYoukaiModule {
 	}
 
 	/**
-	 * Begin a visit that follows the host's time table, as
-	 * {@link VisitScheduler} spawns it.
+	 * Begin a visit that follows the host's time table, as {@code VisitScheduler}
+	 * spawns it.
 	 */
 	public void arrive(StructureKey host) {
 		enter(host, false, 0);
@@ -111,9 +104,8 @@ public class VisitModule extends AbstractYoukaiModule {
 	}
 
 	/**
-	 * Refuse to disappear for a while. Does not stack: a second conversation
-	 * while the first hold is running neither refreshes nor extends it, so the
-	 * longer of the two asks wins.
+	 * Refuse to disappear for a while. Keeps the longest pending hold rather than
+	 * the latest, so a short conversation cannot cut a long one short.
 	 */
 	public void hold(int ticks) {
 		noDisappear = Math.max(noDisappear, ticks);
@@ -124,13 +116,12 @@ public class VisitModule extends AbstractYoukaiModule {
 		if (!(self.level() instanceof ServerLevel sl)) return;
 		if (noDisappear > 0) noDisappear--;
 		if (host == null) return;
-		// She is at a party, not on her visit. Nothing here may be acted on until she is
-		// let go: renewing the memory would make her a visitor while PARTY(200) is
-		// running, and dismissing her would delete a guest the host is still feeding.
+		// She is at a party, not on her visit: stand down entirely until the party
+		// lets go, or the visit fights it for the entity.
 		if (self.isPartying()) return;
 		if (remaining(sl) > 0) {
-			// set on the first tick rather than in enter(): the brain does not
-			// necessarily exist yet at spawn time
+			// set on the first tick, not in enter(): the brain may not exist yet
+			// at spawn time
 			BrainUtils.setMemory(self, GLBrains.MEM_VISIT.get(), new GlobalPos(host.getDim(), host.pos()));
 			return;
 		}
@@ -140,10 +131,8 @@ public class VisitModule extends AbstractYoukaiModule {
 	}
 
 	/**
-	 * Whether any nearby player can actually see her. Proximity alone is not
-	 * enough: she may as well vanish while the player is on the other side of the
-	 * house, and staying put for someone who cannot see her just leaves her
-	 * standing around for no reason.
+	 * Whether any nearby player can actually see her. Proximity alone does not
+	 * count — she may as well go while the player is on the other side of the house.
 	 */
 	private boolean seenByAPlayer(ServerLevel sl) {
 		var area = self.getBoundingBox().inflate(VISIBLE_HOLD_RANGE);
@@ -156,8 +145,7 @@ public class VisitModule extends AbstractYoukaiModule {
 
 	/**
 	 * End the visit and drop the character, skipping the expiry checks. Used by
-	 * the timer and by {@code /gensokyo visit end}; there is no farewell, she
-	 * simply is not here any more.
+	 * the timer and by {@code /gensokyo visit end}; there is no farewell.
 	 */
 	public void dismiss() {
 		leave();

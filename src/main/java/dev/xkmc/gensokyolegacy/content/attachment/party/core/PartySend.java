@@ -40,7 +40,7 @@ import java.util.function.ToIntFunction;
  */
 public class PartySend {
 
-	/** A whole send attempt. Reusable by {@code /gensokyo party preview}, which wants the plan without the side effects. */
+	/** A whole send attempt, reusable by preview, which wants the plan without the effects. */
 	public record Plan(PartyArea area, List<PartyPlanner.Candidate> pool, List<EntityType<?>> roster) {
 
 		/** The spread's attraction, each food counted once. Scales weights; is not the budget. */
@@ -69,8 +69,7 @@ public class PartySend {
 
 	/**
 	 * The full outcome, so the caller can message the player without re-deriving anything.
-	 * {@link #area} rides along even on a refusal: that is the interesting half of one, and
-	 * re-scanning would be a second walk over the same blocks.
+	 * {@link #area} rides along even on a refusal — that is the interesting half of one.
 	 */
 	public record Outcome(@Nullable PartyArea area, @Nullable Plan plan, @Nullable Refusal refusal,
 			@Nullable Map.Entry<PartyPlanner.Candidate, PartyPlanner.Miss> miss) {
@@ -83,8 +82,8 @@ public class PartySend {
 	/**
 	 * Work out who would come, without touching anything.
 	 *
-	 * @param reputation how a character is to be scored; supplied so preview and
-	 *                   send cannot drift apart
+	 * @param reputation how a character is to be scored, supplied so preview and send
+	 *                   cannot drift apart
 	 */
 	public static Outcome plan(ServerLevel level, ServerPlayer sp, BlockPos anchor,
 			ToIntFunction<EntityType<?>> reputation) {
@@ -98,9 +97,8 @@ public class PartySend {
 
 		var pool = new ArrayList<PartyPlanner.Candidate>();
 		for (var type : BuiltInRegistries.ENTITY_TYPE) {
-			// Two gates. Only youkai are candidates at all, so the chair entity, the
-			// broom, the doll and the projectiles stay out; and a character with no
-			// authored party_taste is not party-eligible, so she stays out too.
+			// Two gates: only youkai are candidates at all, and a character with no
+			// authored party_taste is not party-eligible.
 			if (!isCharacter(type)) continue;
 			var taste = PartyTaste.of(level.registryAccess(), type);
 			if (taste == null) continue;
@@ -118,10 +116,9 @@ public class PartySend {
 	}
 
 	/**
-	 * The random the guest draw runs on, seeded from the <b>centre of the spread</b> rather
-	 * than the clicked block, so either end of a long table draws the same party and
-	 * {@code preview} cannot disagree with a send. The coordinates are scrambled, not
-	 * packed, or adjacent centres would give near-identical draws.
+	 * The random the guest draw runs on, seeded from the <b>centre of the spread</b> so
+	 * either end of a long table draws the same party and preview cannot disagree with a
+	 * send. select.md §4.2.
 	 */
 	private static Random drawOf(BlockPos center) {
 		long seed = (long) center.getX() * 0x9E3779B97F4A7C15L
@@ -141,9 +138,8 @@ public class PartySend {
 	}
 
 	/**
-	 * Whether this type is a character rather than furniture or a projectile — structural
-	 * ({@link MobCategory#MONSTER} against {@code MISC}), but only the cheap half of
-	 * eligibility: the other half is an authored {@code party_taste}.
+	 * Whether this type is a character rather than furniture or a projectile. Only the
+	 * cheap half of eligibility: the other half is an authored {@code party_taste}.
 	 */
 	public static boolean isCharacter(EntityType<?> type) {
 		return type.getCategory() == MobCategory.MONSTER;
@@ -181,11 +177,9 @@ public class PartySend {
 	}
 
 	/**
-	 * Admit the next character of the roster, one arrival a second — the ticker already
-	 * runs at 1 Hz, so one pass is one arrival and no timer is needed.
-	 * <p>
-	 * The entry is always dealt with, so a type that cannot be created costs one second
-	 * rather than stalling admission for ever.
+	 * Admit the next character of the roster, one arrival a second. The entry is always
+	 * dealt with, so a type that cannot be created costs one second rather than stalling
+	 * admission for ever.
 	 */
 	public static void admitNext(ServerLevel level, PartyAttachment party) {
 		// a closing party admits nobody: a guest arriving into one is told to leave
@@ -213,9 +207,9 @@ public class PartySend {
 	}
 
 	/**
-	 * A character of this type already on site who could come as herself — two Reimus at one
-	 * table is worse than one. Only a {@link VisitModule visitor} and a {@link HomeModule
-	 * resident} standing at her own house qualify: both have somewhere to go back to.
+	 * A character of this type already on site who could come as herself — only a
+	 * {@link VisitModule visitor} or a {@link HomeModule resident} standing at her own
+	 * house qualifies: both have somewhere to go back to.
 	 */
 	@Nullable
 	private static YoukaiEntity findOnSite(ServerLevel level, BlockPos anchor, EntityType<?> type) {
@@ -237,8 +231,8 @@ public class PartySend {
 
 	/**
 	 * Put an already-existing character on the party's books. As {@link #spawn}, but her
-	 * {@code HomeModule} is left alone — she has one, and it is hers. Where she came from
-	 * is what {@link PartyModule#join} records.
+	 * {@code HomeModule} is left alone. Where she came from is what {@link
+	 * PartyModule#join} records.
 	 */
 	private static void join(ServerLevel level, YoukaiEntity guest, @Nullable UUID host,
 			BlockPos table, @Nullable ChunkPos partyChunk) {
@@ -265,8 +259,7 @@ public class PartySend {
 
 	/**
 	 * Put a guest on site. Deliberately does not touch {@code HomeModule}: with no home
-	 * binding she never gets a {@code HOME} memory, so the resident back home keeps living
-	 * her ordinary day — the same trick {@code VisitScheduler} uses.
+	 * binding the resident back home keeps living her ordinary day — send.md §3.
 	 *
 	 * @return the guest, or null if she could not be created or nowhere was found
 	 */
@@ -304,20 +297,17 @@ public class PartySend {
 			return LandRandomPos.movePosUpOutOfSolid(youkai, spot);
 		});
 		if (pos != null && !furniture(level, pos)) return pos;
-		// ten random spots found nothing — a sealed room, or one where every landing is
-		// on the table. Stand her somewhere definite rather than not at all.
+		// ten random spots found nothing; stand her somewhere definite rather than not at all
 		return freeSpaceNear(level, anchor, 4);
 	}
 
 	/**
-	 * The walk target for both a chair and a dish, neither of which is ever walked to
-	 * directly: a chair is furniture to sit down from <i>beside</i>, and the block beside a
-	 * dish on a table is air at table height. Two rings in order — the block's own
-	 * neighbours, then their neighbours one support down — so a dish on the floor answers
-	 * in the first ring and one on a laid table only in the second.
+	 * The walk target for both a chair and a dish, neither of which is walked to directly:
+	 * a chair is furniture to sit down from <i>beside</i>, and the block beside a dish on
+	 * a table is air at table height. Two rings in order — the block's own neighbours, then
+	 * their neighbours one support down.
 	 * <p>
-	 * Not checked for reachability: that is the pathfinder's question, and the walk-failure
-	 * fallback covers it.
+	 * Not checked for reachability: that is the pathfinder's question.
 	 *
 	 * @return the block to walk to, or null when there is nowhere to stand near it
 	 */
@@ -374,7 +364,7 @@ public class PartySend {
 	/**
 	 * The first spot around {@code pos} with air to stand in and something solid under it,
 	 * looking up then down. Bounded, or a tall empty shaft would run to the bottom of the
-	 * world — and a party anchor sits on a table at the top of a room.
+	 * world.
 	 */
 	@Nullable
 	private static BlockPos groundNear(ServerLevel level, BlockPos pos) {
@@ -395,8 +385,7 @@ public class PartySend {
 
 	/**
 	 * Whether this spot is party furniture. Asked separately of {@link #standable} because
-	 * it is the rule, not a consequence: a guest may not appear inside a chair any more than
-	 * she may be moved into one, and the fallback is likeliest to land mid-table.
+	 * it is the rule, not a consequence.
 	 */
 	private static boolean furniture(ServerLevel level, Vec3 pos) {
 		var at = BlockPos.containing(pos);

@@ -11,8 +11,7 @@ import net.minecraft.world.level.block.state.BlockState;
  * A Kaleidoscope Cookery plate or platter: a stack of one named food, up to five of it.
  *
  * <p>A plate looks like a container and is not one — the state says <i>how many</i> and
- * {@code PlateRegistry} says <i>of what</i>. An ordinary {@link AbstractCountdownFood}: the
- * default state is {@code maxCount}, not zero, and the emptied plate is left standing.
+ * {@code PlateRegistry} says <i>of what</i>. An ordinary {@link AbstractCountdownFood}.
  *
  * @see doc/design/party/food_mods.md
  */
@@ -25,9 +24,7 @@ public class PlateFood extends AbstractCountdownFood {
 
 	/**
 	 * The first of the plate's serving items that carries food — a loop rather than a
-	 * {@code getFirst}, so a plate whose items are not all food still resolves. The
-	 * two-item berry platter is both priced and handed over by its first item, which
-	 * undervalues it by roughly half.
+	 * {@code getFirst}, so a plate whose items are not all food still resolves.
 	 */
 	@Override
 	public ItemStack serving(BlockState state) {

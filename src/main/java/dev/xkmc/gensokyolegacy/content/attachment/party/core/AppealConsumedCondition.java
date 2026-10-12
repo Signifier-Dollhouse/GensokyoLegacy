@@ -16,9 +16,9 @@ import java.util.Set;
 
 /**
  * Whether the guest in the loot context has been served enough of her own appeal — her
- * {@link PartyModule#appealEaten}, not the party's total and not whether she was satisfied.
- * The guest is {@link LootContextParams#THIS_ENTITY}; anything else there reads as zero
- * rather than throwing, so a fully gated table gives nothing instead of crashing.
+ * {@link PartyModule#appealEaten}, not the party's total. The guest is
+ * {@link LootContextParams#THIS_ENTITY}; anything else there reads as zero, so a fully
+ * gated table gives nothing instead of crashing.
  *
  * @param min lowest appeal that passes, inclusive
  * @param max highest appeal that passes, inclusive

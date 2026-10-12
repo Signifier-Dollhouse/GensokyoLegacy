@@ -5,11 +5,10 @@ import net.minecraft.server.level.ServerLevel;
 
 
 /**
- * Start the chew: she has the serving and she is where she eats it.
+ * Start the chew: she has the serving and she is where she eats it. The tick between arriving
+ * and chewing exists so the plate visibly reaches her mouth before it starts going away.
  *
- * <p>
- * The tick between arriving and chewing exists so the plate visibly reaches her mouth
- * before it starts going away, rather than appearing and vanishing in one frame.
+ * @see doc/design/party/guest.md
  */
 public class EatTask extends PartyTask {
 

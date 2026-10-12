@@ -17,23 +17,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * How appealing one serving is, derived from what it is to eat.
- *
+ * How appealing one serving is, derived from what it is to eat. Appeal draws a guest in;
+ * hunger is what the food feeds and is what the planner budgets. select.md §2.1.
  * <p>
- * Appeal and hunger are deliberately different quantities: appeal draws a guest in and is
- * what {@link PartyMath#weight} scales by, hunger is what the food actually feeds and is
- * what the planner budgets and {@code fulfillment} is measured against. Only hunger scales
- * with what is left on the block.
- *
- * <p>
- * The {@code party_food} data map <b>revalues, it does not opt in</b>: a registered
- * handler decides whether a block is food at all, and a datapack row only replaces the
- * number afterwards.
- *
- * <p>
- * Everything takes a level and a position so containers can be answered; the cost is that
- * the answers are a snapshot rather than a transaction — two guests converging on one dish
- * can both read it present and the second finds nothing there.
+ * Everything takes a level and a position so containers can be answered, which makes the
+ * answers a snapshot rather than a transaction.
  *
  * @see doc/design/party/food.md
  */
@@ -102,8 +90,7 @@ public class PartyFoodValue {
 			int per = override != null ? clamp(override.appeal()) : result.appeal();
 			if (per <= 0) continue;
 			// A linear scan, because the list is one entry long for nearly every block
-			// there is and only a loaded steamer gets long. The point of the check is the
-			// steamer: two racks of the same bun are one food, not two.
+			// there is and only a loaded steamer gets long.
 			boolean seen = false;
 			for (var entry : ans) {
 				if (!entry.id().equals(result.id())) continue;
@@ -135,8 +122,7 @@ public class PartyFoodValue {
 	/**
 	 * <b>The guest's number, not the party's</b> — a plate is worth what its servings are
 	 * collectively worth to whoever eats them, which is why this multiplies by serves and
-	 * {@link #appealPerFood} does not. A container is averaged across what it holds, as
-	 * there is no single dish on it to price.
+	 * {@link #appealPerFood} does not. A container is averaged across what it holds.
 	 * <p>
 	 * The override is read <b>only after</b> validity, so a row can revalue a dish but
 	 * cannot conjure one.
@@ -158,19 +144,17 @@ public class PartyFoodValue {
 			// on a container the override revalues the whole block: there is no finer key
 			int per = override != null ? clamp(override.appeal()) : result.appeal();
 			appeal += per * result.serves();
-			// nutrition is literally the hunger bar, already the plate's: a cutting board's
-			// pair of sushi counts twice here, which the appeal above is careful not to do
+			// nutrition is literally the hunger bar: a cutting board's pair of
+			// sushi counts twice here, which the appeal above is careful not to do
 			hunger += result.nutrition() * result.serves();
 		}
 		return new int[]{serves, appeal, hunger};
 	}
 
 	/**
-	 * The quantity the party system <b>plans</b> in, deliberately not the appeal: a rare
-	 * effect is worth more than its ingredients suggest without filling anyone up.
-	 * <p>
-	 * Never reads the {@code party_food} override — letting it reach hunger would let a
-	 * datapack silently change how many guests a spread seats.
+	 * The quantity the party system <b>plans</b> in, deliberately not the appeal. Never
+	 * reads the {@code party_food} override — letting it reach hunger would let a datapack
+	 * silently change how many guests a spread seats.
 	 *
 	 * @return 0 when the block is not valid food
 	 */

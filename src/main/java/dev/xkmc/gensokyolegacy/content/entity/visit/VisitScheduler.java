@@ -13,13 +13,10 @@ import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * The spawn side of a visit: wakes up once a second per structure, and puts a
- * character on site for every guest the structure's time table currently says
- * should be there.
- * <p>
- * Driven from {@code StructureRefData.blockTick}, which already collapses to one
- * call per game time no matter how many beds a structure has, so a structure that
- * is not loaded costs nothing.
+ * The spawn side of a visit: once a second per structure, put every guest the
+ * time table currently says should be there on site.
+ *
+ * @see doc/design/character_visit.md
  */
 public class VisitScheduler {
 
@@ -60,10 +57,9 @@ public class VisitScheduler {
 	}
 
 	/**
-	 * Put a guest on site. Deliberately does not touch {@code HomeModule}: with
-	 * no home binding the character never gets a {@code HOME} memory, so it can
-	 * neither sleep nor claim the bed it is standing next to, and the resident
-	 * back home keeps living its own day.
+	 * Put a guest on site. Deliberately leaves {@code HomeModule} alone: with no
+	 * home binding the character never gets a {@code HOME} memory, so it can
+	 * neither sleep nor claim the bed it stands next to.
 	 *
 	 * @return the visitor, or null if there is nowhere for her to stand
 	 */
@@ -86,7 +82,7 @@ public class VisitScheduler {
 	}
 
 	/**
-	 * Put a guest on site for a fixed stretch of time, ignoring the time table -
+	 * Put a guest on site for a fixed stretch of time, ignoring the time table —
 	 * the command's forced mode. Returns whoever is already visiting, so the
 	 * command cannot stack two copies of the same character.
 	 */

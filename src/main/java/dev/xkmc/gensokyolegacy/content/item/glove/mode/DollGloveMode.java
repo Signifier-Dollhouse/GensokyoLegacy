@@ -13,6 +13,12 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Locale;
 
+/**
+ * The glove's modes. Each constant holds a {@link DollGloveHandler}, so behaviour never needs a
+ * switch on the enum.
+ *
+ * @see doc/design/doll/glove.md
+ */
 public enum DollGloveMode {
 	SUMMON(new SummonMode()),
 	VOLLEY(new VolleyMode()),
@@ -30,9 +36,8 @@ public enum DollGloveMode {
 	}
 
 	/**
-	 * Sub-model id suffix for this mode's textures ({@code item/doll_glove/glove_<name>}
-	 * held textures and {@code item/doll_glove/glove_icon_<name>} icon variants,
-	 * glove.md §3b): the enum names already match the provided texture files.
+	 * Sub-model id suffix for this mode's textures ({@code item/doll_glove/glove_<name>} and
+	 * {@code item/doll_glove/glove_icon_<name>}): the enum names already match the texture files.
 	 */
 	public String iconName() {
 		return name().toLowerCase(Locale.ROOT);
@@ -51,35 +56,32 @@ public enum DollGloveMode {
 	}
 
 	/**
-	 * Whether left-click (entity punch, block click, empty swing) issues this
-	 * mode's command. Attack modes only: the editor open is right-click only,
-	 * so fighting never risks opening a menu.
+	 * Whether left-click issues this mode's command. Attack modes only: the editor open is
+	 * right-click only, so fighting never risks opening a menu.
 	 */
 	public boolean isAttackCommand() {
 		return handler.isAttackCommand();
 	}
 
 	/**
-	 * Left-click path (server-side): the attack-mode command at the cached
-	 * ray-trace target, without the editor check.
+	 * Left-click path (server-side): the attack-mode command at the cached ray-trace target,
+	 * without the editor check.
 	 */
 	public void performAttack(ServerPlayer sp, InteractionHand hand, ItemStack stack, DollGloveItem item) {
 		handler.performAttack(sp, hand, stack, item);
 	}
 
 	/**
-	 * Left-click path for a directly punched entity (server-side): the
-	 * attack-mode command at that entity, without the editor check.
+	 * Left-click path (server-side): the attack-mode command at a directly punched entity, without
+	 * the editor check.
 	 */
 	public void performAttackOn(ServerPlayer sp, @Nullable LivingEntity target, InteractionHand hand, ItemStack stack, DollGloveItem item) {
 		handler.performAttackOn(sp, target, hand, stack, item);
 	}
 
 	/**
-	 * Glow color for the cached ray-trace target while this mode is held
-	 * (vanilla formatting palette): aqua for rally, red for the three attack
-	 * modes. Hovered dolls always glow gold regardless of mode (see
-	 * {@code GloveDollHover}).
+	 * Outline color for the cached ray-trace target while this mode is held: aqua for rally, red
+	 * for the attack modes. Hovered dolls always glow gold regardless (see {@code GloveDollHover}).
 	 */
 	public int glowColor() {
 		return switch (this) {

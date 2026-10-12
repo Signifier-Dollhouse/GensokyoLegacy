@@ -19,24 +19,15 @@ import java.util.function.Supplier;
 
 /**
  * Item → behavior binding: which stacks satisfy which {@link DollActionType}, at
- * what priority, and how to construct the executing behavior. Mirrors
- * MobWeaponAPI's {@code WeaponRegistry} without the dependency: a new item
- * feeding an existing action is one {@link #register} line in
- * {@link DollBehaviors}. The matched entry drives both capability checks and
- * execution — behaviors are created per execution from the available items, so
- * the doll stores none and per-run state can never go stale.
+ * what priority, and how to construct the executing behavior. The matched entry
+ * drives both capability checks and execution — behaviors are created per execution
+ * from the available items, so the doll stores none and per-run state can never go
+ * stale. The table doubles as the loadout's admission list (control.md §1).
  * <p>
- * The table is also the loadout's admission list: {@link #usableInHand} (what a
- * hand slot takes at all) and {@link #spendsOnUse} (whether a stack in a hand is
- * ammunition rather than one item) both read it, so a new binding unlocks its
- * item in the loadout editor without a second edit.
- * <p>
- * One binding is <b>not</b> an item: the bare-handed fallback, registered through
- * {@link #registerBareHand}. An empty stack is never an item-table match (there is
- * nothing in the hand to match), so it cannot be expressed as a predicate — it is
- * matched against the <b>empty hand itself</b>, and only after no item binding has
- * claimed the type. That is what lets a doll with nothing to fight with still answer
- * a volley, see {@link DollBehaviors#register}.
+ * One binding is <b>not</b> an item: the bare-handed fallback of
+ * {@link #registerBareHand}, matched against the <b>empty hand itself</b> and only
+ * after no item binding has claimed the type — an empty stack is never an item-table
+ * match, so it cannot be a predicate. control.md §5.1b has what it buys.
  */
 public final class DollBehaviorRegistry {
 
@@ -45,10 +36,9 @@ public final class DollBehaviorRegistry {
 
 	/**
 	 * One binding. {@code consumed} says the behavior spends what it holds — one per
-	 * use ({@code consumeLoadoutItem(slot, 1)}) — which is what makes N in a hand N
-	 * uses and therefore what lets such a stack sit above size 1 in a loadout slot.
-	 * Never-consumed bindings (danmaku shots, the lance, talismans) are one item per
-	 * hand, however large a stack the item itself allows.
+	 * use — which is what makes N in a hand N uses and therefore what lets such a
+	 * stack sit above size 1 in a loadout slot. Never-consumed bindings are one item
+	 * per hand, however large a stack the item itself allows.
 	 */
 	public record Entry(String id, Predicate<ItemStack> match, DollActionType type, int priority,
 						boolean consumed, Supplier<DollBehavior> factory) {
@@ -57,10 +47,9 @@ public final class DollBehaviorRegistry {
 	public record HandMatch(Entry entry, DollSlot hand, ItemStack stack) {
 
 		/**
-		 * Whether this is the bare-handed fallback rather than an item: the match
-		 * names the <b>empty</b> hand. Derived rather than stored, because the item
-		 * table can only match a non-empty stack ({@link #findBest} skips empties),
-		 * so an empty match stack is unambiguously the bare-handed binding.
+		 * Whether this is the bare-handed fallback rather than an item: the item table
+		 * can only match a non-empty stack, so an empty match stack is unambiguously
+		 * the bare-handed binding.
 		 */
 		public boolean bareHand() {
 			return stack.isEmpty();
@@ -83,11 +72,10 @@ public final class DollBehaviorRegistry {
 	/**
 	 * Register the bare-handed fallback for an action type: a doll that holds nothing
 	 * satisfying {@code type}, and has at least one hand free, acts with that hand.
-	 * <p>
-	 * Consulted only once the item table has come up empty for the type, so it never
-	 * competes with a weapon — which is why it takes no priority. Costs nothing and is
-	 * deliberately <b>not</b> in {@link #ENTRIES}: {@link #usableInHand} admits what a
-	 * hand slot takes, and an empty stack is already the one thing it never admits.
+	 * Consulted only once the item table has come up empty, so it never competes with
+	 * a weapon — which is why it takes no priority. Deliberately not in
+	 * {@link #ENTRIES}: {@link #usableInHand} admits what a hand slot takes, and an
+	 * empty stack is already the one thing it never admits.
 	 */
 	public static void registerBareHand(DollActionType type, Supplier<DollBehavior> factory) {
 		BARE_HANDS.put(type, new Entry(BARE_HAND, ItemStack::isEmpty, type, 0, false, factory));
@@ -95,20 +83,16 @@ public final class DollBehaviorRegistry {
 
 	/**
 	 * Best (entry, hand) match for a type across both hands, read from the
-	 * authoritative ledger (never the synced mirror). Higher entry priority wins
-	 * (so a laser anywhere beats hexbrew anywhere); ties prefer main hand.
-	 * The matched stack is a copy.
-	 * <p>
-	 * When no item in either hand satisfies the type, the bare-handed fallback takes
-	 * it if the type registered one and a hand is free — see {@link #registerBareHand}.
+	 * authoritative ledger (never the synced mirror). Higher entry priority wins;
+	 * ties prefer main hand. The matched stack is a copy.
 	 */
 	public static Optional<HandMatch> findHand(DollEntity doll, DollActionType type) {
 		return findBest(doll, type).map(best -> new HandMatch(best.entry(), best.hand(), best.stack().copy()));
 	}
 
 	/**
-	 * Constructs the behavior for a command from the currently held items. Empty
-	 * when nothing held satisfies the action type.
+	 * Constructs the behavior for a command from the currently held items. Empty when
+	 * nothing held satisfies the action type.
 	 */
 	public static Optional<DollBehavior> createFor(DollEntity doll, DollAction action) {
 		return createFor(doll, action.type());
@@ -124,30 +108,26 @@ public final class DollBehaviorRegistry {
 	}
 
 	/**
-	 * Client-safe capability check against plain stacks (no doll needed): whether
-	 * any registered entry for the type matches the stack. Used by the
-	 * attack-glove sidebar, which reads the synced loadout mirror.
+	 * Client-safe capability check against plain stacks (no doll needed): whether any
+	 * registered entry for the type matches. Used by the attack-glove sidebar, which
+	 * reads the synced loadout mirror.
 	 */
 	public static boolean matches(ItemStack stack, DollActionType type) {
 		return !stack.isEmpty() && anyMatch(stack, type);
 	}
 
 	/**
-	 * Whether <b>any</b> binding matches the stack, whatever the action type — the
-	 * doll has something to do with it. The loadout half of the same question: a
-	 * hand slot takes what {@link #usableInHand} admits, and that is every bound
-	 * item.
+	 * Whether <b>any</b> binding matches the stack, whatever the action type — the loadout
+	 * half of the same question.
 	 */
 	public static boolean matchesAny(ItemStack stack) {
 		return !stack.isEmpty() && anyMatch(stack, null);
 	}
 
 	/**
-	 * What a doll hand will take: anything a doll can act with — some binding
-	 * matches it, whatever the action type — plus the vanilla shield, which is not a
-	 * behavior but the reactive block (DollShield §5.6). Both hand slots admit the
-	 * same set; only blocking reads the off hand, so a shield parked in the main
-	 * hand does nothing until a sticky swap (§2) carries it across.
+	 * What a doll hand will take: anything a doll can act with, plus the vanilla shield,
+	 * which is not a behavior but the reactive block (control.md §5.6). Both hand slots
+	 * admit the same set; only blocking reads the off hand.
 	 */
 	public static boolean usableInHand(ItemStack stack) {
 		return !stack.isEmpty() && (matchesAny(stack) || stack.getItem() instanceof ShieldItem);
@@ -155,10 +135,10 @@ public final class DollBehaviorRegistry {
 
 	/**
 	 * Whether a stack in a doll hand is <b>ammunition</b> rather than one item: a
-	 * binding that spends what it holds matches, so N in the slot is N uses. Only
-	 * these may sit above size 1 (loadout.md §4) — a thrown hexbrew bottle, a fired
-	 * laser, a detonated TNT. A talisman wears down by durability instead, and
-	 * danmaku items and the lance are never spent, so those stay single.
+	 * binding that spends what it holds matches, so N in the slot is N uses. Only these
+	 * may sit above size 1 (loadout.md §4) — a thrown hexbrew bottle, a fired laser, a
+	 * detonated TNT. A talisman wears by durability instead, and danmaku items and the
+	 * lance are never spent, so those stay single.
 	 */
 	public static boolean spendsOnUse(ItemStack stack) {
 		if (stack.isEmpty()) return false;
@@ -183,11 +163,10 @@ public final class DollBehaviorRegistry {
 	}
 
 	/**
-	 * Client-safe best stack for a type across two plain stacks (the synced
-	 * loadout mirror): replicates {@link #findBest} ordering — higher entry
-	 * priority wins, ties prefer main hand. Returns empty when no held stack
-	 * satisfies the type. Display-only; the server revalidates via
-	 * {@link #findHand} against the authoritative ledger.
+	 * Client-safe best stack for a type across two plain stacks (the synced loadout
+	 * mirror): replicates {@link #findBest} ordering — higher entry priority wins, ties
+	 * prefer main hand. Display-only; the server revalidates via {@link #findHand}
+	 * against the authoritative ledger.
 	 */
 	public static ItemStack findUsing(ItemStack main, ItemStack off, DollActionType type) {
 		DollBehaviors.register();
