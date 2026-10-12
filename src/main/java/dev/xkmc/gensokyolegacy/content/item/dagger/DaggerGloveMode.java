@@ -23,26 +23,15 @@ import org.jetbrains.annotations.Nullable;
  * The three firing patterns of the {@link DaggerGloveItem}, one per selector-wheel slot.
  * <p>
  * A mode is pure shape and cost: how many daggers leave the glove, along which lines, and how long
- * the shot takes to come back off cooldown. It never decides <em>whether</em> the shot happens —
- * the ammo check and the homing target check both belong to the item, because both apply to every
- * mode the same way ({@code doc/design/dagger_glove.md} §2, §3).
+ * the shot takes off cooldown. It never decides <em>whether</em> the shot happens — the ammo and
+ * homing target checks belong to the item, since both apply to every mode the same way.
  * <p>
- * Every mode throws at the same speed ({@link #SPEED}), because that is the promise the glove
- * makes: homing changes a dagger's <em>direction</em>, never its speed.
- * <p>
- * The one exception is a homing dagger's outbound stage, whose speed is {@link #HOMING_REACH} over
- * its own turn tick. Its delay says how long it has to reach the turn point, not how far, so fixing
- * the distance is what keeps the five pairs converging as one volley rather than spreading out to
- * five different turn radii.
- * <p>
- * The three shapes are written out one loop each rather than folded into a single parameterised
- * loop, because fan and homing do not actually agree on anything except the speed — homing
- * interleaves left and right daggers and gives each pair its own turn tick, and a shared loop
- * would have to encode that as sign arithmetic to no end.
- * <p>
- * All firing is server-side and takes a {@link ServerLevel} outright rather than a general
- * {@code Level}: a homing shot registers a {@link DaggerHomingTrail}, which only ever fires on the
- * server, and there is no client-side path that could disagree with it about where the target is.
+ * Every mode throws at {@link #SPEED}, because that is the promise the glove makes: homing changes
+ * a dagger's <em>direction</em>, never its speed. The three shapes are written out one loop each
+ * rather than folded into one parameterised loop, because fan and homing agree on nothing but that
+ * speed: homing interleaves left and right daggers and gives each pair its own turn tick.
+ *
+ * @see doc/design/dagger_glove.md
  */
 public enum DaggerGloveMode {
 	/** One dagger, straight ahead. */
@@ -55,19 +44,10 @@ public enum DaggerGloveMode {
 	/** Flight speed of the non-homing modes and of a homing dagger's aimed stage, in blocks per tick. */
 	public static final double SPEED = 2;
 	/**
-	 * How far, in blocks, every homing dagger's outbound stage travels before it turns.
-	 * <p>
-	 * A homing dagger's first stage exists only to place it at a point from which the aimed stage
-	 * can reach the target, and its own turn tick says how long it has to get there — not how far.
-	 * Flying all five at {@link #SPEED} therefore spread the turn points from 16 blocks out (the
-	 * 8-tick pair) to 40 (the 20-tick pair), so the wider pairs spent most of their flight further
-	 * from the target than the narrower ones and the volley lost its shape. Dividing the distance by
-	 * the delay instead gives every dagger the same 16-block turn radius: the longer-delayed pairs
-	 * simply fly slower to get there, which is also what makes the staggered convergence read as one
-	 * throw rather than five.
-	 * <p>
-	 * Not applied to the aimed stage, whose job is to close on a target and whose life is already
-	 * sized to the target range (§ {@code HOMING_STAGE_LIFE}).
+	 * How far, in blocks, every homing dagger's outbound stage travels before it turns. A stage's
+	 * own turn tick says how long it has to get there, not how far, so fixing the distance instead
+	 * puts all five turn points on one 16-block radius and the pairs converge as one volley
+	 * (dagger_glove.md §2a-1). The aimed stage is unaffected and stays at {@link #SPEED}.
 	 */
 	private static final double HOMING_REACH = 16;
 	/** Degrees between neighbouring daggers, in both the fan and the homing spread. */
@@ -81,13 +61,11 @@ public enum DaggerGloveMode {
 	/**
 	 * How long the second, aimed stage of a homing dagger may fly.
 	 * <p>
-	 * Sizing this to the target range rather than picking a round number: {@link
-	 * DaggerGloveItem#TARGET_RANGE} at {@link #SPEED} is 32 ticks, and a little over that lets a
-	 * second stage reach anything the glove is willing to aim at, while a target that dies mid-
-	 * flight still has its stage expire rather than live forever.
-	 * <p>
-	 * Must exceed {@link #HOMING_TURN} + 4·{@link #HOMING_TURN_STEP} = 20, the latest a first stage
-	 * turns, or the whole shot would die before the outermost dagger got to turn.
+	 * Sized to the target range rather than a round number: {@link DaggerGloveItem#TARGET_RANGE} at
+	 * {@link #SPEED} is 32 ticks, and a little over that still reaches anything the glove aims at
+	 * while letting a stage expire when its target dies mid-flight. Must exceed
+	 * {@link #HOMING_TURN} + 4·{@link #HOMING_TURN_STEP} = 20, the latest a first stage turns, or
+	 * the outermost dagger would die before it turned.
 	 */
 	private static final int HOMING_STAGE_LIFE = 40;
 
@@ -108,18 +86,16 @@ public enum DaggerGloveMode {
 	}
 
 	/**
-	 * This mode's own cooldown in ticks, before any rune is added
-	 * ({@code doc/design/dagger_glove.md} §5).
+	 * This mode's own cooldown in ticks, before any rune is added (dagger_glove.md §5).
 	 */
 	public int cooldown() {
 		return cooldown;
 	}
 
 	/**
-	 * How long a dagger of this mode may exist before it is erased and handed back, in ticks.
-	 * Homing needs more than the plain {@link #SINGLE} forty: its outermost dagger flies straight
-	 * for {@link #HOMING_TURN} + 4·{@link #HOMING_TURN_STEP} = 18 ticks before it even starts
-	 * closing on a target that may be at the far end of the glove's range.
+	 * How long a dagger of this mode may exist before it is erased and handed back, in ticks. Only
+	 * the aimed modes read this: a homing stage's life is its own turn tick or
+	 * {@link #HOMING_STAGE_LIFE}.
 	 */
 	public int life() {
 		return life;
@@ -131,10 +107,8 @@ public enum DaggerGloveMode {
 	}
 
 	/**
-	 * Outline tint for this mode's cached target while it is held (vanilla formatting palette).
-	 * Only {@link #HOMING} ever has one — the aimed modes mark nothing, so
-	 * {@link DaggerGloveItem#targetGlow} returns null for them rather than a color nothing uses.
-	 * Red matches the doll glove's attack modes (glove.md §2): both mean "this is what you hit".
+	 * Outline tint for this mode's cached target while it is held. Only {@link #HOMING} ever has
+	 * one; red matches the doll glove's attack modes (glove.md §2).
 	 */
 	public int glowColor() {
 		return switch (this) {
@@ -152,16 +126,13 @@ public enum DaggerGloveMode {
 	}
 
 	/**
-	 * Throws one shot of this mode, one dagger per {@link #count()} line.
-	 * <p>
-	 * Every dagger is an {@link IronDaggerBulletEntity} carrying {@code dagger} and flagged
-	 * returnable, so the whole shot comes back to the thrower as it lands — the glove spends
-	 * daggers it gets back, it does not spend them (dagger_glove.md §3, §4).
+	 * Throws one shot of this mode, one dagger per {@link #count()} line. Every dagger is a
+	 * returnable {@link IronDaggerBulletEntity}, so the whole shot comes back to the thrower as it
+	 * lands — the glove spends daggers it gets back (dagger_glove.md §3, §4).
 	 *
-	 * @param target the entity homing daggers turn onto; must be non-null exactly when this mode
+	 * @param target the entity homing daggers turn onto; non-null exactly when this mode
 	 *               {@link #needsTarget()}, which the item has already checked
-	 * @param rune   the glove's rune id, carried onto every dagger so it can act on the hit; null
-	 *               when the glove has no rune
+	 * @param rune   the glove's rune id, carried onto every dagger; null when the glove has none
 	 */
 	public void fire(ServerLevel level, Player player, ItemStack dagger, @Nullable ResourceLocation rune, @Nullable Entity target) {
 		Vec3 look = RayTraceUtil.getRayTerm(Vec3.ZERO, player.getXRot(), player.getYRot(), 1);
@@ -190,23 +161,16 @@ public enum DaggerGloveMode {
 
 	/**
 	 * Throws a single dagger along {@code dir}, turning onto {@code target} after {@code turnTick}
-	 * ticks of flight if {@code turnTick} is positive.
+	 * ticks of flight when {@code turnTick} is positive.
 	 * <p>
-	 * A homing dagger is a <em>pair</em> of entities, not one steering entity: this spawns the
-	 * straight-flight first stage with a life of exactly {@code turnTick} and a
-	 * {@link DaggerHomingTrail} that spawns the aimed second stage when that life runs out. Both
-	 * stages fly a straight line at a constant speed on plain delta movement, so the path is a
-	 * fixed geometry that client and server evaluate identically — only the point where it bends,
-	 * and the direction it bends toward, are server decisions (dagger_glove.md §2).
-	 * <p>
-	 * <b>Both</b> stages are returnable, and the trail transfers the first one's return to the
-	 * second only once it exists — see {@link IronDaggerBulletEntity#handOffTo} and glove.md §4. The
-	 * alternative (flagging the first stage non-returnable here and trusting the trail to always
-	 * produce a successor) loses the dagger on every path where it does not, which is most of them.
+	 * A homing dagger is a <em>pair</em> of entities rather than one steering entity: the
+	 * straight-flight first stage expires and a {@link DaggerHomingTrail} spawns the aimed second
+	 * stage where it stopped. Both legs are plain delta movement at a constant speed, so client and
+	 * server integrate the same path — only the bend is a server decision (dagger_glove.md §2).
 	 * <p>
 	 * Spawned two blocks down the thrower's own ray, the same muzzle {@code DanmakuItem} uses, so a
-	 * glove-held dagger leaves the hand exactly where a thrown one does instead of clipping the
-	 * thrower's head.
+	 * glove-held dagger leaves the hand where a thrown one does instead of clipping the thrower's
+	 * head.
 	 */
 	private void throwDagger(ServerLevel level, Player player, ItemStack dagger, @Nullable ResourceLocation rune, Vec3 dir, @Nullable Entity target, int turnTick) {
 		Vec3 from = RayTraceUtil.getRayTerm(player.getEyePosition(), player.getXRot(), player.getYRot(), 2);
@@ -219,18 +183,15 @@ public enum DaggerGloveMode {
 		danmaku.setRune(rune);
 		int stageLife = turnTick > 0 ? turnTick : life();
 		// no mover: velocity is constant for a stage's whole life, so the entity integrates its own
-		// delta movement. A RectMover would work on the server, but its per-tick velocity is derived
-		// from tickCount, which the client reconstructs as the entity's *age* rather than a step
-		// count, so a client seeing the dagger mid-flight computes a huge phantom first step.
+		// delta movement. A mover derives its per-tick velocity from tickCount, which the client
+		// reconstructs as the entity's age, so a client first seeing the dagger mid-flight computes
+		// a huge phantom first step (dagger_glove.md §2a)
 		danmaku.setup(DanmakuItems.Bullet.DAGGER.damage(), stageLife, false, DanmakuItems.Bullet.DAGGER.bypass(), dir.scale(speed));
 		danmaku.moveTo(from);
 		if (turnTick > 0) {
-			// The first stage stays returnable: it returns the dagger itself on every ordinary
-			// ending (wall, entity, expiry), and DaggerHomingTrail claims that return only once it
-			// has really spawned the second stage. Flagging it non-returnable here instead loses the
-			// dagger whenever the turn produces nothing.
-			// The rune moves to the second stage instead: the first stage's whole life is the
-			// outbound run, so a rune there would fire against whatever the run happened to clip.
+			// the first stage stays returnable: it hands the dagger back itself on every ordinary
+			// ending, and the trail claims that return only once it has really spawned stage 2.
+			// The rune moves to stage 2 instead, whose whole life is spent reaching the target.
 			danmaku.setRune(null);
 			danmaku.afterExpiry = new DaggerHomingTrail(level, danmaku, target, SPEED,
 					HOMING_STAGE_LIFE, dir, dagger, rune);

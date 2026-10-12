@@ -16,7 +16,7 @@ import org.jetbrains.annotations.Nullable;
  */
 public abstract class AbstractCountdownFood implements BlockFoodHandler {
 
-	/** The property names these block classes use for their serve count; the properties themselves belong to the other mods. */
+	/** The property names these block classes use for their serve count. */
 	private static final String[] COUNT_NAMES = {"bites", "servings", "serve"};
 
 	@Override

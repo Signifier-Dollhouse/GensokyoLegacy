@@ -42,6 +42,12 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Fluid-first timed reactor: items are only accepted with a full tank, and both outputs of a
+ * finished reaction stay inside the same tank and slots.
+ *
+ * @see doc/design/alchemy_pot.md
+ */
 @SerialClass
 public class AlchemyPotBlockEntity extends BaseBlockEntity implements TickableBlockEntity, BaseContainerListener, BlockContainer, AlchemyHintOverlay.IHintable {
 
@@ -68,7 +74,6 @@ public class AlchemyPotBlockEntity extends BaseBlockEntity implements TickableBl
 		return recipe;
 	}
 
-	// client side stage
 	public final AlchemyStageHolder stage = new AlchemyStageHolder();
 	private boolean recheckStage = true;
 	private final IItemHandler itemHandler = new InvWrapper(items);
@@ -108,9 +113,8 @@ public class AlchemyPotBlockEntity extends BaseBlockEntity implements TickableBl
 		if (inProgress() > 0) return false;
 		if (getFluid().getAmount() < FLUID_CAPACITY) return false;
 		if (stack.isEmpty()) return false;
-		// one by one: we test with count 1
+		// one at a time: a 64 stack still contributes a single item
 		ItemStack test = stack.copyWithCount(1);
-		// check capacity
 		boolean hasSpace = false;
 		for (var e : items.getAsList())
 			if (e.isEmpty()) {
@@ -153,7 +157,6 @@ public class AlchemyPotBlockEntity extends BaseBlockEntity implements TickableBl
 				toDrop.add(e.stack().copy());
 			}
 		}
-		// server drop
 		if (level != null && !level.isClientSide) {
 			for (var s : toDrop) {
 				Block.popResource(level, worldPosition.above(), s);
@@ -172,7 +175,6 @@ public class AlchemyPotBlockEntity extends BaseBlockEntity implements TickableBl
 
 	public void popLastItem(Player player) {
 		if (inProgress() > 0) return;
-		// find last non-empty slot
 		for (int i = items.getContainerSize() - 1; i >= 0; i--) {
 			ItemStack s = items.getItem(i);
 			if (!s.isEmpty()) {
@@ -216,7 +218,6 @@ public class AlchemyPotBlockEntity extends BaseBlockEntity implements TickableBl
 			stage.tickStage(this, totalTime == 0 ? 0 : recipeProgress);
 			if (totalTime > 0) {
 				recipeProgress++;
-				// client bubble particles handled in renderer tick? Do here as well
 				if (inProgress() > 0 && level.random.nextFloat() < 0.25f) {
 					double x = worldPosition.getX() + 0.5 + (level.random.nextDouble() - 0.5) * 0.36;
 					double y = worldPosition.getY() + 0.78;
@@ -228,7 +229,6 @@ public class AlchemyPotBlockEntity extends BaseBlockEntity implements TickableBl
 			}
 			return;
 		}
-		// server
 		if (doRecipeSearch) {
 			if (!isEmpty() && getFluid().getAmount() >= FLUID_CAPACITY) {
 				var opt = level.getRecipeManager().getRecipeFor(getRecipeType(), createContainer(), level);
@@ -249,7 +249,7 @@ public class AlchemyPotBlockEntity extends BaseBlockEntity implements TickableBl
 				}
 				sync();
 			} else if (isEmpty() || getFluid().getAmount() < FLUID_CAPACITY) {
-				// fluid-first: no recipe if not full
+				// fluid-first: without a full tank no recipe is searched
 				recipeId = null;
 				recipe = null;
 				totalTime = 0;
@@ -285,7 +285,7 @@ public class AlchemyPotBlockEntity extends BaseBlockEntity implements TickableBl
 				sync();
 			}
 		}
-		// tick stage on server for consistency? not needed but update floating for drop logic
+		// the server runs the stage too: clear and block break read stage.floating
 		if (recheckStage) {
 			recheckStage = false;
 			stage.recheck(this, level);
@@ -309,7 +309,6 @@ public class AlchemyPotBlockEntity extends BaseBlockEntity implements TickableBl
 			ItemStack base = outItem.copyWithCount(1);
 			for (int i = 0; i < count; i++) {
 				if (i >= MAX_SLOTS) {
-					// overflow drop
 					Block.popResource(level, worldPosition.above(), base.copy());
 				} else {
 					items.addItem(base.copy());

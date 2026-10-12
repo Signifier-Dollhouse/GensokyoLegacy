@@ -39,11 +39,8 @@ public class PartyGift {
 
 	/**
 	 * Drop a gift on the guest's table, once per visit — the once-only flag lives on her
-	 * module, so it survives both exit doors and any task restart between them.
-	 * <p>
-	 * Generosity comes from the appeal she personally consumed, as <i>reach</i> into her
-	 * pool rather than as a bigger stack: a gift is always exactly one item, and what the
-	 * appeal buys is entries gated on {@link AppealConsumedCondition} joining that pool.
+	 * module. Generosity is reach into her pool, not a bigger stack: a gift is always
+	 * exactly one item.
 	 *
 	 * @return whether a gift was left
 	 */
@@ -73,15 +70,15 @@ public class PartyGift {
 				.create(LootContextParamSets.ADVANCEMENT_REWARD);
 		var stacks = new ArrayList<ItemStack>();
 		loot.getRandomItems(params, stacks::add);
-		// a generated table is one pool of one roll, so this costs nothing — but a datapack
-		// that rewrites a table into two pools would bury both here, and that is its mistake
+		// a generated table is one pool of one roll; a datapack that adds a second pool
+		// buries both here, and that is its mistake
 		return stacks.isEmpty() ? null : stacks.getFirst();
 	}
 
 	/**
 	 * Her own table, or {@link #DEFAULT_TABLE} when she has not got one. Asks the lookup
-	 * directly, because the reloadable registries answer {@code LootTable.EMPTY} for both
-	 * "no table" and "a table that gives nothing", and only the first wants the fallback.
+	 * directly: the reloadable registries answer {@code LootTable.EMPTY} for both "no
+	 * table" and "a table that gives nothing", and only the first wants the fallback.
 	 */
 	@Nullable
 	private static LootTable tableOf(ServerLevel level, YoukaiEntity guest) {

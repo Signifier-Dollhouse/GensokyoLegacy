@@ -12,19 +12,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * One simulated party, held on the wand as a data component.
- * <p>
- * Positions are stored rather than counts, so the counts the overlay prints are a projection of
- * them and the renderer reads the same field. This is a snapshot of a party that was only
- * simulated; {@link PartyWand} shows the distance to the table so a stale reading reads as one.
+ * One simulated party, held on the wand as a data component. Positions are stored rather
+ * than counts, so the counts the overlay prints are a projection of them and the renderer
+ * reads the same field.
  *
  * @param bound  the table the simulation was taken at
  * @param tables party tables the scan walked to
  * @param seats  seats it found
  * @param foods  food blocks it counted towards the spread
  * @param hunger how much the spread can feed, and the budget the planner spent
- * @param appeal how attractive it is, each distinct food counted once — the figure the roster
- *               was drawn against
+ * @param appeal how attractive it is, each distinct food counted once
  * @param guests who the draw chose, heaviest weight first
  * @see doc/design/party/debug.md
  */

@@ -18,16 +18,14 @@ import java.util.List;
 
 /**
  * A Youkai's Feasts steamer, both halves of it — the pot's own tiers and the rack standing in
- * it are separate block entities, so a full steamer is genuinely two food sources.
- *
- * <p>A pot is food wherever it stands; a rack only on the table or in a pot. Deliberately not
- * the shared furniture test, because a rack inside a pot has to be found by falling.
+ * it are separate block entities, so a full steamer is genuinely two food sources. A pot is
+ * food wherever it stands; a rack only on the table or in a pot.
  *
  * @see doc/design/party/food_mods.md
  */
 public class SteamerRackFood implements ContainerFoodHandler {
 
-	/** How far to fall looking for what a rack stands in; must exceed the tallest pot, since a rack inside one falls past the pot's interior first. */
+	/** How far to fall looking for what a rack stands in; must exceed the tallest pot. */
 	private static final int SUPPORT_DROP = 4;
 
 	@Override
@@ -55,11 +53,11 @@ public class SteamerRackFood implements ContainerFoodHandler {
 	private FoodResult describe(RackItemData slot, SteamerBlockEntity be, BlockState state) {
 		var stack = slot.stack;
 		var props = Servings.of(stack);
-		// a rack has no idea whether what is on it is fit to eat - it will steam a bone -
-		// so worthless food is skipped rather than the rack refused wholesale
+		// a rack will steam a bone, so worthless food is skipped rather than the
+		// rack refused wholesale
 		if (props == null) return null;
-		// one item per serve: a rack hands its contents over one at a time, so the stack's
-		// count is how many serves it makes, not how big one serving is
+		// one item per serve: a rack hands its contents over one at a time, so the
+		// stack's count is how many serves it makes
 		var item = stack.getItem();
 		return FoodResult.of(new ItemStack(item), state.getBlock(), stack.getCount(), props,
 				(l, p, s) -> take(be, item));
@@ -73,8 +71,8 @@ public class SteamerRackFood implements ContainerFoodHandler {
 			for (int i = 0; i < merged.size(); i++) {
 				var have = merged.get(i);
 				if (!have.id().equals(result.id())) continue;
-				// one food with twice the servings, still handed over one item at a time -
-				// and so with one appeal, since a food is priced once however many there are
+				// one food with twice the servings, still handed over one item at a time —
+				// and so with one appeal
 				merged.set(i, new FoodResult(have.serving(), have.blockId(),
 						have.serves() + result.serves(), have.nutrition(), have.saturation(),
 						have.appeal(), have.consume()));
@@ -87,10 +85,9 @@ public class SteamerRackFood implements ContainerFoodHandler {
 	}
 
 	/**
-	 * The pot is food wherever it stands — a steamer belongs on a stove, and requiring
-	 * furniture would put the vessel out of reach where its own racks are not. A rack is
-	 * food on furniture or inside a pot, and is found by falling: the block carrying a rack
-	 * inside a pot is two or three down, past the pot's interior.
+	 * The pot is food wherever it stands; a rack is food on furniture or inside a pot, and
+	 * is found by falling, because the block carrying a rack inside a pot is two or three
+	 * down.
 	 */
 	@Override
 	public boolean isPutOut(Level level, BlockPos pos, BlockState state) {
@@ -115,8 +112,8 @@ public class SteamerRackFood implements ContainerFoodHandler {
 
 	/**
 	 * Take one {@code item} off any rack, in slot order. Goes through the rack's own
-	 * {@code setStack}, which re-files the slot's recipe id and notifies the block entity;
-	 * shrinking the stack underneath would leave the recipe pointing at an empty slot.
+	 * {@code setStack}: shrinking the stack underneath would leave the slot's recipe id
+	 * pointing at an empty slot.
 	 */
 	private int take(SteamerBlockEntity be, Item item) {
 		for (var rack : be.racks) {

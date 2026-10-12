@@ -10,11 +10,9 @@ import net.minecraft.world.level.pathfinder.PathfindingContext;
  * One rule about what a block means to path over.
  *
  * <p>
- * The mob is here because a rule may legitimately be about <i>who is walking</i> rather
- * than about the block: a party guest must route around the spread, while a character
- * walking past an ordinary room has no reason to treat a laid table as a wall. Without the
- * mob every rule had to be true for everybody, which is the wrong default for anything
- * situational.
+ * The mob is here because a rule may legitimately be about <i>who is walking</i> rather than
+ * about the block: a party guest must route around the spread, while a character crossing an
+ * ordinary room has no reason to treat a laid table as a wall.
  */
 public interface YoukaiPathTypeHandler {
 

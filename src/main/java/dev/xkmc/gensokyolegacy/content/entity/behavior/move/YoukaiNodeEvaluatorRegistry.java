@@ -61,36 +61,27 @@ public class YoukaiNodeEvaluatorRegistry {
 	}
 
 	/**
-	 * A guest routes around the spread: the table, whatever stands on it, the food, and
-	 * whatever stands on the food, plus the chairs. Without it she paths across the table
-	 * to reach a chair on the far side, which is the one way a banquet reads as a queue of
-	 * characters walking through the food.
+	 * A guest routes around the spread: the table, what stands on it, the food, what stands
+	 * on the food, plus the chairs. Without it she paths across the table to reach a chair on
+	 * the far side.
 	 *
 	 * <p>
-	 * <b>Party guests only.</b> The rule is about who is walking, not about the block: a
-	 * character crossing an ordinary room has no reason to treat a laid table as a wall,
-	 * and a rule that held for everybody would be wrong for everyone not at a party.
+	 * <b>Party guests only.</b> A rule about who is walking is not a rule about a block, so
+	 * this is a global handler taking the mob rather than a block tag.
 	 *
 	 * <p>
 	 * "Is this food" is {@link PartyFoodValue#isFood} and nothing else — the same answer
-	 * {@code drawDish} gets, including the catch-all that covers any block whose own item
-	 * is food. {@code PartyFoodHandler.claims} would have been the wrong question: a claim
-	 * says which handler was written for a block, so a dish with no bespoke handler was
-	 * walkable while still being served, and a pathfinding rule that disagrees with the
-	 * rule that picks dinner is worse than no rule at all.
+	 * {@code drawDish} gets. {@code PartyFoodHandler.claims} would be the wrong question: it
+	 * says which handler was written for a block, so a dish with no bespoke handler stays
+	 * walkable while still being served.
 	 *
-	 * <p>
-	 * There is no location pre-check, and none is needed. A path is computed a node at a
-	 * time and every node asks this once; the answer is a
-	 * {@link dev.xkmc.gensokyolegacy.content.attachment.party.food.FoodResultCache} lookup
-	 * on an interned block state for all but the handful of container blocks, and a guest's
-	 * route is a few dozen nodes over a room that has a party set up in it.
+	 * @see doc/design/party/guest.md
 	 */
 	private static PathType partyFurniture(PathType ans, PathfindingContext context, BlockPos pos,
 			BlockState state, @Nullable Mob mob) {
 		if (ans == PathType.BLOCKED) return ans;
-		// the mob is only a Mob here: a character of ours, and the party flag is on the
-		// entity rather than synced data, so anything else is somebody else's problem
+		// the party flag lives on the entity rather than synced data, so anything else is
+		// somebody else's problem
 		if (!(mob instanceof YoukaiEntity youkai) || !youkai.getFlag(YoukaiFlags.PARTYING)) return ans;
 		// a chair is furniture to stand beside, never a floor to walk over
 		if (state.is(GLTagGen.PARTY_SEAT)) return PathType.BLOCKED;

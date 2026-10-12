@@ -9,44 +9,23 @@ import java.util.List;
  * The party machine: the ordered list of its tasks, and the numbers they share.
  *
  * <p>
- * <b>The order below <i>is</b> the priority.</b> {@code TaskBoard.fetch} collects the
- * exclusive tasks registered under one activity into a single
- * {@code GateBehavior(ORDERED, RUN_ONE)}, which tries them in insertion order and runs the
- * first whose memory signature matches. So a task lower down may be given a signature as
- * loose as "nothing", as long as everything more specific above it has already been ruled
- * out — that is what makes the cascade total rather than a list of cases.
+ * <b>The order of {@link #ALL} is the priority.</b> {@code TaskBoard.fetch} collects the
+ * exclusive tasks under one activity into a single {@code GateBehavior(ORDERED, RUN_ONE)},
+ * which runs the first whose signature matches — so a task lower down may be given a
+ * signature as loose as "nothing" as long as everything above it has been ruled out.
  *
  * <p>
- * Read as a decision tree:
+ * Which task that amounts to is decided by the fields on the party module, so a guest
+ * reloaded from disk lands on the same line of the tree she was on.
  *
- * <pre>
- *   leave armed?                          → Leave
- *   has serve  + chewing?                 → Chew
- *   has serve  + seated?                  → Eat
- *   has serve                             → GoToSeat
- *   has dish  + hesitating?               → Delay
- *   has dish  + grabbing?                 → Pickup
- *   has dish                              → GoToFood
- *   resting?                              → Rest
- *   seated, party feasting?               → FindFood
- *   seated, party not feasting?           → WaitTable
- *   otherwise                             → FindSeat
- * </pre>
- *
- * <p>
- * Everything in that tree is derived from seven memories, so there is no state to lose:
- * a guest reloaded from disk lands on the same line of the tree she was on.
+ * @see doc/design/party/guest.md
  */
 public final class PartyTasks {
 
 	/**
 	 * How long she may go without getting any closer to what she is walking to before the
-	 * director puts her there instead. Three seconds.
-	 *
-	 * <p>
-	 * Measured as lost ground rather than elapsed time, because a guest crossing a long
-	 * room is slow and fine, while one who has not gained a block in three seconds is not
-	 * going to.
+	 * director puts her there instead. Three seconds. Measured as lost ground rather than
+	 * elapsed time: a guest crossing a long room is slow and fine.
 	 */
 	public static final int WALK_STALL = 60;
 
@@ -54,9 +33,8 @@ public final class PartyTasks {
 	public static final int SEAT_RETRY = 60;
 
 	/**
-	 * How many times she may fail to find a chair before she gives the party up. About nine
-	 * seconds: the escape from a table that will never eat, since one guest with nowhere to
-	 * sit holds the whole party in GATHERING.
+	 * How many times she may fail to find a chair before she gives the party up, about nine
+	 * seconds: one guest with nowhere to sit holds the whole party in GATHERING.
 	 */
 	public static final int SEAT_FAILURES = 3;
 
@@ -65,8 +43,7 @@ public final class PartyTasks {
 
 	/**
 	 * How long the pickup gesture runs before the plate is in her hand. The
-	 * {@code 使用主手物品} clip is 0.31s and {@code FairyCakeTask} times a gesture against
-	 * exactly this number, so the two agree rather than each guessing.
+	 * {@code 使用主手物品} clip is 0.31s, the same figure {@code FairyCakeTask} times against.
 	 */
 	public static final int PICKUP_TICKS = 6;
 
@@ -94,10 +71,7 @@ public final class PartyTasks {
 	private PartyTasks() {
 	}
 
-	/**
-	 * The whole machine, in priority order. See the class comment for why the order is the
-	 * thing to read.
-	 */
+	/** The whole machine, in priority order. */
 	public static final List<PartyTask> ALL = List.of(
 			new LeaveTask(),
 			new ChewTask(),
@@ -112,13 +86,9 @@ public final class PartyTasks {
 			new FindSeatTask());
 
 	/**
-	 * Register the party machine on a board.
-	 *
-	 * <p>
-	 * The director is an <i>always</i> task and so runs alongside whichever of the eleven is
-	 * running; the eleven are exclusive, so exactly one of them is.
+	 * Register the party machine on a board. The director is an <i>always</i> task and so runs
+	 * alongside whichever of the eleven exclusive tasks is going; exactly one of those is.
 	 */
-	/** The whole machine, as one line for an entity class. */
 	public static void register(TaskBoard board) {
 		board.addAlways(new PartyDirectorTask(), GLBrains.PARTY.get());
 		for (var task : ALL) board.addExclusive(0, task, GLBrains.PARTY.get());

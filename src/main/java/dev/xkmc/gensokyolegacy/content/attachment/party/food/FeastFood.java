@@ -7,10 +7,8 @@ import vectorwing.farmersdelight.common.block.FeastBlock;
 
 /**
  * A Farmer's Delight feast: servings counted <em>down</em>, food on a serving item rather
- * than on the block — whose own item carries none.
- *
- * <p>Every feast is the same {@code FeastBlock} class but hands out a different item, so
- * the serving is asked of the block rather than looked up in a table.
+ * than on the block. Every feast is the same {@code FeastBlock} class but hands out a
+ * different item, so the serving is asked of the block.
  *
  * @see doc/design/party/food_mods.md
  */

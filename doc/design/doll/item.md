@@ -22,11 +22,11 @@ public static final ItemEntry<DollItem> DOLL = reg.item("doll", p -> new DollIte
 public static ItemStack makeItem(@Nullable DollData data) {
     if (data == null) return blank();
     ItemStack stack = new ItemStack(GLItems.DOLL.get());
-    stack.set(GLItems.DOLL_DATA.get(), new DollItemData(data.combat));        // combat -> DOLL_DATA
-    if (data.customName != null) stack.set(DataComponents.CUSTOM_NAME,
-                                           data.customName);                   // name -> vanilla component
-    stack.set(DataComponents.DYED_COLOR,
-              new DyedItemColor(data.getColor().getTextColor(), false));       // tint -> vanilla component
+    stack.set(GLItems.DOLL_DATA.get(), new DollItemData(data.combat));   // combat -> DOLL_DATA
+    if (data.customName != null) stack.set(DataComponents.CUSTOM_NAME, data.customName);
+    stack.set(GLItems.DOLL_COLOR.get(), data.getColor());                // tint -> DOLL_COLOR
+    if (data.inventory != null && !data.inventory.isEmpty())
+        stack.set(GLItems.DOLL_LOADOUT.get(), data.inventory.toInventory());   // gear -> DOLL_LOADOUT
     return stack;
 }
 
@@ -50,7 +50,7 @@ The doll shows its remaining health over `BaseDollEntity.DEFAULT_MAX_HEALTH` (20
 
 ## 4. Tint
 
-- `colorOf(ItemStack)`: reads the vanilla `DYED_COLOR` component, mapping the exact text color back to a `DyeColor`; missing/no-match → `RED` (matches `DollData.getColor()`'s fallback).
+- `colorOf(ItemStack)`: reads the mod's `DOLL_COLOR` component; a component-less stack → `RED` (matches `DollData.getColor()`'s fallback).
 - `getColor(stack, tintIndex)`: item-model tint index 1 → dye color; any other index → -1 (untinted). The doll item model applies tint only on layer 1.
 - Entity side: the renderer picks a pre-tinted per-color texture (`textures/geo/doll/<dye>.png`, 16 colors) via `BaseDollEntity.getColor()` — **red** on the base, overridden by the `DollEntity` synced `INT` accessor. The item's `doll1` grayscale overlay is tinted through tint index 1.
 
@@ -98,11 +98,11 @@ A plain `Item`, deliberately **not** a `SwordItem`: a lance is a polearm, and in
 | `ATTACK_DAMAGE` | **+4** | 5 per swing |
 | `ATTACK_SPEED` | **−3** | 4 − 3 = 1, i.e. one swing a second |
 
-Both entries carry `Item.BASE_ATTACK_DAMAGE_ID` / `Item.BASE_ATTACK_SPEED_ID`. That is load-bearing twice over: `ItemStack.addModifierTooltip` folds the holder's own attribute base into a modifier with those ids, so the tooltip reads "4 Attack Damage, 1 Attack Speed" instead of a bare "+4 / −3" in raw attribute language — and `DollMeleeBehavior.meleeDamage`, which adds the held stack's main-hand `ATTACK_DAMAGE` modifiers to the doll's own `ATTACK_DAMAGE` attribute (base 1, the same base a player swings with), gets 4 for free and lands **5** on a charge. Declaring damage any other way (a getter, a custom component) would silently drop the doll back to bare 1. The sum is needed precisely because the loadout is not vanilla equipment: the lance is not an item in the doll's hand, so nothing feeds its modifiers into the entity's attribute map the way an equipped weapon's are (control.md §5.1b).
+Both entries carry `Item.BASE_ATTACK_DAMAGE_ID` / `Item.BASE_ATTACK_SPEED_ID`. That is load-bearing twice over: `ItemStack.addModifierTooltip` folds the holder's own attribute base into a modifier with those ids, so the tooltip reads "5 Attack Damage, 1 Attack Speed" instead of raw attribute language — and `DollMeleeBehavior.meleeDamage`, which adds the held stack's main-hand `ATTACK_DAMAGE` modifiers to the doll's own `ATTACK_DAMAGE` attribute (base 1, the same base a player swings with), gets 4 for free and lands **5** on a charge. Declaring damage any other way (a getter, a custom component) would silently drop the doll back to bare 1. The sum is needed precisely because the loadout is not vanilla equipment: the lance is not an item in the doll's hand, so nothing feeds its modifiers into the entity's attribute map the way an equipped weapon's are (control.md §5.1b).
 
 ### No durability
 
-`Properties.durability` is never called, so stacks carry no `max_damage` and no swing can wear one — which also means no `stacksTo(1)`: in a player's inventory a lance stacks like any other non-tool item, and there is nothing to repair or replace. (A *doll hand* is the exception and holds exactly one, whatever the stack: nothing spends a lance, so it is not ammunition — loadout.md §4.) This retires the old open question in control.md §10 ("sword durability: the charge costs the swing nothing") — the answer is that the item never had any.
+`Properties.durability` is never called, so stacks carry no `max_damage` and no swing can wear one — there is nothing to repair or replace, and the item is still `stacksTo(1)` so a player keeps exactly one. (A *doll hand* is the exception and holds exactly one, whatever the stack: nothing spends a lance, so it is not ammunition — loadout.md §4.) This retires the old open question in control.md §10 ("sword durability: the charge costs the swing nothing") — the answer is that the item never had any.
 
 ### Model
 

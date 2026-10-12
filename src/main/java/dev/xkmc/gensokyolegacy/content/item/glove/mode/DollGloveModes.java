@@ -4,11 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Wheel visibility for glove modes: rally and attack always show; skill and
- * suicide show only while a summoned doll can perform them (or while the glove
- * is already in that mode, so the holder can always switch away). A legacy
- * current mode outside the visible set is appended, so the wheel index never
- * goes missing.
+ * Wheel visibility: rally and volley always show; skill and suicide show only while a summoned
+ * doll can perform them. The current mode is always included, so the wheel index can never go
+ * missing.
+ *
+ * @see doc/design/doll/glove.md
  */
 public final class DollGloveModes {
 

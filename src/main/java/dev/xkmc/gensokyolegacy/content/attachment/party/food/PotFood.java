@@ -13,11 +13,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
- * A Youkai's Feasts bowl or pot: two or four servings counted <em>down</em>.
- *
- * <p>The food is found by permuting the block's id first — the mod's own naming — and only
- * then by reflecting {@code BowlBlock.food}, which is a fallback that breaks silently if the
- * field is ever renamed.
+ * A Youkai's Feasts bowl or pot: two or four servings counted <em>down</em>. The food is
+ * found by permuting the block's id first, and only then by reflecting {@code BowlBlock.food}.
  *
  * @see doc/design/party/food_mods.md
  */
@@ -33,18 +30,10 @@ public class PotFood extends AbstractCountdownFood {
 
 	/**
 	 * Take one serving, and let the bowl decide what it becomes.
-	 *
 	 * <p>
-	 * <b>Not {@code destroyBlock}, which is what the countdown default does.</b> A bowl of
-	 * food is a container, and the block already knows what is left of it:
-	 * {@code PotFoodBlock.consume} steps its {@code serve} property down and hands the last
-	 * one to {@code BowlBlock.consume}, which replaces the block with the empty wood, bamboo
-	 * or iron bowl. Destroying it instead took the pot off the table — which is the more
-	 * visible of the two errors, because a host who set out pots watches them vanish.
-	 *
-	 * <p>
-	 * Delegating is also the only way to be right about <i>which</i> empty bowl appears:
-	 * that is the food item's crafting remainder, and it is not something to re-derive here.
+	 * <b>Not {@code destroyBlock}, which is what the countdown default does.</b> A bowl
+	 * already knows what is left of it, and delegating is the only way to be right about
+	 * <i>which</i> empty bowl appears.
 	 *
 	 * @return servings remaining, read off the counter before the block stepped it
 	 */

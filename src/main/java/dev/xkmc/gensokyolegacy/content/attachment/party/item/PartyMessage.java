@@ -11,8 +11,8 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 
 /**
- * Player-facing text for a send attempt, shared by the letter and the command so a refusal reads
- * the same either way. Nothing is queued: a host who is not here is simply not told.
+ * Player-facing text for a send attempt, shared by the letter and the command. Nothing is
+ * queued: a host who is not here is simply not told.
  */
 public class PartyMessage {
 
@@ -64,12 +64,7 @@ public class PartyMessage {
 		player.sendSystemMessage(GLLang.Party.LOOKING_FOR_CHAIR.get(name(guest.getType())));
 	}
 
-	/**
-	 * Tell the host a guest gave up because she could not be seated — the one mid-party
-	 * message, because it reports something the host can actually fix.
-	 *
-	 * @see doc/design/party/guest.md
-	 */
+	/** Tell the host a guest gave up for want of a chair. */
 	public static void reportEvicted(ServerLevel level, PartyAttachment party, Entity guest) {
 		var host = party.host();
 		if (host == null) return;

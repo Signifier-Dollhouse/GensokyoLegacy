@@ -27,15 +27,20 @@ import net.minecraft.world.level.Level;
 
 import java.util.List;
 
+/**
+ * The Seven-Colored Doll Glove: mode selection through the item-selector wheel, a shared cached
+ * ray-trace target, and left-click attack commands.
+ *
+ * @see doc/design/doll/glove.md
+ */
 public class DollGloveItem extends Item implements GloveTargeting {
 
 	/** Ray-trace reach for glove targeting, in blocks (glove.md §2). */
 	public static final double TARGET_RANGE = 48;
 
 	/**
-	 * How long a traced target stays usable, in ticks (glove.md §2). Generous on purpose: this
-	 * glove's targets act on *left*-click, which can land long after the hover the trace ran
-	 * from, so a short window would make the glove feel like it had forgotten what was aimed at.
+	 * How long a traced target stays usable, in ticks (glove.md §2). Generous on purpose: these
+	 * targets act on left-click, which can land long after the hover the trace ran from.
 	 */
 	public static final long TARGET_TTL = 100;
 
@@ -46,16 +51,15 @@ public class DollGloveItem extends Item implements GloveTargeting {
 	public static DollGloveMode getMode(ItemStack stack) {
 		int i = GLItems.DOLL_GLOVE_MODE.getOrDefault(stack, 0);
 		var modes = DollGloveMode.values();
-		// floorMod also migrates pre-removal EDITOR gloves (old ordinal 6) to SUMMON
+		// floorMod keeps an ordinal left over from the old six-mode glove inside the current enum
 		return modes[Math.floorMod(i, modes.length)];
 	}
 
 	/**
-	 * Model-override value for {@code gensokyolegacy:glove_display}: the held
-	 * mode's ordinal + 1 selects the matching held-texture override; an icon
-	 * display stack (selector sidebar / wheel, marked with
-	 * {@code DOLL_GLOVE_ICON}) instead uses the icon-variant range behind it.
-	 * Values are emitted ascending, so they match exactly.
+	 * Model-override value for {@code gensokyolegacy:glove_display}: the held mode's ordinal + 1
+	 * selects that mode's held-texture override, while an icon display stack
+	 * ({@code DOLL_GLOVE_ICON}) uses the icon-variant range behind it. Overrides are emitted
+	 * ascending, so they match exactly.
 	 */
 	public static float displayPredicate(ItemStack stack, Level level, LivingEntity entity, int seed) {
 		int ordinal = getMode(stack).ordinal();
@@ -64,8 +68,7 @@ public class DollGloveItem extends Item implements GloveTargeting {
 	}
 
 	/**
-	 * Display stack for the held glove's per-mode texture (client-side only):
-	 * a fresh glove with the given mode.
+	 * A fresh glove carrying the given mode, for client-side display only.
 	 */
 	public static ItemStack displayStack(DollGloveMode mode) {
 		ItemStack stack = new ItemStack(GLItems.DOLL_GLOVE.get());
@@ -103,12 +106,10 @@ public class DollGloveItem extends Item implements GloveTargeting {
 	}
 
 	/**
-	 * Right-click on a doll entity at vanilla reach: open its loadout when
-	 * owned (or in creative), in every mode. Right-click air or a block runs
-	 * the mode action, which first tries the same open through a fresh
-	 * 16-block server trace ({@code DollGloveHandler.tryOpenEditor}). Both
-	 * paths bypass the glove target cache (glove.md §2b) — the cache only
-	 * carries 48-block attack targets.
+	 * Right-click on a doll entity at vanilla reach opens its loadout when owned (or in creative),
+	 * in every mode. Right-click air or a block runs the mode action, which first tries the same
+	 * open through a fresh 16-block trace ({@code DollGloveHandler.tryOpenEditor}); neither path
+	 * consults the target cache, which only carries 48-block attack targets (glove.md §2b).
 	 */
 	@Override
 	public InteractionResult interactLivingEntity(ItemStack stack, Player player, LivingEntity target, InteractionHand hand) {
@@ -123,9 +124,8 @@ public class DollGloveItem extends Item implements GloveTargeting {
 	}
 
 	/**
-	 * Left-click on an entity in an attack mode: issue the mode command at the
-	 * punched entity (never the editor) and suppress the vanilla punch. Other
-	 * modes punch normally.
+	 * Left-click on an entity in an attack mode: issue the mode command at the punched entity,
+	 * never the editor, and suppress the vanilla punch. Other modes punch normally.
 	 */
 	@Override
 	public boolean onLeftClickEntity(ItemStack stack, Player player, Entity entity) {
@@ -156,8 +156,8 @@ public class DollGloveItem extends Item implements GloveTargeting {
 	}
 
 	/**
-	 * The glove's own trace filter, run by the shared cache on both sides: summon acts globally
-	 * and so accepts nothing, while every other mode wants a valid attack target.
+	 * The glove's own trace filter, run by the shared cache on both sides: summon acts globally and
+	 * so accepts nothing, while every other mode wants a valid attack target.
 	 */
 	@Override
 	public boolean acceptsTarget(ItemStack stack, Player holder, LivingEntity candidate) {
@@ -172,9 +172,8 @@ public class DollGloveItem extends Item implements GloveTargeting {
 
 	/**
 	 * Attack-target validity: allies, any doll (own, stray, another player's, block-hosted),
-	 * spectators, and anything unattackable are all excluded. One implementation for all three
-	 * callers — the attack mode commands, and the shared cache's trace pre-filter through
-	 * {@link #acceptsTarget} — instead of a client copy of the server's rules that can drift.
+	 * spectators and anything unattackable are excluded. One implementation for every caller — the
+	 * attack commands and the shared cache's trace pre-filter — so no client copy can drift.
 	 */
 	public static boolean isValidAttackTarget(Player holder, LivingEntity target) {
 		if (isAlly(holder, target)) return false;

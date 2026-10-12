@@ -49,7 +49,7 @@ remaining(dayTime) = start <= dayTime%24000 < start+stay
 
 * A 4000-tick visit starts somewhere in `0..8000`.
 * `WINDOW` closes exactly where the default schedule switches to
-  `Activity.REST` (`SmartYoukaiEntity:124`), so a guest is never on site while
+  `Activity.REST` (`SmartYoukaiEntity:155`), so a guest is never on site while
   her host is asleep.
 * The implied frequency of a guest is `chance × avgStay / WINDOW`, so `chance`
   is the authored knob and `minStay`/`maxStay` the length knob.
@@ -91,6 +91,15 @@ observe her just leaves her in the room longer than intended.
 
 A forced visit is what makes the feature testable without waiting a whole day for
 a 30% roll.
+
+### 2.3 While she is partying
+
+A visitor can be claimed by a party (`party/guest.md` §2.1), which records the
+visit on her `PartyModule` so it can be given back. `VisitModule.tickServer`
+stands down entirely while she is partying: renewing `MEM_VISIT` would register
+her as a visitor in the middle of a party, and discarding her would delete a
+guest the host is still feeding. The visit resumes — or expires — on its own
+once the party lets go.
 
 ## 3. Data
 

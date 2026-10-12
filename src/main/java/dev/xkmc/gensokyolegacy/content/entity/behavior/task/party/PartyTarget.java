@@ -8,33 +8,28 @@ import org.jetbrains.annotations.Nullable;
  * What a guest is going after, and how close she has to get to each half of it.
  *
  * <p>
- * <b>Two blocks and two distances, because they are never the same.</b> The thing she acts
- * on and the block she stands on to act on it are different blocks: a chair is furniture
- * she sits down from beside, and a dish on a laid table has air beside it rather than
- * floor. Collapsing them into one target is what turns a reach into a fudge factor.
+ * <b>Two blocks and two distances, because they are never the same.</b> The thing she acts on
+ * and the block she stands on to act on it are different blocks: a chair is furniture she sits
+ * down from beside, and a dish on a laid table has air beside it rather than floor.
  *
  * <p>
- * Both distances are measured to the block's <b>box</b> rather than its centre, which is
- * what makes them mean what they look like: standing on the block beside a chair is zero
- * blocks from it. Measured to the centre, a guest standing next to her own chair sits 1.1
- * blocks from its middle and could never sit in it.
+ * Both distances are measured to the block's <b>box</b> rather than its centre, so that
+ * standing on the block beside a chair counts as zero blocks from it.
  *
  * @param interact      the chair or the dish — the thing she does something to
  * @param walkTo        the standable block she goes to in order to do it
  * @param interactReach how close to {@code interact} she must be to act on it
  * @param walkReach     how close to {@code walkTo} she must be to count as having arrived
+ *
+ * @see doc/design/party/guest.md
  */
 public record PartyTarget(@Nullable BlockPos interact, @Nullable BlockPos walkTo,
 		double interactReach, double walkReach) {
 
 	/**
-	 * How close she must get to the block she walked to before she counts as there.
-	 *
-	 * <p>
-	 * One block, not zero. Zero looked stricter and was worse: a pathfinder that stops a
-	 * block short of the tile it was sent to — ordinary, and reliably produced by a chair
-	 * beside a table — would never satisfy it, so the guest stood beside her own seat until
-	 * something else rescued her. The interaction reach is what decides whether she can act.
+	 * How close she must get to the block she walked to before she counts as there. One block,
+	 * not zero: a pathfinder that stops a block short is ordinary, and the interaction reach is
+	 * what decides whether she can act.
 	 */
 	public static final double WALK_REACH = 1;
 
@@ -44,10 +39,8 @@ public record PartyTarget(@Nullable BlockPos interact, @Nullable BlockPos walkTo
 	}
 
 	/**
-	 * A dish, and the ground she stands on to take it from. Three blocks from the chair and
-	 * two from her feet: most rounds of a laid banquet happen without her standing up at
-	 * all, so crossing to a dish three blocks away should not be possible when she could
-	 * have eaten it from where she was sitting.
+	 * A dish, and the ground she stands on to take it from. Three blocks from the chair and two
+	 * from her feet, so a dish she could have eaten from her seat is never worth standing up for.
 	 */
 	public static PartyTarget forDish(BlockPos dish, @Nullable BlockPos ground, boolean seated) {
 		return new PartyTarget(dish, ground, seated ? 3 : 2, WALK_REACH);

@@ -8,6 +8,12 @@ import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
+/**
+ * Inclusive chunk-coordinate square. {@code ofBlocks} and {@code ofBoundingBox} accept the two
+ * corners in either order.
+ *
+ * @see doc/design/area_effect.md
+ */
 public record ChunkPosRange(int minCX, int minCZ, int maxCX, int maxCZ) {
 
 	public static ChunkPosRange ofChunks(ChunkPos min, ChunkPos max) {

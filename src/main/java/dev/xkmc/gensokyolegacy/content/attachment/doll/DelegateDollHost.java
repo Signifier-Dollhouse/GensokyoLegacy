@@ -12,26 +12,14 @@ import java.util.Optional;
 import java.util.UUID;
 
 /**
- * A {@link DollHost} that keeps its ledger somewhere else and forwards the whole
- * surface to it: implement {@link #dolls()} and nothing else.
+ * A {@link DollHost} that keeps its ledger somewhere else and forwards the whole surface:
+ * implement {@link #dolls()} and nothing else. Needed because the host is resolved by asking the
+ * <b>owning entity</b>, so a character whose dolls live in a module still answers as the host.
  * <p>
- * It exists for the case {@link BaseDollEntity#getHost} creates. The host is
- * resolved by asking the <b>owning entity</b>, so a character whose dolls live in
- * a module — where module data belongs, riding her chunk save — still has to be
- * the host itself. Rather than have every such entity repeat the same ten
- * one-line forwards (and drift, or forget one), the forwards live here once.
- * {@link dev.xkmc.gensokyolegacy.content.entity.characters.magician.AliceEntity}
- * is the one that needs it today: her dolls are kept by
- * {@link dev.xkmc.gensokyolegacy.content.entity.characters.magician.AliceDollHost},
- * so she answers as the host and delegates every method to it. Without that
- * answer her dolls would find no host at all and discard themselves on the next
- * tick.
- * <p>
- * Unlike {@link DollLedger}, which is itself the ledger and forwards only the
- * command surface to its {@link DollCommander}, the delegate is a pure
- * pass-through: it holds nothing and forwards <b>everything</b>, pairing half
- * included. That is what makes it safe for a host with no state of its own —
- * every answer, and every inert default, comes from the real host.
+ * Unlike {@link DollLedger}, which is the ledger itself and forwards only the command surface,
+ * this is a pure pass-through: every answer, including the inert defaults, comes from the real host.
+ *
+ * @see doc/design/doll/host.md
  */
 public interface DelegateDollHost extends DollHost {
 

@@ -12,9 +12,10 @@ import net.minecraft.server.level.ServerLevel;
  * party's served total move together rather than crediting food she has not finished.
  *
  * <p>
- * <b>No chair required.</b> The one guest who chews standing is one whose chair was taken
- * away while she was carrying a plate, and she is still holding food — which is exactly this
- * signature. Demanding a seat here is what would strand her.
+ * <b>No chair required.</b> Demanding a seat here is what would strand a guest whose chair was
+ * taken away while she was carrying a plate.
+ *
+ * @see doc/design/party/guest.md
  */
 public class ChewTask extends PartyTask {
 
@@ -34,9 +35,8 @@ public class ChewTask extends PartyTask {
 			return;
 		}
 		ctx.bankServe();
-		// the sit between dishes starts once the food is counted, so the two cannot drift.
-		// Jittered 100-120%: without it every guest at a table draws, eats and rests on the
-		// same beat, and a banquet of six reads as one guest having six opinions.
+		// the sit between dishes starts once the food is counted, so the two cannot drift. Jittered
+		// 100-120%: without it every guest at a table draws, eats and rests on the same beat.
 		int base = ctx.party().satisfied() ? ctx.party().fullSeat() : ctx.party().hungrySeat();
 		ctx.rest(base + ctx.entity().getRandom().nextInt(base / 5 + 1));
 	}

@@ -19,8 +19,7 @@ import org.jetbrains.annotations.Nullable;
  * @param fulfillment   hunger she must be served before she counts as satisfied
  * @param hungrySeat    ticks she sits between dishes while still hungry
  * @param fullSeat      ticks she sits between dishes once satisfied
- * @param leaveChance   chance, per {@code fullSeat} spent, that she calls it a day. The
- *                      only thing that ends a party before the food does
+ * @param leaveChance   chance, per {@code fullSeat} spent, that she calls it a day
  * @param repGain       share of the appeal a guest consumed, paid to the host in
  *                      reputation with her; 0.05 means 5%
  * @see doc/design/party/select.md
@@ -54,11 +53,7 @@ public record PartyTaste(
 		repGain = Math.clamp(repGain, 0, 1);
 	}
 
-	/**
-	 * The reputation this visit is worth the host, from the appeal <i>she</i> consumed.
-	 * Floored at one for anyone who ate: 5% of three slices of cake is 0.3, and a rule that
-	 * pays nothing for an ordinary party is not one the host can learn.
-	 */
+	/** The reputation this visit is worth the host, from the appeal <i>she</i> consumed. */
 	public int reputationFor(int appeal) {
 		if (appeal <= 0) return 0;
 		return Math.max(1, (int) Math.floor(appeal * repGain));
@@ -74,10 +69,7 @@ public record PartyTaste(
 		return GLMeta.PARTY_TASTE.get(access, type.builtInRegistryHolder());
 	}
 
-	/**
-	 * This character's taste, or the {@link #DEF} template if she has no row — for reading
-	 * a guest's behaviour mid-visit, never for deciding eligibility.
-	 */
+	/** This character's taste, or {@link #DEF}, for reading behaviour mid-visit. */
 	public static PartyTaste ofOrDefault(RegistryAccess access, EntityType<?> type) {
 		var ans = of(access, type);
 		return ans == null ? DEF : ans;

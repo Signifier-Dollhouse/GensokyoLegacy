@@ -40,10 +40,7 @@ public record TileClientTooltip(List<ItemStack> items, List<FluidStack> fluids, 
 			if (stack.isEmpty()) continue;
 			int y = my + n / w * 18 + 1;
 			int x = mx + n % w * 18 + 1;
-			// fluid rendering in tooltip: fallback to bucket item if needed
-			// For alchemy hints we don't use fluids, so skip detailed fluid render
-			// If needed, could render fluid icon via FluidStack's fluid bucket
-			// Keep empty for now
+			// fluid slots are laid out but not drawn; alchemy hints never carry fluids
 			//n++;
 		}
 	}

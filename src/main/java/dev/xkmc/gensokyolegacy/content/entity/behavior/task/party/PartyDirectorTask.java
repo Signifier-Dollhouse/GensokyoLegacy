@@ -11,9 +11,11 @@ import net.minecraft.server.level.ServerLevel;
  *
  * <p>
  * Registered as an always-task under {@code PARTY}, so it runs alongside whichever of the
- * eleven exclusive tasks is going, and handles the three things that cut across all of
- * them: the party ending under her, the party closing while she is mid-course, and her own
- * chair being taken away by the layout rescan.
+ * eleven exclusive tasks is going, and handles the three things that cut across all of them:
+ * the party ending under her, the party closing while she is mid-course, and her own chair
+ * being taken away by the layout rescan.
+ *
+ * @see doc/design/party/guest.md
  */
 public class PartyDirectorTask extends PartyTask {
 
@@ -27,10 +29,9 @@ public class PartyDirectorTask extends PartyTask {
 			ctx.dismiss();
 			return;
 		}
-		// closing is a request, not a discard, and she may be halfway across the room.
-		// The wait is drawn here so a table does not empty inside one tick, and the gift
-		// rides along: this is the door the host calling it off sends her out by, and it
-		// used to be the one departure that left nothing on the table.
+		// closing is a request, not a discard, and she may be halfway across the room. The wait is
+		// drawn here so a table does not empty inside one tick; the gift rides along, because
+		// this is the door the host calling it off sends her out by.
 		if ((module.leaving() || party.phase() == PartyAttachment.Phase.CLOSING)
 				&& !ctx.leaving()) {
 			ctx.armLeave(entity.getRandom().nextInt(PartyTasks.UNSEAT_DELAY + 1));

@@ -8,8 +8,10 @@ import net.minecraft.server.level.ServerLevel;
  * Sitting at the table while the rest of it arrives.
  *
  * <p>
- * The feast is party-wide: nobody eats until every guest has a chair, because a guest
- * starting early would clear a dish out from under someone still walking in.
+ * The feast is party-wide: nobody eats until every guest has a chair, because a guest starting
+ * early would clear a dish out from under someone still walking in.
+ *
+ * @see doc/design/party/guest.md
  */
 public class WaitTableTask extends PartyTask {
 

@@ -9,13 +9,14 @@ import net.minecraft.server.level.ServerLevel;
  *
  * <p>
  * <b>This task moves her; {@link DelayTask} is her deciding.</b> She crosses to the dish
- * first and hesitates <i>at</i> it, which is both how a person behaves and the only
- * arrangement in which changing her mind at the last moment is representable at all.
+ * first and hesitates <i>at</i> it, which is the only arrangement in which changing her mind
+ * at the last moment is representable at all.
  *
  * <p>
  * A dish already in reach skips the walk and goes straight to the decision, which is what
- * keeps most rounds of a laid banquet seated. Reach needs no memory: the walk order stands
- * in for it, and this task yields while one is outstanding.
+ * keeps most rounds of a laid banquet seated.
+ *
+ * @see doc/design/party/guest.md
  */
 public class GoToFoodTask extends PartyTask {
 

@@ -16,7 +16,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * The ordered block food handler lists: the first handler whose
  * {@link BlockFoodHandler#handles} accepts the block wins. {@link ContainerFoodHandler}s
  * are kept apart because their answers are never cacheable, and the catch-all fallback
- * lives outside both lists.
+ * lives outside both.
  *
  * @see doc/design/party/food.md
  */

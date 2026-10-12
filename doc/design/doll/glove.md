@@ -6,20 +6,18 @@
 
 ## 1. Mode enum + handlers
 
-`DollGloveMode` enum (ids for the wheel) + six small handler classes under `content/item/glove/mode/`, following `BorderUmbrellaMode`/`UmbrellaMode`:
+`DollGloveMode` enum (ids for the wheel) + one small handler class per mode under `content/item/glove/mode/`, following `BorderUmbrellaMode`/`UmbrellaMode`:
 
 | idx | Mode | Icon | Interaction |
 |---|---|---|---|
 | 0 | `SUMMON` | glove icon (itself) | `use()`: no summoned dolls → summon everything parked (STORED promoted to TEMP, then summoned) plus every doll item in the player inventory, in a ring around the owner — no ledger cap. Otherwise recall: `itemize` every summoned doll, plus any **stray** doll within 48 blocks (control.md §5.4a) — strays hold no ledger entry, so the sweep scans loaded entities and itemizes them the same way; overflow parked to data as STORED, and all TEMP consolidated to STORED. Block-hosted dolls never touched. |
-| 1 | `HEAL_MARK` | `Items.GOLDEN_CARROT` | Hidden from the wheel, implementation kept: `use()` toggles the heal mark on the cached ray-trace target (control.md §5–6). Any living entity, same 48-block range. |
-| 2 | `VOLLEY` | `GLItems.STAR` (star danmaku, the starlight-hexbrew star) | `use()` or left-click: `issueVolley(player, target, REGULAR_ATTACK)` on the cached target (left-click on an entity uses the punched entity). Armed but out of reach — a roster of melee dolls against a far mob — reports `too_far` and issues nothing (control.md §5.1b). |
-| 3 | `SUPER` | explosive hexbrew | `use()` or left-click: `issueOneTime(player, target, SUPER_ATTACK)` — one **random** available doll. Listed only while a summoned doll can perform it, unless already selected. |
-| 4 | `SUICIDE` | `Items.TNT` | `use()` or left-click: `issueOneTime(player, target, SUICIDE)` — one **random** available doll. Listed only while a summoned doll can perform it, unless already selected. |
-| 5 | `STOP` | `Items.SHIELD` | Hidden from the wheel, implementation kept: `use()` stops **all summoned** dolls — `doll.actions.stop()` + clear `iteration`. Strays and block-hosted dolls untouched. |
+| 1 | `VOLLEY` | `GLItems.STAR` (star danmaku, the starlight-hexbrew star) | `use()` or left-click: `issueVolley(player, target, REGULAR_ATTACK)` on the cached target (left-click on an entity uses the punched entity). Armed but out of reach — a roster of melee dolls against a far mob — reports `too_far` and issues nothing (control.md §5.1b). |
+| 2 | `SUPER` | explosive hexbrew | `use()` or left-click: `issueOneTime(player, target, SUPER_ATTACK)` — one **random** available doll. Listed only while a summoned doll can perform it, unless already selected. |
+| 3 | `SUICIDE` | `Items.TNT` | `use()` or left-click: `issueOneTime(player, target, SUICIDE)` — one **random** available doll. Listed only while a summoned doll can perform it, unless already selected. |
 
 There is no editor mode: right-clicking an owned doll (or any doll in creative) opens its loadout in every mode — through the vanilla entity-interaction path at vanilla reach, or through a fresh 16-block server ray trace when right-clicking air or a block (§2b) — before the mode action runs. Neither path consults the target cache. Left-click paths never open the editor, so fighting never pops a menu.
 
-Summon and volley are always listed; heal-mark and stop are implemented but hidden. Attack/mark modes act on the cached ray-trace target (§2); empty cache → `no_target` message.
+Summon and volley are always listed; super and suicide only while a summoned doll can perform them, plus the current mode so the index can never go missing. The glove carries no heal-mark or stop mode any more — the command side of both (`DollCommander.healTargets`, `stopAll`) still lives on the commander. Attack modes act on the cached ray-trace target (§2); empty cache → `no_target` message.
 
 ## 2. Targeting — client ray trace, cached UUID, server re-check
 
@@ -40,7 +38,7 @@ The cache is **shared**, not the doll glove's alone: `GloveTargeting` (`content/
 
 ## 2c. Attack-mode status sidebar
 
-- `DollAttackStatusOverlay` (client GUI layer above the crosshair, registered in `GLClient`): while the glove is held in volley/super/suicide mode with no screen open, the right side lists every summoned doll in ledger order as its doll item icon (tint + health bar, built from the doll entity's synced data) with a status frame — hidden for invalid (no valid weapon for this attack in either hand) or untracked dolls, white idle, yellow preparing (ticket held, behavior not started), red attacking, green done (already fired in the live volley). In every mode the doll under the crosshair is framed orange instead. Display-only.
+- `DollAttackStatusOverlay` (client GUI layer above the crosshair, registered in `GLClient`): while the glove is held in volley/super/suicide mode with no screen open, the right side lists every summoned doll in ledger order as its doll item icon (tint + health bar, built from the doll entity's synced data) with a status frame — hidden for invalid (no valid weapon for this attack in either hand) or untracked dolls, white idle, yellow preparing (ticket held, behavior not started), red attacking, green done (already fired in the live volley), light blue auto, purple while the doll is busy with an attack foreign to the held mode. In every mode the doll under the crosshair is framed orange instead. The stack that doll would use for the held mode (main/off-hand priority, mirroring the server pick) renders in a slot to the icon's left. Display-only.
 - Validity is server-computed into the doll entity's `DATA_VALID_MASK` (one bit per `DollActionType`, from the authoritative ledger loadout via `DollBehaviorRegistry.findHand`); status reads the synced action mirror (`DollStatus`: `DATA_ACTION_STATE` + `DATA_ACTION_TYPE`, recomputed server-side every tick in `DollEntity.tick` from the ticket + `DollCommandGoal.isExecuting` + `DollCommander.doneType`). Done only reports while the volley is still in-flight, and only for the held attack's type — no latch to clear. Implemented as a l2itemselector `SelectionSideBar` with a right-side anchor (opposite side from the quest `InfoSideBar`, so both can show at once). The roster itself (entity ids in ledger order) is pushed in `DollRosterToClient` only when it changes — the `DollAttachment` capability syncs nothing to clients (all `DollData` fields are `toClient = false`).
 
 ## 3. Selector + wheel (umbrella mirror)
@@ -52,9 +50,9 @@ The cache is **shared**, not the doll glove's alone: `GloveTargeting` (`content/
 
 ## 3b. Wheel display icons (model overrides, umbrella mirror)
 
-- The glove item model carries six overrides on the `gensokyolegacy:glove_display` predicate (emitted ascending 1→6: vanilla reverses the list at bake time and returns the first match with `>=` per predicate, so ascending gives exact per-mode matching): value 0 keeps the base glove model, otherwise mode ordinal + 1 selects the `item/glove_<mode>` sub-model (generated parent over `textures/item/doll_glove/glove_<mode>.png`, from `temp/<mode>.png`).
-- `DollGloveItem.displayPredicate` (registered in `GLClient`, mirroring `umbrella_open`) returns 0 unless the stack carries the display component, else the current mode ordinal + 1.
-- New presence component `DOLL_GLOVE_DISPLAY` (`DC.unit`) on the glove stack. It is never set on real item stacks — the client sets it (plus the entry's mode) on a fresh glove to produce a display stack (`DollGloveItem.displayStack(mode)`), so the override draws that mode's texture. Wheel entries and the scroll selector list render display stacks directly, with no reference to the held glove.
+- The glove item model carries one override per mode on the `gensokyolegacy:glove_display` predicate, emitted ascending (vanilla reverses the list at bake time and returns the first match with `>=` per predicate, so ascending gives exact per-mode matching). Two ranges: mode ordinal + 1 selects the `item/glove_<mode>` held sub-model (generated parent over `textures/item/doll_glove/glove_<mode>.png`, from `temp/<mode>.png`), and ordinal + `modes.length` + 1 selects `item/glove_icon_<mode>`, the flat icon variant the wheel and scroll list show.
+- `DollGloveItem.displayPredicate` (registered in `GLClient`, mirroring `umbrella_open`) picks between the two ranges: the icon range when the stack carries `DOLL_GLOVE_ICON`, the held range otherwise.
+- Presence component `DOLL_GLOVE_ICON` (`DC.unit`) is never set on a real glove stack — the client sets it on a fresh glove to produce a display stack (`DollGloveItem.iconStack(mode)`), so the override draws the icon variant. Wheel entries and the scroll selector list render those display stacks directly, with no reference to the held glove.
 
 ## 4. Network
 
@@ -64,17 +62,17 @@ The cache is **shared**, not the doll glove's alone: `GloveTargeting` (`content/
 
 ## 5. Registration
 
-- `GLItems` — `DOLL_GLOVE` = `reg.item("doll_glove", p -> new DollGloveItem(p.stacksTo(1)))` + `.model(generated item/doll_glove + 6 ascending `glove_display` overrides → `item/glove_<mode>` sub-models)` + `.lang("Seven-Colored Doll Glove")` + tab + `DOLL_GLOVE_MODE` DCVal + `DOLL_GLOVE_DISPLAY` unit component (§3b).
+- `GLItems` — `DOLL_GLOVE` = `reg.item("doll_glove", p -> new DollGloveItem(p.stacksTo(1)))` + model generation in `DollGloveModel` (base glove + one held and one icon `glove_display` override per mode) + `.lang("Seven-Colored Doll Glove")` + tab + `DOLL_GLOVE_MODE` DCVal + `DOLL_GLOVE_ICON` unit component (§3b).
 - Mod constructor — `DollGloveSelectionListener.register()` beside `BorderUmbrellaSelectionListener.register()`; `GensokyoLegacy.HANDLER` registers `SelectorSelectPacket` (shared) + `GloveTargetPacket`; the `CodecHandler<ItemStack>` (loadout.md §2) alongside `FluidIngredient`. `GLMeta` registers the `GLOVE_TARGET` attachment that holds the server-side cache; `GLClient` ticks the client cache from `ClientTickEvent.Post`.
-- `GLLang` — `ItemGlove` enum: mode names/descriptions plus a message for every non-trivial action (summoned count, recalled count + parked count, volley/super/suicide issued, stopped count, mark toggled/untoggled, no_target, no_doll, too_far, not_doll).
-- Textures — copy `temp/七色人偶手套.png` to `assets/gensokyolegacy/textures/item/doll_glove/doll_glove.png`; copy `temp/{summon,heal_mark,volley,super,suicide,stop}.png` to `assets/gensokyolegacy/textures/item/doll_glove/glove_<mode>.png` (§3b).
+- `GLLang` — `ItemGlove` enum: mode names/descriptions plus a message for every non-trivial action (summoned count, recalled count + parked count, volley/super/suicide issued, no_target, no_doll, too_far, not_doll).
+- Textures — copy `temp/七色人偶手套.png` to `assets/gensokyolegacy/textures/item/doll_glove/doll_glove.png`; copy `temp/<mode>.png` to `assets/gensokyolegacy/textures/item/doll_glove/glove_<mode>.png` (§3b).
 - Mixins — target-glow mixin declared in `gensokyolegacy.mixins.json`.
 
 ## 6. Files to create
 
 - `content/item/glove/DollGloveItem.java`
 - `content/item/glove/mode/DollGloveMode.java`
-- `content/item/glove/mode/DollGloveHandler.java` + 6 mode classes
+- `content/item/glove/mode/DollGloveHandler.java` + one handler class per mode
 - `content/item/glove/DollGloveSelectionListener.java`
 - `content/item/glove/DollGloveItem.java` (`onLeftClickEntity` and the cached-target attacks — the old `DollGloveLeftClickHandler` was folded in, with the empty/block left-click paths in `event/DollEventHandlers.java`)
 - `content/item/glove/client/DollGloveModeWheel.java`, `DollGloveModeEntry.java`

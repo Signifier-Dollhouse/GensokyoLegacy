@@ -14,12 +14,11 @@ import net.minecraft.world.phys.AABB;
 import java.util.UUID;
 
 /**
- * Friendly filter for doll-shot danmaku: the owner and fellow dolls of the same
- * owner never take friendly fire. Ownerless dolls (block-hosted, stray) treat
- * each other as friendly. Player-owned dolls additionally spare non-enemies —
- * anything the player never commanded against, that isn't hostile to the owner
- * side, and that no player hurt before. Fully defaulted — the entity gains
- * danmaku allyship with zero additional code.
+ * Friendly filter for doll-shot danmaku: the owner and fellow dolls of the same owner
+ * never take friendly fire. Ownerless dolls (block-hosted, stray) treat each other as
+ * friendly. Player-owned dolls additionally spare non-enemies — anything the player
+ * never commanded against, that isn't hostile to the owner side, and that no player
+ * hurt before. Fully defaulted — the entity gains danmaku allyship with zero extra code.
  */
 public interface DollDanmakuAlly extends DollBaseImpl, IYoukaiEntity {
 
@@ -47,11 +46,9 @@ public interface DollDanmakuAlly extends DollBaseImpl, IYoukaiEntity {
 	}
 
 	/**
-	 * Non-enemy: not commanded to be attacked by the player, not targeting the
-	 * owner, and never hurt by the owner (last-hurt check on the entity is
-	 * enough; allies are skipped). Commanded targets stay enemies past ticket
-	 * completion (bullets outlive tickets) via the commander's transient attack
-	 * record.
+	 * Non-enemy: not commanded to be attacked by the player, not targeting the owner,
+	 * and never hurt by the owner. Commanded targets stay enemies past ticket
+	 * completion (bullets outlive tickets) via the commander's transient attack record.
 	 */
 	default boolean isNonEnemy(LivingEntity le) {
 		DollEntity doll = asDoll();

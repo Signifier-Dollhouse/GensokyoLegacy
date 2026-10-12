@@ -17,20 +17,19 @@ import java.util.HashSet;
 import java.util.List;
 
 /**
- * Everything one party occupies, found by walking out from the clicked table. The scan
- * is the unit of "a party" and runs once per send, never per tick.
+ * Everything one party occupies, found by walking out from the clicked table. The scan is
+ * the unit of "a party" and runs once per send, never per tick.
  *
  * @param anchor the table block the player clicked
  * @param food   every party-food block laid out for the spread, in walk order
  * @param seats  every seat block the walk reached
  * @param tables every table block the walk reached
  * @param appeal attraction of {@link #food} counting each food once; scales
- *               {@link PartyMath#weight} and is otherwise unused — it is not what the
- *               spread can feed, and it is not a count of servings
- * @param fulfillment total hunger in {@link #food}; this is the capacity the planner
- *                    budgets and the number a guest's own fulfillment is measured against.
- *                    Unlike {@link #appeal} this <b>does</b> scale with what is left on
- *                    the table, because a second cake really does feed seven more people
+ *               {@link PartyMath#weight} and is otherwise unused
+ * @param fulfillment total hunger in {@link #food}; what the planner budgets and a
+ *                    guest's own fulfillment is measured against. Unlike
+ *                    {@link #appeal} this <b>does</b> scale with what is left on the
+ *                    table. select.md §2.1
  * @see doc/design/party/area.md
  */
 public record PartyArea(BlockPos anchor, List<BlockPos> food, List<BlockPos> seats,
@@ -48,28 +47,14 @@ public record PartyArea(BlockPos anchor, List<BlockPos> food, List<BlockPos> sea
 	private static final Direction[] TOUCHING = {
 			Direction.NORTH, Direction.SOUTH, Direction.EAST, Direction.WEST, Direction.UP};
 
-	/** A safety valve: the distance limit alone allows the better part of a million blocks of open air. */
+	/** A safety valve: the distance limit alone allows the better part of a million blocks. */
 	private static final int MAX_VISITED = 1 << 16;
 
 	/**
-	 * Walks out from the anchor and collects the furniture and the food of one party.
-	 *
-	 * <p>
-	 * The walk passes only through space a guest could stand in, so a party is the room
-	 * it was set in: a wall ends it, a doorway does not. Furniture is solid, so the walk
-	 * only ever reaches one — which is why each queues a box around itself, letting the
-	 * walk resume from the air on the guest's side and carry on along a long table. That
-	 * box also reaches what the walk could never have stood near, a chair in a nook or a
-	 * dish tight against a wall.
-	 *
-	 * <p>
-	 * Nothing beyond {@code distance} counts, and an unloaded chunk is never read: the
-	 * scan runs inside one click and must not drag a chunk in.
-	 *
-	 * <p>
-	 * A dish counts when it stands on a table or touches one from any face but below. A
-	 * block that is recognised but not <i>valid</i> food is dropped too — left standing in
-	 * the world, but never counted and never walked to, so a dud costs nobody anything.
+	 * Walks out from the anchor and collects the furniture and the food of one party. The
+	 * four rules are in area.md §2; in short, the walk passes only through standable space
+	 * and furniture extends it by a box, a dish that is not <i>valid</i> food is dropped,
+	 * and nothing beyond {@code distance} or in an unloaded chunk is read at all.
 	 */
 	public static PartyArea scan(ServerLevel level, BlockPos anchor, int distance) {
 		var access = level.registryAccess();
@@ -80,9 +65,8 @@ public record PartyArea(BlockPos anchor, List<BlockPos> food, List<BlockPos> sea
 		int fulfillment = 0;
 		long reach = (long) distance * distance;
 		var seen = new HashSet<BlockPos>();
-		// The foods already paid for. This is the dedupe the appeal rule needs and the
-		// only place it can live: the scan is the one walk over the whole spread, so it
-		// is the one place that has seen all of it. Everything downstream gets a number.
+		// The foods already paid for. The dedupe the appeal rule needs can only live
+		// here: this is the one walk over the whole spread.
 		var counted = new HashSet<ResourceLocation>();
 		var queue = new ArrayDeque<BlockPos>();
 		queue.add(anchor.immutable());
@@ -100,29 +84,22 @@ public record PartyArea(BlockPos anchor, List<BlockPos> food, List<BlockPos> sea
 				tables.add(pos);
 				furniture = true;
 			}
-			// A chair or table is solid, so the walk stops at one. Its box is what
-			// carries it past: the guest-side air, the dishes on top, and the floor
-			// beyond are all inside, and the walk resumes from those.
+			// Furniture is solid, so the walk stops at one; its box carries it past.
 			if (furniture) poke(queue, pos);
 			if (PartyFoodValue.isFood(level, pos, state) && isLaidOut(level, pos, state)) {
-				// what it is worth to the party, by food - never by block, so the set
-				// decides what is new since the last block and the rest is dropped
+				// by food, never by block, so the set decides what is new
 				var worth = PartyFoodValue.appealPerFood(access, level, pos, state);
 				if (!worth.isEmpty()) {
-					// Into the spread whatever the dedupe says. A second cake adds no
-					// appeal but still feeds seven more guests, and dropping it here
-					// would take it out of the budget and off the guest's walk.
+					// A second cake adds no appeal but still feeds seven more guests, so
+					// it stays in the spread either way.
 					food.add(pos);
 					for (var entry : worth) {
 						if (counted.add(entry.id())) appeal += entry.appeal();
 					}
-					// gathered alongside the appeal, but it is the one the planner
-					// budgets: see PartyFoodValue's two-quantities note
 					fulfillment += PartyFoodValue.totalHunger(level, pos, state);
 				}
 			}
-			// everything else the walk can pass through: dishes are solid, so the
-			// walk only ever meets one by reading it off a seat's or table's box
+			// everything else the walk can pass through
 			if (!furniture && state.getCollisionShape(level, pos).isEmpty()) {
 				for (var face : FACES) queue.add(pos.relative(face));
 			}
@@ -140,16 +117,14 @@ public record PartyArea(BlockPos anchor, List<BlockPos> food, List<BlockPos> sea
 
 	/**
 	 * How far around the table a guest looks. A cheap cube for a triple loop, and much
-	 * smaller than the scan distance: the scan walks the room once for the party, this is
-	 * swept per guest on a timer.
+	 * smaller than the scan distance — limits.md §1.
 	 */
 	public static final int GUEST_RADIUS = 6;
 
 	/**
 	 * Every dish within {@link #GUEST_RADIUS} of the anchor — the box form of
-	 * {@link #scan}, and the one the party re-runs while it is open so its answer stays
-	 * current. Deliberately does not walk through walls: a guest eats what she can see
-	 * from the table.
+	 * {@link #scan}, re-run while the party is open so its answer stays current.
+	 * Deliberately does not walk through walls.
 	 */
 	public static List<BlockPos> foodAround(Level level, BlockPos anchor) {
 		var access = level.registryAccess();
@@ -158,10 +133,9 @@ public record PartyArea(BlockPos anchor, List<BlockPos> food, List<BlockPos> sea
 			var state = level.getBlockState(pos);
 			if (!PartyFoodValue.isFood(level, pos, state)) continue;
 			if (!isLaidOut(level, pos, state)) continue;
-			// per block, not per party: this list is positions and nothing else, and a
-			// duplicate of a food the party already has is still a dish a guest may walk
-			// to and eat. The appeal rule dedupes in the scan, which is the only walk
-			// that has seen the whole spread.
+			// per block, not per party: a duplicate of a food the party already has is
+			// still a dish a guest may walk to and eat. The appeal dedupe lives in the
+			// scan, the only walk that has seen the whole spread.
 			if (!PartyFoodValue.attracts(access, level, pos, state)) continue;
 			ans.add(pos.immutable());
 		}
@@ -197,12 +171,11 @@ public record PartyArea(BlockPos anchor, List<BlockPos> food, List<BlockPos> sea
 
 	/**
 	 * Whether a dish was put out for the party: standing on a table or a chair, or
-	 * touching a seat or a table. Shared with {@code PartyTasks} so a guest can only
-	 * eat a dish the scan would have counted. A chair counts as a surface too, so a plate
-	 * on a guest's own seat is budgeted rather than merely edible.
+	 * touching a seat or a table. A chair is a surface too, so a plate on a guest's own seat
+	 * is budgeted. Shared with {@code PartyTasks} so a guest can only eat a dish the scan
+	 * would have counted.
 	 * <p>
-	 * For state-described food only; containers judge their own placement — see
-	 * {@link #isLaidOut}.
+	 * For state-described food only; containers judge their own placement.
 	 */
 	public static boolean touchingFurniture(Level level, BlockPos pos) {
 		var under = level.getBlockState(pos.below());
@@ -216,9 +189,8 @@ public record PartyArea(BlockPos anchor, List<BlockPos> food, List<BlockPos> sea
 
 	/**
 	 * Dispatches to the container's own rule where there is one, and to
-	 * {@link #touchingFurniture} otherwise: a board on a table is the spread, a steamer pot
-	 * on the ground is not, but the rack inside it is. That is a fact about steamers
-	 * rather than about parties, so the handler owns it.
+	 * {@link #touchingFurniture} otherwise: the rule genuinely differs by container, so
+	 * the handler owns it.
 	 */
 	public static boolean isLaidOut(Level level, BlockPos pos, BlockState state) {
 		var container = PartyFoodHandler.containerOf(state.getBlock());
@@ -246,7 +218,7 @@ public record PartyArea(BlockPos anchor, List<BlockPos> food, List<BlockPos> sea
 		return null;
 	}
 
-	/** The mean of the food positions — nearer the cake, where a far pie barely moves it. The chunk containing this owns the party. */
+	/** The mean of the food positions; the chunk containing it owns the party. */
 	@Nullable
 	public static BlockPos center(List<BlockPos> food) {
 		if (food.isEmpty()) return null;

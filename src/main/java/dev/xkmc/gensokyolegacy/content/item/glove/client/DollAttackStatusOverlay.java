@@ -25,20 +25,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Doll roster (glove.md §2c): while holding the glove in any mode with no
- * screen open, the right side lists every summoned doll in ledger order as
- * its doll item icon. In task modes (attack, skill, suicide) the
- * icon carries a status frame — hidden for invalid (no valid weapon for this
- * task) or untracked dolls, white idle, yellow preparing, red attacking, green
- * done, light blue auto, purple when the doll is busy with a task foreign to
- * the held mode — and the stack it would use for that task renders in the slot
- * to its left.
- * Rally shows no frames. In every mode, the doll under the crosshair
- * is framed orange instead.
+ * Roster sidebar (glove.md §2c): with the glove held and no screen open, the right side lists every
+ * summoned doll in ledger order as its doll item icon with a status frame, and the stack that doll
+ * would use for the held mode drawn to its left. Rally shows no frames; the doll under the
+ * crosshair is framed orange in every mode.
+ * <p>
+ * Entity-only reads: the roster arrives via {@code DollRosterToClient} into the client
+ * {@code DollAttachment}, and validity and status are server-computed synced entity data.
  *
- * <p>Entity-only reads: the roster (entity ids) arrives via
- * {@code DollRosterToClient} into the client {@code DollAttachment} instance; validity and
- * status are server-computed synced entity data. No capability access.
+ * @see doc/design/doll/glove.md
  */
 public class DollAttackStatusOverlay extends SelectionSideBar<DollAttackStatusOverlay.Entry, DollAttackStatusOverlay.AttackSig> {
 
@@ -151,9 +146,8 @@ public class DollAttackStatusOverlay extends SelectionSideBar<DollAttackStatusOv
 	}
 
 	/**
-	 * Frame color for a row: the doll under the crosshair draws orange in
-	 * every mode; otherwise task modes use status colors with purple for a
-	 * task foreign to the held mode, and rally draws none.
+	 * Frame color for a row: the doll under the crosshair draws orange in every mode; otherwise task
+	 * modes use status colors with purple for a task foreign to the held mode, and rally draws none.
 	 */
 	private static int frameFor(DollGloveMode mode, @Nullable DollActionType type,
 								DollEntity doll, DollActionStatus status) {
@@ -189,9 +183,8 @@ public class DollAttackStatusOverlay extends SelectionSideBar<DollAttackStatusOv
 	}
 
 	/**
-	 * Sidebar icon: doll item tint + health bar only. No loadout component
-	 * (the sidebar renders the icon, never the tooltip) and no custom name
-	 * (the row shows no text) — both stay server-side.
+	 * Sidebar icon: doll item tint + health bar only. No loadout component (the sidebar renders the
+	 * icon, never the tooltip) and no custom name (the row shows no text).
 	 */
 	private static ItemStack makeIcon(DollEntity doll) {
 		ItemStack stack = new ItemStack(GLItems.DOLL.get());
@@ -212,8 +205,8 @@ public class DollAttackStatusOverlay extends SelectionSideBar<DollAttackStatusOv
 	}
 
 	/**
-	 * The {@link DollActionType} a glove mode commands, or null for task-less
-	 * modes (rally) that just manage the roster.
+	 * The {@link DollActionType} a glove mode commands, or null for the task-less rally mode that
+	 * only manages the roster.
 	 */
 	@Nullable
 	private static DollActionType typeForGlove(DollGloveMode mode) {

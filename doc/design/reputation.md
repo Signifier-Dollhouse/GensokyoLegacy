@@ -1,8 +1,8 @@
-# Reputation System Refactor Proposal
+# Reputation System
 
-## Current System
+## Before the refactor
 
-`CharacterData` stores a single `int reputation` (range -300 to 300, hardcoded `MAX`/`MIN` constants). Each action that grants reputation carries a per-call `max` ceiling via `gainReputation(int val, int max)`:
+`CharacterData` stored a single `int reputation` (range -300 to 300, hardcoded `MAX`/`MIN` constants). Each action that granted reputation carried a per-call `max` ceiling via `gainReputation(int val, int max)`:
 
 - Feeding: `gainReputation(v, 300)`
 - Gifts: `gain(favor, 300)`
@@ -38,22 +38,23 @@ public final class ReputationConstants {
 
     // --- Daily decay ---
     public static final int DAILY_DECAY_AMOUNT = 1;
-    public static final int DAILY_DECAY_THRESHOLD = 150;
 
-    // --- Combat: youkai killed by player ---
-    public static final int KILLED_GAIN = 100;
-    public static final int KILLED_GAIN_CEILING = -50;
+    // --- Combat: youkai killed the player (forgiveness) ---
+    public static final int KILLED_RESTORE = 0;
 
-    // --- Combat: player killed by youkai ---
+    // --- Combat targeting ---
+    public static final int COMBAT_SAFE_THRESHOLD = 0;
+    public static final int DISCARD_REP_THRESHOLD = 0;
+
+    // --- Combat: player killed a youkai ---
     public static final int DEATH_LOSS = 200;
 
-    // --- Combat: player hurt youkai ---
+    // --- Combat: player hurt a youkai ---
+    public static final int HURT_LOSS_FLOOR = -150;
     public static final int HURT_FIRST_SMALL_LOSS = 1;
     public static final int HURT_FIRST_SMALL_REP_THRESHOLD = 100;
     public static final int HURT_FIRST_BIG_LOSS = 5;
-    public static final int HURT_FIRST_BIG_FLOOR = -100;
     public static final int HURT_REPEAT_LOW_LOSS = 10;
-    public static final int HURT_REPEAT_LOW_FLOOR = -150;
     public static final int HURT_REPEAT_HIGH_LOSS = 20;
 
     // --- Feeding ---
@@ -66,7 +67,9 @@ public final class ReputationConstants {
 }
 ```
 
-## Proposed System
+The two targeting thresholds both sit at 0 on purpose. `COMBAT_SAFE_THRESHOLD` is compared *above* (`rep > 0` leaves the player alone), so an untouched relationship is still a valid target; `DISCARD_REP_THRESHOLD` is compared *below*, so only an actively hostile relationship makes the character discard itself.
+
+## How it works
 
 ### Data model
 
@@ -108,22 +111,18 @@ public void gainReputation(int val, int softCap, int capIncrease, int maxCap) {
     }
 }
 
-// Forgiveness gain with a hard ceiling and no cap increase.
-//   val       -- base reputation to add
-//   ceiling   -- absolute value reputation never rises above (clamped, no cap increase)
-public void gainCapped(int val, int ceiling) {
-    if (reputation < ceiling) {
-        reputation = Math.min(reputation + val, ceiling);
-    }
-}
-
 // Negative reputation (no cap change, no soft cap -- losses are always full).
 public void loseReputation(int val) {
-    reputation = Math.max(reputation - val, ReputationConstants.MIN_REPUTATION);
+    loseReputation(val, ReputationConstants.MIN_REPUTATION);
+}
+
+// Same, but stopping at an explicit floor; daily decay uses it so its floor can ride the cap.
+public void loseReputation(int val, int floor) {
+    reputation = Math.max(reputation - val, floor);
 }
 ```
 
-**Two gain methods, no sign overloading:** `gainReputation(val, softCap, capIncrease, maxCap)` handles normal progress (halving soft cap, optional quest cap increase, always bounded by `reputationCap`). `gainCapped(val, ceiling)` is the forgiveness path used when a youkai kills the player: reputation is raised toward zero but clamped at a hard ceiling (e.g. -50), never touching the cap.
+**One gain path, no sign overloading:** `gainReputation(val, softCap, capIncrease, maxCap)` handles all progress (halving soft cap, optional quest cap increase, always bounded by `reputationCap`). Forgiveness is not a gain at all -- see the combat events below.
 
 **Soft cap explained:** A non-negative soft cap is an absolute reputation value. Gains are halved when reputation is already at or above the soft cap. When crossing the soft cap in a single gain, the portion before the threshold is full and the portion after is halved.
 
@@ -147,17 +146,13 @@ protected void dailyUpdate() {
 }
 ```
 
-`loseReputation(int val)` keeps its constant negative floor (`MIN_REPUTATION`) unless an explicit floor is passed.
-
 ### Combat events
 
 ```java
 protected void onKilledByCharacter() {
-    gainReputation(
-ReputationConstants.KILLED_GAIN,
-    ReputationConstants.KILLED_GAIN_CEILING,
-        0, 0
-    );
+    if (reputation < ReputationConstants.KILLED_RESTORE) {
+        reputation = ReputationConstants.KILLED_RESTORE;
+    }
 }
 
 protected void onKillCharacter() {
@@ -168,27 +163,26 @@ protected void onHurtCharacter(Player player, YoukaiEntity e, float damage, Dama
     boolean danmaku = source.is(DanmakuDamageTypes.DANMAKU_TYPE);
     if (danmaku) return;
     boolean first = !e.targets.contains(player) && e.getLastHurtByMob() != player;
-    if (first && damage <= 4) {
-        if (reputation >= ReputationConstants.HURT_FIRST_SMALL_REP_THRESHOLD)
-            loseReputation(ReputationConstants.HURT_FIRST_SMALL_LOSS);
-        else if (reputation >= ReputationConstants.THRESHOLD_STRANGER)
-            loseReputation(ReputationConstants.HURT_FIRST_BIG_LOSS);
-        else loseReputation(ReputationConstants.HURT_FIRST_BIG_LOSS);
+    int floor = ReputationConstants.HURT_LOSS_FLOOR;
+    if (first && damage <= 4 && reputation >= ReputationConstants.HURT_FIRST_SMALL_REP_THRESHOLD) {
+        loseReputation(ReputationConstants.HURT_FIRST_SMALL_LOSS, floor);
+    } else if (first && reputation >= ReputationConstants.HURT_FIRST_SMALL_REP_THRESHOLD) {
+        loseReputation(ReputationConstants.HURT_FIRST_BIG_LOSS, floor);
+    } else if (reputation >= ReputationConstants.THRESHOLD_STRANGER) {
+        loseReputation(first ? ReputationConstants.HURT_FIRST_BIG_LOSS : ReputationConstants.HURT_REPEAT_LOW_LOSS, floor);
     } else {
-        if (first && reputation >= ReputationConstants.HURT_FIRST_SMALL_REP_THRESHOLD)
-            loseReputation(ReputationConstants.HURT_FIRST_BIG_LOSS);
-        else if (reputation >= ReputationConstants.THRESHOLD_STRANGER)
-            loseReputation(ReputationConstants.HURT_REPEAT_LOW_LOSS);
-        else loseReputation(ReputationConstants.HURT_REPEAT_HIGH_LOSS);
+        loseReputation(first ? ReputationConstants.HURT_FIRST_BIG_LOSS : ReputationConstants.HURT_REPEAT_HIGH_LOSS, floor);
     }
 }
 ```
 
-`onKilledByCharacter` is forgiveness: a youkai killing the player gains reputation to offset part of the death penalty, but the gain is capped at `KILLED_GAIN_CEILING` (-50) so it only helps while the relationship is hostile. No cap increase -- a death doesn't deepen the relationship.
+`onKilledByCharacter` is forgiveness, and it is the one place that does not go through the gain path: a hostile relationship is dragged straight up to `KILLED_RESTORE` (0) instead of climbing, a friendly one is untouched, and the cap never moves -- a death doesn't deepen a relationship. Danmaku never counts as an insult, so it returns before any loss is applied.
+
+Hurt losses are floored at `HURT_LOSS_FLOOR` (-150, the JERK threshold): only killing a youkai can push below it.
 
 ## Quest Reward: `ReputationReward`
 
-### New fields
+### Fields
 
 ```java
 public record ReputationReward(
@@ -202,17 +196,17 @@ public record ReputationReward(
 ### Example usage in datagen
 
 ```java
-// Early quest: increases cap and gives some rep
-new ReputationReward(50, 0, 100, 200) // +50 rep, +100 cap (up to 200)
+// Story quest: rep plus a chunk of cap
+new ReputationReward(20, 300, 10, 300) // +20 rep, +10 cap (up to 300)
 
-// Mid-game quest: gives rep with soft cap, increases cap further
-new ReputationReward(80, 150, 50, 250) // +80 rep (halved above 150), +50 cap (up to 250)
+// Repeatable daily: small cap bump, gains halve once past 150
+new ReputationReward(10, 150, 5, 120) // +10 rep, +5 cap (up to 120)
 
-// Simple daily task: rep only, no cap increase
-new ReputationReward(10, 200, 0, 0) // +10 rep, halved above 200, no cap change
+// Late quest: rep only, the cap is already open
+new ReputationReward(10, 300, 0, 300) // +10 rep, no cap change
 ```
 
-### Codec update
+### Codec
 
 ```java
 public static final MapCodec<ReputationReward> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
@@ -223,21 +217,24 @@ public static final MapCodec<ReputationReward> CODEC = RecordCodecBuilder.mapCod
 ).apply(i, ReputationReward::new));
 ```
 
-**Migration note:** Existing quest JSON with the old `{"reputation": N, "max": M}` format will fail to decode. All quest JSON must be updated via `./gradlew runData`.
+**Migration note:** The old `{"reputation": N, "max": M}` format no longer decodes, so all quest JSON was regenerated with `./gradlew runData`.
 
-## Callers to update
+## Callers
 
-| Caller | Current call | New call |
-|--------|-------------|----------|
-| `CharDataHolder.feed()` | `gainReputation(v, 300)` | `gainReputation(v, FEED_SOFT_CAP, 0, 0)` |
-| `GiftModule.interact()` | `gain(favor, 300)` | `gain(favor, GIFT_SOFT_CAP, 0, 0)` |
-| `DonationBoxBlockEntity.take()` | `gain(value * count, 300)` | `gain(value * count, FEED_SOFT_CAP, 0, 0)` -- rep only, no cap increase |
-| `ReputationReward.execute()` | `gain(reputation, max)` | `gain(reputation, softCap, capIncrease, maxCap)` |
-| `CharacterData.onKilledByCharacter()` | `gainReputation(100, -50)` | `gainCapped(KILLED_GAIN, KILLED_GAIN_CEILING)` |
-| `CharacterData.dailyUpdate()` | `loseReputation(1, 150)` / `gainReputation(1, -150)` | `loseReputation(DAILY_DECAY)` / `gainReputation(DAILY_DECAY, 0, 0, 0)` |
-| `DebugWand` reset | `new CharacterData()` | No change -- both fields initialized from constants |
+| Caller | Call |
+|--------|------|
+| `CharDataHolder.feed()` | `gainReputation(v, FEED_SOFT_CAP, 0, 0)` |
+| `GiftModule.interact()` | `gain(favor, GIFT_SOFT_CAP, 0, 0)` |
+| `DonationBoxBlockEntity.take()` | `gain(value * count, FEED_SOFT_CAP, 0, 0)` -- rep only, no cap increase |
+| `ReputationReward.execute()` | `gain(reputation, softCap, capIncrease, maxCap)` |
+| `CharacterData.onKilledByCharacter()` | `reputation = max(reputation, KILLED_RESTORE)` |
+| `CharacterData.dailyUpdate()` | `loseReputation(DAILY_DECAY_AMOUNT, floor)` / `gainReputation(DAILY_DECAY_AMOUNT, 0, 0, 0)` |
+| `CharacterAttachment.reset()` | `new CharacterData()` -- both fields initialized from constants |
+| `GLCommands` | admin-only set/add/cap commands, clamped to `MIN_REPUTATION`/`MAX_REPUTATION` |
 
-## `CharDataHolder` changes
+## `CharDataHolder`
+
+Both reputation entry points sync to the client themselves, so callers never sync by hand. `feed()` returns the reputation it granted -- the feed memory rate may already have cut that below the nominal `favor`, while the soft cap is applied on top and is not reflected in the return value.
 
 ```java
 public int feed(ItemStack food, int favor) {
@@ -256,13 +253,13 @@ public void gain(int v, int softCap, int capIncrease, int maxCap) {
 
 ## Network sync: `CharDataToClient`
 
-No structural change -- `CharacterData` is serialized via l2serial, so the new `reputationCap` field will automatically be included in the packet once added as `@SerialField`.
+No structural change -- `CharacterData` is serialized via l2serial, so `reputationCap` is part of the packet as a `@SerialField`.
 
-## UI changes
+## UI
 
-### `ReputationState.getState()`
+### `CharacterData.getState()`
 
-Update to reference constants:
+Derives the state from the thresholds, highest first:
 
 ```java
 public static ReputationState getState(int reputation) {
@@ -275,46 +272,38 @@ public static ReputationState getState(int reputation) {
 
 ### `ReputationState.toInfo()`
 
-Update to display both reputation and cap:
+Shows reputation and cap together, coloured by state:
 
 ```java
 public static Component toInfo(int reputation, int cap) {
-    // "Reputation: 150 / 300" (colored by state)
+    // GLLang.Info.ENTITY_REPUTATION -> "Your reputation: 150 / 300"
 }
 ```
 
 ### `CharacterRequestToServer`
 
-Pass `data.data().reputationCap` alongside `reputation` to `CharacterInfoToClient.ofEntity()`.
-
-### `DonationBoxBlockEntity.getDebugPacket()`
-
-Show `reputationCap` in the tooltip.
+Passes `data.data().reputationCap` alongside `reputation` to `CharacterInfoToClient.ofEntity()`, which shows it via `ReputationState.toInfo`. `DonationBoxBlockEntity.getDebugPacket()` does the same for a bound bed.
 
 ### Lang key
 
-Update `gensokyolegacy.info.entity_reputation` to format `"Reputation: %d / %d"` (current / cap).
+`gensokyolegacy.info.entity_reputation` formats `"Your reputation: %s / %s"` (current / cap).
 
 ## Conditions (no change)
 
 `SelfReputationCondition` and `OtherReputationCondition` already test `data().reputation >= threshold`. This remains correct -- conditions check current reputation, not cap.
 
-## Files to modify
+## Files
 
-1. **New** `content/attachment/character/ReputationConstants.java` -- centralized constants
-2. `content/attachment/character/CharacterData.java` -- add `reputationCap` field, rewrite `gainReputation`/`loseReputation`, reference constants
-3. `content/attachment/character/CharDataHolder.java` -- update `feed()`, `gain()` signatures
-4. `content/attachment/character/ReputationState.java` -- update `getState()` and `toInfo()` to use constants and show cap
-5. `content/rpg/reward/ReputationReward.java` -- add 2 new fields, update codec and execute
-6. `content/block/deco/donation/DonationBoxBlockEntity.java` -- update `take()` and `getDebugPacket()`
-7. `content/entity/module/GiftModule.java` -- update gain call
-8. `content/client/debug/CharacterRequestToServer.java` -- pass cap to info packet
-9. `content/client/debug/CharacterInfoToClient.java` -- accept and store cap
-10. `content/client/debug/CharacterInfoClientManager.java` -- display cap in tooltip
-11. `init/data/rpg/ReimuQDGen.java` -- update quest reward constructors
-12. All generated quest/trade JSON -- update `ReputationReward` format
-13. `init/data/GLLang.java` -- update lang format string
-14. Generated lang files (`en_us.json`, `en_ud.json`, `zh_cn.json`)
+- `content/attachment/character/ReputationConstants.java` -- every tuning number
+- `content/attachment/character/CharacterData.java` -- `reputation` / `reputationCap`, the gain and lose methods, decay and the combat reactions
+- `content/attachment/character/CharDataHolder.java` -- `feed()` and `gain()`, each syncing afterwards
+- `content/attachment/character/ReputationState.java` -- state to colour and target kind
+- `content/rpg/reward/ReputationReward.java` -- the four fields and their codec
+- `content/block/deco/donation/DonationBoxBlockEntity.java` -- gold exchange and debug tooltip
+- `content/entity/module/GiftModule.java` -- the gift gain
+- `content/client/debug/CharacterRequestToServer.java`, `CharacterInfoToClient.java`, `CharacterInfoClientManager.java` -- cap on the debug tooltip
+- `init/data/rpg/{Reimu,Alice,Marisa}QDGen.java` and the generated quest JSON -- reward values
+- `init/data/GLLang.java` and the generated lang files -- the format string
 
 ## Migration
 

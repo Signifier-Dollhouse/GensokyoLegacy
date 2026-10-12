@@ -10,15 +10,12 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Arrays;
 
 /**
- * Doll loadout storage as a mutable-free {@code @SerialClass}: one array slot per
- * {@link DollSlot} ordinal. Backed by a plain array (not an enum map) so l2serial
- * handles it as a native array codec, same trick as {@code TalismanPocketData}.
- * <p>
- * This is the item-side variant: reads return copies and writes produce new instances,
- * so stored {@link ItemStack}s are never aliased or mutated in place — the data
- * component rule. Backs the doll item's {@code DOLL_LOADOUT} component, hence value
- * {@code equals}/{@code hashCode}. The live ledger loadout is
- * {@link MutableDollInventory}, converting to/from this class at the item boundary.
+ * Immutable loadout storage: one array slot per {@link DollSlot} ordinal, not an enum map, so
+ * l2serial handles it as a native array codec. Reads return copies and writes produce new
+ * instances, so a stored {@link ItemStack} is never aliased or mutated in place — the
+ * data-component rule. The live ledger loadout is {@link MutableDollInventory}.
+ *
+ * @see doc/design/doll/loadout.md
  */
 @SerialClass
 public class DollInventory {
@@ -75,8 +72,8 @@ public class DollInventory {
 	}
 
 	/**
-	 * Hand switch: swaps main/off contents. Used when a doll is commanded to act with
-	 * its off-hand item — the swap sticks until a further command swaps back.
+	 * Hand switch: swaps main/off contents, and the swap sticks until a further command
+	 * swaps back.
 	 */
 	public DollInventory swappedHands() {
 		ItemStack[] next = items.clone();

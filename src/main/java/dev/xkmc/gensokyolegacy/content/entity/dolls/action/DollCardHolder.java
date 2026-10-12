@@ -17,8 +17,7 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * {@link CardHolder} for a doll action: mirrors {@code YoukaiCardHolder} but aims at
- * the commanded target position captured by the goal. Shot damage is the bullet's
- * base damage — dolls carry no attack-damage attribute.
+ * the commanded target position captured by the goal.
  */
 public record DollCardHolder(DollEntity doll, Vec3 targetPos) implements CardHolder {
 
