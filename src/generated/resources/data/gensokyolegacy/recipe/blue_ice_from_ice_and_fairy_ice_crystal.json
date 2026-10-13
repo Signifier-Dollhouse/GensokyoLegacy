@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {
+    "C": {
+      "item": "gensokyolegacy:fairy_ice_crystal"
+    },
+    "I": {
+      "item": "minecraft:ice"
+    }
+  },
+  "pattern": [
+    "III",
+    "ICI",
+    "III"
+  ],
+  "result": {
+    "count": 8,
+    "id": "minecraft:blue_ice"
+  }
+}

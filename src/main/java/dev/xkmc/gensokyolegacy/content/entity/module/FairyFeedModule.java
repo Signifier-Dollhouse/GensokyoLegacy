@@ -34,7 +34,7 @@ import java.util.List;
 import java.util.function.Supplier;
 
 /**
- * A plain fairy is fed, and what she gives back is a matter of what she was given.
+ * A fairy is fed, and what she gives back is a matter of what she was given.
  * <p>
  * Deliberately not the generic {@link FeedModule}: a dish is worth a flat amount
  * here instead of a favor scaled off its nutrition, the ceiling is one feeding
@@ -50,6 +50,13 @@ import java.util.function.Supplier;
  * <p>
  * Food does the same thing for a player she is still hostile towards, minus the
  * gifts - see {@link #feed}.
+ * <p>
+ * Shared with every fairy rather than being the plain fairy's alone: Cirno carries
+ * it too and is fed on exactly these terms, so the two tiers, the reputation and
+ * the twenty-second cooldown are one set of numbers for the pair. What she hands
+ * back is the single thing she does <em>not</em> share - see
+ * {@link #cakeGift()} and {@link #cookieGift()}, which is why
+ * {@code CirnoFeedModule} is a subclass and nothing here is a table.
  */
 @SerialClass
 public class FairyFeedModule extends AbstractYoukaiModule {
@@ -122,6 +129,32 @@ public class FairyFeedModule extends AbstractYoukaiModule {
 	}
 
 	/**
+	 * The thank-you for a cake, on the plain fairy's terms: the fairy dust a cake
+	 * is worth is what the cake is made of in the first place, so the meal and the
+	 * payment are the same ingredient.
+	 * <p>
+	 * Overridden where a fairy's answer is not dust - {@code CirnoFeedModule} hands
+	 * back a whole crystal instead, which is the only thing she makes by hand and so
+	 * the only gift she can give that means anything to whoever feeds her.
+	 */
+	protected ItemStack cakeGift() {
+		return new ItemStack(GLItems.FAIRY_DUST.get());
+	}
+
+	/**
+	 * The thank-you for a cookie: one flower out of {@link ItemTags#FLOWERS}, of
+	 * which a datapack can leave an empty tag - poppy is the fallback rather than an
+	 * exception, because the whole point of this is that something always lands at
+	 * their feet.
+	 * <p>
+	 * Rolled per feeding rather than cached, so two cookies handed over in a row can
+	 * come back as two different flowers.
+	 */
+	protected ItemStack cookieGift() {
+		return new ItemStack(randomFlower());
+	}
+
+	/**
 	 * Vanilla cake and the mod's own fairy cake - the two things she calls a meal, and
 	 * the two worth ten reputation and a fairy dust rather than a flower.
 	 */
@@ -133,10 +166,15 @@ public class FairyFeedModule extends AbstractYoukaiModule {
 	 * The dish a given stack is to her, or null for anything she will not eat. The one
 	 * place a stack is turned into what feeding it costs and pays, and the only place
 	 * that rolls a gift - so the roll belongs to her own random source.
+	 * <p>
+	 * The gift itself is a method rather than a stack built inline here: which stack
+	 * comes back is the one thing that differs between a fairy and the fairy who
+	 * crafts ice, so it is the one thing left overridable. Everything else - the two
+	 * tiers, the reputation, the cap, the cooldown - is shared and stays in this class.
 	 */
 	private @Nullable Dish dish(ItemStack stack) {
-		if (isCake(stack)) return new Dish(CAKE_REPUTATION, () -> new ItemStack(GLItems.FAIRY_DUST.get()));
-		if (stack.is(Tags.Items.FOODS_COOKIE)) return new Dish(COOKIE_REPUTATION, () -> new ItemStack(randomFlower()));
+		if (isCake(stack)) return new Dish(CAKE_REPUTATION, this::cakeGift);
+		if (stack.is(Tags.Items.FOODS_COOKIE)) return new Dish(COOKIE_REPUTATION, this::cookieGift);
 		return null;
 	}
 

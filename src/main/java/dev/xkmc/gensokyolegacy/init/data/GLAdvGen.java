@@ -17,6 +17,7 @@ import net.minecraft.advancements.AdvancementRewards;
 import net.minecraft.advancements.AdvancementType;
 import net.minecraft.advancements.Criterion;
 import net.minecraft.advancements.critereon.EntityPredicate;
+import net.minecraft.advancements.critereon.EntityTypePredicate;
 import net.minecraft.advancements.critereon.LocationPredicate;
 import net.minecraft.advancements.critereon.PlayerTrigger;
 import net.minecraft.core.Holder;
@@ -63,10 +64,19 @@ public class GLAdvGen {
 	 * off the food: the dish is always whatever {@code FairyFeedModule} already
 	 * accepted, so pinning an item predicate would only repeat a decision the trigger
 	 * has already made.
+	 * <p>
+	 * The entity half has to name every fairy that can be fed, since the trigger fires
+	 * for whoever carries that module and the criterion would otherwise throw her out:
+	 * Cirno is fed on the same two tiers as the plain fairy, so both count here. A
+	 * direct holder set rather than a tag, because the list is closed - it is one more
+	 * entity for whoever next teaches a fairy to eat.
 	 */
 	private static Criterion<FeedCharacterTrigger.TriggerInstance> fedAFairy() {
+		var fairies = HolderSet.direct(
+				GLEntities.PLAIN_FAIRY.get().builtInRegistryHolder(),
+				GLEntities.CIRNO.get().builtInRegistryHolder());
 		return FeedCharacterTrigger.TriggerInstance.usedItem(GLCriteriaTriggers.FEED_FAIRY, null,
-				EntityPredicate.Builder.entity().of(GLEntities.PLAIN_FAIRY.get()).build(), null);
+				EntityPredicate.Builder.entity().entityType(new EntityTypePredicate(fairies)).build(), null);
 	}
 
 	public static void genAdv(RegistrateAdvancementProvider pvd) {

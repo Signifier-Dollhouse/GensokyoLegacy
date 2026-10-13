@@ -45,10 +45,12 @@ public class GLRecipeGen {
 	}
 
 	/**
-	 * The two ends of the fairy-dust loop, which is closed on purpose: a fairy hands
-	 * dust back for cake, and cake plus dust makes fairy cake, which is itself worth
-	 * feeding her. The twenty-second cooldown in {@code FairyFeedModule} is what
-	 * decides how fast that pays out.
+	 * The fairy economy in three recipes, and both of its loops are closed on
+	 * purpose: a fairy hands dust back for cake, cake plus dust makes fairy cake,
+	 * which is itself worth feeding her; and a Cirno hands an ice crystal back for
+	 * cake, which is the same crystal she builds out of three frozen frogs, and the
+	 * crystal is a catalyst for the ice around it. The twenty-second cooldown in
+	 * {@code FairyFeedModule} is what decides how fast any of it pays out.
 	 */
 	private static void fairyFeed(RegistrateRecipeProvider pvd) {
 		// one cake stirred with one dust comes out as seven: the dust is the whole
@@ -66,6 +68,22 @@ public class GLRecipeGen {
 						GLItems.FAIRY_ICE_CRYSTAL.get())
 				.requires(GLItems.FAIRY_ICE_CRYSTAL.get())
 				.save(pvd, GensokyoLegacy.loc("fairy_dust_from_fairy_ice_crystal"));
+
+		// and the crystal spent rather than crushed: packed around one, the whole grid
+		// freezes and comes out as the eight blocks of blue ice it went in as. Shaped
+		// and not shapeless because a crystal is a seed and not an ingredient - the
+		// count on each side is even on purpose, so a grid full of ice is worth exactly
+		// as much blue ice as the ice was worth ice and the crystal is the only thing
+		// you lose. It also completes what a cookie pays out: Cirno hands back four
+		// packed ice, so two cookies and a cake are one blue ice.
+		unlock(pvd, ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, Blocks.BLUE_ICE, 8)::unlockedBy,
+						GLItems.FAIRY_ICE_CRYSTAL.get())
+				.pattern("III")
+				.pattern("ICI")
+				.pattern("III")
+				.define('I', Items.ICE)
+				.define('C', GLItems.FAIRY_ICE_CRYSTAL.get())
+				.save(pvd, GensokyoLegacy.loc("blue_ice_from_ice_and_fairy_ice_crystal"));
 	}
 
 	public static void hexbrew(RegistrateRecipeProvider pvd) {

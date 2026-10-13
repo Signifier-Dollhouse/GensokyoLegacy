@@ -22,6 +22,7 @@ public class YoukaiVanishTask extends Behavior<SmartYoukaiEntity> {
 
 	@Override
 	protected boolean checkExtraStartConditions(ServerLevel level, SmartYoukaiEntity entity) {
+		if (!entity.vanishOutOfSight()) return false;
 		if (entity.hasPlayerNearby() || entity.tickCount < 100) {
 			vanishTime = 0;
 			return false;

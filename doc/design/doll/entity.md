@@ -207,7 +207,7 @@ public void readValuesFrom(DollData d) { super.readValuesFrom(d); setDyeColor(d.
 
 - `toy_idle` loop while still, `toy_fly` loop while moving. One-shot `toy_attack` / `toy_bomb` are triggerable anims fired by server-to-client entity events (bytes 66/67) broadcast from `DollCommandGoal.start()` by action type.
 - `DATA_COLOR` is a synced `EntityDataAccessor<Integer>` (`EntityDataSerializers.INT`, default `DyeColor.RED.getId()`), exposed as `getColor()` / `setDyeColor(DyeColor)` and used by `DollModel` for per-`DyeColor` texture lookup. It flows through `write/readValuesTo/From` (overriding `BaseDollEntity.getColor()`'s red default each way).
-- `registerControllers(AnimatableManager.ControllerRegistrar)` adds the "all" controller with the pure `dollAnimController(event)` state machine; `getAnimatableInstanceCache()` returns `GeckoLibUtil.createInstanceCache(this)`.
+- `registerControllers(AnimatableManager.ControllerRegistrar)` adds three controllers, in bone-writing order: the `"wink"` blink loop, the `"all"` state controller holding the pure `dollAnimController(event)` hover machine, and the `"one_shot"` controller holding the triggerables. State and one-shots are split because a GeckoLib controller plays one animation at a time — sharing one leaves every bone a strike does not touch hovering still until it ends. `getAnimatableInstanceCache()` returns `GeckoLibUtil.createInstanceCache(this)`.
 
 ### 8.1 Planned additions (landing with `loadout.md`)
 

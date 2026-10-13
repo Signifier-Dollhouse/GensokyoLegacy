@@ -12,10 +12,13 @@ import dev.xkmc.gensokyolegacy.init.registrate.GLBrains;
 import dev.xkmc.gensokyolegacy.util.BrainUtils;
 import dev.xkmc.l2core.base.entity.SyncedData;
 import dev.xkmc.l2serial.serialization.marker.SerialClass;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializer;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
@@ -25,16 +28,16 @@ import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.behavior.CountDownCooldownTicks;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
+import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.schedule.Activity;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
-import software.bernie.geckolib.animation.AnimationController;
-import software.bernie.geckolib.animation.AnimatableManager;
 import software.bernie.geckolib.animation.AnimationState;
 import software.bernie.geckolib.animation.PlayState;
 import software.bernie.geckolib.animation.RawAnimation;
@@ -51,11 +54,6 @@ import java.util.Optional;
 @SerialClass
 public class PlainFairyEntity extends FairyEntity implements GeoYoukaiAnim {
 
-	/**
-	 * How many sheets the rig ships, i.e. the range of {@link #DATA_VARIANT}. The
-	 * {@code fairy_*.png} sheets are the same recolour of one mesh, chosen per entity,
-	 * and each of them has a {@code fairy_*_flower.png} twin - see {@link #DATA_FLOWER}.
-	 */
 	public static final int VARIANT_COUNT = 5;
 
 	/**
@@ -112,30 +110,11 @@ public class PlainFairyEntity extends FairyEntity implements GeoYoukaiAnim {
 
 	protected static final RawAnimation IDLE = RawAnimation.begin().thenLoop("待机");
 	protected static final RawAnimation SIT = RawAnimation.begin().thenLoop("坐下");
-	/**
-	 * Her hovering loop, which is what an airborne fairy wants instead of standing.
-	 * <p>
-	 * Also covers walking: this rig has no {@code 走路}/{@code 跑步} clip, like Cirno's.
-	 * It cannot stay a missing name — GeckoLib resolves an unknown clip to {@code null},
-	 * {@code buildAnimationQueue} then hands the controller an empty queue, and the next
-	 * {@code process()} tick stops it without writing any bones — which would pin her in
-	 * the last pose written, i.e. frozen mid-hover for the whole walk, silently.
-	 */
+
 	private static final RawAnimation FLOAT = RawAnimation.begin().thenLoop("漂浮");
+	private static final RawAnimation CRYING_FLOAT = RawAnimation.begin().thenLoop("哭泣_漂浮");
 	private static final RawAnimation USE_MAINHAND = RawAnimation.begin().thenPlay("使用主手物品");
 
-
-	/**
-	 * Start the chew. Server-side; the play itself is an entity event, so the client
-	 * sees the same animation the server timed the flower throw against.
-	 * <p>
-	 * Overrides the base no-op rather than being a fairy's own invention: a party guest
-	 * holding a plate calls this on whatever character she is, and only a rig with a
-	 * {@code 吃} clip answers.
-	 */
-	/**
-	 * Her own entity data, layered over the generic youkai/spell-data layers.
-	 */
 	protected static final SyncedData PLAIN_FAIRY_DATA = new SyncedData(PlainFairyEntity::defineId, SPELL_DATA);
 
 	private static final EntityDataAccessor<Integer> DATA_VARIANT = PLAIN_FAIRY_DATA.define(SyncedData.INT, 0, "variant");
@@ -424,20 +403,14 @@ public class PlainFairyEntity extends FairyEntity implements GeoYoukaiAnim {
 
 	// ---------- geckolib ----------
 
-	protected <E extends PlainFairyEntity> PlayState idleAnimController(final AnimationState<E> event) {
-		if (event.getController().isPlayingTriggeredAnimation()) {
-			return PlayState.CONTINUE;
-		}
-		// No 睡觉 clip in this rig, and it must not name a missing one - see FLOAT
-		// above for what GeckoLib does with a name it cannot resolve. 坐下 is the
-		// closest thing she has, and it is what she is playing as a passenger anyway.
+	public PlayState stateAnimController(AnimationState<?> event) {
 		if (isSleeping() || isPassenger()) {
 			return event.setAndContinue(SIT);
 		}
-		// She hovers by construction, so "off the ground" is the honest test for
-		// the floating clip - the nav FLYING flag only covers the stretches where
-		// she is actually being flown somewhere.
-		if (!onGround()) {
+		if (getActivity() == GLBrains.FEAR.get()) {
+			event.setAndContinue(CRYING_FLOAT);
+		}
+		if (event.isMoving()) {
 			return event.setAndContinue(FLOAT);
 		}
 		return event.setAndContinue(IDLE);
@@ -453,19 +426,17 @@ public class PlainFairyEntity extends FairyEntity implements GeoYoukaiAnim {
 		return switch (anim) {
 			case USE_MAINHAND -> Optional.of(USE_MAINHAND);
 			case GREET, TALK_01, TALK_02, TALK_03, TALK_04, TALK_05, THINK, THINK_02,
-					CONFUSED, AGREE, DECLINE, OUTDOOR_IDLE -> Optional.empty();
+				 CONFUSED, AGREE, DECLINE, OUTDOOR_IDLE -> Optional.empty();
 		};
 	}
 
+	/**
+	 * This rig has no {@code 受伤} clip, so the flinch must not be named at all — see
+	 * {@link GeoYoukaiAnim#hasHurtAnim}.
+	 */
 	@Override
-	public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-		// Blink first: controllers tick in registration order and overwrite shared
-		// bones, so the always-looping blink yields to the main controller.
-		controllers.add(new AnimationController<>(this, WINK_CONTROLLER, 0, e -> e.setAndContinue(BLINK)));
-		var main = new AnimationController<>(this, ANIM_CONTROLLER, 5, this::idleAnimController);
-		addEatAnim(main);
-		addDialogAnims(main);
-		controllers.add(main);
+	public boolean hasHurtAnim() {
+		return false;
 	}
 
 	@Override
@@ -479,6 +450,18 @@ public class PlainFairyEntity extends FairyEntity implements GeoYoukaiAnim {
 	@Override
 	public AnimatableInstanceCache getAnimatableInstanceCache() {
 		return this.geoCache;
+	}
+
+	@Override
+	public boolean vanishOutOfSight() {
+		return false;
+	}
+
+	public static boolean checkFairySpawnRules(
+			EntityType<? extends FairyEntity> type, LevelAccessor level, MobSpawnType spawnType, BlockPos pos, RandomSource random
+	) {
+		boolean flag = MobSpawnType.ignoresLightRequirements(spawnType) || level.getRawBrightness(pos, 0) > 8;
+		return level.getBlockState(pos.below()).is(BlockTags.ANIMALS_SPAWNABLE_ON) && flag;
 	}
 
 }

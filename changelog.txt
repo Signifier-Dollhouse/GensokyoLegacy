@@ -1,3 +1,11 @@
+1.0.4
+- Party! host a party with invitation
+- Gift system: send gifts to characters
+- Fairies and Cirno: feed them cakes
+- Suika is here, sometimes sneak into your party
+- Floating effect from fairy cakes and fairy hexbrew
+- Refined hexbrew via Elixir
+
 1.0.3
 - refurnish alice house
 - add repaired mini hakkero, allow it to boost broom

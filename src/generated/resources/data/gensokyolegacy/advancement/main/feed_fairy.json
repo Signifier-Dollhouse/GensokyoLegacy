@@ -4,7 +4,10 @@
     "0": {
       "conditions": {
         "entity": {
-          "type": "gensokyolegacy:plain_fairy"
+          "type": [
+            "gensokyolegacy:plain_fairy",
+            "gensokyolegacy:cirno"
+          ]
         }
       },
       "trigger": "gensokyolegacy:feed_fairy"

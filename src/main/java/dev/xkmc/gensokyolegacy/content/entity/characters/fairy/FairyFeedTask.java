@@ -28,11 +28,19 @@ import java.util.Map;
  * target underneath her while she has something in both hands.
  * <p>
  * What she hands back is not decided here: the module rolled it when she took
- * the food, so this only has to carry it to her hand. A cookie bought a flower,
- * a cake bought fairy dust, and either way the stack to throw is already in the
- * memory.
+ * the food, so this only has to carry it to her hand. On a plain fairy a cookie
+ * bought a flower and a cake bought fairy dust; on Cirno the same two tiers buy
+ * packed ice and a crystal. Either way the stack to throw is already in the
+ * memory, and this task cannot tell the difference - which is the point of
+ * letting {@code FairyFeedModule} own the gift.
+ * <p>
+ * Typed to {@link FairyEntity} rather than to the plain fairy specifically,
+ * because eating is the shared fairy's rule and Cirno is fed on the same terms:
+ * same two tiers, same reputation, same cap, same twenty-second cooldown, with
+ * only the thank-you swapped out underneath. Every method it calls is on
+ * {@code YoukaiEntity}, so the wider bound costs nothing.
  */
-public class FairyFeedTask extends Behavior<PlainFairyEntity> {
+public class FairyFeedTask extends Behavior<FairyEntity> {
 
 	/**
 	 * How long she chews before reaching for the gift. Matched to the length of
@@ -61,7 +69,7 @@ public class FairyFeedTask extends Behavior<PlainFairyEntity> {
 	private boolean thrown;
 
 	@Override
-	protected void start(ServerLevel level, PlainFairyEntity entity, long gameTime) {
+	protected void start(ServerLevel level, FairyEntity entity, long gameTime) {
 		startedAt = gameTime;
 		reached = false;
 		thrown = false;
@@ -89,7 +97,7 @@ public class FairyFeedTask extends Behavior<PlainFairyEntity> {
 	 * and {@link #stop} clears the memory that started it.
 	 */
 	@Override
-	protected boolean canStillUse(ServerLevel level, PlainFairyEntity entity, long gameTime) {
+	protected boolean canStillUse(ServerLevel level, FairyEntity entity, long gameTime) {
 		return true;
 	}
 
@@ -99,7 +107,7 @@ public class FairyFeedTask extends Behavior<PlainFairyEntity> {
 	 * tick the animation is playing - so the gesture and the gift cannot come apart.
 	 */
 	@Override
-	protected void tick(ServerLevel level, PlainFairyEntity entity, long gameTime) {
+	protected void tick(ServerLevel level, FairyEntity entity, long gameTime) {
 		holdStill(entity);
 		long age = gameTime - startedAt;
 		if (!reached && age >= EAT_TICKS) {
@@ -119,7 +127,7 @@ public class FairyFeedTask extends Behavior<PlainFairyEntity> {
 	 * she has actually stopped. Her hover is left alone - she stays up, she just
 	 * stops travelling.
 	 */
-	private static void holdStill(PlainFairyEntity entity) {
+	private static void holdStill(FairyEntity entity) {
 		var v = entity.getDeltaMovement();
 		entity.setDeltaMovement(0.0, v.y, 0.0);
 	}
@@ -130,7 +138,7 @@ public class FairyFeedTask extends Behavior<PlainFairyEntity> {
 	 * carried over the wire, since a player can drop back below the line while she
 	 * is still chewing.
 	 */
-	private static void throwGift(PlainFairyEntity entity) {
+	private static void throwGift(FairyEntity entity) {
 		var fed = BrainUtils.getMemory(entity, GLBrains.MEM_FEED.get());
 		if (fed == null) return;
 		entity.getData(fed.player())
@@ -145,7 +153,7 @@ public class FairyFeedTask extends Behavior<PlainFairyEntity> {
 	 * memory is still set by that second dish, and the behavior starts again for it.
 	 */
 	@Override
-	protected void stop(ServerLevel level, PlainFairyEntity entity, long gameTime) {
+	protected void stop(ServerLevel level, FairyEntity entity, long gameTime) {
 		BrainUtils.clearMemory(entity, GLBrains.MEM_FEED.get());
 	}
 

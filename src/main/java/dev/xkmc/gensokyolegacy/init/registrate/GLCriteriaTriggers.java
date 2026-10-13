@@ -18,7 +18,8 @@ public class GLCriteriaTriggers {
 	public static final Val<PlayerTrigger> KOISHI_HAT = CT.reg("koishi_hat", PlayerTrigger::new);
 	public static final Val<FeedCharacterTrigger> FEED_REIMU = CT.reg("feed_reimu", FeedCharacterTrigger::new);
 	/**
-	 * A plain fairy was handed a cookie or a cake. Separate id off the same class as
+	 * A fairy was handed a cookie or a cake - the plain one, Cirno, or whoever else
+	 * ends up carrying a {@code FairyFeedModule}. Separate id off the same class as
 	 * {@link #FEED_REIMU} so an advancement can ask for a fairy without having to
 	 * spell out which of the three dishes counted - it is the entity the criterion is
 	 * about, and the food is only ever what {@code FairyFeedModule} already accepted.

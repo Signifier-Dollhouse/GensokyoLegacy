@@ -30,8 +30,12 @@ import java.util.Set;
  * pipeline is reused rather than rebuilt. Being the <em>only</em> writer of that
  * memory is deliberate: two sensors both claiming it would race, and whichever ran
  * second would erase the other's find.
+ * <p>
+ * Typed to {@link FairyEntity} because what draws her to somebody is the same for
+ * every fairy - Cirno is tempted by the same two dishes and held off by the same
+ * cooldown - rather than a property of the plain fairy's rig.
  */
-public class FairyInterestSensor extends DynamicSensor<PlainFairyEntity> {
+public class FairyInterestSensor extends DynamicSensor<FairyEntity> {
 
 	/**
 	 * Vanilla's own temptation range, and the point past which she loses interest.
@@ -44,7 +48,7 @@ public class FairyInterestSensor extends DynamicSensor<PlainFairyEntity> {
 	}
 
 	@Override
-	protected void doTick(ServerLevel level, PlainFairyEntity entity) {
+	protected void doTick(ServerLevel level, FairyEntity entity) {
 		// While she is still busy with the last thing she was fed she is drawn to
 		// nobody at all: not the player holding one, and not an interesting person
 		// either. Said once per scan rather than once per player in range, because it
@@ -70,14 +74,14 @@ public class FairyInterestSensor extends DynamicSensor<PlainFairyEntity> {
 	 * from being farmed keeps her from trailing the player around with her hand out
 	 * for a treat she cannot have.
 	 */
-	private static boolean availableForTemptation(PlainFairyEntity entity) {
+	private static boolean availableForTemptation(FairyEntity entity) {
 		return entity.getModule(FairyFeedModule.class)
 				.map(FairyFeedModule::getCoolDown)
 				.map(coolDown -> coolDown == 0)
 				.orElse(true);
 	}
 
-	private static boolean drawsHer(PlainFairyEntity entity, Player player) {
+	private static boolean drawsHer(FairyEntity entity, Player player) {
 		return FairyFeedModule.isFood(player.getMainHandItem())
 				|| FairyFeedModule.isFood(player.getOffhandItem());
 	}
