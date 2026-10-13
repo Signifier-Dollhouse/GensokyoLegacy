@@ -19,10 +19,14 @@ public class FeastFood extends AbstractCountdownFood {
 		return block instanceof FeastBlock;
 	}
 
-	/** The slice a feast hands over, which is both the item and the food; copied because the result is shared. */
+	/**
+	 * The slice a feast hands over, which is both the item and the food; copied because the result is shared.
+	 */
 	@Override
 	public ItemStack serving(BlockState state) {
 		if (!(state.getBlock() instanceof FeastBlock feast)) return ItemStack.EMPTY;
+		if (!state.hasProperty(feast.getServingsProperty())) return ItemStack.EMPTY;
+		if (state.getValue(feast.getServingsProperty()) <= 0) return ItemStack.EMPTY;
 		return feast.getServingItem(state).copy();
 	}
 }

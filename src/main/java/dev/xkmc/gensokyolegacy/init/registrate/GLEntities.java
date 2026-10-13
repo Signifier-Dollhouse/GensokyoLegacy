@@ -107,15 +107,12 @@ public class GLEntities {
 
 		// weight, minRep, maxRep, repBonus, minAppeal, maxAppeal, fulfillment,
 		// hungrySeat, fullSeat, leaveChance, repGain.
-		// The two sits are 60 and 160 ticks — three and eight seconds — so a guest who is
-		// still hungry comes back for the next course quickly and one who is only grazing
-		// takes her time, and the 0.05 is what a party pays the host.
 		PartyTaste TASTE_CIRNO = new PartyTaste(100, 0, 150, 1, 4, 20, 6, 60, 160, 0.05, 0.05);
-		PartyTaste TASTE_REIMU = new PartyTaste(100, 0, 200, 1, 10, 32, 20, 60, 160, 0.05, 0.05);
-		PartyTaste TASTE_MARISA = new PartyTaste(100, 0, 200, 1, 20, 32, 20, 60, 160, 0.05, 0.05);
-		PartyTaste TASTE_MORICHIKA = new PartyTaste(100, 0, 200, 1, 20, 32, 20, 60, 160, 0.05, 0.05);
-		PartyTaste TASTE_ALICE = new PartyTaste(100, 0, 250, 1, 24, 40, 12, 60, 160, 0.05, 0.05);
-		PartyTaste TASTE_SAKUYA = new PartyTaste(100, 0, 250, 1, 30, 48, 20, 60, 160, 0.05, 0.05);
+		PartyTaste TASTE_REIMU = new PartyTaste(100, 0, 200, 1, 50, 300, 20, 60, 160, 0.05, 0.05);
+		PartyTaste TASTE_MARISA = new PartyTaste(100, 0, 200, 1, 100, 400, 20, 60, 160, 0.05, 0.05);
+		PartyTaste TASTE_MORICHIKA = new PartyTaste(100, 0, 200, 1, 100, 400, 20, 60, 160, 0.05, 0.05);
+		PartyTaste TASTE_ALICE = new PartyTaste(100, 0, 250, 1, 150, 500, 12, 60, 160, 0.05, 0.05);
+		PartyTaste TASTE_SAKUYA = new PartyTaste(100, 0, 250, 1, 200, 500, 20, 60, 160, 0.05, 0.05);
 		// they eat a lot
 		PartyTaste TASTE_SUIKA = new PartyTaste(10, 0, 250, 1, 500, 1000, 400, 60, 160, 0.05, 0.01);
 
