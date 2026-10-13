@@ -6,6 +6,7 @@ import dev.xkmc.gensokyolegacy.content.client.debug.InfoUpdateClientManager;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.registrate.GLBrains;
+import dev.xkmc.gensokyolegacy.init.registrate.GLCriteriaTriggers;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.gensokyolegacy.util.BrainUtils;
 import dev.xkmc.l2serial.serialization.marker.SerialClass;
@@ -147,7 +148,7 @@ public class FairyFeedModule extends AbstractYoukaiModule {
 		}
 		var dish = dish(stack);
 		if (dish == null) return InteractionResult.PASS;
-		boolean welcomed = feed(sp, dish);
+		boolean welcomed = feed(sp, stack, dish);
 		stack.shrink(1);
 		// only a welcomed dish starts the timer: a player working their way back
 		// out of the hole has to be able to keep feeding, or one cake every twenty
@@ -182,9 +183,11 @@ public class FairyFeedModule extends AbstractYoukaiModule {
 	 * from here: the player is left in {@link GLBrains#MEM_FEED} and
 	 * {@code FairyFeedTask} plays the first beat, then the second.
 	 *
+	 * @param stack the dish as handed over, passed to the criterion trigger before the
+	 *              stack is shrunk: an empty stack would match no item predicate
 	 * @return whether it counted as a peace offering, i.e. she was not hostile
 	 */
-	private boolean feed(ServerPlayer sp, Dish dish) {
+	private boolean feed(ServerPlayer sp, ItemStack stack, Dish dish) {
 		if (self.getData(sp).isEmpty()) return false;
 		var holder = self.getData(sp).get();
 		var data = holder.data();
@@ -194,6 +197,9 @@ public class FairyFeedModule extends AbstractYoukaiModule {
 		data.gainReputation(dish.reputation(), 0, 0, 0);
 		data.reputation = Math.min(data.reputation, CAKE_REPUTATION_CAP);
 		holder.sync();
+		// past the empty-data bail above, so it fires on the same dishes that actually
+		// moved the reputation and not on ones fed to a relationship that does not exist
+		GLCriteriaTriggers.FEED_FAIRY.get().trigger(sp, self, stack);
 		// rolled now rather than at the throw: she reaches for the flower she was
 		// given, not for whatever comes up two seconds later
 		BrainUtils.setForgettableMemory(self, GLBrains.MEM_FEED.get(), new Fed(sp, dish.gift().get()), FEED_TTL);

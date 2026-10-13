@@ -19,6 +19,14 @@
         ]
       },
       "trigger": "minecraft:location"
+    },
+    "1": {
+      "conditions": {
+        "entity": {
+          "type": "gensokyolegacy:plain_fairy"
+        }
+      },
+      "trigger": "gensokyolegacy:feed_fairy"
     }
   },
   "display": {
@@ -38,7 +46,8 @@
   },
   "requirements": [
     [
-      "0"
+      "0",
+      "1"
     ]
   ],
   "rewards": {
