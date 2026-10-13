@@ -486,6 +486,11 @@ public class PlainFairyEntity extends FairyEntity implements GeoYoukaiAnim {
 		return this.geoCache;
 	}
 
+	@Override
+	public boolean vanishOutOfSight() {
+		return false;
+	}
+
 	public static boolean checkFairySpawnRules(
 			EntityType<? extends FairyEntity> type, LevelAccessor level, MobSpawnType spawnType, BlockPos pos, RandomSource random
 	) {

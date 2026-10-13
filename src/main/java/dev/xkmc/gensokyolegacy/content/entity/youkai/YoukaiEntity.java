@@ -253,16 +253,16 @@ public abstract class YoukaiEntity extends DamageClampEntity implements SpellCir
 
 	/**
 	 * Play this character's chew, if she has one.
- * <p>
- * An entity event rather than a direct animation call, so the client sees the same
- * animation the server timed the rest of the meal against.
- * <p>
- * Silent for a character that is not geo-animated at all, which is the honest answer: the
- * clip is per rig, and an eat animation is missing art rather than a missing system. Every
- * rig that has one registers it with {@code GeoYoukaiAnim#addEatAnim}, and the event is
- * what picks it up, so nothing here has to know which characters those are.
- */
-public void broadcastEat() {
+	 * <p>
+	 * An entity event rather than a direct animation call, so the client sees the same
+	 * animation the server timed the rest of the meal against.
+	 * <p>
+	 * Silent for a character that is not geo-animated at all, which is the honest answer: the
+	 * clip is per rig, and an eat animation is missing art rather than a missing system. Every
+	 * rig that has one registers it with {@code GeoYoukaiAnim#addEatAnim}, and the event is
+	 * what picks it up, so nothing here has to know which characters those are.
+	 */
+	public void broadcastEat() {
 		if (this instanceof GeoYoukaiAnim && !level().isClientSide()) {
 			level().broadcastEntityEvent(this, GeoYoukaiAnim.EAT_EVENT);
 		}
@@ -472,17 +472,6 @@ public void broadcastEat() {
 		if (noTargetTime > 40) {
 			bossEvent.setVisible(false);
 		}
-		if (noTargetTime > 100 && tickCount % 20 == 0) {
-			var e = level().getNearestPlayer(this, 32);
-			if (e == null || e.isSpectator()) {
-				noPlayerTime++;
-				int time = getFeatures().noPlayerDiscardTime();
-				if (time > 0 && noPlayerTime > time) {
-					discard();
-				}
-				return;
-			}
-		}
 		noPlayerTime = 0;
 	}
 
@@ -684,6 +673,10 @@ public void broadcastEat() {
 	 * unable to path anywhere at all, and she would have to climb again next tick.
 	 */
 	public boolean mayLand() {
+		return true;
+	}
+
+	public boolean vanishOutOfSight() {
 		return true;
 	}
 
