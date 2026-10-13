@@ -248,19 +248,12 @@ public class GLItems {
 			MYSTICAL_STRAW = reg.item("mystical_straw", Item::new)
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/ingredient/" + ctx.getName())))
 					.register();
-
+			FAIRY_DUST = reg.item("fairy_dust", Item::new)
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/ingredient/" + ctx.getName())))
+					.lang("Fairy Dust").register();
 			FAIRY_ICE_CRYSTAL = reg.item("fairy_ice_crystal", FairyIceItem::new)
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/ingredient/" + ctx.getName())))
 					.register();
-
-			// what a cake fed to a fairy comes back as, and what a cake is made of in
-			// the first place. Placeholder texture: glowstone dust is already a pile of
-			// yellow specks in a heap, so it reads right in the inventory until the
-			// sheet exists, and pointing at another namespace's texture is the same thing
-			// the invitation letter does with vanilla paper.
-			FAIRY_DUST = reg.item("fairy_dust", Item::new)
-					.model((ctx, pvd) -> pvd.generated(ctx, pvd.mcLoc("item/glowstone_dust")))
-					.lang("Fairy Dust").register();
 			FROZEN_FROG_COLD = reg.item("frozen_frog_cold",
 							p -> new FrozenFrogItem(p.stacksTo(16), FrogVariant.COLD))
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/ingredient/" + ctx.getName())))

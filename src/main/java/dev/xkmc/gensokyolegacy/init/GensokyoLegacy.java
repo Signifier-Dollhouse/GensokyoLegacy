@@ -136,6 +136,8 @@ public class GensokyoLegacy {
 			DispenserBlock.registerProjectileBehavior(GLItems.FAIRY_ICE_CRYSTAL.get());
 			DispenserBlock.registerProjectileBehavior(HexBrew.EXPLOSIVE_HEXBREW.bottle.get());
 			DispenserBlock.registerProjectileBehavior(HexBrew.MIASMA_HEXBREW.bottle.get());
+			DispenserBlock.registerProjectileBehavior(HexBrew.REFINED_EXPLOSIVE_HEXBREW.bottle.get());
+			DispenserBlock.registerProjectileBehavior(HexBrew.REFINED_MIASMA_HEXBREW.bottle.get());
 
 			((ItemAccessor) Items.POTION).setCraftingRemainingItem(Items.GLASS_BOTTLE);
 			((ItemAccessor) Items.DRAGON_BREATH).setCraftingRemainingItem(Items.GLASS_BOTTLE);

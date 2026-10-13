@@ -21,7 +21,7 @@
     }
   ],
   "inputFluid": {
-    "fluid": "minecraft:water"
+    "fluid": "gensokyolegacy:mundane_hexbrew"
   },
   "resultFluid": {
     "amount": 1000,

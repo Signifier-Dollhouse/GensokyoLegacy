@@ -102,6 +102,20 @@ public class GLRecipeGen {
 					.resultFluid(HexBrew.MIASMA_HEXBREW.getSource(), 1000)
 					::unlockedBy, GLNaturalBlocks.DEMONIC_MIASMA_MUSHROOM_SET.cap.get().asItem())
 					.save(pvd, GensokyoLegacy.loc("miasma_hexbrew"));
+
+			// the fairy brew: same carrier as all the others, spiked with the fairy's
+			// own powder. Drunk rather than thrown, so it grants Floating instead of
+			// splashing it around.
+			unlock(pvd, new UnorderedAlchemyRecipeBuilder()
+					.fluid(HexBrew.MUNDANE_HEXBREW.getSource())
+					.add(GLItems.FAIRY_DUST.get())
+					.add(GLNaturalBlocks.DREAM_MUSHROOM_SET.cap.get())
+					.add(GLNaturalBlocks.DREAM_MUSHROOM_SET.cap.get())
+					.add(GLNaturalBlocks.STAR_FLOWER)
+					.time(400)
+					.resultFluid(HexBrew.FAIRY_HEXBREW.getSource(), 1000)
+					::unlockedBy, GLItems.FAIRY_DUST.get())
+					.save(pvd, GensokyoLegacy.loc("fairy_hexbrew"));
 		}
 
 		// the elixir is a carrier, not a brew of its own: a full tank of it plus
@@ -132,6 +146,45 @@ public class GLRecipeGen {
 					.resultFluid(HexBrew.HYPHAE_HEXBREW.getSource(), 1000)
 					::unlockedBy, miasmaCap.asItem())
 					.save(pvd, GensokyoLegacy.loc("hyphae_hexbrew"));
+		}
+
+		// the refined hexbrews: the solvent brews overclocked by re-brewing them on
+		// the elixir, with the same ingredients and the same yield. The elixir's charge
+		// comes out as one more level of the thing - one more blast radius for the
+		// explosive, one more effect level for the other two.
+		{
+			unlock(pvd, new UnorderedAlchemyRecipeBuilder()
+					.fluid(HexBrew.HEXBREW_ELIXIR.getSource())
+					.add(Items.BLAZE_POWDER)
+					.add(Items.GUNPOWDER)
+					.time(200)
+					.resultFluid(HexBrew.REFINED_EXPLOSIVE_HEXBREW.getSource(), 1000)
+					::unlockedBy, Items.BLAZE_POWDER)
+					.save(pvd, GensokyoLegacy.loc("refined_explosive_hexbrew"));
+
+			unlock(pvd, new UnorderedAlchemyRecipeBuilder()
+					.fluid(HexBrew.HEXBREW_ELIXIR.getSource())
+					.add(GLNaturalBlocks.DEMONIC_MIASMA_MUSHROOM_SET.cap.get())
+					.add(Items.SPIDER_EYE)
+					.add(Items.ROTTEN_FLESH)
+					.add(Items.ROTTEN_FLESH)
+					.add(Items.ROTTEN_FLESH)
+					.add(Items.ROTTEN_FLESH)
+					.time(400)
+					.resultFluid(HexBrew.REFINED_MIASMA_HEXBREW.getSource(), 1000)
+					::unlockedBy, GLNaturalBlocks.DEMONIC_MIASMA_MUSHROOM_SET.cap.get().asItem())
+					.save(pvd, GensokyoLegacy.loc("refined_miasma_hexbrew"));
+
+			unlock(pvd, new UnorderedAlchemyRecipeBuilder()
+					.fluid(HexBrew.HEXBREW_ELIXIR.getSource())
+					.add(GLItems.FAIRY_DUST.get())
+					.add(GLNaturalBlocks.DREAM_MUSHROOM_SET.cap.get())
+					.add(GLNaturalBlocks.DREAM_MUSHROOM_SET.cap.get())
+					.add(GLNaturalBlocks.STAR_FLOWER)
+					.time(400)
+					.resultFluid(HexBrew.REFINED_FAIRY_HEXBREW.getSource(), 1000)
+					::unlockedBy, GLItems.FAIRY_DUST.get())
+					.save(pvd, GensokyoLegacy.loc("refined_fairy_hexbrew"));
 		}
 
 		// potion
