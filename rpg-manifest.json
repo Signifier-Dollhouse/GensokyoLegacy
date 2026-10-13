@@ -716,6 +716,7 @@
             "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/en_us/entries/misc_tools/dowser.json",
             "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/en_us/entries/misc_tools/mermaid_pearl.json",
             "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/en_us/entries/misc_tools/strange_glasses.json",
+            "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/en_us/entries/nature/fairies.json",
             "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/en_us/entries/nature/magical_forest.json",
             "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/en_us/entries/special_tools/border_umbrella.json",
             "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/en_us/entries/special_tools/broom.json",
@@ -769,6 +770,7 @@
             "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/zh_cn/entries/misc_tools/dowser.json",
             "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/zh_cn/entries/misc_tools/mermaid_pearl.json",
             "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/zh_cn/entries/misc_tools/strange_glasses.json",
+            "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/zh_cn/entries/nature/fairies.json",
             "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/zh_cn/entries/nature/magical_forest.json",
             "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/zh_cn/entries/special_tools/border_umbrella.json",
             "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/zh_cn/entries/special_tools/broom.json",
@@ -863,7 +865,7 @@
     "assets/lang/vanilla/en_us.json",
     "assets/lang/vanilla/zh_cn.json"
   ],
-  "revision": "7737f95aef4b2ded9a6261903b1f75eb",
+  "revision": "1019bf092c072d2e6c8262858079ae7c",
   "stats": {
     "quest": 27,
     "dialog": 235,
@@ -871,6 +873,6 @@
     "trade": 47,
     "files": 335,
     "recipes": 307,
-    "guideEntries": 78
+    "guideEntries": 80
   }
 }
