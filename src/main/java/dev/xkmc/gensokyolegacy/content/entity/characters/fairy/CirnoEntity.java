@@ -51,7 +51,6 @@ public class CirnoEntity extends FairyEntity implements GeoYoukaiAnim {
 	/**
 	 * Her hovering loop, which is what an airborne fairy wants instead of standing.
 	 * <p>
-	 * TODO walk cycle: this rig has no {@code 走路}/{@code 跑步} clip, so walking plays this
 	 * too. It cannot stay a missing name: GeckoLib resolves an unknown clip to {@code null},
 	 * {@code buildAnimationQueue} then hands the controller an empty queue, and the next
 	 * {@code process()} tick stops it without writing any bones — which pinned her in the
@@ -153,35 +152,6 @@ public class CirnoEntity extends FairyEntity implements GeoYoukaiAnim {
 		);
 	}
 
-	/**
-	 * Feeding a Cirno is feeding a fairy, on exactly the terms of a
-	 * {@link PlainFairyEntity}: the same two tiers of dish, the same flat reputation,
-	 * the same cap and the same twenty-second cooldown. So she carries
-	 * {@link CirnoFeedModule} rather than the generic {@code FeedModule}, which scales
-	 * a favour off the nutrition of anything edible - that one would have let her be
-	 * bought off with a rotten steak and given no thanks for it, where this one is a
-	 * cookie or a cake or nothing.
-	 * <p>
-	 * What she hands back is the one thing that is not shared with a plain fairy: a
-	 * cake buys a fairy ice crystal and a cookie buys four packed ice, rather than
-	 * dust and a flower. That is the whole of {@code CirnoFeedModule}, which is why it
-	 * is a subclass of {@link FairyFeedModule} rather than a second copy of it - and
-	 * it also happens to be the loop that makes her worth feeding, since the crystal
-	 * is the same one {@link #doCraft} builds out of three frozen frogs, and packed
-	 * ice is two thirds of the way to a blue ice.
-	 * <p>
-	 * The rest of the board is unchanged from the plain fairy's, which is the point:
-	 * these are the same lines, and they are what the {@code //TODO cirno food}
-	 * placeholder used to stand in for. Eating on its own {@link GLBrains#FEAST}
-	 * activity at 200, so a dish cuts in on her hunting and her stroll and is in turn
-	 * cut off by a fight; the chew-and-hand-it-back task on that activity; and the
-	 * same interest sensor that walks her over to whoever is holding something she
-	 * eats, which is also what holds her off for the length of the cooldown.
-	 * {@code CountDownCooldownTicks} comes with it because nothing else counts the
-	 * cooldown down on a brain - vanilla only ever registers it alongside a
-	 * {@code TemptationGoal} - and without it the memory the follow behavior writes
-	 * on stopping stays put and the whole temptation can only ever happen once.
-	 */
 	@Override
 	protected void constructTaskBoard(TaskBoard board) {
 		super.constructTaskBoard(board);

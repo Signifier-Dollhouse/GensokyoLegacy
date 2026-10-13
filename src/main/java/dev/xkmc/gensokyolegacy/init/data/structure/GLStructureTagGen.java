@@ -37,6 +37,16 @@ public class GLStructureTagGen {
 	public static final TagKey<Biome> ALICE_HOUSE = biomeTag("has_structure/alice_house");
 	public static final TagKey<Biome> PLAIN_FAIRY_SPAWN = biomeTag("has_spawn/plain_fairy");
 
+	/**
+	 * Youkai's Feasts' own cherry tag, written by our datagen run. A tag provider writes to the
+	 * namespace of the tag it is handed, not to its own modid, so adding this one here produces
+	 * {@code data/youkaisfeasts/tags/worldgen/biome/cherry_biomes.json} — which is the only way to
+	 * reach a foreign tag without shipping a hand-written file, since we own no provider in that
+	 * namespace. Spelled out rather than imported because that mod is compile-only.
+	 */
+	public static final TagKey<Biome> YSF_CHERRY_BIOMES = TagKey.create(Registries.BIOME,
+			ResourceLocation.fromNamespaceAndPath("youkaisfeasts", "cherry_biomes"));
+
 	public static final TagKey<Structure> HAKUREI_SHRINE_STRUCTURE = structureTag("hakurei_shrine");
 	public static final TagKey<Structure> MARISA_HOUSE_STRUCTURE = structureTag("marisa_house");
 	public static final TagKey<Structure> MORICHIKA_SHOP_STRUCTURE = structureTag("morichika_shop");
@@ -87,7 +97,21 @@ public class GLStructureTagGen {
 				.add(Biomes.SNOWY_BEACH);
 		pvd.addTag(HAKUREI_SHRINE)
 				.add(Biomes.CHERRY_GROVE)
-				.add(GLBiomes.SAKURA_FOREST);
+				.add(GLBiomes.SAKURA_FOREST)
+				// Youkai's Feasts' own sakura forest, which is a shrine grove as much as ours
+				// is. Optional, so that mod stays optional, and only that one biome: its
+				// sakura taiga and sakura birch forest are a different stand of trees and get
+				// the shrine no more than any other forest does. The other half of the
+				// exchange — our sakura forest in Youkai's Feasts' cherry_biomes — is
+				// YSF_CHERRY_BIOMES below, since a tag provider reaches a foreign namespace
+				// by the namespace of the tag rather than by its own modid.
+				.addOptional(ResourceLocation.parse("youkaisfeasts:sakura_forest"));
+		// Our sakura forest is a cherry grove to Youkai's Feasts, which uses that tag for its
+		// cherry flavour and for the forest halves of its spawns. "replace" stays false, which
+		// is the whole point: their own file lists three sakura biomes and the tag loader
+		// clears everything accumulated so far if any pack sets replace. Only sakura forest —
+		// the magical forest is not a cherry grove, however many mushrooms grow in it.
+		pvd.addTag(YSF_CHERRY_BIOMES).add(GLBiomes.SAKURA_FOREST);
 		pvd.addTag(MARISA_HOUSE)
 				.add(GLBiomes.MAGICAL_FOREST);
 		pvd.addTag(MORICHIKA_SHOP)
