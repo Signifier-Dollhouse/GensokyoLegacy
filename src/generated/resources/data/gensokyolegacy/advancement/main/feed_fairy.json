@@ -1,0 +1,31 @@
+{
+  "parent": "gensokyolegacy:main/welcome",
+  "criteria": {
+    "0": {
+      "conditions": {
+        "entity": {
+          "type": "gensokyolegacy:plain_fairy"
+        }
+      },
+      "trigger": "gensokyolegacy:feed_fairy"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.gensokyolegacy.main.feed_fairy.description"
+    },
+    "icon": {
+      "count": 1,
+      "id": "gensokyolegacy:fairy_cake"
+    },
+    "title": {
+      "translate": "advancements.gensokyolegacy.main.feed_fairy.title"
+    }
+  },
+  "requirements": [
+    [
+      "0"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

@@ -1,0 +1,29 @@
+{
+  "name": "妖精",
+  "icon": "gensokyolegacy:fairy_cake",
+  "category": "gensokyolegacy:nature",
+  "sortnum": 2,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": [
+        "minecraft:cake",
+        "minecraft:cookie"
+      ],
+      "title": "普通的妖精",
+      "text": "小小一只，在森林与草原间飘荡，大概是玩家最先以善意遇上的幻想乡生物。$(br2)不管她的时候，妖精无害，只是有点黏人。她会跟着手里拿着她想要的东西的人，吃饱了就立刻不见踪影。$(br2)蛋糕是一顿正餐，作为回礼她会抛给你妖精粉尘，值得专程跑一趟。$(br2)曲奇也是她喜爱的食物之一。回礼是从游戏里所有花中随机挑一朵，抛到你脚边。"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "gensokyolegacy:fairy_dust",
+      "title": "妖精粉尘",
+      "text": "对着花右键，粉尘会朝最近的人家牵出一根线——当你手上只有一座花园时，这就是找出谁家住哪里的办法。"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "gensokyolegacy:fairy_cake",
+      "title": "妖精蛋糕",
+      "text": "用妖精粉尘把蛋糕装饰成妖精更喜欢的味道：一小片就足以让妖精满足。$(br2)自己吃也行。味道很淡，只是会飘上一阵子。"
+    }
+  ]
+}
