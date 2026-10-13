@@ -87,7 +87,15 @@ public class GLStructureTagGen {
 				.add(Biomes.SNOWY_BEACH);
 		pvd.addTag(HAKUREI_SHRINE)
 				.add(Biomes.CHERRY_GROVE)
-				.add(GLBiomes.SAKURA_FOREST);
+				.add(GLBiomes.SAKURA_FOREST)
+				// Youkai's Feasts' own sakura forest, which is a shrine grove as much as ours
+				// is. Optional, so that mod stays optional, and only that one biome: its
+				// sakura taiga and sakura birch forest are a different stand of trees and get
+				// the shrine no more than any other forest does. The other half of the
+				// exchange — our sakura forest in Youkai's Feasts' cherry_biomes — is
+				// data/youkaisfeasts/tags/worldgen/biome/cherry_biomes.json, because a tag in
+				// a foreign namespace cannot be written by a tag provider namespaced to us.
+				.addOptional(ResourceLocation.parse("youkaisfeasts:sakura_forest"));
 		pvd.addTag(MARISA_HOUSE)
 				.add(GLBiomes.MAGICAL_FOREST);
 		pvd.addTag(MORICHIKA_SHOP)

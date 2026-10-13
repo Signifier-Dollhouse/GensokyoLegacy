@@ -407,7 +407,7 @@ public class PlainFairyEntity extends FairyEntity implements GeoYoukaiAnim {
 		if (isSleeping() || isPassenger()) {
 			return event.setAndContinue(SIT);
 		}
-		if (getActivity() == GLBrains.FEAR.get()) {
+		if (getFlag(YoukaiFlags.FLEEING)) {
 			event.setAndContinue(CRYING_FLOAT);
 		}
 		if (event.isMoving()) {
