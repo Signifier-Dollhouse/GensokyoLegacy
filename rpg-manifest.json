@@ -397,6 +397,7 @@
       "src/generated/resources/data/gensokyolegacy/recipe/blue_cushion.json",
       "src/generated/resources/data/gensokyolegacy/recipe/blue_fir_log_to_spruce_planks.json",
       "src/generated/resources/data/gensokyolegacy/recipe/blue_fir_wood_to_spruce_planks.json",
+      "src/generated/resources/data/gensokyolegacy/recipe/blue_ice_from_ice_and_fairy_ice_crystal.json",
       "src/generated/resources/data/gensokyolegacy/recipe/blue_long_noren.json",
       "src/generated/resources/data/gensokyolegacy/recipe/blue_long_noren_from_blue_wool_stonecutting.json",
       "src/generated/resources/data/gensokyolegacy/recipe/blue_noren.json",
@@ -716,6 +717,7 @@
             "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/en_us/entries/misc_tools/dowser.json",
             "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/en_us/entries/misc_tools/mermaid_pearl.json",
             "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/en_us/entries/misc_tools/strange_glasses.json",
+            "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/en_us/entries/nature/cirno.json",
             "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/en_us/entries/nature/fairies.json",
             "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/en_us/entries/nature/magical_forest.json",
             "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/en_us/entries/special_tools/border_umbrella.json",
@@ -770,6 +772,7 @@
             "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/zh_cn/entries/misc_tools/dowser.json",
             "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/zh_cn/entries/misc_tools/mermaid_pearl.json",
             "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/zh_cn/entries/misc_tools/strange_glasses.json",
+            "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/zh_cn/entries/nature/cirno.json",
             "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/zh_cn/entries/nature/fairies.json",
             "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/zh_cn/entries/nature/magical_forest.json",
             "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/zh_cn/entries/special_tools/border_umbrella.json",
@@ -865,14 +868,14 @@
     "assets/lang/vanilla/en_us.json",
     "assets/lang/vanilla/zh_cn.json"
   ],
-  "revision": "1019bf092c072d2e6c8262858079ae7c",
+  "revision": "83191f1dffb72ad4af13c6556af633dd",
   "stats": {
     "quest": 27,
     "dialog": 235,
     "dialog_starter": 26,
     "trade": 47,
     "files": 335,
-    "recipes": 307,
-    "guideEntries": 80
+    "recipes": 308,
+    "guideEntries": 82
   }
 }
