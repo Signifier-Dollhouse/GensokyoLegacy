@@ -95,8 +95,8 @@ LABELS = {
     "col_clip": ("clip", "片段"),
     "anim_code": ("fired by code, not addressable from dialog data:",
                   "以下由代码触发，不能写进对话数据："),
-    "anim_extra": ("also on her controller, outside the dialog slots: %s",
-                   "同样注册在她的动画控制器上，但不属于对话槽位：%s"),
+    "anim_extra": ("also on her one-shot controller, outside the dialog slots: %s",
+                   "同样注册在她的单次动画控制器上，但不属于对话槽位：%s"),
     "anim_nothing": ("(no clip on this rig)", "（该资源上没有此片段）"),
     "anim_unused": ("unused triggers: %s", "未被使用的触发名：%s"),
     "anim_all_unused": ("unused triggers: none", "未被使用的触发名：无"),
@@ -346,12 +346,14 @@ _EXTRA = None
 
 
 def extra_triggers():
-    """Triggers registered on the same controller but outside the dialog slots.
+    """Triggers registered outside the dialog slots, with the hook that gates each.
 
-    `eat` and `hurt` are fired by the eating and damage paths. They are listed so
-    a reviewer does not read the absence of a `dialog_eat` as a bug; they are not
-    addressable from dialog data. The blink loop is not here either - it has no
-    trigger constant, it just runs on its own controller forever.
+    `eat`, `hurt` and `gather` are fired by the eating, damage and spell paths, and
+    are listed so a reviewer does not read the absence of a `dialog_eat` as a bug;
+    they are not addressable from dialog data. Each one is opt-in per rig through
+    `GeoYoukaiAnim#has*Anim`, so the constant name is kept to resolve the hook.
+    The blink loop is not here either - it has no trigger constant, it just runs on
+    its own controller forever.
     """
     global _EXTRA
     if _EXTRA is None:
@@ -361,9 +363,19 @@ def extra_triggers():
         for const, trig in re.findall(r'String\s+(\w+)_TRIGGER\s*=\s*"([^"]+)"', src):
             if const in clips:
                 mode, clip = clips[const]
-                out.append((trig, clip, mode))
+                out.append((trig, clip, mode, "has%sAnim" % const.capitalize()))
         _EXTRA = out
     return _EXTRA
+
+
+_HOOK_RE = r'boolean\s+%s\s*\(\s*\)\s*\{\s*return\s+(true|false)'
+
+
+def hook_defaults():
+    """`has*Anim` defaults, read off the interface that declares them."""
+    src = strip_comments(load_text(GEO_YOUKAI_JAVA))
+    return {hook: val == "true"
+            for hook, val in re.findall(r'default\s+' + _HOOK_RE % r'(\w+)', src)}
 
 
 class AnimRig:
@@ -385,7 +397,23 @@ class AnimRig:
         self.asset = None
         self.clips = {}
         self.slot_clip = {}          # slot -> clip name, or absent when Optional.empty()
+        self.hooks = hook_defaults()  # has*Anim, before her overrides
         self._resolve()
+
+    def has_hook(self, hook):
+        """Whether this character registers the clip behind a `has*Anim` hook.
+
+        Her own override wins; a rig that says nothing takes the interface default.
+        """
+        if self.entity_file:
+            found = re.search(_HOOK_RE % hook, strip_comments(load_text(self.entity_file)))
+            if found:
+                return found.group(1) == "true"
+        return self.hooks.get(hook, False)
+
+    def extra(self):
+        """`extra_triggers()` narrowed to the ones this rig actually registers."""
+        return [(t, c, m) for t, c, m, hook in extra_triggers() if self.has_hook(hook)]
 
     def _resolve(self):
         src = strip_comments(load_text(GL_ENTITIES_JAVA))
@@ -797,9 +825,9 @@ def render_anim_section(ctx, rig, counts, total):
     a("  " + ctx.t("anim_code"))
     for r in code_rows:
         a(emit(r))
-    if extra_triggers():
+    if rig.extra():
         a("  " + ctx.t("anim_extra", ", ".join(
-            "%s -> %s" % (t, c) for t, c, _ in extra_triggers())))
+            "%s -> %s" % (t, c) for t, c, _ in rig.extra())))
     greet = rig.slot_clip.get("GREET")
     if greet:
         a("  " + ctx.t("anim_triggered", greet))

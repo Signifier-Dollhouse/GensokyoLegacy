@@ -49,10 +49,7 @@ public class ReimuEntity extends MaidenEntity implements GeoYoukaiAnim {
 		return YoukaiFeatureSet.MAIDEN;
 	}
 
-	protected <E extends ReimuEntity> PlayState idleAnimController(final AnimationState<E> event) {
-		if (event.getController().isPlayingTriggeredAnimation()) {
-			return PlayState.CONTINUE;
-		}
+	public PlayState stateAnimController(AnimationState<?> event) {
 		if (isSleeping()) {
 			return event.setAndContinue(SLEEP);
 		}
@@ -85,18 +82,6 @@ public class ReimuEntity extends MaidenEntity implements GeoYoukaiAnim {
 			case DECLINE -> Optional.of(DECLINE);
 			case OUTDOOR_IDLE -> Optional.of(IDLE_FIDGET);
 		};
-	}
-
-	@Override
-	public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-		// Wink first: controllers tick in registration order and overwrite shared
-		// bones, so the always-looping blink yields to the main controller.
-		controllers.add(new AnimationController<>(this, WINK_CONTROLLER, 0, e -> e.setAndContinue(BLINK)));
-		var main = new AnimationController<>(this, ANIM_CONTROLLER, 5, this::idleAnimController);
-		addEatAnim(main);
-		addHurtAnim(main);
-		addDialogAnims(main);
-		controllers.add(main);
 	}
 
 	@Override

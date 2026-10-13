@@ -36,10 +36,9 @@ import java.util.Optional;
  * <p>
  * Her rig is the narrowest one in the mod. It ships no {@code 眨眼} blink, no
  * greeting or thinking clips, and only two {@code 交流_*} ones, so {@link #getAnim}
- * answers empty for most dialog slots and {@link #registerControllers} registers no
- * wink controller: naming a clip the rig does not have resolves it to null, the
- * controller is then handed an empty queue, and the next tick stops it without writing
- * any bones — which would pin her in the last pose written for the rest of the time.
+ * answers empty for most dialog slots and {@link #hasBlinkAnim} says no: naming a
+ * clip the rig does not have resolves it to null, and the controller handed the
+ * empty queue logs "Unable to find animation" and writes nothing, every frame.
  */
 @SerialClass
 public class SuikaEntity extends BossYoukaiEntity implements GeoYoukaiAnim {
@@ -55,16 +54,16 @@ public class SuikaEntity extends BossYoukaiEntity implements GeoYoukaiAnim {
 	 * {@code 侧卧_交流}: {@link #NAP}'s lying pose with the talking motion written into
 	 * it. She talks while she naps, so every dialog trigger is re-pointed at this while
 	 * she is down - see {@link #syncDialogAnims}. Played, not looped, like any other
-	 * dialog one-shot: the main controller is holding {@code 侧卧} underneath it the
-	 * whole time, and both clips are the same pose, so the hand-off at either end of the
+	 * dialog one-shot: the state controller holds {@code 侧卧} underneath it the whole
+	 * time, and both clips are the same pose, so the hand-off at either end of the
 	 * 1.75s is invisible.
 	 */
 	private static final RawAnimation NAP_TALK = RawAnimation.begin().thenPlay("侧卧_交流");
 	/**
 	 * {@code 侧卧}, side-lying, looped rather than played: the clip is authored lying
 	 * down throughout and only wobbles a little, so it is a pose to hold and not a
-	 * flourish to sit through. Held by the main controller for as long as
-	 * {@link GLBrains#NAP} lasts - see {@link #idleAnimController} - rather than as a
+	 * flourish to sit through. Held by the state controller for as long as
+	 * {@link GLBrains#NAP} lasts - see {@link #stateAnimController} - rather than as a
 	 * {@link YoukaiAnim} one-shot, because the nap is an activity with a length and a
 	 * one-shot would end after a single 1.75s cycle.
 	 */
@@ -82,12 +81,7 @@ public class SuikaEntity extends BossYoukaiEntity implements GeoYoukaiAnim {
 		super(pEntityType, pLevel);
 	}
 
-	protected <E extends SuikaEntity> PlayState idleAnimController(final AnimationState<E> event) {
-		var controller = event.getController();
-		syncDialogAnims(controller);
-		if (controller.isPlayingTriggeredAnimation()) {
-			return PlayState.CONTINUE;
-		}
+	public PlayState stateAnimController(AnimationState<?> event) {
 		if (isSleeping()) {
 			return event.setAndContinue(SLEEP);
 		}
@@ -109,6 +103,35 @@ public class SuikaEntity extends BossYoukaiEntity implements GeoYoukaiAnim {
 	}
 
 	/**
+	 * The only rig in the mod that gathers, {@link GeoYoukaiAnim#GATHER}: her spell
+	 * card fires it from the pull move.
+	 */
+	@Override
+	public boolean hasGatherAnim() {
+		return true;
+	}
+
+	/**
+	 * No {@code 眨眼} blink: naming a clip this rig does not have leaves
+	 * {@link GeoYoukaiAnim#registerControllers} with a blink controller that logs
+	 * "Unable to find animation" on every frame — see the class comment.
+	 */
+	@Override
+	public boolean hasBlinkAnim() {
+		return false;
+	}
+
+	/**
+	 * The nap has to reach her dialog triggers, and they live on the one-shot
+	 * controller, so the swap runs here rather than in {@link #stateAnimController}.
+	 */
+	@Override
+	public PlayState oneShotAnimController(AnimationState<?> event) {
+		syncDialogAnims(event.getController());
+		return GeoYoukaiAnim.super.oneShotAnimController(event);
+	}
+
+	/**
 	 * While she is lying down, every dialog slot plays {@link #NAP_TALK} instead of the
 	 * standing clip {@link #getAnim} names - she talks in the pose she happens to be in,
 	 * and standing up to do it would be worse than nothing.
@@ -116,8 +139,9 @@ public class SuikaEntity extends BossYoukaiEntity implements GeoYoukaiAnim {
 	 * {@code triggerableAnim} is a map put read only when a trigger fires, so
 	 * re-pointing a trigger mid-life is safe: the one-shot already playing holds its own
 	 * reference, and only the next trigger sees the swap. That is why this runs from the
-	 * state handler every frame rather than from the nap task - the task is server side,
-	 * and {@link YoukaiFlags#NAPPING} is the only thing the two sides agree on.
+	 * one-shot controller's handler every frame rather than from the nap task - the task
+	 * is server side, and {@link YoukaiFlags#NAPPING} is the only thing the two sides
+	 * agree on.
 	 * <p>
 	 * Only slots {@link #getAnim} actually maps are touched, so this can never register
 	 * a clip her rig does not have, and {@link YoukaiAnim#USE_MAINHAND} keeps its own
@@ -171,18 +195,6 @@ public class SuikaEntity extends BossYoukaiEntity implements GeoYoukaiAnim {
 			case GREET, TALK_03, TALK_04, TALK_05, THINK, THINK_02,
 				 CONFUSED, AGREE, DECLINE, OUTDOOR_IDLE -> Optional.empty();
 		};
-	}
-
-	@Override
-	public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-		// No wink controller: this rig has no 眨眼 clip, and a looping controller pointed
-		// at a missing one writes no bones at all. See the class comment.
-		var main = new AnimationController<>(this, ANIM_CONTROLLER, 5, this::idleAnimController);
-		addEatAnim(main);
-		addHurtAnim(main);
-		addGatherAnim(main);
-		addDialogAnims(main);
-		controllers.add(main);
 	}
 
 	@Override

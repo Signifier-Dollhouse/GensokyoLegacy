@@ -1,0 +1,28 @@
+{
+  "name": "琪露诺",
+  "icon": "gensokyolegacy:fairy_ice_crystal",
+  "category": "gensokyolegacy:nature",
+  "sortnum": 3,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "幻想乡最强大的妖精（自称）$(br2)喂她的规矩与普通妖精完全一致——曲奇或蛋糕，但回礼是冰：曲奇换四块浮冰，蛋糕换一整颗妖精冰晶。"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "gensokyolegacy:fairy_ice_crystal",
+      "title": "妖精冰晶",
+      "text": "扔出去，落点即炸开。被波及的生物会受伤并被冻住，沾到它的火焰会被扑灭。$(br2)寒意向四面八方六格扩散，在这个范围内：$(br2)$(li)蜡烛与营火被扑灭。$(li)水结成冰，岩浆变成黑石，不是岩浆源的则变成圆石。"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": [
+        "gensokyolegacy:frozen_frog_cold",
+        "gensokyolegacy:frozen_frog_warm",
+        "gensokyolegacy:frozen_frog_temperate"
+      ],
+      "title": "冻青蛙",
+      "text": "妖精冰晶冻住的青蛙。扔出去会落地变回青蛙。"
+    }
+  ]
+}

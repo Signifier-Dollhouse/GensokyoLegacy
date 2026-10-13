@@ -147,7 +147,7 @@ public class CirnoEntity extends FairyEntity implements GeoYoukaiAnim {
 		return List.of(
 				new HomeModule(this),
 				new VisitModule(this),
-				new FairyFeedModule(this),
+				new CirnoFeedModule(this),
 				new PartyModule(this),
 				new CountPickupModule(this, e -> e.getItem() instanceof FrozenFrogItem)
 		);
@@ -156,11 +156,19 @@ public class CirnoEntity extends FairyEntity implements GeoYoukaiAnim {
 	/**
 	 * Feeding a Cirno is feeding a fairy, on exactly the terms of a
 	 * {@link PlainFairyEntity}: the same two tiers of dish, the same flat reputation,
-	 * the same flower or fairy dust handed back, and the same twenty-second cooldown.
-	 * So she carries {@link FairyFeedModule} rather than the generic
-	 * {@code FeedModule}, which scales a favour off the nutrition of anything
-	 * edible - that one would have let her be bought off with a rotten steak and
-	 * given no thanks for it, where this one is a cookie or a cake or nothing.
+	 * the same cap and the same twenty-second cooldown. So she carries
+	 * {@link CirnoFeedModule} rather than the generic {@code FeedModule}, which scales
+	 * a favour off the nutrition of anything edible - that one would have let her be
+	 * bought off with a rotten steak and given no thanks for it, where this one is a
+	 * cookie or a cake or nothing.
+	 * <p>
+	 * What she hands back is the one thing that is not shared with a plain fairy: a
+	 * cake buys a fairy ice crystal and a cookie buys four packed ice, rather than
+	 * dust and a flower. That is the whole of {@code CirnoFeedModule}, which is why it
+	 * is a subclass of {@link FairyFeedModule} rather than a second copy of it - and
+	 * it also happens to be the loop that makes her worth feeding, since the crystal
+	 * is the same one {@link #doCraft} builds out of three frozen frogs, and packed
+	 * ice is two thirds of the way to a blue ice.
 	 * <p>
 	 * The rest of the board is unchanged from the plain fairy's, which is the point:
 	 * these are the same lines, and they are what the {@code //TODO cirno food}
@@ -232,10 +240,7 @@ public class CirnoEntity extends FairyEntity implements GeoYoukaiAnim {
 
 	// ---------- geckolib ----------
 
-	protected <E extends CirnoEntity> PlayState idleAnimController(final AnimationState<E> event) {
-		if (event.getController().isPlayingTriggeredAnimation()) {
-			return PlayState.CONTINUE;
-		}
+	public PlayState stateAnimController(AnimationState<?> event) {
 		if (isSleeping()) {
 			return event.setAndContinue(SLEEP);
 		}
@@ -270,18 +275,6 @@ public class CirnoEntity extends FairyEntity implements GeoYoukaiAnim {
 			case DECLINE -> Optional.of(DECLINE);
 			case OUTDOOR_IDLE -> Optional.of(IDLE_FIDGET);
 		};
-	}
-
-	@Override
-	public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-		// Wink first: controllers tick in registration order and overwrite shared
-		// bones, so the always-looping blink yields to the main controller.
-		controllers.add(new AnimationController<>(this, WINK_CONTROLLER, 0, e -> e.setAndContinue(BLINK)));
-		var main = new AnimationController<>(this, ANIM_CONTROLLER, 5, this::idleAnimController);
-		addEatAnim(main);
-		addHurtAnim(main);
-		addDialogAnims(main);
-		controllers.add(main);
 	}
 
 	@Override

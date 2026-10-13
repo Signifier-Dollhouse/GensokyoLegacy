@@ -97,9 +97,6 @@ public class PartySend {
 
 		var pool = new ArrayList<PartyPlanner.Candidate>();
 		for (var type : BuiltInRegistries.ENTITY_TYPE) {
-			// Two gates: only youkai are candidates at all, and a character with no
-			// authored party_taste is not party-eligible.
-			if (!isCharacter(type)) continue;
 			var taste = PartyTaste.of(level.registryAccess(), type);
 			if (taste == null) continue;
 			int rep = reputation.applyAsInt(type);
@@ -142,7 +139,7 @@ public class PartySend {
 	 * cheap half of eligibility: the other half is an authored {@code party_taste}.
 	 */
 	public static boolean isCharacter(EntityType<?> type) {
-		return type.getCategory() == MobCategory.MONSTER;
+		return true;
 	}
 
 	/**

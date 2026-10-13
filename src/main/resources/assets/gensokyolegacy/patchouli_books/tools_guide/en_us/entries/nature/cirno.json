@@ -1,0 +1,28 @@
+{
+  "name": "Cirno",
+  "icon": "gensokyolegacy:fairy_ice_crystal",
+  "category": "gensokyolegacy:nature",
+  "sortnum": 3,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "The strongest fairy in Gensokyo (self-proclaimed). $(br2)Feeding her works exactly as it does for a plain fairy: four Packed Ice for a cookie, a whole Fairy Ice Crystal for a cake."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "gensokyolegacy:fairy_ice_crystal",
+      "title": "Fairy Ice Crystal",
+      "text": "Throw one and it bursts where it lands. Whatever the burst reaches is hurt and left frozen.$(br2)Within 6-block radius:$(br2)$(li)Candles and campfires are put out.$(li)Water becomes ice, lava becomes obsidian, and lava that is not a source becomes cobblestone."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": [
+        "gensokyolegacy:frozen_frog_cold",
+        "gensokyolegacy:frozen_frog_warm",
+        "gensokyolegacy:frozen_frog_temperate"
+      ],
+      "title": "Frozen Frogs",
+      "text": "Frogs frozen by a Fairy Ice Crystal. Throw one and it lands back as a frog."
+    }
+  ]
+}

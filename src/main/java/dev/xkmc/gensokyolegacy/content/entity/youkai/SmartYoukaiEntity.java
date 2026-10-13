@@ -11,6 +11,7 @@ import dev.xkmc.gensokyolegacy.content.entity.behavior.sensor.YoukaiUpdateHomeSe
 import dev.xkmc.gensokyolegacy.content.entity.behavior.task.combat.*;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.task.core.*;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.task.home.*;
+import dev.xkmc.gensokyolegacy.content.entity.module.HomeModule;
 import dev.xkmc.gensokyolegacy.content.ui.dialog.FirstDialogSession;
 import dev.xkmc.gensokyolegacy.init.registrate.GLBrains;
 import dev.xkmc.gensokyolegacy.util.BrainUtils;
@@ -286,6 +287,11 @@ public class SmartYoukaiEntity extends YoukaiEntity {
 	@Override
 	public AABB getBoundingBoxForDanmaku() {
 		return getBoundingBox();
+	}
+
+	@Override
+	public boolean vanishOutOfSight() {
+		return getBrain().getMemory(MemoryModuleType.HOME).isEmpty() && getActivity() == Activity.IDLE;
 	}
 
 }

@@ -4,6 +4,9 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.LivingEntity;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.animation.AnimationController;
+import software.bernie.geckolib.animation.AnimatableManager;
+import software.bernie.geckolib.animation.AnimationState;
+import software.bernie.geckolib.animation.PlayState;
 import software.bernie.geckolib.animation.RawAnimation;
 
 import java.util.List;
@@ -20,8 +23,28 @@ import java.util.Optional;
  * greeting is the exception: it is code-triggered when a conversation starts,
  * as it is not part of any dialog.
  * <p>
- * Plus the {@code 眨眼} blink loop, which runs on its own always-on controller
- * (registered before the main one so other animations win shared bones).
+ * Plus the {@code 眨眼} blink loop, which runs on its own always-on controller.
+ * <p>
+ * A character therefore runs three controllers, and the order they are
+ * registered in is the order they write bones in:
+ * <ol>
+ * <li>{@link #WINK_CONTROLLER} — the blink, always looping, first so everything
+ * else overwrites the bones it shares (the face).</li>
+ * <li>{@link #ANIM_CONTROLLER} — the state loop, the character's own
+ * {@link #stateAnimController}: idle, walk, sit, sleep, whatever she is doing.</li>
+ * <li>{@link #ONE_SHOT_CONTROLLER} — every triggerable, from {@link #oneShotController}:
+ * the dialog slots, the chew, the flinch, the gather. Last so it wins the bones
+ * it shares with the loop.</li>
+ * </ol>
+ * State and one-shots are split rather than sharing one controller because a
+ * GeckoLib controller plays one animation at a time: sharing one, the state
+ * handler is not even consulted while a one-shot is playing, so every bone the
+ * one-shot does not touch holds still mid-hover until it ends. Split, the loop
+ * keeps running underneath and the one-shot simply overrides the bones it moves.
+ * <p>
+ * All three are wired up by {@link #registerControllers}, which is the same for
+ * every character: what varies is {@link #getAnim}, the {@code has*Anim} hooks
+ * and {@link #stateAnimController}.
  */
 public interface GeoYoukaiAnim extends GeoEntity {
 
@@ -30,7 +53,14 @@ public interface GeoYoukaiAnim extends GeoEntity {
 	byte ANIM_EVENT_BASE = 71;
 
 	String ANIM_CONTROLLER = "main";
+	String ONE_SHOT_CONTROLLER = "one_shot";
 	String WINK_CONTROLLER = "wink";
+
+	/**
+	 * Blend length of the state loop and of the one-shots, in ticks. Both want
+	 * the same one: a one-shot blending faster than the loop hands off visibly.
+	 */
+	int ANIM_TRANSITION = 5;
 
 	/**
 	 * The chew. Kept out of {@link YoukaiAnim} for the reason the clip is: it is an
@@ -56,9 +86,9 @@ public interface GeoYoukaiAnim extends GeoEntity {
 	 *
 	 * <p>
 	 * {@code thenPlay} rather than {@code thenPlayAndHold}: a hurt reaction that holds
-	 * its last pose would strand her in the flinch until something else took the
-	 * controller, and the main controller only yields while a triggered animation is
-	 * still playing.
+	 * its last pose would strand her in the flinch, since the one-shot controller has
+	 * nothing to hand the pose back to — the state loop is a separate controller and
+	 * would just be overridden again on the next tick.
 	 */
 	RawAnimation HURT = RawAnimation.begin().thenPlay("受伤");
 
@@ -81,54 +111,140 @@ public interface GeoYoukaiAnim extends GeoEntity {
 	Optional<RawAnimation> getAnim(YoukaiAnim anim);
 
 	/**
-	 * Register the chew on the main controller.
+	 * The state loop: what she is doing when nothing is triggered on top of her. Every
+	 * rig writes its own, off its own clips and its own flags — napping, sitting,
+	 * flying — so this is the one piece of the rig the interface cannot assemble.
+	 * <p>
+	 * It runs unconditionally, every frame, including while a one-shot is playing on
+	 * the other controller: that is what keeps her hovering and walking under a
+	 * dialog clip rather than freezing in the pose the loop happened to be in.
+	 */
+	PlayState stateAnimController(AnimationState<?> event);
+
+	/**
+	 * Whether this rig ships the {@code 眨眼} blink. Opt-out per rig, for the same
+	 * reason as the three below: a clip the model cannot resolve is not a missing
+	 * blink but an error logged once per frame.
+	 */
+	default boolean hasBlinkAnim() {
+		return true;
+	}
+
+	/**
+	 * Whether this rig ships the {@code 吃} clip. Every rig in the mod does, so the
+	 * default is yes; override to opt out.
+	 */
+	default boolean hasEatAnim() {
+		return true;
+	}
+
+	/**
+	 * Whether this rig ships the {@code 受伤} clip. Same default as the chew: only
+	 * {@code PlainFairyEntity} overrides it.
+	 */
+	default boolean hasHurtAnim() {
+		return true;
+	}
+
+	/**
+	 * Whether this rig ships the {@code 聚集} clip. Only Suika's spell card plays it,
+	 * so unlike the other two this defaults to no.
+	 */
+	default boolean hasGatherAnim() {
+		return false;
+	}
+
+	/**
+	 * Assemble the rig: {@link #registerControllers} is the same three controllers for
+	 * every character, and everything that varies is the {@code has*Anim} hooks above
+	 * and {@link #getAnim}.
+	 */
+	@Override
+	default void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
+		// Registration order is bone-writing order, so the blink goes down first —
+		// everything after it overwrites the face — and the one-shots go down last,
+		// so a triggered clip covers the bones it shares with the state loop.
+		if (hasBlinkAnim())
+			controllers.add(new AnimationController<>(this, WINK_CONTROLLER, 0, e -> e.setAndContinue(BLINK)));
+		controllers.add(new AnimationController<>(this, ANIM_CONTROLLER, ANIM_TRANSITION, this::stateAnimController));
+		var oneShot = oneShotController();
+		if (hasEatAnim()) addEatAnim(oneShot);
+		if (hasHurtAnim()) addHurtAnim(oneShot);
+		if (hasGatherAnim()) addGatherAnim(oneShot);
+		addDialogAnims(oneShot);
+		controllers.add(oneShot);
+	}
+
+	/**
+	 * Build the one-shot controller, wired to {@link #oneShotAnimController} and
+	 * empty until {@link #registerControllers} fills it.
 	 *
 	 * <p>
-	 * Called next to {@link #addDialogAnims} by every character whose rig has a
-	 * {@code 吃} clip. It is <b>not</b> folded into {@code addDialogAnims}: registering a
-	 * clip the rig does not have resolves it to {@code null}, {@code buildAnimationQueue}
-	 * then hands the controller an empty queue, and the next {@code process()} tick stops
-	 * it without writing any bones — pinning the character in the last pose written, i.e.
-	 * frozen mid-hover for the whole walk, silently. So this is opt-in per rig.
+	 * {@code receiveTriggeredAnimations} so the handler is consulted every frame
+	 * rather than only on the frames nothing is playing: a rig that re-points its
+	 * triggers from state ({@code SuikaEntity}, see {@code syncDialogAnims}) has to
+	 * be able to do it in the middle of a one-shot.
 	 */
-	default void addEatAnim(AnimationController<?> controller) {
+	default AnimationController<GeoEntity> oneShotController() {
+		AnimationController<GeoEntity> controller =
+				new AnimationController<>(this, ONE_SHOT_CONTROLLER, ANIM_TRANSITION, this::oneShotAnimController);
+		return controller.receiveTriggeredAnimations();
+	}
+
+	/**
+	 * The one-shot half of the rig: let the trigger that fired run to its end, and
+	 * otherwise write nothing at all, leaving the pose to the state controller.
+	 */
+	default PlayState oneShotAnimController(AnimationState<?> event) {
+		return event.getController().isPlayingTriggeredAnimation() ? PlayState.CONTINUE : PlayState.STOP;
+	}
+
+	/**
+	 * The chew on the one-shot controller. Gated by {@link #hasEatAnim}: a rig that
+	 * does not ship {@code 吃} must not name it, or the trigger logs "Unable to find
+	 * animation" and plays nothing.
+	 */
+	private void addEatAnim(AnimationController<?> controller) {
 		controller.triggerableAnim(EAT_TRIGGER, EAT);
 	}
 
 	/**
-	 * Register the flinch on the main controller. Opt-in per rig for the same reason as
-	 * {@link #addEatAnim}: a character whose rig has no {@code 受伤} clip must not
-	 * register this.
+	 * The flinch on the one-shot controller, gated by {@link #hasHurtAnim} for the
+	 * same reason as the chew.
 	 */
-	default void addHurtAnim(AnimationController<?> controller) {
+	private void addHurtAnim(AnimationController<?> controller) {
 		controller.triggerableAnim(HURT_TRIGGER, HURT);
 	}
 
 	/**
-	 * Register the gather on the main controller. Opt-in per rig for the same reason as
-	 * {@link #addEatAnim}: only a rig that ships the clip may register it.
+	 * The gather on the one-shot controller, gated by {@link #hasGatherAnim} for the
+	 * same reason as the chew.
 	 */
-	default void addGatherAnim(AnimationController<?> controller) {
+	private void addGatherAnim(AnimationController<?> controller) {
 		controller.triggerableAnim(GATHER_TRIGGER, GATHER);
 	}
 
 	/**
-	 * Play the gather, if this character has one. Fired server side by the spell card
-	 * that owns the move, so a client sees the same clip the server timed the pull to.
+	 * A triggerable for every dialog slot {@link #getAnim} actually maps, on the
+	 * one-shot controller. No gate needed: an unmapped slot is one the rig has no
+	 * clip for and nobody asks to play.
 	 */
-	default void broadcastGather() {
-		LivingEntity self = (LivingEntity) this;
-		if (!self.level().isClientSide())
-			self.level().broadcastEntityEvent(self, GATHER_EVENT);
-	}
-
-	/**
-	 * Register a triggerable for every mapped slot on the main controller.
-	 */
-	default void addDialogAnims(AnimationController<?> controller) {
+	private void addDialogAnims(AnimationController<?> controller) {
 		for (var anim : YoukaiAnim.values()) {
 			getAnim(anim).ifPresent(raw -> controller.triggerableAnim(anim.trigger(), raw));
 		}
+	}
+
+	/**
+	 * Play the gather, if this character has one — the only caller is Suika's spell
+	 * card, but the gate is the same one the rig used to register the trigger. Fired
+	 * server side, so a client sees the same clip the server timed the pull to.
+	 */
+	default void broadcastGather() {
+		if (!hasGatherAnim()) return;
+		LivingEntity self = (LivingEntity) this;
+		if (!self.level().isClientSide())
+			self.level().broadcastEntityEvent(self, GATHER_EVENT);
 	}
 
 	default void broadcastAnim(YoukaiAnim anim) {
@@ -165,15 +281,15 @@ public interface GeoYoukaiAnim extends GeoEntity {
 		// HURT_EVENT and GATHER_EVENT sit just past the dialog range, so they cannot
 		// collide
 		if (id == EAT_EVENT) {
-			triggerAnim(ANIM_CONTROLLER, EAT_TRIGGER);
+			triggerAnim(ONE_SHOT_CONTROLLER, EAT_TRIGGER);
 			return true;
 		}
 		if (id == HURT_EVENT) {
-			triggerAnim(ANIM_CONTROLLER, HURT_TRIGGER);
+			triggerAnim(ONE_SHOT_CONTROLLER, HURT_TRIGGER);
 			return true;
 		}
 		if (id == GATHER_EVENT) {
-			triggerAnim(ANIM_CONTROLLER, GATHER_TRIGGER);
+			triggerAnim(ONE_SHOT_CONTROLLER, GATHER_TRIGGER);
 			return true;
 		}
 		int ord = id - ANIM_EVENT_BASE;
@@ -181,7 +297,7 @@ public interface GeoYoukaiAnim extends GeoEntity {
 		if (ord < 0 || ord >= values.length) return false;
 		var anim = values[ord];
 		if (getAnim(anim).isEmpty()) return false;
-		triggerAnim(ANIM_CONTROLLER, anim.trigger());
+		triggerAnim(ONE_SHOT_CONTROLLER, anim.trigger());
 		return true;
 	}
 
