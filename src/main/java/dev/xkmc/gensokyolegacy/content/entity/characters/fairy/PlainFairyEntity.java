@@ -349,27 +349,36 @@ public class PlainFairyEntity extends FairyEntity implements GeoYoukaiAnim {
 
 	// ---------- being fed ----------
 
+	/**
+	 * Order matters: {@code mobInteract} stops at the first module that does not
+	 * pass, so {@link FairyFeedModule} sits ahead of {@link GiftModule} and a dish
+	 * she recognises is eaten rather than read as a gift. That is the opposite of
+	 * {@link GiftModule}'s own suggestion for a character that has both a generic
+	 * {@code FeedModule} and a gift list, and it is deliberate here - for a fairy
+	 * the food is the whole point of feeding her, and the gift list is the fallback
+	 * for everything she will not eat.
+	 */
 	@Override
 	protected List<AbstractYoukaiModule> createModules() {
 		return List.of(
 				new HomeModule(this),
 				new VisitModule(this),
 				new FairyFeedModule(this),
-				new TalkModule(this)
+				new GiftModule(this)
 		);
 	}
 
 	/**
 	 * The whole scale she resolves against, lowest number wins:
-	 * {@code FIGHT(0) - FEAR(100) - FEAST(200) - TALK(300) - NAP(500) - VISITING(600) - HUNT(700)}.
+	 * {@code FIGHT(0) - FEAR(100) - FEAST(200) - NAP(500) - VISITING(600) - HUNT(700)}.
 	 * <p>
 	 * The part that matters to her: a fight outranks everything, because being
 	 * cornered beats every reason she had for standing still. Running beats eating,
 	 * so a snack handed to a panicking fairy is <em>not</em> enough to stop her - it
-	 * waits, and she eats it once she has put ground between them. Eating beats
-	 * talking, because she cannot be drawn into a conversation with her mouth full,
-	 * and beats the hunt for the same reason it beats the stroll. She never naps, so
-	 * NAP is in the list only as a rung she skips over.
+	 * waits, and she eats it once she has put ground between them. She never naps, so
+	 * NAP is in the list only as a rung she skips over. TALK is absent along with the
+	 * talk module itself: she has no conversation to hold, so the rung is skipped
+	 * rather than merely outranked.
 	 */
 	@Override
 	protected void constructTaskBoard(TaskBoard board) {

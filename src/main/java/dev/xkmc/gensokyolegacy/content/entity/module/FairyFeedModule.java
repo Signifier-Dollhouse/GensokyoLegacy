@@ -38,8 +38,9 @@ import java.util.function.Supplier;
  * Deliberately not the generic {@link FeedModule}: a dish is worth a flat amount
  * here instead of a favor scaled off its nutrition, the ceiling is one feeding
  * alone cannot push past, and a well-fed fairy hands something over on the way in.
- * Anything she does not eat falls through to the next module, which is what leaves
- * {@link TalkModule} reachable with an empty hand.
+ * Anything she does not eat falls through to the next module, and with no
+ * {@link TalkModule} on a fairy there is nothing after it - an empty hand is
+ * simply not a conversation.
  * <p>
  * Two tiers, not a list of dishes: a cookie is a snack and a cake of either kind is
  * a meal - {@link #COOKIE_REPUTATION} against {@link #CAKE_REPUTATION}, and a flower
@@ -54,7 +55,9 @@ public class FairyFeedModule extends AbstractYoukaiModule {
 
 	private static final ResourceLocation ID = GensokyoLegacy.loc("fairy_feed");
 
-	/** Reputation one cake is worth, and the ceiling feeding alone can reach. */
+	/**
+	 * Reputation one cake is worth, and the ceiling feeding alone can reach.
+	 */
 	public static final int CAKE_REPUTATION = 10;
 	public static final int CAKE_REPUTATION_CAP = 100;
 
@@ -66,7 +69,9 @@ public class FairyFeedModule extends AbstractYoukaiModule {
 	 */
 	public static final int COOKIE_REPUTATION = 1;
 
-	/** Ticks before she will take another dish: long enough that she cannot be farmed. */
+	/**
+	 * Ticks before she will take another dish: long enough that she cannot be farmed.
+	 */
 	private static final int COOL_DOWN = 400;
 
 	/**
@@ -85,14 +90,16 @@ public class FairyFeedModule extends AbstractYoukaiModule {
 	 * the far end, because one of the two is a roll: she reaches for <em>that</em>
 	 * flower once she has finished chewing, not for whatever comes up next.
 	 */
-	public record Fed(Player player, ItemStack gift) {}
+	public record Fed(Player player, ItemStack gift) {
+	}
 
 	/**
 	 * What she makes of a given dish: the reputation it is worth and what she hands
 	 * back for it. Rolled per feeding rather than held in a table, since the flower is
 	 * a die roll.
 	 */
-	private record Dish(int reputation, Supplier<ItemStack> gift) {}
+	private record Dish(int reputation, Supplier<ItemStack> gift) {
+	}
 
 	@SerialField
 	private int feedCoolDown;
@@ -110,7 +117,7 @@ public class FairyFeedModule extends AbstractYoukaiModule {
 	 * call a treat; everything else is not food she recognises.
 	 */
 	public static boolean isFood(ItemStack stack) {
-		return isCake(stack) || stack.is(Items.COOKIE);
+		return isCake(stack) || stack.is(Tags.Items.FOODS_COOKIE);
 	}
 
 	/**
@@ -137,16 +144,16 @@ public class FairyFeedModule extends AbstractYoukaiModule {
 		// gated on FEAST, not on the blanket rule: she will not be fed mid-panic, and
 		// she will still be fed mid-conversation, neither of which the blanket rule can
 		// tell apart
-		if (!self.mayInteract(player, GLBrains.FEAST.get())) return InteractionResult.PASS;
 		ItemStack stack = player.getItemInHand(hand);
 		if (!isFood(stack)) return InteractionResult.PASS;
-		if (feedCoolDown > 0) return InteractionResult.PASS;
+		if (!self.mayInteract(player, GLBrains.FEAST.get())) return InteractionResult.FAIL;
+		if (feedCoolDown > 0) return InteractionResult.FAIL;
 		if (!(player instanceof ServerPlayer sp)) {
 			InfoUpdateClientManager.clearCache();
 			return InteractionResult.SUCCESS;
 		}
 		var dish = dish(stack);
-		if (dish == null) return InteractionResult.PASS;
+		if (dish == null) return InteractionResult.FAIL;
 		boolean welcomed = feed(sp, dish);
 		stack.shrink(1);
 		// only a welcomed dish starts the timer: a player working their way back
@@ -155,7 +162,6 @@ public class FairyFeedModule extends AbstractYoukaiModule {
 		if (welcomed) feedCoolDown += COOL_DOWN;
 		self.level().broadcastEntityEvent(self, EntityEvent.IN_LOVE_HEARTS);
 		self.playSound(stack.getEatingSound());
-		self.getModule(TalkModule.class).ifPresent(e -> e.beginTalking(sp));
 		return InteractionResult.SUCCESS;
 	}
 
