@@ -63,11 +63,25 @@ EXTRA_ITEM_TAGS = (f"{NAMESPACE}:currency", f"{NAMESPACE}:morichika_offers")
 # holds the price and stock range each item is shelved at - the tag above says what he
 # may stock at all, this says what for. `character_config` says which home belongs to
 # which character, which is what lets a `visit_structure` condition name its host rather
-# than a structure id. Datapacked, so they need no Java to find.
+# than a structure id. The rest are read by the character tab: `party_taste` is what
+# sort of party a character attends and whether she attends one at all, `gift_preference`
+# what she likes to be given, `gift_data` what each item is worth when given, and
+# `structure_config` which characters are allowed to visit which home. Datapacked, so
+# they need no Java to find.
 EXTRA_DATA_MAPS = (
     f"{NAMESPACE}/data_maps/item/morichika_offer",
     f"{NAMESPACE}/data_maps/entity_type/character_config",
+    f"{NAMESPACE}/data_maps/entity_type/party_taste",
+    f"{NAMESPACE}/data_maps/entity_type/gift_preference",
+    f"{NAMESPACE}/data_maps/item/gift_data",
+    f"{NAMESPACE}/data_maps/worldgen/structure/structure_config",
 )
+
+# Loot tables nothing in the RPG registries refers to, so the walk below never reaches
+# them: one party-gift ladder per entity type, named by the type's own path under
+# `loot_table/party_gift/`, with `default` standing in for a character who has none.
+# `PartyGift#tableOf` is what reads them, so nothing in a quest or an offer points here.
+EXTRA_LOOT_TABLE_DIR = f"{RESOURCES}/data/{NAMESPACE}/loot_table/party_gift"
 
 
 def walk(directory: Path, prefix: str) -> list[str]:
@@ -320,6 +334,12 @@ def build() -> dict[str, Any]:
         for name in values_at(read_json(rel), "name"):
             if isinstance(name, str) and name.startswith("#"):
                 item_tags.add(name)
+
+    # The gift ladders, indexed by the same convention the game uses: the entity type's
+    # own path under `party_gift/`, which is how `PartyGift` looks one up.
+    loot_root = f"{RESOURCES}/data/{NAMESPACE}/loot_table"
+    for rel in walk(ROOT / EXTRA_LOOT_TABLE_DIR, EXTRA_LOOT_TABLE_DIR):
+        loot[f"{NAMESPACE}:{rel[len(loot_root) + 1 : -len('.json')]}"] = rel
 
     def existing_tags(refs: set[str], kind: str) -> dict[str, str]:
         found = {}

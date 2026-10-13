@@ -27,6 +27,14 @@ export const store = {
   questDrops: new Map(), // quest id -> [{ item, count, table }]
   items: new Map(), // item id -> { id, guide, recipes, trades, drops, shelf }
   structureHosts: new Map(), // structure id -> entity id, from `character_config`
+  // The character data maps, which describe a character rather than one of her entries.
+  // Read by `loadCharacterProfiles`; see `characterProfiles` for what they add up to.
+  characterConfigs: new Map(), // entity id -> CharacterConfig row
+  partyTastes: new Map(), // entity id -> PartyTaste row
+  giftPreferences: new Map(), // entity id -> { preference, override }
+  giftItems: new Map(), // item id -> { favor, cooldown, type }
+  visitHosts: new Map(), // entity id -> [{ structure, chance, minStay, maxStay }]
+  dataMaps: new Set(), // which of those data maps were actually read
 };
 
 const inflight = new Map();
@@ -332,30 +340,153 @@ export async function loadShopOffers() {
 }
 
 /**
- * Whose home a structure is: structure id -> the entity id of the character living
- * there.
+ * Reads one data map's `values`, keyed by the registry id it holds.
  *
- * A `visit_structure` condition names a structure, but what it means to a reader is
- * *whose house this is*, and the character is what the rest of the page is written
- * around. `CharacterConfig.structure` is the game's own record of which home belongs
- * to whom, so the mapping is read rather than guessed from the id.
+ * A data map is neither a registry folder nor a loot table, so nothing on the page
+ * discovers one by following content - they are named by the index, with the path
+ * written out as the fallback an index predating them resolves to.
  *
- * A player-built home has no resident and is not in this map at all, which is the
- * answer rather than a gap: `StructureKey.CUSTOM` names every one of them, and the
- * viewer's caller says so.
+ * Null rather than an empty map when the read fails, which is not the same answer: a map
+ * that says nothing about a character is a fact about her, and a map that could not be
+ * read is a fact about the page. The caller records what it got in `dataMaps`, so a view
+ * can tell "no home" from "no answer".
  */
-export async function loadStructureHosts() {
-  const file =
-    store.manifest.dataMaps?.character_config ??
-    "src/generated/resources/data/gensokyolegacy/data_maps/entity_type/character_config.json";
+async function dataMapValues(name, fallback) {
+  const file = store.manifest.dataMaps?.[name] ?? fallback;
   try {
-    for (const [entity, config] of Object.entries((await fetchJson(file)).values ?? {})) {
-      if (typeof config?.structure === "string") store.structureHosts.set(config.structure, entity);
-    }
+    return (await fetchJson(file)).values ?? {};
   } catch {
-    // No homes named: a visit condition falls back to its structure id.
+    return null;
   }
-  return store.structureHosts;
+}
+
+/** Where the character data maps live, spelled out for the fallback paths above. */
+const DATA_MAPS = "src/generated/resources/data/gensokyolegacy/data_maps";
+
+/**
+ * Everything the game knows about the characters themselves rather than about their
+ * content: whose home is whose, what sort of party each one attends, what she likes to
+ * be given, and who is allowed to turn up at which house.
+ *
+ * These are data maps rather than registry entries, so no quest or dialog names them
+ * and the walk that indexes the registries would never reach them. Five small files,
+ * fetched with the first paint: a character's whereabouts are worth knowing before a
+ * reader goes looking for her.
+ */
+export async function loadCharacterProfiles() {
+  const [configs, tastes, preferences, gifts, structures] = await Promise.all([
+    dataMapValues("character_config", `${DATA_MAPS}/entity_type/character_config.json`),
+    dataMapValues("party_taste", `${DATA_MAPS}/entity_type/party_taste.json`),
+    dataMapValues("gift_preference", `${DATA_MAPS}/entity_type/gift_preference.json`),
+    dataMapValues("gift_data", `${DATA_MAPS}/item/gift_data.json`),
+    dataMapValues("structure_config", `${DATA_MAPS}/worldgen/structure/structure_config.json`),
+  ]);
+
+  // Cleared first, so loading again after a reload rebuilds rather than merging.
+  store.characterConfigs.clear();
+  store.partyTastes.clear();
+  store.giftPreferences.clear();
+  store.giftItems.clear();
+  store.visitHosts.clear();
+  store.structureHosts.clear();
+  store.dataMaps.clear();
+
+  const read = (name, values) => {
+    if (values) store.dataMaps.add(name);
+    return values ?? {};
+  };
+
+  for (const [entity, config] of Object.entries(read("character_config", configs))) {
+    store.characterConfigs.set(entity, config);
+    // Whose home a structure is. `CharacterConfig.structure` is the game's own record
+    // of it, so the mapping is read rather than guessed from the id - which is what lets
+    // a `visit_structure` condition name its host rather than a structure id.
+    //
+    // A player-built home has no resident and is in no map at all, which is the answer
+    // rather than a gap: `StructureKey.CUSTOM` names every one of them, and the viewer's
+    // caller says so.
+    if (typeof config?.structure === "string") store.structureHosts.set(config.structure, entity);
+  }
+  for (const [entity, taste] of Object.entries(read("party_taste", tastes))) store.partyTastes.set(entity, taste);
+  for (const [entity, preference] of Object.entries(read("gift_preference", preferences))) {
+    store.giftPreferences.set(entity, preference);
+  }
+  for (const [item, gift] of Object.entries(read("gift_data", gifts))) store.giftItems.set(item, gift);
+
+  // The guest pool is declared on the home, so it is the structure that says who may
+  // turn up there; read backwards it is the other half of "where to find them".
+  for (const [structure, config] of Object.entries(read("structure_config", structures))) {
+    for (const [guest, visit] of Object.entries(config?.visitors ?? {})) {
+      const visits = store.visitHosts.get(guest) ?? [];
+      visits.push({ structure, ...visit });
+      store.visitHosts.set(guest, visits);
+    }
+  }
+  return store.characterConfigs;
+}
+
+/** The folder the gift ladders live in, which is `PartyGift.TABLE_DIR`. */
+const GIFT_TABLES = "party_gift";
+
+/**
+ * The ladder a guest of this entity type leaves behind.
+ *
+ * Named by the type's own path, which is what `PartyGift#tableOf` looks up, and
+ * `own` says whether it is the character's own ladder or the shared default she falls
+ * back to - a guest with no table of her own still gives something.
+ */
+export async function loadGiftTable(entity) {
+  const [namespace, path = ""] = String(entity ?? "").split(":");
+  const own = `${namespace}:${GIFT_TABLES}/${path}`;
+  if (await loadLootTable(own)) return { id: own, table: store.loot.get(own), own: true };
+
+  const fallback = `${namespace}:${GIFT_TABLES}/default`;
+  await loadLootTable(fallback);
+  return { id: fallback, table: store.loot.get(fallback), own: false };
+}
+
+/**
+ * Every character the site's data mentions, whatever kind of data mentions her.
+ *
+ * The registries only know a character who has a quest, an offer or a dialog, so Cirno
+ * and Suika - who attend parties and leave gifts behind but hold no entry of their own -
+ * would be missing from a list built out of them. What the character data maps and the
+ * visit pools name is the fuller cast, and a character mentioned in both is one profile
+ * rather than two.
+ */
+export function characterProfiles() {
+  const profiles = new Map();
+  const ensure = (entity) => {
+    if (typeof entity !== "string") return null;
+    let profile = profiles.get(entity);
+    if (!profile) profiles.set(entity, (profile = { entity, config: null, taste: null, gifts: null, visits: [] }));
+    return profile;
+  };
+
+  for (const [entity, config] of store.characterConfigs) ensure(entity).config = config;
+  for (const [entity, taste] of store.partyTastes) ensure(entity).taste = taste;
+  for (const [entity, gifts] of store.giftPreferences) ensure(entity).gifts = gifts;
+  for (const [entity, visits] of store.visitHosts) ensure(entity).visits = visits;
+  for (const character of store.characters.values()) ensure(character.entity);
+
+  return [...profiles.values()];
+}
+
+/**
+ * The gift items the mod registers, grouped by the category a character weights them
+ * under, so a preference row can name what she is actually asking for rather than
+ * leaving the multiplier on its own.
+ */
+export function giftItemsByType() {
+  const byType = new Map();
+  for (const [item, gift] of store.giftItems) {
+    const list = byType.get(gift?.type) ?? [];
+    list.push({ item, favor: gift?.favor ?? 0, cooldown: gift?.cooldown ?? 0 });
+    byType.set(gift?.type, list);
+  }
+  // What she would get most out of first, which is the order worth reading them in.
+  for (const list of byType.values()) list.sort((a, b) => b.favor - a.favor || a.item.localeCompare(b.item));
+  return byType;
 }
 
 // ---------------------------------------------------------------------------

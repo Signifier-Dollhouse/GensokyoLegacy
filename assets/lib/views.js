@@ -15,9 +15,22 @@ import {
   kindOf,
   label,
   prettify,
+  t,
+  ticks,
 } from "./format.js";
 import { tr, trPlural } from "./i18n.js";
-import { guideEntryOf, guideLocale, guideSubjects, loadDialog, loadEntityTag, loadItemTag, loadLootTable, store } from "./store.js";
+import {
+  giftItemsByType,
+  guideEntryOf,
+  guideLocale,
+  guideSubjects,
+  loadDialog,
+  loadEntityTag,
+  loadGiftTable,
+  loadItemTag,
+  loadLootTable,
+  store,
+} from "./store.js";
 
 // ---------------------------------------------------------------------------
 // fragments
@@ -1148,6 +1161,282 @@ function dropSourceRow(drop, links) {
     node,
     h("span", { class: "entry-note", text: tr("loot.rolls", Math.round(drop.rolls)) }),
     links.quest ? focusLink(tr("item.openQuest"), () => links.quest(drop.questId), drop.questId) : null,
+  );
+}
+
+// ---------------------------------------------------------------------------
+// the character section
+// ---------------------------------------------------------------------------
+
+/** The condition a gift rung answers for, read as a band of appeal rather than a pool. */
+const APPEAL_CONSUMED = "gensokyolegacy:appeal_consumed";
+
+/** A multiplier as the page writes it: `2` rather than `2.0`, `1.5` kept as it is. */
+function factor(value) {
+  return String(Number((value ?? 0).toFixed(2)));
+}
+
+/** A chance as a percentage: `0.05` -> `5`. */
+function percent(value) {
+  return String(Math.round((value ?? 0) * 100));
+}
+
+/** An item name as a pill, opening the item's own page when the index has one. */
+function itemNode(id, links, suffix) {
+  const node =
+    links.item && store.items.has(id)
+      ? focusLink(itemLabel(id), () => links.item(id), id)
+      : pill("item", itemLabel(id), id);
+  return suffix ? append(node, [h("span", { class: "n", text: ` ${suffix}` })]) : node;
+}
+
+/**
+ * What to say about a field no data map answered.
+ *
+ * A map that says nothing about a character is a fact about her - no home, no visits -
+ * and a map that could not be read is a fact about the page. Telling the two apart is
+ * the whole reason `dataMapValues` distinguishes a missing file from an empty one, so
+ * the note goes where a blank field would otherwise be read as a denial.
+ */
+function unreadMap(name) {
+  return store.dataMaps.has(name) ? null : tr("char.mapMissing", name);
+}
+
+/**
+ * The character tab: what a character's own data says about her, rather than what she
+ * has to say. Where she lives and who she visits, what sort of party she attends, what
+ * she is glad to be given and what she leaves behind afterwards.
+ *
+ * Nothing here is read from her quests or her dialogs, so a character with none still
+ * appears - which is the point: she is a person in the world before she is a quest
+ * giver. The `links` are the item page's, since a gift is an item and its page is
+ * where what it is worth is spelled out.
+ */
+export function characterProfileCard(profile, links = {}) {
+  const home = profile.config?.structure;
+
+  return h(
+    "article",
+    { class: "card" },
+    cardHead(entityLabel(profile.entity), profile.entity, [
+      profile.taste ? pill("reward", tr("char.badge.party")) : null,
+      home ? pill("condition", tr("char.badge.home")) : null,
+      profile.gifts ? pill("requirement", tr("char.badge.gifts")) : null,
+    ]),
+    whereaboutsSection(profile),
+    partySection(profile),
+    // A character with no taste row is not party-eligible at all - `PartyTaste.of`
+    // returns null rather than a default - so she neither draws nor leaves a gift.
+    profile.taste ? giftLadderSection(profile, links) : null,
+    profile.gifts ? giftPreferenceSection(profile, links) : null,
+    behaviourSection(profile),
+  );
+}
+
+/**
+ * Where she is: the home she lives in, and the homes she turns up at.
+ *
+ * A visitor is a temporary clone spawned inside someone else's house on a daytime
+ * window (`doc/design/structure/character_visit.md`), so a character with no home of
+ * her own is still findable - which is the whole reason this row is here rather than a
+ * note that she is homeless.
+ */
+function whereaboutsSection(profile) {
+  const home = profile.config?.structure;
+  const none = (map, text) => h("span", { class: "entry-note", text: unreadMap(map) ?? text });
+
+  return collapsibleSection(
+    tr("char.whereabouts"),
+    entry(
+      tr("char.home"),
+      home ? pill("item", prettify(home), home) : none("character_config", tr("char.home.none")),
+      home ? h("div", { class: "entry-note" }, code(home)) : null,
+    ),
+    profile.visits.length
+      ? entry(tr("char.visits"), h("ul", { class: "nested" }, ...profile.visits.map(visitNode)))
+      : entry(tr("char.visits"), none("structure_config", tr("char.visits.none"))),
+  );
+}
+
+/** One house she may turn up at, with how often and for how long. */
+function visitNode(visit) {
+  return h(
+    "li",
+    {},
+    h(
+      "div",
+      { class: "entry" },
+      pill("item", prettify(visit.structure), visit.structure),
+      h(
+        "div",
+        { class: "entry-body" },
+        h("span", { text: tr("char.visitChance", percent(visit.chance)) }),
+        h("span", { class: "entry-note", text: ` · ${tr("char.visitStay", formatTicks(visit.minStay), formatTicks(visit.maxStay))}` }),
+        h("div", { class: "entry-note" }, code(visit.structure)),
+      ),
+    ),
+  );
+}
+
+/**
+ * What sort of party she attends, in the terms `PartyTaste` uses: how likely she is to
+ * be drawn, what her reputation has to be for that to happen, how much spread appeal
+ * the food has to carry to interest her, and what she does once she is at the table.
+ */
+function partySection(profile) {
+  const taste = profile.taste;
+  if (!taste) {
+    const note = unreadMap("party_taste") ?? tr("char.party.none");
+    return collapsibleSection(tr("char.party"), entry("", h("span", { class: "entry-note", text: note })));
+  }
+
+  return collapsibleSection(
+    tr("char.party"),
+    entry(
+      tr("char.party.weight"),
+      h("span", { text: String(taste.weight) }),
+      h("span", { class: "entry-note", text: tr("char.party.weightNote") }),
+    ),
+    entry(
+      tr("char.party.reputation"),
+      h("span", { text: tr("char.party.reputationRange", taste.minReputation, taste.maxReputation) }),
+      h("span", { class: "entry-note", text: tr("char.party.repBonus", factor(1 + (taste.repBonus ?? 0))) }),
+    ),
+    entry(tr("char.party.appeal"), h("span", { text: tr("char.party.appealRange", taste.minAppeal, taste.maxAppeal) })),
+    entry(tr("char.party.fulfillment"), h("span", { text: tr("char.party.fulfillmentValue", taste.fulfillment) })),
+    entry(
+      tr("char.party.sitting"),
+      h("span", { text: tr("char.party.sittingValue", formatTicks(taste.hungrySeat), formatTicks(taste.fullSeat)) }),
+    ),
+    entry(tr("char.party.leave"), h("span", { text: tr("char.party.leaveValue", percent(taste.leaveChance)) })),
+    entry(tr("char.party.repGain"), h("span", { text: tr("char.party.repGainValue", percent(taste.repGain)) })),
+  );
+}
+
+/**
+ * The ladder she draws a gift from, one rung per generosity step.
+ *
+ * Each pool is gated by a band of appeal rather than a probability, so a reader wants
+ * the band far more than the rolls: `min` opens a rung and `max` closes it, with zero
+ * or less meaning it never closes. The band is written as the appeal a guest actually
+ * lands on, hence the exclusive top being shown one lower.
+ *
+ * The table arrives after the card is drawn, so the rows are filled in when it lands -
+ * the same trade every other loot table on the page makes.
+ */
+function giftLadderSection(profile, links) {
+  const list = h("ul", { class: "list" }, h("li", { class: "entry-note", text: tr("loot.loading") }));
+
+  loadGiftTable(profile.entity).then(({ table, own }) => {
+    clear(list);
+    if (!table) {
+      list.append(h("li", { class: "entry-note", text: tr("loot.failed", profile.entity) }));
+      return;
+    }
+    if (!own) list.append(h("li", { class: "entry-note", text: tr("char.gift.default") }));
+
+    for (const pool of table.pools ?? []) {
+      const gifts = (pool.entries ?? []).filter((drop) => drop.type === "minecraft:item" && drop.name);
+      list.append(
+        entry(
+          tr("char.gift.rung", appealBand(pool)),
+          h("div", { class: "pill-stack" }, ...gifts.map((drop) => itemNode(drop.name, links, `x${drop.weight ?? 0}`))),
+        ),
+      );
+    }
+    list.append(h("li", { class: "entry-note", text: tr("char.gift.note") }));
+  });
+
+  return h("details", { class: "section", open: true }, collapsibleHead(tr("char.gift.ladder")), list);
+}
+
+/** The appeal a pool answers for, written as the band of appeal values it covers. */
+function appealBand(pool) {
+  const gate = (pool.conditions ?? []).find((condition) => condition?.condition === APPEAL_CONSUMED);
+  if (!gate) return tr("char.gift.bandAny");
+  const min = gate.min ?? 0;
+  const max = gate.max ?? 0;
+  return max > 0 ? tr("char.gift.band", min, max - 1) : tr("char.gift.bandOpen", min);
+}
+
+/**
+ * What she is glad to be given, and what each of those gifts is actually worth to her.
+ *
+ * The multiplier is per category and applies to whatever the item itself is worth, so a
+ * preference row reads as a list of the items it buys rather than as a bare number: a
+ * Drink preference of 2.0 makes the sake worth 10 rather than 5. An `override` names
+ * one item instead of a category, and is listed apart, since it is the item that is
+ * singled out rather than everything of its kind.
+ */
+function giftPreferenceSection(profile, links) {
+  const preference = profile.gifts?.preference ?? {};
+  const override = profile.gifts?.override ?? {};
+  const byType = giftItemsByType();
+  const rows = [];
+
+  for (const [type, multiplier] of Object.entries(preference)) {
+    const gifts = byType.get(type) ?? [];
+    rows.push(
+      entry(
+        giftTypeLabel(type),
+        h("span", { class: "n", text: `x${factor(multiplier)}` }),
+        h(
+          "div",
+          { class: "pill-stack" },
+          ...gifts.map((gift) =>
+            itemNode(gift.item, links, `+${Math.floor(multiplier * gift.favor)}`),
+          ),
+        ),
+        h("span", { class: "entry-note", text: tr("char.gifts.favor") }),
+      ),
+    );
+  }
+
+  for (const [item, multiplier] of Object.entries(override)) {
+    const gift = store.giftItems.get(item);
+    rows.push(
+      entry(
+        giftTypeLabel(gift?.type),
+        h("span", { class: "n", text: `x${factor(multiplier)}` }),
+        itemNode(item, links),
+        h("span", { class: "entry-note", text: tr("char.gifts.override") }),
+      ),
+    );
+  }
+
+  if (!rows.length) rows.push(entry("", h("span", { class: "entry-note", text: tr("char.gifts.none") })));
+  return collapsibleSection(tr("char.gifts"), ...rows);
+}
+
+/** A gift category, named by the game: `gensokyolegacy.gift.type.drink` is "Drink". */
+function giftTypeLabel(type) {
+  if (!type) return null;
+  const key = `${store.manifest?.namespace ?? "gensokyolegacy"}.gift.type.${String(type).toLowerCase()}`;
+  return t(key) ?? prettify(type);
+}
+
+/**
+ * The numbers that decide when she is around at all: how long until a lost character is
+ * written off, how long until she comes back, how far she ranges from her home, and how
+ * long she lasts with no player in sight. All four are the `character_config` row, and
+ * every one of them is in ticks or blocks rather than in words.
+ */
+function behaviourSection(profile) {
+  const config = profile.config;
+  if (!config) return null;
+
+  const rows = [
+    [tr("char.behaviour.respawn"), config.respawnTime],
+    [tr("char.behaviour.vanish"), config.noPlayerVanishTime],
+    [tr("char.behaviour.discard"), config.discardTime],
+  ].filter(([, value]) => typeof value === "number");
+
+  return collapsibleSection(
+    tr("char.behaviour"),
+    ...rows.map(([name, value]) => entry(name, ticks(value))),
+    typeof config.wanderRadius === "number"
+      ? entry(tr("char.behaviour.wander"), h("span", { text: tr("char.behaviour.blocks", config.wanderRadius) }))
+      : null,
   );
 }
 

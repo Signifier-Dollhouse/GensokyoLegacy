@@ -8,9 +8,10 @@
 export const REPO = { owner: "Signifier-Dollhouse", name: "GensokyoLegacy", ref: "gh-page" };
 
 /** Content types, in tab order. `quest`/`daily` and `starters`/`dialog` each split
- *  one registry in two; see `app.js` for what the split is. Items are not a tab -
- *  they are a sidebar section of their own, since they belong to no character. */
-export const TABS = ["quest", "daily", "trade", "starters", "dialog"];
+ *  one registry in two; see `app.js` for what the split is. `profile` reads the
+ *  character data maps instead of any registry at all. Items are not a tab - they
+ *  are a sidebar section of their own, since they belong to no character. */
+export const TABS = ["profile", "quest", "daily", "trade", "starters", "dialog"];
 
 function read(key, fallback) {
   try {

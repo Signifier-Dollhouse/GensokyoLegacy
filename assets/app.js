@@ -12,12 +12,14 @@ import {
   buildCharacters,
   buildItemIndex,
   characterKeyOf,
+  characterProfiles,
   fetchJson,
   guideCategoryIds,
   guideEntryIds,
   guideEntryOf,
   guideFileCount,
   loadAllDialogs,
+  loadCharacterProfiles,
   loadCurrencyTag,
   loadGuide,
   loadItemSources,
@@ -25,7 +27,6 @@ import {
   loadManifest,
   loadRegistry,
   loadShopOffers,
-  loadStructureHosts,
   loadVanillaLang,
   sourceFileCount,
   store,
@@ -34,6 +35,7 @@ import {
 } from "./lib/store.js";
 import {
   categoryName,
+  characterProfileCard,
   collapsible,
   guideEntryName,
   guideEntryRow,
@@ -232,6 +234,7 @@ function renderPanel() {
   if (state.tab === "dialog") return renderDialogPanel(panel);
   if (state.tab === "starters") return renderStartersPanel(panel);
   if (state.tab === "trade") return renderTradePanel(panel);
+  if (state.tab === "profile") return renderProfilePanel(panel);
   return renderQuestPanel(panel, state.tab);
 }
 
@@ -731,6 +734,46 @@ function prettifyRoot(root) {
   return prettify(root.split("/").pop());
 }
 
+/**
+ * The character tab: what each character is like in the world, rather than what she has
+ * to say. Where she lives, who she visits, what sort of party she attends and what she
+ * leaves behind afterwards.
+ *
+ * The list is the game's own rather than the registries': a character with no quest, no
+ * offer and no dialog of her own is still somewhere to be found, and building it out of
+ * the registries would drop exactly the characters a reader is most likely to be asking
+ * about. The sidebar still selects by the registries' characters, so selecting one
+ * narrows this to her.
+ */
+function renderProfilePanel(panel) {
+  const shown = characterProfiles()
+    .filter(inProfile)
+    .filter((profile) =>
+      matchesQuery(
+        profile.entity,
+        entityLabel(profile.entity),
+        profile.config?.structure,
+        ...profile.visits.map((visit) => visit.structure),
+      ),
+    )
+    // By the name the card is titled with, which for a character the registries do not
+    // know is the only name there is.
+    .sort((a, b) => entityLabel(a.entity).localeCompare(entityLabel(b.entity)));
+
+  panel.append(h("p", { class: "card-id", text: tr("profile.note") }));
+  if (!shown.length) return panel.append(emptyState(tr("noun.characters")));
+
+  panel.append(
+    h("div", { class: "grid" }, ...shown.map((profile) => characterProfileCard(profile, { item: openItem }))),
+  );
+}
+
+/** Whether the sidebar selection is this character, or every character. */
+function inProfile(profile) {
+  if (state.character === "all") return true;
+  return store.characters.get(state.character)?.entity === profile.entity;
+}
+
 /** Opens a conversation at its shallowest node. */
 function openFirst(nodes) {
   const shallowest = nodes
@@ -899,7 +942,11 @@ function guideNavEntries() {
  * here, and are counted there.
  */
 function renderTabs() {
-  const counts = { quest: 0, daily: 0, trade: 0, starters: 0, dialog: 0 };
+  const counts = { profile: 0, quest: 0, daily: 0, trade: 0, starters: 0, dialog: 0 };
+
+  // A character is counted when the sidebar is on her or on everybody, the same
+  // selection the panel below draws from.
+  counts.profile = characterProfiles().filter(inProfile).length;
 
   for (const entryData of entriesOf(store.manifest.registries.quest).filter(inCharacter)) {
     const quest = store.quests.get(entryData.id);
@@ -1070,9 +1117,10 @@ async function boot() {
     ...(store.manifest.vanillaLang ?? VANILLA_LANG).map(loadVanillaLang),
     // The currency tag decides whether a trade reads as "sell" or "craft".
     loadCurrencyTag(),
-    // Whose home each structure is, so a visit condition can name its host. One small
-    // file, and a condition that says "visiting Reimu" is worth it on the first paint.
-    loadStructureHosts(),
+    // Whose home each structure is, who may visit it, what each character likes to be
+    // given and how she behaves at a party. Five small files, and a condition that says
+    // "visiting Reimu" is worth it on the first paint.
+    loadCharacterProfiles(),
     ...registries.map((name) => loadRegistry(name, progressFor(name))),
   ]);
 
@@ -1187,7 +1235,7 @@ async function refreshFromGitHub() {
     // load is redone: dropping the shared promise is what makes the next caller
     // refetch rather than reuse what is already in the store.
     itemsPromise = null;
-    await loadItems();
+    await Promise.all([loadItems(), loadCharacterProfiles()]);
     buildCharacters();
     render();
     setStatus(trPlural("status.refreshed", added, added));

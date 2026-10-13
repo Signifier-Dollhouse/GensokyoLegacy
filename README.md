@@ -22,6 +22,7 @@ fetch 404s - Pages cannot serve files from outside the directory it publishes.
 
 | Tab | Read from | Highlights |
 | --- | --- | --- |
+| Profile | the `character_config`, `party_taste`, `gift_preference`, `gift_data` and `structure_config` data maps, plus each character's `loot_table/party_gift/` ladder | where she lives, who she visits, what sort of party she attends, what she is glad to be given and what she leaves behind |
 | Quests | `gensokyolegacy:quest` without `recurrence` | title, description, unlock **conditions**, **requirements**, rewards, conversation entry points |
 | Dailies | `gensokyolegacy:quest` with `recurrence` | the same card, for the quests that come back on a cooldown |
 | Trades | `gensokyolegacy:trade` | ingredients → result, stock and restock, unlock conditions, grouped into collapsible *sell to*, *buy from* and *processing* sections |
@@ -29,14 +30,14 @@ fetch 404s - Pages cannot serve files from outside the directory it publishes.
 | Dialogs | `gensokyolegacy:dialog` | every dialog node, grouped by the conversation it belongs to, with a viewer that walks each branch |
 
 The sidebar carries three lists side by side, and the tabs belong to the first:
-**characters** (quests, dailies, trades, starters and dialogs), **items** (the guide,
-and where each item comes from) and **patchouli** (the guide book's own entries).
+**characters** (profile, quests, dailies, trades, starters and dialogs), **items** (the
+guide, and where each item comes from) and **patchouli** (the guide book's own entries).
 Neither of the last two belongs to a character, so each is a section of its own rather
-than a sixth tab; picking one hides the tab bar, and picking a character brings it back.
-All three are addressable: `#quest/reimu`, `#trade/all`, `#dialog/marisa`,
-`#items/decoration`, `#items/undocumented`, `#patchouli/alchemy`. Each is a heading that
-folds its list away, so a reader working through one does not have to scroll past the
-others; all three start open.
+than another tab; picking one hides the tab bar, and picking a character brings it back.
+All three are addressable: `#profile/reimu`, `#quest/reimu`, `#trade/all`,
+`#dialog/marisa`, `#items/decoration`, `#items/undocumented`, `#patchouli/alchemy`. Each
+is a heading that folds its list away, so a reader working through one does not have to
+scroll past the others; all three start open.
 
 The item entries are the guide's own categories, in its order, plus one for the items it
 never mentions. Selecting one lays its items out in the panel: the items the guide names
@@ -64,7 +65,32 @@ with, so a card reads top to bottom unless you close one. Conditions inside a di
 option stay inline, since an option is already a small block.
 
 The tab badges count the selected character; the item list beside them counts the items
-in each section. Picking a character, a tab or an item section clears the search box.
+in each section. The profile badge counts characters rather than entries, since that is
+what its panel holds. Picking a character, a tab or an item section clears the search box.
+
+### The character section
+
+The profile tab is the one that reads no RPG registry at all. Everything on it comes from
+the data maps the game already keeps about each character, which is also what makes it
+answerable for a character the registries have never heard of: Cirno and Suika have no
+quest folder, no offer and no dialog of their own - everything the datapack says about
+them is where they may turn up and what they would leave behind - and so they appear
+here and nowhere in the sidebar.
+
+| What | Where it is read from |
+| --- | --- |
+| Where she lives | `character_config.structure`, the same field that lets a `visit_structure` condition name Reimu's house rather than a structure id. A character with no home of her own says so, and is found through her visits instead |
+| Who she visits | `structure_config.visitors`, read backwards: the guest pool is declared on the home, so it is the home that says who may turn up. Each visit carries the share of days she comes (`chance`) and how long she stays (`minStay`-`maxStay`) |
+| What she is like at a party | `party_taste`, in the fields the record itself uses: her share of the draw, the reputation she declines below and earns her bonus at, the spread appeal that interests her, how much hunger counts as satisfied, how long she sits between dishes, her chance of calling it a day, and the share of the appeal she ate that the host earns. A character with no row is not party-eligible at all - the map is the eligibility list - and her card says so |
+| The gift she leaves behind | `loot_table/party_gift/<entity type path>`, falling back to `party_gift/default` exactly as `PartyGift` does. A ladder of one-roll pools, each gated by a *band* of appeal rather than a probability, so the card shows the band and what she gives while standing in it: one item per visit, and the number beside each item how likely she is to pick it |
+| What she is glad to be given | `gift_preference` per category and `gift_data` per item, so a `Drink x2.0` row names the sake it doubles and what each is worth to her afterwards rather than standing as a bare multiplier. An `override` names one item instead of a category, and is listed apart |
+| When she is around | the rest of `character_config`: how long a bed waits before giving up a character that has stopped ticking in, how long before it writes a new one, how far she ranges from her home, and how long she lasts with no player in sight |
+
+The card is built from the game rather than written down, so a character added upstream
+appears with nothing to update here, and a character the datapack drops disappears. The
+five data maps are small and fetched with the first paint; the gift ladder is a loot
+table like any other, so it is fetched when a card is drawn and its rows fill in when it
+lands.
 
 ### The item section
 
@@ -81,15 +107,18 @@ all it takes for the page to show it.
 | The sidebar entries | the guide's own categories, in the book's order, plus one entry for everything it does not document |
 | The panel groups | within an entry, the items the guide names on their own are listed straight in, then one collapsible group per spotlight that names several things - a tag or a list of ids - named by that page's own translated title, ordered by how many items each holds, fewest first |
 
-Four files are listed for the viewer rather than found by following the content, because
-nothing in the RPG registries refers to them: the `currency` tag, which decides whether a
-trade reads as *sell to the character* or *request a craft*; the `morichika_offers` tag,
-which only `MorichikaEntity` reads; the `morichika_offer` data map beside it, which
-holds the price and stock range each item is shelved at; and the `character_config` data
-map, whose `structure` field is what tells a `visit_structure` condition whose house it
-is, so the row reads *Visiting · Reimu* rather than a structure id. An item on the shop's
-tag but not in the data map is shelved at stock 1 and price 1, the default the code
-documents.
+Eight files and one folder are listed for the viewer rather than found by following the
+content, because nothing in the RPG registries refers to them: the `currency` tag, which
+decides whether a trade reads as *sell to the character* or *request a craft*; the
+`morichika_offers` tag, which only `MorichikaEntity` reads; the `morichika_offer` data map
+beside it, which holds the price and stock range each item is shelved at; the
+`character_config` data map, whose `structure` field is what tells a `visit_structure`
+condition whose house it is, so the row reads *Visiting · Reimu* rather than a structure
+id; and the four the profile tab reads - `party_taste`, `gift_preference`, `gift_data` and
+`structure_config` - with the `party_gift/` loot tables, which are likewise named by the
+entity type they belong to rather than by anything that refers to them. An item on the
+shop's tag but not in the data map is shelved at stock 1 and price 1, the default the
+code documents.
 
 An item page is its guide entry - the category it sits in, the advancement that grants
 it, and the entry's prose under a heading that folds away - followed by every way to get
@@ -234,7 +263,7 @@ translate at all.
 | `assets/lib/i18n.js` | interface string tables for both locales |
 | `assets/lang/vanilla/*.json` | the vanilla strings the content refers to |
 | `assets/img/hakkero.png` | the logo and favicon: a copy of the mod's Mini Hakkero texture, checked against it by `scripts/check_site.py` |
-| `rpg-manifest.json` | generated index of which registry, recipe and guide files exist, plus their content fingerprint |
+| `rpg-manifest.json` | generated index of which registry, recipe, guide, loot table and data map files exist, plus their content fingerprint |
 | `scripts/build_manifest.py` | regenerates that index from the datagen output |
 | `scripts/build_vanilla_lang.py` | extracts the referenced vanilla strings from the game |
 | `scripts/check_site.py` | parses the modules, verifies their imports, checks both locale tables and the logo |
