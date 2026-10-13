@@ -91,7 +91,7 @@ public class GLRecipeGen {
 					.save(pvd, GensokyoLegacy.loc("explosive_hexbrew"));
 
 			unlock(pvd, new UnorderedAlchemyRecipeBuilder()
-					.fluid(Fluids.WATER)
+					.fluid(HexBrew.MUNDANE_HEXBREW.getSource())
 					.add(GLNaturalBlocks.DEMONIC_MIASMA_MUSHROOM_SET.cap.get())
 					.add(Items.SPIDER_EYE)
 					.add(Items.ROTTEN_FLESH)

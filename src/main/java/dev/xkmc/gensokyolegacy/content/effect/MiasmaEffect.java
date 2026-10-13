@@ -3,6 +3,7 @@ package dev.xkmc.gensokyolegacy.content.effect;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.registrate.GLEffects;
 import dev.xkmc.l2damagetracker.init.L2DamageTracker;
+import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -10,7 +11,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 
-public class MiasmaEffect extends EmptyEffect {
+public class MiasmaEffect extends MobEffect {
 
 	public MiasmaEffect() {
 		super(MobEffectCategory.HARMFUL, 0xFF7A4BA1);

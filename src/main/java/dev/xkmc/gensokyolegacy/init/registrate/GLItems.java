@@ -300,7 +300,8 @@ public class GLItems {
 					.lang("Ghost Sake").register();
 
 			FAIRY_CAKE = reg.item("fairy_cake", p -> new Item(p
-							.food(new FoodProperties.Builder().nutrition(4).saturationModifier(0.3f).build())))
+							.food(new FoodProperties.Builder().nutrition(4).saturationModifier(0.3f)
+									.effect(() -> new MobEffectInstance(GLEffects.FLOATING, 600), 1).build())))
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
 					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(3, 1000, GiftType.FOOD))
 
