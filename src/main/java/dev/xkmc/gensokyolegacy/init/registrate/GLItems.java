@@ -24,6 +24,7 @@ import dev.xkmc.gensokyolegacy.content.item.gift.*;
 import dev.xkmc.gensokyolegacy.content.item.glove.DollGloveItem;
 import dev.xkmc.gensokyolegacy.content.item.glove.DollGloveModel;
 import dev.xkmc.gensokyolegacy.content.item.hexbrew.StarDanmakuItem;
+import dev.xkmc.gensokyolegacy.content.item.ingredient.FairyDustItem;
 import dev.xkmc.gensokyolegacy.content.item.ingredient.FairyIceItem;
 import dev.xkmc.gensokyolegacy.content.item.ingredient.FrozenFrogItem;
 import dev.xkmc.gensokyolegacy.content.attachment.party.item.InvitationLetterItem;
@@ -74,7 +75,7 @@ public class GLItems {
 	public static final SimpleEntry<CreativeModeTab> TAB;
 
 	public static final ItemEntry<FairyIceItem> FAIRY_ICE_CRYSTAL;
-	public static final ItemEntry<Item> FAIRY_DUST;
+	public static final ItemEntry<FairyDustItem> FAIRY_DUST;
 	public static final ItemEntry<FrozenFrogItem> FROZEN_FROG_COLD, FROZEN_FROG_WARM, FROZEN_FROG_TEMPERATE;
 	public static final ItemEntry<Item> MYSTICAL_STRAW;
 
@@ -248,7 +249,7 @@ public class GLItems {
 			MYSTICAL_STRAW = reg.item("mystical_straw", Item::new)
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/ingredient/" + ctx.getName())))
 					.register();
-			FAIRY_DUST = reg.item("fairy_dust", Item::new)
+			FAIRY_DUST = reg.item("fairy_dust", FairyDustItem::new)
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/ingredient/" + ctx.getName())))
 					.lang("Fairy Dust").register();
 			FAIRY_ICE_CRYSTAL = reg.item("fairy_ice_crystal", FairyIceItem::new)
