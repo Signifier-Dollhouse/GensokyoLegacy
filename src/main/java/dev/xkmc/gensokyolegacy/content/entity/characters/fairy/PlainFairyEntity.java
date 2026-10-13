@@ -56,11 +56,6 @@ import java.util.Optional;
 @SerialClass
 public class PlainFairyEntity extends FairyEntity implements GeoYoukaiAnim {
 
-	/**
-	 * How many sheets the rig ships, i.e. the range of {@link #DATA_VARIANT}. The
-	 * {@code fairy_*.png} sheets are the same recolour of one mesh, chosen per entity,
-	 * and each of them has a {@code fairy_*_flower.png} twin - see {@link #DATA_FLOWER}.
-	 */
 	public static final int VARIANT_COUNT = 5;
 
 	/**
@@ -117,30 +112,11 @@ public class PlainFairyEntity extends FairyEntity implements GeoYoukaiAnim {
 
 	protected static final RawAnimation IDLE = RawAnimation.begin().thenLoop("待机");
 	protected static final RawAnimation SIT = RawAnimation.begin().thenLoop("坐下");
-	/**
-	 * Her hovering loop, which is what an airborne fairy wants instead of standing.
-	 * <p>
-	 * Also covers walking: this rig has no {@code 走路}/{@code 跑步} clip, like Cirno's.
-	 * It cannot stay a missing name — GeckoLib resolves an unknown clip to {@code null},
-	 * {@code buildAnimationQueue} then hands the controller an empty queue, and the next
-	 * {@code process()} tick stops it without writing any bones — which would pin her in
-	 * the last pose written, i.e. frozen mid-hover for the whole walk, silently.
-	 */
+
 	private static final RawAnimation FLOAT = RawAnimation.begin().thenLoop("漂浮");
+	private static final RawAnimation CRYING_FLOAT = RawAnimation.begin().thenLoop("哭泣_漂浮");
 	private static final RawAnimation USE_MAINHAND = RawAnimation.begin().thenPlay("使用主手物品");
 
-
-	/**
-	 * Start the chew. Server-side; the play itself is an entity event, so the client
-	 * sees the same animation the server timed the flower throw against.
-	 * <p>
-	 * Overrides the base no-op rather than being a fairy's own invention: a party guest
-	 * holding a plate calls this on whatever character she is, and only a rig with a
-	 * {@code 吃} clip answers.
-	 */
-	/**
-	 * Her own entity data, layered over the generic youkai/spell-data layers.
-	 */
 	protected static final SyncedData PLAIN_FAIRY_DATA = new SyncedData(PlainFairyEntity::defineId, SPELL_DATA);
 
 	private static final EntityDataAccessor<Integer> DATA_VARIANT = PLAIN_FAIRY_DATA.define(SyncedData.INT, 0, "variant");
@@ -433,16 +409,13 @@ public class PlainFairyEntity extends FairyEntity implements GeoYoukaiAnim {
 		if (event.getController().isPlayingTriggeredAnimation()) {
 			return PlayState.CONTINUE;
 		}
-		// No 睡觉 clip in this rig, and it must not name a missing one - see FLOAT
-		// above for what GeckoLib does with a name it cannot resolve. 坐下 is the
-		// closest thing she has, and it is what she is playing as a passenger anyway.
 		if (isSleeping() || isPassenger()) {
 			return event.setAndContinue(SIT);
 		}
-		// She hovers by construction, so "off the ground" is the honest test for
-		// the floating clip - the nav FLYING flag only covers the stretches where
-		// she is actually being flown somewhere.
-		if (!onGround()) {
+		if (getActivity() == GLBrains.FEAR.get()) {
+			event.setAndContinue(CRYING_FLOAT);
+		}
+		if (event.isMoving()) {
 			return event.setAndContinue(FLOAT);
 		}
 		return event.setAndContinue(IDLE);
@@ -458,7 +431,7 @@ public class PlainFairyEntity extends FairyEntity implements GeoYoukaiAnim {
 		return switch (anim) {
 			case USE_MAINHAND -> Optional.of(USE_MAINHAND);
 			case GREET, TALK_01, TALK_02, TALK_03, TALK_04, TALK_05, THINK, THINK_02,
-					CONFUSED, AGREE, DECLINE, OUTDOOR_IDLE -> Optional.empty();
+				 CONFUSED, AGREE, DECLINE, OUTDOOR_IDLE -> Optional.empty();
 		};
 	}
 
