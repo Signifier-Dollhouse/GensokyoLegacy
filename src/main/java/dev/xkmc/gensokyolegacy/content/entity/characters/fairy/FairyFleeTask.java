@@ -76,7 +76,7 @@ public class FairyFleeTask extends Behavior<PlainFairyEntity> {
 	 * <p>
 	 * The activity check is load-bearing, not decoration. Changing activity does not
 	 * stop behaviors - {@code Brain} only sets the new activity and moves on - so a
-	 * behavior has to notice itself being outranked. Without it, being handed a cake
+	 * behavior has to notice itself being outranked. Without it, being handed food
 	 * would leave her sprinting away for the rest of the memory's life with both
 	 * tasks writing to the same navigation.
 	 */

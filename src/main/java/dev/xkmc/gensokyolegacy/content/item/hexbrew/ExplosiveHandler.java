@@ -11,6 +11,16 @@ import org.jetbrains.annotations.Nullable;
 
 public class ExplosiveHandler implements HexBrewHandler {
 
+	private final int radius;
+
+	public ExplosiveHandler() {
+		this(3);
+	}
+
+	public ExplosiveHandler(int radius) {
+		this.radius = radius;
+	}
+
 	@Override
 	public boolean isThrowable() {
 		return true;
@@ -18,7 +28,7 @@ public class ExplosiveHandler implements HexBrewHandler {
 
 	@Override
 	public void onHit(Level level, Vec3 pos, @Nullable Entity thrower, ItemStack stack) {
-		int r = 3;
+		int r = radius;
 		if (level.isClientSide) return;
 		BaseExplosionContext base = new BaseExplosionContext(level, pos.x, pos.y, pos.z, r);
 		VanillaExplosionContext vanilla = new VanillaExplosionContext(

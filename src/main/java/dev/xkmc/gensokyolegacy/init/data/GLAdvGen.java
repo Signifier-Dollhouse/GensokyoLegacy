@@ -41,6 +41,7 @@ public class GLAdvGen {
 	public static final ResourceLocation OBTAIN_TALISMAN = GensokyoLegacy.loc("main/obtain_talisman");
 	public static final ResourceLocation OBTAIN_MINI_HAKKERO = GensokyoLegacy.loc("main/obtain_mini_hakkero");
 	public static final ResourceLocation OBTAIN_MINI_HAKKERO_REPAIRED = GensokyoLegacy.loc("main/obtain_mini_hakkero_repaired");
+	public static final ResourceLocation OBTAIN_STRANGE_GLASSES = GensokyoLegacy.loc("main/obtain_strange_glasses");
 	public static final ResourceLocation OBTAIN_CAT_BELL = GensokyoLegacy.loc("main/obtain_cat_bell");
 	public static final ResourceLocation OBTAIN_CENTIPICKAXE = GensokyoLegacy.loc("main/obtain_centipickaxe");
 	public static final ResourceLocation OBTAIN_DOWSER = GensokyoLegacy.loc("main/obtain_dowser");
@@ -131,7 +132,13 @@ public class GLAdvGen {
 						CriterionBuilder.item(GLItems.MINI_HAKKERO.get()),
 						"Mini Hakkero [Repaired]", "Have Marisa repair your Mini Hakkero")
 				.type(AdvancementType.TASK, false, false, false);
-		miniHakkero.create("obtain_cat_bell", GLItems.CAT_BELL.get(),
+		// The bell hangs off the glasses rather than off the hakkero: it is
+		// Morichika's stock too, and the glasses are what you wear to find it.
+		morichika.create("obtain_strange_glasses", GLItems.STRANGE_GLASSES.get(),
+						CriterionBuilder.item(GLItems.STRANGE_GLASSES.get()),
+						"Strange Glasses", "Obtain the Strange Glasses")
+				.type(AdvancementType.TASK, false, false, false)
+				.create("obtain_cat_bell", GLItems.CAT_BELL.get(),
 						CriterionBuilder.item(GLItems.CAT_BELL.get()),
 						"Cat Bell", "Obtain a Cat Bell")
 				.type(AdvancementType.TASK, false, false, false)

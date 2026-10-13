@@ -24,7 +24,7 @@ Related: [home_index.md](home_index.md), [structure_bed_entity.md](structure_bed
 | `CharacterConfig` | `content/attachment/character/CharacterConfig.java` | Datamap `DataMap<EntityType, CharacterConfig>`. Fields `structure RL, discardTime, respawnTime, wanderRadius, noPlayerVanishTime`. `create()` spawns `YoukaiEntity` at the bed, sets `HomeModule.home` and restricts it to the home's wander radius. |
 | `TaskBoard` | `content/entity/behavior/brain/TaskBoard.java:28` | DSL for brain graph: `always / exclusive(priority) / random` behaviors, `scheduled / prioritized` activities, `sensors`, `schedule`, plus `addPartyTasks()` for the shared guest behaviour. |
 | `SmartBrain` | `content/entity/behavior/brain/SmartBrain.java` | `Brain<E>` subclass. `construct(board,dynamic)` via `Provider` codec `Brain.codec(memoryTypes,sensorTypes)`. Priority scan `updateActivities`. |
-| `GLBrains` | `init/registrate/GLBrains.java:15` | `SR`-registered sensors `SN_HOME/SN_HUNT/SN_ITEM/SN_LE/SN_PLAYER/SN_HOME_BLOCKS`; memories `MEM_PATH/MEM_PREY/MEM_DOWN/MEM_TALK/MEM_ITEMS/MEM_FEED/MEM_VISIT/MEM_PARTY/MEM_FEAR`; activities `AT_HOME/HUNT/DOWN/TALK/VISITING(150)/PARTY(200)/FEAR/FEAST`. |
+| `GLBrains` | `init/registrate/GLBrains.java:15` | `SR`-registered sensors `SN_HOME/SN_HUNT/SN_ITEM/SN_LE/SN_PLAYER/SN_HOME_BLOCKS`; memories `MEM_PATH/MEM_PREY/MEM_DOWN/MEM_TALK/MEM_ITEMS/MEM_FEED/MEM_VISIT/MEM_PARTY/MEM_FEAR/MEM_NAP`; activities `AT_HOME/HUNT(700)/DOWN(-100)/TALK(300)/VISITING(600)/PARTY(400)/FEAR(100)/FEAST(200)/NAP(500)`. The priority scale is documented as a block above the activity constants. |
 | `YoukaiModuleHolder` | `content/entity/module/YoukaiModuleHolder.java` | `List<AbstractYoukaiModule>` + `Map<Class,Optional>` cache + `hasPickup` flag. Iterable. |
 | `HomeModule` | `content/entity/module/HomeModule.java` | `@SerialField StructureKey home` (immovable — structures/BEs never move, so no re-binding needed). `tickServer → BedRefData.entityTick`, `onKilled → onEntityDie`. |
 | `VisitModule` | `content/entity/module/VisitModule.java` | Drives `YoukaiFlags.VISITING` and the `MEM_VISIT` heartbeat; a visitor has no `HomeModule` binding, so she can neither sleep nor go home. See `character_visit.md`. |
@@ -139,8 +139,8 @@ Default `constructTaskBoard` graph (`SmartYoukaiEntity.java:95`):
 |---|---|---|
 | `YoukaiLookAtTarget(40,300)`, `YoukaiMoveTask`, `YoukaiSwimTask(0.8)`, `YoukaiSmartDoorTask` | CORE | always |
 | `YoukaiUpdateTargetTask`, `YoukaiAttackTask(16)`, `StrafeTarget` | FIGHT | always |
-| `YoukaiFetchTargetTask` | TALK/AT_HOME/REST | always |
-| `YoukaiSearchTargetTask`, `YoukaiVanishTask` | IDLE/PLAY | always |
+| `YoukaiAcquireTargetTask` | TALK/AT_HOME/REST/PARTY/IDLE/PLAY/VISITING | always |
+| `YoukaiVanishTask` | IDLE/PLAY | always |
 | `YoukaiSleepTask` | REST p0 | exclusive |
 | `YoukaiTalkTask` | TALK p0 | exclusive |
 | `YoukaiGoHomeTask` | IDLE/AT_HOME p100 | exclusive |
@@ -152,12 +152,21 @@ Default `constructTaskBoard` graph (`SmartYoukaiEntity.java:95`):
 | `YoukaiStayNearHouseTask`, `YoukaiDoNothing(30,60)` | IDLE | random |
 | `YoukaiDoNothing(30,60)` | IDLE/PLAY/AT_HOME, and VISITING | random |
 | `board.addPartyTasks()` | PARTY | shared guest set |
+| `YoukaiNapTask` | NAP p0 | exclusive; Suika only, added by her `constructTaskBoard` |
 
 Sensors: `NearbyPlayerSensor(32,32)` every 5t, `NearbyLivingEntitySensor(32,16)` 10/20t adaptive, `YoukaiUpdateHomeSensor` 80t → HOME, `YoukaiHomeBlocksSensor(CHAIR)`.
 
 Schedule: `AT_HOME@10 → IDLE@2000 → PLAY@4000 → IDLE@8000 → AT_HOME@10000 → REST@12000`.
 
-Priority scale (lower wins): `FIGHT 0 < TALK 100 < VISITING 150 < PARTY 200 < scheduled`. The rungs are deliberate — `TaskBoard` injects a prioritized activity's memory as `VALUE_ABSENT` into every less prioritized activity, so a visitor keeps the ability to talk and trade, and a party guest additionally never sleeps or goes home.
+Priority scale (lower wins), 100 apart, documented in full as a block in `GLBrains`:
+
+`DOWN -100 < FIGHT 0 < FEAR 100 < FEAST 200 < TALK 300 < PARTY 400 < NAP 500 < VISITING 600 < HUNT 700 < scheduled`
+
+The rungs are deliberate — `TaskBoard` injects a prioritized activity's memory as `VALUE_ABSENT` into every less prioritized activity, so a visitor keeps the ability to talk and trade, a party guest additionally never sleeps or goes home and never wanders off to visit, a visitor never hunts, and a napping character is still talked to. The gaps are 100 apart only so there is always an open hundred to slot a new activity into.
+
+`NAP(500)` is Suika's alone, and is the shape to copy for a new self-terminating activity: `MEM_NAP` is written with an expiry by `YoukaiDoNothing` (rolled from `SmartYoukaiEntity#napChance`, which every other character returns 0 for), the brain moves her into NAP on the next tick, and `YoukaiNapTask` holds the `侧卧` pose until the memory runs out or something above 500 takes over.
+
+A rung is about the activity, not about the body. TALK(300) above NAP(500) means a conversation is what *runs* while she is lying there — the dialog, the topics, the trade — while `YoukaiNapTask#canStillUse` deliberately accepts TALK as well as NAP so the pose survives it. She answers in `侧卧_交流`, and if the conversation outlives the nap's memory she stays down three more seconds (`WAKE_UP_TICKS`) rather than standing up the instant the dialogue closes. That write has to live in `canStillUse` and not in `tick`: `Behavior#tickOrStop` checks `canStillUse` first, so a re-arm in `tick` would land one tick after she was already told to stand. Compare `FairyFleeTask`, which is the other half of the trade — there the activity is what has to be noticed.
 
 ### 3.4 Damage & Reputation
 

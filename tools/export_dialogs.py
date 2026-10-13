@@ -16,12 +16,20 @@ then writes one review file per character *and per language*:
 Everything the game shows the player is read from the lang file, so the two
 exports carry the same structure and only differ in the text (and in the
 Chinese export missing translations are marked in place).
+
+Each document opens with a DIALOG ANIMATIONS section listing every trigger a
+dialog may name, resolved against that character's rig, and every `animations`
+list in the body is annotated with the clip the trigger actually plays. That
+resolution is read out of the Java sources and the GeckoLib asset rather than
+hand-listed here, so the review text cannot claim a clip the game no longer has.
 """
 
 import argparse
 import json
 import os
-from collections import OrderedDict
+import re
+import unicodedata
+from collections import OrderedDict, Counter
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA = os.path.join(ROOT, "src/generated/resources/data/gensokyolegacy/gensokyolegacy")
@@ -29,6 +37,12 @@ DATA_MAP = os.path.join(ROOT, "src/generated/resources/data/gensokyolegacy/data_
 EN_LANG = os.path.join(ROOT, "src/generated/resources/assets/gensokyolegacy/lang/en_us.json")
 ZH_LANG = os.path.join(ROOT, "src/main/resources/assets/gensokyolegacy/lang/zh_cn.json")
 OUT = os.path.join(ROOT, "out")
+
+JAVA = os.path.join(ROOT, "src/main/java/dev/xkmc/gensokyolegacy")
+YOUKAI_ANIM_JAVA = os.path.join(JAVA, "content/entity/youkai/YoukaiAnim.java")
+GEO_YOUKAI_JAVA = os.path.join(JAVA, "content/entity/youkai/GeoYoukaiAnim.java")
+GL_ENTITIES_JAVA = os.path.join(JAVA, "init/registrate/GLEntities.java")
+ANIM_ASSETS = os.path.join(ROOT, "src/main/resources/assets/gensokyolegacy/animations")
 
 TICKS_PER_SECOND = 20
 TICKS_PER_DAY = 24000
@@ -54,6 +68,44 @@ LABELS = {
     "greet_home": ("at her own home", "在自己家中"),
     "greet_visit": ("while visiting", "作为客人来访时"),
     "greet_trade": ("trade button", "交易按钮"),
+
+    "section_anims": ("## DIALOG ANIMATIONS", "## 对话动画选项"),
+    "anim_how1": ("A dialog may carry `animations`, a list of trigger names. The line plays one of",
+                  "每条对话可带 `animations`，内容是触发名列表。台词出现时会从中随机"),
+    "anim_how2": ("them once, rolled fresh every time the line opens. Leaving the list out is NOT",
+                  "取出一个播放，每次出现都重新抽取。**不写该字段并不等于没有动画**："),
+    "anim_how3": ('"no animation" - an empty list plays a random `交流_*` talk clip instead. A',
+                  "留空（列表为空）会自动随机播放一段 `交流_*` 交谈动画。枚举槽名"),
+    "anim_how4": ("trigger her rig does not map plays nothing at all, and the same trigger means",
+                  "（如 `THINK`）同样有效。触发名按角色分别解析：若该角色的资源中"),
+    "anim_how5": ("a different clip on a different character.",
+                  "没有对应片段，则什么也不会播放；同一触发名在不同角色身上"),
+    "anim_how6": ("Every name below resolves to the clip she actually plays, read out of",
+                  "也可能对应不同的片段。下表中每个触发名对应的片段，均由"),
+    "anim_how7": ("%s and %s.",
+                  "`%s` 与 `%s` 直接解析得出。"),
+    "anim_rig": ("rig: %s", "动画资源：%s"),
+    "anim_no_rig": ("rig: could not be resolved for %s from the Java sources",
+                    "动画资源：无法从 Java 源码中解析出 %s 的资源"),
+    "col_trigger": ("trigger", "触发名"),
+    "col_slot": ("slot", "枚举槽"),
+    "col_len": ("length", "时长"),
+    "col_bones": ("bones", "骨骼"),
+    "col_used": ("used", "使用"),
+    "col_clip": ("clip", "片段"),
+    "anim_code": ("fired by code, not addressable from dialog data:",
+                  "以下由代码触发，不能写进对话数据："),
+    "anim_extra": ("also on her controller, outside the dialog slots: %s",
+                   "同样注册在她的动画控制器上，但不属于对话槽位：%s"),
+    "anim_nothing": ("(no clip on this rig)", "（该资源上没有此片段）"),
+    "anim_unused": ("unused triggers: %s", "未被使用的触发名：%s"),
+    "anim_all_unused": ("unused triggers: none", "未被使用的触发名：无"),
+    "anim_usage": ("of her %d dialogs, %d name an animation and the other %d fall back to a random talk clip.",
+                   "她的 %d 条对话中，%d 条指定了动画，其余 %d 条使用随机交谈动画。"),
+    "anim_usage_none": ("none of her %d dialogs names an animation; they all fall back to a random talk clip.",
+                        "她的 %d 条对话都没有指定动画，全部使用随机交谈动画。"),
+    "anim_triggered": ("the greeting line plays %s by itself (code-triggered).",
+                       "问候语由代码直接播放 %s。"),
     "section_chats": ("## CHATS (%d)", "## 闲聊（%d）"),
     "no_chats": ("(none)", "（无）"),
     "chat_head": ("chat %s", "闲聊 %s"),
@@ -116,7 +168,13 @@ LABELS = {
     "gate_any": ("gate: ANY of", "条件：以下任一"),
     "gate_raw": ("gate: ", "条件："),
 
-    "anim": ("[anim: %s]", "[动作：%s]"),
+    "anim_multi": ("[anim] one of these, picked at random:", "[动作] 以下随机播放其一："),
+    "anim_clip": ("[anim] %s -> %s  %s  %d bones", "[动作] %s -> %s  %s  %d 根骨骼"),
+    "anim_len": ("%.2fs", "%.2f 秒"),
+    "anim_nolen": ("(no length)", "（无时长）"),
+    "anim_no_clip": ("[anim] %s -> NOT MAPPED on %s (nothing plays)", "[动作] %s -> %s 没有对应片段（什么也不会播放）"),
+    "anim_no_trigger": ("[anim] %s -> not a YoukaiAnim trigger", "[动作] %s -> 不是有效的动画触发名"),
+    "anim_missing_asset": ("clip '%s' is not in %s", "资源 %s 中没有片段“%s”"),
     "ends": ("(dialog ends)", "（对话结束）"),
     "ends_no_options": ("(dialog ends here, no further options)", "（对话在此结束，没有后续选项）"),
     "weighted": ("weighted outcome (weight %d):", "加权结果（权重 %d）："),
@@ -131,6 +189,12 @@ LABELS = {
     "flag_raw_button": ("button text is a raw string, not a lang key (quest_design.md §10): %r",
                         "按钮文本是原始字符串而非语言键（quest_design.md §10）：%r"),
     "flag_unreachable": ("dialog never reachable from %s: %s", "对话无法从 %s 到达：%s"),
+    "flag_anim_unknown": ("%s: animation '%s' is not a YoukaiAnim trigger, so it is ignored",
+                          "%s：动画“%s”不是有效的触发名，将被忽略"),
+    "flag_anim_unmapped": ("%s: animation '%s' maps to no clip on %s, so nothing plays",
+                           "%s：动画“%s”在 %s 上没有对应片段，不会播放"),
+    "flag_anim_no_clip": ("%s: animation '%s' wants clip '%s', which is not in %s",
+                          "%s：动画“%s”指向片段“%s”，但 %s 中没有该片段"),
 }
 
 EFFECT_NAMES = {
@@ -141,10 +205,69 @@ EFFECT_NAMES = {
 
 SPECIAL_WORDS = {"tnt": "TNT", "jukebox": "Jukebox"}
 
+# `case GREET, TALK_01, ... -> Optional.of(X);` / `-> Optional.empty();`
+CASE_RE = re.compile(r'case\s+(.+?)\s*->\s*Optional\.(?:of\(\s*(\w+)\s*\)|empty\(\))', re.S)
+# `RawAnimation TALK_01 = RawAnimation.begin().thenPlay("交流_01");`
+CLIP_RE = re.compile(r'RawAnimation\s+(\w+)\s*=\s*RawAnimation\.begin\(\)\.then(PlayAndHold|Play|Loop)\("([^"]+)"\)')
+# `GensokyoLegacy.loc("animations/marisa.animation.json")`
+ASSET_RE = re.compile(r'loc\("animations/([^"/]+)\.animation\.json"\)')
+
 
 def load_json(path):
     with open(path, encoding="utf-8") as f:
         return json.load(f)
+
+
+def load_text(path):
+    with open(path, encoding="utf-8") as f:
+        return f.read()
+
+
+def strip_comments(src):
+    """Drop `//` and `/* */` comments.
+
+    These rigs comment out cases for exactly the slots they do not ship, so
+    parsing the raw text would read a disabled case as a live mapping.
+    """
+    out = []
+    in_block = False
+    for line in src.split("\n"):
+        kept, i, quote = [], 0, None
+        while i < len(line):
+            if in_block:
+                if line.startswith("*/", i):
+                    in_block, i = False, i + 2
+                else:
+                    i += 1
+                continue
+            ch = line[i]
+            if quote:
+                if ch == "\\" and i + 1 < len(line):
+                    kept.append(line[i:i + 2])
+                    i += 2
+                    continue
+                if ch == quote:
+                    quote = None
+            elif line.startswith("//", i):
+                break
+            elif line.startswith("/*", i):
+                in_block, i = True, i + 2
+                continue
+            elif ch in "\"'":
+                quote = ch
+            kept.append(ch)
+            i += 1
+        out.append("".join(kept))
+    return "\n".join(out)
+
+
+def display_width(s):
+    """Column width in a terminal: CJK and full-width punctuation take two cells."""
+    return sum(2 if unicodedata.east_asian_width(c) in "WF" else 1 for c in s)
+
+
+def pad(s, width):
+    return s + " " * max(0, width - display_width(s))
 
 
 def load_registry(name):
@@ -180,6 +303,151 @@ def prettify(item_id):
     return " ".join(words)
 
 
+_JAVA_INDEX = None
+
+
+def java_index():
+    """{class simple name: path}, so an entity class found in GLEntities can be located."""
+    global _JAVA_INDEX
+    if _JAVA_INDEX is None:
+        _JAVA_INDEX = {}
+        for dirpath, _, files in os.walk(JAVA):
+            for fn in files:
+                if fn.endswith(".java"):
+                    _JAVA_INDEX[fn[: -len(".java")]] = os.path.join(dirpath, fn)
+    return _JAVA_INDEX
+
+
+_SLOTS = None
+_TRIGGER_SLOTS = None
+
+
+def anim_slots():
+    """`YoukaiAnim`: enum slot -> trigger name, in declaration order.
+
+    Declaration order is the entity-event id order (`ANIM_EVENT_BASE + ordinal`),
+    so the order here is also the order the enum must keep.
+    """
+    global _SLOTS, _TRIGGER_SLOTS
+    if _SLOTS is None:
+        src = strip_comments(load_text(YOUKAI_ANIM_JAVA))
+        _SLOTS = OrderedDict(re.findall(r'\b([A-Z][A-Z_0-9]*)\("([^"]+)"\)', src))
+        _TRIGGER_SLOTS = {t: s for s, t in _SLOTS.items()}
+    return _SLOTS
+
+
+def slot_of(trigger):
+    """Resolve a dialog trigger name: by trigger first, then by enum slot name."""
+    anim_slots()
+    return _TRIGGER_SLOTS.get(trigger, trigger.upper() if trigger.upper() in _SLOTS else None)
+
+
+_EXTRA = None
+
+
+def extra_triggers():
+    """Triggers registered on the same controller but outside the dialog slots.
+
+    `eat` and `hurt` are fired by the eating and damage paths. They are listed so
+    a reviewer does not read the absence of a `dialog_eat` as a bug; they are not
+    addressable from dialog data. The blink loop is not here either - it has no
+    trigger constant, it just runs on its own controller forever.
+    """
+    global _EXTRA
+    if _EXTRA is None:
+        src = strip_comments(load_text(GEO_YOUKAI_JAVA))
+        clips = {c: (m, clip) for c, m, clip in CLIP_RE.findall(src)}
+        out = []
+        for const, trig in re.findall(r'String\s+(\w+)_TRIGGER\s*=\s*"([^"]+)"', src):
+            if const in clips:
+                mode, clip = clips[const]
+                out.append((trig, clip, mode))
+        _EXTRA = out
+    return _EXTRA
+
+
+class AnimRig:
+    """One character's rig: what each dialog trigger actually plays, for her.
+
+    Resolved from the Java sources and the GeckoLib asset rather than listed by
+    hand, so the review text cannot advertise a clip the game no longer has:
+    `GLEntities` gives the entity class for a character id, the class gives both
+    the slot -> clip switch and the constants naming the clips, and the model
+    gives the asset those clip names live in. Everything is optional - a rig that
+    cannot be resolved degrades to "no clip", never to a crash.
+    """
+
+    def __init__(self, char_id):
+        self.char_id = char_id
+        self.slots = anim_slots()
+        self.entity_class = None
+        self.entity_file = None
+        self.asset = None
+        self.clips = {}
+        self.slot_clip = {}          # slot -> clip name, or absent when Optional.empty()
+        self._resolve()
+
+    def _resolve(self):
+        src = strip_comments(load_text(GL_ENTITIES_JAVA))
+        self.entity_class = (dict(re.findall(r'\.entity\(\s*"([a-z0-9_]+)"\s*,\s*(\w+)::new', src))
+                             .get(self.char_id))
+        self.entity_file = java_index().get(self.entity_class)
+        if not self.entity_file:
+            return
+        src = strip_comments(load_text(self.entity_file))
+        consts = {c: clip for c, _, clip in CLIP_RE.findall(src)}
+        at = src.find("getAnim(YoukaiAnim")
+        if at < 0:
+            return
+        for names, const in CASE_RE.findall(src[at:src.find("};", at)]):
+            for slot in (n.strip() for n in names.split(",")):
+                self.slot_clip[slot] = consts.get(const) if const else None
+        model = self._model_file()
+        if model:
+            found = ASSET_RE.search(strip_comments(load_text(model)))
+            self.asset = found.group(1) if found else None
+        if self.asset:
+            path = os.path.join(ANIM_ASSETS, self.asset + ".animation.json")
+            if os.path.exists(path):
+                self.clips = {name: {"length": a.get("animation_length"),
+                                     "loop": bool(a.get("loop")),
+                                     "bones": list((a.get("bones") or {}).keys())}
+                              for name, a in load_json(path).get("animations", {}).items()}
+
+    def _model_file(self):
+        """`<Name>Model.java` next to the entity, else any model in that package."""
+        d = os.path.dirname(self.entity_file)
+        base = self.entity_class[: -len("Entity")] if self.entity_class.endswith("Entity") \
+            else self.entity_class
+        want = os.path.join(d, base + "Model.java")
+        if os.path.exists(want):
+            return want
+        for fn in sorted(os.listdir(d)):
+            if fn.endswith("Model.java"):
+                return os.path.join(d, fn)
+        return None
+
+    # -- lookup --------------------------------------------------------------
+
+    def clip_of(self, trigger):
+        """(slot, clip name) for a trigger; slot is None when the name is unknown."""
+        slot = slot_of(trigger)
+        return slot, (self.slot_clip.get(slot) if slot else None)
+
+    def info(self, clip):
+        """Length / loop / bones of a clip in this rig's asset, or None."""
+        return self.clips.get(clip)
+
+
+_RIGS = {}
+
+
+def rig_for(char_id):
+    if char_id not in _RIGS:
+        _RIGS[char_id] = AnimRig(char_id)
+    return _RIGS[char_id]
+
+
 class Ctx:
     """Registries + one lang file, plus the review notes collected on the way."""
 
@@ -191,6 +459,7 @@ class Ctx:
         self.starters = load_registry("dialog_starter")
         self.quests = load_registry("quest")
         self.default_dialogs = load_json(DATA_MAP)["values"]
+        self.rig = None                      # set per character by render_character
         self.notes = []
 
     def t(self, key, *args):
@@ -242,6 +511,32 @@ class Ctx:
 
     def effect(self, name):
         return EFFECT_NAMES.get(name, (name, name))[self.i]
+
+    # -- animations ----------------------------------------------------------
+
+    def anim_line(self, trigger, indent):
+        """One `animations` entry, resolved to the clip this character plays."""
+        slot, clip = self.rig.clip_of(trigger) if self.rig else (None, None)
+        if slot is None:
+            return [indent + self.t("anim_no_trigger", trigger)]
+        if not clip:
+            return [indent + self.t("anim_no_clip", trigger, self.entity_name(self.rig.char_id))]
+        info = self.rig.info(clip)
+        length = self.t("anim_nolen") if not info or info["length"] is None \
+            else self.t("anim_len", info["length"])
+        bones = len(info["bones"]) if info else 0
+        return [indent + self.t("anim_clip", trigger, clip, length, bones)]
+
+    def anim_lines(self, animations, indent):
+        """The `animations` list of a dialog, annotated under the line it belongs to."""
+        if not animations:
+            return []
+        if len(animations) == 1:
+            return self.anim_line(animations[0], indent)
+        lines = [indent + self.t("anim_multi")]
+        for trig in animations:
+            lines += self.anim_line(trig, indent + "  ")
+        return lines
 
 
 def ingredients(ctx, entries, indent):
@@ -362,8 +657,7 @@ def dialog(ctx, dialog_id, indent, depth, path):
         return [indent + ctx.t("loops", dialog_id)]
     path = path | {dialog_id}
     lines = ctx.text(d["text"], indent=indent)
-    if d.get("animations"):
-        lines.append(indent + "  " + ctx.t("anim", ", ".join(d["animations"])))
+    lines += ctx.anim_lines(d.get("animations"), indent + "  ")
     opts = d.get("options", [])
     if not opts:
         lines.append(indent + "  " + ctx.t("ends_no_options"))
@@ -408,6 +702,116 @@ def reward(ctx, r):
 
 def rule(char="=", n=78):
     return char * n
+
+
+# Slots that exist in YoukaiAnim but are never named by dialog data: the hand use
+# is fired by behaviour tasks (doors, brewing, party gifts) and the outdoor idle
+# by the wander task. They resolve like any other trigger, so the table lists them
+# separately rather than pretending they are dialog options.
+CODE_ONLY_SLOTS = ("USE_MAINHAND", "OUTDOOR_IDLE")
+
+
+def collect_anims(ctx, starters, quests):
+    """{trigger: dialogs naming it} plus how many dialogs this character reaches."""
+    counts = Counter()
+    seen, total = set(), 0
+
+    def walk(did):
+        nonlocal total
+        key = plain_loc(did)
+        if key in seen:
+            return
+        seen.add(key)
+        d = ctx.dialogs.get(key)
+        if d is None:
+            return
+        total += 1
+        for trig in d.get("animations", []):
+            counts[trig] += 1
+        for o in d.get("options", []):
+            for target in [o.get("next")] + [e.get("next") for e in o.get("entries", [])]:
+                if target:
+                    walk(target)
+
+    for s in starters.values():
+        walk(s["dialog"])
+    for q in quests.values():
+        for field in ("initialDialog", "followUpDialog", "completionDialog"):
+            if q[field].get("next"):
+                walk(q[field]["next"])
+    return counts, total
+
+
+def render_anim_section(ctx, rig, counts, total):
+    """The DIALOG ANIMATIONS section: every option, resolved against this rig."""
+    out = []
+    a = out.append
+    a("")
+    a(ctx.t("section_anims"))
+    a("")
+    for key in ("anim_how1", "anim_how2", "anim_how3", "anim_how4", "anim_how5", "anim_how6"):
+        a("  " + ctx.t(key))
+    if rig.asset and rig.entity_class:
+        a("  " + ctx.t("anim_how7", os.path.basename(rig.entity_file),
+                        "assets/gensokyolegacy/animations/" + rig.asset + ".animation.json"))
+    a("")
+    if not rig.asset:
+        a("  " + ctx.t("anim_no_rig", ctx.entity_name(rig.char_id)))
+        a("")
+        return out
+    a("  " + ctx.t("anim_rig", "%s -> assets/gensokyolegacy/animations/%s.animation.json"
+                   % (rig.entity_class, rig.asset)))
+    a("")
+
+    cols = [ctx.t("col_trigger"), ctx.t("col_slot"), ctx.t("col_len"),
+            ctx.t("col_bones"), ctx.t("col_used"), ctx.t("col_clip")]
+
+    def used(slot):
+        """How many of her dialogs name this slot, by trigger or by enum name."""
+        return counts.get(rig.slots[slot], 0) + counts.get(slot, 0)
+
+    def row(slot):
+        clip = rig.slot_clip.get(slot)
+        info = rig.info(clip) if clip else None
+        return [rig.slots[slot], slot,
+                ctx.t("anim_nolen") if not info or info["length"] is None
+                else ctx.t("anim_len", info["length"]),
+                str(len(info["bones"])) if info else "-",
+                str(used(slot)),
+                clip if info is not None else
+                (ctx.t("anim_nothing") if not clip else
+                 clip + "   <-- " + ctx.t("anim_missing_asset", clip, rig.asset))]
+
+    def emit(r):
+        return "  " + "  ".join(pad(r[i], widths[i]) for i in range(5)) + "  " + r[5]
+
+    dialog_rows = [row(s) for s in rig.slots if s not in CODE_ONLY_SLOTS]
+    code_rows = [row(s) for s in CODE_ONLY_SLOTS if s in rig.slots]
+    widths = [max(display_width(cols[i]),
+                  max([display_width(r[i]) for r in dialog_rows + code_rows], default=0))
+              for i in range(5)]
+    a("  " + "  ".join(pad(cols[i], widths[i]) for i in range(5)) + "  " + cols[5])
+    for r in dialog_rows:
+        a(emit(r))
+    a("")
+    a("  " + ctx.t("anim_code"))
+    for r in code_rows:
+        a(emit(r))
+    if extra_triggers():
+        a("  " + ctx.t("anim_extra", ", ".join(
+            "%s -> %s" % (t, c) for t, c, _ in extra_triggers())))
+    greet = rig.slot_clip.get("GREET")
+    if greet:
+        a("  " + ctx.t("anim_triggered", greet))
+    a("")
+    unused = [rig.slots[s] for s in rig.slots if s not in CODE_ONLY_SLOTS and not used(s)]
+    a("  " + ctx.t("anim_unused", ", ".join(unused)) if unused
+      else "  " + ctx.t("anim_all_unused"))
+    named = sum(counts.values())
+    a("  " + ctx.t("anim_usage", total, named, total - named) if named
+      else "  " + ctx.t("anim_usage_none", total))
+    a("")
+    return out
 
 
 def audit(ctx, char_id, starters, quests):
@@ -467,6 +871,21 @@ def audit(ctx, char_id, starters, quests):
         if did.startswith(char_id + "/") and did not in used_dialogs:
             notes.append(ctx.t("flag_unreachable", char_id, loc(did)))
 
+    # animations that resolve to nothing: a bad name is dropped silently, and an
+    # unmapped slot plays nothing, so neither shows up in game as a problem
+    if ctx.rig is not None:
+        for did in sorted(used_dialogs):
+            for trig in ctx.dialogs.get(did, {}).get("animations", []):
+                slot, clip = ctx.rig.clip_of(trig)
+                if slot is None:
+                    notes.append(ctx.t("flag_anim_unknown", loc(did), trig))
+                elif not clip:
+                    notes.append(ctx.t("flag_anim_unmapped", loc(did), trig,
+                                       ctx.entity_name(char_id)))
+                elif ctx.rig.info(clip) is None:
+                    notes.append(ctx.t("flag_anim_no_clip", loc(did), trig, clip,
+                                       ctx.rig.asset))
+
     return notes
 
 
@@ -475,6 +894,7 @@ def render_character(ctx, char_id, display):
     a = out.append
     starters = OrderedDict((k, v) for k, v in ctx.starters.items() if plain_loc(v["character"]) == char_id)
     quests = OrderedDict((k, v) for k, v in ctx.quests.items() if plain_loc(v["character"]) == char_id)
+    ctx.rig = rig_for(char_id)
 
     a(rule("="))
     a("%s   (gensokyolegacy:%s)" % (display, char_id))
@@ -484,6 +904,9 @@ def render_character(ctx, char_id, display):
             a(ctx.t(k))
     a(rule("="))
     a("")
+
+    counts, total = collect_anims(ctx, starters, quests)
+    out.extend(render_anim_section(ctx, ctx.rig, counts, total))
 
     a(ctx.t("section_greetings"))
     cfg = ctx.default_dialogs.get("gensokyolegacy:" + char_id, {})

@@ -6,12 +6,15 @@ import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.biome.GLBiomes;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLFurniture;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.levelgen.structure.Structure;
 import net.neoforged.neoforge.common.Tags;
 
 public class GLStructureTagGen {
@@ -19,12 +22,35 @@ public class GLStructureTagGen {
 	public static final ProviderType<RegistrateTagsProvider.Impl<Biome>> BIOME_TAG =
 			ProviderType.registerDynamicTag("biome", "biome", Registries.BIOME);
 
+	/**
+	 * Tags on the structure registry itself, as opposed to the biome tags below which say where a
+	 * structure may spawn. These are what {@code ServerLevel#findNearestMapStructure} takes, so
+	 * they are what "point me at Reimu's shrine" style lookups are written against.
+	 */
+	public static final ProviderType<RegistrateTagsProvider.Impl<Structure>> STRUCTURE_TAG =
+			ProviderType.registerDynamicTag("structure", "structure", Registries.STRUCTURE);
+
 	public static final TagKey<Biome> CIRNO_NEST = biomeTag("has_structure/cirno_nest");
 	public static final TagKey<Biome> HAKUREI_SHRINE = biomeTag("has_structure/hakurei_shrine");
 	public static final TagKey<Biome> MARISA_HOUSE = biomeTag("has_structure/marisa_house");
 	public static final TagKey<Biome> MORICHIKA_SHOP = biomeTag("has_structure/morichika_shop");
 	public static final TagKey<Biome> ALICE_HOUSE = biomeTag("has_structure/alice_house");
 	public static final TagKey<Biome> PLAIN_FAIRY_SPAWN = biomeTag("has_spawn/plain_fairy");
+
+	public static final TagKey<Structure> HAKUREI_SHRINE_STRUCTURE = structureTag("hakurei_shrine");
+	public static final TagKey<Structure> MARISA_HOUSE_STRUCTURE = structureTag("marisa_house");
+	public static final TagKey<Structure> MORICHIKA_SHOP_STRUCTURE = structureTag("morichika_shop");
+	public static final TagKey<Structure> ALICE_HOUSE_STRUCTURE = structureTag("alice_house");
+
+	/**
+	 * Every character home at once. A lookup against this tag answers "which of the four is
+	 * closest", which is what the catch-all flower in {@code FairyDustItem} wants.
+	 * <p>
+	 * A datapack can override any of these tags, so the one a given flower points at is data, not
+	 * code: adding {@code gensokyolegacy:marisa_house} to a wider tag makes that flower reach
+	 * further afield without a code change.
+	 */
+	public static final TagKey<Structure> CHARACTER_HOMES = structureTag("character_homes");
 
 	public static final TagKey<Block> CIRNO_PRIMARY = blockTag("structure_fix/cirno_nest/primary");
 	public static final TagKey<Block> CIRNO_FIX = blockTag("structure_fix/cirno_nest/would_fix");
@@ -39,6 +65,10 @@ public class GLStructureTagGen {
 
 	public static TagKey<Biome> biomeTag(String name) {
 		return TagKey.create(Registries.BIOME, GensokyoLegacy.loc(name));
+	}
+
+	public static TagKey<Structure> structureTag(String name) {
+		return TagKey.create(Registries.STRUCTURE, GensokyoLegacy.loc(name));
 	}
 
 	public static TagKey<Block> blockTag(String name) {
@@ -69,6 +99,22 @@ public class GLStructureTagGen {
 				.addTag(Tags.Biomes.IS_PLAINS);
 		pvd.addTag(Tags.Biomes.IS_MAGICAL).add(GLBiomes.MAGICAL_FOREST).add(GLBiomes.SAKURA_FOREST);
 		pvd.addTag(Tags.Biomes.IS_FOREST).add(GLBiomes.MAGICAL_FOREST).add(GLBiomes.SAKURA_FOREST);
+	}
+
+	public static void genStructureTag(RegistrateTagsProvider.Impl<Structure> pvd) {
+		pvd.addTag(HAKUREI_SHRINE_STRUCTURE).add(structureKey(GLStructureGen.HAKUREI_SHRINE));
+		pvd.addTag(MARISA_HOUSE_STRUCTURE).add(structureKey(GLStructureGen.MARISA_HOUSE));
+		pvd.addTag(MORICHIKA_SHOP_STRUCTURE).add(structureKey(GLStructureGen.MORICHIKA_SHOP));
+		pvd.addTag(ALICE_HOUSE_STRUCTURE).add(structureKey(GLStructureGen.ALICE_HOUSE));
+		pvd.addTag(CHARACTER_HOMES)
+				.addTag(HAKUREI_SHRINE_STRUCTURE)
+				.addTag(MARISA_HOUSE_STRUCTURE)
+				.addTag(MORICHIKA_SHOP_STRUCTURE)
+				.addTag(ALICE_HOUSE_STRUCTURE);
+	}
+
+	private static ResourceKey<Structure> structureKey(ResourceLocation id) {
+		return ResourceKey.create(Registries.STRUCTURE, id);
 	}
 
 	@SuppressWarnings({"unchecked"})

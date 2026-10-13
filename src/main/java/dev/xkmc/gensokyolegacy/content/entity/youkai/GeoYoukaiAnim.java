@@ -66,6 +66,16 @@ public interface GeoYoukaiAnim extends GeoEntity {
 	byte HURT_EVENT = 85;
 
 	/**
+	 * The gather. Like the chew and the flinch, not a {@link YoukaiAnim} slot: only
+	 * Suika's rig ships the clip and nothing in dialog data names it — her spell card
+	 * fires it from the pull move. Opt-in per rig for the same reason as the other two.
+	 */
+	RawAnimation GATHER = RawAnimation.begin().thenPlay("聚集");
+
+	String GATHER_TRIGGER = "gather";
+	byte GATHER_EVENT = 86;
+
+	/**
 	 * The clip this character plays for the given slot, or empty when it has none.
 	 */
 	Optional<RawAnimation> getAnim(YoukaiAnim anim);
@@ -92,6 +102,24 @@ public interface GeoYoukaiAnim extends GeoEntity {
 	 */
 	default void addHurtAnim(AnimationController<?> controller) {
 		controller.triggerableAnim(HURT_TRIGGER, HURT);
+	}
+
+	/**
+	 * Register the gather on the main controller. Opt-in per rig for the same reason as
+	 * {@link #addEatAnim}: only a rig that ships the clip may register it.
+	 */
+	default void addGatherAnim(AnimationController<?> controller) {
+		controller.triggerableAnim(GATHER_TRIGGER, GATHER);
+	}
+
+	/**
+	 * Play the gather, if this character has one. Fired server side by the spell card
+	 * that owns the move, so a client sees the same clip the server timed the pull to.
+	 */
+	default void broadcastGather() {
+		LivingEntity self = (LivingEntity) this;
+		if (!self.level().isClientSide())
+			self.level().broadcastEntityEvent(self, GATHER_EVENT);
 	}
 
 	/**
@@ -133,14 +161,19 @@ public interface GeoYoukaiAnim extends GeoEntity {
 	 * Client-side: play the one-shot. Returns true when the id was consumed.
 	 */
 	default boolean handleAnimEvent(byte id) {
-		// the chew and the flinch, before the ordinal maths: EAT_EVENT and HURT_EVENT
-		// sit just past the dialog range, so the two cannot collide
+		// the chew, the flinch and the gather, before the ordinal maths: EAT_EVENT,
+		// HURT_EVENT and GATHER_EVENT sit just past the dialog range, so they cannot
+		// collide
 		if (id == EAT_EVENT) {
 			triggerAnim(ANIM_CONTROLLER, EAT_TRIGGER);
 			return true;
 		}
 		if (id == HURT_EVENT) {
 			triggerAnim(ANIM_CONTROLLER, HURT_TRIGGER);
+			return true;
+		}
+		if (id == GATHER_EVENT) {
+			triggerAnim(ANIM_CONTROLLER, GATHER_TRIGGER);
 			return true;
 		}
 		int ord = id - ANIM_EVENT_BASE;

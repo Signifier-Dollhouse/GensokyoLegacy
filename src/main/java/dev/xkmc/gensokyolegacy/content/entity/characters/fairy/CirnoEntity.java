@@ -6,7 +6,7 @@ import dev.xkmc.gensokyolegacy.content.entity.behavior.combat.YoukaiCombatManage
 import dev.xkmc.gensokyolegacy.content.entity.behavior.sensor.NearbyItemsSensor;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.sensor.YoukaiFindPreySensor;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.sensor.YoukaiHomeBlocksSensor;
-import dev.xkmc.gensokyolegacy.content.entity.behavior.task.combat.YoukaiSearchTargetTask;
+import dev.xkmc.gensokyolegacy.content.entity.behavior.task.core.YoukaiAcquireTargetTask;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.task.home.YoukaiCraftTask;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.task.play.ItemPickupTask;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.task.play.YoukaiHuntTask;
@@ -164,7 +164,7 @@ public class CirnoEntity extends FairyEntity implements GeoYoukaiAnim {
 		board.addRandom(new YoukaiCraftTask<>(this::doCraft, 60, 12000), GLBrains.AT_HOME.get());
 		board.addSensor(new YoukaiHomeBlocksSensor<>(HomeBlockKind.CONTAINER));
 
-		board.addBehaviorActivity(YoukaiSearchTargetTask.class, GLBrains.HUNT.get());
+		board.addBehaviorActivity(YoukaiAcquireTargetTask.class, GLBrains.HUNT.get());
 
 		//TODO cirno food
 		board.addSensor(new TemptingSensor(stack -> stack.is(Items.CAKE)));
@@ -172,12 +172,24 @@ public class CirnoEntity extends FairyEntity implements GeoYoukaiAnim {
 		board.addSensor(new NearbyItemsSensor<CirnoEntity>().setRadius(18, 6).setScanRate(e -> e.playOrHunt() ? 20 : 60));
 		board.addSensor(new YoukaiFindPreySensor<>(CirnoEntity::playOrHunt));
 
-		board.addPrioritizedActivity(GLBrains.HUNT.get(), GLBrains.MEM_PREY.get(), 200);
+		// 700: the lowest rung on GLBrains' priority scale, so a hunt is the least
+		// that can be talked out of.
+		board.addPrioritizedActivity(GLBrains.HUNT.get(), GLBrains.MEM_PREY.get(), 700);
 	}
 
 	private boolean playOrHunt() {
 		var a = getActivity();
 		return a == Activity.PLAY || a == GLBrains.HUNT.get();
+	}
+
+	/**
+	 * A hunt is her chasing the prey the sensor found, which is not in the target
+	 * container - so the activity that starts it has to be allowed to look around for
+	 * one, as play is.
+	 */
+	@Override
+	public boolean shouldSearchTarget(Activity activity) {
+		return super.shouldSearchTarget(activity) || activity == GLBrains.HUNT.get();
 	}
 
 	private ItemStack doCraft(boolean simulate) {

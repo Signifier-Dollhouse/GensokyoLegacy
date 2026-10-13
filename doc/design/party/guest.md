@@ -6,12 +6,14 @@ Those seven were brain memories once, and that was the wrong home: `Brain.Memory
 
 ## 1. The machine
 
-Driven from a `PARTY` activity at priority 200, and registered in one line:
+Driven from a `PARTY` activity at priority 400, and registered in one line:
 
 ```java
-board.addPrioritizedActivity(GLBrains.PARTY.get(), GLBrains.MEM_PARTY.get(), 200);
+board.addPrioritizedActivity(GLBrains.PARTY.get(), GLBrains.MEM_PARTY.get(), 400);
 board.addPartyTasks();
 ```
+
+400 sits just below `TALK(300)` and above `VISITING(600)` and everything scheduled, so a guest can still talk and trade, never wanders off to visit mid-party, and never sleeps or goes home.
 
 **Which task runs is decided by which of those seven are set, not by a variable.** Each task declares the ones that must be set (and those that must not) in its entry condition, and `checkExtraStartConditions` covers what they cannot know — whether she is actually a passenger, whether the party has reached FEASTING. `TaskBoard.fetch` collects every exclusive task under one activity into a single `GateBehavior(ORDERED, RUN_ONE)`, which tries them **in registration order and runs the first that matches**. So the order *is* the priority, and a task lower down can be given a signature as loose as "nothing" — everything more specific has already been claimed by then.
 
@@ -175,7 +177,7 @@ The machine was a single `Behavior` with a `switch`, then nine behaviours behind
 
 **The bite is four beats, not one, and two of them are art work in progress.** `§2.2` has the sequence: a delay, a pickup animation with the serving item actually in her hand, a walk back to the chair if she left it, and an eat animation on arrival during which the item leaves her hand. What exists today is uneven, and the two gaps are worth naming because they are not the same gap:
 
-- **The chew is a rig capability, and every rig now answers it.** All seven shipped character animations carry a `吃` clip, and only one of them was wired to play it: `PlainFairyEntity` fired it as entity event **80**, deliberately outside `YoukaiAnim`, which is the dialog vocabulary and whose 71-79 are its wire ids (`GeoYoukaiAnim.java:30`). The rest of a guest's meal played out over an animation nobody saw. It now lives on `GeoYoukaiAnim` instead: `broadcastEat` fires the event for any geo-animated character, and `handleAnimEvent` — which all seven already called — plays it. `FairyCakeTask` is the precedent for the whole shape: a chew, then a `USE_MAINHAND` gesture timed against the clip's own length. The clip is registered per rig with `addEatAnim` rather than folded into `addDialogAnims`, because registering a clip a rig does not have resolves it to `null` and then silently freezes that rig in its last pose.
+- **The chew is a rig capability, and every rig now answers it.** All seven shipped character animations carry a `吃` clip, and only one of them was wired to play it: `PlainFairyEntity` fired it as entity event **80**, deliberately outside `YoukaiAnim`, which is the dialog vocabulary and whose 71-79 are its wire ids (`GeoYoukaiAnim.java:30`). The rest of a guest's meal played out over an animation nobody saw. It now lives on `GeoYoukaiAnim` instead: `broadcastEat` fires the event for any geo-animated character, and `handleAnimEvent` — which all seven already called — plays it. `FairyFeedTask` is the precedent for the whole shape: a chew, then a `USE_MAINHAND` gesture timed against the clip's own length. The clip is registered per rig with `addEatAnim` rather than folded into `addDialogAnims`, because registering a clip a rig does not have resolves it to `null` and then silently freezes that rig in its last pose.
 - **Holding an item was a per-renderer question, and it is now answered.** The data side is one `setItemInHand(MAIN_HAND, …)` and `YoukaiHeldItemLayer` renders a character's `MAINHAND` at her `RightHandLocator` bone — but a geo renderer draws no items by itself, where vanilla `MobRenderer` did, so a character that became geo-rendered lost whatever she was holding. For this feature that is most of what she does: the serving is in her hand for the whole walk back to her chair.
 
 **Only Cirno and `PlainFairy` carried a plate.** The layer was registered on two of eight renderers. It is now on all seven of the geo ones (Alice, Marisa, Reimu, Morichika, Sakuya added to Cirno and `PlainFairy`); `Rumia` is a plain `MobRenderer` and never lost it. The layer itself is unchanged: one layer serves every rig, because Blockbench exports the wrist bones under the same two names for all of them.
@@ -345,7 +347,7 @@ Leftover food is untouched, as ever (state.md §2). A party that ends with half 
 2. **`dismiss()` is no longer `discard()`.** A summoned clone is discarded; a character who came as herself is put back, because discarding a resident deletes a real character out of the world over a party. Both go through `completeLeave`, which reads `origin` before clearing it — walk first, clear after, or she resumes her schedule while still walking to the table.
 3. **`VisitModule` stands down while she is partying.** It renews its visit memory every tick and dismisses when the window closes; left alone it fights the party for the entity, dismissing a guest the host is still feeding. One early return on `isPartying()`, and it resumes by itself when the party lets go.
 
-**One number that came from the rig rather than from taste:** `PICKUP_TICKS` is 6, because that is how long `使用主手物品` runs — the same figure `FairyCakeTask` times a gesture against. The two gestures are the same clip, so the two timings should be the same number rather than two independently plausible ones.
+**One number that came from the rig rather than from taste:** `PICKUP_TICKS` is 6, because that is how long `使用主手物品` runs — the same figure `FairyFeedTask` times a gesture against. The two gestures are the same clip, so the two timings should be the same number rather than two independently plausible ones.
 
 ## 3. Brain wiring
 
