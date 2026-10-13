@@ -3,10 +3,7 @@ package dev.xkmc.gensokyolegacy.content.entity.characters.magician;
 import dev.xkmc.gensokyolegacy.content.attachment.doll.DelegateDollHost;
 import dev.xkmc.gensokyolegacy.content.attachment.doll.DollHost;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.brain.TaskBoard;
-import dev.xkmc.gensokyolegacy.content.entity.behavior.sensor.YoukaiFindPreySensor;
-import dev.xkmc.gensokyolegacy.content.entity.behavior.task.combat.YoukaiSearchTargetTask;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.task.combat.YoukaiUpdateTargetTask;
-import dev.xkmc.gensokyolegacy.content.entity.behavior.task.play.YoukaiHuntTask;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.BaseDollEntity;
 import dev.xkmc.gensokyolegacy.content.entity.module.AbstractYoukaiModule;
 import dev.xkmc.gensokyolegacy.content.entity.module.HomeModule;
@@ -17,7 +14,6 @@ import dev.xkmc.gensokyolegacy.content.entity.youkai.GeoYoukaiAnim;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.GeneralYoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiAnim;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiFlags;
-import dev.xkmc.gensokyolegacy.init.registrate.GLBrains;
 import dev.xkmc.l2serial.serialization.marker.SerialClass;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.schedule.Activity;
@@ -88,25 +84,12 @@ public class AliceEntity extends GeneralYoukaiEntity implements GeoYoukaiAnim, D
 	// DelegateDollHost. A doll resolves its host by asking its owner, so Alice
 	// answers even though she keeps nothing here.
 
-	/** Her retinue: the ledger she conjures from and hands her orders. */
+	/**
+	 * Her retinue: the ledger she conjures from and hands her orders.
+	 */
 	@Override
 	public DollHost dolls() {
 		return AliceDollHost.hostOf(this);
-	}
-
-	@Override
-	protected void constructTaskBoard(TaskBoard board) {
-		super.constructTaskBoard(board);
-		board.addExclusive(250, new YoukaiHuntTask(6), GLBrains.HUNT.get());
-		board.addBehaviorActivity(YoukaiSearchTargetTask.class, GLBrains.HUNT.get());
-		// the prey sensor has to keep running while the hunt is already up, or the
-		// hunt drops the moment it starts
-		board.addSensor(new YoukaiFindPreySensor<>(e -> e.getActivity() == Activity.PLAY
-				|| e.getActivity() == GLBrains.HUNT.get()));
-		// 700: the lowest rung on GLBrains' priority scale. Below VISITING(600), so she
-		// does not go hunting in someone else's house - the prey sensor is filtered
-		// to PLAY and HUNT for the same reason, and this is where it is enforced.
-		board.addPrioritizedActivity(GLBrains.HUNT.get(), GLBrains.MEM_PREY.get(), 700);
 	}
 
 	/**

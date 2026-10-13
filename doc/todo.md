@@ -1,0 +1,1 @@
+- fairy cry animation when fleeing

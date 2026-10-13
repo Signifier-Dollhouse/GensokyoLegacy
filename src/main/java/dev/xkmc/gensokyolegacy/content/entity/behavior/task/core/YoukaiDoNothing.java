@@ -75,8 +75,8 @@ public class YoukaiDoNothing<E extends SmartYoukaiEntity> implements BehaviorCon
 	/**
 	 * Write the nap memory and let the brain move her on her own, rather than putting
 	 * her straight down from here. Going through the activity is the point: it is what
-	 * makes a nap something a fight or a conversation can cut short, and it is what
-	 * gives it a length at all.
+	 * gives the nap a length, and it is what lets {@link YoukaiNapTask} decide when she
+	 * gets up - a fight or a party cuts it short, a conversation does not.
 	 * <p>
 	 * Writing the memory is enough and takes effect next tick, which is also the only
 	 * thing that makes this safe to do from inside the activity that ends it - the

@@ -55,6 +55,22 @@ public enum YoukaiAnim {
 	public static final List<YoukaiAnim> TALKS = List.of(TALK_01, TALK_02, TALK_03, TALK_04, TALK_05);
 
 	/**
+	 * Whether this slot is part of a conversation, as opposed to a thing the brain
+	 * asks for: the hand use comes from a behaviour task and the outdoor idle from
+	 * the wander task, everything else is something she says.
+	 * <p>
+	 * A character whose dialog body animation changes with her state uses this to
+	 * decide which triggers to re-point - see {@code SuikaEntity}, which talks in a
+	 * different clip while she is lying down.
+	 */
+	public boolean isDialog() {
+		return switch (this) {
+			case USE_MAINHAND, OUTDOOR_IDLE -> false;
+			default -> true;
+		};
+	}
+
+	/**
 	 * Play this one-shot on the entity if it supports it. Unmapped slots
 	 * are silently ignored.
 	 */

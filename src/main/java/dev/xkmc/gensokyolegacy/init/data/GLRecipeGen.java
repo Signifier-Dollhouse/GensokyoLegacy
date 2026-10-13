@@ -45,10 +45,12 @@ public class GLRecipeGen {
 	}
 
 	/**
-	 * The two ends of the fairy-dust loop, which is closed on purpose: a fairy hands
-	 * dust back for cake, and cake plus dust makes fairy cake, which is itself worth
-	 * feeding her. The twenty-second cooldown in {@code FairyFeedModule} is what
-	 * decides how fast that pays out.
+	 * The fairy economy in three recipes, and both of its loops are closed on
+	 * purpose: a fairy hands dust back for cake, cake plus dust makes fairy cake,
+	 * which is itself worth feeding her; and a Cirno hands an ice crystal back for
+	 * cake, which is the same crystal she builds out of three frozen frogs, and the
+	 * crystal is a catalyst for the ice around it. The twenty-second cooldown in
+	 * {@code FairyFeedModule} is what decides how fast any of it pays out.
 	 */
 	private static void fairyFeed(RegistrateRecipeProvider pvd) {
 		// one cake stirred with one dust comes out as seven: the dust is the whole
@@ -66,6 +68,22 @@ public class GLRecipeGen {
 						GLItems.FAIRY_ICE_CRYSTAL.get())
 				.requires(GLItems.FAIRY_ICE_CRYSTAL.get())
 				.save(pvd, GensokyoLegacy.loc("fairy_dust_from_fairy_ice_crystal"));
+
+		// and the crystal spent rather than crushed: packed around one, the whole grid
+		// freezes and comes out as the eight blocks of blue ice it went in as. Shaped
+		// and not shapeless because a crystal is a seed and not an ingredient - the
+		// count on each side is even on purpose, so a grid full of ice is worth exactly
+		// as much blue ice as the ice was worth ice and the crystal is the only thing
+		// you lose. It also completes what a cookie pays out: Cirno hands back four
+		// packed ice, so two cookies and a cake are one blue ice.
+		unlock(pvd, ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, Blocks.BLUE_ICE, 8)::unlockedBy,
+						GLItems.FAIRY_ICE_CRYSTAL.get())
+				.pattern("III")
+				.pattern("ICI")
+				.pattern("III")
+				.define('I', Items.ICE)
+				.define('C', GLItems.FAIRY_ICE_CRYSTAL.get())
+				.save(pvd, GensokyoLegacy.loc("blue_ice_from_ice_and_fairy_ice_crystal"));
 	}
 
 	public static void hexbrew(RegistrateRecipeProvider pvd) {
@@ -91,7 +109,7 @@ public class GLRecipeGen {
 					.save(pvd, GensokyoLegacy.loc("explosive_hexbrew"));
 
 			unlock(pvd, new UnorderedAlchemyRecipeBuilder()
-					.fluid(Fluids.WATER)
+					.fluid(HexBrew.MUNDANE_HEXBREW.getSource())
 					.add(GLNaturalBlocks.DEMONIC_MIASMA_MUSHROOM_SET.cap.get())
 					.add(Items.SPIDER_EYE)
 					.add(Items.ROTTEN_FLESH)
@@ -102,6 +120,20 @@ public class GLRecipeGen {
 					.resultFluid(HexBrew.MIASMA_HEXBREW.getSource(), 1000)
 					::unlockedBy, GLNaturalBlocks.DEMONIC_MIASMA_MUSHROOM_SET.cap.get().asItem())
 					.save(pvd, GensokyoLegacy.loc("miasma_hexbrew"));
+
+			// the fairy brew: same carrier as all the others, spiked with the fairy's
+			// own powder. Drunk rather than thrown, so it grants Floating instead of
+			// splashing it around.
+			unlock(pvd, new UnorderedAlchemyRecipeBuilder()
+					.fluid(HexBrew.MUNDANE_HEXBREW.getSource())
+					.add(GLItems.FAIRY_DUST.get())
+					.add(GLNaturalBlocks.DREAM_MUSHROOM_SET.cap.get())
+					.add(GLNaturalBlocks.DREAM_MUSHROOM_SET.cap.get())
+					.add(GLNaturalBlocks.STAR_FLOWER)
+					.time(400)
+					.resultFluid(HexBrew.FAIRY_HEXBREW.getSource(), 1000)
+					::unlockedBy, GLItems.FAIRY_DUST.get())
+					.save(pvd, GensokyoLegacy.loc("fairy_hexbrew"));
 		}
 
 		// the elixir is a carrier, not a brew of its own: a full tank of it plus
@@ -132,6 +164,45 @@ public class GLRecipeGen {
 					.resultFluid(HexBrew.HYPHAE_HEXBREW.getSource(), 1000)
 					::unlockedBy, miasmaCap.asItem())
 					.save(pvd, GensokyoLegacy.loc("hyphae_hexbrew"));
+		}
+
+		// the refined hexbrews: the solvent brews overclocked by re-brewing them on
+		// the elixir, with the same ingredients and the same yield. The elixir's charge
+		// comes out as one more level of the thing - one more blast radius for the
+		// explosive, one more effect level for the other two.
+		{
+			unlock(pvd, new UnorderedAlchemyRecipeBuilder()
+					.fluid(HexBrew.HEXBREW_ELIXIR.getSource())
+					.add(Items.BLAZE_POWDER)
+					.add(Items.GUNPOWDER)
+					.time(200)
+					.resultFluid(HexBrew.REFINED_EXPLOSIVE_HEXBREW.getSource(), 1000)
+					::unlockedBy, Items.BLAZE_POWDER)
+					.save(pvd, GensokyoLegacy.loc("refined_explosive_hexbrew"));
+
+			unlock(pvd, new UnorderedAlchemyRecipeBuilder()
+					.fluid(HexBrew.HEXBREW_ELIXIR.getSource())
+					.add(GLNaturalBlocks.DEMONIC_MIASMA_MUSHROOM_SET.cap.get())
+					.add(Items.SPIDER_EYE)
+					.add(Items.ROTTEN_FLESH)
+					.add(Items.ROTTEN_FLESH)
+					.add(Items.ROTTEN_FLESH)
+					.add(Items.ROTTEN_FLESH)
+					.time(400)
+					.resultFluid(HexBrew.REFINED_MIASMA_HEXBREW.getSource(), 1000)
+					::unlockedBy, GLNaturalBlocks.DEMONIC_MIASMA_MUSHROOM_SET.cap.get().asItem())
+					.save(pvd, GensokyoLegacy.loc("refined_miasma_hexbrew"));
+
+			unlock(pvd, new UnorderedAlchemyRecipeBuilder()
+					.fluid(HexBrew.HEXBREW_ELIXIR.getSource())
+					.add(GLItems.FAIRY_DUST.get())
+					.add(GLNaturalBlocks.DREAM_MUSHROOM_SET.cap.get())
+					.add(GLNaturalBlocks.DREAM_MUSHROOM_SET.cap.get())
+					.add(GLNaturalBlocks.STAR_FLOWER)
+					.time(400)
+					.resultFluid(HexBrew.REFINED_FAIRY_HEXBREW.getSource(), 1000)
+					::unlockedBy, GLItems.FAIRY_DUST.get())
+					.save(pvd, GensokyoLegacy.loc("refined_fairy_hexbrew"));
 		}
 
 		// potion

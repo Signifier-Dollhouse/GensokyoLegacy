@@ -1,0 +1,25 @@
+{
+  "type": "gensokyolegacy:unordered_alchemy",
+  "input": [
+    {
+      "item": "gensokyolegacy:fairy_dust"
+    },
+    {
+      "item": "gensokyolegacy:dream_mushroom"
+    },
+    {
+      "item": "gensokyolegacy:dream_mushroom"
+    },
+    {
+      "item": "gensokyolegacy:star_flower"
+    }
+  ],
+  "inputFluid": {
+    "fluid": "gensokyolegacy:mundane_hexbrew"
+  },
+  "resultFluid": {
+    "amount": 1000,
+    "id": "gensokyolegacy:fairy_hexbrew"
+  },
+  "time": 400
+}

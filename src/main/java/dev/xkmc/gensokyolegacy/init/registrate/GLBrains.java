@@ -93,8 +93,9 @@ public class GLBrains {
 	 *     300  TALK      a conversation: no guest is too busy to talk, but a fight ends one
 	 *     400  PARTY     eating at somebody's party: as TALK, and never wanders off to
 	 *                    visit, and never sleeps or goes home
-	 *     500  NAP       lying down doing nothing: gets up for a conversation, a party or
-	 *                    a fight, and never overrides her own schedule
+	 *     500  NAP       lying down doing nothing: gets up for a fight or a party - a
+	 *                    conversation is answered from where she is lying - and never
+	 *                    overrides her own schedule
 	 *     600  VISITING  a guest in someone else's home: never sleeps, goes home or hunts,
 	 *                    and never naps in the host's house
 	 *     700  HUNT      prey in reach: the lowest rung there is
@@ -107,12 +108,19 @@ public class GLBrains {
 	 * prioritized activity, so every rung is a yes/no answer to one question - what else may
 	 * she be doing while this is going on - and the gap between two rungs is the set of
 	 * activities allowed to answer it differently. Read a rung as "everything below me has
-	 * to be absent for me to run". NAP(500) below TALK and PARTY is what makes a nap end
-	 * the moment she is spoken to or a party starts; NAP(500) above VISITING(600) is what
-	 * makes a nap hold a visit off - VISITING cannot become active while MEM_NAP is
-	 * present - which is a few seconds of delay at the start of a visit and no more, since
-	 * a nap is only ever offered while she is on her own schedule and a visit is an
-	 * all-day affair.
+	 * to be absent for me to run". NAP(500) below PARTY(400) is what makes a party get her
+	 * out of bed; NAP(500) above VISITING(600) is what makes a nap hold a visit off -
+	 * VISITING cannot become active while MEM_NAP is present - which is a few seconds of
+	 * delay at the start of a visit and no more, since a nap is only ever offered while she
+	 * is on her own schedule and a visit is an all-day affair.
+	 *
+	 * A rung is about the activity, not about the body. TALK(300) above NAP(500) means a
+	 * conversation is what actually runs while she is lying there - the dialog, the topics,
+	 * the trade - while YoukaiNapTask deliberately keeps holding the pose across it. An
+	 * activity that has been outranked does not stop running, so a character who wants to
+	 * stay in a pose through something that outranks her has to hold it in canStillUse and
+	 * not in the activity: see YoukaiNapTask, and FairyFleeTask for the other half of that
+	 * trade, where the activity is what has to be noticed.
 	 *
 	 * Two rules follow, and between them they decide almost every placement:
 	 *
@@ -161,10 +169,12 @@ public class GLBrains {
 	 */
 	public static final Val<Activity> FEAST = ACTIVITIES.reg("feast", () -> new Activity("feast"));
 	/**
-	 * Lying down and doing nothing at all. Below TALK and PARTY, because being spoken to
-	 * is something to get up for; above VISITING and everything scheduled, because a nap
-	 * is what she does with her own free time rather than something she does in somebody
-	 * else's house. Gated by {@link #MEM_NAP}, which is also what ends it.
+	 * Lying down and doing nothing at all. Below TALK and PARTY: a conversation is
+	 * answered from where she is lying rather than getting her up - {@code YoukaiNapTask}
+	 * holds the pose through one - but a party still does. Above VISITING and everything
+	 * scheduled, because a nap is what she does with her own free time rather than
+	 * something she does in somebody else's house. Gated by {@link #MEM_NAP}, which is
+	 * also what ends it.
 	 */
 	public static final Val<Activity> NAP = ACTIVITIES.reg("nap", () -> new Activity("nap"));
 

@@ -30,6 +30,10 @@
 					"title": "人偶手套",
 					"description": "获得七色人偶手套"
 				},
+				"feed_fairy": {
+					"title": "喂妖精",
+					"description": "喂一只妖精"
+				},
 				"obtain_sealing_pot": {
 					"title": "封印壶",
 					"description": "获得封印壶"

@@ -38,11 +38,13 @@ public class FairyFollowTask extends FollowTemptation {
 
 	/**
 	 * The supertype's exact signature: narrowing the parameter would make this an
-	 * overload rather than an override, so the cast belongs here.
+	 * overload rather than an override, so the cast belongs here. To
+	 * {@link FairyEntity} rather than to the plain fairy, because the standoff is a
+	 * hovering-fairy problem and every fairy hovers.
 	 */
 	@Override
 	protected void tick(ServerLevel level, PathfinderMob owner, long gameTime) {
-		var entity = (PlainFairyEntity) owner;
+		var entity = (FairyEntity) owner;
 		var player = entity.getBrain().getMemory(MemoryModuleType.TEMPTING_PLAYER).orElse(null);
 		if (player == null) return;
 		entity.getBrain().setMemory(MemoryModuleType.LOOK_TARGET, new EntityTracker(player, true));

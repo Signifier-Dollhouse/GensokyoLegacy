@@ -3,9 +3,11 @@ package dev.xkmc.gensokyolegacy.init.data;
 import com.tterrag.registrate.providers.RegistrateAdvancementProvider;
 import dev.xkmc.gensokyolegacy.content.dimension.GLDimensionGen;
 import dev.xkmc.gensokyolegacy.content.item.talisman.core.GLTalismans;
+import dev.xkmc.gensokyolegacy.content.trigger.FeedCharacterTrigger;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.biome.GLBiomes;
 import dev.xkmc.gensokyolegacy.init.registrate.GLCriteriaTriggers;
+import dev.xkmc.gensokyolegacy.init.registrate.GLEntities;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLBlocks;
 import dev.xkmc.l2core.serial.advancements.AdvancementGenerator;
@@ -13,6 +15,9 @@ import dev.xkmc.l2core.serial.advancements.CriterionBuilder;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementRewards;
 import net.minecraft.advancements.AdvancementType;
+import net.minecraft.advancements.Criterion;
+import net.minecraft.advancements.critereon.EntityPredicate;
+import net.minecraft.advancements.critereon.EntityTypePredicate;
 import net.minecraft.advancements.critereon.LocationPredicate;
 import net.minecraft.advancements.critereon.PlayerTrigger;
 import net.minecraft.core.Holder;
@@ -38,6 +43,7 @@ public class GLAdvGen {
 
 	public static final ResourceLocation ALCHEMY = GensokyoLegacy.loc("main/alchemy");
 	public static final ResourceLocation OBTAIN_DOLL_GLOVE = GensokyoLegacy.loc("main/obtain_doll_glove");
+	public static final ResourceLocation FEED_FAIRY = GensokyoLegacy.loc("main/feed_fairy");
 	public static final ResourceLocation OBTAIN_TALISMAN = GensokyoLegacy.loc("main/obtain_talisman");
 	public static final ResourceLocation OBTAIN_MINI_HAKKERO = GensokyoLegacy.loc("main/obtain_mini_hakkero");
 	public static final ResourceLocation OBTAIN_MINI_HAKKERO_REPAIRED = GensokyoLegacy.loc("main/obtain_mini_hakkero_repaired");
@@ -53,6 +59,26 @@ public class GLAdvGen {
 	public static final ResourceLocation OBTAIN_IRON_DAGGER = GensokyoLegacy.loc("main/obtain_iron_dagger");
 	public static final ResourceLocation OBTAIN_DAGGER_GLOVE = GensokyoLegacy.loc("main/obtain_dagger_glove");
 
+	/**
+	 * The criterion both feed advancements share, built off the entity type rather than
+	 * off the food: the dish is always whatever {@code FairyFeedModule} already
+	 * accepted, so pinning an item predicate would only repeat a decision the trigger
+	 * has already made.
+	 * <p>
+	 * The entity half has to name every fairy that can be fed, since the trigger fires
+	 * for whoever carries that module and the criterion would otherwise throw her out:
+	 * Cirno is fed on the same two tiers as the plain fairy, so both count here. A
+	 * direct holder set rather than a tag, because the list is closed - it is one more
+	 * entity for whoever next teaches a fairy to eat.
+	 */
+	private static Criterion<FeedCharacterTrigger.TriggerInstance> fedAFairy() {
+		var fairies = HolderSet.direct(
+				GLEntities.PLAIN_FAIRY.get().builtInRegistryHolder(),
+				GLEntities.CIRNO.get().builtInRegistryHolder());
+		return FeedCharacterTrigger.TriggerInstance.usedItem(GLCriteriaTriggers.FEED_FAIRY, null,
+				EntityPredicate.Builder.entity().entityType(new EntityTypePredicate(fairies)).build(), null);
+	}
+
 	public static void genAdv(RegistrateAdvancementProvider pvd) {
 		pvd.accept(Advancement.Builder.advancement().addCriterion("koishi_first",
 				GLCriteriaTriggers.KOISHI_FIRST.get().createCriterion(new PlayerTrigger.TriggerInstance(Optional.empty()))
@@ -63,12 +89,18 @@ public class GLAdvGen {
 
 		var gen = new AdvancementGenerator(pvd, GensokyoLegacy.MODID);
 		var tab = gen.new TabBuilder("main");
+		// Standing in one of the three Gensokyo biomes is the usual way in, but not the
+		// only one: fairies spawn in forests and plains well outside them, so a player who
+		// has already fed a fairy has met Gensokyo. OR rather than a second root, so the
+		// tab root and the book reward stay the same node.
 		var root = tab.root("welcome", GLItems.BORDER_UMBRELLA.get(),
-				CriterionBuilder.one(PlayerTrigger.TriggerInstance.located(
-						LocationPredicate.Builder.location().setBiomes(HolderSet.direct(
-								resolveBiome(pvd, GLBiomes.MAGICAL_FOREST),
-								resolveBiome(pvd, GLBiomes.SAKURA_FOREST),
-								resolveBiome(pvd, GLDimensionGen.BIOME_GAP))))),
+				CriterionBuilder.or()
+						.add(PlayerTrigger.TriggerInstance.located(
+								LocationPredicate.Builder.location().setBiomes(HolderSet.direct(
+										resolveBiome(pvd, GLBiomes.MAGICAL_FOREST),
+										resolveBiome(pvd, GLBiomes.SAKURA_FOREST),
+										resolveBiome(pvd, GLDimensionGen.BIOME_GAP)))))
+						.add(fedAFairy()),
 				"Welcome to Gensokyo", "Find your way in this new world");
 		root.add((id, builder, conditions) -> builder.rewards(
 				AdvancementRewards.Builder.loot(ResourceKey.create(Registries.LOOT_TABLE,
@@ -110,6 +142,12 @@ public class GLAdvGen {
 						CriterionBuilder.item(GLItems.DOLL_GLOVE.get()),
 						"Doll Glove", "Obtain the Seven-Colored Doll Glove")
 				.type(AdvancementType.TASK, false, false, false);
+		// Hangs off the root rather than off one of the four houses: a fairy is found
+		// in the woods, not behind a door, so there is no structure to hang it under.
+		root.create("feed_fairy", GLItems.FAIRY_CAKE.get(),
+						CriterionBuilder.one(fedAFairy()),
+						"Fairy Feeding", "Feed a fairy")
+				.type(AdvancementType.TASK, true, true, false);
 		hakurei.create("obtain_talisman", GLTalismans.HEAL_TALISMAN.get(),
 						CriterionBuilder.item(GLTagGen.TALISMAN),
 						"Paper Talismans", "Obtain a paper talisman")

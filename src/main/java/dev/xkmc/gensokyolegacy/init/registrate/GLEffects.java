@@ -23,7 +23,7 @@ public class GLEffects {
 			"You can only count to 9.");
 
 	public static final LegacyHolder<MobEffect> FLOATING = genEffect("floating",
-			() -> new EmptyEffect(MobEffectCategory.BENEFICIAL, 0xFF9AC0CD),
+			() -> new FloatingEffect(MobEffectCategory.BENEFICIAL, 0xFF9AC0CD),
 			"You can float");
 
 	public static final LegacyHolder<MobEffect> LOOTING = genEffect("looting",

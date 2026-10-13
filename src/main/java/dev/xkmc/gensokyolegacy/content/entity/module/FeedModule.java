@@ -71,7 +71,7 @@ public class FeedModule extends AbstractYoukaiModule {
 		if (feedCoolDown > 0) return InteractionResult.PASS;
 		int favor = getFavor(stack, food);
 		if (favor < 0) return InteractionResult.PASS;
-		if (!(player instanceof ServerPlayer sp)) {
+		if (!(player instanceof ServerPlayer)) {
 			InfoUpdateClientManager.clearCache();
 			return InteractionResult.SUCCESS;
 		}
@@ -84,7 +84,6 @@ public class FeedModule extends AbstractYoukaiModule {
 		else self.playSound(stack.getEatingSound());
 		if (!remain.isEmpty())
 			player.getInventory().placeItemBackInInventory(remain);
-		self.getModule(TalkModule.class).ifPresent(e -> e.beginTalking(sp));
 		return InteractionResult.SUCCESS;
 	}
 

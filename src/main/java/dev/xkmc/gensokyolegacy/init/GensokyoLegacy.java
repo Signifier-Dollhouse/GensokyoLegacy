@@ -136,6 +136,8 @@ public class GensokyoLegacy {
 			DispenserBlock.registerProjectileBehavior(GLItems.FAIRY_ICE_CRYSTAL.get());
 			DispenserBlock.registerProjectileBehavior(HexBrew.EXPLOSIVE_HEXBREW.bottle.get());
 			DispenserBlock.registerProjectileBehavior(HexBrew.MIASMA_HEXBREW.bottle.get());
+			DispenserBlock.registerProjectileBehavior(HexBrew.REFINED_EXPLOSIVE_HEXBREW.bottle.get());
+			DispenserBlock.registerProjectileBehavior(HexBrew.REFINED_MIASMA_HEXBREW.bottle.get());
 
 			((ItemAccessor) Items.POTION).setCraftingRemainingItem(Items.GLASS_BOTTLE);
 			((ItemAccessor) Items.DRAGON_BREATH).setCraftingRemainingItem(Items.GLASS_BOTTLE);
@@ -150,6 +152,7 @@ public class GensokyoLegacy {
 		REGISTRATE.addDataGenerator(ProviderType.ITEM_TAGS, GLTagGen::onItemTagGen);
 		REGISTRATE.addDataGenerator(ProviderType.ENTITY_TAGS, GLTagGen::onEntityTagGen);
 		REGISTRATE.addDataGenerator(GLStructureTagGen.BIOME_TAG, GLStructureTagGen::genBiomeTag);
+		REGISTRATE.addDataGenerator(GLStructureTagGen.STRUCTURE_TAG, GLStructureTagGen::genStructureTag);
 		REGISTRATE.addDataGenerator(ProviderType.DATA_MAP, GLDataMapGen::dataMapGen);
 		REGISTRATE.addDataGenerator(ProviderType.RECIPE, GLRecipeGen::genRecipe);
 		REGISTRATE.addDataGenerator(ProviderType.LOOT, GLStructureLootGen::genLoot);
@@ -158,6 +161,7 @@ public class GensokyoLegacy {
 		REGISTRATE.addDataGenerator(ProviderType.LANG, GLLang::genLang);
 		var init = REGISTRATE.getDataGenInitializer();
 		init.addDependency(GLStructureTagGen.BIOME_TAG, ProviderType.DYNAMIC);
+		init.addDependency(GLStructureTagGen.STRUCTURE_TAG, ProviderType.DYNAMIC);
 		init.addDependency(ProviderType.ADVANCEMENT, ProviderType.DYNAMIC);
 		GLDimensionGen.init(init);
 		GLBiomes.init(init);

@@ -1,0 +1,29 @@
+{
+  "name": "Fairies",
+  "icon": "gensokyolegacy:fairy_cake",
+  "category": "gensokyolegacy:nature",
+  "sortnum": 2,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": [
+        "minecraft:cake",
+        "minecraft:cookie"
+      ],
+      "title": "Plain Fairies",
+      "text": "Small, and they drift through forests and plains. Left alone, a fairy is harmless, just a little clingy. She follows whoever is holding something she wants.$(br2)A cake is a proper meal, and she throws you Fairy Dust for it — worth the trip.$(br2)Cookies are one of the foods she likes too. What you get back for one is a flower."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "gensokyolegacy:fairy_dust",
+      "title": "Fairy Dust",
+      "text": "Right-click a flower with it and the dust draws a thread toward the nearest character home — which is how you find where somebody lives when all you have is a garden."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "gensokyolegacy:fairy_cake",
+      "title": "Fairy Cake",
+      "text": "Decorate a cake with Fairy Dust and it takes on a flavour fairies prefer — a slice of it is enough to satisfy one.$(br2)Eating one yourself works too: the taste is faint, and it leaves you floating for a while."
+    }
+  ]
+}
