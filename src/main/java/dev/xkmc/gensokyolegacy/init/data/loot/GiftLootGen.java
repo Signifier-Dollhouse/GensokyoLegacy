@@ -188,7 +188,7 @@ public class GiftLootGen {
 		return List.of(
 				tier(0, 50, gift(GLNaturalBlocks.STAR_FLOWER, 20)),
 				tier(50, 0, gift(GLItems.TENGU_SAKE, 20),
-						gift(GLItems.GHOST_SAKE, 20)));//TODO
+						gift(GLItems.GHOST_SAKE, 20)));
 	}
 
 	/**

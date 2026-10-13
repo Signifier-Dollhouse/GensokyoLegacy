@@ -34,7 +34,7 @@ import java.util.List;
 import java.util.function.Supplier;
 
 /**
- * A plain fairy is fed, and what she gives back is a matter of what she was given.
+ * A fairy is fed, and what she gives back is a matter of what she was given.
  * <p>
  * Deliberately not the generic {@link FeedModule}: a dish is worth a flat amount
  * here instead of a favor scaled off its nutrition, the ceiling is one feeding
@@ -50,6 +50,10 @@ import java.util.function.Supplier;
  * <p>
  * Food does the same thing for a player she is still hostile towards, minus the
  * gifts - see {@link #feed}.
+ * <p>
+ * Shared with every fairy rather than being the plain fairy's alone: Cirno carries
+ * it too and is fed on exactly these terms, so the two tiers, the reputation and
+ * the twenty-second cooldown are one set of numbers for the pair.
  */
 @SerialClass
 public class FairyFeedModule extends AbstractYoukaiModule {

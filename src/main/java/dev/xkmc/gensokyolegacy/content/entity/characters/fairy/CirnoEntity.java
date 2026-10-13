@@ -28,8 +28,8 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.ai.behavior.FollowTemptation;
-import net.minecraft.world.entity.ai.sensing.TemptingSensor;
+import net.minecraft.world.entity.ai.behavior.CountDownCooldownTicks;
+import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.schedule.Activity;
 import net.minecraft.world.item.ItemStack;
@@ -147,26 +147,47 @@ public class CirnoEntity extends FairyEntity implements GeoYoukaiAnim {
 		return List.of(
 				new HomeModule(this),
 				new VisitModule(this),
-				new FeedModule(this),
+				new FairyFeedModule(this),
 				new PartyModule(this),
 				new CountPickupModule(this, e -> e.getItem() instanceof FrozenFrogItem)
 		);
 	}
 
+	/**
+	 * Feeding a Cirno is feeding a fairy, on exactly the terms of a
+	 * {@link PlainFairyEntity}: the same two tiers of dish, the same flat reputation,
+	 * the same flower or fairy dust handed back, and the same twenty-second cooldown.
+	 * So she carries {@link FairyFeedModule} rather than the generic
+	 * {@code FeedModule}, which scales a favour off the nutrition of anything
+	 * edible - that one would have let her be bought off with a rotten steak and
+	 * given no thanks for it, where this one is a cookie or a cake or nothing.
+	 * <p>
+	 * The rest of the board is unchanged from the plain fairy's, which is the point:
+	 * these are the same lines, and they are what the {@code //TODO cirno food}
+	 * placeholder used to stand in for. Eating on its own {@link GLBrains#FEAST}
+	 * activity at 200, so a dish cuts in on her hunting and her stroll and is in turn
+	 * cut off by a fight; the chew-and-hand-it-back task on that activity; and the
+	 * same interest sensor that walks her over to whoever is holding something she
+	 * eats, which is also what holds her off for the length of the cooldown.
+	 * {@code CountDownCooldownTicks} comes with it because nothing else counts the
+	 * cooldown down on a brain - vanilla only ever registers it alongside a
+	 * {@code TemptationGoal} - and without it the memory the follow behavior writes
+	 * on stopping stays put and the whole temptation can only ever happen once.
+	 */
 	@Override
 	protected void constructTaskBoard(TaskBoard board) {
 		super.constructTaskBoard(board);
-		board.addExclusive(50, new FollowTemptation(e -> 1f), Activity.IDLE, Activity.PLAY, GLBrains.AT_HOME.get());
+		board.addExclusive(50, new FairyFollowTask(), Activity.IDLE, Activity.PLAY, GLBrains.AT_HOME.get());
 		board.addExclusive(200, new ItemPickupTask(), Activity.IDLE, Activity.PLAY);
 		board.addExclusive(250, new YoukaiHuntTask(6), GLBrains.HUNT.get());
 
 		board.addRandom(new YoukaiCraftTask<>(this::doCraft, 60, 12000), GLBrains.AT_HOME.get());
 		board.addSensor(new YoukaiHomeBlocksSensor<>(HomeBlockKind.CONTAINER));
 
-		board.addBehaviorActivity(YoukaiAcquireTargetTask.class, GLBrains.HUNT.get());
-
-		//TODO cirno food
-		board.addSensor(new TemptingSensor(stack -> stack.is(Items.CAKE)));
+		board.addAlways(new FairyFeedTask(), GLBrains.FEAST.get());
+		board.addPrioritizedActivity(GLBrains.FEAST.get(), GLBrains.MEM_FEED.get(), 200);
+		board.addAlways(new CountDownCooldownTicks(MemoryModuleType.TEMPTATION_COOLDOWN_TICKS), Activity.CORE);
+		board.addSensor(new FairyInterestSensor());
 
 		board.addSensor(new NearbyItemsSensor<CirnoEntity>().setRadius(18, 6).setScanRate(e -> e.playOrHunt() ? 20 : 60));
 		board.addSensor(new YoukaiFindPreySensor<>(CirnoEntity::playOrHunt));

@@ -25,7 +25,7 @@ public record CharacterRequestToServer(UUID id) implements SerialPacketBase<Char
 		var bed = home.map(k -> BedRefData.of(sp.serverLevel(), k, e.getType()))
 				.map(BedRefData::getBedPos);
 		// a character carries at most one feed module, but which kind varies:
-		// the plain fairy's is a fixed menu and flat-rate
+		// a fairy's is a fixed menu and flat-rate
 		int feedCD = Math.max(
 				e.getModule(FeedModule.class).map(FeedModule::getCoolDown).orElse(0),
 				e.getModule(FairyFeedModule.class).map(FairyFeedModule::getCoolDown).orElse(0));
