@@ -46,16 +46,26 @@ import java.util.Optional;
 /**
  * A plain fairy: no named character behind her, just the shared fairy rig. {@link FairyEntity}
  * itself stays the vanilla-placeholder mob for the three named three-star fairies, so this
- * subclass is what carries the Blockbench rig and the four texture sheets.
+ * subclass is what carries the Blockbench rig and the texture sheets.
  */
 @SerialClass
 public class PlainFairyEntity extends FairyEntity implements GeoYoukaiAnim {
 
 	/**
-	 * How many sheets the rig ships, i.e. the range of {@link #DATA_VARIANT}. The four
-	 * {@code fairy_*.png} sheets are the same recolour of one mesh, chosen per entity.
+	 * How many sheets the rig ships, i.e. the range of {@link #DATA_VARIANT}. The
+	 * {@code fairy_*.png} sheets are the same recolour of one mesh, chosen per entity,
+	 * and each of them has a {@code fairy_*_flower.png} twin - see {@link #DATA_FLOWER}.
 	 */
-	public static final int VARIANT_COUNT = 4;
+	public static final int VARIANT_COUNT = 5;
+
+	/**
+	 * How likely a spawn is to come out wearing a flower crown, out of {@code 100}.
+	 * <p>
+	 * A minority on purpose: the crown is the same sheet with one part painted in
+	 * rather than left transparent, so a crowd of them all wearing one would read as
+	 * everyone having the same face. Roughly a third of the range is one in three.
+	 */
+	private static final int FLOWER_CHANCE = 33;
 
 	/**
 	 * Ticks she keeps running for after a hit before the scare wears off.
@@ -102,7 +112,6 @@ public class PlainFairyEntity extends FairyEntity implements GeoYoukaiAnim {
 
 	protected static final RawAnimation IDLE = RawAnimation.begin().thenLoop("待机");
 	protected static final RawAnimation SIT = RawAnimation.begin().thenLoop("坐下");
-	protected static final RawAnimation SLEEP = RawAnimation.begin().thenLoop("睡觉");
 	/**
 	 * Her hovering loop, which is what an airborne fairy wants instead of standing.
 	 * <p>
@@ -130,6 +139,7 @@ public class PlainFairyEntity extends FairyEntity implements GeoYoukaiAnim {
 	protected static final SyncedData PLAIN_FAIRY_DATA = new SyncedData(PlainFairyEntity::defineId, SPELL_DATA);
 
 	private static final EntityDataAccessor<Integer> DATA_VARIANT = PLAIN_FAIRY_DATA.define(SyncedData.INT, 0, "variant");
+	private static final EntityDataAccessor<Integer> DATA_FLOWER = PLAIN_FAIRY_DATA.define(SyncedData.INT, 0, "flower");
 
 	private static <T> EntityDataAccessor<T> defineId(EntityDataSerializer<T> ser) {
 		return SynchedEntityData.defineId(PlainFairyEntity.class, ser);
@@ -149,7 +159,7 @@ public class PlainFairyEntity extends FairyEntity implements GeoYoukaiAnim {
 	// ---------- texture variant ----------
 
 	/**
-	 * Which of the four sheets to draw, {@code 0..VARIANT_COUNT-1}. Cosmetics only: nothing
+	 * Which of the sheets to draw, {@code 0..VARIANT_COUNT-1}. Cosmetics only: nothing
 	 * reads it but {@link PlainFairyModel#getTextureResource}, so the variant changes no
 	 * stats and no behavior. Synced and NBT-backed through {@link #PLAIN_FAIRY_DATA}, like
 	 * the rest of her entity data, so it survives a save/load.
@@ -163,13 +173,33 @@ public class PlainFairyEntity extends FairyEntity implements GeoYoukaiAnim {
 	}
 
 	/**
-	 * Rolls the sheet on spawn. In {@code finalizeSpawn} rather than the constructor so
-	 * the roll is not re-rolled on every chunk reload, and only on the server so the
-	 * client takes the synced value instead of rolling its own.
+	 * Whether she wears the flower-crowned sheet. Cosmetics only, and independent of
+	 * {@link #getVariant()}: every recolour ships both, so this picks which of a pair
+	 * to draw rather than being a variant of its own.
+	 * <p>
+	 * It needs no geometry to match it either - the {@code Flower} bone is in the one
+	 * mesh unconditionally and the crown's texels are simply left transparent in the
+	 * bare sheets, so this is a sheet choice and nothing else.
+	 */
+	public boolean hasFlower() {
+		return entityData.get(DATA_FLOWER) != 0;
+	}
+
+	public void setFlower(boolean flower) {
+		entityData.set(DATA_FLOWER, flower ? 1 : 0);
+	}
+
+	/**
+	 * Rolls both sheet choices on spawn. In {@code finalizeSpawn} rather than the
+	 * constructor so the rolls are not re-rolled on every chunk reload, and only on the
+	 * server so the client takes the synced values instead of rolling its own.
 	 */
 	@Override
 	public SpawnGroupData finalizeSpawn(ServerLevelAccessor pLevel, DifficultyInstance pDifficulty, MobSpawnType pReason, @Nullable SpawnGroupData pSpawnData) {
-		if (!pLevel.isClientSide()) setVariant(getRandom().nextInt(VARIANT_COUNT));
+		if (!pLevel.isClientSide()) {
+			setVariant(getRandom().nextInt(VARIANT_COUNT));
+			setFlower(getRandom().nextInt(100) < FLOWER_CHANCE);
+		}
 		return super.finalizeSpawn(pLevel, pDifficulty, pReason, pSpawnData);
 	}
 
@@ -349,27 +379,36 @@ public class PlainFairyEntity extends FairyEntity implements GeoYoukaiAnim {
 
 	// ---------- being fed ----------
 
+	/**
+	 * Order matters: {@code mobInteract} stops at the first module that does not
+	 * pass, so {@link FairyFeedModule} sits ahead of {@link GiftModule} and a dish
+	 * she recognises is eaten rather than read as a gift. That is the opposite of
+	 * {@link GiftModule}'s own suggestion for a character that has both a generic
+	 * {@code FeedModule} and a gift list, and it is deliberate here - for a fairy
+	 * the food is the whole point of feeding her, and the gift list is the fallback
+	 * for everything she will not eat.
+	 */
 	@Override
 	protected List<AbstractYoukaiModule> createModules() {
 		return List.of(
 				new HomeModule(this),
 				new VisitModule(this),
 				new FairyFeedModule(this),
-				new TalkModule(this)
+				new GiftModule(this)
 		);
 	}
 
 	/**
 	 * The whole scale she resolves against, lowest number wins:
-	 * {@code FIGHT(0) - FEAR(100) - FEAST(200) - TALK(300) - NAP(500) - VISITING(600) - HUNT(700)}.
+	 * {@code FIGHT(0) - FEAR(100) - FEAST(200) - NAP(500) - VISITING(600) - HUNT(700)}.
 	 * <p>
 	 * The part that matters to her: a fight outranks everything, because being
 	 * cornered beats every reason she had for standing still. Running beats eating,
 	 * so a snack handed to a panicking fairy is <em>not</em> enough to stop her - it
-	 * waits, and she eats it once she has put ground between them. Eating beats
-	 * talking, because she cannot be drawn into a conversation with her mouth full,
-	 * and beats the hunt for the same reason it beats the stroll. She never naps, so
-	 * NAP is in the list only as a rung she skips over.
+	 * waits, and she eats it once she has put ground between them. She never naps, so
+	 * NAP is in the list only as a rung she skips over. TALK is absent along with the
+	 * talk module itself: she has no conversation to hold, so the rung is skipped
+	 * rather than merely outranked.
 	 */
 	@Override
 	protected void constructTaskBoard(TaskBoard board) {
@@ -389,10 +428,10 @@ public class PlainFairyEntity extends FairyEntity implements GeoYoukaiAnim {
 		if (event.getController().isPlayingTriggeredAnimation()) {
 			return PlayState.CONTINUE;
 		}
-		if (isSleeping()) {
-			return event.setAndContinue(SLEEP);
-		}
-		if (isPassenger()) {
+		// No 睡觉 clip in this rig, and it must not name a missing one - see FLOAT
+		// above for what GeckoLib does with a name it cannot resolve. 坐下 is the
+		// closest thing she has, and it is what she is playing as a passenger anyway.
+		if (isSleeping() || isPassenger()) {
 			return event.setAndContinue(SIT);
 		}
 		// She hovers by construction, so "off the ground" is the honest test for
