@@ -3,6 +3,9 @@ package dev.xkmc.gensokyolegacy.content.rpg.condition;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.xkmc.gensokyolegacy.content.attachment.home.core.IHomeHolder;
+import dev.xkmc.gensokyolegacy.content.entity.module.HomeModule;
+import dev.xkmc.gensokyolegacy.content.entity.youkai.SmartYoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.rpg.quest.QuestCondition;
 import net.minecraft.server.level.ServerPlayer;
@@ -37,6 +40,7 @@ public record HomeBoundCondition(
 
 	@Override
 	public boolean test(ServerPlayer pl, YoukaiEntity ch) {
-		return invert != ch.isVisiting();
+		boolean hasHome =  ch instanceof SmartYoukaiEntity y && IHomeHolder.of(pl.serverLevel(), y) != null;
+		return hasHome ^ invert;
 	}
 }

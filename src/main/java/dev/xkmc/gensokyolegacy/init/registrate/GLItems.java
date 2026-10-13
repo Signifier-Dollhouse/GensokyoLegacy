@@ -15,6 +15,7 @@ import dev.xkmc.gensokyolegacy.content.item.character.*;
 import dev.xkmc.gensokyolegacy.content.item.debug.DebugGlasses;
 import dev.xkmc.gensokyolegacy.content.item.debug.DebugWand;
 import dev.xkmc.gensokyolegacy.content.item.debug.DoorDebugItem;
+import dev.xkmc.gensokyolegacy.content.attachment.party.item.PartyWand;
 import dev.xkmc.gensokyolegacy.content.item.debug.StructureWand;
 import dev.xkmc.gensokyolegacy.content.item.doll.DollItem;
 import dev.xkmc.gensokyolegacy.content.item.doll.DollItemData;
@@ -23,8 +24,10 @@ import dev.xkmc.gensokyolegacy.content.item.gift.*;
 import dev.xkmc.gensokyolegacy.content.item.glove.DollGloveItem;
 import dev.xkmc.gensokyolegacy.content.item.glove.DollGloveModel;
 import dev.xkmc.gensokyolegacy.content.item.hexbrew.StarDanmakuItem;
+import dev.xkmc.gensokyolegacy.content.item.ingredient.FairyDustItem;
 import dev.xkmc.gensokyolegacy.content.item.ingredient.FairyIceItem;
 import dev.xkmc.gensokyolegacy.content.item.ingredient.FrozenFrogItem;
+import dev.xkmc.gensokyolegacy.content.attachment.party.item.InvitationLetterItem;
 import dev.xkmc.gensokyolegacy.content.item.talisman.core.GLTalismans;
 import dev.xkmc.gensokyolegacy.content.item.dagger.DaggerGloveItem;
 import dev.xkmc.gensokyolegacy.content.item.dagger.DaggerGloveMode;
@@ -50,12 +53,15 @@ import net.minecraft.client.renderer.block.model.BlockModel;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Unit;
 import net.minecraft.tags.ItemTags;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.animal.FrogVariant;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemDisplayContext;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.Rarity;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
 import net.neoforged.neoforge.client.model.generators.loaders.SeparateTransformsModelBuilder;
@@ -69,6 +75,7 @@ public class GLItems {
 	public static final SimpleEntry<CreativeModeTab> TAB;
 
 	public static final ItemEntry<FairyIceItem> FAIRY_ICE_CRYSTAL;
+	public static final ItemEntry<FairyDustItem> FAIRY_DUST;
 	public static final ItemEntry<FrozenFrogItem> FROZEN_FROG_COLD, FROZEN_FROG_WARM, FROZEN_FROG_TEMPERATE;
 	public static final ItemEntry<Item> MYSTICAL_STRAW;
 
@@ -90,8 +97,7 @@ public class GLItems {
 	public static final ItemEntry<IronDaggerItem> IRON_DAGGER;
 	public static final ItemEntry<DaggerGloveItem> DAGGER_GLOVE;
 
-	public static final ItemEntry<TenguSakeItem> TENGU_SAKE;
-	public static final ItemEntry<DrinkGiftItem> GHOST_SAKE;
+	public static final ItemEntry<DrinkGiftItem> TENGU_SAKE, GHOST_SAKE;
 	public static final ItemEntry<Item> FAIRY_CAKE;
 	public static final ItemEntry<MagicBookItem> MAGIC_BOOK;
 
@@ -99,6 +105,7 @@ public class GLItems {
 	public static final ItemEntry<DebugWand> DEBUG_WAND;
 	public static final ItemEntry<StructureWand> STRUCTURE_WAND;
 	public static final ItemEntry<DoorDebugItem> DOOR_DEBUG_WAND;
+	public static final ItemEntry<PartyWand> PARTY_WAND;
 
 	public static final ItemEntry<BorderUmbrellaItem> BORDER_UMBRELLA;
 
@@ -113,6 +120,8 @@ public class GLItems {
 	public static final ItemEntry<StarDanmakuItem> STAR;
 	public static final ItemEntry<StarWandItem> STAR_WAND;
 	public static final ItemEntry<StrangeGlassesItem> STRANGE_GLASSES;
+
+	public static final ItemEntry<InvitationLetterItem> INVITATION_LETTER;
 
 	private static final DCReg DC = DCReg.of(GensokyoLegacy.REG);
 	public static final DCVal<HakkeroPrototype.Data> DC_HAKKERO_PROTOTYPE = DC.reg("mini_furnace_1_data", HakkeroPrototype.Data.class, false);
@@ -148,34 +157,6 @@ public class GLItems {
 
 		// hidden
 		{
-			// gifts
-			{
-				TENGU_SAKE = reg.item("tengu_sake", TenguSakeItem::new)
-						.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
-						.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(5, 1000, GiftType.DRINK))
-						.lang("Tengu Sake").register();
-
-				// TODO placeholder favor / cooldown
-				GHOST_SAKE = reg.item("ghost_sake", DrinkGiftItem::new)
-						.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
-						.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(5, 1000, GiftType.DRINK))
-						.lang("Ghost Sake").register();
-
-				FAIRY_CAKE = reg.item("fairy_cake", p -> new Item(p.stacksTo(1)
-								.food(new FoodProperties.Builder().nutrition(4).saturationModifier(0.3f).build())))
-						.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
-						.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(3, 1000, GiftType.FOOD))
-
-						.lang("Fairy Cake").register();
-
-				MAGIC_BOOK = reg.item("magic_book", MagicBookItem::new)
-						.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
-						.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(6, 1000, GiftType.BOOK))
-						.dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(40000))
-
-						.lang("Obscure Magic Book").register();
-			}
-
 
 			STAR = reg.item("star_danmaku", p -> new StarDanmakuItem(p.rarity(Rarity.RARE)))
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/hexbrew/star")))
@@ -248,29 +229,6 @@ public class GLItems {
 						.register();
 			}
 
-			// ice
-			{
-				FAIRY_ICE_CRYSTAL = reg.item("fairy_ice_crystal", FairyIceItem::new)
-						.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/ingredient/" + ctx.getName())))
-						.register();
-				FROZEN_FROG_COLD = reg.item("frozen_frog_cold",
-								p -> new FrozenFrogItem(p.stacksTo(16), FrogVariant.COLD))
-						.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/ingredient/" + ctx.getName())))
-						.register();
-				FROZEN_FROG_WARM = reg.item("frozen_frog_warm",
-								p -> new FrozenFrogItem(p.stacksTo(16), FrogVariant.WARM))
-						.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/ingredient/" + ctx.getName())))
-						.register();
-				FROZEN_FROG_TEMPERATE = reg.item("frozen_frog_temperate",
-								p -> new FrozenFrogItem(p.stacksTo(16), FrogVariant.TEMPERATE))
-						.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/ingredient/" + ctx.getName())))
-						.register();
-			}
-
-			MYSTICAL_STRAW = reg.item("mystical_straw", Item::new)
-					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/ingredient/" + ctx.getName())))
-					.register();
-
 			// 博丽的御币：装饰物品，手持方式同原版剑
 			HAKUREI_GOHEI = reg.item("hakurei_gohei", Item::new)
 					.model((ctx, pvd) -> pvd.handheld(ctx, pvd.modLoc("item/tool/" + ctx.getName())))
@@ -284,6 +242,72 @@ public class GLItems {
 
 		TAB = reg.buildModCreativeTab("ingredients", "Gensokyo Legacy - Ingredients",
 				e -> e.icon(GLItems.MYSTICAL_STRAW::asStack));
+
+		// ingredients
+		{
+
+			MYSTICAL_STRAW = reg.item("mystical_straw", Item::new)
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/ingredient/" + ctx.getName())))
+					.register();
+			FAIRY_DUST = reg.item("fairy_dust", FairyDustItem::new)
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/ingredient/" + ctx.getName())))
+					.lang("Fairy Dust").register();
+			FAIRY_ICE_CRYSTAL = reg.item("fairy_ice_crystal", FairyIceItem::new)
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/ingredient/" + ctx.getName())))
+					.register();
+			FROZEN_FROG_COLD = reg.item("frozen_frog_cold",
+							p -> new FrozenFrogItem(p.stacksTo(16), FrogVariant.COLD))
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/ingredient/" + ctx.getName())))
+					.register();
+			FROZEN_FROG_WARM = reg.item("frozen_frog_warm",
+							p -> new FrozenFrogItem(p.stacksTo(16), FrogVariant.WARM))
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/ingredient/" + ctx.getName())))
+					.register();
+			FROZEN_FROG_TEMPERATE = reg.item("frozen_frog_temperate",
+							p -> new FrozenFrogItem(p.stacksTo(16), FrogVariant.TEMPERATE))
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/ingredient/" + ctx.getName())))
+					.register();
+
+			INVITATION_LETTER = reg.item("invitation_letter", InvitationLetterItem::new)
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.mcLoc("item/paper")))
+					.properties(p -> p.stacksTo(16))
+					.lang("Invitation Letter").register();
+
+		}
+
+		// gifts
+		{
+			TENGU_SAKE = reg.item("tengu_sake", p -> new DrinkGiftItem(p.food(sake(
+							new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 600, 1),
+							new MobEffectInstance(MobEffects.NIGHT_VISION, 600, 0)))))
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
+					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(5, 1000, GiftType.DRINK))
+					.lang("Tengu Sake").register();
+
+			// TODO placeholder favor / cooldown
+			// amplifiers are 0-based, so strength III is 2 and resistance I is 0
+			GHOST_SAKE = reg.item("ghost_sake", p -> new DrinkGiftItem(p.food(sake(
+							new MobEffectInstance(MobEffects.DAMAGE_BOOST, 600, 1),
+							new MobEffectInstance(MobEffects.FIRE_RESISTANCE, 600, 0)))))
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
+					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(5, 1000, GiftType.DRINK))
+					.lang("Ghost Sake").register();
+
+			FAIRY_CAKE = reg.item("fairy_cake", p -> new Item(p
+							.food(new FoodProperties.Builder().nutrition(4).saturationModifier(0.3f)
+									.effect(() -> new MobEffectInstance(GLEffects.FLOATING, 600), 1).build())))
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
+					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(3, 1000, GiftType.FOOD))
+
+					.lang("Fairy Cake").register();
+
+			MAGIC_BOOK = reg.item("magic_book", MagicBookItem::new)
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
+					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(6, 1000, GiftType.BOOK))
+					.dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(40000))
+
+					.lang("Obscure Magic Book").register();
+		}
 
 		// tools
 		{
@@ -503,6 +527,12 @@ public class GLItems {
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/debug/" + ctx.getName())))
 					.defaultLang().register();
 
+			// borrows the existing debug wand texture until it gets its own art, the
+			// same way the invitation letter borrows vanilla paper
+			PARTY_WAND = reg.item("party_wand", p -> new PartyWand(p.stacksTo(1)))
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/debug/debug_wand")))
+					.defaultLang().register();
+
 		}
 
 	}
@@ -516,6 +546,20 @@ public class GLItems {
 				.parent(new ModelFile.UncheckedModelFile("item/generated"))
 				.texture("layer0", pvd.modLoc("item/doll/doll0"))
 				.texture("layer1", pvd.modLoc("item/doll/doll1"));
+	}
+
+	/**
+	 * The food properties of a bottle of sake. It feeds nothing (no nutrition, so it is never
+	 * mistaken for a meal by the party food system), it can be drunk on a full stomach, it
+	 * leaves an empty glass bottle behind, and every effect is rolled on the last gulp.
+	 */
+	private static FoodProperties sake(MobEffectInstance... effects) {
+		FoodProperties.Builder builder = new FoodProperties.Builder()
+				.alwaysEdible()
+				.usingConvertsTo(Items.GLASS_BOTTLE);
+		for (MobEffectInstance effect : effects)
+			builder.effect(() -> new MobEffectInstance(effect), 1.0F);
+		return builder.build();
 	}
 
 	public static void register() {

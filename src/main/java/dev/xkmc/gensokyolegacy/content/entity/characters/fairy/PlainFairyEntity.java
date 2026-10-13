@@ -114,35 +114,16 @@ public class PlainFairyEntity extends FairyEntity implements GeoYoukaiAnim {
 	 */
 	private static final RawAnimation FLOAT = RawAnimation.begin().thenLoop("漂浮");
 	private static final RawAnimation USE_MAINHAND = RawAnimation.begin().thenPlay("使用主手物品");
-	/**
-	 * {@code 吃} played and held, rather than played once: the chew has to sit there
-	 * until she decides to reach for a flower, and holding the last pose means a
-	 * slightly-off timing reads as her still chewing instead of snapping back to
-	 * hovering mid-bite.
-	 */
-	private static final RawAnimation EAT = RawAnimation.begin().thenPlayAndHold("吃");
 
-	/**
-	 * Her eating slot, kept out of {@link YoukaiAnim}. That enum is the vocabulary of
-	 * conversation - its slots are addressed by trigger name from dialog data - and an
-	 * appetite is not dialogue. Putting it there would also have cost every other
-	 * character a dead {@code case} in an already exhaustive switch, for a clip only
-	 * this rig has. {@code GeoYoukaiAnim} owns 71-79 and the dolls 66-70, so the next
-	 * id up is free.
-	 */
-	private static final String EAT_TRIGGER = "eat";
-	private static final byte EAT_EVENT = 80;
 
 	/**
 	 * Start the chew. Server-side; the play itself is an entity event, so the client
 	 * sees the same animation the server timed the flower throw against.
+	 * <p>
+	 * Overrides the base no-op rather than being a fairy's own invention: a party guest
+	 * holding a plate calls this on whatever character she is, and only a rig with a
+	 * {@code 吃} clip answers.
 	 */
-	public void broadcastEat() {
-		if (!level().isClientSide()) {
-			level().broadcastEntityEvent(this, EAT_EVENT);
-		}
-	}
-
 	/**
 	 * Her own entity data, layered over the generic youkai/spell-data layers.
 	 */
@@ -202,7 +183,9 @@ public class PlainFairyEntity extends FairyEntity implements GeoYoukaiAnim {
 	 */
 	@Override
 	public void travel(Vec3 input) {
-		boolean hover = !isSleeping();
+		// mayFly rather than a bare awake test: a party guest is awake but must not hover,
+		// and this is the tick that would otherwise reinstall her flying navigation
+		boolean hover = !isSleeping() && mayFly();
 		// before super, so this tick's move is gravity-free too; the flying move
 		// control drops the flag on every idle tick, so it has to be re-asserted
 		if (hover) {
@@ -364,44 +347,37 @@ public class PlainFairyEntity extends FairyEntity implements GeoYoukaiAnim {
 		return false;
 	}
 
-	// ---------- cake ----------
+	// ---------- being fed ----------
 
 	@Override
 	protected List<AbstractYoukaiModule> createModules() {
 		return List.of(
 				new HomeModule(this),
 				new VisitModule(this),
-				new FairyCakeModule(this),
+				new FairyFeedModule(this),
 				new TalkModule(this)
 		);
 	}
 
 	/**
 	 * The whole scale she resolves against, lowest number wins:
-	 * {@code FIGHT(0) - FEAR(25) - FEAST(50) - TALK(100) - VISITING(150) - HUNT(200)}.
+	 * {@code FIGHT(0) - FEAR(100) - FEAST(200) - TALK(300) - NAP(500) - VISITING(600) - HUNT(700)}.
 	 * <p>
 	 * The part that matters to her: a fight outranks everything, because being
 	 * cornered beats every reason she had for standing still. Running beats eating,
-	 * so a cake handed to a panicking fairy is <em>not</em> enough to stop her - it
+	 * so a snack handed to a panicking fairy is <em>not</em> enough to stop her - it
 	 * waits, and she eats it once she has put ground between them. Eating beats
 	 * talking, because she cannot be drawn into a conversation with her mouth full,
-	 * and beats the hunt for the same reason it beats the stroll. 25 and 50 rather
-	 * than two round numbers because TALK already holds 100.
+	 * and beats the hunt for the same reason it beats the stroll. She never naps, so
+	 * NAP is in the list only as a rung she skips over.
 	 */
 	@Override
 	protected void constructTaskBoard(TaskBoard board) {
 		super.constructTaskBoard(board);
-		// its own activity rather than CORE: eating is the one thing she stops for,
-		// and CORE would leave the stroll and stay-tasks running alongside it
-		board.addAlways(new FairyCakeTask(), GLBrains.FEAST.get());
-		board.addPrioritizedActivity(GLBrains.FEAST.get(), GLBrains.MEM_FEED.get(), 50);
+		board.addAlways(new FairyFeedTask(), GLBrains.FEAST.get());
+		board.addPrioritizedActivity(GLBrains.FEAST.get(), GLBrains.MEM_FEED.get(), 200);
 		board.addExclusive(0, new FairyFleeTask(), GLBrains.FEAR.get());
-		board.addPrioritizedActivity(GLBrains.FEAR.get(), GLBrains.MEM_FEAR.get(), 25);
-
-		// Being drawn to someone: cake first, and failing that anyone she is not
-		// hostile towards. FollowTemptation is only half of it - without the
-		// countdown the cooldown it sets on stopping is never cleared and she can
-		// only ever be tempted once in her life.
+		board.addPrioritizedActivity(GLBrains.FEAR.get(), GLBrains.MEM_FEAR.get(), 100);
 		board.addAlways(new CountDownCooldownTicks(MemoryModuleType.TEMPTATION_COOLDOWN_TICKS), Activity.CORE);
 		board.addExclusive(50, new FairyFollowTask(), Activity.IDLE, Activity.PLAY, GLBrains.AT_HOME.get());
 		board.addSensor(new FairyInterestSensor());
@@ -437,7 +413,8 @@ public class PlainFairyEntity extends FairyEntity implements GeoYoukaiAnim {
 	public Optional<RawAnimation> getAnim(YoukaiAnim anim) {
 		return switch (anim) {
 			case USE_MAINHAND -> Optional.of(USE_MAINHAND);
-			case GREET, TALK_01, TALK_02, TALK_03, THINK, AGREE, DECLINE, OUTDOOR_IDLE -> Optional.empty();
+			case GREET, TALK_01, TALK_02, TALK_03, TALK_04, TALK_05, THINK, THINK_02,
+					CONFUSED, AGREE, DECLINE, OUTDOOR_IDLE -> Optional.empty();
 		};
 	}
 
@@ -447,7 +424,7 @@ public class PlainFairyEntity extends FairyEntity implements GeoYoukaiAnim {
 		// bones, so the always-looping blink yields to the main controller.
 		controllers.add(new AnimationController<>(this, WINK_CONTROLLER, 0, e -> e.setAndContinue(BLINK)));
 		var main = new AnimationController<>(this, ANIM_CONTROLLER, 5, this::idleAnimController);
-		main.triggerableAnim(EAT_TRIGGER, EAT);
+		addEatAnim(main);
 		addDialogAnims(main);
 		controllers.add(main);
 	}
@@ -455,10 +432,6 @@ public class PlainFairyEntity extends FairyEntity implements GeoYoukaiAnim {
 	@Override
 	public void handleEntityEvent(byte id) {
 		if (level().isClientSide()) {
-			if (id == EAT_EVENT) {
-				triggerAnim(ANIM_CONTROLLER, EAT_TRIGGER);
-				return;
-			}
 			if (handleAnimEvent(id)) return;
 		}
 		super.handleEntityEvent(id);

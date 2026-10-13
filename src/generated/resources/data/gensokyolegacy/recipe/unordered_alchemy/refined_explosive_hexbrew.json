@@ -1,0 +1,19 @@
+{
+  "type": "gensokyolegacy:unordered_alchemy",
+  "input": [
+    {
+      "item": "minecraft:blaze_powder"
+    },
+    {
+      "item": "minecraft:gunpowder"
+    }
+  ],
+  "inputFluid": {
+    "fluid": "gensokyolegacy:hexbrew_elixir"
+  },
+  "resultFluid": {
+    "amount": 1000,
+    "id": "gensokyolegacy:refined_explosive_hexbrew"
+  },
+  "time": 200
+}

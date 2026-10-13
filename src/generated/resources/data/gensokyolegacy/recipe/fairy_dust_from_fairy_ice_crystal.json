@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "gensokyolegacy:fairy_ice_crystal"
+    }
+  ],
+  "result": {
+    "count": 4,
+    "id": "gensokyolegacy:fairy_dust"
+  }
+}

@@ -10,6 +10,8 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.neoforged.neoforge.common.Tags;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Set;
 
@@ -35,45 +37,68 @@ public class TravelModeUtil {
 		return Vec3.atBottomCenterOf(pos);
 	}
 
+	@Nullable
 	private static Vec3 findSafeVertical(ServerLevel level, BlockPos pos) {
 		int min = level.getMinBuildHeight();
 		int max = level.getMaxBuildHeight() - 1;
-		if (isFitting(level, pos)) return Vec3.atBottomCenterOf(pos);
-		BlockState state = level.getBlockState(pos);
-		boolean isAir = state.isAir();
-		if (isAir) {
+		if (pos.getY() < min) pos = pos.atY(min);
+		if (pos.getY() > max) pos = pos.atY(max);
+		int x = pos.getX(), y = pos.getY(), z = pos.getZ();
+		// A column is judged by three yes/no questions, and stepping one block answers two of
+		// them from the step before: only the block entering the window is genuinely new. So the
+		// walk carries that pair along and reads one block per candidate, instead of asking
+		// isFitting() about all three every time and re-reading the column under the player.
+		BlockState at = level.getBlockState(pos);
+		boolean below = isSupport(level.getBlockState(pos.below()));
+		boolean cur = isSupport(at);
+		boolean above = isSupport(level.getBlockState(pos.above()));
+		if (isFitting(below, cur, above)) return Vec3.atBottomCenterOf(pos);
+		if (at.isAir()) {
 			// teleporting to air: move down to first block so player stands on a block
-			for (int y = pos.getY() - 1; y >= min; y--) {
-				BlockPos cand = new BlockPos(pos.getX(), y, pos.getZ());
-				if (isFitting(level, cand)) return Vec3.atBottomCenterOf(cand);
+			// lo/hi hold the support answers for the candidate column and the one above it; as
+			// the window slides down, its third member is the only block newly read each step
+			boolean lo = below, hi = cur;
+			for (int cy = y - 1; cy >= min; cy--) {
+				boolean next = isSupport(level.getBlockState(new BlockPos(x, cy - 1, z)));
+				if (isFitting(next, lo, hi)) return Vec3.atBottomCenterOf(new BlockPos(x, cy, z));
+				hi = lo;
+				lo = next;
 			}
 			// fallback: search up if no ground below
-			for (int y = pos.getY() + 1; y <= max; y++) {
-				BlockPos cand = new BlockPos(pos.getX(), y, pos.getZ());
-				if (isFitting(level, cand)) return Vec3.atBottomCenterOf(cand);
+			boolean upLo = cur, upHi = above;
+			for (int cy = y + 1; cy <= max; cy++) {
+				boolean next = isSupport(level.getBlockState(new BlockPos(x, cy + 1, z)));
+				if (isFitting(upLo, upHi, next)) return Vec3.atBottomCenterOf(new BlockPos(x, cy, z));
+				upLo = upHi;
+				upHi = next;
 			}
 		} else {
 			// teleporting to solid space: move up to first 2-block space so that player stands on block
-			for (int y = pos.getY() + 1; y <= max; y++) {
-				BlockPos cand = new BlockPos(pos.getX(), y, pos.getZ());
-				if (isFitting(level, cand)) return Vec3.atBottomCenterOf(cand);
+			boolean lo = cur, hi = above;
+			for (int cy = y + 1; cy <= max; cy++) {
+				boolean next = isSupport(level.getBlockState(new BlockPos(x, cy + 1, z)));
+				if (isFitting(lo, hi, next)) return Vec3.atBottomCenterOf(new BlockPos(x, cy, z));
+				lo = hi;
+				hi = next;
 			}
 			// fallback: search down if no space above
-			for (int y = pos.getY() - 1; y >= min; y--) {
-				BlockPos cand = new BlockPos(pos.getX(), y, pos.getZ());
-				if (isFitting(level, cand)) return Vec3.atBottomCenterOf(cand);
+			boolean downLo = below, downHi = cur;
+			for (int cy = y - 1; cy >= min; cy--) {
+				boolean next = isSupport(level.getBlockState(new BlockPos(x, cy - 1, z)));
+				if (isFitting(next, downLo, downHi)) return Vec3.atBottomCenterOf(new BlockPos(x, cy, z));
+				downHi = downLo;
+				downLo = next;
 			}
 		}
 		return null;
 	}
 
-	private static boolean isFitting(ServerLevel level, BlockPos pos) {
-		BlockState below = level.getBlockState(pos.below());
-		BlockState cur = level.getBlockState(pos);
-		BlockState above = level.getBlockState(pos.above());
-		if (below.isAir() || !below.isSolidRender(level, pos.below())) return false;
-		if (!cur.isAir() || !above.isAir()) return false;
-		return cur.getFluidState().isEmpty() && above.getFluidState().isEmpty();
+	private static boolean isFitting(boolean below, boolean cur, boolean above) {
+		return below && !cur && !above;
+	}
+
+	private static boolean isSupport(BlockState state) {
+		return state.blocksMotion() || state.getFluidState().is(Tags.Fluids.WATER);
 	}
 
 	public static Vec3 adjustToFreeSpace(ServerLevel level, LivingEntity entity, Vec3 dst) {

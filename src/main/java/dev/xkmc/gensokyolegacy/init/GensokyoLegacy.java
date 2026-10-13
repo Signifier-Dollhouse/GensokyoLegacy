@@ -4,6 +4,7 @@ import com.github.tartaricacid.touhoulittlemaid.TouhouLittleMaid;
 import com.tterrag.registrate.providers.ProviderType;
 import dev.xkmc.gensokyolegacy.compat.touhoulittlemaid.TLMCompat;
 import dev.xkmc.gensokyolegacy.compat.touhoulittlemaid.TouhouSpellCards;
+import dev.xkmc.gensokyolegacy.content.attachment.party.food.BlockFoods;
 import dev.xkmc.gensokyolegacy.content.dimension.GLDimensionGen;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.move.YoukaiNodeEvaluatorRegistry;
 import dev.xkmc.gensokyolegacy.content.item.glove.DollGloveSelectionListener;
@@ -18,6 +19,7 @@ import dev.xkmc.gensokyolegacy.init.data.*;
 import dev.xkmc.gensokyolegacy.init.data.biome.GLBiomes;
 import dev.xkmc.gensokyolegacy.init.data.biome.GLFeatureGen;
 import dev.xkmc.gensokyolegacy.init.data.biome.MagicalForestRegion;
+import dev.xkmc.gensokyolegacy.init.data.loot.GiftLootGen;
 import dev.xkmc.gensokyolegacy.init.data.loot.GLGLMProvider;
 import dev.xkmc.gensokyolegacy.init.data.rpg.AliceQDGen;
 import dev.xkmc.gensokyolegacy.init.data.rpg.MarisaQDGen;
@@ -25,6 +27,7 @@ import dev.xkmc.gensokyolegacy.init.data.rpg.MorichikaQDGen;
 import dev.xkmc.gensokyolegacy.init.data.rpg.QuestDialogData;
 import dev.xkmc.gensokyolegacy.init.data.rpg.ReimuQDGen;
 import dev.xkmc.gensokyolegacy.init.data.rpg.SakuyaQDGen;
+import dev.xkmc.gensokyolegacy.init.data.rpg.SuikaQDGen;
 import dev.xkmc.gensokyolegacy.init.data.structure.GLStructureGen;
 import dev.xkmc.gensokyolegacy.init.data.structure.GLStructureLootGen;
 import dev.xkmc.gensokyolegacy.init.data.structure.GLStructureTagGen;
@@ -125,12 +128,16 @@ public class GensokyoLegacy {
 	@SubscribeEvent
 	public static void commonSetup(FMLCommonSetupEvent event) {
 		event.enqueueWork(() -> {
+			BlockFoods.register();
+
 			DispenserBlock.registerProjectileBehavior(GLItems.FROZEN_FROG_COLD.get());
 			DispenserBlock.registerProjectileBehavior(GLItems.FROZEN_FROG_WARM.get());
 			DispenserBlock.registerProjectileBehavior(GLItems.FROZEN_FROG_TEMPERATE.get());
 			DispenserBlock.registerProjectileBehavior(GLItems.FAIRY_ICE_CRYSTAL.get());
 			DispenserBlock.registerProjectileBehavior(HexBrew.EXPLOSIVE_HEXBREW.bottle.get());
 			DispenserBlock.registerProjectileBehavior(HexBrew.MIASMA_HEXBREW.bottle.get());
+			DispenserBlock.registerProjectileBehavior(HexBrew.REFINED_EXPLOSIVE_HEXBREW.bottle.get());
+			DispenserBlock.registerProjectileBehavior(HexBrew.REFINED_MIASMA_HEXBREW.bottle.get());
 
 			((ItemAccessor) Items.POTION).setCraftingRemainingItem(Items.GLASS_BOTTLE);
 			((ItemAccessor) Items.DRAGON_BREATH).setCraftingRemainingItem(Items.GLASS_BOTTLE);
@@ -145,13 +152,16 @@ public class GensokyoLegacy {
 		REGISTRATE.addDataGenerator(ProviderType.ITEM_TAGS, GLTagGen::onItemTagGen);
 		REGISTRATE.addDataGenerator(ProviderType.ENTITY_TAGS, GLTagGen::onEntityTagGen);
 		REGISTRATE.addDataGenerator(GLStructureTagGen.BIOME_TAG, GLStructureTagGen::genBiomeTag);
+		REGISTRATE.addDataGenerator(GLStructureTagGen.STRUCTURE_TAG, GLStructureTagGen::genStructureTag);
 		REGISTRATE.addDataGenerator(ProviderType.DATA_MAP, GLDataMapGen::dataMapGen);
 		REGISTRATE.addDataGenerator(ProviderType.RECIPE, GLRecipeGen::genRecipe);
 		REGISTRATE.addDataGenerator(ProviderType.LOOT, GLStructureLootGen::genLoot);
+		REGISTRATE.addDataGenerator(ProviderType.LOOT, GiftLootGen::genLoot);
 		REGISTRATE.addDataGenerator(ProviderType.ADVANCEMENT, GLAdvGen::genAdv);
 		REGISTRATE.addDataGenerator(ProviderType.LANG, GLLang::genLang);
 		var init = REGISTRATE.getDataGenInitializer();
 		init.addDependency(GLStructureTagGen.BIOME_TAG, ProviderType.DYNAMIC);
+		init.addDependency(GLStructureTagGen.STRUCTURE_TAG, ProviderType.DYNAMIC);
 		init.addDependency(ProviderType.ADVANCEMENT, ProviderType.DYNAMIC);
 		GLDimensionGen.init(init);
 		GLBiomes.init(init);
@@ -171,7 +181,8 @@ public class GensokyoLegacy {
 		var morichika = new MorichikaQDGen();
 		var alice = new AliceQDGen();
 		var sakuya = new SakuyaQDGen();
-		QuestDialogData.build(REGISTRATE, reimu, marisa, morichika, alice, sakuya);
+		var suika = new SuikaQDGen();
+		QuestDialogData.build(REGISTRATE, reimu, marisa, morichika, alice, sakuya, suika);
 
 		ReportBlocksInStructure.report();
 	}

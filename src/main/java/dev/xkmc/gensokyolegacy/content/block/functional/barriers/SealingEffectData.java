@@ -14,18 +14,17 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
+/**
+ * Effect payload of the sealing pot: owner validity is the block itself, the client visual is the
+ * forcefield texture tinted with the pot's own green.
+ *
+ * @see doc/design/barriers.md
+ */
 @SerialClass
 public class SealingEffectData extends EffectData {
 
-	/**
-	 * The tint multiplies into the forcefield texture, so a white one read as a
-	 * generic magic shield. The pot is a green ceramic, so the wall takes the pot's
-	 * own green: the hue comes from
-	 * {@code textures/block/utensil/sealing_pot.png}'s main highlight, RGB(89,
-	 * 186, 114), i.e. 0.35 / 0.73 / 0.45. Only the hue is taken - the green
-	 * channel is pinned to 1.0, because the texture is already a dim grey and
-	 * using the pot's raw luminance would have made the wall barely visible.
-	 */
+	// tint 0.35 / 1.0 / 0.45 takes only the hue off the pot texture, the green channel stays at 1.0
+	// so the dim grey texture keeps its brightness
 	private static final AreaEffectVisual VISUAL = new AreaEffectVisual(GensokyoLegacy.loc("textures/barriers/sealing_pot.png"),
 			0.35F, 1F, 0.45F, 0.35F, -0.5F, true, false, false);
 

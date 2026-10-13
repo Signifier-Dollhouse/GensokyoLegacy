@@ -64,12 +64,11 @@ public class DollLoadoutMenu extends BaseContainerMenu<DollLoadoutMenu> {
 
 	/**
 	 * One loadout slot. <b>Which</b> item may go in is the handler's answer
-	 * ({@code mayPlace} → {@code isItemValid}); <b>how many</b> is asked per item
-	 * here, because what one hand holds is stack-dependent — a whole hexbrew stack or
-	 * a single wand — and {@code IItemHandler.getSlotLimit} cannot see the stack.
-	 * Vanilla sizes every transfer with this overload (click, number-key swap,
-	 * shift-click, drag), so the single-item rule holds without the handler ever
-	 * truncating a write.
+	 * ({@code mayPlace} → {@code isItemValid}); <b>how many</b> is asked per item here,
+	 * because what one hand holds is stack-dependent and
+	 * {@code IItemHandler.getSlotLimit} cannot see the stack. Vanilla sizes every
+	 * transfer with this overload, so the single-item rule holds without the handler
+	 * ever truncating a write.
 	 */
 	private static class LoadoutSlot extends ItemHandlerCopySlot {
 

@@ -1,6 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.ui.dialog;
 
-import dev.xkmc.gensokyolegacy.content.attachment.datamap.DialogConfig;
+import dev.xkmc.gensokyolegacy.content.rpg.core.DialogConfig;
 import dev.xkmc.gensokyolegacy.content.rpg.network.FirstDialogToClient;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;

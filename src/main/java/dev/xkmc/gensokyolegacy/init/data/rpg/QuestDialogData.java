@@ -1,7 +1,7 @@
 package dev.xkmc.gensokyolegacy.init.data.rpg;
 
 import com.tterrag.registrate.providers.ProviderType;
-import dev.xkmc.gensokyolegacy.content.attachment.datamap.DialogConfig;
+import dev.xkmc.gensokyolegacy.content.rpg.core.DialogConfig;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiAnim;
 import dev.xkmc.gensokyolegacy.content.rpg.action.DialogAction;
 import dev.xkmc.gensokyolegacy.content.rpg.action.SetTimerAction;

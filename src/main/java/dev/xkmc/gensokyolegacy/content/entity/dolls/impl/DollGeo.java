@@ -2,6 +2,8 @@ package dev.xkmc.gensokyolegacy.content.entity.dolls.impl;
 
 import dev.xkmc.gensokyolegacy.content.entity.dolls.DollEntity;
 import dev.xkmc.gensokyolegacy.init.registrate.GLSounds;
+import dev.xkmc.l2core.init.reg.registrate.SimpleEntry;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
@@ -9,11 +11,10 @@ import software.bernie.geckolib.animation.*;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
 /**
- * GeckoLib animation for a doll: {@code toy_idle} while still,
- * {@code toy_fly} while moving, plus one-shot {@code toy_attack} /
- * {@code toy_bomb} fired by server-to-client entity events
- * ({@link #EVENT_ATTACK}/{@link #EVENT_BOMB}). The instance cache lives in
- * {@link DollGeoModule}, fetched per entity — the entity keeps no geo state itself.
+ * GeckoLib animation for a doll: {@code toy_idle} while still, {@code toy_fly} while
+ * moving, plus one-shots fired by server-to-client entity events. The instance cache
+ * lives in {@link DollGeoModule}, fetched per entity — the entity keeps no geo state
+ * itself (entity.md §8).
  */
 public interface DollGeo extends DollBaseImpl, GeoEntity {
 
@@ -30,11 +31,8 @@ public interface DollGeo extends DollBaseImpl, GeoEntity {
 	String WINK_CONTROLLER = "wink";
 
 	/**
-	 * Entity event ids: vanilla {@code EntityEvent} uses up to 65, so 66+ are safe.
-	 * Dolls take 66-70; characters start after them (see
-	 * {@link dev.xkmc.gensokyolegacy.content.entity.youkai.GeoYoukaiAnim#ANIM_EVENT_BASE}).
-	 * Broadcast server-side, played client-side in
-	 * {@link DollEntity#handleEntityEvent}.
+	 * Entity event ids: vanilla {@code EntityEvent} uses up to 65, so 66+ are safe. Dolls
+	 * take 66-70; characters start after them.
 	 */
 	byte EVENT_ATTACK = 66;
 	byte EVENT_BOMB = 67;
@@ -42,7 +40,7 @@ public interface DollGeo extends DollBaseImpl, GeoEntity {
 	byte EVENT_SKILL = 69;
 	byte EVENT_SLAP = 70;
 
-	/** Volume of the attack voice; the clip is short, so a volley does not build up. */
+	/** Volume of a strike voice, both melee shapes alike; the clips are short. */
 	float ATTACK_VOLUME = 1.0F;
 
 	private DollGeoModule geo() {
@@ -57,8 +55,8 @@ public interface DollGeo extends DollBaseImpl, GeoEntity {
 
 	@Override
 	default void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-		// Wink first: controllers tick in registration order and overwrite shared
-		// bones, so the always-looping wink yields to the main controller.
+		// wink first: controllers tick in registration order and overwrite shared
+		// bones, so the always-looping wink yields to the main controller
 		controllers.add(new AnimationController<>(asDoll(), WINK_CONTROLLER, 0, e -> e.setAndContinue(WINK)));
 		controllers.add(new AnimationController<>(asDoll(), "all", 3, this::dollAnimController)
 				.triggerableAnim("attack", ATTACK)
@@ -80,27 +78,32 @@ public interface DollGeo extends DollBaseImpl, GeoEntity {
 	}
 
 	/**
-	 * The swung attack, animation and voice together: the {@code toy_attack} clip is
-	 * silent on its own, so {@link GLSounds#DOLL_ATTACK} is what makes a strike
-	 * audible, and it is played from the same place as the broadcast so the two
-	 * cannot drift apart.
-	 * <p>
-	 * The pitch is the entity's own {@link net.minecraft.world.entity.LivingEntity#getVoicePitch()},
-	 * i.e. the vanilla voice jitter, which keeps a volley of dolls striking on the
-	 * same tick from stacking into one louder, phasey hit. The sound is
-	 * {@link SoundSource#NEUTRAL}, the source a mob's own voice uses.
+	 * The lance swing, animation and voice together: {@code toy_attack} is silent on
+	 * its own, so {@link GLSounds#DOLL_LANCE} is what makes the strike audible. The
+	 * pitch is the entity's own vanilla voice jitter, which keeps a volley striking on
+	 * the same tick from stacking into one louder, phasey hit.
 	 */
 	default void broadcastAttackAnim() {
-		if (asDoll().level().isClientSide()) return;
-		asDoll().level().broadcastEntityEvent(asDoll(), EVENT_ATTACK);
-		asDoll().level().playSound(null, asDoll(), GLSounds.DOLL_ATTACK.get(),
-				SoundSource.NEUTRAL, ATTACK_VOLUME, asDoll().getVoicePitch());
+		broadcastStrike(EVENT_ATTACK, GLSounds.DOLL_LANCE);
 	}
 
-	/** The bare-handed swing: {@link #EVENT_SLAP} rather than the lance clip. */
+	/**
+	 * The bare-handed swing: {@link #EVENT_SLAP} rather than the lance clip, voiced with
+	 * {@link GLSounds#DOLL_SLAP} so a slap and a poke are told apart by ear alone.
+	 */
 	default void broadcastSlapAnim() {
-		if (!asDoll().level().isClientSide())
-			asDoll().level().broadcastEntityEvent(asDoll(), EVENT_SLAP);
+		broadcastStrike(EVENT_SLAP, GLSounds.DOLL_SLAP);
+	}
+
+	/**
+	 * One broadcast and one voice, together and server-side only. Shared by both melee
+	 * shapes so the animation and its sound cannot come apart.
+	 */
+	private void broadcastStrike(byte event, SimpleEntry<SoundEvent> sound) {
+		if (asDoll().level().isClientSide()) return;
+		asDoll().level().broadcastEntityEvent(asDoll(), event);
+		asDoll().level().playSound(null, asDoll(), sound.get(),
+				SoundSource.NEUTRAL, ATTACK_VOLUME, asDoll().getVoicePitch());
 	}
 
 	default void broadcastBowAnim() {
@@ -124,9 +127,9 @@ public interface DollGeo extends DollBaseImpl, GeoEntity {
 	}
 
 	/**
-	 * The lazily built instance cache. The cache needs the entity, which
-	 * modules never store (they run before it exists) — it is built on first render.
-	 * Synchronized: dolls construct on the server thread and render on the client thread.
+	 * The instance cache. The cache needs the entity, which modules never store (they
+	 * run before it exists). Synchronized: dolls construct on the server thread and
+	 * render on the client thread.
 	 */
 	final class DollGeoModule implements DollModule {
 

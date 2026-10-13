@@ -22,16 +22,23 @@ public class MixinHookHandlers {
 	public static double getGravity(LivingEntity le, double original) {
 		var ins = le.getEffect(GLEffects.FLOATING);
 		if (ins != null && !le.onGround() && !le.isShiftKeyDown()) {
-			int h = 2;
+			int h = 2 << Math.min(3, ins.getAmplifier());
 			double dist;
 			if (le.onGround()) dist = 0;
 			else {
 				var pos = le.position();
-				var ans = le.level().clip(new ClipContext(pos, pos.add(0, -h * 2, 0),
+				var ansV = le.level().clip(new ClipContext(pos, pos.add(0, -h * 2, 0),
 						ClipContext.Block.COLLIDER, ClipContext.Fluid.ANY, le));
-				dist = ans.getLocation().distanceTo(pos);
+				var eye = le.getEyePosition();
+				var ansF = le.level().clip(new ClipContext(eye, eye.add(le.getForward().scale(h * 2)),
+						ClipContext.Block.COLLIDER, ClipContext.Fluid.ANY, le));
+				double distV = ansV.getLocation().distanceTo(pos);
+				double distF = ansF.getLocation().distanceTo(pos);
+				dist = Math.min(distV, distF);
 			}
-			return original * Math.clamp((dist - h) / h, -1, 1) + le.getDeltaMovement().y() * 0.1;
+			double power = Math.clamp((dist - h) / h, -1, 1);
+			double damping = le.getDeltaMovement().y() * 0.1;
+			return original * power + damping;
 		}
 		return original;
 	}

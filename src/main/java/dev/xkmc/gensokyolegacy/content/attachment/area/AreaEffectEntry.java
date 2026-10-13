@@ -11,6 +11,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+/**
+ * One area effect: its owner block, chunk range and payload.
+ *
+ * @see doc/design/area_effect.md
+ */
 @SerialClass
 public class AreaEffectEntry {
 
@@ -25,7 +30,7 @@ public class AreaEffectEntry {
 	@SerialField
 	public long createdGameTime;
 
-	// not SerialField -> not serialized, holds count of tracked chunks per player UUID for this effect
+	// not serialized: how many of this effect's chunks each player currently tracks
 	private final Map<UUID, Integer> trackingCounts = new HashMap<>();
 
 	public AreaEffectEntry() {
@@ -39,6 +44,7 @@ public class AreaEffectEntry {
 		this.createdGameTime = createdGameTime;
 	}
 
+	// isLoaded rather than getBlockState alone: validating an owner must not pull in its chunk
 	public boolean isOwnerValid(ServerLevel level) {
 		if (!level.isLoaded(ownerPos)) return false;
 		return data.isOwnerStillValid(level, ownerPos, level.getBlockState(ownerPos));
@@ -53,7 +59,7 @@ public class AreaEffectEntry {
 	}
 
 	/**
-	 * @return true if first tracking chunk for this player
+	 * @return true on the player's first tracked chunk, so an ADD should be sent
 	 */
 	public boolean incrementTracking(ServerPlayer player) {
 		UUID uuid = player.getUUID();
@@ -63,7 +69,7 @@ public class AreaEffectEntry {
 	}
 
 	/**
-	 * @return true if last chunk untracked (should send REMOVE)
+	 * @return true on the player's last tracked chunk, so a REMOVE should be sent
 	 */
 	public boolean decrementTracking(ServerPlayer player) {
 		UUID uuid = player.getUUID();

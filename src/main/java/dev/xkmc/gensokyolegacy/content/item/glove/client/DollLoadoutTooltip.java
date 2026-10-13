@@ -4,10 +4,10 @@ import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.ItemStack;
 
 /**
- * Doll loadout readout in menu order (main, off, core, cloth). Display-only
- * carrier, same role as {@code InvTooltip}; rendering lives in
- * {@link DollClientLoadoutTooltip}, which arranges the four slots as the
- * cross from the loadout menu instead of a row.
+ * Doll loadout readout in menu order (main, off, core, cloth). Display-only carrier, same role as
+ * {@code InvTooltip}; {@link DollClientLoadoutTooltip} renders it as the menu's cross instead of a row.
+ *
+ * @see doc/design/doll/loadout.md
  */
 public record DollLoadoutTooltip(ItemStack main, ItemStack off, ItemStack core, ItemStack cloth) implements TooltipComponent {
 }

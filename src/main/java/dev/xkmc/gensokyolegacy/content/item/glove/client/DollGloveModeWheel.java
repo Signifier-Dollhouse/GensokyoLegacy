@@ -13,6 +13,12 @@ import net.minecraft.world.item.ItemStack;
 
 import java.util.List;
 
+/**
+ * The glove's mode wheel over the visible modes; a pick sends the shared
+ * {@code SelectorSelectPacket} carrying a mode ordinal.
+ *
+ * @see doc/design/doll/glove.md
+ */
 public class DollGloveModeWheel implements PersistentWheel<DollGloveModeEntry> {
 
 	private final ItemStack stack;
@@ -57,7 +63,6 @@ public class DollGloveModeWheel implements PersistentWheel<DollGloveModeEntry> {
 
 	@Override
 	public void renderIcon(GuiGraphics g, int x0, int y0, boolean left, float sideWidth, boolean hover) {
-		// wheel icon for main wheel: glove item
 		ItemStack icon = new ItemStack(GLItems.DOLL_GLOVE.get());
 		float cx = left ? sideWidth / 2f : g.guiWidth() - sideWidth / 2f;
 		float r = Math.min((float) x0 / 1.5f, (float) y0) / 1.5f;

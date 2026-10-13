@@ -6,7 +6,7 @@ import dev.xkmc.gensokyolegacy.content.entity.behavior.combat.YoukaiCombatManage
 import dev.xkmc.gensokyolegacy.content.entity.behavior.sensor.NearbyItemsSensor;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.sensor.YoukaiFindPreySensor;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.sensor.YoukaiHomeBlocksSensor;
-import dev.xkmc.gensokyolegacy.content.entity.behavior.task.combat.YoukaiSearchTargetTask;
+import dev.xkmc.gensokyolegacy.content.entity.behavior.task.core.YoukaiAcquireTargetTask;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.task.home.YoukaiCraftTask;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.task.play.ItemPickupTask;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.task.play.YoukaiHuntTask;
@@ -61,12 +61,19 @@ public class CirnoEntity extends FairyEntity implements GeoYoukaiAnim {
 	 */
 	private static final RawAnimation FLOAT = RawAnimation.begin().thenLoop("漂浮");
 	private static final RawAnimation USE_MAINHAND = RawAnimation.begin().thenPlay("使用主手物品");
-	private static final RawAnimation GREET = RawAnimation.begin().thenPlay("招呼(性格外向）");
+	private static final RawAnimation GREET = RawAnimation.begin().thenPlay("招呼");
 	private static final RawAnimation TALK_01 = RawAnimation.begin().thenPlay("交流_01");
 	private static final RawAnimation TALK_02 = RawAnimation.begin().thenPlay("交流_02");
 	private static final RawAnimation TALK_03 = RawAnimation.begin().thenPlay("交流_03");
+	private static final RawAnimation TALK_04 = RawAnimation.begin().thenPlay("交流_04");
+	private static final RawAnimation TALK_05 = RawAnimation.begin().thenPlay("交流_05");
+	private static final RawAnimation THINK = RawAnimation.begin().thenPlay("思考中_01");
+	private static final RawAnimation THINK_02 = RawAnimation.begin().thenPlay("思考中_02");
+	private static final RawAnimation CONFUSED = RawAnimation.begin().thenPlay("疑惑");
 	private static final RawAnimation AGREE = RawAnimation.begin().thenPlay("肯定");
 	private static final RawAnimation DECLINE = RawAnimation.begin().thenPlay("拒绝");
+	/** The idle flourish the current export added as {@code 闲置动画}. */
+	private static final RawAnimation IDLE_FIDGET = RawAnimation.begin().thenPlay("闲置动画");
 
 	/** Her own entity data, over the generic youkai/spell-data layers. */
 	protected static final SyncedData CIRNO_DATA = new SyncedData(CirnoEntity::defineId, SPELL_DATA);
@@ -141,6 +148,7 @@ public class CirnoEntity extends FairyEntity implements GeoYoukaiAnim {
 				new HomeModule(this),
 				new VisitModule(this),
 				new FeedModule(this),
+				new PartyModule(this),
 				new TalkModule(this),
 				new CountPickupModule(this, e -> e.getItem() instanceof FrozenFrogItem)
 		);
@@ -156,7 +164,7 @@ public class CirnoEntity extends FairyEntity implements GeoYoukaiAnim {
 		board.addRandom(new YoukaiCraftTask<>(this::doCraft, 60, 12000), GLBrains.AT_HOME.get());
 		board.addSensor(new YoukaiHomeBlocksSensor<>(HomeBlockKind.CONTAINER));
 
-		board.addBehaviorActivity(YoukaiSearchTargetTask.class, GLBrains.HUNT.get());
+		board.addBehaviorActivity(YoukaiAcquireTargetTask.class, GLBrains.HUNT.get());
 
 		//TODO cirno food
 		board.addSensor(new TemptingSensor(stack -> stack.is(Items.CAKE)));
@@ -164,12 +172,24 @@ public class CirnoEntity extends FairyEntity implements GeoYoukaiAnim {
 		board.addSensor(new NearbyItemsSensor<CirnoEntity>().setRadius(18, 6).setScanRate(e -> e.playOrHunt() ? 20 : 60));
 		board.addSensor(new YoukaiFindPreySensor<>(CirnoEntity::playOrHunt));
 
-		board.addPrioritizedActivity(GLBrains.HUNT.get(), GLBrains.MEM_PREY.get(), 200);
+		// 700: the lowest rung on GLBrains' priority scale, so a hunt is the least
+		// that can be talked out of.
+		board.addPrioritizedActivity(GLBrains.HUNT.get(), GLBrains.MEM_PREY.get(), 700);
 	}
 
 	private boolean playOrHunt() {
 		var a = getActivity();
 		return a == Activity.PLAY || a == GLBrains.HUNT.get();
+	}
+
+	/**
+	 * A hunt is her chasing the prey the sensor found, which is not in the target
+	 * container - so the activity that starts it has to be allowed to look around for
+	 * one, as play is.
+	 */
+	@Override
+	public boolean shouldSearchTarget(Activity activity) {
+		return super.shouldSearchTarget(activity) || activity == GLBrains.HUNT.get();
 	}
 
 	private ItemStack doCraft(boolean simulate) {
@@ -219,12 +239,16 @@ public class CirnoEntity extends FairyEntity implements GeoYoukaiAnim {
 			case TALK_01 -> Optional.of(TALK_01);
 			case TALK_02 -> Optional.of(TALK_02);
 			case TALK_03 -> Optional.of(TALK_03);
-			// this rig has no thinking clip; 疑惑（baka专属）is a baffled head tilt,
-			// not a thinking beat, so the slot stays empty
-			case THINK -> Optional.empty();
+			case TALK_04 -> Optional.of(TALK_04);
+			case TALK_05 -> Optional.of(TALK_05);
+			// this rig had no thinking clip until the current export, which added the
+			// 思考中 pair along with a plain 疑惑 to replace the old baffled 疑惑（baka专属）
+			case THINK -> Optional.of(THINK);
+			case THINK_02 -> Optional.of(THINK_02);
+			case CONFUSED -> Optional.of(CONFUSED);
 			case AGREE -> Optional.of(AGREE);
 			case DECLINE -> Optional.of(DECLINE);
-			case OUTDOOR_IDLE -> Optional.empty();
+			case OUTDOOR_IDLE -> Optional.of(IDLE_FIDGET);
 		};
 	}
 
@@ -234,6 +258,8 @@ public class CirnoEntity extends FairyEntity implements GeoYoukaiAnim {
 		// bones, so the always-looping blink yields to the main controller.
 		controllers.add(new AnimationController<>(this, WINK_CONTROLLER, 0, e -> e.setAndContinue(BLINK)));
 		var main = new AnimationController<>(this, ANIM_CONTROLLER, 5, this::idleAnimController);
+		addEatAnim(main);
+		addHurtAnim(main);
 		addDialogAnims(main);
 		controllers.add(main);
 	}

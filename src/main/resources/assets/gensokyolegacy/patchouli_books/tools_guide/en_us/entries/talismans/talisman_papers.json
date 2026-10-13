@@ -21,7 +21,7 @@
     },
     {
       "type": "patchouli:text",
-      "text": "$(bold)Hydrophobic — 180 uses$()$(br)When your air supply is running low, restores 40 air per tick to help you stay underwater."
+      "text": "$(bold)Hydrophobic — 180 uses$()$(br)When your air supply is running low, restores air to help you stay underwater."
     },
     {
       "type": "patchouli:text",

@@ -33,9 +33,94 @@ public interface GeoYoukaiAnim extends GeoEntity {
 	String WINK_CONTROLLER = "wink";
 
 	/**
+	 * The chew. Kept out of {@link YoukaiAnim} for the reason the clip is: it is an
+	 * appetite, not dialogue, and putting it in an enum addressed by trigger name from
+	 * dialog data would cost every character a dead case in an already exhaustive switch.
+	 * {@code GeoYoukaiAnim} owns 71-83, so the next id up is free.
+	 *
+	 * <p>
+	 * {@code thenPlayAndHold} rather than {@code thenPlay}, because the chew has to sit
+	 * there until she reaches for the next dish, and holding the last pose means a
+	 * slightly-off timing reads as her still chewing instead of snapping back to hovering
+	 * mid-bite.
+	 */
+	RawAnimation EAT = RawAnimation.begin().thenPlayAndHold("吃");
+
+	String EAT_TRIGGER = "eat";
+	byte EAT_EVENT = 84;
+
+	/**
+	 * The flinch. Also not a {@link YoukaiAnim} slot, for the same reason as the chew:
+	 * nothing in dialog data names it, it is fired by the damage path instead
+	 * ({@code YoukaiEntity#postHurt}).
+	 *
+	 * <p>
+	 * {@code thenPlay} rather than {@code thenPlayAndHold}: a hurt reaction that holds
+	 * its last pose would strand her in the flinch until something else took the
+	 * controller, and the main controller only yields while a triggered animation is
+	 * still playing.
+	 */
+	RawAnimation HURT = RawAnimation.begin().thenPlay("受伤");
+
+	String HURT_TRIGGER = "hurt";
+	byte HURT_EVENT = 85;
+
+	/**
+	 * The gather. Like the chew and the flinch, not a {@link YoukaiAnim} slot: only
+	 * Suika's rig ships the clip and nothing in dialog data names it — her spell card
+	 * fires it from the pull move. Opt-in per rig for the same reason as the other two.
+	 */
+	RawAnimation GATHER = RawAnimation.begin().thenPlay("聚集");
+
+	String GATHER_TRIGGER = "gather";
+	byte GATHER_EVENT = 86;
+
+	/**
 	 * The clip this character plays for the given slot, or empty when it has none.
 	 */
 	Optional<RawAnimation> getAnim(YoukaiAnim anim);
+
+	/**
+	 * Register the chew on the main controller.
+	 *
+	 * <p>
+	 * Called next to {@link #addDialogAnims} by every character whose rig has a
+	 * {@code 吃} clip. It is <b>not</b> folded into {@code addDialogAnims}: registering a
+	 * clip the rig does not have resolves it to {@code null}, {@code buildAnimationQueue}
+	 * then hands the controller an empty queue, and the next {@code process()} tick stops
+	 * it without writing any bones — pinning the character in the last pose written, i.e.
+	 * frozen mid-hover for the whole walk, silently. So this is opt-in per rig.
+	 */
+	default void addEatAnim(AnimationController<?> controller) {
+		controller.triggerableAnim(EAT_TRIGGER, EAT);
+	}
+
+	/**
+	 * Register the flinch on the main controller. Opt-in per rig for the same reason as
+	 * {@link #addEatAnim}: a character whose rig has no {@code 受伤} clip must not
+	 * register this.
+	 */
+	default void addHurtAnim(AnimationController<?> controller) {
+		controller.triggerableAnim(HURT_TRIGGER, HURT);
+	}
+
+	/**
+	 * Register the gather on the main controller. Opt-in per rig for the same reason as
+	 * {@link #addEatAnim}: only a rig that ships the clip may register it.
+	 */
+	default void addGatherAnim(AnimationController<?> controller) {
+		controller.triggerableAnim(GATHER_TRIGGER, GATHER);
+	}
+
+	/**
+	 * Play the gather, if this character has one. Fired server side by the spell card
+	 * that owns the move, so a client sees the same clip the server timed the pull to.
+	 */
+	default void broadcastGather() {
+		LivingEntity self = (LivingEntity) this;
+		if (!self.level().isClientSide())
+			self.level().broadcastEntityEvent(self, GATHER_EVENT);
+	}
 
 	/**
 	 * Register a triggerable for every mapped slot on the main controller.
@@ -60,9 +145,9 @@ public interface GeoYoukaiAnim extends GeoEntity {
 	 */
 	default void broadcastDialogAnim(List<String> animations, RandomSource random) {
 		if (animations.isEmpty()) {
-			var talks = List.of(YoukaiAnim.TALK_01, YoukaiAnim.TALK_02, YoukaiAnim.TALK_03);
-			var fallback = talks.get(random.nextInt(talks.size()));
-			if (getAnim(fallback).isPresent()) broadcastAnim(fallback);
+			var fallback = YoukaiAnim.TALKS.stream().filter(a -> getAnim(a).isPresent()).toList();
+			if (fallback.isEmpty()) return;
+			broadcastAnim(fallback.get(random.nextInt(fallback.size())));
 			return;
 		}
 		var trigger = animations.get(random.nextInt(animations.size()));
@@ -76,6 +161,21 @@ public interface GeoYoukaiAnim extends GeoEntity {
 	 * Client-side: play the one-shot. Returns true when the id was consumed.
 	 */
 	default boolean handleAnimEvent(byte id) {
+		// the chew, the flinch and the gather, before the ordinal maths: EAT_EVENT,
+		// HURT_EVENT and GATHER_EVENT sit just past the dialog range, so they cannot
+		// collide
+		if (id == EAT_EVENT) {
+			triggerAnim(ANIM_CONTROLLER, EAT_TRIGGER);
+			return true;
+		}
+		if (id == HURT_EVENT) {
+			triggerAnim(ANIM_CONTROLLER, HURT_TRIGGER);
+			return true;
+		}
+		if (id == GATHER_EVENT) {
+			triggerAnim(ANIM_CONTROLLER, GATHER_TRIGGER);
+			return true;
+		}
 		int ord = id - ANIM_EVENT_BASE;
 		var values = YoukaiAnim.values();
 		if (ord < 0 || ord >= values.length) return false;

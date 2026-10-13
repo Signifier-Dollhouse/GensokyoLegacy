@@ -26,6 +26,15 @@ public enum HexBrew {
 	SHIELD_HEXBREW(0xffaf5088, new SimplePotionHandler(false, GLEffects.SHIELD, 3600, 0)),
 	STARLIGHT_HEXBREW(0xfffceb95, new StarlightHandler()),
 	HYPHAE_HEXBREW(0xff47c0fc, new HyphaeHandler()),
+	FAIRY_HEXBREW(0xff9ac0cd, new SimplePotionHandler(false, GLEffects.FLOATING, 6000, 0)),
+	/**
+	 * The same brews overclocked by the elixir: the explosive blasts wider, the
+	 * miasma and the fairy brew hit one level harder. Each bottle texture file is
+	 * a copy of its base brew's.
+	 */
+	REFINED_EXPLOSIVE_HEXBREW(0xffe1a074, new ExplosiveHandler(4)),
+	REFINED_MIASMA_HEXBREW(0xff488d86, new SimplePotionHandler(true, GLEffects.MIASMA, 1200, 1)),
+	REFINED_FAIRY_HEXBREW(0xff9ac0cd, new SimplePotionHandler(false, GLEffects.FLOATING, 6000, 1)),
 	WITCH_HEXBREW(0xFFFFFFFF, new WitchHandler(false)),
 	WITCH_SPLASH(0xFFFFFFFF, new WitchHandler(true));
 

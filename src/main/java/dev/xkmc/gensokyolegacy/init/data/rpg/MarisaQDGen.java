@@ -307,9 +307,7 @@ public class MarisaQDGen extends QuestDialogData {
 		// repaired one yet - the two advancement conditions say exactly that,
 		// and the inverted second one closes the quest for good once it fires.
 		quest("marisa/hakkero", new Quest(GLEntities.MARISA.get(),
-				List.of(new HasAdvancementCondition(GLAdvGen.OBTAIN_MINI_HAKKERO),
-						new HasAdvancementCondition(GLAdvGen.OBTAIN_MINI_HAKKERO_REPAIRED, true),
-						homeBound()),
+				List.of(new HasAdvancementCondition(GLAdvGen.OBTAIN_MINI_HAKKERO), homeBound()),
 				questTitle("A Proper Hakkero"), questDesc("Hand Marisa your Mini Hakkero Prototype and the parts to repair it."),
 				Optional.empty(),
 				new TreeMap<>(Map.of(
@@ -602,7 +600,8 @@ public class MarisaQDGen extends QuestDialogData {
 				List.of(homeBound(), new HasQuestCompletedCondition(QUEST_HAKKERO)),
 				new ItemStack(GLItems.MINI_HAKKERO.get()),
 				new TradeRecurrence(1, 168000),
-				List.of(item(Items.REDSTONE, 8), item(Items.GOLD_INGOT, 4),
+				List.of(item(GLItems.MINI_HAKKERO_PROTOTYPE, 1),
+						item(Items.REDSTONE, 8), item(Items.GOLD_INGOT, 4),
 						item(Items.IRON_INGOT, 16), item(Items.NETHERITE_SCRAP, 1))));
 
 		// Processing trades - these need her own workshop, so she only offers them

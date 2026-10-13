@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_fairy_dust": {
+      "conditions": {
+        "items": [
+          {
+            "items": "gensokyolegacy:fairy_dust"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "gensokyolegacy:fairy_cake_from_cake_and_dust"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_fairy_dust"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "gensokyolegacy:fairy_cake_from_cake_and_dust"
+    ]
+  }
+}

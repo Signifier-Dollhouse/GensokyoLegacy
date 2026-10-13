@@ -1,0 +1,49 @@
+{
+  "values": [
+    "#gensokyolegacy:large_table",
+    {
+      "id": "youkaisfeasts:oak_dining_table",
+      "required": false
+    },
+    {
+      "id": "youkaisfeasts:birch_dining_table",
+      "required": false
+    },
+    {
+      "id": "youkaisfeasts:spruce_dining_table",
+      "required": false
+    },
+    {
+      "id": "youkaisfeasts:jungle_dining_table",
+      "required": false
+    },
+    {
+      "id": "youkaisfeasts:dark_oak_dining_table",
+      "required": false
+    },
+    {
+      "id": "youkaisfeasts:acacia_dining_table",
+      "required": false
+    },
+    {
+      "id": "youkaisfeasts:crimson_dining_table",
+      "required": false
+    },
+    {
+      "id": "youkaisfeasts:warped_dining_table",
+      "required": false
+    },
+    {
+      "id": "youkaisfeasts:mangrove_dining_table",
+      "required": false
+    },
+    {
+      "id": "youkaisfeasts:cherry_dining_table",
+      "required": false
+    },
+    {
+      "id": "youkaisfeasts:bamboo_dining_table",
+      "required": false
+    }
+  ]
+}

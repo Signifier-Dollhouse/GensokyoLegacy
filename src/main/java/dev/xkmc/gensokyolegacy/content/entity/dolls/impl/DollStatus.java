@@ -12,9 +12,9 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import java.util.Optional;
 
 /**
- * Client-visible action status for the attack-glove sidebar. Ephemeral: synced
- * to clients via entity data, never persisted to {@link dev.xkmc.gensokyolegacy.content.attachment.doll.DollData}.
- * Recomputed server-side every tick — the ticket itself stays server-only.
+ * Client-visible action status for the attack-glove sidebar. Ephemeral: synced to
+ * clients via entity data, never persisted to {@code DollData}, and recomputed
+ * server-side every tick — the ticket itself stays server-only.
  */
 public interface DollStatus extends DollBaseImpl {
 
@@ -41,12 +41,12 @@ public interface DollStatus extends DollBaseImpl {
 	}
 
 	/**
-	 * Server-side recompute: holding an auto ticket is auto (light blue) whether
-	 * or not it is executing; holding any other ticket but not yet executing is
-	 * preparing, executing is attacking, sitting in a live volley's done-set
-	 * with no ticket is done, otherwise idle. Done only applies while the volley
-	 * is still in-flight, so no latch needs clearing. The validity mask is
-	 * recomputed alongside from the authoritative ledger loadout.
+	 * Server-side recompute: holding an auto ticket is auto whether or not it is
+	 * executing; holding any other ticket is preparing while waiting and attacking
+	 * while executing; sitting in a live volley's done-set with no ticket is done;
+	 * otherwise idle. Done only applies while the volley is in flight, so no latch
+	 * needs clearing. The validity mask is recomputed alongside, from the
+	 * authoritative ledger loadout.
 	 */
 	default void syncActionStatus() {
 		DollEntity doll = asDoll();

@@ -2,9 +2,9 @@ package dev.xkmc.gensokyolegacy.init.data.structure;
 
 import com.tterrag.registrate.providers.DataProviderInitializer;
 import com.tterrag.registrate.providers.RegistrateDataMapProvider;
-import dev.xkmc.gensokyolegacy.content.attachment.datamap.BedData;
-import dev.xkmc.gensokyolegacy.content.attachment.datamap.CharacterConfig;
-import dev.xkmc.gensokyolegacy.content.attachment.datamap.StructureConfig;
+import dev.xkmc.gensokyolegacy.content.attachment.home.datamap.BedData;
+import dev.xkmc.gensokyolegacy.content.attachment.character.CharacterConfig;
+import dev.xkmc.gensokyolegacy.content.attachment.home.datamap.StructureConfig;
 import dev.xkmc.gensokyolegacy.init.data.structure.helper.StructBed;
 import dev.xkmc.gensokyolegacy.init.data.structure.helper.SetContext;
 import dev.xkmc.gensokyolegacy.init.data.structure.helper.StructFlatBuilding;
@@ -74,7 +74,8 @@ public class GLStructureGen {
 							GLBlocks.Beds.REIMU.holder()
 					)),
 					visits(Map.of(
-							GLEntities.MARISA.get(), visit(0.20f, 2400, 3600))),
+							GLEntities.MARISA.get(), visit(0.20f, 2400, 3600),
+							GLEntities.IBUKI_SUIKA.get(), visit(0.30f, 2400, 6000))),
 					new StructFlatJigsawBuilding(6, List.of(
 							new StructFlatJigsawBuilding.Part("root", true, List.of()),
 							new StructFlatJigsawBuilding.Part("road", true, List.of()),

@@ -2,9 +2,10 @@ package dev.xkmc.gensokyolegacy.content.client.debug;
 
 import dev.xkmc.gensokyolegacy.content.attachment.index.BedRefData;
 import dev.xkmc.gensokyolegacy.content.attachment.index.StructureKey;
-import dev.xkmc.gensokyolegacy.content.entity.module.FairyCakeModule;
+import dev.xkmc.gensokyolegacy.content.entity.module.FairyFeedModule;
 import dev.xkmc.gensokyolegacy.content.entity.module.FeedModule;
 import dev.xkmc.gensokyolegacy.content.entity.module.GiftModule;
+import dev.xkmc.gensokyolegacy.content.entity.module.PartyModule;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.SmartYoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
@@ -24,19 +25,38 @@ public record CharacterRequestToServer(UUID id) implements SerialPacketBase<Char
 		var bed = home.map(k -> BedRefData.of(sp.serverLevel(), k, e.getType()))
 				.map(BedRefData::getBedPos);
 		// a character carries at most one feed module, but which kind varies:
-		// the plain fairy's is cake-only and flat-rate
+		// the plain fairy's is a fixed menu and flat-rate
 		int feedCD = Math.max(
 				e.getModule(FeedModule.class).map(FeedModule::getCoolDown).orElse(0),
-				e.getModule(FairyCakeModule.class).map(FairyCakeModule::getCoolDown).orElse(0));
+				e.getModule(FairyFeedModule.class).map(FairyFeedModule::getCoolDown).orElse(0));
 		int giftCD = e.getModule(GiftModule.class).map(GiftModule::getCoolDown).orElse(0);
 		String activity = e instanceof SmartYoukaiEntity smart ? smart.getBrainDebugInfo() : "";
+		// a party guest's tallies are server state and reach the client with everything
+		// else about her; null for anyone who is not at a party, which is the ordinary case
+		var party = e.getModule(PartyModule.class)
+				.map(m -> m.partying()
+						? new CharacterInfoToClient.PartyTally(m.eaten(), m.appealEaten(), wanted(m))
+						: null)
+				.orElse(null);
 		e.getData(sp).ifPresent(data -> GensokyoLegacy.HANDLER.toClientPlayer(CharacterInfoToClient.ofEntity(
 				home.orElse(null),
 				bed.orElse(null),
 				data.data().reputation,
 				data.data().reputationCap,
-				feedCD, giftCD, activity
+				feedCD, giftCD, activity, party
 		), sp));
+	}
+
+	/**
+	 * The fulfillment this character is measured against, or 0 when she has no taste.
+	 * <p>
+	 * A datapack can remove a {@code party_taste} entry mid-party, so this is read the
+	 * same way the guest reads it rather than being assumed present — a readout that
+	 * threw because the data changed would be worse than one showing 0.
+	 */
+	private static int wanted(PartyModule module) {
+		var taste = module.taste();
+		return taste == null ? 0 : taste.fulfillment();
 	}
 
 }

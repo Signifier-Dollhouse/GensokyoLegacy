@@ -8,7 +8,8 @@ NeoForge 1.21.1 mod (Gensokyo Legacy, Touhou characters/structures). Java 21, Gr
 - `./gradlew build` — full build (jar + sources jar).
 - `gradle.properties` sets `org.gradle.daemon=false` and `-Xmx3G`: every Gradle invocation is a slow cold JVM. Batch independent Gradle work into one command.
 - `src/test/java/organize/*` are `main()` utilities run from the IDE, **not JUnit tests**. `organize.ResourceOrganizer` merges the split zh_cn lang files (below). `./gradlew test` runs no real tests.
-- `python3 tools/export_dialogs.py` — reads the generated `dialog` / `dialog_starter` / `quest` JSON plus the lang files and writes `out/en/<char>.txt` and `out/zh_cn/<char>.txt`: greetings, chats and quest dialogs as review text (gates, actions, requirements, rewards spelled out, dialog trees inlined). Use it to proofread dialogs or the zh_cn translations without launching the game. `--lang en|zh_cn|both`, `--character alice`.
+- `python3 tools/export_dialogs.py` — reads the generated `dialog` / `dialog_starter` / `quest` JSON plus the lang files and writes `out/en/<char>.txt` and `out/zh_cn/<char>.txt`: greetings, chats and quest dialogs as review text (gates, actions, requirements, rewards spelled out, dialog trees inlined). Use it to proofread dialogs or the zh_cn translations without launching the game. `--lang en|zh_cn|both`, `--character alice`. Each file opens with a DIALOG ANIMATIONS section listing every `animations` trigger, resolved per character to the clip it really plays (trigger -> `YoukaiAnim` slot -> `getAnim` clip -> the clip's length/bones in `assets/gensokyolegacy/animations/<char>.animation.json`), and each `[anim]` line in the body carries the same resolution. The rig is parsed out of the Java sources, so the table follows a renumbered enum or a renamed clip on its own.
+- `python3 tools/stripjarjar.py <jar> [--dry-run] [--backup]` — removes the jar-in-jar payload (`META-INF/jarjar/`) from a mod jar in `libs/`, then verifies the rewrite. Needed because the published `youkaisfeasts` build bundles copies of Registrate / `l2core` / `l2serial` / `l2damagetracker` / `l2modularblocks` / `l2harvester` / TerraBlender that this project already declares as `jarJar(...)`, and the duplicate copies cause a JPMS split-package failure in the dev launcher. Re-run after every re-export from the upstream project. See `doc/tools.md`.
 - `python3 tools/checkconfig.py <structure> <template.nbt>` — validates the **generated** `structure_config.json` (house box, interior rooms, nodes) against a structure template: no outdoor air inside a room, rooms disjoint and inside the house box, node cells are standable air in the room they are declared for, the bed is in a room, stair nodes one block off each end of the run with the two rooms touching. Run it after `runData` whenever a structure `.nbt` or `StructureConfigBuilder` changes, and over the untouched structures too — it is structure-agnostic. See `doc/tools.md`.
 
 ## Registration (two systems)
@@ -30,8 +31,8 @@ NeoForge 1.21.1 mod (Gensokyo Legacy, Touhou characters/structures). Java 21, Gr
 
 ## Code layout
 - `content/entity/characters/<character>/` — per-character Entity/Model/Renderer (fairy, maiden, rumia, merchant, boss); shared youkai base classes in `content/entity/youkai/`; AI in `content/entity/behavior/` (brain/sensor/task/move/combat).
-- `content/attachment/` — player/entity data (character data, homes/structures, gap mapping).
-- `content/rpg/` — quest/dialog/trade system (condition/requirement/action/reward). Actively developed.
+- `content/attachment/` — player/entity data, one subpackage per feature: `character/` (character data, `CharacterConfig`), `home/` (`core/`, `custom/`, `structure/`, and its `datamap/` records), `party/` (parties: `core/`, `food/`, `item/`), plus `area/`, `gap/`, `doll/`, `glove/`, `index/`, `misc/`, `storage/`.
+- `content/rpg/` — quest/dialog/trade system (condition/requirement/action/reward); `core/` holds `DialogConfig` and the codec registry. Actively developed.
 - `content/spell/` — danmaku/spell cards. `content/ui/` — menus and screens.
 
 ## Lang

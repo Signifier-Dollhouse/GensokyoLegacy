@@ -18,8 +18,10 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
 /**
- * Handles giving gift items to a character. Runs before
- * {@link FeedModule} so gift items take priority over being fed as food.
+ * Handles giving gift items to a character. Runs before {@link FeedModule} so gift items
+ * take priority over being fed as food.
+ *
+ * @see doc/design/reputation.md
  */
 @SerialClass
 public class GiftModule extends AbstractYoukaiModule {

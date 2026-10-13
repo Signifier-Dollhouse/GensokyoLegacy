@@ -13,18 +13,19 @@ import java.util.UUID;
 
 /**
  * A {@link DollHost} that owns a real ledger and commands it: the player capability
- * ({@link DollAttachment}) and a character that conjures her own dolls
- * ({@link dev.xkmc.gensokyolegacy.content.entity.characters.magician.AliceDollHost}).
+ * ({@link DollAttachment}) and a character that conjures her own dolls.
  * <p>
- * The ledger itself only has to expose its entries and its {@link DollCommander};
- * the whole {@link DollHost} command surface is wired through here, so no host
- * repeats the forwarding and no doll entity branches on the host type.
+ * The ledger only has to expose its entries and its {@link DollCommander}; the whole
+ * {@link DollHost} command surface is wired through here, so no host repeats the forwarding
+ * and no doll entity branches on the host type.
+ *
+ * @see doc/design/doll/control.md
  */
 public interface DollLedger extends DollHost {
 
 	/**
-	 * Every ledger entry in ledger order, summoned or parked. Never null.
-	 * The commander walks this; entries without a loaded entity resolve to null.
+	 * Every ledger entry in ledger order, summoned or parked. Never null; entries without
+	 * a loaded entity resolve to null.
 	 */
 	Collection<DollData> dolls();
 

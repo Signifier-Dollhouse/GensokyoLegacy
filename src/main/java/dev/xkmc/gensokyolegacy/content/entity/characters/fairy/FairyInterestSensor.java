@@ -2,7 +2,7 @@ package dev.xkmc.gensokyolegacy.content.entity.characters.fairy;
 
 import dev.xkmc.gensokyolegacy.content.attachment.character.ReputationConstants;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.sensor.DynamicSensor;
-import dev.xkmc.gensokyolegacy.content.entity.module.FairyCakeModule;
+import dev.xkmc.gensokyolegacy.content.entity.module.FairyFeedModule;
 import dev.xkmc.gensokyolegacy.util.BrainUtils;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EntitySelector;
@@ -13,9 +13,10 @@ import java.util.Comparator;
 import java.util.Set;
 
 /**
- * Who she is drawn to, if anyone. Two reasons, and cake wins:
+ * Who she is drawn to, if anyone. Two reasons, and food wins:
  * <ul>
- * <li>the player is holding cake, which is the thing she actually wants;</li>
+ * <li>the player is holding something she eats, which is the thing she actually
+ * wants - a cookie or a cake, per {@code FairyFeedModule#isFood};</li>
  * <li>or they are simply someone she is not hostile towards, which is enough to be
  * worth walking over to.</li>
  * </ul>
@@ -44,10 +45,10 @@ public class FairyInterestSensor extends DynamicSensor<PlainFairyEntity> {
 
 	@Override
 	protected void doTick(ServerLevel level, PlainFairyEntity entity) {
-		// While she is still busy with the last cake she is drawn to nobody at all:
-		// not the player holding one, and not an interesting person either. Said once
-		// per scan rather than once per player in range, because it is not about any
-		// particular one of them.
+		// While she is still busy with the last thing she was fed she is drawn to
+		// nobody at all: not the player holding one, and not an interesting person
+		// either. Said once per scan rather than once per player in range, because it
+		// is not about any particular one of them.
 		if (!availableForTemptation(entity)) {
 			BrainUtils.clearMemory(entity, MemoryModuleType.TEMPTING_PLAYER);
 			return;
@@ -67,21 +68,18 @@ public class FairyInterestSensor extends DynamicSensor<PlainFairyEntity> {
 	/**
 	 * Whether she will follow anyone at all yet. The same cooldown that keeps her
 	 * from being farmed keeps her from trailing the player around with her hand out
-	 * for a slice she cannot have.
+	 * for a treat she cannot have.
 	 */
 	private static boolean availableForTemptation(PlainFairyEntity entity) {
-		return entity.getModule(FairyCakeModule.class)
-				.map(FairyCakeModule::getCoolDown)
+		return entity.getModule(FairyFeedModule.class)
+				.map(FairyFeedModule::getCoolDown)
 				.map(coolDown -> coolDown == 0)
 				.orElse(true);
 	}
 
 	private static boolean drawsHer(PlainFairyEntity entity, Player player) {
-		if (FairyCakeModule.isCake(player.getMainHandItem())
-				|| FairyCakeModule.isCake(player.getOffhandItem())) {
-			return true;
-		}
-		return false;
+		return FairyFeedModule.isFood(player.getMainHandItem())
+				|| FairyFeedModule.isFood(player.getOffhandItem());
 	}
 
 }

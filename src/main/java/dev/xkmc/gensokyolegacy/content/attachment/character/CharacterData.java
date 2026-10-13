@@ -11,6 +11,12 @@ import net.minecraft.world.entity.player.Player;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+/**
+ * One player's relationship with one character: the reputation value, the ceiling it may
+ * currently reach, per-action cooldowns and the feed memory.
+ *
+ * @see doc/design/reputation.md
+ */
 @SerialClass
 public class CharacterData {
 
@@ -20,6 +26,7 @@ public class CharacterData {
 	@SerialField
 	public int reputation;
 
+	/** Highest reputation this relationship can currently reach; quests are what raise it. */
 	@SerialField
 	public int reputationCap = ReputationConstants.INITIAL_CAP;
 
@@ -34,6 +41,10 @@ public class CharacterData {
 		timers.put(key, nextAvailable);
 	}
 
+	/**
+	 * Adds {@code val}, raising the cap by {@code capIncrease} (never past {@code maxCap}) first.
+	 * A positive {@code softCap} halves the gain; 0 turns off either part. Never passes {@code reputationCap}.
+	 */
 	public void gainReputation(int val, int softCap, int capIncrease, int maxCap) {
 		if (capIncrease > 0) {
 			int room = Math.max(0, maxCap - reputationCap);
@@ -57,6 +68,7 @@ public class CharacterData {
 		reputation = Math.max(reputation - val, floor);
 	}
 
+	/** Decay stops at the configured fraction of the cap, so a cap raised by quests raises the floor too. */
 	protected void dailyUpdate() {
 		int floor = (int) (reputationCap * GLModConfig.SERVER.reputationDecayFloor.get());
 		if (reputation > floor) {
@@ -80,6 +92,7 @@ public class CharacterData {
 		return getState(reputation);
 	}
 
+	/** Forgiveness: a hostile relationship drops straight to {@link ReputationConstants#KILLED_RESTORE}, it does not climb. */
 	protected void onKilledByCharacter() {
 		if (reputation < ReputationConstants.KILLED_RESTORE) {
 			reputation = ReputationConstants.KILLED_RESTORE;
@@ -88,6 +101,7 @@ public class CharacterData {
 
 	protected void onHurtCharacter(Player player, YoukaiEntity e, float damage, DamageSource source) {
 		boolean danmaku = source.is(DanmakuDamageTypes.DANMAKU_TYPE);
+		// Danmaku is exempt: a spell card is a fight, not an insult.
 		if (danmaku) return;
 		boolean first = !e.targets.contains(player) && e.getLastHurtByMob() != player;
 		int floor = ReputationConstants.HURT_LOSS_FLOOR;

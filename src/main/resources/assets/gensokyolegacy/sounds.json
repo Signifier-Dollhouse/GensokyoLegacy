@@ -23,5 +23,37 @@
 		"name": "gensokyolegacy:doll_attack"
 	  }
 	]
+  },
+  "doll_lance": {
+	"sounds": [
+	  {
+		"type": "file",
+		"name": "gensokyolegacy:doll_lance"
+	  }
+	]
+  },
+  "doll_slap": {
+	"sounds": [
+	  {
+		"type": "file",
+		"name": "gensokyolegacy:doll_slap"
+	  }
+	]
+  },
+  "dialog_chat_young": {
+	"sounds": [
+	  {
+		"type": "file",
+		"name": "gensokyolegacy:dialog_chat_young"
+	  }
+	]
+  },
+  "dialog_chat_mature": {
+	"sounds": [
+	  {
+		"type": "file",
+		"name": "gensokyolegacy:dialog_chat_mature"
+	  }
+	]
   }
 }

@@ -10,6 +10,14 @@ import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 
+/**
+ * Pays reputation for a quest, and optionally opens the relationship up further.
+ *
+ * <p>{@code softCap} is the reputation past which the gain counts half, {@code capIncrease}
+ * raises the cap by that much towards {@code maxCap}; 0 switches either off.
+ *
+ * @see doc/design/reputation.md
+ */
 public record ReputationReward(
 		int reputation, int softCap, int capIncrease, int maxCap
 ) implements QuestReward<ReputationReward> {
