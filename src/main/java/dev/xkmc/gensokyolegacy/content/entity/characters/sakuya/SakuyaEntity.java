@@ -45,10 +45,7 @@ public class SakuyaEntity extends MaidenEntity implements GeoYoukaiAnim {
 		super(pEntityType, pLevel);
 	}
 
-	protected <E extends SakuyaEntity> PlayState idleAnimController(final AnimationState<E> event) {
-		if (event.getController().isPlayingTriggeredAnimation()) {
-			return PlayState.CONTINUE;
-		}
+	public PlayState stateAnimController(AnimationState<?> event) {
 		// No 睡觉 clip in this rig, and it must not name a missing one: GeckoLib
 		// resolves an unknown clip to null, hands the controller an empty queue,
 		// and then stops it without writing any bones - which pins the entity in
@@ -85,18 +82,6 @@ public class SakuyaEntity extends MaidenEntity implements GeoYoukaiAnim {
 			case DECLINE -> Optional.of(DECLINE);
 			case OUTDOOR_IDLE -> Optional.empty();
 		};
-	}
-
-	@Override
-	public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-		// Wink first: controllers tick in registration order and overwrite shared
-		// bones, so the always-looping blink yields to the main controller.
-		controllers.add(new AnimationController<>(this, WINK_CONTROLLER, 0, e -> e.setAndContinue(BLINK)));
-		var main = new AnimationController<>(this, ANIM_CONTROLLER, 5, this::idleAnimController);
-		addEatAnim(main);
-		addHurtAnim(main);
-		addDialogAnims(main);
-		controllers.add(main);
 	}
 
 	@Override

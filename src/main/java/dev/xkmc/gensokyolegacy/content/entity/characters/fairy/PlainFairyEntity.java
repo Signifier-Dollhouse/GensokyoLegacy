@@ -38,8 +38,6 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
-import software.bernie.geckolib.animation.AnimationController;
-import software.bernie.geckolib.animation.AnimatableManager;
 import software.bernie.geckolib.animation.AnimationState;
 import software.bernie.geckolib.animation.PlayState;
 import software.bernie.geckolib.animation.RawAnimation;
@@ -405,10 +403,7 @@ public class PlainFairyEntity extends FairyEntity implements GeoYoukaiAnim {
 
 	// ---------- geckolib ----------
 
-	protected <E extends PlainFairyEntity> PlayState idleAnimController(final AnimationState<E> event) {
-		if (event.getController().isPlayingTriggeredAnimation()) {
-			return PlayState.CONTINUE;
-		}
+	public PlayState stateAnimController(AnimationState<?> event) {
 		if (isSleeping() || isPassenger()) {
 			return event.setAndContinue(SIT);
 		}
@@ -435,15 +430,13 @@ public class PlainFairyEntity extends FairyEntity implements GeoYoukaiAnim {
 		};
 	}
 
+	/**
+	 * This rig has no {@code 受伤} clip, so the flinch must not be named at all — see
+	 * {@link GeoYoukaiAnim#hasHurtAnim}.
+	 */
 	@Override
-	public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-		// Blink first: controllers tick in registration order and overwrite shared
-		// bones, so the always-looping blink yields to the main controller.
-		controllers.add(new AnimationController<>(this, WINK_CONTROLLER, 0, e -> e.setAndContinue(BLINK)));
-		var main = new AnimationController<>(this, ANIM_CONTROLLER, 5, this::idleAnimController);
-		addEatAnim(main);
-		addDialogAnims(main);
-		controllers.add(main);
+	public boolean hasHurtAnim() {
+		return false;
 	}
 
 	@Override

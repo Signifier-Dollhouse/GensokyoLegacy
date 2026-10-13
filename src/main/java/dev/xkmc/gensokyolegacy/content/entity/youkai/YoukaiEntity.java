@@ -259,7 +259,7 @@ public abstract class YoukaiEntity extends DamageClampEntity implements SpellCir
 	 * <p>
 	 * Silent for a character that is not geo-animated at all, which is the honest answer: the
 	 * clip is per rig, and an eat animation is missing art rather than a missing system. Every
-	 * rig that has one registers it with {@code GeoYoukaiAnim#addEatAnim}, and the event is
+	 * rig that has one says so with {@code GeoYoukaiAnim#hasEatAnim}, and the event is
 	 * what picks it up, so nothing here has to know which characters those are.
 	 */
 	public void broadcastEat() {
@@ -286,7 +286,7 @@ public abstract class YoukaiEntity extends DamageClampEntity implements SpellCir
 	 * <p>
 	 * Silent for a character that is not geo-animated, and for a rig with no
 	 * {@code 受伤} clip — the flinch is missing art, not a missing system, and every rig
-	 * that has one opts in with {@code GeoYoukaiAnim#addHurtAnim}.
+	 * that has one opts in with {@code GeoYoukaiAnim#hasHurtAnim}.
 	 */
 	public void broadcastHurt() {
 		if (this instanceof GeoYoukaiAnim && !level().isClientSide()) {
