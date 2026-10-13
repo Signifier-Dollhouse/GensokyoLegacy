@@ -7,6 +7,8 @@ import dev.xkmc.gensokyolegacy.content.entity.dolls.action.DollActionType;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.behavior.DollBehaviorRegistry.HandMatch;
 import dev.xkmc.gensokyolegacy.content.item.doll.DollLanceItem;
 import dev.xkmc.gensokyolegacy.content.item.doll.DollSlot;
+import dev.xkmc.gensokyolegacy.init.registrate.GLParticles;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
@@ -233,7 +235,14 @@ public class DollMeleeBehavior extends DollBehavior {
 		ensureMainHand(doll, match.get());
 		swing(doll, doll.ledgerStack(DollSlot.MAIN_HAND), target, toTarget);
 		if (bareHand) doll.broadcastSlapAnim();
-		else doll.broadcastAttackAnim();
+		else {
+			doll.broadcastAttackAnim();
+			if (doll.level() instanceof ServerLevel level) {
+				// Put the flash on the near side of the target, clear of its model.
+				Vec3 impact = targetCenter(target).subtract(toTarget.normalize().scale(target.getBbWidth() / 2 + 0.1));
+				level.sendParticles(GLParticles.SPEAR.get(), impact.x, impact.y, impact.z, 1, 0, 0, 0, 0);
+			}
+		}
 		doll.actions.stamp(type(), doll.level().getGameTime());
 		doll.actions.complete(doll);
 		beginHold(doll);
