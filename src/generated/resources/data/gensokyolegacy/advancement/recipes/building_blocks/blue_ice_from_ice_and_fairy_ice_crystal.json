@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_fairy_ice_crystal": {
+      "conditions": {
+        "items": [
+          {
+            "items": "gensokyolegacy:fairy_ice_crystal"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "gensokyolegacy:blue_ice_from_ice_and_fairy_ice_crystal"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_fairy_ice_crystal"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "gensokyolegacy:blue_ice_from_ice_and_fairy_ice_crystal"
+    ]
+  }
+}

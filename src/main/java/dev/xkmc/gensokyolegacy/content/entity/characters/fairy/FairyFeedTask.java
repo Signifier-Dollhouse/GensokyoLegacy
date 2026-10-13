@@ -28,14 +28,17 @@ import java.util.Map;
  * target underneath her while she has something in both hands.
  * <p>
  * What she hands back is not decided here: the module rolled it when she took
- * the food, so this only has to carry it to her hand. A cookie bought a flower,
- * a cake bought fairy dust, and either way the stack to throw is already in the
- * memory.
+ * the food, so this only has to carry it to her hand. On a plain fairy a cookie
+ * bought a flower and a cake bought fairy dust; on Cirno the same two tiers buy
+ * packed ice and a crystal. Either way the stack to throw is already in the
+ * memory, and this task cannot tell the difference - which is the point of
+ * letting {@code FairyFeedModule} own the gift.
  * <p>
  * Typed to {@link FairyEntity} rather than to the plain fairy specifically,
- * because eating is the shared fairy's rule and Cirno is fed on exactly the
- * same terms: same two tiers, same gift, same twenty-second cooldown. Every
- * method it calls is on {@code YoukaiEntity}, so the wider bound costs nothing.
+ * because eating is the shared fairy's rule and Cirno is fed on the same terms:
+ * same two tiers, same reputation, same cap, same twenty-second cooldown, with
+ * only the thank-you swapped out underneath. Every method it calls is on
+ * {@code YoukaiEntity}, so the wider bound costs nothing.
  */
 public class FairyFeedTask extends Behavior<FairyEntity> {
 

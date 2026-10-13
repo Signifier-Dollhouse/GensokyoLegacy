@@ -273,7 +273,7 @@ public class GLEntities {
 					.renderer(() -> PlainFairyRenderer::new)
 					.loot(EntityLootGen::noLoot)
 					.spawnPlacement(SpawnPlacementTypes.ON_GROUND,
-							Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Mob::checkMobSpawnRules,
+							Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, PlainFairyEntity::checkFairySpawnRules,
 							RegisterSpawnPlacementsEvent.Operation.REPLACE)
 					.register();
 		}
