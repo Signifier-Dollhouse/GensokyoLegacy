@@ -16,6 +16,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -52,11 +53,11 @@ public class SuikaSpell extends ActualSpellCard {
 	 */
 	private static final float EMPOWERED_HEALTH = 0.7f;
 
-	private static final double FAR = 12, NEAR = 3;
+	private static final double FAR = 12, NEAR = 4;
 	private static final double PULL_RANGE = 12, KNOCK_RANGE = 6;
 	private static final double JUMP_SPEED = 1.5;
-	private static final int JUMP_OVERSpeed = 20;
-	private static final double PULL_SPEED = 2;
+	private static final int JUMP_OVER_SPEED = 20;
+	private static final double PULL_SPEED = 0.2;
 	private static final double KNOCK_SPEED = 1.5;
 	private static final float KNOCK_DAMAGE = 10;
 	private static final int JUMP_CD = 25, PULL_CD = 40, SWING_CD = 15;
@@ -64,15 +65,20 @@ public class SuikaSpell extends ActualSpellCard {
 	private static final int RING_COUNT = 24;
 	private static final int RING_LIFE = 40;
 	private static final int CHARGE_RING_TICKS = 20;
-	private static final int GATHER_PER_TICK = 1, GATHER_DURATION = 20;
-	private static final double GATHER_DIST = 16;
+	private static final int GATHER_PER_TICK = 2, GATHER_DURATION = 40;
+	private static final double GATHER_DIST = 16, GATHER_ANGULAR_SPEED = 360d / 60;
 	private static final int SWING_TICKS = 20, SWING_CRACKS = 20, SWING_LIFE = 20;
+	private static final double SWING_SPEED = 0.7, SWING_RAD_RATE = 1;
 
-	/** Paces the charge and gather moves. */
+	/**
+	 * Paces the charge and gather moves.
+	 */
 	@SerialField
 	private int cooldown;
 
-	/** Paces the swing, kept apart from {@link #cooldown} so a swing can cut into a charge or gather. */
+	/**
+	 * Paces the swing, kept apart from {@link #cooldown} so a swing can cut into a charge or gather.
+	 */
 	@SerialField
 	private int swingCd;
 
@@ -84,7 +90,9 @@ public class SuikaSpell extends ActualSpellCard {
 	@SerialField
 	private int moveId;
 
-	/** Latched on at {@link #EMPOWERED_HEALTH}; only {@link #reset()} turns it off. */
+	/**
+	 * Latched on at {@link #EMPOWERED_HEALTH}; only {@link #reset()} turns it off.
+	 */
 	@SerialField
 	private boolean empowered;
 
@@ -97,8 +105,13 @@ public class SuikaSpell extends ActualSpellCard {
 		if (!empowered && self.getHealth() < self.getMaxHealth() * EMPOWERED_HEALTH) empowered = true;
 		var target = holder.target();
 		if (target == null) return;
-		double dist = holder.center().distanceTo(target);
-		if (dist < NEAR) {
+		double distA = holder.center().subtract(target).multiply(1, 0.5, 1).length();
+		if (self instanceof YoukaiEntity y) {
+			for (var e : targets(y, FAR)) {
+				distA = Math.min(distA, holder.center().subtract(e.position()).length());
+			}
+		}
+		if (distA < NEAR) {
 			if (swingCd > 0) return;
 			swing(holder, empowered);
 			swingCd = SWING_CD;
@@ -106,11 +119,12 @@ public class SuikaSpell extends ActualSpellCard {
 			return;
 		}
 		if (cooldown > 0) return;
+		double dist = holder.center().subtract(target).length();
 		if (dist > FAR) {
 			charge(holder, target, empowered);
 			cooldown = JUMP_CD;
 		} else {
-			gather(holder, empowered);
+			gather(holder);
 			cooldown = PULL_CD;
 		}
 	}
@@ -138,7 +152,7 @@ public class SuikaSpell extends ActualSpellCard {
 		var dir = diff.normalize();
 		self.setDeltaMovement(dir.scale(JUMP_SPEED));
 		self.hasImpulse = true;
-		if (self instanceof DamageClampEntity clamp) clamp.grantOverspeed(JUMP_OVERSpeed);
+		if (self instanceof DamageClampEntity clamp) clamp.grantOverspeed(JUMP_OVER_SPEED);
 		if (self instanceof YoukaiEntity youkai) youkai.getNavigation().stop();
 		if (empowered) addTicker(new ChargeTicker());
 	}
@@ -192,20 +206,25 @@ public class SuikaSpell extends ActualSpellCard {
 	 * on them: the clip is a sweep of the arms, and a per-tick pull would drag everyone
 	 * through her instead of to her.
 	 */
-	private void gather(CardHolder holder, boolean empowered) {
+	private void gather(CardHolder holder) {
 		var youkai = youkai(holder);
 		if (youkai == null) return;
 		if (holder.self() instanceof GeoYoukaiAnim anim) anim.broadcastGather();
+		addTicker(new GatherSpawner());
+	}
+
+	private void gatherPull(CardHolder holder) {
+		var youkai = youkai(holder);
+		if (youkai == null) return;
 		var center = youkai.position().add(0, youkai.getBbHeight() / 2, 0);
 		for (var e : targets(youkai, PULL_RANGE)) {
 			var diff = center.subtract(e.position().add(0, e.getBbHeight() / 2, 0));
 			double dist = diff.length();
 			if (dist < 1e-3) continue;
-			e.setDeltaMovement(diff.scale(PULL_SPEED / dist));
+			e.setDeltaMovement(e.getDeltaMovement().add(diff.scale(PULL_SPEED)));
 			e.hasImpulse = true;
 			markMoved(e);
 		}
-		if (empowered) addTicker(new GatherSpawner());
 	}
 
 	/**
@@ -244,6 +263,7 @@ public class SuikaSpell extends ActualSpellCard {
 		if (e instanceof Player player) player.hurtMarked = true;
 	}
 
+	@Nullable
 	private static YoukaiEntity youkai(CardHolder holder) {
 		return holder.self() instanceof YoukaiEntity youkai ? youkai : null;
 	}
@@ -278,10 +298,13 @@ public class SuikaSpell extends ActualSpellCard {
 			if (owner < 0) owner = card.moveId;
 			if (owner != card.moveId) return true;
 			if (tick <= GATHER_DURATION) {
-				for (int i = 0; i < GATHER_PER_TICK; i++) {
-					var arm = new GatherTicker();
-					arm.owner = owner;
-					card.addTicker(arm);
+				card.gatherPull(holder);
+				if (card.empowered) {
+					for (int i = 0; i < GATHER_PER_TICK; i++) {
+						var arm = new GatherTicker();
+						arm.owner = owner;
+						card.addTicker(arm);
+					}
 				}
 			}
 			return tick > GATHER_DURATION;
@@ -317,9 +340,9 @@ public class SuikaSpell extends ActualSpellCard {
 			if (axis.lengthSqr() < 1e-9) init(holder);
 			if (tick <= GATHER_DURATION) {
 				var ori = DanmakuHelper.getOrientation(axis).asNormal();
-				var dir = ori.rotateDegrees(angle + 360d / GATHER_DURATION * tick);
+				var dir = ori.rotateDegrees(angle + GATHER_ANGULAR_SPEED * tick);
 				var pos = holder.center().add(dir.scale(GATHER_DIST));
-				var e = holder.prepareDanmaku((int) GATHER_DIST, dir.scale(-1), DanmakuItems.Bullet.MENTOS, DyeColor.BLUE);
+				var e = holder.prepareDanmaku((int) GATHER_DIST, dir.scale(-1), DanmakuItems.Bullet.CIRCLE, DyeColor.BLUE);
 				e.setPos(pos);
 				holder.shoot(e);
 			}
@@ -353,19 +376,19 @@ public class SuikaSpell extends ActualSpellCard {
 
 		private void step(CardHolder holder, int t) {
 			var center = holder.center();
-			double radius = t / 3d;
+			double radius = t * SWING_RAD_RATE;
 			double y = holder.self().getY();
 			var r = holder.random();
 			for (int i = 0; i < SWING_CRACKS; i++) {
 				double a = r.nextDouble() * Math.PI * 2;
 				var pos = new Vec3(center.x + Math.cos(a) * radius, y, center.z + Math.sin(a) * radius);
-				spawn(holder, pos, new Vec3(0, 1, 0));
-				spawn(holder, pos, new Vec3(0, -1, 0));
+				spawn(holder, pos, new Vec3(0, SWING_SPEED, 0));
+				spawn(holder, pos, new Vec3(0, -SWING_SPEED, 0));
 			}
 		}
 
 		private void spawn(CardHolder holder, Vec3 pos, Vec3 vec) {
-			var e = holder.prepareDanmaku(SWING_LIFE, vec, DanmakuItems.Bullet.MENTOS, DyeColor.BLUE);
+			var e = holder.prepareDanmaku(SWING_LIFE, vec, DanmakuItems.Bullet.BUBBLE, DyeColor.BLUE);
 			e.setPos(pos);
 			holder.shoot(e);
 		}

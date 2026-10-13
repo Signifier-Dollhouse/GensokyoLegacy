@@ -1,6 +1,7 @@
 package dev.xkmc.gensokyolegacy.content.entity.characters.oni;
 
 import dev.xkmc.gensokyolegacy.content.entity.behavior.brain.TaskBoard;
+import dev.xkmc.gensokyolegacy.content.entity.behavior.task.core.YoukaiAcquireTargetTask;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.task.core.YoukaiNapTask;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.BossYoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.GeoYoukaiAnim;
@@ -144,11 +145,6 @@ public class SuikaEntity extends BossYoukaiEntity implements GeoYoukaiAnim {
 	@Override
 	protected void constructTaskBoard(TaskBoard board) {
 		super.constructTaskBoard(board);
-		// 500, between PARTY(400) and VISITING(600): a party is something to get up
-		// for, being above everything scheduled keeps a nap from overriding what she
-		// would otherwise be doing, and being below TALK(300) is what lets a
-		// conversation run without her standing up - see YoukaiNapTask. The priority
-		// scale is in GLBrains.
 		board.addPrioritizedActivity(GLBrains.NAP.get(), GLBrains.MEM_NAP.get(), 500);
 		board.addExclusive(0, new YoukaiNapTask<>(), GLBrains.NAP.get());
 	}
@@ -173,7 +169,7 @@ public class SuikaEntity extends BossYoukaiEntity implements GeoYoukaiAnim {
 			case TALK_01 -> Optional.of(TALK_01);
 			case TALK_02 -> Optional.of(TALK_02);
 			case GREET, TALK_03, TALK_04, TALK_05, THINK, THINK_02,
-					CONFUSED, AGREE, DECLINE, OUTDOOR_IDLE -> Optional.empty();
+				 CONFUSED, AGREE, DECLINE, OUTDOOR_IDLE -> Optional.empty();
 		};
 	}
 

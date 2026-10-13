@@ -374,17 +374,10 @@ public class PlainFairyEntity extends FairyEntity implements GeoYoukaiAnim {
 	@Override
 	protected void constructTaskBoard(TaskBoard board) {
 		super.constructTaskBoard(board);
-		// its own activity rather than CORE: eating is the one thing she stops for,
-		// and CORE would leave the stroll and stay-tasks running alongside it
 		board.addAlways(new FairyFeedTask(), GLBrains.FEAST.get());
 		board.addPrioritizedActivity(GLBrains.FEAST.get(), GLBrains.MEM_FEED.get(), 200);
 		board.addExclusive(0, new FairyFleeTask(), GLBrains.FEAR.get());
 		board.addPrioritizedActivity(GLBrains.FEAR.get(), GLBrains.MEM_FEAR.get(), 100);
-
-		// Being drawn to someone: something she eats first, and failing that anyone
-		// she is not hostile towards. FollowTemptation is only half of it - without the
-		// countdown the cooldown it sets on stopping is never cleared and she can
-		// only ever be tempted once in her life.
 		board.addAlways(new CountDownCooldownTicks(MemoryModuleType.TEMPTATION_COOLDOWN_TICKS), Activity.CORE);
 		board.addExclusive(50, new FairyFollowTask(), Activity.IDLE, Activity.PLAY, GLBrains.AT_HOME.get());
 		board.addSensor(new FairyInterestSensor());

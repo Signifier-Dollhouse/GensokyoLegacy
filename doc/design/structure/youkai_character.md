@@ -139,8 +139,8 @@ Default `constructTaskBoard` graph (`SmartYoukaiEntity.java:95`):
 |---|---|---|
 | `YoukaiLookAtTarget(40,300)`, `YoukaiMoveTask`, `YoukaiSwimTask(0.8)`, `YoukaiSmartDoorTask` | CORE | always |
 | `YoukaiUpdateTargetTask`, `YoukaiAttackTask(16)`, `StrafeTarget` | FIGHT | always |
-| `YoukaiFetchTargetTask` | TALK/AT_HOME/REST | always |
-| `YoukaiSearchTargetTask`, `YoukaiVanishTask` | IDLE/PLAY | always |
+| `YoukaiAcquireTargetTask` | TALK/AT_HOME/REST/PARTY/IDLE/PLAY/VISITING | always |
+| `YoukaiVanishTask` | IDLE/PLAY | always |
 | `YoukaiSleepTask` | REST p0 | exclusive |
 | `YoukaiTalkTask` | TALK p0 | exclusive |
 | `YoukaiGoHomeTask` | IDLE/AT_HOME p100 | exclusive |

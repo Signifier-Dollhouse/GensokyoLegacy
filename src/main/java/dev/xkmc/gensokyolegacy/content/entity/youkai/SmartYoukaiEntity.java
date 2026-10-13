@@ -51,6 +51,24 @@ public class SmartYoukaiEntity extends YoukaiEntity {
 		return getBrain().getActiveNonCoreActivity().orElse(Activity.IDLE);
 	}
 
+	/**
+	 * Whether, in {@code activity}, she may pick a fight with somebody she can see but
+	 * has no queued reason to fight yet.
+	 *
+	 * <p>
+	 * Idle and play are her own time: being left standing about with an enemy in
+	 * sight is an invitation to start something. Every other activity - a conversation,
+	 * a task at home, a nap, a hunt already tracking its own prey - is either a reason
+	 * to be somewhere specific or a reason to leave the choice of target to somebody
+	 * else, so the task only serves the targets she already holds.
+	 * {@code YoukaiAcquireTargetTask} asks this per tick, so a character may extend the
+	 * set by overriding; Maiden adds {@link GLBrains#AT_HOME}, Cirno adds
+	 * {@link GLBrains#HUNT}.
+	 */
+	public boolean shouldSearchTarget(Activity activity) {
+		return activity == Activity.IDLE || activity == Activity.PLAY;
+	}
+
 	// setup
 
 	@Override
@@ -125,9 +143,8 @@ public class SmartYoukaiEntity extends YoukaiEntity {
 		board.addAlways(new YoukaiMoveTask<>(), Activity.CORE);
 		board.addAlways(new YoukaiSwimTask(0.8f), Activity.CORE);
 		board.addAlways(new YoukaiSmartDoorTask<>(), Activity.CORE);
+		board.addAlways(new YoukaiAcquireTargetTask<>(), Activity.CORE);
 		addFightTasks(board);
-		board.addAlways(new YoukaiFetchTargetTask<>(), GLBrains.TALK.get(), GLBrains.AT_HOME.get(), Activity.REST);
-		board.addAlways(new YoukaiSearchTargetTask<>(), Activity.IDLE, Activity.PLAY);
 		board.addAlways(new YoukaiVanishTask(), Activity.IDLE, Activity.PLAY);
 		board.addExclusive(0, new YoukaiSleepTask(), Activity.REST);
 		board.addExclusive(0, new YoukaiTalkTask<>(), GLBrains.TALK.get());
@@ -144,35 +161,22 @@ public class SmartYoukaiEntity extends YoukaiEntity {
 		board.addRandom(new YoukaiSitTask<>(100, 200).speedModifier(0.8f)
 				.cooldownFor(e -> e.getRandom().nextInt(200, 400)), GLBrains.AT_HOME.get());
 		board.addRandom(new YoukaiDoNothing<>(30, 60),
-				Activity.IDLE, Activity.PLAY, GLBrains.AT_HOME.get());
-		// A visitor keeps to the host's premises, so the stay tasks that key off
-		// her own home are useless to her; stroll and idle are what is left.
-		// FetchTargetTask is not repeated here: TALK(300) outranks VISITING(600), so
-		// it is already running whenever there is somebody to talk to.
+				Activity.IDLE, Activity.PLAY, GLBrains.AT_HOME.get(), GLBrains.VISITING.get());
 		board.addRandom(RandomStroll.stroll(0.8f), GLBrains.VISITING.get());
-		board.addRandom(new YoukaiDoNothing<>(30, 60), GLBrains.VISITING.get());
 
-		board.addSensor(new NearbyPlayerSensor<SmartYoukaiEntity>().setRadius(32, 32).setScanRate(e -> 5));
+		board.addSensor(new NearbyPlayerSensor<>().setRadius(32, 32).setScanRate(e -> 5));
 		board.addSensor(new NearbyLivingEntitySensor<SmartYoukaiEntity>().setRadius(32, 16)
 				.setScanRate(self -> self.isAggressive() || self.hasPlayerNearby() ? 10 : 20));
 		board.addSensor(new YoukaiUpdateHomeSensor<SmartYoukaiEntity>());
-		board.addSensor(new YoukaiHomeBlocksSensor<SmartYoukaiEntity>(HomeBlockKind.CHAIR));
+		board.addSensor(new YoukaiHomeBlocksSensor<>(HomeBlockKind.CHAIR));
 
 		board.addScheduledActivity(Activity.REST, MemoryModuleType.HOME);
 		board.addScheduledActivity(GLBrains.AT_HOME.get(), MemoryModuleType.HOME);
 		board.addScheduledActivity(Activity.PLAY, null);
 		board.addScheduledActivity(Activity.IDLE, null);
 		board.addPrioritizedActivity(GLBrains.TALK.get(), GLBrains.MEM_TALK.get(), 300);
-		// 600 is deliberate: TaskBoard injects a prioritized activity's memory as
-		// VALUE_ABSENT into every less prioritized activity, so this has to sit below
-		// TALK and PARTY (a visitor must stay able to talk and trade) and above the
-		// scheduled activities (a visitor must never sleep or go home).
-		board.addPrioritizedActivity(GLBrains.VISITING.get(), GLBrains.MEM_VISIT.get(), 600);
-		// 400 for the same reason, one rung further up: a party guest keeps the ability
-		// to talk and trade (TALK is walked first), beats VISITING so she never wanders
-		// off mid-party, and every scheduled activity below requires MEM_PARTY absent,
-		// so she never sleeps or goes home.
 		board.addPrioritizedActivity(GLBrains.PARTY.get(), GLBrains.MEM_PARTY.get(), 400);
+		board.addPrioritizedActivity(GLBrains.VISITING.get(), GLBrains.MEM_VISIT.get(), 600);
 		board.addPartyTasks();
 
 		board.setSchedule(new ScheduleBuilder(new Schedule())
