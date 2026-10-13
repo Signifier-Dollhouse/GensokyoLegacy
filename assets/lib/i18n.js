@@ -137,6 +137,7 @@ const en_us = {
   "loot.pool": "Pool {0}",
   "loot.rolls": "Rolls {0}x",
   "loot.perDrop": "{0} per drop",
+  "loot.weight": "weight {0}",
 
   // -- tags -----------------------------------------------------------------
   "tag.unknownTarget": "unknown target",
@@ -239,7 +240,7 @@ const en_us = {
   "char.party.sitting": "Sitting",
   "char.party.sittingValue": "{0} between dishes while hungry, {1} once satisfied",
   "char.party.leave": "Leaving",
-  "char.party.leaveValue": "{0}% per full sitting",
+  "char.party.leaveValue": "{0}% at the end of every sit once she has eaten enough - a guest still hungry never rolls it",
   "char.party.repGain": "Reputation earned",
   "char.party.repGainValue": "{0}% of the appeal she ate, paid to the host",
   "char.gift.ladder": "Party gift",
@@ -249,7 +250,7 @@ const en_us = {
   "char.gift.bandAny": "any appeal",
   "char.gift.default": "She has no ladder of her own, so the shared default one is used.",
   "char.gift.note":
-    "One item per visit, and the number beside it is how likely she is to pick it. Only the rung matching the appeal she ate ever answers.",
+    "One item per visit. The percentage is her share of that rung - one roll is spread across its entries by weight - and only the rung matching the appeal she ate ever answers.",
   "char.gifts": "Gifts",
   "char.gifts.favor": "The number after an item is the favor she gives for it: its own, times this multiplier.",
   "char.gifts.override": "This one item is singled out; the multiplier applies whatever its category says.",
@@ -413,6 +414,7 @@ const zh_cn = {
   "loot.pool": "奖池 {0}",
   "loot.rolls": "抽取 {0} 次",
   "loot.perDrop": "每次 {0} 个",
+  "loot.weight": "权重 {0}",
 
   // -- tags -----------------------------------------------------------------
   "tag.unknownTarget": "未知目标",
@@ -511,7 +513,7 @@ const zh_cn = {
   "char.party.sitting": "落座",
   "char.party.sittingValue": "没吃饱时每 {0} 换一道菜，吃饱后每 {1} 一次",
   "char.party.leave": "离席",
-  "char.party.leaveValue": "每次坐满有 {0}% 的可能散场",
+  "char.party.leaveValue": "吃饱之后，每次落座结束时有 {0}% 的可能离席——没吃饱时她不会掷这一次",
   "char.party.repGain": "获得的声望",
   "char.party.repGainValue": "她吃下的吸引力的 {0}% 计入宴主的声望",
   "char.gift.ladder": "宴会赠礼",
@@ -520,7 +522,7 @@ const zh_cn = {
   "char.gift.bandOpen": "{0} 及以上",
   "char.gift.bandAny": "任意吸引力",
   "char.gift.default": "她没有自己的赠礼阶梯，因此使用通用的那一套。",
-  "char.gift.note": "每次做客只送一件物品，后面的数字是她挑中它的概率；只有与她吃下的吸引力相符的那一级会生效。",
+  "char.gift.note": "每次做客只送一件物品；百分比是她在这一级里的占比——那一次抽取按权重落在各级内的物品上；只有与她吃下的吸引力相符的那一级会生效。",
   "char.gifts": "礼物偏好",
   "char.gifts.favor": "物品后面的数字是她因此给出的好感：物品本身的好感 × 本项倍率。",
   "char.gifts.override": "这一件被单独点名，无论属于哪一类都按此倍率计算。",

@@ -1181,12 +1181,22 @@ function percent(value) {
   return String(Math.round((value ?? 0) * 100));
 }
 
+/**
+ * One loot entry's share of the pool it sits in, which is what a weight means to the
+ * player: the table rolls one entry, and the weights only say how the roll is spread.
+ * A third is 33.3%, a lone entry is 100%.
+ */
+function share(weight, total) {
+  if (!total) return null;
+  return `${Math.round(((weight ?? 0) / total) * 1000) / 10}%`;
+}
+
 /** An item name as a pill, opening the item's own page when the index has one. */
-function itemNode(id, links, suffix) {
+function itemNode(id, links, suffix, title) {
   const node =
     links.item && store.items.has(id)
-      ? focusLink(itemLabel(id), () => links.item(id), id)
-      : pill("item", itemLabel(id), id);
+      ? focusLink(itemLabel(id), () => links.item(id), title ?? id)
+      : pill("item", itemLabel(id), title ?? id);
   return suffix ? append(node, [h("span", { class: "n", text: ` ${suffix}` })]) : node;
 }
 
@@ -1321,6 +1331,10 @@ function partySection(profile) {
  * or less meaning it never closes. The band is written as the appeal a guest actually
  * lands on, hence the exclusive top being shown one lower.
  *
+ * Within a rung the pool rolls exactly one entry, so the weights are only how that one
+ * roll is spread - which is why each item carries its share of the rung rather than the
+ * raw weight. The weight itself stays in the tooltip, since it is what the JSON says.
+ *
  * The table arrives after the card is drawn, so the rows are filled in when it lands -
  * the same trade every other loot table on the page makes.
  */
@@ -1337,10 +1351,17 @@ function giftLadderSection(profile, links) {
 
     for (const pool of table.pools ?? []) {
       const gifts = (pool.entries ?? []).filter((drop) => drop.type === "minecraft:item" && drop.name);
+      const total = gifts.reduce((sum, drop) => sum + (drop.weight ?? 0), 0);
       list.append(
         entry(
           tr("char.gift.rung", appealBand(pool)),
-          h("div", { class: "pill-stack" }, ...gifts.map((drop) => itemNode(drop.name, links, `x${drop.weight ?? 0}`))),
+          h(
+            "div",
+            { class: "pill-stack" },
+            ...gifts.map((drop) =>
+              itemNode(drop.name, links, share(drop.weight, total), `${drop.name} · ${tr("loot.weight", drop.weight ?? 0)}`),
+            ),
+          ),
         ),
       );
     }
