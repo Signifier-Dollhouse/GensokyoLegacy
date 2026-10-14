@@ -1,8 +1,9 @@
 package dev.xkmc.gensokyolegacy.content.client.model;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Axis;
 import dev.xkmc.gensokyolegacy.compat.curios.CuriosManager;
-import dev.xkmc.gensokyolegacy.content.item.character.FairyWingsItem;
+import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.EntityModel;
@@ -11,30 +12,24 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
 import software.bernie.geckolib.animation.AnimationState;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.renderer.GeoRenderer;
 
-/** Draws a pair of wings on whoever wears one, from the same sweep as {@link TouhouHatLayer} rather than the
+/**
+ * Draws a pair of wings on whoever wears one, from the same sweep as {@link TouhouHatLayer} rather than the
  * curios back slot, which has no renderer to hook. Drawing is geckolib's {@link GeoRenderer} pipeline; only the
  * animation is started here, as no entity exists to tick it.
  *
- * <p>{@link FairyWingsItem} borrows Cirno's rig rather than bringing its own, so the two wing items share
- * this one draw - a wearer with a pair in each slot still gets one set of wings, which is the only thing
- * that looks right.
+ * <p>Both wing items share one rig and this one draw - a wearer with a pair in each slot still gets one set
+ * of wings, which is the only thing that looks right. The items are told apart by texture alone, so which one
+ * is worn has to be answered per wearer; see {@link #texture}.
  */
 public class IceWingsLayer<T extends LivingEntity, M extends EntityModel<T>> extends RenderLayer<T, M>
 		implements GeoRenderer<IceWingsAnimatable> {
-
-	/** Cirno's rig suits her 26.2-unit chibi scale but hangs too low on a 32-unit player, so the model is
-	 * nudged up a quarter block: her fan hinge then lands on the small of a player's back, not the hip.
-	 */
-	private static final double Y = 4 / 16D;
-	/** Her feathers are planes at z=4 where her own body is only a few units deep; a player's back is at
-	 * z=2, so they come forward a sixteenth to sit against it instead of a sixteenth behind.
-	 */
-	private static final double Z = -1 / 16D;
 
 	private final IceWingsModel model = new IceWingsModel();
 	private final IceWingsAnimatable animatable = new IceWingsAnimatable();
@@ -47,13 +42,13 @@ public class IceWingsLayer<T extends LivingEntity, M extends EntityModel<T>> ext
 	public void render(PoseStack pose, MultiBufferSource buffer, int light, T entity, float limbSwing,
 					   float limbSwingAmount, float partialTick, float ageInTicks, float netHeadYaw,
 					   float headPitch) {
-		if (!CuriosManager.hasWings(entity, GLItems.ICE_WINGS.get(), true)
-				&& !CuriosManager.hasWings(entity, GLItems.FAIRY_WINGS.get(), true)) return;
+		ItemStack wings = CuriosManager.getWings(entity, true).orElse(null);
+		if (wings == null) return;
 		if (entity.isInvisible() && !Minecraft.getInstance().shouldEntityAppearGlowing(entity)) return;
 		// baked first: this is what hands the bones to the animation processor, and geckolib will
 		// not have anything to write the clip's keyframes into until it has happened
 		BakedGeoModel baked = model.getBakedModel(model.getModelResource(animatable));
-		// her rig swaps to the hover clip the moment she leaves the ground, and so do these
+		// her clips swap the moment she leaves the ground, and so do these
 		boolean airborne = !entity.onGround() || entity.isFallFlying();
 		AnimationState<IceWingsAnimatable> state = new AnimationState<>(animatable, limbSwing,
 				limbSwingAmount, partialTick, airborne);
@@ -61,11 +56,23 @@ public class IceWingsLayer<T extends LivingEntity, M extends EntityModel<T>> ext
 		// everybody else the same renderer is drawing into the hover clip with them
 		model.handleAnimations(animatable, entity.getUUID().hashCode(), state, partialTick);
 		pose.pushPose();
-		pose.translate(0, -Y, Z);
-		RenderType renderType = getRenderType(animatable, getTextureLocation(animatable), buffer, partialTick);
+		pose.translate(0, 12 / 16D, -1 / 16D);
+		pose.mulPose(Axis.ZN.rotationDegrees(180));
+		// the texture is passed in rather than read off the model: one animatable and one baked rig are
+		// shared by every player on screen, so neither is where the wearer's own pair can be remembered
+		ResourceLocation texture = texture(wings);
+		RenderType renderType = getRenderType(animatable, texture, buffer, partialTick);
 		this.actuallyRender(pose, animatable, baked, renderType, buffer, buffer.getBuffer(renderType),
 				false, partialTick, light, LivingEntityRenderer.getOverlayCoords(entity, 0), 0xFFFFFFFF);
 		pose.popPose();
+	}
+
+	/**
+	 * The two wing items are one rig painted twice over, so the worn item is what picks the texture.
+	 */
+	private static ResourceLocation texture(ItemStack wings) {
+		return GensokyoLegacy.loc(wings.is(GLItems.FAIRY_WINGS.get())
+				? "textures/geo/fairy_wings.png" : "textures/geo/ice_wings.png");
 	}
 
 	@Override
@@ -90,7 +97,7 @@ public class IceWingsLayer<T extends LivingEntity, M extends EntityModel<T>> ext
 
 	@Override
 	public void firePostRenderEvent(PoseStack poseStack, BakedGeoModel bakedModel,
-								   MultiBufferSource bufferSource, float partialTick, int packedLight) {
+									MultiBufferSource bufferSource, float partialTick, int packedLight) {
 	}
 
 	@Override
