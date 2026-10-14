@@ -269,7 +269,7 @@ public class GLItems {
 					.register();
 
 			INVITATION_LETTER = reg.item("invitation_letter", InvitationLetterItem::new)
-					.model((ctx, pvd) -> pvd.generated(ctx, pvd.mcLoc("item/paper")))
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/" + ctx.getName())))
 					.properties(p -> p.stacksTo(16))
 					.lang("Invitation Letter").register();
 
@@ -494,7 +494,7 @@ public class GLItems {
 								.perspective(ItemDisplayContext.HEAD, headModel)
 								.end().guiLight(BlockModel.GuiLight.FRONT);
 					})
-					.tag(ItemTags.HEAD_ARMOR, head, GLTagGen.MORICHIKA_OFFERS)
+					.tag(head, GLTagGen.MORICHIKA_OFFERS)
 					.dataMap(GLMeta.MORICHIKA_OFFER.reg(), new MorichikaOfferData(6, 10, 1, 1))
 					.lang("Strange Glasses").tab(TAB.key())
 					.register();
