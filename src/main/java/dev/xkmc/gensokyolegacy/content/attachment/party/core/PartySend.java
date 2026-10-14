@@ -232,7 +232,7 @@ public class PartySend {
 	 * mid-banquet should watch a table wind down, not vanish.
 	 */
 	public static void close(ServerLevel level, PartyAttachment party) {
-		party.close(level.getGameTime());
+		party.close();
 		for (var youkai : PartyTicker.guests(level, party)) {
 			youkai.getModule(PartyModule.class).ifPresent(PartyModule::beginLeave);
 		}

@@ -29,7 +29,11 @@ public class PartyTicker {
 	/** A party open this long with nothing left happening is called off. */
 	public static final int PARTY_TIMEOUT = 12000;
 
-	/** How long a closing party waits for its last guest before giving up on a guest who cannot leave. */
+	/**
+	 * How long a closing party waits for its last guest once everyone is off their chairs. It
+	 * starts at the last unseat rather than at CLOSING, so the window is entirely about the
+	 * walkout: a guest sitting out her unseat wait is not one who cannot leave.
+	 */
 	public static final int CLOSING_TIMEOUT = 600;
 
 	/** Level -> the chunks currently hosting a party. */
@@ -106,9 +110,27 @@ public class PartyTicker {
 		if (party.guests().isEmpty()) {
 			return party.phase() == PartyAttachment.Phase.CLOSING || party.admitted();
 		}
+		if (party.phase() != PartyAttachment.Phase.CLOSING) return false;
+		// the backstop is about the walkout, so the clock does not start until the last guest is
+		// out of her chair. Started at CLOSING it would run against the unseat waits as well, and
+		// cut off a table that is still sitting there on purpose.
+		if (anySeated(level, party)) return false;
+		party.startClosingClock(level.getGameTime());
 		// a guest who cannot walk off must not pin the chunk's party open
-		return party.phase() == PartyAttachment.Phase.CLOSING
-				&& party.closingAt() > 0 && level.getGameTime() - party.closingAt() > CLOSING_TIMEOUT;
+		return level.getGameTime() - party.closingAt() > CLOSING_TIMEOUT;
+	}
+
+	/**
+	 * Whether anyone is still in a chair. A guest who is not loaded does not count: she is on her
+	 * way off somewhere this pass cannot see, and holding the backstop for her is holding it for
+	 * every guest.
+	 */
+	private static boolean anySeated(ServerLevel level, PartyAttachment party) {
+		for (var id : party.guests()) {
+			if (find(level, id) instanceof YoukaiEntity youkai
+					&& youkai.getModule(PartyModule.class).map(PartyModule::seated).orElse(false)) return true;
+		}
+		return false;
 	}
 
 	/**
