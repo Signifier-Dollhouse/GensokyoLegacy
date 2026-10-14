@@ -5,15 +5,15 @@ import net.minecraft.world.entity.ai.behavior.Behavior;
 import net.minecraft.world.entity.ai.behavior.BehaviorControl;
 
 /**
- * Every so often a fairy lets slip what she is hoping for: a bubble over her head with
- * one item in it, up for a few seconds and then gone. Nobody has to be looking, and
+ * Every so often a fairy lets slip what she is hoping for: a bubble up beside her head
+ * with one item in it, up for a few seconds and then gone. Nobody has to be looking, and
  * nothing is owed - it is her thinking out loud, and the point of it is that the
  * player learns what to hand her without being told.
  * <p>
- * What she wants is not decided here. {@link FairyEntity#broadcastWant} rolls it out
- * of {@link FairyEntity#wantItems()} and sends it as an entity event, so the same
- * event that starts the bubble also carries which item it is. This class is only the
- * clock: when it is time, ask her for one.
+ * What she wants and where it is put are not decided here.
+ * {@link FairyEntity#broadcastWant} rolls both out of {@link FairyEntity#wantItems()}
+ * and sends them as one entity event, so the event that starts the bubble carries both
+ * halves of it. This class is only the clock: when it is time, ask her for one.
  * <p>
  * A {@link BehaviorControl} with its own timer rather than an entry in the random
  * pool. The pool is one slot shared with the strolls, the do-nothing and the
