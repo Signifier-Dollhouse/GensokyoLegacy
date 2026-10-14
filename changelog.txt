@@ -1,3 +1,34 @@
+1.0.4
+- Party! host a party with invitation
+- Gift system: send gifts to characters
+- Fairies: feed them cakes. Spawn in forest and plains
+- Fairy dust: guide you to characters' house
+- Add cirno and her nest, in snowy biomes
+- Add ice crystal, frozen frog, and ice wings
+- Suika is here, sometimes sneak into your party
+- Ibuki gourd: infinite sake
+- Floating effect from fairy cakes and fairy hexbrew
+- Refined hexbrew via Elixir
+
+1.0.3
+- refurnish alice house
+- add repaired mini hakkero, allow it to boost broom
+- fix koishi hat quest
+- fix broom fall damage and bounding box
+- improve dialog and patchouli
+
+1.0.2
+NOTE: This version contains underpolished text in dialog and patchouli
+- Add alice structure and doll lance. Dolls can use talisman in core slot now.
+- Add Sakuya, iron dagger, and dagger glove. Currently rarely appearing in Morichika's Shop
+- Add broom, rework marisa quest rewards
+- Add recipes for hexbrews
+- Sealing pot barrier is tinted the pot's own green
+- decorative blocks: noren curtains, wrought iron bars, candlestick
+- JEI for quest reward and trade
+- Patchouli improvement
+- Fix several compatibility crash
+
 1.0.1
 - mark curios and patchouli as required prerequisite
 - remove irrelevant items and blocks.

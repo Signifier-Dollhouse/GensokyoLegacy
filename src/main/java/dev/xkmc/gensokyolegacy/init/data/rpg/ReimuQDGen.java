@@ -25,6 +25,7 @@ import dev.xkmc.gensokyolegacy.content.rpg.trade.TradeOffer;
 import dev.xkmc.gensokyolegacy.content.rpg.trade.TradeRecurrence;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.GLAdvGen;
+import dev.xkmc.gensokyolegacy.init.data.structure.GLStructureGen;
 import dev.xkmc.gensokyolegacy.init.registrate.GLEffects;
 import dev.xkmc.gensokyolegacy.init.registrate.GLEntities;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
@@ -56,6 +57,8 @@ public class ReimuQDGen extends QuestDialogData {
 	private static final int BAD_OMEN_DURATION = 12000;
 	private static final int FORTUNE_DURATION = 24000;
 	private static final String FORTUNE_KEY = "fortune";
+	private static final int FROG_CHAT_COOLDOWN = 1200;
+	private static final String FROG_KEY = "frog";
 
 	private static final ResourceLocation QUEST_LOCAL_FOOD = GensokyoLegacy.loc("reimu/local_food");
 	private static final ResourceLocation QUEST_HOSTILE_LOOT = GensokyoLegacy.loc("reimu/hostile_loot");
@@ -103,11 +106,14 @@ public class ReimuQDGen extends QuestDialogData {
 		prefix("reimu/chat");
 		defaultDialog(GLEntities.REIMU.get(),
 				"Oh? What brings you to the shrine?",
+				"Oh? Passing through, are we.",
 				"I've come to ask for ofuda!");
+
+		visitChats();
 
 		prefix("reimu/chat_shrine");
 		chat("reimu/chat_shrine", GLEntities.REIMU.get(),
-				List.of(new SelfReputationCondition(50, true)),
+				List.of(homeBound(), new SelfReputationCondition(50, true)),
 				starterText("start", "Where is this place?"),
 				dialog("talk", "Oh, a visitor. This is the Hakurei Shrine — though if you came to worship, you'll have to wait a while. I still haven't figured out what's going on around here.",
 						option("bye", "Got it, bye!")),
@@ -115,7 +121,7 @@ public class ReimuQDGen extends QuestDialogData {
 
 		prefix("reimu/chat_shrine_close");
 		chat("reimu/chat_shrine_close", GLEntities.REIMU.get(),
-				List.of(new SelfReputationCondition(50)),
+				List.of(homeBound(), new SelfReputationCondition(50)),
 				starterText("start", "Tell me more about the shrine."),
 				dialog("talk", "This shrine sits in the middle of nowhere, but back in Gensokyo its fusui was one of a kind. After all, this place is the border between Gensokyo and the outside world — at least, that's what Yukari says... But being this remote has a downside: hardly anyone comes to worship, and lately not even the youkai show up... What am I supposed to do? Moving isn't an option.",
 						option("bye", "I'll keep visiting.")),
@@ -123,15 +129,15 @@ public class ReimuQDGen extends QuestDialogData {
 
 		prefix("reimu/chat_duty");
 		chat("reimu/chat_duty", GLEntities.REIMU.get(),
-				List.of(new SelfReputationCondition(100)),
+				List.of(homeBound(), new SelfReputationCondition(100)),
 				starterText("start", "What are your duties, exactly?"),
 				dialog("talk", "Back in Gensokyo, my job was simple, really — keeping Gensokyo in order. Put bluntly: wherever trouble broke out, I'd rush over and beat up whoever started it... Sounds exhausting, right? And it's year-round with no pay.",
-						option("bye", "I see.")),
+						option("bye", "That sounds like important work.")),
 				CHAT_MISC);
 
 		prefix("reimu/chat_guests");
 		chat("reimu/chat_guests", GLEntities.REIMU.get(),
-				List.of(new SelfReputationCondition(100)),
+				List.of(homeBound(), new SelfReputationCondition(100)),
 				starterText("start", "Who usually visits the shrine?"),
 				dialog("talk", "Visitors? Back then it was mostly youkai — I barely saw any humans. A place meant for human worship, yet every day a crowd of youkai gathered to mooch food and drink. Over time the youkai grew more numerous and the humans fewer... Whatever. Donations barely amounted to anything anyway. Whoever comes, at least it's lively.",
 						option("bye", "I see.")),
@@ -139,7 +145,7 @@ public class ReimuQDGen extends QuestDialogData {
 
 		prefix("reimu/chat_power");
 		chat("reimu/chat_power", GLEntities.REIMU.get(),
-				List.of(new SelfReputationCondition(100)),
+				List.of(homeBound(), new SelfReputationCondition(100)),
 				starterText("start", "What are your abilities?"),
 				dialog("talk", "My abilities? Why ask all of a sudden... It's the ability to fly through the sky, of course... Besides that, my intuition is scary accurate. How exactly it works, I couldn't tell you myself.",
 						option("bye", "I see.")),
@@ -147,31 +153,56 @@ public class ReimuQDGen extends QuestDialogData {
 
 		prefix("reimu/chat_money");
 		chat("reimu/chat_money", GLEntities.REIMU.get(),
-				List.of(new SelfReputationCondition(100)),
+				List.of(homeBound(), new SelfReputationCondition(100)),
 				starterText("start", "Do you care a lot about money?"),
 				dialog("talk", "Isn't that obvious? Running a shrine nobody visits, I can't even cover basic living expenses. Of course I need money...",
 						option("bye", "I see.")),
 				CHAT_MISC);
 
 		prefix("reimu/chat_frog");
+		// Starts the cooldown on the first click inside the chat, the way the
+		// fortune chat only spends its timer when the stick is drawn.
 		chat("reimu/chat_frog", GLEntities.REIMU.get(),
-				List.of(hasItem(item(GLItems.STRAW_HAT.get(), 1)), hasQuest(QUEST_OMINOUS_BANNER)),
+				List.of(homeBound(), hasItem(item(GLItems.STRAW_HAT.get(), 1)), hasQuest(QUEST_OMINOUS_BANNER), timer(FROG_KEY)),
 				starterText("start", "About this straw hat..."),
-				dialog("talk", "That straw hat... it would look funny on a frog, wouldn't it?",
-						option("ask", "A frog?",
-								dialog("idea", "Suwako is a frog goddess, after all. If she blessed frogs like that, maybe they'd develop a taste for raiders. Faith from frogs... heh, that'd be one way to gather it.",
+				dialog("talk", "That straw hat... it doesn't seem ordinary.",
+						option("ask", "This straw hat? Now that I have it, it does feel strange.",
+								setTimer(FROG_KEY, FROG_CHAT_COOLDOWN),
+								dialog("idea", "Have you heard the legend of the frog god? They say frogs wearing a hat like that guard the village the way they catch pests, and gather faith by swallowing raiders... though maybe it's only a story. Who knows.",
 										option("bye", "Heh, maybe.")))),
 				CHAT_SPECIAL);
 
 		prefix("reimu/chat_marisa");
 		chat("reimu/chat_marisa", GLEntities.REIMU.get(),
-				List.of(missingAdv(GLAdvGen.ENTER_MARISA_HOUSE), new SelfReputationCondition(50)),
+				List.of(homeBound(), missingAdv(GLAdvGen.ENTER_MARISA_HOUSE), new SelfReputationCondition(50)),
 				starterText("start", "Which works better, ofuda or potions?"),
 				dialog("talk", "Ofuda borrow power from the gods, so they usually come with strings attached. Speaking of potions — you haven't met Marisa yet, have you? She runs a shop deep in the Magical Forest. Her potions work differently from the usual brewing — go take a look if you're curious.",
 						option("where", "Where can I find her?",
 								dialog("where_ans", "Her house is deep in the Magical Forest — follow the mushrooms and the explosions, you can't miss her.",
 										option("bye", "Thanks for the directions!")))),
 				CHAT_INFO);
+	}
+
+	/** Reimu out visiting. Kourindou is her only host so far, so the set is written for that house
+	 *  rather than left host-agnostic, because a guest says different things in different rooms.
+	 *  {@code visitingAt} implies she is a guest at all, so nothing here surfaces on her own doorstep. */
+	private void visitChats() {
+		prefix("reimu/visit_kourindou");
+		chat("reimu/visit_kourindou_stock", GLEntities.REIMU.get(),
+				List.of(visitingAt(GLStructureGen.MORICHIKA_SHOP)),
+				starterText("stock", "This shop has a good deal more in stock than it looks."),
+				dialog("stock", "Huh. Not what I expected - I mostly came for the look, and because there is nothing at the shrine today.",
+						option("browse", "Anything worth buying?",
+								dialog("browse_ans", "Hard to say. Most of it is no use to me... and sometimes the shopkeeper doesn't know how to use his own tools either.",
+										option("browse/end", "That sounds... unsettling.")))),
+				CHAT_MISC);
+
+		chat("reimu/visit_kourindou_stay", GLEntities.REIMU.get(),
+				List.of(visitingAt(GLStructureGen.MORICHIKA_SHOP)),
+				starterText("stay", "What a coincidence - you are shopping here too?"),
+				dialog("stay", "Oh? It's you. I have some things to buy - a good deal of what the shrine uses is actually sourced here.",
+						option("bye", "I see.")),
+				CHAT_DEFAULT);
 	}
 
 	private void fortune() {
@@ -186,7 +217,7 @@ public class ReimuQDGen extends QuestDialogData {
 				"Ugh, worst fortune. Dark clouds ahead — trouble finds people with luck like this. Keep your head down for a while.",
 				option("bad_bye", "You've got to be kidding..."));
 		chat("reimu/chat_fortune", GLEntities.REIMU.get(),
-				List.of(hasQuest(QUEST_LOCAL_FOOD), timer(FORTUNE_KEY)),
+				List.of(homeBound(), hasQuest(QUEST_LOCAL_FOOD), timer(FORTUNE_KEY)),
 				starterText("start", "Draw a fortune stick?"),
 				dialog("talk",
 						"The shrine finally has its own fortune sticks. I blessed them myself, so they actually work. Good luck sticks around, bad luck... also sticks around. One draw per day — the gods get tired too.",
@@ -209,8 +240,9 @@ public class ReimuQDGen extends QuestDialogData {
 				questTitle("Shrine Provisions"), questDesc("Bring Reimu some bread and mushroom stew so she can learn this world's food."),
 				Optional.empty(),
 				new TreeMap<>(Map.of(
-						"a-bread", new SubmitItemRequirement(List.of(item(Items.BREAD, 8))),
-						"b-stew", new SubmitItemRequirement(List.of(item(Items.MUSHROOM_STEW, 3)))
+						"a-food", new SubmitItemRequirement(List.of(
+								item(Items.BREAD, 8),
+								item(Items.MUSHROOM_STEW, 3)))
 				)),
 				List.of(new ExpReward(50), new ReputationReward(10, 300, 10, 300)),
 				start("Is the food here to your liking?",
@@ -234,8 +266,9 @@ public class ReimuQDGen extends QuestDialogData {
 				new TreeMap<>(Map.of(
 						"a-zombie", new KillMobRequirement(reqText("zombie", "Exterminate zombies"), EntityTypeTags.ZOMBIES, 10),
 						"b-skeleton", new KillMobRequirement(reqText("skeleton", "Exterminate skeletons"), EntityTypeTags.SKELETONS, 10),
-						"c-flesh", new SubmitItemRequirement(List.of(item(Items.ROTTEN_FLESH, 8))),
-						"d-bone", new SubmitItemRequirement(List.of(item(Items.BONE, 8)))
+						"c-loot", new SubmitItemRequirement(List.of(
+								item(Items.ROTTEN_FLESH, 8),
+								item(Items.BONE, 8)))
 				)),
 				List.of(new ExpReward(100), new ReputationReward(20, 300, 10, 300)),
 				start("You look worried — something on your mind?",
@@ -257,8 +290,9 @@ public class ReimuQDGen extends QuestDialogData {
 				questTitle("Talisman Materials"), questDesc("Bring Reimu paper and redstone for her new-world talismans."),
 				Optional.empty(),
 				new TreeMap<>(Map.of(
-						"a-paper", new SubmitItemRequirement(List.of(item(Items.PAPER, 16))),
-						"b-redstone", new SubmitItemRequirement(List.of(item(Items.REDSTONE, 8)))
+						"a-supplies", new SubmitItemRequirement(List.of(
+								item(Items.PAPER, 16),
+								item(Items.REDSTONE, 8)))
 				)),
 				List.of(new ExpReward(100), new ReputationReward(10, 300, 0, 300),
 						loot("reimu/talisman_materials", LootTable.lootTable()
@@ -283,8 +317,9 @@ public class ReimuQDGen extends QuestDialogData {
 				questTitle("Ender Materials"), questDesc("Bring Reimu an ender pearl and an ender eye for her gap research."),
 				Optional.empty(),
 				new TreeMap<>(Map.of(
-						"a-pearl", new SubmitItemRequirement(List.of(item(Items.ENDER_PEARL, 1))),
-						"b-eye", new SubmitItemRequirement(List.of(item(Items.ENDER_EYE, 1)))
+						"a-materials", new SubmitItemRequirement(List.of(
+								item(Items.ENDER_PEARL, 1),
+								item(Items.ENDER_EYE, 1)))
 				)),
 				List.of(new ExpReward(150), new ReputationReward(10, 300, 0, 300)),
 				start("The village says you reach them almost instantly when exterminating — are you some kind of enderman?",
@@ -407,8 +442,9 @@ public class ReimuQDGen extends QuestDialogData {
 				"Got it.", "The stock is almost empty.", "I'll be right back.",
 				"Good. That'll last a while. Here's your share.",
 				new TreeMap<>(Map.of(
-						"a-paper", new SubmitItemRequirement(List.of(item(Items.PAPER, 16))),
-						"b-redstone", new SubmitItemRequirement(List.of(item(Items.REDSTONE, 8))))),
+						"a-supplies", new SubmitItemRequirement(List.of(
+								item(Items.PAPER, 16),
+								item(Items.REDSTONE, 8))))),
 				LootTable.lootTable().withPool(lootItem(GLTalismans.HEAL_TALISMAN.get(), 2)));
 
 		prefix("reimu/daily_raid");

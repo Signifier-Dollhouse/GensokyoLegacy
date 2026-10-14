@@ -12,10 +12,8 @@ import net.minecraft.world.item.DyeItem;
 import net.minecraft.world.item.ItemStack;
 
 /**
- * Doll tint contract. The base leaves {@link #getColor()} abstract (it has no synced
- * storage); the synced implementation lives in {@link Impl}, inherited with no
- * override since no supertype defines it.
- * Persistence (accessor definition and {@code DollData} round-trip) lives in
+ * Doll tint contract. The base leaves {@link #getColor()} abstract (it has no synced storage); the
+ * synced implementation lives in {@link Impl}, inherited with no override. Persistence lives in
  * {@link DollTintModule}, driven as a doll module.
  */
 public interface DollTint extends DollBaseImpl {
@@ -69,9 +67,7 @@ public interface DollTint extends DollBaseImpl {
 			sync.set(DollEntity.DATA_COLOR, data.getColor().getId());
 		}
 
-		/**
-		 * Recolor with a dye item, without consuming it. Same color is a no-op pass-through.
-		 */
+		/** Recolor with a dye item, without consuming it. Same color is a no-op pass-through. */
 		@Override
 		public InteractionResult interact(Player player, InteractionHand hand) {
 			ItemStack stack = player.getItemInHand(hand);

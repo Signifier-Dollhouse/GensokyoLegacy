@@ -8,21 +8,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * The id → {@link DaggerGloveRune} table the glove stack and the flying dagger both read a rune
- * through.
- * <p>
- * A glove stores its rune as a bare id (the {@code DAGGER_GLOVE_RUNE} component, and the
- * {@code IronDaggerBulletEntity} field), not as an object, so the rune has to survive a reload
- * and a client that never heard of it. Two consequences, both deliberate:
- * <ul>
- * <li>An id with nothing registered behind it reads as {@link #NONE} rather than failing. A glove
- * that outlives the rune applied to it still works, just without the extra effect — a stack of
- * daggers is never bricked by a content update.</li>
- * <li>Only the <em>id</em> is saved. Runes are therefore stateless singletons; a rune that needs
- * per-stack numbers (a stored damage bonus, say) has to grow a codec on the component instead,
- * which is recorded as an open question in {@code doc/design/dagger_glove.md} §7.</li>
- * </ul>
- * No rune is registered yet — this class is the seam they go in.
+ * The id → {@link DaggerGloveRune} table the glove stack and the flying dagger both read through: only
+ * the id is saved, so a rune must survive a reload and an unknown id reads as {@link #NONE} rather than
+ * failing. A rune needing per-stack numbers has to grow a codec on the component (§7). None registered yet.
+ *
+ * @see "doc/design/dagger_glove.md"
  */
 public class DaggerGloveRunes {
 
@@ -44,8 +34,8 @@ public class DaggerGloveRunes {
 	private static final Map<ResourceLocation, DaggerGloveRune> REGISTRY = new HashMap<>();
 
 	/**
-	 * Adds a rune under its id, replacing any previous one. Runes are wired during mod
-	 * construction, alongside the glove itself.
+	 * Adds a rune under its id, replacing any previous one. Wired during mod construction, beside
+	 * the glove itself.
 	 */
 	public static void register(ResourceLocation id, DaggerGloveRune rune) {
 		REGISTRY.put(id, rune);

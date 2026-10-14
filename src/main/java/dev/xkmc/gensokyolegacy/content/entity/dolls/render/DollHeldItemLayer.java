@@ -16,9 +16,9 @@ import software.bernie.geckolib.renderer.GeoRenderer;
 import software.bernie.geckolib.renderer.layer.BlockAndItemGeoLayer;
 
 /**
- * Renders the doll loadout hand slots at the model's hand locator bones.
- * Reads the synced client mirror via {@link DollLoadout#getLoadoutItem} — dolls
- * deliberately bypass vanilla equipment slots, so {@code getMainHandItem} stays empty.
+ * Renders the doll loadout hand slots at the model's hand locator bones. Reads the synced client
+ * mirror via {@link DollLoadout#getLoadoutItem} — dolls deliberately bypass vanilla equipment
+ * slots, so {@code getMainHandItem} stays empty.
  */
 public class DollHeldItemLayer extends BlockAndItemGeoLayer<DollEntity> {
 
@@ -41,9 +41,9 @@ public class DollHeldItemLayer extends BlockAndItemGeoLayer<DollEntity> {
     }
 
     /**
-     * The bone's own side, not always right: items whose model carries separate per-side
-     * transforms (the doll glove mitten does, for both the 1st and 3rd person hand) render
-     * unmirrored on the left arm otherwise.
+     * The bone's own side, not always right: items whose model carries separate per-side transforms
+     * render unmirrored on the left arm otherwise. The context picks <em>which</em> authored
+     * transform; the {@code leftHand} flag in {@link #renderStackForBone} cancels the mirror it carries.
      */
     @Override
     protected ItemDisplayContext getTransformTypeForStack(GeoBone bone, ItemStack stack, DollEntity doll) {
@@ -52,28 +52,29 @@ public class DollHeldItemLayer extends BlockAndItemGeoLayer<DollEntity> {
                 : ItemDisplayContext.THIRD_PERSON_RIGHT_HAND;
     }
 
+    /**
+     * Renders the stack itself instead of {@code super}, which hardcodes {@code leftHand = false}.
+     * The two locator bones are exact X-mirrors and vanilla cancels the authored mirror at apply
+     * time, so the left-hand context alone would land the item one mirror too far — the flag undoes it.
+     */
     @Override
     protected void renderStackForBone(PoseStack poseStack, GeoBone bone, ItemStack stack, DollEntity doll,
                                       MultiBufferSource bufferSource, float partialTick, int packedLight, int packedOverlay) {
+        var left = bone.getName().equals(LEFT_HAND_BONE);
         poseStack.pushPose();
         poseStack.scale(0.8F, 0.8F, 0.8F);
         poseStack.mulPose(Axis.XP.rotationDegrees(90));
         poseStack.translate(0.0D, 0.0D, -0.2D);
-        super.renderStackForBone(poseStack, bone, stack, doll, itemBuffer(bufferSource),
-                partialTick, packedLight, packedOverlay);
+        Minecraft.getInstance().getItemRenderer().renderStatic(doll, stack,
+                getTransformTypeForStack(bone, stack, doll), left, poseStack, itemBuffer(bufferSource),
+                doll.level(), packedLight, packedOverlay, doll.getId());
         poseStack.popPose();
     }
 
     /**
-     * While glowing, the whole model is drawn through the {@link OutlineBufferSource}, whose outline
-     * source is a single shared {@code ByteBufferBuilder} with no fixed buffers: asking it for any new
-     * render type ends the batch of the previous type. Rendering the held item through it therefore
-     * ends the model's outline batch mid-model and leaves GeckoLib holding a dead consumer, which
-     * drops the geometry of the following bones (the arms). Also note GeckoLib's own
-     * {@code checkAndRefreshBuffer} only repairs the consumer at bone boundaries.
-     * <p>
-     * The item is not part of the silhouette anyway, so route it to the main buffer source (the same
-     * batch vanilla draws the normal body of a glowing entity into).
+     * While glowing, the model goes through {@link OutlineBufferSource}, whose outline source is one
+     * shared buffer: asking it for a new render type ends the previous batch and drops later bones'
+     * geometry. The item is no part of the silhouette, so route it to the main buffer source.
      */
     private static MultiBufferSource itemBuffer(MultiBufferSource bufferSource) {
         if (bufferSource instanceof OutlineBufferSource)

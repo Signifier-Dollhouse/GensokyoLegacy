@@ -1,5 +1,5 @@
 {
-  "parent": "gensokyolegacy:main/obtain_doll_glove",
+  "parent": "gensokyolegacy:main/alchemy",
   "criteria": {
     "0": {
       "conditions": {

@@ -17,6 +17,7 @@ public class ReportBlocksInStructure {
 
 	public static void report() {
 		try {
+			report("cirno_nest.nbt");
 			report("marisa_house.nbt");
 			for (var part : new String[]{"root", "road", "gate", "warehouse",
 					"path0", "path1", "path2", "path3", "path4", "path5",
@@ -24,6 +25,9 @@ public class ReportBlocksInStructure {
 				report("hakurei_shrine/" + part + ".nbt");
 			}
 			report("morichika_shop.nbt");
+			for (var part : new String[]{"root", "gate", "garden", "path", "tree", "backyard"}) {
+				report("alice_house/" + part + ".nbt");
+			}
 		} catch (Exception e) {
 			LOGGER.throwing(e);
 		}

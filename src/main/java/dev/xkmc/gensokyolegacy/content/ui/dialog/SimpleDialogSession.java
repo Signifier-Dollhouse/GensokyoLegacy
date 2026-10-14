@@ -10,15 +10,13 @@ import dev.xkmc.gensokyolegacy.content.rpg.network.SimpleDialogToClient;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerPlayer;
-import org.checkerframework.checker.units.qual.A;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A single line of a conversation: one dialog, and the options it offers. The
- * server resolves every click, so a random option needs no client guesswork -
- * the result of the roll is simply the next state pushed back here.
+ * A single line of a conversation: one dialog, and the options it offers. The server resolves every click, so a
+ * random option needs no client guesswork - the roll's result is simply the next state pushed back here.
  */
 public class SimpleDialogSession extends DialogSession {
 
@@ -51,9 +49,8 @@ public class SimpleDialogSession extends DialogSession {
     }
 
     /**
-     * The indices of the options this player passes the conditions of, in
-     * display order. The client draws its list from exactly this, so a click
-     * index always names the same option on both sides.
+     * The indices of the options this player passes the conditions of, in display order. The client draws its
+     * list from exactly this, so a click index names the same option on both sides.
      */
     private List<Integer> visibleOptions() {
         var options = dialog.value().options();

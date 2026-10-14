@@ -10,6 +10,11 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * A player's {@link CharacterData} with the player and the youkai behind the call; every mutator syncs.
+ *
+ * @see "doc/design/reputation.md"
+ */
 public record CharDataHolder(CharacterData data, Player player, EntityType<?> type, @Nullable YoukaiEntity e) {
 
 	public static CharDataHolder get(Player player, YoukaiEntity e) {

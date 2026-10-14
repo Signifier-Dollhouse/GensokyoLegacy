@@ -1,0 +1,11 @@
+{
+  "character": "gensokyolegacy:izayoi_sakuya",
+  "conditions": [
+    {
+      "type": "gensokyolegacy:visit_structure",
+      "structure": "gensokyolegacy:morichika_shop"
+    }
+  ],
+  "dialog": "gensokyolegacy:sakuya/visit_morichika_shop/greet",
+  "text": "gensokyolegacy/sakuya/visit_morichika_shop/starter/greet"
+}

@@ -4,12 +4,14 @@ import dev.xkmc.danmakuapi.api.DanmakuDamageEvent;
 import dev.xkmc.gensokyolegacy.content.attachment.misc.FrogGodCapability;
 import dev.xkmc.gensokyolegacy.content.attachment.storage.PendingItemStorage;
 import dev.xkmc.gensokyolegacy.content.entity.characters.rumia.RumiaEntity;
+import dev.xkmc.gensokyolegacy.content.entity.foundation.IDimensionBoundEntity;
 import dev.xkmc.gensokyolegacy.content.item.character.TouhouHatItem;
 import dev.xkmc.gensokyolegacy.content.item.glove.DollGloveItem;
 import dev.xkmc.gensokyolegacy.content.item.glove.network.DollGloveSwingPacket;
 import dev.xkmc.gensokyolegacy.content.item.tool.CatBell;
 import dev.xkmc.gensokyolegacy.content.item.umbrella.BorderUmbrellaItem;
 import dev.xkmc.gensokyolegacy.content.item.umbrella.data.BorderUmbrellaUnlock;
+import dev.xkmc.gensokyolegacy.content.item.hakkero.HakkeroMenu;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.GLDamageTypes;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
@@ -25,6 +27,7 @@ import net.minecraft.world.item.Items;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.AnvilUpdateEvent;
+import net.neoforged.neoforge.event.entity.EntityTravelToDimensionEvent;
 import net.neoforged.neoforge.event.entity.living.LivingShieldBlockEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
@@ -60,6 +63,7 @@ public class MiscEventHandlers {
 	@SubscribeEvent
 	public static void onPlayerTick(PlayerTickEvent.Post event) {
 		if (!(event.getEntity() instanceof ServerPlayer sp)) return;
+		if (sp.containerMenu instanceof HakkeroMenu furnace) furnace.tick();
 		if (sp.tickCount % 20 != 0) return;
 		var storage = PendingItemStorage.get(sp.serverLevel());
 		if (!storage.hasPending(sp.getUUID())) return;
@@ -107,6 +111,19 @@ public class MiscEventHandlers {
 					}
 				}
 			}
+		}
+	}
+
+	/**
+	 * Backstop for the dimension lock: both bases already refuse at {@code canUsePortal} / {@code canChangeDimensions},
+	 * covering every portal path, and this cancels the same transition one step lower for anything reaching {@code
+	 * Entity#changeDimension} without asking. <p> {@code /tp}'s {@code teleportTo} is left working on purpose - an
+	 * operator forcing a mob across is an explicit act the existing watchdogs already reconcile.
+	 */
+	@SubscribeEvent
+	public static void onTravelToDimension(EntityTravelToDimensionEvent event) {
+		if (event.getEntity() instanceof IDimensionBoundEntity) {
+			event.setCanceled(true);
 		}
 	}
 

@@ -8,10 +8,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ShieldItem;
 
 /**
- * Reactive off-hand shield block, running through the regular vanilla pipeline —
- * blocking state and wear here, bypass/pierce gating and front-hemisphere checks in
- * vanilla. The entity keeps only the three vanilla overrides (which must call
- * {@code super} and therefore cannot move here); all shield logic is a default.
+ * Reactive off-hand shield block, running through the regular vanilla pipeline — blocking state and
+ * wear here, bypass/pierce gating and front-hemisphere checks in vanilla. All shield logic is a
+ * default; the entity keeps only the three vanilla overrides, which must call {@code super}.
  */
 public interface DollShield extends DollLoadout {
 

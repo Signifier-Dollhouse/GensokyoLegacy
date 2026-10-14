@@ -10,6 +10,7 @@ import dev.xkmc.gensokyolegacy.content.entity.dolls.impl.DollModule;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.impl.DollTint;
 import dev.xkmc.gensokyolegacy.content.entity.foundation.CombatToClient;
 import dev.xkmc.gensokyolegacy.content.entity.foundation.DamageRefactorEntity;
+import dev.xkmc.gensokyolegacy.content.entity.foundation.IDimensionBoundEntity;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
@@ -39,13 +40,20 @@ import net.minecraft.world.phys.Vec3;
 import javax.annotation.Nullable;
 import java.util.*;
 
-public abstract class BaseDollEntity extends DamageRefactorEntity implements OwnableEntity, DollTint {
+/**
+ * Foundation and pairing half of a doll: identity, movement, goals, the deferred damage
+ * pipeline, the itemize interaction and the never-save guard — everything every doll kind
+ * shares, and the part that keeps the ledger honest.
+ *
+ * @see "doc/design/doll/entity.md"
+ */
+public abstract class BaseDollEntity extends DamageRefactorEntity implements OwnableEntity, DollTint, IDimensionBoundEntity {
 	private static final int SYNC_INTERVAL = 10;
 	private static final int INVERSE_INTERVAL = 20;
 
 	/**
-	 * The doll entity's configured default max health (see {@link #createAttributes}); used as the
-	 * full-health reference for items' durability bar and summons of fresh (data-less) dolls.
+	 * The configured default max health (see {@link #createAttributes}); the full-health
+	 * reference for items' durability bar and for fresh, data-less summons.
 	 */
 	public static final float DEFAULT_MAX_HEALTH = 20;
 
@@ -55,26 +63,18 @@ public abstract class BaseDollEntity extends DamageRefactorEntity implements Own
 	public final double speedModifier = 1;
 
 	/**
-	 * Stray host, set by {@code DollEntity.becomeStray()}. While present every
-	 * pairing query resolves against the detached entry, so no other stray
-	 * branches are needed anywhere: sync, inverse check, damage and heal all flow
-	 * through {@link DollHost} uniformly. Transient — chunk save/load delegates to
-	 * it instead (see below).
+	 * Stray host, set by {@code DollEntity.becomeStray()}. While present every pairing query
+	 * resolves against the detached entry. Transient — chunk save/load delegates to it instead.
 	 */
 	@Nullable
 	private StrayHost strayHost;
 
-	/**
-	 * Movement cap: 0.5 blocks per tick (doc/design/doll/entity.md).
-	 */
+	/** Movement cap, 0.5 blocks per tick. */
 	public static final double MAX_SPEED = 0.5;
 
 	/**
-	 * The cap actually enforced in {@link #tick()}. {@link #MAX_SPEED} while the doll
-	 * flies normally, raised by a behavior that needs a burst for its duration (the
-	 * melee charge doubles it) and restored by that behavior's {@code stop}. Nothing
-	 * else may touch it: the cap is what keeps external pushes bounded, and the only
-	 * sanctioned exception is a doll deliberately spending speed on an attack.
+	 * The cap enforced in {@link #tick()}: {@link #MAX_SPEED}, raised for the length of a burst
+	 * by the behavior spending it and restored by its {@code stop}. Nothing else may touch it.
 	 */
 	private double speedCap = MAX_SPEED;
 
@@ -87,8 +87,8 @@ public abstract class BaseDollEntity extends DamageRefactorEntity implements Own
 	}
 
 	/**
-	 * Per-entity persistence slices. Populated from {@link #createDollModules(List)} in the
-	 * base constructor; each hierarchy level appends its own through {@code super}.
+	 * Per-entity persistence slices. Populated from {@link #createDollModules(List)} in
+	 * the base constructor; each hierarchy level appends its own through {@code super}.
 	 */
 	private final List<DollModule> modules = new ArrayList<>();
 	private final Map<Class<? extends DollModule>, DollModule> moduleMap = new LinkedHashMap<>();
@@ -152,9 +152,8 @@ public abstract class BaseDollEntity extends DamageRefactorEntity implements Own
 	}
 
 	/**
-	 * The owning living entity, or null when it is gone. Widened past
-	 * {@code OwnableEntity}'s player-only default: a character can host dolls too,
-	 * so the owner is any living entity with the matching uuid.
+	 * The owning living entity, or null when it is gone. Wider than
+	 * {@code OwnableEntity}'s player-only default: a character can host dolls too.
 	 */
 	@Override
 	public @Nullable LivingEntity getOwner() {
@@ -162,9 +161,8 @@ public abstract class BaseDollEntity extends DamageRefactorEntity implements Own
 	}
 
 	/**
-	 * The owner as a plain entity, resolved wherever it actually lives: the
-	 * server-level entity index for any living owner, the player list as the only
-	 * thing a client can look up.
+	 * The owner as a plain entity, resolved wherever it lives: the server-level entity index for
+	 * any living owner, the player list as the only thing a client can look up.
 	 */
 	@Nullable
 	private Entity resolveOwner() {
@@ -174,22 +172,17 @@ public abstract class BaseDollEntity extends DamageRefactorEntity implements Own
 	}
 
 	/**
-	 * Whether this doll is deployed from a player ledger — that is, whether its
-	 * owner is a player at all. Only those can be recalled to an item: a character
-	 * conjures her dolls out of nothing and has no inventory to hand them to, so
-	 * the empty-hand interact leaves them be.
+	 * Whether this doll is deployed from a player ledger. Only those can be recalled to an
+	 * item: a character conjures her dolls out of nothing and has no inventory to hand them to.
 	 */
 	public boolean isPlayerOwned() {
 		return ownerUUID != null && resolveOwner() instanceof ServerPlayer;
 	}
 
 	/**
-	 * Explicit doll allegiance, on top of the vanilla team check: the owner,
-	 * everything the owner owns (fellow dolls, pets), and everything allied
-	 * to the owner (teams and the like) all count as allies. Ownerless dolls
-	 * (block-hosted, stray) band together, mirroring the danmaku friendly
-	 * rule in {@link dev.xkmc.gensokyolegacy.content.entity.dolls.impl.DollDanmakuAlly}.
-	 * This drives explosive-hexbrew filtering (blast + bottle pass-through).
+	 * Explicit doll allegiance, on top of the vanilla team check: the owner, everything the
+	 * owner owns and everything allied to the owner all count as allies. Ownerless dolls
+	 * (block-hosted, stray) band together, mirroring {@code DollDanmakuAlly}.
 	 */
 	@Override
 	public boolean isAlliedTo(Entity other) {
@@ -205,11 +198,8 @@ public abstract class BaseDollEntity extends DamageRefactorEntity implements Own
 	}
 
 	/**
-	 * A resident doll is either owned by a living entity (ownerUUID set) or hosted
-	 * by a controller block (homePos set, no owner). A player-owned doll is
-	 * deployed from the {@link DollAttachment} ledger; a character-owned one from
-	 * that character's own host; a block-hosted doll from a
-	 * {@link dev.xkmc.gensokyolegacy.content.block.functional.doll.DollControllerBlockEntity}.
+	 * A resident doll is either owned by a living entity (player ledger, or a
+	 * character's own host) or hosted by a controller block (homePos set, no owner).
 	 */
 	public void setHome(BlockPos pos) {
 		this.homePos = pos.immutable();
@@ -224,15 +214,11 @@ public abstract class BaseDollEntity extends DamageRefactorEntity implements Own
 	}
 
 	/**
-	 * Resolves the doll's host for pairing checks (§8.2). A stray doll resolves to
-	 * its {@link StrayHost} first, so all pairing queries just work with no stray
-	 * branches elsewhere. An owned doll resolves through its owner: a player owner
-	 * through the {@link DollAttachment} capability, any other living owner
-	 * through the {@link DollHost} it implements itself — the one branch that
-	 * lets a character conjure and command her own dolls. {@code null} means the
-	 * host is unreachable (owner gone, home chunk unloaded/block gone) and the doll
-	 * self-discards: its data is kept in the ledger and a fresh entity is
-	 * respawned from the cached values when the host is reachable again.
+	 * Resolves the doll's host for pairing checks: a stray through its {@link StrayHost}, an
+	 * owned doll through its owner — a player through {@link DollAttachment}, any other living
+	 * owner through the {@link DollHost} it implements, the one branch that lets a character
+	 * conjure her own dolls. {@code null} means the host is unreachable and the doll
+	 * self-discards, keeping its data in the ledger for a later resummon.
 	 */
 	@Nullable
 	public DollHost getHost() {
@@ -242,6 +228,7 @@ public abstract class BaseDollEntity extends DamageRefactorEntity implements Own
 				return null;
 			}
 			Entity owner = sl.getEntity(ownerUUID);
+			if (owner == null || owner.isRemoved() || !owner.isAddedToLevel()) return null;
 			if (owner instanceof ServerPlayer sp) {
 				return GLMeta.DOLL.type().getOrCreate(sp);
 			}
@@ -257,23 +244,16 @@ public abstract class BaseDollEntity extends DamageRefactorEntity implements Own
 	}
 
 	// ---- significant-value sync ----
-	// The entity is a projection of the owning player's DollData (doc/design/doll/pairing.md).
-	// Identity between entity and DollData is the entity's own game UUID: every
-	// materialization mints a fresh one, it is never stored on the item, and it
-	// survives dimension changes. No separate doll uuid is kept, so the ledger
-	// lookups (`level().getEntity(data.uuid)`) always hit the real entity.
+	// The entity is a projection of the owner's DollData (pairing.md) sharing its uuid:
+	// minted fresh per materialization and never stored on the item.
 
 	public ResourceLocation getDollTypeId() {
 		return getType().builtInRegistryHolder().key().location();
 	}
 
 	/**
-	 * Registers persistence slices into the given list. Subclasses override, call
-	 * {@code super}, and append their own — chaining across multiple hierarchy levels.
-	 * Must be static-safe (fresh instances, no instance state): it also runs inside the
-	 * vanilla {@code Entity} constructor via {@code defineSynchedData}, before subclass
-	 * state exists. A module with synced accessors must be registered here, or its
-	 * accessors are never defined.
+	 * Registers persistence slices into the list; subclasses override, call {@code super} and
+	 * append their own. Must be static-safe: it also runs inside the vanilla {@code Entity} ctor.
 	 */
 	protected void createDollModules(List<DollModule> modules) {
 	}
@@ -300,10 +280,8 @@ public abstract class BaseDollEntity extends DamageRefactorEntity implements Own
 	}
 
 	public void readValuesFrom(DollData d) {
-		// the entity is always freshly created (doSummon/spawnFromData), so its maxHealth base
-		// value is already the entity's configured default (createAttributes) — nothing to reset.
-		// combat is the single source of health (never null): seed the entity's CombatData from it.
-		// the caller sets data.position/data.yRot beforehand — this applies them to the entity.
+		// the entity is always freshly created, so its maxHealth base is already the
+		// configured default and combat is the single source of health (never null)
 		applyData(d.combat);
 		setCustomName(d.customName);
 		if (d.position != null) setPos(d.position);
@@ -321,19 +299,15 @@ public abstract class BaseDollEntity extends DamageRefactorEntity implements Own
 	}
 
 	// ---- deferred damage pipeline ----
-	// Damage and healing are intercepted at takeDamage and the onHeal hook instead of at
-	// setCombatProgress (doc/design/doll/pairing.md): every combat change lands in DollData.combat
-	// first and is only then mirrored into the entity's CombatData, so no re-entrancy
-	// guard is needed. Without a paired entry the plain path is used.
+	// Damage and healing are intercepted at takeDamage and the onHeal hook, so every
+	// change lands in DollData.combat first and is mirrored in after: no guard needed.
 
 	@Override
 	protected void takeDamage(DamageSource source, float amount) {
 		DollData data = resolveDollData();
 		if (data == null) {
-			// No paired entry: use the plain path, as documented. Dropping the hit
-			// instead would make an unpaired doll immune to every kind of damage,
-			// which reads as invulnerability from the outside and hides whatever
-			// fault actually left it unpaired.
+			// unpaired: take the plain path. Dropping the hit would read as invulnerability
+			// and hide whatever fault left it unpaired
 			super.takeDamage(source, amount);
 			return;
 		}
@@ -346,8 +320,8 @@ public abstract class BaseDollEntity extends DamageRefactorEntity implements Own
 	public void onHeal(float heal) {
 		DollData data = resolveDollData();
 		if (data == null) return;
-		// the value is applied to the entity by the parent heal() right after this hook,
-		// so only the DollData copy needs writing here.
+		// the parent heal() applies the value to the entity right after this hook,
+		// so only the DollData copy needs writing here
 		deferCombatData(data, getCombatProgress() + heal, true, false);
 	}
 
@@ -393,15 +367,29 @@ public abstract class BaseDollEntity extends DamageRefactorEntity implements Own
 		if (!player.getMainHandItem().isEmpty()) return InteractionResult.PASS;
 		if (level().isClientSide()) return InteractionResult.CONSUME;
 		// only a player-owned doll converts back to the item here; a block-hosted doll
-		// belongs to a controller block and is managed through the block (§13), and a
-		// character conjures her own dolls out of nothing (§14) so there is no item
-		// form to recall them into.
+		// belongs to its controller block, and a character's dolls have no item form
 		if (player instanceof ServerPlayer sp && isPlayerOwned() && (isOwner(sp) || sp.getAbilities().instabuild)) {
 			DollAttachment att = GLMeta.DOLL.type().getOrCreate(sp);
 			att.itemize(sp, this);
 		}
 		return InteractionResult.CONSUME;
 	}
+
+	// ---- dimension-bound ----
+	// A doll projects a ledger entry naming exactly one level, so a portal could strand
+	// it where no ledger describes it; canUsePortal is the gate every entry point consults.
+
+	@Override
+	public boolean canUsePortal(boolean allowPassengers) {
+		return false;
+	}
+
+	@Override
+	public boolean canChangeDimensions(Level oldLevel, Level newLevel) {
+		return false;
+	}
+
+	// ---- never leashed, never a passenger ----
 
 	@Override
 	public boolean canBeLeashed() {
@@ -418,9 +406,8 @@ public abstract class BaseDollEntity extends DamageRefactorEntity implements Own
 	@Override
 	public void tick() {
 		super.tick();
-		// Movement cap: hard-clamp velocity to the cap (MAX_SPEED blocks/tick unless a
-		// behavior raised it) so even external pushes (knockback, explosions) cannot
-		// exceed it (doc/design/doll/entity.md).
+		// hard-clamp velocity after super.tick(), so even external pushes (knockback,
+		// explosions) cannot exceed the cap
 		Vec3 motion = getDeltaMovement();
 		double speed = motion.length();
 		if (speed > speedCap) setDeltaMovement(motion.scale(speedCap / speed));
@@ -465,10 +452,8 @@ public abstract class BaseDollEntity extends DamageRefactorEntity implements Own
 	}
 
 	// ---- never persisted into chunks ----
-	// All state lives in the ledger entry — the player capability (doc/design/doll/entity.md)
-	// for a player's dolls, or the host entity's save data for a character's. A doll
-	// with no entry cannot be reconstructed, so it must never be written in the first
-	// place: {@link #shouldBeSaved} is the gate that keeps it out of chunks.
+	// All state lives in the ledger entry, so a doll with no entry cannot be
+	// reconstructed and must never be written in the first place (entity.md §5).
 
 	@Override
 	public void readAdditionalSaveData(CompoundTag compound) {
@@ -481,24 +466,14 @@ public abstract class BaseDollEntity extends DamageRefactorEntity implements Own
 	}
 
 	/**
-	 * A doll is a projection of its ledger entry, never a thing in its own right
-	 * (§5.8) — so it must not be written into a chunk at all. A <b>stray</b> is the
-	 * one exception: its entry was cut from the ledger, so the entity carries the
-	 * only copy of that detached data and has to ride the chunk until it dies
-	 * (control.md §5.4a). Matches {@link #addAdditionalSaveData} exactly.
+	 * A doll is a projection of its ledger entry and must not be written into a chunk at all.
+	 * A <b>stray</b> is the one exception: its entry was cut from the ledger, so the entity
+	 * carries the only copy of that detached data and has to ride the chunk until it dies.
 	 * <p>
-	 * This has to be the real gate rather than the {@code DollNeverSave} marker
-	 * alone. A marker can only be acted on once the entity is already being
-	 * constructed, and {@code setRemoved} at that point is a no-op in effect:
-	 * {@code EntityInLevelCallback} is attached <i>after</i>
-	 * {@code readAdditionalSaveData}, and {@code addEntityWithoutEvent} does not
-	 * consult the removal reason. The result is the worst possible outcome — an
-	 * entity that is in the world, in the uuid lookup, and in the live count, but
-	 * whose {@code tick} returns immediately and whose {@code getHost} is null. It
-	 * never ticks, so it never self-discards; it is counted as live, so it
-	 * suppresses the very conjure that would replace it; and with no paired entry
-	 * the deferred damage pipeline drops every hit on it, which looks exactly
-	 * like an invulnerable doll. Not writing it at all is the only clean answer.
+	 * This has to be the real gate rather than the {@code DollNeverSave} marker alone: a
+	 * load-time {@code setRemoved} lands the doll in the world anyway, because
+	 * {@code EntityInLevelCallback} is attached after {@code readAdditionalSaveData} and
+	 * {@code addEntityWithoutEvent} does not consult the removal reason (entity.md §5).
 	 */
 	@Override
 	public boolean shouldBeSaved() {
@@ -510,10 +485,8 @@ public abstract class BaseDollEntity extends DamageRefactorEntity implements Own
 		if (strayHost != null && strayHost.data() != null) {
 			compound.put("DollStrayData", strayHost.save(level().registryAccess()));
 		} else {
-			// Only reached for a stray-less doll that something forced a save on
-			// despite {@link #shouldBeSaved}. The marker says so on the way back in,
-			// where it is ignored: there is nothing to rebuild from, so the doll is
-			// simply ownerless and both ledgers evict it on sight.
+			// only reached if something forced a save on a paired doll: the marker is
+			// ignored on the way back in, so it reads ownerless and both ledgers evict it
 			compound.putByte("DollNeverSave", (byte) 1);
 		}
 	}

@@ -3,6 +3,7 @@ package dev.xkmc.gensokyolegacy.content.item.tool;
 import dev.xkmc.gensokyolegacy.content.entity.broom.BroomEntity;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.gensokyolegacy.init.registrate.GLEntities;
+import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
@@ -16,14 +17,14 @@ import net.minecraft.world.phys.Vec3;
 import java.util.List;
 
 /**
- * Summons the rideable {@link BroomEntity} on use. The item is never consumed
- * and the stack stays where it is: the entity is the vehicle, and the broom in
- * hand is only the token that keeps it alive — the entity discards itself once
- * neither hand holds one.
+ * Summons the rideable {@link BroomEntity} on use. The item is never consumed: the entity is the
+ * vehicle and the broom in hand only the token keeping it alive, discarded once neither hand holds one.
  */
 public class BroomItem extends Item {
 
-	/** How far ahead of the player the broom is conjured, in blocks. */
+	/**
+	 * How far ahead of the player the broom is conjured, in blocks.
+	 */
 	private static final double MOUNT_DISTANCE = 1.2;
 
 	public BroomItem(Properties properties) {
@@ -37,8 +38,9 @@ public class BroomItem extends Item {
 	@Override
 	public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
 		ItemStack stack = player.getItemInHand(hand);
-		if (player.isShiftKeyDown()) return InteractionResultHolder.pass(stack);
 		if (player.getVehicle() instanceof BroomEntity) {
+			if (player.getMainHandItem().is(GLItems.MINI_HAKKERO))
+				return InteractionResultHolder.pass(stack);
 			if (!level.isClientSide) player.stopRiding();
 			return InteractionResultHolder.success(stack);
 		}

@@ -16,6 +16,7 @@ import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.OptionalDouble;
 import java.util.Set;
 
@@ -94,9 +95,39 @@ public class StructureOutlineRenderer {
 	}
 
 	public static void renderPosSet(PoseStack pose, Vec3 camera, Set<BlockPos> pos) {
+		renderPosSet(pose, camera, pos, new float[]{1, 1, 1, 1});
+	}
+
+	/** {@code colour} is r, g, b, a — a caller's own constant, as {@code AreaEffectRenderer} keeps its own. */
+	public static void renderPosSet(PoseStack pose, Vec3 camera, Collection<BlockPos> pos, float[] colour) {
+		if (pos.isEmpty()) return;
 		var buffer = Minecraft.getInstance().renderBuffers().bufferSource();
 		var outline = buffer.getBuffer(LineRenderType.OUTLINE);
-		renderPos(pose, outline, pos, camera.toVector3f(), 1, 1, 1, 1, 0);
+		renderPos(pose, outline, pos, camera.toVector3f(), colour[0], colour[1], colour[2], colour[3], 0);
+	}
+
+	/**
+	 * One box over everything in the set. The scan is sparse by nature, so a cube per block says
+	 * nothing; this says the extent, which tells the host whether the spread reaches further than
+	 * they meant.
+	 */
+	public static void renderBound(PoseStack pose, Vec3 camera, Collection<BlockPos> pos) {
+		int minX = Integer.MAX_VALUE, minY = Integer.MAX_VALUE, minZ = Integer.MAX_VALUE;
+		int maxX = Integer.MIN_VALUE, maxY = Integer.MIN_VALUE, maxZ = Integer.MIN_VALUE;
+		for (var p : pos) {
+			minX = Math.min(minX, p.getX());
+			minY = Math.min(minY, p.getY());
+			minZ = Math.min(minZ, p.getZ());
+			maxX = Math.max(maxX, p.getX());
+			maxY = Math.max(maxY, p.getY());
+			maxZ = Math.max(maxZ, p.getZ());
+		}
+		if (minX == Integer.MAX_VALUE) return;
+		var buffer = Minecraft.getInstance().renderBuffers().bufferSource();
+		var outline = buffer.getBuffer(LineRenderType.OUTLINE);
+		var vec = camera.toVector3f();
+		renderCube(pose, outline, minX, minY, minZ, maxX + 1, maxY + 1, maxZ + 1,
+				-vec.x, -vec.y, -vec.z, 1, 1, 1, 0.5f);
 	}
 
 	private static void renderNodeCube(
@@ -130,7 +161,7 @@ public class StructureOutlineRenderer {
 	}
 
 	private static void renderPos(
-			PoseStack pose, VertexConsumer vc, Set<BlockPos> box,
+			PoseStack pose, VertexConsumer vc, Collection<BlockPos> box,
 			Vector3f pos, float r, float g, float b, float a, float offset
 	) {
 		for (var e : box) {

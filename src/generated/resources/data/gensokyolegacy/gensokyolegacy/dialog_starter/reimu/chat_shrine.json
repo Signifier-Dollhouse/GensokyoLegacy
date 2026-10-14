@@ -2,6 +2,9 @@
   "character": "gensokyolegacy:hakurei_reimu",
   "conditions": [
     {
+      "type": "gensokyolegacy:home_bound"
+    },
+    {
       "type": "gensokyolegacy:self_reputation",
       "invert": true,
       "reputation": 50

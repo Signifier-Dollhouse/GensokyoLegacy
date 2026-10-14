@@ -16,16 +16,18 @@ import net.minecraft.world.phys.Vec3;
 
 import java.util.UUID;
 
+/**
+ * One doll's ledger entry: significant values only, never an entity NBT snapshot.
+ *
+ * @see "doc/design/doll/pairing.md"
+ */
 @SerialClass
 public class DollData {
 
-	/**
-	 * item -> {@link DollData} conversion: reads the {@code DOLL_DATA}/{@code DOLL_COLOR}/
-	 * {@code CUSTOM_NAME} components off the stack (a component-less stack is treated as a fresh
-	 * doll, {@link DollItemData#fresh()}). The doll type is fixed ({@link DollItem#TYPE}),
-	 * position/dimension/facing are supplied at the summon/deploy site, and state is left to the
-	 * caller — SUMMONED for a player summon, STORED for a controller install.
-	 */
+	/** item -> {@link DollData}: reads the {@code DOLL_DATA}/{@code DOLL_COLOR}/{@code CUSTOM_NAME}/
+	 * {@code DOLL_LOADOUT} components off the stack; a component-less stack is
+	 * {@link DollItemData#fresh()}. Type is fixed ({@link DollItem#TYPE}); the caller supplies
+	 * position, dimension, facing and state (item.md §2). */
 	public static DollData fromItemData(ItemStack stack, Vec3 pos, ResourceLocation dim, float yRot) {
 		DollItemData item = stack.get(GLItems.DOLL_DATA.get());
 		if (item == null) item = DollItemData.fresh();
@@ -42,13 +44,8 @@ public class DollData {
 		return data;
 	}
 
-	/**
-	 * Server-only ledger entry. Nothing here is synced via the capability:
-	 * the sidebar roster rides {@code DollRosterToClient} (entity ids) and all
-	 * per-doll display state (tint, health, validity, action status) rides
-	 * synced entity data on the doll entity. Every field is
-	 * {@code toClient = false} so capability sync stays empty.
-	 */
+	/** Server-only ledger entry. Nothing syncs through the capability: the sidebar roster rides
+	 * {@code DollRosterToClient} and per-doll display state rides synced entity data on the doll. */
 	@SerialField(toClient = false)
 	public UUID uuid;
 
@@ -74,8 +71,8 @@ public class DollData {
 	public Component customName;
 
 	/**
-	 * Doll tint (west-lead dye). Null on entries predating color tracking is treated as
-	 * {@link DyeColor#RED} everywhere it is read.
+	 * Doll tint (west-lead dye). Entries predating color tracking read null and are
+	 * treated as {@link DyeColor#RED} everywhere.
 	 */
 	@SerialField(toClient = false)
 	public DyeColor color = DyeColor.RED;
@@ -83,21 +80,13 @@ public class DollData {
 	@SerialField(toClient = false)
 	public long lastUpdate;
 
-	/**
-	 * Authoritative loadout, live and mutable. Survives park/restore/logout; mirrored
-	 * to clients via synced entity data on the doll entity. Carried on the doll item
-	 * in its own {@code DOLL_LOADOUT} component (never inside {@code DollItemData}),
-	 * converting to/from the immutable {@link DollInventory} at the boundary.
-	 */
+	/** Authoritative loadout, live and mutable: survives park/restore/logout and mirrors to clients
+	 * through synced entity data; the item carries it in {@code DOLL_LOADOUT} (loadout.md §2). */
 	@SerialField(toClient = false)
 	public MutableDollInventory inventory = new MutableDollInventory();
 
-	/**
-	 * Follow-formation slot cache. Server-only and never serialized (no
-	 * {@code SerialField}): restamped over the live summoned entries in ledger
-	 * order every tick by the roster rebuild, read by the follow goal. Stale
-	 * by at most a tick; entries without a live entity don't move anyway.
-	 */
+	/** Follow-formation slot cache, restamped over the live summoned entries every tick by the
+	 * roster rebuild and read by the follow goal. Server-only, never serialized. */
 	public int formationIndex;
 	public int formationTotal = 1;
 
@@ -110,8 +99,8 @@ public class DollData {
 	}
 
 	/**
-	 * Red is the fallback for entries that predate color tracking or deserialized without the
-	 * field (matches {@link dev.xkmc.gensokyolegacy.content.item.doll.DollItem#colorOf(ItemStack)}).
+	 * Red is the fallback for entries that predate color tracking or deserialized
+	 * without the field (matches {@link DollItem#colorOf(ItemStack)}).
 	 */
 	public DyeColor getColor() {
 		return color == null ? DyeColor.RED : color;

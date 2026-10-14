@@ -5,6 +5,11 @@ import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 
+/**
+ * How a character feels about the player, from the {@link ReputationConstants} thresholds.
+ *
+ * @see "doc/design/reputation.md"
+ */
 public enum ReputationState {
 	FRIEND, STRANGER, JERK, ENEMY;
 

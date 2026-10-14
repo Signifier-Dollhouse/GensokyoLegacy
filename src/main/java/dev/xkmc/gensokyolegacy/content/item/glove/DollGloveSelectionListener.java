@@ -20,6 +20,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * The glove's item-selector entry: wheel and scroll selection over the visible modes, stored as an ordinal.
+ *
+ * @see "doc/design/doll/glove.md"
+ */
 public class DollGloveSelectionListener extends IItemSelector implements WheelAdaptor.Provider {
 
 	public static final DollGloveSelectionListener INSTANCE = new DollGloveSelectionListener(GensokyoLegacy.loc("doll_glove"));
@@ -59,9 +64,8 @@ public class DollGloveSelectionListener extends IItemSelector implements WheelAd
 
 	@Override
 	public List<ItemStack> getList(ItemStack stack) {
-		// The scroll sidebar has no player param, so resolve the client player
-		// internally: unavailable super / suicide modes must not display.
-		// Server side keeps the static set (only used for sizing, never shown).
+		// the scroll sidebar has no player param, so resolve the client player internally;
+		// the server keeps the static set (sizing only, never shown).
 		var modes = FMLEnvironment.dist == Dist.CLIENT ?
 				DollGloveClientModes.availableForDisplay(stack) :
 				DollGloveModes.potentiallyVisible();
@@ -83,9 +87,8 @@ public class DollGloveSelectionListener extends IItemSelector implements WheelAd
 	}
 
 	/**
-	 * Scroll selection cycles the visible modes and returns the new mode's
-	 * ordinal; {@link #swap} reads the slot back as an ordinal, so the two
-	 * stay consistent even when the visible set changes size.
+	 * Scroll selection cycles the visible modes and returns the new mode's ordinal; {@link #swap} reads the
+	 * slot back as an ordinal, so the pair stays consistent as the visible set changes size.
 	 */
 	@Override
 	public int move(int i, Player player, ItemStack stack) {

@@ -64,23 +64,12 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Vegetation of the magical forest, built from hand-made templates (see
- * doc/design/magical_forest_vegetation.md). Four canopy layers placed top-down, then ground cover:
- * giant trees, large trees, medium trees and huge mushrooms, bushes and small mushrooms.
- * Ponds ({@code magical_forest/lake}) run ahead of all that in the LAKES step.
- * <p>
- * Giant and large trees sit on seed-pure jittered grids, lower layers keep their distance from
- * those grids. A low frequency noise splits the biome into forest types and a mid frequency
- * noise opens clearings:
- * <pre>
- * FOREST_TYPE &lt; GLADE          mushroom glade: huge mushrooms on a grid, few giants, no large trees
- * GLADE .. OLD_GROWTH           mixed forest: oaks and blue firs
- * FOREST_TYPE &gt;= OLD_GROWTH    blue fir old growth: firs only, denser large trees
- * CLEARING &gt;= CLEARING_MIN     clearing: no tree above bush size
- * </pre>
- * Thresholds are quantiles measured on NormalNoise: about 8% glade, 25% old growth, 4% clearing.
- * Grids, spacings and counts were tuned with tools/template_export/simulate_layout.py, which
- * mirrors the constants below: change both together.
+ * Vegetation of the magical forest, built from hand-made templates: canopy layers placed top-down, then ground cover,
+ * with ponds carved in the LAKES step ahead of everything. <p> Giant and large trees sit on seed-pure jittered grids;
+ * lower layers keep their distance from those grids. {@link #FOREST_TYPE} splits the biome into forest types, {@link
+ * #CLEARING} opens clearings.
+ *
+ * @see "doc/design/magical_forest_vegetation.md"
  */
 public class MagicalForestFeatures {
 
@@ -89,8 +78,7 @@ public class MagicalForestFeatures {
 
 	private static final double GLADE = -0.4, OLD_GROWTH = 0.2, CLEARING_MIN = 0.6;
 
-	// layers sharing cell, margin and salt are nested: the sparse one is a subset of the dense one.
-	// ~78% canopy cover outside glades, giant trunks >= 10 apart (mean 22)
+	// same cell/margin/salt as GIANT, so the sparse point set is a subset of the dense one
 	private static final GridLayer GIANT = new GridLayer(28, 5, 7310001, 0.85f);
 	private static final GridLayer GIANT_SPARSE = new GridLayer(28, 5, 7310001, 0.4f);
 	private static final GridLayer LARGE = new GridLayer(18, 3, 7310002, 0.8f);
@@ -106,7 +94,7 @@ public class MagicalForestFeatures {
 	// blocks kept free around the listed buildings, by canopy size
 	private static final int GIANT_CLEARANCE = 13, LARGE_CLEARANCE = 11, MEDIUM_CLEARANCE = 6, SMALL_CLEARANCE = 4, GROUND_CLEARANCE = 2;
 	private static final int LAKE_CLEARANCE = 11;
-	private static final List<String> STRUCTURES = List.of("marisa_house", "morichika_shop", "hakurei_shrine");
+	private static final List<String> STRUCTURES = List.of("marisa_house", "morichika_shop", "hakurei_shrine", "alice_house");
 
 	/**
 	 * Terrain tolerance of a template size: sample radius, max height difference, root extension.
@@ -191,8 +179,8 @@ public class MagicalForestFeatures {
 	}
 
 	/**
-	 * Ponds carved in the LAKES step, before vegetation: {@code TemplateFeature} rejects wet
-	 * ground, so giant and large trees keep off the water on their own and never intersect a lake.
+	 * Runs in the LAKES step, ahead of vegetation: the template feature rejects wet ground, so the
+	 * trees keep off the ponds on their own.
 	 */
 	public static void addLake(BiomeGenerationSettings.Builder builder) {
 		builder.addFeature(GenerationStep.Decoration.LAKES, LAKE_PF);
@@ -252,8 +240,7 @@ public class MagicalForestFeatures {
 				"mushroom/dream_small_1", "mushroom/dream_small_2", "mushroom/dream_small_3",
 				"mushroom/dream_small_4", "mushroom/dream_small_5"));
 
-		// growth-only variants split by type so a mushroom always grows into its own kind;
-		// no floor: bonemeal growth should not repaint the surrounding terrain
+		// growth-only, one per mushroom type, so a mushroom regrows as its own kind
 		FeatureUtils.register(ctx, GHOST_FIRE_SMALL, template, vegetation(TINY_FOOTPRINT, List.of(),
 				"mushroom/ghost_fire_small_1", "mushroom/ghost_fire_small_2"));
 		FeatureUtils.register(ctx, GHOST_FIRE_MEDIUM, template, vegetation(SMALL_FOOTPRINT, List.of(),
@@ -274,7 +261,6 @@ public class MagicalForestFeatures {
 		FeatureUtils.register(ctx, DEMONIC_MIASMA_LARGE, template, vegetation(MEDIUM_FOOTPRINT, List.of(),
 				"mushroom/demonic_miasma_large_1", "mushroom/demonic_miasma_large_2"));
 
-		// oak : blue fir = 1 : 1
 		FeatureUtils.register(ctx, GIANT_MIXED, Feature.RANDOM_SELECTOR, new RandomFeatureConfiguration(List.of(
 				new WeightedPlacedFeature(PlacementUtils.inlinePlaced(cf.getOrThrow(OAK_GIANT)), 0.5F)
 		), PlacementUtils.inlinePlaced(cf.getOrThrow(BLUE_FIR_GIANT))));
@@ -288,7 +274,7 @@ public class MagicalForestFeatures {
 		), PlacementUtils.inlinePlaced(cf.getOrThrow(MUSHROOM_MEDIUM_TEMPLATE))));
 		FeatureUtils.register(ctx, MUSHROOM_SMALL_CLUSTER, Feature.RANDOM_PATCH, new RandomPatchConfiguration(
 				5, 4, 2, PlacementUtils.inlinePlaced(cf.getOrThrow(MUSHROOM_SMALL))));
-		// pond 6-9 blocks in radius: 24 wide footprint, 3-5 blobs of component radius 8
+		// pond: 3-5 blobs of component radius 8, carved inside a 24 wide box
 		BlockState cattailWet = GLNaturalBlocks.FLAME_CATTAIL.get().defaultBlockState()
 				.setValue(WaterloggedBushBlock.WATERLOGGED, true);
 		BlockState cattailDry = GLNaturalBlocks.FLAME_CATTAIL.get().defaultBlockState()
@@ -324,7 +310,6 @@ public class MagicalForestFeatures {
 		var mixed = new NoiseBandFilter(FOREST_TYPE, GLADE, OLD_GROWTH);
 		var oldGrowth = NoiseBandFilter.atLeast(FOREST_TYPE, OLD_GROWTH);
 
-		// ponds run in the LAKES step, ahead of the trees below; on dry ground only, never on ocean
 		PlacementUtils.register(ctx, LAKE_PF, cf.getOrThrow(LAKE),
 				RarityFilter.onAverageOnceEvery(6), InSquarePlacement.spread(),
 				avoid(structures, LAKE_CLEARANCE), FLOOR, SurfaceWaterDepthFilter.forMaxDepth(0), BiomeFilter.biome());
@@ -365,9 +350,8 @@ public class MagicalForestFeatures {
 		tree(ctx, MUSHROOM_SMALL_PF, cf.getOrThrow(MUSHROOM_SMALL_CLUSTER), RarityFilter.onAverageOnceEvery(2),
 				InSquarePlacement.spread(), noGlade, avoid(structures, GROUND_CLEARANCE));
 
-		// L5 ground cover: FLOOR looks through the canopies that now cover most of the biome
+		// L5 ground cover; FLOOR is the no-leaves heightmap, so it reaches the ground under the canopies
 		cover(ctx, FALLEN_LEAVES_PF, cf.getOrThrow(FALLEN_LEAVES), CountPlacement.of(2), new CanopyFilter(4, true));
-		// placement tries per chunk (patch count x 32): short grass ~310, fern ~230; custom patch 2 x 24: broom grass 16, bracken 32
 		cover(ctx, GRASS_PF, cf.getOrThrow(GLFeatureGen.MAGICAL_FOREST_GRASS), CountPlacement.of(2));
 		cover(ctx, LARGE_FERN_PF, cf.getOrThrow(VegetationFeatures.PATCH_LARGE_FERN), RarityFilter.onAverageOnceEvery(5));
 		cover(ctx, GRASS_FOREST_PF, cf.getOrThrow(VegetationFeatures.PATCH_GRASS), CountPlacement.of(8));
@@ -379,9 +363,9 @@ public class MagicalForestFeatures {
 	private static final PlacementModifier FLOOR = HeightmapPlacement.onHeightmap(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES);
 
 	/**
-	 * A tree sized feature: the given modifiers, then the forest floor. Water and slope are
-	 * checked by the template feature itself (a surface water depth filter would also reject
-	 * columns under hanging vines), the heightmap only has to start above the ground.
+	 * A tree sized feature: the given modifiers, then the forest floor. <p> Water and slope are the template feature's
+	 * job; a surface water depth filter would also reject columns under hanging vines, so the heightmap only has to
+	 * start above the ground.
 	 */
 	private static void tree(BootstrapContext<PlacedFeature> ctx, ResourceKey<PlacedFeature> key,
 							 Holder<ConfiguredFeature<?, ?>> feature, PlacementModifier... modifiers) {

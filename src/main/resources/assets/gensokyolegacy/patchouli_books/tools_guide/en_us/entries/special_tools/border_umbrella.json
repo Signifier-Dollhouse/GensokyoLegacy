@@ -17,11 +17,11 @@
     },
     {
       "type": "patchouli:text",
-      "text": "$(bold)Travel$()$(br)Hold use to charge, then dash through the Border by the selected distance. The default distance is 1000 blocks and can be changed with the item wheel.$(br2)Travel is initially sealed. Combine the umbrella with a chorus fruit in an anvil to unlock it."
+      "text": "$(bold)Travel$()$(br)Hold use to charge, then teleport forward through the Border by the selected distance."
     },
     {
       "type": "patchouli:text",
-      "text": "$(bold)Capture$()$(br)Use the umbrella on a living creature other than a player to send it to your selected position. This can be useful for moving villagers, animals, or youkai.$(br2)Capture is initially sealed. Combine the umbrella with an echo shard in an anvil to unlock it."
+      "text": "$(bold)Capture$()$(br)Use the umbrella on a creature to send it to your selected position. This can be useful for moving villagers, animals, or containing youkai."
     }
   ]
 }

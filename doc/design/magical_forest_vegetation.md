@@ -264,6 +264,14 @@ datagen 注册两个 `worldgen/noise`（`magical_forest_type`：firstOctave −7
 - **把手工树翻译成 TrunkPlacer/FoliagePlacer**：工作量大且丢失手工形态。程序化只保留给幼树填充。
 - **整片"森林地块"模板（48×48 含多棵树）**：重复感强、无法贴合地形。
 
+### 6.5 池塘
+
+池塘不是植被层，排在更早的 `LAKES` 步（`MagicalForestFeatures.addLake`），这样所有树都在水面刻好之后才放：
+
+- 每 6 区块平均一个（`RarityFilter.onAverageOnceEvery(6)`），只长在干燥陆地上，不会铺到海洋上（`SurfaceWaterDepthFilter.forMaxDepth(0)` + `BiomeFilter`），并与 §8 那组建筑（魔理沙的家、香霖堂、博丽神社、爱丽丝的家）保持 11 格距离。
+- `MagicalForestLakeFeature` 在一个 24×24 的框内（`margin = 3`）合并 3–5 个半径 8 的椭球，实测半径约 6–9 格；水下铺黏土、四周垫泥土、岸边是草皮，再按 `decorations` 列表在水边种睡莲、小垂叶、菖蒲。
+- **树不会长进水里**：`TemplateFeature` 自带"锚点地面无流体"的检查，池塘先刻好，巨木/大树自然就避开了，不需要额外的排斥过滤器。
+
 ---
 
 ## 7. 地被与林下
@@ -296,6 +304,7 @@ datagen 注册两个 `worldgen/noise`（`magical_forest_type`：firstOctave −7
 
 ```
 content/worldgen/feature/template/   TemplateFeature, TemplateFeatureConfig, TemplateBlendProcessor
+content/worldgen/feature/lake/       MagicalForestLakeFeature, LakeMaker（池塘，见 §6.5）
 content/worldgen/placement/          GridLayer, JitteredGridPlacement, GridExclusionFilter, NoiseBandFilter,
                                      AvoidStructuresFilter, CanopyFilter
 init/registrate/GLWorldGen           feature "template"；processor "template_blend"；5 个 placement modifier type
@@ -350,7 +359,7 @@ tools/template_export/               导出器、巨橡生成器、预览、布�
 
 ### 代码评审
 
-2026-09-22 对本分支全部代码做了一次可读性 / 可维护性评审，结论与修改清单见 `doc/pending/magical_forest_vegetation_review.md`。
+2026-09-22 对本分支全部代码做了一次可读性 / 可维护性评审，结论与修改清单见 [`doc/pending/magical_forest_vegetation_review.md`](../pending/magical_forest_vegetation_review.md)。
 
 ### 游戏内验证清单
 

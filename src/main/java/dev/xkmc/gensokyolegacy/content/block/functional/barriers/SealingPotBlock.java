@@ -18,6 +18,9 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
+/** Behavior of the sealing pot: owns one area effect that cancels hostile natural spawns, and
+ * refuses placement in a chunk another pot already seals.
+ * @see "doc/design/barriers.md" */
 public class SealingPotBlock implements OnPlaceBlockMethod, OnReplacedBlockMethod, PlacementBlockMethod {
 
 	@Override
@@ -25,8 +28,8 @@ public class SealingPotBlock implements OnPlaceBlockMethod, OnReplacedBlockMetho
 		BlockPos target = context.replacingClickedOnBlock()
 				? context.getClickedPos()
 				: context.getClickedPos().relative(context.getClickedFace());
-		// This must be checked on the client too: the client predicts block placement and shrinks the
-		// held stack before the server rejects it, and that prediction is never rolled back for items.
+		// also on the client: it predicts the placement and shrinks the held stack, and item counts
+		// are never rolled back
 		return isSealed(context.getLevel(), target) ? null : def;
 	}
 
@@ -47,7 +50,8 @@ public class SealingPotBlock implements OnPlaceBlockMethod, OnReplacedBlockMetho
 	}
 
 	/**
-	 * Limit overlap: hide the effect if the chunk is already sealed by another pot.
+	 * Guards the non-item paths (pistons, {@code /setblock}) that skip
+	 * {@link #getStateForPlacement}.
 	 */
 	static boolean isChunkSealed(ServerLevel level, ChunkPos pos) {
 		return hasSealingEffect(AreaEffectManager.getAffecting(level, pos));

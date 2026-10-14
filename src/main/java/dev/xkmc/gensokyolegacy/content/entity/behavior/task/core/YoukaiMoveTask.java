@@ -1,7 +1,7 @@
 package dev.xkmc.gensokyolegacy.content.entity.behavior.task.core;
 
-import dev.xkmc.gensokyolegacy.content.attachment.datamap.InteriorNode;
-import dev.xkmc.gensokyolegacy.content.attachment.datamap.StructureInterior;
+import dev.xkmc.gensokyolegacy.content.attachment.home.datamap.InteriorNode;
+import dev.xkmc.gensokyolegacy.content.attachment.home.datamap.StructureInterior;
 import dev.xkmc.gensokyolegacy.content.attachment.home.core.IHomeHolder;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.move.CompoundPath;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.SmartYoukaiEntity;
@@ -164,12 +164,10 @@ public class YoukaiMoveTask<E extends YoukaiEntity> extends Behavior<E> {
 	}
 
 	/**
-	 * When the entity or its final target sits outside the interior rooms,
-	 * the exterior side is handled directly while the indoor side still
-	 * stages through the room graph: an exterior start heads for the
-	 * nearest entry first, an exterior target stages to the best exit and
-	 * then walks out directly. Returns the final target whenever staging
-	 * does not apply.
+	 * Stage through the interior rooms. When the entity or its final target sits outside them the
+	 * exterior side is handled directly while the indoor side still stages through the room graph:
+	 * an exterior start heads for the nearest entry first, an exterior target stages to the best
+	 * exit and then walks out directly. Returns the final target whenever staging does not apply.
 	 */
 	private static BlockPos stageViaInterior(YoukaiEntity entity, BlockPos finalPos) {
 		if (!(entity instanceof SmartYoukaiEntity smart)) return finalPos;
@@ -276,8 +274,7 @@ public class YoukaiMoveTask<E extends YoukaiEntity> extends Behavior<E> {
 
 	/**
 	 * Whether the entity drifted away from the remaining path polyline. Vanilla
-	 * navigation just steers toward the next node when this happens, cutting
-	 * straight through whatever is in between, so detect it and re-path instead.
+	 * navigation just steers toward the next node then, cutting through whatever is in between.
 	 */
 	private static boolean isDriftedFromPath(YoukaiEntity entity, Path path) {
 		if (path.getNodeCount() == 0 || path.isDone()) return false;

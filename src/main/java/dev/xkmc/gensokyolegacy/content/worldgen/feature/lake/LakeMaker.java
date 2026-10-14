@@ -8,9 +8,9 @@ import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.state.BlockState;
 
 /**
- * Builds a lake body from a union of ellipsoid blobs, adapted from TheLostLegends.
- * {@code maxHor} x {@code maxHor} footprint, {@code maxVer} tall; {@code valid} marks the
- * carved body, {@code edge} the one-block rim around it (grown {@code margin} - 1 times).
+ * Builds a lake body from a union of ellipsoid blobs, adapted from TheLostLegends: a {@code maxHor} square
+ * footprint, {@code maxVer} tall; {@code valid} is the carved body, {@code edge} the rim around it, grown
+ * {@code margin} - 1 times.
  */
 public class LakeMaker {
 

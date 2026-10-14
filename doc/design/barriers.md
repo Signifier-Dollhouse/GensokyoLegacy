@@ -64,7 +64,7 @@ independently so either can be reused by other blocks:
 
 ## 3. `SealingEffectData` — effect payload
 
-Modeled on the `MyAuraData` example in `doc/area_effect.md` §3. Currently the data needs no extra
+Modeled on the `MyAuraData` example in `doc/design/area_effect.md` §4. Currently the data needs no extra
 fields, but keep the class because `EffectData` is the system's extension point and it's what the
 spawn hook inspects.
 
@@ -255,17 +255,22 @@ The renderer is generic: **each `EffectData` declares its own visuals**, so any 
 (not just sealing) can render. `EffectData.getClientVisual(viewer)` returns a `List<AreaEffectVisual>`
 (texture, RGBA, scroll speed, which faces) — an entry may contribute to **multiple render passes**
 by returning several visuals; `SealingEffectData` returns one, and only when the viewer wears
-strange glasses or holds a sealing pot (otherwise empty).
+strange glasses or holds a sealing pot (otherwise empty). The generic side of this lives in
+`doc/design/area_effect.md` §3; below are the pot's own choices.
 
-`ClientSealingPotRenderer` (`@EventBusSubscriber`, `Dist.CLIENT`) listens to
-`RenderLevelStageEvent` at `AFTER_ENTITIES`:
+`AreaEffectRenderer` (driven by `GLClientEventHandlers` on `RenderLevelStageEvent` at
+`AFTER_ENTITIES`):
 - Groups visuals by texture into passes (one `BufferBuilder` + draw per distinct texture).
 - **Frustum-culls each region before the buffer is built**; a pass with no visible regions is
-  skipped entirely (no begin/build/draw). Also guards a null frustum.
+  skipped entirely (no begin/build/draw).
 - Walls/top/bottom of each region (`ChunkPosRange` block extents) as translucent
   `POSITION_TEX_COLOR` quads using the visual's texture
   (`gensokyolegacy:textures/barriers/sealing_pot.png`, copied from vanilla
   `textures/misc/forcefield.png`), tiled every 16 blocks via repeat wrap (UV beyond `[0,1]`).
+- Vertex colour **tints** that texture: `0.35 / 1.0 / 0.45` — the pot's own green, whose
+  hue is sampled off `textures/block/utensil/sealing_pot.png`'s main highlight
+  (RGB 89,186,114), with the green channel pinned to 1.0 so the wall keeps the brightness
+  the untinted grey had. Alpha stays `0.35`.
 - Texture scrolls **vertically** on walls: V offsets by `speed * time` (tiles/second, time from
   game time + partial tick); sealing uses `0.5` tiles/s.
 - Walls on the **negative X/Z sides are UV-flipped** so adjacent sides read consistently from inside.
@@ -285,7 +290,7 @@ strange glasses or holds a sealing pot (otherwise empty).
 | Block shape | separate `SealingPotShape` `BlockMethod` | Decided: shape decoupled from `SealingPotBlock` so both are reusable by other blocks. |
 | Spawn hook | `NaturalSpawner` mixin (§5) | Hostile-natural-only; programmatic spawns untouched; cheaper than per-mob events. |
 | Spawn scope | **Hostile (`MONSTER`) natural spawns only** | Decided: friendly mobs still spawn; youkai indifferent (programmatic → unaffected). |
-| Visual | forcefield-texture walls | Decided: `textures/barriers/sealing_pot.png` (copied from vanilla `textures/misc/forcefield.png`) placeholder until a proper effect render/art exists. |
+| Visual | forcefield-texture walls | Decided: `textures/barriers/sealing_pot.png` (copied from vanilla `textures/misc/forcefield.png`) placeholder until a proper effect render/art exists. Tinted the pot's own green so the placeholder at least reads as the pot's magic. |
 | Visual API | `EffectData.getClientVisual(viewer)` → `List<AreaEffectVisual>` | Decided: per-effect visuals (texture/color/speed/faces) with per-viewer visibility; one entry → multiple render passes; renderer batches by texture. Culling happens before any buffer is built. |
 | Visual scroll | V offset `speed*time` on walls, `0.5` tiles/s | Decided: textures move vertically; speed is per-visual. |
 | Config | `sealingPotRadius` default 4 | Decided: server-synced config, range `[1, 8]`. |
@@ -298,7 +303,7 @@ strange glasses or holds a sealing pot (otherwise empty).
 
 - Replace the forcefield-texture placeholder with proper per-pot visual art/volume once designed.
 - Radius config changes don't live-update existing pots (re-place to apply).
-- `AreaEffectManager.add`'s 1024-chunk cap is currently a no-op comment (`// enforce max`); kept
-  under it by the `[1,8]` clamp, but the cap could be implemented if the system grows.
+- `AreaEffectManager.add`'s 1024-chunk cap is currently an unenforced guard; kept under it by the
+  `[1,8]` clamp, but the cap could be implemented if the system grows.
 - Mod youkai intentionally remain spawnable in sealed zones (programmatic spawn); revisit only if a
   sealed zone should also bar custom youkai via other spawn paths (spawners, `mob_spawner`).

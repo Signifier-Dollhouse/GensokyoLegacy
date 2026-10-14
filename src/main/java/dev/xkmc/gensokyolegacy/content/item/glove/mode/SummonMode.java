@@ -13,11 +13,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
 /**
- * Rally, the glove's one toggle mode: with nothing summoned it materializes
- * everything parked plus every doll item in the inventory, otherwise it recalls
- * — itemizing the summoned dolls (overflow parked to data) and any stray dolls
- * within {@link DollAttachment#STRAY_RECALL_RANGE} blocks, which are as loose
- * as a summoned one as far as the holder is concerned (control.md §5.4).
+ * Rally, the glove's one toggle: with none summoned it materializes everything parked plus every doll
+ * item; otherwise it recalls, itemizing summoned dolls and strays in {@link DollAttachment#STRAY_RECALL_RANGE}.
+ * @see "doc/design/doll/glove.md"
  */
 public class SummonMode extends DollGloveHandler {
 

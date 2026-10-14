@@ -1,0 +1,17 @@
+{
+  "name": "药剂投掷",
+  "icon": "gensokyolegacy:explosive_hexbrew_bottle",
+  "category": "gensokyolegacy:dolls",
+  "advancement": "gensokyolegacy:main/obtain_doll_glove",
+  "sortnum": 8,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "掷弹手！$(br2)任意一个手部槽位持有可投掷药剂时，人偶的可以听到命令，把瓶子抛出去。药剂使用与玩家相同，只接受可投掷的种类。"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "射程$(br2)约 16 格，是人偶所有投掷里最短的射程。再远这条命令会被无视掉。$(br2)谨防误伤$(br2)被友方挡住轨迹后会先横向闪避，闪避约一秒之后瓶子照常飞出。"
+    }
+  ]
+}

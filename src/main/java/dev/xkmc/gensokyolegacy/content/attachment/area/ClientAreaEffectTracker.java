@@ -5,6 +5,11 @@ import net.minecraft.world.level.ChunkPos;
 
 import java.util.*;
 
+/**
+ * Client mirror of the effects the server pushed on chunk watch/unwatch; queries never ask the server.
+ *
+ * @see "doc/design/area_effect.md"
+ */
 public final class ClientAreaEffectTracker {
 
 	private static final Map<UUID, AreaEffectEntry> TRACKED = new LinkedHashMap<>();

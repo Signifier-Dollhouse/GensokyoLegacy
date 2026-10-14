@@ -9,11 +9,13 @@ import dev.xkmc.gensokyolegacy.content.attachment.doll.DollInventory;
 import dev.xkmc.gensokyolegacy.content.block.deco.shelf.MorichikaOfferData;
 import dev.xkmc.gensokyolegacy.content.block.functional.portal.PortalSide;
 import dev.xkmc.gensokyolegacy.content.client.model.*;
+import dev.xkmc.gensokyolegacy.content.item.hakkero.*;
 import dev.xkmc.gensokyolegacy.content.item.tool.BroomItem;
 import dev.xkmc.gensokyolegacy.content.item.character.*;
 import dev.xkmc.gensokyolegacy.content.item.debug.DebugGlasses;
 import dev.xkmc.gensokyolegacy.content.item.debug.DebugWand;
 import dev.xkmc.gensokyolegacy.content.item.debug.DoorDebugItem;
+import dev.xkmc.gensokyolegacy.content.attachment.party.item.PartyWand;
 import dev.xkmc.gensokyolegacy.content.item.debug.StructureWand;
 import dev.xkmc.gensokyolegacy.content.item.doll.DollItem;
 import dev.xkmc.gensokyolegacy.content.item.doll.DollItemData;
@@ -22,8 +24,10 @@ import dev.xkmc.gensokyolegacy.content.item.gift.*;
 import dev.xkmc.gensokyolegacy.content.item.glove.DollGloveItem;
 import dev.xkmc.gensokyolegacy.content.item.glove.DollGloveModel;
 import dev.xkmc.gensokyolegacy.content.item.hexbrew.StarDanmakuItem;
+import dev.xkmc.gensokyolegacy.content.item.ingredient.FairyDustItem;
 import dev.xkmc.gensokyolegacy.content.item.ingredient.FairyIceItem;
 import dev.xkmc.gensokyolegacy.content.item.ingredient.FrozenFrogItem;
+import dev.xkmc.gensokyolegacy.content.attachment.party.item.InvitationLetterItem;
 import dev.xkmc.gensokyolegacy.content.item.talisman.core.GLTalismans;
 import dev.xkmc.gensokyolegacy.content.item.dagger.DaggerGloveItem;
 import dev.xkmc.gensokyolegacy.content.item.dagger.DaggerGloveMode;
@@ -49,12 +53,15 @@ import net.minecraft.client.renderer.block.model.BlockModel;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Unit;
 import net.minecraft.tags.ItemTags;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.animal.FrogVariant;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemDisplayContext;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.Rarity;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
 import net.neoforged.neoforge.client.model.generators.loaders.SeparateTransformsModelBuilder;
@@ -68,18 +75,20 @@ public class GLItems {
 	public static final SimpleEntry<CreativeModeTab> TAB;
 
 	public static final ItemEntry<FairyIceItem> FAIRY_ICE_CRYSTAL;
+	public static final ItemEntry<FairyDustItem> FAIRY_DUST;
 	public static final ItemEntry<FrozenFrogItem> FROZEN_FROG_COLD, FROZEN_FROG_WARM, FROZEN_FROG_TEMPERATE;
 	public static final ItemEntry<Item> MYSTICAL_STRAW;
 
 	public static final ItemEntry<Item> HAKUREI_GOHEI;
 
-	public static final ItemEntry<SpellItem> REIMU_SPELL, MARISA_SPELL, SANAE_SPELL, YUKARI_SPELL_BUTTERFLY, YUKARI_SPELL_LASER, MYSTIA_SPELL;
+	public static final ItemEntry<SpellItem> REIMU_SPELL, MARISA_SPELL, SANAE_SPELL, YUKARI_SPELL_BUTTERFLY, YUKARI_SPELL_LASER, MYSTIA_SPELL, SAKUYA_SPELL;
 
 	public static final ItemEntry<StrawHatItem> STRAW_HAT;
 	public static final ItemEntry<SuwakoHatItem> SUWAKO_HAT;
 	public static final ItemEntry<KoishiHatItem> KOISHI_HAT;
 
-	public static final ItemEntry<MiniFurnace1> MINI_FURNACE_1;
+	public static final ItemEntry<HakkeroPrototype> MINI_HAKKERO_PROTOTYPE;
+	public static final ItemEntry<Hakkero> MINI_HAKKERO;
 	public static final ItemEntry<CentiPickaxe> CENTIPICKAXE;
 	public static final ItemEntry<Dowser> DOWSER;
 	public static final ItemEntry<Item> DOWSER_LEFT, DOWSER_RIGHT;
@@ -88,8 +97,8 @@ public class GLItems {
 	public static final ItemEntry<IronDaggerItem> IRON_DAGGER;
 	public static final ItemEntry<DaggerGloveItem> DAGGER_GLOVE;
 
-	public static final ItemEntry<TenguSakeItem> TENGU_SAKE;
-	public static final ItemEntry<DrinkGiftItem> GHOST_SAKE;
+	public static final ItemEntry<DrinkGiftItem> TENGU_SAKE, GHOST_SAKE;
+	public static final ItemEntry<GourdItem> IBUKI_GOURD;
 	public static final ItemEntry<Item> FAIRY_CAKE;
 	public static final ItemEntry<MagicBookItem> MAGIC_BOOK;
 
@@ -97,6 +106,7 @@ public class GLItems {
 	public static final ItemEntry<DebugWand> DEBUG_WAND;
 	public static final ItemEntry<StructureWand> STRUCTURE_WAND;
 	public static final ItemEntry<DoorDebugItem> DOOR_DEBUG_WAND;
+	public static final ItemEntry<PartyWand> PARTY_WAND;
 
 	public static final ItemEntry<BorderUmbrellaItem> BORDER_UMBRELLA;
 
@@ -111,9 +121,16 @@ public class GLItems {
 	public static final ItemEntry<StarDanmakuItem> STAR;
 	public static final ItemEntry<StarWandItem> STAR_WAND;
 	public static final ItemEntry<StrangeGlassesItem> STRANGE_GLASSES;
+	public static final ItemEntry<IceWingsItem> ICE_WINGS;
+
+	public static final ItemEntry<InvitationLetterItem> INVITATION_LETTER;
 
 	private static final DCReg DC = DCReg.of(GensokyoLegacy.REG);
-	public static final DCVal<MiniFurnace1.Data> DC_FURNACE_1 = DC.reg("mini_furnace_1_data", MiniFurnace1.Data.class, false);
+	public static final DCVal<HakkeroPrototype.Data> DC_HAKKERO_PROTOTYPE = DC.reg("mini_furnace_1_data", HakkeroPrototype.Data.class, false);
+	// all four constants, not just the lit ones: EnumCodec writes the enum ordinal and reads it back as an
+	// index into the array it was given, so a subset decodes every mode to the wrong one. OFF is never stored.
+	public static final DCVal<HakkeroMode> DC_HAKKERO_MODE = DC.enumVal("mini_furnace_2_mode", EnumCodec.of(HakkeroMode.class, HakkeroMode.values()));
+	public static final DCVal<HakkeroData> DC_HAKKERO_INV = DC.reg("mini_furnace_2_inv", HakkeroData.class, false);
 	public static final DCVal<UUID> DC_UUID = DC.uuid("uuid");
 	public static final DCVal<PortalSide> DC_PORTAL_SIDE = DC.enumVal("portal_side", EnumCodec.of(PortalSide.class, PortalSide.values()));
 	public static final DCVal<UUID> DC_DEBUG_YOUKAI = DC.uuid("debug_youkai");
@@ -140,34 +157,6 @@ public class GLItems {
 
 		// hidden
 		{
-			// gifts
-			{
-				TENGU_SAKE = reg.item("tengu_sake", TenguSakeItem::new)
-						.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
-						.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(5, 1000, GiftType.DRINK))
-						.lang("Tengu Sake").register();
-
-				// TODO placeholder favor / cooldown
-				GHOST_SAKE = reg.item("ghost_sake", DrinkGiftItem::new)
-						.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
-						.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(5, 1000, GiftType.DRINK))
-						.lang("Ghost Sake").register();
-
-				FAIRY_CAKE = reg.item("fairy_cake", p -> new Item(p.stacksTo(1)
-								.food(new FoodProperties.Builder().nutrition(4).saturationModifier(0.3f).build())))
-						.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
-						.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(3, 1000, GiftType.FOOD))
-
-						.lang("Fairy Cake").register();
-
-				MAGIC_BOOK = reg.item("magic_book", MagicBookItem::new)
-						.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
-						.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(6, 1000, GiftType.BOOK))
-						.dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(40000))
-
-						.lang("Obscure Magic Book").register();
-			}
-
 
 			STAR = reg.item("star_danmaku", p -> new StarDanmakuItem(p.rarity(Rarity.RARE)))
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/hexbrew/star")))
@@ -229,30 +218,16 @@ public class GLItems {
 						.lang("Night Sparrow \"Midnight Chorus Master\"")
 						.tag(DanmakuTagGen.PRESET_SPELL)
 						.register();
-			}
 
-			// ice
-			{
-				FAIRY_ICE_CRYSTAL = reg.item("fairy_ice_crystal", FairyIceItem::new)
-						.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/ingredient/" + ctx.getName())))
-						.register();
-				FROZEN_FROG_COLD = reg.item("frozen_frog_cold",
-								p -> new FrozenFrogItem(p.stacksTo(16), FrogVariant.COLD))
-						.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/ingredient/" + ctx.getName())))
-						.register();
-				FROZEN_FROG_WARM = reg.item("frozen_frog_warm",
-								p -> new FrozenFrogItem(p.stacksTo(16), FrogVariant.WARM))
-						.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/ingredient/" + ctx.getName())))
-						.register();
-				FROZEN_FROG_TEMPERATE = reg.item("frozen_frog_temperate",
-								p -> new FrozenFrogItem(p.stacksTo(16), FrogVariant.TEMPERATE))
-						.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/ingredient/" + ctx.getName())))
+				SAKUYA_SPELL = reg
+						.item("spell_sakuya", p -> new SpellItem(
+								p.stacksTo(1), SakuyaItemSpell::new, true,
+								() -> DanmakuItems.Bullet.DAGGER.get(DyeColor.LIGHT_BLUE).get()))
+						.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/spell/" + ctx.getName())))
+						.lang("Time Sign \"Infinity Blade\"")
+						.tag(DanmakuTagGen.PRESET_SPELL)
 						.register();
 			}
-
-			MYSTICAL_STRAW = reg.item("mystical_straw", Item::new)
-					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/ingredient/" + ctx.getName())))
-					.register();
 
 			// 博丽的御币：装饰物品，手持方式同原版剑
 			HAKUREI_GOHEI = reg.item("hakurei_gohei", Item::new)
@@ -268,14 +243,94 @@ public class GLItems {
 		TAB = reg.buildModCreativeTab("ingredients", "Gensokyo Legacy - Ingredients",
 				e -> e.icon(GLItems.MYSTICAL_STRAW::asStack));
 
+		// ingredients
+		{
+
+			MYSTICAL_STRAW = reg.item("mystical_straw", Item::new)
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/ingredient/" + ctx.getName())))
+					.register();
+			FAIRY_DUST = reg.item("fairy_dust", FairyDustItem::new)
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/ingredient/" + ctx.getName())))
+					.lang("Fairy Dust").register();
+			FAIRY_ICE_CRYSTAL = reg.item("fairy_ice_crystal", FairyIceItem::new)
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/ingredient/" + ctx.getName())))
+					.register();
+			FROZEN_FROG_COLD = reg.item("frozen_frog_cold",
+							p -> new FrozenFrogItem(p.stacksTo(16), FrogVariant.COLD))
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/ingredient/" + ctx.getName())))
+					.register();
+			FROZEN_FROG_WARM = reg.item("frozen_frog_warm",
+							p -> new FrozenFrogItem(p.stacksTo(16), FrogVariant.WARM))
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/ingredient/" + ctx.getName())))
+					.register();
+			FROZEN_FROG_TEMPERATE = reg.item("frozen_frog_temperate",
+							p -> new FrozenFrogItem(p.stacksTo(16), FrogVariant.TEMPERATE))
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/ingredient/" + ctx.getName())))
+					.register();
+
+			INVITATION_LETTER = reg.item("invitation_letter", InvitationLetterItem::new)
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/" + ctx.getName())))
+					.properties(p -> p.stacksTo(16))
+					.lang("Invitation Letter").register();
+
+		}
+
+		// gifts
+		{
+			TENGU_SAKE = reg.item("tengu_sake", p -> new DrinkGiftItem(p.food(sake(
+							new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 600, 1),
+							new MobEffectInstance(MobEffects.NIGHT_VISION, 600, 0)))))
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
+					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(5, 1000, GiftType.DRINK))
+					.lang("Tengu Sake").register();
+
+			// TODO placeholder favor / cooldown
+			// amplifiers are 0-based, so strength III is 2 and resistance I is 0
+			GHOST_SAKE = reg.item("ghost_sake", p -> new DrinkGiftItem(p.food(sake(
+							new MobEffectInstance(MobEffects.DAMAGE_BOOST, 600, 1),
+							new MobEffectInstance(MobEffects.FIRE_RESISTANCE, 600, 0)))))
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
+					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(5, 1000, GiftType.DRINK))
+					.lang("Ghost Sake").register();
+
+			// Suika's gourd: the ghost sake poured into something with no bottom. Same drink and effects, and
+			// nothing ever runs out — the stack goes back into the hand untouched (see GourdItem).
+			IBUKI_GOURD = reg.item("ibuki_gourd", p -> new GourdItem(p.stacksTo(1).food(gourd(
+							new MobEffectInstance(MobEffects.DAMAGE_BOOST, 600, 1),
+							new MobEffectInstance(MobEffects.FIRE_RESISTANCE, 600, 0)))))
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/tool/" + ctx.getName())))
+					.lang("Ibuki Gourd").register();
+
+			FAIRY_CAKE = reg.item("fairy_cake", p -> new Item(p
+							.food(new FoodProperties.Builder().nutrition(4).saturationModifier(0.3f)
+									.effect(() -> new MobEffectInstance(GLEffects.FLOATING, 600), 1).build())))
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
+					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(3, 1000, GiftType.FOOD))
+
+					.lang("Fairy Cake").register();
+
+			MAGIC_BOOK = reg.item("magic_book", MagicBookItem::new)
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
+					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(6, 1000, GiftType.BOOK))
+					.dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(40000))
+
+					.lang("Obscure Magic Book").register();
+		}
+
 		// tools
 		{
 			var head = ItemTags.create(ResourceLocation.fromNamespaceAndPath("curios", "head"));
-			MINI_FURNACE_1 = reg.item("mini_hakkero_prototype", MiniFurnace1::new)
+			var back = ItemTags.create(ResourceLocation.fromNamespaceAndPath("curios", "back"));
+			MINI_HAKKERO_PROTOTYPE = reg.item("mini_hakkero_prototype", HakkeroPrototype::new)
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/tool/" + ctx.getName())))
 					.tag(GLTagGen.MORICHIKA_OFFERS)
 					.dataMap(GLMeta.MORICHIKA_OFFER.reg(), new MorichikaOfferData(16, 24, 1, 1))
 					.lang("Mini Hakkero [Prototype]").register();
+
+			// Marisa's rebuild of the prototype: same shape, its own darker texture
+			MINI_HAKKERO = reg.item("mini_hakkero", Hakkero::new)
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/tool/" + ctx.getName())))
+					.lang("Mini Hakkero").register();
 
 			CENTIPICKAXE = reg.item("centipickaxe", CentiPickaxe::new)
 					.model((ctx, pvd) -> pvd.handheld(ctx, pvd.modLoc("item/tool/" + ctx.getName())))
@@ -319,10 +374,8 @@ public class GLItems {
 								.model(pvd.withExistingParent("item/" + ctx.getName() + "_open", "item/handheld").
 										texture("layer0", pvd.modLoc("item/border_umbrella/" + ctx.getName() + "_open")))
 								.end();
-						// icon variants for the wheel display stacks (cf. glove_display):
-						// vanilla reverses the override list at bake time and returns the
-						// first match with >= per predicate, so emit ascending values for
-						// exact per-mode matching; plain stacks keep value 0 (base model)
+						// icon variants for the wheel display stacks (cf. glove_display): vanilla reverses the
+						// override list at bake time, so emit ascending values; plain stacks keep value 0
 						var modes = BorderUmbrellaMode.values();
 						for (int i = 0; i < modes.length; i++) {
 							base.override()
@@ -354,11 +407,8 @@ public class GLItems {
 					.tag(L2ISTagGen.SELECTABLE)
 					.register();
 
-			// The lance is a hand-authored Blockbench model with real elements — a 28-unit
-			// polearm along +Z, which neither `handheld` nor `generated` can express — so it
-			// lives in src/main/resources/models/custom and is wired up as the base, i.e. every
-			// display context but GUI. The GUI gets the flat 16x16 icon instead: a 28-unit
-			// lance has no transform that lands it inside a 16px slot.
+			// The lance is a hand-authored Blockbench model with real elements — a 28-unit polearm along +Z, which
+			// neither `handheld` nor `generated` can express — so it is the base, GUI taking the 16x16 icon.
 			DOLL_LANCE = reg.item("doll_lance", DollLanceItem::new)
 					.model((ctx, pvd) -> {
 						var base = pvd.nested()
@@ -404,11 +454,8 @@ public class GLItems {
 					.lang("Star Wand").tab(TAB.key())
 					.register();
 
-			// 3D model hand-written in models/custom, so only wire up the parent here. Split with
-			// SeparateTransformsModelBuilder and gui_light: front (the same shape as DOLL_LANCE),
-			// because the two halves want opposite things: the base is the modelled dagger, which
-			// is what every display except the gui wants, and the gui gets the flat 16x16 icon
-			// instead, since a modelled blade has no transform that lands it inside a 16px slot.
+			// 3D model hand-written in models/custom, so only wire up the parent here. SeparateTransformsModelBuilder
+			// with gui_light: front is the modelled dagger (every display but the gui), the gui the flat 16x16 icon.
 			IRON_DAGGER = reg.item("iron_dagger", IronDaggerItem::new)
 					.model((ctx, pvd) -> {
 						var base = pvd.nested()
@@ -426,11 +473,8 @@ public class GLItems {
 					.lang("Iron Dagger").tab(TAB.key())
 					.register();
 
-			// The glove's held model carries a predicate override per mode rather than a flat
-			// layer0, so per-mode art can be dropped into the four texture paths without
-			// touching the wheel, which renders real glove stacks and names the hovered mode
-			// (dagger_glove.md §6). Today every mode wears the same texture. The held half is
-			// the mitten the doll glove shares (DaggerGloveModel).
+			// The glove's held model carries a predicate override per mode rather than a flat layer0, so per-mode art
+			// can be dropped in without touching the wheel; the held half is the mitten DaggerGloveModel shares.
 			DAGGER_GLOVE = reg.item("dagger_glove", p -> new DaggerGloveItem(p.stacksTo(1)))
 					.model(DaggerGloveModel::model)
 					.lang("Dagger Glove").tab(TAB.key())
@@ -450,9 +494,17 @@ public class GLItems {
 								.perspective(ItemDisplayContext.HEAD, headModel)
 								.end().guiLight(BlockModel.GuiLight.FRONT);
 					})
-					.tag(ItemTags.HEAD_ARMOR, head, GLTagGen.MORICHIKA_OFFERS)
+					.tag(head, GLTagGen.MORICHIKA_OFFERS)
 					.dataMap(GLMeta.MORICHIKA_OFFER.reg(), new MorichikaOfferData(6, 10, 1, 1))
 					.lang("Strange Glasses").tab(TAB.key())
+					.register();
+
+			// Worn in the chest armor slot, not the curios back slot alone, so it still works with curios
+			// absent. Both are alternatives; which is in use is answered at draw time by CuriosManager#hasWings.
+			ICE_WINGS = reg.item("ice_wings", p -> new IceWingsItem(p.rarity(Rarity.EPIC)))
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/curio/" + ctx.getName())))
+					.tag(back)
+					.lang("Ice Wings").tab(TAB.key())
 					.register();
 		}
 
@@ -481,6 +533,12 @@ public class GLItems {
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/debug/" + ctx.getName())))
 					.defaultLang().register();
 
+			// borrows the existing debug wand texture until it gets its own art, the
+			// same way the invitation letter borrows vanilla paper
+			PARTY_WAND = reg.item("party_wand", p -> new PartyWand(p.stacksTo(1)))
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/debug/debug_wand")))
+					.defaultLang().register();
+
 		}
 
 	}
@@ -494,6 +552,28 @@ public class GLItems {
 				.parent(new ModelFile.UncheckedModelFile("item/generated"))
 				.texture("layer0", pvd.modLoc("item/doll/doll0"))
 				.texture("layer1", pvd.modLoc("item/doll/doll1"));
+	}
+
+	/** The food properties of a bottle of sake. It feeds nothing (no nutrition, so the party food system never
+	 *  mistakes it for a meal), is drinkable on a full stomach, leaves an empty glass bottle behind, and rolls
+	 *  every effect on the last gulp. */
+	private static FoodProperties sake(MobEffectInstance... effects) {
+		return sake(true, effects);
+	}
+
+	/** The same drink poured into something with no bottom to it. Still always drinkable and still no nutrition,
+	 *  but nothing is left behind: {@link GourdItem} puts the gourd back where it was. Without this the player
+	 *  would get a glass bottle per sip, and the "infinite" would read as a bottling machine. */
+	private static FoodProperties gourd(MobEffectInstance... effects) {
+		return sake(false, effects);
+	}
+
+	private static FoodProperties sake(boolean leavesBottle, MobEffectInstance... effects) {
+		FoodProperties.Builder builder = new FoodProperties.Builder().alwaysEdible();
+		if (leavesBottle) builder.usingConvertsTo(Items.GLASS_BOTTLE);
+		for (MobEffectInstance effect : effects)
+			builder.effect(() -> new MobEffectInstance(effect), 1.0F);
+		return builder.build();
 	}
 
 	public static void register() {

@@ -11,9 +11,10 @@ import java.util.Arrays;
 
 /**
  * Mutable variant of {@link DollInventory}: the live loadout held by {@code DollData}.
- * Unlike the item component, {@link #get(DollSlot)} returns the stored stack directly
- * so callers can modify it in place (shrink ammo, damage talismans, swap hands).
- * Backed by a plain array indexed by {@link DollSlot} ordinal (not an enum map).
+ * Unlike the item component, {@link #get(DollSlot)} returns the stored stack directly so
+ * callers can modify it in place.
+ *
+ * @see "doc/design/doll/loadout.md"
  */
 @SerialClass
 public class MutableDollInventory {
@@ -78,8 +79,8 @@ public class MutableDollInventory {
 	}
 
 	/**
-	 * Hand switch, in place: swaps main/off contents. Used when a doll is commanded
-	 * to act with its off-hand item — the swap sticks until a further command swaps back.
+	 * Hand switch, in place: swaps main/off contents, and the swap sticks until a further
+	 * command swaps back.
 	 */
 	public void swapHands() {
 		int a = DollSlot.MAIN_HAND.ordinal(), b = DollSlot.OFF_HAND.ordinal();

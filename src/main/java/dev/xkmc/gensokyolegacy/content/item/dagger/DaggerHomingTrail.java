@@ -20,50 +20,18 @@ import org.jetbrains.annotations.Nullable;
 import java.util.UUID;
 
 /**
- * The second stage of a {@link DaggerGloveMode#HOMING} shot: fired when the straight-flight first
- * stage runs out, in the direction of where the target is <em>now</em>.
- * <p>
- * This is the shape {@code ReimuPart} uses (content/spell/part/ReimuPart.java), and the shape
- * danmaku_api's own {@code HomingSpellForm.Stage} uses: a danmaku flies a fixed line for a fixed
- * number of ticks and then, the instant it expires, spawns a second danmaku aimed at a freshly
- * sampled target position. The stage boundary is what turns the dagger — there is no mover
- * involved, and that is the point.
- * <p>
- * <b>Why a trail action rather than a steering mover.</b> This is the whole reason the second stage
- * exists instead of a mover that turns the first one. A mover can only ask the level where an
- * entity <em>is</em>, and the client's copy of that entity is not the server's: entity positions
- * arrive late, they are interpolated, and under load the gap is large enough that a mover steering
- * on a live target evaluates a visibly different path on each side. The daggers would then be drawn
- * along a trajectory they are not flying, and any client-side collision would disagree with the
- * server's about where they are.
- * <p>
- * Re-aiming exactly once, on the server, and expressing both halves of the flight as plain
- * two straight legs, each a constant velocity, makes the whole trajectory a fixed geometric path:
- * two line segments meeting at one server-chosen point, with one server-chosen direction. Neither
- * side consults a live entity — and the sampled direction reaches the client as part of the second
- * stage's spawn packet, so there is no separate sync to get wrong.
- * The cost is honest and worth stating: the turn is aimed at where the target is at the turn tick
- * and does not track it afterwards, so a target that keeps running sidesteps the second stage
- * instead of being followed to the end.
- * <p>
- * <b>Only the server runs this.</b> {@code ItemBulletEntity#terminate}, the hook that calls a trail
- * action, is reached only on the server, so the second-stage danmaku is spawned authoritatively
- * and reaches clients as an ordinary entity through the normal spawn path. There is no client-side
- * counterpart that could fall out of step, and no need for one.
- * <p>
- * The target is held by UUID rather than network id, unlike the spellcard's tickers: resolution
- * here happens exclusively server-side, where {@code ServerLevel#getEntity(UUID)} exists, and a
- * UUID cannot be silently recycled onto a different entity if the target dies mid-flight.
+ * The second stage of a {@link DaggerGloveMode#HOMING} shot: fired when the straight-flight first stage runs out,
+ * aimed at where the target is <em>now</em>. The stage boundary is what turns the dagger — two straight legs at
+ * constant speed, so only the bend is a server decision. The target is held by UUID, never a recyclable network id.
+ *
+ * @see "doc/design/dagger_glove.md"
  */
 @SerialClass
 public class DaggerHomingTrail extends TrailAction {
 
 	/**
-	 * The first stage, whose return this trail is responsible for transferring.
-	 * <p>
-	 * Not a {@link SerialField}: like {@link #cachedLevel}, this only has to survive the ten to
-	 * twenty ticks between the throw and the turn, and a trail that lost it simply ends the shot
-	 * with the first stage returning the dagger itself, which is the correct outcome anyway.
+	 * The first stage, whose return this trail must transfer. Not a {@link SerialField}: a trail that lost
+	 * it ends the shot with the first stage returning the dagger itself, which is correct anyway.
 	 */
 	private transient IronDaggerBulletEntity firstStage = null;
 	@SerialField
@@ -82,10 +50,8 @@ public class DaggerHomingTrail extends TrailAction {
 	private int life = 40;
 
 	/**
-	 * Server-side context, deliberately not a {@link SerialField}: it mirrors {@code TrailAction}'s
-	 * own unsaved {@code cached} holder, and a trail action only ever runs within a second or two
-	 * of being set up. A dagger that outlives the level reference (saved mid-flight, reloaded
-	 * elsewhere) simply does not re-aim, which is the same as its target having vanished.
+	 * Server-side context, deliberately not a {@link SerialField}: it mirrors {@code TrailAction}'s own
+	 * unsaved {@code cached} holder. A trail that lost it does not re-aim, as if the target had vanished.
 	 */
 	private transient ServerLevel cachedLevel = null;
 	private transient LivingEntity cachedOwner = null;
@@ -108,42 +74,15 @@ public class DaggerHomingTrail extends TrailAction {
 	}
 
 	/**
-	 * Called by {@code ItemBulletEntity#terminate} when the first stage's life runs out, passing
-	 * the position and velocity the first stage ended on.
-	 * <p>
-	 * <b>The return is transferred, not decided.</b> Both stages are flagged returnable, and this
-	 * one claims the first stage's return ({@link IronDaggerBulletEntity#handOffTo}) only after it has
-	 * actually spawned — and lets the outcome of that claim decide whether it is itself returnable.
-	 * Whichever way the shot ends, exactly one dagger comes back.
-	 * <p>
-	 * The alternative — flagging the first stage non-returnable up front and relying on this trail
-	 * always producing a successor — loses the dagger whenever it does not: the target died during
-	 * the outbound flight, the level reference was gone, or the first stage hit a wall or an entity
-	 * before its life ran out (which discards it outright, never reaching {@code terminate} at all).
-	 * All of those leave no returnable entity behind and the dagger was simply gone.
-	 *
-	 * <p>
-	 * The claim can also be refused from the other direction: a first stage that hit geometry on the
-	 * very tick its life ran out has already handed the dagger back, and paying that return disarms
-	 * this trail ({@link IronDaggerBulletEntity#giveBack}) so it never runs at all. See there — it is
-	 * the half of the fix that {@code givenBack} alone does not cover, and it is why this stage takes
-	 * its returnability from the claim instead of assuming it.
-	 *
-	 * <p>
-	 * The glove's rune rides the <em>second</em> stage, not the first. A homing first stage spends
-	 * its whole life on the outbound run and normally hits nothing — its job is to be a fixed
-	 * geometric segment ending at the turn point — so a rune carried there would almost never fire,
-	 * and firing on whatever the outbound run happened to clip would not be what "on hit" should
-	 * mean for a mode that is meant to land. The stage that reaches the target is the one holding
-	 * the effect.
+	 * Called by {@code ItemBulletEntity#terminate} when the first stage's life runs out. The return is transferred,
+	 * not decided: it is claimed ({@link IronDaggerBulletEntity#handOffTo}) only once a successor spawns, so a path
+	 * spawning nothing leaves the first stage to return the dagger (§4, §4a). The rune rides the second stage.
 	 */
 	@Override
 	public void execute(Vec3 pos, Vec3 dir) {
 		ServerLevel level = cachedLevel;
-		// every early return below leaves the first stage returnable, which is what puts the dagger
-		// back: it expires on the same tick and hands it over itself. Only the path that actually
-		// spawns a successor claims the return, so a turn that produced nothing costs the thrower
-		// nothing. (This is the bug that lost daggers on the first homing test.)
+		// every early return below leaves the first stage returnable: only a turn that really produced
+		// a successor claims the return, so a turn that produced nothing costs the thrower nothing
 		if (level == null || level.isClientSide) return;
 		Vec3 heading = reAim(level, pos);
 		if (heading == null) return;
@@ -151,30 +90,20 @@ public class DaggerHomingTrail extends TrailAction {
 		danmaku.setItem(dagger);
 		danmaku.setRune(rune);
 		// no mover, same as the first stage: the aimed leg's speed and heading are both fixed, so
-		// constant delta movement carries it. The heading change is done here, once, by seeding the
-		// new stage's velocity rather than by a mover that turns it tick by tick.
+		// constant delta movement carries it. The heading change is seeded here, once.
 		danmaku.setup(DanmakuItems.Bullet.DAGGER.damage(), life, false, false, heading.scale(speed));
 		danmaku.moveTo(pos);
 		level.addFreshEntity(danmaku);
-		// claim the first stage's return only now that a successor exists to carry it, and let that
-		// claim decide whether this stage is the one that returns. A refused claim means the first
-		// stage still owns the dagger and will hand it back itself, so a successor spawned anyway
-		// must not also be returnable — that is two daggers out of one. Set after the spawn because
-		// the flag has to follow the claim, and the entity cannot tick until the next tick anyway.
+		// set after the spawn: the entity cannot tick until the next tick anyway, and a refused claim
+		// means the first stage still owns the dagger, so a successor must not also be returnable
 		danmaku.setReturnable(firstStage != null && firstStage.handOffTo(true));
 		level.playSound(null, pos.x, pos.y, pos.z, SoundEvents.TRIDENT_HIT,
 				SoundSource.PLAYERS, 0.5F, 1.5F);
 	}
 
 	/**
-	 * The holder-carrying form, which a glove dagger never actually takes.
-	 * <p>
-	 * A glove dagger's owner is the thrower, never a {@code CardHolder}, so
-	 * {@code ItemBulletEntity#terminate} takes its no-holder branch and calls
-	 * {@link #execute(Vec3, Vec3)}. This overload exists only so that a holder-carrying path cannot
-	 * silently do nothing: it adopts the level off the holder when the trail has lost its own, which
-	 * is what would happen to a trail that was saved mid-flight and reloaded, and then defers to the
-	 * same implementation.
+	 * The holder-carrying form, which a glove dagger never takes: its owner is the thrower, never a
+	 * {@code CardHolder}, so {@code terminate} takes its no-holder branch. It adopts the level off the holder.
 	 */
 	@Override
 	public void execute(CardHolder holder, Vec3 pos, Vec3 dir) {
@@ -185,14 +114,8 @@ public class DaggerHomingTrail extends TrailAction {
 	}
 
 	/**
-	 * The unit direction for the second stage, or null to end the shot.
-	 * <p>
-	 * The target is re-read now rather than reusing the position sampled when the glove was
-	 * thrown. A target that has been walking during the ten to eighteen ticks the first stage lasts
-	 * has usually moved several blocks, and aiming at where it <em>was</em> would be ten daggers
-	 * thrown slightly wrong rather than a homing volley. A target that has died, unloaded or left
-	 * the level is not re-aimed at, and the first stage's own heading carries on instead — which is
-	 * what the spellcard does when its target disappears.
+	 * The unit direction for the second stage, or null to end the shot. The target is re-read now rather
+	 * than reusing the position sampled at the throw: it has usually moved several blocks.
 	 */
 	@Nullable
 	private Vec3 reAim(ServerLevel level, Vec3 pos) {

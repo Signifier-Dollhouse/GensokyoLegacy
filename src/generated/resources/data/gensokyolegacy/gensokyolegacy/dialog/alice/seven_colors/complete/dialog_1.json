@@ -1,0 +1,26 @@
+{
+  "animations": [
+    "dialog_agree"
+  ],
+  "options": [
+    {
+      "type": "gensokyolegacy:simple",
+      "actions": [],
+      "conditions": [],
+      "next": "gensokyolegacy:alice/seven_colors/complete/reject/dialog_1",
+      "text": "gensokyolegacy/alice/seven_colors/option/complete/reject"
+    },
+    {
+      "type": "gensokyolegacy:simple",
+      "actions": [
+        {
+          "type": "gensokyolegacy:complete_quest"
+        }
+      ],
+      "conditions": [],
+      "next": "gensokyolegacy:alice/seven_colors/complete/handover/dialog_1",
+      "text": "gensokyolegacy/alice/seven_colors/option/complete/handover"
+    }
+  ],
+  "text": "gensokyolegacy/alice/seven_colors/dialog/alice/seven_colors/complete/dialog_1"
+}

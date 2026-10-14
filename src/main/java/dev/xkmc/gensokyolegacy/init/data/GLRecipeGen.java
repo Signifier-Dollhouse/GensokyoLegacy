@@ -8,6 +8,7 @@ import dev.xkmc.gensokyolegacy.content.block.functional.alchemypot.recipe.WitchM
 import dev.xkmc.gensokyolegacy.content.block.functional.alchemypot.stage.PotionStageBuilder;
 import dev.xkmc.gensokyolegacy.content.item.hexbrew.HexBrew;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
+import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLBlocks;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLDecoBlocks;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLFurniture;
@@ -34,15 +35,49 @@ public class GLRecipeGen {
 
 	public static void genRecipe(RegistrateRecipeProvider pvd) {
 		furniture(pvd);
-		wroughtIron(pvd);
 		hexbrew(pvd);
+		fairyStuff(pvd);
+
+		unlock(pvd, ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, GLItems.INVITATION_LETTER.get(), 4)::unlockedBy, Items.PAPER)
+				.requires(Items.PAPER).requires(Items.POPPY).save(pvd);
+	}
+
+	private static void fairyStuff(RegistrateRecipeProvider pvd) {
+		// one cake stirred with one dust comes out as seven: the dust is the whole
+		// reason a cake beats a cookie, and seven makes feeding her worth the trip
+		unlock(pvd, ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, GLItems.FAIRY_CAKE.get(), 7)::unlockedBy,
+				GLItems.FAIRY_DUST.get())
+				.requires(Items.CAKE)
+				.requires(GLItems.FAIRY_DUST.get())
+				.save(pvd, GensokyoLegacy.loc("fairy_cake_from_cake_and_dust"));
+
+		// one crystal crushed down, the other way into the loop. Four, because it is the
+		// only source not gated on standing in front of a fairy
+		unlock(pvd, ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, GLItems.FAIRY_DUST.get(), 4)::unlockedBy,
+				GLItems.FAIRY_ICE_CRYSTAL.get())
+				.requires(GLItems.FAIRY_ICE_CRYSTAL.get())
+				.save(pvd, GensokyoLegacy.loc("fairy_dust_from_fairy_ice_crystal"));
+
+		unlock(pvd, ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, Blocks.BLUE_ICE, 8)::unlockedBy,
+				GLItems.FAIRY_ICE_CRYSTAL.get())
+				.pattern("III")
+				.pattern("ICI")
+				.pattern("III")
+				.define('I', Items.ICE)
+				.define('C', GLItems.FAIRY_ICE_CRYSTAL.get())
+				.save(pvd, GensokyoLegacy.loc("blue_ice_from_ice_and_fairy_ice_crystal"));
+
+		unlock(pvd, ShapedRecipeBuilder.shaped(RecipeCategory.MISC, GLItems.ICE_WINGS.get())::unlockedBy,
+				GLItems.FAIRY_ICE_CRYSTAL.get())
+				.pattern("C C").pattern("CCC").pattern("C C")
+				.define('C', GLItems.FAIRY_ICE_CRYSTAL.get()).save(pvd);
+	}
+
+	public static void hexbrew(RegistrateRecipeProvider pvd) {
 
 		unlock(pvd, ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, GLBlocks.ALCHEMY_POT.get(), 1)::unlockedBy, Items.IRON_INGOT)
 				.pattern("I I").pattern("IFI").pattern("III")
 				.define('I', Items.IRON_INGOT).define('F', GLNaturalBlocks.STAR_FLOWER).save(pvd);
-	}
-
-	public static void hexbrew(RegistrateRecipeProvider pvd) {
 
 		// hexbrew
 		{
@@ -65,7 +100,7 @@ public class GLRecipeGen {
 					.save(pvd, GensokyoLegacy.loc("explosive_hexbrew"));
 
 			unlock(pvd, new UnorderedAlchemyRecipeBuilder()
-					.fluid(Fluids.WATER)
+					.fluid(HexBrew.MUNDANE_HEXBREW.getSource())
 					.add(GLNaturalBlocks.DEMONIC_MIASMA_MUSHROOM_SET.cap.get())
 					.add(Items.SPIDER_EYE)
 					.add(Items.ROTTEN_FLESH)
@@ -76,6 +111,86 @@ public class GLRecipeGen {
 					.resultFluid(HexBrew.MIASMA_HEXBREW.getSource(), 1000)
 					::unlockedBy, GLNaturalBlocks.DEMONIC_MIASMA_MUSHROOM_SET.cap.get().asItem())
 					.save(pvd, GensokyoLegacy.loc("miasma_hexbrew"));
+
+			// the fairy brew: same carrier as all the others, spiked with
+			// the fairy's own powder; drunk rather than thrown, so it grants Floating.
+			unlock(pvd, new UnorderedAlchemyRecipeBuilder()
+					.fluid(HexBrew.MUNDANE_HEXBREW.getSource())
+					.add(GLItems.FAIRY_DUST.get())
+					.add(GLNaturalBlocks.DREAM_MUSHROOM_SET.cap.get())
+					.add(GLNaturalBlocks.DREAM_MUSHROOM_SET.cap.get())
+					.add(GLNaturalBlocks.STAR_FLOWER)
+					.time(400)
+					.resultFluid(HexBrew.FAIRY_HEXBREW.getSource(), 1000)
+					::unlockedBy, GLItems.FAIRY_DUST.get())
+					.save(pvd, GensokyoLegacy.loc("fairy_hexbrew"));
+		}
+
+		// the elixir is a carrier, not a brew of its own: a full tank of it plus
+		// the one ingredient that decides which of the three comes out
+		{
+			unlock(pvd, new UnorderedAlchemyRecipeBuilder()
+					.fluid(HexBrew.HEXBREW_ELIXIR.getSource())
+					.add(Items.SHULKER_SHELL)
+					.time(400)
+					.resultFluid(HexBrew.SHIELD_HEXBREW.getSource(), 1000)
+					::unlockedBy, Items.SHULKER_SHELL)
+					.save(pvd, GensokyoLegacy.loc("shield_hexbrew"));
+
+			unlock(pvd, new UnorderedAlchemyRecipeBuilder()
+					.fluid(HexBrew.HEXBREW_ELIXIR.getSource())
+					.add(GLNaturalBlocks.STAR_FLOWER).add(GLNaturalBlocks.STAR_FLOWER)
+					.add(GLNaturalBlocks.STAR_FLOWER).add(GLNaturalBlocks.STAR_FLOWER)
+					.time(400)
+					.resultFluid(HexBrew.STARLIGHT_HEXBREW.getSource(), 1000)
+					::unlockedBy, GLNaturalBlocks.STAR_FLOWER.asItem())
+					.save(pvd, GensokyoLegacy.loc("starlight_hexbrew"));
+
+			var miasmaCap = GLNaturalBlocks.DEMONIC_MIASMA_MUSHROOM_SET.cap.get();
+			unlock(pvd, new UnorderedAlchemyRecipeBuilder()
+					.fluid(HexBrew.HEXBREW_ELIXIR.getSource())
+					.add(miasmaCap).add(miasmaCap).add(miasmaCap).add(miasmaCap)
+					.time(400)
+					.resultFluid(HexBrew.HYPHAE_HEXBREW.getSource(), 1000)
+					::unlockedBy, miasmaCap.asItem())
+					.save(pvd, GensokyoLegacy.loc("hyphae_hexbrew"));
+		}
+
+		// the refined hexbrews: the solvent brews overclocked by re-brewing them on the
+		// elixir, same ingredients and yield, the charge buying one more level of the thing.
+		{
+			unlock(pvd, new UnorderedAlchemyRecipeBuilder()
+					.fluid(HexBrew.HEXBREW_ELIXIR.getSource())
+					.add(Items.BLAZE_POWDER)
+					.add(Items.GUNPOWDER)
+					.time(200)
+					.resultFluid(HexBrew.REFINED_EXPLOSIVE_HEXBREW.getSource(), 1000)
+					::unlockedBy, Items.BLAZE_POWDER)
+					.save(pvd, GensokyoLegacy.loc("refined_explosive_hexbrew"));
+
+			unlock(pvd, new UnorderedAlchemyRecipeBuilder()
+					.fluid(HexBrew.HEXBREW_ELIXIR.getSource())
+					.add(GLNaturalBlocks.DEMONIC_MIASMA_MUSHROOM_SET.cap.get())
+					.add(Items.SPIDER_EYE)
+					.add(Items.ROTTEN_FLESH)
+					.add(Items.ROTTEN_FLESH)
+					.add(Items.ROTTEN_FLESH)
+					.add(Items.ROTTEN_FLESH)
+					.time(400)
+					.resultFluid(HexBrew.REFINED_MIASMA_HEXBREW.getSource(), 1000)
+					::unlockedBy, GLNaturalBlocks.DEMONIC_MIASMA_MUSHROOM_SET.cap.get().asItem())
+					.save(pvd, GensokyoLegacy.loc("refined_miasma_hexbrew"));
+
+			unlock(pvd, new UnorderedAlchemyRecipeBuilder()
+					.fluid(HexBrew.HEXBREW_ELIXIR.getSource())
+					.add(GLItems.FAIRY_DUST.get())
+					.add(GLNaturalBlocks.DREAM_MUSHROOM_SET.cap.get())
+					.add(GLNaturalBlocks.DREAM_MUSHROOM_SET.cap.get())
+					.add(GLNaturalBlocks.STAR_FLOWER)
+					.time(400)
+					.resultFluid(HexBrew.REFINED_FAIRY_HEXBREW.getSource(), 1000)
+					::unlockedBy, GLItems.FAIRY_DUST.get())
+					.save(pvd, GensokyoLegacy.loc("refined_fairy_hexbrew"));
 		}
 
 		// potion
@@ -175,11 +290,10 @@ public class GLRecipeGen {
 	}
 
 	/**
-	 * Invented survival recipes for decorative / furniture blocks.
-	 * Per-wood pieces are cut on the stonecutter from their own planks, so the
-	 * output matches the input wood and crafting-grid collisions with other
-	 * mods are impossible. Fuel values follow ingredient burn time: a plank
-	 * (300) cutting into N pieces splits the value (walls 1 plank -> 2 = 150).
+	 * Invented survival recipes for decorative / furniture blocks. Per-wood pieces are cut on the stonecutter from
+	 * their own planks, so the output matches the input wood and crafting-grid collisions with other mods are
+	 * impossible. Fuel values follow ingredient burn time: a plank (300) cutting into N pieces splits the value (walls
+	 * 1 plank -> 2 = 150).
 	 */
 	private static void furniture(RegistrateRecipeProvider pvd) {
 		for (var e : GLDecoBlocks.WoodType.values()) {
@@ -200,7 +314,7 @@ public class GLRecipeGen {
 		for (int i = 0; i < GLDecoBlocks.TILE_COLORS.length; i++) {
 			var dye = DyeItem.byColor(GLDecoBlocks.TILE_COLORS[i]);
 			unlock(pvd, ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS,
-							GLDecoBlocks.TILE_SETS[i].block.get(), 8)::unlockedBy, dye)
+					GLDecoBlocks.TILE_SETS[i].block.get(), 8)::unlockedBy, dye)
 					.pattern("###").pattern("#X#").pattern("###")
 					.define('#', Blocks.DEEPSLATE_TILES).define('X', dye)
 					.save(pvd);
@@ -266,37 +380,37 @@ public class GLRecipeGen {
 		unlock(pvd, ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, GLFurniture.CARTON.get(), 2)::unlockedBy, Items.PAPER)
 				.pattern("PPP").pattern("PPP")
 				.define('P', Items.PAPER).save(pvd);
-	}
 
-	/**
-	 * Wrought iron: iron bars welded into a ring and blackened with a single
-	 * black dye, then two bars stacked into a pillar. Neither step loses bars,
-	 * so the cost of the metal is the same as vanilla iron bars throughout.
-	 */
-	private static void wroughtIron(RegistrateRecipeProvider pvd) {
-		// 8 bars around the dye, 8 bars out
 		unlock(pvd, ShapedRecipeBuilder.shaped(
 				RecipeCategory.DECORATIONS, GLDecoBlocks.WROUGHT_IRON_BARS.get(), 8)::unlockedBy, Items.IRON_BARS)
 				.pattern("I I").pattern("IBI").pattern("I I")
 				.define('I', Items.IRON_BARS).define('B', Items.BLACK_DYE).save(pvd);
 		// two bars stacked, like a vanilla pillar
 		unlock(pvd, ShapedRecipeBuilder.shaped(
-				RecipeCategory.DECORATIONS, GLDecoBlocks.WROUGHT_IRON_PILLAR.get())::unlockedBy,
+						RecipeCategory.DECORATIONS, GLDecoBlocks.WROUGHT_IRON_PILLAR.get())::unlockedBy,
 				GLDecoBlocks.WROUGHT_IRON_BARS.get().asItem())
 				.pattern("W").pattern("W")
 				.define('W', GLDecoBlocks.WROUGHT_IRON_BARS.get()).save(pvd);
+		// a bar laid flat as the stand, three candles on top: the block burns
+		// three wicks, so the candles are consumed instead of placed
+		unlock(pvd, ShapedRecipeBuilder.shaped(
+						RecipeCategory.DECORATIONS, GLFurniture.CANDLESTICK.get())::unlockedBy,
+				GLDecoBlocks.WROUGHT_IRON_BARS.get().asItem())
+				.pattern("CCC").pattern(" W ")
+				.define('W', GLDecoBlocks.WROUGHT_IRON_BARS.get()).define('C', Items.CANDLE).save(pvd);
 	}
 
 	/**
-	 * Noren: a curtain is its own colour of wool cut on the stonecutter, so the
-	 * whole family has a vanilla entry point. Dyeing between the four patterns
-	 * is added separately, next to each block's registration.
+	 * Noren: a curtain is its own colour of wool cut on the stonecutter, so the whole family has a vanilla entry point.
+	 * Dyeing between the four patterns is added separately, next to each block's registration.
 	 */
 	public static void cutWool(RegistrateRecipeProvider pvd, DyeColor color, Supplier<? extends ItemLike> result) {
 		pvd.stonecutting(DataIngredient.items(wool(color)), RecipeCategory.DECORATIONS, result);
 	}
 
-	/** {@link DyeColor} carries no reference to its wool block, so spell them out. */
+	/**
+	 * {@link DyeColor} carries no reference to its wool block, so spell them out.
+	 */
 	private static Block wool(DyeColor color) {
 		return switch (color) {
 			case WHITE -> Blocks.WHITE_WOOL;

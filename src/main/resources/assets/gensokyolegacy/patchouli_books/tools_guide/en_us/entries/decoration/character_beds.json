@@ -1,0 +1,23 @@
+{
+  "name": "Character Beds",
+  "icon": "gensokyolegacy:marisa_bed",
+  "category": "gensokyolegacy:decoration",
+  "advancement": "gensokyolegacy:main/welcome",
+  "sortnum": 7,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": [
+        "gensokyolegacy:reimu_bed",
+        "gensokyolegacy:marisa_bed",
+        "gensokyolegacy:morichika_bed"
+      ],
+      "title": "Made to Order",
+      "text": "Each bed belongs to one character and cannot be claimed twice. Stand one in a room of the matching house and that character takes it as hers. You cannot sleep in it, and it is not your respawn point either."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)What they do$()$(br)Right-clicking a bed does nothing at all. Once a character has claimed one, she sleeps in it through the night, and works as her respawn point."
+    }
+  ]
+}

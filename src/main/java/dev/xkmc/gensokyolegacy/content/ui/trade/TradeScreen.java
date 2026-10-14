@@ -263,6 +263,15 @@ public class TradeScreen extends AbstractContainerScreen<TradeMenu> {
 		return GLLang.Trade.BUY.get(bracket(offer.result().getHoverName(), ChatFormatting.YELLOW), character);
 	}
 
+	/**
+	 * Whether the tooltip needs its own ingredient list. A priced offer already shows its cost - a want offer names
+	 * its ingredient in the action line, a buy offer a {@code ¥N} tag on the slot (see {@link #renderLabels}) - so a
+	 * craft offer, or a multi-ingredient priced one, still lists them here.
+	 */
+	private static boolean showIngredients(TradeOffer offer) {
+		return IClientOffer.resolve(offer).currency().isEmpty() || offer.ingredients().size() > 1;
+	}
+
 	private static Component bracket(Component inner, ChatFormatting color) {
 		return Component.literal("[").append(inner.copy().withStyle(color)).append("]");
 	}
@@ -287,7 +296,7 @@ public class TradeScreen extends AbstractContainerScreen<TradeMenu> {
 					var list = new ArrayList<Component>();
 					list.add(actionText(offer.value()));
 					list.add(GLLang.Trade.STOCK.get(data.getRemainingTrades(menu.player, offer), data.getMaxTrades(offer)));
-					if (offer.value().ingredients().size() > 1) {
+					if (showIngredients(offer.value())) {
 						list.add(GLLang.Trade.INGREDIENTS.get());
 						for (var entry : offer.value().ingredients())
 							list.add(entry.getDesc(menu.player));

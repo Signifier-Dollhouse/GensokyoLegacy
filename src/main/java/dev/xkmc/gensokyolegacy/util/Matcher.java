@@ -13,11 +13,8 @@ public class Matcher {
 	}
 
 	/**
-	 * Returns assignment[itemIndex][requirementIndex], or null if no valid
-	 * arrangement exists.
-	 * <p>
-	 * assignment[i][j] is the number of units from item i assigned to
-	 * requirement j.
+	 * Returns assignment[itemIndex][requirementIndex] - the units of item i handed to requirement j - or
+	 * null if no valid arrangement exists.
 	 */
 	public static int @Nullable [][] solve(int[] items, Req[] reqs) {
 		int nItem = items.length;

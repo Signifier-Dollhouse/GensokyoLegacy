@@ -1,0 +1,23 @@
+{
+  "name": "长枪冲锋",
+  "icon": "gensokyolegacy:doll_lance",
+  "category": "gensokyolegacy:dolls",
+  "advancement": "gensokyolegacy:main/obtain_doll_glove",
+  "sortnum": 5,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "gensokyolegacy:doll_lance",
+      "title": "长枪冲锋",
+      "text": "人偶长枪是唯一能让人偶进行近战攻击的武器——人偶的手掌握不住剑，接到攻击命令后，人偶会以平时两倍的速度冲向目标，再飞回玩家。"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "特殊情况$(br2)当人偶手里没有任何能攻击的东西、并且至少空出一只手时，它改为扇巴掌，挥掌只有人偶自身的 1 点伤害。$(br2)弹幕优先于长枪$(br2)只要手里还有弹幕类道具，人偶就会射击而不会冲锋。"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "冲锋限制$(br2)冲锋只会从目标 16 格以内开始，并且绝不会把人偶带离出发点超过 20 格——超过就会转身折返，一直逃跑的目标则被直接放弃。若没有任何人偶够得着的目标，整条攻击命令会直接被拒绝。"
+    }
+  ]
+}

@@ -22,7 +22,9 @@
 			"structure_abnormal": "发现%s个错误方块",
 			"loading": "加载中...",
 			"doors_to_close": "待关闭的门（%s）：",
-			"youkai_avoid": "%s可能暂时不想见你"
+			"youkai_avoid": "%s可能暂时不想见你",
+			"entity_party_eaten": "宴席上：已吃 %s／%s 饱食量",
+			"entity_party_appeal": "宴席上：已吃下 %s 吸引力"
 		},
 		"msg": {
 			"reset": "角色已重置",
@@ -64,14 +66,24 @@
 			"count_unknown": "?",
 			"reward_exp": "%s 经验",
 			"reward_reputation": "%s 声望",
-			"reward_loot": "战利品表：%s"
+			"reward_loot": "战利品表：%s",
+			"gift_band": "%s-%s",
+			"gift_band_top": "%s+",
+			"gift_chance": "几率：%s%%",
+			"gift_note": "每人只留一份礼物；她吃下的吸引力决定她有多大方",
+			"more_rungs": "+还有%s档",
+			"kind_feed": "喂食",
+			"feed_worth": "+%s 声望",
+			"feed_note": "拿着它右键她即可；只有当她不再把你当敌人时才会回礼，单靠喂食最多涨到 %s 声望"
 		}
 	},
 	"jei": {
 		"gensokyolegacy": {
 			"alchemy": "炼金锅",
 			"trade": "交易",
-			"quest": "任务奖励"
+			"quest": "任务奖励",
+			"gift": "宴会赠礼",
+			"interaction": "互动"
 		}
 	},
 	"death.attack": {

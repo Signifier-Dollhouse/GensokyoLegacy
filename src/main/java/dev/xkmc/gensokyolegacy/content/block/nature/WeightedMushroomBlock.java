@@ -14,10 +14,8 @@ import net.neoforged.neoforge.event.EventHooks;
 
 import java.util.Optional;
 
-/**
- * Mushroom cap growing the template tree of its own kind: 50% small, 40% medium,
- * 10% large. Vanilla {@link MushroomBlock} only supports a single feature, so the
- * size is rolled here and growth otherwise mirrors vanilla.
+/** Mushroom cap growing the template tree of its own kind: 50% small, 40% medium, 10% large. Vanilla
+ * {@link MushroomBlock} supports only one feature, so the size is rolled here.
  */
 public class WeightedMushroomBlock extends MushroomBlock {
 

@@ -24,6 +24,12 @@ DollEntity extends BaseDollEntity implements GeoEntity
 
 Subclasses are the concrete doll kinds (player doll now, character dolls later); `BaseDollEntity` is abstract. All `dolls.entity.doll` registration goes through the base type; `DollData.type` (from `getDollTypeId()`) records which concrete type a given ledger entry refers to so reconciliation can validate it (pairing.md §5).
 
+### 1.1 Doll modules — where the per-entity slices live
+
+Anything a doll kind adds that has to be persisted goes through a `DollModule` (`impl/`): the synced-accessor definitions, the `DollData` read/write round trip, and an optional `interact` hook. `BaseDollEntity` keeps the list and exposes `getModule(Class)`; subclasses append their own in `createDollModules(List)`, chaining through `super`. Present modules today: `DollGeo`, `DollTint`, `DollLoadout`, `DollStatus`.
+
+The one hard constraint is **construction timing**: `defineSynchedData` runs inside the vanilla `Entity` constructor, before any subclass state exists. Module creation is therefore called there too — with a local list, since the field does not exist yet — so registration must be static-safe (fresh instances, no instance state) and the synced snapshot, not the entity, is handed to each module. A module with synced accessors that is not registered here has those accessors never defined.
+
 ## 2. Entity type and registration
 
 - Entity registered in `GLDolls` as `doll` (final class name `doll`, not re-registered twice). Uses `EntityType.Builder` / L2R "fixed" egg-free registration.
@@ -55,7 +61,38 @@ Every tick, the ellipsoidal velocity vector is hard-clamped: if its length excee
 
 The enforced value is a field (`speedCap`, `setSpeedCap`), `MAX_SPEED` by default. It exists for one sanctioned exception: a behavior that deliberately spends speed on an attack — the melee charge raises it to twice the cap for the lunge and drops it back in its `stop` (control.md §5.1b). Nothing else may touch it, and it is not synced: a burst belongs to the tick that pays for it, so a doll always resumes under the ordinary cap.
 
-The follow goal's >12-block / cross-dimension **teleport** remains the catch-up mechanism (it does not violate the cap — teleporting is not velocity). `canChangeDimensions()` may be overridden to `true` as optional hardening.
+The follow goal's **teleport** is the rescue, not the catch-up: it fires only when the doll is genuinely lost, and never while it is working (it does not violate the cap — teleporting is not velocity). Four conditions, all required (`FollowDollOwnerGoal#teleportToOwnerPos`):
+
+- the owner resolves to a live entity in the doll's own level;
+- the doll holds no command ticket (`actions.isActive()`), so an attack or a still-pending order is never cancelled mid-flight;
+- the formation slot is more than **5 blocks** away (`LOST_RANGE_SQ = 25`);
+- the owner has been out of **line of sight for 20 ticks** (`BLIND_TICKS`, one second — the same grace period Alice's escort gets in host.md §5).
+
+Sight is the real test: a doll that can see its owner can still path to it, so a wall between them is no excuse and a blink behind a pillar costs nothing. The blindness clock is game time, not a tick counter — a goal that does not override `requiresUpdateEveryTick` is only ticked every other pass — and it is cleared in `start()` so a fresh follow run owes a full grace period. After the blink the stale path is dropped, so the doll re-paths from the slot instead of walking straight back off it.
+
+**The landing point is checked.** A slot that will not hold the doll's bounding box (`CollisionGetter#noCollision`, translated to the target) is not rescued at all — the arc is a pure function of the owner's yaw, so it sweeps through walls and closed rooms, and teleporting into one strands the doll worse than before. Those blinks land on the **owner's position** instead. That fallback is not re-tested: the owner is standing there, so its position is as safe as the owner's own, and a query at that point would hit the owner's hitbox and void the fallback every time.
+
+It is same-level only: a doll is dimension-bound (§3.1a), so there is no cross-dimension rescue to perform.
+
+### 3.1a Dimension lock
+
+```java
+@Override
+public boolean canUsePortal(boolean allowPassengers) {
+    return false;
+}
+
+@Override
+public boolean canChangeDimensions(Level oldLevel, Level newLevel) {
+    return false;
+}
+```
+
+A doll is a projection of a ledger entry that names exactly one level, so a portal would strand it where no ledger can describe it. `canUsePortal` is the single gate every portal entry point consults — `NetherPortalBlock`, `EndPortalBlock`, `EndGatewayBlock`, and the mod's own `BasePortalBlock` all branch on it — so refusing there covers vanilla and the gap dimension at once, and the doll simply walks through the portal block like any other scenery. `canChangeDimensions` states the same rule at the transition itself, in case a destination is latched by some other route.
+
+`IDimensionBoundEntity` (`content/entity/foundation/`) is the shared marker. It carries no methods: the two overrides above and the equivalent pair on `YoukaiEntity` live in the concrete bases because a Java interface default would be silently shadowed by the superclass methods. Call sites that move other entities around check the marker instead of naming both bases — currently the umbrella capture, which refuses to send a doll to a slot in another dimension (`UmbrellaUtil.teleportEntityToSlot`).
+
+Two paths are deliberately left working, because an operator forcing an entity across is an explicit act and the existing watchdogs already reconcile the result: `/tp` (which uses `Entity#teleportTo(ServerLevel, ...)`, not `changeDimension`, and never fires the NeoForge event) and `EntityTravelToDimensionEvent` is cancelled as a backstop for mixin/mod-initiated moves.
 
 ### 3.2 Goals
 
@@ -68,17 +105,20 @@ Goals live in `content/entity/dolls/goals/` (moved out of `content/entity/behavi
 
 ## 4. Owner, home, and host resolution (`getHost`)
 
-The doll's pairing anchor is either a **player owner** (`ownerUUID`) or a **controller block** (`homePos`):
+The doll's pairing anchor is either a **living owner** (`ownerUUID`) or a **controller block** (`homePos`):
 
 ```java
-public void setOwner(Player owner) { this.ownerUUID = owner.getUUID(); }
-public boolean isOwner(Player player) { ... }
+public void setOwner(LivingEntity owner) { this.ownerUUID = owner.getUUID(); }
+public boolean isOwner(LivingEntity entity) { ... }
 public @Nullable UUID getOwnerUUID() { return ownerUUID; }   // OwnableEntity
+public boolean isPlayerOwned() { ... }                       // gates itemize
 
 public void setHome(BlockPos pos) { this.homePos = pos.immutable(); }
 public boolean isBlockHosted() { return homePos != null; }   // player-owned ⇔ block-hosted
 public boolean isHomedTo(BlockPos pos) { ... }
 ```
+
+The owner is any living entity, not just a player — a character hosts her own dolls (host.md §1). `isPlayerOwned()` is the separate question that matters for recall: only a doll deployed from a player ledger can be converted back to an item, since a character conjures her dolls out of nothing and has no inventory to hand them to.
 
 `getHost()` resolves the pairing ledger one way or the other:
 
@@ -167,7 +207,7 @@ public void readValuesFrom(DollData d) { super.readValuesFrom(d); setDyeColor(d.
 
 - `toy_idle` loop while still, `toy_fly` loop while moving. One-shot `toy_attack` / `toy_bomb` are triggerable anims fired by server-to-client entity events (bytes 66/67) broadcast from `DollCommandGoal.start()` by action type.
 - `DATA_COLOR` is a synced `EntityDataAccessor<Integer>` (`EntityDataSerializers.INT`, default `DyeColor.RED.getId()`), exposed as `getColor()` / `setDyeColor(DyeColor)` and used by `DollModel` for per-`DyeColor` texture lookup. It flows through `write/readValuesTo/From` (overriding `BaseDollEntity.getColor()`'s red default each way).
-- `registerControllers(AnimatableManager.ControllerRegistrar)` adds the "all" controller with the pure `dollAnimController(event)` state machine; `getAnimatableInstanceCache()` returns `GeckoLibUtil.createInstanceCache(this)`.
+- `registerControllers(AnimatableManager.ControllerRegistrar)` adds three controllers, in bone-writing order: the `"wink"` blink loop, the `"all"` state controller holding the pure `dollAnimController(event)` hover machine, and the `"one_shot"` controller holding the triggerables. State and one-shots are split because a GeckoLib controller plays one animation at a time — sharing one leaves every bone a strike does not touch hovering still until it ends. `getAnimatableInstanceCache()` returns `GeckoLibUtil.createInstanceCache(this)`.
 
 ### 8.1 Planned additions (landing with `loadout.md`)
 
@@ -179,6 +219,6 @@ When the four-slot loadout ships, the per-slot synced item accessors land **here
 
 ## 9. Interaction and damage (pairing logic, lives in the base)
 
-- **`mobInteract`**: sneak-interact (owner or creative, both sides) opens the loadout editor (`DollLoadoutMenu`, loadout.md §4); empty main hand, owner or creative on the server: `DollAttachment.itemize(...)` — the entity → item conversion (pairing.md §3.2). Block-hosted dolls are *not* itemized here (they belong to the controller block; controller.md). Non-sneak interactions with items pass through.
+- **`mobInteract`**: modules first, in registration order, first non-`PASS` wins (that is how sneak-interact opens the loadout editor, `DollLoadoutMenu`, loadout.md §4); then empty main hand + owner or creative on the server: `DollAttachment.itemize(...)` — the entity → item conversion (pairing.md §3.2), gated on `isPlayerOwned()`. Block-hosted dolls are *not* itemized here (they belong to the controller block; controller.md) and neither are a character's (host.md §6). Non-sneak interactions with items pass through.
 - **Deferred damage pipeline**: `takeDamage` (intercept) and `onHeal` (hook) both call `resolveDollData()` first. If a paired SUMMONED entry exists, the change lands in `DollData.combat` first (via `deferCombatData`), then is mirrored into the entity's `CombatData` (+ `CombatToClient.send` when the amount actually changed). No paired entry → plain damage path (`super.takeDamage`) — never a dropped hit, since silently swallowing it would make an unpaired doll immune to *every* source, which reads as invulnerability and hides whatever fault left it unpaired. Death-would-be and expressions flow through `DamageRefactorEntity`'s `preventDeath`/`actuallyHurt` untouched.
 - **Targetability**: `canBeSeenAsEnemy()` returns `false` (pairing.md §6) — never targeted by hostile mobs, still takes damage.

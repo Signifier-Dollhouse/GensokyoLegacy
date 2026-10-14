@@ -1,0 +1,11 @@
+{
+  "options": [
+    {
+      "type": "gensokyolegacy:simple",
+      "actions": [],
+      "conditions": [],
+      "text": "gensokyolegacy/marisa/chat_alice/option/where/end"
+    }
+  ],
+  "text": "gensokyolegacy/marisa/chat_alice/dialog/marisa/chat_alice/where_ans"
+}

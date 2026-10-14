@@ -1,9 +1,9 @@
 package dev.xkmc.gensokyolegacy.content.attachment.home.structure;
 
-import dev.xkmc.gensokyolegacy.content.attachment.datamap.StructureConfig;
-import dev.xkmc.gensokyolegacy.content.attachment.datamap.InteriorNode;
-import dev.xkmc.gensokyolegacy.content.attachment.datamap.InteriorRoom;
-import dev.xkmc.gensokyolegacy.content.attachment.datamap.StructureInterior;
+import dev.xkmc.gensokyolegacy.content.attachment.home.datamap.StructureConfig;
+import dev.xkmc.gensokyolegacy.content.attachment.home.datamap.InteriorNode;
+import dev.xkmc.gensokyolegacy.content.attachment.home.datamap.InteriorRoom;
+import dev.xkmc.gensokyolegacy.content.attachment.home.datamap.StructureInterior;
 import dev.xkmc.gensokyolegacy.content.attachment.home.core.BlockSearchCache;
 import dev.xkmc.gensokyolegacy.content.attachment.home.core.HomeBlockKind;
 import dev.xkmc.gensokyolegacy.content.attachment.home.core.HomeSearchUtil;
@@ -106,9 +106,8 @@ public class StructureHomeData implements IBlockSearchCache {
 	}
 
 	/**
-	 * World-mapped interior: room boxes via corner mapping, node positions
-	 * via single-point mapping. Empty when the config has no interior data
-	 * or the piece is not a template/jigsaw piece.
+	 * World-mapped interior: room boxes via corner mapping, node positions via single-point mapping.
+	 * Empty when the config has no interior data or the piece is not a template/jigsaw piece.
 	 */
 	public StructureInterior getInterior(StructureConfig config) {
 		var local = config.interior();

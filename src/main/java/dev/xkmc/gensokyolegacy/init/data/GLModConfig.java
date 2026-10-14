@@ -26,6 +26,8 @@ public class GLModConfig {
 
 		public final ModConfigSpec.DoubleValue reputationDecayFloor;
 
+		public final ModConfigSpec.DoubleValue visitStayMultiplier;
+
 		public final ModConfigSpec.IntValue frogEatCountForHat;
 		public final ModConfigSpec.IntValue koishiAttackCoolDown;
 		public final ModConfigSpec.DoubleValue koishiAttackChance;
@@ -40,6 +42,9 @@ public class GLModConfig {
 
 		public final ModConfigSpec.IntValue sealingPotRadius;
 
+		public final ModConfigSpec.IntValue partyScanDistance;
+		public final ModConfigSpec.IntValue partyGuestRadius;
+
 		Server(Builder builder) {
 			markL2();
 			builder.push("reputation", "Reputation");
@@ -49,10 +54,26 @@ public class GLModConfig {
 			}
 			builder.pop();
 
+			builder.push("visit", "Character Visit");
+			{
+				visitStayMultiplier = builder.text("Multiplier on the visit lengths authored in structure_config; 1.0 uses the authored length. Raising it makes guests stay longer, and therefore show up more often")
+						.defineInRange("visitStayMultiplier", 1.0, 0.1, 5);
+			}
+			builder.pop();
+
 			builder.push("blocks", "Blocks");
 			{
 				sealingPotRadius = builder.text("Radius in chunks of the area around sealing pot that prevents hostile natural mob spawning")
 						.defineInRange("sealingPotRadius", 4, 1, 8);
+			}
+			builder.pop();
+
+			builder.push("party", "Party");
+			{
+				partyScanDistance = builder.text("How far in blocks from the clicked table a party may reach; the walk covers the connected space, chairs and tables extend it, and nothing beyond this distance counts")
+						.defineInRange("partyScanDistance", 32, 4, 64);
+				partyGuestRadius = builder.text("How far a party guest may wander from the table she is eating at")
+						.defineInRange("partyGuestRadius", 24, 4, 64);
 			}
 			builder.pop();
 

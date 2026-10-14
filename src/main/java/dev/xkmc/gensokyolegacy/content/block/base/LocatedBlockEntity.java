@@ -1,6 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.block.base;
 
-import dev.xkmc.gensokyolegacy.content.attachment.datamap.BedData;
+import dev.xkmc.gensokyolegacy.content.attachment.home.datamap.BedData;
 import dev.xkmc.gensokyolegacy.content.attachment.home.core.IHomeHolder;
 import dev.xkmc.gensokyolegacy.content.attachment.index.StructureKey;
 import dev.xkmc.l2core.base.tile.BaseBlockEntity;
@@ -27,9 +27,8 @@ public class LocatedBlockEntity extends BaseBlockEntity implements TickableBlock
 	@Override
 	public void tick() {
 		if (level instanceof ServerLevel sl) {
-			// retry while unlinked: template-placed beds carry baked
-			// `located=1, key=null` BE data, so a one-shot locate would
-			// leave them unlinked forever and they would never spawn
+			// retry while unlinked: template-placed beds carry baked `located=1, key=null` BE data,
+			// so a one-shot locate would leave them unlinked and they would never spawn
 			if (!located || key == null && sl.getGameTime() % 100 == 0) {
 				located = true;
 				var home = IHomeHolder.find(sl, getBlockPos());

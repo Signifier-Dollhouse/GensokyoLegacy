@@ -12,11 +12,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * What the loot tables behind quest rewards can drop, read server-side
- * ({@link dev.xkmc.gensokyolegacy.content.rpg.reward.LootReader}) and handed over as it is:
- * loot tables are never synced, so this is the only way a client can learn a quest's reward.
- * <p>
- * Sent once per datapack sync, which covers joining a world and {@code /reload} alike.
+ * Loot-table drops behind quest rewards. Loot tables are never synced, so this is a client's only way to
+ * learn a quest's reward; sent once per datapack sync.
  */
 public record QuestLootToClient(LinkedHashMap<ResourceLocation, ArrayList<LootDrop>> drops)
 		implements SerialPacketBase<QuestLootToClient> {

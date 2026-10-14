@@ -10,6 +10,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Server-side view of one chunk's effect index; {@code of(level, pos)} never loads, null if unloaded.
+ *
+ * @see "doc/design/area_effect.md"
+ */
 public record AreaChunkHolder(ServerLevel level, ChunkPos pos, LevelChunk chunk, ChunkAreaAttachment attachment) {
 
 	@Nullable
@@ -23,6 +28,7 @@ public record AreaChunkHolder(ServerLevel level, ChunkPos pos, LevelChunk chunk,
 		return new AreaChunkHolder(level, chunk.getPos(), chunk, GLMeta.CHUNK_EFFECT.type().getOrCreate(chunk));
 	}
 
+	// effectIds is @SerialField, so the chunk must be dirtied or the change is not saved
 	public void addId(UUID id) {
 		if (attachment.getEffectIds().add(id)) {
 			attachment.invalidateCache();
@@ -37,6 +43,10 @@ public record AreaChunkHolder(ServerLevel level, ChunkPos pos, LevelChunk chunk,
 		}
 	}
 
+	/**
+	 * Effects covering this chunk, resolved once per game tick. Ids whose entry is already gone are
+	 * pruned here, because removal never scans chunk indexes.
+	 */
 	public List<AreaEffectEntry> getAffecting() {
 		long gameTime = level.getGameTime();
 		if (attachment.isCacheValid() && gameTime == attachment.getCachedTick()) {

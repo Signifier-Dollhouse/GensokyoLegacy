@@ -1,0 +1,15 @@
+{
+  "animations": [
+    "dialog_think"
+  ],
+  "options": [
+    {
+      "type": "gensokyolegacy:simple",
+      "actions": [],
+      "conditions": [],
+      "next": "gensokyolegacy:alice/daily_doll/follow_up/end/dialog_1",
+      "text": "gensokyolegacy/alice/shared/option/daily_follow_end"
+    }
+  ],
+  "text": "gensokyolegacy/alice/daily_doll/dialog/alice/daily_doll/follow_up/dialog_1"
+}

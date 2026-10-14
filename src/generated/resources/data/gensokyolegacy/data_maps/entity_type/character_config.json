@@ -4,7 +4,14 @@
       "discardTime": 6000,
       "noPlayerVanishTime": 30,
       "respawnTime": 12000,
-      "structure": "gensokyolegacy:empty",
+      "structure": "gensokyolegacy:alice_house",
+      "wanderRadius": 12
+    },
+    "gensokyolegacy:cirno": {
+      "discardTime": 6000,
+      "noPlayerVanishTime": 30,
+      "respawnTime": 12000,
+      "structure": "gensokyolegacy:cirno_nest",
       "wanderRadius": 12
     },
     "gensokyolegacy:hakurei_reimu": {

@@ -1,2 +1,1 @@
-# TODO
-- quest reward jei doesn't work
+- gourd / invitation letter / ice wings texture

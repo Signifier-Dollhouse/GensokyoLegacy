@@ -3,6 +3,10 @@ package dev.xkmc.gensokyolegacy.content.block.functional.alchemypot;
 import dev.xkmc.l2core.base.tile.BaseContainer;
 import net.minecraft.world.item.ItemStack;
 
+/** Item slots that gate every insert on the pot's recipe probe, so hoppers and pipes are filtered
+ * exactly like a right-click holding an item.
+ *
+ * @see "doc/design/alchemy_pot.md" */
 public class AlchemyItemContainer extends BaseContainer<AlchemyItemContainer> {
 
 	private final AlchemyPotBlockEntity be;

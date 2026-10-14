@@ -26,11 +26,15 @@ import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.items.wrapper.PlayerInvWrapper;
 import org.jetbrains.annotations.Nullable;
 
+/** Interaction front end: buckets first, then single items. Shape is a full cube even though the pot
+ * has a cavity, because the model supplies the silhouette.
+ *
+ * @see "doc/design/alchemy_pot.md" */
 public class AlchemyPotBlock implements ShapeBlockMethod, UseItemOnBlockMethod, UseWithoutItemBlockMethod {
 
 	public static final BlockMethod BE = new BlockEntityBlockMethodImpl<>(GLBlocks.ALCHEMY_POT_BE, AlchemyPotBlockEntity.class);
 
-	private static final VoxelShape SHAPE = Shapes.box(0, 0, 0, 1, 1, 1); // full cube for now; model defines visual
+	private static final VoxelShape SHAPE = Shapes.box(0, 0, 0, 1, 1, 1); // full cube; the model draws the cavity
 
 	@Override
 	public @Nullable VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext ctx) {
@@ -43,9 +47,7 @@ public class AlchemyPotBlock implements ShapeBlockMethod, UseItemOnBlockMethod, 
 			return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
 		if (be.isReacting())
 			return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
-		// try fluid handler first
 		if (!stack.isEmpty() && FluidUtil.getFluidHandler(stack).isPresent()) {
-			// check if stack is fluid container
 			var fluidContained = FluidUtil.getFluidContained(stack);
 			if (fluidContained.isPresent() && !fluidContained.get().isEmpty()) {
 				int filled = be.tank.fill(fluidContained.get(), IFluidHandler.FluidAction.SIMULATE);
@@ -77,7 +79,6 @@ public class AlchemyPotBlock implements ShapeBlockMethod, UseItemOnBlockMethod, 
 				}
 			}
 		}
-		// otherwise try add item
 		if (!stack.isEmpty()) {
 			if (be.tryAddItem(stack, true)) {
 				if (!level.isClientSide) {

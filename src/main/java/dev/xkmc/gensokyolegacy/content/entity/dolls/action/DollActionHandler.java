@@ -8,17 +8,10 @@ import org.jetbrains.annotations.Nullable;
 import java.util.EnumMap;
 
 /**
- * Transient per-doll ticket state: at most one current action. Server-only, never
- * persisted — commands are ephemeral and die with the entity.
- * <p>
- * Ticket rules: a doll starts another action only after finishing or aborting the
- * current one. Only a running {@code REGULAR_ATTACK} or a running {@code AUTO}
- * ticket can be aborted; anything else holds its ticket until it completes (or
- * {@link #stop} clears it). Aborts run the same path as completions (done-set +
- * handoff for iterative), just without performing — the delegating goal releases
- * stuck tickets through it.
- * Execution itself lives in the behaviors, driven by the delegating goal — this
- * class only holds the ticket.
+ * Transient per-doll ticket state: at most one current action. Server-only, never persisted.
+ * A doll starts another only after finishing or aborting the current one, and only a running
+ * {@code REGULAR_ATTACK} or {@code AUTO} ticket can be aborted. Aborts run the completion
+ * path without performing. Execution lives in the behaviors (control.md §4).
  */
 public class DollActionHandler {
 
@@ -63,9 +56,8 @@ public class DollActionHandler {
 	}
 
 	/**
-	 * Whether the held ticket yields to a new order: a running
-	 * {@code REGULAR_ATTACK} or any running {@code AUTO} ticket is aborted;
-	 * anything else running refuses.
+	 * Whether the held ticket yields to a new order: a running {@code REGULAR_ATTACK} or any
+	 * running {@code AUTO} ticket is aborted; anything else running refuses.
 	 */
 	public static boolean abortable(@Nullable DollAction current) {
 		return current != null &&
@@ -73,11 +65,10 @@ public class DollActionHandler {
 	}
 
 	/**
-	 * Takes the ticket: idle dolls accept; an abortable running ticket (regular
-	 * attack or auto) is aborted for the new order; anything else running
-	 * refuses. Re-issuing the current order is a no-op success. The dropped
-	 * behavior is stopped by the delegating goal on its next pass; the orphaned
-	 * action (if iterative) is picked back up by the stall guard.
+	 * Takes the ticket: idle dolls accept, an abortable running ticket is dropped for the new
+	 * order, anything else running refuses, and re-issuing the current order is a no-op success.
+	 * The dropped behavior is stopped by the delegating goal; an orphaned iterative action is
+	 * picked back up by the stall guard.
 	 */
 	public boolean tryStart(DollAction action, long gameTime) {
 		if (current != null) {
@@ -92,9 +83,8 @@ public class DollActionHandler {
 	}
 
 	/**
-	 * Cancel the ticket (glove stop). Suicide tickets are never passed here —
-	 * {@code stopAll} skips them. Also stamps a short suppress so a scheduled
-	 * heal doesn't re-fire on the very next tick against a still-valid target.
+	 * Cancel the ticket (glove stop). Suicide tickets never reach here — {@code stopAll} skips
+	 * them. Also stamps a short suppress so a scheduled heal doesn't re-fire next tick.
 	 */
 	public void stop(long gameTime) {
 		current = null;
@@ -109,9 +99,8 @@ public class DollActionHandler {
 	}
 
 	/**
-	 * Capability + availability check for command fan-out. An off-hand hit implies
-	 * the sticky swap at start. A ticket held by anything but an abortable regular
-	 * refuses; iterative actions skip dolls already in {@code done}.
+	 * Capability + availability check for command fan-out; an off-hand hit implies the sticky
+	 * swap. Only an abortable regular yields, and iterative actions skip dolls in {@code done}.
 	 */
 	public boolean canAccept(DollEntity doll, DollAction action) {
 		if (current != null) {
@@ -123,18 +112,17 @@ public class DollActionHandler {
 	}
 
 	/**
-	 * Identity check: does this doll currently hold the action (running, not yet
-	 * started)? Used by the iterative stall guard — record equality is unstable
-	 * because the shared done-set mutates.
+	 * Identity check: does this doll currently hold the action (running, not yet started)? Used
+	 * by the stall guard and the goal's stop path — record equality is unstable, the shared
+	 * done-set mutates.
 	 */
 	public boolean holds(DollAction action) {
 		return current == action;
 	}
 
 	/**
-	 * Finish the current attempt: iterative actions record the doll and hand off,
-	 * then the ticket releases. Also the abort path for unstarted waits (start
-	 * timeouts) — giving up records done the same way performing does.
+	 * Finish the current attempt: iterative actions record the doll and hand off, then the ticket
+	 * releases. Also the abort path for unstarted waits, which records done the same way.
 	 */
 	public void complete(DollEntity doll) {
 		DollAction finished = current;

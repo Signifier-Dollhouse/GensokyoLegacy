@@ -16,14 +16,11 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * The one materialization path every ledger shares (doc/design/doll/pairing.md §3.1):
- * create the entity, key {@code data} to its fresh game uuid, hand it the owner,
- * apply the recorded values — and let the <b>caller</b> insert the entry into its
- * ledger <i>before</i> {@code addFreshEntity}, so the entity's join-level inverse
- * check always finds a paired host (§5.2, §8.2).
- * <p>
- * Split out of {@link DollAttachment#doSummon} so a character host conjures her
- * dolls through the same guarantees instead of a second, drifting copy.
+ * The one materialization path every ledger shares: create the entity, hand it the owner,
+ * apply the recorded values. The <b>caller</b> inserts the ledger entry <i>before</i>
+ * {@code addFreshEntity} so the join-level inverse check finds a paired host (pairing.md §3.1).
+ *
+ * @see "doc/design/doll/pairing.md"
  */
 public final class DollSpawn {
 
@@ -31,10 +28,8 @@ public final class DollSpawn {
 	}
 
 	/**
-	 * Materializes {@code data} as a live doll owned by {@code owner} in {@code level}.
-	 * On success {@code data} carries the new entity's uuid, final position, and
-	 * dimension, and the caller must register it before {@code addFreshEntity} —
-	 * see the class note on the join-level inverse check.
+	 * Materializes {@code data} as a live doll owned by {@code owner}; on success data carries
+	 * the new uuid, final position and dimension.
 	 */
 	@Nullable
 	public static BaseDollEntity materialize(ServerLevel level, LivingEntity owner, DollData data) {
@@ -51,8 +46,8 @@ public final class DollSpawn {
 		data.state = DollState.SUMMONED;
 		setPos(level, doll, data.position);
 		doll.setOwner(owner);
-		// free-space search may have moved the doll; write its final spot back so readValuesFrom
-		// (which applies position + facing) puts the entity exactly there.
+		// the free-space search may have moved the doll; write the final spot back so
+		// readValuesFrom (which applies position + facing) puts the entity exactly there.
 		data.position = doll.position();
 		doll.readValuesFrom(data);
 		data.dimension = level.dimension().location();
@@ -61,9 +56,8 @@ public final class DollSpawn {
 	}
 
 	/**
-	 * Snaps the doll onto {@code pos}, then nudges it out of anything solid it
-	 * overlaps — a doll is small and usually hovers, so a plain spawn can land
-	 * inside a wall when the recorded spot is stale.
+	 * Snaps the doll onto {@code pos}, then nudges it out of anything solid it overlaps: a doll is
+	 * small and usually hovers, so a plain spawn can land inside a wall.
 	 */
 	public static void setPos(Level level, BaseDollEntity doll, Vec3 pos) {
 		doll.setPos(pos);
@@ -80,9 +74,8 @@ public final class DollSpawn {
 	}
 
 	/**
-	 * A spread-out free spot around {@code around} for the {@code index}-th of
-	 * {@code total} dolls — the ring slot a freshly conjured doll materializes on
-	 * so a whole retinue does not stack on one point.
+	 * A spread-out free spot around {@code around} for the {@code index}-th of {@code total} dolls,
+	 * so a whole retinue does not materialize on one point.
 	 */
 	@Nullable
 	public static Vec3 ringPos(LivingEntity around, int index, int total) {

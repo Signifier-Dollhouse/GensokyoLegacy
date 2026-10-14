@@ -1,0 +1,25 @@
+{
+	"gensokyolegacy.party": {
+		"no_food": "桌上没有摆任何吃的东西",
+		"no_seats": "没有地方可坐——在餐桌旁摆几把椅子吧",
+		"party_exists": "这里已经有一场宴会了",
+		"nobody_came": "无人赴宴。再多摆些吃食，或者去和某人增进些交情",
+		"near_too_plain": "%s 本会前来，但嫌这桌菜太过寒酸",
+		"near_no_seat": "%s 本会前来，只是没有空座了",
+		"sent": "邀请函已发出。%s 位客人正在赶来",
+		"looking_for_chair": "%s 还没找到椅子——再摆一把吧",
+		"no_chair": "%s 没能入座，只能离开了——再摆一把椅子吧",
+		"ended": "宴会结束了",
+		"no_party": "这里并没有宴会",
+		"preview_title": "菜式吸引力：%s，座位：%s",
+		"preview_header": "预计出席：%s",
+		"preview_guest": "  %s  权重 %.2f  好感 %s  需要 %s 吸引力",
+		"preview_none": "没有客人会来",
+		"info_phase": "阶段：%s",
+		"info_roster": "已邀请：%s",
+		"info_served": "已上菜 %s／%s 饱食量",
+		"info_appeal": "已上菜吸引力：%s",
+		"info_guests": "在场客人：%s",
+		"letter_hint": "右键餐桌，将邀请函送出"
+	}
+}

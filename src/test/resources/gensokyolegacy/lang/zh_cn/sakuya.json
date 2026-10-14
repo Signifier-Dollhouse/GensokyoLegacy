@@ -1,0 +1,27 @@
+{
+	"-slash": true,
+	"gensokyolegacy": {
+		"sakuya": {
+			"chat": {
+				"greeting": "需要我帮您做些什么吗？",
+				"trade": "货色不错。要出价吗？",
+				"visit_greeting": "很高兴在这里见到您。"
+			},
+			"visit_morichika_shop": {
+				"starter": {
+					"greet": "营业吗？我听说这里是森林里唯一的店。"
+				},
+				"dialog": {
+					"sakuya": {
+						"visit_morichika_shop": {
+							"greet": "营业。我以前来过这里——整个幻想乡的货品里，我不反对的只有森近霖之助的。"
+						}
+					}
+				},
+				"option": {
+					"greet/end": "明白了。"
+				}
+			}
+		}
+	}
+}

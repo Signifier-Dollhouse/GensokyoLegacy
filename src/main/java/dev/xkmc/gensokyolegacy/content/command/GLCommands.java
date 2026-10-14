@@ -10,6 +10,12 @@ import com.mojang.brigadier.suggestion.SuggestionProvider;
 import dev.xkmc.gensokyolegacy.content.attachment.character.CharDataHolder;
 import dev.xkmc.gensokyolegacy.content.attachment.character.CharacterData;
 import dev.xkmc.gensokyolegacy.content.attachment.character.ReputationConstants;
+import dev.xkmc.gensokyolegacy.content.attachment.home.datamap.StructureConfig;
+import dev.xkmc.gensokyolegacy.content.attachment.home.core.IHomeHolder;
+import dev.xkmc.gensokyolegacy.content.entity.module.VisitModule;
+import dev.xkmc.gensokyolegacy.content.entity.visit.VisitScheduler;
+import dev.xkmc.gensokyolegacy.content.entity.visit.VisitTable;
+import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.rpg.core.CodecRegistry;
 import dev.xkmc.gensokyolegacy.content.rpg.network.QuestStatusToClient;
 import dev.xkmc.gensokyolegacy.content.rpg.network.TradeStatusToClient;
@@ -19,19 +25,31 @@ import dev.xkmc.gensokyolegacy.content.rpg.reward.ReputationReward;
 import dev.xkmc.gensokyolegacy.content.rpg.trade.TradeData;
 import dev.xkmc.gensokyolegacy.content.rpg.trade.TradeOffer;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
+import dev.xkmc.gensokyolegacy.init.data.GLLang;
+import dev.xkmc.gensokyolegacy.init.data.GLModConfig;
+import dev.xkmc.gensokyolegacy.init.data.GLTagGen;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
+import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyAttachment;
+import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartySend;
+import dev.xkmc.gensokyolegacy.content.attachment.party.item.PartyMessage;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.arguments.ResourceLocationArgument;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import dev.xkmc.gensokyolegacy.content.attachment.party.item.PartyWand;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.BlockHitResult;
+import org.jetbrains.annotations.Nullable;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
@@ -56,12 +74,41 @@ public class GLCommands {
 			new SimpleCommandExceptionType(Component.literal("Trade offer does not belong to this character"));
 	private static final SimpleCommandExceptionType ERROR_UNKNOWN_PROGRESS_KEY =
 			new SimpleCommandExceptionType(Component.literal("Unknown quest requirement key"));
+	private static final SimpleCommandExceptionType ERROR_NO_HOME =
+			new SimpleCommandExceptionType(Component.literal("You are not inside a home"));
+	private static final SimpleCommandExceptionType ERROR_NO_VISITOR =
+			new SimpleCommandExceptionType(Component.literal("No visitor here to dismiss"));
+	private static final SimpleCommandExceptionType ERROR_NO_PARTY_TABLE =
+			new SimpleCommandExceptionType(Component.literal("Look at a party table first"));
+	private static final SimpleCommandExceptionType ERROR_NO_PARTY =
+			new SimpleCommandExceptionType(Component.literal("There is no party here"));
+	private static final SimpleCommandExceptionType ERROR_NO_PARTY_PLAYER =
+			new SimpleCommandExceptionType(Component.literal("A party is planned against a player's reputation"));
+
+	/** How far {@code /gensokyo party} will look for the table being aimed at. */
+	private static final double PARTY_TABLE_REACH = 8;
 
 	private static final SuggestionProvider<CommandSourceStack> SUGGEST_CHARACTER = (ctx, builder) -> {
 		var access = ctx.getSource().registryAccess();
 		Set<ResourceLocation> ids = new LinkedHashSet<>();
 		for (var e : access.registryOrThrow(CodecRegistry.Keys.STARTER).entrySet())
 			ids.add(BuiltInRegistries.ENTITY_TYPE.getKey(e.getValue().character()));
+		return SharedSuggestionProvider.suggestResource(ids, builder);
+	};
+
+	/**
+	 * Characters some structure in the loaded world accepts as guests. Suggested from the guest
+	 * pools, not the starter registry: a visitor needs no content of its own to be summoned.
+	 */
+	private static final SuggestionProvider<CommandSourceStack> SUGGEST_VISITORS = (ctx, builder) -> {
+		Set<ResourceLocation> ids = new LinkedHashSet<>();
+		var reg = ctx.getSource().registryAccess().registryOrThrow(Registries.STRUCTURE);
+		for (var key : reg.keySet()) {
+			var config = reg.getHolder(key).map(h -> h.getData(GLMeta.STRUCTURE_DATA.reg())).orElse(null);
+			if (config == null) continue;
+			for (var guest : config.visitors().keySet())
+				ids.add(BuiltInRegistries.ENTITY_TYPE.getKey(guest));
+		}
 		return SharedSuggestionProvider.suggestResource(ids, builder);
 	};
 
@@ -224,7 +271,28 @@ public class GLCommands {
 								.executes(GLCommands::executeCompleteAll)))
 				.then(Commands.literal("resetAll")
 						.then(Commands.argument("player", EntityArgument.player())
-								.executes(GLCommands::executeResetAll))));
+								.executes(GLCommands::executeResetAll)))
+				.then(Commands.literal("visit")
+						.then(Commands.literal("end")
+								.executes(GLCommands::executeVisitEnd))
+						.then(Commands.literal("info")
+								.executes(GLCommands::executeVisitInfo))
+						.then(Commands.argument("character", ResourceLocationArgument.id())
+								.suggests(SUGGEST_VISITORS)
+								.executes(GLCommands::executeVisit)
+								.then(Commands.argument("ticks", IntegerArgumentType.integer(20, 24000))
+										.executes(ctx -> forceVisit(ctx,
+												IntegerArgumentType.getInteger(ctx, "ticks"))))))
+				.then(Commands.literal("party")
+						.then(Commands.argument("player", EntityArgument.player())
+								.then(Commands.literal("preview")
+										.executes(GLCommands::executePartyPreview))
+								.then(Commands.literal("send")
+										.executes(GLCommands::executePartySend))
+								.then(Commands.literal("end")
+										.executes(GLCommands::executePartyEnd))
+								.then(Commands.literal("info")
+										.executes(GLCommands::executePartyInfo)))));
 	}
 
 	private static com.mojang.brigadier.builder.LiteralArgumentBuilder<CommandSourceStack> literal(String str) {
@@ -263,6 +331,196 @@ public class GLCommands {
 
 	private static CharDataHolder charHolder(ServerPlayer sp, EntityType<?> type) {
 		return GLMeta.CHAR.type().getOrCreate(sp).getUnbounded(sp, type);
+	}
+
+	// --- visit ---
+
+	/**
+	 * Default length of a command-forced visit, in ticks.
+	 */
+	private static final int DEFAULT_VISIT = 6000;
+
+	private static int executeVisit(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+		return forceVisit(ctx, DEFAULT_VISIT);
+	}
+
+	private static int forceVisit(CommandContext<CommandSourceStack> ctx, int stay) throws CommandSyntaxException {
+		EntityType<?> guest = getCharacter(ctx, "character");
+		var src = ctx.getSource();
+		var home = IHomeHolder.find(src.getLevel(), BlockPos.containing(src.getPosition()));
+		if (home == null) throw ERROR_NO_HOME.create();
+		var visitor = VisitScheduler.force(src.getLevel(), home.key(), home, guest, stay);
+		if (visitor == null) {
+			src.sendFailure(Component.literal("Nowhere for " + guest.toShortString() + " to stand here."));
+			return 0;
+		}
+		src.sendSuccess(() -> Component.literal(guest.toShortString() + " is visiting "
+				+ home.key().structure() + " for " + stay + " ticks"), false);
+		return 1;
+	}
+
+	private static int executeVisitEnd(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+		var sp = ctx.getSource().getPlayerOrException();
+		YoukaiEntity target = null;
+		double best = 64;
+		for (var e : sp.level().getEntities(sp, sp.getBoundingBox().inflate(16),
+				e -> e instanceof YoukaiEntity y && y.isVisiting())) {
+			double d = e.distanceToSqr(sp);
+			if (d < best) {
+				best = d;
+				target = (YoukaiEntity) e;
+			}
+		}
+		if (target == null) throw ERROR_NO_VISITOR.create();
+		String name = target.getName().getString();
+		target.getModule(VisitModule.class).ifPresent(VisitModule::dismiss);
+		ctx.getSource().sendSuccess(() -> Component.literal(name + " left."), false);
+		return 1;
+	}
+
+	private static int executeVisitInfo(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+		var src = ctx.getSource();
+		var sl = src.getLevel();
+		var home = IHomeHolder.find(sl, BlockPos.containing(src.getPosition()));
+		if (home == null) throw ERROR_NO_HOME.create();
+		var key = home.key();
+		var config = StructureConfig.of(sl.registryAccess(), key);
+		src.sendSuccess(() -> Component.literal("Home " + key.structure() + " at " + key.pos()
+				+ " - day time " + (sl.getDayTime() % 24000L) + ", window closes at " + VisitTable.WINDOW), false);
+		if (config == null || config.visitors().isEmpty()) {
+			src.sendSuccess(() -> Component.literal("  no guests declared"), false);
+			return 1;
+		}
+		for (var entry : config.visitors().entrySet()) {
+			var guest = entry.getKey();
+			int left = VisitTable.remaining(sl, key, guest);
+			boolean here = VisitScheduler.find(sl, key, guest, home) != null;
+			src.sendSuccess(() -> Component.literal("  " + BuiltInRegistries.ENTITY_TYPE.getKey(guest)
+					+ ": " + Math.round(entry.getValue().chance() * 100) + "% of days, "
+					+ entry.getValue().minStay() + "-" + entry.getValue().maxStay() + "t -> "
+					+ (left > 0 ? left + "t left" : "not visiting") + (here ? " (on site)" : "")), false);
+		}
+		return 1;
+	}
+
+	// --- party ---
+
+	/**
+	 * Dump the whole plan for the table the player is looking at - spread appeal, seat count,
+	 * every eligible character with the weight the planner gave them, and the roster that would
+	 * actually come. Runs the identical planner a send runs, so this predicts it exactly, and
+	 * consumes nothing.
+	 */
+	private static int executePartyPreview(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+		var src = ctx.getSource();
+		var sp = partyPlayer(ctx);
+		var level = sp.serverLevel();
+		var anchor = partyTable(ctx, sp);
+		if (anchor == null) throw ERROR_NO_PARTY_TABLE.create();
+
+		var outcome = PartySend.plan(level, sp, anchor, PartySend.reputationOf(sp));
+		// a preview is a scan, so a wand in the sender's hand records it and draws it
+		PartyWand.recordIfHeld(sp, anchor, outcome);
+		src.sendSuccess(() -> refusalText(outcome), false);
+		if (!outcome.ok()) {
+			var miss = outcome.miss();
+			if (miss != null) {
+				var c = miss.getKey();
+				src.sendSuccess(() -> GLLang.Party.PREVIEW_GUEST.get(c.type().getDescription(),
+						String.valueOf(c.weight()), c.reputation(), c.fulfillment()), false);
+			}
+			return 0;
+		}
+		var plan = outcome.plan();
+		src.sendSuccess(() -> GLLang.Party.PREVIEW_TITLE.get(plan.appeal(), plan.seats()), false);
+		src.sendSuccess(() -> GLLang.Party.PREVIEW_HEADER.get(PartyMessage.roster(plan.roster())), false);
+		for (var c : plan.pool()) {
+			if (c.weight() <= 0) continue;   // declined, nothing to tune
+			src.sendSuccess(() -> GLLang.Party.PREVIEW_GUEST.get(c.type().getDescription(),
+					String.valueOf(c.weight()), c.reputation(), c.fulfillment()), false);
+		}
+		return 1;
+	}
+
+	private static int executePartySend(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+		var src = ctx.getSource();
+		var sp = partyPlayer(ctx);
+		var anchor = partyTable(ctx, sp);
+		if (anchor == null) throw ERROR_NO_PARTY_TABLE.create();
+		// an empty stack, so the command spends no letter; only the item does
+		var outcome = PartySend.send(sp, anchor, ItemStack.EMPTY);
+		PartyMessage.report(sp, outcome);
+		return outcome.ok() ? 1 : 0;
+	}
+
+	private static int executePartyEnd(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+		var src = ctx.getSource();
+		var sp = partyPlayer(ctx);
+		var party = partyNear(ctx, sp);
+		if (party == null) throw ERROR_NO_PARTY.create();
+		PartySend.close(sp.serverLevel(), party);
+		src.sendSuccess(() -> GLLang.Party.ENDED.get(), true);
+		return 1;
+	}
+
+	private static int executePartyInfo(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+		var src = ctx.getSource();
+		var sp = partyPlayer(ctx);
+		var party = partyNear(ctx, sp);
+		if (party == null) throw ERROR_NO_PARTY.create();
+		src.sendSuccess(() -> GLLang.Party.INFO_PHASE.get(party.phase().name()), false);
+		src.sendSuccess(() -> GLLang.Party.INFO_ROSTER.get(PartyMessage.roster(party.roster())), false);
+		src.sendSuccess(() -> GLLang.Party.INFO_SERVED.get(party.hungerServed(), party.hungerBudget()), false);
+		// appeal is the figure the reputation payout is a share of, so a host tuning repGain
+		// needs what the party was actually worth, not what it was planned to be worth
+		src.sendSuccess(() -> GLLang.Party.INFO_APPEAL.get(party.appealServed()), false);
+		src.sendSuccess(() -> GLLang.Party.INFO_GUESTS.get(party.seatsUsed()), false);
+		return 1;
+	}
+
+	/** The party table the player is looking at, or null when they are not looking at one. */
+	@Nullable
+	private static BlockPos partyTable(CommandContext<CommandSourceStack> ctx, ServerPlayer sp) {
+		var hit = sp.pick(PARTY_TABLE_REACH, 0, false);
+		if (!(hit instanceof BlockHitResult block)) return null;
+		BlockPos pos = block.getBlockPos();
+		return sp.serverLevel().getBlockState(pos).is(GLTagGen.PARTY_TABLE) ? pos : null;
+	}
+
+	/** Where the party is looked for when not aimed at a table: where the player stands. */
+	private static BlockPos partyTableOrPosition(CommandContext<CommandSourceStack> ctx, ServerPlayer sp) {
+		var table = partyTable(ctx, sp);
+		return table != null ? table : sp.blockPosition();
+	}
+
+	/**
+	 * The party at, or near, where the player is looking. A party is owned by the chunk holding
+	 * the centre of its food, often the next chunk over from the table, so the search is
+	 * neighbourhood-wide rather than the single chunk.
+	 */
+	@Nullable
+	private static PartyAttachment partyNear(CommandContext<CommandSourceStack> ctx, ServerPlayer sp) {
+		return PartyAttachment.near(sp.serverLevel(), partyTableOrPosition(ctx, sp),
+				GLModConfig.SERVER.partyScanDistance.get());
+	}
+
+	private static ServerPlayer partyPlayer(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+		if (!(EntityArgument.getPlayer(ctx, "player") instanceof ServerPlayer sp)) {
+			throw ERROR_NO_PARTY_PLAYER.create();
+		}
+		return sp;
+	}
+
+	/** Why a plan failed, or the appeal line when it succeeded. */
+	private static Component refusalText(PartySend.Outcome outcome) {
+		var refusal = outcome.refusal();
+		if (refusal == null) return Component.empty();
+		return switch (refusal) {
+			case NO_FOOD -> GLLang.Party.NO_FOOD.get();
+			case NO_SEATS -> GLLang.Party.NO_SEATS.get();
+			case PARTY_EXISTS -> GLLang.Party.PARTY_EXISTS.get();
+			case NOBODY_CAME -> GLLang.Party.NOBODY_CAME.get();
+		};
 	}
 
 	// --- reputation ---

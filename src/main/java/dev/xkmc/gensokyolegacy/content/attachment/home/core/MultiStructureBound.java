@@ -8,10 +8,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Multi-box room bound for preset structures.
- * Wraps the world-mapped room boxes with union-box helpers,
- * so wander, search and verify sample inside real room boxes
- * instead of the over-approximated union.
+ * Multi-box room bound for preset structures: wraps the world-mapped room boxes with union-box
+ * helpers. Wander, search and verify then sample inside real room boxes, not the over-approximated
+ * union.
  */
 public class MultiStructureBound {
 

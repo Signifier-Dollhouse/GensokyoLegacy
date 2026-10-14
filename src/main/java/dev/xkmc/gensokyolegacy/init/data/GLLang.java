@@ -165,6 +165,8 @@ public final class GLLang {
 		YOUKAI_AVOID("%s might not want to see you for a while", 1),
 		ENTITY_FEED("Feed cool down: %s", 1),
 		ENTITY_GIFT("Gift cool down: %s", 1),
+		ENTITY_PARTY_EATEN("At the party: eaten %s of %s hunger", 2),
+		ENTITY_PARTY_APPEAL("At the party: appeal eaten %s", 1),
 		STRUCTURE_SCANNING("Scanning Structure...", 0),
 		STRUCTURE_ABNORMAL("Found %s invalid blocks", 1),
 		DOORS_TO_CLOSE("Doors to close (%s):", 1);
@@ -207,6 +209,65 @@ public final class GLLang {
 		@Override
 		public @Nullable ChatFormatting format() {
 			return format;
+		}
+	}
+
+	// ========== Party ==========
+	public enum Party implements LangEntry {
+		NO_FOOD("There is no food laid out on the tables"),
+		NO_SEATS("There is nowhere to sit - put some chairs around the table"),
+		PARTY_EXISTS("There is already a party here"),
+		NOBODY_CAME("Nobody came. Lay out more food, or get to know someone better"),
+		NEAR_TOO_PLAIN("%s would come, but wants a grander spread than this", 1),
+		NEAR_NO_SEAT("%s would come, but there is no seat free", 1),
+		SENT("Invitations sent. %s guest(s) are on the way", 1),
+		LOOKING_FOR_CHAIR("%s cannot find a chair yet - put another one out if you can", 1),
+		NO_CHAIR("%s gave up - no chair was free for her. Put out another chair", 1),
+		ENDED("The party is over"),
+		NO_PARTY("There is no party here"),
+		PREVIEW_TITLE("Spread appeal: %s, seats: %s", 2),
+		PREVIEW_HEADER("%s would come:", 1),
+		PREVIEW_GUEST("  %s  weight %s  rep %s  wants %s appeal", 4),
+		PREVIEW_NONE("Nobody would come"),
+		INFO_PHASE("Phase: %s", 1),
+		INFO_ROSTER("Invited: %s", 1),
+		INFO_SERVED("Served %s of %s hunger", 2),
+		INFO_APPEAL("Appeal served: %s", 1),
+		INFO_GUESTS("Guests present: %s", 1),
+		LETTER_HINT("Right-click a table to send it out");
+
+		private final String def;
+		private final int argn;
+		private final String key;
+
+		Party(String def) {
+			this(def, 0);
+		}
+
+		Party(String def, int argn) {
+			this.def = def;
+			this.argn = argn;
+			this.key = GensokyoLegacy.MODID + ".party." + name().toLowerCase(Locale.ROOT);
+		}
+
+		@Override
+		public String key() {
+			return key;
+		}
+
+		@Override
+		public String def() {
+			return def;
+		}
+
+		@Override
+		public int argn() {
+			return argn;
+		}
+
+		@Override
+		public @Nullable ChatFormatting format() {
+			return null;
 		}
 	}
 
@@ -328,7 +389,23 @@ public final class GLLang {
 		DOOR_DEBUG_UNBOUND("Not bound to a youkai. Right-click to bind."),
 		DOOR_DEBUG_BOUND("Bound to %s", 1),
 		DOOR_DEBUG_MISSING("Bound youkai is not loaded"),
-		DOOR_DEBUG_MOVING("Youkai moving to (%s, %s, %s)", 3);
+		DOOR_DEBUG_MOVING("Youkai moving to (%s, %s, %s)", 3),
+		PARTY_WAND_HOVER("Look at a food block to see what it is worth"),
+		PARTY_WAND_EAT("Click a food block to take one serving"),
+		PARTY_WAND_SIMULATE("Click a party table to simulate a party"),
+		PARTY_WAND_INVALID("That is tagged food but nothing to eat"),
+		PARTY_WAND_FOOD("%s", 1),
+		PARTY_WAND_SERVING("serving size: %s", 1),
+		PARTY_WAND_SERVES("serves: %s", 1),
+		PARTY_WAND_FOOD_VALUES("hunger: %s   saturation: %s", 2),
+		PARTY_WAND_TOTAL_HUNGER("hunger total: %s", 1),
+		PARTY_WAND_ATTRACTION("attraction: %s", 1),
+		PARTY_WAND_PARTY("Party simulated at (%s, %s, %s)", 3),
+		PARTY_WAND_COUNTS("tables: %s   seats: %s   food: %s", 3),
+		PARTY_WAND_TOTALS("hunger: %s   appeal: %s", 2),
+		PARTY_WAND_NOBODY("Nobody would come"),
+		PARTY_WAND_GUEST("  %s", 1),
+		PARTY_WAND_STALE("(taken away from that table - may be out of date)");
 
 		private final String def;
 		private final int argn;
@@ -375,7 +452,10 @@ public final class GLLang {
 	public enum ItemFurnace implements LangEntry {
 		FURNACE_1_USE("Right click the item in inventory to switch modes.", 0, ChatFormatting.GRAY),
 		FURNACE_1_OFF("Mode: OFF", 0, ChatFormatting.GRAY),
-		FURNACE_1_DESC("Mode: %s", 1, ChatFormatting.GRAY);
+		FURNACE_1_DESC("Mode: %s", 1, ChatFormatting.GRAY),
+		FURNACE_2_USE("Right click the item in inventory to open its menu. Click the hakkero in the center to switch modes.", 0, ChatFormatting.GRAY),
+		FURNACE_2_FUEL("Feed it fuel to reach ten times furnace speed.", 0, ChatFormatting.GRAY),
+FURNACE_2_BOOST("Held in main hand while riding a broom, right click to burn fuel and speed up.", 0, ChatFormatting.GRAY);
 
 		private final String def;
 		private final int argn;
@@ -430,9 +510,11 @@ public final class GLLang {
 		IRON_DAGGER_LORE("Thrown, not dropped — it knows the way back.", 0, ChatFormatting.GRAY),
 		STRANGE_GLASSES_LORE("Someone else's idea of what counts as real.", 0, ChatFormatting.GRAY),
 		FURNACE_1_LORE("A portable magical furnace that emits heat. Can slowly smelt adjacent items when placed in inventory.", 0, ChatFormatting.GRAY),
+		FURNACE_2_LORE("A portable magical furnace with the leaks sealed. Smelts what you put in it, and rather too fast at that.", 0, ChatFormatting.GRAY),
 		STRAW_HAT_LORE("Woven by someone with four legs, for a frog with a very large appetite.", 0, ChatFormatting.GRAY),
 		SUWAKO_HAT_LORE("A river god's hat, traded for a frog's very specific appetite.", 0, ChatFormatting.GRAY),
-		KOISHI_HAT_LORE("Taken off a third party, and it never stopped sulking about it.", 0, ChatFormatting.GRAY);
+		KOISHI_HAT_LORE("Taken off a third party, and it never stopped sulking about it.", 0, ChatFormatting.GRAY),
+		ICE_WINGS_LORE("Six crystals, and it is suddenly very hard to count past nine.", 0, ChatFormatting.GRAY);
 
 		private final String def;
 		private final int argn;
@@ -472,7 +554,8 @@ public final class GLLang {
 		HAS_ABILITY("gensokyo roles"),
 		UNKNOWN("???", 0, ChatFormatting.GRAY),
 		GIFT_FAVOR("Favor: %s", 1),
-		GIFT_TYPE("Type: %s", 1);
+		GIFT_TYPE("Type: %s", 1),
+		INFINITE("Never runs out", 0, ChatFormatting.AQUA);
 
 		private final String def;
 		private final int argn;
@@ -719,7 +802,9 @@ public final class GLLang {
 	public enum Jei implements LangEntry {
 		ALCHEMY("jei.gensokyolegacy.alchemy", "Alchemy Pot"),
 		TRADE("jei.gensokyolegacy.trade", "Trade"),
-		QUEST("jei.gensokyolegacy.quest", "Quest Rewards");
+		QUEST("jei.gensokyolegacy.quest", "Quest Rewards"),
+		GIFT("jei.gensokyolegacy.gift", "Party Gifts"),
+		INTERACTION("jei.gensokyolegacy.interaction", "Entity Interaction");
 
 		private final String def;
 		private final int argn;
@@ -770,7 +855,15 @@ public final class GLLang {
 		COUNT_UNKNOWN("?", 0),
 		REWARD_EXP("%s experience", 1),
 		REWARD_REPUTATION("%s reputation", 1),
-		REWARD_LOOT("Loot table: %s", 1);
+		REWARD_LOOT("Loot table: %s", 1),
+		GIFT_BAND("%s-%s", 2),
+		GIFT_BAND_TOP("%s+", 1),
+		GIFT_CHANCE("Chance: %s%%", 1),
+		GIFT_NOTE("One gift each; the appeal she ate picks how generous she is", 0),
+		MORE_RUNGS("+%s more rungs", 1),
+		KIND_FEED("Feeding", 0),
+		FEED_WORTH("+%s reputation", 1),
+		FEED_NOTE("Right-click her with it; the thank-you only lands once she no longer counts you an enemy, and feeding on its own caps at %s reputation", 1);
 
 		private final String def;
 		private final int argn;
@@ -906,7 +999,7 @@ public final class GLLang {
 		for (var group : new LangEntry[][]{
 				Quest.values(), Info.values(), Trade.values(), Misc.values(),
 				ItemDebug.values(), ItemFurnace.values(), ItemLores.values(), ItemCommon.values(), ItemUmbrella.values(), ItemGlove.values(), ItemDaggerGlove.values(), Alchemy.values(), Jei.values(), JeiExtra.values(),
-				Talisman.values(), Doll.values()}) {
+				Talisman.values(), Doll.values(), Party.values()}) {
 			for (var e : group) {
 				pvd.add(e.key(), e.def());
 			}

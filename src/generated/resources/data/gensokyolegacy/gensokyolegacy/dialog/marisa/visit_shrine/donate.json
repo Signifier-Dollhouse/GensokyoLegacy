@@ -1,0 +1,12 @@
+{
+  "options": [
+    {
+      "type": "gensokyolegacy:simple",
+      "actions": [],
+      "conditions": [],
+      "next": "gensokyolegacy:marisa/visit_shrine/leave_ans",
+      "text": "gensokyolegacy/marisa/visit_shrine/option/leave"
+    }
+  ],
+  "text": "gensokyolegacy/marisa/visit_shrine/dialog/marisa/visit_shrine/donate"
+}

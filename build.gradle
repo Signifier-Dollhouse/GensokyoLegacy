@@ -183,8 +183,15 @@ dependencies {
     implementation jarJar(group: 'software.bernie.geckolib', name: 'geckolib-neoforge-1.21.1', version: "[4.6.6,)")
     implementation jarJar(group: 'com.github.glitchfiend', name: 'TerraBlender-neoforge', version: "${terrablender_ver}")
 
-    //implementation "curse.maven:farmers-delight-398521:5566383"
-    //implementation "dev.xkmc:youkaisfeasts:${youkaisfeasts_ver}"
+    implementation "curse.maven:farmers-delight-398521:8765184"
+    implementation "curse.maven:the-twilight-forest-227639:7797302"
+    implementation "curse.maven:kaleidoscope-cookery-1309203:9019242"
+    implementation "curse.maven:create-328085:7963363"
+    implementation "curse.maven:display-delight-1144296:8242893"
+    implementation "curse.maven:some-assembly-required-422951:7701961"
+    implementation "dev.xkmc:youkaisfeasts:1.1.0"
+    implementation "dev.xkmc:l2harvester:3.0.0"
+    implementation "dev.xkmc:twilightdelight:3.2.6-slim"
 
     implementation "mezz.jei:jei-${jei_minecraft_version}:${jei_version}"
 

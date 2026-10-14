@@ -7,15 +7,9 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 
 /**
- * A pluggable doll data slice: synced-accessor definitions plus {@link DollData}
- * persistence. Instances are created per entity and kept in the base's module list;
- * each hierarchy level appends its own in {@code createDollModules(List)}, chaining
- * through {@code super}.
- *
- * <p>Construction timing: {@code defineSynchedData} runs inside the vanilla
- * {@code Entity} constructor, before any subclass state exists. Registration must
- * therefore be static-safe (fresh instances, no instance state); the synced snapshot
- * (not the entity) is passed in, so modules never need an entity reference.
+ * A pluggable doll data slice: synced-accessor definitions plus {@link DollData} persistence.
+ * {@code defineSynchedData} runs inside the vanilla {@code Entity} constructor before any subclass
+ * state exists, so registration must be static-safe and take the synced snapshot, not the entity.
  */
 public interface DollModule {
 

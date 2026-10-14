@@ -1,0 +1,11 @@
+{
+  "options": [
+    {
+      "type": "gensokyolegacy:simple",
+      "actions": [],
+      "conditions": [],
+      "text": "gensokyolegacy/marisa/visit_shrine/option/bye"
+    }
+  ],
+  "text": "gensokyolegacy/marisa/visit_shrine/dialog/marisa/visit_shrine/calm"
+}

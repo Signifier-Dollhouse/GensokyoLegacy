@@ -15,28 +15,9 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.EnumSet;
 
-/**
- * The single combat goal on a doll: resolves the commanded behavior from the
- * held items and delegates every lifecycle call to it. Behaviors are created
- * per execution and dropped on stop, so per-run state can never go stale and
- * the doll stores none.
- * <p>
- * The validating candidate is cached while pending so behavior gates (range,
- * cooldown) apply before start, not just during execution. Unstarted waits are
- * timed out here: a stalled iterative regular hands ahead after 1 second and
- * aborts after 3, anything else aborts after 2. A wait whose target is already
- * dead or gone aborts immediately instead of burning the timeout, so a volley
- * at a dead target drains instantly instead of marching yellow down the roster.
- * Stopping with the ticket still held completes it (done-set + handoff), so
- * aborted runs never strand chains — only an already-released ticket (natural
- * completion, glove stop, a preempting new order) skips completion.
- * <p>
- * A behavior may also outlive its own ticket: {@link DollBehavior#selfDriven} lets
- * one keep running (and ticking) for as long as the doll holds nothing else, so a
- * behavior that releases the ticket mid-run — the melee charge hands the volley
- * off on impact and flies home on its own — still gets its tail. A new order always
- * wins over the tail.
- */
+/** The single combat goal: resolves the commanded behavior from the held items and delegates every lifecycle call;
+ * instances are per-execution and dropped on stop, so per-run state can never go stale. Gates apply before start via
+ * the cached pending candidate, and a wait whose target is dead, unreachable or unstartable aborts at once. */
 public class DollCommandGoal extends Goal {
 
 	/** Accepted-but-unstarted iterative regular: hand ahead after this long. */
@@ -117,21 +98,15 @@ public class DollCommandGoal extends Goal {
 			return;
 		}
 		DollBehavior behavior = DollBehaviorRegistry.createFor(doll, action).orElse(null);
-		// Capability lost while waiting (ammo consumed, loadout edited): the
-		// ticket can never start, so release it at once instead of idling
-		// yellow through the timeout. Cooldown-gated waits keep waiting —
-		// capability still resolves, only the behavior gate is closed.
+		// capability lost while waiting (ammo consumed, loadout edited): release at once
+		// instead of idling yellow. A cooldown-gated wait keeps waiting — capability still resolves.
 		if (behavior == null) {
 			doll.actions.complete(doll);
 			pending = null;
 			return;
 		}
-		// Out of the behavior's reach, and no amount of waiting changes that: a
-		// melee charge refuses to begin past its engage range (§5.1b) and a doll
-		// idling in formation does not close the gap by standing there. The ticket
-		// goes now rather than burning the start timeout and its hand-ahead, so an
-		// unreachable volley drains in a single tick instead of marching yellow
-		// down the roster.
+		// out of the behavior's reach, and no amount of waiting changes that: the
+		// ticket goes now rather than burning the start timeout and its hand-ahead
 		LivingEntity target = liveTarget(action);
 		if (target != null && !behavior.canReach(doll, target)) {
 			doll.actions.complete(doll);
@@ -158,9 +133,8 @@ public class DollCommandGoal extends Goal {
 	public boolean canContinueToUse() {
 		if (active == null) return false;
 		DollAction action = doll.actions.getCurrent();
-		// The ticket is gone: either a behavior released it on its own (the melee
-		// charge hands the volley off on impact), in which case only that behavior
-		// decides whether it is still doing anything, or something stopped us.
+		// the ticket is gone: either a behavior released it on its own — only that
+		// behavior then decides whether it is still doing anything — or something stopped us
 		if (action == null) return active.selfDriven(doll);
 		if (active.type() != action.type()) return false;
 		return active.canContinueToUse(doll);
@@ -188,12 +162,8 @@ public class DollCommandGoal extends Goal {
 			active.stop(doll);
 			active = null;
 		}
-		// Stopping with the ticket still held (target lost mid-execution, gate
-		// failure, preempted wait) completes it through the normal path —
-		// done-set + handoff for iterative — so the run never wedges the doll
-		// on yellow and chains keep moving. Identity-guarded: a ticket that was
-		// already released (natural completion, glove stop) or replaced by a
-		// preempting order is a different instance (or null) and is skipped.
+		// stopping with the ticket still held (target lost mid-execution, gate failure,
+		// preempted wait) completes it, so the run never wedges the doll on yellow. Identity-guarded.
 		if (activeAction != null && doll.actions.holds(activeAction)) {
 			doll.actions.complete(doll);
 		}

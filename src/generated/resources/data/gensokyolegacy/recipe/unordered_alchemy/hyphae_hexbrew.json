@@ -1,0 +1,25 @@
+{
+  "type": "gensokyolegacy:unordered_alchemy",
+  "input": [
+    {
+      "item": "gensokyolegacy:demonic_miasma_mushroom"
+    },
+    {
+      "item": "gensokyolegacy:demonic_miasma_mushroom"
+    },
+    {
+      "item": "gensokyolegacy:demonic_miasma_mushroom"
+    },
+    {
+      "item": "gensokyolegacy:demonic_miasma_mushroom"
+    }
+  ],
+  "inputFluid": {
+    "fluid": "gensokyolegacy:hexbrew_elixir"
+  },
+  "resultFluid": {
+    "amount": 1000,
+    "id": "gensokyolegacy:hyphae_hexbrew"
+  },
+  "time": 400
+}

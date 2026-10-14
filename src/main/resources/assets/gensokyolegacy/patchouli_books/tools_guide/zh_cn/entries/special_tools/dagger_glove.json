@@ -1,0 +1,23 @@
+{
+  "name": "飞刀手套",
+  "icon": "gensokyolegacy:dagger_glove",
+  "category": "gensokyolegacy:special_tools",
+  "advancement": "gensokyolegacy:main/obtain_dagger_glove",
+  "sortnum": 6,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "gensokyolegacy:dagger_glove",
+      "title": "杂耍戏法",
+      "text": "飞刀手套能把飞刀成组投出，或是追踪目标，手持手套切换轮盘，然后使用手套即可倾斜火力。"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)单发$()$(br)一把飞刀笔直向前。$(br)$(bold)扇形$()$(br)七把飞刀，以扇形向视线前方铺开。$(br)$(bold)追踪$()$(br)掷出数把飞刀，每把都会转向你注视的目标并射出。$(br2)瞄准时目标会被红框标出，且可绕过墙体——飞刀会转弯，所以隔着墙也能锁定目标。$(br2)准星下没有目标时，追踪模式不会投出任何东西，也不会花费任何东西。"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)飞刀就是弹药$()$(br)手套会从你的整个背包中取刀，消耗所需的飞刀必须流转足额，数量不足时不会执行。$(br2)即使在创造模式，手套也要消耗飞刀才能使用。"
+    }
+  ]
+}

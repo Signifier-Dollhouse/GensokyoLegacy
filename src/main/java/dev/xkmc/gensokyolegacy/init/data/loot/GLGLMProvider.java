@@ -1,6 +1,7 @@
 package dev.xkmc.gensokyolegacy.init.data.loot;
 
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
+import dev.xkmc.gensokyolegacy.init.registrate.GLEffects;
 import dev.xkmc.gensokyolegacy.init.registrate.GLEntities;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.l2core.serial.loot.AddItemModifier;
@@ -14,6 +15,8 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.animal.FrogVariant;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.entries.LootItem;
+import net.minecraft.world.level.storage.loot.predicates.DamageSourceCondition;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.minecraft.world.level.storage.loot.predicates.LootItemEntityPropertyCondition;
 import net.neoforged.neoforge.common.data.GlobalLootModifierProvider;
@@ -33,11 +36,11 @@ public class GLGLMProvider extends GlobalLootModifierProvider {
 	@Override
 	protected void start() {
 		add("cirno_frozen_frog_cold", create(GLItems.FROZEN_FROG_COLD.get(),
-				killedByCirno(), frog(FrogVariant.COLD)));
+				killedByIce(), frog(FrogVariant.COLD)));
 		add("cirno_frozen_frog_warm", create(GLItems.FROZEN_FROG_WARM.get(),
-				killedByCirno(), frog(FrogVariant.WARM)));
+				killedByIce(), frog(FrogVariant.WARM)));
 		add("cirno_frozen_frog_temperate", create(GLItems.FROZEN_FROG_TEMPERATE.get(),
-				killedByCirno(), frog(FrogVariant.TEMPERATE)));
+				killedByIce(), frog(FrogVariant.TEMPERATE)));
 
 
 	}
@@ -73,13 +76,16 @@ public class GLGLMProvider extends GlobalLootModifierProvider {
 						EntityTypePredicate.of(tag))).build();
 	}
 
-	private static LootItemCondition killedByCirno() {
-		return LootItemEntityPropertyCondition.hasProperties(
+	private static LootItemCondition killedByIce() {
+		var cirno = LootItemEntityPropertyCondition.hasProperties(
 				LootContext.EntityTarget.ATTACKER,
 				EntityPredicate.Builder.entity().entityType(
-						EntityTypePredicate.of(GLEntities.CIRNO.get())))
-				//.or(new RoleProgressLootCondition(GLMechanics.ICE_FAIRY.get(), 1000))
-				.build();
+						EntityTypePredicate.of(GLEntities.CIRNO.get())));
+		var ice = DamageSourceCondition.hasDamageSource(
+				DamageSourcePredicate.Builder.damageType()
+						.direct(EntityPredicate.Builder.entity().entityType(
+								EntityTypePredicate.of(GLEntities.FAIRY_ICE.get()))));
+		return cirno.or(ice).build();
 	}
 
 	private static LootItemCondition fire(boolean fire) {

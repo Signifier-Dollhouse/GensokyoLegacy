@@ -1,0 +1,82 @@
+{
+  "multipart": [
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/magic_table_left"
+      },
+      "when": {
+        "facing": "north",
+        "origin": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/magic_table_right"
+      },
+      "when": {
+        "facing": "north",
+        "origin": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/magic_table_left",
+        "y": 90
+      },
+      "when": {
+        "facing": "east",
+        "origin": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/magic_table_right",
+        "y": 90
+      },
+      "when": {
+        "facing": "east",
+        "origin": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/magic_table_left",
+        "y": 180
+      },
+      "when": {
+        "facing": "south",
+        "origin": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/magic_table_right",
+        "y": 180
+      },
+      "when": {
+        "facing": "south",
+        "origin": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/magic_table_left",
+        "y": 270
+      },
+      "when": {
+        "facing": "west",
+        "origin": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "gensokyolegacy:block/magic_table_right",
+        "y": 270
+      },
+      "when": {
+        "facing": "west",
+        "origin": "false"
+      }
+    }
+  ]
+}

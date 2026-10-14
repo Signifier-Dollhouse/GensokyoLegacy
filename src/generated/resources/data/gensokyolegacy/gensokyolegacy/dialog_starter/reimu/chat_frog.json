@@ -2,6 +2,9 @@
   "character": "gensokyolegacy:hakurei_reimu",
   "conditions": [
     {
+      "type": "gensokyolegacy:home_bound"
+    },
+    {
       "type": "gensokyolegacy:has_item",
       "ingredients": [
         {
@@ -13,6 +16,10 @@
     {
       "type": "gensokyolegacy:has_quest_completed",
       "quest": "gensokyolegacy:reimu/ominous_banner"
+    },
+    {
+      "type": "gensokyolegacy:timer",
+      "key": "frog"
     }
   ],
   "dialog": "gensokyolegacy:reimu/chat_frog/talk",

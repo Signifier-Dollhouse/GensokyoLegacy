@@ -1,0 +1,39 @@
+{
+  "name": "室内装饰",
+  "icon": "gensokyolegacy:tatami",
+  "category": "gensokyolegacy:decoration",
+  "sortnum": 1,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": [
+        "gensokyolegacy:tatami",
+        "gensokyolegacy:tatami_block"
+      ],
+      "title": "榻榻米与榻榻米块",
+      "text": "榻榻米非常适合布置日式风格的房间。铺设会默认放置两块连接的榻榻米，让地面更加整齐；手中只有一块，或者前方没有足够空间，就会只铺下一块方形榻榻米。拆掉成对的榻榻米后，每一半都会掉落一块榻榻米，整块高度的榻榻米块也遵循同样的规则。"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": [
+        "gensokyolegacy:drawer_cabinet",
+        "gensokyolegacy:door_cabinet"
+      ],
+      "title": "橱柜",
+      "text": "两种各有 27 格储物空间的橱柜：一种是抽屉式，一种是双门式，右键即可打开储物；潜行右键只开合柜门或抽屉，不会打开界面。在判定一个房间能否作为家时，它们也被算作储物家具。"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": [
+        "gensokyolegacy:carton_default",
+        "gensokyolegacy:carton_white",
+        "gensokyolegacy:carton_blue",
+        "gensokyolegacy:crate",
+        "gensokyolegacy:book_pile",
+        "gensokyolegacy:book_stack"
+      ],
+      "title": "纸箱、板条箱与书",
+      "text": "$(bold)纸箱$()其有三种颜色。$(br2)$(bold)板条箱$()一个装饰性方块。$(br2)$(bold)书$()书堆有三种大小，对它右键可以依次切换。书堆和书摞只会掉落原本的制作材料。"
+    }
+  ]
+}

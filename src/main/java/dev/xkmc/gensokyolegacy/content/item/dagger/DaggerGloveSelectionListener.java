@@ -4,7 +4,6 @@ import dev.xkmc.l2itemselector.select.item.IItemSelector;
 import dev.xkmc.l2itemselector.wheel.WheelAdaptor;
 import dev.xkmc.gensokyolegacy.content.item.dagger.client.DaggerGloveModeWheel;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
-import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
@@ -16,13 +15,11 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Selector listener for the {@link DaggerGloveItem}'s firing mode, mirroring
- * {@code DollGloveSelectionListener} (glove.md §3).
- * <p>
- * Simpler than the doll glove's because all three modes are always available: there is no
- * availability filter, no client/server split over what is visible, and no hidden modes to keep
- * out of the wheel. The mode is the enum ordinal in a data component, so both the wheel and the
- * scroll selector speak ordinals and neither can name a mode that does not exist.
+ * Selector listener for the {@link DaggerGloveItem}'s firing mode, mirroring {@code DollGloveSelectionListener}
+ * (glove.md §3); all three modes are always available and stored as enum ordinals, so there is no availability
+ * filter and no client/server split.
+ *
+ * @see "doc/design/dagger_glove.md"
  */
 public class DaggerGloveSelectionListener extends IItemSelector implements WheelAdaptor.Provider {
 
@@ -59,7 +56,9 @@ public class DaggerGloveSelectionListener extends IItemSelector implements Wheel
 	public List<ItemStack> getList(ItemStack stack) {
 		List<ItemStack> list = new ArrayList<>();
 		for (var mode : DaggerGloveMode.values()) {
-			ItemStack icon = DaggerGloveItem.displayStack(mode);
+			// the flat icon variant, not the held separate-transforms model: the sidebar is
+			// gui-only, so it wants the mode's own icon like the wheel does
+			ItemStack icon = DaggerGloveItem.iconStack(mode);
 			icon.set(DataComponents.ITEM_NAME, mode.displayName());
 			list.add(icon);
 		}

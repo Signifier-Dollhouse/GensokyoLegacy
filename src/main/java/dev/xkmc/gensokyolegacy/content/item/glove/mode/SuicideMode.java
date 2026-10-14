@@ -15,6 +15,10 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * Suicide: one random available doll dives once; the doll is spent, its item returned by the
+ * stray death drop (glove.md §1).
+ */
 public class SuicideMode extends DollGloveHandler {
 
 	@Override

@@ -16,12 +16,10 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * The selector wheel for the {@link DaggerGloveItem}, mirroring {@code DollGloveModeWheel}
- * (glove.md §3).
- * <p>
- * All three modes are listed unconditionally, so the content is the whole enum every frame and the
- * index is just the held mode's ordinal — no availability filtering to fall out of step between
- * the two sides.
+ * The selector wheel for the {@link DaggerGloveItem}, mirroring {@code DollGloveModeWheel} (glove.md §3).
+ * All three modes are listed unconditionally, so the content is the whole enum and the index its ordinal.
+ *
+ * @see "doc/design/dagger_glove.md"
  */
 public class DaggerGloveModeWheel implements PersistentWheel<DaggerGloveModeEntry> {
 
@@ -53,7 +51,7 @@ public class DaggerGloveModeWheel implements PersistentWheel<DaggerGloveModeEntr
 		var modes = DaggerGloveMode.values();
 		if (index < 0 || index >= modes.length) return;
 		GensokyoLegacy.HANDLER.toServer(new SelectorSelectPacket(index));
-		// optimistic update, same as the doll glove: the held glove's own texture changes now, the
+		// optimistic update, same as the doll glove: the held glove's own mode changes now and the
 		// server's answer only has to confirm it
 		DaggerGloveItem.setMode(stack, modes[index]);
 	}

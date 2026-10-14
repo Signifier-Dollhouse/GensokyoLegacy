@@ -11,6 +11,9 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
+/** Picks the best matching stage recipe for the pot contents and reports the items it has not
+ * consumed yet, so the renderer can bob them and clear can drop them.
+ * @see "doc/design/alchemy_pot.md" */
 public class AlchemyStageHolder {
 
 	private List<RecipeHolder<AlchemyStageRecipe<?>>> recipes = new ArrayList<>();
@@ -38,7 +41,7 @@ public class AlchemyStageHolder {
 			current = StageData.DEF;
 		} else {
 			int col = access == null ? -1 : r0.value().getColor(inv, access);
-			// fallback if subclass didn't override properly
+			// a recipe that leaves the colour unset (-1) falls back to its static field
 			if (col == -1 && r0.value() instanceof SimpleAlchemyStageRecipe s) col = s.color;
 			current = new StageData(col);
 		}

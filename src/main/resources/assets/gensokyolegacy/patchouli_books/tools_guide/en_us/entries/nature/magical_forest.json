@@ -6,24 +6,74 @@
   "sortnum": 1,
   "pages": [
     {
-      "type": "patchouli:spotlight",
-      "item": "gensokyolegacy:demonic_miasma_mushroom",
+      "type": "patchouli:text",
       "title": "Forest of Magic",
-      "text": "A dense overworld biome of towering blue firs and giant mushrooms: Ghost Fire, Dream, and Demonic Miasma. Entering it earns you this guide. Watch the haze between the great caps: some of it bites."
-    },
-    {
-      "type": "patchouli:text",
-      "text": "Giant firs and mushroom trees crowd around clearings, ponds, and mushroom glades. Miasma mushrooms constantly breathe out miasma air, which drifts and thickens nearby. Denser haze inflicts a stronger level of Miasma."
+      "text": "Towering blue firs and giant mushrooms shut out the sky; Ghost Fire, Dream and Demonic Miasma mushrooms grow wild, and a miasma that makes the weak fills the trees. Who could settle down here?"
     },
     {
       "type": "patchouli:spotlight",
-      "item": "gensokyolegacy:miasma_hexbrew_bottle",
-      "title": "Miasma",
-      "text": "Miasma halves armor effectiveness, raises damage taken by 50%, and cuts healing by 30%. Whenever victims are hurt, they may also gain Slowness, Weakness, or Poison (Poison only at Miasma II)."
+      "item": [
+        "gensokyolegacy:ghost_fire_mushroom",
+        "gensokyolegacy:ghost_fire_mushroom_block",
+        "gensokyolegacy:cyan_mushroom_stem"
+      ],
+      "title": "Ghost Fire Mushrooms",
+      "text": "The mushrooms that light the forest floor. Every cap gives off a faint glow of its own, so a patch of them reads like a row of lanterns strung under the canopy, and a mature ghost fire stands taller than a person on a slender stem."
     },
     {
-      "type": "patchouli:text",
-      "text": "You catch it by standing in miasma air, brushing against miasma caps, or being hit by Miasma Hexbrew (60 seconds). Keep your distance from the red caps, and end fights fast: everything that hits you while it lasts hits harder."
+      "type": "patchouli:spotlight",
+      "item": [
+        "gensokyolegacy:dream_mushroom",
+        "gensokyolegacy:dream_mushroom_block",
+        "gensokyolegacy:purple_mushroom_stem"
+      ],
+      "title": "Dream Mushrooms",
+      "text": "The tallest and roundest of the three, and entirely lightless. Dream mushrooms give off no glow whatsoever, so a dream grove stays dim even at midday — which is how you learn to recognise one from a distance."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": [
+        "gensokyolegacy:demonic_miasma_mushroom",
+        "gensokyolegacy:demonic_miasma_mushroom_block",
+        "gensokyolegacy:red_mushroom_stem"
+      ],
+      "title": "Demonic Miasma Mushrooms",
+      "text": "The least conspicuous of the three breathes out a heavy miasma, which billows beneath the cap and then creeps along the forest floor. Standing in it is never a good idea — living things grow weak."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": [
+        "gensokyolegacy:blue_fir_sapling",
+        "gensokyolegacy:blue_fir_log",
+        "gensokyolegacy:blue_fir_wood",
+        "gensokyolegacy:blue_fir_leaves"
+      ],
+      "title": "Blue Fir",
+      "text": "A boreal lineage reshaped by a warmer, wetter climate: tall, winding trunks under layers of flat-spread needles, dotted with mushrooms and trailing sparse vines."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": [
+        "gensokyolegacy:eugune_red",
+        "gensokyolegacy:eugune_brown",
+        "gensokyolegacy:eugune_ghost_fire",
+        "gensokyolegacy:evergreen_vine"
+      ],
+      "title": "Eugune and Vines",
+      "text": "Eugune bracket fungi grow out of the trunks, in three colors; evergreen vines hang from the branches in long strands."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": [
+        "gensokyolegacy:star_flower",
+        "gensokyolegacy:flame_cattail",
+        "gensokyolegacy:broom_grass",
+        "gensokyolegacy:bracken",
+        "gensokyolegacy:mystical_straw",
+        "gensokyolegacy:cedar_fallen_leaves"
+      ],
+      "title": "Forest Floor",
+      "text": "Star flowers, tall enough to reach and bright enough to notice; flame cattails growing in and around the ponds; broom grass as common as any weed; bracken threaded through it all. The floor of the Magical Forest looks like an untended herbalist's storehouse."
     }
   ]
 }

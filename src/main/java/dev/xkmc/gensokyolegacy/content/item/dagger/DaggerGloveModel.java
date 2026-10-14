@@ -11,23 +11,10 @@ import net.neoforged.neoforge.client.model.generators.ItemModelBuilder;
 import java.util.Locale;
 
 /**
- * Item model generation for the dagger glove. Split out of {@code GLItems} for the same
- * reason {@code DollGloveModel} is: the glove is one of the two tools whose model is built
- * per mode rather than from one texture.
+ * Item model generation for the dagger glove, built per mode: the held half wraps {@link GloveHandModel}
+ * around the per-mode-skinned {@code dagger_glove_hand} model; {@link DaggerGloveItem#iconStack} icons stay flat.
  *
- * <p>The held-hand half is {@link GloveHandModel}'s wiring around this glove's own
- * {@code custom/dagger_glove_hand} model — a hand with three daggers fanned out of it, not
- * the doll glove's bare mitten. This class is the three firing modes on top of it
- * (dagger_glove.md §6, §8).
- *
- * <p>Every mode gets its own hand skin, so the hand displays are per-mode too. The per-mode
- * held overrides are separate-transforms models rather than flat ones, because vanilla replaces
- * the whole item model when a predicate matches - a flat override would drop the hand while
- * in hand. The wheel icons behind {@link DaggerGloveItem#iconStack} are flat, since an icon
- * stack is gui-only and never held.
- *
- * <p>All of the glove's art sits under {@code item/dagger_glove/}, beside the umbrella's and
- * the doll glove's.
+ * @see "doc/design/dagger_glove.md"
  */
 public class DaggerGloveModel {
 
@@ -43,8 +30,8 @@ public class DaggerGloveModel {
 		var modes = DaggerGloveMode.values();
 		var glove = pvd.getBuilder(ctx.getName());
 		perspectives(glove, pvd, pvd.modLoc("item/dagger_glove/" + ctx.getName()), modes[0].name().toLowerCase(Locale.ROOT));
-		// vanilla also reverses the override list at bake time and returns the first match
-		// with >= per predicate, so emit ascending values for exact per-mode matching
+		// vanilla reverses the override list at bake time and returns the first match with >= per
+		// predicate, so emit ascending values for exact per-mode matching
 		for (int i = 0; i < modes.length; i++) {
 			var mode = modes[i].name().toLowerCase(Locale.ROOT);
 			var name = "item/dagger_glove_" + mode;
@@ -65,8 +52,8 @@ public class DaggerGloveModel {
 	}
 
 	/**
-	 * Turns {@code builder} into one held-mode model of the glove: {@code texture} as the
-	 * flat base, the glove's own modelled hand in {@code mode}'s skin on all four hand displays.
+	 * Turns {@code builder} into one held-mode model: {@code texture} as the flat base, the glove's
+	 * own modelled hand in {@code mode}'s skin on all four hand displays.
 	 */
 	private static void perspectives(ItemModelBuilder builder, RegistrateItemModelProvider pvd,
 			ResourceLocation texture, String mode) {

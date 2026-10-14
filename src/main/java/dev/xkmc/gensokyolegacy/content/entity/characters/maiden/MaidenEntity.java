@@ -1,12 +1,11 @@
 package dev.xkmc.gensokyolegacy.content.entity.characters.maiden;
 
-import dev.xkmc.gensokyolegacy.content.entity.behavior.brain.TaskBoard;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.combat.YoukaiCombatManager;
-import dev.xkmc.gensokyolegacy.content.entity.behavior.task.combat.YoukaiSearchTargetTask;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.BossYoukaiEntity;
 import dev.xkmc.gensokyolegacy.init.registrate.GLBrains;
 import dev.xkmc.l2serial.serialization.marker.SerialClass;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.schedule.Activity;
 import net.minecraft.world.level.Level;
 
 @SerialClass
@@ -17,10 +16,14 @@ public class MaidenEntity extends BossYoukaiEntity {
 		navCtrl.markHuman();
 	}
 
+	/**
+	 * She is the one character tasked with holding her own home, so the house is where she
+	 * fights, not merely where she waits: the acquire task searches it as well as her idle
+	 * and play time.
+	 */
 	@Override
-	protected void constructTaskBoard(TaskBoard board) {
-		super.constructTaskBoard(board);
-		board.addBehaviorActivity(YoukaiSearchTargetTask.class, GLBrains.AT_HOME.get());
+	public boolean shouldSearchTarget(Activity activity) {
+		return super.shouldSearchTarget(activity) || activity == GLBrains.AT_HOME.get();
 	}
 
 	@Override

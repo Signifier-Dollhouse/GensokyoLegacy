@@ -2,7 +2,7 @@ package dev.xkmc.gensokyolegacy.content.trigger;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.xkmc.gensokyolegacy.init.registrate.GLCriteriaTriggers;
+import dev.xkmc.l2core.init.reg.simple.Val;
 import net.minecraft.advancements.Criterion;
 import net.minecraft.advancements.critereon.ContextAwarePredicate;
 import net.minecraft.advancements.critereon.EntityPredicate;
@@ -37,10 +37,16 @@ public class FeedCharacterTrigger extends SimpleCriterionTrigger<FeedCharacterTr
 				).apply(i, FeedCharacterTrigger.TriggerInstance::new)
 		);
 
+		/**
+		 * A criterion bound to whichever trigger id asked for it, since one class is registered under several.
+		 *
+		 * @param trigger registered instance of this trigger to build the criterion against
+		 */
 		public static Criterion<FeedCharacterTrigger.TriggerInstance> usedItem(
+				Val<FeedCharacterTrigger> trigger,
 				@Nullable ContextAwarePredicate player, @Nullable EntityPredicate entity, @Nullable ItemPredicate item
 		) {
-			return GLCriteriaTriggers.FEED_REIMU.get().createCriterion(new FeedCharacterTrigger.TriggerInstance(
+			return trigger.get().createCriterion(new FeedCharacterTrigger.TriggerInstance(
 					Optional.ofNullable(player), Optional.ofNullable(entity), Optional.ofNullable(item)));
 		}
 

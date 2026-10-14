@@ -13,40 +13,16 @@ import net.neoforged.neoforge.items.IItemHandlerModifiable;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * 4-slot {@link IItemHandlerModifiable} facade over a doll's loadout, arranged
- * as a cross: slot 0 main hand (left), 1 off hand (right), 2 core (top),
- * 3 cloth (middle, the body-worn slot). A hand is <b>locked</b> to what a doll can
- * actually use — any bound item, plus the vanilla shield — and to a single item
- * per slot, the one exception being ammunition: an item a behavior spends one per
- * use, where N in the hand is N uses (loadout.md §4). The core takes a folded
- * talisman, which the doll wears rather than uses ({@link DollCoreTalisman}); cloth
- * takes nothing yet.
- *
- * <p>The two rules live here because this is the only writer: {@link
- * #isItemValid} is what a click asks before placing (and what a hopper asks), and
- * {@link #stackLimit} is the per-item form of the count rule the menu slot reports,
- * so vanilla's own split arithmetic never moves more than the rule allows. The one
- * other writer, Alice's arming ({@code AliceDollHost.arm}), goes straight to the ledger
- * and is not gated by these — it only ever hands out doll lances, star wands and
- * folded talismans, all of which admit.
- *
- * <p>Two live backings, mirroring {@code TalismanPocketItemHandler}:
- * the server-side entity menu writes straight into the ledger
- * {@link MutableDollInventory} and refreshes the client mirror afterwards;
- * the server-side item menu reads/writes the doll stack's {@code DOLL_LOADOUT}
- * component. The client-side menu uses a dummy inventory: contents then come
- * purely from container sync, so validation applies identically on both
- * sides. It must be modifiable because {@code ItemHandlerCopySlot} casts to
- * this interface.
+ * 4-slot {@link IItemHandlerModifiable} facade over a doll's loadout: 0 main hand, 1 off hand, 2
+ * core, 3 cloth. The only gated writer of the two slot rules (loadout.md §4), over the ledger, the
+ * doll stack's {@code DOLL_LOADOUT} component, or a client-side dummy for sync-only menus.
  */
 public class DollLoadoutItemHandler implements IItemHandlerModifiable {
 
 	/**
-	 * The most one hand can ever hold: a full stack of the largest ammunition — TNT
-	 * at 64 (hexbrew bottles cap at 16 by their own item properties). What a hand
-	 * holds for any one item is {@link #slotLimit}: {@link #getSlotLimit} cannot
-	 * see the stack, so it answers the ceiling and {@link #insertItem} applies the
-	 * real rule per write.
+	 * The most one hand can ever hold: a full stack of the largest ammunition, TNT at 64.
+	 * {@link #getSlotLimit} cannot see the stack, so it answers this ceiling and {@link #slotLimit}
+	 * applies the real per-item rule.
 	 */
 	private static final int HAND_LIMIT = 64;
 
@@ -64,13 +40,9 @@ public class DollLoadoutItemHandler implements IItemHandlerModifiable {
 	}
 
 	/**
-	 * How many of this stack a loadout slot may hold. A hand takes the item's own
-	 * maximum when a binding <b>spends</b> it (ammunition — a thrown hexbrew bottle,
-	 * a fired laser, a detonated TNT), otherwise a single item; core and cloth stay
-	 * single slots whatever the stack would otherwise allow. Read from the menu through
-	 * {@code Slot.getMaxStackSize(ItemStack)}, the one hook vanilla asks per item;
-	 * every placement path (click, number-key swap, shift-click, drag) sizes its
-	 * transfer with it, so nothing is ever over-written and then truncated away.
+	 * How many of this stack a loadout slot may hold: the item's own maximum when a binding
+	 * <b>spends</b> it, otherwise one; core and cloth stay single whatever the stack would allow.
+	 * The menu reads this through {@code Slot.getMaxStackSize(ItemStack)}, vanilla's per-item hook.
 	 */
 	public static int slotLimit(DollSlot slot, ItemStack stack) {
 		if (!isHand(slot) || stack.isEmpty()) return 1;
@@ -133,8 +105,8 @@ public class DollLoadoutItemHandler implements IItemHandlerModifiable {
 	}
 
 	/**
-	 * Writes through to the live backing (ledger, item component, or client
-	 * dummy) and refreshes the entity mirror for doll backings.
+	 * Writes through to the live backing (ledger, item component, or client dummy) and
+	 * refreshes the entity mirror for doll backings.
 	 */
 	private void writeSlot(DollSlot target, ItemStack stack) {
 		ItemStack copy = stack.isEmpty() ? ItemStack.EMPTY : stack.copy();
@@ -147,12 +119,9 @@ public class DollLoadoutItemHandler implements IItemHandlerModifiable {
 	}
 
 	/**
-	 * The loadout lock, per slot. A hand takes only what a doll could act with — any bound
-	 * item, whatever the action type, plus the vanilla shield
-	 * ({@link DollBehaviorRegistry#usableInHand}). The core takes a folded talisman, which
-	 * the doll wears rather than uses ({@link DollCoreTalisman}); cloth takes nothing yet
-	 * (cloth that enables passive moves is future work — open its predicate here when it
-	 * lands).
+	 * The loadout lock, per slot: a hand takes only what a doll could act with
+	 * ({@link DollBehaviorRegistry#usableInHand}), the core a folded talisman the doll wears rather
+	 * than uses ({@link DollCoreTalisman}). Cloth takes nothing yet — open its predicate here.
 	 */
 	@Override
 	public boolean isItemValid(int slot, ItemStack stack) {
@@ -210,9 +179,8 @@ public class DollLoadoutItemHandler implements IItemHandlerModifiable {
 	}
 
 	/**
-	 * The same rule per item rather than per slot: {@link #getSlotLimit} cannot see the stack,
-	 * so the menu asks here instead (vanilla sizes every transfer with
-	 * {@code Slot.getMaxStackSize(ItemStack)}).
+	 * The same rule per item rather than per slot, since {@link #getSlotLimit} cannot see the
+	 * stack; vanilla sizes every transfer with {@code Slot.getMaxStackSize(ItemStack)}.
 	 */
 	public int stackLimit(int slot, ItemStack stack) {
 		if (slot < 0 || slot >= getSlots()) return 0;

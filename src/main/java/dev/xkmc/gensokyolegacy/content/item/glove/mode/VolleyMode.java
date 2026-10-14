@@ -14,6 +14,10 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * Volley: the first available doll attacks in turn at the cached target, or the punched entity.
+ * @see "doc/design/doll/glove.md"
+ */
 public class VolleyMode extends DollGloveHandler {
 
 	@Override
@@ -51,15 +55,12 @@ var commands = attachment(sp).commands();
 		if (target == null || !DollGloveItem.isValidAttackTarget(sp, target)) {
 			sp.displayClientMessage(GLLang.ItemGlove.NO_TARGET.get(), true);
 		} else if (!commands.hasCapableDoll(sp, DollActionType.REGULAR_ATTACK)) {
-			// Nothing can attack: every doll has both hands full of things no regular
-			// attack can use, so not even a bare hand is free. Which of the two
-			// "no doll for this" lines fits depends on whether there is a roster.
+			// nothing can attack: both "no doll" lines fit, depending on whether a roster exists.
 			sp.displayClientMessage(commands.hasSummonedDoll(sp) ?
 					GLLang.ItemGlove.NO_WEAPON.get() : GLLang.ItemGlove.NO_DOLL.get(), true);
 		} else if (!commands.canAttack(sp, target, DollActionType.REGULAR_ATTACK)) {
-			// Able, but only with dolls that cannot close the distance (melee past
-			// its engage range). Say so instead of issuing a volley that empties
-			// itself on the spot.
+			// armed, but only with dolls that cannot close the distance: say so instead
+			// of issuing a volley that empties itself on the spot.
 			sp.displayClientMessage(GLLang.ItemGlove.TOO_FAR.get(), true);
 		} else if (commands.issueVolley(sp, target)) {
 			sp.displayClientMessage(GLLang.ItemGlove.VOLLEY.get(), true);

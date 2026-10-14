@@ -8,16 +8,16 @@
     {
       "type": "patchouli:spotlight",
       "item": "gensokyolegacy:doll_glove",
-      "title": "Doll Commander",
-      "text": "The Seven-Colored Doll Glove lets you command all of your dolls from a distance. Hold the selection key to open its mode wheel, then use the glove to give an order. A selected target is highlighted in the mode's color."
+      "title": "The Commander",
+      "text": "The Seven-Colored Doll Glove lets you command all of your dolls from a distance. Hold the selection key to open its mode wheel (X by default), then give orders with the glove's left or right button."
     },
     {
       "type": "patchouli:text",
-      "text": "$(bold)Rally$()$(br)Summons all stored dolls, or recalls all active dolls.$(br)$(bold)Attack$()$(br)Commands every armed doll to fire once, one after another.$(br)$(bold)Skill$()$(br)Commands one random doll to use its super attack. It is listed only while a doll can perform it."
+      "text": "Rally$(br2)Summons all parked dolls, or recalls all active dolls.$(br2)Attack$(br2)Commands every armed doll to fire once, in turn.$(br2)Item$(br2)Commands one random doll to use a consumable. The mode is only listed while a doll holds a consumable."
     },
     {
       "type": "patchouli:text",
-      "text": "$(bold)Suicide$()$(br)Commands one random doll to rush the enemy and detonate. It is listed only while a doll carries TNT.$(br)$(bold)Loadout$()$(br)Right-click one of your dolls to open its loadout from afar, in any mode.$(br)$(bold)Left-click$()$(br)Left-click, even at empty air, issues the attack order without ever opening a menu."
+      "text": "Suicide$(br2)Commands one random doll to rush the enemy and detonate. The mode is only listed while a doll carries TNT.$(br2)Loadout$(br2)Right-click one of your dolls to open its loadout from afar, in any mode."
     }
   ]
 }

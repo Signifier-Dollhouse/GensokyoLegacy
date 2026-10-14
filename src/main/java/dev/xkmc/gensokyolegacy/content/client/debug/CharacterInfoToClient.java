@@ -17,6 +17,16 @@ public record CharacterInfoToClient(
 		ArrayList<Component> advanced
 ) implements SerialPacketBase<CharacterInfoToClient> {
 
+	/** What a party guest has eaten, for the one readout the client cannot answer: her tallies live on the
+	 * server-side {@code PartyModule} and cover two questions at once — how much she was <i>fed</i> against
+	 * her own fulfillment and how much she was <i>moved by</i> — so both halves travel, not a ratio.
+	 *
+	 * @param eaten  hunger served to her, measured against her party taste
+	 * @param appeal appeal served to her, which is what her gift is sized on
+	 * @param wanted the fulfillment her taste asks for
+	 */
+	public record PartyTally(int eaten, int appeal, int wanted) { }
+
 	public static CharacterInfoToClient ofEntity(
 			@Nullable StructureKey home,
 			@Nullable BlockPos bed,
@@ -24,7 +34,8 @@ public record CharacterInfoToClient(
 			int reputationCap,
 			int feedCD,
 			int giftCD,
-			String activity
+			String activity,
+			@Nullable PartyTally party
 	) {
 		ArrayList<Component> info = new ArrayList<>();
 		ArrayList<Component> advanced = new ArrayList<>();
@@ -39,6 +50,11 @@ public record CharacterInfoToClient(
 		}
 		if (giftCD > 0) {
 			info.add(GLLang.Info.ENTITY_GIFT.time(giftCD).withStyle(ChatFormatting.GRAY));
+		}
+		if (party != null) {
+			info.add(GLLang.Info.ENTITY_PARTY_EATEN.get(party.eaten(), party.wanted())
+					.withStyle(ChatFormatting.GRAY));
+			info.add(GLLang.Info.ENTITY_PARTY_APPEAL.get(party.appeal()).withStyle(ChatFormatting.GRAY));
 		}
 		if (!activity.isEmpty()) {
 			String[] strs = activity.split("\n");

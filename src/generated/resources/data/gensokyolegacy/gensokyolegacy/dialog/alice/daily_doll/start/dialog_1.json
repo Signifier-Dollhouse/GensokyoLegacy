@@ -1,0 +1,26 @@
+{
+  "animations": [
+    "dialog_think"
+  ],
+  "options": [
+    {
+      "type": "gensokyolegacy:simple",
+      "actions": [],
+      "conditions": [],
+      "next": "gensokyolegacy:alice/daily_doll/start/reject/dialog_1",
+      "text": "gensokyolegacy/alice/shared/option/daily_reject"
+    },
+    {
+      "type": "gensokyolegacy:simple",
+      "actions": [
+        {
+          "type": "gensokyolegacy:start_quest"
+        }
+      ],
+      "conditions": [],
+      "next": "gensokyolegacy:alice/daily_doll/start/accept/dialog_1",
+      "text": "gensokyolegacy/alice/shared/option/daily_accept"
+    }
+  ],
+  "text": "gensokyolegacy/alice/daily_doll/dialog/alice/daily_doll/start/dialog_1"
+}

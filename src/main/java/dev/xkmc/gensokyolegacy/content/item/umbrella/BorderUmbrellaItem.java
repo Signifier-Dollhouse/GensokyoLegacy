@@ -48,12 +48,9 @@ public class BorderUmbrellaItem extends Item {
 	}
 
 	/**
-	 * Model-override value for {@code gensokyolegacy:umbrella_display},
-	 * mirroring {@code DollGloveItem.displayPredicate}: plain stacks keep the
-	 * base model (value 0, open/closed still selected by
-	 * {@code umbrella_open}); an icon display stack (wheel entries, selector
-	 * sidebar, marked with {@code UMBRELLA_ICON}) uses the per-mode icon
-	 * range. Values are emitted ascending, so they match exactly.
+	 * Model-override value for {@code gensokyolegacy:umbrella_display}, mirroring {@code
+	 * DollGloveItem.displayPredicate}: plain stacks keep the base model (0, open/closed still by {@code
+	 * umbrella_open}), an {@code UMBRELLA_ICON} stack uses its mode's icon range.
 	 */
 	public static float displayPredicate(ItemStack stack, Level level, LivingEntity entity, int seed) {
 		if (!stack.has(GLItems.UMBRELLA_ICON.get())) return 0;
@@ -61,9 +58,7 @@ public class BorderUmbrellaItem extends Item {
 	}
 
 	/**
-	 * Display stack for a mode's icon (client-side only): a fresh umbrella
-	 * with the given mode plus the icon marker, so the override draws that
-	 * mode's icon texture.
+	 * Display stack for a mode's icon (client-side only): a fresh umbrella with the given mode.
 	 */
 	public static ItemStack displayStack(BorderUmbrellaMode mode) {
 		ItemStack stack = new ItemStack(GLItems.BORDER_UMBRELLA.get());
@@ -155,9 +150,8 @@ public class BorderUmbrellaItem extends Item {
 	}
 
 	public static float isOpen(ItemStack stack, Level level, LivingEntity user, int index) {
-		// icon display stacks always resolve through umbrella_display, never
-		// the open model: display takes priority over the open flag by
-		// construction, independent of override order
+		// icon display stacks always resolve through umbrella_display, never the open model:
+		// display takes priority over the open flag by construction, not by override order
 		if (stack.has(GLItems.UMBRELLA_ICON.get())) return 0;
 		return GLItems.UMBRELLA_TYPE.getOrDefault(stack, BorderUmbrellaMode.RECORD) == BorderUmbrellaMode.RECORD ? 0 : 1;
 	}

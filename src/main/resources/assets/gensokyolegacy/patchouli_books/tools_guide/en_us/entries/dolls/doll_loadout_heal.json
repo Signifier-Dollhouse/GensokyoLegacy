@@ -1,0 +1,17 @@
+{
+  "name": "Healing an Ally",
+  "icon": "gensokyolegacy:heal_talisman",
+  "category": "gensokyolegacy:dolls",
+  "advancement": "gensokyolegacy:main/obtain_doll_glove",
+  "sortnum": 10,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Field medic$(br2)A folded Healing talisman in either hand slot makes a doll a medic. It moves to within a couple of blocks of whoever needs it, spends one use, and restores 30% of their maximum health."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Dolls patch themselves up$(br2)Dolls schedule their own healing, preferring you, then itself, and finally the nearest wounded fellow doll — which is why a squad keeps patching up its own hurt members while you fight.$(br2)Any order you give interrupts a heal in progress, and the paper stays in the hand until it has been used, so it can never be pulled away mid-use.$(br2)When it sits in the core...$(br2)A doll is happy to heal itself from a hand talisman, and no happier when the talisman is in the core instead — it only ever heals itself."
+    }
+  ]
+}

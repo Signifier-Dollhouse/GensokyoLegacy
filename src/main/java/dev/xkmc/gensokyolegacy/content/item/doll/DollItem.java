@@ -37,11 +37,16 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * The item form of a doll: while a doll is an item, the item is the sole authoritative copy.
+ *
+ * @see "doc/design/doll/item.md"
+ */
 public class DollItem extends Item implements InvClickItem {
 
 	/**
 	 * The single doll entity kind these items summon. Not stored on the item: every doll item
-	 * materializes this same {@code doll} entity type (doc/design/doll/item.md).
+	 * materializes this same {@code doll} entity type.
 	 */
 	public static final ResourceLocation TYPE = GensokyoLegacy.loc("doll");
 
@@ -50,10 +55,9 @@ public class DollItem extends Item implements InvClickItem {
 	}
 
 	/**
-	 * Builds a doll item from a {@link DollData} (the inverse of {@link DollData#fromItemData}):
-	 * combat in the mod's {@code DOLL_DATA} component, name in the vanilla
-	 * {@code CUSTOM_NAME} component, tint in the mod's {@code DOLL_COLOR} component.
-	 * {@code null} (and {@link #blank()}) yields a fresh, component-less doll.
+	 * Builds a doll item from a {@link DollData}, the inverse of {@link DollData#fromItemData}: combat
+	 * into {@code DOLL_DATA}, name into {@code CUSTOM_NAME}, tint into {@code DOLL_COLOR}, loadout
+	 * into {@code DOLL_LOADOUT}. {@code null} (and {@link #blank()}) yields a fresh, component-less doll.
 	 */
 	public static ItemStack makeItem(@Nullable DollData data) {
 		if (data == null) return blank();
@@ -74,10 +78,8 @@ public class DollItem extends Item implements InvClickItem {
 	}
 
 	/**
-	 * The doll's tint from the mod's {@code DOLL_COLOR} component; component-missing stacks
-	 * (blank, legacy, or hand-made) fall back to red. Legacy stacks carrying the vanilla
-	 * {@code DYED_COLOR} component are mapped back (comparing both raw and opaque rgb,
-	 * since the vanilla reader forces alpha).
+	 * The doll's tint from the {@code DOLL_COLOR} component; a component-less stack (blank or
+	 * hand-made) falls back to red.
 	 */
 	public static DyeColor colorOf(ItemStack stack) {
 		DyeColor color = stack.get(GLItems.DOLL_COLOR.get());
@@ -90,9 +92,8 @@ public class DollItem extends Item implements InvClickItem {
 		return 0xff000000 | colorOf(stack).getTextColor();
 	}
 
-	// ---- health as a durability bar ----
-	// The fresh doll (no DOLL_DATA) is full health and shows no bar; a damaged doll shows
-	// remaining health scaled over the doll entity's default max health.
+	// A component-less doll is full health and shows no bar; a damaged doll shows remaining health
+	// scaled over the doll entity's default max health.
 
 	@Override
 	public boolean isBarVisible(ItemStack stack) {
@@ -129,10 +130,9 @@ public class DollItem extends Item implements InvClickItem {
 	}
 
 	/**
-	 * Consumes the summoned item, mirroring ModularGolems {@code GolemHolder}:
-	 * shrink unconditionally, then force-write the hand slot so the consumption
-	 * sticks even in creative (a bare shrink alone does not). Doll items are
-	 * singletons ({@code stacksTo(1)}), so the slot always ends up empty.
+	 * Consumes the summoned item, mirroring ModularGolems {@code GolemHolder}: shrink, then
+	 * force-write the hand slot so the consumption sticks even in creative (a bare shrink alone
+	 * does not). Doll items are singletons, so the slot always ends up empty.
 	 */
 	private static void consumeSummoned(ServerPlayer sp, InteractionHand hand, ItemStack stack) {
 		stack.shrink(1);

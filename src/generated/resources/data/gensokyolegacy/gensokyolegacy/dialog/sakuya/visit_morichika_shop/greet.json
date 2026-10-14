@@ -1,0 +1,11 @@
+{
+  "options": [
+    {
+      "type": "gensokyolegacy:simple",
+      "actions": [],
+      "conditions": [],
+      "text": "gensokyolegacy/sakuya/visit_morichika_shop/option/greet/end"
+    }
+  ],
+  "text": "gensokyolegacy/sakuya/visit_morichika_shop/dialog/sakuya/visit_morichika_shop/greet"
+}

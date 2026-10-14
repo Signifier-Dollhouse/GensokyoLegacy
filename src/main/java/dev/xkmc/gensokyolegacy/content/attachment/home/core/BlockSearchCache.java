@@ -7,9 +7,8 @@ import net.minecraft.core.BlockPos;
 import java.util.ArrayList;
 
 /**
- * Cached search result for one {@link HomeBlockKind}: known positions plus
- * the game time of the last search. A full re-search is skipped while
- * {@code now < lastSearch + pos.size() * 100}.
+ * Cached search per {@link HomeBlockKind}: positions and last search time; re-search waits
+ * {@code pos.size() * 100} ticks.
  */
 @SerialClass
 public class BlockSearchCache {

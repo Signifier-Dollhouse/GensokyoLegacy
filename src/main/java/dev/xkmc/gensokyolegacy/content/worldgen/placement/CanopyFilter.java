@@ -12,9 +12,8 @@ import net.minecraft.world.level.levelgen.placement.PlacementFilter;
 import net.minecraft.world.level.levelgen.placement.PlacementModifierType;
 
 /**
- * Tells shaded forest floor from open ground by comparing two live heightmaps: under a canopy
- * WORLD_SURFACE sits on the leaves while MOTION_BLOCKING_NO_LEAVES sees through them. Both are
- * kept up to date during the features step, so this works right after the trees were placed.
+ * Shaded floor from open ground, by comparing two live heightmaps: under a canopy WORLD_SURFACE sits on the leaves
+ * while MOTION_BLOCKING_NO_LEAVES sees through them, and both stay live through the features step.
  */
 public class CanopyFilter extends PlacementFilter {
 

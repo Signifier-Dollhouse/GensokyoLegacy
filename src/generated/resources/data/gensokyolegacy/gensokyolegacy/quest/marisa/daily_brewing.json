@@ -32,18 +32,13 @@
     "cooldown": 24000
   },
   "requirements": {
-    "a-blaze": {
+    "a-brewing": {
       "type": "gensokyolegacy:submit_item",
       "ingredients": [
         {
           "count": 2,
           "item": "minecraft:blaze_rod"
-        }
-      ]
-    },
-    "b-wart": {
-      "type": "gensokyolegacy:submit_item",
-      "ingredients": [
+        },
         {
           "count": 8,
           "item": "minecraft:nether_wart"

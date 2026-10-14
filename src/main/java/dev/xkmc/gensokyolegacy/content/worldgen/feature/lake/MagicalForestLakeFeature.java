@@ -22,15 +22,9 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 /**
- * Pond feature for the magical forest, adapted from TheLostLegends lake.
- * Carves a union of ellipsoid blobs: water below {@code depth}, air above, with a clay rim
- * under water, dirt padding around it and grass on the shoreline. Afterwards the waterline is
- * planted with lily pads, small dripleafs and flame cattails.
- * <p>
- * Placed in the LAKES step before vegetation: {@code TemplateFeature} rejects wet ground, so
- * giant and large trees keep off the water on their own. The {@link LakeMaker#test} log, leaf
- * and solid-rim checks additionally reject ponds that would cut canopies reaching in from
- * neighbours or sit on ocean instead of ground.
+ * Pond feature for the magical forest, adapted from TheLostLegends: ellipsoid blobs carved with water below {@code
+ * depth} and air above, under a clay rim. Placed in the LAKES step before vegetation, so trees keep off water
+ * themselves.
  */
 public class MagicalForestLakeFeature extends Feature<MagicalForestLakeFeature.Data> {
 
@@ -72,10 +66,9 @@ public class MagicalForestLakeFeature extends Feature<MagicalForestLakeFeature.D
 	}
 
 	/**
-	 * Waterline planting from the {@code decorations} list: floating plants on open water,
-	 * shallow plants in 1-deep water over matching soil, shore plants on matching soil next
-	 * to the water. Entries are tried in order and skip claimed cells, so list order is
-	 * priority. Runs on the freshly carved pond, so every plant lands on the lake itself.
+	 * Waterline planting from the {@code decorations} list: floating plants on open water, shallow ones in 1-deep water
+	 * over matching soil, shore ones on matching soil next to water. List order is priority; it runs on the freshly
+	 * carved pond.
 	 */
 	private void decorate(WorldGenLevel level, BlockPos origin, Data data, RandomSource rand) {
 		if (data.decorations().isEmpty()) return;

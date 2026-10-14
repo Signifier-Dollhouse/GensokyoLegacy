@@ -18,8 +18,10 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
 /**
- * Handles giving gift items to a character. Runs before
- * {@link FeedModule} so gift items take priority over being fed as food.
+ * Giving gift items to a character, for the favor it gives {@code CharacterData} and a per-item cooldown
+ * rather than the flat amount a dish is worth. Ordering against a feed module is the caller's.
+ *
+ * @see "doc/design/reputation.md"
  */
 @SerialClass
 public class GiftModule extends AbstractYoukaiModule {
@@ -57,7 +59,6 @@ public class GiftModule extends AbstractYoukaiModule {
 		self.setFlag(YoukaiFlags.GIFTED, true);
 		self.level().broadcastEntityEvent(self, EntityEvent.IN_LOVE_HEARTS);
 		self.playSound(SoundEvents.PLAYER_LEVELUP, 0.8F, 1.2F);
-		self.getModule(TalkModule.class).ifPresent(e -> e.beginTalking(sp));
 		return InteractionResult.SUCCESS;
 	}
 

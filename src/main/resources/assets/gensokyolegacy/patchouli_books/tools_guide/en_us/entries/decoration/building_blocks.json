@@ -13,19 +13,51 @@
         "tag:gensokyolegacy:long_noren"
       ],
       "title": "Noren Curtains",
-      "text": "Noren are the split curtains that hang in doorways. Cut a block of wool on the stonecutter to get one in that color, or dye an existing noren instead: the dye changes the color and the pattern is kept. Four patterns exist — plain, striped, wavy and long — in all 16 wool colors, and the long one hangs four blocks further down. Place one against a wall face to hang it there."
+      "text": "Noren are the split curtains that hang in doorways. Four patterns exist — plain, striped, wavy and long — in all 16 wool colors."
     },
     {
       "type": "patchouli:spotlight",
       "item": "tag:gensokyolegacy:plank_wall",
       "title": "Plank Walls",
-      "text": "Plank walls are wall blocks in every wood type, cut two at a time from the matching planks on the stonecutter. They fill a whole block, boarded on the sides and plain planks on top, and they do not join to each other on their own: lay them down one block at a time."
+      "text": "Plank walls come in every wood type"
     },
     {
       "type": "patchouli:spotlight",
       "item": "tag:gensokyolegacy:tile_variants",
-      "title": "Glazed Tiles",
-      "text": "Tiles come in seven colors: cyan, orange, yellow, brown, blue, black and gray. They are glazed the way terracotta is stained: put a dye in the middle of eight deepslate tiles and you get eight tiles in that color. Every color has a full block, stairs, a slab and a vertical slab, which is a half-height piece standing against the wall you click. The three shapes come off the tile block on the stonecutter."
+      "title": "Tiles",
+      "text": "Tiles come in seven colors: cyan, orange, yellow, brown, blue, black and gray. Every color has stairs, slabs and wall panels."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": [
+        "gensokyolegacy:shoji_frame",
+        "gensokyolegacy:shoji_frame_pane",
+        "gensokyolegacy:paper_window",
+        "gensokyolegacy:paper_window_pane"
+      ],
+      "title": "Paper Goods",
+      "text": "Two paper-made building blocks, each in a solid and a thin pane form."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": [
+        "gensokyolegacy:red_lantern",
+        "gensokyolegacy:white_lantern",
+        "gensokyolegacy:lettered_red_lantern",
+        "gensokyolegacy:lettered_white_lantern"
+      ],
+      "title": "Lanterns",
+      "text": "Four paper lanterns, red and white, plain or lettered, each bright enough on its own to light a whole room."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": [
+        "gensokyolegacy:wrought_iron_bars",
+        "gensokyolegacy:wrought_iron_pillar",
+        "gensokyolegacy:candlestick"
+      ],
+      "title": "Wrought Iron Railings",
+      "text": "Blackened ironwork, which lends a room some weight."
     }
   ]
 }

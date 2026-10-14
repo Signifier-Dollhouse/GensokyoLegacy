@@ -1,6 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.entity.behavior.task.core;
 
-import dev.xkmc.gensokyolegacy.content.attachment.datamap.CharacterConfig;
+import dev.xkmc.gensokyolegacy.content.attachment.character.CharacterConfig;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.SmartYoukaiEntity;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.ai.behavior.Behavior;
@@ -22,6 +22,7 @@ public class YoukaiVanishTask extends Behavior<SmartYoukaiEntity> {
 
 	@Override
 	protected boolean checkExtraStartConditions(ServerLevel level, SmartYoukaiEntity entity) {
+		if (!entity.vanishOutOfSight()) return false;
 		if (entity.hasPlayerNearby() || entity.tickCount < 100) {
 			vanishTime = 0;
 			return false;

@@ -14,16 +14,15 @@ import net.minecraft.world.phys.Vec3;
 import java.util.Optional;
 
 /**
- * Heal: approach to ~2 blocks (self needs no move) and trigger the held folded
- * heal talisman on the target, wearing the live ledger stack in place. Issued as
- * an auto order by the scheduler; it holds its ticket to completion, and only a
- * player command (or stop) interrupts it.
+ * Heal: approach to ~2 blocks (self needs no move) and trigger the held folded heal talisman
+ * on the target, wearing the live ledger stack in place. Issued as an auto order by the
+ * scheduler; only a player command (or stop) interrupts it (control.md §5.5).
  */
 public class DollHealBehavior extends DollBehavior {
 
 	private static final double APPROACH_DIST = 2.0;
 
-	/** Scheduling radius for marked targets (scheduling filters here; this only enforces leash + arrival). */
+	/** Scheduling radius for marked targets; this only enforces leash and arrival. */
 	public static final double MARK_RANGE = 16.0;
 
 	private int navCooldown;

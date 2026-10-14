@@ -1,0 +1,8 @@
+{
+  "parent": "gensokyolegacy:custom/deco/candlestick",
+  "render_type": "minecraft:cutout",
+  "textures": {
+    "all": "gensokyolegacy:block/deco/candlestick",
+    "particle": "gensokyolegacy:block/deco/candlestick"
+  }
+}

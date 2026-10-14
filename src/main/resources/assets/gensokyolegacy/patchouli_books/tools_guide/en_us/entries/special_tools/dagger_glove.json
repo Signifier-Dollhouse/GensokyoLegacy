@@ -1,0 +1,23 @@
+{
+  "name": "Dagger Glove",
+  "icon": "gensokyolegacy:dagger_glove",
+  "category": "gensokyolegacy:special_tools",
+  "advancement": "gensokyolegacy:main/obtain_dagger_glove",
+  "sortnum": 6,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "gensokyolegacy:dagger_glove",
+      "title": "Juggling Trick",
+      "text": "The Dagger Glove throws daggers out in patterns, or homes them onto a target. Carry the glove to switch the wheel, then use the glove to pour out fire."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Single$()$(br)One dagger, straight ahead.$(br)$(bold)Fan$()$(br)Seven daggers spreading out in a fan before you.$(br)$(bold)Homing$()$(br)Several daggers are thrown, each of which turns onto the target you are looking at.$(br2)The target is outlined in red while you aim at it, and walls do not block it — the daggers turn, so the glove will happily lock on to someone through one.$(br2)With nothing under the crosshair, homing fires nothing and costs you nothing."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)The daggers are the ammunition$()$(br)The glove draws its daggers out of your whole inventory, and the count it needs must all be there before it fires — a volley it cannot pay for in full simply does not happen.$(br2)Even in creative mode, the glove has to spend real daggers to be used."
+    }
+  ]
+}

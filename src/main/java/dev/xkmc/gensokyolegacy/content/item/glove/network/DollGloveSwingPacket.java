@@ -8,10 +8,9 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
 /**
- * Client-to-server left-click-empty while the glove is held in an attack mode:
- * issue the mode command at the cached ray-trace target (never the editor).
- * Empty clicks never reach the server on their own, so the client forwards
- * them; block clicks and entity punches arrive through their own events.
+ * Left-click-empty in an attack mode: the mode command at the cached ray-trace target, never the editor.
+ * Empty clicks never reach the server on their own, so the client forwards them.
+ * @see "doc/design/doll/glove.md"
  */
 public record DollGloveSwingPacket() implements SerialPacketBase<DollGloveSwingPacket> {
 

@@ -1,0 +1,23 @@
+{
+  "name": "Lance Charge",
+  "icon": "gensokyolegacy:doll_lance",
+  "category": "gensokyolegacy:dolls",
+  "advancement": "gensokyolegacy:main/obtain_doll_glove",
+  "sortnum": 5,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "gensokyolegacy:doll_lance",
+      "title": "The Lance Charge",
+      "text": "The Doll Lance is the only weapon that arms a doll for melee — a doll cannot hold a sword. On the attack order the doll flies at its target at twice its usual speed, then flies back to the player."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Special cases$(br2)When a doll holds nothing that can attack and has at least one hand free, it slaps instead, and the slap is the doll's own 1 damage.$(br2)Danmaku outranks the lance$(br2)A doll holding any danmaku item keeps shooting and never charges."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Charge limits$(br2)A charge only starts from within 16 blocks of its target and never carries the doll more than 20 blocks from where it began — past that it turns back, and a target that keeps pulling away is simply dropped. An attack order no doll could reach is refused outright."
+    }
+  ]
+}

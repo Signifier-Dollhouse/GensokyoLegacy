@@ -13,6 +13,12 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
+/**
+ * Level-wide effect storage: {@code byId}, a one-UUID-per-owner-block {@code byOwner} index, and
+ * {@code pending} ids for chunks unloaded at add time, dropped as a whole chunk entry, never per id.
+ *
+ * @see "doc/design/area_effect.md"
+ */
 @SerialClass
 public class LevelAreaAttachment extends GeneralCapabilityTemplate<Level, LevelAreaAttachment> {
 
@@ -25,7 +31,7 @@ public class LevelAreaAttachment extends GeneralCapabilityTemplate<Level, LevelA
 	@SerialField
 	private final Map<String, List<UUID>> pending = new LinkedHashMap<>();
 
-	// not SerialField -> not serialized
+	// unannotated, so not serialized; a reload restarts the flush interval
 	private long lastPendingFlushTick = Long.MIN_VALUE;
 
 	public Map<UUID, AreaEffectEntry> getById() {
@@ -50,8 +56,8 @@ public class LevelAreaAttachment extends GeneralCapabilityTemplate<Level, LevelA
 	}
 
 	/**
-	 * Add an entry, indexing it both by id and by owner position. One effect per owner block:
-	 * an existing effect at the same position is removed first (REMOVE sent to its trackers).
+	 * Indexes the entry by id and owner position. One effect per owner block: whatever this block
+	 * owned before is removed first.
 	 */
 	public void addEntry(ServerLevel level, AreaEffectEntry entry) {
 		UUID prev = byOwner.get(entry.ownerPos);
@@ -63,7 +69,8 @@ public class LevelAreaAttachment extends GeneralCapabilityTemplate<Level, LevelA
 	}
 
 	/**
-	 * {@code byId}/{@code byOwner} cleanup only; no packet side effects.
+	 * Drops the indexes only; no packets. Callers that must notify clients use
+	 * {@link #removeEntry}.
 	 */
 	@Nullable
 	private AreaEffectEntry removeEntryData(UUID id) {
@@ -76,8 +83,7 @@ public class LevelAreaAttachment extends GeneralCapabilityTemplate<Level, LevelA
 	}
 
 	/**
-	 * Remove an entry by id: cleans the {@code byId}/{@code byOwner} indexes, sends REMOVE to every
-	 * tracking player, and clears their counts. Single removal path that keeps maps and clients in sync.
+	 * Single removal path: index cleanup, REMOVE to every tracking player, tracking counts cleared.
 	 */
 	@Nullable
 	public AreaEffectEntry removeEntry(ServerLevel level, UUID id) {
@@ -96,6 +102,7 @@ public class LevelAreaAttachment extends GeneralCapabilityTemplate<Level, LevelA
 		return byOwner.get(pos);
 	}
 
+	// each entry is only examined on the tick matching floorMod(id.hashCode(),100)
 	public void tickValidation(ServerLevel level) {
 		long tick = level.getGameTime();
 		int tickBucket = (int) (tick % 100);
@@ -104,6 +111,7 @@ public class LevelAreaAttachment extends GeneralCapabilityTemplate<Level, LevelA
 			int bucket = Math.floorMod(entry.id.hashCode(), 100);
 			if (bucket != tickBucket) continue;
 			entry.cleanupPlayers(level);
+			// re-index: repairs entries saved before byOwner existed
 			byOwner.put(entry.ownerPos, entry.id);
 			ChunkPos ownerCP = new ChunkPos(entry.ownerPos);
 			if (level.getChunkSource().getChunkNow(ownerCP.x, ownerCP.z) == null) continue;
@@ -115,6 +123,7 @@ public class LevelAreaAttachment extends GeneralCapabilityTemplate<Level, LevelA
 			removeEntry(level, id);
 		}
 		if (tick % 100 == 0) {
+			// drop byOwner ids with no entry (legacy or corrupted data)
 			byOwner.entrySet().removeIf(e -> !byId.containsKey(e.getValue()));
 		}
 	}
@@ -128,7 +137,7 @@ public class LevelAreaAttachment extends GeneralCapabilityTemplate<Level, LevelA
 			long posLong = Long.parseUnsignedLong(key, 16);
 			ChunkPos cpos = new ChunkPos(posLong);
 			if (level.getChunkSource().getChunkNow(cpos.x, cpos.z) != null) {
-				// in fact in a loaded chunk but still pending (e.g., add raced load) — drain directly
+				// loaded but still pending, e.g. add raced the load — drain directly
 				var pendingIds = pending.remove(key);
 				if (pendingIds == null || pendingIds.isEmpty()) continue;
 				AreaChunkHolder holder = AreaChunkHolder.of(level, cpos);
@@ -138,7 +147,7 @@ public class LevelAreaAttachment extends GeneralCapabilityTemplate<Level, LevelA
 					holder.addId(uid);
 				}
 			} else {
-				// not loaded, schedule offthread load (forcing generation expected)
+				// not loaded: schedule an offthread load, generation expected
 				level.getChunkSource().getChunk(cpos.x, cpos.z, ChunkStatus.FULL, false);
 			}
 		}

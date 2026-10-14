@@ -1,0 +1,17 @@
+{
+  "name": "TNT Dive",
+  "icon": "minecraft:tnt",
+  "category": "gensokyolegacy:dolls",
+  "advancement": "gensokyolegacy:main/obtain_doll_glove",
+  "sortnum": 9,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Alice Above All$(br2)When any of a doll's hand slots holds TNT, this order is offered. On the Suicide order the doll flies straight at the target and detonates on contact, taking itself along with it. The terrain takes no damage, and the blast never reaches the player.$(br2)If the target dies before the dive lands, the order is called off and the doll rejoins your squad."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Only a parting$(br2)After a dive the doll becomes a dropped item, with its equipment safely preserved inside."
+    }
+  ]
+}

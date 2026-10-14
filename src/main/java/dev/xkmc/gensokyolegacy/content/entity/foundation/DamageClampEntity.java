@@ -30,6 +30,11 @@ public class DamageClampEntity extends DamageRefactorEntity {
 
 	private boolean hurtCall = false;
 	private final Set<ServerPlayer> players = Sets.newHashSet();
+	/**
+	 * Ticks left on a lifted speed clamp. Transient on purpose: a dash that has to
+	 * outrun the {@link YoukaiFeatureSet#maxSpeed()} cap should not survive a save.
+	 */
+	private int overspeedTicks;
 
 	protected DamageClampEntity(EntityType<? extends DamageRefactorEntity> entityType, Level level) {
 		super(entityType, level);
@@ -80,13 +85,26 @@ public class DamageClampEntity extends DamageRefactorEntity {
 		}
 	}
 
+	/**
+	 * Lift the max-speed clamp for a while, for a leap or a dash that has to outrun the ordinary
+	 * cap. {@link #validateData} skips the clamp until the grant runs out, so velocity set on this
+	 * tick is allowed to persist instead of being cut back to the feature's max next tick.
+	 */
+	public void grantOverspeed(int ticks) {
+		overspeedTicks = Math.max(overspeedTicks, ticks);
+	}
+
 	@Override
 	public void validateData() {
 		super.validateData();
 		if (!level().isClientSide()) {
-			double maxSpeed = getFeatures().maxSpeed();
-			if (getDeltaMovement().length() > maxSpeed) {
-				setDeltaMovement(getDeltaMovement().normalize().scale(maxSpeed));
+			if (overspeedTicks > 0) {
+				overspeedTicks--;
+			} else {
+				double maxSpeed = getFeatures().maxSpeed();
+				if (getDeltaMovement().length() > maxSpeed) {
+					setDeltaMovement(getDeltaMovement().normalize().scale(maxSpeed));
+				}
 			}
 		}
 	}

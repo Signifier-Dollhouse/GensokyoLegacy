@@ -4,6 +4,7 @@ import dev.xkmc.gensokyolegacy.content.item.hexbrew.HexBrew;
 import dev.xkmc.gensokyolegacy.content.item.talisman.core.GLTalismans;
 import dev.xkmc.gensokyolegacy.content.rpg.action.CompleteQuestAction;
 import dev.xkmc.gensokyolegacy.content.rpg.action.StartQuestAction;
+import dev.xkmc.gensokyolegacy.content.rpg.condition.AnyCondition;
 import dev.xkmc.gensokyolegacy.content.rpg.condition.HasAdvancementCondition;
 import dev.xkmc.gensokyolegacy.content.rpg.condition.HasQuestCompletedCondition;
 import dev.xkmc.gensokyolegacy.content.rpg.condition.SelfReputationCondition;
@@ -22,6 +23,7 @@ import dev.xkmc.gensokyolegacy.content.rpg.trade.TradeOffer;
 import dev.xkmc.gensokyolegacy.content.rpg.trade.TradeRecurrence;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.GLAdvGen;
+import dev.xkmc.gensokyolegacy.init.data.structure.GLStructureGen;
 import dev.xkmc.gensokyolegacy.init.data.GLTagGen;
 import dev.xkmc.gensokyolegacy.init.registrate.GLEntities;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
@@ -57,6 +59,7 @@ public class MarisaQDGen extends QuestDialogData {
 	private static final ResourceLocation QUEST_NETHER_MUSHROOM = GensokyoLegacy.loc("marisa/nether_mushroom_prep");
 	private static final ResourceLocation QUEST_SHROOMLIGHT = GensokyoLegacy.loc("marisa/shroomlight");
 	private static final ResourceLocation QUEST_BREWING = GensokyoLegacy.loc("marisa/brewing");
+	public static final ResourceLocation QUEST_HAKKERO = GensokyoLegacy.loc("marisa/hakkero");
 	public static final ResourceLocation QUEST_KOISHI = GensokyoLegacy.loc("marisa/koishi_hat");
 	public static final ResourceLocation QUEST_TALISMAN_REQUEST = GensokyoLegacy.loc("marisa/talisman_request");
 	private static final ResourceLocation QUEST_DAILY_TALISMAN = GensokyoLegacy.loc("marisa/daily_talisman");
@@ -89,37 +92,85 @@ public class MarisaQDGen extends QuestDialogData {
 		prefix("marisa/chat");
 		defaultDialog(GLEntities.MARISA.get(),
 				"Yo, hey~ welcome to the Kirisame Magic Shop!",
+				"Yo, hey~ hey, you too!",
 				"What are you offering today?");
-		starter("marisa/chat", new DialogStarter(GLEntities.MARISA.get(), List.of(),
+		starter("marisa/chat", new DialogStarter(GLEntities.MARISA.get(), List.of(homeBound()),
 				starterText("start", "Business usually busy around here?"),
 				dialog("hi", "Used to get plenty, but everything around here changed big-time lately — no idea where my customers went.",
 						option("hi/end", "I see."))
 		));
 
+		visitChats();
 		chats();
 		quests();
 		trades();
 	}
 
+	/**
+	 * Marisa out visiting - Kourindou and the shrine, depending on the day. She visits two houses, so this is written
+	 * per host: a joke about cramped rooms does not land twice, and at the shrine she has her own thing to say. {@code
+	 * visitingAt} implies she is a guest at all, so none of it can surface in her own shop.
+	 */
+	private void visitChats() {
+		prefix("marisa/visit_kourindou");
+		chat("marisa/visit_kourindou_wander", GLEntities.MARISA.get(),
+				List.of(visitingAt(GLStructureGen.MORICHIKA_SHOP)),
+				starterText("wander", "Not a bad place."),
+				dialog("wander", "Not bad, not bad! Kinda cramped, but honestly? I like it. There's more room to think in here than in my own shop, somehow.",
+						option("stay", "Not thinking of redecorating your own shop?",
+								dialog("stay_ans", "Everyone has their own taste - and maybe I only come out here for the novelty of walking around.",
+										option("stay/end", "True enough.")))),
+				CHAT_MISC);
+
+		prefix("marisa/visit_shrine");
+		chat("marisa/visit_shrine_donate", GLEntities.MARISA.get(),
+				List.of(visitingAt(GLStructureGen.HAKUREI_SHRINE)),
+				starterText("donate", "Is the offering box really as empty as it looks?"),
+				dialog("donate", "Oh, it's always empty — that's the whole problem. I come by sometimes to see if anyone's dropped anything in, and to check the money isn't leaking out, but plainly nobody comes at all.",
+						option("leave", "Should I put something in it?",
+								dialog("leave_ans", "Really? She'd never say thank you — she'd just float a little higher. She's that blunt.",
+										option("leave/end", "Well, making a friend happy is not a bad thing.")))),
+				CHAT_MISC);
+
+		chat("marisa/visit_shrine_calm", GLEntities.MARISA.get(),
+				List.of(visitingAt(GLStructureGen.HAKUREI_SHRINE)),
+				starterText("calm", "It's quiet up here, isn't it?"),
+				dialog("calm", "Too quiet, all right. Quiet enough to hear mushrooms growing! A shrine with nothing going on is always this peaceful - might be a good place to retire to, actually.",
+						option("bye", "Indeed.")),
+				CHAT_MISC);
+	}
+
 	private void chats() {
 		prefix("marisa/chat_reimu");
 		chat("marisa/chat_reimu", GLEntities.MARISA.get(),
-				List.of(missingAdv(GLAdvGen.ENTER_HAKUREI_SHRINE), new SelfReputationCondition(50)),
-				starterText("start", "This world is so dangerous…"),
+				List.of(homeBound(), missingAdv(GLAdvGen.ENTER_HAKUREI_SHRINE), new SelfReputationCondition(50)),
+				starterText("start", "Do you know anyone who is strong in a fight?"),
 				dialog("talk", "You'll find the Hakurei Shrine out in the cherry grove — an old friend of mine's there, a real incident-resolving expert. If you're heading into danger, she may provide something to aid you in a fight.",
 						option("where", "Anything I should know before visiting?",
-								dialog("where_ans", "If raiders come at you, go find her — she'll chase them off. Just don't forget the donation, okay?",
+								dialog("where_ans", "She's easygoing, though a little aloof. She does help the village drive off calamities - on the condition that you don't forget the donation.",
 										option("where/end", "I'll drop by when I get the chance.")))),
 				CHAT_INFO);
 
 		prefix("marisa/chat_morichika");
 		chat("marisa/chat_morichika", GLEntities.MARISA.get(),
-				List.of(missingAdv(GLAdvGen.ENTER_MORICHIKA_SHOP), new SelfReputationCondition(50)),
+				List.of(homeBound(), missingAdv(GLAdvGen.ENTER_MORICHIKA_SHOP), new SelfReputationCondition(50)),
 				starterText("start", "I wish I had tools to aid exploration…"),
 				dialog("talk", "Funny you mention tools — not all of my trinkets are handmade. There's another shop in this Magical Forest, Kourindou, run by an old acquaintance of mine. He deals all kinds of curios and tools, kinda a secondhand shop — if you need gear for exploring, he may sell you something useful.",
 						option("where", "What does he sell?",
 								dialog("where_ans", "Sells everything from charms to junk — and he'll buy your spare curios too.",
 										option("where/end", "I'll have to pay it a visit sometime.")))),
+				CHAT_INFO);
+
+		// Hidden once you have found Alice's house yourself - a pointer, not a secret,
+		// and the "what does she want" follow doubles as a hint at quest 2.1.
+		prefix("marisa/chat_alice");
+		chat("marisa/chat_alice", GLEntities.MARISA.get(),
+				List.of(missingAdv(GLAdvGen.ENTER_ALICE_HOUSE), new SelfReputationCondition(50)),
+				starterText("start", "Are there any other magic users in this forest?"),
+				dialog("talk", "There's a mansion out in the forest, home to Alice. She studies magic like I do, except she wears a scowl all day - the two of us spar a lot. But when you actually want help she's very warm-hearted, so get to know her.",
+						option("where", "Is she as good at potions as you are?",
+								dialog("where_ans", "No - every magic user has their own speciality. She handles all manner of things by working dolls, so if dolls interest you, she's the one to see.",
+										option("where/end", "Now I'm curious.")))),
 				CHAT_INFO);
 	}
 
@@ -129,8 +180,9 @@ public class MarisaQDGen extends QuestDialogData {
 				questTitle("First Mushrooms"), questDesc("Bring Marisa red and brown mushrooms from the surface."),
 				Optional.empty(),
 				new TreeMap<>(Map.of(
-						"a-red", new SubmitItemRequirement(List.of(item(Items.RED_MUSHROOM, 8))),
-						"b-brown", new SubmitItemRequirement(List.of(item(Items.BROWN_MUSHROOM, 8)))
+						"a-mushrooms", new SubmitItemRequirement(List.of(
+								item(Items.RED_MUSHROOM, 8),
+								item(Items.BROWN_MUSHROOM, 8)))
 				)),
 				List.of(new ExpReward(50), new ReputationReward(10, 300, 10, 300),
 						loot("marisa/first_mushroom", LootTable.lootTable()
@@ -177,8 +229,9 @@ public class MarisaQDGen extends QuestDialogData {
 				questTitle("Nether Mushrooms"), questDesc("Bring Marisa nether mushroom samples."),
 				Optional.empty(),
 				new TreeMap<>(Map.of(
-						"a-crimson", new SubmitItemRequirement(List.of(item(Items.CRIMSON_FUNGUS, 4))),
-						"b-warped", new SubmitItemRequirement(List.of(item(Items.WARPED_FUNGUS, 4)))
+						"a-fungi", new SubmitItemRequirement(List.of(
+								item(Items.CRIMSON_FUNGUS, 4),
+								item(Items.WARPED_FUNGUS, 4)))
 				)),
 				List.of(new ExpReward(150), new ReputationReward(20, 300, 10, 300),
 						loot("marisa/nether_mushroom_prep", LootTable.lootTable()
@@ -226,8 +279,9 @@ public class MarisaQDGen extends QuestDialogData {
 				questTitle("Brewing"), questDesc("Bring Marisa blaze rods and nether wart."),
 				Optional.empty(),
 				new TreeMap<>(Map.of(
-						"a-blaze", new SubmitItemRequirement(List.of(item(Items.BLAZE_ROD, 4))),
-						"b-wart", new SubmitItemRequirement(List.of(item(Items.NETHER_WART, 12)))
+						"a-brewing", new SubmitItemRequirement(List.of(
+								item(Items.BLAZE_ROD, 4),
+								item(Items.NETHER_WART, 12)))
 				)),
 				List.of(new ExpReward(200), new ReputationReward(20, 300, 10, 300),
 						loot("marisa/brewing", LootTable.lootTable()
@@ -243,6 +297,41 @@ public class MarisaQDGen extends QuestDialogData {
 				complete("I got the stuff.",
 						"Blaze rods and nether wart — now I can finally study this 'brewing' business. Thanks again this time!",
 						"We each get what we need.", "Oh right — here's your reward.", "Thanks.")
+		));
+
+		prefix("marisa/hakkero");
+		// Offered to anyone holding the prototype who has not been given the
+		// repaired one yet, and the inverted second condition closes the quest for good.
+		quest("marisa/hakkero", new Quest(GLEntities.MARISA.get(),
+				List.of(new HasAdvancementCondition(GLAdvGen.OBTAIN_MINI_HAKKERO), homeBound()),
+				questTitle("A Proper Hakkero"), questDesc("Hand Marisa your Mini Hakkero Prototype and the parts to repair it."),
+				Optional.empty(),
+				new TreeMap<>(Map.of(
+						"a-parts", new SubmitItemRequirement(List.of(
+								item(Items.REDSTONE, 8),
+								item(Items.GOLD_INGOT, 4),
+								item(Items.IRON_INGOT, 16),
+								item(Items.NETHERITE_SCRAP, 1))),
+						"a-prototype", new SubmitItemRequirement(List.of(
+								item(GLItems.MINI_HAKKERO_PROTOTYPE.get(), 1)))
+				)),
+				List.of(new ExpReward(300), new ReputationReward(20, 300, 10, 300),
+						loot("marisa/hakkero", LootTable.lootTable()
+								.withPool(lootItem(GLItems.MINI_HAKKERO.get(), 1)))),
+				start("Say, is that prototype of yours working out for you?",
+						"There it is! Say, I've had a look at that little prototype of yours - the old man sells them as curiosities, but the shape of that thing is interesting. It's a furnace that runs off nothing but itself, and it shouldn't be possible - the casing alone is a problem. There's real magic potential in there if somebody sat down and finished it properly. I could do that, if I had the parts.",
+						"What would you need?", "A little of everything: eight redstone to run the circuit, four gold for the contacts, sixteen iron to shore up the casing, and one netherite scrap to anchor the whole thing. Don't think that leaves your prototype in a bad way - I'll hand you back something better than what you gave me.",
+						"Off you go, then! One netherite scrap - don't get clever and try to fake it, I can tell.",
+						"I'm not going to part with any netherite.", "It's one scrap, not a nugget. And you'll get a proper hakkero out of it - that's worth more than the scrap in your pocket, trust me.",
+						"I'll think about it."),
+				follow("Just to confirm - the parts for the repair?",
+						"Eight redstone, four gold, sixteen iron, one netherite scrap - and don't forget the prototype itself, I can't work on a copy!",
+						"Still getting them together.", "Take your time. The prototype isn't going anywhere without you.",
+						null),
+				complete("Here - the parts, and the prototype.",
+						"Right, let's see... redstone for the circuit, gold to carry it, iron to hold it all together, and there we go - netherite, the part that actually matters. Hold still. ...There! Feel the difference? It runs cooler now, and it doesn't take nearly so long to finish a job. Morichika can have his little curiosity back.",
+						"Now that's a proper hakkero.", "A deal's a deal - it's yours.", "Huh, you know, that thing's practically a whole workshop in one hand.",
+						"Sorry, I don't have everything yet.", "No rush. Get the rest and come back.", "Okay.")
 		));
 
 		prefix("marisa/golden_apple");
@@ -299,9 +388,13 @@ public class MarisaQDGen extends QuestDialogData {
 
 	private void talismanQuests() {
 		prefix("marisa/talisman_request");
+		// Rep 100 AND (known to Reimu OR to Alice): their stock is what convinces
+		// Marisa the errand is worth trusting to the player.
 		quest("marisa/talisman_request", new Quest(GLEntities.MARISA.get(),
 				List.of(new SelfReputationCondition(100),
-						new HasQuestCompletedCondition(ReimuQDGen.QUEST_TALISMAN_MATERIALS)),
+						new AnyCondition(List.of(
+								new HasQuestCompletedCondition(ReimuQDGen.QUEST_TALISMAN_MATERIALS),
+								new HasQuestCompletedCondition(AliceQDGen.QUEST_SEVEN_COLORS)))),
 				questTitle("Talisman Courier"), questDesc("Bring Marisa healing talisman papers from Reimu."),
 				Optional.empty(),
 				new TreeMap<>(Map.of(
@@ -309,10 +402,9 @@ public class MarisaQDGen extends QuestDialogData {
 				)),
 				List.of(new ExpReward(200), new ReputationReward(20, 300, 10, 300),
 						loot("marisa/talisman_request", LootTable.lootTable()
-								.withPool(lootItem(GLItems.DOLL_GLOVE.get(), 1))
-								.withPool(lootItem(GLItems.DOLL.get(), 1))
+								.withPool(lootItem(GLItems.BROOM.get(), 1))
 								.withPool(lootItem(GLItems.STAR_WAND.get(), 1))
-								.withPool(lootItem(Items.EMERALD, 8)))),
+								.withPool(lootItem(Items.EMERALD, 16)))),
 				start("A talisman request?",
 						"Say — you've seen Reimu's ofuda, right? Those little papers pack a real punch! Lately my experiments keep leaving me singed, and healing's such a hassle. I wanna keep four for myself. Reimu sells 'em, so bring your emeralds. And... don't tell her they're for me. Whaddaya say?",
 						"I'll get them from Reimu.", "Great! Four healing papers — no knockoffs, got it?", "As if I would.",
@@ -322,7 +414,7 @@ public class MarisaQDGen extends QuestDialogData {
 						"I remember they weren't cheap.", "Her prices are brutal, huh? But worth every emerald, trust me!", "Ugh, so I'm paying out of pocket after all."),
 				complete("Here, the papers.",
 						"That's it! One ofuda and every ache is gone — I never could've asked her myself without you.",
-						"You didn't ask at all, though.", "Aw, never mind that — I've got good stuff for you too: a doll glove and a fresh doll, handmade by Alice herself, plus a star wand of my own making. Keep it secret for me!", "At this point I kinda have to.")
+						"You didn't ask at all, though.", "Aw, never mind that — I've got good stuff for you too: a broom I whittled down this morning, and a star wand of my own making. The wand's the real prize — point one of Alice's dolls with it and she won't need a hand anymore. Keep it secret for me!", "At this point I kinda have to.")
 		));
 
 		prefix("marisa/daily_talisman");
@@ -341,8 +433,8 @@ public class MarisaQDGen extends QuestDialogData {
 				new TreeMap<>(Map.of(
 						"a-talisman", rollItem(talismanTable)
 				)), LootTable.lootTable()
-						.withPool(lootItem(GLItems.DOLL.get(), 1))
-						.withPool(lootItem(GLItems.STAR_WAND.get(), 1)));
+						.withPool(lootItem(GLItems.STAR_WAND.get(), 1))
+						.withPool(lootItem(Items.EMERALD, 16)));
 	}
 
 	private void dailyQuests() {
@@ -419,8 +511,9 @@ public class MarisaQDGen extends QuestDialogData {
 				"I got them.", "Oh, you got 'em? Let me see.", "Here.",
 				"Thank you!", "You're welcome.",
 				new TreeMap<>(Map.of(
-						"a-blaze", new SubmitItemRequirement(List.of(item(Items.BLAZE_ROD, 2))),
-						"b-wart", new SubmitItemRequirement(List.of(item(Items.NETHER_WART, 8)))
+						"a-brewing", new SubmitItemRequirement(List.of(
+								item(Items.BLAZE_ROD, 2),
+								item(Items.NETHER_WART, 8)))
 				)), LootTable.lootTable().withPool(lootItem(Items.EMERALD, 8)));
 	}
 
@@ -453,7 +546,7 @@ public class MarisaQDGen extends QuestDialogData {
 				new ItemStack(HexBrew.MIASMA_HEXBREW.bottle.get(), 4),
 				new TradeRecurrence(4, 24000), List.of(item(Items.EMERALD, 3))));
 		// Witch hexbrew: variety of potion effects, unlocked by the brewing quest, no rep gate; half-day restock.
-		// Strong variants sell 1 bottle at 4 emerald, 16 stock. No-strong effects fall back to long, 4 bottles at 4 emerald.
+		// Strong variants sell 1 bottle at 4 emerald, 16 stock; no-strong effects fall back to long, 4 bottles.
 		trade("offer_witch_speed", new TradeOffer(GLEntities.MARISA.get(),
 				List.of(new HasQuestCompletedCondition(QUEST_BREWING)), witchStrong(Potions.STRONG_SWIFTNESS),
 				new TradeRecurrence(16, 12000), List.of(item(Items.EMERALD, 4))));
@@ -488,15 +581,32 @@ public class MarisaQDGen extends QuestDialogData {
 				List.of(new SelfReputationCondition(100), new HasQuestCompletedCondition(QUEST_TALISMAN_REQUEST)),
 				new ItemStack(GLItems.STAR_WAND.get()),
 				new TradeRecurrence(4, 24000), List.of(item(Items.EMERALD, 8))));
+		// The broom: a day's whittling for a handful of straw. Same gate as the wand,
+		// and the same one-a-day ceiling, so neither reward walks out on the other.
+		trade("offer_broom", new TradeOffer(GLEntities.MARISA.get(),
+				List.of(new HasQuestCompletedCondition(QUEST_TALISMAN_REQUEST)),
+				new ItemStack(GLItems.BROOM.get()),
+				new TradeRecurrence(1, 24000), List.of(item(GLItems.MYSTICAL_STRAW.get(), 8))));
 
-		// Processing trades
+		// The repaired hakkero, once she has shown she can build one: same bill of
+		// materials as the quest, but one a week, the netherite scrap being the bottleneck.
+		trade("offer_hakkero", new TradeOffer(GLEntities.MARISA.get(),
+				List.of(homeBound(), new HasQuestCompletedCondition(QUEST_HAKKERO)),
+				new ItemStack(GLItems.MINI_HAKKERO.get()),
+				new TradeRecurrence(1, 168000),
+				List.of(item(GLItems.MINI_HAKKERO_PROTOTYPE, 1),
+						item(Items.REDSTONE, 8), item(Items.GOLD_INGOT, 4),
+						item(Items.IRON_INGOT, 16), item(Items.NETHERITE_SCRAP, 1))));
+
+		// Processing trades - these need her own workshop, so she only offers them
+		// from the shop rather than from wherever she happens to be visiting.
 		trade("process_golden_apple", new TradeOffer(GLEntities.MARISA.get(),
-				List.of(new SelfReputationCondition(30)),
+				List.of(homeBound(), new SelfReputationCondition(30)),
 				new ItemStack(Items.ENCHANTED_GOLDEN_APPLE),
 				new TradeRecurrence(1, 24000),
 				List.of(item(Items.GOLDEN_APPLE, 1), item(Items.GOLD_BLOCK, 1))));
 		trade("process_elixir", new TradeOffer(GLEntities.MARISA.get(),
-				List.of(new SelfReputationCondition(80)),
+				List.of(homeBound(), new SelfReputationCondition(80)),
 				new ItemStack(HexBrew.HEXBREW_ELIXIR.bottle.get()),
 				new TradeRecurrence(16, 24000),
 				List.of(item(HexBrew.MUNDANE_HEXBREW.bottle, 4))));

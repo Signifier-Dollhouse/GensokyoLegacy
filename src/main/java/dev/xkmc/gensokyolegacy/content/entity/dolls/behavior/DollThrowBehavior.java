@@ -14,11 +14,8 @@ import net.minecraft.world.phys.Vec3;
 
 import java.util.Optional;
 
-/**
- * Super attack, hexbrew variant: face the target, throw one bottle, done.
- * Only runs when no laser is held anywhere (registry priority decides). Sidesteps
- * while an ally blocks the lane, throwing anyway past the strafe budget.
- */
+/** Super attack, hexbrew variant: face the target, throw one bottle, done. Only runs when no laser is held anywhere
+ * (registry priority decides); sidesteps while an ally blocks the lane, then throws anyway past the strafe budget. */
 public class DollThrowBehavior extends DollBehavior {
 
 	private static final double RANGE = 16.0;

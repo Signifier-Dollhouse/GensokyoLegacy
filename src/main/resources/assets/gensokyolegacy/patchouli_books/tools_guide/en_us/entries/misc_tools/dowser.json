@@ -13,7 +13,7 @@
     },
     {
       "type": "patchouli:text",
-      "text": "The search reaches up to 4 chunks in every direction and can find chests whose loot has not yet been generated or opened. The dowser has 64 uses and a short cooldown between searches.$(br2)The Left Half and Right Half are only crafting fragments; neither has a use by itself."
+      "text": "The search reaches up to 4 chunks in every direction and can find chests whose loot has not yet been generated or opened. The dowser has 64 uses and a short cooldown between searches."
     }
   ]
 }

@@ -13,6 +13,12 @@ import net.minecraft.world.level.Level;
 
 import java.util.List;
 
+/**
+ * Doll-specific half: the GeckoLib rig, the synced loadout and status slots, the ticket
+ * handler and the one command goal. Pairing and integrity stay in {@link BaseDollEntity}.
+ *
+ * @see "doc/design/doll/entity.md"
+ */
 public class DollEntity extends BaseDollEntity
 		implements DollGeo, DollCoreTalisman, DollShield, DollDanmakuAlly, DollStray, DollTint.Impl, DollStatus {
 
@@ -38,8 +44,7 @@ public class DollEntity extends BaseDollEntity
 
 	/**
 	 * How long a just-spent item is held onto: the swing animation outlives the
-	 * ticket that spent it, so the hands stay as they were drawn for
-	 * {@link DollHandLock#HOLD} ticks.
+	 * ticket that spent it (control.md §10).
 	 */
 	public final DollHandLock handLock = new DollHandLock();
 
@@ -64,8 +69,8 @@ public class DollEntity extends BaseDollEntity
 		// the core slot's talisman is passive: no ticket, no target, no order — just this
 		tickCoreTalisman();
 		syncActionStatus();
-		// last-resort path out of the stray cut (control.md §5.4): an idle
-		// stray rejoins its ledger on its own, no player input needed.
+		// last-resort path out of the stray cut: an idle stray rejoins its ledger
+		// on its own, no player input needed (control.md §5.4a)
 		maybeRejoin();
 	}
 

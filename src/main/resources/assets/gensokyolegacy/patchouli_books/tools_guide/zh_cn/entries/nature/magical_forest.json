@@ -6,24 +6,74 @@
   "sortnum": 1,
   "pages": [
     {
-      "type": "patchouli:spotlight",
-      "item": "gensokyolegacy:demonic_miasma_mushroom",
+      "type": "patchouli:text",
       "title": "魔法之森",
-      "text": "茂密的主世界生物群系，高大的青杉与巨型蘑菇遮天蔽日：鬼火菇、梦菇与妖瘴菇。进入这里会获得这本指南。小心巨伞之间的雾气：有些雾是会咬人的。"
-    },
-    {
-      "type": "patchouli:text",
-      "text": "巨杉与蘑菇树环绕着林窗、池塘与蘑菇谷地。妖瘴菇会不断呼出瘴气，瘴气向周围漂移、堆积。雾越浓，施加的瘴气等级越高。"
+      "text": "高大的青杉与巨型蘑菇遮天蔽日，鬼火菇、梦华菇与妖瘴菇肆意生长，令人脆弱的瘴气弥漫林间，谁人在此安居？"
     },
     {
       "type": "patchouli:spotlight",
-      "item": "gensokyolegacy:miasma_hexbrew_bottle",
-      "title": "瘴气",
-      "text": "瘴气使护甲效果减半、受到的伤害提高 50%、治疗量降低 30%。受伤时还可能获得缓慢、虚弱，II 级瘴气还可能中毒。"
+      "item": [
+        "gensokyolegacy:ghost_fire_mushroom",
+        "gensokyolegacy:ghost_fire_mushroom_block",
+        "gensokyolegacy:cyan_mushroom_stem"
+      ],
+      "title": "鬼火菇",
+      "text": "会发光的蘑菇，照亮林地的地面。每一株菌盖都会自己透出微弱的光，一整片看上去就像挂在树冠下的一排灯笼；成熟的鬼火菇能长到比人还高，立在细长的菌柄上。"
     },
     {
-      "type": "patchouli:text",
-      "text": "站在瘴气中、触碰妖瘴菇盖，或被瘴气魔酿击中（持续 60 秒）都会染上瘴气。远离红色菌盖，速战速决：瘴气缠身时，挨到的每一击都会更疼。"
+      "type": "patchouli:spotlight",
+      "item": [
+        "gensokyolegacy:dream_mushroom",
+        "gensokyolegacy:dream_mushroom_block",
+        "gensokyolegacy:purple_mushroom_stem"
+      ],
+      "title": "梦华菇",
+      "text": "三种里最高最圆的一种，却完全不会发光。梦华菇不透出任何光亮，所以梦华菇的林子即使在正午也总是昏暗的——远远地就能这样认出它们。"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": [
+        "gensokyolegacy:demonic_miasma_mushroom",
+        "gensokyolegacy:demonic_miasma_mushroom_block",
+        "gensokyolegacy:red_mushroom_stem"
+      ],
+      "title": "妖瘴菇",
+      "text": "最低调的外表，会呼出沉重的瘴气，在菌盖下肆意弥漫，再贴着林地地面蔓延，站在里面绝非好主意，生灵会变得软弱。"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": [
+        "gensokyolegacy:blue_fir_sapling",
+        "gensokyolegacy:blue_fir_log",
+        "gensokyolegacy:blue_fir_wood",
+        "gensokyolegacy:blue_fir_leaves"
+      ],
+      "title": "青杉",
+      "text": "寒带林木受湿热气候变化演化而来，高大蜿蜒的树干，层层平展的针叶，星点影布的蘑菇，稀疏垂落的藤蔓。"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": [
+        "gensokyolegacy:eugune_red",
+        "gensokyolegacy:eugune_brown",
+        "gensokyolegacy:eugune_ghost_fire",
+        "gensokyolegacy:evergreen_vine"
+      ],
+      "title": "耳菇与垂藤",
+      "text": "树干生长有耳菇，分三种色；常青垂藤从枝头垂下成长长的串。"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": [
+        "gensokyolegacy:star_flower",
+        "gensokyolegacy:flame_cattail",
+        "gensokyolegacy:broom_grass",
+        "gensokyolegacy:bracken",
+        "gensokyolegacy:mystical_straw",
+        "gensokyolegacy:cedar_fallen_leaves"
+      ],
+      "title": "林地地被",
+      "text": "星星花，够得着也够显眼；燃蒲生长在池塘里和岸边；扫帚草像野草般常见；蕨菜混杂其中。魔法森林的地面看起来如同一座没有人打理过的草药库。"
     }
   ]
 }

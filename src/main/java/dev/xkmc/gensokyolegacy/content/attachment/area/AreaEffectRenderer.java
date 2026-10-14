@@ -18,6 +18,11 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Draws the tracked entries' visuals, one batched pass per texture.
+ *
+ * @see "doc/design/area_effect.md"
+ */
 public class AreaEffectRenderer {
 
 	private static final float TILE = 16F;

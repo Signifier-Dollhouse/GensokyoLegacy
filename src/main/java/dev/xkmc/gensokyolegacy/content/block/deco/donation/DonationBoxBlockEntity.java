@@ -3,7 +3,7 @@ package dev.xkmc.gensokyolegacy.content.block.deco.donation;
 import dev.xkmc.gensokyolegacy.content.attachment.character.CharDataHolder;
 import dev.xkmc.gensokyolegacy.content.attachment.character.ReputationConstants;
 import dev.xkmc.gensokyolegacy.content.attachment.character.ReputationState;
-import dev.xkmc.gensokyolegacy.content.attachment.datamap.BedData;
+import dev.xkmc.gensokyolegacy.content.attachment.home.datamap.BedData;
 import dev.xkmc.gensokyolegacy.content.block.base.IDebugInfoBlockEntity;
 import dev.xkmc.gensokyolegacy.content.block.base.LocatedBlockEntity;
 import dev.xkmc.gensokyolegacy.content.client.debug.BlockInfoToClient;
@@ -22,6 +22,10 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
+/** Donation box bound to a character's bed. Trades gold for reputation under the same soft cap as
+ * feeding, so a fortune of emeralds cannot stand in for quest progress.
+ *
+ * @see "doc/design/reputation.md" */
 @SerialClass
 public class DonationBoxBlockEntity extends LocatedBlockEntity implements IDebugInfoBlockEntity {
 
@@ -31,6 +35,10 @@ public class DonationBoxBlockEntity extends LocatedBlockEntity implements IDebug
 		super(type, pos, state);
 	}
 
+	/**
+	 * Per-item value in reputation, counted in nuggets: nugget 1, emerald 3, ingot 9, block 81; anything else is worth
+	 * 0.
+	 */
 	public void take(@Nullable Player player, ItemStack stack) {
 		if (key == null) return;
 		if (player == null) return;
@@ -51,6 +59,7 @@ public class DonationBoxBlockEntity extends LocatedBlockEntity implements IDebug
 			int current = holder.data().reputation;
 			int max = holder.data().reputationCap;
 			if (current < max) {
+				// Never take more items than still move the reputation, so the stack does not shrink for nothing.
 				int count = Math.min(stack.getCount(), (max - current - 1) / value + 1);
 				stack.shrink(count);
 				holder.gain(value * count, ReputationConstants.FEED_SOFT_CAP, 0, 0);

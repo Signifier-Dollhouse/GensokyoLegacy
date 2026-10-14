@@ -1,0 +1,16 @@
+{
+  "type": "gensokyolegacy:unordered_alchemy",
+  "input": [
+    {
+      "item": "minecraft:shulker_shell"
+    }
+  ],
+  "inputFluid": {
+    "fluid": "gensokyolegacy:hexbrew_elixir"
+  },
+  "resultFluid": {
+    "amount": 1000,
+    "id": "gensokyolegacy:shield_hexbrew"
+  },
+  "time": 400
+}

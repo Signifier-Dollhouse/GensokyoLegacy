@@ -23,10 +23,8 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Polymorphic behavior for glove modes, mirroring {@code UmbrellaMode}.
- * Each enum constant holds an instance of this class, eliminating switch/if
- * on {@code DollGloveMode}. All commands run server-side; clients return
- * success without effect.
+ * Per-mode behavior behind the {@link DollGloveMode} enum, mirroring {@code UmbrellaMode}. Server-side.
+ * @see "doc/design/doll/glove.md"
  */
 public abstract class DollGloveHandler {
 
@@ -60,9 +58,8 @@ public abstract class DollGloveHandler {
 	}
 
 	/**
-	 * Attack-mode command at an explicit target (server-side): validity,
-	 * feedback, and cooldown mirror the right-click path, minus the editor
-	 * check. Non-attack modes ignore the call.
+	 * Attack-mode command at an explicit target (server-side): validity, feedback and cooldown mirror
+	 * the right-click path, minus the editor check. Non-attack modes ignore the call.
 	 */
 	public void performAttackOn(ServerPlayer sp, @Nullable LivingEntity target, InteractionHand hand, ItemStack stack, DollGloveItem item) {
 	}
@@ -71,13 +68,9 @@ public abstract class DollGloveHandler {
 		return GLMeta.DOLL.type().getOrCreate(sp);
 	}
 
-	/**
-	 * Right-click editor shortcut, shared by every mode: when the doll under
-	 * the crosshair (immediate server-side ray trace, {@code EDITOR_RANGE}
-	 * blocks, blocked by blocks) is an owned doll (or the holder is in
-	 * creative), open its loadout instead of the mode action. Returns true
-	 * when the editor opened. Unlike attack commands, this never consults the
-	 * cached ray-trace target — the trace runs fresh on every use.
+	/** Right-click editor shortcut: an owned doll under the crosshair — or any doll if the holder is in
+	 * creative — opens its loadout instead of the mode action. Unlike attack commands, it re-traces
+	 * fresh and never consults the cached target.
 	 */
 	protected static boolean tryOpenEditor(ServerPlayer sp, DollGloveItem item) {
 		DollEntity doll = rayTraceDoll(sp);
@@ -90,8 +83,8 @@ public abstract class DollGloveHandler {
 	}
 
 	/**
-	 * The doll under the holder's crosshair right now (server-side, occluded
-	 * by blocks), or null. Fresh trace every call — no cache, no TTL.
+	 * The doll under the holder's crosshair right now (server-side, occluded by blocks), or null.
+	 * Fresh trace every call — no cache, no TTL.
 	 */
 	@Nullable
 	private static DollEntity rayTraceDoll(ServerPlayer sp) {

@@ -1,6 +1,6 @@
 {
-  "name": "Special Tools",
-  "description": "Signature devices: hakkero, sealing pot, gap portal and border umbrella.",
+  "name": "Special Items",
+  "description": "Each of them carries some part of Gensokyo's past",
   "icon": "gensokyolegacy:border_umbrella",
   "sortnum": 4
 }

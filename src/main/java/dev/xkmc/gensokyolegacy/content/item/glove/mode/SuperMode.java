@@ -15,6 +15,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * Super: one random available doll fires its super attack once (glove.md §1).
+ */
 public class SuperMode extends DollGloveHandler {
 
 	@Override

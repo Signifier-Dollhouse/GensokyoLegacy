@@ -23,6 +23,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+/** Timed alchemy reaction: fluid plus items in, fluid and/or items out, both staying in the pot.
+ *
+ * @see "doc/design/alchemy_pot.md" */
 @SerialClass
 public abstract class AlchemyRecipe<T extends AlchemyRecipe<T>> extends BaseRecipe<T, AlchemyRecipe<?>, AlchemyInv> implements TimedRecipe {
 
@@ -116,7 +119,7 @@ public abstract class AlchemyRecipe<T extends AlchemyRecipe<T>> extends BaseReci
 	private static List<ItemStack> fluidToItem(FluidStack fs) {
 		Fluid fluid = fs.getFluid();
 		int amount = fs.getAmount();
-		// only use item representation when the fluid amount exactly matches whole containers
+		// item form only when the amount is a whole number of containers
 		if (fluid instanceof GLHexFluid gl && gl.brew != null) {
 			if (amount <= 0 || amount % 250 != 0) return List.of();
 			int count = amount / 250;

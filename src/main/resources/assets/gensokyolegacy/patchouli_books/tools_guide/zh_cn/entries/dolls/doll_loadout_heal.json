@@ -1,0 +1,17 @@
+{
+  "name": "治疗友方",
+  "icon": "gensokyolegacy:heal_talisman",
+  "category": "gensokyolegacy:dolls",
+  "advancement": "gensokyolegacy:main/obtain_doll_glove",
+  "sortnum": 10,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "医疗兵$(br2)任意一个手部槽位里的折好治疗符纸会让人偶充当随队医护。它会尝试移动到需要它的人身边两格左右，花掉一次使用次数，为对方恢复其生命上限的 30%"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "人偶不舒服了会自己治$(br2)人偶会自行安排治疗，优先级是你、自身、最后是离它最近的受伤同伴——因此你作战时，整支队伍会顺手补上彼此的伤势。$(br2)你下达的命令会打断进行中的治疗，符纸在使用完成前都会留在手里，绝不会中途被取走。$(br2)当装在核心位置时...$(br2)人偶很乐意用手部符纸治疗自己，当装备在核心时更是如此——只治疗自身。"
+    }
+  ]
+}

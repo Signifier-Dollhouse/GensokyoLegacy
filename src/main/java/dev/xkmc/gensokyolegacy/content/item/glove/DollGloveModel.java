@@ -10,17 +10,12 @@ import net.minecraft.world.item.Item;
 import net.neoforged.neoforge.client.model.generators.ItemModelBuilder;
 
 /**
-	 * Item model generation for the doll glove. Split out of {@code GLItems} because the
-	 * glove is one of the two tools whose model is built per mode rather than from one texture.
-	 *
-	 * <p>The held-hand half is {@link GloveHandModel}'s wiring around this glove's own
-	 * {@code custom/doll_glove_hand} model; this class is only what is specific to the doll
-	 * glove, namely its four modes and the icon variants the wheel shows (glove.md §3b).
-	 *
-	 * <p>Per-mode held overrides are separate-transforms models rather than flat ones, because
-	 * vanilla replaces the whole item model when a predicate matches - a flat override would
-	 * drop the hand while in hand. Icon stacks are gui-only and never held, so those stay flat.
-	 */
+ * Item model generation for the doll glove, split out of {@code GLItems} and built per mode (glove.md §3b).
+ * Held overrides are separate-transforms models, not flat ones: vanilla replaces the whole item model on a
+ * predicate match, so a flat override would drop the hand. Icon stacks are gui-only, so those stay flat.
+ *
+ * @see "doc/design/doll/glove.md"
+ */
 public class DollGloveModel {
 
 	/** This glove's own modelled hand, exported from Blockbench. */
@@ -33,8 +28,6 @@ public class DollGloveModel {
 		var modes = DollGloveMode.values();
 		var glove = pvd.getBuilder(ctx.getName());
 		perspectives(glove, pvd, pvd.modLoc("item/doll_glove/" + ctx.getName()));
-		// vanilla also reverses the override list at bake time and returns the first match
-		// with >= per predicate, so emit ascending values for exact per-mode matching
 		for (int i = 0; i < modes.length; i++) {
 			var name = "item/glove_" + modes[i].iconName();
 			var held = pvd.getBuilder(name);

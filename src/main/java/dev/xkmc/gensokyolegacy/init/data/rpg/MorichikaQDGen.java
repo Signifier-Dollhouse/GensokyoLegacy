@@ -1,7 +1,6 @@
 package dev.xkmc.gensokyolegacy.init.data.rpg;
 
 import dev.xkmc.gensokyolegacy.content.rpg.condition.HasAdvancementCondition;
-import dev.xkmc.gensokyolegacy.content.rpg.condition.HasQuestCompletedCondition;
 import dev.xkmc.gensokyolegacy.content.rpg.dialog.DialogStarter;
 import dev.xkmc.gensokyolegacy.content.rpg.trade.TradeOffer;
 import dev.xkmc.gensokyolegacy.content.rpg.trade.TradeRecurrence;
@@ -21,11 +20,12 @@ public class MorichikaQDGen extends QuestDialogData {
 		prefix("morichika/chat");
 		defaultDialog(GLEntities.MORICHIKA.get(),
 				"Welcome to Kourindou! Feel free to look around.",
-				"Any special offers for a special customer?");
-		starter("morichika/chat", new DialogStarter(GLEntities.MORICHIKA.get(), List.of(),
-				starterText("start", "Welcome!"),
+				"Good to see you again. Everything going alright?",
+				"Let me see what you are selling?");
+		starter("morichika/chat", new DialogStarter(GLEntities.MORICHIKA.get(), List.of(homeBound()),
+				starterText("start", "A shop like this, out in the forest?"),
 				dialog("hi", "Welcome to Kourindou! Let me know if anything catches your eye.",
-						option("bye", "Bye!"))
+						option("bye", "I'll browse the shelves."))
 		));
 
 		chats();
@@ -35,7 +35,7 @@ public class MorichikaQDGen extends QuestDialogData {
 	private void chats() {
 		prefix("morichika/chat_marisa");
 		chat("morichika/chat_marisa", GLEntities.MORICHIKA.get(),
-				List.of(missingAdv(GLAdvGen.ENTER_MARISA_HOUSE)),
+				List.of(homeBound(), missingAdv(GLAdvGen.ENTER_MARISA_HOUSE)),
 				starterText("start", "Brewing potions is such a hassle…"),
 				dialog("talk", "There's a magician deep in the Magical Forest. She loves mushrooms, magic tools, and borrowing things without asking — if brewing troubles you, go find her; she may make it easier for you.",
 						option("where", "Where can I find her?",
@@ -45,11 +45,11 @@ public class MorichikaQDGen extends QuestDialogData {
 
 		prefix("morichika/chat_reimu");
 		chat("morichika/chat_reimu", GLEntities.MORICHIKA.get(),
-				List.of(missingAdv(GLAdvGen.ENTER_HAKUREI_SHRINE)),
+				List.of(homeBound(), missingAdv(GLAdvGen.ENTER_HAKUREI_SHRINE)),
 				starterText("start", "It's dangerous out there…"),
-				dialog("talk", "There's a shrine maiden in the cherry grove. If raiders trouble you, she's the one to see — she may provide something to aid you in a fight.",
+				dialog("talk", "There's a shrine maiden in the cherry grove. If you feel short of ways to protect yourself, go and ask her for a talisman - it will keep you alive when danger comes.",
 						option("donation", "Anything I should know?",
-								dialog("donation_ans", "Just don't forget a donation. A shrine maiden with an empty donation box is a grumpy shrine maiden.",
+								dialog("donation_ans", "She's easygoing. As long as you don't do anything out of the ordinary, there are no real restrictions.",
 										option("bye", "Thanks!")))),
 				CHAT_INFO);
 	}
@@ -64,14 +64,16 @@ public class MorichikaQDGen extends QuestDialogData {
 				List.of(),
 				new ItemStack(GLItems.STRANGE_GLASSES.get()),
 				new TradeRecurrence(1, 24000), List.of(item(Items.EMERALD, 8))));
-		trade("offer_doll_glove", new TradeOffer(GLEntities.MORICHIKA.get(),
-				List.of(new HasQuestCompletedCondition(MarisaQDGen.QUEST_TALISMAN_REQUEST)),
-				new ItemStack(GLItems.DOLL_GLOVE.get()),
-				new TradeRecurrence(1, 168000), List.of(item(Items.EMERALD, 32))));
 		trade("offer_guide_book", new TradeOffer(GLEntities.MORICHIKA.get(),
 				List.of(new HasAdvancementCondition(GLAdvGen.WELCOME)),
 				PatchouliHelper.getBook(GensokyoLegacy.loc("tools_guide")),
 				new TradeRecurrence(1, 24000), List.of(item(Items.EMERALD, 1))));
+		// The glove is a weapon, and worthless to someone who cannot yet throw a dagger,
+		// so the gate is Sakuya's iron dagger advancement rather than the glove's own one.
+		trade("offer_dagger_glove", new TradeOffer(GLEntities.MORICHIKA.get(),
+				List.of(new HasAdvancementCondition(GLAdvGen.OBTAIN_IRON_DAGGER)),
+				new ItemStack(GLItems.DAGGER_GLOVE.get()),
+				new TradeRecurrence(1, 168000), List.of(item(Items.EMERALD, 24))));
 	}
 
 }

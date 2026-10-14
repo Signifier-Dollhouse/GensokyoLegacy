@@ -11,11 +11,8 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
-/**
- * Delegate blocks whose collision shape is tall enough to block walking
- * report as non-pathfindable, judged by shape height: shapes below 3px
- * (cushion, tatami, single book layer) stay walkable for pathfinding.
- */
+/** Delegate blocks whose collision shape is tall enough to block walking report as non-pathfindable:
+ * shapes below 3px (cushion, tatami, single book layer) stay walkable. */
 public interface ShapePathFindBlockMethod extends ShapeBlockMethod, PathFindBlockMethod {
 
 	@Nullable

@@ -12,6 +12,9 @@ import net.minecraft.world.level.Level;
 
 import java.util.List;
 
+/** Stage that fires when a potion item is in the pot and tints the fluid with the average potion
+ * colour, so mixed potions blend instead of picking one of their colours.
+ * @see "doc/design/alchemy_pot.md" */
 @SerialClass
 public class PotionStageRecipe extends AlchemyStageRecipe<PotionStageRecipe> {
 
@@ -76,13 +79,12 @@ public class PotionStageRecipe extends AlchemyStageRecipe<PotionStageRecipe> {
 	}
 
 	private static int getPotionColor(PotionContents contents) {
-		// PotionContents.getColor() exists in 1.21; fallback to first effect color if -1
+		// own colour if it has one, otherwise average the effect colours below
 		try {
 			int c = contents.getColor();
 			if (c != -1) return c;
 		} catch (Exception ignored) {
 		}
-		// fallback: average of effect colors (if any)
 		var effects = contents.getAllEffects();
 		boolean empty = true;
 		for (var ignored : effects) {

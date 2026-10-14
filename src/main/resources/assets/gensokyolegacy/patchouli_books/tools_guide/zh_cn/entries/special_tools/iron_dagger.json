@@ -1,0 +1,19 @@
+{
+  "name": "飞刀",
+  "icon": "gensokyolegacy:iron_dagger",
+  "category": "gensokyolegacy:special_tools",
+  "advancement": "gensokyolegacy:main/obtain_iron_dagger",
+  "sortnum": 5,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "gensokyolegacy:iron_dagger",
+      "title": "蛇衔环",
+      "text": "右键即可朝视线方向掷出一把飞刀。它会命中挡在前面的东西，造成 6 点伤害，然后回到你手中——匕首只是暂时离开物品栏，不会永远失去。"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "每次投掷消耗一把匕首，1s 后重新会到手中。$(bold)匕首手套$()用的是同一把匕首，只是增添了投掷方式。$(br2)掷出的匕首在撞到方块、撞到生物、或飞满两秒消失时，都会回到你的物品栏；物品栏放不下时就掉在脚边。投掷本身不会让你损失匕首；唯一会失去的情况，是这世上已经没有可以把匕首还给的人。"
+    }
+  ]
+}

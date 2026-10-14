@@ -7,24 +7,18 @@
     {
       "type": "patchouli:spotlight",
       "item": "tag:gensokyolegacy:cushions",
-      "title": "Take a Seat",
-      "text": "Cushions are stuffed with wool and come in every wool color. Right-click a seat to sit down."
+      "title": "Not A Vehicle!",
+      "text": "Cushions are stuffed with wool and come in all 16 wool colors. Right-click a seat to sit down."
     },
     {
       "type": "patchouli:spotlight",
       "item": "tag:gensokyolegacy:chair",
-      "title": "Large Chairs",
-      "text": "Large chairs stand two blocks tall and come in every wood type, cut from the matching planks on the stonecutter. A darker one with red upholstery is only found in the Scarlet Devil Mansion."
+      "text": "They only fit where there are two blocks of headroom.$(br2)Chairs can be decorated just like tables: right-click with a carpet or tatami to lay down a seat cloth in any color. Shears take the cloth off again and hand it back to you."
     },
     {
       "type": "patchouli:spotlight",
       "item": "tag:gensokyolegacy:stool",
-      "title": "Wooden Stools",
-      "text": "Stools are one block tall and come in every wood type, cut from the matching planks on the stonecutter."
-    },
-    {
-      "type": "patchouli:text",
-      "text": "Large chairs can be decorated just like tables: right-click with a carpet or tatami to add a matching seat cloth. Use shears to remove the cloth and get it back."
+      "text": "Stools are one block tall."
     }
   ]
 }

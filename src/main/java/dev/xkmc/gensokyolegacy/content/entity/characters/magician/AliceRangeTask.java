@@ -11,30 +11,17 @@ import net.minecraft.world.phys.Vec3;
 import java.util.Map;
 
 /**
- * Alice fights at range. This replaces the stock {@code AttackTask} +
- * {@code StrafeTarget} pair for her: both want to be standing on top of the target
- * — the strafe stops inside its radius, the attack task walks in until it is within
- * half of its melee reach — which is the opposite of what a puppet master wants.
- * Her dolls do the shooting; she conducts from a lane.
+ * Alice fights at range, so this replaces the stock {@code AttackTask} + {@code StrafeTarget}
+ * pair: both want to stand on the target, while her dolls do the shooting and she conducts.
  * <p>
- * The whole point is a <b>dead band</b>, {@link #MIN} to {@link #MAX} blocks, held
- * around {@link #HOLD}. A single strafe radius cannot express this: the stock
- * strafe circles inside its radius and charges outside it, so anything hovering at
- * the threshold flips between the two forever. Here each edge only changes which
- * way she drifts, and in the middle she simply circles.
+ * The point is a <b>dead band</b> of {@link #MIN}–{@link #MAX} blocks around {@link #HOLD} — the
+ * stock strafe circles inside its radius and charges outside it, so hovering at the threshold
+ * flip-flops forever, while here each edge only changes which way she drifts.
  * <p>
- * <b>3D, not a horizontal plane.</b> The orbit is a circle whose horizontal radius
- * is solved from the remaining 3D budget: she aims for {@link #HOLD} blocks from
- * the target in every direction at once, so a target on a tower is answered by
- * rising to it rather than by circling uselessly below it. A horizontal-only
- * version reads the same on flat ground and is simply wrong anywhere else.
- * <p>
- * Movement goes through {@code getNavigation()} rather than
- * {@code MoveControl.strafe}, for two reasons: {@code FlyingMoveControl} ignores
- * the strafe operation outright and clears {@code noGravity} whenever it is not
- * moving to a point, so a strafe would drop her out of the sky; and the
- * {@code WALK_TARGET = ABSENT} entry condition is what keeps the always-on
- * {@code YoukaiMoveTask} from claiming navigation on the same tick.
+ * The orbit is 3D, its horizontal radius solved from the remaining 3D budget, so a target on a
+ * tower is answered by rising to it. Movement goes through {@code getNavigation()} because
+ * {@code FlyingMoveControl} ignores the strafe op and drops {@code noGravity} off a point, and
+ * {@code WALK_TARGET = ABSENT} keeps the always-on {@code YoukaiMoveTask} off the navigation.
  */
 public class AliceRangeTask extends YoukaiAttackTask<AliceEntity> {
 
@@ -48,9 +35,8 @@ public class AliceRangeTask extends YoukaiAttackTask<AliceEntity> {
 	private static final double HOLD = 20;
 
 	/**
-	 * Radians of orbit per tick, giving a ten-second lap at {@link #HOLD}. She
-	 * rarely manages that speed — navigation clamps her to her own flight speed and
-	 * she cuts the chord, which is exactly how a circling youkai looks.
+	 * Radians of orbit per tick, giving a ten-second lap at {@link #HOLD}; navigation clamps her
+	 * to her own flight speed and she cuts the chord, which is how a circling youkai looks.
 	 */
 	private static final double ORBIT_STEP = 0.011;
 
@@ -99,13 +85,10 @@ public class AliceRangeTask extends YoukaiAttackTask<AliceEntity> {
 	}
 
 	/**
-	 * A point on the sphere of radius {@link #HOLD} around the target, in the
-	 * direction she is currently circling, with the vertical part of the budget
-	 * already spent. Working the horizontal radius out of what is left of
-	 * {@code HOLD} after the height error is what makes the orbit 3D: the closer
-	 * she is to the target's height, the wider the circle, and the further above
-	 * or below it, the tighter — so the 3D distance stays put while the circle
-	 * responds to altitude instead of ignoring it.
+	 * A point on the sphere of radius {@link #HOLD} around the target, in the direction she is
+	 * circling, with the vertical part of the budget already spent. Solving the horizontal radius
+	 * out of what is left is what makes the orbit 3D: the closer she is to the target's height,
+	 * the wider the circle, so the 3D distance stays put while the circle answers altitude.
 	 */
 	private Vec3 orbitPoint(AliceEntity alice, LivingEntity target) {
 		double dy = target.getEyeY() - alice.getEyeY();
@@ -129,10 +112,9 @@ public class AliceRangeTask extends YoukaiAttackTask<AliceEntity> {
 	}
 
 	/**
-	 * Aims at {@link #HOLD} blocks from the target on the {@code side} side of her
-	 * ({@code -1} closes, {@code +1} backs off). Because the direction is the full
-	 * 3D vector, backing away from something overhead gains altitude as well as
-	 * ground.
+	 * Aims at {@link #HOLD} blocks from the target on the {@code side} side of her ({@code -1}
+	 * closes, {@code +1} backs off) along the full 3D vector, so backing off something overhead
+	 * gains altitude as well as ground.
 	 */
 	private void stepTo(AliceEntity alice, LivingEntity target, int side) {
 		Vec3 away = alice.position().subtract(target.position());

@@ -1,0 +1,17 @@
+{
+  "name": "TNT 自爆",
+  "icon": "minecraft:tnt",
+  "category": "gensokyolegacy:dolls",
+  "advancement": "gensokyolegacy:main/obtain_doll_glove",
+  "sortnum": 9,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "爱丽丝至上$(br2)当人偶任意一个手部槽位含有 TNT 时，显示此命令。“自爆”命令下达后，人偶会径直飞向目标并在接触时引爆，连同自身一起归于爆炸。地形不会因此受损，也不会波及玩家。$(br2)执行自爆命令的目标先死亡时，中断并回到玩家队伍。"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "只是短暂离别$(br2)自爆后人偶会变成掉落物，装备会安全保留其中。"
+    }
+  ]
+}

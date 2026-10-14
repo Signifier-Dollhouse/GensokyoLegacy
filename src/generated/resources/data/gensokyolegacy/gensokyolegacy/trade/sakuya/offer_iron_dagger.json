@@ -1,0 +1,23 @@
+{
+  "character": "gensokyolegacy:izayoi_sakuya",
+  "conditions": [
+    {
+      "type": "gensokyolegacy:visit_structure",
+      "structure": "gensokyolegacy:morichika_shop"
+    }
+  ],
+  "ingredients": [
+    {
+      "count": 4,
+      "item": "minecraft:iron_ingot"
+    }
+  ],
+  "recurrence": {
+    "maxStock": 16,
+    "restockTime": 24000
+  },
+  "result": {
+    "count": 1,
+    "id": "gensokyolegacy:iron_dagger"
+  }
+}

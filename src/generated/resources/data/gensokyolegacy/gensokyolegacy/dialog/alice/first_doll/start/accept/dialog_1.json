@@ -1,0 +1,11 @@
+{
+  "options": [
+    {
+      "type": "gensokyolegacy:simple",
+      "actions": [],
+      "conditions": [],
+      "text": "gensokyolegacy/alice/first_doll/option/start/accept/end"
+    }
+  ],
+  "text": "gensokyolegacy/alice/first_doll/dialog/alice/first_doll/start/accept/dialog_1"
+}

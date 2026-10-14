@@ -1,0 +1,17 @@
+{
+  "name": "Potion Throw",
+  "icon": "gensokyolegacy:explosive_hexbrew_bottle",
+  "category": "gensokyolegacy:dolls",
+  "advancement": "gensokyolegacy:main/obtain_doll_glove",
+  "sortnum": 8,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Grenadier!$(br2)When either hand slot holds a throwable brew, the doll can hear the order and throw the bottle. Brewing works exactly as it does for a player, and only throwable kinds are accepted."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Range$(br2)About 16 blocks — the shortest reach of anything a doll throws. Any further and the order is simply ignored.$(br2)Mind your allies$(br2)A lane blocked by a friendly is sidestepped first, and the bottle flies anyway after about a second of dodging."
+    }
+  ]
+}

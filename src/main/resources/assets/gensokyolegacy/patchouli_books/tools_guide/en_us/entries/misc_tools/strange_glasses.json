@@ -1,0 +1,19 @@
+{
+  "name": "Strange Glasses",
+  "icon": "gensokyolegacy:strange_glasses",
+  "category": "gensokyolegacy:misc_tools",
+  "advancement": "gensokyolegacy:main/obtain_strange_glasses",
+  "sortnum": 5,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "gensokyolegacy:strange_glasses",
+      "title": "Someone Else's Eyes",
+      "text": "While you wear them, every entity around you shows up as a glowing outline through walls."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Tournament Champion$()$(br2)All they do is make every entity glow, and they reveal the barrier of every Sealing Pot nearby as well."
+    }
+  ]
+}

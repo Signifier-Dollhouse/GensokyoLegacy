@@ -14,11 +14,16 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
+/** Effect payload of the sealing pot: owner validity is the block itself, the client visual is the
+ * forcefield texture tinted with the pot's own green.
+ * @see "doc/design/barriers.md" */
 @SerialClass
 public class SealingEffectData extends EffectData {
 
+	// tint 0.35 / 1.0 / 0.45 takes only the hue off the pot texture, the green channel stays at 1.0
+	// so the dim grey texture keeps its brightness
 	private static final AreaEffectVisual VISUAL = new AreaEffectVisual(GensokyoLegacy.loc("textures/barriers/sealing_pot.png"),
-			1, 1, 1, 0.35F, -0.5F, true, false, false);
+			0.35F, 1F, 0.45F, 0.35F, -0.5F, true, false, false);
 
 	public SealingEffectData() {
 	}

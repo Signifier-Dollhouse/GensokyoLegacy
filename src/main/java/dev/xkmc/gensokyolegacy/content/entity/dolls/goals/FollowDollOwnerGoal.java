@@ -3,29 +3,42 @@ package dev.xkmc.gensokyolegacy.content.entity.dolls.goals;
 import dev.xkmc.gensokyolegacy.content.attachment.doll.DollData;
 import dev.xkmc.gensokyolegacy.content.attachment.doll.DollHost;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.BaseDollEntity;
-import net.minecraft.server.level.ServerLevel;
+import dev.xkmc.gensokyolegacy.content.entity.dolls.DollEntity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.Goal;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
 import java.util.EnumSet;
-import java.util.Set;
 
 public class FollowDollOwnerGoal extends Goal {
     /**
-     * Height above the owner's feet of the arc's center line: the middle slot
-     * hovers the highest and the arc's tips sink back down to this line.
-     */
+	 * Height above the owner's feet of the arc's center line: the middle slot
+	 * hovers the highest and the arc's tips sink back down to this line.
+	 */
     private static final double FORMATION_HEIGHT = 1.6;
     /** Cap on the vertical reach of the arc above its center line. */
     private static final double FORMATION_ARC_MAX = 3.0;
     private static final double FORMATION_MIN_RADIUS = 2.0;
     private static final double FORMATION_MAX_RADIUS = 6.0;
 
+    /** Catch-up range, squared: past 5 blocks from the slot the doll is lost. */
+    private static final double LOST_RANGE_SQ = 25;
+
+    /**
+     * How long the owner must stay out of sight before the doll treats itself as lost and
+     * blinks back — the grace period Alice's escort gets too (host.md §5.1).
+     */
+    private static final int BLIND_TICKS = 20;
+
     private final BaseDollEntity doll;
     private LivingEntity owner;
     private int timeToRecalcPath;
+
+    /** Game time the owner was first lost from sight, -1 while visible; a goal that does not override
+     * {@code requiresUpdateEveryTick} only ticks every other pass, so this is game time, not a tick counter. */
+    private long unseenSince = -1;
 
     public FollowDollOwnerGoal(BaseDollEntity doll) {
         this.doll = doll;
@@ -33,11 +46,8 @@ public class FollowDollOwnerGoal extends Goal {
     }
 
     /**
-     * Vertical semicircle behind the owner, standing in the plane perpendicular
-     * to the latched formation yaw: slot 0..n-1 swing from one flank, up across
-     * the top and down to the other flank, the middle slot directly above the
-     * owner as the arc's peak. The diameter runs left-right, so the arc reads
-     * like a rainbow standing upright face-on to the owner's travel direction.
+     * Vertical semicircle behind the owner, perpendicular to the latched formation yaw: slots
+     * swing from one flank up across the top to the other, the middle slot peaking over the owner.
      */
     private static Vec3 formationPos(Vec3 ownerPos, double feetY, float yawDeg, int index, int total) {
         int n = Math.max(1, total);
@@ -58,14 +68,9 @@ public class FollowDollOwnerGoal extends Goal {
     }
 
     /**
-     * This doll's slot in the shared follow semicircle. Slot and count come
-     * from the cached fields the roster rebuild stamps each tick — no ledger
-     * scan here. The target never tracks the owner's live look vector: the
-     * formation yaw only re-anchors when the owner moves, so looking around
-     * while standing still leaves every doll where it is. Strays have left
-     * the ledger (no slot), so they simply hover over the owner instead of
-     * holding a formation slot. Null means "don't follow" (block-hosted
-     * dolls have no owner to follow).
+     * This doll's slot in the shared follow semicircle, from the roster-rebuilt cached fields. The
+     * yaw only re-anchors when the owner moves, never on their live look vector. Strays hover
+     * overhead instead, and null means "don't follow".
      */
     @Nullable
     private Vec3 getTargetPos() {
@@ -79,23 +84,49 @@ public class FollowDollOwnerGoal extends Goal {
         return formationPos(owner.position(), owner.getY(), host.getFormationYaw(), data.formationIndex, data.formationTotal);
     }
 
+    /**
+     * Snap to the formation slot when the doll is lost: same level, no command, further than
+     * {@link #LOST_RANGE_SQ}, blind for {@link #BLIND_TICKS} and standable ({@link #landingSafe}).
+     * Teleporting is not velocity, so this does not violate the movement cap.
+     */
     private boolean teleportToOwnerPos(Vec3 destination) {
-        if (!this.doll.level().dimension().equals(this.owner.level().dimension())) {
-            ServerLevel targetLevel = this.doll.level().getServer().getLevel(this.owner.level().dimension());
-            if (targetLevel != null){
-                this.doll.teleportTo(targetLevel, destination.x, destination.y, destination.z, Set.of(), this.doll.getYRot(), this.doll.getXRot());
-            }
-            return true;
+        if (this.owner == null || this.doll.level() != this.owner.level()) return false;
+        // pending tickets count as commands too: a doll still winding up to attack
+        // is being placed deliberately as well
+        if (this.doll instanceof DollEntity dollEntity && dollEntity.actions.isActive()) return false;
+        if (this.doll.distanceToSqr(destination) <= LOST_RANGE_SQ) return false;
+        long gameTime = this.doll.level().getGameTime();
+        if (this.unseenSince < 0 || gameTime - this.unseenSince < BLIND_TICKS) return false;
+        // the fallback is deliberately not re-tested: the owner is standing there,
+        // and a collision query at that point would hit its own hitbox every time
+        Vec3 landing = landingSafe(destination) ? destination : this.owner.position();
+        this.doll.teleportTo(landing.x, landing.y, landing.z);
+        // the path that led here is meaningless from the landing point
+        this.doll.getNavigation().stop();
+        this.timeToRecalcPath = 0;
+        return true;
+    }
+
+    /**
+     * Whether the doll's own bounding box fits at {@code target}. The target is within a few blocks
+     * of the owner, hence inside loaded chunks, so this never forces a chunk load.
+     */
+    private boolean landingSafe(Vec3 target) {
+        AABB box = this.doll.getBoundingBox().move(target.subtract(this.doll.position()));
+        return this.doll.level().noCollision(this.doll, box);
+    }
+
+    /**
+     * Restarts the blindness clock: a fresh follow run owes the owner a full grace period, so a doll
+     * that just came into range is never blinked back on a stale window.
+     */
+    private void trackSight() {
+        if (this.doll.hasLineOfSight(this.owner)) {
+            this.unseenSince = -1;
+            return;
         }
-        double dx = destination.x - this.doll.getX();
-        double dy = destination.y - this.doll.getY();
-        double dz = destination.z - this.doll.getZ();
-        double distanceSq = dx * dx + dy * dy + dz * dz;
-        if (distanceSq > 144) {
-            this.doll.teleportTo(destination.x, destination.y, destination.z);
-            return true;
-        }
-        return false;
+        long gameTime = this.doll.level().getGameTime();
+        if (this.unseenSince < 0) this.unseenSince = gameTime;
     }
 
     @Override
@@ -110,6 +141,7 @@ public class FollowDollOwnerGoal extends Goal {
     @Override
     public void start() {
         this.timeToRecalcPath = 0;
+        this.unseenSince = -1;
         Vec3 targetPos = this.getTargetPos();
         if (targetPos == null) return;
         this.doll.getNavigation().moveTo(targetPos.x, targetPos.y, targetPos.z, this.doll.speedModifier);
@@ -117,11 +149,10 @@ public class FollowDollOwnerGoal extends Goal {
 
     @Override
     public void tick() {
-        // No client guard needed: goals only ever tick server-side
-        // (Mob.serverAiStep is the sole goalSelector.tick caller and runs
-        // only when isEffectiveAi, i.e. never on the client).
+        // no client guard needed: goals only ever tick server-side
         Vec3 targetPos = this.getTargetPos();
         if (targetPos == null) return;
+        this.trackSight();
         if (this.teleportToOwnerPos(targetPos)) {
             return;
         }

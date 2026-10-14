@@ -1,0 +1,15 @@
+{
+  "animations": [
+    "dialog_think"
+  ],
+  "options": [
+    {
+      "type": "gensokyolegacy:simple",
+      "actions": [],
+      "conditions": [],
+      "next": "gensokyolegacy:alice/seven_colors/follow_up/end/dialog_1",
+      "text": "gensokyolegacy/alice/seven_colors/option/follow_up/end"
+    }
+  ],
+  "text": "gensokyolegacy/alice/seven_colors/dialog/alice/seven_colors/follow_up/dialog_1"
+}

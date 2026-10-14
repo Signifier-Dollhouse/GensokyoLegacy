@@ -41,7 +41,7 @@ public class NearbyPlayerSensor<E extends SmartYoukaiEntity> extends AbstractNea
 		list = new ArrayList<>(list);
 		list.removeIf(p -> !p.canBeSeenAsEnemy());
 		BrainUtils.setMemory(entity, MemoryModuleType.NEAREST_VISIBLE_ATTACKABLE_PLAYER, list.isEmpty() ? null : list.getFirst());
-		if (allHostile) {
+		if (allHostile && entity.vanishOnDislike()) {
 			entity.discard();
 		}
 	}

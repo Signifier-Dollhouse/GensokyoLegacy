@@ -5,9 +5,7 @@ import dev.xkmc.l2serial.network.SerialPacketBase;
 import net.minecraft.world.entity.player.Player;
 
 /**
- * A click on one of the dialog's options, standing in for the inventory button
- * click a container menu would have carried. {@code index} is the option index
- * the server used when it built the list this client is looking at.
+ * A click on one of the dialog's options; {@code index} indexes the option list the server last sent.
  */
 public record DialogClickToServer(
 		int session, int character, int index

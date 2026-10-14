@@ -24,18 +24,13 @@
     "text": "gensokyolegacy/reimu/local_food/option/start"
   },
   "requirements": {
-    "a-bread": {
+    "a-food": {
       "type": "gensokyolegacy:submit_item",
       "ingredients": [
         {
           "count": 8,
           "item": "minecraft:bread"
-        }
-      ]
-    },
-    "b-stew": {
-      "type": "gensokyolegacy:submit_item",
-      "ingredients": [
+        },
         {
           "count": 3,
           "item": "minecraft:mushroom_stew"

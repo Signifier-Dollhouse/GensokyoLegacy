@@ -1,0 +1,12 @@
+{
+  "character": "gensokyolegacy:kirisame_marisa",
+  "conditions": [
+    {
+      "type": "gensokyolegacy:visit_structure",
+      "structure": "gensokyolegacy:morichika_shop"
+    }
+  ],
+  "dialog": "gensokyolegacy:marisa/visit_kourindou/wander",
+  "text": "gensokyolegacy/marisa/visit_kourindou/starter/wander",
+  "weight": 30
+}

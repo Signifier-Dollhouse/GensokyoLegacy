@@ -1,0 +1,11 @@
+{
+  "options": [
+    {
+      "type": "gensokyolegacy:simple",
+      "actions": [],
+      "conditions": [],
+      "text": "gensokyolegacy/marisa/visit_kourindou/option/stay/end"
+    }
+  ],
+  "text": "gensokyolegacy/marisa/visit_kourindou/dialog/marisa/visit_kourindou/stay_ans"
+}

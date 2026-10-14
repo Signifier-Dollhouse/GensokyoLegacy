@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "gensokyolegacy:block/magic_potion_bottle",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "gensokyolegacy:block/magic_potion_bottle"
+    },
+    "facing=south": {
+      "model": "gensokyolegacy:block/magic_potion_bottle",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "gensokyolegacy:block/magic_potion_bottle",
+      "y": 270
+    }
+  }
+}

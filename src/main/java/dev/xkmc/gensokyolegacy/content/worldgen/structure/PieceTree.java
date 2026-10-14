@@ -12,10 +12,9 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Layout topology of one speculative jigsaw placement: parent links
- * recovered from junctions, rigid groups (pieces linked by rigid-only
- * paths, sharing the entry piece as reference) and connected non-rigid
- * subgraphs for joint checks. Pure layout, no world access.
+ * Layout topology of one speculative jigsaw placement: parent links recovered from junctions, rigid groups (pieces
+ * linked by rigid-only paths, sharing the entry piece as reference) and connected non-rigid subgraphs for joint checks.
+ * Pure layout, no world access.
  */
 public class PieceTree {
 
@@ -186,10 +185,8 @@ public class PieceTree {
 	}
 
 	/**
-	 * Recovers jigsaw parent links from junctions. A child's parent-link
-	 * junction source (the parent jigsaw cell) lies inside the parent box
-	 * but outside the child's own box; the smallest earlier box containing
-	 * such a source wins. Falls back to the start piece.
+	 * Recovers jigsaw parent links from junctions: a child's junction source lies inside the parent box but outside the
+	 * child's own, and the smallest earlier box containing such a source wins. Falls back to the start piece.
 	 */
 	private static int[] inferParents(List<PoolElementStructurePiece> pieces) {
 		int n = pieces.size();

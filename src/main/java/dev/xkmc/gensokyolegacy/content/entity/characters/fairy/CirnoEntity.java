@@ -6,7 +6,7 @@ import dev.xkmc.gensokyolegacy.content.entity.behavior.combat.YoukaiCombatManage
 import dev.xkmc.gensokyolegacy.content.entity.behavior.sensor.NearbyItemsSensor;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.sensor.YoukaiFindPreySensor;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.sensor.YoukaiHomeBlocksSensor;
-import dev.xkmc.gensokyolegacy.content.entity.behavior.task.combat.YoukaiSearchTargetTask;
+import dev.xkmc.gensokyolegacy.content.entity.behavior.task.core.YoukaiAcquireTargetTask;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.task.home.YoukaiCraftTask;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.task.play.ItemPickupTask;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.task.play.YoukaiHuntTask;
@@ -28,8 +28,8 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.ai.behavior.FollowTemptation;
-import net.minecraft.world.entity.ai.sensing.TemptingSensor;
+import net.minecraft.world.entity.ai.behavior.CountDownCooldownTicks;
+import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.schedule.Activity;
 import net.minecraft.world.item.ItemStack;
@@ -46,18 +46,32 @@ import java.util.Optional;
 public class CirnoEntity extends FairyEntity implements GeoYoukaiAnim {
 
 	protected static final RawAnimation IDLE = RawAnimation.begin().thenLoop("待机");
-	protected static final RawAnimation WALK = RawAnimation.begin().thenLoop("走路");
 	protected static final RawAnimation SIT = RawAnimation.begin().thenLoop("坐下");
 	protected static final RawAnimation SLEEP = RawAnimation.begin().thenLoop("睡觉");
-	/** Her hovering loop, which is what an airborne fairy wants instead of standing. */
+	/**
+	 * Her hovering loop, which is what an airborne fairy wants instead of standing.
+	 * <p>
+	 * It cannot stay a missing name: GeckoLib resolves an unknown clip to {@code null},
+	 * {@code buildAnimationQueue} hands the controller an empty queue, and the next
+	 * {@code process()} tick stops writing any bones, pinning her frozen mid-hover for
+	 * the whole walk. Point the {@code isMoving} branch below back at a {@code WALK}
+	 * constant once the clip is exported from Blockbench.
+	 */
 	private static final RawAnimation FLOAT = RawAnimation.begin().thenLoop("漂浮");
 	private static final RawAnimation USE_MAINHAND = RawAnimation.begin().thenPlay("使用主手物品");
-	private static final RawAnimation GREET = RawAnimation.begin().thenPlay("招呼(性格外向）");
+	private static final RawAnimation GREET = RawAnimation.begin().thenPlay("招呼");
 	private static final RawAnimation TALK_01 = RawAnimation.begin().thenPlay("交流_01");
 	private static final RawAnimation TALK_02 = RawAnimation.begin().thenPlay("交流_02");
 	private static final RawAnimation TALK_03 = RawAnimation.begin().thenPlay("交流_03");
+	private static final RawAnimation TALK_04 = RawAnimation.begin().thenPlay("交流_04");
+	private static final RawAnimation TALK_05 = RawAnimation.begin().thenPlay("交流_05");
+	private static final RawAnimation THINK = RawAnimation.begin().thenPlay("思考中_01");
+	private static final RawAnimation THINK_02 = RawAnimation.begin().thenPlay("思考中_02");
+	private static final RawAnimation CONFUSED = RawAnimation.begin().thenPlay("疑惑");
 	private static final RawAnimation AGREE = RawAnimation.begin().thenPlay("肯定");
 	private static final RawAnimation DECLINE = RawAnimation.begin().thenPlay("拒绝");
+	/** The idle flourish the current export added as {@code 闲置动画}. */
+	private static final RawAnimation IDLE_FIDGET = RawAnimation.begin().thenPlay("闲置动画");
 
 	/** Her own entity data, over the generic youkai/spell-data layers. */
 	protected static final SyncedData CIRNO_DATA = new SyncedData(CirnoEntity::defineId, SPELL_DATA);
@@ -94,9 +108,8 @@ public class CirnoEntity extends FairyEntity implements GeoYoukaiAnim {
 
 	/**
 	 * Whether she wears the sun-tanned sheet instead of the pale one. Cosmetics only:
-	 * nothing reads it but {@link CirnoModel#getTextureResource}, so the variant
-	 * changes no stats and no behavior. Synced and NBT-backed through
-	 * {@link #CIRNO_DATA}, like the rest of her entity data.
+	 * nothing reads it but {@link CirnoModel#getTextureResource}. Synced and NBT-backed
+	 * through {@link #CIRNO_DATA}, like the rest of her entity data.
 	 */
 	public boolean isTanned() {
 		return entityData.get(DATA_TANNED) != 0;
@@ -108,9 +121,8 @@ public class CirnoEntity extends FairyEntity implements GeoYoukaiAnim {
 
 	/**
 	 * Right-clicking her with a sunflower tans her. One-way and free: the sunflower is
-	 * a trigger, not an ingredient, and nothing is consumed or offered back. Hooked on
-	 * {@code mobInteract}, which is the mob-interaction slot vanilla leaves open —
-	 * {@code Mob#interact} is final and spends itself on name tags and spawn eggs.
+	 * a trigger, not an ingredient. Hooked on {@code mobInteract}, the slot vanilla leaves
+	 * open — {@code Mob#interact} is final and spends itself on name tags and spawn eggs.
 	 */
 	@Override
 	protected InteractionResult mobInteract(Player player, InteractionHand hand) {
@@ -130,36 +142,56 @@ public class CirnoEntity extends FairyEntity implements GeoYoukaiAnim {
 	protected List<AbstractYoukaiModule> createModules() {
 		return List.of(
 				new HomeModule(this),
-				new FeedModule(this),
-				new TalkModule(this),
+				new VisitModule(this),
+				new CirnoFeedModule(this),
+				new PartyModule(this),
 				new CountPickupModule(this, e -> e.getItem() instanceof FrozenFrogItem)
 		);
+	}
+
+	/**
+	 * Her interaction page. Stated on the entity rather than on the module, so {@code GLEntities}
+	 * can say which character answers a hand-out without knowing which module does it.
+	 */
+	public static List<EntityInteraction> interactions() {
+		return CirnoFeedModule.interactions();
 	}
 
 	@Override
 	protected void constructTaskBoard(TaskBoard board) {
 		super.constructTaskBoard(board);
-		board.addExclusive(50, new FollowTemptation(e -> 1f), Activity.IDLE, Activity.PLAY, GLBrains.AT_HOME.get());
+		board.addExclusive(50, new FairyFollowTask(), Activity.IDLE, Activity.PLAY, GLBrains.AT_HOME.get());
 		board.addExclusive(200, new ItemPickupTask(), Activity.IDLE, Activity.PLAY);
 		board.addExclusive(250, new YoukaiHuntTask(6), GLBrains.HUNT.get());
 
 		board.addRandom(new YoukaiCraftTask<>(this::doCraft, 60, 12000), GLBrains.AT_HOME.get());
 		board.addSensor(new YoukaiHomeBlocksSensor<>(HomeBlockKind.CONTAINER));
 
-		board.addBehaviorActivity(YoukaiSearchTargetTask.class, GLBrains.HUNT.get());
-
-		//TODO cirno food
-		board.addSensor(new TemptingSensor(stack -> stack.is(Items.CAKE)));
+		board.addAlways(new FairyFeedTask(), GLBrains.FEAST.get());
+		board.addPrioritizedActivity(GLBrains.FEAST.get(), GLBrains.MEM_FEED.get(), 200);
+		board.addAlways(new CountDownCooldownTicks(MemoryModuleType.TEMPTATION_COOLDOWN_TICKS), Activity.CORE);
+		board.addSensor(new FairyInterestSensor());
 
 		board.addSensor(new NearbyItemsSensor<CirnoEntity>().setRadius(18, 6).setScanRate(e -> e.playOrHunt() ? 20 : 60));
 		board.addSensor(new YoukaiFindPreySensor<>(CirnoEntity::playOrHunt));
 
-		board.addPrioritizedActivity(GLBrains.HUNT.get(), GLBrains.MEM_PREY.get(), 200);
+		// 700: the lowest rung on GLBrains' priority scale, so a hunt is the least
+		// that can be talked out of.
+		board.addPrioritizedActivity(GLBrains.HUNT.get(), GLBrains.MEM_PREY.get(), 700);
 	}
 
 	private boolean playOrHunt() {
 		var a = getActivity();
 		return a == Activity.PLAY || a == GLBrains.HUNT.get();
+	}
+
+	/**
+	 * A hunt is her chasing the prey the sensor found, which is not in the target
+	 * container - so that activity has to be allowed to look around for one, as play is.
+	 */
+	@Override
+	public boolean shouldSearchTarget(Activity activity) {
+		return super.shouldSearchTarget(activity) || activity == GLBrains.HUNT.get();
 	}
 
 	private ItemStack doCraft(boolean simulate) {
@@ -182,10 +214,7 @@ public class CirnoEntity extends FairyEntity implements GeoYoukaiAnim {
 
 	// ---------- geckolib ----------
 
-	protected <E extends CirnoEntity> PlayState idleAnimController(final AnimationState<E> event) {
-		if (event.getController().isPlayingTriggeredAnimation()) {
-			return PlayState.CONTINUE;
-		}
+	public PlayState stateAnimController(AnimationState<?> event) {
 		if (isSleeping()) {
 			return event.setAndContinue(SLEEP);
 		}
@@ -196,7 +225,7 @@ public class CirnoEntity extends FairyEntity implements GeoYoukaiAnim {
 			return event.setAndContinue(FLOAT);
 		}
 		if (event.isMoving()) {
-			return event.setAndContinue(WALK);
+			return event.setAndContinue(FLOAT);
 		}
 		return event.setAndContinue(IDLE);
 	}
@@ -209,23 +238,20 @@ public class CirnoEntity extends FairyEntity implements GeoYoukaiAnim {
 			case TALK_01 -> Optional.of(TALK_01);
 			case TALK_02 -> Optional.of(TALK_02);
 			case TALK_03 -> Optional.of(TALK_03);
-			// this rig has no thinking clip; 疑惑（baka专属）is a baffled head tilt,
-			// not a thinking beat, so the slot stays empty
-			case THINK -> Optional.empty();
+			case TALK_04 -> Optional.of(TALK_04);
+			case TALK_05 -> Optional.of(TALK_05);
+			// this rig had no thinking clip until the current export, which added the
+			// 思考中 pair along with a plain 疑惑 to replace the old baffled 疑惑（baka专属）
+			case THINK -> Optional.of(THINK);
+			case THINK_02 -> Optional.of(THINK_02);
+			case CONFUSED -> Optional.of(CONFUSED);
 			case AGREE -> Optional.of(AGREE);
 			case DECLINE -> Optional.of(DECLINE);
-			case OUTDOOR_IDLE -> Optional.empty();
+			case EAT -> Optional.of(EAT);
+			case HURT -> Optional.of(HURT);
+			case OUTDOOR_IDLE -> Optional.of(IDLE_FIDGET);
+			default -> Optional.empty();
 		};
-	}
-
-	@Override
-	public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-		// Wink first: controllers tick in registration order and overwrite shared
-		// bones, so the always-looping blink yields to the main controller.
-		controllers.add(new AnimationController<>(this, WINK_CONTROLLER, 0, e -> e.setAndContinue(BLINK)));
-		var main = new AnimationController<>(this, ANIM_CONTROLLER, 5, this::idleAnimController);
-		addDialogAnims(main);
-		controllers.add(main);
 	}
 
 	@Override

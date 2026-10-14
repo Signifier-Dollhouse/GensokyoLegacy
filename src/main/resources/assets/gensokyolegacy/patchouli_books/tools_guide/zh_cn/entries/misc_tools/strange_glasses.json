@@ -1,0 +1,19 @@
+{
+  "name": "奇怪的眼镜",
+  "icon": "gensokyolegacy:strange_glasses",
+  "category": "gensokyolegacy:misc_tools",
+  "advancement": "gensokyolegacy:main/obtain_strange_glasses",
+  "sortnum": 5,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "gensokyolegacy:strange_glasses",
+      "title": "借来的眼睛",
+      "text": "戴着它时，你周围的所有实体都会出现穿墙的发光轮廓。"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)电竞天才$()$(br2)这副眼镜不提供任何属性加成。它唯一的作用就是让所有实体发光，附近所有封印壶的结界也会一并显现。"
+    }
+  ]
+}

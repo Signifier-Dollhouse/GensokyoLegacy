@@ -1,0 +1,18 @@
+{
+  "values": [
+    "minecraft:bookshelf",
+    "minecraft:lantern",
+    "minecraft:campfire",
+    "gensokyolegacy:book_shelf",
+    "gensokyolegacy:door_cabinet",
+    "gensokyolegacy:drawer_cabinet",
+    {
+      "id": "gensokyolegacy:dark_oak_large_table",
+      "required": false
+    },
+    {
+      "id": "gensokyolegacy:candlestick",
+      "required": false
+    }
+  ]
+}

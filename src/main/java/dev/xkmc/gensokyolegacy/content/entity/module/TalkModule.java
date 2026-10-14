@@ -4,6 +4,7 @@ import dev.xkmc.gensokyolegacy.content.attachment.character.ReputationState;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.ui.dialog.DialogSession;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
+import dev.xkmc.gensokyolegacy.init.registrate.GLBrains;
 import dev.xkmc.l2serial.serialization.marker.SerialClass;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -21,9 +22,8 @@ public class TalkModule extends AbstractYoukaiModule {
 	private ServerPlayer talkTarget;
 
 	/**
-	 * The conversation step this player is currently looking at, if it is a
-	 * dialog. Cleared as soon as the client drops the screen; whether the
-	 * character keeps talking is decided by {@link #tickServer()}, which also
+	 * The conversation step this player is looking at, if it is a dialog. Cleared as soon as the client
+	 * drops the screen; whether the character keeps talking is decided by {@link #tickServer()}, which also
 	 * accepts a container menu - the trade screen - as a stand-in.
 	 */
 	private @Nullable DialogSession session;
@@ -34,7 +34,7 @@ public class TalkModule extends AbstractYoukaiModule {
 
 	@Override
 	public InteractionResult interact(Player player, InteractionHand hand) {
-		if (!self.mayInteract(player)) return InteractionResult.PASS;
+		if (!self.mayInteract(player, GLBrains.TALK.get())) return InteractionResult.PASS;
 		if (self.getReputation(player) == ReputationState.ENEMY) return InteractionResult.PASS;
 		ItemStack stack = player.getItemInHand(hand);
 		if (!stack.isEmpty()) return InteractionResult.PASS;
@@ -64,12 +64,14 @@ public class TalkModule extends AbstractYoukaiModule {
 	}
 
 	/**
-	 * Begin a conversation with a player, opening the topic list. Every path
-	 * that starts one goes through here - talking, feeding, gifting - so this
-	 * module stays the single record of who the character is talking to.
+	 * Begin a conversation, opening the topic list. Every path that starts one goes through here - talking,
+	 * feeding, gifting - so this module stays the single record of who the character is talking to.
 	 */
 	public void beginTalking(ServerPlayer player) {
 		if (talkTarget != null) return;
+		// A visitor's window can close mid-conversation; the hold buys her enough
+		// time to finish handing something over or close a trade.
+		self.getModule(VisitModule.class).ifPresent(e -> e.hold(VisitModule.TALK_HOLD));
 		talkTarget = player;
 		self.setTalkTo(player, -1);
 	}
@@ -89,9 +91,8 @@ public class TalkModule extends AbstractYoukaiModule {
 	}
 
 	/**
-	 * Make a session the conversation's UI, replacing whatever dialog was on
-	 * screen. Refuses players that are not the one talking, so a callback that
-	 * arrives after the conversation ended cannot restart it.
+	 * Make a session the conversation's UI, replacing whatever dialog was on screen. Refuses other
+	 * players, so a callback arriving after the conversation ended cannot restart it.
 	 */
 	public boolean setSession(DialogSession session) {
 		if (session.player != talkTarget) return false;
@@ -108,10 +109,8 @@ public class TalkModule extends AbstractYoukaiModule {
 	}
 
 	/**
-	 * The live session a client packet refers to, or null when it is stale.
-	 * Client packets name the session they were sent for, so a click or a close
-	 * that raced a screen switch is dropped rather than applied to whatever
-	 * dialog is current now.
+	 * The live session a client packet refers to, or null when it is stale: packets name the session they
+	 * were sent for, so a click that raced a screen switch is dropped rather than applied to the current one.
 	 */
 	public @Nullable DialogSession session(Player player, int session) {
 		if (this.session == null) return null;

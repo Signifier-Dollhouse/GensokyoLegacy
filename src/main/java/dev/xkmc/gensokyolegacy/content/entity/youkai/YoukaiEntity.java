@@ -14,6 +14,7 @@ import dev.xkmc.gensokyolegacy.content.block.deco.bed.YoukaiBedBlock;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.combat.*;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.move.YoukaiNavigationControl;
 import dev.xkmc.gensokyolegacy.content.entity.foundation.DamageClampEntity;
+import dev.xkmc.gensokyolegacy.content.entity.foundation.IDimensionBoundEntity;
 import dev.xkmc.gensokyolegacy.content.entity.foundation.ISleepOffsetEntity;
 import dev.xkmc.gensokyolegacy.content.entity.module.*;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
@@ -45,6 +46,7 @@ import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.schedule.Activity;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -58,7 +60,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 @SerialClass
-public abstract class YoukaiEntity extends DamageClampEntity implements SpellCircleHolder, IYoukaiEntity, ISleepOffsetEntity {
+public abstract class YoukaiEntity extends DamageClampEntity implements SpellCircleHolder, IYoukaiEntity, ISleepOffsetEntity, IDimensionBoundEntity {
 
 	private static <T> EntityDataAccessor<T> defineId(EntityDataSerializer<T> ser) {
 		return SynchedEntityData.defineId(YoukaiEntity.class, ser);
@@ -177,13 +179,17 @@ public abstract class YoukaiEntity extends DamageClampEntity implements SpellCir
 		return (this.entityData.get(DATA_FLAGS_ID) & flag) != 0;
 	}
 
+	/**
+	 * The bitfield is an {@code int} and has to stay one: these used to be cast to {@code byte}, silently
+	 * dropping any flag past the eighth bit, which made the ninth flag and every one after it unsettable.
+	 */
 	public void setFlag(YoukaiFlags val, boolean enable) {
 		int b0 = this.entityData.get(DATA_FLAGS_ID);
 		int flag = 1 << val.ordinal();
 		if (enable) {
-			b0 = (byte) (b0 | flag);
+			b0 |= flag;
 		} else {
-			b0 = (byte) (b0 & (-1 - flag));
+			b0 &= -1 - flag;
 		}
 		this.entityData.set(DATA_FLAGS_ID, b0);
 	}
@@ -201,9 +207,8 @@ public abstract class YoukaiEntity extends DamageClampEntity implements SpellCir
 		tickTargeting();
 		tickSpell();
 		if (isSleeping()) {
-			// Sleep freeze: no brain behavior may move the entity while it sleeps,
-			// so drop any stale navigation / control orders and kill momentum.
-			// (travel/push overrides below enforce the same freeze client-side.)
+			// Sleep freeze: no brain behavior may move the entity while it sleeps, so drop any stale
+			// navigation / control orders and kill momentum (travel/push enforce the same freeze).
 			getNavigation().stop();
 			navCtrl.stopMoving();
 			setDeltaMovement(Vec3.ZERO);
@@ -222,8 +227,40 @@ public abstract class YoukaiEntity extends DamageClampEntity implements SpellCir
 	}
 
 	protected List<AbstractYoukaiModule> createModules() {
-		return List.of(new HomeModule(this), //new GiftModule(this), new FeedModule(this),
-				new TalkModule(this));
+		return List.of(new HomeModule(this), new VisitModule(this), new PartyModule(this),
+				new GiftModule(this), new TalkModule(this));
+	}
+
+	/**
+	 * Whether this character is visiting someone else's home. A visitor has no {@link HomeModule} binding,
+	 * so it can neither sleep nor claim a bed, and the quest/dialog layer treats it as a guest.
+	 */
+	public boolean isVisiting() {
+		return getFlag(YoukaiFlags.VISITING);
+	}
+
+	/**
+	 * Whether this character is a guest at somebody's party. Like a visitor she has
+	 * no {@link HomeModule} binding, and the quest/dialog layer treats her as a guest.
+	 */
+	public boolean isPartying() {
+		return getFlag(YoukaiFlags.PARTYING);
+	}
+
+	/**
+	 * Ticks between two hurt reactions. Danmaku lands every few ticks and a flinch restarted on each one
+	 * reads as a stutter rather than a hit; the clip itself is half a second long, which sets the number.
+	 */
+	private static final int HURT_ANIM_COOLDOWN = 10;
+
+	private int lastHurtAnim = -HURT_ANIM_COOLDOWN;
+
+	@Override
+	protected void postHurt(DamageSource source) {
+		super.postHurt(source);
+		if (tickCount - lastHurtAnim < HURT_ANIM_COOLDOWN) return;
+		lastHurtAnim = tickCount;
+		YoukaiAnim.HURT.play(this);
 	}
 
 	@Override
@@ -315,7 +352,7 @@ public abstract class YoukaiEntity extends DamageClampEntity implements SpellCir
 		holder.ifPresent(e -> e.onHurt(source, amount));
 		if (!level().isClientSide()) {
 			holder.ifPresent(e -> {
-				if (e.data().reputation < ReputationConstants.DISCARD_REP_THRESHOLD &&
+				if (vanishOnDislike() && e.data().reputation < ReputationConstants.DISCARD_REP_THRESHOLD &&
 						e.player() instanceof ServerPlayer sp) {
 					sp.displayClientMessage(GLLang.Info.YOUKAI_AVOID.get(getDisplayName()), false);
 					discard();
@@ -323,6 +360,17 @@ public abstract class YoukaiEntity extends DamageClampEntity implements SpellCir
 			});
 		}
 		super.actuallyHurt(source, amount);
+	}
+
+	/**
+	 * Whether losing the last of a player's favour makes this character give up and disappear, the
+	 * {@code avoid} reaction of a youkai that will not share a world with whoever mistreated her.
+	 * <p>
+	 * A character whose answer to a beating is to run turns this off: the threshold would otherwise delete her
+	 * on the very tick the flee begins. The reputation cost still stands, so she ends up stranger-or-worse.
+	 */
+	public boolean vanishOnDislike() {
+		return true;
 	}
 
 	@Override
@@ -381,17 +429,6 @@ public abstract class YoukaiEntity extends DamageClampEntity implements SpellCir
 		}
 		if (noTargetTime > 40) {
 			bossEvent.setVisible(false);
-		}
-		if (noTargetTime > 100 && tickCount % 20 == 0) {
-			var e = level().getNearestPlayer(this, 32);
-			if (e == null || e.isSpectator()) {
-				noPlayerTime++;
-				int time = getFeatures().noPlayerDiscardTime();
-				if (time > 0 && noPlayerTime > time) {
-					discard();
-				}
-				return;
-			}
 		}
 		noPlayerTime = 0;
 	}
@@ -494,9 +531,8 @@ public abstract class YoukaiEntity extends DamageClampEntity implements SpellCir
 		if (this.isPassenger()) {
 			this.stopRiding();
 		}
-		// Sleep entry cancels all motion at the source: the bed-approach walk/fly
-		// orders must not outlive sleep onset, and stale flight state (noGravity,
-		// FLYING flag) must not carry into the sleeping pose / animation.
+		// Sleep entry cancels all motion at the source: bed-approach walk/fly orders must not outlive
+		// sleep onset, and stale flight state (noGravity, FLYING flag) must not carry into the pose.
 		this.getNavigation().stop();
 		this.navCtrl.stopMoving();
 		this.navCtrl.setWalking();
@@ -517,6 +553,19 @@ public abstract class YoukaiEntity extends DamageClampEntity implements SpellCir
 
 	public boolean mayInteract(Player player) {
 		return !isHostileTo(player) && getModule(TalkModule.class).map(e -> !e.isTalking()).orElse(true);
+	}
+
+	/**
+	 * Whether an interaction belonging to {@code activity} may happen now.
+	 * <p>
+	 * The one-argument form is the blanket gate - hostile, or already mid-conversation. This adds the urgency
+	 * question: being fed or talked to should not pull her out of a fight or a panic, and equally should not
+	 * happen while she is already doing the thing asked for. The base class has no priority scale and defers.
+	 *
+	 * @see SmartYoukaiEntity#mayInteract(Player, Activity)
+	 */
+	public boolean mayInteract(Player player, Activity activity) {
+		return mayInteract(player);
 	}
 
 	public ReputationState getReputation(LivingEntity le) {
@@ -546,7 +595,33 @@ public abstract class YoukaiEntity extends DamageClampEntity implements SpellCir
 		super.push(entity);
 	}
 
+	// A character is anchored to the home or visit site its index entry names, which names one level;
+	// a portal would drop it where the index does not describe it, so both gates refuse.
+
+	@Override
+	public boolean canUsePortal(boolean allowPassengers) {
+		return false;
+	}
+
+	@Override
+	public boolean canChangeDimensions(Level oldLevel, Level newLevel) {
+		return false;
+	}
+
 	public boolean mayFly() {
+		return true;
+	}
+
+	/**
+	 * Whether she ever settles onto the ground. A hovering character has no walkable start node - a walk node
+	 * wants solid ground under the feet and hers is a block of air - so landing her would leave her unable to
+	 * path anywhere, and she would have to climb again next tick.
+	 */
+	public boolean mayLand() {
+		return true;
+	}
+
+	public boolean vanishOutOfSight() {
 		return true;
 	}
 

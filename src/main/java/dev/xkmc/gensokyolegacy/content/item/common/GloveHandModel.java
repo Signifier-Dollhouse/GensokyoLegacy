@@ -9,23 +9,15 @@ import net.neoforged.neoforge.client.model.generators.ModelFile;
 import net.neoforged.neoforge.client.model.generators.loaders.SeparateTransformsModelBuilder;
 
 /**
- * The held-hand wiring both gloves share: a modelled hand while held, a flat sprite everywhere
- * else.
+ * The held-hand wiring both gloves share: a modelled hand while held, a flat sprite everywhere else.
+ * Each glove supplies its own hand model and skin; this builds the {@code neoforge:separate_transforms}
+ * model around one - the flat sprite as the base, the four hand displays pointing at the glove's hand
+ * model - and holds no model of its own.
  *
- * <p>The two gloves have their <em>own</em> hand models — {@code models/custom/doll_glove_hand.json}
- * and {@code models/custom/dagger_glove_hand.json}, each exported from Blockbench — so this owns no
- * model of its own. What they do share is the shape of the item model built around one: a
- * {@code neoforge:separate_transforms} model whose base is the flat sprite (gui, selector wheel,
- * attack sidebar) and whose four hand displays point at the glove's hand model. The caller supplies
- * both that model and the skin to override its {@code #0}.
+ * <p>Vanilla replaces the <em>whole</em> item model when an override predicate matches, so per-mode
+ * overrides are separate-transforms models too: a flat override would drop the hand while in hand.
  *
- * <p>This sits in its own package beside {@code content/item/targeting/} — the other thing the two
- * gloves share — rather than in {@code content/item/glove/}, which is the doll glove's alone
- * (dagger_glove.md §9).
- *
- * <p>Vanilla replaces the <em>whole</em> item model when an override predicate matches, so a glove's
- * per-mode overrides are separate-transforms models too - a flat override would silently drop the
- * hand while in hand.
+ * @see "doc/design/dagger_glove.md"
  */
 public class GloveHandModel {
 
@@ -38,9 +30,8 @@ public class GloveHandModel {
 			ItemDisplayContext.FIRST_PERSON_LEFT_HAND, ItemDisplayContext.FIRST_PERSON_RIGHT_HAND
 	};
 
-	/**
-	 * Turns {@code builder} into a glove's separate-transforms model: {@code flat} as the base
-	 * sprite, {@code handModel} skinned with {@code hand} on all four hand displays.
+	/** Turns {@code builder} into a glove's separate-transforms model: {@code flat} as the base sprite and
+	 * {@code handModel} skinned with {@code hand} on all four hand displays.
 	 *
 	 * @param flat      the glove's flat sprite, for every context that is not a hand
 	 * @param handModel the glove's own Blockbench hand model, under {@code models/custom}
@@ -48,9 +39,8 @@ public class GloveHandModel {
 	 */
 	public static void perspectives(ItemModelBuilder builder, RegistrateItemModelProvider pvd,
 			ResourceLocation flat, ResourceLocation handModel, ResourceLocation hand) {
-		// one nested builder reused across all four perspectives: the datagen serialises
-		// each perspective in place rather than writing it out, so the four entries come
-		// out identical and nothing is emitted twice
+		// one nested builder reused across all four perspectives: datagen serialises each in place
+		// rather than writing it out, so the four entries come out identical and nothing is emitted twice
 		var modelled = pvd.nested()
 				.parent(new ModelFile.UncheckedModelFile(handModel))
 				.texture("0", hand);

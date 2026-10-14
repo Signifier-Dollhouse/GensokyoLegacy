@@ -7,6 +7,8 @@ import dev.xkmc.gensokyolegacy.content.entity.dolls.action.DollActionType;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.behavior.DollBehaviorRegistry.HandMatch;
 import dev.xkmc.gensokyolegacy.content.item.doll.DollLanceItem;
 import dev.xkmc.gensokyolegacy.content.item.doll.DollSlot;
+import dev.xkmc.gensokyolegacy.init.registrate.GLParticles;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
@@ -18,36 +20,9 @@ import net.minecraft.world.phys.Vec3;
 import java.util.Optional;
 
 /**
- * Regular attack, melee variant: charge the target at twice the movement cap, cut
- * the swing on contact, recoil off it, hold the spot for {@link #HOLD_TICKS} ticks,
- * then fly back to where the charge began.
- * {@link DollLanceItem} ({@code DollBehaviors}) — and, when the doll holds nothing
- * that can attack at all and one hand is free, the same charge bare-handed, with
- * {@code toy_slapattack} instead of the lance clip.
- * <p>
- * The bare hand comes for free from the registry's fallback
- * ({@link DollBehaviorRegistry#registerBareHand}) naming the <b>empty</b> hand, so
- * the sticky swap at {@link #strike} moves whatever sat in the main hand across to
- * the off hand and frees the striking one. Damage falls out of that for free too:
- * {@link #meleeDamage} folds in the main hand's weapon modifiers, and an empty main
- * hand has none, so a slap is the doll's own base {@link Attributes#ATTACK_DAMAGE}
- * — a charge that finally answers the weapon it was swinging.
- * <p>
- * The ticket leaves <b>on impact</b> — that is the point of charging inside a
- * volley: {@code complete()} hands the attack to the next doll while this one is
- * already sitting on its target. The behavior outlives its ticket through
- * {@link #selfDriven} — the hold always runs out, and the flight is released once
- * the doll is at least half way back, or {@link #RETURN_TICKS} runs out for a
- * return stalled against a wall — after which follow takes the doll over again.
- * <p>
- * The charge and the return are plain velocity rather than a path: a charge has to
- * be a straight lunge, not a detour, and it has to outrun
- * {@link BaseDollEntity#MAX_SPEED}, so the behavior raises the movement cap for
- * the charge and drops it back the moment the swing lands ({@link #stop} is the
- * backstop). The charge is exempt from the owner leash for its length — it is
- * a bounded dash that ends back on the exact spot it left, so {@link #CHARGE_REACH}
- * is what bounds it instead, and what stops a target from dragging a doll across a
- * field it was never meant to leave.
+ * Melee regular attack: charge at twice the movement cap, swing on contact, recoil, hold, fly home. Bare hands use
+ * toy_slapattack. The ticket releases on impact, so the tail runs through {@link #selfDriven}. Charge is plain
+ * velocity, not a path, so it lifts the speed cap and is leash-exempt, bounded by {@link #CHARGE_REACH} instead.
  */
 public class DollMeleeBehavior extends DollBehavior {
 
@@ -57,13 +32,8 @@ public class DollMeleeBehavior extends DollBehavior {
 	/** Contact range that lands the swing (bounding-box distance). */
 	private static final double MELEE_RANGE = 2.5;
 
-	/**
-	 * How far the charge may carry the doll from where it began — the charge's own
-	 * leash, standing in for the owner ring while it lasts (§5). Generous enough that
-	 * every target the engage range admits can still be reached (16 + contact), and
-	 * tight enough that a charging doll is never further than this plus its formation
-	 * radius from its owner: 26 blocks, against a 48-block ledger pullback.
-	 */
+	/** The charge's own leash, standing in for the owner ring while it lasts: past everything the engage range admits
+	 * (16 + contact) and under the 48-block ledger pullback once the formation radius is added. */
 	private static final double CHARGE_REACH = 20.0;
 
 	/** Charge speed: twice the movement cap, which the charge raises to match. */
@@ -80,11 +50,7 @@ public class DollMeleeBehavior extends DollBehavior {
 
 	private static final int COOLDOWN_TICKS = 20;
 
-	/**
-	 * Charge budget, and the backstop for a target the doll can never actually catch
-	 * — one circling inside {@link #CHARGE_REACH}, say. A plain run away is caught by
-	 * the reach first.
-	 */
+	/** Charge budget, and the backstop for a target circling inside {@link #CHARGE_REACH} that can never be caught. */
 	private static final int CHARGE_TICKS = 40;
 
 	/**
@@ -94,12 +60,9 @@ public class DollMeleeBehavior extends DollBehavior {
 	private static final int STALL_TICKS = 10;
 
 	/**
-	 * Ticks the doll hangs on the spot the swing landed on before it turns for
-	 * home. The lunge ends on contact, so without a beat here the doll snaps
-	 * straight from "in the target's face" to "flying away" and the swing never
-	 * reads; the hold is what makes the strike land as a hit rather than a pass-by.
-	 * Fixed rather than budgeted — it ends on its own, so it cannot strand a doll
-	 * the way a stalled return would.
+	 * Hang on the spot the swing landed on before turning for home; without the beat the doll snaps from "in the
+	 * target's face" straight to "flying away" and the swing never reads. Fixed, not budgeted, so it cannot strand a
+	 * doll.
 	 */
 	private static final int HOLD_TICKS = 6;
 
@@ -140,9 +103,8 @@ public class DollMeleeBehavior extends DollBehavior {
 	public boolean canContinueToUse(DollEntity doll) {
 		DollAction action = current(doll);
 		if (action == null) return false;
-		// A ticket that showed up after the swing preempts the tail: neither the
-		// hold nor the flight home ever outlives an order, so the goal re-evaluates
-		// and this one steps aside.
+		// a ticket that showed up after the swing preempts the tail: neither the hold
+		// nor the flight home ever outlives an order
 		if (phase != CHARGE) return false;
 		LivingEntity target = resolveTarget(doll, action);
 		return target != null && hand(doll).isPresent();
@@ -156,13 +118,8 @@ public class DollMeleeBehavior extends DollBehavior {
 		return ticks < RETURN_TICKS && doll.position().distanceToSqr(home) > halfLeg * halfLeg;
 	}
 
-	/**
-	 * A charge has to begin from inside {@link #ENGAGE_RANGE}, and a doll standing
-	 * in formation does not close that gap by waiting — so a target past it is one
-	 * this doll can never go and get. That is why the wait gives the ticket up at
-	 * once instead of sitting on it (the delegating goal asks this), and why a
-	 * volley at such a target is reported as too far rather than ordered at all.
-	 */
+	/** Waiting in formation never closes the gap to {@link #ENGAGE_RANGE}, so a target past it is one this doll can
+	 * never go and get: the wait gives the ticket up at once instead of sitting on it. */
 	@Override
 	public boolean canReach(DollEntity doll, LivingEntity target) {
 		return inRange(doll, target, ENGAGE_RANGE);
@@ -213,9 +170,8 @@ public class DollMeleeBehavior extends DollBehavior {
 			strike(doll, target, toTarget);
 			return;
 		}
-		// Contact first, stall second: a doll that scraped a wall on the way in
-		// still swings when it arrives. A lunge is a straight line, so a wall is a
-		// wall — no extra budget gets past it.
+		// contact first, stall second: a doll that scraped a wall on the way in still
+		// swings when it arrives, and a straight line has no detour to give
 		if (doll.horizontalCollision) {
 			if (++stalled >= STALL_TICKS) abort(doll);
 			return;
@@ -233,14 +189,9 @@ public class DollMeleeBehavior extends DollBehavior {
 	}
 
 	/**
-	 * The contact tick: swing, and hand the attack on. The ticket goes out here so
-	 * the volley moves on while the doll is still flying; the bounce is the charge
-	 * velocity reverted, which is what reads as recoil.
-	 * <p>
-	 * A bare hand arrives here as the registry's fallback naming the empty hand, so
-	 * {@link #ensureMainHand} is what frees the striking hand — it swaps the ledger
-	 * whenever the match is the off hand, which for a slap is exactly the "something
-	 * was in the main hand, move it across" case.
+	 * The contact tick: swing and hand the attack on, the ticket going out so the volley moves on while the doll still
+	 * flies; the bounce is the charge velocity reverted, which reads as recoil. A bare hand arrives here as the
+	 * registry's fallback naming the empty hand, so {@link #ensureMainHand} frees the striking hand.
 	 */
 	private void strike(DollEntity doll, LivingEntity target, Vec3 toTarget) {
 		Optional<HandMatch> match = hand(doll);
@@ -252,7 +203,14 @@ public class DollMeleeBehavior extends DollBehavior {
 		ensureMainHand(doll, match.get());
 		swing(doll, doll.ledgerStack(DollSlot.MAIN_HAND), target, toTarget);
 		if (bareHand) doll.broadcastSlapAnim();
-		else doll.broadcastAttackAnim();
+		else {
+			doll.broadcastAttackAnim();
+			if (doll.level() instanceof ServerLevel level) {
+				// Put the flash on the near side of the target, clear of its model.
+				Vec3 impact = targetCenter(target).subtract(toTarget.normalize().scale(target.getBbWidth() / 2 + 0.1));
+				level.sendParticles(GLParticles.SPEAR.get(), impact.x, impact.y, impact.z, 1, 0, 0, 0, 0);
+			}
+		}
 		doll.actions.stamp(type(), doll.level().getGameTime());
 		doll.actions.complete(doll);
 		beginHold(doll);
@@ -260,9 +218,8 @@ public class DollMeleeBehavior extends DollBehavior {
 	}
 
 	private void swing(DollEntity doll, ItemStack weapon, LivingEntity target, Vec3 toTarget) {
-		// Plain mob_attack; the doll's melee source is turned into a bypass-cooldown
-		// variant in GLAttackListener#onCreateSource, which covers every doll melee
-		// rather than only this behavior.
+		// Plain mob_attack; GLAttackListener#onCreateSource turns it into a bypass-cooldown variant
+		// for every doll melee, not only this behavior.
 		DamageSource source = doll.damageSources().mobAttack(doll);
 		if (!target.hurt(source, meleeDamage(doll, weapon))) return;
 		Vec3 push = new Vec3(toTarget.x, 0, toTarget.z);
@@ -272,25 +229,9 @@ public class DollMeleeBehavior extends DollBehavior {
 	}
 
 	/**
-	 * Melee damage: the doll's own {@link Attributes#ATTACK_DAMAGE} — a real
-	 * attribute instance ({@code createAttributes}), so whatever moves it moves the
-	 * swing — plus the ledger weapon's main-hand modifiers.
-	 * <p>
-	 * That addition is the whole point, and it is what being off-hand equipment costs:
-	 * a lance is <b>not</b> an item in the doll's hand. The loadout is deliberately
-	 * not vanilla equipment (loadout.md §2), so nothing feeds the held stack's
-	 * {@link ItemAttributeModifiers} into the entity's attribute map the way an
-	 * equipped weapon's are, and the attribute alone answers the bare base — the same
-	 * 1 a player swings with — which is a charge that ignores its weapon entirely. So
-	 * the main-hand {@code ATTACK_DAMAGE} entries are folded in at swing time, which
-	 * is vanilla's own base-plus-weapon arithmetic: <b>5</b> for a
-	 * {@link DollLanceItem} (1 + its 4), and the bare <b>1</b> for the bare-handed
-	 * slap, whose empty main hand simply contributes nothing.
-	 * <p>
-	 * Damage only. Attack speed is a doll-side cadence ({@link #COOLDOWN_TICKS}),
-	 * not an attribute read, and enchantments ride the attacker's vanilla held item,
-	 * which a loadout is not — so a Sharpened lance swings for its flat damage, the
-	 * same as a doll's danmaku item does.
+	 * Base {@link Attributes#ATTACK_DAMAGE} plus the ledger weapon's main-hand modifiers — the price of the loadout not
+	 * being vanilla equipment (loadout.md §2): nothing feeds the held stack's {@link ItemAttributeModifiers} into the
+	 * attribute map, so a bare {@link DollLanceItem} swing is 5 (1 + its 4) and an empty-handed slap the bare 1.
 	 */
 	private float meleeDamage(DollEntity doll, ItemStack weapon) {
 		double weaponDamage = weapon.getAttributeModifiers().modifiers().stream()
@@ -308,10 +249,7 @@ public class DollMeleeBehavior extends DollBehavior {
 		beginReturn(doll);
 	}
 
-	/**
-	 * The strike landed: the charge is over, so the doubled cap goes back to the
-	 * ordinary one here rather than at the end of the tail.
-	 */
+	/** The strike landed: the charge is over, so the doubled cap drops back here. */
 	private void beginHold(DollEntity doll) {
 		phase = HOLD;
 		ticks = 0;
@@ -319,11 +257,8 @@ public class DollMeleeBehavior extends DollBehavior {
 	}
 
 	/**
-	 * Park on the spot for {@link #HOLD_TICKS}, facing whatever the body was
-	 * turned onto at impact (the target), then turn for home. Velocity is pinned
-	 * rather than merely not set: the recoil from the swing still has to be eaten
-	 * here, and a doll is no-gravity, so an unpinned tick drifts off the mark the
-	 * strike just made.
+	 * Pin velocity rather than merely not setting it: the swing recoil still has to be eaten and a doll is no-gravity,
+	 * so an unpinned tick drifts off the mark the strike just made.
 	 */
 	private void hold(DollEntity doll) {
 		doll.setDeltaMovement(Vec3.ZERO);

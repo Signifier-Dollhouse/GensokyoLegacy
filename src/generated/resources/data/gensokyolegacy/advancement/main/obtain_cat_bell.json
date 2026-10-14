@@ -1,5 +1,5 @@
 {
-  "parent": "gensokyolegacy:main/enter_morichika_shop",
+  "parent": "gensokyolegacy:main/obtain_strange_glasses",
   "criteria": {
     "0": {
       "conditions": {

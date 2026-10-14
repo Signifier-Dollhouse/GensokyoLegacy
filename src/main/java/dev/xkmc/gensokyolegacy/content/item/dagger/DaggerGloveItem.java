@@ -1,7 +1,9 @@
 package dev.xkmc.gensokyolegacy.content.item.dagger;
 
 import dev.xkmc.danmakuapi.api.IDanmakuEntity;
+import dev.xkmc.gensokyolegacy.content.entity.misc.IronDaggerBulletEntity;
 import dev.xkmc.gensokyolegacy.content.item.common.GloveTargeting;
+import dev.xkmc.gensokyolegacy.content.item.tool.IronDaggerItem;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
@@ -28,32 +30,27 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 /**
- * The <b>Dagger Glove</b>: a three-mode launcher for {@link
- * dev.xkmc.gensokyolegacy.content.item.tool.IronDaggerItem}, so that a stack of daggers can be
+ * The <b>Dagger Glove</b>: a three-mode launcher for {@link IronDaggerItem}, so a stack of daggers can be
  * thrown as a pattern instead of one at a time.
  * <p>
- * The glove owns three decisions that {@link DaggerGloveMode} deliberately leaves to it, because
- * they are the same decision in all three modes and belong in one place:
- * <ul>
- * <li><b>Whether the shot happens at all</b> — {@link DaggerGloveMode#HOMING} needs something
- * under the crosshair, and every mode needs its full dagger count in the holder's inventory. Either
- * check failing spends nothing: no daggers, no cooldown, and a message saying why.</li>
- * <li><b>Where the daggers come from</b> — the holder's whole inventory rather than the held
- * stack, since the glove is the weapon and the daggers are its ammunition.</li>
- * <li><b>How long the shot then takes to come back</b> — {@link #cooldown}, which is where a
- * {@link DaggerGloveRune} adds its price.</li>
- * </ul>
- * All of it is server-side; the client only reports the use and swings. The cooldown is checked
- * here rather than relied upon from the client, because a client will not send the use while it
- * shows the glove as cooling down but nothing stops one from sending it anyway. Glove shots also
- * post no {@code DanmakuUseEvent}: that event prices a danmaku item's own use, and the glove has
- * already priced its shot two ways over — by daggers and by cooldown.
+ * The glove owns the three decisions {@link DaggerGloveMode} leaves to it, being the same in all three
+ * modes: whether the shot happens at all (homing needs a target, every mode its full dagger count, and a
+ * failed check spends nothing), where the daggers come from - the holder's whole inventory - and how long
+ * the shot takes to come back ({@link #cooldown}, where a {@link DaggerGloveRune} adds its price).
+ * <p>
+ * All of it is server-side; the client only reports the use and swings, so the cooldown is re-checked here.
+ *
+ * @see "doc/design/dagger_glove.md"
  */
 public class DaggerGloveItem extends Item implements GloveTargeting {
 
 	/** How far {@link DaggerGloveMode#HOMING} will look for something to home on. */
 	public static final double TARGET_RANGE = 64;
 
+	/**
+	 * How long a traced homing target stays usable: half a second, because a homing shot fires on
+	 * the same click that asks for the target (dagger_glove.md §2d).
+	 */
 	public static final long TARGET_TTL = 60;
 
 	public DaggerGloveItem(Properties props) {
@@ -69,11 +66,9 @@ public class DaggerGloveItem extends Item implements GloveTargeting {
 	}
 
 	/**
-	 * Model-override value for {@code gensokyolegacy:dagger_glove_display}: the held mode's
-	 * ordinal + 1 selects the matching held-texture override, each with its own mitten skin; an
-	 * icon display stack (selector wheel, marked with {@code DAGGER_GLOVE_ICON}) instead uses the
-	 * icon-variant range behind it. Values are emitted ascending, so they match exactly
-	 * (glove.md §3b).
+	 * Model-override value for {@code gensokyolegacy:dagger_glove_display}: the held mode's ordinal + 1 selects
+	 * its held override, each with its own hand skin; an icon stack uses the range behind it. Ascending, so
+	 * the values match exactly (glove.md §3b).
 	 */
 	public static float displayPredicate(ItemStack stack, Level level, LivingEntity entity, int seed) {
 		int ordinal = getMode(stack).ordinal();
@@ -82,8 +77,8 @@ public class DaggerGloveItem extends Item implements GloveTargeting {
 	}
 
 	/**
-	 * The id of the glove's rune, or null when it carries none. This is the form the glove stores
-	 * and hands to a flying dagger; resolve it with {@link DaggerGloveRunes#get}.
+	 * The id of the glove's rune, or null when it carries none — the form the glove stores and
+	 * hands to a flying dagger. Resolve it with {@link DaggerGloveRunes#get}.
 	 */
 	@Nullable
 	public static ResourceLocation getRuneId(ItemStack stack) {
@@ -101,12 +96,8 @@ public class DaggerGloveItem extends Item implements GloveTargeting {
 	}
 
 	/**
-	 * Ticks before this stack can fire again: its mode's own cooldown plus whatever its rune
-	 * charges.
-	 * <p>
-	 * This one line is the whole of the rune system's effect on the glove
-	 * ({@code doc/design/dagger_glove.md} §5): a rune that wanted to be free, or ruinous, only has
-	 * to return a different number from {@link DaggerGloveRune#cooldownCost()}.
+	 * Ticks before this stack can fire again: the mode's own cooldown plus the rune's price. This
+	 * one line is the whole of the rune system's effect on the glove (dagger_glove.md §5).
 	 */
 	public int cooldown(ItemStack stack) {
 		return getMode(stack).cooldown() + getRune(stack).cooldownCost();
@@ -122,8 +113,8 @@ public class DaggerGloveItem extends Item implements GloveTargeting {
 		DaggerGloveMode mode = getMode(stack);
 		LivingEntity target = null;
 		if (mode.needsTarget()) {
-			// the shared glove cache (glove.md §2): the client's crosshair trace, re-validated
-			// server-side. A hint is not authority, so the glove's own predicate runs again here.
+			// the shared glove cache (glove.md §2): a hint from the client's crosshair trace,
+			// re-validated here — a hint is not authority, so the glove's own predicate runs again.
 			target = GLMeta.GLOVE_TARGET.type().getOrCreate(sp).resolve(sp, stack);
 			if (target == null || !acceptsTarget(stack, sp, target)) {
 				player.displayClientMessage(GLLang.ItemDaggerGlove.NO_TARGET.get(), true);
@@ -150,8 +141,7 @@ public class DaggerGloveItem extends Item implements GloveTargeting {
 
 	/**
 	 * False: the daggers turn, so refusing a target behind a wall would only make the mode less
-	 * useful. The trace answers "what is under the crosshair", not "what can I shoot at"
-	 * (dagger_glove.md §2d).
+	 * useful. The trace answers "what is under the crosshair", not "what can I shoot at".
 	 */
 	@Override
 	public boolean blockedByBlocks() {
@@ -164,11 +154,9 @@ public class DaggerGloveItem extends Item implements GloveTargeting {
 	}
 
 	/**
-	 * What a homing shot will aim at: whatever the holder is looking at, accepted only if the
-	 * holder's own danmaku could actually hit it — so allies and spectators are never homed on.
-	 * <p>
-	 * The aimed modes need no target at all, and say so here rather than at the call site, which
-	 * is also what keeps them from lighting anything up.
+	 * What a homing shot will aim at: whatever the holder is looking at, accepted only if the holder's own
+	 * danmaku could hit it — so allies and spectators are never homed on. The aimed modes answer false here
+	 * rather than at the call site, which is what keeps them from lighting anything up.
 	 */
 	@Override
 	public boolean acceptsTarget(ItemStack stack, Player holder, LivingEntity candidate) {
@@ -184,14 +172,9 @@ public class DaggerGloveItem extends Item implements GloveTargeting {
 	}
 
 	/**
-	 * Takes exactly {@code count} iron daggers out of the holder's inventory — every slot, the
-	 * off hand and armour included — and reports whether the whole count was there.
-	 * <p>
-	 * Partial is failure. A homing volley that could only afford four of its ten daggers would be
-	 * a lopsided spread aimed at a target sixty blocks away, which is worse than not firing; the
-	 * fewest daggers are spent (none) and the shot is refused outright instead. Everything taken
-	 * here is handed to a {@link
-	 * dev.xkmc.gensokyolegacy.content.entity.misc.IronDaggerBulletEntity}, which brings it back.
+	 * Takes exactly {@code count} iron daggers from the holder's inventory - every slot, the off hand and
+	 * armour included - and reports whether the whole count was there. Partial is failure: nothing is spent
+	 * and the shot is refused rather than firing a lopsided spread.
 	 */
 	private static boolean takeDaggers(Player player, int count) {
 		Inventory inventory = player.getInventory();
@@ -219,16 +202,14 @@ public class DaggerGloveItem extends Item implements GloveTargeting {
 		list.add(GLLang.ItemGlove.WHEEL.get(L2Keys.WHEEL.map.getKey().getDisplayName()).withStyle(ChatFormatting.GRAY));
 		list.add(mode.description());
 		DaggerGloveRune rune = getRune(stack);
-		// no rune is applied by anything yet; this line is how one will announce itself
+		// nothing sets a rune yet; this line is how one will announce itself
 		if (getRuneId(stack) != null) {
 			list.add(GLLang.ItemDaggerGlove.RUNE.get(rune.cooldownCost()).withStyle(ChatFormatting.LIGHT_PURPLE));
 		}
 	}
 
 	/**
-	 * A fresh glove stack in the given mode, for the selector wheel to draw: the wheel shows the
-	 * glove's own texture per mode rather than a separate icon, so all it has to carry is the mode
-	 * component ({@code doc/design/dagger_glove.md} §6).
+	 * A fresh glove stack carrying only the given mode — the base of an icon display stack.
 	 */
 	public static ItemStack displayStack(DaggerGloveMode mode) {
 		ItemStack stack = new ItemStack(GLItems.DAGGER_GLOVE.get());
@@ -237,10 +218,8 @@ public class DaggerGloveItem extends Item implements GloveTargeting {
 	}
 
 	/**
-	 * As {@link #displayStack}, but marked as an icon display so the wheel draws this mode's
-	 * wheel icon rather than its held texture. The four held textures are deliberately identical
-	 * copies of one glove, so the wheel can only tell the modes apart by their icons
-	 * ({@code doc/design/dagger_glove.md} §6).
+	 * As {@link #displayStack}, but marked as an icon display so the wheel and the sidebar draw this mode's
+	 * icon: the held textures are identical copies of one glove, so nothing else can tell the modes apart.
 	 */
 	public static ItemStack iconStack(DaggerGloveMode mode) {
 		ItemStack stack = displayStack(mode);

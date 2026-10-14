@@ -36,7 +36,11 @@ public class MorichikaEntity extends GeneralYoukaiEntity implements GeoYoukaiAni
 	private static final RawAnimation TALK_01 = RawAnimation.begin().thenPlay("交流_01");
 	private static final RawAnimation TALK_02 = RawAnimation.begin().thenPlay("交流_02");
 	private static final RawAnimation TALK_03 = RawAnimation.begin().thenPlay("交流_03");
-	private static final RawAnimation THINK = RawAnimation.begin().thenPlay("思考中");
+	private static final RawAnimation TALK_04 = RawAnimation.begin().thenPlay("交流_04");
+	private static final RawAnimation TALK_05 = RawAnimation.begin().thenPlay("交流_05");
+	private static final RawAnimation THINK = RawAnimation.begin().thenPlay("思考中_01");
+	private static final RawAnimation THINK_02 = RawAnimation.begin().thenPlay("思考中_02");
+	private static final RawAnimation CONFUSED = RawAnimation.begin().thenPlay("疑惑");
 	private static final RawAnimation AGREE = RawAnimation.begin().thenPlay("肯定");
 	private static final RawAnimation DECLINE = RawAnimation.begin().thenPlay("拒绝");
 
@@ -67,10 +71,7 @@ public class MorichikaEntity extends GeneralYoukaiEntity implements GeoYoukaiAni
 		return false;
 	}
 
-	protected <E extends MorichikaEntity> PlayState idleAnimController(final AnimationState<E> event) {
-		if (event.getController().isPlayingTriggeredAnimation()) {
-			return PlayState.CONTINUE;
-		}
+	public PlayState stateAnimController(AnimationState<?> event) {
 		if (isSleeping()) {
 			return event.setAndContinue(SLEEP);
 		}
@@ -86,6 +87,11 @@ public class MorichikaEntity extends GeneralYoukaiEntity implements GeoYoukaiAni
 		return event.setAndContinue(IDLE);
 	}
 
+	/**
+	 * Every dialog slot this rig has, plus the two shared clips; {@code OUTDOOR_IDLE} falls
+	 * through to {@code default} — the shopkeeper is never outdoors long enough, and the rig
+	 * ships no {@code 闲置动画} for it.
+	 */
 	@Override
 	public Optional<RawAnimation> getAnim(YoukaiAnim anim) {
 		return switch (anim) {
@@ -94,21 +100,17 @@ public class MorichikaEntity extends GeneralYoukaiEntity implements GeoYoukaiAni
 			case TALK_01 -> Optional.of(TALK_01);
 			case TALK_02 -> Optional.of(TALK_02);
 			case TALK_03 -> Optional.of(TALK_03);
+			case TALK_04 -> Optional.of(TALK_04);
+			case TALK_05 -> Optional.of(TALK_05);
 			case THINK -> Optional.of(THINK);
+			case THINK_02 -> Optional.of(THINK_02);
+			case CONFUSED -> Optional.of(CONFUSED);
 			case AGREE -> Optional.of(AGREE);
 			case DECLINE -> Optional.of(DECLINE);
-			case OUTDOOR_IDLE -> Optional.empty();
+			case EAT -> Optional.of(EAT);
+			case HURT -> Optional.of(HURT);
+			default -> Optional.empty();
 		};
-	}
-
-	@Override
-	public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-		// Wink first: controllers tick in registration order and overwrite shared
-		// bones, so the always-looping blink yields to the main controller.
-		controllers.add(new AnimationController<>(this, WINK_CONTROLLER, 0, e -> e.setAndContinue(BLINK)));
-		var main = new AnimationController<>(this, ANIM_CONTROLLER, 5, this::idleAnimController);
-		addDialogAnims(main);
-		controllers.add(main);
 	}
 
 	@Override

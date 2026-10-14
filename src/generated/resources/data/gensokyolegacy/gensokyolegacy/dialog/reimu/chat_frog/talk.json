@@ -2,7 +2,13 @@
   "options": [
     {
       "type": "gensokyolegacy:simple",
-      "actions": [],
+      "actions": [
+        {
+          "type": "gensokyolegacy:set_timer",
+          "delay": 1200,
+          "key": "frog"
+        }
+      ],
       "conditions": [],
       "next": "gensokyolegacy:reimu/chat_frog/idea",
       "text": "gensokyolegacy/reimu/chat_frog/option/ask"

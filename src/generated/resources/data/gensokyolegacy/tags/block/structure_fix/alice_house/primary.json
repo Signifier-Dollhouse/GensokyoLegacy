@@ -1,0 +1,52 @@
+{
+  "values": [
+    "minecraft:smooth_quartz",
+    "minecraft:smooth_quartz_slab",
+    "minecraft:smooth_quartz_stairs",
+    "minecraft:spruce_planks",
+    "minecraft:spruce_stairs",
+    "minecraft:spruce_trapdoor",
+    "minecraft:spruce_slab",
+    "minecraft:stripped_spruce_log",
+    "minecraft:black_terracotta",
+    "minecraft:calcite",
+    "minecraft:diorite",
+    "minecraft:stone",
+    "minecraft:andesite",
+    "minecraft:cobblestone",
+    "minecraft:stone_bricks",
+    "minecraft:mossy_stone_bricks",
+    "minecraft:packed_mud",
+    "minecraft:white_stained_glass_pane",
+    "minecraft:dark_oak_door",
+    "minecraft:dark_oak_trapdoor",
+    {
+      "id": "gensokyolegacy:blue_tiles",
+      "required": false
+    },
+    {
+      "id": "gensokyolegacy:blue_tiles_slab",
+      "required": false
+    },
+    {
+      "id": "gensokyolegacy:blue_tiles_stairs",
+      "required": false
+    },
+    {
+      "id": "gensokyolegacy:black_tiles_slab",
+      "required": false
+    },
+    {
+      "id": "gensokyolegacy:wrought_iron_pillar",
+      "required": false
+    },
+    {
+      "id": "gensokyolegacy:wrought_iron_bars",
+      "required": false
+    },
+    {
+      "id": "gensokyolegacy:white_long_noren",
+      "required": false
+    }
+  ]
+}

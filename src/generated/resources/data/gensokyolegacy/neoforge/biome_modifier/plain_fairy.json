@@ -1,0 +1,10 @@
+{
+  "type": "neoforge:add_spawns",
+  "biomes": "#gensokyolegacy:has_spawn/plain_fairy",
+  "spawners": {
+    "type": "gensokyolegacy:plain_fairy",
+    "maxCount": 3,
+    "minCount": 3,
+    "weight": 10
+  }
+}
