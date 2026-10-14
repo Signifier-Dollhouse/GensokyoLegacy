@@ -13,6 +13,8 @@ public final class BlockFoods {
 	private static final String FD = "farmersdelight";
 	private static final String YSF = "youkaisfeasts";
 	private static final String KC = "kaleidoscope_cookery";
+	private static final String DD = "displaydelight";
+	private static final String SAR = "someassemblyrequired";
 
 	/**
 	 * Register every known kind of block food. Call once, after the blocks exist. {@link BlockItemFood} must stay last.
@@ -35,6 +37,14 @@ public final class BlockFoods {
 		if (loaded(KC)) {
 			PartyFoodHandler.register(new BiteFood());
 			PartyFoodHandler.register(new PlateFood());
+		}
+
+		if (loaded(DD)) {
+			PartyFoodHandler.register(new DisplayFood());
+		}
+
+		if (loaded(SAR)) {
+			PartyFoodHandler.register(new SandwichFood());
 		}
 
 		PartyFoodHandler.register(new BlockItemFood());
