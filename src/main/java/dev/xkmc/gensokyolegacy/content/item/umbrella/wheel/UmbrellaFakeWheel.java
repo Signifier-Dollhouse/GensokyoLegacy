@@ -10,10 +10,8 @@ import net.minecraft.world.entity.player.Player;
 import java.util.List;
 
 /**
- * Fake wheel with empty content, used for edit-position entry at index 2.
- * Mirrors {@code dev.xkmc.modulargolems.content.menu.wheel.GolemFakeWheel} from ModularGolems sibling project:
- * empty wheel, custom renderIcon shows centered icon + text. The icon is a
- * raw wheel texture blitted directly (wheel-only, no model override).
+ * Fake wheel with empty content, used for the edit-position entry at index 2. Mirrors {@code GolemFakeWheel} from the
+ * ModularGolems sibling project: the icon is a raw wheel texture blitted directly, wheel-only, with no model override.
  */
 public record UmbrellaFakeWheel(ResourceLocation texture, Component text) implements WheelAdaptor<WheelAdaptor.Entry> {
 

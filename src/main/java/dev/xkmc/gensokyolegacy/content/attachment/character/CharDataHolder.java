@@ -11,10 +11,9 @@ import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * A player's {@link CharacterData} together with the player and the youkai behind the call, if
- * any. Every mutating method syncs afterwards, so callers never sync by hand.
+ * A player's {@link CharacterData} with the player and the youkai behind the call; every mutator syncs.
  *
- * @see doc/design/reputation.md
+ * @see "doc/design/reputation.md"
  */
 public record CharDataHolder(CharacterData data, Player player, EntityType<?> type, @Nullable YoukaiEntity e) {
 

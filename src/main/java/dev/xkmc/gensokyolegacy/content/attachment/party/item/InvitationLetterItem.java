@@ -14,11 +14,9 @@ import net.minecraft.world.item.context.UseOnContext;
 
 import java.util.List;
 
-/**
- * The invitation. Right-click a party table to send it out; {@code useOn} rather than {@code use},
+/** The invitation. Right-click a party table to send it out; {@code useOn} rather than {@code use},
  * so it has to be aimed at a table. It names nobody — the spread decides who that ends up being.
- *
- * @see doc/design/party/send.md
+ * @see "doc/design/party/send.md"
  */
 public class InvitationLetterItem extends Item {
 

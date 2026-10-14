@@ -22,11 +22,10 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 
 /**
- * What a guest leaves behind: one roll of her own loot table at
- * {@code <namespace>:party_gift/<entity type path>}, falling back to {@link #DEFAULT_TABLE}
- * so a guest with no table of her own still gives something.
+ * What a guest leaves behind: one roll of her own loot table at {@code <namespace>:party_gift/<entity type path>},
+ * falling back to {@link #DEFAULT_TABLE} so a guest with no table of her own still gives something.
  *
- * @see doc/design/party/send.md
+ * @see "doc/design/party/send.md"
  */
 public class PartyGift {
 
@@ -38,10 +37,9 @@ public class PartyGift {
 			ResourceKey.create(Registries.LOOT_TABLE, GensokyoLegacy.loc(TABLE_DIR + "/default"));
 
 	/**
-	 * Drop a gift on the guest's table, once per visit — the once-only flag lives on her
-	 * module. Generosity is how far up her table's ladder the appeal she ate reached, not
-	 * a bigger stack: a gift is always exactly one item, and one band of appeal is the
-	 * only part of the table that answers.
+	 * Drop a gift on the guest's table, once per visit — the once-only flag lives on her module.
+	 * Generosity is how far up her table's ladder the appeal she ate reached, not a bigger stack: a
+	 * gift is always exactly one item, and only that appeal band answers.
 	 *
 	 * @return whether a gift was left
 	 */
@@ -71,16 +69,15 @@ public class PartyGift {
 				.create(LootContextParamSets.ADVANCEMENT_REWARD);
 		var stacks = new ArrayList<ItemStack>();
 		loot.getRandomItems(params, stacks::add);
-		// a generated table is a ladder of pools whose bands partition the appeal range,
-		// so exactly one of them answers; a datapack that ungates two of them buries both
-		// here, and that is its mistake
+		// a generated table is a ladder of pools whose bands partition the appeal range, so
+		// exactly one answers; a datapack that ungates two buries both, and that is its mistake
 		return stacks.isEmpty() ? null : stacks.getFirst();
 	}
 
 	/**
-	 * Her own table, or {@link #DEFAULT_TABLE} when she has not got one. Asks the lookup
-	 * directly: the reloadable registries answer {@code LootTable.EMPTY} for both "no
-	 * table" and "a table that gives nothing", and only the first wants the fallback.
+	 * Her own table, or {@link #DEFAULT_TABLE} when she has not got one. Asks the lookup directly:
+	 * the reloadable registries answer {@code LootTable.EMPTY} for both "no table" and "a table
+	 * that gives nothing"; only the first wants the fallback.
 	 */
 	@Nullable
 	private static LootTable tableOf(ServerLevel level, YoukaiEntity guest) {

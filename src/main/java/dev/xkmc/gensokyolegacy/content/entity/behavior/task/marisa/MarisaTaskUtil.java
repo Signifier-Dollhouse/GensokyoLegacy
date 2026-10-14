@@ -37,9 +37,8 @@ public class MarisaTaskUtil {
 	/**
 	 * Surface sampling for outdoor chores: pick a random x/z column in the area,
 	 * start from the {@code MOTION_BLOCKING_NO_LEAVES} heightmap (which sees through
-	 * leaves), climb out when buried in solid ground, then sink through air, leaves,
-	 * trunks and mushroom caps down to the actual surface. Returns null when the
-	 * column is not loaded.
+	 * leaves), climb out when buried in solid ground, then sink through canopy to the
+	 * actual surface. Returns null when the column is not loaded.
 	 */
 	@Nullable
 	public static BlockPos randomSurfacePos(ServerLevel level, BoundingBox area, RandomSource rand) {
@@ -66,9 +65,8 @@ public class MarisaTaskUtil {
 	}
 
 	/**
-	 * Canopy the surface scan sinks through: air, leaves, logs (including template
-	 * trunks) and huge mushroom stems/caps. Small mushrooms are forage targets and
-	 * do not count.
+	 * Canopy the surface scan sinks through: air, leaves, logs (including template trunks)
+	 * and huge mushroom stems/caps. Small mushrooms are forage targets and do not count.
 	 */
 	private static boolean isCanopy(BlockState state) {
 		if (state.isAir()) return true;

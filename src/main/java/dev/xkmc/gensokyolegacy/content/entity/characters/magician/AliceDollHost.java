@@ -45,15 +45,11 @@ import java.util.Set;
 import java.util.UUID;
 
 /**
- * Alice's retinue ledger: she is a {@link DollHost} in her own right, so her dolls
- * pair, follow and fight through the same machinery as a player's, and no doll code
- * is aware of who holds it.
- * <p>
- * A character host departs from the player ledger — no items, a roster sized by
- * {@link Post} instead of a collection, and orders she issues herself. host.md §2
- * has the comparison table and §3–§5 the roster, the arming and the orders.
+ * Alice's retinue ledger: she is a {@link DollHost} in her own right, so her dolls pair,
+ * follow and fight through the same machinery as a player's. A character host has no items,
+ * a roster sized by {@link Post} and orders she issues herself (host.md §2–§5).
  *
- * @see doc/design/doll/host.md
+ * @see "doc/design/doll/host.md"
  */
 @SerialClass
 public class AliceDollHost extends AbstractYoukaiModule implements DollLedger {
@@ -73,9 +69,8 @@ public class AliceDollHost extends AbstractYoukaiModule implements DollLedger {
 	private static final int COMMAND_INTERVAL = 5;
 
 	/**
-	 * Her dolls, in conjuring order, created on demand as {@link Post} asks for more
-	 * and at most {@link #MAX_DOLLS} times over — a destroyed entry is dropped rather
-	 * than kept for repair, so nothing is conjured twice.
+	 * Her dolls in conjuring order, created on demand up to {@link #MAX_DOLLS} times. A
+	 * destroyed entry is dropped rather than repaired, so nothing is conjured twice.
 	 */
 	@SerialField
 	private final List<DollData> dolls = new ArrayList<>();
@@ -98,9 +93,8 @@ public class AliceDollHost extends AbstractYoukaiModule implements DollLedger {
 	}
 
 	/**
-	 * The ledger exposed on {@link AliceEntity} itself: {@link BaseDollEntity#getHost}
-	 * asks the <b>owning entity</b> for a host, and a module is not an entity.
-	 * {@link DelegateDollHost} is what makes that one method instead of ten.
+	 * The ledger exposed on {@link AliceEntity} itself: a doll asks its owning entity for a
+	 * host, and a module is not one — {@link DelegateDollHost} makes that a single method.
 	 */
 	public static DollHost hostOf(AliceEntity alice) {
 		return alice.getModule(AliceDollHost.class)
@@ -175,8 +169,7 @@ public class AliceDollHost extends AbstractYoukaiModule implements DollLedger {
 	}
 
 	/**
-	 * How many dolls she wants out right now. Rolled only on a post change, so two
-	 * Alices never field identical rosters and the count never jitters within a post.
+	 * How many dolls she wants out now, rolled only on a post change, so two Alices never field identical rosters.
 	 *
 	 * @return whether the size changed this pass
 	 */
@@ -188,16 +181,12 @@ public class AliceDollHost extends AbstractYoukaiModule implements DollLedger {
 	}
 
 	/**
-	 * Per-entry watchdog. An entry whose entity is gone is parked so the next conjure
-	 * brings it back; one that wandered off is re-conjured at her side; a
-	 * <b>destroyed</b> doll is dropped outright, because she conjures from air and
-	 * there is no count of dolls to respect. A doll that has <b>lost its host</b> is
-	 * parked as well — it can neither follow nor be commanded, and while its uuid
-	 * still resolves it counts as live, which would suppress the conjure meant to
-	 * replace it.
+	 * Per-entry watchdog: gone entities and wandered-off dolls are parked for the next
+	 * conjure, destroyed dolls are dropped outright (she conjures from air, so there is
+	 * no count of dolls to respect), and a doll that lost its host is parked too — its
+	 * uuid still resolves, so it counts as live and would suppress its own replacement.
 	 *
 	 * @return whether anything was parked or dropped, so the caller re-conjures now
-	 * instead of waiting for its own interval
 	 */
 	private boolean reconcile(ServerLevel sl) {
 		boolean repaired = false;
@@ -305,11 +294,10 @@ public class AliceDollHost extends AbstractYoukaiModule implements DollLedger {
 	}
 
 	/**
-	 * The whole loadout, every pass: a weapon in the main hand exactly while she is
-	 * fighting, a folded heal talisman in the off hand only while someone can be spent
-	 * on. The policy, the ordering and the reasoning behind both are in host.md §4.2;
-	 * a doll holding a ticket or inside its {@link DollHandLock#HOLD}-tick hand lock is
-	 * left alone.
+	 * The whole loadout, every pass: a weapon in the main hand exactly while she fights, a
+	 * folded heal talisman in the off hand only while someone can be spent on. A doll holding
+	 * a ticket or inside its {@link DollHandLock#HOLD}-tick hand lock is left alone
+	 * (host.md §4.2).
 	 */
 	private void arm(boolean combat) {
 		// whether a talisman is worth holding at all, asked once per pass so the
@@ -361,10 +349,9 @@ public class AliceDollHost extends AbstractYoukaiModule implements DollLedger {
 	// ---------- orders ----------
 
 	/**
-	 * Hands out one attack order per free doll, in two passes: a spread over the
-	 * distinct mobs, then an overflow so nobody stands idle. Both passes skip a doll
-	 * that cannot reach the mob — half the roster holds a lance, whose charge has to
-	 * start inside its engage range. host.md §5 has the policy.
+	 * Hands out one attack order per free doll, in two passes: spread over the distinct mobs,
+	 * then an overflow so nobody idles. Both skip a doll that cannot reach the mob — half the
+	 * roster holds a lance, whose charge must start inside its engage range (host.md §5).
 	 */
 	private void command() {
 		var summoned = commander.summoned(owner);
@@ -383,9 +370,8 @@ public class AliceDollHost extends AbstractYoukaiModule implements DollLedger {
 			if (target == null) continue;
 			issue(entry.doll(), target, claimed);
 		}
-		// pass two: nobody stands idle. The mobs ran out before the dolls did, so
-		// the rest pile onto whatever is left — the first live target, which is the
-		// one she is herself fixated on
+		// pass two: the mobs ran out before the dolls did, so the rest pile onto the
+		// first live target — the one she is herself fixated on
 		for (var entry : summoned) {
 			if (entry.doll().actions.isActive()) continue;
 			LivingEntity target = nextFree(entry.doll(), targets, null);
@@ -416,9 +402,8 @@ public class AliceDollHost extends AbstractYoukaiModule implements DollLedger {
 	}
 
 	/**
-	 * Whether an order on this target could actually run: the behavior this doll's
-	 * weapon resolves to, asked whether it can close on the mob. Asked per doll with a
-	 * fresh behavior, so it leaves no state behind.
+	 * Whether an order on this target could run: the behavior this doll's weapon resolves to,
+	 * asked whether it can close on the mob. Asked with a fresh behavior, so it leaves none.
 	 */
 	private static boolean canReach(DollEntity doll, LivingEntity target) {
 		return DollBehaviorRegistry.createFor(doll, DollActionType.REGULAR_ATTACK)
@@ -445,12 +430,10 @@ public class AliceDollHost extends AbstractYoukaiModule implements DollLedger {
 	}
 
 	/**
-	 * The live doll an entry names, looked up in the dimension the entry recorded.
-	 * Null when that world is gone or the entity is not there — dolls are never
-	 * chunk-serialized, so "not there" means gone. This is the <b>raw</b> lookup, host
-	 * included: a doll that has lost its host has to come back here so {@link #reconcile}
-	 * can park it. The commander's resolution is the filtered one, and that is what keeps
-	 * a useless doll out of the live count.
+	 * The live doll an entry names, looked up in the dimension the entry recorded. Null when
+	 * that world is gone or the entity is not there — dolls are never chunk-serialized, so
+	 * "not there" means gone. This is the <b>raw</b> lookup, host included, so {@link #reconcile}
+	 * can still park a doll that lost its host; the commander's lookup is the filtered one.
 	 */
 	@Nullable
 	private BaseDollEntity resolve(DollData data) {

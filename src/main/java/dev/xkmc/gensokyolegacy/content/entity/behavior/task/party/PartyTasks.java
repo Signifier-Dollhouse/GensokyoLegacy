@@ -9,23 +9,19 @@ import java.util.List;
  * The party machine: the ordered list of its tasks, and the numbers they share.
  *
  * <p>
- * <b>The order of {@link #ALL} is the priority.</b> {@code TaskBoard.fetch} collects the
- * exclusive tasks under one activity into a single {@code GateBehavior(ORDERED, RUN_ONE)},
- * which runs the first whose signature matches — so a task lower down may be given a
- * signature as loose as "nothing" as long as everything above it has been ruled out.
+ * <b>The order of {@link #ALL} is the priority.</b> {@code TaskBoard.fetch} collects the exclusive
+ * tasks into one {@code GateBehavior(ORDERED, RUN_ONE)} running the first whose signature matches,
+ * so a task lower down may carry a signature as loose as "nothing". Which task that amounts to
+ * comes from the fields on the party module, so a guest reloaded from disk lands where she was.
  *
- * <p>
- * Which task that amounts to is decided by the fields on the party module, so a guest
- * reloaded from disk lands on the same line of the tree she was on.
- *
- * @see doc/design/party/guest.md
+ * @see "doc/design/party/guest.md"
  */
 public final class PartyTasks {
 
 	/**
 	 * How long she may go without getting any closer to what she is walking to before the
-	 * director puts her there instead. Three seconds. Measured as lost ground rather than
-	 * elapsed time: a guest crossing a long room is slow and fine.
+	 * director puts her there instead — three seconds, measured as lost ground rather than
+	 * elapsed time, since a guest crossing a long room is slow and fine.
 	 */
 	public static final int WALK_STALL = 60;
 
@@ -43,7 +39,7 @@ public final class PartyTasks {
 
 	/**
 	 * How long the pickup gesture runs before the plate is in her hand. The
-	 * {@code 使用主手物品} clip is 0.31s, the same figure {@code FairyCakeTask} times against.
+	 * {@code 使用主手物品} clip is 0.31s, the figure {@code FairyCakeTask} times against too.
 	 */
 	public static final int PICKUP_TICKS = 6;
 

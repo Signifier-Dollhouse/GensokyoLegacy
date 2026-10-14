@@ -35,15 +35,12 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Marisa's indoor hobby: play with the alchemy pot during at-home hours.
- * <ul>
- * <li>Empty pot: fill water and add a full ingredient set completing a recipe.</li>
- * <li>Pot with liquid that can still be processed: add the missing ingredients.</li>
- * <li>Pot with liquid that leads nowhere: drain it. Hexbrew is bottled and
- * stored into a random home chest, with any leftover pot items.</li>
- * </ul>
- * Witch hexbrew recipes are never considered. Draining happens at most once per 5 minutes.
- * Ingredients are conjured by Marisa herself; only finished brews go into chests.
+ * Marisa's indoor hobby: play with the alchemy pot during at-home hours. She fills an
+ * empty pot, or one whose liquid can still be processed, with the ingredients completing
+ * a recipe; a pot whose liquid leads nowhere is drained instead, the hexbrew bottled
+ * into a random home chest along with any leftover pot items. Witch hexbrew recipes are
+ * never considered. Draining happens at most once per 5 minutes. Ingredients are
+ * conjured by Marisa herself; only finished brews go into chests.
  */
 public class MarisaBrewTask<E extends SmartYoukaiEntity> extends AbstractHomeHolderTask<E> {
 

@@ -7,14 +7,12 @@ import software.bernie.geckolib.model.DefaultedEntityGeoModel;
 /**
  * Suika's Blockbench rig.
  * <p>
- * The animation file was exported against a slightly different revision of the mesh, so
- * five of the bones it keys do not exist here and GeckoLib drops those keyframes without
- * complaint: {@code Hat} and {@code Front_Hair1}, and the three {@code *_DownCloth}
- * bones ({@code Front_DownCloth}, {@code Left_DownCloth}, {@code Right_DownCloth}).
- * They affect only the parts of {@code 坐下}, {@code 睡觉} and {@code 受伤} that were
- * moving cloth and a hat, and every clip she actually plays still drives real bones, so
- * the animation is wired up as shipped rather than renamed here. Re-export it from
- * Blockbench against this mesh to get the missing cloth motion back.
+ * The animation file was exported against a slightly different mesh revision, so five bones
+ * it keys do not exist here and GeckoLib drops those keyframes silently: {@code Hat},
+ * {@code Front_Hair1} and the three {@code *_DownCloth} bones. They affect only the moving
+ * cloth and hat of {@code 坐下}, {@code 睡觉} and {@code 受伤}, and every clip she actually
+ * plays still drives real bones, so it is wired as shipped. Re-export from Blockbench against
+ * this mesh to get the cloth motion back.
  */
 public class SuikaModel extends DefaultedEntityGeoModel<SuikaEntity> {
 

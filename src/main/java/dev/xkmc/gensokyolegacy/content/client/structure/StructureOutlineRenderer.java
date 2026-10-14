@@ -107,10 +107,9 @@ public class StructureOutlineRenderer {
 	}
 
 	/**
-	 * One box over everything in the set, rather than a cube per block. The scan is
-	 * sparse by nature — a table here, a chair there, a dish in between — so a box
-	 * around each says nothing; this says the extent, which is what tells the host
-	 * whether their spread reaches further than they meant it to.
+	 * One box over everything in the set. The scan is sparse by nature, so a cube per block says
+	 * nothing; this says the extent, which tells the host whether the spread reaches further than
+	 * they meant.
 	 */
 	public static void renderBound(PoseStack pose, Vec3 camera, Collection<BlockPos> pos) {
 		int minX = Integer.MAX_VALUE, minY = Integer.MAX_VALUE, minZ = Integer.MAX_VALUE;

@@ -11,12 +11,9 @@ import dev.xkmc.gensokyolegacy.content.rpg.quest.QuestCondition;
 import net.minecraft.server.level.ServerPlayer;
 
 /**
- * Restricts a chat, quest or trade to characters in (or out of) a visit.
- * <p>
- * A visitor is the same {@code EntityType} as the resident, so nothing about the
- * entry itself distinguishes the two - only this condition does. Home-bound
- * content needs it because a guest is addressed differently and talks about
- * different things; visit-only content needs {@code invert}.
+ * Restricts a chat, quest or trade to characters in (or out of) a visit. A visitor is the same {@code EntityType} as
+ * the resident, so only this condition tells them apart: home-bound content needs it because a guest is addressed
+ * differently, visit-only content needs {@code invert}.
  */
 public record HomeBoundCondition(
 		boolean invert

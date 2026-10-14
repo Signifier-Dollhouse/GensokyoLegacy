@@ -9,16 +9,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 17-slot view of a Mini Hakkero's own storage, for {@code ItemHandlerCopySlot}. Slots
- * {@code 0..7} are the inner rim (input), {@code 8..15} the outer rim (results) and
- * {@code 16} the fuel, matching {@link HakkeroData} and the menu sprite.
- *
- * <p>Input and fuel slots answer {@link #isItemValid}: an input slot only takes something
- * the current mode can actually smelt, and the fuel slot only takes something that burns.
- * That is checked against a {@link HakkeroHandler#smeltCheck} supplied by the caller
- * rather than against a world, so the client can ask the same question the server does.
- *
- * <p>Every write goes straight back to the item's data component, so the menu never holds a
+ * 17-slot view of a Mini Hakkero's own storage, for {@code ItemHandlerCopySlot}: {@code 0..7} the
+ * inner rim (input), {@code 8..15} the outer rim (results), {@code 16} the fuel — matching
+ * {@link HakkeroData} and the menu sprite. Input and fuel slots answer {@link #isItemValid} against
+ * a {@link HakkeroHandler#smeltCheck} from the caller rather than a world, so the client asks what
+ * the server asks; every write goes back to the item's data component, so the menu never holds a
  * second copy of the truth.
  */
 public class HakkeroHandler implements IItemHandlerModifiable {
@@ -40,10 +35,8 @@ public class HakkeroHandler implements IItemHandlerModifiable {
 		return HakkeroData.of(stack);
 	}
 
-	/**
-	 * Publishes the record. The client writes here too — its throwaway stack is what the
-	 * menu renders from — so the only case that must be skipped is a genuinely empty stack,
-	 * where there is nothing to hang the data off.
+	/** Publishes the record. The client writes here too — its throwaway stack is what the menu
+	 * renders from — so only a genuinely empty stack is skipped.
 	 */
 	private void save(HakkeroData data) {
 		if (stack.isEmpty()) return;
@@ -70,14 +63,8 @@ public class HakkeroHandler implements IItemHandlerModifiable {
 	}
 
 	/**
-	 * Writes a slot outright, bypassing every restriction.
-	 *
-	 * <p>This is the path the <b>container sync</b> uses: the server pushes each slot's
-	 * contents to the client, and the client has to accept them exactly as sent. Filtering
-	 * here is what made a re-opened menu look empty — the result and fuel slots were
-	 * refusing the server's own data on the way in. Placement rules belong in
-	 * {@link #insertItem} and {@link #isItemValid}, which is what a player's click goes
-	 * through.
+	 * Writes a slot outright, bypassing every restriction — the <b>container sync</b> path: filtering
+	 * here is what made a re-opened menu look empty. Rules belong in {@link #insertItem} and {@link #isItemValid}.
 	 */
 	@Override
 	public void setStackInSlot(int slot, ItemStack s) {

@@ -7,15 +7,12 @@ import dev.xkmc.gensokyolegacy.content.entity.youkai.SmartYoukaiEntity;
 import net.minecraft.server.level.ServerLevel;
 
 /**
- * The part of the machine that is not a state.
+ * The part of the machine that is not a state. An always-task under {@code PARTY}, running
+ * alongside whichever exclusive task is going, handling the three things that cut across all of
+ * them: the party ending under her, the party closing mid-course, and her chair being taken away
+ * by the layout rescan.
  *
- * <p>
- * Registered as an always-task under {@code PARTY}, so it runs alongside whichever of the
- * eleven exclusive tasks is going, and handles the three things that cut across all of them:
- * the party ending under her, the party closing while she is mid-course, and her own chair
- * being taken away by the layout rescan.
- *
- * @see doc/design/party/guest.md
+ * @see "doc/design/party/guest.md"
  */
 public class PartyDirectorTask extends PartyTask {
 
@@ -29,9 +26,8 @@ public class PartyDirectorTask extends PartyTask {
 			ctx.dismiss();
 			return;
 		}
-		// closing is a request, not a discard, and she may be halfway across the room. The wait is
-		// drawn here so a table does not empty inside one tick; the gift rides along, because
-		// this is the door the host calling it off sends her out by.
+		// closing is a request, not a discard, and she may be halfway across the room. The wait
+		// is drawn here so a table does not empty inside one tick, and the gift rides along.
 		if ((module.leaving() || party.phase() == PartyAttachment.Phase.CLOSING)
 				&& !ctx.leaving()) {
 			ctx.armLeave(entity.getRandom().nextInt(PartyTasks.UNSEAT_DELAY + 1));

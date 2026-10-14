@@ -5,13 +5,11 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 /**
  * A serving taken off a dish and not yet finished: what she is carrying, and what it is worth.
+ * Held on the module so the un-banked window survives a reload: if she is carrying this, she is
+ * carrying food. Both readings are taken <b>before</b> the block is consumed, because they belong
+ * to the state it came from.
  *
- * <p>
- * Held on the module so the un-banked window survives a reload: if she is carrying this, she
- * is carrying food, and if she is carrying food this is what it counts for. Both readings are
- * taken <b>before</b> the block is consumed, because they belong to the state it came from.
- *
- * @see doc/design/party/guest.md
+ * @see "doc/design/party/guest.md"
  */
 public record PartyServe(int hunger, int appeal) {
 

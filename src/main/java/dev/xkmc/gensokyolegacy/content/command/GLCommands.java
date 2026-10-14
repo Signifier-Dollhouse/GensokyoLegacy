@@ -97,9 +97,8 @@ public class GLCommands {
 	};
 
 	/**
-	 * Characters some structure in the loaded world accepts as guests. Suggesting
-	 * from the guest pools rather than from the starter registry, since a visitor
-	 * needs no content of its own to be summoned.
+	 * Characters some structure in the loaded world accepts as guests. Suggested from the guest
+	 * pools, not the starter registry: a visitor needs no content of its own to be summoned.
 	 */
 	private static final SuggestionProvider<CommandSourceStack> SUGGEST_VISITORS = (ctx, builder) -> {
 		Set<ResourceLocation> ids = new LinkedHashSet<>();
@@ -407,10 +406,10 @@ public class GLCommands {
 	// --- party ---
 
 	/**
-	 * Dump the whole plan for the table the player is looking at: spread appeal, seat
-	 * count, every eligible character with the weight the planner gave them, and the
-	 * roster that would actually come. Runs the identical planner a send runs, so this
-	 * predicts it exactly — and consumes nothing.
+	 * Dump the whole plan for the table the player is looking at - spread appeal, seat count,
+	 * every eligible character with the weight the planner gave them, and the roster that would
+	 * actually come. Runs the identical planner a send runs, so this predicts it exactly, and
+	 * consumes nothing.
 	 */
 	private static int executePartyPreview(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
 		var src = ctx.getSource();
@@ -472,9 +471,8 @@ public class GLCommands {
 		src.sendSuccess(() -> GLLang.Party.INFO_PHASE.get(party.phase().name()), false);
 		src.sendSuccess(() -> GLLang.Party.INFO_ROSTER.get(PartyMessage.roster(party.roster())), false);
 		src.sendSuccess(() -> GLLang.Party.INFO_SERVED.get(party.hungerServed(), party.hungerBudget()), false);
-		// appeal is the figure the reputation payout is a share of, so a host tuning
-		// repGain needs to see what the party was actually worth rather than what it was
-		// planned to be worth - the wand's readout is the latter
+		// appeal is the figure the reputation payout is a share of, so a host tuning repGain
+		// needs what the party was actually worth, not what it was planned to be worth
 		src.sendSuccess(() -> GLLang.Party.INFO_APPEAL.get(party.appealServed()), false);
 		src.sendSuccess(() -> GLLang.Party.INFO_GUESTS.get(party.seatsUsed()), false);
 		return 1;
@@ -496,10 +494,9 @@ public class GLCommands {
 	}
 
 	/**
-	 * The party at, or near, where the player is looking. Searches the neighbourhood
-	 * rather than the single chunk, because a party is owned by the chunk holding the
-	 * centre of its food, which is within the scan's reach of the table and so often in
-	 * the next chunk over.
+	 * The party at, or near, where the player is looking. A party is owned by the chunk holding
+	 * the centre of its food, often the next chunk over from the table, so the search is
+	 * neighbourhood-wide rather than the single chunk.
 	 */
 	@Nullable
 	private static PartyAttachment partyNear(CommandContext<CommandSourceStack> ctx, ServerPlayer sp) {

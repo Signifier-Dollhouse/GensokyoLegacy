@@ -9,27 +9,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-/**
- * Who comes: a weighted draw under a shared hunger budget, with the seat count as a loop
+/** Who comes: a weighted draw under a shared hunger budget, with the seat count as a loop
  * bound. The seed comes from the centre of the spread's food, so preview predicts a send.
- *
- * @see doc/design/party/select.md
+ * @see "doc/design/party/select.md"
  */
 public class PartyPlanner {
 
-	/**
-	 * @param weight      {@link PartyMath#weight}; her share of the draw and nothing else.
-	 *                    0 means never drawn
+	/** @param weight      {@link PartyMath#weight}; her share of the draw, 0 meaning never drawn
 	 * @param fulfillment what she costs against the spread's capacity, in the same unit
 	 */
 	public record Candidate(EntityType<?> type, int weight, int fulfillment, int reputation) {
 	}
 
-	/**
-	 * Draws one guest at a time, spending her fulfillment from the shared budget and
-	 * dropping whoever the remainder can no longer satisfy — so both constraints hold by
-	 * construction: {@code sum(fulfillment) <= capacity} and {@code size() <= seats}.
-	 *
+	/** Draws one guest at a time, spending her fulfillment from the shared budget and dropping
+	 * whoever the remainder can no longer satisfy, so both constraints hold by construction.
 	 * @param capacity the hunger the spread provides
 	 * @param rng      seeded so one spread always draws one party
 	 * @return chosen characters, in the order they were drawn

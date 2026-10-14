@@ -13,10 +13,9 @@ import net.minecraft.server.level.ServerPlayer;
 import java.util.UUID;
 
 /**
- * Stray cut: detaches the ledger entry (no item produced) and hosts it transiently.
- * From here commands can't reach the doll, itemize no-ops, and only death ends it
- * (dropping the item form). The detached inventory is already current — all server
- * mutations are ledger-direct (control.md §5.4).
+ * Stray cut: detaches the ledger entry (no item produced) and hosts it transiently. From here
+ * commands can't reach the doll, itemize no-ops, and only death ends it (dropping the item form).
+ * The detached inventory is already current — server mutations are ledger-direct (control.md §5.4).
  */
 public interface DollStray extends DollBaseImpl {
 
@@ -37,10 +36,9 @@ public interface DollStray extends DollBaseImpl {
 	}
 
 	/**
-	 * Reverse of {@link #becomeStray()}: hands the detached entry back to the
-	 * owner's ledger, which resummons the doll from the parked TEMP entry on its
-	 * next tick. Server-only. A stray whose owner is offline stays a stray — the
-	 * ledger lives on the player, so there is nowhere to hand the entry back to.
+	 * Reverse of {@link #becomeStray()}: hands the detached entry back to the owner's ledger, which
+	 * resummons the doll on its next tick. A stray whose owner is offline stays a stray — the ledger
+	 * lives on the player, so there is nowhere to hand the entry back to.
 	 */
 	default boolean rejoinOwner() {
 		DollEntity doll = asDoll();
@@ -55,11 +53,9 @@ public interface DollStray extends DollBaseImpl {
 	int REJOIN_INTERVAL = 20;
 
 	/**
-	 * Idle fallback for the stray cut, ticked once per {@link #REJOIN_INTERVAL}: a stray
-	 * with nothing to do (its dive aborted while the owner was logged out, say) tries to
-	 * rejoin every second until its owner is back, so the cut can never leave a
-	 * permanently ownerless doll. No-op while the doll holds a ticket — a dive in flight
-	 * is never yanked.
+	 * Idle fallback for the stray cut: a stray with nothing to do (its dive aborted while the owner
+	 * was logged out, say) retries rejoining every {@link #REJOIN_INTERVAL} ticks until its owner is
+	 * back. No-op while the doll holds a ticket — a dive in flight is never yanked.
 	 */
 	default void maybeRejoin() {
 		DollEntity doll = asDoll();

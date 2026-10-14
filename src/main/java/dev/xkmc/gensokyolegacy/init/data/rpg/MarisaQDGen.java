@@ -107,11 +107,9 @@ public class MarisaQDGen extends QuestDialogData {
 	}
 
 	/**
-	 * Marisa out visiting - Kourindou and the shrine, depending on the day. She
-	 * visits two houses, so this is written per host: a joke about cramped rooms
-	 * does not land twice, and at the shrine she has her own thing to say.
-	 * {@code visitingAt} implies she is a guest at all, so none of it can surface
-	 * in her own shop.
+	 * Marisa out visiting - Kourindou and the shrine, depending on the day. She visits two houses, so this is written
+	 * per host: a joke about cramped rooms does not land twice, and at the shrine she has her own thing to say. {@code
+	 * visitingAt} implies she is a guest at all, so none of it can surface in her own shop.
 	 */
 	private void visitChats() {
 		prefix("marisa/visit_kourindou");
@@ -163,9 +161,8 @@ public class MarisaQDGen extends QuestDialogData {
 										option("where/end", "I'll have to pay it a visit sometime.")))),
 				CHAT_INFO);
 
-		// Hidden once you have found Alice's house yourself - Marisa has met her
-		// long enough to just name her, so this is a pointer, not a secret. The
-		// "what does she want" follow doubles as a hint at quest 2.1.
+		// Hidden once you have found Alice's house yourself - a pointer, not a secret,
+		// and the "what does she want" follow doubles as a hint at quest 2.1.
 		prefix("marisa/chat_alice");
 		chat("marisa/chat_alice", GLEntities.MARISA.get(),
 				List.of(missingAdv(GLAdvGen.ENTER_ALICE_HOUSE), new SelfReputationCondition(50)),
@@ -304,8 +301,7 @@ public class MarisaQDGen extends QuestDialogData {
 
 		prefix("marisa/hakkero");
 		// Offered to anyone holding the prototype who has not been given the
-		// repaired one yet - the two advancement conditions say exactly that,
-		// and the inverted second one closes the quest for good once it fires.
+		// repaired one yet, and the inverted second condition closes the quest for good.
 		quest("marisa/hakkero", new Quest(GLEntities.MARISA.get(),
 				List.of(new HasAdvancementCondition(GLAdvGen.OBTAIN_MINI_HAKKERO), homeBound()),
 				questTitle("A Proper Hakkero"), questDesc("Hand Marisa your Mini Hakkero Prototype and the parts to repair it."),
@@ -392,9 +388,8 @@ public class MarisaQDGen extends QuestDialogData {
 
 	private void talismanQuests() {
 		prefix("marisa/talisman_request");
-		// Rep 100 AND (known to Reimu OR to Alice): carrying Reimu's ofuda
-		// stock or Alice's doll glove is what convinces Marisa the errand is
-		// worth trusting to the player.
+		// Rep 100 AND (known to Reimu OR to Alice): their stock is what convinces
+		// Marisa the errand is worth trusting to the player.
 		quest("marisa/talisman_request", new Quest(GLEntities.MARISA.get(),
 				List.of(new SelfReputationCondition(100),
 						new AnyCondition(List.of(
@@ -551,7 +546,7 @@ public class MarisaQDGen extends QuestDialogData {
 				new ItemStack(HexBrew.MIASMA_HEXBREW.bottle.get(), 4),
 				new TradeRecurrence(4, 24000), List.of(item(Items.EMERALD, 3))));
 		// Witch hexbrew: variety of potion effects, unlocked by the brewing quest, no rep gate; half-day restock.
-		// Strong variants sell 1 bottle at 4 emerald, 16 stock. No-strong effects fall back to long, 4 bottles at 4 emerald.
+		// Strong variants sell 1 bottle at 4 emerald, 16 stock; no-strong effects fall back to long, 4 bottles.
 		trade("offer_witch_speed", new TradeOffer(GLEntities.MARISA.get(),
 				List.of(new HasQuestCompletedCondition(QUEST_BREWING)), witchStrong(Potions.STRONG_SWIFTNESS),
 				new TradeRecurrence(16, 12000), List.of(item(Items.EMERALD, 4))));
@@ -593,9 +588,8 @@ public class MarisaQDGen extends QuestDialogData {
 				new ItemStack(GLItems.BROOM.get()),
 				new TradeRecurrence(1, 24000), List.of(item(GLItems.MYSTICAL_STRAW.get(), 8))));
 
-		// The repaired hakkero, once she has shown she can build one: the same
-		// bill of materials as the quest, but only ever one a week, since the
-		// netherite scrap is the part she cannot make more of.
+		// The repaired hakkero, once she has shown she can build one: same bill of
+		// materials as the quest, but one a week, the netherite scrap being the bottleneck.
 		trade("offer_hakkero", new TradeOffer(GLEntities.MARISA.get(),
 				List.of(homeBound(), new HasQuestCompletedCondition(QUEST_HAKKERO)),
 				new ItemStack(GLItems.MINI_HAKKERO.get()),

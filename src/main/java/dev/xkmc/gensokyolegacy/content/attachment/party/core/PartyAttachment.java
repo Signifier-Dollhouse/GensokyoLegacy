@@ -22,7 +22,7 @@ import java.util.UUID;
  * One party's state, on the chunk holding the centre of its food. The roster is frozen at
  * send and never recomputed, which is what lets a preview predict a send exactly.
  *
- * @see doc/design/party/state.md
+ * @see "doc/design/party/state.md"
  */
 @SerialClass
 public class PartyAttachment extends GeneralCapabilityTemplate<LevelChunk, PartyAttachment> {
@@ -185,22 +185,21 @@ public class PartyAttachment extends GeneralCapabilityTemplate<LevelChunk, Party
 	}
 
 	/**
-	 * The chair this guest gets, claiming it for her: her own while it survives, otherwise
-	 * the free chair nearest where she stands.
+	 * The chair this guest gets, claiming it for her: her own while it survives, else the free chair
+	 * nearest her.
 	 * <p>
-	 * <b>Null means there is nothing to give her</b> — every chair claimed or none at all.
-	 * Callers ask whether a chair is hers rather than whether a chair exists, because
-	 * another guest's chair is never offered to her twice.
+	 * <b>Null means there is nothing to give her</b> — every chair claimed or none at all. Callers ask
+	 * whether a chair is hers rather than whether one exists: another guest's chair is never offered
+	 * to her twice.
 	 *
 	 * @param guest who is asking, by id: her position is what "nearest" is nearest to
-	 * @param hers  the chair she believes she has, or null. Advisory only — the answer
-	 *              comes from the party's record
+	 * @param hers  the chair she believes she has, or null. Advisory only — the answer comes from the
+	 *              party's record
 	 */
 	@Nullable
 	public BlockPos claimSeat(ServerLevel level, UUID guest, @Nullable BlockPos hers) {
-		// Her own claim first, asked of the party's record: she does not record a chair
-		// until she is sitting on it, so an interrupted walk would otherwise leave the
-		// first one claimed for ever.
+		// Her own claim first, from the party's record: she records a chair only once sitting on
+		// it, so an interrupted walk would otherwise leave the first one claimed for ever.
 		for (var entry : claims.entrySet()) {
 			if (!guest.equals(entry.getValue())) continue;
 			if (seats.contains(entry.getKey())) return entry.getKey();
@@ -331,9 +330,9 @@ public class PartyAttachment extends GeneralCapabilityTemplate<LevelChunk, Party
 	}
 
 	/**
-	 * Freeze the roster, open the party, and seed the caches from the walk the send has
-	 * just done rather than sweeping again. Only the food and chairs inside the guest box
-	 * are seeded: a guest is only ever offered what she could walk to.
+	 * Freeze the roster, open the party, and seed the caches from the send's walk rather than
+	 * sweeping again. Only food and chairs inside the guest box are seeded: a guest is only ever
+	 * offered what she could walk to.
 	 */
 	public void start(LevelChunk chunk, long gameTime, UUID host, BlockPos anchor,
 			List<EntityType<?>> roster, int hunger, List<BlockPos> food, List<BlockPos> seats) {
@@ -460,8 +459,8 @@ public class PartyAttachment extends GeneralCapabilityTemplate<LevelChunk, Party
 
 	/**
 	 * The active party within {@code radius} blocks. A party lives in the chunk holding the
-	 * <b>centre of its food</b>, not of its anchor table, so asking "is there a party at
-	 * this table?" needs the neighbourhood rather than one chunk.
+	 * <b>centre of its food</b>, not of its anchor table, so asking "is there a party at this
+	 * table?" needs the neighbourhood rather than one chunk.
 	 */
 	@Nullable
 	public static PartyAttachment near(ServerLevel level, BlockPos pos, int radius) {

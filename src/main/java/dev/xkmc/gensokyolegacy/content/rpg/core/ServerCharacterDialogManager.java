@@ -85,10 +85,8 @@ public class ServerCharacterDialogManager {
 		Holder<DialogStarter> chat = pickChat(sp, ch);
 		if (chat != null)
 			ans.add(new DialogHandle(chat));
-		// A guest can hand over what is already finished and pick up a follow-up,
-		// but she never hands out new work - see StartQuestAction for the other
-		// half of that rule. A party guest is a guest too, for the same reason:
-		// she is here to be fed, not to be given something to do.
+		// A guest can hand over finished work and pick up a follow-up, but never hands out new work
+		// - see StartQuestAction; a party guest counts as one too, being here to be fed not to work.
 		boolean guest = ch.isVisiting() || ch.isPartying();
 		var questData = GLMeta.QUEST.type().getOrCreate(sp);
 		for (var e : quests) {

@@ -14,9 +14,8 @@ import java.util.List;
 import java.util.stream.Stream;
 
 /**
- * Emits the points of a {@link GridLayer} that fall into the chunk being decorated. Replaces
- * count + in_square for large vegetation: guaranteed spacing, no dependence on generation order.
- * Must be the first modifier, it expects the chunk position vanilla hands to placed features.
+ * Emits the {@link GridLayer} points falling into the chunk being decorated, replacing count + in_square for large
+ * vegetation. Must be the first modifier: it reads the chunk position vanilla hands to placed features.
  */
 public class JitteredGridPlacement extends PlacementModifier {
 

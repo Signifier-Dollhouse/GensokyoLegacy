@@ -10,15 +10,9 @@ import software.bernie.geckolib.animatable.GeoAnimatable;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
-/**
- * What {@link IceWingsLayer} runs its geckolib animation against.
- *
- * <p>Not an entity, so it has no tick of its own: geckolib falls back to
- * {@code RenderUtil.getCurrentTick()} for a plain {@code GeoAnimatable}, and the layer passes an
- * {@code AnimationState} built from the wearer each frame. There is one of these per layer but
- * one controller state per wearer, keyed off the id the layer hands to
- * {@code handleAnimations} - so two players seen by the same renderer flap on their own clocks,
- * and one in mid-air does not drag everyone else into the hover clip with them.
+/** What {@link IceWingsLayer} runs its geckolib animation against. Not an entity, so it has no tick of
+ * its own: the layer hands an {@code AnimationState} built from the wearer each frame, keyed per wearer,
+ * so one player in mid-air does not drag everyone else into the hover clip.
  */
 public class IceWingsAnimatable implements GeoAnimatable {
 
@@ -36,10 +30,8 @@ public class IceWingsAnimatable implements GeoAnimatable {
 		controllers.add(new AnimationController<>(this, "flap", 0, this::flap));
 	}
 
-	/**
-	 * Cirno swaps to {@code 漂浮} the moment she is off the ground, so the wings do the same.
-	 * The layer feeds {@link AnimationState#isMoving()} from exactly that test rather than from
-	 * walking, because a player standing still in mid-air is the case that should flap hardest.
+	/** Cirno swaps to {@code 漂浮} the moment she leaves the ground, so the wings do the same: the layer
+	 * feeds {@link AnimationState#isMoving()} from that test, not from walking — still in mid-air flaps hardest.
 	 */
 	private PlayState flap(AnimationState<IceWingsAnimatable> state) {
 		return state.setAndContinue(state.isMoving() ? HOVER : IDLE);

@@ -33,12 +33,10 @@ import java.util.UUID;
 
 /**
  * Command logic for one {@link DollLedger}: issues ONE_TIME / ITERATIVE actions, chains volleys
- * doll-to-doll, schedules heals, prunes dead marks. Owns the in-flight iterative set and the
- * follow-formation anchor; server-only state, never persisted. Ledger transitions (summon /
- * itemize / park / restore) stay on the ledger itself. Every entry point takes the commanding
- * {@link LivingEntity}, so a player (the glove) and a character share one fan-out.
+ * doll-to-doll, schedules heals, prunes dead marks. Server-only state, never persisted; ledger
+ * transitions stay on the ledger. Every entry point takes the commanding {@link LivingEntity}.
  *
- * @see doc/design/doll/control.md
+ * @see "doc/design/doll/control.md"
  */
 public class DollCommander {
 
@@ -56,18 +54,12 @@ public class DollCommander {
 	 */
 	public final Set<UUID> healTargets = new LinkedHashSet<>();
 
-	/**
-	 * Commanded attack targets: doll-shot danmaku outlives the ticket that fired it, so everything
-	 * uncommanded and non-hostile is spared. Transient like {@link #healTargets}; gone entries are
-	 * pruned once per second.
-	 */
+	/** Commanded attack targets: doll-shot danmaku outlives the ticket that fired it, so everything
+	 * uncommanded and non-hostile is spared. Transient like {@link #healTargets}, pruned per second. */
 	public final Set<UUID> attackTargets = new LinkedHashSet<>();
 
-	/**
-	 * Follow-formation yaw, latched from the commander's view yaw only when the commander actually
-	 * moves horizontally: turning on the spot leaves every doll's slot target frozen instead of
-	 * swirling around to track the cursor.
-	 */
+	/** Follow-formation yaw, latched from the view yaw only when the commander moves horizontally:
+	 * turning on the spot leaves every doll's slot frozen instead of tracking the cursor. */
 	private float formationYaw;
 
 	@Nullable
@@ -164,13 +156,10 @@ public class DollCommander {
 		return false;
 	}
 
-	/**
-	 * Whether any summoned doll could actually hit this target: it must hold a valid weapon for the
-	 * type, and that weapon's behavior must be able to reach it. The reach half is what separates
-	 * this from {@link #hasCapableDoll} — a roster of melee dolls is armed but cannot touch a mob
-	 * across the field, which a host reports as too far instead of ordering (control.md §5.1b).
-	 * Asked per doll with a fresh behavior, so nothing is left behind.
-	 */
+	/** Whether any summoned doll could actually hit this target: a valid weapon for the type, and
+	 * a behavior that can reach it — the reach half is what separates this from
+	 * {@link #hasCapableDoll}: armed melee dolls cannot touch a mob across the field, so a host
+	 * reports too far instead of ordering (control.md §5.1b). Asked per doll, fresh behavior. */
 	public boolean canAttack(LivingEntity owner, LivingEntity target, DollActionType type) {
 		for (DollData data : ledger.dolls()) {
 			if (!(resolveEntity(owner, data) instanceof DollEntity doll)) continue;
@@ -202,11 +191,8 @@ public class DollCommander {
 		return pick.actions.tryStart(action, now) ? pick : null;
 	}
 
-	/**
-	 * A one-time order pinned to a specific doll, for a character that wants each of her dolls on a
-	 * target of her own choosing rather than whichever doll is free first. Returns false when that
-	 * doll cannot take the order.
-	 */
+	/** A one-time order pinned to a specific doll, for a character that wants each of her dolls on
+	 * a target of her own choosing. False when that doll cannot take the order. */
 	public boolean issueTo(DollEntity doll, DollAction action) {
 		if (!doll.actions.canAccept(doll, action)) return false;
 		return doll.actions.tryStart(action, doll.level().getGameTime());
@@ -232,11 +218,8 @@ public class DollCommander {
 		return false;
 	}
 
-	/**
-	 * Stop: halt every doll and drop in-flight iterations — suicide dives are unstoppable once
-	 * started — and clear heal marks and commanded-attack records so post-stop bullets and heals
-	 * stand down too. Returns dolls halted.
-	 */
+	/** Stop: halt every doll and drop in-flight iterations (suicide dives are unstoppable once
+	 * started), clear heal marks and commanded-attack records so post-stop bullets stand down. */
 	public int stopAll(LivingEntity owner) {
 		long now = owner.level().getGameTime();
 		int n = 0;
@@ -253,11 +236,9 @@ public class DollCommander {
 		return n;
 	}
 
-	/**
-	 * Tells the next available doll to go ahead without releasing the local wait, used when an
-	 * accepted iterative action stalls before starting. The waiter keeps its own attempt and abort
-	 * timer; nothing is added to {@code done} here.
-	 */
+	/** Tells the next available doll to go ahead without releasing the local wait, used when an
+	 * accepted iterative action stalls. The waiter keeps its own abort timer; nothing is added to
+	 * {@code done} here. */
 	public void handAhead(DollEntity from, DollAction action) {
 		for (DollData data : ledger.dolls()) {
 			if (data.uuid == null ||
@@ -283,12 +264,10 @@ public class DollCommander {
 		return out;
 	}
 
-	/**
-	 * Chain-passing for iterative actions: start the same action (shared done-set) on the next
-	 * available doll. Hands on only while nobody else holds it — hand-ahead deliberately puts two
-	 * dolls on one action, and without that guard the volley would fan out instead of walking
-	 * down the roster (control.md §8). Returns false when the iteration ends.
-	 */
+	/** Chain-passing for iterative actions: start the same action (shared done-set) on the next
+	 * available doll, only while nobody else holds it — hand-ahead puts two dolls on one action,
+	 * and without this guard a volley fans out instead of walking the roster (control.md §8).
+	 * Returns false when the iteration ends. */
 	public boolean handOff(DollEntity from, DollAction action) {
 		if (heldBy(action, from)) return true;
 		for (DollData data : ledger.dolls()) {
@@ -357,9 +336,8 @@ public class DollCommander {
 	/**
 	 * The live doll an entry names, or null when there is nothing to act on.
 	 * <p>
-	 * A doll whose host it cannot resolve is deliberately excluded: such a doll can neither follow
-	 * nor be commanded, and counting it live would make the live count sit above the roster size —
- * which is exactly what suppresses the conjure that would replace it.
+	 * A doll whose host it cannot resolve is excluded on purpose: it can neither follow nor be commanded,
+	 * and counting it live pushes the count above the roster size, suppressing the conjure that replaces it.
 	 */
 	@Nullable
 	private Entity resolveEntity(Entity from, DollData data) {
@@ -412,11 +390,9 @@ public class DollCommander {
 
 	// ---------- scheduled heal: ledger-issued one-time orders, never doll-issued ----------
 
-	/**
-	 * Whether anyone the heal pass could spend a talisman on is hurt: the commander, any live doll
-	 * of this ledger, or a marked entity. Deliberately the set {@link #maybeAutoHeal} picks from
-	 * (control.md §6).
-	 */
+	/** Whether anyone the heal pass could spend a talisman on is hurt: the commander, any live doll
+	 * of this ledger, or a marked entity — deliberately the set {@link #maybeAutoHeal} picks from
+	 * (control.md §6). */
 	public boolean healNeeded(LivingEntity owner) {
 		if (HealTalisman.needsHeal(owner)) return true;
 		for (DollData data : ledger.dolls()) {

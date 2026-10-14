@@ -15,11 +15,9 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import net.neoforged.neoforge.event.EventHooks;
 
-/**
- * Blue fir sapling growing hand-built template trees: 1 sapling the medium tree,
- * 2x2 saplings the large tree (via the {@link TreeGrower} mega slot), 3x3 saplings
- * the giant tree. Vanilla has no 3x3 slot, so the giant is checked here first and
- * anything smaller falls back to the grower, mirroring vanilla mega handling.
+/** Blue fir sapling growing hand-built template trees: 1 sapling the medium tree, 2x2 the large tree
+ * (via the {@link TreeGrower} mega slot), 3x3 the giant — vanilla has no 3x3 slot, so the giant is
+ * checked here first and anything smaller falls back to the grower.
  */
 public class BlueFirSaplingBlock extends SaplingBlock {
 

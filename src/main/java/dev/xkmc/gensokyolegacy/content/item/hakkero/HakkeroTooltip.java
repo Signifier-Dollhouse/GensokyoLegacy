@@ -6,13 +6,10 @@ import net.minecraft.world.item.ItemStack;
 import java.util.List;
 
 /**
- * Server-side carrier for the finished Mini Hakkero's tooltip image: its contents plus the
- * smelting progress of each channel.
- *
- * <p>The contents are already simulated by the time this is built (see
- * {@code Hakkero.getTooltipImage}), so the progress it carries belongs to that same
- * simulated state. {@code progress} is {@link HakkeroData#CHANNELS} fractions in
- * permille, matching the menu's data slots, so both render from one representation.
+ * Server-side carrier for the finished Mini Hakkero's tooltip image: its contents plus the smelting
+ * progress of each channel. Contents are already simulated when this is built, so the progress
+ * belongs to that same state. {@code progress} is {@link HakkeroData#CHANNELS} permille, matching
+ * the menu's data slots.
  */
 public record HakkeroTooltip(List<ItemStack> slots, int[] progress)
 		implements TooltipComponent {

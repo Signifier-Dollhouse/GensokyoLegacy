@@ -39,12 +39,9 @@ import java.util.Optional;
 import java.util.TreeMap;
 
 /**
- * Alice Margatroid, the doll-maker living deep in the Magical Forest.
- *
- * <p>Quest chain: 1.1 ({@code first_doll}) → 2.1 ({@code seven_colors}) →
- * {@code daily_doll}. 2.1 is also one of the two ways into Marisa's talisman
- * errand (see {@code MarisaQDGen#talismanQuests}), which is why the quest ids
- * are public.
+ * Alice Margatroid, the doll-maker living deep in the Magical Forest. <p>Quest chain: 1.1 ({@code first_doll}) → 2.1
+ * ({@code seven_colors}) → {@code daily_doll}. 2.1 is also one of the two ways into Marisa's talisman errand (see
+ * {@code MarisaQDGen#talismanQuests}), which is why the quest ids are public.
  */
 @SuppressWarnings("SameParameterValue")
 public class AliceQDGen extends QuestDialogData {
@@ -53,9 +50,8 @@ public class AliceQDGen extends QuestDialogData {
 	public static final ResourceLocation QUEST_SEVEN_COLORS = GensokyoLegacy.loc("alice/seven_colors");
 
 	/**
-	 * The seven colors of the Doll Glove, in spectral order. Shared by the
-	 * 2.1 request, the daily roll and the glove trade so the three can never
-	 * drift apart.
+	 * The seven colors of the Doll Glove, in spectral order. Shared by the 2.1 request, the daily roll and the glove
+	 * trade so the three can never drift apart.
 	 */
 	private static final List<Item> SPECTRUM_DYES = List.of(
 			Items.RED_DYE, Items.ORANGE_DYE, Items.YELLOW_DYE, Items.LIME_DYE,
@@ -102,10 +98,8 @@ public class AliceQDGen extends QuestDialogData {
 
 		visitChats();
 
-		// Unlocked by 2.1, which is also the quest that hands out the first doll
-		// lance - this chat says what a doll fights with and where the wands come from.
-		// Deliberately not home-bound: it points at a house further along, which is
-		// exactly what a guest should hear.
+		// Unlocked by 2.1, the quest that hands out the first doll lance - this chat
+		// says what a doll fights with, and deliberately points at a house further along.
 		prefix("alice/chat_star_wand");
 		chat("alice/chat_star_wand", GLEntities.ALICE.get(),
 				List.of(hasQuest(QUEST_SEVEN_COLORS)),
@@ -118,9 +112,8 @@ public class AliceQDGen extends QuestDialogData {
 	}
 
 	/**
-	 * Alice out visiting. Marisa's house is the only place she goes, so this is
-	 * written for that house rather than left host-agnostic. {@code visitingAt}
-	 * implies she is a guest at all, so none of it can surface at her own door.
+	 * Alice out visiting. Marisa's house is the only place she goes, so this is written for that house rather than left
+	 * host-agnostic. {@code visitingAt} implies she is a guest at all, so none of it can surface at her own door.
 	 */
 	private void visitChats() {
 		prefix("alice/visit_marisa_house");
@@ -234,9 +227,8 @@ public class AliceQDGen extends QuestDialogData {
 
 	private void trades() {
 		prefix("alice");
-		// Alice sews by hand, so the glove is a weekly item at best; the plain
-		// dolls she can turn out one at a time. The lance is the cheap one - iron
-		// and a day's work - but a day is still a day, so one a day it is.
+		// Alice sews by hand, so the glove is a weekly item at best while the plain
+		// dolls come out one at a time; the lance is iron and a day's work, so one a day.
 		trade("offer_doll_glove", new TradeOffer(GLEntities.ALICE.get(),
 				List.of(new HasQuestCompletedCondition(QUEST_SEVEN_COLORS)),
 				new ItemStack(GLItems.DOLL_GLOVE.get()),

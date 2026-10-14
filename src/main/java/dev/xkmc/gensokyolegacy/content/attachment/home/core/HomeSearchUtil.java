@@ -114,9 +114,8 @@ public class HomeSearchUtil {
 				if (kind.isValid(sl, e)) return e;
 				list.remove(e);
 			}
-			// no cached valid block within range: fall back to a cached block
-			// outside the range, or trigger a fresh search below; forced scans
-			// are throttled to at most one per 20 ticks
+			// no cached valid block within range: fall back to a cached block outside it,
+			// or trigger a fresh search below; forced scans throttle to one per 20 ticks
 			var fb = fallback(list, rooms, sl, rand, kind, area);
 			if (fb != null) return fb;
 			if (now < cache.lastSearch + 20L) return null;
@@ -201,9 +200,8 @@ public class HomeSearchUtil {
 	}
 
 	/**
-	 * BFS from a seed position, collecting all connected blocks of the given kind.
-	 * Two blocks count as connected when they are at most {@code radius} blocks
-	 * apart on each axis. Used to find a whole group of adjacent shelves from one hit.
+	 * BFS from a seed position, collecting all connected blocks of the given kind (at most
+	 * {@code radius} apart on each axis). Finds a whole group of adjacent shelves from one hit.
 	 */
 	public static List<BlockPos> collectConnected(ServerLevel sl, BlockPos seed, HomeBlockKind kind, int radius) {
 		var ans = new ArrayList<BlockPos>();

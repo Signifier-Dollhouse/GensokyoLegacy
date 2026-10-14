@@ -13,11 +13,10 @@ import org.jetbrains.annotations.Nullable;
 import java.util.UUID;
 
 /**
- * Transient host for stray dolls: holds the entry freed by {@link #detach} so entity code needs no
- * stray branches — pairing queries just work. Persists the doll by delegating chunk save/load
- * through l2serial.
+ * Transient host for stray dolls, holding the entry freed by {@link #detach} so pairing
+ * queries need no stray branches. Persists by delegating chunk save/load through l2serial.
  *
- * @see doc/design/doll/control.md
+ * @see "doc/design/doll/control.md"
  */
 public class StrayHost implements DollHost {
 
@@ -34,9 +33,9 @@ public class StrayHost implements DollHost {
 	}
 
 	/**
-	 * Hands the detached entry to a rejoin or an itemize — the one-shot consumption of the
-	 * death drop, but for a doll that is still alive. The entry never comes back, so a caller
-	 * that fails partway must drop it rather than leave a spent host behind.
+	 * Hands the detached entry to a rejoin or an itemize — the death drop's one-shot
+	 * consumption, but for a doll still alive. The entry never comes back, so a caller that
+	 * fails partway must drop it rather than leave a spent host behind.
 	 */
 	@Nullable
 	public DollData take() {

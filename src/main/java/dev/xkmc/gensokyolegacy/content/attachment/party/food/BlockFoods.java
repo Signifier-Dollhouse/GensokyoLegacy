@@ -6,8 +6,7 @@ import net.neoforged.fml.ModList;
 /**
  * Registers one handler per kind of block food, in priority order. Most name a block class
  * belonging to another mod, so each is only <b>constructed</b> when that mod is present.
- *
- * @see doc/design/party/food_mods.md
+ * @see "doc/design/party/food_mods.md"
  */
 public final class BlockFoods {
 
@@ -15,7 +14,9 @@ public final class BlockFoods {
 	private static final String YSF = "youkaisfeasts";
 	private static final String KC = "kaleidoscope_cookery";
 
-	/** Register every known kind of block food. Call once, after the blocks exist. {@link BlockItemFood} must stay last. */
+	/**
+	 * Register every known kind of block food. Call once, after the blocks exist. {@link BlockItemFood} must stay last.
+	 */
 	public static void register() {
 		PartyFoodHandler.register(new CakeFood());
 

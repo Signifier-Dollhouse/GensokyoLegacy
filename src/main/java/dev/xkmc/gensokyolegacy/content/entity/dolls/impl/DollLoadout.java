@@ -10,10 +10,9 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.item.ItemStack;
 
 /**
- * Authoritative loadout plus its client mirror. Persistence (accessor definitions and
- * {@code DollData} restore) lives in {@link DollLoadoutModule}, driven as a doll module.
- * The ledger entry is authoritative; the entity accessors only carry it to clients
- * (loadout.md §3).
+ * Authoritative loadout plus its client mirror. Persistence lives in {@link DollLoadoutModule},
+ * driven as a doll module. The ledger entry is authoritative; the entity accessors only carry it
+ * to clients (loadout.md §3).
  */
 public interface DollLoadout extends DollBaseImpl {
 
@@ -37,9 +36,8 @@ public interface DollLoadout extends DollBaseImpl {
 	}
 
 	/**
-	 * Authoritative loadout. Server logic reads and writes here directly — the synced
-	 * accessors above are client mirror only. Never null: without a host entry it
-	 * returns a detached empty inventory, so callers need no null checks.
+	 * Authoritative loadout. Server logic reads and writes here directly; the synced accessors
+	 * are client mirror only. Never null: without a host entry it is a detached empty inventory.
 	 */
 	default MutableDollInventory loadout() {
 		DollHost host = asDoll().getHost();
@@ -58,9 +56,8 @@ public interface DollLoadout extends DollBaseImpl {
 	}
 
 	/**
-	 * Pushes the authoritative ledger loadout to the client mirror. Call after any
-	 * ledger-side mutation. Syncing a detached (hostless) inventory is a harmless
-	 * no-op.
+	 * Pushes the authoritative ledger loadout to the client mirror; call after any ledger-side
+	 * mutation. Syncing a detached (hostless) inventory is a harmless no-op.
 	 */
 	default void syncLoadoutMirror() {
 		MutableDollInventory inv = loadout();
@@ -69,18 +66,15 @@ public interface DollLoadout extends DollBaseImpl {
 	}
 
 	/**
-	 * Swaps main/off contents in the ledger, then refreshes the mirror. Called when
-	 * the doll is commanded to act with its off-hand item — the swap sticks until a
-	 * further command swaps back.
+	 * Swaps main/off contents in the ledger, then refreshes the mirror. Called when the doll is
+	 * commanded to act with its off-hand item; the swap sticks until a further command swaps back.
 	 */
 	default void swapHands() {
 		loadout().swapHands();
 		syncLoadoutMirror();
 	}
 
-	/**
-	 * Consumes items from a hand slot in the ledger, then refreshes the mirror.
-	 */
+	/** Consumes items from a hand slot in the ledger, then refreshes the mirror. */
 	default boolean consumeLoadoutItem(DollSlot slot, int count) {
 		MutableDollInventory inv = loadout();
 		ItemStack live = inv.get(slot);
@@ -92,9 +86,8 @@ public interface DollLoadout extends DollBaseImpl {
 	}
 
 	/**
-	 * Loadout persistence slice: the 4-slot client mirror definitions plus mirror
-	 * restore from {@link DollData}. Nothing to write — the ledger entry is authoritative
-	 * and the mirror is derive-only.
+	 * Loadout persistence slice: the 4-slot client mirror definitions plus mirror restore from
+	 * {@link DollData}. Nothing to write — the ledger is authoritative, the mirror derive-only.
 	 */
 	final class DollLoadoutModule implements DollModule {
 

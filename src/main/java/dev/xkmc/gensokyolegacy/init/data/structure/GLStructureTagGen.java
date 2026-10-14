@@ -23,11 +23,9 @@ public class GLStructureTagGen {
 	public static final ProviderType<RegistrateTagsProvider.Impl<Biome>> BIOME_TAG =
 			ProviderType.registerDynamicTag("biome", "biome", Registries.BIOME);
 
-	/**
-	 * Tags on the structure registry itself, as opposed to the biome tags below which say where a
-	 * structure may spawn. These are what {@code ServerLevel#findNearestMapStructure} takes, so
-	 * they are what "point me at Reimu's shrine" style lookups are written against.
-	 */
+	/** Tags on the structure registry itself, as opposed to the biome tags below which say where a structure
+	 *  may spawn. These are what {@code ServerLevel#findNearestMapStructure} takes, so "point me at Reimu's
+	 *  shrine" style lookups are written against them. */
 	public static final ProviderType<RegistrateTagsProvider.Impl<Structure>> STRUCTURE_TAG =
 			ProviderType.registerDynamicTag("structure", "structure", Registries.STRUCTURE);
 
@@ -38,13 +36,9 @@ public class GLStructureTagGen {
 	public static final TagKey<Biome> ALICE_HOUSE = biomeTag("has_structure/alice_house");
 	public static final TagKey<Biome> PLAIN_FAIRY_SPAWN = biomeTag("has_spawn/plain_fairy");
 
-	/**
-	 * Youkai's Feasts' own cherry tag, written by our datagen run. A tag provider writes to the
-	 * namespace of the tag it is handed, not to its own modid, so adding this one here produces
-	 * {@code data/youkaisfeasts/tags/worldgen/biome/cherry_biomes.json} — which is the only way to
-	 * reach a foreign tag without shipping a hand-written file, since we own no provider in that
-	 * namespace. Spelled out rather than imported because that mod is compile-only.
-	 */
+	/** Youkai's Feasts' own cherry tag, written by our datagen run: a tag provider writes to the namespace of
+	 *  the tag it is handed, so this is the only way to reach a foreign tag without a hand-written file.
+	 *  Spelled out rather than imported because that mod is compile-only. */
 	public static final TagKey<Biome> YSF_CHERRY_BIOMES = TagKey.create(Registries.BIOME,
 			ResourceLocation.fromNamespaceAndPath("youkaisfeasts", "cherry_biomes"));
 
@@ -54,15 +48,9 @@ public class GLStructureTagGen {
 	public static final TagKey<Structure> MORICHIKA_SHOP_STRUCTURE = structureTag("morichika_shop");
 	public static final TagKey<Structure> ALICE_HOUSE_STRUCTURE = structureTag("alice_house");
 
-	/**
-	 * Every character home at once. A lookup against this tag answers "which
-	 * of them is closest", which is what the catch-all flower in
-	 * {@code FairyDustItem} wants.
-	 * <p>
-	 * A datapack can override any of these tags, so the one a given flower points at is data, not
-	 * code: adding {@code gensokyolegacy:marisa_house} to a wider tag makes that flower reach
-	 * further afield without a code change.
-	 */
+	/** Every character home at once, so a lookup answers "which of them is closest" (what the catch-all flower in
+	 *  {@code FairyDustItem} wants). <p> A datapack can widen any of these tags, so the one a given flower
+	 *  points at is data, not code: it reaches further afield without a code change. */
 	public static final TagKey<Structure> CHARACTER_HOMES = structureTag("character_homes");
 
 	public static final TagKey<Block> CIRNO_PRIMARY = blockTag("structure_fix/cirno_nest/primary");
@@ -101,19 +89,11 @@ public class GLStructureTagGen {
 		pvd.addTag(HAKUREI_SHRINE)
 				.add(Biomes.CHERRY_GROVE)
 				.add(GLBiomes.SAKURA_FOREST)
-				// Youkai's Feasts' own sakura forest, which is a shrine grove as much as ours
-				// is. Optional, so that mod stays optional, and only that one biome: its
-				// sakura taiga and sakura birch forest are a different stand of trees and get
-				// the shrine no more than any other forest does. The other half of the
-				// exchange — our sakura forest in Youkai's Feasts' cherry_biomes — is
-				// YSF_CHERRY_BIOMES below, since a tag provider reaches a foreign namespace
-				// by the namespace of the tag rather than by its own modid.
+				// Youkai's Feasts' own sakura forest, a shrine grove as much as ours. Optional, so that mod stays
+				// optional, and only that one biome: its sakura taiga and birch forest are another stand of trees.
 				.addOptional(ResourceLocation.parse("youkaisfeasts:sakura_forest"));
-		// Our sakura forest is a cherry grove to Youkai's Feasts, which uses that tag for its
-		// cherry flavour and for the forest halves of its spawns. "replace" stays false, which
-		// is the whole point: their own file lists three sakura biomes and the tag loader
-		// clears everything accumulated so far if any pack sets replace. Only sakura forest —
-		// the magical forest is not a cherry grove, however many mushrooms grow in it.
+		// Our sakura forest is a cherry grove to Youkai's Feasts. "replace" stays false, which is the point: their
+		// file lists three sakura biomes and the loader clears all if any pack replaces. Magical forest is not one.
 		pvd.addTag(YSF_CHERRY_BIOMES).add(GLBiomes.SAKURA_FOREST);
 		pvd.addTag(MARISA_HOUSE)
 				.add(GLBiomes.MAGICAL_FOREST);
@@ -287,9 +267,8 @@ public class GLStructureTagGen {
 		// Cirno's nest in the snowy biomes (13x8x13): ice brick dome + its furniture
 		pvd.addTag(CIRNO_PRIMARY).add(
 				Blocks.PACKED_ICE, Blocks.SNOW_BLOCK,
-				// the door leaf is shell, not furniture: it is the one block
-				// that keeps the chamber sealed, so a fix pass that cleared it
-				// to air would let the snow in and undo the nest
+				// the door leaf is shell, not furniture: it is the one block that keeps the chamber sealed,
+				// so a fix pass that cleared it to air would let the snow in and undo the nest
 				Blocks.SPRUCE_DOOR
 		);
 		pvd.addTag(CIRNO_PRIMARY).addOptional(GensokyoLegacy.loc("ice_bricks"));

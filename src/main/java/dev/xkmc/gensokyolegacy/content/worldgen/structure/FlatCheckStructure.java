@@ -36,60 +36,10 @@ import java.util.Optional;
 import java.util.Set;
 
 /**
- * Port of YoukaiHomecoming 1.20.1 FlatStructure, paired with
- * {@link MultiSpreadPlacement}.
- * Multi-piece placement check. A speculative jigsaw layout is built per
- * candidate chunk, then validated in order:
- * <ol>
- * <li>Biome check on 8 total-bound points (4 union-box corners + 4 edge
- * centers).</li>
- * <li>Root footprint check: 9 terrain samples (corners + edge centers +
- * center of the start piece box). Rejects on sea level or when
- * {@code max - min > 2 * heightTolerance}; the average sets the spawn
- * height and the root rigid group is shifted to it.</li>
- * <li>Rigid check: every rigid piece's center terrain height must be within
- * {@code heightTolerance} of its placed ground level
- * ({@code boundingBox.minY + groundLevelDelta}).</li>
- * <li>Joint check: for every connected non-rigid subgraph, the placed
- * ground levels of all adjacent rigid groups must be within
- * {@code heightTolerance} of each other.</li>
- * </ol>
- * Rigid pieces linked by rigid-only paths form one group sharing the entry
- * (first) rigid piece as reference; non-rigid joints reset the budget so
- * total drift may accumulate along flexible chains. Sea level is checked
- * together with every height sample.
- *
- * <p>Multi-attempt: the placement yields {@code attempts} uniform candidates
- * per region (covering the full region, including the old separation margin
- * band). Every candidate recomputes the same ordered candidate list and only
- * the least-index candidate passing the full check below builds, so exactly
- * one structure start is placed per region. The checks are pure functions of
- * world seed and position, making the winner independent of chunk generation
- * order. {@code spacing}, {@code spreadType}, {@code salt} and
- * {@code attempts} must match the structure set placement (synced by datagen).
- *
- * <p>Margin check: a candidate within {@code safetyRadius} chunks of its
- * region border is rejected when an adjacent region hosts a candidate within
- * {@code safetyRadius} chunks of it that passes the prefilter (the sea +
- * structure-biome gate) and lies at most as close to its own region center as
- * we do to ours. The closer of two colliding candidates survives, the farther
- * one is deferred, and exact ties reject both. Because the prefilter and the
- * center distance are pure functions of seed and position and never consult
- * neighbor margins, the check is cheap, order-independent and never builds
- * jigsaw layouts. Every placed structure passes the prefilter at its own
- * candidate chunk, so no two structures can land within
- * {@code safetyRadius} chunks of each other.
- *
- * <p>Shared sets: structures grouped in one {@code StructureSet} (same
- * spacing, salt and attempts, hence identical candidate lists) each carry
- * {@code setIndex}/{@code setCount} synced by datagen. Every region
- * deterministically picks exactly one member
- * ({@link #pickForRegion}), and only the picked member may generate there,
- * so two members of one set can never share a region no matter how their
- * per-template terrain checks diverge. {@code setCount} may exceed the
- * number of registered members; picks landing on unassigned indices
- * generate nothing, reserving room for future members. Never change
- * {@code setCount} or salt once released, or existing picks will shift.
+ * Port of YoukaiHomecoming 1.20.1 FlatStructure, paired with {@link MultiSpreadPlacement}. Every check is a pure
+ * function of seed and position, so exactly one start per region is placed whatever the chunk generation order. {@code
+ * spacing}, {@code spreadType}, {@code salt} and {@code attempts} must match the structure set placement, and
+ * setCount/salt must never change once released.
  */
 public class FlatCheckStructure extends Structure {
 
@@ -164,10 +114,9 @@ public class FlatCheckStructure extends Structure {
 	}
 
 	/**
-	 * Index of the set member picked for the region {@code (rx, rz)}.
-	 * One fresh random per region, salted independently of the candidate
-	 * stream so the pick never shifts candidate positions. Pure function
-	 * of seed and region: every member of the set computes the same pick.
+	 * Index of the set member picked for the region {@code (rx, rz)}. Drawn from its own salted random, never the
+	 * candidate stream, so a pick can not shift candidate positions; pure in seed and region, so every member of the
+	 * set computes the same pick.
 	 */
 	public static int pickForRegion(long seed, int rx, int rz, int salt, int count) {
 		if (count <= 1) {
@@ -210,9 +159,8 @@ public class FlatCheckStructure extends Structure {
 	}
 
 	/**
-	 * Full eligibility of a candidate chunk, cheapest gates first:
-	 * middle-column prefilter, margin safety at the provisional height,
-	 * then the speculative jigsaw layout with tree checks.
+	 * Full eligibility of a candidate chunk, cheapest gates first: middle-column prefilter, margin
+	 * safety at the provisional height, then the speculative jigsaw layout with tree checks.
 	 */
 	private Optional<GenerationStub> checkCandidate(GenerationContext ctx, ChunkPos chunkpos) {
 		Prefilter pre = prefilter(ctx, chunkpos);
@@ -238,10 +186,9 @@ public class FlatCheckStructure extends Structure {
 	}
 
 	/**
-	 * Speculatively builds the jigsaw layout (provisional Y only fixes XZ;
-	 * the root rigid group is shifted to the footprint average afterwards)
-	 * and runs the biome, root-footprint, rigid and joint checks. On success
-	 * returns a stub serving the already-shifted pieces.
+	 * Builds the jigsaw layout speculatively (provisional Y only fixes XZ; the root rigid group is shifted to the
+	 * footprint average afterwards) and runs the biome, root-footprint, rigid and joint checks. On success returns a
+	 * stub serving the already-shifted pieces.
 	 */
 	private Validated validateLayout(GenerationContext ctx, ChunkPos chunkpos, int provY) {
 		int sea = ctx.chunkGenerator().getSeaLevel();
@@ -352,13 +299,10 @@ public class FlatCheckStructure extends Structure {
 	}
 
 	/**
-	 * Margin check: when the candidate is within safetyRadius chunks of its
-	 * region border, every candidate of an adjacent region within
-	 * safetyRadius chunks of it must either fail the prefilter or lie farther
-	 * from its own region center than we do from ours, otherwise a
-	 * neighboring region could host a structure there. The closer of two
-	 * colliding candidates survives; exact ties reject both. Candidates deep
-	 * inside their region are always safe. No jigsaw layouts are built here.
+	 * A candidate within {@code safetyRadius} chunks of its region border is rejected when a neighbouring region hosts
+	 * a candidate inside the same radius that passes the prefilter and lies at most as close to its own region center
+	 * as we do to ours. The closer of two colliding candidates survives, exact ties reject both, candidates deep inside
+	 * their region are always safe, and no jigsaw layouts are built here.
 	 */
 	private boolean checkMarginSafe(GenerationContext ctx, ChunkPos chunkpos) {
 		if (this.safetyRadius <= 0) {
@@ -449,12 +393,9 @@ public class FlatCheckStructure extends Structure {
 	}
 
 	/**
-	 * Dev diagnostic: lists every attempted position in one region and the
-	 * verdict per attempt (suppressed / place-fail / margin-fail /
-	 * pass(checks)), plus the cumulative funnel line, without placing
-	 * anything. Mirrors {@link #findGenerationPoint} so the trace shows
-	 * exactly what worldgen would attempt. Evaluation stops at the first
-	 * full pass, so later attempts are untried (suppressed).
+	 * Dev diagnostic: lists every attempted position in one region with its verdict (suppressed / place-fail /
+	 * margin-fail / pass(checks)) plus the cumulative funnel line, placing nothing. Mirrors {@link
+	 * #findGenerationPoint}, and stops at the first full pass, so later attempts are untried.
 	 */
 	public RegionReport diagnoseRegion(long seed, int regionX, int regionZ, RegistryAccess registries,
 								ChunkGenerator generator, RandomState randomState, StructureTemplateManager templates,
@@ -531,10 +472,8 @@ public class FlatCheckStructure extends Structure {
 	}
 
 	/**
-	 * Furthest gate passed for a layout failure reason: 2 = margin (layout
-	 * or detailed biome failed), 3 = detailed biome (root sea/variation
-	 * failed), 4 = root (rigid sea/variation failed), 5 = detailed rigid
-	 * checks (joint failed).
+	 * Furthest gate passed for a layout failure reason: 2 = margin (layout or detailed biome
+	 * failed), 3 = detailed biome (root sea/variation), 4 = root (rigid sea/variation), 5 = joint.
 	 */
 	private static int stageOf(String reason) {
 		if (reason.startsWith("joint[")) return 5;

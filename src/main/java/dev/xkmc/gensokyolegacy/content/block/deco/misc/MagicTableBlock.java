@@ -30,12 +30,8 @@ import net.neoforged.neoforge.client.model.generators.ModelFile;
 import net.neoforged.neoforge.client.model.generators.MultiPartBlockStateBuilder;
 import org.jetbrains.annotations.Nullable;
 
-/**
- * 魔法道具工作台。横向两格长的桌子，用 {@link #ORIGIN} 区分这一格是左半还是右半：
- * 放下时把自己当成左半，在右手边补出另一半，两半各自带各自的模型。
- *
- * <p>桌面就是本方块上面那一格，装饰（{@link TableDecoBlock}）直接摆在上面，所以这里不用为装饰留状态。
- */
+/** 魔法道具工作台。横向两格长的桌子，用 {@link #ORIGIN} 区分这一格是左半还是右半：放下时把自己当成左半，
+ * 在右手边补出另一半，两半各自带各自的模型。桌面就是本方块上面那一格，装饰直接摆在上面。 */
 public class MagicTableBlock implements CreateBlockStateBlockMethod, DefaultStateBlockMethod,
 		PlacementBlockMethod, SetPlacedByBlockMethod, OnReplacedBlockMethod, ShapePathFindBlockMethod {
 
@@ -58,12 +54,9 @@ public class MagicTableBlock implements CreateBlockStateBlockMethod, DefaultStat
 			new VoxelBuilder(2, 0, 5, 15, 8, 15));
 
 	/**
-	 * 把朝北的盒子转出四个朝向，按 {@link Direction#get2DDataValue()} 索引，
-	 * 正好对上 {@code state.getValue(FACING).get2DDataValue()}。
-	 *
-	 * <p>转法是 {@link VoxelBuilder#rotateFromNorth}，也就是 {@code LargeChairBlock} 在用的那种。
-	 * 它转的是 {@code 180 - toYRot}，而 blockstate 里模型转的是 {@code toYRot + 180}，两者在
-	 * 朝北朝南相等、在东西朝向差 180 度；这里按这套既有的配对来。
+	 * 把朝北的盒子转出四个朝向，按 {@link Direction#get2DDataValue()} 索引。转法是
+	 * {@link VoxelBuilder#rotateFromNorth}：它转 {@code 180 - toYRot}，而 blockstate 里模型转的是
+	 * {@code toYRot + 180}，两者在朝北朝南相等、在东西朝向差 180 度，这里按这套既有的配对来。
 	 */
 	public static VoxelShape[] allFaces(VoxelBuilder... northBoxes) {
 		VoxelShape[] ans = new VoxelShape[4];

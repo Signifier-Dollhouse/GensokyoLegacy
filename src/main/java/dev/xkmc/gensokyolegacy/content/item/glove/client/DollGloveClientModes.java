@@ -13,10 +13,10 @@ import net.minecraft.world.item.ItemStack;
 import java.util.List;
 
 /**
- * Client half of wheel visibility: super / suicide show while a summoned doll carries a matching
- * weapon, read off the synced roster plus each doll's server-computed validity mask.
+ * Client half of wheel visibility: super / suicide show while a summoned doll carries a matching weapon, read
+ * off the synced roster's server-computed validity.
  *
- * @see doc/design/doll/glove.md
+ * @see "doc/design/doll/glove.md"
  */
 public final class DollGloveClientModes {
 

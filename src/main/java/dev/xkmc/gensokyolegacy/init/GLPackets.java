@@ -49,12 +49,10 @@ import java.util.List;
 import java.util.function.Function;
 
 /**
- * Builds the mod's single {@link PacketHandler}, kept as {@link GensokyoLegacy#HANDLER}.
- * <p>
- * Every packet is registered here in one chain; the direction only, not the codec, is what
- * each call site decides. Serialized {@code Record} packets use the two-argument forms
- * (the codec comes from l2serial's {@code CodecAdaptor}); anything else passes its own
- * {@link StreamCodec} to the three-argument form.
+ * Builds the mod's single {@link PacketHandler}, kept as {@link GensokyoLegacy#HANDLER}. <p> Every packet is registered
+ * here in one chain; each call site decides only the direction, not the codec. Serialized {@code Record} packets use
+ * the two-argument forms (the codec comes from l2serial's {@code CodecAdaptor}); anything else passes its own {@link
+ * StreamCodec} to the three-argument form.
  */
 public class GLPackets {
 

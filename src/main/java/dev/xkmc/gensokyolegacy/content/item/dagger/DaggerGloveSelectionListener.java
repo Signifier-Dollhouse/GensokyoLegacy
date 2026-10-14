@@ -15,13 +15,11 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Selector listener for the {@link DaggerGloveItem}'s firing mode, mirroring
- * {@code DollGloveSelectionListener} (glove.md §3). Simpler than the doll glove's because all three
- * modes are always available: no availability filter, no client/server split over what is visible.
- * The mode is the enum ordinal in a data component, so the wheel and the scroll selector both speak
- * ordinals and neither can name a mode that does not exist.
+ * Selector listener for the {@link DaggerGloveItem}'s firing mode, mirroring {@code DollGloveSelectionListener}
+ * (glove.md §3); all three modes are always available and stored as enum ordinals, so there is no availability
+ * filter and no client/server split.
  *
- * @see doc/design/dagger_glove.md
+ * @see "doc/design/dagger_glove.md"
  */
 public class DaggerGloveSelectionListener extends IItemSelector implements WheelAdaptor.Provider {
 

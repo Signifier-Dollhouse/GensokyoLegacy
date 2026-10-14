@@ -9,12 +9,11 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Server-to-owner summoned-doll roster, full-replace in ledger order, sent only when it changed
- * (glove.md §2c) since the capability itself syncs nothing. Entries carry the live entity id for
- * O(1) client lookup plus the ledger uuid, which guards against id reuse after a
- * discard/resummon.
+ * Server-to-owner doll roster, full-replace in ledger order, sent only on change (glove.md §2c);
+ * the capability itself syncs nothing. Each entry pairs the entity id for O(1) lookup with the
+ * ledger uuid, which guards id reuse after a resummon.
  *
- * @see doc/design/doll/glove.md
+ * @see "doc/design/doll/glove.md"
  */
 public record DollRosterToClient(ArrayList<Entry> roster) implements SerialPacketBase<DollRosterToClient> {
 

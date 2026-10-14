@@ -28,6 +28,10 @@ NeoForge 1.21.1 mod (Gensokyo Legacy, Touhou characters/structures). Java 21, Gr
 ## Code style
 - Never use fully-qualified names (FQNs) inline — always add an `import` and use the simple name. This applies to all Java sources.
 - Use package-info.java for all packages with nullability annotation.
+- Comments must be concise. A Javadoc block is one line of summary plus at most one more line for the non-obvious *why*; a `//` run is at most two lines. Keep every line within ~120 cols — cut words, not line length.
+- Long information does not belong in code. Design rationale, engine quirks, layout tables, tuning tables and worked examples go in `doc/design/<feature>.md`, and the code keeps a pointer: `@see "doc/design/<feature>.md"` on the type, and a bare `party/send.md §3` next to the line it explains. Quote the path — `@see "doc/..."` — so the reference reads as a string and not as a dangling symbol.
+- Keep the load-bearing fact when condensing. If a comment explains why the code is shaped oddly (a constraint, a GeckoLib or vanilla quirk), that sentence stays; what goes is restatement of the code, repetition and preamble.
+- Preserve every `@param` / `@return` / `@throws` / `@see` and meaningful `{@link}` / `{@code}`. Never add a comment where there is none, never split one comment into two, and never drop a comment entirely to shorten it — merge duplicates instead, keeping the one that matches the code.
 
 ## Code layout
 - `content/entity/characters/<character>/` — per-character Entity/Model/Renderer (fairy, maiden, rumia, merchant, boss); shared youkai base classes in `content/entity/youkai/`; AI in `content/entity/behavior/` (brain/sensor/task/move/combat).

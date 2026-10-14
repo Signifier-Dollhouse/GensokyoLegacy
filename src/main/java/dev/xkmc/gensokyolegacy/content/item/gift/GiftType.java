@@ -6,9 +6,8 @@ import net.minecraft.network.chat.MutableComponent;
 import java.util.Locale;
 
 /**
- * Category of a gift. Characters have per-category preferences
- * (see {@link GiftPreference}), so the same category is worth different
- * favor to different characters.
+ * Category of a gift. Characters have per-category preferences (see {@link GiftPreference}), so the same
+ * category is worth different favor to different characters.
  */
 public enum GiftType {
 	TOY("Toy"),

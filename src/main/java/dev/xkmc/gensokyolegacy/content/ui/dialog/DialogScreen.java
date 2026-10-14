@@ -39,14 +39,9 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * A conversation with a character, drawn over the untouched world.
- *
- * <p>Deliberately a plain {@link Screen} and not an
- * {@code AbstractContainerScreen}: the dialog has no slots, so the menu it
- * used to run on was only ever a sync channel - and a menu on screen is
- * something mods decorate whether they should or not. State arrives through
- * the {@code content.rpg.network} dialog packets instead, and the screen owns
- * nothing but how to draw; see {@link DialogSession} for the server half.
+ * A conversation with a character, drawn over the untouched world. Deliberately a plain {@link Screen} and not an
+ * {@code AbstractContainerScreen}: with no slots the menu was only ever a sync channel, and mods decorate any
+ * container screen on show whether they should or not.
  */
 public abstract class DialogScreen extends Screen {
 
@@ -125,18 +120,14 @@ public abstract class DialogScreen extends Screen {
 	private static final int HOVER_FILL = 0x30FFFFFF;
 
 	/**
-	 * Typewriter speed for the body text, in characters per tick. The text is
-	 * revealed a little at a time; a click or a key press skips straight to the
-	 * end, and the options only appear once it has been fully shown.
+	 * Typewriter speed for the body text, in characters per tick. The text is revealed a little at a time; a click
+	 * or a key press skips to the end, and the options only appear once it has been fully shown.
 	 */
 	private static final float TYPE_SPEED = 1.5F;
 
 	/**
-	 * Voice of the typewriter. The blip is voiced once every
-	 * {@link #BLIP_STRIDE_MIN} to {@link #BLIP_STRIDE_MAX} characters instead of on
-	 * every one, and its pitch is drawn from these semitone offsets, so a line is
-	 * spoken in a slower, wandering voice rather than a flat buzz. The blip itself
-	 * is as long as the gap between two of them - see tools/gen_dialog_blip.ps1.
+	 * Voice of the typewriter: the blip fires every {@link #BLIP_STRIDE_MIN} to {@link #BLIP_STRIDE_MAX} characters
+	 * at a pitch drawn from these semitone offsets, so a line speaks wandering rather than flat.
 	 */
 	private static final int[] BLIP_SEMITONES = {0, -2, 1, -1, 2};
 	private static final float BLIP_VOLUME = 0.15F;
@@ -144,10 +135,8 @@ public abstract class DialogScreen extends Screen {
 	private static final int BLIP_STRIDE_MAX = 3;
 
 	/**
-	 * The dialog screen on top right now, if any. Stamped <em>before</em> the
-	 * screen reaches {@code setScreen}, so the outgoing screen's
-	 * {@link #removed()} can tell "replaced by another dialog" from "actually
-	 * closed" and only report the latter back to the server.
+	 * The dialog screen on top right now, if any. Stamped <em>before</em> {@code setScreen} tears the old one down, so
+	 * {@link #removed()} can tell "replaced by another dialog" from "actually closed" and only report the latter.
 	 */
 	@Nullable
 	private static DialogScreen current;
@@ -168,9 +157,8 @@ public abstract class DialogScreen extends Screen {
 	protected final int session;
 
 	/**
-	 * The character being talked to, or null if it is not loaded on this side.
-	 * The id is kept regardless, so a click or a close can still be answered
-	 * when the entity is gone.
+	 * The character being talked to, or null if it is not loaded on this side. The id is kept regardless, so a
+	 * click or a close can still be answered when the entity is gone.
 	 */
 	protected final int characterId;
 
@@ -179,9 +167,8 @@ public abstract class DialogScreen extends Screen {
 	protected int sel = -1;
 
 	/**
-	 * How much of the body text has been typed out so far, and how much there
-	 * is in total, both counted in code points. {@code typedTotal} is -1 until
-	 * the text has been laid out once, and 0 when this screen has none.
+	 * How much of the body text has been typed out so far and how much there is in total, both in code points;
+	 * {@code typedTotal} is -1 until the text has been laid out once, and 0 when this screen has none.
 	 */
 	private float typedChars;
 	private int typedTotal = -1;
@@ -202,9 +189,8 @@ public abstract class DialogScreen extends Screen {
 	}
 
 	/**
-	 * Put a dialog on screen, replacing whichever one was there. Claims
-	 * ownership <em>before</em> {@code setScreen} tears the old one down, which
-	 * is what keeps the swap from looking like a close.
+	 * Put a dialog on screen, replacing whichever one was there. Claims ownership <em>before</em> {@code setScreen}
+	 * tears the old one down, which is what keeps the swap from looking like a close.
 	 */
 	protected static void show(DialogScreen screen) {
 		current = screen;
@@ -241,9 +227,8 @@ public abstract class DialogScreen extends Screen {
 	}
 
 	/**
-	 * True while the body text is still being typed out, so that a click or a
-	 * key press finishes it rather than closing the screen or taking an option,
-	 * which is not drawn before the text is complete.
+	 * True while the body text is still being typed out, so a click or a key press finishes it rather than closing
+	 * the screen or taking an option, which is not drawn before the text is complete.
 	 */
 	protected boolean isTyping() {
 		return typedTotal > 0 && typedChars < typedTotal;
@@ -254,13 +239,8 @@ public abstract class DialogScreen extends Screen {
 	}
 
 	/**
-	 * Voice the characters revealed this tick. The voice runs on a stride of
-	 * {@link #BLIP_STRIDE_MIN} to {@link #BLIP_STRIDE_MAX} characters instead of one
-	 * per character - which is why the blip is as long as the gap between two of
-	 * them. Spaces are skipped without advancing the stride, so the voice breaks at
-	 * word boundaries the way speech does, and at most one blip is voiced per tick:
-	 * the text can advance two characters in one, and a second blip would only sound
-	 * louder, not faster.
+	 * Voice the characters revealed this tick, on a stride of {@link #BLIP_STRIDE_MIN} to {@link #BLIP_STRIDE_MAX}
+	 * characters. Spaces are skipped without advancing the stride, and at most one blip is voiced per tick.
 	 */
 	private void blip(int from, int to) {
 		boolean voice = false;
@@ -275,9 +255,8 @@ public abstract class DialogScreen extends Screen {
 	}
 
 	private void playBlip(float pitch) {
-		// VOICE rather than MASTER, which is what SimpleSoundInstance.forUI picks:
-		// a blip per character fires up to thirty times a second, so it deserves a
-		// slider of its own instead of riding on the master volume
+		// VOICE rather than MASTER, which is what SimpleSoundInstance.forUI picks: a blip per character fires up to
+		// thirty times a second, so it deserves a slider of its own instead of riding on the master volume
 		minecraft.getSoundManager().play(new SimpleSoundInstance(
 				GLSounds.DIALOG_BLIP.get().getLocation(), SoundSource.VOICE, BLIP_VOLUME, pitch,
 				SoundInstance.createUnseededRandom(), false, 0, SoundInstance.Attenuation.NONE, 0, 0, 0, true));
@@ -494,10 +473,8 @@ public abstract class DialogScreen extends Screen {
 	}
 
 	private static void blitBg(GuiGraphics g, float scale, int px, int py, int uw, int vh, int u, int v) {
-		// expand every quad to whole screen pixels: adjacent tiles overlap by up
-		// to 1px (harmless, the bg draws opaque) instead of abutting on fractional
-		// screen positions, which opens 1px world-colored seams at odd gui scales;
-		// blitSprite only draws sprites 1:1, so restate its innerBlit here
+		// expand every quad to whole screen pixels: adjacent tiles overlap by up to 1px (harmless, the bg draws
+		// opaque) rather than abutting fractionally, which opens 1px seams at odd gui scales; blitSprite is 1:1 only
 		int x0 = Mth.floor(px * scale);
 		int y0 = Mth.floor(py * scale);
 		int x1 = Mth.ceil((px + uw) * scale);
@@ -598,9 +575,8 @@ public abstract class DialogScreen extends Screen {
 	}
 
 	/**
-	 * The first {@code limit} characters of a line. The original sink calls are
-	 * forwarded unchanged - index, style and code point - so the partial line is
-	 * drawn exactly like the full one, just cut short.
+	 * The first {@code limit} characters of a line. Sink calls are forwarded unchanged - index, style and code
+	 * point - so the partial line is drawn exactly like the full one, just cut short.
 	 */
 	private static FormattedCharSequence truncate(FormattedCharSequence line, int limit) {
 		if (limit <= 0) return FormattedCharSequence.EMPTY;
@@ -627,9 +603,8 @@ public abstract class DialogScreen extends Screen {
 	}
 
 	/**
-	 * Draw the side panel describing a quest, resolved against the client's own
-	 * synced registry. Shows the started quest's state, or a preview of it when
-	 * the player has not picked it up yet.
+	 * Draw the side panel describing a quest, resolved against the client's own synced registry: the started
+	 * quest's state, or a preview of it when the player has not picked it up yet.
 	 */
 	protected void renderQuestInfo(GuiGraphics g, @Nullable ResourceLocation questId) {
 		if (questId == null) return;

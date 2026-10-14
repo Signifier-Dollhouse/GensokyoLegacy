@@ -4,11 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Wheel visibility: rally and volley always show; skill and suicide show only while a summoned
- * doll can perform them. The current mode is always included, so the wheel index can never go
- * missing.
- *
- * @see doc/design/doll/glove.md
+ * Wheel visibility: rally and volley always show, skill and suicide only while a summoned doll can
+ * perform them; the current mode is included, so the wheel index can never go missing.
+ * @see "doc/design/doll/glove.md"
  */
 public final class DollGloveModes {
 

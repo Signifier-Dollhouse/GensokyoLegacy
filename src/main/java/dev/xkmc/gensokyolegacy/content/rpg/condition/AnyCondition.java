@@ -10,13 +10,9 @@ import net.minecraft.server.level.ServerPlayer;
 import java.util.List;
 
 /**
- * Composite condition that passes as soon as one of its nested conditions
- * passes. Condition lists themselves are ANDed (see {@code GatedEntry#match}),
- * so this is the only way to write "either A or B" - e.g. Marisa's talisman
- * errand is offered once the player is known to Reimu <i>or</i> to Alice.
- *
- * <p>An empty list never passes, matching the "no requirement" reading of an
- * empty AND list rather than "always satisfied".
+ * Composite condition that passes as soon as one nested condition passes. Condition lists are ANDed (see {@code
+ * GatedEntry#match}), so this is the only way to write "either A or B" - e.g. Marisa's talisman errand needs the player
+ * known to Reimu <i>or</i> to Alice. An empty list never passes.
  */
 public record AnyCondition(
 		List<QuestCondition<?>> conditions

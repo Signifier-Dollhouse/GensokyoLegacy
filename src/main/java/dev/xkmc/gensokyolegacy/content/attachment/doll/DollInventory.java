@@ -10,12 +10,11 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Arrays;
 
 /**
- * Immutable loadout storage: one array slot per {@link DollSlot} ordinal, not an enum map, so
- * l2serial handles it as a native array codec. Reads return copies and writes produce new
- * instances, so a stored {@link ItemStack} is never aliased or mutated in place — the
- * data-component rule. The live ledger loadout is {@link MutableDollInventory}.
+ * Immutable loadout storage: one array slot per {@link DollSlot} ordinal, not an enum map, so l2serial reads it as
+ * a native array codec. Reads copy and writes build new instances, so a stored {@link ItemStack} is never aliased
+ * or mutated in place — the data-component rule. The live ledger loadout is {@link MutableDollInventory}.
  *
- * @see doc/design/doll/loadout.md
+ * @see "doc/design/doll/loadout.md"
  */
 @SerialClass
 public class DollInventory {

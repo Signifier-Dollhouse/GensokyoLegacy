@@ -42,12 +42,10 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Fluid-first timed reactor: items are only accepted with a full tank, and both outputs of a
+/** Fluid-first timed reactor: items are only accepted with a full tank, and both outputs of a
  * finished reaction stay inside the same tank and slots.
  *
- * @see doc/design/alchemy_pot.md
- */
+ * @see "doc/design/alchemy_pot.md" */
 @SerialClass
 public class AlchemyPotBlockEntity extends BaseBlockEntity implements TickableBlockEntity, BaseContainerListener, BlockContainer, AlchemyHintOverlay.IHintable {
 

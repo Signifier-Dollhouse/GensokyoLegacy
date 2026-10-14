@@ -12,11 +12,7 @@ import java.util.Map;
 import java.util.function.Predicate;
 
 /**
- * Movement behaviour to handle strafing. <br>
- * Defaults:
- * <ul>
- *     <li>Continues strafing until the target is no longer in memory</li>
- * </ul>
+ * Movement behaviour to handle strafing, continuing until the target is no longer in memory.
  *
  * @param <E> The entity
  */

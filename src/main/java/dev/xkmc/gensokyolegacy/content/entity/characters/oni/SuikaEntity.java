@@ -23,19 +23,15 @@ import java.util.Optional;
 /**
  * Ibuki Suika, the oni who lives on her own at the edge of the Bamboo Forest.
  * <p>
- * She has no home in this mod: there is no bamboo forest to put one in, so like
- * {@code SakuyaEntity} she only ever turns up as a guest — see {@code GLStructureGen}
- * for the house she visits. That is why she is registered without a spawn egg.
- * <p>
- * Her content is deliberately unwritten for now: {@code SuikaQDGen} gives her the
+ * She has no home in this mod — there is no bamboo forest to put one in — so like
+ * {@code SakuyaEntity} she only turns up as a guest ({@code GLStructureGen}), which is why she
+ * has no spawn egg. Her content is deliberately unwritten: {@code SuikaQDGen} gives her the
  * greeting lines and nothing else, so she is met with an empty topic list.
  * <p>
- * She is also the only character who naps: {@link #napChance} buys her the
- * {@link GLBrains#NAP} activity, which is where her {@code 侧卧} clip is spent. It is
- * an activity rather than a fidget because a nap has to be able to end - she gets up for
- * a fight or a party - and a one-shot animation has no way to be interrupted. A
- * conversation does not get her up: she answers from where she is lying, in
- * {@link #NAP_TALK}.
+ * She is the only character who naps: {@link #napChance} buys her the {@link GLBrains#NAP}
+ * activity, where her {@code 侧卧} clip is spent. An activity rather than a fidget because a
+ * nap has to be able to end, and a one-shot animation cannot be interrupted. A conversation
+ * does not get her up — she answers from where she lies, in {@link #NAP_TALK}.
  * <p>
  * Which nap she lies down in is {@link #getNapVariant()}, a synced integer rather
  * than a second flag, because both the clip she holds while down and the one she
@@ -43,15 +39,10 @@ import java.util.Optional;
  * today, so the number is always 0; it is a number rather than a boolean because
  * the second {@code 侧卧_*} clip a rig grows should not have to touch any of this.
  * <p>
- * {@link #NAP_TALK} and the {@code 聚集} her spell card pulls with are the reason
- * the enum has {@link YoukaiAnim#TALK_SPECIAL_01} and {@link YoukaiAnim#SKILL_01}: a
- * slot every character shares cannot be named after what she happens to do with it.
- * <p>
- * Her rig is the narrowest one in the mod. It ships no {@code 眨眼} blink, no
- * greeting or thinking clips, and only two {@code 交流_*} ones, so {@link #getAnim}
- * answers empty for most dialog slots and {@link #hasBlinkAnim} says no: naming a
- * clip the rig does not have resolves it to null, and the controller handed the
- * empty queue logs "Unable to find animation" and writes nothing, every frame.
+ * Her rig is the narrowest in the mod: no {@code 眨眼} blink, no greeting or thinking clips,
+ * only two {@code 交流_*} ones, so {@link #getAnim} answers empty for most dialog slots and
+ * {@link #hasBlinkAnim} says no. A clip the rig does not have resolves to null, and the
+ * controller then logs "Unable to find animation" every frame.
  */
 @SerialClass
 public class SuikaEntity extends BossYoukaiEntity implements GeoYoukaiAnim {

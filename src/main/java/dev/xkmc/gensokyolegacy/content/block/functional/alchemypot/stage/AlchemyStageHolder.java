@@ -11,12 +11,9 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Picks the best matching stage recipe for the pot contents and reports the items it has not
+/** Picks the best matching stage recipe for the pot contents and reports the items it has not
  * consumed yet, so the renderer can bob them and clear can drop them.
- *
- * @see doc/design/alchemy_pot.md
- */
+ * @see "doc/design/alchemy_pot.md" */
 public class AlchemyStageHolder {
 
 	private List<RecipeHolder<AlchemyStageRecipe<?>>> recipes = new ArrayList<>();

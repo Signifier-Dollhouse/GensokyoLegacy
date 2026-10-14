@@ -11,14 +11,10 @@ import net.neoforged.neoforge.client.model.generators.ItemModelBuilder;
 import java.util.Locale;
 
 /**
- * Item model generation for the dagger glove, split out of {@code GLItems} like
- * {@code DollGloveModel}: the glove's model is built per mode rather than from one texture.
- * <p>
- * The held-hand half is {@link GloveHandModel}'s wiring around this glove's own
- * {@code custom/dagger_glove_hand} model, skinned per mode; the wheel icons behind
- * {@link DaggerGloveItem#iconStack} are flat, since an icon stack is gui-only and never held.
+ * Item model generation for the dagger glove, built per mode: the held half wraps {@link GloveHandModel}
+ * around the per-mode-skinned {@code dagger_glove_hand} model; {@link DaggerGloveItem#iconStack} icons stay flat.
  *
- * @see doc/design/dagger_glove.md
+ * @see "doc/design/dagger_glove.md"
  */
 public class DaggerGloveModel {
 

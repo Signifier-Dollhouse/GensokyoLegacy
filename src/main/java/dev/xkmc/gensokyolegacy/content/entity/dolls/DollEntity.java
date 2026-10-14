@@ -14,11 +14,10 @@ import net.minecraft.world.level.Level;
 import java.util.List;
 
 /**
- * Doll-specific half: the GeckoLib rig, the synced loadout and status slots, the
- * ticket handler and the one command goal. The pairing and integrity logic stays in
- * {@link BaseDollEntity} (entity.md §1).
+ * Doll-specific half: the GeckoLib rig, the synced loadout and status slots, the ticket
+ * handler and the one command goal. Pairing and integrity stay in {@link BaseDollEntity}.
  *
- * @see doc/design/doll/entity.md
+ * @see "doc/design/doll/entity.md"
  */
 public class DollEntity extends BaseDollEntity
 		implements DollGeo, DollCoreTalisman, DollShield, DollDanmakuAlly, DollStray, DollTint.Impl, DollStatus {

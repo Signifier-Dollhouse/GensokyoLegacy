@@ -22,13 +22,9 @@ import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.StructureStart;
 
 /**
- * Keeps wide vegetation away from buildings: rejects positions within {@code margin} blocks (XZ)
- * of the bounding box of any listed structure. Buildings generate in an earlier step, and a
- * template canopy would otherwise fill every air block of a house it overlaps.
- * <p>
- * During the features step only the decorated chunk and its direct neighbours carry complete
- * structure references, so the margin is capped at one chunk and the filter must run while the
- * positions still lie inside the decorated chunk (before any random offset).
+ * Rejects positions within {@code margin} blocks (XZ) of a listed structure's box, so a canopy can not fill the air
+ * blocks of a house it overlaps. <p> Only the decorated chunk and its neighbours carry references in the features step,
+ * so the margin caps at one chunk and the filter must run before any random offset.
  */
 public class AvoidStructuresFilter extends PlacementFilter {
 

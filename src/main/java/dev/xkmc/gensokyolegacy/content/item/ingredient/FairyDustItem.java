@@ -20,14 +20,12 @@ import net.minecraft.world.phys.Vec3;
 /**
  * Fairy dust sprinkled on a flower draws a ray of dust towards a character's home, and is spent.
  * <p>
- * Which home is decided by the flower: cherry blossom or poppy for the Hakurei shrine, dandelion
- * or daisy for Marisa, any tulip for Alice, cornflower for Morichika, and any other vanilla flower
- * for whichever of the four is closest. The lookup is a plain nearest-structure search over the
- * {@link GLStructureTagGen} structure tags within {@link #SEARCH_RADIUS} blocks, so a home the
- * player has never generated yet still counts.
- * <p>
- * When nothing of the right kind is within reach the dust is not spent and the ray is not cast;
- * the dust just scatters outwards, which reads as "there is nothing here".
+ * Which home is decided by the flower: cherry blossom or poppy for the Hakurei shrine, dandelion or
+ * daisy for Marisa, any tulip for Alice, cornflower for Morichika, and any other vanilla flower for
+ * whichever of the four is closest — a nearest-structure search over the {@link GLStructureTagGen}
+ * tags within {@link #SEARCH_RADIUS} blocks, so an ungenerated home still counts. Nothing of the
+ * right kind within reach: the dust is not spent and no ray is cast, it just scatters outwards,
+ * which reads as "there is nothing here".
  */
 public class FairyDustItem extends Item {
 
@@ -38,11 +36,8 @@ public class FairyDustItem extends Item {
 	public static final int COOLDOWN_TICKS = 40;
 
 	/**
-	 * Sampled off {@code textures/item/ingredient/fairy_dust.png}: the texture is a pale mint that
-	 * averages {@code #70A397} and peaks at {@code #C0F5C4}, and the midpoint of the two keeps the
-	 * mote readable without washing out against bright terrain. Tinted onto the vanilla
-	 * {@code minecraft:dust} sprite, which is a full-bright white mote that takes its colour from
-	 * the options.
+	 * Sampled off {@code textures/item/ingredient/fairy_dust.png}: a pale mint averaging {@code #70A397}
+	 * and peaking at {@code #C0F5C4}, readable without washing out against bright terrain.
 	 */
 	public static final int DUST_COLOR = 0x98CCAD;
 
@@ -99,9 +94,8 @@ public class FairyDustItem extends Item {
 		return InteractionResult.SUCCESS;
 	}
 
-	/**
-	 * The home a flower points at. Every flower in {@link BlockTags#FLOWERS} resolves to one of
-	 * our four; anything we do not name goes to {@link GLStructureTagGen#CHARACTER_HOMES} so the
+	/** The home a flower points at: every flower in {@link BlockTags#FLOWERS} resolves to one of
+	 * our four, and anything unnamed goes to {@link GLStructureTagGen#CHARACTER_HOMES} so the
 	 * nearest of the four wins.
 	 */
 	private static TagKey<Structure> targetTag(BlockState state) {
@@ -115,13 +109,9 @@ public class FairyDustItem extends Item {
 	}
 
 	/**
-	 * The ray, one packet per {@link #RAY_STEP} blocks rather than one per mote.
-	 * <p>
-	 * {@code sendParticles} scatters each of its count around the point it was given, so a handful
-	 * of motes per step already read as a continuous beam; a cast at full radius costs a few dozen
-	 * packets this way instead of a couple of hundred. {@code sendParticles} also drops the packet
-	 * for any player the line passes out of earshot of, which a mote-at-a-time loop has to redo
-	 * per mote.
+	 * The ray, one packet per {@link #RAY_STEP} blocks rather than one per mote: {@code sendParticles}
+	 * scatters its count around the point given, so a handful per step reads as a beam and a full-radius
+	 * cast costs a few dozen packets, dropping the rest for players out of earshot of the line.
 	 */
 	private static void castRay(ServerLevel sl, Vec3 from, Vec3 to) {
 		if (to.y() < from.y())

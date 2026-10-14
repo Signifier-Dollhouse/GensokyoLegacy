@@ -12,28 +12,20 @@ import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import java.util.Map;
 
 /**
- * One task of the party machine.
+ * One task of the party machine. A task does not know what it is a state <i>of</i>: it knows
+ * only whether its own fields on {@link PartyModule} still describe the situation. Which task
+ * that amounts to is decided by the brain's gate, in registration order, so the machine has no
+ * dispatcher and no phase enum.
  *
  * <p>
- * A task does not know what it is a state <i>of</i> — it only knows whether its own fields on
- * {@link PartyModule} still describe the situation, and it keeps running exactly as long as
- * they do. Which task that amounts to is decided by the brain's gate, in registration order,
- * so the machine has no dispatcher and no phase enum.
- *
- * <p>
- * <b>Walking is not a task.</b> Every party task carries {@code WALK_TARGET: VALUE_ABSENT},
- * and {@link #canStillUse} yields while a walk order is outstanding: {@code YoukaiMoveTask}
- * walks and clears the memory, and the gate then re-picks this same task arrived. That is why
- * reach needs no state — the walk order stands in for it.
- *
- * <p>
- * <b>{@link #stillMine} must go false once a task has done its job.</b> A running task keeps
- * the gate, so a task that stays true after it acts will simply keep acting. Every task that
- * sets a field therefore also tests for that field, and that is the whole handoff.
+ * <b>Walking is not a task:</b> every party task carries {@code WALK_TARGET: VALUE_ABSENT} and
+ * {@link #canStillUse} yields while a walk order is outstanding, so the walk order stands in for
+ * reach. <b>{@link #stillMine} must go false once a task has done its job</b>, or a running task
+ * keeps acting: every task that sets a field therefore also tests for it.
  *
  * @see PartyTasks for the order, which is the priority
  * @see PartyContext for the moves
- * @see doc/design/party/guest.md
+ * @see "doc/design/party/guest.md"
  */
 public abstract class PartyTask extends Behavior<SmartYoukaiEntity> {
 

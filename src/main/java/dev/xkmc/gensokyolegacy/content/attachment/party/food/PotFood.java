@@ -13,10 +13,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
- * A Youkai's Feasts bowl or pot: two or four servings counted <em>down</em>. The food is
- * found by permuting the block's id first, and only then by reflecting {@code BowlBlock.food}.
- *
- * @see doc/design/party/food_mods.md
+ * A Youkai's Feasts bowl or pot: two or four servings counted <em>down</em>. The food is found by
+ * permuting the block's id first, and only then by reflecting {@code BowlBlock.food}.
+ * @see "doc/design/party/food_mods.md"
  */
 public class PotFood extends AbstractCountdownFood {
 
@@ -30,11 +29,9 @@ public class PotFood extends AbstractCountdownFood {
 
 	/**
 	 * Take one serving, and let the bowl decide what it becomes.
-	 * <p>
-	 * <b>Not {@code destroyBlock}, which is what the countdown default does.</b> A bowl
-	 * already knows what is left of it, and delegating is the only way to be right about
-	 * <i>which</i> empty bowl appears.
-	 *
+	 * <p><b>Not {@code destroyBlock}, which is what the countdown default does.</b> A bowl already
+	 * knows what is left of it, and delegating is the only way to be right about <i>which</i> empty
+	 * bowl appears.
 	 * @return servings remaining, read off the counter before the block stepped it
 	 */
 	@Override

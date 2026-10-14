@@ -11,12 +11,8 @@ import net.minecraft.world.item.Items;
 
 import java.util.List;
 
-/**
- * Izayoi Sakuya. She has no structure of her own, so everything here is written
- * for the visit system and gated with {@code visitingAt} - Kourindou is the only
- * house she ever stands in. No quests: a guest can never hand out new work, so
- * registering one would be dead content.
- */
+/** Izayoi Sakuya: no structure of her own, so all of it is visit content gated on {@code visitingAt}
+ *  (Kourindou, her only host). No quests: a guest can never hand out new work, so one would be dead content. */
 public class SakuyaQDGen extends QuestDialogData {
 
 	public SakuyaQDGen() {
@@ -43,9 +39,8 @@ public class SakuyaQDGen extends QuestDialogData {
 
 	private void trades() {
 		prefix("sakuya");
-		// The only thing she is ever on site to sell. Cheap iron and no scarcity
-		// beyond the stock: sixteen is what a maid can keep sharp in a day, so
-		// sixteen a day is the honest number rather than a balancing one.
+		// The only thing she is ever on site to sell; cheap iron, sixteen a day because that is what a
+		// maid can keep sharp, so the number is honest rather than balanced.
 		trade("offer_iron_dagger", new TradeOffer(GLEntities.IZAYOI_SAKUYA.get(),
 				List.of(visitingAt(GLStructureGen.MORICHIKA_SHOP)),
 				new ItemStack(GLItems.IRON_DAGGER.get()),

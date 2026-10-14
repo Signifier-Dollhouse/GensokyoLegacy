@@ -14,14 +14,12 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * The server half of the shared glove target cache (glove.md §2): one ray-trace hint per glove per
- * player, written by {@code GloveTargetPacket} and read by whichever glove asks for it.
- * <p>
- * Session-only, and never authority: {@link #resolve} re-checks the glove's own TTL, the level, the
- * entity and the range, and the glove re-checks what it will accept
- * ({@link GloveTargeting#acceptsTarget}), so a modified client cannot buy itself a target.
+ * Server half of the glove target cache (glove.md §2): one ray-trace hint per glove, written by
+ * {@code GloveTargetPacket}. Session-only, and never authority: {@link #resolve} re-checks the
+ * glove's own TTL, the level, the entity and the range, and the glove re-checks what it will
+ * accept ({@link GloveTargeting#acceptsTarget}), so a modified client cannot buy itself a target.
  *
- * @see doc/design/doll/glove.md
+ * @see "doc/design/doll/glove.md"
  */
 @SerialClass
 public class GloveTargetAttachment extends PlayerCapabilityTemplate<GloveTargetAttachment> {
@@ -37,8 +35,7 @@ public class GloveTargetAttachment extends PlayerCapabilityTemplate<GloveTargetA
 
 	/**
 	 * Records a client trace result as this glove's hint, stamped with the level's game time.
-	 * Expired entries for every glove are dropped here — the write happens every few ticks while
-	 * the glove is held, a natural place to prune.
+	 * Expired entries for every glove are pruned here, on the write that runs every few ticks anyway.
 	 */
 	public void mark(Item glove, @Nullable UUID target, long now) {
 		entries.entrySet().removeIf(e -> e.getKey() instanceof GloveTargeting g && now - e.getValue().time > g.targetTtl());
@@ -47,8 +44,8 @@ public class GloveTargetAttachment extends PlayerCapabilityTemplate<GloveTargetA
 
 	/**
 	 * The hinted target for this stack's glove, or null: missing, stale, dead, out-of-level and
-	 * out-of-range hints all read the same way. A hit restamps the timestamp, so a target the
-	 * holder keeps looking at stays live however slowly they use the glove.
+	 * out-of-range hints all read alike. A hit restamps the timestamp, so a target the holder
+	 * keeps looking at stays live however slowly they use the glove.
 	 */
 	@Nullable
 	public LivingEntity resolve(ServerPlayer sp, ItemStack stack) {

@@ -34,10 +34,8 @@ public class GapPortalItem extends BlockItem {
 		var result = super.place(ctx);
 		if (!result.consumesAction() || player == null) return result;
 
-		// Unified hand handling (now consistent for any fresh placement):
-		// - Without id (anywhere, in gap or not): replace hand with portal item with same uuid and opposite side, regardless of creative.
-		//   The placed block is ENTRY, the hand copy is EXIT (or vice versa for fresh EXIT, rare).
-		// - With id (anywhere): consume hand to empty, regardless of creative.
+		// Unified hand handling: a fresh item leaves the opposite-side copy in the hand (placed ENTRY,
+		// hand EXIT, either dimension); an item that already has an id is consumed, even in creative.
 		if (!hadUuid) {
 			UUID id = null;
 			PortalSide placedSide = PortalSide.ENTRY;

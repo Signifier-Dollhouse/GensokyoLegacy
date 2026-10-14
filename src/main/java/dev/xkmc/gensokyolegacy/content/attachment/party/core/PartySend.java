@@ -32,11 +32,9 @@ import java.util.Random;
 import java.util.UUID;
 import java.util.function.ToIntFunction;
 
-/**
- * The one place a party is started, and the one place guests are spawned. Every rejection
+/** The one place a party is started, and the one place guests are spawned. Every rejection
  * happens before the letter is consumed, so a refused send costs the player nothing.
- *
- * @see doc/design/party/send.md
+ * @see "doc/design/party/send.md"
  */
 public class PartySend {
 
@@ -79,11 +77,8 @@ public class PartySend {
 		}
 	}
 
-	/**
-	 * Work out who would come, without touching anything.
-	 *
-	 * @param reputation how a character is to be scored, supplied so preview and send
-	 *                   cannot drift apart
+	/** Work out who would come, without touching anything.
+	 * @param reputation how a character is to be scored, supplied so preview and send cannot drift apart
 	 */
 	public static Outcome plan(ServerLevel level, ServerPlayer sp, BlockPos anchor,
 			ToIntFunction<EntityType<?>> reputation) {
@@ -112,10 +107,8 @@ public class PartySend {
 		return new Outcome(area, new Plan(area, pool, roster), null, null);
 	}
 
-	/**
-	 * The random the guest draw runs on, seeded from the <b>centre of the spread</b> so
-	 * either end of a long table draws the same party and preview cannot disagree with a
-	 * send. select.md §4.2.
+	/** The random the guest draw runs on, seeded from the <b>centre of the spread</b> so either end
+	 * of a long table draws the same party and preview cannot disagree with a send. select.md §4.2.
 	 */
 	private static Random drawOf(BlockPos center) {
 		long seed = (long) center.getX() * 0x9E3779B97F4A7C15L
@@ -142,9 +135,7 @@ public class PartySend {
 		return true;
 	}
 
-	/**
-	 * A real send: plan it, then commit.
-	 *
+	/** A real send: plan it, then commit.
 	 * @return what happened, for the caller to report
 	 */
 	public static Outcome send(ServerPlayer sp, BlockPos anchor, ItemStack letter) {
@@ -173,10 +164,8 @@ public class PartySend {
 		return outcome;
 	}
 
-	/**
-	 * Admit the next character of the roster, one arrival a second. The entry is always
-	 * dealt with, so a type that cannot be created costs one second rather than stalling
-	 * admission for ever.
+	/** Admit the next character of the roster, one arrival a second. The entry is always dealt
+	 * with, so a type that cannot be created costs one second rather than stalling admission.
 	 */
 	public static void admitNext(ServerLevel level, PartyAttachment party) {
 		// a closing party admits nobody: a guest arriving into one is told to leave
@@ -203,10 +192,8 @@ public class PartySend {
 		party.admit();
 	}
 
-	/**
-	 * A character of this type already on site who could come as herself — only a
-	 * {@link VisitModule visitor} or a {@link HomeModule resident} standing at her own
-	 * house qualifies: both have somewhere to go back to.
+	/** A character of this type already on site who could come as herself — only a
+	 * {@link VisitModule visitor} or a {@link HomeModule resident} at her own house qualifies.
 	 */
 	@Nullable
 	private static YoukaiEntity findOnSite(ServerLevel level, BlockPos anchor, EntityType<?> type) {
@@ -226,10 +213,8 @@ public class PartySend {
 		return e.distanceToSqr(Vec3.atCenterOf(home.pos())) <= (double) reach * reach;
 	}
 
-	/**
-	 * Put an already-existing character on the party's books. As {@link #spawn}, but her
-	 * {@code HomeModule} is left alone. Where she came from is what {@link
-	 * PartyModule#join} records.
+	/** Put an already-existing character on the party's books. As {@link #spawn}, but her
+	 * {@code HomeModule} is left alone; where she came from is what {@link PartyModule#join} records.
 	 */
 	private static void join(ServerLevel level, YoukaiEntity guest, @Nullable UUID host,
 			BlockPos table, @Nullable ChunkPos partyChunk) {
@@ -242,10 +227,9 @@ public class PartySend {
 				visit != null ? visit : home));
 	}
 
-	/**
-	 * End a party: every guest is told to leave, staggered, and the party finishes when the
-	 * last of them is gone. Deliberately not a {@code discard()} over the roster — a host
-	 * calling {@code end} mid-banquet should watch a table wind down, not vanish.
+	/** End a party: every guest is told to leave, staggered, and the party finishes when the last
+	 * is gone. Deliberately not a {@code discard()} over the roster — a host calling {@code end}
+	 * mid-banquet should watch a table wind down, not vanish.
 	 */
 	public static void close(ServerLevel level, PartyAttachment party) {
 		party.close(level.getGameTime());
@@ -254,10 +238,8 @@ public class PartySend {
 		}
 	}
 
-	/**
-	 * Put a guest on site. Deliberately does not touch {@code HomeModule}: with no home
-	 * binding the resident back home keeps living her ordinary day — send.md §3.
-	 *
+	/** Put a guest on site. Deliberately does not touch {@code HomeModule}: with no home binding
+	 * the resident back home keeps living her ordinary day — send.md §3.
 	 * @return the guest, or null if she could not be created or nowhere was found
 	 */
 	@Nullable
@@ -276,10 +258,9 @@ public class PartySend {
 		return youkai;
 	}
 
-	/**
-	 * Somewhere a guest can appear: random, within the scan distance, on the ground if
-	 * there is any, never inside the furniture. Deliberately not the guest radius — that is
-	 * how far she may wander once she is <i>at</i> the party, not how far away she appears.
+	/** Somewhere a guest can appear: random, within the scan distance, on the ground if there is
+	 * any, never inside the furniture. Deliberately not the guest radius — that is how far she may
+	 * wander once she is <i>at</i> the party, not how far away she appears.
 	 */
 	@Nullable
 	private static Vec3 arrivalNear(ServerLevel level, BlockPos anchor, YoukaiEntity youkai) {
@@ -299,13 +280,11 @@ public class PartySend {
 	}
 
 	/**
-	 * The walk target for both a chair and a dish, neither of which is walked to directly:
-	 * a chair is furniture to sit down from <i>beside</i>, and the block beside a dish on
-	 * a table is air at table height. Two rings in order — the block's own neighbours, then
-	 * their neighbours one support down.
-	 * <p>
-	 * Not checked for reachability: that is the pathfinder's question.
-	 *
+	 * The walk target for both a chair and a dish, neither of which is walked to directly: a
+	 * chair is furniture to sit down from <i>beside</i>, and the block beside a dish on a table is
+	 * air at table height. Two rings in order — the block's own neighbours, then their neighbours
+	 * one support down.
+	 * <p>Not checked for reachability: that is the pathfinder's question.
 	 * @return the block to walk to, or null when there is nowhere to stand near it
 	 */
 	@Nullable
@@ -335,10 +314,9 @@ public class PartySend {
 		return level.isLoaded(pos) && standable(level, pos) && !furniture(level, pos.getCenter());
 	}
 
-	/**
-	 * A free, standable block within {@code radius} rings of {@code near}, or null. Rings
-	 * outward rather than a box, so the closest free space wins — the caller wants beside
-	 * the chair, not as far from it as the search reached.
+	/** A free, standable block within {@code radius} rings of {@code near}, or null. Rings
+	 * outward rather than a box, so the closest free space wins — the caller wants beside the
+	 * chair, not as far from it as the search reached.
 	 */
 	@Nullable
 	public static Vec3 freeSpaceNear(ServerLevel level, BlockPos near, int radius) {
@@ -358,10 +336,8 @@ public class PartySend {
 		return null;
 	}
 
-	/**
-	 * The first spot around {@code pos} with air to stand in and something solid under it,
-	 * looking up then down. Bounded, or a tall empty shaft would run to the bottom of the
-	 * world.
+	/** The first spot around {@code pos} with air to stand in and something solid under it,
+	 * looking up then down. Bounded, or a tall empty shaft would run to the bottom of the world.
 	 */
 	@Nullable
 	private static BlockPos groundNear(ServerLevel level, BlockPos pos) {

@@ -15,15 +15,14 @@ import net.minecraft.world.level.storage.loot.predicates.LootItemConditionType;
 import java.util.Set;
 
 /**
- * Whether the guest in the loot context has been served enough of her own appeal — her
- * {@link PartyModule#appealEaten}, not the party's total. The guest is
- * {@link LootContextParams#THIS_ENTITY}; anything else there reads as zero, so a fully
- * gated table gives nothing instead of crashing.
+ * Whether the guest has eaten enough of her own appeal — {@link PartyModule#appealEaten}, not the
+ * party's total. Anything but a {@link LootContextParams#THIS_ENTITY} guest reads as zero, so a
+ * gated table gives nothing, not a crash.
  *
  * @param min    lowest appeal that passes, inclusive
  * @param max    highest appeal that passes, exclusive
  * @param invert pass when the comparison fails, as in {@code SelfReputationCondition}
- * @see doc/design/party/send.md
+ * @see "doc/design/party/send.md"
  */
 public record AppealConsumedCondition(int min, int max, boolean invert) implements LootItemCondition {
 

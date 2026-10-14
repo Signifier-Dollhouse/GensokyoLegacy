@@ -31,12 +31,9 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Places a hand-built vegetation template (tree, bush, huge mushroom) like a tree feature:
- * random rotation / mirror around the trunk, terrain checks, blending via
- * {@link TemplateBlendProcessor}. Same mechanism as the vanilla fossil feature, so the template
- * must stay within the 3x3 chunks a feature may write to (reach from the anchor &lt;= 15).
- * <p>
- * A plain configured feature: usable from saplings and mushroom growth as well.
+ * Places a hand-built vegetation template (tree, bush, huge mushroom) like a tree feature: random rotation /
+ * mirror, terrain checks, blending via {@link TemplateBlendProcessor}, under the vanilla fossil feature's
+ * 3x3-chunk write limit.
  */
 public class TemplateFeature extends Feature<TemplateFeatureConfig> {
 

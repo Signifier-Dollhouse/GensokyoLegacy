@@ -8,11 +8,10 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * A cake: several slices, each valued on its own. {@code instanceof CakeBlock}, so Youkai's
- * Feasts' cakes land here too. Vanilla {@code CakeBlock} carries no {@link FoodProperties}
- * at all, so its slice values are a fallback and a modded slice item is authoritative.
- *
- * @see doc/design/party/food_mods.md
+ * A cake: several slices, each valued on its own. {@code instanceof CakeBlock}, so Youkai's Feasts'
+ * cakes land here too. Vanilla {@code CakeBlock} carries no {@link FoodProperties} at all, so its
+ * slice values are a fallback and a modded slice item is authoritative.
+ * @see "doc/design/party/food_mods.md"
  */
 public class CakeFood extends AbstractCountdownFood {
 

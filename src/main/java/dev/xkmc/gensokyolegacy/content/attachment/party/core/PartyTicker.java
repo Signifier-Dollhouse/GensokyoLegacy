@@ -18,11 +18,9 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * Drives the phases of every party in this level. Each one registers its chunk here and
- * only those chunks are swept.
- *
- * @see doc/design/party/state.md
+/** Drives the phases of every party in this level. Each one registers its chunk here and only
+ * those chunks are swept.
+ * @see "doc/design/party/state.md"
  */
 public class PartyTicker {
 
@@ -76,11 +74,8 @@ public class PartyTicker {
 			unregister(level, pos);
 			return;
 		}
-		// No sweep for guests who cannot be found: getEntity only finds LOADED entities, so
-		// one outside her own chunk is indistinguishable from a corpse, and a sweep on a
-		// restored party would empty the roster before the guests are back. They come off
-		// from the two ends that mean it — PartyModule#onKilled and completeLeave
-		// (state.md §1.1).
+		// No sweep for guests who cannot be found: getEntity finds only LOADED entities, so one
+		// outside her chunk looks like a corpse; they come off via onKilled or completeLeave (state.md §1.1).
 		// refresh what the guests draw from before anyone asks: a stale list means no second course
 		party.refresh(level, level.getGameTime());
 		// one arrival a second — this 1 Hz pass is the clock, so no timer of its own is needed
@@ -104,10 +99,8 @@ public class PartyTicker {
 		unregister(level, party.chunk() == null ? pos : party.chunk());
 	}
 
-	/**
-	 * Whether the party is over: a closing one when its roster has drained, an open one
-	 * when nobody is left to invite. The {@code admitted()} check keeps staggered arrival
-	 * from reading an empty guest list as "everyone has gone".
+	/** Whether the party is over: a closing one when its roster has drained, an open one when nobody is left
+	 * to invite. The {@code admitted()} check keeps staggered arrival from reading an empty guest list as gone.
 	 */
 	private static boolean finished(ServerLevel level, PartyAttachment party) {
 		if (party.guests().isEmpty()) {

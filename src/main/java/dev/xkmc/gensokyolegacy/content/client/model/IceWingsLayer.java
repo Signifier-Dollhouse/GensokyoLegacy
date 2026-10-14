@@ -15,32 +15,19 @@ import software.bernie.geckolib.animation.AnimationState;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.renderer.GeoRenderer;
 
-/**
- * Draws {@link dev.xkmc.gensokyolegacy.content.item.character.IceWingsItem} on whoever wears it.
- *
- * <p>An entity render layer rather than a curios one, because a player is drawn by the vanilla
- * {@code PlayerRenderer} and the curios back slot has no renderer of its own to hook - so the
- * wings are picked up here from the same sweep that adds {@link TouhouHatLayer}, which covers
- * every player skin as well as anything else with a humanoid torso. Like the hats, this is third
- * person only: the local player is not rendered at all in first person.
- *
- * <p>The drawing is geckolib's - {@link GeoRenderer} supplies the whole pipeline from
- * {@code actuallyRender} down, the same one {@code GeoEntityRenderer} uses for a character, so
- * these are Cirno's own feathers rather than a re-derivation of them. Only the animation is
- * started from here, because there is no entity behind it for geckolib to tick.
+/** Draws {@link dev.xkmc.gensokyolegacy.content.item.character.IceWingsItem} on whoever wears it, from the same
+ * sweep as {@link TouhouHatLayer} rather than the curios back slot, which has no renderer to hook. Drawing is
+ * geckolib's {@link GeoRenderer} pipeline; only the animation is started here, as no entity exists to tick it.
  */
 public class IceWingsLayer<T extends LivingEntity, M extends EntityModel<T>> extends RenderLayer<T, M>
 		implements GeoRenderer<IceWingsAnimatable> {
 
-	/**
-	 * Cirno's rig hangs the feathers from her ankles up to above her head, which is right for a
-	 * 26.2-unit chibi and much too low on a 32-unit player, so the model is nudged up a quarter of
-	 * a block - her fan hinge then lands on the small of a player's back rather than on the hip.
+	/** Cirno's rig suits her 26.2-unit chibi scale but hangs too low on a 32-unit player, so the model is
+	 * nudged up a quarter block: her fan hinge then lands on the small of a player's back, not the hip.
 	 */
 	private static final double Y = 4 / 16D;
-	/**
-	 * Her feathers are planes at z=4, where her own body is only a few units deep; a player's back
-	 * is at z=2, so they come forward a sixteenth to sit against it instead of a sixteenth behind.
+	/** Her feathers are planes at z=4 where her own body is only a few units deep; a player's back is at
+	 * z=2, so they come forward a sixteenth to sit against it instead of a sixteenth behind.
 	 */
 	private static final double Z = -1 / 16D;
 

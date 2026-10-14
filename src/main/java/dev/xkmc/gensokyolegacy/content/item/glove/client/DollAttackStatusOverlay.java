@@ -25,15 +25,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Roster sidebar (glove.md §2c): with the glove held and no screen open, the right side lists every
- * summoned doll in ledger order as its doll item icon with a status frame, and the stack that doll
- * would use for the held mode drawn to its left. Rally shows no frames; the doll under the
- * crosshair is framed orange in every mode.
+ * Roster sidebar (glove.md §2c): with the glove held and no screen open, the right side lists every summoned
+ * doll in ledger order as its item icon with a status frame, plus the stack it would use for the held mode to
+ * its left. Rally shows no frames; the doll under the crosshair is framed orange in every mode.
  * <p>
- * Entity-only reads: the roster arrives via {@code DollRosterToClient} into the client
- * {@code DollAttachment}, and validity and status are server-computed synced entity data.
+ * Entity-only reads: the roster arrives via {@code DollRosterToClient}, validity and status are synced entity data.
  *
- * @see doc/design/doll/glove.md
+ * @see "doc/design/doll/glove.md"
  */
 public class DollAttackStatusOverlay extends SelectionSideBar<DollAttackStatusOverlay.Entry, DollAttackStatusOverlay.AttackSig> {
 
@@ -168,9 +166,8 @@ public class DollAttackStatusOverlay extends SelectionSideBar<DollAttackStatusOv
 	}
 
 	/**
-	 * The synced loadout stack this doll would use for the held task mode,
-	 * main/off-hand priority mirroring the authoritative server pick. Empty
-	 * in task-less modes or when the doll carries nothing valid.
+	 * The synced loadout stack this doll would use for the held task mode, main/off-hand priority mirroring the
+	 * server pick. Empty in task-less modes or when the doll carries nothing valid.
 	 */
 	private static ItemStack useFor(@Nullable DollActionType type, DollEntity doll) {
 		return type == null ? ItemStack.EMPTY : findUsing(doll, type);

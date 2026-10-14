@@ -26,10 +26,9 @@ import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import java.util.Map;
 
 /**
- * Marisa's outdoor chore: break wild foliage within 12 blocks of the house.
- * Crops, saplings and berry bushes are never touched. Mushrooms (and other
- * mushroom-like growths) are only broken when another one of the same type
- * stands within a 5x3x5 area, so patches are never wiped out.
+ * Marisa's outdoor chore: break wild foliage within 12 blocks of the house. Crops, saplings
+ * and berry bushes are never touched; mushrooms and other mushroom-like growths only when
+ * another of the same type stands within a 5x3x5 area, so patches are never wiped out.
  */
 public class MarisaForageTask<E extends SmartYoukaiEntity> extends AbstractHomeHolderTask<E> {
 

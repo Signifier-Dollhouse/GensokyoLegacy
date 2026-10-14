@@ -17,10 +17,8 @@ import net.minecraft.world.phys.Vec3;
 import java.util.List;
 
 /**
- * Summons the rideable {@link BroomEntity} on use. The item is never consumed
- * and the stack stays where it is: the entity is the vehicle, and the broom in
- * hand is only the token that keeps it alive — the entity discards itself once
- * neither hand holds one.
+ * Summons the rideable {@link BroomEntity} on use. The item is never consumed: the entity is the
+ * vehicle and the broom in hand only the token keeping it alive, discarded once neither hand holds one.
  */
 public class BroomItem extends Item {
 

@@ -10,15 +10,10 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
 /**
- * A pick from one of the umbrella's two <b>accessory</b> wheels: wheel 1 the recorded position
- * to travel to, wheel 2 the teleport distance. Both write umbrella-only components, so unlike
- * the mode wheel — which every selector item shares through
- * {@link SelectorSelectPacket} — there is nothing
- * here to generalise.
- *
- * <p>{@code wheel} is a payload selector, not the wheel index the UI uses: the distance wheel
- * sits at index {@code -1} in the wheel chain and still arrives here as 2, and index 2 is
- * itself a fake "Edit Position" wheel that never leaves the client.
+ * A pick from one of the umbrella's two <b>accessory</b> wheels: 1 the recorded position, 2 the teleport distance. Both
+ * write umbrella-only components, so unlike the shared mode wheel ({@link SelectorSelectPacket}) nothing to generalise,
+ * and {@code wheel} is a payload selector, not the UI index: the distance wheel sits at {@code -1}, the fake "Edit"
+ * wheel, but arrives as 2.
  */
 public record BorderUmbrellaWheelSelectPacket(int wheel, int index)
 		implements SerialPacketBase<BorderUmbrellaWheelSelectPacket> {

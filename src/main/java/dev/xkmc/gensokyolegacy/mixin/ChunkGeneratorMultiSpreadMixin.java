@@ -65,9 +65,8 @@ public class ChunkGeneratorMultiSpreadMixin {
 	}
 
 	/**
-	 * True if any located structure's biome tag contains any sampled biome in
-	 * the candidate's middle column. Covers the full height range so a chunk
-	 * that could pass the middle-column prefilter is never skipped.
+	 * True if any located structure's biome tag contains any sampled biome in the candidate's middle column.
+	 * Covers the full height range so a chunk that could pass the middle-column prefilter is never skipped.
 	 */
 	private static boolean gensokyolegacy$biomePlausible(
 			LevelReader level, Set<Holder<Structure>> structures, ChunkPos chunkpos

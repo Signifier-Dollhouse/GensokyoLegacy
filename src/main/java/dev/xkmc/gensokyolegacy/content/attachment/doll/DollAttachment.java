@@ -28,10 +28,9 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * The player capability ledger: every doll is exactly one of {entity + {@link DollData}, item,
- * parked data} at all times.
+ * Player capability ledger: a doll is always exactly one of {entity + {@link DollData}, item, parked data}.
  *
- * @see doc/design/doll/pairing.md
+ * @see "doc/design/doll/pairing.md"
  */
 @SerialClass
 public class DollAttachment extends PlayerCapabilityTemplate<DollAttachment> implements DollLedger {
@@ -68,11 +67,8 @@ public class DollAttachment extends PlayerCapabilityTemplate<DollAttachment> imp
 		return commander;
 	}
 
-	/**
-	 * Sidebar roster in ledger order, pushed to the owner via {@code DollRosterToClient} and
-	 * never serialized. One field serves both sides: on the server it is the diff baseline for
-	 * {@code maybePushRoster}, on the client the last roster the sidebar reads.
-	 */
+	/** Sidebar roster in ledger order, pushed via {@code DollRosterToClient}, never serialized.
+	 * One field, both sides: the server's diff baseline and the client's last roster. */
 	private List<DollRosterToClient.Entry> roster = List.of();
 
 	public List<DollRosterToClient.Entry> getRoster() {
@@ -131,9 +127,8 @@ public class DollAttachment extends PlayerCapabilityTemplate<DollAttachment> imp
 	}
 
 	// ---------- item -> entity ----------
-	// The ledger key is the entity's own game UUID: minted fresh per materialization, never stored
-	// on the item or the entity, so a cloned spare summons an independent doll and the entity is
-	// always findable via level().getEntity(uuid) (pairing.md §2.2).
+	// The ledger key is the entity's own game UUID, minted fresh per materialization: a cloned
+	// spare summons an independent doll, findable via level().getEntity(uuid) (pairing.md §2.2).
 
 	/** Summoned entries on this ledger. */
 	public int summonedCount() {
@@ -193,12 +188,9 @@ public class DollAttachment extends PlayerCapabilityTemplate<DollAttachment> imp
 		return true;
 	}
 
-	/**
-	 * Stray rejoin (control.md §5.4a): a suicide dive that aborted before detonation is not a
-	 * death, so the detached entry goes back on the ledger parked TEMP, health and gear untouched.
-	 * The stray entity is discarded rather than killed, so the death drop never fires. False
-	 * unless the doll is stray, alive, and its key is free — the caller then leaves it a stray.
-	 */
+	/** Stray rejoin (control.md §5.4a): an aborted suicide dive is not a death, so the detached
+	 * entry goes back parked TEMP, health and gear untouched, and the stray is discarded rather
+	 * than killed so no death drop fires. False unless stray, alive, and its key is free. */
 	public boolean rejoin(BaseDollEntity doll) {
 		StrayHost stray = doll.strayHost();
 		if (stray == null || doll.isDeadOrDying()) return false;
@@ -224,11 +216,9 @@ public class DollAttachment extends PlayerCapabilityTemplate<DollAttachment> imp
 		return false;
 	}
 
-	/**
-	 * Glove summon-all: materialize every parked entry (STORED is promoted to TEMP first, both are
-	 * just parked data) plus every doll item in the inventory, in a ring around the owner. There
-	 * is no ledger cap: as much as possible means everything. Returns dolls summoned.
-	 */
+	/** Glove summon-all: every parked entry (STORED promoted to TEMP) plus every doll item in the
+	 * inventory, in a ring around the owner. No ledger cap: as much as possible means everything.
+	 * Returns the dolls summoned. */
 	public int summonAll(ServerPlayer player) {
 		int n = 0;
 		for (var data : new ArrayList<>(dolls.values())) {
@@ -253,12 +243,9 @@ public class DollAttachment extends PlayerCapabilityTemplate<DollAttachment> imp
 		return n;
 	}
 
-	/**
-	 * Glove recall for strays (control.md §5.4a): itemize every stray of this ledger within
-	 * {@code range} blocks of the owner, the same result as recalling a summoned one. A stray holds
-	 * no entry, so this scans loaded entities rather than the map; a full inventory stops the
-	 * sweep and strays past the range wait for the idle rejoin. Returns dolls itemized.
-	 */
+	/** Glove recall for strays (control.md §5.4a): itemize every stray within {@code range} blocks,
+	 * as recalling a summoned one does. A stray holds no entry, so this scans loaded entities; a
+	 * full inventory stops the sweep. Returns the dolls itemized. */
 	public int recallStrays(ServerPlayer player, double range) {
 		AABB box = player.getBoundingBox().inflate(range);
 		List<Entity> strays = player.level().getEntities(player, box,
@@ -274,11 +261,8 @@ public class DollAttachment extends PlayerCapabilityTemplate<DollAttachment> imp
 		return n;
 	}
 
-	/**
-	 * Stray counterpart of {@link #itemize}: the detached entry rides a fresh doll item into the
-	 * inventory and the stray entity is discarded. The slot is the caller's gate —
-	 * {@code placeItemBackInInventory} drops whatever does not fit.
-	 */
+	/** Stray counterpart of {@link #itemize}: the detached entry rides a fresh doll item into the
+	 * inventory and the stray is discarded; the caller's slot check is the only gate. */
 	private boolean itemizeStray(ServerPlayer player, BaseDollEntity doll) {
 		StrayHost stray = doll.strayHost();
 		if (stray == null || doll.isDeadOrDying()) return false;
@@ -291,12 +275,9 @@ public class DollAttachment extends PlayerCapabilityTemplate<DollAttachment> imp
 		return true;
 	}
 
-	/**
-	 * Glove recall-all: itemize every reachable summoned doll, parking to STORED when the inventory
-	 * is full, then consolidate all TEMP into STORED so everything parked ends up as data. Strays
-	 * within {@link #STRAY_RECALL_RANGE} ride the same sweep. Player-ledger only. Returns
-	 * {itemized, parked}.
-	 */
+	/** Glove recall-all: itemize every reachable summoned doll, parking to STORED when the inventory
+	 * is full, then fold all TEMP into STORED. Strays within {@link #STRAY_RECALL_RANGE} ride the
+	 * same sweep. Player-ledger only. Returns {itemized, parked}. */
 	public int[] recallAll(ServerPlayer player) {
 		int itemized = recallStrays(player, STRAY_RECALL_RANGE), parked = 0;
 		for (var data : new ArrayList<>(dolls.values())) {
@@ -375,11 +356,8 @@ public class DollAttachment extends PlayerCapabilityTemplate<DollAttachment> imp
 		maybePushRoster(sp);
 	}
 
-	/**
-	 * Sidebar roster push (glove.md §2c): rebuild the roster in ledger order and send
-	 * {@code DollRosterToClient} only when it changed. The pass also restamps each live entry's
-	 * formation slot, which the follow goal reads instead of scanning the ledger.
-	 */
+	/** Sidebar roster push (glove.md §2c): rebuild in ledger order, send {@code DollRosterToClient}
+	 * only on a change, and restamp each live entry's formation slot for the follow goal. */
 	private void maybePushRoster(ServerPlayer player) {
 		var built = commander.roster(player);
 		ArrayList<DollRosterToClient.Entry> next = new ArrayList<>(built.size());
@@ -408,12 +386,9 @@ public class DollAttachment extends PlayerCapabilityTemplate<DollAttachment> imp
 		}
 	}
 
-	/**
-	 * SUMMONED watchdog: a dead entry is STORED and never re-summoned; an entry that no longer
-	 * matches reality (wrong type, vanished entity) or a doll drifted past
-	 * {@link #PULLBACK_DISTANCE} from its owner is discarded and parked TEMP, so the next tick's
-	 * TEMP branch resummons it near the owner.
-	 */
+	/** SUMMONED watchdog: a dead entry is STORED and never re-summoned; an entry that no longer
+	 * matches reality, or a doll past {@link #PULLBACK_DISTANCE} from its owner, is parked TEMP and
+	 * resummoned near the owner on the next tick. */
 	private void tickSummoned(ServerPlayer player, DollData data) {
 		ServerLevel level = getLevel(player, data);
 		if (level == null) {
@@ -470,9 +445,8 @@ public class DollAttachment extends PlayerCapabilityTemplate<DollAttachment> imp
 		return player.position().add(0, 1, 0);
 	}
 
-	// ---- spawn + register: the entry is inserted BEFORE addFreshEntity, so the entity's
-	// join-level inverse check finds its SUMMONED entry. A non-null oldKey re-keys a
-	// TEMP entry to the new entity's fresh uuid.
+	// ---- spawn + register: the entry is inserted BEFORE addFreshEntity, so the entity's join-level
+	// inverse check finds its SUMMONED entry; oldKey, when set, re-keys to the new entity's uuid.
 
 	private boolean doSummon(ServerPlayer player, DollData data, @Nullable UUID oldKey) {
 		BaseDollEntity doll = DollSpawn.materialize(player.serverLevel(), player, data);

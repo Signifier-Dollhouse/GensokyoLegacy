@@ -7,13 +7,11 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 
-/**
- * A Kaleidoscope Cookery plate or platter: a stack of one named food, up to five of it.
- *
+/** A Kaleidoscope Cookery plate or platter: a stack of one named food, up to five of it.
  * <p>A plate looks like a container and is not one — the state says <i>how many</i> and
  * {@code PlateRegistry} says <i>of what</i>. An ordinary {@link AbstractCountdownFood}.
  *
- * @see doc/design/party/food_mods.md
+ * @see "doc/design/party/food_mods.md"
  */
 public class PlateFood extends AbstractCountdownFood {
 

@@ -15,9 +15,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
- * When the player holds Nazrin's Dowser in the main hand and the offhand is empty,
- * render the two halves instead: left half in the main hand, right half in the offhand.
- * Purely visual - no inventory or offhand slot is touched.
+ * When the player holds Nazrin's Dowser in the main hand and the offhand is empty, render the two halves
+ * instead: left half in the main hand, right half in the offhand. Purely visual - no slot is touched.
  */
 @Mixin(ItemInHandRenderer.class)
 public abstract class DowserHandRendererMixin {

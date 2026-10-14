@@ -10,10 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * One step of a conversation: a dialog to show, the quest it is about, and the
- * indices of the options this player is allowed to take. Sending the visible
- * indices rather than a per-option condition flag keeps the click index
- * meaning the same thing on both sides.
+ * One step of a conversation: a dialog, the quest it is about, and the option indices this player may take.
+ * Sending visible indices rather than a per-option condition flag keeps a click index meaning the same on both sides.
  */
 public record SimpleDialogToClient(
 		int session, int character, ResourceLocation dialog, @Nullable ResourceLocation quest, ArrayList<Integer> options
