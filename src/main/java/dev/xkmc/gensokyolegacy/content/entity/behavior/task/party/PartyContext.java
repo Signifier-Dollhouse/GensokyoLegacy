@@ -229,7 +229,6 @@ public class PartyContext {
 	 */
 	public boolean walkTo(PartyTarget target) {
 		if (target.inReach(this) && target.arrived(this)) return true;
-		party.walkingTo(target.interact(), gameTime);
 		if (target.inReach(this)) {
 			// in range but not standing on the tile: the order is what closes the gap
 			order(target);
@@ -241,9 +240,12 @@ public class PartyContext {
 	}
 
 	private void order(PartyTarget target) {
-		if (BrainUtils.getMemory(entity, MemoryModuleType.WALK_TARGET) != null) return;
 		var walk = target.walkTo() == null ? target.interact() : target.walkTo();
 		if (walk == null) return;
+		// registered here rather than in walkTo, so the stall fallback covers every order that is
+		// really given, and no clock runs at all while she is too high up to be given one
+		party.walkingTo(walk, gameTime);
+		if (BrainUtils.getMemory(entity, MemoryModuleType.WALK_TARGET) != null) return;
 		// a passenger does not walk, and the chair she is riding will not go for her
 		if (entity.isPassenger()) entity.stopRiding();
 		BrainUtils.setMemory(entity, MemoryModuleType.WALK_TARGET, new WalkTarget(walk.getCenter(), 1, 1));

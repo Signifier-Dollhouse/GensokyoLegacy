@@ -84,7 +84,7 @@ Every party task carries `WALK_TARGET: VALUE_ABSENT`, and `PartyTask.canStillUse
 
 ### The director
 
-One **always-task** under `PARTY`, running alongside whichever of the eleven is going, for the three things that are not states: the party ending under her, the party closing while she is mid-course (which arms the departure, the wait drawn per guest so a table does not empty in one tick), and her chair being taken away by the layout rescan. It also owns the teleport fallback for a walk the pathfinder has already failed.
+One **always-task** under `PARTY`, running alongside whichever of the eleven is going *and alongside the walk itself*, for the things that are not states: the party ending under her, the party closing while she is mid-course (which arms the departure, the wait drawn per guest so a table does not empty in one tick), her chair being taken away by the layout rescan, and the teleport fallback. It is the one task the walk order does not yield, because every walk in the machine is one of these and a rule that lived in a task would have to be written four times — see §2.1.
 
 ### What the module records
 
@@ -135,7 +135,7 @@ Because the walk target and the thing being acted on are **different blocks**, `
 | a dish, from her chair | **3** | she is holding a plate out over the table, and this is what makes most rounds of a laid banquet happen without her standing up at all |
 | a dish, from her feet | **2** | standing up and crossing to a dish three blocks away should not be possible when she could have eaten it from where she was sitting |
 | **her chair** | **2** | she stands on the block beside it, which is *zero* blocks from its box, so two is ample and keeps her from sitting down from across the table |
-| a dish with nothing to stand beside | — | she walks at it anyway and the leg timeout judges. Never being able to reach food is worse than reaching it badly |
+| a dish with nothing to stand beside | — | she walks at it anyway, and arriving *is* being in reach — there is no tile to stand on to miss. Never being able to reach food is worse than reaching it badly |
 
 `PartyTarget`'s interaction reach is checked *before* the claim rather than around it: `setSitting` is a silent no-op on a block that is not one of ours, so a guest out of range does not claim a chair she is not on and tries again next tick, by which time she has walked the rest of the way.
 
@@ -143,7 +143,7 @@ All of them are measured to the **block's box rather than its centre** — stand
 
 **Departing is the one place the exact rule does not apply.** A guest on her way out is not picking anything up, so her arrival at the destination uses a loose 2 blocks rather than zero — the last two steps of a departure are not worth the leave timeout that would follow them.
 
-The walk-failure fallback (§2.1) already lands where this wants it to — it teleports to free space *beside* the target — so a guest who could not path there arrives able to act, not merely closer.
+The walk-failure fallback (§2.1) already lands where this wants it to — it puts her on the block she was ordered to, or one ring out of it — so a guest who could not path there arrives able to act, not merely closer.
 
 `HomeSearchUtil.setSitting` (`HomeSearchUtil.java:75`) already handles claiming a free seat, checking `ChairEntity` occupancy and yielding to players, and is a silent no-op when the block is not `ISeatableBlock` — so a third-party chair from `party_seat` simply has the guest stand beside it, with no special case. The claim is still recorded, because otherwise one unseatable chair would hold the party in GATHERING for ever.
 
@@ -223,7 +223,13 @@ if (arrival == null || furnitureAt(level, arrival)) return null;
 
 It is deliberately **not** `partyGuestRadius` (24). That is how far she may wander once she is *at* the party (limits.md §1); 32 is how far away she may appear. A guest who materialised inside the guest radius would already be at the table, which is the thing the rule exists to prevent — and the furniture test is the same one on both the spawn and the teleport below, because the teleport is the path most likely to land in the middle of the table.
 
-**She walks in, and if she cannot walk in she is moved rather than stranded.** The walk out to her chair is watched for *lost ground*, not for elapsed time: the closest approach she has made to her target is kept, and reset whenever she beats it. Only three seconds of not getting any nearer teleports her to a free, standable block *beside* her seat, and she carries on from there. The test is this one because a fixed deadline from issuing the order was the wrong rule — a guest crossing a long room is slow and fine, and the deadline declared her stuck while she was halfway across it. The seat is only worth sitting in if she can get to it, and a character standing in a doorway for the rest of a party is worse than one that blinks into place. This only ever fires when the pathfinder has already failed, so the teleport is a repair and not a shortcut.
+**She walks in, and if she cannot walk in she is moved rather than stranded.** Every walk she is given is watched for *lost ground*, not for elapsed time: the closest approach she has made to the block she was told to walk to is kept, and reset whenever she beats it. Only **five seconds** of not getting any nearer teleports her onto that block, and she carries on from there. The test is this one because a fixed deadline from issuing the order was the wrong rule — a guest crossing a long room is slow and fine, and the deadline declared her stuck while she was halfway across it. The seat is only worth sitting in if she can get to it, and a character standing in a doorway for the rest of a party is worse than one that blinks into place. This only ever fires when the pathfinder has already failed, so the teleport is a repair and not a shortcut.
+
+**The director is not yielded by the walk order, and must not be.** Every task in the cascade carries `WALK_TARGET: VALUE_ABSENT` and yields while an order is outstanding, because `YoukaiMoveTask` has her then — and the director inherited that too, which defeats the only rule it has: with the condition kept, `Brain` cannot *start* it while she is walking, and `canStillUse` stops it the moment she is. The stall clock was therefore read only on the tick after `YoukaiMoveTask` gave up by itself — 7–12 s in, on its own `150, 250` duration, and in a one-tick window that a task re-issuing the order could close first. It drops the condition and answers `canStillUse` with a flat true, so the five seconds are five seconds of actually watching.
+
+**It is registered where the order is given, not where the task asks for it.** `PartyContext#order` is the single point every navigation passes through — chair, her own chair again, dish, walk-out — so the fallback covers all of them by construction rather than four times over, and a walk whose target has no standable block beside it is watched like any other. Moving the registration there also holds the clock off a guest too high up to be given an order at all, which is the same rule as "she only starts walking once she can stand" above: no order, nothing to have failed.
+
+**The teleport has to be an arrival, or it is a loop.** It lands on the block she was told to walk to — which `standingNear` already proved free when the order went out — and on the free space one ring out of it if something has been built there since. Landing "near" the target was the first version and it was wrong twice over: two blocks is outside the walk reach, so the arrival test kept failing and she was teleported again every timeout for as long as the party lasted, and a guest near the middle of a long table had a dish with nothing to stand beside it, which no landing spot could satisfy. Where there is nothing to stand on, being in reach of the thing *is* arriving (`PartyTarget#arrived`), which is the same answer from both ends.
 
 **The party seats them, so they do not fight over chairs.** Left to themselves every guest walks to the *nearest* free chair, and at a laid table the nearest chair is the same chair: `HomeSearchUtil.setSitting` ejects whoever is sitting there, so the second arrival wins and the first is stood up mid-meal. `PartyAttachment` therefore keeps the seating plan — a chair → guest map — and a guest asks it for a chair instead of picking one:
 
@@ -324,7 +330,7 @@ Leftover food is untouched, as ever (state.md §2). A party that ends with half 
 | rule | state |
 |---|---|
 | one guest a second; random arrival on the ground, never in the furniture | built |
-| teleport beside the chair when the walk fails | built |
+| every walk is repaired after five lost seconds: on to the block she was ordered to | built |
 | chair retry — tell the host, 3 s, leave after three failures | built |
 | an on-site character joins as herself | built |
 | ten seconds of grace for a visitor whose window closed | built |
@@ -343,12 +349,12 @@ Leftover food is untouched, as ever (state.md §2). A party that ends with half 
 - **A closing party needs its own backstop.** Closing ends when the last guest finishes leaving, and a guest who cannot path to her destination would otherwise hold the chunk's party open for ever. `CLOSING_TIMEOUT` (30 s) is the answer; past it the party resets and anyone still attached is dismissed by the ordinary "my party is gone" path. **It is stamped from the last unseat, not from CLOSING** — the backstop cannot tell a guest who is sitting still *on purpose* from one who is stuck, so it has to be about the walkout alone. Stamped at CLOSING it runs against the unseat waits as well, and with those now twenty to thirty seconds it would fire on a table that had barely begun to get up.
 - **`restrictTo` has no getter**, so a reused character's wander area has to be re-applied from her home on the way out rather than read back. Left out, a resident who wandered to a party could never go home again.
 
-**A fourth that only showed up once the walks were exact**: the walk-failure teleport has to say where it put her. It moved her to free space beside the seat and left `standing` pointing at the floor tile she had *failed* to reach, so the arrival test never passed and she was teleported again every timeout for as long as the party lasted — a guest standing near her chair for the whole banquet. A teleport is an arrival.
+**A fourth that only showed up once the walks were exact**: a teleport is an arrival. It moved her to free space beside the seat and left her arrival test pointing at the floor tile she had *failed* to reach, so she was teleported again every timeout for as long as the party lasted — a guest standing near her chair for the whole banquet. §2.1 has the landing rule.
 
 **Three more that are load-bearing**, in the order they bite:
 
 1. **`PartyModule.party()` no longer returns null for a CLOSING party.** It used to, and that was the signal to self-dismiss. A closing party is still hers — she needs it to run her exit — and it only goes null once the party has reset, by which time she has already left.
-2. **`dismiss()` is no longer `discard()`.** A summoned clone is discarded; a character who came as herself is put back, because discarding a resident deletes a real character out of the world over a party. Both go through `completeLeave`, which reads `origin` before clearing it — walk first, clear after, or she resumes her schedule while still walking to the table.
+2. **`dismiss()` is no longer `discard()`.** A summoned clone is discarded; a character who came as herself is put back, because discarding a resident deletes a real character out of the world over a party. Both go through `completeLeave`, which reads `origin` before clearing it — walk first, clear after, or she resumes her schedule while still walking to the table. It is also the **only** place that reads it, and it guards on `host == null`: the exit is reachable twice in one tick (the module's own tick dismisses a guest whose party is gone, and the director sees the same null), and `leave()` has already reset `origin` to `SUMMONED` by then, so the second run would read a resident as a clone and delete her.
 3. **`VisitModule` stands down while she is partying.** It renews its visit memory every tick and dismisses when the window closes; left alone it fights the party for the entity, dismissing a guest the host is still feeding. One early return on `isPartying()`, and it resumes by itself when the party lets go.
 
 **One number that came from the rig rather than from taste:** `PICKUP_TICKS` is 6, because that is how long `使用主手物品` runs — the same figure `FairyFeedTask` times a gesture against. The two gestures are the same clip, so the two timings should be the same number rather than two independently plausible ones.

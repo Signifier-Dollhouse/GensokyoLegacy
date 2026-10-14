@@ -68,7 +68,7 @@ public record PartyArea(BlockPos anchor, List<BlockPos> food, List<BlockPos> sea
             if (!within(anchor, pos, reach) || !level.isLoaded(pos)) continue;
             var state = level.getBlockState(pos);
             var furniture = false;
-            if (state.is(GLTagGen.PARTY_SEAT)) { seats.add(pos); furniture = true; }
+            if (state.is(GLTagGen.PARTY_SEAT)) { furniture = true; if (isSeatState(state)) seats.add(pos); }
             if (state.is(GLTagGen.PARTY_TABLE)) { tables.add(pos); furniture = true; }
             // a chair or table is solid, so its box is what carries the walk past it
             if (furniture) poke(queue, pos);
@@ -98,6 +98,8 @@ Two more things the walk gets right that a box sweep did not: a food block is so
 `MAX_VISITED` is a safety valve, not the limit. The 32-block distance cap alone allows the better part of a million blocks of open air — a stall the player cannot see or stop — so the walk stops at 65536 blocks. It only ever bites in a large empty space, where there is by then nothing to find.
 
 `PartyArea` collects tables alongside food and seats, so nothing needs a second scan of its own.
+
+**A tag names a block, and a large chair is one block placed twice.** Both halves answer `is(PARTY_SEAT)`, and a block tag cannot tell them apart — only the lower half is a seat, being the block the seat entity is bound to and the one a player can click. So `PartyArea.isSeatState` adds `ISeatableBlock.isSeatPos` on top of the tag: the upper half is furniture the walk still passes, but never a chair in the list, and never a second seat in the planner's count. The same half test guards `claimSeat` and the home-side chair search, so no youkai walks to the backrest of a chair.
 
 ### 2.1 What a refusal still knows
 

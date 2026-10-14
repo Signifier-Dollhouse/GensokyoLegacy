@@ -71,6 +71,14 @@ public class GLRecipeGen {
 				GLItems.FAIRY_ICE_CRYSTAL.get())
 				.pattern("C C").pattern("CCC").pattern("C C")
 				.define('C', GLItems.FAIRY_ICE_CRYSTAL.get()).save(pvd);
+
+		// the dust spans the middle row and the membranes the four corners, which lays the same
+		// seven pieces out as wings rather than as the plus sign they would otherwise be
+		unlock(pvd, ShapedRecipeBuilder.shaped(RecipeCategory.MISC, GLItems.FAIRY_WINGS.get())::unlockedBy,
+				GLItems.FAIRY_DUST.get())
+				.pattern("P P").pattern("DDD").pattern("P P")
+				.define('P', Items.PHANTOM_MEMBRANE).define('D', GLItems.FAIRY_DUST.get())
+				.save(pvd);
 	}
 
 	public static void hexbrew(RegistrateRecipeProvider pvd) {
@@ -350,6 +358,10 @@ public class GLRecipeGen {
 				RecipeCategory.BUILDING_BLOCKS, GLDecoBlocks.GLASS_PANE, 4);
 		pvd.stonecutting(DataIngredient.items(GLDecoBlocks.SHOJI_FRAME.get()),
 				RecipeCategory.BUILDING_BLOCKS, GLDecoBlocks.SHOJI_FRAME_PANE, 4);
+
+		// a plate is a glazed terracotta cut thin, 16 to a block; terracotta is not fuel
+		pvd.stonecutting(DataIngredient.items(Blocks.WHITE_GLAZED_TERRACOTTA),
+				RecipeCategory.DECORATIONS, GLBlocks.PLATE, 16);
 
 		// paper sliding door: shoji lattice door, paper in a stick grid like shoji frame
 		unlock(pvd, ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, GLDecoBlocks.PAPER_SLIDING_DOOR.get())::unlockedBy, Items.PAPER)

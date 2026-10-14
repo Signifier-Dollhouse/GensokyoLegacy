@@ -22,10 +22,10 @@ public final class PartyTasks {
 
 	/**
 	 * How long she may go without getting any closer to what she is walking to before the
-	 * director puts her there instead — three seconds, measured as lost ground rather than
+	 * director puts her there instead — five seconds, measured as lost ground rather than
 	 * elapsed time, since a guest crossing a long room is slow and fine.
 	 */
-	public static final int WALK_STALL = 60;
+	public static final int WALK_STALL = 100;
 
 	/** How often a missing chair is re-checked, in ticks. Three seconds. */
 	public static final int SEAT_RETRY = 60;

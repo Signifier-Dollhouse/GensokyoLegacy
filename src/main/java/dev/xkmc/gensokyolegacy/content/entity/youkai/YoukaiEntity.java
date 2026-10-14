@@ -304,7 +304,7 @@ public abstract class YoukaiEntity extends DamageClampEntity implements SpellCir
 				}
 			}
 		}
-		return super.wantsToPickUp(stack);
+		return false;
 	}
 
 	@Override
@@ -319,7 +319,6 @@ public abstract class YoukaiEntity extends DamageClampEntity implements SpellCir
 				}
 			}
 		}
-		super.pickUpItem(item);
 	}
 
 	// data

@@ -15,6 +15,7 @@ import dev.xkmc.l2serial.serialization.marker.SerialClass;
 import dev.xkmc.l2serial.serialization.marker.SerialField;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
 @SerialClass
@@ -43,6 +44,7 @@ public class KoishiAttackCapability extends PlayerCapabilityTemplate<KoishiAttac
 	}
 
 	private boolean notValid(Player player) {
+		if (!player.level().dimension().equals(Level.NETHER)) return true;
 		var quest = GLMeta.QUEST.type().getOrCreate(player).getData(MarisaQDGen.QUEST_KOISHI);
 		if (!quest.started) return true;
 		return quest.progress.getOrDefault(MarisaQDGen.KOISHI_PROOF, 0) > 0;
