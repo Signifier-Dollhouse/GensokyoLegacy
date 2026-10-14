@@ -40,6 +40,8 @@ The party lives in the chunk holding `center(food)` (area.md §3), so:
 
 **Ticking.** `PartyTicker` advances every phase in the level at 1 Hz (`LevelTickEvent.Post`, `GLMetaEventHandlers.onLevelTick`). Nothing in a party needs 20 Hz resolution: guests are walking and eating on multi-second timescales. Parties are rare, so only the chunks actually hosting one are swept.
 
+One thing does not fit that cadence — the gathering rockets of §2.1, whose gap is drawn out of a range and so cannot be honoured at 1 Hz. The driver therefore runs **two clocks off one sweep**: `tick` snapshots the active chunks twice a second and hands each pass only the work it is for. Nothing else about it changes.
+
 ### 1.1 The part that does not persist
 
 `PartyTicker.ACTIVE` — level → the chunks currently hosting a party — is a plain `ConcurrentHashMap` in memory. It is not serialised, because nothing about it *can* be: it is a cache of which chunks to look at, and the answer is already in the chunks. The problem is that nothing ever refills it. `PartySend.send` was the only writer, so after a restart `ACTIVE` was empty and every party that had just been faithfully restored from disk sat in whatever phase it was saved in, for ever: no arrivals, no spread rescans, no closing, no guest ever told to leave. The party looked like it was there and behaved like it was gone.
@@ -92,3 +94,20 @@ is a host problem either way; the timeout is the backstop for a host who never p
 another chair.
 
 Aborting to `IDLE` always leaves the remaining food untouched — an interrupted party wastes the guests' time, not the player's food.
+
+### 2.1 The gathering rockets
+
+While the table is filling, one rocket goes up every **10–20 ticks**, and the window is exactly the gap between the two things the phase machine already knows: the first guest sitting down and the last one doing it.
+
+```
+first guest seated ──▶  rocket, rocket, rocket  ──▶  last guest seated
+                              10–20 ticks apart
+```
+
+`PartyTicker.rocket` is the whole of it, and it reads `anySeated` / `admitted() && allSeated` — the same pair as the `GATHERING → FEASTING` gate, deliberately, so the rockets stop when the gate would open and not ten seconds before. **`admitted()` is load-bearing**: `allSeated` alone is true the moment the guests admitted *so far* are all down, while the rest of the roster is still walking in, which would put the rockets out well before the table was full.
+
+The gap is drawn from the range on each rocket rather than fixed, which is what makes it read as hand-fired instead of metered. `sparkAt` lives on the capability, not the ticker, so a chunk unload mid-gathering resumes the gap instead of restarting it; it starts at 0, so the first rocket is the first pass **after** the first guest sits rather than a count from the send.
+
+**Where a rocket goes up is the whole of the difficulty.** A firework burst hurts every living thing within five blocks of it, and a guest knocked off her chair drops her seat claim — which holds the table in `GATHERING` until `PARTY_TIMEOUT` (10 min) calls it off. So `PartyFirework` fires from a **ring 12–18 blocks out** from the table: every chair is within `GUEST_RADIUS` (6) of it, so no seated guest is within reach of a burst over that ring. The ring cannot do the whole job, because a guest still walking in is out as far as the scan distance and so is the host, so a round also **skips any spot with a living entity in the column a burst could land in**, widened by the damage radius. A round with nowhere to go fires nothing and is simply tried again.
+
+`RISE = 8` is a deliberate under-estimate of the dozen-odd blocks an unobstructed rocket climbs, and it errs in the safe direction: indoors a rocket stops at the ceiling, which is *lower*, and a burst higher than assumed is further from anything standing on the floor.

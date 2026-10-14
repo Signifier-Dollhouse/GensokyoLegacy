@@ -26,6 +26,18 @@ public class PartyTicker {
 
 	/** How often a party's phases advance, in ticks. */
 	private static final int INTERVAL = 20;
+
+	/** Shortest gap between two of the gathering rockets, in ticks. */
+	private static final int ROCKET_MIN = 10;
+
+	/** Longest such gap. A drawn one lands on one figure or the other, which is what reads as
+	 *  hand-fired rather than metered. */
+	private static final int ROCKET_MAX = 20;
+
+	/** How often the rockets are looked for: the floor of the range, so a drawn gap cannot round
+	 *  below it and the driver stays at 2 Hz instead of 20. */
+	private static final int ROCKET_CHECK = ROCKET_MIN;
+
 	/** A party open this long with nothing left happening is called off. */
 	public static final int PARTY_TIMEOUT = 12000;
 
@@ -63,12 +75,20 @@ public class PartyTicker {
 	public static void tick(ServerLevel level) {
 		var set = ACTIVE.get(level);
 		if (set == null) return;
-		if (level.getGameTime() % INTERVAL != 0) return;
+		long time = level.getGameTime();
+		// two cadences on one sweep: the phases are a second a part, the rockets are finer
+		boolean phases = time % INTERVAL == 0;
+		boolean rockets = time % ROCKET_CHECK == 0;
+		if (!phases && !rockets) return;
 		List<ChunkPos> snapshot;
 		synchronized (set) {
 			snapshot = new ArrayList<>(set);
 		}
-		for (var pos : snapshot) tickOne(level, pos);
+		for (var pos : snapshot) {
+			// phases first: a table that fills on this pass is no longer one to celebrate
+			if (phases) tickOne(level, pos);
+			if (rockets) rocket(level, pos, time);
+		}
 	}
 
 	private static void tickOne(ServerLevel level, ChunkPos pos) {
@@ -101,6 +121,25 @@ public class PartyTicker {
 		// everyone has walked off, or nobody was ever seated
 		party.reset();
 		unregister(level, party.chunk() == null ? pos : party.chunk());
+	}
+
+	/**
+	 * The gathering rockets: one every {@link #ROCKET_MIN}–{@link #ROCKET_MAX} ticks, from the first
+	 * guest sitting down to the last one sitting down.
+	 * <p>
+	 * On its own clock rather than the phase one, for two reasons. A gap drawn out of a range
+	 * cannot be honoured at 1 Hz, and {@code sparkAt} starts at 0 — so the first rocket is the
+	 * first pass <i>after</i> the first guest sits, not a fixed count from the send.
+	 */
+	private static void rocket(ServerLevel level, ChunkPos pos, long time) {
+		var party = PartyAttachment.of(level, pos);
+		if (party == null || party.phase() != PartyAttachment.Phase.GATHERING) return;
+		if (time < party.sparkAt()) return;
+		// a table nobody has sat at yet, and a roster that is in with the last chair filled
+		if (!anySeated(level, party)) return;
+		if (party.admitted() && allSeated(level, party)) return;
+		PartyFirework.launch(level, party.liveAnchor());
+		party.sparkAt(time + ROCKET_MIN + level.getRandom().nextInt(ROCKET_MAX - ROCKET_MIN + 1));
 	}
 
 	/** Whether the party is over: a closing one when its roster has drained, an open one when nobody is left

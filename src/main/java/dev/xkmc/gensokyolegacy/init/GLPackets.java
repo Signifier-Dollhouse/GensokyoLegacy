@@ -5,6 +5,7 @@ import dev.xkmc.gensokyolegacy.content.attachment.character.CharDataToClient;
 import dev.xkmc.gensokyolegacy.content.attachment.doll.DollRosterToClient;
 import dev.xkmc.gensokyolegacy.content.attachment.misc.FrogSyncPacket;
 import dev.xkmc.gensokyolegacy.content.attachment.misc.KoishiStartPacket;
+import dev.xkmc.gensokyolegacy.content.attachment.party.network.PartyGiftToClient;
 import dev.xkmc.gensokyolegacy.content.client.debug.BlockInfoToClient;
 import dev.xkmc.gensokyolegacy.content.client.debug.BlockRequestToServer;
 import dev.xkmc.gensokyolegacy.content.client.debug.CharacterInfoToClient;
@@ -90,6 +91,7 @@ public class GLPackets {
 
 				.toClient(FrogSyncPacket.class)
 				.toClient(KoishiStartPacket.class)
+				.toClient(PartyGiftToClient.class)
 				.toClient(Dowser.DowserToClient.class)
 				.toClient(CatBell.MountToClient.class)
 				.toClient(Hakkero.BroomBoostToClient.class)

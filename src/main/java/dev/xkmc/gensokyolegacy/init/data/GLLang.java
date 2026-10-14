@@ -802,7 +802,9 @@ FURNACE_2_BOOST("Held in main hand while riding a broom, right click to burn fue
 	public enum Jei implements LangEntry {
 		ALCHEMY("jei.gensokyolegacy.alchemy", "Alchemy Pot"),
 		TRADE("jei.gensokyolegacy.trade", "Trade"),
-		QUEST("jei.gensokyolegacy.quest", "Quest Rewards");
+		QUEST("jei.gensokyolegacy.quest", "Quest Rewards"),
+		GIFT("jei.gensokyolegacy.gift", "Party Gifts"),
+		INTERACTION("jei.gensokyolegacy.interaction", "Entity Interaction");
 
 		private final String def;
 		private final int argn;
@@ -853,7 +855,15 @@ FURNACE_2_BOOST("Held in main hand while riding a broom, right click to burn fue
 		COUNT_UNKNOWN("?", 0),
 		REWARD_EXP("%s experience", 1),
 		REWARD_REPUTATION("%s reputation", 1),
-		REWARD_LOOT("Loot table: %s", 1);
+		REWARD_LOOT("Loot table: %s", 1),
+		GIFT_BAND("%s-%s", 2),
+		GIFT_BAND_TOP("%s+", 1),
+		GIFT_CHANCE("Chance: %s%%", 1),
+		GIFT_NOTE("One gift each; the appeal she ate picks how generous she is", 0),
+		MORE_RUNGS("+%s more rungs", 1),
+		KIND_FEED("Feeding", 0),
+		FEED_WORTH("+%s reputation", 1),
+		FEED_NOTE("Right-click her with it; the thank-you only lands once she no longer counts you an enemy, and feeding on its own caps at %s reputation", 1);
 
 		private final String def;
 		private final int argn;

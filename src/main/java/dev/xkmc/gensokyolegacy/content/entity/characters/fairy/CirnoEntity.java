@@ -149,6 +149,14 @@ public class CirnoEntity extends FairyEntity implements GeoYoukaiAnim {
 		);
 	}
 
+	/**
+	 * Her interaction page. Stated on the entity rather than on the module, so {@code GLEntities}
+	 * can say which character answers a hand-out without knowing which module does it.
+	 */
+	public static List<EntityInteraction> interactions() {
+		return CirnoFeedModule.interactions();
+	}
+
 	@Override
 	protected void constructTaskBoard(TaskBoard board) {
 		super.constructTaskBoard(board);
