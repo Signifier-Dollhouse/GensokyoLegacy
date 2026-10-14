@@ -1,0 +1,16 @@
+{
+  "name": "什么算得上吃食",
+  "icon": "minecraft:cake",
+  "category": "gensokyolegacy:banquet",
+  "sortnum": 3,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "能放下的食物才能被计入宴会，比如蛋糕。对其他模组的支持包括：乐事系列，森罗，妖怪们的飨宴"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "乐事的派和需要用碗舀起来的大盘食物，以及森罗中各色容器盛方的食物，包括果盘在内都被支持。$(br2)妖怪们的飨宴中，下列食物形式被支持：$(li)盘装/碗装/锅装/竹筒装食物$(li)料理台上的寿司$(li)蒸笼内的食物"
+    }
+  ]
+}
