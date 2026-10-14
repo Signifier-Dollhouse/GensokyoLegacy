@@ -6,11 +6,11 @@
   "pages": [
     {
       "type": "patchouli:text",
-      "text": "Only food that can be placed as a block counts toward a banquet — a cake, for one. Other mods are supported as well: Farmer's Delight, Kaleidoscope Cookery, and Youkai's Feasts."
+      "text": "Only food that can be placed as a block counts toward a banquet — a cake, for one. Other mods are supported as well: Farmer's Delight, Kaleidoscope Cookery, Youkai's Feasts, Display Delight, and Some Assembly Required."
     },
     {
       "type": "patchouli:text",
-      "text": "Farmer's Delight pies and the large dishes are supported, as are the foods served in all manner of containers in Kaleidoscope Cookery, fruit platters included.$(br2)In Youkai's Feasts, these forms of food are supported:$(li)dishes on plates, in bowls, in pots and in bamboo tubes$(li)sushi on the cuisine board$(li)food inside a steam rack"
+      "text": "Farmer's Delight pies and the large dishes, placed food from Display Delight, customized burgers and sandwitches, and foods served in all manner of containers in Kaleidoscope Cookery are supported.$(br2)In Youkai's Feasts, these forms of food are supported:$(li)dishes on plates, in bowls, in pots and in bamboo tubes$(li)sushi on the cuisine board$(li)food inside a steam rack"
     }
   ]
 }
