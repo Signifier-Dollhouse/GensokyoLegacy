@@ -18,10 +18,10 @@ import java.util.Map;
  * dispatcher and no phase enum.
  *
  * <p>
- * <b>Walking is not a task:</b> every party task carries {@code WALK_TARGET: VALUE_ABSENT} and
- * {@link #canStillUse} yields while a walk order is outstanding, so the walk order stands in for
- * reach. <b>{@link #stillMine} must go false once a task has done its job</b>, or a running task
- * keeps acting: every task that sets a field therefore also tests for it.
+ * <b>Walking is not a task:</b> every task in the cascade carries {@code WALK_TARGET: VALUE_ABSENT}
+ * and {@link #canStillUse} yields while a walk order is outstanding, so the walk order stands in
+ * for reach. <b>{@link #stillMine} must go false once a task has done its job</b>, or a running
+ * task keeps acting: every task that sets a field therefore also tests for it.
  *
  * @see PartyTasks for the order, which is the priority
  * @see PartyContext for the moves
@@ -30,10 +30,21 @@ import java.util.Map;
 public abstract class PartyTask extends Behavior<SmartYoukaiEntity> {
 
 	protected PartyTask() {
-		super(Map.of(
+		this(Map.of(
 				MemoryModuleType.WALK_TARGET, MemoryStatus.VALUE_ABSENT,
 				MemoryModuleType.ATTACK_TARGET, MemoryStatus.VALUE_ABSENT,
-				MemoryModuleType.LOOK_TARGET, MemoryStatus.REGISTERED));
+				MemoryModuleType.LOOK_TARGET, MemoryStatus.REGISTERED), Behavior.DEFAULT_DURATION);
+	}
+
+	/**
+	 * For a task an outstanding walk order does not yield. Every task in the cascade takes the
+	 * default and yields on one, because {@code YoukaiMoveTask} has her then; the director does
+	 * not, because watching that walk is its job. See {@link PartyDirectorTask}.
+	 *
+	 * @param duration how long one run of the behavior lasts before it stops and is started again
+	 */
+	protected PartyTask(Map<MemoryModuleType<?>, MemoryStatus> entry, int duration) {
+		super(entry, duration);
 	}
 
 	/**
