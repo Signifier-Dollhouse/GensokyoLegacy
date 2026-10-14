@@ -73,7 +73,7 @@ public class FairyFeedTask extends Behavior<FairyEntity> {
 		startedAt = gameTime;
 		reached = false;
 		thrown = false;
-		entity.broadcastEat();
+		YoukaiAnim.EAT.play(entity);
 		var fed = BrainUtils.getMemory(entity, GLBrains.MEM_FEED.get());
 		if (fed == null) return;
 		// stop where she is. Clearing the target matters as much as stopping the

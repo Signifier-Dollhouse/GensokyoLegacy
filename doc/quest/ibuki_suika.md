@@ -80,11 +80,11 @@ back to the generic three-rung `DEFAULT` table until she has one of her own.
   into it. A conversation does not get her out of bed: TALK(300) outranks NAP(500)
   so the dialog is what runs, and `YoukaiNapTask#canStillUse` holds the pose
   across it anyway. While the synced `YoukaiFlags.NAPPING` is set,
-  `SuikaEntity#syncDialogAnims` re-points every dialog trigger at `侧卧_交流`, so
-  all of her dialog animation — not just the talk slots — is the lying variant
-  while she is down. `getAnim` stays a function of the rig alone and the swap
-  happens client-side, so the server's "does this slot exist" table never has to
-  agree with what is playing. She gets up for a fight or a party, and — if the
+  `SuikaEntity#triggerAnim` re-points every dialog trigger at that clip, so all
+  of her dialog animation — not just the talk slots — is the lying variant while
+  she is down. `getAnim` stays a function of the rig alone and the swap happens
+  client-side, so the server's "does this slot exist" table never has to agree
+  with what is playing. She gets up for a fight or a party, and — if the
   conversation outlasted the nap's five-to-twenty-second memory — three seconds
   after the last line of dialogue.
 - **No `OUTDOOR_IDLE` either.** She is the one character whose `侧卧` clip is not
@@ -95,7 +95,7 @@ back to the generic three-rung `DEFAULT` table until she has one of her own.
 - **One clip in the rig is wired to nothing.** `喝` is in `suika.animation.json`
   with no slot behind it, same as it has been for the other rigs that ship one.
   Neither is referenced from any Java source. `聚集` next to it *is* wired: it is
-  `GeoYoukaiAnim.GATHER`, fired by her spell card's pull and opted in by
-  `SuikaEntity#hasGatherAnim` — the one character whose rig ships it.
+  her `YoukaiAnim.SKILL_01`, played by her spell card's pull and mapped by her
+  `getAnim` — the one character whose rig ships it.
 - **One house only.** If a second host is ever added, both this page and the
   `visitingAt` gates have to grow with it.

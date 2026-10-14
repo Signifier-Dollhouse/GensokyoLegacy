@@ -80,7 +80,9 @@ public class SakuyaEntity extends MaidenEntity implements GeoYoukaiAnim {
 			case CONFUSED -> Optional.of(CONFUSED);
 			case AGREE -> Optional.of(AGREE);
 			case DECLINE -> Optional.of(DECLINE);
-			case OUTDOOR_IDLE -> Optional.empty();
+			case EAT -> Optional.of(EAT);
+			case HURT -> Optional.of(HURT);
+			default -> Optional.empty();
 		};
 	}
 

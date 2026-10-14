@@ -252,23 +252,6 @@ public abstract class YoukaiEntity extends DamageClampEntity implements SpellCir
 	}
 
 	/**
-	 * Play this character's chew, if she has one.
-	 * <p>
-	 * An entity event rather than a direct animation call, so the client sees the same
-	 * animation the server timed the rest of the meal against.
-	 * <p>
-	 * Silent for a character that is not geo-animated at all, which is the honest answer: the
-	 * clip is per rig, and an eat animation is missing art rather than a missing system. Every
-	 * rig that has one says so with {@code GeoYoukaiAnim#hasEatAnim}, and the event is
-	 * what picks it up, so nothing here has to know which characters those are.
-	 */
-	public void broadcastEat() {
-		if (this instanceof GeoYoukaiAnim && !level().isClientSide()) {
-			level().broadcastEntityEvent(this, GeoYoukaiAnim.EAT_EVENT);
-		}
-	}
-
-	/**
 	 * Ticks between two hurt reactions. A spell card lands danmaku every few ticks, and a
 	 * flinch restarted on each one reads as a stutter rather than as a hit, so the
 	 * reaction is rate-limited rather than fired once per damage instance. The clip itself
@@ -278,28 +261,12 @@ public abstract class YoukaiEntity extends DamageClampEntity implements SpellCir
 
 	private int lastHurtAnim = -HURT_ANIM_COOLDOWN;
 
-	/**
-	 * Play this character's flinch, if she has one.
-	 * <p>
-	 * An entity event rather than a direct animation call, for the same reason as
-	 * {@link #broadcastEat()}: the client has to see the reaction the server played.
-	 * <p>
-	 * Silent for a character that is not geo-animated, and for a rig with no
-	 * {@code 受伤} clip — the flinch is missing art, not a missing system, and every rig
-	 * that has one opts in with {@code GeoYoukaiAnim#hasHurtAnim}.
-	 */
-	public void broadcastHurt() {
-		if (this instanceof GeoYoukaiAnim && !level().isClientSide()) {
-			level().broadcastEntityEvent(this, GeoYoukaiAnim.HURT_EVENT);
-		}
-	}
-
 	@Override
 	protected void postHurt(DamageSource source) {
 		super.postHurt(source);
 		if (tickCount - lastHurtAnim < HURT_ANIM_COOLDOWN) return;
 		lastHurtAnim = tickCount;
-		broadcastHurt();
+		YoukaiAnim.HURT.play(this);
 	}
 
 	@Override

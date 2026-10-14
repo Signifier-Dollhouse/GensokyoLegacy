@@ -389,7 +389,7 @@ public class PartyContext {
 	 * one whose chair was taken away while she was carrying a plate.
 	 */
 	public void beginChew() {
-		entity.broadcastEat();
+		YoukaiAnim.EAT.play(entity);
 		level.playSound(null, entity.blockPosition(), SoundEvents.GENERIC_EAT,
 				SoundSource.PLAYERS, 0.8F, 1.0F);
 		party.chew = PartyTasks.EAT_TICKS;

@@ -87,6 +87,12 @@ public class MorichikaEntity extends GeneralYoukaiEntity implements GeoYoukaiAni
 		return event.setAndContinue(IDLE);
 	}
 
+	/**
+	 * Every dialog slot this rig has, plus the two shared clips. `OUTDOOR_IDLE` falls
+	 * through to {@code default} with the rest: the shopkeeper is never outdoors long
+	 * enough for it to be worth a clip, and this rig ships no {@code 闲置动画} to point
+	 * it at anyway.
+	 */
 	@Override
 	public Optional<RawAnimation> getAnim(YoukaiAnim anim) {
 		return switch (anim) {
@@ -102,9 +108,9 @@ public class MorichikaEntity extends GeneralYoukaiEntity implements GeoYoukaiAni
 			case CONFUSED -> Optional.of(CONFUSED);
 			case AGREE -> Optional.of(AGREE);
 			case DECLINE -> Optional.of(DECLINE);
-			// the shopkeeper is never outdoors long enough for this to be worth a clip,
-			// and this rig ships no 闲置动画 to point it at anyway
-			case OUTDOOR_IDLE -> Optional.empty();
+			case EAT -> Optional.of(EAT);
+			case HURT -> Optional.of(HURT);
+			default -> Optional.empty();
 		};
 	}
 

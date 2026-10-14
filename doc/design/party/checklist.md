@@ -48,12 +48,12 @@ Every file the feature creates and modifies, and the resources it generates.
 | `init/registrate/GLBrains.java` | `PARTY`, `MEM_PARTY` |
 | `init/registrate/GLItems.java` | `INVITATION_LETTER`, calls `BlockFoods.register()` |
 
-| `content/entity/youkai/YoukaiEntity.java` | `PartyModule` in `createModules()`, `isPartying()`, `broadcastEat()` |
+| `content/entity/youkai/YoukaiEntity.java` | `PartyModule` in `createModules()`, `isPartying()` |
 | `content/entity/youkai/YoukaiFlags.java` | append `PARTYING` (ordinal is the synced bit index) |
 | `content/entity/youkai/SmartYoukaiEntity.java` | `PARTY(400)` + `board.addPartyTasks()` |
 | `content/entity/characters/fairy/CirnoEntity.java` | `PartyModule` in its `createModules()` override |
 | `content/entity/characters/magician/AliceEntity.java` | same |
-| `content/entity/characters/fairy/PlainFairyEntity.java` | `broadcastEat()` as the override of the base no-op |
+| `content/entity/characters/fairy/PlainFairyEntity.java` | the chew the others already had (`YoukaiAnim.EAT`) |
 | `content/entity/module/VisitModule.java` | stand down while she is partying (guest.md §2) |
 | `content/client/debug/CharacterRequestToServer.java` | carry a guest's tally in the existing character-info answer (debug.md §4) |
 | `content/client/debug/CharacterInfoToClient.java` | the `PartyTally` record and its two lines |

@@ -417,26 +417,18 @@ public class PlainFairyEntity extends FairyEntity implements GeoYoukaiAnim {
 	}
 
 	/**
-	 * Only {@code 使用主手物品} is mapped: this rig has no {@code 交流_*}, greeting, agree,
-	 * decline or thinking clips, so those slots resolve empty and the dialog system simply
-	 * plays nothing for them rather than asking GeckoLib for a clip that is not there.
+	 * Only {@code 使用主手物品} and the chew are mapped: this rig has no {@code 交流_*},
+	 * greeting, agree, decline or thinking clips, so those slots resolve empty and the
+	 * dialog system simply plays nothing for them rather than asking GeckoLib for a
+	 * clip that is not there.
 	 */
 	@Override
 	public Optional<RawAnimation> getAnim(YoukaiAnim anim) {
 		return switch (anim) {
 			case USE_MAINHAND -> Optional.of(USE_MAINHAND);
-			case GREET, TALK_01, TALK_02, TALK_03, TALK_04, TALK_05, THINK, THINK_02,
-				 CONFUSED, AGREE, DECLINE, OUTDOOR_IDLE -> Optional.empty();
+			case EAT -> Optional.of(EAT);
+			default -> Optional.empty();
 		};
-	}
-
-	/**
-	 * This rig has no {@code 受伤} clip, so the flinch must not be named at all — see
-	 * {@link GeoYoukaiAnim#hasHurtAnim}.
-	 */
-	@Override
-	public boolean hasHurtAnim() {
-		return false;
 	}
 
 	@Override

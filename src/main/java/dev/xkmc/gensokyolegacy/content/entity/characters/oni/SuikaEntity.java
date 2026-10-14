@@ -33,7 +33,11 @@ import java.util.Optional;
  * an activity rather than a fidget because a nap has to be able to end - she gets up for
  * a fight or a party - and a one-shot animation has no way to be interrupted. A
  * conversation does not get her up: she answers from where she is lying, in
- * {@link #NAP_TALK}.
+ * {@link #TALK_SPECIAL_01}.
+ * <p>
+ * That clip and the {@code 聚集} her spell card pulls with are the reason the enum has
+ * {@link YoukaiAnim#TALK_SPECIAL_01} and {@link YoukaiAnim#SKILL_01}: a slot every
+ * character shares cannot be named after what she happens to do with it.
  * <p>
  * Her rig is the narrowest one in the mod. It ships no {@code 眨眼} blink, no
  * greeting or thinking clips, and only two {@code 交流_*} ones, so {@link #getAnim}
@@ -51,11 +55,12 @@ public class SuikaEntity extends BossYoukaiEntity implements GeoYoukaiAnim {
 	private static final RawAnimation USE_MAINHAND = RawAnimation.begin().thenPlay("使用主手物品");
 	private static final RawAnimation TALK_01 = RawAnimation.begin().thenPlay("交流_01");
 	private static final RawAnimation TALK_02 = RawAnimation.begin().thenPlay("交流_02");
-	private static final RawAnimation NAP_TALK = RawAnimation.begin().thenPlay("侧卧_交流");
+	// the generic slots: 侧卧_交流 is her talk while she is lying down, 聚集 is the
+	// sweep her spell card pulls with. Neither name says what the clip is, so the
+	// enum counts them instead - see YoukaiAnim.
+	private static final RawAnimation TALK_SPECIAL_01 = RawAnimation.begin().thenPlay("侧卧_交流");
+	private static final RawAnimation SKILL_01 = RawAnimation.begin().thenPlay("聚集");
 	private static final RawAnimation NAP = RawAnimation.begin().thenLoop("侧卧");
-	private static final RawAnimation GATHER = RawAnimation.begin().thenPlay("聚集");
-	private static final String GATHER_TRIGGER = "gather";
-	private static final String NAPTALK_TRIGGER = "nap_talk";
 
 	private final AnimatableInstanceCache geoCache = GeckoLibUtil.createInstanceCache(this);
 
@@ -106,7 +111,11 @@ public class SuikaEntity extends BossYoukaiEntity implements GeoYoukaiAnim {
 			case USE_MAINHAND -> Optional.of(USE_MAINHAND);
 			case TALK_01, TALK_03, TALK_05 -> Optional.of(TALK_01);
 			case GREET, TALK_02, TALK_04 -> Optional.of(TALK_02);
-			case THINK, THINK_02, CONFUSED, AGREE, DECLINE, OUTDOOR_IDLE -> Optional.empty();
+			case TALK_SPECIAL_01 -> Optional.of(TALK_SPECIAL_01);
+			case SKILL_01 -> Optional.of(SKILL_01);
+			case EAT -> Optional.of(EAT);
+			case HURT -> Optional.of(HURT);
+			default -> Optional.empty();
 		};
 	}
 
@@ -121,32 +130,19 @@ public class SuikaEntity extends BossYoukaiEntity implements GeoYoukaiAnim {
 		return this.geoCache;
 	}
 
-
-	@Override
-	public void addTriggerableAnims(AnimationController<?> controller) {
-		GeoYoukaiAnim.super.addTriggerableAnims(controller);
-		controller.triggerableAnim(GATHER_TRIGGER, GATHER);
-		controller.triggerableAnim(NAPTALK_TRIGGER, NAP_TALK);
-	}
-
-	public void broadcastGather() {
-		if (!level().isClientSide())
-			level().broadcastEntityEvent(this, GATHER_EVENT);
-	}
-
-	@Override
-	public boolean handleAnimEvent(byte id) {
-		if (id == GATHER_EVENT) {
-			triggerAnim(ONE_SHOT_CONTROLLER, GATHER_TRIGGER);
-			return true;
-		}
-		return GeoYoukaiAnim.super.handleAnimEvent(id);
-	}
-
+	/**
+	 * Answer from the bed rather than sitting up. Re-pointing every dialog slot at
+	 * {@link #TALK_SPECIAL_01} is enough, because that is the only talk she does: a
+	 * conversation has to outlive the nap it interrupted without her standing up in
+	 * the middle of it.
+	 * <p>
+	 * Client-side, so the server's "does this slot exist" table stays a function of
+	 * the rig alone and never has to agree with what is playing.
+	 */
 	@Override
 	public void triggerAnim(YoukaiAnim anim) {
 		if (anim.isDialog() && getFlag(YoukaiFlags.NAPPING))
-			triggerAnim(ONE_SHOT_CONTROLLER, NAPTALK_TRIGGER);
+			GeoYoukaiAnim.super.triggerAnim(YoukaiAnim.TALK_SPECIAL_01);
 		else GeoYoukaiAnim.super.triggerAnim(anim);
 	}
 
