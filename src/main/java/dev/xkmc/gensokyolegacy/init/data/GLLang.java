@@ -553,7 +553,8 @@ FURNACE_2_BOOST("Held in main hand while riding a broom, right click to burn fue
 		HAS_ABILITY("gensokyo roles"),
 		UNKNOWN("???", 0, ChatFormatting.GRAY),
 		GIFT_FAVOR("Favor: %s", 1),
-		GIFT_TYPE("Type: %s", 1);
+		GIFT_TYPE("Type: %s", 1),
+		INFINITE("Never runs out", 0, ChatFormatting.AQUA);
 
 		private final String def;
 		private final int argn;

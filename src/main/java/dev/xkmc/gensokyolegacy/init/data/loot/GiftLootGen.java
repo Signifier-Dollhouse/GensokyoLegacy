@@ -180,15 +180,19 @@ public class GiftLootGen {
 	}
 
 	/**
-	 * An oni leaves you with drink, and only drink, and she is not fussy about which
-	 * kind: her ladder is short and the top rung is the expensive bottle rather than
-	 * something of her own, because she has nothing of her own worth giving.
+	 * An oni leaves you with drink, and only drink, and she is not fussy about which kind:
+	 * her ladder is short and the top rung is her own gourd rather than an expensive bottle,
+	 * because the gourd is the one thing she carries and it is the one thing on the ladder
+	 * that is still giving after she has gone. The middle rung is wide because she eats and
+	 * drinks more than most, and a band as narrow as the ones below it would be walked past
+	 * in one sitting.
 	 */
 	private static List<Tier> suika() {
 		return List.of(
 				tier(0, 50, gift(GLNaturalBlocks.STAR_FLOWER, 20)),
-				tier(50, 0, gift(GLItems.TENGU_SAKE, 20),
-						gift(GLItems.GHOST_SAKE, 20)));
+				tier(50, 400, gift(GLItems.TENGU_SAKE, 20),
+						gift(GLItems.GHOST_SAKE, 20)),
+				tier(400, 0, gift(GLItems.IBUKI_GOURD, 10)));
 	}
 
 	/**

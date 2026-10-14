@@ -98,6 +98,7 @@ public class GLItems {
 	public static final ItemEntry<DaggerGloveItem> DAGGER_GLOVE;
 
 	public static final ItemEntry<DrinkGiftItem> TENGU_SAKE, GHOST_SAKE;
+	public static final ItemEntry<GourdItem> IBUKI_GOURD;
 	public static final ItemEntry<Item> FAIRY_CAKE;
 	public static final ItemEntry<MagicBookItem> MAGIC_BOOK;
 
@@ -292,6 +293,15 @@ public class GLItems {
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
 					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(5, 1000, GiftType.DRINK))
 					.lang("Ghost Sake").register();
+
+			// Suika's gourd: the ghost sake poured into something with no bottom. Same drink,
+			// same effects, and nothing ever runs out — the stack goes back into the hand
+			// untouched (see GourdItem) rather than emptying into a glass bottle.
+			IBUKI_GOURD = reg.item("ibuki_gourd", p -> new GourdItem(p.stacksTo(1).food(gourd(
+							new MobEffectInstance(MobEffects.DAMAGE_BOOST, 600, 1),
+							new MobEffectInstance(MobEffects.FIRE_RESISTANCE, 600, 0)))))
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/tool/" + ctx.getName())))
+					.lang("Ibuki Gourd").register();
 
 			FAIRY_CAKE = reg.item("fairy_cake", p -> new Item(p
 							.food(new FoodProperties.Builder().nutrition(4).saturationModifier(0.3f)
@@ -554,9 +564,23 @@ public class GLItems {
 	 * leaves an empty glass bottle behind, and every effect is rolled on the last gulp.
 	 */
 	private static FoodProperties sake(MobEffectInstance... effects) {
-		FoodProperties.Builder builder = new FoodProperties.Builder()
-				.alwaysEdible()
-				.usingConvertsTo(Items.GLASS_BOTTLE);
+		return sake(true, effects);
+	}
+
+	/**
+	 * The same drink poured into something with no bottom to it. Still always drinkable,
+	 * still no nutrition, still the same effects — but nothing is left behind, because
+	 * {@link GourdItem} puts the gourd back where it was rather than emptying it. Without
+	 * this the player would be handed a glass bottle per sip and the "infinite" would read
+	 * as a bottling machine rather than as a gourd.
+	 */
+	private static FoodProperties gourd(MobEffectInstance... effects) {
+		return sake(false, effects);
+	}
+
+	private static FoodProperties sake(boolean leavesBottle, MobEffectInstance... effects) {
+		FoodProperties.Builder builder = new FoodProperties.Builder().alwaysEdible();
+		if (leavesBottle) builder.usingConvertsTo(Items.GLASS_BOTTLE);
 		for (MobEffectInstance effect : effects)
 			builder.effect(() -> new MobEffectInstance(effect), 1.0F);
 		return builder.build();
