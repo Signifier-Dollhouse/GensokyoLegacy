@@ -95,14 +95,6 @@ public interface GeoYoukaiAnim extends GeoEntity {
 	String HURT_TRIGGER = "hurt";
 	byte HURT_EVENT = 85;
 
-	/**
-	 * The gather. Like the chew and the flinch, not a {@link YoukaiAnim} slot: only
-	 * Suika's rig ships the clip and nothing in dialog data names it — her spell card
-	 * fires it from the pull move. Opt-in per rig for the same reason as the other two.
-	 */
-	RawAnimation GATHER = RawAnimation.begin().thenPlay("聚集");
-
-	String GATHER_TRIGGER = "gather";
 	byte GATHER_EVENT = 86;
 
 	/**
@@ -147,14 +139,6 @@ public interface GeoYoukaiAnim extends GeoEntity {
 	}
 
 	/**
-	 * Whether this rig ships the {@code 聚集} clip. Only Suika's spell card plays it,
-	 * so unlike the other two this defaults to no.
-	 */
-	default boolean hasGatherAnim() {
-		return false;
-	}
-
-	/**
 	 * Assemble the rig: {@link #registerControllers} is the same three controllers for
 	 * every character, and everything that varies is the {@code has*Anim} hooks above
 	 * and {@link #getAnim}.
@@ -168,10 +152,7 @@ public interface GeoYoukaiAnim extends GeoEntity {
 			controllers.add(new AnimationController<>(this, WINK_CONTROLLER, 0, e -> e.setAndContinue(BLINK)));
 		controllers.add(new AnimationController<>(this, ANIM_CONTROLLER, ANIM_TRANSITION, this::stateAnimController));
 		var oneShot = oneShotController();
-		if (hasEatAnim()) addEatAnim(oneShot);
-		if (hasHurtAnim()) addHurtAnim(oneShot);
-		if (hasGatherAnim()) addGatherAnim(oneShot);
-		addDialogAnims(oneShot);
+		addTriggerableAnims(oneShot);
 		controllers.add(oneShot);
 	}
 
@@ -217,34 +198,16 @@ public interface GeoYoukaiAnim extends GeoEntity {
 	}
 
 	/**
-	 * The gather on the one-shot controller, gated by {@link #hasGatherAnim} for the
-	 * same reason as the chew.
-	 */
-	private void addGatherAnim(AnimationController<?> controller) {
-		controller.triggerableAnim(GATHER_TRIGGER, GATHER);
-	}
-
-	/**
 	 * A triggerable for every dialog slot {@link #getAnim} actually maps, on the
 	 * one-shot controller. No gate needed: an unmapped slot is one the rig has no
 	 * clip for and nobody asks to play.
 	 */
-	private void addDialogAnims(AnimationController<?> controller) {
+	default void addTriggerableAnims(AnimationController<?> controller) {
+		if (hasEatAnim()) addEatAnim(controller);
+		if (hasHurtAnim()) addHurtAnim(controller);
 		for (var anim : YoukaiAnim.values()) {
 			getAnim(anim).ifPresent(raw -> controller.triggerableAnim(anim.trigger(), raw));
 		}
-	}
-
-	/**
-	 * Play the gather, if this character has one — the only caller is Suika's spell
-	 * card, but the gate is the same one the rig used to register the trigger. Fired
-	 * server side, so a client sees the same clip the server timed the pull to.
-	 */
-	default void broadcastGather() {
-		if (!hasGatherAnim()) return;
-		LivingEntity self = (LivingEntity) this;
-		if (!self.level().isClientSide())
-			self.level().broadcastEntityEvent(self, GATHER_EVENT);
 	}
 
 	default void broadcastAnim(YoukaiAnim anim) {
@@ -288,17 +251,17 @@ public interface GeoYoukaiAnim extends GeoEntity {
 			triggerAnim(ONE_SHOT_CONTROLLER, HURT_TRIGGER);
 			return true;
 		}
-		if (id == GATHER_EVENT) {
-			triggerAnim(ONE_SHOT_CONTROLLER, GATHER_TRIGGER);
-			return true;
-		}
 		int ord = id - ANIM_EVENT_BASE;
 		var values = YoukaiAnim.values();
 		if (ord < 0 || ord >= values.length) return false;
 		var anim = values[ord];
 		if (getAnim(anim).isEmpty()) return false;
-		triggerAnim(ONE_SHOT_CONTROLLER, anim.trigger());
+		triggerAnim(anim);
 		return true;
+	}
+
+	default void triggerAnim(YoukaiAnim anim) {
+		triggerAnim(ONE_SHOT_CONTROLLER, anim.trigger());
 	}
 
 }

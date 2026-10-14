@@ -5,6 +5,7 @@ import dev.xkmc.danmakuapi.content.spell.spellcard.ActualSpellCard;
 import dev.xkmc.danmakuapi.content.spell.spellcard.CardHolder;
 import dev.xkmc.danmakuapi.content.spell.spellcard.Ticker;
 import dev.xkmc.danmakuapi.init.registrate.DanmakuItems;
+import dev.xkmc.gensokyolegacy.content.entity.characters.oni.SuikaEntity;
 import dev.xkmc.gensokyolegacy.content.entity.foundation.DamageClampEntity;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.GeoYoukaiAnim;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiAnim;
@@ -209,7 +210,7 @@ public class SuikaSpell extends ActualSpellCard {
 	private void gather(CardHolder holder) {
 		var youkai = youkai(holder);
 		if (youkai == null) return;
-		if (holder.self() instanceof GeoYoukaiAnim anim) anim.broadcastGather();
+		if (holder.self() instanceof SuikaEntity anim) anim.broadcastGather();
 		addTicker(new GatherSpawner());
 	}
 

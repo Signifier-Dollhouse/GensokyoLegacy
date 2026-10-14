@@ -10,6 +10,7 @@ import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiFlags;
 import dev.xkmc.gensokyolegacy.init.registrate.GLBrains;
 import dev.xkmc.l2serial.serialization.marker.SerialClass;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.animation.*;
@@ -52,6 +53,9 @@ public class SuikaEntity extends BossYoukaiEntity implements GeoYoukaiAnim {
 	private static final RawAnimation TALK_02 = RawAnimation.begin().thenPlay("交流_02");
 	private static final RawAnimation NAP_TALK = RawAnimation.begin().thenPlay("侧卧_交流");
 	private static final RawAnimation NAP = RawAnimation.begin().thenLoop("侧卧");
+	private static final RawAnimation GATHER = RawAnimation.begin().thenPlay("聚集");
+	private static final String GATHER_TRIGGER = "gather";
+	private static final String NAPTALK_TRIGGER = "nap_talk";
 
 	private final AnimatableInstanceCache geoCache = GeckoLibUtil.createInstanceCache(this);
 
@@ -80,11 +84,6 @@ public class SuikaEntity extends BossYoukaiEntity implements GeoYoukaiAnim {
 	}
 
 	@Override
-	public boolean hasGatherAnim() {
-		return true;
-	}
-
-	@Override
 	public boolean hasBlinkAnim() {
 		return false;
 	}
@@ -103,9 +102,6 @@ public class SuikaEntity extends BossYoukaiEntity implements GeoYoukaiAnim {
 
 	@Override
 	public Optional<RawAnimation> getAnim(YoukaiAnim anim) {
-		if (getFlag(YoukaiFlags.NAPPING) && anim.isDialog()) {
-			return Optional.of(NAP_TALK);
-		}
 		return switch (anim) {
 			case USE_MAINHAND -> Optional.of(USE_MAINHAND);
 			case TALK_01, TALK_03, TALK_05 -> Optional.of(TALK_01);
@@ -123,6 +119,35 @@ public class SuikaEntity extends BossYoukaiEntity implements GeoYoukaiAnim {
 	@Override
 	public AnimatableInstanceCache getAnimatableInstanceCache() {
 		return this.geoCache;
+	}
+
+
+	@Override
+	public void addTriggerableAnims(AnimationController<?> controller) {
+		GeoYoukaiAnim.super.addTriggerableAnims(controller);
+		controller.triggerableAnim(GATHER_TRIGGER, GATHER);
+		controller.triggerableAnim(NAPTALK_TRIGGER, NAP_TALK);
+	}
+
+	public void broadcastGather() {
+		if (!level().isClientSide())
+			level().broadcastEntityEvent(this, GATHER_EVENT);
+	}
+
+	@Override
+	public boolean handleAnimEvent(byte id) {
+		if (id == GATHER_EVENT) {
+			triggerAnim(ONE_SHOT_CONTROLLER, GATHER_TRIGGER);
+			return true;
+		}
+		return GeoYoukaiAnim.super.handleAnimEvent(id);
+	}
+
+	@Override
+	public void triggerAnim(YoukaiAnim anim) {
+		if (anim.isDialog() && getFlag(YoukaiFlags.NAPPING))
+			triggerAnim(ONE_SHOT_CONTROLLER, NAPTALK_TRIGGER);
+		else GeoYoukaiAnim.super.triggerAnim(anim);
 	}
 
 }
