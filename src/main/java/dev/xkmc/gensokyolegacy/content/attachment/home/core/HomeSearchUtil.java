@@ -43,7 +43,10 @@ public class HomeSearchUtil {
 	}
 
 	public static boolean isValidChair(ServerLevel sl, BlockPos pos) {
-		return sl.getBlockState(pos).getBlock() instanceof ISeatableBlock;
+		var state = sl.getBlockState(pos);
+		// the block being seatable says nothing about the half: a large chair is one block
+		// sitting on another, and only the lower one is where the seat entity goes
+		return state.getBlock() instanceof ISeatableBlock && ISeatableBlock.isSeatPos(state);
 	}
 
 	public static boolean isValidShelf(ServerLevel sl, BlockPos pos) {
@@ -74,7 +77,8 @@ public class HomeSearchUtil {
 
 	public static void setSitting(ServerLevel level, BlockPos pos, YoukaiEntity entity) {
 		BlockState state = level.getBlockState(pos);
-		if (state.getBlock() instanceof ISeatableBlock block) {
+		// the upper half of a two-block seat is not a seat, same as for a player clicking it
+		if (state.getBlock() instanceof ISeatableBlock block && ISeatableBlock.isSeatPos(state)) {
 			List<ChairEntity> seats = level.getEntitiesOfClass(ChairEntity.class, new AABB(pos));
 			if (seats.isEmpty()) {
 				block.sitDown(level, pos, entity);

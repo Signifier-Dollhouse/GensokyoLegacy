@@ -1,7 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.attachment.party.core;
 
 import dev.xkmc.gensokyolegacy.content.attachment.area.ChunkPosRange;
-import dev.xkmc.gensokyolegacy.init.data.GLTagGen;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
 import dev.xkmc.l2core.capability.attachment.GeneralCapabilityTemplate;
 import dev.xkmc.l2serial.serialization.marker.SerialClass;
@@ -223,7 +222,7 @@ public class PartyAttachment extends GeneralCapabilityTemplate<LevelChunk, Party
 		for (var pos : seats) {
 			if (claims.containsKey(pos)) continue;
 			// the list is stale, so a chair broken since would be handed out
-			if (!level.getBlockState(pos).is(GLTagGen.PARTY_SEAT)) continue;
+			if (!PartyArea.isSeatState(level.getBlockState(pos))) continue;
 			double dist = pos.distSqr(from);
 			if (dist >= bestDist) continue;
 			bestDist = dist;

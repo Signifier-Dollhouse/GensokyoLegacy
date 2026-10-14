@@ -141,8 +141,9 @@ public class PartyModule extends AbstractYoukaiModule {
 	private int layoutVersion = -1;
 
 	/**
-	 * The thing she is walking to. A deadline from issuing the order is the wrong test — a
-	 * long walk to a far chair is slow but fine — so the closest approach is kept instead.
+	 * The block she was told to walk to, which is also the one the teleport fallback puts her on.
+	 * A deadline from issuing the order is the wrong test — a long walk to a far chair is slow but
+	 * fine — so the closest approach is kept instead.
 	 */
 	@SerialField
 	private BlockPos walkTarget;
@@ -449,7 +450,7 @@ public class PartyModule extends AbstractYoukaiModule {
 		walkClosest = Double.MAX_VALUE;
 	}
 
-	/** The thing she is currently walking to, for the teleport fallback. */
+	/** The block she is currently walking to, for the teleport fallback. */
 	@Nullable
 	public BlockPos walkTarget() {
 		return walkTarget;
@@ -524,6 +525,10 @@ public class PartyModule extends AbstractYoukaiModule {
 	 * {@link #leave()} clears it, or she gets her schedule back while still walking to the table.
 	 */
 	public void completeLeave(ServerLevel sl) {
+		// the exit runs from two places in one tick — the module's own tick and the director — and
+		// leave() has already reset origin to SUMMONED, so a second run would read a resident as a
+		// clone and discard her
+		if (host == null) return;
 		var was = origin;
 		var key = originKey;
 		if (partyChunk != null) {

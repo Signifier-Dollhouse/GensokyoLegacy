@@ -35,16 +35,18 @@ public class GLRecipeGen {
 
 	public static void genRecipe(RegistrateRecipeProvider pvd) {
 		furniture(pvd);
-		wroughtIron(pvd);
 		hexbrew(pvd);
 		fairyStuff(pvd);
+
+		unlock(pvd, ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, GLItems.INVITATION_LETTER.get(), 4)::unlockedBy, Items.PAPER)
+				.requires(Items.PAPER).requires(Items.POPPY).save(pvd);
 	}
 
 	private static void fairyStuff(RegistrateRecipeProvider pvd) {
 		// one cake stirred with one dust comes out as seven: the dust is the whole
 		// reason a cake beats a cookie, and seven makes feeding her worth the trip
 		unlock(pvd, ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, GLItems.FAIRY_CAKE.get(), 7)::unlockedBy,
-						GLItems.FAIRY_DUST.get())
+				GLItems.FAIRY_DUST.get())
 				.requires(Items.CAKE)
 				.requires(GLItems.FAIRY_DUST.get())
 				.save(pvd, GensokyoLegacy.loc("fairy_cake_from_cake_and_dust"));
@@ -52,12 +54,12 @@ public class GLRecipeGen {
 		// one crystal crushed down, the other way into the loop. Four, because it is the
 		// only source not gated on standing in front of a fairy
 		unlock(pvd, ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, GLItems.FAIRY_DUST.get(), 4)::unlockedBy,
-						GLItems.FAIRY_ICE_CRYSTAL.get())
+				GLItems.FAIRY_ICE_CRYSTAL.get())
 				.requires(GLItems.FAIRY_ICE_CRYSTAL.get())
 				.save(pvd, GensokyoLegacy.loc("fairy_dust_from_fairy_ice_crystal"));
 
 		unlock(pvd, ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, Blocks.BLUE_ICE, 8)::unlockedBy,
-						GLItems.FAIRY_ICE_CRYSTAL.get())
+				GLItems.FAIRY_ICE_CRYSTAL.get())
 				.pattern("III")
 				.pattern("ICI")
 				.pattern("III")
@@ -320,7 +322,7 @@ public class GLRecipeGen {
 		for (int i = 0; i < GLDecoBlocks.TILE_COLORS.length; i++) {
 			var dye = DyeItem.byColor(GLDecoBlocks.TILE_COLORS[i]);
 			unlock(pvd, ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS,
-							GLDecoBlocks.TILE_SETS[i].block.get(), 8)::unlockedBy, dye)
+					GLDecoBlocks.TILE_SETS[i].block.get(), 8)::unlockedBy, dye)
 					.pattern("###").pattern("#X#").pattern("###")
 					.define('#', Blocks.DEEPSLATE_TILES).define('X', dye)
 					.save(pvd);
@@ -386,29 +388,21 @@ public class GLRecipeGen {
 		unlock(pvd, ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, GLFurniture.CARTON.get(), 2)::unlockedBy, Items.PAPER)
 				.pattern("PPP").pattern("PPP")
 				.define('P', Items.PAPER).save(pvd);
-	}
 
-	/**
-	 * Wrought iron: iron bars welded into a ring and blackened with a single black dye, then two bars stacked into a
-	 * pillar and one bar carrying three candles. The bar steps never lose a bar, so the cost of the metal is the same
-	 * as vanilla iron bars throughout.
-	 */
-	private static void wroughtIron(RegistrateRecipeProvider pvd) {
-		// 8 bars around the dye, 8 bars out
 		unlock(pvd, ShapedRecipeBuilder.shaped(
 				RecipeCategory.DECORATIONS, GLDecoBlocks.WROUGHT_IRON_BARS.get(), 8)::unlockedBy, Items.IRON_BARS)
 				.pattern("I I").pattern("IBI").pattern("I I")
 				.define('I', Items.IRON_BARS).define('B', Items.BLACK_DYE).save(pvd);
 		// two bars stacked, like a vanilla pillar
 		unlock(pvd, ShapedRecipeBuilder.shaped(
-				RecipeCategory.DECORATIONS, GLDecoBlocks.WROUGHT_IRON_PILLAR.get())::unlockedBy,
+						RecipeCategory.DECORATIONS, GLDecoBlocks.WROUGHT_IRON_PILLAR.get())::unlockedBy,
 				GLDecoBlocks.WROUGHT_IRON_BARS.get().asItem())
 				.pattern("W").pattern("W")
 				.define('W', GLDecoBlocks.WROUGHT_IRON_BARS.get()).save(pvd);
 		// a bar laid flat as the stand, three candles on top: the block burns
 		// three wicks, so the candles are consumed instead of placed
 		unlock(pvd, ShapedRecipeBuilder.shaped(
-				RecipeCategory.DECORATIONS, GLFurniture.CANDLESTICK.get())::unlockedBy,
+						RecipeCategory.DECORATIONS, GLFurniture.CANDLESTICK.get())::unlockedBy,
 				GLDecoBlocks.WROUGHT_IRON_BARS.get().asItem())
 				.pattern("CCC").pattern(" W ")
 				.define('W', GLDecoBlocks.WROUGHT_IRON_BARS.get()).define('C', Items.CANDLE).save(pvd);
@@ -422,7 +416,9 @@ public class GLRecipeGen {
 		pvd.stonecutting(DataIngredient.items(wool(color)), RecipeCategory.DECORATIONS, result);
 	}
 
-	/** {@link DyeColor} carries no reference to its wool block, so spell them out. */
+	/**
+	 * {@link DyeColor} carries no reference to its wool block, so spell them out.
+	 */
 	private static Block wool(DyeColor color) {
 		return switch (color) {
 			case WHITE -> Blocks.WHITE_WOOL;
