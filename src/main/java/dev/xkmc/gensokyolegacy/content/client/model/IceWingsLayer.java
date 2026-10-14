@@ -2,6 +2,7 @@ package dev.xkmc.gensokyolegacy.content.client.model;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.xkmc.gensokyolegacy.compat.curios.CuriosManager;
+import dev.xkmc.gensokyolegacy.content.item.character.FairyWingsItem;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.EntityModel;
@@ -15,9 +16,13 @@ import software.bernie.geckolib.animation.AnimationState;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.renderer.GeoRenderer;
 
-/** Draws {@link dev.xkmc.gensokyolegacy.content.item.character.IceWingsItem} on whoever wears it, from the same
- * sweep as {@link TouhouHatLayer} rather than the curios back slot, which has no renderer to hook. Drawing is
- * geckolib's {@link GeoRenderer} pipeline; only the animation is started here, as no entity exists to tick it.
+/** Draws a pair of wings on whoever wears one, from the same sweep as {@link TouhouHatLayer} rather than the
+ * curios back slot, which has no renderer to hook. Drawing is geckolib's {@link GeoRenderer} pipeline; only the
+ * animation is started here, as no entity exists to tick it.
+ *
+ * <p>{@link FairyWingsItem} borrows Cirno's rig rather than bringing its own, so the two wing items share
+ * this one draw - a wearer with a pair in each slot still gets one set of wings, which is the only thing
+ * that looks right.
  */
 public class IceWingsLayer<T extends LivingEntity, M extends EntityModel<T>> extends RenderLayer<T, M>
 		implements GeoRenderer<IceWingsAnimatable> {
@@ -42,7 +47,8 @@ public class IceWingsLayer<T extends LivingEntity, M extends EntityModel<T>> ext
 	public void render(PoseStack pose, MultiBufferSource buffer, int light, T entity, float limbSwing,
 					   float limbSwingAmount, float partialTick, float ageInTicks, float netHeadYaw,
 					   float headPitch) {
-		if (!CuriosManager.hasWings(entity, GLItems.ICE_WINGS.get(), true)) return;
+		if (!CuriosManager.hasWings(entity, GLItems.ICE_WINGS.get(), true)
+				&& !CuriosManager.hasWings(entity, GLItems.FAIRY_WINGS.get(), true)) return;
 		if (entity.isInvisible() && !Minecraft.getInstance().shouldEntityAppearGlowing(entity)) return;
 		// baked first: this is what hands the bones to the animation processor, and geckolib will
 		// not have anything to write the clip's keyframes into until it has happened

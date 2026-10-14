@@ -122,6 +122,7 @@ public class GLItems {
 	public static final ItemEntry<StarWandItem> STAR_WAND;
 	public static final ItemEntry<StrangeGlassesItem> STRANGE_GLASSES;
 	public static final ItemEntry<IceWingsItem> ICE_WINGS;
+	public static final ItemEntry<FairyWingsItem> FAIRY_WINGS;
 
 	public static final ItemEntry<InvitationLetterItem> INVITATION_LETTER;
 
@@ -505,6 +506,13 @@ public class GLItems {
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/curio/" + ctx.getName())))
 					.tag(back)
 					.lang("Ice Wings").tab(TAB.key())
+					.register();
+
+			// placeholder icon: the wings borrow Cirno's sprite until they have one of their own
+			FAIRY_WINGS = reg.item("fairy_wings", p -> new FairyWingsItem(p.rarity(Rarity.RARE)))
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/curio/ice_wings")))
+					.tag(back)
+					.lang("Fairy Wings").tab(TAB.key())
 					.register();
 		}
 

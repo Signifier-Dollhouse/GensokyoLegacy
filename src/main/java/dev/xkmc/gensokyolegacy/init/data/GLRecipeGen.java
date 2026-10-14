@@ -69,6 +69,14 @@ public class GLRecipeGen {
 				GLItems.FAIRY_ICE_CRYSTAL.get())
 				.pattern("C C").pattern("CCC").pattern("C C")
 				.define('C', GLItems.FAIRY_ICE_CRYSTAL.get()).save(pvd);
+
+		// the dust spans the middle row and the membranes the four corners, which lays the same
+		// seven pieces out as wings rather than as the plus sign they would otherwise be
+		unlock(pvd, ShapedRecipeBuilder.shaped(RecipeCategory.MISC, GLItems.FAIRY_WINGS.get())::unlockedBy,
+				GLItems.FAIRY_DUST.get())
+				.pattern("P P").pattern("DDD").pattern("P P")
+				.define('P', Items.PHANTOM_MEMBRANE).define('D', GLItems.FAIRY_DUST.get())
+				.save(pvd);
 	}
 
 	public static void hexbrew(RegistrateRecipeProvider pvd) {
