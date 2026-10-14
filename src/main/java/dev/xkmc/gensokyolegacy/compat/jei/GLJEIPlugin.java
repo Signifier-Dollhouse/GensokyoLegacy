@@ -1,6 +1,7 @@
 package dev.xkmc.gensokyolegacy.compat.jei;
 
 import dev.xkmc.gensokyolegacy.content.block.functional.alchemypot.recipe.AlchemyRecipe;
+import dev.xkmc.gensokyolegacy.content.entity.module.EntityInteractions;
 import dev.xkmc.gensokyolegacy.content.rpg.core.CodecRegistry;
 import dev.xkmc.gensokyolegacy.content.rpg.quest.Quest;
 import dev.xkmc.gensokyolegacy.content.rpg.trade.TradeOffer;
@@ -37,6 +38,8 @@ public class GLJEIPlugin implements IModPlugin {
 			RecipeType.create(GensokyoLegacy.MODID, "quest", Wrappers.cast(Holder.class));
 	public static final RecipeType<EntityType<?>> GIFT =
 			RecipeType.create(GensokyoLegacy.MODID, "gift", Wrappers.cast(EntityType.class));
+	public static final RecipeType<EntityType<?>> INTERACTION =
+			RecipeType.create(GensokyoLegacy.MODID, "interaction", Wrappers.cast(EntityType.class));
 
 	@Override
 	public ResourceLocation getPluginUid() {
@@ -50,7 +53,8 @@ public class GLJEIPlugin implements IModPlugin {
 				new AlchemyRecipeCategory().init(helper),
 				new TradeRecipeCategory().init(helper),
 				new QuestRewardCategory().init(helper),
-				new PartyGiftCategory().init(helper));
+				new PartyGiftCategory().init(helper),
+				new EntityInteractionCategory().init(helper));
 	}
 
 	@Override
@@ -74,6 +78,9 @@ public class GLJEIPlugin implements IModPlugin {
 		// gift givers; one page each, holding her own ladder or the default one she falls back to
 		registration.addRecipes(GIFT, GLMeta.PARTY_TASTE.getAll(access)
 				.<EntityType<?>>map(pair -> pair.getFirst().value()).toList());
+		// what a character answers to is stated in code beside the entity rather than read from
+		// here, so only the characters that registered a page have one to draw
+		registration.addRecipes(INTERACTION, EntityInteractions.characters());
 	}
 
 	@Override
@@ -82,6 +89,7 @@ public class GLJEIPlugin implements IModPlugin {
 		registration.addRecipeCatalyst(Items.EMERALD, TRADE);
 		registration.addRecipeCatalyst(Items.BOOK, QUEST);
 		registration.addRecipeCatalyst(GLItems.INVITATION_LETTER.asStack(), GIFT);
+		registration.addRecipeCatalyst(Items.COOKIE.getDefaultInstance(), INTERACTION);
 	}
 
 }

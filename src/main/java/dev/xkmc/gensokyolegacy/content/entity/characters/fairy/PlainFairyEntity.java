@@ -356,6 +356,14 @@ public class PlainFairyEntity extends FairyEntity implements GeoYoukaiAnim {
 	}
 
 	/**
+	 * Her interaction page. Stated on the entity rather than on the module, so {@code GLEntities}
+	 * can say which character answers a hand-out without knowing which module does it.
+	 */
+	public static List<EntityInteraction> interactions() {
+		return FairyFeedModule.interactions();
+	}
+
+	/**
 	 * The whole scale she resolves against, lowest number wins:
 	 * {@code FIGHT(0) - FEAR(100) - FEAST(200) - NAP(500) - VISITING(600) - HUNT(700)}.
 	 * <p>

@@ -5,6 +5,7 @@ import dev.xkmc.gensokyolegacy.content.attachment.character.ReputationConstants;
 import dev.xkmc.gensokyolegacy.content.client.debug.InfoUpdateClientManager;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
+import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.gensokyolegacy.init.registrate.GLBrains;
 import dev.xkmc.gensokyolegacy.init.registrate.GLCriteriaTriggers;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
@@ -22,9 +23,9 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EntityEvent;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.common.Tags;
 import org.jetbrains.annotations.Nullable;
@@ -43,14 +44,25 @@ public class FairyFeedModule extends AbstractYoukaiModule {
 	private static final ResourceLocation ID = GensokyoLegacy.loc("fairy_feed");
 
 	/**
+	 * Vanilla cake and the mod's own fairy cake - the two things she calls a meal, and the two
+	 * worth ten reputation and a fairy dust rather than a flower.
+	 */
+	public static final Ingredient CAKE_FOOD = Ingredient.of(new ItemStack(Items.CAKE), GLItems.FAIRY_CAKE.asStack());
+
+	/**
+	 * Anything in the cookie tag. Not a slower cake but a cheaper, different trade: the flower it
+	 * buys back is the cheap half on purpose. Climbing out of hostility is cake's job.
+	 */
+	public static final Ingredient COOKIE_FOOD = Ingredient.of(Tags.Items.FOODS_COOKIE);
+
+	/**
 	 * Reputation one cake is worth, and the ceiling feeding alone can reach.
 	 */
 	public static final int CAKE_REPUTATION = 10;
 	public static final int CAKE_REPUTATION_CAP = 100;
 
 	/**
-	 * Reputation one cookie is worth, against ten for a cake. Not a slower cake but a cheaper, different
-	 * trade: the flower it buys back is the cheap half on purpose. Climbing out of hostility is cake's job.
+	 * Reputation one cookie is worth, against ten for a cake.
 	 */
 	public static final int COOKIE_REPUTATION = 1;
 
@@ -95,7 +107,7 @@ public class FairyFeedModule extends AbstractYoukaiModule {
 	 * call a treat; everything else is not food she recognises.
 	 */
 	public static boolean isFood(ItemStack stack) {
-		return isCake(stack) || stack.is(Tags.Items.FOODS_COOKIE);
+		return CAKE_FOOD.test(stack) || COOKIE_FOOD.test(stack);
 	}
 
 	/**
@@ -107,19 +119,11 @@ public class FairyFeedModule extends AbstractYoukaiModule {
 	}
 
 	/**
-	 * The thank-you for a cookie: one flower out of {@link ItemTags#FLOWERS}, of which a datapack can leave
-	 * an empty tag — poppy is the fallback, since something always has to land at their feet. Rolled per feeding.
+	 * The thank-you for a cookie: one flower out of {@link ItemTags#FLOWERS}, rolled per feeding.
 	 */
 	protected ItemStack cookieGift() {
-		return new ItemStack(randomFlower());
-	}
-
-	/**
-	 * Vanilla cake and the mod's own fairy cake - the two things she calls a meal, and
-	 * the two worth ten reputation and a fairy dust rather than a flower.
-	 */
-	private static boolean isCake(ItemStack stack) {
-		return stack.is(Items.CAKE) || stack.is(GLItems.FAIRY_CAKE);
+		var flowers = flowerGifts();
+		return flowers.get(self.getRandom().nextInt(flowers.size()));
 	}
 
 	/**
@@ -127,9 +131,45 @@ public class FairyFeedModule extends AbstractYoukaiModule {
 	 * becomes what feeding it costs and pays. The gift stays a method so Cirno's crystal stays overridable.
 	 */
 	private @Nullable Dish dish(ItemStack stack) {
-		if (isCake(stack)) return new Dish(CAKE_REPUTATION, this::cakeGift);
-		if (stack.is(Tags.Items.FOODS_COOKIE)) return new Dish(COOKIE_REPUTATION, this::cookieGift);
+		if (CAKE_FOOD.test(stack)) return new Dish(CAKE_REPUTATION, this::cakeGift);
+		if (COOKIE_FOOD.test(stack)) return new Dish(COOKIE_REPUTATION, this::cookieGift);
 		return null;
+	}
+
+	/**
+	 * The plain fairy's page: a cake is worth {@link #CAKE_REPUTATION} and buys the dust the cake is
+	 * made of, a cookie {@link #COOKIE_REPUTATION} and any flower she can reach. The two sets are the
+	 * ones {@link #cakeGift()} and {@link #cookieGift()} actually hand out of, so the page cannot
+	 * promise something she would not give.
+	 */
+	public static List<EntityInteraction> interactions() {
+		return page(List.of(new ItemStack(GLItems.FAIRY_DUST.get())), flowerGifts());
+	}
+
+	/**
+	 * Assembles a fairy's page out of the two gifts her module hands back, so a subclass states only
+	 * what is different from a plain fairy and inherits the two dishes and what they earn.
+	 */
+	protected static List<EntityInteraction> page(List<ItemStack> cake, List<ItemStack> cookie) {
+		return List.of(new EntityInteraction(GLLang.JeiExtra.KIND_FEED.get(),
+				GLLang.JeiExtra.FEED_NOTE.get(CAKE_REPUTATION_CAP),
+				List.of(
+						new EntityInteraction.Line(GLLang.JeiExtra.FEED_WORTH.get(CAKE_REPUTATION), CAKE_FOOD, cake),
+						new EntityInteraction.Line(GLLang.JeiExtra.FEED_WORTH.get(COOKIE_REPUTATION), COOKIE_FOOD, cookie))));
+	}
+
+	/**
+	 * Every flower out of {@link ItemTags#FLOWERS} she could reach for, which is what a cookie
+	 * actually buys. Walks the registry each time so the list cannot go stale against a datapack;
+	 * poppy is the fallback, not an exception.
+	 */
+	public static List<ItemStack> flowerGifts() {
+		List<ItemStack> flowers = new ArrayList<>();
+		for (var item : BuiltInRegistries.ITEM) {
+			if (item.builtInRegistryHolder().is(ItemTags.FLOWERS)) flowers.add(new ItemStack(item));
+		}
+		if (flowers.isEmpty()) return List.of(new ItemStack(Items.POPPY));
+		return flowers;
 	}
 
 	@Override
@@ -215,18 +255,6 @@ public class FairyFeedModule extends AbstractYoukaiModule {
 		// it level to the target over that flight time.
 		gift.setDeltaMovement(delta.x / time, delta.y / time + 0.015 * time, delta.z / time);
 		gift.hasImpulse = true;
-	}
-
-	/**
-	 * One flower out of {@link ItemTags#FLOWERS}, of which a datapack can leave an empty tag — poppy is the
-	 * fallback, not an exception. Walks the registry each time so the list cannot go stale against a datapack.
-	 */
-	private Item randomFlower() {
-		List<Item> flowers = new ArrayList<>();
-		for (var item : BuiltInRegistries.ITEM) {
-			if (item.builtInRegistryHolder().is(ItemTags.FLOWERS)) flowers.add(item);
-		}
-		return flowers.isEmpty() ? Items.POPPY : flowers.get(self.getRandom().nextInt(flowers.size()));
 	}
 
 	@Override
