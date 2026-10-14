@@ -112,6 +112,13 @@ public class PartyAttachment extends GeneralCapabilityTemplate<LevelChunk, Party
 	@SerialField
 	private long closingAt = 0;
 
+	/**
+	 * When the next gathering rocket is due, or 0 while nobody is sitting at the table yet. Held
+	 * here rather than in the ticker so a chunk unload does not restart the gap.
+	 */
+	@SerialField
+	private long sparkAt = 0;
+
 	// Not a SerialField, so null in a freshly deserialized attachment. Every lookup goes
 	// through the helpers below, which rebind it.
 	@Nullable
@@ -276,6 +283,20 @@ public class PartyAttachment extends GeneralCapabilityTemplate<LevelChunk, Party
 		return closingAt;
 	}
 
+	/** When the next gathering rocket is due, or 0 before the first guest sits. */
+	public long sparkAt() {
+		return sparkAt;
+	}
+
+	/**
+	 * Move the next gathering rocket. The clock belongs to {@link PartyTicker}; the party only
+	 * keeps the time, so the gap survives a chunk unload the way the rest of the party does.
+	 */
+	public void sparkAt(long gameTime) {
+		sparkAt = gameTime;
+		dirty();
+	}
+
 	/**
 	 * Bring the cached lists up to date, each on its own schedule. Server only: both sweeps
 	 * read block entities.
@@ -353,6 +374,7 @@ public class PartyAttachment extends GeneralCapabilityTemplate<LevelChunk, Party
 		this.admitted = 0;
 		this.emptyScans = 0;
 		this.closingAt = 0;
+		this.sparkAt = 0;
 		this.foodScannedAt = gameTime;
 		this.layoutScannedAt = gameTime;
 		this.food.clear();
@@ -424,6 +446,7 @@ public class PartyAttachment extends GeneralCapabilityTemplate<LevelChunk, Party
 		admitted = 0;
 		emptyScans = 0;
 		closingAt = 0;
+		sparkAt = 0;
 		dirty();
 	}
 

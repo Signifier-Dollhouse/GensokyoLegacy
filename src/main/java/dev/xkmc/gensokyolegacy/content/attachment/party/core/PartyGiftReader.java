@@ -72,11 +72,11 @@ public class PartyGiftReader {
 		for (var entry : entries)
 			gifts.add(new GiftEntry(entry.stack(), said && total > 0 ? (float) entry.weight() / total : null));
 		int min = 0;
-		Integer max = null;
+		int max = 0;
 		for (var condition : pool.conditions)
 			if (condition instanceof AppealConsumedCondition appeal && !appeal.invert()) {
 				min = appeal.min();
-				max = appeal.max() <= 0 ? null : appeal.max();
+				max = appeal.max();
 			}
 		return new GiftTier(min, max, gifts);
 	}
