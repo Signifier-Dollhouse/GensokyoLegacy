@@ -83,7 +83,7 @@ public class YoukaiHeldItemLayer<T extends GeneralYoukaiEntity & GeoYoukaiAnim> 
 	 * the following bones. The item is not part of the silhouette anyway, so route it
 	 * to the main buffer source instead.
 	 */
-	private static MultiBufferSource itemBuffer(MultiBufferSource bufferSource) {
+	public static MultiBufferSource itemBuffer(MultiBufferSource bufferSource) {
 		if (bufferSource instanceof OutlineBufferSource)
 			return Minecraft.getInstance().renderBuffers().bufferSource();
 		return bufferSource;

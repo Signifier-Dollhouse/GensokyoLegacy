@@ -15,6 +15,8 @@ import software.bernie.geckolib.cache.object.GeoBone;
 import software.bernie.geckolib.renderer.GeoRenderer;
 import software.bernie.geckolib.renderer.layer.BlockAndItemGeoLayer;
 
+import static dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiHeldItemLayer.itemBuffer;
+
 /**
  * Renders the doll loadout hand slots at the model's hand locator bones.
  * Reads the synced client mirror via {@link DollLoadout#getLoadoutItem} — dolls
@@ -78,18 +80,4 @@ public class DollHeldItemLayer extends BlockAndItemGeoLayer<DollEntity> {
                 doll.level(), packedLight, packedOverlay, doll.getId());
         poseStack.popPose();
     }
-
-    /**
-     * While glowing, the whole model is drawn through the {@link OutlineBufferSource},
-     * whose outline source is one shared buffer with no fixed buffers: asking it for a
-     * new render type ends the batch of the previous one, which drops the geometry of
-     * the following bones. The item is not part of the silhouette anyway, so route it
-     * to the main buffer source instead.
-     */
-    private static MultiBufferSource itemBuffer(MultiBufferSource bufferSource) {
-        if (bufferSource instanceof OutlineBufferSource)
-            return Minecraft.getInstance().renderBuffers().bufferSource();
-        return bufferSource;
-    }
-
 }
