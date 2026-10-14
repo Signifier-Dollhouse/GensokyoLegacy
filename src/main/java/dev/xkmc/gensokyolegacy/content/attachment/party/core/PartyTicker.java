@@ -26,10 +26,26 @@ public class PartyTicker {
 
 	/** How often a party's phases advance, in ticks. */
 	private static final int INTERVAL = 20;
+
+	/** Shortest gap between two of the gathering rockets, in ticks. */
+	private static final int ROCKET_MIN = 10;
+
+	/** Longest such gap. A drawn one lands on one figure or the other, which is what reads as
+	 *  hand-fired rather than metered. */
+	private static final int ROCKET_MAX = 20;
+
+	/** How often the rockets are looked for: the floor of the range, so a drawn gap cannot round
+	 *  below it and the driver stays at 2 Hz instead of 20. */
+	private static final int ROCKET_CHECK = ROCKET_MIN;
+
 	/** A party open this long with nothing left happening is called off. */
 	public static final int PARTY_TIMEOUT = 12000;
 
-	/** How long a closing party waits for its last guest before giving up on a guest who cannot leave. */
+	/**
+	 * How long a closing party waits for its last guest once everyone is off their chairs. It
+	 * starts at the last unseat rather than at CLOSING, so the window is entirely about the
+	 * walkout: a guest sitting out her unseat wait is not one who cannot leave.
+	 */
 	public static final int CLOSING_TIMEOUT = 600;
 
 	/** Level -> the chunks currently hosting a party. */
@@ -59,12 +75,20 @@ public class PartyTicker {
 	public static void tick(ServerLevel level) {
 		var set = ACTIVE.get(level);
 		if (set == null) return;
-		if (level.getGameTime() % INTERVAL != 0) return;
+		long time = level.getGameTime();
+		// two cadences on one sweep: the phases are a second a part, the rockets are finer
+		boolean phases = time % INTERVAL == 0;
+		boolean rockets = time % ROCKET_CHECK == 0;
+		if (!phases && !rockets) return;
 		List<ChunkPos> snapshot;
 		synchronized (set) {
 			snapshot = new ArrayList<>(set);
 		}
-		for (var pos : snapshot) tickOne(level, pos);
+		for (var pos : snapshot) {
+			// phases first: a table that fills on this pass is no longer one to celebrate
+			if (phases) tickOne(level, pos);
+			if (rockets) rocket(level, pos, time);
+		}
 	}
 
 	private static void tickOne(ServerLevel level, ChunkPos pos) {
@@ -99,6 +123,25 @@ public class PartyTicker {
 		unregister(level, party.chunk() == null ? pos : party.chunk());
 	}
 
+	/**
+	 * The gathering rockets: one every {@link #ROCKET_MIN}–{@link #ROCKET_MAX} ticks, from the first
+	 * guest sitting down to the last one sitting down.
+	 * <p>
+	 * On its own clock rather than the phase one, for two reasons. A gap drawn out of a range
+	 * cannot be honoured at 1 Hz, and {@code sparkAt} starts at 0 — so the first rocket is the
+	 * first pass <i>after</i> the first guest sits, not a fixed count from the send.
+	 */
+	private static void rocket(ServerLevel level, ChunkPos pos, long time) {
+		var party = PartyAttachment.of(level, pos);
+		if (party == null || party.phase() != PartyAttachment.Phase.GATHERING) return;
+		if (time < party.sparkAt()) return;
+		// a table nobody has sat at yet, and a roster that is in with the last chair filled
+		if (!anySeated(level, party)) return;
+		if (party.admitted() && allSeated(level, party)) return;
+		PartyFirework.launch(level, party.liveAnchor());
+		party.sparkAt(time + ROCKET_MIN + level.getRandom().nextInt(ROCKET_MAX - ROCKET_MIN + 1));
+	}
+
 	/** Whether the party is over: a closing one when its roster has drained, an open one when nobody is left
 	 * to invite. The {@code admitted()} check keeps staggered arrival from reading an empty guest list as gone.
 	 */
@@ -106,9 +149,27 @@ public class PartyTicker {
 		if (party.guests().isEmpty()) {
 			return party.phase() == PartyAttachment.Phase.CLOSING || party.admitted();
 		}
+		if (party.phase() != PartyAttachment.Phase.CLOSING) return false;
+		// the backstop is about the walkout, so the clock does not start until the last guest is
+		// out of her chair. Started at CLOSING it would run against the unseat waits as well, and
+		// cut off a table that is still sitting there on purpose.
+		if (anySeated(level, party)) return false;
+		party.startClosingClock(level.getGameTime());
 		// a guest who cannot walk off must not pin the chunk's party open
-		return party.phase() == PartyAttachment.Phase.CLOSING
-				&& party.closingAt() > 0 && level.getGameTime() - party.closingAt() > CLOSING_TIMEOUT;
+		return level.getGameTime() - party.closingAt() > CLOSING_TIMEOUT;
+	}
+
+	/**
+	 * Whether anyone is still in a chair. A guest who is not loaded does not count: she is on her
+	 * way off somewhere this pass cannot see, and holding the backstop for her is holding it for
+	 * every guest.
+	 */
+	private static boolean anySeated(ServerLevel level, PartyAttachment party) {
+		for (var id : party.guests()) {
+			if (find(level, id) instanceof YoukaiEntity youkai
+					&& youkai.getModule(PartyModule.class).map(PartyModule::seated).orElse(false)) return true;
+		}
+		return false;
 	}
 
 	/**

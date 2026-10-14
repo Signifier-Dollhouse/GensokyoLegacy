@@ -107,9 +107,17 @@ public class PartyAttachment extends GeneralCapabilityTemplate<LevelChunk, Party
 	@SerialField
 	private int emptyScans = 0;
 
-	/** Backstop against one stuck guest pinning the chunk's party open for ever. */
+	/** Backstop against one stuck guest pinning the chunk's party open for ever, stamped from the
+	 * last unseat rather than from CLOSING — see {@link #startClosingClock}. */
 	@SerialField
 	private long closingAt = 0;
+
+	/**
+	 * When the next gathering rocket is due, or 0 while nobody is sitting at the table yet. Held
+	 * here rather than in the ticker so a chunk unload does not restart the gap.
+	 */
+	@SerialField
+	private long sparkAt = 0;
 
 	// Not a SerialField, so null in a freshly deserialized attachment. Every lookup goes
 	// through the helpers below, which rebind it.
@@ -270,9 +278,23 @@ public class PartyAttachment extends GeneralCapabilityTemplate<LevelChunk, Party
 		return emptyScans >= 2;
 	}
 
-	/** When the party entered CLOSING, or 0 while it has not. */
+	/** When the last guest stood up to leave, or 0 while one is still sitting. */
 	public long closingAt() {
 		return closingAt;
+	}
+
+	/** When the next gathering rocket is due, or 0 before the first guest sits. */
+	public long sparkAt() {
+		return sparkAt;
+	}
+
+	/**
+	 * Move the next gathering rocket. The clock belongs to {@link PartyTicker}; the party only
+	 * keeps the time, so the gap survives a chunk unload the way the rest of the party does.
+	 */
+	public void sparkAt(long gameTime) {
+		sparkAt = gameTime;
+		dirty();
 	}
 
 	/**
@@ -352,6 +374,7 @@ public class PartyAttachment extends GeneralCapabilityTemplate<LevelChunk, Party
 		this.admitted = 0;
 		this.emptyScans = 0;
 		this.closingAt = 0;
+		this.sparkAt = 0;
 		this.foodScannedAt = gameTime;
 		this.layoutScannedAt = gameTime;
 		this.food.clear();
@@ -377,11 +400,23 @@ public class PartyAttachment extends GeneralCapabilityTemplate<LevelChunk, Party
 		}
 	}
 
-	/** Move to CLOSING, stamping when — the backstop for a guest whose walk off never finishes. */
-	public void close(long gameTime) {
-		if (phase == Phase.CLOSING) return;
-		closingAt = gameTime;
+	/**
+	 * Move to CLOSING. The backstop is deliberately <b>not</b> stamped here: it starts when the
+	 * last guest stands up ({@link #startClosingClock}), because a guest still sitting out her
+	 * unseat wait is not a guest who cannot leave.
+	 */
+	public void close() {
 		setPhase(Phase.CLOSING);
+	}
+
+	/**
+	 * Stamp the backstop, once. Called when the last guest is off her chair: from there the party
+	 * is only waiting on walks, and a guest who cannot finish one is a stuck guest.
+	 */
+	public void startClosingClock(long gameTime) {
+		if (closingAt > 0) return;
+		closingAt = gameTime;
+		dirty();
 	}
 
 	/** Hunger actually consumed by the guests so far. */
@@ -411,6 +446,7 @@ public class PartyAttachment extends GeneralCapabilityTemplate<LevelChunk, Party
 		admitted = 0;
 		emptyScans = 0;
 		closingAt = 0;
+		sparkAt = 0;
 		dirty();
 	}
 

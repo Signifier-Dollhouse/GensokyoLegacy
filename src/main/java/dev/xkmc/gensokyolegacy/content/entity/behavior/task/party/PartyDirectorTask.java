@@ -30,7 +30,7 @@ public class PartyDirectorTask extends PartyTask {
 		// is drawn here so a table does not empty inside one tick, and the gift rides along.
 		if ((module.leaving() || party.phase() == PartyAttachment.Phase.CLOSING)
 				&& !ctx.leaving()) {
-			ctx.armLeave(entity.getRandom().nextInt(PartyTasks.UNSEAT_DELAY + 1));
+			ctx.armLeave();
 		}
 		// her chair was taken away under her. Dropping the claim is enough: a guest carrying
 		// a serving goes to GoToSeat, finds no seat, and banks it standing.

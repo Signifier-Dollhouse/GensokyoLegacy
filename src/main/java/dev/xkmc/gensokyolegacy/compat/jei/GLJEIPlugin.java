@@ -5,6 +5,8 @@ import dev.xkmc.gensokyolegacy.content.rpg.core.CodecRegistry;
 import dev.xkmc.gensokyolegacy.content.rpg.quest.Quest;
 import dev.xkmc.gensokyolegacy.content.rpg.trade.TradeOffer;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
+import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
+import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
 import dev.xkmc.gensokyolegacy.init.registrate.GLRecipes;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLBlocks;
 import dev.xkmc.l2serial.util.Wrappers;
@@ -18,6 +20,7 @@ import mezz.jei.api.registration.IRecipeRegistration;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.RecipeHolder;
 
@@ -32,6 +35,8 @@ public class GLJEIPlugin implements IModPlugin {
 			RecipeType.create(GensokyoLegacy.MODID, "trade", Wrappers.cast(Holder.class));
 	public static final RecipeType<Holder<Quest>> QUEST =
 			RecipeType.create(GensokyoLegacy.MODID, "quest", Wrappers.cast(Holder.class));
+	public static final RecipeType<EntityType<?>> GIFT =
+			RecipeType.create(GensokyoLegacy.MODID, "gift", Wrappers.cast(EntityType.class));
 
 	@Override
 	public ResourceLocation getPluginUid() {
@@ -44,7 +49,8 @@ public class GLJEIPlugin implements IModPlugin {
 		registration.addRecipeCategories(
 				new AlchemyRecipeCategory().init(helper),
 				new TradeRecipeCategory().init(helper),
-				new QuestRewardCategory().init(helper));
+				new QuestRewardCategory().init(helper),
+				new PartyGiftCategory().init(helper));
 	}
 
 	@Override
@@ -64,6 +70,10 @@ public class GLJEIPlugin implements IModPlugin {
 		// be a page of blank slots; better that it never appears than that it does
 		registration.addRecipes(QUEST, CodecRegistry.QUEST.getAll(access)
 				.filter(QuestRewardCategory::hasItemReward).toList());
+		// a character comes to a party only if she has a taste row, so that is the whole roster of
+		// gift givers; one page each, holding her own ladder or the default one she falls back to
+		registration.addRecipes(GIFT, GLMeta.PARTY_TASTE.getAll(access)
+				.<EntityType<?>>map(pair -> pair.getFirst().value()).toList());
 	}
 
 	@Override
@@ -71,6 +81,7 @@ public class GLJEIPlugin implements IModPlugin {
 		registration.addRecipeCatalyst(GLBlocks.ALCHEMY_POT.asStack(), ALCHEMY);
 		registration.addRecipeCatalyst(Items.EMERALD, TRADE);
 		registration.addRecipeCatalyst(Items.BOOK, QUEST);
+		registration.addRecipeCatalyst(GLItems.INVITATION_LETTER.asStack(), GIFT);
 	}
 
 }

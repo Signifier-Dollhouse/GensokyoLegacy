@@ -3,6 +3,8 @@ package dev.xkmc.gensokyolegacy.content.entity.behavior.task.party;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.brain.TaskBoard;
 
 import dev.xkmc.gensokyolegacy.init.registrate.GLBrains;
+import net.minecraft.util.RandomSource;
+
 import java.util.List;
 
 /**
@@ -49,8 +51,20 @@ public final class PartyTasks {
 	/** Shortest such hesitation — the least that still looks like a choice. */
 	public static final int BITE_DELAY_MIN = 10;
 
-	/** Longest a guest takes to stand up when the party ends. */
-	public static final int UNSEAT_DELAY = 60;
+	/**
+	 * Shortest a guest sits on after deciding to go: twenty seconds, the least that still reads as
+	 * a guest thinking it over rather than standing up mid-thought.
+	 */
+	public static final int UNSEAT_MIN = 400;
+
+	/** Longest such sit, thirty seconds. The band is wide so a table winds down instead of emptying at once. */
+	public static final int UNSEAT_MAX = 600;
+
+	/**
+	 * How far the host may be before a guest gives up the rest of the wait and goes. The pause is
+	 * for the host to watch her decide, and it is worth nothing to an empty room.
+	 */
+	public static final int HOST_LEAVE_DISTANCE = 24;
 
 	/** How long she may spend walking away before she is let go regardless. */
 	public static final int LEAVE_TIMEOUT = 200;
@@ -65,6 +79,11 @@ public final class PartyTasks {
 	public static final double DEPART_REACH = 2;
 
 	private PartyTasks() {
+	}
+
+	/** The unseat wait one guest draws for herself, so the table does not empty in one frame. */
+	public static int unseatDelay(RandomSource random) {
+		return random.nextInt(UNSEAT_MIN, UNSEAT_MAX + 1);
 	}
 
 	/** The whole machine, in priority order. */

@@ -42,7 +42,7 @@ public class SakuyaQDGen extends QuestDialogData {
 		// The only thing she is ever on site to sell; cheap iron, sixteen a day because that is what a
 		// maid can keep sharp, so the number is honest rather than balanced.
 		trade("offer_iron_dagger", new TradeOffer(GLEntities.IZAYOI_SAKUYA.get(),
-				List.of(visitingAt(GLStructureGen.MORICHIKA_SHOP)),
+				List.of(),
 				new ItemStack(GLItems.IRON_DAGGER.get()),
 				new TradeRecurrence(16, 24000), List.of(item(Items.IRON_INGOT, 4))));
 	}

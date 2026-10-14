@@ -186,12 +186,25 @@ public class PartyContext {
 
 	/** Arm the departure with a fresh per-guest wait, so a table does not empty at once. */
 	public void armLeave() {
-		armLeave(entity.getRandom().nextInt(PartyTasks.UNSEAT_DELAY + 1));
+		armLeave(PartyTasks.unseatDelay(entity.getRandom()));
 	}
 
 	/** Count the unseat wait down, stopping at zero. */
 	public void countLeave() {
 		party.leave = step(party.leave);
+	}
+
+	/**
+	 * Whether the host is still close enough to be worth sitting out the rest of the unseat wait
+	 * for. An absent host, or one who has gone to another dimension, counts as far away: there is
+	 * no one left to see her think it over.
+	 */
+	public boolean hostNearby() {
+		var host = party.host();
+		if (host == null) return false;
+		var player = level.getPlayerByUUID(host);
+		return player != null && player.level() == level
+				&& player.distanceTo(entity) <= PartyTasks.HOST_LEAVE_DISTANCE;
 	}
 
 	// === movement ===

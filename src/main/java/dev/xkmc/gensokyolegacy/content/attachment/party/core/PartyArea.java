@@ -1,6 +1,7 @@
 package dev.xkmc.gensokyolegacy.content.attachment.party.core;
 
 import dev.xkmc.gensokyolegacy.content.attachment.area.ChunkPosRange;
+import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.GLTagGen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -34,10 +35,10 @@ import java.util.List;
 public record PartyArea(BlockPos anchor, List<BlockPos> food, List<BlockPos> seats,
 		List<BlockPos> tables, int appeal, int fulfillment) {
 
-	/** How far the walk reaches around each chair or table: a 5 x 3 x 5 box, centred. */
-	private static final int POKE_X = 2;
+	/** How far the walk reaches around each chair or table: a 9 x 3 x 9 box, centred. */
+	private static final int POKE_X = 4;
 	private static final int POKE_Y = 1;
-	private static final int POKE_Z = 2;
+	private static final int POKE_Z = 4;
 
 	/** The six faces, for the walk itself. */
 	private static final Direction[] FACES = Direction.values();
@@ -98,10 +99,6 @@ public record PartyArea(BlockPos anchor, List<BlockPos> food, List<BlockPos> sea
 					fulfillment += PartyFoodValue.totalHunger(level, pos, state);
 				}
 			}
-			// everything else the walk can pass through
-			if (!furniture && state.getCollisionShape(level, pos).isEmpty()) {
-				for (var face : FACES) queue.add(pos.relative(face));
-			}
 		}
 		return new PartyArea(anchor.immutable(), food, seats, tables, appeal, fulfillment);
 	}
@@ -158,6 +155,7 @@ public record PartyArea(BlockPos anchor, List<BlockPos> food, List<BlockPos> sea
 
 	/** Queue the box around one piece of furniture, for the walk to read from. */
 	private static void poke(Deque<BlockPos> queue, BlockPos from) {
+		GensokyoLegacy.LOGGER.info("Poke " + from);
 		for (int dx = -POKE_X; dx <= POKE_X; dx++) {
 			for (int dy = -POKE_Y; dy <= POKE_Y; dy++) {
 				for (int dz = -POKE_Z; dz <= POKE_Z; dz++) {

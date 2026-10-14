@@ -10,6 +10,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.storage.loot.LootParams;
@@ -83,11 +84,19 @@ public class PartyGift {
 	private static LootTable tableOf(ServerLevel level, YoukaiEntity guest) {
 		var lookup = level.getServer().reloadableRegistries().get().lookup(Registries.LOOT_TABLE).orElse(null);
 		if (lookup == null) return null;
-		var id = BuiltInRegistries.ENTITY_TYPE.getKey(guest.getType());
-		if (id == null) return null;
-		var own = ResourceKey.create(Registries.LOOT_TABLE,
+		return lookup.get(keyOf(guest.getType())).or(() -> lookup.get(DEFAULT_TABLE))
+				.map(Holder::value).orElse(null);
+	}
+
+	/**
+	 * Her own gift table, which nothing answers to for a guest with no file of her own — that is
+	 * {@link #DEFAULT_TABLE}'s whole job, and {@link #tableOf} is where the two are joined.
+	 */
+	public static ResourceKey<LootTable> keyOf(EntityType<?> type) {
+		var id = BuiltInRegistries.ENTITY_TYPE.getKey(type);
+		if (id == null) return DEFAULT_TABLE;
+		return ResourceKey.create(Registries.LOOT_TABLE,
 				ResourceLocation.fromNamespaceAndPath(id.getNamespace(), TABLE_DIR + "/" + id.getPath()));
-		return lookup.get(own).or(() -> lookup.get(DEFAULT_TABLE)).map(Holder::value).orElse(null);
 	}
 
 	private PartyGift() {
