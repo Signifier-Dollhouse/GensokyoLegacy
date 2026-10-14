@@ -297,8 +297,12 @@ The second trigger is a tuning statement as much as a rule. §1 already gives a 
 
 | step | rule |
 |---|---|
-| **unseat** | after a random **0–60 tick** delay, so a table does not empty in one frame |
+| **unseat** | she stays on her chair for a random **400–600 tick** delay — twenty to thirty seconds — so a table does not empty in one frame |
 | **go** | summoned by the party → walk away from the table and be gone once she is outside it; at home, or visiting → walk back to where she came from and pick up what she was doing |
+
+**The unseat wait is the departure being seen.** A guest who has decided to go sits out the rest of her chair time before she stands: it is the only stretch of a departure where nothing happens to her, and it is what makes her standing up read as a decision rather than a reaction to the table. Twenty to thirty seconds is the band because that is how long a person takes to decide to leave and then actually leave — shorter and she is on her feet before the host has registered that she stopped eating, longer and the table looks stuck.
+
+Two things cut it short, and both are the same question — *is anyone watching?* The wait elapses only **while she is on her chair**, and only while **the host is within 24 blocks** of her. A guest armed mid-walk, or one whose chair was taken from under her, has nothing to sit through; a guest sitting out a wait in an empty room has nobody to sit it out for, so a host who walks off to the next room — or logs out — ends the pause for the whole table at once. Without the second rule a host who starts packing up would sit through half a minute of guests deciding to follow, each of whom is really just waiting for them to move.
 
 **A summoned guest walks off *far*, and that is not decoration.** She is put away when she
 arrives, so how far she gets is how far the host sees her go — and a destination rolled
@@ -336,7 +340,7 @@ Leftover food is untouched, as ever (state.md §2). A party that ends with half 
 
 - **The gathering gate had to wait for admission.** `PartyTicker.allSeated` is vacuously true with no guests, which was harmless when a send spawned the whole roster in one tick and is fatal now that an empty guest list is the normal state of a party in its first few seconds — every party would have feasted before anybody arrived. The gate is `admitted() && allSeated`.
 - **"Everyone has gone" needed the same guard.** An empty roster no longer means the party is over; it means it has not finished introducing itself. A party is finished when the roster is empty *and* has been worked through, or when a closing party has drained.
-- **A closing party needs its own backstop.** Closing ends when the last guest finishes leaving, and a guest who cannot path to her destination would otherwise hold the chunk's party open for ever. `CLOSING_TIMEOUT` (30 s) is the answer; past it the party resets and anyone still attached is dismissed by the ordinary "my party is gone" path.
+- **A closing party needs its own backstop.** Closing ends when the last guest finishes leaving, and a guest who cannot path to her destination would otherwise hold the chunk's party open for ever. `CLOSING_TIMEOUT` (30 s) is the answer; past it the party resets and anyone still attached is dismissed by the ordinary "my party is gone" path. **It is stamped from the last unseat, not from CLOSING** — the backstop cannot tell a guest who is sitting still *on purpose* from one who is stuck, so it has to be about the walkout alone. Stamped at CLOSING it runs against the unseat waits as well, and with those now twenty to thirty seconds it would fire on a table that had barely begun to get up.
 - **`restrictTo` has no getter**, so a reused character's wander area has to be re-applied from her home on the way out rather than read back. Left out, a resident who wandered to a party could never go home again.
 
 **A fourth that only showed up once the walks were exact**: the walk-failure teleport has to say where it put her. It moved her to free space beside the seat and left `standing` pointing at the floor tile she had *failed* to reach, so the arrival test never passed and she was teleported again every timeout for as long as the party lasted — a guest standing near her chair for the whole banquet. A teleport is an arrival.

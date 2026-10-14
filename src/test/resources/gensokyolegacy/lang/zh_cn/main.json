@@ -66,14 +66,20 @@
 			"count_unknown": "?",
 			"reward_exp": "%s 经验",
 			"reward_reputation": "%s 声望",
-			"reward_loot": "战利品表：%s"
+			"reward_loot": "战利品表：%s",
+			"gift_band": "%s-%s",
+			"gift_band_top": "%s+",
+			"gift_chance": "几率：%s%%",
+			"gift_note": "每人只留一份礼物；她吃下的吸引力决定她有多大方",
+			"more_rungs": "+还有%s档"
 		}
 	},
 	"jei": {
 		"gensokyolegacy": {
 			"alchemy": "炼金锅",
 			"trade": "交易",
-			"quest": "任务奖励"
+			"quest": "任务奖励",
+			"gift": "宴会赠礼"
 		}
 	},
 	"death.attack": {
