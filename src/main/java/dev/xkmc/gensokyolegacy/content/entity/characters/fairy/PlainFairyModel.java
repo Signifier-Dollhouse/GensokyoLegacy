@@ -23,7 +23,7 @@ import software.bernie.geckolib.model.DefaultedEntityGeoModel;
  */
 public class PlainFairyModel extends DefaultedEntityGeoModel<PlainFairyEntity> {
 
-	private static final String TEXTURE_PREFIX = "textures/geo/fairy_";
+	private static final String TEXTURE_PREFIX = "textures/geo/fairy/fairy_";
 	private static final String FLOWER_SUFFIX = "_flower";
 
 	private final ResourceLocation model = GensokyoLegacy.loc("geo/fairy.geo.json");
