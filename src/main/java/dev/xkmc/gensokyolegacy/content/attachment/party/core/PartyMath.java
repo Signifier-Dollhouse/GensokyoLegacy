@@ -4,7 +4,7 @@ package dev.xkmc.gensokyolegacy.content.attachment.party.core;
  * The attractiveness math behind a party: pure functions over plain values, so
  * preview runs the identical code and predicts a send exactly.
  *
- * @see doc/design/party/select.md
+ * @see "doc/design/party/select.md"
  */
 public class PartyMath {
 

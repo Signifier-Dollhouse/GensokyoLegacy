@@ -88,10 +88,9 @@ public class MorichikaEntity extends GeneralYoukaiEntity implements GeoYoukaiAni
 	}
 
 	/**
-	 * Every dialog slot this rig has, plus the two shared clips. `OUTDOOR_IDLE` falls
-	 * through to {@code default} with the rest: the shopkeeper is never outdoors long
-	 * enough for it to be worth a clip, and this rig ships no {@code 闲置动画} to point
-	 * it at anyway.
+	 * Every dialog slot this rig has, plus the two shared clips; {@code OUTDOOR_IDLE} falls
+	 * through to {@code default} — the shopkeeper is never outdoors long enough, and the rig
+	 * ships no {@code 闲置动画} for it.
 	 */
 	@Override
 	public Optional<RawAnimation> getAnim(YoukaiAnim anim) {

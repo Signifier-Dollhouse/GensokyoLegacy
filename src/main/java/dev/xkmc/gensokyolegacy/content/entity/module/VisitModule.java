@@ -16,13 +16,11 @@ import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Whether this character is currently visiting someone else's home, and for how
- * much longer. A visitor has no {@link HomeModule} binding, so the sleep/bed
- * subsystem stays unreachable, and the visit is not stored as a countdown: a
- * natural one is recomputed from {@link VisitTable} every tick, only a forced one
- * carries a deadline.
+ * Whether this character is visiting someone else's home, and for how much longer. A visitor has no
+ * {@link HomeModule} binding, so the sleep/bed subsystem stays unreachable; the visit is not stored as a
+ * countdown, only a forced one carries a deadline - a natural one is recomputed from {@link VisitTable} each tick.
  *
- * @see doc/design/character_visit.md
+ * @see "doc/design/character_visit.md"
  */
 @SerialClass
 public class VisitModule extends AbstractYoukaiModule {

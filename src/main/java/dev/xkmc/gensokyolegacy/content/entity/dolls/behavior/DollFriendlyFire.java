@@ -11,10 +11,9 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Ally-aware firing lanes for ranged behaviors. Allies are the owner plus fellow
- * summoned dolls of the same ledger (never the target itself). A lane is blocked
- * when an ally body comes within hit margin of the doll → target segment; the
- * behavior then strafes instead of firing into its own team.
+ * Ally-aware firing lanes for ranged behaviors. Allies are the owner plus fellow summoned
+ * dolls of the same ledger, never the target itself. A lane is blocked when an ally body
+ * comes within hit margin of the doll → target segment; the behavior strafes instead.
  */
 public final class DollFriendlyFire {
 

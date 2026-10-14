@@ -19,10 +19,8 @@ public abstract class TalismanCurioItem extends Item implements ICurioItem {
 	}
 
 	/**
-	 * Every talisman stack this entity is carrying: the Curios charm slots, plus whatever it
-	 * keeps outside Curios ({@link TalismanHolder}). To an effect the two are the same thing — a
-	 * talisman acts on the entity holding it — so every hook below is indifferent to which slot
-	 * it came from, and the doll core needed no change here.
+	 * Every talisman stack this entity carries: the Curios charm slots plus whatever it keeps outside
+	 * Curios ({@link TalismanHolder}) — one list to an effect, so every hook ignores the slot.
 	 */
 	public static List<ItemStack> equippedTalismans(LivingEntity entity) {
 		List<ItemStack> ans = CuriosManager.getEquippedTalismans(entity);
@@ -30,10 +28,8 @@ public abstract class TalismanCurioItem extends Item implements ICurioItem {
 		return ans;
 	}
 
-	/**
-	 * Every talisman context currently armed on this entity, cooldowns already filtered out.
-	 * One place to build them, so the tick and the two damage hooks cannot drift apart — they
-	 * used to be the same loop written three times.
+	/** Every talisman context currently armed on this entity, cooldowns already filtered out. One
+	 * place to build them, so the tick and the two damage hooks cannot drift apart.
 	 */
 	public static List<TalismanContext> activeTalismans(LivingEntity entity) {
 		List<TalismanContext> ans = new ArrayList<>();
@@ -58,10 +54,8 @@ public abstract class TalismanCurioItem extends Item implements ICurioItem {
 	}
 
 	/**
-	 * Announce that a damage hook just spent a use, so a {@link TalismanHolder} can refresh
-	 * whatever keeps its talismans in sync. Called once per hook, after every context has run:
-	 * the hooks have no way of knowing whether they were the one that spent anything, and a
-	 * holder that syncs unconditionally pays nothing for the ones that were not.
+	 * Announce that a damage hook just spent a use, so a {@link TalismanHolder} can refresh what mirrors
+	 * its talismans — the hooks cannot know whether they spent anything, and syncing costs nothing.
 	 */
 	public static void syncSpentTalismans(LivingEntity entity) {
 		if (entity instanceof TalismanHolder holder) holder.onTalismansSpent();
@@ -81,10 +75,8 @@ public abstract class TalismanCurioItem extends Item implements ICurioItem {
 	}
 
 	/**
-	 * The tick path for a {@link TalismanHolder}, which Curios does not drive and so has to be
-	 * called by the holder itself. Deliberately narrow — only the talismans kept outside Curios,
-	 * never {@link #equippedTalismans} — because Curios already runs {@link #curioTick} for its
-	 * own slots and a Curios wearer calling this would tick those a second time.
+	 * The tick path for a {@link TalismanHolder}, which Curios does not drive. Deliberately narrow —
+	 * only the talismans outside {@link #equippedTalismans} — Curios already runs {@link #curioTick}.
 	 */
 	public static void tickExtraTalismans(LivingEntity entity) {
 		if (!(entity instanceof TalismanHolder holder)) return;

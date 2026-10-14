@@ -4,11 +4,9 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.LivingEntity;
 
 /**
- * Hook for the sleeping position of a {@link LivingEntity}.
- * <p>
- * Vanilla keeps {@code LivingEntity#setPosToBed} private and hardcodes the mattress
- * height into it, so it cannot be overridden; {@code LivingEntityMixin} injects into it
- * and delegates here instead.
+ * Hook for the sleeping position of a {@link LivingEntity}. Vanilla keeps
+ * {@code LivingEntity#setPosToBed} private and hardcodes the mattress height into it, so it
+ * cannot be overridden; {@code LivingEntityMixin} injects into it and delegates here instead.
  */
 public interface ISleepOffsetEntity {
 
@@ -18,9 +16,7 @@ public interface ISleepOffsetEntity {
 	 */
 	double getSleepOffset(BlockPos pos);
 
-	/**
-	 * Move the entity onto the bed at {@link BlockPos}, using {@link #getSleepOffset(BlockPos)}.
-	 */
+	/** Move the entity onto the bed at {@link BlockPos}, using {@link #getSleepOffset(BlockPos)}. */
 	default void setPosToBedImpl(BlockPos pos) {
 		LivingEntity self = (LivingEntity) this;
 		self.setPos(pos.getX() + 0.5, pos.getY() + getSleepOffset(pos), pos.getZ() + 0.5);

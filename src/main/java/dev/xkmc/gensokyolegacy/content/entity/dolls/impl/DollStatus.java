@@ -12,9 +12,8 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import java.util.Optional;
 
 /**
- * Client-visible action status for the attack-glove sidebar. Ephemeral: synced to
- * clients via entity data, never persisted to {@code DollData}, and recomputed
- * server-side every tick — the ticket itself stays server-only.
+ * Client-visible action status for the attack-glove sidebar. Ephemeral: synced to clients via
+ * entity data, never persisted to {@code DollData}, recomputed server-side every tick.
  */
 public interface DollStatus extends DollBaseImpl {
 
@@ -24,29 +23,23 @@ public interface DollStatus extends DollBaseImpl {
 		return i < 0 || i >= all.length ? DollActionStatus.IDLE : all[i];
 	}
 
-	/**
-	 * Ordinal of the current (or just-finished iterative) action type, -1 when idle.
-	 */
+	/** Ordinal of the current (or just-finished iterative) action type, -1 when idle. */
 	default int getActionStatusType() {
 		return getEntityData().get(DollEntity.DATA_ACTION_TYPE);
 	}
 
 	/**
-	 * Whether the doll can perform the given action type with its current
-	 * loadout. Server-computed into {@code DATA_VALID_MASK} from the
-	 * authoritative ledger; the sidebar only tests the bit.
+	 * Whether the doll can perform the given action type with its current loadout. Server-computed
+	 * into {@code DATA_VALID_MASK} from the authoritative ledger; the sidebar only tests the bit.
 	 */
 	default boolean isValidFor(DollActionType type) {
 		return (getEntityData().get(DollEntity.DATA_VALID_MASK) & (1 << type.ordinal())) != 0;
 	}
 
 	/**
-	 * Server-side recompute: holding an auto ticket is auto whether or not it is
-	 * executing; holding any other ticket is preparing while waiting and attacking
-	 * while executing; sitting in a live volley's done-set with no ticket is done;
-	 * otherwise idle. Done only applies while the volley is in flight, so no latch
-	 * needs clearing. The validity mask is recomputed alongside, from the
-	 * authoritative ledger loadout.
+	 * Server-side recompute: an auto ticket is auto whether or not it is executing, any other
+	 * ticket is preparing while waiting and attacking while executing, and a no-ticket doll inside
+	 * a live volley is done — which is why the done state needs no latch.
 	 */
 	default void syncActionStatus() {
 		DollEntity doll = asDoll();

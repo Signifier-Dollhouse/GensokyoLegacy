@@ -264,12 +264,9 @@ public class TradeScreen extends AbstractContainerScreen<TradeMenu> {
 	}
 
 	/**
-	 * Whether the tooltip needs its own ingredient list. A priced offer already shows what it
-	 * costs: a want offer names its one ingredient in the action line, and a buy offer draws a
-	 * {@code ¥N} tag on the slot (see {@link #renderLabels}). Only a craft offer has no price to
-	 * read anywhere, so its inputs are told only here — including the single-ingredient ones
-	 * (Sakuya's iron dagger, the hexbrew bottles) that a plain size check would drop. A multi
-	 * ingredient priced offer still lists them, since one price tag cannot cover several inputs.
+	 * Whether the tooltip needs its own ingredient list. A priced offer already shows its cost - a want offer names
+	 * its ingredient in the action line, a buy offer a {@code ¥N} tag on the slot (see {@link #renderLabels}) - so a
+	 * craft offer, or a multi-ingredient priced one, still lists them here.
 	 */
 	private static boolean showIngredients(TradeOffer offer) {
 		return IClientOffer.resolve(offer).currency().isEmpty() || offer.ingredients().size() > 1;

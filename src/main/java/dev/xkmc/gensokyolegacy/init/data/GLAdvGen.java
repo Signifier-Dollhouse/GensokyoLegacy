@@ -60,16 +60,11 @@ public class GLAdvGen {
 	public static final ResourceLocation OBTAIN_DAGGER_GLOVE = GensokyoLegacy.loc("main/obtain_dagger_glove");
 
 	/**
-	 * The criterion both feed advancements share, built off the entity type rather than
-	 * off the food: the dish is always whatever {@code FairyFeedModule} already
-	 * accepted, so pinning an item predicate would only repeat a decision the trigger
-	 * has already made.
-	 * <p>
-	 * The entity half has to name every fairy that can be fed, since the trigger fires
-	 * for whoever carries that module and the criterion would otherwise throw her out:
-	 * Cirno is fed on the same two tiers as the plain fairy, so both count here. A
-	 * direct holder set rather than a tag, because the list is closed - it is one more
-	 * entity for whoever next teaches a fairy to eat.
+	 * The criterion both feed advancements share, built off the entity type rather than the food: the dish is always
+	 * whatever {@code FairyFeedModule} already accepted. <p> The entity half has to name every fairy that can be fed,
+	 * since the trigger fires for whoever carries that module and the criterion would otherwise throw her out; Cirno is
+	 * fed on the same two tiers, so both count here. A direct holder set rather than a tag, because the list is closed
+	 * - one more entity for whoever next teaches a fairy to eat.
 	 */
 	private static Criterion<FeedCharacterTrigger.TriggerInstance> fedAFairy() {
 		var fairies = HolderSet.direct(
@@ -89,10 +84,8 @@ public class GLAdvGen {
 
 		var gen = new AdvancementGenerator(pvd, GensokyoLegacy.MODID);
 		var tab = gen.new TabBuilder("main");
-		// Standing in one of the three Gensokyo biomes is the usual way in, but not the
-		// only one: fairies spawn in forests and plains well outside them, so a player who
-		// has already fed a fairy has met Gensokyo. OR rather than a second root, so the
-		// tab root and the book reward stay the same node.
+		// The biomes are the usual way in, but fairies also spawn outside them, so feeding
+		// one already counts; OR rather than a second root, to keep the same root node.
 		var root = tab.root("welcome", GLItems.BORDER_UMBRELLA.get(),
 				CriterionBuilder.or()
 						.add(PlayerTrigger.TriggerInstance.located(
@@ -123,9 +116,8 @@ public class GLAdvGen {
 				CriterionBuilder.one(PlayerTrigger.TriggerInstance.located(
 						LocationPredicate.Builder.inStructure(resolve(pvd, "alice_house")))),
 				"Margatroid Cottage", "Enter Alice's house in the Magical Forest");
-		// Entry.create() parents to the builder it is called on, so each of the
-		// two has to hang off alchemy itself - chaining them off one another
-		// would bury the broom under the sealing pot.
+		// Entry.create() parents to the builder it is called on, so both hang off alchemy
+		// itself - chaining them off one another would bury the broom under the sealing pot.
 		var alchemy = marisaHouse.create("alchemy", GLBlocks.ALCHEMY_POT.asItem(),
 						CriterionBuilder.item(GLBlocks.ALCHEMY_POT.asItem()),
 						"Alchemy Pot", "Obtain an Alchemy Pot")

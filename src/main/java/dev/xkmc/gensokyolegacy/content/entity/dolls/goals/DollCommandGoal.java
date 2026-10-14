@@ -15,22 +15,9 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.EnumSet;
 
-/**
- * The single combat goal on a doll: resolves the commanded behavior from the held
- * items and delegates every lifecycle call to it. Behaviors are created per execution
- * and dropped on stop, so per-run state can never go stale.
- * <p>
- * The validating candidate is cached while pending, so behavior gates (range,
- * cooldown) apply before start and not only during execution. Unstarted waits are timed
- * out here, and a wait whose target is dead, unreachable or unstartable aborts at once
- * instead of burning the timeout. Stopping with the ticket still held completes it, so
- * an aborted run never strands a chain; only an already-released ticket skips
- * completion. {@link DollBehavior#selfDriven} keeps a behavior ticking after it let the
- * ticket go, so a charge that handed the volley off on impact still gets its tail —
- * a new order always wins over that tail.
- * <p>
- * control.md §5 and §8 have the long form.
- */
+/** The single combat goal: resolves the commanded behavior from the held items and delegates every lifecycle call;
+ * instances are per-execution and dropped on stop, so per-run state can never go stale. Gates apply before start via
+ * the cached pending candidate, and a wait whose target is dead, unreachable or unstartable aborts at once. */
 public class DollCommandGoal extends Goal {
 
 	/** Accepted-but-unstarted iterative regular: hand ahead after this long. */
@@ -111,9 +98,8 @@ public class DollCommandGoal extends Goal {
 			return;
 		}
 		DollBehavior behavior = DollBehaviorRegistry.createFor(doll, action).orElse(null);
-		// capability lost while waiting (ammo consumed, loadout edited): the ticket
-		// can never start, so release it at once instead of idling yellow. A
-		// cooldown-gated wait keeps waiting — capability still resolves.
+		// capability lost while waiting (ammo consumed, loadout edited): release at once
+		// instead of idling yellow. A cooldown-gated wait keeps waiting — capability still resolves.
 		if (behavior == null) {
 			doll.actions.complete(doll);
 			pending = null;
@@ -147,9 +133,8 @@ public class DollCommandGoal extends Goal {
 	public boolean canContinueToUse() {
 		if (active == null) return false;
 		DollAction action = doll.actions.getCurrent();
-		// the ticket is gone: either a behavior released it on its own, in which case
-		// only that behavior decides whether it is still doing anything, or something
-		// stopped us
+		// the ticket is gone: either a behavior released it on its own — only that
+		// behavior then decides whether it is still doing anything — or something stopped us
 		if (action == null) return active.selfDriven(doll);
 		if (active.type() != action.type()) return false;
 		return active.canContinueToUse(doll);
@@ -177,10 +162,8 @@ public class DollCommandGoal extends Goal {
 			active.stop(doll);
 			active = null;
 		}
-		// stopping with the ticket still held (target lost mid-execution, gate
-		// failure, preempted wait) completes it through the normal path, so the run
-		// never wedges the doll on yellow. Identity-guarded, so a ticket already
-		// released or replaced by a preempting order is skipped
+		// stopping with the ticket still held (target lost mid-execution, gate failure,
+		// preempted wait) completes it, so the run never wedges the doll on yellow. Identity-guarded.
 		if (activeAction != null && doll.actions.holds(activeAction)) {
 			doll.actions.complete(doll);
 		}

@@ -6,11 +6,9 @@ import net.minecraft.world.level.block.state.BlockState;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * Resolves a block food state once and remembers the answer. Bounded without a limit:
- * states are interned per block. Containers never route through here.
- *
- * @see doc/design/party/food.md
+/** Resolves a block food state once and remembers the answer. Bounded without a limit: states
+ * are interned per block. Containers never route through here.
+ * @see "doc/design/party/food.md"
  */
 public final class FoodResultCache {
 

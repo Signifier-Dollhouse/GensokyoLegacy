@@ -5,13 +5,11 @@ import dev.xkmc.gensokyolegacy.content.entity.youkai.SmartYoukaiEntity;
 import net.minecraft.server.level.ServerLevel;
 
 /**
- * Sitting at the table while the rest of it arrives.
+ * Sitting at the table while the rest of it arrives. The feast is party-wide: nobody eats until
+ * every guest has a chair, because a guest starting early would clear a dish out from under
+ * someone still walking in.
  *
- * <p>
- * The feast is party-wide: nobody eats until every guest has a chair, because a guest starting
- * early would clear a dish out from under someone still walking in.
- *
- * @see doc/design/party/guest.md
+ * @see "doc/design/party/guest.md"
  */
 public class WaitTableTask extends PartyTask {
 

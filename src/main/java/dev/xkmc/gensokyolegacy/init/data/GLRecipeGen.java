@@ -42,8 +42,7 @@ public class GLRecipeGen {
 
 	private static void fairyStuff(RegistrateRecipeProvider pvd) {
 		// one cake stirred with one dust comes out as seven: the dust is the whole
-		// reason a cake is worth feeding over a cookie, and seven is the ratio that
-		// makes feeding her worth the trip rather than a rounding error
+		// reason a cake beats a cookie, and seven makes feeding her worth the trip
 		unlock(pvd, ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, GLItems.FAIRY_CAKE.get(), 7)::unlockedBy,
 						GLItems.FAIRY_DUST.get())
 				.requires(Items.CAKE)
@@ -111,9 +110,8 @@ public class GLRecipeGen {
 					::unlockedBy, GLNaturalBlocks.DEMONIC_MIASMA_MUSHROOM_SET.cap.get().asItem())
 					.save(pvd, GensokyoLegacy.loc("miasma_hexbrew"));
 
-			// the fairy brew: same carrier as all the others, spiked with the fairy's
-			// own powder. Drunk rather than thrown, so it grants Floating instead of
-			// splashing it around.
+			// the fairy brew: same carrier as all the others, spiked with
+			// the fairy's own powder; drunk rather than thrown, so it grants Floating.
 			unlock(pvd, new UnorderedAlchemyRecipeBuilder()
 					.fluid(HexBrew.MUNDANE_HEXBREW.getSource())
 					.add(GLItems.FAIRY_DUST.get())
@@ -156,10 +154,8 @@ public class GLRecipeGen {
 					.save(pvd, GensokyoLegacy.loc("hyphae_hexbrew"));
 		}
 
-		// the refined hexbrews: the solvent brews overclocked by re-brewing them on
-		// the elixir, with the same ingredients and the same yield. The elixir's charge
-		// comes out as one more level of the thing - one more blast radius for the
-		// explosive, one more effect level for the other two.
+		// the refined hexbrews: the solvent brews overclocked by re-brewing them on the
+		// elixir, same ingredients and yield, the charge buying one more level of the thing.
 		{
 			unlock(pvd, new UnorderedAlchemyRecipeBuilder()
 					.fluid(HexBrew.HEXBREW_ELIXIR.getSource())
@@ -292,11 +288,10 @@ public class GLRecipeGen {
 	}
 
 	/**
-	 * Invented survival recipes for decorative / furniture blocks.
-	 * Per-wood pieces are cut on the stonecutter from their own planks, so the
-	 * output matches the input wood and crafting-grid collisions with other
-	 * mods are impossible. Fuel values follow ingredient burn time: a plank
-	 * (300) cutting into N pieces splits the value (walls 1 plank -> 2 = 150).
+	 * Invented survival recipes for decorative / furniture blocks. Per-wood pieces are cut on the stonecutter from
+	 * their own planks, so the output matches the input wood and crafting-grid collisions with other mods are
+	 * impossible. Fuel values follow ingredient burn time: a plank (300) cutting into N pieces splits the value (walls
+	 * 1 plank -> 2 = 150).
 	 */
 	private static void furniture(RegistrateRecipeProvider pvd) {
 		for (var e : GLDecoBlocks.WoodType.values()) {
@@ -386,10 +381,9 @@ public class GLRecipeGen {
 	}
 
 	/**
-	 * Wrought iron: iron bars welded into a ring and blackened with a single
-	 * black dye, then two bars stacked into a pillar and one bar carrying three
-	 * candles. The bar steps never lose a bar, so the cost of the metal is the
-	 * same as vanilla iron bars throughout.
+	 * Wrought iron: iron bars welded into a ring and blackened with a single black dye, then two bars stacked into a
+	 * pillar and one bar carrying three candles. The bar steps never lose a bar, so the cost of the metal is the same
+	 * as vanilla iron bars throughout.
 	 */
 	private static void wroughtIron(RegistrateRecipeProvider pvd) {
 		// 8 bars around the dye, 8 bars out
@@ -413,9 +407,8 @@ public class GLRecipeGen {
 	}
 
 	/**
-	 * Noren: a curtain is its own colour of wool cut on the stonecutter, so the
-	 * whole family has a vanilla entry point. Dyeing between the four patterns
-	 * is added separately, next to each block's registration.
+	 * Noren: a curtain is its own colour of wool cut on the stonecutter, so the whole family has a vanilla entry point.
+	 * Dyeing between the four patterns is added separately, next to each block's registration.
 	 */
 	public static void cutWool(RegistrateRecipeProvider pvd, DyeColor color, Supplier<? extends ItemLike> result) {
 		pvd.stonecutting(DataIngredient.items(wool(color)), RecipeCategory.DECORATIONS, result);

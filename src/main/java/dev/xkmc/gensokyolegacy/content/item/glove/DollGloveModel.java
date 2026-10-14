@@ -10,12 +10,11 @@ import net.minecraft.world.item.Item;
 import net.neoforged.neoforge.client.model.generators.ItemModelBuilder;
 
 /**
- * Item model generation for the doll glove, split out of {@code GLItems}: the glove is built per
- * mode rather than from one texture (glove.md §3b). Per-mode held overrides are separate-transforms
- * models, not flat ones: vanilla replaces the whole item model when a predicate matches, so a flat
- * override would drop the hand while in hand. Icon stacks are gui-only, so those stay flat.
+ * Item model generation for the doll glove, split out of {@code GLItems} and built per mode (glove.md §3b).
+ * Held overrides are separate-transforms models, not flat ones: vanilla replaces the whole item model on a
+ * predicate match, so a flat override would drop the hand. Icon stacks are gui-only, so those stay flat.
  *
- * @see doc/design/doll/glove.md
+ * @see "doc/design/doll/glove.md"
  */
 public class DollGloveModel {
 

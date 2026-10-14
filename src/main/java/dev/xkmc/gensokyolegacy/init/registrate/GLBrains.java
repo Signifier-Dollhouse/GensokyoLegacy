@@ -36,13 +36,9 @@ public class GLBrains {
 	public static final Val<MemoryModuleType<LivingEntity>> MEM_PREY = MEMORIES.reg("prey", () -> new MemoryModuleType<>(Optional.empty()));
 	public static final Val<MemoryModuleType<Unit>> MEM_DOWN = MEMORIES.reg("down", () -> new MemoryModuleType<>(Optional.of(Unit.CODEC)));
 	public static final Val<MemoryModuleType<Player>> MEM_TALK = MEMORIES.reg("talk", () -> new MemoryModuleType<>(Optional.empty()));
-	/**
-	 * Who just fed her and what she owes them for it, held for the length of the
-	 * animation she plays about it. Both halves travel together because the gift
-	 * depends on the food, and one of the two is a roll.
-	 * Its presence is what starts {@code FairyFeedTask}, which eats first and only
-	 * then hands something back.
-	 */
+	/** Who just fed her and what she owes them for it, held for the length of the animation she plays about
+	 *  it; both halves travel together because the gift depends on the food. Its presence starts
+	 *  {@code FairyFeedTask}, which eats first and only then hands something back. */
 	public static final Val<MemoryModuleType<FairyFeedModule.Fed>> MEM_FEED =
 			MEMORIES.reg("feed", () -> new MemoryModuleType<>(Optional.empty()));
 	public static final Val<MemoryModuleType<List<ItemEntity>>> MEM_ITEMS = MEMORIES.reg("nearby_items", () -> new MemoryModuleType<>(Optional.empty()));
@@ -52,9 +48,8 @@ public class GLBrains {
 	 */
 	public static final Val<MemoryModuleType<GlobalPos>> MEM_VISIT = MEMORIES.reg("visit", () -> new MemoryModuleType<>(Optional.empty()));
 	/**
-	 * Where a party guest is eating. Its presence is what puts her in
-	 * {@link #PARTY} instead of following her schedule. No codec, so it does not
-	 * survive a save and {@code PartyModule} re-asserts it every tick.
+	 * Where a party guest is eating. Its presence is what puts her in {@link #PARTY} instead of following
+	 * her schedule. No codec, so it does not survive a save and {@code PartyModule} re-asserts it every tick.
 	 */
 	public static final Val<MemoryModuleType<GlobalPos>> MEM_PARTY = MEMORIES.reg("party", () -> new MemoryModuleType<>(Optional.empty()));
 	/**
@@ -62,29 +57,18 @@ public class GLBrains {
 	 * what puts a plain fairy in {@link #FEAR}.
 	 */
 	public static final Val<MemoryModuleType<LivingEntity>> MEM_FEAR = MEMORIES.reg("fear", () -> new MemoryModuleType<>(Optional.empty()));
-	/**
-	 * How long she still intends to lie down. Its presence is what puts her in
-	 * {@link #NAP}, and its expiry is what ends that - the nap has no other reason to
-	 * stop, so the memory is the clock rather than a flag something else watches.
-	 * <p>
-	 * No codec, so a nap does not survive a save; she wakes up on reload rather than
-	 * being found still lying there.
-	 */
+	/** How long she still intends to lie down. Its presence is what puts her in {@link #NAP}, and its expiry ends
+	 *  that - the nap has no other reason to stop, so the memory is the clock, not a flag. <p> No codec, so a nap
+	 *  does not survive a save; she wakes up on reload rather than being found lying there. */
 	public static final Val<MemoryModuleType<Unit>> MEM_NAP = MEMORIES.reg("nap", () -> new MemoryModuleType<>(Optional.empty()));
 
 	/*
 	 * ============================== prioritized activities ==============================
 	 *
-	 * The scale below, highest first, with the number each activity is registered with by
-	 * the entity that uses it. A prioritized activity's number IS its rank: TaskBoard#build
-	 * sorts by it, lowest first, and SmartBrain#tick walks the sorted list taking the first
-	 * activity whose memory requirements hold. There is no other priority mechanism, so
-	 * placing an activity on this scale is the same decision as picking its number.
-	 *
-	 * The rungs are 100 apart. The gaps are not meaningful arithmetic - nothing reads the
-	 * distance between two of them - but keeping them even means there is always room to
-	 * slot something in between without renumbering, and a new activity takes the open
-	 * hundred rather than landing on a neighbour.
+	 * The scale below, highest first, with the number each activity is registered with. A prioritized
+	 * activity's number IS its rank: TaskBoard#build sorts by it, lowest first, and SmartBrain#tick walks the
+	 * sorted list taking the first activity whose memory requirements hold, so there is no other priority
+	 * mechanism. The rungs are 100 apart so a new activity takes an open hundred rather than a neighbour.
 	 *
 	 *    -100  DOWN      rumia, fainted by a paralyze; nothing outranks it
 	 *       0  FIGHT     vanilla, added by TaskBoard#build; everything else yields
@@ -104,40 +88,29 @@ public class GLBrains {
 	 *          outranks. An activity passed to TaskBoard#addScheduledActivity is ranked
 	 *          here whether or not the character that owns it puts it in its schedule.
 	 *
-	 * TaskBoard injects a prioritized activity's memory as VALUE_ABSENT into every LESS
-	 * prioritized activity, so every rung is a yes/no answer to one question - what else may
-	 * she be doing while this is going on - and the gap between two rungs is the set of
-	 * activities allowed to answer it differently. Read a rung as "everything below me has
-	 * to be absent for me to run". NAP(500) below PARTY(400) is what makes a party get her
-	 * out of bed; NAP(500) above VISITING(600) is what makes a nap hold a visit off -
-	 * VISITING cannot become active while MEM_NAP is present - which is a few seconds of
-	 * delay at the start of a visit and no more, since a nap is only ever offered while she
-	 * is on her own schedule and a visit is an all-day affair.
+	 * TaskBoard injects a prioritized activity's memory as VALUE_ABSENT into every LESS prioritized activity,
+	 * so a rung is a yes/no answer to one question - what else may she be doing while this goes on - read it
+	 * as "everything below me has to be absent for me to run". NAP(500) below PARTY(400) gets her out of bed
+	 * for a party; above VISITING(600) it holds a visit off, which costs a few seconds at the start of a visit
+	 * and no more, since a nap is only ever offered on her own schedule and a visit is an all-day affair.
 	 *
-	 * A rung is about the activity, not about the body. TALK(300) above NAP(500) means a
-	 * conversation is what actually runs while she is lying there - the dialog, the topics,
-	 * the trade - while YoukaiNapTask deliberately keeps holding the pose across it. An
-	 * activity that has been outranked does not stop running, so a character who wants to
-	 * stay in a pose through something that outranks her has to hold it in canStillUse and
-	 * not in the activity: see YoukaiNapTask, and FairyFleeTask for the other half of that
-	 * trade, where the activity is what has to be noticed.
+	 * A rung is about the activity, not about the body. TALK(300) above NAP(500) means a conversation is what
+	 * actually runs while she is lying there, and YoukaiNapTask deliberately holds the pose across it. An
+	 * activity that has been outranked does not stop running, so holding a pose through something that
+	 * outranks it belongs in canStillUse, not in the activity: see YoukaiNapTask, and FairyFleeTask for the
+	 * other half of that trade, where the activity is what has to be noticed.
 	 *
 	 * Two rules follow, and between them they decide almost every placement:
 	 *
-	 *   - Anything below an activity is something she may be talked out of by it; anything
-	 *     above it is a thing that interrupts it.
-	 *   - An activity registered with a null gate memory is eligible whenever nothing above
-	 *     it is, and never ends, because the test that would end it is the same test that
-	 *     started it. Every prioritized activity here therefore owns a memory, and where
-	 *     there is no other reason to stop, the memory carries a TTL - MEM_NAP is the shape
-	 *     to copy.
+	 *   - Anything below an activity is something she may be talked out of; anything above it interrupts it.
+	 *   - An activity registered with a null gate memory never ends, because the test that would end it is
+	 *     the one that started it. Every prioritized activity here therefore owns a memory, and where there
+	 *     is no other reason to stop it carries a TTL - MEM_NAP is the shape to copy.
 	 *
-	 * To place a new activity: decide what may interrupt it, decide what it may interrupt,
-	 * and find the rung whose answer to either is closest. Then take the open hundred
-	 * between the two neighbours that bracket it - do not land on an existing number,
-	 * because ties are broken by registration order and that is invisible to anyone reading
-	 * the board later. Each activity's own javadoc should still say WHY it sits where it
-	 * does; this block only says where the rungs are.
+	 * To place a new activity: decide what may interrupt it, decide what it may interrupt, and find the rung
+	 * whose answer is closest, then take the open hundred between the two neighbours that bracket it - ties
+	 * break by registration order, which is invisible to anyone reading the board later. Each activity's own
+	 * javadoc should still say WHY it sits where it does.
 	 *
 	 * ====================================================================================
 	 */
@@ -147,15 +120,13 @@ public class GLBrains {
 	public static final Val<Activity> DOWN = ACTIVITIES.reg("down", () -> new Activity("down"));
 	public static final Val<Activity> TALK = ACTIVITIES.reg("talk", () -> new Activity("talk"));
 	/**
-	 * Being a guest in someone else's home. Low enough that a visitor still stops to talk,
-	 * high enough that she never naps in the host's house, never hunts in it, and never
-	 * sleeps or goes home - see the scale above.
+	 * Being a guest in someone else's home. Low enough that a visitor still stops to talk, high enough that
+	 * she never naps in the host's house, never hunts in it, and never sleeps or goes home.
 	 */
 	public static final Val<Activity> VISITING = ACTIVITIES.reg("visiting", () -> new Activity("visiting"));
 	/**
-	 * Eating at somebody's party. Just below TALK, so a party guest can still talk and
-	 * trade; well above VISITING, so she never wanders off to visit while the party is
-	 * going on; and above everything scheduled, so she never sleeps or goes home.
+	 * Eating at somebody's party. Just below TALK, so a party guest can still talk and trade; well above
+	 * VISITING, so she never wanders off while the party is going on; and above everything scheduled.
 	 */
 	public static final Val<Activity> PARTY = ACTIVITIES.reg("party", () -> new Activity("party"));
 	/**
@@ -168,14 +139,9 @@ public class GLBrains {
 	 * her schedule, but not on a panic, and not on a hunt.
 	 */
 	public static final Val<Activity> FEAST = ACTIVITIES.reg("feast", () -> new Activity("feast"));
-	/**
-	 * Lying down and doing nothing at all. Below TALK and PARTY: a conversation is
-	 * answered from where she is lying rather than getting her up - {@code YoukaiNapTask}
-	 * holds the pose through one - but a party still does. Above VISITING and everything
-	 * scheduled, because a nap is what she does with her own free time rather than
-	 * something she does in somebody else's house. Gated by {@link #MEM_NAP}, which is
-	 * also what ends it.
-	 */
+	/** Lying down and doing nothing at all. Below TALK and PARTY: a conversation is answered from where she is
+	 *  lying rather than getting her up - {@code YoukaiNapTask} holds the pose through one - but a party still
+	 *  does. Above VISITING and the schedule: a nap is her own free time, not a guest's house. */
 	public static final Val<Activity> NAP = ACTIVITIES.reg("nap", () -> new Activity("nap"));
 
 	public static void register() {

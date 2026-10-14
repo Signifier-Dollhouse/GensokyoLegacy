@@ -6,10 +6,9 @@ import net.minecraft.world.level.ChunkPos;
 import java.util.*;
 
 /**
- * Client mirror of the effects the server pushed on chunk watch/unwatch. Queries filter locally
- * and never ask the server.
+ * Client mirror of the effects the server pushed on chunk watch/unwatch; queries never ask the server.
  *
- * @see doc/design/area_effect.md
+ * @see "doc/design/area_effect.md"
  */
 public final class ClientAreaEffectTracker {
 

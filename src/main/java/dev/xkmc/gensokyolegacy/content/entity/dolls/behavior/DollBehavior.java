@@ -16,11 +16,11 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Optional;
 
 /**
- * Goal-like doll behavior: one per {@link DollActionType}, driven by the single
- * delegating {@code DollCommandGoal}. Capability is re-resolved every check — the doll
- * never caches or switches hands on its own.
+ * Goal-like doll behavior: one per {@link DollActionType}, driven by the single delegating
+ * {@code DollCommandGoal}. Capability is re-resolved every check — the doll never caches or
+ * switches hands on its own.
  *
- * @see doc/design/doll/control.md
+ * @see "doc/design/doll/control.md"
  */
 public abstract class DollBehavior {
 
@@ -40,21 +40,18 @@ public abstract class DollBehavior {
 	public abstract void tick(DollEntity doll);
 
 	/**
-	 * Whether this behavior keeps running after it let its ticket go. The charge's
-	 * return flight is the case: it releases the ticket on impact so a volley can hand
-	 * off, and only the flight is left. The delegating goal asks this once the ticket
-	 * is gone, and only for as long as it holds.
+	 * Whether this behavior keeps running after it let its ticket go — the charge's return flight
+	 * releases on impact so a volley can hand off. The delegating goal asks this only once the
+	 * ticket is gone.
 	 */
 	public boolean selfDriven(DollEntity doll) {
 		return false;
 	}
 
 	/**
-	 * Whether this behavior could ever act on the given target with what the doll
-	 * holds — the ticket-free form of {@link #canUse}, asked before an order is issued
-	 * and by the delegating goal, which gives up a ticket that can never run instead of
-	 * idling through the start timeout. Only a behavior that has to close a distance
-	 * narrows it.
+	 * Whether this behavior could ever act on the given target with what the doll holds — the
+	 * ticket-free form of {@link #canUse}, asked before an order is issued so a ticket that can
+	 * never run is given up instead of idling through the start timeout.
 	 */
 	public boolean canReach(DollEntity doll, LivingEntity target) {
 		return true;
@@ -88,11 +85,9 @@ public abstract class DollBehavior {
 	}
 
 	/**
-	 * The doll acts with its main hand: sticky-swap the ledger when the match is off
-	 * hand (the mirror follows), and lock both hands for {@link DollHandLock#HOLD}
-	 * ticks. This is also where the spend is recorded — every behavior calls it
-	 * immediately before using the item, and several complete on that same tick, so
-	 * without the lock an arming host would take the item away mid-animation.
+	 * The doll acts with its main hand: sticky-swap the ledger when the match is off hand, and
+	 * lock both hands for {@link DollHandLock#HOLD} ticks. Behaviors call it right before using
+	 * the item, so without the lock an arming host would take the item away mid-animation.
 	 */
 	protected void ensureMainHand(DollEntity doll, HandMatch match) {
 		if (match.hand() != DollSlot.MAIN_HAND) {
@@ -121,9 +116,8 @@ public abstract class DollBehavior {
 	}
 
 	/**
-	 * Turn the doll's body onto a horizontal direction. {@link #faceTarget} only
-	 * steers the head — and the look-at-owner goal owns that anyway — so a behavior
-	 * flying on plain velocity has to set the body itself.
+	 * Turn the doll's body onto a horizontal direction; {@link #faceTarget} only steers the head
+	 * — and the look-at-owner goal owns that anyway.
 	 */
 	protected void faceDir(DollEntity doll, Vec3 dir) {
 		doll.setYRot(-(float) (Mth.atan2(dir.x, dir.z) * Mth.RAD_TO_DEG));

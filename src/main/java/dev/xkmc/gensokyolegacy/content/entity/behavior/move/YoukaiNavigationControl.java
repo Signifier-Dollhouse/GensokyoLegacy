@@ -51,9 +51,8 @@ public class YoukaiNavigationControl {
 	}
 
 	public final void setFlying() {
-		// Flight entry wakes: within one brain tick the new activity's behaviors
-		// start before the old activity's stop, so a fight order issued while
-		// asleep must end sleep first instead of flying in sleeping pose.
+		// Flight entry wakes: within one brain tick the new activity's behaviors start before
+		// the old activity's stop, so a fight order issued while asleep must end sleep first.
 		if (self.isSleeping()) {
 			self.stopSleeping();
 		}
@@ -85,9 +84,8 @@ public class YoukaiNavigationControl {
 	}
 
 	/**
-	 * Whether solid ground is within {@link #GROUND_PROXIMITY} blocks below
-	 * the feet. Flying characters close to the ground should land and try
-	 * ground navigation first instead of staying airborne.
+	 * Whether solid ground is within {@link #GROUND_PROXIMITY} blocks below the feet. Flying
+	 * characters close to the ground should land and try ground navigation first.
 	 */
 	public boolean isCloseToGround() {
 		if (self.onGround()) return true;
@@ -166,9 +164,8 @@ public class YoukaiNavigationControl {
 				walkNav.moveTo(path.path(), speedModifier);
 				return true;
 			} else {
-				// hovering: a walk route is still a perfectly good route, so follow
-				// it through the flying navigation instead of refusing it - she
-				// would otherwise simply never move again
+				// hovering: a walk route is still a good route, so follow it through the
+				// flying navigation instead of refusing it - she would otherwise never move
 				flyNav.moveTo(path.path(), speedModifier);
 				return true;
 			}
@@ -176,10 +173,9 @@ public class YoukaiNavigationControl {
 	}
 
 	/**
-	 * The flying navigation, for callers that want to path somewhere themselves
-	 * rather than going through {@link #moveTo}. A hovering character has no
-	 * walkable start node, so anything that actually has to get her somewhere has
-	 * to ask for a route in the air.
+	 * The flying navigation, for callers that want to path somewhere themselves rather than
+	 * through {@link #moveTo}. A hovering character has no walkable start node, so a route in the
+	 * air is the only one that can get her anywhere.
 	 */
 	public Flying flying() {
 		return flyNav;
@@ -315,23 +311,15 @@ public class YoukaiNavigationControl {
 			}
 			if (ascending) {
 				pressIntoLadder();
-				// Vanilla MoveControl parks in JUMPING state until the mob lands, and its
-				// JUMPING branch never re-steers yaw. On a ladder the mob never lands, so
-				// a sideways entry yaw (e.g. stepping onto the shaft from adjacent stairs)
-				// would be kept for the whole ascent and the mob drifts off the thin ladder.
-				// Reset to MOVE_TO so super.tick() re-steers toward the ladder-pressed
-				// target every tick. (Vanilla's own jump trigger also fires here, which is
-				// exactly what we want while ascending.)
+				// Vanilla MoveControl parks in JUMPING until the mob lands and never re-steers yaw
+				// there; a ladder mob never lands, so reset to MOVE_TO each tick to re-steer.
 				operation = Operation.MOVE_TO;
 				mob.getJumpControl().jump();
 				super.tick();
 				return;
 			}
-			// Descending or stepping off at the same level: steer toward the target
-			// WITHOUT jumping. Vanilla MOVE_TO forces a jump every tick while the mob's
-			// feet are inside the ladder's collision shape, which would pin the mob into
-			// a permanent climb even though the target is below. Mirror its steering
-			// math here, minus the jump.
+			// Descending or stepping off at the same level: steer toward the target without
+			// jumping, since vanilla MOVE_TO jumps every tick while the feet are in the ladder.
 			double dx = wantedX - mob.getX();
 			double dy = wantedY - mob.getY();
 			double dz = wantedZ - mob.getZ();
@@ -346,11 +334,9 @@ public class YoukaiNavigationControl {
 		}
 
 		/**
-		 * While ascending a ladder shaft, steer into the ladder face instead of the
-		 * bare node center. Otherwise the mob either jumps in place at the shaft base
-		 * (centered under the ladder but never touching it) or drifts off the thin
-		 * ladder shape mid-climb and falls. Only applies when the target is above;
-		 * side/top exits keep normal steering so the mob can step off.
+		 * While ascending, steer into the ladder face instead of the bare node center, or the mob
+		 * jumps in place at the shaft base or drifts off the thin shape mid-climb and falls. Only
+		 * above the target; side and top exits keep normal steering so the mob can step off.
 		 */
 		private void pressIntoLadder() {
 			if (operation != Operation.MOVE_TO && operation != Operation.JUMPING) return;
@@ -370,11 +356,10 @@ public class YoukaiNavigationControl {
 
 		/**
 		 * Whether the active path is currently going up inside the mob's own shaft
-		 * column. Navigation only advances a ladder node once the mob is 0.5 above
-		 * it (airborne advancement in {@code PathNavigation.tick}), so the climb
-		 * must overdrive half a block past each node. A same-level side exit has its
-		 * next node in an adjacent column instead, and must not overdrive, or the
-		 * mob would overshoot above the exit while stepping off.
+		 * column. Navigation only advances a ladder node once the mob is 0.5 above it,
+		 * so the climb must overdrive half a block past each node. A same-level side
+		 * exit has its next node in an adjacent column instead, and must not overdrive,
+		 * or the mob would overshoot above the exit while stepping off.
 		 */
 		private boolean climbingShaft() {
 			var path = mob.getNavigation().getPath();

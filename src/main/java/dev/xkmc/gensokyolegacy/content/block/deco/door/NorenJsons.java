@@ -102,12 +102,9 @@ public class NorenJsons {
 		elem.end();
 	}
 
-	/**
-	 * 物品模型一律用 {@code item/generated}:它把整张贴图铺满 0..16 的面片,普通款的方形贴图正好合适。
-	 * 长款贴图 16x32,原样铺就变成 16x16 的正方形,帘子被压得又扁又胖;
-	 * 绕中心把 x 压掉一半,面片就成了 8x16 —— 横竖压得一样多,长宽比才对得上,图标也小一圈。
-	 * 缩放走根 {@code transform} 而不是重写 {@code elements},所以两种款式都是一张干净的 generated 模型。
-	 */
+	/** 物品模型一律用 {@code item/generated}:它把整张贴图铺满 0..16 的面片,普通款的方形贴图正好合适。
+	 * 长款贴图 16x32,原样铺就压成又扁又胖的正方形,所以绕中心缩放——走根 {@code transform} 而不是
+	 * 重写 {@code elements},两种款式都是一张干净的 generated 模型。 */
 	public static void genItemModel(DataGenContext<Item, BlockItem> ctx, RegistrateItemModelProvider pvd,
 									boolean hanging) {
 		var model = pvd.getBuilder(ctx.getName())

@@ -30,29 +30,26 @@ import java.util.Map;
  * What she hands back is not decided here: the module rolled it when she took
  * the food, so this only has to carry it to her hand. On a plain fairy a cookie
  * bought a flower and a cake bought fairy dust; on Cirno the same two tiers buy
- * packed ice and a crystal. Either way the stack to throw is already in the
- * memory, and this task cannot tell the difference - which is the point of
- * letting {@code FairyFeedModule} own the gift.
+ * packed ice and a crystal - this task cannot tell the difference, which is the
+ * point of letting {@code FairyFeedModule} own the gift.
  * <p>
  * Typed to {@link FairyEntity} rather than to the plain fairy specifically,
- * because eating is the shared fairy's rule and Cirno is fed on the same terms:
- * same two tiers, same reputation, same cap, same twenty-second cooldown, with
- * only the thank-you swapped out underneath. Every method it calls is on
- * {@code YoukaiEntity}, so the wider bound costs nothing.
+ * because eating is the shared fairy's rule and Cirno is fed on the same terms.
+ * Every method it calls is on {@code YoukaiEntity}, so the wider bound costs
+ * nothing.
  */
 public class FairyFeedTask extends Behavior<FairyEntity> {
 
 	/**
 	 * How long she chews before reaching for the gift. Matched to the length of
 	 * the {@code 吃} clip, which is played and held, so she is mid-chew for the
-	 * whole of it and holds the last pose if anything runs long.
+	 * whole of it.
 	 */
 	private static final int EAT_TICKS = 45;
 	/**
 	 * The {@code 使用主手物品} clip runs 0.31s. The gift leaves her hand halfway
 	 * through it rather than at the start, so it arrives on the arm's way out
-	 * instead of teleporting out of a gesture that has not begun - three ticks in is
-	 * where the hand has actually come up.
+	 * instead of teleporting out of a gesture that has not begun.
 	 */
 	private static final int USE_MAINHAND_TICKS = 6;
 	private static final int REACH_AHEAD_TICKS = USE_MAINHAND_TICKS / 2;
@@ -77,8 +74,7 @@ public class FairyFeedTask extends Behavior<FairyEntity> {
 		var fed = BrainUtils.getMemory(entity, GLBrains.MEM_FEED.get());
 		if (fed == null) return;
 		// stop where she is. Clearing the target matters as much as stopping the
-		// navigation: anything still holding a walk target would re-issue it on the
-		// very next move task and walk off with the food.
+		// navigation: anything still holding a walk target would re-issue it next move
 		BrainUtils.clearMemory(entity, MemoryModuleType.WALK_TARGET);
 		entity.getNavigation().stop();
 		entity.navCtrl.stopMoving();
@@ -89,12 +85,9 @@ public class FairyFeedTask extends Behavior<FairyEntity> {
 
 	/**
 	 * Vanilla's default is {@code false}, which stops a behavior the instant it
-	 * starts - {@code tick} never runs at all, and only {@code start} ever fires. A
-	 * behavior that has to live for any length of time must say so here; every other
-	 * one that does in this codebase overrides it too.
-	 * <p>
-	 * Nothing else gates the run: the entry condition is re-checked on every start,
-	 * and {@link #stop} clears the memory that started it.
+	 * starts - {@code tick} never runs at all. A behavior that has to live for any
+	 * length of time must say so here. Nothing else gates the run: the entry
+	 * condition is re-checked on every start, and {@link #stop} clears the memory.
 	 */
 	@Override
 	protected boolean canStillUse(ServerLevel level, FairyEntity entity, long gameTime) {
@@ -103,8 +96,8 @@ public class FairyFeedTask extends Behavior<FairyEntity> {
 
 	/**
 	 * Four things on two latches: stand still, chew, reach, then let go. Each fires
-	 * once, and {@code tick} runs every tick the behavior is alive - which is every
-	 * tick the animation is playing - so the gesture and the gift cannot come apart.
+	 * once, and {@code tick} runs every tick the behavior is alive, so the gesture and
+	 * the gift cannot come apart.
 	 */
 	@Override
 	protected void tick(ServerLevel level, FairyEntity entity, long gameTime) {
@@ -123,9 +116,8 @@ public class FairyFeedTask extends Behavior<FairyEntity> {
 	/**
 	 * Kill any leftover momentum. Stopping the navigation and the move control is
 	 * not enough on its own: {@code travel} bleeds horizontal velocity by 9% a tick
-	 * rather than dropping it, so without this she coasts a good four blocks before
-	 * she has actually stopped. Her hover is left alone - she stays up, she just
-	 * stops travelling.
+	 * rather than dropping it, so she coasts a good four blocks before she has
+	 * actually stopped. Her hover is left alone.
 	 */
 	private static void holdStill(FairyEntity entity) {
 		var v = entity.getDeltaMovement();
@@ -133,10 +125,10 @@ public class FairyFeedTask extends Behavior<FairyEntity> {
 	}
 
 	/**
-	 * Still their enemy: what she was given was food, not a peace offering, so there
-	 * is no gift at all - the stack is simply never thrown. Asked here rather than
-	 * carried over the wire, since a player can drop back below the line while she
-	 * is still chewing.
+	 * Still their enemy: what she was given was food, not a peace offering, so
+	 * there is no gift at all - the stack is simply never thrown. Asked here rather
+	 * than carried over the wire, since a player can drop back below the line while
+	 * she is still chewing.
 	 */
 	private static void throwGift(FairyEntity entity) {
 		var fed = BrainUtils.getMemory(entity, GLBrains.MEM_FEED.get());
@@ -149,8 +141,8 @@ public class FairyFeedTask extends Behavior<FairyEntity> {
 
 	/**
 	 * Cleared here rather than when the gift is paid, so that a second dish fed
-	 * mid-chew is not swallowed by the run already in flight: this one ends, the
-	 * memory is still set by that second dish, and the behavior starts again for it.
+	 * mid-chew is not swallowed by the run already in flight: this one ends and the
+	 * behavior starts again for the other.
 	 */
 	@Override
 	protected void stop(ServerLevel level, FairyEntity entity, long gameTime) {

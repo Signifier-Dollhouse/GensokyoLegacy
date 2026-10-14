@@ -137,10 +137,9 @@ public class GLClient {
 	}
 
 	/**
-	 * The two things a humanoid wears that vanilla has no slot renderer for. Both are swept over
-	 * every entity type and every player skin, so a player picks them up without a hook of its
-	 * own - the wings in particular have to be an entity layer rather than a curios one, since
-	 * the back slot has no renderer to register.
+	 * The two things a humanoid wears that vanilla has no slot renderer for. Both are swept over every entity type and
+	 * every player skin, so a player picks them up without a hook of its own - the wings in particular have to be an
+	 * entity layer rather than a curios one, since the back slot has no renderer to register.
 	 */
 	@SuppressWarnings({"unchecked", "rawtypes"})
 	private static void addCharacterLayers(EntityRenderer<?> renderer) {

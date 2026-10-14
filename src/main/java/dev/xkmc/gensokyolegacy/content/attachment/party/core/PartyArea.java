@@ -24,13 +24,12 @@ import java.util.List;
  * @param food   every party-food block laid out for the spread, in walk order
  * @param seats  every seat block the walk reached
  * @param tables every table block the walk reached
- * @param appeal attraction of {@link #food} counting each food once; scales
- *               {@link PartyMath#weight} and is otherwise unused
+ * @param appeal attraction of {@link #food} counting each food once; scales {@link PartyMath#weight},
+ *               otherwise unused
  * @param fulfillment total hunger in {@link #food}; what the planner budgets and a
- *                    guest's own fulfillment is measured against. Unlike
- *                    {@link #appeal} this <b>does</b> scale with what is left on the
- *                    table. select.md §2.1
- * @see doc/design/party/area.md
+ *                    guest's fulfillment is measured against. Unlike {@link #appeal}
+ *                    this <b>does</b> scale with what is left on the table. select.md §2.1
+ * @see "doc/design/party/area.md"
  */
 public record PartyArea(BlockPos anchor, List<BlockPos> food, List<BlockPos> seats,
 		List<BlockPos> tables, int appeal, int fulfillment) {
@@ -51,10 +50,10 @@ public record PartyArea(BlockPos anchor, List<BlockPos> food, List<BlockPos> sea
 	private static final int MAX_VISITED = 1 << 16;
 
 	/**
-	 * Walks out from the anchor and collects the furniture and the food of one party. The
-	 * four rules are in area.md §2; in short, the walk passes only through standable space
-	 * and furniture extends it by a box, a dish that is not <i>valid</i> food is dropped,
-	 * and nothing beyond {@code distance} or in an unloaded chunk is read at all.
+	 * Walks out from the anchor and collects the furniture and the food of one party; the four
+	 * rules are in area.md §2. The walk passes only through standable space, furniture extends it
+	 * by a box, a dish that is not <i>valid</i> food is dropped, and nothing beyond {@code distance}
+	 * or in an unloaded chunk is read at all.
 	 */
 	public static PartyArea scan(ServerLevel level, BlockPos anchor, int distance) {
 		var access = level.registryAccess();
@@ -122,9 +121,9 @@ public record PartyArea(BlockPos anchor, List<BlockPos> food, List<BlockPos> sea
 	public static final int GUEST_RADIUS = 6;
 
 	/**
-	 * Every dish within {@link #GUEST_RADIUS} of the anchor — the box form of
-	 * {@link #scan}, re-run while the party is open so its answer stays current.
-	 * Deliberately does not walk through walls.
+	 * Every dish within {@link #GUEST_RADIUS} of the anchor — the box form of {@link #scan},
+	 * re-run while the party is open so its answer stays current. Deliberately does not walk
+	 * through walls.
 	 */
 	public static List<BlockPos> foodAround(Level level, BlockPos anchor) {
 		var access = level.registryAccess();
@@ -134,8 +133,7 @@ public record PartyArea(BlockPos anchor, List<BlockPos> food, List<BlockPos> sea
 			if (!PartyFoodValue.isFood(level, pos, state)) continue;
 			if (!isLaidOut(level, pos, state)) continue;
 			// per block, not per party: a duplicate of a food the party already has is
-			// still a dish a guest may walk to and eat. The appeal dedupe lives in the
-			// scan, the only walk that has seen the whole spread.
+			// still a dish a guest may eat; the appeal dedupe lives in the scan, the only walk over it
 			if (!PartyFoodValue.attracts(access, level, pos, state)) continue;
 			ans.add(pos.immutable());
 		}
@@ -170,10 +168,9 @@ public record PartyArea(BlockPos anchor, List<BlockPos> food, List<BlockPos> sea
 	}
 
 	/**
-	 * Whether a dish was put out for the party: standing on a table or a chair, or
-	 * touching a seat or a table. A chair is a surface too, so a plate on a guest's own seat
-	 * is budgeted. Shared with {@code PartyTasks} so a guest can only eat a dish the scan
-	 * would have counted.
+	 * Whether a dish was put out for the party: standing on a table or a chair, or touching a seat
+	 * or a table. A chair is a surface too, so a plate on a guest's own seat is budgeted. Shared
+	 * with {@code PartyTasks} so a guest can only eat a dish the scan would have counted.
 	 * <p>
 	 * For state-described food only; containers judge their own placement.
 	 */
@@ -188,9 +185,8 @@ public record PartyArea(BlockPos anchor, List<BlockPos> food, List<BlockPos> sea
 	}
 
 	/**
-	 * Dispatches to the container's own rule where there is one, and to
-	 * {@link #touchingFurniture} otherwise: the rule genuinely differs by container, so
-	 * the handler owns it.
+	 * Dispatches to the container's own rule where there is one, else {@link #touchingFurniture}:
+	 * the rule differs by container, so the handler owns it.
 	 */
 	public static boolean isLaidOut(Level level, BlockPos pos, BlockState state) {
 		var container = PartyFoodHandler.containerOf(state.getBlock());
@@ -200,9 +196,9 @@ public record PartyArea(BlockPos anchor, List<BlockPos> food, List<BlockPos> sea
 	}
 
 	/**
-	 * The first solid block under {@code pos}, falling through anything with no collision
-	 * shape — for what a thing is standing <i>in</i>, since a steamer's rack is inside the
-	 * pot. Bounded, so an empty shaft does not run to the bottom of the world.
+	 * The first solid block under {@code pos}, falling through anything with no collision shape —
+	 * what a thing is standing <i>in</i>: a steamer's rack is inside the pot. Bounded, so an empty
+	 * shaft does not reach the world bottom.
 	 *
 	 * @return that block, or null if nothing solid is within {@code maxDrop}
 	 */

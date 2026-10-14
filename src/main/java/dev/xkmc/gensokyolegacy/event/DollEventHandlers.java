@@ -64,10 +64,9 @@ public class DollEventHandlers {
 	}
 
 	/**
-	 * Anvil repair for dolls: a damaged (or broken, 0-health) doll item plus any
-	 * wool restores it to full health for 1 wool and a flat level cost. Vanilla
-	 * repair logic can't apply — doll health lives in the {@code DOLL_DATA}
-	 * component, not the vanilla damage value — so the output is set directly.
+	 * Anvil repair for dolls: a damaged doll item plus any wool restores it to full health for 1 wool and a flat level
+	 * cost. Vanilla repair logic can't apply — doll health lives in the {@code DOLL_DATA} component, not the vanilla
+	 * damage value — so the output is set directly.
 	 */
 	@SubscribeEvent
 	public static void onAnvilRepair(AnvilUpdateEvent event) {

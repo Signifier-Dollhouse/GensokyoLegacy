@@ -18,11 +18,10 @@ import java.util.List;
 
 /**
  * The shared fairy base. A fairy has no {@link TalkModule}, unlike
- * {@link YoukaiEntity}'s default: a fairy has no dialog of her own to offer, so a
- * conversation with one only ever opened an empty screen. She is fed instead.
- * <p>
- * Subclasses that override {@link #createModules()} - the plain fairy and Cirno -
- * have to leave the talk module out for the same reason.
+ * {@link YoukaiEntity}'s default: she has no dialog of her own, so a conversation with
+ * one only ever opened an empty screen. She is fed instead, and subclasses overriding
+ * {@link #createModules()} - the plain fairy and Cirno - leave the talk module out for
+ * the same reason.
  */
 @SerialClass
 public class FairyEntity extends GeneralYoukaiEntity {

@@ -17,11 +17,10 @@ import net.minecraft.world.phys.Vec3;
 import java.util.Optional;
 
 /**
- * Regular attack: one danmaku, item not consumed. Fires immediately on start, then a
- * 10-tick wind-down. Never chases; targets beyond weapon range abort immediately.
- * Aimed with the laser-style flight-time prediction at fixed shot speed. Sidesteps
- * while an ally blocks the lane and skips the shot when the lane stays blocked
- * (control.md §5.1).
+ * Regular attack: one danmaku, item not consumed. Fires on start, then a 10-tick wind-down;
+ * never chases and out-of-range targets abort immediately. Aimed with laser-style flight-time
+ * prediction at fixed shot speed. Sidesteps while an ally blocks the lane, skips the shot
+ * when the lane stays blocked (control.md §5.1).
  */
 public class DollDanmakuBehavior extends DollBehavior {
 

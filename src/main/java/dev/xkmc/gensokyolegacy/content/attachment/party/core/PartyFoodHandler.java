@@ -13,12 +13,11 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
- * The ordered block food handler lists: the first handler whose
- * {@link BlockFoodHandler#handles} accepts the block wins. {@link ContainerFoodHandler}s
- * are kept apart because their answers are never cacheable, and the catch-all fallback
- * lives outside both.
+ * The ordered food handler lists: the first handler whose {@link BlockFoodHandler#handles}
+ * accepts the block wins. {@link ContainerFoodHandler}s are kept apart because their answers are
+ * never cacheable; the catch-all fallback lives outside both.
  *
- * @see doc/design/party/food.md
+ * @see "doc/design/party/food.md"
  */
 public final class PartyFoodHandler {
 
@@ -48,9 +47,8 @@ public final class PartyFoodHandler {
 	}
 
 	/**
-	 * The handler that recognises this block as a kind of food, or null if none does — the
-	 * whole of the edibility test. The fallback is never returned, and the data map cannot
-	 * opt anything in.
+	 * The handler that recognises this block as food, or null if none does — the whole of the
+	 * edibility test. The fallback is never returned, and the data map cannot opt anything in.
 	 */
 	@Nullable
 	public static BlockFoodHandler claims(Block block) {

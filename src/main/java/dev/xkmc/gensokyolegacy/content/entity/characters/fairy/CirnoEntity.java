@@ -51,12 +51,11 @@ public class CirnoEntity extends FairyEntity implements GeoYoukaiAnim {
 	/**
 	 * Her hovering loop, which is what an airborne fairy wants instead of standing.
 	 * <p>
-	 * too. It cannot stay a missing name: GeckoLib resolves an unknown clip to {@code null},
-	 * {@code buildAnimationQueue} then hands the controller an empty queue, and the next
-	 * {@code process()} tick stops it without writing any bones — which pinned her in the
-	 * last pose written, i.e. frozen mid-hover for the whole walk, silently. Point the
-	 * {@code isMoving} branch below back at a {@code WALK} constant once the clip is
-	 * exported from Blockbench.
+	 * It cannot stay a missing name: GeckoLib resolves an unknown clip to {@code null},
+	 * {@code buildAnimationQueue} hands the controller an empty queue, and the next
+	 * {@code process()} tick stops writing any bones, pinning her frozen mid-hover for
+	 * the whole walk. Point the {@code isMoving} branch below back at a {@code WALK}
+	 * constant once the clip is exported from Blockbench.
 	 */
 	private static final RawAnimation FLOAT = RawAnimation.begin().thenLoop("漂浮");
 	private static final RawAnimation USE_MAINHAND = RawAnimation.begin().thenPlay("使用主手物品");
@@ -109,9 +108,8 @@ public class CirnoEntity extends FairyEntity implements GeoYoukaiAnim {
 
 	/**
 	 * Whether she wears the sun-tanned sheet instead of the pale one. Cosmetics only:
-	 * nothing reads it but {@link CirnoModel#getTextureResource}, so the variant
-	 * changes no stats and no behavior. Synced and NBT-backed through
-	 * {@link #CIRNO_DATA}, like the rest of her entity data.
+	 * nothing reads it but {@link CirnoModel#getTextureResource}. Synced and NBT-backed
+	 * through {@link #CIRNO_DATA}, like the rest of her entity data.
 	 */
 	public boolean isTanned() {
 		return entityData.get(DATA_TANNED) != 0;
@@ -123,9 +121,8 @@ public class CirnoEntity extends FairyEntity implements GeoYoukaiAnim {
 
 	/**
 	 * Right-clicking her with a sunflower tans her. One-way and free: the sunflower is
-	 * a trigger, not an ingredient, and nothing is consumed or offered back. Hooked on
-	 * {@code mobInteract}, which is the mob-interaction slot vanilla leaves open —
-	 * {@code Mob#interact} is final and spends itself on name tags and spawn eggs.
+	 * a trigger, not an ingredient. Hooked on {@code mobInteract}, the slot vanilla leaves
+	 * open — {@code Mob#interact} is final and spends itself on name tags and spawn eggs.
 	 */
 	@Override
 	protected InteractionResult mobInteract(Player player, InteractionHand hand) {
@@ -182,8 +179,7 @@ public class CirnoEntity extends FairyEntity implements GeoYoukaiAnim {
 
 	/**
 	 * A hunt is her chasing the prey the sensor found, which is not in the target
-	 * container - so the activity that starts it has to be allowed to look around for
-	 * one, as play is.
+	 * container - so that activity has to be allowed to look around for one, as play is.
 	 */
 	@Override
 	public boolean shouldSearchTarget(Activity activity) {

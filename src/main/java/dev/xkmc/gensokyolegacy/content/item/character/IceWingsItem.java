@@ -27,15 +27,12 @@ import top.theillusivec4.curios.api.type.capability.ICurioItem;
 import java.util.List;
 
 /**
- * Cirno's wings, given away as an item.
+ * Cirno's wings, given away as an item. Worn in the vanilla chest armor slot or the curios back slot;
+ * both paths feed the same {@link #tick}, so the effects do not care which, and nothing watches for the
+ * wings coming off either - they refresh on a two second leash and simply run out.
  *
- * <p>Worn in the vanilla chest armor slot, or in the curios back slot. Both paths feed the same
- * {@link #tick}, so the pair of effects below does not care which one the wings ended up in -
- * and nothing has to watch for the wings coming off, because the effects are refreshed on a
- * two second leash and simply run out.
- *
- * <p>{@link GLEffects#BAKA} is Cirno's own: she counts to nine and nothing else, and a player in
- * her wings counts the same way, which is the joke.
+ * <p>{@link GLEffects#BAKA} is Cirno's own: she counts to nine and nothing else, and a player in her
+ * wings counts the same way, which is the joke.
  */
 public class IceWingsItem extends Item implements Equipable, ICurioItem {
 
@@ -43,9 +40,8 @@ public class IceWingsItem extends Item implements Equipable, ICurioItem {
 	private static final int DURATION = 40;
 
 	/**
-	 * {@link Inventory#INVENTORY_SIZE} plus {@link EquipmentSlot#CHEST}'s index in the armor list.
-	 * The armor list is built from {@code EquipmentSlot} rather than in slot order, so this is 38
-	 * and not the head slot's 39 - written out here so it is not read as a copy of that one.
+	 * {@link Inventory#INVENTORY_SIZE} plus {@link EquipmentSlot#CHEST}'s index in the armor list. The list is
+	 * built from {@code EquipmentSlot} rather than in slot order, so this is 38 and not the head slot's 39.
 	 */
 	private static final int CHEST_SLOT = Inventory.INVENTORY_SIZE + EquipmentSlot.CHEST.getIndex();
 

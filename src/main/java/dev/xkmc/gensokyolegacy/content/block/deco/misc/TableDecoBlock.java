@@ -24,10 +24,9 @@ import net.neoforged.neoforge.client.model.generators.ModelFile;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * 摆在魔法道具工作台桌面上的装饰（缝纫机、魔药瓶）。
- *
- * <p>桌面就是工作块的正上方一格，所以支撑判定等于"下方是工作台"。悬空或台子被拆掉时会掉回空气。
- * 朝向来自 {@link BlockTemplates#HORIZONTAL}，默认朝向玩家，再按 {@code placementTurn} 顺时针多转几度。
+ * 摆在魔法道具工作台桌面上的装饰（缝纫机、魔药瓶）。桌面就是工作块的正上方一格，所以支撑判定等于
+ * "下方是工作台"，悬空或台子被拆掉时会掉回空气；朝向来自 {@link BlockTemplates#HORIZONTAL}，默认
+ * 朝向玩家，再按 {@code placementTurn} 顺时针多转几度。
  */
 public class TableDecoBlock implements CreateBlockStateBlockMethod, DefaultStateBlockMethod,
 		PlacementBlockMethod, SurviveBlockMethod, ShapeUpdateBlockMethod, ShapePathFindBlockMethod {
@@ -81,11 +80,9 @@ public class TableDecoBlock implements CreateBlockStateBlockMethod, DefaultState
 		return shapes[state.getValue(BlockTemplates.HORIZONTAL_FACING).get2DDataValue()];
 	}
 
-	/**
-	 * 装饰只有朝向这一个状态，交给 {@code horizontalBlock} 出四个朝向的变体。
+	/** 装饰只有朝向这一个状态，交给 {@code horizontalBlock} 出四个朝向的变体。
 	 *
-	 * @param model 装饰的自定义模型，如 {@code custom/deco/sewing_machine}
-	 */
+	 * @param model 装饰的自定义模型，如 {@code custom/deco/sewing_machine} */
 	public static void buildStates(Block block, RegistrateBlockstateProvider pvd, String name, String model) {
 		pvd.horizontalBlock(block, pvd.models().getBuilder("block/" + name)
 				.parent(new ModelFile.UncheckedModelFile(pvd.modLoc(model)))

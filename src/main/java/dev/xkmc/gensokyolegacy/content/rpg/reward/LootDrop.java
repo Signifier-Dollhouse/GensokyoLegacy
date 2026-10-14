@@ -6,13 +6,8 @@ import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * One item a loot table can drop, and how many of it.
- * <p>
- * A count that the table states outright goes into the stack, and is drawn like any other stack
- * count. A count it only bounds cannot go into a stack at all — every single number would
- * misdescribe some roll — so that one is a bare stack plus {@link #countText()}. A count the
- * table does not state at all, because it turns on the luck or the enchantment of whoever rolls
- * it, is neither bound nor stated, and says so.
+ * One item a loot table can drop, and how many of it. A stated count is baked into the stack; anything the table
+ * only bounds, or never states (luck, enchantment), is a bare stack with the count drawn beside it instead.
  *
  * @param stack the item, always a single one; the count is carried separately
  * @param min   the fewest of this item one roll can give, or null if the table does not say

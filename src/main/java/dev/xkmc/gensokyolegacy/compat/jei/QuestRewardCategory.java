@@ -25,22 +25,9 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * One {@link Quest} as a JEI recipe, and only a reward list: what the quest hands back, never
- * what it asks for. A requirement is the player's problem, not this page's — and a quest whose
- * reward is a loot table has no better answer than the items that table can drop, which the
- * server reads off the table and sends over ({@link QuestLootToClient}) because a loot table is
- * never synced to a client.
- *
- * <p>The page says only what comes back and who is handing it over: a grid of items in plain
- * frames — a reward is a list, not one product — under the quest's name and its asker's.
- * Everything else, the description and the experience and reputation and which table it all came
- * out of, waits for a hover, where there is room to say it.
- *
- * <p>No slot carries a count it cannot vouch for. A loot table says nothing about how much of
- * anything it will drop, so a count that came out of a constant is shown as a plain stack and
- * one that did not is labelled by hand, {@code 6-8}, in the spot a stack count would go.
- */
+/** One {@link Quest} as a JEI recipe: only what it hands back, in plain frames, since a reward
+ * is a list and not one product. A loot table is never synced, so the server reads it and sends
+ * the drops over ({@link QuestLootToClient}); a count from it is drawn by hand. */
 public class QuestRewardCategory extends BaseRecipeCategory<Holder<Quest>, QuestRewardCategory> {
 
 	private static final int COLS = 3;
@@ -132,11 +119,8 @@ public class QuestRewardCategory extends BaseRecipeCategory<Holder<Quest>, Quest
 		return list;
 	}
 
-	/**
-	 * Whether this quest has anything a slot could hold. Experience and reputation are real
-	 * rewards, and they are in the hover, but a quest paying out <i>only</i> those has no item
-	 * to make a page out of and is not registered here in the first place.
-	 */
+	/** Whether this quest has anything a slot could hold. A quest paying out <i>only</i> experience
+	 * and reputation has no item to make a page out of and is not registered here at all. */
 	public static boolean hasItemReward(Holder<Quest> quest) {
 		for (var reward : quest.value().rewards())
 			if (reward instanceof LootTableReward) return true;

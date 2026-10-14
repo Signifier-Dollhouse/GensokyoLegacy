@@ -8,12 +8,11 @@ import net.minecraft.server.level.ServerLevel;
  * Standing in front of the dish, deciding.
  *
  * <p>
- * Purely a wait, and deliberately a state of its own: this is the beat where a guest looks
- * like she is choosing rather than executing, and the only place she can still change her
- * mind. The floor matters as much as the ceiling — an instant draw reads as reacting to the
- * player rather than deciding on anything.
+ * Purely a wait, and deliberately a state of its own: this is the beat where a guest looks like
+ * she is choosing rather than executing, and the only place she can still change her mind. The
+ * floor matters as much as the ceiling — an instant draw reads as reacting to the player.
  *
- * @see doc/design/party/guest.md
+ * @see "doc/design/party/guest.md"
  */
 public class DelayTask extends PartyTask {
 

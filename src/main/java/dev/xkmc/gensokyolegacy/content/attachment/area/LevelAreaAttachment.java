@@ -14,11 +14,10 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 
 /**
- * Level-wide effect storage: {@code byId} plus a one-UUID-per-owner-block {@code byOwner} index, and
- * {@code pending} ids for chunks that were not loaded when the effect was added. Pending ids are
- * dropped as a whole chunk entry, never per id.
+ * Level-wide effect storage: {@code byId}, a one-UUID-per-owner-block {@code byOwner} index, and
+ * {@code pending} ids for chunks unloaded at add time, dropped as a whole chunk entry, never per id.
  *
- * @see doc/design/area_effect.md
+ * @see "doc/design/area_effect.md"
  */
 @SerialClass
 public class LevelAreaAttachment extends GeneralCapabilityTemplate<Level, LevelAreaAttachment> {

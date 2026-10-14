@@ -17,13 +17,8 @@ import top.theillusivec4.curios.api.SlotContext;
 import top.theillusivec4.curios.api.client.ICurioRenderer;
 
 /**
- * Renders a touhou hat, shared by the vanilla head-slot layer
- * ({@link TouhouHatLayer}) and the curios head-slot renderer.
- *
- * Vanilla {@code HumanoidArmorLayer} only renders {@code ArmorItem}, so plain
- * {@code TouhouHatItem}s in the head armor slot need a custom layer. Both
- * paths resolve the model from the item's client extension and the texture
- * from the item's armor texture, so a hat renders identically in either slot.
+ * Renders a touhou hat, shared by the vanilla head-slot layer ({@link TouhouHatLayer}) and the
+ * curios head-slot renderer. Vanilla {@code HumanoidArmorLayer} only renders {@code ArmorItem}.
  */
 public class TouhouHatRenderer implements ICurioRenderer {
 
@@ -42,11 +37,9 @@ public class TouhouHatRenderer implements ICurioRenderer {
 	}
 
 	/**
-	 * Render one hat stack on an entity. The parent model must already have
-	 * {@code setupAnim} applied; its pose is copied to the hat model.
+	 * Render one hat stack, copying the parent's {@code setupAnim} pose onto the hat model.
 	 *
-	 * @param followHead whether to apply curios head-following rotations
-	 *                   (curios path only; the armor layer path already inherits head pose)
+	 * @param followHead apply curios head rotations; the armor layer already inherits head pose
 	 */
 	@SuppressWarnings({"unchecked", "rawtypes"})
 	public static void renderHat(ItemStack stack, LivingEntity entity, HumanoidModel<?> parent,

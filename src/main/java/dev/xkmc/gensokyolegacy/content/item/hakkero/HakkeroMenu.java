@@ -22,20 +22,14 @@ import net.neoforged.neoforge.items.ItemHandlerCopySlot;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Menu of the finished Mini Hakkero.
- *
- * <p>The grid is a 5x5 lattice: the eight slots on the outer rim ({@code out0}..{@code out7},
- * corners and edge middles) hold the results, the ring around the middle holds the input
- * ({@code in0}..{@code in7}) and the middle slot ({@code core}) is the hakkero itself, drawn
- * as a button that switches between smoker, furnace and blast furnace. A single fuel slot
- * sits at the bottom left, on the same column as the player inventory.
- *
- * <p>Nothing lives here. The seventeen slots and the whole smelting state belong to the item
- * (see {@link HakkeroData}) and are read and written through
- * {@link HakkeroHandler}; this menu is only a view of them. Because that includes the
- * input slots, what a channel is cooking is a property of the item and not of an open
- * window — the overlay is fed from the item's progress, refreshed on
- * {@link #securedServerSlotChange}.
+ * Menu of the finished Mini Hakkero: a 5x5 lattice whose outer rim ({@code out0}..{@code out7}) holds
+ * the results, whose inner ring ({@code in0}..{@code in7}) holds the input, and whose middle slot
+ * ({@code core}) is the hakkero itself, drawn as a button cycling smoker, furnace and blast furnace.
+ * The single fuel slot sits at the bottom left, on the player inventory's column.
+ * <p>
+ * Nothing lives here: the seventeen slots and the whole smelting state belong to the item (see
+ * {@link HakkeroData}) and are reached through {@link HakkeroHandler}, so what a channel is cooking
+ * is a property of the item, not of an open window.
  */
 public class HakkeroMenu extends BaseContainerMenu<HakkeroMenu> {
 
@@ -48,12 +42,8 @@ public class HakkeroMenu extends BaseContainerMenu<HakkeroMenu> {
 	@Nullable
 	private final PlayerSlot<?> slot;
 
-	/**
-	 * The stack the contents live in: the player's own hakkero on the server, a throwaway one
-	 * on the client. Every slot is an {@link ItemHandlerCopySlot} over the handler, so the
-	 * ordinary container sync carries the contents across — the client handler writes them
-	 * into this stack and the screen reads them back out of it, exactly as the talisman
-	 * pocket does.
+	/** The stack the contents live in: the player's own hakkero on the server, a throwaway one on
+	 * the client, carried across by the ordinary container sync as the talisman pocket does.
 	 */
 	private final ItemStack backing;
 	private final HakkeroHandler handler;
@@ -112,12 +102,8 @@ public class HakkeroMenu extends BaseContainerMenu<HakkeroMenu> {
 	}
 
 	/**
-	 * Pushes the item's smelting state into the data slots the client renders from.
-	 *
-	 * <p>Progress is sent in permille of the recipe's own cooking time — the same units the
-	 * item counts in — so the bar reads the same whether the channel is running at 1x or 10x
-	 * and only its rate changes. That also means the client can interpolate between updates
-	 * instead of stepping: the value it draws chases this one rather than jumping to it.
+	 * Pushes the item's smelting state into the data slots the client renders from. Progress goes in
+	 * permille of the recipe's own cooking time, so the bar reads the same at 1x or 10x.
 	 */
 	private void syncState() {
 		if (backing.isEmpty()) return;
@@ -154,10 +140,8 @@ public class HakkeroMenu extends BaseContainerMenu<HakkeroMenu> {
 		syncState();
 	}
 
-	/**
-	 * The mode this menu is working in. Read from the data slot on both sides: it is seeded
-	 * from the item when the menu opens and kept in step whenever the button is used, so the
-	 * client never has to reach for the item stack itself.
+	/** The mode this menu is working in, read from the data slot on both sides: seeded from the
+	 * item on open and kept in step by the button, so the client never reaches for the stack.
 	 */
 	public HakkeroMode getMode() {
 		var vals = HakkeroMode.values();
@@ -169,29 +153,18 @@ public class HakkeroMenu extends BaseContainerMenu<HakkeroMenu> {
 		return progress[channel].get() / (float) PROGRESS_SCALE;
 	}
 
-	/**
-	 * The same progress, smoothed. The data slot only moves one step per tick — the channel
-	 * gains one unit of the recipe's cooking time per tick, which on a 200-tick recipe is half
-	 * a percent — so drawing it raw makes the bar step twice a second. This eases
-	 * {@link #smooth} toward {@link #getProgress} once per frame instead.
+	/** The same progress, smoothed: the data slot moves one unit of the recipe's cooking time per
+	 * tick (half a percent on a 200-tick recipe), so drawing it raw steps the bar twice a second.
 	 */
 	public float getSmoothProgress(int channel) {
 		return smooth[channel];
 	}
 
 	/**
-	 * Advances the client-side interpolation. No-op on the server, where the value is exact.
-	 *
-	 * <p>Driven by wall-clock rather than the partial tick: the gap it covers spans whole
-	 * ticks, and a partial tick restarts at zero every tick, so easing on it would stutter
-	 * in step with the tick boundary. A large jump (a fresh item, a recipe change) is snapped
-	 * to immediately so the bar never lags behind the truth; the small per-tick increments a
-	 * running channel produces are what get spread out.
-	 *
-	 * <p>The first frame after the screen opens seeds {@link #smooth} from the data slots
-	 * instead of easing towards them. The eased copy starts at zero, so easing in would fade
-	 * a channel up from nothing — which reads as a missing overlay when the menu is opened
-	 * on a hakkero that has been smelting for a while.
+	 * Advances the client-side interpolation; a no-op on the server, where the value is exact. Driven
+	 * by wall-clock, not the partial tick, which restarts at zero every tick and stutters the ease.
+	 * A large jump (a fresh item, a recipe change) snaps so the bar never lags; small per-tick
+	 * increments get spread, and the first frame seeds {@link #smooth} instead of easing towards it.
 	 */
 	public void advanceInterpolation() {
 		if (!player.level().isClientSide()) return;
@@ -240,12 +213,9 @@ public class HakkeroMenu extends BaseContainerMenu<HakkeroMenu> {
 	}
 
 	/**
-	 * Shift-click only ever crosses between the player inventory and the menu, never between
-	 * the menu's own slots: an item leaving the inventory is offered to the input slots if
-	 * the current mode can smelt it and to the fuel slot if it burns, and an item leaving
-	 * the menu goes back to the inventory. Ordering matters — the result slots are not
-	 * placeable anyway, but relying on that would let a shift-click silently swallow a
-	 * stack, so the range ends before them.
+	 * Shift-click only crosses between the player inventory and the menu, never within it: to the
+	 * input slots if the mode can smelt the stack, and to the fuel slot if it burns. The range ends
+	 * before the result slots, which are not placeable anyway.
 	 */
 	@Override
 	public ItemStack quickMoveStack(Player pl, int id) {
@@ -266,13 +236,9 @@ public class HakkeroMenu extends BaseContainerMenu<HakkeroMenu> {
 	}
 
 	/**
-	 * Inner rim slot: accepts only what the current mode can smelt (the handler decides).
-	 *
-	 * <p>The channel is kept here rather than read back off the slot, because
-	 * {@link ItemHandlerCopySlot} inherits from {@code StackCopySlot}, whose constructor
-	 * hard-codes container index {@code 0}. {@code getSlotIndex()} therefore answers zero for
-	 * every one of these slots, which would make all eight overlays draw channel 0's
-	 * progress — and show nothing at all whenever channel 0 is the empty one.
+	 * Inner rim slot: accepts only what the current mode can smelt (the handler decides). The channel
+	 * is kept here because {@link ItemHandlerCopySlot} hard-codes container index {@code 0} — read
+	 * back off the slot, every one of these would answer zero.
 	 */
 	public static class InputSlot extends ItemHandlerCopySlot {
 
@@ -313,10 +279,8 @@ public class HakkeroMenu extends BaseContainerMenu<HakkeroMenu> {
 
 	}
 
-	/**
-	 * The middle of the grid: the hakkero itself, shown as the mode button. It is backed by
-	 * an empty container so nothing can ever be taken from it or put in, and the icon is
-	 * rebuilt from the synced mode so the tooltip stays honest on both sides.
+	/** The middle of the grid: the hakkero itself, shown as the mode button, backed by an empty
+	 * container and rebuilt from the synced mode so the tooltip stays honest on both sides.
 	 */
 	public static class ModeSlot extends Slot {
 

@@ -11,14 +11,9 @@ import software.bernie.geckolib.animation.*;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
 /**
- * GeckoLib animation for a doll: {@code toy_idle} while still, {@code toy_fly} while
- * moving, plus one-shots fired by server-to-client entity events. Split over three
- * controllers, in the order they write bones - the wink, the state loop, the one-shots
- * - so a strike covers the bones it shares with the hover instead of replacing it: a
- * GeckoLib controller plays one animation at a time, so keeping both on one would leave
- * every bone the strike does not touch hovering still until it ended. The instance cache
- * lives in {@link DollGeoModule}, fetched per entity — the entity keeps no geo state
- * itself (entity.md §8).
+ * GeckoLib animation for a doll, split over three controllers that run in the order they write
+ * bones — wink, state loop, one-shots — so a strike shares the hover's bones instead of replacing
+ * it, since a controller plays one animation at a time. The cache lives in {@link DollGeoModule} (entity.md §8).
  */
 public interface DollGeo extends DollBaseImpl, GeoEntity {
 
@@ -71,8 +66,7 @@ public interface DollGeo extends DollBaseImpl, GeoEntity {
 	@Override
 	default void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
 		// wink first, one-shots last: controllers tick in registration order and
-		// overwrite shared bones, so the always-looping wink yields to the hover and
-		// a strike covers the bones it shares with it
+		// overwrite shared bones
 		controllers.add(new AnimationController<>(asDoll(), WINK_CONTROLLER, 0, e -> e.setAndContinue(WINK)));
 		controllers.add(new AnimationController<>(asDoll(), ANIM_CONTROLLER, ANIM_TRANSITION, this::dollAnimController));
 		controllers.add(new AnimationController<>(asDoll(), ONE_SHOT_CONTROLLER, ANIM_TRANSITION, this::dollOneShotAnimController)
@@ -84,9 +78,7 @@ public interface DollGeo extends DollBaseImpl, GeoEntity {
 				.triggerableAnim("skill", SKILL));
 	}
 
-	/**
-	 * Client-side: play the one-shot for an entity event id.
-	 */
+	/** Client-side: play the one-shot for an entity event id. */
 	default void handleDollEvent(byte id) {
 		if (id == EVENT_ATTACK) triggerAnim(ONE_SHOT_CONTROLLER, "attack");
 		else if (id == EVENT_SLAP) triggerAnim(ONE_SHOT_CONTROLLER, "slap");
@@ -96,10 +88,9 @@ public interface DollGeo extends DollBaseImpl, GeoEntity {
 	}
 
 	/**
-	 * The lance swing, animation and voice together: {@code toy_attack} is silent on
-	 * its own, so {@link GLSounds#DOLL_LANCE} is what makes the strike audible. The
-	 * pitch is the entity's own vanilla voice jitter, which keeps a volley striking on
-	 * the same tick from stacking into one louder, phasey hit.
+	 * The lance swing, animation and voice together: {@code toy_attack} is silent, so
+	 * {@link GLSounds#DOLL_LANCE} makes the strike audible. The pitch is the entity's own vanilla
+	 * voice jitter, which keeps a same-tick volley from stacking into one louder, phasey hit.
 	 */
 	default void broadcastAttackAnim() {
 		broadcastStrike(EVENT_ATTACK, GLSounds.DOLL_LANCE);
@@ -145,9 +136,8 @@ public interface DollGeo extends DollBaseImpl, GeoEntity {
 	}
 
 	/**
-	 * The instance cache. The cache needs the entity, which modules never store (they
-	 * run before it exists). Synchronized: dolls construct on the server thread and
-	 * render on the client thread.
+	 * The instance cache. It needs the entity, which modules never store (they run before it
+	 * exists). Synchronized: dolls construct on the server thread and render on the client thread.
 	 */
 	final class DollGeoModule implements DollModule {
 

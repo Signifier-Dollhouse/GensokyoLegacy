@@ -38,9 +38,7 @@ public class FeedCharacterTrigger extends SimpleCriterionTrigger<FeedCharacterTr
 		);
 
 		/**
-		 * A criterion bound to whichever trigger id asked for it: one class is
-		 * registered under several ids, so the caller names the one it means rather
-		 * than the factory reaching for a fixed one.
+		 * A criterion bound to whichever trigger id asked for it, since one class is registered under several.
 		 *
 		 * @param trigger registered instance of this trigger to build the criterion against
 		 */

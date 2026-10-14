@@ -8,17 +8,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * The id → {@link DaggerGloveRune} table the glove stack and the flying dagger both read a rune
- * through. A glove stores a bare id rather than an object, so the rune has to survive a reload and
- * a client that never heard of it.
- * <p>
- * Two consequences, both deliberate: an id with nothing registered behind it reads as {@link #NONE}
- * rather than failing, so a glove that outlives its rune still works; and only the id is saved, so
- * runes are stateless singletons — a rune needing per-stack numbers has to grow a codec on the
- * component instead, which is the open question in dagger_glove.md §7. No rune is registered yet;
- * this class is the seam they go in.
+ * The id → {@link DaggerGloveRune} table the glove stack and the flying dagger both read through: only
+ * the id is saved, so a rune must survive a reload and an unknown id reads as {@link #NONE} rather than
+ * failing. A rune needing per-stack numbers has to grow a codec on the component (§7). None registered yet.
  *
- * @see doc/design/dagger_glove.md
+ * @see "doc/design/dagger_glove.md"
  */
 public class DaggerGloveRunes {
 

@@ -115,19 +115,10 @@ public class MiscEventHandlers {
 	}
 
 	/**
-	 * Backstop for the dimension lock on dolls and characters.
-	 * <p>
-	 * Both bases already refuse at {@code canUsePortal} /
-	 * {@code canChangeDimensions}, which covers every portal path (vanilla nether /
-	 * end / end gateway and the mod's own gap portal) because they all route
-	 * through {@code Entity#changeDimension}. This cancels the same transition one
-	 * step lower, for anything that reaches {@code changeDimension} without
-	 * asking first — a mixin, another mod, a scripted move. It is deliberately not
-	 * a way to reach {@code Entity#teleportTo(ServerLevel, ...)}, which the
-	 * {@code /tp} command uses for mobs and which never fires this event; that one
-	 * is left working on purpose, since an operator forcing an entity across is an
-	 * explicit act and the existing discard/respawn watchdogs already reconcile
-	 * the result.
+	 * Backstop for the dimension lock: both bases already refuse at {@code canUsePortal} / {@code canChangeDimensions},
+	 * covering every portal path, and this cancels the same transition one step lower for anything reaching {@code
+	 * Entity#changeDimension} without asking. <p> {@code /tp}'s {@code teleportTo} is left working on purpose - an
+	 * operator forcing a mob across is an explicit act the existing watchdogs already reconcile.
 	 */
 	@SubscribeEvent
 	public static void onTravelToDimension(EntityTravelToDimensionEvent event) {

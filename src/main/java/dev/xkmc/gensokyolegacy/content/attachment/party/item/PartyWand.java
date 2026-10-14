@@ -18,6 +18,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -26,6 +27,7 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
@@ -33,11 +35,13 @@ import java.util.List;
  * Debug wand: hover a dish to price it, click a table to simulate a send and hold the answer.
  * The answer lives on the item as a data component, which vanilla already syncs.
  *
- * @see doc/design/party/debug.md
+ * @see "doc/design/party/debug.md"
  */
 public class PartyWand extends Item implements IDebugOverlayWand {
 
-	/** How far the overlay will look for a food block to describe. */
+	/**
+	 * How far the overlay will look for a food block to describe.
+	 */
 	private static final double REACH = 6.0d;
 
 	public PartyWand(Properties properties) {
@@ -70,10 +74,9 @@ public class PartyWand extends Item implements IDebugOverlayWand {
 	}
 
 	/**
-	 * Summarise an already-planned outcome. Pure — it reads the plan and changes nothing.
-	 * <p>
-	 * Takes the {@link PartySend.Outcome} rather than planning itself, so a caller that has
-	 * already planned does not walk the room twice.
+	 * Summarise an already-planned outcome. Pure — it reads the plan and changes nothing, and takes the
+	 * {@link PartySend.Outcome} rather than planning itself, so a caller that has already planned
+	 * does not walk the room twice.
 	 */
 	public static PartyWandData readout(BlockPos table, PartySend.Outcome outcome) {
 		// the area rides along even on a refusal: that is where the host needs to see
@@ -83,19 +86,19 @@ public class PartyWand extends Item implements IDebugOverlayWand {
 		if (area == null || plan == null) return PartyWandData.refused(table, area);
 		// the chosen roster only, heaviest weight first: the readout says who would
 		// come, and nothing about how close any of them was
-		var guests = plan.pool().stream()
+		List<EntityType<?>> guests = new ArrayList<>(plan.pool().stream()
 				.filter(c -> plan.roster().contains(c.type()))
 				.sorted(Comparator.comparingInt(PartyPlanner.Candidate::weight).reversed())
 				.map(PartyPlanner.Candidate::type)
-				.toList();
+				.toList());
 		return new PartyWandData(table, area.tables(), area.seats(), area.food(),
 				plan.capacity(), plan.appeal(), guests);
 	}
 
 	/**
-	 * Record an outcome on the wand in this player's hand, if they are holding one. For
-	 * preview, which is a scan; a <em>send</em> deliberately does not go through here,
-	 * because silently rewriting a wand in the host's inventory is surprising.
+	 * Record an outcome on the wand in this player's hand, if they are holding one. Preview, which is a
+	 * scan, goes through here; a <em>send</em> deliberately does not, because silently rewriting a wand
+	 * in the host's inventory is surprising.
 	 *
 	 * @return whether a wand was there to record it
 	 */
@@ -112,10 +115,10 @@ public class PartyWand extends Item implements IDebugOverlayWand {
 	// --- overlay ---
 
 	/**
-	 * One reading at a time, and what the player is looking at wins: a character is her own
-	 * readout, a food block is the food readout, and the party detail is what is left over.
+	 * One reading at a time, and what the player is looking at wins: a character is her own readout,
+	 * a food block is the food readout, and the party detail is what is left over.
 	 *
-	 * @see doc/design/party/debug.md#4-one-reading-at-a-time
+	 * @see "doc/design/party/debug.md#4-one-reading-at-a-time"
 	 */
 	@Override
 	public void addTooltip(Player player, ItemStack stack, List<Component> lines, long gameTime) {
@@ -132,10 +135,8 @@ public class PartyWand extends Item implements IDebugOverlayWand {
 	}
 
 	/**
-	 * The hovered food block, if the player is looking at one worth reading.
-	 * <p>
-	 * One dish is described by its serving; a container holding several has no single serving
-	 * to describe and is described by its totals instead.
+	 * The hovered food block, if the player is looking at one worth reading. One dish is described
+	 * by its serving; a container holding several has no single serving and is described by its totals.
 	 *
 	 * @param allowInvalid whether to say so when there is a food block but nothing on it
 	 * @return whether the food branch owns the overlay, and nothing else should be added
@@ -186,8 +187,8 @@ public class PartyWand extends Item implements IDebugOverlayWand {
 	}
 
 	/**
-	 * The simulated party: what the scan found, what the spread is worth, and who the draw
-	 * chose. The weights and appetites behind the draw are not shown.
+	 * The simulated party: what the scan found, what the spread is worth, and who the draw chose.
+	 * The weights and appetites behind the draw are not shown.
 	 */
 	private void describeParty(Player player, PartyWandData data, List<Component> lines) {
 		var bound = data.bound();

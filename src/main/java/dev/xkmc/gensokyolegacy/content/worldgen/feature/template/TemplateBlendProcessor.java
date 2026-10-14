@@ -30,17 +30,8 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Blends a vegetation template into whatever is already there instead of stamping it:
- * <ul>
- * <li>trunk blocks ({@link GLTagGen#TEMPLATE_TRUNK}) replace soft blocks and dirt, so uphill roots
- * sink into the slope;</li>
- * <li>foliage (leaves, mushroom caps) only fills soft blocks and never eats foreign leaves;</li>
- * <li>attachments (vines, carpets, side mushrooms, hanging plants) only fill air and are dropped
- * when their support did not make it;</li>
- * <li>trunk blocks of layer 0 are extended downwards to the ground, so downhill roots never
- * float.</li>
- * </ul>
- * Templates carry no air, hence nothing is ever carved.
+ * Blends a vegetation template into what is already there and never carves - templates carry no air. Trunks replace
+ * soft blocks and dirt, foliage only soft blocks, attachments only air, layer 0 trunks reach the ground.
  */
 public class TemplateBlendProcessor extends StructureProcessor {
 
@@ -97,9 +88,8 @@ public class TemplateBlendProcessor extends StructureProcessor {
 	}
 
 	/**
-	 * Vanilla builds {@code original} (template local) and {@code processed} (world) in lockstep,
-	 * so index {@code i} refers to the same block in both. The lists returned by this method are
-	 * not aligned any more (roots added, attachments dropped): this processor must run first.
+	 * Vanilla builds {@code original} (template local) and {@code processed} (world) in lockstep, so index {@code i}
+	 * names the same block in both; the lists returned here are not aligned, so this processor must run first.
 	 */
 	@Override
 	public List<StructureBlockInfo> finalizeProcessing(

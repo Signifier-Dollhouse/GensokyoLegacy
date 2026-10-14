@@ -53,18 +53,14 @@ public class SmartYoukaiEntity extends YoukaiEntity {
 	}
 
 	/**
-	 * Whether, in {@code activity}, she may pick a fight with somebody she can see but
-	 * has no queued reason to fight yet.
+	 * Whether, in {@code activity}, she may pick a fight with somebody she can see but has no queued reason to.
 	 *
 	 * <p>
-	 * Idle and play are her own time: being left standing about with an enemy in
-	 * sight is an invitation to start something. Every other activity - a conversation,
-	 * a task at home, a nap, a hunt already tracking its own prey - is either a reason
-	 * to be somewhere specific or a reason to leave the choice of target to somebody
-	 * else, so the task only serves the targets she already holds.
-	 * {@code YoukaiAcquireTargetTask} asks this per tick, so a character may extend the
-	 * set by overriding; Maiden adds {@link GLBrains#AT_HOME}, Cirno adds
-	 * {@link GLBrains#HUNT}.
+	 * Idle and play are her own time: standing about with an enemy in sight invites something. Every other
+	 * activity - a conversation, a task at home, a nap, a hunt tracking its own prey - is a reason to be
+	 * somewhere specific or to leave target choice to somebody else, so only the targets she holds are served.
+	 * Asked per tick, so a character may extend the set by overriding: Maiden adds {@link GLBrains#AT_HOME},
+	 * Cirno {@link GLBrains#HUNT}.
 	 */
 	public boolean shouldSearchTarget(Activity activity) {
 		return activity == Activity.IDLE || activity == Activity.PLAY;
@@ -76,22 +72,13 @@ public class SmartYoukaiEntity extends YoukaiEntity {
 	protected void customServerAiStep() {
 		super.customServerAiStep();
 		getBrain().tick((ServerLevel) level(), Wrappers.cast(this));
-		// Stale-sleep watchdog: sleep is owned by YoukaiSleepTask, which only runs
-		// under REST. If the entity still sleeps without it (e.g. unloaded asleep
-		// at night, reloaded during the day), the task never stops to wake it and
-		// it would wander around in sleeping pose. Wake in that case.
+		// Stale-sleep watchdog: YoukaiSleepTask only runs under REST, so an entity that loaded asleep
+		// would wander in sleeping pose for ever — the task never stops to wake it.
 		if (isSleeping() && getActivity() != Activity.REST) {
 			stopSleeping();
 		}
-		// The same class of bug for the nap. YoukaiNapTask#canStillUse notices a nap
-		// being preempted every tick, so this only catches what it cannot: a brain
-		// rebuilt while she was down (invalidateBrain on a dimension change) drops
-		// the task instance without ever stopping it, and the pose - which the client
-		// reads from the synced flag and nothing else - would outlive the activity
-		// that owns it. A conversation is not a preemption: the nap task holds the
-		// pose across one on purpose, so TALK is spelled out here rather than the
-		// test being left to look like it should say "not NAP" and mean "not NAP
-		// and not talking".
+		// The same class of bug for the nap: a brain rebuilt while she was down drops the task instance without
+		// stopping it, so the pose the client reads outlives its activity. TALK is excluded on purpose.
 		if (getFlag(YoukaiFlags.NAPPING)) {
 			var activity = getActivity();
 			if (activity != GLBrains.NAP.get() && activity != GLBrains.TALK.get())
@@ -101,13 +88,11 @@ public class SmartYoukaiEntity extends YoukaiEntity {
 
 	/**
 	 * How readily she lies down and does nothing when she has nothing to do.
-	 *
 	 * <p>
-	 * Rolled once per idle stretch by {@code YoukaiDoNothing}, which offers the nap
-	 * before the outdoor idle fidget and shares its ten-second cooldown with it. Zero -
-	 * the default, and what every character but Suika returns - means she never naps.
-	 * A win is not instant: it sets {@link GLBrains#MEM_NAP} for five to twenty seconds,
-	 * and the brain puts her in {@link GLBrains#NAP} on the next tick.
+	 * Rolled once per idle stretch by {@code YoukaiDoNothing}, which offers the nap before the outdoor idle
+	 * fidget and shares its ten-second cooldown with it. Zero - the default, and what every character but Suika
+	 * returns - means she never naps. A win sets {@link GLBrains#MEM_NAP} for five to twenty seconds, and the
+	 * brain puts her in {@link GLBrains#NAP} on the next tick.
 	 */
 	public float napChance() {
 		return 0;
@@ -121,12 +106,10 @@ public class SmartYoukaiEntity extends YoukaiEntity {
 
 	/**
 	 * A party guest walks.
-	 *
 	 * <p>
-	 * Both the walk and the fly control are live on these entities and the fly one wins an
-	 * order given while airborne, so a guest would fly to her chair instead of walking to
-	 * it. The party flag rather than the activity, because a visit outlives any single
-	 * activity and the flag is what {@link PartyModule} actually knows by.
+	 * Both controls are live here and the fly one wins an order given while airborne, so a guest would fly
+	 * to her chair. The party flag rather than the activity: a visit outlives any single activity, and the
+	 * flag is what {@link PartyModule} knows by.
 	 */
 	@Override
 	public boolean mayFly() {
@@ -221,9 +204,8 @@ public class SmartYoukaiEntity extends YoukaiEntity {
 			return !isSleeping() && !isAggressive();
 		}
 		if (getActivity() == Activity.REST) return false;
-		// FIGHT is priority 0, so this covers it as a case rather than a special
-		// one: nothing she would rather be doing than a conversation may be
-		// interrupted for a conversation
+		// FIGHT is priority 0, so this covers it as a case rather than a special one: nothing she
+		// would rather be doing than a conversation may be interrupted for a conversation
 		return !outrankedBy(GLBrains.TALK.get());
 	}
 
@@ -233,16 +215,13 @@ public class SmartYoukaiEntity extends YoukaiEntity {
 	}
 
 	/**
-	 * Whether whatever she is doing now is more urgent than {@code activity}, in which
-	 * case nothing belonging to that activity may be started on her.
+	 * Whether whatever she is doing now is more urgent than {@code activity}, in which case nothing belonging
+	 * to that activity may be started on her.
 	 * <p>
-	 * Same activity is never an outranking: a character already doing the thing is the
-	 * one case where the interaction should go ahead. Everything else is a straight
-	 * comparison - FEAST(200) while eating outranks TALK(300), so talking is refused
-	 * until the cake is gone; FEAR(100) outranks both, so neither is offered at all
-	 * until she has stopped running. NAP(500) is the one that is <em>not</em> refused:
-	 * lying down is not a reason not to answer somebody, and {@code YoukaiNapTask}
-	 * holds the pose across the conversation that follows.
+	 * The same activity is never an outranking: already doing the thing is the one case where the interaction
+	 * should go ahead. Otherwise a straight comparison - FEAST(200) outranks TALK(300), FEAR(100) outranks
+	 * both. NAP(500) is the one <em>not</em> refused: lying down is no reason not to answer somebody, and
+	 * {@code YoukaiNapTask} holds the pose across the conversation that follows.
 	 */
 	protected boolean outrankedBy(Activity activity) {
 		var current = getActivity();
@@ -251,9 +230,8 @@ public class SmartYoukaiEntity extends YoukaiEntity {
 	}
 
 	/**
-	 * The number an activity was registered with, lowest wins. Falls back to sorting
-	 * below everything before the board exists, so that a character asked during
-	 * construction is never wrongly considered busy.
+	 * The number an activity was registered with, lowest wins. Falls back to sorting below everything
+	 * before the board exists, so a character asked during construction is never wrongly considered busy.
 	 */
 	protected int priorityOf(Activity activity) {
 		return board == null ? Integer.MAX_VALUE : board.priorityOf(activity);

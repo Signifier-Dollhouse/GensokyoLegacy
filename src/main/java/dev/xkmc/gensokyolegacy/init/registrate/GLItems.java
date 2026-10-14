@@ -127,10 +127,8 @@ public class GLItems {
 
 	private static final DCReg DC = DCReg.of(GensokyoLegacy.REG);
 	public static final DCVal<HakkeroPrototype.Data> DC_HAKKERO_PROTOTYPE = DC.reg("mini_furnace_1_data", HakkeroPrototype.Data.class, false);
-	// all four constants, not just the lit ones: EnumCodec writes the enum ordinal and reads it
-	// back as an index into the array it was given, so a subset decodes every mode to the wrong
-	// one and BLAST (ordinal 3) out of bounds entirely. OFF is still never stored here — the
-	// sealed firebox only ever cycles lit modes (HakkeroMode#nextLit).
+	// all four constants, not just the lit ones: EnumCodec writes the enum ordinal and reads it back as an
+	// index into the array it was given, so a subset decodes every mode to the wrong one. OFF is never stored.
 	public static final DCVal<HakkeroMode> DC_HAKKERO_MODE = DC.enumVal("mini_furnace_2_mode", EnumCodec.of(HakkeroMode.class, HakkeroMode.values()));
 	public static final DCVal<HakkeroData> DC_HAKKERO_INV = DC.reg("mini_furnace_2_inv", HakkeroData.class, false);
 	public static final DCVal<UUID> DC_UUID = DC.uuid("uuid");
@@ -295,9 +293,8 @@ public class GLItems {
 					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(5, 1000, GiftType.DRINK))
 					.lang("Ghost Sake").register();
 
-			// Suika's gourd: the ghost sake poured into something with no bottom. Same drink,
-			// same effects, and nothing ever runs out — the stack goes back into the hand
-			// untouched (see GourdItem) rather than emptying into a glass bottle.
+			// Suika's gourd: the ghost sake poured into something with no bottom. Same drink and effects, and
+			// nothing ever runs out — the stack goes back into the hand untouched (see GourdItem).
 			IBUKI_GOURD = reg.item("ibuki_gourd", p -> new GourdItem(p.stacksTo(1).food(gourd(
 							new MobEffectInstance(MobEffects.DAMAGE_BOOST, 600, 1),
 							new MobEffectInstance(MobEffects.FIRE_RESISTANCE, 600, 0)))))
@@ -377,10 +374,8 @@ public class GLItems {
 								.model(pvd.withExistingParent("item/" + ctx.getName() + "_open", "item/handheld").
 										texture("layer0", pvd.modLoc("item/border_umbrella/" + ctx.getName() + "_open")))
 								.end();
-						// icon variants for the wheel display stacks (cf. glove_display):
-						// vanilla reverses the override list at bake time and returns the
-						// first match with >= per predicate, so emit ascending values for
-						// exact per-mode matching; plain stacks keep value 0 (base model)
+						// icon variants for the wheel display stacks (cf. glove_display): vanilla reverses the
+						// override list at bake time, so emit ascending values; plain stacks keep value 0
 						var modes = BorderUmbrellaMode.values();
 						for (int i = 0; i < modes.length; i++) {
 							base.override()
@@ -412,11 +407,8 @@ public class GLItems {
 					.tag(L2ISTagGen.SELECTABLE)
 					.register();
 
-			// The lance is a hand-authored Blockbench model with real elements — a 28-unit
-			// polearm along +Z, which neither `handheld` nor `generated` can express — so it
-			// lives in src/main/resources/models/custom and is wired up as the base, i.e. every
-			// display context but GUI. The GUI gets the flat 16x16 icon instead: a 28-unit
-			// lance has no transform that lands it inside a 16px slot.
+			// The lance is a hand-authored Blockbench model with real elements — a 28-unit polearm along +Z, which
+			// neither `handheld` nor `generated` can express — so it is the base, GUI taking the 16x16 icon.
 			DOLL_LANCE = reg.item("doll_lance", DollLanceItem::new)
 					.model((ctx, pvd) -> {
 						var base = pvd.nested()
@@ -462,11 +454,8 @@ public class GLItems {
 					.lang("Star Wand").tab(TAB.key())
 					.register();
 
-			// 3D model hand-written in models/custom, so only wire up the parent here. Split with
-			// SeparateTransformsModelBuilder and gui_light: front (the same shape as DOLL_LANCE),
-			// because the two halves want opposite things: the base is the modelled dagger, which
-			// is what every display except the gui wants, and the gui gets the flat 16x16 icon
-			// instead, since a modelled blade has no transform that lands it inside a 16px slot.
+			// 3D model hand-written in models/custom, so only wire up the parent here. SeparateTransformsModelBuilder
+			// with gui_light: front is the modelled dagger (every display but the gui), the gui the flat 16x16 icon.
 			IRON_DAGGER = reg.item("iron_dagger", IronDaggerItem::new)
 					.model((ctx, pvd) -> {
 						var base = pvd.nested()
@@ -484,11 +473,8 @@ public class GLItems {
 					.lang("Iron Dagger").tab(TAB.key())
 					.register();
 
-			// The glove's held model carries a predicate override per mode rather than a flat
-			// layer0, so per-mode art can be dropped into the four texture paths without
-			// touching the wheel, which renders real glove stacks and names the hovered mode
-			// (dagger_glove.md §6). Today every mode wears the same texture. The held half is
-			// the mitten the doll glove shares (DaggerGloveModel).
+			// The glove's held model carries a predicate override per mode rather than a flat layer0, so per-mode art
+			// can be dropped in without touching the wheel; the held half is the mitten DaggerGloveModel shares.
 			DAGGER_GLOVE = reg.item("dagger_glove", p -> new DaggerGloveItem(p.stacksTo(1)))
 					.model(DaggerGloveModel::model)
 					.lang("Dagger Glove").tab(TAB.key())
@@ -513,9 +499,8 @@ public class GLItems {
 					.lang("Strange Glasses").tab(TAB.key())
 					.register();
 
-			// Worn in the chest armor slot, not the curios back slot alone, so it still works with
-			// curios absent. The two are alternatives; which one is in use is answered at draw time
-			// by CuriosManager#hasWings, which reads both.
+			// Worn in the chest armor slot, not the curios back slot alone, so it still works with curios
+			// absent. Both are alternatives; which is in use is answered at draw time by CuriosManager#hasWings.
 			ICE_WINGS = reg.item("ice_wings", p -> new IceWingsItem(p.rarity(Rarity.EPIC)))
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/curio/" + ctx.getName())))
 					.tag(back)
@@ -569,22 +554,16 @@ public class GLItems {
 				.texture("layer1", pvd.modLoc("item/doll/doll1"));
 	}
 
-	/**
-	 * The food properties of a bottle of sake. It feeds nothing (no nutrition, so it is never
-	 * mistaken for a meal by the party food system), it can be drunk on a full stomach, it
-	 * leaves an empty glass bottle behind, and every effect is rolled on the last gulp.
-	 */
+	/** The food properties of a bottle of sake. It feeds nothing (no nutrition, so the party food system never
+	 *  mistakes it for a meal), is drinkable on a full stomach, leaves an empty glass bottle behind, and rolls
+	 *  every effect on the last gulp. */
 	private static FoodProperties sake(MobEffectInstance... effects) {
 		return sake(true, effects);
 	}
 
-	/**
-	 * The same drink poured into something with no bottom to it. Still always drinkable,
-	 * still no nutrition, still the same effects — but nothing is left behind, because
-	 * {@link GourdItem} puts the gourd back where it was rather than emptying it. Without
-	 * this the player would be handed a glass bottle per sip and the "infinite" would read
-	 * as a bottling machine rather than as a gourd.
-	 */
+	/** The same drink poured into something with no bottom to it. Still always drinkable and still no nutrition,
+	 *  but nothing is left behind: {@link GourdItem} puts the gourd back where it was. Without this the player
+	 *  would get a glass bottle per sip, and the "infinite" would read as a bottling machine. */
 	private static FoodProperties gourd(MobEffectInstance... effects) {
 		return sake(false, effects);
 	}

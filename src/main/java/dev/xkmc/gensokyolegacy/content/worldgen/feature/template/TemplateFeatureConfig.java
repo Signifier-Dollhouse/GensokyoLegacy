@@ -18,9 +18,9 @@ import java.util.List;
 import java.util.stream.Stream;
 
 /**
- * @param templates       weighted structure templates. Convention (enforced by tools/template_export):
- *                        the anchor (trunk / stem base) is the centre of the bottom face, layer 0 is
- *                        the first layer above ground, no air blocks, reach from the anchor &lt;= 15
+ * @param templates       weighted structure templates. Convention (enforced by tools/template_export): the anchor
+ *                        (trunk / stem base) is the centre of the bottom face, layer 0 the first layer above
+ *                        ground, no air blocks, reach from the anchor &lt;= 15
  * @param processors      extra processors, run after the built-in {@link TemplateBlendProcessor}
  * @param ground          blocks the anchor may stand on
  * @param footprintRadius distance of the 8 terrain samples around the anchor

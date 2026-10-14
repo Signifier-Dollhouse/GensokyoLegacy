@@ -34,29 +34,8 @@ import java.util.List;
 import java.util.function.Supplier;
 
 /**
- * A fairy is fed, and what she gives back is a matter of what she was given.
- * <p>
- * Deliberately not the generic {@link FeedModule}: a dish is worth a flat amount
- * here instead of a favor scaled off its nutrition, the ceiling is one feeding
- * alone cannot push past, and a well-fed fairy hands something over on the way in.
- * Anything she does not eat falls through to the next module, and with no
- * {@link TalkModule} on a fairy there is nothing after it - an empty hand is
- * simply not a conversation.
- * <p>
- * Two tiers, not a list of dishes: a cookie is a snack and a cake of either kind is
- * a meal - {@link #COOKIE_REPUTATION} against {@link #CAKE_REPUTATION}, and a flower
- * against a fairy dust, which is what the fairy cake is made from. So the cheap
- * thing you can carry buys a flower, and the expensive one feeds the cake loop.
- * <p>
- * Food does the same thing for a player she is still hostile towards, minus the
- * gifts - see {@link #feed}.
- * <p>
- * Shared with every fairy rather than being the plain fairy's alone: Cirno carries
- * it too and is fed on exactly these terms, so the two tiers, the reputation and
- * the twenty-second cooldown are one set of numbers for the pair. What she hands
- * back is the single thing she does <em>not</em> share - see
- * {@link #cakeGift()} and {@link #cookieGift()}, which is why
- * {@code CirnoFeedModule} is a subclass and nothing here is a table.
+ * A fairy is fed, and what she gives back depends on what she was given. Not the generic
+ * {@link FeedModule}: a dish is worth a flat amount, and a well-fed fairy hands something over on the way in.
  */
 @SerialClass
 public class FairyFeedModule extends AbstractYoukaiModule {
@@ -70,10 +49,8 @@ public class FairyFeedModule extends AbstractYoukaiModule {
 	public static final int CAKE_REPUTATION_CAP = 100;
 
 	/**
-	 * Reputation one cookie is worth, against ten for a cake. Deliberately small: it is
-	 * not a slower cake but a different, cheaper thing to hand over, and the flower it
-	 * buys back is the cheap half of the trade on purpose. Climbing out of hostility is
-	 * what cake is for; a cookie is what you feed her once she is already willing.
+	 * Reputation one cookie is worth, against ten for a cake. Not a slower cake but a cheaper, different
+	 * trade: the flower it buys back is the cheap half on purpose. Climbing out of hostility is cake's job.
 	 */
 	public static final int COOKIE_REPUTATION = 1;
 
@@ -83,28 +60,21 @@ public class FairyFeedModule extends AbstractYoukaiModule {
 	private static final int COOL_DOWN = 400;
 
 	/**
-	 * Backstop on the feed memory, in case the task never runs and nothing clears it.
-	 * Comfortably longer than the eating animation, so it only catches the case where
-	 * the behavior itself never started - a memory left in place would otherwise sit
-	 * there and hand the next dish to an animation that already ran.
+	 * Backstop on the feed memory, in case the task never runs and nothing clears it. Comfortably
+	 * longer than the eating animation, so it only catches a behavior that never started.
 	 */
 	private static final int FEED_TTL = 200;
 
 	/**
-	 * The handoff into {@link GLBrains#MEM_FEED}: who was fed, and the exact stack she
-	 * owes them for it.
-	 * <p>
-	 * The gift travels with the memory rather than being re-derived from the food at
-	 * the far end, because one of the two is a roll: she reaches for <em>that</em>
-	 * flower once she has finished chewing, not for whatever comes up next.
+	 * The handoff into {@link GLBrains#MEM_FEED}: who was fed and the exact stack she owes. The gift rides
+	 * with the memory rather than being re-derived, since the flower is a roll: she reaches for <em>that</em> one.
 	 */
 	public record Fed(Player player, ItemStack gift) {
 	}
 
 	/**
-	 * What she makes of a given dish: the reputation it is worth and what she hands
-	 * back for it. Rolled per feeding rather than held in a table, since the flower is
-	 * a die roll.
+	 * What she makes of a given dish: the reputation it is worth and what she hands back for it. The
+	 * gift is rolled per feeding rather than held in a table, since the flower is a die roll.
 	 */
 	private record Dish(int reputation, Supplier<ItemStack> gift) {
 	}
@@ -129,26 +99,16 @@ public class FairyFeedModule extends AbstractYoukaiModule {
 	}
 
 	/**
-	 * The thank-you for a cake, on the plain fairy's terms: the fairy dust a cake
-	 * is worth is what the cake is made of in the first place, so the meal and the
-	 * payment are the same ingredient.
-	 * <p>
-	 * Overridden where a fairy's answer is not dust - {@code CirnoFeedModule} hands
-	 * back a whole crystal instead, which is the only thing she makes by hand and so
-	 * the only gift she can give that means anything to whoever feeds her.
+	 * The thank-you for a cake: the dust is what the cake is made of, so meal and payment are the same
+	 * ingredient. Overridden where the answer is not dust — {@code CirnoFeedModule} hands back a crystal.
 	 */
 	protected ItemStack cakeGift() {
 		return new ItemStack(GLItems.FAIRY_DUST.get());
 	}
 
 	/**
-	 * The thank-you for a cookie: one flower out of {@link ItemTags#FLOWERS}, of
-	 * which a datapack can leave an empty tag - poppy is the fallback rather than an
-	 * exception, because the whole point of this is that something always lands at
-	 * their feet.
-	 * <p>
-	 * Rolled per feeding rather than cached, so two cookies handed over in a row can
-	 * come back as two different flowers.
+	 * The thank-you for a cookie: one flower out of {@link ItemTags#FLOWERS}, of which a datapack can leave
+	 * an empty tag — poppy is the fallback, since something always has to land at their feet. Rolled per feeding.
 	 */
 	protected ItemStack cookieGift() {
 		return new ItemStack(randomFlower());
@@ -163,14 +123,8 @@ public class FairyFeedModule extends AbstractYoukaiModule {
 	}
 
 	/**
-	 * The dish a given stack is to her, or null for anything she will not eat. The one
-	 * place a stack is turned into what feeding it costs and pays, and the only place
-	 * that rolls a gift - so the roll belongs to her own random source.
-	 * <p>
-	 * The gift itself is a method rather than a stack built inline here: which stack
-	 * comes back is the one thing that differs between a fairy and the fairy who
-	 * crafts ice, so it is the one thing left overridable. Everything else - the two
-	 * tiers, the reputation, the cap, the cooldown - is shared and stays in this class.
+	 * The dish a given stack is to her, or null for anything she will not eat — the one place a stack
+	 * becomes what feeding it costs and pays. The gift stays a method so Cirno's crystal stays overridable.
 	 */
 	private @Nullable Dish dish(ItemStack stack) {
 		if (isCake(stack)) return new Dish(CAKE_REPUTATION, this::cakeGift);
@@ -180,9 +134,8 @@ public class FairyFeedModule extends AbstractYoukaiModule {
 
 	@Override
 	public InteractionResult interact(Player player, InteractionHand hand) {
-		// gated on FEAST, not on the blanket rule: she will not be fed mid-panic, and
-		// she will still be fed mid-conversation, neither of which the blanket rule can
-		// tell apart
+		// gated on FEAST, not on the blanket rule: she will not be fed mid-panic, but
+		// will still be fed mid-conversation, which the blanket rule cannot tell apart
 		ItemStack stack = player.getItemInHand(hand);
 		if (!isFood(stack)) return InteractionResult.PASS;
 		if (!self.mayInteract(player, GLBrains.FEAST.get())) return InteractionResult.FAIL;
@@ -195,9 +148,8 @@ public class FairyFeedModule extends AbstractYoukaiModule {
 		if (dish == null) return InteractionResult.FAIL;
 		boolean welcomed = feed(sp, stack, dish);
 		stack.shrink(1);
-		// only a welcomed dish starts the timer: a player working their way back
-		// out of the hole has to be able to keep feeding, or one cake every twenty
-		// seconds is a long walk back from a bad reputation
+		// only a welcomed dish starts the timer: a player working their way back out
+		// of the hole must keep feeding, or one cake every twenty seconds is a long walk
 		if (welcomed) feedCoolDown += COOL_DOWN;
 		self.level().broadcastEntityEvent(self, EntityEvent.IN_LOVE_HEARTS);
 		self.playSound(stack.getEatingSound());
@@ -205,30 +157,20 @@ public class FairyFeedModule extends AbstractYoukaiModule {
 	}
 
 	/**
-	 * Whether food counts as a gift for this player or merely as a meal: the question
-	 * is whether she is still their enemy, which is the same line at which she starts
-	 * accepting their hits. Both this module and {@code FairyFeedTask} ask it, since
-	 * the cooldown is decided here and the gift is handed over there.
+	 * Whether food counts as a gift or merely as a meal: whether she is still their enemy, the same
+	 * line at which she starts accepting their hits. Both this module and {@code FairyFeedTask} ask it.
 	 */
 	public static boolean welcomed(CharacterData data) {
 		return data.reputation > ReputationConstants.COMBAT_SAFE_THRESHOLD;
 	}
 
 	/**
-	 * A dish is worth the same at any reputation, but it is not <em>received</em> the
-	 * same way. While she still counts the player as an enemy the food is only that:
-	 * reputation goes up, but there is no gift and no cooldown, so the player can keep
-	 * feeding until she is back at zero and the next dish lands as a gift.
-	 * Without that, making amends would take a dozen cakes - or several hundred
-	 * cookies, at {@link #COOKIE_REPUTATION} - and twenty seconds of standing still
-	 * each.
-	 * <p>
-	 * Eating and handing something back are two beats apart, so nothing is thrown
-	 * from here: the player is left in {@link GLBrains#MEM_FEED} and
-	 * {@code FairyFeedTask} plays the first beat, then the second.
+	 * Worth the same at any reputation, but not <em>received</em> the same way: while she counts the
+	 * player an enemy there is no gift and no cooldown, so they can keep feeding until one lands as a gift.
+	 * The throw itself is {@code FairyFeedTask}'s, two beats later.
 	 *
-	 * @param stack the dish as handed over, passed to the criterion trigger before the
-	 *              stack is shrunk: an empty stack would match no item predicate
+	 * @param stack the dish as handed over, passed to the criterion trigger before the stack is
+	 *              shrunk: an empty stack would match no item predicate
 	 * @return whether it counted as a peace offering, i.e. she was not hostile
 	 */
 	private boolean feed(ServerPlayer sp, ItemStack stack, Dish dish) {
@@ -251,12 +193,8 @@ public class FairyFeedModule extends AbstractYoukaiModule {
 	}
 
 	/**
-	 * The thank-you. One flower at random out of the vanilla flower tag, or the fairy
-	 * dust a cake earned - tossed at the player so it lands at their feet rather than
-	 * appearing there.
-	 * <p>
-	 * Public because {@code FairyFeedTask} is what decides <em>when</em> she reaches
-	 * for it - it is only fair if the gift arrives after she has eaten.
+	 * The thank-you, tossed so it lands at the player's feet rather than appearing there. Public because
+	 * {@code FairyFeedTask} decides <em>when</em> she reaches for it — the gift is only fair after she eats.
 	 */
 	public void throwGift(Player player, ItemStack gift) {
 		var item = new ItemEntity(self.level(), self.getX(), self.getEyeY() - 0.1, self.getZ(), gift);
@@ -266,11 +204,8 @@ public class FairyFeedModule extends AbstractYoukaiModule {
 	}
 
 	/**
-	 * Flight time scales with range, so a nearby gift is a lob and a far one is an
-	 * arc. The vertical lead is deliberately partial: a thrown item sheds 1% of
-	 * its speed every tick, so the throw lands a little short of the target
-	 * rather than sailing over its head - the gift drops at their feet and is
-	 * picked up from there.
+	 * Flight time scales with range, so a nearby gift is a lob and a far one an arc. The vertical lead is
+	 * deliberately partial: a thrown item sheds 1% of its speed per tick, so the gift lands short.
 	 */
 	private static void aim(ItemEntity gift, Vec3 from, Vec3 to) {
 		int ticks = (int) Mth.clamp(Math.sqrt(from.distanceToSqr(to)) * 5.0, 10.0, 40.0);
@@ -283,13 +218,8 @@ public class FairyFeedModule extends AbstractYoukaiModule {
 	}
 
 	/**
-	 * One flower out of {@link ItemTags#FLOWERS}, of which a datapack can leave an
-	 * empty tag - poppy is the fallback rather than an exception, because the whole
-	 * point of this is that something always lands at their feet.
-	 * <p>
-	 * Walks the item registry every time rather than caching the list: it is one scan
-	 * per cookie fed, and a cached list would go stale against a datapack that edits
-	 * the tag.
+	 * One flower out of {@link ItemTags#FLOWERS}, of which a datapack can leave an empty tag — poppy is the
+	 * fallback, not an exception. Walks the registry each time so the list cannot go stale against a datapack.
 	 */
 	private Item randomFlower() {
 		List<Item> flowers = new ArrayList<>();

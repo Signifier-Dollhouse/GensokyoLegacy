@@ -12,11 +12,8 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 
 import static net.minecraft.world.level.block.HorizontalDirectionalBlock.FACING;
 
-/**
- * Pot silhouette, kept as its own method so other blocks can reuse it.
- *
- * @see doc/design/barriers.md
- */
+/** Pot silhouette, kept as its own method so other blocks can reuse it.
+ * @see "doc/design/barriers.md" */
 public class SealingPotShape implements ShapeBlockMethod {
 
 	public static final VoxelShape SHAPE_NS = Shapes.or(

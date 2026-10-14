@@ -26,8 +26,7 @@ import java.util.Set;
  * which is the only one that can path from where she actually is.
  * <p>
  * She re-picks rather than committing to one bearing, which is what makes it read
- * as running around instead of bolting in a straight line, and she stops once the
- * attacker is far enough behind to no longer be worth running from.
+ * as running around instead of bolting in a straight line.
  */
 public class FairyFleeTask extends Behavior<PlainFairyEntity> {
 
@@ -46,9 +45,8 @@ public class FairyFleeTask extends Behavior<PlainFairyEntity> {
 	/**
 	 * Unused as a speed, but the route still has to be handed over with one. The
 	 * flying move control takes her speed off the FLYING_SPEED attribute whenever
-	 * she is airborne - which she always is - so the modifier here changes nothing
-	 * about how fast she goes; see {@link PlainFairyEntity#FLEE_MULTIPLIER} for
-	 * where the panic speed actually lives.
+	 * she is airborne - which she always is - so the modifier here changes nothing;
+	 * see {@link PlainFairyEntity#FLEE_MULTIPLIER} for the panic speed itself.
 	 */
 	private static final float ROUTE_SPEED = 1.0f;
 
@@ -71,14 +69,12 @@ public class FairyFleeTask extends Behavior<PlainFairyEntity> {
 
 	/**
 	 * She keeps running for as long as she remembers the hit, even once she has put
-	 * the ground between them - the fear memory's own expiry is what ends it, not the
-	 * attacker going out of sight.
+	 * the ground between them - the fear memory's own expiry is what ends it.
 	 * <p>
 	 * The activity check is load-bearing, not decoration. Changing activity does not
-	 * stop behaviors - {@code Brain} only sets the new activity and moves on - so a
-	 * behavior has to notice itself being outranked. Without it, being handed food
-	 * would leave her sprinting away for the rest of the memory's life with both
-	 * tasks writing to the same navigation.
+	 * stop behaviors, so a behavior has to notice itself being outranked. Without it,
+	 * being handed food would leave her sprinting away with both tasks writing to
+	 * the same navigation.
 	 */
 	@Override
 	protected boolean canStillUse(ServerLevel level, PlainFairyEntity entity, long gameTime) {
@@ -111,15 +107,14 @@ public class FairyFleeTask extends Behavior<PlainFairyEntity> {
 
 	/**
 	 * Point her at a spot behind her, and hand the route over. A bearing that does
-	 * not path anywhere gets another go with a different one - a single unlucky
-	 * direction must not be the difference between running and standing still.
+	 * not path anywhere gets another go - a single unlucky direction must not be
+	 * the difference between running and standing still.
 	 */
 	private static void run(ServerLevel level, PlainFairyEntity entity) {
 		var attacker = attacker(entity);
 		if (attacker == null) return;
 		// fleeing is the one behaviour that reaches past mayFly for the flying navigation
-		// directly, so the gate has to be repeated here: a party guest walks, and a guest
-		// who cannot walk away simply stands and takes it
+		// directly, so the gate is repeated here: a guest who cannot walk stands and takes it
 		if (!entity.mayFly()) {
 			entity.getNavigation().stop();
 			return;
@@ -142,8 +137,7 @@ public class FairyFleeTask extends Behavior<PlainFairyEntity> {
 	/**
 	 * Open ground behind her, on a bearing nudged off dead-straight so that a run
 	 * curves rather than tracing a line. One block up off the heightmap, because
-	 * that is where she hovers - and a flying node wants air, not the floor she is
-	 * hovering over.
+	 * that is where she hovers - and a flying node wants air, not the floor.
 	 */
 	private static BlockPos spot(ServerLevel level, PlainFairyEntity entity, LivingEntity attacker) {
 		double away = Math.atan2(entity.getZ() - attacker.getZ(), entity.getX() - attacker.getX());

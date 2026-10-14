@@ -6,18 +6,10 @@ import net.minecraft.server.level.ServerLevel;
 
 
 /**
- * The party is over: stand up, then go.
+ * The party is over: stand up, then go. Unseating and walking are separate and the wait is drawn
+ * per guest, so a table does not empty inside one tick.
  *
- * <p>
- * The first line of the cascade, so anything that can end a visit is the same thing here:
- * arm the departure and let the gate find it.
- *
- * <p>
- * Unseating and walking are separate so a table does not empty inside one tick, and the wait
- * is drawn per guest for the same reason. Everything after the walk is the module's business:
- * where a summoned clone goes, and what happens to a character who came as herself.
- *
- * @see doc/design/party/guest.md
+ * @see "doc/design/party/guest.md"
  */
 public class LeaveTask extends PartyTask {
 

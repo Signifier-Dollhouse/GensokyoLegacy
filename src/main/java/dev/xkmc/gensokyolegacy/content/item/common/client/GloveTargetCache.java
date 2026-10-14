@@ -23,20 +23,19 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * Client-side ray-trace target cache (glove.md §2), shared by every {@link GloveTargeting} glove —
- * the doll glove and the dagger glove's homing mode (dagger_glove.md §2d).
+ * Client-side ray-trace target cache (glove.md §2), shared by every {@link GloveTargeting} glove - the doll
+ * glove and the dagger glove's homing mode (dagger_glove.md §2d).
  * <p>
- * While the local player holds one, the crosshair entity within the glove's own range is cached
- * per glove item and re-synced to the server on every trace hit; the cached target glows through
- * {@code ClientGlowManager} in the held mode's colour. Stale entries linger until the TTL instead
- * of flickering on every miss — the server re-validates anyway.
+ * While the local player holds one, the crosshair entity within the glove's own range is cached per glove
+ * item, re-synced to the server on every hit and glowing through {@code ClientGlowManager} in the held
+ * mode's colour. Stale entries linger until the TTL rather than flickering on every miss, since the server
+ * re-checks anyway.
  * <p>
- * One entry per glove rather than one slot for the whole player: both hands tick in the same call,
- * and two gloves trace with different ranges, wall rules and predicates, so a shared slot would
- * have them overwrite each other. Driven by one client tick rather than {@code Item#inventoryTick},
- * which every glove would otherwise override identically.
+ * One entry per glove, not one slot for the player: both hands tick in the same call and trace with different
+ * ranges, wall rules and predicates. One client tick drives it, rather than an {@code Item#inventoryTick}
+ * every glove would otherwise override identically.
  *
- * @see doc/design/dagger_glove.md
+ * @see "doc/design/dagger_glove.md"
  */
 public final class GloveTargetCache {
 
@@ -68,9 +67,8 @@ public final class GloveTargetCache {
 	}
 
 	/**
-	 * Traces the crosshair for one held stack and, on a hit, caches and re-syncs the target.
-	 * Nothing happens when the stack is not a targeting glove or its mode wants no target, which
-	 * is what keeps an aimed mode from ever lighting something up.
+	 * Traces the crosshair for one held stack and, on a hit, caches and re-syncs the target. Nothing happens
+	 * when the stack is not a targeting glove or its mode wants no target, which keeps an aimed mode dark.
 	 */
 	private static void trace(Player player, ItemStack stack) {
 		Minecraft mc = Minecraft.getInstance();
@@ -114,9 +112,8 @@ public final class GloveTargetCache {
 	}
 
 	/**
-	 * Whether this stack is a glove that marks this entity right now: a targeting glove whose
-	 * current mode draws a marker at all, whose own cache entry still matches, and still inside the
-	 * glove's TTL — the same window the server would accept the hint in.
+	 * Whether this stack is a glove marking this entity right now: a targeting glove whose current mode draws
+	 * a marker, whose cache entry still matches, and still inside the glove's TTL - the server's window too.
 	 */
 	private static boolean marks(ItemStack stack, LivingEntity target) {
 		if (!(stack.getItem() instanceof GloveTargeting glove)) return false;
@@ -127,9 +124,8 @@ public final class GloveTargetCache {
 	}
 
 	/**
-	 * Outline color for the cached target: the held glove's own color, or null when nothing is
-	 * marked. Read per frame, so recoloring follows mode switches while the stale-target TTL
-	 * still applies.
+	 * Outline color for the cached target: the held glove's own color, or null when nothing is marked. Read
+	 * per frame, so recoloring follows mode switches while the stale-target TTL still applies.
 	 */
 	@Nullable
 	public static Integer hoverColor(@Nullable Entity entity) {

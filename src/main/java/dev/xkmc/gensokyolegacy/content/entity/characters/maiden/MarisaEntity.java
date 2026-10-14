@@ -40,9 +40,8 @@ public class MarisaEntity extends MaidenEntity implements GeoYoukaiAnim {
 	private static final RawAnimation AGREE = RawAnimation.begin().thenPlay("肯定");
 	private static final RawAnimation DECLINE = RawAnimation.begin().thenPlay("拒绝");
 	/**
-	 * Her idle flourish. This rig used to ship a {@code 伸懒腰} stretch for the outdoor
-	 * idle slot; the current export replaces it with {@code 闲置动画}, a longer and more
-	 * generic fidget, so the slot keeps the same shape it always had.
+	 * Her idle flourish. This rig shipped a {@code 伸懒腰} stretch for the outdoor idle slot; the
+	 * current export replaces it with {@code 闲置动画}, so the slot keeps the shape it always had.
 	 */
 	private static final RawAnimation IDLE_FIDGET = RawAnimation.begin().thenPlay("闲置动画");
 

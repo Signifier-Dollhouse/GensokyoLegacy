@@ -17,13 +17,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * How appealing one serving is, derived from what it is to eat. Appeal draws a guest in;
- * hunger is what the food feeds and is what the planner budgets. select.md §2.1.
+ * How appealing one serving is, derived from what it is to eat: appeal draws a guest in, hunger
+ * is what the food feeds and what the planner budgets (select.md §2.1).
  * <p>
- * Everything takes a level and a position so containers can be answered, which makes the
- * answers a snapshot rather than a transaction.
+ * Everything takes a level and a position so containers can be answered, making the answers a
+ * snapshot rather than a transaction.
  *
- * @see doc/design/party/food.md
+ * @see "doc/design/party/food.md"
  */
 public class PartyFoodValue {
 
@@ -75,9 +75,9 @@ public class PartyFoodValue {
 	}
 
 	/**
-	 * One entry per <b>distinct food</b>, so a caller can pay for the same food once however
-	 * many blocks it is on. Serve counts multiply nothing here: seven slices of one cake is
-	 * not seven times as good, though it still feeds seven guests via {@link #totalHunger}.
+	 * One entry per <b>distinct food</b>, so a caller pays for it once however many blocks it is on.
+	 * Serve counts multiply nothing: seven slices of one cake is not seven times as good, though it
+	 * feeds seven guests via {@link #totalHunger}.
 	 *
 	 * @return one entry per food id worth serving, empty when nothing here attracts
 	 */
@@ -105,9 +105,9 @@ public class PartyFoodValue {
 
 	/**
 	 * Whether this block puts anything attractive on the table, without building the list
-	 * {@link #appealPerFood} would. Deliberately <b>not</b> deduplicated against the rest of
-	 * the party: a block is part of the spread whatever else is already there, and dropping
-	 * a duplicate would quietly stop it feeding anybody.
+	 * {@link #appealPerFood} would. Deliberately <b>not</b> deduplicated against the rest of the
+	 * party: a block is part of the spread whatever else is there, and dropping a duplicate would
+	 * quietly stop it feeding anybody.
 	 */
 	public static boolean attracts(RegistryAccess access, Level level, BlockPos pos, BlockState state) {
 		var override = PartyFood.of(access, state);
@@ -120,12 +120,11 @@ public class PartyFoodValue {
 	}
 
 	/**
-	 * <b>The guest's number, not the party's</b> — a plate is worth what its servings are
-	 * collectively worth to whoever eats them, which is why this multiplies by serves and
-	 * {@link #appealPerFood} does not. A container is averaged across what it holds.
+	 * <b>The guest's number, not the party's</b> — a plate is worth what its servings are collectively
+	 * worth to whoever eats them, which is why this multiplies by serves and {@link #appealPerFood}
+	 * does not. A container is averaged across what it holds.
 	 * <p>
-	 * The override is read <b>only after</b> validity, so a row can revalue a dish but
-	 * cannot conjure one.
+	 * The override is read <b>only after</b> validity, so a row can revalue a dish but cannot conjure one.
 	 *
 	 * @return 0 when the block is not valid food — the signal to treat it as not party food
 	 */
@@ -152,9 +151,9 @@ public class PartyFoodValue {
 	}
 
 	/**
-	 * The quantity the party system <b>plans</b> in, deliberately not the appeal. Never
-	 * reads the {@code party_food} override — letting it reach hunger would let a datapack
-	 * silently change how many guests a spread seats.
+	 * The quantity the party system <b>plans</b> in, deliberately not the appeal. Never reads the
+	 * {@code party_food} override — letting it reach hunger would let a datapack silently change how
+	 * many guests a spread seats.
 	 *
 	 * @return 0 when the block is not valid food
 	 */

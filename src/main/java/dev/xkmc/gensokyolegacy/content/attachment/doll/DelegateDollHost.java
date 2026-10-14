@@ -12,14 +12,12 @@ import java.util.Optional;
 import java.util.UUID;
 
 /**
- * A {@link DollHost} that keeps its ledger somewhere else and forwards the whole surface:
- * implement {@link #dolls()} and nothing else. Needed because the host is resolved by asking the
- * <b>owning entity</b>, so a character whose dolls live in a module still answers as the host.
- * <p>
- * Unlike {@link DollLedger}, which is the ledger itself and forwards only the command surface,
- * this is a pure pass-through: every answer, including the inert defaults, comes from the real host.
+ * A {@link DollHost} that keeps its ledger elsewhere and forwards the whole surface: implement
+ * {@link #dolls()} and nothing else. The host is resolved by asking the owning entity, so a
+ * character whose dolls live in a module still answers; unlike {@link DollLedger}, which is the
+ * ledger itself, this is a pure pass-through.
  *
- * @see doc/design/doll/host.md
+ * @see "doc/design/doll/host.md"
  */
 public interface DelegateDollHost extends DollHost {
 

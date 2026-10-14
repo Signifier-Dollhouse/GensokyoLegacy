@@ -16,12 +16,10 @@ import java.util.Optional;
 
 /**
  * Built-in item → action bindings, lazily registered on first registry query so no
- * mod-constructor wiring is needed.
- * <p>
- * Each line's last flag is whether the behavior <b>spends</b> what the doll holds
- * (one per use), which is also what lets that item stack in a loadout hand
- * (loadout.md §4). The one binding with no item is the bare-handed regular attack,
- * which the lance charge also serves (control.md §5.1b).
+ * mod-constructor wiring is needed. Each line's last flag is whether the behavior <b>spends</b>
+ * what the doll holds, which lets that stack in a loadout hand (loadout.md §4). The one
+ * binding with no item is the bare-handed regular attack, which the lance charge also serves
+ * (control.md §5.1b).
  */
 public final class DollBehaviors {
 
@@ -44,9 +42,8 @@ public final class DollBehaviors {
 		DollBehaviorRegistry.register("doll_lance",
 				stack -> stack.is(GLItems.DOLL_LANCE.get()),
 				DollActionType.REGULAR_ATTACK, -1, false, DollMeleeBehavior::new);
-		// below every item binding, which is what makes it a fallback: a regular
-		// attack with no weapon at all is still an attack, and the sticky swap at
-		// swing time frees whatever was in the main hand
+		// below every item binding, which makes it a fallback: a regular attack with no
+		// weapon is still an attack, and the swing-time swap frees the main hand
 		DollBehaviorRegistry.registerBareHand(DollActionType.REGULAR_ATTACK, DollMeleeBehavior::new);
 		DollBehaviorRegistry.register("laser",
 				stack -> stack.getItem() instanceof LaserItem,

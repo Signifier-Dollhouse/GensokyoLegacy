@@ -1,9 +1,8 @@
 package dev.xkmc.gensokyolegacy.content.entity.dolls.action;
 
 /**
- * Client-visible execution status of a doll, synced via entity data for the
- * attack-glove sidebar. {@code INVALID} (no valid weapon for the held attack) is
- * computed client-side from the loadout mirror and is not synced.
+ * Client-visible execution status of a doll, synced via entity data for the attack-glove
+ * sidebar. {@code INVALID} (no valid weapon for the held attack) is computed client-side.
  */
 public enum DollActionStatus {
 

@@ -11,11 +11,9 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Server-side view of one chunk's effect index.
- * {@link #of(ServerLevel, ChunkPos)} never forces a chunk load and returns {@code null} when the
- * chunk is unloaded, so callers must tolerate that.
+ * Server-side view of one chunk's effect index; {@code of(level, pos)} never loads, null if unloaded.
  *
- * @see doc/design/area_effect.md
+ * @see "doc/design/area_effect.md"
  */
 public record AreaChunkHolder(ServerLevel level, ChunkPos pos, LevelChunk chunk, ChunkAreaAttachment attachment) {
 

@@ -12,14 +12,11 @@ import java.util.Optional;
 import java.util.UUID;
 
 /**
- * A {@link DollHost} that owns a real ledger and commands it: the player capability
- * ({@link DollAttachment}) and a character that conjures her own dolls.
- * <p>
- * The ledger only has to expose its entries and its {@link DollCommander}; the whole
- * {@link DollHost} command surface is wired through here, so no host repeats the forwarding
- * and no doll entity branches on the host type.
+ * A {@link DollHost} owning real entries and commands: the player capability or a character
+ * that conjures her own dolls. The command surface is wired through here, so no host repeats
+ * the forwarding and no doll branches on host type.
  *
- * @see doc/design/doll/control.md
+ * @see "doc/design/doll/control.md"
  */
 public interface DollLedger extends DollHost {
 

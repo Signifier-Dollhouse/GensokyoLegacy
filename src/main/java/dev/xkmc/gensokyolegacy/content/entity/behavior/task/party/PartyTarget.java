@@ -5,31 +5,26 @@ import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * What a guest is going after, and how close she has to get to each half of it.
- *
- * <p>
- * <b>Two blocks and two distances, because they are never the same.</b> The thing she acts on
- * and the block she stands on to act on it are different blocks: a chair is furniture she sits
- * down from beside, and a dish on a laid table has air beside it rather than floor.
- *
- * <p>
- * Both distances are measured to the block's <b>box</b> rather than its centre, so that
- * standing on the block beside a chair counts as zero blocks from it.
+ * What a guest is going after, and how close she has to get to each half of it. <b>Two blocks
+ * and two distances, because they are never the same:</b> the thing she acts on and the block she
+ * stands on to act on it — a chair is furniture she sits down from beside, and a dish on a laid
+ * table has air beside it rather than floor. Both distances are measured to the block's
+ * <b>box</b> rather than its centre, so standing beside a chair counts as zero blocks from it.
  *
  * @param interact      the chair or the dish — the thing she does something to
  * @param walkTo        the standable block she goes to in order to do it
  * @param interactReach how close to {@code interact} she must be to act on it
  * @param walkReach     how close to {@code walkTo} she must be to count as having arrived
  *
- * @see doc/design/party/guest.md
+ * @see "doc/design/party/guest.md"
  */
 public record PartyTarget(@Nullable BlockPos interact, @Nullable BlockPos walkTo,
 		double interactReach, double walkReach) {
 
 	/**
 	 * How close she must get to the block she walked to before she counts as there. One block,
-	 * not zero: a pathfinder that stops a block short is ordinary, and the interaction reach is
-	 * what decides whether she can act.
+	 * not zero: a pathfinder that stops a block short is ordinary, and the interaction reach
+	 * is what decides whether she can act.
 	 */
 	public static final double WALK_REACH = 1;
 

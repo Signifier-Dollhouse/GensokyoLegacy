@@ -43,12 +43,10 @@ import net.neoforged.neoforge.common.ItemAbilities;
 import net.neoforged.neoforge.common.ItemAbility;
 import org.jetbrains.annotations.Nullable;
 
-/**
- * 落地烛台。点火、掐灭和火焰粒子的做法照搬原版 {@code AbstractCandleBlock}，但自己实现：
+/** 落地烛台。点火、掐灭和火焰粒子的做法照搬原版 {@code AbstractCandleBlock}，但自己实现：
  * 那条路径要求方块同时带 {@code lit} 和 {@code waterlogged}，烛台不蓄水。
  *
- * @see doc/design/candlestick.md
- */
+ * @see "doc/design/candlestick.md" */
 public class CandlestickBlock implements CreateBlockStateBlockMethod, DefaultStateBlockMethod,
 		SurviveBlockMethod, ShapeUpdateBlockMethod, ShapeBlockMethod,
 		AnimateTickBlockMethod, ToolModifyBlockMethod, UseItemOnBlockMethod {

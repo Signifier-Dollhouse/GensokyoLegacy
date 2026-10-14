@@ -21,10 +21,9 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * The glove's item-selector entry: wheel and scroll selection over the visible modes, with the mode
- * itself stored on the stack as an ordinal.
+ * The glove's item-selector entry: wheel and scroll selection over the visible modes, stored as an ordinal.
  *
- * @see doc/design/doll/glove.md
+ * @see "doc/design/doll/glove.md"
  */
 public class DollGloveSelectionListener extends IItemSelector implements WheelAdaptor.Provider {
 
@@ -88,9 +87,8 @@ public class DollGloveSelectionListener extends IItemSelector implements WheelAd
 	}
 
 	/**
-	 * Scroll selection cycles the visible modes and returns the new mode's ordinal; {@link #swap}
-	 * reads the slot back as an ordinal, so the pair stays consistent even when the visible set
-	 * changes size.
+	 * Scroll selection cycles the visible modes and returns the new mode's ordinal; {@link #swap} reads the
+	 * slot back as an ordinal, so the pair stays consistent as the visible set changes size.
 	 */
 	@Override
 	public int move(int i, Player player, ItemStack stack) {

@@ -14,7 +14,7 @@ import java.util.UUID;
 /**
  * One area effect: its owner block, chunk range and payload.
  *
- * @see doc/design/area_effect.md
+ * @see "doc/design/area_effect.md"
  */
 @SerialClass
 public class AreaEffectEntry {

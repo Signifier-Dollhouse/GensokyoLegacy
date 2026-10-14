@@ -11,27 +11,16 @@ import org.jetbrains.annotations.Nullable;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * Server-side state of one step of a conversation.
- *
- * <p>This is what the dialog screen used to be an {@code AbstractContainerMenu}
- * for. The menu only ever existed to sync the screen's contents, but a menu
- * also advertises itself to the rest of the game: inventory tabs, JEI overlays
- * and anything else that special-cases container screens attach themselves to
- * it, whether they are meant to or not. The screen is now a plain
- * {@code Screen}, so a conversation is invisible to all of that, and its
- * contents travel over the {@code content.rpg.network} dialog packets instead -
- * the open handshake, the per-step state, and the clicks that used to be
- * inventory button clicks.
+ * Server-side state of one step of a conversation, in place of the {@code AbstractContainerMenu} the screen ran
+ * on: a menu only synced the screen's contents, but anything special-casing a container screen attached itself.
  */
 public abstract class DialogSession {
 
 	private static final AtomicInteger COUNTER = new AtomicInteger();
 
 	/**
-	 * Identifies this step for as long as the client may still be talking
-	 * about it. Every client packet names the session it belongs to, so one
-	 * that raced a screen switch is dropped instead of being applied to
-	 * whatever dialog happens to be on screen now.
+	 * Identifies this step for as long as the client may still be talking about it. Every client packet names its
+	 * session, so one that raced a screen switch is dropped rather than applied to whatever dialog is on screen now.
 	 */
 	public final int id = COUNTER.incrementAndGet();
 
@@ -44,9 +33,8 @@ public abstract class DialogSession {
 	}
 
 	/**
-	 * Hand the conversation UI to this session and open it on the client.
-	 * Refused when this player is no longer the one talking to the character,
-	 * so a callback that arrives after the conversation ended cannot restart it.
+	 * Hand the conversation UI to this session and open it on the client. Refused when this player is no longer the
+	 * one talking to the character, so a callback arriving after the conversation ended cannot restart it.
 	 */
 	protected void activate() {
 		if (!character.getModule(TalkModule.class).map(e -> e.setSession(this)).orElse(false)) return;
@@ -81,9 +69,8 @@ public abstract class DialogSession {
 	}
 
 	/**
-	 * Give the UI up without ending the conversation, for when the client
-	 * closed the screen but something else - the trade menu - is about to
-	 * take over.
+	 * Give the UI up without ending the conversation, for when the client closed the screen but the trade menu
+	 * is about to take over.
 	 */
 	public void release() {
 		character.getModule(TalkModule.class).ifPresent(e -> e.clearSession(this));

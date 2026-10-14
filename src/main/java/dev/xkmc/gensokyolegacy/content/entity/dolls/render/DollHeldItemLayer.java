@@ -16,9 +16,9 @@ import software.bernie.geckolib.renderer.GeoRenderer;
 import software.bernie.geckolib.renderer.layer.BlockAndItemGeoLayer;
 
 /**
- * Renders the doll loadout hand slots at the model's hand locator bones.
- * Reads the synced client mirror via {@link DollLoadout#getLoadoutItem} — dolls
- * deliberately bypass vanilla equipment slots, so {@code getMainHandItem} stays empty.
+ * Renders the doll loadout hand slots at the model's hand locator bones. Reads the synced client
+ * mirror via {@link DollLoadout#getLoadoutItem} — dolls deliberately bypass vanilla equipment
+ * slots, so {@code getMainHandItem} stays empty.
  */
 public class DollHeldItemLayer extends BlockAndItemGeoLayer<DollEntity> {
 
@@ -41,11 +41,9 @@ public class DollHeldItemLayer extends BlockAndItemGeoLayer<DollEntity> {
     }
 
     /**
-     * The bone's own side, not always right: items whose model carries separate
-     * per-side transforms render unmirrored on the left arm otherwise.
-     * <p>
-     * Pairs with the {@code leftHand} flag in {@link #renderStackForBone}: the context
-     * picks <em>which</em> authored transform, the flag cancels the mirror it carries.
+     * The bone's own side, not always right: items whose model carries separate per-side transforms
+     * render unmirrored on the left arm otherwise. The context picks <em>which</em> authored
+     * transform; the {@code leftHand} flag in {@link #renderStackForBone} cancels the mirror it carries.
      */
     @Override
     protected ItemDisplayContext getTransformTypeForStack(GeoBone bone, ItemStack stack, DollEntity doll) {
@@ -55,15 +53,9 @@ public class DollHeldItemLayer extends BlockAndItemGeoLayer<DollEntity> {
     }
 
     /**
-     * Renders the stack itself instead of delegating to {@code super}, which hardcodes
-     * {@code leftHand = false} and so cannot reproduce vanilla's third-person left hand.
-     * <p>
-     * Vanilla authors {@code thirdperson_lefthand} as the mirror of
-     * {@code thirdperson_righthand} and cancels that mirror at apply time, so both hands
-     * get the <em>same</em> hand-relative transform and the mirrored arm bone does the
-     * mirroring. The two locator bones are exact X-mirrors of each other, so asking for
-     * the left-hand context alone lands the item one mirror too far; the flag is what
-     * takes that extra mirror back out.
+     * Renders the stack itself instead of {@code super}, which hardcodes {@code leftHand = false}.
+     * The two locator bones are exact X-mirrors and vanilla cancels the authored mirror at apply
+     * time, so the left-hand context alone would land the item one mirror too far — the flag undoes it.
      */
     @Override
     protected void renderStackForBone(PoseStack poseStack, GeoBone bone, ItemStack stack, DollEntity doll,
@@ -80,11 +72,9 @@ public class DollHeldItemLayer extends BlockAndItemGeoLayer<DollEntity> {
     }
 
     /**
-     * While glowing, the whole model is drawn through the {@link OutlineBufferSource},
-     * whose outline source is one shared buffer with no fixed buffers: asking it for a
-     * new render type ends the batch of the previous one, which drops the geometry of
-     * the following bones. The item is not part of the silhouette anyway, so route it
-     * to the main buffer source instead.
+     * While glowing, the model goes through {@link OutlineBufferSource}, whose outline source is one
+     * shared buffer: asking it for a new render type ends the previous batch and drops later bones'
+     * geometry. The item is no part of the silhouette, so route it to the main buffer source.
      */
     private static MultiBufferSource itemBuffer(MultiBufferSource bufferSource) {
         if (bufferSource instanceof OutlineBufferSource)
