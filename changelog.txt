@@ -9,6 +9,7 @@
 - Ibuki gourd: infinite sake
 - Floating effect from fairy cakes and fairy hexbrew
 - Refined hexbrew via Elixir
+- Plate: cut 16 from white glazed terracotta, hold one food on it
 
 1.0.3
 - refurnish alice house

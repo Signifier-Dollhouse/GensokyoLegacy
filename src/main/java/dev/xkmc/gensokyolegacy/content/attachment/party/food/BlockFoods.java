@@ -21,6 +21,8 @@ public final class BlockFoods {
 	 */
 	public static void register() {
 		PartyFoodHandler.register(new CakeFood());
+		// our own plate, so it needs no mod guard; it holds one food in a block entity
+		PartyFoodHandler.register(new GensokyoPlateFood());
 
 		if (loaded(FD)) {
 			PartyFoodHandler.register(new FeastFood());
