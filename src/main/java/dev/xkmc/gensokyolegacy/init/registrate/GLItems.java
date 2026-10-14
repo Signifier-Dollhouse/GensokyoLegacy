@@ -122,6 +122,7 @@ public class GLItems {
 	public static final ItemEntry<StarWandItem> STAR_WAND;
 	public static final ItemEntry<StrangeGlassesItem> STRANGE_GLASSES;
 	public static final ItemEntry<IceWingsItem> ICE_WINGS;
+	public static final ItemEntry<FairyWingsItem> FAIRY_WINGS;
 
 	public static final ItemEntry<InvitationLetterItem> INVITATION_LETTER;
 
@@ -500,11 +501,18 @@ public class GLItems {
 					.register();
 
 			// Worn in the chest armor slot, not the curios back slot alone, so it still works with curios
-			// absent. Both are alternatives; which is in use is answered at draw time by CuriosManager#hasWings.
+			// absent. Both are alternatives; which is in use is answered at draw time by CuriosManager#getWings,
+			// and that answer is also what tells the two apart on screen, as they share one rig.
 			ICE_WINGS = reg.item("ice_wings", p -> new IceWingsItem(p.rarity(Rarity.EPIC)))
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/curio/" + ctx.getName())))
 					.tag(back)
 					.lang("Ice Wings").tab(TAB.key())
+					.register();
+
+			FAIRY_WINGS = reg.item("fairy_wings", p -> new FairyWingsItem(p.rarity(Rarity.RARE)))
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/curio/" + ctx.getName())))
+					.tag(back)
+					.lang("Fairy Wings").tab(TAB.key())
 					.register();
 		}
 
