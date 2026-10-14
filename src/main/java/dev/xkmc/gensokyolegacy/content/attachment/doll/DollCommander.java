@@ -104,9 +104,29 @@ public class DollCommander {
 		for (DollData data : ledger.dolls()) {
 			if (data.isSummoned()) maybeAutoHeal(owner, data);
 		}
+		lapse(owner);
 		guardIterative(owner);
 		if (owner.level().getGameTime() % 20 == 0) pruneHealMarks(owner);
 		updateFormationAnchor(owner);
+	}
+
+	/**
+	 * Counts every entry's lifespan down and drops the ones that ran out (follower.md §3). Lives
+	 * here because every ledger already ticks its commander, so expiry costs no per-host code, and
+	 * because an entry is only ever dropped from here and from a host's own reconcile pass.
+	 * <p>
+	 * The countdown only runs while the host does, so a follower parked over an owner's logout
+	 * loses no life to time it was not there.
+	 */
+	private void lapse(LivingEntity owner) {
+		for (DollData data : new ArrayList<>(ledger.dolls())) {
+			if (data == null || !data.tickLifespan()) continue;
+			// entity first, entry second: the other order leaves one tick in which the doll
+			// is alive and unpaired, which its own inverse check reads as an orphan
+			Entity doll = resolveEntity(owner, data);
+			if (doll != null) doll.discard();
+			ledger.drop(data.uuid);
+		}
 	}
 
 	/**

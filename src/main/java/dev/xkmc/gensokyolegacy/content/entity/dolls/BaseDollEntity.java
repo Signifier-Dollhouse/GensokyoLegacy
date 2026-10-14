@@ -3,6 +3,7 @@ package dev.xkmc.gensokyolegacy.content.entity.dolls;
 import dev.xkmc.gensokyolegacy.content.attachment.doll.DollAttachment;
 import dev.xkmc.gensokyolegacy.content.attachment.doll.DollData;
 import dev.xkmc.gensokyolegacy.content.attachment.doll.DollHost;
+import dev.xkmc.gensokyolegacy.content.attachment.doll.DollNature;
 import dev.xkmc.gensokyolegacy.content.attachment.doll.StrayHost;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.goals.FollowDollOwnerGoal;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.goals.LookAtDollOwnerGoal;
@@ -46,6 +47,7 @@ import java.util.*;
  * shares, and the part that keeps the ledger honest.
  *
  * @see "doc/design/doll/entity.md"
+ * @see "doc/design/doll/follower.md"
  */
 public abstract class BaseDollEntity extends DamageRefactorEntity implements OwnableEntity, DollTint, IDimensionBoundEntity {
 	private static final int SYNC_INTERVAL = 10;
@@ -252,6 +254,18 @@ public abstract class BaseDollEntity extends DamageRefactorEntity implements Own
 	}
 
 	/**
+	 * What a doll of this kind is allowed to become. An item-backed doll by default; a follower
+	 * overrides this, and it is the only place the kind has to say so —
+	 * {@link DollSpawn#materialize} stamps it onto the ledger entry, which is what every
+	 * itemize / recall / loadout gate actually reads.
+	 *
+	 * @see "doc/design/doll/follower.md"
+	 */
+	public DollNature nature() {
+		return DollNature.DOLL;
+	}
+
+	/**
 	 * Registers persistence slices into the list; subclasses override, call {@code super} and
 	 * append their own. Must be static-safe: it also runs inside the vanilla {@code Entity} ctor.
 	 */
@@ -367,8 +381,10 @@ public abstract class BaseDollEntity extends DamageRefactorEntity implements Own
 		if (!player.getMainHandItem().isEmpty()) return InteractionResult.PASS;
 		if (level().isClientSide()) return InteractionResult.CONSUME;
 		// only a player-owned doll converts back to the item here; a block-hosted doll
-		// belongs to its controller block, and a character's dolls have no item form
-		if (player instanceof ServerPlayer sp && isPlayerOwned() && (isOwner(sp) || sp.getAbilities().instabuild)) {
+		// belongs to its controller block, and a character's dolls have no item form. A
+		// follower's kind refuses one outright, so its empty-hand poke is just a poke.
+		boolean convertible = isPlayerOwned() && nature().itemizable();
+		if (player instanceof ServerPlayer sp && convertible && (isOwner(sp) || sp.getAbilities().instabuild)) {
 			DollAttachment att = GLMeta.DOLL.type().getOrCreate(sp);
 			att.itemize(sp, this);
 		}

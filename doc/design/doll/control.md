@@ -38,6 +38,8 @@ The consumes column is what the loadout reads as its stacking rule: the three sp
 
 There is no priority between types: each doll holds a single ticket (§4). Within a type the entry priority picks the item: the laser outranks hexbrew (10 vs 0) for `SUPER_ATTACK`, danmaku outranks the lance (0 vs −1) for `REGULAR_ATTACK` — the shot has no range limit while the charge gives up past 16 blocks (§5.1b), so a doll holding both keeps shooting and the lance is what a doll with no danmaku item does instead. `HEAL` is never player-queued; the scheduler issues it as an auto order.
 
+A doll with **no loadout at all** resolves through a third form, keyed on its class rather than a stack: `DollBehaviorRegistry.registerIntrinsic`, consulted after the item table and before the bare hand so that a follower's one declared move is not overridden by the bare-handed charge. See [follower.md](follower.md) §4.
+
 `DollActionMode` — issuance mode, carried on the command:
 
 - `ONE_TIME` — one glove command, one doll, one execution (super, suicide).
@@ -226,7 +228,7 @@ Created (`content/entity/dolls/action/`, behaviors in `.../behavior/`, all goals
 - `DollActionMode.java` — `ONE_TIME`, `ITERATIVE`, `AUTO` (§3)
 - `DollAction.java` — `record DollAction(DollActionType type, DollActionMode mode, @Nullable UUID target, Set<UUID> done)` (shared-mutable `done` for `ITERATIVE`, §8)
 - `DollActionHandler.java` — single-ticket state + cooldowns + suppress stamp + KAMIKAZE flag (§4)
-- `DollBehaviorRegistry.java` (`behavior/`) — `(id, predicate, type, priority, factory)` entries plus `registerBareHand` for the bare-handed fallback (§5.1b); `findHand` for capability, `createFor` for per-execution construction (§1–2)
+- `DollBehaviorRegistry.java` (`behavior/`) — `(id, predicate, type, priority, factory)` entries plus `registerBareHand` for the bare-handed fallback (§5.1b) and `registerIntrinsic` for a loadout-free doll's own move (follower.md §4); `findHand` for capability, `createFor` for per-execution construction (§1–2)
 - `DollBehaviors.java` — built-in registration (danmaku / laser / hexbrew / TNT / heal-talis­man / shield-offhand)
 - `DollCardHolder.java` — `implements CardHolder` for the doll (§5)
 - `DollBehavior.java` + `DollDanmakuBehavior`, `DollLaserBehavior`, `DollThrowBehavior`, `DollSuicideBehavior`, `DollHealBehavior`, `DollMeleeBehavior` (`behavior/`, §5; laser before throw for super, danmaku before lance for regular). `ensureMainHand` is also the single place a spend is recorded, so every behavior holds its item for the swing without repeating it; `selfDriven` is how one outlives its ticket and `canReach` is the ticket-free reach gate (§5, §5.1b)

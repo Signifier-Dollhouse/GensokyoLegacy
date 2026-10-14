@@ -17,6 +17,7 @@ import java.util.UUID;
  * the forwarding and no doll branches on host type.
  *
  * @see "doc/design/doll/control.md"
+ * @see "doc/design/doll/follower.md"
  */
 public interface DollLedger extends DollHost {
 
@@ -28,6 +29,17 @@ public interface DollLedger extends DollHost {
 
 	/** The command state machine driving this ledger's dolls. */
 	DollCommander commands();
+
+	/**
+	 * Forgets an entry for good: no item, no parked data, nothing waiting to become either. The end
+	 * state both of a follower's death and of its lifespan running out, since it has no item form
+	 * to fall back on. Entry-only — the caller disposes of the entity, and must do so
+	 * <b>before</b> calling this, or the doll spends a tick alive and unpaired.
+	 *
+	 * @return the dropped entry, or null when this ledger holds no such entry
+	 */
+	@Nullable
+	DollData drop(UUID uuid);
 
 	@Override
 	default float getFormationYaw() {

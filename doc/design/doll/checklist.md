@@ -16,6 +16,10 @@ Loadout (done — slots, storage, mirror, editor menu; render TODO):
 - `content/item/doll/DollSlot.java` — 4-slot enum (loadout.md §1)
 - `content/attachment/doll/DollInventory.java` — immutable item variant; `MutableDollInventory.java` — mutable data variant (loadout.md §2)
 
+Followers (API only — no follower entity exists yet, see follower.md):
+- `content/attachment/doll/DollNature.java` — `DOLL` / `FOLLOWER`: the item, recall and loadout predicates (follower.md §1)
+- `content/entity/dolls/behavior/DollBehaviorRegistry.java` — `registerIntrinsic`: a binding keyed on the doll's class, for the one move a loadout-free follower owns (§4)
+
 Control (done — framework; glove calls pending):
 - `content/attachment/doll/DollCommander.java` — via `DollAttachment.commands`: volley/one-time/stop, handoff, stall guard, heal scheduling + 1-second mark prune, transient heal marks (control.md §6/§8)
 - `content/entity/dolls/action/DollAction.java`, `DollActionType.java`, `DollActionMode.java`, `DollActionHandler.java`, `DollCardHolder.java` + `goals/DollCommandGoal.java` (control.md §1/§3–5, goals under `dolls/goals/`)
@@ -37,11 +41,17 @@ Implemented — glove (item, 6 modes with heal/stop hidden, wheel, target cache 
 
 ## 2. Files to modify
 
-- `content/attachment/doll/DollData.java` — `inventory` field (loadout.md §2) — done (mutable variant)
-- `content/attachment/doll/DollAttachment.java` — destroyed-resummon revival keeping gear (§7); stray rejoin as `TEMP` and the recall sweep for strays within 48 blocks (control.md §5.4a); ledger transitions only
-- `content/attachment/doll/DollHost.java` — `detach(UUID)` for stray cuts, `onDeath` hook; `StrayHost.java` holds the detached entry, answers pairing, hands it over one-shot via `take()`, persists via chunk save/load (control.md §5.4); `DelegateDollHost.java` — the whole surface forwarded to a host kept elsewhere, so a character answers as the host with one `dolls()` method (host.md §1)
-- `content/entity/dolls/BaseDollEntity.java` — pairing pipeline only (stray `getHost` branch, `die()` → `onDeath`); empty-hand itemize (arming removed, loadout.md §4); `setSpeedCap` escape hatch on the movement cap for the melee charge (entity.md §3.1, control.md §5.1b)
+- `content/attachment/doll/DollData.java` — `inventory` field (loadout.md §2) — done (mutable variant); `nature` + `lifespan` fields (follower.md §1/§5) — done
+- `content/attachment/doll/DollLedger.java` — `drop(UUID)`, the forget-an-entry path both a death and a lapse end on (follower.md §3)
+- `content/attachment/doll/DollAttachment.java` — destroyed-resummon revival keeping gear (§7); stray rejoin as `TEMP` and the recall sweep for strays within 48 blocks (control.md §5.4a); ledger transitions only; the itemize / park / tryItemize / death / stray gates and the recall skip for a follower (follower.md §3)
+- `content/attachment/doll/DollCommander.java` — `lapse`, the per-tick lifespan countdown both ledgers already reach through `commands().tick` (follower.md §5)
+- `content/attachment/doll/DollSpawn.java` — stamps the entity's `nature()` onto the materialized entry (follower.md §1)
+- `content/attachment/doll/DollHost.java` — `detach(UUID)` for stray cuts, `onDeath` hook; `StrayHost.java` holds the detached entry, answers pairing, hands it over one-shot via `take()`, persists via chunk save/load (control.md §5.4), and mints no item for a follower (follower.md §3); `DelegateDollHost.java` — the whole surface forwarded to a host kept elsewhere, so a character answers as the host with one `dolls()` method (host.md §1)
+- `content/entity/dolls/BaseDollEntity.java` — pairing pipeline only (stray `getHost` branch, `die()` → `onDeath`); empty-hand itemize (arming removed, loadout.md §4); `setSpeedCap` escape hatch on the movement cap for the melee charge (entity.md §3.1, control.md §5.1b); `nature()`, the one place a kind declares what it may become (follower.md §1)
 - `content/entity/dolls/DollEntity.java` — `actions` field, one `DollCommandGoal`, vanilla shield hooks (§5.6), never-null ledger-direct loadout API, `becomeStray()` / `rejoinOwner()` / `maybeRejoin()` (1-second idle rejoin from `tick()`); 4 synced slot accessors, `writeValuesTo`/`readValuesFrom` (loadout.md §3 / entity.md §8.1) — done
+- `content/entity/dolls/behavior/DollDanmakuBehavior.java` — fires the card off its `HandMatch` rather than the main hand, so an intrinsic card works (follower.md §4)
+- `content/item/glove/DollGloveItem.java` / `content/item/glove/mode/DollGloveHandler.java` — both loadout-editor opens refuse a follower, so the poke falls through (follower.md §2)
+- `content/entity/characters/magician/AliceDollHost.java` — `drop(UUID)`; `arm()` skips a loadout-free entry (follower.md §2/§3)
 - `content/entity/dolls/render/DollRenderer.java` / `DollModel.java` — exist; add **TODO** placeholders for the held-item render pass (loadout.md §5)
 - `init/registrate/GLItems.java` — `DOLL_GLOVE` + `DOLL_GLOVE_MODE`
 - `init/GensokyoLegacy.java` — glove listener, both packets (no `CodecHandler<ItemStack>`: l2serial already ships one); both packet registrations now live in `init/GLPackets.java`
@@ -73,9 +83,11 @@ Run `./gradlew runData` (commit generated output), then `organize.ResourceOrgani
 - Block-hosted vs player-hosted: controller.md §4.
 - Preemption/volley/revival/dup protection: control.md §10.
 - Glove wire-up, targeting, and texture: glove.md §2/§5.
+- The no-item-form rule and its six gates, lifespan, intrinsic move: follower.md §3/§5/§4.
 
 ## 5. Open questions
 
 - Render held items on the model (loadout.md §5).
 - Cloth/core behaviors, mechanical `core` items, attack/tracking lasers, `ITERATIVE` for other types, a glove-inventory screen, block-hosted doll commands, modded-shield matching, heal-mark pruning (control.md §10).
 - Config toggle for park intent (TEMP vs STORED) on logout/death (pairing.md §7).
+- The actual followers: which kinds exist, what summons them, and whether a lapse is instant or a staggered stagger-out like the party's (follower.md §6).

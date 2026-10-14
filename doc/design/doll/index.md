@@ -27,6 +27,7 @@ Entity ↔ `DollData` identity is the entity's **own game uuid**, minted fresh o
 - **Guard against unauthorized external changes**.
 - Dolls are **not targetable by hostile mobs** but **still take damage**.
 - Player-hosted dolls have **behaviors driven by the items they hold** (§ loadout / control / glove) — combat actions under a single-ticket system, plus a glove item to mark heal targets and issue attack commands.
+- A **follower** is a temporary escort that shares all of that and none of the ownership: no item form, not recallable, no loadout, one intrinsic move, usually a lifespan ([follower.md](follower.md)).
 
 ## Document tree
 
@@ -37,9 +38,10 @@ Entity ↔ `DollData` identity is the entity's **own game uuid**, minted fresh o
 | [item.md](item.md) | the doll item, significant values, item ↔ data conversion, trading | implemented |
 | [controller.md](controller.md) | block-hosted dolls — the doll controller block and its block entity as a `DollHost` | implemented (block registration pending) |
 | [host.md](host.md) | character-hosted dolls — the `DollHost` command surface, living-entity hosts, and Alice's retinue (roster by post, half-lance/half-wand arming, one-time orders) | implemented |
+| [follower.md](follower.md) | temporary non-doll escorts — `DollNature`, the no-item/no-recall/no-loadout gates, lifespan and intrinsic (one default move) bindings | API only, no follower yet |
 | [loadout.md](loadout.md) | the four held item slots (main hand / off hand / cloth / core), synced entity data, loadout editor menu, item rendering TODO | implemented |
 | [control.md](control.md) | doll actions (ticket, single execution), the four action types, heal-mark targets, iterative command sequences | framework implemented (glove pending) |
 | [glove.md](glove.md) | the Seven-Colored Doll Glove: modes, itemselector wheel, network, registration | planned |
 | [checklist.md](checklist.md) | registration & datagen checklist, files to create / modify, edge cases | — |
 
-Suggested reading order: **pairing → entity → item → controller** (the core pairing model), then **loadout → control → glove** (doll behavior and control), then **host** (non-player hosts).
+Suggested reading order: **pairing → entity → item → controller** (the core pairing model), then **loadout → control → glove** (doll behavior and control), then **host → follower** (non-player hosts, and the non-doll case).

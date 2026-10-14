@@ -74,7 +74,9 @@ public abstract class DollGloveHandler {
 	 */
 	protected static boolean tryOpenEditor(ServerPlayer sp, DollGloveItem item) {
 		DollEntity doll = rayTraceDoll(sp);
-		if (doll != null && (doll.isOwner(sp) || sp.getAbilities().instabuild)) {
+		// loadoutCapable rather than "has an empty loadout": a follower has no editor to open,
+		// so the crosshair falls through to the mode action (follower.md §2)
+		if (doll != null && doll.nature().loadoutCapable() && (doll.isOwner(sp) || sp.getAbilities().instabuild)) {
 			DollLoadoutProvider.open(sp, doll);
 			cooldown(sp, item);
 			return true;

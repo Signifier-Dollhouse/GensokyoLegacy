@@ -1,6 +1,5 @@
 package dev.xkmc.gensokyolegacy.content.entity.dolls.behavior;
 
-import dev.xkmc.danmakuapi.content.item.DanmakuItem;
 import dev.xkmc.gensokyolegacy.content.attachment.doll.DollHost;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.DollEntity;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.action.DollAction;
@@ -8,10 +7,8 @@ import dev.xkmc.gensokyolegacy.content.entity.dolls.action.DollActionMode;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.action.DollActionType;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.action.DollCardHolder;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.behavior.DollBehaviorRegistry.HandMatch;
-import dev.xkmc.gensokyolegacy.content.item.doll.DollSlot;
 import dev.xkmc.gensokyolegacy.util.DollShootUtils;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.Optional;
@@ -123,19 +120,17 @@ public class DollDanmakuBehavior extends DollBehavior {
 			return;
 		}
 		Optional<HandMatch> match = hand(doll);
-		if (match.isEmpty()) {
+		// the card is taken off the match rather than re-read from the main hand after the
+		// swap below: an intrinsic binding names one for a follower that holds nothing, and
+		// the swap may have brought a different hand's danmaku forward than the match did
+		if (match.isEmpty() || match.get().danmaku() == null) {
 			doll.actions.complete(doll);
 			return;
 		}
 		ensureMainHand(doll, match.get());
-		ItemStack stack = doll.ledgerStack(DollSlot.MAIN_HAND);
-		if (!(stack.getItem() instanceof DanmakuItem item)) {
-			doll.actions.complete(doll);
-			return;
-		}
 		DollCardHolder holder = new DollCardHolder(doll, aim);
 		Vec3 dir = DollShootUtils.predictShotDir(target, holder.center(), SHOT_SPEED);
-		holder.shoot(holder.prepareDanmaku(SHOT_LIFE, dir.scale(SHOT_SPEED), item));
+		holder.shoot(holder.prepareDanmaku(SHOT_LIFE, dir.scale(SHOT_SPEED), match.get().danmaku()));
 		doll.broadcastBowAnim();
 
 		doll.actions.stamp(type(), doll.level().getGameTime());
