@@ -1,6 +1,6 @@
 1.0.4
-- Party! host a party with invitation
-- Gift system: send gifts to characters
+- Party! host a banquet with invitation letter
+- Gift system: send and receive gifts with characters
 - Fairies: feed them cakes. Spawn in forest and plains
 - Fairy dust: guide you to characters' house
 - Add cirno and her nest, in snowy biomes
