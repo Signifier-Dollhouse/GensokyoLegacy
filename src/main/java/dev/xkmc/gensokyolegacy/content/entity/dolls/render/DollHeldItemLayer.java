@@ -5,14 +5,18 @@ import com.mojang.math.Axis;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.DollEntity;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.impl.DollLoadout;
 import dev.xkmc.gensokyolegacy.content.item.doll.DollSlot;
+import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
+import dev.xkmc.gensokyolegacy.init.registrate.GLParticles;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.OutlineBufferSource;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.client.ClientHooks;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3f;
 import software.bernie.geckolib.cache.object.GeoBone;
-import software.bernie.geckolib.renderer.GeoRenderer;
 import software.bernie.geckolib.renderer.layer.BlockAndItemGeoLayer;
 
 /**
@@ -25,8 +29,11 @@ public class DollHeldItemLayer extends BlockAndItemGeoLayer<DollEntity> {
     public static final String RIGHT_HAND_BONE = "RightHandLocator";
     public static final String LEFT_HAND_BONE = "LeftHandLocator";
 
-    public DollHeldItemLayer(GeoRenderer<DollEntity> renderer) {
+    private final DollRenderer dollRenderer;
+
+    public DollHeldItemLayer(DollRenderer renderer) {
         super(renderer);
+        this.dollRenderer = renderer;
     }
 
     @Override
@@ -65,9 +72,28 @@ public class DollHeldItemLayer extends BlockAndItemGeoLayer<DollEntity> {
         poseStack.scale(0.8F, 0.8F, 0.8F);
         poseStack.mulPose(Axis.XP.rotationDegrees(90));
         poseStack.translate(0.0D, 0.0D, -0.2D);
+        if (!left && stack.is(GLItems.DOLL_LANCE.get()) && dollRenderer.consumeSpearParticle(doll)) {
+            spawnSpearParticle(poseStack, bone, stack, doll, partialTick);
+        }
         Minecraft.getInstance().getItemRenderer().renderStatic(doll, stack,
                 getTransformTypeForStack(bone, stack, doll), left, poseStack, itemBuffer(bufferSource),
                 doll.level(), packedLight, packedOverlay, doll.getId());
+        poseStack.popPose();
+    }
+
+    private void spawnSpearParticle(PoseStack poseStack, GeoBone bone, ItemStack stack,
+                                    DollEntity doll, float partialTick) {
+        poseStack.pushPose();
+        var itemRenderer = Minecraft.getInstance().getItemRenderer();
+        var model = itemRenderer.getModel(stack, doll.level(), doll, doll.getId());
+        ClientHooks.handleCameraTransforms(poseStack, model, getTransformTypeForStack(bone, stack, doll), false);
+        poseStack.translate(-0.5F, -0.5F, -0.5F);
+        Vec3 tip = dollRenderer.itemPointToWorld(doll, poseStack, new Vector3f(8F / 16, 2.5F / 16, -11F / 16),
+                partialTick);
+        Vec3 shaft = dollRenderer.itemPointToWorld(doll, poseStack, new Vector3f(8F / 16, 2.5F / 16, 17F / 16),
+                partialTick);
+        Vec3 direction = tip.subtract(shaft).normalize();
+        doll.level().addParticle(GLParticles.SPEAR.get(), tip.x, tip.y, tip.z, direction.x, direction.y, direction.z);
         poseStack.popPose();
     }
 
