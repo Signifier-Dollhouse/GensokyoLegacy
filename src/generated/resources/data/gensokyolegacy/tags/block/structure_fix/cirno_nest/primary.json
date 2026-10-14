@@ -1,0 +1,11 @@
+{
+  "values": [
+    "minecraft:packed_ice",
+    "minecraft:snow_block",
+    "minecraft:spruce_door",
+    {
+      "id": "gensokyolegacy:ice_bricks",
+      "required": false
+    }
+  ]
+}

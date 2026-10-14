@@ -1,0 +1,14 @@
+{
+  "placement": {
+    "type": "gensokyolegacy:multi_spread",
+    "attempts": 1,
+    "salt": 160465900,
+    "spacing": 32
+  },
+  "structures": [
+    {
+      "structure": "gensokyolegacy:cirno_nest",
+      "weight": 1
+    }
+  ]
+}

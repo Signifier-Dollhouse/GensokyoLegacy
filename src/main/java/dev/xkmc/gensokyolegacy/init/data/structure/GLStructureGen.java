@@ -34,6 +34,7 @@ public class GLStructureGen {
 
 	// Structure ids, public because visit chat is written per host: a guest says
 	// different things at each of these, so the QDGen classes name them.
+	public static final ResourceLocation CIRNO_NEST = GensokyoLegacy.loc("cirno_nest");
 	public static final ResourceLocation HAKUREI_SHRINE = GensokyoLegacy.loc("hakurei_shrine");
 	public static final ResourceLocation MARISA_HOUSE = GensokyoLegacy.loc("marisa_house");
 	public static final ResourceLocation MORICHIKA_SHOP = GensokyoLegacy.loc("morichika_shop");
@@ -50,6 +51,26 @@ public class GLStructureGen {
 
 	private static List<StructStructure> initStructures() {
 		return List.of(
+				// Cirno's ice nest in the vanilla snowy biomes (template 13x8x13,
+				// bed at local (10,1,7)-(10,1,8), spruce door sealing the
+				// z0-1 gap). One attempt per region: a region is 32 chunks
+				// wide and the dome 13 blocks across, so extra candidates buy
+				// nothing but a chance to drop the nest somewhere flatter.
+				// With one, a region that fails the flat check simply has no
+				// nest that cycle.
+				new StructStructure(
+						CIRNO_NEST, GLStructureTagGen.CIRNO_NEST, 32, 1,
+						StructureConfigBuilder.cirno(),
+						List.of(new StructBed(
+								GLEntities.CIRNO,
+								CharacterConfig.forStructure(6000, 12000, 12, 30),
+								GLBlocks.Beds.CIRNO.holder()
+						)),
+						new StructFlatBuilding(List.of(), Map.of(), 5, 32, 1, 32, 8),
+						// its own set: the nest is in the snowy biomes and shares
+						// no region with the magical forest houses
+						CIRNO_NEST
+				),
 				// Marisa's house in the modded magical forest (template 30x13x25, bed at local (4,6,16)-(5,6,16))
 				new StructStructure(
 						MARISA_HOUSE, GLStructureTagGen.MARISA_HOUSE, 32, 24,
@@ -172,7 +193,7 @@ public class GLStructureGen {
 			structureReg.add(e.id(), config.build(), false);
 		}
 
-		bedReg.add(GLBlocks.BEDS[GLBlocks.Beds.CIRNO.ordinal()], new BedData(GLEntities.CIRNO.get()), false);
+		// Rumia has no structure yet, so her bed is hand-wired here
 		bedReg.add(GLBlocks.BEDS[GLBlocks.Beds.RUMIA.ordinal()], new BedData(GLEntities.RUMIA.get()), false);
 	}
 

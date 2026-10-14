@@ -4,6 +4,7 @@ import com.tterrag.registrate.providers.ProviderType;
 import com.tterrag.registrate.providers.RegistrateTagsProvider;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.biome.GLBiomes;
+import dev.xkmc.gensokyolegacy.init.registrate.block.GLDecoBlocks;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLFurniture;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
@@ -47,14 +48,16 @@ public class GLStructureTagGen {
 	public static final TagKey<Biome> YSF_CHERRY_BIOMES = TagKey.create(Registries.BIOME,
 			ResourceLocation.fromNamespaceAndPath("youkaisfeasts", "cherry_biomes"));
 
+	public static final TagKey<Structure> CIRNO_NEST_STRUCTURE = structureTag("cirno_nest");
 	public static final TagKey<Structure> HAKUREI_SHRINE_STRUCTURE = structureTag("hakurei_shrine");
 	public static final TagKey<Structure> MARISA_HOUSE_STRUCTURE = structureTag("marisa_house");
 	public static final TagKey<Structure> MORICHIKA_SHOP_STRUCTURE = structureTag("morichika_shop");
 	public static final TagKey<Structure> ALICE_HOUSE_STRUCTURE = structureTag("alice_house");
 
 	/**
-	 * Every character home at once. A lookup against this tag answers "which of the four is
-	 * closest", which is what the catch-all flower in {@code FairyDustItem} wants.
+	 * Every character home at once. A lookup against this tag answers "which
+	 * of them is closest", which is what the catch-all flower in
+	 * {@code FairyDustItem} wants.
 	 * <p>
 	 * A datapack can override any of these tags, so the one a given flower points at is data, not
 	 * code: adding {@code gensokyolegacy:marisa_house} to a wider tag makes that flower reach
@@ -126,11 +129,13 @@ public class GLStructureTagGen {
 	}
 
 	public static void genStructureTag(RegistrateTagsProvider.Impl<Structure> pvd) {
+		pvd.addTag(CIRNO_NEST_STRUCTURE).add(structureKey(GLStructureGen.CIRNO_NEST));
 		pvd.addTag(HAKUREI_SHRINE_STRUCTURE).add(structureKey(GLStructureGen.HAKUREI_SHRINE));
 		pvd.addTag(MARISA_HOUSE_STRUCTURE).add(structureKey(GLStructureGen.MARISA_HOUSE));
 		pvd.addTag(MORICHIKA_SHOP_STRUCTURE).add(structureKey(GLStructureGen.MORICHIKA_SHOP));
 		pvd.addTag(ALICE_HOUSE_STRUCTURE).add(structureKey(GLStructureGen.ALICE_HOUSE));
 		pvd.addTag(CHARACTER_HOMES)
+				.addTag(CIRNO_NEST_STRUCTURE)
 				.addTag(HAKUREI_SHRINE_STRUCTURE)
 				.addTag(MARISA_HOUSE_STRUCTURE)
 				.addTag(MORICHIKA_SHOP_STRUCTURE)
@@ -278,6 +283,26 @@ public class GLStructureTagGen {
 		);
 		pvd.addTag(ALICE_FIX).addOptional(GensokyoLegacy.loc("dark_oak_large_table"));
 		pvd.addTag(ALICE_FIX).addOptional(GensokyoLegacy.loc("candlestick"));
+
+		// Cirno's nest in the snowy biomes (13x8x13): ice brick dome + its furniture
+		pvd.addTag(CIRNO_PRIMARY).add(
+				Blocks.PACKED_ICE, Blocks.SNOW_BLOCK,
+				// the door leaf is shell, not furniture: it is the one block
+				// that keeps the chamber sealed, so a fix pass that cleared it
+				// to air would let the snow in and undo the nest
+				Blocks.SPRUCE_DOOR
+		);
+		pvd.addTag(CIRNO_PRIMARY).addOptional(GensokyoLegacy.loc("ice_bricks"));
+		// snow layers, grass, dirt, glow lichen, cave vines and the spore blossom are
+		// in neither tag: the fix pass clears them out rather than rebuilds them
+		pvd.addTag(CIRNO_FIX).add(
+				Blocks.BARREL, Blocks.LIGHT_BLUE_STAINED_GLASS, Blocks.LIGHT
+		);
+		pvd.addTag(CIRNO_FIX).add(GLDecoBlocks.STURDY_TEDDY_BEAR.get());
+		pvd.addTag(CIRNO_FIX).addOptional(GensokyoLegacy.loc("ice_brick_slab"));
+		pvd.addTag(CIRNO_FIX).addOptional(GensokyoLegacy.loc("ice_brick_stairs"));
+		pvd.addTag(CIRNO_FIX).addOptional(GensokyoLegacy.loc("spruce_large_table"));
+		pvd.addTag(CIRNO_FIX).addOptional(GensokyoLegacy.loc("spruce_chair"));
 	}
 
 }

@@ -34,6 +34,47 @@ import java.util.List;
 public class StructureConfigBuilder {
 
 	/**
+	 * cirno_nest is a single 13x8x13 ice dome with the bed at local
+	 * (10,1,7)-(10,1,8): a solid foundation plate at y0, a one-block ice
+	 * brick wall ring at y1-4 and the cap closing at y5-6. The spruce door
+	 * at (6,1,1)-(6,2,1) seals the z0-1 gap, so the chamber is one sealed
+	 * pocket of 185 air cells and nothing inside it is outdoor.
+	 * There is no interior graph. One chamber means every position inside
+	 * it resolves to the same room, which is the case {@code findRoute}
+	 * short-circuits anyway, so the legacy room boxes are the honest
+	 * encoding and the resident stays on plain vanilla pathing.
+	 * The two room boxes split the chamber where the dome starts to pinch
+	 * rather than reaching a box that would cover the corners outside the
+	 * shell: nest_floor takes the full-width disc at y1-2, nest_upper the
+	 * narrowed one at y3-4. They are disjoint in y, so the shared boundary
+	 * needs no ownership rule. Both hold shell blocks and in-dome air only,
+	 * and nest_floor carries the bed, whose cell above the head is (10,2,8).
+	 * Checked with {@code void.py}: together they cover all 185 sealed cells
+	 * and spill 18, which are the outdoor gaps the round shell leaves in the
+	 * corners of a rectangle - a dome cannot be boxed exactly, and a
+	 * wandering youkai rejected by navigation has nothing to stand on there
+	 * anyway. The door leaf itself is at z1, outside both boxes, which is
+	 * right: it is a wall, not standing space.
+	 * The house box spans the whole shell from the foundation to the cap and
+	 * stops at x/z1 and x/z11, which leaves the one-block snow and grass
+	 * apron the template carries around the dome outside the integrity
+	 * raster - every ice brick, packed ice block, foundation snow block,
+	 * door half and light is inside it.
+	 */
+	public static StructureConfig.Builder cirno() {
+		return StructureConfig.builder()
+				.rooms(List.of(
+						new BoundingBox(2, 1, 3, 3, 2, 9),
+						new BoundingBox(4, 1, 2, 8, 2, 10),
+						new BoundingBox(9, 1, 3, 10, 2, 9)
+				)).house(List.of(
+						new BoundingBox(1, 0, 1, 11, 6, 11)
+				))
+				.primary(GLStructureTagGen.CIRNO_PRIMARY)
+				.wouldFix(GLStructureTagGen.CIRNO_FIX);
+	}
+
+	/**
 	 * marisa_house template is 30x13x25 with bed at local y=6
 	 * ground floor feet at y=2 (ceiling slabs at y=6), upper floor feet at
 	 * y=7 (roof above y=8). West ground splits at the x=9 wall (door z=16),
