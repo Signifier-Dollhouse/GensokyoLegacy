@@ -6,12 +6,12 @@
   "pages": [
     {
       "type": "patchouli:spotlight",
-      "item": "tag:gensokyolegacy:party_table",
+      "item": "tag:gensokyolegacy:table",
       "text": "一场宴席从餐桌开始。菜肴摆在桌面上，或是紧贴桌边。$(br2)菜品的品质和多样性都有助于提升吸引力。菜品最好放在触手可及之处，不然客人可能会上桌吃饭。"
     },
     {
       "type": "patchouli:spotlight",
-      "item": "tag:gensokyolegacy:party_seat",
+      "item": "tag:gensokyolegacy:stool",
       "text": "有席可坐，才称得上一场宴会。距离3格以内的桌椅会被计入同一场宴会范围。桌椅分散有助于客人走动取食，但也别太大。$(br2)宴会最好在空旷的地方举办，方便客人前来。"
     },
     {
