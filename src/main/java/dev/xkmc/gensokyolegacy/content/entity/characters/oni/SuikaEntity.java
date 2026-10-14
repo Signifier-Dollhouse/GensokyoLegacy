@@ -7,11 +7,13 @@ import dev.xkmc.gensokyolegacy.content.entity.youkai.GeoYoukaiAnim;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiAnim;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiFlags;
 import dev.xkmc.gensokyolegacy.init.registrate.GLBrains;
+import dev.xkmc.gensokyolegacy.util.BrainUtils;
 import dev.xkmc.l2core.base.entity.SyncedData;
 import dev.xkmc.l2serial.serialization.marker.SerialClass;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializer;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.util.Unit;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
@@ -28,7 +30,7 @@ import java.util.Optional;
  * has no spawn egg. Her content is deliberately unwritten: {@code SuikaQDGen} gives her the
  * greeting lines and nothing else, so she is met with an empty topic list.
  * <p>
- * She is the only character who naps: {@link #napChance} buys her the {@link GLBrains#NAP}
+ * She is the only character who naps: {@link #onIdleTask} buys her the {@link GLBrains#NAP}
  * activity, where her {@code 侧卧} clip is spent. An activity rather than a fidget because a
  * nap has to be able to end, and a one-shot animation cannot be interrupted. A conversation
  * does not get her up — she answers from where she lies, in {@link #NAP_TALK}.
@@ -55,15 +57,21 @@ public class SuikaEntity extends BossYoukaiEntity implements GeoYoukaiAnim {
 	private static final RawAnimation TALK_01 = RawAnimation.begin().thenPlay("交流_01");
 	private static final RawAnimation TALK_02 = RawAnimation.begin().thenPlay("交流_02");
 
-	private static final RawAnimation GATHER = RawAnimation.begin().thenPlay("聚集");
 	private static final RawAnimation NAP_ANIM = RawAnimation.begin().thenLoop("侧卧");
 	private static final RawAnimation NAP_TALK = RawAnimation.begin().thenPlay("侧卧_交流");
+	private static final RawAnimation LAY_ANIM = RawAnimation.begin().thenLoop("趴");
+	private static final RawAnimation LAY_TALK = RawAnimation.begin().thenPlay("趴_交流");
+
+	private static final RawAnimation GATHER = RawAnimation.begin().thenPlay("聚集");
+	private static final RawAnimation CATCH = RawAnimation.begin().thenPlay("大江山（抓住）");
+	private static final RawAnimation THROW = RawAnimation.begin().thenPlay("大江山（投掷）");
+	private static final RawAnimation EXECUTE = RawAnimation.begin().thenPlay("大江山（处决）");
 
 	protected static final SyncedData SUIKA_DATA = new SyncedData(SuikaEntity::defineId, SPELL_DATA);
 
 	private static final EntityDataAccessor<Integer> DATA_NAP_VARIANT = SUIKA_DATA.define(SyncedData.INT, 0, "nap_variant");
 
-	private static final RawAnimation[] NAP_ANIMS = {NAP_ANIM, NAP_ANIM};
+	private static final RawAnimation[] NAP_ANIMS = {NAP_ANIM, LAY_ANIM};
 
 	private static <T> EntityDataAccessor<T> defineId(EntityDataSerializer<T> ser) {
 		return SynchedEntityData.defineId(SuikaEntity.class, ser);
@@ -116,8 +124,11 @@ public class SuikaEntity extends BossYoukaiEntity implements GeoYoukaiAnim {
 	}
 
 	@Override
-	public float napChance() {
-		return 0.5f;
+	public void onIdleTask() {
+		if (level().getRandom().nextFloat() >= 0.5f) return;
+		var napTicks = getRandom().nextInt(100, 400);
+		BrainUtils.setForgettableMemory(this, GLBrains.MEM_NAP.get(), Unit.INSTANCE, napTicks);
+		setNapVariant(getRandom().nextInt(2));
 	}
 
 	@Override
@@ -134,8 +145,10 @@ public class SuikaEntity extends BossYoukaiEntity implements GeoYoukaiAnim {
 			case TALK_01, TALK_03, TALK_05 -> Optional.of(TALK_01);
 			case GREET, TALK_02, TALK_04 -> Optional.of(TALK_02);
 			case TALK_SPECIAL_01 -> Optional.of(NAP_TALK);
-			case TALK_SPECIAL_02 -> Optional.of(NAP_TALK);
+			case TALK_SPECIAL_02 -> Optional.of(LAY_TALK);
 			case SKILL_01 -> Optional.of(GATHER);
+			case SKILL_02 -> Optional.of(CATCH);
+			case SKILL_03 -> Optional.of(THROW);
 			case EAT -> Optional.of(EAT);
 			case HURT -> Optional.of(HURT);
 			default -> Optional.empty();

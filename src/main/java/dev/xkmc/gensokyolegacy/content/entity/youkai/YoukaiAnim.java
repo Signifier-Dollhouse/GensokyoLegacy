@@ -9,12 +9,7 @@ import java.util.Optional;
  * in dialog data and as the GeckoLib triggerable key; characters map each slot to their own clip
  * (possibly empty) via {@link GeoYoukaiAnim#getAnim(YoukaiAnim)}.
  * <p>
- * Network sync uses {@code ordinal + offset} as the entity event id, so the declaration order must stay
- * stable — new slots go at the end, never in the middle. Dolls use 66-70; characters use 71-90.
- * <p>
- * The thinking, talk and puzzled slots come in pairs because the current rigs ship two variants of each
- * ({@code 思考中_01}/{@code 思考中_02}, {@code 交流_01}..{@code 交流_05}, {@code 疑惑}); only one is played
- * per dialog, and which one is left to {@code GeoYoukaiAnim#broadcastDialogAnim}.
+ * Network sync uses {@code ordinal + offset} as the entity event id.
  * <p>
  * {@link #EAT} and {@link #HURT} name clips the whole mod agrees on, so they can be named outright.
  * {@link #TALK_SPECIAL_01} and {@link #SKILL_01} are numbered instead, because what they hold is up to the
@@ -32,6 +27,8 @@ public enum YoukaiAnim {
 	SKILL_01("skill_01"),
 	SKILL_02("skill_02"),
 	SKILL_03("skill_03"),
+	SKILL_04("skill_04"),
+	SKILL_05("skill_05"),
 
 	// dialog animations
 	GREET("dialog_greet"),
@@ -75,10 +72,7 @@ public enum YoukaiAnim {
 	 * re-point - see {@code SuikaEntity}, which talks in a different clip while she is lying down.
 	 */
 	public boolean isDialog() {
-		return switch (this) {
-			case USE_MAINHAND, OUTDOOR_IDLE, SKILL_01, SKILL_02, SKILL_03, EAT, HURT -> false;
-			default -> true;
-		};
+		return ordinal() >= GREET.ordinal();
 	}
 
 	/**

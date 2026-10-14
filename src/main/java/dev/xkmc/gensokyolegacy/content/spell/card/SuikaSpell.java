@@ -209,7 +209,7 @@ public class SuikaSpell extends ActualSpellCard {
 		if (youkai == null) return;
 		moveId++;
 		youkai.swing(InteractionHand.MAIN_HAND, true);
-		YoukaiAnim.USE_MAINHAND.play(youkai);
+		YoukaiAnim.SKILL_03.play(youkai);
 		var center = youkai.position().add(0, youkai.getBbHeight() / 2, 0);
 		for (var e : targets(youkai, KNOCK_RANGE)) {
 			var diff = e.position().add(0, e.getBbHeight() / 2, 0).subtract(center);

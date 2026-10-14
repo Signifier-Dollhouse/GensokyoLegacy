@@ -11,7 +11,7 @@ import dev.xkmc.gensokyolegacy.content.entity.behavior.sensor.YoukaiUpdateHomeSe
 import dev.xkmc.gensokyolegacy.content.entity.behavior.task.combat.*;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.task.core.*;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.task.home.*;
-import dev.xkmc.gensokyolegacy.content.entity.module.HomeModule;
+import dev.xkmc.gensokyolegacy.content.entity.module.PartyModule;
 import dev.xkmc.gensokyolegacy.content.ui.dialog.FirstDialogSession;
 import dev.xkmc.gensokyolegacy.init.registrate.GLBrains;
 import dev.xkmc.gensokyolegacy.util.BrainUtils;
@@ -19,6 +19,7 @@ import dev.xkmc.l2serial.serialization.marker.SerialClass;
 import dev.xkmc.l2serial.util.Wrappers;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Unit;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.Brain;
@@ -86,16 +87,9 @@ public class SmartYoukaiEntity extends YoukaiEntity {
 		}
 	}
 
-	/**
-	 * How readily she lies down and does nothing when she has nothing to do.
-	 * <p>
-	 * Rolled once per idle stretch by {@code YoukaiDoNothing}, which offers the nap before the outdoor idle
-	 * fidget and shares its ten-second cooldown with it. Zero - the default, and what every character but Suika
-	 * returns - means she never naps. A win sets {@link GLBrains#MEM_NAP} for five to twenty seconds, and the
-	 * brain puts her in {@link GLBrains#NAP} on the next tick.
-	 */
-	public float napChance() {
-		return 0;
+	public void onIdleTask() {
+		if (level().getRandom().nextFloat() < 0.5)
+			YoukaiAnim.OUTDOOR_IDLE.play(this);
 	}
 
 	@Override

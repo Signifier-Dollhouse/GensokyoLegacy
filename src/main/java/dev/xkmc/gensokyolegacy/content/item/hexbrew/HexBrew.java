@@ -30,7 +30,7 @@ public enum HexBrew {
 	/** The same brews overclocked by the elixir: the explosive blasts wider, the miasma and the
 	 * fairy brew hit one level harder. Each bottle texture file is a copy of its base brew's.
 	 */
-	REFINED_EXPLOSIVE_HEXBREW(0xffe1a074, new ExplosiveHandler(4)),
+	REFINED_EXPLOSIVE_HEXBREW(0xffe1a074, new ExplosiveHandler(5)),
 	REFINED_MIASMA_HEXBREW(0xff488d86, new SimplePotionHandler(true, GLEffects.MIASMA, 1200, 1)),
 	REFINED_FAIRY_HEXBREW(0xff9ac0cd, new SimplePotionHandler(false, GLEffects.FLOATING, 6000, 1)),
 	WITCH_HEXBREW(0xFFFFFFFF, new WitchHandler(false)),
