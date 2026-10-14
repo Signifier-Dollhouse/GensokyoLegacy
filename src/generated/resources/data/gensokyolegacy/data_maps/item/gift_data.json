@@ -18,7 +18,7 @@
     "gensokyolegacy:star_flower": {
       "type": "MAGIC",
       "cooldown": 1000,
-      "favor": 5
+      "favor": 1
     },
     "gensokyolegacy:sturdy_teddy_bear": {
       "type": "TOY",
