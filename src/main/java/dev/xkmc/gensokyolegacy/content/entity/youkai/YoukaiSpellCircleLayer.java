@@ -15,10 +15,8 @@ import software.bernie.geckolib.renderer.GeoRenderer;
 import software.bernie.geckolib.renderer.layer.GeoRenderLayer;
 
 /**
- * A youkai's spell circle. Vanilla's {@code SpellCircleLayer} is a plain
- * {@code RenderLayer}, which a {@code GeoEntityRenderer} cannot host, so this is the
- * same draw against {@link GeoRenderLayer}'s hooks — otherwise a character would lose
- * her circle the moment she became geo-rendered.
+ * A youkai's spell circle. Vanilla's {@code SpellCircleLayer} is a plain {@code RenderLayer}, which a
+ * {@code GeoEntityRenderer} cannot host, so this is the same draw against {@link GeoRenderLayer}'s hooks.
  */
 public class YoukaiSpellCircleLayer<T extends GeneralYoukaiEntity & GeoYoukaiAnim> extends GeoRenderLayer<T> {
 

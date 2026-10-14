@@ -10,11 +10,9 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Optional;
 
 /**
- * Client-side mirror of an {@link IDialogHandle}: the label to draw, and the
- * quest the option is about. It carries the quest id rather than the holder
- * because the packet codec cannot write a holder of one of our datapack
- * registries; the client resolves it back through
- * {@link CodecRegistry.Keys#QUEST}.
+ * Client-side mirror of an {@link IDialogHandle}: the label to draw and the quest the option is about, carried as an id
+ * because the packet codec cannot write a datapack registry holder; the client resolves it back through {@link
+ * CodecRegistry.Keys#QUEST}.
  */
 public record ClientHandle(Component display, @Nullable ResourceLocation quest) {
 

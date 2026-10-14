@@ -26,32 +26,26 @@ import software.bernie.geckolib.animation.RawAnimation;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
 /**
- * A rideable magic broom: a free-flight vehicle steered by its rider.
- *
- * <p>The rider's yaw and pitch are mirrored onto the entity every tick, so
- * looking around aims the broom and nothing else rotates it. The vanilla
- * movement keys cover the flight axes — forward/back thrust along the view,
- * left/right strafe along the horizontal facing, jump/shift lift and drop.
- *
- * <p>The entity is only a stand-in for the item: it lives exactly as long as
- * some rider keeps a broom in either hand, and is discarded the tick that stops
- * being true (see {@link BroomItem}, which is what creates it).
+ * A rideable magic broom: a free-flight vehicle steered by its rider. The rider's yaw and
+ * pitch are mirrored onto the entity every tick, so looking around aims the broom and nothing
+ * else rotates it; the vanilla movement keys cover the flight axes. The entity is only a
+ * stand-in for the item, discarded the tick a rider stops holding one ({@link BroomItem} is
+ * what creates it).
  */
 public class BroomEntity extends SimplifiedEntity implements GeoEntity {
 
 	/**
-	 * Seat offset in blocks: on top of the shaft (model y ~11) and a little ahead
-	 * of the midpoint, so the bristle bundle trails behind the rider. Rotated by
-	 * the entity yaw only — the rider stays upright while the broom pitches.
+	 * Seat offset in blocks: on top of the shaft (model y ~11) and a little ahead of the
+	 * midpoint, so the bristle bundle trails behind the rider. Rotated by the entity yaw
+	 * only.
 	 */
 	private static final double SEAT_UP = 0.7;
 	private static final double SEAT_FORWARD = 0.4;
 
 	/**
-	 * A Multi Fakkero in the rider's other hand adds thrust on top of the keys for a while.
-	 * Held as a timer rather than a decaying force so the client, which owns the flight
-	 * model, is the only side that counts it down and the two can never disagree about how
-	 * much is left.
+	 * A Multi Fakkero in the rider's other hand adds thrust on top of the keys for a
+	 * while. A timer rather than a decaying force, so the client, which owns the
+	 * flight model, is the only side counting it down and the two cannot disagree.
 	 */
 	@Nullable
 	private Boost boost;
@@ -64,11 +58,10 @@ public class BroomEntity extends SimplifiedEntity implements GeoEntity {
 	private static final double STRAFE = 0.04;
 	private static final double LIFT = 0.05;
 	/**
-	 * Multiplier on the whole input vector when it pushes against the motion it
-	 * is applied to — holding back into a glide, or swinging the nose around to
-	 * reverse. Braking that is no stronger than accelerating makes a broom coming
-	 * at you take as long to turn around as it did to speed up from a standstill,
-	 * which is where the "mushy" feel came from.
+	 * Multiplier on the whole input vector when it pushes against the motion it is
+	 * applied to. Braking that is no stronger than accelerating makes a broom coming
+	 * at you take as long to turn around as it did to speed up, which is where the
+	 * "mushy" feel came from.
 	 */
 	private static final double BRAKE = 2;
 	/** Speed caps; 1.0 b/t is 20 blocks per second, about a sprinting horse. */
@@ -76,13 +69,12 @@ public class BroomEntity extends SimplifiedEntity implements GeoEntity {
 	private static final double MAX_RISE = 0.8;
 	/**
 	 * Speed retained per tick once the rider lets go of the keys, per axis of the
-	 * rider's horizontal facing — see {@link #coast()} for why it is split.
-	 * Along the facing, friction is low so a released forward key glides instead of
-	 * stopping dead; across it, friction is high so a facing that is never
-	 * corrected bleeds off instead of sliding sideways forever.
+	 * rider's horizontal facing — see {@link #coast()} for why it is split. Low along
+	 * the facing so a released key glides, high across it so an uncorrected facing
+	 * bleeds off instead of sliding sideways forever.
 	 */
 	private static final double COAST_FWD = 0.95;
-	private static final double COAST_SIDE = 0.85;
+	private static final double COAST_SIDE = 0.7;
 
 	private static final RawAnimation IDLE = RawAnimation.begin().thenLoop("broom_idle");
 
@@ -100,21 +92,11 @@ public class BroomEntity extends SimplifiedEntity implements GeoEntity {
 			discard();
 			return;
 		}
-		// A rider is not falling. Vanilla charges fall damage off the distance
-		// accumulated while moving downward without ground underfoot, and this thing
-		// drops at up to MAX_RISE a tick — so a ride left a bill that came due the
-		// moment the feet touched down, or the moment the broom was discarded for no
-		// longer being held (BroomItem). Cleared on both sides: the server owns the
-		// damage and the client owns the prediction, and neither should see a rider
-		// banking one. Zeroing rather than clamping, so a broom that dives from height
-		// dismounts clean.
+		// A rider is not falling: vanilla bills fall damage off downward distance gained
+		// without ground, and this drops at MAX_RISE a tick, so it is zeroed rather than clamped.
 		rider.resetFallDistance();
-		// Position is client-authoritative, as on Boat/Minecart: the riding client
-		// runs the flight model and reports the result in ServerboundMoveVehiclePacket,
-		// and the server just applies it. Orientation is NOT handled here — the
-		// renderer reads the rider's view directly (see BroomRenderer), because a
-		// broom has no steering of its own the way a boat does, and copying the
-		// rider's yaw into the entity made the server and the packet fight over it.
+		// Position is client-authoritative, as on Boat/Minecart: the riding client runs
+		// the flight model and the server just applies it. Orientation is the renderer's job.
 		if (!level().isClientSide || !isControlledByLocalInstance()) {
 			setDeltaMovement(Vec3.ZERO);
 			return;
@@ -134,14 +116,12 @@ public class BroomEntity extends SimplifiedEntity implements GeoEntity {
 	}
 
 	/**
-	 * Accelerates along the rider's view, then caps the result per axis group.
-	 * Input aimed against the current motion is boosted by {@link #BRAKE}. With no
-	 * keys held the broom coasts down instead of stopping dead.
+	 * Accelerates along the rider's view, then caps the result per axis group. Input aimed
+	 * against the current motion is boosted by {@link #BRAKE}; no keys held coasts down.
 	 */
 	private Vec3 thrust(Player rider) {
-		// vanilla riding input: zza is forward/back, xxa is left/right, and jump and
-		// shift are still live for a passenger. Sneak normally dismounts, which
-		// PlayerMixin opts this vehicle out of.
+		// vanilla riding input: zza is forward/back, xxa is left/right, and jump and shift
+		// are live for a passenger. Sneak normally dismounts, which PlayerMixin opts out.
 		double ahead = rider.zza;
 		double aside = rider.xxa;
 		double up = (isJumping(rider) ? 1 : 0) - (rider.isShiftKeyDown() ? 1 : 0);
@@ -192,15 +172,12 @@ public class BroomEntity extends SimplifiedEntity implements GeoEntity {
 	}
 
 	/**
-	 * Idle decay, split along and across the rider's horizontal facing: the
-	 * motion is projected onto the facing, the parallel part is scaled by
-	 * {@link #COAST_FWD} and everything left over — the perpendicular part, which
-	 * is also where pure climb and drop lands, since the facing is level — by
-	 * {@link #COAST_SIDE}. Scaling the whole vector uniformly instead is what made
-	 * the broom feel wrong to steer: momentum could never be spent, because the
-	 * speed the thrust built was thrown away the instant the key came up, and a
-	 * sideways shove kept the broom travelling sideways long after the rider had
-	 * turned to face where they were going.
+	 * Idle decay, split along and across the rider's horizontal facing: the motion
+	 * is projected onto the facing, the parallel part scaled by {@link #COAST_FWD} and
+	 * the rest — the perpendicular part, which is also where pure climb and drop
+	 * lands — by {@link #COAST_SIDE}. Scaling the whole vector uniformly instead is
+	 * what made the broom feel wrong to steer: the speed the thrust built was thrown
+	 * away the instant the key came up, and momentum could never be spent.
 	 */
 	private Vec3 coast() {
 		Vec3 facing = Vec3.directionFromRotation(0, getYRot());
@@ -222,10 +199,9 @@ public class BroomEntity extends SimplifiedEntity implements GeoEntity {
 
 	/**
 	 * Hands the controls to whoever is sitting on the front of the shaft. This is
-	 * what makes the vehicle client-authoritative the same way a boat is: the
-	 * riding client ticks it via {@link #isControlledByLocalInstance()} and reports
-	 * the resulting position in {@code ServerboundMoveVehiclePacket}, which
-	 * {@code handleMoveVehicle} accepts only when this returns that player.
+	 * what makes the vehicle client-authoritative the same way a boat is: the riding
+	 * client ticks it and reports the position, which {@code handleMoveVehicle} accepts
+	 * only when this returns that player.
 	 */
 	@Override
 	public @Nullable LivingEntity getControllingPassenger() {

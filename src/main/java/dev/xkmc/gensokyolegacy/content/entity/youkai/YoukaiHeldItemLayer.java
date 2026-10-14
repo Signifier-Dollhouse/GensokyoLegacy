@@ -15,14 +15,12 @@ import software.bernie.geckolib.renderer.GeoRenderer;
 import software.bernie.geckolib.renderer.layer.BlockAndItemGeoLayer;
 
 /**
- * Renders whatever a youkai holds at her wrist locator bones. A geo renderer draws no
- * items by itself — vanilla {@code MobRenderer} did, so without this a character would
- * lose the held item the moment she became geo-rendered. Unlike the dolls, their hands
- * are ordinary vanilla equipment, so the stacks come straight off the entity.
+ * Renders whatever a youkai holds at her wrist locator bones. A geo renderer draws no items by itself, so
+ * without this a character would lose the held item the moment she became geo-rendered. Unlike the dolls,
+ * their hands are ordinary vanilla equipment, so the stacks come straight off the entity.
  * <p>
- * Every character rig in this mod names the two wrist bones the same way (Blockbench
- * exports them as {@code RightHandLocator}/{@code LeftHandLocator}), so one layer serves
- * all of them.
+ * Every rig here names the two wrist bones the same way ({@code RightHandLocator}/{@code LeftHandLocator}),
+ * so one layer serves all of them.
  */
 public class YoukaiHeldItemLayer<T extends GeneralYoukaiEntity & GeoYoukaiAnim> extends BlockAndItemGeoLayer<T> {
 

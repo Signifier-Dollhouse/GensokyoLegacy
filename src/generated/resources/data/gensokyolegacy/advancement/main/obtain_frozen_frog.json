@@ -1,0 +1,61 @@
+{
+  "parent": "gensokyolegacy:main/obtain_fairy_ice_crystal",
+  "criteria": {
+    "0": {
+      "conditions": {
+        "items": [
+          {
+            "items": "gensokyolegacy:frozen_frog_cold"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "1": {
+      "conditions": {
+        "items": [
+          {
+            "items": "gensokyolegacy:frozen_frog_warm"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "2": {
+      "conditions": {
+        "items": [
+          {
+            "items": "gensokyolegacy:frozen_frog_temperate"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "announce_to_chat": false,
+    "description": {
+      "translate": "advancements.gensokyolegacy.main.obtain_frozen_frog.description"
+    },
+    "icon": {
+      "count": 1,
+      "id": "gensokyolegacy:frozen_frog_temperate"
+    },
+    "show_toast": false,
+    "title": {
+      "translate": "advancements.gensokyolegacy.main.obtain_frozen_frog.title"
+    }
+  },
+  "requirements": [
+    [
+      "0"
+    ],
+    [
+      "1"
+    ],
+    [
+      "2"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

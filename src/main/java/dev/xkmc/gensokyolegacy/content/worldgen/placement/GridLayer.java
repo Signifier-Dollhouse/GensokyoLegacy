@@ -12,15 +12,9 @@ import net.minecraft.world.level.levelgen.XoroshiroRandomSource;
 import javax.annotation.Nullable;
 
 /**
- * A jittered grid: the world is cut into {@code cell} x {@code cell} squares, each hosting at most
- * one point, kept {@code margin} blocks away from the cell border. Points are a pure function of
- * world seed, salt and cell, so every chunk (and every other layer) recomputes the same points
- * without reading the world: results are independent of chunk generation order, two points of one
- * layer are never closer than {@code 2 * margin}, and layers can exclude each other.
- * <p>
- * The activation roll is drawn first and compared as {@code u < chance}: layers sharing cell,
- * margin and salt but differing in chance yield nested point sets, so one grid can serve several
- * densities (e.g. per forest type).
+ * A jittered grid: the world is cut into {@code cell} x {@code cell} squares holding at most one point {@code margin}
+ * blocks from the border. Points are a pure function of seed, salt and cell, so every chunk and every other layer
+ * recomputes them: order independent, never closer than {@code 2 * margin}, and layers can exclude each other.
  */
 public record GridLayer(int cell, int margin, int salt, float chance) {
 

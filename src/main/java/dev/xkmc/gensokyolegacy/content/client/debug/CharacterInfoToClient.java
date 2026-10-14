@@ -17,17 +17,9 @@ public record CharacterInfoToClient(
 		ArrayList<Component> advanced
 ) implements SerialPacketBase<CharacterInfoToClient> {
 
-	/**
-	 * What a party guest has eaten, for the one readout that cannot be answered on the
-	 * client.
-	 *
-	 * <p>
-	 * A guest's tallies live on {@code PartyModule}, which is server state: characters
-	 * reach the client as flags and nothing syncs a module's fields. They also answer two
-	 * different questions — how much she has been <i>fed</i> against her own fulfillment,
-	 * and how much she was <i>moved by</i>, which is appeal and is invisible everywhere
-	 * else in the feature. So both halves travel, rather than a ratio derived from them
-	 * and a taste the client would also need.
+	/** What a party guest has eaten, for the one readout the client cannot answer: her tallies live on the
+	 * server-side {@code PartyModule} and cover two questions at once — how much she was <i>fed</i> against
+	 * her own fulfillment and how much she was <i>moved by</i> — so both halves travel, not a ratio.
 	 *
 	 * @param eaten  hunger served to her, measured against her party taste
 	 * @param appeal appeal served to her, which is what her gift is sized on

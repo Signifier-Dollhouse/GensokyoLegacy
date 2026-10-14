@@ -12,12 +12,9 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Arrays;
 
 /**
- * 7-slot pocket storage as a mutable-free {@code @SerialClass}: each slot holds a
- * folded talisman and a reserve paper stack in two parallel arrays. Reads always
- * return copies and writes produce new instances, so stored {@link ItemStack}s are
- * never aliased or mutated in place. Like {@code DCStack}, the hash is computed
- * once and cached (lazily, since deserialization of {@code @SerialField} fields
- * happens after construction) to keep {@link #hashCode()} out of the hot path.
+ * 7-slot pocket storage as a mutable-free {@code @SerialClass}: each slot pairs a folded talisman with a reserve paper
+ * stack in parallel arrays, read as copies and written as new instances, so stored {@link ItemStack}s are never
+ * aliased. The hash is cached lazily because {@code @SerialField} fills fields after construction.
  */
 @SerialClass
 public class TalismanPocketData {

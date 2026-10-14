@@ -14,6 +14,7 @@ The properties do **not** agree on what they count, and assuming one convention 
 | YSF `PotFoodBlock` | `serve` | `1..2` / `1..4` | max | **down** | `value` |
 | KC `FoodBiteBlock` | `bites` | `0..maxBites` | 0 | **up**, but see below | `maxBites - value` |
 | KC `PlateBlock` | `servings` | `0..maxCount` | **max** | **down** — servings left | `value` |
+| DD plated display | `stacks` | `1..6`, per-instance max | 1 | **up**, and stops at 1 | `value` |
 
 `serves` and `consume` both need the direction, and `AbstractCountdownFood` reads it off the property rather than being configured with it:
 
@@ -153,6 +154,12 @@ public static void register() {
         PartyFoodHandler.register(new BiteFood());     // instanceof FoodBiteBlock
         PartyFoodHandler.register(new PlateFood());    // instanceof PlateBlock
     }
+    if (loaded(DD)) {
+        PartyFoodHandler.register(new DisplayFood());  // instanceof AbstractItemBlock
+    }
+    if (loaded(SAR)) {
+        PartyFoodHandler.register(new SandwichFood()); // container: instanceof SandwichBlock
+    }
     PartyFoodHandler.register(new BlockItemFood());   // last: accepts everything
 }
 ```
@@ -265,3 +272,63 @@ CLOTHED(unattached, dressed)   true     true
 So the table top was always a valid surface for block foods, and the change bought nothing while altering a shipped block's behaviour globally — anything could now be stood on it, and mobs stopped spawning inside it. Worth the note: `getSize()` is a mean, so a 3/16 slab passing is a coincidence of this particular slab's proportions, not a general property of thin tops. A thinner or narrower top would fail, and if a future table needs a different profile it must be re-measured rather than assumed.
 
 **Side effects now avoided:** `large_table` keeps its original collision behaviour, so mob spawning inside it and what can be stacked on it are both unchanged from before this feature.
+
+## 7. The two display mods — and the one with nothing to display
+
+### 7.1 Create has no block food at all
+
+Create 6.0.10 is in the dev environment for this feature, but it contributes nothing here and has no handler. Its food is entirely **items** — `blaze_cake`, `bar_of_chocolate`, `chocolate_berries`, `honeyed_apple` — and they are deployables: the deployer places a rendered item, never a block. `AllBlocks` has no food in it at all. The sandwich item it appears to share with Some Assembly Required is that mod's own. This is worth stating rather than leaving to a reader who greps for a missing handler.
+
+### 7.2 Display Delight — one block per food, so the block is the table
+
+Display Delight inverts Farmer's Delight. An FD feast is **one** `FeastBlock` class that hands out a different serving item per block state; a DD display is **237 distinct block instances**, one per food item, each carrying its identity in the instance rather than the state. `BlockAssociations.itemMap` is the public `Map<Block, Item>` that pairs them, and `AbstractItemBlock.getStackFor()` is a one-liner over it:
+
+```java
+public ItemStack getStackFor() {
+    return new ItemStack(BlockAssociations.getItemFor(this));
+}
+```
+
+So this is the case §4 called a per-block table and did not need: `handles` is a single `instanceof AbstractItemBlock`, and the serving is asked of the block. `EmptyPlateBlock` and `EmptySmallPlateBlock` extend `Block` rather than `AbstractItemBlock`, so a bare plate is left to the catch-all — which is the same precision that keeps `SaucerFood` off `EmptySaucerBlock`.
+
+**Its counter is a third convention, and the only one that cannot count itself empty.** `stacks` runs `1..6` with default 1, so it counts up; but `getDecrementedState` clamps at 1 and never produces a 0, and the property is capped per-instance by `getMaxStackable()`:
+
+```java
+public BlockState getDecrementedState(BlockState state) {
+    int n = Math.max(getStacks(state) - 1, 1);
+    if (getStacks(state) >= getMaxStackable()) n = getMaxStackable() - 1;
+    return state.setValue(STACKS, n);
+}
+```
+
+`AbstractCountdownFood` would have been wrong twice over. `countsDown` reads the direction off a fresh state and would see `1` against a maximum of 6 and conclude "counts up", so `serves` would come out as `value + 1` — **one serve too many on a freshly placed display**, which is the same class of error as the Cookery one in §1.1 — and then `consume` would step a 1-stack plate to 2 and a full plate to `max`, so the count would climb away from empty instead of toward it. Worse, `countProperty` would not even find it: the property is named `stacks`, which is in none of `COUNT_NAMES`, so the handler would have silently reported every plated display as a single indivisible serving.
+
+**What is left when the last serving goes is the plate, not nothing.** The mod's own take path does this, and so does `consume`:
+
+```java
+// InterationManager.tryTakeItemWithBareHand, abridged
+if (plated.getStacks(state) > 1) level.setBlock(pos, plated.getDecrementedState(state), 3);
+else level.setBlock(pos, plated.hasPlate(state)
+        ? DisplayBlocks.PLATE.get().defaultBlockState()
+        : Blocks.AIR.defaultBlockState(), 3);
+```
+
+`hasPlate(state)` is `!PLATE_HIDDEN`, so it is the question "is there a real plate block under this food". Taking the block rather than the food off a plate a host has laid out would be the visible version of the `PotFood` bowl mistake in §5, so `DisplayFood` reproduces this branch, with `SMALL_PLATE` for the non-stackable `SmallPlatedFoodBlock` and `Blocks.AIR` — the mod's own answer — for a display standing on its own.
+
+### 7.3 Some Assembly Required — a sandwich is a container
+
+`SandwichBlock` holds its layers in a `SandwichBlockEntity` as a `SandwichContents`, so it belongs in the container list and must never touch `FoodResultCache`.
+
+Its `size` property is the model's height in layers and is **not** a serve count, so `SandwichContents` is read rather than the state. The price comes from the mod's own item for those contents, which is the only authoritative answer — `SandwichItem.getFoodProperties` is overridden to read the `SANDWICH_CONTENTS` component and sum the layers' `nutrition` and `saturation` through `createFoodProperties`:
+
+```java
+public FoodProperties getFoodProperties(ItemStack stack, LivingEntity entity) {
+    return stack.getOrDefault(SANDWICH_CONTENTS, EMPTY).createFoodProperties(entity);
+}
+```
+
+`SandwichContents.makeItem()` builds that item with the component already set, so `Servings.of(serving)` — the codebase's usual `getFoodProperties(null)` path — reaches it unchanged and no reflection or private field is needed. An empty or part-built stack yields `ItemStack.EMPTY` or no food value and is skipped, which is what keeps a half-assembled pile of bread and filling out of the spread.
+
+**One placed sandwich is one indivisible serving, where a player eats it a layer at a time.** `SandwichBlockEntity.useWithoutItem` calls `contents.dropLast()` per click, so the mod counts a tall sandwich down. A party does not: `contents` prices the whole sandwich once, and a guest who takes that serving has eaten the lot, so `consume` clears the block. Pricing by the layer instead would mean one guest draining a six-layer sandwich over six visits, with each layer re-derived from ingredients the mod only sums in `createFoodProperties`.
+
+It is a dish, so `isPutOut` is the ordinary `PartyArea.touchingFurniture` — unlike `PotFood`, a sandwich on the kitchen floor is not something a host has done.

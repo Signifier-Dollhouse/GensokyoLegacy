@@ -44,19 +44,16 @@ public class TravelModeUtil {
 		if (pos.getY() < min) pos = pos.atY(min);
 		if (pos.getY() > max) pos = pos.atY(max);
 		int x = pos.getX(), y = pos.getY(), z = pos.getZ();
-		// A column is judged by three yes/no questions, and stepping one block answers two of
-		// them from the step before: only the block entering the window is genuinely new. So the
-		// walk carries that pair along and reads one block per candidate, instead of asking
-		// isFitting() about all three every time and re-reading the column under the player.
+		// A column is judged by three yes/no questions, and stepping one block answers two from
+		// the step before, so the walk carries that pair and reads one block per candidate.
 		BlockState at = level.getBlockState(pos);
 		boolean below = isSupport(level.getBlockState(pos.below()));
 		boolean cur = isSupport(at);
 		boolean above = isSupport(level.getBlockState(pos.above()));
 		if (isFitting(below, cur, above)) return Vec3.atBottomCenterOf(pos);
 		if (at.isAir()) {
-			// teleporting to air: move down to first block so player stands on a block
-			// lo/hi hold the support answers for the candidate column and the one above it; as
-			// the window slides down, its third member is the only block newly read each step
+			// teleporting to air: move down to first block so player stands on a block; lo/hi hold
+			// the support answers for this column and the one above, so only the third is new
 			boolean lo = below, hi = cur;
 			for (int cy = y - 1; cy >= min; cy--) {
 				boolean next = isSupport(level.getBlockState(new BlockPos(x, cy - 1, z)));

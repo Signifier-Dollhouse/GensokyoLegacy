@@ -13,11 +13,10 @@ import net.minecraft.world.phys.Vec3;
 import java.util.List;
 
 /**
- * Draws the tables, seats and dishes of the scan held on the party wand, inside a box over their
- * extent. Stateless — it reads the held wand's component each frame, so the picture cannot fall
- * out of step with the counts in the overlay.
+ * Draws the tables, seats and dishes of the scan held on the party wand. Stateless - it re-reads
+ * the wand's component each frame, so the picture cannot fall out of step with the overlay counts.
  *
- * @see doc/design/party/debug.md
+ * @see "doc/design/party/debug.md"
  */
 public class PartyAreaRenderer {
 

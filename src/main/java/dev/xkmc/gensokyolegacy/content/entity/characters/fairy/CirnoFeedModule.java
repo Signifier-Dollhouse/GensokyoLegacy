@@ -1,31 +1,22 @@
 package dev.xkmc.gensokyolegacy.content.entity.characters.fairy;
 
+import dev.xkmc.gensokyolegacy.content.entity.module.EntityInteraction;
 import dev.xkmc.gensokyolegacy.content.entity.module.FairyFeedModule;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
 
+import java.util.List;
+
 /**
- * Feeding a Cirno is feeding a fairy, except for what she gives back.
- * <p>
- * Everything the feed actually costs is inherited untouched: same two tiers, same
- * flat reputation, same hundred-point cap, same twenty-second cooldown, same
- * "food is only a gift once she is no longer your enemy" line. Only the thank-you
- * changes, and it changes completely, because she is not a fairy who found a
- * crystal - she is the one who crafts them out of three frozen frogs.
- * <p>
- * So a cake - vanilla or fairy - buys a whole crystal, the thing she is standing
- * three frogs short of, and a cookie buys four packed ice: enough to start the
- * eight-around-a-crystal recipe at the crafting table with one crystal in hand.
- * A single cookie handing back one ice would be a rounding error on that recipe,
- * and four is the number that makes the cheap tier worth carrying.
- * <p>
- * Both gifts are fixed rather than rolled, unlike a plain fairy's die roll for a
- * flower - there is nothing to roll here. That is also why this is a subclass and
- * not two rows of a table in {@link FairyFeedModule}: the tier, the reputation and
- * the cooldown are shared code and the gift is the entire difference, and a
- * subclass is the shape that says so. {@code FairyFeedTask} finds it anyway, since
- * it looks the module up by {@link FairyFeedModule}.
+ * Feeding a Cirno is feeding a fairy, except for what she gives back: she crafts the
+ * crystals out of three frozen frogs. A cake - vanilla or fairy - buys a whole crystal,
+ * the thing she is three frogs short of, and a cookie buys four packed ice: enough to
+ * start the eight-around-a-crystal recipe with one crystal in hand, and the number that
+ * makes the cheap tier worth carrying. Both gifts are fixed rather than rolled, unlike
+ * a plain fairy's die roll for a flower - there is nothing to roll here. A subclass
+ * says that the gift is the entire difference, and {@code FairyFeedTask} still finds it
+ * by looking the module up as a {@link FairyFeedModule}.
  */
 public class CirnoFeedModule extends FairyFeedModule {
 
@@ -35,18 +26,28 @@ public class CirnoFeedModule extends FairyFeedModule {
 	 */
 	public static final int COOKIE_ICE = 4;
 
+	/** Stated once and handed to both halves, so the stack she throws and the stack the page
+	 * promises cannot come apart. */
+	private static final List<ItemStack> CAKE_GIFT = List.of(GLItems.FAIRY_ICE_CRYSTAL.asStack());
+	private static final List<ItemStack> COOKIE_GIFT = List.of(new ItemStack(Blocks.PACKED_ICE, COOKIE_ICE));
+
 	public CirnoFeedModule(CirnoEntity self) {
 		super(self);
 	}
 
+	/** The same two dishes as any fairy's, for crystals and packed ice. */
+	public static List<EntityInteraction> interactions() {
+		return page(CAKE_GIFT, COOKIE_GIFT);
+	}
+
 	@Override
 	protected ItemStack cakeGift() {
-		return GLItems.FAIRY_ICE_CRYSTAL.asStack();
+		return CAKE_GIFT.getFirst();
 	}
 
 	@Override
 	protected ItemStack cookieGift() {
-		return new ItemStack(Blocks.PACKED_ICE, COOKIE_ICE);
+		return COOKIE_GIFT.getFirst();
 	}
 
 }

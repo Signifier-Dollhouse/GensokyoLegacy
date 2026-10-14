@@ -3,31 +3,29 @@ package dev.xkmc.gensokyolegacy.content.entity.behavior.task.party;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.brain.TaskBoard;
 
 import dev.xkmc.gensokyolegacy.init.registrate.GLBrains;
+import net.minecraft.util.RandomSource;
+
 import java.util.List;
 
 /**
  * The party machine: the ordered list of its tasks, and the numbers they share.
  *
  * <p>
- * <b>The order of {@link #ALL} is the priority.</b> {@code TaskBoard.fetch} collects the
- * exclusive tasks under one activity into a single {@code GateBehavior(ORDERED, RUN_ONE)},
- * which runs the first whose signature matches — so a task lower down may be given a
- * signature as loose as "nothing" as long as everything above it has been ruled out.
+ * <b>The order of {@link #ALL} is the priority.</b> {@code TaskBoard.fetch} collects the exclusive
+ * tasks into one {@code GateBehavior(ORDERED, RUN_ONE)} running the first whose signature matches,
+ * so a task lower down may carry a signature as loose as "nothing". Which task that amounts to
+ * comes from the fields on the party module, so a guest reloaded from disk lands where she was.
  *
- * <p>
- * Which task that amounts to is decided by the fields on the party module, so a guest
- * reloaded from disk lands on the same line of the tree she was on.
- *
- * @see doc/design/party/guest.md
+ * @see "doc/design/party/guest.md"
  */
 public final class PartyTasks {
 
 	/**
 	 * How long she may go without getting any closer to what she is walking to before the
-	 * director puts her there instead. Three seconds. Measured as lost ground rather than
-	 * elapsed time: a guest crossing a long room is slow and fine.
+	 * director puts her there instead — five seconds, measured as lost ground rather than
+	 * elapsed time, since a guest crossing a long room is slow and fine.
 	 */
-	public static final int WALK_STALL = 60;
+	public static final int WALK_STALL = 100;
 
 	/** How often a missing chair is re-checked, in ticks. Three seconds. */
 	public static final int SEAT_RETRY = 60;
@@ -43,7 +41,7 @@ public final class PartyTasks {
 
 	/**
 	 * How long the pickup gesture runs before the plate is in her hand. The
-	 * {@code 使用主手物品} clip is 0.31s, the same figure {@code FairyCakeTask} times against.
+	 * {@code 使用主手物品} clip is 0.31s, the figure {@code FairyCakeTask} times against too.
 	 */
 	public static final int PICKUP_TICKS = 6;
 
@@ -53,8 +51,20 @@ public final class PartyTasks {
 	/** Shortest such hesitation — the least that still looks like a choice. */
 	public static final int BITE_DELAY_MIN = 10;
 
-	/** Longest a guest takes to stand up when the party ends. */
-	public static final int UNSEAT_DELAY = 60;
+	/**
+	 * Shortest a guest sits on after deciding to go: twenty seconds, the least that still reads as
+	 * a guest thinking it over rather than standing up mid-thought.
+	 */
+	public static final int UNSEAT_MIN = 400;
+
+	/** Longest such sit, thirty seconds. The band is wide so a table winds down instead of emptying at once. */
+	public static final int UNSEAT_MAX = 600;
+
+	/**
+	 * How far the host may be before a guest gives up the rest of the wait and goes. The pause is
+	 * for the host to watch her decide, and it is worth nothing to an empty room.
+	 */
+	public static final int HOST_LEAVE_DISTANCE = 24;
 
 	/** How long she may spend walking away before she is let go regardless. */
 	public static final int LEAVE_TIMEOUT = 200;
@@ -69,6 +79,11 @@ public final class PartyTasks {
 	public static final double DEPART_REACH = 2;
 
 	private PartyTasks() {
+	}
+
+	/** The unseat wait one guest draws for herself, so the table does not empty in one frame. */
+	public static int unseatDelay(RandomSource random) {
+		return random.nextInt(UNSEAT_MIN, UNSEAT_MAX + 1);
 	}
 
 	/** The whole machine, in priority order. */

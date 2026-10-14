@@ -6,18 +6,12 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 
 /**
- * Draw a dish, and commit to it.
+ * Draw a dish, and commit to it. Random rather than nearest, and weighted rather than uniform,
+ * so a guest works her way across the spread instead of clearing the nearest plate first — and so
+ * the tasty things go first. Nothing left she can reach is the end of her visit rather than
+ * another draw: she settles up with a gift and goes.
  *
- * <p>
- * Random rather than nearest, and weighted rather than uniform, so a guest works her way
- * across the spread instead of clearing the nearest plate first — and so the tasty things
- * go before the plain ones.
- *
- * <p>
- * Nothing left she can reach is the end of her visit rather than another draw: she settles
- * up with a gift and goes.
- *
- * @see doc/design/party/guest.md
+ * @see "doc/design/party/guest.md"
  */
 public class FindFoodTask extends PartyTask {
 

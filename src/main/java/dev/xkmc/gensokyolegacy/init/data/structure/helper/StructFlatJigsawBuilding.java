@@ -22,12 +22,9 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProc
 import java.util.List;
 import java.util.Map;
 
-/**
- * Flat-check structure with multiple jigsaw pools.
- * Registers one template pool per part at {@code <id>/<part>} and starts
- * generation from the first part (root). Rigid parts use RIGID projection,
- * flexible parts (hakurei paths) use TERRAIN_MATCHING.
- */
+/** Flat-check structure with multiple jigsaw pools. Registers one template pool per part at
+ *  {@code <id>/<part>} and starts generation from the first part (root). Rigid parts use RIGID projection,
+ *  flexible parts (hakurei paths) use TERRAIN_MATCHING. */
 public record StructFlatJigsawBuilding(
 		int maxDepth,
 		List<Part> parts,

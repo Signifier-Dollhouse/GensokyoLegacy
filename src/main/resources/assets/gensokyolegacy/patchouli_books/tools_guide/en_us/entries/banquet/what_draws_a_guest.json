@@ -1,0 +1,21 @@
+{
+  "name": "What Draws a Guest",
+  "icon": "minecraft:golden_carrot",
+  "category": "gensokyolegacy:banquet",
+  "sortnum": 2,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "minecraft:cake",
+      "text": "The total filling power of your dishes decides how many guests you can attract. The variety and quality of those dishes decide whether a rare guest will come at all, and how good a gift she will leave behind.$(br2)Dishes with higher saturation count for more appeal, and the same dish only ever counts once."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Every guest has her own threshold. A single cake is enough to invite Cirno, while Suika wants a grand buffet.$(br2)You can put out more food partway through, but a guest who has already eaten her fill slows down sharply, and may leave early."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Reputation does not decide whether a guest comes, only how much likelier she is to come: someone you know well is nearly twice as willing as a stranger.$(br2)Afterwards every guest leaves a gift, and how good it is depends on the appeal of the food she ate."
+    }
+  ]
+}

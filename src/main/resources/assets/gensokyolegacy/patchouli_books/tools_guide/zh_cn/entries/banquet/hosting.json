@@ -1,0 +1,23 @@
+{
+  "name": "开办宴会",
+  "icon": "gensokyolegacy:invitation_letter",
+  "category": "gensokyolegacy:banquet",
+  "sortnum": 1,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "tag:gensokyolegacy:table",
+      "text": "一场宴席从餐桌开始。菜肴摆在桌面上，或是紧贴桌边。$(br2)菜品的品质和多样性都有助于提升吸引力。菜品最好放在触手可及之处，不然客人可能会上桌吃饭。"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "tag:gensokyolegacy:stool",
+      "text": "有席可坐，才称得上一场宴会。距离3格以内的桌椅会被计入同一场宴会范围。桌椅分散有助于客人走动取食，但也别太大。$(br2)宴会最好在空旷的地方举办，方便客人前来。"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "gensokyolegacy:invitation_letter",
+      "text": "邀请函上并没有写名字。持信右键桌子，帖子便发往整个幻想乡，发给所有可能前来的人。信在发出时被用去一张。$(br2)一处同一时间只容得下一场宴会——等最后一位客人离去，再发下一封不迟。"
+    }
+  ]
+}

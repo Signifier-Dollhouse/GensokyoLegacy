@@ -28,11 +28,8 @@ public class ShelfBlockEntity extends BaseBlockEntity {
 	@SerialField
 	public int cost, stock, earning;
 
-	/**
-	 * Player who initiated the current break, recorded by
-	 * {@code ShelfBlock.playerWillDestroy} before removal. Transient: never
-	 * serialized, consumed by the universal removal flush below.
-	 */
+	/** Player who initiated the current break, recorded by {@code ShelfBlock.playerWillDestroy} before
+	 * removal. Transient: never serialized, consumed by the universal removal flush below. */
 	public UUID lastBreaker = null;
 
 
@@ -121,16 +118,10 @@ public class ShelfBlockEntity extends BaseBlockEntity {
 		notifyTile();
 	}
 
-	/**
-	 * Universal removal flush, called from {@code onReplaced} for every removal
-	 * cause (player break in any mode, explosion, commands, ...). The block
-	 * entity is still present at this point. Nothing is ever voided:
-	 * the recorded breaker breaking their own shelf drops its stock and
-	 * earnings on the ground; a shelf removed by anyone or anything else sends
-	 * its contents to {@link PendingItemStorage}, to be handed back by the
-	 * periodic delivery once the owner is online with room. Unowned shop
-	 * shelves drop in place.
-	 */
+	/** Universal removal flush, called from {@code onReplaced} for every removal cause, while the block
+	 * entity is still present. Nothing is ever voided: the recorded breaker drops the shelf's stock and
+	 * earnings on the ground, anyone else sends them to {@link PendingItemStorage} for periodic delivery
+	 * once the owner is online with room, and an unowned shelf drops in place. */
 	public void flushDrops(ServerLevel level, BlockPos pos) {
 		var breaker = lastBreaker;
 		lastBreaker = null;

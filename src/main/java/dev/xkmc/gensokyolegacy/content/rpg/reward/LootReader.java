@@ -30,20 +30,8 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * What a loot table can drop, read off the table rather than rolled.
- * <p>
- * A loot table lives in the server's registries and is not one of the registries NeoForge syncs
- * to clients, so this is the only way a client can learn a quest's reward, and
- * {@link dev.xkmc.gensokyolegacy.content.rpg.network.QuestLootToClient} is what carries the
- * answer over.
- * <p>
- * Reading beats rolling because it is the table's own answer rather than a sample of it: a
- * count that comes out of a constant is exact, not merely observed. What is left out is
- * everything a table only decides at roll time. Conditions go entirely — every branch counts as
- * a possible drop, which is the point of a page describing what <i>can</i> come out. Of the
- * functions, only {@code set_count} says anything about the page, so only it is read. An entry
- * type that names no item of its own — a tag, a nested table, a dynamic lookup — contributes
- * nothing, rather than something invented.
+ * What a loot table can drop, read off the table rather than rolled, so a constant count is exact, not merely
+ * observed. Conditions go entirely: every branch counts, the point of a page describing what <i>can</i> come out.
  */
 public class LootReader {
 
@@ -100,9 +88,8 @@ public class LootReader {
 	}
 
 	/**
-	 * The stack size an entry's {@code set_count} functions ask for, or null if they do not say
-	 * one. Anything else the functions do is left alone: it either does not touch the count, or
-	 * changes the item in ways a page cannot show anyway.
+	 * The count an entry's {@code set_count} functions ask for, or null if they do not say one. Anything else
+	 * they do either leaves the count alone or changes the item in ways a page cannot show.
 	 */
 	private static @Nullable Range readCount(List<LootItemFunction> functions) {
 		Range ans = new Range(1, 1);
@@ -145,9 +132,8 @@ public class LootReader {
 	}
 
 	/**
-	 * The span of values a number provider can produce, or null where it turns on something only
-	 * the roll knows. A constant is one value; a uniform range is as wide as its two ends say,
-	 * provided each end is itself sayable.
+	 * The span of values a number provider can produce, or null where it turns on something only the roll knows.
+	 * A constant is one value; a uniform range is as wide as its two ends say, if each end is itself sayable.
 	 */
 	private static @Nullable Range range(NumberProvider provider) {
 		if (provider instanceof ConstantValue constant) {

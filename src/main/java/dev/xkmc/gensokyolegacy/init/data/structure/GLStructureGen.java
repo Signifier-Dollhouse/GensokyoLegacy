@@ -34,22 +34,34 @@ public class GLStructureGen {
 
 	// Structure ids, public because visit chat is written per host: a guest says
 	// different things at each of these, so the QDGen classes name them.
+	public static final ResourceLocation CIRNO_NEST = GensokyoLegacy.loc("cirno_nest");
 	public static final ResourceLocation HAKUREI_SHRINE = GensokyoLegacy.loc("hakurei_shrine");
 	public static final ResourceLocation MARISA_HOUSE = GensokyoLegacy.loc("marisa_house");
 	public static final ResourceLocation MORICHIKA_SHOP = GensokyoLegacy.loc("morichika_shop");
 	public static final ResourceLocation ALICE_HOUSE = GensokyoLegacy.loc("alice_house");
 
-	// Marisa's house and Kourindou share one structure set in the magical
-	// forest: every region randomly picks exactly one of 4 slots (via the
-	// FlatCheckStructure setIndex/setCount gate), so the houses can never
-	// spawn too close to each other. Only slots 0-1 are assigned yet;
-	// slots 2-3 are reserved for future structures. Never change the total
-	// once released, or existing region picks will shift.
+	// Marisa's house and Kourindou share one structure set: every region picks one of 4 slots (FlatCheckStructure
+	// setIndex/setCount gate), so they never spawn too close; slots 2-3 are reserved and the total must never change.
 	private static final ResourceLocation FOREST_HOUSES = GensokyoLegacy.loc("magical_forest_houses");
 	private static final int FOREST_HOUSES_TOTAL = 4;
 
 	private static List<StructStructure> initStructures() {
 		return List.of(
+				// Cirno's ice nest in the snowy biomes (13x8x13, bed at (10,1,7)-(10,1,8), door seals z0-1 gap):
+				// one attempt per region: it is 32 chunks wide and the dome 13 across, so extra attempts buy nothing.
+				new StructStructure(
+						CIRNO_NEST, GLStructureTagGen.CIRNO_NEST, 32, 1,
+						StructureConfigBuilder.cirno(),
+						List.of(new StructBed(
+								GLEntities.CIRNO,
+								CharacterConfig.forStructure(6000, 12000, 12, 30),
+								GLBlocks.Beds.CIRNO.holder()
+						)),
+						new StructFlatBuilding(List.of(), Map.of(), 5, 32, 1, 32, 8),
+						// its own set: the nest is in the snowy biomes and shares
+						// no region with the magical forest houses
+						CIRNO_NEST
+				),
 				// Marisa's house in the modded magical forest (template 30x13x25, bed at local (4,6,16)-(5,6,16))
 				new StructStructure(
 						MARISA_HOUSE, GLStructureTagGen.MARISA_HOUSE, 32, 24,
@@ -97,7 +109,8 @@ public class GLStructureGen {
 				// its own set: the shrine is not part of the forest houses
 				HAKUREI_SHRINE
 			),
-				// Kourindou (Morichika's shop) in the modded magical forest (template 33x18x33, bed at local (27,8,16)-(27,8,17))
+				// Kourindou (Morichika's shop) in the modded magical forest (template 33x18x33, bed at local
+				// (27,8,16)-(27,8,17))
 				new StructStructure(
 						MORICHIKA_SHOP, GLStructureTagGen.MORICHIKA_SHOP, 32, 24,
 						StructureConfigBuilder.morichika(),
@@ -113,11 +126,8 @@ public class GLStructureGen {
 					new StructFlatBuilding(List.of(), Map.of(), 5, 64, 24, 32, 8),
 						FOREST_HOUSES
 				),
-				// Alice's house in the modded magical forest (root 29x23x18,
-				// bed at local (12,6,6)-(12,6,7)). Five jigsaw parts hang off
-				// the root: gate, garden, path, tree and backyard. They all
-				// sit on solid ground, so unlike the hakurei shrine paths
-				// every part is rigid rather than terrain matching.
+				// Alice's house in the magical forest (root 29x23x18, bed at (12,6,6)-(12,6,7)). Five jigsaw parts
+				// hang off the root (gate, garden, path, tree, backyard), all on solid ground, so all are rigid.
 				new StructStructure(
 						ALICE_HOUSE, GLStructureTagGen.ALICE_HOUSE, 32, 24,
 						StructureConfigBuilder.alice(),
@@ -139,11 +149,8 @@ public class GLStructureGen {
 		);
 	}
 
-	/**
-	 * A guest slot: the share of days the character shows up at all, and how long
-	 * she stays when she does. The window inside the day is derived from the
-	 * structure position and the day - see {@code VisitTable}.
-	 */
+	/** A guest slot: the share of days the character shows up at all, and how long she stays when she does.
+	 *  The window inside the day is derived from the structure position and the day - see {@code VisitTable}. */
 	private static StructureConfig.CharacterVisit visit(float chance, int minStay, int maxStay) {
 		return new StructureConfig.CharacterVisit(chance, minStay, maxStay);
 	}
@@ -172,7 +179,7 @@ public class GLStructureGen {
 			structureReg.add(e.id(), config.build(), false);
 		}
 
-		bedReg.add(GLBlocks.BEDS[GLBlocks.Beds.CIRNO.ordinal()], new BedData(GLEntities.CIRNO.get()), false);
+		// Rumia has no structure yet, so her bed is hand-wired here
 		bedReg.add(GLBlocks.BEDS[GLBlocks.Beds.RUMIA.ordinal()], new BedData(GLEntities.RUMIA.get()), false);
 	}
 

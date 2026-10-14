@@ -9,11 +9,9 @@ import software.bernie.geckolib.renderer.GeoEntityRenderer;
 
 /**
  * The broom is aimed by its rider, not by itself: its orientation is read off the
- * player every frame rather than from the entity's synced rotation. A boat does
- * not work this way — its yaw comes out of its own steering — but a broom has no
- * steering of its own, it simply points wherever the rider looks.
- *
- * <p>Pitch is taken at two thirds so the model swings through ±60° while the
+ * player every frame rather than from the entity's synced rotation. A boat's yaw
+ * comes out of its own steering, but a broom has none — it points wherever the rider
+ * looks. Pitch is taken at two thirds so the model swings through ±60° while the
  * player can look through ±90°; at full scale the shaft would bury itself in the
  * ground long before the player stopped looking down.
  */
@@ -27,11 +25,9 @@ public class BroomRenderer extends GeoEntityRenderer<BroomEntity> {
 	}
 
 	/**
-	 * Deliberately does not call {@code super}: that applies
-	 * {@code 180 - entity yaw}, which is the wrong source for a ridden vehicle and
-	 * would fight the yaw derived from the rider below. {@code BroomEntity} is
-	 * neither a {@code LivingEntity} nor ever sleeping or dying, so the remaining
-	 * branches of the superclass implementation do not apply to it.
+	 * Deliberately does not call {@code super}: that applies {@code 180 - entity yaw},
+	 * which is the wrong source for a ridden vehicle and would fight the yaw derived
+	 * from the rider below. The remaining superclass branches do not apply to a broom.
 	 */
 	@Override
 	protected void applyRotations(BroomEntity animatable, PoseStack poseStack, float ageInTicks,

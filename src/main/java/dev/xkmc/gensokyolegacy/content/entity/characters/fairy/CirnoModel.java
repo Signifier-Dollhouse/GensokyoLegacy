@@ -8,7 +8,7 @@ import software.bernie.geckolib.model.DefaultedEntityGeoModel;
  * Cirno's Blockbench rig. Carries her hair, the green bow and the wings as bones
  * of the one model ({@code Green_Bowknot}, {@code LeftWing}/{@code RightWing},
  * the latter two flapped by her idle clip), which is why the separate hairband and
- * wings models the vanilla mob used are gone — see {@link CirnoEntity}.
+ * wings models the vanilla mob used are gone.
  */
 public class CirnoModel extends DefaultedEntityGeoModel<CirnoEntity> {
 

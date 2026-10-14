@@ -7,21 +7,10 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.items.IItemHandlerModifiable;
 
 /**
- * 14-slot IItemHandlerModifiable facade over {@link TalismanPocketData}.
- * Slots 0..6 are the folded talisman row, slots 7..13 the reserve paper row,
- * index i holding the two stacks of pocket slot i.
- *
- * <p>Slot input restriction is handled here ({@link #isItemValid}): a slot is
- * only locked to the kind present in its partnered slot — a folded slot is
- * restricted when its paper partner has an item, a paper slot when its folded
- * partner has an item; otherwise items of any kind are allowed.
- *
- * <p>The server-side menu is backed by the live pocket {@code ItemStack} and
- * writes every change back to {@link GLTalismans#DC_TALISMAN_POCKET}. The
- * client-side menu uses a dummy (empty) backing stack: slot contents then come
- * purely from container sync via {@code setStackInSlot}, so the input
- * restriction applies identically on both sides. It must be modifiable because
- * {@code ItemHandlerCopySlot.setStackCopy} casts to this interface.
+ * 14-slot handler over {@link TalismanPocketData}: slots 0..6 hold folded talismans and 7..13 the reserve paper, slot i
+ * pairing both halves of pocket slot i; a slot locks to the kind already in its partner, otherwise any kind fits.
+ * Client menus back onto an empty dummy stack, so contents arrive purely by sync, and the handler must stay modifiable
+ * because {@code ItemHandlerCopySlot.setStackCopy} casts to it.
  */
 public class TalismanPocketItemHandler implements IItemHandlerModifiable {
 

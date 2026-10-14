@@ -11,12 +11,10 @@ import net.minecraft.world.level.block.Blocks;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * What a hakkero is set to cook as, shared by both models: the prototype
- * ({@link HakkeroPrototype}) and the finished one ({@link Hakkero}).
- *
- * <p>Each constant pairs the vanilla block whose name the mode borrows with the
- * {@link RecipeType} it cooks by. {@link #OFF} has no recipe type and no block, and only the
- * prototype can reach it — see {@link #lit()}.
+ * What a hakkero is set to cook as, shared by both models: the prototype ({@link HakkeroPrototype})
+ * and the finished one ({@link Hakkero}). Each constant pairs the vanilla block whose name the mode
+ * borrows with the {@link RecipeType} it cooks by; {@link #OFF} has neither, only the prototype
+ * reaches it — see {@link #lit()}.
  */
 public enum HakkeroMode {
 
@@ -26,10 +24,8 @@ public enum HakkeroMode {
 	FURNACE(Blocks.FURNACE, RecipeType.SMELTING),
 	BLAST(Blocks.BLAST_FURNACE, RecipeType.BLASTING);
 
-	/**
-	 * Every mode except {@link #OFF}. A sealed firebox has nothing to switch off — there are
-	 * no leaks left to stop — so the finished hakkero only ever cycles these, and its data
-	 * component only ever holds these.
+	/** Every mode except {@link #OFF}: a sealed firebox has nothing to switch off — there are no
+	 * leaks left to stop — so the finished hakkero only ever cycles and stores these.
 	 */
 	private static final HakkeroMode[] LIT = {SMOKE, FURNACE, BLAST};
 
@@ -43,10 +39,8 @@ public enum HakkeroMode {
 	}
 
 	/**
-	 * The modes a sealed hakkero can hold, {@link #OFF} excluded. For its mode cycle.
-	 *
-	 * <p>Not for its data component's codec: the enum codec numbers values by the enum's own
-	 * ordinals, so it has to be given every constant (see {@code GLItems#DC_HAKKERO_MODE}).
+	 * The modes a sealed hakkero can hold, {@link #OFF} excluded. For its mode cycle, not for its
+	 * data component's codec: the enum codec numbers values by ordinal, so it needs every constant.
 	 */
 	public static HakkeroMode[] lit() {
 		return LIT.clone();

@@ -94,20 +94,9 @@ public class GapPortalBlockEntity extends BaseBlockEntity implements IPortalBloc
 		initData(sideVal);
 	}
 
-	/**
-	 * Pairing invariant: every fresh item (no uuid) creates exactly 2 uuid-bearing endpoints
-	 * (block or item). Supports teleport between any 2 points (same or different dimension,
-	 * with or without GAP) once the pair is complete. Uses entry/exit naming.
-	 * <ul>
-	 *   <li>Fresh item (no uuid, any dimension, ENTRY): place block as ENTRY pending
-	 *       {entry=here, exit=null} and replace hand with same-uuid EXIT item (see {@link GapPortalItem}).
-	 *       Consistent whether in GAP or not.</li>
-	 *   <li>Use EXIT item on ENTRY portal (same uuid) while pending: generates the missing side
-	 *       – non-GAP entry → GAP exit (proportional Y), GAP entry → overworld exit (spawn).
-	 *       Also handles the mirrored case (EXIT block + ENTRY item). Consumes the item.</li>
-	 *   <li>Item with uuid+side on complete pair: moves the side matching its side.</li>
-	 *   <li>Picking up via {@link GapPortalBlock} clears that endpoint (making pending) and gives item with side.</li>
-	 * </ul>
+	/** Pairing invariant: a fresh item (no uuid) creates exactly 2 uuid-bearing endpoints (block or item), and
+	 * the pair then teleports between any 2 points, GAP included. EXIT on a pending ENTRY fills the missing side
+	 * (non-GAP entry → GAP exit at proportional Y, GAP entry → overworld spawn); picking up clears that endpoint.
 	 */
 	public void initData(PortalSide side) {
 		if (!(level instanceof ServerLevel sl)) return;

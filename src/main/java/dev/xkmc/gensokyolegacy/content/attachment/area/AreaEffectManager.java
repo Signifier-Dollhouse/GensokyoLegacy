@@ -13,10 +13,9 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Facade over {@link LevelAreaAttachment}: add/remove effects, query a chunk, tick validation and
- * pending flush, and feed chunk watch/untrack events.
+ * Facade over {@link LevelAreaAttachment}: add/remove effects, query a chunk, feed chunk watch events.
  *
- * @see doc/design/area_effect.md
+ * @see "doc/design/area_effect.md"
  */
 public final class AreaEffectManager {
 

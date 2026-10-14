@@ -51,11 +51,8 @@ public class PartyMessage {
 		return type.getDescription();
 	}
 
-	/**
-	 * Tell the host a guest is looking for a chair — once per episode, not once per retry.
-	 *
-	 * @see doc/design/party/guest.md
-	 */
+	/** Tell the host a guest is looking for a chair — once per episode, not once per retry.
+	 * @see "doc/design/party/guest.md" */
 	public static void reportLookingForSeat(ServerLevel level, PartyAttachment party, Entity guest) {
 		var host = party.host();
 		if (host == null) return;

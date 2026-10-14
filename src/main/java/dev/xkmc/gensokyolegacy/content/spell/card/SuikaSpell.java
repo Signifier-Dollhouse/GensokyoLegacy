@@ -21,35 +21,15 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 /**
- * Suika's spell card: a brawler rather than a caster. She picks one of three melee moves by
- * how far the closest target is, and only starts laying down danmaku once she is cornered.
- * <ul>
- * <li><b>Charge.</b> Past {@link #FAR} blocks she leaps at the target with
- * {@code setDeltaMovement}, and the leap is allowed to outrun the {@code YoukaiFeatureSet}
- * speed cap for its duration - the ordinary 0.5 blocks/tick ceiling would clip the whole dash
- * to a single tick. See {@link DamageClampEntity#grantOverspeed}.</li>
- * <li><b>Gather.</b> Between {@link #NEAR} and {@link #FAR} blocks she plays the
- * {@code 聚集} clip and yanks every valid target within {@link #PULL_RANGE} blocks toward
- * herself.</li>
- * <li><b>Swing.</b> Inside {@link #NEAR} blocks she swings her main hand, deals
- * {@link #KNOCK_DAMAGE} of mob-attack damage and throws every valid target within
- * {@link #KNOCK_RANGE} blocks away from her. A swing outranks the other two: it fires through
- * their cooldown and strands whatever danmaku they still had running.</li>
- * </ul>
- * Below {@link #EMPOWERED_HEALTH} of her maximum health each move also seeds a danmaku
- * pattern, all of it Suika's blue mentos; that state latches for the remainder of the fight.
- * <p>
- * The move is driven off {@link CardHolder#target()} and does nothing without one, so a
- * Suika who has lost her prey stops rather than leaping off at nothing.
+ * Suika's spell card: a brawler rather than a caster, picking one of three melee moves by distance, and only
+ * laying down danmaku once cornered. The charge leap outruns the speed cap - {@link DamageClampEntity#grantOverspeed}.
  */
 @SerialClass
 public class SuikaSpell extends ActualSpellCard {
 
 	/**
-	 * Health ratio at which the danmaku layer comes on. Once Suika has been pushed this low the
-	 * flag is latched for the rest of the fight: healing back above it does not take the danmaku
-	 * away. It clears only when the fight does, in {@link #reset()} - which the base class calls
-	 * on every tick she is not attacking - so the next engagement starts her composed again.
+	 * Health ratio at which the danmaku layer comes on. The flag latches for the rest of the fight once she is
+	 * pushed this low; only {@link #reset()} - called on every tick she is not attacking - clears it.
 	 */
 	private static final float EMPOWERED_HEALTH = 0.7f;
 
@@ -83,9 +63,8 @@ public class SuikaSpell extends ActualSpellCard {
 	private int swingCd;
 
 	/**
-	 * Bumped every swing. Charge and gather danmaku tag themselves with the value they were
-	 * born under and expire once it moves on, which is how a swing wipes the tickers those two
-	 * moves leave behind without touching a {@link SwingTicker} from a previous swing.
+	 * Bumped every swing. Charge and gather danmaku tag themselves with the value they were born under and expire
+	 * once it moves on, which is how a swing wipes those tickers without touching a {@link SwingTicker}.
 	 */
 	@SerialField
 	private int moveId;
@@ -130,9 +109,8 @@ public class SuikaSpell extends ActualSpellCard {
 	}
 
 	/**
-	 * The base class clears the card's tickers whenever Suika is not attacking, which is the
-	 * signal that the fight is over; the latched {@link #empowered} flag is dropped with them so
-	 * she has to be driven low again before the danmaku comes back.
+	 * The base class clears the card's tickers whenever Suika is not attacking, the signal that the fight is
+	 * over; the latched {@link #empowered} flag is dropped with them.
 	 */
 	@Override
 	public void reset() {
@@ -141,9 +119,8 @@ public class SuikaSpell extends ActualSpellCard {
 	}
 
 	/**
-	 * The leap. Straight at the target's centre, which is the honest direction for a flying
-	 * boss: an arc would only make sense for someone who stays on the ground. Navigation is
-	 * stopped because a stale route would otherwise keep steering her while she flies.
+	 * The leap. Straight at the target's centre, the honest direction for a flying boss. Navigation is stopped
+	 * because a stale route would otherwise keep steering her while she flies.
 	 */
 	private void charge(CardHolder holder, Vec3 target, boolean empowered) {
 		var self = holder.self();
@@ -158,9 +135,8 @@ public class SuikaSpell extends ActualSpellCard {
 	}
 
 	/**
-	 * One ring of mentos perpendicular to {@code dir}. {@code asNormal} swaps the frame's
-	 * forward for its normal, and every rotation in that frame stays perpendicular to
-	 * {@code dir}, so a ring spawned along the leap reads as its cross-section.
+	 * One ring of mentos perpendicular to {@code dir}: {@code asNormal} swaps the frame's forward for its
+	 * normal, and every rotation in that frame stays perpendicular to {@code dir}.
 	 */
 	private void ring(CardHolder holder, Vec3 dir) {
 		var ori = DanmakuHelper.getOrientation(dir).asNormal();
@@ -171,11 +147,9 @@ public class SuikaSpell extends ActualSpellCard {
 	}
 
 	/**
-	 * The leap's danmaku: rather than dropping a single ring at launch, a ring is seeded every
-	 * tick for {@link #CHARGE_RING_TICKS} ticks, so the dash trails a sleeve of them down its
-	 * own wake. The plane is the leap direction, read once when the first ring is due; the
-	 * direction is constant for the leap, so one read serves them all and survives the motion
-	 * being bled off by drag.
+	 * The leap's danmaku: rather than one ring at launch, a ring is seeded every tick for {@link #CHARGE_RING_TICKS}
+	 * ticks, so the dash trails a sleeve of them. The plane is read once, when the first ring is due, and so survives
+	 * drag.
 	 */
 	@SerialClass
 	public static class ChargeTicker extends Ticker<SuikaSpell> {
@@ -202,14 +176,13 @@ public class SuikaSpell extends ActualSpellCard {
 	}
 
 	/**
-	 * The yank. She plays the gather clip and pulls in one burst rather than holding a beam
-	 * on them: the clip is a sweep of the arms, and a per-tick pull would drag everyone
-	 * through her instead of to her.
+	 * The yank. She plays the gather clip and pulls in one burst rather than holding a beam on them: the clip is
+	 * a sweep of the arms, and a per-tick pull would drag everyone through her instead of to her.
 	 */
 	private void gather(CardHolder holder) {
 		var youkai = youkai(holder);
 		if (youkai == null) return;
-		if (holder.self() instanceof GeoYoukaiAnim anim) anim.broadcastGather();
+		YoukaiAnim.SKILL_01.play(youkai);
 		addTicker(new GatherSpawner());
 	}
 
@@ -228,20 +201,15 @@ public class SuikaSpell extends ActualSpellCard {
 	}
 
 	/**
-	 * The swing. A single shove away from her, with a little lift so the knock reads as a
-	 * swat rather than a slide, and a flat {@link #KNOCK_DAMAGE} of mob-attack damage on each
-	 * one. The hand swing is broadcast explicitly - the server has no client input to
-	 * piggyback on, which is what a mob's bare {@code swing} assumes.
-	 * <p>
-	 * Bumping {@link #moveId} is what lets the swing interrupt: it strands the charge and
-	 * gather tickers on an id they no longer match, so they drop out on their next tick.
+	 * The swing. A shove away from her with a little lift, so the knock reads as a swat rather than a slide, and a flat
+	 * {@link #KNOCK_DAMAGE} of mob-attack damage on each; bumping {@link #moveId} is what lets it interrupt.
 	 */
 	private void swing(CardHolder holder, boolean empowered) {
 		var youkai = youkai(holder);
 		if (youkai == null) return;
 		moveId++;
 		youkai.swing(InteractionHand.MAIN_HAND, true);
-		YoukaiAnim.USE_MAINHAND.play(youkai);
+		YoukaiAnim.SKILL_03.play(youkai);
 		var center = youkai.position().add(0, youkai.getBbHeight() / 2, 0);
 		for (var e : targets(youkai, KNOCK_RANGE)) {
 			var diff = e.position().add(0, e.getBbHeight() / 2, 0).subtract(center);
@@ -269,9 +237,8 @@ public class SuikaSpell extends ActualSpellCard {
 	}
 
 	/**
-	 * Everything this Suika is willing to hurt inside {@code range}. {@code shouldHurt} is the
-	 * same test danmaku damage runs through, which keeps the melee moves and the bullets aimed
-	 * at the same set of entities.
+	 * Everything this Suika is willing to hurt inside {@code range}, by the same {@code shouldHurt} test
+	 * danmaku damage runs through, so melee moves and bullets aim at the same set of entities.
 	 */
 	private static List<LivingEntity> targets(YoukaiEntity youkai, double range) {
 		return youkai.level().getEntitiesOfClass(LivingEntity.class,
@@ -280,11 +247,8 @@ public class SuikaSpell extends ActualSpellCard {
 	}
 
 	/**
-	 * Seeds the gather pattern: for {@link #GATHER_DURATION} ticks it launches
-	 * {@link #GATHER_PER_TICK} fresh {@link GatherTicker}s every tick, so the pattern builds to
-	 * a steady {@code GATHER_PER_TICK * GATHER_DURATION} arms in flight before the oldest start
-	 * to expire. A single volley would read as one ring; this reads as a continuously turning
-	 * shell of them.
+	 * Seeds the gather pattern: {@link #GATHER_PER_TICK} fresh {@link GatherTicker}s every tick for {@link
+	 * #GATHER_DURATION} ticks, so the pattern builds to a steady shell of arms that keeps turning rather than one ring.
 	 */
 	@SerialClass
 	public static class GatherSpawner extends Ticker<SuikaSpell> {
@@ -312,15 +276,9 @@ public class SuikaSpell extends ActualSpellCard {
 	}
 
 	/**
-	 * One arm of the gather pattern. The plane is picked once, from a normalised 3D gaussian,
-	 * and a random starting angle is fixed with it; each tick one mento is spawned on that
-	 * plane at an angle that sweeps a full turn over {@link #GATHER_DURATION} ticks, sixteen
-	 * blocks out and travelling back in at one block per tick.
-	 * <p>
-	 * Each arm owns its own plane, so an incoming pull is a cloud of independently turning
-	 * rings rather than one ring at many angles. Its {@link #owner} is inherited from the
-	 * spawning {@link GatherSpawner}, which is what lets a swing strand the whole gather at
-	 * once.
+	 * One arm of the gather pattern: a plane picked once from a normalised 3D gaussian, one mento per tick at an angle
+	 * sweeping a full turn over {@link #GATHER_DURATION} ticks, its {@link #owner} inherited so a swing strands them
+	 * all.
 	 */
 	@SerialClass
 	public static class GatherTicker extends Ticker<SuikaSpell> {
@@ -358,11 +316,8 @@ public class SuikaSpell extends ActualSpellCard {
 	}
 
 	/**
-	 * The swing's danmaku: for twenty ticks a shell of mentos thrown outward around her at
-	 * her own height. Tick {@code t} scatters {@link #SWING_CRACKS} mentos on a circle of
-	 * radius {@code t/3}, so the shell grows, and each one is doubled into a rising and a
-	 * falling copy. The pair turns the ring into a curtain that a player has to step out of
-	 * rather than duck under.
+	 * The swing's danmaku: for twenty ticks a growing shell of mentos thrown outward around her at her own height, each
+	 * doubled into a rising and a falling copy, turning the ring into a curtain to step out of rather than duck under.
 	 */
 	@SerialClass
 	public static class SwingTicker extends Ticker<SuikaSpell> {

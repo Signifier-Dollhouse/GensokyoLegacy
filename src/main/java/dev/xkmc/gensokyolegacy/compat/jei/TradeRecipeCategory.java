@@ -18,12 +18,9 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.Nullable;
 
-/**
- * One {@link TradeOffer} as a JEI recipe: what the character takes in, what it hands back, who
- * the counterparty is, and how deep its stock is. Nothing else — the price is what the input
- * slots already show, and how much of that stock is left is per-player state, which stays on
- * the trade screen.
- */
+/** One {@link TradeOffer} as a JEI recipe: what the character takes in, what it hands back, who
+ * the counterparty is, and how deep its stock is. Remaining stock is per-player state and stays
+ * on the trade screen. */
 public class TradeRecipeCategory extends BaseRecipeCategory<Holder<TradeOffer>, TradeRecipeCategory> {
 
 	private static final int COLS = 3;

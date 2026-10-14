@@ -1,17 +1,9 @@
 package dev.xkmc.gensokyolegacy.content.entity.dolls.impl;
 
 /**
- * Transient per-doll record of the last loadout slot a doll spent an item from, so
- * that item stays in its hand for {@link #HOLD} ticks afterwards.
- * <p>
- * The one-shot animations are triggered by the very action that spends the item, and
- * heal, throw and laser complete on the tick they fire — so an arming pass on the next
- * tick would take the item back out of the hand while the client is still playing the
- * swing. Locking both hands for a beat past the spend keeps the picture and the
- * bookkeeping in the same frame (control.md §10).
- * <p>
- * Server-only and never persisted, like {@code DollActionHandler}: the client is told
- * what to draw by the synced loadout mirror.
+ * Transient record of the last slot a doll spent an item from, so it stays in hand for
+ * {@link #HOLD} ticks: the spend also fires the one-shot and completes that tick, so re-arming
+ * next tick would pull the item out mid-swing (control.md §10). Server-only, never persisted.
  */
 public final class DollHandLock {
 

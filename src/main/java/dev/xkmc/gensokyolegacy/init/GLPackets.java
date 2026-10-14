@@ -5,6 +5,7 @@ import dev.xkmc.gensokyolegacy.content.attachment.character.CharDataToClient;
 import dev.xkmc.gensokyolegacy.content.attachment.doll.DollRosterToClient;
 import dev.xkmc.gensokyolegacy.content.attachment.misc.FrogSyncPacket;
 import dev.xkmc.gensokyolegacy.content.attachment.misc.KoishiStartPacket;
+import dev.xkmc.gensokyolegacy.content.attachment.party.network.PartyGiftToClient;
 import dev.xkmc.gensokyolegacy.content.client.debug.BlockInfoToClient;
 import dev.xkmc.gensokyolegacy.content.client.debug.BlockRequestToServer;
 import dev.xkmc.gensokyolegacy.content.client.debug.CharacterInfoToClient;
@@ -49,12 +50,10 @@ import java.util.List;
 import java.util.function.Function;
 
 /**
- * Builds the mod's single {@link PacketHandler}, kept as {@link GensokyoLegacy#HANDLER}.
- * <p>
- * Every packet is registered here in one chain; the direction only, not the codec, is what
- * each call site decides. Serialized {@code Record} packets use the two-argument forms
- * (the codec comes from l2serial's {@code CodecAdaptor}); anything else passes its own
- * {@link StreamCodec} to the three-argument form.
+ * Builds the mod's single {@link PacketHandler}, kept as {@link GensokyoLegacy#HANDLER}. <p> Every packet is registered
+ * here in one chain; each call site decides only the direction, not the codec. Serialized {@code Record} packets use
+ * the two-argument forms (the codec comes from l2serial's {@code CodecAdaptor}); anything else passes its own {@link
+ * StreamCodec} to the three-argument form.
  */
 public class GLPackets {
 
@@ -92,6 +91,7 @@ public class GLPackets {
 
 				.toClient(FrogSyncPacket.class)
 				.toClient(KoishiStartPacket.class)
+				.toClient(PartyGiftToClient.class)
 				.toClient(Dowser.DowserToClient.class)
 				.toClient(CatBell.MountToClient.class)
 				.toClient(Hakkero.BroomBoostToClient.class)

@@ -6,11 +6,10 @@ import net.minecraft.world.level.block.state.BlockState;
 import vectorwing.farmersdelight.common.block.FeastBlock;
 
 /**
- * A Farmer's Delight feast: servings counted <em>down</em>, food on a serving item rather
- * than on the block. Every feast is the same {@code FeastBlock} class but hands out a
- * different item, so the serving is asked of the block.
- *
- * @see doc/design/party/food_mods.md
+ * A Farmer's Delight feast: servings counted <em>down</em>, food on a serving item rather than on
+ * the block. Every feast is the same {@code FeastBlock} class but hands out a different item, so
+ * the serving is asked of the block.
+ * @see "doc/design/party/food_mods.md"
  */
 public class FeastFood extends AbstractCountdownFood {
 
@@ -19,10 +18,14 @@ public class FeastFood extends AbstractCountdownFood {
 		return block instanceof FeastBlock;
 	}
 
-	/** The slice a feast hands over, which is both the item and the food; copied because the result is shared. */
+	/**
+	 * The slice a feast hands over, which is both the item and the food; copied because the result is shared.
+	 */
 	@Override
 	public ItemStack serving(BlockState state) {
 		if (!(state.getBlock() instanceof FeastBlock feast)) return ItemStack.EMPTY;
+		if (!state.hasProperty(feast.getServingsProperty())) return ItemStack.EMPTY;
+		if (state.getValue(feast.getServingsProperty()) <= 0) return ItemStack.EMPTY;
 		return feast.getServingItem(state).copy();
 	}
 }

@@ -28,11 +28,8 @@ public class GLMetaEventHandlers {
 	public static void reload(OnDatapackSyncEvent event) {
 		if (event.getPlayer() == null) {
 			ServerCharacterDialogManager.clearCache();
-			// Nothing here is required. The party_food override is deliberately resolved
-			// by the caller in PartyFoodValue and never enters the cache, so a reload
-			// cannot leave a stale appeal behind. Kept as belt-and-braces: the cache is
-			// keyed on BlockState alone, and if a derivation ever grows a datapack input
-			// this is what stops it going stale.
+			// The party_food override is resolved by the caller in PartyFoodValue and never
+			// enters the cache; belt-and-braces, since the cache is keyed on BlockState alone.
 			FoodResultCache.invalidate();
 		}
 	}
@@ -61,12 +58,8 @@ public class GLMetaEventHandlers {
 	public static void onChunkLoad(ChunkEvent.Load event) {
 		if (!(event.getChunk() instanceof LevelChunk chunk)) return;
 		if (!(chunk.getLevel() instanceof ServerLevel sl)) return;
-		// A party outlives the server, because it lives on its chunk. The ticker that drives
-		// it does not, because ACTIVE is a plain map in memory, and only PartySend ever puts
-		// anything in it. So a party restored from disk came back with its whole state and
-		// nothing to advance it: no arrivals, no spread rescans, no closing, and no guest ever
-		// told to leave. Re-register on chunk load, which is where the restored attachment is
-		// already readable — ChunkStatusTasks posts the event after readAttachmentsFromNBT.
+		// A party lives on its chunk and outlives the server, but the ticker entry does not: only PartySend fills
+		// ACTIVE, so a restored party has state with nothing to advance it. Re-register on chunk load, post-NBT read.
 		var party = PartyAttachment.of(sl, chunk.getPos());
 		if (party != null && party.active()) PartyTicker.register(sl, chunk.getPos());
 		String key = Long.toHexString(chunk.getPos().toLong());

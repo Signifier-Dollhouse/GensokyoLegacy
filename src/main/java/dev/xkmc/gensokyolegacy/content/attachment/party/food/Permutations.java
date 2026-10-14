@@ -12,8 +12,7 @@ import org.jetbrains.annotations.Nullable;
  * Finds the item form of a block food by appending a suffix to the block's registry id —
  * {@code youkaisfeasts:tarte_lune} → {@code youkaisfeasts:tarte_lune_slice}. Preferred over
  * reflecting a field, because a naming convention survives a mod update.
- *
- * @see doc/design/party/food.md
+ * @see "doc/design/party/food.md"
  */
 public final class Permutations {
 
@@ -30,9 +29,8 @@ public final class Permutations {
 		return item == null ? null : Servings.of(new ItemStack(item));
 	}
 
-	/**
-	 * The first permuted id that names a real item carrying food, or null. The item rather
-	 * than just its properties, so a caller can also <i>name</i> the serving.
+	/** The first permuted id that names a real item carrying food, or null. The item rather than
+	 * just its properties, so a caller can also <i>name</i> the serving.
 	 */
 	@Nullable
 	public static Item itemOf(Block block) {

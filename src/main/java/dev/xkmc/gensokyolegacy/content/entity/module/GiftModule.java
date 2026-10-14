@@ -18,16 +18,10 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
 /**
- * Handles giving gift items to a character, for the favor it gives
- * {@code CharacterData} and a per-item cooldown rather than the flat amount a dish
- * is worth.
- * <p>
- * Ordering against a feed module is the caller's, since {@code mobInteract} stops
- * at the first module that does not pass: whoever goes first wins any item that is
- * both edible and on the gift list. A plain fairy deliberately puts
- * {@code FairyFeedModule} ahead of this one - see {@code PlainFairyEntity}.
+ * Giving gift items to a character, for the favor it gives {@code CharacterData} and a per-item cooldown
+ * rather than the flat amount a dish is worth. Ordering against a feed module is the caller's.
  *
- * @see doc/design/reputation.md
+ * @see "doc/design/reputation.md"
  */
 @SerialClass
 public class GiftModule extends AbstractYoukaiModule {

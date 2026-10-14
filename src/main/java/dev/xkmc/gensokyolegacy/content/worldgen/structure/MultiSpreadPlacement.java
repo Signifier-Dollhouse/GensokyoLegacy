@@ -18,17 +18,11 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Random-spread placement with {@code attempts} uniform candidates per region
- * instead of one. Candidates cover the full {@code spacing x spacing} region
- * (no separation margin band); anti-collision for band positions is enforced
- * structure-side by {@link FlatCheckStructure}, which also suppresses every
- * candidate except the least-index passing one in each region, so at most one
- * structure start is placed per region.
- *
- * <p>Extends {@link RandomSpreadStructurePlacement} (with a dummy separation
- * of 0, never used since both placement hooks are overridden) so that vanilla
- * {@code /locate} handling keeps working, resolving to the attempt-0
- * candidate of each region.
+ * Random-spread placement yielding {@code attempts} uniform candidates over the full {@code spacing x spacing} region
+ * instead of one; anti-collision for the old separation band positions is enforced structure-side by {@link
+ * FlatCheckStructure}, which keeps only the least-index passing candidate, so at most one start is placed per region.
+ * <p> Extends {@link RandomSpreadStructurePlacement} (dummy separation of 0, both hooks overridden) so vanilla {@code
+ * /locate} handling keeps working, resolving to the attempt-0 candidate of each region.
  */
 public class MultiSpreadPlacement extends RandomSpreadStructurePlacement {
 
@@ -70,10 +64,9 @@ public class MultiSpreadPlacement extends RandomSpreadStructurePlacement {
 	}
 
 	/**
-	 * Ordered candidate chunks for the region containing the given chunk.
-	 * Shared deterministic sequence used by both the placement and
-	 * {@link FlatCheckStructure} (which mirrors spacing, spread type, salt
-	 * and attempts in its own datapack entry, synced by datagen).
+	 * Ordered candidate chunks for the region containing the given chunk. Shared deterministic sequence used by both
+	 * the placement and {@link FlatCheckStructure}, which mirrors spacing, spread type, salt and attempts in its own
+	 * datapack entry (synced by datagen).
 	 */
 	public static List<ChunkPos> candidates(long seed, int chunkX, int chunkZ, int spacing, RandomSpreadType spreadType, int salt, int attempts) {
 		int rx = Math.floorDiv(chunkX, spacing);

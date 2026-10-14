@@ -1,0 +1,21 @@
+{
+  "name": "什么样的一桌请得动人",
+  "icon": "minecraft:golden_carrot",
+  "category": "gensokyolegacy:banquet",
+  "sortnum": 2,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "minecraft:cake",
+      "text": "菜品的总饱腹感决定了能吸引多少客人前来，而菜品的多样性和品质决定了稀客是否愿意来，以及客人吃完饭的回礼品质。$(br2)饱和越高的菜品吸引力越高，相同的菜品只会计入一次吸引力"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "每位客人都有自己的及格线。一块蛋糕就能请得动琪露诺，而伊吹萃香则需要一场丰盛的自助。$(br2)可以中途补菜，但是客人吃饱之后进食速度会显著下降，并且可能提前离席。"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "声望不决定一位客人来不来，只让她更可能来：交情深的人，几乎比生人多一倍地愿意赴宴。$(br2)饭后每位客人都会回礼，品质取决于食用的食物吸引力。"
+    }
+  ]
+}

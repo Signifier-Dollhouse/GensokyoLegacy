@@ -11,9 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * The topic list of a conversation: open it, or replace the one on screen.
- * This is the whole of the open handshake - the dialog has no container menu,
- * so there is no vanilla screen packet to piggyback on.
+ * Topic list of a conversation - the whole open handshake, as the dialog has no container menu to piggyback on.
  */
 public record FirstDialogToClient(
 		int session, int character, @Nullable Component body, ArrayList<ClientHandle> options

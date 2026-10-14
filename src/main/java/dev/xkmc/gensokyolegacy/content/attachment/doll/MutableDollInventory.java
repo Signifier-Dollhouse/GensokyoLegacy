@@ -10,12 +10,11 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Arrays;
 
 /**
- * Mutable variant of {@link DollInventory}: the live loadout held by {@code DollData}. Unlike the
- * item component, {@link #get(DollSlot)} returns the stored stack directly so callers can modify
- * it in place (shrink ammo, damage talismans, swap hands). Plain array indexed by {@link DollSlot}
- * ordinal.
+ * Mutable variant of {@link DollInventory}: the live loadout held by {@code DollData}.
+ * Unlike the item component, {@link #get(DollSlot)} returns the stored stack directly so
+ * callers can modify it in place.
  *
- * @see doc/design/doll/loadout.md
+ * @see "doc/design/doll/loadout.md"
  */
 @SerialClass
 public class MutableDollInventory {

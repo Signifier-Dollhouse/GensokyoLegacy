@@ -106,9 +106,8 @@ public class StructureHomeData implements IBlockSearchCache {
 	}
 
 	/**
-	 * World-mapped interior: room boxes via corner mapping, node positions
-	 * via single-point mapping. Empty when the config has no interior data
-	 * or the piece is not a template/jigsaw piece.
+	 * World-mapped interior: room boxes via corner mapping, node positions via single-point mapping.
+	 * Empty when the config has no interior data or the piece is not a template/jigsaw piece.
 	 */
 	public StructureInterior getInterior(StructureConfig config) {
 		var local = config.interior();

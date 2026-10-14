@@ -20,12 +20,9 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 /**
- * The original, leaky Mini Hakkero: it smelts whatever sits next to it in the inventory
- * without ever holding anything itself. The finished {@link Hakkero} is the same idea with
- * the leaks sealed.
- *
- * <p>Its four channels are the four diagonal neighbours of its own slot in the inventory,
- * and each stores the recipe it is cooking by id so it survives the item moving around.
+ * The original, leaky Mini Hakkero: it smelts whatever sits next to it in the inventory without ever
+ * holding anything itself. The finished {@link Hakkero} is the same idea with the leaks sealed. Its
+ * four channels are the four diagonal neighbours of its own slot, each storing its recipe by id.
  */
 public class HakkeroPrototype extends Item implements InvClickItem {
 

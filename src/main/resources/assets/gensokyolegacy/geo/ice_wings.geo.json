@@ -1,0 +1,71 @@
+{
+	"format_version": "1.12.0",
+	"minecraft:geometry": [
+		{
+			"description": {
+				"identifier": "geometry.ice_wings",
+				"texture_width": 64,
+				"texture_height": 64,
+				"visible_bounds_width": 3,
+				"visible_bounds_height": 2.5,
+				"visible_bounds_offset": [0, 1.25, 0]
+			},
+			"bones": [
+				{
+					"name": "root",
+					"pivot": [0, 3.6, 0.5]
+				},
+				{
+					"name": "left_wing",
+					"parent": "root",
+					"pivot": [-4, 9.5, 4],
+					"rotation": [0, 25, 0]
+				},
+				{
+					"name": "left_feather_mid",
+					"parent": "left_wing",
+					"pivot": [-4, 9.5, 4],
+					"cubes": [
+						{
+							"origin": [-15, 1, 4],
+							"size": [12, 15, 0.025],
+							"uv": {
+								"north": {"uv": [0, 0], "uv_size": [12, 15]},
+								"east": {"uv": [24, 0], "uv_size": [1, 15]},
+								"south": {"uv": [0, 15], "uv_size": [12, 15]},
+								"west": {"uv": [24, 15], "uv_size": [1, 15]},
+								"up": {"uv": [26, 0], "uv_size": [12, 1]},
+								"down": {"uv": [26, 2], "uv_size": [12, -1]}
+							}
+						}
+					]
+				},
+				{
+					"name": "right_wing",
+					"parent": "root",
+					"pivot": [4, 9.5, 4],
+					"rotation": [0, -25, 0]
+				},
+				{
+					"name": "right_feather_mid",
+					"parent": "right_wing",
+					"pivot": [4, 9.5, 4],
+					"cubes": [
+						{
+							"origin": [3, 1, 4],
+							"size": [12, 15, 0.025],
+							"uv": {
+								"north": {"uv": [0, 15], "uv_size": [12, 15]},
+								"east": {"uv": [25, 0], "uv_size": [1, 15]},
+								"south": {"uv": [0, 0], "uv_size": [12, 15]},
+								"west": {"uv": [25, 15], "uv_size": [1, 15]},
+								"up": {"uv": [26, 2], "uv_size": [12, 1]},
+								"down": {"uv": [26, 4], "uv_size": [12, -1]}
+							}
+						}
+					]
+				}
+			]
+		}
+	]
+}

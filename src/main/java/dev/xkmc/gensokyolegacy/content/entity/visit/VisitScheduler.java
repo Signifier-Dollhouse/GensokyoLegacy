@@ -16,7 +16,7 @@ import org.jetbrains.annotations.Nullable;
  * The spawn side of a visit: once a second per structure, put every guest the
  * time table currently says should be there on site.
  *
- * @see doc/design/character_visit.md
+ * @see "doc/design/character_visit.md"
  */
 public class VisitScheduler {
 
@@ -82,9 +82,8 @@ public class VisitScheduler {
 	}
 
 	/**
-	 * Put a guest on site for a fixed stretch of time, ignoring the time table —
-	 * the command's forced mode. Returns whoever is already visiting, so the
-	 * command cannot stack two copies of the same character.
+ * Put a guest on site for a fixed stretch of time, ignoring the time table — the command's forced
+	 * mode. Returns whoever is already visiting, so the command cannot stack two copies of one character.
 	 */
 	@Nullable
 	public static YoukaiEntity force(ServerLevel sl, StructureKey key, IHomeHolder home,

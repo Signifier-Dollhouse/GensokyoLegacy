@@ -95,8 +95,6 @@ LABELS = {
     "col_clip": ("clip", "片段"),
     "anim_code": ("fired by code, not addressable from dialog data:",
                   "以下由代码触发，不能写进对话数据："),
-    "anim_extra": ("also on her controller, outside the dialog slots: %s",
-                   "同样注册在她的动画控制器上，但不属于对话槽位：%s"),
     "anim_nothing": ("(no clip on this rig)", "（该资源上没有此片段）"),
     "anim_unused": ("unused triggers: %s", "未被使用的触发名：%s"),
     "anim_all_unused": ("unused triggers: none", "未被使用的触发名：无"),
@@ -345,25 +343,23 @@ def slot_of(trigger):
 _EXTRA = None
 
 
-def extra_triggers():
-    """Triggers registered on the same controller but outside the dialog slots.
+_SHARED_CLIPS = None
 
-    `eat` and `hurt` are fired by the eating and damage paths. They are listed so
-    a reviewer does not read the absence of a `dialog_eat` as a bug; they are not
-    addressable from dialog data. The blink loop is not here either - it has no
-    trigger constant, it just runs on its own controller forever.
+
+def shared_clips():
+    """Clips declared on `GeoYoukaiAnim` rather than on the character.
+
+    `EAT` and `HURT` are named the same in every rig that has them, so the chew and
+    the flinch live on the interface and a character maps `case EAT ->` to an
+    inherited constant instead of repeating it eight times. Resolving a slot's clip
+    therefore has to look at the interface too, or those two rows would read as
+    unmapped.
     """
-    global _EXTRA
-    if _EXTRA is None:
+    global _SHARED_CLIPS
+    if _SHARED_CLIPS is None:
         src = strip_comments(load_text(GEO_YOUKAI_JAVA))
-        clips = {c: (m, clip) for c, m, clip in CLIP_RE.findall(src)}
-        out = []
-        for const, trig in re.findall(r'String\s+(\w+)_TRIGGER\s*=\s*"([^"]+)"', src):
-            if const in clips:
-                mode, clip = clips[const]
-                out.append((trig, clip, mode))
-        _EXTRA = out
-    return _EXTRA
+        _SHARED_CLIPS = {c: clip for c, _, clip in CLIP_RE.findall(src)}
+    return _SHARED_CLIPS
 
 
 class AnimRig:
@@ -395,7 +391,9 @@ class AnimRig:
         if not self.entity_file:
             return
         src = strip_comments(load_text(self.entity_file))
-        consts = {c: clip for c, _, clip in CLIP_RE.findall(src)}
+        # the character's own constants win over the interface's: a rig free to
+        # override `EAT` with a differently named clip does so by shadowing.
+        consts = {**shared_clips(), **{c: clip for c, _, clip in CLIP_RE.findall(src)}}
         at = src.find("getAnim(YoukaiAnim")
         if at < 0:
             return
@@ -705,10 +703,11 @@ def rule(char="=", n=78):
 
 
 # Slots that exist in YoukaiAnim but are never named by dialog data: the hand use
-# is fired by behaviour tasks (doors, brewing, party gifts) and the outdoor idle
-# by the wander task. They resolve like any other trigger, so the table lists them
-# separately rather than pretending they are dialog options.
-CODE_ONLY_SLOTS = ("USE_MAINHAND", "OUTDOOR_IDLE")
+# and the chew and the flinch are fired by behaviour tasks, the eating and damage
+# paths, the outdoor idle by the wander task, and the skills by spell cards. They
+# resolve like any other trigger, so the table lists them separately rather than
+# pretending they are dialog options. This mirrors YoukaiAnim#isDialog.
+CODE_ONLY_SLOTS = ("USE_MAINHAND", "OUTDOOR_IDLE", "SKILL_01", "SKILL_02", "SKILL_03", "EAT", "HURT")
 
 
 def collect_anims(ctx, starters, quests):
@@ -797,9 +796,6 @@ def render_anim_section(ctx, rig, counts, total):
     a("  " + ctx.t("anim_code"))
     for r in code_rows:
         a(emit(r))
-    if extra_triggers():
-        a("  " + ctx.t("anim_extra", ", ".join(
-            "%s -> %s" % (t, c) for t, c, _ in extra_triggers())))
     greet = rig.slot_clip.get("GREET")
     if greet:
         a("  " + ctx.t("anim_triggered", greet))

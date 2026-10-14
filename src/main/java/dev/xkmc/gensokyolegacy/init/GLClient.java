@@ -128,18 +128,24 @@ public class GLClient {
 		}
 		for (var skin : event.getSkins()) {
 			var renderer = event.getSkin(skin);
-			addHatLayer(renderer);
+			addCharacterLayers(renderer);
 		}
 		for (var type : event.getEntityTypes()) {
 			var renderer = event.getRenderer(type);
-			addHatLayer(renderer);
+			addCharacterLayers(renderer);
 		}
 	}
 
+	/**
+	 * The two things a humanoid wears that vanilla has no slot renderer for. Both are swept over every entity type and
+	 * every player skin, so a player picks them up without a hook of its own - the wings in particular have to be an
+	 * entity layer rather than a curios one, since the back slot has no renderer to register.
+	 */
 	@SuppressWarnings({"unchecked", "rawtypes"})
-	private static void addHatLayer(EntityRenderer<?> renderer) {
+	private static void addCharacterLayers(EntityRenderer<?> renderer) {
 		if (renderer instanceof LivingEntityRenderer ler && ler.getModel() instanceof HumanoidModel) {
 			ler.addLayer(new TouhouHatLayer<>(ler));
+			ler.addLayer(new IceWingsLayer<>(ler));
 		}
 	}
 

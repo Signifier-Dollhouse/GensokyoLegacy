@@ -32,9 +32,8 @@ import java.util.List;
 public class PlayerRenderEvent {
 
 	/**
-	 * How far a link droops at its midpoint, as a fraction of the horizontal span between its ends:
-	 * the rope look. Measured against the horizontal span alone, so a doll the player stands on top
-	 * of hangs taut instead of bowing out below the lower end.
+	 * How far a link droops at its midpoint, as a fraction of the horizontal span between its ends
+	 * alone, so a doll the player stands on top of hangs taut instead of bowing out below the lower end.
 	 */
 	private static final double SAG = 0.15;
 
@@ -45,9 +44,9 @@ public class PlayerRenderEvent {
 	private static final float LEASH_WIDTH = 0.025F;
 
 	/**
-	 * A level stage rather than {@code RenderPlayerEvent}: the local player is not rendered at all
-	 * in first person — the camera entity is filtered out of the entity pass — so an entity-render
-	 * hook would draw nothing in the view the player actually plays from.
+	 * A level stage rather than {@code RenderPlayerEvent}: the local player is not rendered at all in first person (the
+	 * camera entity is filtered out of the entity pass), so an entity-render hook would draw nothing in the view the
+	 * player actually plays from.
 	 */
 	@SubscribeEvent
 	public static void onRenderLevelStage(RenderLevelStageEvent event) {
@@ -61,12 +60,9 @@ public class PlayerRenderEvent {
 	}
 
 	/**
-	 * One drooping link from the player's chest to the chest of every given doll, each drawn as a
-	 * leash band.
-	 * <p>
-	 * {@code pose} is whatever frame the caller draws in and {@code origin} is the world position
-	 * that frame's origin sits at — the player's own position in the entity-render pass, the camera
-	 * in a level-stage pass — so a world position becomes local to the frame by subtracting it.
+	 * One drooping link from the player's chest to the chest of every given doll, each drawn as a leash band. <p>
+	 * {@code pose} is whatever frame the caller draws in and {@code origin} the world position that frame sits at, so a
+	 * world position becomes local by subtracting it.
 	 */
 	public static void renderLinks(PoseStack pose, MultiBufferSource.BufferSource buffers, Vec3 origin,
 	                               Player player, List<DollEntity> dolls, DeltaTracker delta) {
@@ -80,9 +76,8 @@ public class PlayerRenderEvent {
 		for (DollEntity doll : dolls) {
 			float toPartial = partialTick(delta, tickRate, doll);
 			Vec3 to = renderPos(doll, toPartial);
-			// A connected-primitive type cannot consolidate consecutive geometry, so each getBuffer
-			// opens a fresh strip: the links sharing this buffer are never welded into one ribbon.
-			// The link takes the doll's own tint, the same DyeColor text color the doll item uses.
+			// A connected-primitive type cannot consolidate consecutive geometry, so each getBuffer opens a
+			// fresh strip and the links sharing it are never welded into one ribbon. Tint is the doll's DyeColor.
 			leash(pose, buffers.getBuffer(leash),
 					x0, y0, z0, to.x - origin.x, to.y + doll.getBbHeight() * 0.5 - origin.y, to.z - origin.z,
 					blockLight(player, fromPartial), skyLight(player, fromPartial),
@@ -127,21 +122,11 @@ public class PlayerRenderEvent {
 	}
 
 	/**
-	 * A rope between two points, drawn the way vanilla draws a lead: a narrow band bent along the
-	 * path with two vertices per sample, alternating brightness so it reads as twisted cord, and a
-	 * lightmap blended from one end's light to the other's.
-	 * <p>
-	 * The shape is the straight span plus a parabolic droop, the cheap stand-in for a catenary that
-	 * reads the same at these lengths — vanilla instead bends the height profile alone, which is the
-	 * same idea one degree weaker.
-	 * <p>
-	 * The band's width is laid out across the path horizontally <em>and</em> its two rails are offset
-	 * vertically, which is what keeps it visible from above as well as from the side instead of
-	 * thinning to an edge-on sliver. That is also why the path is walked twice with the rails
-	 * swapped: the two passes give the band a cross-section rather than a single flat face.
-	 * <p>
-	 * {@code rgb} is the link's 0xRRGGBB color; the band is always drawn opaque, scaled by the twist
-	 * shading the way vanilla shades a lead.
+	 * A rope between two points, drawn the way vanilla draws a lead: a narrow band bent along the path with two
+	 * vertices per sample, alternating brightness so it reads as twisted cord, lightmap blended from one end's light to
+	 * the other's. <p> The shape is the straight span plus a parabolic droop, a cheap stand-in for a catenary. The
+	 * width is laid out across the path horizontally <em>and</em> its two rails are offset vertically, keeping it
+	 * visible from above as well as from the side; that is why the path is walked twice with the rails swapped.
 	 */
 	private static void leash(PoseStack pose, VertexConsumer vc,
 	                          double x0, double y0, double z0, double x1, double y1, double z1,
@@ -184,13 +169,9 @@ public class PlayerRenderEvent {
 	}
 
 	/**
-	 * The dolls the given player currently controls, in ledger order.
-	 * <p>
-	 * Client-side this is the owner-synced roster ({@code DollRosterToClient}) resolved against
-	 * the client level, re-checking each entry's id/uuid pair so a recycled entity id never
-	 * resolves to the wrong doll — the same resolution {@code DollGloveClientModes} and the
-	 * sidebar use. Only the doll owner is sent the roster, so any other player yields an empty
-	 * list.
+	 * The dolls the given player currently controls, in ledger order: the owner-synced roster resolved against the
+	 * client level, re-checking each id/uuid pair so a recycled entity id never picks the wrong doll. Only the owner is
+	 * sent the roster, so any other player yields an empty list.
 	 */
 	public static List<DollEntity> getControlledDolls(Player player) {
 		Level level = Minecraft.getInstance().level;

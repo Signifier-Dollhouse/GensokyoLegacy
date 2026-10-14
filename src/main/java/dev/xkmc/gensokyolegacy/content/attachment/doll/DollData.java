@@ -19,17 +19,15 @@ import java.util.UUID;
 /**
  * One doll's ledger entry: significant values only, never an entity NBT snapshot.
  *
- * @see doc/design/doll/pairing.md
+ * @see "doc/design/doll/pairing.md"
  */
 @SerialClass
 public class DollData {
 
-	/**
-	 * item -> {@link DollData}: reads the {@code DOLL_DATA}/{@code DOLL_COLOR}/{@code CUSTOM_NAME}/
-	 * {@code DOLL_LOADOUT} components off the stack; a component-less stack is a fresh doll
-	 * ({@link DollItemData#fresh()}). The doll type is fixed ({@link DollItem#TYPE}), while
-	 * position, dimension, facing and state are supplied by the caller (item.md §2).
-	 */
+	/** item -> {@link DollData}: reads the {@code DOLL_DATA}/{@code DOLL_COLOR}/{@code CUSTOM_NAME}/
+	 * {@code DOLL_LOADOUT} components off the stack; a component-less stack is
+	 * {@link DollItemData#fresh()}. Type is fixed ({@link DollItem#TYPE}); the caller supplies
+	 * position, dimension, facing and state (item.md §2). */
 	public static DollData fromItemData(ItemStack stack, Vec3 pos, ResourceLocation dim, float yRot) {
 		DollItemData item = stack.get(GLItems.DOLL_DATA.get());
 		if (item == null) item = DollItemData.fresh();
@@ -46,11 +44,8 @@ public class DollData {
 		return data;
 	}
 
-	/**
-	 * Server-only ledger entry. Nothing here syncs through the capability: the sidebar roster rides
-	 * {@code DollRosterToClient} and all per-doll display state (tint, health, validity, action
-	 * status) rides synced entity data on the doll entity. Every field is {@code toClient = false}.
-	 */
+	/** Server-only ledger entry. Nothing syncs through the capability: the sidebar roster rides
+	 * {@code DollRosterToClient} and per-doll display state rides synced entity data on the doll. */
 	@SerialField(toClient = false)
 	public UUID uuid;
 
@@ -85,19 +80,13 @@ public class DollData {
 	@SerialField(toClient = false)
 	public long lastUpdate;
 
-	/**
-	 * Authoritative loadout, live and mutable: survives park/restore/logout and mirrors to clients
-	 * through synced entity data. The item carries it in its own {@code DOLL_LOADOUT} component
-	 * (loadout.md §2).
-	 */
+	/** Authoritative loadout, live and mutable: survives park/restore/logout and mirrors to clients
+	 * through synced entity data; the item carries it in {@code DOLL_LOADOUT} (loadout.md §2). */
 	@SerialField(toClient = false)
 	public MutableDollInventory inventory = new MutableDollInventory();
 
-	/**
-	 * Follow-formation slot cache, restamped over the live summoned entries in ledger order every
-	 * tick by the roster rebuild and read by the follow goal. Server-only and never serialized;
-	 * entries without a live entity don't move anyway.
-	 */
+	/** Follow-formation slot cache, restamped over the live summoned entries every tick by the
+	 * roster rebuild and read by the follow goal. Server-only, never serialized. */
 	public int formationIndex;
 	public int formationTotal = 1;
 

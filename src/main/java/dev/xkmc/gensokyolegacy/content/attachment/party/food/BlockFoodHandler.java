@@ -9,14 +9,12 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * How one kind of block food is read and eaten, answered in one call so a handler cannot
- * name a food one way and hand over another.
- *
- * <p>
- * Handlers form one ordered list; the first whose {@link #handles} matches wins.
+ * How one kind of block food is read and eaten, answered in one call so a handler cannot name
+ * a food one way and hand over another.
+ * <p>Handlers form one ordered list; the first whose {@link #handles} matches wins.
  *
  * @see dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyFoodHandler for the list
- * @see doc/design/party/food.md
+ * @see "doc/design/party/food.md"
  */
 public interface BlockFoodHandler {
 
@@ -45,9 +43,8 @@ public interface BlockFoodHandler {
 	}
 
 	/**
-	 * Advances the placed block to its next state. Read the {@link #result} beforehand —
-	 * the appeal of a serving depends on the state before this call.
-	 *
+	 * Advances the placed block to its next state. Read the {@link #result} beforehand — the appeal
+	 * of a serving depends on the state before this call.
 	 * @return servings remaining
 	 */
 	int consume(Level level, BlockPos pos, BlockState state);

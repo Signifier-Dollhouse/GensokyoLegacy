@@ -8,10 +8,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Shared reading of a serving's {@link FoodProperties}.
- *
- * @see doc/design/party/food.md
+/** Shared reading of a serving's {@link FoodProperties}.
+ * @see "doc/design/party/food.md"
  */
 public final class Servings {
 
@@ -30,7 +28,10 @@ public final class Servings {
 		return false;
 	}
 
-	/** One serving's food properties, or null when there is nothing worth serving. Food with no hunger value is not food. */
+	/**
+	 * One serving's food properties, or null when there is nothing worth serving. Food with no hunger value is not
+	 * food.
+	 */
 	@Nullable
 	public static FoodProperties of(ItemStack stack) {
 		if (stack.isEmpty()) return null;
@@ -40,12 +41,11 @@ public final class Servings {
 	}
 
 	/**
-	 * The properties of {@code count} of {@code stack} eaten as <b>one plate</b>, not as
-	 * {@code count} servings.
-	 * <p>Nutrition, saturation and eating time multiply; an effect does not, because it is
-	 * rolled once per item eaten, so {@code n} chances of {@code p} are {@code 1 − (1 − p)ⁿ}.
-	 * {@link FoodResult#appeal()} deliberately does not scale: a pair feeds a guest twice
-	 * and attracts once.
+	 * The properties of {@code count} of {@code stack} eaten as <b>one plate</b>, not as {@code count}
+	 * servings.
+	 * <p>Nutrition, saturation and eating time multiply; an effect does not, because it is rolled once
+	 * per item eaten, so {@code n} chances of {@code p} are {@code 1 − (1 − p)ⁿ}. {@link FoodResult#appeal()}
+	 * deliberately does not scale: a pair feeds a guest twice and attracts once.
 	 */
 	@Nullable
 	public static FoodProperties of(ItemStack stack, int count) {

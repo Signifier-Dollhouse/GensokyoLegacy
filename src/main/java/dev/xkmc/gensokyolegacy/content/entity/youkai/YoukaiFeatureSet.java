@@ -88,10 +88,8 @@ public record YoukaiFeatureSet(
 		}
 
 		/**
-		 * Ceiling on velocity, in blocks per tick, applied to the whole vector. The
-		 * stock 0.5 suits a walking youkai and quietly clips anything that moves on
-		 * air friction instead, which a hovering character does - so she needs a
-		 * ceiling that clears her own top speed rather than her ordinary one.
+		 * Ceiling on velocity, in blocks per tick, applied to the whole vector. The stock 0.5 suits a walking
+		 * youkai and quietly clips anything moving on air friction instead, as a hovering character does.
 		 */
 		public Builder maxSpeed(double speed) {
 			maxSpeed = speed;

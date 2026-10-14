@@ -67,11 +67,9 @@ public class HexBrewBottleEntity extends ThrowableItemProjectile {
 	}
 
 	/**
-	 * Explosive bottles fly through allies of the thrower instead of
-	 * detonating on them. Either alliance direction counts: a doll thrower
-	 * covers the owner side via its own isAlliedTo, while the victim's
-	 * vanilla check would not (and vice versa for teams). Other brews keep
-	 * vanilla behavior so helpful splashes still land on allies.
+	 * Explosive bottles fly through allies of the thrower instead of detonating on them, in either
+	 * alliance direction — a doll thrower covers the owner side via its own isAlliedTo, the victim's
+	 * vanilla check would not. Other brews keep vanilla behavior so helpful splashes still land.
 	 */
 	@Override
 	protected boolean canHitEntity(Entity target) {

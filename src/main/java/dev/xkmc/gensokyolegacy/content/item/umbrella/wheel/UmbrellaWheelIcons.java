@@ -6,9 +6,8 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
 
 /**
- * Raw wheel textures ({@code item/border_umbrella/border_umbrella_icon_*}) blitted
- * directly: these entries are wheel-only (never item-selector stacks), so no
- * model override is involved. Drawn 16x16 like an item icon.
+ * Raw wheel textures ({@code item/border_umbrella/border_umbrella_icon_*}) blitted 16x16 like an
+ * item icon: these entries are wheel-only, never item-selector stacks, so no model override applies.
  */
 public final class UmbrellaWheelIcons {
 

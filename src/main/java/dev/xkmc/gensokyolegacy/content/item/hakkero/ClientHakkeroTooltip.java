@@ -9,12 +9,8 @@ import net.minecraft.world.item.ItemStack;
 import java.util.List;
 
 /**
- * Client rendering of the finished Mini Hakkero's tooltip image.
- *
- * <p>Same layout as the menu: a row of eight input slots with a cooldown wipe over each one
- * showing how far that channel has cooked, then the eight results, then the fuel. The
- * contents and progress come from the same simulated state, so the image shows where the
- * hakkero has got to even though the server only refreshes it every {@code IDLE_BATCH} ticks.
+ * The finished Mini Hakkero's tooltip image, drawn in the menu's layout: input slots with a progress wipe,
+ * then the results, then the fuel — one simulated state, current between the server's {@code IDLE_BATCH} refreshes.
  */
 public final class ClientHakkeroTooltip implements ClientTooltipComponent {
 
@@ -43,9 +39,8 @@ public final class ClientHakkeroTooltip implements ClientTooltipComponent {
 			int x = mx + i % HakkeroData.CHANNELS * 18;
 			int y = my + i / HakkeroData.CHANNELS * 18;
 			renderSlot(font, x, y, g, list.get(i));
-			// the input row is the first one; the wipe says how far each channel has cooked.
-			// No easing here: the record was rebuilt against a smoothly-moving client clock
-			// (see Hakkero.getTooltipImage), so this value already moves every frame.
+			// the input row is the first one, so the wipe says how far each channel has cooked. No
+			// easing: rebuilt against a smooth client clock, so this value moves every frame.
 			if (i < HakkeroData.CHANNELS) HakkeroProgressBar.draw(g, x + 1, y + 1, inv.progress(i));
 		}
 	}

@@ -33,7 +33,8 @@ Every file the feature creates and modifies, and the resources it generates.
 | `content/attachment/party/core/PartyGift.java` | what a guest leaves, rolled from her table |
 | `content/attachment/party/core/AppealConsumedCondition.java` | `{"condition":"gensokyolegacy:appeal_consumed"}`, `min`/`max`/`invert` — the gift tiers' gate |
 | `init/data/loot/GiftLootGen.java` | one `party_gift/<character>` table per guest, a pool per generosity step, each banded on appeal |
-| `content/attachment/party/core/PartyTicker.java` | level-tick driver, active-chunk registry |
+| `content/attachment/party/core/PartyTicker.java` | level-tick driver, active-chunk registry, and the gathering rockets' own clock (state.md §2.1) |
+| `content/attachment/party/core/PartyFirework.java` | one rocket over the table, fired from a ring clear of the guests (state.md §2.1) |
 | `content/attachment/party/item/InvitationLetterItem.java` | the letter |
 | `content/attachment/party/item/PartyMessage.java` | one place that turns an outcome into player-facing text |
 | `content/entity/module/PartyModule.java` | per-guest state, `arrive`/`join`/`beginLeave`/`completeLeave`, and `Origin` |
@@ -48,12 +49,12 @@ Every file the feature creates and modifies, and the resources it generates.
 | `init/registrate/GLBrains.java` | `PARTY`, `MEM_PARTY` |
 | `init/registrate/GLItems.java` | `INVITATION_LETTER`, calls `BlockFoods.register()` |
 
-| `content/entity/youkai/YoukaiEntity.java` | `PartyModule` in `createModules()`, `isPartying()`, `broadcastEat()` |
+| `content/entity/youkai/YoukaiEntity.java` | `PartyModule` in `createModules()`, `isPartying()` |
 | `content/entity/youkai/YoukaiFlags.java` | append `PARTYING` (ordinal is the synced bit index) |
 | `content/entity/youkai/SmartYoukaiEntity.java` | `PARTY(400)` + `board.addPartyTasks()` |
 | `content/entity/characters/fairy/CirnoEntity.java` | `PartyModule` in its `createModules()` override |
 | `content/entity/characters/magician/AliceEntity.java` | same |
-| `content/entity/characters/fairy/PlainFairyEntity.java` | `broadcastEat()` as the override of the base no-op |
+| `content/entity/characters/fairy/PlainFairyEntity.java` | the chew the others already had (`YoukaiAnim.EAT`) |
 | `content/entity/module/VisitModule.java` | stand down while she is partying (guest.md §2) |
 | `content/client/debug/CharacterRequestToServer.java` | carry a guest's tally in the existing character-info answer (debug.md §4) |
 | `content/client/debug/CharacterInfoToClient.java` | the `PartyTally` record and its two lines |

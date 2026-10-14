@@ -16,14 +16,11 @@ import net.minecraft.world.phys.Vec3;
  * block above their head - so any threshold small enough to be described as "she
  * should keep a block's distance" is already satisfied while she is directly
  * overhead, and she ends up sitting on top of them. Only the approach is worth
- * keeping from the stock behavior; the distance test is re-done here, flat, so one
- * block means one block on the ground rather than one block in whatever direction
- * happens to be nearest.
+ * keeping from the stock behavior; the distance test is re-done here, flat.
  * <p>
  * The walk target it writes keeps vanilla's own value of 2, which
  * {@code YoukaiMoveTask} counts in Manhattan blocks: with the block of height
- * between them that lands at about a block of ground clearance, which is the shape
- * wanted here.
+ * between them that lands at about a block of ground clearance.
  */
 public class FairyFollowTask extends FollowTemptation {
 
@@ -39,8 +36,7 @@ public class FairyFollowTask extends FollowTemptation {
 	/**
 	 * The supertype's exact signature: narrowing the parameter would make this an
 	 * overload rather than an override, so the cast belongs here. To
-	 * {@link FairyEntity} rather than to the plain fairy, because the standoff is a
-	 * hovering-fairy problem and every fairy hovers.
+	 * {@link FairyEntity} because the standoff is a hovering-fairy problem.
 	 */
 	@Override
 	protected void tick(ServerLevel level, PathfinderMob owner, long gameTime) {

@@ -183,17 +183,9 @@ public class ReimuQDGen extends QuestDialogData {
 				CHAT_INFO);
 	}
 
-	/**
-	 * Reimu out visiting - Kourindou today. Host-agnostic, so one set of chats
-	 * covers every house she drops into, and {@code visiting()} keeps them off
-	 * her own doorstep.
-	 */
-	/**
-	 * Reimu out visiting. Kourindou is her only host so far, so one set - written
-	 * for that house rather than left host-agnostic, because a guest says
-	 * different things in different rooms. {@code visitingAt} implies she is a
-	 * guest at all, so nothing here can surface on her own doorstep.
-	 */
+	/** Reimu out visiting. Kourindou is her only host so far, so the set is written for that house
+	 *  rather than left host-agnostic, because a guest says different things in different rooms.
+	 *  {@code visitingAt} implies she is a guest at all, so nothing here surfaces on her own doorstep. */
 	private void visitChats() {
 		prefix("reimu/visit_kourindou");
 		chat("reimu/visit_kourindou_stock", GLEntities.REIMU.get(),

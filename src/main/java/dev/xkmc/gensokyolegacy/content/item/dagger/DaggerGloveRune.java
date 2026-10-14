@@ -5,14 +5,11 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
 
 /**
- * An extra effect a {@link DaggerGloveItem} dagger gains on hitting something, paid for in extra
- * cooldown instead of extra daggers. Nothing implements one yet: a new rune is a new implementation
- * of this interface plus a line in {@link DaggerGloveRunes}.
- * <p>
- * Runes are stateless singletons and act server-side only — a rune is reached through the bullet
- * fired with it, and the bullet calls back on a server-side entity hit.
+ * An extra effect a {@link DaggerGloveItem} dagger gains on hitting something, paid for in extra cooldown
+ * instead of extra daggers: a stateless server-side singleton, added as an implementation here plus a
+ * {@link DaggerGloveRunes} line.
  *
- * @see doc/design/dagger_glove.md
+ * @see "doc/design/dagger_glove.md"
  */
 public interface DaggerGloveRune {
 
@@ -21,8 +18,7 @@ public interface DaggerGloveRune {
 
 	/**
 	 * Runs when a dagger carrying this rune hits an entity, before the dagger is handed back
-	 * ({@link IronDaggerBulletEntity#giveBack} runs either way) and before the danmaku base class
-	 * applies its damage.
+	 * ({@link IronDaggerBulletEntity#giveBack} runs either way) and before the base class applies damage.
 	 *
 	 * @param level  the level the hit happened in
 	 * @param owner  the player who fired the dagger, or null if it no longer has one

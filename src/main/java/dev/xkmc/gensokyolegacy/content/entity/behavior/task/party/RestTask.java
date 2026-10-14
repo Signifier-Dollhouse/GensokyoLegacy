@@ -5,14 +5,11 @@ import net.minecraft.server.level.ServerLevel;
 
 
 /**
- * Sitting between dishes.
- *
- * <p>
- * Leaving is rolled here, and only here. It is the reason a guest ever goes home while there
- * is still food on the table, and it has to exist. Rolled per satisfied sit rather than on a
+ * Sitting between dishes. Leaving is rolled here, and only here: it is the reason a guest ever
+ * goes home while there is still food on the table. Rolled per satisfied sit rather than on a
  * timer, so a long {@code fullSeat} also means a slow departure.
  *
- * @see doc/design/party/guest.md
+ * @see "doc/design/party/guest.md"
  */
 public class RestTask extends PartyTask {
 

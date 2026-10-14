@@ -23,9 +23,8 @@ public class GLQuestEventHandlers {
 	}
 
 	/**
-	 * Loot tables are not synced, so a client cannot work out a quest's reward on its own; it is
-	 * told instead. This event is the one moment a client is known to want a fresh copy of
-	 * anything server-held: on joining, and again after a {@code /reload}.
+	 * Loot tables are not synced, so a client can not work out a quest's reward on its own; it is told on joining, and
+	 * again after a {@code /reload}.
 	 */
 	@SubscribeEvent
 	public static void syncQuestLoot(OnDatapackSyncEvent event) {

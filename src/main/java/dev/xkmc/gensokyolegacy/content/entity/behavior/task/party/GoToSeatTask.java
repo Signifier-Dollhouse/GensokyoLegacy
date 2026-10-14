@@ -5,26 +5,18 @@ import net.minecraft.server.level.ServerLevel;
 
 
 /**
- * Carry the serving back to her chair.
+ * Carry the serving back to her chair. Losing the chair on the way back means eating standing,
+ * because she is holding a plate and the chair is gone.
  *
- * <p>
- * <b>Nothing gets eaten away from the table.</b> Having food in hand and not being seated is
- * precisely this task, so picking a dish up leads here and nowhere else.
- *
- * <p>
- * Losing the chair on the way back is the awkward case, and the only honest answer is to eat
- * standing: she is holding a plate and the chair is gone.
- *
- * @see doc/design/party/guest.md
+ * @see "doc/design/party/guest.md"
  */
 public class GoToSeatTask extends PartyTask {
 
 
 	@Override
 	protected boolean stillMine(SmartYoukaiEntity entity, PartyContext ctx) {
-		// both of the fields this task sets are also what ends it: the chew, which is where a guest
-		// with no chair goes, and the departure. Staying true here would re-arm the chew every
-		// tick and starve Chew.
+		// both fields this task sets also end it: the chew, which is where a guest with no chair
+		// goes, and the departure. Staying true here would re-arm the chew and starve Chew.
 		return ctx.holding() && !ctx.seated()
 				&& !ctx.chewing()
 				&& !ctx.leaving();

@@ -5,12 +5,8 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.util.Mth;
 
 /**
- * The cooldown-style wipe that shows smelting progress over a 16x16 slot, shared by every
- * hakkero progress readout: the finished one's input slots in its menu and in its tooltip
- * image, and the prototype's four neighbour slots in the player inventory.
- *
- * <p>Client-only, so nothing on the common side may reference it from a class the server
- * loads.
+ * The cooldown-style wipe showing smelting progress over a 16x16 slot, shared by every hakkero
+ * readout — the finished one's input slots, the prototype's four neighbours. Client-only.
  */
 public final class HakkeroProgressBar {
 

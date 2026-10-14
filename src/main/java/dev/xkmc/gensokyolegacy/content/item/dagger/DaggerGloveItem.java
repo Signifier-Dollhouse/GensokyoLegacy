@@ -30,20 +30,17 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 /**
- * The <b>Dagger Glove</b>: a three-mode launcher for {@link IronDaggerItem}, so that a stack of
- * daggers can be thrown as a pattern instead of one at a time.
+ * The <b>Dagger Glove</b>: a three-mode launcher for {@link IronDaggerItem}, so a stack of daggers can be
+ * thrown as a pattern instead of one at a time.
  * <p>
- * The glove owns the three decisions {@link DaggerGloveMode} leaves to it, because they are the
- * same in all three modes: whether the shot happens at all (homing needs a target, every mode
- * needs its full dagger count, and a check that fails spends nothing), where the daggers come
- * from — the holder's whole inventory, since the glove is the weapon and the daggers its
- * ammunition — and how long the shot then takes to come back ({@link #cooldown}, where a
- * {@link DaggerGloveRune} adds its price).
+ * The glove owns the three decisions {@link DaggerGloveMode} leaves to it, being the same in all three
+ * modes: whether the shot happens at all (homing needs a target, every mode its full dagger count, and a
+ * failed check spends nothing), where the daggers come from - the holder's whole inventory - and how long
+ * the shot takes to come back ({@link #cooldown}, where a {@link DaggerGloveRune} adds its price).
  * <p>
- * All of it is server-side; the client only reports the use and swings. The cooldown is re-checked
- * here rather than trusted from the client, which sends the use whatever it displays.
+ * All of it is server-side; the client only reports the use and swings, so the cooldown is re-checked here.
  *
- * @see doc/design/dagger_glove.md
+ * @see "doc/design/dagger_glove.md"
  */
 public class DaggerGloveItem extends Item implements GloveTargeting {
 
@@ -69,10 +66,9 @@ public class DaggerGloveItem extends Item implements GloveTargeting {
 	}
 
 	/**
-	 * Model-override value for {@code gensokyolegacy:dagger_glove_display}: the held mode's
-	 * ordinal + 1 selects its held override, each with its own hand skin; an icon display stack
-	 * (wheel or sidebar, marked with {@code DAGGER_GLOVE_ICON}) instead uses the icon range behind
-	 * it. Values are emitted ascending, so they match exactly (glove.md §3b).
+	 * Model-override value for {@code gensokyolegacy:dagger_glove_display}: the held mode's ordinal + 1 selects
+	 * its held override, each with its own hand skin; an icon stack uses the range behind it. Ascending, so
+	 * the values match exactly (glove.md §3b).
 	 */
 	public static float displayPredicate(ItemStack stack, Level level, LivingEntity entity, int seed) {
 		int ordinal = getMode(stack).ordinal();
@@ -158,11 +154,9 @@ public class DaggerGloveItem extends Item implements GloveTargeting {
 	}
 
 	/**
-	 * What a homing shot will aim at: whatever the holder is looking at, accepted only if the
-	 * holder's own danmaku could hit it — so allies and spectators are never homed on.
-	 * <p>
-	 * The aimed modes answer false here rather than at the call site, which is also what keeps them
-	 * from lighting anything up.
+	 * What a homing shot will aim at: whatever the holder is looking at, accepted only if the holder's own
+	 * danmaku could hit it — so allies and spectators are never homed on. The aimed modes answer false here
+	 * rather than at the call site, which is what keeps them from lighting anything up.
 	 */
 	@Override
 	public boolean acceptsTarget(ItemStack stack, Player holder, LivingEntity candidate) {
@@ -178,12 +172,9 @@ public class DaggerGloveItem extends Item implements GloveTargeting {
 	}
 
 	/**
-	 * Takes exactly {@code count} iron daggers from the holder's inventory — every slot, the off
-	 * hand and armour included — and reports whether the whole count was there.
-	 * <p>
-	 * Partial is failure: nothing is spent and the shot is refused rather than firing a lopsided
-	 * spread. Each dagger is handed to the {@link IronDaggerBulletEntity} that carries it, which is
-	 * what brings it back.
+	 * Takes exactly {@code count} iron daggers from the holder's inventory - every slot, the off hand and
+	 * armour included - and reports whether the whole count was there. Partial is failure: nothing is spent
+	 * and the shot is refused rather than firing a lopsided spread.
 	 */
 	private static boolean takeDaggers(Player player, int count) {
 		Inventory inventory = player.getInventory();
@@ -227,9 +218,8 @@ public class DaggerGloveItem extends Item implements GloveTargeting {
 	}
 
 	/**
-	 * As {@link #displayStack}, but marked as an icon display so the wheel and the sidebar draw
-	 * this mode's icon. The four held textures are identical copies of one glove, so neither can
-	 * tell the modes apart any other way (dagger_glove.md §6b).
+	 * As {@link #displayStack}, but marked as an icon display so the wheel and the sidebar draw this mode's
+	 * icon: the held textures are identical copies of one glove, so nothing else can tell the modes apart.
 	 */
 	public static ItemStack iconStack(DaggerGloveMode mode) {
 		ItemStack stack = displayStack(mode);

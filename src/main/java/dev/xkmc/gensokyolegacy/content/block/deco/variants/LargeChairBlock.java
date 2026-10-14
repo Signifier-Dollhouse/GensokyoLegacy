@@ -30,21 +30,16 @@ import java.util.function.BiConsumer;
 import static net.minecraft.world.level.block.state.properties.BlockStateProperties.HALF;
 import static net.minecraft.world.level.block.state.properties.BlockStateProperties.HORIZONTAL_FACING;
 
-/**
- * Two block large chair: the seat and legs sit on the lower half, the backrest
- * and armrests on the upper one, both halves carrying their own geometry so the
- * whole chair is lit as normal blocks. The seat interaction lives on the lower
- * half only, the pos the seat entity is bound to.
- */
+/** Two block large chair: the seat and legs sit on the lower half, the backrest and armrests on the
+ * upper one, both halves carrying their own geometry so the whole chair is lit as normal blocks.
+ * The seat interaction lives on the lower half only, the pos the seat entity is bound to. */
 public class LargeChairBlock implements CreateBlockStateBlockMethod, DefaultStateBlockMethod, ShapePathFindBlockMethod {
 
 	public static final VoxelShape SHAPE = Block.box(1, 0, 1, 15, 12, 15);
 
-	/**
-	 * Backrest posts, back panel and armrests, mirroring
-	 * {@code custom/furniture/wooden_large_chair_top.json}, rotated to match the
-	 * facing the model is rotated to. Indexed by facing 2D data value.
-	 */
+	/** Backrest posts, back panel and armrests, mirroring
+	 * {@code custom/furniture/wooden_large_chair_top.json}, rotated to match the facing the model is
+	 * rotated to. Indexed by facing 2D data value. */
 	public static final VoxelShape[] TOP_SHAPES = new VoxelShape[4];
 
 	static {
@@ -93,10 +88,8 @@ public class LargeChairBlock implements CreateBlockStateBlockMethod, DefaultStat
 		CoverableImpl.buildChairStates(pvd);
 		genFullModel(pvd, ctx.getName());
 
-		// The pad only rests on the lower half, it does not replace any wood, so the
-		// lower half is just its wood part plus the pad as an extra multipart part.
-		// Splitting it that way keeps the pad models at one per color instead of one
-		// per chair and color pair.
+		// The pad only rests on the lower half, so it goes on as an extra multipart part rather
+		// than replacing wood: that keeps the pad models at one per color, not one per chair.
 		var builder = pvd.getMultipartBuilder(ctx.get());
 		forEachFacing((facing, yRot) -> builder.part().modelFile(bottom).rotationY(yRot).addModel()
 				.condition(HALF, Half.BOTTOM).condition(HORIZONTAL_FACING, facing).end());
@@ -111,11 +104,9 @@ public class LargeChairBlock implements CreateBlockStateBlockMethod, DefaultStat
 		}
 	}
 
-	/**
-	 * A multipart part carries a single y rotation instead of one entry per state,
-	 * so each rotated model has to be added once per horizontal facing, using the
-	 * angle offset {@code BlockStateProvider.horizontalBlock} applies as well.
-	 */
+	/** A multipart part carries a single y rotation instead of one entry per state, so each rotated
+	 * model is added once per horizontal facing, with the angle offset that
+	 * {@code BlockStateProvider.horizontalBlock} applies as well. */
 	private static void forEachFacing(BiConsumer<Direction, Integer> action) {
 		for (int i = 0; i < 4; i++) {
 			var dir = Direction.from2DDataValue(i);
@@ -123,10 +114,8 @@ public class LargeChairBlock implements CreateBlockStateBlockMethod, DefaultStat
 		}
 	}
 
-	/**
-	 * Whole chair geometry, unused by the block and only kept as item icon parent:
-	 * the item model inherits the item display transforms from it.
-	 */
+	/** Whole chair geometry, unused by the block and only kept as item icon parent: the item model
+	 * inherits the item display transforms from it. */
 	public static void genFullModel(RegistrateBlockstateProvider pvd, String name) {
 		pvd.models().getBuilder("block/" + name + "_full")
 				.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/furniture/wooden_large_chair")))

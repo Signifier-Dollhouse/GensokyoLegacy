@@ -17,9 +17,8 @@ CHARGING, FAINTED, POWERED, NONE, FED, GIFTED, FLYING, VISITING,
 	 */
 	PARTYING,
 	/**
-	 * Lying down in {@code GLBrains.NAP}. Synced because the pose is a client-side
-	 * decision and the client has no way to ask the brain what it is doing, the same
-	 * reason {@code isSleeping()} and {@code isPassenger()} are authoritative poses.
+	 * Lying down in {@code GLBrains.NAP}. Synced because the pose is a client-side decision and the client
+	 * cannot ask the brain, the same reason {@code isSleeping()} and {@code isPassenger()} are authoritative.
 	 */
 	NAPPING
 }

@@ -7,13 +7,9 @@ import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
-/**
- * Trimmed copy of MobWeaponAPI's {@code ShootUtils} aim helpers: target-velocity
- * lead plus optional gravity-arc compensation. The arrow/infinity machinery over
- * there is dropped — dolls never use arrows. Callers pass gravity explicitly;
- * hexbrew throws use 0 (straight aim with lead, same drop as before) because the
- * bottle entity declares no gravity override to compensate against.
- */
+/** Trimmed copy of MobWeaponAPI's {@code ShootUtils} aim helpers: target-velocity lead plus optional
+ *  gravity-arc compensation; the arrow/infinity machinery over there is dropped, dolls never use arrows.
+ *  Callers pass gravity explicitly, and hexbrew throws use 0 (straight aim with lead, same drop as before). */
 public final class DollShootUtils {
 
 	private DollShootUtils() {
@@ -24,14 +20,9 @@ public final class DollShootUtils {
 		getShootVector(target, projectile.position(), velocity, gravity, 0).launch(projectile);
 	}
 
-	/**
-	 * Laser-style firing solution for projectile shots: estimates flight ticks
-	 * from distance ÷ shot speed, predicts the target center with
-	 * {@link #predictCenter} (the same helper the laser aims with, including
-	 * its airborne-vertical and slime handling), then refines once against the
-	 * predicted distance so approaching/fleeing targets are actually led.
-	 * Fire at {@code speed} so the estimate and the shot agree.
-	 */
+	/** Laser-style firing solution for projectile shots: estimates flight ticks from distance ÷ shot speed,
+	 *  predicts the target center with {@link #predictCenter}, then refines once against the predicted distance
+	 *  so approaching/fleeing targets are actually led. Fire at {@code speed} so estimate and shot agree. */
 	public static Vec3 predictShotDir(LivingEntity target, Vec3 from, double speed) {
 		if (speed <= 0) speed = 1;
 		Vec3 center = new Vec3(target.getX(), target.getY(0.5), target.getZ());
@@ -46,9 +37,8 @@ public final class DollShootUtils {
 	}
 
 	/**
-	 * Predicts a target's body center after the given seconds, extrapolating its
-	 * current velocity (vertical motion only counts while airborne, mirroring the
-	 * aim helper). Used for instant attacks with a fixed delay, like lasers.
+	 * Predicts a target's body center after the given seconds, extrapolating its current velocity (vertical motion
+	 * only counts while airborne). Used for instant attacks with a fixed delay, like lasers.
 	 */
 	public static Vec3 predictCenter(LivingEntity target, int tick) {
 		var motion = target.getDeltaMovement();

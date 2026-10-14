@@ -71,10 +71,7 @@ public class MorichikaEntity extends GeneralYoukaiEntity implements GeoYoukaiAni
 		return false;
 	}
 
-	protected <E extends MorichikaEntity> PlayState idleAnimController(final AnimationState<E> event) {
-		if (event.getController().isPlayingTriggeredAnimation()) {
-			return PlayState.CONTINUE;
-		}
+	public PlayState stateAnimController(AnimationState<?> event) {
 		if (isSleeping()) {
 			return event.setAndContinue(SLEEP);
 		}
@@ -90,6 +87,11 @@ public class MorichikaEntity extends GeneralYoukaiEntity implements GeoYoukaiAni
 		return event.setAndContinue(IDLE);
 	}
 
+	/**
+	 * Every dialog slot this rig has, plus the two shared clips; {@code OUTDOOR_IDLE} falls
+	 * through to {@code default} — the shopkeeper is never outdoors long enough, and the rig
+	 * ships no {@code 闲置动画} for it.
+	 */
 	@Override
 	public Optional<RawAnimation> getAnim(YoukaiAnim anim) {
 		return switch (anim) {
@@ -105,22 +107,10 @@ public class MorichikaEntity extends GeneralYoukaiEntity implements GeoYoukaiAni
 			case CONFUSED -> Optional.of(CONFUSED);
 			case AGREE -> Optional.of(AGREE);
 			case DECLINE -> Optional.of(DECLINE);
-			// the shopkeeper is never outdoors long enough for this to be worth a clip,
-			// and this rig ships no 闲置动画 to point it at anyway
-			case OUTDOOR_IDLE -> Optional.empty();
+			case EAT -> Optional.of(EAT);
+			case HURT -> Optional.of(HURT);
+			default -> Optional.empty();
 		};
-	}
-
-	@Override
-	public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-		// Wink first: controllers tick in registration order and overwrite shared
-		// bones, so the always-looping blink yields to the main controller.
-		controllers.add(new AnimationController<>(this, WINK_CONTROLLER, 0, e -> e.setAndContinue(BLINK)));
-		var main = new AnimationController<>(this, ANIM_CONTROLLER, 5, this::idleAnimController);
-		addEatAnim(main);
-		addHurtAnim(main);
-		addDialogAnims(main);
-		controllers.add(main);
 	}
 
 	@Override

@@ -60,9 +60,8 @@ public class UmbrellaUtil {
 			sp.displayClientMessage(GLLang.ItemUmbrella.DIM_MISSING.get(slot.dim().toString()), true);
 			return;
 		}
-		// A doll or a character is dimension-bound, so the capture may only move it
-		// around inside its own level; refuse rather than strand it somewhere its
-		// ledger / index cannot describe.
+		// A doll or a character is dimension-bound, so the capture may only move it inside its own
+		// level; refuse rather than strand it somewhere its ledger / index cannot describe.
 		if (target instanceof IDimensionBoundEntity && target.level() != targetLevel) {
 			sp.displayClientMessage(GLLang.ItemUmbrella.CAPTURE_FAIL.get(), true);
 			return;

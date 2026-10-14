@@ -1,7 +1,7 @@
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
 
-package dev.xkmc.gensokyolegacy.content.entity.characters.boss;
+package dev.xkmc.gensokyolegacy.content.attachment.party.network;
 
 import net.minecraft.MethodsReturnNonnullByDefault;
 

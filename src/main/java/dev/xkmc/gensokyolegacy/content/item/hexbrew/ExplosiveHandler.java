@@ -37,9 +37,8 @@ public class ExplosiveHandler implements HexBrewHandler {
 				null, false, Explosion.BlockInteraction.KEEP);
 		ModExplosionContext mod = entity -> {
 			if (entity == thrower) return false;
-			// either direction counts: a doll thrower is allied to the owner
-			// side via its own isAlliedTo, while the victims' vanilla check
-			// would not spare them (and vice versa for teams)
+			// either direction counts: a doll thrower is allied to the owner side via its own
+			// isAlliedTo, while the victims' vanilla check would not spare them (and vice versa)
 			if (thrower != null && (entity.isAlliedTo(thrower) || thrower.isAlliedTo(entity))) return false;
 			return entity instanceof LivingEntity;
 		};

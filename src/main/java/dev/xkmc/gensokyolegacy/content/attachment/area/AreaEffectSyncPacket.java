@@ -11,7 +11,7 @@ import java.util.UUID;
 /**
  * Client sync for one effect: ADD/UPDATE carry the entry, REMOVE carries only the id.
  *
- * @see doc/design/area_effect.md
+ * @see "doc/design/area_effect.md"
  */
 public record AreaEffectSyncPacket(
 		Action action,

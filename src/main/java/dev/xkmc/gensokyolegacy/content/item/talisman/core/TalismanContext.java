@@ -8,12 +8,10 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 
 /**
- * Runtime context for one activated talisman. For a folded talisman worn directly
- * (see {@link FoldedPaperTalisman}) the {@link #pocketStack} is the folded stack
- * itself and the pocket data is {@code null}, so {@link #hurtItem()} mutates the
- * worn stack in place. For a talisman stored inside a pocket the folded stack is a
- * private copy, and every change made by {@link #hurtItem()} is written back into
- * the pocket's {@link TalismanPocketData} component.
+ * Runtime context for one activated talisman. Worn directly (see {@link FoldedPaperTalisman}) the
+ * {@link #pocketStack} is the folded stack itself and the pocket data is {@code null}, so
+ * {@link #hurtItem()} mutates it in place; inside a pocket it is a private copy written back
+ * into the {@link TalismanPocketData} component.
  */
 public record TalismanContext(
 		LivingEntity target,

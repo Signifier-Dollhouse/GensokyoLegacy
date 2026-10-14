@@ -11,10 +11,9 @@ import software.bernie.geckolib.animation.*;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
 /**
- * GeckoLib animation for a doll: {@code toy_idle} while still, {@code toy_fly} while
- * moving, plus one-shots fired by server-to-client entity events. The instance cache
- * lives in {@link DollGeoModule}, fetched per entity — the entity keeps no geo state
- * itself (entity.md §8).
+ * GeckoLib animation for a doll, split over three controllers that run in the order they write
+ * bones — wink, state loop, one-shots — so a strike shares the hover's bones instead of replacing
+ * it, since a controller plays one animation at a time. The cache lives in {@link DollGeoModule} (entity.md §8).
  */
 public interface DollGeo extends DollBaseImpl, GeoEntity {
 
@@ -28,7 +27,12 @@ public interface DollGeo extends DollBaseImpl, GeoEntity {
 	RawAnimation SKILL = RawAnimation.begin().thenPlay("toy_skill");
 	RawAnimation WINK = RawAnimation.begin().thenLoop("toy_wink");
 
+	String ANIM_CONTROLLER = "all";
+	String ONE_SHOT_CONTROLLER = "one_shot";
 	String WINK_CONTROLLER = "wink";
+
+	/** Blend length of the hover and of the one-shots alike, in ticks. */
+	int ANIM_TRANSITION = 3;
 
 	/**
 	 * Entity event ids: vanilla {@code EntityEvent} uses up to 65, so 66+ are safe. Dolls
@@ -48,17 +52,25 @@ public interface DollGeo extends DollBaseImpl, GeoEntity {
 	}
 
 	default PlayState dollAnimController(final AnimationState<DollEntity> event) {
-		if (event.getController().isPlayingTriggeredAnimation())
-			return PlayState.CONTINUE;
 		return event.setAndContinue(event.isMoving() ? FLY : IDLE);
+	}
+
+	/**
+	 * The one-shot half: let the strike that fired run to its end, and otherwise write
+	 * nothing at all, leaving the pose to {@link #dollAnimController}.
+	 */
+	default PlayState dollOneShotAnimController(AnimationState<DollEntity> event) {
+		return event.getController().isPlayingTriggeredAnimation() ? PlayState.CONTINUE : PlayState.STOP;
 	}
 
 	@Override
 	default void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-		// wink first: controllers tick in registration order and overwrite shared
-		// bones, so the always-looping wink yields to the main controller
+		// wink first, one-shots last: controllers tick in registration order and
+		// overwrite shared bones
 		controllers.add(new AnimationController<>(asDoll(), WINK_CONTROLLER, 0, e -> e.setAndContinue(WINK)));
-		controllers.add(new AnimationController<>(asDoll(), "all", 3, this::dollAnimController)
+		controllers.add(new AnimationController<>(asDoll(), ANIM_CONTROLLER, ANIM_TRANSITION, this::dollAnimController));
+		controllers.add(new AnimationController<>(asDoll(), ONE_SHOT_CONTROLLER, ANIM_TRANSITION, this::dollOneShotAnimController)
+				.receiveTriggeredAnimations()
 				.triggerableAnim("attack", ATTACK)
 				.triggerableAnim("slap", SLAP)
 				.triggerableAnim("bomb", BOMB)
@@ -66,22 +78,19 @@ public interface DollGeo extends DollBaseImpl, GeoEntity {
 				.triggerableAnim("skill", SKILL));
 	}
 
-	/**
-	 * Client-side: play the one-shot for an entity event id.
-	 */
+	/** Client-side: play the one-shot for an entity event id. */
 	default void handleDollEvent(byte id) {
-		if (id == EVENT_ATTACK) triggerAnim("all", "attack");
-		else if (id == EVENT_SLAP) triggerAnim("all", "slap");
-		else if (id == EVENT_BOMB) triggerAnim("all", "bomb");
-		else if (id == EVENT_BOW) triggerAnim("all", "bow");
-		else if (id == EVENT_SKILL) triggerAnim("all", "skill");
+		if (id == EVENT_ATTACK) triggerAnim(ONE_SHOT_CONTROLLER, "attack");
+		else if (id == EVENT_SLAP) triggerAnim(ONE_SHOT_CONTROLLER, "slap");
+		else if (id == EVENT_BOMB) triggerAnim(ONE_SHOT_CONTROLLER, "bomb");
+		else if (id == EVENT_BOW) triggerAnim(ONE_SHOT_CONTROLLER, "bow");
+		else if (id == EVENT_SKILL) triggerAnim(ONE_SHOT_CONTROLLER, "skill");
 	}
 
 	/**
-	 * The lance swing, animation and voice together: {@code toy_attack} is silent on
-	 * its own, so {@link GLSounds#DOLL_LANCE} is what makes the strike audible. The
-	 * pitch is the entity's own vanilla voice jitter, which keeps a volley striking on
-	 * the same tick from stacking into one louder, phasey hit.
+	 * The lance swing, animation and voice together: {@code toy_attack} is silent, so
+	 * {@link GLSounds#DOLL_LANCE} makes the strike audible. The pitch is the entity's own vanilla
+	 * voice jitter, which keeps a same-tick volley from stacking into one louder, phasey hit.
 	 */
 	default void broadcastAttackAnim() {
 		broadcastStrike(EVENT_ATTACK, GLSounds.DOLL_LANCE);
@@ -127,9 +136,8 @@ public interface DollGeo extends DollBaseImpl, GeoEntity {
 	}
 
 	/**
-	 * The instance cache. The cache needs the entity, which modules never store (they
-	 * run before it exists). Synchronized: dolls construct on the server thread and
-	 * render on the client thread.
+	 * The instance cache. It needs the entity, which modules never store (they run before it
+	 * exists). Synchronized: dolls construct on the server thread and render on the client thread.
 	 */
 	final class DollGeoModule implements DollModule {
 

@@ -9,20 +9,10 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 
 /**
- * Restricts content to a character visiting one particular home.
- * <p>
- * {@link HomeBoundCondition} only says <em>whether</em> she is a guest; a guest
- * says different things at different houses, so visit chat has to name the host.
- * This is a condition rather than a field on the entry because it composes with
- * the rest of the gating, and because it stays correct if the same chat is ever
- * reused for a second host.
- * <p>
- * Visiting is implied, so content does not also need {@code visiting()} - and
- * cannot accidentally leak into the character's own home, where there is no host
- * to match.
- * <p>
- * {@link dev.xkmc.gensokyolegacy.content.attachment.index.StructureKey#CUSTOM}
- * matches any player-built home.
+ * Restricts content to a character visiting one particular home. {@link HomeBoundCondition} only says <em>whether</em>
+ * she is a guest, but a guest says different things at different houses, so visit chat has to name the host. Visiting
+ * is implied, so nothing also needs {@code visiting()}; {@link
+ * dev.xkmc.gensokyolegacy.content.attachment.index.StructureKey#CUSTOM} matches any built home.
  */
 public record VisitStructureCondition(
 		ResourceLocation structure
