@@ -11,6 +11,7 @@ public class PlainFairyRenderer extends GeoEntityRenderer<PlainFairyEntity> {
 		super(context, new PlainFairyModel());
 		addRenderLayer(new YoukaiHeldItemLayer<>(this));
 		addRenderLayer(new YoukaiSpellCircleLayer<>(this));
+		addRenderLayer(new FairyWantLayer<>(this));
 	}
 
 }

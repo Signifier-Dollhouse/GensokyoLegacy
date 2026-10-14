@@ -142,9 +142,9 @@ public class FairyFeedTask extends Behavior<FairyEntity> {
 		var fed = BrainUtils.getMemory(entity, GLBrains.MEM_FEED.get());
 		if (fed == null) return;
 		entity.getData(fed.player())
-				.filter(data -> FairyFeedModule.welcomed(data.data()))
-				.ifPresent(data -> entity.getModule(FairyFeedModule.class)
-						.ifPresent(feed -> feed.throwGift(fed.player(), fed.gift())));
+                .filter(data -> FairyFeedModule.welcomed(data.data()))
+				.flatMap(data -> entity.getModule(FairyFeedModule.class))
+				.ifPresent(feed -> feed.throwGift(fed.player(), fed.gift()));
 	}
 
 	/**

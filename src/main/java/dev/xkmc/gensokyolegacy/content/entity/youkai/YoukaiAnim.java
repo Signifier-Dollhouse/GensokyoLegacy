@@ -12,8 +12,9 @@ import java.util.Optional;
  * <p>
  * Network sync uses {@code ordinal + offset} as the entity event id, so the
  * declaration order must stay stable — new slots go at the end, never in the
- * middle. Dolls use 66-70; characters use 71-83, then the chew and the hurt
- * reaction take 84-85 (see {@link GeoYoukaiAnim#EAT_EVENT}).
+ * middle. Dolls use 66-70; characters use 71-83, then the chew, the flinch and
+ * the gather take 84-86 (see {@link GeoYoukaiAnim#EAT_EVENT}), and the fairy
+ * want bubble takes 87 upward ({@code FairyEntity#WANT_EVENT}).
  * <p>
  * The thinking, talk and puzzled slots come in pairs because the current rigs
  * ship two variants of each ({@code 思考中_01}/{@code 思考中_02},
