@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "gensokyolegacy:block/plate",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "gensokyolegacy:block/plate"
+    },
+    "facing=south": {
+      "model": "gensokyolegacy:block/plate",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "gensokyolegacy:block/plate",
+      "y": 270
+    }
+  }
+}

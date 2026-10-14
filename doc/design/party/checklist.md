@@ -22,6 +22,7 @@ Every file the feature creates and modifies, and the resources it generates.
 | `content/attachment/party/food/SaucerFood.java` | YSF saucer dish: one serve, food on the block's own item |
 | `content/attachment/party/food/BiteFood.java` | KC dish: `maxBites - bites`, food from `FoodBiteRegistry` |
 | `content/attachment/party/food/PlateFood.java` | KC plate/platter: `servings` down, food from `PlateRegistry`'s serving items |
+| `content/attachment/party/food/GensokyoPlateFood.java` | this mod's plate: one food in a block entity, one serve, the plate stays |
 | `content/attachment/party/food/FoodResult.java` | serves + properties + consume, and the valid/not-valid rule |
 | `content/attachment/party/food/FoodResultCache.java` | resolves each state once; invalidated on datapack sync |
 | `content/attachment/party/food/Permutations.java` | finds the item form of a block food by id suffix |

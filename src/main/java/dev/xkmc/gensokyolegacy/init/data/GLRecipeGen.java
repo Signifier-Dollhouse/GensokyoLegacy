@@ -359,6 +359,10 @@ public class GLRecipeGen {
 		pvd.stonecutting(DataIngredient.items(GLDecoBlocks.SHOJI_FRAME.get()),
 				RecipeCategory.BUILDING_BLOCKS, GLDecoBlocks.SHOJI_FRAME_PANE, 4);
 
+		// a plate is a glazed terracotta cut thin, 16 to a block; terracotta is not fuel
+		pvd.stonecutting(DataIngredient.items(Blocks.WHITE_GLAZED_TERRACOTTA),
+				RecipeCategory.DECORATIONS, GLBlocks.PLATE, 16);
+
 		// paper sliding door: shoji lattice door, paper in a stick grid like shoji frame
 		unlock(pvd, ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, GLDecoBlocks.PAPER_SLIDING_DOOR.get())::unlockedBy, Items.PAPER)
 				.pattern("SPS").pattern("PSP").pattern("SPS")
