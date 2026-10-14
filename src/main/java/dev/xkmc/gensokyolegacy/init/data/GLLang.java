@@ -513,7 +513,8 @@ FURNACE_2_BOOST("Held in main hand while riding a broom, right click to burn fue
 		FURNACE_2_LORE("A portable magical furnace with the leaks sealed. Smelts what you put in it, and rather too fast at that.", 0, ChatFormatting.GRAY),
 		STRAW_HAT_LORE("Woven by someone with four legs, for a frog with a very large appetite.", 0, ChatFormatting.GRAY),
 		SUWAKO_HAT_LORE("A river god's hat, traded for a frog's very specific appetite.", 0, ChatFormatting.GRAY),
-		KOISHI_HAT_LORE("Taken off a third party, and it never stopped sulking about it.", 0, ChatFormatting.GRAY);
+		KOISHI_HAT_LORE("Taken off a third party, and it never stopped sulking about it.", 0, ChatFormatting.GRAY),
+		ICE_WINGS_LORE("Six crystals, and it is suddenly very hard to count past nine.", 0, ChatFormatting.GRAY);
 
 		private final String def;
 		private final int argn;

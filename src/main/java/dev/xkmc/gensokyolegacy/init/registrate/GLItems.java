@@ -121,6 +121,7 @@ public class GLItems {
 	public static final ItemEntry<StarDanmakuItem> STAR;
 	public static final ItemEntry<StarWandItem> STAR_WAND;
 	public static final ItemEntry<StrangeGlassesItem> STRANGE_GLASSES;
+	public static final ItemEntry<IceWingsItem> ICE_WINGS;
 
 	public static final ItemEntry<InvitationLetterItem> INVITATION_LETTER;
 
@@ -322,6 +323,7 @@ public class GLItems {
 		// tools
 		{
 			var head = ItemTags.create(ResourceLocation.fromNamespaceAndPath("curios", "head"));
+			var back = ItemTags.create(ResourceLocation.fromNamespaceAndPath("curios", "back"));
 			MINI_HAKKERO_PROTOTYPE = reg.item("mini_hakkero_prototype", HakkeroPrototype::new)
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/tool/" + ctx.getName())))
 					.tag(GLTagGen.MORICHIKA_OFFERS)
@@ -509,6 +511,15 @@ public class GLItems {
 					.tag(ItemTags.HEAD_ARMOR, head, GLTagGen.MORICHIKA_OFFERS)
 					.dataMap(GLMeta.MORICHIKA_OFFER.reg(), new MorichikaOfferData(6, 10, 1, 1))
 					.lang("Strange Glasses").tab(TAB.key())
+					.register();
+
+			// Worn in the chest armor slot, not the curios back slot alone, so it still works with
+			// curios absent. The two are alternatives; which one is in use is answered at draw time
+			// by CuriosManager#hasWings, which reads both.
+			ICE_WINGS = reg.item("ice_wings", p -> new IceWingsItem(p.rarity(Rarity.EPIC)))
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/curio/" + ctx.getName())))
+					.tag(back)
+					.lang("Ice Wings").tab(TAB.key())
 					.register();
 		}
 

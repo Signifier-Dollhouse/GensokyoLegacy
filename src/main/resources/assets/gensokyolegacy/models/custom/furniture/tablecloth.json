@@ -4,8 +4,8 @@
 	"parent": "block/block",
 	"texture_size": [32, 32],
 	"textures": {
-		"2": "gensokyolegacy:block/table/light_blue_tablecloth",
-		"particle": "gensokyolegacy:block/table/light_blue_tablecloth"
+		"2": "#all",
+		"particle": "#all"
 	},
 	"elements": [
 		{
