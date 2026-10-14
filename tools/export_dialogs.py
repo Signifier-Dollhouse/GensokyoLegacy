@@ -704,10 +704,10 @@ def rule(char="=", n=78):
 
 # Slots that exist in YoukaiAnim but are never named by dialog data: the hand use
 # and the chew and the flinch are fired by behaviour tasks, the eating and damage
-# paths, the outdoor idle by the wander task, and the skill by a spell card. They
+# paths, the outdoor idle by the wander task, and the skills by spell cards. They
 # resolve like any other trigger, so the table lists them separately rather than
-# pretending they are dialog options.
-CODE_ONLY_SLOTS = ("USE_MAINHAND", "OUTDOOR_IDLE", "SKILL_01", "EAT", "HURT")
+# pretending they are dialog options. This mirrors YoukaiAnim#isDialog.
+CODE_ONLY_SLOTS = ("USE_MAINHAND", "OUTDOOR_IDLE", "SKILL_01", "SKILL_02", "SKILL_03", "EAT", "HURT")
 
 
 def collect_anims(ctx, starters, quests):

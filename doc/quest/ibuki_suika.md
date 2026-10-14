@@ -87,6 +87,19 @@ back to the generic three-rung `DEFAULT` table until she has one of her own.
   with what is playing. She gets up for a fight or a party, and — if the
   conversation outlasted the nap's five-to-twenty-second memory — three seconds
   after the last line of dialogue.
+- **The nap has a variant, and it is 0.** `SuikaEntity#getNapVariant` is a synced
+  `int` on her own `SUIKA_DATA` layer, NBT-backed like the rest of her entity
+  data, and it indexes `NAP_ANIMS` for the loop she holds and
+  `YoukaiAnim.SPECIAL_TALKS` for the talk she answers from it. She ships one
+  `侧卧_*` clip, so `NAP_VARIANTS` is 1 and nothing rolls the number: the slot
+  index and the clip list are the shape a second nap has to fit into, not
+  machinery in use yet. `TALK_SPECIAL_01` and `TALK_SPECIAL_02` therefore both
+  resolve to `侧卧_交流` — slot *n* is the talk written for nap *n*, and only
+  one of those exists. When a second `侧卧_*` clip lands it goes into `NAP_ANIMS`
+  and takes over `TALK_SPECIAL_02`, with no other change. `SKILL_02` and
+  `SKILL_03` exist in the enum for the same reason and are wired to nothing at
+  all: her rig has no second or third skill clip, so they resolve empty and no
+  triggerable is registered for them.
 - **No `OUTDOOR_IDLE` either.** She is the one character whose `侧卧` clip is not
   spent as an idle flourish: `YoukaiAnim.OUTDOOR_IDLE` resolves empty for her and
   she lies down through the `NAP` activity instead — rolled from `napChance`,
