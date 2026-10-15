@@ -139,6 +139,15 @@ apart: within one entry, a cushion sees the prose about cushions and a large cha
 the prose about large chairs, never each other's. Only a text page that opens an entry,
 naming no item, is shared by all of it.
 
+An item belongs to the **first** entry that names it, so a page that only mentions one in
+passing would take it away from the entry that is really about it. Marking that page
+`"_website_marker": true` - a key the book itself never reads - documents nothing and
+leaves the item to whoever else names it: *Hosting a Banquet* spotlights the stools only
+to say what a banquet is, and *Seats & Seat Cloths* is where a stool belongs. The marked
+page is left otherwise alone. It still shows up in the guide book, and its spotlight
+still links to the item, which is the only way the reader gets from the prose to the
+thing it talks about.
+
 The item list is the slow half of the page - the guide book, the tags it spotlights, the
 recipes and the quest reward tables, some 380 files - and no character content needs any
 of it. So it is fetched *behind* the first render rather than in front of it: the

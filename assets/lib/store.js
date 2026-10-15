@@ -788,6 +788,10 @@ export async function buildItemIndex() {
         };
 
         for (const [key, subject] of subjects.entries) {
+          // A marked page documents nothing, though it still reads whole in the book's
+          // own section and still links to the item it names. Two entries spotlighting
+          // one tag would fight over its members, and the mark is how one steps aside.
+          if (subject.marked) continue;
           for (const itemId of guideSubjectItems(key, subject.tag)) document(itemId, subject);
         }
         // The icon is the entry's own illustration and names nothing. It is drawn on
@@ -853,9 +857,13 @@ export async function buildItemIndex() {
  * whole difference, and a spotlight that names one subject on its own groups nothing.
  * The subjects are ids, the same in every locale, so their names make a key for the group
  * that does not shift with the language toggle.
+ *
+ * A page may carry `_website_marker`, a note of the website's own that the book never
+ * reads: it still names what it is about, but the items it names belong to whichever
+ * entry documents them for real.
  */
-function guideSubjectsOf(value, order) {
-  const subjects = (Array.isArray(value) ? value : [value])
+function guideSubjectsOf(page, order) {
+  const subjects = (Array.isArray(page.item) ? page.item : [page.item])
     .filter((entry) => typeof entry === "string")
     .map((entry) => (entry.startsWith("tag:") ? { key: entry.slice(4), tag: true } : { key: entry, tag: false }));
   const group = subjects.map((subject) => subject.key).sort().join("|");
@@ -866,6 +874,7 @@ function guideSubjectsOf(value, order) {
     subject.group = group;
     subject.grouped = subject.tag || grouped;
     subject.order = order;
+    subject.marked = !!page._website_marker;
   }
   return subjects;
 }
@@ -880,6 +889,9 @@ function guideSubjectsOf(value, order) {
  * an entry that spotlights several things keeps their pages apart - a miasma mushroom
  * does not inherit the prose about the miasma bottle - and every item still sees the
  * shared text.
+ *
+ * A marked page keeps the pages under it like any other, since the book's own section
+ * reads an entry whole; the mark only keeps it from claiming the item.
  */
 export function guideSubjects(entry) {
   const shared = [];
@@ -887,13 +899,16 @@ export function guideSubjects(entry) {
   let current = []; // the subjects the pages below a spotlight belong to
 
   for (const [index, page] of (entry?.pages ?? []).entries()) {
-    const spotlights = page.type === "patchouli:spotlight" ? guideSubjectsOf(page.item, index) : [];
+    const spotlights = page.type === "patchouli:spotlight" ? guideSubjectsOf(page, index) : [];
     if (spotlights.length) current = spotlights;
 
     for (const subject of current) {
       // The key and the group ride along on the subject, so a caller holding one knows
       // what it names and which page named it.
       const found = entries.get(subject.key) ?? { key: subject.key, ...subject, pages: [] };
+      // Marked only while every page naming it is: one unmarked spotlight in an entry is
+      // that entry documenting the item after all.
+      found.marked &&= subject.marked;
       found.pages.push(page);
       entries.set(subject.key, found);
     }
