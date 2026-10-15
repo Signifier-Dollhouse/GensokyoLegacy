@@ -27,7 +27,7 @@ public abstract class AbstractBubbleModule extends AbstractYoukaiModule implemen
 	/**
 	 * Ten to twenty seconds between two wants, both ends inclusive.
 	 */
-	private static final int MIN_DELAY = 200;
+	private static final int MIN_DELAY = 240;
 	private static final int MAX_DELAY = 400;
 
 	/**

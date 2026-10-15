@@ -101,7 +101,7 @@ public interface YoukaiEating extends YoukaiBaseImpl {
 	default void crumb(ItemStack food) {
 		var self = asYoukai();
 		var random = self.getRandom();
-		var out = new Vec3((random.nextFloat() - 0.5F) * 0.2f, -random.nextFloat() * 0.2 - 0.1, 0.6)
+		var out = new Vec3((random.nextFloat() - 0.5F) * 0.2f, -random.nextFloat() * 0.2 - 0.5, 0.6)
 				.xRot(-self.getXRot() * ((float) Math.PI / 180F))
 				.yRot(-self.getYRot() * ((float) Math.PI / 180F))
 				.add(self.getEyePosition());

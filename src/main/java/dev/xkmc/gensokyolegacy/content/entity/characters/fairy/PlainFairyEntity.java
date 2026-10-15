@@ -390,7 +390,7 @@ public class PlainFairyEntity extends FairyEntity implements GeoYoukaiAnim {
 			return event.setAndContinue(SIT);
 		}
 		if (getFlag(YoukaiFlags.FLEEING)) {
-			event.setAndContinue(CRYING_FLOAT);
+			return event.setAndContinue(CRYING_FLOAT);
 		}
 		if (event.isMoving()) {
 			return event.setAndContinue(FLOAT);

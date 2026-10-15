@@ -138,7 +138,7 @@ public class FairyFeedModule extends AbstractBubbleModule {
 	 */
 	@Override
 	public boolean mayShowWant() {
-		return !self.isSleeping() && !isFed();
+		return !self.isSleeping() && !isFed() && !self.getFlag(YoukaiFlags.FLEEING) && !self.isAggressive();
 	}
 
 	/**

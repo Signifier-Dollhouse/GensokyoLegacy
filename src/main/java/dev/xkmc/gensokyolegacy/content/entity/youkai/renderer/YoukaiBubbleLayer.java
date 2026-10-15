@@ -63,7 +63,7 @@ public class YoukaiBubbleLayer<T extends YoukaiEntity & GeoYoukaiAnim> extends G
 	 * the pill's own centre. Where the item goes.
 	 */
 	private static final float ICON_CX = 23.5f;
-	private static final float ICON_CY = 11.5f;
+	private static final float ICON_CY = 14.5f;
 
 	/**
 	 * The item, in sprite pixels. The pill is 18px tall inside, so 13 leaves it a 2.5px margin all round.
@@ -95,7 +95,7 @@ public class YoukaiBubbleLayer<T extends YoukaiEntity & GeoYoukaiAnim> extends G
 	 * How long the bubble stays up: three seconds. Long enough to be read, short enough that the next one ten
 	 * to twenty seconds later is a new thought rather than a flicker of the same one.
 	 */
-	private static final int SHOW_TICKS = 60;
+	private static final int SHOW_TICKS = 200;
 
 	/**
 	 * Past this the bubble is smaller than the item inside it. Sixty-four blocks is the range a name tag stops
