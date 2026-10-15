@@ -24,7 +24,7 @@
       "xz_scale": 1.0,
       "y_scale": 0.5
     },
-    "continents": "minecraft:overworld/continents",
+    "continents": "gensokyolegacy:continents_small",
     "depth": "gensokyolegacy:depth",
     "erosion": "minecraft:overworld/erosion",
     "final_density": {
@@ -245,24 +245,8 @@
       "y_scale": 1.0
     },
     "ridges": "minecraft:overworld/ridges",
-    "temperature": {
-      "type": "minecraft:shifted_noise",
-      "noise": "minecraft:temperature",
-      "shift_x": "minecraft:shift_x",
-      "shift_y": 0.0,
-      "shift_z": "minecraft:shift_z",
-      "xz_scale": 0.25,
-      "y_scale": 0.0
-    },
-    "vegetation": {
-      "type": "minecraft:shifted_noise",
-      "noise": "minecraft:vegetation",
-      "shift_x": "minecraft:shift_x",
-      "shift_y": 0.0,
-      "shift_z": "minecraft:shift_z",
-      "xz_scale": 0.25,
-      "y_scale": 0.0
-    },
+    "temperature": "gensokyolegacy:temperature_small",
+    "vegetation": "gensokyolegacy:vegetation_small",
     "vein_gap": {
       "type": "minecraft:noise",
       "noise": "minecraft:ore_gap",

@@ -60,9 +60,28 @@ public class GensokyoDimension {
 	public static final ResourceKey<DensityFunction> DF_DEPTH = df("depth");
 	public static final ResourceKey<DensityFunction> DF_SLOPED_CHEESE = df("sloped_cheese");
 
+	/**
+	 * The biome grid reads the three climate axes one octave finer than the terrain chain does, so the biomes come
+	 * out about half as wide without the ground moving. Vanilla keeps these parameters private, so the amplitude lists
+	 * are copied from {@code minecraft/worldgen/noise/*.json} with {@code firstOctave} raised by one.
+	 * <p>
+	 * {@code NoiseRouterData} builds temperature and vegetation inline rather than behind a registry key, so those
+	 * two cannot be redirected by {@link FlatTerrainFunctions}; the router is rebuilt field by field instead.
+	 *
+	 * @see "doc/design/gensokyo_dimension.md" §7
+	 */
+	public static final ResourceKey<NormalNoise.NoiseParameters> N_CONTINENTS_SMALL = nn("continentalness_small");
+	public static final ResourceKey<NormalNoise.NoiseParameters> N_TEMPERATURE_SMALL = nn("temperature_small");
+	public static final ResourceKey<NormalNoise.NoiseParameters> N_VEGETATION_SMALL = nn("vegetation_small");
+	public static final ResourceKey<DensityFunction> DF_CONTINENTS_SMALL = df("continents_small");
+	public static final ResourceKey<DensityFunction> DF_TEMPERATURE_SMALL = df("temperature_small");
+	public static final ResourceKey<DensityFunction> DF_VEGETATION_SMALL = df("vegetation_small");
+
 	/** Vanilla keys {@link NoiseRouterData} keeps private, rebuilt here so the overworld router can be redirected. */
 	private static final ResourceKey<DensityFunction> VANILLA_SLOPED_CHEESE = vanilla("overworld/sloped_cheese");
 	private static final ResourceKey<DensityFunction> VANILLA_BASE_3D_NOISE = vanilla("overworld/base_3d_noise");
+	private static final ResourceKey<DensityFunction> VANILLA_SHIFT_X = vanilla("shift_x");
+	private static final ResourceKey<DensityFunction> VANILLA_SHIFT_Z = vanilla("shift_z");
 
 	private static final Climate.Parameter FULL_RANGE = Climate.Parameter.span(-1.0f, 1.0f);
 	private static final float SURFACE_DEPTH = 0.0f;
@@ -94,13 +113,22 @@ public class GensokyoDimension {
 		init.add(Registries.NOISE_SETTINGS, GensokyoDimension::noiseSettings);
 	}
 
+	/**
+	 * Called from {@code GLFeatureGen}, which owns the single {@link Registries#NOISE} bootstrap.
+	 */
+	public static void noises(BootstrapContext<NormalNoise.NoiseParameters> ctx) {
+		ctx.register(N_CONTINENTS_SMALL, new NormalNoise.NoiseParameters(-8, 1.0, 1.0, 2.0, 2.0, 2.0, 1.0, 1.0, 1.0, 1.0));
+		ctx.register(N_TEMPERATURE_SMALL, new NormalNoise.NoiseParameters(-9, 1.5, 0.0, 1.0, 0.0, 0.0, 0.0));
+		ctx.register(N_VEGETATION_SMALL, new NormalNoise.NoiseParameters(-7, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0));
+	}
+
 	private static void noiseSettings(BootstrapContext<NoiseGeneratorSettings> ctx) {
 		ctx.register(NS_GENSOKYO, new NoiseGeneratorSettings(
 				NoiseSettings.create(-64, 384, 1, 2),
 				Blocks.STONE.defaultBlockState(),
 				Blocks.WATER.defaultBlockState(),
-				OverworldNoiseRouter.overworld(new FlatTerrainFunctions(ctx.lookup(Registries.DENSITY_FUNCTION)),
-						ctx.lookup(Registries.NOISE)),
+				smallClimateRouter(new FlatTerrainFunctions(ctx.lookup(Registries.DENSITY_FUNCTION)),
+						ctx.lookup(Registries.NOISE), ctx.lookup(Registries.DENSITY_FUNCTION)),
 				SurfaceRuleData.overworld(),
 				new OverworldBiomeBuilder().spawnTarget(),
 				63,
@@ -109,11 +137,30 @@ public class GensokyoDimension {
 	}
 
 	/**
+	 * The overworld router with temperature and vegetation pointed at the finer parameters. Every other field is
+	 * carried over unchanged, so only the biome grid sees them.
+	 */
+	private static NoiseRouter smallClimateRouter(HolderGetter<DensityFunction> densities,
+												  HolderGetter<NormalNoise.NoiseParameters> noises,
+												  HolderGetter<DensityFunction> registry) {
+		NoiseRouter overworld = OverworldNoiseRouter.overworld(densities, noises);
+		return new NoiseRouter(
+				overworld.barrierNoise(), overworld.fluidLevelFloodednessNoise(), overworld.fluidLevelSpreadNoise(),
+				overworld.lavaNoise(),
+				reference(registry.getOrThrow(DF_TEMPERATURE_SMALL)),
+				reference(registry.getOrThrow(DF_VEGETATION_SMALL)),
+				overworld.continents(), overworld.erosion(), overworld.depth(), overworld.ridges(),
+				overworld.initialDensityWithoutJaggedness(), overworld.finalDensity(),
+				overworld.veinToggle(), overworld.veinRidged(), overworld.veinGap());
+	}
+
+	/**
 	 * The overworld height chain with erosion and weirdness taken out: the offset spline is a function of
 	 * continentalness alone and the jaggedness term is gone, so nothing carves a river or lifts a peak.
 	 */
 	private static void densityFunctions(BootstrapContext<DensityFunction> ctx) {
 		var densities = ctx.lookup(Registries.DENSITY_FUNCTION);
+		var noises = ctx.lookup(Registries.NOISE);
 		var continentalness = densities.getOrThrow(NoiseRouterData.CONTINENTS);
 		var offset = ctx.register(DF_OFFSET, DensityFunctions.add(DensityFunctions.constant(NoiseRouterData.GLOBAL_OFFSET),
 				blended(DensityFunctions.spline(offsetSpline(continentalness)), DensityFunctions.blendOffset())));
@@ -125,6 +172,24 @@ public class GensokyoDimension {
 				DensityFunctions.mul(DensityFunctions.constant(4.0),
 						DensityFunctions.mul(reference(depth), reference(factor)).quarterNegative()),
 				reference(densities.getOrThrow(VANILLA_BASE_3D_NOISE))));
+		// the three climate axes the biome grid reads, one octave finer; the terrain chain above keeps the vanilla ones
+		ctx.register(DF_CONTINENTS_SMALL, smallClimate(densities, noises.getOrThrow(N_CONTINENTS_SMALL)));
+		ctx.register(DF_TEMPERATURE_SMALL, smallClimate(densities, noises.getOrThrow(N_TEMPERATURE_SMALL)));
+		ctx.register(DF_VEGETATION_SMALL, smallClimate(densities, noises.getOrThrow(N_VEGETATION_SMALL)));
+	}
+
+	/**
+	 * One climate axis at the vanilla {@code xz_scale}, on a noise whose every octave is one step finer.
+	 * <p>
+	 * Deliberately not {@code flat_cache}d: {@code NoiseChunk.FlatCache} indexes its table by quart position and
+	 * stores the value at the cell's origin corner, so it snaps these fields to a 4-block grid and the biome edges
+	 * come out stepped.
+	 */
+	private static DensityFunction smallClimate(HolderGetter<DensityFunction> densities,
+												Holder<NormalNoise.NoiseParameters> noise) {
+		return DensityFunctions.shiftedNoise2d(
+				reference(densities.getOrThrow(VANILLA_SHIFT_X)), reference(densities.getOrThrow(VANILLA_SHIFT_Z)),
+				0.25, noise);
 	}
 
 	/**
@@ -278,6 +343,8 @@ public class GensokyoDimension {
 			if (key.equals(NoiseRouterData.DEPTH)) return inner.get(DF_DEPTH);
 			if (key.equals(NoiseRouterData.FACTOR)) return inner.get(DF_FACTOR);
 			if (key.equals(VANILLA_SLOPED_CHEESE)) return inner.get(DF_SLOPED_CHEESE);
+			// the biome grid gets the finer continentalness; the height chain above was built from the vanilla one
+			if (key.equals(NoiseRouterData.CONTINENTS)) return inner.get(DF_CONTINENTS_SMALL);
 			return inner.get(key);
 		}
 
@@ -301,6 +368,10 @@ public class GensokyoDimension {
 
 	private static ResourceKey<DensityFunction> df(String id) {
 		return ResourceKey.create(Registries.DENSITY_FUNCTION, GensokyoLegacy.loc(id));
+	}
+
+	private static ResourceKey<NormalNoise.NoiseParameters> nn(String id) {
+		return ResourceKey.create(Registries.NOISE, GensokyoLegacy.loc(id));
 	}
 
 	private static ResourceKey<DensityFunction> vanilla(String path) {

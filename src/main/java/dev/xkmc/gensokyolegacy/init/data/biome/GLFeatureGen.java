@@ -1,6 +1,7 @@
 package dev.xkmc.gensokyolegacy.init.data.biome;
 
 import com.tterrag.registrate.providers.DataProviderInitializer;
+import dev.xkmc.gensokyolegacy.content.dimension.GensokyoDimension;
 import dev.xkmc.gensokyolegacy.content.worldgen.feature.MushroomFeatures.MushroomTreeType;
 import dev.xkmc.gensokyolegacy.content.worldgen.feature.TreeFeatures.TreeType;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
@@ -125,7 +126,11 @@ public class GLFeatureGen {
 					PlacementUtils.HEIGHTMAP_OCEAN_FLOOR, BiomeFilter.biome());
 			MagicalForestFeatures.placed(ctx);
 	});
-		init.add(Registries.NOISE, MagicalForestFeatures::noise);
+		// one bootstrap per registry: GensokyoDimension reuses this one for its finer climate noise parameters
+		init.add(Registries.NOISE, (ctx) -> {
+			MagicalForestFeatures.noise(ctx);
+			GensokyoDimension.noises(ctx);
+		});
 	}
 
 	private static ResourceKey<ConfiguredFeature<?, ?>> cf(String id) {
