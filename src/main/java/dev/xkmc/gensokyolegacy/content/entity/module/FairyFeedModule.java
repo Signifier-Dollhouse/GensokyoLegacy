@@ -84,10 +84,12 @@ public class FairyFeedModule extends AbstractBubbleModule {
 	private static final int FEED_TTL = 200;
 
 	/**
-	 * The handoff into {@link GLBrains#MEM_FEED}: who was fed and the exact stack she owes. The gift rides
-	 * with the memory rather than being re-derived, since the flower is a roll: she reaches for <em>that</em> one.
+	 * The handoff into {@link GLBrains#MEM_FEED}: who was fed, the single dish she holds while
+	 * she chews it, and the exact gift she owes. The dish and the gift both ride with the
+	 * memory rather than being re-derived, since the flower is a roll: she reaches for
+	 * <em>that</em> one, and the stack she puts in her hand is the one the player handed over.
 	 */
-	public record Fed(Player player, ItemStack gift) {
+	public record Fed(Player player, ItemStack food, ItemStack gift) {
 	}
 
 	/**
@@ -125,7 +127,6 @@ public class FairyFeedModule extends AbstractBubbleModule {
 	@Override
 	public List<Supplier<ItemStack>> wants() {
 		return List.of(
-				GLItems.FAIRY_DUST::asStack,
 				GLItems.FAIRY_CAKE::asStack,
 				() -> new ItemStack(Items.COOKIE),
 				() -> new ItemStack(Items.CAKE));
@@ -265,8 +266,10 @@ public class FairyFeedModule extends AbstractBubbleModule {
 		// moved the reputation and not on ones fed to a relationship that does not exist
 		GLCriteriaTriggers.FEED_FAIRY.get().trigger(sp, self, stack);
 		// rolled now rather than at the throw: she reaches for the flower she was
-		// given, not for whatever comes up two seconds later
-		BrainUtils.setForgettableMemory(self, GLBrains.MEM_FEED.get(), new Fed(sp, dish.gift().get()), FEED_TTL);
+		// given, not for whatever comes up two seconds later. One of the pair, too -
+		// a stack of nine cakes hands over a cake, not all of them
+		BrainUtils.setForgettableMemory(self, GLBrains.MEM_FEED.get(),
+				new Fed(sp, stack.copyWithCount(1), dish.gift().get()), FEED_TTL);
 		return welcomed;
 	}
 

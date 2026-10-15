@@ -56,6 +56,11 @@ public abstract class AbstractBubbleModule extends AbstractYoukaiModule implemen
 		if (!self.level().isClientSide()) return;
 		if (--delay > 0) return;
 		delay = rollDelay();
+		if (!mayShowWant()) {
+			bubbleAt = -1000;
+			bubble = ItemStack.EMPTY;
+			return;
+		}
 		var wants = wants();
 		if (wants.isEmpty()) return;
 		bubble = wants.get(self.getRandom().nextInt(wants.size())).get();

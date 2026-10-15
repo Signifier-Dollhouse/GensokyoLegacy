@@ -73,8 +73,8 @@ public class CirnoEntity extends FairyEntity implements GeoYoukaiAnim {
 	/** The idle flourish the current export added as {@code 闲置动画}. */
 	private static final RawAnimation IDLE_FIDGET = RawAnimation.begin().thenPlay("闲置动画");
 
-	/** Her own entity data, over the generic youkai/spell-data layers. */
-	protected static final SyncedData CIRNO_DATA = new SyncedData(CirnoEntity::defineId, SPELL_DATA);
+	/** Her own entity data, over the generic youkai/spell-data/fairy layers. */
+	protected static final SyncedData CIRNO_DATA = new SyncedData(CirnoEntity::defineId, FAIRY_DATA);
 
 	private static final EntityDataAccessor<Integer> DATA_TANNED = CIRNO_DATA.define(SyncedData.INT, 0, "tanned");
 
