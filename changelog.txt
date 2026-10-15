@@ -1,6 +1,5 @@
 1.0.4
 - Party! host a banquet with invitation letter
-- Gift system: send and receive gifts with characters
 - Fairies: feed them cakes. Spawn in forest and plains
 - Fairy dust: guide you to characters' house
 - Add cirno and her nest, in snowy biomes
@@ -9,7 +8,6 @@
 - Ibuki gourd: infinite sake
 - Floating effect from fairy cakes and fairy hexbrew
 - Refined hexbrew via Elixir
-- Plate: cut 16 from white glazed terracotta, hold one food on it
 
 1.0.3
 - refurnish alice house
