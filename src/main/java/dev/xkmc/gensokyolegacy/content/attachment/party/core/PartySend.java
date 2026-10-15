@@ -1,8 +1,8 @@
 package dev.xkmc.gensokyolegacy.content.attachment.party.core;
 
-import dev.xkmc.gensokyolegacy.content.entity.module.HomeModule;
-import dev.xkmc.gensokyolegacy.content.entity.module.PartyModule;
-import dev.xkmc.gensokyolegacy.content.entity.module.VisitModule;
+import dev.xkmc.gensokyolegacy.content.entity.behavior.module.HomeModule;
+import dev.xkmc.gensokyolegacy.content.entity.behavior.module.PartyModule;
+import dev.xkmc.gensokyolegacy.content.entity.behavior.module.VisitModule;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import dev.xkmc.gensokyolegacy.init.data.GLModConfig;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
@@ -15,7 +15,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.ai.util.LandRandomPos;
 import net.minecraft.world.entity.ai.util.RandomPos;
 import net.minecraft.world.item.ItemStack;

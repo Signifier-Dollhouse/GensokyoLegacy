@@ -18,7 +18,7 @@ import org.joml.Vector3f;
 import software.bernie.geckolib.cache.object.GeoBone;
 import software.bernie.geckolib.renderer.layer.BlockAndItemGeoLayer;
 
-import static dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiHeldItemLayer.itemBuffer;
+import static dev.xkmc.gensokyolegacy.content.entity.youkai.renderer.YoukaiHeldItemLayer.itemBuffer;
 
 /**
  * Renders the doll loadout hand slots at the model's hand locator bones.

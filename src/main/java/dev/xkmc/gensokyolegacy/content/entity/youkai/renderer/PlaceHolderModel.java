@@ -1,5 +1,6 @@
-package dev.xkmc.gensokyolegacy.content.entity.youkai;
+package dev.xkmc.gensokyolegacy.content.entity.youkai.renderer;
 
+import dev.xkmc.gensokyolegacy.content.entity.youkai.GeneralYoukaiEntity;
 import net.minecraft.client.model.HierarchicalModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.util.Mth;

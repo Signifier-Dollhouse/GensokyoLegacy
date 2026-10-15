@@ -15,7 +15,7 @@ import dev.xkmc.gensokyolegacy.content.entity.dolls.action.DollActionType;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.behavior.DollBehaviorRegistry;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.behavior.DollBehaviors;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.impl.DollHandLock;
-import dev.xkmc.gensokyolegacy.content.entity.module.AbstractYoukaiModule;
+import dev.xkmc.gensokyolegacy.content.entity.behavior.module.AbstractYoukaiModule;
 import dev.xkmc.gensokyolegacy.content.item.doll.DollItem;
 import dev.xkmc.gensokyolegacy.content.item.doll.DollSlot;
 import dev.xkmc.gensokyolegacy.content.item.talisman.core.FoldedPaperTalisman;

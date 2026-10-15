@@ -1,9 +1,10 @@
-package dev.xkmc.gensokyolegacy.content.entity.youkai;
+package dev.xkmc.gensokyolegacy.content.entity.youkai.renderer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.xkmc.fastprojectileapi.spellcircle.SpellCircleLayer;
 import dev.xkmc.gensokyolegacy.compat.touhoulittlemaid.TLMClientCompat;
 import dev.xkmc.gensokyolegacy.content.entity.characters.rumia.RumiaModel;
+import dev.xkmc.gensokyolegacy.content.entity.youkai.GeneralYoukaiEntity;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.renderer.MultiBufferSource;

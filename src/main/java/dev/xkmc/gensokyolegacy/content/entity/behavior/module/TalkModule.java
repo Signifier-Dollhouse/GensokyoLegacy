@@ -1,4 +1,4 @@
-package dev.xkmc.gensokyolegacy.content.entity.module;
+package dev.xkmc.gensokyolegacy.content.entity.behavior.module;
 
 import dev.xkmc.gensokyolegacy.content.attachment.character.ReputationState;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;

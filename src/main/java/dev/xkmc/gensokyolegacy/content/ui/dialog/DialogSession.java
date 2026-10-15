@@ -1,6 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.ui.dialog;
 
-import dev.xkmc.gensokyolegacy.content.entity.module.TalkModule;
+import dev.xkmc.gensokyolegacy.content.entity.behavior.module.TalkModule;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.rpg.network.DialogCloseToClient;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;

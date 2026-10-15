@@ -1,4 +1,4 @@
-package dev.xkmc.gensokyolegacy.content.entity.module;
+package dev.xkmc.gensokyolegacy.content.entity.behavior.module;
 
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiFlags;
@@ -11,7 +11,6 @@ import dev.xkmc.gensokyolegacy.content.attachment.character.CharDataHolder;
 import dev.xkmc.gensokyolegacy.content.attachment.character.CharacterConfig;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.registrate.GLBrains;
-import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
 import dev.xkmc.gensokyolegacy.util.BrainUtils;
 import dev.xkmc.l2serial.serialization.marker.SerialClass;
 import dev.xkmc.l2serial.serialization.marker.SerialField;

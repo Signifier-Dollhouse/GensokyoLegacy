@@ -38,7 +38,7 @@ Every file the feature creates and modifies, and the resources it generates.
 | `content/attachment/party/core/PartyFirework.java` | one rocket over the table, fired from a ring clear of the guests (state.md §2.1) |
 | `content/attachment/party/item/InvitationLetterItem.java` | the letter |
 | `content/attachment/party/item/PartyMessage.java` | one place that turns an outcome into player-facing text |
-| `content/entity/module/PartyModule.java` | per-guest state, `arrive`/`join`/`beginLeave`/`completeLeave`, and `Origin` |
+| `content/entity/behavior/module/PartyModule.java` | per-guest state, `arrive`/`join`/`beginLeave`/`completeLeave`, and `Origin` |
 | `content/entity/behavior/task/party/PartyTasks.java` | the 11-task cascade → delay → pickup → chew → rest, and the exit |
 | `content/rpg/condition/PartyCondition.java` | `{"type":"gensokyolegacy:party"}`, `invert` for home-bound |
 
@@ -56,7 +56,7 @@ Every file the feature creates and modifies, and the resources it generates.
 | `content/entity/characters/fairy/CirnoEntity.java` | `PartyModule` in its `createModules()` override |
 | `content/entity/characters/magician/AliceEntity.java` | same |
 | `content/entity/characters/fairy/PlainFairyEntity.java` | the chew the others already had (`YoukaiAnim.EAT`) |
-| `content/entity/module/VisitModule.java` | stand down while she is partying (guest.md §2) |
+| `content/entity/behavior/module/VisitModule.java` | stand down while she is partying (guest.md §2) |
 | `content/client/debug/CharacterRequestToServer.java` | carry a guest's tally in the existing character-info answer (debug.md §4) |
 | `content/client/debug/CharacterInfoToClient.java` | the `PartyTally` record and its two lines |
 | `init/registrate/GLEntities.java` | `TASTE_*` constants, applied via `.dataMap(GLMeta.PARTY_TASTE.reg(), …)` |

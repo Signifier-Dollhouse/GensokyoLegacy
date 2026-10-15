@@ -1,4 +1,4 @@
-package dev.xkmc.gensokyolegacy.content.entity.visit;
+package dev.xkmc.gensokyolegacy.content.entity.behavior.visit;
 
 import dev.xkmc.gensokyolegacy.content.attachment.home.datamap.StructureConfig;
 import dev.xkmc.gensokyolegacy.content.attachment.index.StructureKey;

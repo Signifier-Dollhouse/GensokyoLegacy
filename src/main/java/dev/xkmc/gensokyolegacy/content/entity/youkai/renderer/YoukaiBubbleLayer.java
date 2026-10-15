@@ -1,9 +1,11 @@
-package dev.xkmc.gensokyolegacy.content.entity.youkai;
+package dev.xkmc.gensokyolegacy.content.entity.youkai.renderer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import dev.xkmc.gensokyolegacy.content.entity.module.AbstractBubbleModule;
-import dev.xkmc.gensokyolegacy.content.entity.module.IBubbleModule;
+import dev.xkmc.gensokyolegacy.content.entity.behavior.module.AbstractBubbleModule;
+import dev.xkmc.gensokyolegacy.content.entity.behavior.module.IBubbleModule;
+import dev.xkmc.gensokyolegacy.content.entity.youkai.facet.GeoYoukaiAnim;
+import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LightTexture;

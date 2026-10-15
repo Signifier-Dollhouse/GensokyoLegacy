@@ -1,8 +1,9 @@
-package dev.xkmc.gensokyolegacy.content.entity.youkai;
+package dev.xkmc.gensokyolegacy.content.entity.youkai.renderer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import dev.xkmc.gensokyolegacy.content.entity.dolls.DollEntity;
+import dev.xkmc.gensokyolegacy.content.entity.youkai.GeneralYoukaiEntity;
+import dev.xkmc.gensokyolegacy.content.entity.youkai.facet.GeoYoukaiAnim;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.OutlineBufferSource;

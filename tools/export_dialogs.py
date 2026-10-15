@@ -39,8 +39,8 @@ ZH_LANG = os.path.join(ROOT, "src/main/resources/assets/gensokyolegacy/lang/zh_c
 OUT = os.path.join(ROOT, "out")
 
 JAVA = os.path.join(ROOT, "src/main/java/dev/xkmc/gensokyolegacy")
-YOUKAI_ANIM_JAVA = os.path.join(JAVA, "content/entity/youkai/YoukaiAnim.java")
-GEO_YOUKAI_JAVA = os.path.join(JAVA, "content/entity/youkai/GeoYoukaiAnim.java")
+YOUKAI_ANIM_JAVA = os.path.join(JAVA, "content/entity/youkai/facet/YoukaiAnim.java")
+GEO_YOUKAI_JAVA = os.path.join(JAVA, "content/entity/youkai/facet/GeoYoukaiAnim.java")
 GL_ENTITIES_JAVA = os.path.join(JAVA, "init/registrate/GLEntities.java")
 ANIM_ASSETS = os.path.join(ROOT, "src/main/resources/assets/gensokyolegacy/animations")
 

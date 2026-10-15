@@ -3,7 +3,7 @@ package dev.xkmc.gensokyolegacy.content.entity.behavior.task.marisa;
 import dev.xkmc.gensokyolegacy.content.block.nature.SideBushBlock;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.task.home.AbstractHomeHolderTask;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.SmartYoukaiEntity;
-import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiAnim;
+import dev.xkmc.gensokyolegacy.content.entity.youkai.facet.YoukaiAnim;
 import dev.xkmc.gensokyolegacy.util.BrainUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;

@@ -1,7 +1,7 @@
-package dev.xkmc.gensokyolegacy.content.entity.module;
+package dev.xkmc.gensokyolegacy.content.entity.behavior.module;
 
 import dev.xkmc.gensokyolegacy.content.attachment.index.StructureKey;
-import dev.xkmc.gensokyolegacy.content.entity.visit.VisitTable;
+import dev.xkmc.gensokyolegacy.content.entity.behavior.visit.VisitTable;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiFlags;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;

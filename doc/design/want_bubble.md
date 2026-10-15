@@ -1,7 +1,7 @@
 # Want Bubble — Design Doc
 
 > **Status:** implemented — compiles, `./gradlew build` green. Not yet played in a live world, so the feel of the ten-to-twenty-second clock is reasoned from the code rather than observed.
-> **Package:** `content/entity/module/IBubbleModule.java` (what a renderer asks for) and `content/entity/module/AbstractBubbleModule.java` (the clock and its state), drawn by `content/entity/youkai/YoukaiBubbleLayer.java`. One consumer today: `FairyFeedModule`.
+> **Package:** `content/entity/behavior/module/IBubbleModule.java` (what a renderer asks for) and `content/entity/behavior/module/AbstractBubbleModule.java` (the clock and its state), drawn by `content/entity/youkai/renderer/YoukaiBubbleLayer.java`. One consumer today: `FairyFeedModule`.
 > **Related:** `structure/youkai_character.md` (the module system this rides on), `party/send.md` (the other half of feeding a fairy)
 
 ## What it is
@@ -14,10 +14,10 @@ A fairy has no dialog of her own (`FairyEntity` drops `TalkModule`), so this is 
 
 | Piece | File | Job |
 |---|---|---|
-| `IBubbleModule` | `content/entity/module/IBubbleModule.java` | the contract a renderer asks for: `wants()`, `mayShowWant()`, and the three pieces of draw state |
-| `AbstractBubbleModule` | `content/entity/module/AbstractBubbleModule.java` | the clock, the roll, and the client-side state; extends `AbstractYoukaiModule` and implements `IBubbleModule` |
-| `YoukaiBubbleLayer` | `content/entity/youkai/YoukaiBubbleLayer.java` | draws the pill and the item; looks the module up by interface, not by kind of character |
-| `FairyFeedModule` | `content/entity/module/FairyFeedModule.java` | the fairy answer: what she asks for, and when she is not asking |
+| `IBubbleModule` | `content/entity/behavior/module/IBubbleModule.java` | the contract a renderer asks for: `wants()`, `mayShowWant()`, and the three pieces of draw state |
+| `AbstractBubbleModule` | `content/entity/behavior/module/AbstractBubbleModule.java` | the clock, the roll, and the client-side state; extends `AbstractYoukaiModule` and implements `IBubbleModule` |
+| `YoukaiBubbleLayer` | `content/entity/youkai/renderer/YoukaiBubbleLayer.java` | draws the pill and the item; looks the module up by interface, not by kind of character |
+| `FairyFeedModule` | `content/entity/behavior/module/FairyFeedModule.java` | the fairy answer: what she asks for, and when she is not asking |
 | `CirnoFeedModule` | `content/entity/characters/fairy/CirnoFeedModule.java` | inherits the bubble unchanged; only the gifts differ |
 
 A character gets a bubble by having a module that is an `IBubbleModule` in its list and by its renderer adding `new YoukaiBubbleLayer<>(this)`. Nothing else is wired: `YoukaiEntity` is untouched, because the clock runs out of the module tick `YoukaiEntity.tickEffects` already drives.

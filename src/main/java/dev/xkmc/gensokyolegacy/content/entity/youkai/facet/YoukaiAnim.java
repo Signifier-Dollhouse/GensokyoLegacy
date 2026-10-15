@@ -1,4 +1,6 @@
-package dev.xkmc.gensokyolegacy.content.entity.youkai;
+package dev.xkmc.gensokyolegacy.content.entity.youkai.facet;
+
+import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 
 import java.util.List;
 import java.util.Locale;

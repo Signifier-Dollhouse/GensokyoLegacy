@@ -1,4 +1,4 @@
-package dev.xkmc.gensokyolegacy.content.entity.module;
+package dev.xkmc.gensokyolegacy.content.entity.behavior.module;
 
 import dev.xkmc.gensokyolegacy.content.client.debug.InfoUpdateClientManager;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;

@@ -1,4 +1,4 @@
-package dev.xkmc.gensokyolegacy.content.entity.module;
+package dev.xkmc.gensokyolegacy.content.entity.behavior.module;
 
 import dev.xkmc.l2serial.util.Wrappers;
 import org.jetbrains.annotations.NotNull;

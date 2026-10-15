@@ -1,4 +1,4 @@
-package dev.xkmc.gensokyolegacy.content.entity.module;
+package dev.xkmc.gensokyolegacy.content.entity.behavior.module;
 
 import dev.xkmc.gensokyolegacy.content.attachment.index.BedRefData;
 import dev.xkmc.gensokyolegacy.content.attachment.index.StructureKey;

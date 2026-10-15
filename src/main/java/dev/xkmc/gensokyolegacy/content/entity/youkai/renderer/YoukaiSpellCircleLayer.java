@@ -1,4 +1,4 @@
-package dev.xkmc.gensokyolegacy.content.entity.youkai;
+package dev.xkmc.gensokyolegacy.content.entity.youkai.renderer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -6,6 +6,8 @@ import dev.xkmc.fastprojectileapi.FastProjectileAPI;
 import dev.xkmc.fastprojectileapi.spellcircle.SpellCircleConfig;
 import dev.xkmc.fastprojectileapi.spellcircle.SpellComponent;
 import dev.xkmc.fastprojectileapi.spellcircle.SpellRenderState;
+import dev.xkmc.gensokyolegacy.content.entity.youkai.GeneralYoukaiEntity;
+import dev.xkmc.gensokyolegacy.content.entity.youkai.facet.GeoYoukaiAnim;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;

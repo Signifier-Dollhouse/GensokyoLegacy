@@ -11,7 +11,8 @@ import dev.xkmc.gensokyolegacy.content.entity.behavior.sensor.YoukaiUpdateHomeSe
 import dev.xkmc.gensokyolegacy.content.entity.behavior.task.combat.*;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.task.core.*;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.task.home.*;
-import dev.xkmc.gensokyolegacy.content.entity.module.PartyModule;
+import dev.xkmc.gensokyolegacy.content.entity.behavior.module.PartyModule;
+import dev.xkmc.gensokyolegacy.content.entity.youkai.facet.YoukaiAnim;
 import dev.xkmc.gensokyolegacy.content.ui.dialog.FirstDialogSession;
 import dev.xkmc.gensokyolegacy.init.registrate.GLBrains;
 import dev.xkmc.gensokyolegacy.util.BrainUtils;
@@ -19,7 +20,6 @@ import dev.xkmc.l2serial.serialization.marker.SerialClass;
 import dev.xkmc.l2serial.util.Wrappers;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.util.Unit;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.Brain;

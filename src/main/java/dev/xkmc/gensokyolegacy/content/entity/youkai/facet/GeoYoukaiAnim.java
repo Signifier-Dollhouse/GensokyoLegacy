@@ -1,4 +1,4 @@
-package dev.xkmc.gensokyolegacy.content.entity.youkai;
+package dev.xkmc.gensokyolegacy.content.entity.youkai.facet;
 
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.LivingEntity;

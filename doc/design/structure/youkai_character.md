@@ -1,6 +1,6 @@
 # YoukaiEntity and CharacterData — Implementation & Usage Guide
 
-This document reflects the current implementation in `content/entity/youkai/`, `content/entity/foundation/`, `content/attachment/character/`, `content/entity/behavior/`, `content/entity/module/` and `init/registrate/`.
+This document reflects the current implementation in `content/entity/youkai/` (base entities, plus `facet/` and `renderer/`), `content/entity/foundation/`, `content/attachment/character/`, `content/entity/behavior/` (brain/sensor/task/move/combat, plus `module/` and `visit/`) and `init/registrate/`.
 
 Related: [home_index.md](home_index.md), [structure_bed_entity.md](structure_bed_entity.md), [reputation.md](reputation.md), [character_visit.md](character_visit.md), [party/](party/).
 
@@ -25,10 +25,10 @@ Related: [home_index.md](home_index.md), [structure_bed_entity.md](structure_bed
 | `TaskBoard` | `content/entity/behavior/brain/TaskBoard.java:28` | DSL for brain graph: `always / exclusive(priority) / random` behaviors, `scheduled / prioritized` activities, `sensors`, `schedule`, plus `addPartyTasks()` for the shared guest behaviour. |
 | `SmartBrain` | `content/entity/behavior/brain/SmartBrain.java` | `Brain<E>` subclass. `construct(board,dynamic)` via `Provider` codec `Brain.codec(memoryTypes,sensorTypes)`. Priority scan `updateActivities`. |
 | `GLBrains` | `init/registrate/GLBrains.java:15` | `SR`-registered sensors `SN_HOME/SN_HUNT/SN_ITEM/SN_LE/SN_PLAYER/SN_HOME_BLOCKS`; memories `MEM_PATH/MEM_PREY/MEM_DOWN/MEM_TALK/MEM_ITEMS/MEM_FEED/MEM_VISIT/MEM_PARTY/MEM_FEAR/MEM_NAP`; activities `AT_HOME/HUNT(700)/DOWN(-100)/TALK(300)/VISITING(600)/PARTY(400)/FEAR(100)/FEAST(200)/NAP(500)`. The priority scale is documented as a block above the activity constants. |
-| `YoukaiModuleHolder` | `content/entity/module/YoukaiModuleHolder.java` | `List<AbstractYoukaiModule>` + `Map<Class,Optional>` cache + `hasPickup` flag. Iterable. |
-| `HomeModule` | `content/entity/module/HomeModule.java` | `@SerialField StructureKey home` (immovable — structures/BEs never move, so no re-binding needed). `tickServer → BedRefData.entityTick`, `onKilled → onEntityDie`. |
-| `VisitModule` | `content/entity/module/VisitModule.java` | Drives `YoukaiFlags.VISITING` and the `MEM_VISIT` heartbeat; a visitor has no `HomeModule` binding, so she can neither sleep nor go home. See `character_visit.md`. |
-| `PartyModule` | `content/entity/module/PartyModule.java` | Drives `YoukaiFlags.PARTYING` and re-asserts `MEM_PARTY` every tick (that memory has no codec, so it does not survive a save). See `../party`. |
+| `YoukaiModuleHolder` | `content/entity/behavior/module/YoukaiModuleHolder.java` | `List<AbstractYoukaiModule>` + `Map<Class,Optional>` cache + `hasPickup` flag. Iterable. |
+| `HomeModule` | `content/entity/behavior/module/HomeModule.java` | `@SerialField StructureKey home` (immovable — structures/BEs never move, so no re-binding needed). `tickServer → BedRefData.entityTick`, `onKilled → onEntityDie`. |
+| `VisitModule` | `content/entity/behavior/module/VisitModule.java` | Drives `YoukaiFlags.VISITING` and the `MEM_VISIT` heartbeat; a visitor has no `HomeModule` binding, so she can neither sleep nor go home. See `character_visit.md`. |
+| `PartyModule` | `content/entity/behavior/module/PartyModule.java` | Drives `YoukaiFlags.PARTYING` and re-asserts `MEM_PARTY` every tick (that memory has no codec, so it does not survive a save). See `../party`. |
 | `YoukaiTargetContainer` | `content/entity/behavior/combat/YoukaiTargetContainer.java` | `@SerialField LinkedHashSet<UUID> list` (maxSize 10/8). Maintains hostile UUIDs; `tick()` promotes `lastHurtByMob`/target. |
 
 ## 2. Hierarchy

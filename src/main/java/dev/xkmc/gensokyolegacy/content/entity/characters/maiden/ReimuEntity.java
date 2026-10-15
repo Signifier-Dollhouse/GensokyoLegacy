@@ -1,7 +1,7 @@
 package dev.xkmc.gensokyolegacy.content.entity.characters.maiden;
 
-import dev.xkmc.gensokyolegacy.content.entity.youkai.GeoYoukaiAnim;
-import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiAnim;
+import dev.xkmc.gensokyolegacy.content.entity.youkai.facet.GeoYoukaiAnim;
+import dev.xkmc.gensokyolegacy.content.entity.youkai.facet.YoukaiAnim;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiFeatureSet;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiFlags;
 import dev.xkmc.l2serial.serialization.marker.SerialClass;

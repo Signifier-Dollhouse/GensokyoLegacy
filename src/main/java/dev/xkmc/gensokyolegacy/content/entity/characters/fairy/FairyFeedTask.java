@@ -1,7 +1,7 @@
 package dev.xkmc.gensokyolegacy.content.entity.characters.fairy;
 
-import dev.xkmc.gensokyolegacy.content.entity.module.FairyFeedModule;
-import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiAnim;
+import dev.xkmc.gensokyolegacy.content.entity.behavior.module.FairyFeedModule;
+import dev.xkmc.gensokyolegacy.content.entity.youkai.facet.YoukaiAnim;
 import dev.xkmc.gensokyolegacy.init.registrate.GLBrains;
 import dev.xkmc.gensokyolegacy.util.BrainUtils;
 import net.minecraft.server.level.ServerLevel;

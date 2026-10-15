@@ -1,6 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.entity.behavior.task.core;
 
-import dev.xkmc.gensokyolegacy.content.entity.module.TalkModule;
+import dev.xkmc.gensokyolegacy.content.entity.behavior.module.TalkModule;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.SmartYoukaiEntity;
 import dev.xkmc.gensokyolegacy.init.registrate.GLBrains;
 import dev.xkmc.gensokyolegacy.util.BrainUtils;

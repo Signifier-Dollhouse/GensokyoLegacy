@@ -1,12 +1,12 @@
 package dev.xkmc.gensokyolegacy.content.entity.characters.fairy;
 
 import dev.xkmc.gensokyolegacy.content.entity.behavior.combat.YoukaiCombatManager;
-import dev.xkmc.gensokyolegacy.content.entity.module.AbstractYoukaiModule;
-import dev.xkmc.gensokyolegacy.content.entity.module.FairyFeedModule;
-import dev.xkmc.gensokyolegacy.content.entity.module.HomeModule;
-import dev.xkmc.gensokyolegacy.content.entity.module.PartyModule;
-import dev.xkmc.gensokyolegacy.content.entity.module.TalkModule;
-import dev.xkmc.gensokyolegacy.content.entity.module.VisitModule;
+import dev.xkmc.gensokyolegacy.content.entity.behavior.module.AbstractYoukaiModule;
+import dev.xkmc.gensokyolegacy.content.entity.behavior.module.FairyFeedModule;
+import dev.xkmc.gensokyolegacy.content.entity.behavior.module.HomeModule;
+import dev.xkmc.gensokyolegacy.content.entity.behavior.module.PartyModule;
+import dev.xkmc.gensokyolegacy.content.entity.behavior.module.TalkModule;
+import dev.xkmc.gensokyolegacy.content.entity.behavior.module.VisitModule;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.GeneralYoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import dev.xkmc.l2serial.serialization.marker.SerialClass;
