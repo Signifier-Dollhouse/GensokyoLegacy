@@ -9,7 +9,7 @@ import dev.xkmc.gensokyolegacy.content.block.functional.alchemypot.recipe.WitchE
 import dev.xkmc.gensokyolegacy.content.block.functional.alchemypot.recipe.WitchMergeRecipe;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.task.home.AbstractHomeHolderTask;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.SmartYoukaiEntity;
-import dev.xkmc.gensokyolegacy.content.entity.youkai.facet.YoukaiAnim;
+import dev.xkmc.gensokyolegacy.content.entity.youkai.impl.YoukaiAnim;
 import dev.xkmc.gensokyolegacy.content.fluid.GLHexFluid;
 import dev.xkmc.gensokyolegacy.content.item.hexbrew.HexBrew;
 import dev.xkmc.gensokyolegacy.init.registrate.GLRecipes;

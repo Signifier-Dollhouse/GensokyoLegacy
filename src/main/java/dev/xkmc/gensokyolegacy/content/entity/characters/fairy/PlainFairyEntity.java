@@ -3,11 +3,11 @@ package dev.xkmc.gensokyolegacy.content.entity.characters.fairy;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.brain.TaskBoard;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.module.*;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.move.CombatFlyingControl;
-import dev.xkmc.gensokyolegacy.content.entity.youkai.facet.GeoYoukaiAnim;
-import dev.xkmc.gensokyolegacy.content.entity.youkai.facet.YoukaiAnim;
+import dev.xkmc.gensokyolegacy.content.entity.youkai.impl.GeoYoukaiAnim;
+import dev.xkmc.gensokyolegacy.content.entity.youkai.impl.YoukaiAnim;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiFeatureSet;
-import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiFlags;
+import dev.xkmc.gensokyolegacy.content.entity.youkai.impl.YoukaiFlags;
 import dev.xkmc.gensokyolegacy.init.registrate.GLBrains;
 import dev.xkmc.gensokyolegacy.util.BrainUtils;
 import dev.xkmc.l2core.base.entity.SyncedData;
@@ -318,7 +318,7 @@ public class PlainFairyEntity extends FairyEntity implements GeoYoukaiAnim {
 	 * and run the give-up-on-the-player watchdog out from under her.
 	 */
 	@Override
-	protected void tickTargeting() {
+	public void tickTargeting() {
 		if (BrainUtils.getMemory(this, GLBrains.MEM_FEAR.get()) == null) {
 			super.tickTargeting();
 		}

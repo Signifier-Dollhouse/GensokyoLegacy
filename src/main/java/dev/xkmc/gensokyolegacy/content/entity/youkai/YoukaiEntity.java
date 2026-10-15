@@ -1,14 +1,8 @@
 package dev.xkmc.gensokyolegacy.content.entity.youkai;
 
-import dev.xkmc.danmakuapi.api.IDanmakuEntity;
 import dev.xkmc.danmakuapi.api.IYoukaiEntity;
-import dev.xkmc.danmakuapi.content.entity.ItemBulletEntity;
 import dev.xkmc.danmakuapi.content.spell.spellcard.SpellCardWrapper;
-import dev.xkmc.danmakuapi.init.registrate.DanmakuEntities;
-import dev.xkmc.danmakuapi.init.registrate.DanmakuItems;
 import dev.xkmc.fastprojectileapi.spellcircle.SpellCircleHolder;
-import dev.xkmc.gensokyolegacy.content.attachment.character.CharDataHolder;
-import dev.xkmc.gensokyolegacy.content.attachment.character.ReputationConstants;
 import dev.xkmc.gensokyolegacy.content.attachment.character.ReputationState;
 import dev.xkmc.gensokyolegacy.content.block.deco.bed.YoukaiBedBlock;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.combat.*;
@@ -17,27 +11,22 @@ import dev.xkmc.gensokyolegacy.content.entity.behavior.move.YoukaiNavigationCont
 import dev.xkmc.gensokyolegacy.content.entity.foundation.DamageClampEntity;
 import dev.xkmc.gensokyolegacy.content.entity.foundation.IDimensionBoundEntity;
 import dev.xkmc.gensokyolegacy.content.entity.foundation.ISleepOffsetEntity;
-import dev.xkmc.gensokyolegacy.content.entity.youkai.facet.YoukaiAnim;
-import dev.xkmc.gensokyolegacy.init.data.GLLang;
+import dev.xkmc.gensokyolegacy.content.entity.youkai.impl.YoukaiAnim;
+import dev.xkmc.gensokyolegacy.content.entity.youkai.impl.*;
 import dev.xkmc.l2core.base.entity.SyncedData;
 import dev.xkmc.l2serial.serialization.codec.TagCodec;
 import dev.xkmc.l2serial.serialization.marker.SerialClass;
 import dev.xkmc.l2serial.serialization.marker.SerialField;
 import dev.xkmc.l2serial.util.Wrappers;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.particles.ItemParticleOption;
-import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializer;
-import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -51,20 +40,26 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.schedule.Activity;
-import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.common.NeoForge;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+/**
+ * The foundation every character shares: synced data, the NBT contract, the module registry, and
+ * the vanilla overrides that dispatch into the {@code impl/} facets. Everything a character does
+ * - chewing, fighting, keeping score - lives in a facet beside this file.
+ *
+ * @see "doc/design/youkai/entity.md"
+ */
 @SerialClass
-public abstract class YoukaiEntity extends DamageClampEntity implements SpellCircleHolder, IYoukaiEntity, ISleepOffsetEntity, IDimensionBoundEntity {
+public abstract class YoukaiEntity extends DamageClampEntity implements SpellCircleHolder, IYoukaiEntity,
+		ISleepOffsetEntity, IDimensionBoundEntity, YoukaiBaseImpl, YoukaiEating, YoukaiCombat, YoukaiHurt {
 
 	private static <T> EntityDataAccessor<T> defineId(EntityDataSerializer<T> ser) {
 		return SynchedEntityData.defineId(YoukaiEntity.class, ser);
@@ -72,27 +67,7 @@ public abstract class YoukaiEntity extends DamageClampEntity implements SpellCir
 
 	protected static final SyncedData YOUKAI_DATA = new SyncedData(YoukaiEntity::defineId);
 
-	protected static final EntityDataAccessor<Integer> DATA_FLAGS_ID = YOUKAI_DATA.define(SyncedData.INT, 0, "youkai_flags");
-
-	/**
-	 * {@link SyncedData} ships a handful of primitives and no stack; what she is chewing rides as a
-	 * plain {@link ItemStack} codec over the vanilla serializer.
-	 */
-	private static final SyncedData.Serializer<ItemStack> ITEM_STACK =
-			new SyncedData.Simple<>(EntityDataSerializers.ITEM_STACK, ItemStack.CODEC);
-
-	/**
-	 * What she is chewing, and how much of the chew is left. Both client-visible, and both named
-	 * null where the flags are not: a chew is a gesture, not a state, and a persisted countdown
-	 * would outlive an unload that cuts the feeding task off before its {@code stop}.
-	 * <p>
-	 * They have to be synced at all because a character eats by playing {@link YoukaiAnim#EAT},
-	 * which is a rig clip with no vanilla use timer behind it - nothing on the client knows the
-	 * chew is running. The stack also outlives the hand on purpose: every chew empties that hand
-	 * part-way through, and the crumbs have to carry on to the end.
-	 */
-	private static final EntityDataAccessor<ItemStack> DATA_EAT_ITEM = YOUKAI_DATA.define(ITEM_STACK, ItemStack.EMPTY, null);
-	private static final EntityDataAccessor<Integer> DATA_EAT_TICKS = YOUKAI_DATA.define(SyncedData.INT, 0, null);
+	public static final EntityDataAccessor<Integer> DATA_FLAGS_ID = YOUKAI_DATA.define(SyncedData.INT, 0, "youkai_flags");
 
 	public static AttributeSupplier.Builder createAttributes() {
 		return Monster.createMonsterAttributes()
@@ -148,6 +123,11 @@ public abstract class YoukaiEntity extends DamageClampEntity implements SpellCir
 	protected void defineSynchedData(SynchedEntityData.Builder builder) {
 		super.defineSynchedData(builder);
 		data().register(builder);
+		YoukaiEating.defineSynchedData(builder);
+		// local list, not the field: the field does not exist yet during Entity construction
+		for (var e : createModules()) {
+			e.defineSynchedData(builder);
+		}
 	}
 
 	public void addAdditionalSaveData(CompoundTag tag) {
@@ -198,24 +178,17 @@ public abstract class YoukaiEntity extends DamageClampEntity implements SpellCir
 		}
 	}
 
-	public boolean getFlag(YoukaiFlags val) {
-		int flag = 1 << val.ordinal();
-		return (this.entityData.get(DATA_FLAGS_ID) & flag) != 0;
+	/**
+	 * Ticks since she last had a live target, the clock {@code YoukaiCombat#tickTargeting} runs on.
+	 * Accessor rather than a bare field: the counter is {@code @SerialField}, so it has to stay
+	 * here, and a facet in another package cannot read a protected field.
+	 */
+	public int noTargetTime() {
+		return noTargetTime;
 	}
 
-	/**
-	 * The bitfield is an {@code int} and has to stay one: these used to be cast to {@code byte}, silently
-	 * dropping any flag past the eighth bit, which made the ninth flag and every one after it unsettable.
-	 */
-	public void setFlag(YoukaiFlags val, boolean enable) {
-		int b0 = this.entityData.get(DATA_FLAGS_ID);
-		int flag = 1 << val.ordinal();
-		if (enable) {
-			b0 |= flag;
-		} else {
-			b0 &= -1 - flag;
-		}
-		this.entityData.set(DATA_FLAGS_ID, b0);
+	public void setNoTargetTime(int time) {
+		noTargetTime = time;
 	}
 
 	// features
@@ -228,6 +201,7 @@ public abstract class YoukaiEntity extends DamageClampEntity implements SpellCir
 
 	protected void customServerAiStep() {
 		targets.tick();
+		// the three faceted ticks: targeting and the spell card, then the chew clock
 		tickTargeting();
 		tickSpell();
 		tickEating();
@@ -310,90 +284,16 @@ public abstract class YoukaiEntity extends DamageClampEntity implements SpellCir
 	@Override
 	protected void tickEffects() {
 		super.tickEffects();
+		// vanilla calls this from baseTick on both sides; the gate is what makes tickClient
+		// mean it, matching tickServer, which is server-only through isEffectiveAi()
+		if (!level().isClientSide()) return;
 		for (var e : modules) {
 			e.tickClient();
 		}
 		crumbs();
 	}
 
-	// ---------- eating ----------
-
-	/**
-	 * Crumbs, on vanilla's own cadence: {@link #CRUMBS} every {@link #CRUMB_EVERY} ticks.
-	 * Vanilla also holds them back until {@code useItem.getUseDuration() * 0.21875}, which has
-	 * nothing to bite into here - a chew is a rig clip, not a use timer.
-	 */
-	private static final int CRUMB_EVERY = 4;
-	private static final int CRUMBS = 5;
-
-	/**
-	 * Begin a chew: the dish she is eating and how many ticks of it are left.
-	 * <p>
-	 * Called by whoever is feeding her mouth - {@code FairyFeedTask} off a hand-out,
-	 * {@code PartyContext#beginChew} off a plate - rather than off {@link YoukaiAnim#EAT},
-	 * because only the caller knows what she has and how long its own chew is meant to run.
-	 */
-	public void startEating(ItemStack food, int ticks) {
-		entityData.set(DATA_EAT_ITEM, food);
-		entityData.set(DATA_EAT_TICKS, ticks);
-	}
-
-	public void stopEating() {
-		entityData.set(DATA_EAT_ITEM, ItemStack.EMPTY);
-		entityData.set(DATA_EAT_TICKS, 0);
-	}
-
-	/** The dish she is chewing, or empty. Only ever read for the crumbs. */
-	public ItemStack getEatItem() {
-		return entityData.get(DATA_EAT_ITEM);
-	}
-
-	public int getEatTicks() {
-		return entityData.get(DATA_EAT_TICKS);
-	}
-
-	/**
-	 * The clock, counted here rather than by the caller so the two chews cannot drift apart: each
-	 * has its own behaviour driving its own gesture, and a second thing decrementing this would be
-	 * a third place to keep in step. Floored, because a spent chew stays spent.
-	 */
-	private void tickEating() {
-		int left = getEatTicks();
-		if (left > 0) entityData.set(DATA_EAT_TICKS, left - 1);
-	}
-
-	/**
-	 * Crumbs for as long as the chew is running, which is not the same as how long the dish was
-	 * in her hand: every chew takes it out of there part-way through.
-	 * <p>
-	 * Client-side only. Server-side {@code addParticle} is a broadcast, so ticking this on the
-	 * server would send every crumb to every watching client <em>as well</em> as the client
-	 * drawing its own.
-	 */
-	private void crumbs() {
-		int left = getEatTicks();
-		if (!level().isClientSide() || left <= 0 || left % CRUMB_EVERY != 0) return;
-		var food = getEatItem();
-		if (food.isEmpty()) return;
-		for (int i = 0; i < CRUMBS; i++) crumb(food);
-	}
-
-	/**
-	 * One crumb at her mouth, thrown the way vanilla throws one: a small cone out of the eye
-	 * position, which on these rigs is close enough to the mouth for the spread to read as coming
-	 * from it rather than from her chest.
-	 */
-	private void crumb(ItemStack food) {
-		var out = new Vec3((random.nextFloat() - 0.5F) * 0.2f, -random.nextFloat() * 0.2 - 0.1, 0.6)
-				.xRot(-getXRot() * ((float) Math.PI / 180F))
-				.yRot(-getYRot() * ((float) Math.PI / 180F))
-				.add(getEyePosition());
-		var vel = new Vec3((random.nextFloat() - 0.5F) * 0.1, random.nextFloat() * 0.1 + 0.1, 0.0)
-				.xRot(-getXRot() * ((float) Math.PI / 180F))
-				.yRot(-getYRot() * ((float) Math.PI / 180F));
-		level().addParticle(new ItemParticleOption(ParticleTypes.ITEM, food),
-				out.x, out.y, out.z, vel.x, vel.y + 0.05, vel.z);
-	}
+	// ---------- pickup ----------
 
 	@Override
 	public boolean canPickUpLoot() {
@@ -428,53 +328,14 @@ public abstract class YoukaiEntity extends DamageClampEntity implements SpellCir
 
 	// data
 
-	public Optional<Player> resolvePlayer(@Nullable Entity e) {
-		if (e instanceof Player player) {
-			return Optional.of(player);
-		}
-		if (e instanceof OwnableEntity own && level() instanceof ServerLevel sl) {
-			var id = own.getOwnerUUID();
-			if (id != null && sl.getEntity(id) instanceof Player player) {
-				return Optional.of(player);
-			}
-		}
-		return Optional.empty();
-	}
-
-	public Optional<CharDataHolder> getData(@Nullable Entity e) {
-		return resolvePlayer(e).map(player -> CharDataHolder.get(player, this));
-	}
-
 	public <T> Optional<T> getModule(Class<T> cls) {
 		return modules.getModule(cls);
 	}
 
 	@Override
 	protected void actuallyHurt(DamageSource source, float amount) {
-		if (spellCard != null) spellCard.hurt(cardHolder, source, amount);
-		var holder = getData(source.getEntity());
-		holder.ifPresent(e -> e.onHurt(source, amount));
-		if (!level().isClientSide()) {
-			holder.ifPresent(e -> {
-				if (vanishOnDislike() && e.data().reputation < ReputationConstants.DISCARD_REP_THRESHOLD &&
-						e.player() instanceof ServerPlayer sp) {
-					sp.displayClientMessage(GLLang.Info.YOUKAI_AVOID.get(getDisplayName()), false);
-					discard();
-				}
-			});
-		}
+		onDamaged(source, amount);
 		super.actuallyHurt(source, amount);
-	}
-
-	/**
-	 * Whether losing the last of a player's favour makes this character give up and disappear, the
-	 * {@code avoid} reaction of a youkai that will not share a world with whoever mistreated her.
-	 * <p>
-	 * A character whose answer to a beating is to run turns this off: the threshold would otherwise delete her
-	 * on the very tick the flee begins. The reputation cost still stands, so she ends up stranger-or-worse.
-	 */
-	public boolean vanishOnDislike() {
-		return true;
 	}
 
 	@Override
@@ -484,22 +345,14 @@ public abstract class YoukaiEntity extends DamageClampEntity implements SpellCir
 		for (var module : modules) {
 			module.onKilled();
 		}
-		var e = source.getEntity();
-		if (!prev && dead && e instanceof LivingEntity le) {
-			if (!e.isAlive() || !e.isAddedToLevel() || e.isRemoved())
-				return;
-			onKilledBy(le, source);
-		}
+		// dead is protected, so the before/after fold happens here rather than in the facet
+		onDeath(!prev && dead, source);
 	}
 
 	@Override
 	public boolean killedEntity(ServerLevel level, LivingEntity entity) {
-		getData(entity).ifPresent(CharDataHolder::onKilledByCharacter);
+		onKillEntity(entity);
 		return true;
-	}
-
-	protected void onKilledBy(LivingEntity le, DamageSource source) {
-		getData(le).ifPresent(CharDataHolder::onKillCharacter);
 	}
 
 	public void refreshIdle() {
@@ -512,111 +365,19 @@ public abstract class YoukaiEntity extends DamageClampEntity implements SpellCir
 		return new DefaultCombatManager(this, null);
 	}
 
-	protected void tickTargeting() {
-		if (getTarget() == null || !getTarget().isAlive()) {
-			noTargetTime++;
-			boolean doHeal = getFeatures().noTargetHealing() && noTargetTime >= 20 && tickCount % 20 == 0;
-			doHeal |= getCombatProgress() < getMaxHealth();
-			if (doHeal && getLastHurtByMob() instanceof Player player && player.getAbilities().instabuild) {
-				if (tickCount - getLastHurtByMobTimestamp() < 100) {
-					doHeal = false;
-				}
-			}
-			if (doHeal) {
-				setHealth(getMaxHealth());
-			}
-		} else {
-			noTargetTime = 0;
-		}
-		if (noTargetTime == 0 && getFeatures().hasBossBar()) {
-			bossEvent.setVisible(true);
-		}
-		if (noTargetTime > 40) {
-			bossEvent.setVisible(false);
-		}
-		noPlayerTime = 0;
-	}
-
-	protected void tickSpell() {
-		if (spellCard != null) {
-			if (isAggressive() && shouldShowSpellCircle()) {
-				spellCard.tick(cardHolder);
-			} else {
-				spellCard.reset();
-			}
-		}
-	}
-
-	public boolean shouldIgnore(LivingEntity e) {
-		if (e instanceof Player player && player.getAbilities().instabuild)
-			return false;
-		if (!targets.isValidTarget(e))
-			return true;
-		var event = new YoukaiFightEvent(this, e);
-		return NeoForge.EVENT_BUS.post(event).isCanceled();
-	}
-
+	/**
+	 * The vanilla gate, kept here because a facet default would be shadowed by
+	 * {@code Entity#isInvulnerableTo} without a word. The rest of the question is
+	 * {@link YoukaiCombat#invulnerableTo}.
+	 */
 	@Override
 	public final boolean isInvulnerableTo(DamageSource pSource) {
-		if (pSource.getEntity() instanceof LivingEntity le && shouldIgnore(le)) {
-			return true;
-		}
-		return pSource.is(DamageTypeTags.IS_FALL) ||
-				combatManager.isInvulnerableTo(pSource) ||
-				super.isInvulnerableTo(pSource);
-	}
-
-	public final boolean wouldInitiateAttack(LivingEntity entity) {
-		if (entity instanceof Player) return false;
-		if (!targets.isValidTarget(entity)) return false;
-		if (shouldIgnore(entity)) return false;
-		return combatManager.targetKind(entity).initiateAttack();
-	}
-
-	public final boolean isHostileTo(LivingEntity le) {
-		return targets.contains(le) || wouldInitiateAttack(le);
-	}
-
-	public final boolean shouldHurt(LivingEntity le) {
-		if (shouldIgnore(le)) return false;
-		if (le instanceof Player && targets.isValidTarget(le)) return true;
-		return isHostileTo(le) || combatManager.targetKind(le).isPrey() || combatManager.shouldHurtInnocent(le);
-	}
-
-	public final void onDanmakuHit(LivingEntity e, IDanmakuEntity danmaku) {
-		combatManager.onDanmakuHit(e, danmaku);
-	}
-
-	@Override
-	public void onDanmakuImmune(LivingEntity e, IDanmakuEntity danmaku, DamageSource source) {
-		combatManager.onDanmakuImmune(e, danmaku, source);
+		return invulnerableTo(pSource) || super.isInvulnerableTo(pSource);
 	}
 
 	@Override
 	public LivingEntity self() {
 		return super.self();
-	}
-
-	@Override
-	public final boolean shouldShowSpellCircle() {
-		return combatManager.getSpellCircle() != null;
-	}
-
-	@Override
-	public final @Nullable ResourceLocation getSpellCircle() {
-		return combatManager.getSpellCircle();
-	}
-
-	@Override
-	public final float getCircleSize(float pTick) {
-		return combatManager.getCircleSize(pTick);
-	}
-
-	public void shoot(float dmg, int life, Vec3 vec, DyeColor color) {
-		ItemBulletEntity danmaku = new ItemBulletEntity(DanmakuEntities.ITEM_DANMAKU.get(), this, level());
-		danmaku.setItem(DanmakuItems.Bullet.CIRCLE.get(color).asStack());
-		danmaku.setup(dmg, life, true, true, vec);
-		level().addFreshEntity(danmaku);
 	}
 
 	// misc

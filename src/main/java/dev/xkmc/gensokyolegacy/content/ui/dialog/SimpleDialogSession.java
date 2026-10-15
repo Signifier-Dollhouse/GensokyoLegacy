@@ -1,6 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.ui.dialog;
 
-import dev.xkmc.gensokyolegacy.content.entity.youkai.facet.GeoYoukaiAnim;
+import dev.xkmc.gensokyolegacy.content.entity.youkai.impl.GeoYoukaiAnim;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.rpg.action.ActionContext;
 import dev.xkmc.gensokyolegacy.content.rpg.dialog.Dialog;

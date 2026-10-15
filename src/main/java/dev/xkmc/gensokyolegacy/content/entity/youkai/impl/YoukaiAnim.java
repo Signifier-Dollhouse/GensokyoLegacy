@@ -1,4 +1,4 @@
-package dev.xkmc.gensokyolegacy.content.entity.youkai.facet;
+package dev.xkmc.gensokyolegacy.content.entity.youkai.impl;
 
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 

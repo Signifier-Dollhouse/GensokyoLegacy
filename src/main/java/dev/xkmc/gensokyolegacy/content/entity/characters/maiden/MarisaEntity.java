@@ -6,10 +6,10 @@ import dev.xkmc.gensokyolegacy.content.entity.behavior.sensor.YoukaiHomeBlocksSe
 import dev.xkmc.gensokyolegacy.content.entity.behavior.task.marisa.MarisaBonemealTask;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.task.marisa.MarisaBrewTask;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.task.marisa.MarisaForageTask;
-import dev.xkmc.gensokyolegacy.content.entity.youkai.facet.GeoYoukaiAnim;
-import dev.xkmc.gensokyolegacy.content.entity.youkai.facet.YoukaiAnim;
+import dev.xkmc.gensokyolegacy.content.entity.youkai.impl.GeoYoukaiAnim;
+import dev.xkmc.gensokyolegacy.content.entity.youkai.impl.YoukaiAnim;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiFeatureSet;
-import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiFlags;
+import dev.xkmc.gensokyolegacy.content.entity.youkai.impl.YoukaiFlags;
 import dev.xkmc.gensokyolegacy.init.registrate.GLBrains;
 import dev.xkmc.l2serial.serialization.marker.SerialClass;
 import net.minecraft.world.entity.EntityType;

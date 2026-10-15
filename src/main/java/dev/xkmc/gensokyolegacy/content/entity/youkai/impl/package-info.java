@@ -1,7 +1,7 @@
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
 
-package dev.xkmc.gensokyolegacy.content.entity.youkai.facet;
+package dev.xkmc.gensokyolegacy.content.entity.youkai.impl;
 
 import net.minecraft.MethodsReturnNonnullByDefault;
 

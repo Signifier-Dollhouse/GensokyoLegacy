@@ -1,6 +1,6 @@
 # YoukaiEntity and CharacterData — Implementation & Usage Guide
 
-This document reflects the current implementation in `content/entity/youkai/` (base entities, plus `facet/` and `renderer/`), `content/entity/foundation/`, `content/attachment/character/`, `content/entity/behavior/` (brain/sensor/task/move/combat, plus `module/` and `visit/`) and `init/registrate/`.
+This document reflects the current implementation in `content/entity/youkai/` (base entities, plus `impl/` and `renderer/`), `content/entity/foundation/`, `content/attachment/character/`, `content/entity/behavior/` (brain/sensor/task/move/combat, plus `module/` and `visit/`) and `init/registrate/`.
 
 Related: [home_index.md](home_index.md), [structure_bed_entity.md](structure_bed_entity.md), [reputation.md](reputation.md), [character_visit.md](character_visit.md), [party/](party/).
 

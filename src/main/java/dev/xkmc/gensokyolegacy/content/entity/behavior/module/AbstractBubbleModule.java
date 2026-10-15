@@ -49,7 +49,8 @@ public abstract class AbstractBubbleModule extends AbstractYoukaiModule implemen
 	}
 
 	/**
-	 * The clock. Named for the client but run on both sides, hence the guard.
+	 * The clock. {@code YoukaiEntity#tickEffects} is the gate; this repeats it because everything
+	 * written here is display state the renderer alone reads, so a server-side run is pure waste.
 	 */
 	@Override
 	public void tickClient() {

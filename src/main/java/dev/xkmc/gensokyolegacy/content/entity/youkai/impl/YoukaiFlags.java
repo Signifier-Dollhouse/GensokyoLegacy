@@ -1,4 +1,4 @@
-package dev.xkmc.gensokyolegacy.content.entity.youkai;
+package dev.xkmc.gensokyolegacy.content.entity.youkai.impl;
 
 public enum YoukaiFlags {
 	/**
