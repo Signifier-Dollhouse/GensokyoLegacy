@@ -3,7 +3,7 @@
   "icon": "gensokyolegacy:mini_hakkero",
   "category": "gensokyolegacy:special_tools",
   "advancement": "gensokyolegacy:main/obtain_mini_hakkero",
-  "sortnum": 1,
+  "sortnum": 9,
   "pages": [
     {
       "type": "patchouli:spotlight",
