@@ -6,25 +6,27 @@ import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.biome.GLBiomes;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderGetter;
+import net.minecraft.core.HolderSet;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.data.worldgen.SurfaceRuleData;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.TagKey;
+import net.minecraft.util.CubicSpline;
 import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.biome.Climate;
 import net.minecraft.world.level.biome.MultiNoiseBiomeSource;
-import net.minecraft.world.level.biome.MultiNoiseBiomeSourceParameterList;
-import net.minecraft.world.level.biome.MultiNoiseBiomeSourceParameterLists;
 import net.minecraft.world.level.biome.OverworldBiomeBuilder;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.dimension.BuiltinDimensionTypes;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.levelgen.DensityFunction;
+import net.minecraft.world.level.levelgen.DensityFunctions;
 import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
 import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
 import net.minecraft.world.level.levelgen.NoiseRouter;
@@ -32,21 +34,19 @@ import net.minecraft.world.level.levelgen.NoiseRouterData;
 import net.minecraft.world.level.levelgen.NoiseSettings;
 import net.minecraft.world.level.levelgen.synth.NormalNoise;
 
-
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 import java.util.OptionalLong;
 
 /**
- * The Gensokyo dimension: an overworld clone that only grows a handpicked set of biomes.
+ * The Gensokyo dimension: overworld sea level and surface rules, flatter land, and a handpicked biome list.
  * <p>
- * Terrain comes from {@code gensokyolegacy:gensokyo}, a copy of the overworld noise settings, so heightmaps, caves,
- * ore veins, sea level and surface rules stay identical to the overworld. Only the biome source differs: it is the
- * vanilla overworld climate grid with every biome swapped for an allowed one, which keeps the continental / erosion /
- * weirdness layout recognizable while dropping biomes that do not belong here. The allowed biomes are mod copies, so
- * the vanilla structures that go with the vanilla biomes never generate here.
+ * The height curve is keyed on continentalness alone, where the overworld also keys it on erosion and weirdness, so
+ * there are no river channels and no peaks. The climate grid reads the same four axes, so no biome depends on the two
+ * that were dropped. The allowed biomes are mod copies, so vanilla structures never generate here.
+ *
+ * @see "doc/design/gensokyo_dimension.md"
  */
 public class GensokyoDimension {
 
@@ -55,57 +55,121 @@ public class GensokyoDimension {
 	public static final ResourceKey<LevelStem> LEVEL_GENSOKYO = ResourceKey.create(Registries.LEVEL_STEM, GensokyoLegacy.loc("gensokyo"));
 	public static final ResourceKey<Level> GENSOKYO = Registries.levelStemToLevel(LEVEL_GENSOKYO);
 
-	/**
-	 * Vanilla overworld biome -> biome used in Gensokyo. Every overworld biome needs an entry.
-	 */
-	private static final Map<ResourceKey<Biome>, ResourceKey<Biome>> BIOMES = new LinkedHashMap<>();
+	public static final ResourceKey<DensityFunction> DF_OFFSET = df("offset");
+	public static final ResourceKey<DensityFunction> DF_FACTOR = df("factor");
+	public static final ResourceKey<DensityFunction> DF_DEPTH = df("depth");
+	public static final ResourceKey<DensityFunction> DF_SLOPED_CHEESE = df("sloped_cheese");
 
-	/**
-	 * How much a too wide climate cell is penalized when picking the cell that represents a biome.
-	 */
-	private static final double WIDTH_PENALTY = 1.0;
+	/** Vanilla keys {@link NoiseRouterData} keeps private, rebuilt here so the overworld router can be redirected. */
+	private static final ResourceKey<DensityFunction> VANILLA_SLOPED_CHEESE = vanilla("overworld/sloped_cheese");
+	private static final ResourceKey<DensityFunction> VANILLA_BASE_3D_NOISE = vanilla("overworld/base_3d_noise");
 
-	static {
-		// water
-		allow(GLBiomes.OCEAN, Biomes.DEEP_FROZEN_OCEAN, Biomes.DEEP_COLD_OCEAN, Biomes.DEEP_OCEAN,
-				Biomes.DEEP_LUKEWARM_OCEAN, Biomes.FROZEN_OCEAN, Biomes.COLD_OCEAN, Biomes.OCEAN,
-				Biomes.LUKEWARM_OCEAN, Biomes.WARM_OCEAN);
-		allow(GLBiomes.BEACH, Biomes.BEACH, Biomes.SNOWY_BEACH, Biomes.STONY_SHORE);
-		allow(GLBiomes.PLAINS, Biomes.PLAINS, Biomes.RIVER, Biomes.DRIPSTONE_CAVES);
-		allow(GLBiomes.SNOWY_PLAINS, Biomes.SNOWY_PLAINS, Biomes.ICE_SPIKES, Biomes.FROZEN_RIVER,
-				Biomes.SNOWY_TAIGA, Biomes.GROVE);
-		// dry
-		allow(GLBiomes.DESERT, Biomes.DESERT, Biomes.BADLANDS, Biomes.ERODED_BADLANDS, Biomes.WOODED_BADLANDS);
-		allow(GLBiomes.SAVANNA, Biomes.SAVANNA, Biomes.SAVANNA_PLATEAU, Biomes.WINDSWEPT_SAVANNA);
-		// temperate
-		allow(GLBiomes.SUNFLOWER_PLAINS, Biomes.SUNFLOWER_PLAINS, Biomes.MEADOW, Biomes.FLOWER_FOREST);
-		allow(GLBiomes.FOREST, Biomes.FOREST, Biomes.TAIGA, Biomes.OLD_GROWTH_PINE_TAIGA,
-				Biomes.OLD_GROWTH_SPRUCE_TAIGA);
-		allow(GLBiomes.SAKURA_FOREST, Biomes.BIRCH_FOREST, Biomes.OLD_GROWTH_BIRCH_FOREST, Biomes.CHERRY_GROVE);
-		allow(GLBiomes.MAGICAL_FOREST, Biomes.DARK_FOREST, Biomes.SWAMP, Biomes.MUSHROOM_FIELDS,
-				Biomes.LUSH_CAVES, Biomes.DEEP_DARK);
-		allow(GLBiomes.BAMBOO_JUNGLE, Biomes.BAMBOO_JUNGLE, Biomes.JUNGLE, Biomes.SPARSE_JUNGLE,
-				Biomes.MANGROVE_SWAMP);
-		// high & exposed
-		allow(GLBiomes.MOUNTAIN, Biomes.STONY_PEAKS, Biomes.JAGGED_PEAKS, Biomes.FROZEN_PEAKS,
-				Biomes.SNOWY_SLOPES, Biomes.WINDSWEPT_HILLS, Biomes.WINDSWEPT_GRAVELLY_HILLS,
-				Biomes.WINDSWEPT_FOREST);
+	private static final Climate.Parameter FULL_RANGE = Climate.Parameter.span(-1.0f, 1.0f);
+	private static final float SURFACE_DEPTH = 0.0f;
+	private static final float UNDERGROUND_DEPTH = 1.0f;
+
+	private static final List<Band> CONTINENTALNESS = List.of(
+			new Band(-1.0f, -0.55f), new Band(-0.55f, -0.25f), new Band(-0.25f, -0.02f),
+			new Band(-0.02f, 0.2f), new Band(0.2f, 0.55f), new Band(0.55f, 1.0f));
+	private static final List<Band> TEMPERATURE = List.of(
+			new Band(-1.0f, -0.35f), new Band(-0.35f, 0.35f), new Band(0.35f, 1.0f));
+	private static final List<Band> HUMIDITY = List.of(
+			new Band(-1.0f, -0.25f), new Band(-0.25f, 0.25f), new Band(0.25f, 1.0f));
+
+	private static final int OCEAN = 1;
+	private static final int COAST = 2;
+	private static final int UPLAND = 4;
+	private static final int HIGHLAND = 5;
+	private static final int COLD = 0;
+	private static final int TEMPERATE = 1;
+	private static final int DRY = 0;
+	private static final int NORMAL = 1;
+
+	public static void init(DataProviderInitializer init) {
+		// every registration of a registry has to share one bootstrap, so the density functions and the noise
+		// settings that reference them are declared here and nowhere else
+		init.add(Registries.DENSITY_FUNCTION, GensokyoDimension::densityFunctions);
+		init.add(Registries.NOISE_SETTINGS, GensokyoDimension::noiseSettings);
 	}
 
-	/**
-	 * Registers {@code gensokyolegacy:gensokyo} noise settings, a copy of {@code minecraft:overworld}.
-	 */
-	public static void noiseSettings(DataProviderInitializer init) {
-		init.add(Registries.NOISE_SETTINGS, ctx -> ctx.register(NS_GENSOKYO, new NoiseGeneratorSettings(
+	private static void noiseSettings(BootstrapContext<NoiseGeneratorSettings> ctx) {
+		ctx.register(NS_GENSOKYO, new NoiseGeneratorSettings(
 				NoiseSettings.create(-64, 384, 1, 2),
 				Blocks.STONE.defaultBlockState(),
 				Blocks.WATER.defaultBlockState(),
-				OverworldNoiseRouter.overworld(ctx.lookup(Registries.DENSITY_FUNCTION), ctx.lookup(Registries.NOISE)),
+				OverworldNoiseRouter.overworld(new FlatTerrainFunctions(ctx.lookup(Registries.DENSITY_FUNCTION)),
+						ctx.lookup(Registries.NOISE)),
 				SurfaceRuleData.overworld(),
 				new OverworldBiomeBuilder().spawnTarget(),
 				63,
 				false, true, true, false
-		)));
+		));
+	}
+
+	/**
+	 * The overworld height chain with erosion and weirdness taken out: the offset spline is a function of
+	 * continentalness alone and the jaggedness term is gone, so nothing carves a river or lifts a peak.
+	 */
+	private static void densityFunctions(BootstrapContext<DensityFunction> ctx) {
+		var densities = ctx.lookup(Registries.DENSITY_FUNCTION);
+		var continentalness = densities.getOrThrow(NoiseRouterData.CONTINENTS);
+		var offset = ctx.register(DF_OFFSET, DensityFunctions.add(DensityFunctions.constant(NoiseRouterData.GLOBAL_OFFSET),
+				blended(DensityFunctions.spline(offsetSpline(continentalness)), DensityFunctions.blendOffset())));
+		var factor = ctx.register(DF_FACTOR,
+				blended(DensityFunctions.spline(factorSpline(continentalness)), DensityFunctions.constant(10.0)));
+		var depth = ctx.register(DF_DEPTH, DensityFunctions.add(
+				DensityFunctions.yClampedGradient(-64, 320, 1.5, -1.5), reference(offset)));
+		ctx.register(DF_SLOPED_CHEESE, DensityFunctions.add(
+				DensityFunctions.mul(DensityFunctions.constant(4.0),
+						DensityFunctions.mul(reference(depth), reference(factor)).quarterNegative()),
+				reference(densities.getOrThrow(VANILLA_BASE_3D_NOISE))));
+	}
+
+	/**
+	 * Continentalness to offset. The surface sits at {@code 63.5 + 128 * spline}, giving an ocean floor at 35, a
+	 * shoreline near continentalness -0.075 and a highland top at 112, where the overworld reaches 320.
+	 */
+	private static CubicSpline<DensityFunctions.Spline.Point, DensityFunctions.Spline.Coordinate> offsetSpline(
+			Holder<DensityFunction> continentalness) {
+		return CubicSpline.builder(new DensityFunctions.Spline.Coordinate(continentalness))
+				.addPoint(-1.10f, 0.044f)
+				.addPoint(-1.02f, -0.2222f)
+				.addPoint(-0.51f, -0.2222f)
+				.addPoint(-0.44f, -0.12f)
+				.addPoint(-0.30f, -0.12f)
+				.addPoint(-0.20f, -0.09f)
+				.addPoint(-0.10f, -0.02f)
+				.addPoint(0.00f, 0.03f)
+				.addPoint(0.20f, 0.08f)
+				.addPoint(0.45f, 0.15f)
+				.addPoint(0.70f, 0.24f)
+				.addPoint(0.90f, 0.32f)
+				.addPoint(1.00f, 0.38f)
+				.build();
+	}
+
+	/**
+	 * Continentalness to vertical gain. It only steepens the slope below the surface, never moves the surface.
+	 */
+	private static CubicSpline<DensityFunctions.Spline.Point, DensityFunctions.Spline.Coordinate> factorSpline(
+			Holder<DensityFunction> continentalness) {
+		return CubicSpline.builder(new DensityFunctions.Spline.Coordinate(continentalness))
+				.addPoint(-0.19f, 3.95f)
+				.addPoint(1.00f, 5.00f)
+				.build();
+	}
+
+	/**
+	 * Vanilla's wrapper that lets nearby structures pull the height around. Gensokyo has no vanilla structures, so
+	 * the blending terms always collapse onto {@code min}.
+	 */
+	private static DensityFunction blended(DensityFunction min, DensityFunction max) {
+		return DensityFunctions.flatCache(DensityFunctions.cache2d(
+				DensityFunctions.lerp(DensityFunctions.blendAlpha(), max, min)));
+	}
+
+	private static DensityFunction reference(Holder<DensityFunction> function) {
+		return new DensityFunctions.HolderHolder(function);
 	}
 
 	/**
@@ -132,103 +196,83 @@ public class GensokyoDimension {
 	}
 
 	/**
-	 * One climate point per allowed biome, taken from the overworld cell closest to the middle of everything that biome
-	 * replaced. Biome lookup is nearest-neighbour, so dropping the other cells only merges them into their closest
-	 * neighbour instead of changing the terrain.
+	 * A coarse climate grid, one biome per cell, with erosion and weirdness spanning everything so they cannot pick a
+	 * biome. Biome lookup is nearest-cell, so the bands need not tile the space exactly.
 	 */
 	public static MultiNoiseBiomeSource biomeSource(HolderGetter<Biome> biomes) {
-		Map<ResourceKey<Biome>, List<Climate.ParameterPoint>> cells = new LinkedHashMap<>();
-		for (var cell : overworldGrid().values()) {
-			cells.computeIfAbsent(allowed(cell.getSecond()), k -> new ArrayList<>()).add(cell.getFirst());
+		List<Pair<Climate.ParameterPoint, Holder<Biome>>> values = new ArrayList<>();
+		for (int c = 0; c < CONTINENTALNESS.size(); c++) {
+			for (int t = 0; t < TEMPERATURE.size(); t++) {
+				for (int h = 0; h < HUMIDITY.size(); h++) {
+					values.add(cell(biomes, land(c, t, h), c, t, h, SURFACE_DEPTH));
+					values.add(cell(biomes, underground(c, t), c, t, h, UNDERGROUND_DEPTH));
+				}
+			}
 		}
-		List<Pair<Climate.ParameterPoint, Holder<Biome>>> values = cells.entrySet().stream()
-				.map(e -> Pair.of(representativeOf(e.getValue()), (Holder<Biome>) biomes.getOrThrow(e.getKey())))
-				.toList();
 		return MultiNoiseBiomeSource.createFromList(new Climate.ParameterList<>(values));
 	}
 
-	/**
-	 * One of the overworld cells that becomes the single climate point of a Gensokyo biome. Underground cells are skipped,
-	 * since the biome a player sees is always the one at the surface.
-	 */
-	private static Climate.ParameterPoint representativeOf(List<Climate.ParameterPoint> cells) {
-		return cells.stream().anyMatch(GensokyoDimension::isSurface)
-				? middleOf(cells.stream().filter(GensokyoDimension::isSurface).toList())
-				: middleOf(cells);
+	private static Pair<Climate.ParameterPoint, Holder<Biome>> cell(HolderGetter<Biome> biomes, ResourceKey<Biome> biome,
+																   int c, int t, int h, float depth) {
+		// neighbouring bands touch on their shared edge, where the tie falls back to list order
+		return Pair.of(new Climate.ParameterPoint(
+				TEMPERATURE.get(t).parameter(), HUMIDITY.get(h).parameter(), CONTINENTALNESS.get(c).parameter(),
+				FULL_RANGE, Climate.Parameter.point(depth), FULL_RANGE, 0L),
+				biomes.getOrThrow(biome));
 	}
 
-	private static boolean isSurface(Climate.ParameterPoint cell) {
-		return cell.depth().min() <= 0;
-	}
-
-	/**
-	 * The cell closest to the average middle of the given cells. Wide cells are penalized so a biome is never
-	 * represented by a cell that spans everything, which would swallow the whole world.
-	 */
-	private static Climate.ParameterPoint middleOf(List<Climate.ParameterPoint> cells) {
-		double[] average = new double[7];
-		for (var cell : cells) {
-			var middle = middleOf(cell);
-			for (int i = 0; i < average.length; i++) {
-				average[i] += middle[i] / cells.size();
-			}
+	private static ResourceKey<Biome> land(int c, int t, int h) {
+		if (c <= OCEAN) return GLBiomes.OCEAN;
+		if (c == COAST) return GLBiomes.BEACH;
+		if (c == HIGHLAND) return GLBiomes.MOUNTAIN;
+		if (t == COLD) return GLBiomes.SNOWY_PLAINS;
+		if (c == UPLAND && t == TEMPERATE) {
+			return switch (h) {
+				case DRY -> GLBiomes.SUNFLOWER_PLAINS;
+				case NORMAL -> GLBiomes.SAKURA_FOREST;
+				default -> GLBiomes.MAGICAL_FOREST;
+			};
 		}
-		Climate.ParameterPoint center = cells.get(0);
-		double best = Double.MAX_VALUE;
-		for (var cell : cells) {
-			double[] middle = middleOf(cell);
-			double score = 0;
-			for (int i = 0; i < 6; i++) {
-				score += (middle[i] - average[i]) * (middle[i] - average[i])
-						+ WIDTH_PENALTY * (middle[i + 6] - middle[i]);
-			}
-			score += (middle[6] - average[6]) * (middle[6] - average[6]);
-			if (score < best) {
-				best = score;
-				center = cell;
-			}
-		}
-		return center;
-	}
-
-	/**
-	 * The middle and the width of every climate parameter, width after the middle.
-	 */
-	private static double[] middleOf(Climate.ParameterPoint cell) {
-		double[] values = new double[14];
-		Climate.Parameter[] parameters = {
-			cell.temperature(), cell.humidity(), cell.continentalness(), cell.erosion(),
-			cell.depth(), cell.weirdness()
+		return switch (h) {
+			case DRY -> t == TEMPERATE ? GLBiomes.SUNFLOWER_PLAINS : GLBiomes.DESERT;
+			case NORMAL -> t == TEMPERATE ? GLBiomes.PLAINS : GLBiomes.SAVANNA;
+			default -> t == TEMPERATE ? GLBiomes.FOREST : GLBiomes.BAMBOO_JUNGLE;
 		};
-		for (int i = 0; i < parameters.length; i++) {
-			values[i] = ((double) parameters[i].min() + parameters[i].max()) / 20000.0;
-			values[i + 6] = (parameters[i].max() - parameters[i].min()) / 20000.0;
-		}
-		values[12] = Climate.unquantizeCoord(cell.offset());
-		return values;
 	}
 
-	private static Climate.ParameterList<ResourceKey<Biome>> overworldGrid() {
-		return MultiNoiseBiomeSourceParameterList.knownPresets().entrySet().stream()
-				.filter(e -> e.getKey().id().equals(MultiNoiseBiomeSourceParameterLists.OVERWORLD.location()))
-				.map(Map.Entry::getValue)
-				.findFirst()
-				.orElseThrow(() -> new IllegalStateException("Missing minecraft:overworld biome preset"));
+	private static ResourceKey<Biome> underground(int c, int t) {
+		if (c <= COAST) return GLBiomes.PLAINS;
+		return t == COLD ? GLBiomes.SNOWY_PLAINS : GLBiomes.MAGICAL_FOREST;
 	}
 
-	private static void allow(ResourceKey<Biome> allowed, ResourceKey<Biome>... vanilla) {
-		for (var biome : vanilla) {
-			BIOMES.put(biome, allowed);
+	/**
+	 * One climate band, kept as a span so the generated json reads like the table it came from.
+	 */
+	private record Band(float min, float max) {
+
+		Climate.Parameter parameter() {
+			return Climate.Parameter.span(min, max);
 		}
 	}
 
-	private static ResourceKey<Biome> allowed(ResourceKey<Biome> biome) {
-		var allowed = BIOMES.get(biome);
-		if (allowed == null) {
-			throw new IllegalStateException("Overworld biome " + biome.location() + " is not mapped, "
-					+ "every overworld biome needs a replacement in " + GensokyoDimension.class.getSimpleName());
+	/**
+	 * Redirects the overworld router to our height chain. The vanilla depth and sloped cheese cannot be rewritten in
+	 * place, their sub-trees live in registry entries the overworld shares.
+	 */
+	private record FlatTerrainFunctions(HolderGetter<DensityFunction> inner) implements HolderGetter<DensityFunction> {
+
+		@Override
+		public Optional<Holder.Reference<DensityFunction>> get(ResourceKey<DensityFunction> key) {
+			if (key.equals(NoiseRouterData.DEPTH)) return inner.get(DF_DEPTH);
+			if (key.equals(NoiseRouterData.FACTOR)) return inner.get(DF_FACTOR);
+			if (key.equals(VANILLA_SLOPED_CHEESE)) return inner.get(DF_SLOPED_CHEESE);
+			return inner.get(key);
 		}
-		return allowed;
+
+		@Override
+		public Optional<HolderSet.Named<DensityFunction>> get(TagKey<DensityFunction> tag) {
+			return inner.get(tag);
+		}
 	}
 
 	/**
@@ -241,6 +285,14 @@ public class GensokyoDimension {
 											HolderGetter<NormalNoise.NoiseParameters> noises) {
 			return NoiseRouterData.overworld(densities, noises, false, false);
 		}
+	}
+
+	private static ResourceKey<DensityFunction> df(String id) {
+		return ResourceKey.create(Registries.DENSITY_FUNCTION, GensokyoLegacy.loc(id));
+	}
+
+	private static ResourceKey<DensityFunction> vanilla(String path) {
+		return ResourceKey.create(Registries.DENSITY_FUNCTION, ResourceLocation.withDefaultNamespace(path));
 	}
 
 }
