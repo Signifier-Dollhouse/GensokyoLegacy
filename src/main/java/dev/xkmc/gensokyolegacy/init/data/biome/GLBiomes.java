@@ -32,9 +32,12 @@ import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import net.neoforged.neoforge.common.util.Lazy;
 
 import javax.annotation.Nullable;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class GLBiomes {
 
@@ -58,6 +61,13 @@ public class GLBiomes {
 	public static final ResourceKey<Biome> SAVANNA = biome("savanna");
 	public static final ResourceKey<Biome> DESERT = biome("desert");
 	public static final ResourceKey<Biome> SNOWY_PLAINS = biome("snowy_plains");
+	public static final ResourceKey<Biome> GROVE = biome("grove");
+
+	/**
+	 * Not a straight copy: {@link Biomes#STONY_PEAKS} supplies the climate, effects and spawns and
+	 * {@link Biomes#STONY_SHORE} is unioned in for its features and carvers. Not in {@link #COPIES}.
+	 */
+	public static final ResourceKey<Biome> PEAK = biome("peak");
 
 	private static final Map<ResourceKey<Biome>, ResourceKey<Biome>> COPIES = Map.ofEntries(
 			Map.entry(Biomes.PLAINS, PLAINS),
@@ -68,7 +78,8 @@ public class GLBiomes {
 			Map.entry(Biomes.SUNFLOWER_PLAINS, SUNFLOWER_PLAINS),
 			Map.entry(Biomes.SAVANNA, SAVANNA),
 			Map.entry(Biomes.DESERT, DESERT),
-			Map.entry(Biomes.SNOWY_PLAINS, SNOWY_PLAINS)
+			Map.entry(Biomes.SNOWY_PLAINS, SNOWY_PLAINS),
+			Map.entry(Biomes.GROVE, GROVE)
 	);
 
 	/**
@@ -123,8 +134,10 @@ public class GLBiomes {
 				null, null, null, mountainSpawns, mountain, null));
 		var vanilla = VANILLA.get().lookupOrThrow(Registries.BIOME);
 		for (var copy : COPIES.entrySet()) {
-			ctx.register(copy.getValue(), copyOf(vanilla.getOrThrow(copy.getKey()).value(), pf, carvers));
+			ctx.register(copy.getValue(), copyOf(vanilla.getOrThrow(copy.getKey()).value(), null, pf, carvers));
 		}
+		ctx.register(PEAK, copyOf(vanilla.getOrThrow(Biomes.STONY_PEAKS).value(),
+				vanilla.getOrThrow(Biomes.STONY_SHORE).value(), pf, carvers));
 		});
 
 		init.add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, ctx -> {
@@ -148,22 +161,23 @@ public class GLBiomes {
 
 	/**
 	 * Rebuilds a vanilla biome from its registry keys, so the copy serializes with our own holder lookups.
+	 * {@code extra} contributes its features and carvers on top, for a biome assembled from two vanilla sources.
+	 * {@code minecraft:canyon} is dropped from both.
 	 */
-	private static Biome copyOf(Biome source, HolderGetter<PlacedFeature> placedFeatures,
+	private static Biome copyOf(Biome source, @Nullable Biome extra, HolderGetter<PlacedFeature> placedFeatures,
 								HolderGetter<ConfiguredWorldCarver<?>> carvers) {
 		var climate = source.getModifiedClimateSettings();
 		var generation = new BiomeGenerationSettings.Builder(placedFeatures, carvers);
-		List<HolderSet<PlacedFeature>> features = source.getGenerationSettings().features();
 		GenerationStep.Decoration[] steps = GenerationStep.Decoration.values();
-		for (int step = 0; step < features.size(); step++) {
-			for (var feature : features.get(step)) {
-				generation.addFeature(steps[step], key(feature));
-			}
+		var byStep = new LinkedHashMap<GenerationStep.Decoration, Set<ResourceKey<PlacedFeature>>>();
+		var byStage = new LinkedHashMap<GenerationStep.Carving, Set<ResourceKey<ConfiguredWorldCarver<?>>>>();
+		collect(source, steps, byStep, byStage);
+		if (extra != null) collect(extra, steps, byStep, byStage);
+		for (var entry : byStep.entrySet()) {
+			for (var feature : entry.getValue()) generation.addFeature(entry.getKey(), feature);
 		}
-		for (GenerationStep.Carving carving : source.getGenerationSettings().getCarvingStages()) {
-			for (var carver : source.getGenerationSettings().getCarvers(carving)) {
-				if (!key(carver).equals(Carvers.CANYON)) generation.addCarver(carving, key(carver));
-			}
+		for (var entry : byStage.entrySet()) {
+			for (var carver : entry.getValue()) generation.addCarver(entry.getKey(), carver);
 		}
 		return new Biome.BiomeBuilder()
 				.hasPrecipitation(climate.hasPrecipitation())
@@ -174,6 +188,25 @@ public class GLBiomes {
 				.mobSpawnSettings(source.getMobSettings())
 				.generationSettings(generation.build())
 				.build();
+	}
+
+	/** Linked sets keep vanilla's own ordering, which {@code FeatureSorter} reads as feature order. */
+	private static void collect(Biome biome, GenerationStep.Decoration[] steps,
+								Map<GenerationStep.Decoration, Set<ResourceKey<PlacedFeature>>> byStep,
+								Map<GenerationStep.Carving, Set<ResourceKey<ConfiguredWorldCarver<?>>>> byStage) {
+		List<HolderSet<PlacedFeature>> features = biome.getGenerationSettings().features();
+		for (int step = 0; step < features.size(); step++) {
+			for (var feature : features.get(step)) {
+				byStep.computeIfAbsent(steps[step], k -> new LinkedHashSet<>()).add(key(feature));
+			}
+		}
+		for (GenerationStep.Carving carving : biome.getGenerationSettings().getCarvingStages()) {
+			for (var carver : biome.getGenerationSettings().getCarvers(carving)) {
+				if (!key(carver).equals(Carvers.CANYON)) {
+					byStage.computeIfAbsent(carving, k -> new LinkedHashSet<>()).add(key(carver));
+				}
+			}
+		}
 	}
 
 	private static <T> ResourceKey<T> key(Holder<T> holder) {

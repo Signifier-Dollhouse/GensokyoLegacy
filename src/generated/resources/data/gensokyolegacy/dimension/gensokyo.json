@@ -1954,7 +1954,7 @@
           "parameters": {
             "continentalness": [
               0.329,
-              1.0
+              0.595
             ],
             "depth": 0.0,
             "erosion": [
@@ -1981,7 +1981,7 @@
           "parameters": {
             "continentalness": [
               0.329,
-              1.0
+              0.595
             ],
             "depth": 1.0,
             "erosion": [
@@ -2008,6 +2008,492 @@
           "parameters": {
             "continentalness": [
               0.329,
+              0.595
+            ],
+            "depth": 0.0,
+            "erosion": [
+              -1.0,
+              1.0
+            ],
+            "humidity": [
+              -0.25,
+              0.25
+            ],
+            "offset": 0.0,
+            "temperature": [
+              -1.0,
+              -0.35
+            ],
+            "weirdness": [
+              -1.0,
+              1.0
+            ]
+          }
+        },
+        {
+          "biome": "gensokyolegacy:snowy_plains",
+          "parameters": {
+            "continentalness": [
+              0.329,
+              0.595
+            ],
+            "depth": 1.0,
+            "erosion": [
+              -1.0,
+              1.0
+            ],
+            "humidity": [
+              -0.25,
+              0.25
+            ],
+            "offset": 0.0,
+            "temperature": [
+              -1.0,
+              -0.35
+            ],
+            "weirdness": [
+              -1.0,
+              1.0
+            ]
+          }
+        },
+        {
+          "biome": "gensokyolegacy:mountain",
+          "parameters": {
+            "continentalness": [
+              0.329,
+              0.595
+            ],
+            "depth": 0.0,
+            "erosion": [
+              -1.0,
+              1.0
+            ],
+            "humidity": [
+              0.25,
+              1.0
+            ],
+            "offset": 0.0,
+            "temperature": [
+              -1.0,
+              -0.35
+            ],
+            "weirdness": [
+              -1.0,
+              1.0
+            ]
+          }
+        },
+        {
+          "biome": "gensokyolegacy:snowy_plains",
+          "parameters": {
+            "continentalness": [
+              0.329,
+              0.595
+            ],
+            "depth": 1.0,
+            "erosion": [
+              -1.0,
+              1.0
+            ],
+            "humidity": [
+              0.25,
+              1.0
+            ],
+            "offset": 0.0,
+            "temperature": [
+              -1.0,
+              -0.35
+            ],
+            "weirdness": [
+              -1.0,
+              1.0
+            ]
+          }
+        },
+        {
+          "biome": "gensokyolegacy:mountain",
+          "parameters": {
+            "continentalness": [
+              0.329,
+              0.595
+            ],
+            "depth": 0.0,
+            "erosion": [
+              -1.0,
+              1.0
+            ],
+            "humidity": [
+              -1.0,
+              -0.25
+            ],
+            "offset": 0.0,
+            "temperature": [
+              -0.35,
+              0.35
+            ],
+            "weirdness": [
+              -1.0,
+              1.0
+            ]
+          }
+        },
+        {
+          "biome": "gensokyolegacy:magical_forest",
+          "parameters": {
+            "continentalness": [
+              0.329,
+              0.595
+            ],
+            "depth": 1.0,
+            "erosion": [
+              -1.0,
+              1.0
+            ],
+            "humidity": [
+              -1.0,
+              -0.25
+            ],
+            "offset": 0.0,
+            "temperature": [
+              -0.35,
+              0.35
+            ],
+            "weirdness": [
+              -1.0,
+              1.0
+            ]
+          }
+        },
+        {
+          "biome": "gensokyolegacy:grove",
+          "parameters": {
+            "continentalness": [
+              0.329,
+              0.595
+            ],
+            "depth": 0.0,
+            "erosion": [
+              -1.0,
+              1.0
+            ],
+            "humidity": [
+              -0.25,
+              0.25
+            ],
+            "offset": 0.0,
+            "temperature": [
+              -0.35,
+              0.35
+            ],
+            "weirdness": [
+              -1.0,
+              1.0
+            ]
+          }
+        },
+        {
+          "biome": "gensokyolegacy:magical_forest",
+          "parameters": {
+            "continentalness": [
+              0.329,
+              0.595
+            ],
+            "depth": 1.0,
+            "erosion": [
+              -1.0,
+              1.0
+            ],
+            "humidity": [
+              -0.25,
+              0.25
+            ],
+            "offset": 0.0,
+            "temperature": [
+              -0.35,
+              0.35
+            ],
+            "weirdness": [
+              -1.0,
+              1.0
+            ]
+          }
+        },
+        {
+          "biome": "gensokyolegacy:mountain",
+          "parameters": {
+            "continentalness": [
+              0.329,
+              0.595
+            ],
+            "depth": 0.0,
+            "erosion": [
+              -1.0,
+              1.0
+            ],
+            "humidity": [
+              0.25,
+              1.0
+            ],
+            "offset": 0.0,
+            "temperature": [
+              -0.35,
+              0.35
+            ],
+            "weirdness": [
+              -1.0,
+              1.0
+            ]
+          }
+        },
+        {
+          "biome": "gensokyolegacy:magical_forest",
+          "parameters": {
+            "continentalness": [
+              0.329,
+              0.595
+            ],
+            "depth": 1.0,
+            "erosion": [
+              -1.0,
+              1.0
+            ],
+            "humidity": [
+              0.25,
+              1.0
+            ],
+            "offset": 0.0,
+            "temperature": [
+              -0.35,
+              0.35
+            ],
+            "weirdness": [
+              -1.0,
+              1.0
+            ]
+          }
+        },
+        {
+          "biome": "gensokyolegacy:mountain",
+          "parameters": {
+            "continentalness": [
+              0.329,
+              0.595
+            ],
+            "depth": 0.0,
+            "erosion": [
+              -1.0,
+              1.0
+            ],
+            "humidity": [
+              -1.0,
+              -0.25
+            ],
+            "offset": 0.0,
+            "temperature": [
+              0.35,
+              1.0
+            ],
+            "weirdness": [
+              -1.0,
+              1.0
+            ]
+          }
+        },
+        {
+          "biome": "gensokyolegacy:magical_forest",
+          "parameters": {
+            "continentalness": [
+              0.329,
+              0.595
+            ],
+            "depth": 1.0,
+            "erosion": [
+              -1.0,
+              1.0
+            ],
+            "humidity": [
+              -1.0,
+              -0.25
+            ],
+            "offset": 0.0,
+            "temperature": [
+              0.35,
+              1.0
+            ],
+            "weirdness": [
+              -1.0,
+              1.0
+            ]
+          }
+        },
+        {
+          "biome": "gensokyolegacy:mountain",
+          "parameters": {
+            "continentalness": [
+              0.329,
+              0.595
+            ],
+            "depth": 0.0,
+            "erosion": [
+              -1.0,
+              1.0
+            ],
+            "humidity": [
+              -0.25,
+              0.25
+            ],
+            "offset": 0.0,
+            "temperature": [
+              0.35,
+              1.0
+            ],
+            "weirdness": [
+              -1.0,
+              1.0
+            ]
+          }
+        },
+        {
+          "biome": "gensokyolegacy:magical_forest",
+          "parameters": {
+            "continentalness": [
+              0.329,
+              0.595
+            ],
+            "depth": 1.0,
+            "erosion": [
+              -1.0,
+              1.0
+            ],
+            "humidity": [
+              -0.25,
+              0.25
+            ],
+            "offset": 0.0,
+            "temperature": [
+              0.35,
+              1.0
+            ],
+            "weirdness": [
+              -1.0,
+              1.0
+            ]
+          }
+        },
+        {
+          "biome": "gensokyolegacy:mountain",
+          "parameters": {
+            "continentalness": [
+              0.329,
+              0.595
+            ],
+            "depth": 0.0,
+            "erosion": [
+              -1.0,
+              1.0
+            ],
+            "humidity": [
+              0.25,
+              1.0
+            ],
+            "offset": 0.0,
+            "temperature": [
+              0.35,
+              1.0
+            ],
+            "weirdness": [
+              -1.0,
+              1.0
+            ]
+          }
+        },
+        {
+          "biome": "gensokyolegacy:magical_forest",
+          "parameters": {
+            "continentalness": [
+              0.329,
+              0.595
+            ],
+            "depth": 1.0,
+            "erosion": [
+              -1.0,
+              1.0
+            ],
+            "humidity": [
+              0.25,
+              1.0
+            ],
+            "offset": 0.0,
+            "temperature": [
+              0.35,
+              1.0
+            ],
+            "weirdness": [
+              -1.0,
+              1.0
+            ]
+          }
+        },
+        {
+          "biome": "gensokyolegacy:mountain",
+          "parameters": {
+            "continentalness": [
+              0.595,
+              1.0
+            ],
+            "depth": 0.0,
+            "erosion": [
+              -1.0,
+              1.0
+            ],
+            "humidity": [
+              -1.0,
+              -0.25
+            ],
+            "offset": 0.0,
+            "temperature": [
+              -1.0,
+              -0.35
+            ],
+            "weirdness": [
+              -1.0,
+              1.0
+            ]
+          }
+        },
+        {
+          "biome": "gensokyolegacy:snowy_plains",
+          "parameters": {
+            "continentalness": [
+              0.595,
+              1.0
+            ],
+            "depth": 1.0,
+            "erosion": [
+              -1.0,
+              1.0
+            ],
+            "humidity": [
+              -1.0,
+              -0.25
+            ],
+            "offset": 0.0,
+            "temperature": [
+              -1.0,
+              -0.35
+            ],
+            "weirdness": [
+              -1.0,
+              1.0
+            ]
+          }
+        },
+        {
+          "biome": "gensokyolegacy:mountain",
+          "parameters": {
+            "continentalness": [
+              0.595,
               1.0
             ],
             "depth": 0.0,
@@ -2034,7 +2520,7 @@
           "biome": "gensokyolegacy:snowy_plains",
           "parameters": {
             "continentalness": [
-              0.329,
+              0.595,
               1.0
             ],
             "depth": 1.0,
@@ -2061,7 +2547,7 @@
           "biome": "gensokyolegacy:mountain",
           "parameters": {
             "continentalness": [
-              0.329,
+              0.595,
               1.0
             ],
             "depth": 0.0,
@@ -2088,7 +2574,7 @@
           "biome": "gensokyolegacy:snowy_plains",
           "parameters": {
             "continentalness": [
-              0.329,
+              0.595,
               1.0
             ],
             "depth": 1.0,
@@ -2115,7 +2601,7 @@
           "biome": "gensokyolegacy:mountain",
           "parameters": {
             "continentalness": [
-              0.329,
+              0.595,
               1.0
             ],
             "depth": 0.0,
@@ -2142,7 +2628,7 @@
           "biome": "gensokyolegacy:magical_forest",
           "parameters": {
             "continentalness": [
-              0.329,
+              0.595,
               1.0
             ],
             "depth": 1.0,
@@ -2166,10 +2652,10 @@
           }
         },
         {
-          "biome": "gensokyolegacy:mountain",
+          "biome": "gensokyolegacy:peak",
           "parameters": {
             "continentalness": [
-              0.329,
+              0.595,
               1.0
             ],
             "depth": 0.0,
@@ -2196,7 +2682,7 @@
           "biome": "gensokyolegacy:magical_forest",
           "parameters": {
             "continentalness": [
-              0.329,
+              0.595,
               1.0
             ],
             "depth": 1.0,
@@ -2223,7 +2709,7 @@
           "biome": "gensokyolegacy:mountain",
           "parameters": {
             "continentalness": [
-              0.329,
+              0.595,
               1.0
             ],
             "depth": 0.0,
@@ -2250,7 +2736,7 @@
           "biome": "gensokyolegacy:magical_forest",
           "parameters": {
             "continentalness": [
-              0.329,
+              0.595,
               1.0
             ],
             "depth": 1.0,
@@ -2277,7 +2763,7 @@
           "biome": "gensokyolegacy:mountain",
           "parameters": {
             "continentalness": [
-              0.329,
+              0.595,
               1.0
             ],
             "depth": 0.0,
@@ -2304,7 +2790,7 @@
           "biome": "gensokyolegacy:magical_forest",
           "parameters": {
             "continentalness": [
-              0.329,
+              0.595,
               1.0
             ],
             "depth": 1.0,
@@ -2331,7 +2817,7 @@
           "biome": "gensokyolegacy:mountain",
           "parameters": {
             "continentalness": [
-              0.329,
+              0.595,
               1.0
             ],
             "depth": 0.0,
@@ -2358,7 +2844,7 @@
           "biome": "gensokyolegacy:magical_forest",
           "parameters": {
             "continentalness": [
-              0.329,
+              0.595,
               1.0
             ],
             "depth": 1.0,
@@ -2385,7 +2871,7 @@
           "biome": "gensokyolegacy:mountain",
           "parameters": {
             "continentalness": [
-              0.329,
+              0.595,
               1.0
             ],
             "depth": 0.0,
@@ -2412,7 +2898,7 @@
           "biome": "gensokyolegacy:magical_forest",
           "parameters": {
             "continentalness": [
-              0.329,
+              0.595,
               1.0
             ],
             "depth": 1.0,

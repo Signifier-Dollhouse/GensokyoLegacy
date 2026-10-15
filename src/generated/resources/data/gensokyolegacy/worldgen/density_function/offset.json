@@ -32,7 +32,7 @@
           "argument1": {
             "type": "minecraft:spline",
             "spline": {
-              "coordinate": "minecraft:overworld/continents",
+              "coordinate": "gensokyolegacy:continents_small",
               "points": [
                 {
                   "derivative": 0.0,

@@ -61,9 +61,10 @@ public class GensokyoDimension {
 	public static final ResourceKey<DensityFunction> DF_SLOPED_CHEESE = df("sloped_cheese");
 
 	/**
-	 * The biome grid reads the three climate axes one octave finer than the terrain chain does, so the biomes come
-	 * out about half as wide without the ground moving. Vanilla keeps these parameters private, so the amplitude lists
-	 * are copied from {@code minecraft/worldgen/noise/*.json} with {@code firstOctave} raised by one.
+	 * The three climate axes, every octave one step finer than vanilla's. The height chain splines this continentalness
+	 * too — the biome grid has to read the same field the waterline is drawn on, or `ocean` stops meaning "drowned" —
+	 * so the whole dimension is built half as wide rather than just the biomes. Vanilla keeps these parameters private,
+	 * so the amplitude lists are copied from {@code minecraft/worldgen/noise/*.json} with {@code firstOctave} raised.
 	 * <p>
 	 * {@code NoiseRouterData} builds temperature and vegetation inline rather than behind a registry key, so those
 	 * two cannot be redirected by {@link FlatTerrainFunctions}; the router is rebuilt field by field instead.
@@ -87,11 +88,11 @@ public class GensokyoDimension {
 	private static final float SURFACE_DEPTH = 0.0f;
 	private static final float UNDERGROUND_DEPTH = 1.0f;
 
-	// one band per height range of the offset spline: sea floor, strand, plain, upland, mountain;
+	// one band per height range of the offset spline: sea floor, strand, plain, upland, mountain, peak;
 	// the ocean band ends where the terrain crosses sea level, so no dry ground is labelled ocean
 	private static final List<Band> CONTINENTALNESS = List.of(
 			new Band(-1.0f, -0.53f), new Band(-0.53f, -0.44f), new Band(-0.44f, -0.118f),
-			new Band(-0.118f, 0.329f), new Band(0.329f, 1.0f));
+			new Band(-0.118f, 0.329f), new Band(0.329f, 0.595f), new Band(0.595f, 1.0f));
 	private static final List<Band> TEMPERATURE = List.of(
 			new Band(-1.0f, -0.35f), new Band(-0.35f, 0.35f), new Band(0.35f, 1.0f));
 	private static final List<Band> HUMIDITY = List.of(
@@ -101,6 +102,7 @@ public class GensokyoDimension {
 	private static final int COAST = 1;
 	private static final int UPLAND = 3;
 	private static final int MOUNTAIN = 4;
+	private static final int PEAK = 5;
 	private static final int COLD = 0;
 	private static final int TEMPERATE = 1;
 	private static final int DRY = 0;
@@ -161,7 +163,12 @@ public class GensokyoDimension {
 	private static void densityFunctions(BootstrapContext<DensityFunction> ctx) {
 		var densities = ctx.lookup(Registries.DENSITY_FUNCTION);
 		var noises = ctx.lookup(Registries.NOISE);
-		var continentalness = densities.getOrThrow(NoiseRouterData.CONTINENTS);
+		// one continentalness for the whole dimension, a field finer than vanilla's. The height chain splines it and
+		// the biome grid reads it, so the ocean band edge still sits on the waterline the same spline draws.
+		var continentalness = ctx.register(DF_CONTINENTS_SMALL,
+				smallClimate(densities, noises.getOrThrow(N_CONTINENTS_SMALL)));
+		ctx.register(DF_TEMPERATURE_SMALL, smallClimate(densities, noises.getOrThrow(N_TEMPERATURE_SMALL)));
+		ctx.register(DF_VEGETATION_SMALL, smallClimate(densities, noises.getOrThrow(N_VEGETATION_SMALL)));
 		var offset = ctx.register(DF_OFFSET, DensityFunctions.add(DensityFunctions.constant(NoiseRouterData.GLOBAL_OFFSET),
 				blended(DensityFunctions.spline(offsetSpline(continentalness)), DensityFunctions.blendOffset())));
 		var factor = ctx.register(DF_FACTOR,
@@ -172,10 +179,6 @@ public class GensokyoDimension {
 				DensityFunctions.mul(DensityFunctions.constant(4.0),
 						DensityFunctions.mul(reference(depth), reference(factor)).quarterNegative()),
 				reference(densities.getOrThrow(VANILLA_BASE_3D_NOISE))));
-		// the three climate axes the biome grid reads, one octave finer; the terrain chain above keeps the vanilla ones
-		ctx.register(DF_CONTINENTS_SMALL, smallClimate(densities, noises.getOrThrow(N_CONTINENTS_SMALL)));
-		ctx.register(DF_TEMPERATURE_SMALL, smallClimate(densities, noises.getOrThrow(N_TEMPERATURE_SMALL)));
-		ctx.register(DF_VEGETATION_SMALL, smallClimate(densities, noises.getOrThrow(N_VEGETATION_SMALL)));
 	}
 
 	/**
@@ -193,11 +196,15 @@ public class GensokyoDimension {
 	}
 
 	/**
-	 * Continentalness to offset. The surface sits at {@code 63.5 + 128 * spline}, and the points were solved against
-	 * the real continentalness field: every 16-block band from y 64 up carries a point, each at the quantile that
-	 * gives that band its share of the map — 30% plain, 22% at 80, 12% at 96, 5% at 112, 3% per band above 128, on a
-	 * 13% ocean. So the height map is a choice of shares rather than a curve drawn by eye. The last three points are
-	 * flat, so the peak holds at 220 however high continentalness climbs.
+	 * Continentalness to offset, splined against {@link #DF_CONTINENTS_SMALL} rather than the vanilla field. The
+	 * surface sits at {@code 63.5 + 128 * spline}, and the points were solved against the *vanilla* continentalness
+	 * field: every 16-block band from y 64 up carries a point, each at the quantile that gives that band its share of
+	 * the map — 30% plain, 22% at 80, 12% at 96, 5% at 112, 3% per band above 128, on a 13% ocean. So the height map
+	 * is a choice of shares rather than a curve drawn by eye. The last three points are flat, so the peak holds at 220
+	 * however high continentalness climbs.
+	 * <p>
+	 * The fine field has a different distribution, so these shares are now the *previous* ones, not the current ones —
+	 * see {@code doc/design/gensokyo_dimension.md} §7. Re-solve with {@code tools/terrain.py} before trusting them.
 	 */
 	private static CubicSpline<DensityFunctions.Spline.Point, DensityFunctions.Spline.Coordinate> offsetSpline(
 			Holder<DensityFunction> continentalness) {
@@ -301,7 +308,9 @@ public class GensokyoDimension {
 	private static ResourceKey<Biome> land(int c, int t, int h) {
 		if (c == OCEAN) return GLBiomes.OCEAN;
 		if (c == COAST) return GLBiomes.BEACH;
-		if (c == MOUNTAIN) return GLBiomes.MOUNTAIN;
+		// the high two bands are temperate-and-humid country only; anything else up there stays bare mountain
+		if (c == PEAK) return t == TEMPERATE && h == NORMAL ? GLBiomes.PEAK : GLBiomes.MOUNTAIN;
+		if (c == MOUNTAIN) return t == TEMPERATE && h == NORMAL ? GLBiomes.GROVE : GLBiomes.MOUNTAIN;
 		if (t == COLD) return GLBiomes.SNOWY_PLAINS;
 		if (c == UPLAND && t == TEMPERATE) {
 			return switch (h) {

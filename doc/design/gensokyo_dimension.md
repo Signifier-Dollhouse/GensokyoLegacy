@@ -87,6 +87,11 @@ spline point, and each point sits at the continentalness **quantile** that gives
 asked for. Since `CubicSpline` with zero derivatives interpolates as `low + (high - low) * t²` — not linearly — the
 bands hold their share exactly, and each one is crowded toward its lower edge, where the curve is flattest.
 
+Those quantiles were solved against **vanilla `minecraft:overworld/continents`**, so the `share below` column is the
+vanilla field's cumulative distribution. §7 swaps the spline onto a finer field with a different distribution, which
+leaves the curve itself untouched — the waterline still lands where §4 needs it — but not the shares. The
+measured-against-target table further down is the fine field's, and §4's band shares are sampled from it directly.
+
 | continentalness | spline | surface y | share below | band |
 |---|---|---|---|---|
 | ≤ −0.80 | −0.199 … −0.191 | 38 | | flat sea floor |
@@ -115,14 +120,20 @@ Measured on 1024 × 1024 chunks, seed −1838080655014084215, against the target
 
 | band | target | measured | | band | target | measured |
 |---|---|---|---|---|---|---|
-| ocean biome | = water | 11.7% | | 128-143 | 3% | 3.0% |
-| 64-79 | 30% | 29.9% | | 144-159 | 3% | 2.9% |
-| 80-95 | 22% | 22.0% | | 160-175 | 3% | 3.1% |
-| 96-111 | 12% | 12.0% | | 176-191 | 3% | 2.9% |
-| 112-127 | 5% | 5.1% | | 192-207 | 3% | 3.0% |
-| | | | | 208+ | 3% | 3.0% |
+| ocean biome | = water | 7.6% | | 128-143 | 3% | 3.5% |
+| 64-79 | 30% | 27.1% | | 144-159 | 3% | 3.5% |
+| 80-95 | 22% | 22.8% | | 160-175 | 3% | 3.6% |
+| 96-111 | 12% | 13.9% | | 176-191 | 3% | 3.8% |
+| 112-127 | 5% | 5.9% | | 192-207 | 3% | 3.8% |
+| | | | | 208+ | 3% | 3.4% |
 
-Peak 220, lowest 38, mean 94.5, and 57% of the map above y 80.
+Peak 220, lowest 38, mean 100.5, and 64% of the map above y 80.
+
+Measured after §7 moved the spline onto the fine field, so the `target` column is what the points were *solved* for
+against the vanilla field and the `measured` column is what the fine field actually gives. Most bands land within a
+point or three; the two that moved are **ocean, four points under its 11.7% design share**, and the bands above y 144,
+which take three points from the plain. The world that results is less watery and a little higher than the original
+design, and the curve shape survived the swap intact.
 
 The ocean biome is the one band whose target is not a free number: its edge sits on the waterline, so `ocean` is
 exactly the set of drowned columns. Ending it anywhere higher paints dry ground ocean, and the low spots just above the
@@ -166,7 +177,8 @@ The land is a monotone ramp with no flat spots, which is what a river needs to e
 `NoiseRouterData.overworld` is `protected static`, so `OverworldNoiseRouter` subclasses it to be callable. The vanilla
 `depth`, `factor` and `sloped_cheese` cannot be rewritten in place — their sub-trees live in density function registry
 entries the overworld shares — so `FlatTerrainFunctions` wraps the `HolderGetter` and hands the builder our four keys
-instead. Every other lookup, including `continents` and `base_3d_noise`, passes straight through.
+instead. `continents` is redirected too, for the reason in §7. Every other lookup, including `base_3d_noise`, passes
+straight through.
 
 Note that `NoiseRouter.mapAll` exists but is unusable here: `HolderHolder.mapAll` calls `holder.value()`, and during
 `RegistrySetBuilder` bootstraps the built-in holders are unbound, so it throws.
@@ -175,7 +187,7 @@ Note that `NoiseRouter.mapAll` exists but is unusable here: `HolderHolder.mapAll
 
 ## 4. The climate grid
 
-Five continentalness bands × three temperature × three humidity × two depth = **90 points**, in
+Six continentalness bands × three temperature × three humidity × two depth = **108 points**, in
 `GensokyoDimension.biomeSource`. Erosion and weirdness are `[-1, 1]` on every point; depth is `0.0` at the surface and
 `1.0` underground. Bands only touch on their shared edge, where the `offset` tiebreaker falls back to list order.
 
@@ -185,18 +197,27 @@ range, to within the sliver of each band that the waterline cuts across.
 
 | continentalness | surface y | share | cold | temperate | warm |
 |---|---|---|---|---|---|
-| −1.00 … −0.53 | ≤ 63 | 11.7% | ocean | ocean | ocean |
-| −0.53 … −0.44 | 63 … 66 | 4.8% | beach | beach | beach |
-| −0.44 … −0.118 | 66 … 80 | 26.7% | snowy_plains | dry `sunflower_plains`, normal `plains`, wet `forest` | dry `desert`, normal `savanna`, wet `bamboo_jungle` |
-| −0.118 … 0.329 | 80 … 128 | 39.0% | snowy_plains | dry `sunflower_plains`, normal `sakura_forest`, wet `magical_forest` | dry `desert`, normal `savanna`, wet `bamboo_jungle` |
-| 0.329 … 1.00 | 128 … 220 | 18.0% | mountain | mountain | mountain |
+| −1.00 … −0.53 | ≤ 63 | 7.3% | ocean | ocean | ocean |
+| −0.53 … −0.44 | 63 … 66 | 3.8% | beach | beach | beach |
+| −0.44 … −0.118 | 66 … 80 | 24.4% | snowy_plains | dry `sunflower_plains`, normal `plains`, wet `forest` | dry `desert`, normal `savanna`, wet `bamboo_jungle` |
+| −0.118 … 0.329 | 80 … 128 | 42.6% | snowy_plains | dry `sunflower_plains`, normal `sakura_forest`, wet `magical_forest` | dry `desert`, normal `savanna`, wet `bamboo_jungle` |
+| 0.329 … 0.595 | 128 … 192 | 14.4% | mountain | normal `grove`, otherwise `mountain` | mountain |
+| 0.595 … 1.00 | 192 … 220 | 7.2% | mountain | normal `peak`, otherwise `mountain` | mountain |
 
-The coast band is 0.09 of continentalness wide, which is 4.8% of the map: with the steep coastal ramp behind it the band
+Shares are the continentalness quantiles over the same 1024 × 1024 chunk-centre sample as §3; the 0.38% the six spans
+miss is the tail below −1.00, which nearest-cell sends to `ocean` either way. `ocean` reads 7.65% against a 7.3% band
+because the waterline cuts a sliver across the coast band, which is the arrangement §4 wants.
+
+The coast band is 0.09 of continentalness wide, which is 3.8% of the map: with the steep coastal ramp behind it the band
 is a strand a few blocks above the water rather than a plain. Its lower edge is the waterline, so no dry column is
 labelled ocean and the ocean biome is precisely the drowned set. The `−0.118` edge is where y 80 goes by, so the upland
-band is exactly the "above 80" terrain, and `0.329` is y 128, where the ground stops being forest country. Moving the
-last two edges trades `magical_forest` against `mountain` and nothing else; moving the first one off the waterline is
-the only way to put ocean back on land.
+band is exactly the "above 80" terrain, `0.329` is y 128, where the ground stops being forest country, and `0.595` is
+y 192, where the two high bands split. Moving an edge trades the biomes between the rows either side of it and nothing
+else; moving the first one off the waterline is the only way to put ocean back on land.
+
+The last two rows give `grove` and `peak` to the temperate, normally-humid column only, so a cold or a dry upland still
+comes out as bare `mountain`. `peak` ends at the top of the spline, where continentalness is flat at 1.2227 and the
+terrain stops rising, so y 192 … 220 is the whole of it.
 
 Underground (depth 1.0): `plains` under water and coast, `snowy_plains` when cold, `magical_forest` otherwise.
 
@@ -207,13 +228,18 @@ anywhere the grid is silent.
 
 ## 5. Structures
 
-The twelve allowed biomes are all mod-owned (`GLBiomes`): nine are byte-identical copies of the vanilla biome rebuilt
-from registry keys, `mountain` is new, `magical_forest` and `sakura_forest` are the mod's own. Vanilla filters
+The fourteen allowed biomes are all mod-owned (`GLBiomes`): ten are byte-identical copies of the vanilla biome
+rebuilt from registry keys, `mountain` is new, `magical_forest` and `sakura_forest` are the mod's own. Vanilla filters
 structures by biome tag (`#minecraft:has_structure/*`), so a dimension made only of mod biomes cannot host
 `minecraft:village_plains` and friends. The mod's own structure sets survive because their tags already name
 `gensokyolegacy:magical_forest` / `sakura_forest`.
 
-All nine copies also drop `minecraft:canyon`; `mountain` uses `GLBiomes.addCarversAndLakes`, which is the overworld
+`peak` is the eleventh copy but not a straight one: `minecraft:stony_peaks` supplies the climate, effects and spawns,
+and `minecraft:stony_shore` is unioned in for its features and carvers, which is why it is registered separately
+instead of going through `GLBiomes.COPIES`. Both sources are merged through `LinkedHashSet`s, so the two shared carvers
+collapse to one entry and `FeatureSorter` still sees vanilla's ordering.
+
+Every copy drops `minecraft:canyon`; `mountain` uses `GLBiomes.addCarversAndLakes`, which is the overworld
 carver set minus that one. Canyon ravines run far deeper than Gensokyo wants.
 
 ---
@@ -240,3 +266,46 @@ them are both declared in `GensokyoDimension.init`, and dimension type and level
 Vanilla's biome objects cannot be reused directly for the copies: a holder owned by another provider fails
 `canSerializeIn` at write time, which is why `GLBiomes.copyOf` reads through `VanillaRegistries.createLookup()` and
 rebuilds from keys.
+
+---
+
+## 7. The fine climate
+
+`gensokyolegacy:continentalness_small`, `:temperature_small` and `:vegetation_small` are the three climate axes with
+**every octave raised by one** (`firstOctave` −9→−8, −10→−9, −8→−7), amplitude lists copied from
+`minecraft/worldgen/noise/*.json`. Vanilla keeps those parameters private, so the lists are duplicated in
+`GensokyoDimension.noises`. Raising `firstOctave` rather than `xz_scale` shifts the octaves *and* the shift field
+together, so the axes keep the same shape at twice the frequency.
+
+All three are plain `shifted_noise` at the vanilla `xz_scale` 0.25, deliberately **not** `flat_cache`d:
+`NoiseChunk.FlatCache` indexes its table by quart position and stores the value at the cell's origin corner, so it
+snaps a 2D field to a 4-block grid and biome edges come out stepped.
+
+### Why continentalness feeds the height chain too
+
+The obvious move is to leave the terrain on vanilla continentalness and give only the biome grid the fine field. That
+breaks §4's central invariant. The ocean band edge is the waterline of the offset spline, so `ocean` is the drowned set
+only while the grid and the spline read the *same* field:
+
+| | underwater | ocean biome | ocean-but-dry | wet-not-ocean |
+|---|---|---|---|---|
+| one field everywhere | 7.74% | 7.73% | **0.11%** | **0.11%** |
+| grid only (split) | 9.21% | 7.73% | 7.40% | 8.88% |
+
+No threshold repairs it: `continents_small` is seeded from its own key and is therefore statistically **independent**
+of vanilla continentalness, so the best fit leaves ~17% of the map disagreeing. Hence the spline is splined on
+`DF_CONTINENTS_SMALL` too. The cost is that the terrain now reads a field half as wide: landforms are half as broad
+and twice as steep, and the height-band shares of §3 need re-solving.
+
+### Wiring
+
+- `offset` and `factor` are built from `DF_CONTINENTS_SMALL` directly, in `densityFunctions`.
+- `FlatTerrainFunctions` maps `NoiseRouterData.CONTINENTS` → `DF_CONTINENTS_SMALL`, so the router's biome axis and the
+  spline agree.
+- `NoiseRouterData.overworld` builds **temperature and vegetation inline**, behind no registry key, so they cannot be
+  redirected by `FlatTerrainFunctions` — which is why `noises` has to be called from `GLFeatureGen`, the owner of the
+  single `Registries.NOISE` bootstrap (§6). `GensokyoDimension.smallClimateRouter` then rebuilds the `NoiseRouter`
+  field by field, carrying over the other thirteen.
+
+Measured on 256 × 256 chunks, seed −1838080655014084215: biome patch median 64 → 23 chunks, mean 524 → 162, patch
+count 125 → 403, with `ocean-but-dry` at 0.11%.
