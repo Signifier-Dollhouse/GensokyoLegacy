@@ -14,10 +14,9 @@ import net.minecraft.world.item.ItemStack;
 import java.util.List;
 
 /**
- * The glove's mode wheel over the visible modes; a pick sends the shared
- * {@code SelectorSelectPacket} carrying a mode ordinal.
+ * The glove's mode wheel over the visible modes; a pick sends {@code SelectorSelectPacket} with an ordinal.
  *
- * @see doc/design/doll/glove.md
+ * @see "doc/design/doll/glove.md"
  */
 public class DollGloveModeWheel implements PersistentWheel<DollGloveModeEntry> {
 

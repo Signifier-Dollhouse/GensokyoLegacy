@@ -64,14 +64,12 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Vegetation of the magical forest, built from hand-made templates: canopy layers placed top-down,
- * then ground cover, with ponds carved in the LAKES step ahead of everything.
- * <p>
- * Giant and large trees sit on seed-pure jittered grids; lower layers keep their distance from
- * those grids. {@link #FOREST_TYPE} splits the biome into forest types, {@link #CLEARING} opens
- * clearings.
+ * Vegetation of the magical forest, built from hand-made templates: canopy layers placed top-down, then ground cover,
+ * with ponds carved in the LAKES step ahead of everything. <p> Giant and large trees sit on seed-pure jittered grids;
+ * lower layers keep their distance from those grids. {@link #FOREST_TYPE} splits the biome into forest types, {@link
+ * #CLEARING} opens clearings.
  *
- * @see doc/design/magical_forest_vegetation.md
+ * @see "doc/design/magical_forest_vegetation.md"
  */
 public class MagicalForestFeatures {
 
@@ -365,10 +363,9 @@ public class MagicalForestFeatures {
 	private static final PlacementModifier FLOOR = HeightmapPlacement.onHeightmap(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES);
 
 	/**
-	 * A tree sized feature: the given modifiers, then the forest floor.
-	 * <p>
-	 * Water and slope are the template feature's job; a surface water depth filter would also
-	 * reject columns under hanging vines, so the heightmap only has to start above the ground.
+	 * A tree sized feature: the given modifiers, then the forest floor. <p> Water and slope are the template feature's
+	 * job; a surface water depth filter would also reject columns under hanging vines, so the heightmap only has to
+	 * start above the ground.
 	 */
 	private static void tree(BootstrapContext<PlacedFeature> ctx, ResourceKey<PlacedFeature> key,
 							 Holder<ConfiguredFeature<?, ?>> feature, PlacementModifier... modifiers) {

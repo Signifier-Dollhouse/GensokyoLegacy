@@ -15,11 +15,9 @@ import net.minecraft.world.item.ItemStack;
 import top.theillusivec4.curios.api.SlotContext;
 import top.theillusivec4.curios.api.client.ICurioRenderer;
 
-/**
- * Renders strange glasses from the curios head slot exactly as vanilla renders
- * non-armor items worn in the helmet slot ({@link CustomHeadLayer}): snap to
- * the head bone, apply the vanilla head offset, then render the item with the
- * HEAD display context so the {@code strange_glasses_head} sub-model applies.
+/** Renders strange glasses from the curios head slot exactly as vanilla renders non-armor helmet-slot items
+ * ({@link CustomHeadLayer}): snap to the head bone, apply the vanilla head offset, then render with the HEAD
+ * display context so the {@code strange_glasses_head} sub-model applies.
  */
 public class StrangeGlassesRenderer implements ICurioRenderer {
 

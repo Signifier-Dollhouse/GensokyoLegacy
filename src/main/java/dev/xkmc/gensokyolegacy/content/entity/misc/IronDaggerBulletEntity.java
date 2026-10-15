@@ -28,24 +28,10 @@ import net.neoforged.neoforge.entity.PartEntity;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * The thrown form of {@link IronDaggerItem}: an {@link ItemBulletEntity} that hands the dagger
- * back instead of just vanishing when it stops existing.
- * <p>
- * Whether a given throw is to be handed back at all is settled by the thrower through
- * {@link #setReturnable} and then carried by the entity, rather than re-derived from the item and
- * the owner on landing: the throw is the only moment that knows whether the dagger was paid for,
- * and an unpaid throw must not conjure one out of thin air on the way back.
- * <p>
- * All three ways out are overridden rather than only the hit ones — landing on a block or an entity
- * discards straight from {@code DanmakuBulletEntity}, while a dagger that flies its full life is
- * erased through {@link #markErased}. {@link #givenBack} keeps a dagger that goes out through both
- * on one tick (a hit on the tick its life runs out) from being handed over twice.
- * <p>
- * A dagger can also carry a {@link DaggerGloveRune}, which only the {@link DaggerGloveItem} ever
- * sets. It rides the bullet rather than the stack because the stack is long gone by the time
- * anything is hit.
+ * The thrown form of {@link IronDaggerItem}: hands the dagger back instead of just vanishing. Whether it comes
+ * back is settled by the thrower via {@link #setReturnable}, the only moment that knows whether it was paid for.
  *
- * @see doc/design/dagger_glove.md
+ * @see "doc/design/dagger_glove.md"
  */
 @SerialClass
 public class IronDaggerBulletEntity extends ItemBulletEntity {
@@ -72,34 +58,27 @@ public class IronDaggerBulletEntity extends ItemBulletEntity {
 	}
 
 	/**
-	 * Declares up front that this dagger is one that must come back, i.e. that its throw was paid
-	 * for out of the owner's stack. A dagger left unflagged is simply lost when it lands, which is
-	 * what any throw that cost nothing wants: a creative throw, or one a listener cleared
-	 * {@link DanmakuUseEvent#consume()} on.
+	 * Declares up front that this dagger must come back, i.e. that its throw was paid for. An unflagged
+	 * dagger is lost when it lands — what a creative throw or one cleared by {@link DanmakuUseEvent#consume()} wants.
 	 */
 	public void setReturnable(boolean pReturnable) {
 		returnable = pReturnable;
 	}
 
 	/**
-	 * Gives this dagger a {@link DaggerGloveRune} to run when it hits something, by id; only the
-	 * glove sets one. The id is stored rather than the rune, so an id whose rune has since been
-	 * removed reads as no rune at the moment of the hit instead of failing on a dagger in mid-air.
+	 * Gives this dagger a {@link DaggerGloveRune} to run when it hits something, by id. The id is stored
+	 * rather than the rune, so a rune since removed reads as no rune at the moment of the hit.
 	 */
 	public void setRune(@Nullable ResourceLocation pRune) {
 		rune = pRune;
 	}
 
 	/**
-	 * Claims this dagger's return, in favour of a successor that is about to be spawned.
-	 * <p>
-	 * A homing shot is two entities for one spent dagger, so exactly one of them may give it back —
-	 * and which one cannot be fixed up front, because the second stage only exists if the turn
-	 * actually produced one. This dagger therefore returns itself on every ordinary ending and only
-	 * calls this once a successor really exists (dagger_glove.md §4).
+	 * Claims this dagger's return for a successor: a homing shot is two entities for one spent dagger (dagger_glove.md
+	 * §4).
 	 *
-	 * @return true if this dagger may now stop returning itself; false if the claim was already
-	 * taken or the dagger is already gone back to its thrower, and the caller must keep its own
+	 * @return true if this dagger may now stop returning itself; false if the claim was taken or the dagger is already
+	 * 	 *       gone
 	 */
 	public boolean handOffTo(boolean successorSpawned) {
 		if (!successorSpawned || !ownsReturn()) return false;
@@ -143,9 +122,8 @@ public class IronDaggerBulletEntity extends ItemBulletEntity {
 	}
 
 	/**
-	 * Runs the carried rune against whatever was hit, if there is a rune to run. The owner is
-	 * passed as it is found: a dagger whose player has logged out or left the level still carries
-	 * its rune, and a rune that needs an owner simply does nothing without one.
+	 * Runs the carried rune against whatever was hit. The owner is passed as found: a dagger whose
+	 * player has logged out still carries its rune, and a rune needing an owner simply does nothing.
 	 */
 	private void runRune(EntityHitResult pResult) {
 		if (rune == null || level().isClientSide) return;
@@ -163,14 +141,8 @@ public class IronDaggerBulletEntity extends ItemBulletEntity {
 	}
 
 	/**
-	 * Puts the dagger in its owner's inventory, or at their feet when there is no room for it.
-	 * <p>
-	 * Paying the return also disarms this dagger's {@code afterExpiry} trail, and that line is the
-	 * whole of the anti-duplication fix: {@code BaseProjectile#tick} resolves the move vector's hit
-	 * <em>before</em> the lifetime check, so a dagger hitting on the very tick its life runs out
-	 * gives itself back, is discarded, and then carries on into {@code terminate()} anyway — a
-	 * returnable stage 2 next to a first stage that already paid (dagger_glove.md §4a). The trail
-	 * ends with the dagger rather than outliving it, on every path out of here.
+	 * Puts the dagger in its owner's inventory, or at their feet when there is no room. Paying the return
+	 * disarms {@code afterExpiry}: {@code BaseProjectile#tick} resolves the hit before expiry (dagger_glove.md §4a).
 	 */
 	private void giveBack() {
 		if (givenBack || !returnable || handedOff || level().isClientSide) return;

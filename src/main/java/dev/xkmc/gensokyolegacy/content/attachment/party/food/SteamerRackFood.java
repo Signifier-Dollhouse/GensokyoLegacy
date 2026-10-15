@@ -17,11 +17,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A Youkai's Feasts steamer, both halves of it — the pot's own tiers and the rack standing in
- * it are separate block entities, so a full steamer is genuinely two food sources. A pot is
- * food wherever it stands; a rack only on the table or in a pot.
- *
- * @see doc/design/party/food_mods.md
+ * A Youkai's Feasts steamer, both halves of it — the pot's own tiers and the rack standing in it
+ * are separate block entities, so a full steamer is genuinely two food sources. A pot is food
+ * wherever it stands; a rack only on the table or in a pot.
+ * @see "doc/design/party/food_mods.md"
  */
 public class SteamerRackFood implements ContainerFoodHandler {
 
@@ -84,10 +83,8 @@ public class SteamerRackFood implements ContainerFoodHandler {
 		return merged;
 	}
 
-	/**
-	 * The pot is food wherever it stands; a rack is food on furniture or inside a pot, and
-	 * is found by falling, because the block carrying a rack inside a pot is two or three
-	 * down.
+	/** The pot is food wherever it stands; a rack is food on furniture or inside a pot, and is
+	 * found by falling, because the block carrying a rack inside a pot is two or three down.
 	 */
 	@Override
 	public boolean isPutOut(Level level, BlockPos pos, BlockState state) {
@@ -110,10 +107,9 @@ public class SteamerRackFood implements ContainerFoodHandler {
 		return remaining(be);
 	}
 
-	/**
-	 * Take one {@code item} off any rack, in slot order. Goes through the rack's own
-	 * {@code setStack}: shrinking the stack underneath would leave the slot's recipe id
-	 * pointing at an empty slot.
+	/** Take one {@code item} off any rack, in slot order. Goes through the rack's own
+	 * {@code setStack}: shrinking the stack underneath would leave the slot's recipe id pointing at
+	 * an empty slot.
 	 */
 	private int take(SteamerBlockEntity be, Item item) {
 		for (var rack : be.racks) {

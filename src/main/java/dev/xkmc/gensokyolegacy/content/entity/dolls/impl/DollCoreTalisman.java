@@ -11,18 +11,9 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * The core slot's folded talisman: a talisman a doll <b>wears</b> rather than an order
- * it follows. Everything the Curios charm slot does for a player it does here for a
- * doll — the passive tick and the on-attacked / on-damaged hooks, reached through
- * {@link TalismanCurioItem}'s discovery rather than through Curios. A doll has to
- * refresh its own mirror after each of those paths; Curios syncs its wearer's talisman
- * stacks for it, a doll does not.
- * <p>
- * Self-only by construction, which is the point of the slot: the context's target is
- * the doll and an effect only acts on its own target, so a core paper heals, hastes
- * or shelters the doll and nothing beside it — the deliberate opposite of a heal
- * talisman in a hand (loadout.md §6). No ticket, no target, no approach: all it needs
- * is a tick.
+ * The core slot's folded talisman: a talisman a doll <b>wears</b> rather than an order it follows,
+ * reaching Curios' passive tick and damage hooks through {@link TalismanCurioItem}'s discovery and
+ * acting only on the doll itself — the opposite of a heal talisman in a hand (loadout.md §6).
  */
 public interface DollCoreTalisman extends DollLoadout, TalismanHolder {
 
@@ -33,11 +24,9 @@ public interface DollCoreTalisman extends DollLoadout, TalismanHolder {
 	}
 
 	/**
-	 * Server tick: one activation sweep, then a mirror refresh if the paper spent a use.
-	 * The slot has to be emptied outright once the last use is gone, or the doll would
-	 * keep ticking an empty stack; both are one comparison of the uses component, so an
-	 * idle doll syncs nothing.
-	 */
+ * Server tick: one activation sweep, then a mirror refresh if the paper spent a use. The slot is
+ * emptied outright on the last use so an idle doll syncs nothing.
+ */
 	default void tickCoreTalisman() {
 		MutableDollInventory inv = asDoll().loadout();
 		ItemStack live = inv.get(DollSlot.CORE);
@@ -50,9 +39,8 @@ public interface DollCoreTalisman extends DollLoadout, TalismanHolder {
 	}
 
 	/**
-	 * A damage hook spent a use of the core paper, so the ledger and its client mirror
-	 * have parted company. The ledger half still has to happen: a slot emptied by its
-	 * last use holds a count-zero stack that has to go back to being nothing.
+	 * A damage hook spent a use, so ledger and client mirror have parted company. A slot emptied
+	 * by its last use still holds a count-zero stack, which has to go back to being nothing.
 	 */
 	@Override
 	default void onTalismansSpent() {

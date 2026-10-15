@@ -12,14 +12,9 @@ import net.minecraft.world.item.TooltipFlag;
 import java.util.List;
 
 /**
- * Star wand: a reusable star-danmaku shooter with a fixed 1s cooldown.
- * Never consumed. Extends {@link StarDanmakuItem} (a {@code DanmakuItem}),
- * so dolls pick it up for their danmaku attack automatically.
- * <p>
- * The throw is the inherited one, and only the three steps that make this a wand rather than a
- * plain danmaku item are spelled out: it is free, it is paced by its own fixed cooldown rather
- * than the server's danmaku cooldown, and it throws a loose star instead of itself, so the wand
- * stays in hand while the star is in the air.
+ * Star wand: a reusable star-danmaku shooter with a fixed 1s cooldown, thrown by dolls that pick it up. Against the
+ * inherited {@link DanmakuItem} throw it is free, uses its own cooldown instead of the server's, and throws a loose
+ * star so the wand stays in hand.
  */
 public class StarWandItem extends StarDanmakuItem {
 

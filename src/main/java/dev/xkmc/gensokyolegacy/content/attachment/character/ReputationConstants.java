@@ -1,10 +1,9 @@
 package dev.xkmc.gensokyolegacy.content.attachment.character;
 
 /**
- * Every tuning number of the reputation system. A relationship holds a current value
- * ({@link CharacterData#reputation}) and a reachable ceiling ({@link CharacterData#reputationCap}).
+ * Every tuning number of reputation: a relationship's value ({@link CharacterData#reputation}) and reachable cap.
  *
- * @see doc/design/reputation.md
+ * @see "doc/design/reputation.md"
  */
 public final class ReputationConstants {
 

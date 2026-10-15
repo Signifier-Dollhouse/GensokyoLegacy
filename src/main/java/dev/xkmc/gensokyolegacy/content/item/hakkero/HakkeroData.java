@@ -12,33 +12,19 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Arrays;
 
 /**
- * Everything the finished Mini Hakkero carries inside itself: its sixteen grid slots, its
- * fuel slot, and the per-channel smelting state. Stored on the item as a data component
- * (see {@code GLItems.DC_HAKKERO_INV}), so it survives moving between inventories, is
- * synced to the client by the ordinary item sync, and is what the tooltip image simulates.
- *
- * <p>The mode is <b>not</b> here — it lives in its own component ({@code DC_HAKKERO_MODE}) so
- * the item tooltip can read it without walking this much larger record.
- *
- * <p>Slot layout, shared with the menu's sprite:
- * <ul>
- *   <li>{@code 0..7} — inner rim, input, one smelting channel each</li>
- *   <li>{@code 8..15} — outer rim, the result of channel {@code slot - 8}</li>
- *   <li>{@code 16} — fuel</li>
- * </ul>
- *
- * <p>Immutable in the data-component sense: every getter hands out copies and every
- * mutation returns a new instance, so a stored {@link ItemStack} is never aliased. The
- * processing loop is the one exception and edits a {@link #workingCopy()} in place, which
- * is why the stored record must never be handed to it. {@link #hashCode()} is computed once
- * and cached, lazily because l2serial fills {@code @SerialField} fields after construction.
- *
- * <p>All three collections are fixed-size arrays. Note two encoding constraints that shaped
- * them: {@code DC_HAKKERO_INV} must stay registered with {@code cache = false}, because
- * l2serial's {@code cacheEncoding()} keys on {@code equals} and would hand back a stale tag
- * for an instance the processing loop then edits; and no field may mix a {@code null}
- * element with a real one, because the array codec puts both in a single NBT list, which has
- * to be homogeneous — hence the empty-string sentinel in {@link #recipes}.
+ * Everything the finished Mini Hakkero carries inside itself: sixteen grid slots (0..7 inner rim
+ * inputs, 8..15 their results, 16 fuel) plus the per-channel smelting state, stored on the item as
+ * {@code GLItems.DC_HAKKERO_INV} so it travels between inventories, syncs, and is what the tooltip
+ * image simulates; the mode is <b>not</b> here — see {@code DC_HAKKERO_MODE}.
+ * <p>
+ * Immutable in the data-component sense: getters hand out copies and mutations return new instances,
+ * so a stored {@link ItemStack} is never aliased. The processing loop is the one exception, editing
+ * a {@link #workingCopy()} in place; {@link #hashCode()} is cached lazily, l2serial filling fields late.
+ * <p>
+ * Two encoding constraints shaped the arrays: {@code DC_HAKKERO_INV} must stay {@code cache = false},
+ * as l2serial's {@code cacheEncoding()} keys on {@code equals} and would hand back a stale tag for an
+ * instance the loop then edits; and the array codec puts every element in one NBT list, which must be
+ * homogeneous — hence the empty-string sentinel in {@link #recipes} standing in for {@code null}.
  */
 @SerialClass
 public class HakkeroData {
@@ -55,12 +41,10 @@ public class HakkeroData {
 	@SerialField
 	private int[] cookTime = new int[CHANNELS];
 	/**
-	 * Recipe being cooked in each channel. This is a <b>String</b> array, not
-	 * {@code ResourceLocation[]}: l2serial's array codec writes every element into one NBT
-	 * list, which must be homogeneous, and it encodes an idle channel's {@code null} as a
-	 * compound while a real recipe id becomes a string — "Trying to add tag of type 8 to list
-	 * of 10" the first time one channel held a recipe and another did not. Empty strings are
-	 * the idle value here; see {@link #id(int)} / {@link #recipe(int)}.
+	 * Recipe being cooked in each channel — a <b>String</b> array, not {@code ResourceLocation[]}: the
+	 * array codec writes every element into one NBT list, which must be homogeneous, and an idle
+	 * {@code null} becomes a compound where a recipe id becomes a string. Empty strings are idle,
+	 * see {@link #id(int)}.
 	 */
 	@SerialField
 	private String[] recipes = new String[CHANNELS];
@@ -69,9 +53,8 @@ public class HakkeroData {
 	@SerialField
 	private int burnMax;
 	/**
-	 * Game time the last batch of processing ended at. {@code inventoryTick} only runs a
-	 * batch once this is at least {@link Hakkero#IDLE_BATCH} ticks in the past, and the
-	 * client tooltip replays exactly that gap, so an idle hakkero and its tooltip agree.
+	 * Game time the last batch of processing ended at; the client tooltip replays the same
+	 * {@link Hakkero#IDLE_BATCH}-tick gap the item leaves idle, so the two always agree.
 	 */
 	@SerialField
 	private long stamp;
@@ -152,10 +135,8 @@ public class HakkeroData {
 		return new HakkeroData(next, cookTime, recipes, burnTime, burnMax, stamp);
 	}
 
-	/**
-	 * A private working copy for the processing loop. The record the item holds is shared
-	 * with whatever else is reading it — the menu, the tooltip simulation — and the loop
-	 * edits in place, so it must never be handed the stored instance.
+	/** A private working copy for the processing loop: the stored record is shared with the
+	 * menu and the tooltip simulation, and the loop edits in place.
 	 */
 	public HakkeroData workingCopy() {
 		return copy();
@@ -197,18 +178,15 @@ public class HakkeroData {
 
 	/**
 	 * How far a channel has cooked, as the fraction the cooldown overlay draws.
-	 *
-	 * @param recipeTime cooking time of the recipe being cooked, or 0 when the channel is
-	 *                   idle or its recipe is gone
+	 * @param recipeTime cooking time of the recipe being cooked, or 0 when idle or its recipe is gone
 	 */
 	public float progress(int channel, int recipeTime) {
 		return recipeTime <= 0 ? 0.0F : Hakkero.clamp01((float) cookTime(channel) / recipeTime);
 	}
 
 	/**
-	 * In-place channel edit, for the processing loop — which touches every channel every
-	 * tick and cannot afford to rebuild the lists per step. Only ever called on a
-	 * {@link #copy()} the caller then publishes, never on the record the item holds.
+	 * In-place channel edit for the processing loop: it touches every channel every tick, so the
+	 * caller must pass a {@link #copy()} it publishes afterwards, never the record the item holds.
 	 */
 	HakkeroData setCook(int channel, int time, @Nullable ResourceLocation recipe) {
 		cookTime[channel] = time;
@@ -233,10 +211,9 @@ public class HakkeroData {
 		return this;
 	}
 
-	/**
-	 * True when any channel has something it could cook right now, which is what keeps a
-	 * fuel lit. "Could" is deliberate: a channel whose output slot is already full does not
-	 * count, or a full grid would quietly eat every coal dropped into it.
+	/** True when any channel has something it could cook right now, which is what keeps a fuel lit;
+	 * "could" is deliberate, or a channel whose output slot is already full would quietly eat every
+	 * coal dropped into it.
 	 */
 	/** True when nothing at all is stored, so a tooltip image would be pointless. */
 	public boolean isEmpty() {

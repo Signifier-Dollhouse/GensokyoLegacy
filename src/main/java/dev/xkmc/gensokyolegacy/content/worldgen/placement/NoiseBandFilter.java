@@ -14,9 +14,8 @@ import net.minecraft.world.level.levelgen.placement.PlacementModifierType;
 import net.minecraft.world.level.levelgen.synth.NormalNoise;
 
 /**
- * Passes where a seeded 2D noise lies in [min, max). Several features filtering on bands of one
- * low frequency noise split a biome into forest types without registering sub-biomes; the feature
- * scale comes from the noise parameters (first octave).
+ * Passes where a seeded 2D noise lies in [min, max); bands of one low frequency noise split a biome into forest types
+ * without registering sub-biomes. Feature scale comes from the noise parameters (first octave).
  */
 public class NoiseBandFilter extends PlacementFilter {
 

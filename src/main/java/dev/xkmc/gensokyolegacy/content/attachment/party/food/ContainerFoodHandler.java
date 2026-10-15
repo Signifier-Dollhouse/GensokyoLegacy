@@ -9,10 +9,9 @@ import net.minecraft.world.level.block.state.BlockState;
 import java.util.List;
 
 /**
- * Food that lives inside a block entity rather than on the block state, so every answer
- * is read fresh — {@link FoodResultCache} must never be routed through here.
- *
- * @see doc/design/party/food.md
+ * Food that lives inside a block entity rather than on the block state, so every answer is read
+ * fresh — {@link FoodResultCache} must never be routed through here.
+ * @see "doc/design/party/food.md"
  */
 public interface ContainerFoodHandler {
 
@@ -21,10 +20,9 @@ public interface ContainerFoodHandler {
 
 	/**
 	 * Every food held, one entry per kind of thing — never a single averaged answer.
-	 * {@code serves} is how often a guest can come back, a property of the container: a
-	 * rack hands out one item at a time, a cutting board hands over the whole plate.
-	 * <p>
-	 * Freshly built every call, never retained.
+	 * {@code serves} is how often a guest can come back, a property of the container: a rack hands
+	 * out one item at a time, a cutting board hands over the whole plate.
+	 * <p>Freshly built every call, never retained.
 	 */
 	List<FoodResult> contents(CollisionGetter level, BlockPos pos, BlockState state);
 

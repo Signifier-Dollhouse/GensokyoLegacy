@@ -6,10 +6,9 @@ import net.minecraft.server.level.ServerLevel;
 import java.util.function.BiPredicate;
 
 /**
- * Purpose of a cached block position list in home data.
- * Used as key of the generic position cache map so all
- * chair / container / shelf lists share one auto-serialized field.
- * Each kind carries its own block validator.
+ * Purpose of a cached block position list in home data, and the key of the generic position
+ * cache map, so all chair / container / shelf lists share one auto-serialized field. Each
+ * kind carries its own block validator.
  */
 public enum HomeBlockKind {
 

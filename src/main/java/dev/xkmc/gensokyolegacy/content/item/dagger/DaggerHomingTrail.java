@@ -20,26 +20,18 @@ import org.jetbrains.annotations.Nullable;
 import java.util.UUID;
 
 /**
- * The second stage of a {@link DaggerGloveMode#HOMING} shot: fired when the straight-flight first
- * stage runs out, aimed at where the target is <em>now</em>.
- * <p>
- * The stage boundary is what turns the dagger — two straight legs at a constant speed rather than
- * one steering entity, so both sides integrate the same path and only the bend is a server
- * decision. Only the server runs this: {@code ItemBulletEntity#terminate} is server-side, so stage 2
- * spawns authoritatively and reaches clients through the normal spawn path.
- * <p>
- * The target is held by UUID rather than network id, because resolution happens server-side only
- * and a UUID cannot be recycled onto a different entity if the target dies mid-flight.
+ * The second stage of a {@link DaggerGloveMode#HOMING} shot: fired when the straight-flight first stage runs out,
+ * aimed at where the target is <em>now</em>. The stage boundary is what turns the dagger — two straight legs at
+ * constant speed, so only the bend is a server decision. The target is held by UUID, never a recyclable network id.
  *
- * @see doc/design/dagger_glove.md
+ * @see "doc/design/dagger_glove.md"
  */
 @SerialClass
 public class DaggerHomingTrail extends TrailAction {
 
 	/**
-	 * The first stage, whose return this trail is responsible for transferring. Not a
-	 * {@link SerialField}: a trail that lost it ends the shot with the first stage returning the
-	 * dagger itself, which is the correct outcome anyway.
+	 * The first stage, whose return this trail must transfer. Not a {@link SerialField}: a trail that lost
+	 * it ends the shot with the first stage returning the dagger itself, which is correct anyway.
 	 */
 	private transient IronDaggerBulletEntity firstStage = null;
 	@SerialField
@@ -58,9 +50,8 @@ public class DaggerHomingTrail extends TrailAction {
 	private int life = 40;
 
 	/**
-	 * Server-side context, deliberately not a {@link SerialField}: it mirrors {@code TrailAction}'s
-	 * own unsaved {@code cached} holder. A trail that lost it does not re-aim, which is the same as
-	 * its target having vanished.
+	 * Server-side context, deliberately not a {@link SerialField}: it mirrors {@code TrailAction}'s own
+	 * unsaved {@code cached} holder. A trail that lost it does not re-aim, as if the target had vanished.
 	 */
 	private transient ServerLevel cachedLevel = null;
 	private transient LivingEntity cachedOwner = null;
@@ -83,24 +74,15 @@ public class DaggerHomingTrail extends TrailAction {
 	}
 
 	/**
-	 * Called by {@code ItemBulletEntity#terminate} when the first stage's life runs out, passing
-	 * the position and velocity the first stage ended on.
-	 * <p>
-	 * The return is transferred, not decided: this claims the first stage's return
-	 * ({@link IronDaggerBulletEntity#handOffTo}) only after it has actually spawned, and takes its
-	 * own returnability from the outcome of that claim. Every path that spawns nothing leaves the
-	 * first stage to return the dagger itself (dagger_glove.md §4, §4a).
-	 * <p>
-	 * The glove's rune rides the <em>second</em> stage: the first stage's whole life is the
-	 * outbound run, which normally hits nothing, so a rune there would fire against whatever the
-	 * run happened to clip.
+	 * Called by {@code ItemBulletEntity#terminate} when the first stage's life runs out. The return is transferred,
+	 * not decided: it is claimed ({@link IronDaggerBulletEntity#handOffTo}) only once a successor spawns, so a path
+	 * spawning nothing leaves the first stage to return the dagger (§4, §4a). The rune rides the second stage.
 	 */
 	@Override
 	public void execute(Vec3 pos, Vec3 dir) {
 		ServerLevel level = cachedLevel;
-		// every early return below leaves the first stage returnable, which is what puts the dagger
-		// back: only a turn that really produced a successor claims the return, so a turn that
-		// produced nothing costs the thrower nothing
+		// every early return below leaves the first stage returnable: only a turn that really produced
+		// a successor claims the return, so a turn that produced nothing costs the thrower nothing
 		if (level == null || level.isClientSide) return;
 		Vec3 heading = reAim(level, pos);
 		if (heading == null) return;
@@ -112,19 +94,16 @@ public class DaggerHomingTrail extends TrailAction {
 		danmaku.setup(DanmakuItems.Bullet.DAGGER.damage(), life, false, false, heading.scale(speed));
 		danmaku.moveTo(pos);
 		level.addFreshEntity(danmaku);
-		// set after the spawn: the returnability follows the claim, and the entity cannot tick until
-		// the next tick anyway. A refused claim means the first stage still owns the dagger, so a
-		// successor spawned anyway must not also be returnable — that is two out of one.
+		// set after the spawn: the entity cannot tick until the next tick anyway, and a refused claim
+		// means the first stage still owns the dagger, so a successor must not also be returnable
 		danmaku.setReturnable(firstStage != null && firstStage.handOffTo(true));
 		level.playSound(null, pos.x, pos.y, pos.z, SoundEvents.TRIDENT_HIT,
 				SoundSource.PLAYERS, 0.5F, 1.5F);
 	}
 
 	/**
-	 * The holder-carrying form, which a glove dagger never takes: its owner is the thrower, never
-	 * a {@code CardHolder}, so {@code terminate} takes its no-holder branch. It exists so that a
-	 * holder-carrying path cannot silently do nothing — it adopts the level off the holder when the
-	 * trail has lost its own, then defers to the same implementation.
+	 * The holder-carrying form, which a glove dagger never takes: its owner is the thrower, never a
+	 * {@code CardHolder}, so {@code terminate} takes its no-holder branch. It adopts the level off the holder.
 	 */
 	@Override
 	public void execute(CardHolder holder, Vec3 pos, Vec3 dir) {
@@ -135,9 +114,8 @@ public class DaggerHomingTrail extends TrailAction {
 	}
 
 	/**
-	 * The unit direction for the second stage, or null to end the shot. The target is re-read now
-	 * rather than reusing the position sampled at the throw: a target that has been walking during
-	 * the first stage's flight has usually moved several blocks.
+	 * The unit direction for the second stage, or null to end the shot. The target is re-read now rather
+	 * than reusing the position sampled at the throw: it has usually moved several blocks.
 	 */
 	@Nullable
 	private Vec3 reAim(ServerLevel level, Vec3 pos) {

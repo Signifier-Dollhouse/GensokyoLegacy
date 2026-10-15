@@ -100,7 +100,7 @@ public class GLDecoBlocks {
 									.texture("all", pvd.modLoc("block/misc/teddy_bear"))
 									.renderType("cutout")))
 					.item()
-					.properties(p -> p.stacksTo(1).rarity(Rarity.RARE))
+					.properties(p -> p.rarity(Rarity.RARE))
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
 					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(5, 1000, GiftType.TOY))
 					.dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(100))

@@ -12,12 +12,9 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-/**
- * Central registry for client-side entity glow effects (read by the single
- * entity glow mixin; {@code LevelRenderer} uses {@code getTeamColor} for the
- * outline). Rules are checked in registration order: the first non-null
- * color wins, so specific highlights (glove targets) must register before
- * blanket ones (strange glasses white-out).
+/** Central registry for the client-side entity glow effects the glow mixin reads. Rules are checked in
+ * registration order and the first non-null color wins, so specific highlights (glove targets) must
+ * register before blanket ones (strange glasses white-out).
  */
 public final class ClientGlowManager {
 

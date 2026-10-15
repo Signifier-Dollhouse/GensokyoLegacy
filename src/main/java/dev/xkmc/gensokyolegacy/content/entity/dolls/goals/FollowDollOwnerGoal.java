@@ -27,9 +27,8 @@ public class FollowDollOwnerGoal extends Goal {
     private static final double LOST_RANGE_SQ = 25;
 
     /**
-     * How long the owner must stay out of sight before the doll treats itself as
-     * lost and blinks back — one second, the grace period Alice's escort gets too
-     * (host.md §5.1).
+     * How long the owner must stay out of sight before the doll treats itself as lost and
+     * blinks back — the grace period Alice's escort gets too (host.md §5.1).
      */
     private static final int BLIND_TICKS = 20;
 
@@ -37,11 +36,8 @@ public class FollowDollOwnerGoal extends Goal {
     private LivingEntity owner;
     private int timeToRecalcPath;
 
-    /**
-     * Game time the owner was first lost from sight, -1 while it is visible. Game
-     * time rather than a tick counter, since a goal that does not override
-     * {@code requiresUpdateEveryTick} only ticks every other pass.
-     */
+    /** Game time the owner was first lost from sight, -1 while visible; a goal that does not override
+     * {@code requiresUpdateEveryTick} only ticks every other pass, so this is game time, not a tick counter. */
     private long unseenSince = -1;
 
     public FollowDollOwnerGoal(BaseDollEntity doll) {
@@ -50,10 +46,9 @@ public class FollowDollOwnerGoal extends Goal {
     }
 
     /**
-	 * Vertical semicircle behind the owner, in the plane perpendicular to the latched
-	 * formation yaw: slot 0..n-1 swing from one flank, up across the top and down to
-	 * the other, the middle slot directly above the owner as the arc's peak.
-	 */
+     * Vertical semicircle behind the owner, perpendicular to the latched formation yaw: slots
+     * swing from one flank up across the top to the other, the middle slot peaking over the owner.
+     */
     private static Vec3 formationPos(Vec3 ownerPos, double feetY, float yawDeg, int index, int total) {
         int n = Math.max(1, total);
         int i = Math.max(0, Math.min(index, n - 1));
@@ -73,11 +68,9 @@ public class FollowDollOwnerGoal extends Goal {
     }
 
     /**
-     * This doll's slot in the shared follow semicircle. Slot and count come from the
-     * cached fields the roster rebuild stamps each tick — no ledger scan here. The
-     * target never tracks the owner's live look vector: the formation yaw only
-     * re-anchors when the owner moves. Strays have left the ledger (no slot) and so
-     * hover over the owner instead. Null means "don't follow".
+     * This doll's slot in the shared follow semicircle, from the roster-rebuilt cached fields. The
+     * yaw only re-anchors when the owner moves, never on their live look vector. Strays hover
+     * overhead instead, and null means "don't follow".
      */
     @Nullable
     private Vec3 getTargetPos() {
@@ -92,14 +85,8 @@ public class FollowDollOwnerGoal extends Goal {
     }
 
     /**
-     * Snap to the formation slot when the doll is lost. Four conditions, all required:
-     * the owner resolves to a live entity in this doll's own level, the doll holds no
-     * command, the slot is more than {@link #LOST_RANGE_SQ} blocks away, and the owner
-     * has been out of sight for {@link #BLIND_TICKS}, in which case the slot must also
-     * be standable ({@link #landingSafe}).
-     * <p>
-     * Same level only: a doll is dimension-bound, so once the owner is gone the doll
-     * cannot follow across and its ledger entry reconciles it away instead.
+     * Snap to the formation slot when the doll is lost: same level, no command, further than
+     * {@link #LOST_RANGE_SQ}, blind for {@link #BLIND_TICKS} and standable ({@link #landingSafe}).
      * Teleporting is not velocity, so this does not violate the movement cap.
      */
     private boolean teleportToOwnerPos(Vec3 destination) {
@@ -121,9 +108,8 @@ public class FollowDollOwnerGoal extends Goal {
     }
 
     /**
-     * Whether the doll's own bounding box fits at {@code target}, translated from
-     * where the doll currently stands. The target is always within a few blocks of the
-     * owner, hence inside loaded chunks, so this never forces a chunk load.
+     * Whether the doll's own bounding box fits at {@code target}. The target is within a few blocks
+     * of the owner, hence inside loaded chunks, so this never forces a chunk load.
      */
     private boolean landingSafe(Vec3 target) {
         AABB box = this.doll.getBoundingBox().move(target.subtract(this.doll.position()));
@@ -131,9 +117,8 @@ public class FollowDollOwnerGoal extends Goal {
     }
 
     /**
-     * Restarts the blindness clock: a fresh follow run owes the owner a full grace
-     * period, so a doll that just came into range is never blinked back on a stale
-     * window.
+     * Restarts the blindness clock: a fresh follow run owes the owner a full grace period, so a doll
+     * that just came into range is never blinked back on a stale window.
      */
     private void trackSight() {
         if (this.doll.hasLineOfSight(this.owner)) {

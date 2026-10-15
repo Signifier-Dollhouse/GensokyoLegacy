@@ -81,9 +81,8 @@ public record StructureConfig(
 	}
 
 	/**
-	 * One character's visit schedule at this structure. Purely a length plus the
-	 * share of days she shows up at all - when she does, the window itself is
-	 * derived from the structure position, her type and the day (see
+	 * One character's visit schedule at this structure: a length plus the share of days she shows up
+	 * at all. The window itself comes from the structure position, her type and the day (see
 	 * {@code VisitTable}), so nothing here is per-day state.
 	 *
 	 * @param chance  share of days she visits at all, 0..1
@@ -107,9 +106,8 @@ public record StructureConfig(
 		}
 
 		/**
-		 * Today's length in ticks, or 0 for no visit. Scaled by the global
-		 * multiplier and capped at the visit window; the caller does the capping,
-		 * so nothing here needs to know how long a day is.
+		 * Today's length in ticks, or 0 for no visit, scaled by the global multiplier.
+		 * The visit window is capped by the caller, so nothing here needs to know how long a day is.
 		 */
 		public int rollStay(RandomSource rand, double multiplier) {
 			int min = scale(minStay, multiplier);

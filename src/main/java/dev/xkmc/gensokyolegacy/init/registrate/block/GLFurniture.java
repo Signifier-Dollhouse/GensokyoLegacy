@@ -264,9 +264,8 @@ public class GLFurniture {
 					.build()
 					.register();
 
-			// 桌面装饰：只能摆在工作台正上方的那一格上。
-			// 碰撞盒写成朝北的 VoxelBuilder，四个朝向由 allFaces 转出来；
-			// x 和 z 取成不一样，朝向转了才看得出来。
+			// 桌面装饰：只能摆在工作台正上方的那一格。碰撞盒写成朝北的 VoxelBuilder，四个朝向由
+			// allFaces 转出来，x 和 z 取成不一样，朝向转了才看得出来。
 			SEWING_MACHINE = reg.block("sewing_machine", p -> DelegateBlock.newBaseBlock(p,
 							BlockTemplates.HORIZONTAL,
 							// x 顶到格边（模型伸到 x18 的悬臂被裁掉），z 比 x 窄一圈

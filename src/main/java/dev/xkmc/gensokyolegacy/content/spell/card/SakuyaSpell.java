@@ -13,27 +13,8 @@ import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.phys.Vec3;
 
 /**
- * Time Sign "Infinity Blade" — three moves, all of them knives but the first.
- * <p>
- * The card has no phases: the red bubble fan and the orbiting knife ring both run for as long as the
- * card is active, and the knife storm hangs off damage instead of off the clock. That is why this is
- * an {@link ActualSpellCard} with two ordinary methods rather than the tick-per-phase script most of
- * the cards here use — there is no single moment at which "the third move" happens.
- * <ul>
- * <li><b>The fan.</b> Forty red bubbles every {@link #FAN_INTERVAL} ticks, scattered within
- * {@link #FAN_SPREAD} degrees of the target line on both axes, at {@link #FAN_MIN_SPEED} to
- * {@link #FAN_MAX_SPEED}. Each one's life is derived from the range it is meant to cover rather than
- * picked outright, so the scatter in speed does not also scatter in reach: a slow bubble and a fast
- * one both die around the same distance out, which is what keeps the fan a fan instead of a gradient
- * that thins out halfway to the target.</li>
- * <li><b>The ring.</b> Two knives every tick, 180 degrees apart on a {@link #ORBIT_RADIUS}-block circle
- * around the caster that turns once per second. Each is over-timed to {@link #KNIFE_LIFE_FACTOR}
- * times its own flight and hands off to a {@link SakuyaKnifeTrail} on expiry.</li>
- * <li><b>The storm.</b> {@link SakuyaKnifeStorm} in response to damage, on a {@link #HURT_COOLDOWN}
- * cooldown.</li>
- * </ul>
- * Every move is driven off {@link CardHolder#target()} and does nothing without one, which keeps a
- * youkai that has lost its prey from filling the level with knives aimed at nothing.
+ * Time Sign "Infinity Blade" — three moves, all knives but the first: a red bubble fan, an orbiting knife ring,
+ * and a storm hung off damage. No phases, so this is an {@link ActualSpellCard} with two ordinary methods.
  */
 @SerialClass
 public class SakuyaSpell extends ActualSpellCard {
@@ -67,9 +48,8 @@ public class SakuyaSpell extends ActualSpellCard {
 	}
 
 	/**
-	 * Forty bubbles in a loose cone at the target. Both the yaw and the pitch are scattered
-	 * independently and symmetrically about the target line, so the cone is symmetric rather than
-	 * lopsided the way a single spread angle applied to one axis would be.
+	 * Forty bubbles in a loose cone at the target. Yaw and pitch are scattered independently and
+	 * symmetrically about the target line, so the cone is symmetric rather than lopsided.
 	 */
 	private void fan(CardHolder holder, Vec3 target) {
 		var diff = target.subtract(holder.center());
@@ -87,9 +67,8 @@ public class SakuyaSpell extends ActualSpellCard {
 	}
 
 	/**
-	 * The ring. The circle is horizontal, at the caster's own centre height: knives thrown from
-	 * somewhere above or below her read as a dome, and the two halves of a rotating ring are only
-	 * legible as a ring when they share a plane.
+	 * The ring. The circle is horizontal, at the caster's own centre height: knives thrown from above
+	 * or below her read as a dome, and a rotating ring is only legible as a ring when its halves share a plane.
 	 */
 	private void orbit(CardHolder holder, Vec3 target) {
 		var center = holder.center();
@@ -101,10 +80,8 @@ public class SakuyaSpell extends ActualSpellCard {
 	}
 
 	/**
-	 * One knife, aimed at the target and given {@link #KNIFE_LIFE_FACTOR} times the ticks its flight
-	 * needs, so it arrives with the tail of its own flight still to run and {@link SakuyaKnifeTrail}
-	 * gets to send a second one back. The trail is set up here rather than left to the library, which
-	 * only does it for player casts — see that class.
+	 * One knife, over-timed to {@link #KNIFE_LIFE_FACTOR} times its flight so it arrives with the tail still to run and
+	 * {@link SakuyaKnifeTrail} sends a second one back; it is set up by hand, the library only does that for players.
 	 */
 	private void knife(CardHolder holder, Vec3 target, Vec3 pos) {
 		var diff = target.subtract(pos);
@@ -120,9 +97,8 @@ public class SakuyaSpell extends ActualSpellCard {
 	}
 
 	/**
-	 * The cooldown is checked here and not left to the storm, so a flurry of damage inside one window
-	 * produces one storm rather than one per hit. {@code super} still runs, so a card that wants
-	 * {@link #hit} counted is unaffected.
+	 * The cooldown is checked here rather than in the storm, so a flurry of damage inside one window produces
+	 * one storm rather than one per hit. {@code super} still runs, so a card wanting {@link #hit} is unaffected.
 	 */
 	@Override
 	public void hurt(CardHolder holder, DamageSource source, float amount) {

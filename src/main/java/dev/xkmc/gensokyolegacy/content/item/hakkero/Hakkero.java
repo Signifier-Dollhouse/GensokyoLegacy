@@ -33,19 +33,12 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * The finished Mini Hakkero, an improved copy of {@link HakkeroPrototype}. The prototype
- * leaked heat into the surrounding inventory and smelted whatever sat next to it; this one
- * keeps its fire inside, so it carries its own grid and only ever smelts what was put inside
- * it.
- *
- * <p>All of the state lives on the item ({@code DC_HAKKERO_INV}), so smelting runs from
- * {@link #inventoryTick} rather than from an open menu — see that method for the batching
- * scheme. Speed depends on fuel: idle it smelts at vanilla furnace rate, and a burning fuel
- * pushes it to {@link #MAX_SPEED}x while the fuel itself is consumed {@link #FUEL_DIVISOR}
- * times faster than it would be in a block furnace.
- *
- * <p>Held in the mainhand with a broom in the offhand it is a flight booster instead — see
- * {@link #use(Level, Player, InteractionHand)}.
+ * The finished Mini Hakkero, a sealed {@link HakkeroPrototype}: that one leaked heat into the
+ * surrounding inventory, this one carries its own grid. All state lives on the item
+ * ({@code DC_HAKKERO_INV}), so smelting runs from {@link #inventoryTick} rather than an open menu —
+ * see there for the batching scheme. A burning fuel pushes it to {@link #MAX_SPEED}x, consumed
+ * {@link #FUEL_DIVISOR} times faster than in a block furnace; with a broom in the offhand it is a
+ * flight booster instead — see {@link #use(Level, Player, InteractionHand)}.
  */
 public class Hakkero extends Item implements InvClickItem {
 
@@ -58,9 +51,8 @@ public class Hakkero extends Item implements InvClickItem {
 	 */
 	public static final int FUEL_DIVISOR = 10;
 	/**
-	 * How often the item does a catch-up batch while nobody is looking at it. A hakkero in a
-	 * closed inventory only runs on this cadence, which is also the granularity its client
-	 * tooltip replays at.
+	 * How often the item does a catch-up batch while nobody is looking at it — also the
+	 * granularity its client tooltip replays at.
 	 */
 	public static final int IDLE_BATCH = 20;
 	/** Thrust given by a kick paid for out of the fuel slot. */
@@ -94,13 +86,9 @@ public class Hakkero extends Item implements InvClickItem {
 	// ------------------------------------------------------------------ processing
 
 	/**
-	 * The single place smelting happens, whether the menu is open or not.
-	 *
-	 * <p>The item records the game time it last finished a batch at. While the menu is open
-	 * that is at most a tick or two behind, so this runs a tick at a time and the GUI looks
-	 * live. Left alone, batches only run once {@link #IDLE_BATCH} ticks have passed and
-	 * then replay all of them at once — a hakkero left in a pack costs nothing per tick, and
-	 * a client tooltip replays the very same gap to show where it has got to.
+	 * The single place smelting happens, open menu or not. Stamped at the last batch: while the menu
+	 * is open this runs a tick at a time so the GUI looks live, left alone it waits {@link #IDLE_BATCH}
+	 * and replays them at once, at no per-tick cost in a pack.
 	 */
 	@Override
 	public void inventoryTick(ItemStack stack, Level level, Entity entity, int slotId, boolean isSelected) {
@@ -121,10 +109,8 @@ public class Hakkero extends Item implements InvClickItem {
 	}
 
 	/**
-	 * Runs {@code ticks} ticks of smelting on the item in one go and stamps it.
-	 *
-	 * <p>The whole batch is written back once at the end, so a 20-tick catch-up produces one
-	 * data component write instead of twenty.
+	 * Runs {@code ticks} ticks of smelting on the item in one go and stamps it. The whole batch
+	 * is written back once at the end, so a 20-tick catch-up is one data component write.
 	 */
 	public static void process(ItemStack stack, Level level, int ticks) {
 		HakkeroMode mode = getMode(stack);
@@ -147,9 +133,8 @@ public class Hakkero extends Item implements InvClickItem {
 	private static boolean tickChannel(HakkeroData data, Level level, RecipeManager rm, HakkeroMode mode) {
 		boolean changed = false;
 		boolean cooking = data.hasWork(mode, level);
-		// A fuel burns only while something is actually being cooked, so an idle hakkero
-		// never eats one. This is checked before the channels run and again after, because
-		// a channel whose output is full does not count as work either.
+		// A fuel burns only while something is cooked, so an idle hakkero never eats one. Checked
+		// before and after the channels, because a channel with a full output does not count.
 		if (data.burnTime() > 0) {
 			if (cooking) {
 				data.setFuel(data.burnTime() - FUEL_DIVISOR, data.burnMax());
@@ -175,9 +160,8 @@ public class Hakkero extends Item implements InvClickItem {
 				}
 				continue;
 			}
-			// Look the recipe up once per channel and remember it by id. Without this the
-			// stored id stays null forever and the channel resets on every tick, which is
-			// a channel that never cooks anything at all.
+			// Look the recipe up once per channel and remember it by id, or the stored id
+			// stays null and the channel resets every tick and never cooks anything.
 			AbstractCookingRecipe rec = null;
 			if (data.recipe(i) != null) {
 				var found = rm.byKey(data.recipe(i));
@@ -196,11 +180,8 @@ public class Hakkero extends Item implements InvClickItem {
 			}
 			ItemStack result = rec.assemble(new SingleRecipeInput(in), level.registryAccess());
 			if (!accepts(data.raw(HakkeroData.CHANNELS + i), result)) continue;
-			// Progress is counted in the recipe's own units and the speed is how fast they
-			// accrue — the vanilla blast furnace's arrangement. Scaling the target by speed as
-			// well (as an earlier pass here did) makes progress non-monotonic: a channel at
-			// 100/200 that gains a fuel suddenly clears a 20-tick target and finishes at once.
-			// Counting this way, gaining or losing fuel only changes the rate, never the bar.
+			// Progress counts in recipe-time units and speed is the rate (blast furnace arrangement).
+			// Scaling the target by speed too made it non-monotonic: 100/200 plus fuel finished at once.
 			int done = data.cookTime(i) + speed;
 			if (done < rec.getCookingTime()) {
 				data.setCook(i, done, data.recipe(i));
@@ -244,18 +225,12 @@ public class Hakkero extends Item implements InvClickItem {
 	}
 
 	/**
-	 * Kicks the broom, spending one item out of the fuel slot for the privilege: it gives
-	 * {@link #THRUST_FUELLED} for a {@link #FUEL_DIVISOR}th of that item's burn time, and an
-	 * empty slot gets no kick at all — every thrust is paid for. Once it does fire, the
-	 * hakkero goes on cooldown for exactly as long as the thrust lasts, so it cannot be
-	 * spammed to hold a permanent boost.
-	 *
-	 * <p>The tick count comes from the item just consumed, never from
-	 * {@link HakkeroData#burnTime()} — that is the fuel already lit for smelting, and it is
-	 * the wrong number twice over. It is shared with the smelting timer, so kicking off it
-	 * made a boost free whenever the hakkero happened to be smelting; and it only decays
-	 * while something is actually cooking, so an idle hakkero never spends it and could
-	 * kick on the same frozen value indefinitely.
+	 * Kicks the broom, spending one item out of the fuel slot: {@link #THRUST_FUELLED} for a
+	 * {@link #FUEL_DIVISOR}th of that item's burn time, no kick at all from an empty slot, and a
+	 * cooldown as long as the thrust lasts. The tick count comes from the item just consumed, never
+	 * {@link HakkeroData#burnTime()} — the lit smelting fuel is shared with the smelting timer (so
+	 * kicking off it made a boost free while smelting) and frozen while idle (so an idle hakkero
+	 * could kick on the same value forever).
 	 */
 	private InteractionResultHolder<ItemStack> boost(ItemStack stack, BroomEntity broom, Player player, Level level) {
 		int time = burnTime(HakkeroData.of(stack).raw(HakkeroData.FUEL));
@@ -279,10 +254,8 @@ public class Hakkero extends Item implements InvClickItem {
 		return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
 	}
 
-	/**
-	 * Opens the menu from an inventory right-click. The cached mouse position matters here:
-	 * the window appears centred on the cursor, so without it the first click would land
-	 * wherever the pointer happened to be.
+	/** Opens the menu from an inventory right-click; the cached mouse position centres the
+	 * window on the cursor, so without it the first click lands wherever the pointer was.
 	 */
 	@Override
 	public void handleClick(ServerPlayer sp, PlayerSlot<?> slot) {
@@ -317,13 +290,8 @@ public class Hakkero extends Item implements InvClickItem {
 	}
 
 	/**
-	 * The contents, as seen <i>now</i>.
-	 *
-	 * <p>A closed hakkero only really updates every {@link #IDLE_BATCH} ticks, so the data on
-	 * the stack is up to a second stale. The gap between the recorded stamp and a smooth
-	 * client clock is replayed onto a copy here, and the tooltip is built from that — so the
-	 * image shows what the hakkero is genuinely doing now, and it changes every frame rather
-	 * than once a second.
+	 * Contents as seen <i>now</i>: the gap between the recorded stamp and a smooth client clock is
+	 * replayed onto a copy, so the image changes every frame, not once a second.
 	 */
 	@Override
 	public Optional<TooltipComponent> getTooltipImage(ItemStack stack) {
@@ -354,15 +322,8 @@ public class Hakkero extends Item implements InvClickItem {
 	}
 
 	/**
-	 * Replays {@code ticks} ticks of processing on a copy, for the tooltip. Runs the same
-	 * {@link #tickChannel} the item does, so what the tooltip shows is what the server will
-	 * actually have when it next catches up.
-	 *
-	 * <p>Fractional ticks are supported and are the point: the client asks for the gap up to
-	 * a smoothly-moving clock, so the whole ticks are run first and the remainder is added as
-	 * a fraction of one more. That is what makes the result advance every frame instead of
-	 * jumping once per tick — and, once the server only refreshes every second, instead of
-	 * jumping once per second.
+	 * Replays {@code ticks} ticks on a copy through the same {@link #tickChannel}, whole ones first
+	 * and the remainder as a fraction of one more — that is what advances the result every frame.
 	 */
 	public static HakkeroData simulate(ItemStack stack, Level level, double ticks) {
 		HakkeroData sim = HakkeroData.of(stack).copy();
@@ -377,10 +338,8 @@ public class Hakkero extends Item implements InvClickItem {
 	}
 
 	/**
-	 * Advances progress by a fraction of one tick: the channels that were already cooking get
-	 * their share of a step, and a fuel that was burning gives up its share of one tick's
-	 * burn. Nothing else changes — a channel cannot start or finish part-way through a tick,
-	 * so no item moves and no recipe is looked up.
+	 * Advances progress by a fraction of one tick: already-cooking channels and burning fuel get
+	 * their share of a step. Nothing else changes — a channel cannot start or finish mid-tick.
 	 */
 	private static void partialTick(HakkeroData sim, Level level, HakkeroMode mode, double rest) {
 		int speed = sim.burnTime() > 0 ? MAX_SPEED : 1;

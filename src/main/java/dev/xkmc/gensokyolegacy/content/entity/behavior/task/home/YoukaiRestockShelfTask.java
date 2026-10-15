@@ -24,14 +24,11 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Walk to a shelf in the home structure and fill it with a random item
- * from the given tag, so players can buy it. Shelves are handled as a group:
- * starting from one found shelf, all shelves up to 2 blocks away are collected
- * by BFS, then one shelf is picked at random. Empty shelves are prioritized;
- * when every shelf is stocked, restock is skipped most of the time, with a
- * configurable chance (see morichikaReplaceChance) to replace a stocked
- * shelf with a new item. Shelves owned by other players are skipped while
- * they hold an item, stock, or earnings; fully empty ones are claimed.
+ * Walk to a shelf in the home structure and fill it with a random item from the given tag, so
+ * players can buy it. Shelves are handled as a group: all within 2 blocks of one found shelf,
+ * collected by BFS, then one picked at random. Empty shelves are prioritized; otherwise restock is
+ * skipped most of the time, with a configurable chance (see morichikaReplaceChance) to replace a
+ * stocked shelf. Another player's shelf is skipped while it holds an item, stock or earnings.
  */
 public class YoukaiRestockShelfTask<E extends SmartYoukaiEntity> extends AbstractHomeHolderTask<E> {
 
@@ -98,9 +95,8 @@ public class YoukaiRestockShelfTask<E extends SmartYoukaiEntity> extends Abstrac
 	}
 
 	/**
-	 * Shelves placed by players keep their owner. A shelf owned by someone else is
-	 * left alone while it still holds an item mark, remaining stock, or uncollected
-	 * earnings. A fully empty player shelf may be claimed for the shop (see doRestock).
+	 * Shelves placed by players keep their owner. Another player's shelf is left alone while it
+	 * holds an item mark, remaining stock, or uncollected earnings; a fully empty one may be claimed.
 	 */
 	private static boolean isAvailableForRestock(ServerLevel level, BlockPos pos) {
 		if (!(level.getBlockEntity(pos) instanceof ShelfBlockEntity be)) return false;

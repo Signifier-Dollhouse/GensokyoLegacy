@@ -5,18 +5,11 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 
 /**
- * Go and get the dish she has committed to.
+ * Go and get the dish she has committed to. This task moves her and {@link DelayTask} is her
+ * deciding: she crosses first and hesitates at the dish, which is the only arrangement in which
+ * changing her mind at the last moment is representable at all.
  *
- * <p>
- * <b>This task moves her; {@link DelayTask} is her deciding.</b> She crosses to the dish
- * first and hesitates <i>at</i> it, which is the only arrangement in which changing her mind
- * at the last moment is representable at all.
- *
- * <p>
- * A dish already in reach skips the walk and goes straight to the decision, which is what
- * keeps most rounds of a laid banquet seated.
- *
- * @see doc/design/party/guest.md
+ * @see "doc/design/party/guest.md"
  */
 public class GoToFoodTask extends PartyTask {
 

@@ -5,36 +5,45 @@ import java.util.Locale;
 import java.util.Optional;
 
 /**
- * Standard one-shot animation slots for characters. Each slot has a trigger
- * name used in dialog data and as the GeckoLib triggerable key. Characters
- * map each slot to their own clip (possibly empty) via
- * {@link GeoYoukaiAnim#getAnim(YoukaiAnim)}.
+ * Every triggerable one-shot a character can play, in one vocabulary. Each slot has a trigger name used
+ * in dialog data and as the GeckoLib triggerable key; characters map each slot to their own clip
+ * (possibly empty) via {@link GeoYoukaiAnim#getAnim(YoukaiAnim)}.
  * <p>
- * Network sync uses {@code ordinal + offset} as the entity event id, so the
- * declaration order must stay stable — new slots go at the end, never in the
- * middle. Dolls use 66-70; characters use 71-83, then the chew and the hurt
- * reaction take 84-85 (see {@link GeoYoukaiAnim#EAT_EVENT}).
+ * Network sync uses {@code ordinal + offset} as the entity event id.
  * <p>
- * The thinking, talk and puzzled slots come in pairs because the current rigs
- * ship two variants of each ({@code 思考中_01}/{@code 思考中_02},
- * {@code 交流_01}..{@code 交流_05}, {@code 疑惑}); only one is ever played per
- * dialog, and which one is left to {@code GeoYoukaiAnim#broadcastDialogAnim}.
+ * {@link #EAT} and {@link #HURT} name clips the whole mod agrees on, so they can be named outright.
+ * {@link #TALK_SPECIAL_01} and {@link #SKILL_01} are numbered instead, because what they hold is up to the
+ * rig: Suika's are her lying-down talk ({@code 侧卧_交流}) and the sweep her spell card pulls with
+ * ({@code 聚集}), and a slot shared by every character cannot be named after one of them. The next rig to
+ * want a second special talk or a second skill takes {@code 02}.
  */
 public enum YoukaiAnim {
 
+	// common animations
 	USE_MAINHAND("use_mainhand"),
+	EAT("eat"),
+	HURT("hurt"),
+	OUTDOOR_IDLE("idle_outdoor"),
+	SKILL_01("skill_01"),
+	SKILL_02("skill_02"),
+	SKILL_03("skill_03"),
+	SKILL_04("skill_04"),
+	SKILL_05("skill_05"),
+
+	// dialog animations
 	GREET("dialog_greet"),
 	TALK_01("dialog_talk_01"),
 	TALK_02("dialog_talk_02"),
-	THINK("dialog_think"),
-	AGREE("dialog_agree"),
-	DECLINE("dialog_decline"),
-	OUTDOOR_IDLE("idle_outdoor"),
 	TALK_03("dialog_talk_03"),
 	TALK_04("dialog_talk_04"),
 	TALK_05("dialog_talk_05"),
+	THINK("dialog_think"),
 	THINK_02("dialog_think_02"),
-	CONFUSED("dialog_confused");
+	AGREE("dialog_agree"),
+	DECLINE("dialog_decline"),
+	CONFUSED("dialog_confused"),
+	TALK_SPECIAL_01("dialog_talk_special_01"),
+	TALK_SPECIAL_02("dialog_talk_special_02");
 
 	private final String trigger;
 
@@ -55,19 +64,15 @@ public enum YoukaiAnim {
 	public static final List<YoukaiAnim> TALKS = List.of(TALK_01, TALK_02, TALK_03, TALK_04, TALK_05);
 
 	/**
-	 * Whether this slot is part of a conversation, as opposed to a thing the brain
-	 * asks for: the hand use comes from a behaviour task and the outdoor idle from
-	 * the wander task, everything else is something she says.
+	 * Whether this slot is part of a conversation, as opposed to a thing the game asks for: the hand use
+	 * comes from a behaviour task, the outdoor idle from the wander task, the skills from spell cards, the
+	 * chew and the flinch from the eating and damage paths. Everything else is something she says.
 	 * <p>
-	 * A character whose dialog body animation changes with her state uses this to
-	 * decide which triggers to re-point - see {@code SuikaEntity}, which talks in a
-	 * different clip while she is lying down.
+	 * A character whose dialog body animation changes with her state uses this to decide which triggers to
+	 * re-point - see {@code SuikaEntity}, which talks in a different clip while she is lying down.
 	 */
 	public boolean isDialog() {
-		return switch (this) {
-			case USE_MAINHAND, OUTDOOR_IDLE -> false;
-			default -> true;
-		};
+		return ordinal() >= GREET.ordinal();
 	}
 
 	/**

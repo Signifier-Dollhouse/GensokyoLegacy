@@ -13,18 +13,12 @@ public record StructStructure(
 		ResourceLocation id, TagKey<Biome> biomes, int spacing, int attempts,
 		StructureConfig.Builder config,
 		List<StructBed> beds,
-		// Characters who do not live here but may turn up for a few minutes
-		// during the day. Authored here rather than per bed, because the pool
-		// belongs to the structure, not to its residents.
+		// Characters who do not live here but may turn up for a few minutes during the day. Authored here rather
+		// than per bed, because the pool belongs to the structure, not to its residents.
 		LinkedHashMap<EntityType<?>, StructureConfig.CharacterVisit> visits,
 		StructBuilding building,
-		// Structures sharing one set id are placed by a single StructureSet:
-		// every region randomly picks exactly one member (FlatCheckStructure
-		// setIndex/setCount gate), so members of a group can never spawn too
-		// close to each other. All members of a group must use the same
-		// spacing/attempts and equal weights, and share the set salt. setCount
-		// may exceed the registered member count: unassigned indices generate
-		// nothing and reserve room for future members without shifting picks.
+		// Structures sharing one set id are placed by a single StructureSet: every region picks exactly one member
+		// (setIndex/setCount gate), so a group never spawns too close. Members share spacing, weights and salt.
 		ResourceLocation set) {
 
 	public StructStructure(

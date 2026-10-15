@@ -94,7 +94,7 @@ public class GLNaturalBlocks {
 				.item()
 				.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
 				// TODO placeholder favor / cooldown
-				.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(5, 1000, GiftType.MAGIC))
+				.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(1, 1000, GiftType.MAGIC))
 				.dataMap(NeoForgeDataMaps.COMPOSTABLES, new Compostable(0.65f))
 				.tag(ItemTags.SMALL_FLOWERS)
 				.tab(ResourceKey.create(Registries.CREATIVE_MODE_TAB, GensokyoLegacy.loc("ingredients")))

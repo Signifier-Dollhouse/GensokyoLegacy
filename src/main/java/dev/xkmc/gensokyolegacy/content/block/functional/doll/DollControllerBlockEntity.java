@@ -29,16 +29,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * A doll controller block: it hosts its own resident {@link DollData} list (up to
- * {@link #MAX_DOLLS}) and is the {@link DollHost} of the {@link BaseDollEntity} instances it
- * deploys. Pairing is identical to the player ledger — each key is the deployed entity's own game
- * uuid, re-keyed before {@code addFreshEntity}, so a doll can never be in the world without a
- * SUMMONED entry here. Installed dolls are STORED with no uuid; the block is never owned by a
- * player, so a deployed doll has no owner and its follow/look goals stay dormant.
- *
- * @see doc/design/doll/controller.md
- */
+/** Hosts its own {@link DollData} list and is the {@link DollHost} of the dolls it deploys.
+ * The block is never owned by a player, so a deployed doll has no owner and its follow/look goals stay dormant.
+ * @see "doc/design/doll/controller.md" */
 @SerialClass
 public class DollControllerBlockEntity extends BaseBlockEntity implements TickableBlockEntity, DollHost {
 
@@ -99,11 +92,8 @@ public class DollControllerBlockEntity extends BaseBlockEntity implements Tickab
 		return false;
 	}
 
-	/**
-	 * Installs a doll item as a resident (STORED); the item is consumed. Item -> stored data
-	 * conversion mirrors {@code DollAttachment.summon} via {@link DollData#fromItemData}:
-	 * significant values only, no uuid. The initial spot is the center of the block above, so a
-	 * deployed doll hovers right above the block.
+	/** Installs a doll item as a resident (STORED), starting at the center of the block above;
+	 * conversion mirrors {@code DollAttachment.summon} via {@link DollData#fromItemData}: significant values, no uuid.
 	 */
 	public boolean install(ItemStack stack) {
 		if (!hasSpace()) return false;
@@ -136,10 +126,8 @@ public class DollControllerBlockEntity extends BaseBlockEntity implements Tickab
 		return true;
 	}
 
-	/**
-	 * Materializes a resident entry homed to this block and re-keys it to the entity's fresh game
-	 * uuid BEFORE {@code addFreshEntity}, so the join-level inverse check finds its SUMMONED entry.
-	 * The block's own sync is left to the caller.
+	/** Re-keys a resident entry to the entity's fresh game uuid BEFORE {@code addFreshEntity}, so the
+	 * join-level inverse check finds its SUMMONED entry. Sync is left to the caller.
 	 */
 	private boolean spawnFromData(DollData data, Vec3 pos) {
 		if (!(level instanceof ServerLevel sl) || data.type == null) return false;
@@ -221,10 +209,8 @@ public class DollControllerBlockEntity extends BaseBlockEntity implements Tickab
 		return true;
 	}
 
-	/**
-	 * The block was broken: never lose a doll. A deployed doll's item is dropped where the doll
-	 * currently is (its recorded spot if it has no live entity); every stored doll drops at the
-	 * block position.
+	/** The block was broken: never lose a doll. A deployed doll drops its item where it currently is (its
+	 * recorded spot if it has no live entity); stored dolls drop at the block position.
 	 */
 	public void onDestroy() {
 		if (level == null || level.isClientSide() || dolls.isEmpty()) return;

@@ -8,6 +8,9 @@ import dev.xkmc.gensokyolegacy.content.block.functional.alchemypot.AlchemyPotBlo
 import dev.xkmc.gensokyolegacy.content.block.functional.alchemypot.AlchemyPotRenderer;
 import dev.xkmc.gensokyolegacy.content.block.functional.barriers.SealingPotBlock;
 import dev.xkmc.gensokyolegacy.content.block.functional.barriers.SealingPotShape;
+import dev.xkmc.gensokyolegacy.content.block.functional.plate.PlateBlock;
+import dev.xkmc.gensokyolegacy.content.block.functional.plate.PlateBlockEntity;
+import dev.xkmc.gensokyolegacy.content.block.functional.plate.PlateRenderer;
 import dev.xkmc.gensokyolegacy.content.block.functional.portal.*;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.l2modularblock.core.BlockTemplates;
@@ -85,6 +88,9 @@ public class GLBlocks {
 
 	public static final BlockEntry<DelegateBlock> SEALING_POT;
 
+	public static final BlockEntry<DelegateBlock> PLATE;
+	public static final BlockEntityEntry<PlateBlockEntity> PLATE_BE;
+
 	public static final BlockEntry<YoukaiBedBlock>[] BEDS;
 	public static final BlockEntityEntry<YoukaiBedBlockEntity> BE_BED;
 
@@ -141,6 +147,23 @@ public class GLBlocks {
 					.item().model((ctx, pvd) -> pvd.withExistingParent(ctx.getName(), "item/generated")
 							.texture("layer0", pvd.modLoc("item/utensil/sealing_pot")))
 					.build()
+					.register();
+
+			// 盘子：放一份不带容器的食物，右键取回
+			PLATE = GensokyoLegacy.REGISTRATE.block("plate", p -> DelegateBlock.newBaseBlock(p,
+							BlockTemplates.HORIZONTAL, new PlateBlock(), PlateBlock.BE))
+					.properties(p -> p.mapColor(DyeColor.WHITE).strength(1.4F).sound(SoundType.STONE).noOcclusion())
+					.tag(BlockTags.MINEABLE_WITH_PICKAXE)
+					.blockstate((ctx, pvd) -> pvd.horizontalBlock(ctx.get(),
+							pvd.models().getBuilder(ctx.getName())
+									.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/utensil/plate")))
+									.texture("all", pvd.modLoc("block/utensil/plate"))
+									.renderType("cutout")))
+					.simpleItem()
+					.register();
+			PLATE_BE = GensokyoLegacy.REGISTRATE.blockEntity("plate", PlateBlockEntity::new)
+					.validBlock(PLATE)
+					.renderer(() -> PlateRenderer::new)
 					.register();
 
 		}

@@ -40,7 +40,7 @@ import java.util.Optional;
 /**
  * The item form of a doll: while a doll is an item, the item is the sole authoritative copy.
  *
- * @see doc/design/doll/item.md
+ * @see "doc/design/doll/item.md"
  */
 public class DollItem extends Item implements InvClickItem {
 
@@ -55,10 +55,9 @@ public class DollItem extends Item implements InvClickItem {
 	}
 
 	/**
-	 * Builds a doll item from a {@link DollData}, the inverse of {@link DollData#fromItemData}:
-	 * combat into {@code DOLL_DATA}, name into {@code CUSTOM_NAME}, tint into {@code DOLL_COLOR},
-	 * loadout into {@code DOLL_LOADOUT}. {@code null} (and {@link #blank()}) yields a fresh,
-	 * component-less doll.
+	 * Builds a doll item from a {@link DollData}, the inverse of {@link DollData#fromItemData}: combat
+	 * into {@code DOLL_DATA}, name into {@code CUSTOM_NAME}, tint into {@code DOLL_COLOR}, loadout
+	 * into {@code DOLL_LOADOUT}. {@code null} (and {@link #blank()}) yields a fresh, component-less doll.
 	 */
 	public static ItemStack makeItem(@Nullable DollData data) {
 		if (data == null) return blank();
@@ -93,9 +92,8 @@ public class DollItem extends Item implements InvClickItem {
 		return 0xff000000 | colorOf(stack).getTextColor();
 	}
 
-	// ---- health as a durability bar ----
-	// A component-less doll is full health and shows no bar; a damaged doll shows remaining
-	// health scaled over the doll entity's default max health.
+	// A component-less doll is full health and shows no bar; a damaged doll shows remaining health
+	// scaled over the doll entity's default max health.
 
 	@Override
 	public boolean isBarVisible(ItemStack stack) {

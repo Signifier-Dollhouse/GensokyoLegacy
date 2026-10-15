@@ -13,7 +13,7 @@ import java.util.UUID;
 /**
  * Per-chunk effect id set; all resolving logic lives in {@link AreaChunkHolder}.
  *
- * @see doc/design/area_effect.md
+ * @see "doc/design/area_effect.md"
  */
 @SerialClass
 public class ChunkAreaAttachment extends GeneralCapabilityTemplate<LevelChunk, ChunkAreaAttachment> {

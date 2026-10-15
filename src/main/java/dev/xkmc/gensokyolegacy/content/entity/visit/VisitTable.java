@@ -9,25 +9,23 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.EntityType;
 
 /**
- * When a character visits a given home, as a pure function of the host position,
- * the guest type and the game day. Nothing is persisted, so the spawner asking
- * "is she due?" and the visitor asking "am I still due?" cannot disagree.
+ * When a character visits a given home, a pure function of the host position, the guest type and the
+ * game day. Nothing is persisted, so the spawner asking "is she due?" and the visitor asking "am I
+ * still due?" cannot disagree.
  *
- * @see doc/design/character_visit.md
+ * @see "doc/design/character_visit.md"
  */
 public class VisitTable {
 
 	/**
-	 * Visits happen in the first half of the day only. The window closes where
-	 * the default schedule switches to {@code Activity.REST}, so a guest is never
-	 * on site while her host is asleep.
+	 * Visits happen in the first half of the day only. The window closes where the default schedule
+	 * switches to {@code Activity.REST}, so a guest is never on site while her host is asleep.
 	 */
 	public static final int WINDOW = 12000;
 
 	/**
-	 * Ticks left in the current window, or 0 when she should not be here. Answers
-	 * for the level's current day time, so {@code /time set} moves the window
-	 * rather than leaving anything stale behind.
+	 * Ticks left in the current window, or 0 when she should not be here. Answers for the level's
+	 * current day time, so {@code /time set} moves the window rather than leaving anything stale behind.
 	 */
 	public static int remaining(ServerLevel sl, StructureKey host, EntityType<?> guest) {
 		if (!sl.dimension().location().equals(host.dim())) return 0;

@@ -29,6 +29,7 @@ import dev.xkmc.gensokyolegacy.content.entity.misc.FairyIce;
 import dev.xkmc.gensokyolegacy.content.entity.misc.FrozenFrog;
 import dev.xkmc.gensokyolegacy.content.entity.misc.HexBrewBottleEntity;
 import dev.xkmc.gensokyolegacy.content.entity.misc.IronDaggerBulletEntity;
+import dev.xkmc.gensokyolegacy.content.entity.module.EntityInteractions;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.BossYoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.GeneralYoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.GeneralYoukaiRenderer;
@@ -153,6 +154,7 @@ public class GLEntities {
 					)))
 					.dataMap(GLMeta.PARTY_TASTE.reg(), TASTE_CIRNO)
 					.register();
+			EntityInteractions.register(CIRNO.getId(), CirnoEntity::interactions);
 		}
 
 		{
@@ -273,6 +275,7 @@ public class GLEntities {
 							Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, PlainFairyEntity::checkFairySpawnRules,
 							RegisterSpawnPlacementsEvent.Operation.REPLACE)
 					.register();
+			EntityInteractions.register(PLAIN_FAIRY.getId(), PlainFairyEntity::interactions);
 		}
 
 		{

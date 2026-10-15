@@ -513,7 +513,9 @@ FURNACE_2_BOOST("Held in main hand while riding a broom, right click to burn fue
 		FURNACE_2_LORE("A portable magical furnace with the leaks sealed. Smelts what you put in it, and rather too fast at that.", 0, ChatFormatting.GRAY),
 		STRAW_HAT_LORE("Woven by someone with four legs, for a frog with a very large appetite.", 0, ChatFormatting.GRAY),
 		SUWAKO_HAT_LORE("A river god's hat, traded for a frog's very specific appetite.", 0, ChatFormatting.GRAY),
-		KOISHI_HAT_LORE("Taken off a third party, and it never stopped sulking about it.", 0, ChatFormatting.GRAY);
+		KOISHI_HAT_LORE("Taken off a third party, and it never stopped sulking about it.", 0, ChatFormatting.GRAY),
+		ICE_WINGS_LORE("Six crystals, and it is suddenly very hard to count past nine.", 0, ChatFormatting.GRAY),
+		FAIRY_WINGS_LORE("A fairy's wing, priced at half of whatever the wearer has.", 0, ChatFormatting.GRAY);
 
 		private final String def;
 		private final int argn;
@@ -553,7 +555,8 @@ FURNACE_2_BOOST("Held in main hand while riding a broom, right click to burn fue
 		HAS_ABILITY("gensokyo roles"),
 		UNKNOWN("???", 0, ChatFormatting.GRAY),
 		GIFT_FAVOR("Favor: %s", 1),
-		GIFT_TYPE("Type: %s", 1);
+		GIFT_TYPE("Type: %s", 1),
+		INFINITE("Never runs out", 0, ChatFormatting.AQUA);
 
 		private final String def;
 		private final int argn;
@@ -800,7 +803,9 @@ FURNACE_2_BOOST("Held in main hand while riding a broom, right click to burn fue
 	public enum Jei implements LangEntry {
 		ALCHEMY("jei.gensokyolegacy.alchemy", "Alchemy Pot"),
 		TRADE("jei.gensokyolegacy.trade", "Trade"),
-		QUEST("jei.gensokyolegacy.quest", "Quest Rewards");
+		QUEST("jei.gensokyolegacy.quest", "Quest Rewards"),
+		GIFT("jei.gensokyolegacy.gift", "Party Gifts"),
+		INTERACTION("jei.gensokyolegacy.interaction", "Entity Interaction");
 
 		private final String def;
 		private final int argn;
@@ -851,7 +856,15 @@ FURNACE_2_BOOST("Held in main hand while riding a broom, right click to burn fue
 		COUNT_UNKNOWN("?", 0),
 		REWARD_EXP("%s experience", 1),
 		REWARD_REPUTATION("%s reputation", 1),
-		REWARD_LOOT("Loot table: %s", 1);
+		REWARD_LOOT("Loot table: %s", 1),
+		GIFT_BAND("%s-%s", 2),
+		GIFT_BAND_TOP("%s+", 1),
+		GIFT_CHANCE("Chance: %s%%", 1),
+		GIFT_NOTE("One gift each; the appeal she ate picks how generous she is", 0),
+		MORE_RUNGS("+%s more rungs", 1),
+		KIND_FEED("Feeding", 0),
+		FEED_WORTH("+%s reputation", 1),
+		FEED_NOTE("Right-click her with it; the thank-you only lands once she no longer counts you an enemy, and feeding on its own caps at %s reputation", 1);
 
 		private final String def;
 		private final int argn;

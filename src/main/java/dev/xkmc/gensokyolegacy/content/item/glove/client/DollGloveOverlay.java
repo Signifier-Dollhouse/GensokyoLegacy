@@ -13,12 +13,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Hover readout (glove.md §2b): while holding the glove with no screen open, hovering a doll shows
- * its name plus the loadout in the menu's cross arrangement, the same presentation as
- * ModularGolems' equipment overlay. Loadout stacks come from the doll's synced client mirror, and
- * the hovered doll comes from {@code GloveDollHover}, never the target cache. Display-only.
+ * Hover readout (glove.md §2b): while holding the glove with no screen open, hovering a doll shows its name
+ * plus the loadout in the menu's cross arrangement, as ModularGolems' equipment overlay does. Stacks come
+ * from the doll's synced client mirror and the doll from {@code GloveDollHover}, never the target cache.
  *
- * @see doc/design/doll/glove.md
+ * @see "doc/design/doll/glove.md"
  */
 public class DollGloveOverlay implements LayeredDraw.Layer {
 

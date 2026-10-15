@@ -8,14 +8,9 @@ import dev.xkmc.gensokyolegacy.content.rpg.quest.QuestCondition;
 import net.minecraft.server.level.ServerPlayer;
 
 /**
- * Restricts a chat, quest or trade to characters who are (or are not) guests at
- * somebody's party.
- * <p>
- * A party guest is the same {@code EntityType} as the resident, so nothing about
- * the entry itself distinguishes the two — only this condition does. Party-only
- * content needs it because a guest is being fed rather than going about her day;
- * home-bound content needs {@code invert}, the same shape as
- * {@link HomeBoundCondition}.
+ * Restricts a chat, quest or trade to characters who are (or are not) guests at somebody's party. A party guest is the
+ * same {@code EntityType} as the resident, so only this condition tells them apart; home-bound content needs {@code
+ * invert}, the same shape as {@link HomeBoundCondition}.
  */
 public record PartyCondition(
 		boolean invert

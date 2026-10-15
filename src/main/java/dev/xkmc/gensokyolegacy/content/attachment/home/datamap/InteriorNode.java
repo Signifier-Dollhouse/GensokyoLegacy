@@ -3,17 +3,11 @@ package dev.xkmc.gensokyolegacy.content.attachment.home.datamap;
 import net.minecraft.core.BlockPos;
 
 /**
- * A staged-pathfinding waypoint inside a structure, in template-local coords.
- * Rooms are referenced by index into {@link StructureInterior#rooms()}.
- * Room boxes are disjoint; a shared doorway sits at their boundary.
- * <ul>
- * <li>{@code roomB == -1}: house entry/exit, position in {@code roomA}.</li>
- * <li>{@code posA} equals {@code posB}: shared doorway at the boundary of
- * both rooms; the position sits in {@code roomA}.</li>
- * <li>{@code posA} differs from {@code posB}: dual linkage, {@code posA} in
- * {@code roomA} leads to {@code posB} in {@code roomB} (e.g. stair base/head
- * staging cells clear of the stair run itself).</li>
- * </ul>
+ * A staged-pathfinding waypoint in template-local coords; rooms are indices into
+ * {@link StructureInterior#rooms()}. Room boxes are disjoint; a shared doorway sits at their
+ * boundary. {@code roomB == -1} is the house entry/exit in {@code roomA}; {@code posA == posB} is
+ * a shared doorway, also in {@code roomA}; otherwise a dual linkage: {@code posA} in {@code roomA}
+ * leads to {@code posB} in {@code roomB} — stair base/head staging cells.
  */
 public record InteriorNode(
 		BlockPos posA,

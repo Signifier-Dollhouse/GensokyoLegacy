@@ -8,7 +8,6 @@ import org.jetbrains.annotations.Nullable;
 /**
  * What sort of party one character will attend and how she behaves at one, from the
  * {@code party_taste} entity-type data map. A character with no row does not come at all.
- *
  * @param weight        her share of the draw at full interest; 100 is ordinary, 0 means
  *                      she is never drawn
  * @param minReputation below this she declines, whatever is on the table
@@ -22,7 +21,7 @@ import org.jetbrains.annotations.Nullable;
  * @param leaveChance   chance, per {@code fullSeat} spent, that she calls it a day
  * @param repGain       share of the appeal a guest consumed, paid to the host in
  *                      reputation with her; 0.05 means 5%
- * @see doc/design/party/select.md
+ * @see "doc/design/party/select.md"
  */
 public record PartyTaste(
 		int weight,
@@ -59,10 +58,9 @@ public record PartyTaste(
 		return Math.max(1, (int) Math.floor(appeal * repGain));
 	}
 
-	/**
-	 * This character's taste, or <b>null</b> when she has no authored row — which means she
-	 * is not party-eligible. Never fall back to {@link #DEF} here: that null is what makes
-	 * the data map the eligibility list.
+	/** This character's taste, or <b>null</b> when she has no authored row — she is then not
+	 * party-eligible. Never fall back to {@link #DEF} here: that null is what makes the data map the
+	 * eligibility list.
 	 */
 	@Nullable
 	public static PartyTaste of(RegistryAccess access, EntityType<?> type) {

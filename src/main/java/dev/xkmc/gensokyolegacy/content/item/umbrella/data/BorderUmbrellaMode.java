@@ -33,9 +33,7 @@ public enum BorderUmbrellaMode {
 
 	/**
 	 * Sub-model id suffix for this mode's icon
-	 * ({@code item/border_umbrella/border_umbrella_icon_<name>}), mirroring
-	 * {@code DollGloveMode.iconName}: the enum names already match the
-	 * provided texture files.
+	 * ({@code item/border_umbrella/border_umbrella_icon_<name>}), mirroring {@code DollGloveMode.iconName}.
 	 */
 	public String iconName() {
 		return name().toLowerCase(Locale.ROOT);

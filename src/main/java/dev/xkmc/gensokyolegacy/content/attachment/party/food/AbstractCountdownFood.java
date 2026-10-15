@@ -7,12 +7,10 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import org.jetbrains.annotations.Nullable;
 
-/**
- * Shared serve count and consume for block foods that count themselves down as they are eaten.
- * The direction is read off the block, never assumed: a fresh state sitting at the property
- * maximum counts down (servings left), one at the minimum counts up (bites taken).
- *
- * @see doc/design/party/food_mods.md
+/** Shared serve count and consume for block foods that count themselves down as they are eaten.
+ * The direction is read off the block, never assumed: a fresh state at the property maximum
+ * counts down (servings left), one at the minimum counts up (bites taken).
+ * @see "doc/design/party/food_mods.md"
  */
 public abstract class AbstractCountdownFood implements BlockFoodHandler {
 
@@ -47,10 +45,8 @@ public abstract class AbstractCountdownFood implements BlockFoodHandler {
 		return countsDown(state, left) ? next : next + 1;
 	}
 
-	/**
-	 * The block's own serve-count property, found by name because the
+	/** The block's own serve-count property, found by name because the
 	 * {@code IntegerProperty} instances belong to the other mods.
-	 *
 	 * @return null when the block has no counter
 	 */
 	@Nullable

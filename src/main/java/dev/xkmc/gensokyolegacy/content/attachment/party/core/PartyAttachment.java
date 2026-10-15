@@ -1,7 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.attachment.party.core;
 
 import dev.xkmc.gensokyolegacy.content.attachment.area.ChunkPosRange;
-import dev.xkmc.gensokyolegacy.init.data.GLTagGen;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
 import dev.xkmc.l2core.capability.attachment.GeneralCapabilityTemplate;
 import dev.xkmc.l2serial.serialization.marker.SerialClass;
@@ -22,7 +21,7 @@ import java.util.UUID;
  * One party's state, on the chunk holding the centre of its food. The roster is frozen at
  * send and never recomputed, which is what lets a preview predict a send exactly.
  *
- * @see doc/design/party/state.md
+ * @see "doc/design/party/state.md"
  */
 @SerialClass
 public class PartyAttachment extends GeneralCapabilityTemplate<LevelChunk, PartyAttachment> {
@@ -107,9 +106,17 @@ public class PartyAttachment extends GeneralCapabilityTemplate<LevelChunk, Party
 	@SerialField
 	private int emptyScans = 0;
 
-	/** Backstop against one stuck guest pinning the chunk's party open for ever. */
+	/** Backstop against one stuck guest pinning the chunk's party open for ever, stamped from the
+	 * last unseat rather than from CLOSING — see {@link #startClosingClock}. */
 	@SerialField
 	private long closingAt = 0;
+
+	/**
+	 * When the next gathering rocket is due, or 0 while nobody is sitting at the table yet. Held
+	 * here rather than in the ticker so a chunk unload does not restart the gap.
+	 */
+	@SerialField
+	private long sparkAt = 0;
 
 	// Not a SerialField, so null in a freshly deserialized attachment. Every lookup goes
 	// through the helpers below, which rebind it.
@@ -185,22 +192,21 @@ public class PartyAttachment extends GeneralCapabilityTemplate<LevelChunk, Party
 	}
 
 	/**
-	 * The chair this guest gets, claiming it for her: her own while it survives, otherwise
-	 * the free chair nearest where she stands.
+	 * The chair this guest gets, claiming it for her: her own while it survives, else the free chair
+	 * nearest her.
 	 * <p>
-	 * <b>Null means there is nothing to give her</b> — every chair claimed or none at all.
-	 * Callers ask whether a chair is hers rather than whether a chair exists, because
-	 * another guest's chair is never offered to her twice.
+	 * <b>Null means there is nothing to give her</b> — every chair claimed or none at all. Callers ask
+	 * whether a chair is hers rather than whether one exists: another guest's chair is never offered
+	 * to her twice.
 	 *
 	 * @param guest who is asking, by id: her position is what "nearest" is nearest to
-	 * @param hers  the chair she believes she has, or null. Advisory only — the answer
-	 *              comes from the party's record
+	 * @param hers  the chair she believes she has, or null. Advisory only — the answer comes from the
+	 *              party's record
 	 */
 	@Nullable
 	public BlockPos claimSeat(ServerLevel level, UUID guest, @Nullable BlockPos hers) {
-		// Her own claim first, asked of the party's record: she does not record a chair
-		// until she is sitting on it, so an interrupted walk would otherwise leave the
-		// first one claimed for ever.
+		// Her own claim first, from the party's record: she records a chair only once sitting on
+		// it, so an interrupted walk would otherwise leave the first one claimed for ever.
 		for (var entry : claims.entrySet()) {
 			if (!guest.equals(entry.getValue())) continue;
 			if (seats.contains(entry.getKey())) return entry.getKey();
@@ -216,7 +222,7 @@ public class PartyAttachment extends GeneralCapabilityTemplate<LevelChunk, Party
 		for (var pos : seats) {
 			if (claims.containsKey(pos)) continue;
 			// the list is stale, so a chair broken since would be handed out
-			if (!level.getBlockState(pos).is(GLTagGen.PARTY_SEAT)) continue;
+			if (!PartyArea.isSeatState(level.getBlockState(pos))) continue;
 			double dist = pos.distSqr(from);
 			if (dist >= bestDist) continue;
 			bestDist = dist;
@@ -271,9 +277,23 @@ public class PartyAttachment extends GeneralCapabilityTemplate<LevelChunk, Party
 		return emptyScans >= 2;
 	}
 
-	/** When the party entered CLOSING, or 0 while it has not. */
+	/** When the last guest stood up to leave, or 0 while one is still sitting. */
 	public long closingAt() {
 		return closingAt;
+	}
+
+	/** When the next gathering rocket is due, or 0 before the first guest sits. */
+	public long sparkAt() {
+		return sparkAt;
+	}
+
+	/**
+	 * Move the next gathering rocket. The clock belongs to {@link PartyTicker}; the party only
+	 * keeps the time, so the gap survives a chunk unload the way the rest of the party does.
+	 */
+	public void sparkAt(long gameTime) {
+		sparkAt = gameTime;
+		dirty();
 	}
 
 	/**
@@ -331,9 +351,9 @@ public class PartyAttachment extends GeneralCapabilityTemplate<LevelChunk, Party
 	}
 
 	/**
-	 * Freeze the roster, open the party, and seed the caches from the walk the send has
-	 * just done rather than sweeping again. Only the food and chairs inside the guest box
-	 * are seeded: a guest is only ever offered what she could walk to.
+	 * Freeze the roster, open the party, and seed the caches from the send's walk rather than
+	 * sweeping again. Only food and chairs inside the guest box are seeded: a guest is only ever
+	 * offered what she could walk to.
 	 */
 	public void start(LevelChunk chunk, long gameTime, UUID host, BlockPos anchor,
 			List<EntityType<?>> roster, int hunger, List<BlockPos> food, List<BlockPos> seats) {
@@ -353,6 +373,7 @@ public class PartyAttachment extends GeneralCapabilityTemplate<LevelChunk, Party
 		this.admitted = 0;
 		this.emptyScans = 0;
 		this.closingAt = 0;
+		this.sparkAt = 0;
 		this.foodScannedAt = gameTime;
 		this.layoutScannedAt = gameTime;
 		this.food.clear();
@@ -378,11 +399,23 @@ public class PartyAttachment extends GeneralCapabilityTemplate<LevelChunk, Party
 		}
 	}
 
-	/** Move to CLOSING, stamping when — the backstop for a guest whose walk off never finishes. */
-	public void close(long gameTime) {
-		if (phase == Phase.CLOSING) return;
-		closingAt = gameTime;
+	/**
+	 * Move to CLOSING. The backstop is deliberately <b>not</b> stamped here: it starts when the
+	 * last guest stands up ({@link #startClosingClock}), because a guest still sitting out her
+	 * unseat wait is not a guest who cannot leave.
+	 */
+	public void close() {
 		setPhase(Phase.CLOSING);
+	}
+
+	/**
+	 * Stamp the backstop, once. Called when the last guest is off her chair: from there the party
+	 * is only waiting on walks, and a guest who cannot finish one is a stuck guest.
+	 */
+	public void startClosingClock(long gameTime) {
+		if (closingAt > 0) return;
+		closingAt = gameTime;
+		dirty();
 	}
 
 	/** Hunger actually consumed by the guests so far. */
@@ -412,6 +445,7 @@ public class PartyAttachment extends GeneralCapabilityTemplate<LevelChunk, Party
 		admitted = 0;
 		emptyScans = 0;
 		closingAt = 0;
+		sparkAt = 0;
 		dirty();
 	}
 
@@ -460,8 +494,8 @@ public class PartyAttachment extends GeneralCapabilityTemplate<LevelChunk, Party
 
 	/**
 	 * The active party within {@code radius} blocks. A party lives in the chunk holding the
-	 * <b>centre of its food</b>, not of its anchor table, so asking "is there a party at
-	 * this table?" needs the neighbourhood rather than one chunk.
+	 * <b>centre of its food</b>, not of its anchor table, so asking "is there a party at this
+	 * table?" needs the neighbourhood rather than one chunk.
 	 */
 	@Nullable
 	public static PartyAttachment near(ServerLevel level, BlockPos pos, int radius) {

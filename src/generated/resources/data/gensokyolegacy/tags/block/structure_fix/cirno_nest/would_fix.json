@@ -1,0 +1,24 @@
+{
+  "values": [
+    "minecraft:barrel",
+    "minecraft:light_blue_stained_glass",
+    "minecraft:light",
+    "gensokyolegacy:sturdy_teddy_bear",
+    {
+      "id": "gensokyolegacy:ice_brick_slab",
+      "required": false
+    },
+    {
+      "id": "gensokyolegacy:ice_brick_stairs",
+      "required": false
+    },
+    {
+      "id": "gensokyolegacy:spruce_large_table",
+      "required": false
+    },
+    {
+      "id": "gensokyolegacy:spruce_chair",
+      "required": false
+    }
+  ]
+}

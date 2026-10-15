@@ -180,10 +180,8 @@ public abstract class YoukaiEntity extends DamageClampEntity implements SpellCir
 	}
 
 	/**
-	 * The bitfield is an {@code int} and has to stay one: these used to be cast to
-	 * {@code byte}, which silently dropped any flag past the eighth bit on the way in.
-	 * Harmless while {@link YoukaiFlags} only reached ordinal 7, but it made the ninth
-	 * flag - and every flag after it - impossible to set at all.
+	 * The bitfield is an {@code int} and has to stay one: these used to be cast to {@code byte}, silently
+	 * dropping any flag past the eighth bit, which made the ninth flag and every one after it unsettable.
 	 */
 	public void setFlag(YoukaiFlags val, boolean enable) {
 		int b0 = this.entityData.get(DATA_FLAGS_ID);
@@ -209,9 +207,8 @@ public abstract class YoukaiEntity extends DamageClampEntity implements SpellCir
 		tickTargeting();
 		tickSpell();
 		if (isSleeping()) {
-			// Sleep freeze: no brain behavior may move the entity while it sleeps,
-			// so drop any stale navigation / control orders and kill momentum.
-			// (travel/push overrides below enforce the same freeze client-side.)
+			// Sleep freeze: no brain behavior may move the entity while it sleeps, so drop any stale
+			// navigation / control orders and kill momentum (travel/push enforce the same freeze).
 			getNavigation().stop();
 			navCtrl.stopMoving();
 			setDeltaMovement(Vec3.ZERO);
@@ -235,9 +232,8 @@ public abstract class YoukaiEntity extends DamageClampEntity implements SpellCir
 	}
 
 	/**
-	 * Whether this character is currently paying a visit to someone else's home.
-	 * A visitor has no {@link HomeModule} binding, so it can neither sleep nor
-	 * claim a bed, and the quest/dialog layer treats it as a guest.
+	 * Whether this character is visiting someone else's home. A visitor has no {@link HomeModule} binding,
+	 * so it can neither sleep nor claim a bed, and the quest/dialog layer treats it as a guest.
 	 */
 	public boolean isVisiting() {
 		return getFlag(YoukaiFlags.VISITING);
@@ -252,54 +248,19 @@ public abstract class YoukaiEntity extends DamageClampEntity implements SpellCir
 	}
 
 	/**
-	 * Play this character's chew, if she has one.
-	 * <p>
-	 * An entity event rather than a direct animation call, so the client sees the same
-	 * animation the server timed the rest of the meal against.
-	 * <p>
-	 * Silent for a character that is not geo-animated at all, which is the honest answer: the
-	 * clip is per rig, and an eat animation is missing art rather than a missing system. Every
-	 * rig that has one says so with {@code GeoYoukaiAnim#hasEatAnim}, and the event is
-	 * what picks it up, so nothing here has to know which characters those are.
-	 */
-	public void broadcastEat() {
-		if (this instanceof GeoYoukaiAnim && !level().isClientSide()) {
-			level().broadcastEntityEvent(this, GeoYoukaiAnim.EAT_EVENT);
-		}
-	}
-
-	/**
-	 * Ticks between two hurt reactions. A spell card lands danmaku every few ticks, and a
-	 * flinch restarted on each one reads as a stutter rather than as a hit, so the
-	 * reaction is rate-limited rather than fired once per damage instance. The clip itself
-	 * is half a second long, which is what sets the number.
+	 * Ticks between two hurt reactions. Danmaku lands every few ticks and a flinch restarted on each one
+	 * reads as a stutter rather than a hit; the clip itself is half a second long, which sets the number.
 	 */
 	private static final int HURT_ANIM_COOLDOWN = 10;
 
 	private int lastHurtAnim = -HURT_ANIM_COOLDOWN;
-
-	/**
-	 * Play this character's flinch, if she has one.
-	 * <p>
-	 * An entity event rather than a direct animation call, for the same reason as
-	 * {@link #broadcastEat()}: the client has to see the reaction the server played.
-	 * <p>
-	 * Silent for a character that is not geo-animated, and for a rig with no
-	 * {@code 受伤} clip — the flinch is missing art, not a missing system, and every rig
-	 * that has one opts in with {@code GeoYoukaiAnim#hasHurtAnim}.
-	 */
-	public void broadcastHurt() {
-		if (this instanceof GeoYoukaiAnim && !level().isClientSide()) {
-			level().broadcastEntityEvent(this, GeoYoukaiAnim.HURT_EVENT);
-		}
-	}
 
 	@Override
 	protected void postHurt(DamageSource source) {
 		super.postHurt(source);
 		if (tickCount - lastHurtAnim < HURT_ANIM_COOLDOWN) return;
 		lastHurtAnim = tickCount;
-		broadcastHurt();
+		YoukaiAnim.HURT.play(this);
 	}
 
 	@Override
@@ -343,7 +304,7 @@ public abstract class YoukaiEntity extends DamageClampEntity implements SpellCir
 				}
 			}
 		}
-		return super.wantsToPickUp(stack);
+		return false;
 	}
 
 	@Override
@@ -358,7 +319,6 @@ public abstract class YoukaiEntity extends DamageClampEntity implements SpellCir
 				}
 			}
 		}
-		super.pickUpItem(item);
 	}
 
 	// data
@@ -402,14 +362,11 @@ public abstract class YoukaiEntity extends DamageClampEntity implements SpellCir
 	}
 
 	/**
-	 * Whether losing the last of a player's favour makes this character give up
-	 * and disappear, the {@code avoid} reaction of a youkai that will not share a
-	 * world with whoever mistreated her.
+	 * Whether losing the last of a player's favour makes this character give up and disappear, the
+	 * {@code avoid} reaction of a youkai that will not share a world with whoever mistreated her.
 	 * <p>
-	 * A character whose answer to a beating is to run rather than to sulk turns
-	 * this off: the threshold would otherwise delete her on the very tick the
-	 * flee is meant to begin. The reputation cost of hitting her still stands,
-	 * so she simply ends up a stranger-or-worse instead of gone.
+	 * A character whose answer to a beating is to run turns this off: the threshold would otherwise delete her
+	 * on the very tick the flee begins. The reputation cost still stands, so she ends up stranger-or-worse.
 	 */
 	public boolean vanishOnDislike() {
 		return true;
@@ -573,9 +530,8 @@ public abstract class YoukaiEntity extends DamageClampEntity implements SpellCir
 		if (this.isPassenger()) {
 			this.stopRiding();
 		}
-		// Sleep entry cancels all motion at the source: the bed-approach walk/fly
-		// orders must not outlive sleep onset, and stale flight state (noGravity,
-		// FLYING flag) must not carry into the sleeping pose / animation.
+		// Sleep entry cancels all motion at the source: bed-approach walk/fly orders must not outlive
+		// sleep onset, and stale flight state (noGravity, FLYING flag) must not carry into the pose.
 		this.getNavigation().stop();
 		this.navCtrl.stopMoving();
 		this.navCtrl.setWalking();
@@ -601,12 +557,9 @@ public abstract class YoukaiEntity extends DamageClampEntity implements SpellCir
 	/**
 	 * Whether an interaction belonging to {@code activity} may happen now.
 	 * <p>
-	 * The one-argument form is the blanket gate - hostile, or already mid-conversation.
-	 * This adds the urgency question, and a character whose activities are prioritized
-	 * answers it properly: being fed or talked to is not something that should pull her
-	 * out of a fight or a panic, and equally should not happen while she is already
-	 * doing the thing the interaction would ask for. The base class has no priority
-	 * scale to compare against and simply defers.
+	 * The one-argument form is the blanket gate - hostile, or already mid-conversation. This adds the urgency
+	 * question: being fed or talked to should not pull her out of a fight or a panic, and equally should not
+	 * happen while she is already doing the thing asked for. The base class has no priority scale and defers.
 	 *
 	 * @see SmartYoukaiEntity#mayInteract(Player, Activity)
 	 */
@@ -641,15 +594,8 @@ public abstract class YoukaiEntity extends DamageClampEntity implements SpellCir
 		super.push(entity);
 	}
 
-	// ---- dimension-bound ----
-	// A character is anchored to the home or visit site its index entry names,
-	// and that entry names one level. A portal would drop it in a level the
-	// index does not describe, where the only recovery is the discard-and-respawn
-	// watchdog — so refuse the portal outright and let the character walk
-	// through it like scenery. canUsePortal is the gate every portal block
-	// consults (nether, end, end gateway, and the mod's own gap portal);
-	// canChangeDimensions is the same rule stated at the transition itself, so a
-	// destination latched some other way (mixin, command) is refused too.
+	// A character is anchored to the home or visit site its index entry names, which names one level;
+	// a portal would drop it where the index does not describe it, so both gates refuse.
 
 	@Override
 	public boolean canUsePortal(boolean allowPassengers) {
@@ -666,11 +612,9 @@ public abstract class YoukaiEntity extends DamageClampEntity implements SpellCir
 	}
 
 	/**
-	 * Whether she ever settles onto the ground. Flying characters normally land
-	 * when the ground is under them and a route needs walking; a character that
-	 * hovers has no walkable start node - a walk node wants solid ground under
-	 * the feet, and hers is a block of air - so landing her would leave her
-	 * unable to path anywhere at all, and she would have to climb again next tick.
+	 * Whether she ever settles onto the ground. A hovering character has no walkable start node - a walk node
+	 * wants solid ground under the feet and hers is a block of air - so landing her would leave her unable to
+	 * path anywhere, and she would have to climb again next tick.
 	 */
 	public boolean mayLand() {
 		return true;

@@ -24,12 +24,9 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
-/**
- * The doll controller block: a placeable pedestal that hosts its own resident dolls and deploys
+/** The doll controller block: a placeable pedestal that hosts its own resident dolls and deploys
  * them as hovering companions, with no player owner. The interaction surface for its block entity.
- *
- * @see doc/design/doll/controller.md
- */
+ * @see "doc/design/doll/controller.md" */
 public class DollControllerBlock implements ShapeBlockMethod, UseWithoutItemBlockMethod, UseItemOnBlockMethod, OnReplacedBlockMethod {
 
 	//public static final BlockMethod BE = new BlockEntityBlockMethodImpl<>(GLBlocks.DOLL_CONTROLLER_BE, DollControllerBlockEntity.class);

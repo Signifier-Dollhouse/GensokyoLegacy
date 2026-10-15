@@ -28,10 +28,9 @@ import net.minecraft.world.level.Level;
 import java.util.List;
 
 /**
- * The Seven-Colored Doll Glove: mode selection through the item-selector wheel, a shared cached
- * ray-trace target, and left-click attack commands.
+ * The Seven-Colored Doll Glove: wheel mode selection, a shared cached ray-trace target, left-click commands.
  *
- * @see doc/design/doll/glove.md
+ * @see "doc/design/doll/glove.md"
  */
 public class DollGloveItem extends Item implements GloveTargeting {
 
@@ -56,10 +55,9 @@ public class DollGloveItem extends Item implements GloveTargeting {
 	}
 
 	/**
-	 * Model-override value for {@code gensokyolegacy:glove_display}: the held mode's ordinal + 1
-	 * selects that mode's held-texture override, while an icon display stack
-	 * ({@code DOLL_GLOVE_ICON}) uses the icon-variant range behind it. Overrides are emitted
-	 * ascending, so they match exactly.
+	 * Model-override value for {@code gensokyolegacy:glove_display}: the held mode's ordinal + 1 selects that
+	 * mode's held-texture override, while an icon stack ({@code DOLL_GLOVE_ICON}) uses the icon range behind it.
+	 * Overrides are emitted ascending, so they match exactly.
 	 */
 	public static float displayPredicate(ItemStack stack, Level level, LivingEntity entity, int seed) {
 		int ordinal = getMode(stack).ordinal();
@@ -106,10 +104,9 @@ public class DollGloveItem extends Item implements GloveTargeting {
 	}
 
 	/**
-	 * Right-click on a doll entity at vanilla reach opens its loadout when owned (or in creative),
-	 * in every mode. Right-click air or a block runs the mode action, which first tries the same
-	 * open through a fresh 16-block trace ({@code DollGloveHandler.tryOpenEditor}); neither path
-	 * consults the target cache, which only carries 48-block attack targets (glove.md §2b).
+	 * Right-click on a doll entity at vanilla reach opens its loadout when owned (or in creative), in every
+	 * mode. Right-click air or a block runs the mode action, which first tries the same open through a fresh
+	 * 16-block trace ({@code DollGloveHandler.tryOpenEditor}); neither path consults the target cache.
 	 */
 	@Override
 	public InteractionResult interactLivingEntity(ItemStack stack, Player player, LivingEntity target, InteractionHand hand) {
@@ -171,9 +168,8 @@ public class DollGloveItem extends Item implements GloveTargeting {
 	}
 
 	/**
-	 * Attack-target validity: allies, any doll (own, stray, another player's, block-hosted),
-	 * spectators and anything unattackable are excluded. One implementation for every caller — the
-	 * attack commands and the shared cache's trace pre-filter — so no client copy can drift.
+	 * Attack-target validity: allies, any doll (own, stray, block-hosted), spectators and anything unattackable
+	 * are excluded. One implementation for the attack commands and the cache's trace pre-filter, so neither drifts.
 	 */
 	public static boolean isValidAttackTarget(Player holder, LivingEntity target) {
 		if (isAlly(holder, target)) return false;

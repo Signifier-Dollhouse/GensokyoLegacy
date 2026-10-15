@@ -89,9 +89,9 @@ public interface IHomeHolder {
 	boolean supportEntity(EntityType<?> type);
 
 	/**
-	 * Checks if a block pos is inside room.
-	 * Should only check air blocks, as a solid block would not be counted as "in room" for custom structures.
-	 * To check for a solid block, check if any of its surrounding blocks are air and in room.
+	 * Whether a block pos is inside a room, counting only air: a solid block is not "in room"
+	 * for custom structures. To test a solid block, check whether any of its surrounding blocks
+	 * are air and in room.
 	 */
 	boolean isInRoom(BlockPos pos);
 

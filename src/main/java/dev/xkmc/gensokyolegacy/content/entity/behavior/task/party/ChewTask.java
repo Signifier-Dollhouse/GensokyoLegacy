@@ -5,17 +5,12 @@ import net.minecraft.server.level.ServerLevel;
 
 
 /**
- * Chewing, with the plate leaving her hand as she goes.
+ * Chewing, with the plate leaving her hand as she goes. The serving is banked when the chew ends,
+ * so her tally and the party's served total move together rather than crediting food she has not
+ * finished. No chair required: demanding a seat here would strand a guest whose chair was taken
+ * away while she was carrying a plate.
  *
- * <p>
- * The serving is banked when the chew ends rather than when it starts, so her tally and the
- * party's served total move together rather than crediting food she has not finished.
- *
- * <p>
- * <b>No chair required.</b> Demanding a seat here is what would strand a guest whose chair was
- * taken away while she was carrying a plate.
- *
- * @see doc/design/party/guest.md
+ * @see "doc/design/party/guest.md"
  */
 public class ChewTask extends PartyTask {
 

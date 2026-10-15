@@ -28,22 +28,14 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 
 /**
- * Every move a guest can be asked to make, over the state on {@link PartyModule}.
- *
- * <p>
- * <b>This object holds no state of its own.</b> It is rebuilt each tick and thrown away, so a
- * task switch, a chunk unload and a server restart are all the same event to it; the durable
- * state is serialized with the entity, which is what lets a guest survive a save.
- *
- * <p>
- * The movement helpers keep to one rule that is easy to break by accident: <b>no walk order
- * is issued while she is off the ground.</b> These entities all fly and both walk and fly
- * controls are live, so an order given mid-air is answered by the flying one. The test is
- * {@code navCtrl.isCloseToGround} rather than {@code onGround}, because a walk node wants
- * solid ground under the feet.
+ * Every move a guest can be asked to make, over the state on {@link PartyModule}. This object
+ * holds no state of its own: the durable state is serialized with the entity, which is what lets
+ * a guest survive a save. No walk order is issued while she is off the ground, because these
+ * entities all fly and an order given mid-air is answered by the flying one: the test is
+ * {@code navCtrl.isCloseToGround}, since a walk node wants solid ground under the feet.
  *
  * @see PartyTasks for the machine these moves drive
- * @see doc/design/party/guest.md
+ * @see "doc/design/party/guest.md"
  */
 public class PartyContext {
 
@@ -88,11 +80,8 @@ public class PartyContext {
 		return party.seat() != null && entity.isPassenger();
 	}
 
-	// === the machine ===
-	//
-	// These are fields on PartyModule, read and written in place. A brain memory would have
-	// been the tidier home for them, but a memory only survives a save if it carries a codec,
-	// and a guest who comes back without her state has forgotten the party.
+	// Fields on PartyModule, read and written in place. A memory would have been the tidier
+	// home, but one only survives a save if it carries a codec.
 
 	public boolean holding() {
 		return party.serve != null;
@@ -172,12 +161,8 @@ public class PartyContext {
 		return party.rest;
 	}
 
-	// === the departure ===
-	//
-	// The leave timer is the one that never expires on its own: its being armed at all *is* the
-	// departure, so zero means "she has stood up and is on her way", not "over". Clearing it
-	// would drop the cascade back to an ordinary guest, and she would sit back down on the way
-	// out of the door.
+	// The leave timer never expires on its own: armed at all *is* the departure, so zero
+	// means "she has stood up and is on her way", not "over". Clearing it drops the cascade.
 
 	public boolean leaving() {
 		return party.leaveArmed;
@@ -189,13 +174,9 @@ public class PartyContext {
 	}
 
 	/**
-	 * Arm the departure, waiting {@code ticks} before she stands up.
-	 *
-	 * <p>
-	 * <b>The gift is given here, not at the call sites.</b> Three things can end a visit — the
-	 * spread running out, a roll on a satisfied sit, and the host calling it off — and only the
-	 * first two pass through here, so one place means a fourth cannot forget. Harmless to
-	 * repeat: {@link PartyGift} is a no-op once she has given.
+	 * Arm the departure, waiting {@code ticks} before she stands up. The gift is given here,
+	 * not at the call sites, so a fourth way of ending a visit cannot forget it. Repeating is
+	 * harmless: {@link PartyGift} is a no-op once she has given.
 	 */
 	public void armLeave(int ticks) {
 		giveGift();
@@ -205,12 +186,25 @@ public class PartyContext {
 
 	/** Arm the departure with a fresh per-guest wait, so a table does not empty at once. */
 	public void armLeave() {
-		armLeave(entity.getRandom().nextInt(PartyTasks.UNSEAT_DELAY + 1));
+		armLeave(PartyTasks.unseatDelay(entity.getRandom()));
 	}
 
 	/** Count the unseat wait down, stopping at zero. */
 	public void countLeave() {
 		party.leave = step(party.leave);
+	}
+
+	/**
+	 * Whether the host is still close enough to be worth sitting out the rest of the unseat wait
+	 * for. An absent host, or one who has gone to another dimension, counts as far away: there is
+	 * no one left to see her think it over.
+	 */
+	public boolean hostNearby() {
+		var host = party.host();
+		if (host == null) return false;
+		var player = level.getPlayerByUUID(host);
+		return player != null && player.level() == level
+				&& player.distanceTo(entity) <= PartyTasks.HOST_LEAVE_DISTANCE;
 	}
 
 	// === movement ===
@@ -227,17 +221,14 @@ public class PartyContext {
 	}
 
 	/**
-	 * Point her at {@code target}, issuing the walk order if she is not already walking.
-	 *
-	 * <p>
-	 * Issued once rather than once a tick: re-issuing restarts the pathfinding under her own
-	 * feet, which is how a walk that would have succeeded ends up timing out.
+	 * Point her at {@code target}, issuing the walk order if she is not already walking. Issued
+	 * once rather than once a tick: re-issuing restarts the pathfinding under her own feet, which
+	 * is how a walk that would have succeeded ends up timing out.
 	 *
 	 * @return whether she is in range to act on it already
 	 */
 	public boolean walkTo(PartyTarget target) {
 		if (target.inReach(this) && target.arrived(this)) return true;
-		party.walkingTo(target.interact(), gameTime);
 		if (target.inReach(this)) {
 			// in range but not standing on the tile: the order is what closes the gap
 			order(target);
@@ -249,9 +240,12 @@ public class PartyContext {
 	}
 
 	private void order(PartyTarget target) {
-		if (BrainUtils.getMemory(entity, MemoryModuleType.WALK_TARGET) != null) return;
 		var walk = target.walkTo() == null ? target.interact() : target.walkTo();
 		if (walk == null) return;
+		// registered here rather than in walkTo, so the stall fallback covers every order that is
+		// really given, and no clock runs at all while she is too high up to be given one
+		party.walkingTo(walk, gameTime);
+		if (BrainUtils.getMemory(entity, MemoryModuleType.WALK_TARGET) != null) return;
 		// a passenger does not walk, and the chair she is riding will not go for her
 		if (entity.isPassenger()) entity.stopRiding();
 		BrainUtils.setMemory(entity, MemoryModuleType.WALK_TARGET, new WalkTarget(walk.getCenter(), 1, 1));
@@ -326,8 +320,7 @@ public class PartyContext {
 	/**
 	 * Take one serving off {@code dish} and put it in her hand.
 	 *
-	 * @return false when the dish is gone or no longer part of the spread, in which case
-	 *         the caller draws again rather than reaching into thin air
+	 * @return false when the dish is gone or off the spread, so the caller draws again
 	 */
 	public boolean takeServing(BlockPos dish) {
 		var state = level.getBlockState(dish);
@@ -384,12 +377,12 @@ public class PartyContext {
 	}
 
 	/**
-	 * Begin the chew: the eat sound and animation, the timer, and the plate leaving her hand
-	 * part-way through. Works seated or standing — the only guest who ever chews off a chair is
-	 * one whose chair was taken away while she was carrying a plate.
+	 * Begin the chew: sound, animation, timer, and the plate leaving her hand part-way through.
+	 * Works seated or standing — the only guest who ever chews off a chair is one whose chair
+	 * was taken away while she was carrying a plate.
 	 */
 	public void beginChew() {
-		entity.broadcastEat();
+		YoukaiAnim.EAT.play(entity);
 		level.playSound(null, entity.blockPosition(), SoundEvents.GENERIC_EAT,
 				SoundSource.PLAYERS, 0.8F, 1.0F);
 		party.chew = PartyTasks.EAT_TICKS;
@@ -496,9 +489,9 @@ public BlockPos destination() {
 	}
 
 	/**
-	 * Somewhere a summoned guest walks off to before she is put away — far, because how far she
-	 * gets is how far the host sees her go. Checked twice, on the roll and on the ground found
-	 * for it, since a search outward from a too-close roll can return a neighbouring block.
+	 * Somewhere a summoned guest walks off to before she is put away — far, because that is how
+	 * far the host sees her go. Checked twice, on the roll and on the ground found for it: a
+	 * search outward from a too-close roll can return a neighbouring block.
 	 *
 	 * @return somewhere to walk to, or null when nothing that far out is walkable
 	 */

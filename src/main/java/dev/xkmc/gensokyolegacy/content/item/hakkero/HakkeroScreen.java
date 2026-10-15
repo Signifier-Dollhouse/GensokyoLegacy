@@ -12,9 +12,8 @@ import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Screen of the finished Mini Hakkero. The grid itself is the generated sprite; this adds
- * the mode name under it, the furnace flame over the fuel slot, and the cooldown style
- * overlay on the input slots, which is how each channel's progress is shown.
+ * Screen of the finished Mini Hakkero. The grid itself is the generated sprite; this adds the mode
+ * name under it, the furnace flame over the fuel slot, and the cooldown overlay on the input slots.
  */
 public class HakkeroScreen extends BaseContainerScreen<HakkeroMenu> {
 
@@ -35,10 +34,8 @@ public class HakkeroScreen extends BaseContainerScreen<HakkeroMenu> {
 		renderFuel(g);
 	}
 
-	/**
-	 * The furnace flame on the fuel slot, drawn upward the way vanilla does it: the icon is
-	 * 14 tall and the top of it creeps down as the fuel burns down. Nothing is drawn while
-	 * no fuel is lit.
+	/** The furnace flame on the fuel slot, drawn upward the way vanilla does it: the top of it
+	 * creeps down as the fuel burns down, and nothing is drawn while no fuel is lit.
 	 */
 	private void renderFuel(GuiGraphics g) {
 		float progress = menu.getBurnProgress();

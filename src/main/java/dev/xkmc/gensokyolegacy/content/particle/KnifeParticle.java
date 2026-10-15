@@ -10,14 +10,9 @@ import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.core.particles.SimpleParticleType;
 
 /**
- * The knife flash: a short burst that runs through every frame of {@code particles/knife.json} and
- * is gone. Unlike {@link MiasmaParticle} it is not a drifting haze — it is an impact, so it holds
- * the spot it was spawned at and plays its frames instead of fading in place.
- * <p>
- * The frame count doubles as the lifetime, which makes the sprites land one per tick:
- * {@code SpriteSet#get(age, lifetime)} spreads the frames over the ages {@code 0..lifetime}
- * inclusive, so the last age is the one the particle is removed on. Nothing fades here, because the
- * frames already dim and shrink towards nothing on their own.
+ * The knife flash: a short burst through every frame of {@code particles/knife.json}, gone. Unlike {@link
+ * MiasmaParticle} it is an impact, not a drifting haze, so it holds its spawn spot. The frame count is the lifetime,
+ * landing one sprite per tick; nothing fades, the frames dim and shrink on their own.
  */
 public class KnifeParticle extends TextureSheetParticle {
 

@@ -2,6 +2,7 @@ package dev.xkmc.gensokyolegacy.init.registrate;
 
 import dev.xkmc.gensokyolegacy.content.particle.KnifeParticle;
 import dev.xkmc.gensokyolegacy.content.particle.MiasmaParticle;
+import dev.xkmc.gensokyolegacy.content.particle.SpearParticle;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.l2core.init.reg.registrate.L2Registrate.ParticleSupplier;
 import dev.xkmc.l2core.init.reg.simple.Val;
@@ -20,6 +21,10 @@ public class GLParticles {
 	public static final Val<SimpleParticleType> KNIFE = GensokyoLegacy.REGISTRATE.particle("knife",
 			() -> new SimpleParticleType(false),
 			() -> ParticleSupplier.spriteSet(() -> KnifeParticle.Provider::new));
+
+	public static final Val<SimpleParticleType> SPEAR = GensokyoLegacy.REGISTRATE.particle("spear",
+			() -> new SimpleParticleType(false),
+			() -> ParticleSupplier.spriteSet(() -> SpearParticle.Provider::new));
 
 	public static void register() {
 

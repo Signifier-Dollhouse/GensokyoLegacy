@@ -11,6 +11,7 @@ public class CirnoRenderer extends GeoEntityRenderer<CirnoEntity> {
 		super(context, new CirnoModel());
 		addRenderLayer(new YoukaiHeldItemLayer<>(this));
 		addRenderLayer(new YoukaiSpellCircleLayer<>(this));
+		addRenderLayer(new FairyWantLayer<>(this));
 	}
 
 }

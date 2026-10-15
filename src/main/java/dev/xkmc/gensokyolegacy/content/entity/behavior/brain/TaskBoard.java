@@ -19,13 +19,10 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 
 /**
- * Registration util for Activity and Behavior.
- * There are 2 kinds of activities: prioritized activities and scheduled activities.
- * Start memory requirement of a prioritized activity will also be
- * the start memory-absence requirement of all less prioritized activities,
- * to ensure exclusiveness of activity start conditions and enforce priority.
- * There are 3 kinds of behaviors: always, exclusive, and random.
- * All always-type, 1 exclusive-type, and 1 random-type behaviors may execute simultaneously.
+ * Registration util for Activity and Behavior. Two kinds of activity: prioritized and scheduled; a
+ * prioritized one's start memory also becomes the start memory-absence of every less prioritized
+ * activity, enforcing exclusivity and priority. Three kinds of behavior - always, exclusive and
+ * random; all always-type plus 1 exclusive and 1 random may execute simultaneously.
  */
 public class TaskBoard {
 
@@ -55,24 +52,18 @@ public class TaskBoard {
 
 
 	/**
-	 * Register a memory with the brain without attaching a task to it.
-	 *
-	 * <p>
-	 * {@link Brain#setMemory} is a silent no-op for a type the brain does not know, and
-	 * {@code getMemory} throws outright, so a task that reads or writes a memory it never
-	 * names in its entry condition has to have that memory registered here.
+	 * Register a memory with the brain without attaching a task to it. {@link Brain#setMemory} is a
+	 * silent no-op and {@code getMemory} throws outright for a type the brain does not know, so a
+	 * task that touches a memory it never names in its entry condition has to register it here.
 	 */
 	public void addMemory(MemoryModuleType<?> memory) {
 		memories.add(memory);
 	}
 
 	/**
-	 * Register the whole party machine — the director and all eleven state tasks — under
-	 * {@link GLBrains#PARTY}.
-	 *
-	 * <p>
-	 * The machine is a cascade rather than a task, so an entity class should not be the
-	 * place that knows how many pieces it has or in what order. See {@code PartyTasks}.
+	 * Register the whole party machine - the director and all eleven state tasks - under
+	 * {@link GLBrains#PARTY}. It is a cascade rather than a task, so an entity class should not be
+	 * the place that knows how many pieces it has or in what order. See {@code PartyTasks}.
 	 */
 	public void addPartyTasks() {
 		PartyTasks.register(this);
@@ -93,9 +84,8 @@ public class TaskBoard {
 	}
 
 	/**
-	 * Add an exclusive behavior to some activities.
-	 * Only 1 exclusive behavior can run at a time.
-	 * Behavior with the smallest priority number will run.
+	 * Add an exclusive behavior to some activities. Only 1 exclusive behavior can run at a time,
+	 * and the one with the smallest priority number will run.
 	 */
 	public void addExclusive(int priority, BehaviorControl<?> behavior, Activity... activities) {
 		var entry = new BehaviorEntry(priority, behavior, new LinkedHashSet<>(Set.of(activities)));
@@ -105,9 +95,8 @@ public class TaskBoard {
 	}
 
 	/**
-	 * Add a randomly-executing behavior to some activities.
-	 * Randomly-executing behavior can run in parallel with exclusive behaviors,
-	 * but only 1 randomly executing behavior will execute at a time.
+	 * Add a randomly-executing behavior to some activities. It runs in parallel with exclusive
+	 * behaviors, but only 1 randomly executing behavior will execute at a time.
 	 */
 	public void addRandom(BehaviorControl<?> behavior, Activity... activities) {
 		var entry = new BehaviorEntry(0, behavior, new LinkedHashSet<>(Set.of(activities)));
@@ -141,12 +130,10 @@ public class TaskBoard {
 	}
 
 	/**
-	 * Register an activity as a prioritized activity.
-	 * Activity with smaller priority number will be prioritized.
-	 * If there is an associated memory type,
-	 * the activity will not be executed without presence of that memory.
-	 * Memory type requirement of a prioritized activity will also be added to the list of
-	 * must-be-absent memory requirements of all other less prioritized activities.
+	 * Register an activity as a prioritized activity, smaller priority number first. If there is
+	 * an associated memory type, the activity will not be executed without presence of that memory,
+	 * and that memory is also added to the must-be-absent requirements of every less prioritized
+	 * activity.
 	 */
 	public void addPrioritizedActivity(Activity activity, @Nullable MemoryModuleType<?> test, int priority) {
 		addActivityMemory(test);
@@ -156,12 +143,10 @@ public class TaskBoard {
 	}
 
 	/**
-	 * An activity's memory has to be registered with the brain, not just named in
-	 * its requirements. {@code Brain.checkMemory} answers {@code false} for an
-	 * unregistered type whatever status is asked for, and {@link #buildBrain}
-	 * injects each prioritized memory as VALUE_ABSENT into every less prioritized
-	 * activity - so one unregistered activity memory silently blocks all of them,
-	 * the scheduled ones included.
+	 * An activity's memory has to be registered with the brain, not just named in its
+	 * requirements. {@code Brain.checkMemory} answers {@code false} for an unregistered type
+	 * whatever status is asked for, so one unregistered activity memory silently blocks every
+	 * activity below it, the scheduled ones included.
 	 */
 	private void addActivityMemory(@Nullable MemoryModuleType<?> test) {
 		if (test != null) memories.add(test);
@@ -188,10 +173,9 @@ public class TaskBoard {
 	}
 
 	/**
-	 * The number an activity was registered with, lowest wins - the same ordering
-	 * {@link #build()} sorts by, read back by anything that has to ask "is what she is
-	 * doing now more urgent than this". A scheduled activity was never prioritized and
-	 * so sorts below everything, hence {@link Integer#MAX_VALUE}.
+	 * The number an activity was registered with, lowest wins - the same ordering {@link #build()}
+	 * sorts by, read back by anything that has to ask "is what she is doing now more urgent than
+	 * this". A scheduled activity was never prioritized, hence {@link Integer#MAX_VALUE}.
 	 */
 	public int priorityOf(Activity activity) {
 		for (var e : priorities) {

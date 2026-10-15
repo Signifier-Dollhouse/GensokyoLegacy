@@ -11,9 +11,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class PlayerMixin {
 
 	/**
-	 * Sneak is the vanilla dismount, but the broom reads it as "descend"
-	 * (see {@link BroomEntity}). Getting off is done by right-clicking instead,
-	 * either the item or the broom itself.
+	 * Sneak is the vanilla dismount, but the broom reads it as "descend" (see {@link BroomEntity}). Getting
+	 * off is done by right-clicking instead, either the item or the broom itself.
 	 */
 	@Inject(at = @At("HEAD"), method = "wantsToStopRiding", cancellable = true)
 	private void gensokyolegacy$noSneakDismountOnBroom(CallbackInfoReturnable<Boolean> cir) {

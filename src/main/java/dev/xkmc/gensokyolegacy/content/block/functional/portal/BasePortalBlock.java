@@ -1,7 +1,4 @@
-//
-// Source code recreated from a .class file by IntelliJ IDEA
-// (powered by Fernflower decompiler)
-//
+// Source recreated from a .class file by IntelliJ IDEA (Fernflower decompiler).
 
 package dev.xkmc.gensokyolegacy.content.block.functional.portal;
 

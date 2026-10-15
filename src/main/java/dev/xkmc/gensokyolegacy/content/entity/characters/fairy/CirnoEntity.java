@@ -51,13 +51,11 @@ public class CirnoEntity extends FairyEntity implements GeoYoukaiAnim {
 	/**
 	 * Her hovering loop, which is what an airborne fairy wants instead of standing.
 	 * <p>
-	 * TODO walk cycle: this rig has no {@code 走路}/{@code 跑步} clip, so walking plays this
-	 * too. It cannot stay a missing name: GeckoLib resolves an unknown clip to {@code null},
-	 * {@code buildAnimationQueue} then hands the controller an empty queue, and the next
-	 * {@code process()} tick stops it without writing any bones — which pinned her in the
-	 * last pose written, i.e. frozen mid-hover for the whole walk, silently. Point the
-	 * {@code isMoving} branch below back at a {@code WALK} constant once the clip is
-	 * exported from Blockbench.
+	 * It cannot stay a missing name: GeckoLib resolves an unknown clip to {@code null},
+	 * {@code buildAnimationQueue} hands the controller an empty queue, and the next
+	 * {@code process()} tick stops writing any bones, pinning her frozen mid-hover for
+	 * the whole walk. Point the {@code isMoving} branch below back at a {@code WALK}
+	 * constant once the clip is exported from Blockbench.
 	 */
 	private static final RawAnimation FLOAT = RawAnimation.begin().thenLoop("漂浮");
 	private static final RawAnimation USE_MAINHAND = RawAnimation.begin().thenPlay("使用主手物品");
@@ -110,9 +108,8 @@ public class CirnoEntity extends FairyEntity implements GeoYoukaiAnim {
 
 	/**
 	 * Whether she wears the sun-tanned sheet instead of the pale one. Cosmetics only:
-	 * nothing reads it but {@link CirnoModel#getTextureResource}, so the variant
-	 * changes no stats and no behavior. Synced and NBT-backed through
-	 * {@link #CIRNO_DATA}, like the rest of her entity data.
+	 * nothing reads it but {@link CirnoModel#getTextureResource}. Synced and NBT-backed
+	 * through {@link #CIRNO_DATA}, like the rest of her entity data.
 	 */
 	public boolean isTanned() {
 		return entityData.get(DATA_TANNED) != 0;
@@ -124,9 +121,8 @@ public class CirnoEntity extends FairyEntity implements GeoYoukaiAnim {
 
 	/**
 	 * Right-clicking her with a sunflower tans her. One-way and free: the sunflower is
-	 * a trigger, not an ingredient, and nothing is consumed or offered back. Hooked on
-	 * {@code mobInteract}, which is the mob-interaction slot vanilla leaves open —
-	 * {@code Mob#interact} is final and spends itself on name tags and spawn eggs.
+	 * a trigger, not an ingredient. Hooked on {@code mobInteract}, the slot vanilla leaves
+	 * open — {@code Mob#interact} is final and spends itself on name tags and spawn eggs.
 	 */
 	@Override
 	protected InteractionResult mobInteract(Player player, InteractionHand hand) {
@@ -154,34 +150,13 @@ public class CirnoEntity extends FairyEntity implements GeoYoukaiAnim {
 	}
 
 	/**
-	 * Feeding a Cirno is feeding a fairy, on exactly the terms of a
-	 * {@link PlainFairyEntity}: the same two tiers of dish, the same flat reputation,
-	 * the same cap and the same twenty-second cooldown. So she carries
-	 * {@link CirnoFeedModule} rather than the generic {@code FeedModule}, which scales
-	 * a favour off the nutrition of anything edible - that one would have let her be
-	 * bought off with a rotten steak and given no thanks for it, where this one is a
-	 * cookie or a cake or nothing.
-	 * <p>
-	 * What she hands back is the one thing that is not shared with a plain fairy: a
-	 * cake buys a fairy ice crystal and a cookie buys four packed ice, rather than
-	 * dust and a flower. That is the whole of {@code CirnoFeedModule}, which is why it
-	 * is a subclass of {@link FairyFeedModule} rather than a second copy of it - and
-	 * it also happens to be the loop that makes her worth feeding, since the crystal
-	 * is the same one {@link #doCraft} builds out of three frozen frogs, and packed
-	 * ice is two thirds of the way to a blue ice.
-	 * <p>
-	 * The rest of the board is unchanged from the plain fairy's, which is the point:
-	 * these are the same lines, and they are what the {@code //TODO cirno food}
-	 * placeholder used to stand in for. Eating on its own {@link GLBrains#FEAST}
-	 * activity at 200, so a dish cuts in on her hunting and her stroll and is in turn
-	 * cut off by a fight; the chew-and-hand-it-back task on that activity; and the
-	 * same interest sensor that walks her over to whoever is holding something she
-	 * eats, which is also what holds her off for the length of the cooldown.
-	 * {@code CountDownCooldownTicks} comes with it because nothing else counts the
-	 * cooldown down on a brain - vanilla only ever registers it alongside a
-	 * {@code TemptationGoal} - and without it the memory the follow behavior writes
-	 * on stopping stays put and the whole temptation can only ever happen once.
+	 * Her interaction page. Stated on the entity rather than on the module, so {@code GLEntities}
+	 * can say which character answers a hand-out without knowing which module does it.
 	 */
+	public static List<EntityInteraction> interactions() {
+		return CirnoFeedModule.interactions();
+	}
+
 	@Override
 	protected void constructTaskBoard(TaskBoard board) {
 		super.constructTaskBoard(board);
@@ -212,8 +187,7 @@ public class CirnoEntity extends FairyEntity implements GeoYoukaiAnim {
 
 	/**
 	 * A hunt is her chasing the prey the sensor found, which is not in the target
-	 * container - so the activity that starts it has to be allowed to look around for
-	 * one, as play is.
+	 * container - so that activity has to be allowed to look around for one, as play is.
 	 */
 	@Override
 	public boolean shouldSearchTarget(Activity activity) {
@@ -273,7 +247,10 @@ public class CirnoEntity extends FairyEntity implements GeoYoukaiAnim {
 			case CONFUSED -> Optional.of(CONFUSED);
 			case AGREE -> Optional.of(AGREE);
 			case DECLINE -> Optional.of(DECLINE);
+			case EAT -> Optional.of(EAT);
+			case HURT -> Optional.of(HURT);
 			case OUTDOOR_IDLE -> Optional.of(IDLE_FIDGET);
+			default -> Optional.empty();
 		};
 	}
 

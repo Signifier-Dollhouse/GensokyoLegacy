@@ -47,12 +47,8 @@ public record CharacterRequestToServer(UUID id) implements SerialPacketBase<Char
 		), sp));
 	}
 
-	/**
-	 * The fulfillment this character is measured against, or 0 when she has no taste.
-	 * <p>
-	 * A datapack can remove a {@code party_taste} entry mid-party, so this is read the
-	 * same way the guest reads it rather than being assumed present — a readout that
-	 * threw because the data changed would be worse than one showing 0.
+	/** The fulfillment this character is measured against, or 0 when she has no taste: a datapack can
+	 * remove a {@code party_taste} entry mid-party, and a readout showing 0 beats one that throws.
 	 */
 	private static int wanted(PartyModule module) {
 		var taste = module.taste();

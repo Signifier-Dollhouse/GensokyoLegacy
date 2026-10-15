@@ -17,10 +17,9 @@ public class MaidenEntity extends BossYoukaiEntity {
 	}
 
 	/**
-	 * She is the one character tasked with holding her own home, so the house is where
-	 * she does her fighting rather than only somewhere she waits for a target to be
-	 * handed to her: the target-acquire task searches here as well as on her idle and
-	 * play time.
+	 * She is the one character tasked with holding her own home, so the house is where she
+	 * fights, not merely where she waits: the acquire task searches it as well as her idle
+	 * and play time.
 	 */
 	@Override
 	public boolean shouldSearchTarget(Activity activity) {

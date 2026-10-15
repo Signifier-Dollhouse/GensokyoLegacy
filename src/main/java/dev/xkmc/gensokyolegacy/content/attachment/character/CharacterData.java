@@ -12,10 +12,9 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * One player's relationship with one character: the reputation value, the ceiling it may
- * currently reach, per-action cooldowns and the feed memory.
+ * One player's relationship with one character: reputation, its current ceiling, cooldowns and the feed memory.
  *
- * @see doc/design/reputation.md
+ * @see "doc/design/reputation.md"
  */
 @SerialClass
 public class CharacterData {
@@ -92,7 +91,10 @@ public class CharacterData {
 		return getState(reputation);
 	}
 
-	/** Forgiveness: a hostile relationship drops straight to {@link ReputationConstants#KILLED_RESTORE}, it does not climb. */
+	/**
+	 * Forgiveness: a hostile relationship drops straight to {@link ReputationConstants#KILLED_RESTORE}, it does not
+	 * climb.
+	 */
 	protected void onKilledByCharacter() {
 		if (reputation < ReputationConstants.KILLED_RESTORE) {
 			reputation = ReputationConstants.KILLED_RESTORE;

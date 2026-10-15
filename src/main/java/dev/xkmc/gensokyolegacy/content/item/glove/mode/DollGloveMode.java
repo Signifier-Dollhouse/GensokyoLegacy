@@ -14,10 +14,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Locale;
 
 /**
- * The glove's modes. Each constant holds a {@link DollGloveHandler}, so behaviour never needs a
- * switch on the enum.
- *
- * @see doc/design/doll/glove.md
+ * The glove's modes, each holding a {@link DollGloveHandler} so behaviour never needs a switch.
+ * @see "doc/design/doll/glove.md"
  */
 public enum DollGloveMode {
 	SUMMON(new SummonMode()),

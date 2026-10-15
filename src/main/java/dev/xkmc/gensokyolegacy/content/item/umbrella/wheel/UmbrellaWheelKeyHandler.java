@@ -9,9 +9,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.player.Player;
 
 /**
- * Handles click on fake edit wheel at index 2.
- * Mirrors {@code GolemWheelKeyHandler} from ModularGolems: intercepts SWITCH action
- * when target wheelIndex == 2, opens stored position editing screen instead of switching.
+ * Handles a click on the fake edit wheel at index 2. Mirrors {@code GolemWheelKeyHandler} from
+ * ModularGolems: intercepts a SWITCH whose target index is 2 and opens the position editor.
  */
 public class UmbrellaWheelKeyHandler extends DefaultKeyHandler.Fast {
 

@@ -16,12 +16,11 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * The one materialization path every ledger shares: create the entity, key {@code data} to its
- * fresh game uuid, hand it the owner, apply the recorded values. The <b>caller</b> inserts the
- * entry into its ledger <i>before</i> {@code addFreshEntity}, so the entity's join-level inverse
- * check always finds a paired host (pairing.md §3.1).
+ * The one materialization path every ledger shares: create the entity, hand it the owner,
+ * apply the recorded values. The <b>caller</b> inserts the ledger entry <i>before</i>
+ * {@code addFreshEntity} so the join-level inverse check finds a paired host (pairing.md §3.1).
  *
- * @see doc/design/doll/pairing.md
+ * @see "doc/design/doll/pairing.md"
  */
 public final class DollSpawn {
 
@@ -29,9 +28,8 @@ public final class DollSpawn {
 	}
 
 	/**
-	 * Materializes {@code data} as a live doll owned by {@code owner}. On success {@code data}
-	 * carries the new entity's uuid, final position and dimension; the caller must register it
-	 * before {@code addFreshEntity}.
+	 * Materializes {@code data} as a live doll owned by {@code owner}; on success data carries
+	 * the new uuid, final position and dimension.
 	 */
 	@Nullable
 	public static BaseDollEntity materialize(ServerLevel level, LivingEntity owner, DollData data) {

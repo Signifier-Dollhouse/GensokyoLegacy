@@ -21,11 +21,10 @@ import java.util.List;
 
 /**
  * A Youkai's Feasts cutting board: whatever is lying on it, a list rather than a count.
+ * <p>A stack on a board is one plate, not a number of servings — {@code addToPlayer} hands the pair
+ * over whole — so a pair feeds a guest twice and attracts once.
  *
- * <p>A stack on a board is one plate, not a number of servings — {@code addToPlayer} hands the
- * pair over whole — so a pair feeds a guest twice and attracts once.
- *
- * @see doc/design/party/food_mods.md
+ * @see "doc/design/party/food_mods.md"
  */
 public class CuisineBoardFood implements ContainerFoodHandler {
 
@@ -41,10 +40,9 @@ public class CuisineBoardFood implements ContainerFoodHandler {
 		return null;
 	}
 
-	/**
-	 * The board's own list of item stacks, or null when it cannot be read. A checked
-	 * exception becomes a null on purpose: a renamed field should read as "no food on it"
-	 * rather than take the party down from the server tick.
+	/** The board's own list of item stacks, or null when it cannot be read. A checked exception
+	 * becomes a null on purpose: a renamed field should read as "no food on it" rather than take the
+	 * party down from the server tick.
 	 */
 	@SuppressWarnings("unchecked")
 	@Nullable
@@ -91,11 +89,10 @@ public class CuisineBoardFood implements ContainerFoodHandler {
 		return ans;
 	}
 
-	/**
-	 * Whether the board holds a finished dish rather than a recipe part-way through. A
-	 * {@link FoodTableItem} is the mod's own answer, but a nigiri or gunkan is placed on
-	 * the board as the finished item and resolves to the model used to <i>assemble</i> it,
-	 * so the answer is read off the contents: a dish is made of nothing but food.
+	/** Whether the board holds a finished dish rather than a recipe part-way through. A
+	 * {@link FoodTableItem} is the mod's own answer, but a nigiri or gunkan placed as the finished
+	 * item resolves to the model used to <i>assemble</i> it, so the answer is read off the contents:
+	 * a dish is made of nothing but food.
 	 */
 	private static boolean isDish(TableItem model, List<ItemStack> raw) {
 		if (model instanceof FoodTableItem) return true;
@@ -128,11 +125,9 @@ public class CuisineBoardFood implements ContainerFoodHandler {
 		return countItems(raw);
 	}
 
-	/**
-	 * Take the whole plate of {@code item} off the board — shrinking by one would leave a
-	 * lone piece on a board whose model still describes a pair. Emptied in place rather
-	 * than replacing the list, because the board's own {@code addItem} matches against
-	 * this very list.
+	/** Take the whole plate of {@code item} off the board — shrinking by one would leave a lone
+	 * piece on a board whose model still describes a pair. Emptied in place rather than replacing the
+	 * list, because the board's own {@code addItem} matches against this very list.
 	 */
 	private void take(CuisineBoardBlockEntity be, Item item) {
 		var raw = of(be);

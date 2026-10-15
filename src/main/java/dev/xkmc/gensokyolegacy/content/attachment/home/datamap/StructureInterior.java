@@ -9,9 +9,9 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Per-room decomposition of a structure interior for staged pathfinding.
- * All coords are template-local; see {@code StructureHomeData} for the
- * world-mapped counterpart. Empty when the structure has no interior data.
+ * Per-room decomposition of a structure interior for staged pathfinding; coords are
+ * template-local. See {@code StructureHomeData} for the world-mapped counterpart; empty when
+ * the structure has no interior data.
  */
 public record StructureInterior(
 		ArrayList<InteriorRoom> rooms,
@@ -37,9 +37,8 @@ public record StructureInterior(
 	}
 
 	/**
-	 * Room route from one room to another as ordered node edges, via BFS
-	 * over shared and dual linkages (entries excluded). Empty when already
-	 * there or unreachable.
+	 * Room route as ordered node edges, via BFS over shared and dual linkages (entries excluded);
+	 * empty when already there or unreachable.
 	 */
 	public List<InteriorNode> findRoute(int from, int to) {
 		if (from == to) return List.of();

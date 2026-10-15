@@ -13,9 +13,8 @@ import net.minecraft.world.level.levelgen.placement.PlacementModifierType;
 import java.util.List;
 
 /**
- * Rejects positions too close to the points of other {@link GridLayer}s, e.g. large trees keep
- * away from giant trees. Recomputes the points instead of reading the world. A point counts even
- * when its feature failed to place, which leaves a small natural gap.
+ * Rejects positions too close to points of other {@link GridLayer}s. Points are recomputed rather than read from the
+ * world, and count even when their feature failed to place, which leaves a small natural gap.
  */
 public class GridExclusionFilter extends PlacementFilter {
 

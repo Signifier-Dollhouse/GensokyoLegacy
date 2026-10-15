@@ -5,19 +5,15 @@ import dev.xkmc.gensokyolegacy.content.entity.youkai.SmartYoukaiEntity;
 import net.minecraft.server.level.ServerLevel;
 
 /**
- * Find a chair and sit in it.
- *
- * <p>
- * The bottom of the cascade and the default answer for a guest with nothing to do, which is
- * why it has no signature at all: by the time the gate reaches it, everything more specific
+ * Find a chair and sit in it: the bottom of the cascade and the default answer for a guest with
+ * nothing to do, hence no signature - by the time the gate reaches it, everything more specific
  * has been ruled out. It is the only task that runs while she is not seated.
- *
  * <p>
- * Failing is a process, not a verdict. The host is told on the first failure, she looks again
- * every {@code SEAT_RETRY}, and the third consecutive failure ends it — because the
- * party-wide feast gate waits for <i>every</i> guest to have a chair.
+ * Failing is a process, not a verdict: the host is told on the first failure, she looks again
+ * every {@code SEAT_RETRY}, and the third consecutive failure ends it, because the feast gate
+ * waits for <i>every</i> guest to have a chair.
  *
- * @see doc/design/party/guest.md
+ * @see "doc/design/party/guest.md"
  */
 public class FindSeatTask extends PartyTask {
 

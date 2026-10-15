@@ -1,7 +1,7 @@
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
 
-package dev.xkmc.gensokyolegacy.content.attachment.party;
+package dev.xkmc.gensokyolegacy.content.block.functional.plate;
 
 import net.minecraft.MethodsReturnNonnullByDefault;
 

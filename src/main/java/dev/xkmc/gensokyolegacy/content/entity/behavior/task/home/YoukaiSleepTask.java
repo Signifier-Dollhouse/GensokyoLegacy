@@ -54,10 +54,8 @@ public class YoukaiSleepTask extends Behavior<YoukaiEntity> {
 
 	@Override
 	protected void stop(ServerLevel level, YoukaiEntity entity, long gameTime) {
-		// Sleep exit always releases the bed approach: when REST ends mid-approach
-		// the entity is awake but still holds this task's WALK_TARGET, which would
-		// keep MoveTask walking on a stale order and block tasks that require
-		// WALK_TARGET absent (e.g. YoukaiGoHomeTask) from starting.
+		// Sleep exit always releases the bed approach: REST can end mid-approach, leaving a stale
+		// WALK_TARGET that blocks tasks needing it absent (e.g. YoukaiGoHomeTask).
 		entity.getNavigation().stop();
 		BrainUtils.clearMemory(entity, MemoryModuleType.WALK_TARGET);
 		if (!entity.isSleeping()) return;
@@ -87,8 +85,7 @@ public class YoukaiSleepTask extends Behavior<YoukaiEntity> {
 			BrainUtils.clearMemory(entity, MemoryModuleType.WALK_TARGET);
 			entity.getNavigation().stop();
 			// Sleep with the head on the head block, mirroring vanilla
-			// BedBlock.useWithoutItem: the head sits one step along FACING from
-			// the foot, so ends[0] is always the head (see bedEnds).
+			// BedBlock.useWithoutItem: the head sits one step along FACING from the foot.
 			entity.startSleeping(ends[0]);
 		} else if (!BrainUtils.hasMemory(entity, MemoryModuleType.WALK_TARGET)) {
 			BrainUtils.setMemory(entity, MemoryModuleType.WALK_TARGET,
@@ -118,12 +115,10 @@ public class YoukaiSleepTask extends Behavior<YoukaiEntity> {
 	}
 
 	/**
-	 * Walk target for the bed approach: the nearest standable cell in the ring
-	 * around the bed (4 horizontal neighbors of each bed end). No {@code above()}:
-	 * standing on top of the mattress is never required since sleep entry
-	 * teleports onto the head block. Falls back to the nearer bed end itself when
-	 * every neighbor is blocked, so the fly fallback and desperate teleport still
-	 * have a closest-reachable endpoint to work with.
+	 * Walk target for the bed approach: the nearest standable cell in the ring around the bed
+	 * (4 horizontal neighbors of each bed end). No {@code above()}, since sleep entry teleports
+	 * onto the head block. Falls back to the nearer bed end when every neighbor is blocked, so
+	 * the fly fallback and desperate teleport have an endpoint to work with.
 	 */
 	private static BlockPos scanApproach(ServerLevel level, YoukaiEntity entity, BlockPos[] ends) {
 		BlockPos best = null;

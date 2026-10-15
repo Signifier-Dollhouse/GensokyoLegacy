@@ -64,11 +64,8 @@ public class QuestDialogData {
     public static final int CHAT_INFO = 100;
     public static final int CHAT_SPECIAL = 1000;
 
-    /**
-     * Standard dialog animations: quest start/follow-up play think, quest
-     * completion plays agree. Chats leave the list empty so a random talk
-     * clip is picked at play time (see {@code GeoYoukaiAnim}).
-     */
+    /** Standard dialog animations: quest start/follow-up play think, completion plays agree. Chats leave
+     *  the list empty so a random talk clip is picked at play time (see {@code GeoYoukaiAnim}). */
     protected static final List<String> THINK_ANIMS = List.of(YoukaiAnim.THINK.trigger());
     protected static final List<String> AGREE_ANIMS = List.of(YoukaiAnim.AGREE.trigger());
 
@@ -234,11 +231,8 @@ public class QuestDialogData {
         return new HomeBoundCondition(true);
     }
 
-    /**
-     * Content that only makes sense while she is a guest of this particular
-     * home - which is how visit chat is written, since she talks about different
-     * things at different houses. Implies {@link #visiting()}.
-     */
+    /** Content that only makes sense at this particular host home, which is how visit chat is written:
+     *  a guest says different things in different rooms. Implies {@link #visiting()}. */
     protected VisitStructureCondition visitingAt(ResourceLocation structure) {
         return new VisitStructureCondition(structure);
     }

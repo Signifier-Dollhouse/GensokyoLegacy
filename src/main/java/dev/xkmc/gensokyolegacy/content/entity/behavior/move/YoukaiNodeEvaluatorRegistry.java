@@ -65,21 +65,13 @@ public class YoukaiNodeEvaluatorRegistry {
 	}
 
 	/**
-	 * A guest routes around the spread: the table, what stands on it, the food, what stands
-	 * on the food, plus the chairs. Without it she paths across the table to reach a chair on
-	 * the far side.
+	 * A guest routes around the spread: the table, what stands on it, the food, and the chairs, so
+	 * she does not path across the table to reach a chair on the far side. Party guests only - a rule
+	 * about who is walking is not a rule about a block, so this is a global handler taking the mob.
+	 * "Is this food" is {@link PartyFoodValue#isFood} and nothing else: {@code PartyFoodHandler.claims}
+	 * says which handler was written for a block, leaving a dish with no bespoke one walkable.
 	 *
-	 * <p>
-	 * <b>Party guests only.</b> A rule about who is walking is not a rule about a block, so
-	 * this is a global handler taking the mob rather than a block tag.
-	 *
-	 * <p>
-	 * "Is this food" is {@link PartyFoodValue#isFood} and nothing else — the same answer
-	 * {@code drawDish} gets. {@code PartyFoodHandler.claims} would be the wrong question: it
-	 * says which handler was written for a block, so a dish with no bespoke handler stays
-	 * walkable while still being served.
-	 *
-	 * @see doc/design/party/guest.md
+	 * @see "doc/design/party/guest.md"
 	 */
 	public static PathType partyFurniture(
 			PathType ans, PathfindingContext context, BlockPos pos,

@@ -35,29 +35,18 @@ public class GLRecipeGen {
 
 	public static void genRecipe(RegistrateRecipeProvider pvd) {
 		furniture(pvd);
-		wroughtIron(pvd);
 		hexbrew(pvd);
-		fairyFeed(pvd);
+		fairyStuff(pvd);
 
-		unlock(pvd, ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, GLBlocks.ALCHEMY_POT.get(), 1)::unlockedBy, Items.IRON_INGOT)
-				.pattern("I I").pattern("IFI").pattern("III")
-				.define('I', Items.IRON_INGOT).define('F', GLNaturalBlocks.STAR_FLOWER).save(pvd);
+		unlock(pvd, ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, GLItems.INVITATION_LETTER.get(), 4)::unlockedBy, Items.PAPER)
+				.requires(Items.PAPER).requires(Items.POPPY).save(pvd);
 	}
 
-	/**
-	 * The fairy economy in three recipes, and both of its loops are closed on
-	 * purpose: a fairy hands dust back for cake, cake plus dust makes fairy cake,
-	 * which is itself worth feeding her; and a Cirno hands an ice crystal back for
-	 * cake, which is the same crystal she builds out of three frozen frogs, and the
-	 * crystal is a catalyst for the ice around it. The twenty-second cooldown in
-	 * {@code FairyFeedModule} is what decides how fast any of it pays out.
-	 */
-	private static void fairyFeed(RegistrateRecipeProvider pvd) {
+	private static void fairyStuff(RegistrateRecipeProvider pvd) {
 		// one cake stirred with one dust comes out as seven: the dust is the whole
-		// reason a cake is worth feeding over a cookie, and seven is the ratio that
-		// makes feeding her worth the trip rather than a rounding error
+		// reason a cake beats a cookie, and seven makes feeding her worth the trip
 		unlock(pvd, ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, GLItems.FAIRY_CAKE.get(), 7)::unlockedBy,
-						GLItems.FAIRY_DUST.get())
+				GLItems.FAIRY_DUST.get())
 				.requires(Items.CAKE)
 				.requires(GLItems.FAIRY_DUST.get())
 				.save(pvd, GensokyoLegacy.loc("fairy_cake_from_cake_and_dust"));
@@ -65,28 +54,38 @@ public class GLRecipeGen {
 		// one crystal crushed down, the other way into the loop. Four, because it is the
 		// only source not gated on standing in front of a fairy
 		unlock(pvd, ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, GLItems.FAIRY_DUST.get(), 4)::unlockedBy,
-						GLItems.FAIRY_ICE_CRYSTAL.get())
+				GLItems.FAIRY_ICE_CRYSTAL.get())
 				.requires(GLItems.FAIRY_ICE_CRYSTAL.get())
 				.save(pvd, GensokyoLegacy.loc("fairy_dust_from_fairy_ice_crystal"));
 
-		// and the crystal spent rather than crushed: packed around one, the whole grid
-		// freezes and comes out as the eight blocks of blue ice it went in as. Shaped
-		// and not shapeless because a crystal is a seed and not an ingredient - the
-		// count on each side is even on purpose, so a grid full of ice is worth exactly
-		// as much blue ice as the ice was worth ice and the crystal is the only thing
-		// you lose. It also completes what a cookie pays out: Cirno hands back four
-		// packed ice, so two cookies and a cake are one blue ice.
 		unlock(pvd, ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, Blocks.BLUE_ICE, 8)::unlockedBy,
-						GLItems.FAIRY_ICE_CRYSTAL.get())
+				GLItems.FAIRY_ICE_CRYSTAL.get())
 				.pattern("III")
 				.pattern("ICI")
 				.pattern("III")
 				.define('I', Items.ICE)
 				.define('C', GLItems.FAIRY_ICE_CRYSTAL.get())
 				.save(pvd, GensokyoLegacy.loc("blue_ice_from_ice_and_fairy_ice_crystal"));
+
+		unlock(pvd, ShapedRecipeBuilder.shaped(RecipeCategory.MISC, GLItems.ICE_WINGS.get())::unlockedBy,
+				GLItems.FAIRY_ICE_CRYSTAL.get())
+				.pattern("C C").pattern("CCC").pattern("C C")
+				.define('C', GLItems.FAIRY_ICE_CRYSTAL.get()).save(pvd);
+
+		// the dust spans the middle row and the membranes the four corners, which lays the same
+		// seven pieces out as wings rather than as the plus sign they would otherwise be
+		unlock(pvd, ShapedRecipeBuilder.shaped(RecipeCategory.MISC, GLItems.FAIRY_WINGS.get())::unlockedBy,
+				GLItems.FAIRY_DUST.get())
+				.pattern("P P").pattern("DDD").pattern("P P")
+				.define('P', Items.PHANTOM_MEMBRANE).define('D', GLItems.FAIRY_DUST.get())
+				.save(pvd);
 	}
 
 	public static void hexbrew(RegistrateRecipeProvider pvd) {
+
+		unlock(pvd, ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, GLBlocks.ALCHEMY_POT.get(), 1)::unlockedBy, Items.IRON_INGOT)
+				.pattern("I I").pattern("IFI").pattern("III")
+				.define('I', Items.IRON_INGOT).define('F', GLNaturalBlocks.STAR_FLOWER).save(pvd);
 
 		// hexbrew
 		{
@@ -121,9 +120,8 @@ public class GLRecipeGen {
 					::unlockedBy, GLNaturalBlocks.DEMONIC_MIASMA_MUSHROOM_SET.cap.get().asItem())
 					.save(pvd, GensokyoLegacy.loc("miasma_hexbrew"));
 
-			// the fairy brew: same carrier as all the others, spiked with the fairy's
-			// own powder. Drunk rather than thrown, so it grants Floating instead of
-			// splashing it around.
+			// the fairy brew: same carrier as all the others, spiked with
+			// the fairy's own powder; drunk rather than thrown, so it grants Floating.
 			unlock(pvd, new UnorderedAlchemyRecipeBuilder()
 					.fluid(HexBrew.MUNDANE_HEXBREW.getSource())
 					.add(GLItems.FAIRY_DUST.get())
@@ -166,10 +164,8 @@ public class GLRecipeGen {
 					.save(pvd, GensokyoLegacy.loc("hyphae_hexbrew"));
 		}
 
-		// the refined hexbrews: the solvent brews overclocked by re-brewing them on
-		// the elixir, with the same ingredients and the same yield. The elixir's charge
-		// comes out as one more level of the thing - one more blast radius for the
-		// explosive, one more effect level for the other two.
+		// the refined hexbrews: the solvent brews overclocked by re-brewing them on the
+		// elixir, same ingredients and yield, the charge buying one more level of the thing.
 		{
 			unlock(pvd, new UnorderedAlchemyRecipeBuilder()
 					.fluid(HexBrew.HEXBREW_ELIXIR.getSource())
@@ -302,11 +298,10 @@ public class GLRecipeGen {
 	}
 
 	/**
-	 * Invented survival recipes for decorative / furniture blocks.
-	 * Per-wood pieces are cut on the stonecutter from their own planks, so the
-	 * output matches the input wood and crafting-grid collisions with other
-	 * mods are impossible. Fuel values follow ingredient burn time: a plank
-	 * (300) cutting into N pieces splits the value (walls 1 plank -> 2 = 150).
+	 * Invented survival recipes for decorative / furniture blocks. Per-wood pieces are cut on the stonecutter from
+	 * their own planks, so the output matches the input wood and crafting-grid collisions with other mods are
+	 * impossible. Fuel values follow ingredient burn time: a plank (300) cutting into N pieces splits the value (walls
+	 * 1 plank -> 2 = 150).
 	 */
 	private static void furniture(RegistrateRecipeProvider pvd) {
 		for (var e : GLDecoBlocks.WoodType.values()) {
@@ -327,7 +322,7 @@ public class GLRecipeGen {
 		for (int i = 0; i < GLDecoBlocks.TILE_COLORS.length; i++) {
 			var dye = DyeItem.byColor(GLDecoBlocks.TILE_COLORS[i]);
 			unlock(pvd, ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS,
-							GLDecoBlocks.TILE_SETS[i].block.get(), 8)::unlockedBy, dye)
+					GLDecoBlocks.TILE_SETS[i].block.get(), 8)::unlockedBy, dye)
 					.pattern("###").pattern("#X#").pattern("###")
 					.define('#', Blocks.DEEPSLATE_TILES).define('X', dye)
 					.save(pvd);
@@ -364,6 +359,10 @@ public class GLRecipeGen {
 		pvd.stonecutting(DataIngredient.items(GLDecoBlocks.SHOJI_FRAME.get()),
 				RecipeCategory.BUILDING_BLOCKS, GLDecoBlocks.SHOJI_FRAME_PANE, 4);
 
+		// a plate is a glazed terracotta cut thin, 16 to a block; terracotta is not fuel
+		pvd.stonecutting(DataIngredient.items(Blocks.WHITE_GLAZED_TERRACOTTA),
+				RecipeCategory.DECORATIONS, GLBlocks.PLATE, 16);
+
 		// paper sliding door: shoji lattice door, paper in a stick grid like shoji frame
 		unlock(pvd, ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, GLDecoBlocks.PAPER_SLIDING_DOOR.get())::unlockedBy, Items.PAPER)
 				.pattern("SPS").pattern("PSP").pattern("SPS")
@@ -393,45 +392,37 @@ public class GLRecipeGen {
 		unlock(pvd, ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, GLFurniture.CARTON.get(), 2)::unlockedBy, Items.PAPER)
 				.pattern("PPP").pattern("PPP")
 				.define('P', Items.PAPER).save(pvd);
-	}
 
-	/**
-	 * Wrought iron: iron bars welded into a ring and blackened with a single
-	 * black dye, then two bars stacked into a pillar and one bar carrying three
-	 * candles. The bar steps never lose a bar, so the cost of the metal is the
-	 * same as vanilla iron bars throughout.
-	 */
-	private static void wroughtIron(RegistrateRecipeProvider pvd) {
-		// 8 bars around the dye, 8 bars out
 		unlock(pvd, ShapedRecipeBuilder.shaped(
 				RecipeCategory.DECORATIONS, GLDecoBlocks.WROUGHT_IRON_BARS.get(), 8)::unlockedBy, Items.IRON_BARS)
 				.pattern("I I").pattern("IBI").pattern("I I")
 				.define('I', Items.IRON_BARS).define('B', Items.BLACK_DYE).save(pvd);
 		// two bars stacked, like a vanilla pillar
 		unlock(pvd, ShapedRecipeBuilder.shaped(
-				RecipeCategory.DECORATIONS, GLDecoBlocks.WROUGHT_IRON_PILLAR.get())::unlockedBy,
+						RecipeCategory.DECORATIONS, GLDecoBlocks.WROUGHT_IRON_PILLAR.get())::unlockedBy,
 				GLDecoBlocks.WROUGHT_IRON_BARS.get().asItem())
 				.pattern("W").pattern("W")
 				.define('W', GLDecoBlocks.WROUGHT_IRON_BARS.get()).save(pvd);
 		// a bar laid flat as the stand, three candles on top: the block burns
 		// three wicks, so the candles are consumed instead of placed
 		unlock(pvd, ShapedRecipeBuilder.shaped(
-				RecipeCategory.DECORATIONS, GLFurniture.CANDLESTICK.get())::unlockedBy,
+						RecipeCategory.DECORATIONS, GLFurniture.CANDLESTICK.get())::unlockedBy,
 				GLDecoBlocks.WROUGHT_IRON_BARS.get().asItem())
 				.pattern("CCC").pattern(" W ")
 				.define('W', GLDecoBlocks.WROUGHT_IRON_BARS.get()).define('C', Items.CANDLE).save(pvd);
 	}
 
 	/**
-	 * Noren: a curtain is its own colour of wool cut on the stonecutter, so the
-	 * whole family has a vanilla entry point. Dyeing between the four patterns
-	 * is added separately, next to each block's registration.
+	 * Noren: a curtain is its own colour of wool cut on the stonecutter, so the whole family has a vanilla entry point.
+	 * Dyeing between the four patterns is added separately, next to each block's registration.
 	 */
 	public static void cutWool(RegistrateRecipeProvider pvd, DyeColor color, Supplier<? extends ItemLike> result) {
 		pvd.stonecutting(DataIngredient.items(wool(color)), RecipeCategory.DECORATIONS, result);
 	}
 
-	/** {@link DyeColor} carries no reference to its wool block, so spell them out. */
+	/**
+	 * {@link DyeColor} carries no reference to its wool block, so spell them out.
+	 */
 	private static Block wool(DyeColor color) {
 		return switch (color) {
 			case WHITE -> Blocks.WHITE_WOOL;

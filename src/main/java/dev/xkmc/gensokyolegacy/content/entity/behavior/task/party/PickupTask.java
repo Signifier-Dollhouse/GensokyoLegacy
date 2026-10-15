@@ -6,15 +6,12 @@ import net.minecraft.server.level.ServerLevel;
 
 
 /**
- * Take the serving: the gesture, and then the plate in her hand.
+ * Take the serving: the gesture, and then the plate in her hand. The serve comes off the block
+ * here rather than when she eventually eats it, so two guests converging on one cake cannot both
+ * be counted for it, and it is the re-validation that sends her back for another dish if the one
+ * she hesitated over was eaten while she stood there thinking.
  *
- * <p>
- * The serve comes off the block here rather than when she eventually eats it, so two guests
- * converging on one cake cannot both be counted for it. It is also the re-validation that
- * sends her back for another dish if the one she hesitated over was eaten while she stood
- * there thinking.
- *
- * @see doc/design/party/guest.md
+ * @see "doc/design/party/guest.md"
  */
 public class PickupTask extends PartyTask {
 
@@ -34,7 +31,6 @@ public class PickupTask extends PartyTask {
 		// someone else got there first, or the host broke it up: draw again
 		if (!takeable || !ctx.takeServing(dish)) return;
 		// holding it is the whole of the handoff: seated she is already home, otherwise
-		// GoToSeat picks her up. There is no path from here to eating that does not end in
-		// a chair.
+		// GoToSeat picks her up
 	}
 }

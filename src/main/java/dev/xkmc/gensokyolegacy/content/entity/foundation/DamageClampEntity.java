@@ -86,10 +86,9 @@ public class DamageClampEntity extends DamageRefactorEntity {
 	}
 
 	/**
-	 * Lift the max-speed clamp for a while, for a leap or a dash that has to outrun the
-	 * ordinary cap. {@link #validateData} skips the clamp until the grant runs out, so a
-	 * velocity set on this tick is allowed to persist instead of being cut back to the
-	 * feature's max speed next tick.
+	 * Lift the max-speed clamp for a while, for a leap or a dash that has to outrun the ordinary
+	 * cap. {@link #validateData} skips the clamp until the grant runs out, so velocity set on this
+	 * tick is allowed to persist instead of being cut back to the feature's max next tick.
 	 */
 	public void grantOverspeed(int ticks) {
 		overspeedTicks = Math.max(overspeedTicks, ticks);

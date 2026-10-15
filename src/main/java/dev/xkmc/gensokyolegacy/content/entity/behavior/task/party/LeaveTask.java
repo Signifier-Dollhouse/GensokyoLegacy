@@ -6,18 +6,11 @@ import net.minecraft.server.level.ServerLevel;
 
 
 /**
- * The party is over: stand up, then go.
+ * The party is over: sit out the unseat wait, stand up, then go. The wait is drawn per guest, so
+ * a table does not empty inside one tick, and it only elapses while she is still on her chair with
+ * the host still in the room.
  *
- * <p>
- * The first line of the cascade, so anything that can end a visit is the same thing here:
- * arm the departure and let the gate find it.
- *
- * <p>
- * Unseating and walking are separate so a table does not empty inside one tick, and the wait
- * is drawn per guest for the same reason. Everything after the walk is the module's business:
- * where a summoned clone goes, and what happens to a character who came as herself.
- *
- * @see doc/design/party/guest.md
+ * @see "doc/design/party/guest.md"
  */
 public class LeaveTask extends PartyTask {
 
@@ -42,7 +35,9 @@ public class LeaveTask extends PartyTask {
 	@Override
 	protected void step(ServerLevel level, SmartYoukaiEntity entity, PartyContext ctx) {
 		// the leave timer counts down but is never cleared: see PartyContext#armLeave
-		if (ctx.leaveWait() > 0) {
+		if (ctx.leaveWait() > 0 && ctx.seated() && ctx.hostNearby()) {
+			// the wait is a guest still sitting there after deciding to go, for a host still in
+			// the room: on her feet, or to nobody, she goes as soon as the wait would have been up
 			ctx.countLeave();
 			return;
 		}

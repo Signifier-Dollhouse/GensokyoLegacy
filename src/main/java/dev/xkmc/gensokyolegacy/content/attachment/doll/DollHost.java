@@ -13,13 +13,12 @@ import java.util.UUID;
 
 /**
  * Anything that hosts doll data and pairs it with the deployed {@link BaseDollEntity} — the player
- * capability ledger (pairing.md), the controller block (controller.md), Alice's retinue (host.md),
- * or a {@link StrayHost}. The {@link DollData} key is the entity's own game uuid, never serialized
- * on the entity or the item, so entity-side lookups always hit the real living entity.
+ * ledger (pairing.md), the controller block (controller.md), Alice's retinue (host.md), or a
+ * {@link StrayHost}. The {@link DollData} key is the entity's own game uuid, never stored on the
+ * entity or the item, so entity-side lookups always hit the living entity.
  * <p>
  * The second half is the <b>command surface</b>: everything a doll asks its host about commanding.
- * Dolls never branch on the concrete host type, and a host that never commands keeps the inert
- * defaults; {@link DollLedger} wires them to its {@link DollCommander}.
+ * Dolls never branch on the host type; {@link DollLedger} wires the inert defaults to its commander.
  */
 public interface DollHost {
 
@@ -49,8 +48,7 @@ public interface DollHost {
 	}
 
 	// ---------- command surface ----------
-	// Inert by default: a host that never issues orders answers with "nothing to follow,
-	// nobody to hand off to, nobody commanded anything".
+	// Inert by default: a host that never commands answers "nothing to follow, nobody to hand off to".
 
 	/**
 	 * The yaw the follow formation is anchored on, in degrees. A host that keeps summoned dolls

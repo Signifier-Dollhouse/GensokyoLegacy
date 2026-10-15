@@ -15,10 +15,8 @@ import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Volley: the first available doll walks the roster down with an iterative regular attack at the
- * cached target, or the punched entity on a left-click (glove.md §1).
- *
- * @see doc/design/doll/glove.md
+ * Volley: the first available doll attacks in turn at the cached target, or the punched entity.
+ * @see "doc/design/doll/glove.md"
  */
 public class VolleyMode extends DollGloveHandler {
 
@@ -57,9 +55,7 @@ var commands = attachment(sp).commands();
 		if (target == null || !DollGloveItem.isValidAttackTarget(sp, target)) {
 			sp.displayClientMessage(GLLang.ItemGlove.NO_TARGET.get(), true);
 		} else if (!commands.hasCapableDoll(sp, DollActionType.REGULAR_ATTACK)) {
-			// nothing can attack: every doll has both hands full of things no regular
-			// attack can use. Which of the two "no doll" lines fits depends on whether
-			// there is a roster at all.
+			// nothing can attack: both "no doll" lines fit, depending on whether a roster exists.
 			sp.displayClientMessage(commands.hasSummonedDoll(sp) ?
 					GLLang.ItemGlove.NO_WEAPON.get() : GLLang.ItemGlove.NO_DOLL.get(), true);
 		} else if (!commands.canAttack(sp, target, DollActionType.REGULAR_ATTACK)) {

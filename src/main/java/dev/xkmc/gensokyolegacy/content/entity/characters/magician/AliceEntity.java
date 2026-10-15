@@ -26,11 +26,10 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Alice Margatroid, the doll master. She is a {@link DollHost} in her own right:
- * the roster, the arming and the orders live in {@link AliceDollHost}, and this class
- * exists only to <b>be</b> the host, since {@link BaseDollEntity#getHost} resolves a
- * doll's host by asking its owning entity. {@link DelegateDollHost} forwards the whole
- * surface, so only {@link #dolls()} is written here (host.md §1).
+ * Alice Margatroid, the doll master. She is a {@link DollHost} in her own right: the roster,
+ * arming and orders live in {@link AliceDollHost}, and this class only has to <b>be</b> the
+ * host — {@link BaseDollEntity#getHost} asks the owning entity, which {@link DelegateDollHost}
+ * forwards here (host.md §1).
  */
 @SerialClass
 public class AliceEntity extends GeneralYoukaiEntity implements GeoYoukaiAnim, DelegateDollHost {
@@ -54,9 +53,8 @@ public class AliceEntity extends GeneralYoukaiEntity implements GeoYoukaiAnim, D
 	private static final RawAnimation AGREE = RawAnimation.begin().thenPlay("肯定");
 	private static final RawAnimation DECLINE = RawAnimation.begin().thenPlay("拒绝");
 	/**
-	 * The idle flourish the current export added as {@code 闲置动画}. It takes the outdoor
-	 * idle slot the other characters fill with a stretch or a gaze; nothing about it is
-	 * Alice-specific, so there is no reason to leave the slot empty.
+	 * The idle flourish the current export added as {@code 闲置动画}, taking the outdoor idle
+	 * slot other characters fill with a stretch or a gaze. Nothing about it is Alice-specific.
 	 */
 	private static final RawAnimation IDLE_FIDGET = RawAnimation.begin().thenPlay("闲置动画");
 
@@ -80,9 +78,7 @@ public class AliceEntity extends GeneralYoukaiEntity implements GeoYoukaiAnim, D
 	}
 
 	// ---------- doll host ----------
-	// The state lives in the module; every host method is forwarded there by
-	// DelegateDollHost. A doll resolves its host by asking its owner, so Alice
-	// answers even though she keeps nothing here.
+	// All state lives in the module, and DelegateDollHost forwards every method there.
 
 	/**
 	 * Her retinue: the ledger she conjures from and hands her orders.
@@ -93,10 +89,8 @@ public class AliceEntity extends GeneralYoukaiEntity implements GeoYoukaiAnim, D
 	}
 
 	/**
-	 * She fights at range, so the stock melee-then-strafe pair is wrong for her:
-	 * both close to contact, which is where her dolls' danmaku and her own
-	 * incoming damage are least welcome. {@link AliceRangeTask} holds a 16-24
-	 * band instead, on the full 3D vector.
+	 * She fights at range, so the stock melee-then-strafe pair is wrong: both close to
+	 * contact. {@link AliceRangeTask} holds a 16-24 band instead, on the full 3D vector.
 	 */
 	@Override
 	protected void addFightTasks(TaskBoard board) {
@@ -135,7 +129,10 @@ public class AliceEntity extends GeneralYoukaiEntity implements GeoYoukaiAnim, D
 			case CONFUSED -> Optional.of(CONFUSED);
 			case AGREE -> Optional.of(AGREE);
 			case DECLINE -> Optional.of(DECLINE);
+			case EAT -> Optional.of(EAT);
+			case HURT -> Optional.of(HURT);
 			case OUTDOOR_IDLE -> Optional.of(IDLE_FIDGET);
+			default -> Optional.empty();
 		};
 	}
 

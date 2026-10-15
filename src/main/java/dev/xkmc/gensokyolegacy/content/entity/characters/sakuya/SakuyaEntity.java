@@ -15,10 +15,9 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 import java.util.Optional;
 
 /**
- * Izayoi Sakuya, chief maid of the Scarlet Devil Mansion. She owns no home: the
- * only place she is ever found is someone else's, as a visit-system guest - see
- * {@code GLStructureGen} for the house she visits and {@code SakuyaQDGen} for
- * what she says and sells there.
+ * Izayoi Sakuya, chief maid of the Scarlet Devil Mansion. She owns no home: the only place
+ * she is found is someone else's, as a visit-system guest — see {@code GLStructureGen} for
+ * the house and {@code SakuyaQDGen} for what she says and sells there.
  */
 @SerialClass
 public class SakuyaEntity extends MaidenEntity implements GeoYoukaiAnim {
@@ -46,10 +45,8 @@ public class SakuyaEntity extends MaidenEntity implements GeoYoukaiAnim {
 	}
 
 	public PlayState stateAnimController(AnimationState<?> event) {
-		// No 睡觉 clip in this rig, and it must not name a missing one: GeckoLib
-		// resolves an unknown clip to null, hands the controller an empty queue,
-		// and then stops it without writing any bones - which pins the entity in
-		// the last pose written. 坐下 is the closest thing she has.
+		// No 睡觉 clip in this rig, and naming a missing one pins her in the last pose
+		// written: GeckoLib resolves it to null and stops the controller. 坐下 is closest.
 		if (isSleeping()) {
 			return event.setAndContinue(SIT);
 		}
@@ -80,7 +77,9 @@ public class SakuyaEntity extends MaidenEntity implements GeoYoukaiAnim {
 			case CONFUSED -> Optional.of(CONFUSED);
 			case AGREE -> Optional.of(AGREE);
 			case DECLINE -> Optional.of(DECLINE);
-			case OUTDOOR_IDLE -> Optional.empty();
+			case EAT -> Optional.of(EAT);
+			case HURT -> Optional.of(HURT);
+			default -> Optional.empty();
 		};
 	}
 

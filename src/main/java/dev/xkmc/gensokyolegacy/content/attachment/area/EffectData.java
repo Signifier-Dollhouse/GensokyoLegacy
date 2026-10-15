@@ -10,10 +10,9 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 /**
- * Server-owned payload of an effect, sent to the client as-is. Subclasses decide how long the owner
- * block keeps the effect alive and what it looks like.
+ * Server-owned payload of an effect, sent to the client as-is; subclasses set its lifetime and look.
  *
- * @see doc/design/area_effect.md
+ * @see "doc/design/area_effect.md"
  */
 @SerialClass
 public abstract class EffectData {
