@@ -1,0 +1,18 @@
+{
+  "name": "客人的回礼",
+  "icon": "gensokyolegacy:sturdy_teddy_bear",
+  "category": "gensokyolegacy:banquet",
+  "sortnum": 4,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": [
+        "gensokyolegacy:sturdy_teddy_bear",
+        "gensokyolegacy:tengu_sake",
+        "gensokyolegacy:ghost_sake",
+        "gensokyolegacy:magic_book"
+      ],
+      "text": "每位在你桌上吃过东西的客人都会留下回礼。"
+    }
+  ]
+}

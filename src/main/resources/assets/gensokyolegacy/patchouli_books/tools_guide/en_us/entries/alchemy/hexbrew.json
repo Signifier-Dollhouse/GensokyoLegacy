@@ -13,19 +13,28 @@
     },
     {
       "type": "patchouli:spotlight",
-      "item": "gensokyolegacy:explosive_hexbrew_bottle",
+      "item": [
+        "gensokyolegacy:explosive_hexbrew_bottle",
+        "gensokyolegacy:refined_explosive_hexbrew_bottle"
+      ],
       "title": "Explosive Hexbrew",
       "text": "Thrown, it explodes: it breaks no blocks and spares your allies. A magic bomb built for hitting enemies. Re-brewed on the elixir it becomes the Refined Explosive Hexbrew: the same throw, a wider blast."
     },
     {
       "type": "patchouli:spotlight",
-      "item": "gensokyolegacy:miasma_hexbrew_bottle",
+      "item": [
+        "gensokyolegacy:miasma_hexbrew_bottle",
+        "gensokyolegacy:refined_miasma_hexbrew_bottle"
+      ],
       "title": "Miasma Hexbrew",
       "text": "Thrown, it inflicts Miasma for 60 seconds. Each level of Miasma makes its target take 50% more damage, halves armor effectiveness by 50%, and reduces healing by 30%; a hurt target may also pick up negative effects. Re-brewed on the elixir, the Refined Miasma Hexbrew inflicts Miasma II instead."
     },
     {
       "type": "patchouli:spotlight",
-      "item": "gensokyolegacy:fairy_hexbrew_bottle",
+      "item": [
+        "gensokyolegacy:fairy_hexbrew_bottle",
+        "gensokyolegacy:refined_fairy_hexbrew_bottle"
+      ],
       "title": "Fairy Hexbrew",
       "text": "Drunk, it lets you float for 5 minutes. A fairy's own brew: fairy dust and dream mushroom spiked into the solvent, and served in the explosive brew's bottle. Re-brewed on the elixir, the Refined Fairy Hexbrew grants Floating II."
     },

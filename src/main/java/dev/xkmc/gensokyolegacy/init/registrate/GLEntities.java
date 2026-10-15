@@ -41,7 +41,6 @@ import net.minecraft.client.renderer.entity.ThrownItemRenderer;
 import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.SpawnPlacementTypes;
-import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.neoforged.neoforge.event.entity.RegisterSpawnPlacementsEvent;
 
@@ -85,11 +84,8 @@ public class GLEntities {
 	public static final EntityEntry<HexBrewBottleEntity> HEXBREW_BOTTLE;
 	public static final EntityEntry<IronDaggerBulletEntity> IRON_DAGGER;
 
-	// Spawn eggs are only registered for the three fully implemented characters
-	// (Reimu, Marisa, Morichika); every other mob and the doll are obtained in-world only.
+	// No character has a spawn egg: every mob is met in the world or summoned in-game, never placed.
 	static {
-
-		GensokyoLegacy.REGISTRATE.defaultCreativeTab(CreativeModeTabs.OP_BLOCKS);
 
 		CHAIR = GensokyoLegacy.REGISTRATE
 				.<ChairEntity>entity("dining_chair", ChairEntity::new, MobCategory.MISC)
@@ -130,7 +126,6 @@ public class GLEntities {
 					.properties(e -> e.sized(0.4F, 1.8f).clientTrackingRange(10))
 					.attributes(BossYoukaiEntity::createAttributes)
 					.renderer(() -> ReimuRenderer::new)
-					.spawnEgg(0xa93937, 0xfaf5f2).build()
 					.loot(EntityLootGen::reimu)
 					.dataMap(GLMeta.GIFT_PREFERENCE.reg(), GiftPreference.of(Map.of(
 							GiftType.DRINK, 2.0,
@@ -185,7 +180,6 @@ public class GLEntities {
 					.properties(e -> e.sized(0.4F, 1.8f).clientTrackingRange(10))
 					.attributes(BossYoukaiEntity::createAttributes)
 					.renderer(() -> MarisaRenderer::new)
-					.spawnEgg(0x52403C, 0xFAF2EF).build()
 					.loot(EntityLootGen::marisa)
 					.dataMap(GLMeta.PARTY_TASTE.reg(), TASTE_MARISA)
 					.register();
@@ -195,7 +189,6 @@ public class GLEntities {
 					.properties(e -> e.sized(0.4F, 1.8f).clientTrackingRange(10))
 					.attributes(GeneralYoukaiEntity::createAttributes)
 					.renderer(() -> MorichikaRenderer::new)
-					.spawnEgg(0x52403C, 0xFAF2EF).build()
 					.loot(EntityLootGen::noLoot)
 					.dataMap(GLMeta.PARTY_TASTE.reg(), TASTE_MORICHIKA)
 					.register();
