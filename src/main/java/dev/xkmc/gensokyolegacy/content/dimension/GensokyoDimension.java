@@ -290,16 +290,17 @@ public class GensokyoDimension {
 	 * Vanilla's wrapper that lets nearby structures pull the height around. Gensokyo has no vanilla structures, so
 	 * the blending terms always collapse onto {@code min}.
 	 * <p>
-	 * The {@code flat_cache} and {@code cache_2d} vanilla wraps this in are both gone, and that is what keeps {@code
-	 * ocean} meaning "drowned". Vanilla puts them back on the climate axes too, so its height chain and its biome grid
-	 * read one and the same value snapped to the 4-block cell's origin corner. Here the axes are unsnapped, so a cache
-	 * left on the spline would put the surface on the corner and the biome grid on the cell centre — two blocks apart,
-	 * which is what the leftover cost was.
+	 * {@code flat_cache} and {@code cache_2d} stay, as in vanilla, and they snap the height to the 4-block cell's
+	 * origin corner. That costs the exact {@code ocean}-is-drowned match, since the biome grid samples the unsnapped
+	 * axis at the cell centre: ~0.6% of the map disagrees either way. Leaving them off instead makes every block
+	 * re-sample the spline, which is ~7700 continentalness samples per chunk against the cached 50, and it only buys a
+	 * third of that error back. Stepped edges are the cheaper side of the trade.
 	 *
 	 * @see "doc/design/gensokyo_dimension.md" §7
 	 */
 	private static DensityFunction blended(DensityFunction min, DensityFunction max) {
-		return DensityFunctions.lerp(DensityFunctions.blendAlpha(), max, min);
+		return DensityFunctions.flatCache(DensityFunctions.cache2d(
+				DensityFunctions.lerp(DensityFunctions.blendAlpha(), max, min)));
 	}
 
 	private static DensityFunction reference(Holder<DensityFunction> function) {

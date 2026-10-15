@@ -297,8 +297,12 @@ noise, not a changed curve, and it is not worth re-fitting.
 
 All three are plain `shifted_noise` at the vanilla `xz_scale` 0.25, deliberately **not** `flat_cache`d:
 `NoiseChunk.FlatCache` indexes its table by quart position and stores the value at the cell's origin corner, so it
-snaps a 2D field to a 4-block grid and biome edges come out stepped. `blended()` drops the same two wrappers off
-`offset` and `factor`, for the same reason and because the biome grid reads `depth`, which is built on `offset`.
+snaps a 2D field to a 4-block grid and biome edges come out stepped.
+
+`blended()` keeps the same two wrappers on `offset` and `factor`, as vanilla has them. Those two sit on the *height*
+chain rather than on a biome axis, so they cannot step a biome edge: the grid reads `depth`, which is
+`yClampedGradient + offset`, and `depth` spans 1.5 → −1.5 over the whole column, so a 4-block snap of a term of size
+±0.5 only moves it below the surface. What the wrappers buy is the sample count — see below.
 
 ### Why continentalness feeds the height chain too
 
@@ -318,16 +322,17 @@ as broad and four times as steep, and the height-band shares of §3 need re-solv
 
 ### What is left of the ocean mismatch
 
-Vanilla can afford to snap. `minecraft:overworld/continents` is `flat_cache`d, so the height chain and the biome grid
-read one and the same snapped value and `ocean` is the drowned set *exactly* — at the price of 4-block-stepped biome
-edges. Gensokyo unsnaps the axes to get smooth edges, and `NoiseChunk` evaluates the density function at every block
-(`blockX()` is `cellStartBlockX + inCellX`, `inCellX` 0…3), so dropping the cache off the offset spline puts the height
-on the same continuous field the biome grid reads.
+Vanilla gets the match exactly, and the reason is that it snaps **both** readers of the elevation axis:
+`minecraft:overworld/continents` is `flat_cache`d for the biome grid, and `offset`/`factor` are `flat_cache`d through
+`splineWithBlending` for the height chain. Both read the value at the same 4-block cell origin corner, so they agree
+value for value and `ocean` is the drowned set with nothing left over. Vanilla pays for it in stepped coastlines,
+which it has always had.
 
-What survives is the 2-block step from the cell's origin corner to the cell centre the biome grid samples. Its size is
-the field's gradient over two blocks, so it scales exactly with the frequency — measured at 1024 × 1024 chunks, seed
-−1838080655014084215, ocean edge −0.53, comparing the biome's cell-centre sample against the cell-origin sample the
-`flat_cache`d chain would have used:
+Gensokyo takes the opposite trade on the axis itself: `continents_small` is deliberately unsnapped, so it gets the
+smooth coastline and gives up the exact match. `offset` stays `flat_cache`d anyway, so the height reads the cell corner
+while the grid reads the cell centre. What is left is that 2-block step. Its size is the field's gradient over two
+blocks, so it scales exactly with the frequency — measured at 1024 × 1024 chunks, seed −1838080655014084215, ocean
+edge −0.53, comparing the biome's cell-centre sample against the cell-origin sample the `flat_cache`d chain uses:
 
 | `firstOctave` | ocean | dry ocean | wet not ocean | error |
 |---|---|---|---|---|
@@ -336,10 +341,29 @@ the field's gradient over two blocks, so it scales exactly with the frequency �
 | −7 (now) | 7.53% | 0.294% | 0.301% | **0.594%** |
 | −6 | 7.65% | 0.578% | 0.551% | **1.129%** |
 
-It is also the one error no threshold can fix. Sweeping the ocean edge across ±0.02 of continentalness moves the total
-only between 0.58% and 0.65%, and the two halves stay within 0.01 points of each other throughout — the disagreement is
-a per-location gradient, not a shift, so there is no constant to absorb. The only lever that closes it is restoring the
-shared `flat_cache`, which buys the match with the stepped biome edges back.
+No threshold repairs it. Sweeping the ocean edge across ±0.02 of continentalness moves the total only between 0.58%
+and 0.65%, and the two halves stay within 0.01 points of each other throughout — the disagreement is a per-location
+gradient, not a shift, so there is no constant to absorb.
+
+### Why the wrappers stay
+
+Dropping `flat_cache` and `cache_2d` off `blended()` is the one way to halve that error, and it is not worth 0.594% of
+map. The spline's coordinate is the full 9-octave continentalness noise, so without the wrappers every evaluation of it
+re-samples. Per chunk that is ~7700 samples against the cached 50:
+
+| consumer | samples/chunk |
+|---|---|
+| interpolated `underground`/`rangeChoice` subtree (5 slice fills × 245 points × 2 `sloped_cheese` × 2 splines) | 4900 |
+| `preliminarySurfaceLevel` (25 columns × 49 steps; `factor` already `cache_2d`d at `NoiseRouterData:354`) | ~1250 |
+| biome grid, `Climate.Sampler` at one depth sample per 4×4×4 cell | ~1536 |
+| **with the wrappers** (5×5 corner table, twice) | **50** |
+
+At 377 ns per 9-octave 2D sample (measured against `neoforge-21.1.238`) that is ~2.9 ms of extra sampling per chunk,
+and it buys back only a third of the error rather than closing it. Stepped edges are the cheap side of the trade.
+
+Note that `tools/terrain.py` cannot see this choice either way: it samples one column per chunk at the chunk centre,
+block ≡ 8 (mod 16) and therefore exactly a `flat_cache` cell corner, so the snapping is a no-op at every pixel it
+evaluates. The §3 and §4 tables are identical with and without the wrappers.
 
 ### Wiring
 
