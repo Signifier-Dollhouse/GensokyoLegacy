@@ -87,10 +87,11 @@ spline point, and each point sits at the continentalness **quantile** that gives
 asked for. Since `CubicSpline` with zero derivatives interpolates as `low + (high - low) * t²` — not linearly — the
 bands hold their share exactly, and each one is crowded toward its lower edge, where the curve is flattest.
 
-Those quantiles were solved against **vanilla `minecraft:overworld/continents`**, so the `share below` column is the
-vanilla field's cumulative distribution. §7 swaps the spline onto a finer field with a different distribution, which
-leaves the curve itself untouched — the waterline still lands where §4 needs it — but not the shares. The
-measured-against-target table further down is the fine field's, and §4's band shares are sampled from it directly.
+Those quantiles were solved against **vanilla `minecraft:overworld/continents`**. §7 moves the spline onto a finer field,
+which leaves the curve and the cumulative distribution with it — raising `firstOctave` changes how fast a noise varies
+in space, not what values it takes, so every location still sits at the quantile it was solved for, and the waterline
+still lands where §4 needs it. The `share below` column and the measured table below are that finer field's, sampled
+directly on the same 1024 × 1024 run as §4.
 
 | continentalness | spline | surface y | share below | band |
 |---|---|---|---|---|
@@ -99,17 +100,17 @@ measured-against-target table further down is the fine field's, and §4's band s
 | −0.65 | −0.145 | 45 | | |
 | −0.60 | −0.098 | 51 | | |
 | −0.56 | −0.051 | 57 | | |
-| −0.53 | −0.004 | 63 | 11.7% | **waterline, ocean ends** |
+| −0.53 | −0.004 | 63 | 7.5% | **waterline, ocean ends** |
 | −0.50 | 0.004 | 64 | | strand |
-| −0.118 | 0.129 | 80 | 43.1% | 30% plain |
-| 0.108 | 0.254 | 96 | 65.1% | 22% at 80 |
-| 0.255 | 0.379 | 112 | 77.1% | 12% at 96 |
-| 0.329 | 0.504 | 128 | 82.1% | 5% at 112 |
-| 0.380 | 0.629 | 144 | 85.1% | 3% at 128 |
-| 0.436 | 0.754 | 160 | 88.1% | |
-| 0.505 | 0.879 | 176 | 91.1% | |
-| 0.595 | 1.004 | 192 | 94.1% | |
-| 0.734 | 1.129 | 208 | 97.1% | |
+| −0.118 | 0.129 | 80 | 36.3% | 30% plain |
+| 0.108 | 0.254 | 96 | 60.6% | 22% at 80 |
+| 0.255 | 0.379 | 112 | 74.8% | 12% at 96 |
+| 0.329 | 0.504 | 128 | 80.7% | 5% at 112 |
+| 0.380 | 0.629 | 144 | 84.2% | 3% at 128 |
+| 0.436 | 0.754 | 160 | 87.5% | |
+| 0.505 | 0.879 | 176 | 90.8% | |
+| 0.595 | 1.004 | 192 | 94.0% | |
+| 0.734 | 1.129 | 208 | 96.8% | |
 | ≥ 1.05 | 1.2227 | **220 (peak)** | | flat to 2.00 |
 
 The quantiles come from one 1024 × 1024 chunk sample, a million columns. Rounding a location to three decimals moves it
@@ -120,20 +121,22 @@ Measured on 1024 × 1024 chunks, seed −1838080655014084215, against the target
 
 | band | target | measured | | band | target | measured |
 |---|---|---|---|---|---|---|
-| ocean biome | = water | 7.6% | | 128-143 | 3% | 3.5% |
-| 64-79 | 30% | 27.1% | | 144-159 | 3% | 3.5% |
-| 80-95 | 22% | 22.8% | | 160-175 | 3% | 3.6% |
-| 96-111 | 12% | 13.9% | | 176-191 | 3% | 3.8% |
-| 112-127 | 5% | 5.9% | | 192-207 | 3% | 3.8% |
-| | | | | 208+ | 3% | 3.4% |
+| ocean biome | = water | 7.73% | | 128-143 | 3% | 3.5% |
+| 64-79 | 30% | 28.8% | | 144-159 | 3% | 3.3% |
+| 80-95 | 22% | 24.3% | | 160-175 | 3% | 3.3% |
+| 96-111 | 12% | 14.2% | | 176-191 | 3% | 3.2% |
+| 112-127 | 5% | 5.9% | | 192-207 | 3% | 2.8% |
+| | | | | 208+ | 3% | 2.0% |
 
-Peak 220, lowest 38, mean 100.5, and 64% of the map above y 80.
+Peak 220, lowest 38, mean 96.6, and 62% of the map above y 80.
 
-Measured after §7 moved the spline onto the fine field, so the `target` column is what the points were *solved* for
-against the vanilla field and the `measured` column is what the fine field actually gives. Most bands land within a
-point or three; the two that moved are **ocean, four points under its 11.7% design share**, and the bands above y 144,
-which take three points from the plain. The world that results is less watery and a little higher than the original
-design, and the curve shape survived the swap intact.
+Two things are worth reading off that table. **Ocean is 7.73% against 7.53% of the map under water**: the extra is the
+sliver of the waterline row itself, where the column tops out on y 63 and nearest-cell sends it to `ocean` on a tie.
+And the fine field's shares are not the ones the points were solved for — the quantiles carry over from the vanilla
+field, but the *realisation* that fills a 16 km window is a different draw, so the two ground bands come out heavy and
+the top two light. That spread is sampling noise: the shares are quantiles of a field whose dominant octave has a 2048
+block period, so a 16 km window holds a few dozen independent patches and its quantiles carry a couple of points of
+error. Re-solving the points against it would be fitting the noise, so they are left alone.
 
 The ocean biome is the one band whose target is not a free number: its edge sits on the waterline, so `ocean` is
 exactly the set of drowned columns. Ending it anywhere higher paints dry ground ocean, and the low spots just above the
@@ -187,39 +190,46 @@ Note that `NoiseRouter.mapAll` exists but is unusable here: `HolderHolder.mapAll
 
 ## 4. The climate grid
 
-Six continentalness bands × three temperature × three humidity × two depth = **108 points**, in
-`GensokyoDimension.biomeSource`. Erosion and weirdness are `[-1, 1]` on every point; depth is `0.0` at the surface and
-`1.0` underground. Bands only touch on their shared edge, where the `offset` tiebreaker falls back to list order.
-
-Each band is a height range of the offset spline rather than an arbitrary cut, and the shares are the continentalness
-quantiles from the same 1024 × 1024 sample as §3 — the biome share of a band is the map share of its continentalness
-range, to within the sliver of each band that the waterline cuts across.
+**Seven continentalness regions**, each one a height band of the offset spline, in `GensokyoDimension.biomeSource`.
+Every biome in a region shares that region's continentalness span exactly, and the region's own biomes tile the
+temperature and humidity plane instead — which is why the list is only **31 points** (19 at the surface, 12
+underground) rather than the 108 a region × 3 × 3 × 2 grid would need. Erosion and weirdness are `[-1, 1]` on every
+point, so they cannot pick a biome; depth is `0.0` at the surface and `1.0` underground.
 
 | continentalness | surface y | share | cold | temperate | warm |
 |---|---|---|---|---|---|
-| −1.00 … −0.53 | ≤ 63 | 7.3% | ocean | ocean | ocean |
-| −0.53 … −0.44 | 63 … 66 | 3.8% | beach | beach | beach |
-| −0.44 … −0.118 | 66 … 80 | 24.4% | snowy_plains | dry `sunflower_plains`, normal `plains`, wet `forest` | dry `desert`, normal `savanna`, wet `bamboo_jungle` |
-| −0.118 … 0.329 | 80 … 128 | 42.6% | snowy_plains | dry `sunflower_plains`, normal `sakura_forest`, wet `magical_forest` | dry `desert`, normal `savanna`, wet `bamboo_jungle` |
-| 0.329 … 0.595 | 128 … 192 | 14.4% | mountain | normal `grove`, otherwise `mountain` | mountain |
-| 0.595 … 1.00 | 192 … 220 | 7.2% | mountain | normal `peak`, otherwise `mountain` | mountain |
+| −1.00 … −0.53 | ≤ 63 | 7.53% | ocean | ocean | ocean |
+| −0.53 … −0.437 | 63 … 66 | 4.28% | beach | beach | beach |
+| −0.437 … −0.118 | 66 … 80 | 25.73% | snowy_plains | dry `sunflower_plains`, normal `plains`, wet `forest` | dry `desert`, normal `savanna`, wet `bamboo_jungle` |
+| −0.118 … 0.108 | 80 … 96 | 24.26% | snowy_plains | dry `sunflower_plains`, normal `sakura_forest`, wet `magical_forest` | dry `desert`, normal `savanna`, wet `bamboo_jungle` |
+| 0.108 … 0.329 | 96 … 128 | 20.15% | mountain | mountain | mountain |
+| 0.329 … 0.595 | 128 … 192 | 13.25% | grove | grove | grove |
+| 0.595 … 1.00 | 192 … 220 | 4.79% | peak | peak | peak |
 
-Shares are the continentalness quantiles over the same 1024 × 1024 chunk-centre sample as §3; the 0.38% the six spans
-miss is the tail below −1.00, which nearest-cell sends to `ocean` either way. `ocean` reads 7.65% against a 7.3% band
-because the waterline cuts a sliver across the coast band, which is the arrangement §4 wants.
+Shares are the continentalness quantiles over the same 1024 × 1024 chunk-centre sample as §3. They move a point or two
+when the octave seeds move (§7), which is why the `target` column of §3 and these are a statement about one sample
+rather than a property of the curve.
 
-The coast band is 0.09 of continentalness wide, which is 3.8% of the map: with the steep coastal ramp behind it the band
-is a strand a few blocks above the water rather than a plain. Its lower edge is the waterline, so no dry column is
-labelled ocean and the ocean biome is precisely the drowned set. The `−0.118` edge is where y 80 goes by, so the upland
-band is exactly the "above 80" terrain, `0.329` is y 128, where the ground stops being forest country, and `0.595` is
-y 192, where the two high bands split. Moving an edge trades the biomes between the rows either side of it and nothing
-else; moving the first one off the waterline is the only way to put ocean back on land.
+Each region edge is a whole control point of the offset spline — the waterline at −0.53, then y 80, y 96, y 128 and
+y 192 — so moving an edge moves the height it names and nothing else. `-0.437` is the one free value, and it is the
+quantile giving the beach its ~4% share.
 
-The last two rows give `grove` and `peak` to the temperate, normally-humid column only, so a cold or a dry upland still
-comes out as bare `mountain`. `peak` ends at the top of the spline, where continentalness is flat at 1.2227 and the
-terrain stops rising, so y 192 … 220 is the whole of it.
+Neighbouring spans are held `GAP = 0.01` apart at each end, so a value in the gap is equidistant and the tie falls to
+list order. The gap above the waterline is the one exception: `ocean` ends exactly on the waterline so it stays the
+drowned set, and the gap falls on the beach side of it.
 
-Underground (depth 1.0): `plains` under water and coast, `snowy_plains` when cold, `magical_forest` otherwise.
+Within a region the temp/humidity boxes tile the plane with the same 0.01 gaps, so nothing "eats into" its
+neighbour's row — see `out/terrain/gensokyo_lower_ground.png` and `gensokyo_upper_ground.png`. The cold row runs the
+full width in both open-ground regions, because `snowy_plains` ignores humidity. The two differ only in the temperate
+row's centre: `plains` below becomes `sakura_forest` above and `forest` becomes `magical_forest`.
+
+The last three rows give each region its whole plane to one biome, so no cold or dry upland comes out as anything else.
+`peak` ends at the top of the spline, where continentalness is flat at 1.2227 and the terrain stops rising, so
+y 192 … 220 is the whole of it.
+
+Underground (depth 1.0): `plains` under the waterline and the coast, then `snowy_plains` when cold and
+`magical_forest` otherwise. Depth reads as `(surfaceY − sampleY) / 128`, so those rows only win more than 128 blocks
+down — the world floor under low ground, and deep caves under high ground.
 
 Multi-noise lookup is nearest-cell on the six axes, so cells need not tile the space exactly — the nearest one wins
 anywhere the grid is silent.
@@ -250,8 +260,9 @@ carver set minus that one. Canyon ravines run far deeper than Gensokyo wants.
 ./gradlew runData
 ```
 
-Writes `dimension/gensokyo.json`, `dimension_type/gensokyo.json`, `worldgen/noise_settings/gensokyo.json` and
-`worldgen/density_function/{offset,factor,depth,sloped_cheese}.json`. Output is committed.
+Writes `dimension/gensokyo.json`, `dimension_type/gensokyo.json`, `worldgen/noise_settings/gensokyo.json`,
+`worldgen/density_function/{offset,factor,depth,sloped_cheese}.json` and
+`worldgen/noise/{continentalness_small,temperature_small,vegetation_small}.json`. Output is committed.
 
 `python3 tools/feature_cycle_check.py build/moddev/artifacts/neoforge-21.1.238-client-extra-aka-minecraft-resources.jar src/generated/resources`
 must still report no feature order cycle. The checker exists because `BiomeDefaultFeatures` call order is load-bearing —
@@ -272,14 +283,22 @@ rebuilds from keys.
 ## 7. The fine climate
 
 `gensokyolegacy:continentalness_small`, `:temperature_small` and `:vegetation_small` are the three climate axes with
-**every octave raised by one** (`firstOctave` −9→−8, −10→−9, −8→−7), amplitude lists copied from
+**every octave raised by two** (`firstOctave` −9→−7, −10→−8, −8→−6), amplitude lists copied from
 `minecraft/worldgen/noise/*.json`. Vanilla keeps those parameters private, so the lists are duplicated in
 `GensokyoDimension.noises`. Raising `firstOctave` rather than `xz_scale` shifts the octaves *and* the shift field
-together, so the axes keep the same shape at twice the frequency.
+together, so the axes keep the same shape at four times the frequency.
+
+Raising it costs the spline nothing. `NormalNoise` normalises on the amplitudes alone
+(`expectedDeviation` over the non-zero octaves), so `firstOctave` only scales the argument the octaves are read at:
+the **value distribution is unchanged**, and every quantile the region edges of §4 and the spline points of §3 sit at
+still sit at the same quantile. The permutation tables do move (`octave_%d` is keyed on `firstOctave + k`), so the
+realisation is a different one, and the shares measured on a 16 km window drift by a point or two — that is sampling
+noise, not a changed curve, and it is not worth re-fitting.
 
 All three are plain `shifted_noise` at the vanilla `xz_scale` 0.25, deliberately **not** `flat_cache`d:
 `NoiseChunk.FlatCache` indexes its table by quart position and stores the value at the cell's origin corner, so it
-snaps a 2D field to a 4-block grid and biome edges come out stepped.
+snaps a 2D field to a 4-block grid and biome edges come out stepped. `blended()` drops the same two wrappers off
+`offset` and `factor`, for the same reason and because the biome grid reads `depth`, which is built on `offset`.
 
 ### Why continentalness feeds the height chain too
 
@@ -294,8 +313,33 @@ only while the grid and the spline read the *same* field:
 
 No threshold repairs it: `continents_small` is seeded from its own key and is therefore statistically **independent**
 of vanilla continentalness, so the best fit leaves ~17% of the map disagreeing. Hence the spline is splined on
-`DF_CONTINENTS_SMALL` too. The cost is that the terrain now reads a field half as wide: landforms are half as broad
-and twice as steep, and the height-band shares of §3 need re-solving.
+`DF_CONTINENTS_SMALL` too. The cost is that the terrain now reads a field a quarter as wide: landforms are a quarter
+as broad and four times as steep, and the height-band shares of §3 need re-solving.
+
+### What is left of the ocean mismatch
+
+Vanilla can afford to snap. `minecraft:overworld/continents` is `flat_cache`d, so the height chain and the biome grid
+read one and the same snapped value and `ocean` is the drowned set *exactly* — at the price of 4-block-stepped biome
+edges. Gensokyo unsnaps the axes to get smooth edges, and `NoiseChunk` evaluates the density function at every block
+(`blockX()` is `cellStartBlockX + inCellX`, `inCellX` 0…3), so dropping the cache off the offset spline puts the height
+on the same continuous field the biome grid reads.
+
+What survives is the 2-block step from the cell's origin corner to the cell centre the biome grid samples. Its size is
+the field's gradient over two blocks, so it scales exactly with the frequency — measured at 1024 × 1024 chunks, seed
+−1838080655014084215, ocean edge −0.53, comparing the biome's cell-centre sample against the cell-origin sample the
+`flat_cache`d chain would have used:
+
+| `firstOctave` | ocean | dry ocean | wet not ocean | error |
+|---|---|---|---|---|
+| −9 (vanilla) | 4.69% | 0.061% | 0.061% | **0.122%** |
+| −8 | 7.65% | 0.149% | 0.140% | **0.290%** |
+| −7 (now) | 7.53% | 0.294% | 0.301% | **0.594%** |
+| −6 | 7.65% | 0.578% | 0.551% | **1.129%** |
+
+It is also the one error no threshold can fix. Sweeping the ocean edge across ±0.02 of continentalness moves the total
+only between 0.58% and 0.65%, and the two halves stay within 0.01 points of each other throughout — the disagreement is
+a per-location gradient, not a shift, so there is no constant to absorb. The only lever that closes it is restoring the
+shared `flat_cache`, which buys the match with the stepped biome edges back.
 
 ### Wiring
 
@@ -308,4 +352,4 @@ and twice as steep, and the height-band shares of §3 need re-solving.
   field by field, carrying over the other thirteen.
 
 Measured on 256 × 256 chunks, seed −1838080655014084215: biome patch median 64 → 23 chunks, mean 524 → 162, patch
-count 125 → 403, with `ocean-but-dry` at 0.11%.
+count 125 → 403.

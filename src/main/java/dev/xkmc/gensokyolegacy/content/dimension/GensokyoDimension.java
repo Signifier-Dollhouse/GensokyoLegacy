@@ -61,10 +61,12 @@ public class GensokyoDimension {
 	public static final ResourceKey<DensityFunction> DF_SLOPED_CHEESE = df("sloped_cheese");
 
 	/**
-	 * The three climate axes, every octave one step finer than vanilla's. The height chain splines this continentalness
+	 * The three climate axes, every octave two steps finer than vanilla's. The height chain splines this continentalness
 	 * too — the biome grid has to read the same field the waterline is drawn on, or `ocean` stops meaning "drowned" —
-	 * so the whole dimension is built half as wide rather than just the biomes. Vanilla keeps these parameters private,
-	 * so the amplitude lists are copied from {@code minecraft/worldgen/noise/*.json} with {@code firstOctave} raised.
+	 * so the whole dimension is built a quarter as wide rather than just the biomes. Vanilla keeps these parameters
+	 * private, so the amplitude lists are copied from {@code minecraft/worldgen/noise/*.json} with {@code firstOctave}
+	 * raised; that leaves the value distribution alone and only doubles the spatial frequency, since
+	 * {@code NormalNoise} normalises on the amplitudes alone.
 	 * <p>
 	 * {@code NoiseRouterData} builds temperature and vegetation inline rather than behind a registry key, so those
 	 * two cannot be redirected by {@link FlatTerrainFunctions}; the router is rebuilt field by field instead.
@@ -160,9 +162,9 @@ public class GensokyoDimension {
 	 * Called from {@code GLFeatureGen}, which owns the single {@link Registries#NOISE} bootstrap.
 	 */
 	public static void noises(BootstrapContext<NormalNoise.NoiseParameters> ctx) {
-		ctx.register(N_CONTINENTS_SMALL, new NormalNoise.NoiseParameters(-8, 1.0, 1.0, 2.0, 2.0, 2.0, 1.0, 1.0, 1.0, 1.0));
-		ctx.register(N_TEMPERATURE_SMALL, new NormalNoise.NoiseParameters(-9, 1.5, 0.0, 1.0, 0.0, 0.0, 0.0));
-		ctx.register(N_VEGETATION_SMALL, new NormalNoise.NoiseParameters(-7, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0));
+		ctx.register(N_CONTINENTS_SMALL, new NormalNoise.NoiseParameters(-7, 1.0, 1.0, 2.0, 2.0, 2.0, 1.0, 1.0, 1.0, 1.0));
+		ctx.register(N_TEMPERATURE_SMALL, new NormalNoise.NoiseParameters(-8, 1.5, 0.0, 1.0, 0.0, 0.0, 0.0));
+		ctx.register(N_VEGETATION_SMALL, new NormalNoise.NoiseParameters(-6, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0));
 	}
 
 	private static void noiseSettings(BootstrapContext<NoiseGeneratorSettings> ctx) {
@@ -287,10 +289,17 @@ public class GensokyoDimension {
 	/**
 	 * Vanilla's wrapper that lets nearby structures pull the height around. Gensokyo has no vanilla structures, so
 	 * the blending terms always collapse onto {@code min}.
+	 * <p>
+	 * The {@code flat_cache} and {@code cache_2d} vanilla wraps this in are both gone, and that is what keeps {@code
+	 * ocean} meaning "drowned". Vanilla puts them back on the climate axes too, so its height chain and its biome grid
+	 * read one and the same value snapped to the 4-block cell's origin corner. Here the axes are unsnapped, so a cache
+	 * left on the spline would put the surface on the corner and the biome grid on the cell centre — two blocks apart,
+	 * which is what the leftover cost was.
+	 *
+	 * @see "doc/design/gensokyo_dimension.md" §7
 	 */
 	private static DensityFunction blended(DensityFunction min, DensityFunction max) {
-		return DensityFunctions.flatCache(DensityFunctions.cache2d(
-				DensityFunctions.lerp(DensityFunctions.blendAlpha(), max, min)));
+		return DensityFunctions.lerp(DensityFunctions.blendAlpha(), max, min);
 	}
 
 	private static DensityFunction reference(Holder<DensityFunction> function) {
