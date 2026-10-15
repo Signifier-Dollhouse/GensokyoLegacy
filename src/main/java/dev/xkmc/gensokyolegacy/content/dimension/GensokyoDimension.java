@@ -88,25 +88,66 @@ public class GensokyoDimension {
 	private static final float SURFACE_DEPTH = 0.0f;
 	private static final float UNDERGROUND_DEPTH = 1.0f;
 
-	// one band per height range of the offset spline: sea floor, strand, plain, upland, mountain, peak;
-	// the ocean band ends where the terrain crosses sea level, so no dry ground is labelled ocean
-	private static final List<Band> CONTINENTALNESS = List.of(
-			new Band(-1.0f, -0.53f), new Band(-0.53f, -0.44f), new Band(-0.44f, -0.118f),
-			new Band(-0.118f, 0.329f), new Band(0.329f, 0.595f), new Band(0.595f, 1.0f));
-	private static final List<Band> TEMPERATURE = List.of(
-			new Band(-1.0f, -0.35f), new Band(-0.35f, 0.35f), new Band(0.35f, 1.0f));
-	private static final List<Band> HUMIDITY = List.of(
-			new Band(-1.0f, -0.25f), new Band(-0.25f, 0.25f), new Band(0.25f, 1.0f));
+	/**
+	 * Continentalness thresholds that separate the regions, each sitting where the offset spline reaches a height band
+	 * edge: the waterline, the top of the lower ground at y 80, then y 96, y 128 and y 192. The spline already carries a
+	 * point at every one of these, so a region's bounds land on whole control points of the curve.
+	 * <p>
+	 * {@code -0.437} is the one free value: it is the quantile giving the beach its 4% share of the map, measured on the
+	 * same 1024 x 1024 chunk sample as {@code doc/design/gensokyo_dimension.md} §4.
+	 */
+	private static final float[] REGION_EDGES = {-0.53f, -0.437f, -0.118f, 0.108f, 0.329f, 0.595f};
 
-	private static final int OCEAN = 0;
-	private static final int COAST = 1;
-	private static final int UPLAND = 3;
-	private static final int MOUNTAIN = 4;
-	private static final int PEAK = 5;
-	private static final int COLD = 0;
-	private static final int TEMPERATE = 1;
-	private static final int DRY = 0;
-	private static final int NORMAL = 1;
+	/** Half the dead zone held between neighbouring spans, so no boundary is a shared edge. */
+	private static final float GAP = 0.01f;
+
+	private static final Band FULL_PLANE = new Band(-1.0f, 1.0f);
+	private static final Band COLD = new Band(-1.0f, -0.36f);
+	private static final Band TEMPERATE = new Band(-0.34f, 0.34f);
+	private static final Band WARM = new Band(0.36f, 1.0f);
+	private static final Band NOT_COLD = new Band(-0.34f, 1.0f);
+	private static final Band DRY = new Band(-1.0f, -0.26f);
+	private static final Band NORMAL = new Band(-0.24f, 0.24f);
+	private static final Band WET = new Band(0.26f, 1.0f);
+
+	// region order follows REGION_EDGES: ocean, beach, lower ground, upper ground, mountain, grove, peak.
+	// The five single-biome regions take the whole plane in one cell; the two open ground regions tile it three by
+	// three, with the cold row running the full width because snowy_plains ignores humidity.
+	private static final List<List<Cell>> SURFACE = List.of(
+			List.of(new Cell(GLBiomes.OCEAN, FULL_PLANE, FULL_PLANE)),
+			List.of(new Cell(GLBiomes.BEACH, FULL_PLANE, FULL_PLANE)),
+			List.of(new Cell(GLBiomes.SNOWY_PLAINS, COLD, FULL_PLANE),
+					new Cell(GLBiomes.SUNFLOWER_PLAINS, TEMPERATE, DRY),
+					new Cell(GLBiomes.PLAINS, TEMPERATE, NORMAL),
+					new Cell(GLBiomes.FOREST, TEMPERATE, WET),
+					new Cell(GLBiomes.DESERT, WARM, DRY),
+					new Cell(GLBiomes.SAVANNA, WARM, NORMAL),
+					new Cell(GLBiomes.BAMBOO_JUNGLE, WARM, WET)),
+			List.of(new Cell(GLBiomes.SNOWY_PLAINS, COLD, FULL_PLANE),
+					new Cell(GLBiomes.SUNFLOWER_PLAINS, TEMPERATE, DRY),
+					new Cell(GLBiomes.SAKURA_FOREST, TEMPERATE, NORMAL),
+					new Cell(GLBiomes.MAGICAL_FOREST, TEMPERATE, WET),
+					new Cell(GLBiomes.DESERT, WARM, DRY),
+					new Cell(GLBiomes.SAVANNA, WARM, NORMAL),
+					new Cell(GLBiomes.BAMBOO_JUNGLE, WARM, WET)),
+			List.of(new Cell(GLBiomes.MOUNTAIN, FULL_PLANE, FULL_PLANE)),
+			List.of(new Cell(GLBiomes.GROVE, FULL_PLANE, FULL_PLANE)),
+			List.of(new Cell(GLBiomes.PEAK, FULL_PLANE, FULL_PLANE)));
+
+	// deep underground only: plains under the waterline, then snowy_plains when cold and magical_forest otherwise
+	private static final List<List<Cell>> UNDERGROUND = List.of(
+			List.of(new Cell(GLBiomes.PLAINS, FULL_PLANE, FULL_PLANE)),
+			List.of(new Cell(GLBiomes.PLAINS, FULL_PLANE, FULL_PLANE)),
+			List.of(new Cell(GLBiomes.SNOWY_PLAINS, COLD, FULL_PLANE),
+					new Cell(GLBiomes.MAGICAL_FOREST, NOT_COLD, FULL_PLANE)),
+			List.of(new Cell(GLBiomes.SNOWY_PLAINS, COLD, FULL_PLANE),
+					new Cell(GLBiomes.MAGICAL_FOREST, NOT_COLD, FULL_PLANE)),
+			List.of(new Cell(GLBiomes.SNOWY_PLAINS, COLD, FULL_PLANE),
+					new Cell(GLBiomes.MAGICAL_FOREST, NOT_COLD, FULL_PLANE)),
+			List.of(new Cell(GLBiomes.SNOWY_PLAINS, COLD, FULL_PLANE),
+					new Cell(GLBiomes.MAGICAL_FOREST, NOT_COLD, FULL_PLANE)),
+			List.of(new Cell(GLBiomes.SNOWY_PLAINS, COLD, FULL_PLANE),
+					new Cell(GLBiomes.MAGICAL_FOREST, NOT_COLD, FULL_PLANE)));
 
 	public static void init(DataProviderInitializer init) {
 		// every registration of a registry has to share one bootstrap, so the density functions and the noise
@@ -281,58 +322,53 @@ public class GensokyoDimension {
 
 	/**
 	 * A coarse climate grid, one biome per cell, with erosion and weirdness spanning everything so they cannot pick a
-	 * biome. Biome lookup is nearest-cell, so the bands need not tile the space exactly.
+	 * biome. Each {@link #REGION_EDGES} interval is one height band of the offset spline and carries a single
+	 * continentalness span, which every biome in that region shares; the region's own biomes tile the temperature and
+	 * humidity plane instead. That is why the list is as short as it is: one cell per biome per region, not one per
+	 * biome per climate cell.
+	 * <p>
+	 * Neighbouring spans are held {@link #GAP} apart, so a value in the gap is equidistant and the tie falls to list
+	 * order. The gap above the waterline is the one exception: {@code ocean} ends exactly on the waterline so it stays
+	 * the drowned set, and the gap falls on the beach side of it.
 	 */
 	public static MultiNoiseBiomeSource biomeSource(HolderGetter<Biome> biomes) {
 		List<Pair<Climate.ParameterPoint, Holder<Biome>>> values = new ArrayList<>();
-		for (int c = 0; c < CONTINENTALNESS.size(); c++) {
-			for (int t = 0; t < TEMPERATURE.size(); t++) {
-				for (int h = 0; h < HUMIDITY.size(); h++) {
-					values.add(cell(biomes, land(c, t, h), c, t, h, SURFACE_DEPTH));
-					values.add(cell(biomes, underground(c, t), c, t, h, UNDERGROUND_DEPTH));
-				}
+		for (int r = 0; r < REGION_EDGES.length + 1; r++) {
+			Band region = region(r);
+			for (Cell cell : SURFACE.get(r)) {
+				values.add(cell(biomes, cell, region, SURFACE_DEPTH));
+			}
+			for (Cell cell : UNDERGROUND.get(r)) {
+				values.add(cell(biomes, cell, region, UNDERGROUND_DEPTH));
 			}
 		}
 		return MultiNoiseBiomeSource.createFromList(new Climate.ParameterList<>(values));
 	}
 
-	private static Pair<Climate.ParameterPoint, Holder<Biome>> cell(HolderGetter<Biome> biomes, ResourceKey<Biome> biome,
-																   int c, int t, int h, float depth) {
-		// neighbouring bands touch on their shared edge, where the tie falls back to list order
-		return Pair.of(new Climate.ParameterPoint(
-				TEMPERATURE.get(t).parameter(), HUMIDITY.get(h).parameter(), CONTINENTALNESS.get(c).parameter(),
-				FULL_RANGE, Climate.Parameter.point(depth), FULL_RANGE, 0L),
-				biomes.getOrThrow(biome));
+	/** The continentalness span of one region, with the half-open gaps between regions held apart. */
+	private static Band region(int index) {
+		float min = index == 0 ? -1.0f : REGION_EDGES[index - 1] + GAP;
+		float max = index == REGION_EDGES.length ? 1.0f : REGION_EDGES[index] - GAP;
+		if (index == 0) max = REGION_EDGES[0];
+		return new Band(min, max);
 	}
 
-	private static ResourceKey<Biome> land(int c, int t, int h) {
-		if (c == OCEAN) return GLBiomes.OCEAN;
-		if (c == COAST) return GLBiomes.BEACH;
-		// the high two bands are temperate-and-humid country only; anything else up there stays bare mountain
-		if (c == PEAK) return t == TEMPERATE && h == NORMAL ? GLBiomes.PEAK : GLBiomes.MOUNTAIN;
-		if (c == MOUNTAIN) return t == TEMPERATE && h == NORMAL ? GLBiomes.GROVE : GLBiomes.MOUNTAIN;
-		if (t == COLD) return GLBiomes.SNOWY_PLAINS;
-		if (c == UPLAND && t == TEMPERATE) {
-			return switch (h) {
-				case DRY -> GLBiomes.SUNFLOWER_PLAINS;
-				case NORMAL -> GLBiomes.SAKURA_FOREST;
-				default -> GLBiomes.MAGICAL_FOREST;
-			};
-		}
-		return switch (h) {
-			case DRY -> t == TEMPERATE ? GLBiomes.SUNFLOWER_PLAINS : GLBiomes.DESERT;
-			case NORMAL -> t == TEMPERATE ? GLBiomes.PLAINS : GLBiomes.SAVANNA;
-			default -> t == TEMPERATE ? GLBiomes.FOREST : GLBiomes.BAMBOO_JUNGLE;
-		};
-	}
-
-	private static ResourceKey<Biome> underground(int c, int t) {
-		if (c <= COAST) return GLBiomes.PLAINS;
-		return t == COLD ? GLBiomes.SNOWY_PLAINS : GLBiomes.MAGICAL_FOREST;
+	private static Pair<Climate.ParameterPoint, Holder<Biome>> cell(HolderGetter<Biome> biomes, Cell cell, Band region,
+																   float depth) {
+		return Pair.of(new Climate.ParameterPoint(cell.temperature().parameter(), cell.humidity().parameter(),
+				region.parameter(), FULL_RANGE, Climate.Parameter.point(depth), FULL_RANGE, 0L),
+				biomes.getOrThrow(cell.biome()));
 	}
 
 	/**
-	 * One climate band, kept as a span so the generated json reads like the table it came from.
+	 * One biome's claim on a region's temperature and humidity plane. A region with a single biome gets the whole
+	 * plane and one cell, which is what keeps {@code ocean}, {@code beach}, {@code mountain}, {@code grove} and
+	 * {@code peak} from spilling into their neighbours' rows.
+	 */
+	private record Cell(ResourceKey<Biome> biome, Band temperature, Band humidity) {}
+
+	/**
+	 * One biome's claim on a climate band, kept as a span so the generated json reads like the table it came from.
 	 */
 	private record Band(float min, float max) {
 
