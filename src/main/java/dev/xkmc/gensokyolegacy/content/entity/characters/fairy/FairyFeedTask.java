@@ -5,7 +5,7 @@ import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiAnim;
 import dev.xkmc.gensokyolegacy.init.registrate.GLBrains;
 import dev.xkmc.gensokyolegacy.util.BrainUtils;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.ai.behavior.Behavior;
 import net.minecraft.world.entity.ai.behavior.EntityTracker;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
@@ -94,9 +94,8 @@ public class FairyFeedTask extends Behavior<FairyEntity> {
 		// held by a chew that is actually under way - a memory that expires unrun
 		// has no task whose stop could take it back out. Vanilla equipment sync carries
 		// it to the client, which is all YoukaiHeldItemLayer reads.
-		entity.setItemSlot(EquipmentSlot.MAINHAND, fed.food().copy());
-		entity.setEatItem(fed.food().copy());
-		entity.setEatTicks(EAT_TICKS);
+		entity.setItemInHand(InteractionHand.MAIN_HAND, fed.food().copy());
+		entity.startEating(fed.food(), EAT_TICKS);
 	}
 
 	/**
@@ -119,10 +118,9 @@ public class FairyFeedTask extends Behavior<FairyEntity> {
 	protected void tick(ServerLevel level, FairyEntity entity, long gameTime) {
 		holdStill(entity);
 		long age = gameTime - startedAt;
-		entity.setEatTicks((int) Math.max(0, EAT_TICKS - age));
 		if (!swallowed && age >= SWALLOWED_AT) {
 			swallowed = true;
-			entity.setItemSlot(EquipmentSlot.MAINHAND, ItemStack.EMPTY);
+			entity.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
 		}
 		if (!reached && age >= EAT_TICKS) {
 			reached = true;
@@ -169,9 +167,8 @@ public class FairyFeedTask extends Behavior<FairyEntity> {
 	@Override
 	protected void stop(ServerLevel level, FairyEntity entity, long gameTime) {
 		BrainUtils.clearMemory(entity, GLBrains.MEM_FEED.get());
-		entity.setItemSlot(EquipmentSlot.MAINHAND, ItemStack.EMPTY);
-		entity.setEatItem(ItemStack.EMPTY);
-		entity.setEatTicks(0);
+		entity.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+		entity.stopEating();
 	}
 
 }

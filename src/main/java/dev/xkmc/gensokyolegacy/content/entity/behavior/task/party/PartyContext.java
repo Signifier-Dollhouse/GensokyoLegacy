@@ -383,6 +383,9 @@ public class PartyContext {
 	 */
 	public void beginChew() {
 		YoukaiAnim.EAT.play(entity);
+		// the plate she is carrying is the crumb: Chew empties her hand part-way through,
+		// so the crumbs have to come off the synced stack rather than off the hand
+		entity.startEating(entity.getMainHandItem().copy(), PartyTasks.EAT_TICKS);
 		level.playSound(null, entity.blockPosition(), SoundEvents.GENERIC_EAT,
 				SoundSource.PLAYERS, 0.8F, 1.0F);
 		party.chew = PartyTasks.EAT_TICKS;

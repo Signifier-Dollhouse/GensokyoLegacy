@@ -112,7 +112,7 @@ public class PlainFairyEntity extends FairyEntity implements GeoYoukaiAnim {
 	private static final RawAnimation CRYING_FLOAT = RawAnimation.begin().thenLoop("哭泣_漂浮");
 	private static final RawAnimation USE_MAINHAND = RawAnimation.begin().thenPlay("使用主手物品");
 
-	protected static final SyncedData PLAIN_FAIRY_DATA = new SyncedData(PlainFairyEntity::defineId, FAIRY_DATA);
+	protected static final SyncedData PLAIN_FAIRY_DATA = new SyncedData(PlainFairyEntity::defineId, SPELL_DATA);
 
 	private static final EntityDataAccessor<Integer> DATA_VARIANT = PLAIN_FAIRY_DATA.define(SyncedData.INT, 0, "variant");
 	private static final EntityDataAccessor<Integer> DATA_FLOWER = PLAIN_FAIRY_DATA.define(SyncedData.INT, 0, "flower");
