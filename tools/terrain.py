@@ -9,8 +9,16 @@ Both are one pixel per chunk, 512x512 by default, so the default export covers
     out/terrain/<dimension>_height.png    blue below sea level, one color per 16 blocks above
     out/terrain/<dimension>.txt           biome colors, map shares, height histogram
 
+`--spline` plots the continentalness spline instead, in three panels:
+
+    out/terrain/<dimension>_spline.png    the spline, the height profile it draws, the band shares
+    out/terrain/<dimension>_spline.txt    the same numbers as a table
+
+See "## The spline plot" below.
+
     python3 tools/terrain.py gensokyolegacy:gensokyo
     python3 tools/terrain.py gensokyolegacy:gensokyo --seed 12345 --size 1024
+    python3 tools/terrain.py gensokyolegacy:gensokyo --spline
     python3 tools/terrain.py gensokyolegacy:gap --out out/gap
 
 The seed matters: the same seed as the world gives the same terrain, so a map can be
@@ -52,6 +60,34 @@ range, which for this mod is everywhere.
 The pruned chain is `postProcess(slideOverworld(sloped_cheese))`, which is the terrain
 term of vanilla's `final_density` with the cave branches cut. `postProcess` and
 `slideOverworld` are built here because they only exist as Java, see `NoiseRouterData`.
+
+## The spline plot
+
+`--spline` draws the spline the height chain splines continentalness through, and what that
+spline does to the shape of the map. It finds the `spline` nodes keyed on the router's
+`continents` inside the `depth` entry — the chain that places the surface — and asks the
+game's own chain where each spline value puts the surface, by pinning every such spline to
+one value and scanning for the surface the way the height map does. So the heights are the
+density the game builds, not a formula of the y gradient written out here, and a router
+that rescaled would move the curve without touching this tool.
+
+Where the map sits comes from sampling the `continents` field over a grid of chunk centres,
+the same grid size and origin as the map (`--size`, `--origin`), and reading the shares off
+that sample's distribution. Three panels:
+
+1. **surface y against continentalness**, with the sampled `continents` distribution shaded
+   under it, so the curve can be read against the continentalness that actually occurs. A
+   flat stretch past the last of the sampled data is a height the spline spends on nothing.
+2. **surface y against the share of the map below it.** A straight diagonal is a height
+   gradient spread evenly over the map; a horizontal run is a share of the map held at one
+   height, which is what a mesa is. Drawn in red.
+3. **share of the map per single block of height.** `CubicSpline` with zero derivatives
+   interpolates as `low + (high - low) * t²`, so each segment crowds its height toward its
+   lower edge and the bars spike at every breakpoint. A wide bar is a shelf; a run of tall
+   bars is a mesa.
+
+None of this needs the surface chain per column, only per spline value, so it is far
+cheaper than a map: one noise field over the grid and a few hundred vertical scans.
 """
 
 import argparse
@@ -550,6 +586,11 @@ class World:
         self.density_functions = {}
         self.cheese_free = {}
         self.slot_count = 0
+        # the spline plot pins the chain's own continentalness spline to a value to ask where
+        # the surface lands; `spline_nodes` holds it, matched on its points so that a second
+        # spline over the same coordinate elsewhere in the chain keeps its own scale
+        self.spline_nodes = []
+        self.spline_value = None
 
     # -- noise -------------------------------------------------------------------------
 
@@ -857,11 +898,17 @@ class World:
         return compute
 
     def _spline(self, node, cheese_zeroed):
+        if self.spline_value is not None and any(node["spline"] == held for held in self.spline_nodes):
+            return _constant_of(self.spline_value)
         coordinate = self.compile(node["spline"]["coordinate"], cheese_zeroed)
         points = [(p["location"], p["value"], p.get("derivative", 0.0)) for p in node["spline"]["points"]]
         locations = [p[0] for p in points]
         count = len(points)
         return _spline_of(coordinate, points, locations, count)
+
+    def reset_cache(self):
+        """Drop the compiled density functions, which is how the spline override takes effect."""
+        self.density_functions.clear()
 
     # -- the chains vanilla builds in Java ----------------------------------------------
 
@@ -1166,6 +1213,10 @@ class Dimension:
         self.density = self.world.surface_density(router, self.min_y, self.settings["noise"]["height"])
         self.sampler = [self.world.compile(router[axis]) for axis in
                         ("temperature", "vegetation", "continents", "erosion", "depth", "ridges")]
+        # the spline plot needs the climate field on its own, and the key to recognise the
+        # splines keyed on it; an inline router entry has no key and so cannot be pinned
+        self.continents_key = router["continents"] if isinstance(router["continents"], str) else None
+        self.continents = self.sampler[2]
         self.biomes = BiomeSource(generator["biome_source"])
         self.column = Column(self.world.slot_count)
 
@@ -1208,19 +1259,620 @@ def render_row(dimension, chunk_x, chunk_z, size):
 # --------------------------------------------------------------------------------------
 
 
-def write_png(path, size, rows):
+def write_png(path, width, height, rows):
     raw = b"".join(b"\x00" + row for row in rows)
 
     def chunk(tag, data):
         body = tag + data
         return struct.pack(">I", len(data)) + body + struct.pack(">I", zlib.crc32(body) & MASK32)
 
-    header = struct.pack(">IIBBBBB", size, size, 8, 2, 0, 0, 0)
+    header = struct.pack(">IIBBBBB", width, height, 8, 2, 0, 0, 0)
     with open(path, "wb") as handle:
         handle.write(b"\x89PNG\r\n\x1a\n")
         handle.write(chunk(b"IHDR", header))
         handle.write(chunk(b"IDAT", zlib.compress(raw, 9)))
         handle.write(chunk(b"IEND", b""))
+
+
+# --------------------------------------------------------------------------------------
+# plots
+# --------------------------------------------------------------------------------------
+
+# A 5x7 cell font: one glyph is seven rows of five columns, written left to right so the
+# shapes can be read off the source. Uppercase only, which is what axis labels want.
+FONT = {
+    " ": "....." "....." "....." "....." "....." "....." ".....",
+    "!": "..#.." "..#.." "..#.." "..#.." "..#.." "....." "..#..",
+    "%": "##..#" "##.#." "...#." "..#.." ".#..." ".#.##" "#..##",
+    "(": "...#." "..#.." ".#..." ".#..." ".#..." "..#.." "...#.",
+    ")": ".#..." "..#.." "...#." "...#." "...#." "..#.." ".#...",
+    "+": "....." "..#.." "..#.." "#####" "..#.." "..#.." ".....",
+    ",": "....." "....." "....." "....." "..#.." "..#.." ".#...",
+    "-": "....." "....." "....." "#####" "....." "....." ".....",
+    ".": "....." "....." "....." "....." "....." "..#.." "..#..",
+    "/": "....#" "...#." "...#." "..#.." ".#..." ".#..." "#....",
+    "0": ".###." "#...#" "#..##" "#.#.#" "##..#" "#...#" ".###.",
+    "1": "..#.." ".##.." "..#.." "..#.." "..#.." "..#.." ".###.",
+    "2": ".###." "#...#" "....#" "...#." "..#.." ".#..." "#####",
+    "3": "#####" "...#." "..#.." "...#." "....#" "#...#" ".###.",
+    "4": "...#." "..##." ".#.#." "#..#." "#####" "...#." "...#.",
+    "5": "#####" "#...." "####." "....#" "....#" "#...#" ".###.",
+    "6": "..##." ".#..." "#...." "####." "#...#" "#...#" ".###.",
+    "7": "#####" "....#" "...#." "..#.." ".#..." ".#..." ".#...",
+    "8": ".###." "#...#" "#...#" ".###." "#...#" "#...#" ".###.",
+    "9": ".###." "#...#" "#...#" ".####" "....#" "...#." ".##..",
+    ":": "....." "..#.." "..#.." "....." "..#.." "..#.." ".....",
+    "<": "...#." "..#.." ".#..." "#...." ".#..." "..#.." "...#.",
+    "=": "....." "....." "#####" "....." "#####" "....." ".....",
+    ">": "#...." ".#..." "..#.." "...#." "..#.." ".#..." "#....",
+    "?": ".###." "#...#" "....#" "...#." "..#.." "....." "..#..",
+    "A": ".###." "#...#" "#...#" "#####" "#...#" "#...#" "#...#",
+    "B": "####." "#...#" "#...#" "####." "#...#" "#...#" "####.",
+    "C": ".###." "#...#" "#...." "#...." "#...." "#...#" ".###.",
+    "D": "####." "#...#" "#...#" "#...#" "#...#" "#...#" "####.",
+    "E": "#####" "#...." "#...." "####." "#...." "#...." "#####",
+    "F": "#####" "#...." "#...." "####." "#...." "#...." "#....",
+    "G": ".###." "#...#" "#...." "#.###" "#...#" "#...#" ".###.",
+    "H": "#...#" "#...#" "#...#" "#####" "#...#" "#...#" "#...#",
+    "I": ".###." "..#.." "..#.." "..#.." "..#.." "..#.." ".###.",
+    "J": "..###" "...#." "...#." "...#." "...#." "#..#." ".##..",
+    "K": "#...#" "#..#." "#.#.." "##..." "#.#.." "#..#." "#...#",
+    "L": "#...." "#...." "#...." "#...." "#...." "#...." "#####",
+    "M": "#...#" "##.##" "#.#.#" "#.#.#" "#...#" "#...#" "#...#",
+    "N": "#...#" "##..#" "#.#.#" "#.#.#" "#..##" "#...#" "#...#",
+    "O": ".###." "#...#" "#...#" "#...#" "#...#" "#...#" ".###.",
+    "P": "####." "#...#" "#...#" "####." "#...." "#...." "#....",
+    "Q": ".###." "#...#" "#...#" "#...#" "#.#.#" "#..#." ".##.#",
+    "R": "####." "#...#" "#...#" "####." "#.#.." "#..#." "#...#",
+    "S": ".####" "#...." "#...." ".###." "....#" "....#" "####.",
+    "T": "#####" "..#.." "..#.." "..#.." "..#.." "..#.." "..#..",
+    "U": "#...#" "#...#" "#...#" "#...#" "#...#" "#...#" ".###.",
+    "V": "#...#" "#...#" "#...#" "#...#" "#...#" ".#.#." "..#..",
+    "W": "#...#" "#...#" "#...#" "#.#.#" "#.#.#" "##.##" "#...#",
+    "X": "#...#" "#...#" ".#.#." "..#.." ".#.#." "#...#" "#...#",
+    "Y": "#...#" "#...#" ".#.#." "..#.." "..#.." "..#.." "..#..",
+    "Z": "#####" "....#" "...#." "..#.." ".#..." "#...." "#####",
+}
+FONT_WIDTH = 5
+FONT_HEIGHT = 7
+FONT_ADVANCE = FONT_WIDTH + 1
+
+
+class Canvas:
+    """An RGB raster with the primitives the plots need.
+
+    Coordinates are pixels with y down, and every primitive clips, so a curve can be drawn
+    across a whole data range and left to run off its panel instead of bounded per point.
+    """
+
+    def __init__(self, width, height, background=(255, 255, 255)):
+        self.width = width
+        self.height = height
+        self.pixels = bytearray(bytes(background) * (width * height))
+
+    def point(self, x, y, color):
+        if 0 <= x < self.width and 0 <= y < self.height:
+            offset = (y * self.width + x) * 3
+            self.pixels[offset:offset + 3] = bytes(color)
+
+    def rect(self, x, y, width, height, color):
+        """A filled rectangle; the slice is exactly the visible span, so the buffer cannot grow."""
+        row = bytes(color) * max(0, min(x + width, self.width) - max(x, 0))
+        for line in range(max(y, 0), min(y + height, self.height)):
+            start = (line * self.width + max(x, 0)) * 3
+            self.pixels[start:start + len(row)] = row
+
+    def frame(self, x, y, width, height, color):
+        self.rect(x, y, width, 1, color)
+        self.rect(x, y + height - 1, width, 1, color)
+        self.rect(x, y, 1, height, color)
+        self.rect(x + width - 1, y, 1, height, color)
+
+    def line(self, x0, y0, x1, y1, color, width=1):
+        """Bresenham with a square brush, so `width` grows the line evenly in both axes."""
+        dx = abs(x1 - x0)
+        dy = -abs(y1 - y0)
+        step_x = 1 if x0 < x1 else -1
+        step_y = 1 if y0 < y1 else -1
+        error = dx + dy
+        low = -(width - 1) // 2
+        high = width - 1 - low
+        while True:
+            for oy in range(low, high + 1):
+                for ox in range(low, high + 1):
+                    self.point(x0 + ox, y0 + oy, color)
+            if x0 == x1 and y0 == y1:
+                return
+            doubled = 2 * error
+            if doubled >= dy:
+                error += dy
+                x0 += step_x
+            if doubled <= dx:
+                error += dx
+                y0 += step_y
+
+    def polyline(self, points, color, width=1):
+        for (x0, y0), (x1, y1) in zip(points, points[1:]):
+            self.line(x0, y0, x1, y1, color, width)
+
+    def text(self, x, y, string, color, scale=1):
+        for step, character in enumerate(string.upper()):
+            glyph = FONT.get(character, FONT["?"])
+            for row in range(FONT_HEIGHT):
+                bits = glyph[row * FONT_WIDTH:(row + 1) * FONT_WIDTH]
+                for column in range(FONT_WIDTH):
+                    if bits[column] != ".":
+                        self.rect(x + (step * FONT_ADVANCE + column) * scale,
+                                  y + row * scale, scale, scale, color)
+
+    def text_width(self, string, scale=1):
+        return (len(string) * FONT_ADVANCE - 1) * scale
+
+    def rows(self):
+        stride = self.width * 3
+        return [bytes(self.pixels[y * stride:(y + 1) * stride]) for y in range(self.height)]
+
+    def write(self, path):
+        write_png(path, self.width, self.height, self.rows())
+
+
+class Panel:
+    """One framed box with the mapping from a data rectangle onto its pixels, y up.
+
+    A mapping, not a clip: a value outside the range still has a pixel, so a caller that
+    plots past its own range draws over its neighbour rather than losing the value.
+    """
+
+    def __init__(self, canvas, box, x_range, y_range, title, right_range=None):
+        self.canvas = canvas
+        self.x, self.y, self.width, self.height = box
+        self.x_range = x_range
+        self.y_range = y_range
+        self.right_range = right_range
+        canvas.frame(self.x, self.y, self.width, self.height, INK)
+        canvas.text(self.x, self.y - 22, title, INK, 2)
+
+    def px(self, value):
+        low, high = self.x_range
+        return int(round(self.x + (value - low) / (high - low) * self.width))
+
+    def py(self, value):
+        low, high = self.y_range
+        return int(round(self.y + self.height - (value - low) / (high - low) * self.height))
+
+    def point(self, x_value, y_value):
+        return self.px(x_value), self.py(y_value)
+
+    def grid(self, x_ticks, y_ticks, x_labels=None, y_labels=None):
+        """Faint rules with their values, left aligned on the y axis and centred on the x axis."""
+        for step, value in enumerate(x_ticks):
+            x = self.px(value)
+            self.canvas.line(x, self.y, x, self.y + self.height - 1, GRID)
+            if x_labels is not None and x_labels[step]:
+                label = x_labels[step]
+                self.canvas.text(x - self.canvas.text_width(label) // 2, self.y + self.height + 6,
+                                 label, INK)
+        for step, value in enumerate(y_ticks):
+            y = self.py(value)
+            self.canvas.line(self.x, y, self.x + self.width - 1, y, GRID)
+            if y_labels is not None:
+                self.canvas.text(self.x - 6 - self.canvas.text_width(y_labels[step]), y - 3, y_labels[step], INK)
+
+    def right_axis(self, values, labels):
+        """A second y axis on the right, for a series scaled against `right_range`.
+
+        The mapping is its own rather than the left one, so the two axes say different things
+        about the same box and neither has to be read as the other.
+        """
+        for value, label in zip(values, labels):
+            low, high = self.right_range
+            y = int(round(self.y + self.height - (value - low) / (high - low) * self.height))
+            self.canvas.text(self.x + self.width + 6, y - 3, label, INK)
+
+    def scale_to_height(self, value):
+        """Map a value of the right hand range onto the panel's pixels."""
+        low, high = self.right_range
+        return self.y + self.height - (value - low) / (high - low) * self.height
+
+    def axis_label(self, text):
+        self.canvas.text(self.x + self.width // 2 - self.canvas.text_width(text) // 2,
+                         self.y + self.height + 20, text, INK)
+
+
+INK = (28, 30, 34)
+GRID = (223, 226, 231)
+CURVE = (46, 116, 196)
+CURVE_HI = (198, 62, 62)
+DENSITY = (196, 214, 240)
+BAR = (216, 150, 66)
+SEA = (58, 126, 196)
+# the continentalness histogram bins in panel 1, wide enough to be read and narrow enough to
+# show the peak the sample sits on
+DENSITY_WIDTH = 0.02
+
+
+# --------------------------------------------------------------------------------------
+# the spline plot
+# --------------------------------------------------------------------------------------
+
+
+def find_splines(pack, node, coordinate, seen, found):
+    """Every `spline` node keyed on `coordinate`, as the json of each, following references."""
+    if isinstance(node, str):
+        if node in seen:
+            return
+        seen.add(node)
+        find_splines(pack, pack.get("worldgen/density_function", node), coordinate, seen, found)
+        return
+    if isinstance(node, list):
+        for child in node:
+            find_splines(pack, child, coordinate, seen, found)
+        return
+    if not isinstance(node, dict):
+        return
+    kind = str(node.get("type", "")).split(":")[-1]
+    if kind == "spline":
+        if node["spline"]["coordinate"] == coordinate:
+            found.append(node["spline"])
+        return
+    for path in CHILD_FIELDS.get(kind, ()):
+        child = node
+        for step in path.split("."):
+            if isinstance(child, dict) and step in child:
+                child = child[step]
+            else:
+                child = None
+                break
+        find_splines(pack, child, coordinate, seen, found)
+
+
+def spline_points(spline):
+    """The point list of a `spline` node: `(location, value, derivative)` triples."""
+    return [(p["location"], p["value"], p.get("derivative", 0.0)) for p in spline["points"]]
+
+
+def spline_lookup(points):
+    """`f(continentalness) -> spline value`, off the same interpolation the compiled chain uses."""
+
+    def coordinate(value, y, z, column):
+        return value
+
+    evaluate = _spline_of(coordinate, points, [p[0] for p in points], len(points))
+    return lambda value: evaluate(value, 0.0, 0.0, None)
+
+
+class SplineProfile:
+    """The surface height as a step function of the spline value, read off the game's chain.
+
+    The chain's own spline is pinned to a value and the surface scanned the way the height map
+    scans it, so these are the heights the game builds rather than a formula of the y gradient
+    written out here, and a rescaled router moves them by itself.
+
+    The height rises with the value, so what is worth solving for is the value at which each
+    height *begins*. Bisecting for those makes a lookup a table index, which matters because a
+    breakpoint sits exactly on the integer the game reports: sampling a curve instead would put
+    it a probe away, and near a breakpoint the curve is at its flattest.
+    """
+
+    # halvings of a range of about 1.5, which resolves a threshold to ~1e-10 and so well below
+    # the float noise of the chain that reads it
+    STEPS = 34
+
+    def __init__(self, dimension, points):
+        self.dimension = dimension
+        values = [point[1] for point in points]
+        pad = 0.02 * (max(values) - min(values))
+        self.low = min(values) - pad
+        self.high = max(values) + pad
+        lowest = self.surface(self.low)
+        self.heights = list(range(lowest, self.surface(self.high) + 1))
+        self.edges = [self._edge(y) for y in self.heights]
+
+    def surface(self, value):
+        """The surface y for one spline value, from a full scan of the chain."""
+        world = self.dimension.world
+        world.spline_value = value
+        world.reset_cache()
+        density = world.surface_density(self.dimension.router, self.dimension.min_y,
+                                        self.dimension.settings["noise"]["height"])
+        column = Column(world.slot_count)
+        column.move_to(0, 0)
+        height = surface_height(density, self.dimension.min_y, self.dimension.max_y, 0, 0, column)
+        world.spline_value = None
+        world.reset_cache()
+        return self.dimension.min_y if height is None else height
+
+    def _edge(self, height):
+        """The lowest spline value whose surface reaches `height`."""
+        low, high = self.low, self.high
+        for _ in range(self.STEPS):
+            middle = (low + high) * 0.5
+            if self.surface(middle) >= height:
+                high = middle
+            else:
+                low = middle
+        return high
+
+    def height(self, value):
+        index = bisect.bisect_right(self.edges, value) - 1
+        return self.heights[clamp(index, 0, len(self.heights) - 1)]
+
+
+def sample_continents(dimension, chunk_x, chunk_z, size):
+    """The `continents` value at every chunk centre of one scanline.
+
+    Takes the chunk coordinates directly, like `render_row`, so the same `work` list drives
+    both and neither has to know who adds the row. The field is memoised per column, so the y
+    it is sampled at cannot change it; the sea level is passed rather than zero because that
+    is the y the game samples the climate at, and a router whose continentalness is not 2d
+    would notice.
+    """
+    function = dimension.continents
+    column = dimension.column
+    values = []
+    for pixel in range(size):
+        x = (chunk_x + pixel) * 16 + 8
+        z = chunk_z * 16 + 8
+        column.move_to(x, z)
+        values.append(function(x, dimension.sea_level, z, column))
+    return values
+
+
+def _worker_sample(job):
+    row, chunk_x, chunk_z, size = job
+    return row, sample_continents(_WORKER["dimension"], chunk_x, chunk_z, size)
+
+
+class SplineModel:
+    """One spline, the sample of the field it reads, and what the two say about the map.
+
+    Everything the plot and the table need, so neither reaches for a global or for the other.
+    `shares` is left to `height_shares`, which has to walk the whole sample.
+    """
+
+    def __init__(self, dimension, points, continents):
+        self.dimension = dimension
+        self.points = points
+        self.continents = continents
+        self.total = len(continents)
+        self.lookup = spline_lookup(points)
+        self.profile = SplineProfile(dimension, points)
+        self.shares = {}
+
+    def surface(self, continentalness):
+        """The surface y the spline puts at a continentalness."""
+        return self.profile.height(self.lookup(continentalness))
+
+    def share(self, continentalness):
+        """The share of the sample, in percent, at or below a continentalness."""
+        return 100.0 * bisect.bisect_left(self.continents, continentalness) / self.total
+
+
+def height_shares(model):
+    """`{surface y: share of the sample in percent}`, from the sampled field and the profile.
+
+    The sample says how much of the map sits at each continentalness and the profile says
+    what height that buys, so the height histogram falls out of the two without scanning a
+    column per height.
+    """
+    counts = Counter()
+    for value in model.continents:
+        counts[model.surface(value)] += 1
+    return {y: 100.0 * count / model.total for y, count in counts.items()}
+
+
+def cumulative(shares):
+    """The same shares accumulated by height: `(share at or below y, y)`, ascending in y."""
+    running = 0.0
+    curve = []
+    for y in sorted(shares):
+        running += shares[y]
+        curve.append((running, y))
+    return curve
+
+
+def nice_step(span):
+    """The round tick step at or above a span, on a 1/1.25/2/2.5/5 series so any scale works."""
+    if span <= 0.0:
+        return 1.0
+    magnitude = 10.0 ** math.floor(math.log10(span))
+    for multiple in (1.0, 1.25, 2.0, 2.5, 5.0, 10.0):
+        if magnitude * multiple >= span:
+            return magnitude * multiple
+    return magnitude * 10.0
+
+
+def nice_axis(span):
+    """`(axis top, tick step)` for a span, at about five divisions.
+
+    The step alone is not the axis top; returning both keeps a range of 1.1% off an axis that
+    ends at 1% and clips its own peak.
+    """
+    step = nice_step(span / 5.0)
+    return math.ceil(span / step) * step, step
+
+
+def ticks(low, high, step):
+    """The multiples of `step` inside a range, low first."""
+    first = math.ceil(low / step) * step
+    count = int((high - first) / step) + 1
+    return [value for value in (first + index * step for index in range(count)) if low <= value <= high]
+
+
+def density_bins(values, low, high, width):
+    """`[share of the sample per bin]`, in percent, over `width`-wide bins of continentalness."""
+    count = max(1, int(math.ceil((high - low) / width)))
+    bins = [0] * count
+    for value in values:
+        index = int((value - low) / width)
+        if 0 <= index < count:
+            bins[index] += 1
+    return [100.0 * bin_count / len(values) for bin_count in bins]
+
+
+def plot_density(canvas, panel, values, low, high, width):
+    """The sampled distribution as a histogram under the curve, on the panel's right hand range.
+
+    The bins are a fixed width in continentalness rather than one per pixel, so the right hand
+    axis can be read; a per pixel column states its own width nowhere and cannot be.
+    """
+    bins = density_bins(values, low, high, width)
+    base = panel.y + panel.height - 1
+    for index, share in enumerate(bins):
+        left = panel.x + int(index * (panel.width * width / (high - low)))
+        right = panel.x + int((index + 1) * (panel.width * width / (high - low)))
+        top_y = max(panel.y, int(round(panel.scale_to_height(share))))
+        canvas.rect(left, top_y, max(1, right - left), base - top_y, DENSITY)
+
+
+def plot_spline(path, model, size, origin, seed, name):
+    """The three panels: the curve, the profile it draws over the map, the shares per block."""
+    canvas = Canvas(960, 1150)
+    dimension = model.dimension
+    canvas.text(24, 20, "CONTINENTALNESS SPLINE", INK, 2)
+    canvas.text(24, 46, "%s   seed %d   %d x %d chunk sample from %d,%d   sea level %d"
+                % (name, seed, size, size, origin[0], origin[1], dimension.sea_level), INK)
+
+    shares = model.shares
+    y_range = (min(shares) - 6, max(shares) + 10)
+    y_ticks = ticks(y_range[0], y_range[1], HEIGHT_STEP)
+    y_labels = [str(value) for value in y_ticks]
+
+    # panel 1: the curve, against the continentalness the sample actually holds
+    x_range = (min(model.continents[0], model.points[0][0]) - 0.05,
+               max(model.continents[-1], model.points[-1][0]))
+    peak = max(density_bins(model.continents, x_range[0], x_range[1], DENSITY_WIDTH))
+    right_top, right_step = nice_axis(peak * 1.1)
+    right_range = (0.0, right_top)
+    top = Panel(canvas, (150, 100, 750, 290), x_range, y_range,
+                "1  SURFACE Y AGAINST CONTINENTALNESS", right_range)
+    x_ticks = ticks(x_range[0], x_range[1], 0.25)
+    top.grid(x_ticks, y_ticks, ["%g" % value for value in x_ticks], y_labels)
+    plot_density(canvas, top, model.continents, x_range[0], x_range[1], DENSITY_WIDTH)
+    top.right_axis(ticks(right_range[0], right_range[1], right_step), ["%g" % value for value in
+                  ticks(right_range[0], right_range[1], right_step)])
+    canvas.line(top.x, top.py(dimension.sea_level), top.x + top.width - 1, top.py(dimension.sea_level), SEA)
+    canvas.text(top.x + top.width - 82, top.py(dimension.sea_level) - 12, "SEA LEVEL", SEA)
+    curve = []
+    for index in range(1201):
+        value = x_range[0] + (x_range[1] - x_range[0]) * index / 1200.0
+        curve.append(top.point(value, model.surface(value)))
+    canvas.polyline(curve, CURVE, 2)
+    for location, _, _ in model.points:
+        if x_range[0] <= location <= x_range[1]:
+            x, y = top.point(location, model.surface(location))
+            canvas.rect(x - 3, y - 3, 7, 7, CURVE_HI)
+            canvas.frame(x - 3, y - 3, 7, 7, INK)
+    top.axis_label("continentalness")
+    canvas.text(top.x, top.y + top.height + 34, "SHADED: %% OF THE MAP PER %g OF CONTINENTALNESS, RIGHT AXIS"
+                % DENSITY_WIDTH, INK)
+
+    # panel 2: the same curve with the share of the map on the x axis, where a flat run is a mesa
+    middle = Panel(canvas, (150, 500, 750, 240), (0.0, 100.0), y_range,
+                   "2  SURFACE Y AGAINST THE SHARE OF THE MAP BELOW IT")
+    middle.grid(list(range(0, 101, 10)), y_ticks, [str(value) for value in range(0, 101, 10)], y_labels)
+    canvas.line(middle.x, middle.py(dimension.sea_level), middle.x + middle.width - 1,
+                middle.py(dimension.sea_level), SEA)
+    stairs = [middle.point(share, y) for share, y in cumulative(shares)]
+    canvas.polyline(stairs, CURVE, 2)
+    for (x0, y0), (x1, y1) in zip(stairs, stairs[1:]):
+        # a vertical run is a stretch of the map that buys a block of height or less
+        if abs(x1 - x0) <= 2:
+            canvas.line(x0, y0, x1, y1, CURVE_HI, 3)
+    middle.axis_label("% of the map")
+
+    # panel 3: one bar per block of height, where the spline's t^2 crowding shows up
+    bar_top, bar_step = nice_axis(max(shares.values()) * 1.1)
+    bottom = Panel(canvas, (150, 860, 750, 190), y_range, (0.0, bar_top),
+                   "3  SHARE OF THE MAP PER BLOCK OF HEIGHT")
+    bottom.grid(y_ticks, ticks(0.0, bar_top, bar_step), y_labels,
+                ["%g" % value for value in ticks(0.0, bar_top, bar_step)])
+    base = bottom.y + bottom.height - 1
+    for y in sorted(shares):
+        left = bottom.px(y)
+        top_y = max(bottom.y, bottom.py(shares[y]))
+        canvas.rect(left, top_y, max(1, bottom.px(y + 1) - left), base - top_y, BAR)
+    canvas.line(bottom.x, bottom.py(dimension.sea_level), bottom.x + bottom.width - 1,
+                bottom.py(dimension.sea_level), SEA)
+    bottom.axis_label("surface y")
+
+    canvas.text(24, 1084, "SPLINE POINTS", CURVE_HI)
+    canvas.text(150, 1084, "SHADED: SAMPLED CONTINENTALNESS", INK)
+    canvas.rect(404, 1082, 18, 10, BAR)
+    canvas.text(428, 1084, "SHARE AT ONE HEIGHT", INK)
+    canvas.text(24, 1106, "A TALL BAR IN PANEL 3 IS ONE HEIGHT HOLDING A LARGE PART OF THE MAP, WHICH IS"
+                          " WHAT A MESA IS. IT IS THE", INK)
+    canvas.text(24, 1122, "SAME FACT IN PANEL 2 AS A VERTICAL RUN: A STRETCH OF THE MAP BUYING NO HEIGHT.",
+                INK)
+    canvas.write(path)
+
+
+def write_spline_table(path, model, size, origin, seed, name):
+    dimension = model.dimension
+    with open(path, "w", encoding="utf-8") as handle:
+        handle.write("spline plot: %s\n" % name)
+        handle.write("%d x %d chunk sample from chunk %d,%d, seed %d, sea level %d\n"
+                     % (size, size, origin[0], origin[1], seed, dimension.sea_level))
+        handle.write("heights from the game's own surface chain, density: %s\n"
+                     % ("full final_density" if dimension.world.caves else
+                        "surface chain, caves dropped" + ("" if dimension.world.cheese else ", cheese dropped")))
+        handle.write("\n  continentalness    spline   surface y   share below   blocks per 1%%\n")
+        running = 0.0
+        for index, (location, value, _) in enumerate(model.points):
+            y = model.surface(location)
+            share = model.share(location)
+            span = share - running
+            running = share
+            after = model.surface(model.points[index + 1][0]) if index + 1 < len(model.points) else None
+            rate = "%6.0f" % (abs(after - y) / span * 100.0) if after is not None and span > 0.01 else "     -"
+            handle.write("  %14.3f  %8.4f  %10d   %10.2f%%   %s\n" % (location, value, y, share, rate))
+        handle.write("\nHEIGHT SHARES\n")
+        bins = {}
+        for y, share in model.shares.items():
+            index = height_bin(y, HEIGHT_BIN_LOW, HEIGHT_BIN_HIGH)
+            bins[index] = bins.get(index, 0.0) + share
+        for index in sorted(bins):
+            if index == 0:
+                label, sample = "< %3d" % HEIGHT_BIN_LOW, dimension.sea_level - 1
+            elif index == (HEIGHT_BIN_HIGH - HEIGHT_BIN_LOW) // HEIGHT_STEP + 1:
+                label, sample = "%3d+ " % HEIGHT_BIN_HIGH, HEIGHT_BIN_HIGH
+            else:
+                low = HEIGHT_BIN_LOW + (index - 1) * HEIGHT_STEP
+                label, sample = "%3d-%d" % (low, low + HEIGHT_STEP - 1), low
+            handle.write("  %s  #%02x%02x%02x  %6.2f%%\n"
+                         % (label, *height_color(sample, dimension.sea_level, dimension.min_y), bins[index]))
+
+
+def run_spline_plot(args, pack, dimension_json, name, jobs, origin):
+    """Sample the continentalness field, read the surface chain against the spline, plot both."""
+    dimension = Dimension(pack, dimension_json, args.seed, args.caves, args.cheese)
+    if dimension.continents_key is None:
+        raise Bad("the router's continentalness is inline, so there is no spline to plot")
+    found = []
+    find_splines(pack, dimension.router["depth"], dimension.continents_key, set(), found)
+    if not found:
+        raise Bad("no spline over %s in the router's depth chain" % dimension.continents_key)
+    # only the depth chain's own spline is pinned; `factor` is a spline over the same
+    # coordinate with a different scale, and pinning that too flips the density's sign
+    dimension.world.spline_nodes = found
+    points = spline_points(max(found, key=lambda spline: len(spline["points"])))
+
+    sys.stderr.write("%s: sampling continentalness over %d x %d chunks from (%d, %d), seed %d, "
+                     "%d workers\n" % (name, args.size, args.size, origin[0], origin[1], args.seed, jobs))
+    work = [(row, origin[0], origin[1] + row, args.size) for row in range(args.size)]
+    sampled = run_worker_pool(jobs, (pack, dimension_json, args.seed, args.caves, args.cheese),
+                              work, _worker_sample)
+    continents = sorted(value for _, row_values in sampled for value in row_values)
+
+    model = SplineModel(dimension, points, continents)
+    sys.stderr.write("%s: %d surface heights against the chain\n" % (name, len(model.profile.heights)))
+    model.shares = height_shares(model)
+
+    os.makedirs(args.out, exist_ok=True)
+    plot_spline(os.path.join(args.out, name + "_spline.png"), model, args.size, origin, args.seed, name)
+    write_spline_table(os.path.join(args.out, name + "_spline.txt"), model, args.size, origin, args.seed, name)
+    print(os.path.join(args.out, name + "_spline.png"))
+    print(os.path.join(args.out, name + "_spline.txt"))
 
 
 # --------------------------------------------------------------------------------------
@@ -1238,6 +1890,21 @@ def _worker_row(job):
     row, chunk_x, chunk_z, size = job
     biomes, heights, counts, total = render_row(_WORKER["dimension"], chunk_x, chunk_z, size)
     return row, biomes, heights, counts, total
+
+
+def run_worker_pool(jobs, initargs, work, function):
+    """Run one job per scanline, in a pool unless there is only the one worker.
+
+    The map and the spline plot both scan scanlines and neither needs the other's payload, so
+    the pool is set up once here rather than twice. `function` must be importable by name,
+    which rules out a lambda.
+    """
+    if jobs <= 1 or len(work) <= 1:
+        _worker_init(*initargs)
+        return [function(job) for job in work]
+    import multiprocessing
+    with multiprocessing.Pool(jobs, initializer=_worker_init, initargs=initargs) as pool:
+        return list(pool.imap(function, work, chunksize=1))
 
 
 def find_dimension(pack, argument):
@@ -1319,6 +1986,8 @@ def main():
     parser.add_argument("--vanilla", help="vanilla datapack jar or directory (default: the client-extra jar)")
     parser.add_argument("--caves", action="store_true", help="evaluate the router's full final_density")
     parser.add_argument("--cheese", action="store_true", help="keep the base_3d_noise term")
+    parser.add_argument("--spline", action="store_true",
+                        help="plot the continentalness spline instead of the two maps")
     parser.add_argument("--jobs", type=int, default=0, help="worker processes (default: one per core)")
     args = parser.parse_args()
 
@@ -1337,19 +2006,17 @@ def main():
     jobs = args.jobs if args.jobs > 0 else (os.cpu_count() or 1)
     jobs = max(1, min(jobs, args.size))
 
+    if args.spline:
+        run_spline_plot(args, pack, dimension_json, name, jobs, (origin_x, origin_z))
+        return
+
     dimension = Dimension(pack, dimension_json, args.seed, args.caves, args.cheese)
     work = [(row, origin_x, origin_z + row, args.size) for row in range(args.size)]
 
     sys.stderr.write("%s: %d x %d chunks from (%d, %d), seed %d, %d workers\n"
                      % (name, args.size, args.size, origin_x, origin_z, args.seed, jobs))
-    if jobs == 1:
-        _worker_init(pack, dimension_json, args.seed, args.caves, args.cheese)
-        results = [_worker_row(job) for job in work]
-    else:
-        import multiprocessing
-        with multiprocessing.Pool(jobs, initializer=_worker_init,
-                                 initargs=(pack, dimension_json, args.seed, args.caves, args.cheese)) as pool:
-            results = list(pool.imap(_worker_row, work, chunksize=1))
+    results = run_worker_pool(jobs, (pack, dimension_json, args.seed, args.caves, args.cheese),
+                              work, _worker_row)
 
     counts = Counter()
     total = 0
@@ -1358,8 +2025,8 @@ def main():
         total += row_total
 
     os.makedirs(args.out, exist_ok=True)
-    write_png(os.path.join(args.out, name + "_biomes.png"), args.size, [row[1] for row in results])
-    write_png(os.path.join(args.out, name + "_height.png"), args.size, [row[2] for row in results])
+    write_png(os.path.join(args.out, name + "_biomes.png"), args.size, args.size, [row[1] for row in results])
+    write_png(os.path.join(args.out, name + "_height.png"), args.size, args.size, [row[2] for row in results])
     write_legend(os.path.join(args.out, name + ".txt"), name, dimension, args.size,
                  (origin_x, origin_z), args.seed, counts, total)
     print(os.path.join(args.out, name + "_biomes.png"))
