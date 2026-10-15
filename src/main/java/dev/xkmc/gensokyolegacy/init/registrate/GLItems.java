@@ -172,7 +172,7 @@ public class GLItems {
 								() -> DanmakuItems.Bullet.CIRCLE.get(DyeColor.RED).get()))
 						.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/spell/" + ctx.getName())))
 						.lang("Reimu's Spellcard \"Innate Dream\"")
-						.tag(DanmakuTagGen.PRESET_SPELL)
+						.tag(DanmakuTagGen.PRESET_SPELL).tag(GLTagGen.SPELL_CARD)
 						.register();
 
 				MARISA_SPELL = reg
@@ -181,7 +181,7 @@ public class GLItems {
 								() -> DanmakuItems.Laser.LASER.get(DyeColor.WHITE).get()))
 						.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/spell/" + ctx.getName())))
 						.lang("Marisa's Spellcard \"Master Spark\"")
-						.tag(DanmakuTagGen.PRESET_SPELL)
+						.tag(DanmakuTagGen.PRESET_SPELL).tag(GLTagGen.SPELL_CARD)
 						.register();
 
 				SANAE_SPELL = reg
@@ -190,7 +190,7 @@ public class GLItems {
 								() -> DanmakuItems.Bullet.SPARK.get(DyeColor.GREEN).get()))
 						.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/spell/" + ctx.getName())))
 						.lang("Sanae's Spellcard \"Inherited Ritual\"")
-						.tag(DanmakuTagGen.PRESET_SPELL)
+						.tag(DanmakuTagGen.PRESET_SPELL).tag(GLTagGen.SPELL_CARD)
 						.register();
 
 				YUKARI_SPELL_BUTTERFLY = reg
@@ -199,7 +199,7 @@ public class GLItems {
 								() -> DanmakuItems.Bullet.BUTTERFLY.get(DyeColor.MAGENTA).get()))
 						.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/spell/spell_yukari")))
 						.lang("Barrier \"Double Black Death Butterfly\"")
-						.tag(DanmakuTagGen.PRESET_SPELL)
+						.tag(DanmakuTagGen.PRESET_SPELL).tag(GLTagGen.SPELL_CARD)
 						.register();
 
 				YUKARI_SPELL_LASER = reg
@@ -208,7 +208,7 @@ public class GLItems {
 								() -> DanmakuItems.Laser.LASER.get(DyeColor.RED).get()))
 						.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/spell/spell_yukari")))
 						.lang("Barrier \"Mesh of Light & Darkness\"")
-						.tag(DanmakuTagGen.PRESET_SPELL)
+						.tag(DanmakuTagGen.PRESET_SPELL).tag(GLTagGen.SPELL_CARD)
 						.register();
 
 				MYSTIA_SPELL = reg
@@ -217,7 +217,7 @@ public class GLItems {
 								() -> DanmakuItems.Bullet.MENTOS.get(DyeColor.GREEN).get()))
 						.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/spell/" + ctx.getName())))
 						.lang("Night Sparrow \"Midnight Chorus Master\"")
-						.tag(DanmakuTagGen.PRESET_SPELL)
+						.tag(DanmakuTagGen.PRESET_SPELL).tag(GLTagGen.SPELL_CARD)
 						.register();
 
 				SAKUYA_SPELL = reg
@@ -226,7 +226,7 @@ public class GLItems {
 								() -> DanmakuItems.Bullet.DAGGER.get(DyeColor.LIGHT_BLUE).get()))
 						.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/spell/" + ctx.getName())))
 						.lang("Time Sign \"Infinity Blade\"")
-						.tag(DanmakuTagGen.PRESET_SPELL)
+						.tag(DanmakuTagGen.PRESET_SPELL).tag(GLTagGen.SPELL_CARD)
 						.register();
 			}
 
@@ -299,7 +299,20 @@ public class GLItems {
 			IBUKI_GOURD = reg.item("ibuki_gourd", p -> new GourdItem(p.stacksTo(1).food(gourd(
 							new MobEffectInstance(MobEffects.DAMAGE_BOOST, 600, 1),
 							new MobEffectInstance(MobEffects.FIRE_RESISTANCE, 600, 0)))))
-					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/tool/" + ctx.getName())))
+					// Hand-authored Blockbench model in models/custom: the base for every display but the gui, which
+					// takes the flat 16x16 icon — the same split as the doll lance (doc/design/doll/item.md §9).
+					.model((ctx, pvd) -> {
+						var base = pvd.nested()
+								.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/" + ctx.getName())));
+						var guiModel = pvd.nested()
+								.parent(new ModelFile.UncheckedModelFile("item/generated"))
+								.texture("layer0", pvd.modLoc("item/tool/" + ctx.getName() + "_icon"));
+						pvd.getBuilder(ctx.getName())
+								.customLoader(SeparateTransformsModelBuilder::begin)
+								.base(base)
+								.perspective(ItemDisplayContext.GUI, guiModel)
+								.end().guiLight(BlockModel.GuiLight.FRONT);
+					})
 					.lang("Ibuki Gourd").register();
 
 			FAIRY_CAKE = reg.item("fairy_cake", p -> new Item(p
@@ -349,11 +362,13 @@ public class GLItems {
 			DOWSER_LEFT = reg.item("dowser_left", Item::new)
 					.model((ctx, pvd) -> pvd.handheld(ctx, pvd.modLoc("item/tool/" + ctx.getName())))
 					.removeTab(TAB.key())
+					.tag(GLTagGen.WEBSITE_HIDDEN)
 					.lang("Nazrin's Dowser (Left Half)").register();
 
 			DOWSER_RIGHT = reg.item("dowser_right", Item::new)
 					.model((ctx, pvd) -> pvd.handheld(ctx, pvd.modLoc("item/tool/" + ctx.getName())))
 					.removeTab(TAB.key())
+					.tag(GLTagGen.WEBSITE_HIDDEN)
 					.lang("Nazrin's Dowser (Right Half)").register();
 
 			MERMAID_PEARL = reg.item("mermaid_pearl", MermaidPearl::new)
@@ -527,24 +542,29 @@ public class GLItems {
 
 			DEBUG_GLASSES = reg.item("debug_glasses", p -> new DebugGlasses(p.stacksTo(1)))
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/debug/" + ctx.getName())))
+					.tag(GLTagGen.DEBUG_ITEMS)
 					.defaultLang().register();
 
 			DEBUG_WAND = reg.item("debug_wand", p -> new DebugWand(p.stacksTo(1)))
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/debug/" + ctx.getName())))
+					.tag(GLTagGen.DEBUG_ITEMS)
 					.defaultLang().register();
 
 			STRUCTURE_WAND = reg.item("structure_wand", p -> new StructureWand(p.stacksTo(1)))
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/debug/" + ctx.getName())))
+					.tag(GLTagGen.DEBUG_ITEMS)
 					.defaultLang().register();
 
 			DOOR_DEBUG_WAND = reg.item("door_debug_wand", p -> new DoorDebugItem(p.stacksTo(1)))
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/debug/" + ctx.getName())))
+					.tag(GLTagGen.DEBUG_ITEMS)
 					.defaultLang().register();
 
 			// borrows the existing debug wand texture until it gets its own art, the
 			// same way the invitation letter borrows vanilla paper
 			PARTY_WAND = reg.item("party_wand", p -> new PartyWand(p.stacksTo(1)))
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/debug/debug_wand")))
+					.tag(GLTagGen.DEBUG_ITEMS)
 					.defaultLang().register();
 
 		}

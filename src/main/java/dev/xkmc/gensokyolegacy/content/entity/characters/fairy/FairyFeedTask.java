@@ -1,25 +1,26 @@
 package dev.xkmc.gensokyolegacy.content.entity.characters.fairy;
 
-import dev.xkmc.gensokyolegacy.content.entity.module.FairyFeedModule;
-import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiAnim;
+import dev.xkmc.gensokyolegacy.content.entity.behavior.module.FairyFeedModule;
+import dev.xkmc.gensokyolegacy.content.entity.youkai.impl.YoukaiAnim;
 import dev.xkmc.gensokyolegacy.init.registrate.GLBrains;
 import dev.xkmc.gensokyolegacy.util.BrainUtils;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.ai.behavior.Behavior;
 import net.minecraft.world.entity.ai.behavior.EntityTracker;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.MemoryStatus;
+import net.minecraft.world.item.ItemStack;
 
 import java.util.Map;
 
 /**
- * Two beats of eating, in the order they have to happen in: she chews first,
- * and only once she has actually had some of it does she reach over and hand
- * something back. Doing the gift inline at feed time would hand it over while
- * she is still mid-chew, which reads as two unrelated things happening at once
- * rather than one gesture.
+ * Two beats of eating, in the order they have to happen in: she takes the dish into her hand and
+ * chews it, and only once she has actually had some of it does she reach over and hand
+ * something back. Doing the gift inline at feed time would hand it over while she is still
+ * mid-chew, which reads as two unrelated things happening at once rather than one gesture.
  * <p>
- * {@code FairyFeedModule} leaves the feeding - player and the gift it earned -
+ * {@code FairyFeedModule} leaves the feeding - player, the dish and the gift it earned -
  * in {@link GLBrains#MEM_FEED} rather than handing anything over itself, and
  * that memory is the whole handoff. It is registered on its own
  * {@link GLBrains#FEAST} activity rather than on CORE, because eating is the
@@ -47,6 +48,12 @@ public class FairyFeedTask extends Behavior<FairyEntity> {
 	 */
 	private static final int EAT_TICKS = 45;
 	/**
+	 * When the dish leaves her hand: halfway through the chew, which is where the
+	 * clip brings it to her mouth. Nothing takes it out of her hand after that -
+	 * she is chewing with nothing to hold, and the crumbs carry on alone.
+	 */
+	private static final int SWALLOWED_AT = EAT_TICKS / 2;
+	/**
 	 * The {@code 使用主手物品} clip runs 0.31s. The gift leaves her hand halfway
 	 * through it rather than at the start, so it arrives on the arm's way out
 	 * instead of teleporting out of a gesture that has not begun.
@@ -62,12 +69,14 @@ public class FairyFeedTask extends Behavior<FairyEntity> {
 	}
 
 	private long startedAt;
+	private boolean swallowed;
 	private boolean reached;
 	private boolean thrown;
 
 	@Override
 	protected void start(ServerLevel level, FairyEntity entity, long gameTime) {
 		startedAt = gameTime;
+		swallowed = false;
 		reached = false;
 		thrown = false;
 		YoukaiAnim.EAT.play(entity);
@@ -81,6 +90,12 @@ public class FairyFeedTask extends Behavior<FairyEntity> {
 		// she eats facing you. LookAtTargetSink is a CORE behavior, so it is already
 		// running in this activity and only needs somewhere to point.
 		BrainUtils.setMemory(entity, MemoryModuleType.LOOK_TARGET, new EntityTracker(fed.player(), true));
+		// the dish goes in her hand here rather than at feed time, so it can only be
+		// held by a chew that is actually under way - a memory that expires unrun
+		// has no task whose stop could take it back out. Vanilla equipment sync carries
+		// it to the client, which is all YoukaiHeldItemLayer reads.
+		entity.setItemInHand(InteractionHand.MAIN_HAND, fed.food().copy());
+		entity.startEating(fed.food(), EAT_TICKS);
 	}
 
 	/**
@@ -95,14 +110,18 @@ public class FairyFeedTask extends Behavior<FairyEntity> {
 	}
 
 	/**
-	 * Four things on two latches: stand still, chew, reach, then let go. Each fires
-	 * once, and {@code tick} runs every tick the behavior is alive, so the gesture and
-	 * the gift cannot come apart.
+	 * Five things on three latches: stand still, chew, take the dish out of her hand, reach, then
+	 * let go. Each fires once, and {@code tick} runs every tick the behavior is alive, so the
+	 * gesture and the gift cannot come apart.
 	 */
 	@Override
 	protected void tick(ServerLevel level, FairyEntity entity, long gameTime) {
 		holdStill(entity);
 		long age = gameTime - startedAt;
+		if (!swallowed && age >= SWALLOWED_AT) {
+			swallowed = true;
+			entity.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+		}
 		if (!reached && age >= EAT_TICKS) {
 			reached = true;
 			YoukaiAnim.USE_MAINHAND.play(entity);
@@ -142,11 +161,14 @@ public class FairyFeedTask extends Behavior<FairyEntity> {
 	/**
 	 * Cleared here rather than when the gift is paid, so that a second dish fed
 	 * mid-chew is not swallowed by the run already in flight: this one ends and the
-	 * behavior starts again for the other.
+	 * behavior starts again for the other. The hand goes back to empty with it - a chew
+	 * cut short before {@link #SWALLOWED_AT} is the only case where the dish is still in it.
 	 */
 	@Override
 	protected void stop(ServerLevel level, FairyEntity entity, long gameTime) {
 		BrainUtils.clearMemory(entity, GLBrains.MEM_FEED.get());
+		entity.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+		entity.stopEating();
 	}
 
 }

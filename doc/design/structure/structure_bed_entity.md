@@ -1,6 +1,6 @@
 # Structure-Bed-Entity Framework — Implementation & Usage Guide
 
-This document reflects the current implementation in `content/block/deco/bed/`, `content/block/base/`, `content/attachment/index/`, `content/attachment/home/datamap/`, `init/data/structure/`, and `content/entity/module/HomeModule`.
+This document reflects the current implementation in `content/block/deco/bed/`, `content/block/base/`, `content/attachment/index/`, `content/attachment/home/datamap/`, `init/data/structure/`, and `content/entity/behavior/module/HomeModule`.
 
 Related: [home_index.md](home_index.md), [youkai_character.md](youkai_character.md).
 
@@ -21,7 +21,7 @@ Related: [home_index.md](home_index.md), [youkai_character.md](youkai_character.
 | `StructureRef` | `content/attachment/index/StructureRef.java` | `record(storage, key, data)` cursor; `bedOf(type)` reads the per-entity map. |
 | `StructureRefData` | `content/attachment/index/StructureRefData.java` | Per-structure multi-entity map `Map<EntityType, BedRefData>` plus `structureTick`, a counter that advances once per game time regardless of bed count and doubles as the visit scheduler's heartbeat (`VisitScheduler.tick`). `blockTick()` delegates to typed `BedRefData`. |
 | `BedRefData` | `content/attachment/index/BedRefData.java:24` | `@SerialClass` per-entity-type state: `UUID entityId`, `BlockPos bedPos`, `lastEntityTickedTime`, `lostEntityTick`. `blockTick`/`entityTick`/`onEntityDie`/`removeEntity`/`onDebugClick`/`getDebugPacket`. |
-| `HomeModule` | `content/entity/module/HomeModule.java` | `@SerialClass AbstractYoukaiModule` `@SerialField StructureKey home`. `tickServer() → BedRefData.entityTick` else discard; `onKilled()`. |
+| `HomeModule` | `content/entity/behavior/module/HomeModule.java` | `@SerialClass AbstractYoukaiModule` `@SerialField StructureKey home`. `tickServer() → BedRefData.entityTick` else discard; `onKilled()`. |
 | `StructStructure` | `init/data/structure/helper/StructStructure.java` | Datagen descriptor `id, biomesTag, spacing, separation, StructureConfig.Builder, List<StructBed>, visitors, StructBuilding, structureSet`. |
 | `StructBuilding` | `init/data/structure/helper/` | Sealed `StructFlatBuilding` (processors, spawns, flat-check params) / `StructFlatJigsawBuilding` (maxDepth, `Part` list, spawns) → `GLSinglePiece extends SinglePoolElement`. |
 | `GLStructureGen` | `init/data/structure/GLStructureGen.java:19` | Bootstraps `PROCESSOR_LIST/TEMPLATE_POOL/STRUCTURE/STRUCTURE_SET` via `L2Registrate DataProviderInitializer`; fills 3 `DataMapReg` in `dataMap()`. `initStructures()` defines `marisa_house` / `hakurei_shrine` / `morichika_shop` / `alice_house`; Marisa/Morichika/Alice share the `magical_forest_houses` set, the shrine has its own. |

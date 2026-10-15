@@ -1,7 +1,6 @@
 package dev.xkmc.gensokyolegacy.init.registrate;
 
 import com.tterrag.registrate.util.entry.EntityEntry;
-import dev.xkmc.danmakuapi.content.entity.ItemBulletRenderer;
 import dev.xkmc.gensokyolegacy.content.block.deco.seat.ChairEntity;
 import dev.xkmc.gensokyolegacy.content.block.deco.seat.NothingRenderer;
 import dev.xkmc.gensokyolegacy.content.entity.broom.BroomEntity;
@@ -29,10 +28,10 @@ import dev.xkmc.gensokyolegacy.content.entity.misc.FairyIce;
 import dev.xkmc.gensokyolegacy.content.entity.misc.FrozenFrog;
 import dev.xkmc.gensokyolegacy.content.entity.misc.HexBrewBottleEntity;
 import dev.xkmc.gensokyolegacy.content.entity.misc.IronDaggerBulletEntity;
-import dev.xkmc.gensokyolegacy.content.entity.module.EntityInteractions;
+import dev.xkmc.gensokyolegacy.content.entity.behavior.module.EntityInteractions;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.BossYoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.GeneralYoukaiEntity;
-import dev.xkmc.gensokyolegacy.content.entity.youkai.GeneralYoukaiRenderer;
+import dev.xkmc.gensokyolegacy.content.entity.youkai.renderer.GeneralYoukaiRenderer;
 import dev.xkmc.gensokyolegacy.content.item.gift.GiftPreference;
 import dev.xkmc.gensokyolegacy.content.item.gift.GiftType;
 import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyTaste;
@@ -40,10 +39,8 @@ import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.loot.EntityLootGen;
 import net.minecraft.client.renderer.entity.ThrownItemRenderer;
 import net.minecraft.tags.EntityTypeTags;
-import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.SpawnPlacementTypes;
-import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.neoforged.neoforge.event.entity.RegisterSpawnPlacementsEvent;
 
@@ -87,11 +84,8 @@ public class GLEntities {
 	public static final EntityEntry<HexBrewBottleEntity> HEXBREW_BOTTLE;
 	public static final EntityEntry<IronDaggerBulletEntity> IRON_DAGGER;
 
-	// Spawn eggs are only registered for the three fully implemented characters
-	// (Reimu, Marisa, Morichika); every other mob and the doll are obtained in-world only.
+	// No character has a spawn egg: every mob is met in the world or summoned in-game, never placed.
 	static {
-
-		GensokyoLegacy.REGISTRATE.defaultCreativeTab(CreativeModeTabs.OP_BLOCKS);
 
 		CHAIR = GensokyoLegacy.REGISTRATE
 				.<ChairEntity>entity("dining_chair", ChairEntity::new, MobCategory.MISC)
@@ -132,7 +126,6 @@ public class GLEntities {
 					.properties(e -> e.sized(0.4F, 1.8f).clientTrackingRange(10))
 					.attributes(BossYoukaiEntity::createAttributes)
 					.renderer(() -> ReimuRenderer::new)
-					.spawnEgg(0xa93937, 0xfaf5f2).build()
 					.loot(EntityLootGen::reimu)
 					.dataMap(GLMeta.GIFT_PREFERENCE.reg(), GiftPreference.of(Map.of(
 							GiftType.DRINK, 2.0,
@@ -187,7 +180,6 @@ public class GLEntities {
 					.properties(e -> e.sized(0.4F, 1.8f).clientTrackingRange(10))
 					.attributes(BossYoukaiEntity::createAttributes)
 					.renderer(() -> MarisaRenderer::new)
-					.spawnEgg(0x52403C, 0xFAF2EF).build()
 					.loot(EntityLootGen::marisa)
 					.dataMap(GLMeta.PARTY_TASTE.reg(), TASTE_MARISA)
 					.register();
@@ -197,7 +189,6 @@ public class GLEntities {
 					.properties(e -> e.sized(0.4F, 1.8f).clientTrackingRange(10))
 					.attributes(GeneralYoukaiEntity::createAttributes)
 					.renderer(() -> MorichikaRenderer::new)
-					.spawnEgg(0x52403C, 0xFAF2EF).build()
 					.loot(EntityLootGen::noLoot)
 					.dataMap(GLMeta.PARTY_TASTE.reg(), TASTE_MORICHIKA)
 					.register();

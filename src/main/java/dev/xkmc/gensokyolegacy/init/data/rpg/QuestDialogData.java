@@ -2,7 +2,7 @@ package dev.xkmc.gensokyolegacy.init.data.rpg;
 
 import com.tterrag.registrate.providers.ProviderType;
 import dev.xkmc.gensokyolegacy.content.rpg.core.DialogConfig;
-import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiAnim;
+import dev.xkmc.gensokyolegacy.content.entity.youkai.impl.YoukaiAnim;
 import dev.xkmc.gensokyolegacy.content.rpg.action.DialogAction;
 import dev.xkmc.gensokyolegacy.content.rpg.action.SetTimerAction;
 import dev.xkmc.gensokyolegacy.content.rpg.condition.HasAdvancementCondition;
@@ -36,7 +36,6 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
-import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -48,7 +47,6 @@ import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
-import net.minecraft.world.level.storage.loot.providers.number.NumberProvider;
 import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
 
 import java.util.LinkedHashMap;

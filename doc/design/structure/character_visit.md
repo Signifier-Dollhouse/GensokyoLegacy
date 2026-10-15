@@ -236,9 +236,9 @@ discards itself early and no change is needed there.
 
 | File | Role |
 |---|---|
-| `content/entity/visit/VisitTable.java` | `WINDOW`, seed, `remaining(sl, key, guest)` |
-| `content/entity/visit/VisitScheduler.java` | bed-tick side: dedup scan + spawn |
-| `content/entity/module/VisitModule.java` | per-entity visit lifetime and holds |
+| `content/entity/behavior/visit/VisitTable.java` | `WINDOW`, seed, `remaining(sl, key, guest)` |
+| `content/entity/behavior/visit/VisitScheduler.java` | bed-tick side: dedup scan + spawn |
+| `content/entity/behavior/module/VisitModule.java` | per-entity visit lifetime and holds |
 | `content/rpg/condition/HomeBoundCondition.java` | the `home_bound` condition |
 | `init/data/rpg/AliceQDGen.java` | minimal content so Alice can be a guest |
 
@@ -253,7 +253,7 @@ discards itself early and no change is needed there.
 | `content/entity/youkai/YoukaiFlags.java` | append `VISITING` |
 | `content/entity/youkai/YoukaiEntity.java` | `createModules()` += `VisitModule`, `isVisiting()` |
 | `content/entity/youkai/SmartYoukaiEntity.java` | board: `VISITING(600)` + behaviours |
-| `content/entity/module/TalkModule.java` | `hold(400)` in `beginTalking` |
+| `content/entity/behavior/module/TalkModule.java` | `hold(400)` in `beginTalking` |
 | `init/registrate/GLBrains.java` | `MEM_VISIT`, `VISITING` |
 | `init/data/GLModConfig.java` | `visitStayMultiplier` |
 | `content/rpg/core/CodecRegistry.java` | `HOME_BOUND` |

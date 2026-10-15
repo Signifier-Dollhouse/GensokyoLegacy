@@ -1,10 +1,9 @@
 package dev.xkmc.gensokyolegacy.content.entity.characters.sakuya;
 
 import dev.xkmc.gensokyolegacy.content.entity.characters.maiden.MaidenEntity;
-import dev.xkmc.gensokyolegacy.content.entity.youkai.GeoYoukaiAnim;
-import dev.xkmc.gensokyolegacy.content.entity.youkai.GeneralYoukaiEntity;
-import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiAnim;
-import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiFlags;
+import dev.xkmc.gensokyolegacy.content.entity.youkai.impl.GeoYoukaiAnim;
+import dev.xkmc.gensokyolegacy.content.entity.youkai.impl.YoukaiAnim;
+import dev.xkmc.gensokyolegacy.content.entity.youkai.impl.YoukaiFlags;
 import dev.xkmc.l2serial.serialization.marker.SerialClass;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;

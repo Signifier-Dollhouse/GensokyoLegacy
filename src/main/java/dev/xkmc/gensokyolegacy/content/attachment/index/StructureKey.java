@@ -1,7 +1,7 @@
 package dev.xkmc.gensokyolegacy.content.attachment.index;
 
 import dev.xkmc.gensokyolegacy.content.attachment.character.CharacterConfig;
-import dev.xkmc.gensokyolegacy.content.entity.module.HomeModule;
+import dev.xkmc.gensokyolegacy.content.entity.behavior.module.HomeModule;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import net.minecraft.core.BlockPos;

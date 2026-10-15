@@ -1,16 +1,14 @@
 package dev.xkmc.gensokyolegacy.content.entity.behavior.move;
 
-import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyArea;
 import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyFoodValue;
 import dev.xkmc.gensokyolegacy.content.block.deco.door.SlidingDoorUtils;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
-import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiFlags;
+import dev.xkmc.gensokyolegacy.content.entity.youkai.impl.YoukaiFlags;
 import dev.xkmc.gensokyolegacy.init.data.GLTagGen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.DoorBlock;
 import net.minecraft.world.level.block.state.BlockState;

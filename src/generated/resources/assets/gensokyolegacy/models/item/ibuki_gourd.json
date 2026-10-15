@@ -1,6 +1,15 @@
 {
-  "parent": "minecraft:item/generated",
-  "textures": {
-    "layer0": "gensokyolegacy:item/tool/ibuki_gourd"
+  "base": {
+    "parent": "gensokyolegacy:custom/ibuki_gourd"
+  },
+  "gui_light": "front",
+  "loader": "neoforge:separate_transforms",
+  "perspectives": {
+    "gui": {
+      "parent": "minecraft:item/generated",
+      "textures": {
+        "layer0": "gensokyolegacy:item/tool/ibuki_gourd_icon"
+      }
+    }
   }
 }

@@ -69,7 +69,7 @@ public interface DollGeo extends DollBaseImpl, GeoEntity {
 		// overwrite shared bones
 		controllers.add(new AnimationController<>(asDoll(), WINK_CONTROLLER, 0, e -> e.setAndContinue(WINK)));
 		controllers.add(new AnimationController<>(asDoll(), ANIM_CONTROLLER, ANIM_TRANSITION, this::dollAnimController));
-		controllers.add(new AnimationController<>(asDoll(), ONE_SHOT_CONTROLLER, ANIM_TRANSITION, this::dollOneShotAnimController)
+		controllers.add(new DollOneShotController(asDoll())
 				.receiveTriggeredAnimations()
 				.triggerableAnim("attack", ATTACK)
 				.triggerableAnim("slap", SLAP)
