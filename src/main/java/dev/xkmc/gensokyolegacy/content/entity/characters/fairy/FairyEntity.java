@@ -3,6 +3,7 @@ package dev.xkmc.gensokyolegacy.content.entity.characters.fairy;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.combat.YoukaiCombatManager;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.module.AbstractYoukaiModule;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.module.FairyFeedModule;
+import dev.xkmc.gensokyolegacy.content.entity.behavior.module.GiftModule;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.module.HomeModule;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.module.PartyModule;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.module.TalkModule;
@@ -27,6 +28,9 @@ import java.util.List;
  * <p>
  * What a fairy does have to say is said without words: a bubble over her head every ten
  * to twenty seconds with one item in it, out of {@link FairyFeedModule#wants}.
+ * <p>
+ * The gift module is the one favor a fairy never loses: a hand-out is what a player has
+ * before they have fed her anything, so it stays on her default list.
  *
  * @see "doc/design/want_bubble.md"
  */
@@ -41,7 +45,8 @@ public class FairyEntity extends GeneralYoukaiEntity {
 
 	@Override
 	protected List<AbstractYoukaiModule> createModules() {
-		return List.of(new HomeModule(this), new VisitModule(this), new PartyModule(this));
+		return List.of(new HomeModule(this), new VisitModule(this), new PartyModule(this),
+				new GiftModule(this));
 	}
 
 	public FairyEntity(EntityType<? extends GeneralYoukaiEntity> pEntityType, Level pLevel) {

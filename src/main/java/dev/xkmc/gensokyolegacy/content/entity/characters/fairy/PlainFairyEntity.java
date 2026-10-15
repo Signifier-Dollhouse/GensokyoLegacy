@@ -48,6 +48,11 @@ import java.util.Optional;
 /**
  * A plain fairy: no named character behind her, just the shared fairy rig. {@link FairyEntity}
  * stays the vanilla-placeholder mob, so this subclass carries the rig and the texture sheets.
+ * <p>
+ * She also drops {@link HomeModule}, {@link VisitModule} and {@link PartyModule} — not just the
+ * talk module every fairy lacks. She is wild-spawned and owns no house, so there is nowhere for a
+ * host to send her from and nothing for her to send anybody back to; {@code PartySend.spawn}
+ * declines on the missing module rather than spawning a guest that cannot be seated.
  */
 @SerialClass
 public class PlainFairyEntity extends FairyEntity implements GeoYoukaiAnim {
@@ -346,12 +351,7 @@ public class PlainFairyEntity extends FairyEntity implements GeoYoukaiAnim {
 	 */
 	@Override
 	protected List<AbstractYoukaiModule> createModules() {
-		return List.of(
-				new HomeModule(this),
-				new VisitModule(this),
-				new FairyFeedModule(this),
-				new GiftModule(this)
-		);
+		return List.of(new FairyFeedModule(this), new GiftModule(this));
 	}
 
 	/**
@@ -369,7 +369,8 @@ public class PlainFairyEntity extends FairyEntity implements GeoYoukaiAnim {
 	 * A fight outranks everything, because being cornered beats every reason she had
 	 * for standing still. Running beats eating, so a snack handed to a panicking fairy
 	 * waits until she has put ground between them. She never naps, so NAP is in the
-	 * list only as a rung she skips over; TALK is absent along with the talk module.
+	 * list only as a rung she skips over; AT_HOME is skipped with the home module that
+	 * schedules it, and TALK is absent along with the talk module.
 	 */
 	@Override
 	protected void constructTaskBoard(TaskBoard board) {

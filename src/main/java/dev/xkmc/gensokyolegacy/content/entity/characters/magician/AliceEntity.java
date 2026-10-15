@@ -6,6 +6,7 @@ import dev.xkmc.gensokyolegacy.content.entity.behavior.brain.TaskBoard;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.task.combat.YoukaiUpdateTargetTask;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.BaseDollEntity;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.module.AbstractYoukaiModule;
+import dev.xkmc.gensokyolegacy.content.entity.behavior.module.GiftModule;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.module.HomeModule;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.module.PartyModule;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.module.TalkModule;
@@ -72,6 +73,7 @@ public class AliceEntity extends GeneralYoukaiEntity implements GeoYoukaiAnim, D
 				// needs the visit module like everyone else
 				new VisitModule(this),
 				new PartyModule(this),
+				new GiftModule(this),
 				new TalkModule(this),
 				new AliceDollHost(this)
 		);
