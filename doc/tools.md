@@ -43,6 +43,41 @@ produce them.
 | `checkinterior.py` | validates a *proposed* room/node set (the values are duplicated in the file header) |
 | `checkconfig.py` | validates the **generated datamap JSON** against the shipped template — this is the one that gates |
 | `stripjarjar.py` | strips the jar-in-jar payload from a `libs/` mod jar — unrelated to structures, listed here because it lives in `tools/` |
+| `terrain.py` | exports a biome map and a height map of a dimension from its worldgen json — also unrelated to structures, same reason |
+
+### Terrain maps
+
+`terrain.py` renders two previews of a dimension at one pixel per chunk, 512x512
+chunks (4096x4096 blocks) by default:
+
+```sh
+python3 tools/terrain.py gensokyolegacy:gensokyo
+python3 tools/terrain.py gensokyolegacy:gensokyo --seed 9094732767959603503 --size 1024
+```
+
+out/terrain/<dimension>_biomes.png
+:   every biome in the color Minecraft's own map gives it, from the biome map palette
+out/terrain/<dimension>_height.png
+:   blue below sea level, then one color per 16 blocks of height above it
+out/terrain/<dimension>.txt
+:   biome colors, map shares, and a height histogram
+
+The dimension json names a biome source and a noise settings entry, and the noise
+settings entry carries the whole noise router, so the tool reads the terrain the same
+way the game does rather than mirroring `NoiseRouterData`. Vanilla density functions
+and noise parameters come from the NeoForge client-extra jar (found automatically, or
+`--vanilla`); the mod's own come from `src/generated/resources`.
+
+The height map is the **terrain** surface, the topmost block whose density is positive,
+so under sea level it shows the sea floor and not the water surface — what the game
+stores in `WORLD_SURFACE` is the water, a few blocks higher. Caves and the
+`base_3d_noise` "cheese" term are dropped for speed; `--caves` and `--cheese` keep
+them. Neither is worth the cost at one pixel per chunk, and the surface still lands
+within a few blocks of the generated world.
+
+Run it after changing the offset spline, the biome grid, or anything else that moves
+the terrain. The peak reaching 220 and the shoreline covering ~20% of the map are the
+numbers `doc/design/gensokyo_dimension.md` claims, and the map shows them at a glance.
 
 ### Stripping jarJar from a dev jar
 
