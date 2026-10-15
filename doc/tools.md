@@ -76,8 +76,9 @@ them. Neither is worth the cost at one pixel per chunk, and the surface still la
 within a few blocks of the generated world.
 
 Run it after changing the offset spline, the biome grid, or anything else that moves
-the terrain. The peak reaching 220 and the shoreline covering ~20% of the map are the
-numbers `doc/design/gensokyo_dimension.md` claims, and the map shows them at a glance.
+the terrain. The peak reaching 220, 14% of the map under water and a quarter of it
+above y 80 are the numbers `doc/design/gensokyo_dimension.md` claims, and the map
+shows them at a glance.
 
 ### Stripping jarJar from a dev jar
 

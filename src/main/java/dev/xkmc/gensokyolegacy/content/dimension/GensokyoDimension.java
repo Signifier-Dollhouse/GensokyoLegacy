@@ -68,18 +68,20 @@ public class GensokyoDimension {
 	private static final float SURFACE_DEPTH = 0.0f;
 	private static final float UNDERGROUND_DEPTH = 1.0f;
 
+	// one band per height range of the offset spline: sea floor, strand, plain, upland, mountain;
+	// the ocean band ends where the terrain crosses sea level, so no dry ground is labelled ocean
 	private static final List<Band> CONTINENTALNESS = List.of(
-			new Band(-1.0f, -0.55f), new Band(-0.55f, -0.25f), new Band(-0.25f, -0.02f),
-			new Band(-0.02f, 0.2f), new Band(0.2f, 0.55f), new Band(0.55f, 1.0f));
+			new Band(-1.0f, -0.53f), new Band(-0.53f, -0.44f), new Band(-0.44f, -0.118f),
+			new Band(-0.118f, 0.329f), new Band(0.329f, 1.0f));
 	private static final List<Band> TEMPERATURE = List.of(
 			new Band(-1.0f, -0.35f), new Band(-0.35f, 0.35f), new Band(0.35f, 1.0f));
 	private static final List<Band> HUMIDITY = List.of(
 			new Band(-1.0f, -0.25f), new Band(-0.25f, 0.25f), new Band(0.25f, 1.0f));
 
-	private static final int OCEAN = 1;
-	private static final int COAST = 2;
-	private static final int UPLAND = 4;
-	private static final int HIGHLAND = 5;
+	private static final int OCEAN = 0;
+	private static final int COAST = 1;
+	private static final int UPLAND = 3;
+	private static final int MOUNTAIN = 4;
 	private static final int COLD = 0;
 	private static final int TEMPERATE = 1;
 	private static final int DRY = 0;
@@ -127,28 +129,34 @@ public class GensokyoDimension {
 
 	/**
 	 * Continentalness to offset. The surface sits at {@code 63.5 + 128 * spline}, and the points were solved against
-	 * the real continentalness and base_3d_noise fields: ocean floor 29, shoreline at continentalness -0.28 covering
-	 * 20% of the map, and peaks pinned at 220 instead of the overworld's 320. The last three points are flat, so the
-	 * peak stays at 220 however high continentalness climbs; base_3d_noise then adds about 14 either side of it.
+	 * the real continentalness field: every 16-block band from y 64 up carries a point, each at the quantile that
+	 * gives that band its share of the map — 30% plain, 22% at 80, 12% at 96, 5% at 112, 3% per band above 128, on a
+	 * 13% ocean. So the height map is a choice of shares rather than a curve drawn by eye. The last three points are
+	 * flat, so the peak holds at 220 however high continentalness climbs.
 	 */
 	private static CubicSpline<DensityFunctions.Spline.Point, DensityFunctions.Spline.Coordinate> offsetSpline(
 			Holder<DensityFunction> continentalness) {
 		return CubicSpline.builder(new DensityFunctions.Spline.Coordinate(continentalness))
-				.addPoint(-1.10f, -0.167f)
-				.addPoint(-0.80f, -0.167f)
-				.addPoint(-0.60f, -0.1419f)
-				.addPoint(-0.45f, -0.0718f)
-				.addPoint(-0.35f, -0.0217f)
-				.addPoint(-0.25f, 0.03f)
-				.addPoint(0.05f, 0.05f)
-				.addPoint(0.30f, 0.06f)
-				.addPoint(0.60f, 0.10f)
-				.addPoint(0.70f, 0.3246f)
-				.addPoint(0.80f, 0.6053f)
-				.addPoint(0.90f, 0.9309f)
-				.addPoint(0.97f, 1.2228f)
-				.addPoint(1.30f, 1.2228f)
-				.addPoint(2.00f, 1.2228f)
+				.addPoint(-1.10f, -0.1992f)
+				.addPoint(-0.80f, -0.1914f)
+				.addPoint(-0.70f, -0.1758f)
+				.addPoint(-0.65f, -0.1445f)
+				.addPoint(-0.60f, -0.0977f)
+				.addPoint(-0.56f, -0.0508f)
+				.addPoint(-0.53f, -0.0039f)
+				.addPoint(-0.50f, 0.0038f)
+				.addPoint(-0.118f, 0.1288f)
+				.addPoint(0.108f, 0.2538f)
+				.addPoint(0.255f, 0.3788f)
+				.addPoint(0.329f, 0.5038f)
+				.addPoint(0.380f, 0.6288f)
+				.addPoint(0.436f, 0.7538f)
+				.addPoint(0.505f, 0.8788f)
+				.addPoint(0.595f, 1.0038f)
+				.addPoint(0.734f, 1.1288f)
+				.addPoint(1.05f, 1.2227f)
+				.addPoint(1.30f, 1.2227f)
+				.addPoint(2.00f, 1.2227f)
 				.build();
 	}
 
@@ -226,9 +234,9 @@ public class GensokyoDimension {
 	}
 
 	private static ResourceKey<Biome> land(int c, int t, int h) {
-		if (c <= OCEAN) return GLBiomes.OCEAN;
+		if (c == OCEAN) return GLBiomes.OCEAN;
 		if (c == COAST) return GLBiomes.BEACH;
-		if (c == HIGHLAND) return GLBiomes.MOUNTAIN;
+		if (c == MOUNTAIN) return GLBiomes.MOUNTAIN;
 		if (t == COLD) return GLBiomes.SNOWY_PLAINS;
 		if (c == UPLAND && t == TEMPERATE) {
 			return switch (h) {

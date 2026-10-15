@@ -1131,7 +1131,10 @@ def surface_height(density, min_y, max_y, x, z, column):
     for probe in range(bracket + 1, min(max_y, bracket + HEIGHT_STEP)):
         if density(x, probe, z, column) <= 0.0:
             return probe - 1
-    return bracket
+    # the probe above the bracket was already empty, so a window of solid density means the
+    # surface is its top block; returning the bracket reports it 15 blocks low, which is what
+    # fabricated the flat shelves the height map used to show along the plain
+    return min(max_y - 1, bracket + HEIGHT_STEP - 1)
 
 
 def climate_point(sampler, x, y, z, column):

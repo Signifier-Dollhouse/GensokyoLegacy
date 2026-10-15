@@ -37,77 +37,102 @@
                 {
                   "derivative": 0.0,
                   "location": -1.1,
-                  "value": -0.167
+                  "value": -0.1992
                 },
                 {
                   "derivative": 0.0,
                   "location": -0.8,
-                  "value": -0.167
+                  "value": -0.1914
+                },
+                {
+                  "derivative": 0.0,
+                  "location": -0.7,
+                  "value": -0.1758
+                },
+                {
+                  "derivative": 0.0,
+                  "location": -0.65,
+                  "value": -0.1445
                 },
                 {
                   "derivative": 0.0,
                   "location": -0.6,
-                  "value": -0.1419
+                  "value": -0.0977
                 },
                 {
                   "derivative": 0.0,
-                  "location": -0.45,
-                  "value": -0.0718
+                  "location": -0.56,
+                  "value": -0.0508
                 },
                 {
                   "derivative": 0.0,
-                  "location": -0.35,
-                  "value": -0.0217
+                  "location": -0.53,
+                  "value": -0.0039
                 },
                 {
                   "derivative": 0.0,
-                  "location": -0.25,
-                  "value": 0.03
+                  "location": -0.5,
+                  "value": 0.0038
                 },
                 {
                   "derivative": 0.0,
-                  "location": 0.05,
-                  "value": 0.05
+                  "location": -0.118,
+                  "value": 0.1288
                 },
                 {
                   "derivative": 0.0,
-                  "location": 0.3,
-                  "value": 0.06
+                  "location": 0.108,
+                  "value": 0.2538
                 },
                 {
                   "derivative": 0.0,
-                  "location": 0.6,
-                  "value": 0.1
+                  "location": 0.255,
+                  "value": 0.3788
                 },
                 {
                   "derivative": 0.0,
-                  "location": 0.7,
-                  "value": 0.3246
+                  "location": 0.329,
+                  "value": 0.5038
                 },
                 {
                   "derivative": 0.0,
-                  "location": 0.8,
-                  "value": 0.6053
+                  "location": 0.38,
+                  "value": 0.6288
                 },
                 {
                   "derivative": 0.0,
-                  "location": 0.9,
-                  "value": 0.9309
+                  "location": 0.436,
+                  "value": 0.7538
                 },
                 {
                   "derivative": 0.0,
-                  "location": 0.97,
-                  "value": 1.2228
+                  "location": 0.505,
+                  "value": 0.8788
+                },
+                {
+                  "derivative": 0.0,
+                  "location": 0.595,
+                  "value": 1.0038
+                },
+                {
+                  "derivative": 0.0,
+                  "location": 0.734,
+                  "value": 1.1288
+                },
+                {
+                  "derivative": 0.0,
+                  "location": 1.05,
+                  "value": 1.2227
                 },
                 {
                   "derivative": 0.0,
                   "location": 1.3,
-                  "value": 1.2228
+                  "value": 1.2227
                 },
                 {
                   "derivative": 0.0,
                   "location": 2.0,
-                  "value": 1.2228
+                  "value": 1.2227
                 }
               ]
             }
