@@ -299,7 +299,20 @@ public class GLItems {
 			IBUKI_GOURD = reg.item("ibuki_gourd", p -> new GourdItem(p.stacksTo(1).food(gourd(
 							new MobEffectInstance(MobEffects.DAMAGE_BOOST, 600, 1),
 							new MobEffectInstance(MobEffects.FIRE_RESISTANCE, 600, 0)))))
-					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/tool/" + ctx.getName())))
+					// Hand-authored Blockbench model in models/custom: the base for every display but the gui, which
+					// takes the flat 16x16 icon — the same split as the doll lance (doc/design/doll/item.md §9).
+					.model((ctx, pvd) -> {
+						var base = pvd.nested()
+								.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/" + ctx.getName())));
+						var guiModel = pvd.nested()
+								.parent(new ModelFile.UncheckedModelFile("item/generated"))
+								.texture("layer0", pvd.modLoc("item/tool/" + ctx.getName() + "_icon"));
+						pvd.getBuilder(ctx.getName())
+								.customLoader(SeparateTransformsModelBuilder::begin)
+								.base(base)
+								.perspective(ItemDisplayContext.GUI, guiModel)
+								.end().guiLight(BlockModel.GuiLight.FRONT);
+					})
 					.lang("Ibuki Gourd").register();
 
 			FAIRY_CAKE = reg.item("fairy_cake", p -> new Item(p

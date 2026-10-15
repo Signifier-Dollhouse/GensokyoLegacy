@@ -300,7 +300,7 @@ Passes `data.data().reputationCap` alongside `reputation` to `CharacterInfoToCli
 - `content/attachment/character/ReputationState.java` -- state to colour and target kind
 - `content/rpg/reward/ReputationReward.java` -- the four fields and their codec
 - `content/block/deco/donation/DonationBoxBlockEntity.java` -- gold exchange and debug tooltip
-- `content/entity/module/GiftModule.java` -- the gift gain
+- `content/entity/behavior/module/GiftModule.java` -- the gift gain
 - `content/client/debug/CharacterRequestToServer.java`, `CharacterInfoToClient.java`, `CharacterInfoClientManager.java` -- cap on the debug tooltip
 - `init/data/rpg/{Reimu,Alice,Marisa}QDGen.java` and the generated quest JSON -- reward values
 - `init/data/GLLang.java` and the generated lang files -- the format string

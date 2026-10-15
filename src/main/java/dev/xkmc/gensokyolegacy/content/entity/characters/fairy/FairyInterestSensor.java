@@ -1,8 +1,7 @@
 package dev.xkmc.gensokyolegacy.content.entity.characters.fairy;
 
-import dev.xkmc.gensokyolegacy.content.attachment.character.ReputationConstants;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.sensor.DynamicSensor;
-import dev.xkmc.gensokyolegacy.content.entity.module.FairyFeedModule;
+import dev.xkmc.gensokyolegacy.content.entity.behavior.module.FairyFeedModule;
 import dev.xkmc.gensokyolegacy.util.BrainUtils;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EntitySelector;
