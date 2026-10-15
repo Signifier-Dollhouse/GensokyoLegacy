@@ -74,22 +74,50 @@ to the plain spline plus `NoiseRouterData.GLOBAL_OFFSET`. They are kept so the s
 `gensokyolegacy:offset`, `:factor`, `:depth` and `:sloped_cheese`, registered in `GensokyoDimension.densityFunctions`.
 
 `offset` splines continentalness with no erosion or weirdness re-keying. The surface sits at
-`63.5 + 128 * spline`, so the points read as:
+`63.5 + 128 * spline + 128 * base_3d_noise / factor`.
+
+The points were **solved against the real noise**, not guessed: porting `ImprovedNoise` / `PerlinNoise` /
+`NormalNoise` / `BlendedNoise` and sampling the actual `minecraft:overworld/continents` and
+`minecraft:overworld/base_3d_noise` fields over ~171k points gives the distribution these numbers come from.
+The two knobs are the deep-band value (sets how much ocean) and the highland ramp (sets peak height):
 
 | continentalness | spline | surface y |
 |---|---|---|
-| ≤ −0.51 | −0.2222 | 35 (ocean floor) |
-| −0.44 … −0.30 | −0.12 | 48 (shelf) |
-| −0.20 | −0.09 | 52 |
-| −0.10 | −0.02 | 61 (shoreline) |
-| 0.00 | 0.03 | 67 |
-| 0.45 | 0.15 | 83 |
-| 1.00 | 0.38 | 112 (highland top) |
+| ≤ −0.80 | −0.167 | 42 |
+| −0.60 | −0.142 | 45 |
+| −0.45 | −0.072 | 54 |
+| −0.35 | −0.022 | 61 (**shoreline**) |
+| −0.25 | 0.030 | 67 |
+| 0.30 | 0.060 | 71 |
+| 0.60 | 0.100 | 76 |
+| 0.70 | 0.325 | 105 |
+| 0.80 | 0.605 | 141 |
+| 0.90 | 0.931 | 183 |
+| ≥ 0.97 | 1.2228 | **220 (peak)** |
 
-The land is therefore a monotone ramp with no flat spots, which is what a river needs to exist. Total relief is 77
-blocks against the overworld's 208. Sea level 63 puts the shoreline near continentalness −0.075.
+Measured result: **ocean 20.0%**, peak 234, lowest 29, median height 69.
 
-`factor` ramps 3.95 → 5.0 over the same range; it only controls how steeply density falls off below the surface.
+The last three points are flat (`0.97`, `1.30`, `2.00` all at 1.2228), which pins the peak at y 220 no matter how
+high continentalness climbs — sampled continentalness reaches 1.51, and the overworld would put that at y 300+. The
+`base_3d_noise` term then adds roughly ±14 blocks around whatever the spline says, which is why the measured peak
+is 234 rather than exactly 220.
+
+Per band, with the share of the map each one covers:
+
+| continentalness | share | surface y | water |
+|---|---|---|---|
+| −1.00 … −0.55 | 3.8% | 29 … 62 | 100% |
+| −0.55 … −0.25 | 16.0% | 35 … 82 | 70% |
+| −0.25 … −0.02 | 23.2% | 52 … 85 | 12% |
+| −0.02 … 0.20 | 26.0% | 53 … 85 | 6% |
+| 0.20 … 0.55 | 25.1% | 57 … 87 | 1% |
+| 0.55 … 1.00 | 5.4% | 63 … 229 | 0% |
+
+The land is a monotone ramp with no flat spots, which is what a river needs to exist. `factor` ramps 3.95 → 5.00;
+it only controls how steeply density falls off below the surface, never the surface itself.
+
+Those shares are also the climate grid's bands, which is why the two tables agree — the grid was built on the same
+numbers, so `ocean` covers the two bands that measure 20% water and `mountain` covers the 5.4% that reaches y 220.
 
 `sloped_cheese` drops the `jaggedness` term entirely, keeping `base_3d_noise` so the fine relief matches.
 

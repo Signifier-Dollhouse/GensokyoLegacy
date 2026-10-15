@@ -126,25 +126,29 @@ public class GensokyoDimension {
 	}
 
 	/**
-	 * Continentalness to offset. The surface sits at {@code 63.5 + 128 * spline}, giving an ocean floor at 35, a
-	 * shoreline near continentalness -0.075 and a highland top at 112, where the overworld reaches 320.
+	 * Continentalness to offset. The surface sits at {@code 63.5 + 128 * spline}, and the points were solved against
+	 * the real continentalness and base_3d_noise fields: ocean floor 29, shoreline at continentalness -0.28 covering
+	 * 20% of the map, and peaks pinned at 220 instead of the overworld's 320. The last three points are flat, so the
+	 * peak stays at 220 however high continentalness climbs; base_3d_noise then adds about 14 either side of it.
 	 */
 	private static CubicSpline<DensityFunctions.Spline.Point, DensityFunctions.Spline.Coordinate> offsetSpline(
 			Holder<DensityFunction> continentalness) {
 		return CubicSpline.builder(new DensityFunctions.Spline.Coordinate(continentalness))
-				.addPoint(-1.10f, 0.044f)
-				.addPoint(-1.02f, -0.2222f)
-				.addPoint(-0.51f, -0.2222f)
-				.addPoint(-0.44f, -0.12f)
-				.addPoint(-0.30f, -0.12f)
-				.addPoint(-0.20f, -0.09f)
-				.addPoint(-0.10f, -0.02f)
-				.addPoint(0.00f, 0.03f)
-				.addPoint(0.20f, 0.08f)
-				.addPoint(0.45f, 0.15f)
-				.addPoint(0.70f, 0.24f)
-				.addPoint(0.90f, 0.32f)
-				.addPoint(1.00f, 0.38f)
+				.addPoint(-1.10f, -0.167f)
+				.addPoint(-0.80f, -0.167f)
+				.addPoint(-0.60f, -0.1419f)
+				.addPoint(-0.45f, -0.0718f)
+				.addPoint(-0.35f, -0.0217f)
+				.addPoint(-0.25f, 0.03f)
+				.addPoint(0.05f, 0.05f)
+				.addPoint(0.30f, 0.06f)
+				.addPoint(0.60f, 0.10f)
+				.addPoint(0.70f, 0.3246f)
+				.addPoint(0.80f, 0.6053f)
+				.addPoint(0.90f, 0.9309f)
+				.addPoint(0.97f, 1.2228f)
+				.addPoint(1.30f, 1.2228f)
+				.addPoint(2.00f, 1.2228f)
 				.build();
 	}
 
