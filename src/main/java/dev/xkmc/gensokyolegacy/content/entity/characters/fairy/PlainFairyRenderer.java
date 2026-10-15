@@ -1,5 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.entity.characters.fairy;
 
+import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiBubbleLayer;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiHeldItemLayer;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiSpellCircleLayer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
@@ -11,7 +12,7 @@ public class PlainFairyRenderer extends GeoEntityRenderer<PlainFairyEntity> {
 		super(context, new PlainFairyModel());
 		addRenderLayer(new YoukaiHeldItemLayer<>(this));
 		addRenderLayer(new YoukaiSpellCircleLayer<>(this));
-		addRenderLayer(new FairyWantLayer<>(this));
+		addRenderLayer(new YoukaiBubbleLayer<>(this));
 	}
 
 }

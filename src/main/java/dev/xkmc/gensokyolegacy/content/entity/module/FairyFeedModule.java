@@ -4,6 +4,7 @@ import dev.xkmc.gensokyolegacy.content.attachment.character.CharacterData;
 import dev.xkmc.gensokyolegacy.content.attachment.character.ReputationConstants;
 import dev.xkmc.gensokyolegacy.content.client.debug.InfoUpdateClientManager;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
+import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiFlags;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.gensokyolegacy.init.registrate.GLBrains;
@@ -37,9 +38,14 @@ import java.util.function.Supplier;
 /**
  * A fairy is fed, and what she gives back depends on what she was given. Not the generic
  * {@link FeedModule}: a dish is worth a flat amount, and a well-fed fairy hands something over on the way in.
+ * <p>
+ * It is also what she asks for: the bubble over her head is this module's own, since what a fairy is thinking
+ * about is what she eats and nothing else on her would know the answer.
+ *
+ * @see "doc/design/want_bubble.md"
  */
 @SerialClass
-public class FairyFeedModule extends AbstractYoukaiModule {
+public class FairyFeedModule extends AbstractBubbleModule {
 
 	private static final ResourceLocation ID = GensokyoLegacy.loc("fairy_feed");
 
@@ -100,6 +106,38 @@ public class FairyFeedModule extends AbstractYoukaiModule {
 
 	public int getCoolDown() {
 		return feedCoolDown;
+	}
+
+	/**
+	 * Whether she is still busy with the last dish she was given. Off the synced flag rather than
+	 * {@link #getCoolDown()}, which is server-side state the client has no copy of, and the bubble is drawn
+	 * on the client.
+	 */
+	public boolean isFed() {
+		return self.getFlag(YoukaiFlags.FED);
+	}
+
+	/**
+	 * What she hopes to be handed: the two dishes {@link #isFood} recognises, so the bubble only ever asks for
+	 * things feeding her answers, plus the dust a cake pays back - the cheap half of the list is made of the
+	 * cheap half of the trade, and a fairy who wants it is one the player can afford to satisfy.
+	 */
+	@Override
+	public List<Supplier<ItemStack>> wants() {
+		return List.of(
+				GLItems.FAIRY_DUST::asStack,
+				GLItems.FAIRY_CAKE::asStack,
+				() -> new ItemStack(Items.COOKIE),
+				() -> new ItemStack(Items.CAKE));
+	}
+
+	/**
+	 * No bubble while she is chewing or asleep: she is not asking for anything then, and a thought drawn over
+	 * either reads as a glitch rather than as her thinking.
+	 */
+	@Override
+	public boolean mayShowWant() {
+		return !self.isSleeping() && !isFed();
 	}
 
 	/**
@@ -257,9 +295,14 @@ public class FairyFeedModule extends AbstractYoukaiModule {
 		gift.hasImpulse = true;
 	}
 
+	/**
+	 * The client is told, so the want bubble knows to keep quiet while she is chewing - the same bit the
+	 * generic {@link FeedModule} puts up for its own client effects.
+	 */
 	@Override
 	public void tickServer() {
 		if (feedCoolDown > 0) feedCoolDown--;
+		self.setFlag(YoukaiFlags.FED, feedCoolDown > 0);
 	}
 
 	@Override
