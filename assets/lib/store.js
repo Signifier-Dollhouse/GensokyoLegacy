@@ -198,6 +198,28 @@ export async function loadItemTag(id) {
   return store.tags.get(key);
 }
 
+/**
+ * The items a tag covers, with the tags it names folded in.
+ *
+ * A tag holds items, but it may also name other tags - `#namespace:path`, which
+ * `loadItemTag` hands back verbatim and which matches no item of its own. A tag meant as
+ * a list of items is then only part a list, and a filter over it would keep everything
+ * only the inner tags name. `seen` is the guard on a cycle, which a datapack can spell
+ * out and which would otherwise never finish.
+ */
+async function itemTagMembers(key, seen = new Set()) {
+  const members = new Set();
+  const tag = key.replace(/^#/, "");
+  if (seen.has(tag)) return members;
+  seen.add(tag);
+  for (const value of await loadItemTag(tag) ?? []) {
+    if (typeof value !== "string") continue;
+    if (value.startsWith("#")) for (const item of await itemTagMembers(value, seen)) members.add(item);
+    else members.add(value);
+  }
+  return members;
+}
+
 export async function loadEntityTag(id) {
   const key = id.replace(/^#/, "");
   const [namespace, ...rest] = key.split(":");
@@ -736,6 +758,12 @@ export function recipeIngredients(recipe) {
   return ids;
 }
 
+// What the site is not to show, from `GLTagGen.WEBSITE_HIDDEN`: items that are only ever
+// part of something else - the two halves a dowser merges from, the spell cards behind a
+// danmaku system the guide does not cover. Nothing in the RPG registries names the tag,
+// so it is listed in the manifest's `EXTRA_ITEM_TAGS`.
+const WEBSITE_HIDDEN = "gensokyolegacy:website_hidden";
+
 /**
  * Builds the item index: for every item the mod adds or hands out, the guide entry
  * that documents it, every way to get one and every way it is used.
@@ -829,6 +857,12 @@ export async function buildItemIndex() {
   // processed golden apple, say - is dropped rather than given a page of its own. It is
   // still named wherever it is traded for, since the lang table covers that.
   for (const id of items.keys()) if (id.startsWith("minecraft:")) items.delete(id);
+
+  // A hidden item goes with them rather than landing in the undocumented section, which
+  // is where an item the guide never mentions would otherwise wait to be found. It is
+  // dropped before the recipes below are read backwards, so nothing is left pointing at
+  // an item that is no longer on the list.
+  for (const id of await itemTagMembers(WEBSITE_HIDDEN)) items.delete(id);
 
   // The recipes read backwards, which is what answers "what do I make this into". Both
   // ends have to be on the list: a recipe naming an item from another namespace produces

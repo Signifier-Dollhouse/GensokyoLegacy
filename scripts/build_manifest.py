@@ -57,7 +57,9 @@ VANILLA_LANG_DIR = "assets/lang/vanilla"
 # - `morichika_offers` is what Rinnosuke stocks his shop shelves from; nothing in the
 #   RPG registries refers to it (only MorichikaEntity does), so without listing it here
 #   the shop's stock would be missing from every item page.
-EXTRA_ITEM_TAGS = (f"{NAMESPACE}:currency", f"{NAMESPACE}:morichika_offers")
+# - `website_hidden` is what the site is not to show: items that are only ever part of
+#   something else, which the item list would otherwise file under "not in the guide".
+EXTRA_ITEM_TAGS = (f"{NAMESPACE}:currency", f"{NAMESPACE}:morichika_offers", f"{NAMESPACE}:website_hidden")
 
 # The data maps the viewer reads beyond what the content refers to. `morichika_offer`
 # holds the price and stock range each item is shelved at - the tag above says what he

@@ -700,6 +700,7 @@
             "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/en_us/entries/alchemy/ingredients.json",
             "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/en_us/entries/alchemy/witch_brewing.json",
             "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/en_us/entries/banquet/feasts_of_other_lands.json",
+            "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/en_us/entries/banquet/guest_gifts.json",
             "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/en_us/entries/banquet/hosting.json",
             "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/en_us/entries/banquet/what_draws_a_guest.json",
             "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/en_us/entries/decoration/building_blocks.json",
@@ -760,6 +761,7 @@
             "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/zh_cn/entries/alchemy/ingredients.json",
             "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/zh_cn/entries/alchemy/witch_brewing.json",
             "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/zh_cn/entries/banquet/feasts_of_other_lands.json",
+            "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/zh_cn/entries/banquet/guest_gifts.json",
             "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/zh_cn/entries/banquet/hosting.json",
             "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/zh_cn/entries/banquet/what_draws_a_guest.json",
             "src/main/resources/assets/gensokyolegacy/patchouli_books/tools_guide/zh_cn/entries/decoration/building_blocks.json",
@@ -863,7 +865,8 @@
     "gensokyolegacy:table": "src/generated/resources/data/gensokyolegacy/tags/item/table.json",
     "gensokyolegacy:talisman_papers": "src/generated/resources/data/gensokyolegacy/tags/item/talisman_papers.json",
     "gensokyolegacy:tile_variants": "src/generated/resources/data/gensokyolegacy/tags/item/tile_variants.json",
-    "gensokyolegacy:wavy_noren": "src/generated/resources/data/gensokyolegacy/tags/item/wavy_noren.json"
+    "gensokyolegacy:wavy_noren": "src/generated/resources/data/gensokyolegacy/tags/item/wavy_noren.json",
+    "gensokyolegacy:website_hidden": "src/generated/resources/data/gensokyolegacy/tags/item/website_hidden.json"
   },
   "dataMaps": {
     "morichika_offer": "src/generated/resources/data/gensokyolegacy/data_maps/item/morichika_offer.json",
@@ -882,7 +885,7 @@
     "assets/lang/vanilla/en_us.json",
     "assets/lang/vanilla/zh_cn.json"
   ],
-  "revision": "d702c56a8cf286fdc7c3a468aff3f9a7",
+  "revision": "a0409f60f8e3633c2606b316547009d3",
   "stats": {
     "quest": 27,
     "dialog": 235,
@@ -890,6 +893,6 @@
     "trade": 47,
     "files": 335,
     "recipes": 312,
-    "guideEntries": 90
+    "guideEntries": 92
   }
 }
