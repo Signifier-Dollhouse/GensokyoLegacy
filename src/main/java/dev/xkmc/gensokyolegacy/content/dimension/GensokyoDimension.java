@@ -21,6 +21,7 @@ import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Climate;
 import net.minecraft.world.level.biome.MultiNoiseBiomeSource;
 import net.minecraft.world.level.biome.OverworldBiomeBuilder;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.dimension.BuiltinDimensionTypes;
 import net.minecraft.world.level.dimension.DimensionType;
@@ -32,6 +33,9 @@ import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
 import net.minecraft.world.level.levelgen.NoiseRouter;
 import net.minecraft.world.level.levelgen.NoiseRouterData;
 import net.minecraft.world.level.levelgen.NoiseSettings;
+import net.minecraft.world.level.levelgen.SurfaceRules;
+import net.minecraft.world.level.levelgen.SurfaceRules.RuleSource;
+import net.minecraft.world.level.levelgen.placement.CaveSurface;
 import net.minecraft.world.level.levelgen.synth.NormalNoise;
 
 import java.util.ArrayList;
@@ -40,13 +44,14 @@ import java.util.Optional;
 import java.util.OptionalLong;
 
 /**
- * The Gensokyo dimension: overworld sea level and surface rules, flatter land, and a handpicked biome list.
+ * The Gensokyo dimension: overworld sea level, flatter land, and a handpicked biome list.
  * <p>
  * The height curve is keyed on continentalness alone, where the overworld also keys it on erosion and weirdness, so
  * there are no river channels and no peaks. The climate grid reads the same four axes, so no biome depends on the two
  * that were dropped. The allowed biomes are mod copies, so vanilla structures never generate here.
  *
  * @see "doc/design/gensokyo_dimension.md"
+ * @see "doc/design/gensokyo_biomes.md"
  */
 public class GensokyoDimension {
 
@@ -104,52 +109,44 @@ public class GensokyoDimension {
 	private static final float GAP = 0.01f;
 
 	private static final Band FULL_PLANE = new Band(-1.0f, 1.0f);
-	private static final Band COLD = new Band(-1.0f, -0.36f);
-	private static final Band TEMPERATE = new Band(-0.34f, 0.34f);
-	private static final Band WARM = new Band(0.36f, 1.0f);
-	private static final Band NOT_COLD = new Band(-0.34f, 1.0f);
-	private static final Band DRY = new Band(-1.0f, -0.26f);
-	private static final Band NORMAL = new Band(-0.24f, 0.24f);
-	private static final Band WET = new Band(0.26f, 1.0f);
+	private static final Band COLD = new Band(-1.0f, -0.01f);
+	private static final Band HOT = new Band(0.01f, 1.0f);
+	private static final Band DRY = new Band(-1.0f, -0.01f);
+	private static final Band HUMID = new Band(0.01f, 1.0f);
 
-	// region order follows REGION_EDGES: ocean, beach, lower ground, upper ground, mountain, grove, peak.
-	// The five single-biome regions take the whole plane in one cell; the two open ground regions tile it three by
-	// three, with the cold row running the full width because snowy_plains ignores humidity.
+	// region order follows REGION_EDGES: ocean, beach, lower ground, upper ground, mountain, grove, peak. The first two
+	// and the last two take the whole plane in one cell; the three open ground bands tile it the way the biome guide
+	// lists them — hot humid, cold humid, hot dry, cold dry — four cells to a band.
 	private static final List<List<Cell>> SURFACE = List.of(
 			List.of(new Cell(GLBiomes.OCEAN, FULL_PLANE, FULL_PLANE)),
 			List.of(new Cell(GLBiomes.BEACH, FULL_PLANE, FULL_PLANE)),
-			List.of(new Cell(GLBiomes.SNOWY_PLAINS, COLD, FULL_PLANE),
-					new Cell(GLBiomes.SUNFLOWER_PLAINS, TEMPERATE, DRY),
-					new Cell(GLBiomes.PLAINS, TEMPERATE, NORMAL),
-					new Cell(GLBiomes.FOREST, TEMPERATE, WET),
-					new Cell(GLBiomes.DESERT, WARM, DRY),
-					new Cell(GLBiomes.SAVANNA, WARM, NORMAL),
-					new Cell(GLBiomes.BAMBOO_JUNGLE, WARM, WET)),
-			List.of(new Cell(GLBiomes.SNOWY_PLAINS, COLD, FULL_PLANE),
-					new Cell(GLBiomes.SUNFLOWER_PLAINS, TEMPERATE, DRY),
-					new Cell(GLBiomes.SAKURA_FOREST, TEMPERATE, NORMAL),
-					new Cell(GLBiomes.MAGICAL_FOREST, TEMPERATE, WET),
-					new Cell(GLBiomes.DESERT, WARM, DRY),
-					new Cell(GLBiomes.SAVANNA, WARM, NORMAL),
-					new Cell(GLBiomes.BAMBOO_JUNGLE, WARM, WET)),
-			List.of(new Cell(GLBiomes.MOUNTAIN, FULL_PLANE, FULL_PLANE)),
+			List.of(new Cell(GLBiomes.SUNFLOWER_PLAINS, HOT, HUMID),
+					new Cell(GLBiomes.MUENZUKA, COLD, HUMID),
+					new Cell(GLBiomes.HUMAN_VILLAGE, HOT, DRY),
+					new Cell(GLBiomes.MYOUREN_TEMPLE_BARRENS, COLD, DRY)),
+			List.of(new Cell(GLBiomes.MAGICAL_FOREST, HOT, HUMID),
+					new Cell(GLBiomes.BAMBOO_FOREST_OF_THE_LOST, COLD, HUMID),
+					new Cell(GLBiomes.SAKURA_FOREST, HOT, DRY),
+					new Cell(GLBiomes.HILL_OF_THE_NAMELESS, COLD, DRY)),
+			List.of(new Cell(GLBiomes.UNTRODDEN_VALLEY, HOT, HUMID),
+					new Cell(GLBiomes.GENBU_RAVINE, COLD, HUMID),
+					new Cell(GLBiomes.YOUKAI_MOUNTAIN_FOOTHILLS, HOT, DRY),
+					new Cell(GLBiomes.SANCTUARY, COLD, DRY)),
 			List.of(new Cell(GLBiomes.GROVE, FULL_PLANE, FULL_PLANE)),
 			List.of(new Cell(GLBiomes.PEAK, FULL_PLANE, FULL_PLANE)));
 
-	// deep underground only: plains under the waterline, then snowy_plains when cold and magical_forest otherwise
+	/**
+	 * Deep underground, one cell per region: the water table has blood under it, the foothills an animal realm, and
+	 * everything higher up volcanic — the deeper the ground sits above it, the closer the surface is to the hells.
+	 */
 	private static final List<List<Cell>> UNDERGROUND = List.of(
-			List.of(new Cell(GLBiomes.PLAINS, FULL_PLANE, FULL_PLANE)),
-			List.of(new Cell(GLBiomes.PLAINS, FULL_PLANE, FULL_PLANE)),
-			List.of(new Cell(GLBiomes.SNOWY_PLAINS, COLD, FULL_PLANE),
-					new Cell(GLBiomes.MAGICAL_FOREST, NOT_COLD, FULL_PLANE)),
-			List.of(new Cell(GLBiomes.SNOWY_PLAINS, COLD, FULL_PLANE),
-					new Cell(GLBiomes.MAGICAL_FOREST, NOT_COLD, FULL_PLANE)),
-			List.of(new Cell(GLBiomes.SNOWY_PLAINS, COLD, FULL_PLANE),
-					new Cell(GLBiomes.MAGICAL_FOREST, NOT_COLD, FULL_PLANE)),
-			List.of(new Cell(GLBiomes.SNOWY_PLAINS, COLD, FULL_PLANE),
-					new Cell(GLBiomes.MAGICAL_FOREST, NOT_COLD, FULL_PLANE)),
-			List.of(new Cell(GLBiomes.SNOWY_PLAINS, COLD, FULL_PLANE),
-					new Cell(GLBiomes.MAGICAL_FOREST, NOT_COLD, FULL_PLANE)));
+			List.of(new Cell(GLBiomes.HELL_OF_BLOOD_POOLS, FULL_PLANE, FULL_PLANE)),
+			List.of(new Cell(GLBiomes.HELL_OF_BLOOD_POOLS, FULL_PLANE, FULL_PLANE)),
+			List.of(new Cell(GLBiomes.ANIMAL_REALM, FULL_PLANE, FULL_PLANE)),
+			List.of(new Cell(GLBiomes.FORMER_HELL, FULL_PLANE, FULL_PLANE)),
+			List.of(new Cell(GLBiomes.HELL_OF_BLAZING_FIRES, FULL_PLANE, FULL_PLANE)),
+			List.of(new Cell(GLBiomes.HELL_OF_BLAZING_FIRES, FULL_PLANE, FULL_PLANE)),
+			List.of(new Cell(GLBiomes.HELL_OF_BLAZING_FIRES, FULL_PLANE, FULL_PLANE)));
 
 	public static void init(DataProviderInitializer init) {
 		// every registration of a registry has to share one bootstrap, so the density functions and the noise
@@ -174,11 +171,49 @@ public class GensokyoDimension {
 				Blocks.WATER.defaultBlockState(),
 				smallClimateRouter(new FlatTerrainFunctions(ctx.lookup(Registries.DENSITY_FUNCTION)),
 						ctx.lookup(Registries.NOISE), ctx.lookup(Registries.DENSITY_FUNCTION)),
-				SurfaceRuleData.overworld(),
+				surfaceRules(),
 				new OverworldBiomeBuilder().spawnTarget(),
 				63,
 				false, true, true, false
 		));
+	}
+
+	/**
+	 * The overworld surface tree with one addition: the four underground biomes replace the base stone, keyed on the
+	 * biome alone.
+	 * <p>
+	 * The underground rows of the climate grid only win about 128 blocks below the surface, so no surface position is
+	 * ever one of these biomes and the tree claims nothing above the overworld's own grass, dirt and underwater
+	 * gravel. That is the guide's §6 split: shared material stays dimension-wide, and only a palette that genuinely
+	 * differs — blood, dark stone, basalt, old masonry — gets a biome branch.
+	 * <p>
+	 * Each branch claims the whole column, floor included, so it has to be complete: an unfinished palette would
+	 * swallow the deepslate the overworld tree would otherwise have put there.
+	 */
+	private static RuleSource surfaceRules() {
+		return SurfaceRules.sequence(
+				SurfaceRules.ifTrue(SurfaceRules.isBiome(GLBiomes.HELL_OF_BLOOD_POOLS),
+						hellPalette(Blocks.NETHERRACK, Blocks.CRIMSON_NYLIUM, Blocks.REDSTONE_ORE)),
+				SurfaceRules.ifTrue(SurfaceRules.isBiome(GLBiomes.ANIMAL_REALM),
+						hellPalette(Blocks.PACKED_MUD, Blocks.DIRT, Blocks.DEEPSLATE)),
+				SurfaceRules.ifTrue(SurfaceRules.isBiome(GLBiomes.HELL_OF_BLAZING_FIRES),
+						hellPalette(Blocks.BLACKSTONE, Blocks.MAGMA_BLOCK, Blocks.BASALT)),
+				SurfaceRules.ifTrue(SurfaceRules.isBiome(GLBiomes.FORMER_HELL),
+						hellPalette(Blocks.STONE_BRICKS, Blocks.CRACKED_STONE_BRICKS, Blocks.POLISHED_DEEPSLATE)),
+				SurfaceRuleData.overworld());
+	}
+
+	/**
+	 * One underground palette: the cave floor, the few blocks under it, and the rest of the column. The second test is
+	 * a wider {@link SurfaceRules#stoneDepthCheck} rather than {@code UNDER_FLOOR}, which with no aquifer to add to
+	 * {@code surfaceDepth} only ever reaches one block down.
+	 */
+	private static RuleSource hellPalette(Block floor, Block underFloor, Block body) {
+		return SurfaceRules.sequence(
+				SurfaceRules.ifTrue(SurfaceRules.ON_FLOOR, SurfaceRules.state(floor.defaultBlockState())),
+				SurfaceRules.ifTrue(SurfaceRules.stoneDepthCheck(3, false, CaveSurface.FLOOR),
+						SurfaceRules.state(underFloor.defaultBlockState())),
+				SurfaceRules.state(body.defaultBlockState()));
 	}
 
 	/**

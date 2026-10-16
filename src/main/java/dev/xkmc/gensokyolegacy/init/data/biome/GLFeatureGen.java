@@ -112,6 +112,7 @@ public class GLFeatureGen {
 					new DiskConfiguration(RuleBasedBlockStateProvider.simple(Blocks.MYCELIUM),
 							grassOnly, UniformInt.of(2, 3), 1));
 			MagicalForestFeatures.configured(ctx);
+			GensokyoBiomeFeatures.configured(ctx);
 	});
 		init.add(Registries.PLACED_FEATURE, ctx -> {
 			var cf = ctx.lookup(Registries.CONFIGURED_FEATURE);
@@ -125,6 +126,7 @@ public class GLFeatureGen {
 					CountPlacement.of(2), InSquarePlacement.spread(),
 					PlacementUtils.HEIGHTMAP_OCEAN_FLOOR, BiomeFilter.biome());
 			MagicalForestFeatures.placed(ctx);
+			GensokyoBiomeFeatures.placed(ctx);
 	});
 		// one bootstrap per registry: GensokyoDimension reuses this one for its finer climate noise parameters
 		init.add(Registries.NOISE, (ctx) -> {

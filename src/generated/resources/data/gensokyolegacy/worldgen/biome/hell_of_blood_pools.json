@@ -5,23 +5,19 @@
       "minecraft:cave_extra_underground"
     ]
   },
-  "downfall": 0.9,
+  "downfall": 0.0,
   "effects": {
-    "fog_color": 12638463,
+    "fog_color": 6034452,
+    "foliage_color": 6956068,
+    "grass_color": 8006186,
     "mood_sound": {
       "block_search_extent": 8,
       "offset": 2.0,
       "sound": "minecraft:ambient.cave",
       "tick_delay": 6000
     },
-    "music": {
-      "max_delay": 24000,
-      "min_delay": 12000,
-      "replace_current_music": false,
-      "sound": "minecraft:music.overworld.bamboo_jungle"
-    },
-    "sky_color": 7842047,
-    "water_color": 4159204,
+    "sky_color": 7711487,
+    "water_color": 7148576,
     "water_fog_color": 329011
   },
   "features": [
@@ -34,6 +30,8 @@
       "minecraft:amethyst_geode"
     ],
     [
+      "minecraft:fossil_upper",
+      "minecraft:fossil_lower",
       "minecraft:monster_room",
       "minecraft:monster_room_deep"
     ],
@@ -66,27 +64,30 @@
       "minecraft:ore_lapis_buried",
       "minecraft:ore_copper",
       "minecraft:underwater_magma",
-      "minecraft:disk_sand",
-      "minecraft:disk_clay",
-      "minecraft:disk_gravel"
+      "minecraft:disk_clay"
     ],
-    [],
+    [
+      "gensokyolegacy:gensokyo_biome/blood_deposit",
+      "gensokyolegacy:gensokyo_biome/bone_pile"
+    ],
     [
       "minecraft:spring_water",
       "minecraft:spring_lava"
     ],
     [
       "minecraft:glow_lichen",
-      "minecraft:bamboo",
-      "minecraft:bamboo_vegetation",
-      "minecraft:flower_warm",
-      "minecraft:patch_grass_jungle",
+      "minecraft:trees_swamp",
+      "minecraft:flower_swamp",
+      "minecraft:patch_grass_normal",
+      "minecraft:patch_dead_bush",
+      "minecraft:patch_waterlily",
+      "minecraft:brown_mushroom_swamp",
+      "minecraft:red_mushroom_swamp",
       "minecraft:brown_mushroom_normal",
       "minecraft:red_mushroom_normal",
-      "minecraft:patch_sugar_cane",
+      "minecraft:patch_sugar_cane_swamp",
       "minecraft:patch_pumpkin",
-      "minecraft:vines",
-      "minecraft:patch_melon"
+      "minecraft:seagrass_swamp"
     ],
     [
       "minecraft:freeze_top_layer"
@@ -104,50 +105,7 @@
       }
     ],
     "axolotls": [],
-    "creature": [
-      {
-        "type": "minecraft:sheep",
-        "maxCount": 4,
-        "minCount": 4,
-        "weight": 12
-      },
-      {
-        "type": "minecraft:pig",
-        "maxCount": 4,
-        "minCount": 4,
-        "weight": 10
-      },
-      {
-        "type": "minecraft:chicken",
-        "maxCount": 4,
-        "minCount": 4,
-        "weight": 10
-      },
-      {
-        "type": "minecraft:cow",
-        "maxCount": 4,
-        "minCount": 4,
-        "weight": 8
-      },
-      {
-        "type": "minecraft:chicken",
-        "maxCount": 4,
-        "minCount": 4,
-        "weight": 10
-      },
-      {
-        "type": "minecraft:parrot",
-        "maxCount": 2,
-        "minCount": 1,
-        "weight": 40
-      },
-      {
-        "type": "minecraft:panda",
-        "maxCount": 2,
-        "minCount": 1,
-        "weight": 80
-      }
-    ],
+    "creature": [],
     "misc": [],
     "monster": [
       {
@@ -197,12 +155,6 @@
         "maxCount": 1,
         "minCount": 1,
         "weight": 5
-      },
-      {
-        "type": "minecraft:ocelot",
-        "maxCount": 1,
-        "minCount": 1,
-        "weight": 2
       }
     ],
     "underground_water_creature": [
@@ -213,8 +165,15 @@
         "weight": 10
       }
     ],
-    "water_ambient": [],
+    "water_ambient": [
+      {
+        "type": "minecraft:cod",
+        "maxCount": 6,
+        "minCount": 3,
+        "weight": 15
+      }
+    ],
     "water_creature": []
   },
-  "temperature": 0.95
+  "temperature": 1.2
 }

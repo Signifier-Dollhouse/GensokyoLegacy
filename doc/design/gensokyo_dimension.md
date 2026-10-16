@@ -9,7 +9,8 @@ Two things differ from the overworld, and they are deliberately the only two:
 2. the biome source is a **coarse climate grid** on continentalness / temperature / humidity / depth, with erosion
    and weirdness spanning the full range on every point so they cannot select a biome.
 
-Everything else — sea level 63, aquifer, caves, ore veins, surface rules, spawn target, dimension type — is vanilla's.
+Everything else — sea level 63, aquifer, caves, ore veins, spawn target, dimension type — is vanilla's. Surface
+rules are vanilla's with four underground biome branches in front; see `doc/design/gensokyo_biomes.md` §4.
 
 ---
 
@@ -192,19 +193,24 @@ Note that `NoiseRouter.mapAll` exists but is unusable here: `HolderHolder.mapAll
 
 **Seven continentalness regions**, each one a height band of the offset spline, in `GensokyoDimension.biomeSource`.
 Every biome in a region shares that region's continentalness span exactly, and the region's own biomes tile the
-temperature and humidity plane instead — which is why the list is only **31 points** (19 at the surface, 12
-underground) rather than the 108 a region × 3 × 3 × 2 grid would need. Erosion and weirdness are `[-1, 1]` on every
+temperature and humidity plane instead — which is why the list is only **23 points** (16 at the surface, 7
+underground) rather than the 42 a region × 2 × 2 × 2 grid would need. Erosion and weirdness are `[-1, 1]` on every
 point, so they cannot pick a biome; depth is `0.0` at the surface and `1.0` underground.
 
-| continentalness | surface y | share | cold | temperate | warm |
-|---|---|---|---|---|---|
-| −1.00 … −0.53 | ≤ 63 | 7.53% | ocean | ocean | ocean |
-| −0.53 … −0.437 | 63 … 66 | 4.28% | beach | beach | beach |
-| −0.437 … −0.118 | 66 … 80 | 25.73% | snowy_plains | dry `sunflower_plains`, normal `plains`, wet `forest` | dry `desert`, normal `savanna`, wet `bamboo_jungle` |
-| −0.118 … 0.108 | 80 … 96 | 24.26% | snowy_plains | dry `sunflower_plains`, normal `sakura_forest`, wet `magical_forest` | dry `desert`, normal `savanna`, wet `bamboo_jungle` |
-| 0.108 … 0.329 | 96 … 128 | 20.15% | mountain | mountain | mountain |
-| 0.329 … 0.595 | 128 … 192 | 13.25% | grove | grove | grove |
-| 0.595 … 1.00 | 192 … 220 | 4.79% | peak | peak | peak |
+| continentalness | surface y | share | hot humid | cold humid | hot dry | cold dry |
+|---|---|---|---|---|---|---|
+| −1.00 … −0.53 | ≤ 63 | 7.53% | ocean | ocean | ocean | ocean |
+| −0.53 … −0.437 | 63 … 66 | 4.28% | beach | beach | beach | beach |
+| −0.437 … −0.118 | 66 … 80 | 25.73% | sunflower_plains | muenzuka | human_village | myouren_temple_barrens |
+| −0.118 … 0.108 | 80 … 96 | 24.26% | magical_forest | bamboo_forest_of_the_lost | sakura_forest | hill_of_the_nameless |
+| 0.108 … 0.329 | 96 … 128 | 20.15% | untrodden_valley | genbu_ravine | youkai_mountain_foothills | sanctuary |
+| 0.329 … 0.595 | 128 … 192 | 13.25% | grove | grove | grove | grove |
+| 0.595 … 1.00 | 192 … 220 | 4.79% | peak | peak | peak | peak |
+
+The four columns are the climate classification `gensokyo_dimension_biome_guide.md` §2 gives for a band, in the order it
+lists them: **hot humid, cold humid, hot dry, cold dry**. Temperature and humidity are therefore cut in two each, at
+0, rather than in three — `COLD`/`HOT` and `DRY`/`HUMID` are `[-1, −0.01]` and `[0.01, 1]`. Cutting two ways
+instead of three is also why each band holds exactly the four biomes the guide gives it, with nothing repeated.
 
 Shares are the continentalness quantiles over the same 1024 × 1024 chunk-centre sample as §3. They move a point or two
 when the octave seeds move (§7), which is why the `target` column of §3 and these are a statement about one sample
@@ -219,17 +225,20 @@ list order. The gap above the waterline is the one exception: `ocean` ends exact
 drowned set, and the gap falls on the beach side of it.
 
 Within a region the temp/humidity boxes tile the plane with the same 0.01 gaps, so nothing "eats into" its
-neighbour's row — see `out/terrain/gensokyo_lower_ground.png` and `gensokyo_upper_ground.png`. The cold row runs the
-full width in both open-ground regions, because `snowy_plains` ignores humidity. The two differ only in the temperate
-row's centre: `plains` below becomes `sakura_forest` above and `forest` becomes `magical_forest`.
+neighbour's box — see `out/terrain/gensokyolegacy_gensokyo_biomes.png`. Because each axis is cut once, at 0, the four
+boxes of a band come out roughly a quarter of the band each; measured over 256 × 256 chunks at seed 0 the lower
+ground band splits 5.94 / 7.05 / 6.38 / 7.11 % of the map, against a 25.73% band share.
 
-The last three rows give each region its whole plane to one biome, so no cold or dry upland comes out as anything else.
+The last two rows give each region its whole plane to one biome, so no cold or dry upland comes out as anything else.
 `peak` ends at the top of the spline, where continentalness is flat at 1.2227 and the terrain stops rising, so
 y 192 … 220 is the whole of it.
 
-Underground (depth 1.0): `plains` under the waterline and the coast, then `snowy_plains` when cold and
-`magical_forest` otherwise. Depth reads as `(surfaceY − sampleY) / 128`, so those rows only win more than 128 blocks
-down — the world floor under low ground, and deep caves under high ground.
+Which biomes fill these cells, and where each one's features come from, is `doc/design/gensokyo_biomes.md`.
+
+Underground (depth 1.0) is one cell per region: `hell_of_blood_pools` under the water table and the coast,
+`animal_realm` under the lower ground, `former_hell` under the upper ground, and `hell_of_blazing_fires` under the
+mountain and everything above it. Depth reads as `(surfaceY − sampleY) / 128`, so those rows only win more than 128
+blocks down — the world floor under low ground, and deep caves under high ground.
 
 Multi-noise lookup is nearest-cell on the six axes, so cells need not tile the space exactly — the nearest one wins
 anywhere the grid is silent.
@@ -238,19 +247,23 @@ anywhere the grid is silent.
 
 ## 5. Structures
 
-The fourteen allowed biomes are all mod-owned (`GLBiomes`): ten are byte-identical copies of the vanilla biome
-rebuilt from registry keys, `mountain` is new, `magical_forest` and `sakura_forest` are the mod's own. Vanilla filters
-structures by biome tag (`#minecraft:has_structure/*`), so a dimension made only of mod biomes cannot host
-`minecraft:village_plains` and friends. The mod's own structure sets survive because their tags already name
-`gensokyolegacy:magical_forest` / `sakura_forest`.
+The nineteen allowed biomes are all mod-owned (`GLBiomes`). Vanilla filters structures by biome tag
+(`#minecraft:has_structure/*`), so a dimension made only of mod biomes cannot host `minecraft:village_plains` and
+friends. The mod's own structure sets survive because their tags already name `gensokyolegacy:magical_forest` /
+`sakura_forest`.
 
-`peak` is the eleventh copy but not a straight one: `minecraft:stony_peaks` supplies the climate, effects and spawns,
-and `minecraft:stony_shore` is unioned in for its features and carvers, which is why it is registered separately
-instead of going through `GLBiomes.COPIES`. Both sources are merged through `LinkedHashSet`s, so the two shared carvers
-collapse to one entry and `FeatureSorter` still sees vanilla's ordering.
+Four are byte-identical copies of a vanilla biome rebuilt from registry keys — `beach`, `ocean`,
+`sunflower_plains`, `grove`. `peak` is a fifth copy but not a straight one:
+`minecraft:stony_peaks` supplies the climate, effects and spawns, and `minecraft:stony_shore` is unioned in for its
+features and carvers, which is why it is registered separately instead of going through `GLBiomes.COPIES`. Both
+sources are merged through `LinkedHashSet`s, so the two shared carvers collapse to one entry and `FeatureSorter` still
+sees vanilla's ordering.
 
-Every copy drops `minecraft:canyon`; `mountain` uses `GLBiomes.addCarversAndLakes`, which is the overworld
-carver set minus that one. Canyon ravines run far deeper than Gensokyo wants.
+The other thirteen are the mod's own: `magical_forest` and `sakura_forest`, plus the twelve of
+`doc/design/gensokyo_biomes.md`, each a vanilla base with a custom feature tail and no vanilla climate at all.
+
+Every copy and every base drops `minecraft:canyon`, which `GLBiomes.collect` does for both. Canyon ravines run far
+deeper than Gensokyo wants.
 
 ---
 

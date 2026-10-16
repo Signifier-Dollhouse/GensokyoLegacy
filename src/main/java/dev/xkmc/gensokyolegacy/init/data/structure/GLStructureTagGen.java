@@ -105,8 +105,27 @@ public class GLStructureTagGen {
 				.addTag(Tags.Biomes.IS_FOREST)
 				.addTag(Tags.Biomes.IS_PLAINS);
 		pvd.addTag(Tags.Biomes.IS_MAGICAL).add(GLBiomes.MAGICAL_FOREST).add(GLBiomes.SAKURA_FOREST);
-		pvd.addTag(Tags.Biomes.IS_FOREST).add(GLBiomes.MAGICAL_FOREST).add(GLBiomes.SAKURA_FOREST);
-		pvd.addTag(Tags.Biomes.IS_MOUNTAIN).add(GLBiomes.MOUNTAIN);
+		pvd.addTag(Tags.Biomes.IS_FOREST)
+				.add(GLBiomes.MAGICAL_FOREST).add(GLBiomes.SAKURA_FOREST)
+				.add(GLBiomes.MUENZUKA).add(GLBiomes.BAMBOO_FOREST_OF_THE_LOST)
+				.add(GLBiomes.UNTRODDEN_VALLEY).add(GLBiomes.YOUKAI_MOUNTAIN_FOOTHILLS);
+		pvd.addTag(Tags.Biomes.IS_PLAINS)
+				.add(GLBiomes.HUMAN_VILLAGE).add(GLBiomes.SUNFLOWER_PLAINS)
+				.add(GLBiomes.HILL_OF_THE_NAMELESS);
+		// the whole mountain band, which is four biomes where it used to be one
+		pvd.addTag(Tags.Biomes.IS_MOUNTAIN)
+				.add(GLBiomes.UNTRODDEN_VALLEY).add(GLBiomes.GENBU_RAVINE)
+				.add(GLBiomes.YOUKAI_MOUNTAIN_FOOTHILLS).add(GLBiomes.SANCTUARY);
+		pvd.addTag(Tags.Biomes.IS_UNDERGROUND)
+				.add(GLBiomes.HELL_OF_BLOOD_POOLS).add(GLBiomes.ANIMAL_REALM)
+				.add(GLBiomes.HELL_OF_BLAZING_FIRES).add(GLBiomes.FORMER_HELL);
+		pvd.addTag(Tags.Biomes.IS_SPOOKY).add(GLBiomes.MUENZUKA).add(GLBiomes.HILL_OF_THE_NAMELESS);
+		pvd.addTag(Tags.Biomes.IS_FLORAL).add(GLBiomes.HUMAN_VILLAGE).add(GLBiomes.SANCTUARY)
+				.add(GLBiomes.HILL_OF_THE_NAMELESS);
+		pvd.addTag(Tags.Biomes.IS_WET).add(GLBiomes.GENBU_RAVINE);
+		pvd.addTag(Tags.Biomes.IS_DRY).add(GLBiomes.MYOUREN_TEMPLE_BARRENS);
+		pvd.addTag(Tags.Biomes.IS_TAIGA).add(GLBiomes.BAMBOO_FOREST_OF_THE_LOST)
+				.add(GLBiomes.UNTRODDEN_VALLEY);
 	}
 
 	public static void genStructureTag(RegistrateTagsProvider.Impl<Structure> pvd) {

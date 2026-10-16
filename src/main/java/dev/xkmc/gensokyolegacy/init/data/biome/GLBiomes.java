@@ -12,8 +12,8 @@ import dev.xkmc.gensokyolegacy.init.registrate.GLEntities;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.registries.VanillaRegistries;
 import net.minecraft.data.worldgen.BiomeDefaultFeatures;
+import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.data.worldgen.Carvers;
-import net.minecraft.data.worldgen.placement.MiscOverworldPlacements;
 import net.minecraft.data.worldgen.placement.VegetationPlacements;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.Music;
@@ -35,15 +35,39 @@ import javax.annotation.Nullable;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Every biome the Gensokyo dimension may select, and how each one is put together.
+ * <p>
+ * The Touhou biomes are a vanilla base plus a custom feature tail: the base keeps the carvers, ores, lakes and
+ * vanilla decoration in the exact order vanilla put them in, and {@link GensokyoBiomeFeatures#tail} appends after
+ * all of it. Never interleave the two — that is what a feature order cycle looks like, and it only fails at runtime.
+ *
+ * @see "doc/design/gensokyo_biomes.md"
+ */
 public class GLBiomes {
 
 	public static final ResourceKey<Biome> MAGICAL_FOREST = biome("magical_forest");
 	public static final ResourceKey<Biome> SAKURA_FOREST = biome("sakura_forest");
-	public static final ResourceKey<Biome> MOUNTAIN = biome("mountain");
+	// lower ground
+	public static final ResourceKey<Biome> MUENZUKA = biome("muenzuka");
+	public static final ResourceKey<Biome> HUMAN_VILLAGE = biome("human_village");
+	public static final ResourceKey<Biome> MYOUREN_TEMPLE_BARRENS = biome("myouren_temple_barrens");
+	// upper ground
+	public static final ResourceKey<Biome> BAMBOO_FOREST_OF_THE_LOST = biome("bamboo_forest_of_the_lost");
+	public static final ResourceKey<Biome> HILL_OF_THE_NAMELESS = biome("hill_of_the_nameless");
+	// mountain
+	public static final ResourceKey<Biome> UNTRODDEN_VALLEY = biome("untrodden_valley");
+	public static final ResourceKey<Biome> GENBU_RAVINE = biome("genbu_ravine");
+	public static final ResourceKey<Biome> YOUKAI_MOUNTAIN_FOOTHILLS = biome("youkai_mountain_foothills");
+	public static final ResourceKey<Biome> SANCTUARY = biome("sanctuary");
+	// underground
+	public static final ResourceKey<Biome> HELL_OF_BLOOD_POOLS = biome("hell_of_blood_pools");
+	public static final ResourceKey<Biome> ANIMAL_REALM = biome("animal_realm");
+	public static final ResourceKey<Biome> HELL_OF_BLAZING_FIRES = biome("hell_of_blazing_fires");
+	public static final ResourceKey<Biome> FORMER_HELL = biome("former_hell");
 
 	/**
 	 * Vanilla biomes copied under the mod namespace, byte for byte identical to their vanilla counterpart.
@@ -52,15 +76,9 @@ public class GLBiomes {
 	 * structure may generate ({@code #minecraft:has_structure/*} tags on the structure), so a dimension built on
 	 * {@code gensokyolegacy:plains} cannot host {@code minecraft:village_plains}, while the terrain looks the same.
 	 */
-	public static final ResourceKey<Biome> PLAINS = biome("plains");
 	public static final ResourceKey<Biome> BEACH = biome("beach");
 	public static final ResourceKey<Biome> OCEAN = biome("ocean");
-	public static final ResourceKey<Biome> FOREST = biome("forest");
-	public static final ResourceKey<Biome> BAMBOO_JUNGLE = biome("bamboo_jungle");
 	public static final ResourceKey<Biome> SUNFLOWER_PLAINS = biome("sunflower_plains");
-	public static final ResourceKey<Biome> SAVANNA = biome("savanna");
-	public static final ResourceKey<Biome> DESERT = biome("desert");
-	public static final ResourceKey<Biome> SNOWY_PLAINS = biome("snowy_plains");
 	public static final ResourceKey<Biome> GROVE = biome("grove");
 
 	/**
@@ -70,15 +88,9 @@ public class GLBiomes {
 	public static final ResourceKey<Biome> PEAK = biome("peak");
 
 	private static final Map<ResourceKey<Biome>, ResourceKey<Biome>> COPIES = Map.ofEntries(
-			Map.entry(Biomes.PLAINS, PLAINS),
 			Map.entry(Biomes.BEACH, BEACH),
 			Map.entry(Biomes.OCEAN, OCEAN),
-			Map.entry(Biomes.FOREST, FOREST),
-			Map.entry(Biomes.BAMBOO_JUNGLE, BAMBOO_JUNGLE),
 			Map.entry(Biomes.SUNFLOWER_PLAINS, SUNFLOWER_PLAINS),
-			Map.entry(Biomes.SAVANNA, SAVANNA),
-			Map.entry(Biomes.DESERT, DESERT),
-			Map.entry(Biomes.SNOWY_PLAINS, SNOWY_PLAINS),
 			Map.entry(Biomes.GROVE, GROVE)
 	);
 
@@ -110,34 +122,13 @@ public class GLBiomes {
 							.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, VegetationPlacements.TREES_CHERRY),
 					null
 			));
-		var mountainSpawns = new MobSpawnSettings.Builder();
-		BiomeDefaultFeatures.farmAnimals(mountainSpawns);
-		BiomeDefaultFeatures.oceanSpawns(mountainSpawns, 10, 8, 3);
-		mountainSpawns.addSpawn(MobCategory.CREATURE, new MobSpawnSettings.SpawnerData(EntityType.GOAT, 7, 1, 3));
-		var mountain = new BiomeGenerationSettings.Builder(pf, carvers);
-		addCarversAndLakes(mountain);
-		BiomeDefaultFeatures.addDefaultCrystalFormations(mountain);
-		BiomeDefaultFeatures.addDefaultMonsterRoom(mountain);
-		BiomeDefaultFeatures.addDefaultUndergroundVariety(mountain);
-		BiomeDefaultFeatures.addDefaultOres(mountain);
-		BiomeDefaultFeatures.addDefaultSoftDisks(mountain);
-		BiomeDefaultFeatures.addExtraEmeralds(mountain);
-		BiomeDefaultFeatures.addInfestedStone(mountain);
-		BiomeDefaultFeatures.addDefaultSprings(mountain);
-		// order matters: the sorter links biomes by feature order, so this has to match the vanilla
-		// flower_default -> patch_grass_badlands -> patch_dead_bush_badlands order
-		BiomeDefaultFeatures.addDefaultFlowers(mountain);
-		BiomeDefaultFeatures.addBadlandGrass(mountain);
-		BiomeDefaultFeatures.addDefaultMushrooms(mountain);
-		BiomeDefaultFeatures.addDefaultExtraVegetation(mountain);
-		ctx.register(MOUNTAIN, biome(true, 0.2f, 0.3f, 0x3f76e4, 0x050533, 0xc0d8ff,
-				null, null, null, mountainSpawns, mountain, null));
-		var vanilla = VANILLA.get().lookupOrThrow(Registries.BIOME);
-		for (var copy : COPIES.entrySet()) {
-			ctx.register(copy.getValue(), copyOf(vanilla.getOrThrow(copy.getKey()).value(), null, pf, carvers));
-		}
-		ctx.register(PEAK, copyOf(vanilla.getOrThrow(Biomes.STONY_PEAKS).value(),
-				vanilla.getOrThrow(Biomes.STONY_SHORE).value(), pf, carvers));
+			var vanilla = VANILLA.get().lookupOrThrow(Registries.BIOME);
+			registerTouhouBiomes(ctx, vanilla, pf, carvers);
+			for (var copy : COPIES.entrySet()) {
+				ctx.register(copy.getValue(), copyOf(vanilla.getOrThrow(copy.getKey()).value(), null, pf, carvers));
+			}
+			ctx.register(PEAK, copyOf(vanilla.getOrThrow(Biomes.STONY_PEAKS).value(),
+					vanilla.getOrThrow(Biomes.STONY_SHORE).value(), pf, carvers));
 		});
 
 		init.add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, ctx -> {
@@ -149,14 +140,127 @@ public class GLBiomes {
 	}
 
 	/**
-	 * The overworld carvers without {@code minecraft:canyon}, which ravines far deeper than Gensokyo wants, plus the
-	 * lava lakes that {@link BiomeDefaultFeatures#addDefaultCarversAndLakes} bundles in with them.
+	 * The twelve biomes of {@code doc/design/gensokyo_dimension_biome_guide.md}, each a vanilla base chosen for its
+	 * terrain and decoration, plus our own climate, colours, spawns and feature tail. The base is read through
+	 * {@link #VANILLA} rather than reused, so the copy serializes under our own holder lookups.
+	 * <p>
+	 * Only the base's <em>features</em> are borrowed. Its climate and colours are the vanilla ones, which is why each
+	 * call spells out its own.
+	 * <p>
+	 * The four calls per band are in the guide's order — hot humid, cold humid, hot dry, cold dry — so the declared
+	 * temperature and downfall agree with the climate cell the grid picks the biome in. The one exception is
+	 * {@link #MYOUREN_TEMPLE_BARRENS}: it is the cold dry corner and cold enough to sit under the snow line, so it
+	 * turns precipitation off rather than snow over the coarse dirt it is made of.
 	 */
-	private static void addCarversAndLakes(BiomeGenerationSettings.Builder builder) {
-		builder.addCarver(GenerationStep.Carving.AIR, Carvers.CAVE);
-		builder.addCarver(GenerationStep.Carving.AIR, Carvers.CAVE_EXTRA_UNDERGROUND);
-		builder.addFeature(GenerationStep.Decoration.LAKES, MiscOverworldPlacements.LAKE_LAVA_UNDERGROUND);
-		builder.addFeature(GenerationStep.Decoration.LAKES, MiscOverworldPlacements.LAKE_LAVA_SURFACE);
+	private static void registerTouhouBiomes(BootstrapContext<Biome> ctx, HolderGetter<Biome> vanilla,
+											HolderGetter<PlacedFeature> pf, HolderGetter<ConfiguredWorldCarver<?>> carvers) {
+		var muenzukaSpawns = new MobSpawnSettings.Builder();
+		BiomeDefaultFeatures.commonSpawns(muenzukaSpawns);
+		muenzukaSpawns.addSpawn(MobCategory.CREATURE, new MobSpawnSettings.SpawnerData(EntityType.FOX, 4, 2, 4));
+		ctx.register(MUENZUKA, touhou(vanilla.getOrThrow(Biomes.FOREST).value(), pf, carvers,
+				GensokyoBiomeFeatures.MUENZUKA, muenzukaSpawns, true, 0.2f, 0.9f, 0x38605c, 0x3f4a46, 0x6a7058, 0x5a604e));
+
+		var villageSpawns = new MobSpawnSettings.Builder();
+		BiomeDefaultFeatures.commonSpawns(villageSpawns);
+		BiomeDefaultFeatures.farmAnimals(villageSpawns);
+		villageSpawns.addSpawn(MobCategory.CREATURE, new MobSpawnSettings.SpawnerData(EntityType.HORSE, 5, 2, 6))
+				.addSpawn(MobCategory.CREATURE, new MobSpawnSettings.SpawnerData(EntityType.DONKEY, 1, 1, 3));
+		ctx.register(HUMAN_VILLAGE, touhou(vanilla.getOrThrow(Biomes.PLAINS).value(), pf, carvers,
+				GensokyoBiomeFeatures.HUMAN_VILLAGE, villageSpawns, true, 0.8f, 0.5f, 0x4f8f7a, 0x8fb7d6, 0x7db356, 0x6f9c4a));
+
+		// a temple ruin is a quiet place: the creature rate is cut the way badlands cuts it
+		var barrensSpawns = new MobSpawnSettings.Builder();
+		BiomeDefaultFeatures.commonSpawns(barrensSpawns);
+		barrensSpawns.creatureGenerationProbability(0.05f);
+		barrensSpawns.addSpawn(MobCategory.CREATURE, new MobSpawnSettings.SpawnerData(EntityType.LLAMA, 4, 2, 6));
+		ctx.register(MYOUREN_TEMPLE_BARRENS, touhou(vanilla.getOrThrow(Biomes.BADLANDS).value(), pf, carvers,
+				GensokyoBiomeFeatures.BARRENS, barrensSpawns, false, -0.3f, 0.2f, 0x6b5a35, 0xc0a878, 0x9a8f5c, 0x8a7f50));
+
+		var bambooSpawns = new MobSpawnSettings.Builder();
+		BiomeDefaultFeatures.commonSpawns(bambooSpawns);
+		bambooSpawns.addSpawn(MobCategory.CREATURE, new MobSpawnSettings.SpawnerData(EntityType.PANDA, 20, 2, 4))
+				.addSpawn(MobCategory.CREATURE, new MobSpawnSettings.SpawnerData(EntityType.RABBIT, 4, 2, 3));
+		ctx.register(BAMBOO_FOREST_OF_THE_LOST, touhou(vanilla.getOrThrow(Biomes.SNOWY_TAIGA).value(), pf, carvers,
+				GensokyoBiomeFeatures.BAMBOO_FOREST, bambooSpawns, true, -0.2f, 0.9f, 0x3f6f6a, 0x7d94a0, 0x6f8f52, 0x5f7f4a));
+
+		var hillSpawns = new MobSpawnSettings.Builder();
+		BiomeDefaultFeatures.commonSpawns(hillSpawns);
+		hillSpawns.addSpawn(MobCategory.CREATURE, new MobSpawnSettings.SpawnerData(EntityType.SHEEP, 2, 2, 4))
+				.addSpawn(MobCategory.CREATURE, new MobSpawnSettings.SpawnerData(EntityType.RABBIT, 4, 2, 3));
+		ctx.register(HILL_OF_THE_NAMELESS, touhou(vanilla.getOrThrow(Biomes.MEADOW).value(), pf, carvers,
+				GensokyoBiomeFeatures.HILL, hillSpawns, true, 0.2f, 0.4f, 0x4a7a86, 0x8aa0b0, 0x87a06a, 0x7a9260));
+
+		var valleySpawns = new MobSpawnSettings.Builder();
+		BiomeDefaultFeatures.commonSpawns(valleySpawns);
+		valleySpawns.addSpawn(MobCategory.CREATURE, new MobSpawnSettings.SpawnerData(EntityType.GOAT, 5, 1, 3))
+				.addSpawn(MobCategory.CREATURE, new MobSpawnSettings.SpawnerData(EntityType.WOLF, 5, 4, 4));
+		ctx.register(UNTRODDEN_VALLEY, touhou(vanilla.getOrThrow(Biomes.TAIGA).value(), pf, carvers,
+				GensokyoBiomeFeatures.VALLEY, valleySpawns, true, 0.4f, 0.8f, 0x3c6f7d, 0x7d8f9c, 0x6b8560, 0x5d7854));
+
+		var ravineSpawns = new MobSpawnSettings.Builder();
+		BiomeDefaultFeatures.commonSpawns(ravineSpawns);
+		ravineSpawns.addSpawn(MobCategory.CREATURE, new MobSpawnSettings.SpawnerData(EntityType.FROG, 10, 2, 5))
+				.addSpawn(MobCategory.WATER_AMBIENT, new MobSpawnSettings.SpawnerData(EntityType.SALMON, 15, 1, 5));
+		ctx.register(GENBU_RAVINE, touhou(vanilla.getOrThrow(Biomes.SWAMP).value(), pf, carvers,
+				GensokyoBiomeFeatures.RAVINE, ravineSpawns, true, 0.2f, 0.9f, 0x39604f, 0x5f7a6a, 0x5a7a5c, 0x4e6e52));
+
+		var foothillsSpawns = new MobSpawnSettings.Builder();
+		BiomeDefaultFeatures.commonSpawns(foothillsSpawns);
+		BiomeDefaultFeatures.farmAnimals(foothillsSpawns);
+		foothillsSpawns.addSpawn(MobCategory.CREATURE, new MobSpawnSettings.SpawnerData(EntityType.GOAT, 5, 1, 3))
+				.addSpawn(MobCategory.CREATURE, new MobSpawnSettings.SpawnerData(EntityType.LLAMA, 4, 2, 6));
+		ctx.register(YOUKAI_MOUNTAIN_FOOTHILLS, touhou(vanilla.getOrThrow(Biomes.WINDSWEPT_HILLS).value(), pf, carvers,
+				GensokyoBiomeFeatures.FOOTHILLS, foothillsSpawns, true, 0.5f, 0.5f, 0x46707d, 0x8496a8, 0x6f8a58, 0x617c4e));
+
+		var sanctuarySpawns = new MobSpawnSettings.Builder();
+		BiomeDefaultFeatures.commonSpawns(sanctuarySpawns);
+		sanctuarySpawns.addSpawn(MobCategory.CREATURE, new MobSpawnSettings.SpawnerData(EntityType.RABBIT, 2, 2, 6))
+				.addSpawn(MobCategory.CREATURE, new MobSpawnSettings.SpawnerData(EntityType.SHEEP, 2, 2, 4));
+		ctx.register(SANCTUARY, touhou(vanilla.getOrThrow(Biomes.MEADOW).value(), pf, carvers,
+				GensokyoBiomeFeatures.SANCTUARY, sanctuarySpawns, true, 0.2f, 0.4f, 0x57a0a6, 0xa8c4d8, 0x8fc06a, 0x82b45e));
+
+		var bloodSpawns = new MobSpawnSettings.Builder();
+		BiomeDefaultFeatures.caveSpawns(bloodSpawns);
+		BiomeDefaultFeatures.monsters(bloodSpawns, 95, 5, 100, false);
+		bloodSpawns.addSpawn(MobCategory.WATER_AMBIENT, new MobSpawnSettings.SpawnerData(EntityType.COD, 15, 3, 6));
+		ctx.register(HELL_OF_BLOOD_POOLS, touhou(vanilla.getOrThrow(Biomes.SWAMP).value(), pf, carvers,
+				GensokyoBiomeFeatures.BLOOD_POOLS, bloodSpawns, true, 1.2f, 0.0f, 0x6d1420, 0x5c1414, 0x7a2a2a, 0x6a2424));
+
+		var animalSpawns = new MobSpawnSettings.Builder();
+		BiomeDefaultFeatures.commonSpawns(animalSpawns);
+		animalSpawns.addSpawn(MobCategory.CREATURE, new MobSpawnSettings.SpawnerData(EntityType.WOLF, 8, 2, 4))
+				.addSpawn(MobCategory.MONSTER, new MobSpawnSettings.SpawnerData(EntityType.SPIDER, 8, 2, 4));
+		ctx.register(ANIMAL_REALM, touhou(vanilla.getOrThrow(Biomes.LUSH_CAVES).value(), pf, carvers,
+				GensokyoBiomeFeatures.ANIMAL_REALM, animalSpawns, true, 0.7f, 0.8f, 0x2f4a3a, 0x2c3a30, 0x5a6b45, 0x4e5c3c));
+
+		var fireSpawns = new MobSpawnSettings.Builder();
+		BiomeDefaultFeatures.caveSpawns(fireSpawns);
+		BiomeDefaultFeatures.monsters(fireSpawns, 95, 5, 100, false);
+		fireSpawns.addSpawn(MobCategory.MONSTER, new MobSpawnSettings.SpawnerData(EntityType.MAGMA_CUBE, 4, 2, 4));
+		ctx.register(HELL_OF_BLAZING_FIRES, touhou(vanilla.getOrThrow(Biomes.BADLANDS).value(), pf, carvers,
+				GensokyoBiomeFeatures.BLAZING_FIRES, fireSpawns, true, 1.5f, 0.0f, 0xc2410a, 0x8c2f0e, 0x6b4030, 0x5a3528));
+
+		var formerHellSpawns = new MobSpawnSettings.Builder();
+		BiomeDefaultFeatures.caveSpawns(formerHellSpawns);
+		// the ruin still has people in it: a heavier zombie villager weight than the other underground biomes
+		BiomeDefaultFeatures.monsters(formerHellSpawns, 90, 25, 90, false);
+		ctx.register(FORMER_HELL, touhou(vanilla.getOrThrow(Biomes.DRIPSTONE_CAVES).value(), pf, carvers,
+				GensokyoBiomeFeatures.FORMER_HELL, formerHellSpawns, true, 0.8f, 0.4f, 0x5a4a3a, 0x6a5a4a, 0x7a6b52, 0x6b5c46));
+	}
+
+	/**
+	 * One guide biome: a vanilla base for its features, and our own everything else.
+	 */
+	private static Biome touhou(Biome base, HolderGetter<PlacedFeature> pf, HolderGetter<ConfiguredWorldCarver<?>> carvers,
+								GensokyoBiomeFeatures.Tail tail, MobSpawnSettings.Builder spawns,
+								boolean hasPrecipitation, float temperature, float downfall, int waterColor, int fogColor,
+								@Nullable Integer grassCol, @Nullable Integer foliageCol) {
+		var generation = generationOf(base, pf, carvers, null);
+		for (var key : tail.vegetation()) generation.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, key);
+		for (var key : tail.soil()) generation.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, key);
+		for (var key : tail.cave()) generation.addFeature(GenerationStep.Decoration.UNDERGROUND_DECORATION, key);
+		return biome(hasPrecipitation, temperature, downfall, waterColor, 329011, fogColor, null, grassCol, foliageCol,
+				spawns, generation, null);
 	}
 
 	/**
@@ -166,7 +270,21 @@ public class GLBiomes {
 	 */
 	private static Biome copyOf(Biome source, @Nullable Biome extra, HolderGetter<PlacedFeature> placedFeatures,
 								HolderGetter<ConfiguredWorldCarver<?>> carvers) {
-		var climate = source.getModifiedClimateSettings();
+		return new Biome.BiomeBuilder()
+				.hasPrecipitation(source.getModifiedClimateSettings().hasPrecipitation())
+				.temperature(source.getModifiedClimateSettings().temperature())
+				.temperatureAdjustment(source.getModifiedClimateSettings().temperatureModifier())
+				.downfall(source.getModifiedClimateSettings().downfall())
+				.specialEffects(source.getModifiedSpecialEffects())
+				.mobSpawnSettings(source.getMobSettings())
+				.generationSettings(generationOf(source, placedFeatures, carvers, extra).build())
+				.build();
+	}
+
+	/** The features and carvers of one vanilla biome, rebuilt on our lookups and in vanilla's own order. */
+	private static BiomeGenerationSettings.Builder generationOf(Biome source, HolderGetter<PlacedFeature> placedFeatures,
+															  HolderGetter<ConfiguredWorldCarver<?>> carvers,
+															  @Nullable Biome extra) {
 		var generation = new BiomeGenerationSettings.Builder(placedFeatures, carvers);
 		GenerationStep.Decoration[] steps = GenerationStep.Decoration.values();
 		var byStep = new LinkedHashMap<GenerationStep.Decoration, Set<ResourceKey<PlacedFeature>>>();
@@ -179,15 +297,7 @@ public class GLBiomes {
 		for (var entry : byStage.entrySet()) {
 			for (var carver : entry.getValue()) generation.addCarver(entry.getKey(), carver);
 		}
-		return new Biome.BiomeBuilder()
-				.hasPrecipitation(climate.hasPrecipitation())
-				.temperature(climate.temperature())
-				.temperatureAdjustment(climate.temperatureModifier())
-				.downfall(climate.downfall())
-				.specialEffects(source.getModifiedSpecialEffects())
-				.mobSpawnSettings(source.getMobSettings())
-				.generationSettings(generation.build())
-				.build();
+		return generation;
 	}
 
 	/** Linked sets keep vanilla's own ordering, which {@code FeatureSorter} reads as feature order. */

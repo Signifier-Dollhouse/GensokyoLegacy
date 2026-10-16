@@ -1,0 +1,58 @@
+{
+  "type": "minecraft:random_patch",
+  "config": {
+    "feature": {
+      "feature": {
+        "type": "minecraft:simple_block",
+        "config": {
+          "to_place": {
+            "type": "minecraft:weighted_state_provider",
+            "entries": [
+              {
+                "data": {
+                  "Name": "minecraft:netherrack"
+                },
+                "weight": 3
+              },
+              {
+                "data": {
+                  "Name": "minecraft:crimson_nylium"
+                },
+                "weight": 2
+              },
+              {
+                "data": {
+                  "Name": "minecraft:redstone_ore",
+                  "Properties": {
+                    "lit": "false"
+                  }
+                },
+                "weight": 2
+              }
+            ]
+          }
+        }
+      },
+      "placement": [
+        {
+          "type": "minecraft:block_predicate_filter",
+          "predicate": {
+            "type": "minecraft:all_of",
+            "predicates": [
+              {
+                "type": "minecraft:matching_blocks",
+                "blocks": "minecraft:air"
+              },
+              {
+                "type": "minecraft:solid"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "tries": 20,
+    "xz_spread": 7,
+    "y_spread": 3
+  }
+}

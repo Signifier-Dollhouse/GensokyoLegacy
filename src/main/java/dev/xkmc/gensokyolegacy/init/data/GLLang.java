@@ -373,6 +373,58 @@ public final class GLLang {
 		}
 	}
 
+	// ========== Biome ==========
+	/**
+	 * Display names for the Gensokyo biomes. The key is the vanilla {@code biome.<namespace>.<id>} key rather than the
+	 * usual {@code gensokyolegacy.*} one, because that is what the F3 biome readout and the locator item read.
+	 */
+	public enum Biome implements LangEntry {
+		MUENZUKA("muenzuka", "Muenzuka"),
+		HUMAN_VILLAGE("human_village", "Human Village"),
+		MYOUREN_TEMPLE_BARRENS("myouren_temple_barrens", "Myouren Temple Barrens"),
+		MAGICAL_FOREST("magical_forest", "Forest of Magic"),
+		BAMBOO_FOREST_OF_THE_LOST("bamboo_forest_of_the_lost", "Bamboo Forest of the Lost"),
+		SAKURA_FOREST("sakura_forest", "Sakura Forest"),
+		HILL_OF_THE_NAMELESS("hill_of_the_nameless", "Hill of the Nameless"),
+		UNTRODDEN_VALLEY("untrodden_valley", "Untrodden Valley"),
+		GENBU_RAVINE("genbu_ravine", "Genbu Ravine"),
+		YOUKAI_MOUNTAIN_FOOTHILLS("youkai_mountain_foothills", "Youkai Mountain Foothills"),
+		SANCTUARY("sanctuary", "Sanctuary"),
+		HELL_OF_BLOOD_POOLS("hell_of_blood_pools", "Hell of Blood Pools"),
+		ANIMAL_REALM("animal_realm", "Animal Realm"),
+		HELL_OF_BLAZING_FIRES("hell_of_blazing_fires", "Hell of Blazing Fires"),
+		FORMER_HELL("former_hell", "Former Hell"),
+		SUNFLOWER_PLAINS("sunflower_plains", "Sunflower Plains");
+
+		private final String def;
+		private final String key;
+
+		Biome(String id, String def) {
+			this.def = def;
+			this.key = "biome." + GensokyoLegacy.MODID + "." + id;
+		}
+
+		@Override
+		public String key() {
+			return key;
+		}
+
+		@Override
+		public String def() {
+			return def;
+		}
+
+		@Override
+		public int argn() {
+			return 0;
+		}
+
+		@Override
+		public @Nullable ChatFormatting format() {
+			return null;
+		}
+	}
+
 	// ========== ItemDebug ==========
 	public enum ItemDebug implements LangEntry {
 		WAND_BED("Click bed to reset character"),
@@ -998,7 +1050,7 @@ FURNACE_2_BOOST("Held in main hand while riding a broom, right click to burn fue
 
 	public static void genLang(RegistrateLangProvider pvd) {
 		for (var group : new LangEntry[][]{
-				Quest.values(), Info.values(), Trade.values(), Misc.values(),
+				Quest.values(), Info.values(), Trade.values(), Misc.values(), Biome.values(),
 				ItemDebug.values(), ItemFurnace.values(), ItemLores.values(), ItemCommon.values(), ItemUmbrella.values(), ItemGlove.values(), ItemDaggerGlove.values(), Alchemy.values(), Jei.values(), JeiExtra.values(),
 				Talisman.values(), Doll.values(), Party.values()}) {
 			for (var e : group) {
