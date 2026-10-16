@@ -101,7 +101,7 @@ directly on the same 1024 × 1024 run as §4.
 | −0.65 | −0.145 | 45 | | |
 | −0.60 | −0.098 | 51 | | |
 | −0.56 | −0.051 | 57 | | |
-| −0.53 | −0.004 | 63 | 7.5% | **waterline, ocean ends** |
+| −0.53 | −0.004 | 63 | 7.5% | **waterline, misty_lake ends** |
 | −0.50 | 0.004 | 64 | | strand |
 | −0.118 | 0.129 | 80 | 36.3% | 30% plain |
 | 0.108 | 0.254 | 96 | 60.6% | 22% at 80 |
@@ -122,7 +122,7 @@ Measured on 1024 × 1024 chunks, seed −1838080655014084215, against the target
 
 | band | target | measured | | band | target | measured |
 |---|---|---|---|---|---|---|
-| ocean biome | = water | 7.73% | | 128-143 | 3% | 3.5% |
+| water biome | = water | 7.73% | | 128-143 | 3% | 3.5% |
 | 64-79 | 30% | 28.8% | | 144-159 | 3% | 3.3% |
 | 80-95 | 22% | 24.3% | | 160-175 | 3% | 3.3% |
 | 96-111 | 12% | 14.2% | | 176-191 | 3% | 3.2% |
@@ -139,7 +139,7 @@ the top two light. That spread is sampling noise: the shares are quantiles of a 
 block period, so a 16 km window holds a few dozen independent patches and its quantiles carry a couple of points of
 error. Re-solving the points against it would be fitting the noise, so they are left alone.
 
-The ocean biome is the one band whose target is not a free number: its edge sits on the waterline, so `ocean` is
+The water band is the one whose target is not a free number: its edge sits on the waterline, so `misty_lake` is
 exactly the set of drowned columns. Ending it anywhere higher paints dry ground ocean, and the low spots just above the
 water are shallow enough to be many separate patches rather than one rim — at −0.50 that was 1.5% of the map spread over
 3,800 single-chunk bodies, which is the speckle of ocean on land in the biome map.
@@ -199,13 +199,13 @@ point, so they cannot pick a biome; depth is `0.0` at the surface and `1.0` unde
 
 | continentalness | surface y | share | hot humid | cold humid | hot dry | cold dry |
 |---|---|---|---|---|---|---|
-| −1.00 … −0.53 | ≤ 63 | 7.53% | ocean | ocean | ocean | ocean |
-| −0.53 … −0.437 | 63 … 66 | 4.28% | beach | beach | beach | beach |
+| −1.00 … −0.53 | ≤ 63 | 7.53% | misty_lake | misty_lake | misty_lake | misty_lake |
+| −0.53 … −0.437 | 63 … 66 | 4.28% | misty_lake_shore | misty_lake_shore | misty_lake_shore | misty_lake_shore |
 | −0.437 … −0.118 | 66 … 80 | 25.73% | sunflower_plains | muenzuka | human_village | myouren_temple_barrens |
 | −0.118 … 0.108 | 80 … 96 | 24.26% | magical_forest | bamboo_forest_of_the_lost | sakura_forest | hill_of_the_nameless |
 | 0.108 … 0.329 | 96 … 128 | 20.15% | untrodden_valley | genbu_ravine | youkai_mountain_foothills | sanctuary |
-| 0.329 … 0.595 | 128 … 192 | 13.25% | grove | grove | grove | grove |
-| 0.595 … 1.00 | 192 … 220 | 4.79% | peak | peak | peak | peak |
+| 0.329 … 0.595 | 128 … 192 | 13.25% | tengu_settlement | tengu_settlement | tengu_settlement | tengu_settlement |
+| 0.595 … 1.00 | 192 … 220 | 4.79% | youkai_mountain_summit | youkai_mountain_summit | youkai_mountain_summit | youkai_mountain_summit |
 
 The four columns are the climate classification `gensokyo_dimension_biome_guide.md` §2 gives for a band, in the order it
 lists them: **hot humid, cold humid, hot dry, cold dry**. Temperature and humidity are therefore cut in two each, at
@@ -221,17 +221,19 @@ y 192 — so moving an edge moves the height it names and nothing else. `-0.437`
 quantile giving the beach its ~4% share.
 
 Neighbouring spans are held `GAP = 0.01` apart at each end, so a value in the gap is equidistant and the tie falls to
-list order. The gap above the waterline is the one exception: `ocean` ends exactly on the waterline so it stays the
-drowned set, and the gap falls on the beach side of it.
+list order. The gap above the waterline is the one exception: `misty_lake` ends exactly on the waterline so it stays
+the drowned set, and the gap falls on the shore side of it.
 
 Within a region the temp/humidity boxes tile the plane with the same 0.01 gaps, so nothing "eats into" its
 neighbour's box — see `out/terrain/gensokyolegacy_gensokyo_biomes.png`. Because each axis is cut once, at 0, the four
 boxes of a band come out roughly a quarter of the band each; measured over 256 × 256 chunks at seed 0 the lower
 ground band splits 5.94 / 7.05 / 6.38 / 7.11 % of the map, against a 25.73% band share.
 
-The last two rows give each region its whole plane to one biome, so no cold or dry upland comes out as anything else.
-`peak` ends at the top of the spline, where continentalness is flat at 1.2227 and the terrain stops rising, so
-y 192 … 220 is the whole of it.
+The first two and the last two rows give each region its whole plane to one biome. Those four are the fixed locations
+of `gensokyolegacy_fixed_biomes_guide.md` — `misty_lake` and its shore at the waterline, the Tengu Settlement and the
+summit above the mountain — and they are selected by continentalness alone, not by climate at all.
+`youkai_mountain_summit` ends at the top of the spline, where continentalness is flat at 1.2227 and the terrain stops
+rising, so y 192 … 220 is the whole of it.
 
 Which biomes fill these cells, and where each one's features come from, is `doc/design/gensokyo_biomes.md`.
 
@@ -247,23 +249,19 @@ anywhere the grid is silent.
 
 ## 5. Structures
 
-The nineteen allowed biomes are all mod-owned (`GLBiomes`). Vanilla filters structures by biome tag
+Every biome the dimension may select is mod-owned (`GLBiomes`). Vanilla filters structures by biome tag
 (`#minecraft:has_structure/*`), so a dimension made only of mod biomes cannot host `minecraft:village_plains` and
 friends. The mod's own structure sets survive because their tags already name `gensokyolegacy:magical_forest` /
 `sakura_forest`.
 
-Four are byte-identical copies of a vanilla biome rebuilt from registry keys — `beach`, `ocean`,
-`sunflower_plains`, `grove`. `peak` is a fifth copy but not a straight one:
-`minecraft:stony_peaks` supplies the climate, effects and spawns, and `minecraft:stony_shore` is unioned in for its
-features and carvers, which is why it is registered separately instead of going through `GLBiomes.COPIES`. Both
-sources are merged through `LinkedHashSet`s, so the two shared carvers collapse to one entry and `FeatureSorter` still
-sees vanilla's ordering.
+One is a byte-identical copy of a vanilla biome rebuilt from registry keys, `sunflower_plains`, which is the biome
+guide's own hot humid lower-ground biome and never needed replacing. The other sixteen are the mod's own: the twelve
+band biomes, the two established ones, and the four fixed locations — each a vanilla base with a custom feature tail
+and no vanilla climate at all.
 
-The other thirteen are the mod's own: `magical_forest` and `sakura_forest`, plus the twelve of
-`doc/design/gensokyo_biomes.md`, each a vanilla base with a custom feature tail and no vanilla climate at all.
-
-Every copy and every base drops `minecraft:canyon`, which `GLBiomes.collect` does for both. Canyon ravines run far
-deeper than Gensokyo wants.
+Every copy and every base drops `minecraft:canyon`, which `GLBiomes.collect` does. Canyon ravines run far deeper than
+Gensokyo wants. `misty_lake` drops `minecraft:trees_water` on top of that, for the reason in
+`doc/design/gensokyo_biomes.md` §7.
 
 ---
 
@@ -334,10 +332,10 @@ chain rather than on a biome axis, so they cannot step a biome edge: the grid re
 ### Why continentalness feeds the height chain too
 
 The obvious move is to leave the terrain on vanilla continentalness and give only the biome grid the fine field. That
-breaks §4's central invariant. The ocean band edge is the waterline of the offset spline, so `ocean` is the drowned set
-only while the grid and the spline read the *same* field:
+breaks §4's central invariant. The water band edge is the waterline of the offset spline, so `misty_lake` is the
+drowned set only while the grid and the spline read the *same* field:
 
-| | underwater | ocean biome | ocean-but-dry | wet-not-ocean |
+| | underwater | water biome | water-but-dry | wet-not-water |
 |---|---|---|---|---|
 | one field everywhere | 7.74% | 7.73% | **0.11%** | **0.11%** |
 | grid only (split) | 9.21% | 7.73% | 7.40% | 8.88% |

@@ -1,0 +1,63 @@
+{
+  "type": "minecraft:random_patch",
+  "config": {
+    "feature": {
+      "feature": {
+        "type": "minecraft:simple_block",
+        "config": {
+          "to_place": {
+            "type": "minecraft:weighted_state_provider",
+            "entries": [
+              {
+                "data": {
+                  "Name": "gensokyolegacy:flame_cattail",
+                  "Properties": {
+                    "waterlogged": "false"
+                  }
+                },
+                "weight": 3
+              },
+              {
+                "data": {
+                  "Name": "minecraft:sugar_cane",
+                  "Properties": {
+                    "age": "0"
+                  }
+                },
+                "weight": 1
+              }
+            ]
+          }
+        }
+      },
+      "placement": [
+        {
+          "type": "minecraft:block_predicate_filter",
+          "predicate": {
+            "type": "minecraft:all_of",
+            "predicates": [
+              {
+                "type": "minecraft:matching_blocks",
+                "blocks": "minecraft:air"
+              },
+              {
+                "type": "minecraft:matching_blocks",
+                "blocks": [
+                  "minecraft:sand",
+                  "minecraft:gravel",
+                  "minecraft:dirt",
+                  "minecraft:grass_block",
+                  "minecraft:clay",
+                  "minecraft:mud"
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "tries": 10,
+    "xz_spread": 7,
+    "y_spread": 3
+  }
+}

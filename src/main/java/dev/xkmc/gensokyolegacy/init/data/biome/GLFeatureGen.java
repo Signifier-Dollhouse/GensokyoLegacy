@@ -131,6 +131,7 @@ public class GLFeatureGen {
 		// one bootstrap per registry: GensokyoDimension reuses this one for its finer climate noise parameters
 		init.add(Registries.NOISE, (ctx) -> {
 			MagicalForestFeatures.noise(ctx);
+			GensokyoBiomeFeatures.noise(ctx);
 			GensokyoDimension.noises(ctx);
 		});
 	}

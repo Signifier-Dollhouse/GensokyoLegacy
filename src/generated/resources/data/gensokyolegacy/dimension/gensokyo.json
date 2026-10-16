@@ -6,7 +6,7 @@
       "type": "minecraft:multi_noise",
       "biomes": [
         {
-          "biome": "gensokyolegacy:ocean",
+          "biome": "gensokyolegacy:misty_lake",
           "parameters": {
             "continentalness": [
               -1.0,
@@ -60,7 +60,7 @@
           }
         },
         {
-          "biome": "gensokyolegacy:beach",
+          "biome": "gensokyolegacy:misty_lake_shore",
           "parameters": {
             "continentalness": [
               -0.52,
@@ -519,7 +519,7 @@
           }
         },
         {
-          "biome": "gensokyolegacy:grove",
+          "biome": "gensokyolegacy:tengu_settlement",
           "parameters": {
             "continentalness": [
               0.3389,
@@ -573,7 +573,7 @@
           }
         },
         {
-          "biome": "gensokyolegacy:peak",
+          "biome": "gensokyolegacy:youkai_mountain_summit",
           "parameters": {
             "continentalness": [
               0.605,

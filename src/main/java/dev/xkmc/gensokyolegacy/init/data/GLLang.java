@@ -394,6 +394,10 @@ public final class GLLang {
 		ANIMAL_REALM("animal_realm", "Animal Realm"),
 		HELL_OF_BLAZING_FIRES("hell_of_blazing_fires", "Hell of Blazing Fires"),
 		FORMER_HELL("former_hell", "Former Hell"),
+		MISTY_LAKE("misty_lake", "Misty Lake"),
+		MISTY_LAKE_SHORE("misty_lake_shore", "Misty Lake Shore"),
+		TENGU_SETTLEMENT("tengu_settlement", "Tengu Settlement"),
+		YOUKAI_MOUNTAIN_SUMMIT("youkai_mountain_summit", "Youkai Mountain Summit"),
 		SUNFLOWER_PLAINS("sunflower_plains", "Sunflower Plains");
 
 		private final String def;

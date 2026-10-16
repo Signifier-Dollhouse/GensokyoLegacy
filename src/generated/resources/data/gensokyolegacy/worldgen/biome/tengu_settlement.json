@@ -5,17 +5,20 @@
       "minecraft:cave_extra_underground"
     ]
   },
-  "downfall": 0.4,
+  "creature_spawn_probability": 0.07,
+  "downfall": 0.5,
   "effects": {
-    "fog_color": 12638463,
+    "fog_color": 9676472,
+    "foliage_color": 7046230,
+    "grass_color": 8033380,
     "mood_sound": {
       "block_search_extent": 8,
       "offset": 2.0,
       "sound": "minecraft:ambient.cave",
       "tick_delay": 6000
     },
-    "sky_color": 7907327,
-    "water_color": 4159204,
+    "sky_color": 8168703,
+    "water_color": 4616317,
     "water_fog_color": 329011
   },
   "features": [
@@ -71,12 +74,16 @@
     ],
     [
       "minecraft:glow_lichen",
+      "minecraft:forest_flowers",
+      "minecraft:trees_birch_and_oak",
       "minecraft:flower_default",
-      "minecraft:patch_grass_badlands",
+      "minecraft:patch_grass_forest",
       "minecraft:brown_mushroom_normal",
       "minecraft:red_mushroom_normal",
       "minecraft:patch_sugar_cane",
-      "minecraft:patch_pumpkin"
+      "minecraft:patch_pumpkin",
+      "gensokyolegacy:gensokyo_biome/foothill_moss",
+      "gensokyolegacy:gensokyo_biome/settlement_paths"
     ],
     [
       "minecraft:freeze_top_layer"
@@ -96,10 +103,40 @@
     "axolotls": [],
     "creature": [
       {
-        "type": "minecraft:turtle",
-        "maxCount": 5,
+        "type": "minecraft:sheep",
+        "maxCount": 4,
+        "minCount": 4,
+        "weight": 12
+      },
+      {
+        "type": "minecraft:pig",
+        "maxCount": 4,
+        "minCount": 4,
+        "weight": 10
+      },
+      {
+        "type": "minecraft:chicken",
+        "maxCount": 4,
+        "minCount": 4,
+        "weight": 10
+      },
+      {
+        "type": "minecraft:cow",
+        "maxCount": 4,
+        "minCount": 4,
+        "weight": 8
+      },
+      {
+        "type": "minecraft:goat",
+        "maxCount": 3,
+        "minCount": 1,
+        "weight": 4
+      },
+      {
+        "type": "minecraft:chicken",
+        "maxCount": 4,
         "minCount": 2,
-        "weight": 5
+        "weight": 10
       }
     ],
     "misc": [],
@@ -164,5 +201,5 @@
     "water_ambient": [],
     "water_creature": []
   },
-  "temperature": 0.8
+  "temperature": 0.4
 }

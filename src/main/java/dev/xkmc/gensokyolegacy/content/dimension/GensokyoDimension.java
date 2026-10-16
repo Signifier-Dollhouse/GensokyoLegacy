@@ -4,6 +4,7 @@ import com.mojang.datafixers.util.Pair;
 import com.tterrag.registrate.providers.DataProviderInitializer;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.biome.GLBiomes;
+import dev.xkmc.gensokyolegacy.init.data.biome.GensokyoBiomeFeatures;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.HolderSet;
@@ -34,6 +35,7 @@ import net.minecraft.world.level.levelgen.NoiseRouter;
 import net.minecraft.world.level.levelgen.NoiseRouterData;
 import net.minecraft.world.level.levelgen.NoiseSettings;
 import net.minecraft.world.level.levelgen.SurfaceRules;
+import net.minecraft.world.level.levelgen.SurfaceRules.ConditionSource;
 import net.minecraft.world.level.levelgen.SurfaceRules.RuleSource;
 import net.minecraft.world.level.levelgen.placement.CaveSurface;
 import net.minecraft.world.level.levelgen.synth.NormalNoise;
@@ -119,12 +121,12 @@ public class GensokyoDimension {
 	private static final Band DRY = new Band(-1.0f, -0.01f);
 	private static final Band HUMID = new Band(0.01f, 1.0f);
 
-	// region order follows REGION_EDGES: ocean, beach, lower ground, upper ground, mountain, grove, peak. The first two
-	// and the last two take the whole plane in one cell; the three open ground bands tile it the way the biome guide
-	// lists them — hot humid, cold humid, hot dry, cold dry — four cells to a band.
+	// region order follows REGION_EDGES: water, shore, lower ground, upper ground, mountain, settlement, summit. The
+	// first two and the last two take the whole plane in one cell; the three open ground bands tile it the way the
+	// biome guide lists them — hot humid, cold humid, hot dry, cold dry — four cells to a band.
 	private static final List<List<Cell>> SURFACE = List.of(
-			List.of(new Cell(GLBiomes.OCEAN, FULL_PLANE, FULL_PLANE)),
-			List.of(new Cell(GLBiomes.BEACH, FULL_PLANE, FULL_PLANE)),
+			List.of(new Cell(GLBiomes.MISTY_LAKE, FULL_PLANE, FULL_PLANE)),
+			List.of(new Cell(GLBiomes.MISTY_LAKE_SHORE, FULL_PLANE, FULL_PLANE)),
 			List.of(new Cell(GLBiomes.SUNFLOWER_PLAINS, HOT, HUMID),
 					new Cell(GLBiomes.MUENZUKA, COLD, HUMID),
 					new Cell(GLBiomes.HUMAN_VILLAGE, HOT, DRY),
@@ -137,8 +139,8 @@ public class GensokyoDimension {
 					new Cell(GLBiomes.GENBU_RAVINE, COLD, HUMID),
 					new Cell(GLBiomes.YOUKAI_MOUNTAIN_FOOTHILLS, HOT, DRY),
 					new Cell(GLBiomes.SANCTUARY, COLD, DRY)),
-			List.of(new Cell(GLBiomes.GROVE, FULL_PLANE, FULL_PLANE)),
-			List.of(new Cell(GLBiomes.PEAK, FULL_PLANE, FULL_PLANE)));
+			List.of(new Cell(GLBiomes.TENGU_SETTLEMENT, FULL_PLANE, FULL_PLANE)),
+			List.of(new Cell(GLBiomes.YOUKAI_MOUNTAIN_SUMMIT, FULL_PLANE, FULL_PLANE)));
 
 	/**
 	 * Deep underground, one cell per region: the water table has blood under it, the foothills an animal realm, and
@@ -184,21 +186,52 @@ public class GensokyoDimension {
 	}
 
 	/**
-	 * The overworld surface tree with one addition: the four underground biomes replace the base stone, keyed on the
-	 * biome alone.
+	 * The overworld surface tree with the fixed biomes' materials in front of it, in the priority order of
+	 * {@code gensokyolegacy_fixed_biomes_guide.md} §6: the lake bed, then the summit, then the shore's waterline,
+	 * then the four underground palettes, and vanilla's tree last as the shared default and fallback.
 	 * <p>
-	 * The underground rows of the climate grid only win about 128 blocks below the surface, so no surface position is
-	 * ever one of these biomes and the tree claims nothing above the overworld's own grass, dirt and underwater
-	 * gravel. That is the guide's §6 split: shared material stays dimension-wide, and only a palette that genuinely
-	 * differs — blood, dark stone, basalt, old masonry — gets a biome branch.
+	 * Every fixed-biome branch is a filter rather than a palette: each of its rules carries its own floor, water-level
+	 * and slope condition and returns null where none of them hold, so the position falls through to the next entry
+	 * and reaches the overworld tree. That is what keeps them from shadowing the shared grass and dirt, and it is why
+	 * they can be three separate entries instead of one branch per biome. The settlement has no branch at all: its
+	 * paths are a placed feature, per the guide, and its topsoil is the dimension's.
 	 * <p>
-	 * Each branch claims the whole column, floor included, so it has to be complete: an unfinished palette would
-	 * swallow the deepslate the overworld tree would otherwise have put there.
+	 * The four underground branches are the opposite shape. They key on the biome alone and claim the whole column,
+	 * floor included, so they have to be complete — an unfinished palette would swallow the deepslate the overworld
+	 * tree would otherwise have put there. That is safe because the underground rows of the climate grid only win
+	 * about 128 blocks below the surface, so no surface position is ever one of those biomes.
 	 */
 	private static RuleSource surfaceRules() {
 		return SurfaceRules.sequence(
+				SurfaceRules.ifTrue(SurfaceRules.isBiome(GLBiomes.MISTY_LAKE, GLBiomes.MISTY_LAKE_SHORE),
+						SurfaceRules.sequence(
+								// the bed itself, and a steep bank cut into it
+								SurfaceRules.ifTrue(SurfaceRules.ON_FLOOR, SurfaceRules.ifTrue(UNDERWATER,
+										SurfaceRules.sequence(
+												SurfaceRules.ifTrue(SurfaceRules.steep(),
+														SurfaceRules.state(Blocks.STONE.defaultBlockState())),
+												SurfaceRules.state(Blocks.SAND.defaultBlockState())))),
+								// gravel through the two blocks under it, so the bed has a thickness to it
+								SurfaceRules.ifTrue(UNDER_BED, SurfaceRules.ifTrue(UNDERWATER,
+										SurfaceRules.state(Blocks.GRAVEL.defaultBlockState()))))),
+				SurfaceRules.ifTrue(SurfaceRules.isBiome(GLBiomes.YOUKAI_MOUNTAIN_SUMMIT),
+						SurfaceRules.sequence(
+								SurfaceRules.ifTrue(SurfaceRules.steep(), SurfaceRules.state(Blocks.STONE.defaultBlockState())),
+								// the low tail of the noise is scree, and everything else is exposed rock; the
+								// summit's soil pockets are the grass disk in the tail, not a third state here
+								SurfaceRules.ifTrue(SurfaceRules.noiseCondition(GensokyoBiomeFeatures.SUMMIT_SURFACE, -0.6),
+										SurfaceRules.state(Blocks.GRAVEL.defaultBlockState())),
+								SurfaceRules.state(Blocks.STONE.defaultBlockState()))),
+				// the shore's own waterline, which is the only place its ground is not the dimension's grass
+				SurfaceRules.ifTrue(SurfaceRules.isBiome(GLBiomes.MISTY_LAKE_SHORE),
+						SurfaceRules.sequence(
+								SurfaceRules.ifTrue(SurfaceRules.ON_FLOOR,
+										SurfaceRules.ifTrue(SurfaceRules.waterBlockCheck(-1, 0),
+												SurfaceRules.state(Blocks.SAND.defaultBlockState()))),
+								SurfaceRules.ifTrue(UNDER_BED, SurfaceRules.ifTrue(UNDERWATER,
+										SurfaceRules.state(Blocks.GRAVEL.defaultBlockState()))))),
 				SurfaceRules.ifTrue(SurfaceRules.isBiome(GLBiomes.HELL_OF_BLOOD_POOLS),
-						hellPalette(Blocks.NETHERRACK, Blocks.CRIMSON_NYLIUM, Blocks.REDSTONE_ORE)),
+						hellPalette(Blocks.NETHERRACK, Blocks.CRIMSON_NYLIUM, Blocks.BLACKSTONE)),
 				SurfaceRules.ifTrue(SurfaceRules.isBiome(GLBiomes.ANIMAL_REALM),
 						hellPalette(Blocks.PACKED_MUD, Blocks.DIRT, Blocks.DEEPSLATE)),
 				SurfaceRules.ifTrue(SurfaceRules.isBiome(GLBiomes.HELL_OF_BLAZING_FIRES),
@@ -207,6 +240,12 @@ public class GensokyoDimension {
 						hellPalette(Blocks.STONE_BRICKS, Blocks.CRACKED_STONE_BRICKS, Blocks.POLISHED_DEEPSLATE)),
 				SurfaceRuleData.overworld());
 	}
+
+	/** At or below the water line, which is the closest a surface rule gets to "this is a lake bed". */
+	private static final ConditionSource UNDERWATER = SurfaceRules.waterBlockCheck(0, 0);
+
+	/** Two blocks under any floor, for a material with thickness. {@code UNDER_FLOOR} only ever reaches one. */
+	private static final ConditionSource UNDER_BED = SurfaceRules.stoneDepthCheck(2, false, CaveSurface.FLOOR);
 
 	/**
 	 * One underground palette: the cave floor, the few blocks under it, and the rest of the column. The second test is

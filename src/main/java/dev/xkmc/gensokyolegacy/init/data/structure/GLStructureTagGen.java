@@ -108,21 +108,29 @@ public class GLStructureTagGen {
 		pvd.addTag(Tags.Biomes.IS_FOREST)
 				.add(GLBiomes.MAGICAL_FOREST).add(GLBiomes.SAKURA_FOREST)
 				.add(GLBiomes.MUENZUKA).add(GLBiomes.BAMBOO_FOREST_OF_THE_LOST)
-				.add(GLBiomes.UNTRODDEN_VALLEY).add(GLBiomes.YOUKAI_MOUNTAIN_FOOTHILLS);
+				.add(GLBiomes.UNTRODDEN_VALLEY).add(GLBiomes.YOUKAI_MOUNTAIN_FOOTHILLS)
+				.add(GLBiomes.TENGU_SETTLEMENT);
 		pvd.addTag(Tags.Biomes.IS_PLAINS)
 				.add(GLBiomes.HUMAN_VILLAGE).add(GLBiomes.SUNFLOWER_PLAINS)
 				.add(GLBiomes.HILL_OF_THE_NAMELESS);
-		// the whole mountain band, which is four biomes where it used to be one
+		// the mountain band and the two fixed locations above it
 		pvd.addTag(Tags.Biomes.IS_MOUNTAIN)
 				.add(GLBiomes.UNTRODDEN_VALLEY).add(GLBiomes.GENBU_RAVINE)
-				.add(GLBiomes.YOUKAI_MOUNTAIN_FOOTHILLS).add(GLBiomes.SANCTUARY);
+				.add(GLBiomes.YOUKAI_MOUNTAIN_FOOTHILLS).add(GLBiomes.SANCTUARY)
+				.add(GLBiomes.TENGU_SETTLEMENT).add(GLBiomes.YOUKAI_MOUNTAIN_SUMMIT);
+		pvd.addTag(Tags.Biomes.IS_MOUNTAIN_PEAK).add(GLBiomes.YOUKAI_MOUNTAIN_SUMMIT);
 		pvd.addTag(Tags.Biomes.IS_UNDERGROUND)
 				.add(GLBiomes.HELL_OF_BLOOD_POOLS).add(GLBiomes.ANIMAL_REALM)
 				.add(GLBiomes.HELL_OF_BLAZING_FIRES).add(GLBiomes.FORMER_HELL);
 		pvd.addTag(Tags.Biomes.IS_SPOOKY).add(GLBiomes.MUENZUKA).add(GLBiomes.HILL_OF_THE_NAMELESS);
 		pvd.addTag(Tags.Biomes.IS_FLORAL).add(GLBiomes.HUMAN_VILLAGE).add(GLBiomes.SANCTUARY)
 				.add(GLBiomes.HILL_OF_THE_NAMELESS);
-		pvd.addTag(Tags.Biomes.IS_WET).add(GLBiomes.GENBU_RAVINE);
+		pvd.addTag(Tags.Biomes.IS_WET).add(GLBiomes.GENBU_RAVINE)
+				.add(GLBiomes.MISTY_LAKE).add(GLBiomes.MISTY_LAKE_SHORE);
+		// the four fixed locations. Misty Lake is not tagged as an ocean: it is a freshwater lake, and anything that
+		// branches on is_ocean would put oceans' own overrides on it
+		pvd.addTag(Tags.Biomes.IS_BEACH).add(GLBiomes.MISTY_LAKE_SHORE);
+		pvd.addTag(Tags.Biomes.IS_AQUATIC).add(GLBiomes.MISTY_LAKE);
 		pvd.addTag(Tags.Biomes.IS_DRY).add(GLBiomes.MYOUREN_TEMPLE_BARRENS);
 		pvd.addTag(Tags.Biomes.IS_TAIGA).add(GLBiomes.BAMBOO_FOREST_OF_THE_LOST)
 				.add(GLBiomes.UNTRODDEN_VALLEY);

@@ -38,6 +38,7 @@ import net.minecraft.world.level.levelgen.placement.PlacementModifier;
 import net.minecraft.world.level.levelgen.placement.RandomOffsetPlacement;
 import net.minecraft.world.level.levelgen.placement.RarityFilter;
 import net.minecraft.world.level.levelgen.placement.SurfaceWaterDepthFilter;
+import net.minecraft.world.level.levelgen.synth.NormalNoise;
 
 import java.util.List;
 
@@ -78,6 +79,15 @@ public class GensokyoBiomeFeatures {
 	private static final ResourceKey<ConfiguredFeature<?, ?>> FIRE_VENT = cf("fire_vent");
 	private static final ResourceKey<ConfiguredFeature<?, ?>> ASH_PATCH = cf("ash_patch");
 	private static final ResourceKey<ConfiguredFeature<?, ?>> OLD_RUBBLE = cf("old_rubble");
+	// the four fixed biomes: Misty Lake, its shore, the Tengu Settlement and the summit above it
+	private static final ResourceKey<ConfiguredFeature<?, ?>> LAKE_CLAY = cf("lake_clay");
+	private static final ResourceKey<ConfiguredFeature<?, ?>> LAKE_CATTAILS = cf("lake_cattails");
+	private static final ResourceKey<ConfiguredFeature<?, ?>> SHORE_SAND = cf("shore_sand");
+	private static final ResourceKey<ConfiguredFeature<?, ?>> SHORE_FLOWERS = cf("shore_flowers");
+	private static final ResourceKey<ConfiguredFeature<?, ?>> SETTLEMENT_PATHS = cf("settlement_paths");
+	private static final ResourceKey<ConfiguredFeature<?, ?>> SUMMIT_SOIL_DISK = cf("summit_soil_disk");
+	private static final ResourceKey<ConfiguredFeature<?, ?>> SUMMIT_MOSS = cf("summit_moss");
+	private static final ResourceKey<ConfiguredFeature<?, ?>> SUMMIT_SCREE = cf("summit_scree");
 
 	// placed features, mirroring the configured ones
 	private static final ResourceKey<PlacedFeature> PODZOL_PF = pf("muenzuka_podzol");
@@ -103,6 +113,17 @@ public class GensokyoBiomeFeatures {
 	private static final ResourceKey<PlacedFeature> FIRE_VENT_PF = pf("fire_vent");
 	private static final ResourceKey<PlacedFeature> ASH_PATCH_PF = pf("ash_patch");
 	private static final ResourceKey<PlacedFeature> OLD_RUBBLE_PF = pf("old_rubble");
+	private static final ResourceKey<PlacedFeature> LAKE_CLAY_PF = pf("lake_clay");
+	private static final ResourceKey<PlacedFeature> LAKE_CATTAILS_PF = pf("lake_cattails");
+	private static final ResourceKey<PlacedFeature> LILY_PADS_PF = pf("misty_lake_lily_pads");
+	private static final ResourceKey<PlacedFeature> SHORE_SAND_PF = pf("shore_sand");
+	private static final ResourceKey<PlacedFeature> SHORE_REEDS_PF = pf("shore_reeds");
+	private static final ResourceKey<PlacedFeature> SHORE_FLOWERS_PF = pf("shore_flowers");
+	private static final ResourceKey<PlacedFeature> SETTLEMENT_PATHS_PF = pf("settlement_paths");
+	private static final ResourceKey<PlacedFeature> SUMMIT_SOIL_PF = pf("summit_soil");
+	private static final ResourceKey<PlacedFeature> SUMMIT_MOSS_PF = pf("summit_moss");
+	private static final ResourceKey<PlacedFeature> SUMMIT_SCREE_PF = pf("summit_scree");
+	private static final ResourceKey<PlacedFeature> SUMMIT_TREES_PF = pf("summit_trees");
 
 	/**
 	 * The one order the custom placed features may appear in. A biome's tail must be a subsequence of this list, never
@@ -113,7 +134,16 @@ public class GensokyoBiomeFeatures {
 			STONES_PF, GRAVE_MARKER_PF, GHOST_FLOWERS_PF, VILLAGE_FLOWERS_PF, BARRENS_SCRUB_PF,
 			HILL_FLOWERS_PF, BAMBOO_DENSE_PF, BAMBOO_SPARSE_PF, RAVINE_MOSS_PF, FOOTHILL_MOSS_PF,
 			SANCTUARY_TREES_PF, SANCTUARY_FLOWERS_PF,
-			BLOOD_DEPOSIT_PF, BONE_PILE_PF, DEN_RUBBLE_PF, FUNGUS_PATCH_PF, FIRE_VENT_PF, ASH_PATCH_PF, OLD_RUBBLE_PF);
+			BLOOD_DEPOSIT_PF, BONE_PILE_PF, DEN_RUBBLE_PF, FUNGUS_PATCH_PF, FIRE_VENT_PF, ASH_PATCH_PF, OLD_RUBBLE_PF,
+			LAKE_CLAY_PF, LAKE_CATTAILS_PF, LILY_PADS_PF, SHORE_SAND_PF, SHORE_REEDS_PF, SHORE_FLOWERS_PF,
+			SETTLEMENT_PATHS_PF, SUMMIT_SOIL_PF, SUMMIT_MOSS_PF, SUMMIT_SCREE_PF, SUMMIT_TREES_PF);
+
+	/**
+	 * Splits the summit's exposed rock from its scree. Coarse enough that a patch reads as a slope rather than as
+	 * speckle, and read per block by the surface rule, so it mottles a cliff face instead of banding it.
+	 */
+	public static final ResourceKey<NormalNoise.NoiseParameters> SUMMIT_SURFACE =
+			ResourceKey.create(Registries.NOISE, GensokyoLegacy.loc("summit_surface"));
 
 	/** One biome's custom features, split by the decoration step each group runs in. */
 	public record Tail(List<ResourceKey<PlacedFeature>> vegetation, List<ResourceKey<PlacedFeature>> soil,
@@ -132,6 +162,12 @@ public class GensokyoBiomeFeatures {
 	public static final Tail ANIMAL_REALM = new Tail(tail(), tail(), tail(DEN_RUBBLE_PF, FUNGUS_PATCH_PF));
 	public static final Tail BLAZING_FIRES = new Tail(tail(), tail(), tail(FIRE_VENT_PF, ASH_PATCH_PF));
 	public static final Tail FORMER_HELL = new Tail(tail(), tail(), tail(OLD_RUBBLE_PF));
+	public static final Tail MISTY_LAKE = new Tail(tail(LAKE_CLAY_PF, LAKE_CATTAILS_PF, LILY_PADS_PF), tail(), tail());
+	public static final Tail MISTY_LAKE_SHORE = new Tail(
+			tail(STONES_PF, SHORE_SAND_PF, SHORE_REEDS_PF, SHORE_FLOWERS_PF), tail(), tail());
+	public static final Tail TENGU_SETTLEMENT = new Tail(tail(FOOTHILL_MOSS_PF, SETTLEMENT_PATHS_PF), tail(), tail());
+	public static final Tail SUMMIT = new Tail(
+			tail(SUMMIT_SOIL_PF, SUMMIT_MOSS_PF, SUMMIT_SCREE_PF, SUMMIT_TREES_PF), tail(), tail());
 
 	/**
 	 * The tail of one biome, checked against {@link #ORDER} rather than trusted: a biome that lists its features out of
@@ -147,6 +183,11 @@ public class GensokyoBiomeFeatures {
 			previous = index;
 		}
 		return list;
+	}
+
+	/** Called from {@code GLFeatureGen}, which owns the single {@link Registries#NOISE} bootstrap. */
+	public static void noise(BootstrapContext<NormalNoise.NoiseParameters> ctx) {
+		ctx.register(SUMMIT_SURFACE, new NormalNoise.NoiseParameters(-5, 1.0, 1.0));
 	}
 
 	public static void configured(BootstrapContext<ConfiguredFeature<?, ?>> ctx) {
@@ -206,6 +247,35 @@ public class GensokyoBiomeFeatures {
 		FeatureUtils.register(ctx, OLD_RUBBLE, Feature.RANDOM_PATCH, onStone(16, new Palette()
 				.add(Blocks.CRACKED_STONE_BRICKS, 3).add(Blocks.MOSSY_COBBLESTONE, 2)
 				.add(Blocks.BRICKS, 2).add(Blocks.GRAVEL, 1).build()));
+
+		var cattail = GLNaturalBlocks.FLAME_CATTAIL.get().defaultBlockState();
+		// the lakebed is sand and gravel under the surface rule, so these two sit on those and not on BlockTags.DIRT
+		FeatureUtils.register(ctx, LAKE_CLAY, Feature.RANDOM_PATCH, onGround(14, new Palette()
+				.add(Blocks.CLAY, 3).add(Blocks.GRAVEL, 2).add(Blocks.MUD, 1).build(),
+				Blocks.SAND, Blocks.GRAVEL, Blocks.CLAY, Blocks.DIRT));
+		FeatureUtils.register(ctx, LAKE_CATTAILS, Feature.RANDOM_PATCH, onGround(10, new Palette()
+				.add(cattail, 3).add(Blocks.SUGAR_CANE, 1).build(),
+				Blocks.SAND, Blocks.GRAVEL, Blocks.DIRT, Blocks.GRASS_BLOCK, Blocks.CLAY, Blocks.MUD));
+		FeatureUtils.register(ctx, SHORE_SAND, Feature.RANDOM_PATCH, onGround(18, new Palette()
+				.add(Blocks.SAND, 3).add(Blocks.GRAVEL, 2).add(Blocks.MUD, 2).add(Blocks.COARSE_DIRT, 1).build(),
+				Blocks.SAND, Blocks.GRAVEL, Blocks.DIRT, Blocks.GRASS_BLOCK, Blocks.CLAY));
+		FeatureUtils.register(ctx, SHORE_FLOWERS, Feature.RANDOM_PATCH, onDirt(24, new Palette()
+				.add(GLNaturalBlocks.BRACKEN, 3).add(Blocks.FERN, 2).add(Blocks.LILY_OF_THE_VALLEY, 2)
+				.add(Blocks.OXEYE_DAISY, 2).add(Blocks.SHORT_GRASS, 2).build()));
+		// paths are a feature and not a surface rule, so that they stay patchy and walkable instead of painting a biome
+		FeatureUtils.register(ctx, SETTLEMENT_PATHS, Feature.RANDOM_PATCH, onDirt(14, new Palette()
+				.add(Blocks.GRAVEL, 3).add(Blocks.COARSE_DIRT, 3).add(Blocks.COBBLESTONE, 2)
+				.add(Blocks.MOSSY_COBBLESTONE, 1).build()));
+		FeatureUtils.register(ctx, SUMMIT_MOSS, Feature.RANDOM_PATCH, onStone(20, new Palette()
+				.add(Blocks.MOSS_CARPET, 3).add(Blocks.GLOW_LICHEN, 2).build()));
+		FeatureUtils.register(ctx, SUMMIT_SCREE, Feature.RANDOM_PATCH, onStone(18, new Palette()
+				.add(Blocks.GRAVEL, 3).add(Blocks.ANDESITE, 2).add(Blocks.DIORITE, 1).add(Blocks.COBBLESTONE, 1).build()));
+		// halfHeight 0: only the top block of the column turns to grass, so a soil pocket has dirt under it rather
+		// than a floating slab. This is the summit's "gentle ledges and soil pockets", since the surface rule leaves
+		// the pockets to it rather than spending a second noise on grass
+		FeatureUtils.register(ctx, SUMMIT_SOIL_DISK, Feature.DISK, new DiskConfiguration(
+				RuleBasedBlockStateProvider.simple(Blocks.GRASS_BLOCK),
+				BlockPredicate.matchesTag(BlockTags.BASE_STONE_OVERWORLD), UniformInt.of(2, 4), 0));
 	}
 
 	public static void placed(BootstrapContext<PlacedFeature> ctx) {
@@ -245,6 +315,21 @@ public class GensokyoBiomeFeatures {
 				RarityFilter.onAverageOnceEvery(5), InSquarePlacement.spread(),
 				SurfaceWaterDepthFilter.forMaxDepth(0),
 				PlacementUtils.HEIGHTMAP_WORLD_SURFACE, BiomeFilter.biome());
+
+		cover(ctx, LAKE_CLAY_PF, cf.getOrThrow(LAKE_CLAY), CountPlacement.of(2));
+		cover(ctx, LAKE_CATTAILS_PF, cf.getOrThrow(LAKE_CATTAILS), RarityFilter.onAverageOnceEvery(3));
+		// vanilla's lily pad *configured* feature, which already knows it needs water under it, behind a placed feature
+		// of our own: a vanilla placed feature has a fixed position in vanilla's chains, and appending one to a tail is
+		// a cycle waiting for a biome that already uses it mid-chain
+		cover(ctx, LILY_PADS_PF, cf.getOrThrow(VegetationFeatures.PATCH_WATERLILY), RarityFilter.onAverageOnceEvery(3));
+		cover(ctx, SHORE_SAND_PF, cf.getOrThrow(SHORE_SAND), CountPlacement.of(4));
+		cover(ctx, SHORE_REEDS_PF, cf.getOrThrow(LAKE_CATTAILS), CountPlacement.of(3));
+		cover(ctx, SHORE_FLOWERS_PF, cf.getOrThrow(SHORE_FLOWERS), CountPlacement.of(3));
+		cover(ctx, SETTLEMENT_PATHS_PF, cf.getOrThrow(SETTLEMENT_PATHS), RarityFilter.onAverageOnceEvery(4));
+		cover(ctx, SUMMIT_SOIL_PF, cf.getOrThrow(SUMMIT_SOIL_DISK), CountPlacement.of(2));
+		cover(ctx, SUMMIT_MOSS_PF, cf.getOrThrow(SUMMIT_MOSS), CountPlacement.of(4));
+		cover(ctx, SUMMIT_SCREE_PF, cf.getOrThrow(SUMMIT_SCREE), CountPlacement.of(4));
+		cover(ctx, SUMMIT_TREES_PF, cf.getOrThrow(TreeFeatures.PINE), RarityFilter.onAverageOnceEvery(16));
 	}
 
 	/**
@@ -276,6 +361,16 @@ public class GensokyoBiomeFeatures {
 		return FeatureUtils.simpleRandomPatchConfiguration(tries, PlacementUtils.filtered(Feature.SIMPLE_BLOCK,
 				new SimpleBlockConfiguration(state), BlockPredicate.allOf(BlockPredicate.ONLY_IN_AIR_PREDICATE,
 						BlockPredicate.matchesTag(Direction.DOWN.getNormal(), BlockTags.DIRT))));
+	}
+
+	/**
+	 * The same, but on a named set of ground blocks. The Misty Lake pair needs it because the lake's surface rule makes
+	 * the bed sand and gravel, neither of which is in {@link BlockTags#DIRT}.
+	 */
+	private static RandomPatchConfiguration onGround(int tries, BlockStateProvider state, Block... ground) {
+		return FeatureUtils.simpleRandomPatchConfiguration(tries, PlacementUtils.filtered(Feature.SIMPLE_BLOCK,
+				new SimpleBlockConfiguration(state), BlockPredicate.allOf(BlockPredicate.ONLY_IN_AIR_PREDICATE,
+						BlockPredicate.matchesBlocks(ground))));
 	}
 
 	/**

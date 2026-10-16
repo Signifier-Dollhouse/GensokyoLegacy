@@ -5,17 +5,19 @@
       "minecraft:cave_extra_underground"
     ]
   },
-  "downfall": 0.5,
+  "downfall": 0.3,
   "effects": {
-    "fog_color": 12638463,
+    "fog_color": 11056324,
+    "foliage_color": 8030820,
+    "grass_color": 9083506,
     "mood_sound": {
       "block_search_extent": 8,
       "offset": 2.0,
       "sound": "minecraft:ambient.cave",
       "tick_delay": 6000
     },
-    "sky_color": 8103167,
-    "water_color": 4159204,
+    "sky_color": 8168703,
+    "water_color": 4157309,
     "water_fog_color": 329011
   },
   "features": [
@@ -62,25 +64,22 @@
       "minecraft:underwater_magma",
       "minecraft:disk_sand",
       "minecraft:disk_clay",
-      "minecraft:disk_gravel"
+      "minecraft:disk_gravel",
+      "minecraft:ore_emerald"
     ],
-    [],
+    [
+      "minecraft:ore_infested"
+    ],
     [
       "minecraft:spring_water",
       "minecraft:spring_lava"
     ],
     [
       "minecraft:glow_lichen",
-      "minecraft:trees_water",
-      "minecraft:flower_default",
-      "minecraft:patch_grass_badlands",
-      "minecraft:brown_mushroom_normal",
-      "minecraft:red_mushroom_normal",
-      "minecraft:patch_sugar_cane",
-      "minecraft:patch_pumpkin",
-      "minecraft:seagrass_normal",
-      "minecraft:seagrass_simple",
-      "minecraft:kelp_cold"
+      "gensokyolegacy:gensokyo_biome/summit_soil",
+      "gensokyolegacy:gensokyo_biome/summit_moss",
+      "gensokyolegacy:gensokyo_biome/summit_scree",
+      "gensokyolegacy:gensokyo_biome/summit_trees"
     ],
     [
       "minecraft:freeze_top_layer"
@@ -98,7 +97,20 @@
       }
     ],
     "axolotls": [],
-    "creature": [],
+    "creature": [
+      {
+        "type": "minecraft:goat",
+        "maxCount": 3,
+        "minCount": 1,
+        "weight": 5
+      },
+      {
+        "type": "minecraft:sheep",
+        "maxCount": 4,
+        "minCount": 2,
+        "weight": 4
+      }
+    ],
     "misc": [],
     "monster": [
       {
@@ -148,12 +160,6 @@
         "maxCount": 1,
         "minCount": 1,
         "weight": 5
-      },
-      {
-        "type": "minecraft:drowned",
-        "maxCount": 1,
-        "minCount": 1,
-        "weight": 5
       }
     ],
     "underground_water_creature": [
@@ -164,28 +170,8 @@
         "weight": 10
       }
     ],
-    "water_ambient": [
-      {
-        "type": "minecraft:cod",
-        "maxCount": 6,
-        "minCount": 3,
-        "weight": 10
-      }
-    ],
-    "water_creature": [
-      {
-        "type": "minecraft:squid",
-        "maxCount": 4,
-        "minCount": 1,
-        "weight": 1
-      },
-      {
-        "type": "minecraft:dolphin",
-        "maxCount": 2,
-        "minCount": 1,
-        "weight": 1
-      }
-    ]
+    "water_ambient": [],
+    "water_creature": []
   },
-  "temperature": 0.5
+  "temperature": 0.4
 }

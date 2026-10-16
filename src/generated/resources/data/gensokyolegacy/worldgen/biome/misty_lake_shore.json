@@ -5,23 +5,19 @@
       "minecraft:cave_extra_underground"
     ]
   },
-  "downfall": 0.3,
+  "downfall": 0.7,
   "effects": {
-    "fog_color": 12638463,
+    "fog_color": 10272972,
+    "foliage_color": 7116378,
+    "grass_color": 8235107,
     "mood_sound": {
       "block_search_extent": 8,
       "offset": 2.0,
       "sound": "minecraft:ambient.cave",
       "tick_delay": 6000
     },
-    "music": {
-      "max_delay": 24000,
-      "min_delay": 12000,
-      "replace_current_music": false,
-      "sound": "minecraft:music.overworld.stony_peaks"
-    },
-    "sky_color": 7776511,
-    "water_color": 4159204,
+    "sky_color": 8168703,
+    "water_color": 3833740,
     "water_fog_color": 329011
   },
   "features": [
@@ -68,12 +64,9 @@
       "minecraft:underwater_magma",
       "minecraft:disk_sand",
       "minecraft:disk_clay",
-      "minecraft:disk_gravel",
-      "minecraft:ore_emerald"
+      "minecraft:disk_gravel"
     ],
-    [
-      "minecraft:ore_infested"
-    ],
+    [],
     [
       "minecraft:spring_water",
       "minecraft:spring_lava"
@@ -85,7 +78,11 @@
       "minecraft:brown_mushroom_normal",
       "minecraft:red_mushroom_normal",
       "minecraft:patch_sugar_cane",
-      "minecraft:patch_pumpkin"
+      "minecraft:patch_pumpkin",
+      "gensokyolegacy:gensokyo_biome/stones",
+      "gensokyolegacy:gensokyo_biome/shore_sand",
+      "gensokyolegacy:gensokyo_biome/shore_reeds",
+      "gensokyolegacy:gensokyo_biome/shore_flowers"
     ],
     [
       "minecraft:freeze_top_layer"
@@ -103,7 +100,38 @@
       }
     ],
     "axolotls": [],
-    "creature": [],
+    "creature": [
+      {
+        "type": "minecraft:sheep",
+        "maxCount": 4,
+        "minCount": 4,
+        "weight": 12
+      },
+      {
+        "type": "minecraft:pig",
+        "maxCount": 4,
+        "minCount": 4,
+        "weight": 10
+      },
+      {
+        "type": "minecraft:chicken",
+        "maxCount": 4,
+        "minCount": 4,
+        "weight": 10
+      },
+      {
+        "type": "minecraft:cow",
+        "maxCount": 4,
+        "minCount": 4,
+        "weight": 8
+      },
+      {
+        "type": "minecraft:fox",
+        "maxCount": 4,
+        "minCount": 2,
+        "weight": 4
+      }
+    ],
     "misc": [],
     "monster": [
       {
@@ -163,8 +191,15 @@
         "weight": 10
       }
     ],
-    "water_ambient": [],
+    "water_ambient": [
+      {
+        "type": "minecraft:salmon",
+        "maxCount": 5,
+        "minCount": 2,
+        "weight": 10
+      }
+    ],
     "water_creature": []
   },
-  "temperature": 1.0
+  "temperature": 0.4
 }

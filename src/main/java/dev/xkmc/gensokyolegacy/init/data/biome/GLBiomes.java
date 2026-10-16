@@ -68,31 +68,23 @@ public class GLBiomes {
 	public static final ResourceKey<Biome> ANIMAL_REALM = biome("animal_realm");
 	public static final ResourceKey<Biome> HELL_OF_BLAZING_FIRES = biome("hell_of_blazing_fires");
 	public static final ResourceKey<Biome> FORMER_HELL = biome("former_hell");
+	// the four fixed locations of `gensokyolegacy_fixed_biomes_guide.md`, one per water-level or high-altitude band
+	public static final ResourceKey<Biome> MISTY_LAKE = biome("misty_lake");
+	public static final ResourceKey<Biome> MISTY_LAKE_SHORE = biome("misty_lake_shore");
+	public static final ResourceKey<Biome> TENGU_SETTLEMENT = biome("tengu_settlement");
+	public static final ResourceKey<Biome> YOUKAI_MOUNTAIN_SUMMIT = biome("youkai_mountain_summit");
 
-	/**
-	 * Vanilla biomes copied under the mod namespace, byte for byte identical to their vanilla counterpart.
-	 * <p>
-	 * The Gensokyo dimension uses these instead of the vanilla ones. Structure placement asks the biome whether a
-	 * structure may generate ({@code #minecraft:has_structure/*} tags on the structure), so a dimension built on
-	 * {@code gensokyolegacy:plains} cannot host {@code minecraft:village_plains}, while the terrain looks the same.
-	 */
-	public static final ResourceKey<Biome> BEACH = biome("beach");
-	public static final ResourceKey<Biome> OCEAN = biome("ocean");
 	public static final ResourceKey<Biome> SUNFLOWER_PLAINS = biome("sunflower_plains");
-	public static final ResourceKey<Biome> GROVE = biome("grove");
+
+	private static final Map<ResourceKey<Biome>, ResourceKey<Biome>> COPIES =
+			Map.of(Biomes.SUNFLOWER_PLAINS, SUNFLOWER_PLAINS);
 
 	/**
-	 * Not a straight copy: {@link Biomes#STONY_PEAKS} supplies the climate, effects and spawns and
-	 * {@link Biomes#STONY_SHORE} is unioned in for its features and carvers. Not in {@link #COPIES}.
+	 * {@code minecraft:trees_water} on a freshwater lake: mangrove and dark oak water trees are a swamp signal, and the
+	 * guide asks for a lake that does not read as one. Dropped from the copy rather than filtered at placement, so it
+	 * is absent from the biome's own feature list too.
 	 */
-	public static final ResourceKey<Biome> PEAK = biome("peak");
-
-	private static final Map<ResourceKey<Biome>, ResourceKey<Biome>> COPIES = Map.ofEntries(
-			Map.entry(Biomes.BEACH, BEACH),
-			Map.entry(Biomes.OCEAN, OCEAN),
-			Map.entry(Biomes.SUNFLOWER_PLAINS, SUNFLOWER_PLAINS),
-			Map.entry(Biomes.GROVE, GROVE)
-	);
+	private static final ResourceKey<PlacedFeature> DROP_WATER_TREES = VegetationPlacements.TREES_WATER;
 
 	/**
 	 * Bootstrapped lazily, this builds every vanilla worldgen registry and is far too heavy for class loading.
@@ -124,11 +116,10 @@ public class GLBiomes {
 			));
 			var vanilla = VANILLA.get().lookupOrThrow(Registries.BIOME);
 			registerTouhouBiomes(ctx, vanilla, pf, carvers);
+			registerFixedBiomes(ctx, vanilla, pf, carvers);
 			for (var copy : COPIES.entrySet()) {
 				ctx.register(copy.getValue(), copyOf(vanilla.getOrThrow(copy.getKey()).value(), null, pf, carvers));
 			}
-			ctx.register(PEAK, copyOf(vanilla.getOrThrow(Biomes.STONY_PEAKS).value(),
-					vanilla.getOrThrow(Biomes.STONY_SHORE).value(), pf, carvers));
 		});
 
 		init.add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, ctx -> {
@@ -255,13 +246,76 @@ public class GLBiomes {
 	}
 
 	/**
+	 * The four fixed locations of {@code gensokyolegacy_fixed_biomes_guide.md}. They are not a fifth through eighth band
+	 * of the climate grid: each one takes the whole plane of a single height band, so what picks them is
+	 * continentalness and nothing else. Misty Lake is the drowned set, its shore is the strip above the waterline, and
+	 * the settlement and the summit are the two bands above the mountain.
+	 * <p>
+	 * Misty Lake is built on {@code minecraft:river} rather than {@code minecraft:ocean}, and drops
+	 * {@link #DROP_WATER_TREES} besides: both carry water trees, and mangroves in a freshwater lake would make it read
+	 * as exactly the swamp the guide rules out.
+	 */
+	private static void registerFixedBiomes(BootstrapContext<Biome> ctx, HolderGetter<Biome> vanilla,
+											HolderGetter<PlacedFeature> pf, HolderGetter<ConfiguredWorldCarver<?>> carvers) {
+		// a broad open lake: squid and salmon, no drowned mobs, because there is nothing here to drown in
+		var lakeSpawns = new MobSpawnSettings.Builder();
+		BiomeDefaultFeatures.caveSpawns(lakeSpawns);
+		BiomeDefaultFeatures.monsters(lakeSpawns, 95, 5, 100, false);
+		lakeSpawns.addSpawn(MobCategory.WATER_CREATURE, new MobSpawnSettings.SpawnerData(EntityType.SQUID, 5, 1, 4))
+				.addSpawn(MobCategory.WATER_AMBIENT, new MobSpawnSettings.SpawnerData(EntityType.SALMON, 20, 3, 8));
+		ctx.register(MISTY_LAKE, touhou(vanilla.getOrThrow(Biomes.RIVER).value(), pf, carvers,
+				GensokyoBiomeFeatures.MISTY_LAKE, lakeSpawns, true, 0.3f, 0.9f, 0x3a7f8c, 0x86b4c8, 0x6f9c74, 0x5f8a66,
+				Set.of(DROP_WATER_TREES)));
+
+		// Cirno's ground: farm animals and a lot of ducks, not wolves
+		var shoreSpawns = new MobSpawnSettings.Builder();
+		BiomeDefaultFeatures.commonSpawns(shoreSpawns);
+		BiomeDefaultFeatures.farmAnimals(shoreSpawns);
+		shoreSpawns.addSpawn(MobCategory.CREATURE, new MobSpawnSettings.SpawnerData(EntityType.FOX, 4, 2, 4))
+				.addSpawn(MobCategory.WATER_AMBIENT, new MobSpawnSettings.SpawnerData(EntityType.SALMON, 10, 2, 5));
+		ctx.register(MISTY_LAKE_SHORE, touhou(vanilla.getOrThrow(Biomes.BEACH).value(), pf, carvers,
+				GensokyoBiomeFeatures.MISTY_LAKE_SHORE, shoreSpawns, true, 0.4f, 0.7f, 0x3a7f8c, 0x9cc0cc, 0x7da863, 0x6c965a));
+
+		// a mountain town: the quiet of the high ground, with goats for the slopes above it
+		var settlementSpawns = new MobSpawnSettings.Builder();
+		BiomeDefaultFeatures.commonSpawns(settlementSpawns);
+		BiomeDefaultFeatures.farmAnimals(settlementSpawns);
+		settlementSpawns.creatureGenerationProbability(0.07f);
+		settlementSpawns.addSpawn(MobCategory.CREATURE, new MobSpawnSettings.SpawnerData(EntityType.GOAT, 4, 1, 3))
+				.addSpawn(MobCategory.CREATURE, new MobSpawnSettings.SpawnerData(EntityType.CHICKEN, 10, 2, 4));
+		ctx.register(TENGU_SETTLEMENT, touhou(vanilla.getOrThrow(Biomes.FOREST).value(), pf, carvers,
+				GensokyoBiomeFeatures.TENGU_SETTLEMENT, settlementSpawns, true, 0.4f, 0.5f, 0x46707d, 0x93a6b8, 0x7a9464, 0x6b8456));
+
+		// the summit. Its declared temperature is floored at what the no-snow rule of the snow line allows, which is
+		// why it does not read as cold; the altitude is carried by the palette instead, in surfaceRules and the tail.
+		var summitSpawns = new MobSpawnSettings.Builder();
+		BiomeDefaultFeatures.commonSpawns(summitSpawns);
+		summitSpawns.addSpawn(MobCategory.CREATURE, new MobSpawnSettings.SpawnerData(EntityType.GOAT, 5, 1, 3))
+				.addSpawn(MobCategory.CREATURE, new MobSpawnSettings.SpawnerData(EntityType.SHEEP, 4, 2, 4));
+		ctx.register(YOUKAI_MOUNTAIN_SUMMIT, touhou(vanilla.getOrThrow(Biomes.STONY_PEAKS).value(), pf, carvers,
+				GensokyoBiomeFeatures.SUMMIT, summitSpawns, true, 0.4f, 0.3f, 0x3f6f7d, 0xa8b4c4, 0x8a9a72, 0x7a8a64));
+	}
+
+	/**
 	 * One guide biome: a vanilla base for its features, and our own everything else.
 	 */
 	private static Biome touhou(Biome base, HolderGetter<PlacedFeature> pf, HolderGetter<ConfiguredWorldCarver<?>> carvers,
 								GensokyoBiomeFeatures.Tail tail, MobSpawnSettings.Builder spawns,
 								boolean hasPrecipitation, float temperature, float downfall, int waterColor, int fogColor,
 								@Nullable Integer grassCol, @Nullable Integer foliageCol) {
-		var generation = generationOf(base, pf, carvers, null);
+		return touhou(base, pf, carvers, tail, spawns, hasPrecipitation, temperature, downfall,
+				waterColor, fogColor, grassCol, foliageCol, Set.of());
+	}
+
+	/**
+	 * The same, minus the listed vanilla features, for the one base whose own vegetation belongs somewhere else.
+	 */
+	private static Biome touhou(Biome base, HolderGetter<PlacedFeature> pf, HolderGetter<ConfiguredWorldCarver<?>> carvers,
+								GensokyoBiomeFeatures.Tail tail, MobSpawnSettings.Builder spawns,
+								boolean hasPrecipitation, float temperature, float downfall, int waterColor, int fogColor,
+								@Nullable Integer grassCol, @Nullable Integer foliageCol,
+								Set<ResourceKey<PlacedFeature>> drop) {
+		var generation = generationOf(base, pf, carvers, null, drop);
 		for (var key : tail.vegetation()) generation.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, key);
 		for (var key : tail.soil()) generation.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, key);
 		for (var key : tail.cave()) generation.addFeature(GenerationStep.Decoration.UNDERGROUND_DECORATION, key);
@@ -291,6 +345,14 @@ public class GLBiomes {
 	private static BiomeGenerationSettings.Builder generationOf(Biome source, HolderGetter<PlacedFeature> placedFeatures,
 															  HolderGetter<ConfiguredWorldCarver<?>> carvers,
 															  @Nullable Biome extra) {
+		return generationOf(source, placedFeatures, carvers, extra, Set.of());
+	}
+
+	/** {@code extra} contributes its features and carvers on top; {@code drop} takes single features back out again. */
+	private static BiomeGenerationSettings.Builder generationOf(Biome source, HolderGetter<PlacedFeature> placedFeatures,
+															  HolderGetter<ConfiguredWorldCarver<?>> carvers,
+															  @Nullable Biome extra,
+															  Set<ResourceKey<PlacedFeature>> drop) {
 		var generation = new BiomeGenerationSettings.Builder(placedFeatures, carvers);
 		GenerationStep.Decoration[] steps = GenerationStep.Decoration.values();
 		var byStep = new LinkedHashMap<GenerationStep.Decoration, Set<ResourceKey<PlacedFeature>>>();
@@ -298,7 +360,9 @@ public class GLBiomes {
 		collect(source, steps, byStep, byStage);
 		if (extra != null) collect(extra, steps, byStep, byStage);
 		for (var entry : byStep.entrySet()) {
-			for (var feature : entry.getValue()) generation.addFeature(entry.getKey(), feature);
+			for (var feature : entry.getValue()) {
+				if (!drop.contains(feature)) generation.addFeature(entry.getKey(), feature);
+			}
 		}
 		for (var entry : byStage.entrySet()) {
 			for (var carver : entry.getValue()) generation.addCarver(entry.getKey(), carver);

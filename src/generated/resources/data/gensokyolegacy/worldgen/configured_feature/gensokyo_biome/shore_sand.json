@@ -1,0 +1,68 @@
+{
+  "type": "minecraft:random_patch",
+  "config": {
+    "feature": {
+      "feature": {
+        "type": "minecraft:simple_block",
+        "config": {
+          "to_place": {
+            "type": "minecraft:weighted_state_provider",
+            "entries": [
+              {
+                "data": {
+                  "Name": "minecraft:sand"
+                },
+                "weight": 3
+              },
+              {
+                "data": {
+                  "Name": "minecraft:gravel"
+                },
+                "weight": 2
+              },
+              {
+                "data": {
+                  "Name": "minecraft:mud"
+                },
+                "weight": 2
+              },
+              {
+                "data": {
+                  "Name": "minecraft:coarse_dirt"
+                },
+                "weight": 1
+              }
+            ]
+          }
+        }
+      },
+      "placement": [
+        {
+          "type": "minecraft:block_predicate_filter",
+          "predicate": {
+            "type": "minecraft:all_of",
+            "predicates": [
+              {
+                "type": "minecraft:matching_blocks",
+                "blocks": "minecraft:air"
+              },
+              {
+                "type": "minecraft:matching_blocks",
+                "blocks": [
+                  "minecraft:sand",
+                  "minecraft:gravel",
+                  "minecraft:dirt",
+                  "minecraft:grass_block",
+                  "minecraft:clay"
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "tries": 18,
+    "xz_spread": 7,
+    "y_spread": 3
+  }
+}
