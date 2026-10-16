@@ -22,13 +22,13 @@
   },
   "features": [
     [],
+    [],
+    [],
+    [],
     [
-      "minecraft:lake_lava_underground",
-      "minecraft:lake_lava_surface"
+      "minecraft:small_basalt_columns",
+      "minecraft:large_basalt_columns"
     ],
-    [],
-    [],
-    [],
     [],
     [
       "minecraft:ore_dirt",
@@ -56,112 +56,36 @@
       "minecraft:ore_lapis",
       "minecraft:ore_lapis_buried",
       "minecraft:ore_copper",
-      "minecraft:underwater_magma",
-      "minecraft:ore_gold_extra",
-      "minecraft:disk_sand",
-      "minecraft:disk_clay",
-      "minecraft:disk_gravel"
+      "minecraft:underwater_magma"
     ],
     [
+      "minecraft:patch_fire",
+      "minecraft:patch_soul_fire",
+      "minecraft:glowstone_extra",
+      "minecraft:glowstone",
+      "minecraft:brown_mushroom_nether",
+      "minecraft:red_mushroom_nether",
+      "minecraft:basalt_blobs",
+      "minecraft:blackstone_blobs",
       "gensokyolegacy:gensokyo_biome/fire_vent",
       "gensokyolegacy:gensokyo_biome/ash_patch"
     ],
     [
       "minecraft:spring_water",
-      "minecraft:spring_lava"
-    ],
-    [
-      "minecraft:glow_lichen",
-      "minecraft:patch_grass_badlands",
-      "minecraft:patch_dead_bush_badlands",
-      "minecraft:brown_mushroom_normal",
-      "minecraft:red_mushroom_normal",
-      "minecraft:patch_sugar_cane_badlands",
-      "minecraft:patch_pumpkin",
-      "minecraft:patch_cactus_decorated"
-    ],
-    [
-      "minecraft:freeze_top_layer"
+      "minecraft:spring_lava",
+      "minecraft:spring_delta",
+      "gensokyolegacy:gensokyo_biome/blazing_hell_lava_spring"
     ]
   ],
   "has_precipitation": true,
   "spawn_costs": {},
   "spawners": {
-    "ambient": [
-      {
-        "type": "minecraft:bat",
-        "maxCount": 8,
-        "minCount": 8,
-        "weight": 10
-      }
-    ],
+    "ambient": [],
     "axolotls": [],
     "creature": [],
     "misc": [],
-    "monster": [
-      {
-        "type": "minecraft:spider",
-        "maxCount": 4,
-        "minCount": 4,
-        "weight": 100
-      },
-      {
-        "type": "minecraft:zombie",
-        "maxCount": 4,
-        "minCount": 4,
-        "weight": 95
-      },
-      {
-        "type": "minecraft:zombie_villager",
-        "maxCount": 1,
-        "minCount": 1,
-        "weight": 5
-      },
-      {
-        "type": "minecraft:skeleton",
-        "maxCount": 4,
-        "minCount": 4,
-        "weight": 100
-      },
-      {
-        "type": "minecraft:creeper",
-        "maxCount": 4,
-        "minCount": 4,
-        "weight": 100
-      },
-      {
-        "type": "minecraft:slime",
-        "maxCount": 4,
-        "minCount": 4,
-        "weight": 100
-      },
-      {
-        "type": "minecraft:enderman",
-        "maxCount": 4,
-        "minCount": 1,
-        "weight": 10
-      },
-      {
-        "type": "minecraft:witch",
-        "maxCount": 1,
-        "minCount": 1,
-        "weight": 5
-      },
-      {
-        "type": "minecraft:magma_cube",
-        "maxCount": 4,
-        "minCount": 2,
-        "weight": 4
-      }
-    ],
-    "underground_water_creature": [
-      {
-        "type": "minecraft:glow_squid",
-        "maxCount": 6,
-        "minCount": 4,
-        "weight": 10
-      }
-    ],
+    "monster": [],
+    "underground_water_creature": [],
     "water_ambient": [],
     "water_creature": []
   },

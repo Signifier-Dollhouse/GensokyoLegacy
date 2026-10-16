@@ -267,31 +267,27 @@ friends. The mod's own structure sets survive because their tags already name `g
 to a vanilla or common biome tag, and the classification tags (`is_forest`, `is_mountain`, …) are
 `gensokyolegacy:` copies rather than the shared ones. See `doc/design/gensokyo_biomes.md` §8.
 
-One is a byte-identical copy of a vanilla biome rebuilt from registry keys, `sunflower_plains`, which is the biome
-guide's own hot humid lower-ground biome and never needed replacing. The other sixteen are the mod's own: the twelve
-band biomes, the two established ones, and the four fixed locations — each a vanilla base with a custom feature tail
-and no vanilla climate at all.
+Every one of the seventeen now writes its feature list out rather than copying it, so there is no copy step left to
+describe: `GLBiomes.Layers` sets the two carvers and each call names its own steps. `sunflower_plains` is the same
+story as the rest now — `plains` plus `patch_sunflower`, written out like every other biome. The two established
+biomes are still left alone. See `doc/design/gensokyo_biomes.md` §1.
 
 ### What every biome drops
 
-Every copy and every base drops `minecraft:canyon`, which `GLBiomes.collect` does. Canyon ravines run far deeper than
-Gensokyo wants.
+Nothing is dropped, because nothing is copied: a feature is in a Gensokyo biome only because a line in `GLBiomes` says
+so. What those lines all leave out, and why:
 
-Three more go, from every biome at once rather than per base, as `GLBiomes.NO_GEODE_NO_SPAWNER`:
-
-| dropped | step | why |
+| left out | step | why |
 |---|---|---|
+| `minecraft:canyon` | carving | canyon ravines run far deeper than Gensokyo wants; only the two cave carvers are set up |
 | `minecraft:amethyst_geode` | `local_modifications` | treasure injected by reference rather than by terrain |
 | `minecraft:monster_room` | `underground_structures` | a spawner, and the dungeon half of one |
 | `minecraft:monster_room_deep` | `underground_structures` | same, deeper |
 
-All three arrive through `globalOverworldGeneration`, which every vanilla overworld biome calls, so they would otherwise
-be in all seventeen. An amethyst geode every few chunks is a lot of treasure for something with no place in Gensokyo's
-economy, and a monster room is difficulty and loot the map never asked for — neither is terrain, and neither can be tuned
-per biome without a biome modifier, which is a worse answer than not having them.
-
-They are dropped from the copied *feature list*, not from the registry: the vanilla entries stay vanilla, and the
-generated json simply stops naming them.
+All three would otherwise have arrived through `globalOverworldGeneration`, which every vanilla overworld biome calls.
+An amethyst geode every few chunks is a lot of treasure for something with no place in Gensokyo's economy, and a
+monster room is difficulty and loot the map never asked for — neither is terrain, and neither could be tuned per biome
+without a biome modifier, which is a worse answer than not having them.
 
 `misty_lake` drops `minecraft:trees_water` on top of those, for the reason in `doc/design/gensokyo_biomes.md` §7.
 

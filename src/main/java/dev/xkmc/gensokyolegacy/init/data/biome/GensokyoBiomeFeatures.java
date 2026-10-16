@@ -8,6 +8,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.data.worldgen.features.FeatureUtils;
+import net.minecraft.data.worldgen.features.NetherFeatures;
 import net.minecraft.data.worldgen.features.TreeFeatures;
 import net.minecraft.data.worldgen.features.VegetationFeatures;
 import net.minecraft.data.worldgen.placement.PlacementUtils;
@@ -111,6 +112,7 @@ public class GensokyoBiomeFeatures {
 	private static final ResourceKey<PlacedFeature> BONE_PILE_PF = pf("bone_pile");
 	private static final ResourceKey<PlacedFeature> DEN_RUBBLE_PF = pf("den_rubble");
 	private static final ResourceKey<PlacedFeature> FUNGUS_PATCH_PF = pf("fungus_patch");
+	public static final ResourceKey<PlacedFeature> BLAZING_HELL_LAVA_PF = pf("blazing_hell_lava_spring");
 	private static final ResourceKey<PlacedFeature> FIRE_VENT_PF = pf("fire_vent");
 	private static final ResourceKey<PlacedFeature> ASH_PATCH_PF = pf("ash_patch");
 	private static final ResourceKey<PlacedFeature> OLD_RUBBLE_PF = pf("old_rubble");
@@ -137,6 +139,7 @@ public class GensokyoBiomeFeatures {
 			HILL_FLOWERS_PF, BAMBOO_DENSE_PF, BAMBOO_SPARSE_PF, RAVINE_MOSS_PF, FOOTHILL_MOSS_PF,
 			SANCTUARY_TREES_PF, SANCTUARY_FLOWERS_PF,
 			BLOOD_DEPOSIT_PF, BONE_PILE_PF, DEN_RUBBLE_PF, FUNGUS_PATCH_PF, FIRE_VENT_PF, ASH_PATCH_PF, OLD_RUBBLE_PF,
+			BLAZING_HELL_LAVA_PF,
 			LAKE_CLAY_PF, LAKE_CATTAILS_PF, LILY_PADS_PF, SHORE_SAND_PF, SHORE_REEDS_PF, SHORE_FLOWERS_PF,
 			SETTLEMENT_PATHS_PF, CLIFF_SCREE_PF,
 			SUMMIT_SOIL_PF, SUMMIT_MOSS_PF, SUMMIT_SCREE_PF, SUMMIT_TREES_PF);
@@ -165,8 +168,7 @@ public class GensokyoBiomeFeatures {
 	public static final Tail ANIMAL_REALM = new Tail(tail(), tail(), tail(DEN_RUBBLE_PF, FUNGUS_PATCH_PF));
 	public static final Tail BLAZING_FIRES = new Tail(tail(), tail(), tail(FIRE_VENT_PF, ASH_PATCH_PF));
 	public static final Tail FORMER_HELL = new Tail(tail(), tail(), tail(OLD_RUBBLE_PF));
-	/** Empty: the deep dark base already grows sculk, and a hall of bare rock needs nothing laid on it. */
-	public static final Tail MOUNTAIN_INTERIOR = new Tail(tail(), tail(), tail());
+	/** Empty: a hall of bare rock needs nothing laid on it. Was deep dark's sculk once; see {@code GLBiomes}. */
 	public static final Tail MISTY_LAKE = new Tail(tail(LAKE_CLAY_PF, LAKE_CATTAILS_PF, LILY_PADS_PF), tail(), tail());
 	public static final Tail MISTY_LAKE_SHORE = new Tail(
 			tail(STONES_PF, SHORE_SAND_PF, SHORE_REEDS_PF, SHORE_FLOWERS_PF), tail(), tail());
@@ -318,6 +320,14 @@ public class GensokyoBiomeFeatures {
 				RarityFilter.onAverageOnceEvery(4));
 
 		deposit(ctx, BLOOD_DEPOSIT_PF, cf.getOrThrow(BLOOD_DEPOSIT), CountPlacement.of(3));
+		// A lava spring, and the reason it is its own placed feature rather than vanilla's `spring_lava`. The
+		// overworld one will not place a single block in the hell biomes: its `valid_blocks` are stone, granite,
+		// diorite, andesite, deepslate, tuff, calcite and dirt, and their floors are netherrack, blackstone, magma
+		// and basalt. The nether spring's valid blocks are netherrack, soul sand, gravel, magma and blackstone,
+		// which is two thirds of what the blazing fires stand on.
+		PlacementUtils.register(ctx, BLAZING_HELL_LAVA_PF, cf.getOrThrow(NetherFeatures.SPRING_LAVA_NETHER),
+				CountPlacement.of(6), InSquarePlacement.spread(),
+				PlacementUtils.RANGE_BOTTOM_TO_MAX_TERRAIN_HEIGHT, BiomeFilter.biome());
 		deposit(ctx, BONE_PILE_PF, cf.getOrThrow(BONE_PILE), RarityFilter.onAverageOnceEvery(6));
 		deposit(ctx, DEN_RUBBLE_PF, cf.getOrThrow(DEN_RUBBLE), RarityFilter.onAverageOnceEvery(5));
 		deposit(ctx, FUNGUS_PATCH_PF, cf.getOrThrow(FUNGUS_PATCH), CountPlacement.of(4));

@@ -38,6 +38,7 @@ import net.minecraft.world.level.levelgen.Noises;
 import net.minecraft.world.level.levelgen.SurfaceRules;
 import net.minecraft.world.level.levelgen.SurfaceRules.ConditionSource;
 import net.minecraft.world.level.levelgen.SurfaceRules.RuleSource;
+import net.minecraft.world.level.levelgen.VerticalAnchor;
 import net.minecraft.world.level.levelgen.placement.CaveSurface;
 import net.minecraft.world.level.levelgen.synth.NormalNoise;
 
@@ -277,11 +278,17 @@ public class GensokyoDimension {
 	 * <p>
 	 * The four underground branches are the opposite shape. They key on the biome alone and claim the whole column,
 	 * floor included, so they have to be complete — an unfinished palette would swallow the deepslate the overworld
-	 * tree would otherwise have put there. That is safe because the underground rows of the climate grid only win
-	 * about 128 blocks below the surface, so no surface position is ever one of those biomes.
+	 * tree would otherwise have put there. Claiming the floor is safe only because the bedrock rule is asked first:
+	 * see the first entry of the sequence.
 	 */
 	private static RuleSource surfaceRules() {
 		return SurfaceRules.sequence(
+				// Vanilla's bedrock floor, hoisted to the front. It is the first rule of SurfaceRuleData.overworld(), so
+				// every branch below used to shadow it, and the four underground branches claim a whole column — the
+				// world bottom of a mountain_interior column came out stone and the other three netherrack or brick.
+				// Nothing else in the sequence moves by putting it here; it is the same rule, asked first.
+				SurfaceRules.ifTrue(SurfaceRules.verticalGradient("bedrock_floor", VerticalAnchor.bottom(),
+						VerticalAnchor.aboveBottom(5)), SurfaceRules.state(Blocks.BEDROCK.defaultBlockState())),
 				SurfaceRules.ifTrue(SurfaceRules.isBiome(GLBiomes.MISTY_LAKE, GLBiomes.MISTY_LAKE_SHORE),
 						SurfaceRules.sequence(
 								// the bed itself, and a steep bank cut into it

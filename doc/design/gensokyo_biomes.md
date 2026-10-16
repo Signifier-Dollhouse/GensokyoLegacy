@@ -7,7 +7,7 @@ were already there (`magical_forest`, `sakura_forest`), and the four fixed locat
 
 The seventeen split four ways:
 
-- **twelve band biomes** (§1) — the guide's lower ground / upper ground / Mountain / Underground, one vanilla base each.
+- **twelve band biomes** (§1) — the guide's lower ground / upper ground / Mountain / Underground, each with its own written-out feature list.
 - **two established** — `magical_forest` and `sakura_forest`, which predate this and are left alone.
 - **four fixed locations** (§7) — Misty Lake, its shore, the Tengu Settlement and the summit above it.
 - **one split** — `secret_heaven_cliff`, the dry half of the settlement's band (§7).
@@ -40,43 +40,81 @@ biome with precipitation off, because a dry barrens should not rain.
 
 ---
 
-## 1. The construction rule: a vanilla base plus a tail
+## 1. The construction rule: a written-out list plus a tail
 
-No new biome is built from scratch. Each one copies the features of a vanilla biome that already has the right terrain,
-carvers, ores and decoration, then appends a short custom tail. `GLBiomes.touhou` and `GLBiomes.generationOf` do
-that; `GLBiomes.copyOf` is the same machinery for a biome that keeps vanilla's climate too.
+No biome is built from scratch, but none of them is copied from a vanilla biome any more either. Each one **writes out
+its own features, step by step**, in the call that registers it, and takes a short custom tail at the end of the step
+it belongs to. `GLBiomes.Layers` is the whole mechanism; the shared runs it draws on (`OVERWORLD_ORES`, `PLAINS_GROUND`,
+`NETHER_COMMON`, …) are named by what they are.
+
+This replaced a vanilla base per biome, and the reason was not tidiness. Copying `minecraft:deep_dark` wholesale is how
+`mountain_interior` ended up growing `sculk_vein` and `sculk_patch_deep_dark`: nobody asked for sculk, it arrived
+because the base was the nearest thing with the right weight of quiet rock, and there was no line in the source that
+could be edited to remove it. The only way to see a biome's features was to know which vanilla biome it was standing
+on.
 
 Two consequences, both load-bearing:
 
-- **The base must be read through `VanillaRegistries.createLookup()`, not reused.** A holder owned by another provider
-  fails `canSerializeIn` at write time.
+- **A vanilla name in a comment is a reason, not a source.** Where a list was transcribed from a vanilla biome, the
+  biome is named so a reader can go and check what was taken and what was left.
 - **The tail goes strictly after every vanilla feature, never between two of them.** See §3.
 
-The base only ever supplies *features*. Climate, colours and spawns are spelled out per biome, because a copy of
-`minecraft:forest` that keeps `minecraft:forest`'s sky colour is not a Muenzuka.
+Climate, colours and features are all spelled out per biome, because a copy of `minecraft:forest` that keeps
+`minecraft:forest`'s sky colour is not a Muenzuka. **Spawns are empty in every biome**: natural spawning in Gensokyo
+belongs to the mod's own entities, added by the `plain_fairy` biome modifier, not to a vanilla spawn table copied in
+beside them.
 
-What a base is *not* allowed to keep is listed in `gensokyo_dimension.md` §5: the canyon carver, the amethyst geode and
-the two monster rooms go from every biome, and `misty_lake` loses the water trees besides.
-
-| biome | base | why that base |
+| biome | features after | why |
 |---|---|---|
 | `muenzuka` | `forest` | deciduous canopy, dark forest floor to break up with podzol |
 | `human_village` | `plains` | open, already tilled-looking, plus its pumpkin and sugar cane patches |
-| `myouren_temple_barrens` | `badlands` | the dry dead-bush and coarse-dirt look, and the quiet spawn weighting |
+| `myouren_temple_barrens` | `badlands` | the dry dead-bush and coarse-dirt look |
 | `bamboo_forest_of_the_lost` | `snowy_taiga` | spruce understorey, so the grove reads as a winter one — though the biome itself no longer snows, §6 |
 | `hill_of_the_nameless` | `meadow` | open flowered hill with no canopy to hide in |
 | `untrodden_valley` | `taiga` | conifers, ferns, already cold |
 | `genbu_ravine` | `swamp` | the clay disk and reeds read as wet banks, and the lily pads work underwater |
 | `youkai_mountain_foothills` | `windswept_hills` | sparse oak on gravelly ground |
 | `sanctuary` | `meadow` | meadow's own sparse birch reads as a deliberate grove |
-| `hell_of_blood_pools` | `swamp` | reeds and lily pads are what a pool basin wants |
-| `animal_realm` | `lush_caves` | dense overgrowth and dripping water already cave-shaped |
-| `hell_of_blazing_fires` | `badlands` | scorched, dry, and already carries lava lakes |
-| `former_hell` | `dripstone_caves` | plain stone and dripstone, so the masonry has something to sit on |
+| `hell_of_blood_pools` | `soul_sand_valley` | a basin of souls is the one nether pool; basalt pillars stand it up off the floor |
+| `animal_realm` | `warped_forest` | the one nether biome that is mostly growth, which is what a realm of animals is buried in |
+| `hell_of_blazing_fires` | `basalt_deltas` | basalt columns and blobs off the floor make a hall a delta rather than a cave |
+| `former_hell` | `crimson_forest` | roots and vines growing back through a ruin is the whole idea of the place |
 
-The four fixed locations have their own bases and their own section, §7.
+The four underground biomes keep the overworld ore set and `NETHER_COMMON` — fire, soul fire, glowstone, the two
+nether mushrooms — and take the rest of their nether biome, less that biome's **ores**. Those are deliberately absent:
+the nether ores are placed against the nether's own 0…128 column and copied verbatim they land at y 5…41, nowhere
+near the underground biomes, which sit at y 64…195. The overworld ore set replaces them.
 
-`sunflower_plains` stays the copy it was — the guide names it, and it is the hot humid corner of the lower ground.
+The nether **springs** are dropped for the same reason of clutter, with one exception. `spring_open` puts lava wherever
+a cave has a floor, which is what the nether wants and Gensokyo does not. `spring_delta` is not that: it is the deltas'
+lava *surface*, the one feature that makes a biome of basalt a lava biome at all, so `hell_of_blazing_fires` keeps it
+as `DELTA_LAVA`. Without it the blazing fires are hot-looking rock — the surface rule only gives that biome
+`magma_block`, which glows but does not flow.
+
+### A spring that works on nether rock
+
+`SPRINGS` gives every underground biome vanilla's overworld `spring_lava` and `spring_water`, and in the four hell
+biomes **neither places a single block**. `SpringFeature` refuses unless the block above *and* the one below is in
+its `valid_blocks`, and that list is stone, granite, diorite, andesite, deepslate, tuff, calcite and dirt — while the
+hell palettes are netherrack, blackstone, crimson nylium, magma, basalt, packed mud and stone brick. They work in
+`mountain_interior`, whose whole column is stone, and nowhere else.
+
+That is why the blazing fires carry a second one, `gensokyolegacy:blazing_hell_lava_spring`: vanilla's
+`spring_lava_nether`, whose valid blocks are netherrack, soul sand, gravel, magma and blackstone — two thirds of what
+that biome stands on. It still will not place on basalt, so lava collects on the blackstone and magma of the palette
+and not the basalt between them.
+
+Note that even where `SPRINGS` does work, `spring_lava_overworld`'s height range is
+`very_biased_to_bottom(0, below_top 8)`. In a −64…320 world that biases to the world floor, well below the y 64…195
+band, so it contributes little lava inside these biomes. It is there for the caves below them, not for the halls.
+
+The four fixed locations have their own lists and their own section, §7.
+
+`sunflower_plains` is the hot humid corner of the lower ground, `plains` plus `patch_sunflower`. It is also the one
+biome that keeps **vanilla's** climate and special effects rather than Gensokyo's: temperature 0.8, downfall 0.4, water
+`#3F76E4`, fog `#C0D8FF`, sky `#78A7FF`, and no grass or foliage override. It was a verbatim vanilla copy until the
+feature lists were written out, and a sunflower field is a plains — nothing about sunflowers changes what the grass
+looks like. Only its features are ours.
 There is no snowy biome: the guide gives a band its four, and the one genuinely cold cell of the whole dimension is
 `bamboo_forest_of_the_lost`, which is snow-covered anyway.
 
@@ -275,10 +313,15 @@ The fifth rock band, and the only one that is not a climate region: a single cel
 humidity plane at continentalness `[0.50, 1.00]`, depth `[0.30, 0.53]`. It is the rock between the surface and the
 underground — under the mountain, and nowhere else.
 
-It is built on `Biomes.DEEP_DARK` with an **empty** tail, and its surface rule is plain `stone` over the whole column:
-the band never has a floor of its own to grade into, so there is nothing for deepslate to blend towards. Spawns are
-vanilla's cave set plus monsters weighted 95% / 5% across a 100-block radius, and the temperature range is
-`[0.6, 0.8]`.
+It is `minecraft:stony_peaks`' feature list — the mountain's own rock is overworld rock, not nether rock: its ore set,
+its emerald, `ore_infested`, its lava lakes and its glow lichen — with an **empty** tail. It used to be built on
+`Biomes.DEEP_DARK`, which is where the sculk in the halls came from: `sculk_vein` and `sculk_patch_deep_dark` are
+deep dark's own step-7 features and were inherited wholesale. Their placement has no guard against being above ground,
+only a biome check, and the surface rule paints the whole column stone, so they spread over every hall floor.
+
+Its surface rule is plain `stone` over the whole column: the band never has a floor of its own to grade into, so there
+is nothing for deepslate to blend towards. It has no `freeze_top_layer` either — the band only ever sits below a
+surface, so the top-layer step has nothing to act on. Spawns are empty and the temperature range is `[0.6, 0.8]`.
 
 ---
 
