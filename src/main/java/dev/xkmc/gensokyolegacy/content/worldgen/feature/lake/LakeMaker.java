@@ -148,7 +148,9 @@ public class LakeMaker {
 		return -1;
 	}
 
-	/** Nothing of a neighbouring chunk's tree may be cut through, in either mode. */
+	/**
+	 * Nothing of a neighbouring chunk's tree may be cut through, in either mode.
+	 */
 	private boolean blocked(WorldGenLevel level, BlockPos origin) {
 		var pos = new BlockPos.MutableBlockPos();
 		for (int dx = 0; dx < maxHor; dx++) {
@@ -165,7 +167,9 @@ public class LakeMaker {
 		return false;
 	}
 
-	/** A pond is only dug into ground: its rim under the waterline is solid, and nothing floods it from above. */
+	/**
+	 * A pond is only dug into ground: its rim under the waterline is solid, and nothing floods it from above.
+	 */
 	private boolean groundFits(WorldGenLevel level, BlockPos origin) {
 		int depth = config.shape().depth();
 		var pos = new BlockPos.MutableBlockPos();
@@ -186,9 +190,10 @@ public class LakeMaker {
 
 	/**
 	 * A cavern pool, checked over the whole footprint rather than the one column it was found in. Every column of
-	 * water stands on a bed of solid rock with solid rock under it — a bed over a void would be a shell, and a pool
-	 * over a spring would pour into it — holds no liquid, and keeps {@code clearance} of open air over its highest
-	 * water, which is what makes the cavern a hall rather than a crevice the lake is rammed into.
+	 * water stands on rock that has rock under it within the two blocks the box reaches — a bed over a void would be
+	 * a shell, and a pool over a spring would pour into it — holds no liquid, and keeps {@code clearance} of open
+	 * air over its highest water, which is what makes the cavern a hall rather than a crevice the lake is rammed
+	 * into. The bed may sit a block high or a block low: {@link #genCavern} beds on whichever of the two it finds.
 	 * <p>
 	 * The air pocket the maker cuts above the waterline counts towards that clearance, because a cavern pool is dug
 	 * into the floor and the blocks it opens are the floor itself: only what is above that pocket has to be air in
@@ -201,7 +206,8 @@ public class LakeMaker {
 				int top = waterTop(dx, dz);
 				if (top < 0) continue;
 				pos.setWithOffset(origin, dx - maxHor / 2, 0, dz - maxHor / 2);
-				if (!level.getBlockState(pos).isSolid() || !level.getBlockState(pos.below()).isSolid()) return false;
+				if (!level.getBlockState(pos.below(2)).isSolid()) return false;
+				if (!level.getBlockState(pos).isSolid() && !level.getBlockState(pos.below()).isSolid()) return false;
 				for (int dy = 1; dy <= top; dy++) {
 					pos.setWithOffset(origin, dx - maxHor / 2, dy, dz - maxHor / 2);
 					// a leak path in the water would drain the pool
@@ -216,12 +222,22 @@ public class LakeMaker {
 		return true;
 	}
 
-	/** The highest block of the carved body: {@code depth} - 1 of water and two blocks of air above it. */
+	/**
+	 * The highest block of the carved body: {@code depth} - 1 of water and two blocks of air above it.
+	 */
 	private int bodyTop() {
 		return Math.min(maxVer - 2, config.shape().depth() + 2);
 	}
 
 	public void gen(WorldGenLevel level, BlockPos origin, RandomSource rand) {
+		if (config.mode() == LakeConfig.Mode.UNDERGROUND) {
+			genCavern(level, origin);
+		} else {
+			genSurface(level, origin, rand);
+		}
+	}
+
+	public void genSurface(WorldGenLevel level, BlockPos origin, RandomSource rand) {
 		int depth = config.shape().depth();
 		var material = config.material();
 		var pos = new BlockPos.MutableBlockPos();
@@ -237,13 +253,6 @@ public class LakeMaker {
 							if (dy >= depth) parent.setAir(level, pos);
 							else parent.setFluid(level, pos, material.fluid());
 						}
-						continue;
-					}
-					if (config.mode() == LakeConfig.Mode.UNDERGROUND) {
-						// The basin wall, under the waterline only: a cavern floor is flat, so with no rim to dam it
-						// the pool would spread over the whole floor and flood the cavern instead of standing in it.
-						if (dy < depth && !state.is(BlockTags.LAVA_POOL_STONE_CANNOT_REPLACE))
-							parent.setBarrier(level, pos, material.padding());
 						continue;
 					}
 					if ((dy < depth || state.isSolid() && rand.nextInt(2) != 0) &&
@@ -263,6 +272,59 @@ public class LakeMaker {
 							parent.setBarrier(level, pos, material.barrier());
 						else parent.setBarrier(level, pos, material.padding());
 					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * A cavern pool, one column at a time, because the ground it is dug into is allowed to step.
+	 * <p>
+	 * A column that carries water gets its bed on the highest rock it has within the two blocks the box reaches, so
+	 * a floor that has dropped a block under part of the pool simply deepens it there, and everything from that bed
+	 * up to the top of the air pocket is opened: the water's own level, then whatever rock the cavern floor has in
+	 * the way above it, so that a pool is not left roofed shut by the step it was laid against.
+	 * <p>
+	 * A column that carries no water is shore: it is walled under the waterline, because a cavern floor is flat and
+	 * without a wall the pool would spread over it and flood the cavern instead of standing in it, and rock standing
+	 * over the wall is taken for the wall's material so that the rim ends up even.
+	 */
+	private void genCavern(WorldGenLevel level, BlockPos origin) {
+		int depth = config.shape().depth();
+		var material = config.material();
+		var pos = new BlockPos.MutableBlockPos();
+		for (int dx = 0; dx < maxHor; dx++) {
+			for (int dz = 0; dz < maxHor; dz++) {
+				int top = waterTop(dx, dz);
+				if (top >= 0) {
+					pos.setWithOffset(origin, dx - maxHor / 2, 0, dz - maxHor / 2);
+					int bed = level.getBlockState(pos).isSolid() ? 0 : -1;
+					pos.move(0, bed, 0);
+					if (!level.getBlockState(pos).is(BlockTags.LAVA_POOL_STONE_CANNOT_REPLACE))
+						parent.setBarrier(level, pos, material.padding());
+					pos.move(0, -bed, 0);
+					for (int dy = 0; dy <= bodyTop(); dy++) {
+						pos.setWithOffset(origin, dx - maxHor / 2, dy, dz - maxHor / 2);
+						BlockState state = level.getBlockState(pos);
+						if (dy > bed && dy < depth && isValid(dx, dy, dz)) {
+							if (canReplaceBlock(state)) parent.setFluid(level, pos, material.fluid());
+						} else if (dy > top && !state.isAir()) {
+							parent.setAir(level, pos);
+						}
+					}
+					continue;
+				}
+				for (int dy = 0; dy < depth; dy++) {
+					if (!isEdge(dx, dy, dz)) continue;
+					pos.setWithOffset(origin, dx - maxHor / 2, dy, dz - maxHor / 2);
+					if (!level.getBlockState(pos).is(BlockTags.LAVA_POOL_STONE_CANNOT_REPLACE))
+						parent.setBarrier(level, pos, material.padding());
+				}
+				if (isEdge(dx, depth - 1, dz)) {
+					pos.setWithOffset(origin, dx - maxHor / 2, depth, dz - maxHor / 2);
+					BlockState over = level.getBlockState(pos);
+					if (over.isSolid() && !over.is(BlockTags.LAVA_POOL_STONE_CANNOT_REPLACE))
+						parent.setBarrier(level, pos, material.padding());
 				}
 			}
 		}

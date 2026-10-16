@@ -10,7 +10,7 @@
         }
       },
       "padding": {
-        "Name": "minecraft:mud"
+        "Name": "minecraft:stone_bricks"
       }
     },
     "mode": "underground",

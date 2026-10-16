@@ -272,13 +272,14 @@ public class GensokyoBiomeFeatures {
 		// The ruins' standing water, and the only lake in the biome list that is not on the surface. It has to be a
 		// separate configured feature from the magical forest's pond because the mode is in the config: this one is
 		// poured into a cavern, which means it finds its own floor instead of taking the ground it lands on, keeps
-		// five blocks of headroom above the water, and lays a bed of silt rather than a rim of turf. The box is 20 wide
-		// and 11 tall, which leaves room for 3 deep of water, the air the maker cuts above it and that headroom.
+		// five blocks of headroom above the water, and dams itself with a wall of the ruin's own stone brick rather
+		// than a rim of turf. The box is 20 wide and 11 tall, which leaves room for 3 deep of water, the air the
+		// maker cuts above it and that headroom.
 		FeatureUtils.register(ctx, FORMER_HELL_LAKE, GLWorldGen.LAKE.get(), new LakeConfig(
 				LakeConfig.Mode.UNDERGROUND, 5,
 				new LakeConfig.Shape(4, 20, 11, 3, 4, 6, 3),
 				new LakeConfig.Material(Blocks.WATER.defaultBlockState(), Blocks.AIR.defaultBlockState(),
-						Blocks.MUD.defaultBlockState(), Blocks.AIR.defaultBlockState()), List.of()));
+						Blocks.STONE_BRICKS.defaultBlockState(), Blocks.AIR.defaultBlockState()), List.of()));
 
 		var cattail = GLNaturalBlocks.FLAME_CATTAIL.get().defaultBlockState();
 		// the lakebed is sand and gravel under the surface rule, so these two sit on those and not on BlockTags.DIRT

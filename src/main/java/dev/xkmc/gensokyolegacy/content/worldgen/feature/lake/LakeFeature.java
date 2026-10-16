@@ -97,10 +97,10 @@ public class LakeFeature extends Feature<LakeConfig> {
 	 * the maker digs would be a shell over a void, and the room has to be in the same biome as the point that chose
 	 * the column, so that a cavern crossing a depth band does not get the wrong biome's water.
 	 * <p>
-	 * A room's block comes back {@code depth} below its floor, because the pool is dug into the rock the floor is
-	 * made of: its water sits under the cavern's own floor level, and the air pocket the maker cuts above the
-	 * waterline is what opens the pit into the room. The rooms come back in a random rotation, all of them, so
-	 * that a column with several of them does not spend every one of its lakes in the lowest.
+	 * A room's block comes back one below its waterline, because the pool is dug into the rock the floor is made of:
+	 * the maker's topmost block of water sits on the cavern's own floor, and the air pocket it cuts above that is
+	 * what opens the pit into the room. The rooms come back in a random rotation, all of them, so that a column
+	 * with several of them does not spend every one of its lakes in the lowest.
 	 */
 	private static List<BlockPos> inCavern(FeaturePlaceContext<LakeConfig> ctx) {
 		WorldGenLevel level = ctx.level();
@@ -135,7 +135,7 @@ public class LakeFeature extends Feature<LakeConfig> {
 		int start = ctx.random().nextInt(floors.size());
 		var sites = new ArrayList<BlockPos>(floors.size());
 		for (int i = 0; i < floors.size(); i++) {
-			sites.add(new BlockPos(x, floors.get((start + i) % floors.size()) - depth, z));
+			sites.add(new BlockPos(x, floors.get((start + i) % floors.size()) - (depth - 1), z));
 		}
 		return sites;
 	}

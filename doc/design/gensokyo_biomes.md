@@ -237,23 +237,30 @@ room if:
 |---|---|---|
 | room height | at least `clearance` = 5 open blocks over the floor | the 5 blocks of air clearance, read on the cavern floor itself. No ceiling on the size: a cavern a hundred blocks high is still a cavern |
 | roof | below the column's `WORLD_SURFACE_WG` height | an open run that reaches the surface is the sky, so this is what keeps the pool out of the open and off the world's surface |
-| floor | `isSolid()` at the floor and the block under it | a bed over a void is a shell, and the water would hang in it |
+| floor | `isSolid()` somewhere in the two blocks the box reaches | a bed over a void is a shell, and the water would hang in it. It may sit a block high or a block low |
 | biome | same as the placement's | the caverns cross the depth bands, so without it the wrong hell's cavern gets water |
 
-**The pool is dug into the floor, not stood on it.** A room's block comes back `depth` below its floor, so the
-water sits under the cavern's own floor level and the air pocket the maker cuts above the waterline — which opens
-the floor itself — is what makes the pit visible. A pool laid on top of the floor is a mud tub standing in the cave.
+**The pool is dug into the floor, not stood on it.** A room's block comes back one below its waterline, so the
+maker's topmost water sits on the cavern's own floor and the air pocket it cuts above that — which opens the floor
+itself — is what makes the pit visible. A pool laid on top of the floor is a tub standing in the cave.
+
+**The ground it is dug into may step.** The bed goes on the highest rock the column has within the two blocks the
+box reaches, so a floor that dropped a block under part of the pool deepens it there instead of refusing it, and
+the maker cuts through whatever the floor puts in the way above the water — otherwise a pool laid against a step
+would be roofed shut by it. Rock standing over the wall is taken for the wall's material, so the rim ends up even
+where the floor runs high. What it will not take is a bed with nothing under it: rock has to be there within the
+two blocks, or the pool hangs in a shell.
 
 The rooms come back **all of them, in a random rotation**, and the first that fits is used. A column with several
 rooms used to spend every one of its lakes in the lowest, which is both the worst-looking room and the one a cave
 system has most of.
 
-`LakeMaker` then checks the whole footprint the same way: a solid bed with solid rock under it for every column
-that holds water, nothing liquid in the water itself, and `clearance` of open air over each column's highest
+`LakeMaker` then checks the whole footprint the same way: rock within the two blocks the box reaches for every
+column that holds water, nothing liquid in the water itself, and `clearance` of open air over each column's highest
 water — counting the air pocket the maker cuts itself, since on a dug-in pool those blocks are the floor it opens.
-It lays the wall that dams the pool — a cavern floor is flat, so without a rim the water would spread over it and
-flood the cavern instead of standing in it — and nothing else: no turf cap, no planting, since a flooded floor is
-neither.
+It lays the wall that dams the pool out of the ruin's own stone brick — a cavern floor is flat, so without a rim
+the water would spread over it and flood the cavern instead of standing in it, and stone brick is what this biome's
+rock is made of — and nothing else: no turf cap, no planting, since a flooded floor is neither.
 
 The magical forest's pond and this are the same feature (`gensokyolegacy:lake`) with the same ellipsoid maker; they
 differ in `mode` and in what the mode checks. See `magical_forest_vegetation.md` §6.5 for the pond.
