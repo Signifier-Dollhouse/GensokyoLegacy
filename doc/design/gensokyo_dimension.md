@@ -758,3 +758,98 @@ humidity plane, keyed on continentalness and depth only. It takes `Biomes.DEEP_D
 plain stone as its surface rule — it only ever sits between the two rock bands, so there is no deepslate below it to
 grade into and no floor worth giving a different material. `former_hell` is the guide's own biome; the other three
 underground biomes keep the palettes of §4.
+
+---
+
+## 10. The bedrock floor
+
+Lava was showing up in the bedrock floor. The floor is sealed from two sides at once, and both are needed, because of
+one engine quirk.
+
+### A surface rule never sees lava
+
+`SurfaceSystem.buildSurface` walks each column top to bottom and keeps three cases apart:
+
+| block at the position | what happens |
+|---|---|
+| air | depth counters reset, **no rule is asked** |
+| anything with a fluid | recorded as the waterline, **no rule is asked** |
+| anything else | `if (blockstate == defaultBlock)` — only then is a rule asked |
+
+So a surface rule is only ever offered the generator's `defaultBlock`, which here is `Blocks.STONE`. **No surface rule
+in this mod, or any other, can write into lava or air.** A rule that "makes bedrock" only makes bedrock out of stone that
+was already there.
+
+That is invisible in the overworld, where the bottom of the world is solid by the density itself. It is not invisible
+here: §8's halls are `min`-ed into `final_density` with no lower bound on how far they can go, and `depth` — the only
+thing gating them — is large again everywhere below the surface band, not small. So the halls ran straight through the
+world bottom, the aquifer filled those holes with lava, and the bedrock rule had no stone left to claim.
+
+### Gate the halls on y as well as depth
+
+`large_caves` now has a second gate, in y alone, over the floor:
+
+```
+floor = y_clamped_gradient(from_y = -60, to_y = -48, 0.0, 1.0)
+large_caves = 1.0 + floor * (gate_open - 1.0)
+```
+
+`floor` reads zero through the bedrock floor and reaches one sixteen blocks above it, so the halls fade out into a
+thick solid base rather than being clipped off at a plane. `floor = 0` holds the density at `CAVE_CEILING = 1.0`, which
+`post_process` squeezes well above zero, so the aquifer is never consulted and the whole floor is solid stone for
+`bedrock_floor` to claim.
+
+### The floor itself is a band, not a gradient
+
+Vanilla's rule is `vertical_gradient("bedrock_floor", bottom, above_bottom(5))` — the same one in both
+`SurfaceRuleData.overworld()` and `SurfaceRuleData.nether()`. It is **per-block probabilistic**, not a floor. It
+interpolates a pass probability across the five layers between the two anchors, so:
+
+| y | passes |
+|---|---|
+| -64 | always (at or below `true_at_and_below`) |
+| -63 | 80% |
+| -62 | 60% |
+| -61 | 40% |
+| -60 | 20% |
+| -59 | never (at or above `false_at_and_above`) |
+
+So vanilla's floor is a fringe of mostly-bare stone by design. Ours is the same five layers, unconditional, so the
+fringe is gone. It is hoisted to the front of the sequence rather than left where `SurfaceRuleData.overworld()` puts it
+(first there too, but every fixed-biome branch below would otherwise shadow it, and the four underground palettes
+claim a whole column).
+
+### `y_above` is `>=`, so a floor has to be a `not`
+
+The trap worth writing down, because it was got wrong once here and turned the entire world to bedrock:
+
+```
+not(y_above(anchor = above_bottom(5), surface_depth_multiplier = 0))
+```
+
+`SurfaceRules.YConditionSource` tests
+
+```java
+blockY + (add_stone_depth ? stoneDepthAbove : 0) >= anchor.resolveY() + surfaceDepth * surface_depth_multiplier
+```
+
+`>=`. The registered type is literally `y_above`, and both `yBlockCheck` and `yStartCheck` share it — **there is no
+`y_below`**. A floor is therefore `not` of a `y_above` stated at the first layer *above* the floor, which is why the
+anchor is `above_bottom(5)` and not `above_bottom(4)`: at −59 and up the `y_above` passes, the `not` fails, and the
+floor stops one layer short of including it. Stated at `above_bottom(4)` the `not` would put bedrock at −59 and
+**everything above it**.
+
+The same inversion is why vanilla's `bedrock_roof` is
+`not(vertical_gradient("bedrock_roof", below_top(5), top()))` rather than a `y_below` — it is a ceiling, so it is
+negated.
+
+### The features cannot get in either
+
+Worth stating because they run *after* the surface system and so are not covered by any of the above:
+
+- `LakeFeature.canReplaceBlock` is `!state.is(BlockTags.FEATURES_CANNOT_REPLACE)`, and that tag contains `minecraft:bedrock`.
+- `SpringFeature` needs the block below the spring to be in its `validBlocks`, which for `spring_lava_overworld` is stone,
+  granite, diorite, andesite, deepslate, tuff, calcite or dirt — never bedrock.
+- `LAVA_POOL_STONE_CANNOT_REPLACE`, which the mod's own `LakeMaker` checks, includes `FEATURES_CANNOT_REPLACE`.
+
+So the aquifer was the only path that could put lava in the floor, and it can no longer reach it.

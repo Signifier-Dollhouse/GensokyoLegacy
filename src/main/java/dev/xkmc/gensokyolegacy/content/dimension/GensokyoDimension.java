@@ -179,6 +179,22 @@ public class GensokyoDimension {
 	private static final double CAVE_HALL_BIAS = 1.20;
 
 	/**
+	 * Height above the world bottom at which the bedrock floor ends, counting the bottom block as zero, so the floor is
+	 * the five layers y −64 … −60. Vanilla's gradient spans those five and nothing above.
+	 */
+	private static final int BEDROCK_FLOOR = 4;
+
+	/** The {@code minY} {@link #noiseSettings} builds the settings from, which the floor heights below are read against. */
+	private static final int WORLD_BOTTOM = -64;
+
+	/**
+	 * Where the halls fade back out over the bedrock floor: closed through {@link #BEDROCK_FLOOR} and open again a
+	 * screen higher, so the fade is a thick base rather than a ceiling.
+	 */
+	private static final int CAVE_BASE_DEAD_Y = WORLD_BOTTOM + BEDROCK_FLOOR;
+	private static final int CAVE_BASE_LIVE_Y = WORLD_BOTTOM + 16;
+
+	/**
 	 * Continentalness thresholds that separate the regions, each sitting where the offset spline reaches a height band
 	 * edge: the waterline, the foot of the plain at y 66, then y 96, y 128 and y 192. The spline already carries a
 	 * point at every one of these, so a region's bounds land on whole control points of the curve.
@@ -300,12 +316,11 @@ public class GensokyoDimension {
 	 */
 	private static RuleSource surfaceRules() {
 		return SurfaceRules.sequence(
-				// Vanilla's bedrock floor, hoisted to the front. It is the first rule of SurfaceRuleData.overworld(), so
-				// every branch below used to shadow it, and the four underground branches claim a whole column — the
-				// world bottom of a mountain_interior column came out stone and the other three netherrack or brick.
-				// Nothing else in the sequence moves by putting it here; it is the same rule, asked first.
-				SurfaceRules.ifTrue(SurfaceRules.verticalGradient("bedrock_floor", VerticalAnchor.bottom(),
-						VerticalAnchor.aboveBottom(5)), SurfaceRules.state(Blocks.BEDROCK.defaultBlockState())),
+				// Vanilla's bedrock floor, hoisted to the front. It is the first rule of both SurfaceRuleData.overworld()
+				// and SurfaceRuleData.nether(), so every branch below used to shadow it, and the four underground
+				// branches claim a whole column — the world bottom of a mountain_interior column came out stone and the
+				// other three netherrack or brick. Nothing else in the sequence moves by putting it here.
+				bedrockFloor(),
 				SurfaceRules.ifTrue(SurfaceRules.isBiome(GLBiomes.MISTY_LAKE, GLBiomes.MISTY_LAKE_SHORE),
 						SurfaceRules.sequence(
 								// the bed itself, and a steep bank cut into it
@@ -354,6 +369,30 @@ public class GensokyoDimension {
 
 	/** At or below the water line, which is the closest a surface rule gets to "this is a lake bed". */
 	private static final ConditionSource UNDERWATER = SurfaceRules.waterBlockCheck(0, 0);
+
+	/**
+	 * The bedrock floor, as a plain band rather than vanilla's {@code verticalGradient}.
+	 * <p>
+	 * {@link SurfaceRules#yBlockCheck} reads "y is at or above this anchor" — its type is {@code y_above} and its test
+	 * is {@code blockY >= anchor}, so a floor has to be {@code not} of one, stated at the first layer <em>above</em> the
+	 * floor to leave the top layer out.
+	 * <p>
+	 * Vanilla's gradient is per-block probabilistic, not a floor: it runs from {@code bottom()} to {@code aboveBottom(5)},
+	 * so y −64 is always bedrock and y −59 never, and the four between pass four fifths, three fifths, two fifths and a
+	 * fifth of the time. A column that is not solid all the way down therefore keeps most of its floor as whatever was
+	 * there before. A band has no such gap.
+	 * <p>
+	 * It only reaches the blocks the noise made solid. {@code SurfaceSystem} asks a rule about a position only when the
+	 * block there is the generator's default block, so air and fluid are invisible to every rule below as well — see
+	 * {@link #DF_LARGE_CAVES}, which is what keeps the halls out of the floor.
+	 *
+	 * @see "doc/design/gensokyo_dimension.md" §10
+	 */
+	private static RuleSource bedrockFloor() {
+		return SurfaceRules.ifTrue(
+				SurfaceRules.not(SurfaceRules.yBlockCheck(VerticalAnchor.aboveBottom(BEDROCK_FLOOR + 1), 0)),
+				SurfaceRules.state(Blocks.BEDROCK.defaultBlockState()));
+	}
 
 	/** Two blocks under any floor, for a material with thickness. {@code UNDER_FLOOR} only ever reaches one. */
 	private static final ConditionSource UNDER_BED = SurfaceRules.stoneDepthCheck(2, false, CaveSurface.FLOOR);
@@ -427,6 +466,10 @@ public class GensokyoDimension {
 	 * octave near 171 by 85 blocks against vanilla's 64 by 96, so a hall is wider and flatter than the caves
 	 * it sits among rather than a copy of one. {@code dead} repeats {@code floor} so
 	 * {@link DensityFunctions#rangeChoice} skips the noise over exactly the stretch where the gate reads zero.
+	 * <p>
+	 * {@code depth} only gates the surface. It is never small again once y is low, so a hall reached the world base
+	 * and the aquifer filled the hole with lava — which {@code SurfaceSystem} never asks a rule about, because a rule
+	 * only sees the generator's default block, so the floor came out lava. The second gate is that base, in y alone.
 	 *
 	 * @see "doc/design/gensokyo_dimension.md" §8
 	 */
@@ -437,8 +480,10 @@ public class GensokyoDimension {
 				DensityFunctions.mul(DensityFunctions.constant(CAVE_HALL_GAIN),
 						DensityFunctions.noise(cheese, CAVE_HALL_XZ, CAVE_HALL_Y)),
 				DensityFunctions.constant(CAVE_HALL_BIAS));
-		return DensityFunctions.rangeChoice(gate, 0.0, CAVE_GATE_DEAD,
+		var base = DensityFunctions.yClampedGradient(CAVE_BASE_DEAD_Y, CAVE_BASE_LIVE_Y, 0.0, 1.0);
+		var open = DensityFunctions.rangeChoice(gate, 0.0, CAVE_GATE_DEAD,
 				DensityFunctions.constant(CAVE_CEILING), DensityFunctions.lerp(gate, CAVE_CEILING, halls));
+		return DensityFunctions.lerp(base, CAVE_CEILING, open);
 	}
 
 	/**
