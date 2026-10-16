@@ -3,14 +3,18 @@
     "gensokyolegacy:cirno": {
       "override": {},
       "preference": {
+        "ALCOHOL": 0.0,
         "BOOK": 0.5,
         "FOOD": 1.5,
+        "FROG": 2.0,
+        "MAGIC": 0.0,
         "TOY": 2.0
       }
     },
     "gensokyolegacy:hakurei_reimu": {
       "override": {},
       "preference": {
+        "ALCOHOL": 2.0,
         "BOOK": 1.5,
         "DRINK": 2.0
       }
@@ -18,8 +22,47 @@
     "gensokyolegacy:ibuki_suika": {
       "override": {},
       "preference": {
-        "DRINK": 2.0,
-        "FOOD": 1.5
+        "ALCOHOL": 2.0,
+        "FOOD": 1.5,
+        "TOY": 0.0
+      }
+    },
+    "gensokyolegacy:izayoi_sakuya": {
+      "override": {},
+      "preference": {
+        "TOY": 0.5
+      }
+    },
+    "gensokyolegacy:luna_child": {
+      "override": {},
+      "preference": {
+        "ALCOHOL": 0.0,
+        "FROG": 2.0,
+        "MAGIC": 0.0
+      }
+    },
+    "gensokyolegacy:plain_fairy": {
+      "override": {},
+      "preference": {
+        "ALCOHOL": 0.0,
+        "FROG": 2.0,
+        "MAGIC": 0.0
+      }
+    },
+    "gensokyolegacy:star_sapphire": {
+      "override": {},
+      "preference": {
+        "ALCOHOL": 0.0,
+        "FROG": 2.0,
+        "MAGIC": 0.0
+      }
+    },
+    "gensokyolegacy:sunny_milk": {
+      "override": {},
+      "preference": {
+        "ALCOHOL": 0.0,
+        "FROG": 2.0,
+        "MAGIC": 0.0
       }
     }
   }

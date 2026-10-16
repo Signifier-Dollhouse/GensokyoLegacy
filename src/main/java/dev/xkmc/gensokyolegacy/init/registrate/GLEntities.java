@@ -111,6 +111,14 @@ public class GLEntities {
 		// they eat a lot
 		PartyTaste TASTE_SUIKA = new PartyTaste(10, 0, 250, 1, 500, 1000, 400, 60, 160, 0.05, 0.01);
 
+		// What every fairy refuses and the one thing she is glad to be handed. Shared by the four
+		// plain fairy types; Cirno layers her own entry on top of it in the datamap, per category.
+		GiftPreference GIFT_FAIRY = GiftPreference.of(Map.of(
+				GiftType.ALCOHOL, 0.0,
+				GiftType.MAGIC, 0.0,
+				GiftType.FROG, 2.0
+		));
+
 		{
 
 			RUMIA = GensokyoLegacy.REGISTRATE
@@ -128,6 +136,9 @@ public class GLEntities {
 					.renderer(() -> ReimuRenderer::new)
 					.loot(EntityLootGen::reimu)
 					.dataMap(GLMeta.GIFT_PREFERENCE.reg(), GiftPreference.of(Map.of(
+							// ALCOHOL alongside DRINK: the sake used to be the only drink on
+							// offer, so the DRINK bonus has to move with it or it goes stale
+							GiftType.ALCOHOL, 2.0,
 							GiftType.DRINK, 2.0,
 							GiftType.BOOK, 1.5
 					)))
@@ -140,10 +151,14 @@ public class GLEntities {
 					.attributes(CirnoEntity::createAttributes)
 					.renderer(() -> CirnoRenderer::new)
 					.loot(EntityLootGen::noLoot)
+					// her own tastes, plus what every fairy refuses and accepts
 					.dataMap(GLMeta.GIFT_PREFERENCE.reg(), GiftPreference.of(Map.of(
 							GiftType.TOY, 2.0,
 							GiftType.FOOD, 1.5,
-							GiftType.BOOK, 0.5
+							GiftType.BOOK, 0.5,
+							GiftType.ALCOHOL, 0.0,
+							GiftType.MAGIC, 0.0,
+							GiftType.FROG, 2.0
 					)))
 					.dataMap(GLMeta.PARTY_TASTE.reg(), TASTE_CIRNO)
 					.register();
@@ -208,6 +223,10 @@ public class GLEntities {
 					.attributes(BossYoukaiEntity::createAttributes)
 					.renderer(() -> SakuyaRenderer::new)
 					.loot(EntityLootGen::noLoot)
+					.dataMap(GLMeta.GIFT_PREFERENCE.reg(), GiftPreference.of(Map.of(
+							// a doll is not the same as a teddy bear
+							GiftType.TOY, 0.5
+					)))
 					.dataMap(GLMeta.PARTY_TASTE.reg(), TASTE_SAKUYA)
 					.register();
 
@@ -218,8 +237,9 @@ public class GLEntities {
 					.renderer(() -> SuikaRenderer::new)
 					.loot(EntityLootGen::noLoot)
 					.dataMap(GLMeta.GIFT_PREFERENCE.reg(), GiftPreference.of(Map.of(
-							GiftType.DRINK, 2.0,
-							GiftType.FOOD, 1.5
+							GiftType.ALCOHOL, 2.0,
+							GiftType.FOOD, 1.5,
+							GiftType.TOY, 0.0
 					)))
 					.dataMap(GLMeta.PARTY_TASTE.reg(), TASTE_SUIKA)
 					.register();
@@ -238,6 +258,7 @@ public class GLEntities {
 					.attributes(FairyEntity::createAttributes)
 					.renderer(() -> GeneralYoukaiRenderer::new)
 					.loot(EntityLootGen::noLoot)
+					.dataMap(GLMeta.GIFT_PREFERENCE.reg(), GIFT_FAIRY)
 					.register();
 
 			LUNA = GensokyoLegacy.REGISTRATE
@@ -246,6 +267,7 @@ public class GLEntities {
 					.attributes(FairyEntity::createAttributes)
 					.renderer(() -> GeneralYoukaiRenderer::new)
 					.loot(EntityLootGen::noLoot)
+					.dataMap(GLMeta.GIFT_PREFERENCE.reg(), GIFT_FAIRY)
 					.register();
 
 			STAR = GensokyoLegacy.REGISTRATE
@@ -254,6 +276,7 @@ public class GLEntities {
 					.attributes(FairyEntity::createAttributes)
 					.renderer(() -> GeneralYoukaiRenderer::new)
 					.loot(EntityLootGen::noLoot)
+					.dataMap(GLMeta.GIFT_PREFERENCE.reg(), GIFT_FAIRY)
 					.register();
 
 			PLAIN_FAIRY = GensokyoLegacy.REGISTRATE
@@ -265,6 +288,7 @@ public class GLEntities {
 					.spawnPlacement(SpawnPlacementTypes.ON_GROUND,
 							Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, PlainFairyEntity::checkFairySpawnRules,
 							RegisterSpawnPlacementsEvent.Operation.REPLACE)
+					.dataMap(GLMeta.GIFT_PREFERENCE.reg(), GIFT_FAIRY)
 					.register();
 			EntityInteractions.register(PLAIN_FAIRY.getId(), PlainFairyEntity::interactions);
 		}

@@ -5,8 +5,23 @@
       "cooldown": 1000,
       "favor": 3
     },
+    "gensokyolegacy:frozen_frog_cold": {
+      "type": "FROG",
+      "cooldown": 1000,
+      "favor": 3
+    },
+    "gensokyolegacy:frozen_frog_temperate": {
+      "type": "FROG",
+      "cooldown": 1000,
+      "favor": 3
+    },
+    "gensokyolegacy:frozen_frog_warm": {
+      "type": "FROG",
+      "cooldown": 1000,
+      "favor": 3
+    },
     "gensokyolegacy:ghost_sake": {
-      "type": "DRINK",
+      "type": "ALCOHOL",
       "cooldown": 1000,
       "favor": 5
     },
@@ -26,7 +41,7 @@
       "favor": 5
     },
     "gensokyolegacy:tengu_sake": {
-      "type": "DRINK",
+      "type": "ALCOHOL",
       "cooldown": 1000,
       "favor": 5
     }

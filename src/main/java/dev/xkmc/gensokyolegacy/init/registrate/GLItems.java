@@ -256,17 +256,22 @@ public class GLItems {
 			FAIRY_ICE_CRYSTAL = reg.item("fairy_ice_crystal", FairyIceItem::new)
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/ingredient/" + ctx.getName())))
 					.register();
+			// the three variants share a line of gift data: FROG neutral is 0, so only a fairy
+			// will take one, and she takes it at twice the worth
 			FROZEN_FROG_COLD = reg.item("frozen_frog_cold",
 							p -> new FrozenFrogItem(p.stacksTo(16), FrogVariant.COLD))
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/ingredient/" + ctx.getName())))
+					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(3, 1000, GiftType.FROG))
 					.register();
 			FROZEN_FROG_WARM = reg.item("frozen_frog_warm",
 							p -> new FrozenFrogItem(p.stacksTo(16), FrogVariant.WARM))
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/ingredient/" + ctx.getName())))
+					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(3, 1000, GiftType.FROG))
 					.register();
 			FROZEN_FROG_TEMPERATE = reg.item("frozen_frog_temperate",
 							p -> new FrozenFrogItem(p.stacksTo(16), FrogVariant.TEMPERATE))
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/ingredient/" + ctx.getName())))
+					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(3, 1000, GiftType.FROG))
 					.register();
 
 			INVITATION_LETTER = reg.item("invitation_letter", InvitationLetterItem::new)
@@ -282,7 +287,7 @@ public class GLItems {
 							new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 600, 1),
 							new MobEffectInstance(MobEffects.NIGHT_VISION, 600, 0)))))
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
-					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(5, 1000, GiftType.DRINK))
+					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(5, 1000, GiftType.ALCOHOL))
 					.lang("Tengu Sake").register();
 
 			// TODO placeholder favor / cooldown
@@ -291,7 +296,7 @@ public class GLItems {
 							new MobEffectInstance(MobEffects.DAMAGE_BOOST, 600, 1),
 							new MobEffectInstance(MobEffects.FIRE_RESISTANCE, 600, 0)))))
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
-					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(5, 1000, GiftType.DRINK))
+					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(5, 1000, GiftType.ALCOHOL))
 					.lang("Ghost Sake").register();
 
 			// Suika's gourd: the ghost sake poured into something with no bottom. Same drink and effects, and
