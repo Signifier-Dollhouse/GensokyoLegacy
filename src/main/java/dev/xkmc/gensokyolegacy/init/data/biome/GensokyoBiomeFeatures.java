@@ -85,6 +85,7 @@ public class GensokyoBiomeFeatures {
 	private static final ResourceKey<ConfiguredFeature<?, ?>> SHORE_SAND = cf("shore_sand");
 	private static final ResourceKey<ConfiguredFeature<?, ?>> SHORE_FLOWERS = cf("shore_flowers");
 	private static final ResourceKey<ConfiguredFeature<?, ?>> SETTLEMENT_PATHS = cf("settlement_paths");
+	private static final ResourceKey<ConfiguredFeature<?, ?>> CLIFF_SCREE = cf("cliff_scree");
 	private static final ResourceKey<ConfiguredFeature<?, ?>> SUMMIT_SOIL_DISK = cf("summit_soil_disk");
 	private static final ResourceKey<ConfiguredFeature<?, ?>> SUMMIT_MOSS = cf("summit_moss");
 	private static final ResourceKey<ConfiguredFeature<?, ?>> SUMMIT_SCREE = cf("summit_scree");
@@ -120,6 +121,7 @@ public class GensokyoBiomeFeatures {
 	private static final ResourceKey<PlacedFeature> SHORE_REEDS_PF = pf("shore_reeds");
 	private static final ResourceKey<PlacedFeature> SHORE_FLOWERS_PF = pf("shore_flowers");
 	private static final ResourceKey<PlacedFeature> SETTLEMENT_PATHS_PF = pf("settlement_paths");
+	private static final ResourceKey<PlacedFeature> CLIFF_SCREE_PF = pf("cliff_scree");
 	private static final ResourceKey<PlacedFeature> SUMMIT_SOIL_PF = pf("summit_soil");
 	private static final ResourceKey<PlacedFeature> SUMMIT_MOSS_PF = pf("summit_moss");
 	private static final ResourceKey<PlacedFeature> SUMMIT_SCREE_PF = pf("summit_scree");
@@ -136,7 +138,8 @@ public class GensokyoBiomeFeatures {
 			SANCTUARY_TREES_PF, SANCTUARY_FLOWERS_PF,
 			BLOOD_DEPOSIT_PF, BONE_PILE_PF, DEN_RUBBLE_PF, FUNGUS_PATCH_PF, FIRE_VENT_PF, ASH_PATCH_PF, OLD_RUBBLE_PF,
 			LAKE_CLAY_PF, LAKE_CATTAILS_PF, LILY_PADS_PF, SHORE_SAND_PF, SHORE_REEDS_PF, SHORE_FLOWERS_PF,
-			SETTLEMENT_PATHS_PF, SUMMIT_SOIL_PF, SUMMIT_MOSS_PF, SUMMIT_SCREE_PF, SUMMIT_TREES_PF);
+			SETTLEMENT_PATHS_PF, CLIFF_SCREE_PF,
+			SUMMIT_SOIL_PF, SUMMIT_MOSS_PF, SUMMIT_SCREE_PF, SUMMIT_TREES_PF);
 
 	/**
 	 * Splits the summit's exposed rock from its scree. Coarse enough that a patch reads as a slope rather than as
@@ -166,6 +169,11 @@ public class GensokyoBiomeFeatures {
 	public static final Tail MISTY_LAKE_SHORE = new Tail(
 			tail(STONES_PF, SHORE_SAND_PF, SHORE_REEDS_PF, SHORE_FLOWERS_PF), tail(), tail());
 	public static final Tail TENGU_SETTLEMENT = new Tail(tail(FOOTHILL_MOSS_PF, SETTLEMENT_PATHS_PF), tail(), tail());
+	/**
+	 * The settlement's tail with the paths dropped and scree in place of moss: boulders carry the slope and a sparser
+	 * mix than the summit's carries the bare rock, so it reads drier than the town without reading as another summit.
+	 */
+	public static final Tail SECRET_HEAVEN_CLIFF = new Tail(tail(STONES_PF, CLIFF_SCREE_PF), tail(), tail());
 	public static final Tail SUMMIT = new Tail(
 			tail(SUMMIT_SOIL_PF, SUMMIT_MOSS_PF, SUMMIT_SCREE_PF, SUMMIT_TREES_PF), tail(), tail());
 
@@ -266,6 +274,11 @@ public class GensokyoBiomeFeatures {
 		FeatureUtils.register(ctx, SETTLEMENT_PATHS, Feature.RANDOM_PATCH, onDirt(14, new Palette()
 				.add(Blocks.GRAVEL, 3).add(Blocks.COARSE_DIRT, 3).add(Blocks.COBBLESTONE, 2)
 				.add(Blocks.MOSSY_COBBLESTONE, 1).build()));
+		// tuff and gravel against a little dry scrub: the cliff is barer than the town beside it, not bare like the
+		// summit above it, so the palette keeps a grass and a bush weight and leans on tuff for the rest
+		FeatureUtils.register(ctx, CLIFF_SCREE, Feature.RANDOM_PATCH, onDirt(18, new Palette()
+				.add(Blocks.GRAVEL, 3).add(Blocks.TUFF, 3).add(Blocks.COARSE_DIRT, 2)
+				.add(Blocks.DEAD_BUSH, 1).add(Blocks.SHORT_GRASS, 1).build()));
 		FeatureUtils.register(ctx, SUMMIT_MOSS, Feature.RANDOM_PATCH, onStone(20, new Palette()
 				.add(Blocks.MOSS_CARPET, 3).add(Blocks.GLOW_LICHEN, 2).build()));
 		FeatureUtils.register(ctx, SUMMIT_SCREE, Feature.RANDOM_PATCH, onStone(18, new Palette()
@@ -326,6 +339,8 @@ public class GensokyoBiomeFeatures {
 		cover(ctx, SHORE_REEDS_PF, cf.getOrThrow(LAKE_CATTAILS), CountPlacement.of(3));
 		cover(ctx, SHORE_FLOWERS_PF, cf.getOrThrow(SHORE_FLOWERS), CountPlacement.of(3));
 		cover(ctx, SETTLEMENT_PATHS_PF, cf.getOrThrow(SETTLEMENT_PATHS), RarityFilter.onAverageOnceEvery(4));
+		// sparse, where the settlement's moss covers four times over
+		cover(ctx, CLIFF_SCREE_PF, cf.getOrThrow(CLIFF_SCREE), CountPlacement.of(1));
 		cover(ctx, SUMMIT_SOIL_PF, cf.getOrThrow(SUMMIT_SOIL_DISK), CountPlacement.of(2));
 		cover(ctx, SUMMIT_MOSS_PF, cf.getOrThrow(SUMMIT_MOSS), CountPlacement.of(4));
 		cover(ctx, SUMMIT_SCREE_PF, cf.getOrThrow(SUMMIT_SCREE), CountPlacement.of(4));

@@ -7,7 +7,8 @@ Two things differ from the overworld, and they are deliberately the only two:
 
 1. the height chain reads **continentalness only**, where the overworld also reads erosion and weirdness;
 2. the biome source is a **coarse climate grid** on continentalness / temperature / humidity / depth, with erosion
-   and weirdness spanning the full range on every point so they cannot select a biome.
+   and weirdness spanning the full range on every point so they cannot select a biome. The Tengu Settlement's band is
+   the one row that humidity splits, between the town and the cliff beside it (§4).
 
 On top of those, the caves get a third change of their own: vanilla's, plus a set of **halls** cut under the surface
 and never at it — §8. Everything else — sea level 63, aquifer, cave carvers, ore veins, spawn target, dimension type —
@@ -194,7 +195,7 @@ Note that `NoiseRouter.mapAll` exists but is unusable here: `HolderHolder.mapAll
 
 **Seven continentalness regions**, each one a height band of the offset spline, in `GensokyoDimension.biomeSource`.
 Every biome in a region shares that region's continentalness span exactly, and the region's own biomes tile the
-temperature and humidity plane instead — which is why the list is only **23 points** (16 at the surface, 7
+temperature and humidity plane instead — which is why the list is only **24 points** (17 at the surface, 7
 underground) rather than the 42 a region × 2 × 2 × 2 grid would need. Erosion and weirdness are `[-1, 1]` on every
 point, so they cannot pick a biome; depth is `0.0` at the surface and `1.0` underground.
 
@@ -205,7 +206,7 @@ point, so they cannot pick a biome; depth is `0.0` at the surface and `1.0` unde
 | −0.437 … −0.118 | 66 … 80 | 25.73% | sunflower_plains | muenzuka | human_village | myouren_temple_barrens |
 | −0.118 … 0.108 | 80 … 96 | 24.26% | magical_forest | bamboo_forest_of_the_lost | sakura_forest | hill_of_the_nameless |
 | 0.108 … 0.329 | 96 … 128 | 20.15% | untrodden_valley | genbu_ravine | youkai_mountain_foothills | sanctuary |
-| 0.329 … 0.595 | 128 … 192 | 13.25% | tengu_settlement | tengu_settlement | tengu_settlement | tengu_settlement |
+| 0.329 … 0.595 | 128 … 192 | 13.25% | tengu_settlement | tengu_settlement | **secret_heaven_cliff** | **secret_heaven_cliff** |
 | 0.595 … 1.00 | 192 … 220 | 4.79% | youkai_mountain_summit | youkai_mountain_summit | youkai_mountain_summit | youkai_mountain_summit |
 
 The four columns are the climate classification `gensokyo_dimension_biome_guide.md` §2 gives for a band, in the order it
@@ -230,11 +231,20 @@ neighbour's box — see `out/terrain/gensokyolegacy_gensokyo_biomes.png`. Becaus
 boxes of a band come out roughly a quarter of the band each; measured over 256 × 256 chunks at seed 0 the lower
 ground band splits 5.94 / 7.05 / 6.38 / 7.11 % of the map, against a 25.73% band share.
 
-The first two and the last two rows give each region its whole plane to one biome. Those four are the fixed locations
-of `gensokyolegacy_fixed_biomes_guide.md` — `misty_lake` and its shore at the waterline, the Tengu Settlement and the
-summit above the mountain — and they are selected by continentalness alone, not by climate at all.
+The first two and the last rows give each region its whole plane to one biome. Those three are the fixed locations
+of `gensokyolegacy_fixed_biomes_guide.md` — `misty_lake` and its shore at the waterline and the summit above the
+mountain — and they are selected by continentalness alone, not by climate at all.
 `youkai_mountain_summit` ends at the top of the spline, where continentalness is flat at 1.2227 and the terrain stops
 rising, so y 192 … 220 is the whole of it.
+
+The settlement band is the one row that does not tile all four columns, and it is where the fourth fixed location went.
+`secret_heaven_cliff` is not in the guide: it is the dry half of the Tengu Settlement's band, so continentalness still
+fixes the height and humidity alone splits the row — `tengu_settlement` on `HUMID`, `secret_heaven_cliff` on `DRY`,
+both over the full temperature span. Since humidity is one field cut once at 0, the split is the same cut the four
+columns are made of, and the two halves come out roughly even: measured over 256 × 256 chunks at seed
+−1838080655014084215, 8.66% of the map against 7.28%, against the band's 13.25%. That is also the only row where the
+order of the two cells matters for anything, since a value in the 0.01 gap between them is equidistant and the tie
+falls to list order.
 
 Which biomes fill these cells, and where each one's features come from, is `doc/design/gensokyo_biomes.md`.
 
@@ -253,7 +263,9 @@ anywhere the grid is silent.
 Every biome the dimension may select is mod-owned (`GLBiomes`). Vanilla filters structures by biome tag
 (`#minecraft:has_structure/*`), so a dimension made only of mod biomes cannot host `minecraft:village_plains` and
 friends. The mod's own structure sets survive because their tags already name `gensokyolegacy:magical_forest` /
-`sakura_forest`.
+`sakura_forest`, and the `has_structure/*` and `has_spawn/*` tags are ours for the same reason — nothing here is added
+to a vanilla or common biome tag, and the classification tags (`is_forest`, `is_mountain`, …) are
+`gensokyolegacy:` copies rather than the shared ones. See `doc/design/gensokyo_biomes.md` §8.
 
 One is a byte-identical copy of a vanilla biome rebuilt from registry keys, `sunflower_plains`, which is the biome
 guide's own hot humid lower-ground biome and never needed replacing. The other sixteen are the mod's own: the twelve
@@ -293,7 +305,8 @@ generated json simply stops naming them.
 
 Writes `dimension/gensokyo.json`, `dimension_type/gensokyo.json`, `worldgen/noise_settings/gensokyo.json`,
 `worldgen/density_function/{offset,factor,depth,sloped_cheese,large_caves}.json` and
-`worldgen/noise/{continentalness_small,temperature_small,vegetation_small}.json`. Output is committed.
+`worldgen/noise/{continentalness_small,temperature_small,vegetation_small}.json`. Output is committed. The biome
+grid it writes is the table in §4, so `--spline` and the biome map are how a change to it gets checked.
 
 `python3 tools/feature_cycle_check.py build/moddev/artifacts/neoforge-21.1.238-client-extra-aka-minecraft-resources.jar src/generated/resources`
 must still report no feature order cycle. The checker exists because `BiomeDefaultFeatures` call order is load-bearing —

@@ -36,6 +36,27 @@ public class GLStructureTagGen {
 	public static final TagKey<Biome> ALICE_HOUSE = biomeTag("has_structure/alice_house");
 	public static final TagKey<Biome> PLAIN_FAIRY_SPAWN = biomeTag("has_spawn/plain_fairy");
 
+	/** Our own copies of the overworld's biome categories, same names in our own namespace.
+	 *
+	 *  <p>Gensokyo biomes deliberately stay out of {@code minecraft:is_forest} and the rest. Those are shared
+	 *  vocabulary: every mod that ships a forest biome writes to the same tag, so what is in them is a claim about
+	 *  the biome that other mods read to decide their own behaviour — a mod testing {@code c:is_forest} for "put
+	 *  mushrooms down" would start finding them on a cliff it cannot see. Ours are the same classification without
+	 *  the side effect, and reading both pairs is fine, which is what {@link #PLAIN_FAIRY_SPAWN} does. */
+	public static final TagKey<Biome> IS_MAGICAL = biomeTag("is_magical");
+	public static final TagKey<Biome> IS_FOREST = biomeTag("is_forest");
+	public static final TagKey<Biome> IS_PLAINS = biomeTag("is_plains");
+	public static final TagKey<Biome> IS_MOUNTAIN = biomeTag("is_mountain");
+	public static final TagKey<Biome> IS_MOUNTAIN_PEAK = biomeTag("is_mountain/peak");
+	public static final TagKey<Biome> IS_UNDERGROUND = biomeTag("is_underground");
+	public static final TagKey<Biome> IS_SPOOKY = biomeTag("is_spooky");
+	public static final TagKey<Biome> IS_FLORAL = biomeTag("is_floral");
+	public static final TagKey<Biome> IS_WET = biomeTag("is_wet");
+	public static final TagKey<Biome> IS_BEACH = biomeTag("is_beach");
+	public static final TagKey<Biome> IS_AQUATIC = biomeTag("is_aquatic");
+	public static final TagKey<Biome> IS_DRY = biomeTag("is_dry");
+	public static final TagKey<Biome> IS_TAIGA = biomeTag("is_taiga");
+
 	/** Youkai's Feasts' own cherry tag, written by our datagen run: a tag provider writes to the namespace of
 	 *  the tag it is handed, so this is the only way to reach a foreign tag without a hand-written file.
 	 *  Spelled out rather than imported because that mod is compile-only. */
@@ -101,38 +122,44 @@ public class GLStructureTagGen {
 				.add(GLBiomes.MAGICAL_FOREST);
 		pvd.addTag(ALICE_HOUSE)
 				.add(GLBiomes.MAGICAL_FOREST);
+		// the one place that reads both pairs. The modifier is not scoped to a dimension, so it has to reach the
+		// vanilla overworld's forests and plains as well as Gensokyo's — nesting the shared tags costs nothing here,
+		// because reading a tag is not a claim about it, and it is the only way the overworld keeps its fairies.
 		pvd.addTag(PLAIN_FAIRY_SPAWN)
 				.addTag(Tags.Biomes.IS_FOREST)
-				.addTag(Tags.Biomes.IS_PLAINS);
-		pvd.addTag(Tags.Biomes.IS_MAGICAL).add(GLBiomes.MAGICAL_FOREST).add(GLBiomes.SAKURA_FOREST);
-		pvd.addTag(Tags.Biomes.IS_FOREST)
+				.addTag(Tags.Biomes.IS_PLAINS)
+				.addTag(IS_FOREST)
+				.addTag(IS_PLAINS);
+		pvd.addTag(IS_MAGICAL).add(GLBiomes.MAGICAL_FOREST).add(GLBiomes.SAKURA_FOREST);
+		pvd.addTag(IS_FOREST)
 				.add(GLBiomes.MAGICAL_FOREST).add(GLBiomes.SAKURA_FOREST)
 				.add(GLBiomes.MUENZUKA).add(GLBiomes.BAMBOO_FOREST_OF_THE_LOST)
 				.add(GLBiomes.UNTRODDEN_VALLEY).add(GLBiomes.YOUKAI_MOUNTAIN_FOOTHILLS)
 				.add(GLBiomes.TENGU_SETTLEMENT);
-		pvd.addTag(Tags.Biomes.IS_PLAINS)
+		pvd.addTag(IS_PLAINS)
 				.add(GLBiomes.HUMAN_VILLAGE).add(GLBiomes.SUNFLOWER_PLAINS)
 				.add(GLBiomes.HILL_OF_THE_NAMELESS);
 		// the mountain band and the two fixed locations above it
-		pvd.addTag(Tags.Biomes.IS_MOUNTAIN)
+		pvd.addTag(IS_MOUNTAIN)
 				.add(GLBiomes.UNTRODDEN_VALLEY).add(GLBiomes.GENBU_RAVINE)
 				.add(GLBiomes.YOUKAI_MOUNTAIN_FOOTHILLS).add(GLBiomes.SANCTUARY)
-				.add(GLBiomes.TENGU_SETTLEMENT).add(GLBiomes.YOUKAI_MOUNTAIN_SUMMIT);
-		pvd.addTag(Tags.Biomes.IS_MOUNTAIN_PEAK).add(GLBiomes.YOUKAI_MOUNTAIN_SUMMIT);
-		pvd.addTag(Tags.Biomes.IS_UNDERGROUND)
+				.add(GLBiomes.TENGU_SETTLEMENT).add(GLBiomes.SECRET_HEAVEN_CLIFF)
+				.add(GLBiomes.YOUKAI_MOUNTAIN_SUMMIT);
+		pvd.addTag(IS_MOUNTAIN_PEAK).add(GLBiomes.YOUKAI_MOUNTAIN_SUMMIT);
+		pvd.addTag(IS_UNDERGROUND)
 				.add(GLBiomes.HELL_OF_BLOOD_POOLS).add(GLBiomes.ANIMAL_REALM)
 				.add(GLBiomes.HELL_OF_BLAZING_FIRES).add(GLBiomes.FORMER_HELL);
-		pvd.addTag(Tags.Biomes.IS_SPOOKY).add(GLBiomes.MUENZUKA).add(GLBiomes.HILL_OF_THE_NAMELESS);
-		pvd.addTag(Tags.Biomes.IS_FLORAL).add(GLBiomes.HUMAN_VILLAGE).add(GLBiomes.SANCTUARY)
+		pvd.addTag(IS_SPOOKY).add(GLBiomes.MUENZUKA).add(GLBiomes.HILL_OF_THE_NAMELESS);
+		pvd.addTag(IS_FLORAL).add(GLBiomes.HUMAN_VILLAGE).add(GLBiomes.SANCTUARY)
 				.add(GLBiomes.HILL_OF_THE_NAMELESS);
-		pvd.addTag(Tags.Biomes.IS_WET).add(GLBiomes.GENBU_RAVINE)
+		pvd.addTag(IS_WET).add(GLBiomes.GENBU_RAVINE)
 				.add(GLBiomes.MISTY_LAKE).add(GLBiomes.MISTY_LAKE_SHORE);
 		// the four fixed locations. Misty Lake is not tagged as an ocean: it is a freshwater lake, and anything that
 		// branches on is_ocean would put oceans' own overrides on it
-		pvd.addTag(Tags.Biomes.IS_BEACH).add(GLBiomes.MISTY_LAKE_SHORE);
-		pvd.addTag(Tags.Biomes.IS_AQUATIC).add(GLBiomes.MISTY_LAKE);
-		pvd.addTag(Tags.Biomes.IS_DRY).add(GLBiomes.MYOUREN_TEMPLE_BARRENS);
-		pvd.addTag(Tags.Biomes.IS_TAIGA).add(GLBiomes.BAMBOO_FOREST_OF_THE_LOST)
+		pvd.addTag(IS_BEACH).add(GLBiomes.MISTY_LAKE_SHORE);
+		pvd.addTag(IS_AQUATIC).add(GLBiomes.MISTY_LAKE);
+		pvd.addTag(IS_DRY).add(GLBiomes.MYOUREN_TEMPLE_BARRENS);
+		pvd.addTag(IS_TAIGA).add(GLBiomes.BAMBOO_FOREST_OF_THE_LOST)
 				.add(GLBiomes.UNTRODDEN_VALLEY);
 	}
 

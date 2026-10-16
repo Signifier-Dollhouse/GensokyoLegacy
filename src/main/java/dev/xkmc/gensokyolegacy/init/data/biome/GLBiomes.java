@@ -69,11 +69,13 @@ public class GLBiomes {
 	public static final ResourceKey<Biome> ANIMAL_REALM = biome("animal_realm");
 	public static final ResourceKey<Biome> HELL_OF_BLAZING_FIRES = biome("hell_of_blazing_fires");
 	public static final ResourceKey<Biome> FORMER_HELL = biome("former_hell");
-	// the four fixed locations of `gensokyolegacy_fixed_biomes_guide.md`, one per water-level or high-altitude band
+	// the fixed locations of `gensokyolegacy_fixed_biomes_guide.md`, one per water-level or high-altitude band
 	public static final ResourceKey<Biome> MISTY_LAKE = biome("misty_lake");
 	public static final ResourceKey<Biome> MISTY_LAKE_SHORE = biome("misty_lake_shore");
 	public static final ResourceKey<Biome> TENGU_SETTLEMENT = biome("tengu_settlement");
 	public static final ResourceKey<Biome> YOUKAI_MOUNTAIN_SUMMIT = biome("youkai_mountain_summit");
+	// the dry half of the settlement's band, which the guide does not name
+	public static final ResourceKey<Biome> SECRET_HEAVEN_CLIFF = biome("secret_heaven_cliff");
 
 	public static final ResourceKey<Biome> SUNFLOWER_PLAINS = biome("sunflower_plains");
 
@@ -259,10 +261,14 @@ public class GLBiomes {
 	}
 
 	/**
-	 * The four fixed locations of {@code gensokyolegacy_fixed_biomes_guide.md}. They are not a fifth through eighth band
-	 * of the climate grid: each one takes the whole plane of a single height band, so what picks them is
-	 * continentalness and nothing else. Misty Lake is the drowned set, its shore is the strip above the waterline, and
-	 * the settlement and the summit are the two bands above the mountain.
+	 * The fixed locations of {@code gensokyolegacy_fixed_biomes_guide.md}, plus the one the guide does not name. They
+	 * are not a fifth through eighth band of the climate grid: each takes most or all of the plane of a single height
+	 * band, so what picks them is continentalness and very nearly nothing else. Misty Lake is the drowned set, its
+	 * shore is the strip above the waterline, and the settlement and the summit are the two bands above the mountain.
+	 * <p>
+	 * {@link #SECRET_HEAVEN_CLIFF} is the exception, and the only one of them humidity picks at all: it is the dry
+	 * half of the settlement's band, so continentalness still fixes its height and humidity alone splits it from the
+	 * settlement next to it. See {@code doc/design/gensokyo_biomes.md} §7.
 	 * <p>
 	 * Misty Lake is built on {@code minecraft:river} rather than {@code minecraft:ocean}, and drops
 	 * {@link #DROP_WATER_TREES} besides: both carry water trees, and mangroves in a freshwater lake would make it read
@@ -298,6 +304,18 @@ public class GLBiomes {
 				.addSpawn(MobCategory.CREATURE, new MobSpawnSettings.SpawnerData(EntityType.CHICKEN, 10, 2, 4));
 		ctx.register(TENGU_SETTLEMENT, touhou(vanilla.getOrThrow(Biomes.FOREST).value(), pf, carvers,
 				GensokyoBiomeFeatures.TENGU_SETTLEMENT, settlementSpawns, true, 0.4f, 0.5f, 0x46707d, 0x93a6b8, 0x7a9464, 0x6b8456));
+
+		// the dry half of the same band, a cliff ledge over the settlement rather than a second town. Its base is
+		// sparse spruce and the badlands grass patch, which is barer than forest's birches and flowers without
+		// going as bare as badlands, and the stone is carried by the surface rule's steep test in the dimension
+		// rather than by a palette here. Precipitation stays on, which is what keeps it off the snow line.
+		var cliffSpawns = new MobSpawnSettings.Builder();
+		BiomeDefaultFeatures.commonSpawns(cliffSpawns);
+		cliffSpawns.creatureGenerationProbability(0.05f);
+		cliffSpawns.addSpawn(MobCategory.CREATURE, new MobSpawnSettings.SpawnerData(EntityType.GOAT, 4, 1, 3))
+				.addSpawn(MobCategory.CREATURE, new MobSpawnSettings.SpawnerData(EntityType.SHEEP, 4, 2, 4));
+		ctx.register(SECRET_HEAVEN_CLIFF, touhou(vanilla.getOrThrow(Biomes.WINDSWEPT_FOREST).value(), pf, carvers,
+				GensokyoBiomeFeatures.SECRET_HEAVEN_CLIFF, cliffSpawns, true, 0.35f, 0.2f, 0x3f7482, 0x9aa8b8, 0x8c8b5a, 0x7d7d50));
 
 		// the summit. Its declared temperature is floored at what the no-snow rule of the snow line allows, which is
 		// why it does not read as cold; the altitude is carried by the palette instead, in surfaceRules and the tail.

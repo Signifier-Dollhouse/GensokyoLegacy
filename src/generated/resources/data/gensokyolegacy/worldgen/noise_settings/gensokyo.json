@@ -572,6 +572,27 @@
         "if_true": {
           "type": "minecraft:biome",
           "biome_is": [
+            "gensokyolegacy:secret_heaven_cliff"
+          ]
+        },
+        "then_run": {
+          "type": "minecraft:condition",
+          "if_true": {
+            "type": "minecraft:steep"
+          },
+          "then_run": {
+            "type": "minecraft:block",
+            "result_state": {
+              "Name": "minecraft:stone"
+            }
+          }
+        }
+      },
+      {
+        "type": "minecraft:condition",
+        "if_true": {
+          "type": "minecraft:biome",
+          "biome_is": [
             "gensokyolegacy:hell_of_blood_pools"
           ]
         },

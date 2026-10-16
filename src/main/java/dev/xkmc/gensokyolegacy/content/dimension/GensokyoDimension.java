@@ -146,8 +146,9 @@ public class GensokyoDimension {
 	private static final Band HUMID = new Band(0.01f, 1.0f);
 
 	// region order follows REGION_EDGES: water, shore, lower ground, upper ground, mountain, settlement, summit. The
-	// first two and the last two take the whole plane in one cell; the three open ground bands tile it the way the
-	// biome guide lists them — hot humid, cold humid, hot dry, cold dry — four cells to a band.
+	// first two and the last take the whole plane in one cell, and the settlement band splits on humidity alone, into
+	// the town and the cliff beside it; the three open ground bands tile the plane the way the biome guide lists them —
+	// hot humid, cold humid, hot dry, cold dry — four cells to a band.
 	private static final List<List<Cell>> SURFACE = List.of(
 			List.of(new Cell(GLBiomes.MISTY_LAKE, FULL_PLANE, FULL_PLANE)),
 			List.of(new Cell(GLBiomes.MISTY_LAKE_SHORE, FULL_PLANE, FULL_PLANE)),
@@ -163,7 +164,8 @@ public class GensokyoDimension {
 					new Cell(GLBiomes.GENBU_RAVINE, COLD, HUMID),
 					new Cell(GLBiomes.YOUKAI_MOUNTAIN_FOOTHILLS, HOT, DRY),
 					new Cell(GLBiomes.SANCTUARY, COLD, DRY)),
-			List.of(new Cell(GLBiomes.TENGU_SETTLEMENT, FULL_PLANE, FULL_PLANE)),
+			List.of(new Cell(GLBiomes.TENGU_SETTLEMENT, FULL_PLANE, HUMID),
+				new Cell(GLBiomes.SECRET_HEAVEN_CLIFF, FULL_PLANE, DRY)),
 			List.of(new Cell(GLBiomes.YOUKAI_MOUNTAIN_SUMMIT, FULL_PLANE, FULL_PLANE)));
 
 	/**
@@ -254,6 +256,10 @@ public class GensokyoDimension {
 												SurfaceRules.state(Blocks.SAND.defaultBlockState()))),
 								SurfaceRules.ifTrue(UNDER_BED, SurfaceRules.ifTrue(UNDERWATER,
 										SurfaceRules.state(Blocks.GRAVEL.defaultBlockState()))))),
+				// the cliff is the settlement's dry half, so its exposure is all the rule has to do: the steep faces are bare rock
+				// and the flat ground falls through to the shared grass over dirt, with the scree laid on top by the tail
+				SurfaceRules.ifTrue(SurfaceRules.isBiome(GLBiomes.SECRET_HEAVEN_CLIFF),
+						SurfaceRules.ifTrue(SurfaceRules.steep(), SurfaceRules.state(Blocks.STONE.defaultBlockState()))),
 				SurfaceRules.ifTrue(SurfaceRules.isBiome(GLBiomes.HELL_OF_BLOOD_POOLS),
 						hellPalette(Blocks.NETHERRACK, Blocks.CRIMSON_NYLIUM, Blocks.BLACKSTONE)),
 				SurfaceRules.ifTrue(SurfaceRules.isBiome(GLBiomes.ANIMAL_REALM),

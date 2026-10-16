@@ -2,14 +2,15 @@
 
 Every biome the Gensokyo dimension can select: the twelve of `gensokyo_dimension_biome_guide.md` §3 and §4, the two that
 were already there (`magical_forest`, `sakura_forest`), and the four fixed locations of
-`gensokyolegacy_fixed_biomes_guide.md`. Registry keys live in `GLBiomes`, features in `GensokyoBiomeFeatures`, and the
-places they are selected from in `GensokyoDimension`'s climate grid.
+`gensokyolegacy_fixed_biomes_guide.md` plus the one it does not name. Registry keys live in `GLBiomes`, features in
+`GensokyoBiomeFeatures`, and the places they are selected from in `GensokyoDimension`'s climate grid.
 
-The sixteen split three ways:
+The seventeen split four ways:
 
 - **twelve band biomes** (§1) — the guide's lower ground / upper ground / Mountain / Underground, one vanilla base each.
 - **two established** — `magical_forest` and `sakura_forest`, which predate this and are left alone.
 - **four fixed locations** (§7) — Misty Lake, its shore, the Tengu Settlement and the summit above it.
+- **one split** — `secret_heaven_cliff`, the dry half of the settlement's band (§7).
 
 The guide's own Y bands (64–80 / 80–96 / 96–128) are **not** what the grid uses. `gensokyo_dimension.md` §3 replaced
 them with continentalness quantiles, so the guide's "lower ground / upper ground / Mountain" labels are kept here as
@@ -116,6 +117,7 @@ barrens, mud under the bamboo and in Genbu Ravine.
 | `lake_clay` / `lake_cattails` / `misty_lake_lily_pads` | 2 patches / 1 in 3 / 1 in 3 | misty lake |
 | `shore_sand` / `shore_reeds` / `shore_flowers` | 4 / 3 / 3 patches | misty lake shore |
 | `settlement_paths` | 1 in 4 | tengu settlement |
+| `cliff_scree` | 1 patch | secret heaven cliff |
 | `summit_soil` / `summit_moss` / `summit_scree` / `summit_trees` | 2 / 4 / 4 patches / 1 in 16 | youkai mountain summit |
 
 The guide's §7 order — surface palette, common vegetation, ground accents, water, structures, atmosphere — was not
@@ -210,12 +212,16 @@ them can shadow the dimension's grass and dirt. In the guide's §6 priority orde
    everywhere else. The soil pockets are *not* a third state here; they are the grass disk in the tail, which is the
    cheaper place for them.
 3. **shore waterline** (`misty_lake_shore`) — sand at the water line, gravel under.
-4. the four hell palettes.
-5. `SurfaceRuleData.overworld()`.
+4. **cliff faces** (`secret_heaven_cliff`) — stone where it is steep, and nothing else, so the flat ground falls
+   through to the overworld tree. This is the only branch in the list that is a single `steep()` test, and that is the
+   whole of it: the scree is the tail's, and the barrenness is the base's.
+5. the four hell palettes.
+6. `SurfaceRuleData.overworld()`.
 
 `tengu_settlement` has no branch at all, which is also the guide's instruction: its paths are
 `settlement_paths`, a placed feature, because a surface rule would paint the whole biome floor. Its topsoil is the
-dimension's.
+dimension's. `secret_heaven_cliff` takes the `steep()` half of the summit's branch and none of its palette, which is
+the point of it being a *cliff* and the limit of what it is meant to be.
 
 Two honest limitations. `UNDERWATER` is `waterBlockCheck(0, 0)`, i.e. `blockY <= waterHeight`, which is a *level*
 test rather than an "is there water here" test — a cave floor that happens to sit under the water line in the lake will
@@ -289,6 +295,7 @@ So the threshold is **0.15 of an altitude-adjusted temperature**, not of the dec
 | sanctuary | 0.35 | 96 … 128 | 0.07 | 0.28 | no |
 | grove | **−0.2** (copy) | 128 … 192 | 0.11 | −0.31 | **yes, vanilla's own** |
 | tengu_settlement | 0.4 | 128 … 192 | 0.11 | 0.29 | no |
+| secret_heaven_cliff | 0.35 | 128 … 192 | 0.11 | 0.24 | no |
 | youkai_mountain_summit | 0.4 | 192 … 220 | 0.19 | 0.21 | no, but only just |
 | misty_lake | 0.3 | ≤ 63 | 0 (below y 80) | 0.3 | no |
 | misty_lake_shore | 0.4 | 63 … 66 | 0 | 0.4 | no |
@@ -296,7 +303,9 @@ So the threshold is **0.15 of an altitude-adjusted temperature**, not of the dec
 Every biome this project defines clears the line, though `youkai_mountain_summit` clears it by only 0.06 at the very top
 of its band — raise its declared temperature before assuming anything else is safe. The margin is what the column is
 for: the altitude loss is a noise term, so a biome only ever snows in the top few blocks of its band and only in the
-coldest few of those. The six biomes the grid puts in a cold cell declare 0.2 to 0.35, comfortably warm, because a cold *cell* is a
+coldest few of those. `secret_heaven_cliff` is the tightest of the ones added since, at 0.09, and it is the second
+half of a band that already has a colder neighbour, so it is the first thing to re-check if anything moves.
+The six biomes the grid puts in a cold cell declare 0.2 to 0.35, comfortably warm, because a cold *cell* is a
 place on the climate map and not a licence to freeze — `bamboo_forest_of_the_lost` is the clearest case, where the guide
 sits a winter bamboo grove in a cold corner and the map should not put snow on the ground.
 
@@ -311,7 +320,7 @@ registers uses it.
 
 ---
 
-## 7. The four fixed locations
+## 7. The fixed locations
 
 `gensokyolegacy_fixed_biomes_guide.md` names Misty Lake, Misty Lake Shore, the Tengu Settlement and the Youkai Mountain
 Summit. They are not a fifth through eighth band: each one takes **the whole plane of a single height band**, so what
@@ -325,6 +334,15 @@ to hold, one for one, and why the grid needed no new machinery.
 | region 5 | 128 … 192 | 12.34% | `grove` (copy) | **tengu_settlement** |
 | region 6 | 192 … 220 | 5.49% | `peak` (two-source copy) | **youkai_mountain_summit** |
 
+`secret_heaven_cliff` is the exception and is not in the guide. It is the **dry half of the settlement's band**, so
+continentalness still fixes the height and humidity alone splits it off: `tengu_settlement` takes `HUMID` over the full
+temperature span and `secret_heaven_cliff` takes `DRY`. Both halves are in the same region, so the pair measures 8.66%
+and 7.28% of the map over 256 × 256 chunks at seed −1838080655014084215, against the band's 13.25%.
+
+That is the whole of the selection rule, and it is deliberately the cheapest one that reads as "beside the town rather
+than in the same cell": humidity is already cut once at 0 for the four-cell bands, so the cliff needs no new axis, no
+new edge and no new machinery — only a second cell in the row.
+
 The one thing the grid had to carry over is the waterline invariant of §3. `ocean` was the drowned set only
 because its continentalness edge sat on the waterline of the offset spline; `misty_lake` now sits in exactly that cell
 and inherits the invariant unchanged, so the lake is still precisely the set of drowned columns. `tools/terrain.py`
@@ -335,6 +353,7 @@ confirms it: `misty_lake` measures 10.84% against 10.55% under water, the same n
 | `misty_lake` | `river`, **minus `trees_water`** | a freshwater lake. `minecraft:ocean` was the obvious base and is wrong: both it and `river` carry water trees, and mangroves in a freshwater lake are exactly the swamp the guide rules out |
 | `misty_lake_shore` | `beach` | already the sand-and-gravel shoreline; the guide's waterline and coves are added on top |
 | `tengu_settlement` | `forest` | a wooded settlement edge, and distinct from `youkai_mountain_foothills`, which is `windswept_hills` |
+| `secret_heaven_cliff` | `windswept_forest` | the barer neighbour of `forest`, and a third base in the mountain band so the three stay distinguishable: sparse spruce and `patch_grass_badlands` against forest's birches, oaks and flowers, and nothing like the foothills' `windswept_hills` |
 | `youkai_mountain_summit` | `stony_peaks` | literally the exposed-rock biome, and its emerald and amethyst veins are the guide's "soil pockets" |
 
 The water itself comes from terrain and aquifers, not from features, as the guide requires — and in Gensokyo that is
@@ -355,7 +374,18 @@ biome should be cold enough", so this is the branch where that question was answ
 | `misty_lake` | clay and gravel patches on the bed, cattails in the coves, sparse lily pads |
 | `misty_lake_shore` | boulders, a sand/gravel/mud waterline, reeds at the edge, ferns and flowers inland |
 | `tengu_settlement` | ferns and grass on the unused slopes, gravel and coarse dirt paths |
+| `secret_heaven_cliff` | boulders and a sparser scree of gravel and tuff, one patch per chunk |
 | `youkai_mountain_summit` | soil pockets (a grass disk on stone), moss and glow lichen, scree, a rare pine |
+
+The cliff's tail is the settlement's with the paths dropped and `cliff_scree` in place of `foothill_moss`: no moss, no
+ferns and no bracken, and a quarter of the settlement's moss density. It is a surface rule that carries the rest — a
+`steep()` test to bare stone, which is what makes a cliff read as a cliff rather than as a barer field — while the
+flat ground falls through to the dimension's shared grass over dirt. `MYOUREN_TEMPLE_BARRENS` is the opposite trade and
+the reason the cliff is not built that way: it takes the whole `badlands` surface rule with it, which is a bigger jump
+than "a bit more barren" asks for next to a town.
+
+Precipitation stays **on** for the cliff, which is also what keeps it off the snow line: it declares 0.35 against the
+settlement's 0.4, and `gensokyo_dimension.md`'s snow table below is the place to check that margin before changing it.
 
 Two of those needed a ground predicate that is not `BlockTags.DIRT`, because the lake's surface rule makes the bed sand
 and gravel: `onGround(tries, palette, blocks...)` is the general form, and `onDirt` is the `BlockTags.DIRT` shorthand.
@@ -371,12 +401,29 @@ separate template budget, and the guide is explicit that these must not be faked
 
 ## 8. Tags
 
-`GLStructureTagGen.genBiomeTag` gains `is_plains`, `is_mountain` (repointed from the removed `mountain` to the four
-biomes that replaced it), `is_forest`, `is_taiga`, `is_underground`, `is_spooky`, `is_floral`, `is_wet`, `is_dry`,
-`is_aquatic`, `is_mountain/peak`, plus `is_wet` for the two lake biomes.
+`GLStructureTagGen.genBiomeTag` writes `is_magical`, `is_forest`, `is_plains`, `is_mountain`, `is_mountain/peak`,
+`is_underground`, `is_spooky`, `is_floral`, `is_wet`, `is_beach`, `is_aquatic`, `is_dry` and `is_taiga`, plus
+`has_structure/*` and `has_spawn/plain_fairy`.
 
-`misty_lake` is deliberately **not** in `is_ocean`. It is a freshwater lake, and anything that branches on that tag
-would bring the oceans' own overrides with it.
+**All of these are ours** — `gensokyolegacy:is_forest`, not `minecraft:is_forest` or `c:is_forest`. The names match
+the vanilla ones so the classification still reads as one, but the namespace is the point: those tags are shared
+vocabulary. Every mod that ships a forest biome writes to the same `is_forest`, so its contents are a claim *about*
+the biome that other mods read when deciding their own behaviour, and a mod testing `c:is_forest` to decide where to
+put mushrooms would otherwise start finding them on a cliff it cannot see. The same goes for the rest: `is_beach` and
+`is_dry` in particular are branches other mods write conditionals against, not a description we get to broadcast.
+
+The one consumer that reads a vanilla pair is our own: `has_spawn/plain_fairy` nests **both** `c:is_forest` /
+`c:is_plains` and our two. Reading a tag and writing it are different acts — the naming argument above is entirely about
+the write — and the modifier is not scoped to a dimension, so it has to keep reaching the overworld's forests and
+plains or the vanilla world loses its fairies. Ours carry Gensokyo's, the shared pair carries vanilla's.
+
+Nothing else in the mod or in the game reads any of these — grepping the decompiled sources, `is_forest`,
+`is_plains`, `is_mountain`, `is_taiga` and `is_underground` are consumed nowhere at runtime; they exist as
+classification and as something a datapack can widen. That is why the vanilla writes could go without anything else
+noticing.
+
+`misty_lake` is deliberately **not** in `is_ocean` either way, and still not in our own `is_aquatic` alone: it is a
+freshwater lake, and anything that branches on an ocean tag would bring the oceans' own overrides with it.
 
 ## 9. Names
 
