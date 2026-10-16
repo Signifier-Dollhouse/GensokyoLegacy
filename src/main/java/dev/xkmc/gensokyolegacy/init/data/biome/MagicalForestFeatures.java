@@ -2,7 +2,7 @@ package dev.xkmc.gensokyolegacy.init.data.biome;
 
 import dev.xkmc.gensokyolegacy.content.block.nature.CedarFallenLeavesBlock;
 import dev.xkmc.gensokyolegacy.content.block.nature.WaterloggedBushBlock;
-import dev.xkmc.gensokyolegacy.content.worldgen.feature.lake.MagicalForestLakeFeature;
+import dev.xkmc.gensokyolegacy.content.worldgen.feature.lake.LakeConfig;
 import dev.xkmc.gensokyolegacy.content.worldgen.feature.template.TemplateFeatureConfig;
 import dev.xkmc.gensokyolegacy.content.worldgen.placement.AvoidStructuresFilter;
 import dev.xkmc.gensokyolegacy.content.worldgen.placement.CanopyFilter;
@@ -287,18 +287,20 @@ public class MagicalForestFeatures {
 				.setValue(SmallDripleafBlock.HALF, DoubleBlockHalf.UPPER)
 				.setValue(BlockStateProperties.WATERLOGGED, false)
 				.setValue(SmallDripleafBlock.FACING, Direction.NORTH);
-		FeatureUtils.register(ctx, LAKE, GLWorldGen.LAKE.get(), new MagicalForestLakeFeature.Data(
-				Blocks.WATER.defaultBlockState(), Blocks.CLAY.defaultBlockState(),
-				Blocks.DIRT.defaultBlockState(), Blocks.GRASS_BLOCK.defaultBlockState(),
-				4, 24, 8, 3, 5, 8, 3, List.of(
-				new MagicalForestLakeFeature.Deco(MagicalForestLakeFeature.Target.FLOATING,
-						Blocks.LILY_PAD.defaultBlockState(), Blocks.AIR.defaultBlockState(), 0.15f, BlockTags.DIRT),
-				new MagicalForestLakeFeature.Deco(MagicalForestLakeFeature.Target.SHALLOW,
-						cattailWet, Blocks.AIR.defaultBlockState(), 0.25f, BlockTags.DIRT),
-				new MagicalForestLakeFeature.Deco(MagicalForestLakeFeature.Target.SHALLOW,
-						dripLower, dripUpper, 0.12f, BlockTags.SMALL_DRIPLEAF_PLACEABLE),
-				new MagicalForestLakeFeature.Deco(MagicalForestLakeFeature.Target.SHORE,
-						cattailDry, Blocks.AIR.defaultBlockState(), 0.08f, BlockTags.DIRT))));
+		FeatureUtils.register(ctx, LAKE, GLWorldGen.LAKE.get(), new LakeConfig(
+				LakeConfig.Mode.SURFACE, 0,
+				new LakeConfig.Shape(4, 24, 8, 3, 5, 8, 3),
+				new LakeConfig.Material(Blocks.WATER.defaultBlockState(), Blocks.CLAY.defaultBlockState(),
+						Blocks.DIRT.defaultBlockState(), Blocks.GRASS_BLOCK.defaultBlockState()),
+				List.of(
+						new LakeConfig.Deco(LakeConfig.Target.FLOATING,
+								Blocks.LILY_PAD.defaultBlockState(), Blocks.AIR.defaultBlockState(), 0.15f, BlockTags.DIRT),
+						new LakeConfig.Deco(LakeConfig.Target.SHALLOW,
+								cattailWet, Blocks.AIR.defaultBlockState(), 0.25f, BlockTags.DIRT),
+						new LakeConfig.Deco(LakeConfig.Target.SHALLOW,
+								dripLower, dripUpper, 0.12f, BlockTags.SMALL_DRIPLEAF_PLACEABLE),
+						new LakeConfig.Deco(LakeConfig.Target.SHORE,
+								cattailDry, Blocks.AIR.defaultBlockState(), 0.08f, BlockTags.DIRT))));
 	}
 
 	public static void placed(BootstrapContext<PlacedFeature> ctx) {

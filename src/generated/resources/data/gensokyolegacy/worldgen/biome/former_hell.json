@@ -22,7 +22,9 @@
   },
   "features": [
     [],
-    [],
+    [
+      "gensokyolegacy:gensokyo_biome/former_hell_lake"
+    ],
     [],
     [],
     [],

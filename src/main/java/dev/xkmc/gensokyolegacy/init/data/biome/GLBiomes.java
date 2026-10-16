@@ -144,6 +144,18 @@ public class GLBiomes {
 			GensokyoBiomeFeatures.RAVINE_SPRING_WATER_PF);
 
 	/**
+	 * The ruins' standing water, for {@code former_hell} alone.
+	 * <p>
+	 * A pool of standing water is not one of the features the four underground biomes share, because the other three
+	 * are hot and water in a lava cave would quench it. Former Hell is the cold humid one, and it is the only one of
+	 * the four whose rock is a ruin, which is what gives a flooded hall somewhere to be flooded in the first place.
+	 *
+	 * @see "doc/design/gensokyo_biomes.md" §2
+	 */
+	private static final List<ResourceKey<PlacedFeature>> FORMER_HELL_LAKE =
+			List.of(GensokyoBiomeFeatures.FORMER_HELL_LAKE_PF);
+
+	/**
 	 * The deltas' lava, for {@code hell_of_blazing_fires} alone. Every other nether spring is left out — see
 	 * {@link #NETHER_COMMON} — but this one is the lava rather than a hazard: it is what makes a biome of basalt
 	 * a lava biome, and without it the blazing fires are hot-looking rock.
@@ -393,6 +405,7 @@ public class GLBiomes {
 		ctx.register(FORMER_HELL, biome(true, 0.8f, 0.4f, 0x5a4a3a, 0x6a5a4a, 0x7a6b52, 0x6b5c46, new MobSpawnSettings.Builder(),
 				// crimson forest: roots and weeping vines growing back through a ruin is the whole idea of the place
 				layers(pf, carvers)
+						.lakes(FORMER_HELL_LAKE)
 						.ores(OVERWORLD_ORES)
 						.underground(join(NETHER_COMMON, List.of(NetherPlacements.CRIMSON_FOREST_VEGETATION,
 								TreePlacements.CRIMSON_FUNGI, NetherPlacements.PATCH_CRIMSON_ROOTS,

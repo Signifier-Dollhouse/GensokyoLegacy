@@ -1,10 +1,6 @@
 {
   "type": "gensokyolegacy:lake",
   "config": {
-    "barrier": {
-      "Name": "minecraft:clay"
-    },
-    "component_radius": 8,
     "decorations": [
       {
         "block": {
@@ -55,26 +51,35 @@
         "target": "shore"
       }
     ],
-    "depth": 4,
-    "fluid": {
-      "Name": "minecraft:water",
-      "Properties": {
-        "level": "0"
+    "material": {
+      "barrier": {
+        "Name": "minecraft:clay"
+      },
+      "fluid": {
+        "Name": "minecraft:water",
+        "Properties": {
+          "level": "0"
+        }
+      },
+      "padding": {
+        "Name": "minecraft:dirt"
+      },
+      "surface": {
+        "Name": "minecraft:grass_block",
+        "Properties": {
+          "snowy": "false"
+        }
       }
     },
-    "margin": 3,
-    "max_component": 5,
-    "max_height": 8,
-    "max_width": 24,
-    "min_component": 3,
-    "padding": {
-      "Name": "minecraft:dirt"
-    },
-    "surface": {
-      "Name": "minecraft:grass_block",
-      "Properties": {
-        "snowy": "false"
-      }
+    "mode": "surface",
+    "shape": {
+      "component_radius": 8,
+      "depth": 4,
+      "margin": 3,
+      "max_component": 5,
+      "max_height": 8,
+      "max_width": 24,
+      "min_component": 3
     }
   }
 }

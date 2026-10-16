@@ -1,9 +1,14 @@
-"""Reproduces FeatureSorter's feature-order cycle detection over every biome in the game.
+"""Reproduces FeatureSorter's feature-order cycle detection.
 
 FeatureSorter links each biome's decoration features into a graph, one edge per pair of consecutive
 features (including across step boundaries), keyed by (feature, step). Two biomes that list the same
-features in a different relative order produce a cycle and crash chunk generation. Vanilla keeps its
-own biomes consistent by convention; a mod biome has to follow the same order.
+features in a different relative order produce a cycle and crash chunk generation.
+
+It is called once per chunk generator, over `BiomeSource.possibleBiomes()` — that one generator's biomes
+and nothing else. Vanilla's own biomes are therefore never in the same graph as this mod's: the Gensokyo
+dimension's multi_noise source lists 23 `gensokyolegacy` biomes and no vanilla one, and `EmptyChunkGenerator`
+holds a FixedBiomeSource with a single biome. So the biomes are grouped by namespace and each group is
+checked on its own; one graph over all of them invents cycles that no generator can ever hit.
 
 usage: python3 tools/feature_cycle_check.py <vanilla resources jar> <mod resources dir>
 """
@@ -19,7 +24,7 @@ def load_vanilla(jar: Path):
     with zipfile.ZipFile(jar) as archive:
         for name in sorted(archive.namelist()):
             if name.startswith("data/minecraft/worldgen/biome/") and name.endswith(".json"):
-                yield name, json.loads(archive.read(name)).get("features", [])
+                yield "minecraft:" + Path(name).stem, json.loads(archive.read(name)).get("features", [])
 
 
 def load_mod(directory: Path):
@@ -69,17 +74,21 @@ def cycle(graph):
 
 def main():
     vanilla_jar, mod_dir = Path(sys.argv[1]), Path(sys.argv[2])
-    biomes = {name: features for name, features in load_vanilla(vanilla_jar)}
-    biomes.update(dict(load_mod(mod_dir)))
-    print(f"checked {len(biomes)} biomes")
-    found = find_cycle(biomes)
-    if not found:
-        print("no feature order cycle")
-        return 0
-    print("feature order cycle:")
-    for feature, step in found:
-        print(f"  {feature} @ decoration step {step}")
-    return 1
+    groups = {}
+    for source in (load_vanilla(vanilla_jar), load_mod(mod_dir)):
+        for name, features in source:
+            groups.setdefault(name.split(":")[0], {})[name] = features
+    for namespace in sorted(groups):
+        found = find_cycle(groups[namespace])
+        print(f"{namespace}: checked {len(groups[namespace])} biomes")
+        if not found:
+            print(f"{namespace}: no feature order cycle")
+            continue
+        print(f"{namespace}: feature order cycle:")
+        for feature, step in found:
+            print(f"  {feature} @ decoration step {step}")
+        return 1
+    return 0
 
 
 if __name__ == "__main__":

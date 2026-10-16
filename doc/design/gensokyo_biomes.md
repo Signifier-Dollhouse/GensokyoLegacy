@@ -180,8 +180,8 @@ There is no snowy biome: the guide gives a band its four, and the one genuinely 
 
 ## 2. The feature tail
 
-`GensokyoBiomeFeatures` owns 20 configured features and 23 placed ones under
-`worldgen/{configured,placed}_feature/gensokyo_biome/`. Three kinds:
+`GensokyoBiomeFeatures` owns 30 configured features and 38 placed ones under
+`worldgen/{configured,placed}_feature/gensokyo_biome/`. Four kinds:
 
 **Ground cover** — `RANDOM_PATCH` of `SIMPLE_BLOCK` on `BlockTags.DIRT`, the same shape as the magical forest's grass
 and flowers. The vanilla flower and grass features of the base are kept as well, so the mod blocks are an accent
@@ -193,6 +193,8 @@ barrens, mud under the bamboo and in Genbu Ravine.
 **Cave deposits** — the same patch, but placed with vanilla's own cave decoration pipeline
 (`EnvironmentScanPlacement` downward + `RandomOffsetPlacement`) in the `UNDERGROUND_DECORATION` step, and gated on
 `BlockPredicate.solid()` instead of the dirt tag so they survive a hell palette that is not vanilla stone.
+
+**One lake** — `former_hell_lake`, see §2.1. It is the only feature in the tail that is not a patch of blocks.
 
 | placed feature | tries / count | used by |
 |---|---|---|
@@ -210,11 +212,51 @@ barrens, mud under the bamboo and in Genbu Ravine.
 | `den_rubble` / `fungus_patch` | 1 in 5 / 4 patches | animal realm |
 | `fire_vent` / `ash_patch` | 1 in 4 / 5 patches | hell of blazing fires |
 | `old_rubble` | 1 in 4 | former hell |
+| `former_hell_lake` | 1 in 6 chunks, in the LAKES step | former hell |
 | `lake_clay` / `lake_cattails` / `misty_lake_lily_pads` | 2 patches / 1 in 3 / 1 in 3 | misty lake |
 | `shore_sand` / `shore_reeds` / `shore_flowers` | 4 / 3 / 3 patches | misty lake shore |
 | `settlement_paths` | 1 in 4 | tengu settlement |
 | `cliff_scree` | 1 patch | secret heaven cliff |
 | `summit_soil` / `summit_moss` / `summit_scree` / `summit_trees` | 2 / 4 / 4 patches / 1 in 16 | youkai mountain summit |
+
+### 2.1 The ruins' standing water
+
+`former_hell_lake` is a water pool in a cavern, and it is neither of the two things a vanilla lake is:
+
+- `minecraft:lake_underground_water` takes the first open block a downward scan finds and pours water into whatever
+  surrounds it, which is how a one-block pocket in the rock ends up holding a puddle;
+- the heightmap placements put a lake on the open surface, which is what the magical forest's pond wants and what this
+  biome must not have — the ruins are underground, and a pool you can see the sky in is not underground.
+
+So it is placed by walking the column. The placed feature gives a position in the biome's depth band
+(`HeightRangePlacement.uniform(bottom, absolute(64))`, no heightmap), and `LakeFeature` reads that column from the
+world floor up to the topmost rock of the column. Every stretch of open air between two solid blocks is a candidate
+room if:
+
+| test | value | why |
+|---|---|---|
+| room height | at least `clearance` = 5 open blocks over the floor | the 5 blocks of air clearance, read on the cavern floor itself. No ceiling on the size: a cavern a hundred blocks high is still a cavern |
+| roof | below the column's `WORLD_SURFACE_WG` height | an open run that reaches the surface is the sky, so this is what keeps the pool out of the open and off the world's surface |
+| floor | `isSolid()` at the floor and the block under it | a bed over a void is a shell, and the water would hang in it |
+| biome | same as the placement's | the caverns cross the depth bands, so without it the wrong hell's cavern gets water |
+
+**The pool is dug into the floor, not stood on it.** A room's block comes back `depth` below its floor, so the
+water sits under the cavern's own floor level and the air pocket the maker cuts above the waterline — which opens
+the floor itself — is what makes the pit visible. A pool laid on top of the floor is a mud tub standing in the cave.
+
+The rooms come back **all of them, in a random rotation**, and the first that fits is used. A column with several
+rooms used to spend every one of its lakes in the lowest, which is both the worst-looking room and the one a cave
+system has most of.
+
+`LakeMaker` then checks the whole footprint the same way: a solid bed with solid rock under it for every column
+that holds water, nothing liquid in the water itself, and `clearance` of open air over each column's highest
+water — counting the air pocket the maker cuts itself, since on a dug-in pool those blocks are the floor it opens.
+It lays the wall that dams the pool — a cavern floor is flat, so without a rim the water would spread over it and
+flood the cavern instead of standing in it — and nothing else: no turf cap, no planting, since a flooded floor is
+neither.
+
+The magical forest's pond and this are the same feature (`gensokyolegacy:lake`) with the same ellipsoid maker; they
+differ in `mode` and in what the mode checks. See `magical_forest_vegetation.md` §6.5 for the pond.
 
 The guide's §7 order — surface palette, common vegetation, ground accents, water, structures, atmosphere — was not
 followed literally, because a biome's identity here comes mostly from its base and its colours. Every list in the

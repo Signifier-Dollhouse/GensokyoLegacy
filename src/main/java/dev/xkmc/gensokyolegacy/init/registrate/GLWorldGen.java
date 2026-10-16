@@ -3,7 +3,8 @@ package dev.xkmc.gensokyolegacy.init.registrate;
 import dev.xkmc.gensokyolegacy.content.dimension.EmptyChunkGenerator;
 import dev.xkmc.gensokyolegacy.content.dimension.GensokyoChunkGenerator;
 import dev.xkmc.gensokyolegacy.content.worldgen.feature.MushroomFeatures;
-import dev.xkmc.gensokyolegacy.content.worldgen.feature.lake.MagicalForestLakeFeature;
+import dev.xkmc.gensokyolegacy.content.worldgen.feature.lake.LakeConfig;
+import dev.xkmc.gensokyolegacy.content.worldgen.feature.lake.LakeFeature;
 import dev.xkmc.gensokyolegacy.content.worldgen.feature.template.TemplateBlendProcessor;
 import dev.xkmc.gensokyolegacy.content.worldgen.feature.template.TemplateFeature;
 import dev.xkmc.gensokyolegacy.content.worldgen.feature.template.TemplateFeatureConfig;
@@ -55,7 +56,7 @@ public class GLWorldGen {
 	private static final SR<Feature<?>> FR = SR.of(GensokyoLegacy.REG, BuiltInRegistries.FEATURE);
 	public static final Map<MushroomFeatures.MushroomTreeType, Val<AbstractHugeMushroomFeature>> MUSHROOM_TREES;
 	public static final Val<TemplateFeature> TEMPLATE = FR.reg("template", () -> new TemplateFeature(TemplateFeatureConfig.CODEC));
-	public static final Val<MagicalForestLakeFeature> LAKE = FR.reg("lake", () -> new MagicalForestLakeFeature(MagicalForestLakeFeature.Data.CODEC));
+	public static final Val<LakeFeature> LAKE = FR.reg("lake", () -> new LakeFeature(LakeConfig.CODEC));
 
 	private static final SR<PlacementModifierType<?>> PM = SR.of(GensokyoLegacy.REG, Registries.PLACEMENT_MODIFIER_TYPE);
 	public static final Val<PlacementModifierType<JitteredGridPlacement>> JITTERED_GRID = PM.reg("jittered_grid", () -> () -> JitteredGridPlacement.CODEC);

@@ -1,7 +1,9 @@
 package dev.xkmc.gensokyolegacy.init.data.biome;
 
 import com.tterrag.registrate.util.entry.BlockEntry;
+import dev.xkmc.gensokyolegacy.content.worldgen.feature.lake.LakeConfig;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
+import dev.xkmc.gensokyolegacy.init.registrate.GLWorldGen;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLNaturalBlocks;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
@@ -83,6 +85,8 @@ public class GensokyoBiomeFeatures {
 	private static final ResourceKey<ConfiguredFeature<?, ?>> FIRE_VENT = cf("fire_vent");
 	private static final ResourceKey<ConfiguredFeature<?, ?>> ASH_PATCH = cf("ash_patch");
 	private static final ResourceKey<ConfiguredFeature<?, ?>> OLD_RUBBLE = cf("old_rubble");
+	// the ruins' standing water, in a cavern rather than on the surface
+	private static final ResourceKey<ConfiguredFeature<?, ?>> FORMER_HELL_LAKE = cf("former_hell_lake");
 	// the four fixed biomes: Misty Lake, its shore, the Tengu Settlement and the summit above it
 	private static final ResourceKey<ConfiguredFeature<?, ?>> LAKE_CLAY = cf("lake_clay");
 	private static final ResourceKey<ConfiguredFeature<?, ?>> LAKE_CATTAILS = cf("lake_cattails");
@@ -120,6 +124,7 @@ public class GensokyoBiomeFeatures {
 	private static final ResourceKey<PlacedFeature> FIRE_VENT_PF = pf("fire_vent");
 	private static final ResourceKey<PlacedFeature> ASH_PATCH_PF = pf("ash_patch");
 	private static final ResourceKey<PlacedFeature> OLD_RUBBLE_PF = pf("old_rubble");
+	public static final ResourceKey<PlacedFeature> FORMER_HELL_LAKE_PF = pf("former_hell_lake");
 	private static final ResourceKey<PlacedFeature> LAKE_CLAY_PF = pf("lake_clay");
 	private static final ResourceKey<PlacedFeature> LAKE_CATTAILS_PF = pf("lake_cattails");
 	private static final ResourceKey<PlacedFeature> LILY_PADS_PF = pf("misty_lake_lily_pads");
@@ -143,7 +148,7 @@ public class GensokyoBiomeFeatures {
 			HILL_FLOWERS_PF, BAMBOO_DENSE_PF, BAMBOO_SPARSE_PF, RAVINE_MOSS_PF, FOOTHILL_MOSS_PF,
 			SANCTUARY_TREES_PF, SANCTUARY_FLOWERS_PF,
 			BLOOD_DEPOSIT_PF, BONE_PILE_PF, DEN_RUBBLE_PF, FUNGUS_PATCH_PF, FIRE_VENT_PF, ASH_PATCH_PF, OLD_RUBBLE_PF,
-			BLAZING_HELL_LAVA_PF,
+			BLAZING_HELL_LAVA_PF, FORMER_HELL_LAKE_PF,
 			LAKE_CLAY_PF, LAKE_CATTAILS_PF, LILY_PADS_PF, SHORE_SAND_PF, SHORE_REEDS_PF, SHORE_FLOWERS_PF,
 			SETTLEMENT_PATHS_PF, CLIFF_SCREE_PF,
 			SUMMIT_SOIL_PF, SUMMIT_MOSS_PF, SUMMIT_SCREE_PF, SUMMIT_TREES_PF);
@@ -264,6 +269,17 @@ public class GensokyoBiomeFeatures {
 				.add(Blocks.CRACKED_STONE_BRICKS, 3).add(Blocks.MOSSY_COBBLESTONE, 2)
 				.add(Blocks.BRICKS, 2).add(Blocks.GRAVEL, 1).build()));
 
+		// The ruins' standing water, and the only lake in the biome list that is not on the surface. It has to be a
+		// separate configured feature from the magical forest's pond because the mode is in the config: this one is
+		// poured into a cavern, which means it finds its own floor instead of taking the ground it lands on, keeps
+		// five blocks of headroom above the water, and lays a bed of silt rather than a rim of turf. The box is 20 wide
+		// and 11 tall, which leaves room for 3 deep of water, the air the maker cuts above it and that headroom.
+		FeatureUtils.register(ctx, FORMER_HELL_LAKE, GLWorldGen.LAKE.get(), new LakeConfig(
+				LakeConfig.Mode.UNDERGROUND, 5,
+				new LakeConfig.Shape(4, 20, 11, 3, 4, 6, 3),
+				new LakeConfig.Material(Blocks.WATER.defaultBlockState(), Blocks.AIR.defaultBlockState(),
+						Blocks.MUD.defaultBlockState(), Blocks.AIR.defaultBlockState()), List.of()));
+
 		var cattail = GLNaturalBlocks.FLAME_CATTAIL.get().defaultBlockState();
 		// the lakebed is sand and gravel under the surface rule, so these two sit on those and not on BlockTags.DIRT
 		FeatureUtils.register(ctx, LAKE_CLAY, Feature.RANDOM_PATCH, onGround(14, new Palette()
@@ -342,6 +358,16 @@ public class GensokyoBiomeFeatures {
 		PlacementUtils.register(ctx, BLAZING_HELL_LAVA_PF, cf.getOrThrow(NetherFeatures.SPRING_LAVA_NETHER),
 				CountPlacement.of(6), InSquarePlacement.spread(),
 				PlacementUtils.RANGE_BOTTOM_TO_MAX_TERRAIN_HEIGHT, BiomeFilter.biome());
+		// The pool's own placed feature. No heightmap: a cavern has no surface to place on, and putting it on the
+		// world's is exactly the surface lake this is not. One attempt per 6 chunks: a cave system is a lot of
+		// columns and the lowest room of each is a site, so an attempt every chunk fills one system with pools. The
+		// range is the depth band former hell occupies on both of its rows — the ruins under the mountain and the
+		// same ruins in the low ground — so the biome filter spends its attempts inside the biome instead of on the
+		// mountain interior above it. The feature walks the column from there.
+		PlacementUtils.register(ctx, FORMER_HELL_LAKE_PF, cf.getOrThrow(FORMER_HELL_LAKE),
+				RarityFilter.onAverageOnceEvery(6), InSquarePlacement.spread(),
+				HeightRangePlacement.uniform(VerticalAnchor.bottom(), VerticalAnchor.absolute(64)),
+				BiomeFilter.biome());
 		deposit(ctx, BONE_PILE_PF, cf.getOrThrow(BONE_PILE), RarityFilter.onAverageOnceEvery(6));
 		deposit(ctx, DEN_RUBBLE_PF, cf.getOrThrow(DEN_RUBBLE), RarityFilter.onAverageOnceEvery(5));
 		deposit(ctx, FUNGUS_PATCH_PF, cf.getOrThrow(FUNGUS_PATCH), CountPlacement.of(4));

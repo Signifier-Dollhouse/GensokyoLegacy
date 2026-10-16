@@ -1,0 +1,27 @@
+{
+  "type": "gensokyolegacy:lake",
+  "config": {
+    "clearance": 5,
+    "material": {
+      "fluid": {
+        "Name": "minecraft:water",
+        "Properties": {
+          "level": "0"
+        }
+      },
+      "padding": {
+        "Name": "minecraft:mud"
+      }
+    },
+    "mode": "underground",
+    "shape": {
+      "component_radius": 6,
+      "depth": 4,
+      "margin": 3,
+      "max_component": 4,
+      "max_height": 11,
+      "max_width": 20,
+      "min_component": 3
+    }
+  }
+}
