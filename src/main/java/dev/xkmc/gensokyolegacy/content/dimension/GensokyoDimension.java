@@ -53,7 +53,8 @@ import java.util.OptionalLong;
  * The height curve is keyed on continentalness alone, where the overworld also keys it on erosion and weirdness, so
  * there are no river channels and no peaks. The climate grid reads those four axes plus erosion, which picks between
  * the plain's two grounds and shapes nothing. The caves are the overworld's, plus {@link #DF_LARGE_CAVES} for the
- * halls under the ground. The allowed biomes are mod copies, so vanilla structures never generate here.
+ * caverns under the ground, and the aquifer's barrier is resampled (§12). The allowed biomes are mod copies, so
+ * vanilla structures never generate here.
  *
  * @see "doc/design/gensokyo_dimension.md"
  * @see "doc/design/gensokyo_biomes.md"
@@ -70,6 +71,7 @@ public class GensokyoDimension {
 	public static final ResourceKey<DensityFunction> DF_DEPTH = df("depth");
 	public static final ResourceKey<DensityFunction> DF_SLOPED_CHEESE = df("sloped_cheese");
 	public static final ResourceKey<DensityFunction> DF_LARGE_CAVES = df("large_caves");
+	public static final ResourceKey<DensityFunction> DF_BARRIER = df("barrier");
 
 	/**
 	 * The four climate axes, every octave finer than vanilla's. The height chain splines this continentalness too — the
@@ -101,6 +103,7 @@ public class GensokyoDimension {
 	/** Vanilla keys {@link NoiseRouterData} keeps private, rebuilt here so the overworld router can be redirected. */
 	private static final ResourceKey<DensityFunction> VANILLA_SLOPED_CHEESE = vanilla("overworld/sloped_cheese");
 	private static final ResourceKey<DensityFunction> VANILLA_BASE_3D_NOISE = vanilla("overworld/base_3d_noise");
+	private static final ResourceKey<DensityFunction> VANILLA_NETHER_BASE_3D_NOISE = vanilla("nether/base_3d_noise");
 	private static final ResourceKey<DensityFunction> VANILLA_SHIFT_X = vanilla("shift_x");
 	private static final ResourceKey<DensityFunction> VANILLA_SHIFT_Z = vanilla("shift_z");
 
@@ -158,7 +161,7 @@ public class GensokyoDimension {
 	private static final Band UNDERGROUND_CONTINENTALNESS = new Band(-1.0f, UNDERGROUND_CONT);
 
 	/**
-	 * The halls of {@link #DF_LARGE_CAVES}, {@code min}-ed into the router's final density.
+	 * The caverns of {@link #DF_LARGE_CAVES}, {@code min}-ed into the router's final density.
 	 * <p>
 	 * Vanilla's cheese caves live inside the function that places the surface, so more of them also means thinner
 	 * ground. These sit outside that chain and are gated on {@link #DF_DEPTH}, which is zero at the surface and
@@ -173,10 +176,36 @@ public class GensokyoDimension {
 	private static final double CAVE_GATE_FLOOR = 0.25;
 	private static final double CAVE_GATE_DEAD = 0.25;
 	private static final double CAVE_CEILING = 1.0;
-	private static final double CAVE_HALL_XZ = 0.375;
-	private static final double CAVE_HALL_Y = 0.75;
-	private static final double CAVE_HALL_GAIN = 5.0;
-	private static final double CAVE_HALL_BIAS = 1.20;
+
+	/**
+	 * The gain and the offset that turn the nether's field into a cavern field, both in the router's final-density
+	 * units.
+	 * <p>
+	 * The gate is a lerp, not a switch: {@code lerp(CAVE_CEILING, caverns, gate)} reads air only below
+	 * {@code 1 - 1/gate}, which is −1.0 at half open and −0.25 at four fifths. The nether's field is far narrower
+	 * than the cheese field it replaces — a standard deviation of 0.070 and a range of {@code +/-0.24} once squeezed,
+	 * against the {@code +/-0.309} the squeeze allows and {@code +/-1.25} for {@code 5.0 * cave_cheese} — so ungained
+	 * it carves only at a fully open gate and nothing at all in between, which would leave the ground from 25 to 53
+	 * blocks down with nothing but vanilla's tunnels. The gain is what puts the caverns back in that band, and it
+	 * leaves the closed band at a hard zero either way.
+	 * <p>
+	 * With the gate out of the way the volume is just {@code bias / gain = 0.060}, the field's own 13% quantile, so
+	 * the two constants are one number written twice.
+	 *
+	 * @see "doc/design/gensokyo_dimension.md" §8
+	 */
+	private static final double CAVE_GAIN = 20.0;
+	private static final double CAVE_BIAS = 1.20;
+
+	/**
+	 * {@code NoiseRouterData.slideNetherLike}'s five numbers, which are what put the nether's roof and floor where
+	 * they are and are kept here rather than re-tuned, so the field reads as the nether's own shape.
+	 */
+	private static final int CAVE_ROOF_BAND = 24;
+	private static final double CAVE_ROOF_VALUE = 0.9375;
+	private static final int CAVE_FLOOR_BAND_FROM = -8;
+	private static final int CAVE_FLOOR_BAND_TO = 24;
+	private static final double CAVE_FLOOR_VALUE = 2.5;
 
 	/**
 	 * Height above the world bottom at which the bedrock floor ends, counting the bottom block as zero, so the floor is
@@ -187,12 +216,42 @@ public class GensokyoDimension {
 	/** The {@code minY} {@link #noiseSettings} builds the settings from, which the floor heights below are read against. */
 	private static final int WORLD_BOTTOM = -64;
 
+	/** The world height {@link #noiseSettings} builds, so {@link #CAVE_ROOF_BAND} reads against Gensokyo's own top. */
+	private static final int WORLD_HEIGHT = 384;
+
 	/**
-	 * Where the halls fade back out over the bedrock floor: closed through {@link #BEDROCK_FLOOR} and open again a
-	 * screen higher, so the fade is a thick base rather than a ceiling.
+	 * Where the caverns fade back out over the bedrock floor: closed through {@link #BEDROCK_FLOOR} and open again
+	 * a screen higher, so the fade is a thick base rather than a ceiling.
 	 */
 	private static final int CAVE_BASE_DEAD_Y = WORLD_BOTTOM + BEDROCK_FLOOR;
 	private static final int CAVE_BASE_LIVE_Y = WORLD_BOTTOM + 16;
+
+	/**
+	 * The aquifer's barrier resampled four times coarser than vanilla's, and biased up a little.
+	 * <p>
+	 * The barrier is not a wall between aquifers, it is the field the fluid cavity is cut out of: an aquifer holds
+	 * fluid wherever {@code barrier + bias + pressure <= -density}, so a *negative* reading is water and a positive
+	 * one is rock. At vanilla's {@code xz 1.0 / y 0.5} that boundary is an 8 x 16 block noise — far finer than the
+	 * 16 x 12 x 16 grid the aquifer centres sit on — so the cavity comes out as the noise's own low blobs: one per
+	 * eight blocks, each with a perforated rim, which reads as a cavern full of seeping pockets rather than as a
+	 * cave with water in it. Four times coarser inverts the ordering, and the boundary is then one blob per cavern.
+	 * <p>
+	 * The scale changes the wavelength and nothing else — {@code NormalNoise} normalises on the amplitudes alone, so
+	 * both readings share one distribution (p1 −0.724, p10 −0.415, median 0.000, p90 +0.415, p99 +0.725, on 300k
+	 * samples) and {@code bias} is the only volume knob.
+	 *
+	 * @see "doc/design/gensokyo_dimension.md" §12
+	 */
+	private static final double BARRIER_XZ = 0.25;
+	private static final double BARRIER_Y = 0.125;
+
+	/**
+	 * How much more rock than vanilla's barrier claims, in barrier units. Sampling the distribution above, this takes
+	 * the share of a cavern's volume that carries fluid from 27.1% to 17.8% at a cave density of {@code -0.20}, and
+	 * from 22.3% to 14.0% at {@code -0.25} — a third off, which is what "the liquid overflows its aquifer" costs.
+	 * {@code +0.40} is already nearly two standard deviations out and leaves 3.0%, so the range above it is dry.
+	 */
+	private static final double BARRIER_BIAS = 0.10;
 
 	/**
 	 * Continentalness thresholds that separate the regions, each sitting where the offset spline reaches a height band
@@ -286,7 +345,7 @@ public class GensokyoDimension {
 
 	private static void noiseSettings(BootstrapContext<NoiseGeneratorSettings> ctx) {
 		ctx.register(NS_GENSOKYO, new NoiseGeneratorSettings(
-				NoiseSettings.create(-64, 384, 1, 2),
+				NoiseSettings.create(WORLD_BOTTOM, WORLD_HEIGHT, 1, 2),
 				Blocks.STONE.defaultBlockState(),
 				Blocks.WATER.defaultBlockState(),
 				smallClimateRouter(new FlatTerrainFunctions(ctx.lookup(Registries.DENSITY_FUNCTION)),
@@ -411,16 +470,18 @@ public class GensokyoDimension {
 	}
 
 	/**
-	 * The overworld router with temperature and vegetation pointed at the finer parameters. Continentalness and erosion
-	 * need no line here: {@link FlatTerrainFunctions} redirects both in place, so the fields the overworld built are
-	 * already ours. Every other field is carried over unchanged, so only the biome grid sees any of this.
+	 * The overworld router with temperature and vegetation pointed at the finer parameters, and the aquifer's
+	 * barrier pointed at {@link DF_BARRIER}. Continentalness and erosion need no line here: {@link FlatTerrainFunctions}
+	 * redirects both in place, so the fields the overworld built are already ours. Every other field is carried over
+	 * unchanged, so only the biome grid and the fluid cavities see any of this.
 	 */
 	private static NoiseRouter smallClimateRouter(HolderGetter<DensityFunction> densities,
 												  HolderGetter<NormalNoise.NoiseParameters> noises,
 												  HolderGetter<DensityFunction> registry) {
 		NoiseRouter overworld = OverworldNoiseRouter.overworld(densities, noises);
 		return new NoiseRouter(
-				overworld.barrierNoise(), overworld.fluidLevelFloodednessNoise(), overworld.fluidLevelSpreadNoise(),
+				reference(registry.getOrThrow(DF_BARRIER)),
+				overworld.fluidLevelFloodednessNoise(), overworld.fluidLevelSpreadNoise(),
 				overworld.lavaNoise(),
 				reference(registry.getOrThrow(DF_TEMPERATURE_SMALL)),
 				reference(registry.getOrThrow(DF_VEGETATION_SMALL)),
@@ -456,34 +517,60 @@ public class GensokyoDimension {
 				DensityFunctions.mul(DensityFunctions.constant(4.0),
 						DensityFunctions.mul(reference(depth), reference(factor)).quarterNegative()),
 				reference(densities.getOrThrow(VANILLA_BASE_3D_NOISE))));
-		ctx.register(DF_LARGE_CAVES, largeCaves(noises.getOrThrow(Noises.CAVE_CHEESE), reference(depth)));
+		// the same field vanilla reads inline, resampled coarser and biased, so an aquifer's cavity is one body
+		ctx.register(DF_BARRIER, DensityFunctions.add(
+				DensityFunctions.noise(noises.getOrThrow(Noises.AQUIFER_BARRIER), BARRIER_XZ, BARRIER_Y),
+				DensityFunctions.constant(BARRIER_BIAS)));
+		ctx.register(DF_LARGE_CAVES, largeCaves(densities, reference(depth)));
 	}
 
 	/**
-	 * The halls as their own density function, so the router can {@code min} it into its final density.
+	 * The caverns as their own density function, so the router can {@code min} them into its final density.
 	 * <p>
-	 * {@code cave_cheese} is vanilla's cheese field resampled, not a new noise: the scales put its dominant
-	 * octave near 171 by 85 blocks against vanilla's 64 by 96, so a hall is wider and flatter than the caves
-	 * it sits among rather than a copy of one. {@code dead} repeats {@code floor} so
-	 * {@link DensityFunctions#rangeChoice} skips the noise over exactly the stretch where the gate reads zero.
+	 * The field is the nether's own: {@code minecraft:nether/base_3d_noise} under
+	 * {@code NoiseRouterData.slideNetherLike} and {@code postProcess}, rebuilt here because both are private and
+	 * the nether's slide is stated for a 0 … 128 world. A nether cavern is a smooth blob with thick rock between it
+	 * and the next, which is the one shape that reads as "cave" rather than as "swiss cheese"; vanilla's overworld
+	 * mixes a cheese slab with spaghetti tunnels at two scales and came out with spaces that were neither.
 	 * <p>
-	 * {@code depth} only gates the surface. It is never small again once y is low, so a hall reached the world base
+	 * {@code depth} only gates the surface. It is never small again once y is low, so a cavern reached the world base
 	 * and the aquifer filled the hole with lava — which {@code SurfaceSystem} never asks a rule about, because a rule
 	 * only sees the generator's default block, so the floor came out lava. The second gate is that base, in y alone.
+	 * <p>
+	 * {@code dead} repeats {@code floor} so {@link DensityFunctions#rangeChoice} skips the field over exactly the
+	 * stretch where the gate reads zero, which is the whole surface band and the bedrock floor.
 	 *
 	 * @see "doc/design/gensokyo_dimension.md" §8
 	 */
-	private static DensityFunction largeCaves(Holder<NormalNoise.NoiseParameters> cheese, DensityFunction depth) {
+	private static DensityFunction largeCaves(HolderGetter<DensityFunction> densities, DensityFunction depth) {
 		var gate = DensityFunctions.add(DensityFunctions.mul(DensityFunctions.constant(CAVE_GATE_GAIN), depth),
 				DensityFunctions.constant(-CAVE_GATE_FLOOR)).clamp(0.0, 1.0);
-		var halls = DensityFunctions.add(
-				DensityFunctions.mul(DensityFunctions.constant(CAVE_HALL_GAIN),
-						DensityFunctions.noise(cheese, CAVE_HALL_XZ, CAVE_HALL_Y)),
-				DensityFunctions.constant(CAVE_HALL_BIAS));
+		var caverns = DensityFunctions.add(
+				DensityFunctions.mul(DensityFunctions.constant(CAVE_GAIN), DensityFunctions.mul(
+						DensityFunctions.interpolated(DensityFunctions.blendDensity(
+								slideNetherLike(reference(densities.getOrThrow(VANILLA_NETHER_BASE_3D_NOISE))))),
+						DensityFunctions.constant(0.64)).squeeze()),
+				DensityFunctions.constant(CAVE_BIAS));
 		var base = DensityFunctions.yClampedGradient(CAVE_BASE_DEAD_Y, CAVE_BASE_LIVE_Y, 0.0, 1.0);
 		var open = DensityFunctions.rangeChoice(gate, 0.0, CAVE_GATE_DEAD,
-				DensityFunctions.constant(CAVE_CEILING), DensityFunctions.lerp(gate, CAVE_CEILING, halls));
+				DensityFunctions.constant(CAVE_CEILING), DensityFunctions.lerp(gate, CAVE_CEILING, caverns));
 		return DensityFunctions.lerp(base, CAVE_CEILING, open);
+	}
+
+	/**
+	 * {@code NoiseRouterData.slideNetherLike} over Gensokyo's own y range, with its five numbers unchanged.
+	 * <p>
+	 * It is the nether's floor and roof, so the field is solid below the fade and above it. The nether's floor
+	 * fades in from {@code minY - 8}, which for a −64 world is eight blocks under it and therefore never read;
+	 * the bedrock floor's own gate is what actually holds the bottom of Gensokyo.
+	 */
+	private static DensityFunction slideNetherLike(DensityFunction base) {
+		int top = WORLD_BOTTOM + WORLD_HEIGHT;
+		var roof = DensityFunctions.yClampedGradient(top - CAVE_ROOF_BAND, top, 1.0, 0.0);
+		var inside = DensityFunctions.lerp(roof, CAVE_ROOF_VALUE, base);
+		var floor = DensityFunctions.yClampedGradient(WORLD_BOTTOM + CAVE_FLOOR_BAND_FROM,
+				WORLD_BOTTOM + CAVE_FLOOR_BAND_TO, 0.0, 1.0);
+		return DensityFunctions.lerp(floor, CAVE_FLOOR_VALUE, inside);
 	}
 
 	/**

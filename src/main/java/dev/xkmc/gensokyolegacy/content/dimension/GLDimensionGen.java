@@ -25,6 +25,7 @@ public class GLDimensionGen {
 	public static void init(DataProviderInitializer init) {
 
 		GensokyoDimension.init(init);
+		GensokyoCarvers.init(init);
 
 		// biome, dimension type and level stem must all be registered by a single bootstrap each,
 		// otherwise the later one overwrites what the earlier one collected

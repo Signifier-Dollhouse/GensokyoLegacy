@@ -2,6 +2,7 @@ package dev.xkmc.gensokyolegacy.init.data.biome;
 
 import com.tterrag.registrate.providers.DataProviderInitializer;
 import dev.xkmc.gensokyolegacy.content.dimension.GLDimensionGen;
+import dev.xkmc.gensokyolegacy.content.dimension.GensokyoCarvers;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.structure.GLStructureTagGen;
 import dev.xkmc.gensokyolegacy.init.registrate.GLEntities;
@@ -9,7 +10,6 @@ import net.minecraft.core.HolderGetter;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BiomeDefaultFeatures;
 import net.minecraft.data.worldgen.BootstrapContext;
-import net.minecraft.data.worldgen.Carvers;
 import net.minecraft.data.worldgen.placement.AquaticPlacements;
 import net.minecraft.data.worldgen.placement.CavePlacements;
 import net.minecraft.data.worldgen.placement.MiscOverworldPlacements;
@@ -94,11 +94,14 @@ public class GLBiomes {
 	public static final ResourceKey<Biome> SUNFLOWER_PLAINS = biome("sunflower_plains");
 
 	/**
-	 * The two carvers every Gensokyo biome carves with. {@code minecraft:canyon} is in none of them: a canyon is a
-	 * surface landform, and Gensokyo's ravine and valley are already its own thing.
+	 * The two carvers every Gensokyo biome carves with, which are the overworld's own with the lava level eight
+	 * blocks up. {@code minecraft:canyon} is in none of them: a canyon is a surface landform, and Gensokyo's ravine
+	 * and valley are already its own thing.
+	 *
+	 * @see "doc/design/gensokyo_dimension.md" §11
 	 */
 	private static final List<ResourceKey<ConfiguredWorldCarver<?>>> CARVERS =
-			List.of(Carvers.CAVE, Carvers.CAVE_EXTRA_UNDERGROUND);
+			List.of(GensokyoCarvers.CAVE, GensokyoCarvers.CAVE_EXTRA_UNDERGROUND);
 
 	/**
 	 * The overworld ore set, in vanilla's order: the dirt and gravel, the three stone mixes and tuff, then everything

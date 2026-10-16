@@ -10,9 +10,14 @@ Two things differ from the overworld, and they are deliberately the only two:
    and weirdness spanning the full range on every point so they cannot select a biome. The Tengu Settlement's band is
    the one row that humidity splits, between the town and the cliff beside it (§4).
 
-On top of those, the caves get a third change of their own: vanilla's, plus a set of **halls** cut under the surface
-and never at it — §8. Everything else — sea level 63, aquifer, cave carvers, ore veins, spawn target, dimension type —
-is vanilla's. Surface rules are vanilla's with four underground biome branches in front; see `doc/design/gensokyo_biomes.md` §4.
+On top of those, three changes of their own:
+
+3. the caves get **caverns** cut under the surface and never at it — §8;
+4. the two cave carvers are the overworld's with the **lava level eight blocks higher** — §11;
+5. the aquifer's **barrier** is resampled, which is what sizes and places a fluid cavity — §12.
+
+Everything else — sea level 63, the aquifer's fluid-level noises, ore veins, spawn target, dimension type — is
+vanilla's. Surface rules are vanilla's with four underground biome branches in front; see `doc/design/gensokyo_biomes.md` §4.
 
 ---
 
@@ -355,9 +360,10 @@ without a biome modifier, which is a worse answer than not having them.
 ```
 
 Writes `dimension/gensokyo.json`, `dimension_type/gensokyo.json`, `worldgen/noise_settings/gensokyo.json`,
-`worldgen/density_function/{offset,factor,depth,sloped_cheese,large_caves}.json` and
-`worldgen/noise/{continentalness_small,temperature_small,vegetation_small}.json`. Output is committed. The biome
-grid it writes is the table in §4, so `--spline` and the biome map are how a change to it gets checked.
+`worldgen/configured_carver/{cave,cave_extra_underground}.json`,
+`worldgen/density_function/{offset,factor,depth,sloped_cheese,large_caves,barrier}.json` and
+`worldgen/noise/{continentalness_small,temperature_small,vegetation_small,erosion_small}.json`. Output is committed.
+The biome grid it writes is the table in §4, so `--spline` and the biome map are how a change to it gets checked.
 
 `python3 tools/feature_cycle_check.py build/moddev/artifacts/neoforge-21.1.238-client-extra-aka-minecraft-resources.jar src/generated/resources`
 must still report no feature order cycle. The checker exists because `BiomeDefaultFeatures` call order is load-bearing —
@@ -520,7 +526,7 @@ are in **The climate axes** above, measured against the previous octave on the s
 
 ---
 
-## 8. The halls
+## 8. The caverns
 
 `gensokyolegacy:large_caves`, in `GensokyoDimension.largeCaves` and `min`-ed into the router's final density by
 `smallClimateRouter`.
@@ -546,19 +552,19 @@ the `0.27` edited in the generated `noise_settings`:
 | 0.00 | 23.08% | 19.38% | 6.80% | 92 | 20 / 52 / 156 |
 | −0.30 | 46.34% | 60.65% | 6.95% | 92 | 44 / 92 / 176 |
 | −0.60 | 62.11% | 86.24% | 7.25% | 92 | 68 / 120 / 260 |
-| **the halls** | **19.73%** | **27.81%** | **6.80%** | **92** | **16 / 64 / 164** |
+| **the caverns** | **15.90%** | **6.51%** | **6.80%** | **92** | **16 / 36 / 124** |
 
 So the bias is a real option, and at `0.00` it costs nothing on the surface. It is just the wrong trade for the
 question. The bias sets the *volume* of cave, not the *size* of the space, because a vanilla cheese cave is a slab
 around the zero set of `cave_layer` — a sheet through the noise rather than a ball — so growing the threshold grows
 it sideways and barely thickens it. Per unit of rock removed, `0.00` buys 0.84 columns with a void 40 blocks deep
-where the halls buy 1.41, and they do it on less rock. Past `0.00` it stops being a trade at all: at `−0.30` nearly
-half the world is air and the openings have started to move.
+where the caverns buy 0.61, and the two carry almost the same median void depth. Past `0.00` it stops being a trade
+at all: at `−0.30` nearly half the world is air and the openings have started to move.
 
 The bias also has no floor. A gate does: it is a hard zero, so the surface is not a matter of tuning how far down to
 start.
 
-The hall term is therefore built after the fact, reading the terrain rather than being read by it, and `min`ed into
+The cavern term is therefore built after the fact, reading the terrain rather than being read by it, and `min`ed into
 the router's final density. `min` can only ever remove rock, so the surface can only move if the new term goes
 negative above it — and the gate is what stops that.
 
@@ -582,36 +588,90 @@ gate = clamp(3.0 * depth - 0.25, 0, 1)
 | 0.25 | 32 | 0.5 |
 | 0.417 | 53 | 1 |
 
-and the term is `lerp(1.0, halls, gate)` — 1.0 against a `final_density` that cannot exceed 0.309, over the whole band
+and the term is `lerp(1.0, caverns, gate)` — 1.0 against a `final_density` that cannot exceed 0.309, over the whole band
 the surface occupies and for 11 blocks under it. That is why the openings do not move: there is no depth at which the
 term is small enough to cut, and a cave that starts 11 blocks down cannot be a cave mouth. `CAVE_GATE_DEAD` repeats
-the `0.25`, so the `range_choice` returns the constant and never samples the noise above that dead zone — worth doing,
-since `final_density` is evaluated per block and this adds one 3D `NormalNoise` sample to every block below it.
+the `0.25`, so the `range_choice` returns the constant and never samples the field above that dead zone — worth doing,
+since `final_density` is evaluated per block and this adds one 3D noise sample to every block below it.
 
-### The halls themselves
+### The caverns themselves
 
-`minecraft:cave_cheese` again, resampled rather than re-registered: its dominant octave (`firstOctave -8`, amplitude
-2) comes out near 171 × 85 blocks at `xz_scale 0.375` / `y_scale 0.75`, against the 64 × 96 that vanilla reads it at.
-So a hall is wider and much flatter than the caves it sits among, and the two read as different things. The scale is
-the only thing it changes — `NormalNoise` normalises on its amplitudes, so the deviation is about 0.25 at every
-scale, and that is the number the hall bias is solved against.
+`minecraft:nether/base_3d_noise` under `NoiseRouterData.slideNetherLike` and `postProcess`, rebuilt in
+`GensokyoDimension.slideNetherLike` because all three are private and the nether's slide is stated for a 0 … 128
+world. That is the whole of the nether's cave: one 3D field, no cheese and no spaghetti, sliding into a roof at the
+top of the world and a floor at the bottom of it. Vanilla's overworld mixes a cheese slab with spaghetti tunnels at
+two different scales, and the result was spaces that were either barely a room or the size of a building.
 
-The hall bias is the volume knob, `halls = 5.0 * cave_cheese + 1.20`, and raising it is what thins the world out.
-Measured with `--voids` on 676 columns 24 blocks apart, y step 4, seed −1838080655014084215:
+| | vanilla | cheese halls | the caverns |
+|---|---|---|---|
+| rock carved under the surface | 8.68% | 18.09% | **15.90%** |
+| columns with a void ≥ 40 blocks deep | 4.14% | 26.18% | **6.51%** |
+| deepest void, median / p90 / max | 8 / 24 / 124 | 16 / 60 / 156 | **16 / 36 / 124** |
+| surface openings | 6.80% | 6.80% | **6.80%** |
+| roof over the shallowest cave, min / p1 / p10 | 3 / 8 / 44 | 3 / 9 / 63 | **5 / 14 / 63** |
 
-| | vanilla | with the halls |
-|---|---|---|
-| rock carved under the surface | 8.68% | **19.73%** |
-| columns with a void ≥ 40 blocks deep | 4.14% | **27.81%** |
-| deepest void, median / p90 / max | 8 / 24 / 124 | **16 / 64 / 164** |
-| surface openings | 6.80% | **6.80%** |
-| roof over the shallowest cave, min / p1 / p10 | 3 / 8 / 44 | 3 / 9 / 69 |
+The p90 is the row the caverns were built for. The halls took it from 24 blocks to 60 — a quarter of the sampled
+columns had a void deeper than four times the median, which is the "too large" half of the complaint. The caverns
+land it at 36: between vanilla's 24 and the halls' 60, with a quarter of the rock gone rather than half of it, and
+the share of columns with a deep void falls from 26.2% to 6.5%. Nothing got smaller — the median void is still 16,
+and the shallowest roof has gone *up* from 3 to 5 blocks, so the cave mouths that make a cave worth walking into are
+still there. What changed is the spread, which is what "either too large or too small" was measuring.
 
-The last row is the one that says what the change is not: the thinnest and the second-thinnest roofs are vanilla's
-own cave mouths and have not moved, and the tenth percentile has gone from 44 blocks of rock to 69. Underground it
-reads by depth band as 6.1 → 23.7% at the bottom of the world, 6.3 → 12.1% at y 32…63, 7.1 → 9.9% at y 64…95 and
-13.5 → 18.6% at y 128…159, so the new space is under the plain as well as under the mountain and only thins the
-middle of the column where the aquifers sit.
+Underground, the two are not the same shape and that matters for where the fluid goes:
+
+| band | vanilla | cheese halls | caverns |
+|---|---|---|---|
+| y −64…−33 | 6.12% | 15.01% | 8.69% |
+| y −32…−1 | 12.28% | 28.72% | 22.43% |
+| y 0…31 | 9.30% | 24.33% | 21.04% |
+| y 32…63 | 6.34% | 12.07% | 16.14% |
+| y 64…95 | 7.10% | 9.90% | 9.99% |
+| y 96…127 | 10.52% | 13.89% | 13.24% |
+| y 128…159 | 13.54% | 18.58% | 20.16% |
+| y 160…191 | 22.85% | 23.51% | 25.83% |
+| y 192…223 | 10.61% | 10.61% | 10.61% |
+| **all** | **8.68%** | **18.09%** | **15.90%** |
+
+Two rows are worth reading twice. The **bottom band** is the one that has moved most against the halls — 15.0% down
+to 8.7% — because the nether's own floor fade is part of the field, and it takes the rock under the lava back to
+barely more than vanilla has. And the **top band** is vanilla's unchanged to three decimals in all three columns,
+because the depth gate closes long before the nether's roof does and neither field is ever read up there.
+
+```
+python3 tools/terrain.py gensokyolegacy:gensokyo --voids --seed -1838080655014084215 --cheese
+```
+
+writes `out/terrain/gensokyolegacy_gensokyo_caves.txt`. The maps are one pixel per chunk, so a cave is at most a pixel
+of noise in them; the report is the only place these numbers exist. `--cheese` matters, since dropping `base_3d_noise`
+moves the surface the report measures from.
+
+### The gain, and why the nether's field needed one
+
+The gate is a lerp, not a switch: `lerp(1.0, caverns, gate)` reads air only where the caverns term falls below
+`1 - 1/gate`. At `gate = 1` that is 0, at `gate = 0.8` it is −0.25, and at `gate = 0.5` it is −1.0. The nether's field,
+squeezed the way the nether squeezes it, has a standard deviation of **0.070** and a range of ±0.24 — the squeeze
+allows ±0.309, so the field never gets near the ±1 its gate would want at half open. The old cheese field hid this,
+because `5.0 * cave_cheese` has a spread of ±1.25 where 0.25 is a fifth of a standard deviation and the gate barely
+bites.
+
+Measured on the shipped chain at the shipped volume, by how far the gate is open (676 columns, y step 8, all of the
+rock under the surface):
+
+| gate | share of the rock there the field alone reads air | gate 1 | gate 20 |
+|---|---|---|---|
+| 0 (the surface band) | 19.9% | **0.0%** | **0.0%** |
+| 0.01 … 0.5 | 22.1% | **0.0%** | **1.2%** |
+| 0.5 … 0.9 | 20.7% | **0.0%** | **12.5%** |
+| 1.0 | 12.0% | 11.6% | 12.0% |
+
+So the ungained field is not "thinner", it is **absent**: it carves exactly what it would carve at full gate and
+nothing at all in between, which means the band from 25 to 53 blocks under the surface — the ground between the cave
+mouths and the deep — keeps only vanilla's tunnels. `CAVE_GAIN = 20.0` is what puts the caverns back there, and it
+leaves the gate-zero band at a hard zero either way, which is why the surface openings are the same 6.80%.
+
+The gain also moves where the volume knob is set. With the gate no longer eating the field, the volume is simply
+`CAVE_BIAS / CAVE_GAIN`, which is `0.060` — the field's own 13% quantile. That ratio reads straight off the measured
+distribution and needs no re-tuning against the gate, which is why the two constants are one number written twice.
 
 ```
 python3 tools/terrain.py gensokyolegacy:gensokyo --voids --seed -1838080655014084215 --cheese
@@ -781,20 +841,20 @@ in this mod, or any other, can write into lava or air.** A rule that "makes bedr
 was already there.
 
 That is invisible in the overworld, where the bottom of the world is solid by the density itself. It is not invisible
-here: §8's halls are `min`-ed into `final_density` with no lower bound on how far they can go, and `depth` — the only
-thing gating them — is large again everywhere below the surface band, not small. So the halls ran straight through the
-world bottom, the aquifer filled those holes with lava, and the bedrock rule had no stone left to claim.
+here: §8's caverns are `min`-ed into `final_density` with no lower bound on how far they can go, and `depth` — the
+only thing gating them — is large again everywhere below the surface band, not small. So the caverns ran straight
+through the world bottom, the aquifer filled those holes with lava, and the bedrock rule had no stone left to claim.
 
-### Gate the halls on y as well as depth
+### Gate the caverns on y as well as depth
 
-`large_caves` now has a second gate, in y alone, over the floor:
+`large_caves` has a second gate, in y alone, over the floor:
 
 ```
 floor = y_clamped_gradient(from_y = -60, to_y = -48, 0.0, 1.0)
 large_caves = 1.0 + floor * (gate_open - 1.0)
 ```
 
-`floor` reads zero through the bedrock floor and reaches one sixteen blocks above it, so the halls fade out into a
+`floor` reads zero through the bedrock floor and reaches one sixteen blocks above it, so the caverns fade out into a
 thick solid base rather than being clipped off at a plane. `floor = 0` holds the density at `CAVE_CEILING = 1.0`, which
 `post_process` squeezes well above zero, so the aquifer is never consulted and the whole floor is solid stone for
 `bedrock_floor` to claim.
@@ -853,3 +913,99 @@ Worth stating because they run *after* the surface system and so are not covered
 - `LAVA_POOL_STONE_CANNOT_REPLACE`, which the mod's own `LakeMaker` checks, includes `FEATURES_CANNOT_REPLACE`.
 
 So the aquifer was the only path that could put lava in the floor, and it can no longer reach it.
+
+---
+
+## 11. The lava level
+
+`gensokyolegacy:cave` and `:cave_extra_underground`, in `GensokyoCarvers`. Vanilla's two overworld cave carvers with
+every number left alone and one moved:
+
+| | vanilla | Gensokyo |
+|---|---|---|
+| `lava_level` | `above_bottom(8)` → y −56 | `above_bottom(16)` → **y −48** |
+| probability, y range, yScale, radius multipliers, floor level | | unchanged |
+| `replaceable` | `#minecraft:overworld_carver_replaceables` | unchanged |
+
+### Three lava levels, one of them movable
+
+The dimension has three separate things called a lava level, and only one of them is a datapack value:
+
+| where | what | value | movable |
+|---|---|---|---|
+| `Carvers.CAVE` config | the carver fills lava below this | `above_bottom(8)` = y −56 | **yes** |
+| `NoiseBasedChunkGenerator.createFluidPicker` | the aquifer's global fluid is lava below `min(-54, seaLevel)` | y −54 | no, a constant in the engine |
+| `Aquifer.NoiseBasedAquifer.computeFluidType` | an aquifer holding below this becomes lava | y −10 | no, a constant in the engine |
+
+So raising the lava level by eight blocks is `above_bottom(8) → above_bottom(16)`, and the two constants are read
+rather than set. The practical effect is that the lava sea in the caves has its surface at **y −48**, which is exactly
+where `largeCaves`'s floor fade finishes — so the lava now reaches the bottom of the caverns instead of stopping
+eight blocks short of them, and the bedrock floor of §10 is still bedrock: `#minecraft:overworld_carver_replaceables`
+does not name it, so the carver never touches the floor however low the lava level is put.
+
+---
+
+## 12. The aquifer barrier
+
+`gensokyolegacy:barrier`, in `GensokyoDimension.densityFunctions`, pointed at by `smallClimateRouter`. The only
+field of `noise_router` Gensokyo replaces that is not terrain.
+
+### What the barrier actually is
+
+It is not a wall between aquifers, which is the reading that makes every fix attempt on it go wrong. `Aquifer`'s
+`calculatePressure` returns `2 * (barrier + pressure)`, `computeSubstance` keeps the fluid only where
+`substance + that > 0` fails, and `substance` is the terrain density. Read out:
+
+```
+fluid where    barrier + bias + pressure <= -density
+```
+
+So a **negative** barrier reading is water and a **positive** one is rock. The barrier is the field the fluid cavity
+is *cut out of*, not a membrane around it, and raising it does not seal anything — it removes fluid, and taken far
+enough it removes all of it. A seal, if one is wanted, has to come from somewhere else.
+
+### Why the vanilla field leaks
+
+`minecraft:aquifer_barrier` is one octave at `firstOctave -3`, read at `xz 1.0 / y 0.5` — a wavelength of **8 × 16
+blocks**. The aquifer centres sit on a 16 × 12 × 16 grid, so the field that decides a cavity's shape is four times
+finer than the grid that decides where the cavities are. The cavity therefore comes out as the barrier noise's own low
+blobs: one pocket per eight blocks or so, each with a rim the noise tears through, scattered through whatever rock the
+caves left. In a world whose caves are cavern-sized that reads as a cavern full of seeping puddles rather than as a
+cave with water in it, and as a great many small aquifers rather than one per cavern.
+
+### The two numbers
+
+| | vanilla | Gensokyo |
+|---|---|---|
+| scale | `xz 1.0` / `y 0.5` → 8 × 16 blocks | `xz 0.25` / `y 0.125` → **32 × 64 blocks** |
+| bias | 0 | **+0.10** |
+
+The scale moves the wavelength and nothing else: `NormalNoise` normalises on the amplitudes alone, so both readings
+share a distribution — measured on 300k samples, p1 −0.724, p10 −0.415, median 0.000, p90 +0.415, p99 +0.725, and a
+standard deviation of 0.319. That is why the bias is the only volume knob, and it is worth being clear that it is a
+*fluid* knob, not a seal:
+
+| cave density | vanilla | bias +0.06 | bias +0.10 |
+|---|---|---|---|
+| −0.15 | 32.5% | 26.0% | 22.1% |
+| −0.20 | 27.1% | 21.2% | **17.8%** |
+| −0.25 | 22.3% | 17.0% | 14.0% |
+| −0.31 | 17.1% | 12.6% | 10.2% |
+
+(share of a cavern's volume that carries fluid, at zero pressure; `density = -0.31` is the floor `postProcess` can
+reach and `-0.15` is a shallow pocket near a wall, so the range is the honest span of a cave's interior.) The knob
+runs out: `+0.30` leaves 5.9%, `+0.40` is nearly two standard deviations out and leaves 3.0%, and `+0.50` leaves 1.4%.
+
+### What was checked and left alone
+
+- **`fluid_level_floodedness`** (`firstOctave -7`) sets how far up a column an aquifer reaches at all:
+  `computeSurfaceLevel` returns no fluid at all where it reads below the surface distance term. It is a switch on
+  presence, not a shape, and it is already cutting about half the world — turning it down further empties caves
+  rather than tidying them.
+- **`fluid_level_spread`** (`firstOctave -5`, read at `y 0.714` and multiplied by 10) sets how much two neighbouring
+  aquifers disagree about their level, which is the `pressure` term. Where they agree exactly the pressure is zero and
+  the cavity follows the rock; where they disagree the barrier decides. It is the lever between "one flat body that
+  fills the cave" and "a shape the barrier carves", and it pushes the opposite way from the bias: flattening it fills
+  more cave with water, which is the other half of the complaint. Left alone.
+- **`lava`** (`firstOctave -1`) only picks which of the two fluids an already-existing aquifer below y −10 becomes.
+  With the carver's lava level at y −48 (§11) the bottom of the world is lava either way.
