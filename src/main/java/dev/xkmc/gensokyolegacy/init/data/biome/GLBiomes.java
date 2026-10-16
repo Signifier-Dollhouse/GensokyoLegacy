@@ -148,9 +148,15 @@ public class GLBiomes {
 	 * call spells out its own.
 	 * <p>
 	 * The four calls per band are in the guide's order — hot humid, cold humid, hot dry, cold dry — so the declared
-	 * temperature and downfall agree with the climate cell the grid picks the biome in. The one exception is
-	 * {@link #MYOUREN_TEMPLE_BARRENS}: it is the cold dry corner and cold enough to sit under the snow line, so it
-	 * turns precipitation off rather than snow over the coarse dirt it is made of.
+	 * temperature and downfall agree with the climate cell the grid picks the biome in. Every one of them stays well
+	 * above the 0.15 snow line even at the top of its band, though: a cold <em>cell</em> is a place on the climate map,
+	 * and nothing here is meant to actually freeze. The hot cells of each band are lifted a little to keep the split
+	 * legible in the numbers.
+	 * <p>
+	 * {@link #MYOUREN_TEMPLE_BARRENS} is the one biome with precipitation off, because a dry barrens should not rain;
+	 * that is also why nothing in Gensokyo snows at all, which is worth knowing before changing any of these numbers.
+	 *
+	 * @see #coldEnoughToSnow
 	 */
 	private static void registerTouhouBiomes(BootstrapContext<Biome> ctx, HolderGetter<Biome> vanilla,
 											HolderGetter<PlacedFeature> pf, HolderGetter<ConfiguredWorldCarver<?>> carvers) {
@@ -158,7 +164,7 @@ public class GLBiomes {
 		BiomeDefaultFeatures.commonSpawns(muenzukaSpawns);
 		muenzukaSpawns.addSpawn(MobCategory.CREATURE, new MobSpawnSettings.SpawnerData(EntityType.FOX, 4, 2, 4));
 		ctx.register(MUENZUKA, touhou(vanilla.getOrThrow(Biomes.FOREST).value(), pf, carvers,
-				GensokyoBiomeFeatures.MUENZUKA, muenzukaSpawns, true, 0.2f, 0.9f, 0x38605c, 0x3f4a46, 0x6a7058, 0x5a604e));
+				GensokyoBiomeFeatures.MUENZUKA, muenzukaSpawns, true, 0.3f, 0.9f, 0x38605c, 0x3f4a46, 0x6a7058, 0x5a604e));
 
 		var villageSpawns = new MobSpawnSettings.Builder();
 		BiomeDefaultFeatures.commonSpawns(villageSpawns);
@@ -174,35 +180,35 @@ public class GLBiomes {
 		barrensSpawns.creatureGenerationProbability(0.05f);
 		barrensSpawns.addSpawn(MobCategory.CREATURE, new MobSpawnSettings.SpawnerData(EntityType.LLAMA, 4, 2, 6));
 		ctx.register(MYOUREN_TEMPLE_BARRENS, touhou(vanilla.getOrThrow(Biomes.BADLANDS).value(), pf, carvers,
-				GensokyoBiomeFeatures.BARRENS, barrensSpawns, false, -0.3f, 0.2f, 0x6b5a35, 0xc0a878, 0x9a8f5c, 0x8a7f50));
+				GensokyoBiomeFeatures.BARRENS, barrensSpawns, false, 0.2f, 0.2f, 0x6b5a35, 0xc0a878, 0x9a8f5c, 0x8a7f50));
 
 		var bambooSpawns = new MobSpawnSettings.Builder();
 		BiomeDefaultFeatures.commonSpawns(bambooSpawns);
 		bambooSpawns.addSpawn(MobCategory.CREATURE, new MobSpawnSettings.SpawnerData(EntityType.PANDA, 20, 2, 4))
 				.addSpawn(MobCategory.CREATURE, new MobSpawnSettings.SpawnerData(EntityType.RABBIT, 4, 2, 3));
 		ctx.register(BAMBOO_FOREST_OF_THE_LOST, touhou(vanilla.getOrThrow(Biomes.SNOWY_TAIGA).value(), pf, carvers,
-				GensokyoBiomeFeatures.BAMBOO_FOREST, bambooSpawns, true, -0.2f, 0.9f, 0x3f6f6a, 0x7d94a0, 0x6f8f52, 0x5f7f4a));
+				GensokyoBiomeFeatures.BAMBOO_FOREST, bambooSpawns, true, 0.3f, 0.9f, 0x3f6f6a, 0x7d94a0, 0x6f8f52, 0x5f7f4a));
 
 		var hillSpawns = new MobSpawnSettings.Builder();
 		BiomeDefaultFeatures.commonSpawns(hillSpawns);
 		hillSpawns.addSpawn(MobCategory.CREATURE, new MobSpawnSettings.SpawnerData(EntityType.SHEEP, 2, 2, 4))
 				.addSpawn(MobCategory.CREATURE, new MobSpawnSettings.SpawnerData(EntityType.RABBIT, 4, 2, 3));
 		ctx.register(HILL_OF_THE_NAMELESS, touhou(vanilla.getOrThrow(Biomes.MEADOW).value(), pf, carvers,
-				GensokyoBiomeFeatures.HILL, hillSpawns, true, 0.2f, 0.4f, 0x4a7a86, 0x8aa0b0, 0x87a06a, 0x7a9260));
+				GensokyoBiomeFeatures.HILL, hillSpawns, true, 0.3f, 0.4f, 0x4a7a86, 0x8aa0b0, 0x87a06a, 0x7a9260));
 
 		var valleySpawns = new MobSpawnSettings.Builder();
 		BiomeDefaultFeatures.commonSpawns(valleySpawns);
 		valleySpawns.addSpawn(MobCategory.CREATURE, new MobSpawnSettings.SpawnerData(EntityType.GOAT, 5, 1, 3))
 				.addSpawn(MobCategory.CREATURE, new MobSpawnSettings.SpawnerData(EntityType.WOLF, 5, 4, 4));
 		ctx.register(UNTRODDEN_VALLEY, touhou(vanilla.getOrThrow(Biomes.TAIGA).value(), pf, carvers,
-				GensokyoBiomeFeatures.VALLEY, valleySpawns, true, 0.4f, 0.8f, 0x3c6f7d, 0x7d8f9c, 0x6b8560, 0x5d7854));
+				GensokyoBiomeFeatures.VALLEY, valleySpawns, true, 0.5f, 0.8f, 0x3c6f7d, 0x7d8f9c, 0x6b8560, 0x5d7854));
 
 		var ravineSpawns = new MobSpawnSettings.Builder();
 		BiomeDefaultFeatures.commonSpawns(ravineSpawns);
 		ravineSpawns.addSpawn(MobCategory.CREATURE, new MobSpawnSettings.SpawnerData(EntityType.FROG, 10, 2, 5))
 				.addSpawn(MobCategory.WATER_AMBIENT, new MobSpawnSettings.SpawnerData(EntityType.SALMON, 15, 1, 5));
 		ctx.register(GENBU_RAVINE, touhou(vanilla.getOrThrow(Biomes.SWAMP).value(), pf, carvers,
-				GensokyoBiomeFeatures.RAVINE, ravineSpawns, true, 0.2f, 0.9f, 0x39604f, 0x5f7a6a, 0x5a7a5c, 0x4e6e52));
+				GensokyoBiomeFeatures.RAVINE, ravineSpawns, true, 0.35f, 0.9f, 0x39604f, 0x5f7a6a, 0x5a7a5c, 0x4e6e52));
 
 		var foothillsSpawns = new MobSpawnSettings.Builder();
 		BiomeDefaultFeatures.commonSpawns(foothillsSpawns);
@@ -210,14 +216,14 @@ public class GLBiomes {
 		foothillsSpawns.addSpawn(MobCategory.CREATURE, new MobSpawnSettings.SpawnerData(EntityType.GOAT, 5, 1, 3))
 				.addSpawn(MobCategory.CREATURE, new MobSpawnSettings.SpawnerData(EntityType.LLAMA, 4, 2, 6));
 		ctx.register(YOUKAI_MOUNTAIN_FOOTHILLS, touhou(vanilla.getOrThrow(Biomes.WINDSWEPT_HILLS).value(), pf, carvers,
-				GensokyoBiomeFeatures.FOOTHILLS, foothillsSpawns, true, 0.5f, 0.5f, 0x46707d, 0x8496a8, 0x6f8a58, 0x617c4e));
+				GensokyoBiomeFeatures.FOOTHILLS, foothillsSpawns, true, 0.6f, 0.5f, 0x46707d, 0x8496a8, 0x6f8a58, 0x617c4e));
 
 		var sanctuarySpawns = new MobSpawnSettings.Builder();
 		BiomeDefaultFeatures.commonSpawns(sanctuarySpawns);
 		sanctuarySpawns.addSpawn(MobCategory.CREATURE, new MobSpawnSettings.SpawnerData(EntityType.RABBIT, 2, 2, 6))
 				.addSpawn(MobCategory.CREATURE, new MobSpawnSettings.SpawnerData(EntityType.SHEEP, 2, 2, 4));
 		ctx.register(SANCTUARY, touhou(vanilla.getOrThrow(Biomes.MEADOW).value(), pf, carvers,
-				GensokyoBiomeFeatures.SANCTUARY, sanctuarySpawns, true, 0.2f, 0.4f, 0x57a0a6, 0xa8c4d8, 0x8fc06a, 0x82b45e));
+				GensokyoBiomeFeatures.SANCTUARY, sanctuarySpawns, true, 0.35f, 0.4f, 0x57a0a6, 0xa8c4d8, 0x8fc06a, 0x82b45e));
 
 		var bloodSpawns = new MobSpawnSettings.Builder();
 		BiomeDefaultFeatures.caveSpawns(bloodSpawns);
@@ -323,6 +329,14 @@ public class GLBiomes {
 		return holder.unwrapKey().orElseThrow(() ->
 				new IllegalStateException("Vanilla biome entry " + holder + " is not a registry reference"));
 	}
+
+	/**
+	 * The snow line, which nothing here is allowed to reach: {@link Biome#shouldSnow} and {@link Biome#shouldFreeze}
+	 * both ask for {@code getTemperature(pos) >= 0.15}, and {@code getTemperature} subtracts up to 0.19 above y 80 for
+	 * altitude. Every biome this class registers clears 0.15 after that, {@link #GROVE} being the exception — it is a
+	 * vanilla copy and keeps vanilla's own cold.
+	 */
+	static final float coldEnoughToSnow = 0.15f;
 
 	private static ResourceKey<Biome> biome(String id) {
 		return ResourceKey.create(Registries.BIOME, GensokyoLegacy.loc(id));

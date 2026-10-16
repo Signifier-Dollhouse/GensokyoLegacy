@@ -16,7 +16,7 @@
       "sound": "minecraft:ambient.cave",
       "tick_delay": 6000
     },
-    "sky_color": 8168703,
+    "sky_color": 8103167,
     "water_color": 3960701,
     "water_fog_color": 329011
   },
@@ -176,5 +176,5 @@
     "water_ambient": [],
     "water_creature": []
   },
-  "temperature": 0.4
+  "temperature": 0.5
 }

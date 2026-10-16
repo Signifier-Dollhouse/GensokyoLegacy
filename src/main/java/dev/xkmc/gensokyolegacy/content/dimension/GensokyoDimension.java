@@ -66,12 +66,17 @@ public class GensokyoDimension {
 	public static final ResourceKey<DensityFunction> DF_SLOPED_CHEESE = df("sloped_cheese");
 
 	/**
-	 * The three climate axes, every octave two steps finer than vanilla's. The height chain splines this continentalness
-	 * too — the biome grid has to read the same field the waterline is drawn on, or `ocean` stops meaning "drowned" —
-	 * so the whole dimension is built a quarter as wide rather than just the biomes. Vanilla keeps these parameters
-	 * private, so the amplitude lists are copied from {@code minecraft/worldgen/noise/*.json} with {@code firstOctave}
-	 * raised; that leaves the value distribution alone and only doubles the spatial frequency, since
-	 * {@code NormalNoise} normalises on the amplitudes alone.
+	 * The three climate axes, every octave finer than vanilla's. The height chain splines this continentalness too —
+	 * the biome grid has to read the same field the waterline is drawn on, or `ocean` stops meaning "drowned" — so the
+	 * whole dimension is built narrower rather than just the biomes. Vanilla keeps these parameters private, so the
+	 * amplitude lists are copied from {@code minecraft/worldgen/noise/*.json} with {@code firstOctave} moved; that
+	 * leaves the value distribution alone and only shifts the spatial frequency, since {@code NormalNoise} normalises
+	 * on the amplitudes alone.
+	 * <p>
+	 * The three are not scaled alike. Continentalness is two octaves finer than vanilla, which makes landforms four
+	 * times as steep and is what re-cut the height shares; temperature and vegetation are one octave finer, so a band
+	 * of the climate grid stays one recognisable patch instead of breaking into confetti. Only continentalness moves
+	 * terrain, so the second figure is a readability choice rather than a terrain one.
 	 * <p>
 	 * {@code NoiseRouterData} builds temperature and vegetation inline rather than behind a registry key, so those
 	 * two cannot be redirected by {@link FlatTerrainFunctions}; the router is rebuilt field by field instead.
@@ -160,8 +165,8 @@ public class GensokyoDimension {
 	 */
 	public static void noises(BootstrapContext<NormalNoise.NoiseParameters> ctx) {
 		ctx.register(N_CONTINENTS_SMALL, new NormalNoise.NoiseParameters(-7, 1.0, 1.0, 2.0, 2.0, 2.0, 1.0, 1.0, 1.0, 1.0));
-		ctx.register(N_TEMPERATURE_SMALL, new NormalNoise.NoiseParameters(-8, 1.5, 0.0, 1.0, 0.0, 0.0, 0.0));
-		ctx.register(N_VEGETATION_SMALL, new NormalNoise.NoiseParameters(-6, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0));
+		ctx.register(N_TEMPERATURE_SMALL, new NormalNoise.NoiseParameters(-9, 1.5, 0.0, 1.0, 0.0, 0.0, 0.0));
+		ctx.register(N_VEGETATION_SMALL, new NormalNoise.NoiseParameters(-7, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0));
 	}
 
 	private static void noiseSettings(BootstrapContext<NoiseGeneratorSettings> ctx) {

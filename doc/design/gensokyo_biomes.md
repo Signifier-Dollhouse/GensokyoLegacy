@@ -25,9 +25,10 @@ guide's order. Nothing is repeated and nothing is left over.
 | upper ground | magical_forest | bamboo_forest_of_the_lost | sakura_forest | hill_of_the_nameless |
 | Mountain | untrodden_valley | genbu_ravine | youkai_mountain_foothills | sanctuary |
 
-Each biome's own `temperature` and `downfall` follow its cell, so the sky colour and the snow line agree with the corner
-of the plane the grid picked it from. The one exception is `myouren_temple_barrens`: the cold dry corner, cold enough
-to sit under the snow line, and snow over its coarse dirt would be wrong — so it turns precipitation off instead.
+Each biome's own `temperature` and `downfall` follow its cell, so the sky colour and the hot/cold split read off the
+numbers the same way they read off the map. None of them is actually cold, though: see §6. The hot cells of each band
+are lifted a little to keep the split legible now that the cold cells are floored. `myouren_temple_barrens` is the one
+biome with precipitation off, because a dry barrens should not rain.
 
 `ocean`, `beach`, `grove` and `peak` are deliberately untouched — they are still vanilla copies, and a follow-up guide
 covers them.
@@ -54,7 +55,7 @@ The base only ever supplies *features*. Climate, colours and spawns are spelled 
 | `muenzuka` | `forest` | deciduous canopy, dark forest floor to break up with podzol |
 | `human_village` | `plains` | open, already tilled-looking, plus its pumpkin and sugar cane patches |
 | `myouren_temple_barrens` | `badlands` | the dry dead-bush and coarse-dirt look, and the quiet spawn weighting |
-| `bamboo_forest_of_the_lost` | `snowy_taiga` | snowy spruce understorey; Eientei's grove really is a winter one |
+| `bamboo_forest_of_the_lost` | `snowy_taiga` | spruce understorey, so the grove reads as a winter one — though the biome itself no longer snows, §6 |
 | `hill_of_the_nameless` | `meadow` | open flowered hill with no canopy to hide in |
 | `untrodden_valley` | `taiga` | conifers, ferns, already cold |
 | `genbu_ravine` | `swamp` | the clay disk and reeds read as wet banks, and the lily pads work underwater |
@@ -204,12 +205,64 @@ under the mountain and above it. The higher the ground, the deeper the heat.
 
 ---
 
-## 6. Tags
+## 6. Snow and freezing
+
+Nothing in this dimension freezes on the strength of the climate grid. The grid picks *which biome* a column is; the
+snow line is a property of that biome's own `temperature` field, and the two are deliberately decoupled — `muenzuka`
+is the cold humid cell of the lower ground and does not snow, while `human_village` is the hot dry cell and could have
+been anything.
+
+The chain, all of it vanilla:
+
+1. Every base biome carries `minecraft:freeze_top_layer` (from `globalOverworldGeneration` → `addSurfaceFreezing`).
+   `SnowAndFreezeFeature` asks the biome twice, once for the block under the surface and once for the surface itself.
+2. `Biome#shouldSnow` / `shouldFreeze` both bail on `warmEnoughToRain`, which is `getTemperature(pos) >= 0.15F`.
+3. `getTemperature` is the declared temperature through `TemperatureModifier.NONE`, then
+   `getHeightAdjustedTemperature`, which above y 80 subtracts `(noise * 8 + y - 80) * 0.00125` — up to 0.07 at the
+   top of the mountain band and 0.19 on a y 220 peak.
+
+So the threshold is **0.15 of an altitude-adjusted temperature**, not of the declared one, and that is the whole story:
+
+| biome | declared | band y | worst altitude loss | effective | snows? |
+|---|---|---|---|---|---|
+| myouren_temple_barrens | 0.2 | 66 … 80 | 0 (below y 80) | 0.2 | no |
+| muenzuka | 0.3 | 66 … 80 | 0 | 0.3 | no |
+| human_village | 0.8 | 66 … 80 | 0 | 0.8 | no |
+| sunflower_plains | 0.8 (copy) | 66 … 80 | 0 | 0.8 | no |
+| magical_forest | 0.7 | 80 … 96 | 0.02 | 0.68 | no |
+| sakura_forest | 0.5 | 80 … 96 | 0.02 | 0.48 | no |
+| bamboo_forest_of_the_lost | 0.3 | 80 … 96 | 0.02 | 0.28 | no |
+| hill_of_the_nameless | 0.3 | 80 … 96 | 0.02 | 0.28 | no |
+| untrodden_valley | 0.5 | 96 … 128 | 0.07 | 0.43 | no |
+| genbu_ravine | 0.35 | 96 … 128 | 0.07 | 0.28 | no |
+| youkai_mountain_foothills | 0.6 | 96 … 128 | 0.07 | 0.53 | no |
+| sanctuary | 0.35 | 96 … 128 | 0.07 | 0.28 | no |
+| grove | **−0.2** (copy) | 128 … 192 | 0.11 | −0.31 | **yes, vanilla's own** |
+| peak | 1.0 (copy) | 192 … 220 | 0.19 | 0.81 | no |
+
+Every biome this project defines clears the line by at least 0.13, which is what the margin column is for: the altitude
+loss is a noise term, so a biome only ever snows in the top few blocks of its band and only in the coldest few of
+those. The six biomes the grid puts in a cold cell declare 0.2 to 0.35, comfortably warm, because a cold *cell* is a
+place on the climate map and not a licence to freeze — `bamboo_forest_of_the_lost` is the clearest case, where the guide
+sits a winter bamboo grove in a cold corner and the map should not put snow on the ground.
+
+`grove` is the only biome in Gensokyo that snows, and it does so because it is a verbatim vanilla copy whose climate
+comes from `minecraft:grove`. Overriding it is a one-line change to `GLBiomes.copyOf`, but `grove` is one of the four
+biomes the follow-up guide is going to cover, so it is left as vanilla has it until then.
+
+Two other routes to ice were checked and do not fire here. `SurfaceRules.temperature()` reads the *climate sample*
+rather than a biome, and `SurfaceRuleData.overworld()` only uses it inside the frozen-ocean branch — there is no
+frozen ocean in Gensokyo. `TemperatureModifier.FROZEN` is likewise only on frozen oceans, and nothing this project
+registers uses it.
+
+---
+
+## 7. Tags
 
 `GLStructureTagGen.genBiomeTag` gains `is_plains`, `is_mountain` (repointed from the removed `mountain` to the four
 biomes that replaced it), `is_forest`, `is_taiga`, `is_underground`, `is_spooky`, `is_floral`, `is_wet` and `is_dry`.
 
-## 7. Names
+## 8. Names
 
 `GLLang.Biome` carries the English display names; the zh_cn strings are hand-authored in
 `lang/zh_cn/world.json` and merged by `organize.ResourceOrganizer`. The lang key is the vanilla

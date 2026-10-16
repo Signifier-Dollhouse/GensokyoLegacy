@@ -293,20 +293,34 @@ rebuilds from keys.
 
 ---
 
-## 7. The fine climate
+## 7. The climate axes
 
-`gensokyolegacy:continentalness_small`, `:temperature_small` and `:vegetation_small` are the three climate axes with
-**every octave raised by two** (`firstOctave` −9→−7, −10→−8, −8→−6), amplitude lists copied from
-`minecraft/worldgen/noise/*.json`. Vanilla keeps those parameters private, so the lists are duplicated in
-`GensokyoDimension.noises`. Raising `firstOctave` rather than `xz_scale` shifts the octaves *and* the shift field
-together, so the axes keep the same shape at four times the frequency.
+`gensokyolegacy:continentalness_small`, `:temperature_small` and `:vegetation_small` are the three climate axes,
+amplitude lists copied from `minecraft/worldgen/noise/*.json` with the octave moved. Vanilla keeps those parameters
+private, so the lists are duplicated in `GensokyoDimension.noises`. Moving `firstOctave` rather than `xz_scale` shifts
+the octaves *and* the shift field together, so an axis keeps its shape at a different frequency.
 
-Raising it costs the spline nothing. `NormalNoise` normalises on the amplitudes alone
+| axis | vanilla | now | frequency |
+|---|---|---|---|
+| continentalness | −9 | −7 | ×4 |
+| temperature | −10 | −9 | ×2 |
+| vegetation | −8 | −7 | ×2 |
+
+They are not scaled alike, and the split is deliberate. **Only continentalness moves terrain**, because it is the only
+one the height chain splines, so its factor is a terrain decision — and ×4 is what makes landforms four times as
+steep and forces the height shares of §3 to be re-solved. Temperature and vegetation move nothing but the biome
+grid, where ×2 is the difference between a band you can name and a band that shatters into confetti: at ×4 the
+upper ground broke into patches of a few dozen chunks and no two were recognisably the same place. Half as fast, the
+same four cells hold together into regions.
+
+Moving an octave costs the spline nothing. `NormalNoise` normalises on the amplitudes alone
 (`expectedDeviation` over the non-zero octaves), so `firstOctave` only scales the argument the octaves are read at:
 the **value distribution is unchanged**, and every quantile the region edges of §4 and the spline points of §3 sit at
 still sit at the same quantile. The permutation tables do move (`octave_%d` is keyed on `firstOctave + k`), so the
 realisation is a different one, and the shares measured on a 16 km window drift by a point or two — that is sampling
-noise, not a changed curve, and it is not worth re-fitting.
+noise, not a changed curve, and it is not worth re-fitting. Temperature and vegetation additionally have no
+quantiles to preserve: §4 cuts them once, at 0, so a coarser field only changes how large the four boxes come out,
+not how they are placed.
 
 All three are plain `shifted_noise` at the vanilla `xz_scale` 0.25, deliberately **not** `flat_cache`d:
 `NoiseChunk.FlatCache` indexes its table by quart position and stores the value at the cell's origin corner, so it
@@ -388,5 +402,7 @@ evaluates. The §3 and §4 tables are identical with and without the wrappers.
   single `Registries.NOISE` bootstrap (§6). `GensokyoDimension.smallClimateRouter` then rebuilds the `NoiseRouter`
   field by field, carrying over the other thirteen.
 
-Measured on 256 × 256 chunks, seed −1838080655014084215: biome patch median 64 → 23 chunks, mean 524 → 162, patch
-count 125 → 403.
+Measured on 256 × 256 chunks, seed −1838080655014084215, for the two climate axes at ×4: biome patch median
+64 → 23 chunks, mean 524 → 162, patch count 125 → 403. At the ×2 they are at now, the patches are large enough
+to read on a 4 km map (`out/terrain/gensokyolegacy_gensokyo_biomes.png`). The height bands still cut finely, because
+that is continentalness doing the cutting, not climate.
