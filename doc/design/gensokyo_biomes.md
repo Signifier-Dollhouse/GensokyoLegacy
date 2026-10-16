@@ -251,13 +251,34 @@ Each of the three open-ground bands splits into four near-equal quarters, which 
 gives: the lower ground band is 25.73% of the map and its four cells are 5.94 / 7.05 / 6.38 / 7.11%.
 
 The four underground biomes never appear on this map: `terrain.py` samples one column per chunk at the surface, and the
-underground rows only win 128 blocks down.
+underground bands only win more than 128 blocks down. Their placement is `doc/design/gensokyo_dimension.md` §9.
 
-`UNDERGROUND` dropped its temperature split entirely. It used to be snowy when cold and magical forest otherwise, which
-made every cave in the dimension the same biome. The guide §4 gives the underground no climate classification at all —
-just four places — so it is one cell per region, keyed on how far the surface above it sits: blood under the water
-table and the coast, the animal realm under the lower ground, the old hell under the upper ground, and the burning hell
-under the mountain and above it. The higher the ground, the deeper the heat.
+`UNDERGROUND` is **one continentalness row split by temperature and humidity**, not one cell per region. It used to be
+keyed on how far the surface above it sat — blood under the water table and the coast, the animal realm under the lower
+ground, the old hell under the upper ground, the burning hell under the mountain — which made every cave in the
+dimension the same biome, and keyed the underground to the height chain so it inherited every move of the offset
+spline. Now one row spans continentalness `[-1.00, 0.22]` and depth `[0.53, 1.50]`, and the four biomes are cut out of
+it by climate:
+
+| | hot | cold |
+|---|---|---|
+| **humid** | `hell_of_blood_pools` | `former_hell` |
+| **dry** | `hell_of_blazing_fires` | `animal_realm` |
+
+`former_hell` is then repeated a second time under the mountain, at continentalness `[0.50, 1.00]` and depth
+`[1.70, 2.00]`. It is the only one of the four that appears in both rows; the other three belong to the low ground and
+have no business claiming the mountain's deep rock.
+
+### `mountain_interior`
+
+The fifth rock band, and the only one that is not a climate region: a single cell over the whole temperature and
+humidity plane at continentalness `[0.50, 1.00]`, depth `[0.30, 0.53]`. It is the rock between the surface and the
+underground — under the mountain, and nowhere else.
+
+It is built on `Biomes.DEEP_DARK` with an **empty** tail, and its surface rule is plain `stone` over the whole column:
+the band never has a floor of its own to grade into, so there is nothing for deepslate to blend towards. Spawns are
+vanilla's cave set plus monsters weighted 95% / 5% across a 100-block radius, and the temperature range is
+`[0.6, 0.8]`.
 
 ---
 

@@ -77,6 +77,16 @@ public class GLBiomes {
 	// the dry half of the settlement's band, which the guide does not name
 	public static final ResourceKey<Biome> SECRET_HEAVEN_CLIFF = biome("secret_heaven_cliff");
 
+	/**
+	 * The rock the mountain is hollow, from just under its topsoil down to {@code DEEP_DEPTH}, and nowhere but the
+	 * mountain. Not one of the fixed locations: a single climate region of its own, keyed on depth and
+	 * continentalness rather than on the surface.
+	 *
+	 * @see "doc/design/gensokyo_biomes.md" §5
+	 * @see "doc/design/gensokyo_dimension.md" §9
+	 */
+	public static final ResourceKey<Biome> MOUNTAIN_INTERIOR = biome("mountain_interior");
+
 	public static final ResourceKey<Biome> SUNFLOWER_PLAINS = biome("sunflower_plains");
 
 	private static final Map<ResourceKey<Biome>, ResourceKey<Biome>> COPIES =
@@ -258,6 +268,15 @@ public class GLBiomes {
 		BiomeDefaultFeatures.monsters(formerHellSpawns, 90, 25, 90, false);
 		ctx.register(FORMER_HELL, touhou(vanilla.getOrThrow(Biomes.DRIPSTONE_CAVES).value(), pf, carvers,
 				GensokyoBiomeFeatures.FORMER_HELL, formerHellSpawns, true, 0.8f, 0.4f, 0x5a4a3a, 0x6a5a4a, 0x7a6b52, 0x6b5c46));
+
+		// the mountain's own rock. Deep dark for what it is: sparse, unlit and quiet, which is what a cave nobody
+		// has opened should look like. The tail is empty on purpose — the base grows its own sculk, and the
+		// large caves are the feature
+		var interiorSpawns = new MobSpawnSettings.Builder();
+		BiomeDefaultFeatures.caveSpawns(interiorSpawns);
+		BiomeDefaultFeatures.monsters(interiorSpawns, 95, 5, 100, false);
+		ctx.register(MOUNTAIN_INTERIOR, touhou(vanilla.getOrThrow(Biomes.DEEP_DARK).value(), pf, carvers,
+				GensokyoBiomeFeatures.MOUNTAIN_INTERIOR, interiorSpawns, true, 0.6f, 0.8f, 0x2c3a50, 0x5a6a72, null, null));
 	}
 
 	/**

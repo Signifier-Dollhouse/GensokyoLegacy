@@ -398,6 +398,7 @@ public final class GLLang {
 		MISTY_LAKE_SHORE("misty_lake_shore", "Misty Lake Shore"),
 		TENGU_SETTLEMENT("tengu_settlement", "Tengu Settlement"),
 		SECRET_HEAVEN_CLIFF("secret_heaven_cliff", "Secret Heaven Cliff"),
+		MOUNTAIN_INTERIOR("mountain_interior", "Mountain Interior"),
 		YOUKAI_MOUNTAIN_SUMMIT("youkai_mountain_summit", "Youkai Mountain Summit"),
 		SUNFLOWER_PLAINS("sunflower_plains", "Sunflower Plains");
 

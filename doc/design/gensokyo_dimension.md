@@ -195,9 +195,10 @@ Note that `NoiseRouter.mapAll` exists but is unusable here: `HolderHolder.mapAll
 
 **Seven continentalness regions**, each one a height band of the offset spline, in `GensokyoDimension.biomeSource`.
 Every biome in a region shares that region's continentalness span exactly, and the region's own biomes tile the
-temperature and humidity plane instead — which is why the list is only **24 points** (17 at the surface, 7
-underground) rather than the 42 a region × 2 × 2 × 2 grid would need. Erosion and weirdness are `[-1, 1]` on every
-point, so they cannot pick a biome; depth is `0.0` at the surface and `1.0` underground.
+temperature and humidity plane instead — which is why the surface half of the list is only **17 points** rather than
+the 42 a region × 2 × 2 × 2 grid would need. Erosion and weirdness are `[-1, 1]` on every point, so they cannot pick a
+biome. Depth is the fourth axis and does most of the work below ground; what it actually is, and where each band sits
+on it, is §9.
 
 | continentalness | surface y | share | hot humid | cold humid | hot dry | cold dry |
 |---|---|---|---|---|---|---|
@@ -248,10 +249,9 @@ falls to list order.
 
 Which biomes fill these cells, and where each one's features come from, is `doc/design/gensokyo_biomes.md`.
 
-Underground (depth 1.0) is one cell per region: `hell_of_blood_pools` under the water table and the coast,
-`animal_realm` under the lower ground, `former_hell` under the upper ground, and `hell_of_blazing_fires` under the
-mountain and everything above it. Depth reads as `(surfaceY − sampleY) / 128`, so those rows only win more than 128
-blocks down — the world floor under low ground, and deep caves under high ground.
+Underground is **not** one cell per region. It is one continentalness row split by temperature and humidity, plus a
+second, deeper row under the mountain for the ruins alone, plus the mountain's own interior rock. That is §9, and it is
+the reason this list is 23 points rather than the 17 above plus four.
 
 Multi-noise lookup is nearest-cell on the six axes, so cells need not tile the space exactly — the nearest one wins
 anywhere the grid is silent.
@@ -540,3 +540,136 @@ python3 tools/terrain.py gensokyolegacy:gensokyo --voids --seed -183808065501408
 writes `out/terrain/gensokyolegacy_gensokyo_caves.txt`. The maps are one pixel per chunk, so a cave is at most a
 pixel of noise in them; the report is the only place these numbers exist. `--cheese` matters, since dropping
 `base_3d_noise` moves the surface the report measures from.
+---
+
+## 9. The rock bands
+
+Below the topsoil a column is split three ways, and the split is carried entirely by **depth** and **continentalness**.
+Temperature and humidity only choose *which* underground biome a column gets, never *which band* — which is what lets
+the four underground biomes collapse to one cell per climate in the tool.
+
+The bands are:
+
+| band | depth | continentalness | biome |
+|---|---|---|---|
+| surface | `[-1.50, 0.10]` | the region | the region's own four, or the one fixed location |
+| mountain interior | `[0.30, 0.53]` | `[0.50, 1.00]` | `mountain_interior`, one cell over the whole temp/humid plane |
+| underground | `[0.53, 1.50]` | `[-1.00, 0.22]` | the four, split cold/hot × dry/humid |
+| mountain ruins | `[1.70, 2.00]` | `[0.50, 1.00]` | `former_hell` alone |
+
+`former_hell` is the only underground biome that appears in both rows. The other three stay on the low-continentalness
+row because they belong to the low ground and have no business claiming the mountain's deep rock.
+
+### Depth is surface-relative
+
+```
+depth = 1.5 - (y + 64) / 128 + offset
+offset = GLOBAL_OFFSET + spline(continentalness) + blend_offset      GLOBAL_OFFSET = -0.703125
+```
+
+So depth is **one unit per 128 blocks**, plus an offset that carries the whole height spline: the ground under a mountain
+is at a much larger depth than the ground under the sea at the same y. Two consequences follow, and both shaped the
+layout:
+
+- A constant depth cut is **not** a flat y. The cave/underground boundary follows `DEEP_DEPTH + (cont - C_HI)`, which
+  is 90 blocks of tilt across the map. Continentalness bounds are the only way to make a boundary flat.
+- Only the mountain reaches the bottom. Depth at the world floor (y −64) is `1.5 + offset`, which is **2.02** under the
+  summit and **1.05** under the water — so the lowland row's 1.5 ceiling is never binding and the mountain's is. The
+  mountain row stops at **2.0** because the climate codec refuses any parameter outside `[-2, 2]`; the last twentieth of
+  a block at y −64 is interpolated instead of claimed.
+
+### Bounds, and where the boundaries actually land
+
+`Climate.ParameterList` is a nearest-cell lookup: a cell's fitness is the sum of squared distances outside each of its
+spans, and a boundary between two spans therefore sits at the **midpoint** of their bounds rather than at either. Every
+number in this section is a consequence of that.
+
+| bound | value | what it moves |
+|---|---|---|
+| `SURFACE_DEPTH` | 0.10 | where the surface rows stop being claimed |
+| `CAVE_DEPTH` | 0.30 | the cave's floor |
+| `DEEP_DEPTH` | 0.53 | both the cave's ceiling and the underground's floor — the only pair that tiles |
+| `HELL_DEPTH` | 1.70 | the mountain's ruins floor |
+| `HELL_FLOOR` | 2.00 | its ceiling, at the codec limit |
+| `UNDERGROUND_CONT` | 0.22 | the surface/underground crossover through the foothills |
+| `CAVE_CONT` | 0.50 | the cave's and the mountain rows' continentalness floor |
+| `CAVE_CONT_CEILING` | 1.00 | its ceiling, closed so the cave competes past 1.0 instead of owning every column |
+
+`CAVE_DEPTH` is deliberately *not* the surface row's ceiling. The gap between 0.10 and 0.30 is interpolated rather than
+claimed, so the surface/cave boundary lands at the midpoint 0.20 with a band of rock around it won on the falloff.
+
+### What each bound owns
+
+This is the part that is not obvious, and both halves were measured rather than assumed — with
+`tools/cave_bands.py`, which simulates the real fitness rule and reports the mean and the drop.
+
+**`UNDERGROUND_CONT` owns the drop across the mountain's shoulder.** The low-continentalness row is penalised by
+`(cont - UNDERGROUND_CONT)²`, so its crossover with the surface climbs as `SURFACE_DEPTH + (cont - UNDERGROUND_CONT)`.
+That ramp is the drop: at 0.10 it rises to y67 at cont 0.26 and then crashes to y38 by cont 0.34, because at cont ≈ 0.30
+it hands over to a second, flat crossover against the cave. Raising the bound walks the ramp over:
+
+| `UNDERGROUND_CONT` | drop over cont 0.15…0.45 | boundary | mountain mean |
+|---|---|---|---|
+| 0.10 | 29 blocks (y 38…67) | | 70 |
+| 0.18 | 20 | | 72 |
+| **0.22** | **17 (y 58…75)** | | **73** |
+| 0.26 | 21 | | 75 |
+| 0.30 | 29 | | 76 |
+
+**`HELL_DEPTH` owns the summit, and only the summit.** Its floor is out of reach of the foothills — depth 1.70 is below
+the world floor below continentalness 0.44 — so cutting it cannot flatten the drop. It only lifts the mountain:
+
+| `HELL_DEPTH` | drop | mountain mean |
+|---|---|---|
+| 1.82 | 29 | y64 |
+| **1.70** | 29 | **y70** |
+| 1.20 | 29 | y102 |
+| 0.80 | 35 | y127 |
+| 0.60 | 36 | y140 |
+| 0.45 | 45 | y155 |
+| 0.30 | 76 | y187 |
+
+The drop *grows* as `HELL_DEPTH` is cut, because a shallower floor makes the mountain row win earlier and more steeply
+across the foothills, and the foothills are exactly where it is cont-penalised.
+
+The mountain row's **continentalness floor** is inert for the same reason: sweeping it from 0.50 down to 0.15 changes
+nothing at all, because below continentalness 0.44 there is no rock at that depth to claim.
+
+### Measured
+
+128 × 128 chunks at seed −1838080655014084215, origin −384, −384, cap y 50:
+
+```
+python3 tools/cave_bands.py gensokyolegacy:gensokyo --seed -1838080655014084215 \
+    --origin="-384,-384" --bounds 0.1,0.3,0.53,0.53,0.5,0.22,1.0,1.70 --target-y 64
+```
+
+| | |
+|---|---|
+| claimed by a cell — surface / cave / underground | 68.5% / 12.5% / 53.2% |
+| cave band thickness | 6 … 117 blocks |
+| cave/underground boundary over the mountain | y 66 … 77, mean 74 |
+| drop across the shoulder, cont 0.15…0.45 | 17 blocks, y 58 … 75 |
+
+A column whose band boundary is won on the falloff gets a **blend of the two biomes**, not one of them, so the pale
+tint in `out/terrain/gensokyolegacy_gensokyo_cave_bands_*.png` is rock that exists but has no name. Solid fill is a cell
+that claims the column outright.
+
+### The cap
+
+The underground reaches **y 77** at its highest, in 68 of the sampled columns. That is a breach of the y 50 target, and
+it is deliberate: the boundary is where the cave stops and the ruins begin, and the cave has to be thick enough under
+the summit to be worth walking into. The breach is worst in the last stretch past continentalness 1.0, where the surface
+rows stop being claimed at all and the underground takes over from the top. `cave_bands.py` exits non-zero on a breach
+anyway, which is now crying wolf — the target is a mean, and the mean is 74.
+
+Each column's biome *is* blended across the boundary, so the practical effect of the breach is a column partway
+`mountain_interior` and partway `former_hell`, not a hard edge.
+
+### Construction
+
+`mountain_interior` is the one rock band that is not a climate region: a single cell over the whole temperature and
+humidity plane, keyed on continentalness and depth only. It takes `Biomes.DEEP_DARK` as its base, an empty tail, and
+plain stone as its surface rule — it only ever sits between the two rock bands, so there is no deepslate below it to
+grade into and no floor worth giving a different material. `former_hell` is the guide's own biome; the other three
+underground biomes keep the palettes of §4.

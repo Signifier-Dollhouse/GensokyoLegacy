@@ -12,34 +12,10 @@
               -1.0,
               -0.5299
             ],
-            "depth": 0.0,
-            "erosion": [
-              -1.0,
-              1.0
+            "depth": [
+              -1.5,
+              0.1
             ],
-            "humidity": [
-              -1.0,
-              1.0
-            ],
-            "offset": 0.0,
-            "temperature": [
-              -1.0,
-              1.0
-            ],
-            "weirdness": [
-              -1.0,
-              1.0
-            ]
-          }
-        },
-        {
-          "biome": "gensokyolegacy:hell_of_blood_pools",
-          "parameters": {
-            "continentalness": [
-              -1.0,
-              -0.5299
-            ],
-            "depth": 1.0,
             "erosion": [
               -1.0,
               1.0
@@ -66,34 +42,10 @@
               -0.52,
               -0.447
             ],
-            "depth": 0.0,
-            "erosion": [
-              -1.0,
-              1.0
+            "depth": [
+              -1.5,
+              0.1
             ],
-            "humidity": [
-              -1.0,
-              1.0
-            ],
-            "offset": 0.0,
-            "temperature": [
-              -1.0,
-              1.0
-            ],
-            "weirdness": [
-              -1.0,
-              1.0
-            ]
-          }
-        },
-        {
-          "biome": "gensokyolegacy:hell_of_blood_pools",
-          "parameters": {
-            "continentalness": [
-              -0.52,
-              -0.447
-            ],
-            "depth": 1.0,
             "erosion": [
               -1.0,
               1.0
@@ -120,7 +72,10 @@
               -0.427,
               -0.128
             ],
-            "depth": 0.0,
+            "depth": [
+              -1.5,
+              0.1
+            ],
             "erosion": [
               -1.0,
               1.0
@@ -147,7 +102,10 @@
               -0.427,
               -0.128
             ],
-            "depth": 0.0,
+            "depth": [
+              -1.5,
+              0.1
+            ],
             "erosion": [
               -1.0,
               1.0
@@ -174,7 +132,10 @@
               -0.427,
               -0.128
             ],
-            "depth": 0.0,
+            "depth": [
+              -1.5,
+              0.1
+            ],
             "erosion": [
               -1.0,
               1.0
@@ -201,7 +162,10 @@
               -0.427,
               -0.128
             ],
-            "depth": 0.0,
+            "depth": [
+              -1.5,
+              0.1
+            ],
             "erosion": [
               -1.0,
               1.0
@@ -214,33 +178,6 @@
             "temperature": [
               -1.0,
               -0.01
-            ],
-            "weirdness": [
-              -1.0,
-              1.0
-            ]
-          }
-        },
-        {
-          "biome": "gensokyolegacy:animal_realm",
-          "parameters": {
-            "continentalness": [
-              -0.427,
-              -0.128
-            ],
-            "depth": 1.0,
-            "erosion": [
-              -1.0,
-              1.0
-            ],
-            "humidity": [
-              -1.0,
-              1.0
-            ],
-            "offset": 0.0,
-            "temperature": [
-              -1.0,
-              1.0
             ],
             "weirdness": [
               -1.0,
@@ -255,7 +192,10 @@
               -0.108,
               0.098
             ],
-            "depth": 0.0,
+            "depth": [
+              -1.5,
+              0.1
+            ],
             "erosion": [
               -1.0,
               1.0
@@ -282,7 +222,10 @@
               -0.108,
               0.098
             ],
-            "depth": 0.0,
+            "depth": [
+              -1.5,
+              0.1
+            ],
             "erosion": [
               -1.0,
               1.0
@@ -309,7 +252,10 @@
               -0.108,
               0.098
             ],
-            "depth": 0.0,
+            "depth": [
+              -1.5,
+              0.1
+            ],
             "erosion": [
               -1.0,
               1.0
@@ -336,7 +282,10 @@
               -0.108,
               0.098
             ],
-            "depth": 0.0,
+            "depth": [
+              -1.5,
+              0.1
+            ],
             "erosion": [
               -1.0,
               1.0
@@ -349,33 +298,6 @@
             "temperature": [
               -1.0,
               -0.01
-            ],
-            "weirdness": [
-              -1.0,
-              1.0
-            ]
-          }
-        },
-        {
-          "biome": "gensokyolegacy:former_hell",
-          "parameters": {
-            "continentalness": [
-              -0.108,
-              0.098
-            ],
-            "depth": 1.0,
-            "erosion": [
-              -1.0,
-              1.0
-            ],
-            "humidity": [
-              -1.0,
-              1.0
-            ],
-            "offset": 0.0,
-            "temperature": [
-              -1.0,
-              1.0
             ],
             "weirdness": [
               -1.0,
@@ -390,7 +312,10 @@
               0.118,
               0.319
             ],
-            "depth": 0.0,
+            "depth": [
+              -1.5,
+              0.1
+            ],
             "erosion": [
               -1.0,
               1.0
@@ -417,7 +342,10 @@
               0.118,
               0.319
             ],
-            "depth": 0.0,
+            "depth": [
+              -1.5,
+              0.1
+            ],
             "erosion": [
               -1.0,
               1.0
@@ -444,7 +372,10 @@
               0.118,
               0.319
             ],
-            "depth": 0.0,
+            "depth": [
+              -1.5,
+              0.1
+            ],
             "erosion": [
               -1.0,
               1.0
@@ -471,7 +402,10 @@
               0.118,
               0.319
             ],
-            "depth": 0.0,
+            "depth": [
+              -1.5,
+              0.1
+            ],
             "erosion": [
               -1.0,
               1.0
@@ -484,33 +418,6 @@
             "temperature": [
               -1.0,
               -0.01
-            ],
-            "weirdness": [
-              -1.0,
-              1.0
-            ]
-          }
-        },
-        {
-          "biome": "gensokyolegacy:hell_of_blazing_fires",
-          "parameters": {
-            "continentalness": [
-              0.118,
-              0.319
-            ],
-            "depth": 1.0,
-            "erosion": [
-              -1.0,
-              1.0
-            ],
-            "humidity": [
-              -1.0,
-              1.0
-            ],
-            "offset": 0.0,
-            "temperature": [
-              -1.0,
-              1.0
             ],
             "weirdness": [
               -1.0,
@@ -525,7 +432,10 @@
               0.3389,
               0.585
             ],
-            "depth": 0.0,
+            "depth": [
+              -1.5,
+              0.1
+            ],
             "erosion": [
               -1.0,
               1.0
@@ -552,7 +462,10 @@
               0.3389,
               0.585
             ],
-            "depth": 0.0,
+            "depth": [
+              -1.5,
+              0.1
+            ],
             "erosion": [
               -1.0,
               1.0
@@ -573,40 +486,16 @@
           }
         },
         {
-          "biome": "gensokyolegacy:hell_of_blazing_fires",
-          "parameters": {
-            "continentalness": [
-              0.3389,
-              0.585
-            ],
-            "depth": 1.0,
-            "erosion": [
-              -1.0,
-              1.0
-            ],
-            "humidity": [
-              -1.0,
-              1.0
-            ],
-            "offset": 0.0,
-            "temperature": [
-              -1.0,
-              1.0
-            ],
-            "weirdness": [
-              -1.0,
-              1.0
-            ]
-          }
-        },
-        {
           "biome": "gensokyolegacy:youkai_mountain_summit",
           "parameters": {
             "continentalness": [
               0.605,
               1.0
             ],
-            "depth": 0.0,
+            "depth": [
+              -1.5,
+              0.1
+            ],
             "erosion": [
               -1.0,
               1.0
@@ -627,13 +516,166 @@
           }
         },
         {
+          "biome": "gensokyolegacy:former_hell",
+          "parameters": {
+            "continentalness": [
+              -1.0,
+              0.22
+            ],
+            "depth": [
+              0.5299,
+              1.5
+            ],
+            "erosion": [
+              -1.0,
+              1.0
+            ],
+            "humidity": [
+              0.01,
+              1.0
+            ],
+            "offset": 0.0,
+            "temperature": [
+              -1.0,
+              -0.01
+            ],
+            "weirdness": [
+              -1.0,
+              1.0
+            ]
+          }
+        },
+        {
+          "biome": "gensokyolegacy:animal_realm",
+          "parameters": {
+            "continentalness": [
+              -1.0,
+              0.22
+            ],
+            "depth": [
+              0.5299,
+              1.5
+            ],
+            "erosion": [
+              -1.0,
+              1.0
+            ],
+            "humidity": [
+              -1.0,
+              -0.01
+            ],
+            "offset": 0.0,
+            "temperature": [
+              -1.0,
+              -0.01
+            ],
+            "weirdness": [
+              -1.0,
+              1.0
+            ]
+          }
+        },
+        {
+          "biome": "gensokyolegacy:hell_of_blood_pools",
+          "parameters": {
+            "continentalness": [
+              -1.0,
+              0.22
+            ],
+            "depth": [
+              0.5299,
+              1.5
+            ],
+            "erosion": [
+              -1.0,
+              1.0
+            ],
+            "humidity": [
+              0.01,
+              1.0
+            ],
+            "offset": 0.0,
+            "temperature": [
+              0.01,
+              1.0
+            ],
+            "weirdness": [
+              -1.0,
+              1.0
+            ]
+          }
+        },
+        {
           "biome": "gensokyolegacy:hell_of_blazing_fires",
           "parameters": {
             "continentalness": [
-              0.605,
+              -1.0,
+              0.22
+            ],
+            "depth": [
+              0.5299,
+              1.5
+            ],
+            "erosion": [
+              -1.0,
               1.0
             ],
-            "depth": 1.0,
+            "humidity": [
+              -1.0,
+              -0.01
+            ],
+            "offset": 0.0,
+            "temperature": [
+              0.01,
+              1.0
+            ],
+            "weirdness": [
+              -1.0,
+              1.0
+            ]
+          }
+        },
+        {
+          "biome": "gensokyolegacy:former_hell",
+          "parameters": {
+            "continentalness": [
+              0.5,
+              1.0
+            ],
+            "depth": [
+              1.7,
+              2.0
+            ],
+            "erosion": [
+              -1.0,
+              1.0
+            ],
+            "humidity": [
+              0.01,
+              1.0
+            ],
+            "offset": 0.0,
+            "temperature": [
+              -1.0,
+              -0.01
+            ],
+            "weirdness": [
+              -1.0,
+              1.0
+            ]
+          }
+        },
+        {
+          "biome": "gensokyolegacy:mountain_interior",
+          "parameters": {
+            "continentalness": [
+              0.5,
+              1.0
+            ],
+            "depth": [
+              0.3,
+              0.5299
+            ],
             "erosion": [
               -1.0,
               1.0

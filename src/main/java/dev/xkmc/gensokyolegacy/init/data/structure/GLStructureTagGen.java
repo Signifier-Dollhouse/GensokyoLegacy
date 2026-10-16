@@ -148,7 +148,8 @@ public class GLStructureTagGen {
 		pvd.addTag(IS_MOUNTAIN_PEAK).add(GLBiomes.YOUKAI_MOUNTAIN_SUMMIT);
 		pvd.addTag(IS_UNDERGROUND)
 				.add(GLBiomes.HELL_OF_BLOOD_POOLS).add(GLBiomes.ANIMAL_REALM)
-				.add(GLBiomes.HELL_OF_BLAZING_FIRES).add(GLBiomes.FORMER_HELL);
+				.add(GLBiomes.FORMER_HELL).add(GLBiomes.HELL_OF_BLAZING_FIRES)
+				.add(GLBiomes.MOUNTAIN_INTERIOR);
 		pvd.addTag(IS_SPOOKY).add(GLBiomes.MUENZUKA).add(GLBiomes.HILL_OF_THE_NAMELESS);
 		pvd.addTag(IS_FLORAL).add(GLBiomes.HUMAN_VILLAGE).add(GLBiomes.SANCTUARY)
 				.add(GLBiomes.HILL_OF_THE_NAMELESS);

@@ -165,6 +165,8 @@ public class GensokyoBiomeFeatures {
 	public static final Tail ANIMAL_REALM = new Tail(tail(), tail(), tail(DEN_RUBBLE_PF, FUNGUS_PATCH_PF));
 	public static final Tail BLAZING_FIRES = new Tail(tail(), tail(), tail(FIRE_VENT_PF, ASH_PATCH_PF));
 	public static final Tail FORMER_HELL = new Tail(tail(), tail(), tail(OLD_RUBBLE_PF));
+	/** Empty: the deep dark base already grows sculk, and a hall of bare rock needs nothing laid on it. */
+	public static final Tail MOUNTAIN_INTERIOR = new Tail(tail(), tail(), tail());
 	public static final Tail MISTY_LAKE = new Tail(tail(LAKE_CLAY_PF, LAKE_CATTAILS_PF, LILY_PADS_PF), tail(), tail());
 	public static final Tail MISTY_LAKE_SHORE = new Tail(
 			tail(STONES_PF, SHORE_SAND_PF, SHORE_REEDS_PF, SHORE_FLOWERS_PF), tail(), tail());

@@ -102,8 +102,57 @@ public class GensokyoDimension {
 	private static final ResourceKey<DensityFunction> VANILLA_SHIFT_Z = vanilla("shift_z");
 
 	private static final Climate.Parameter FULL_RANGE = Climate.Parameter.span(-1.0f, 1.0f);
-	private static final float SURFACE_DEPTH = 0.0f;
-	private static final float UNDERGROUND_DEPTH = 1.0f;
+
+	/**
+	 * The three bands a column is split into, and the bounds between them.
+	 * <p>
+	 * These are spans, not the points the grid used before, and that is what the layout rests on:
+	 * {@code Climate.ParameterList} is a nearest-cell lookup, so a boundary between two spans sits at the
+	 * <em>midpoint</em> of their bounds rather than at either.
+	 * <p>
+	 * Only the cave and the underground tile — {@link #DEEP_DEPTH} is both the cave's ceiling and the
+	 * underground's floor. The cave's floor is <em>not</em> the surface row's ceiling: {@link #CAVE_DEPTH} sits
+	 * well above {@link #SURFACE_DEPTH}, and the gap between them is interpolated rather than claimed, so the
+	 * surface/cave boundary lands at the midpoint 0.2 with a band of rock around it won on the falloff.
+	 * <p>
+	 * Past a band's continentalness bound it is not claimed at all and has to win the region back on the squared
+	 * falloff, which is why the cave carries a closed ceiling at {@link #CAVE_CONT_CEILING} rather than an open one.
+	 * <p>
+	 * {@link #UNDERGROUND_CONT} draws the surface/underground crossover through the foothills at
+	 * {@code SURFACE_DEPTH + (cont - UNDERGROUND_CONT)}, so that boundary climbs with continentalness. It, not the new
+	 * mountain point, is what shapes the drop across the shoulder: raising it from 0.1 to 0.22 halves that drop, 29
+	 * blocks to 17, and lifts the local mean y52 to y66, while the summit boundary barely moves because that row never
+	 * competes up there.
+	 * <p>
+	 * {@link #HELL_DEPTH} sets the boundary over the mountain proper and nothing else. Its floor is out of reach of the
+	 * foothills -- depth 1.7 is below the world floor below continentalness 0.44 -- so cutting it cannot flatten the
+	 * drop, it only lifts the summit: mean y70 at 1.70, y64 at 1.82, y140 at 0.60. All measured with
+	 * {@code tools/cave_bands.py}, which reports that mean and the drop.
+	 *
+	 * @see "doc/design/gensokyo_dimension.md" §9
+	 */
+	private static final float SURFACE_DEPTH = 0.1f;
+	private static final float CAVE_DEPTH = 0.3f;
+	private static final float DEEP_DEPTH = 0.53f;
+	private static final float HELL_DEPTH = 1.70f;
+
+	/**
+	 * How far down the mountain's own underground row is claimed. Higher than {@link #DEEP}'s 1.5 because only the
+	 * mountain carries the offset to push depth that far: {@code depth = 1.5 + offset - (y + 64) / 128} reaches 2.02
+	 * at the floor under the summit, against 1.05 under the water. Capped at 2.0 because the climate codec
+	 * refuses a parameter outside [-2, 2], which leaves the last twentieth of a block interpolated at the floor.
+	 */
+	private static final float HELL_FLOOR = 2.0f;
+	private static final float UNDERGROUND_CONT = 0.22f;
+	private static final float CAVE_CONT = 0.5f;
+	private static final float CAVE_CONT_CEILING = 1.0f;
+
+	private static final Band SHALLOW = new Band(-1.5f, SURFACE_DEPTH);
+	private static final Band DEEP = new Band(DEEP_DEPTH, 1.5f);
+	private static final Band HELL = new Band(HELL_DEPTH, HELL_FLOOR);
+	private static final Band CAVE_BAND = new Band(CAVE_DEPTH, DEEP_DEPTH);
+	private static final Band CAVE_CONTINENTALNESS = new Band(CAVE_CONT, CAVE_CONT_CEILING);
+	private static final Band UNDERGROUND_CONTINENTALNESS = new Band(-1.0f, UNDERGROUND_CONT);
 
 	/**
 	 * The halls of {@link #DF_LARGE_CAVES}, {@code min}-ed into the router's final density.
@@ -169,17 +218,21 @@ public class GensokyoDimension {
 			List.of(new Cell(GLBiomes.YOUKAI_MOUNTAIN_SUMMIT, FULL_PLANE, FULL_PLANE)));
 
 	/**
-	 * Deep underground, one cell per region: the water table has blood under it, the foothills an animal realm, and
-	 * everything higher up volcanic — the deeper the ground sits above it, the closer the surface is to the hells.
+	 * The four underground biomes, tiled over the temperature and humidity plane the way the open-ground bands
+	 * are. They share one continentalness range, {@link #UNDERGROUND_CONTINENTALNESS}: the underground is one
+	 * depth row, and which of the four it is depends on the climate above it rather than on where the ground
+	 * sits — the same reasoning that keeps a band from spilling into its neighbours' rows.
+	 * <p>
+	 * Cold and humid is the ruins of the former hell, cold and dry the animal realm, and the two hot corners are
+	 * the two hells.
 	 */
-	private static final List<List<Cell>> UNDERGROUND = List.of(
-			List.of(new Cell(GLBiomes.HELL_OF_BLOOD_POOLS, FULL_PLANE, FULL_PLANE)),
-			List.of(new Cell(GLBiomes.HELL_OF_BLOOD_POOLS, FULL_PLANE, FULL_PLANE)),
-			List.of(new Cell(GLBiomes.ANIMAL_REALM, FULL_PLANE, FULL_PLANE)),
-			List.of(new Cell(GLBiomes.FORMER_HELL, FULL_PLANE, FULL_PLANE)),
-			List.of(new Cell(GLBiomes.HELL_OF_BLAZING_FIRES, FULL_PLANE, FULL_PLANE)),
-			List.of(new Cell(GLBiomes.HELL_OF_BLAZING_FIRES, FULL_PLANE, FULL_PLANE)),
-			List.of(new Cell(GLBiomes.HELL_OF_BLAZING_FIRES, FULL_PLANE, FULL_PLANE)));
+	private static final Cell HELL_CELL = new Cell(GLBiomes.FORMER_HELL, COLD, HUMID);
+
+	private static final List<Cell> UNDERGROUND = List.of(
+			HELL_CELL,
+			new Cell(GLBiomes.ANIMAL_REALM, COLD, DRY),
+			new Cell(GLBiomes.HELL_OF_BLOOD_POOLS, HOT, HUMID),
+			new Cell(GLBiomes.HELL_OF_BLAZING_FIRES, HOT, DRY));
 
 	public static void init(DataProviderInitializer init) {
 		// every registration of a registry has to share one bootstrap, so the density functions and the noise
@@ -260,6 +313,10 @@ public class GensokyoDimension {
 				// and the flat ground falls through to the shared grass over dirt, with the scree laid on top by the tail
 				SurfaceRules.ifTrue(SurfaceRules.isBiome(GLBiomes.SECRET_HEAVEN_CLIFF),
 						SurfaceRules.ifTrue(SurfaceRules.steep(), SurfaceRules.state(Blocks.STONE.defaultBlockState()))),
+				SurfaceRules.ifTrue(SurfaceRules.isBiome(GLBiomes.MOUNTAIN_INTERIOR),
+						// the mountain's own rock, the whole column: it only ever sits between the two rock bands, so
+						// there is no deepslate below it to grade into and no floor worth giving a different material
+						SurfaceRules.state(Blocks.STONE.defaultBlockState())),
 				SurfaceRules.ifTrue(SurfaceRules.isBiome(GLBiomes.HELL_OF_BLOOD_POOLS),
 						hellPalette(Blocks.NETHERRACK, Blocks.CRIMSON_NYLIUM, Blocks.BLACKSTONE)),
 				SurfaceRules.ifTrue(SurfaceRules.isBiome(GLBiomes.ANIMAL_REALM),
@@ -478,12 +535,22 @@ public class GensokyoDimension {
 		for (int r = 0; r < REGION_EDGES.length + 1; r++) {
 			Band region = region(r);
 			for (Cell cell : SURFACE.get(r)) {
-				values.add(cell(biomes, cell, region, SURFACE_DEPTH));
-			}
-			for (Cell cell : UNDERGROUND.get(r)) {
-				values.add(cell(biomes, cell, region, UNDERGROUND_DEPTH));
+				values.add(cell(biomes, cell, region, SHALLOW));
 			}
 		}
+		Band underground = UNDERGROUND_CONTINENTALNESS;
+		for (Cell cell : UNDERGROUND) {
+			values.add(cell(biomes, cell, underground, DEEP));
+		}
+		// the ruins again under the mountain, one depth lower, so the cave/underground split sits where it
+		// should instead of wherever the first row's continentalness penalty leaves it. Only the ruins: the
+		// other three belong to the low ground and have no business claiming the mountain's deep rock
+		values.add(cell(biomes, HELL_CELL, CAVE_CONTINENTALNESS, HELL));
+		// the inside of the mountain, one region for all of it: continentalness above CAVE_CONT and below the
+		// ceiling, and the depth between the two rock bands
+		values.add(Pair.of(new Climate.ParameterPoint(FULL_RANGE, FULL_RANGE,
+				CAVE_CONTINENTALNESS.parameter(), FULL_RANGE, CAVE_BAND.parameter(), FULL_RANGE, 0L),
+				biomes.getOrThrow(GLBiomes.MOUNTAIN_INTERIOR)));
 		return MultiNoiseBiomeSource.createFromList(new Climate.ParameterList<>(values));
 	}
 
@@ -496,9 +563,9 @@ public class GensokyoDimension {
 	}
 
 	private static Pair<Climate.ParameterPoint, Holder<Biome>> cell(HolderGetter<Biome> biomes, Cell cell, Band region,
-																   float depth) {
+																   Band depth) {
 		return Pair.of(new Climate.ParameterPoint(cell.temperature().parameter(), cell.humidity().parameter(),
-				region.parameter(), FULL_RANGE, Climate.Parameter.point(depth), FULL_RANGE, 0L),
+				region.parameter(), FULL_RANGE, depth.parameter(), FULL_RANGE, 0L),
 				biomes.getOrThrow(cell.biome()));
 	}
 
