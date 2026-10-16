@@ -14,11 +14,17 @@ Both are one pixel per chunk, 512x512 by default, so the default export covers
     out/terrain/<dimension>_spline.png    the spline, the height profile it draws, the band shares
     out/terrain/<dimension>_spline.txt    the same numbers as a table
 
+`--voids` reports the caves instead of drawing them, since one pixel per chunk cannot
+show a volume:
+
+    out/terrain/<dimension>_caves.txt    carved volume, surface openings, void sizes
+
 See "## The spline plot" below.
 
     python3 tools/terrain.py gensokyolegacy:gensokyo
     python3 tools/terrain.py gensokyolegacy:gensokyo --seed 12345 --size 1024
     python3 tools/terrain.py gensokyolegacy:gensokyo --spline
+    python3 tools/terrain.py gensokyolegacy:gensokyo --voids --cheese
     python3 tools/terrain.py gensokyolegacy:gap --out out/gap
 
 The seed matters: the same seed as the world gives the same terrain, so a map can be
@@ -60,6 +66,10 @@ range, which for this mod is everywhere.
 The pruned chain is `postProcess(slideOverworld(sloped_cheese))`, which is the terrain
 term of vanilla's `final_density` with the cave branches cut. `postProcess` and
 `slideOverworld` are built here because they only exist as Java, see `NoiseRouterData`.
+
+`--voids` uses both chains: the pruned one as the datum every void is measured from, and
+the full one for the air. It does not model the aquifer, so an air pocket below sea level
+reads as air where the game would fill it.
 
 ## The spline plot
 
@@ -1130,6 +1140,13 @@ HEIGHT_BANDS = ((106, 168, 79), (154, 205, 50), (205, 203, 80), (222, 184, 72), 
                 (170, 130, 86), (150, 110, 90), (135, 100, 95), (150, 130, 130), (170, 160, 160),
                 (200, 195, 195), (225, 225, 225), (245, 245, 250))
 HEIGHT_STEP = 16
+
+# the cave report's sampling, coarse in y because a cave is a volume and not a pixel
+VOID_SPACING = 24
+VOID_STEP = 4
+VOID_COLUMNS = 26
+VOID_BAND = 32
+VOID_DEEP = 40
 # the legend's bands run between these; below the low end and from the high end up are one bin each
 HEIGHT_BIN_LOW = 64
 HEIGHT_BIN_HIGH = 208
@@ -1907,6 +1924,110 @@ def run_worker_pool(jobs, initargs, work, function):
         return list(pool.imap(function, work, chunksize=1))
 
 
+# -- the cave report ------------------------------------------------------------------
+
+
+def _void_init(pack, dimension_json, seed, cheese):
+    """Both chains the report needs: the full final density for the air, the pruned one for the surface."""
+    _WORKER["full"] = Dimension(pack, dimension_json, seed, caves=True, cheese=cheese)
+    _WORKER["pruned"] = Dimension(pack, dimension_json, seed, caves=False, cheese=cheese)
+
+
+def _void_column(point):
+    """One sampled column: the cave-free surface, and whether each y sample below it is air."""
+    full, pruned = _WORKER["full"], _WORKER["pruned"]
+    x, z = point
+    # the scan reads the 2d memo without moving it, so each column has to be positioned first
+    pruned.column.move_to(x, z)
+    surface = surface_height(pruned.density, full.min_y, full.max_y, x, z, pruned.column)
+    if surface is None:
+        return None
+    air = []
+    for y in range(full.min_y, full.max_y, VOID_STEP):
+        full.column.move_to(x, z)
+        air.append(full.density(x, y, z, full.column) < 0.0)
+    return surface, air
+
+
+def write_caves(path, name, pack, dimension_json, dimension, seed, jobs, cheese):
+    """Carved volume, surface openings and void sizes, which the two maps cannot show.
+
+    The maps are one pixel per chunk, so a cave is at most a pixel of noise in them. This walks the world
+    vertically instead: every `VOID_SPACING` blocks, one column of the full `final_density`, with the
+    cave-free surface as the datum. The numbers that answer "are the underground spaces there, and does the
+    ground still have a roof" are the carved share of the rock under that datum, the share of columns whose
+    deepest void is `VOID_DEEP` blocks or more, and the share of columns open at the surface itself.
+    """
+    rows = [(x, z)
+            for x in range(-VOID_COLUMNS * VOID_SPACING // 2, VOID_COLUMNS * VOID_SPACING // 2, VOID_SPACING)
+            for z in range(-VOID_COLUMNS * VOID_SPACING // 2, VOID_COLUMNS * VOID_SPACING // 2, VOID_SPACING)]
+    jobs = max(1, min(jobs, len(rows)))
+    results = [row for row in run_void_pool(jobs, (pack, dimension_json, seed, cheese), rows) if row is not None]
+    if not results:
+        raise Bad("no column of the sample reached the surface: nothing to report")
+
+    min_y = dimension.min_y
+    bands, rock, spans, roofs = Counter(), Counter(), [], []
+    openings = deep = 0
+    for surface, air in results:
+        top = max(index for index, y in enumerate(range(min_y, dimension.max_y, VOID_STEP)) if y <= surface)
+        run, deepest, roof = 0, 0, None
+        for index in range(top + 1):
+            band = (min_y + index * VOID_STEP) // VOID_BAND * VOID_BAND
+            rock[band] += 1
+            if air[index]:
+                bands[band] += 1
+                run += VOID_STEP
+                deepest = max(deepest, run)
+                if roof is None:
+                    roof = surface - (min_y + index * VOID_STEP)
+            else:
+                run = 0
+        # an opening is air at the surface or the two blocks under it
+        if any(air[index] for index in (top, top - 1, top - 2) if index >= 0):
+            openings += 1
+        if deepest >= VOID_DEEP:
+            deep += 1
+        spans.append(deepest)
+        roofs.append(roof)
+
+    columns_sampled = len(results)
+    with open(path, "w", encoding="utf-8") as handle:
+        handle.write("cave report: %s\n" % name)
+        handle.write("%d columns %d blocks apart, y step %d, seed %d, sea level %d\n"
+                     % (columns_sampled, VOID_SPACING, VOID_STEP, seed, dimension.sea_level))
+        handle.write("air from the full final_density, the datum is the surface chain with the caves cut\n")
+        handle.write("\n  carved fraction of the rock under the surface, by %d block band\n" % VOID_BAND)
+        for band in sorted(rock):
+            handle.write("    y %4d..%-4d  %6.2f%%\n" % (band, band + VOID_BAND - 1,
+                                                        100.0 * bands[band] / rock[band]))
+        handle.write("    %-13s %6.2f%%\n" % ("all",
+                                              100.0 * sum(bands.values()) / sum(rock.values())))
+        handle.write("\n  surface openings           %6.2f%%  (%d columns)\n"
+                     % (100.0 * openings / columns_sampled, openings))
+        handle.write("  column with a >=%d void   %6.2f%%\n"
+                     % (VOID_DEEP, 100.0 * deep / columns_sampled))
+        spans.sort()
+        handle.write("  deepest void per column    median %d, p90 %d, max %d\n"
+                     % (spans[len(spans) // 2], spans[int(len(spans) * 0.9)], spans[-1]))
+        # the roof over the shallowest cave, which is what a cave mouth would have to break
+        roofs = sorted(roof for roof in roofs if roof is not None)
+        if roofs:
+            handle.write("  rock over the shallowest   min %d, p1 %d, p10 %d, median %d\n"
+                         % (roofs[0], roofs[max(1, len(roofs) // 100)],
+                            roofs[len(roofs) // 10], roofs[len(roofs) // 2]))
+
+
+def run_void_pool(jobs, initargs, work):
+    """`_worker_column` over a pool, or in line for a single worker."""
+    if jobs <= 1 or len(work) <= 1:
+        _void_init(*initargs)
+        return [_void_column(point) for point in work]
+    import multiprocessing
+    with multiprocessing.Pool(jobs, initializer=_void_init, initargs=initargs) as pool:
+        return list(pool.imap(_void_column, work, chunksize=8))
+
+
 def find_dimension(pack, argument):
     """Accepts `namespace:path` or a path to a dimension json."""
     if os.path.isfile(argument):
@@ -1986,6 +2107,8 @@ def main():
     parser.add_argument("--vanilla", help="vanilla datapack jar or directory (default: the client-extra jar)")
     parser.add_argument("--caves", action="store_true", help="evaluate the router's full final_density")
     parser.add_argument("--cheese", action="store_true", help="keep the base_3d_noise term")
+    parser.add_argument("--voids", action="store_true",
+                        help="report the caves: carved volume, surface openings and void sizes")
     parser.add_argument("--spline", action="store_true",
                         help="plot the continentalness spline instead of the two maps")
     parser.add_argument("--jobs", type=int, default=0, help="worker processes (default: one per core)")
@@ -2008,6 +2131,18 @@ def main():
 
     if args.spline:
         run_spline_plot(args, pack, dimension_json, name, jobs, (origin_x, origin_z))
+        return
+
+    if args.voids:
+        # the report wants the full final_density for the air and the pruned chain for the surface, and
+        # builds both itself, so `cheese` is the only switch that reaches it
+        dimension = Dimension(pack, dimension_json, args.seed, caves=False, cheese=args.cheese)
+        os.makedirs(args.out, exist_ok=True)
+        sys.stderr.write("%s: %d x %d columns of caves from (%d, %d), seed %d, %d workers\n"
+                         % (name, VOID_COLUMNS, VOID_COLUMNS, origin_x, origin_z, args.seed, jobs))
+        write_caves(os.path.join(args.out, name + "_caves.txt"), name, pack, dimension_json,
+                    dimension, args.seed, jobs, args.cheese)
+        print(os.path.join(args.out, name + "_caves.txt"))
         return
 
     dimension = Dimension(pack, dimension_json, args.seed, args.caves, args.cheese)

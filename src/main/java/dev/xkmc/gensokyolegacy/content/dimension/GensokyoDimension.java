@@ -34,6 +34,7 @@ import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
 import net.minecraft.world.level.levelgen.NoiseRouter;
 import net.minecraft.world.level.levelgen.NoiseRouterData;
 import net.minecraft.world.level.levelgen.NoiseSettings;
+import net.minecraft.world.level.levelgen.Noises;
 import net.minecraft.world.level.levelgen.SurfaceRules;
 import net.minecraft.world.level.levelgen.SurfaceRules.ConditionSource;
 import net.minecraft.world.level.levelgen.SurfaceRules.RuleSource;
@@ -50,7 +51,8 @@ import java.util.OptionalLong;
  * <p>
  * The height curve is keyed on continentalness alone, where the overworld also keys it on erosion and weirdness, so
  * there are no river channels and no peaks. The climate grid reads the same four axes, so no biome depends on the two
- * that were dropped. The allowed biomes are mod copies, so vanilla structures never generate here.
+ * that were dropped. The caves are the overworld's, plus {@link #DF_LARGE_CAVES} for the halls under the ground. The
+ * allowed biomes are mod copies, so vanilla structures never generate here.
  *
  * @see "doc/design/gensokyo_dimension.md"
  * @see "doc/design/gensokyo_biomes.md"
@@ -66,6 +68,7 @@ public class GensokyoDimension {
 	public static final ResourceKey<DensityFunction> DF_FACTOR = df("factor");
 	public static final ResourceKey<DensityFunction> DF_DEPTH = df("depth");
 	public static final ResourceKey<DensityFunction> DF_SLOPED_CHEESE = df("sloped_cheese");
+	public static final ResourceKey<DensityFunction> DF_LARGE_CAVES = df("large_caves");
 
 	/**
 	 * The three climate axes, every octave finer than vanilla's. The height chain splines this continentalness too —
@@ -101,6 +104,27 @@ public class GensokyoDimension {
 	private static final Climate.Parameter FULL_RANGE = Climate.Parameter.span(-1.0f, 1.0f);
 	private static final float SURFACE_DEPTH = 0.0f;
 	private static final float UNDERGROUND_DEPTH = 1.0f;
+
+	/**
+	 * The halls of {@link #DF_LARGE_CAVES}, {@code min}-ed into the router's final density.
+	 * <p>
+	 * Vanilla's cheese caves live inside the function that places the surface, so more of them also means thinner
+	 * ground. These sit outside that chain and are gated on {@link #DF_DEPTH}, which is zero at the surface and
+	 * falls one unit per 128 blocks, so the gate is a hard zero through the whole surface band. {@code ceiling}
+	 * is above every value {@code final_density} can take — {@code postProcess} clamps to {@code +/-0.64} and
+	 * squeezes, bounding it at {@code 0.309} — which is what makes the gate, rather than the ceiling, the thing
+	 * that keeps the surface shut.
+	 *
+	 * @see "doc/design/gensokyo_dimension.md" §8
+	 */
+	private static final double CAVE_GATE_GAIN = 3.0;
+	private static final double CAVE_GATE_FLOOR = 0.25;
+	private static final double CAVE_GATE_DEAD = 0.25;
+	private static final double CAVE_CEILING = 1.0;
+	private static final double CAVE_HALL_XZ = 0.375;
+	private static final double CAVE_HALL_Y = 0.75;
+	private static final double CAVE_HALL_GAIN = 5.0;
+	private static final double CAVE_HALL_BIAS = 1.20;
 
 	/**
 	 * Continentalness thresholds that separate the regions, each sitting where the offset spline reaches a height band
@@ -274,7 +298,8 @@ public class GensokyoDimension {
 				reference(registry.getOrThrow(DF_TEMPERATURE_SMALL)),
 				reference(registry.getOrThrow(DF_VEGETATION_SMALL)),
 				overworld.continents(), overworld.erosion(), overworld.depth(), overworld.ridges(),
-				overworld.initialDensityWithoutJaggedness(), overworld.finalDensity(),
+				overworld.initialDensityWithoutJaggedness(),
+				DensityFunctions.min(overworld.finalDensity(), reference(registry.getOrThrow(DF_LARGE_CAVES))),
 				overworld.veinToggle(), overworld.veinRidged(), overworld.veinGap());
 	}
 
@@ -301,6 +326,28 @@ public class GensokyoDimension {
 				DensityFunctions.mul(DensityFunctions.constant(4.0),
 						DensityFunctions.mul(reference(depth), reference(factor)).quarterNegative()),
 				reference(densities.getOrThrow(VANILLA_BASE_3D_NOISE))));
+		ctx.register(DF_LARGE_CAVES, largeCaves(noises.getOrThrow(Noises.CAVE_CHEESE), reference(depth)));
+	}
+
+	/**
+	 * The halls as their own density function, so the router can {@code min} it into its final density.
+	 * <p>
+	 * {@code cave_cheese} is vanilla's cheese field resampled, not a new noise: the scales put its dominant
+	 * octave near 171 by 85 blocks against vanilla's 64 by 96, so a hall is wider and flatter than the caves
+	 * it sits among rather than a copy of one. {@code dead} repeats {@code floor} so
+	 * {@link DensityFunctions#rangeChoice} skips the noise over exactly the stretch where the gate reads zero.
+	 *
+	 * @see "doc/design/gensokyo_dimension.md" §8
+	 */
+	private static DensityFunction largeCaves(Holder<NormalNoise.NoiseParameters> cheese, DensityFunction depth) {
+		var gate = DensityFunctions.add(DensityFunctions.mul(DensityFunctions.constant(CAVE_GATE_GAIN), depth),
+				DensityFunctions.constant(-CAVE_GATE_FLOOR)).clamp(0.0, 1.0);
+		var halls = DensityFunctions.add(
+				DensityFunctions.mul(DensityFunctions.constant(CAVE_HALL_GAIN),
+						DensityFunctions.noise(cheese, CAVE_HALL_XZ, CAVE_HALL_Y)),
+				DensityFunctions.constant(CAVE_HALL_BIAS));
+		return DensityFunctions.rangeChoice(gate, 0.0, CAVE_GATE_DEAD,
+				DensityFunctions.constant(CAVE_CEILING), DensityFunctions.lerp(gate, CAVE_CEILING, halls));
 	}
 
 	/**

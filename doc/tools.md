@@ -80,6 +80,24 @@ the terrain. The peak reaching 220, 14% of the map under water and a quarter of 
 above y 80 are the numbers `doc/design/gensokyo_dimension.md` claims, and the map
 shows them at a glance.
 
+### Cave report
+
+At one pixel per chunk a cave is at most a pixel of noise, so `--voids` walks the world
+vertically instead: 676 columns 24 blocks apart, every 4 blocks of y, evaluating the
+router's full `final_density` against the cave-free surface as the datum.
+
+```sh
+python3 tools/terrain.py gensokyolegacy:gensokyo --voids --seed -1838080655014084215 --cheese
+```
+
+out/terrain/<dimension>_caves.txt
+:   carved share of the rock under the surface by band, the share of columns that are
+    open at the surface, the share with a void 40 blocks deep, and the depth of the
+    roof over the shallowest cave
+
+It is the source of the numbers in `doc/design/gensokyo_dimension.md` §8. Pass
+`--cheese`, since dropping `base_3d_noise` moves the surface the report measures from.
+
 ### Stripping jarJar from a dev jar
 
 The mod jars under `libs/` are real published builds, so `youkaisfeasts` carries

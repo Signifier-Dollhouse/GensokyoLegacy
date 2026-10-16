@@ -9,8 +9,9 @@ Two things differ from the overworld, and they are deliberately the only two:
 2. the biome source is a **coarse climate grid** on continentalness / temperature / humidity / depth, with erosion
    and weirdness spanning the full range on every point so they cannot select a biome.
 
-Everything else — sea level 63, aquifer, caves, ore veins, spawn target, dimension type — is vanilla's. Surface
-rules are vanilla's with four underground biome branches in front; see `doc/design/gensokyo_biomes.md` §4.
+On top of those, the caves get a third change of their own: vanilla's, plus a set of **halls** cut under the surface
+and never at it — §8. Everything else — sea level 63, aquifer, cave carvers, ore veins, spawn target, dimension type —
+is vanilla's. Surface rules are vanilla's with four underground biome branches in front; see `doc/design/gensokyo_biomes.md` §4.
 
 ---
 
@@ -291,7 +292,7 @@ generated json simply stops naming them.
 ```
 
 Writes `dimension/gensokyo.json`, `dimension_type/gensokyo.json`, `worldgen/noise_settings/gensokyo.json`,
-`worldgen/density_function/{offset,factor,depth,sloped_cheese}.json` and
+`worldgen/density_function/{offset,factor,depth,sloped_cheese,large_caves}.json` and
 `worldgen/noise/{continentalness_small,temperature_small,vegetation_small}.json`. Output is committed.
 
 `python3 tools/feature_cycle_check.py build/moddev/artifacts/neoforge-21.1.238-client-extra-aka-minecraft-resources.jar src/generated/resources`
@@ -423,3 +424,106 @@ Measured on 256 × 256 chunks, seed −1838080655014084215, for the two climate 
 64 → 23 chunks, mean 524 → 162, patch count 125 → 403. At the ×2 they are at now, the patches are large enough
 to read on a 4 km map (`out/terrain/gensokyolegacy_gensokyo_biomes.png`). The height bands still cut finely, because
 that is continentalness doing the cutting, not climate.
+
+---
+
+## 8. The halls
+
+`gensokyolegacy:large_caves`, in `GensokyoDimension.largeCaves` and `min`-ed into the router's final density by
+`smallClimateRouter`.
+
+### Why a separate term, and not vanilla's cheese bias
+
+The cheap way to get more underground space is to lower the `0.27` in vanilla's cheese term, which is the one
+number that sets how much rock it leaves behind. `NoiseRouterData.underground` builds
+
+```
+4 * cave_layer^2 + clamp(bias + cave_cheese, -1, 1) + clamp(1.5 - 0.64 * sloped_cheese, 0, 0.5)
+```
+
+and the router slides and squeezes that sum into the solid and the air. The obvious worry — that the caves and the
+surface are the same expression, so turning caves up turns the ground to paper — **does not hold**: the last term is
+clamped to `0.5` for every `sloped_cheese <= 1.5625`, which is exactly the range the `range_choice` sends down the
+underground branch, so underground it is a flat `+0.5` and says nothing about where the surface sits. Measured, with
+the `0.27` edited in the generated `noise_settings`:
+
+| cheese bias | rock carved | columns with a void ≥ 40 | surface openings | surface y, median | void depth med / p90 / max |
+|---|---|---|---|---|---|
+| 0.27 (vanilla) | 8.68% | 4.14% | 6.80% | 92 | 8 / 24 / 124 |
+| 0.00 | 23.08% | 19.38% | 6.80% | 92 | 20 / 52 / 156 |
+| −0.30 | 46.34% | 60.65% | 6.95% | 92 | 44 / 92 / 176 |
+| −0.60 | 62.11% | 86.24% | 7.25% | 92 | 68 / 120 / 260 |
+| **the halls** | **19.73%** | **27.81%** | **6.80%** | **92** | **16 / 64 / 164** |
+
+So the bias is a real option, and at `0.00` it costs nothing on the surface. It is just the wrong trade for the
+question. The bias sets the *volume* of cave, not the *size* of the space, because a vanilla cheese cave is a slab
+around the zero set of `cave_layer` — a sheet through the noise rather than a ball — so growing the threshold grows
+it sideways and barely thickens it. Per unit of rock removed, `0.00` buys 0.84 columns with a void 40 blocks deep
+where the halls buy 1.41, and they do it on less rock. Past `0.00` it stops being a trade at all: at `−0.30` nearly
+half the world is air and the openings have started to move.
+
+The bias also has no floor. A gate does: it is a hard zero, so the surface is not a matter of tuning how far down to
+start.
+
+The hall term is therefore built after the fact, reading the terrain rather than being read by it, and `min`ed into
+the router's final density. `min` can only ever remove rock, so the surface can only move if the new term goes
+negative above it — and the gate is what stops that.
+
+### The two numbers that make it safe
+
+`final_density` is bounded, and that is the whole margin the surface has. `postProcess` is
+`mul(interpolated(x), 0.64).squeeze()`, `interpolated` clamps to ±1 and `squeeze(v) = v/2 - v³/24`, so the widest
+value the router can produce is `squeeze(0.64) = 0.309`, and it is negative below that. `min` therefore leaves
+`final_density` alone anywhere the new term reads **above 0.309**, and `CAVE_CEILING` is 1.0.
+
+`depth` is the other one: `yClampedGradient(-64, 320, 1.5, -1.5) + offset` is zero exactly where §3's spline puts the
+surface and falls one unit per 128 blocks, so it is a y that follows the terrain rather than a y. The gate is
+
+```
+gate = clamp(3.0 * depth - 0.25, 0, 1)
+```
+
+| depth | blocks under the surface | gate |
+|---|---|---|
+| ≤ 0.083 | ≤ 11 | 0 |
+| 0.25 | 32 | 0.5 |
+| 0.417 | 53 | 1 |
+
+and the term is `lerp(1.0, halls, gate)` — 1.0 against a `final_density` that cannot exceed 0.309, over the whole band
+the surface occupies and for 11 blocks under it. That is why the openings do not move: there is no depth at which the
+term is small enough to cut, and a cave that starts 11 blocks down cannot be a cave mouth. `CAVE_GATE_DEAD` repeats
+the `0.25`, so the `range_choice` returns the constant and never samples the noise above that dead zone — worth doing,
+since `final_density` is evaluated per block and this adds one 3D `NormalNoise` sample to every block below it.
+
+### The halls themselves
+
+`minecraft:cave_cheese` again, resampled rather than re-registered: its dominant octave (`firstOctave -8`, amplitude
+2) comes out near 171 × 85 blocks at `xz_scale 0.375` / `y_scale 0.75`, against the 64 × 96 that vanilla reads it at.
+So a hall is wider and much flatter than the caves it sits among, and the two read as different things. The scale is
+the only thing it changes — `NormalNoise` normalises on its amplitudes, so the deviation is about 0.25 at every
+scale, and that is the number the hall bias is solved against.
+
+The hall bias is the volume knob, `halls = 5.0 * cave_cheese + 1.20`, and raising it is what thins the world out.
+Measured with `--voids` on 676 columns 24 blocks apart, y step 4, seed −1838080655014084215:
+
+| | vanilla | with the halls |
+|---|---|---|
+| rock carved under the surface | 8.68% | **19.73%** |
+| columns with a void ≥ 40 blocks deep | 4.14% | **27.81%** |
+| deepest void, median / p90 / max | 8 / 24 / 124 | **16 / 64 / 164** |
+| surface openings | 6.80% | **6.80%** |
+| roof over the shallowest cave, min / p1 / p10 | 3 / 8 / 44 | 3 / 9 / 69 |
+
+The last row is the one that says what the change is not: the thinnest and the second-thinnest roofs are vanilla's
+own cave mouths and have not moved, and the tenth percentile has gone from 44 blocks of rock to 69. Underground it
+reads by depth band as 6.1 → 23.7% at the bottom of the world, 6.3 → 12.1% at y 32…63, 7.1 → 9.9% at y 64…95 and
+13.5 → 18.6% at y 128…159, so the new space is under the plain as well as under the mountain and only thins the
+middle of the column where the aquifers sit.
+
+```
+python3 tools/terrain.py gensokyolegacy:gensokyo --voids --seed -1838080655014084215 --cheese
+```
+
+writes `out/terrain/gensokyolegacy_gensokyo_caves.txt`. The maps are one pixel per chunk, so a cave is at most a
+pixel of noise in them; the report is the only place these numbers exist. `--cheese` matters, since dropping
+`base_3d_noise` moves the surface the report measures from.
