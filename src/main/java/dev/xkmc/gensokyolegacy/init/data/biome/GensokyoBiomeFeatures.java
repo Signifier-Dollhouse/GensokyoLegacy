@@ -32,6 +32,9 @@ import net.minecraft.world.level.levelgen.feature.stateproviders.WeightedStatePr
 import net.minecraft.world.level.levelgen.placement.BiomeFilter;
 import net.minecraft.world.level.levelgen.placement.CountPlacement;
 import net.minecraft.world.level.levelgen.placement.EnvironmentScanPlacement;
+import net.minecraft.data.worldgen.features.MiscOverworldFeatures;
+import net.minecraft.world.level.levelgen.VerticalAnchor;
+import net.minecraft.world.level.levelgen.placement.HeightRangePlacement;
 import net.minecraft.world.level.levelgen.placement.InSquarePlacement;
 import net.minecraft.world.level.levelgen.placement.NoiseBasedCountPlacement;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
@@ -113,6 +116,7 @@ public class GensokyoBiomeFeatures {
 	private static final ResourceKey<PlacedFeature> DEN_RUBBLE_PF = pf("den_rubble");
 	private static final ResourceKey<PlacedFeature> FUNGUS_PATCH_PF = pf("fungus_patch");
 	public static final ResourceKey<PlacedFeature> BLAZING_HELL_LAVA_PF = pf("blazing_hell_lava_spring");
+	public static final ResourceKey<PlacedFeature> RAVINE_SPRING_WATER_PF = pf("ravine_spring_water");
 	private static final ResourceKey<PlacedFeature> FIRE_VENT_PF = pf("fire_vent");
 	private static final ResourceKey<PlacedFeature> ASH_PATCH_PF = pf("ash_patch");
 	private static final ResourceKey<PlacedFeature> OLD_RUBBLE_PF = pf("old_rubble");
@@ -320,6 +324,16 @@ public class GensokyoBiomeFeatures {
 				RarityFilter.onAverageOnceEvery(4));
 
 		deposit(ctx, BLOOD_DEPOSIT_PF, cf.getOrThrow(BLOOD_DEPOSIT), CountPlacement.of(3));
+		// The ravine's springs, over vanilla's own configured feature and its own height range, with the count
+		// raised and nothing else touched. It replaces `SPRINGS` rather than joining them: the feature is in the
+		// same step, so carrying vanilla's as well would place every spring twice and make the count a lie. The
+		// ravine is wet and is left with no lava spring at all, neither its own nor the shared one — the water is
+		// the whole of what a ravine has to say about fluid.
+		PlacementUtils.register(ctx, RAVINE_SPRING_WATER_PF, cf.getOrThrow(MiscOverworldFeatures.SPRING_WATER),
+				CountPlacement.of(75), InSquarePlacement.spread(),
+				HeightRangePlacement.uniform(VerticalAnchor.bottom(), VerticalAnchor.absolute(192)),
+				BiomeFilter.biome());
+
 		// A lava spring, and the reason it is its own placed feature rather than vanilla's `spring_lava`. The
 		// overworld one will not place a single block in the hell biomes: its `valid_blocks` are stone, granite,
 		// diorite, andesite, deepslate, tuff, calcite and dirt, and their floors are netherrack, blackstone, magma

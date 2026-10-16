@@ -131,6 +131,19 @@ public class GLBiomes {
 			MiscOverworldPlacements.SPRING_WATER, MiscOverworldPlacements.SPRING_LAVA);
 
 	/**
+	 * The ravine's springs: vanilla's own {@code spring_water} at three times the count, and no lava at all.
+ * <p>
+ * It **replaces** {@link #SPRINGS} rather than joining it — the feature is in the same step, so carrying vanilla's
+ * as well would place every spring twice and make the count a lie. Replacing rather than adding is also what takes
+ * the lava with it, and that is the point: a ravine is a wet place and the shared `spring_lava` was the only lava in
+ * it.
+ *
+ * @see "doc/design/gensokyo_biomes.md" §4
+ */
+	private static final List<ResourceKey<PlacedFeature>> RAVINE_SPRINGS = List.of(
+			GensokyoBiomeFeatures.RAVINE_SPRING_WATER_PF);
+
+	/**
 	 * The deltas' lava, for {@code hell_of_blazing_fires} alone. Every other nether spring is left out — see
 	 * {@link #NETHER_COMMON} — but this one is the lava rather than a hazard: it is what makes a biome of basalt
 	 * a lava biome, and without it the blazing fires are hot-looking rock.
@@ -299,12 +312,17 @@ public class GLBiomes {
 
 		var ravine = GensokyoBiomeFeatures.RAVINE;
 		ctx.register(GENBU_RAVINE, biome(true, 0.35f, 0.9f, 0x39604f, 0x5f7a6a, 0x5a7a5c, 0x4e6e52, new MobSpawnSettings.Builder(),
+				// swamp, which is what makes it a wet ravine on the surface, plus lush caves below it: the biome's own
+				// moss and mud stay, because lush caves brings growth and vines rather than a ground cover to replace
+				// them with. `ore_clay` is lush caves' one special ore, and it goes where vanilla puts it — after the
+				// default set, before the soft disks. The springs are its own — water at three times vanilla's count and no
+				// lava, which is what replacing the shared pair does
 				layers(pf, carvers)
 						.lakes(LAVA_LAKES)
 						.structures(FOSSILS)
-						.ores(join(OVERWORLD_ORES, List.of(MiscOverworldPlacements.DISK_CLAY), ravine.soil()))
-						.springs(SPRINGS)
-						.vegetation(join(SWAMP_GROUND, ravine.vegetation()))
+						.ores(join(OVERWORLD_ORES, LUSH_CAVES_ORES, List.of(MiscOverworldPlacements.DISK_CLAY), ravine.soil()))
+						.springs(RAVINE_SPRINGS)
+						.vegetation(join(SWAMP_GROUND, LUSH_CAVES, ravine.vegetation()))
 						.topLayer(FREEZE_TOP_LAYER)));
 
 		var foothills = GensokyoBiomeFeatures.FOOTHILLS;
@@ -432,6 +450,25 @@ public class GLBiomes {
 			VegetationPlacements.RED_MUSHROOM_SWAMP, VegetationPlacements.BROWN_MUSHROOM_NORMAL,
 			VegetationPlacements.RED_MUSHROOM_NORMAL, VegetationPlacements.PATCH_SUGAR_CANE_SWAMP,
 			VegetationPlacements.PATCH_PUMPKIN, AquaticPlacements.SEAGRASS_SWAMP);
+
+	/**
+	 * Lush caves' seven, in {@code BiomeDefaultFeatures.addLushCavesVegetationFeatures}'s order, which is the order the
+	 * feature sorter reads. {@code genbu_ravine} is the one surface biome that takes them, and it takes them whole —
+	 * the floor growth, the two vine sets, the ceiling growth and the rooted azalea all hang off the same cave
+	 * surfaces, so taking some of the seven would be taking a fragment of one decoration rather than a style.
+	 *
+	 * @see "doc/design/gensokyo_biomes.md" §4
+	 */
+	private static final List<ResourceKey<PlacedFeature>> LUSH_CAVES = List.of(
+			CavePlacements.LUSH_CAVES_CEILING_VEGETATION, CavePlacements.CAVE_VINES,
+			CavePlacements.LUSH_CAVES_CLAY, CavePlacements.LUSH_CAVES_VEGETATION,
+			CavePlacements.ROOTED_AZALEA_TREE, CavePlacements.SPORE_BLOSSOM, CavePlacements.CLASSIC_VINES);
+
+	/**
+	 * Lush caves' one special ore, {@code BiomeDefaultFeatures.addLushCavesSpecialOres}. It goes in the soft-ore step
+	 * between the default ore set and the soft disks, which is where vanilla writes it.
+	 */
+	private static final List<ResourceKey<PlacedFeature>> LUSH_CAVES_ORES = List.of(OrePlacements.ORE_CLAY);
 
 	/** The windswept pair, which the cliff and the foothills both take; the badlands ground is all either of them has. */
 	private static final List<ResourceKey<PlacedFeature>> CLIFF_GROUND = List.of(

@@ -60,13 +60,13 @@
       "minecraft:ore_lapis_buried",
       "minecraft:ore_copper",
       "minecraft:underwater_magma",
+      "minecraft:ore_clay",
       "minecraft:disk_clay",
       "gensokyolegacy:gensokyo_biome/ravine_mud"
     ],
     [],
     [
-      "minecraft:spring_water",
-      "minecraft:spring_lava"
+      "gensokyolegacy:gensokyo_biome/ravine_spring_water"
     ],
     [
       "minecraft:glow_lichen",
@@ -82,6 +82,13 @@
       "minecraft:patch_sugar_cane_swamp",
       "minecraft:patch_pumpkin",
       "minecraft:seagrass_swamp",
+      "minecraft:lush_caves_ceiling_vegetation",
+      "minecraft:cave_vines",
+      "minecraft:lush_caves_clay",
+      "minecraft:lush_caves_vegetation",
+      "minecraft:rooted_azalea_tree",
+      "minecraft:spore_blossom",
+      "minecraft:classic_vines_cave_feature",
       "gensokyolegacy:gensokyo_biome/stones",
       "gensokyolegacy:gensokyo_biome/ravine_moss"
     ],

@@ -77,7 +77,7 @@ beside them.
 | `bamboo_forest_of_the_lost` | `snowy_taiga` | spruce understorey, so the grove reads as a winter one — though the biome itself no longer snows, §6 |
 | `hill_of_the_nameless` | `meadow` | open flowered hill with no canopy to hide in |
 | `untrodden_valley` | `taiga` | conifers, ferns, already cold |
-| `genbu_ravine` | `swamp` | the clay disk and reeds read as wet banks, and the lily pads work underwater |
+| `genbu_ravine` | `swamp`, plus `lush_caves` | the clay disk and reeds read as wet banks, the lily pads work underwater, and lush caves' eight put the growth and vines in the ravine floor — see below |
 | `youkai_mountain_foothills` | `windswept_hills` | sparse oak on gravelly ground |
 | `sanctuary` | `meadow` | meadow's own sparse birch reads as a deliberate grove |
 | `hell_of_blood_pools` | `soul_sand_valley` | a basin of souls is the one nether pool; basalt pillars stand it up off the floor |
@@ -96,6 +96,25 @@ lava *surface*, the one feature that makes a biome of basalt a lava biome at all
 as `DELTA_LAVA`. Without it the blazing fires are hot-looking rock — the surface rule only gives that biome
 `magma_block`, which glows but does not flow.
 
+### Lush caves, on the ravine floor
+
+`genbu_ravine` is `swamp` on the surface and `minecraft:lush_caves` below it, and it takes **all eight** of lush caves'
+features rather than a selection:
+
+| | key | step |
+|---|---|---|
+| vegetation | `lush_caves_ceiling_vegetation`, `cave_vines`, `lush_caves_clay`, `lush_caves_vegetation`, `rooted_azalea_tree`, `spore_blossom`, `classic_vines_cave_feature` | `vegetal_decoration`, in `addLushCavesVegetationFeatures`'s own order |
+| special ore | `ore_clay` | `underground_ores`, between the default ore set and the soft disks, which is where vanilla writes it |
+
+Taking them whole is the point: the floor growth, the two vine sets, the ceiling growth and the rooted azalea all hang
+off the same cave surfaces, so any proper subset of the seven is a fragment of one decoration rather than a style. The
+order inside the step is `addLushCavesVegetationFeatures`'s because `FeatureSorter` reads it, not for looks.
+
+What it does **not** replace is the ravine's own: `ravine_moss` and `ravine_stones` still come after the lush block in
+`vegetal_decoration`, and `ravine_mud` is still last in `underground_ores`. Lush caves is growth and vines on a cave
+surface; it is not a ground cover, and its moss and mud were never Gensokyo's to begin with. Nothing else takes these
+— `genbu_ravine` is the one surface biome in the dimension with a ravine in it.
+
 ### `minecraft:delta` is the one that fills them
 
 `spring_delta` was being read as the delta's lava, and it is not: it is a **spring**, one block of lava every
@@ -111,6 +130,24 @@ is the one that matters, because it is the whole *volume*:
 one-block pocket a cave floor leaves, so the pools land on the cavern floors and the basalt columns then stand out of
 them. With the columns but no `delta`, the biome had basalt growing off dry rock — `BASALT_COLUMNS` now carries all
 three in vanilla's order, `delta` first.
+
+### The ravine's springs
+
+`genbu_ravine` replaces the shared `SPRINGS` with a single feature: vanilla's own `spring_water` at **three times** the
+count, and **no lava at all**.
+
+| | vanilla | ravine |
+|---|---|---|
+| `spring_water` | 25 tries | **75** |
+| `spring_lava` | 20 tries | **none** |
+
+Same configured feature, same height range — `bottom … 192` — so the only thing that changed is how often it tries.
+
+It **replaces** rather than joins, which is the part that is easy to get wrong. The feature is in the `fluid_springs`
+step, so carrying vanilla's as well would place every spring twice over and make the count a lie about what the biome
+is doing. Replacing rather than adding is also what takes the lava with it: the shared pair's `spring_lava` was the
+only lava the ravine had, so dropping that one key is what leaves it a wet place and nothing else. The lava the ravine
+does have is the aquifer's — the sea of `gensokyo_dimension.md` §11 and the lava lakes it also carries — not a spring.
 
 ### A spring that works on nether rock
 

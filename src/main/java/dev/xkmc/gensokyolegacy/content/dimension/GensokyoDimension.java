@@ -71,6 +71,7 @@ public class GensokyoDimension {
 	public static final ResourceKey<DensityFunction> DF_SLOPED_CHEESE = df("sloped_cheese");
 	public static final ResourceKey<DensityFunction> DF_LARGE_CAVES = df("large_caves");
 	public static final ResourceKey<DensityFunction> DF_BARRIER = df("barrier");
+	public static final ResourceKey<DensityFunction> DF_FLUID_FLOODEDNESS = df("fluid_level_floodedness");
 
 	/**
 	 * The four climate axes, every octave finer than vanilla's. The height chain splines this continentalness too — the
@@ -253,6 +254,29 @@ public class GensokyoDimension {
 	 * @see "doc/design/gensokyo_dimension.md" §12
 	 */
 	private static final double BARRIER_BIAS = 0.20;
+
+	/**
+	 * How much higher than vanilla's a column has to read before the aquifer gives it fluid at all.
+	 * <p>
+	 * This is the other half of "how many aquifers", and it is a different question from {@link #BARRIER_BIAS}: the
+	 * barrier decides how much of a cavern fills, this decides whether it fills at all. Sampling the noise — same
+	 * distribution as the barrier, p10 −0.415, median 0.000, p90 +0.415, standard deviation 0.319 — and reading it
+	 * through {@code Aquifer.computeSurfaceLevel}, which takes its three branches on {@code d3}, {@code d3 - 0.3} and
+	 * 0 in the deep:
+	 *
+	 * <pre>
+	 * bias    no aquifer    a level of its own    sea level
+	 * +0.00      50.0%              32.0%          18.0%
+	 * +0.08      40.4%              34.4%          25.2%
+	 * </pre>
+	 *
+	 * so {@code +0.08} puts roughly a fifth more of the underground's columns under water. Near the surface the bias
+	 * stops mattering on its own: the same three branches read against {@code d3 - 0.4} and {@code d3 - 0.8} there, so
+	 * it takes a much higher reading to flood the ground and the surface band is left alone.
+	 *
+	 * @see "doc/design/gensokyo_dimension.md" §12
+	 */
+	private static final double FLUIDEDNESS_BIAS = 0.08;
 
 	/**
 	 * Continentalness thresholds that separate the regions, each sitting where the offset spline reaches a height band
@@ -472,9 +496,9 @@ public class GensokyoDimension {
 
 	/**
 	 * The overworld router with temperature and vegetation pointed at the finer parameters, and the aquifer's
-	 * barrier pointed at {@link DF_BARRIER}. Continentalness and erosion need no line here: {@link FlatTerrainFunctions}
-	 * redirects both in place, so the fields the overworld built are already ours. Every other field is carried over
-	 * unchanged, so only the biome grid and the fluid cavities see any of this.
+	 * barrier and fluid-level floodedness pointed at ours. Continentalness and erosion need no line here:
+	 * {@link FlatTerrainFunctions} redirects both in place, so the fields the overworld built are already ours.
+	 * Every other field is carried over unchanged, so only the biome grid and the fluid cavities see any of this.
 	 */
 	private static NoiseRouter smallClimateRouter(HolderGetter<DensityFunction> densities,
 												  HolderGetter<NormalNoise.NoiseParameters> noises,
@@ -482,7 +506,8 @@ public class GensokyoDimension {
 		NoiseRouter overworld = OverworldNoiseRouter.overworld(densities, noises);
 		return new NoiseRouter(
 				reference(registry.getOrThrow(DF_BARRIER)),
-				overworld.fluidLevelFloodednessNoise(), overworld.fluidLevelSpreadNoise(),
+				reference(registry.getOrThrow(DF_FLUID_FLOODEDNESS)),
+				overworld.fluidLevelSpreadNoise(),
 				overworld.lavaNoise(),
 				reference(registry.getOrThrow(DF_TEMPERATURE_SMALL)),
 				reference(registry.getOrThrow(DF_VEGETATION_SMALL)),
@@ -522,6 +547,10 @@ public class GensokyoDimension {
 		ctx.register(DF_BARRIER, DensityFunctions.add(
 				DensityFunctions.noise(noises.getOrThrow(Noises.AQUIFER_BARRIER), BARRIER_XZ, BARRIER_Y),
 				DensityFunctions.constant(BARRIER_BIAS)));
+		// the count, not the volume: how many columns hold fluid at all rather than how much of a cavern fills
+		ctx.register(DF_FLUID_FLOODEDNESS, DensityFunctions.add(
+				DensityFunctions.noise(noises.getOrThrow(Noises.AQUIFER_FLUID_LEVEL_FLOODEDNESS), 1.0, 0.67),
+				DensityFunctions.constant(FLUIDEDNESS_BIAS)));
 		ctx.register(DF_LARGE_CAVES, largeCaves(densities, reference(depth)));
 	}
 

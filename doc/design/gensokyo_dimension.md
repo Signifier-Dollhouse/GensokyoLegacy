@@ -14,7 +14,8 @@ On top of those, three changes of their own:
 
 3. the caves get **caverns** cut under the surface and never at it — §8;
 4. the chunk generator is the overworld's with the aquifer's **lava sea eight blocks higher** — §11;
-5. the aquifer's **barrier** is resampled and biased, which is what sizes, places and fills a fluid cavity — §12.
+5. two of the aquifer's own fields are **resampled and biased** — how a fluid cavity is shaped and how many columns
+   hold one at all — §12.
 
 Everything else — sea level 63, the aquifer's fluid-level noises, ore veins, spawn target, dimension type — is
 vanilla's. Surface rules are vanilla's with four underground biome branches in front; see `doc/design/gensokyo_biomes.md` §4.
@@ -360,7 +361,7 @@ without a biome modifier, which is a worse answer than not having them.
 ```
 
 Writes `dimension/gensokyo.json`, `dimension_type/gensokyo.json`, `worldgen/noise_settings/gensokyo.json`,
-`worldgen/density_function/{offset,factor,depth,sloped_cheese,large_caves,barrier}.json` and
+`worldgen/density_function/{offset,factor,depth,sloped_cheese,large_caves,barrier,fluid_level_floodedness}.json` and
 `worldgen/noise/{continentalness_small,temperature_small,vegetation_small,erosion_small}.json`. Output is committed.
 `dimension/gensokyo.json` names the generator `"type": "gensokyolegacy:gensokyo"` rather than `minecraft:noise`,
 because that is `GensokyoChunkGenerator`'s own codec and the sea's level goes with it (§11). The biome grid it writes
@@ -961,8 +962,8 @@ lava, and §10's second gate — `large_caves`' y fade — is what keeps the sea
 
 ## 12. The aquifer barrier
 
-`gensokyolegacy:barrier`, in `GensokyoDimension.densityFunctions`, pointed at by `smallClimateRouter`. The only
-field of `noise_router` Gensokyo replaces that is not terrain.
+`gensokyolegacy:barrier` and `:fluid_level_floodedness`, in `GensokyoDimension.densityFunctions`, pointed at by
+`smallClimateRouter`. The only two fields of `noise_router` Gensokyo replaces that are not terrain.
 
 ### What the barrier actually is
 
@@ -1018,12 +1019,34 @@ spilling out of them, so it is `+0.20`. What the two numbers do between them:
 | how many bodies a column has | many, one per eight blocks | one per cavern | one per cavern |
 | how much of that cavern fills | 27.0% | 17.9% | **10.9%** |
 
+### How many there are, as against how much they hold
+
+The barrier is the second question. The first is whether a column holds fluid at all, and that is
+`fluid_level_floodedness` — the same noise distribution (p10 −0.415, median 0.000, p90 +0.415, standard deviation
+0.319), read through `Aquifer.computeSurfaceLevel`, which takes one of three branches on a value `d3`:
+
+```
+d1 > 0.3    the column is full to sea level (or to the lava sea, below y −46)
+d1 > 0      the column gets a level of its own, 40·floor(y/40) + 20 ± 10
+otherwise   no aquifer at all — the caves stay air
+```
+
+so at zero bias half the world's columns are dry by construction. `FLUIDEDNESS_BIAS = +0.08` moves that:
+
+| bias | no aquifer | a level of its own | full to sea level |
+|---|---|---|---|
+| 0 | 50.0% | 32.0% | 18.0% |
+| **+0.08** | **40.4%** | 34.4% | 25.2% |
+
+Roughly a fifth more of the underground under water. The two knobs are deliberately not the same knob: this one is a
+switch on presence and says nothing about shape, `BARRIER_BIAS` is a switch on volume and says nothing about count.
+
+It is also self-limiting near the surface, which is why the bias can be as large as it is. Those three branches read
+against `d3 - 0.4` and `d3 - 0.8` where the surface distance term reaches 0 — that is, within 56 blocks of the ground
+— so a column up there needs a far higher reading to flood and the surface band is left as vanilla has it.
+
 ### What was checked and left alone
 
-- **`fluid_level_floodedness`** (`firstOctave -7`) sets how far up a column an aquifer reaches at all:
-  `computeSurfaceLevel` returns no fluid at all where it reads below the surface distance term. It is a switch on
-  presence, not a shape, and it is already cutting about half the world — turning it down further empties caves
-  rather than tidying them.
 - **`fluid_level_spread`** (`firstOctave -5`, read at `y 0.714` and multiplied by 10) sets how much two neighbouring
   aquifers disagree about their level, which is the `pressure` term. Where they agree exactly the pressure is zero and
   the cavity follows the rock; where they disagree the barrier decides. It is the lever between "one flat body that
