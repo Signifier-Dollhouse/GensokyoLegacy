@@ -22,7 +22,9 @@
   },
   "features": [
     [],
-    [],
+    [
+      "gensokyolegacy:gensokyo_biome/animal_realm_lake"
+    ],
     [],
     [],
     [],

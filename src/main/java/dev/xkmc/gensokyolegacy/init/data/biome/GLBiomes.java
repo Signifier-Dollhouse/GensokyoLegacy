@@ -156,6 +156,16 @@ public class GLBiomes {
 			List.of(GensokyoBiomeFeatures.FORMER_HELL_LAKE_PF);
 
 	/**
+	 * The animal realm's lava, for {@code animal_realm} alone, and the other half of the pair above: the two cold
+	 * hells are cut by the same caves, and a water pool in one of them and a lava pool in the other is what makes
+	 * them read as two places rather than one.
+	 *
+	 * @see "doc/design/gensokyo_biomes.md" §2.1
+	 */
+	private static final List<ResourceKey<PlacedFeature>> ANIMAL_REALM_LAKE =
+			List.of(GensokyoBiomeFeatures.ANIMAL_REALM_LAKE_PF);
+
+	/**
 	 * The deltas' lava, for {@code hell_of_blazing_fires} alone. Every other nether spring is left out — see
 	 * {@link #NETHER_COMMON} — but this one is the lava rather than a hazard: it is what makes a biome of basalt
 	 * a lava biome, and without it the blazing fires are hot-looking rock.
@@ -377,6 +387,7 @@ public class GLBiomes {
 				// warped forest, the one nether biome that is mostly growth: the densest thing the nether has, which
 				// is what a realm full of animals wants to be buried in
 				layers(pf, carvers)
+						.lakes(ANIMAL_REALM_LAKE)
 						.ores(OVERWORLD_ORES)
 						.underground(join(NETHER_COMMON, List.of(NetherPlacements.WARPED_FOREST_VEGETATION,
 								TreePlacements.WARPED_FUNGI, NetherPlacements.NETHER_SPROUTS,

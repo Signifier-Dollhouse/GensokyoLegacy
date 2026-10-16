@@ -49,7 +49,7 @@ public class LakeFeature extends Feature<LakeConfig> {
 		var shape = config.shape();
 		var maker = new LakeMaker(this, config);
 		for (BlockPos origin : origins(ctx)) {
-			maker.pre(rand, rand.nextInt(shape.minComponent(), shape.maxComponent()));
+			maker.pre(rand, level, origin, rand.nextInt(shape.minComponent(), shape.maxComponent()));
 			if (!maker.test(level, origin)) continue;
 			maker.gen(level, origin, rand);
 			decorate(level, origin, config, rand);

@@ -244,6 +244,17 @@ room if:
 maker's topmost water sits on the cavern's own floor and the air pocket it cuts above that — which opens the floor
 itself — is what makes the pit visible. A pool laid on top of the floor is a tub standing in the cave.
 
+**The surface is level and only the bottom follows the blob.** The water in every column reaches the waterline, and
+its depth is whatever the ellipsoid leaves underneath: deepest under the middle of a component, shallow where it
+thins out. That is what makes the pool elliptical. A surface that followed the blob as well would put the rim's
+water a block or two below the middle's, in a notch of its own, which is both the hole in the pool's edge and a
+slope for the water to run down.
+
+**The blob's own margin belongs to the pool, not to the shore.** An ellipsoid thins out towards its edge, and where
+it is thinner than the depth of the water it never reaches the waterline: those columns are the pool's outer margin
+and the saddle between two of its components, and they are opened rather than walled. Treating them as shore put a
+wall of stone brick straight across the water two lobes share.
+
 **The ground it is dug into may step.** The bed goes on the highest rock the column has within the two blocks the
 box reaches, so a floor that dropped a block under part of the pool deepens it there instead of refusing it, and
 the maker cuts through whatever the floor puts in the way above the water — otherwise a pool laid against a step
@@ -258,9 +269,14 @@ system has most of.
 `LakeMaker` then checks the whole footprint the same way: rock within the two blocks the box reaches for every
 column that holds water, nothing liquid in the water itself, and `clearance` of open air over each column's highest
 water — counting the air pocket the maker cuts itself, since on a dug-in pool those blocks are the floor it opens.
-It lays the wall that dams the pool out of the ruin's own stone brick — a cavern floor is flat, so without a rim
+It lays the wall that dams the pool out of the ruin's own stone brick, one block thick — a cavern floor is flat, so without a rim
 the water would spread over it and flood the cavern instead of standing in it, and stone brick is what this biome's
 rock is made of — and nothing else: no turf cap, no planting, since a flooded floor is neither.
+
+Everything above is decided once, in the maker's `pre`, not while it writes: the shape says which columns hold
+water, but not whether the thin ones are pool margin or shore, nor where the bed of a column goes when the cavern
+floor has stepped under it, and a decision taken while writing is a decision taken twice. `pre` settles all of that
+per column and the gen is left a walk over what it settled.
 
 The magical forest's pond and this are the same feature (`gensokyolegacy:lake`) with the same ellipsoid maker; they
 differ in `mode` and in what the mode checks. See `magical_forest_vegetation.md` §6.5 for the pond.

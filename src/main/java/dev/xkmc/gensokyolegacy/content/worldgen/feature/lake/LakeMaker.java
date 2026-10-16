@@ -23,6 +23,9 @@ import java.util.Arrays;
  */
 public class LakeMaker {
 
+	/** What one footprint column of a cavern pool carries, settled by {@link #resolve} and written by the gen. */
+	private static final int NONE = 0, WATER = 1, MARGIN = 2, SHORE = 3;
+
 	private final LakeFeature parent;
 	private final LakeConfig config;
 	private final int maxHor;
@@ -30,6 +33,12 @@ public class LakeMaker {
 	private final int[] valid;
 	private int[] wet;
 	private int[] edge;
+	private final int[] kind;
+	// the rows a column carries: where its water starts for a WATER column, the rows it opens for a MARGIN one, its
+	// wall for a SHORE one. Both are resolved once so that writing a pool is a walk over them and not a second
+	// reading of the ground
+	private final int[] from;
+	private final int[] to;
 
 	public LakeMaker(LakeFeature parent, LakeConfig config) {
 		this.parent = parent;
@@ -39,6 +48,9 @@ public class LakeMaker {
 		this.valid = new int[maxHor * maxHor];
 		this.edge = new int[maxHor * maxHor];
 		this.wet = edge;
+		this.kind = new int[maxHor * maxHor];
+		this.from = new int[maxHor * maxHor];
+		this.to = new int[maxHor * maxHor];
 	}
 
 	protected boolean isValid(int x, int y, int z) {
@@ -53,7 +65,13 @@ public class LakeMaker {
 		return (edge[x * maxHor + z] & (1 << y)) != 0;
 	}
 
-	public void pre(RandomSource rand, int size) {
+	/**
+	 * Grows the blobs and, for a cavern pool, settles what each footprint column of the basin is. The level and the
+	 * origin are here for that second half: the shape alone does not say what a column is, because a blob thin
+	 * enough never reaches the waterline and the ground under a column may have stepped, and a decision taken while
+	 * writing is a decision taken twice. A pond has no such question and leaves them unread.
+	 */
+	public void pre(RandomSource rand, WorldGenLevel level, BlockPos origin, int size) {
 		var shape = config.shape();
 		int depth = shape.depth();
 		int radius = shape.componentRadius();
@@ -127,6 +145,55 @@ public class LakeMaker {
 			}
 			edge = copy;
 		}
+		if (config.mode() == LakeConfig.Mode.UNDERGROUND) resolve(level, origin);
+	}
+
+	/**
+	 * Settles every footprint column of a cavern pool: the water standing on it, the pool's own margin where a blob
+	 * only reaches above the waterline, the shore that dams it, or nothing at all.
+	 * <p>
+	 * The margin is a case of its own because the shape does not distinguish it: an ellipsoid thins out towards its
+	 * edge, and where it is thinner than the water it never reaches down to it, which is what the outer edge of a
+	 * component and the saddle between two of them look like. Those columns belong to the pool, so they are opened,
+	 * and putting the shore there instead raises a wall of stone brick straight across the water two lobes share.
+	 * <p>
+	 * The bed of a water column goes on the highest rock the column has within the two blocks the box reaches, since
+	 * a cavern floor is allowed to step, and the shore's last row is the rock standing over its wall, which is taken
+	 * for the wall's material so that the rim ends up even.
+	 */
+	private void resolve(WorldGenLevel level, BlockPos origin) {
+		int depth = config.shape().depth();
+		var pos = new BlockPos.MutableBlockPos();
+		for (int dx = 0; dx < maxHor; dx++) {
+			for (int dz = 0; dz < maxHor; dz++) {
+				int column = dx * maxHor + dz;
+				int bottom = waterBottom(dx, dz);
+				if (bottom >= 0) {
+					pos.setWithOffset(origin, dx - maxHor / 2, 0, dz - maxHor / 2);
+					int bed = level.getBlockState(pos).isSolid() ? 0 : -1;
+					kind[column] = WATER;
+					from[column] = Math.max(bottom, bed + 1);
+					to[column] = bodyTop();
+					continue;
+				}
+				if (inBody(dx, dz)) {
+					kind[column] = MARGIN;
+					from[column] = depth;
+					to[column] = bodyTop();
+					continue;
+				}
+				if (!inBasin(dx, dz)) {
+					kind[column] = NONE;
+					from[column] = 0;
+					to[column] = -1;
+					continue;
+				}
+				pos.setWithOffset(origin, dx - maxHor / 2, depth, dz - maxHor / 2);
+				kind[column] = SHORE;
+				from[column] = 0;
+				to[column] = level.getBlockState(pos).isSolid() ? depth : depth - 1;
+			}
+		}
 	}
 
 	public boolean test(WorldGenLevel level, BlockPos origin) {
@@ -138,11 +205,11 @@ public class LakeMaker {
 	}
 
 	/**
-	 * The highest block of the water standing on this footprint cell, or -1 where the footprint holds no water at
-	 * all. A blob never reaches the box floor, so the walk down from the waterline finds the top of it.
+	 * The lowest block of water standing on this footprint cell, or -1 where the cell holds none. A blob never
+	 * reaches the box floor, so the walk up from there finds the bottom of the water column.
 	 */
-	private int waterTop(int dx, int dz) {
-		for (int dy = config.shape().depth() - 1; dy >= 1; dy--) {
+	private int waterBottom(int dx, int dz) {
+		for (int dy = 1; dy < config.shape().depth(); dy++) {
 			if (isValid(dx, dy, dz)) return dy;
 		}
 		return -1;
@@ -201,19 +268,19 @@ public class LakeMaker {
 	 */
 	private boolean cavernFits(WorldGenLevel level, BlockPos origin) {
 		var pos = new BlockPos.MutableBlockPos();
+		int surface = config.shape().depth() - 1;
 		for (int dx = 0; dx < maxHor; dx++) {
 			for (int dz = 0; dz < maxHor; dz++) {
-				int top = waterTop(dx, dz);
-				if (top < 0) continue;
+				if (waterBottom(dx, dz) < 0) continue;
 				pos.setWithOffset(origin, dx - maxHor / 2, 0, dz - maxHor / 2);
 				if (!level.getBlockState(pos.below(2)).isSolid()) return false;
 				if (!level.getBlockState(pos).isSolid() && !level.getBlockState(pos.below()).isSolid()) return false;
-				for (int dy = 1; dy <= top; dy++) {
+				for (int dy = 1; dy <= surface; dy++) {
 					pos.setWithOffset(origin, dx - maxHor / 2, dy, dz - maxHor / 2);
 					// a leak path in the water would drain the pool
 					if (level.getBlockState(pos).liquid()) return false;
 				}
-				for (int dy = bodyTop() + 1; dy <= top + config.clearance(); dy++) {
+				for (int dy = bodyTop() + 1; dy <= surface + config.clearance(); dy++) {
 					pos.setWithOffset(origin, dx - maxHor / 2, dy, dz - maxHor / 2);
 					if (!level.getBlockState(pos).isAir()) return false;
 				}
@@ -278,16 +345,8 @@ public class LakeMaker {
 	}
 
 	/**
-	 * A cavern pool, one column at a time, because the ground it is dug into is allowed to step.
-	 * <p>
-	 * A column that carries water gets its bed on the highest rock it has within the two blocks the box reaches, so
-	 * a floor that has dropped a block under part of the pool simply deepens it there, and everything from that bed
-	 * up to the top of the air pocket is opened: the water's own level, then whatever rock the cavern floor has in
-	 * the way above it, so that a pool is not left roofed shut by the step it was laid against.
-	 * <p>
-	 * A column that carries no water is shore: it is walled under the waterline, because a cavern floor is flat and
-	 * without a wall the pool would spread over it and flood the cavern instead of standing in it, and rock standing
-	 * over the wall is taken for the wall's material so that the rim ends up even.
+	 * A cavern pool, one column at a time, writing down what {@link #resolve} settled for each: the bed the water
+	 * stands on, the water itself, the air the pit is opened into, and the shore that dams it.
 	 */
 	private void genCavern(WorldGenLevel level, BlockPos origin) {
 		int depth = config.shape().depth();
@@ -295,39 +354,50 @@ public class LakeMaker {
 		var pos = new BlockPos.MutableBlockPos();
 		for (int dx = 0; dx < maxHor; dx++) {
 			for (int dz = 0; dz < maxHor; dz++) {
-				int top = waterTop(dx, dz);
-				if (top >= 0) {
-					pos.setWithOffset(origin, dx - maxHor / 2, 0, dz - maxHor / 2);
-					int bed = level.getBlockState(pos).isSolid() ? 0 : -1;
-					pos.move(0, bed, 0);
-					if (!level.getBlockState(pos).is(BlockTags.LAVA_POOL_STONE_CANNOT_REPLACE))
-						parent.setBarrier(level, pos, material.padding());
-					pos.move(0, -bed, 0);
-					for (int dy = 0; dy <= bodyTop(); dy++) {
-						pos.setWithOffset(origin, dx - maxHor / 2, dy, dz - maxHor / 2);
-						BlockState state = level.getBlockState(pos);
-						if (dy > bed && dy < depth && isValid(dx, dy, dz)) {
-							if (canReplaceBlock(state)) parent.setFluid(level, pos, material.fluid());
-						} else if (dy > top && !state.isAir()) {
-							parent.setAir(level, pos);
-						}
-					}
-					continue;
+				int column = dx * maxHor + dz;
+				int kind = this.kind[column];
+				if (kind == NONE) continue;
+				if (kind == WATER) {
+					// the bed sits under the water the column was resolved to start at
+					pos.setWithOffset(origin, dx - maxHor / 2, from[column] - 1, dz - maxHor / 2);
+					lay(level, pos, material.padding());
 				}
-				for (int dy = 0; dy < depth; dy++) {
-					if (!isEdge(dx, dy, dz)) continue;
+				for (int dy = from[column]; dy <= to[column]; dy++) {
 					pos.setWithOffset(origin, dx - maxHor / 2, dy, dz - maxHor / 2);
-					if (!level.getBlockState(pos).is(BlockTags.LAVA_POOL_STONE_CANNOT_REPLACE))
-						parent.setBarrier(level, pos, material.padding());
-				}
-				if (isEdge(dx, depth - 1, dz)) {
-					pos.setWithOffset(origin, dx - maxHor / 2, depth, dz - maxHor / 2);
-					BlockState over = level.getBlockState(pos);
-					if (over.isSolid() && !over.is(BlockTags.LAVA_POOL_STONE_CANNOT_REPLACE))
-						parent.setBarrier(level, pos, material.padding());
+					if (kind == SHORE) lay(level, pos, material.padding());
+					else if (dy < depth) {
+						if (canReplaceBlock(level.getBlockState(pos))) parent.setFluid(level, pos, material.fluid());
+					} else if (!level.getBlockState(pos).isAir()) {
+						parent.setAir(level, pos);
+					}
 				}
 			}
 		}
+	}
+
+	/** Whether any of the blobs reaches this footprint column at all, water or not. */
+	private boolean inBody(int dx, int dz) {
+		for (int dy = 1; dy <= bodyTop(); dy++) {
+			if (isValid(dx, dy, dz)) return true;
+		}
+		return false;
+	}
+
+	/** Whether the water or the wall of the basin reaches this footprint column. */
+	private boolean inBasin(int dx, int dz) {
+		for (int dy = 0; dy <= bodyTop(); dy++) {
+			if (isValid(dx, dy, dz) || isEdge(dx, dy, dz)) return true;
+		}
+		return false;
+	}
+
+	/**
+	 * One block of the basin, at {@code dy} in the footprint column. The whole row under the waterline is laid and
+	 * not only the parts the rim mask reaches, because that mask is a dilation of the body: a basin wall with gaps
+	 * in it is not a wall, and the pool behind it pours out.
+	 */
+	private void lay(WorldGenLevel level, BlockPos pos, BlockState block) {
+		if (!level.getBlockState(pos).is(BlockTags.LAVA_POOL_STONE_CANNOT_REPLACE)) parent.setBarrier(level, pos, block);
 	}
 
 	private boolean canReplaceBlock(BlockState state) {

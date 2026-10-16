@@ -85,8 +85,9 @@ public class GensokyoBiomeFeatures {
 	private static final ResourceKey<ConfiguredFeature<?, ?>> FIRE_VENT = cf("fire_vent");
 	private static final ResourceKey<ConfiguredFeature<?, ?>> ASH_PATCH = cf("ash_patch");
 	private static final ResourceKey<ConfiguredFeature<?, ?>> OLD_RUBBLE = cf("old_rubble");
-	// the ruins' standing water, in a cavern rather than on the surface
+	// the ruins' standing water and the realm's lava, both in a cavern rather than on the surface
 	private static final ResourceKey<ConfiguredFeature<?, ?>> FORMER_HELL_LAKE = cf("former_hell_lake");
+	private static final ResourceKey<ConfiguredFeature<?, ?>> ANIMAL_REALM_LAKE = cf("animal_realm_lake");
 	// the four fixed biomes: Misty Lake, its shore, the Tengu Settlement and the summit above it
 	private static final ResourceKey<ConfiguredFeature<?, ?>> LAKE_CLAY = cf("lake_clay");
 	private static final ResourceKey<ConfiguredFeature<?, ?>> LAKE_CATTAILS = cf("lake_cattails");
@@ -125,6 +126,7 @@ public class GensokyoBiomeFeatures {
 	private static final ResourceKey<PlacedFeature> ASH_PATCH_PF = pf("ash_patch");
 	private static final ResourceKey<PlacedFeature> OLD_RUBBLE_PF = pf("old_rubble");
 	public static final ResourceKey<PlacedFeature> FORMER_HELL_LAKE_PF = pf("former_hell_lake");
+	public static final ResourceKey<PlacedFeature> ANIMAL_REALM_LAKE_PF = pf("animal_realm_lake");
 	private static final ResourceKey<PlacedFeature> LAKE_CLAY_PF = pf("lake_clay");
 	private static final ResourceKey<PlacedFeature> LAKE_CATTAILS_PF = pf("lake_cattails");
 	private static final ResourceKey<PlacedFeature> LILY_PADS_PF = pf("misty_lake_lily_pads");
@@ -148,7 +150,7 @@ public class GensokyoBiomeFeatures {
 			HILL_FLOWERS_PF, BAMBOO_DENSE_PF, BAMBOO_SPARSE_PF, RAVINE_MOSS_PF, FOOTHILL_MOSS_PF,
 			SANCTUARY_TREES_PF, SANCTUARY_FLOWERS_PF,
 			BLOOD_DEPOSIT_PF, BONE_PILE_PF, DEN_RUBBLE_PF, FUNGUS_PATCH_PF, FIRE_VENT_PF, ASH_PATCH_PF, OLD_RUBBLE_PF,
-			BLAZING_HELL_LAVA_PF, FORMER_HELL_LAKE_PF,
+			BLAZING_HELL_LAVA_PF, FORMER_HELL_LAKE_PF, ANIMAL_REALM_LAKE_PF,
 			LAKE_CLAY_PF, LAKE_CATTAILS_PF, LILY_PADS_PF, SHORE_SAND_PF, SHORE_REEDS_PF, SHORE_FLOWERS_PF,
 			SETTLEMENT_PATHS_PF, CLIFF_SCREE_PF,
 			SUMMIT_SOIL_PF, SUMMIT_MOSS_PF, SUMMIT_SCREE_PF, SUMMIT_TREES_PF);
@@ -274,12 +276,24 @@ public class GensokyoBiomeFeatures {
 		// poured into a cavern, which means it finds its own floor instead of taking the ground it lands on, keeps
 		// five blocks of headroom above the water, and dams itself with a wall of the ruin's own stone brick rather
 		// than a rim of turf. The box is 20 wide and 11 tall, which leaves room for 3 deep of water, the air the
-		// maker cuts above it and that headroom.
+		// maker cuts above it and that headroom. The rim is one block thick: a thicker one is a second course of
+		// stone brick standing on the cavern floor, and where the floor is thin or the carver has eaten into it that
+		// reads as a ledge floating over nothing.
 		FeatureUtils.register(ctx, FORMER_HELL_LAKE, GLWorldGen.LAKE.get(), new LakeConfig(
 				LakeConfig.Mode.UNDERGROUND, 5,
-				new LakeConfig.Shape(4, 20, 11, 3, 4, 6, 3),
+				new LakeConfig.Shape(4, 20, 11, 3, 4, 6, 1),
 				new LakeConfig.Material(Blocks.WATER.defaultBlockState(), Blocks.AIR.defaultBlockState(),
 						Blocks.STONE_BRICKS.defaultBlockState(), Blocks.AIR.defaultBlockState()), List.of()));
+
+		// The realm's lava, the same pool in the same caverns as the ruins' water and for the same reason: this is
+		// the other cold half of the underground, and a lava pool in a cavern is what says so. Netherrack for the
+		// basin, because that is the rock a nether cavern is made of. It is laid after the ruins' pool because that
+		// is the order the two hell rows are written in.
+		FeatureUtils.register(ctx, ANIMAL_REALM_LAKE, GLWorldGen.LAKE.get(), new LakeConfig(
+				LakeConfig.Mode.UNDERGROUND, 5,
+				new LakeConfig.Shape(4, 20, 11, 3, 4, 6, 1),
+				new LakeConfig.Material(Blocks.LAVA.defaultBlockState(), Blocks.AIR.defaultBlockState(),
+						Blocks.NETHERRACK.defaultBlockState(), Blocks.AIR.defaultBlockState()), List.of()));
 
 		var cattail = GLNaturalBlocks.FLAME_CATTAIL.get().defaultBlockState();
 		// the lakebed is sand and gravel under the surface rule, so these two sit on those and not on BlockTags.DIRT
@@ -366,6 +380,13 @@ public class GensokyoBiomeFeatures {
 		// same ruins in the low ground — so the biome filter spends its attempts inside the biome instead of on the
 		// mountain interior above it. The feature walks the column from there.
 		PlacementUtils.register(ctx, FORMER_HELL_LAKE_PF, cf.getOrThrow(FORMER_HELL_LAKE),
+				RarityFilter.onAverageOnceEvery(6), InSquarePlacement.spread(),
+				HeightRangePlacement.uniform(VerticalAnchor.bottom(), VerticalAnchor.absolute(64)),
+				BiomeFilter.biome());
+
+		// The lava pool's placed feature is the water one with nothing changed: the same one attempt in six chunks,
+		// over the same depth band, because the two cold hells sit in the same rows and are cut by the same caves.
+		PlacementUtils.register(ctx, ANIMAL_REALM_LAKE_PF, cf.getOrThrow(ANIMAL_REALM_LAKE),
 				RarityFilter.onAverageOnceEvery(6), InSquarePlacement.spread(),
 				HeightRangePlacement.uniform(VerticalAnchor.bottom(), VerticalAnchor.absolute(64)),
 				BiomeFilter.biome());
