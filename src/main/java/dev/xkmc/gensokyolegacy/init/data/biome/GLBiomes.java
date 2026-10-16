@@ -14,6 +14,7 @@ import net.minecraft.data.registries.VanillaRegistries;
 import net.minecraft.data.worldgen.BiomeDefaultFeatures;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.data.worldgen.Carvers;
+import net.minecraft.data.worldgen.placement.CavePlacements;
 import net.minecraft.data.worldgen.placement.VegetationPlacements;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.Music;
@@ -85,6 +86,18 @@ public class GLBiomes {
 	 * is absent from the biome's own feature list too.
 	 */
 	private static final ResourceKey<PlacedFeature> DROP_WATER_TREES = VegetationPlacements.TREES_WATER;
+
+	/**
+	 * Dropped from every biome in the dimension, whatever its base. {@code globalOverworldGeneration} puts all three in
+	 * every vanilla overworld biome, and Gensokyo wants none of them: an amethyst geode every few chunks is a treasure
+	 * with no place in the map, and a monster room is a spawner. Both are loot and difficulty injected by reference,
+	 * not by terrain, and neither can be tuned per biome without a biome modifier.
+	 * <p>
+	 * They are dropped from the copied feature list rather than from the registry, so the vanilla entries stay vanilla
+	 * and the generated json simply stops naming them.
+	 */
+	private static final Set<ResourceKey<PlacedFeature>> NO_GEODE_NO_SPAWNER = Set.of(
+			CavePlacements.AMETHYST_GEODE, CavePlacements.MONSTER_ROOM, CavePlacements.MONSTER_ROOM_DEEP);
 
 	/**
 	 * Bootstrapped lazily, this builds every vanilla worldgen registry and is far too heavy for class loading.
@@ -348,7 +361,10 @@ public class GLBiomes {
 		return generationOf(source, placedFeatures, carvers, extra, Set.of());
 	}
 
-	/** {@code extra} contributes its features and carvers on top; {@code drop} takes single features back out again. */
+	/**
+	 * {@code extra} contributes its features and carvers on top; {@code drop} takes single features back out again,
+	 * on top of {@link #NO_GEODE_NO_SPAWNER}, which is not optional.
+	 */
 	private static BiomeGenerationSettings.Builder generationOf(Biome source, HolderGetter<PlacedFeature> placedFeatures,
 															  HolderGetter<ConfiguredWorldCarver<?>> carvers,
 															  @Nullable Biome extra,
@@ -361,7 +377,9 @@ public class GLBiomes {
 		if (extra != null) collect(extra, steps, byStep, byStage);
 		for (var entry : byStep.entrySet()) {
 			for (var feature : entry.getValue()) {
-				if (!drop.contains(feature)) generation.addFeature(entry.getKey(), feature);
+				if (!NO_GEODE_NO_SPAWNER.contains(feature) && !drop.contains(feature)) {
+					generation.addFeature(entry.getKey(), feature);
+				}
 			}
 		}
 		for (var entry : byStage.entrySet()) {

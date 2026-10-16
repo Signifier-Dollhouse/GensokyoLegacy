@@ -259,9 +259,28 @@ guide's own hot humid lower-ground biome and never needed replacing. The other s
 band biomes, the two established ones, and the four fixed locations — each a vanilla base with a custom feature tail
 and no vanilla climate at all.
 
+### What every biome drops
+
 Every copy and every base drops `minecraft:canyon`, which `GLBiomes.collect` does. Canyon ravines run far deeper than
-Gensokyo wants. `misty_lake` drops `minecraft:trees_water` on top of that, for the reason in
-`doc/design/gensokyo_biomes.md` §7.
+Gensokyo wants.
+
+Three more go, from every biome at once rather than per base, as `GLBiomes.NO_GEODE_NO_SPAWNER`:
+
+| dropped | step | why |
+|---|---|---|
+| `minecraft:amethyst_geode` | `local_modifications` | treasure injected by reference rather than by terrain |
+| `minecraft:monster_room` | `underground_structures` | a spawner, and the dungeon half of one |
+| `minecraft:monster_room_deep` | `underground_structures` | same, deeper |
+
+All three arrive through `globalOverworldGeneration`, which every vanilla overworld biome calls, so they would otherwise
+be in all seventeen. An amethyst geode every few chunks is a lot of treasure for something with no place in Gensokyo's
+economy, and a monster room is difficulty and loot the map never asked for — neither is terrain, and neither can be tuned
+per biome without a biome modifier, which is a worse answer than not having them.
+
+They are dropped from the copied *feature list*, not from the registry: the vanilla entries stay vanilla, and the
+generated json simply stops naming them.
+
+`misty_lake` drops `minecraft:trees_water` on top of those, for the reason in `doc/design/gensokyo_biomes.md` §7.
 
 ---
 

@@ -54,6 +54,9 @@ Two consequences, both load-bearing:
 The base only ever supplies *features*. Climate, colours and spawns are spelled out per biome, because a copy of
 `minecraft:forest` that keeps `minecraft:forest`'s sky colour is not a Muenzuka.
 
+What a base is *not* allowed to keep is listed in `gensokyo_dimension.md` §5: the canyon carver, the amethyst geode and
+the two monster rooms go from every biome, and `misty_lake` loses the water trees besides.
+
 | biome | base | why that base |
 |---|---|---|
 | `muenzuka` | `forest` | deciduous canopy, dark forest floor to break up with podzol |
