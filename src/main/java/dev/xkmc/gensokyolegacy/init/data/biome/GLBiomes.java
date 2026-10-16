@@ -312,8 +312,10 @@ public class GLBiomes {
 						.vegetation(join(TAIGA_GROUND, List.of(VegetationPlacements.PATCH_BERRY_RARE), bamboo.vegetation()))
 						.topLayer(FREEZE_TOP_LAYER)));
 
+		// grass at meadow brightness, foliage well under it: the hill is open, so the only canopy it has is its own
+		// trees, and a shadowed one is what makes it the hill of the nameless rather than a field of daisies
 		var hill = GensokyoBiomeFeatures.HILL;
-		ctx.register(HILL_OF_THE_NAMELESS, biome(true, 0.3f, 0.4f, 0x4a7a86, 0x8aa0b0, 0x87a06a, 0x7a9260,
+		ctx.register(HILL_OF_THE_NAMELESS, biome(true, 0.3f, 0.4f, 0x4a7a86, 0x8aa0b0, 0x87a06a, 0x5f724b,
 				new MobSpawnSettings.Builder(),
 				layers(pf, carvers)
 						.lakes(LAVA_LAKES)
@@ -358,6 +360,8 @@ public class GLBiomes {
 						.vegetation(join(CLIFF_GROUND, foothills.vegetation()))
 						.topLayer(FREEZE_TOP_LAYER)));
 
+		// forest rather than meadow: the mountain's own grove wants birch and oak under it and the hill's open
+		// flower meadow beside it, and the cherry tail lands on a canopy instead of on bare grass
 		var sanctuary = GensokyoBiomeFeatures.SANCTUARY;
 		ctx.register(SANCTUARY, biome(true, 0.35f, 0.4f, 0x57a0a6, 0xa8c4d8, 0x8fc06a, 0x82b45e, new MobSpawnSettings.Builder(),
 				layers(pf, carvers)
@@ -365,7 +369,7 @@ public class GLBiomes {
 						.ores(join(OVERWORLD_ORES, OVERWORLD_DISKS, EMERALD))
 						.underground(INFESTED)
 						.springs(SPRINGS)
-						.vegetation(join(MEADOW_GROUND, sanctuary.vegetation()))
+						.vegetation(join(FOREST_GROUND, sanctuary.vegetation()))
 						.topLayer(FREEZE_TOP_LAYER)));
 
 		// The four underground biomes, nether to look at. They agree on NETHER_COMMON and the overworld ore set,

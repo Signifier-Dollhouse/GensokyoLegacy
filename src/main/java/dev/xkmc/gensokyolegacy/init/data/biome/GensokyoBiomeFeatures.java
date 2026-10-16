@@ -343,7 +343,9 @@ public class GensokyoBiomeFeatures {
 		cover(ctx, GHOST_FLOWERS_PF, cf.getOrThrow(GHOST_FLOWERS), CountPlacement.of(3));
 		cover(ctx, VILLAGE_FLOWERS_PF, cf.getOrThrow(VILLAGE_FLOWERS), CountPlacement.of(4));
 		cover(ctx, BARRENS_SCRUB_PF, cf.getOrThrow(BARRENS_SCRUB), CountPlacement.of(3));
-		cover(ctx, HILL_FLOWERS_PF, cf.getOrThrow(HILL_FLOWERS), CountPlacement.of(4));
+		// denser than the village's four: the hill is the one biome named for being flowered rather than tilled, and
+		// meadow's own sparser flower_meadow sits on top of it
+		cover(ctx, HILL_FLOWERS_PF, cf.getOrThrow(HILL_FLOWERS), CountPlacement.of(7));
 		cover(ctx, RAVINE_MOSS_PF, cf.getOrThrow(RAVINE_MOSS), CountPlacement.of(6));
 		cover(ctx, FOOTHILL_MOSS_PF, cf.getOrThrow(FOOTHILL_MOSS), CountPlacement.of(4));
 		cover(ctx, SANCTUARY_FLOWERS_PF, cf.getOrThrow(SANCTUARY_FLOWERS), CountPlacement.of(3));

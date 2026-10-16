@@ -79,11 +79,17 @@ beside them.
 | `untrodden_valley` | `taiga` | conifers, ferns, already cold |
 | `genbu_ravine` | `swamp`, plus `lush_caves` | the clay disk and reeds read as wet banks, the lily pads work underwater, and lush caves' eight put the growth and vines in the ravine floor — see below |
 | `youkai_mountain_foothills` | `windswept_hills` | sparse oak on gravelly ground |
-| `sanctuary` | `meadow` | meadow's own sparse birch reads as a deliberate grove |
+| `sanctuary` | `forest` | the mountain's own grove — birch and oak under the cherry tail, against the hill's open meadow beside it |
 | `hell_of_blood_pools` | `soul_sand_valley` | a basin of souls is the one nether pool; basalt pillars stand it up off the floor |
 | `animal_realm` | `warped_forest` | the one nether biome that is mostly growth, which is what a realm of animals is buried in |
 | `hell_of_blazing_fires` | `basalt_deltas` | `minecraft:delta` pools plus basalt columns and blobs off the floor make a hall a delta rather than a cave |
 | `former_hell` | `crimson_forest` | roots and vines growing back through a ruin is the whole idea of the place |
+
+The hill is the one biome whose base cannot carry what it is for. It is open meadow, so its only canopy is the
+sparse trees it draws itself, and its foliage override sits a fifth under its grass override (`#5F724B` against
+`#87A06A`) — a shadowed hill is the nameless one, a hill at meadow brightness is a field of daisies. Its
+`hill_of_the_nameless_flowers` tail is seven patches against the village's four, laid over the meadow's own
+`flower_meadow`.
 
 The four underground biomes keep the overworld ore set and `NETHER_COMMON` — fire, soul fire, glowstone, the two
 nether mushrooms — and take the rest of their nether biome, less that biome's **ores**. Those are deliberately absent:
@@ -203,7 +209,7 @@ barrens, mud under the bamboo and in Genbu Ravine.
 | `ghost_flowers` | 3 patches | muenzuka |
 | `village_flowers` | 4 patches | human village |
 | `barrens_scrub` | 3 patches | barrens |
-| `hill_of_the_nameless_flowers` | 4 patches | hill of the nameless |
+| `hill_of_the_nameless_flowers` | 7 patches | hill of the nameless |
 | `bamboo_dense` / `bamboo_sparse` | 6 patches / 1 in 3 | bamboo forest of the lost |
 | `ravine_moss` | 6 patches | genbu ravine |
 | `foothill_moss` | 4 patches | youkai mountain foothills |
