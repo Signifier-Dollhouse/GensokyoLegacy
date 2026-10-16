@@ -1,6 +1,7 @@
 package dev.xkmc.gensokyolegacy.init.registrate;
 
 import dev.xkmc.gensokyolegacy.content.dimension.EmptyChunkGenerator;
+import dev.xkmc.gensokyolegacy.content.dimension.GensokyoChunkGenerator;
 import dev.xkmc.gensokyolegacy.content.worldgen.feature.MushroomFeatures;
 import dev.xkmc.gensokyolegacy.content.worldgen.feature.lake.MagicalForestLakeFeature;
 import dev.xkmc.gensokyolegacy.content.worldgen.feature.template.TemplateBlendProcessor;
@@ -48,6 +49,7 @@ public class GLWorldGen {
 
 	private static final CdcReg<ChunkGenerator> CG = CdcReg.of(GensokyoLegacy.REG, BuiltInRegistries.CHUNK_GENERATOR);
 	public static final CdcVal<EmptyChunkGenerator> CG_GAP = CG.reg("gap", EmptyChunkGenerator.CODEC);
+	public static final CdcVal<GensokyoChunkGenerator> CG_GENSOKYO = CG.reg("gensokyo", GensokyoChunkGenerator.CODEC);
 
 
 	private static final SR<Feature<?>> FR = SR.of(GensokyoLegacy.REG, BuiltInRegistries.FEATURE);

@@ -82,7 +82,7 @@ beside them.
 | `sanctuary` | `meadow` | meadow's own sparse birch reads as a deliberate grove |
 | `hell_of_blood_pools` | `soul_sand_valley` | a basin of souls is the one nether pool; basalt pillars stand it up off the floor |
 | `animal_realm` | `warped_forest` | the one nether biome that is mostly growth, which is what a realm of animals is buried in |
-| `hell_of_blazing_fires` | `basalt_deltas` | basalt columns and blobs off the floor make a hall a delta rather than a cave |
+| `hell_of_blazing_fires` | `basalt_deltas` | `minecraft:delta` pools plus basalt columns and blobs off the floor make a hall a delta rather than a cave |
 | `former_hell` | `crimson_forest` | roots and vines growing back through a ruin is the whole idea of the place |
 
 The four underground biomes keep the overworld ore set and `NETHER_COMMON` — fire, soul fire, glowstone, the two
@@ -95,6 +95,22 @@ a cave has a floor, which is what the nether wants and Gensokyo does not. `sprin
 lava *surface*, the one feature that makes a biome of basalt a lava biome at all, so `hell_of_blazing_fires` keeps it
 as `DELTA_LAVA`. Without it the blazing fires are hot-looking rock — the surface rule only gives that biome
 `magma_block`, which glows but does not flow.
+
+### `minecraft:delta` is the one that fills them
+
+`spring_delta` was being read as the delta's lava, and it is not: it is a **spring**, one block of lava every
+sixteenth try. The feature that fills a delta is `minecraft:delta`, which the blazing fires were also missing — and it
+is the one that matters, because it is the whole *volume*:
+
+| | tries | what it puts down |
+|---|---|---|
+| `minecraft:delta` | 40, **on every layer** | a pool of lava with a `magma_block` rim, wherever there is a one-block air pocket under a solid floor |
+| `minecraft:spring_delta` | 1 in 16 | a single lava block, and only where the block below is in the nether's spring list |
+
+`DeltaFeature.isClear` wants the block above to be air and the other five neighbours to be solid, which is exactly the
+one-block pocket a cave floor leaves, so the pools land on the cavern floors and the basalt columns then stand out of
+them. With the columns but no `delta`, the biome had basalt growing off dry rock — `BASALT_COLUMNS` now carries all
+three in vanilla's order, `delta` first.
 
 ### A spring that works on nether rock
 

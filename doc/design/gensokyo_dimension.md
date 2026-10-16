@@ -13,8 +13,8 @@ Two things differ from the overworld, and they are deliberately the only two:
 On top of those, three changes of their own:
 
 3. the caves get **caverns** cut under the surface and never at it — §8;
-4. the two cave carvers are the overworld's with the **lava level eight blocks higher** — §11;
-5. the aquifer's **barrier** is resampled, which is what sizes and places a fluid cavity — §12.
+4. the chunk generator is the overworld's with the aquifer's **lava sea eight blocks higher** — §11;
+5. the aquifer's **barrier** is resampled and biased, which is what sizes, places and fills a fluid cavity — §12.
 
 Everything else — sea level 63, the aquifer's fluid-level noises, ore veins, spawn target, dimension type — is
 vanilla's. Surface rules are vanilla's with four underground biome branches in front; see `doc/design/gensokyo_biomes.md` §4.
@@ -360,10 +360,11 @@ without a biome modifier, which is a worse answer than not having them.
 ```
 
 Writes `dimension/gensokyo.json`, `dimension_type/gensokyo.json`, `worldgen/noise_settings/gensokyo.json`,
-`worldgen/configured_carver/{cave,cave_extra_underground}.json`,
 `worldgen/density_function/{offset,factor,depth,sloped_cheese,large_caves,barrier}.json` and
 `worldgen/noise/{continentalness_small,temperature_small,vegetation_small,erosion_small}.json`. Output is committed.
-The biome grid it writes is the table in §4, so `--spline` and the biome map are how a change to it gets checked.
+`dimension/gensokyo.json` names the generator `"type": "gensokyolegacy:gensokyo"` rather than `minecraft:noise`,
+because that is `GensokyoChunkGenerator`'s own codec and the sea's level goes with it (§11). The biome grid it writes
+is the table in §4, so `--spline` and the biome map are how a change to it gets checked.
 
 `python3 tools/feature_cycle_check.py build/moddev/artifacts/neoforge-21.1.238-client-extra-aka-minecraft-resources.jar src/generated/resources`
 must still report no feature order cycle. The checker exists because `BiomeDefaultFeatures` call order is load-bearing —
@@ -673,13 +674,6 @@ The gain also moves where the volume knob is set. With the gate no longer eating
 `CAVE_BIAS / CAVE_GAIN`, which is `0.060` — the field's own 13% quantile. That ratio reads straight off the measured
 distribution and needs no re-tuning against the gate, which is why the two constants are one number written twice.
 
-```
-python3 tools/terrain.py gensokyolegacy:gensokyo --voids --seed -1838080655014084215 --cheese
-```
-
-writes `../../out/cave/gensokyolegacy_gensokyo_caves.txt`. The maps are one pixel per chunk, so a cave is at most a
-pixel of noise in them; the report is the only place these numbers exist. `--cheese` matters, since dropping
-`base_3d_noise` moves the surface the report measures from.
 ---
 
 ## 9. The rock bands
@@ -916,32 +910,52 @@ So the aquifer was the only path that could put lava in the floor, and it can no
 
 ---
 
-## 11. The lava level
+## 11. The lava sea
 
-`gensokyolegacy:cave` and `:cave_extra_underground`, in `GensokyoCarvers`. Vanilla's two overworld cave carvers with
-every number left alone and one moved:
+`GensokyoChunkGenerator`, the level stem's generator: `NoiseBasedChunkGenerator` with the aquifer's global fluid
+picker rebuilt around one moved constant.
 
 | | vanilla | Gensokyo |
 |---|---|---|
-| `lava_level` | `above_bottom(8)` → y −56 | `above_bottom(16)` → **y −48** |
-| probability, y range, yScale, radius multipliers, floor level | | unchanged |
-| `replaceable` | `#minecraft:overworld_carver_replaceables` | unchanged |
+| lava sea surface | `min(-54, seaLevel)` -> y -54 | **`-46`** |
+| everything else | | unchanged |
 
-### Three lava levels, one of them movable
+### Three lava levels, and the one that is the sea
 
-The dimension has three separate things called a lava level, and only one of them is a datapack value:
-
-| where | what | value | movable |
+| where | what | value | how it is set |
 |---|---|---|---|
-| `Carvers.CAVE` config | the carver fills lava below this | `above_bottom(8)` = y −56 | **yes** |
-| `NoiseBasedChunkGenerator.createFluidPicker` | the aquifer's global fluid is lava below `min(-54, seaLevel)` | y −54 | no, a constant in the engine |
-| `Aquifer.NoiseBasedAquifer.computeFluidType` | an aquifer holding below this becomes lava | y −10 | no, a constant in the engine |
+| `NoiseBasedChunkGenerator.createFluidPicker` | **the lava sea** — every air block below this is lava, whatever the aquifers are doing | y −54 | **the one moved** |
+| `Aquifer.NoiseBasedAquifer.computeFluidType` | an aquifer whose own level is below this becomes lava rather than water | y −10 | read, left alone |
+| `Carvers.CAVE` config | the cave carver fills lava below this | `above_bottom(8)` → y −56 | read, left alone |
 
-So raising the lava level by eight blocks is `above_bottom(8) → above_bottom(16)`, and the two constants are read
-rather than set. The practical effect is that the lava sea in the caves has its surface at **y −48**, which is exactly
-where `largeCaves`'s floor fade finishes — so the lava now reaches the bottom of the caverns instead of stopping
-eight blocks short of them, and the bedrock floor of §10 is still bedrock: `#minecraft:overworld_carver_replaceables`
-does not name it, so the carver never touches the floor however low the lava level is put.
+Only the first is the sea. It is what the bottom of the world looks like:
+`Aquifer.NoiseBasedAquifer.computeSubstance` asks the global picker first and returns lava outright for anything below
+its level, with no cave, no depth and no barrier consulted. −54 is eight blocks lower than wanted, so the level is
+−46.
+
+The carver's own `lava_level` was tried first and is the wrong control. It fills only the *tunnels it carves*, in the
+band between its level and `above_bottom(8)`, so moving it from y −56 to y −48 raises eight blocks of carved tunnel to
+lava and leaves the aquifer's sea — which is what actually fills the caverns, and the caverns are not what the carver
+carves — exactly where it was. Both are −46 and −56 now.
+
+### Why it takes a subclass and an access transformer
+
+The picker is a `private final Supplier<Aquifer.FluidPicker>` field, filled by the constructor from
+`Suppliers.memoize(() -> createFluidPicker(settings))`, and `createFluidPicker` is a `private static` with the
+constant written into it. There is no method to override and no constructor hook, so:
+
+- `NoiseBasedChunkGenerator.globalFluidPicker` is opened and unfinaled by `accesstransformer.cfg` (`public-f`), and
+  `GensokyoChunkGenerator`'s constructor reassigns it;
+- the picker is built inside `Suppliers.memoize` and not eagerly, because during datagen the settings holder is not
+  bound and reading `settings.value()` in the constructor throws — which is the reason the engine's is lazy too;
+- the subclass is also what makes the generator its own registered type. A generator's type *is* its codec, so
+  reusing `NoiseBasedChunkGenerator.CODEC` would write `"type": "minecraft:noise"` into `dimension/gensokyo.json` and
+  load a vanilla generator back out of it, dropping the lava level the first time an existing world is reloaded.
+
+### What it does not touch
+
+The bedrock floor of §10 is unaffected, and not because of the level: the aquifer could only reach it through the same
+lava, and §10's second gate — `large_caves`' y fade — is what keeps the sea out of the five bedrock layers.
 
 ---
 
@@ -978,23 +992,31 @@ cave with water in it, and as a great many small aquifers rather than one per ca
 | | vanilla | Gensokyo |
 |---|---|---|
 | scale | `xz 1.0` / `y 0.5` → 8 × 16 blocks | `xz 0.25` / `y 0.125` → **32 × 64 blocks** |
-| bias | 0 | **+0.10** |
+| bias | 0 | **+0.20** |
 
 The scale moves the wavelength and nothing else: `NormalNoise` normalises on the amplitudes alone, so both readings
 share a distribution — measured on 300k samples, p1 −0.724, p10 −0.415, median 0.000, p90 +0.415, p99 +0.725, and a
 standard deviation of 0.319. That is why the bias is the only volume knob, and it is worth being clear that it is a
 *fluid* knob, not a seal:
 
-| cave density | vanilla | bias +0.06 | bias +0.10 |
-|---|---|---|---|
-| −0.15 | 32.5% | 26.0% | 22.1% |
-| −0.20 | 27.1% | 21.2% | **17.8%** |
-| −0.25 | 22.3% | 17.0% | 14.0% |
-| −0.31 | 17.1% | 12.6% | 10.2% |
+| cave density | vanilla | bias +0.10 | bias +0.20 | bias +0.30 |
+|---|---|---|---|---|
+| −0.15 | 32.3% | 22.2% | **14.1%** | 8.2% |
+| −0.20 | 27.0% | 17.9% | **10.9%** | 6.0% |
+| −0.25 | 22.2% | 14.1% | **8.2%** | 4.3% |
+| −0.31 | 17.1% | 10.3% | **5.6%** | 2.7% |
 
-(share of a cavern's volume that carries fluid, at zero pressure; `density = -0.31` is the floor `postProcess` can
-reach and `-0.15` is a shallow pocket near a wall, so the range is the honest span of a cave's interior.) The knob
-runs out: `+0.30` leaves 5.9%, `+0.40` is nearly two standard deviations out and leaves 3.0%, and `+0.50` leaves 1.4%.
+(share of a cavern's volume that carries fluid, at zero pressure; `density = −0.31` is the floor `postProcess` can
+reach and `−0.15` is a shallow pocket near a wall, so the range is the honest span of a cave's interior.) The knob
+runs out by `+0.40`, which is nearly two standard deviations out and leaves 3.0%.
+
+`+0.10` was the first pass and it did what it was meant to for the *number* of aquifers, but the fluid was still
+spilling out of them, so it is `+0.20`. What the two numbers do between them:
+
+| | vanilla | `+0.10` | `+0.20` |
+|---|---|---|---|
+| how many bodies a column has | many, one per eight blocks | one per cavern | one per cavern |
+| how much of that cavern fills | 27.0% | 17.9% | **10.9%** |
 
 ### What was checked and left alone
 
@@ -1008,4 +1030,4 @@ runs out: `+0.30` leaves 5.9%, `+0.40` is nearly two standard deviations out and
   fills the cave" and "a shape the barrier carves", and it pushes the opposite way from the bias: flattening it fills
   more cave with water, which is the other half of the complaint. Left alone.
 - **`lava`** (`firstOctave -1`) only picks which of the two fluids an already-existing aquifer below y −10 becomes.
-  With the carver's lava level at y −48 (§11) the bottom of the world is lava either way.
+  With the lava sea at y −46 (§11) the bottom of the world is lava either way.

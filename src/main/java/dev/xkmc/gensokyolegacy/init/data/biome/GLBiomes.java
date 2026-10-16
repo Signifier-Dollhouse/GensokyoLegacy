@@ -2,7 +2,6 @@ package dev.xkmc.gensokyolegacy.init.data.biome;
 
 import com.tterrag.registrate.providers.DataProviderInitializer;
 import dev.xkmc.gensokyolegacy.content.dimension.GLDimensionGen;
-import dev.xkmc.gensokyolegacy.content.dimension.GensokyoCarvers;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.structure.GLStructureTagGen;
 import dev.xkmc.gensokyolegacy.init.registrate.GLEntities;
@@ -10,6 +9,7 @@ import net.minecraft.core.HolderGetter;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BiomeDefaultFeatures;
 import net.minecraft.data.worldgen.BootstrapContext;
+import net.minecraft.data.worldgen.Carvers;
 import net.minecraft.data.worldgen.placement.AquaticPlacements;
 import net.minecraft.data.worldgen.placement.CavePlacements;
 import net.minecraft.data.worldgen.placement.MiscOverworldPlacements;
@@ -94,14 +94,11 @@ public class GLBiomes {
 	public static final ResourceKey<Biome> SUNFLOWER_PLAINS = biome("sunflower_plains");
 
 	/**
-	 * The two carvers every Gensokyo biome carves with, which are the overworld's own with the lava level eight
-	 * blocks up. {@code minecraft:canyon} is in none of them: a canyon is a surface landform, and Gensokyo's ravine
-	 * and valley are already its own thing.
-	 *
-	 * @see "doc/design/gensokyo_dimension.md" §11
+	 * The two carvers every Gensokyo biome carves with, which are the overworld's own, unchanged. {@code minecraft:canyon}
+	 * is in none of them: a canyon is a surface landform, and Gensokyo's ravine and valley are already its own thing.
 	 */
 	private static final List<ResourceKey<ConfiguredWorldCarver<?>>> CARVERS =
-			List.of(GensokyoCarvers.CAVE, GensokyoCarvers.CAVE_EXTRA_UNDERGROUND);
+			List.of(Carvers.CAVE, Carvers.CAVE_EXTRA_UNDERGROUND);
 
 	/**
 	 * The overworld ore set, in vanilla's order: the dirt and gravel, the three stone mixes and tuff, then everything
@@ -165,9 +162,15 @@ public class GLBiomes {
 	private static final List<ResourceKey<PlacedFeature>> NETHER_BLOOD_PILLARS =
 			List.of(NetherPlacements.BASALT_PILLAR);
 
-	/** The two basalt column runs of the deltas, which is what makes a lava hall a delta and not a cave. */
+	/**
+	 * The three surface features of the deltas, in vanilla's order: the lava pools, then the two basalt column
+	 * runs, which is what makes a lava hall a delta and not a cave. {@code minecraft:delta} is the one that fills
+	 * them — forty attempts on every layer, each dropping a pool of lava with a magma rim into the one-block air
+	 * pockets in the floor. Without it the biome gets a lava spring every sixteenth try and nothing else, which is
+	 * a single block of lava rather than a delta.
+	 */
 	private static final List<ResourceKey<PlacedFeature>> BASALT_COLUMNS = List.of(
-			NetherPlacements.SMALL_BASALT_COLUMNS, NetherPlacements.LARGE_BASALT_COLUMNS);
+			NetherPlacements.DELTA, NetherPlacements.SMALL_BASALT_COLUMNS, NetherPlacements.LARGE_BASALT_COLUMNS);
 
 	/**
 	 * The six features every nether biome shares, and the whole of what the four underground biomes agree on: fire,
@@ -353,12 +356,14 @@ public class GLBiomes {
 		var fire = GensokyoBiomeFeatures.BLAZING_FIRES;
 		ctx.register(HELL_OF_BLAZING_FIRES, biome(true, 1.5f, 0.0f, 0xc2410a, 0x8c2f0e, 0x6b4030, 0x5a3528,
 				new MobSpawnSettings.Builder(),
-				// basalt deltas. The two column runs are the find here: vanilla lays them on the nether's open floor,
+				// basalt deltas. The column runs are the find here: vanilla lays them on the nether's open floor,
 				// and in a cave they stand up off the floor instead, which is a hall of basalt rather than a delta.
-				// spring_delta comes with them and is the one nether spring that does: the delta's lava is what the
-				// biome is named for, and the surface rule only gives it magma block, which glows but does not flow.
-				// BLAZING_HELL_LAVA is a second one, because vanilla's spring_lava is the overworld spring and all of
-				// its valid blocks are stone — it cannot place a single block in a biome standing on blackstone
+				// `minecraft:delta` is the other half and was missing: it is what pours the lava into the pockets
+				// the columns stand on, and the biome had the columns with nothing to fill them. spring_delta comes
+				// with them and is the one nether spring that does: the delta's lava is what the biome is named for,
+				// and the surface rule only gives it magma block, which glows but does not flow. BLAZING_HELL_LAVA is
+				// a second one, because vanilla's spring_lava is the overworld spring and all of its valid blocks
+				// are stone — it cannot place a single block in a biome standing on blackstone
 				layers(pf, carvers)
 						.surfaceStructures(BASALT_COLUMNS)
 						.ores(OVERWORLD_ORES)

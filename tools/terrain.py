@@ -1277,11 +1277,11 @@ class Dimension:
     def __init__(self, pack, dimension, seed, caves, cheese):
         self.world = World(pack, seed, caves, cheese)
         generator = dimension["generator"]
-        if generator.get("type") != "minecraft:noise":
+        # a subclass of `minecraft:noise` carries the same `settings` and `biome_source`, and what is read here is
+        # the noise settings rather than the generator class, so anything shaped like a noise generator is accepted
+        if not isinstance(generator.get("settings"), str) or not isinstance(generator.get("biome_source"), dict):
             raise Bad("dimension " + str(dimension.get("type")) + " is not a noise dimension")
         settings_key = generator["settings"]
-        if not isinstance(settings_key, str):
-            raise Bad("inline noise settings are not supported")
         self.settings = pack.get("worldgen/noise_settings", settings_key)
         if self.settings.get("legacy_random_source"):
             raise Bad("legacy_random_source worlds are not supported")

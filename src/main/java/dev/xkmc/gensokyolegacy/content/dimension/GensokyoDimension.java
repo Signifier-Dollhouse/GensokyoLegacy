@@ -29,7 +29,6 @@ import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.levelgen.DensityFunction;
 import net.minecraft.world.level.levelgen.DensityFunctions;
-import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
 import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
 import net.minecraft.world.level.levelgen.NoiseRouter;
 import net.minecraft.world.level.levelgen.NoiseRouterData;
@@ -237,8 +236,8 @@ public class GensokyoDimension {
 	 * cave with water in it. Four times coarser inverts the ordering, and the boundary is then one blob per cavern.
 	 * <p>
 	 * The scale changes the wavelength and nothing else — {@code NormalNoise} normalises on the amplitudes alone, so
-	 * both readings share one distribution (p1 −0.724, p10 −0.415, median 0.000, p90 +0.415, p99 +0.725, on 300k
-	 * samples) and {@code bias} is the only volume knob.
+	 * all three readings share one distribution (p1 −0.724, p10 −0.415, median 0.000, p90 +0.415, p99 +0.725, on
+	 * 300k samples) and the volume below is the only thing that moves it.
 	 *
 	 * @see "doc/design/gensokyo_dimension.md" §12
 	 */
@@ -246,12 +245,14 @@ public class GensokyoDimension {
 	private static final double BARRIER_Y = 0.125;
 
 	/**
-	 * How much more rock than vanilla's barrier claims, in barrier units. Sampling the distribution above, this takes
-	 * the share of a cavern's volume that carries fluid from 27.1% to 17.8% at a cave density of {@code -0.20}, and
-	 * from 22.3% to 14.0% at {@code -0.25} — a third off, which is what "the liquid overflows its aquifer" costs.
-	 * {@code +0.40} is already nearly two standard deviations out and leaves 3.0%, so the range above it is dry.
+	 * How much more rock than vanilla's barrier claims, in barrier units. This is the only volume knob, because the
+	 * scale above changes only the wavelength. Sampling that distribution, {@code +0.10} takes the share of a
+	 * cavern's volume that carries fluid from 27.0% to 17.9% at a cave density of {@code -0.20}, which was still
+	 * reading as an overflow; {@code +0.20} takes it to 10.9%, and {@code +0.30} to 6.0%.
+	 *
+	 * @see "doc/design/gensokyo_dimension.md" §12
 	 */
-	private static final double BARRIER_BIAS = 0.10;
+	private static final double BARRIER_BIAS = 0.20;
 
 	/**
 	 * Continentalness thresholds that separate the regions, each sitting where the offset spline reaches a height band
@@ -672,10 +673,11 @@ public class GensokyoDimension {
 	}
 
 	/**
-	 * Overworld terrain driven by the restricted biome list.
+	 * Overworld terrain driven by the restricted biome list, with the aquifer's lava sea at
+	 * {@link GensokyoChunkGenerator}'s level rather than the engine's.
 	 */
-	public static NoiseBasedChunkGenerator chunkGenerator(BootstrapContext<LevelStem> ctx) {
-		return new NoiseBasedChunkGenerator(biomeSource(ctx.lookup(Registries.BIOME)),
+	public static GensokyoChunkGenerator chunkGenerator(BootstrapContext<LevelStem> ctx) {
+		return new GensokyoChunkGenerator(biomeSource(ctx.lookup(Registries.BIOME)),
 				ctx.lookup(Registries.NOISE_SETTINGS).getOrThrow(NS_GENSOKYO));
 	}
 

@@ -1,7 +1,7 @@
 {
   "type": "gensokyolegacy:gensokyo",
   "generator": {
-    "type": "minecraft:noise",
+    "type": "gensokyolegacy:gensokyo",
     "biome_source": {
       "type": "minecraft:multi_noise",
       "biomes": [
