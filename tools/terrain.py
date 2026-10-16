@@ -1,13 +1,15 @@
 #!/usr/bin/env python3
 """
-Export two preview images of a dimension's terrain: a biome map and a height map.
+Export three preview images of a dimension's terrain: a biome map, a height map and a
+parameter map.
 
-Both are one pixel per chunk, 512x512 by default, so the default export covers
+All three are one pixel per chunk, 512x512 by default, so the default export covers
 4096x4096 blocks around the world origin:
 
-    out/terrain/<dimension>_biomes.png    every biome in its own color
-    out/terrain/<dimension>_height.png    blue below sea level, one color per 16 blocks above
-    out/terrain/<dimension>.txt           biome colors, map shares, height histogram
+    out/terrain/<dimension>_biomes.png      every biome in its own color
+    out/terrain/<dimension>_height.png      blue below sea level, one color per 16 blocks above
+    out/terrain/<dimension>_parameters.png  the eight regions temperature/vegetation/erosion tile
+    out/terrain/<dimension>.txt             biome colors, map shares, height histogram
 
 `--spline` plots the continentalness spline instead, in three panels:
 
@@ -44,6 +46,11 @@ gives the six climate axes (`temperature`, `vegetation` = humidity, `continents`
 `erosion`, `depth`, `ridges` = weirdness). Biomes come from the multi-noise grid in the
 dimension json, resolved nearest-cell with vanilla's quantised fitness, sampled at the
 4x4x4 cell centre of the surface block the way `Climate.Sampler` does.
+
+The parameter map drops the biome grid and draws the climate axes themselves: each of
+`temperature`, `vegetation` and `erosion` is cut once, at `CLIMATE_CUTS`, and a pixel takes
+the colour of the one of the eight regions its cell lands in. It is the partition the grid
+is built out of, so it shows which parts of the map are decided by which axis.
 
 The height map is the **terrain** surface, the topmost block whose density is positive,
 so under the sea level it shows the sea floor rather than the water surface: what the
@@ -1094,6 +1101,31 @@ class BiomeSource:
 # colors
 # --------------------------------------------------------------------------------------
 
+# Gensokyo's own palette, consulted before the vanilla table below. Four families, so a biome
+# map reads as terrain rather than as eighteen unrelated hues: water blue, the mountain and
+# everything that sits on it dark red, the summit white, and the two open-ground bands in
+# greens and yellows. The four underground biomes and the mountain's rock are neither ground
+# nor surface and never show on a surface map, so they get their own near-black ramp.
+GENSAKYO_COLORS = {
+    # water
+    "misty_lake": (34, 78, 158), "misty_lake_shore": (120, 170, 214),
+    # lower ground: plains first, so the yellows read as the sunny end of the plain
+    "sunflower_plains": (222, 224, 118), "muenzuka": (170, 186, 96),
+    "human_village": (198, 198, 74), "myouren_temple_barrens": (196, 168, 84),
+    # upper ground: the same greens pushed darker, which is the only hint the map gives of height
+    "magical_forest": (74, 148, 74), "bamboo_forest_of_the_lost": (96, 172, 92),
+    "sakura_forest": (140, 190, 110), "hill_of_the_nameless": (122, 158, 68),
+    # the mountain and the settlement on it
+    "untrodden_valley": (140, 62, 48), "genbu_ravine": (120, 48, 40),
+    "youkai_mountain_foothills": (158, 74, 56), "sanctuary": (104, 40, 36),
+    "tengu_settlement": (176, 88, 66), "secret_heaven_cliff": (92, 34, 30),
+    "youkai_mountain_summit": (245, 245, 248),
+    # below the ground
+    "mountain_interior": (72, 28, 26), "former_hell": (78, 48, 48),
+    "hell_of_blood_pools": (104, 44, 40), "hell_of_blazing_fires": (92, 56, 34),
+    "animal_realm": (56, 60, 50),
+}
+
 # biome colors as Minecraft's own map renders them, from misode's deepslate palette
 BIOME_COLORS = {
     "badlands": (217, 69, 21), "badlands_plateau": (202, 140, 101), "bamboo_jungle": (118, 142, 20),
@@ -1154,8 +1186,41 @@ WATER_TOP = (86, 156, 224)
 WATER_DEEP = (0, 16, 80)
 
 
+# the climate grid's own cuts, one per axis, and the eight regions they tile the parameter
+# space into. Gensokyo splits temperature, vegetation and erosion once each at 0, which is what
+# gives the plain its eight cells (`doc/design/gensokyo_dimension.md` §4). Hardcoded the way
+# `cave_bands.py` hardcodes its bounds, so retuning the grid means retuning these.
+CLIMATE_CUTS = (0.0, 0.0, 0.0)
+
+# ordered 4 * cold + 2 * dry + 1 * low erosion, so the index is the three flags read out
+PARAMETER_REGIONS = (
+    "hot humid high erosion", "hot humid low erosion",
+    "hot dry high erosion", "hot dry low erosion",
+    "cold humid high erosion", "cold humid low erosion",
+    "cold dry high erosion", "cold dry low erosion",
+)
+
+# hue from temperature, greenness from vegetation, and a lightness step from erosion, so the
+# erosion half is the lighter member of each pair
+PARAMETER_COLORS = (
+    (166, 128, 72), (140, 156, 68),
+    (214, 172, 108), (190, 200, 116),
+    (66, 92, 140), (104, 136, 178),
+    (54, 128, 118), (108, 178, 152),
+)
+
+# a column with no surface has no climate point to classify, since the sampler needs a y
+PARAMETER_NONE = (24, 24, 28)
+
+
+def parameter_region(point):
+    """Which of the eight the three cuts tile, for one `climate_point`."""
+    return (4 if point[0] < CLIMATE_CUTS[0] else 0) + (2 if point[1] < CLIMATE_CUTS[1] else 0) \
+        + (1 if point[3] < CLIMATE_CUTS[2] else 0)
+
+
 def biome_color(key):
-    color = BIOME_COLORS.get(key.split(":")[-1])
+    color = GENSAKYO_COLORS.get(key.split(":")[-1]) or BIOME_COLORS.get(key.split(":")[-1])
     if color is not None:
         return color
     # unknown biomes get a stable color of their own, hashed from the name like deepslate does
@@ -1242,6 +1307,7 @@ def render_row(dimension, chunk_x, chunk_z, size):
     """One scanline of each map, plus the per row counts the legend needs."""
     biomes = bytearray()
     heights = bytearray()
+    parameters = bytearray()
     counts = Counter()
     total = 0
     for pixel in range(size):
@@ -1255,6 +1321,7 @@ def render_row(dimension, chunk_x, chunk_z, size):
             total += 1
             biomes += bytes(biome_color("minecraft:the_void"))
             heights += bytes(height_color(dimension.min_y, dimension.sea_level, dimension.min_y))
+            parameters += bytes(PARAMETER_NONE)
             continue
         # biomes are picked per 4x4x4 cell at the cell centre, so that is the point sampled
         cell_x = ((x >> 2) << 2) + 2
@@ -1263,12 +1330,15 @@ def render_row(dimension, chunk_x, chunk_z, size):
         column.move_to(cell_x, cell_z)
         point = climate_point(dimension.sampler, cell_x, cell_y, cell_z, column)
         biome = dimension.biomes.biome_at(point)
+        region = parameter_region(point)
         counts[biome] += 1
+        counts["_param:" + PARAMETER_REGIONS[region]] += 1
         counts["_height:" + str(height)] += 1
         total += 1
         biomes += bytes(biome_color(biome))
         heights += bytes(height_color(height, dimension.sea_level, dimension.min_y))
-    return bytes(biomes), bytes(heights), counts, total
+        parameters += bytes(PARAMETER_COLORS[region])
+    return bytes(biomes), bytes(heights), bytes(parameters), counts, total
 
 
 # --------------------------------------------------------------------------------------
@@ -1905,8 +1975,8 @@ def _worker_init(pack, dimension_json, seed, caves, cheese):
 
 def _worker_row(job):
     row, chunk_x, chunk_z, size = job
-    biomes, heights, counts, total = render_row(_WORKER["dimension"], chunk_x, chunk_z, size)
-    return row, biomes, heights, counts, total
+    biomes, heights, parameters, counts, total = render_row(_WORKER["dimension"], chunk_x, chunk_z, size)
+    return row, biomes, heights, parameters, counts, total
 
 
 def run_worker_pool(jobs, initargs, work, function):
@@ -2051,6 +2121,7 @@ def height_bin(y, low, high):
 
 def write_legend(path, name, dimension, size, origin, seed, counts, total):
     heights = {key[len("_height:"):]: value for key, value in counts.items() if key.startswith("_height:")}
+    regions = {key[len("_param:"):]: value for key, value in counts.items() if key.startswith("_param:")}
     biomes = {key: value for key, value in counts.items() if not key.startswith("_")}
     with open(path, "w", encoding="utf-8") as handle:
         handle.write("terrain export: %s\n" % name)
@@ -2065,6 +2136,14 @@ def write_legend(path, name, dimension, size, origin, seed, counts, total):
             red, green, blue = biome_color(biome)
             handle.write("  %-40s #%02x%02x%02x  %6.2f%%  %d\n"
                          % (biome, red, green, blue, 100.0 * count / total, count))
+        if regions:
+            handle.write("\nPARAMETERS  temperature / vegetation / erosion, each cut at %s\n"
+                         % ", ".join("%+.2f" % cut for cut in CLIMATE_CUTS))
+            for label in sorted(regions):
+                index = PARAMETER_REGIONS.index(label)
+                red, green, blue = PARAMETER_COLORS[index]
+                handle.write("  %-40s #%02x%02x%02x  %6.2f%%  %d\n"
+                             % (label, red, green, blue, 100.0 * regions[label] / total, regions[label]))
         if heights:
             lowest = min(int(key) for key in heights)
             highest = max(int(key) for key in heights)
@@ -2155,17 +2234,19 @@ def main():
 
     counts = Counter()
     total = 0
-    for _, _, _, row_counts, row_total in results:
+    for _, _, _, _, row_counts, row_total in results:
         counts.update(row_counts)
         total += row_total
 
     os.makedirs(args.out, exist_ok=True)
     write_png(os.path.join(args.out, name + "_biomes.png"), args.size, args.size, [row[1] for row in results])
     write_png(os.path.join(args.out, name + "_height.png"), args.size, args.size, [row[2] for row in results])
+    write_png(os.path.join(args.out, name + "_parameters.png"), args.size, args.size, [row[3] for row in results])
     write_legend(os.path.join(args.out, name + ".txt"), name, dimension, args.size,
                  (origin_x, origin_z), args.seed, counts, total)
     print(os.path.join(args.out, name + "_biomes.png"))
     print(os.path.join(args.out, name + "_height.png"))
+    print(os.path.join(args.out, name + "_parameters.png"))
     print(os.path.join(args.out, name + ".txt"))
 
 

@@ -18,10 +18,15 @@ them with continentalness quantiles, so the guide's "lower ground / upper ground
 
 | guide band | grid region | surface y | share |
 |---|---|---|---|
-| lower ground | region 2 | 66 … 80 | 25.7% |
-| upper ground | region 3 | 80 … 96 | 24.3% |
-| Mountain | region 4 | 96 … 128 | 20.2% |
-| Underground | `depth = 1.0` row | — | — |
+| lower ground | region 2, low erosion half | 66 … 96 | 28.0% |
+| upper ground | region 2, high erosion half | 66 … 96 | 19.9% |
+| Mountain | region 3 | 96 … 128 | 19.9% |
+| Underground | `depth = 0.53` row | — | — |
+
+The lower ground and the upper ground **share one region**: the grid merges them into the y 66 … 96 plain and splits
+them on erosion instead of on height, so each of the eight appears at every height in the band. The shares are over
+512 × 512 chunks at seed −1838080655014084215, and both halves move with the seed for the reason
+`gensokyo_dimension.md` §4 gives.
 
 The guide gives four biomes per band and classifies them **hot humid, cold humid, hot dry, cold dry**, in that order.
 So does the grid: temperature and humidity are each cut once, at 0, and the four cells of a band are filled in the
@@ -285,8 +290,11 @@ hill_of_the_nameless       6.10%      untrodden_valley          3.74%
 sunflower_plains           5.94%      youkai_mountain_foothills 3.44%
 ```
 
-Each of the three open-ground bands splits into four near-equal quarters, which is what cutting both climate axes once
-gives: the lower ground band is 25.73% of the map and its four cells are 5.94 / 7.05 / 6.38 / 7.11%.
+Each of the open-ground bands splits into four near-equal quarters, which is what cutting both climate axes once
+gives. The lower ground's four cells are 8.14 / 8.10 / 6.04 / 5.73 % of the map and the upper ground's are
+6.96 / 5.32 / 4.16 / 3.45 %, out of a plain that holds 47.90% — the same plain the two bands held before the merge
+in `gensokyo_dimension.md` §4, which is to say the erosion cut moved the share between the two grounds without
+changing the share of the plain itself.
 
 The four underground biomes never appear on this map: `terrain.py` samples one column per chunk at the surface, and the
 underground bands only win more than 128 blocks down. Their placement is `doc/design/gensokyo_dimension.md` §9.
@@ -345,14 +353,14 @@ So the threshold is **0.15 of an altitude-adjusted temperature**, not of the dec
 
 | biome | declared | band y | worst altitude loss | effective | snows? |
 |---|---|---|---|---|---|
-| myouren_temple_barrens | 0.2 | 66 … 80 | 0 (below y 80) | 0.2 | no |
-| muenzuka | 0.3 | 66 … 80 | 0 | 0.3 | no |
-| human_village | 0.8 | 66 … 80 | 0 | 0.8 | no |
-| sunflower_plains | 0.8 (copy) | 66 … 80 | 0 | 0.8 | no |
-| magical_forest | 0.7 | 80 … 96 | 0.02 | 0.68 | no |
-| sakura_forest | 0.5 | 80 … 96 | 0.02 | 0.48 | no |
-| bamboo_forest_of_the_lost | 0.3 | 80 … 96 | 0.02 | 0.28 | no |
-| hill_of_the_nameless | 0.3 | 80 … 96 | 0.02 | 0.28 | no |
+| myouren_temple_barrens | 0.2 | 66 … 96 | 0.03 | 0.17 | no |
+| muenzuka | 0.3 | 66 … 96 | 0.03 | 0.27 | no |
+| human_village | 0.8 | 66 … 96 | 0.03 | 0.77 | no |
+| sunflower_plains | 0.8 (copy) | 66 … 96 | 0.03 | 0.77 | no |
+| magical_forest | 0.7 | 66 … 96 | 0.03 | 0.67 | no |
+| sakura_forest | 0.5 | 66 … 96 | 0.03 | 0.47 | no |
+| bamboo_forest_of_the_lost | 0.3 | 66 … 96 | 0.03 | 0.27 | no |
+| hill_of_the_nameless | 0.3 | 66 … 96 | 0.03 | 0.27 | no |
 | untrodden_valley | 0.5 | 96 … 128 | 0.07 | 0.43 | no |
 | genbu_ravine | 0.35 | 96 … 128 | 0.07 | 0.28 | no |
 | youkai_mountain_foothills | 0.6 | 96 … 128 | 0.07 | 0.53 | no |
@@ -364,11 +372,14 @@ So the threshold is **0.15 of an altitude-adjusted temperature**, not of the dec
 | misty_lake | 0.3 | ≤ 63 | 0 (below y 80) | 0.3 | no |
 | misty_lake_shore | 0.4 | 63 … 66 | 0 | 0.4 | no |
 
-Every biome this project defines clears the line, though `youkai_mountain_summit` clears it by only 0.06 at the very top
-of its band — raise its declared temperature before assuming anything else is safe. The margin is what the column is
-for: the altitude loss is a noise term, so a biome only ever snows in the top few blocks of its band and only in the
-coldest few of those. `secret_heaven_cliff` is the tightest of the ones added since, at 0.09, and it is the second
-half of a band that already has a colder neighbour, so it is the first thing to re-check if anything moves.
+Every biome this project defines clears the line, though the plain's `myouren_temple_barrens` clears it by only 0.02
+and `youkai_mountain_summit` by 0.06 at the very top of its band — raise its declared temperature before assuming
+anything else is safe. The margin is what the column is for: the altitude loss is a noise term, so a biome only ever
+snows in the top few blocks of its band and only in the coldest few of those. `myouren_temple_barrens` owes its 0.02 to
+the plain merge: before it, the lower ground stopped at y 80 and lost no altitude at all, so the cell had 0.05 in hand
+and now has to hold it across the upper half of the band. `secret_heaven_cliff` is the tightest of the ones added
+since the guide, at 0.09, and it is the second half of a band that already has a colder neighbour, so it is the first
+thing to re-check if anything moves.
 The six biomes the grid puts in a cold cell declare 0.2 to 0.35, comfortably warm, because a cold *cell* is a
 place on the climate map and not a licence to freeze — `bamboo_forest_of_the_lost` is the clearest case, where the guide
 sits a winter bamboo grove in a cold corner and the map should not put snow on the ground.

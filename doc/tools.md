@@ -43,12 +43,12 @@ produce them.
 | `checkinterior.py` | validates a *proposed* room/node set (the values are duplicated in the file header) |
 | `checkconfig.py` | validates the **generated datamap JSON** against the shipped template — this is the one that gates |
 | `stripjarjar.py` | strips the jar-in-jar payload from a `libs/` mod jar — unrelated to structures, listed here because it lives in `tools/` |
-| `terrain.py` | exports a biome map and a height map of a dimension from its worldgen json — also unrelated to structures, same reason |
+| `terrain.py` | exports a biome map, a height map and a climate parameter map of a dimension from its worldgen json — also unrelated to structures, same reason |
 | `cave_bands.py` | plots the biome bands the climate grid cuts, by continentalness and height, and derives their depth thresholds |
 
 ### Terrain maps
 
-`terrain.py` renders two previews of a dimension at one pixel per chunk, 512x512
+`terrain.py` renders three previews of a dimension at one pixel per chunk, 512x512
 chunks (4096x4096 blocks) by default:
 
 ```sh
@@ -57,11 +57,18 @@ python3 tools/terrain.py gensokyolegacy:gensokyo --seed 9094732767959603503 --si
 ```
 
 out/terrain/<dimension>_biomes.png
-:   every biome in the color Minecraft's own map gives it, from the biome map palette
+:   every biome in its own color. A Gensokyo palette sits in front of Minecraft's map
+    palette — water blue, the mountain and the settlement dark red, the summit white, the
+    two open-ground bands green and yellow — so a map reads as terrain and not as eighteen
+    unrelated hues
 out/terrain/<dimension>_height.png
 :   blue below sea level, then one color per 16 blocks of height above it
+out/terrain/<dimension>_parameters.png
+:   the eight regions `temperature` / `vegetation` / `erosion` tile the parameter space
+    into, each axis cut once at 0. This is the partition the climate grid is built out of,
+    drawn with the biome grid dropped, so it shows which part of the map each axis decides
 out/terrain/<dimension>.txt
-:   biome colors, map shares, and a height histogram
+:   biome colors, map shares, the eight parameter regions and their shares, height histogram
 
 The dimension json names a biome source and a noise settings entry, and the noise
 settings entry carries the whole noise router, so the tool reads the terrain the same

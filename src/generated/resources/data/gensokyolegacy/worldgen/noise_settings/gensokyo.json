@@ -26,7 +26,7 @@
     },
     "continents": "gensokyolegacy:continents_small",
     "depth": "gensokyolegacy:depth",
-    "erosion": "minecraft:overworld/erosion",
+    "erosion": "gensokyolegacy:erosion_small",
     "final_density": {
       "type": "minecraft:min",
       "argument1": {

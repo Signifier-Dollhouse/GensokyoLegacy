@@ -70,7 +70,7 @@
           "parameters": {
             "continentalness": [
               -0.427,
-              -0.128
+              0.098
             ],
             "depth": [
               -1.5,
@@ -78,7 +78,7 @@
             ],
             "erosion": [
               -1.0,
-              1.0
+              -0.01
             ],
             "humidity": [
               0.01,
@@ -100,7 +100,7 @@
           "parameters": {
             "continentalness": [
               -0.427,
-              -0.128
+              0.098
             ],
             "depth": [
               -1.5,
@@ -108,7 +108,7 @@
             ],
             "erosion": [
               -1.0,
-              1.0
+              -0.01
             ],
             "humidity": [
               0.01,
@@ -130,7 +130,7 @@
           "parameters": {
             "continentalness": [
               -0.427,
-              -0.128
+              0.098
             ],
             "depth": [
               -1.5,
@@ -138,7 +138,7 @@
             ],
             "erosion": [
               -1.0,
-              1.0
+              -0.01
             ],
             "humidity": [
               -1.0,
@@ -160,7 +160,7 @@
           "parameters": {
             "continentalness": [
               -0.427,
-              -0.128
+              0.098
             ],
             "depth": [
               -1.5,
@@ -168,7 +168,7 @@
             ],
             "erosion": [
               -1.0,
-              1.0
+              -0.01
             ],
             "humidity": [
               -1.0,
@@ -189,7 +189,7 @@
           "biome": "gensokyolegacy:magical_forest",
           "parameters": {
             "continentalness": [
-              -0.108,
+              -0.427,
               0.098
             ],
             "depth": [
@@ -197,7 +197,7 @@
               0.1
             ],
             "erosion": [
-              -1.0,
+              0.01,
               1.0
             ],
             "humidity": [
@@ -219,7 +219,7 @@
           "biome": "gensokyolegacy:bamboo_forest_of_the_lost",
           "parameters": {
             "continentalness": [
-              -0.108,
+              -0.427,
               0.098
             ],
             "depth": [
@@ -227,7 +227,7 @@
               0.1
             ],
             "erosion": [
-              -1.0,
+              0.01,
               1.0
             ],
             "humidity": [
@@ -249,7 +249,7 @@
           "biome": "gensokyolegacy:sakura_forest",
           "parameters": {
             "continentalness": [
-              -0.108,
+              -0.427,
               0.098
             ],
             "depth": [
@@ -257,7 +257,7 @@
               0.1
             ],
             "erosion": [
-              -1.0,
+              0.01,
               1.0
             ],
             "humidity": [
@@ -279,7 +279,7 @@
           "biome": "gensokyolegacy:hill_of_the_nameless",
           "parameters": {
             "continentalness": [
-              -0.108,
+              -0.427,
               0.098
             ],
             "depth": [
@@ -287,7 +287,7 @@
               0.1
             ],
             "erosion": [
-              -1.0,
+              0.01,
               1.0
             ],
             "humidity": [

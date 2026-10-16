@@ -29,8 +29,9 @@ is vanilla's. Surface rules are vanilla's with four underground biome branches i
 | `depth` | `depth` | **yes** | where the surface curve sits |
 | `weirdness` | `ridges` | **yes** | how jagged and peaky |
 
-Gensokyo drops the last two from both roles: `erosion` and `weirdness` stay in the router (the biome source still
+Gensokyo drops the last two as terrain: `erosion` and `weirdness` stay in the router (the biome source still
 reports them, and the debug screen still shows them) but nothing that shapes the ground reads them any more.
+Erosion keeps one job — it picks between the plain's two grounds (§4) — and nothing else.
 
 ---
 
@@ -193,19 +194,18 @@ Note that `NoiseRouter.mapAll` exists but is unusable here: `HolderHolder.mapAll
 
 ## 4. The climate grid
 
-**Seven continentalness regions**, each one a height band of the offset spline, in `GensokyoDimension.biomeSource`.
+**Six continentalness regions**, each one a height band of the offset spline, in `GensokyoDimension.biomeSource`.
 Every biome in a region shares that region's continentalness span exactly, and the region's own biomes tile the
 temperature and humidity plane instead — which is why the surface half of the list is only **17 points** rather than
-the 42 a region × 2 × 2 × 2 grid would need. Erosion and weirdness are `[-1, 1]` on every point, so they cannot pick a
-biome. Depth is the fourth axis and does most of the work below ground; what it actually is, and where each band sits
-on it, is §9.
+the 48 a six-region × 2 × 2 × 2 grid would need. Weirdness is `[-1, 1]` on every point, so it cannot pick a biome, and
+erosion is too everywhere but the plain. Depth is the fourth axis and does most of the work below ground; what it
+actually is, and where each band sits on it, is §9.
 
 | continentalness | surface y | share | hot humid | cold humid | hot dry | cold dry |
 |---|---|---|---|---|---|---|
 | −1.00 … −0.53 | ≤ 63 | 7.53% | misty_lake | misty_lake | misty_lake | misty_lake |
 | −0.53 … −0.437 | 63 … 66 | 4.28% | misty_lake_shore | misty_lake_shore | misty_lake_shore | misty_lake_shore |
-| −0.437 … −0.118 | 66 … 80 | 25.73% | sunflower_plains | muenzuka | human_village | myouren_temple_barrens |
-| −0.118 … 0.108 | 80 … 96 | 24.26% | magical_forest | bamboo_forest_of_the_lost | sakura_forest | hill_of_the_nameless |
+| −0.437 … 0.108 | 66 … 96 | 49.99% | lower ground on low erosion, upper ground on high erosion — see below | | | |
 | 0.108 … 0.329 | 96 … 128 | 20.15% | untrodden_valley | genbu_ravine | youkai_mountain_foothills | sanctuary |
 | 0.329 … 0.595 | 128 … 192 | 13.25% | tengu_settlement | tengu_settlement | **secret_heaven_cliff** | **secret_heaven_cliff** |
 | 0.595 … 1.00 | 192 … 220 | 4.79% | youkai_mountain_summit | youkai_mountain_summit | youkai_mountain_summit | youkai_mountain_summit |
@@ -215,13 +215,65 @@ lists them: **hot humid, cold humid, hot dry, cold dry**. Temperature and humidi
 0, rather than in three — `COLD`/`HOT` and `DRY`/`HUMID` are `[-1, −0.01]` and `[0.01, 1]`. Cutting two ways
 instead of three is also why each band holds exactly the four biomes the guide gives it, with nothing repeated.
 
+### The plain is one band cut three ways
+
+The plain is the guide's **lower ground and upper ground merged into a single region**, y 66 … 96, and erosion is what
+tells them apart: the lower four claim `[-1, −0.01]` and the upper four `[0.01, 1]`, the same cut and the same 0.01
+gap the temperature and humidity axes are cut with. Eight cells where there were two regions of four, and the
+surface half of the list is still 17 points.
+
+| | hot humid | cold humid | hot dry | cold dry |
+|---|---|---|---|---|
+| **erosion < −0.01** (lower ground) | sunflower_plains | muenzuka | human_village | myouren_temple_barrens |
+| **erosion > 0.01** (upper ground) | magical_forest | bamboo_forest_of_the_lost | sakura_forest | hill_of_the_nameless |
+
+Three things follow, and none of them is free.
+
+**The two grounds interleave instead of stacking.** Before, the lower ground was everything below y 80 and the upper
+ground everything above it, so the height said which one you were in. Now it is erosion, and the same height carries
+both — `human_village` reaches y 96 and `magical_forest` comes down to y 66. The guide's own bands (64–80 / 80–96)
+survive as *names*, and `gensokyo_biomes.md` maps them here.
+
+**Erosion is one of the four `*_small` axes, not vanilla's.** It is `gensokyolegacy:erosion_small` — vanilla's
+`minecraft:overworld/erosion` amplitudes at `firstOctave −8`, §7 — so it lands on the same octave as the temperature
+axis and takes vanilla's `flat_cache` wrapper off with it, which buys the smooth boundary the other three have.
+Reusing `minecraft:overworld/erosion` would have put the plain's half of the split at `−9`, `flat_cache`d, and stepped
+on the 4-block grid.
+
+The octave is worth naming because of what it costs the reading of the plain. At `−8` erosion is **tied with the
+temperature axis and one octave finer than vegetation**, so the two grounds are no longer a coarse superstructure with
+four climate boxes inside each: all eight cells cut on roughly one footprint. That is visible directly in
+`out/terrain/gensokyolegacy_gensokyo_parameters.png` and in the biome map — there is no larger shape to read the
+lower ground and the upper ground out of, only eight regions of a size. If the two grounds were meant to be the coarse
+division and the boxes the fine one, erosion is the axis to put back to `−7` or `−9`.
+
+**The split is not 50/50, and moves with the seed.** A cut at 0 is a cut at the field's median, and a noise field's
+median over a finite window is not its median over the world. The share of the whole map in each erosion half, read
+off the export's `PARAMETERS` section on 512 × 512 chunks:
+
+| seed | erosion > 0 | erosion < 0 |
+|---|---|---|
+| −1838080655014084215 | 41.44% | 58.56% |
+| 1 | 50.89% | 49.11% |
+| 2 | 54.17% | 45.83% |
+
+So the plain's upper ground takes 41% of it on the first seed and 46…51% on the other two, against 50% for a cut at
+the field's own median. Moving the octave moved this the other way too: the same figure read 62.20% at
+`firstOctave −9`, because the octave changes the permutation table and so the realisation, not the distribution. That
+is the same order of spread the temperature and humidity cuts already have, and it is a statement about one window
+rather than about the curve: the `PARAMETERS` section prints the split for whatever window it is given, so it can be
+checked rather than assumed. At 256 × 256 chunks the spread is far wider — one seed in four came out 85/15 at the old
+octave — because that is a 4 km window and the field's dominant octave has a 2048 block period, so the window holds
+only a few independent patches.
+
 Shares are the continentalness quantiles over the same 1024 × 1024 chunk-centre sample as §3. They move a point or two
 when the octave seeds move (§7), which is why the `target` column of §3 and these are a statement about one sample
 rather than a property of the curve.
 
-Each region edge is a whole control point of the offset spline — the waterline at −0.53, then y 80, y 96, y 128 and
+Each region edge is a whole control point of the offset spline — the waterline at −0.53, then y 96, y 128 and
 y 192 — so moving an edge moves the height it names and nothing else. `-0.437` is the one free value, and it is the
-quantile giving the beach its ~4% share.
+quantile giving the beach its ~4% share. The y 80 point is still a control point of the spline; it is simply no longer
+a region edge, so the lower ground and the upper ground are free to meet anywhere inside y 66 … 96.
 
 Neighbouring spans are held `GAP = 0.01` apart at each end, so a value in the gap is equidistant and the tie falls to
 list order. The gap above the waterline is the one exception: `misty_lake` ends exactly on the waterline so it stays
@@ -229,8 +281,11 @@ the drowned set, and the gap falls on the shore side of it.
 
 Within a region the temp/humidity boxes tile the plane with the same 0.01 gaps, so nothing "eats into" its
 neighbour's box — see `out/terrain/gensokyolegacy_gensokyo_biomes.png`. Because each axis is cut once, at 0, the four
-boxes of a band come out roughly a quarter of the band each; measured over 256 × 256 chunks at seed 0 the lower
-ground band splits 5.94 / 7.05 / 6.38 / 7.11 % of the map, against a 25.73% band share.
+boxes of a band come out roughly a quarter of the band each; measured on 512 × 512 chunks at seed
+−1838080655014084215 the lower ground's four cells are 8.14 / 8.10 / 6.04 / 5.73 % of the map and the upper ground's
+are 6.96 / 5.32 / 4.16 / 3.45 %, against a plain share of 47.90% measured and 49.99% solved for. Splitting the plain
+on erosion leaves its total alone — the same ~47.9% the two separate bands held before the merge — and moves it all
+between the two halves.
 
 The first two and the last rows give each region its whole plane to one biome. Those three are the fixed locations
 of `gensokyolegacy_fixed_biomes_guide.md` — `misty_lake` and its shore at the waterline and the summit above the
@@ -322,36 +377,66 @@ rebuilds from keys.
 
 ## 7. The climate axes
 
-`gensokyolegacy:continentalness_small`, `:temperature_small` and `:vegetation_small` are the three climate axes,
-amplitude lists copied from `minecraft/worldgen/noise/*.json` with the octave moved. Vanilla keeps those parameters
-private, so the lists are duplicated in `GensokyoDimension.noises`. Moving `firstOctave` rather than `xz_scale` shifts
-the octaves *and* the shift field together, so an axis keeps its shape at a different frequency.
+`gensokyolegacy:continentalness_small`, `:temperature_small`, `:vegetation_small` and `:erosion_small` are the four
+climate axes, amplitude lists copied from `minecraft/worldgen/noise/*.json` with the octave moved. Vanilla keeps those
+parameters private, so the lists are duplicated in `GensokyoDimension.noises`. Moving `firstOctave` rather than
+`xz_scale` shifts the octaves *and* the shift field together, so an axis keeps its shape at a different frequency.
 
 | axis | vanilla | now | frequency |
 |---|---|---|---|
 | continentalness | −9 | −7 | ×4 |
-| temperature | −10 | −9 | ×2 |
+| temperature | −10 | −8 | ×4 |
 | vegetation | −8 | −7 | ×2 |
+| erosion | −9 | −8 | ×2 |
 
 They are not scaled alike, and the split is deliberate. **Only continentalness moves terrain**, because it is the only
-one the height chain splines, so its factor is a terrain decision — and ×4 is what makes landforms four times as
-steep and forces the height shares of §3 to be re-solved. Temperature and vegetation move nothing but the biome
-grid, where ×2 is the difference between a band you can name and a band that shatters into confetti: at ×4 the
-upper ground broke into patches of a few dozen chunks and no two were recognisably the same place. Half as fast, the
-same four cells hold together into regions.
+one the height chain splines, so its factor is a terrain decision — and ×4 is what makes landforms four times as steep
+and forces the height shares of §3 to be re-solved. The other three move nothing but the biome grid, where the octave is
+a readability choice.
+
+That leaves two axes at −7 and two at −8 rather than a ladder, which is worth being plain about: continentalness and
+vegetation are tied at the coarser octave, temperature and erosion at the finer one. The plain reads all three of its
+non-continental axes, so its eight cells are all cut at two scales rather than three — the erosion half of §4 is the
+consequence of that, and the paragraph there says what it costs.
+
+What doubling an axis actually costs was measured rather than assumed, on 512 × 512 chunks at seed
+−1838080655014084215, as patch count and mean patch area per biome on the biome map:
+
+| | before (temp ×2, erosion ×1) | after (temp ×4, erosion ×2) |
+|---|---|---|
+| sunflower_plains | 199 patches, mean 76 | 385, mean 55 |
+| muenzuka | 193, mean 62 | 388, mean 55 |
+| human_village | 198, mean 59 | 358, mean 44 |
+| myouren_temple_barrens | 157, mean 68 | 319, mean 47 |
+| magical_forest | 366, mean 68 | 328, mean 43 |
+| sakura_forest | 336, mean 62 | 332, mean 55 |
+| bamboo_forest_of_the_lost | 208, mean 75 | 226, mean 48 |
+| hill_of_the_nameless | 224, mean 66 | 226, mean 40 |
+| tengu_settlement | 786, mean 26 | 786, mean 26 |
+
+The lower ground's four cells roughly **double their patch count and lose a quarter of their mean area**, which is the
+signature of one extra octave on the axis that cuts them in half. It is a real cost and it is bounded: a mean of 55
+chunks is 880 blocks across, so the cells still read as places on a map rather than as speckle. The upper ground does
+not double, because on this seed the erosion split left it holding less of the plain than it had — 19.9% against 22.8%
+— and a finer cut on a smaller total is a wash.
+
+The rows that did not move are the check that it really is only the axes: `tengu_settlement` splits on humidity alone
+and is identical to the pixel, and the lake and the summit are continentalness alone.
 
 Moving an octave costs the spline nothing. `NormalNoise` normalises on the amplitudes alone
 (`expectedDeviation` over the non-zero octaves), so `firstOctave` only scales the argument the octaves are read at:
 the **value distribution is unchanged**, and every quantile the region edges of §4 and the spline points of §3 sit at
 still sit at the same quantile. The permutation tables do move (`octave_%d` is keyed on `firstOctave + k`), so the
 realisation is a different one, and the shares measured on a 16 km window drift by a point or two — that is sampling
-noise, not a changed curve, and it is not worth re-fitting. Temperature and vegetation additionally have no
-quantiles to preserve: §4 cuts them once, at 0, so a coarser field only changes how large the four boxes come out,
-not how they are placed.
+noise, not a changed curve, and it is not worth re-fitting. The other three axes additionally have no quantiles to
+preserve: §4 cuts them once, at 0, so a finer field only changes how large the four boxes come out, not how they are
+placed.
 
-All three are plain `shifted_noise` at the vanilla `xz_scale` 0.25, deliberately **not** `flat_cache`d:
+All four are plain `shifted_noise` at the vanilla `xz_scale` 0.25, deliberately **not** `flat_cache`d:
 `NoiseChunk.FlatCache` indexes its table by quart position and stores the value at the cell's origin corner, so it
-snaps a 2D field to a 4-block grid and biome edges come out stepped.
+snaps a 2D field to a 4-block grid and biome edges come out stepped. Erosion was the one axis that arrived with
+vanilla's wrapper already on it; registering it here rather than reusing `minecraft:overworld/erosion` takes the
+wrapper off and buys the same smooth edge the other three have.
 
 `blended()` keeps the same two wrappers on `offset` and `factor`, as vanilla has them. Those two sit on the *height*
 chain rather than on a biome axis, so they cannot step a biome edge: the grid reads `depth`, which is
@@ -422,17 +507,16 @@ evaluates. The §3 and §4 tables are identical with and without the wrappers.
 ### Wiring
 
 - `offset` and `factor` are built from `DF_CONTINENTS_SMALL` directly, in `densityFunctions`.
-- `FlatTerrainFunctions` maps `NoiseRouterData.CONTINENTS` → `DF_CONTINENTS_SMALL`, so the router's biome axis and the
-  spline agree.
-- `NoiseRouterData.overworld` builds **temperature and vegetation inline**, behind no registry key, so they cannot be
-  redirected by `FlatTerrainFunctions` — which is why `noises` has to be called from `GLFeatureGen`, the owner of the
-  single `Registries.NOISE` bootstrap (§6). `GensokyoDimension.smallClimateRouter` then rebuilds the `NoiseRouter`
-  field by field, carrying over the other thirteen.
+- `FlatTerrainFunctions` maps `NoiseRouterData.CONTINENTS` → `DF_CONTINENTS_SMALL` and `NoiseRouterData.EROSION` →
+  `DF_EROSION_SMALL`, so the router's biome axes and the spline agree. Those two are behind registry keys in vanilla,
+  so redirecting them in place is enough — nothing else in the router reads them.
+- `NoiseRouterData.overworld` builds **temperature and vegetation inline**, behind no registry key, so those
+  two cannot be redirected by `FlatTerrainFunctions` — which is why `noises` has to be called from `GLFeatureGen`, the
+  owner of the single `Registries.NOISE` bootstrap (§6). `GensokyoDimension.smallClimateRouter` then rebuilds the
+  `NoiseRouter` field by field, carrying over the other thirteen.
 
-Measured on 256 × 256 chunks, seed −1838080655014084215, for the two climate axes at ×4: biome patch median
-64 → 23 chunks, mean 524 → 162, patch count 125 → 403. At the ×2 they are at now, the patches are large enough
-to read on a 4 km map (`out/terrain/gensokyolegacy_gensokyo_biomes.png`). The height bands still cut finely, because
-that is continentalness doing the cutting, not climate.
+The height bands still cut finely, because that is continentalness doing the cutting, not climate. The patch counts
+are in **The climate axes** above, measured against the previous octave on the same window.
 
 ---
 
@@ -533,7 +617,7 @@ middle of the column where the aquifers sit.
 python3 tools/terrain.py gensokyolegacy:gensokyo --voids --seed -1838080655014084215 --cheese
 ```
 
-writes `out/terrain/gensokyolegacy_gensokyo_caves.txt`. The maps are one pixel per chunk, so a cave is at most a
+writes `../../out/cave/gensokyolegacy_gensokyo_caves.txt`. The maps are one pixel per chunk, so a cave is at most a
 pixel of noise in them; the report is the only place these numbers exist. `--cheese` matters, since dropping
 `base_3d_noise` moves the surface the report measures from.
 ---
@@ -642,10 +726,15 @@ python3 tools/cave_bands.py gensokyolegacy:gensokyo --seed -1838080655014084215 
 
 | | |
 |---|---|
-| claimed by a cell — surface / cave / underground | 68.5% / 12.5% / 53.2% |
+| claimed by a cell — surface / cave / underground | 69.3% / 12.5% / 53.2% |
 | cave band thickness | 6 … 117 blocks |
 | cave/underground boundary over the mountain | y 66 … 77, mean 74 |
 | drop across the shoulder, cont 0.15…0.45 | 17 blocks, y 58 … 75 |
+
+The surface share is the one number here that §4's plain merge moved, and only barely: 68.5% to 69.3%. The plain's two
+surface cells became one, and a single cell over the wider continentalness span claims 0.8 points more of the columns
+it sits over than two cells either side of it could. The cave and the underground are untouched, which is the check
+that the merge stayed a surface change.
 
 A column whose band boundary is won on the falloff gets a **blend of the two biomes**, not one of them, so the pale
 tint in `out/terrain/gensokyolegacy_gensokyo_cave_bands_*.png` is rock that exists but has no name. Solid fill is a cell

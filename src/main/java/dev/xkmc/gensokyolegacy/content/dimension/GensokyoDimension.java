@@ -51,9 +51,9 @@ import java.util.OptionalLong;
  * The Gensokyo dimension: overworld sea level, flatter land, and a handpicked biome list.
  * <p>
  * The height curve is keyed on continentalness alone, where the overworld also keys it on erosion and weirdness, so
- * there are no river channels and no peaks. The climate grid reads the same four axes, so no biome depends on the two
- * that were dropped. The caves are the overworld's, plus {@link #DF_LARGE_CAVES} for the halls under the ground. The
- * allowed biomes are mod copies, so vanilla structures never generate here.
+ * there are no river channels and no peaks. The climate grid reads those four axes plus erosion, which picks between
+ * the plain's two grounds and shapes nothing. The caves are the overworld's, plus {@link #DF_LARGE_CAVES} for the
+ * halls under the ground. The allowed biomes are mod copies, so vanilla structures never generate here.
  *
  * @see "doc/design/gensokyo_dimension.md"
  * @see "doc/design/gensokyo_biomes.md"
@@ -72,29 +72,31 @@ public class GensokyoDimension {
 	public static final ResourceKey<DensityFunction> DF_LARGE_CAVES = df("large_caves");
 
 	/**
-	 * The three climate axes, every octave finer than vanilla's. The height chain splines this continentalness too —
-	 * the biome grid has to read the same field the waterline is drawn on, or `ocean` stops meaning "drowned" — so the
+	 * The four climate axes, every octave finer than vanilla's. The height chain splines this continentalness too — the
+	 * biome grid has to read the same field the waterline is drawn on, or `ocean` stops meaning "drowned" — so the
 	 * whole dimension is built narrower rather than just the biomes. Vanilla keeps these parameters private, so the
 	 * amplitude lists are copied from {@code minecraft/worldgen/noise/*.json} with {@code firstOctave} moved; that
 	 * leaves the value distribution alone and only shifts the spatial frequency, since {@code NormalNoise} normalises
 	 * on the amplitudes alone.
 	 * <p>
-	 * The three are not scaled alike. Continentalness is two octaves finer than vanilla, which makes landforms four
-	 * times as steep and is what re-cut the height shares; temperature and vegetation are one octave finer, so a band
-	 * of the climate grid stays one recognisable patch instead of breaking into confetti. Only continentalness moves
-	 * terrain, so the second figure is a readability choice rather than a terrain one.
+	 * The four are not scaled alike. Continentalness is two octaves finer than vanilla, which makes landforms four
+	 * times as steep and is what re-cut the height shares; the other three move nothing but the biome grid, where the
+	 * octave is a readability choice. Only continentalness moves terrain.
 	 * <p>
 	 * {@code NoiseRouterData} builds temperature and vegetation inline rather than behind a registry key, so those
-	 * two cannot be redirected by {@link FlatTerrainFunctions}; the router is rebuilt field by field instead.
+	 * two cannot be redirected by {@link FlatTerrainFunctions}; the router is rebuilt field by field instead. Erosion
+	 * and continentalness do sit behind keys, so those two are redirected in place.
 	 *
 	 * @see "doc/design/gensokyo_dimension.md" §7
 	 */
 	public static final ResourceKey<NormalNoise.NoiseParameters> N_CONTINENTS_SMALL = nn("continentalness_small");
 	public static final ResourceKey<NormalNoise.NoiseParameters> N_TEMPERATURE_SMALL = nn("temperature_small");
 	public static final ResourceKey<NormalNoise.NoiseParameters> N_VEGETATION_SMALL = nn("vegetation_small");
+	public static final ResourceKey<NormalNoise.NoiseParameters> N_EROSION_SMALL = nn("erosion_small");
 	public static final ResourceKey<DensityFunction> DF_CONTINENTS_SMALL = df("continents_small");
 	public static final ResourceKey<DensityFunction> DF_TEMPERATURE_SMALL = df("temperature_small");
 	public static final ResourceKey<DensityFunction> DF_VEGETATION_SMALL = df("vegetation_small");
+	public static final ResourceKey<DensityFunction> DF_EROSION_SMALL = df("erosion_small");
 
 	/** Vanilla keys {@link NoiseRouterData} keeps private, rebuilt here so the overworld router can be redirected. */
 	private static final ResourceKey<DensityFunction> VANILLA_SLOPED_CHEESE = vanilla("overworld/sloped_cheese");
@@ -178,13 +180,16 @@ public class GensokyoDimension {
 
 	/**
 	 * Continentalness thresholds that separate the regions, each sitting where the offset spline reaches a height band
-	 * edge: the waterline, the top of the lower ground at y 80, then y 96, y 128 and y 192. The spline already carries a
+	 * edge: the waterline, the foot of the plain at y 66, then y 96, y 128 and y 192. The spline already carries a
 	 * point at every one of these, so a region's bounds land on whole control points of the curve.
+	 * <p>
+	 * The plain's own top at y 80 is no longer one of them: the two grounds share the y 66 … 96 span and are split by
+	 * erosion instead, so one region carries both.
 	 * <p>
 	 * {@code -0.437} is the one free value: it is the quantile giving the beach its 4% share of the map, measured on the
 	 * same 1024 x 1024 chunk sample as {@code doc/design/gensokyo_dimension.md} §4.
 	 */
-	private static final float[] REGION_EDGES = {-0.53f, -0.437f, -0.118f, 0.108f, 0.329f, 0.595f};
+	private static final float[] REGION_EDGES = {-0.53f, -0.437f, 0.108f, 0.329f, 0.595f};
 
 	/** Half the dead zone held between neighbouring spans, so no boundary is a shared edge. */
 	private static final float GAP = 0.01f;
@@ -195,21 +200,32 @@ public class GensokyoDimension {
 	private static final Band DRY = new Band(-1.0f, -0.01f);
 	private static final Band HUMID = new Band(0.01f, 1.0f);
 
-	// region order follows REGION_EDGES: water, shore, lower ground, upper ground, mountain, settlement, summit. The
-	// first two and the last take the whole plane in one cell, and the settlement band splits on humidity alone, into
-	// the town and the cliff beside it; the three open ground bands tile the plane the way the biome guide lists them —
-	// hot humid, cold humid, hot dry, cold dry — four cells to a band.
+	/**
+	 * The plain's one cut on a fifth axis, where erosion picks between the two grounds. It sits at the same octave as
+	 * the temperature axis, so the two grounds are not a coarse superstructure over the four climate boxes — all eight
+	 * cells of the plain cut on one footprint.
+	 *
+	 * @see "doc/design/gensokyo_dimension.md" §4
+	 */
+	private static final Band LOW_EROSION = new Band(-1.0f, -0.01f);
+	private static final Band HIGH_EROSION = new Band(0.01f, 1.0f);
+
+	// region order follows REGION_EDGES: water, shore, plain, mountain, settlement, summit. The first two and the last
+	// take the whole plane in one cell, and the settlement band splits on humidity alone, into the town and the cliff
+	// beside it; the plain and the mountain tile the plane the way the biome guide lists them — hot humid, cold humid,
+	// hot dry, cold dry — four cells each, save that the plain takes eight: the lower ground on LOW_EROSION and the
+	// upper ground on HIGH_EROSION. List order is what a column in the gap between them falls back to.
 	private static final List<List<Cell>> SURFACE = List.of(
 			List.of(new Cell(GLBiomes.MISTY_LAKE, FULL_PLANE, FULL_PLANE)),
 			List.of(new Cell(GLBiomes.MISTY_LAKE_SHORE, FULL_PLANE, FULL_PLANE)),
-			List.of(new Cell(GLBiomes.SUNFLOWER_PLAINS, HOT, HUMID),
-					new Cell(GLBiomes.MUENZUKA, COLD, HUMID),
-					new Cell(GLBiomes.HUMAN_VILLAGE, HOT, DRY),
-					new Cell(GLBiomes.MYOUREN_TEMPLE_BARRENS, COLD, DRY)),
-			List.of(new Cell(GLBiomes.MAGICAL_FOREST, HOT, HUMID),
-					new Cell(GLBiomes.BAMBOO_FOREST_OF_THE_LOST, COLD, HUMID),
-					new Cell(GLBiomes.SAKURA_FOREST, HOT, DRY),
-					new Cell(GLBiomes.HILL_OF_THE_NAMELESS, COLD, DRY)),
+			List.of(new Cell(GLBiomes.SUNFLOWER_PLAINS, HOT, HUMID, LOW_EROSION),
+					new Cell(GLBiomes.MUENZUKA, COLD, HUMID, LOW_EROSION),
+					new Cell(GLBiomes.HUMAN_VILLAGE, HOT, DRY, LOW_EROSION),
+					new Cell(GLBiomes.MYOUREN_TEMPLE_BARRENS, COLD, DRY, LOW_EROSION),
+					new Cell(GLBiomes.MAGICAL_FOREST, HOT, HUMID, HIGH_EROSION),
+					new Cell(GLBiomes.BAMBOO_FOREST_OF_THE_LOST, COLD, HUMID, HIGH_EROSION),
+					new Cell(GLBiomes.SAKURA_FOREST, HOT, DRY, HIGH_EROSION),
+					new Cell(GLBiomes.HILL_OF_THE_NAMELESS, COLD, DRY, HIGH_EROSION)),
 			List.of(new Cell(GLBiomes.UNTRODDEN_VALLEY, HOT, HUMID),
 					new Cell(GLBiomes.GENBU_RAVINE, COLD, HUMID),
 					new Cell(GLBiomes.YOUKAI_MOUNTAIN_FOOTHILLS, HOT, DRY),
@@ -247,8 +263,9 @@ public class GensokyoDimension {
 	 */
 	public static void noises(BootstrapContext<NormalNoise.NoiseParameters> ctx) {
 		ctx.register(N_CONTINENTS_SMALL, new NormalNoise.NoiseParameters(-7, 1.0, 1.0, 2.0, 2.0, 2.0, 1.0, 1.0, 1.0, 1.0));
-		ctx.register(N_TEMPERATURE_SMALL, new NormalNoise.NoiseParameters(-9, 1.5, 0.0, 1.0, 0.0, 0.0, 0.0));
+		ctx.register(N_TEMPERATURE_SMALL, new NormalNoise.NoiseParameters(-8, 1.5, 0.0, 1.0, 0.0, 0.0, 0.0));
 		ctx.register(N_VEGETATION_SMALL, new NormalNoise.NoiseParameters(-7, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0));
+		ctx.register(N_EROSION_SMALL, new NormalNoise.NoiseParameters(-8, 1.0, 1.0, 0.0, 1.0, 1.0));
 	}
 
 	private static void noiseSettings(BootstrapContext<NoiseGeneratorSettings> ctx) {
@@ -355,8 +372,9 @@ public class GensokyoDimension {
 	}
 
 	/**
-	 * The overworld router with temperature and vegetation pointed at the finer parameters. Every other field is
-	 * carried over unchanged, so only the biome grid sees them.
+	 * The overworld router with temperature and vegetation pointed at the finer parameters. Continentalness and erosion
+	 * need no line here: {@link FlatTerrainFunctions} redirects both in place, so the fields the overworld built are
+	 * already ours. Every other field is carried over unchanged, so only the biome grid sees any of this.
 	 */
 	private static NoiseRouter smallClimateRouter(HolderGetter<DensityFunction> densities,
 												  HolderGetter<NormalNoise.NoiseParameters> noises,
@@ -386,6 +404,9 @@ public class GensokyoDimension {
 				smallClimate(densities, noises.getOrThrow(N_CONTINENTS_SMALL)));
 		ctx.register(DF_TEMPERATURE_SMALL, smallClimate(densities, noises.getOrThrow(N_TEMPERATURE_SMALL)));
 		ctx.register(DF_VEGETATION_SMALL, smallClimate(densities, noises.getOrThrow(N_VEGETATION_SMALL)));
+		// the plain's own cut, so erosion is one of ours rather than the vanilla field: at the same octave as the
+		// temperature axis, and deliberately unsnapped, so its edge is not a 4-block staircase
+		ctx.register(DF_EROSION_SMALL, smallClimate(densities, noises.getOrThrow(N_EROSION_SMALL)));
 		var offset = ctx.register(DF_OFFSET, DensityFunctions.add(DensityFunctions.constant(NoiseRouterData.GLOBAL_OFFSET),
 				blended(DensityFunctions.spline(offsetSpline(continentalness)), DensityFunctions.blendOffset())));
 		var factor = ctx.register(DF_FACTOR,
@@ -527,11 +548,13 @@ public class GensokyoDimension {
 	}
 
 	/**
-	 * A coarse climate grid, one biome per cell, with erosion and weirdness spanning everything so they cannot pick a
-	 * biome. Each {@link #REGION_EDGES} interval is one height band of the offset spline and carries a single
-	 * continentalness span, which every biome in that region shares; the region's own biomes tile the temperature and
-	 * humidity plane instead. That is why the list is as short as it is: one cell per biome per region, not one per
-	 * biome per climate cell.
+	 * A coarse climate grid, one biome per cell, with weirdness spanning everything and erosion spanning everything
+	 * except the plain. Each {@link #REGION_EDGES} interval is one height band of the offset spline and carries a
+	 * single continentalness span, which every biome in that region shares; the region's own biomes tile the
+	 * temperature and humidity plane instead. That is why the list is as short as it is: one cell per biome per region,
+	 * not one per biome per climate cell.
+	 * <p>
+	 * The plain is the one region with more cells than that, because erosion halves it as well — see {@link #SURFACE}.
 	 * <p>
 	 * Neighbouring spans are held {@link #GAP} apart, so a value in the gap is equidistant and the tie falls to list
 	 * order. The gap above the waterline is the one exception: {@code ocean} ends exactly on the waterline so it stays
@@ -572,16 +595,23 @@ public class GensokyoDimension {
 	private static Pair<Climate.ParameterPoint, Holder<Biome>> cell(HolderGetter<Biome> biomes, Cell cell, Band region,
 																   Band depth) {
 		return Pair.of(new Climate.ParameterPoint(cell.temperature().parameter(), cell.humidity().parameter(),
-				region.parameter(), FULL_RANGE, depth.parameter(), FULL_RANGE, 0L),
+				region.parameter(), cell.erosion().parameter(), depth.parameter(), FULL_RANGE, 0L),
 				biomes.getOrThrow(cell.biome()));
 	}
 
 	/**
-	 * One biome's claim on a region's temperature and humidity plane. A region with a single biome gets the whole
-	 * plane and one cell, which is what keeps {@code ocean}, {@code beach}, {@code mountain}, {@code grove} and
-	 * {@code peak} from spilling into their neighbours' rows.
+	 * One biome's claim on a region's temperature, humidity and erosion. Erosion spans the whole plane everywhere
+	 * except the plain, which is the one region where it chooses; the short constructor is that default.
+	 * <p>
+	 * A region with a single biome gets the whole plane and one cell, which is what keeps {@code ocean}, {@code beach},
+	 * {@code mountain}, {@code grove} and {@code peak} from spilling into their neighbours' rows.
 	 */
-	private record Cell(ResourceKey<Biome> biome, Band temperature, Band humidity) {}
+	private record Cell(ResourceKey<Biome> biome, Band temperature, Band humidity, Band erosion) {
+
+		Cell(ResourceKey<Biome> biome, Band temperature, Band humidity) {
+			this(biome, temperature, humidity, FULL_PLANE);
+		}
+	}
 
 	/**
 	 * One biome's claim on a climate band, kept as a span so the generated json reads like the table it came from.
@@ -606,6 +636,9 @@ public class GensokyoDimension {
 			if (key.equals(VANILLA_SLOPED_CHEESE)) return inner.get(DF_SLOPED_CHEESE);
 			// the biome grid gets the finer continentalness; the height chain above was built from the vanilla one
 			if (key.equals(NoiseRouterData.CONTINENTS)) return inner.get(DF_CONTINENTS_SMALL);
+			// erosion too, for the same reason: nothing that shapes the ground reads it, so the finer field is free,
+			// and the plain's lower/upper cut is the only reader there is
+			if (key.equals(NoiseRouterData.EROSION)) return inner.get(DF_EROSION_SMALL);
 			return inner.get(key);
 		}
 
