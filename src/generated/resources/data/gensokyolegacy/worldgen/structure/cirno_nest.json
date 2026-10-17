@@ -1,12 +1,10 @@
 {
   "type": "gensokyolegacy:flat_check",
-  "attempts": 1,
   "biomes": "#gensokyolegacy:has_structure/cirno_nest",
   "height_tolerance": 5,
   "max_distance_from_center": 32,
-  "salt": 160465900,
+  "set": "gensokyolegacy:cirno_nest",
   "size": 1,
-  "spacing": 32,
   "spawn_overrides": {},
   "start_pool": "gensokyolegacy:cirno_nest",
   "step": "underground_decoration",
