@@ -632,7 +632,7 @@ public class GLItems {
 	 *  mistakes it for a meal), is drinkable on a full stomach, leaves an empty glass bottle behind, and rolls
 	 *  every effect on the last gulp. */
 	private static FoodProperties sake(MobEffectInstance... effects) {
-		return sake(true, effects);
+		return sake(false, effects);
 	}
 
 	/** The same drink poured into something with no bottom to it. Still always drinkable and still no nutrition,
