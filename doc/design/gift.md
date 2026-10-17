@@ -1,8 +1,8 @@
 # Gifts
 
 Handing a character a gift item raises her reputation by the item's `favor`, scaled by how much she is
-in the mood for that item's *category*, and starts a per-item cooldown. Two data maps drive it, plus a
-per-class hook, and the three resolve in a fixed order.
+in the mood for that item's *category*, and starts a per-item cooldown. Two data maps drive it — the
+item's own worth, and the character's opinion — and the lookup resolves them in a fixed order.
 
 ## Where a preference lives
 
@@ -16,9 +16,8 @@ A character with no datamap entry is neutral on every category.
 
 **One entry per entity type, never two.** A datamap entry replaces rather than merges: naming an
 entity type in two files, or under both a tag and its own key, gives last-one-wins for the whole
-record, so a character with tastes of her own has to state everything in one entry. Cirno is the case
-that bites — she is a fairy *and* has her own opinions, so her entry holds her three categories **and**
-the three every fairy shares.
+record. Cirno is the case that bites — she is a fairy *and* has opinions of her own, so her entry
+cannot be the species' constant plus a second file; it is the constant rebuilt with `and`.
 
 ### Sharing a species' opinion
 
@@ -27,15 +26,23 @@ its registrations, declared in the `GIFT_*` block in `GLEntities` next to the `T
 
 ```java
 GiftPreference GIFT_FAIRY = GiftPreference.of(Map.of(
+        GiftType.TOY, 2.0,
+        GiftType.FOOD, 1.5,
+        GiftType.BOOK, 0.0,
         GiftType.ALCOHOL, 0.0,
         GiftType.MAGIC, 0.0,
-        GiftType.FROG, 2.0));
+        GiftType.COLLECTION, 0.5,
+        GiftType.TOOL, 0.0,
+        GiftType.FROG, 1.5));
+
+GiftPreference GIFT_CIRNO = GIFT_FAIRY.and(GiftType.FROG, 3.0);
 ```
 
-Each fairy entity type — `sunny_milk`, `luna_child`, `star_sapphire`, `plain_fairy` — passes
-`GIFT_FAIRY`, and Cirno restates the same three values inside her own entry. The cost is that a new
-fairy has to be given the constant; the benefit is that every preference in the game is readable as
-data, tweakable by a datapack, with no behaviour hidden in an entity class.
+Only `plain_fairy` carries the `GIFT_FAIRY` entry today; the other three fairy types do not pass it at
+all. Cirno, who has opinions of her own, is built off the constant with `and` rather than restating it,
+since restating is exactly the duplication the datamap cannot merge. The cost is that a new fairy has
+to be given the constant; the benefit is that every preference in the game is readable as data,
+tweakable by a datapack, with no behaviour hidden in an entity class.
 
 ## The factor
 
@@ -59,22 +66,26 @@ not consumed, no cooldown starts, and the interaction falls through to whatever 
 Every category is neutral at 1.0 — someone with no opinion takes it at face value. `FROG` is the
 exception, neutral at **0.0**: a frozen frog is a fairy's delicacy and nobody else's, so a character
 who has never heard of the category refuses it rather than accepting it by default. That is what makes
-"only fairies take these" one entry rather than a 0.0 on all sixteen other character types, and it
-stays correct for any character added later.
+"only fairies take these" one entry rather than a 0.0 on every other character type, and it stays
+correct for any character added later.
 
 ## Categories
 
-| Type | Neutral | Gifts | Notes |
-|------|---------|-------|-------|
-| `TOY` | 1.0 | `sturdy_teddy_bear` (5) | Sakuya 0.5, Cirno 2.0, Suika 0 |
-| `FOOD` | 1.0 | `fairy_cake` (3), `magic_candy` (3), `kappa_bento` (4) | Cirno 1.5, Suika 1.5 |
-| `DRINK` | 1.0 | `lucky_tea` (4) | Drinks that are not spirits. Reimu and Suika both at 2.0 |
-| `ALCOHOL` | 1.0 | `tengu_sake`, `ghost_sake`, `zun_beer` (5 each) | Split out of `DRINK` so a fairy's refusal of spirits does not also refuse her tea. Reimu 2.0, Suika 2.0, all fairies 0 |
-| `BOOK` | 1.0 | `magic_book` (6) | Reimu 1.5, Cirno 0.5 |
-| `UTENSIL` | 1.0 | `fancy_fan` (4) | |
-| `TOOL` | 1.0 | *(none yet)* | |
-| `MAGIC` | 1.0 | `star_flower` (1) | All fairies 0 |
-| `FROG` | **0.0** | `frozen_frog_cold` / `_warm` / `_temperate` (3 each) | Fairies 2.0, everyone else refused |
+| Type | Neutral | Gifts | Preferences |
+|------|---------|-------|-------------|
+| `TOY` | 1.0 | `sturdy_teddy_bear` (5) | Fairies 2.0, Alice 1.5, Suika 0 |
+| `FOOD` | 1.0 | `fairy_cake` (3), `magic_candy` (2), `kappa_bento` (4) | Fairies 1.5, Reimu 1.5, Suika 1.5 |
+| `DRINK` | 1.0 | `lucky_tea` (4) | Reimu 2.0, Sakuya 2.0, Alice 1.5, Morichika 1.5 |
+| `ALCOHOL` | 1.0 | `tengu_sake`, `ghost_sake`, `zun_beer` (5 each) | Split out of `DRINK` so a fairy's refusal of spirits does not also refuse her tea. Suika 3.0, Reimu 2.0, Marisa 2.0, Morichika 1.5, all fairies 0 |
+| `BOOK` | 1.0 | `magic_book` (6) | Marisa 2.0, Alice 2.0, Reimu 1.5, Morichika 1.5, Suika 0, all fairies 0 |
+| `COLLECTION` | 1.0 | `fancy_fan` (5) | Reimu 1.5, Marisa 1.5, Alice 1.5, Suika 0.5, fairies 0.5 |
+| `TOOL` | 1.0 | *(none yet)* | Sakuya 1.5, Morichika 1.5, all fairies 0 |
+| `MAGIC` | 1.0 | `star_flower` (1) | Marisa 2.0, Alice 1.5, Morichika 0.5, Suika 0, all fairies 0 |
+| `FROG` | **0.0** | `frozen_frog_cold` / `_warm` / `_temperate` (3 each) | Cirno 3.0, other fairies 1.5, everyone else refused |
+
+Every `GIFT_*` constant in `GLEntities` restates the whole species opinion rather than naming only
+what it changes, so the datamap file is one flat read of who likes what; a category left out of a
+constant is at `neutral` and takes the gift at face value.
 
 The `DRINK` / `ALCOHOL` split is the one that carries its weight: without it a fairy's refusal of
 spirits would also refuse the tea, and `lucky_tea` is the only thing a character who spurns alcohol
@@ -82,9 +93,10 @@ can be given to drink.
 
 ## Fairies
 
-Spirits and strong magic are refused, and a frozen frog is the one thing a fairy is glad to be handed —
-`ALCOHOL 0, MAGIC 0, FROG 2` in `GIFT_FAIRY`. `CirnoEntity` and `PlainFairyEntity` are fairies too and
-get the same, carried in their own datamap entries rather than by inheriting from a Java field.
+Spirits, books, tools and strong magic are refused, and a toy, a sweet and a frozen frog are what a
+fairy is glad to be handed — `ALCOHOL 0, BOOK 0, TOOL 0, MAGIC 0` against `TOY 2.0, FOOD 1.5, FROG 1.5`
+in `GIFT_FAIRY`, with a fan at half (`COLLECTION 0.5`). Cirno is the one exception, taking the frog at
+3.0.
 
 A fairy's *gift* module is separate from her *feeding* one (`FairyFeedModule`), which is what a cake or
 a cookie is worth. A frozen frog is not food she recognises, so it only ever reaches
@@ -105,7 +117,33 @@ never mistakes a bottle for a meal and a player on a full stomach can still drin
 `lucky_tea` are the same effect one potency apart — Minecraft has a single haste/looting effect
 (`MobEffects.DIG_SPEED`) that is haste on a mob and looting on an item.
 
-`fancy_fan` is a plain item: it is only ever a gift, which is the point of it.
+`fancy_fan` is a plain item: it does nothing, which is the point of it.
+
+## Selling gifts on a shelf
+
+Some gifts are also among the stock Morichika restocks on the shelves around his home, so a player who
+wants one does not have to be liked enough to be given it. Membership is the `MORICHIKA_OFFERS` item
+tag, which `YoukaiRestockShelfTask` draws an offer from uniformly at random — the tag alone decides
+what can appear, so nothing in it is unreachable, and an item no gift preference touches can still be
+sold. Price and stock are the separate `MORICHIKA_OFFER` datamap (`MorichikaOfferData`), rolled per
+restock, and an item with no entry falls back to stock 1 at price 1.
+
+| item | price | stock |
+|------|-------|-------|
+| `magic_candy` | 2-4 | 3-6 |
+| `tengu_sake`, `ghost_sake`, `zun_beer`, `sturdy_teddy_bear` | 5-10 | 3-6, except the bear at 2-3 |
+| `fancy_fan` | 10-20 | 1 |
+| `magic_book` | 12-24 | 1 |
+
+A gift is priced at its own favor up to double — an emerald buys back about as much favor as handing
+the item over does — and stocked a few at a time, because a shelf of drinks and sweets is a shelf of
+things he can keep in stock. The fan and the book are doubled again at a single unit each, which for
+the book also keeps it honest as a furnace fuel: at 40000 ticks it burns 200 copies, so a price near
+the rest of the gifts would make it worth more as fuel than as an offer.
+
+The rest of the tag is tools and curios rather than gifts, and is priced by what they are worth
+instead: `mini_hakkero_prototype` 16-24, `dowser` 12-18, `cat_bell` 8-12, `strange_glasses` 6-10,
+`centipickaxe` and `mermaid_pearl` 4-6, `straw_hat` 3-6.
 
 ## Adding a gift
 
@@ -116,10 +154,12 @@ never mistakes a bottle for a meal and a player on a full stomach can still drin
    shared opinion, state both in the same entry.
 3. If the category is one only some characters want, set its `neutral` to `0.0` so the rest refuse it
    without restating anything.
+4. If it should also be buyable, tag it `MORICHIKA_OFFERS` and give it a `MorichikaOfferData` — see
+   *Selling gifts on a shelf*.
 
-All three datamaps and the `en_us` / `en_ud` lang files are generated — run `./gradlew runData` and
-commit `src/generated/resources/` alongside the code. `zh_cn` is hand-authored under
-`src/test/resources/gensokyolegacy/lang/zh_cn/`.
+The `gift_data`, `gift_preference` and `morichika_offer` datamaps and the `en_us` / `en_ud` lang
+files are generated — run `./gradlew runData` and commit `src/generated/resources/` alongside the
+code. `zh_cn` is hand-authored under `src/test/resources/gensokyolegacy/lang/zh_cn/`.
 
 ## Files
 
@@ -130,6 +170,9 @@ commit `src/generated/resources/` alongside the code. `zh_cn` is hand-authored u
 - `content/entity/characters/fairy/FairyEntity.java` -- the fairy base class (her preferences are data, not code)
 - `init/registrate/GLItems.java`, `init/registrate/block/{GLDecoBlocks,GLNaturalBlocks}.java` -- the `GIFT_DATA` entries
 - `init/registrate/GLEntities.java` -- the `GIFT_*` preference constants and the registrations that pass them
-- `init/registrate/GLMeta.java` -- `GIFT_DATA` and `GIFT_PREFERENCE` datamap registrations
+- `init/registrate/GLMeta.java` -- the `GIFT_DATA`, `GIFT_PREFERENCE` and `MORICHIKA_OFFER` registrations
+- `init/data/GLTagGen.java` -- the `MORICHIKA_OFFERS` item tag
 - `event/GLClientEventHandlers.java` -- the favor / type tooltip
+- `content/block/deco/shelf/MorichikaOfferData.java` -- the shelf price / stock band
+- `content/entity/behavior/task/home/YoukaiRestockShelfTask.java` -- picks the offer and rolls its price
 - `content/attachment/character/ReputationConstants.java` -- `GIFT_SOFT_CAP`, what the favor is spent on ([reputation.md](structure/reputation.md))

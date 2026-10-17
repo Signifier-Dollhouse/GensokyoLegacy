@@ -286,11 +286,15 @@ public class GLItems {
 
 		// gifts
 		{
+			// A shelf offer is priced at the gift's own favor up to double, and stocked a few at a time. The
+			// fan and the book are doubled again and stocked one.
 			TENGU_SAKE = reg.item("tengu_sake", p -> new DrinkGiftItem(p.food(sake(
 							new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 600, 1),
 							new MobEffectInstance(MobEffects.NIGHT_VISION, 600, 0)))))
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
 					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(5, 1000, GiftType.ALCOHOL))
+					.tag(GLTagGen.MORICHIKA_OFFERS)
+					.dataMap(GLMeta.MORICHIKA_OFFER.reg(), new MorichikaOfferData(5, 10, 3, 6))
 					.lang("Tengu Sake").register();
 
 			// TODO placeholder favor / cooldown
@@ -300,6 +304,8 @@ public class GLItems {
 							new MobEffectInstance(MobEffects.FIRE_RESISTANCE, 600, 0)))))
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
 					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(5, 1000, GiftType.ALCOHOL))
+					.tag(GLTagGen.MORICHIKA_OFFERS)
+					.dataMap(GLMeta.MORICHIKA_OFFER.reg(), new MorichikaOfferData(5, 10, 3, 6))
 					.lang("Ghost Sake").register();
 
 			// Suika's gourd: the ghost sake poured into something with no bottom. Same drink and effects, and
@@ -335,7 +341,8 @@ public class GLItems {
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
 					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(6, 1000, GiftType.BOOK))
 					.dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(40000))
-
+					.tag(GLTagGen.MORICHIKA_OFFERS)
+					.dataMap(GLMeta.MORICHIKA_OFFER.reg(), new MorichikaOfferData(12, 24, 1, 1))
 					.lang("Obscure Magic Book").register();
 
 			// Reimu's own lucky tea: the only DRINK gift, so a character who spurns spirits can still
@@ -352,6 +359,8 @@ public class GLItems {
 							new MobEffectInstance(MobEffects.DIG_SPEED, 600, 1)))))
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
 					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(5, 1000, GiftType.ALCOHOL))
+					.tag(GLTagGen.MORICHIKA_OFFERS)
+					.dataMap(GLMeta.MORICHIKA_OFFER.reg(), new MorichikaOfferData(5, 10, 3, 6))
 					.lang("Zun Beer").register();
 
 			// The two food gifts are actual meals, so they carry nutrition and the player can eat them
@@ -361,6 +370,8 @@ public class GLItems {
 									.effect(() -> new MobEffectInstance(MobEffects.REGENERATION, 600, 0), 1).build())))
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
 					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(2, 1000, GiftType.FOOD))
+					.tag(GLTagGen.MORICHIKA_OFFERS)
+					.dataMap(GLMeta.MORICHIKA_OFFER.reg(), new MorichikaOfferData(2, 4, 3, 6))
 					.lang("Magic Candy").register();
 
 			KAPPA_BENTO = reg.item("kappa_bento", p -> new Item(p
@@ -374,6 +385,8 @@ public class GLItems {
 			FANCY_FAN = reg.item("fancy_fan", Item::new)
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
 					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(5, 1000, GiftType.COLLECTION))
+					.tag(GLTagGen.MORICHIKA_OFFERS)
+					.dataMap(GLMeta.MORICHIKA_OFFER.reg(), new MorichikaOfferData(10, 20, 1, 1))
 					.lang("Fancy Fan").register();
 		}
 
