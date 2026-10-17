@@ -84,225 +84,113 @@ public class GLEntities {
 	public static final EntityEntry<HexBrewBottleEntity> HEXBREW_BOTTLE;
 	public static final EntityEntry<IronDaggerBulletEntity> IRON_DAGGER;
 
+
 	// No character has a spawn egg: every mob is met in the world or summoned in-game, never placed.
 	static {
 
-		CHAIR = GensokyoLegacy.REGISTRATE
-				.<ChairEntity>entity("dining_chair", ChairEntity::new, MobCategory.MISC)
-				.properties(e -> e.sized(0f, 0f))
-				.renderer(() -> NothingRenderer::new)
-				.register();
+		PartyTaste TASTE_CIRNO, TASTE_REIMU, TASTE_MARISA, TASTE_MORICHIKA,
+				TASTE_ALICE, TASTE_SAKUYA, TASTE_SUIKA;
 
-		BROOM = GensokyoLegacy.REGISTRATE
-				.<BroomEntity>entity("broom", BroomEntity::new, MobCategory.MISC)
-				.properties(e -> e.sized(0.6f,1.8f).clientTrackingRange(10).updateInterval(2))
-				.renderer(() -> BroomRenderer::new)
-				.tag(EntityTypeTags.FALL_DAMAGE_IMMUNE)
-				.register();
+		GiftPreference GIFT_CIRNO, GIFT_REIMU, GIFT_MARISA, GIFT_MORICHIKA,
+				GIFT_ALICE, GIFT_SAKUYA, GIFT_SUIKA, GIFT_FAIRY;
 
-		// weight, minRep, maxRep, repBonus, minAppeal, maxAppeal, fulfillment,
-		// hungrySeat, fullSeat, leaveChance, repGain.
-		PartyTaste TASTE_CIRNO = new PartyTaste(100, 0, 150, 1, 4, 20, 6, 60, 160, 0.05, 0.05);
-		PartyTaste TASTE_REIMU = new PartyTaste(100, 0, 200, 1, 50, 300, 20, 60, 160, 0.05, 0.05);
-		PartyTaste TASTE_MARISA = new PartyTaste(100, 0, 200, 1, 100, 400, 20, 60, 160, 0.05, 0.05);
-		PartyTaste TASTE_MORICHIKA = new PartyTaste(100, 0, 200, 1, 100, 400, 20, 60, 160, 0.05, 0.05);
-		PartyTaste TASTE_ALICE = new PartyTaste(100, 0, 250, 1, 150, 500, 12, 60, 160, 0.05, 0.05);
-		PartyTaste TASTE_SAKUYA = new PartyTaste(100, 0, 250, 1, 200, 500, 20, 60, 160, 0.05, 0.05);
-		// they eat a lot
-		PartyTaste TASTE_SUIKA = new PartyTaste(10, 0, 250, 1, 500, 1000, 400, 60, 160, 0.05, 0.01);
-
-		// What every fairy refuses and the one thing she is glad to be handed. Shared by the four
-		// plain fairy types; Cirno layers her own entry on top of it in the datamap, per category.
-		GiftPreference GIFT_FAIRY = GiftPreference.of(Map.of(
-				GiftType.ALCOHOL, 0.0,
-				GiftType.MAGIC, 0.0,
-				GiftType.FROG, 2.0
-		));
-
+		// taste
 		{
 
-			RUMIA = GensokyoLegacy.REGISTRATE
-					.entity("rumia", RumiaEntity::new, MobCategory.CREATURE)
-					.properties(e -> e.sized(0.4F, 1.7f).clientTrackingRange(10))
-					.attributes(RumiaEntity::createAttributes)
-					.renderer(() -> RumiaRenderer::new)
-					.loot(EntityLootGen::noLoot)
-					.register();
-
-			REIMU = GensokyoLegacy.REGISTRATE
-					.entity("hakurei_reimu", ReimuEntity::new, MobCategory.CREATURE)
-					.properties(e -> e.sized(0.4F, 1.8f).clientTrackingRange(10))
-					.attributes(BossYoukaiEntity::createAttributes)
-					.renderer(() -> ReimuRenderer::new)
-					.loot(EntityLootGen::reimu)
-					.dataMap(GLMeta.GIFT_PREFERENCE.reg(), GiftPreference.of(Map.of(
-							// ALCOHOL alongside DRINK: the sake used to be the only drink on
-							// offer, so the DRINK bonus has to move with it or it goes stale
-							GiftType.ALCOHOL, 2.0,
-							GiftType.DRINK, 2.0,
-							GiftType.BOOK, 1.5
-					)))
-					.dataMap(GLMeta.PARTY_TASTE.reg(), TASTE_REIMU)
-					.register();
-
-			CIRNO = GensokyoLegacy.REGISTRATE
-					.entity("cirno", CirnoEntity::new, MobCategory.CREATURE)
-					.properties(e -> e.sized(0.4F, 1.8f).clientTrackingRange(10))
-					.attributes(CirnoEntity::createAttributes)
-					.renderer(() -> CirnoRenderer::new)
-					.loot(EntityLootGen::noLoot)
-					// her own tastes, plus what every fairy refuses and accepts
-					.dataMap(GLMeta.GIFT_PREFERENCE.reg(), GiftPreference.of(Map.of(
-							GiftType.TOY, 2.0,
-							GiftType.FOOD, 1.5,
-							GiftType.BOOK, 0.5,
-							GiftType.ALCOHOL, 0.0,
-							GiftType.MAGIC, 0.0,
-							GiftType.FROG, 2.0
-					)))
-					.dataMap(GLMeta.PARTY_TASTE.reg(), TASTE_CIRNO)
-					.register();
-			EntityInteractions.register(CIRNO.getId(), CirnoEntity::interactions);
+			// weight, minRep, maxRep, repBonus, minAppeal, maxAppeal, fulfillment,
+			// hungrySeat, fullSeat, leaveChance, repGain.
+			TASTE_CIRNO = new PartyTaste(100, 0, 150, 1, 4, 20, 6, 60, 160, 0.05, 0.05);
+			TASTE_REIMU = new PartyTaste(100, 0, 200, 1, 50, 300, 20, 60, 160, 0.05, 0.05);
+			TASTE_MARISA = new PartyTaste(100, 0, 200, 1, 100, 400, 20, 60, 160, 0.05, 0.05);
+			TASTE_MORICHIKA = new PartyTaste(100, 0, 200, 1, 100, 400, 20, 60, 160, 0.05, 0.05);
+			TASTE_ALICE = new PartyTaste(100, 0, 250, 1, 150, 500, 12, 60, 160, 0.05, 0.05);
+			TASTE_SAKUYA = new PartyTaste(100, 0, 250, 1, 200, 500, 20, 60, 160, 0.05, 0.05);
+			// they eat a lot
+			TASTE_SUIKA = new PartyTaste(10, 0, 250, 1, 500, 1000, 400, 60, 160, 0.05, 0.01);
 		}
 
+		//gift
 		{
-			YUKARI = GensokyoLegacy.REGISTRATE
-					.entity("yukari_yakumo", BossYoukaiEntity::new, MobCategory.CREATURE)
-					.properties(e -> e.sized(0.4F, 1.8f).clientTrackingRange(10))
-					.attributes(BossYoukaiEntity::createAttributes)
-					.renderer(() -> GeneralYoukaiRenderer::new)
-					.loot(EntityLootGen::yukari)
-					.register();
+			// what every fairy refuses and the one thing she is glad to be handed; Cirno restates
+			// these in her own entry rather than inheriting them, which the datamap cannot do
+			GIFT_FAIRY = GiftPreference.of(Map.of(
+					GiftType.TOY, 2.0,
+					GiftType.FOOD, 1.5,
+					GiftType.BOOK, 0.0,
+					GiftType.ALCOHOL, 0.0,
+					GiftType.MAGIC, 0.0,
+					GiftType.UTENSIL, 0.5,
+					GiftType.TOOL, 0.0,
+					GiftType.FROG, 1.5
+			));
+			// her own tastes, and what every fairy refuses and accepts
+			GIFT_CIRNO = GIFT_FAIRY.and(GiftType.FROG, 3.0);
 
-			SANAE = GensokyoLegacy.REGISTRATE
-					.entity("kochiya_sanae", MaidenEntity::new, MobCategory.CREATURE)
-					.properties(e -> e.sized(0.4F, 1.8f).clientTrackingRange(10))
-					.attributes(BossYoukaiEntity::createAttributes)
-					.renderer(() -> GeneralYoukaiRenderer::new)
-					.loot(EntityLootGen::sanae)
-					.register();
-
-			KOISHI = GensokyoLegacy.REGISTRATE
-					.entity("komeiji_koishi", BossYoukaiEntity::new, MobCategory.CREATURE)
-					.properties(e -> e.sized(0.4F, 1.8f).clientTrackingRange(10))
-					.attributes(BossYoukaiEntity::createAttributes)
-					.renderer(() -> GeneralYoukaiRenderer::new)
-					.loot(EntityLootGen::noLoot)
-					.register();
-
-			MARISA = GensokyoLegacy.REGISTRATE
-					.entity("kirisame_marisa", MarisaEntity::new, MobCategory.CREATURE)
-					.properties(e -> e.sized(0.4F, 1.8f).clientTrackingRange(10))
-					.attributes(BossYoukaiEntity::createAttributes)
-					.renderer(() -> MarisaRenderer::new)
-					.loot(EntityLootGen::marisa)
-					.dataMap(GLMeta.PARTY_TASTE.reg(), TASTE_MARISA)
-					.register();
-
-			MORICHIKA = GensokyoLegacy.REGISTRATE
-					.entity("morichika_rinnosuke", MorichikaEntity::new, MobCategory.CREATURE)
-					.properties(e -> e.sized(0.4F, 1.8f).clientTrackingRange(10))
-					.attributes(GeneralYoukaiEntity::createAttributes)
-					.renderer(() -> MorichikaRenderer::new)
-					.loot(EntityLootGen::noLoot)
-					.dataMap(GLMeta.PARTY_TASTE.reg(), TASTE_MORICHIKA)
-					.register();
-
-			ALICE = GensokyoLegacy.REGISTRATE
-					.entity("alice_margatroid", AliceEntity::new, MobCategory.CREATURE)
-					.properties(e -> e.sized(0.4F, 1.8f).clientTrackingRange(10))
-					.attributes(GeneralYoukaiEntity::createAttributes)
-					.renderer(() -> AliceRenderer::new)
-					.loot(EntityLootGen::noLoot)
-					.dataMap(GLMeta.PARTY_TASTE.reg(), TASTE_ALICE)
-					.register();
-
-			IZAYOI_SAKUYA = GensokyoLegacy.REGISTRATE
-					.entity("izayoi_sakuya", SakuyaEntity::new, MobCategory.CREATURE)
-					.properties(e -> e.sized(0.4F, 1.8f).clientTrackingRange(10))
-					.attributes(BossYoukaiEntity::createAttributes)
-					.renderer(() -> SakuyaRenderer::new)
-					.loot(EntityLootGen::noLoot)
-					.dataMap(GLMeta.GIFT_PREFERENCE.reg(), GiftPreference.of(Map.of(
-							// a doll is not the same as a teddy bear
-							GiftType.TOY, 0.5
-					)))
-					.dataMap(GLMeta.PARTY_TASTE.reg(), TASTE_SAKUYA)
-					.register();
-
-			IBUKI_SUIKA = GensokyoLegacy.REGISTRATE
-					.entity("ibuki_suika", SuikaEntity::new, MobCategory.MONSTER)
-					.properties(e -> e.sized(0.5F, 1.9f).clientTrackingRange(10))
-					.attributes(BossYoukaiEntity::createAttributes)
-					.renderer(() -> SuikaRenderer::new)
-					.loot(EntityLootGen::noLoot)
-					.dataMap(GLMeta.GIFT_PREFERENCE.reg(), GiftPreference.of(Map.of(
-							GiftType.ALCOHOL, 2.0,
-							GiftType.FOOD, 1.5,
-							GiftType.TOY, 0.0
-					)))
-					.dataMap(GLMeta.PARTY_TASTE.reg(), TASTE_SUIKA)
-					.register();
-
-			MYSTIA = GensokyoLegacy.REGISTRATE
-					.entity("mystia_lorelei", GeneralYoukaiEntity::new, MobCategory.CREATURE)
-					.properties(e -> e.sized(0.4F, 1.8f).clientTrackingRange(10))
-					.attributes(GeneralYoukaiEntity::createAttributes)
-					.renderer(() -> GeneralYoukaiRenderer::new)
-					.loot(EntityLootGen::mystia)
-					.register();
-
-			SUNNY = GensokyoLegacy.REGISTRATE
-					.entity("sunny_milk", FairyEntity::new, MobCategory.CREATURE)
-					.properties(e -> e.sized(0.4F, 1.8f).clientTrackingRange(10))
-					.attributes(FairyEntity::createAttributes)
-					.renderer(() -> GeneralYoukaiRenderer::new)
-					.loot(EntityLootGen::noLoot)
-					.dataMap(GLMeta.GIFT_PREFERENCE.reg(), GIFT_FAIRY)
-					.register();
-
-			LUNA = GensokyoLegacy.REGISTRATE
-					.entity("luna_child", FairyEntity::new, MobCategory.CREATURE)
-					.properties(e -> e.sized(0.4F, 1.8f).clientTrackingRange(10))
-					.attributes(FairyEntity::createAttributes)
-					.renderer(() -> GeneralYoukaiRenderer::new)
-					.loot(EntityLootGen::noLoot)
-					.dataMap(GLMeta.GIFT_PREFERENCE.reg(), GIFT_FAIRY)
-					.register();
-
-			STAR = GensokyoLegacy.REGISTRATE
-					.entity("star_sapphire", FairyEntity::new, MobCategory.CREATURE)
-					.properties(e -> e.sized(0.4F, 1.8f).clientTrackingRange(10))
-					.attributes(FairyEntity::createAttributes)
-					.renderer(() -> GeneralYoukaiRenderer::new)
-					.loot(EntityLootGen::noLoot)
-					.dataMap(GLMeta.GIFT_PREFERENCE.reg(), GIFT_FAIRY)
-					.register();
-
-			PLAIN_FAIRY = GensokyoLegacy.REGISTRATE
-					.entity("plain_fairy", PlainFairyEntity::new, MobCategory.CREATURE)
-					.properties(e -> e.sized(0.4F, 1.8f).clientTrackingRange(10))
-					.attributes(FairyEntity::createAttributes)
-					.renderer(() -> PlainFairyRenderer::new)
-					.loot(EntityLootGen::noLoot)
-					.spawnPlacement(SpawnPlacementTypes.ON_GROUND,
-							Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, PlainFairyEntity::checkFairySpawnRules,
-							RegisterSpawnPlacementsEvent.Operation.REPLACE)
-					.dataMap(GLMeta.GIFT_PREFERENCE.reg(), GIFT_FAIRY)
-					.register();
-			EntityInteractions.register(PLAIN_FAIRY.getId(), PlainFairyEntity::interactions);
+			// What a gift is worth to a character, as a factor per category: 0 refuses it outright,
+			// 1 takes it at face value. Absent categories fall to the category's own neutral.
+			// One entry per entity type, since a repeated one replaces rather than merges.
+			GIFT_REIMU = GiftPreference.of(Map.of(
+					GiftType.ALCOHOL, 2.0,
+					GiftType.DRINK, 2.0,
+					GiftType.BOOK, 1.5,
+					GiftType.FOOD, 1.5,
+					GiftType.UTENSIL, 1.5
+			));
+			GIFT_MARISA = GiftPreference.of(Map.of(
+					GiftType.ALCOHOL, 2.0,
+					GiftType.MAGIC, 2.0,
+					GiftType.BOOK, 2.0,
+					GiftType.UTENSIL, 1.5
+			));
+			GIFT_ALICE = GiftPreference.of(Map.of(
+					GiftType.TOY, 1.5,
+					GiftType.DRINK, 1.5,
+					GiftType.MAGIC, 1.5,
+					GiftType.BOOK, 2.0,
+					GiftType.UTENSIL, 1.5
+			));
+			// a doll is not the same as a teddy bear
+			GIFT_SAKUYA = GiftPreference.of(Map.of(
+					GiftType.DRINK, 1.5,
+					GiftType.TOY, 0.5,
+					GiftType.TOOL, 1.5
+			));
+			GIFT_MORICHIKA = GiftPreference.of(Map.of(
+					GiftType.ALCOHOL, 1.5,
+					GiftType.MAGIC, 0.5,
+					GiftType.TOOL, 1.5,
+					GiftType.BOOK, 1.5
+			));
+			GIFT_SUIKA = GiftPreference.of(Map.of(
+					GiftType.ALCOHOL, 3.0,
+					GiftType.FOOD, 1.5,
+					GiftType.TOY, 0.0,
+					GiftType.UTENSIL, 0.5,
+					GiftType.BOOK, 0.0
+			));
 		}
 
+		// misc
 		{
+			CHAIR = GensokyoLegacy.REGISTRATE
+					.<ChairEntity>entity("dining_chair", ChairEntity::new, MobCategory.MISC)
+					.properties(e -> e.sized(0f, 0f))
+					.renderer(() -> NothingRenderer::new)
+					.register();
+
+			BROOM = GensokyoLegacy.REGISTRATE
+					.<BroomEntity>entity("broom", BroomEntity::new, MobCategory.MISC)
+					.properties(e -> e.sized(0.6f, 1.8f).clientTrackingRange(10).updateInterval(2))
+					.renderer(() -> BroomRenderer::new)
+					.tag(EntityTypeTags.FALL_DAMAGE_IMMUNE)
+					.register();
+
 			DOLL = GensokyoLegacy.REGISTRATE
 					.entity("doll", DollEntity::new, MobCategory.MISC)
 					.properties(e -> e.sized(0.4F, 0.9F).clientTrackingRange(10))
 					.attributes(DollEntity::createAttributes)
 					.renderer(() -> DollRenderer::new)
 					.register();
-		}
-
-		{
 
 			FROZEN_FROG = GensokyoLegacy.REGISTRATE
 					.<FrozenFrog>entity("frozen_frog", FrozenFrog::new, MobCategory.MISC)
@@ -329,6 +217,164 @@ public class GLEntities {
 					.properties(p -> p.sized(0.4F, 0.4F).clientTrackingRange(4).updateInterval(1 << 16))
 					.renderer(() -> IronDaggerBulletRenderer::new)
 					.register();
+		}
+
+		// characters
+		{
+
+			PLAIN_FAIRY = GensokyoLegacy.REGISTRATE
+					.entity("plain_fairy", PlainFairyEntity::new, MobCategory.CREATURE)
+					.properties(e -> e.sized(0.4F, 1.8f).clientTrackingRange(10))
+					.attributes(FairyEntity::createAttributes)
+					.renderer(() -> PlainFairyRenderer::new)
+					.loot(EntityLootGen::noLoot)
+					.spawnPlacement(SpawnPlacementTypes.ON_GROUND,
+							Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, PlainFairyEntity::checkFairySpawnRules,
+							RegisterSpawnPlacementsEvent.Operation.REPLACE)
+					.dataMap(GLMeta.GIFT_PREFERENCE.reg(), GIFT_FAIRY)
+					.register();
+			EntityInteractions.register(PLAIN_FAIRY.getId(), PlainFairyEntity::interactions);
+
+			CIRNO = GensokyoLegacy.REGISTRATE
+					.entity("cirno", CirnoEntity::new, MobCategory.CREATURE)
+					.properties(e -> e.sized(0.4F, 1.8f).clientTrackingRange(10))
+					.attributes(CirnoEntity::createAttributes)
+					.renderer(() -> CirnoRenderer::new)
+					.loot(EntityLootGen::noLoot)
+					.dataMap(GLMeta.GIFT_PREFERENCE.reg(), GIFT_CIRNO)
+					.dataMap(GLMeta.PARTY_TASTE.reg(), TASTE_CIRNO)
+					.register();
+
+			EntityInteractions.register(CIRNO.getId(), CirnoEntity::interactions);
+
+			REIMU = GensokyoLegacy.REGISTRATE
+					.entity("hakurei_reimu", ReimuEntity::new, MobCategory.CREATURE)
+					.properties(e -> e.sized(0.4F, 1.8f).clientTrackingRange(10))
+					.attributes(BossYoukaiEntity::createAttributes)
+					.renderer(() -> ReimuRenderer::new)
+					.loot(EntityLootGen::reimu)
+					.dataMap(GLMeta.GIFT_PREFERENCE.reg(), GIFT_REIMU)
+					.dataMap(GLMeta.PARTY_TASTE.reg(), TASTE_REIMU)
+					.register();
+
+			MARISA = GensokyoLegacy.REGISTRATE
+					.entity("kirisame_marisa", MarisaEntity::new, MobCategory.CREATURE)
+					.properties(e -> e.sized(0.4F, 1.8f).clientTrackingRange(10))
+					.attributes(BossYoukaiEntity::createAttributes)
+					.renderer(() -> MarisaRenderer::new)
+					.loot(EntityLootGen::marisa)
+					.dataMap(GLMeta.GIFT_PREFERENCE.reg(), GIFT_MARISA)
+					.dataMap(GLMeta.PARTY_TASTE.reg(), TASTE_MARISA)
+					.register();
+
+			MORICHIKA = GensokyoLegacy.REGISTRATE
+					.entity("morichika_rinnosuke", MorichikaEntity::new, MobCategory.CREATURE)
+					.properties(e -> e.sized(0.4F, 1.8f).clientTrackingRange(10))
+					.attributes(GeneralYoukaiEntity::createAttributes)
+					.renderer(() -> MorichikaRenderer::new)
+					.loot(EntityLootGen::noLoot)
+					.dataMap(GLMeta.GIFT_PREFERENCE.reg(), GIFT_MORICHIKA)
+					.dataMap(GLMeta.PARTY_TASTE.reg(), TASTE_MORICHIKA)
+					.register();
+
+			ALICE = GensokyoLegacy.REGISTRATE
+					.entity("alice_margatroid", AliceEntity::new, MobCategory.CREATURE)
+					.properties(e -> e.sized(0.4F, 1.8f).clientTrackingRange(10))
+					.attributes(GeneralYoukaiEntity::createAttributes)
+					.renderer(() -> AliceRenderer::new)
+					.loot(EntityLootGen::noLoot)
+					.dataMap(GLMeta.GIFT_PREFERENCE.reg(), GIFT_ALICE)
+					.dataMap(GLMeta.PARTY_TASTE.reg(), TASTE_ALICE)
+					.register();
+
+			IZAYOI_SAKUYA = GensokyoLegacy.REGISTRATE
+					.entity("izayoi_sakuya", SakuyaEntity::new, MobCategory.CREATURE)
+					.properties(e -> e.sized(0.4F, 1.8f).clientTrackingRange(10))
+					.attributes(BossYoukaiEntity::createAttributes)
+					.renderer(() -> SakuyaRenderer::new)
+					.loot(EntityLootGen::noLoot)
+					.dataMap(GLMeta.GIFT_PREFERENCE.reg(), GIFT_SAKUYA)
+					.dataMap(GLMeta.PARTY_TASTE.reg(), TASTE_SAKUYA)
+					.register();
+
+			IBUKI_SUIKA = GensokyoLegacy.REGISTRATE
+					.entity("ibuki_suika", SuikaEntity::new, MobCategory.MONSTER)
+					.properties(e -> e.sized(0.5F, 1.9f).clientTrackingRange(10))
+					.attributes(BossYoukaiEntity::createAttributes)
+					.renderer(() -> SuikaRenderer::new)
+					.loot(EntityLootGen::noLoot)
+					.dataMap(GLMeta.GIFT_PREFERENCE.reg(), GIFT_SUIKA)
+					.dataMap(GLMeta.PARTY_TASTE.reg(), TASTE_SUIKA)
+					.register();
+		}
+
+		// unused
+		{
+
+			RUMIA = GensokyoLegacy.REGISTRATE
+					.entity("rumia", RumiaEntity::new, MobCategory.CREATURE)
+					.properties(e -> e.sized(0.4F, 1.7f).clientTrackingRange(10))
+					.attributes(RumiaEntity::createAttributes)
+					.renderer(() -> RumiaRenderer::new)
+					.loot(EntityLootGen::noLoot)
+					.register();
+
+			YUKARI = GensokyoLegacy.REGISTRATE
+					.entity("yukari_yakumo", BossYoukaiEntity::new, MobCategory.CREATURE)
+					.properties(e -> e.sized(0.4F, 1.8f).clientTrackingRange(10))
+					.attributes(BossYoukaiEntity::createAttributes)
+					.renderer(() -> GeneralYoukaiRenderer::new)
+					.loot(EntityLootGen::yukari)
+					.register();
+
+			SANAE = GensokyoLegacy.REGISTRATE
+					.entity("kochiya_sanae", MaidenEntity::new, MobCategory.CREATURE)
+					.properties(e -> e.sized(0.4F, 1.8f).clientTrackingRange(10))
+					.attributes(BossYoukaiEntity::createAttributes)
+					.renderer(() -> GeneralYoukaiRenderer::new)
+					.loot(EntityLootGen::sanae)
+					.register();
+
+			KOISHI = GensokyoLegacy.REGISTRATE
+					.entity("komeiji_koishi", BossYoukaiEntity::new, MobCategory.CREATURE)
+					.properties(e -> e.sized(0.4F, 1.8f).clientTrackingRange(10))
+					.attributes(BossYoukaiEntity::createAttributes)
+					.renderer(() -> GeneralYoukaiRenderer::new)
+					.loot(EntityLootGen::noLoot)
+					.register();
+
+			MYSTIA = GensokyoLegacy.REGISTRATE
+					.entity("mystia_lorelei", GeneralYoukaiEntity::new, MobCategory.CREATURE)
+					.properties(e -> e.sized(0.4F, 1.8f).clientTrackingRange(10))
+					.attributes(GeneralYoukaiEntity::createAttributes)
+					.renderer(() -> GeneralYoukaiRenderer::new)
+					.loot(EntityLootGen::mystia)
+					.register();
+
+			SUNNY = GensokyoLegacy.REGISTRATE
+					.entity("sunny_milk", FairyEntity::new, MobCategory.CREATURE)
+					.properties(e -> e.sized(0.4F, 1.8f).clientTrackingRange(10))
+					.attributes(FairyEntity::createAttributes)
+					.renderer(() -> GeneralYoukaiRenderer::new)
+					.loot(EntityLootGen::noLoot)
+					.register();
+
+			LUNA = GensokyoLegacy.REGISTRATE
+					.entity("luna_child", FairyEntity::new, MobCategory.CREATURE)
+					.properties(e -> e.sized(0.4F, 1.8f).clientTrackingRange(10))
+					.attributes(FairyEntity::createAttributes)
+					.renderer(() -> GeneralYoukaiRenderer::new)
+					.loot(EntityLootGen::noLoot)
+					.register();
+
+			STAR = GensokyoLegacy.REGISTRATE
+					.entity("star_sapphire", FairyEntity::new, MobCategory.CREATURE)
+					.properties(e -> e.sized(0.4F, 1.8f).clientTrackingRange(10))
+					.attributes(FairyEntity::createAttributes)
+					.renderer(() -> GeneralYoukaiRenderer::new)
+					.loot(EntityLootGen::noLoot)
+					.register();
+
 		}
 
 	}

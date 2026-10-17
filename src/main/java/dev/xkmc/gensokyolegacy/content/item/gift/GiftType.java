@@ -15,13 +15,11 @@ public enum GiftType {
 	TOY("Toy"),
 	FOOD("Food"),
 	DRINK("Drink"),
-	// the two sakes, split out of DRINK so a fairy's refusal of spirits does not also
-	// refuse the tea she would have taken; DRINK stays for the drinks that are not poison
 	ALCOHOL("Alcohol"),
 	BOOK("Book"),
-	FAN("Fan"),
-	CRYSTAL("Crystal"),
 	MAGIC("Magical"),
+	UTENSIL("Utensil"),
+	TOOL("Tool"),
 	// neutral 0 rather than 1: a frozen frog is a fairy's delicacy and nobody else's, so a
 	// character who has never heard of the category refuses it instead of taking it at face value
 	FROG("Frog", 0.0);

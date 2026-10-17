@@ -24,4 +24,16 @@ public record GiftPreference(LinkedHashMap<GiftType, Double> preference, LinkedH
 		return new GiftPreference(new LinkedHashMap<>(new TreeMap<>(preference)), new LinkedHashMap<>());
 	}
 
+	public GiftPreference and(GiftType type, double val) {
+		var map = new TreeMap<>(preference);
+		map.put(type, val);
+		return new GiftPreference(new LinkedHashMap<>(map), new LinkedHashMap<>(override));
+	}
+
+	public GiftPreference and(Item item, double val) {
+		var map = new TreeMap<>(override);
+		map.put(item, val);
+		return new GiftPreference(new LinkedHashMap<>(preference), new LinkedHashMap<>(map));
+	}
+
 }

@@ -23,10 +23,9 @@ the three every fairy shares.
 ### Sharing a species' opinion
 
 There is no hook on the entity class for this: what a species shares is a constant handed to each of
-its registrations.
+its registrations, declared in the `GIFT_*` block in `GLEntities` next to the `TASTE_*` ones.
 
 ```java
-// GLEntities
 GiftPreference GIFT_FAIRY = GiftPreference.of(Map.of(
         GiftType.ALCOHOL, 0.0,
         GiftType.MAGIC, 0.0,
@@ -109,7 +108,7 @@ commit `src/generated/resources/` alongside the code. `zh_cn` is hand-authored u
 - `content/entity/behavior/module/GiftModule.java` -- the interaction, the cooldown, the favor gain
 - `content/entity/characters/fairy/FairyEntity.java` -- the fairy base class (her preferences are data, not code)
 - `init/registrate/GLItems.java`, `init/registrate/block/{GLDecoBlocks,GLNaturalBlocks}.java` -- the `GIFT_DATA` entries
-- `init/registrate/GLEntities.java` -- the per-character `GIFT_PREFERENCE` entries
+- `init/registrate/GLEntities.java` -- the `GIFT_*` preference constants and the registrations that pass them
 - `init/registrate/GLMeta.java` -- `GIFT_DATA` and `GIFT_PREFERENCE` datamap registrations
 - `event/GLClientEventHandlers.java` -- the favor / type tooltip
 - `content/attachment/character/ReputationConstants.java` -- `GIFT_SOFT_CAP`, what the favor is spent on ([reputation.md](structure/reputation.md))
