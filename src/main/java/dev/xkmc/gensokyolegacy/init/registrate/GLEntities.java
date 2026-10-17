@@ -119,37 +119,31 @@ public class GLEntities {
 					GiftType.BOOK, 0.0,
 					GiftType.ALCOHOL, 0.0,
 					GiftType.MAGIC, 0.0,
-					GiftType.UTENSIL, 0.5,
+					GiftType.COLLECTION, 0.5,
 					GiftType.TOOL, 0.0,
 					GiftType.FROG, 1.5
 			));
-			// her own tastes, and what every fairy refuses and accepts
 			GIFT_CIRNO = GIFT_FAIRY.and(GiftType.FROG, 3.0);
-
-			// What a gift is worth to a character, as a factor per category: 0 refuses it outright,
-			// 1 takes it at face value. Absent categories fall to the category's own neutral.
-			// One entry per entity type, since a repeated one replaces rather than merges.
 			GIFT_REIMU = GiftPreference.of(Map.of(
 					GiftType.ALCOHOL, 2.0,
 					GiftType.DRINK, 2.0,
 					GiftType.BOOK, 1.5,
 					GiftType.FOOD, 1.5,
-					GiftType.UTENSIL, 1.5
+					GiftType.COLLECTION, 1.5
 			));
 			GIFT_MARISA = GiftPreference.of(Map.of(
 					GiftType.ALCOHOL, 2.0,
 					GiftType.MAGIC, 2.0,
 					GiftType.BOOK, 2.0,
-					GiftType.UTENSIL, 1.5
+					GiftType.COLLECTION, 1.5
 			));
 			GIFT_ALICE = GiftPreference.of(Map.of(
 					GiftType.BOOK, 2.0,
 					GiftType.TOY, 1.5,
 					GiftType.DRINK, 1.5,
 					GiftType.MAGIC, 1.5,
-					GiftType.UTENSIL, 1.5
+					GiftType.COLLECTION, 1.5
 			));
-			// a doll is not the same as a teddy bear
 			GIFT_SAKUYA = GiftPreference.of(Map.of(
 					GiftType.DRINK, 2.0,
 					GiftType.TOOL, 1.5
@@ -164,7 +158,7 @@ public class GLEntities {
 			GIFT_SUIKA = GiftPreference.of(Map.of(
 					GiftType.ALCOHOL, 3.0,
 					GiftType.FOOD, 1.5,
-					GiftType.UTENSIL, 0.5,
+					GiftType.COLLECTION, 0.5,
 					GiftType.TOY, 0.0,
 					GiftType.MAGIC, 0.0,
 					GiftType.BOOK, 0.0

@@ -373,7 +373,7 @@ public class GLItems {
 			// a fan is for looking at, and the gift is the point
 			FANCY_FAN = reg.item("fancy_fan", Item::new)
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
-					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(5, 1000, GiftType.UTENSIL))
+					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(5, 1000, GiftType.COLLECTION))
 					.lang("Fancy Fan").register();
 		}
 

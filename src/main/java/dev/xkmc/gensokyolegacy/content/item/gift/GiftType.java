@@ -18,7 +18,7 @@ public enum GiftType {
 	ALCOHOL("Alcohol"),
 	BOOK("Book"),
 	MAGIC("Magical"),
-	UTENSIL("Utensil"),
+	COLLECTION("Collection"),
 	TOOL("Tool"),
 	// neutral 0 rather than 1: a frozen frog is a fairy's delicacy and nobody else's, so a
 	// character who has never heard of the category refuses it instead of taking it at face value
