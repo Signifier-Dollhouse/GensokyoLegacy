@@ -67,14 +67,18 @@ stays correct for any character added later.
 | Type | Neutral | Gifts | Notes |
 |------|---------|-------|-------|
 | `TOY` | 1.0 | `sturdy_teddy_bear` (5) | Sakuya 0.5, Cirno 2.0, Suika 0 |
-| `FOOD` | 1.0 | `fairy_cake` (3) | Cirno 1.5, Suika 1.5 |
-| `DRINK` | 1.0 | *(none yet)* | Kept for drinks that are not spirits. Reimu and Suika both at 2.0 |
-| `ALCOHOL` | 1.0 | `tengu_sake`, `ghost_sake` (5 each) | Split out of `DRINK` so a fairy's refusal of spirits does not also refuse her tea. Reimu 2.0, Suika 2.0, all fairies 0 |
+| `FOOD` | 1.0 | `fairy_cake` (3), `magic_candy` (3), `kappa_bento` (4) | Cirno 1.5, Suika 1.5 |
+| `DRINK` | 1.0 | `lucky_tea` (4) | Drinks that are not spirits. Reimu and Suika both at 2.0 |
+| `ALCOHOL` | 1.0 | `tengu_sake`, `ghost_sake`, `zun_beer` (5 each) | Split out of `DRINK` so a fairy's refusal of spirits does not also refuse her tea. Reimu 2.0, Suika 2.0, all fairies 0 |
 | `BOOK` | 1.0 | `magic_book` (6) | Reimu 1.5, Cirno 0.5 |
-| `FAN` | 1.0 | *(none yet)* | |
-| `CRYSTAL` | 1.0 | *(none yet)* | |
+| `UTENSIL` | 1.0 | `fancy_fan` (4) | |
+| `TOOL` | 1.0 | *(none yet)* | |
 | `MAGIC` | 1.0 | `star_flower` (1) | All fairies 0 |
 | `FROG` | **0.0** | `frozen_frog_cold` / `_warm` / `_temperate` (3 each) | Fairies 2.0, everyone else refused |
+
+The `DRINK` / `ALCOHOL` split is the one that carries its weight: without it a fairy's refusal of
+spirits would also refuse the tea, and `lucky_tea` is the only thing a character who spurns alcohol
+can be given to drink.
 
 ## Fairies
 
@@ -85,6 +89,23 @@ get the same, carried in their own datamap entries rather than by inheriting fro
 A fairy's *gift* module is separate from her *feeding* one (`FairyFeedModule`), which is what a cake or
 a cookie is worth. A frozen frog is not food she recognises, so it only ever reaches
 `GiftModule.interact()`. See [want_bubble.md](want_bubble.md).
+
+## A gift the player can also eat
+
+A gift is not necessarily inert. `magic_candy`, `kappa_bento`, `fairy_cake`, `lucky_tea` and `zun_beer`
+carry `FoodProperties`, so the player can consume them for the same effect that drinking or eating one
+is worth. No character is fed one: the only feed modules in use are the fairy ones
+(`FairyFeedModule`), which recognise a cake or a cookie and nothing else, so every other gift reaches
+`GiftModule.interact()` and nowhere else. (`FeedModule`, the generic one that would take any food, is
+currently attached to no character.)
+
+That is why the food gifts carry real nutrition and the two drinks do not: the sakes, the tea and the
+beer go through `sake()`, which builds `alwaysEdible()` food with no nutrition, so the party food system
+never mistakes a bottle for a meal and a player on a full stomach can still drink one. `zun_beer` and
+`lucky_tea` are the same effect one potency apart — Minecraft has a single haste/looting effect
+(`MobEffects.DIG_SPEED`) that is haste on a mob and looting on an item.
+
+`fancy_fan` is a plain item: it is only ever a gift, which is the point of it.
 
 ## Adding a gift
 

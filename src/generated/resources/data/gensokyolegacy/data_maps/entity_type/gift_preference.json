@@ -39,6 +39,7 @@
         "ALCOHOL": 3.0,
         "BOOK": 0.0,
         "FOOD": 1.5,
+        "MAGIC": 0.0,
         "TOY": 0.0,
         "UTENSIL": 0.5
       }
@@ -46,9 +47,8 @@
     "gensokyolegacy:izayoi_sakuya": {
       "override": {},
       "preference": {
-        "DRINK": 1.5,
-        "TOOL": 1.5,
-        "TOY": 0.5
+        "DRINK": 2.0,
+        "TOOL": 1.5
       }
     },
     "gensokyolegacy:kirisame_marisa": {
@@ -65,6 +65,7 @@
       "preference": {
         "ALCOHOL": 1.5,
         "BOOK": 1.5,
+        "DRINK": 1.5,
         "MAGIC": 0.5,
         "TOOL": 1.5
       }

@@ -143,29 +143,30 @@ public class GLEntities {
 					GiftType.UTENSIL, 1.5
 			));
 			GIFT_ALICE = GiftPreference.of(Map.of(
+					GiftType.BOOK, 2.0,
 					GiftType.TOY, 1.5,
 					GiftType.DRINK, 1.5,
 					GiftType.MAGIC, 1.5,
-					GiftType.BOOK, 2.0,
 					GiftType.UTENSIL, 1.5
 			));
 			// a doll is not the same as a teddy bear
 			GIFT_SAKUYA = GiftPreference.of(Map.of(
-					GiftType.DRINK, 1.5,
-					GiftType.TOY, 0.5,
+					GiftType.DRINK, 2.0,
 					GiftType.TOOL, 1.5
 			));
 			GIFT_MORICHIKA = GiftPreference.of(Map.of(
 					GiftType.ALCOHOL, 1.5,
-					GiftType.MAGIC, 0.5,
+					GiftType.DRINK, 1.5,
 					GiftType.TOOL, 1.5,
-					GiftType.BOOK, 1.5
+					GiftType.BOOK, 1.5,
+					GiftType.MAGIC, 0.5
 			));
 			GIFT_SUIKA = GiftPreference.of(Map.of(
 					GiftType.ALCOHOL, 3.0,
 					GiftType.FOOD, 1.5,
-					GiftType.TOY, 0.0,
 					GiftType.UTENSIL, 0.5,
+					GiftType.TOY, 0.0,
+					GiftType.MAGIC, 0.0,
 					GiftType.BOOK, 0.0
 			));
 		}

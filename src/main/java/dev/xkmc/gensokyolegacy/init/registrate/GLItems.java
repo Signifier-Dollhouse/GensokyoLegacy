@@ -101,6 +101,9 @@ public class GLItems {
 	public static final ItemEntry<GourdItem> IBUKI_GOURD;
 	public static final ItemEntry<Item> FAIRY_CAKE;
 	public static final ItemEntry<MagicBookItem> MAGIC_BOOK;
+	public static final ItemEntry<DrinkGiftItem> LUCKY_TEA, ZUN_BEER;
+	public static final ItemEntry<Item> MAGIC_CANDY, KAPPA_BENTO;
+	public static final ItemEntry<Item> FANCY_FAN;
 
 	public static final ItemEntry<DebugGlasses> DEBUG_GLASSES;
 	public static final ItemEntry<DebugWand> DEBUG_WAND;
@@ -334,6 +337,44 @@ public class GLItems {
 					.dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(40000))
 
 					.lang("Obscure Magic Book").register();
+
+			// Reimu's own lucky tea: the only DRINK gift, so a character who spurns spirits can still
+			// be given something to drink. DIG_SPEED is the one effect that is haste on a mob and
+			// looting on an item, so this reads as luck at digging rather than as speed.
+			LUCKY_TEA = reg.item("lucky_tea", p -> new DrinkGiftItem(p.food(sake(
+							new MobEffectInstance(GLEffects.LOOTING, 600, 0)))))
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
+					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(4, 1000, GiftType.DRINK))
+					.lang("Hakurei's Lucky Tea").register();
+
+			// haste II: the same effect as the tea's, one potency up
+			ZUN_BEER = reg.item("zun_beer", p -> new DrinkGiftItem(p.food(sake(
+							new MobEffectInstance(MobEffects.DIG_SPEED, 600, 1)))))
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
+					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(5, 1000, GiftType.ALCOHOL))
+					.lang("Zun Beer").register();
+
+			// The two food gifts are actual meals, so they carry nutrition and the player can eat them
+			// too; the sakes above cannot, being drinks rather than food.
+			MAGIC_CANDY = reg.item("magic_candy", p -> new Item(p
+							.food(new FoodProperties.Builder().nutrition(2).saturationModifier(0.1f).alwaysEdible()
+									.effect(() -> new MobEffectInstance(MobEffects.REGENERATION, 600, 0), 1).build())))
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
+					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(2, 1000, GiftType.FOOD))
+					.lang("Magic Candy").register();
+
+			KAPPA_BENTO = reg.item("kappa_bento", p -> new Item(p
+							.food(new FoodProperties.Builder().nutrition(6).saturationModifier(0.6f)
+									.effect(() -> new MobEffectInstance(MobEffects.WATER_BREATHING, 600, 0), 1).build())))
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
+					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(4, 1000, GiftType.FOOD))
+					.lang("Kappa Bento").register();
+
+			// a fan is for looking at, and the gift is the point
+			FANCY_FAN = reg.item("fancy_fan", Item::new)
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
+					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(5, 1000, GiftType.UTENSIL))
+					.lang("Fancy Fan").register();
 		}
 
 		// tools

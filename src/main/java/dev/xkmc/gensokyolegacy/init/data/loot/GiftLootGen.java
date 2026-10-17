@@ -86,9 +86,9 @@ public class GiftLootGen {
 	private static List<Tier> reimu() {
 		return List.of(
 				tier(0, 50, gift(GLNaturalBlocks.STAR_FLOWER, 12)),
-				tier(50, 100, gift(GLItems.GHOST_SAKE, 20),
-						gift(GLItems.TENGU_SAKE, 20),
-						gift(GLDecoBlocks.STURDY_TEDDY_BEAR, 40)),
+				tier(50, 100, gift(GLItems.ZUN_BEER, 20),
+						gift(GLItems.GHOST_SAKE, 20),
+						gift(GLItems.LUCKY_TEA, 40)),
 				tier(100, 200, gift(GLTalismans.SPEED_TALISMAN, 10),
 						gift(GLTalismans.HYDROPHOBIC_TALISMAN, 10),
 						gift(GLTalismans.LAVA_TALISMAN, 10)),
@@ -115,9 +115,10 @@ public class GiftLootGen {
 
 	private static List<Tier> marisa() {
 		return List.of(
-				tier(0, 50, gift(GLNaturalBlocks.STAR_FLOWER, 20)),
-				tier(50, 100, gift(GLItems.TENGU_SAKE, 10),
-						gift(GLItems.GHOST_SAKE, 10),
+				tier(0, 50, gift(GLNaturalBlocks.STAR_FLOWER, 20),
+						gift(GLItems.MAGIC_CANDY, 20)),
+				tier(50, 100, gift(GLItems.MAGIC_CANDY, 20),
+						gift(GLItems.KAPPA_BENTO, 20),
 						gift(GLItems.MAGIC_BOOK, 20)),
 				tier(100, 200, gift(HexBrew.EXPLOSIVE_HEXBREW.bottle, 10),
 						gift(HexBrew.MIASMA_HEXBREW.bottle, 10),
@@ -139,8 +140,9 @@ public class GiftLootGen {
 
 	private static List<Tier> alice() {
 		return List.of(
-				tier(0, 50, gift(GLNaturalBlocks.STAR_FLOWER, 20)),
-				tier(50, 100, gift(GLDecoBlocks.STURDY_TEDDY_BEAR, 20)),
+				tier(0, 50, gift(GLItems.MAGIC_CANDY, 20)),
+				tier(50, 100, gift(GLDecoBlocks.STURDY_TEDDY_BEAR, 20),
+						gift(GLItems.FANCY_FAN, 20)),
 				tier(100, 400, gift(GLItems.DOLL_LANCE, 10)),
 				tier(400, 0, gift(GLItems.DOLL, 10)));
 	}
@@ -150,6 +152,8 @@ public class GiftLootGen {
 				tier(0, 50, gift(GLNaturalBlocks.STAR_FLOWER, 20)),
 				tier(50, 100, gift(GLItems.TENGU_SAKE, 10),
 						gift(GLItems.GHOST_SAKE, 10),
+						gift(GLItems.FANCY_FAN, 20),
+						gift(GLItems.ZUN_BEER, 20),
 						gift(GLDecoBlocks.STURDY_TEDDY_BEAR, 20)),
 				tier(100, 200, gift(GLItems.STRANGE_GLASSES, 10),
 						gift(GLItems.CAT_BELL, 10),
