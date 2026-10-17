@@ -2,8 +2,17 @@
 
 Every biome the Gensokyo dimension can select: the twelve of `gensokyo_dimension_biome_guide.md` §3 and §4, the two that
 were already there (`magical_forest`, `sakura_forest`), and the four fixed locations of
-`gensokyolegacy_fixed_biomes_guide.md` plus the one it does not name. Registry keys live in `GLBiomes`, features in
-`GensokyoBiomeFeatures`, and the places they are selected from in `GensokyoDimension`'s climate grid.
+`gensokyolegacy_fixed_biomes_guide.md` plus the one it does not name.
+
+Each biome is a class of its own in `biomes/`, extending `AbstractBiomeGen`: `MuenzukaBiomeGen` is the Muenzuka biome's whole
+registration, and `BiomeGen.KEY` on it is the key the climate grid, the tags and the structures ask for. The shared
+plumbing lives in `AbstractBiomeGen` (the vanilla runs, `Layers`, the `Registrar`, the biome factory overloads) and in
+`GensokyoBiomeFeatures` (the features more than one biome places); the places the biomes are selected from are in
+`GensokyoDimension`'s climate grid. `GensokyoLegacy#gatherData` lists every instance in one `BiomeGen.build` call, the
+same way it lists the quest dialogs in one `QuestDialogData.build` call.
+
+That split is for merges, not for tidiness: a biome's features, its climate and its colours are all in its own file,
+so two branches editing two different biomes never open the same one.
 
 The seventeen split four ways:
 
@@ -48,9 +57,9 @@ biome with precipitation off, because a dry barrens should not rain.
 ## 1. The construction rule: a written-out list plus a tail
 
 No biome is built from scratch, but none of them is copied from a vanilla biome any more either. Each one **writes out
-its own features, step by step**, in the call that registers it, and takes a short custom tail at the end of the step
-it belongs to. `GLBiomes.Layers` is the whole mechanism; the shared runs it draws on (`OVERWORLD_ORES`, `PLAINS_GROUND`,
-`NETHER_COMMON`, …) are named by what they are.
+its own features, step by step**, in `build`, and takes a short custom tail at the end of the step it belongs to.
+`BiomeGen.Layers` is the whole mechanism; the shared runs it draws on (`OVERWORLD_ORES`, `PLAINS_GROUND`,
+`NETHER_COMMON`, …) are named by what they are and live in `AbstractBiomeGen`.
 
 This replaced a vanilla base per biome, and the reason was not tidiness. Copying `minecraft:deep_dark` wholesale is how
 `mountain_interior` ended up growing `sculk_vein` and `sculk_patch_deep_dark`: nobody asked for sculk, it arrived
@@ -186,8 +195,9 @@ There is no snowy biome: the guide gives a band its four, and the one genuinely 
 
 ## 2. The feature tail
 
-`GensokyoBiomeFeatures` owns 30 configured features and 38 placed ones under
-`worldgen/{configured,placed}_feature/gensokyo_biome/`. Four kinds:
+The features live with the biome that is the only one to use them, under
+`worldgen/{configured,placed}_feature/gensokyo_biome/`. Only `stones`, `foothill_moss` and `lake_cattails` are shared
+enough to belong in `GensokyoBiomeFeatures`. Four kinds:
 
 **Ground cover** — `RANDOM_PATCH` of `SIMPLE_BLOCK` on `BlockTags.DIRT`, the same shape as the magical forest's grass
 and flowers. The vanilla flower and grass features of the base are kept as well, so the mod blocks are an accent
@@ -309,11 +319,16 @@ guide is a suggestion of what *can* be there, and the palette table below is wha
 generation **at runtime**, not at datagen — `tools/feature_cycle_check.py` is the only thing standing between a typo
 and a world that will not load.
 
-The rule that makes it impossible to get wrong: every biome's tail is a subsequence of one fixed list,
-`GensokyoBiomeFeatures.ORDER`. Two biomes sharing a custom feature therefore always place it in the same relative
-order, and because the tail is appended after the whole vanilla chain, no custom feature can ever land between two
-vanilla ones. `GensokyoBiomeFeatures.tail` checks the subsequence at class-init time and throws if a tail is out of
-order, so the mistake is a datagen crash rather than a world that loads for an hour first.
+The rule that makes it impossible to get wrong: every biome's tail is a subsequence of one fixed order, and because the
+tail is appended after the whole vanilla chain, no custom feature can ever land between two vanilla ones. That order
+is not written down anywhere — `BiomeGen.Registrar` records each biome's placed features in the order it registers
+them, and `BiomeGen.mergeOrder` merges every biome's list into the one order they can all be read as a subsequence
+of. Two biomes sharing a custom feature therefore always place it in the same relative order, and the two of them
+disagreeing is a cycle that `mergeOrder` reports as a datagen crash rather than a world that loads for an hour first.
+
+A biome that never registers a shared feature cannot conflict with any other, which is most of them: `stones` is the
+one feature eight biomes place, and it lives in `GensokyoBiomeFeatures` because splitting it would mean two placed
+features that happen to be identical.
 
 `ORDER` only constrains features this project owns. A **vanilla placed feature cannot go in a tail**, because it
 already has a fixed position in vanilla's own chains: appending `minecraft:patch_waterlily` to one biome's tail put it
@@ -600,7 +615,7 @@ separate template budget, and the guide is explicit that these must not be faked
 
 ## 8. Tags
 
-`GLStructureTagGen.genBiomeTag` writes `is_magical`, `is_forest`, `is_plains`, `is_mountain`, `is_mountain/peak`,
+`GLBiomeGen.genBiomeTag` writes `is_magical`, `is_forest`, `is_plains`, `is_mountain`, `is_mountain/peak`,
 `is_underground`, `is_spooky`, `is_floral`, `is_wet`, `is_beach`, `is_aquatic`, `is_dry` and `is_taiga`, plus
 `has_structure/*` and `has_spawn/plain_fairy`.
 

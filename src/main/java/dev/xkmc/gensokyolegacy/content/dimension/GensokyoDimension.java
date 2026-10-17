@@ -3,8 +3,28 @@ package dev.xkmc.gensokyolegacy.content.dimension;
 import com.mojang.datafixers.util.Pair;
 import com.tterrag.registrate.providers.DataProviderInitializer;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
-import dev.xkmc.gensokyolegacy.init.data.biome.GLBiomes;
-import dev.xkmc.gensokyolegacy.init.data.biome.GensokyoBiomeFeatures;
+import dev.xkmc.gensokyolegacy.init.data.biome.biomes.AnimalRealmBiomeGen;
+import dev.xkmc.gensokyolegacy.init.data.biome.biomes.BambooForestOfTheLostBiomeGen;
+import dev.xkmc.gensokyolegacy.init.data.biome.biomes.FormerHellBiomeGen;
+import dev.xkmc.gensokyolegacy.init.data.biome.biomes.GenbuRavineBiomeGen;
+import dev.xkmc.gensokyolegacy.init.data.biome.biomes.HellOfBlazingFiresBiomeGen;
+import dev.xkmc.gensokyolegacy.init.data.biome.biomes.HellOfBloodPoolsBiomeGen;
+import dev.xkmc.gensokyolegacy.init.data.biome.biomes.HillOfTheNamelessBiomeGen;
+import dev.xkmc.gensokyolegacy.init.data.biome.biomes.HumanVillageBiomeGen;
+import dev.xkmc.gensokyolegacy.init.data.biome.biomes.MagicalForestBiomeGen;
+import dev.xkmc.gensokyolegacy.init.data.biome.biomes.MistyLakeBiomeGen;
+import dev.xkmc.gensokyolegacy.init.data.biome.biomes.MistyLakeShoreBiomeGen;
+import dev.xkmc.gensokyolegacy.init.data.biome.biomes.MountainInteriorBiomeGen;
+import dev.xkmc.gensokyolegacy.init.data.biome.biomes.MuenzukaBiomeGen;
+import dev.xkmc.gensokyolegacy.init.data.biome.biomes.MyourenTempleBarrensBiomeGen;
+import dev.xkmc.gensokyolegacy.init.data.biome.biomes.SakuraForestBiomeGen;
+import dev.xkmc.gensokyolegacy.init.data.biome.biomes.SanctuaryBiomeGen;
+import dev.xkmc.gensokyolegacy.init.data.biome.biomes.SecretHeavenCliffBiomeGen;
+import dev.xkmc.gensokyolegacy.init.data.biome.biomes.SunflowerPlainsBiomeGen;
+import dev.xkmc.gensokyolegacy.init.data.biome.biomes.TenguSettlementBiomeGen;
+import dev.xkmc.gensokyolegacy.init.data.biome.biomes.UntroddenValleyBiomeGen;
+import dev.xkmc.gensokyolegacy.init.data.biome.biomes.YoukaiMountainFoothillsBiomeGen;
+import dev.xkmc.gensokyolegacy.init.data.biome.biomes.YoukaiMountainSummitBiomeGen;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.HolderSet;
@@ -316,23 +336,23 @@ public class GensokyoDimension {
 	// hot dry, cold dry — four cells each, save that the plain takes eight: the lower ground on LOW_EROSION and the
 	// upper ground on HIGH_EROSION. List order is what a column in the gap between them falls back to.
 	private static final List<List<Cell>> SURFACE = List.of(
-			List.of(new Cell(GLBiomes.MISTY_LAKE, FULL_PLANE, FULL_PLANE)),
-			List.of(new Cell(GLBiomes.MISTY_LAKE_SHORE, FULL_PLANE, FULL_PLANE)),
-			List.of(new Cell(GLBiomes.SUNFLOWER_PLAINS, HOT, HUMID, LOW_EROSION),
-					new Cell(GLBiomes.MUENZUKA, COLD, HUMID, LOW_EROSION),
-					new Cell(GLBiomes.HUMAN_VILLAGE, HOT, DRY, LOW_EROSION),
-					new Cell(GLBiomes.MYOUREN_TEMPLE_BARRENS, COLD, DRY, LOW_EROSION),
-					new Cell(GLBiomes.MAGICAL_FOREST, HOT, HUMID, HIGH_EROSION),
-					new Cell(GLBiomes.BAMBOO_FOREST_OF_THE_LOST, COLD, HUMID, HIGH_EROSION),
-					new Cell(GLBiomes.SAKURA_FOREST, HOT, DRY, HIGH_EROSION),
-					new Cell(GLBiomes.HILL_OF_THE_NAMELESS, COLD, DRY, HIGH_EROSION)),
-			List.of(new Cell(GLBiomes.UNTRODDEN_VALLEY, HOT, HUMID),
-					new Cell(GLBiomes.GENBU_RAVINE, COLD, HUMID),
-					new Cell(GLBiomes.YOUKAI_MOUNTAIN_FOOTHILLS, HOT, DRY),
-					new Cell(GLBiomes.SANCTUARY, COLD, DRY)),
-			List.of(new Cell(GLBiomes.TENGU_SETTLEMENT, FULL_PLANE, HUMID),
-				new Cell(GLBiomes.SECRET_HEAVEN_CLIFF, FULL_PLANE, DRY)),
-			List.of(new Cell(GLBiomes.YOUKAI_MOUNTAIN_SUMMIT, FULL_PLANE, FULL_PLANE)));
+			List.of(new Cell(MistyLakeBiomeGen.KEY, FULL_PLANE, FULL_PLANE)),
+			List.of(new Cell(MistyLakeShoreBiomeGen.KEY, FULL_PLANE, FULL_PLANE)),
+			List.of(new Cell(SunflowerPlainsBiomeGen.KEY, HOT, HUMID, LOW_EROSION),
+					new Cell(MuenzukaBiomeGen.KEY, COLD, HUMID, LOW_EROSION),
+					new Cell(HumanVillageBiomeGen.KEY, HOT, DRY, LOW_EROSION),
+					new Cell(MyourenTempleBarrensBiomeGen.KEY, COLD, DRY, LOW_EROSION),
+					new Cell(MagicalForestBiomeGen.KEY, HOT, HUMID, HIGH_EROSION),
+					new Cell(BambooForestOfTheLostBiomeGen.KEY, COLD, HUMID, HIGH_EROSION),
+					new Cell(SakuraForestBiomeGen.KEY, HOT, DRY, HIGH_EROSION),
+					new Cell(HillOfTheNamelessBiomeGen.KEY, COLD, DRY, HIGH_EROSION)),
+			List.of(new Cell(UntroddenValleyBiomeGen.KEY, HOT, HUMID),
+					new Cell(GenbuRavineBiomeGen.KEY, COLD, HUMID),
+					new Cell(YoukaiMountainFoothillsBiomeGen.KEY, HOT, DRY),
+					new Cell(SanctuaryBiomeGen.KEY, COLD, DRY)),
+			List.of(new Cell(TenguSettlementBiomeGen.KEY, FULL_PLANE, HUMID),
+				new Cell(SecretHeavenCliffBiomeGen.KEY, FULL_PLANE, DRY)),
+			List.of(new Cell(YoukaiMountainSummitBiomeGen.KEY, FULL_PLANE, FULL_PLANE)));
 
 	/**
 	 * The four underground biomes, tiled over the temperature and humidity plane the way the open-ground bands
@@ -343,13 +363,13 @@ public class GensokyoDimension {
 	 * Cold and humid is the ruins of the former hell, cold and dry the animal realm, and the two hot corners are
 	 * the two hells.
 	 */
-	private static final Cell HELL_CELL = new Cell(GLBiomes.FORMER_HELL, COLD, HUMID);
+	private static final Cell HELL_CELL = new Cell(FormerHellBiomeGen.KEY, COLD, HUMID);
 
 	private static final List<Cell> UNDERGROUND = List.of(
 			HELL_CELL,
-			new Cell(GLBiomes.ANIMAL_REALM, COLD, DRY),
-			new Cell(GLBiomes.HELL_OF_BLOOD_POOLS, HOT, HUMID),
-			new Cell(GLBiomes.HELL_OF_BLAZING_FIRES, HOT, DRY));
+			new Cell(AnimalRealmBiomeGen.KEY, COLD, DRY),
+			new Cell(HellOfBloodPoolsBiomeGen.KEY, HOT, HUMID),
+			new Cell(HellOfBlazingFiresBiomeGen.KEY, HOT, DRY));
 
 	public static void init(DataProviderInitializer init) {
 		// every registration of a registry has to share one bootstrap, so the density functions and the noise
@@ -405,7 +425,7 @@ public class GensokyoDimension {
 				// branches claim a whole column — the world bottom of a mountain_interior column came out stone and the
 				// other three netherrack or brick. Nothing else in the sequence moves by putting it here.
 				bedrockFloor(),
-				SurfaceRules.ifTrue(SurfaceRules.isBiome(GLBiomes.MISTY_LAKE, GLBiomes.MISTY_LAKE_SHORE),
+				SurfaceRules.ifTrue(SurfaceRules.isBiome(MistyLakeBiomeGen.KEY, MistyLakeShoreBiomeGen.KEY),
 						SurfaceRules.sequence(
 								// the bed itself, and a steep bank cut into it
 								SurfaceRules.ifTrue(SurfaceRules.ON_FLOOR, SurfaceRules.ifTrue(UNDERWATER,
@@ -416,16 +436,16 @@ public class GensokyoDimension {
 								// gravel through the two blocks under it, so the bed has a thickness to it
 								SurfaceRules.ifTrue(UNDER_BED, SurfaceRules.ifTrue(UNDERWATER,
 										SurfaceRules.state(Blocks.GRAVEL.defaultBlockState()))))),
-				SurfaceRules.ifTrue(SurfaceRules.isBiome(GLBiomes.YOUKAI_MOUNTAIN_SUMMIT),
+				SurfaceRules.ifTrue(SurfaceRules.isBiome(YoukaiMountainSummitBiomeGen.KEY),
 						SurfaceRules.sequence(
 								SurfaceRules.ifTrue(SurfaceRules.steep(), SurfaceRules.state(Blocks.STONE.defaultBlockState())),
 								// the low tail of the noise is scree, and everything else is exposed rock; the
 								// summit's soil pockets are the grass disk in the tail, not a third state here
-								SurfaceRules.ifTrue(SurfaceRules.noiseCondition(GensokyoBiomeFeatures.SUMMIT_SURFACE, -0.6),
+								SurfaceRules.ifTrue(SurfaceRules.noiseCondition(YoukaiMountainSummitBiomeGen.SUMMIT_SURFACE, -0.6),
 										SurfaceRules.state(Blocks.GRAVEL.defaultBlockState())),
 								SurfaceRules.state(Blocks.STONE.defaultBlockState()))),
 				// the shore's own waterline, which is the only place its ground is not the dimension's grass
-				SurfaceRules.ifTrue(SurfaceRules.isBiome(GLBiomes.MISTY_LAKE_SHORE),
+				SurfaceRules.ifTrue(SurfaceRules.isBiome(MistyLakeShoreBiomeGen.KEY),
 						SurfaceRules.sequence(
 								SurfaceRules.ifTrue(SurfaceRules.ON_FLOOR,
 										SurfaceRules.ifTrue(SurfaceRules.waterBlockCheck(-1, 0),
@@ -434,19 +454,19 @@ public class GensokyoDimension {
 										SurfaceRules.state(Blocks.GRAVEL.defaultBlockState()))))),
 				// the cliff is the settlement's dry half, so its exposure is all the rule has to do: the steep faces are bare rock
 				// and the flat ground falls through to the shared grass over dirt, with the scree laid on top by the tail
-				SurfaceRules.ifTrue(SurfaceRules.isBiome(GLBiomes.SECRET_HEAVEN_CLIFF),
+				SurfaceRules.ifTrue(SurfaceRules.isBiome(SecretHeavenCliffBiomeGen.KEY),
 						SurfaceRules.ifTrue(SurfaceRules.steep(), SurfaceRules.state(Blocks.STONE.defaultBlockState()))),
-				SurfaceRules.ifTrue(SurfaceRules.isBiome(GLBiomes.MOUNTAIN_INTERIOR),
+				SurfaceRules.ifTrue(SurfaceRules.isBiome(MountainInteriorBiomeGen.KEY),
 						// the mountain's own rock, the whole column: it only ever sits between the two rock bands, so
 						// there is no deepslate below it to grade into and no floor worth giving a different material
 						SurfaceRules.state(Blocks.STONE.defaultBlockState())),
-				SurfaceRules.ifTrue(SurfaceRules.isBiome(GLBiomes.HELL_OF_BLOOD_POOLS),
+				SurfaceRules.ifTrue(SurfaceRules.isBiome(HellOfBloodPoolsBiomeGen.KEY),
 						hellPalette(Blocks.NETHERRACK, Blocks.CRIMSON_NYLIUM, Blocks.BLACKSTONE)),
-				SurfaceRules.ifTrue(SurfaceRules.isBiome(GLBiomes.ANIMAL_REALM),
+				SurfaceRules.ifTrue(SurfaceRules.isBiome(AnimalRealmBiomeGen.KEY),
 						hellPalette(Blocks.PACKED_MUD, Blocks.DIRT, Blocks.DEEPSLATE)),
-				SurfaceRules.ifTrue(SurfaceRules.isBiome(GLBiomes.HELL_OF_BLAZING_FIRES),
+				SurfaceRules.ifTrue(SurfaceRules.isBiome(HellOfBlazingFiresBiomeGen.KEY),
 						hellPalette(Blocks.BLACKSTONE, Blocks.MAGMA_BLOCK, Blocks.BASALT)),
-				SurfaceRules.ifTrue(SurfaceRules.isBiome(GLBiomes.FORMER_HELL),
+				SurfaceRules.ifTrue(SurfaceRules.isBiome(FormerHellBiomeGen.KEY),
 						hellPalette(Blocks.STONE_BRICKS, Blocks.CRACKED_STONE_BRICKS, Blocks.POLISHED_DEEPSLATE)),
 				SurfaceRuleData.overworld());
 	}
@@ -743,7 +763,7 @@ public class GensokyoDimension {
 		// ceiling, and the depth between the two rock bands
 		values.add(Pair.of(new Climate.ParameterPoint(FULL_RANGE, FULL_RANGE,
 				CAVE_CONTINENTALNESS.parameter(), FULL_RANGE, CAVE_BAND.parameter(), FULL_RANGE, 0L),
-				biomes.getOrThrow(GLBiomes.MOUNTAIN_INTERIOR)));
+				biomes.getOrThrow(MountainInteriorBiomeGen.KEY)));
 		return MultiNoiseBiomeSource.createFromList(new Climate.ParameterList<>(values));
 	}
 

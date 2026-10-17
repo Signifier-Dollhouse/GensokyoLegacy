@@ -1,7 +1,7 @@
 package dev.xkmc.gensokyolegacy.content.worldgen.feature;
 
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
-import dev.xkmc.gensokyolegacy.init.data.biome.MagicalForestFeatures;
+import dev.xkmc.gensokyolegacy.init.data.biome.biomes.MagicalForestBiomeGen;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLNaturalBlocks;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
@@ -25,9 +25,9 @@ public class TreeFeatures {
 				() -> GLNaturalBlocks.BLUE_FUR_SET,
 				4, 2, 0,
 				UniformInt.of(1, 2), UniformInt.of(0, 1), UniformInt.of(1, 2),
-				MagicalForestFeatures.BLUE_FIR_MEDIUM,
-				MagicalForestFeatures.BLUE_FIR_LARGE,
-				MagicalForestFeatures.BLUE_FIR_GIANT),
+				MagicalForestBiomeGen.BLUE_FIR_MEDIUM,
+				MagicalForestBiomeGen.BLUE_FIR_LARGE,
+				MagicalForestBiomeGen.BLUE_FIR_GIANT),
 		;
 
 		public final String id;

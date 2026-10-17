@@ -12,6 +12,7 @@ import dev.xkmc.gensokyolegacy.init.data.structure.helper.StructFlatJigsawBuildi
 import dev.xkmc.gensokyolegacy.init.data.structure.helper.StructStructure;
 import dev.xkmc.gensokyolegacy.content.worldgen.structure.MultiSpreadPlacement;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
+import dev.xkmc.gensokyolegacy.init.data.biome.GLBiomeGen;
 import dev.xkmc.gensokyolegacy.init.registrate.GLEntities;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLBlocks;
@@ -50,7 +51,7 @@ public class GLStructureGen {
 				// Cirno's ice nest in the snowy biomes (13x8x13, bed at (10,1,7)-(10,1,8), door seals z0-1 gap):
 				// one attempt per region: it is 32 chunks wide and the dome 13 across, so extra attempts buy nothing.
 				new StructStructure(
-						CIRNO_NEST, GLStructureTagGen.CIRNO_NEST, 32, 1,
+						CIRNO_NEST, GLBiomeGen.CIRNO_NEST, 32, 1,
 						StructureConfigBuilder.cirno(),
 						List.of(new StructBed(
 								GLEntities.CIRNO,
@@ -64,7 +65,7 @@ public class GLStructureGen {
 				),
 				// Marisa's house in the modded magical forest (template 30x13x25, bed at local (4,6,16)-(5,6,16))
 				new StructStructure(
-						MARISA_HOUSE, GLStructureTagGen.MARISA_HOUSE, 32, 24,
+						MARISA_HOUSE, GLBiomeGen.MARISA_HOUSE, 32, 24,
 						StructureConfigBuilder.marisa(),
 						List.of(new StructBed(
 								GLEntities.MARISA,
@@ -78,7 +79,7 @@ public class GLStructureGen {
 				),
 			// Hakurei shrine jigsaw in the modded sakura forest (root 19x14x19, bed at local (5,2,12)-(5,2,13))
 			new StructStructure(
-					HAKUREI_SHRINE, GLStructureTagGen.HAKUREI_SHRINE, 32, 24,
+					HAKUREI_SHRINE, GLBiomeGen.HAKUREI_SHRINE, 32, 24,
 					StructureConfigBuilder.hakurei(),
 					List.of(new StructBed(
 							GLEntities.REIMU,
@@ -112,7 +113,7 @@ public class GLStructureGen {
 				// Kourindou (Morichika's shop) in the modded magical forest (template 33x18x33, bed at local
 				// (27,8,16)-(27,8,17))
 				new StructStructure(
-						MORICHIKA_SHOP, GLStructureTagGen.MORICHIKA_SHOP, 32, 24,
+						MORICHIKA_SHOP, GLBiomeGen.MORICHIKA_SHOP, 32, 24,
 						StructureConfigBuilder.morichika(),
 						List.of(new StructBed(
 								GLEntities.MORICHIKA,
@@ -129,7 +130,7 @@ public class GLStructureGen {
 				// Alice's house in the magical forest (root 29x23x18, bed at (12,6,6)-(12,6,7)). Five jigsaw parts
 				// hang off the root (gate, garden, path, tree, backyard), all on solid ground, so all are rigid.
 				new StructStructure(
-						ALICE_HOUSE, GLStructureTagGen.ALICE_HOUSE, 32, 24,
+						ALICE_HOUSE, GLBiomeGen.ALICE_HOUSE, 32, 24,
 						StructureConfigBuilder.alice(),
 						List.of(new StructBed(
 								GLEntities.ALICE,

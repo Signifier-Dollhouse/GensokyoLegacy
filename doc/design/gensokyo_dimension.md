@@ -321,7 +321,7 @@ anywhere the grid is silent.
 
 ## 5. Structures
 
-Every biome the dimension may select is mod-owned (`GLBiomes`). Vanilla filters structures by biome tag
+Every biome the dimension may select is mod-owned (a `AbstractBiomeGen` subclass in `init/data/biome/biomes/`). Vanilla filters structures by biome tag
 (`#minecraft:has_structure/*`), so a dimension made only of mod biomes cannot host `minecraft:village_plains` and
 friends. The mod's own structure sets survive because their tags already name `gensokyolegacy:magical_forest` /
 `sakura_forest`, and the `has_structure/*` and `has_spawn/*` tags are ours for the same reason — nothing here is added
@@ -329,13 +329,13 @@ to a vanilla or common biome tag, and the classification tags (`is_forest`, `is_
 `gensokyolegacy:` copies rather than the shared ones. See `doc/design/gensokyo_biomes.md` §8.
 
 Every one of the seventeen now writes its feature list out rather than copying it, so there is no copy step left to
-describe: `GLBiomes.Layers` sets the two carvers and each call names its own steps. `sunflower_plains` is the same
+describe: `BiomeGen.Layers` sets the two carvers and each call names its own steps. `sunflower_plains` is the same
 story as the rest now — `plains` plus `patch_sunflower`, written out like every other biome. The two established
 biomes are still left alone. See `doc/design/gensokyo_biomes.md` §1.
 
 ### What every biome drops
 
-Nothing is dropped, because nothing is copied: a feature is in a Gensokyo biome only because a line in `GLBiomes` says
+Nothing is dropped, because nothing is copied: a feature is in a Gensokyo biome only because a line in that biome's own class says
 so. What those lines all leave out, and why:
 
 | left out | step | why |
@@ -377,9 +377,9 @@ must still report no feature order cycle. The checker exists because `BiomeDefau
 the same registry overwrites the first with an empty map. So the density functions and the noise settings that reference
 them are both declared in `GensokyoDimension.init`, and dimension type and level stem both live in `GLDimensionGen.init`.
 
-Vanilla's biome objects cannot be reused directly for the copies: a holder owned by another provider fails
-`canSerializeIn` at write time, which is why `GLBiomes.copyOf` reads through `VanillaRegistries.createLookup()` and
-rebuilds from keys.
+This is also why the biomes are one list and not twenty-three providers: `BiomeGen.build` adds `BIOME`,
+`CONFIGURED_FEATURE`, `PLACED_FEATURE` and `NOISE` exactly once each and loops over the instances inside, so a biome
+class can only add its own entries and cannot accidentally claim a second bootstrap.
 
 ---
 
@@ -519,7 +519,7 @@ evaluates. The §3 and §4 tables are identical with and without the wrappers.
   `DF_EROSION_SMALL`, so the router's biome axes and the spline agree. Those two are behind registry keys in vanilla,
   so redirecting them in place is enough — nothing else in the router reads them.
 - `NoiseRouterData.overworld` builds **temperature and vegetation inline**, behind no registry key, so those
-  two cannot be redirected by `FlatTerrainFunctions` — which is why `noises` has to be called from `GLFeatureGen`, the
+  two cannot be redirected by `FlatTerrainFunctions` — which is why `noises` has to be called from `BiomeGen.build`, the
   owner of the single `Registries.NOISE` bootstrap (§6). `GensokyoDimension.smallClimateRouter` then rebuilds the
   `NoiseRouter` field by field, carrying over the other thirteen.
 

@@ -206,7 +206,7 @@ All via `GensokyoLegacy.HANDLER` `PLAY_TO_CLIENT/SERVER` with l2serial codecs.
 // in GLStructureGen.initStructures() — see MARISA_HOUSE for the canonical shape:
 return List.of(new StructStructure(
     GensokyoLegacy.loc("cirno_nest"),
-    GLStructureTagGen.CIRNO_NEST,          // biome tag
+    GLBiomeGen.CIRNO_NEST,                 // biome tag
     32, 24,                                // spacing, separation
     StructureConfig.builder(),            // .rooms(boxes).house(boxes).interior(...).outside/primary/wouldFix(tags)
     List.of(new StructBed(                 // → GLMeta.BED_DATA (Block→EntityType)

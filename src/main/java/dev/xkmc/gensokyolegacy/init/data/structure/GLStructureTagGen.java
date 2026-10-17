@@ -3,7 +3,6 @@ package dev.xkmc.gensokyolegacy.init.data.structure;
 import com.tterrag.registrate.providers.ProviderType;
 import com.tterrag.registrate.providers.RegistrateTagsProvider;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
-import dev.xkmc.gensokyolegacy.init.data.biome.GLBiomes;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLDecoBlocks;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLFurniture;
 import net.minecraft.core.registries.Registries;
@@ -11,57 +10,24 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
-import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.levelgen.structure.Structure;
-import net.neoforged.neoforge.common.Tags;
 
+/**
+ * The tags on the structure registry, and the block tags the structure material generator reads.
+ * <p>
+ * The biome tags that say where a structure may spawn are {@code GLBiomeGen}'s, not this file's: a branch adding a
+ * biome and a branch adding a structure each have one file to open. {@code GLStructureGen} is the only thing that
+ * reads both halves.
+ */
 public class GLStructureTagGen {
 
-	public static final ProviderType<RegistrateTagsProvider.Impl<Biome>> BIOME_TAG =
-			ProviderType.registerDynamicTag("biome", "biome", Registries.BIOME);
-
-	/** Tags on the structure registry itself, as opposed to the biome tags below which say where a structure
+	/** Tags on the structure registry itself, as opposed to the biome tags which say where a structure
 	 *  may spawn. These are what {@code ServerLevel#findNearestMapStructure} takes, so "point me at Reimu's
 	 *  shrine" style lookups are written against them. */
 	public static final ProviderType<RegistrateTagsProvider.Impl<Structure>> STRUCTURE_TAG =
 			ProviderType.registerDynamicTag("structure", "structure", Registries.STRUCTURE);
-
-	public static final TagKey<Biome> CIRNO_NEST = biomeTag("has_structure/cirno_nest");
-	public static final TagKey<Biome> HAKUREI_SHRINE = biomeTag("has_structure/hakurei_shrine");
-	public static final TagKey<Biome> MARISA_HOUSE = biomeTag("has_structure/marisa_house");
-	public static final TagKey<Biome> MORICHIKA_SHOP = biomeTag("has_structure/morichika_shop");
-	public static final TagKey<Biome> ALICE_HOUSE = biomeTag("has_structure/alice_house");
-	public static final TagKey<Biome> PLAIN_FAIRY_SPAWN = biomeTag("has_spawn/plain_fairy");
-
-	/** Our own copies of the overworld's biome categories, same names in our own namespace.
-	 *
-	 *  <p>Gensokyo biomes deliberately stay out of {@code minecraft:is_forest} and the rest. Those are shared
-	 *  vocabulary: every mod that ships a forest biome writes to the same tag, so what is in them is a claim about
-	 *  the biome that other mods read to decide their own behaviour — a mod testing {@code c:is_forest} for "put
-	 *  mushrooms down" would start finding them on a cliff it cannot see. Ours are the same classification without
-	 *  the side effect, and reading both pairs is fine, which is what {@link #PLAIN_FAIRY_SPAWN} does. */
-	public static final TagKey<Biome> IS_MAGICAL = biomeTag("is_magical");
-	public static final TagKey<Biome> IS_FOREST = biomeTag("is_forest");
-	public static final TagKey<Biome> IS_PLAINS = biomeTag("is_plains");
-	public static final TagKey<Biome> IS_MOUNTAIN = biomeTag("is_mountain");
-	public static final TagKey<Biome> IS_MOUNTAIN_PEAK = biomeTag("is_mountain/peak");
-	public static final TagKey<Biome> IS_UNDERGROUND = biomeTag("is_underground");
-	public static final TagKey<Biome> IS_SPOOKY = biomeTag("is_spooky");
-	public static final TagKey<Biome> IS_FLORAL = biomeTag("is_floral");
-	public static final TagKey<Biome> IS_WET = biomeTag("is_wet");
-	public static final TagKey<Biome> IS_BEACH = biomeTag("is_beach");
-	public static final TagKey<Biome> IS_AQUATIC = biomeTag("is_aquatic");
-	public static final TagKey<Biome> IS_DRY = biomeTag("is_dry");
-	public static final TagKey<Biome> IS_TAIGA = biomeTag("is_taiga");
-
-	/** Youkai's Feasts' own cherry tag, written by our datagen run: a tag provider writes to the namespace of
-	 *  the tag it is handed, so this is the only way to reach a foreign tag without a hand-written file.
-	 *  Spelled out rather than imported because that mod is compile-only. */
-	public static final TagKey<Biome> YSF_CHERRY_BIOMES = TagKey.create(Registries.BIOME,
-			ResourceLocation.fromNamespaceAndPath("youkaisfeasts", "cherry_biomes"));
 
 	public static final TagKey<Structure> CIRNO_NEST_STRUCTURE = structureTag("cirno_nest");
 	public static final TagKey<Structure> HAKUREI_SHRINE_STRUCTURE = structureTag("hakurei_shrine");
@@ -85,83 +51,12 @@ public class GLStructureTagGen {
 	public static final TagKey<Block> ALICE_PRIMARY = blockTag("structure_fix/alice_house/primary");
 	public static final TagKey<Block> ALICE_FIX = blockTag("structure_fix/alice_house/would_fix");
 
-	public static TagKey<Biome> biomeTag(String name) {
-		return TagKey.create(Registries.BIOME, GensokyoLegacy.loc(name));
-	}
-
 	public static TagKey<Structure> structureTag(String name) {
 		return TagKey.create(Registries.STRUCTURE, GensokyoLegacy.loc(name));
 	}
 
 	public static TagKey<Block> blockTag(String name) {
 		return BlockTags.create(GensokyoLegacy.loc(name));
-	}
-
-	public static void genBiomeTag(RegistrateTagsProvider.Impl<Biome> pvd) {
-		pvd.addTag(CIRNO_NEST)
-				.add(Biomes.SNOWY_PLAINS)
-				.add(Biomes.ICE_SPIKES)
-				.add(Biomes.FROZEN_OCEAN)
-				.add(Biomes.DEEP_FROZEN_OCEAN)
-				.add(Biomes.GROVE)
-				.add(Biomes.FROZEN_RIVER)
-				.add(Biomes.SNOWY_TAIGA)
-				.add(Biomes.SNOWY_BEACH);
-		pvd.addTag(HAKUREI_SHRINE)
-				.add(Biomes.CHERRY_GROVE)
-				.add(GLBiomes.SAKURA_FOREST)
-				// Youkai's Feasts' own sakura forest, a shrine grove as much as ours. Optional, so that mod stays
-				// optional, and only that one biome: its sakura taiga and birch forest are another stand of trees.
-				.addOptional(ResourceLocation.parse("youkaisfeasts:sakura_forest"));
-		// Our sakura forest is a cherry grove to Youkai's Feasts. "replace" stays false, which is the point: their
-		// file lists three sakura biomes and the loader clears all if any pack replaces. Magical forest is not one.
-		pvd.addTag(YSF_CHERRY_BIOMES).add(GLBiomes.SAKURA_FOREST);
-		pvd.addTag(MARISA_HOUSE)
-				.add(GLBiomes.MAGICAL_FOREST);
-		pvd.addTag(MORICHIKA_SHOP)
-				.add(GLBiomes.MAGICAL_FOREST);
-		pvd.addTag(ALICE_HOUSE)
-				.add(GLBiomes.MAGICAL_FOREST);
-		// the one place that reads both pairs. The modifier is not scoped to a dimension, so it has to reach the
-		// vanilla overworld's forests and plains as well as Gensokyo's — nesting the shared tags costs nothing here,
-		// because reading a tag is not a claim about it, and it is the only way the overworld keeps its fairies.
-		pvd.addTag(PLAIN_FAIRY_SPAWN)
-				.addTag(Tags.Biomes.IS_FOREST)
-				.addTag(Tags.Biomes.IS_PLAINS)
-				.addTag(IS_FOREST)
-				.addTag(IS_PLAINS);
-		pvd.addTag(IS_MAGICAL).add(GLBiomes.MAGICAL_FOREST).add(GLBiomes.SAKURA_FOREST);
-		pvd.addTag(IS_FOREST)
-				.add(GLBiomes.MAGICAL_FOREST).add(GLBiomes.SAKURA_FOREST)
-				.add(GLBiomes.MUENZUKA).add(GLBiomes.BAMBOO_FOREST_OF_THE_LOST)
-				.add(GLBiomes.UNTRODDEN_VALLEY).add(GLBiomes.YOUKAI_MOUNTAIN_FOOTHILLS)
-				.add(GLBiomes.TENGU_SETTLEMENT);
-		pvd.addTag(IS_PLAINS)
-				.add(GLBiomes.HUMAN_VILLAGE).add(GLBiomes.SUNFLOWER_PLAINS)
-				.add(GLBiomes.HILL_OF_THE_NAMELESS);
-		// the mountain band and the two fixed locations above it
-		pvd.addTag(IS_MOUNTAIN)
-				.add(GLBiomes.UNTRODDEN_VALLEY).add(GLBiomes.GENBU_RAVINE)
-				.add(GLBiomes.YOUKAI_MOUNTAIN_FOOTHILLS).add(GLBiomes.SANCTUARY)
-				.add(GLBiomes.TENGU_SETTLEMENT).add(GLBiomes.SECRET_HEAVEN_CLIFF)
-				.add(GLBiomes.YOUKAI_MOUNTAIN_SUMMIT);
-		pvd.addTag(IS_MOUNTAIN_PEAK).add(GLBiomes.YOUKAI_MOUNTAIN_SUMMIT);
-		pvd.addTag(IS_UNDERGROUND)
-				.add(GLBiomes.HELL_OF_BLOOD_POOLS).add(GLBiomes.ANIMAL_REALM)
-				.add(GLBiomes.FORMER_HELL).add(GLBiomes.HELL_OF_BLAZING_FIRES)
-				.add(GLBiomes.MOUNTAIN_INTERIOR);
-		pvd.addTag(IS_SPOOKY).add(GLBiomes.MUENZUKA).add(GLBiomes.HILL_OF_THE_NAMELESS);
-		pvd.addTag(IS_FLORAL).add(GLBiomes.HUMAN_VILLAGE).add(GLBiomes.SANCTUARY)
-				.add(GLBiomes.HILL_OF_THE_NAMELESS);
-		pvd.addTag(IS_WET).add(GLBiomes.GENBU_RAVINE)
-				.add(GLBiomes.MISTY_LAKE).add(GLBiomes.MISTY_LAKE_SHORE);
-		// the four fixed locations. Misty Lake is not tagged as an ocean: it is a freshwater lake, and anything that
-		// branches on is_ocean would put oceans' own overrides on it
-		pvd.addTag(IS_BEACH).add(GLBiomes.MISTY_LAKE_SHORE);
-		pvd.addTag(IS_AQUATIC).add(GLBiomes.MISTY_LAKE);
-		pvd.addTag(IS_DRY).add(GLBiomes.MYOUREN_TEMPLE_BARRENS);
-		pvd.addTag(IS_TAIGA).add(GLBiomes.BAMBOO_FOREST_OF_THE_LOST)
-				.add(GLBiomes.UNTRODDEN_VALLEY);
 	}
 
 	public static void genStructureTag(RegistrateTagsProvider.Impl<Structure> pvd) {

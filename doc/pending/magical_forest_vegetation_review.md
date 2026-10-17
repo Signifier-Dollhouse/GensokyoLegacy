@@ -89,7 +89,7 @@
 
 ### 3.2 ⏳ 地被的 configured feature 分在两个类里
 
-草 / 花 / 小蘑菇 patch 和四种圆盘的 configured feature 留在 `GLFeatureGen`（原有位置），它们的 placed feature 在 `MagicalForestFeatures`。当时为减少对原作者文件的改动而保留；如果 `MagicalForestFeatures` 已经是魔法森林植被的唯一入口，把这几个 CF 一并搬过去更顺。
+草 / 花 / 小蘑菇 patch 和四种圆盘的 configured feature 留在 `VegetationFeatureGen`（原有位置），它们的 placed feature 在 `MagicalForestFeatures`。当时为减少对原作者文件的改动而保留；如果 `MagicalForestFeatures` 已经是魔法森林植被的唯一入口，把这几个 CF 一并搬过去更顺。
 
 ### 3.3 ⏳ 结构 id 是字符串
 

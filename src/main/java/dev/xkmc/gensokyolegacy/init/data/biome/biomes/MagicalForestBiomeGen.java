@@ -1,4 +1,4 @@
-package dev.xkmc.gensokyolegacy.init.data.biome;
+package dev.xkmc.gensokyolegacy.init.data.biome.biomes;
 
 import dev.xkmc.gensokyolegacy.content.block.nature.CedarFallenLeavesBlock;
 import dev.xkmc.gensokyolegacy.content.block.nature.WaterloggedBushBlock;
@@ -12,6 +12,7 @@ import dev.xkmc.gensokyolegacy.content.worldgen.placement.GridLayer;
 import dev.xkmc.gensokyolegacy.content.worldgen.placement.JitteredGridPlacement;
 import dev.xkmc.gensokyolegacy.content.worldgen.placement.NoiseBandFilter;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
+import dev.xkmc.gensokyolegacy.init.data.biome.AbstractBiomeGen;
 import dev.xkmc.gensokyolegacy.init.registrate.GLWorldGen;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLNaturalBlocks;
 import net.minecraft.core.Direction;
@@ -29,7 +30,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.random.SimpleWeightedRandomList;
 import net.minecraft.util.valueproviders.UniformInt;
-import net.minecraft.world.level.biome.BiomeGenerationSettings;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.MobSpawnSettings;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SmallDripleafBlock;
 import net.minecraft.world.level.block.state.BlockState;
@@ -64,17 +66,24 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Vegetation of the magical forest, built from hand-made templates: canopy layers placed top-down, then ground cover,
- * with ponds carved in the LAKES step ahead of everything. <p> Giant and large trees sit on seed-pure jittered grids;
- * lower layers keep their distance from those grids. {@link #FOREST_TYPE} splits the biome into forest types, {@link
- * #CLEARING} opens clearings.
+ * The magical forest, built from hand-made templates: canopy layers placed top-down, then ground cover, with ponds
+ * carved in the LAKES step ahead of everything.
+ * <p>
+ * Giant and large trees sit on seed-pure jittered grids; lower layers keep their distance from those grids.
+ * {@link #FOREST_TYPE} splits the biome into forest types, {@link #CLEARING} opens clearings. This is the only Gensokyo
+ * biome that takes vanilla's {@code addDefaultOres} chain rather than writing its steps out, which is why it uses
+ * {@link #raw} instead of {@link #layers} and spells its step order out in {@link #ORDER}.
  *
  * @see "doc/design/magical_forest_vegetation.md"
  */
-public class MagicalForestFeatures {
+public class MagicalForestBiomeGen extends AbstractBiomeGen {
 
-	public static final ResourceKey<NormalNoise.NoiseParameters> FOREST_TYPE = ResourceKey.create(Registries.NOISE, GensokyoLegacy.loc("magical_forest_type"));
-	public static final ResourceKey<NormalNoise.NoiseParameters> CLEARING = ResourceKey.create(Registries.NOISE, GensokyoLegacy.loc("magical_forest_clearing"));
+	public static final ResourceKey<Biome> KEY = biome("magical_forest");
+
+	public static final ResourceKey<NormalNoise.NoiseParameters> FOREST_TYPE =
+			ResourceKey.create(Registries.NOISE, GensokyoLegacy.loc("magical_forest_type"));
+	public static final ResourceKey<NormalNoise.NoiseParameters> CLEARING =
+			ResourceKey.create(Registries.NOISE, GensokyoLegacy.loc("magical_forest_clearing"));
 
 	private static final double GLADE = -0.4, OLD_GROWTH = 0.2, CLEARING_MIN = 0.6;
 
@@ -92,13 +101,13 @@ public class MagicalForestFeatures {
 	private static final GridExclusionFilter UNDERSTORY_SPACING = spacing(new Entry(GIANT, 5), new Entry(LARGE_DENSE, 4));
 
 	// blocks kept free around the listed buildings, by canopy size
-	private static final int GIANT_CLEARANCE = 13, LARGE_CLEARANCE = 11, MEDIUM_CLEARANCE = 6, SMALL_CLEARANCE = 4, GROUND_CLEARANCE = 2;
+	private static final int GIANT_CLEARANCE = 13, LARGE_CLEARANCE = 11, MEDIUM_CLEARANCE = 6, SMALL_CLEARANCE = 4,
+			GROUND_CLEARANCE = 2;
 	private static final int LAKE_CLEARANCE = 11;
-	private static final List<String> STRUCTURES = List.of("marisa_house", "morichika_shop", "hakurei_shrine", "alice_house");
+	private static final List<String> STRUCTURES = List.of("marisa_house", "morichika_shop", "hakurei_shrine",
+			"alice_house");
 
-	/**
-	 * Terrain tolerance of a template size: sample radius, max height difference, root extension.
-	 */
+	/** Terrain tolerance of a template size: sample radius, max height difference, root extension. */
 	private record Footprint(int radius, int maxSlope, int rootDepth) {
 	}
 
@@ -108,6 +117,8 @@ public class MagicalForestFeatures {
 	private static final Footprint SMALL_FOOTPRINT = new Footprint(1, 2, 3);
 	private static final Footprint BUSH_FOOTPRINT = new Footprint(1, 2, 2);
 	private static final Footprint TINY_FOOTPRINT = new Footprint(0, 0, 2);
+
+	private static final PlacementModifier FLOOR = HeightmapPlacement.onHeightmap(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES);
 
 	// configured features
 	private static final ResourceKey<ConfiguredFeature<?, ?>> OAK_GIANT = cf("oak_giant");
@@ -136,9 +147,19 @@ public class MagicalForestFeatures {
 	private static final ResourceKey<ConfiguredFeature<?, ?>> MUSHROOM_SMALL_CLUSTER = cf("mushroom_small_cluster");
 	private static final ResourceKey<ConfiguredFeature<?, ?>> FALLEN_LEAVES = cf("fallen_leaves");
 	private static final ResourceKey<ConfiguredFeature<?, ?>> LAKE = cf("lake");
+	private static final ResourceKey<ConfiguredFeature<?, ?>> GRASS = topCf("magical_forest_grass");
+	private static final ResourceKey<ConfiguredFeature<?, ?>> FLOWERS = topCf("magical_forest_flowers");
+	private static final ResourceKey<ConfiguredFeature<?, ?>> MUSHROOMS = topCf("magical_forest_mushrooms");
+	private static final ResourceKey<ConfiguredFeature<?, ?>> DISK_COARSE_DIRT =
+			topCf("magical_forest_disk_coarse_dirt");
+	private static final ResourceKey<ConfiguredFeature<?, ?>> DISK_PODZOL = topCf("magical_forest_disk_podzol");
+	private static final ResourceKey<ConfiguredFeature<?, ?>> DISK_MYCELIUM = topCf("magical_forest_disk_mycelium");
 
 	// placed features
 	private static final ResourceKey<PlacedFeature> LAKE_PF = pf("lake");
+	private static final ResourceKey<PlacedFeature> DISK_COARSE_DIRT_PLACED = topPf("magical_forest_disk_coarse_dirt");
+	private static final ResourceKey<PlacedFeature> DISK_PODZOL_PLACED = topPf("magical_forest_disk_podzol");
+	private static final ResourceKey<PlacedFeature> DISK_MYCELIUM_PLACED = topPf("magical_forest_disk_mycelium");
 	private static final ResourceKey<PlacedFeature> GIANT_MIXED_PF = pf("giant_tree_mixed");
 	private static final ResourceKey<PlacedFeature> GIANT_FIR_PF = pf("giant_tree_old_growth");
 	private static final ResourceKey<PlacedFeature> GIANT_GLADE_PF = pf("giant_tree_glade");
@@ -162,6 +183,9 @@ public class MagicalForestFeatures {
 
 	/**
 	 * Generation order: canopy layers top-down, then ground cover.
+	 * <p>
+	 * Spelled out rather than read off the order {@code placed} registers in, so that reordering a registration cannot
+	 * quietly reorder a biome. The pond is not in it: it runs in the LAKES step, ahead of everything.
 	 */
 	private static final List<ResourceKey<PlacedFeature>> ORDER = List.of(
 			GIANT_MIXED_PF, GIANT_FIR_PF, GIANT_GLADE_PF,
@@ -169,30 +193,30 @@ public class MagicalForestFeatures {
 			MUSHROOM_LARGE_GLADE_PF, MUSHROOM_LARGE_PF,
 			MEDIUM_TREE_PF, MUSHROOM_MEDIUM_GLADE_PF, MUSHROOM_MEDIUM_PF,
 			BUSH_PF, MUSHROOM_SMALL_GLADE_PF, MUSHROOM_SMALL_PF,
-			FALLEN_LEAVES_PF, GRASS_PF, GRASS_FOREST_PF, GRASS_TAIGA_PF, LARGE_FERN_PF, FLOWERS_PF, MUSHROOMS_PF
-	);
+			FALLEN_LEAVES_PF, GRASS_PF, GRASS_FOREST_PF, GRASS_TAIGA_PF, LARGE_FERN_PF, FLOWERS_PF, MUSHROOMS_PF);
 
-	public static void addVegetation(BiomeGenerationSettings.Builder builder) {
+	public MagicalForestBiomeGen() {
+		super(KEY);
+	}
+
+	@Override
+	protected Biome build(BootstrapContext<Biome> ctx) {
+		var builder = addDefaultOres(raw(ctx))
+				.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, DISK_COARSE_DIRT_PLACED)
+				.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, DISK_PODZOL_PLACED)
+				.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, DISK_MYCELIUM_PLACED)
+				// The pond is not vegetation: it runs in the LAKES step ahead of everything, because the template
+				// feature rejects wet ground, so the trees keep off it on their own.
+				.addFeature(GenerationStep.Decoration.LAKES, LAKE_PF);
 		for (var key : ORDER) {
 			builder.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, key);
 		}
+		return biome(new MobSpawnSettings.Builder(), builder);
 	}
 
-	/**
-	 * Runs in the LAKES step, ahead of vegetation: the template feature rejects wet ground, so the
-	 * trees keep off the ponds on their own.
-	 */
-	public static void addLake(BiomeGenerationSettings.Builder builder) {
-		builder.addFeature(GenerationStep.Decoration.LAKES, LAKE_PF);
-	}
-
-	public static void noise(BootstrapContext<NormalNoise.NoiseParameters> ctx) {
-		ctx.register(FOREST_TYPE, new NormalNoise.NoiseParameters(-7, 1.0, 0.5));
-		ctx.register(CLEARING, new NormalNoise.NoiseParameters(-5, 1.0));
-	}
-
-	public static void configured(BootstrapContext<ConfiguredFeature<?, ?>> ctx) {
-		var cf = ctx.lookup(Registries.CONFIGURED_FEATURE);
+	@Override
+	protected void configured(BootstrapContext<ConfiguredFeature<?, ?>> ctx) {
+		HolderGetter<ConfiguredFeature<?, ?>> cf = ctx.lookup(Registries.CONFIGURED_FEATURE);
 		var template = GLWorldGen.TEMPLATE.get();
 
 		// ground patches around big trunks, placed by the template feature at the trunk base
@@ -268,12 +292,45 @@ public class MagicalForestFeatures {
 				new WeightedPlacedFeature(PlacementUtils.inlinePlaced(cf.getOrThrow(OAK_LARGE)), 0.5F)
 		), PlacementUtils.inlinePlaced(cf.getOrThrow(BLUE_FIR_LARGE))));
 		// vanilla huge mushrooms stay as a rare accent
-		FeatureUtils.register(ctx, MUSHROOM_MEDIUM, Feature.RANDOM_SELECTOR, new RandomFeatureConfiguration(List.of(
-				new WeightedPlacedFeature(PlacementUtils.inlinePlaced(cf.getOrThrow(TreeFeatures.HUGE_BROWN_MUSHROOM)), 0.08F),
-				new WeightedPlacedFeature(PlacementUtils.inlinePlaced(cf.getOrThrow(TreeFeatures.HUGE_RED_MUSHROOM)), 0.08F)
-		), PlacementUtils.inlinePlaced(cf.getOrThrow(MUSHROOM_MEDIUM_TEMPLATE))));
+		Holder<PlacedFeature> brown = PlacementUtils.inlinePlaced(cf.getOrThrow(TreeFeatures.HUGE_BROWN_MUSHROOM));
+		Holder<PlacedFeature> red = PlacementUtils.inlinePlaced(cf.getOrThrow(TreeFeatures.HUGE_RED_MUSHROOM));
+		FeatureUtils.register(ctx, MUSHROOM_MEDIUM, Feature.RANDOM_SELECTOR, new RandomFeatureConfiguration(
+				List.of(new WeightedPlacedFeature(brown, 0.08F), new WeightedPlacedFeature(red, 0.08F)),
+				PlacementUtils.inlinePlaced(cf.getOrThrow(MUSHROOM_MEDIUM_TEMPLATE))));
 		FeatureUtils.register(ctx, MUSHROOM_SMALL_CLUSTER, Feature.RANDOM_PATCH, new RandomPatchConfiguration(
 				5, 4, 2, PlacementUtils.inlinePlaced(cf.getOrThrow(MUSHROOM_SMALL))));
+
+		FeatureUtils.register(ctx, GRASS, Feature.RANDOM_PATCH, onDirt(24, new Palette()
+				.add(GLNaturalBlocks.BROOM_GRASS.get().defaultBlockState(), 1)
+				.add(GLNaturalBlocks.BRACKEN.get().defaultBlockState(), 2).build()));
+		FeatureUtils.register(ctx, FLOWERS, Feature.RANDOM_PATCH, onDirt(32, new Palette()
+				.add(GLNaturalBlocks.STAR_FLOWER.get().defaultBlockState(), 3)
+				.add(GLNaturalBlocks.BROOM_GRASS.get().defaultBlockState(), 3)
+				.add(GLNaturalBlocks.BRACKEN.get().defaultBlockState(), 2)
+				.add(GLNaturalBlocks.EUGUNE_RED.get().defaultBlockState(), 2)
+				.add(GLNaturalBlocks.EUGUNE_BROWN.get().defaultBlockState(), 2)
+				.add(GLNaturalBlocks.EUGUNE_GHOST_FIRE.get().defaultBlockState(), 1)
+				.add(GLNaturalBlocks.FLAME_CATTAIL.get().defaultBlockState(), 1)
+				.add(GLNaturalBlocks.GHOST_FIRE_MUSHROOM_SET.cap.get().defaultBlockState(), 2)
+				.add(GLNaturalBlocks.DREAM_MUSHROOM_SET.cap.get().defaultBlockState(), 2)
+				.add(GLNaturalBlocks.DEMONIC_MIASMA_MUSHROOM_SET.cap.get().defaultBlockState(), 1).build()));
+		FeatureUtils.register(ctx, MUSHROOMS, Feature.RANDOM_PATCH, onDirt(32, new Palette()
+				.add(GLNaturalBlocks.GHOST_FIRE_MUSHROOM_SET.cap.get().defaultBlockState(), 2)
+				.add(GLNaturalBlocks.DREAM_MUSHROOM_SET.cap.get().defaultBlockState(), 2)
+				.add(GLNaturalBlocks.DEMONIC_MIASMA_MUSHROOM_SET.cap.get().defaultBlockState(), 1).build()));
+
+		var soil = BlockPredicate.matchesBlocks(List.of(Blocks.GRASS_BLOCK, Blocks.DIRT));
+		var grassOnly = BlockPredicate.matchesBlocks(Blocks.GRASS_BLOCK);
+		FeatureUtils.register(ctx, DISK_COARSE_DIRT, Feature.DISK,
+				new DiskConfiguration(RuleBasedBlockStateProvider.simple(Blocks.COARSE_DIRT),
+						soil, UniformInt.of(2, 4), 2));
+		FeatureUtils.register(ctx, DISK_PODZOL, Feature.DISK,
+				new DiskConfiguration(RuleBasedBlockStateProvider.simple(Blocks.PODZOL),
+						grassOnly, UniformInt.of(2, 4), 1));
+		FeatureUtils.register(ctx, DISK_MYCELIUM, Feature.DISK,
+				new DiskConfiguration(RuleBasedBlockStateProvider.simple(Blocks.MYCELIUM),
+						grassOnly, UniformInt.of(2, 3), 1));
+
 		// pond: 3-5 blobs of component radius 8, carved inside a 24 wide box
 		BlockState cattailWet = GLNaturalBlocks.FLAME_CATTAIL.get().defaultBlockState()
 				.setValue(WaterloggedBushBlock.WATERLOGGED, true);
@@ -303,92 +360,105 @@ public class MagicalForestFeatures {
 								cattailDry, Blocks.AIR.defaultBlockState(), 0.08f, BlockTags.DIRT))));
 	}
 
-	public static void placed(BootstrapContext<PlacedFeature> ctx) {
-		var cf = ctx.lookup(Registries.CONFIGURED_FEATURE);
-		var structures = structures(ctx.lookup(Registries.STRUCTURE));
+	@Override
+	protected void placed(Registrar reg) {
+		var structures = structures(reg.ctx().lookup(Registries.STRUCTURE));
+		reg.placed(DISK_COARSE_DIRT_PLACED, reg.feature(DISK_COARSE_DIRT),
+				CountPlacement.of(4), InSquarePlacement.spread(),
+				PlacementUtils.HEIGHTMAP_OCEAN_FLOOR, BiomeFilter.biome());
+		reg.placed(DISK_PODZOL_PLACED, reg.feature(DISK_PODZOL),
+				CountPlacement.of(3), InSquarePlacement.spread(),
+				PlacementUtils.HEIGHTMAP_OCEAN_FLOOR, BiomeFilter.biome());
+		reg.placed(DISK_MYCELIUM_PLACED, reg.feature(DISK_MYCELIUM),
+				CountPlacement.of(2), InSquarePlacement.spread(),
+				PlacementUtils.HEIGHTMAP_OCEAN_FLOOR, BiomeFilter.biome());
+		reg.placed(LAKE_PF, reg.feature(LAKE),
+				RarityFilter.onAverageOnceEvery(6), InSquarePlacement.spread(),
+				avoid(structures, LAKE_CLEARANCE), FLOOR, SurfaceWaterDepthFilter.forMaxDepth(0), BiomeFilter.biome());
+
 		var noClearing = NoiseBandFilter.below(CLEARING, CLEARING_MIN);
 		var glade = NoiseBandFilter.below(FOREST_TYPE, GLADE);
 		var noGlade = NoiseBandFilter.atLeast(FOREST_TYPE, GLADE);
 		var mixed = new NoiseBandFilter(FOREST_TYPE, GLADE, OLD_GROWTH);
 		var oldGrowth = NoiseBandFilter.atLeast(FOREST_TYPE, OLD_GROWTH);
 
-		PlacementUtils.register(ctx, LAKE_PF, cf.getOrThrow(LAKE),
-				RarityFilter.onAverageOnceEvery(6), InSquarePlacement.spread(),
-				avoid(structures, LAKE_CLEARANCE), FLOOR, SurfaceWaterDepthFilter.forMaxDepth(0), BiomeFilter.biome());
-
 		// L1 giant trees: one grid, density and species by forest type
-		tree(ctx, GIANT_MIXED_PF, cf.getOrThrow(GIANT_MIXED), new JitteredGridPlacement(GIANT),
+		tree(reg, GIANT_MIXED_PF, reg.feature(GIANT_MIXED), new JitteredGridPlacement(GIANT),
 				mixed, noClearing, avoid(structures, GIANT_CLEARANCE));
-		tree(ctx, GIANT_FIR_PF, cf.getOrThrow(BLUE_FIR_GIANT), new JitteredGridPlacement(GIANT),
+		tree(reg, GIANT_FIR_PF, reg.feature(BLUE_FIR_GIANT), new JitteredGridPlacement(GIANT),
 				oldGrowth, noClearing, avoid(structures, GIANT_CLEARANCE));
-		tree(ctx, GIANT_GLADE_PF, cf.getOrThrow(BLUE_FIR_GIANT), new JitteredGridPlacement(GIANT_SPARSE),
+		tree(reg, GIANT_GLADE_PF, reg.feature(BLUE_FIR_GIANT), new JitteredGridPlacement(GIANT_SPARSE),
 				glade, noClearing, avoid(structures, GIANT_CLEARANCE));
 
 		// L2 large trees
-		tree(ctx, LARGE_MIXED_PF, cf.getOrThrow(LARGE_MIXED), new JitteredGridPlacement(LARGE),
+		tree(reg, LARGE_MIXED_PF, reg.feature(LARGE_MIXED), new JitteredGridPlacement(LARGE),
 				mixed, noClearing, LARGE_SPACING, avoid(structures, LARGE_CLEARANCE));
-		tree(ctx, LARGE_FIR_PF, cf.getOrThrow(BLUE_FIR_LARGE), new JitteredGridPlacement(LARGE_DENSE),
+		tree(reg, LARGE_FIR_PF, reg.feature(BLUE_FIR_LARGE), new JitteredGridPlacement(LARGE_DENSE),
 				oldGrowth, noClearing, LARGE_SPACING, avoid(structures, LARGE_CLEARANCE));
 
 		// huge mushrooms: the main cast of the glade, a rare sight elsewhere
-		tree(ctx, MUSHROOM_LARGE_GLADE_PF, cf.getOrThrow(MUSHROOM_LARGE), new JitteredGridPlacement(GLADE_MUSHROOM),
+		tree(reg, MUSHROOM_LARGE_GLADE_PF, reg.feature(MUSHROOM_LARGE), new JitteredGridPlacement(GLADE_MUSHROOM),
 				glade, MUSHROOM_SPACING, avoid(structures, MEDIUM_CLEARANCE));
-		tree(ctx, MUSHROOM_LARGE_PF, cf.getOrThrow(MUSHROOM_LARGE), RarityFilter.onAverageOnceEvery(6),
+		tree(reg, MUSHROOM_LARGE_PF, reg.feature(MUSHROOM_LARGE), RarityFilter.onAverageOnceEvery(6),
 				InSquarePlacement.spread(), noGlade, MUSHROOM_SPACING, avoid(structures, MEDIUM_CLEARANCE));
 
 		// L3 medium trees stand at the rim of the big crowns
-		tree(ctx, MEDIUM_TREE_PF, cf.getOrThrow(BLUE_FIR_MEDIUM), CountPlacement.of(5), InSquarePlacement.spread(),
+		tree(reg, MEDIUM_TREE_PF, reg.feature(BLUE_FIR_MEDIUM), CountPlacement.of(5), InSquarePlacement.spread(),
 				noGlade, noClearing, MEDIUM_SPACING, avoid(structures, MEDIUM_CLEARANCE));
-		tree(ctx, MUSHROOM_MEDIUM_GLADE_PF, cf.getOrThrow(MUSHROOM_MEDIUM), CountPlacement.of(2),
+		tree(reg, MUSHROOM_MEDIUM_GLADE_PF, reg.feature(MUSHROOM_MEDIUM), CountPlacement.of(2),
 				InSquarePlacement.spread(), glade, UNDERSTORY_SPACING, avoid(structures, SMALL_CLEARANCE));
-		tree(ctx, MUSHROOM_MEDIUM_PF, cf.getOrThrow(MUSHROOM_MEDIUM), RarityFilter.onAverageOnceEvery(3),
+		tree(reg, MUSHROOM_MEDIUM_PF, reg.feature(MUSHROOM_MEDIUM), RarityFilter.onAverageOnceEvery(3),
 				InSquarePlacement.spread(), noGlade, UNDERSTORY_SPACING, avoid(structures, SMALL_CLEARANCE));
 
 		// L4 understory: bushes and small mushrooms, under the crowns as well
-		tree(ctx, BUSH_PF, cf.getOrThrow(AZALEA_BUSH), CountPlacement.of(4), InSquarePlacement.spread(),
+		tree(reg, BUSH_PF, reg.feature(AZALEA_BUSH), CountPlacement.of(4), InSquarePlacement.spread(),
 				UNDERSTORY_SPACING, avoid(structures, GROUND_CLEARANCE));
-		tree(ctx, MUSHROOM_SMALL_GLADE_PF, cf.getOrThrow(MUSHROOM_SMALL_CLUSTER), CountPlacement.of(2),
+		tree(reg, MUSHROOM_SMALL_GLADE_PF, reg.feature(MUSHROOM_SMALL_CLUSTER), CountPlacement.of(2),
 				InSquarePlacement.spread(), glade, avoid(structures, GROUND_CLEARANCE));
-		tree(ctx, MUSHROOM_SMALL_PF, cf.getOrThrow(MUSHROOM_SMALL_CLUSTER), RarityFilter.onAverageOnceEvery(2),
+		tree(reg, MUSHROOM_SMALL_PF, reg.feature(MUSHROOM_SMALL_CLUSTER), RarityFilter.onAverageOnceEvery(2),
 				InSquarePlacement.spread(), noGlade, avoid(structures, GROUND_CLEARANCE));
 
 		// L5 ground cover; FLOOR is the no-leaves heightmap, so it reaches the ground under the canopies
-		cover(ctx, FALLEN_LEAVES_PF, cf.getOrThrow(FALLEN_LEAVES), CountPlacement.of(2), new CanopyFilter(4, true));
-		cover(ctx, GRASS_PF, cf.getOrThrow(GLFeatureGen.MAGICAL_FOREST_GRASS), CountPlacement.of(2));
-		cover(ctx, LARGE_FERN_PF, cf.getOrThrow(VegetationFeatures.PATCH_LARGE_FERN), RarityFilter.onAverageOnceEvery(5));
-		cover(ctx, GRASS_FOREST_PF, cf.getOrThrow(VegetationFeatures.PATCH_GRASS), CountPlacement.of(8));
-		cover(ctx, GRASS_TAIGA_PF, cf.getOrThrow(VegetationFeatures.PATCH_TAIGA_GRASS), CountPlacement.of(9));
-		cover(ctx, FLOWERS_PF, cf.getOrThrow(GLFeatureGen.MAGICAL_FOREST_FLOWERS), CountPlacement.of(3));
-		cover(ctx, MUSHROOMS_PF, cf.getOrThrow(GLFeatureGen.MAGICAL_FOREST_MUSHROOMS), CountPlacement.of(2));
+		cover(reg, FALLEN_LEAVES_PF, reg.feature(FALLEN_LEAVES), CountPlacement.of(2), new CanopyFilter(4, true));
+		cover(reg, GRASS_PF, reg.feature(GRASS), CountPlacement.of(2));
+		cover(reg, LARGE_FERN_PF, reg.feature(VegetationFeatures.PATCH_LARGE_FERN), RarityFilter.onAverageOnceEvery(5));
+		cover(reg, GRASS_FOREST_PF, reg.feature(VegetationFeatures.PATCH_GRASS), CountPlacement.of(8));
+		cover(reg, GRASS_TAIGA_PF, reg.feature(VegetationFeatures.PATCH_TAIGA_GRASS), CountPlacement.of(9));
+		cover(reg, FLOWERS_PF, reg.feature(FLOWERS), CountPlacement.of(3));
+		cover(reg, MUSHROOMS_PF, reg.feature(MUSHROOMS), CountPlacement.of(2));
 	}
 
-	private static final PlacementModifier FLOOR = HeightmapPlacement.onHeightmap(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES);
+	@Override
+	protected void noise(BootstrapContext<NormalNoise.NoiseParameters> ctx) {
+		ctx.register(FOREST_TYPE, new NormalNoise.NoiseParameters(-7, 1.0, 0.5));
+		ctx.register(CLEARING, new NormalNoise.NoiseParameters(-5, 1.0));
+	}
 
 	/**
-	 * A tree sized feature: the given modifiers, then the forest floor. <p> Water and slope are the template feature's
-	 * job; a surface water depth filter would also reject columns under hanging vines, so the heightmap only has to
-	 * start above the ground.
+	 * A tree sized feature: the given modifiers, then the forest floor.
+	 * <p>
+	 * Water and slope are the template feature's job; a surface water depth filter would also reject columns under
+	 * hanging vines, so the heightmap only has to start above the ground.
 	 */
-	private static void tree(BootstrapContext<PlacedFeature> ctx, ResourceKey<PlacedFeature> key,
+	private static void tree(Registrar reg, ResourceKey<PlacedFeature> key,
 							 Holder<ConfiguredFeature<?, ?>> feature, PlacementModifier... modifiers) {
 		List<PlacementModifier> list = new ArrayList<>(List.of(modifiers));
 		list.add(FLOOR);
 		list.add(BiomeFilter.biome());
-		PlacementUtils.register(ctx, key, feature, list);
+		reg.placed(key, feature, list);
 	}
 
-	/**
-	 * Ground cover: {@code count} patches spread over the chunk, on the forest floor.
-	 */
-	private static void cover(BootstrapContext<PlacedFeature> ctx, ResourceKey<PlacedFeature> key,
-							  Holder<ConfiguredFeature<?, ?>> feature, PlacementModifier count, PlacementModifier... filters) {
+	/** Ground cover: {@code count} patches spread over the chunk, on the forest floor. */
+	private static void cover(Registrar reg, ResourceKey<PlacedFeature> key,
+							  Holder<ConfiguredFeature<?, ?>> feature,
+							  PlacementModifier count, PlacementModifier... filters) {
 		List<PlacementModifier> list = new ArrayList<>();
 		list.add(count);
 		list.add(InSquarePlacement.spread());
 		list.addAll(List.of(filters));
 		list.add(FLOOR);
 		list.add(BiomeFilter.biome());
-		PlacementUtils.register(ctx, key, feature, list);
+		reg.placed(key, feature, list);
 	}
 
 	private static GridExclusionFilter spacing(Entry... entries) {
@@ -399,7 +469,16 @@ public class MagicalForestFeatures {
 		return new AvoidStructuresFilter(structures, clearance);
 	}
 
-	private static TemplateFeatureConfig vegetation(Footprint footprint, List<Holder<PlacedFeature>> floor, String... templates) {
+	private static HolderSet<Structure> structures(HolderGetter<Structure> lookup) {
+		List<Holder<Structure>> list = new ArrayList<>();
+		for (var id : STRUCTURES) {
+			list.add(lookup.getOrThrow(ResourceKey.create(Registries.STRUCTURE, GensokyoLegacy.loc(id))));
+		}
+		return HolderSet.direct(list);
+	}
+
+	private static TemplateFeatureConfig vegetation(Footprint footprint, List<Holder<PlacedFeature>> floor,
+													String... templates) {
 		var list = SimpleWeightedRandomList.<ResourceLocation>builder();
 		for (var id : templates) {
 			list.add(GensokyoLegacy.loc("magical_forest/" + id), 1);
@@ -407,7 +486,8 @@ public class MagicalForestFeatures {
 		return vegetation(footprint, floor, list.build());
 	}
 
-	private static TemplateFeatureConfig vegetation(Footprint footprint, List<Holder<PlacedFeature>> floor, List<Map.Entry<String, Integer>> templates) {
+	private static TemplateFeatureConfig vegetation(Footprint footprint, List<Holder<PlacedFeature>> floor,
+													List<Map.Entry<String, Integer>> templates) {
 		var list = SimpleWeightedRandomList.<ResourceLocation>builder();
 		for (var e : templates) {
 			list.add(GensokyoLegacy.loc("magical_forest/" + e.getKey()), e.getValue());
@@ -415,7 +495,8 @@ public class MagicalForestFeatures {
 		return vegetation(footprint, floor, list.build());
 	}
 
-	private static TemplateFeatureConfig vegetation(Footprint footprint, List<Holder<PlacedFeature>> floor, SimpleWeightedRandomList<ResourceLocation> templates) {
+	private static TemplateFeatureConfig vegetation(Footprint footprint, List<Holder<PlacedFeature>> floor,
+													SimpleWeightedRandomList<ResourceLocation> templates) {
 		return new TemplateFeatureConfig(templates, TemplateFeatureConfig.NO_PROCESSORS, BlockTags.DIRT,
 				footprint.radius(), footprint.maxSlope(), 0, footprint.rootDepth(), floor);
 	}
@@ -427,34 +508,38 @@ public class MagicalForestFeatures {
 				UniformInt.of(minRadius, maxRadius), 2));
 	}
 
-	private static RandomPatchConfiguration groundPatch(int tries, int spread, BlockStateProvider state) {
+	private static RandomPatchConfiguration fallenLeavesPatch(int tries, int spread) {
+		BlockState leaves = GLNaturalBlocks.CEDAR_FALLEN_LEAVES.get().defaultBlockState();
 		return new RandomPatchConfiguration(tries, spread, 3, PlacementUtils.filtered(Feature.SIMPLE_BLOCK,
-				new SimpleBlockConfiguration(state), BlockPredicate.allOf(BlockPredicate.ONLY_IN_AIR_PREDICATE,
+				new SimpleBlockConfiguration(new WeightedStateProvider(SimpleWeightedRandomList.<BlockState>builder()
+						.add(leaves.setValue(CedarFallenLeavesBlock.LAYERS, 1), 3)
+						.add(leaves.setValue(CedarFallenLeavesBlock.LAYERS, 2), 1)
+						.build())), BlockPredicate.allOf(BlockPredicate.ONLY_IN_AIR_PREDICATE,
 						BlockPredicate.matchesTag(Direction.DOWN.getNormal(), BlockTags.DIRT))));
 	}
 
-	private static RandomPatchConfiguration fallenLeavesPatch(int tries, int spread) {
-		BlockState leaves = GLNaturalBlocks.CEDAR_FALLEN_LEAVES.get().defaultBlockState();
-		return groundPatch(tries, spread, new WeightedStateProvider(SimpleWeightedRandomList.<BlockState>builder()
-				.add(leaves.setValue(CedarFallenLeavesBlock.LAYERS, 1), 3)
-				.add(leaves.setValue(CedarFallenLeavesBlock.LAYERS, 2), 1)
-				.build()));
-	}
-
-	private static HolderSet<Structure> structures(HolderGetter<Structure> lookup) {
-		List<Holder<Structure>> list = new ArrayList<>();
-		for (var id : STRUCTURES) {
-			list.add(lookup.getOrThrow(ResourceKey.create(Registries.STRUCTURE, GensokyoLegacy.loc(id))));
-		}
-		return HolderSet.direct(list);
-	}
-
-	private static ResourceKey<ConfiguredFeature<?, ?>> cf(String id) {
+	/**
+	 * The forest's own namespace, which is not the {@code gensokyo_biome/} one the other biomes write under, so the
+	 * inherited {@code cf} and {@code pf} are replaced here rather than qualified at every call.
+	 */
+	protected static ResourceKey<ConfiguredFeature<?, ?>> cf(String id) {
 		return ResourceKey.create(Registries.CONFIGURED_FEATURE, GensokyoLegacy.loc("magical_forest/" + id));
 	}
 
-	private static ResourceKey<PlacedFeature> pf(String id) {
+	protected static ResourceKey<PlacedFeature> pf(String id) {
 		return ResourceKey.create(Registries.PLACED_FEATURE, GensokyoLegacy.loc("magical_forest/" + id));
+	}
+
+	/**
+	 * The six features the overworld's own biome generator also placed, written at the top level where they already
+	 * were and where a datapack that replaces one of them still finds it.
+	 */
+	private static ResourceKey<ConfiguredFeature<?, ?>> topCf(String id) {
+		return ResourceKey.create(Registries.CONFIGURED_FEATURE, GensokyoLegacy.loc(id));
+	}
+
+	private static ResourceKey<PlacedFeature> topPf(String id) {
+		return ResourceKey.create(Registries.PLACED_FEATURE, GensokyoLegacy.loc(id));
 	}
 
 }

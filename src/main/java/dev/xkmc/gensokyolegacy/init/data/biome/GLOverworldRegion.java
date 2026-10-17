@@ -2,6 +2,8 @@ package dev.xkmc.gensokyolegacy.init.data.biome;
 
 import com.mojang.datafixers.util.Pair;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
+import dev.xkmc.gensokyolegacy.init.data.biome.biomes.MagicalForestBiomeGen;
+import dev.xkmc.gensokyolegacy.init.data.biome.biomes.SakuraForestBiomeGen;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -14,9 +16,9 @@ import terrablender.api.VanillaParameterOverlayBuilder;
 
 import java.util.function.Consumer;
 
-public class MagicalForestRegion extends Region {
+public class GLOverworldRegion extends Region {
 
-	public MagicalForestRegion(int weight) {
+	public GLOverworldRegion(int weight) {
 		super(ResourceLocation.fromNamespaceAndPath(GensokyoLegacy.MODID, "magical_forest"), RegionType.OVERWORLD, weight);
 	}
 
@@ -35,7 +37,7 @@ public class MagicalForestRegion extends Region {
 				.weirdness(ParameterUtils.Weirdness.MID_SLICE_NORMAL_ASCENDING, ParameterUtils.Weirdness.MID_SLICE_NORMAL_DESCENDING,
 						ParameterUtils.Weirdness.HIGH_SLICE_NORMAL_ASCENDING, ParameterUtils.Weirdness.HIGH_SLICE_NORMAL_DESCENDING)
 				.build()
-				.forEach(point -> builder.add(point, GLBiomes.SAKURA_FOREST));
+				.forEach(point -> builder.add(point, SakuraForestBiomeGen.KEY));
 		new ParameterUtils.ParameterPointListBuilder()
 				.temperature(ParameterUtils.Temperature.NEUTRAL, ParameterUtils.Temperature.COOL,
 						ParameterUtils.Temperature.WARM)
@@ -47,7 +49,7 @@ public class MagicalForestRegion extends Region {
 				.weirdness(ParameterUtils.Weirdness.MID_SLICE_NORMAL_ASCENDING, ParameterUtils.Weirdness.MID_SLICE_NORMAL_DESCENDING,
 						ParameterUtils.Weirdness.HIGH_SLICE_NORMAL_ASCENDING, ParameterUtils.Weirdness.HIGH_SLICE_NORMAL_DESCENDING)
 				.build()
-				.forEach(point -> builder.add(point, GLBiomes.MAGICAL_FOREST));
+				.forEach(point -> builder.add(point, MagicalForestBiomeGen.KEY));
 		builder.build().forEach(mapper);
 	}
 

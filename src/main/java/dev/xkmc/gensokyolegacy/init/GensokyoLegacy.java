@@ -16,9 +16,10 @@ import dev.xkmc.gensokyolegacy.content.rpg.core.CodecRegistry;
 import dev.xkmc.gensokyolegacy.event.GLAttackListener;
 import dev.xkmc.gensokyolegacy.event.GLClickHandler;
 import dev.xkmc.gensokyolegacy.init.data.*;
-import dev.xkmc.gensokyolegacy.init.data.biome.GLBiomes;
-import dev.xkmc.gensokyolegacy.init.data.biome.GLFeatureGen;
-import dev.xkmc.gensokyolegacy.init.data.biome.MagicalForestRegion;
+import dev.xkmc.gensokyolegacy.init.data.biome.GLBiomeGen;
+import dev.xkmc.gensokyolegacy.init.data.biome.GLBiomeModifierGen;
+import dev.xkmc.gensokyolegacy.init.data.biome.GLOverworldRegion;
+import dev.xkmc.gensokyolegacy.init.data.biome.biomes.*;
 import dev.xkmc.gensokyolegacy.init.data.loot.GiftLootGen;
 import dev.xkmc.gensokyolegacy.init.data.loot.GLGLMProvider;
 import dev.xkmc.gensokyolegacy.init.data.rpg.AliceQDGen;
@@ -142,7 +143,7 @@ public class GensokyoLegacy {
 			((ItemAccessor) Items.POTION).setCraftingRemainingItem(Items.GLASS_BOTTLE);
 			((ItemAccessor) Items.DRAGON_BREATH).setCraftingRemainingItem(Items.GLASS_BOTTLE);
 
-			Regions.register(new MagicalForestRegion(GLModConfig.COMMON.regionWeight.get()));
+			Regions.register(new GLOverworldRegion(GLModConfig.COMMON.regionWeight.get()));
 		});
 	}
 
@@ -151,7 +152,7 @@ public class GensokyoLegacy {
 		REGISTRATE.addDataGenerator(ProviderType.BLOCK_TAGS, GLTagGen::onBlockTagGen);
 		REGISTRATE.addDataGenerator(ProviderType.ITEM_TAGS, GLTagGen::onItemTagGen);
 		REGISTRATE.addDataGenerator(ProviderType.ENTITY_TAGS, GLTagGen::onEntityTagGen);
-		REGISTRATE.addDataGenerator(GLStructureTagGen.BIOME_TAG, GLStructureTagGen::genBiomeTag);
+		REGISTRATE.addDataGenerator(GLBiomeGen.BIOME_TAG, GLBiomeGen::genBiomeTag);
 		REGISTRATE.addDataGenerator(GLStructureTagGen.STRUCTURE_TAG, GLStructureTagGen::genStructureTag);
 		REGISTRATE.addDataGenerator(ProviderType.DATA_MAP, GLDataMapGen::dataMapGen);
 		REGISTRATE.addDataGenerator(ProviderType.RECIPE, GLRecipeGen::genRecipe);
@@ -160,13 +161,13 @@ public class GensokyoLegacy {
 		REGISTRATE.addDataGenerator(ProviderType.ADVANCEMENT, GLAdvGen::genAdv);
 		REGISTRATE.addDataGenerator(ProviderType.LANG, GLLang::genLang);
 		var init = REGISTRATE.getDataGenInitializer();
-		init.addDependency(GLStructureTagGen.BIOME_TAG, ProviderType.DYNAMIC);
+		init.addDependency(GLBiomeGen.BIOME_TAG, ProviderType.DYNAMIC);
 		init.addDependency(GLStructureTagGen.STRUCTURE_TAG, ProviderType.DYNAMIC);
 		init.addDependency(ProviderType.ADVANCEMENT, ProviderType.DYNAMIC);
 		GLDimensionGen.init(init);
-		GLBiomes.init(init);
+		GLBiomeGen.init(init);
+		GLBiomeModifierGen.init(init);
 		GLStructureGen.init(init);
-		GLFeatureGen.init(init);
 		new GLDamageTypes(REGISTRATE).generate();
 
 		var gen = event.getGenerator();

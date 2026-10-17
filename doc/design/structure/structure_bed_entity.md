@@ -73,7 +73,7 @@ bedReg.add(BEDS[RUMIA], new BedData(RUMIA_ENTITY));
 //                   (marisa/morichika/alice share `magical_forest_houses`, the shrine has its own set)
 ```
 
-Structure tags written via `GLStructureTagGen` per `has_structure/<id>.json`.
+Structure tags written via `GLBiomeGen` per `has_structure/<id>.json`.
 
 ### 3.2 Bed Placement and Paired Destruction
 
@@ -217,7 +217,7 @@ StructBed myBed = new StructBed(
     GLBlocks.Beds.MY_BED.holder()                  // Holder<Block> for this bed
 );
 StructStructure myStruct = new StructStructure(
-    MY_SHRINE, GLStructureTagGen.MY_SHRINE, 32, 24,  // id, biome tag, spacing, separation
+    MY_SHRINE, GLBiomeGen.MY_SHRINE, 32, 24,  // id, biome tag, spacing, separation
     StructureConfig.builder(),                      // rooms/house/interior + outside/primary/wouldFix
     List.of(myBed),
     visits(Map.of()),                                // guest slots
