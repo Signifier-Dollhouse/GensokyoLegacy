@@ -3,6 +3,7 @@ package dev.xkmc.gensokyolegacy.content.entity.behavior.module;
 import dev.xkmc.gensokyolegacy.content.attachment.character.ReputationConstants;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.impl.YoukaiFlags;
+import dev.xkmc.gensokyolegacy.content.item.gift.GiftItemData;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
 import dev.xkmc.l2serial.serialization.marker.SerialClass;
@@ -20,8 +21,12 @@ import net.minecraft.world.item.ItemStack;
 /**
  * Giving gift items to a character, for the favor it gives {@code CharacterData} and a per-item cooldown
  * rather than the flat amount a dish is worth. Ordering against a feed module is the caller's.
+ * <p>
+ * A favor that comes out at 0 or below is a refusal rather than a free gift: the item is not consumed
+ * and no cooldown starts, so the interaction falls through. How much she thinks a category is worth is
+ * her {@code gift_preference} datamap entry; see {@link GiftItemData#getFavor}.
  *
- * @see "doc/design/reputation.md"
+ * @see "doc/design/gift.md"
  */
 @SerialClass
 public class GiftModule extends AbstractYoukaiModule {

@@ -11,8 +11,9 @@ import net.minecraft.world.item.alchemy.PotionContents;
 import java.util.List;
 
 /**
- * A drink that can be given to characters (GiftType.DRINK). Its effects live in
- * {@link FoodProperties}, so drinking it consumes the stack and gives back what they say (a bottle).
+ * A drink that can be given to characters, currently the two sakes ({@code GiftType.ALCOHOL}). Its
+ * effects live in {@link FoodProperties}, so drinking it consumes the stack and gives back what they
+ * say (a bottle).
  */
 public class DrinkGiftItem extends Item {
 

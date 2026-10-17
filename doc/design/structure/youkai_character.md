@@ -252,7 +252,6 @@ public static final EntityEntry<GeneralYoukaiEntity> MY_YOUKAI = REGISTRATE
     .properties(e -> e.sized(0.6f, 1.8f).clientTrackingRange(10))
     .attributes(GeneralYoukaiEntity::createAttributes)
     .renderer(() -> GeneralYoukaiRenderer::new)
-    .spawnEgg(0xFF0000, 0x00FF00)
     .defaultLang().loot().tag(GLEntities.YOUKAI).register();
 
 // model/spell binding via GLMeta or TouhouSpellCards: set SPELL + SYNC model string
