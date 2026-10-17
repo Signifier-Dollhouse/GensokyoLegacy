@@ -3,7 +3,7 @@ package dev.xkmc.gensokyolegacy.content.entity.behavior.task.core;
 import dev.xkmc.gensokyolegacy.content.block.deco.door.SlidingDoor;
 import dev.xkmc.gensokyolegacy.content.block.deco.door.SlidingDoorUtils;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.SmartYoukaiEntity;
-import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiAnim;
+import dev.xkmc.gensokyolegacy.content.entity.youkai.impl.YoukaiAnim;
 import dev.xkmc.gensokyolegacy.init.data.GLTagGen;
 import dev.xkmc.gensokyolegacy.util.BrainUtils;
 import net.minecraft.core.BlockPos;

@@ -6,13 +6,14 @@
   "pages": [
     {
       "type": "patchouli:spotlight",
-      "item": "tag:gensokyolegacy:party_table",
-      "text": "A banquet begins with the table. Dishes go on the table top, or right up against its side.$(br2)Both the quality and the variety of your dishes raise the spread's appeal. Put them where they can be reached, or a guest may end up eating on the tabletop."
+      "item": "gensokyolegacy:plate",
+      "text": "A banquet begins with the table. Dishes go on the table top, or right up against its side. Set out food that can be placed as a block, or serve it on a plate.$(br2)Both the quality and the variety of your dishes raise the spread's appeal. Put them where they can be reached, or a guest may end up eating on the tabletop."
     },
     {
       "type": "patchouli:spotlight",
-      "item": "tag:gensokyolegacy:party_seat",
-      "text": "A spread with nowhere to sit is not a banquet. Tables and chairs within three blocks of one another all count as the same banquet. Spacing them out helps guests move about and take food, though not too far.$(br2)Hold the banquet in an open place, where guests can easily reach it."
+      "item": "tag:gensokyolegacy:stool",
+      "text": "A spread with nowhere to sit is not a banquet. Tables and chairs within three blocks of one another all count as the same banquet. Spacing them out helps guests move about and take food, though not too far.$(br2)Hold the banquet in an open place, where guests can easily reach it.",
+      "_website_marker": true
     },
     {
       "type": "patchouli:spotlight",

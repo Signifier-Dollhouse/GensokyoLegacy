@@ -3,18 +3,17 @@ package dev.xkmc.gensokyolegacy.content.entity.characters.fairy;
 import dev.xkmc.gensokyolegacy.content.attachment.home.core.HomeBlockKind;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.brain.TaskBoard;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.combat.YoukaiCombatManager;
+import dev.xkmc.gensokyolegacy.content.entity.behavior.module.*;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.sensor.NearbyItemsSensor;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.sensor.YoukaiFindPreySensor;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.sensor.YoukaiHomeBlocksSensor;
-import dev.xkmc.gensokyolegacy.content.entity.behavior.task.core.YoukaiAcquireTargetTask;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.task.home.YoukaiCraftTask;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.task.play.ItemPickupTask;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.task.play.YoukaiHuntTask;
-import dev.xkmc.gensokyolegacy.content.entity.module.*;
-import dev.xkmc.gensokyolegacy.content.entity.youkai.GeoYoukaiAnim;
+import dev.xkmc.gensokyolegacy.content.entity.youkai.impl.GeoYoukaiAnim;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.GeneralYoukaiEntity;
-import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiAnim;
-import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiFlags;
+import dev.xkmc.gensokyolegacy.content.entity.youkai.impl.YoukaiAnim;
+import dev.xkmc.gensokyolegacy.content.entity.youkai.impl.YoukaiFlags;
 import dev.xkmc.gensokyolegacy.content.item.ingredient.FrozenFrogItem;
 import dev.xkmc.gensokyolegacy.init.registrate.GLBrains;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
@@ -145,6 +144,7 @@ public class CirnoEntity extends FairyEntity implements GeoYoukaiAnim {
 				new VisitModule(this),
 				new CirnoFeedModule(this),
 				new PartyModule(this),
+				new GiftModule(this),
 				new CountPickupModule(this, e -> e.getItem() instanceof FrozenFrogItem)
 		);
 	}

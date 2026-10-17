@@ -1,7 +1,7 @@
 package dev.xkmc.gensokyolegacy.compat.jei;
 
-import dev.xkmc.gensokyolegacy.content.entity.module.EntityInteraction;
-import dev.xkmc.gensokyolegacy.content.entity.module.EntityInteractions;
+import dev.xkmc.gensokyolegacy.content.entity.behavior.module.EntityInteraction;
+import dev.xkmc.gensokyolegacy.content.entity.behavior.module.EntityInteractions;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.l2core.compat.jei.BaseRecipeCategory;
@@ -32,7 +32,7 @@ import java.util.List;
  * joins the same page rather than a category of its own, since both are the same shape — something
  * offered, what it earns, something handed over.
  *
- * @see dev.xkmc.gensokyolegacy.content.entity.module.EntityInteractions
+ * @see EntityInteractions
  */
 public class EntityInteractionCategory extends BaseRecipeCategory<EntityType<?>, EntityInteractionCategory> {
 

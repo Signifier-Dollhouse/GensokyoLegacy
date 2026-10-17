@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "D": {
+      "item": "gensokyolegacy:fairy_dust"
+    },
+    "P": {
+      "item": "minecraft:phantom_membrane"
+    }
+  },
+  "pattern": [
+    "P P",
+    "DDD",
+    "P P"
+  ],
+  "result": {
+    "count": 1,
+    "id": "gensokyolegacy:fairy_wings"
+  }
+}

@@ -195,4 +195,12 @@ public class DamageClampEntity extends DamageRefactorEntity {
 		return players;
 	}
 
+	/**
+	 * Boss-bar visibility. Owned here with the rest of the bar's plumbing and driven from
+	 * {@code YoukaiCombat#tickTargeting}, which cannot reach the protected field itself.
+	 */
+	public void setBossBarVisible(boolean visible) {
+		bossEvent.setVisible(visible);
+	}
+
 }

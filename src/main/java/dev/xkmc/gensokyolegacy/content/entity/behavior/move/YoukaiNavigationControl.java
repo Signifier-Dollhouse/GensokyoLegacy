@@ -2,7 +2,7 @@ package dev.xkmc.gensokyolegacy.content.entity.behavior.move;
 
 import dev.xkmc.gensokyolegacy.content.entity.youkai.SmartYoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
-import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiFlags;
+import dev.xkmc.gensokyolegacy.content.entity.youkai.impl.YoukaiFlags;
 import dev.xkmc.gensokyolegacy.init.registrate.GLBrains;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;

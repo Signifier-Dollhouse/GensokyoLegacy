@@ -1,8 +1,8 @@
 package dev.xkmc.gensokyolegacy.content.attachment.party.core;
 
-import dev.xkmc.gensokyolegacy.content.entity.module.HomeModule;
-import dev.xkmc.gensokyolegacy.content.entity.module.PartyModule;
-import dev.xkmc.gensokyolegacy.content.entity.module.VisitModule;
+import dev.xkmc.gensokyolegacy.content.entity.behavior.module.HomeModule;
+import dev.xkmc.gensokyolegacy.content.entity.behavior.module.PartyModule;
+import dev.xkmc.gensokyolegacy.content.entity.behavior.module.VisitModule;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import dev.xkmc.gensokyolegacy.init.data.GLModConfig;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
@@ -15,7 +15,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.ai.util.LandRandomPos;
 import net.minecraft.world.entity.ai.util.RandomPos;
 import net.minecraft.world.item.ItemStack;
@@ -310,11 +309,20 @@ public class PartySend {
 	/** How far down to look for whatever a dish is sitting on. */
 	private static final int SUPPORT_DROP = 4;
 
-	private static boolean isStandable(ServerLevel level, BlockPos pos) {
+	/**
+	 * Vertical search order for {@link #freeSpaceNear}: the anchor's own level first, the way
+	 * {@link #groundNear} starts, because a guest is put down at the level she is aimed at and
+	 * not on whatever happens to be two blocks above it.
+	 */
+	private static final int[] LEVELS = {0, -1, 1, -2, 2};
+
+	/** Whether a guest can be put down on this exact block. What {@link #freeSpaceNear} tests, for one. */
+	public static boolean isStandable(ServerLevel level, BlockPos pos) {
 		return level.isLoaded(pos) && standable(level, pos) && !furniture(level, pos.getCenter());
 	}
 
-	/** A free, standable block within {@code radius} rings of {@code near}, or null. Rings
+	/**
+	 * A free, standable block within {@code radius} rings of {@code near}, or null. Rings
 	 * outward rather than a box, so the closest free space wins — the caller wants beside the
 	 * chair, not as far from it as the search reached.
 	 */
@@ -324,7 +332,7 @@ public class PartySend {
 			for (int dx = -r; dx <= r; dx++) {
 				for (int dz = -r; dz <= r; dz++) {
 					if (Math.max(Math.abs(dx), Math.abs(dz)) != r) continue;
-					for (int dy = 2; dy >= -2; dy--) {
+					for (int dy : LEVELS) {
 						var pos = near.offset(dx, dy, dz);
 						if (!level.isLoaded(pos) || !standable(level, pos)) continue;
 						if (furniture(level, pos.getCenter())) continue;

@@ -41,14 +41,12 @@ public record PartyTarget(@Nullable BlockPos interact, @Nullable BlockPos walkTo
 		return new PartyTarget(dish, ground, seated ? 3 : 2, WALK_REACH);
 	}
 
-	/** The same target, arriving somewhere else instead — used after a teleport. */
-	public PartyTarget walkedTo(BlockPos at) {
-		return new PartyTarget(interact, at, interactReach, walkReach);
-	}
-
-	/** Whether she is where she was sent. */
+	/**
+	 * Whether she is where she was sent. With no standable block to walk to there is nothing to
+	 * stand on, so being in reach of the thing itself is the whole of arriving.
+	 */
 	public boolean arrived(PartyContext ctx) {
-		return within(ctx, walkTo, walkReach);
+		return walkTo == null ? inReach(ctx) : within(ctx, walkTo, walkReach);
 	}
 
 	/** Whether she is close enough to the chair or the dish to act on it. */

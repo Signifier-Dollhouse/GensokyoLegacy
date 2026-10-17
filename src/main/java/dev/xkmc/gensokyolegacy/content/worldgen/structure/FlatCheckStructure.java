@@ -9,7 +9,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.QuartPos;
 import net.minecraft.core.RegistryAccess;
-import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.chunk.ChunkGenerator;
@@ -21,8 +20,8 @@ import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.PoolElementStructurePiece;
 import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.StructurePiece;
+import net.minecraft.world.level.levelgen.structure.StructureSet;
 import net.minecraft.world.level.levelgen.structure.StructureType;
-import net.minecraft.world.level.levelgen.structure.placement.RandomSpreadType;
 import net.minecraft.world.level.levelgen.structure.pools.DimensionPadding;
 import net.minecraft.world.level.levelgen.structure.pools.JigsawPlacement;
 import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
@@ -37,9 +36,11 @@ import java.util.Set;
 
 /**
  * Port of YoukaiHomecoming 1.20.1 FlatStructure, paired with {@link MultiSpreadPlacement}. Every check is a pure
- * function of seed and position, so exactly one start per region is placed whatever the chunk generation order. {@code
- * spacing}, {@code spreadType}, {@code salt} and {@code attempts} must match the structure set placement, and
- * setCount/salt must never change once released.
+ * function of seed and position, so exactly one start per region is placed whatever the chunk generation order. Spacing,
+ * spread type, salt and attempts are read from {@link #set}, the structure set that places this structure, rather than
+ * copied here, so the two sides cannot disagree. setCount/setIndex must never change once released.
+ *
+ * @see "doc/design/structure/placement.md"
  */
 public class FlatCheckStructure extends Structure {
 
@@ -50,24 +51,23 @@ public class FlatCheckStructure extends Structure {
 			Codec.BOOL.fieldOf("use_expansion_hack").forGetter((e) -> e.useExpansionHack),
 			Codec.intRange(1, 128).fieldOf("max_distance_from_center").forGetter((e) -> e.maxDistanceFromCenter),
 			Codec.intRange(1, 128).fieldOf("height_tolerance").forGetter((e) -> e.flatTolerance),
-			Codec.intRange(1, 128).fieldOf("attempts").forGetter((e) -> e.attempts),
-			Codec.intRange(1, 4096).fieldOf("spacing").forGetter((e) -> e.spacing),
-			RandomSpreadType.CODEC.optionalFieldOf("spread_type", RandomSpreadType.LINEAR).forGetter((e) -> e.spreadType),
-			ExtraCodecs.NON_NEGATIVE_INT.fieldOf("salt").forGetter((e) -> e.salt),
+			StructureSet.CODEC.fieldOf("set").forGetter((e) -> e.set),
 			Codec.intRange(0, 16).optionalFieldOf("safety_radius", 8).forGetter((e) -> e.safetyRadius),
 			Codec.intRange(0, 128).optionalFieldOf("set_index", 0).forGetter((e) -> e.setIndex),
 			Codec.intRange(1, 128).optionalFieldOf("set_count", 1).forGetter((e) -> e.setCount)
 	).apply(i, FlatCheckStructure::new)).validate(FlatCheckStructure::verifyRange);
 
 	public final Holder<StructureTemplatePool> startPool;
+	/**
+	 * The structure set that places this structure; its placement carries spacing, spread type, salt and attempts. The
+	 * codec can only name it, so the holder arrives unbound and {@link #placement} swaps in the registry's own the
+	 * first time worldgen reads it.
+	 */
+	private volatile Holder<StructureSet> set;
 	private final int maxDepth;
 	private final boolean useExpansionHack;
 	private final int maxDistanceFromCenter;
 	private final int flatTolerance;
-	private final int attempts;
-	private final int spacing;
-	private final RandomSpreadType spreadType;
-	private final int salt;
 	private final int safetyRadius;
 	private final int setIndex;
 	private final int setCount;
@@ -97,20 +97,34 @@ public class FlatCheckStructure extends Structure {
 	}
 
 	public FlatCheckStructure(StructureSettings settings, Holder<StructureTemplatePool> startPool, int maxDepth, boolean useExpansionHack, int maxDistanceFromCenter, int flatTolerance,
-							  int attempts, int spacing, RandomSpreadType spreadType, int salt, int safetyRadius, int setIndex, int setCount) {
+							  Holder<StructureSet> set, int safetyRadius, int setIndex, int setCount) {
 		super(settings);
 		this.startPool = startPool;
+		this.set = set;
 		this.maxDepth = maxDepth;
 		this.useExpansionHack = useExpansionHack;
 		this.maxDistanceFromCenter = maxDistanceFromCenter;
 		this.flatTolerance = flatTolerance;
-		this.attempts = attempts;
-		this.spacing = spacing;
-		this.spreadType = spreadType;
-		this.salt = salt;
 		this.safetyRadius = safetyRadius;
 		this.setIndex = setIndex;
 		this.setCount = setCount;
+	}
+
+	/**
+	 * The placement of {@link #set}, empty when the named set does not exist or is placed by something other than
+	 * {@link MultiSpreadPlacement} (whose candidate stream this structure is built on). This is the only read of the
+	 * holder, and the only place it gets bound: the codec can only name the set, because structures decode before any
+	 * structure set does.
+	 */
+	private Optional<MultiSpreadPlacement> placement() {
+		Holder<StructureSet> holder = this.set;
+		if (!holder.isBound()) {
+			return Optional.empty();
+		}
+		if (!(holder.value().placement() instanceof MultiSpreadPlacement multi)) {
+			return Optional.empty();
+		}
+		return Optional.of(multi);
 	}
 
 	/**
@@ -127,47 +141,52 @@ public class FlatCheckStructure extends Structure {
 		return random.nextInt(count);
 	}
 
-	private boolean checkRegionPicked(long seed, ChunkPos chunkpos) {
+	private boolean checkRegionPicked(long seed, MultiSpreadPlacement placement, ChunkPos chunkpos) {
 		if (this.setCount <= 1) {
 			return true;
 		}
-		int rx = Math.floorDiv(chunkpos.x, this.spacing);
-		int rz = Math.floorDiv(chunkpos.z, this.spacing);
-		return pickForRegion(seed, rx, rz, this.salt, this.setCount) == this.setIndex;
+		int rx = Math.floorDiv(chunkpos.x, placement.spacing());
+		int rz = Math.floorDiv(chunkpos.z, placement.spacing());
+		return pickForRegion(seed, rx, rz, placement.salt(), this.setCount) == this.setIndex;
 	}
 
 	@Override
 	public Optional<GenerationStub> findGenerationPoint(GenerationContext ctx) {
 		ChunkPos me = ctx.chunkPos();
-		List<ChunkPos> cands = MultiSpreadPlacement.candidates(ctx.seed(), me.x, me.z, this.spacing, this.spreadType, this.salt, this.attempts);
+		Optional<MultiSpreadPlacement> placement = this.placement();
+		if (placement.isEmpty()) {
+			return Optional.empty();
+		}
+		MultiSpreadPlacement place = placement.get();
+		List<ChunkPos> cands = place.getPotentialChunks(ctx.seed(), me.x, me.z);
 		int idx = cands.indexOf(me);
 		if (idx < 0) {
 			return Optional.empty();
 		}
-		if (!this.checkRegionPicked(ctx.seed(), me)) {
+		if (!this.checkRegionPicked(ctx.seed(), place, me)) {
 			return Optional.empty();
 		}
 		for (int j = 0; j < idx; j++) {
 			ChunkPos sib = cands.get(j);
 			GenerationContext sctx = new GenerationContext(ctx.registryAccess(), ctx.chunkGenerator(), ctx.biomeSource(),
 					ctx.randomState(), ctx.structureTemplateManager(), ctx.seed(), sib, ctx.heightAccessor(), this.biomes()::contains);
-			if (this.checkCandidate(sctx, sib).isPresent()) {
+			if (this.checkCandidate(sctx, sib, place).isPresent()) {
 				return Optional.empty();
 			}
 		}
-		return this.checkCandidate(ctx, me);
+		return this.checkCandidate(ctx, me, place);
 	}
 
 	/**
 	 * Full eligibility of a candidate chunk, cheapest gates first: middle-column prefilter, margin
 	 * safety at the provisional height, then the speculative jigsaw layout with tree checks.
 	 */
-	private Optional<GenerationStub> checkCandidate(GenerationContext ctx, ChunkPos chunkpos) {
+	private Optional<GenerationStub> checkCandidate(GenerationContext ctx, ChunkPos chunkpos, MultiSpreadPlacement placement) {
 		Prefilter pre = prefilter(ctx, chunkpos);
 		if (!pre.pass()) {
 			return Optional.empty();
 		}
-		if (!this.checkMarginSafe(ctx, chunkpos)) {
+		if (!this.checkMarginSafe(ctx, chunkpos, placement)) {
 			return Optional.empty();
 		}
 		Validated v = this.validateLayout(ctx, chunkpos, pre.y());
@@ -304,23 +323,24 @@ public class FlatCheckStructure extends Structure {
 	 * as we do to ours. The closer of two colliding candidates survives, exact ties reject both, candidates deep inside
 	 * their region are always safe, and no jigsaw layouts are built here.
 	 */
-	private boolean checkMarginSafe(GenerationContext ctx, ChunkPos chunkpos) {
+	private boolean checkMarginSafe(GenerationContext ctx, ChunkPos chunkpos, MultiSpreadPlacement placement) {
 		if (this.safetyRadius <= 0) {
 			return true;
 		}
-		int rx = Math.floorDiv(chunkpos.x, this.spacing);
-		int rz = Math.floorDiv(chunkpos.z, this.spacing);
-		int minX = rx * this.spacing;
-		int minZ = rz * this.spacing;
-		int maxX = minX + this.spacing - 1;
-		int maxZ = minZ + this.spacing - 1;
+		int spacing = placement.spacing();
+		int rx = Math.floorDiv(chunkpos.x, spacing);
+		int rz = Math.floorDiv(chunkpos.z, spacing);
+		int minX = rx * spacing;
+		int minZ = rz * spacing;
+		int maxX = minX + spacing - 1;
+		int maxZ = minZ + spacing - 1;
 		int borderDist = Math.min(Math.min(chunkpos.x - minX, maxX - chunkpos.x),
 				Math.min(chunkpos.z - minZ, maxZ - chunkpos.z));
 		if (borderDist >= this.safetyRadius) {
 			return true;
 		}
-		double cxc = minX + (this.spacing - 1) / 2.0;
-		double czc = minZ + (this.spacing - 1) / 2.0;
+		double cxc = minX + (spacing - 1) / 2.0;
+		double czc = minZ + (spacing - 1) / 2.0;
 		double myDx = chunkpos.x - cxc, myDz = chunkpos.z - czc;
 		double myDist = myDx * myDx + myDz * myDz;
 		long dist = (long) this.safetyRadius * this.safetyRadius;
@@ -330,11 +350,9 @@ public class FlatCheckStructure extends Structure {
 					continue;
 				}
 				int nx = rx + drx, nz = rz + drz;
-				double nxc = nx * this.spacing + (this.spacing - 1) / 2.0;
-				double nzc = nz * this.spacing + (this.spacing - 1) / 2.0;
-				List<ChunkPos> cands = MultiSpreadPlacement.candidates(ctx.seed(),
-						nx * this.spacing, nz * this.spacing, this.spacing, this.spreadType, this.salt, this.attempts);
-				for (ChunkPos c : cands) {
+				double nxc = nx * spacing + (spacing - 1) / 2.0;
+				double nzc = nz * spacing + (spacing - 1) / 2.0;
+				for (ChunkPos c : placement.getPotentialChunks(ctx.seed(), nx * spacing, nz * spacing)) {
 					int dxq = c.x - chunkpos.x, dzq = c.z - chunkpos.z;
 					if ((long) dxq * dxq + (long) dzq * dzq > dist) {
 						continue;
@@ -358,10 +376,6 @@ public class FlatCheckStructure extends Structure {
 	@Override
 	public StructureType<?> type() {
 		return GLWorldGen.FLAT.get();
-	}
-
-	public int spacing() {
-		return this.spacing;
 	}
 
 	private GenerationContext ctxFor(RegistryAccess registries, ChunkGenerator generator, RandomState randomState,
@@ -401,9 +415,16 @@ public class FlatCheckStructure extends Structure {
 								ChunkGenerator generator, RandomState randomState, StructureTemplateManager templates,
 								LevelHeightAccessor heightAccessor) {
 		List<String> lines = new ArrayList<>();
-		List<ChunkPos> cands = MultiSpreadPlacement.candidates(seed, regionX * this.spacing, regionZ * this.spacing,
-				this.spacing, this.spreadType, this.salt, this.attempts);
-		StringBuilder head = new StringBuilder("region [%d, %d] attempts:".formatted(regionX, regionZ));
+		Optional<MultiSpreadPlacement> resolved = this.placement();
+		if (resolved.isEmpty()) {
+			lines.add("no multi-spread structure set places this structure");
+			return new RegionReport(lines, RegionStats.zero());
+		}
+		MultiSpreadPlacement placement = resolved.get();
+		int spacing = placement.spacing();
+		List<ChunkPos> cands = placement.getPotentialChunks(seed, regionX * spacing, regionZ * spacing);
+		StringBuilder head = new StringBuilder("region [%d, %d] spacing %d salt %d candidates:".formatted(
+				regionX, regionZ, spacing, placement.salt()));
 		for (int n = 0; n < cands.size(); n++) {
 			ChunkPos c = cands.get(n);
 			head.append(" #%d (%d, %d)".formatted(n, c.x, c.z));
@@ -415,7 +436,7 @@ public class FlatCheckStructure extends Structure {
 			if (this.prefilter(ctx, c).pass()) prePassed++;
 		}
 		lines.add("  prefilter: %d/%d passed".formatted(prePassed, cands.size()));
-		int pick = pickForRegion(seed, regionX, regionZ, this.salt, this.setCount);
+		int pick = pickForRegion(seed, regionX, regionZ, placement.salt(), this.setCount);
 		lines.add("  region pick: #%d (mine #%d of %d)".formatted(pick, this.setIndex, this.setCount));
 		if (pick != this.setIndex) {
 			for (int i = 0; i < cands.size(); i++) {
@@ -443,7 +464,7 @@ public class FlatCheckStructure extends Structure {
 					stage = 0;
 				} else {
 					pre++;
-					if (!this.checkMarginSafe(ctx, me)) {
+					if (!this.checkMarginSafe(ctx, me, placement)) {
 						verdict = "margin-fail";
 						stage = 1;
 					} else {

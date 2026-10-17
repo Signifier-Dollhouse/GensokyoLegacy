@@ -89,6 +89,18 @@
 				"obtain_dagger_glove": {
 					"title": "匕首手套",
 					"description": "获得匕首手套"
+				},
+				"obtain_fairy_ice_crystal": {
+					"title": "妖精冰晶",
+					"description": "获得妖精冰晶"
+				},
+				"obtain_frozen_frog": {
+					"title": "冻青蛙",
+					"description": "获得冻青蛙"
+				},
+				"obtain_wings": {
+					"title": "翅膀",
+					"description": "获得一对翅膀"
 				}
 			}
 		}

@@ -1,10 +1,9 @@
 1.0.4
-- Party! host a party with invitation
-- Gift system: send gifts to characters
+- Party! host a banquet with invitation letter
 - Fairies: feed them cakes. Spawn in forest and plains
 - Fairy dust: guide you to characters' house
 - Add cirno and her nest, in snowy biomes
-- Add ice crystal, frozen frog, and ice wings
+- Add ice crystal, frozen frog, fairy wings, and ice wings
 - Suika is here, sometimes sneak into your party
 - Ibuki gourd: infinite sake
 - Floating effect from fairy cakes and fairy hexbrew

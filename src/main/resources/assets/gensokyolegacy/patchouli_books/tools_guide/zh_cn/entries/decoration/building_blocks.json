@@ -17,29 +17,6 @@
     },
     {
       "type": "patchouli:spotlight",
-      "item": "tag:gensokyolegacy:plank_wall",
-      "title": "木板墙",
-      "text": "木板墙各种木材都有，适合精打细算的你。"
-    },
-    {
-      "type": "patchouli:spotlight",
-      "item": "tag:gensokyolegacy:tile_variants",
-      "title": "瓦片",
-      "text": "瓦片共有 7 种颜色：青色、橙色、黄色、棕色、蓝色、黑色和灰色。每种颜色都有楼梯、台阶和墙板。"
-    },
-    {
-      "type": "patchouli:spotlight",
-      "item": [
-        "gensokyolegacy:shoji_frame",
-        "gensokyolegacy:shoji_frame_pane",
-        "gensokyolegacy:paper_window",
-        "gensokyolegacy:paper_window_pane"
-      ],
-      "title": "纸制品",
-      "text": "两种纸制的建筑方块，都各有整块与薄板两种形态。它们透光而不挡光，所以拿它们密闭房间依然能够保持亮度，也能当燃料烧。"
-    },
-    {
-      "type": "patchouli:spotlight",
       "item": [
         "gensokyolegacy:red_lantern",
         "gensokyolegacy:white_lantern",
@@ -58,6 +35,40 @@
       ],
       "title": "铁艺栏杆",
       "text": "上过黑漆的铁器，给人庄重感。"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": [
+        "gensokyolegacy:shoji_frame",
+        "gensokyolegacy:shoji_frame_pane",
+        "gensokyolegacy:paper_window",
+        "gensokyolegacy:paper_window_pane"
+      ],
+      "title": "纸制品",
+      "text": "两种纸制的建筑方块，都各有整块与薄板两种形态。它们透光而不挡光，所以拿它们密闭房间依然能够保持亮度，也能当燃料烧。"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "tag:gensokyolegacy:plank_wall",
+      "title": "木板墙",
+      "text": "木板墙各种木材都有，适合精打细算的你。"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "tag:gensokyolegacy:tile_variants",
+      "title": "瓦片",
+      "text": "瓦片共有 7 种颜色：青色、橙色、黄色、棕色、蓝色、黑色和灰色。每种颜色都有楼梯、台阶和墙板。"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": [
+        "gensokyolegacy:ice_bricks",
+        "gensokyolegacy:ice_brick_stairs",
+        "gensokyolegacy:ice_brick_slab",
+        "gensokyolegacy:ice_brick_vertical_slab"
+      ],
+      "title": "冰砖",
+      "text": "用浮冰切出的建筑方块，也有楼梯、台阶和墙板三种形态。适合用于雪地中的建筑。"
     }
   ]
 }

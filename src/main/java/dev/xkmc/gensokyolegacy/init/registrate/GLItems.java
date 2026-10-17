@@ -101,6 +101,9 @@ public class GLItems {
 	public static final ItemEntry<GourdItem> IBUKI_GOURD;
 	public static final ItemEntry<Item> FAIRY_CAKE;
 	public static final ItemEntry<MagicBookItem> MAGIC_BOOK;
+	public static final ItemEntry<DrinkGiftItem> LUCKY_TEA, ZUN_BEER;
+	public static final ItemEntry<Item> MAGIC_CANDY, KAPPA_BENTO;
+	public static final ItemEntry<Item> FANCY_FAN;
 
 	public static final ItemEntry<DebugGlasses> DEBUG_GLASSES;
 	public static final ItemEntry<DebugWand> DEBUG_WAND;
@@ -122,6 +125,7 @@ public class GLItems {
 	public static final ItemEntry<StarWandItem> STAR_WAND;
 	public static final ItemEntry<StrangeGlassesItem> STRANGE_GLASSES;
 	public static final ItemEntry<IceWingsItem> ICE_WINGS;
+	public static final ItemEntry<FairyWingsItem> FAIRY_WINGS;
 
 	public static final ItemEntry<InvitationLetterItem> INVITATION_LETTER;
 
@@ -171,7 +175,7 @@ public class GLItems {
 								() -> DanmakuItems.Bullet.CIRCLE.get(DyeColor.RED).get()))
 						.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/spell/" + ctx.getName())))
 						.lang("Reimu's Spellcard \"Innate Dream\"")
-						.tag(DanmakuTagGen.PRESET_SPELL)
+						.tag(DanmakuTagGen.PRESET_SPELL).tag(GLTagGen.SPELL_CARD)
 						.register();
 
 				MARISA_SPELL = reg
@@ -180,7 +184,7 @@ public class GLItems {
 								() -> DanmakuItems.Laser.LASER.get(DyeColor.WHITE).get()))
 						.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/spell/" + ctx.getName())))
 						.lang("Marisa's Spellcard \"Master Spark\"")
-						.tag(DanmakuTagGen.PRESET_SPELL)
+						.tag(DanmakuTagGen.PRESET_SPELL).tag(GLTagGen.SPELL_CARD)
 						.register();
 
 				SANAE_SPELL = reg
@@ -189,7 +193,7 @@ public class GLItems {
 								() -> DanmakuItems.Bullet.SPARK.get(DyeColor.GREEN).get()))
 						.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/spell/" + ctx.getName())))
 						.lang("Sanae's Spellcard \"Inherited Ritual\"")
-						.tag(DanmakuTagGen.PRESET_SPELL)
+						.tag(DanmakuTagGen.PRESET_SPELL).tag(GLTagGen.SPELL_CARD)
 						.register();
 
 				YUKARI_SPELL_BUTTERFLY = reg
@@ -198,7 +202,7 @@ public class GLItems {
 								() -> DanmakuItems.Bullet.BUTTERFLY.get(DyeColor.MAGENTA).get()))
 						.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/spell/spell_yukari")))
 						.lang("Barrier \"Double Black Death Butterfly\"")
-						.tag(DanmakuTagGen.PRESET_SPELL)
+						.tag(DanmakuTagGen.PRESET_SPELL).tag(GLTagGen.SPELL_CARD)
 						.register();
 
 				YUKARI_SPELL_LASER = reg
@@ -207,7 +211,7 @@ public class GLItems {
 								() -> DanmakuItems.Laser.LASER.get(DyeColor.RED).get()))
 						.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/spell/spell_yukari")))
 						.lang("Barrier \"Mesh of Light & Darkness\"")
-						.tag(DanmakuTagGen.PRESET_SPELL)
+						.tag(DanmakuTagGen.PRESET_SPELL).tag(GLTagGen.SPELL_CARD)
 						.register();
 
 				MYSTIA_SPELL = reg
@@ -216,7 +220,7 @@ public class GLItems {
 								() -> DanmakuItems.Bullet.MENTOS.get(DyeColor.GREEN).get()))
 						.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/spell/" + ctx.getName())))
 						.lang("Night Sparrow \"Midnight Chorus Master\"")
-						.tag(DanmakuTagGen.PRESET_SPELL)
+						.tag(DanmakuTagGen.PRESET_SPELL).tag(GLTagGen.SPELL_CARD)
 						.register();
 
 				SAKUYA_SPELL = reg
@@ -225,7 +229,7 @@ public class GLItems {
 								() -> DanmakuItems.Bullet.DAGGER.get(DyeColor.LIGHT_BLUE).get()))
 						.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/spell/" + ctx.getName())))
 						.lang("Time Sign \"Infinity Blade\"")
-						.tag(DanmakuTagGen.PRESET_SPELL)
+						.tag(DanmakuTagGen.PRESET_SPELL).tag(GLTagGen.SPELL_CARD)
 						.register();
 			}
 
@@ -255,21 +259,26 @@ public class GLItems {
 			FAIRY_ICE_CRYSTAL = reg.item("fairy_ice_crystal", FairyIceItem::new)
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/ingredient/" + ctx.getName())))
 					.register();
+			// the three variants share a line of gift data: FROG neutral is 0, so only a fairy
+			// will take one, and she takes it at twice the worth
 			FROZEN_FROG_COLD = reg.item("frozen_frog_cold",
 							p -> new FrozenFrogItem(p.stacksTo(16), FrogVariant.COLD))
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/ingredient/" + ctx.getName())))
+					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(3, 1000, GiftType.FROG))
 					.register();
 			FROZEN_FROG_WARM = reg.item("frozen_frog_warm",
 							p -> new FrozenFrogItem(p.stacksTo(16), FrogVariant.WARM))
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/ingredient/" + ctx.getName())))
+					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(3, 1000, GiftType.FROG))
 					.register();
 			FROZEN_FROG_TEMPERATE = reg.item("frozen_frog_temperate",
 							p -> new FrozenFrogItem(p.stacksTo(16), FrogVariant.TEMPERATE))
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/ingredient/" + ctx.getName())))
+					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(3, 1000, GiftType.FROG))
 					.register();
 
 			INVITATION_LETTER = reg.item("invitation_letter", InvitationLetterItem::new)
-					.model((ctx, pvd) -> pvd.generated(ctx, pvd.mcLoc("item/paper")))
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/" + ctx.getName())))
 					.properties(p -> p.stacksTo(16))
 					.lang("Invitation Letter").register();
 
@@ -281,7 +290,7 @@ public class GLItems {
 							new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 600, 1),
 							new MobEffectInstance(MobEffects.NIGHT_VISION, 600, 0)))))
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
-					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(5, 1000, GiftType.DRINK))
+					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(5, 1000, GiftType.ALCOHOL))
 					.lang("Tengu Sake").register();
 
 			// TODO placeholder favor / cooldown
@@ -290,7 +299,7 @@ public class GLItems {
 							new MobEffectInstance(MobEffects.DAMAGE_BOOST, 600, 1),
 							new MobEffectInstance(MobEffects.FIRE_RESISTANCE, 600, 0)))))
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
-					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(5, 1000, GiftType.DRINK))
+					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(5, 1000, GiftType.ALCOHOL))
 					.lang("Ghost Sake").register();
 
 			// Suika's gourd: the ghost sake poured into something with no bottom. Same drink and effects, and
@@ -298,7 +307,20 @@ public class GLItems {
 			IBUKI_GOURD = reg.item("ibuki_gourd", p -> new GourdItem(p.stacksTo(1).food(gourd(
 							new MobEffectInstance(MobEffects.DAMAGE_BOOST, 600, 1),
 							new MobEffectInstance(MobEffects.FIRE_RESISTANCE, 600, 0)))))
-					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/tool/" + ctx.getName())))
+					// Hand-authored Blockbench model in models/custom: the base for every display but the gui, which
+					// takes the flat 16x16 icon — the same split as the doll lance (doc/design/doll/item.md §9).
+					.model((ctx, pvd) -> {
+						var base = pvd.nested()
+								.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/" + ctx.getName())));
+						var guiModel = pvd.nested()
+								.parent(new ModelFile.UncheckedModelFile("item/generated"))
+								.texture("layer0", pvd.modLoc("item/tool/" + ctx.getName() + "_icon"));
+						pvd.getBuilder(ctx.getName())
+								.customLoader(SeparateTransformsModelBuilder::begin)
+								.base(base)
+								.perspective(ItemDisplayContext.GUI, guiModel)
+								.end().guiLight(BlockModel.GuiLight.FRONT);
+					})
 					.lang("Ibuki Gourd").register();
 
 			FAIRY_CAKE = reg.item("fairy_cake", p -> new Item(p
@@ -315,6 +337,44 @@ public class GLItems {
 					.dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(40000))
 
 					.lang("Obscure Magic Book").register();
+
+			// Reimu's own lucky tea: the only DRINK gift, so a character who spurns spirits can still
+			// be given something to drink. DIG_SPEED is the one effect that is haste on a mob and
+			// looting on an item, so this reads as luck at digging rather than as speed.
+			LUCKY_TEA = reg.item("lucky_tea", p -> new DrinkGiftItem(p.food(sake(
+							new MobEffectInstance(GLEffects.LOOTING, 600, 0)))))
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
+					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(4, 1000, GiftType.DRINK))
+					.lang("Hakurei's Lucky Tea").register();
+
+			// haste II: the same effect as the tea's, one potency up
+			ZUN_BEER = reg.item("zun_beer", p -> new DrinkGiftItem(p.food(sake(
+							new MobEffectInstance(MobEffects.DIG_SPEED, 600, 1)))))
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
+					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(5, 1000, GiftType.ALCOHOL))
+					.lang("Zun Beer").register();
+
+			// The two food gifts are actual meals, so they carry nutrition and the player can eat them
+			// too; the sakes above cannot, being drinks rather than food.
+			MAGIC_CANDY = reg.item("magic_candy", p -> new Item(p
+							.food(new FoodProperties.Builder().nutrition(2).saturationModifier(0.1f).alwaysEdible()
+									.effect(() -> new MobEffectInstance(MobEffects.REGENERATION, 600, 0), 1).build())))
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
+					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(2, 1000, GiftType.FOOD))
+					.lang("Magic Candy").register();
+
+			KAPPA_BENTO = reg.item("kappa_bento", p -> new Item(p
+							.food(new FoodProperties.Builder().nutrition(6).saturationModifier(0.6f)
+									.effect(() -> new MobEffectInstance(MobEffects.WATER_BREATHING, 600, 0), 1).build())))
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
+					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(4, 1000, GiftType.FOOD))
+					.lang("Kappa Bento").register();
+
+			// a fan is for looking at, and the gift is the point
+			FANCY_FAN = reg.item("fancy_fan", Item::new)
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
+					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(5, 1000, GiftType.UTENSIL))
+					.lang("Fancy Fan").register();
 		}
 
 		// tools
@@ -348,11 +408,13 @@ public class GLItems {
 			DOWSER_LEFT = reg.item("dowser_left", Item::new)
 					.model((ctx, pvd) -> pvd.handheld(ctx, pvd.modLoc("item/tool/" + ctx.getName())))
 					.removeTab(TAB.key())
+					.tag(GLTagGen.WEBSITE_HIDDEN)
 					.lang("Nazrin's Dowser (Left Half)").register();
 
 			DOWSER_RIGHT = reg.item("dowser_right", Item::new)
 					.model((ctx, pvd) -> pvd.handheld(ctx, pvd.modLoc("item/tool/" + ctx.getName())))
 					.removeTab(TAB.key())
+					.tag(GLTagGen.WEBSITE_HIDDEN)
 					.lang("Nazrin's Dowser (Right Half)").register();
 
 			MERMAID_PEARL = reg.item("mermaid_pearl", MermaidPearl::new)
@@ -494,17 +556,24 @@ public class GLItems {
 								.perspective(ItemDisplayContext.HEAD, headModel)
 								.end().guiLight(BlockModel.GuiLight.FRONT);
 					})
-					.tag(ItemTags.HEAD_ARMOR, head, GLTagGen.MORICHIKA_OFFERS)
+					.tag(head, GLTagGen.MORICHIKA_OFFERS)
 					.dataMap(GLMeta.MORICHIKA_OFFER.reg(), new MorichikaOfferData(6, 10, 1, 1))
 					.lang("Strange Glasses").tab(TAB.key())
 					.register();
 
 			// Worn in the chest armor slot, not the curios back slot alone, so it still works with curios
-			// absent. Both are alternatives; which is in use is answered at draw time by CuriosManager#hasWings.
+			// absent. Both are alternatives; which is in use is answered at draw time by CuriosManager#getWings,
+			// and that answer is also what tells the two apart on screen, as they share one rig.
 			ICE_WINGS = reg.item("ice_wings", p -> new IceWingsItem(p.rarity(Rarity.EPIC)))
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/curio/" + ctx.getName())))
 					.tag(back)
 					.lang("Ice Wings").tab(TAB.key())
+					.register();
+
+			FAIRY_WINGS = reg.item("fairy_wings", p -> new FairyWingsItem(p.rarity(Rarity.RARE)))
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/curio/" + ctx.getName())))
+					.tag(back)
+					.lang("Fairy Wings").tab(TAB.key())
 					.register();
 		}
 
@@ -519,24 +588,29 @@ public class GLItems {
 
 			DEBUG_GLASSES = reg.item("debug_glasses", p -> new DebugGlasses(p.stacksTo(1)))
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/debug/" + ctx.getName())))
+					.tag(GLTagGen.DEBUG_ITEMS)
 					.defaultLang().register();
 
 			DEBUG_WAND = reg.item("debug_wand", p -> new DebugWand(p.stacksTo(1)))
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/debug/" + ctx.getName())))
+					.tag(GLTagGen.DEBUG_ITEMS)
 					.defaultLang().register();
 
 			STRUCTURE_WAND = reg.item("structure_wand", p -> new StructureWand(p.stacksTo(1)))
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/debug/" + ctx.getName())))
+					.tag(GLTagGen.DEBUG_ITEMS)
 					.defaultLang().register();
 
 			DOOR_DEBUG_WAND = reg.item("door_debug_wand", p -> new DoorDebugItem(p.stacksTo(1)))
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/debug/" + ctx.getName())))
+					.tag(GLTagGen.DEBUG_ITEMS)
 					.defaultLang().register();
 
 			// borrows the existing debug wand texture until it gets its own art, the
 			// same way the invitation letter borrows vanilla paper
 			PARTY_WAND = reg.item("party_wand", p -> new PartyWand(p.stacksTo(1)))
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/debug/debug_wand")))
+					.tag(GLTagGen.DEBUG_ITEMS)
 					.defaultLang().register();
 
 		}

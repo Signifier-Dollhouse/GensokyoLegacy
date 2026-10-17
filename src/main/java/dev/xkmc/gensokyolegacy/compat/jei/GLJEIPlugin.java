@@ -1,7 +1,7 @@
 package dev.xkmc.gensokyolegacy.compat.jei;
 
 import dev.xkmc.gensokyolegacy.content.block.functional.alchemypot.recipe.AlchemyRecipe;
-import dev.xkmc.gensokyolegacy.content.entity.module.EntityInteractions;
+import dev.xkmc.gensokyolegacy.content.entity.behavior.module.EntityInteractions;
 import dev.xkmc.gensokyolegacy.content.rpg.core.CodecRegistry;
 import dev.xkmc.gensokyolegacy.content.rpg.quest.Quest;
 import dev.xkmc.gensokyolegacy.content.rpg.trade.TradeOffer;

@@ -2,7 +2,7 @@ package dev.xkmc.gensokyolegacy.content.rpg.condition;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.xkmc.gensokyolegacy.content.entity.module.VisitModule;
+import dev.xkmc.gensokyolegacy.content.entity.behavior.module.VisitModule;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.rpg.quest.QuestCondition;
 import net.minecraft.resources.ResourceLocation;

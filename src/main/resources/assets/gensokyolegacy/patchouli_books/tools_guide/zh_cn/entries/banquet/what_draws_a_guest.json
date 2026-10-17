@@ -5,8 +5,7 @@
   "sortnum": 2,
   "pages": [
     {
-      "type": "patchouli:spotlight",
-      "item": "minecraft:cake",
+      "type": "patchouli:text",
       "text": "菜品的总饱腹感决定了能吸引多少客人前来，而菜品的多样性和品质决定了稀客是否愿意来，以及客人吃完饭的回礼品质。$(br2)饱和越高的菜品吸引力越高，相同的菜品只会计入一次吸引力"
     },
     {

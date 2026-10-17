@@ -74,7 +74,7 @@ public class BroomEntity extends SimplifiedEntity implements GeoEntity {
 	 * bleeds off instead of sliding sideways forever.
 	 */
 	private static final double COAST_FWD = 0.95;
-	private static final double COAST_SIDE = 0.85;
+	private static final double COAST_SIDE = 0.7;
 
 	private static final RawAnimation IDLE = RawAnimation.begin().thenLoop("broom_idle");
 

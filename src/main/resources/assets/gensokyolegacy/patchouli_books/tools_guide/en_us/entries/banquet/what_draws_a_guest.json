@@ -5,8 +5,7 @@
   "sortnum": 2,
   "pages": [
     {
-      "type": "patchouli:spotlight",
-      "item": "minecraft:cake",
+      "type": "patchouli:text",
       "text": "The total filling power of your dishes decides how many guests you can attract. The variety and quality of those dishes decide whether a rare guest will come at all, and how good a gift she will leave behind.$(br2)Dishes with higher saturation count for more appeal, and the same dish only ever counts once."
     },
     {

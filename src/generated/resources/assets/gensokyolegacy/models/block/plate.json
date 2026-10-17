@@ -1,0 +1,7 @@
+{
+  "parent": "gensokyolegacy:custom/utensil/plate",
+  "render_type": "minecraft:cutout",
+  "textures": {
+    "all": "gensokyolegacy:block/utensil/plate"
+  }
+}

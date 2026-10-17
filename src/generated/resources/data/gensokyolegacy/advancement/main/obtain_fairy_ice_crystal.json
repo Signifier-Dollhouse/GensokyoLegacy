@@ -1,0 +1,35 @@
+{
+  "parent": "gensokyolegacy:main/feed_fairy",
+  "criteria": {
+    "0": {
+      "conditions": {
+        "items": [
+          {
+            "items": "gensokyolegacy:fairy_ice_crystal"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "announce_to_chat": false,
+    "description": {
+      "translate": "advancements.gensokyolegacy.main.obtain_fairy_ice_crystal.description"
+    },
+    "icon": {
+      "count": 1,
+      "id": "gensokyolegacy:fairy_ice_crystal"
+    },
+    "show_toast": false,
+    "title": {
+      "translate": "advancements.gensokyolegacy.main.obtain_fairy_ice_crystal.title"
+    }
+  },
+  "requirements": [
+    [
+      "0"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

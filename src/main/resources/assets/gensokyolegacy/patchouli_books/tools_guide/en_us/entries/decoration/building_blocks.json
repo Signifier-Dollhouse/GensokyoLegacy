@@ -17,29 +17,6 @@
     },
     {
       "type": "patchouli:spotlight",
-      "item": "tag:gensokyolegacy:plank_wall",
-      "title": "Plank Walls",
-      "text": "Plank walls come in every wood type"
-    },
-    {
-      "type": "patchouli:spotlight",
-      "item": "tag:gensokyolegacy:tile_variants",
-      "title": "Tiles",
-      "text": "Tiles come in seven colors: cyan, orange, yellow, brown, blue, black and gray. Every color has stairs, slabs and wall panels."
-    },
-    {
-      "type": "patchouli:spotlight",
-      "item": [
-        "gensokyolegacy:shoji_frame",
-        "gensokyolegacy:shoji_frame_pane",
-        "gensokyolegacy:paper_window",
-        "gensokyolegacy:paper_window_pane"
-      ],
-      "title": "Paper Goods",
-      "text": "Two paper-made building blocks, each in a solid and a thin pane form."
-    },
-    {
-      "type": "patchouli:spotlight",
       "item": [
         "gensokyolegacy:red_lantern",
         "gensokyolegacy:white_lantern",
@@ -58,6 +35,40 @@
       ],
       "title": "Wrought Iron Railings",
       "text": "Blackened ironwork, which lends a room some weight."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": [
+        "gensokyolegacy:shoji_frame",
+        "gensokyolegacy:shoji_frame_pane",
+        "gensokyolegacy:paper_window",
+        "gensokyolegacy:paper_window_pane"
+      ],
+      "title": "Paper Goods",
+      "text": "Two paper-made building blocks, each in a solid and a thin pane form."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "tag:gensokyolegacy:plank_wall",
+      "title": "Plank Walls",
+      "text": "Plank walls come in every wood type"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "tag:gensokyolegacy:tile_variants",
+      "title": "Tiles",
+      "text": "Tiles come in seven colors: cyan, orange, yellow, brown, blue, black and gray. Every color has stairs, slabs and wall panels."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": [
+        "gensokyolegacy:ice_bricks",
+        "gensokyolegacy:ice_brick_stairs",
+        "gensokyolegacy:ice_brick_slab",
+        "gensokyolegacy:ice_brick_vertical_slab"
+      ],
+      "title": "Ice Bricks",
+      "text": "Thematic bricks made from packed ice, with stairs, slabs and vertical slabs. Suitable for snowy environments."
     }
   ]
 }

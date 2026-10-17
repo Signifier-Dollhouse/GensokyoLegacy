@@ -1,7 +1,7 @@
 package dev.xkmc.gensokyolegacy.content.entity.characters.fairy;
 
-import dev.xkmc.gensokyolegacy.content.entity.module.EntityInteraction;
-import dev.xkmc.gensokyolegacy.content.entity.module.FairyFeedModule;
+import dev.xkmc.gensokyolegacy.content.entity.behavior.module.EntityInteraction;
+import dev.xkmc.gensokyolegacy.content.entity.behavior.module.FairyFeedModule;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
