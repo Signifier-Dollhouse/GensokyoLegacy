@@ -1,25 +1,86 @@
 {
   "values": {
+    "gensokyolegacy:alice_margatroid": {
+      "override": {},
+      "preference": {
+        "BOOK": 2.0,
+        "COLLECTION": 1.5,
+        "DRINK": 1.5,
+        "MAGIC": 1.5,
+        "TOY": 1.5
+      }
+    },
     "gensokyolegacy:cirno": {
       "override": {},
       "preference": {
-        "BOOK": 0.5,
+        "ALCOHOL": 0.0,
+        "BOOK": 0.0,
+        "COLLECTION": 0.5,
         "FOOD": 1.5,
+        "FROG": 3.0,
+        "MAGIC": 0.0,
+        "TOOL": 0.0,
         "TOY": 2.0
       }
     },
     "gensokyolegacy:hakurei_reimu": {
       "override": {},
       "preference": {
+        "ALCOHOL": 2.0,
         "BOOK": 1.5,
-        "DRINK": 2.0
+        "COLLECTION": 1.5,
+        "DRINK": 2.0,
+        "FOOD": 1.5
       }
     },
     "gensokyolegacy:ibuki_suika": {
       "override": {},
       "preference": {
+        "ALCOHOL": 3.0,
+        "BOOK": 0.0,
+        "COLLECTION": 0.5,
+        "FOOD": 1.5,
+        "MAGIC": 0.0,
+        "TOY": 0.0
+      }
+    },
+    "gensokyolegacy:izayoi_sakuya": {
+      "override": {},
+      "preference": {
         "DRINK": 2.0,
-        "FOOD": 1.5
+        "TOOL": 1.5
+      }
+    },
+    "gensokyolegacy:kirisame_marisa": {
+      "override": {},
+      "preference": {
+        "ALCOHOL": 2.0,
+        "BOOK": 2.0,
+        "COLLECTION": 1.5,
+        "MAGIC": 2.0
+      }
+    },
+    "gensokyolegacy:morichika_rinnosuke": {
+      "override": {},
+      "preference": {
+        "ALCOHOL": 1.5,
+        "BOOK": 1.5,
+        "DRINK": 1.5,
+        "MAGIC": 0.5,
+        "TOOL": 1.5
+      }
+    },
+    "gensokyolegacy:plain_fairy": {
+      "override": {},
+      "preference": {
+        "ALCOHOL": 0.0,
+        "BOOK": 0.0,
+        "COLLECTION": 0.5,
+        "FOOD": 1.5,
+        "FROG": 1.5,
+        "MAGIC": 0.0,
+        "TOOL": 0.0,
+        "TOY": 2.0
       }
     }
   }

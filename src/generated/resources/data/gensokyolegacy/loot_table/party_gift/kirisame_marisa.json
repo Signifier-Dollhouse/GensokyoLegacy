@@ -14,6 +14,11 @@
           "type": "minecraft:item",
           "name": "gensokyolegacy:star_flower",
           "weight": 20
+        },
+        {
+          "type": "minecraft:item",
+          "name": "gensokyolegacy:magic_candy",
+          "weight": 20
         }
       ],
       "rolls": 1.0
@@ -30,13 +35,13 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "gensokyolegacy:tengu_sake",
-          "weight": 10
+          "name": "gensokyolegacy:magic_candy",
+          "weight": 20
         },
         {
           "type": "minecraft:item",
-          "name": "gensokyolegacy:ghost_sake",
-          "weight": 10
+          "name": "gensokyolegacy:kappa_bento",
+          "weight": 20
         },
         {
           "type": "minecraft:item",

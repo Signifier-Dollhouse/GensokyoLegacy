@@ -31,8 +31,13 @@ import java.util.List;
  * <p>
  * The gift module is the one favor a fairy never loses: a hand-out is what a player has
  * before they have fed her anything, so it stays on her default list.
+ * <p>
+ * What she will and will not be handed is data, not this class: every fairy entity type carries the
+ * same {@code gift_preference} datamap entry (spirits and strong magic refused, a frozen frog taken
+ * at twice worth), and Cirno layers her own on top of it.
  *
  * @see "doc/design/want_bubble.md"
+ * @see "doc/design/gift.md"
  */
 @SerialClass
 public class FairyEntity extends GeneralYoukaiEntity {

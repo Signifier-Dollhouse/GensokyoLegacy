@@ -1,0 +1,23 @@
+{
+  "name": "Guest Gifts",
+  "icon": "gensokyolegacy:sturdy_teddy_bear",
+  "category": "gensokyolegacy:banquet",
+  "sortnum": 4,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": [
+        "gensokyolegacy:sturdy_teddy_bear",
+        "gensokyolegacy:magic_candy",
+        "gensokyolegacy:kappa_bento",
+        "gensokyolegacy:lucky_tea",
+        "gensokyolegacy:tengu_sake",
+        "gensokyolegacy:ghost_sake",
+        "gensokyolegacy:zun_beer",
+        "gensokyolegacy:magic_book",
+        "gensokyolegacy:fancy_fan"
+      ],
+      "text": "Every guest who ate from your table leaves something behind."
+    }
+  ]
+}

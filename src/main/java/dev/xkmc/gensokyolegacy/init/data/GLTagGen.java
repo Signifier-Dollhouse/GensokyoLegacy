@@ -40,6 +40,18 @@ public class GLTagGen {
 
 	public static final TagKey<Item> MORICHIKA_OFFERS = item("morichika_offers");
 
+	/** The player-facing spell card items, distinct from danmaku_api's own {@code preset_spell}. */
+	public static final TagKey<Item> SPELL_CARD = item("spell_card");
+
+	/** The inspection tools: the debug wands and glasses, the structure wand and the party wand. */
+	public static final TagKey<Item> DEBUG_ITEMS = item("debug_items");
+
+	/**
+	 * Items the mod website must not list: {@link #DEBUG_ITEMS}, {@link #SPELL_CARD} and the two dowser halves,
+	 * which exist only as the render halves of {@code dowser} and are never obtainable.
+	 */
+	public static final TagKey<Item> WEBSITE_HIDDEN = item("website_hidden");
+
 	/**
 	 * Mirrors of the furniture block tags below, under the same id. Consumers that never see the block
 	 * registry, like the patchouli guide or another mod's item-only checks, need the item registry copy.
@@ -145,6 +157,8 @@ public class GLTagGen {
 		pvd.addTag(HUGE_MUSHROOM)
 				.add(Items.MUSHROOM_STEM, Items.BROWN_MUSHROOM_BLOCK, Items.RED_MUSHROOM_BLOCK);
 		addTiles(pvd, TILE_VARIANTS_ITEM);
+		// the two halves are tagged on the items themselves; everything else arrives by whole tags
+		pvd.addTag(WEBSITE_HIDDEN).addTag(DEBUG_ITEMS).addTag(SPELL_CARD);
 	}
 
 	public static void onEntityTagGen(RegistrateTagsProvider.IntrinsicImpl<EntityType<?>> pvd) {

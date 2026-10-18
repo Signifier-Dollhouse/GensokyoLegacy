@@ -51,10 +51,12 @@
 				"toy": "玩具",
 				"food": "食物",
 				"drink": "饮品",
+				"alcohol": "酒",
 				"book": "书籍",
-				"fan": "扇子",
-				"crystal": "晶石",
-				"magic": "魔法"
+				"collection": "收藏品",
+				"tool": "工具",
+				"magic": "魔法",
+				"frog": "冻蛙"
 			}
 		},
 		"talisman": {
