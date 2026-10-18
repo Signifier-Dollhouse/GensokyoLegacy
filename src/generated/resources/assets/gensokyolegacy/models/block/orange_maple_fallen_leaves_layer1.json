@@ -1,0 +1,7 @@
+{
+  "parent": "gensokyolegacy:custom/nature/fallen_leaves",
+  "render_type": "minecraft:cutout",
+  "textures": {
+    "all": "gensokyolegacy:block/nature/orange_maple_fallen_leaves_layer1"
+  }
+}

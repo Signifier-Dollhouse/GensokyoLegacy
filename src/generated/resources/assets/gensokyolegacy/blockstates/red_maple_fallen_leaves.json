@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "layers=1": {
+      "model": "gensokyolegacy:block/red_maple_fallen_leaves_layer1"
+    },
+    "layers=2": {
+      "model": "gensokyolegacy:block/red_maple_fallen_leaves_layer2"
+    }
+  }
+}
