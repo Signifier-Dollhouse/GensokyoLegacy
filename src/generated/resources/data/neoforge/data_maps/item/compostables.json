@@ -54,14 +54,68 @@
     "gensokyolegacy:hyphae": {
       "chance": 0.5
     },
+    "gensokyolegacy:locust_leaves": {
+      "chance": 0.3
+    },
+    "gensokyolegacy:locust_sapling": {
+      "chance": 0.3
+    },
+    "gensokyolegacy:mixed_maple_fallen_leaves": {
+      "chance": 0.3
+    },
+    "gensokyolegacy:orange_maple_fallen_leaves": {
+      "chance": 0.3
+    },
+    "gensokyolegacy:orange_maple_leaves": {
+      "chance": 0.3
+    },
+    "gensokyolegacy:orange_maple_sapling": {
+      "chance": 0.3
+    },
+    "gensokyolegacy:pink_cherry_fallen_leaves": {
+      "chance": 0.3
+    },
+    "gensokyolegacy:pink_cherry_leaves": {
+      "chance": 0.3
+    },
+    "gensokyolegacy:pink_cherry_sapling": {
+      "chance": 0.3
+    },
+    "gensokyolegacy:purple_cherry_fallen_leaves": {
+      "chance": 0.3
+    },
+    "gensokyolegacy:purple_cherry_leaves": {
+      "chance": 0.3
+    },
+    "gensokyolegacy:purple_cherry_sapling": {
+      "chance": 0.3
+    },
     "gensokyolegacy:purple_mushroom_stem": {
       "chance": 0.65
+    },
+    "gensokyolegacy:red_maple_fallen_leaves": {
+      "chance": 0.3
+    },
+    "gensokyolegacy:red_maple_leaves": {
+      "chance": 0.3
+    },
+    "gensokyolegacy:red_maple_sapling": {
+      "chance": 0.3
     },
     "gensokyolegacy:red_mushroom_stem": {
       "chance": 0.65
     },
     "gensokyolegacy:star_flower": {
       "chance": 0.65
+    },
+    "gensokyolegacy:yellow_maple_fallen_leaves": {
+      "chance": 0.3
+    },
+    "gensokyolegacy:yellow_maple_leaves": {
+      "chance": 0.3
+    },
+    "gensokyolegacy:yellow_maple_sapling": {
+      "chance": 0.3
     }
   }
 }

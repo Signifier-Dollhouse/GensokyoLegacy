@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_locust_log": {
+      "conditions": {
+        "items": [
+          {
+            "items": "gensokyolegacy:locust_log"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "gensokyolegacy:locust_log_to_oak_planks"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_locust_log"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "gensokyolegacy:locust_log_to_oak_planks"
+    ]
+  }
+}

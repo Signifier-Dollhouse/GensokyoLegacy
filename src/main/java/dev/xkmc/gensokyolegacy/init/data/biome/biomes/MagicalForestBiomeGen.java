@@ -1,6 +1,6 @@
 package dev.xkmc.gensokyolegacy.init.data.biome.biomes;
 
-import dev.xkmc.gensokyolegacy.content.block.nature.CedarFallenLeavesBlock;
+import dev.xkmc.gensokyolegacy.content.block.nature.FallenLeavesBlock;
 import dev.xkmc.gensokyolegacy.content.block.nature.WaterloggedBushBlock;
 import dev.xkmc.gensokyolegacy.content.worldgen.feature.lake.LakeConfig;
 import dev.xkmc.gensokyolegacy.content.worldgen.feature.template.TemplateFeatureConfig;
@@ -512,8 +512,8 @@ public class MagicalForestBiomeGen extends AbstractBiomeGen {
 		BlockState leaves = GLNaturalBlocks.CEDAR_FALLEN_LEAVES.get().defaultBlockState();
 		return new RandomPatchConfiguration(tries, spread, 3, PlacementUtils.filtered(Feature.SIMPLE_BLOCK,
 				new SimpleBlockConfiguration(new WeightedStateProvider(SimpleWeightedRandomList.<BlockState>builder()
-						.add(leaves.setValue(CedarFallenLeavesBlock.LAYERS, 1), 3)
-						.add(leaves.setValue(CedarFallenLeavesBlock.LAYERS, 2), 1)
+						.add(leaves.setValue(FallenLeavesBlock.LAYERS, 1), 3)
+						.add(leaves.setValue(FallenLeavesBlock.LAYERS, 2), 1)
 						.build())), BlockPredicate.allOf(BlockPredicate.ONLY_IN_AIR_PREDICATE,
 						BlockPredicate.matchesTag(Direction.DOWN.getNormal(), BlockTags.DIRT))));
 	}

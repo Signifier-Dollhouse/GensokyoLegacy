@@ -3,6 +3,7 @@ package dev.xkmc.gensokyolegacy.content.entity.characters.fairy;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.module.EntityInteraction;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.module.FairyFeedModule;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
+import dev.xkmc.l2serial.serialization.marker.SerialClass;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
 
@@ -18,6 +19,7 @@ import java.util.List;
  * says that the gift is the entire difference, and {@code FairyFeedTask} still finds it
  * by looking the module up as a {@link FairyFeedModule}.
  */
+@SerialClass
 public class CirnoFeedModule extends FairyFeedModule {
 
 	/**

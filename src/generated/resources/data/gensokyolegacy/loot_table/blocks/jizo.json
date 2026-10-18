@@ -1,0 +1,30 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "condition": "minecraft:survives_explosion"
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "conditions": [
+            {
+              "block": "gensokyolegacy:jizo",
+              "condition": "minecraft:block_state_property",
+              "properties": {
+                "half": "bottom"
+              }
+            }
+          ],
+          "name": "gensokyolegacy:jizo"
+        }
+      ],
+      "rolls": 1.0
+    }
+  ],
+  "random_sequence": "gensokyolegacy:blocks/jizo"
+}

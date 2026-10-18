@@ -327,6 +327,12 @@ tools/template_export/               导出器、巨橡生成器、预览、布�
 
 **树苗/催熟复用（M5，已实现）**：`TemplateFeature` 是普通 ConfiguredFeature，可直接作为 `TreeGrower` 目标，非 worldgen 环境下不设 bounding box 即可。蓝杉树苗 1 棵长 `blue_fir_medium`、2×2 长 `blue_fir_large`（`TreeGrower` mega 槽位）；原版没有 3×3 槽位，9 棵长 `blue_fir_giant` 由 `BlueFirSaplingBlock` 在 fallback 到 grower 之前自行检查。蘑菇用 `WeightedMushroomBlock` 按 50% / 40% / 10% 长出同种小 / 中 / 大模板（`ghost_fire_small/medium/large` 等 9 个 growth-only configured feature，不带地表；混种的 worldgen 版不能复用，否则会串种）。
 
+## 9.1 补充树种（只有树苗，世界生成不放置）
+
+枫 / 槐两族登记在 `GLNaturalBlocks.WoodSet`（log + wood，槐族另有 `locust_hollow_log`），樱树不登记木头——粉樱 / 紫樱直接长在原版 `minecraft:cherry_log` 上，所以 `TreeSet` 收的是 `Supplier<Block>` 原木而不是 `WoodSet`。六种树叶是六种树型，但共用同一根木头：橙枫 / 红枫 / 黄枫用 `maple`，粉樱 / 紫樱用原版樱木，槐树自成一族。木头按树种切成对应的原版木板（枫与槐 → 橡木），因为本模组没有自己的木板方块。六个 `TreeType` 只注册 configured feature，没有任何 placed feature 引用它，生成逻辑一行没动；树苗是它们唯一的入口。原木、六种树苗与 12 张落叶贴图全部来自美术稿，没有占位贴图。
+
+树形由 `TreeFeatures.TreeShape` 给出两种：枫沿用蓝杉的 `SpruceFoliagePlacer`（6–8 格干、2–3 层平展冠），樱与槐用原版 `minecraft:cherry` 的 `CherryTrunkPlacer` + `CherryFoliagePlacer`。原版 `TreeFeature` 放置后按树干重算 `distance`，所以这些树照常会掉最外圈叶子。
+
 ---
 
 ## 10. 风险与注意事项

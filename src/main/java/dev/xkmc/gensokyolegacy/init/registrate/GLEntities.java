@@ -111,8 +111,8 @@ public class GLEntities {
 
 		//gift
 		{
-			// what every fairy refuses and the one thing she is glad to be handed; Cirno restates
-			// these in her own entry rather than inheriting them, which the datamap cannot do
+			// what every fairy refuses and what she takes gladly; Cirno raises only her frog off this
+			// rather than restating it, which the datamap would not merge
 			GIFT_FAIRY = GiftPreference.of(Map.of(
 					GiftType.TOY, 2.0,
 					GiftType.FOOD, 1.5,

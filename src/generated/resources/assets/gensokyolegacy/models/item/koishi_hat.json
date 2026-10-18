@@ -1,6 +1,15 @@
 {
-  "parent": "minecraft:item/generated",
-  "textures": {
-    "layer0": "gensokyolegacy:item/curio/koishi_hat"
+  "base": {
+    "parent": "minecraft:item/generated",
+    "textures": {
+      "layer0": "gensokyolegacy:item/curio/koishi_hat"
+    }
+  },
+  "gui_light": "front",
+  "loader": "neoforge:separate_transforms",
+  "perspectives": {
+    "head": {
+      "parent": "gensokyolegacy:custom/koishi_hat_head"
+    }
   }
 }
