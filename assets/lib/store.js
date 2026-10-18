@@ -24,8 +24,9 @@ export const store = {
   // The item section, filled in on first use: see `loadItems`.
   recipes: new Map(), // recipe id -> json
   guide: null, // { books: [...] }, see `loadGuide`
-  questDrops: new Map(), // quest id -> [{ item, count, table }]
-  items: new Map(), // item id -> { id, guide, recipes, trades, drops, shelf }
+  questDrops: new Map(), // quest id -> [{ item, table, pool, rolls, weight }]
+  gifts: new Map(), // entity id -> [{ item, table, pool, rolls, weight }]
+  items: new Map(), // item id -> { id, guide, recipes, trades, drops, gifts, shelf }
   structureHosts: new Map(), // structure id -> entity id, from `character_config`
   // The character data maps, which describe a character rather than one of her entries.
   // Read by `loadCharacterProfiles`; see `characterProfiles` for what they add up to.
@@ -334,6 +335,19 @@ export async function loadCurrencyTag() {
 
 const SHOP_OFFERS = "gensokyolegacy:morichika_offers";
 
+/** The shopkeeper, who owns the shelves; `MorichikaEntity` and the `morichika_offer` map. */
+export const SHOPKEEPER = "gensokyolegacy:morichika_rinnosuke";
+
+/**
+ * Whether the shelves belong in this character's list of what she trades: Rinnosuke's,
+ * since he runs the shop, and the one that holds everyone, since it holds him. The key
+ * is compared by entity rather than by itself, since a character's key is whichever of
+ * the two forms the registries gave her.
+ */
+export function showsShelves(key) {
+  return key === "all" || store.characters.get(key)?.entity === SHOPKEEPER;
+}
+
 /**
  * What Rinnosuke may put on his shop shelves, and at what price.
  *
@@ -530,7 +544,8 @@ export function giftItemsByType() {
 export async function loadItemSources(progress) {
   const recipes = store.manifest.recipes;
   const questLoot = questLootTables();
-  const total = recipes.files.length + questLoot.size;
+  const ladders = giftLadders();
+  const total = recipes.files.length + questLoot.size + ladders.length;
   let done = 0;
   const tick = () => progress?.(++done, total);
 
@@ -538,6 +553,7 @@ export async function loadItemSources(progress) {
   // the index rather than adding the new sources to the old one.
   store.recipes.clear();
   store.questDrops.clear();
+  store.gifts.clear();
 
   await Promise.all([
     pool(recipes.files, 10, async (file) => {
@@ -553,6 +569,14 @@ export async function loadItemSources(progress) {
       const questId = questLoot.get(table);
       const drops = collectDrops(table, await loadLootTable(table));
       if (drops.length) store.questDrops.set(questId, [...(store.questDrops.get(questId) ?? []), ...drops]);
+      tick();
+    }),
+    // The ladder a guest draws from, which is an item's other way of arriving in the
+    // world: one file per character, the same tables her own page draws.
+    pool(ladders, 8, async (entity) => {
+      const ladder = await loadGiftTable(entity);
+      const drops = collectDrops(ladder.id, ladder.table);
+      if (drops.length) store.gifts.set(entity, drops);
       tick();
     }),
   ]);
@@ -574,6 +598,15 @@ function questLootTables() {
 }
 
 /**
+ * Whose gift ladder is read, one table each: the whole cast rather than the registry
+ * entries, since a guest with no quest or offer of her own still leaves something behind.
+ * `loadGiftTable` resolves each to the character's own ladder or to the shared default.
+ */
+function giftLadders() {
+  return characterProfiles().map((profile) => profile.entity);
+}
+
+/**
  * The item drops a loot table can roll, with the pool they come from. The entry is
  * kept as it is written, since how many it yields is read out of its functions at
  * display time rather than flattened here.
@@ -584,7 +617,7 @@ function collectDrops(tableId, table) {
     const rolls = (pool.rolls ?? 0) + (pool.bonus_rolls ?? 0);
     for (const entry of pool.entries ?? []) {
       if (entry.type === "minecraft:item" && typeof entry.name === "string") {
-        drops.push({ item: entry.name, table: tableId, rolls, weight: entry.weight ?? 0, entry });
+        drops.push({ item: entry.name, table: tableId, pool, rolls, weight: entry.weight ?? 0, entry });
       }
     }
   }
@@ -634,9 +667,9 @@ export function guideFileCount() {
   );
 }
 
-/** How many files the recipes and the quest reward tables come to. */
+/** How many files the recipes, the quest reward tables and the gift ladders come to. */
 export function sourceFileCount() {
-  return store.manifest.recipes.files.length + questLootTables().size;
+  return store.manifest.recipes.files.length + questLootTables().size + giftLadders().length;
 }
 
 /** `.../categories/alchemy.json` -> `alchemy`, the id an entry's `category` uses. */
@@ -779,7 +812,7 @@ export async function buildItemIndex() {
   const entryFor = (id) => {
     let item = items.get(id);
     if (!item) {
-      items.set(id, (item = { id, guide: null, recipes: [], usedIn: [], trades: [], drops: [], shelf: null }));
+      items.set(id, (item = { id, guide: null, recipes: [], usedIn: [], trades: [], drops: [], gifts: [], shelf: null }));
     }
     return item;
   };
@@ -849,6 +882,12 @@ export async function buildItemIndex() {
 
   for (const [questId, drops] of store.questDrops) {
     for (const drop of drops) entryFor(drop.item).drops.push({ questId, ...drop });
+  }
+
+  // What a guest leaves behind, which is hers rather than the quest's: the entity is
+  // kept on the row so the item page can name her and open her own page.
+  for (const [entity, drops] of store.gifts) {
+    for (const drop of drops) entryFor(drop.item).gifts.push({ entity, ...drop });
   }
 
   for (const [id, offer] of store.shopOffers ?? []) entryFor(id).shelf = offer;

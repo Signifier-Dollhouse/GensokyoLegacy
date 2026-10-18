@@ -29,6 +29,7 @@ import {
   loadGiftTable,
   loadItemTag,
   loadLootTable,
+  SHOPKEEPER,
   store,
 } from "./store.js";
 
@@ -766,6 +767,31 @@ export function tradeCard(entryData, trade) {
   );
 }
 
+/**
+ * Rinnosuke's shelves as cards, for the trade tab beside the offers.
+ *
+ * A shelf is not an offer: the player hands nothing over and asks for nothing, and he
+ * rolls the price and the stock himself when he restocks. So it is a group of its own
+ * rather than a fourth kind of trade, and it belongs where he is - his own character, or
+ * all of them. Sorted by name, since the shop has no order of its own to keep.
+ */
+export function shelfCards(offers) {
+  return [...offers]
+    .sort(([a], [b]) => itemLabel(a).localeCompare(itemLabel(b)))
+    .map(([id, offer]) =>
+      h(
+        "article",
+        { class: "card" },
+        cardHead(tr("trade.title.shelf", itemLabel(id)), id, [
+          characterPill(SHOPKEEPER),
+          pill("requirement", tr("item.shelfPrice", countRange(offer.minPrice, offer.maxPrice))),
+          pill("condition", tr("item.shelfStock", countRange(offer.minStock, offer.maxStock))),
+        ]),
+        h("p", { class: "entry-note", text: tr("item.shelfNote") }),
+      ),
+    );
+}
+
 export function starterCard(entryData, starter) {
   return h(
     "article",
@@ -802,7 +828,7 @@ function fluidPill(id) {
 
 /** How many ways there are to get an item, as one number. */
 function sourceCount(item) {
-  return item.recipes.length + item.trades.length + item.drops.length + (item.shelf ? 1 : 0);
+  return item.recipes.length + item.trades.length + item.drops.length + item.gifts.length + (item.shelf ? 1 : 0);
 }
 
 /**
@@ -1005,6 +1031,7 @@ function sourcesSection(item, links) {
     [tr("item.source.recipe"), item.recipes.map(recipeRow)],
     [tr("item.source.trade"), item.trades.map((source) => tradeSourceRow(source, links))],
     [tr("item.source.quest"), item.drops.map((drop) => dropSourceRow(drop, links))],
+    [tr("item.source.gift"), item.gifts.map((source) => giftSourceRow(source, links))],
     // Rinnosuke's shelves: a tag of what he may stock, so there is no price or stock
     // to show - only that his shop can have it.
     item.shelf ? [tr("item.source.shelf"), [shelfSourceRow(item.shelf)]] : null,
@@ -1161,6 +1188,25 @@ function dropSourceRow(drop, links) {
     node,
     h("span", { class: "entry-note", text: tr("loot.rolls", Math.round(drop.rolls)) }),
     links.quest ? focusLink(tr("item.openQuest"), () => links.quest(drop.questId), drop.questId) : null,
+  );
+}
+
+/**
+ * A guest who leaves the item behind when she goes.
+ *
+ * Her ladder is her own page read from the item's side: the band of appeal that reaches
+ * this rung, and the item's share of the one roll that rung makes. She is named rather
+ * than the table, since who leaves something behind is the part a reader wants.
+ */
+function giftSourceRow(source, links) {
+  const node = pill("item", itemLabel(source.item), `${source.item} · ${tr("loot.weight", source.weight)}`);
+  const chance = share(source.weight, poolDrops(source.pool).total);
+  if (chance) node.append(h("span", { class: "n", text: ` ${chance}` }));
+  return entry(
+    characterLabel(source.entity),
+    node,
+    h("span", { class: "entry-note", text: tr("char.gift.rung", appealBand(source.pool)) }),
+    links.character ? focusLink(tr("item.openCharacter"), () => links.character(source.entity), source.entity) : null,
   );
 }
 
@@ -1324,6 +1370,17 @@ function partySection(profile) {
 }
 
 /**
+ * The item entries of a pool and the weight they share, which is what one rung of a gift
+ * ladder is: the pool rolls exactly one entry, and the weights only say how that roll is
+ * spread between them.
+ */
+function poolDrops(pool) {
+  const gifts = (pool.entries ?? []).filter((drop) => drop.type === "minecraft:item" && drop.name);
+  const total = gifts.reduce((sum, drop) => sum + (drop.weight ?? 0), 0);
+  return { gifts, total };
+}
+
+/**
  * The ladder she draws a gift from, one rung per generosity step.
  *
  * Each pool is gated by a band of appeal rather than a probability, so a reader wants
@@ -1350,8 +1407,7 @@ function giftLadderSection(profile, links) {
     if (!own) list.append(h("li", { class: "entry-note", text: tr("char.gift.default") }));
 
     for (const pool of table.pools ?? []) {
-      const gifts = (pool.entries ?? []).filter((drop) => drop.type === "minecraft:item" && drop.name);
-      const total = gifts.reduce((sum, drop) => sum + (drop.weight ?? 0), 0);
+      const { gifts, total } = poolDrops(pool);
       list.append(
         entry(
           tr("char.gift.rung", appealBand(pool)),

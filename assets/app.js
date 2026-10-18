@@ -28,6 +28,7 @@ import {
   loadRegistry,
   loadShopOffers,
   loadVanillaLang,
+  showsShelves,
   sourceFileCount,
   store,
   tableFor,
@@ -46,6 +47,7 @@ import {
   openGuideEntryViewer,
   openItemViewer,
   questCard,
+  shelfCards,
   starterCard,
   tradeCard,
   tradeKind,
@@ -259,6 +261,16 @@ function onTradeLink(id) {
   select("all", id);
 }
 
+/**
+ * Follows a guest link from the item page, landing on the character's own page. She may
+ * have no registry entry of her own - Cirno and Suika do not - so the search is what
+ * narrows the list to her rather than the sidebar selection.
+ */
+function onCharacterLink(entity) {
+  state.tab = "profile";
+  select("all", entity);
+}
+
 function renderQuestPanel(panel, tab) {
   const table = store.quests;
   const entries = entriesOf(store.manifest.registries.quest)
@@ -295,8 +307,14 @@ function renderTradePanel(panel) {
         ...(trade?.ingredients ?? []).map((ingredient) => itemLabel(ingredientId(ingredient))),
       );
     });
+  // Rinnosuke's shelves, which are his shop rather than an offer, so they are a group of
+  // their own below the three kinds of trade - and only where he is, which is his own
+  // list and the one holding everyone.
+  const shelves = showsShelves(state.character)
+    ? [...(store.shopOffers ?? [])].filter(([id]) => matchesQuery(id, itemLabel(id)))
+    : [];
 
-  if (!entries.length) return panel.append(emptyState(tr("noun.trades")));
+  if (!entries.length && !shelves.length) return panel.append(emptyState(tr("noun.trades")));
 
   // Grouped by direction, the way the trade screen reads them: what the player
   // hands over, what they pay for, and what the character makes. `append` rather than
@@ -306,7 +324,11 @@ function renderTradePanel(panel) {
     const trade = table.get(entryData.id);
     if (trade) groups.get(tradeKind(trade)).push(tradeCard(entryData, trade));
   }
-  append(panel, TRADE_KINDS.map((kind) => collapsible(tradeTitle(kind), groups.get(kind).length, groups.get(kind))));
+  append(
+    panel,
+    TRADE_KINDS.map((kind) => collapsible(tradeTitle(kind), groups.get(kind).length, groups.get(kind))),
+    collapsible(tradeTitle("shelf"), shelves.length, shelfCards(shelves)),
+  );
 }
 
 function emptyState(what) {
@@ -627,9 +649,9 @@ function itemGroups(section) {
   return groups;
 }
 
-/** Opens one item's page, wiring the jumps back to the quest and trade panels. */
+/** Opens one item's page, wiring the jumps back to the quest, offer and character pages. */
 function openItem(id) {
-  openItemViewer(id, { quest: onQuestLink, trade: onTradeLink, item: openItem });
+  openItemViewer(id, { quest: onQuestLink, trade: onTradeLink, character: onCharacterLink, item: openItem });
 }
 
 /** Opens one guide entry's pages, wiring the jumps from its spotlights to their items. */

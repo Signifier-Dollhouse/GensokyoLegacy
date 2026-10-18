@@ -64,6 +64,14 @@ the conditions, requirements and rewards fold away too - all of them expanded to
 with, so a card reads top to bottom unless you close one. Conditions inside a dialog
 option stay inline, since an option is already a small block.
 
+Below those three sits a fourth group, **Rinnosuke's shop shelves**, holding one card
+per item his shop may stock: the name, the price range and the stock range he rolls when
+he restocks, and nothing else - a shelf is not an offer, since the player hands nothing
+over and asks for nothing. It is his and not a trade, so it appears only where he is: on
+**Rinnosuke**'s own list and on **all characters**, which holds him. The same offers are
+listed on each item's own page, under *where to get it*, which is where a reader who
+already knows the item goes.
+
 The tab badges count the selected character; the item list beside them counts the items
 in each section. The profile badge counts characters rather than entries, since that is
 what its panel holds. Picking a character, a tab or an item section clears the search box.
@@ -103,7 +111,7 @@ all it takes for the page to show it.
 | --- | --- |
 | The item list | the generated `en_us`/`en_ud` lang file, which enumerates every `item.`/`block.` the mod registers, plus the few ids from other namespaces the mod hands out (`patchouli:guide_book`). Only the generated tables are read: the hand-authored `zh_cn.json` lags behind on purpose, and a key left for a block that has since been removed would otherwise put it back into the list with no name to show for it. A vanilla item the mod hands out is left out too - it is not something the mod adds, and it is still named wherever it is traded for. So is everything in the mod's own `website_hidden` item tag, which is how it says what the site is not to show: the two halves a dowser is merged from, and the spell cards behind a danmaku system the guide never covers. Those are what an item the guide does not mention would otherwise be listed as, so they are dropped rather than gathered under *not in the guide*. A tag inside a tag is followed, so naming `#gensokyolegacy:spell_card` covers every card in it |
 | The guide | `src/main/resources/assets/gensokyolegacy/patchouli_books/<book>/<locale>/` - the in-game book's own categories and entries, with its `$(bold)`, `$(br)` and `$(br2)` macros rendered, and its spotlights followed into the item tags they name |
-| Ways to obtain | `recipe/**`, including the mod's alchemy and brewing types; `trade/**`, for the offers that hand out something other than currency; the `loot_table` each quest reward names; and the `morichika_offers` item tag, which is what Rinnosuke stocks his shelves from |
+| Ways to obtain | `recipe/**`, including the mod's alchemy and brewing types; `trade/**`, for the offers that hand out something other than currency; the `loot_table` each quest reward names; each character's own `loot_table/party_gift/<entity type>` ladder, which is what she leaves behind after a party; and the `morichika_offers` item tag, which is what Rinnosuke stocks his shelves from. A gift is hers rather than the quest's, so its row names her, the band of appeal that reaches that rung, and the item's share of the one roll the rung makes - the same three numbers her own page draws the ladder from |
 | The sidebar entries | the guide's own categories, in the book's order, plus one entry for everything it does not document |
 | The panel groups | within an entry, the items the guide names on their own are listed straight in, then one collapsible group per spotlight that names several things - a tag or a list of ids - named by that page's own translated title, ordered by how many items each holds, fewest first |
 
