@@ -27,6 +27,7 @@ export const store = {
   questDrops: new Map(), // quest id -> [{ item, table, pool, rolls, weight }]
   gifts: new Map(), // entity id -> [{ item, table, pool, rolls, weight }]
   items: new Map(), // item id -> { id, guide, recipes, trades, drops, gifts, shelf }
+  shopOffers: new Map(), // item id -> { minPrice, maxPrice, minStock, maxStock }
   structureHosts: new Map(), // structure id -> entity id, from `character_config`
   // The character data maps, which describe a character rather than one of her entries.
   // Read by `loadCharacterProfiles`; see `characterProfiles` for what they add up to.
@@ -890,7 +891,7 @@ export async function buildItemIndex() {
     for (const drop of drops) entryFor(drop.item).gifts.push({ entity, ...drop });
   }
 
-  for (const [id, offer] of store.shopOffers ?? []) entryFor(id).shelf = offer;
+  for (const [id, offer] of store.shopOffers) entryFor(id).shelf = offer;
 
   // The list is what the mod adds, so a vanilla item it happens to hand out - a
   // processed golden apple, say - is dropped rather than given a page of its own. It is

@@ -311,7 +311,7 @@ function renderTradePanel(panel) {
   // their own below the three kinds of trade - and only where he is, which is his own
   // list and the one holding everyone.
   const shelves = showsShelves(state.character)
-    ? [...(store.shopOffers ?? [])].filter(([id]) => matchesQuery(id, itemLabel(id)))
+    ? [...store.shopOffers].filter(([id]) => matchesQuery(id, itemLabel(id)))
     : [];
 
   if (!entries.length && !shelves.length) return panel.append(emptyState(tr("noun.trades")));
@@ -1139,6 +1139,10 @@ async function boot() {
     ...(store.manifest.vanillaLang ?? VANILLA_LANG).map(loadVanillaLang),
     // The currency tag decides whether a trade reads as "sell" or "craft".
     loadCurrencyTag(),
+    // What Rinnosuke stocks, since his shelves sit in the trade list beside the offers.
+    // Two small files, and waiting for the item section's few hundred would leave the
+    // group missing from every trade panel until that load landed.
+    loadShopOffers(),
     // Whose home each structure is, who may visit it, what each character likes to be
     // given and how she behaves at a party. Five small files, and a condition that says
     // "visiting Reimu" is worth it on the first paint.
@@ -1175,7 +1179,9 @@ function loadItems(onProgress) {
         seen.set("guide", done);
         report();
       }),
-      // What Rinnosuke may put on his shelves, which is an item's fourth source.
+      // An item's fourth source is Rinnosuke's shelves, and the index is built from
+      // whatever has landed, so they are read here too - already in flight by then,
+      // since the trade list wants them before the first paint.
       loadShopOffers(),
       loadItemSources((done) => {
         seen.set("sources", done);
@@ -1255,9 +1261,11 @@ async function refreshFromGitHub() {
     }
     // New content may bring recipes, loot tables or guide pages with it, so the item
     // load is redone: dropping the shared promise is what makes the next caller
-    // refetch rather than reuse what is already in the store.
+    // refetch rather than reuse what is already in the store. The character data goes
+    // first, since the index reads it to find whose gift ladder to read.
     itemsPromise = null;
-    await Promise.all([loadItems(), loadCharacterProfiles()]);
+    await loadCharacterProfiles();
+    await loadItems();
     buildCharacters();
     render();
     setStatus(trPlural("status.refreshed", added, added));
