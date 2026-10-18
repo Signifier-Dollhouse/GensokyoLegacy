@@ -117,7 +117,17 @@
 		"magic_table": "魔法道具工作台",
 		"sewing_machine": "缝纫机",
 		"magic_potion_bottle": "魔药瓶",
-		"candlestick": "烛台"
+		"candlestick": "烛台",
+		"myouren_fence": "命莲寺栅栏",
+		"myouren_bricks": "命莲寺白砖",
+		"myouren_brick_stairs": "命莲寺白砖楼梯",
+		"myouren_brick_slab": "命莲寺白砖台阶",
+		"myouren_brick_vertical_slab": "命莲寺白砖竖台阶",
+		"jizo": "地藏",
+		"jizo_straw_hat": "戴斗笠的地藏",
+		"jizo_myouren": "命莲寺地藏",
+		"jizo_narumi": "矢田寺成美地藏",
+		"wasteland_gravestone_small": "荒原小墓碑"
 	},
 	"item.gensokyolegacy": {
 		"doll": "人形",

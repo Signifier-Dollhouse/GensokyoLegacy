@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "gensokyolegacy:block/myouren_fence",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "gensokyolegacy:block/myouren_fence"
+    },
+    "facing=south": {
+      "model": "gensokyolegacy:block/myouren_fence",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "gensokyolegacy:block/myouren_fence",
+      "y": 270
+    }
+  }
+}
