@@ -107,6 +107,18 @@ public class TouhouHatItem extends Item implements Equipable, ICurioItem {
 		return false;
 	}
 
+	/**
+	 * True when this hat is drawn from its own item model's head perspective instead of from a
+	 * {@code ModelPart} layer. Such a hat's {@code models/item/<name>.json} is a
+	 * {@code neoforge:separate_transforms} model whose head perspective names the geometry file,
+	 * and it is drawn the way vanilla draws any non-armor helmet-slot item.
+	 *
+	 * @see "doc/design/hats.md"
+	 */
+	public boolean isModeledHat() {
+		return false;
+	}
+
 	public DamageSource modifyDamageType(ItemStack stack, LivingEntity le, IDanmakuEntity danmaku, DamageSource type) {
 		return type;
 	}

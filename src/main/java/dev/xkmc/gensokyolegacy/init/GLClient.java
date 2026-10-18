@@ -115,7 +115,6 @@ public class GLClient {
 		event.registerLayerDefinition(SuwakoHatModel.SUWAKO, SuwakoHatModel::createSuwakoHat);
 		event.registerLayerDefinition(SuwakoHatModel.STRAW, SuwakoHatModel::createStrawHat);
 		event.registerLayerDefinition(FrogStrawHatModel.STRAW, FrogStrawHatModel::createHat);
-		event.registerLayerDefinition(KoishiHatModel.HAT, KoishiHatModel::createHat);
 	}
 
 	@SubscribeEvent

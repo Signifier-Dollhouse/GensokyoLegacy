@@ -518,8 +518,18 @@ public class GLItems {
 
 			KOISHI_HAT = reg
 					.item("koishi_hat", p -> new KoishiHatItem(p.rarity(Rarity.EPIC)))
-					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/curio/" + ctx.getName())))
-					.clientExtension(() -> () -> new HatModel(KoishiHatModel.HAT))
+					.model((ctx, pvd) -> {
+						var base = pvd.nested()
+								.parent(new ModelFile.UncheckedModelFile("item/generated"))
+								.texture("layer0", pvd.modLoc("item/curio/" + ctx.getName()));
+						var headModel = pvd.nested()
+								.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/koishi_hat_head")));
+						pvd.getBuilder(ctx.getName())
+								.customLoader(SeparateTransformsModelBuilder::begin)
+								.base(base)
+								.perspective(ItemDisplayContext.HEAD, headModel)
+								.end().guiLight(BlockModel.GuiLight.FRONT);
+					})
 					.tag(head, GLTagGen.TOUHOU_HAT)
 					.register();
 

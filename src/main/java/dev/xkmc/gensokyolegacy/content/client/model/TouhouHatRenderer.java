@@ -2,6 +2,7 @@ package dev.xkmc.gensokyolegacy.content.client.model;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import dev.xkmc.gensokyolegacy.content.item.character.TouhouHatItem;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -19,6 +20,12 @@ import top.theillusivec4.curios.api.client.ICurioRenderer;
 /**
  * Renders a touhou hat, shared by the vanilla head-slot layer ({@link TouhouHatLayer}) and the
  * curios head-slot renderer. Vanilla {@code HumanoidArmorLayer} only renders {@code ArmorItem}.
+ * <p>
+ * Two geometries are supported: a {@code ModelPart} model from {@code IClientItemExtensions}, and
+ * a hat that draws from its item model's head perspective ({@link TouhouHatItem#isModeledHat()}),
+ * which goes through {@link HeadItemRenderer} like any other head-worn item.
+ *
+ * @see "doc/design/hats.md"
  */
 public class TouhouHatRenderer implements ICurioRenderer {
 
@@ -41,9 +48,13 @@ public class TouhouHatRenderer implements ICurioRenderer {
 	 *
 	 * @param followHead apply curios head rotations; the armor layer already inherits head pose
 	 */
-	@SuppressWarnings({"unchecked", "rawtypes"})
 	public static void renderHat(ItemStack stack, LivingEntity entity, HumanoidModel<?> parent,
 	                             PoseStack pose, MultiBufferSource buffer, int light, boolean followHead) {
+		if (!(stack.getItem() instanceof TouhouHatItem item)) return;
+		if (item.isModeledHat()) {
+			HeadItemRenderer.render(stack, entity, parent, pose, buffer, light);
+			return;
+		}
 		HumanoidModel<?> model = IClientItemExtensions.of(stack)
 				.getHumanoidArmorModel(entity, stack, EquipmentSlot.HEAD, parent);
 		if (model == null) return;
@@ -51,7 +62,7 @@ public class TouhouHatRenderer implements ICurioRenderer {
 		if (followHead) {
 			ICurioRenderer.followHeadRotations(entity, model.head);
 		}
-		ResourceLocation texture = stack.getItem().getArmorTexture(stack, entity, EquipmentSlot.HEAD, null, false);
+		ResourceLocation texture = item.getArmorTexture(stack, entity, EquipmentSlot.HEAD, null, false);
 		if (texture == null) return;
 		VertexConsumer vc = buffer.getBuffer(RenderType.armorCutoutNoCull(texture));
 		model.renderToBuffer(pose, vc, light, LivingEntityRenderer.getOverlayCoords(entity, 0), -1);
