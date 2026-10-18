@@ -5,15 +5,50 @@
       "cooldown": 1000,
       "favor": 3
     },
-    "gensokyolegacy:ghost_sake": {
-      "type": "DRINK",
+    "gensokyolegacy:fancy_fan": {
+      "type": "COLLECTION",
       "cooldown": 1000,
       "favor": 5
+    },
+    "gensokyolegacy:frozen_frog_cold": {
+      "type": "FROG",
+      "cooldown": 1000,
+      "favor": 3
+    },
+    "gensokyolegacy:frozen_frog_temperate": {
+      "type": "FROG",
+      "cooldown": 1000,
+      "favor": 3
+    },
+    "gensokyolegacy:frozen_frog_warm": {
+      "type": "FROG",
+      "cooldown": 1000,
+      "favor": 3
+    },
+    "gensokyolegacy:ghost_sake": {
+      "type": "ALCOHOL",
+      "cooldown": 1000,
+      "favor": 5
+    },
+    "gensokyolegacy:kappa_bento": {
+      "type": "FOOD",
+      "cooldown": 1000,
+      "favor": 4
+    },
+    "gensokyolegacy:lucky_tea": {
+      "type": "DRINK",
+      "cooldown": 1000,
+      "favor": 4
     },
     "gensokyolegacy:magic_book": {
       "type": "BOOK",
       "cooldown": 1000,
       "favor": 6
+    },
+    "gensokyolegacy:magic_candy": {
+      "type": "FOOD",
+      "cooldown": 1000,
+      "favor": 2
     },
     "gensokyolegacy:star_flower": {
       "type": "MAGIC",
@@ -26,7 +61,12 @@
       "favor": 5
     },
     "gensokyolegacy:tengu_sake": {
-      "type": "DRINK",
+      "type": "ALCOHOL",
+      "cooldown": 1000,
+      "favor": 5
+    },
+    "gensokyolegacy:zun_beer": {
+      "type": "ALCOHOL",
       "cooldown": 1000,
       "favor": 5
     }

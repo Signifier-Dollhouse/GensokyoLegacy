@@ -59,6 +59,15 @@ public class MultiSpreadPlacement extends RandomSpreadStructurePlacement {
 		return this.spreadType;
 	}
 
+	/**
+	 * Widened from {@code protected} so the structure held by the set can salt its region pick with the same value the
+	 * candidate stream uses.
+	 */
+	@Override
+	public int salt() {
+		return super.salt();
+	}
+
 	public int attempts() {
 		return this.attempts;
 	}

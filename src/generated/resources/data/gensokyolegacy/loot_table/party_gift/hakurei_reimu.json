@@ -30,17 +30,17 @@
       "entries": [
         {
           "type": "minecraft:item",
+          "name": "gensokyolegacy:zun_beer",
+          "weight": 20
+        },
+        {
+          "type": "minecraft:item",
           "name": "gensokyolegacy:ghost_sake",
           "weight": 20
         },
         {
           "type": "minecraft:item",
-          "name": "gensokyolegacy:tengu_sake",
-          "weight": 20
-        },
-        {
-          "type": "minecraft:item",
-          "name": "gensokyolegacy:sturdy_teddy_bear",
+          "name": "gensokyolegacy:lucky_tea",
           "weight": 40
         }
       ],

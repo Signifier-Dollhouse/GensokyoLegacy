@@ -40,6 +40,16 @@
         },
         {
           "type": "minecraft:item",
+          "name": "gensokyolegacy:fancy_fan",
+          "weight": 20
+        },
+        {
+          "type": "minecraft:item",
+          "name": "gensokyolegacy:zun_beer",
+          "weight": 20
+        },
+        {
+          "type": "minecraft:item",
           "name": "gensokyolegacy:sturdy_teddy_bear",
           "weight": 20
         }
