@@ -1,0 +1,6 @@
+{
+  "parent": "gensokyolegacy:custom/nature/fallen_leaves",
+  "textures": {
+    "all": "gensokyolegacy:block/nature/purple_cherry_fallen_leaves_layer1"
+  }
+}

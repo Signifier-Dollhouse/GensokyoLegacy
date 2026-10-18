@@ -28,12 +28,13 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public class CedarFallenLeavesBlock extends SimpleBushBlock {
+/** One carpet of fallen leaves under a tree: placed as two layers, right-clicking with itself packs it back to one. */
+public class FallenLeavesBlock extends SimpleBushBlock {
 
 	public static final IntegerProperty LAYERS = IntegerProperty.create("layers", 1, 2);
-	private static final MapCodec<CedarFallenLeavesBlock> CODEC = simpleCodec(CedarFallenLeavesBlock::new);
+	private static final MapCodec<FallenLeavesBlock> CODEC = simpleCodec(FallenLeavesBlock::new);
 
-	public CedarFallenLeavesBlock(Properties properties) {
+	public FallenLeavesBlock(Properties properties) {
 		super(properties, LAYER);
 		this.registerDefaultState(this.stateDefinition.any().setValue(LAYERS, 1));
 	}
