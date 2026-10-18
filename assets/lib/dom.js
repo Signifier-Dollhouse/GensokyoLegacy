@@ -1,5 +1,6 @@
 // Minimal DOM helpers. Everything is built from real nodes and text, so datapack
-// strings are never parsed as HTML.
+// strings are never parsed as HTML. `append` is variadic, like the DOM's own, so a
+// caller passing several children gets them all rather than only the first argument.
 
 /** Hyperscript. `text` and string children are inserted as text nodes. */
 export function h(tag, props, ...children) {
@@ -16,7 +17,7 @@ export function h(tag, props, ...children) {
 }
 
 /** Appends children, flattening arrays and skipping empty values. */
-export function append(parent, children) {
+export function append(parent, ...children) {
   for (const child of children.flat(Infinity)) {
     if (child === null || child === undefined || child === false) continue;
     parent.append(child instanceof Node ? child : document.createTextNode(String(child)));

@@ -324,11 +324,10 @@ function renderTradePanel(panel) {
     const trade = table.get(entryData.id);
     if (trade) groups.get(tradeKind(trade)).push(tradeCard(entryData, trade));
   }
-  append(
-    panel,
-    TRADE_KINDS.map((kind) => collapsible(tradeTitle(kind), groups.get(kind).length, groups.get(kind))),
+  append(panel, [
+    ...TRADE_KINDS.map((kind) => collapsible(tradeTitle(kind), groups.get(kind).length, groups.get(kind))),
     collapsible(tradeTitle("shelf"), shelves.length, shelfCards(shelves)),
-  );
+  ]);
 }
 
 function emptyState(what) {
