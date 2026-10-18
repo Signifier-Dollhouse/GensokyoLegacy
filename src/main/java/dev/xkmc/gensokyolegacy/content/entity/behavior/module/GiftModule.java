@@ -2,6 +2,7 @@ package dev.xkmc.gensokyolegacy.content.entity.behavior.module;
 
 import dev.xkmc.gensokyolegacy.content.attachment.character.ReputationConstants;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
+import dev.xkmc.gensokyolegacy.content.entity.youkai.impl.YoukaiAnim;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.impl.YoukaiFlags;
 import dev.xkmc.gensokyolegacy.content.item.gift.GiftItemData;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
@@ -24,7 +25,10 @@ import net.minecraft.world.item.ItemStack;
  * <p>
  * A favor that comes out at 0 or below is a refusal rather than a free gift: the item is not consumed
  * and no cooldown starts, so the interaction falls through. How much she thinks a category is worth is
- * her {@code gift_preference} datamap entry; see {@link GiftItemData#getFavor}.
+ * her {@code gift_preference} datamap entry; see {@link GiftItemData#getFactor}.
+ * <p>
+ * A refusal is the one thing that gets a reaction of its own — she turns the item down in {@code 讨厌},
+ * while anything she takes plays {@code 喜欢}.
  *
  * @see "doc/design/gift.md"
  */
@@ -51,8 +55,15 @@ public class GiftModule extends AbstractYoukaiModule {
 		var giftData = GLMeta.GIFT_DATA.get(player.registryAccess(), stack.getItemHolder());
 		if (giftData == null) return InteractionResult.PASS;
 		if (giftCoolDown > 0) return InteractionResult.PASS;
-		int favor = giftData.getFavor(stack, self);
-		if (favor <= 0) return InteractionResult.PASS;
+		double factor = giftData.getFactor(stack, self);
+		int favor = (int) (factor * giftData.favor());
+		if (favor <= 0) {
+			// only a flat refusal turns her down; a factor that merely truncates the favor to 0 is
+			// taken at face value, so it stays silent rather than playing the dislike clip
+			if (factor <= 0) YoukaiAnim.DISLIKE.play(self);
+			return InteractionResult.PASS;
+		}
+		YoukaiAnim.LIKE.play(self);
 		if (!(player instanceof ServerPlayer sp)) {
 			return InteractionResult.SUCCESS;
 		}
