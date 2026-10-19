@@ -1,0 +1,19 @@
+{
+  "name": "赤蛮奇的头",
+  "icon": "gensokyolegacy:sekibanki_head",
+  "category": "gensokyolegacy:special_tools",
+  "advancement": "gensokyolegacy:main/obtain_sekibanki_head",
+  "sortnum": 10,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "gensokyolegacy:sekibanki_head",
+      "title": "一颗属于自己的脑袋",
+      "text": "右键即可在你身前召唤这颗头，空手右键头本身则可将它收回。它会漂浮着跟在你身后。"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "潜行并右键这颗头，视线便会移入其中。你的身体会留在原地，最远相距 48 格。$(br2)借头观看时，可以操控它飞行以及交互方块。$(br2)$(bold)回到身体$()$(br2)左键即可立刻让视线回到你身上，头也会自行飞回你身边。"
+    }
+  ]
+}

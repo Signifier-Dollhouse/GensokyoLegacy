@@ -951,6 +951,49 @@ FURNACE_2_BOOST("Held in main hand while riding a broom, right click to burn fue
 	}
 
 	// ========== Doll ==========
+	/**
+	 * The Sekibanki head's item tooltip. Its own group rather than {@link ItemGlove} or a doll one,
+	 * because the four lines are this gadget's alone: what possession is, is not a doll fact.
+	 */
+	public enum ItemSekibankiHead implements LangEntry {
+		SUMMON("Right-click to call the head out", 0, ChatFormatting.GRAY),
+		COLLECT("Right-click the head with an empty hand to collect it", 0, ChatFormatting.GRAY),
+		POSSESS("Shift and right-click the head to see through it", 0, ChatFormatting.GRAY),
+		EXIT("Left-click to stop looking through it", 0, ChatFormatting.GRAY);
+
+		private final String def;
+		private final int argn;
+		private final String key;
+		private final @Nullable ChatFormatting format;
+
+		ItemSekibankiHead(String def, int argn, @Nullable ChatFormatting format) {
+			this.def = def;
+			this.argn = argn;
+			this.key = GensokyoLegacy.MODID + ".sekibanki_head." + name().toLowerCase(Locale.ROOT);
+			this.format = format;
+		}
+
+		@Override
+		public String key() {
+			return key;
+		}
+
+		@Override
+		public String def() {
+			return def;
+		}
+
+		@Override
+		public int argn() {
+			return argn;
+		}
+
+		@Override
+		public @Nullable ChatFormatting format() {
+			return format;
+		}
+	}
+
 	public enum Doll implements LangEntry {
 		NO_SPACE("No inventory space"),
 		RESYNC_MISSING("Doll entity missing — restoring"),
@@ -1000,7 +1043,7 @@ FURNACE_2_BOOST("Held in main hand while riding a broom, right click to burn fue
 		for (var group : new LangEntry[][]{
 				Quest.values(), Info.values(), Trade.values(), Misc.values(),
 				ItemDebug.values(), ItemFurnace.values(), ItemLores.values(), ItemCommon.values(), ItemUmbrella.values(), ItemGlove.values(), ItemDaggerGlove.values(), Alchemy.values(), Jei.values(), JeiExtra.values(),
-				Talisman.values(), Doll.values(), Party.values()}) {
+				Talisman.values(), Doll.values(), Party.values(), ItemSekibankiHead.values()}) {
 			for (var e : group) {
 				pvd.add(e.key(), e.def());
 			}

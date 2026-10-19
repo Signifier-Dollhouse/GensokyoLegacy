@@ -47,7 +47,7 @@ The model takes one untinted texture for the same reason — a gadget has no dye
 
 1. `nature()` returns `ITEM_GADGET`;
 2. its own entity type `sekibanki_head`, which is what makes `getDollTypeId()` name it, and its own geo / animation / texture;
-3. `SekibankiHeadItem` — a `DollGadgetItem` naming that type, and a `runData`-generated `item/generated` model on the head's own 16x16 icon.
+3. `SekibankiHeadItem` — a `DollGadgetItem` naming that type, and a `runData`-generated `item/generated` model on the head's own 16x16 icon. The subclass exists only for the tooltip: what possession is, is not a doll fact, and a second gadget would not share it (§5.1).
 
 It gets the rig from `DollRig`, which the base implements, so it animates without any of the doll layer: the doll rig's head-only skeleton (same `Head` root bone, same bone names) and its own four clips (`sekibanki_idle` / `_fly` / `_blink` / `_shout`). `registerControllers` builds the same three controllers `DollGeo` builds, pointed at those clips. Two differences are deliberate:
 
@@ -99,6 +99,8 @@ While the camera is away, the body neither attacks nor uses items. `InputEvent.I
 | middle click | nothing |
 
 Left click is the way out precisely *because* it is cancelled anyway: a body that cannot attack has nothing to lose by giving the key that would have attacked. It needs no edge detection, since stopping possession detaches the camera and the handler returns on the next press.
+
+The four lines the item carries - summon, collect, possess, exit - are this kind's own, and are why `SekibankiHeadItem` exists (§3): the gadget base is deliberately silent, because a gadget is the first kind and possession only the second, and neither is a fact about dolls.
 
 ### 5.2 The head's hands
 
