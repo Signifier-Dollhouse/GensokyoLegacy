@@ -1,5 +1,6 @@
 package dev.xkmc.gensokyolegacy.init.data.biome.biomes;
 
+import dev.xkmc.gensokyolegacy.content.worldgen.feature.dripleaf.DripleafScatterConfig;
 import dev.xkmc.gensokyolegacy.content.worldgen.feature.stair.StairPoolConfig;
 import dev.xkmc.gensokyolegacy.init.data.biome.AbstractBiomeGen;
 import dev.xkmc.gensokyolegacy.init.data.biome.GensokyoBiomeFeatures;
@@ -56,9 +57,9 @@ import java.util.List;
  * ceiling growth and the rooted azalea all hang off the same cave surfaces, so taking some of them would be taking a
  * fragment of one decoration rather than a style. The one piece the ravine lays itself is the clay patch, in basalt.
  * <p>
- * The ravine's own four — the plates, the pools cut into the steps, the moss and the stones — come first, and the
- * swamp's trees and grass after them: the plates have to be down before anything grows on them, or a pool of them
- * ends up under a patch of grass that grew first.
+ * The ravine's own five — the plates, the dripleaves on them, the pools cut into the steps, the moss and the stones
+ * — come first, and the swamp's trees and grass after them: the plates have to be down before anything grows on
+ * them, or a pool of them ends up under a patch of grass that grew first.
  *
  * @see "doc/design/gensokyo_biomes.md" §1
  */
@@ -94,6 +95,12 @@ public class GenbuRavineBiomeGen extends AbstractBiomeGen {
 	private static final ResourceKey<ConfiguredFeature<?, ?>> RAVINE_STAIR_POOL = cf("ravine_stair_pool");
 	private static final ResourceKey<PlacedFeature> RAVINE_STAIR_POOL_PF = pf("ravine_stair_pool");
 
+	/**
+	 * The dripleaves scattered on the ravine's basalt: each one leaves a patch of mud under it to root in.
+	 */
+	private static final ResourceKey<ConfiguredFeature<?, ?>> RAVINE_DRIPLEAF = cf("ravine_dripleaf");
+	private static final ResourceKey<PlacedFeature> RAVINE_DRIPLEAF_PF = pf("ravine_dripleaf");
+
 	/** Dinosaur bones. The ravine is the one place below ground where they are still bones and not a theme. */
 	private static final List<ResourceKey<PlacedFeature>> FOSSILS = List.of(
 			CavePlacements.FOSSIL_UPPER, CavePlacements.FOSSIL_LOWER);
@@ -122,7 +129,8 @@ public class GenbuRavineBiomeGen extends AbstractBiomeGen {
 								RAVINE_MUD_PF)))
 						.springs(RAVINE_SPRINGS)
 						.vegetation(List.of(
-								RAVINE_BASALT_PF, RAVINE_STAIR_POOL_PF, RAVINE_MOSS_PF, RAVINE_STONES_PF,
+								RAVINE_BASALT_PF, RAVINE_STAIR_POOL_PF, RAVINE_DRIPLEAF_PF,
+								RAVINE_MOSS_PF, RAVINE_STONES_PF,
 								CavePlacements.GLOW_LICHEN, VegetationPlacements.TREES_SWAMP,
 								VegetationPlacements.FLOWER_SWAMP, VegetationPlacements.PATCH_GRASS_NORMAL,
 								VegetationPlacements.PATCH_DEAD_BUSH, VegetationPlacements.PATCH_WATERLILY,
@@ -158,6 +166,10 @@ public class GenbuRavineBiomeGen extends AbstractBiomeGen {
 		FeatureUtils.register(ctx, RAVINE_STAIR_POOL, GLWorldGen.STAIR_POOL.get(), new StairPoolConfig(
 				Blocks.BASALT.defaultBlockState(), Blocks.WATER.defaultBlockState(), 7,
 				Heightmap.Types.MOTION_BLOCKING_NO_LEAVES));
+		// The dripleaves scattered on the basalt, each with a patch of mud under it: a dripleaf's stem will not root
+		// in bare stone, so the block it stands on is replaced with ground that it can.
+		FeatureUtils.register(ctx, RAVINE_DRIPLEAF, GLWorldGen.DRIPLEAF_SCATTER.get(),
+				new DripleafScatterConfig(Blocks.BASALT.defaultBlockState(), Blocks.MUD.defaultBlockState()));
 	}
 
 	/**
@@ -182,12 +194,13 @@ public class GenbuRavineBiomeGen extends AbstractBiomeGen {
 	@Override
 	protected void placed(Registrar reg) {
 		reg.cover(RAVINE_MUD_PF, reg.feature(RAVINE_MUD_DISK), CountPlacement.of(2));
-		// The ravine's own floor, in the order the ravine's list reads it: the plates, the pools cut into the steps,
-		// the moss, the stones, and only then the swamp's trees and grass. The plates have to be down first — a pool
-		// of them under a patch of grass that grew before it is grass standing on water.
+		// The ravine's own floor, in the order the ravine's list reads it: the plates, the dripleaves on them, the
+		// pools cut into the steps, the moss, the stones, and only then the swamp's trees and grass. The plates have to
+		// be down first — a pool of them under a patch of grass that grew before it is grass standing on water.
 		// The plates are on the surface: the ravine is a cut in the mountain, and the floor of the cut is the floor
 		// of the ravine. The no-leaves heightmap is the one that finds it, because the swamp's trees are on it.
 		reg.floor(RAVINE_BASALT_PF, reg.feature(RAVINE_BASALT_POOL), CountPlacement.of(8));
+		reg.floor(RAVINE_DRIPLEAF_PF, reg.feature(RAVINE_DRIPLEAF), CountPlacement.of(24));
 		reg.floor(RAVINE_STAIR_POOL_PF, reg.feature(RAVINE_STAIR_POOL), CountPlacement.of(24));
 		reg.cover(RAVINE_MOSS_PF, reg.feature(RAVINE_MOSS), CountPlacement.of(3));
 		reg.cover(RAVINE_STONES_PF, reg.feature(GensokyoBiomeFeatures.STONES), CountPlacement.of(2));

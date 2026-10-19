@@ -5,6 +5,8 @@ import dev.xkmc.gensokyolegacy.content.dimension.GensokyoChunkGenerator;
 import dev.xkmc.gensokyolegacy.content.worldgen.feature.DoubleBlockFeature;
 import dev.xkmc.gensokyolegacy.content.worldgen.feature.MudWaterloggedVegetationPatchFeature;
 import dev.xkmc.gensokyolegacy.content.worldgen.feature.MushroomFeatures;
+import dev.xkmc.gensokyolegacy.content.worldgen.feature.dripleaf.DripleafScatterConfig;
+import dev.xkmc.gensokyolegacy.content.worldgen.feature.dripleaf.DripleafScatterFeature;
 import dev.xkmc.gensokyolegacy.content.worldgen.feature.lake.LakeConfig;
 import dev.xkmc.gensokyolegacy.content.worldgen.feature.lake.LakeFeature;
 import dev.xkmc.gensokyolegacy.content.worldgen.feature.stair.StairPoolConfig;
@@ -69,6 +71,8 @@ public class GLWorldGen {
 			FR.reg("mud_waterlogged_vegetation_patch", () -> new MudWaterloggedVegetationPatchFeature(VegetationPatchConfiguration.CODEC));
 	public static final Val<StairPoolFeature> STAIR_POOL =
 			FR.reg("stair_pool", () -> new StairPoolFeature(StairPoolConfig.CODEC));
+	public static final Val<DripleafScatterFeature> DRIPLEAF_SCATTER =
+			FR.reg("dripleaf_scatter", () -> new DripleafScatterFeature(DripleafScatterConfig.CODEC));
 
 	private static final SR<PlacementModifierType<?>> PM = SR.of(GensokyoLegacy.REG, Registries.PLACEMENT_MODIFIER_TYPE);
 	public static final Val<PlacementModifierType<JitteredGridPlacement>> JITTERED_GRID = PM.reg("jittered_grid", () -> () -> JitteredGridPlacement.CODEC);

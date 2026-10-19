@@ -17,6 +17,15 @@
                   }
                 },
                 "weight": 1
+              },
+              {
+                "data": {
+                  "Name": "gensokyolegacy:stone_lantern",
+                  "Properties": {
+                    "half": "bottom"
+                  }
+                },
+                "weight": 1
               }
             ]
           }
@@ -46,7 +55,7 @@
         }
       ]
     },
-    "tries": 4,
+    "tries": 8,
     "xz_spread": 7,
     "y_spread": 0
   }

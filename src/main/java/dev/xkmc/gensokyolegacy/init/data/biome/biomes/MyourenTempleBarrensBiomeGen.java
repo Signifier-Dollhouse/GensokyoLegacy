@@ -73,8 +73,10 @@ public class MyourenTempleBarrensBiomeGen extends AbstractBiomeGen {
 				.add(Blocks.DEAD_BUSH, 3).add(Blocks.SHORT_GRASS, 3)
 				.add(Blocks.COARSE_DIRT, 2).add(Blocks.GRAVEL, 1).build()));
 		// one marker standing up, left out here as it is on the valley floor
-		FeatureUtils.register(ctx, GRAVESTONE, Feature.RANDOM_PATCH, patch(4, 7, 0,
-				new Palette().add(GLFurniture.WASTELAND_GRAVESTONE_SMALL, 1).build(), GLWorldGen.DOUBLE_BLOCK.get()));
+		FeatureUtils.register(ctx, GRAVESTONE, Feature.RANDOM_PATCH, patch(8, 7, 0,
+				new Palette().add(GLFurniture.WASTELAND_GRAVESTONE_SMALL, 1)
+						.add(GLFurniture.STONE_LANTERN, 1)
+						.build(), GLWorldGen.DOUBLE_BLOCK.get()));
 		// all four colourways in one patch, so a clump of them is a row of a village rather than four of one kind
 		FeatureUtils.register(ctx, JIZO, Feature.RANDOM_PATCH, patch(24, 6, 0, new Palette()
 				.add(GLFurniture.JIZO, 1).add(GLFurniture.JIZO_MYOUREN, 1).add(GLFurniture.JIZO_NARUMI, 1)

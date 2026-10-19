@@ -136,10 +136,10 @@ The seven are the ravine's alone — no other Gensokyo biome takes them — so t
 
 The eighth is the clay patch, and the ravine does not take it: it lays its own version, in basalt. See below.
 
-The ravine's own four — `ravine_basalt`, `ravine_stair_pool`, `ravine_moss` and `ravine_stones` — come **first** in
-the step, and the swamp's trees and grass after them. The plates have to be down before anything grows on them: a pool
-of them under a patch of grass that grew first is grass standing on water. §3 has why that is allowed to break the tail
-rule.
+The ravine's own five — `ravine_basalt`, `ravine_dripleaf`, `ravine_stair_pool`, `ravine_moss` and `ravine_stones` —
+come **first** in the step, and the swamp's trees and grass after them. The plates have to be down before anything
+grows on them: a pool of them under a patch of grass that grew first is grass standing on water. §3 has why that is
+allowed to break the tail rule.
 
 What it does **not** replace is the ravine's own: `ravine_mud` is still last in `underground_ores`. Lush caves is growth
 and vines on a cave surface; it is not a ground cover, and its moss and mud were never Gensokyo's to begin with.
@@ -190,6 +190,22 @@ Two consequences of the swap, both worth knowing:
   dirt under them, and a plate is basalt under water, so the ravine's carpet and its loose stone stop at the plate's
   edge. The swamp's grass patches are refused on a plate for the same reason, which is what keeps a pool of them from
   having a patch of grass standing on the water.
+
+### The dripleaves on the plates
+
+The plates are basalt, and a dripleaf does not root in basalt: its stem wants a support it can live on, and
+`#minecraft:big_dripleaf_placeable` is dirt, mud, clay and moss block. So `ravine_dripleaf` scatters dripleaves over
+the plates and leaves a patch of **mud** under each one — the block the plant stands on is replaced with ground it can
+root in, and the plate is basalt everywhere else.
+
+It is scattered **sixty-four times a chunk** on the no-leaves heightmap, so every try lands on the ravine's own
+surface and each of them is a column of its own. The plant is the big dripleaf, in the shape vanilla's own has it: a
+stem of up to four blocks and the leaf above it. The small dripleaf is not used — it lives on clay or moss block only
+and would not take to mud.
+
+The plates grow dripleaves of their own as well, and on the same mud: the patch is a waterlogged one, so the water
+above the mud is what the small dripleaf would have wanted. The difference is the rate — the patch grows a dripleaf
+one time in ten of the cells it lays, and this one grows one in every block of basalt it lands on.
 
 ### The pools in the steps
 
@@ -293,11 +309,11 @@ and `maple_fallen_leaves` are shared enough to belong in `GensokyoBiomeFeatures`
 and flowers. The vanilla flower and grass features of the base are kept as well, so the mod blocks are an accent
 rather than a replacement.
 
-**Standing deco** — the same patch, but drawn by `gensokyolegacy:double_block` instead: the jizo and the wasteland
-gravestone are `DoubleBlockImpl` delegates that occupy two blocks, and vanilla's `simple_block` writes only the bottom
-half. A top half with nothing under it passes the placement predicate and then drops off on the first neighbour
-update, so a patch of them written the vanilla way comes apart as it generates. These are also the only two patches
-placed by `Registrar.floor(...)` and drawn by `patch(...)` with a `y_spread` of 0; §2.3 has both.
+**Standing deco** — the same patch, but drawn by `gensokyolegacy:double_block` instead: the jizo, the wasteland
+gravestone and the stone lantern are `DoubleBlockImpl` delegates that occupy two blocks, and vanilla's `simple_block`
+writes only the bottom half. A top half with nothing under it passes the placement predicate and then drops off on the
+first neighbour update, so a patch of them written the vanilla way comes apart as it generates. These are also the only
+patches placed by `Registrar.floor(...)` and drawn by `patch(...)` with a `y_spread` of 0; §2.3 has both.
 
 **Soil disks** — `Feature.DISK`, in the `UNDERGROUND_ORES` step. Podzol under Muenzuka's trees, coarse dirt through the
 barrens, mud under the bamboo and in Genbu Ravine.
@@ -306,8 +322,9 @@ barrens, mud under the bamboo and in Genbu Ravine.
 (`EnvironmentScanPlacement` downward + `RandomOffsetPlacement`) in the `UNDERGROUND_DECORATION` step, and gated on
 `BlockPredicate.solid()` instead of the dirt tag so they survive a hell palette that is not vanilla stone.
 
-**Cave plates** — `Feature.VEGETATION_PATCH` over the cave floor, in the `VEGETAL_DECORATION` step: the ravine's own
-version of lush caves' clay patch, in basalt, with dripleaves on it. See §1.
+**Basalt plates** — `Feature.VEGETATION_PATCH` over the ravine's floor, in the `VEGETAL_DECORATION` step: the
+ravine's own version of lush caves' clay patch, in basalt, with dripleaves on it, and a scatter of dripleaves on top
+of it. See §1.
 
 **Stair pools** — `gensokyolegacy:stair_pool`, which turns the treads of a basalt slope into pools of water one block
 deep, and the run of them into a rim. See §1.
@@ -319,18 +336,21 @@ deep, and the run of them into a rim. See §1.
 | `stones` | 2 patches, mossy cobble / cobble / stone brick | hill, barrens, valley, foothills |
 | `grave_marker` | 1 in 4 chunks | muenzuka |
 | `gravestone` | 4 tries in 1 patch per chunk, on the floor | muenzuka |
+| `stone_lantern` | 4 tries in 1 patch per chunk, on the floor | muenzuka |
 | `ghost_flowers` | 3 patches | muenzuka |
 | `muenzuka_trees` | 4 trees, locust half | muenzuka |
 | `village_flowers` | 4 patches | human village |
 | `barrens_scrub` | 3 patches | barrens |
 | `barrens_gravestone` | 4 tries in 1 patch per chunk, on the floor | barrens |
+| `barrens_stone_lantern` | 4 tries in 1 patch per chunk, on the floor | barrens |
 | `barrens_jizo` | 24 tries in 1 patch, all four kinds, on the floor | barrens |
 | `barrens_locust_trees` | 6 trees | barrens |
 | `hill_of_the_nameless_flowers` | 7 patches | hill of the nameless |
 | `bamboo_dense` / `bamboo_sparse` | 6 patches / 1 in 3 | bamboo forest of the lost |
 | `ravine_moss` | 3 patches, 20 tries each | genbu ravine |
 | `ravine_basalt` | 8 plates a chunk, every one of them a pool | genbu ravine |
-| `ravine_stair_pool` | 16 tries a chunk, each a rim of seven treads | genbu ravine |
+| `ravine_dripleaf` | 64 dripleaves a chunk, each on a patch of mud | genbu ravine |
+| `ravine_stair_pool` | 24 tries a chunk, each a rim of seven treads | genbu ravine |
 | `ravine_stones` | 2 patches, the same stone as `stones` | genbu ravine |
 | `ravine_mud` | 2 disks a chunk, radius 2…4 | genbu ravine |
 | `foothill_moss` | 4 patches | youkai mountain foothills |
@@ -498,16 +518,16 @@ side.
 
 ### 2.3 The standing decos
 
-The jizo and the gravestone are the only two patches drawn by `gensokyolegacy:double_block` rather than by vanilla's
-own `simple_block`: they are `DoubleBlockImpl` delegates occupying two blocks, and `simple_block` writes only the
-bottom half. A top half with nothing under it passes the placement predicate and then drops off on the first
-neighbour update, so the feature writes both halves itself.
+The jizo, the gravestone and the stone lantern are the only patches drawn by `gensokyolegacy:double_block` rather
+than by vanilla's own `simple_block`: they are `DoubleBlockImpl` delegates occupying two blocks, and `simple_block`
+writes only the bottom half. A top half with nothing under it passes the placement predicate and then drops off on the
+first neighbour update, so the feature writes both halves itself.
 
-They are the only two patches in the tail placed by `Registrar.floor(...)` rather than `cover(...)`, and that one
-word is the whole of why they work. Everything else decorates with `HEIGHTMAP_WORLD_SURFACE`, and **that heightmap
-counts leaves** — a locust canopy six blocks up *is* the surface of its column by the time the tail runs, so a deco
-placed with it lands on the roof of the tree. `floor` uses `MOTION_BLOCKING_NO_LEAVES` instead, which returns the
-ground the surface rule actually laid down, and the jizo then stand on the floor whether or not a tree is over them.
+They are the only patches in the tail placed by `Registrar.floor(...)` rather than `cover(...)`, and that one word is
+the whole of why they work. Everything else decorates with `HEIGHTMAP_WORLD_SURFACE`, and **that heightmap counts
+leaves** — a locust canopy six blocks up *is* the surface of its column by the time the tail runs, so a deco placed
+with it lands on the roof of the tree. `floor` uses `MOTION_BLOCKING_NO_LEAVES` instead, which returns the ground the
+surface rule actually laid down, and the jizo then stand on the floor whether or not a tree is over them.
 
 The difference is not cosmetic. Under `cover` the decos were also *invisible under canopy*: the only defence against
 landing on the roof was that leaves are not in `BlockTags.DIRT`, so the predicate refused the try — which also meant
@@ -533,7 +553,9 @@ affordable in a patch of 24 grass and not in a patch of four gravestones, which 
 |---|---|---|---|
 | `barrens_jizo` | 1 per chunk | 24, all four kinds | `floor` |
 | `barrens_gravestone` | 1 per chunk | 4 | `floor` |
+| `barrens_stone_lantern` | 1 per chunk | 4 | `floor` |
 | `gravestone` (muenzuka) | 1 per chunk | 4 | `floor` |
+| `stone_lantern` (muenzuka) | 1 per chunk | 4 | `floor` |
 
 Tries are the whole of a patch's density, so a feature is only as common as it is set to be. An earlier gravestone of
 **two** tries behind a `RarityFilter(3)` — two thirds of a try per chunk against the jizo's 24 — was thirty-six times

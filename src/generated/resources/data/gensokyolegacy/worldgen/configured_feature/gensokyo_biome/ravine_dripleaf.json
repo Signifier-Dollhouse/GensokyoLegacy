@@ -1,0 +1,14 @@
+{
+  "type": "gensokyolegacy:dripleaf_scatter",
+  "config": {
+    "ground": {
+      "Name": "minecraft:mud"
+    },
+    "stone": {
+      "Name": "minecraft:basalt",
+      "Properties": {
+        "axis": "y"
+      }
+    }
+  }
+}

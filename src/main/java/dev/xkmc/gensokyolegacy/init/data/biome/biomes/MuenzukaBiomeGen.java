@@ -54,6 +54,8 @@ public class MuenzukaBiomeGen extends AbstractBiomeGen {
 	private static final ResourceKey<PlacedFeature> GRAVE_MARKER_PF = pf("grave_marker");
 	private static final ResourceKey<ConfiguredFeature<?, ?>> GRAVESTONE = cf("gravestone");
 	private static final ResourceKey<PlacedFeature> GRAVESTONE_PF = pf("gravestone");
+	private static final ResourceKey<ConfiguredFeature<?, ?>> STONE_LANTERN = cf("stone_lantern");
+	private static final ResourceKey<PlacedFeature> STONE_LANTERN_PF = pf("stone_lantern");
 	private static final ResourceKey<ConfiguredFeature<?, ?>> GHOST_FLOWERS = cf("ghost_flowers");
 	private static final ResourceKey<PlacedFeature> GHOST_FLOWERS_PF = pf("ghost_flowers");
 	private static final ResourceKey<ConfiguredFeature<?, ?>> MUENZUKA_TREES = cf("muenzuka_trees");
@@ -76,7 +78,7 @@ public class MuenzukaBiomeGen extends AbstractBiomeGen {
 								VegetationPlacements.RED_MUSHROOM_NORMAL, VegetationPlacements.PATCH_SUGAR_CANE,
 								VegetationPlacements.PATCH_PUMPKIN),
 								List.of(MUENZUKA_TREES_PF, GensokyoBiomeFeatures.STONES_PF, GRAVE_MARKER_PF,
-										GRAVESTONE_PF, GHOST_FLOWERS_PF)))
+										GRAVESTONE_PF, STONE_LANTERN_PF, GHOST_FLOWERS_PF)))
 						.topLayer(FREEZE_TOP_LAYER));
 	}
 
@@ -90,6 +92,9 @@ public class MuenzukaBiomeGen extends AbstractBiomeGen {
 		// one marker standing up, where the patch above it is low rubble lying on the ground
 		FeatureUtils.register(ctx, GRAVESTONE, Feature.RANDOM_PATCH, patch(4, 7, 0,
 				new Palette().add(GLFurniture.WASTELAND_GRAVESTONE_SMALL, 1).build(), GLWorldGen.DOUBLE_BLOCK.get()));
+		// the other thing a graveyard leaves standing, scattered the way the markers are
+		FeatureUtils.register(ctx, STONE_LANTERN, Feature.RANDOM_PATCH, patch(4, 7, 0,
+				new Palette().add(GLFurniture.STONE_LANTERN, 1).build(), GLWorldGen.DOUBLE_BLOCK.get()));
 		FeatureUtils.register(ctx, GHOST_FLOWERS, Feature.RANDOM_PATCH, onDirt(24, new Palette()
 				.add(Blocks.LILY_OF_THE_VALLEY, 3).add(Blocks.OXEYE_DAISY, 3).add(Blocks.ALLIUM, 2)
 				.add(Blocks.DEAD_BUSH, 2).add(GLNaturalBlocks.EUGUNE_GHOST_FIRE, 1).build()));
@@ -110,6 +115,7 @@ public class MuenzukaBiomeGen extends AbstractBiomeGen {
 		reg.trees(MUENZUKA_TREES_PF, reg.feature(MUENZUKA_TREES), CountPlacement.of(4));
 		reg.cover(GRAVE_MARKER_PF, reg.feature(GRAVE_MARKER), RarityFilter.onAverageOnceEvery(4));
 		reg.floor(GRAVESTONE_PF, reg.feature(GRAVESTONE), CountPlacement.of(1));
+		reg.floor(STONE_LANTERN_PF, reg.feature(STONE_LANTERN), CountPlacement.of(1));
 		reg.cover(GHOST_FLOWERS_PF, reg.feature(GHOST_FLOWERS), CountPlacement.of(3));
 	}
 
