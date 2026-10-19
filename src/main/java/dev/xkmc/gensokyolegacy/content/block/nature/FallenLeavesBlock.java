@@ -4,6 +4,7 @@ import com.mojang.serialization.MapCodec;
 import com.tterrag.registrate.providers.loot.RegistrateBlockLootTables;
 import net.minecraft.advancements.critereon.*;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.InteractionHand;
@@ -15,8 +16,12 @@ import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.BushBlock;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
@@ -32,11 +37,13 @@ import java.util.List;
 public class FallenLeavesBlock extends SimpleBushBlock {
 
 	public static final IntegerProperty LAYERS = IntegerProperty.create("layers", 1, 2);
+	/** Only horizontal, so a patch of leaves can be spun per block instead of tiling one orientation. */
+	public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
 	private static final MapCodec<FallenLeavesBlock> CODEC = simpleCodec(FallenLeavesBlock::new);
 
 	public FallenLeavesBlock(Properties properties) {
 		super(properties, LAYER);
-		this.registerDefaultState(this.stateDefinition.any().setValue(LAYERS, 1));
+		this.registerDefaultState(this.stateDefinition.any().setValue(LAYERS, 1).setValue(FACING, Direction.NORTH));
 	}
 
 	@Override
@@ -47,12 +54,13 @@ public class FallenLeavesBlock extends SimpleBushBlock {
 	@Override
 	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
 		super.createBlockStateDefinition(builder);
-		builder.add(LAYERS);
+		builder.add(LAYERS, FACING);
 	}
 
 	@Override
 	public @Nullable BlockState getStateForPlacement(BlockPlaceContext context) {
-		return this.defaultBlockState().setValue(LAYERS, 2);
+		return this.defaultBlockState().setValue(LAYERS, 2)
+				.setValue(FACING, context.getHorizontalDirection().getOpposite());
 	}
 
 	@Override
@@ -64,6 +72,16 @@ public class FallenLeavesBlock extends SimpleBushBlock {
 			return ItemInteractionResult.SUCCESS;
 		}
 		return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+	}
+
+	@Override
+	public BlockState rotate(BlockState state, Rotation rot) {
+		return state.setValue(FACING, rot.rotate(state.getValue(FACING)));
+	}
+
+	@Override
+	public BlockState mirror(BlockState state, Mirror mirror) {
+		return state.rotate(mirror.getRotation(state.getValue(FACING)));
 	}
 
 	public static void loot(RegistrateBlockLootTables tb, Block block) {

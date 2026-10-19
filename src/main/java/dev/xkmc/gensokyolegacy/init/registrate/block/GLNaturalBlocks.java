@@ -334,9 +334,16 @@ public class GLNaturalBlocks {
 							.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/nature/fallen_leaves")))
 							.texture("all", pvd.modLoc("block/nature/" + id + "_layer2"))
 							.renderType("cutout");
-					pvd.getVariantBuilder(ctx.get())
-							.partialState().with(FallenLeavesBlock.LAYERS, 1).modelForState().modelFile(layer1).addModel()
-							.partialState().with(FallenLeavesBlock.LAYERS, 2).modelForState().modelFile(layer2).addModel();
+					var builder = pvd.getVariantBuilder(ctx.get());
+					for (Direction dir : Direction.Plane.HORIZONTAL) {
+						int yRot = (int) dir.toYRot() % 360;
+						builder.partialState().with(FallenLeavesBlock.FACING, dir)
+								.with(FallenLeavesBlock.LAYERS, 1)
+								.modelForState().modelFile(layer1).rotationY(yRot).addModel();
+						builder.partialState().with(FallenLeavesBlock.FACING, dir)
+								.with(FallenLeavesBlock.LAYERS, 2)
+								.modelForState().modelFile(layer2).rotationY(yRot).addModel();
+					}
 				})
 				.loot(FallenLeavesBlock::loot)
 				.item().model((ctx, pvd) -> pvd.getBuilder(ctx.getName())

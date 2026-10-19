@@ -530,15 +530,19 @@ public abstract class AbstractBiomeGen {
 	 * A carpet of fallen leaves: every species listed, one layer three times as often as two, on dirt.
 	 * <p>
 	 * Weighted towards the single layer because a carpet that is two blocks tall everywhere reads as snow rather than
-	 * as litter, and a patch places a lot of them side by side.
+	 * as litter, and a patch places a lot of them side by side. Each cell also draws its own facing, so a carpet reads
+	 * as litter rather than as one model tiled.
 	 */
 	protected static RandomPatchConfiguration fallenLeaves(int tries, int spread,
 														   BlockEntry<FallenLeavesBlock>... species) {
 		var leaves = SimpleWeightedRandomList.<BlockState>builder();
 		for (var entry : species) {
 			var state = entry.get().defaultBlockState();
-			leaves.add(state.setValue(FallenLeavesBlock.LAYERS, 1), 3);
-			leaves.add(state.setValue(FallenLeavesBlock.LAYERS, 2), 1);
+			for (Direction facing : Direction.Plane.HORIZONTAL) {
+				var turned = state.setValue(FallenLeavesBlock.FACING, facing);
+				leaves.add(turned.setValue(FallenLeavesBlock.LAYERS, 1), 3);
+				leaves.add(turned.setValue(FallenLeavesBlock.LAYERS, 2), 1);
+			}
 		}
 		return patch(tries, spread, 3, new WeightedStateProvider(leaves.build()), Feature.SIMPLE_BLOCK);
 	}
