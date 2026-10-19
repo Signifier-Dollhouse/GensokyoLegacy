@@ -24,6 +24,7 @@ import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.MobSpawnSettings;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.VerticalAnchor;
 import net.minecraft.world.level.levelgen.blockpredicates.BlockPredicate;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
@@ -152,9 +153,11 @@ public class GenbuRavineBiomeGen extends AbstractBiomeGen {
 		FeatureUtils.register(ctx, RAVINE_BASALT_POOL, GLWorldGen.MUD_WATERLOGGED_VEGETATION_PATCH.get(),
 				basaltPlate(dripleaf, 5, 0.1F));
 		// The pools cut into the basalt steps: a tread in the middle of a slope becomes a pool of its own, and the run
-		// of treads beside it a rim of water along the slope. Seven blocks is how far one rim runs.
+		// of treads beside it a rim of water along the slope. Seven blocks is how far one rim runs, and the heightmap
+		// is the one the plates are laid on.
 		FeatureUtils.register(ctx, RAVINE_STAIR_POOL, GLWorldGen.STAIR_POOL.get(), new StairPoolConfig(
-				Blocks.BASALT.defaultBlockState(), Blocks.WATER.defaultBlockState(), 7));
+				Blocks.BASALT.defaultBlockState(), Blocks.WATER.defaultBlockState(), 7,
+				Heightmap.Types.MOTION_BLOCKING_NO_LEAVES));
 	}
 
 	/**
@@ -185,7 +188,7 @@ public class GenbuRavineBiomeGen extends AbstractBiomeGen {
 		// The plates are on the surface: the ravine is a cut in the mountain, and the floor of the cut is the floor
 		// of the ravine. The no-leaves heightmap is the one that finds it, because the swamp's trees are on it.
 		reg.floor(RAVINE_BASALT_PF, reg.feature(RAVINE_BASALT_POOL), CountPlacement.of(8));
-		reg.floor(RAVINE_STAIR_POOL_PF, reg.feature(RAVINE_STAIR_POOL), CountPlacement.of(16));
+		reg.floor(RAVINE_STAIR_POOL_PF, reg.feature(RAVINE_STAIR_POOL), CountPlacement.of(24));
 		reg.cover(RAVINE_MOSS_PF, reg.feature(RAVINE_MOSS), CountPlacement.of(3));
 		reg.cover(RAVINE_STONES_PF, reg.feature(GensokyoBiomeFeatures.STONES), CountPlacement.of(2));
 		// The ravine's springs, over vanilla's own configured feature and its own height range, with the count

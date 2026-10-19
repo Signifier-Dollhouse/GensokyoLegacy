@@ -193,7 +193,7 @@ Two consequences of the swap, both worth knowing:
 
 ### The pools in the steps
 
-A plate of basalt on a cave floor is flat, and a flat floor has no steps in it. A *slope* has: the plate follows the
+A plate of basalt on flat ground is flat, and flat ground has no steps in it. A *slope* has: the plate follows the
 terrain down, and every step of the slope is a tread of basalt with a step up on one side and a step down on the
 other. `ravine_stair_pool` is what turns those into water.
 
@@ -203,16 +203,22 @@ middle of a slope, and a slope of them is what a steep surface is made of. The c
 block under it, so the step becomes a pool one block deep with a floor of its own, and the water in it is level with
 the step it was.
 
-The run of treads beside it is found by a breadth-first walk over the three by three of blocks on the same level,
+The placement lands on the ravine's surface, which is not always a tread: a run of steps has flat ground between them,
+and the block under the placement may be any part of it. So a placement that lands on basalt is not given up — the
+feature looks at the **five by five of columns** around it, and the top block of each is read from the **heightmap**,
+because the columns of a slope are at different heights and a tread is a step higher or lower than the one beside it.
+The first of them that is a middle stair is the one that is carved.
+
+The run of treads beside it is then found by a breadth-first walk over the three by three of blocks on the same level,
 each of them tried the same way, and it stops **seven blocks** from where it started: one rim of water seven treads
-long, and no more. The placement is the same heightmap the plates use, so the tread it looks at is the ravine's own
-surface — which the plates have already turned into basalt, and which the air above it says is the top of its column.
+long, and no more.
 
 | | |
 |---|---|
 | stair | `minecraft:basalt` |
 | fill | `minecraft:water` |
 | reach | 7 blocks |
+| heightmap | `MOTION_BLOCKING_NO_LEAVES` |
 
 ### `minecraft:delta` is the one that fills them
 

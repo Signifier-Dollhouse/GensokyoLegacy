@@ -9,6 +9,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
@@ -40,10 +41,37 @@ public class StairPoolFeature extends Feature<StairPoolConfig> {
 	public boolean place(FeaturePlaceContext<StairPoolConfig> ctx) {
 		WorldGenLevel level = ctx.level();
 		StairPoolConfig config = ctx.config();
-		BlockPos origin = ctx.origin();
-		if (!isMiddleStair(level, origin, config)) return false;
-		carve(level, origin, config);
+		BlockPos origin = ctx.origin().below();
+		if (!level.getBlockState(origin).is(config.stair().getBlock())) {
+			return false;
+		}
+		BlockPos stair = isMiddleStair(level, origin, config) ? origin : findStair(level, origin, config);
+		if (stair == null) {
+			return false;
+		}
+		carve(level, stair, config);
 		return true;
+	}
+
+	/**
+	 * The middle stair in the five by five of columns around the position, if there is one.
+	 * <p>
+	 * The tread of a step is not always the block the placement landed on, but it is the top block of a column near
+	 * it, and the columns of a slope are at different heights — so each of them is read from the heightmap rather
+	 * than from the level the position is on.
+	 */
+	@Nullable
+	private BlockPos findStair(WorldGenLevel level, BlockPos origin, StairPoolConfig config) {
+		for (int dx = -2; dx <= 2; dx++) {
+			for (int dz = -2; dz <= 2; dz++) {
+				int x = origin.getX() + dx, z = origin.getZ() + dz;
+				BlockPos pos = new BlockPos(x, level.getHeight(config.heightmap(), x, z), z);
+				if (isMiddleStair(level, pos, config)) {
+					return pos;
+				}
+			}
+		}
+		return null;
 	}
 
 	/**
@@ -89,8 +117,10 @@ public class StairPoolFeature extends Feature<StairPoolConfig> {
 			}
 			if (state.is(block)) {
 				higher |= level.getBlockState(side.above()).is(block);
-			} else if (state.isAir() && level.getBlockState(side.below()).is(block)) {
-				lower = true;
+			} else if (state.isAir()) {
+				var low = level.getBlockState(side.below());
+				if (low.is(block)) lower = true;
+				else if (!low.isSolid() && !low.getFluidState().is(FluidTags.WATER)) return false;
 			}
 		}
 		if (!higher || !lower) {
