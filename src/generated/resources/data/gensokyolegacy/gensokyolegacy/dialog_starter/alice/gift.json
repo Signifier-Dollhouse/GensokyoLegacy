@@ -1,0 +1,11 @@
+{
+  "character": "gensokyolegacy:alice_margatroid",
+  "conditions": [
+    {
+      "type": "gensokyolegacy:gift_return"
+    }
+  ],
+  "dialog": "gensokyolegacy:alice/gift/return",
+  "text": "gensokyolegacy/alice/gift/starter/return",
+  "weight": 1000
+}

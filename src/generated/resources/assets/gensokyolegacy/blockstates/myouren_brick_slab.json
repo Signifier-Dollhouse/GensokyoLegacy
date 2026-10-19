@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "gensokyolegacy:block/myouren_brick_slab"
+    },
+    "type=double": {
+      "model": "gensokyolegacy:block/myouren_bricks"
+    },
+    "type=top": {
+      "model": "gensokyolegacy:block/myouren_brick_slab_top"
+    }
+  }
+}

@@ -1,0 +1,201 @@
+{
+	"format_version": "1.21.6",
+	"parent": "minecraft:block/block",
+	"texture_size": [64, 64],
+	"textures": {
+		"0": "gensokyolegacy:item/curio/koishi_hat_head",
+		"particle": "gensokyolegacy:item/curio/koishi_hat_head"
+	},
+	"elements": [
+		{
+			"from": [3.5, 6, 3.5],
+			"to": [12.5, 10, 12.5],
+			"rotation": {
+				"origin": [8.5, 7, 8.5],
+				"axis": "y",
+				"angle": 0
+			},
+			"faces": {
+				"north": {
+					"uv": [6.25, 2.25, 8.5, 3.25],
+					"texture": "#0"
+				},
+				"east": {
+					"uv": [6.25, 3.25, 8.5, 4.25],
+					"texture": "#0"
+				},
+				"south": {
+					"uv": [6.25, 4.25, 8.5, 5.25],
+					"texture": "#0"
+				},
+				"west": {
+					"uv": [6.25, 5.25, 8.5, 6.25],
+					"texture": "#0"
+				},
+				"up": {
+					"uv": [6.25, 2.25, 4, 0],
+					"texture": "#0"
+				},
+				"down": {
+					"uv": [6.25, 2.25, 4, 4.5],
+					"texture": "#0"
+				}
+			}
+		},
+		{
+			"from": [12, 5.1, 6.5],
+			"to": [16, 7.8, 6.525],
+			"rotation": {
+				"origin": [17, 6.8, 11.5],
+				"axis": "z",
+				"angle": -22.5
+			},
+			"faces": {
+				"north": {
+					"uv": [0, 8, 1, 8.75],
+					"texture": "#0"
+				},
+				"east": {
+					"uv": [0, 0, 0, 0.75],
+					"texture": "#0"
+				},
+				"south": {
+					"uv": [1, 8, 0, 8.75],
+					"texture": "#0"
+				},
+				"west": {
+					"uv": [0, 0, 0, 0.75],
+					"texture": "#0"
+				},
+				"up": {
+					"uv": [1, 0, 0, 0],
+					"texture": "#0"
+				},
+				"down": {
+					"uv": [0, 0, 1, 0],
+					"texture": "#0"
+				}
+			}
+		},
+		{
+			"from": [11.3, 10.3, 6.8],
+			"to": [14.3, 13.3, 6.825],
+			"rotation": {
+				"origin": [16.3, 12.3, 11.8],
+				"axis": "z",
+				"angle": 45
+			},
+			"faces": {
+				"north": {
+					"uv": [1, 8, 1.75, 8.75],
+					"texture": "#0"
+				},
+				"east": {
+					"uv": [0, 0, 0, 0.75],
+					"texture": "#0"
+				},
+				"south": {
+					"uv": [1.75, 8, 1, 8.75],
+					"texture": "#0"
+				},
+				"west": {
+					"uv": [0, 0, 0, 0.75],
+					"texture": "#0"
+				},
+				"up": {
+					"uv": [0.75, 0, 0, 0],
+					"texture": "#0"
+				},
+				"down": {
+					"uv": [0, 0, 0.75, 0],
+					"texture": "#0"
+				}
+			}
+		},
+		{
+			"from": [3.3, 6, 3.3],
+			"to": [12.7, 10.4, 12.7],
+			"rotation": {
+				"origin": [8.5, 3.2, 8.5],
+				"axis": "y",
+				"angle": 0
+			},
+			"faces": {
+				"north": {
+					"uv": [6.25, 6.25, 8.5, 7.25],
+					"texture": "#0"
+				},
+				"east": {
+					"uv": [4, 6.75, 6.25, 7.75],
+					"texture": "#0"
+				},
+				"south": {
+					"uv": [6.25, 7.25, 8.5, 8.25],
+					"texture": "#0"
+				},
+				"west": {
+					"uv": [4, 7.75, 6.25, 8.75],
+					"texture": "#0"
+				},
+				"up": {
+					"uv": [6.25, 6.75, 4, 4.5],
+					"texture": "#0"
+				},
+				"down": {
+					"uv": [8.5, 0, 6.25, 2.25],
+					"texture": "#0"
+				}
+			}
+		},
+		{
+			"from": [0, 5.925, 0],
+			"to": [16, 5.95, 16],
+			"rotation": {
+				"origin": [9, 2.95, 9],
+				"axis": "y",
+				"angle": 0
+			},
+			"faces": {
+				"north": {
+					"uv": [0, 0, 4, 0],
+					"texture": "#0"
+				},
+				"east": {
+					"uv": [0, 0, 4, 0],
+					"texture": "#0"
+				},
+				"south": {
+					"uv": [0, 0, 4, 0],
+					"texture": "#0"
+				},
+				"west": {
+					"uv": [0, 0, 4, 0],
+					"texture": "#0"
+				},
+				"up": {
+					"uv": [4, 4, 0, 0],
+					"texture": "#0"
+				},
+				"down": {
+					"uv": [4, 0, 0, 4],
+					"texture": "#0"
+				}
+			}
+		}
+	],
+	"display": {
+		"head": {
+			"rotation": [0, 0, 0],
+			"translation": [0, 4.7, 0],
+			"scale": [1.65, 1.65, 1.65]
+		}
+	},
+	"groups": [
+		{
+			"name": "Root",
+			"origin": [8, 0, 8],
+			"color": 0,
+			"children": [0, 1, 2, 3, 4]
+		}
+	]
+}

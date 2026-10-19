@@ -1,0 +1,11 @@
+{
+  "character": "gensokyolegacy:ibuki_suika",
+  "conditions": [
+    {
+      "type": "gensokyolegacy:gift_return"
+    }
+  ],
+  "dialog": "gensokyolegacy:suika/gift/return",
+  "text": "gensokyolegacy/suika/gift/starter/return",
+  "weight": 1000
+}

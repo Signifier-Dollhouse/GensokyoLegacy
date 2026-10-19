@@ -1,4 +1,7 @@
 {
+  "animations": [
+    "dialog_greet"
+  ],
   "options": [
     {
       "type": "gensokyolegacy:simple",

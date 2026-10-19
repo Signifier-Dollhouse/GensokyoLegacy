@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "A": {
+      "item": "minecraft:stone"
+    },
+    "B": {
+      "item": "minecraft:stone_slab"
+    },
+    "C": {
+      "item": "minecraft:soul_soil"
+    }
+  },
+  "pattern": [
+    "A  ",
+    "A  ",
+    "BCB"
+  ],
+  "result": {
+    "count": 1,
+    "id": "gensokyolegacy:wasteland_gravestone_small"
+  }
+}

@@ -1,4 +1,7 @@
 {
+  "animations": [
+    "dialog_think_02"
+  ],
   "options": [
     {
       "type": "gensokyolegacy:simple",

@@ -1,4 +1,7 @@
 {
+  "animations": [
+    "dialog_confused"
+  ],
   "options": [
     {
       "type": "gensokyolegacy:simple",

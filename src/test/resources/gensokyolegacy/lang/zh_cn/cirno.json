@@ -1,0 +1,20 @@
+{
+  "-slash": true,
+  "gensokyolegacy": {
+    "cirno": {
+      "gift": {
+        "dialog": {
+          "like": "你人真好，咱很喜欢这个！",
+          "dislike": "这个咱不喜欢，你自己拿去用吧。",
+          "return": "咱在外面捡到了好东西！这个送你了，记得常来找我玩。"
+        },
+        "option": {
+          "return/take": "那就约好了，有空一起玩。"
+        },
+        "starter": {
+          "return": "咱有东西要送你！"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/outer_stairs",
+  "textures": {
+    "bottom": "gensokyolegacy:block/deco/myouren_bricks",
+    "side": "gensokyolegacy:block/deco/myouren_bricks",
+    "top": "gensokyolegacy:block/deco/myouren_bricks"
+  }
+}

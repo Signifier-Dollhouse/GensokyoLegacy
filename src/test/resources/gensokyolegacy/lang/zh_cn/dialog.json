@@ -164,6 +164,11 @@
       "chat": {
         "visit_greeting": "又见面了，还顺利否？"
       }
+    },
+    "dialog": {
+      "gift": {
+        "leave": "（离开）"
+      }
     }
   }
 }

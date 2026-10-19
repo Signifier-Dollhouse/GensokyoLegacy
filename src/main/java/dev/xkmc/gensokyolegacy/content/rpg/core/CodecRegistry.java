@@ -10,6 +10,8 @@ import dev.xkmc.gensokyolegacy.content.rpg.condition.HasAdvancementCondition;
 import dev.xkmc.gensokyolegacy.content.rpg.condition.HasItemCondition;
 import dev.xkmc.gensokyolegacy.content.rpg.condition.HasQuestCompletedCondition;
 import dev.xkmc.gensokyolegacy.content.rpg.condition.HomeBoundCondition;
+import dev.xkmc.gensokyolegacy.content.rpg.action.GiftReturnAction;
+import dev.xkmc.gensokyolegacy.content.rpg.condition.GiftReturnCondition;
 import dev.xkmc.gensokyolegacy.content.rpg.condition.OtherReputationCondition;
 import dev.xkmc.gensokyolegacy.content.rpg.condition.PartyCondition;
 import dev.xkmc.gensokyolegacy.content.rpg.condition.SelfReputationCondition;
@@ -65,6 +67,7 @@ public class CodecRegistry {
 	public static final CdcVal<CompleteQuestAction> COMPLETE_QUEST = ACTION.reg("complete_quest", CompleteQuestAction.CODEC);
 	public static final CdcVal<GiveMobEffectAction> GIVE_MOB_EFFECT = ACTION.reg("give_mob_effect", GiveMobEffectAction.CODEC);
 	public static final CdcVal<SetTimerAction> SET_TIMER = ACTION.reg("set_timer", SetTimerAction.CODEC);
+	public static final CdcVal<GiftReturnAction> GIFT_RETURN_ACTION = ACTION.reg("gift_return", GiftReturnAction.CODEC);
 
 	public static final CdcVal<HasAdvancementCondition> HAS_ADV = CONDITION.reg("has_advancement", HasAdvancementCondition.CODEC);
 	public static final CdcVal<HasQuestCompletedCondition> HAS_QUEST = CONDITION.reg("has_quest_completed", HasQuestCompletedCondition.CODEC);
@@ -75,6 +78,7 @@ public class CodecRegistry {
 public static final CdcVal<AnyCondition> ANY = CONDITION.reg("any", AnyCondition.CODEC);
 	public static final CdcVal<HomeBoundCondition> HOME_BOUND = CONDITION.reg("home_bound", HomeBoundCondition.CODEC);
 	public static final CdcVal<PartyCondition> PARTY = CONDITION.reg("party", PartyCondition.CODEC);
+	public static final CdcVal<GiftReturnCondition> GIFT_RETURN = CONDITION.reg("gift_return", GiftReturnCondition.CODEC);
 	public static final CdcVal<VisitStructureCondition> VISIT_STRUCTURE = CONDITION.reg("visit_structure", VisitStructureCondition.CODEC);
 
 	public static final CdcVal<KillMobRequirement> KILL_MOB_REQ = REQUIREMENT.reg("kill_mob", KillMobRequirement.CODEC);

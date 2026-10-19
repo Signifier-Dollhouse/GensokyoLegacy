@@ -1,0 +1,8 @@
+{
+  "parent": "gensokyolegacy:custom/deco/myouren_fence",
+  "render_type": "minecraft:cutout",
+  "textures": {
+    "all": "gensokyolegacy:block/deco/myouren_fence",
+    "particle": "gensokyolegacy:block/deco/myouren_fence"
+  }
+}
