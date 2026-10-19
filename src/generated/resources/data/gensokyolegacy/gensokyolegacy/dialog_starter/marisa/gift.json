@@ -1,0 +1,11 @@
+{
+  "character": "gensokyolegacy:kirisame_marisa",
+  "conditions": [
+    {
+      "type": "gensokyolegacy:gift_return"
+    }
+  ],
+  "dialog": "gensokyolegacy:marisa/gift/return",
+  "text": "gensokyolegacy/marisa/gift/starter/return",
+  "weight": 1000
+}

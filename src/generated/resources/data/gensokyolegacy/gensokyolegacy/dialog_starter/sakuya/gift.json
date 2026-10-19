@@ -1,0 +1,11 @@
+{
+  "character": "gensokyolegacy:izayoi_sakuya",
+  "conditions": [
+    {
+      "type": "gensokyolegacy:gift_return"
+    }
+  ],
+  "dialog": "gensokyolegacy:sakuya/gift/return",
+  "text": "gensokyolegacy/sakuya/gift/starter/return",
+  "weight": 1000
+}

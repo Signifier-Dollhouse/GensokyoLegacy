@@ -157,20 +157,97 @@ instead: `mini_hakkero_prototype` 16-24, `dowser` 12-18, `cat_bell` 8-12, `stran
 4. If it should also be buyable, tag it `MORICHIKA_OFFERS` and give it a `MorichikaOfferData` — see
    *Selling gifts on a shelf*.
 
-The `gift_data`, `gift_preference` and `morichika_offer` datamaps and the `en_us` / `en_ud` lang
-files are generated — run `./gradlew runData` and commit `src/generated/resources/` alongside the
-code. `zh_cn` is hand-authored under `src/test/resources/gensokyolegacy/lang/zh_cn/`.
+Giving a character a reaction to a gift, or a gift back, is `GiftQDGen` and one `gift_dialog` entry
+rather than a datamap of prose; see *What she says about it* and *Paying a gift back*.
+
+The `gift_data`, `gift_preference`, `gift_dialog` and `morichika_offer` datamaps and the `en_us` /
+`en_ud` lang files are generated — run `./gradlew runData` and commit `src/generated/resources/`
+alongside the code. `zh_cn` is hand-authored under
+`src/test/resources/gensokyolegacy/lang/zh_cn/`.
+
+## What she says about it
+
+The factor decides which of two reactions plays, and it is the *factor* rather than the favor that
+does, because that is the only thing on the data that separates a refusal from an ordinary gift:
+
+| factor | reaction | clip |
+|--------|----------|------|
+| `> 0` | she takes it | `喜欢` |
+| `= 0` | she turns it down | `讨厌` |
+
+A factor small enough to truncate the favor to 0 — `COLLECTION` at 0.5 on a `fancy_fan` — is neither:
+she takes it at face value and says nothing about it. That is why `GiftModule` tests the factor for
+the reaction and the favor for the gift, and why the two paths are written out separately rather than
+as one `favor <= 0` branch with a clip on each side.
+
+Both reactions are ordinary dialog slots as well (`dialog_like`, `dialog_dislike`), so a dialog can
+name one directly; the clip is a separate shared constant on `GeoYoukaiAnim` for a character with no
+dialog written for her yet. Suika's rig calls the like clip `高兴`, so she shadows the shared
+constant — the slot is shared, the clip is hers.
+
+The text itself is one dialog per character per reaction, registered in `GiftQDGen` and named by the
+`gift_dialog` datamap, which is keyed by entity type and holds a `Holder<Dialog>` per side. Holders
+rather than ids, so a mistyped path fails at datagen instead of resolving to nothing at runtime.
+
+## Paying a gift back
+
+Every accepted gift banks its own favor into `CharacterData.giftReturn`. When the bank reaches the
+character's `threshold` she owes one back, and a special-weight chat appears on the topic list saying
+so; taking that option rolls one item from her `gift_return` table and clears the bank.
+
+The threshold is per character rather than a constant, because what a gift costs is the factor, not
+the item: a category she likes at 2.0 walks the bar up twice as fast, so a fixed favor threshold
+would pay out sooner to the characters who were generous than to the ones who were careful.
+
+Each character's threshold is her own **ceiling** — the most one gift is currently worth to her, read
+off the two datamaps rather than guessed, so that no single gift buys a return on its own:
+
+| character | best gift | factor | threshold |
+|-----------|-----------|--------|-----------|
+| ibuki_suika | ghost_sake | 3.0 | 15 |
+| alice_margatroid | magic_book | 2.0 | 12 |
+| kirisame_marisa | magic_book | 2.0 | 12 |
+| cirno | sturdy_teddy_bear | 2.0 | 10 |
+| hakurei_reimu | ghost_sake | 2.0 | 10 |
+| morichika_rinnosuke | magic_book | 1.5 | 9 |
+| izayoi_sakuya | lucky_tea | 2.0 | 8 |
+
+It is per character rather than one figure for the mod because a gift is worth a *factor* times a base
+favor, and the factors differ enough for a shared number to be out of reach for one character or
+trivially passed by another: at 15 Sakuya could never pay one back, and Suika would clear it on her
+first gift every time.
+
+A ceiling is not a multiple, so everyone needs two gifts except Suika, who can reach it in one — and
+then only with exactly `ghost_sake`, `tengu_sake` or `zun_beer`, the three tied at her `ALCOHOL` 3.0.
+Raise a favor or a factor past a character's ceiling and it has to follow, or the number stops meaning
+anything.
+
+The `gift_return` table is **cut from her own party gift ladder at datagen** — the second rung up,
+`GiftLootGen.RETURN_TIER` — rather than written out again. One rung above the bottom, because the
+bottom rung is what she leaves on a table after a whole visit and a return gift has to be worth more
+than that to read as one; not higher, because the top of her ladder should stay something a visit
+earns rather than something patience buys. The rung's `AppealConsumedCondition` is dropped, since the
+band it answers for is appeal and this roll never sets any.
+
+The bank is cleared *before* the roll, so a table a datapack has emptied costs the player nothing
+rather than leaving them having paid and owed the next one as well.
 
 ## Files
 
 - `content/item/gift/GiftType.java` -- the categories, their display names, and `neutral()`
 - `content/item/gift/GiftItemData.java` -- base favor / cooldown / type, and the three-tier lookup
 - `content/item/gift/GiftPreference.java` -- the `gift_preference` datamap value
-- `content/entity/behavior/module/GiftModule.java` -- the interaction, the cooldown, the favor gain
+- `content/rpg/core/GiftDialogData.java` -- the `gift_dialog` datamap value: both reactions, the threshold, the return table
+- `content/rpg/condition/GiftReturnCondition.java` -- whether she owes a gift back
+- `content/rpg/action/GiftReturnAction.java` -- spends the bank and hands the item over
+- `content/rpg/gift/GiftReturn.java` -- the roll, and where the tables live
+- `content/entity/behavior/module/GiftModule.java` -- the interaction, the cooldown, the favor gain, the reaction
 - `content/entity/characters/fairy/FairyEntity.java` -- the fairy base class (her preferences are data, not code)
 - `init/registrate/GLItems.java`, `init/registrate/block/{GLDecoBlocks,GLNaturalBlocks}.java` -- the `GIFT_DATA` entries
 - `init/registrate/GLEntities.java` -- the `GIFT_*` preference constants and the registrations that pass them
-- `init/registrate/GLMeta.java` -- the `GIFT_DATA`, `GIFT_PREFERENCE` and `MORICHIKA_OFFER` registrations
+- `init/registrate/GLMeta.java` -- the `GIFT_DATA`, `GIFT_PREFERENCE`, `GIFT_DIALOG_DATA` and `MORICHIKA_OFFER` registrations
+- `init/data/rpg/GiftQDGen.java` -- the two reaction dialogs and the return chat, for every character
+- `init/data/loot/GiftLootGen.java` -- the party gift ladders and the `gift_return` tables cut from them
 - `init/data/GLTagGen.java` -- the `MORICHIKA_OFFERS` item tag
 - `event/GLClientEventHandlers.java` -- the favor / type tooltip
 - `content/block/deco/shelf/MorichikaOfferData.java` -- the shelf price / stock band

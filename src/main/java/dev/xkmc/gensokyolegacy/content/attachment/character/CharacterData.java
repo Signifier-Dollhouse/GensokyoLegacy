@@ -32,6 +32,17 @@ public class CharacterData {
 	@SerialField
 	public final Map<String, Long> timers = new LinkedHashMap<>();
 
+	/**
+	 * Favor banked toward the next gift she hands back: every accepted gift adds the favor it was
+	 * actually worth, and the return chat spends the whole lot at once. What it buys is the
+	 * character's own {@code gift_dialog} threshold; deliberately untouched by {@link #dailyUpdate()},
+	 * since she is not losing interest, only waiting to reciprocate.
+	 *
+	 * @see "doc/design/gift.md"
+	 */
+	@SerialField
+	public int giftReturn;
+
 	public boolean isAvailable(String key, long gameTime) {
 		return gameTime >= timers.getOrDefault(key, 0L);
 	}

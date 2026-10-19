@@ -1,0 +1,18 @@
+{
+  "animations": [
+    "dialog_talk_05"
+  ],
+  "options": [
+    {
+      "type": "gensokyolegacy:simple",
+      "actions": [
+        {
+          "type": "gensokyolegacy:gift_return"
+        }
+      ],
+      "conditions": [],
+      "text": "gensokyolegacy/alice/gift/option/return/take"
+    }
+  ],
+  "text": "gensokyolegacy/alice/gift/dialog/return"
+}

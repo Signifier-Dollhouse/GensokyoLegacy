@@ -1,4 +1,7 @@
 {
+  "animations": [
+    "dialog_agree"
+  ],
   "options": [],
   "text": "gensokyolegacy/marisa/daily_shroomlight/dialog/marisa/daily_shroomlight/complete/handover/dialog_1"
 }

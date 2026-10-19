@@ -144,6 +144,11 @@ public class SuikaEntity extends BossYoukaiEntity implements GeoYoukaiAnim {
 		board.addExclusive(0, new YoukaiNapTask<>(), GLBrains.NAP.get());
 	}
 
+	/**
+	 * Her rig is the narrowest in the mod: {@link GeoYoukaiAnim#addTriggerableAnims} reads this, and
+	 * only a slot answered here is ever registered on her controller — which is why {@code TALK_01}
+	 * has to be listed rather than folded into the {@code TALK_02} line above.
+	 */
 	@Override
 	public Optional<RawAnimation> getAnim(YoukaiAnim anim) {
 		return switch (anim) {

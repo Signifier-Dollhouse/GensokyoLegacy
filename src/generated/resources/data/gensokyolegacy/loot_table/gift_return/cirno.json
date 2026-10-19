@@ -1,0 +1,37 @@
+{
+  "type": "minecraft:advancement_reward",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "gensokyolegacy:fairy_cake",
+          "weight": 20
+        },
+        {
+          "type": "minecraft:item",
+          "name": "gensokyolegacy:sturdy_teddy_bear",
+          "weight": 20
+        },
+        {
+          "type": "minecraft:item",
+          "name": "gensokyolegacy:frozen_frog_cold",
+          "weight": 10
+        },
+        {
+          "type": "minecraft:item",
+          "name": "gensokyolegacy:frozen_frog_warm",
+          "weight": 10
+        },
+        {
+          "type": "minecraft:item",
+          "name": "gensokyolegacy:frozen_frog_temperate",
+          "weight": 10
+        }
+      ],
+      "rolls": 1.0
+    }
+  ],
+  "random_sequence": "gensokyolegacy:gift_return/cirno"
+}

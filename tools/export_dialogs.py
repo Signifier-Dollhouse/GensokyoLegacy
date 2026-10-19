@@ -34,6 +34,8 @@ from collections import OrderedDict, Counter
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA = os.path.join(ROOT, "src/generated/resources/data/gensokyolegacy/gensokyolegacy")
 DATA_MAP = os.path.join(ROOT, "src/generated/resources/data/gensokyolegacy/data_maps/entity_type/default_dialog.json")
+GIFT_DATA_MAP = os.path.join(ROOT,
+                              "src/generated/resources/data/gensokyolegacy/data_maps/entity_type/gift_dialog.json")
 EN_LANG = os.path.join(ROOT, "src/generated/resources/assets/gensokyolegacy/lang/en_us.json")
 ZH_LANG = os.path.join(ROOT, "src/main/resources/assets/gensokyolegacy/lang/zh_cn.json")
 OUT = os.path.join(ROOT, "out")
@@ -457,6 +459,9 @@ class Ctx:
         self.starters = load_registry("dialog_starter")
         self.quests = load_registry("quest")
         self.default_dialogs = load_json(DATA_MAP)["values"]
+        # the gift reactions are opened by the module rather than by a starter, so they are reached
+        # from here rather than from the topic list; without this they audit as unreachable
+        self.gift_dialogs = load_json(GIFT_DATA_MAP)["values"]
         self.rig = None                      # set per character by render_character
         self.notes = []
 
@@ -833,6 +838,11 @@ def audit(ctx, char_id, starters, quests):
     for s in starters.values():
         used_keys.add(s["text"])
         walk(s["dialog"])
+    for entry in ctx.gift_dialogs.values():
+        for which in ("like", "dislike"):
+            did = plain_loc(entry.get(which, ""))
+            if did.startswith(char_id + "/"):
+                walk(did)
     for q in quests.values():
         used_keys.add(q["title"])
         used_keys.add(q["description"])
