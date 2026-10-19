@@ -88,7 +88,7 @@ public class MuenzukaBiomeGen extends AbstractBiomeGen {
 		FeatureUtils.register(ctx, GRAVE_MARKER, Feature.RANDOM_PATCH, onDirt(8, new Palette()
 				.add(Blocks.COBBLESTONE, 3).add(Blocks.MOSSY_COBBLESTONE, 2).add(Blocks.CRACKED_STONE_BRICKS, 1).build()));
 		// one marker standing up, where the patch above it is low rubble lying on the ground
-		FeatureUtils.register(ctx, GRAVESTONE, Feature.RANDOM_PATCH, patch(1, 7, 0,
+		FeatureUtils.register(ctx, GRAVESTONE, Feature.RANDOM_PATCH, patch(4, 7, 0,
 				new Palette().add(GLFurniture.WASTELAND_GRAVESTONE_SMALL, 1).build(), GLWorldGen.DOUBLE_BLOCK.get()));
 		FeatureUtils.register(ctx, GHOST_FLOWERS, Feature.RANDOM_PATCH, onDirt(24, new Palette()
 				.add(Blocks.LILY_OF_THE_VALLEY, 3).add(Blocks.OXEYE_DAISY, 3).add(Blocks.ALLIUM, 2)
@@ -109,7 +109,7 @@ public class MuenzukaBiomeGen extends AbstractBiomeGen {
 		reg.cover(PODZOL_PF, reg.feature(PODZOL_DISK), CountPlacement.of(3));
 		reg.trees(MUENZUKA_TREES_PF, reg.feature(MUENZUKA_TREES), CountPlacement.of(4));
 		reg.cover(GRAVE_MARKER_PF, reg.feature(GRAVE_MARKER), RarityFilter.onAverageOnceEvery(4));
-		reg.cover(GRAVESTONE_PF, reg.feature(GRAVESTONE), RarityFilter.onAverageOnceEvery(3));
+		reg.floor(GRAVESTONE_PF, reg.feature(GRAVESTONE), CountPlacement.of(1));
 		reg.cover(GHOST_FLOWERS_PF, reg.feature(GHOST_FLOWERS), CountPlacement.of(3));
 	}
 

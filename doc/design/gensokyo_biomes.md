@@ -213,7 +213,7 @@ rather than a replacement.
 gravestone are `DoubleBlockImpl` delegates that occupy two blocks, and vanilla's `simple_block` writes only the bottom
 half. A top half with nothing under it passes the placement predicate and then drops off on the first neighbour
 update, so a patch of them written the vanilla way comes apart as it generates. These are also the only two patches
-that ask for `y_spread: 0`; §2.2 has both.
+placed by `Registrar.floor(...)` and drawn by `patch(...)` with a `y_spread` of 0; §2.3 has both.
 
 **Soil disks** — `Feature.DISK`, in the `UNDERGROUND_ORES` step. Podzol under Muenzuka's trees, coarse dirt through the
 barrens, mud under the bamboo and in Genbu Ravine.
@@ -228,13 +228,13 @@ barrens, mud under the bamboo and in Genbu Ravine.
 |---|---|---|
 | `stones` | 2 patches, mossy cobble / cobble / stone brick | hill, barrens, valley, foothills, ravine |
 | `grave_marker` | 1 in 4 chunks | muenzuka |
-| `gravestone` | 1 in 3 chunks, one `double_block` try, no y spread | muenzuka |
+| `gravestone` | 4 tries in 1 patch per chunk, on the floor | muenzuka |
 | `ghost_flowers` | 3 patches | muenzuka |
 | `muenzuka_trees` | 4 trees, locust half | muenzuka |
 | `village_flowers` | 4 patches | human village |
 | `barrens_scrub` | 3 patches | barrens |
-| `barrens_gravestone` | 1 in 6 chunks, one `double_block` try, no y spread | barrens |
-| `barrens_jizo` | 8 tries in 1 patch in 3 chunks, all four kinds, no y spread | barrens |
+| `barrens_gravestone` | 4 tries in 1 patch per chunk, on the floor | barrens |
+| `barrens_jizo` | 24 tries in 1 patch, all four kinds, on the floor | barrens |
 | `barrens_locust_trees` | 6 trees | barrens |
 | `hill_of_the_nameless_flowers` | 7 patches | hill of the nameless |
 | `bamboo_dense` / `bamboo_sparse` | 6 patches / 1 in 3 | bamboo forest of the lost |
@@ -402,24 +402,60 @@ The carpet itself is `fallenLeaves(tries, spread, species…)`, weighted three t
 carpet that is two blocks tall everywhere reads as snow rather than as litter, and a patch puts a lot of them side by
 side.
 
-### 2.3 Why the gravestones and the jizo never appeared
+### 2.3 The standing decos
 
-`RandomPatchFeature` takes its vertical offset as `nextInt(y_spread + 1) - nextInt(y_spread + 1)`, which at the
-vanilla `y_spread` of 3 puts the try back on the terrain surface **one time in four** — and off the surface the
-`BlockTags.DIRT` predicate underneath can never be satisfied, because the surface is the only height where there is
-dirt under an air block. Three quarters of every patch was being thrown away before the block ever got asked to
-place.
+The jizo and the gravestone are the only two patches drawn by `gensokyolegacy:double_block` rather than by vanilla's
+own `simple_block`: they are `DoubleBlockImpl` delegates occupying two blocks, and `simple_block` writes only the
+bottom half. A top half with nothing under it passes the placement predicate and then drops off on the first
+neighbour update, so the feature writes both halves itself.
 
-That is free for a ground cover patch with 8 to 28 tries. It was not free for `gravestone`, which had **one** try: a
-quarter chance of being at the right height, times the odds of the block under it happening to be dirt rather than
-gravel or sand, at one placement per three or six chunks in a biome that is a few per cent of the world. It came out
-as roughly one marker per few hundred chunks and read as never. The jizo patch had eight tries and so did land, but
-a quarter of them, and it was never close enough to a path to be noticed.
+They are the only two patches in the tail placed by `Registrar.floor(...)` rather than `cover(...)`, and that one
+word is the whole of why they work. Everything else decorates with `HEIGHTMAP_WORLD_SURFACE`, and **that heightmap
+counts leaves** — a locust canopy six blocks up *is* the surface of its column by the time the tail runs, so a deco
+placed with it lands on the roof of the tree. `floor` uses `MOTION_BLOCKING_NO_LEAVES` instead, which returns the
+ground the surface rule actually laid down, and the jizo then stand on the floor whether or not a tree is over them.
 
-Both now pass `ySpread = 0` through `patch(...)`, which is the only correct value for anything that has to stand on
-the ground: every try is at the terrain surface and the filter does the rest. The fix belongs on the helper rather
-than on the two callers, which is why `patch` names the y spread and `onDirt` / `fallenLeaves` keep vanilla's 3 — the
-existing ground cover patches already have the tries to spend, and making them four times denser was not the job.
+The difference is not cosmetic. Under `cover` the decos were also *invisible under canopy*: the only defence against
+landing on the roof was that leaves are not in `BlockTags.DIRT`, so the predicate refused the try — which also meant
+every column with a tree over it could never carry a jizo at all. On `floor` the predicate is read at the floor, so
+it describes what it says, and a grove of locust is exactly where the roadside row goes.
+
+Two things follow that are worth keeping separate:
+
+- **The dirt tag stays.** It is no longer load bearing against the canopy, but it is still the rule that keeps a deco
+  off the gravel, the sand and the exposed stone. Widening it to `BlockPredicate.solid` would be a different change,
+  not a better one.
+- **Moving the decos ahead of the trees instead is not the fix.** It works, but it has to be done identically in every
+  biome sharing `stones` or `foothill_moss`, because `FeatureSorter` throws `Feature order cycle found` when two
+  biomes disagree about the order of one placed feature. Choosing the heightmap over the ordering keeps the tail in
+  the order the other features are already in.
+
+The patch itself is `patch(tries, spread, 0, …)`. The zero is `y_spread`: `RandomPatchFeature` takes its vertical
+offset as `nextInt(y_spread + 1) - nextInt(y_spread + 1)`, so at the vanilla 3 only a quarter of the tries land back on
+the terrain surface at all and the rest are spent where the block below is not the one the heightmap promised. That is
+affordable in a patch of 24 grass and not in a patch of four gravestones, which is why `patch(...)` names the spread.
+
+| placed feature | patches | tries | placement |
+|---|---|---|---|
+| `barrens_jizo` | 1 per chunk | 24, all four kinds | `floor` |
+| `barrens_gravestone` | 1 per chunk | 4 | `floor` |
+| `gravestone` (muenzuka) | 1 per chunk | 4 | `floor` |
+
+Tries are the whole of a patch's density, so a feature is only as common as it is set to be. An earlier gravestone of
+**two** tries behind a `RarityFilter(3)` — two thirds of a try per chunk against the jizo's 24 — was thirty-six times
+rarer and read as *not spawning at all* rather than as sparse. When a thing is "not appearing", the first question is
+how much rarer it is than the thing that is appearing, not whether its feature runs.
+
+When that does not settle it, the command does, placing the feature under the player's feet with none of the biome's
+rarity filter or `BiomeFilter` in the way:
+
+```
+/place feature gensokyolegacy:gensokyo_biome/barrens_jizo ~ ~ ~
+```
+
+Jizo appearing means the feature is sound and the problem is the predicate or the density; nothing appearing means
+`DoubleBlockFeature` itself is wrong. `/place feature` is the first thing to reach for and the density is the last
+thing to change.
 
 ### Deliberately not done
 

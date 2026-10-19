@@ -28,9 +28,8 @@ import java.util.List;
  * The cold dry cell of the lower ground in {@code doc/design/gensokyo_dimension_biome_guide.md}: the scrubby barrens
  * the temple sits in, coarse dirt underfoot and a little extra gold in it.
  * <p>
- * What the badlands base has no room for, it takes back itself: six locust a chunk over the dry waste, a clump of
- * the four jizo every third chunk, and a small wasteland gravestone every sixth. A temple does not leave its grounds
- * tidy.
+ * What the badlands base has no room for, it takes back itself: six locust a chunk over the dry waste, a row of the
+ * four jizo in every chunk, and a small wasteland gravestone every third. A temple does not leave its grounds tidy.
  *
  * @see "doc/design/gensokyo_biomes.md"
  */
@@ -74,10 +73,10 @@ public class MyourenTempleBarrensBiomeGen extends AbstractBiomeGen {
 				.add(Blocks.DEAD_BUSH, 3).add(Blocks.SHORT_GRASS, 3)
 				.add(Blocks.COARSE_DIRT, 2).add(Blocks.GRAVEL, 1).build()));
 		// one marker standing up, left out here as it is on the valley floor
-		FeatureUtils.register(ctx, GRAVESTONE, Feature.RANDOM_PATCH, patch(1, 7, 0,
+		FeatureUtils.register(ctx, GRAVESTONE, Feature.RANDOM_PATCH, patch(4, 7, 0,
 				new Palette().add(GLFurniture.WASTELAND_GRAVESTONE_SMALL, 1).build(), GLWorldGen.DOUBLE_BLOCK.get()));
 		// all four colourways in one patch, so a clump of them is a row of a village rather than four of one kind
-		FeatureUtils.register(ctx, JIZO, Feature.RANDOM_PATCH, patch(8, 6, 0, new Palette()
+		FeatureUtils.register(ctx, JIZO, Feature.RANDOM_PATCH, patch(24, 6, 0, new Palette()
 				.add(GLFurniture.JIZO, 1).add(GLFurniture.JIZO_MYOUREN, 1).add(GLFurniture.JIZO_NARUMI, 1)
 				.add(GLFurniture.JIZO_STRAW_HAT, 1).build(), GLWorldGen.DOUBLE_BLOCK.get()));
 	}
@@ -87,8 +86,8 @@ public class MyourenTempleBarrensBiomeGen extends AbstractBiomeGen {
 		reg.cover(COARSE_DIRT_PF, reg.feature(COARSE_DIRT_DISK), CountPlacement.of(4));
 		reg.trees(LOCUST_TREES_PF, reg.feature(TreeType.LOCUST.cfKey), CountPlacement.of(6));
 		reg.cover(BARRENS_SCRUB_PF, reg.feature(BARRENS_SCRUB), CountPlacement.of(3));
-		reg.cover(JIZO_PF, reg.feature(JIZO), RarityFilter.onAverageOnceEvery(3));
-		reg.cover(GRAVESTONE_PF, reg.feature(GRAVESTONE), RarityFilter.onAverageOnceEvery(6));
+		reg.floor(JIZO_PF, reg.feature(JIZO), CountPlacement.of(1));
+		reg.floor(GRAVESTONE_PF, reg.feature(GRAVESTONE), CountPlacement.of(1));
 	}
 
 }

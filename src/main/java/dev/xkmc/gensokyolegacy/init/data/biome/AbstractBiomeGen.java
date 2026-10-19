@@ -390,6 +390,18 @@ public abstract class AbstractBiomeGen {
 		}
 
 		/**
+		 * Ground that goes under a canopy rather than on it. {@code HEIGHTMAP_WORLD_SURFACE} counts leaves, so once
+		 * the biome's trees are up it returns the crown and anything placed with it lands on the roof; the no-leaves
+		 * heightmap returns the floor instead, which is both where a standing deco belongs and the only height at
+		 * which the block underneath is the ground the biome's surface rule actually laid down.
+		 */
+		public void floor(ResourceKey<PlacedFeature> key, Holder<ConfiguredFeature<?, ?>> feature,
+						  PlacementModifier count) {
+			placed(key, feature, count, InSquarePlacement.spread(),
+					HeightmapPlacement.onHeightmap(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES), BiomeFilter.biome());
+		}
+
+		/**
 		 * A tree run: {@code count} of the feature's trees, spread over the chunk and rooted on the terrain surface.
 		 * The water filter is the one vanilla's own tree placements carry, and it is what keeps a grove out of a lake.
 		 */
@@ -498,9 +510,14 @@ public abstract class AbstractBiomeGen {
 	 * The same, drawn by {@code feature} rather than by vanilla's own simple block — which is what the standing decos
 	 * need, since each of them is two blocks tall.
 	 * <p>
-	 * The y spread wants naming. Vanilla's 3 is the difference of two rolls over {@code y_spread + 1}, so a third of
-	 * the tries land back on the terrain surface and the rest are wasted on a predicate the block under them will
-	 * never satisfy. A ground cover patch has the tries to spare; a patch of one or two tries does not, and wants 0.
+	 * The y spread wants naming, and the standing decos want it at 0. Vanilla's 3 is the difference of two rolls over
+	 * {@code y_spread + 1}, so only a quarter of the tries land back on the terrain surface; the rest are spent at a
+	 * height where the {@code BlockTags.DIRT} below is not the block the heightmap promised, and the try is thrown
+	 * away. A patch of 24 grass can afford that. A patch of two gravestones cannot.
+	 * <p>
+	 * The decos keep the dirt tag on purpose rather than widening it to any solid block. Leaves are not in
+	 * {@code BlockTags.DIRT}, so a deco placed after the biome's trees is simply refused on a canopy instead of
+	 * standing on top of one — which is what the tag is for here.
 	 */
 	protected static RandomPatchConfiguration patch(int tries, int spread, int ySpread, BlockStateProvider state,
 													Feature<SimpleBlockConfiguration> feature) {
