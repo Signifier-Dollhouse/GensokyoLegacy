@@ -176,9 +176,7 @@ public class MarisaQDGen extends QuestDialogData {
 
 	private void quests() {
 		prefix("marisa/first_mushroom");
-		questAnims("start", "dialog_think", "dialog_decline", "dialog_agree");
-		questAnims("follow", "dialog_talk_02", "dialog_greet");
-		questAnims("complete", "dialog_talk_05", "dialog_think", "dialog_agree");
+		questAnims("start", "dialog_greet", "dialog_decline", "dialog_agree");
 		questAnims("follow", "dialog_talk_02", "dialog_greet");
 		questAnims("complete", "dialog_talk_05", "dialog_think", "dialog_agree");
 		quest("marisa/first_mushroom", new Quest(GLEntities.MARISA.get(), List.of(),
@@ -317,7 +315,9 @@ public class MarisaQDGen extends QuestDialogData {
 		));
 
 		prefix("marisa/hakkero");
-		questAnims("complete", "dialog_agree", "dialog_decline", null);
+		questAnims("start", null, "dialog_decline", "dialog_talk_04");
+		questAnims("follow", null, "dialog_agree");
+		questAnims("complete", "dialog_talk_02", "dialog_decline", "dialog_talk_05");
 		// Offered to anyone holding the prototype who has not been given the
 		// repaired one yet, and the inverted second condition closes the quest for good.
 		quest("marisa/hakkero", new Quest(GLEntities.MARISA.get(),
@@ -379,7 +379,8 @@ public class MarisaQDGen extends QuestDialogData {
 		));
 
 		prefix("marisa/koishi_hat");
-		questAnims("follow", "dialog_think", "dialog_agree");
+		questAnims("follow", "dialog_confused", "dialog_agree");
+		questAnims("complete", "dialog_agree", null, "dialog_talk_05");
 		quest("marisa/koishi_hat", new Quest(GLEntities.MARISA.get(),
 				List.of(new HasQuestCompletedCondition(QUEST_BREWING),
 						new HasQuestCompletedCondition(QUEST_REIMU_OMINOUS)),
@@ -509,7 +510,7 @@ public class MarisaQDGen extends QuestDialogData {
 						.withPool(lootItem(HexBrew.MIASMA_HEXBREW.bottle.get(), 1)));
 
 		prefix("marisa/daily_shroomlight");
-		questAnims("daily", "dialog_talk_02", "dialog_decline", "dialog_agree", "dialog_talk_04", "dialog_greet", "dialog_talk_03", "dialog_agree");
+		questAnims("daily", "dialog_talk_02", "dialog_decline", "dialog_agree", "dialog_talk_04", "dialog_greet", "dialog_greet", "dialog_agree");
 		var shroomlightTable = requestTable("daily_shroomlight", LootTable.lootTable().withPool(LootPool.lootPool()
 				.setRolls(ConstantValue.exactly(2))
 				.add(LootItem.lootTableItem(Items.SHROOMLIGHT).apply(SetItemCountFunction.setCount(UniformGenerator.between(3, 6))))

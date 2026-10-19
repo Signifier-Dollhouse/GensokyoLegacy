@@ -139,8 +139,6 @@ public class AliceQDGen extends QuestDialogData {
 		questAnims("start", "dialog_think", "dialog_think_02", "dialog_agree");
 		questAnims("follow", "dialog_think", "dialog_decline");
 		questAnims("complete", "dialog_agree", "dialog_decline", "dialog_talk_03");
-		questAnims("follow", "dialog_think", "dialog_decline");
-		questAnims("complete", "dialog_agree", "dialog_decline", "dialog_talk_03");
 		quest("alice/first_doll", new Quest(GLEntities.ALICE.get(), List.of(),
 				questTitle("Doll Materials"), questDesc("Bring Alice the materials every doll is made of."),
 				Optional.empty(),

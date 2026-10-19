@@ -176,7 +176,7 @@ public class ReimuQDGen extends QuestDialogData {
 		chat("reimu/chat_marisa", GLEntities.REIMU.get(),
 				List.of(homeBound(), missingAdv(GLAdvGen.ENTER_MARISA_HOUSE), new SelfReputationCondition(50)),
 				starterText("start", "Which works better, ofuda or potions?"),
-				dialog("talk", "Ofuda borrow power from the gods, so they usually come with strings attached. Speaking of potions — you haven't met Marisa yet, have you? She runs a shop deep in the Magical Forest. Her potions work differently from the usual brewing — go take a look if you're curious.",
+				dialog("talk", "Ofuda borrow power from the gods, so they usually come with strings attached. Speaking of potions — you haven't met Marisa yet, have you? She runs a shop deep in the Magical Forest. Her potions work differently from the usual brewing — go take a look if you're curious.", List.of("dialog_talk_04"),
 						option("where", "Where can I find her?",
 								dialog("where_ans", "Her house is deep in the Magical Forest — follow the mushrooms and the explosions, you can't miss her.", List.of("dialog_talk_01"),
 										option("bye", "Thanks for the directions!")))),
@@ -208,10 +208,10 @@ public class ReimuQDGen extends QuestDialogData {
 	private void fortune() {
 		prefix("reimu/chat_fortune");
 		var good = dialog("good",
-				"Great blessing! Even I'm jealous. Take this luck and put it to work — rare drops will find you for a while.",
+				"Great blessing! Even I'm jealous. Take this luck and put it to work — rare drops will find you for a while.", List.of("dialog_talk_03"),
 				option("good_bye", "Lucky!"));
 		var mid = dialog("mid",
-				"Middle blessing. Not bad, not great. Your hands will just move faster for a while — don't waste it.",
+				"Middle blessing. Not bad, not great. Your hands will just move faster for a while — don't waste it.", List.of("dialog_think"),
 				option("mid_bye", "I'll take it."));
 		var bad = dialog("bad",
 				"Ugh, worst fortune. Dark clouds ahead — trouble finds people with luck like this. Keep your head down for a while.", List.of("dialog_think_02"),
@@ -220,7 +220,7 @@ public class ReimuQDGen extends QuestDialogData {
 				List.of(homeBound(), hasQuest(QUEST_LOCAL_FOOD), timer(FORTUNE_KEY)),
 				starterText("start", "Draw a fortune stick?"),
 				dialog("talk",
-						"The shrine finally has its own fortune sticks. I blessed them myself, so they actually work. Good luck sticks around, bad luck... also sticks around. One draw per day — the gods get tired too.",
+						"The shrine finally has its own fortune sticks. I blessed them myself, so they actually work. Good luck sticks around, bad luck... also sticks around. One draw per day — the gods get tired too.", List.of("dialog_talk_01"),
 						randomOption("draw", "Draw a fortune.",
 								weighted(2, good,
 										new GiveMobEffectAction(GLEffects.LOOTING, FORTUNE_DURATION, 0),
@@ -236,9 +236,7 @@ public class ReimuQDGen extends QuestDialogData {
 
 	private void quests() {
 		prefix("reimu/local_food");
-		questAnims("start", "dialog_think", null, "dialog_think");
-		questAnims("follow", "dialog_think", "dialog_decline");
-		questAnims("complete", "dialog_agree", "dialog_talk_05", "dialog_agree");
+		questAnims("start", "dialog_think", "dialog_decline", "dialog_think");
 		questAnims("follow", "dialog_think", "dialog_decline");
 		questAnims("complete", "dialog_agree", "dialog_talk_05", "dialog_agree");
 		quest("reimu/local_food", new Quest(GLEntities.REIMU.get(), List.of(),
