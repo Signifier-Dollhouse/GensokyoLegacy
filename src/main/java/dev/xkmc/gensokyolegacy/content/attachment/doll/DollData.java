@@ -26,14 +26,15 @@ public class DollData {
 
 	/** item -> {@link DollData}: reads the {@code DOLL_DATA}/{@code DOLL_COLOR}/{@code CUSTOM_NAME}/
 	 * {@code DOLL_LOADOUT} components off the stack; a component-less stack is
-	 * {@link DollItemData#fresh()}. Type is fixed ({@link DollItem#TYPE}); the caller supplies
-	 * position, dimension, facing and state (item.md §2). */
+	 * {@link DollItemData#fresh()}. The type is whatever kind the item summons
+	 * ({@link DollItem#dollType()}), and the caller supplies position, dimension, facing and state
+	 * (item.md §2). */
 	public static DollData fromItemData(ItemStack stack, Vec3 pos, ResourceLocation dim, float yRot) {
 		DollItemData item = stack.get(GLItems.DOLL_DATA.get());
 		if (item == null) item = DollItemData.fresh();
 		DollInventory loadout = stack.get(GLItems.DOLL_LOADOUT.get());
 		DollData data = new DollData();
-		data.type = DollItem.TYPE;
+		data.type = stack.getItem() instanceof DollItem doll ? doll.dollType() : DollItem.TYPE;
 		data.dimension = dim;
 		data.position = pos;
 		data.yRot = yRot;

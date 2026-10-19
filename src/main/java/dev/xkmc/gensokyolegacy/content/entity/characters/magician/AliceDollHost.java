@@ -349,7 +349,7 @@ public class AliceDollHost extends AbstractYoukaiModule implements DollLedger {
 		long now = owner.level().getGameTime();
 		for (int slot = 0; slot < dolls.size(); slot++) {
 			DollData data = dolls.get(slot);
-			// a follower carries no loadout, so there is nothing here to arm it with (follower.md §2)
+			// a timed summon carries no loadout, so there is nothing here to arm it with (timed_summon.md §2)
 			if (data == null || data.inventory == null || !data.getNature().loadoutCapable()) continue;
 			DollEntity doll = resolve(data) instanceof DollEntity found ? found : null;
 			// idle is not enough: a doll that spent something a moment ago is still

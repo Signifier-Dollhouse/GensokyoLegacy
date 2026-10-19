@@ -44,7 +44,7 @@ public final class DollSpawn {
 		}
 		data.uuid = doll.getUUID();
 		data.state = DollState.SUMMONED;
-		// the entity kind is where a nature is declared, so the entry only mirrors it (follower.md §1)
+		// the entity kind is where a nature is declared, so the entry only mirrors it (timed_summon.md §1)
 		data.nature = doll.nature();
 		setPos(level, doll, data.position);
 		doll.setOwner(owner);

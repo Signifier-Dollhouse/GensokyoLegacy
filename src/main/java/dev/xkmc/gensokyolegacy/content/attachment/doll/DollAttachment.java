@@ -30,7 +30,7 @@ import java.util.UUID;
 /**
  * Player capability ledger: a doll is always exactly one of {entity + {@link DollData}, item, parked data}.
  * Entries whose {@link DollNature} forbids an item form are never converted, recalled or loaded out —
- * they are dropped instead (follower.md §3).
+ * they are dropped instead (timed_summon.md §3).
  *
  * @see "doc/design/doll/pairing.md"
  */
@@ -168,7 +168,7 @@ public class DollAttachment extends PlayerCapabilityTemplate<DollAttachment> imp
 		UUID uuid = doll.getUUID();
 		DollData data = dolls.get(uuid);
 		if (data == null || !data.isSummoned()) return false;
-		// a follower's kind has no item form, so there is nothing here to convert it into
+		// a timed summon's kind has no item form, so there is nothing here to convert it into
 		if (!data.getNature().itemizable()) return false;
 		if (!hasSlotFor(player)) {
 			player.displayClientMessage(GLLang.Doll.NO_SPACE.get(), true);
@@ -191,7 +191,7 @@ public class DollAttachment extends PlayerCapabilityTemplate<DollAttachment> imp
 		UUID uuid = doll.getUUID();
 		DollData data = dolls.get(uuid);
 		if (data == null || !data.isSummoned()) return false;
-		// STORED means "wants to be an item", which a follower never does; TEMP still does,
+		// STORED means "wants to be an item", which a timed summon never does; TEMP still does,
 		// since it only means "wants to be an entity again"
 		if (intent == DollState.STORED && !data.getNature().itemizable()) return false;
 		doll.writeValuesTo(data);
@@ -280,7 +280,7 @@ public class DollAttachment extends PlayerCapabilityTemplate<DollAttachment> imp
 		StrayHost stray = doll.strayHost();
 		if (stray == null || doll.isDeadOrDying()) return false;
 		DollData data = stray.data();
-		// asked before the one-shot take: a refused sweep must not spend a follower's entry
+		// asked before the one-shot take: a refused sweep must not spend a timed summon's entry
 		if (data == null || !data.getNature().itemizable()) return false;
 		stray.take();
 		doll.setStrayHost(null);
@@ -313,7 +313,7 @@ public class DollAttachment extends PlayerCapabilityTemplate<DollAttachment> imp
 
 	public boolean tryItemize(ServerPlayer player, DollData data) {
 		if (data.state != DollState.STORED || data.type == null) return false;
-		// nothing to become: a follower parked STORED is dropped rather than retried forever,
+		// nothing to become: a timed summon parked STORED is dropped rather than retried forever,
 		// so the invariant holds here and not only at the two producers that set STORED
 		if (!data.getNature().itemizable()) return drop(data.uuid) != null;
 		ItemStack stack = DollItem.makeItem(data);
@@ -416,7 +416,7 @@ public class DollAttachment extends PlayerCapabilityTemplate<DollAttachment> imp
 			return;
 		}
 		if (data.getHealth() <= 0) {
-			// a follower that dies is simply gone: there is no broken item to hand back
+			// a timed summon that dies is simply gone: there is no broken item to hand back
 			if (data.getNature().itemizable()) data.state = DollState.STORED;
 			else dolls.remove(data.uuid);
 			if (level.getEntity(data.uuid) instanceof BaseDollEntity corpse) {

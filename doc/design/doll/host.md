@@ -322,11 +322,11 @@ dolls are never chunk-serialized (§5.8) so there is no second copy anywhere:
 A respawn from her bed is a fresh Alice with a fresh retinue — the same bargain
 every character gets.
 
-## 6.1 Where a follower would differ
+## 6.1 Where a timed summon would differ
 
 Everything above is Alice's *host*, and it is reusable as-is. What a temporary
-non-doll follower adds on top — no item form, no recall, no loadout, one intrinsic
-move, a lifespan — is a separate layer described in [follower.md](follower.md), and
+non-doll timed summon adds on top — no item form, no recall, no loadout, one intrinsic
+move, a lifespan — is a separate layer described in [timed_summon.md](timed_summon.md), and
 `AliceDollHost` already implements the one method it needs (`drop`). The four
 behaviours she gets for free because of how `DollHost` is shaped are: a destroyed
 doll vanishing rather than being nursed (§2.1), the ledger dying with her (§6), no

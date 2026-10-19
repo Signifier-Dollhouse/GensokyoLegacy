@@ -22,8 +22,10 @@ import dev.xkmc.gensokyolegacy.content.entity.characters.rumia.RumiaRenderer;
 import dev.xkmc.gensokyolegacy.content.entity.characters.sakuya.SakuyaEntity;
 import dev.xkmc.gensokyolegacy.content.entity.characters.sakuya.SakuyaRenderer;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.DollEntity;
+import dev.xkmc.gensokyolegacy.content.entity.dolls.SekibankiHeadEntity;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.render.DollRenderer;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.render.IronDaggerBulletRenderer;
+import dev.xkmc.gensokyolegacy.content.entity.dolls.render.SekibankiHeadRenderer;
 import dev.xkmc.gensokyolegacy.content.entity.misc.FairyIce;
 import dev.xkmc.gensokyolegacy.content.entity.misc.FrozenFrog;
 import dev.xkmc.gensokyolegacy.content.entity.misc.HexBrewBottleEntity;
@@ -78,6 +80,10 @@ public class GLEntities {
 	 */
 	public static final EntityEntry<PlainFairyEntity> PLAIN_FAIRY;
 	public static final EntityEntry<DollEntity> DOLL;
+	/**
+	 * The first {@code ITEM_GADGET}: an owned head that itemizes but holds nothing (gadget.md §3).
+	 */
+	public static final EntityEntry<SekibankiHeadEntity> SEKIBANKI_HEAD;
 
 	public static final EntityEntry<FrozenFrog> FROZEN_FROG;
 	public static final EntityEntry<FairyIce> FAIRY_ICE;
@@ -185,6 +191,13 @@ public class GLEntities {
 					.properties(e -> e.sized(0.4F, 0.9F).clientTrackingRange(10))
 					.attributes(DollEntity::createAttributes)
 					.renderer(() -> DollRenderer::new)
+					.register();
+
+			SEKIBANKI_HEAD = GensokyoLegacy.REGISTRATE
+					.entity("sekibanki_head", SekibankiHeadEntity::new, MobCategory.MISC)
+					.properties(e -> e.sized(0.4F, 0.4F).clientTrackingRange(10))
+					.attributes(DollEntity::createAttributes)
+					.renderer(() -> SekibankiHeadRenderer::new)
 					.register();
 
 			FROZEN_FROG = GensokyoLegacy.REGISTRATE

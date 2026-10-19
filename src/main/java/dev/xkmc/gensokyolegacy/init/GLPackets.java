@@ -18,6 +18,9 @@ import dev.xkmc.gensokyolegacy.content.client.structure.StructureInfoRequestToSe
 import dev.xkmc.gensokyolegacy.content.client.structure.StructureInfoUpdateToClient;
 import dev.xkmc.gensokyolegacy.content.client.structure.StructureRepairToServer;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.move.PathDataToClient;
+import dev.xkmc.gensokyolegacy.content.entity.dolls.network.HeadMoveToServer;
+import dev.xkmc.gensokyolegacy.content.entity.dolls.network.HeadReleaseToServer;
+import dev.xkmc.gensokyolegacy.content.entity.dolls.network.HeadUseToServer;
 import dev.xkmc.gensokyolegacy.content.entity.foundation.CombatToClient;
 import dev.xkmc.gensokyolegacy.content.item.common.network.GloveTargetPacket;
 import dev.xkmc.gensokyolegacy.content.item.common.network.SelectorSelectPacket;
@@ -105,6 +108,12 @@ public class GLPackets {
 
 				.toServer(DollGloveSwingPacket.class)
 				.toClient(DollRosterToClient.class)
+
+				// the head's own hands while its owner looks out of it: the camera arrives on
+				// vanilla's set-camera packet, so only these three ever cross the wire
+				.toServer(HeadMoveToServer.class)
+				.toServer(HeadUseToServer.class)
+				.toServer(HeadReleaseToServer.class)
 
 				// the shared glove target cache (glove.md §2): one packet for every targeting glove
 				.toServer(GloveTargetPacket.class)

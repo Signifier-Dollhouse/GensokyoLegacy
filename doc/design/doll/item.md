@@ -14,14 +14,23 @@ public static final ItemEntry<DollItem> DOLL = reg.item("doll", p -> new DollIte
 
 - `stacksTo(1)` — one item per doll.
 - `GLItems.DOLL_DATA` — `DC.reg("doll_item_data", DollItemData.class, false)`, the `DataComponentType<DollItemData>` holding the doll's combat values (see §2). Registered alongside the item.
-- The entity kind is fixed for all doll items: `public static final ResourceLocation TYPE = GensokyoLegacy.loc("doll")` (used by `DollData.fromItemData`). It is **not** stored on the item — every doll item materializes this same `doll` entity type.
+- The entity kind is a constructor argument: the plain doll passes `public static final ResourceLocation TYPE = GensokyoLegacy.loc("doll")`, and a gadget passes one of its own (gadget.md §1). It is **not** stored on the item — each item class holds it, and `DollData.fromItemData` reads it back off the item in hand.
 
 ## 2. Building items from data: `makeItem` / `blank`
 
 ```java
 public static ItemStack makeItem(@Nullable DollData data) {
-    if (data == null) return blank();
-    ItemStack stack = new ItemStack(GLItems.DOLL.get());
+    DollItem item = data == null ? GLItems.DOLL.get() : BY_TYPE.getOrDefault(data.type, GLItems.DOLL.get());
+    return item.makeStack(data);   // virtual: a gadget answers with a bare stack of itself
+}
+```
+
+`makeStack` is the per-item form the plain doll reads like this:
+
+```java
+protected ItemStack makeStack(@Nullable DollData data) {
+    if (data == null) return new ItemStack(this);
+    ItemStack stack = new ItemStack(this);
     stack.set(GLItems.DOLL_DATA.get(), new DollItemData(data.combat));   // combat -> DOLL_DATA
     if (data.customName != null) stack.set(DataComponents.CUSTOM_NAME, data.customName);
     stack.set(GLItems.DOLL_COLOR.get(), data.getColor());                // tint -> DOLL_COLOR
@@ -35,6 +44,7 @@ public static ItemStack blank() {
 }
 ```
 
+- `BY_TYPE` is the static map every item files itself into from its constructor, so the entry's type finds the item it came from; an entry naming no kind falls back to the plain doll (gadget.md §1).
 - This is the **inverse** of `DollData.fromItemData` (which reads the same components back off a stack into a fresh `DollData`, with position/dimension/facing supplied at the summon/deploy site and state left to the caller — SUMMONED for a player summon, STORED for a controller install).
 - A `null`/`blank()` doll has no components: no `DOLL_DATA` (so no durability bar), no custom name, and the tint defaults to red in all readers (`colorOf`, §4).
 - Combat is stored as the `@SerialClass DollItemData`, a final class holding **only** a `CombatData combat` field (amount = health; no max health on the item). Its `hashCode` is prebuilt in the constructor and rebuilt by `onInject()` after l2serial deserialization. `DollItemData.fresh()` yields the full-health default.
