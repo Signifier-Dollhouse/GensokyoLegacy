@@ -3,12 +3,21 @@ package dev.xkmc.gensokyolegacy.init.data.biome.biomes;
 import dev.xkmc.gensokyolegacy.init.data.biome.AbstractBiomeGen;
 import dev.xkmc.gensokyolegacy.init.data.biome.GensokyoBiomeFeatures;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLNaturalBlocks;
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
+import net.minecraft.data.worldgen.features.CaveFeatures;
 import net.minecraft.data.worldgen.features.FeatureUtils;
 import net.minecraft.data.worldgen.features.MiscOverworldFeatures;
+import net.minecraft.data.worldgen.placement.AquaticPlacements;
 import net.minecraft.data.worldgen.placement.CavePlacements;
 import net.minecraft.data.worldgen.placement.MiscOverworldPlacements;
+import net.minecraft.data.worldgen.placement.OrePlacements;
+import net.minecraft.data.worldgen.placement.PlacementUtils;
+import net.minecraft.data.worldgen.placement.VegetationPlacements;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.util.valueproviders.ConstantInt;
 import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.MobSpawnSettings;
@@ -18,8 +27,12 @@ import net.minecraft.world.level.levelgen.blockpredicates.BlockPredicate;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.configurations.DiskConfiguration;
+import net.minecraft.world.level.levelgen.feature.configurations.RandomBooleanFeatureConfiguration;
+import net.minecraft.world.level.levelgen.feature.configurations.VegetationPatchConfiguration;
+import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProvider;
 import net.minecraft.world.level.levelgen.feature.stateproviders.RuleBasedBlockStateProvider;
 import net.minecraft.world.level.levelgen.placement.BiomeFilter;
+import net.minecraft.world.level.levelgen.placement.CaveSurface;
 import net.minecraft.world.level.levelgen.placement.CountPlacement;
 import net.minecraft.world.level.levelgen.placement.HeightRangePlacement;
 import net.minecraft.world.level.levelgen.placement.InSquarePlacement;
@@ -36,8 +49,16 @@ import java.util.List;
  * lush caves' one special ore, and it goes where vanilla puts it — after the default set, before the soft disks. The
  * springs are its own — water at three times vanilla's count and no lava, which is what replacing the shared pair
  * does.
+ * <p>
+ * The growth is lush caves' whole set, in the order the feature sorter reads: the floor growth, the two vine sets, the
+ * ceiling growth and the rooted azalea all hang off the same cave surfaces, so taking some of them would be taking a
+ * fragment of one decoration rather than a style. The one piece the ravine lays itself is the clay patch, in basalt.
+ * <p>
+ * The ravine's own three — the plates, the moss and the stones — come first, and the swamp's trees and grass after
+ * them: the plates have to be down before anything grows on them, or a pool of them ends up under a patch of grass
+ * that grew first.
  *
- * @see "doc/design/gensokyo_biomes.md" §4
+ * @see "doc/design/gensokyo_biomes.md" §1
  */
 public class GenbuRavineBiomeGen extends AbstractBiomeGen {
 
@@ -48,6 +69,22 @@ public class GenbuRavineBiomeGen extends AbstractBiomeGen {
 	private static final ResourceKey<ConfiguredFeature<?, ?>> RAVINE_MOSS = cf("ravine_moss");
 	private static final ResourceKey<PlacedFeature> RAVINE_MOSS_PF = pf("ravine_moss");
 	private static final ResourceKey<PlacedFeature> RAVINE_SPRING_WATER_PF = pf("ravine_spring_water");
+
+	/**
+	 * The ravine's own floor plates: the patch lush caves lays in clay, laid here in basalt.
+	 * <p>
+	 * Two branches, as vanilla has: a dry plate and a pool of them, with dripleaves growing on either.
+	 */
+	private static final ResourceKey<ConfiguredFeature<?, ?>> RAVINE_BASALT_POOL = cf("ravine_basalt_pool");
+	private static final ResourceKey<PlacedFeature> RAVINE_BASALT_PF = pf("ravine_basalt");
+
+	/**
+	 * The ravine's own loose stone: the shared {@code stones} configured feature under a placed feature of its own.
+	 * <p>
+	 * The shared one is in seven other biomes' tails and cannot move, and this one has to: the ravine lays its floor
+	 * before the swamp's trees and grass, so the plates are down before anything grows on them.
+	 */
+	private static final ResourceKey<PlacedFeature> RAVINE_STONES_PF = pf("ravine_stones");
 
 	/** Dinosaur bones. The ravine is the one place below ground where they are still bones and not a theme. */
 	private static final List<ResourceKey<PlacedFeature>> FOSSILS = List.of(
@@ -73,11 +110,21 @@ public class GenbuRavineBiomeGen extends AbstractBiomeGen {
 				layers(ctx)
 						.lakes(LAVA_LAKES)
 						.structures(FOSSILS)
-						.ores(join(OVERWORLD_ORES, LUSH_CAVES_ORES,
-								List.of(MiscOverworldPlacements.DISK_CLAY, RAVINE_MUD_PF)))
+						.ores(join(OVERWORLD_ORES, List.of(OrePlacements.ORE_CLAY, MiscOverworldPlacements.DISK_CLAY,
+								RAVINE_MUD_PF)))
 						.springs(RAVINE_SPRINGS)
-						.vegetation(join(SWAMP_GROUND, LUSH_CAVES,
-								List.of(GensokyoBiomeFeatures.STONES_PF, RAVINE_MOSS_PF)))
+						.vegetation(List.of(
+								RAVINE_BASALT_PF, RAVINE_MOSS_PF, RAVINE_STONES_PF,
+								CavePlacements.GLOW_LICHEN, VegetationPlacements.TREES_SWAMP,
+								VegetationPlacements.FLOWER_SWAMP, VegetationPlacements.PATCH_GRASS_NORMAL,
+								VegetationPlacements.PATCH_DEAD_BUSH, VegetationPlacements.PATCH_WATERLILY,
+								VegetationPlacements.BROWN_MUSHROOM_SWAMP, VegetationPlacements.RED_MUSHROOM_SWAMP,
+								VegetationPlacements.BROWN_MUSHROOM_NORMAL, VegetationPlacements.RED_MUSHROOM_NORMAL,
+								VegetationPlacements.PATCH_SUGAR_CANE_SWAMP, VegetationPlacements.PATCH_PUMPKIN,
+								AquaticPlacements.SEAGRASS_SWAMP,
+								CavePlacements.LUSH_CAVES_CEILING_VEGETATION, CavePlacements.CAVE_VINES,
+								CavePlacements.LUSH_CAVES_VEGETATION, CavePlacements.ROOTED_AZALEA_TREE,
+								CavePlacements.SPORE_BLOSSOM, CavePlacements.CLASSIC_VINES))
 						.topLayer(FREEZE_TOP_LAYER));
 	}
 
@@ -89,12 +136,43 @@ public class GenbuRavineBiomeGen extends AbstractBiomeGen {
 		FeatureUtils.register(ctx, RAVINE_MOSS, Feature.RANDOM_PATCH, onDirt(40, new Palette()
 				.add(Blocks.MOSS_CARPET, 3).add(Blocks.LARGE_FERN, 2)
 				.add(GLNaturalBlocks.BRACKEN, 2).add(Blocks.FERN, 2).build()));
+		// The ravine's own version of lush caves' clay patch: the same two branches, the same dripleaves on top and
+		// the same numbers, with the ground block swapped for basalt. The dripleaf is vanilla's own configured
+		// feature, referenced by id, so the JSON stays a reference to it rather than a copy.
+		var features = ctx.lookup(Registries.CONFIGURED_FEATURE);
+		var dripleaf = PlacementUtils.inlinePlaced(features.getOrThrow(CaveFeatures.DRIPLEAF));
+		FeatureUtils.register(ctx, RAVINE_BASALT_POOL, Feature.WATERLOGGED_VEGETATION_PATCH, basaltPlate(dripleaf, 5, 0.1F));
+
+	}
+
+	/**
+	 * One basalt plate. The numbers are vanilla's own, branch for branch: the dry patch reaches two blocks up and
+	 * grows a dripleaf one time in twenty, the pool reaches five and grows one in ten.
+	 */
+	private static VegetationPatchConfiguration basaltPlate(Holder<PlacedFeature> dripleaf, int verticalRange,
+															float vegetationChance) {
+		return new VegetationPatchConfiguration(
+				BlockTags.LUSH_GROUND_REPLACEABLE,
+				BlockStateProvider.simple(Blocks.BASALT),
+				dripleaf,
+				CaveSurface.FLOOR,
+				ConstantInt.of(3),
+				0.8F,
+				verticalRange,
+				vegetationChance,
+				UniformInt.of(4, 7),
+				0.7F);
 	}
 
 	@Override
 	protected void placed(Registrar reg) {
 		reg.cover(RAVINE_MUD_PF, reg.feature(RAVINE_MUD_DISK), CountPlacement.of(3));
+		// The ravine's own floor, in the order the ravine's list reads it: the plates, the moss, the stones, and only
+		// then the swamp's trees and grass. The plates have to be down first — a pool of them under a patch of grass
+		// that grew before it is grass standing on water.
+		reg.deposit(RAVINE_BASALT_PF, reg.feature(RAVINE_BASALT_POOL), CountPlacement.of(62));
 		reg.cover(RAVINE_MOSS_PF, reg.feature(RAVINE_MOSS), CountPlacement.of(6));
+		reg.cover(RAVINE_STONES_PF, reg.feature(GensokyoBiomeFeatures.STONES), CountPlacement.of(2));
 		// The ravine's springs, over vanilla's own configured feature and its own height range, with the count
 		// raised and nothing else touched. It replaces SPRINGS rather than joining them: the feature is in the
 		// same step, so carrying vanilla's as well would place every spring twice and make the count a lie. The

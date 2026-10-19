@@ -14,7 +14,6 @@ import net.minecraft.data.worldgen.BiomeDefaultFeatures;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.data.worldgen.Carvers;
 import net.minecraft.data.worldgen.features.FeatureUtils;
-import net.minecraft.data.worldgen.placement.AquaticPlacements;
 import net.minecraft.data.worldgen.placement.CavePlacements;
 import net.minecraft.data.worldgen.placement.MiscOverworldPlacements;
 import net.minecraft.data.worldgen.placement.NetherPlacements;
@@ -175,33 +174,6 @@ public abstract class AbstractBiomeGen {
 			VegetationPlacements.PATCH_DEAD_BUSH_BADLANDS, VegetationPlacements.BROWN_MUSHROOM_NORMAL,
 			VegetationPlacements.RED_MUSHROOM_NORMAL, VegetationPlacements.PATCH_SUGAR_CANE_BADLANDS,
 			VegetationPlacements.PATCH_PUMPKIN, VegetationPlacements.PATCH_CACTUS_DECORATED);
-
-	protected static final List<ResourceKey<PlacedFeature>> SWAMP_GROUND = List.of(
-			CavePlacements.GLOW_LICHEN, VegetationPlacements.TREES_SWAMP, VegetationPlacements.FLOWER_SWAMP,
-			VegetationPlacements.PATCH_GRASS_NORMAL, VegetationPlacements.PATCH_DEAD_BUSH,
-			VegetationPlacements.PATCH_WATERLILY, VegetationPlacements.BROWN_MUSHROOM_SWAMP,
-			VegetationPlacements.RED_MUSHROOM_SWAMP, VegetationPlacements.BROWN_MUSHROOM_NORMAL,
-			VegetationPlacements.RED_MUSHROOM_NORMAL, VegetationPlacements.PATCH_SUGAR_CANE_SWAMP,
-			VegetationPlacements.PATCH_PUMPKIN, AquaticPlacements.SEAGRASS_SWAMP);
-
-	/**
-	 * Lush caves' seven, in {@code BiomeDefaultFeatures.addLushCavesVegetationFeatures}'s order, which is the order the
-	 * feature sorter reads. {@code genbu_ravine} is the one surface biome that takes them, and it takes them whole —
-	 * the floor growth, the two vine sets, the ceiling growth and the rooted azalea all hang off the same cave
-	 * surfaces, so taking some of the seven would be taking a fragment of one decoration rather than a style.
-	 *
-	 * @see "doc/design/gensokyo_biomes.md" §4
-	 */
-	protected static final List<ResourceKey<PlacedFeature>> LUSH_CAVES = List.of(
-			CavePlacements.LUSH_CAVES_CEILING_VEGETATION, CavePlacements.CAVE_VINES,
-			CavePlacements.LUSH_CAVES_CLAY, CavePlacements.LUSH_CAVES_VEGETATION,
-			CavePlacements.ROOTED_AZALEA_TREE, CavePlacements.SPORE_BLOSSOM, CavePlacements.CLASSIC_VINES);
-
-	/**
-	 * Lush caves' one special ore, {@code BiomeDefaultFeatures.addLushCavesSpecialOres}. It goes in the soft-ore step
-	 * between the default ore set and the soft disks, which is where vanilla writes it.
-	 */
-	protected static final List<ResourceKey<PlacedFeature>> LUSH_CAVES_ORES = List.of(OrePlacements.ORE_CLAY);
 
 	/** The windswept pair, which the cliff and the foothills both take; the badlands ground is all either of them has. */
 	protected static final List<ResourceKey<PlacedFeature>> CLIFF_GROUND = List.of(

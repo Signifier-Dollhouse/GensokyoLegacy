@@ -86,7 +86,7 @@ beside them.
 | `bamboo_forest_of_the_lost` | `snowy_taiga` | spruce understorey, so the grove reads as a winter one — though the biome itself no longer snows, §6 |
 | `hill_of_the_nameless` | `meadow` | open flowered hill with no canopy to hide in |
 | `untrodden_valley` | `taiga`, **minus `trees_taiga`** | half maple, half oak and birch: the grove is the reason the valley reads as untrodden rather than as cold — see §2.2 |
-| `genbu_ravine` | `swamp`, plus `lush_caves` | the clay disk and reeds read as wet banks, the lily pads work underwater, and lush caves' eight put the growth and vines in the ravine floor — see below |
+| `genbu_ravine` | `swamp`, plus `lush_caves` | the clay disk and reeds read as wet banks, the lily pads work underwater, and lush caves' seven put the growth and vines in the ravine floor, with the eighth laid by the ravine itself, in basalt — see below |
 | `youkai_mountain_foothills` | `windswept_hills`, **minus `trees_windswept_hills`** | maple again, and the thinnest of the three groves: the wind is what thins it — see §2.2 |
 | `sanctuary` | `forest` | the mountain's own grove — birch and oak under the cherry tail, against the hill's open meadow beside it |
 | `hell_of_blood_pools` | `soul_sand_valley` | a basin of souls is the one nether pool; basalt pillars stand it up off the floor |
@@ -119,22 +119,61 @@ as `DELTA_LAVA`. Without it the blazing fires are hot-looking rock — the surfa
 
 ### Lush caves, on the ravine floor
 
-`genbu_ravine` is `swamp` on the surface and `minecraft:lush_caves` below it, and it takes **all eight** of lush caves'
+`genbu_ravine` is `swamp` on the surface and `minecraft:lush_caves` below it, and it takes **seven of lush caves' eight**
 features rather than a selection:
 
 | | key | step |
 |---|---|---|
-| vegetation | `lush_caves_ceiling_vegetation`, `cave_vines`, `lush_caves_clay`, `lush_caves_vegetation`, `rooted_azalea_tree`, `spore_blossom`, `classic_vines_cave_feature` | `vegetal_decoration`, in `addLushCavesVegetationFeatures`'s own order |
+| vegetation | `lush_caves_ceiling_vegetation`, `cave_vines`, `lush_caves_vegetation`, `rooted_azalea_tree`, `spore_blossom`, `classic_vines_cave_feature` | `vegetal_decoration`, in `addLushCavesVegetationFeatures`'s own order |
 | special ore | `ore_clay` | `underground_ores`, between the default ore set and the soft disks, which is where vanilla writes it |
 
 Taking them whole is the point: the floor growth, the two vine sets, the ceiling growth and the rooted azalea all hang
 off the same cave surfaces, so any proper subset of the seven is a fragment of one decoration rather than a style. The
 order inside the step is `addLushCavesVegetationFeatures`'s because `FeatureSorter` reads it, not for looks.
 
-What it does **not** replace is the ravine's own: `ravine_moss` and `ravine_stones` still come after the lush block in
-`vegetal_decoration`, and `ravine_mud` is still last in `underground_ores`. Lush caves is growth and vines on a cave
-surface; it is not a ground cover, and its moss and mud were never Gensokyo's to begin with. Nothing else takes these
-— `genbu_ravine` is the one surface biome in the dimension with a ravine in it.
+The seven are the ravine's alone — no other Gensokyo biome takes them — so they are written out in
+`GenbuRavineBiomeGen` rather than kept as a shared run, and the ravine's list is the whole of what it generates.
+
+The eighth is the clay patch, and the ravine does not take it: it lays its own version, in basalt. See below.
+
+The ravine's own three — `ravine_basalt`, `ravine_moss` and `ravine_stones` — come **first** in the step, and the
+swamp's trees and grass after them. The plates have to be down before anything grows on them: a pool of them under a
+patch of grass that grew first is grass standing on water. §3 has why that is allowed to break the tail rule.
+
+What it does **not** replace is the ravine's own: `ravine_mud` is still last in `underground_ores`. Lush caves is growth
+and vines on a cave surface; it is not a ground cover, and its moss and mud were never Gensokyo's to begin with.
+Nothing else takes these — `genbu_ravine` is the one surface biome in the dimension with a ravine in it.
+
+### The ravine's own plates
+
+`minecraft:lush_caves_clay` is a `VEGETATION_PATCH` of clay with dripleaves growing on it, and the ravine lays
+`gensokyolegacy:gensokyo_biome/ravine_basalt` instead: the same feature, the same numbers and the same dripleaves,
+with the ground block swapped for basalt.
+
+| | vanilla | ravine |
+|---|---|---|
+| ground | `minecraft:clay` | `minecraft:basalt` |
+| dry branch | `clay_with_dripleaves` | `ravine_basalt_patch` |
+| pool branch | `clay_pool_with_dripleaves` | `ravine_basalt_pool` |
+| selector | `minecraft:lush_caves_clay` | `ravine_basalt_pools` |
+| placed | `minecraft:lush_caves_clay` | `ravine_basalt` |
+
+Everything else is vanilla's, on purpose: the same two branches under a `random_boolean_selector` (the dry one half
+the time, the pool the other half), the same dripleaf on top of it, the same depth of 3, the same radius of 4…7 squared
+into 5…8, the same 5% and 10% chances of a dripleaf, and the same placement chain — 62 tries a chunk, a downward scan
+of 12 for the cave floor, one block of offset, the biome filter. The plates are the size and the density of the clay
+they replace; only the rock is different.
+
+Two consequences of the swap, both worth knowing:
+
+- **The plates take the floor, and the moss grows around them.** The plates are laid first, so they take the dirt,
+  gravel and clay the cave floor is made of; moss is not in `#minecraft:lush_ground_replaceable`, so
+  `minecraft:lush_caves_vegetation` cannot overwrite a plate, and the ravine's mud is not in that tag either, so the
+  mud keeps its patches and the plates go around them.
+- **Nothing grows on a plate but the dripleaves.** `ravine_moss` and `ravine_stones` come after the plates and want
+  dirt under them, and a plate is basalt, so the ravine's carpet and its loose stone stop at the plate's edge. The
+  swamp's grass patches are refused on a plate for the same reason, which is what keeps a pool of them from having a
+  patch of grass standing on the water.
 
 ### `minecraft:delta` is the one that fills them
 
@@ -203,7 +242,7 @@ There is no snowy biome: the guide gives a band its four, and the one genuinely 
 
 The features live with the biome that is the only one to use them, under
 `worldgen/{configured,placed}_feature/gensokyo_biome/`. Only `stones`, `foothill_moss`, `lake_cattails`, `maple_trees`
-and `maple_fallen_leaves` are shared enough to belong in `GensokyoBiomeFeatures`. Five kinds:
+and `maple_fallen_leaves` are shared enough to belong in `GensokyoBiomeFeatures`. Six kinds:
 
 **Ground cover** — `RANDOM_PATCH` of `SIMPLE_BLOCK` on `BlockTags.DIRT`, the same shape as the magical forest's grass
 and flowers. The vanilla flower and grass features of the base are kept as well, so the mod blocks are an accent
@@ -222,11 +261,14 @@ barrens, mud under the bamboo and in Genbu Ravine.
 (`EnvironmentScanPlacement` downward + `RandomOffsetPlacement`) in the `UNDERGROUND_DECORATION` step, and gated on
 `BlockPredicate.solid()` instead of the dirt tag so they survive a hell palette that is not vanilla stone.
 
+**Cave plates** — `Feature.VEGETATION_PATCH` over the cave floor, in the `VEGETAL_DECORATION` step: the ravine's own
+version of lush caves' clay patch, in basalt, with dripleaves on it. See §1.
+
 **One lake** — `former_hell_lake`, see §2.1. It is the only feature in the tail that is not a patch of blocks.
 
 | placed feature | tries / count | used by |
 |---|---|---|
-| `stones` | 2 patches, mossy cobble / cobble / stone brick | hill, barrens, valley, foothills, ravine |
+| `stones` | 2 patches, mossy cobble / cobble / stone brick | hill, barrens, valley, foothills |
 | `grave_marker` | 1 in 4 chunks | muenzuka |
 | `gravestone` | 4 tries in 1 patch per chunk, on the floor | muenzuka |
 | `ghost_flowers` | 3 patches | muenzuka |
@@ -239,6 +281,8 @@ barrens, mud under the bamboo and in Genbu Ravine.
 | `hill_of_the_nameless_flowers` | 7 patches | hill of the nameless |
 | `bamboo_dense` / `bamboo_sparse` | 6 patches / 1 in 3 | bamboo forest of the lost |
 | `ravine_moss` | 6 patches | genbu ravine |
+| `ravine_basalt` | 62 plates a chunk, half of them pools | genbu ravine |
+| `ravine_stones` | 2 patches, the same stone as `stones` | genbu ravine |
 | `foothill_moss` | 4 patches | youkai mountain foothills |
 | `valley_mixed_trees` / `maple_fallen_leaves` | 10 trees / 2 patches | valley, settlement 6, foothills 2 |
 | `cherry_trees` / `cherry_litter` | 15 trees / 2 patches | sakura forest |
@@ -491,6 +535,14 @@ already has a fixed position in vanilla's own chains: appending `minecraft:patch
 after `minecraft:seagrass_river`, while `minecraft:swamp`'s own chain has it before
 `minecraft:brown_mushroom_swamp`, and the two together cycle. Reuse the vanilla *configured* feature behind a placed
 feature of our own instead — that is what `misty_lake_lily_pads` is.
+
+The ravine is the one biome that does not keep its custom features in a tail. It puts its three — the plates, the moss
+and the stones — at the **head** of its list, before the swamp's trees and grass, because the plates have to be down
+before anything grows on them. That is safe for the same reason the rule above is: a custom feature that lands before
+the vanilla chain is as safe as one that lands after it, as long as no other biome lists it. All three are the ravine's
+alone, and one of them had to be made so — the shared `stones` is in seven other biomes' tails and cannot move, so the
+ravine places the same configured feature through `ravine_stones` of its own, which is the `misty_lake_lily_pads` trick
+again.
 
 After any change here:
 

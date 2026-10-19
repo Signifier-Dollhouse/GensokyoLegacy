@@ -1,6 +1,7 @@
 package dev.xkmc.gensokyolegacy.init.data.biome;
 
 import dev.xkmc.gensokyolegacy.content.worldgen.feature.TreeFeatures.TreeType;
+import dev.xkmc.gensokyolegacy.init.data.biome.biomes.GenbuRavineBiomeGen;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLNaturalBlocks;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.registries.Registries;
@@ -25,14 +26,22 @@ import java.util.List;
  * <p>
  * This is the counterpart to the split, not an exception to it: a feature two biomes lay down is one feature, and
  * splitting it would mean two placed features that happen to be identical. Everything a single biome uses lives in
- * that biome's own class, so editing a biome never reaches this file.
+ * that biome's own class, so editing a biome never reaches this file. One placed feature does split: the ravine
+ * places the loose stone through a placed feature of its own, because it lays its floor first and the shared one
+ * sits in seven other biomes' tails.
  *
  * @see "doc/design/gensokyo_biomes.md"
  */
 public class GensokyoBiomeFeatures {
 
-	/** Loose stone, which eight of the surface biomes scatter on their floor. */
+	/** Loose stone, which seven of the surface biomes scatter on their floor. */
 	public static final ResourceKey<PlacedFeature> STONES_PF = AbstractBiomeGen.pf("stones");
+	/**
+	 * The loose stone's configured feature, which the ravine places through a placed feature of its own.
+	 *
+	 * @see GenbuRavineBiomeGen
+	 */
+	public static final ResourceKey<ConfiguredFeature<?, ?>> STONES = AbstractBiomeGen.cf("stones");
 	/** Damp moss, which the foothills and the settlement above them both take. */
 	public static final ResourceKey<PlacedFeature> FOOTHILL_MOSS_PF = AbstractBiomeGen.pf("foothill_moss");
 	/**
@@ -50,7 +59,6 @@ public class GensokyoBiomeFeatures {
 	public static final ResourceKey<ConfiguredFeature<?, ?>> MAPLE_FALLEN_LEAVES = AbstractBiomeGen.cf("maple_fallen_leaves");
 	public static final ResourceKey<PlacedFeature> MAPLE_FALLEN_LEAVES_PF = AbstractBiomeGen.pf("maple_fallen_leaves");
 
-	private static final ResourceKey<ConfiguredFeature<?, ?>> STONES = AbstractBiomeGen.cf("stones");
 	private static final ResourceKey<ConfiguredFeature<?, ?>> FOOTHILL_MOSS = AbstractBiomeGen.cf("foothill_moss");
 
 	/** Called from {@code build}, which owns the single {@link Registries#CONFIGURED_FEATURE} bootstrap. */
