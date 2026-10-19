@@ -3,6 +3,7 @@ package dev.xkmc.gensokyolegacy.init.registrate;
 import dev.xkmc.gensokyolegacy.content.dimension.EmptyChunkGenerator;
 import dev.xkmc.gensokyolegacy.content.dimension.GensokyoChunkGenerator;
 import dev.xkmc.gensokyolegacy.content.worldgen.feature.DoubleBlockFeature;
+import dev.xkmc.gensokyolegacy.content.worldgen.feature.MudWaterloggedVegetationPatchFeature;
 import dev.xkmc.gensokyolegacy.content.worldgen.feature.MushroomFeatures;
 import dev.xkmc.gensokyolegacy.content.worldgen.feature.lake.LakeConfig;
 import dev.xkmc.gensokyolegacy.content.worldgen.feature.lake.LakeFeature;
@@ -29,6 +30,7 @@ import net.minecraft.world.level.levelgen.feature.AbstractHugeMushroomFeature;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.configurations.HugeMushroomFeatureConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.SimpleBlockConfiguration;
+import net.minecraft.world.level.levelgen.feature.configurations.VegetationPatchConfiguration;
 import net.minecraft.world.level.levelgen.placement.PlacementModifierType;
 import net.minecraft.world.level.levelgen.structure.StructureType;
 import net.minecraft.world.level.levelgen.structure.placement.StructurePlacementType;
@@ -61,6 +63,8 @@ public class GLWorldGen {
 	public static final Val<LakeFeature> LAKE = FR.reg("lake", () -> new LakeFeature(LakeConfig.CODEC));
 	public static final Val<DoubleBlockFeature> DOUBLE_BLOCK =
 			FR.reg("double_block", () -> new DoubleBlockFeature(SimpleBlockConfiguration.CODEC));
+	public static final Val<MudWaterloggedVegetationPatchFeature> MUD_WATERLOGGED_VEGETATION_PATCH =
+			FR.reg("mud_waterlogged_vegetation_patch", () -> new MudWaterloggedVegetationPatchFeature(VegetationPatchConfiguration.CODEC));
 
 	private static final SR<PlacementModifierType<?>> PM = SR.of(GensokyoLegacy.REG, Registries.PLACEMENT_MODIFIER_TYPE);
 	public static final Val<PlacementModifierType<JitteredGridPlacement>> JITTERED_GRID = PM.reg("jittered_grid", () -> () -> JitteredGridPlacement.CODEC);

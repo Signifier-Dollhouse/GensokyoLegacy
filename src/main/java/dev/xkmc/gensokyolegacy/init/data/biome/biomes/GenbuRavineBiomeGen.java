@@ -2,6 +2,7 @@ package dev.xkmc.gensokyolegacy.init.data.biome.biomes;
 
 import dev.xkmc.gensokyolegacy.init.data.biome.AbstractBiomeGen;
 import dev.xkmc.gensokyolegacy.init.data.biome.GensokyoBiomeFeatures;
+import dev.xkmc.gensokyolegacy.init.registrate.GLWorldGen;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLNaturalBlocks;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
@@ -27,7 +28,6 @@ import net.minecraft.world.level.levelgen.blockpredicates.BlockPredicate;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.configurations.DiskConfiguration;
-import net.minecraft.world.level.levelgen.feature.configurations.RandomBooleanFeatureConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.VegetationPatchConfiguration;
 import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProvider;
 import net.minecraft.world.level.levelgen.feature.stateproviders.RuleBasedBlockStateProvider;
@@ -136,18 +136,19 @@ public class GenbuRavineBiomeGen extends AbstractBiomeGen {
 		FeatureUtils.register(ctx, RAVINE_MOSS, Feature.RANDOM_PATCH, onDirt(40, new Palette()
 				.add(Blocks.MOSS_CARPET, 3).add(Blocks.LARGE_FERN, 2)
 				.add(GLNaturalBlocks.BRACKEN, 2).add(Blocks.FERN, 2).build()));
-		// The ravine's own version of lush caves' clay patch: the same two branches, the same dripleaves on top and
-		// the same numbers, with the ground block swapped for basalt. The dripleaf is vanilla's own configured
-		// feature, referenced by id, so the JSON stays a reference to it rather than a copy.
+		// The ravine's own version of lush caves' clay patch: a pool of basalt with dripleaves growing in it, the
+		// same numbers vanilla's own pool branch uses. The dripleaf is vanilla's own configured feature, referenced
+		// by id, so the JSON stays a reference to it rather than a copy. The patch type is ours: a dripleaf's stem
+		// wants a support it can live on, and basalt is not one, so the plant gets mud under it.
 		var features = ctx.lookup(Registries.CONFIGURED_FEATURE);
 		var dripleaf = PlacementUtils.inlinePlaced(features.getOrThrow(CaveFeatures.DRIPLEAF));
-		FeatureUtils.register(ctx, RAVINE_BASALT_POOL, Feature.WATERLOGGED_VEGETATION_PATCH, basaltPlate(dripleaf, 5, 0.1F));
-
+		FeatureUtils.register(ctx, RAVINE_BASALT_POOL, GLWorldGen.MUD_WATERLOGGED_VEGETATION_PATCH.get(),
+				basaltPlate(dripleaf, 5, 0.1F));
 	}
 
 	/**
-	 * One basalt plate. The numbers are vanilla's own, branch for branch: the dry patch reaches two blocks up and
-	 * grows a dripleaf one time in twenty, the pool reaches five and grows one in ten.
+	 * One basalt plate. The numbers are vanilla's own pool branch: it reaches five blocks up and grows a dripleaf one
+	 * time in ten.
 	 */
 	private static VegetationPatchConfiguration basaltPlate(Holder<PlacedFeature> dripleaf, int verticalRange,
 															float vegetationChance) {

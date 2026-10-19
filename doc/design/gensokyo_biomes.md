@@ -147,22 +147,28 @@ Nothing else takes these — `genbu_ravine` is the one surface biome in the dime
 ### The ravine's own plates
 
 `minecraft:lush_caves_clay` is a `VEGETATION_PATCH` of clay with dripleaves growing on it, and the ravine lays
-`gensokyolegacy:gensokyo_biome/ravine_basalt` instead: the same feature, the same numbers and the same dripleaves,
-with the ground block swapped for basalt.
+`gensokyolegacy:gensokyo_biome/ravine_basalt` instead: a pool of basalt with dripleaves growing in it.
 
 | | vanilla | ravine |
 |---|---|---|
 | ground | `minecraft:clay` | `minecraft:basalt` |
-| dry branch | `clay_with_dripleaves` | `ravine_basalt_patch` |
-| pool branch | `clay_pool_with_dripleaves` | `ravine_basalt_pool` |
-| selector | `minecraft:lush_caves_clay` | `ravine_basalt_pools` |
+| patch | `clay_pool_with_dripleaves` | `ravine_basalt_pool` |
 | placed | `minecraft:lush_caves_clay` | `ravine_basalt` |
+| patch type | `minecraft:waterlogged_vegetation_patch` | `gensokyolegacy:mud_waterlogged_vegetation_patch` |
 
-Everything else is vanilla's, on purpose: the same two branches under a `random_boolean_selector` (the dry one half
-the time, the pool the other half), the same dripleaf on top of it, the same depth of 3, the same radius of 4…7 squared
-into 5…8, the same 5% and 10% chances of a dripleaf, and the same placement chain — 62 tries a chunk, a downward scan
-of 12 for the cave floor, one block of offset, the biome filter. The plates are the size and the density of the clay
-they replace; only the rock is different.
+The numbers are vanilla's own pool branch: the same depth of 3, the same radius of 4…7 squared into 5…8, the same 10%
+chance of a dripleaf, and the same placement chain — 62 tries a chunk, a downward scan of 12 for the cave floor, one
+block of offset, the biome filter. The plates are the size and the density of the clay they replace.
+
+Two things are ours rather than vanilla's:
+
+- **The patch type is ours, because a dripleaf needs a support it can live on.**
+  `#minecraft:big_dripleaf_placeable` is dirt, mud, clay and moss block, and basalt is none of them, so a dripleaf
+  on a basalt plate loses its stem and falls over. `MudWaterloggedVegetationPatchFeature` is vanilla's own waterlogged
+  patch with one line added: the block under the water the plant grows in is mud. The plate is still basalt; only what
+  the dripleaf stands on is mud.
+- **The dry branch is gone.** Vanilla's clay patch is a dry plate half the time and a pool the other half, under a
+  `random_boolean_selector`. The ravine's is a pool every time.
 
 Two consequences of the swap, both worth knowing:
 
@@ -171,9 +177,9 @@ Two consequences of the swap, both worth knowing:
   `minecraft:lush_caves_vegetation` cannot overwrite a plate, and the ravine's mud is not in that tag either, so the
   mud keeps its patches and the plates go around them.
 - **Nothing grows on a plate but the dripleaves.** `ravine_moss` and `ravine_stones` come after the plates and want
-  dirt under them, and a plate is basalt, so the ravine's carpet and its loose stone stop at the plate's edge. The
-  swamp's grass patches are refused on a plate for the same reason, which is what keeps a pool of them from having a
-  patch of grass standing on the water.
+  dirt under them, and a plate is basalt under water, so the ravine's carpet and its loose stone stop at the plate's
+  edge. The swamp's grass patches are refused on a plate for the same reason, which is what keeps a pool of them from
+  having a patch of grass standing on the water.
 
 ### `minecraft:delta` is the one that fills them
 
@@ -281,7 +287,7 @@ version of lush caves' clay patch, in basalt, with dripleaves on it. See §1.
 | `hill_of_the_nameless_flowers` | 7 patches | hill of the nameless |
 | `bamboo_dense` / `bamboo_sparse` | 6 patches / 1 in 3 | bamboo forest of the lost |
 | `ravine_moss` | 6 patches | genbu ravine |
-| `ravine_basalt` | 62 plates a chunk, half of them pools | genbu ravine |
+| `ravine_basalt` | 62 plates a chunk, every one of them a pool | genbu ravine |
 | `ravine_stones` | 2 patches, the same stone as `stones` | genbu ravine |
 | `foothill_moss` | 4 patches | youkai mountain foothills |
 | `valley_mixed_trees` / `maple_fallen_leaves` | 10 trees / 2 patches | valley, settlement 6, foothills 2 |
