@@ -248,6 +248,11 @@ public class AliceQDGen extends QuestDialogData {
 				List.of(new HasQuestCompletedCondition(QUEST_SEVEN_COLORS)),
 				new ItemStack(GLItems.DOLL_LANCE.get()),
 				new TradeRecurrence(1, 24000), List.of(item(Items.IRON_INGOT, 8))));
+		// The mini shield is a doll's shield: half the iron of a lance, and one a day like it.
+		trade("offer_mini_shield", new TradeOffer(GLEntities.ALICE.get(),
+				List.of(new HasQuestCompletedCondition(QUEST_SEVEN_COLORS)),
+				new ItemStack(GLItems.MINI_SHIELD.get()),
+				new TradeRecurrence(1, 24000), List.of(item(Items.IRON_INGOT, 4))));
 	}
 
 	/** One of each of the seven dyes plus three white wool: the glove's price. */
