@@ -171,7 +171,7 @@ Apply the talisman's own effect on the scheduled target (§6). There is no glove
 
 ### 5.6 Shield block — reactive, off hand, regular vanilla pipeline
 
-Blocking runs through the regular `LivingEntity.hurt` shield path, not a custom hook: `DollEntity` overrides `isBlocking()` (off-hand loadout shield present and block cooldown ready), `isDamageSourceBlocked()` (projectile-only on top of vanilla bypass/pierce/front gating), and `hurtCurrentlyUsedShield()` (wears the live ledger shield in place + mirror refresh + cooldown stamp). Blocked hits never reach `actuallyHurt`, so the pairing pipeline and combat tracker stay silent; melee and explosions are never blocked, and the axe-disable branch can't fire (it requires a melee blocker). No modded-shield support for now (open question: tag-based match).
+Blocking runs through the regular `LivingEntity.hurt` shield path, not a custom hook: `DollEntity` overrides `isBlocking()` (off-hand loadout shield present and block cooldown ready), `isDamageSourceBlocked()` (projectile-only on top of vanilla bypass/pierce/front gating), and `hurtCurrentlyUsedShield()` (wears the live ledger shield in place + mirror refresh + cooldown stamp). Blocked hits never reach `actuallyHurt`, so the pairing pipeline and combat tracker stay silent; melee and explosions are never blocked, and the axe-disable branch can't fire (it requires a melee blocker). What counts as a shield is `DollShieldItem.isShield` — the vanilla shield, or the mini shield (item.md §10) — and a shield with no durability to spend is never worn down, so the mini shield blocks for good. No modded-shield support for now (open question: tag-based match).
 
 ## 6. Heal scheduling and heal marks
 

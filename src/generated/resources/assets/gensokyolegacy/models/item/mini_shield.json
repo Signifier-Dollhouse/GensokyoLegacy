@@ -1,0 +1,15 @@
+{
+  "base": {
+    "parent": "gensokyolegacy:custom/mini_shield"
+  },
+  "gui_light": "front",
+  "loader": "neoforge:separate_transforms",
+  "perspectives": {
+    "gui": {
+      "parent": "minecraft:item/generated",
+      "textures": {
+        "layer0": "gensokyolegacy:item/tool/mini_shield_icon"
+      }
+    }
+  }
+}
