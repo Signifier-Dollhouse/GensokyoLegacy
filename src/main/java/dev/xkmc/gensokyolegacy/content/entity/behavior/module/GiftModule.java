@@ -58,19 +58,19 @@ public class GiftModule extends AbstractYoukaiModule {
 
 	@Override
 	public InteractionResult interact(Player player, InteractionHand hand) {
-		if (!self.mayInteract(player)) return InteractionResult.PASS;
 		ItemStack stack = player.getItemInHand(hand);
 		var giftData = GLMeta.GIFT_DATA.get(player.registryAccess(), stack.getItemHolder());
 		if (giftData == null) return InteractionResult.PASS;
-		if (giftCoolDown > 0) return InteractionResult.PASS;
+		if (!self.mayInteract(player)) return InteractionResult.FAIL;
+		if (giftCoolDown > 0) return InteractionResult.FAIL;
 		double factor = giftData.getFactor(stack, self);
 		int favor = (int) (factor * giftData.favor());
 		boolean accepted = favor > 0;
 		// a factor too small to be worth anything truncates the favor to 0 but is not a refusal:
 		// she takes it at face value and says nothing about it
-		if (!accepted && factor > 0) return InteractionResult.PASS;
+		if (!accepted && factor > 0) return InteractionResult.FAIL;
 		if (!(player instanceof ServerPlayer sp)) {
-			return accepted ? InteractionResult.SUCCESS : InteractionResult.PASS;
+			return accepted ? InteractionResult.SUCCESS : InteractionResult.FAIL;
 		}
 		if (accepted) {
 			var relationship = CharDataHolder.get(sp, self);

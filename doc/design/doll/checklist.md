@@ -55,6 +55,7 @@ Implemented — glove (item, 6 modes with heal/stop hidden, wheel, target cache 
 - `content/entity/dolls/BaseDollEntity.java` — pairing pipeline only (stray `getHost` branch, `die()` → `onDeath`); empty-hand itemize (arming removed, loadout.md §4); `setSpeedCap` escape hatch on the movement cap for the melee charge (entity.md §3.1, control.md §5.1b); `nature()`, the one place a kind declares what it may become (timed_summon.md §1)
 - `content/entity/dolls/DollEntity.java` — `actions` field, one `DollCommandGoal`, vanilla shield hooks (§5.6), never-null ledger-direct loadout API, `becomeStray()` / `rejoinOwner()` / `maybeRejoin()` (1-second idle rejoin from `tick()`); 4 synced slot accessors, `writeValuesTo`/`readValuesFrom` (loadout.md §3 / entity.md §8) — done; `DollGeo`, the plain doll's clip set on top of the base's `DollRig` (entity.md §8)
 - `content/item/doll/DollItem.java` — the `type → item` map every item files itself into from its constructor, and the virtual `makeStack` a gadget answers bare (item.md §2, gadget.md §1) — done
+- `content/item/doll/MiniShieldItem.java` / `DollShieldItem.java` — the doll-only shield and the marker that tells the doll what it can block with (item.md §10) — done
 - `content/attachment/doll/DollData.java` — `fromItemData` takes the entry's type from the item rather than the constant (gadget.md §1) — done
 - `init/registrate/GLEntities.java` / `GLItems.java` — `SEKIBANKI_HEAD` entity + item (gadget.md §3) — done
 - `content/entity/dolls/behavior/DollDanmakuBehavior.java` — fires the card off its `HandMatch` rather than the main hand, so an intrinsic card works (timed_summon.md §4)
@@ -80,6 +81,7 @@ Run `./gradlew runData` (commit generated output), then `organize.ResourceOrgani
 | `GLItems` | `DOLL` item, `DOLL_DATA` + `DOLL_LOADOUT` components | Registrate | done |
 | `GLItems` / `GLEntities` | `SEKIBANKI_HEAD` gadget item + its entity type (gadget.md §3) | Registrate | done |
 | `GLItems` | `DOLL_GLOVE` item, `DOLL_GLOVE_MODE` DCVal | Registrate | done |
+| `GLItems` | `MINI_SHIELD` item, a doll-only shield (item.md §10) | Registrate | done |
 | `GLMeta` (`ATT.player`) | `DOLL` player capability → `DollAttachment` | attachment | done |
 | `HANDLER` (l2serial) | `SelectorSelectPacket` (shared wheel pick), `GloveTargetPacket` (shared cache, glove.md §2) | mod constructor | done |
 | item selector | `DollGloveSelectionListener.register()` | mod constructor (next to `BorderUmbrellaSelectionListener`) | done |

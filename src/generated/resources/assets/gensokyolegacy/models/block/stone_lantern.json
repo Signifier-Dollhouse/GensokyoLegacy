@@ -1,0 +1,8 @@
+{
+  "parent": "gensokyolegacy:custom/deco/stone_lantern",
+  "render_type": "minecraft:cutout",
+  "textures": {
+    "all": "gensokyolegacy:block/deco/stone_lantern",
+    "particle": "gensokyolegacy:block/deco/stone_lantern"
+  }
+}

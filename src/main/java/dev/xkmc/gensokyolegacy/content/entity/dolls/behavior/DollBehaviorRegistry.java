@@ -5,9 +5,9 @@ import dev.xkmc.gensokyolegacy.content.entity.dolls.DollEntity;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.action.DollAction;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.action.DollActionHandler;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.action.DollActionType;
+import dev.xkmc.gensokyolegacy.content.item.doll.DollShieldItem;
 import dev.xkmc.gensokyolegacy.content.item.doll.DollSlot;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.ShieldItem;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -153,11 +153,12 @@ public record HandMatch(Entry entry, DollSlot hand, ItemStack stack, @Nullable D
 	}
 
 	/**
-	 * What a doll hand will take: anything a doll can act with, plus the vanilla shield, which is
-	 * not a behavior but the reactive block (control.md §5.6). Both slots admit the same set.
+	 * What a doll hand will take: anything a doll can act with, plus what it can block with — the
+	 * vanilla shield and the mini shield, neither of which is a behavior but the reactive block
+	 * (control.md §5.6). Both slots admit the same set.
 	 */
 	public static boolean usableInHand(ItemStack stack) {
-		return !stack.isEmpty() && (matchesAny(stack) || stack.getItem() instanceof ShieldItem);
+		return !stack.isEmpty() && (matchesAny(stack) || DollShieldItem.isShield(stack));
 	}
 
 	/**

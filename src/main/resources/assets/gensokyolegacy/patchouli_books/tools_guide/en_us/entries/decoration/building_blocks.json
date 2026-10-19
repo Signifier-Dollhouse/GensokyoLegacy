@@ -28,6 +28,12 @@
     },
     {
       "type": "patchouli:spotlight",
+      "item": "gensokyolegacy:stone_lantern",
+      "title": "Stone Lantern",
+      "text": "A garden lantern cut from stone, two blocks tall. It is solid stone all the way through, so it gives out no light of its own."
+    },
+    {
+      "type": "patchouli:spotlight",
       "item": [
         "gensokyolegacy:wrought_iron_bars",
         "gensokyolegacy:wrought_iron_pillar",

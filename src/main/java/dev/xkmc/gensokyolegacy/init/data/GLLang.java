@@ -564,6 +564,7 @@ FURNACE_2_BOOST("Held in main hand while riding a broom, right click to burn fue
 		CAT_BELL_LORE("Small, and heavier than any bell has a right to be.", 0, ChatFormatting.GRAY),
 		BROOM_LORE("It flies itself, given there is somebody left to fly.", 0, ChatFormatting.GRAY),
 		DOLL_LANCE_LORE("A polearm built to a doll's reach rather than a hand's.", 0, ChatFormatting.GRAY),
+		MINI_SHIELD_LORE("Too small for a hand, but a doll can still get behind it.", 0, ChatFormatting.GRAY),
 		STAR_WAND_LORE("Throws the star, keeps the wand.", 0, ChatFormatting.GRAY),
 		IRON_DAGGER_LORE("Thrown, not dropped — it knows the way back.", 0, ChatFormatting.GRAY),
 		STRANGE_GLASSES_LORE("Someone else's idea of what counts as real.", 0, ChatFormatting.GRAY),
