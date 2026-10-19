@@ -7,6 +7,8 @@ import dev.xkmc.gensokyolegacy.content.worldgen.feature.MudWaterloggedVegetation
 import dev.xkmc.gensokyolegacy.content.worldgen.feature.MushroomFeatures;
 import dev.xkmc.gensokyolegacy.content.worldgen.feature.lake.LakeConfig;
 import dev.xkmc.gensokyolegacy.content.worldgen.feature.lake.LakeFeature;
+import dev.xkmc.gensokyolegacy.content.worldgen.feature.stair.StairPoolConfig;
+import dev.xkmc.gensokyolegacy.content.worldgen.feature.stair.StairPoolFeature;
 import dev.xkmc.gensokyolegacy.content.worldgen.feature.template.TemplateBlendProcessor;
 import dev.xkmc.gensokyolegacy.content.worldgen.feature.template.TemplateFeature;
 import dev.xkmc.gensokyolegacy.content.worldgen.feature.template.TemplateFeatureConfig;
@@ -65,6 +67,8 @@ public class GLWorldGen {
 			FR.reg("double_block", () -> new DoubleBlockFeature(SimpleBlockConfiguration.CODEC));
 	public static final Val<MudWaterloggedVegetationPatchFeature> MUD_WATERLOGGED_VEGETATION_PATCH =
 			FR.reg("mud_waterlogged_vegetation_patch", () -> new MudWaterloggedVegetationPatchFeature(VegetationPatchConfiguration.CODEC));
+	public static final Val<StairPoolFeature> STAIR_POOL =
+			FR.reg("stair_pool", () -> new StairPoolFeature(StairPoolConfig.CODEC));
 
 	private static final SR<PlacementModifierType<?>> PM = SR.of(GensokyoLegacy.REG, Registries.PLACEMENT_MODIFIER_TYPE);
 	public static final Val<PlacementModifierType<JitteredGridPlacement>> JITTERED_GRID = PM.reg("jittered_grid", () -> () -> JitteredGridPlacement.CODEC);

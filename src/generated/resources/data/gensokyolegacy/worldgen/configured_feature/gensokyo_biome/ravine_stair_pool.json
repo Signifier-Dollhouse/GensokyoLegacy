@@ -1,0 +1,18 @@
+{
+  "type": "gensokyolegacy:stair_pool",
+  "config": {
+    "fill": {
+      "Name": "minecraft:water",
+      "Properties": {
+        "level": "0"
+      }
+    },
+    "reach": 7,
+    "stair": {
+      "Name": "minecraft:basalt",
+      "Properties": {
+        "axis": "y"
+      }
+    }
+  }
+}

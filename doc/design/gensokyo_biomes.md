@@ -136,9 +136,10 @@ The seven are the ravine's alone — no other Gensokyo biome takes them — so t
 
 The eighth is the clay patch, and the ravine does not take it: it lays its own version, in basalt. See below.
 
-The ravine's own three — `ravine_basalt`, `ravine_moss` and `ravine_stones` — come **first** in the step, and the
-swamp's trees and grass after them. The plates have to be down before anything grows on them: a pool of them under a
-patch of grass that grew first is grass standing on water. §3 has why that is allowed to break the tail rule.
+The ravine's own four — `ravine_basalt`, `ravine_stair_pool`, `ravine_moss` and `ravine_stones` — come **first** in
+the step, and the swamp's trees and grass after them. The plates have to be down before anything grows on them: a pool
+of them under a patch of grass that grew first is grass standing on water. §3 has why that is allowed to break the tail
+rule.
 
 What it does **not** replace is the ravine's own: `ravine_mud` is still last in `underground_ores`. Lush caves is growth
 and vines on a cave surface; it is not a ground cover, and its moss and mud were never Gensokyo's to begin with.
@@ -160,6 +161,15 @@ The numbers are vanilla's own pool branch: the same depth of 3, the same radius 
 chance of a dripleaf, and the same placement chain — 62 tries a chunk, a downward scan of 12 for the cave floor, one
 block of offset, the biome filter. The plates are the size and the density of the clay they replace.
 
+**They are on the surface, not in the cave.** The ravine is a cut in the mountain, and the floor of the cut is the floor
+of the ravine: the plates are laid on the ravine's own ground, where the swamp's grass and mud are, and they are the
+ravine's floor instead of them. The placement is the **no-leaves heightmap** rather than the cave-floor scan, for two
+reasons: the heightmap is what finds a surface at all, and the ravine's swamp trees stand on it — the world-surface
+heightmap counts leaves, so a patch dropped on it lands on the crown of a tree, and the no-leaves one lands on the
+ground under it. The count falls with the move: the cave scan mostly failed and only the rare floor it found was
+patched, while on the surface every try lands, so **eight** plates a chunk is a floor of basalt with the ground showing
+through between them, where sixty-two would be ten times the work for the same floor.
+
 Two things are ours rather than vanilla's:
 
 - **The patch type is ours, because a dripleaf needs a support it can live on.**
@@ -180,6 +190,29 @@ Two consequences of the swap, both worth knowing:
   dirt under them, and a plate is basalt under water, so the ravine's carpet and its loose stone stop at the plate's
   edge. The swamp's grass patches are refused on a plate for the same reason, which is what keeps a pool of them from
   having a patch of grass standing on the water.
+
+### The pools in the steps
+
+A plate of basalt on a cave floor is flat, and a flat floor has no steps in it. A *slope* has: the plate follows the
+terrain down, and every step of the slope is a tread of basalt with a step up on one side and a step down on the
+other. `ravine_stair_pool` is what turns those into water.
+
+The block it looks for is a **middle stair**: the top block of its column, with a step up on one side and a step down
+on the other, standing on two solid blocks, and with no water beside it. Such a block is the tread of a step in the
+middle of a slope, and a slope of them is what a steep surface is made of. The carve takes the tread out and fills the
+block under it, so the step becomes a pool one block deep with a floor of its own, and the water in it is level with
+the step it was.
+
+The run of treads beside it is found by a breadth-first walk over the three by three of blocks on the same level,
+each of them tried the same way, and it stops **seven blocks** from where it started: one rim of water seven treads
+long, and no more. The placement is the same heightmap the plates use, so the tread it looks at is the ravine's own
+surface — which the plates have already turned into basalt, and which the air above it says is the top of its column.
+
+| | |
+|---|---|
+| stair | `minecraft:basalt` |
+| fill | `minecraft:water` |
+| reach | 7 blocks |
 
 ### `minecraft:delta` is the one that fills them
 
@@ -270,6 +303,9 @@ barrens, mud under the bamboo and in Genbu Ravine.
 **Cave plates** — `Feature.VEGETATION_PATCH` over the cave floor, in the `VEGETAL_DECORATION` step: the ravine's own
 version of lush caves' clay patch, in basalt, with dripleaves on it. See §1.
 
+**Stair pools** — `gensokyolegacy:stair_pool`, which turns the treads of a basalt slope into pools of water one block
+deep, and the run of them into a rim. See §1.
+
 **One lake** — `former_hell_lake`, see §2.1. It is the only feature in the tail that is not a patch of blocks.
 
 | placed feature | tries / count | used by |
@@ -286,9 +322,11 @@ version of lush caves' clay patch, in basalt, with dripleaves on it. See §1.
 | `barrens_locust_trees` | 6 trees | barrens |
 | `hill_of_the_nameless_flowers` | 7 patches | hill of the nameless |
 | `bamboo_dense` / `bamboo_sparse` | 6 patches / 1 in 3 | bamboo forest of the lost |
-| `ravine_moss` | 6 patches | genbu ravine |
-| `ravine_basalt` | 62 plates a chunk, every one of them a pool | genbu ravine |
+| `ravine_moss` | 3 patches, 20 tries each | genbu ravine |
+| `ravine_basalt` | 8 plates a chunk, every one of them a pool | genbu ravine |
+| `ravine_stair_pool` | 16 tries a chunk, each a rim of seven treads | genbu ravine |
 | `ravine_stones` | 2 patches, the same stone as `stones` | genbu ravine |
+| `ravine_mud` | 2 disks a chunk, radius 2…4 | genbu ravine |
 | `foothill_moss` | 4 patches | youkai mountain foothills |
 | `valley_mixed_trees` / `maple_fallen_leaves` | 10 trees / 2 patches | valley, settlement 6, foothills 2 |
 | `cherry_trees` / `cherry_litter` | 15 trees / 2 patches | sakura forest |

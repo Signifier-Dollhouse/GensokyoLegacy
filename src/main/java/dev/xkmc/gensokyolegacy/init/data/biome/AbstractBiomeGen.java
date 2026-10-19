@@ -479,6 +479,14 @@ public abstract class AbstractBiomeGen {
 	}
 
 	/**
+	 * The same, in a smaller area. A patch of seven tries over seven blocks is a carpet; the same tries over fewer
+	 * blocks is a stain, which is what a biome that already has a floor of its own wants.
+	 */
+	protected static RandomPatchConfiguration onDirt(int tries, int spread, BlockStateProvider state) {
+		return patch(tries, spread, 3, state, Feature.SIMPLE_BLOCK);
+	}
+
+	/**
 	 * The same, drawn by {@code feature} rather than by vanilla's own simple block — which is what the standing decos
 	 * need, since each of them is two blocks tall.
 	 * <p>
