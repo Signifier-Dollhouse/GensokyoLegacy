@@ -192,8 +192,15 @@ rather than ids, so a mistyped path fails at datagen instead of resolving to not
 ## Paying a gift back
 
 Every accepted gift banks its own favor into `CharacterData.giftReturn`. When the bank reaches the
-character's `threshold` she owes one back, and a special-weight chat appears on the topic list saying
-so; taking that option rolls one item from her `gift_return` table and clears the bank.
+character's `threshold` she owes one back. That is not a topic but a **chat override**: a
+`DialogStarter` with `override: true`, which `ServerCharacterDialogManager.pickOverrideChat` resolves
+before anything else, so the conversation opens on her handing the gift over rather than on the topic
+list. Accepting rolls one item from her `gift_return` table and clears the bank, and the topic list is
+not reachable again until it is.
+
+An override is skipped by `pickChat` entirely — it carries no weight and cannot win a roll — which is
+why it needs no starter line of its own, and why `text` is optional on the record: an override simply
+leaves it out.
 
 The threshold is per character rather than a constant, because what a gift costs is the factor, not
 the item: a category she likes at 2.0 walks the bar up twice as fast, so a fixed favor threshold

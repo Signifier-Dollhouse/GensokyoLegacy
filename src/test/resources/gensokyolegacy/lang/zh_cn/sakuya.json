@@ -30,9 +30,6 @@
 				},
 				"option": {
 					"return/take": "你客气啦。"
-				},
-				"starter": {
-					"return": "您送来的东西，我另有回报。"
 				}
 			}
 		}

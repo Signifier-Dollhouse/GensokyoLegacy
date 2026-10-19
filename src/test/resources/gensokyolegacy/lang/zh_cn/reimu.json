@@ -547,9 +547,6 @@
 				},
 				"option": {
 					"return/take": "谢谢，那我就收下了。"
-				},
-				"starter": {
-					"return": "我留了点东西给你。"
 				}
 			}
 		}

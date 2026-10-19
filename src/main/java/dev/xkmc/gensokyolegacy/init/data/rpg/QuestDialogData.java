@@ -254,7 +254,17 @@ public class QuestDialogData {
 
     public Holder<DialogStarter> chat(String id, EntityType<?> character, List<QuestCondition<?>> conditions,
                                       String text, Holder<Dialog> dialog, int weight) {
-        return starter(id, new DialogStarter(character, conditions, text, dialog, weight));
+        return starter(id, new DialogStarter(character, conditions, text, dialog, weight, false));
+    }
+
+    /**
+     * A chat the character starts the conversation on rather than offering as a topic: no starter line,
+     * no weight, and out of the roll that picks the one chat per conversation. For something owed to the
+     * player that has to happen before anything else does.
+     */
+    public Holder<DialogStarter> overrideChat(String id, EntityType<?> character, List<QuestCondition<?>> conditions,
+                                              Holder<Dialog> dialog) {
+        return starter(id, new DialogStarter(character, conditions, "", dialog, 1, true));
     }
 
     protected HasAdvancementCondition hasAdv(ResourceLocation adv) {

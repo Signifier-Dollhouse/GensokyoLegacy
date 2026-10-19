@@ -6,6 +6,5 @@
     }
   ],
   "dialog": "gensokyolegacy:marisa/gift/return",
-  "text": "gensokyolegacy/marisa/gift/starter/return",
-  "weight": 1000
+  "override": true
 }

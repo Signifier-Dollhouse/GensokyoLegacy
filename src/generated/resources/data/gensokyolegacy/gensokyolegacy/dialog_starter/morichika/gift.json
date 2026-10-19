@@ -6,6 +6,5 @@
     }
   ],
   "dialog": "gensokyolegacy:morichika/gift/return",
-  "text": "gensokyolegacy/morichika/gift/starter/return",
-  "weight": 1000
+  "override": true
 }

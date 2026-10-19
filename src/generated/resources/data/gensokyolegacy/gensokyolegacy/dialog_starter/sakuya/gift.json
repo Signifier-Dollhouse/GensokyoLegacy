@@ -6,6 +6,5 @@
     }
   ],
   "dialog": "gensokyolegacy:sakuya/gift/return",
-  "text": "gensokyolegacy/sakuya/gift/starter/return",
-  "weight": 1000
+  "override": true
 }

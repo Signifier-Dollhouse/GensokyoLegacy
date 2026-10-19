@@ -6,6 +6,5 @@
     }
   ],
   "dialog": "gensokyolegacy:reimu/gift/return",
-  "text": "gensokyolegacy/reimu/gift/starter/return",
-  "weight": 1000
+  "override": true
 }
