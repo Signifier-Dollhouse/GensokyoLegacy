@@ -70,15 +70,16 @@
     [
       "minecraft:glow_lichen",
       "minecraft:forest_flowers",
-      "minecraft:trees_birch_and_oak",
       "minecraft:flower_default",
       "minecraft:patch_grass_forest",
       "minecraft:brown_mushroom_normal",
       "minecraft:red_mushroom_normal",
       "minecraft:patch_sugar_cane",
       "minecraft:patch_pumpkin",
+      "gensokyolegacy:gensokyo_biome/muenzuka_trees",
       "gensokyolegacy:gensokyo_biome/stones",
       "gensokyolegacy:gensokyo_biome/grave_marker",
+      "gensokyolegacy:gensokyo_biome/gravestone",
       "gensokyolegacy:gensokyo_biome/ghost_flowers"
     ],
     [

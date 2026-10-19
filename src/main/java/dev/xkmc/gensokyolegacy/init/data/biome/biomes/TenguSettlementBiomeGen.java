@@ -10,6 +10,7 @@ import net.minecraft.world.level.biome.MobSpawnSettings;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import net.minecraft.world.level.levelgen.feature.Feature;
+import net.minecraft.world.level.levelgen.placement.CountPlacement;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import net.minecraft.world.level.levelgen.placement.RarityFilter;
 
@@ -18,6 +19,9 @@ import java.util.List;
 /**
  * The band above the mountain in {@code doc/design/gensokyolegacy_fixed_biomes_guide.md}: the tengu settlement, forest
  * ground with the foothills' moss and its own gravel paths.
+ * <p>
+ * A maple grove rather than a birch one: the settlement sits in the same maple belt as the valley below it, and the
+ * paths and the moss are what tell it apart from the open valley floor.
  *
  * @see "doc/design/gensokyo_biomes.md" §7
  */
@@ -27,6 +31,7 @@ public class TenguSettlementBiomeGen extends AbstractBiomeGen {
 
 	private static final ResourceKey<ConfiguredFeature<?, ?>> SETTLEMENT_PATHS = cf("settlement_paths");
 	private static final ResourceKey<PlacedFeature> SETTLEMENT_PATHS_PF = pf("settlement_paths");
+	private static final ResourceKey<PlacedFeature> MAPLE_TREES_PF = pf("settlement_maple_trees");
 
 	public TenguSettlementBiomeGen() {
 		super(KEY);
@@ -39,8 +44,9 @@ public class TenguSettlementBiomeGen extends AbstractBiomeGen {
 						.lakes(LAVA_LAKES)
 						.ores(join(OVERWORLD_ORES, OVERWORLD_DISKS))
 						.springs(SPRINGS)
-						.vegetation(join(FOREST_GROUND,
-								List.of(GensokyoBiomeFeatures.FOOTHILL_MOSS_PF, SETTLEMENT_PATHS_PF)))
+						.vegetation(join(FOREST_FLOOR, List.of(MAPLE_TREES_PF, SETTLEMENT_PATHS_PF,
+								GensokyoBiomeFeatures.FOOTHILL_MOSS_PF,
+								GensokyoBiomeFeatures.MAPLE_FALLEN_LEAVES_PF)))
 						.topLayer(FREEZE_TOP_LAYER));
 	}
 
@@ -54,6 +60,7 @@ public class TenguSettlementBiomeGen extends AbstractBiomeGen {
 
 	@Override
 	protected void placed(Registrar reg) {
+		reg.trees(MAPLE_TREES_PF, reg.feature(GensokyoBiomeFeatures.MAPLE_TREES), CountPlacement.of(6));
 		reg.cover(SETTLEMENT_PATHS_PF, reg.feature(SETTLEMENT_PATHS), RarityFilter.onAverageOnceEvery(4));
 	}
 

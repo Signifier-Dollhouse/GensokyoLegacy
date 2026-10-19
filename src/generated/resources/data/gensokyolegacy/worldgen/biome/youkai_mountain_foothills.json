@@ -71,15 +71,16 @@
     ],
     [
       "minecraft:glow_lichen",
-      "minecraft:trees_windswept_hills",
       "minecraft:flower_default",
       "minecraft:patch_grass_badlands",
       "minecraft:brown_mushroom_normal",
       "minecraft:red_mushroom_normal",
       "minecraft:patch_sugar_cane",
       "minecraft:patch_pumpkin",
+      "gensokyolegacy:gensokyo_biome/foothills_maple_trees",
       "gensokyolegacy:gensokyo_biome/stones",
-      "gensokyolegacy:gensokyo_biome/foothill_moss"
+      "gensokyolegacy:gensokyo_biome/foothill_moss",
+      "gensokyolegacy:gensokyo_biome/maple_fallen_leaves"
     ],
     [
       "minecraft:freeze_top_layer"

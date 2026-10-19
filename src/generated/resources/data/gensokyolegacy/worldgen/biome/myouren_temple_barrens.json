@@ -77,8 +77,11 @@
       "minecraft:patch_sugar_cane_badlands",
       "minecraft:patch_pumpkin",
       "minecraft:patch_cactus_decorated",
+      "gensokyolegacy:gensokyo_biome/barrens_locust_trees",
       "gensokyolegacy:gensokyo_biome/stones",
-      "gensokyolegacy:gensokyo_biome/barrens_scrub"
+      "gensokyolegacy:gensokyo_biome/barrens_scrub",
+      "gensokyolegacy:gensokyo_biome/barrens_jizo",
+      "gensokyolegacy:gensokyo_biome/barrens_gravestone"
     ],
     [
       "minecraft:freeze_top_layer"

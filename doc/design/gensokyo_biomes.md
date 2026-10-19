@@ -80,19 +80,25 @@ beside them.
 
 | biome | features after | why |
 |---|---|---|
-| `muenzuka` | `forest` | deciduous canopy, dark forest floor to break up with podzol |
+| `muenzuka` | `forest`, **minus `trees_birch_and_oak`** | a burial grove: half locust over the markers, half the oak and birch that grew here before — see §2.2 |
 | `human_village` | `plains` | open, already tilled-looking, plus its pumpkin and sugar cane patches |
-| `myouren_temple_barrens` | `badlands` | the dry dead-bush and coarse-dirt look |
+| `myouren_temple_barrens` | `badlands` | the dry dead-bush and coarse-dirt look, with the locust that stands over the temple's markers |
 | `bamboo_forest_of_the_lost` | `snowy_taiga` | spruce understorey, so the grove reads as a winter one — though the biome itself no longer snows, §6 |
 | `hill_of_the_nameless` | `meadow` | open flowered hill with no canopy to hide in |
-| `untrodden_valley` | `taiga` | conifers, ferns, already cold |
+| `untrodden_valley` | `taiga`, **minus `trees_taiga`** | half maple, half oak and birch: the grove is the reason the valley reads as untrodden rather than as cold — see §2.2 |
 | `genbu_ravine` | `swamp`, plus `lush_caves` | the clay disk and reeds read as wet banks, the lily pads work underwater, and lush caves' eight put the growth and vines in the ravine floor — see below |
-| `youkai_mountain_foothills` | `windswept_hills` | sparse oak on gravelly ground |
+| `youkai_mountain_foothills` | `windswept_hills`, **minus `trees_windswept_hills`** | maple again, and the thinnest of the three groves: the wind is what thins it — see §2.2 |
 | `sanctuary` | `forest` | the mountain's own grove — birch and oak under the cherry tail, against the hill's open meadow beside it |
 | `hell_of_blood_pools` | `soul_sand_valley` | a basin of souls is the one nether pool; basalt pillars stand it up off the floor |
 | `animal_realm` | `warped_forest` | the one nether biome that is mostly growth, which is what a realm of animals is buried in |
 | `hell_of_blazing_fires` | `basalt_deltas` | `minecraft:delta` pools plus basalt columns and blobs off the floor make a hall a delta rather than a cave |
 | `former_hell` | `crimson_forest` | roots and vines growing back through a ruin is the whole idea of the place |
+
+The three **bolded** rows are the ones that drop a vanilla tree placement for one of the mod's own. The run stays in
+`AbstractBiomeGen` unchanged for the biomes that still want it, and the ones that do not take `FOREST_FLOOR`,
+`TAIGA_FLOOR` or `CLIFF_FLOOR` — the same list with that one placement filtered back out. The count is left out of the
+shared run on purpose and lives in the biome's own placed feature instead, so a grove can be as thin as the wind makes
+it or as dense as a valley floor.
 
 The hill is the one biome whose base cannot carry what it is for. It is open meadow, so its only canopy is the
 sparse trees it draws itself, and its foliage override sits a fifth under its grass override (`#5F724B` against
@@ -196,12 +202,18 @@ There is no snowy biome: the guide gives a band its four, and the one genuinely 
 ## 2. The feature tail
 
 The features live with the biome that is the only one to use them, under
-`worldgen/{configured,placed}_feature/gensokyo_biome/`. Only `stones`, `foothill_moss` and `lake_cattails` are shared
-enough to belong in `GensokyoBiomeFeatures`. Four kinds:
+`worldgen/{configured,placed}_feature/gensokyo_biome/`. Only `stones`, `foothill_moss`, `lake_cattails`, `maple_trees`
+and `maple_fallen_leaves` are shared enough to belong in `GensokyoBiomeFeatures`. Five kinds:
 
 **Ground cover** — `RANDOM_PATCH` of `SIMPLE_BLOCK` on `BlockTags.DIRT`, the same shape as the magical forest's grass
 and flowers. The vanilla flower and grass features of the base are kept as well, so the mod blocks are an accent
 rather than a replacement.
+
+**Standing deco** — the same patch, but drawn by `gensokyolegacy:double_block` instead: the jizo and the wasteland
+gravestone are `DoubleBlockImpl` delegates that occupy two blocks, and vanilla's `simple_block` writes only the bottom
+half. A top half with nothing under it passes the placement predicate and then drops off on the first neighbour
+update, so a patch of them written the vanilla way comes apart as it generates. These are also the only two patches
+that ask for `y_spread: 0`; §2.2 has both.
 
 **Soil disks** — `Feature.DISK`, in the `UNDERGROUND_ORES` step. Podzol under Muenzuka's trees, coarse dirt through the
 barrens, mud under the bamboo and in Genbu Ravine.
@@ -216,13 +228,20 @@ barrens, mud under the bamboo and in Genbu Ravine.
 |---|---|---|
 | `stones` | 2 patches, mossy cobble / cobble / stone brick | hill, barrens, valley, foothills, ravine |
 | `grave_marker` | 1 in 4 chunks | muenzuka |
+| `gravestone` | 1 in 3 chunks, one `double_block` try, no y spread | muenzuka |
 | `ghost_flowers` | 3 patches | muenzuka |
+| `muenzuka_trees` | 4 trees, locust half | muenzuka |
 | `village_flowers` | 4 patches | human village |
 | `barrens_scrub` | 3 patches | barrens |
+| `barrens_gravestone` | 1 in 6 chunks, one `double_block` try, no y spread | barrens |
+| `barrens_jizo` | 8 tries in 1 patch in 3 chunks, all four kinds, no y spread | barrens |
+| `barrens_locust_trees` | 6 trees | barrens |
 | `hill_of_the_nameless_flowers` | 7 patches | hill of the nameless |
 | `bamboo_dense` / `bamboo_sparse` | 6 patches / 1 in 3 | bamboo forest of the lost |
 | `ravine_moss` | 6 patches | genbu ravine |
 | `foothill_moss` | 4 patches | youkai mountain foothills |
+| `valley_mixed_trees` / `maple_fallen_leaves` | 10 trees / 2 patches | valley, settlement 6, foothills 2 |
+| `cherry_trees` / `cherry_litter` | 15 trees / 2 patches | sakura forest |
 | `sanctuary_trees` / `sanctuary_flowers` | 1 in 5 chunks / 3 patches | sanctuary |
 | `blood_deposit` / `bone_pile` | 3 patches / 1 in 6 | hell of blood pools |
 | `den_rubble` / `fungus_patch` | 1 in 5 / 4 patches | animal realm |
@@ -300,6 +319,107 @@ differ in `mode` and in what the mode checks. See `magical_forest_vegetation.md`
 The guide's §7 order — surface palette, common vegetation, ground accents, water, structures, atmosphere — was not
 followed literally, because a biome's identity here comes mostly from its base and its colours. Every list in the
 guide is a suggestion of what *can* be there, and the palette table below is what was taken from it.
+
+### 2.2 The mod's own trees, and the leaves under them
+
+Six of the seven `TreeType`s used to be sapling-only: a configured feature with no placed feature pointing at it. Six
+biomes now plant them, and the split is the one the rest of this document already uses — a tree **several** biomes
+share is one configured feature in `GensokyoBiomeFeatures`, the **count** is each biome's own placed feature.
+
+| placed feature | configured feature | trees |
+|---|---|---|
+| `valley_mixed_trees` | `valley_mixed_trees` | 10 |
+| `settlement_maple_trees` | `maple_trees` | 6 |
+| `foothills_maple_trees` | `maple_trees` | 2 |
+| `cherry_trees` | `cherry_trees` | 15 |
+| `muenzuka_trees` | `muenzuka_trees` | 4 |
+| `barrens_locust_trees` | `gensokyolegacy:locust_tree` | 6 |
+
+Every one of these is a `RANDOM_SELECTOR` that plants **one** tree per placement call, so the biome's
+`CountPlacement` is the whole of the density and nothing is hidden in the selector.
+
+| selector | list | default | share |
+|---|---|---|---|
+| `maple_trees` | red 1/3, orange 1/2 | yellow | red 33.3 %, orange 33.3 %, **yellow 33.3 %** |
+| `valley_mixed_trees` | `maple_trees` 0.5, oak 0.5 | birch | **maple 50 %**, oak 25 %, birch 25 % |
+| `muenzuka_trees` | locust 0.5, oak 0.5 | birch | **locust 50 %**, oak 25 %, birch 25 % |
+| `cherry_trees` | pink 0.5 | purple | pink 50 %, purple 50 % |
+
+The two numbers in the `chance` column are not shares. `WeightedPlacedFeature.chance` is a `floatRange(0, 1)` that
+`RandomSelectorFeature` tests with `nextFloat()` **in list order, stopping at the first that fires**, so an entry's
+share is its own chance times every chance that missed before it:
+
+```
+P(entry i) = chance(i) × Π (1 − chance(j)) for every j before it
+P(default) = Π (1 − chance(j)) over the whole list
+```
+
+Two consequences worth writing down, because both were got wrong here first:
+
+- **`chance = 1` is not "first" or "weight 1".** `nextFloat()` is `[0, 1)`, so `1.0` matches on every roll, the first
+  entry takes the grove entirely and the default is dead code. A selector has to be written in fractions of a whole.
+- **The odds compound, so the list does not sum to the shares.** `[orange 0.25, yellow 0.25]` reads like 25 / 25 and
+  is actually 25 / 18.75 / 56.25. The share an entry has to be given is the one it wants **divided by everything that
+  missed before it**, which is why the table above never reads as the split it produces:
+
+  | wanted | list | why |
+  |---|---|---|
+  | 50 / 25 / 25 | first 0.5, second 0.5 | two halves of a whole, and the default takes the other quarter |
+  | 33.3 each | first 1/3, second 1/2 | a third, then half of the two thirds that are left, and the default the rest |
+
+  With only two list slots and a default, an even two-way split is the one that needs no arithmetic — `0.5` and `0.5`
+  — and an even three-way needs `1/3` and `1/2`, which is the least obvious pair of numbers in the whole feature
+  tail. Measuring the generated JSON against the roll is the only check that catches either of these.
+
+`valley_mixed_trees` takes the whole of `maple_trees` as its first entry rather than repeating the three maples: an
+inline placed feature with no modifiers has a count of zero but is still *called*, so it rolls one maple per call
+with the same red/orange/yellow split inside it. `barrens_locust_trees` needs no selector at all — there is one locust
+and it has the barrens to itself.
+
+The maple belt runs `youkai_mountain_foothills` → `tengu_settlement` → `untrodden_valley`, thinning upward with the
+wind. `sakura_forest` is outside it and replaces `minecraft:trees_cherry` outright; nothing else in the dimension
+plants vanilla cherry any more. `untrodden_valley` is the one grove the maples do not have to themselves, and
+`muenzuka` is the same shape with the locust: a burial grove is half the tree that grows back over a grave and half
+the oak and birch that grew there before, at the four a chunk that keeps the ground reading as a graveyard.
+
+Every one of those four biomes that grows maple or cherry also carries a carpet of the matching fallen leaves:
+
+| placed feature | carpet | patches |
+|---|---|---|
+| `maple_fallen_leaves` | `mixed_maple_fallen_leaves`, shared by the three groves | 2 |
+| `cherry_litter` | pink and purple cherry fallen leaves, 50 % each | 2 |
+
+`maple_fallen_leaves` is the only placed feature of the set that is genuinely shared, because the canopy filter
+already scales it: three groves at one density means the sparse one gets little litter under its few crowns without
+its count needing to differ. The placement is the magical forest's, moved onto `Registrar.litter` so a normal biome
+can use it: `CountPlacement`, `in_square`, `gensokyolegacy:canopy` with `under: true`, then the
+`MOTION_BLOCKING_NO_LEAVES` heightmap and `biome`. The no-leaves heightmap is what puts the carpet on the floor
+under the crowns rather than on top of them, and the canopy filter drops the positions that turned out to be open sky.
+It only reads correctly because the trees are listed **before** the carpet in each biome's own feature list — that list
+is the order the `FeatureSorter` breaks ties in, and the filter needs the crowns already up when it runs.
+
+The carpet itself is `fallenLeaves(tries, spread, species…)`, weighted three to one towards the single layer: a
+carpet that is two blocks tall everywhere reads as snow rather than as litter, and a patch puts a lot of them side by
+side.
+
+### 2.3 Why the gravestones and the jizo never appeared
+
+`RandomPatchFeature` takes its vertical offset as `nextInt(y_spread + 1) - nextInt(y_spread + 1)`, which at the
+vanilla `y_spread` of 3 puts the try back on the terrain surface **one time in four** — and off the surface the
+`BlockTags.DIRT` predicate underneath can never be satisfied, because the surface is the only height where there is
+dirt under an air block. Three quarters of every patch was being thrown away before the block ever got asked to
+place.
+
+That is free for a ground cover patch with 8 to 28 tries. It was not free for `gravestone`, which had **one** try: a
+quarter chance of being at the right height, times the odds of the block under it happening to be dirt rather than
+gravel or sand, at one placement per three or six chunks in a biome that is a few per cent of the world. It came out
+as roughly one marker per few hundred chunks and read as never. The jizo patch had eight tries and so did land, but
+a quarter of them, and it was never close enough to a path to be noticed.
+
+Both now pass `ySpread = 0` through `patch(...)`, which is the only correct value for anything that has to stand on
+the ground: every try is at the terrain surface and the filter does the rest. The fix belongs on the helper rather
+than on the two callers, which is why `patch` names the y spread and `onDirt` / `fallenLeaves` keep vanilla's 3 — the
+existing ground cover patches already have the tries to spend, and making them four times denser was not the job.
 
 ### Deliberately not done
 
@@ -587,9 +707,12 @@ biome should be cold enough", so this is the branch where that question was answ
 |---|---|
 | `misty_lake` | clay and gravel patches on the bed, cattails in the coves, sparse lily pads |
 | `misty_lake_shore` | boulders, a sand/gravel/mud waterline, reeds at the edge, ferns and flowers inland |
-| `tengu_settlement` | ferns and grass on the unused slopes, gravel and coarse dirt paths |
+| `tengu_settlement` | a maple grove, ferns and grass on the unused slopes, gravel and coarse dirt paths |
 | `secret_heaven_cliff` | boulders and a sparser scree of gravel and tuff, one patch per chunk |
 | `youkai_mountain_summit` | soil pockets (a grass disk on stone), moss and glow lichen, scree, a rare pine |
+
+The settlement's maple is the mountain band's own, thinned by the climb, and the paths and the moss are what tell it
+apart from the valley grove below. The other three in that table are on bare rock and keep their pine.
 
 The cliff's tail is the settlement's with the paths dropped and `cliff_scree` in place of `foothill_moss`: no moss, no
 ferns and no bracken, and a quarter of the settlement's moss density. It is a surface rule that carries the rest — a

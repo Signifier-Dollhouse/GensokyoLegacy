@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:random_selector",
+  "config": {
+    "default": {
+      "feature": "gensokyolegacy:purple_cherry_tree",
+      "placement": []
+    },
+    "features": [
+      {
+        "chance": 0.5,
+        "feature": {
+          "feature": "gensokyolegacy:pink_cherry_tree",
+          "placement": []
+        }
+      }
+    ]
+  }
+}

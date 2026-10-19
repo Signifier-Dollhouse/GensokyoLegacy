@@ -1,6 +1,5 @@
 package dev.xkmc.gensokyolegacy.init.data.biome.biomes;
 
-import dev.xkmc.gensokyolegacy.content.block.nature.FallenLeavesBlock;
 import dev.xkmc.gensokyolegacy.content.block.nature.WaterloggedBushBlock;
 import dev.xkmc.gensokyolegacy.content.worldgen.feature.lake.LakeConfig;
 import dev.xkmc.gensokyolegacy.content.worldgen.feature.template.TemplateFeatureConfig;
@@ -46,7 +45,6 @@ import net.minecraft.world.level.levelgen.feature.WeightedPlacedFeature;
 import net.minecraft.world.level.levelgen.feature.configurations.DiskConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.RandomFeatureConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.RandomPatchConfiguration;
-import net.minecraft.world.level.levelgen.feature.configurations.SimpleBlockConfiguration;
 import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProvider;
 import net.minecraft.world.level.levelgen.feature.stateproviders.RuleBasedBlockStateProvider;
 import net.minecraft.world.level.levelgen.feature.stateproviders.WeightedStateProvider;
@@ -220,8 +218,9 @@ public class MagicalForestBiomeGen extends AbstractBiomeGen {
 		var template = GLWorldGen.TEMPLATE.get();
 
 		// ground patches around big trunks, placed by the template feature at the trunk base
-		var fallenLeaves = fallenLeavesPatch(64, 7);
-		FeatureUtils.register(ctx, FALLEN_LEAVES, Feature.RANDOM_PATCH, fallenLeavesPatch(40, 6));
+		var fallenLeaves = fallenLeaves(64, 7, GLNaturalBlocks.CEDAR_FALLEN_LEAVES);
+		FeatureUtils.register(ctx, FALLEN_LEAVES, Feature.RANDOM_PATCH,
+				fallenLeaves(40, 6, GLNaturalBlocks.CEDAR_FALLEN_LEAVES));
 		var oakFloor = List.of(
 				floorDisk(new WeightedStateProvider(SimpleWeightedRandomList.<BlockState>builder()
 						.add(Blocks.PODZOL.defaultBlockState(), 3)
@@ -506,16 +505,6 @@ public class MagicalForestBiomeGen extends AbstractBiomeGen {
 				new RuleBasedBlockStateProvider(state, List.of()),
 				BlockPredicate.matchesBlocks(List.of(Blocks.GRASS_BLOCK, Blocks.DIRT)),
 				UniformInt.of(minRadius, maxRadius), 2));
-	}
-
-	private static RandomPatchConfiguration fallenLeavesPatch(int tries, int spread) {
-		BlockState leaves = GLNaturalBlocks.CEDAR_FALLEN_LEAVES.get().defaultBlockState();
-		return new RandomPatchConfiguration(tries, spread, 3, PlacementUtils.filtered(Feature.SIMPLE_BLOCK,
-				new SimpleBlockConfiguration(new WeightedStateProvider(SimpleWeightedRandomList.<BlockState>builder()
-						.add(leaves.setValue(FallenLeavesBlock.LAYERS, 1), 3)
-						.add(leaves.setValue(FallenLeavesBlock.LAYERS, 2), 1)
-						.build())), BlockPredicate.allOf(BlockPredicate.ONLY_IN_AIR_PREDICATE,
-						BlockPredicate.matchesTag(Direction.DOWN.getNormal(), BlockTags.DIRT))));
 	}
 
 	/**

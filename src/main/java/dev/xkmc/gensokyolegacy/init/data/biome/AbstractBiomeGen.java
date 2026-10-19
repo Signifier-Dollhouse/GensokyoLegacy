@@ -2,7 +2,9 @@ package dev.xkmc.gensokyolegacy.init.data.biome;
 
 import com.tterrag.registrate.providers.DataProviderInitializer;
 import com.tterrag.registrate.util.entry.BlockEntry;
+import dev.xkmc.gensokyolegacy.content.block.nature.FallenLeavesBlock;
 import dev.xkmc.gensokyolegacy.content.dimension.GensokyoDimension;
+import dev.xkmc.gensokyolegacy.content.worldgen.placement.CanopyFilter;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
@@ -29,6 +31,7 @@ import net.minecraft.world.level.biome.*;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.GenerationStep;
+import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.blockpredicates.BlockPredicate;
 import net.minecraft.world.level.levelgen.carver.ConfiguredWorldCarver;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
@@ -40,10 +43,12 @@ import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProvi
 import net.minecraft.world.level.levelgen.feature.stateproviders.WeightedStateProvider;
 import net.minecraft.world.level.levelgen.placement.BiomeFilter;
 import net.minecraft.world.level.levelgen.placement.EnvironmentScanPlacement;
+import net.minecraft.world.level.levelgen.placement.HeightmapPlacement;
 import net.minecraft.world.level.levelgen.placement.InSquarePlacement;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import net.minecraft.world.level.levelgen.placement.PlacementModifier;
 import net.minecraft.world.level.levelgen.placement.RandomOffsetPlacement;
+import net.minecraft.world.level.levelgen.placement.SurfaceWaterDepthFilter;
 import net.minecraft.world.level.levelgen.synth.NormalNoise;
 
 import javax.annotation.Nullable;
@@ -204,6 +209,18 @@ public abstract class AbstractBiomeGen {
 			VegetationPlacements.FLOWER_DEFAULT, VegetationPlacements.PATCH_GRASS_BADLANDS,
 			VegetationPlacements.BROWN_MUSHROOM_NORMAL, VegetationPlacements.RED_MUSHROOM_NORMAL,
 			VegetationPlacements.PATCH_SUGAR_CANE, VegetationPlacements.PATCH_PUMPKIN);
+
+	/**
+	 * The same three runs with their tree placement taken back out, which is what the maple groves take: the mod's
+	 * own canopy is not an accent on top of the vanilla one but the reason the biome reads as a maple grove at all.
+	 * How many maples it gets is the biome's business and goes in its own placed feature.
+	 */
+	protected static final List<ResourceKey<PlacedFeature>> FOREST_FLOOR =
+			noTrees(FOREST_GROUND, VegetationPlacements.TREES_BIRCH_AND_OAK);
+	protected static final List<ResourceKey<PlacedFeature>> TAIGA_FLOOR =
+			noTrees(TAIGA_GROUND, VegetationPlacements.TREES_TAIGA);
+	protected static final List<ResourceKey<PlacedFeature>> CLIFF_FLOOR =
+			noTrees(CLIFF_GROUND, VegetationPlacements.TREES_WINDSWEPT_HILLS);
 
 	/**
 	 * The snow line, which nothing here is allowed to reach: {@link Biome#shouldSnow} and {@link Biome#shouldFreeze}
@@ -373,6 +390,26 @@ public abstract class AbstractBiomeGen {
 		}
 
 		/**
+		 * A tree run: {@code count} of the feature's trees, spread over the chunk and rooted on the terrain surface.
+		 * The water filter is the one vanilla's own tree placements carry, and it is what keeps a grove out of a lake.
+		 */
+		public void trees(ResourceKey<PlacedFeature> key, Holder<ConfiguredFeature<?, ?>> feature,
+						  PlacementModifier count) {
+			placed(key, feature, count, InSquarePlacement.spread(),
+					SurfaceWaterDepthFilter.forMaxDepth(0), PlacementUtils.HEIGHTMAP_WORLD_SURFACE, BiomeFilter.biome());
+		}
+
+		/**
+		 * A carpet of fallen leaves on the floor under a canopy. The no-leaves heightmap is what puts it under the
+		 * crowns rather than on top of them, and the canopy filter drops the positions that turned out to be open sky.
+		 */
+		public void litter(ResourceKey<PlacedFeature> key, Holder<ConfiguredFeature<?, ?>> feature,
+						   PlacementModifier count) {
+			placed(key, feature, count, InSquarePlacement.spread(), new CanopyFilter(4, true),
+					HeightmapPlacement.onHeightmap(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES), BiomeFilter.biome());
+		}
+
+		/**
 		 * The same, but scanning down for a cave floor rather than taking the terrain surface, which is how vanilla
 		 * places its own cave decoration. The biome filter is what keeps these out of the open world: they only ever
 		 * see a column whose biome is one of the underground ones.
@@ -454,9 +491,39 @@ public abstract class AbstractBiomeGen {
 
 	/** A flat patch of the given blocks resting on dirt, for the surface biomes' ground cover. */
 	protected static RandomPatchConfiguration onDirt(int tries, BlockStateProvider state) {
-		return FeatureUtils.simpleRandomPatchConfiguration(tries, PlacementUtils.filtered(Feature.SIMPLE_BLOCK,
+		return patch(tries, 7, 3, state, Feature.SIMPLE_BLOCK);
+	}
+
+	/**
+	 * The same, drawn by {@code feature} rather than by vanilla's own simple block — which is what the standing decos
+	 * need, since each of them is two blocks tall.
+	 * <p>
+	 * The y spread wants naming. Vanilla's 3 is the difference of two rolls over {@code y_spread + 1}, so a third of
+	 * the tries land back on the terrain surface and the rest are wasted on a predicate the block under them will
+	 * never satisfy. A ground cover patch has the tries to spare; a patch of one or two tries does not, and wants 0.
+	 */
+	protected static RandomPatchConfiguration patch(int tries, int spread, int ySpread, BlockStateProvider state,
+													Feature<SimpleBlockConfiguration> feature) {
+		return new RandomPatchConfiguration(tries, spread, ySpread, PlacementUtils.filtered(feature,
 				new SimpleBlockConfiguration(state), BlockPredicate.allOf(BlockPredicate.ONLY_IN_AIR_PREDICATE,
 						BlockPredicate.matchesTag(Direction.DOWN.getNormal(), BlockTags.DIRT))));
+	}
+
+	/**
+	 * A carpet of fallen leaves: every species listed, one layer three times as often as two, on dirt.
+	 * <p>
+	 * Weighted towards the single layer because a carpet that is two blocks tall everywhere reads as snow rather than
+	 * as litter, and a patch places a lot of them side by side.
+	 */
+	protected static RandomPatchConfiguration fallenLeaves(int tries, int spread,
+														   BlockEntry<FallenLeavesBlock>... species) {
+		var leaves = SimpleWeightedRandomList.<BlockState>builder();
+		for (var entry : species) {
+			var state = entry.get().defaultBlockState();
+			leaves.add(state.setValue(FallenLeavesBlock.LAYERS, 1), 3);
+			leaves.add(state.setValue(FallenLeavesBlock.LAYERS, 2), 1);
+		}
+		return patch(tries, spread, 3, new WeightedStateProvider(leaves.build()), Feature.SIMPLE_BLOCK);
 	}
 
 	/**
@@ -511,6 +578,13 @@ public abstract class AbstractBiomeGen {
 	@SafeVarargs
 	protected static <T> List<T> join(List<T>... lists) {
 		return Arrays.stream(lists).flatMap(List::stream).toList();
+	}
+
+	/** A shared ground-cover run with the tree placements named taken back out, for a biome that plants its own. */
+	private static List<ResourceKey<PlacedFeature>> noTrees(List<ResourceKey<PlacedFeature>> ground,
+			ResourceKey<PlacedFeature>... trees) {
+		var drop = List.of(trees);
+		return ground.stream().filter(k -> !drop.contains(k)).toList();
 	}
 
 	protected static ResourceKey<Biome> biome(String id) {

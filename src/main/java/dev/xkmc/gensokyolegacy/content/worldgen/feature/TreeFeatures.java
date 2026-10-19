@@ -26,9 +26,12 @@ import java.util.function.Supplier;
 public class TreeFeatures {
 
 	/**
-	 * The trunk and crown of a {@link TreeType}. Every tree here is grown from its sapling and by nothing else.
+	 * The trunk and crown of a {@link TreeType}. Every tree here grows from its sapling, and six of the seven also
+	 * grow in a biome: the maples in the mountain band, the cherries in the sakura grove, the locust in the two
+	 * graveyards.
 	 *
-	 * @see "doc/design/magical_forest_vegetation.md"
+	 * @see "doc/design/magical_forest_vegetation.md" §9.1
+	 * @see "doc/design/gensokyo_biomes.md" §2.2
 	 */
 	public interface TreeShape {
 
