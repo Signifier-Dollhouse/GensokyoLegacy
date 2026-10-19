@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "half=bottom": {
+      "model": "gensokyolegacy:block/stone_lantern"
+    },
+    "half=top": {
+      "model": "gensokyolegacy:block/stone_lantern_top"
+    }
+  }
+}

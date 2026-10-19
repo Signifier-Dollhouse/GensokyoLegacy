@@ -58,6 +58,8 @@ public class GLFurniture {
 
 	public static final BlockEntry<LanternBlock> RED_LANTERN, WHITE_LANTERN, LETTERED_RED_LANTERN, LETTERED_WHITE_LANTERN;
 
+	public static final BlockEntry<DelegateBlock> STONE_LANTERN;
+
 	public static final BlockEntry<DelegateBlock> MAGIC_TABLE, SEWING_MACHINE, MAGIC_POTION_BOTTLE, CANDLESTICK;
 
 	public static final BlockEntry<DelegateBlock> JIZO, JIZO_STRAW_HAT, JIZO_MYOUREN, JIZO_NARUMI,
@@ -254,6 +256,28 @@ public class GLFurniture {
 			WHITE_LANTERN = registerLantern(reg, "white_lantern", MapColor.SNOW);
 			LETTERED_RED_LANTERN = registerLantern(reg, "lettered_red_lantern", MapColor.COLOR_RED);
 			LETTERED_WHITE_LANTERN = registerLantern(reg, "lettered_white_lantern", MapColor.SNOW);
+		}
+
+		// 石灯笼：两格高的石头摆件，笠上只是块石头，不发光
+		{
+			STONE_LANTERN = reg.block("stone_lantern", p -> DelegateBlock.newBaseBlock(p,
+							new StoneLanternBlock(), new DoubleBlockImpl()))
+					.properties(p -> p.mapColor(MapColor.STONE).strength(1.5F).sound(SoundType.STONE).noOcclusion())
+					.blockstate((ctx, pvd) -> StoneLanternBlock.buildStates(ctx.get(), pvd, ctx.getName()))
+					.tag(BlockTags.MINEABLE_WITH_PICKAXE)
+					.recipe((ctx, pvd) -> GLRecipeGen.unlock(pvd, ShapedRecipeBuilder.shaped(
+									RecipeCategory.DECORATIONS, ctx.get())::unlockedBy, Items.STONE_BRICKS)
+							.pattern("C").pattern("S").pattern("S")
+							.define('C', Items.CHISELED_STONE_BRICKS).define('S', Items.STONE_BRICKS)
+							.save(pvd))
+					.item().model((ctx, pvd) -> pvd.getBuilder(ctx.getName())
+							.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/deco/stone_lantern_item")))
+							.texture("all", pvd.modLoc("block/deco/stone_lantern"))
+							.renderType("cutout"))
+					.tab(GLDecoBlocks.TAB.key())
+					.build()
+					.loot(StoneLanternBlock::genLoot)
+					.register();
 		}
 
 		// 魔法道具工作台：横向两格长的一整块，放下时右手边自动补出另一半
