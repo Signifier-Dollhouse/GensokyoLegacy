@@ -62,20 +62,34 @@ public class ServerCharacterDialogManager {
 	/**
 	 * Pick one unlocked chat by weight. Default chat has weight 1, regular
 	 * informative chats have weight 100, special item-related chats have weight 1000.
+	 * Overrides are not topics and never enter this roll; see {@link #pickOverrideChat}.
 	 */
 	@Nullable
 	public Holder<DialogStarter> pickChat(ServerPlayer sp, YoukaiEntity ch) {
 		int total = 0;
 		for (var e : dialogs) {
-			if (e.value().match(sp, ch))
+			if (!e.value().override() && e.value().match(sp, ch))
 				total += Math.max(0, e.value().weight());
 		}
 		if (total <= 0) return null;
 		int roll = sp.getRandom().nextInt(total);
 		for (var e : dialogs) {
-			if (!e.value().match(sp, ch)) continue;
+			if (e.value().override() || !e.value().match(sp, ch)) continue;
 			roll -= Math.max(0, e.value().weight());
 			if (roll < 0) return e;
+		}
+		return null;
+	}
+
+	/**
+	 * The override starter that takes this conversation over, if the character has one whose conditions
+	 * currently hold. First in registry order, so a datapack that adds a second one cannot make the
+	 * choice depend on iteration order: the character has to reach it by editing the earlier entry.
+	 */
+	@Nullable
+	public Holder<DialogStarter> pickOverrideChat(ServerPlayer sp, YoukaiEntity ch) {
+		for (var e : dialogs) {
+			if (e.value().override() && e.value().match(sp, ch)) return e;
 		}
 		return null;
 	}

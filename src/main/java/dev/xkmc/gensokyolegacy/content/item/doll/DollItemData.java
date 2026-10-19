@@ -7,9 +7,9 @@ import dev.xkmc.l2serial.serialization.marker.SerialClass;
 import dev.xkmc.l2serial.serialization.marker.SerialField;
 
 /**
- * The doll item's combat component: the doll type is fixed ({@link DollItem#TYPE}) and name and tint have
- * their own components. The cached hash is rebuilt by {@link #onInject()}, since l2serial reconstructs
- * through the no-arg constructor and writes the field afterwards.
+ * The doll item's combat component: the doll type comes from the item ({@link DollItem#dollType()})
+ * and name and tint have their own components. The cached hash is rebuilt by {@link #onInject()},
+ * since l2serial reconstructs through the no-arg constructor and writes the field afterwards.
  *
  * @see "doc/design/doll/item.md"
  */

@@ -44,6 +44,8 @@ public enum YoukaiAnim {
 	AGREE("dialog_agree"),
 	DECLINE("dialog_decline"),
 	CONFUSED("dialog_confused"),
+	LIKE("dialog_like"),
+	DISLIKE("dialog_dislike"),
 	TALK_SPECIAL_01("dialog_talk_special_01"),
 	TALK_SPECIAL_02("dialog_talk_special_02");
 

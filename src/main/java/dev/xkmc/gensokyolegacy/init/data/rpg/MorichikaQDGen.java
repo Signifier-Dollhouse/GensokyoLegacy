@@ -24,7 +24,7 @@ public class MorichikaQDGen extends QuestDialogData {
 				"Let me see what you are selling?");
 		starter("morichika/chat", new DialogStarter(GLEntities.MORICHIKA.get(), List.of(homeBound()),
 				starterText("start", "A shop like this, out in the forest?"),
-				dialog("hi", "Welcome to Kourindou! Let me know if anything catches your eye.",
+				dialog("hi", "Welcome to Kourindou! Let me know if anything catches your eye.", List.of("dialog_talk_03"),
 						option("bye", "I'll browse the shelves."))
 		));
 
@@ -37,9 +37,9 @@ public class MorichikaQDGen extends QuestDialogData {
 		chat("morichika/chat_marisa", GLEntities.MORICHIKA.get(),
 				List.of(homeBound(), missingAdv(GLAdvGen.ENTER_MARISA_HOUSE)),
 				starterText("start", "Brewing potions is such a hassle…"),
-				dialog("talk", "There's a magician deep in the Magical Forest. She loves mushrooms, magic tools, and borrowing things without asking — if brewing troubles you, go find her; she may make it easier for you.",
+				dialog("talk", "There's a magician deep in the Magical Forest. She loves mushrooms, magic tools, and borrowing things without asking — if brewing troubles you, go find her; she may make it easier for you.", List.of("dialog_talk_05"),
 						option("where", "Where can I find her?",
-								dialog("where_ans", "Follow the mushrooms — and the explosions. Tell her I sent you.",
+								dialog("where_ans", "Follow the mushrooms — and the explosions. Tell her I sent you.", List.of("dialog_talk_02"),
 										option("bye", "Thanks!")))),
 				CHAT_INFO);
 
@@ -47,9 +47,9 @@ public class MorichikaQDGen extends QuestDialogData {
 		chat("morichika/chat_reimu", GLEntities.MORICHIKA.get(),
 				List.of(homeBound(), missingAdv(GLAdvGen.ENTER_HAKUREI_SHRINE)),
 				starterText("start", "It's dangerous out there…"),
-				dialog("talk", "There's a shrine maiden in the cherry grove. If you feel short of ways to protect yourself, go and ask her for a talisman - it will keep you alive when danger comes.",
+				dialog("talk", "There's a shrine maiden in the cherry grove. If you feel short of ways to protect yourself, go and ask her for a talisman - it will keep you alive when danger comes.", List.of("dialog_talk_03"),
 						option("donation", "Anything I should know?",
-								dialog("donation_ans", "She's easygoing. As long as you don't do anything out of the ordinary, there are no real restrictions.",
+								dialog("donation_ans", "She's easygoing. As long as you don't do anything out of the ordinary, there are no real restrictions.", List.of("dialog_think"),
 										option("bye", "Thanks!")))),
 				CHAT_INFO);
 	}

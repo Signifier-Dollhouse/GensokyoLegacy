@@ -18,7 +18,7 @@ import java.util.UUID;
  * take friendly fire, and player-owned dolls spare non-enemies. Fully defaulted, so the entity gains
  * danmaku allyship with zero extra code.
  */
-public interface DollDanmakuAlly extends DollBaseImpl, IYoukaiEntity {
+public interface DollDanmakuAlly extends DollEntityImpl, IYoukaiEntity {
 
 	@Override
 	default boolean shouldHurt(LivingEntity le) {

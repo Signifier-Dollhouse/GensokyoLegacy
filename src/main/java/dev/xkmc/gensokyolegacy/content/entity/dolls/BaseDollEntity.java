@@ -3,11 +3,12 @@ package dev.xkmc.gensokyolegacy.content.entity.dolls;
 import dev.xkmc.gensokyolegacy.content.attachment.doll.DollAttachment;
 import dev.xkmc.gensokyolegacy.content.attachment.doll.DollData;
 import dev.xkmc.gensokyolegacy.content.attachment.doll.DollHost;
+import dev.xkmc.gensokyolegacy.content.attachment.doll.DollNature;
 import dev.xkmc.gensokyolegacy.content.attachment.doll.StrayHost;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.goals.FollowDollOwnerGoal;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.goals.LookAtDollOwnerGoal;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.impl.DollModule;
-import dev.xkmc.gensokyolegacy.content.entity.dolls.impl.DollTint;
+import dev.xkmc.gensokyolegacy.content.entity.dolls.impl.DollRig;
 import dev.xkmc.gensokyolegacy.content.entity.foundation.CombatToClient;
 import dev.xkmc.gensokyolegacy.content.entity.foundation.DamageRefactorEntity;
 import dev.xkmc.gensokyolegacy.content.entity.foundation.IDimensionBoundEntity;
@@ -42,12 +43,15 @@ import java.util.*;
 
 /**
  * Foundation and pairing half of a doll: identity, movement, goals, the deferred damage
- * pipeline, the itemize interaction and the never-save guard — everything every doll kind
- * shares, and the part that keeps the ledger honest.
+ * pipeline, the itemize interaction, the animation plumbing and the never-save guard — everything
+ * every doll kind shares, and the part that keeps the ledger honest. What a kind can <i>do</i>
+ * lives one layer up: {@link DollEntity} adds the loadout, the commands and the status.
  *
  * @see "doc/design/doll/entity.md"
+ * @see "doc/design/doll/timed_summon.md"
  */
-public abstract class BaseDollEntity extends DamageRefactorEntity implements OwnableEntity, DollTint, IDimensionBoundEntity {
+public abstract class BaseDollEntity extends DamageRefactorEntity
+		implements OwnableEntity, DollRig, IDimensionBoundEntity {
 	private static final int SYNC_INTERVAL = 10;
 	private static final int INVERSE_INTERVAL = 20;
 
@@ -198,6 +202,14 @@ public abstract class BaseDollEntity extends DamageRefactorEntity implements Own
 	}
 
 	/**
+	 * Whether the follow and look goals should steer this doll right now. False only while a
+	 * player is driving the kind from their own hands, whose input owns its heading instead.
+	 */
+	public boolean followsOwner() {
+		return true;
+	}
+
+	/**
 	 * A resident doll is either owned by a living entity (player ledger, or a
 	 * character's own host) or hosted by a controller block (homePos set, no owner).
 	 */
@@ -252,10 +264,24 @@ public abstract class BaseDollEntity extends DamageRefactorEntity implements Own
 	}
 
 	/**
+	 * What a doll of this kind is allowed to become. An item-backed doll by default; a timed summon or
+	 * a gadget overrides this, and it is the only place the kind has to say so —
+	 * {@link DollSpawn#materialize} stamps it onto the ledger entry, which is what every
+	 * itemize / recall / loadout gate actually reads.
+	 *
+	 * @see "doc/design/doll/timed_summon.md"
+	 */
+	public DollNature nature() {
+		return DollNature.DOLL;
+	}
+
+	/**
 	 * Registers persistence slices into the list; subclasses override, call {@code super} and
 	 * append their own. Must be static-safe: it also runs inside the vanilla {@code Entity} ctor.
 	 */
 	protected void createDollModules(List<DollModule> modules) {
+		// fresh per-entity instances; static-safe: also runs in Entity ctor before instance state exists
+		modules.add(new DollRig.DollRigModule(this));
 	}
 
 	@Override
@@ -367,8 +393,10 @@ public abstract class BaseDollEntity extends DamageRefactorEntity implements Own
 		if (!player.getMainHandItem().isEmpty()) return InteractionResult.PASS;
 		if (level().isClientSide()) return InteractionResult.CONSUME;
 		// only a player-owned doll converts back to the item here; a block-hosted doll
-		// belongs to its controller block, and a character's dolls have no item form
-		if (player instanceof ServerPlayer sp && isPlayerOwned() && (isOwner(sp) || sp.getAbilities().instabuild)) {
+		// belongs to its controller block, and a character's dolls have no item form. A
+		// kind with no item form refuses one outright, so its empty-hand poke is just a poke.
+		boolean convertible = isPlayerOwned() && nature().itemizable();
+		if (player instanceof ServerPlayer sp && convertible && (isOwner(sp) || sp.getAbilities().instabuild)) {
 			DollAttachment att = GLMeta.DOLL.type().getOrCreate(sp);
 			att.itemize(sp, this);
 		}

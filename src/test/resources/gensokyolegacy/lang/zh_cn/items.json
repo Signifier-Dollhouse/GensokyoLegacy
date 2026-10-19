@@ -19,6 +19,7 @@
 		"witch_splash": "喷溅型女巫魔药"
 	},
 	"entity.gensokyolegacy.doll": "人偶",
+	"entity.gensokyolegacy.sekibanki_head": "赤蛮奇的头",
 	"entity.gensokyolegacy.dining_chair": "餐椅",
 	"entity.gensokyolegacy.broom": "扫帚",
 	"block.gensokyolegacy": {
@@ -133,6 +134,7 @@
 		"doll": "人形",
 		"doll_glove": "七彩线手套",
 		"doll_lance": "人形长枪",
+		"sekibanki_head": "赤蛮奇的头",
 		"frozen_frog_cold": "冻青蛙",
 		"frozen_frog_warm": "冻青蛙",
 		"frozen_frog_temperate": "冻青蛙",

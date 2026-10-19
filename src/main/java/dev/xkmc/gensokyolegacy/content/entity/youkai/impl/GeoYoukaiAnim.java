@@ -61,6 +61,17 @@ public interface GeoYoukaiAnim extends GeoEntity {
 	RawAnimation HURT = RawAnimation.begin().thenPlay("受伤");
 
 	/**
+	 * The gift reactions, shared because every rig spells them the same two words. {@code 讨厌} is the
+	 * refusal — she turns the item down — and {@code 喜欢} is her taking it; Suika's rig calls that one
+	 * {@code 高兴} and shadows this constant with its own.
+	 * <p>
+	 * Both are also ordinary dialog slots ({@link YoukaiAnim#LIKE}, {@link YoukaiAnim#DISLIKE}), so a dialog
+	 * can name them too; the gift path is only the default that fires when no dialog says otherwise.
+	 */
+	RawAnimation LIKE = RawAnimation.begin().thenPlay("喜欢");
+	RawAnimation DISLIKE = RawAnimation.begin().thenPlay("讨厌");
+
+	/**
 	 * The clip this character plays for the given slot, or empty when it has none.
 	 * <p>
 	 * Empty by default and every rig's switch ends in a {@code default} of its own, so a slot added later is

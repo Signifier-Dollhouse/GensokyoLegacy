@@ -96,7 +96,7 @@ public class MarisaQDGen extends QuestDialogData {
 				"What are you offering today?");
 		starter("marisa/chat", new DialogStarter(GLEntities.MARISA.get(), List.of(homeBound()),
 				starterText("start", "Business usually busy around here?"),
-				dialog("hi", "Used to get plenty, but everything around here changed big-time lately — no idea where my customers went.",
+				dialog("hi", "Used to get plenty, but everything around here changed big-time lately — no idea where my customers went.", List.of("dialog_confused"),
 						option("hi/end", "I see."))
 		));
 
@@ -116,9 +116,9 @@ public class MarisaQDGen extends QuestDialogData {
 		chat("marisa/visit_kourindou_wander", GLEntities.MARISA.get(),
 				List.of(visitingAt(GLStructureGen.MORICHIKA_SHOP)),
 				starterText("wander", "Not a bad place."),
-				dialog("wander", "Not bad, not bad! Kinda cramped, but honestly? I like it. There's more room to think in here than in my own shop, somehow.",
+				dialog("wander", "Not bad, not bad! Kinda cramped, but honestly? I like it. There's more room to think in here than in my own shop, somehow.", List.of("dialog_talk_01"),
 						option("stay", "Not thinking of redecorating your own shop?",
-								dialog("stay_ans", "Everyone has their own taste - and maybe I only come out here for the novelty of walking around.",
+								dialog("stay_ans", "Everyone has their own taste - and maybe I only come out here for the novelty of walking around.", List.of("dialog_decline"),
 										option("stay/end", "True enough.")))),
 				CHAT_MISC);
 
@@ -126,16 +126,16 @@ public class MarisaQDGen extends QuestDialogData {
 		chat("marisa/visit_shrine_donate", GLEntities.MARISA.get(),
 				List.of(visitingAt(GLStructureGen.HAKUREI_SHRINE)),
 				starterText("donate", "Is the offering box really as empty as it looks?"),
-				dialog("donate", "Oh, it's always empty — that's the whole problem. I come by sometimes to see if anyone's dropped anything in, and to check the money isn't leaking out, but plainly nobody comes at all.",
+				dialog("donate", "Oh, it's always empty — that's the whole problem. I come by sometimes to see if anyone's dropped anything in, and to check the money isn't leaking out, but plainly nobody comes at all.", List.of("dialog_think_02"),
 						option("leave", "Should I put something in it?",
-								dialog("leave_ans", "Really? She'd never say thank you — she'd just float a little higher. She's that blunt.",
+								dialog("leave_ans", "Really? She'd never say thank you — she'd just float a little higher. She's that blunt.", List.of("dialog_agree"),
 										option("leave/end", "Well, making a friend happy is not a bad thing.")))),
 				CHAT_MISC);
 
 		chat("marisa/visit_shrine_calm", GLEntities.MARISA.get(),
 				List.of(visitingAt(GLStructureGen.HAKUREI_SHRINE)),
 				starterText("calm", "It's quiet up here, isn't it?"),
-				dialog("calm", "Too quiet, all right. Quiet enough to hear mushrooms growing! A shrine with nothing going on is always this peaceful - might be a good place to retire to, actually.",
+				dialog("calm", "Too quiet, all right. Quiet enough to hear mushrooms growing! A shrine with nothing going on is always this peaceful - might be a good place to retire to, actually.", List.of("dialog_agree"),
 						option("bye", "Indeed.")),
 				CHAT_MISC);
 	}
@@ -145,9 +145,9 @@ public class MarisaQDGen extends QuestDialogData {
 		chat("marisa/chat_reimu", GLEntities.MARISA.get(),
 				List.of(homeBound(), missingAdv(GLAdvGen.ENTER_HAKUREI_SHRINE), new SelfReputationCondition(50)),
 				starterText("start", "Do you know anyone who is strong in a fight?"),
-				dialog("talk", "You'll find the Hakurei Shrine out in the cherry grove — an old friend of mine's there, a real incident-resolving expert. If you're heading into danger, she may provide something to aid you in a fight.",
+				dialog("talk", "You'll find the Hakurei Shrine out in the cherry grove — an old friend of mine's there, a real incident-resolving expert. If you're heading into danger, she may provide something to aid you in a fight.", List.of("dialog_think"),
 						option("where", "Anything I should know before visiting?",
-								dialog("where_ans", "She's easygoing, though a little aloof. She does help the village drive off calamities - on the condition that you don't forget the donation.",
+								dialog("where_ans", "She's easygoing, though a little aloof. She does help the village drive off calamities - on the condition that you don't forget the donation.", List.of("dialog_talk_03"),
 										option("where/end", "I'll drop by when I get the chance.")))),
 				CHAT_INFO);
 
@@ -155,9 +155,9 @@ public class MarisaQDGen extends QuestDialogData {
 		chat("marisa/chat_morichika", GLEntities.MARISA.get(),
 				List.of(homeBound(), missingAdv(GLAdvGen.ENTER_MORICHIKA_SHOP), new SelfReputationCondition(50)),
 				starterText("start", "I wish I had tools to aid exploration…"),
-				dialog("talk", "Funny you mention tools — not all of my trinkets are handmade. There's another shop in this Magical Forest, Kourindou, run by an old acquaintance of mine. He deals all kinds of curios and tools, kinda a secondhand shop — if you need gear for exploring, he may sell you something useful.",
+				dialog("talk", "Funny you mention tools — not all of my trinkets are handmade. There's another shop in this Magical Forest, Kourindou, run by an old acquaintance of mine. He deals all kinds of curios and tools, kinda a secondhand shop — if you need gear for exploring, he may sell you something useful.", List.of("dialog_talk_05"),
 						option("where", "What does he sell?",
-								dialog("where_ans", "Sells everything from charms to junk — and he'll buy your spare curios too.",
+								dialog("where_ans", "Sells everything from charms to junk — and he'll buy your spare curios too.", List.of("dialog_talk_04"),
 										option("where/end", "I'll have to pay it a visit sometime.")))),
 				CHAT_INFO);
 
@@ -167,15 +167,18 @@ public class MarisaQDGen extends QuestDialogData {
 		chat("marisa/chat_alice", GLEntities.MARISA.get(),
 				List.of(missingAdv(GLAdvGen.ENTER_ALICE_HOUSE), new SelfReputationCondition(50)),
 				starterText("start", "Are there any other magic users in this forest?"),
-				dialog("talk", "There's a mansion out in the forest, home to Alice. She studies magic like I do, except she wears a scowl all day - the two of us spar a lot. But when you actually want help she's very warm-hearted, so get to know her.",
+				dialog("talk", "There's a mansion out in the forest, home to Alice. She studies magic like I do, except she wears a scowl all day - the two of us spar a lot. But when you actually want help she's very warm-hearted, so get to know her.", List.of("dialog_talk_02"),
 						option("where", "Is she as good at potions as you are?",
-								dialog("where_ans", "No - every magic user has their own speciality. She handles all manner of things by working dolls, so if dolls interest you, she's the one to see.",
+								dialog("where_ans", "No - every magic user has their own speciality. She handles all manner of things by working dolls, so if dolls interest you, she's the one to see.", List.of("dialog_decline"),
 										option("where/end", "Now I'm curious.")))),
 				CHAT_INFO);
 	}
 
 	private void quests() {
 		prefix("marisa/first_mushroom");
+		questAnims("start", "dialog_greet", "dialog_decline", "dialog_agree");
+		questAnims("follow", "dialog_talk_02", "dialog_greet");
+		questAnims("complete", "dialog_talk_05", "dialog_think", "dialog_agree");
 		quest("marisa/first_mushroom", new Quest(GLEntities.MARISA.get(), List.of(),
 				questTitle("First Mushrooms"), questDesc("Bring Marisa red and brown mushrooms from the surface."),
 				Optional.empty(),
@@ -201,6 +204,9 @@ public class MarisaQDGen extends QuestDialogData {
 		));
 
 		prefix("marisa/huge_mushroom");
+		questAnims("start", "dialog_think", "dialog_talk_05", "dialog_agree");
+		questAnims("follow", "dialog_talk_04", "dialog_agree");
+		questAnims("complete", "dialog_talk_05", null, "dialog_agree");
 		quest("marisa/huge_mushroom", new Quest(GLEntities.MARISA.get(),
 				List.of(new HasQuestCompletedCondition(QUEST_FIRST_MUSHROOM)),
 				questTitle("Giant Mushrooms"), questDesc("Bring Marisa huge mushroom blocks."),
@@ -224,6 +230,9 @@ public class MarisaQDGen extends QuestDialogData {
 		));
 
 		prefix("marisa/nether_mushroom_prep");
+		questAnims("start", "dialog_think", "dialog_decline", "dialog_agree");
+		questAnims("follow", "dialog_talk_02", "dialog_greet");
+		questAnims("complete", "dialog_talk_04", null, "dialog_agree");
 		quest("marisa/nether_mushroom_prep", new Quest(GLEntities.MARISA.get(),
 				List.of(new HasQuestCompletedCondition(QUEST_FIRST_MUSHROOM), new HasAdvancementCondition(ADV_NETHER)),
 				questTitle("Nether Mushrooms"), questDesc("Bring Marisa nether mushroom samples."),
@@ -250,6 +259,9 @@ public class MarisaQDGen extends QuestDialogData {
 		));
 
 		prefix("marisa/shroomlight");
+		questAnims("start", "dialog_talk_05", "dialog_decline", "dialog_agree");
+		questAnims("follow", "dialog_talk_04", "dialog_think");
+		questAnims("complete", "dialog_talk_02", null, "dialog_agree");
 		quest("marisa/shroomlight", new Quest(GLEntities.MARISA.get(),
 				List.of(new HasQuestCompletedCondition(QUEST_NETHER_MUSHROOM)),
 				questTitle("Glowing Fungi"), questDesc("Bring Marisa shroomlights."),
@@ -274,6 +286,9 @@ public class MarisaQDGen extends QuestDialogData {
 		));
 
 		prefix("marisa/brewing");
+		questAnims("start", "dialog_think", "dialog_decline", "dialog_agree");
+		questAnims("follow", "dialog_think", "dialog_think");
+		questAnims("complete", "dialog_agree", null, "dialog_talk_05");
 		quest("marisa/brewing", new Quest(GLEntities.MARISA.get(),
 				List.of(new HasQuestCompletedCondition(QUEST_SHROOMLIGHT), new HasAdvancementCondition(ADV_FORTRESS)),
 				questTitle("Brewing"), questDesc("Bring Marisa blaze rods and nether wart."),
@@ -300,6 +315,9 @@ public class MarisaQDGen extends QuestDialogData {
 		));
 
 		prefix("marisa/hakkero");
+		questAnims("start", null, "dialog_decline", "dialog_talk_04");
+		questAnims("follow", null, "dialog_agree");
+		questAnims("complete", "dialog_talk_02", "dialog_decline", "dialog_talk_05");
 		// Offered to anyone holding the prototype who has not been given the
 		// repaired one yet, and the inverted second condition closes the quest for good.
 		quest("marisa/hakkero", new Quest(GLEntities.MARISA.get(),
@@ -335,6 +353,9 @@ public class MarisaQDGen extends QuestDialogData {
 		));
 
 		prefix("marisa/golden_apple");
+		questAnims("start", "dialog_think", "dialog_decline", "dialog_agree");
+		questAnims("follow", "dialog_talk_01", "dialog_think_02");
+		questAnims("complete", "dialog_talk_04", null, "dialog_think");
 		quest("marisa/golden_apple", new Quest(GLEntities.MARISA.get(),
 				List.of(new HasQuestCompletedCondition(QUEST_BREWING)),
 				questTitle("Enchanted Golden Apple"), questDesc("Bring Marisa an enchanted golden apple."),
@@ -358,6 +379,8 @@ public class MarisaQDGen extends QuestDialogData {
 		));
 
 		prefix("marisa/koishi_hat");
+		questAnims("follow", "dialog_confused", "dialog_agree");
+		questAnims("complete", "dialog_agree", null, "dialog_talk_05");
 		quest("marisa/koishi_hat", new Quest(GLEntities.MARISA.get(),
 				List.of(new HasQuestCompletedCondition(QUEST_BREWING),
 						new HasQuestCompletedCondition(QUEST_REIMU_OMINOUS)),
@@ -371,8 +394,7 @@ public class MarisaQDGen extends QuestDialogData {
 								.withPool(lootItem(Items.EMERALD, 8)))),
 				option("start", "What's with the hush-hush request — what's going on?", new StartQuestAction(),
 						dialog("start/dialog_1",
-								"Heard the news coming outta the Nether lately? Travelers comin' back white as sheets, swearin' somethin' followed 'em home — but none of 'em can say what. Gives me the creeps just thinkin' about it, ze. You're braver than me, though. Poke around down there for me, would ya? And... watch yourself.",
-								THINK_ANIMS,
+								"Heard the news coming outta the Nether lately? Travelers comin' back white as sheets, swearin' somethin' followed 'em home — but none of 'em can say what. Gives me the creeps just thinkin' about it, ze. You're braver than me, though. Poke around down there for me, would ya? And... watch yourself.",List.of("dialog_talk_01"),
 								option("start/end", "Really? I'll go take a look."))),
 				follow("Hm — nothing seems to be happening?",
 						"Best if nothing's wrong — but while you were gone, travelers started going missing.",
@@ -388,6 +410,9 @@ public class MarisaQDGen extends QuestDialogData {
 
 	private void talismanQuests() {
 		prefix("marisa/talisman_request");
+		questAnims("start", "dialog_talk_04", "dialog_decline", "dialog_agree");
+		questAnims("follow", "dialog_think", "dialog_agree");
+		questAnims("complete", "dialog_agree", null, "dialog_agree");
 		// Rep 100 AND (known to Reimu OR to Alice): their stock is what convinces
 		// Marisa the errand is worth trusting to the player.
 		quest("marisa/talisman_request", new Quest(GLEntities.MARISA.get(),
@@ -418,6 +443,7 @@ public class MarisaQDGen extends QuestDialogData {
 		));
 
 		prefix("marisa/daily_talisman");
+		questAnims("daily", "dialog_talk_03", "dialog_decline", "dialog_agree", "dialog_talk_04", "dialog_greet", "dialog_greet", "dialog_agree");
 		var talismanTable = requestTable("daily_talisman", LootTable.lootTable().withPool(LootPool.lootPool()
 				.setRolls(ConstantValue.exactly(1))
 				.add(LootItem.lootTableItem(GLTalismans.HEAL_TALISMAN.get())
@@ -439,6 +465,7 @@ public class MarisaQDGen extends QuestDialogData {
 
 	private void dailyQuests() {
 		prefix("marisa/daily_mycelium");
+		questAnims("daily", "dialog_talk_02", "dialog_decline", "dialog_agree", "dialog_think", "dialog_talk_01", "dialog_greet", "dialog_agree");
 		var myceliumTable = requestTable("daily_mycelium", LootTable.lootTable()
 				.withPool(lootItem(GLNaturalBlocks.GHOST_FIRE_MUSHROOM_SET.cap.asItem(), 3, 6))
 				.withPool(lootItem(GLNaturalBlocks.DREAM_MUSHROOM_SET.cap.asItem(), 3, 6))
@@ -458,6 +485,7 @@ public class MarisaQDGen extends QuestDialogData {
 				)), LootTable.lootTable().withPool(lootItem(Items.EMERALD, 1)));
 
 		prefix("marisa/daily_witchcraft");
+		questAnims("daily", "dialog_talk_04", "dialog_decline", "dialog_greet", "dialog_talk_02", "dialog_agree", "dialog_greet", "dialog_agree");
 		var witchcraftTable = requestTable("daily_witchcraft", LootTable.lootTable()
 				.withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1))
 						.add(LootItem.lootTableItem(GLNaturalBlocks.DEMONIC_MIASMA_MUSHROOM_SET.cap).apply(SetItemCountFunction.setCount(UniformGenerator.between(2, 3)))))
@@ -482,6 +510,7 @@ public class MarisaQDGen extends QuestDialogData {
 						.withPool(lootItem(HexBrew.MIASMA_HEXBREW.bottle.get(), 1)));
 
 		prefix("marisa/daily_shroomlight");
+		questAnims("daily", "dialog_talk_02", "dialog_decline", "dialog_agree", "dialog_talk_04", "dialog_greet", "dialog_greet", "dialog_agree");
 		var shroomlightTable = requestTable("daily_shroomlight", LootTable.lootTable().withPool(LootPool.lootPool()
 				.setRolls(ConstantValue.exactly(2))
 				.add(LootItem.lootTableItem(Items.SHROOMLIGHT).apply(SetItemCountFunction.setCount(UniformGenerator.between(3, 6))))
@@ -501,6 +530,7 @@ public class MarisaQDGen extends QuestDialogData {
 				)), LootTable.lootTable().withPool(lootItem(Items.EMERALD, 2)));
 
 		prefix("marisa/daily_brewing");
+		questAnims("daily", "dialog_think", "dialog_decline", "dialog_agree", "dialog_think", "dialog_agree", "dialog_talk_03", "dialog_agree");
 		daily("marisa/daily_brewing", "Brewing Errand", "Bring Marisa blaze rods and nether wart.",
 				new QuestRecurrence(24000), List.of(new HasQuestCompletedCondition(QUEST_BREWING)), 60, 20, 150, 5, 130,
 				"Brewin' up a storm over here, and I'm fresh outta base ingredients! Please head to the Nether and grab me some blaze rods and nether wart.",
@@ -616,34 +646,40 @@ public class MarisaQDGen extends QuestDialogData {
 									 String accept, String acceptLine, String acceptEnd,
 									 String reject, String rejectLine, String rejectEnd) {
 		return option("start", button,
-				dialog("start/dialog_1", intro, THINK_ANIMS,
-						option("start/reject", reject, dialog("start/reject/dialog_1", rejectLine, option("start/reject/end", rejectEnd))),
+				dialog("start/dialog_1", intro, anims("start", 0, THINK_ANIMS),
+						option("start/reject", reject, dialog("start/reject/dialog_1", rejectLine, anims("start", 1, List.of()),
+								option("start/reject/end", rejectEnd))),
 						option("start/accept", accept, new StartQuestAction(),
-								dialog("start/accept/dialog_1", acceptLine, option("start/accept/end", acceptEnd)))));
+								dialog("start/accept/dialog_1", acceptLine, anims("start", 2, List.of()),
+										option("start/accept/end", acceptEnd)))));
 	}
 
 	private SimpleDialogOption follow(String button, String intro, String opt, String optLine, @Nullable String end) {
 		var tail = end == null ? optionKey(byeKey) : option("follow_up/end/end", end);
 		return option("follow_up", button,
-				dialog("follow_up/dialog_1", intro, THINK_ANIMS,
-						option("follow_up/end", opt, dialog("follow_up/end/dialog_1", optLine, tail))));
+				dialog("follow_up/dialog_1", intro, anims("follow", 0, THINK_ANIMS),
+						option("follow_up/end", opt, dialog("follow_up/end/dialog_1", optLine,
+								anims("follow", 1, List.of()), tail))));
 	}
 
 	private SimpleDialogOption complete(String button, String intro, String complete, String completeLine, String completeEnd) {
 		return option("complete", button,
-				dialog("complete/dialog_1", intro, AGREE_ANIMS,
+				dialog("complete/dialog_1", intro, anims("complete", 0, AGREE_ANIMS),
 						option("complete/handover", complete, new CompleteQuestAction(),
-								dialog("complete/handover/dialog_1", completeLine, option("complete/handover/end", completeEnd)))));
+								dialog("complete/handover/dialog_1", completeLine, anims("complete", 2, List.of()),
+										option("complete/handover/end", completeEnd)))));
 	}
 
 	private SimpleDialogOption complete(String button, String intro,
 										String complete, String completeLine, String completeEnd,
 										String reject, String rejectLine, String rejectEnd) {
 		return option("complete", button,
-				dialog("complete/dialog_1", intro, AGREE_ANIMS,
-						option("complete/reject", reject, dialog("complete/reject/dialog_1", rejectLine, option("complete/reject/end", rejectEnd))),
+				dialog("complete/dialog_1", intro, anims("complete", 0, AGREE_ANIMS),
+						option("complete/reject", reject, dialog("complete/reject/dialog_1", rejectLine, anims("complete", 1, List.of()),
+								option("complete/reject/end", rejectEnd))),
 						option("complete/handover", complete, new CompleteQuestAction(),
-								dialog("complete/handover/dialog_1", completeLine, option("complete/handover/end", completeEnd)))));
+								dialog("complete/handover/dialog_1", completeLine, anims("complete", 2, List.of()),
+										option("complete/handover/end", completeEnd)))));
 	}
 
 	private ItemStack witchStrong(Holder<Potion> potion) {
@@ -686,28 +722,30 @@ public class MarisaQDGen extends QuestDialogData {
 
 	private GroupDialogOption dailyStart(String intro, String acceptLine, String rejectLine) {
 		return groupKey(dailyGroupKey, dailyStartKey,
-				dialog("start/dialog_1", intro, THINK_ANIMS,
+				dialog("start/dialog_1", intro, anims("daily", 0, THINK_ANIMS),
 						optionKey(dailyRejectKey,
-								dialog("start/reject/dialog_1", rejectLine)),
+								dialog("start/reject/dialog_1", rejectLine, anims("daily", 1, List.of()))),
 						optionKey(dailyAcceptKey, new StartQuestAction(),
-								dialog("start/accept/dialog_1", acceptLine))));
+								dialog("start/accept/dialog_1", acceptLine, anims("daily", 2, List.of())))));
 	}
 
 	private GroupDialogOption dailyFollow(String followLine, @Nullable String endOverride, String optLine) {
 		var end = endOverride == null
-				? optionKey(dailyFollowEndKey, dialog("follow_up/end/dialog_1", optLine))
-				: option("follow_up/end", endOverride, dialog("follow_up/end/dialog_1", optLine));
+				? optionKey(dailyFollowEndKey, dialog("follow_up/end/dialog_1", optLine, anims("daily", 4, List.of())))
+				: option("follow_up/end", endOverride,
+						dialog("follow_up/end/dialog_1", optLine, anims("daily", 4, List.of())));
 		return groupKey(dailyGroupKey, dailyFollowKey,
-				dialog("follow_up/dialog_1", followLine, THINK_ANIMS, end));
+				dialog("follow_up/dialog_1", followLine, anims("daily", 3, THINK_ANIMS), end));
 	}
 
 	private GroupDialogOption dailyComplete(String opener, String gotemLine, String handover,
 											String completeLine, @Nullable String thanks) {
 		var done = thanks == null
-				? dialog("complete/handover/dialog_1", completeLine)
-				: dialog("complete/handover/dialog_1", completeLine, optionKey(dailyThanksKey));
+				? dialog("complete/handover/dialog_1", completeLine, anims("daily", 6, List.of()))
+				: dialog("complete/handover/dialog_1", completeLine, anims("daily", 6, List.of()),
+						optionKey(dailyThanksKey));
 		return new GroupDialogOption(dailyGroupKey, optionText("complete", opener), List.of(),
-				Optional.of(dialog("complete/dialog_1", gotemLine, AGREE_ANIMS,
+				Optional.of(dialog("complete/dialog_1", gotemLine, anims("daily", 5, AGREE_ANIMS),
 						option("complete/handover", handover, new CompleteQuestAction(), done))));
 	}
 

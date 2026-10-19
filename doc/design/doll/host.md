@@ -322,6 +322,16 @@ dolls are never chunk-serialized (§5.8) so there is no second copy anywhere:
 A respawn from her bed is a fresh Alice with a fresh retinue — the same bargain
 every character gets.
 
+## 6.1 Where a timed summon would differ
+
+Everything above is Alice's *host*, and it is reusable as-is. What a temporary
+non-doll timed summon adds on top — no item form, no recall, no loadout, one intrinsic
+move, a lifespan — is a separate layer described in [timed_summon.md](timed_summon.md), and
+`AliceDollHost` already implements the one method it needs (`drop`). The four
+behaviours she gets for free because of how `DollHost` is shaped are: a destroyed
+doll vanishing rather than being nursed (§2.1), the ledger dying with her (§6), no
+item form (the `isPlayerOwned` gate), and never becoming a stray (`detach` refused).
+
 Other edge cases:
 
 - **A doll restored from disk.** `DollNeverSave` used to be written but never read, and `ownerUUID` is never persisted at all — so a doll that got written to a chunk came back as a zombie: vanilla keeps its game UUID, but it has no owner, so it can neither follow nor be commanded, *while its ledger entry still matches it by UUID*. That last part is the nasty one: a live count that includes a doll which cannot function suppresses the conjure pass that would replace it, so one zombie doll can wedge a whole roster — and if its chunk never ticks it, it never even self-discards. Such a doll is also **immune to every kind of damage**, because `takeDamage` had nowhere to write the hit and dropped it rather than falling through to the plain path. Three things fix it, at three different depths:

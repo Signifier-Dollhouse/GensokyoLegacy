@@ -133,6 +133,7 @@ public class FollowDollOwnerGoal extends Goal {
     public boolean canUse() {
         this.owner = this.doll.getOwner();
         if (this.owner == null) return false;
+        if (!this.doll.followsOwner()) return false;
         Vec3 target = this.getTargetPos();
         if (target == null) return false;
         return this.doll.distanceToSqr(target) > this.doll.stopDistance * this.doll.stopDistance;

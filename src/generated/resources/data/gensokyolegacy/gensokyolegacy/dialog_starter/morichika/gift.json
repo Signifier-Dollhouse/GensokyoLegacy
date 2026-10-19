@@ -1,0 +1,10 @@
+{
+  "character": "gensokyolegacy:morichika_rinnosuke",
+  "conditions": [
+    {
+      "type": "gensokyolegacy:gift_return"
+    }
+  ],
+  "dialog": "gensokyolegacy:morichika/gift/return",
+  "override": true
+}

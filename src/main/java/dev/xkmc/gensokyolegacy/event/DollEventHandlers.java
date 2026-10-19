@@ -1,7 +1,6 @@
 package dev.xkmc.gensokyolegacy.event;
 
 import dev.xkmc.gensokyolegacy.content.entity.dolls.BaseDollEntity;
-import dev.xkmc.gensokyolegacy.content.entity.dolls.DollEntity;
 import dev.xkmc.gensokyolegacy.content.entity.foundation.DamageRefactorEntity.CombatData;
 import dev.xkmc.gensokyolegacy.content.item.doll.DollItem;
 import dev.xkmc.gensokyolegacy.content.item.doll.DollItemData;
@@ -58,7 +57,8 @@ public class DollEventHandlers {
 
 	@SubscribeEvent
 	public static void onEntityJoinLevel(EntityJoinLevelEvent event) {
-		if (event.getLevel() instanceof ServerLevel && event.getEntity() instanceof DollEntity doll) {
+		// the base, not the doll: pairing is every kind's, whatever it can do
+		if (event.getLevel() instanceof ServerLevel && event.getEntity() instanceof BaseDollEntity doll) {
 			doll.onJoinLevelCheck();
 		}
 	}

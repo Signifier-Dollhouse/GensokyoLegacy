@@ -131,6 +131,8 @@ public class AliceEntity extends GeneralYoukaiEntity implements GeoYoukaiAnim, D
 			case CONFUSED -> Optional.of(CONFUSED);
 			case AGREE -> Optional.of(AGREE);
 			case DECLINE -> Optional.of(DECLINE);
+			case LIKE -> Optional.of(LIKE);
+			case DISLIKE -> Optional.of(DISLIKE);
 			case EAT -> Optional.of(EAT);
 			case HURT -> Optional.of(HURT);
 			case OUTDOOR_IDLE -> Optional.of(IDLE_FIDGET);

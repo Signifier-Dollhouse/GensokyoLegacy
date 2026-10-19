@@ -5,17 +5,17 @@ import dev.xkmc.gensokyolegacy.init.registrate.GLSounds;
 import dev.xkmc.l2core.init.reg.registrate.SimpleEntry;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
-import software.bernie.geckolib.animatable.GeoEntity;
-import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.animation.*;
-import software.bernie.geckolib.util.GeckoLibUtil;
 
 /**
- * GeckoLib animation for a doll, split over three controllers that run in the order they write
- * bones — wink, state loop, one-shots — so a strike shares the hover's bones instead of replacing
- * it, since a controller plays one animation at a time. The cache lives in {@link DollGeoModule} (entity.md §8).
+ * The plain doll's own clip set: GeckoLib animation split over three controllers that run in the
+ * order they write bones — wink, state loop, one-shots — so a strike shares the hover's bones
+ * instead of replacing it, since a controller plays one animation at a time. The plumbing it
+ * builds on is {@link DollRig}, which every doll kind has; this is only what this one plays.
+ *
+ * @see "doc/design/doll/entity.md"
  */
-public interface DollGeo extends DollBaseImpl, GeoEntity {
+public interface DollGeo extends DollRig, DollEntityImpl {
 
 	RawAnimation IDLE = RawAnimation.begin().thenLoop("toy_idle");
 	RawAnimation FLY = RawAnimation.begin().thenLoop("toy_fly");
@@ -27,29 +27,8 @@ public interface DollGeo extends DollBaseImpl, GeoEntity {
 	RawAnimation SKILL = RawAnimation.begin().thenPlay("toy_skill");
 	RawAnimation WINK = RawAnimation.begin().thenLoop("toy_wink");
 
-	String ANIM_CONTROLLER = "all";
-	String ONE_SHOT_CONTROLLER = "one_shot";
-	String WINK_CONTROLLER = "wink";
-
-	/** Blend length of the hover and of the one-shots alike, in ticks. */
-	int ANIM_TRANSITION = 3;
-
-	/**
-	 * Entity event ids: vanilla {@code EntityEvent} uses up to 65, so 66+ are safe. Dolls
-	 * take 66-70; characters start after them.
-	 */
-	byte EVENT_ATTACK = 66;
-	byte EVENT_BOMB = 67;
-	byte EVENT_BOW = 68;
-	byte EVENT_SKILL = 69;
-	byte EVENT_SLAP = 70;
-
 	/** Volume of a strike voice, both melee shapes alike; the clips are short. */
 	float ATTACK_VOLUME = 1.0F;
-
-	private DollGeoModule geo() {
-		return asDoll().getModule(DollGeoModule.class);
-	}
 
 	default PlayState dollAnimController(final AnimationState<DollEntity> event) {
 		return event.setAndContinue(event.isMoving() ? FLY : IDLE);
@@ -128,25 +107,6 @@ public interface DollGeo extends DollBaseImpl, GeoEntity {
 	default void broadcastBombAnim() {
 		if (!asDoll().level().isClientSide())
 			asDoll().level().broadcastEntityEvent(asDoll(), EVENT_BOMB);
-	}
-
-	@Override
-	default AnimatableInstanceCache getAnimatableInstanceCache() {
-		return geo().cache;
-	}
-
-	/**
-	 * The instance cache. It needs the entity, which modules never store (they run before it
-	 * exists). Synchronized: dolls construct on the server thread and render on the client thread.
-	 */
-	final class DollGeoModule implements DollModule {
-
-		private AnimatableInstanceCache cache;
-
-		public DollGeoModule(DollEntity entity) {
-			cache = GeckoLibUtil.createInstanceCache(entity);
-		}
-
 	}
 
 }

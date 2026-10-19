@@ -1,3 +1,8 @@
+1.0.5
+- Seki head
+- Gift interaction and gift return, more unique gifts
+- Fix compatibility with Sparse Structures
+
 1.0.4
 - Party! host a banquet with invitation letter
 - Fairies: feed them cakes. Spawn in forest and plains

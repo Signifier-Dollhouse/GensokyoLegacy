@@ -7,7 +7,10 @@ import dev.xkmc.gensokyolegacy.content.attachment.area.LevelAreaAttachment;
 import dev.xkmc.gensokyolegacy.content.attachment.character.CharacterAttachment;
 import dev.xkmc.gensokyolegacy.content.attachment.home.datamap.BedData;
 import dev.xkmc.gensokyolegacy.content.attachment.character.CharacterConfig;
+import dev.xkmc.gensokyolegacy.content.rpg.core.CodecRegistry;
 import dev.xkmc.gensokyolegacy.content.rpg.core.DialogConfig;
+import dev.xkmc.gensokyolegacy.content.rpg.core.GiftDialogData;
+import dev.xkmc.gensokyolegacy.content.rpg.dialog.Dialog;
 import dev.xkmc.gensokyolegacy.content.attachment.home.datamap.StructureConfig;
 import dev.xkmc.gensokyolegacy.content.attachment.doll.DollAttachment;
 import dev.xkmc.gensokyolegacy.content.attachment.glove.GloveTargetAttachment;
@@ -95,6 +98,8 @@ public class GLMeta {
 					Registries.STRUCTURE, new CodecAdaptor<>(StructureConfig.class)).build());
 	public static final DataMapReg<EntityType<?>, GiftPreference> GIFT_PREFERENCE =
 			GensokyoLegacy.REG.dataMap("gift_preference", Registries.ENTITY_TYPE, GiftPreference.class);
+	public static final DataMapReg<EntityType<?>, GiftDialogData> GIFT_DIALOG_DATA =
+			GensokyoLegacy.REG.dataMap("gift_dialog", Registries.ENTITY_TYPE, GiftDialogData.class);
 	public static final DataMapReg<Item, GiftItemData> GIFT_DATA =
 			GensokyoLegacy.REG.dataMap("gift_data", Registries.ITEM, GiftItemData.class);
 	public static final DataMapReg<Item, MorichikaOfferData> MORICHIKA_OFFER =
@@ -102,6 +107,10 @@ public class GLMeta {
 
 	public static void register() {
 		Handlers.enableVanilla(Fluid.class, BuiltInRegistries.FLUID);
+		// so GiftDialogData can name its two dialogs as Holder<Dialog>: l2serial resolves a Holder
+		// through the reg its element type is registered under, and Dialog is a datapack registry
+		// rather than a built-in one, so the reg has to be declared here
+		Handlers.registerReg(Dialog.class, CodecRegistry.DIALOG.key());
 		new CodecHandler<>(FluidIngredient.class, FluidIngredient.CODEC, FluidIngredient.STREAM_CODEC);
 		new CodecHandler<>(BoundingBox.class, BoundingBox.CODEC, ByteBufCodecs.fromCodecWithRegistries(BoundingBox.CODEC));
 		new CodecHandler<>(BlockPos.class, BlockPos.CODEC, ByteBufCodecs.fromCodecWithRegistries(BlockPos.CODEC));

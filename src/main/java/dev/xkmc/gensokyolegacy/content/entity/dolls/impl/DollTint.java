@@ -12,15 +12,15 @@ import net.minecraft.world.item.DyeItem;
 import net.minecraft.world.item.ItemStack;
 
 /**
- * Doll tint contract. The base leaves {@link #getColor()} abstract (it has no synced storage); the
- * synced implementation lives in {@link Impl}, inherited with no override. Persistence lives in
- * {@link DollTintModule}, driven as a doll module.
+ * Doll tint contract: the west-lead dye a doll is recoloured with. It belongs to the doll layer
+ * rather than the pairing base, because a kind with one untinted texture has nothing to dye —
+ * {@link Impl} supplies the synced half and {@link DollTintModule} persists it.
  */
-public interface DollTint extends DollBaseImpl {
+public interface DollTint extends DollEntityImpl {
 
 	DyeColor getColor();
 
-	interface Impl extends DollTint, DollBaseImpl {
+	interface Impl extends DollTint {
 
 		@Override
 		default DyeColor getColor() {

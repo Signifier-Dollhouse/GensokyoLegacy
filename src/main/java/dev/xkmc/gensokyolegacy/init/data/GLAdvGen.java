@@ -155,6 +155,12 @@ public class GLAdvGen {
 						CriterionBuilder.item(GLItems.DOLL_GLOVE.get()),
 						"Doll Glove", "Obtain the Seven-Colored Doll Glove")
 				.type(AdvancementType.TASK, false, false, false);
+		// The head is Alice's first gadget, so it hangs beside the glove rather than opening a
+		// branch of its own; the book entry it unlocks is filed under the special items instead.
+		aliceHouse.create("obtain_sekibanki_head", GLItems.SEKIBANKI_HEAD.get(),
+						CriterionBuilder.item(GLItems.SEKIBANKI_HEAD.get()),
+						"Sekibanki's Head", "Obtain Sekibanki's Head")
+				.type(AdvancementType.TASK, false, false, false);
 		// Hangs off the root rather than off one of the four houses: a fairy is found
 		// in the woods, not behind a door, so there is no structure to hang it under.
 		var feedFairy = root.create("feed_fairy", GLItems.FAIRY_CAKE.get(),

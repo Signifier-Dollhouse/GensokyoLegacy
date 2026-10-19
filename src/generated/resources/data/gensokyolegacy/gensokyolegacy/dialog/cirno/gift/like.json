@@ -1,0 +1,14 @@
+{
+  "animations": [
+    "dialog_like"
+  ],
+  "options": [
+    {
+      "type": "gensokyolegacy:simple",
+      "actions": [],
+      "conditions": [],
+      "text": "gensokyolegacy/dialog/gift/leave"
+    }
+  ],
+  "text": "gensokyolegacy/cirno/gift/dialog/like"
+}

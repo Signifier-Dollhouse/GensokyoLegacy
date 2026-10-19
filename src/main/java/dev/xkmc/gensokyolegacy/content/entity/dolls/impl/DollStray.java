@@ -17,7 +17,7 @@ import java.util.UUID;
  * commands can't reach the doll, itemize no-ops, and only death ends it (dropping the item form).
  * The detached inventory is already current — server mutations are ledger-direct (control.md §5.4).
  */
-public interface DollStray extends DollBaseImpl {
+public interface DollStray extends DollEntityImpl {
 
 	default void becomeStray() {
 		DollEntity doll = asDoll();

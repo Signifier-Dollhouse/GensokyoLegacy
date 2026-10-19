@@ -1,0 +1,19 @@
+{
+  "name": "Sekibanki's Head",
+  "icon": "gensokyolegacy:sekibanki_head",
+  "category": "gensokyolegacy:special_tools",
+  "advancement": "gensokyolegacy:main/obtain_sekibanki_head",
+  "sortnum": 10,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "gensokyolegacy:sekibanki_head",
+      "title": "A Head on Your Own",
+      "text": "Right-click to call the head out in front of you, or right-click the head itself with an empty hand to collect it back. It floats along behind you."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Shift and right-click the head to move your view into it. Your body stays where you left it, up to 48 blocks away.$(br2)While looking through the head, you can fly it and interact with blocks.$(br2)$(bold)Coming back$()$(br2)Left-click and the view returns to you at once, and the head flies back to your side on its own."
+    }
+  ]
+}

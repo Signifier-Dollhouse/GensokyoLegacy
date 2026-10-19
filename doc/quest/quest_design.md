@@ -161,6 +161,14 @@ Weights are relative, so a `CHAT_SPECIAL` chat effectively suppresses the
 greeting while its condition holds. Gating is via `missingAdv` /
 `hasAdv` / `hasQuest` / `hasItem` / `timer` / reputation conditions (§8).
 
+A starter marked `override: true` is not in this roll at all.
+`ServerCharacterDialogManager.pickOverrideChat` resolves it first, and
+`FirstDialogSession.open` enters its dialog instead of drawing the topic
+list, for anything that has to happen before the player chooses a topic — a
+gift owed back, which is `doc/design/gift.md` *Paying a gift back*. An
+override carries no weight and has no starter line of its own, which is why
+`text` is optional on `DialogStarter`.
+
 `defaultDialog(entity, greeting, trade)` writes the two strings the entity's
 idle greeting and the trade-screen button use into
 `data_maps/entity_type/default_dialog.json`.
