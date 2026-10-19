@@ -14,8 +14,9 @@ import net.minecraft.world.level.Level;
 import java.util.List;
 
 /**
- * Doll-specific half: the GeckoLib rig, the synced loadout and status slots, the ticket
- * handler and the one command goal. Pairing and integrity stay in {@link BaseDollEntity}.
+ * The loadout-capable doll: the plain doll's clips, the four synced loadout slots, the action
+ * status, the ticket handler and the one command goal. Pairing, movement and the rig plumbing stay
+ * in {@link BaseDollEntity}; a kind with none of the above extends that base directly (entity.md §9.1).
  *
  * @see "doc/design/doll/entity.md"
  */
@@ -78,7 +79,6 @@ public class DollEntity extends BaseDollEntity
 	protected void createDollModules(List<DollModule> modules) {
 		super.createDollModules(modules);
 		// fresh per-entity instances; static-safe: also runs in Entity ctor before instance state exists
-		modules.add(new DollGeo.DollGeoModule(this));
 		modules.add(new DollTint.DollTintModule(this));
 		modules.add(new DollLoadout.DollLoadoutModule());
 		modules.add(new DollStatus.DollStatusModule());
