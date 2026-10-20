@@ -31,7 +31,9 @@ import net.minecraft.world.level.levelgen.VerticalAnchor;
 import net.minecraft.world.level.levelgen.blockpredicates.BlockPredicate;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import net.minecraft.world.level.levelgen.feature.Feature;
+import net.minecraft.world.level.levelgen.feature.WeightedPlacedFeature;
 import net.minecraft.world.level.levelgen.feature.configurations.DiskConfiguration;
+import net.minecraft.world.level.levelgen.feature.configurations.RandomFeatureConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.VegetationPatchConfiguration;
 import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProvider;
 import net.minecraft.world.level.levelgen.feature.stateproviders.RuleBasedBlockStateProvider;
@@ -182,8 +184,14 @@ public class GenbuRavineBiomeGen extends AbstractBiomeGen {
 		// wants a support it can live on, and basalt is not one, so the plant gets mud under it.
 		var features = ctx.lookup(Registries.CONFIGURED_FEATURE);
 		var dripleaf = PlacementUtils.inlinePlaced(features.getOrThrow(CaveFeatures.DRIPLEAF));
+		// The plants of the plate are a mix: the dripleaves in the water and the mod's own lilies floating on it.
+		// The selector picks one per cell, so a cell has dripleaves round it or a lily on the pool and never both.
+		var plants = new RandomFeatureConfiguration(
+				List.of(new WeightedPlacedFeature(
+						PlacementUtils.inlinePlaced(features.getOrThrow(GensokyoBiomeFeatures.LILIES)), 0.5F)),
+				dripleaf);
 		FeatureUtils.register(ctx, RAVINE_BASALT_POOL, GLWorldGen.MUD_WATERLOGGED_VEGETATION_PATCH.get(),
-				basaltPlate(dripleaf, 5, 0.1F));
+				basaltPlate(PlacementUtils.inlinePlaced(Feature.RANDOM_SELECTOR, plants), 5, 0.1F));
 		// The pools cut into the basalt steps: a tread in the middle of a slope becomes a pool of its own, and the run
 		// of treads beside it a rim of water along the slope. Seven blocks is how far one rim runs, and the heightmap
 		// is the one the plates are laid on.
@@ -204,13 +212,16 @@ public class GenbuRavineBiomeGen extends AbstractBiomeGen {
 	/**
 	 * One basalt plate. The numbers are vanilla's own pool branch: it reaches five blocks up and grows a dripleaf one
 	 * time in ten.
+	 * <p>
+	 * The plants are a holder of our own, so the plate can grow more than one thing: the selector that holds the
+	 * dripleaves and the lilies.
 	 */
-	private static VegetationPatchConfiguration basaltPlate(Holder<PlacedFeature> dripleaf, int verticalRange,
+	private static VegetationPatchConfiguration basaltPlate(Holder<PlacedFeature> plants, int verticalRange,
 															float vegetationChance) {
 		return new VegetationPatchConfiguration(
 				BlockTags.LUSH_GROUND_REPLACEABLE,
 				BlockStateProvider.simple(Blocks.BASALT),
-				dripleaf,
+				plants,
 				CaveSurface.FLOOR,
 				ConstantInt.of(3),
 				0.8F,

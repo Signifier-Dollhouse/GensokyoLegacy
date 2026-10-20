@@ -17,7 +17,24 @@
     "surface": "floor",
     "vegetation_chance": 0.1,
     "vegetation_feature": {
-      "feature": "minecraft:dripleaf",
+      "feature": {
+        "type": "minecraft:random_selector",
+        "config": {
+          "default": {
+            "feature": "minecraft:dripleaf",
+            "placement": []
+          },
+          "features": [
+            {
+              "chance": 0.5,
+              "feature": {
+                "feature": "gensokyolegacy:gensokyo_biome/lilies",
+                "placement": []
+              }
+            }
+          ]
+        }
+      },
       "placement": []
     },
     "vertical_range": 5,

@@ -181,6 +181,14 @@ Two things are ours rather than vanilla's:
 - **The dry branch is gone.** Vanilla's clay patch is a dry plate half the time and a pool the other half, under a
   `random_boolean_selector`. The ravine's is a pool every time.
 
+And the plate grows **the mod's own lilies** as well as the dripleaves. The two are a selector rather than a
+ground palette, and the reason is the waterlogged patch: it fills the pool's cells with water, so a lily drawn as the
+bed of the plate would be drowned by it, and one drawn below the bed would be buried in the basalt. A plant in the
+vegetation slot is placed *at* the pool's cell, so the selector puts the lilies there and they float on the water —
+a lily's own survival test wants water below it and free space above, which is exactly the top of a pool. The
+selector takes the lilies half the time and the dripleaves the rest, so a cell has one or the other and never both.
+The dripleaves scattered over the ravine's basalt are a separate feature and are not part of this.
+
 Two consequences of the swap, both worth knowing:
 
 - **The plates take the floor, and the moss grows around them.** The plates are laid first, so they take the dirt,
