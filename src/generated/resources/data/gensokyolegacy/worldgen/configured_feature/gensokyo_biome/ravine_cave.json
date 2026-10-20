@@ -1,0 +1,21 @@
+{
+  "type": "gensokyolegacy:ravine_cave",
+  "config": {
+    "depth": 5,
+    "floor": {
+      "Name": "minecraft:basalt",
+      "Properties": {
+        "axis": "y"
+      }
+    },
+    "gap": 5,
+    "height": 8,
+    "pool": {
+      "Name": "minecraft:water",
+      "Properties": {
+        "level": "0"
+      }
+    },
+    "width": 7
+  }
+}

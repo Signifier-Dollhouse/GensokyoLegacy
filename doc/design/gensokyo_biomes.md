@@ -136,10 +136,11 @@ The seven are the ravine's alone — no other Gensokyo biome takes them — so t
 
 The eighth is the clay patch, and the ravine does not take it: it lays its own version, in basalt. See below.
 
-The ravine's own five — `ravine_basalt`, `ravine_dripleaf`, `ravine_stair_pool`, `ravine_moss` and `ravine_stones` —
-come **first** in the step, and the swamp's trees and grass after them. The plates have to be down before anything
-grows on them: a pool of them under a patch of grass that grew first is grass standing on water. §3 has why that is
-allowed to break the tail rule.
+The ravine's own six — the chamber, `ravine_basalt`, `ravine_dripleaf`, `ravine_stair_pool`, `ravine_moss` and
+`ravine_stones` — come **first** in the step, and the swamp's trees and grass after them. The plates have to be down
+before anything grows on them: a pool of them under a patch of grass that grew first is grass standing on water. The
+chamber has to be cut before the plates are laid, because it is the chamber's floor the plates would otherwise have to
+be laid on. §3 has why that is allowed to break the tail rule.
 
 What it does **not** replace is the ravine's own: `ravine_mud` is still last in `underground_ores`. Lush caves is growth
 and vines on a cave surface; it is not a ground cover, and its moss and mud were never Gensokyo's to begin with.
@@ -329,6 +330,11 @@ of it. See §1.
 **Stair pools** — `gensokyolegacy:stair_pool`, which turns the treads of a basalt slope into pools of water one block
 deep, and the run of them into a rim. See §1.
 
+**One chamber** — `gensokyolegacy:ravine_cave`, which cuts the ravine itself: a quarter ellipsoid with a flat floor
+and a domed ceiling, cut into the face of a cliff, with the floor laid in basalt and the middle of it flooded. It is
+the ravine's first feature, because everything else in the ravine is laid on the ground it makes. See
+`doc/design/genbu_ravine_cave.md`.
+
 **One lake** — `former_hell_lake`, see §2.1. It is the only feature in the tail that is not a patch of blocks.
 
 | placed feature | tries / count | used by |
@@ -348,6 +354,7 @@ deep, and the run of them into a rim. See §1.
 | `hill_of_the_nameless_flowers` | 7 patches | hill of the nameless |
 | `bamboo_dense` / `bamboo_sparse` | 6 patches / 1 in 3 | bamboo forest of the lost |
 | `ravine_moss` | 3 patches, 20 tries each | genbu ravine |
+| `ravine_cave` | one chamber a wall, cut into a cliff | genbu ravine |
 | `ravine_basalt` | 8 plates a chunk, every one of them a pool | genbu ravine |
 | `ravine_dripleaf` | 64 dripleaves a chunk, each on a patch of mud | genbu ravine |
 | `ravine_stair_pool` | 24 tries a chunk, each a rim of seven treads | genbu ravine |
