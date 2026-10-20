@@ -97,7 +97,7 @@ public class MyourenTempleBarrensBiomeGen extends AbstractBiomeGen {
 						.add(GLFurniture.STONE_LANTERN, 1)
 						.build(), GLWorldGen.DOUBLE_BLOCK.get()));
 		// all four colourways in one patch, so a clump of them is a row of a village rather than four of one kind
-		FeatureUtils.register(ctx, JIZO, Feature.RANDOM_PATCH, patch(24, 6, 0, new Palette()
+		FeatureUtils.register(ctx, JIZO, Feature.RANDOM_PATCH, patch(16, 6, 0, new Palette()
 				.add(GLFurniture.JIZO, 1).add(GLFurniture.JIZO_MYOUREN, 1).add(GLFurniture.JIZO_NARUMI, 1)
 				.add(GLFurniture.JIZO_STRAW_HAT, 1).build(), GLWorldGen.DOUBLE_BLOCK.get()));
 		// the pool: a small one dug into the waste, with the mod's lilies on it
@@ -113,7 +113,7 @@ public class MyourenTempleBarrensBiomeGen extends AbstractBiomeGen {
 	@Override
 	protected void placed(Registrar reg) {
 		reg.cover(COARSE_DIRT_PF, reg.feature(COARSE_DIRT_DISK), CountPlacement.of(4));
-		reg.trees(LOCUST_TREES_PF, reg.feature(TreeType.LOCUST.cfKey), CountPlacement.of(6));
+		reg.trees(LOCUST_TREES_PF, reg.feature(TreeType.LOCUST.cfKey), CountPlacement.of(2));
 		reg.cover(BARRENS_SCRUB_PF, reg.feature(BARRENS_SCRUB), CountPlacement.of(3));
 		reg.floor(JIZO_PF, reg.feature(JIZO), CountPlacement.of(1));
 		reg.floor(GRAVESTONE_PF, reg.feature(GRAVESTONE), CountPlacement.of(1));
