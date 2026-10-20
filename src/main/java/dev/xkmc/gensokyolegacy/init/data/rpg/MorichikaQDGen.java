@@ -1,6 +1,7 @@
 package dev.xkmc.gensokyolegacy.init.data.rpg;
 
 import dev.xkmc.gensokyolegacy.content.rpg.condition.HasAdvancementCondition;
+import dev.xkmc.gensokyolegacy.content.rpg.condition.SelfReputationCondition;
 import dev.xkmc.gensokyolegacy.content.rpg.dialog.DialogStarter;
 import dev.xkmc.gensokyolegacy.content.rpg.trade.TradeOffer;
 import dev.xkmc.gensokyolegacy.content.rpg.trade.TradeRecurrence;
@@ -74,6 +75,13 @@ public class MorichikaQDGen extends QuestDialogData {
 				List.of(new HasAdvancementCondition(GLAdvGen.OBTAIN_IRON_DAGGER)),
 				new ItemStack(GLItems.DAGGER_GLOVE.get()),
 				new TradeRecurrence(1, 168000), List.of(item(Items.EMERALD, 24))));
+		// The head is a curiosity he has no reason to part with for a stranger, so it waits
+		// until the shopkeeper likes the customer enough: rep 80 is inside the starting cap,
+		// so it is reachable by gifts alone and no quest is needed to unlock it.
+		trade("offer_sekibanki_head", new TradeOffer(GLEntities.MORICHIKA.get(),
+				List.of(new SelfReputationCondition(80)),
+				new ItemStack(GLItems.SEKIBANKI_HEAD.get()),
+				new TradeRecurrence(1, 168000), List.of(item(Items.EMERALD, 48))));
 	}
 
 }
