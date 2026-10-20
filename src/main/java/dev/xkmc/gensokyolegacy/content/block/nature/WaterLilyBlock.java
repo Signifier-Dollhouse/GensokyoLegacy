@@ -12,7 +12,12 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.BushBlock;
 import net.minecraft.world.level.block.IceBlock;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -28,6 +33,11 @@ import org.jetbrains.annotations.Nullable;
 public class WaterLilyBlock extends BushBlock {
 
 	private static final MapCodec<WaterLilyBlock> CODEC = simpleCodec(WaterLilyBlock::new);
+
+	/**
+	 * The lily is not symmetric, so it keeps the direction it was planted in.
+	 */
+	public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
 
 	/**
 	 * The pad of the small lily, a thin slab at the height its model draws it.
@@ -51,12 +61,28 @@ public class WaterLilyBlock extends BushBlock {
 	}
 
 	@Override
+	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+		super.createBlockStateDefinition(builder);
+		builder.add(FACING);
+	}
+
+	@Override
 	public @Nullable BlockState getStateForPlacement(BlockPlaceContext context) {
 		BlockPos pos = context.getClickedPos();
 		Level level = context.getLevel();
 		if (!level.getBlockState(pos).canBeReplaced()) return null;
 		if (!mayPlaceOn(level.getBlockState(pos.below()), level, pos.below())) return null;
-		return super.getStateForPlacement(context);
+		return super.getStateForPlacement(context).setValue(FACING, context.getHorizontalDirection().getOpposite());
+	}
+
+	@Override
+	public BlockState rotate(BlockState state, Rotation rot) {
+		return state.setValue(FACING, rot.rotate(state.getValue(FACING)));
+	}
+
+	@Override
+	public BlockState mirror(BlockState state, Mirror mirror) {
+		return state.rotate(mirror.getRotation(state.getValue(FACING)));
 	}
 
 	@Override

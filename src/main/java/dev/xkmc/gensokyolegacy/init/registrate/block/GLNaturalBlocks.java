@@ -140,9 +140,11 @@ public class GLNaturalBlocks {
 				.blockstate((ctx, pvd) -> {
 					var builder = pvd.getVariantBuilder(ctx.get());
 					for (int i = 0; i < LargeWaterLilyBlock.VARIANTS; i++) {
-						builder.partialState().with(LargeWaterLilyBlock.VARIANT, i)
-								.modelForState().modelFile(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/nature/water_lily_" + i)))
-								.addModel();
+						for (Direction dir : Direction.Plane.HORIZONTAL) {
+							builder.partialState().with(WaterLilyBlock.FACING, dir).with(LargeWaterLilyBlock.VARIANT, i)
+									.modelForState().modelFile(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/nature/water_lily_" + i)))
+									.rotationY(((int) dir.toYRot() + 180) % 360).addModel();
+						}
 					}
 				})
 				.item((block, props) -> new PlaceOnWaterBlockItem(block, props))
@@ -155,8 +157,14 @@ public class GLNaturalBlocks {
 		SMALL_WATER_LILY = reg.block("small_water_lily", WaterLilyBlock::new)
 				.properties(p -> p.mapColor(MapColor.PLANT).instabreak().sound(SoundType.LILY_PAD).noOcclusion()
 						.offsetType(BlockBehaviour.OffsetType.XYZ).dynamicShape().pushReaction(PushReaction.DESTROY))
-				.blockstate((ctx, pvd) -> pvd.simpleBlock(ctx.get(),
-						new ModelFile.UncheckedModelFile(pvd.modLoc("custom/nature/water_lily_small"))))
+				.blockstate((ctx, pvd) -> {
+					var builder = pvd.getVariantBuilder(ctx.get());
+					for (Direction dir : Direction.Plane.HORIZONTAL) {
+						builder.partialState().with(WaterLilyBlock.FACING, dir)
+								.modelForState().modelFile(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/nature/water_lily_small")))
+								.rotationY(((int) dir.toYRot() + 180) % 360).addModel();
+					}
+				})
 				.item((block, props) -> new PlaceOnWaterBlockItem(block, props))
 				.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("block/nature/" + ctx.getName())))
 				.tab(ResourceKey.create(Registries.CREATIVE_MODE_TAB, GensokyoLegacy.loc("ingredients")))
