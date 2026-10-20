@@ -4,7 +4,6 @@ import dev.xkmc.gensokyolegacy.init.data.biome.AbstractBiomeGen;
 import dev.xkmc.gensokyolegacy.init.data.biome.GensokyoBiomeFeatures;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.data.worldgen.features.FeatureUtils;
-import net.minecraft.data.worldgen.features.VegetationFeatures;
 import net.minecraft.data.worldgen.placement.AquaticPlacements;
 import net.minecraft.data.worldgen.placement.CavePlacements;
 import net.minecraft.data.worldgen.placement.VegetationPlacements;
@@ -68,10 +67,9 @@ public class MistyLakeBiomeGen extends AbstractBiomeGen {
 	@Override
 	protected void placed(Registrar reg) {
 		reg.cover(LAKE_CLAY_PF, reg.feature(LAKE_CLAY), CountPlacement.of(2));
-		// vanilla's lily pad *configured* feature, which already knows it needs water under it, behind a placed feature
-		// of our own: a vanilla placed feature has a fixed position in vanilla's chains, and appending one to a tail is
-		// a cycle waiting for a biome that already uses it mid-chain
-		reg.cover(LILY_PADS_PF, reg.feature(VegetationFeatures.PATCH_WATERLILY), RarityFilter.onAverageOnceEvery(3));
+		// the mod's own lilies behind a placed feature of our own: a vanilla placed feature has a fixed position in
+		// vanilla's chains, and appending one to a tail is a cycle waiting for a biome that already uses it mid-chain
+		reg.cover(LILY_PADS_PF, reg.feature(GensokyoBiomeFeatures.LILIES), RarityFilter.onAverageOnceEvery(3));
 	}
 
 }

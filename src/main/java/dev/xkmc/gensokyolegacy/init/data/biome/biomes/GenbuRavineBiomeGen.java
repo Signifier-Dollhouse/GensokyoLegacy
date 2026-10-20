@@ -116,6 +116,13 @@ public class GenbuRavineBiomeGen extends AbstractBiomeGen {
 	private static final ResourceKey<PlacedFeature> RAVINE_DRIPLEAF_PF = pf("ravine_dripleaf");
 
 	/**
+	 * The mod's own lilies on the ravine's standing water, in place of the vanilla lily pad. The count is the
+	 * vanilla chain's own, and the placed feature is of our own because a vanilla one has a fixed position in
+	 * vanilla's chains.
+	 */
+	private static final ResourceKey<PlacedFeature> RAVINE_LILIES_PF = pf("ravine_lilies");
+
+	/**
 	 * Dinosaur bones. The ravine is the one place below ground where they are still bones and not a theme.
 	 */
 	private static final List<ResourceKey<PlacedFeature>> FOSSILS = List.of(
@@ -150,7 +157,7 @@ public class GenbuRavineBiomeGen extends AbstractBiomeGen {
 								RAVINE_MOSS_PF, RAVINE_STONES_PF,
 								CavePlacements.GLOW_LICHEN, VegetationPlacements.TREES_SWAMP,
 								VegetationPlacements.FLOWER_SWAMP, VegetationPlacements.PATCH_GRASS_NORMAL,
-								VegetationPlacements.PATCH_DEAD_BUSH, VegetationPlacements.PATCH_WATERLILY,
+								VegetationPlacements.PATCH_DEAD_BUSH, RAVINE_LILIES_PF,
 								VegetationPlacements.BROWN_MUSHROOM_SWAMP, VegetationPlacements.RED_MUSHROOM_SWAMP,
 								VegetationPlacements.BROWN_MUSHROOM_NORMAL, VegetationPlacements.RED_MUSHROOM_NORMAL,
 								VegetationPlacements.PATCH_SUGAR_CANE_SWAMP, VegetationPlacements.PATCH_PUMPKIN,
@@ -226,10 +233,11 @@ public class GenbuRavineBiomeGen extends AbstractBiomeGen {
 		// The plates are on the surface: the ravine is a cut in the mountain, and the floor of the cut is the floor
 		// of the ravine. The no-leaves heightmap is the one that finds it, because the swamp's trees are on it.
 		reg.floor(RAVINE_BASALT_PF, reg.feature(RAVINE_BASALT_POOL), CountPlacement.of(8));
-		reg.floor(RAVINE_DRIPLEAF_PF, reg.feature(RAVINE_DRIPLEAF), CountPlacement.of(24));
 		reg.floor(RAVINE_STAIR_POOL_PF, reg.feature(RAVINE_STAIR_POOL), CountPlacement.of(24));
+		reg.floor(RAVINE_DRIPLEAF_PF, reg.feature(RAVINE_DRIPLEAF), CountPlacement.of(24));
 		reg.cover(RAVINE_MOSS_PF, reg.feature(RAVINE_MOSS), CountPlacement.of(3));
 		reg.cover(RAVINE_STONES_PF, reg.feature(GensokyoBiomeFeatures.STONES), CountPlacement.of(2));
+		reg.cover(RAVINE_LILIES_PF, reg.feature(GensokyoBiomeFeatures.LILIES), CountPlacement.of(4));
 		// The ravine's springs, over vanilla's own configured feature and its own height range, with the count
 		// raised and nothing else touched. It replaces SPRINGS rather than joining them: the feature is in the
 		// same step, so carrying vanilla's as well would place every spring twice and make the count a lie. The

@@ -1,5 +1,5 @@
 {
-  "feature": "minecraft:patch_waterlily",
+  "feature": "gensokyolegacy:gensokyo_biome/lilies",
   "placement": [
     {
       "type": "minecraft:rarity_filter",

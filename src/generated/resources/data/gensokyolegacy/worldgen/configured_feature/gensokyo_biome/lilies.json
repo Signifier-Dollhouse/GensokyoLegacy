@@ -1,0 +1,345 @@
+{
+  "type": "minecraft:random_patch",
+  "config": {
+    "feature": {
+      "feature": {
+        "type": "minecraft:simple_block",
+        "config": {
+          "to_place": {
+            "type": "minecraft:weighted_state_provider",
+            "entries": [
+              {
+                "data": {
+                  "Name": "gensokyolegacy:small_water_lily",
+                  "Properties": {
+                    "facing": "north"
+                  }
+                },
+                "weight": 20
+              },
+              {
+                "data": {
+                  "Name": "gensokyolegacy:small_water_lily",
+                  "Properties": {
+                    "facing": "east"
+                  }
+                },
+                "weight": 20
+              },
+              {
+                "data": {
+                  "Name": "gensokyolegacy:small_water_lily",
+                  "Properties": {
+                    "facing": "south"
+                  }
+                },
+                "weight": 20
+              },
+              {
+                "data": {
+                  "Name": "gensokyolegacy:small_water_lily",
+                  "Properties": {
+                    "facing": "west"
+                  }
+                },
+                "weight": 20
+              },
+              {
+                "data": {
+                  "Name": "gensokyolegacy:large_water_lily",
+                  "Properties": {
+                    "facing": "north",
+                    "variant": "0"
+                  }
+                },
+                "weight": 1
+              },
+              {
+                "data": {
+                  "Name": "gensokyolegacy:large_water_lily",
+                  "Properties": {
+                    "facing": "north",
+                    "variant": "1"
+                  }
+                },
+                "weight": 1
+              },
+              {
+                "data": {
+                  "Name": "gensokyolegacy:large_water_lily",
+                  "Properties": {
+                    "facing": "north",
+                    "variant": "2"
+                  }
+                },
+                "weight": 1
+              },
+              {
+                "data": {
+                  "Name": "gensokyolegacy:large_water_lily",
+                  "Properties": {
+                    "facing": "north",
+                    "variant": "3"
+                  }
+                },
+                "weight": 1
+              },
+              {
+                "data": {
+                  "Name": "gensokyolegacy:large_water_lily",
+                  "Properties": {
+                    "facing": "north",
+                    "variant": "4"
+                  }
+                },
+                "weight": 1
+              },
+              {
+                "data": {
+                  "Name": "gensokyolegacy:large_water_lily",
+                  "Properties": {
+                    "facing": "north",
+                    "variant": "5"
+                  }
+                },
+                "weight": 1
+              },
+              {
+                "data": {
+                  "Name": "gensokyolegacy:large_water_lily",
+                  "Properties": {
+                    "facing": "north",
+                    "variant": "6"
+                  }
+                },
+                "weight": 1
+              },
+              {
+                "data": {
+                  "Name": "gensokyolegacy:large_water_lily",
+                  "Properties": {
+                    "facing": "east",
+                    "variant": "0"
+                  }
+                },
+                "weight": 1
+              },
+              {
+                "data": {
+                  "Name": "gensokyolegacy:large_water_lily",
+                  "Properties": {
+                    "facing": "east",
+                    "variant": "1"
+                  }
+                },
+                "weight": 1
+              },
+              {
+                "data": {
+                  "Name": "gensokyolegacy:large_water_lily",
+                  "Properties": {
+                    "facing": "east",
+                    "variant": "2"
+                  }
+                },
+                "weight": 1
+              },
+              {
+                "data": {
+                  "Name": "gensokyolegacy:large_water_lily",
+                  "Properties": {
+                    "facing": "east",
+                    "variant": "3"
+                  }
+                },
+                "weight": 1
+              },
+              {
+                "data": {
+                  "Name": "gensokyolegacy:large_water_lily",
+                  "Properties": {
+                    "facing": "east",
+                    "variant": "4"
+                  }
+                },
+                "weight": 1
+              },
+              {
+                "data": {
+                  "Name": "gensokyolegacy:large_water_lily",
+                  "Properties": {
+                    "facing": "east",
+                    "variant": "5"
+                  }
+                },
+                "weight": 1
+              },
+              {
+                "data": {
+                  "Name": "gensokyolegacy:large_water_lily",
+                  "Properties": {
+                    "facing": "east",
+                    "variant": "6"
+                  }
+                },
+                "weight": 1
+              },
+              {
+                "data": {
+                  "Name": "gensokyolegacy:large_water_lily",
+                  "Properties": {
+                    "facing": "south",
+                    "variant": "0"
+                  }
+                },
+                "weight": 1
+              },
+              {
+                "data": {
+                  "Name": "gensokyolegacy:large_water_lily",
+                  "Properties": {
+                    "facing": "south",
+                    "variant": "1"
+                  }
+                },
+                "weight": 1
+              },
+              {
+                "data": {
+                  "Name": "gensokyolegacy:large_water_lily",
+                  "Properties": {
+                    "facing": "south",
+                    "variant": "2"
+                  }
+                },
+                "weight": 1
+              },
+              {
+                "data": {
+                  "Name": "gensokyolegacy:large_water_lily",
+                  "Properties": {
+                    "facing": "south",
+                    "variant": "3"
+                  }
+                },
+                "weight": 1
+              },
+              {
+                "data": {
+                  "Name": "gensokyolegacy:large_water_lily",
+                  "Properties": {
+                    "facing": "south",
+                    "variant": "4"
+                  }
+                },
+                "weight": 1
+              },
+              {
+                "data": {
+                  "Name": "gensokyolegacy:large_water_lily",
+                  "Properties": {
+                    "facing": "south",
+                    "variant": "5"
+                  }
+                },
+                "weight": 1
+              },
+              {
+                "data": {
+                  "Name": "gensokyolegacy:large_water_lily",
+                  "Properties": {
+                    "facing": "south",
+                    "variant": "6"
+                  }
+                },
+                "weight": 1
+              },
+              {
+                "data": {
+                  "Name": "gensokyolegacy:large_water_lily",
+                  "Properties": {
+                    "facing": "west",
+                    "variant": "0"
+                  }
+                },
+                "weight": 1
+              },
+              {
+                "data": {
+                  "Name": "gensokyolegacy:large_water_lily",
+                  "Properties": {
+                    "facing": "west",
+                    "variant": "1"
+                  }
+                },
+                "weight": 1
+              },
+              {
+                "data": {
+                  "Name": "gensokyolegacy:large_water_lily",
+                  "Properties": {
+                    "facing": "west",
+                    "variant": "2"
+                  }
+                },
+                "weight": 1
+              },
+              {
+                "data": {
+                  "Name": "gensokyolegacy:large_water_lily",
+                  "Properties": {
+                    "facing": "west",
+                    "variant": "3"
+                  }
+                },
+                "weight": 1
+              },
+              {
+                "data": {
+                  "Name": "gensokyolegacy:large_water_lily",
+                  "Properties": {
+                    "facing": "west",
+                    "variant": "4"
+                  }
+                },
+                "weight": 1
+              },
+              {
+                "data": {
+                  "Name": "gensokyolegacy:large_water_lily",
+                  "Properties": {
+                    "facing": "west",
+                    "variant": "5"
+                  }
+                },
+                "weight": 1
+              },
+              {
+                "data": {
+                  "Name": "gensokyolegacy:large_water_lily",
+                  "Properties": {
+                    "facing": "west",
+                    "variant": "6"
+                  }
+                },
+                "weight": 1
+              }
+            ]
+          }
+        }
+      },
+      "placement": [
+        {
+          "type": "minecraft:block_predicate_filter",
+          "predicate": {
+            "type": "minecraft:matching_blocks",
+            "blocks": "minecraft:air"
+          }
+        }
+      ]
+    },
+    "tries": 10,
+    "xz_spread": 7,
+    "y_spread": 3
+  }
+}

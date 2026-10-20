@@ -12,6 +12,7 @@ import dev.xkmc.gensokyolegacy.content.worldgen.placement.JitteredGridPlacement;
 import dev.xkmc.gensokyolegacy.content.worldgen.placement.NoiseBandFilter;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.biome.AbstractBiomeGen;
+import dev.xkmc.gensokyolegacy.init.data.biome.GensokyoBiomeFeatures;
 import dev.xkmc.gensokyolegacy.init.registrate.GLWorldGen;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLNaturalBlocks;
 import net.minecraft.core.Direction;
@@ -350,13 +351,13 @@ public class MagicalForestBiomeGen extends AbstractBiomeGen {
 						Blocks.DIRT.defaultBlockState(), Blocks.GRASS_BLOCK.defaultBlockState()),
 				List.of(
 						new LakeConfig.Deco(LakeConfig.Target.FLOATING,
-								Blocks.LILY_PAD.defaultBlockState(), Blocks.AIR.defaultBlockState(), 0.15f, BlockTags.DIRT),
+								GensokyoBiomeFeatures.lilies(), Blocks.AIR.defaultBlockState(), 0.15f, BlockTags.DIRT),
 						new LakeConfig.Deco(LakeConfig.Target.SHALLOW,
-								cattailWet, Blocks.AIR.defaultBlockState(), 0.25f, BlockTags.DIRT),
+								BlockStateProvider.simple(cattailWet), Blocks.AIR.defaultBlockState(), 0.25f, BlockTags.DIRT),
 						new LakeConfig.Deco(LakeConfig.Target.SHALLOW,
-								dripLower, dripUpper, 0.12f, BlockTags.SMALL_DRIPLEAF_PLACEABLE),
+								BlockStateProvider.simple(dripLower), dripUpper, 0.12f, BlockTags.SMALL_DRIPLEAF_PLACEABLE),
 						new LakeConfig.Deco(LakeConfig.Target.SHORE,
-								cattailDry, Blocks.AIR.defaultBlockState(), 0.08f, BlockTags.DIRT))));
+								BlockStateProvider.simple(cattailDry), Blocks.AIR.defaultBlockState(), 0.08f, BlockTags.DIRT))));
 	}
 
 	@Override

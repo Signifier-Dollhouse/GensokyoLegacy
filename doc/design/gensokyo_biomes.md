@@ -82,11 +82,11 @@ beside them.
 |---|---|---|
 | `muenzuka` | `forest`, **minus `trees_birch_and_oak`** | a burial grove: half locust over the markers, a quarter of the purple cherry, the rest the oak and birch that grew here before — see §2.2 |
 | `human_village` | `plains` | open, already tilled-looking, plus its pumpkin and sugar cane patches |
-| `myouren_temple_barrens` | `badlands` | the dry dead-bush and coarse-dirt look, with the locust that stands over the temple's markers |
+| `myouren_temple_barrens` | `badlands` | the dry dead-bush and coarse-dirt look, with the locust that stands over the temple's markers, and the temple's own pools with the mod's lilies on them |
 | `bamboo_forest_of_the_lost` | `snowy_taiga` | spruce understorey, so the grove reads as a winter one — though the biome itself no longer snows, §6 |
 | `hill_of_the_nameless` | `meadow` | open flowered hill with no canopy to hide in |
 | `untrodden_valley` | `taiga`, **minus `trees_taiga`** | half maple, half oak and birch: the grove is the reason the valley reads as untrodden rather than as cold — see §2.2 |
-| `genbu_ravine` | `swamp`, plus `lush_caves` | the clay disk and reeds read as wet banks, the lily pads work underwater, and lush caves' seven put the growth and vines in the ravine floor, with the eighth laid by the ravine itself, in basalt — see below |
+| `genbu_ravine` | `swamp`, plus `lush_caves` | the clay disk and reeds read as wet banks, the mod's lilies work underwater, and lush caves' seven put the growth and vines in the ravine floor, with the eighth laid by the ravine itself, in basalt — see below |
 | `youkai_mountain_foothills` | `windswept_hills`, **minus `trees_windswept_hills`** | maple again, and the thinnest of the three groves: the wind is what thins it — see §2.2 |
 | `sanctuary` | `forest` | the mountain's own grove — birch and oak under the cherry tail, against the hill's open meadow beside it |
 | `hell_of_blood_pools` | `soul_sand_valley` | a basin of souls is the one nether pool; basalt pillars stand it up off the floor |
@@ -303,8 +303,8 @@ There is no snowy biome: the guide gives a band its four, and the one genuinely 
 ## 2. The feature tail
 
 The features live with the biome that is the only one to use them, under
-`worldgen/{configured,placed}_feature/gensokyo_biome/`. Only `stones`, `foothill_moss`, `lake_cattails`, `maple_trees`
-and `maple_fallen_leaves` are shared enough to belong in `GensokyoBiomeFeatures`. Six kinds:
+`worldgen/{configured,placed}_feature/gensokyo_biome/`. Only `stones`, `foothill_moss`, `lake_cattails`, `maple_trees`,
+`maple_fallen_leaves` and `lilies` are shared enough to belong in `GensokyoBiomeFeatures`. Seven kinds:
 
 **Ground cover** — `RANDOM_PATCH` of `SIMPLE_BLOCK` on `BlockTags.DIRT`, the same shape as the magical forest's grass
 and flowers. The vanilla flower and grass features of the base are kept as well, so the mod blocks are an accent
@@ -331,9 +331,14 @@ of it. See §1.
 deep, and the run of them into a rim. See §1.
 
 **One chamber** — `gensokyolegacy:ravine_cave`, which cuts the ravine itself: a quarter ellipsoid with a flat floor
-and a domed ceiling, cut into the face of a cliff, with the floor laid in basalt and the middle of it flooded. It is
-the ravine's first feature, because everything else in the ravine is laid on the ground it makes. See
+and a domed ceiling, cut into the face of a cliff, and lined in basalt — floor, walls and roof. It is the ravine's first
+feature, because everything else in the ravine is laid on the ground it makes. See
 `doc/design/genbu_ravine_cave.md`.
+
+**Water lilies** — `gensokyo_biome/lilies`, which every Gensokyo lake grows in place of the vanilla lily pad: the mod's
+own small pad and the large one, each in its own facing, and the large one in each of its seven looks. The mix is one
+place (`GensokyoBiomeFeatures.lilies()`), so the lake the magical forest digs and the pool the barrens digs grow the same
+plants, and the patch the Misty Lake and the ravine lay down grow the same plants as the lakes do.
 
 **One lake** — `former_hell_lake`, see §2.1. It is the only feature in the tail that is not a patch of blocks.
 
@@ -351,6 +356,7 @@ the ravine's first feature, because everything else in the ravine is laid on the
 | `barrens_stone_lantern` | 4 tries in 1 patch per chunk, on the floor | barrens |
 | `barrens_jizo` | 24 tries in 1 patch, all four kinds, on the floor | barrens |
 | `barrens_locust_trees` | 6 trees | barrens |
+| `barrens_lake` | 1 in 16 chunks, a pool with the mod's lilies on it | barrens |
 | `hill_of_the_nameless_flowers` | 7 patches | hill of the nameless |
 | `bamboo_dense` / `bamboo_sparse` | 6 patches / 1 in 3 | bamboo forest of the lost |
 | `ravine_moss` | 3 patches, 20 tries each | genbu ravine |
@@ -359,6 +365,7 @@ the ravine's first feature, because everything else in the ravine is laid on the
 | `ravine_dripleaf` | 64 dripleaves a chunk, each on a patch of mud | genbu ravine |
 | `ravine_stair_pool` | 24 tries a chunk, each a rim of seven treads | genbu ravine |
 | `ravine_stones` | 2 patches, the same stone as `stones` | genbu ravine |
+| `ravine_lilies` | 4 patches a chunk, the mod's lilies on the standing water | genbu ravine |
 | `ravine_mud` | 2 disks a chunk, radius 2…4 | genbu ravine |
 | `foothill_moss` | 4 patches | youkai mountain foothills |
 | `valley_mixed_trees` / `maple_fallen_leaves` | 10 trees / 2 patches | valley, settlement 6, foothills 2 |
@@ -618,7 +625,8 @@ features that happen to be identical.
 already has a fixed position in vanilla's own chains: appending `minecraft:patch_waterlily` to one biome's tail put it
 after `minecraft:seagrass_river`, while `minecraft:swamp`'s own chain has it before
 `minecraft:brown_mushroom_swamp`, and the two together cycle. Reuse the vanilla *configured* feature behind a placed
-feature of our own instead — that is what `misty_lake_lily_pads` is.
+feature of our own instead — that is what `misty_lake_lily_pads` is, and what `ravine_lilies` is now that the ravine
+grows the mod's own lilies rather than the vanilla lily pad.
 
 The ravine is the one biome that does not keep its custom features in a tail. It puts its three — the plates, the moss
 and the stones — at the **head** of its list, before the swamp's trees and grass, because the plates have to be down
@@ -877,7 +885,7 @@ biome should be cold enough", so this is the branch where that question was answ
 
 | biome | tail |
 |---|---|
-| `misty_lake` | clay and gravel patches on the bed, cattails in the coves, sparse lily pads |
+| `misty_lake` | clay and gravel patches on the bed, cattails in the coves, the mod's own lilies |
 | `misty_lake_shore` | boulders, a sand/gravel/mud waterline, reeds at the edge, ferns and flowers inland |
 | `tengu_settlement` | a maple grove, ferns and grass on the unused slopes, gravel and coarse dirt paths |
 | `secret_heaven_cliff` | boulders and a sparser scree of gravel and tuff, one patch per chunk |

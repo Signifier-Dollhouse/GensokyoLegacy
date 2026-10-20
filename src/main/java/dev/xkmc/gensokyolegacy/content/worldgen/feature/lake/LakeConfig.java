@@ -10,6 +10,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
+import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProvider;
 
 import java.util.List;
 
@@ -118,13 +119,16 @@ public record LakeConfig(Mode mode, int clearance, Shape shape, Material materia
 	/**
 	 * One waterline plant: {@code block} at the water surface or shore top, {@code upper} above it for double-height
 	 * plants, on soil matching {@code soil}.
+	 * <p>
+	 * The block is a provider rather than a single state, because a lake may grow a mix: the water lilies are the
+	 * small pad and the large one in each of its looks, and one state would be one of them.
 	 */
-	public record Deco(Target target, BlockState block, BlockState upper, float chance, TagKey<Block> soil)
+	public record Deco(Target target, BlockStateProvider block, BlockState upper, float chance, TagKey<Block> soil)
 			implements FeatureConfiguration {
 
 		public static final Codec<Deco> CODEC = RecordCodecBuilder.create(i -> i.group(
 				Target.CODEC.fieldOf("target").forGetter(Deco::target),
-				BlockState.CODEC.fieldOf("block").forGetter(Deco::block),
+				BlockStateProvider.CODEC.fieldOf("block").forGetter(Deco::block),
 				BlockState.CODEC.optionalFieldOf("upper", Blocks.AIR.defaultBlockState()).forGetter(Deco::upper),
 				Codec.FLOAT.fieldOf("chance").forGetter(Deco::chance),
 				TagKey.hashedCodec(Registries.BLOCK).optionalFieldOf("soil", BlockTags.DIRT).forGetter(Deco::soil)

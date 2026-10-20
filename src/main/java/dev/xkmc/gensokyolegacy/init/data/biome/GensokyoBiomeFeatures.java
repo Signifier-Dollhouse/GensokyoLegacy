@@ -1,8 +1,11 @@
 package dev.xkmc.gensokyolegacy.init.data.biome;
 
+import dev.xkmc.gensokyolegacy.content.block.nature.LargeWaterLilyBlock;
+import dev.xkmc.gensokyolegacy.content.block.nature.WaterLilyBlock;
 import dev.xkmc.gensokyolegacy.content.worldgen.feature.TreeFeatures.TreeType;
 import dev.xkmc.gensokyolegacy.init.data.biome.biomes.GenbuRavineBiomeGen;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLNaturalBlocks;
+import net.minecraft.core.Direction;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
@@ -15,6 +18,9 @@ import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.WeightedPlacedFeature;
 import net.minecraft.world.level.levelgen.feature.configurations.RandomFeatureConfiguration;
+import net.minecraft.world.level.levelgen.feature.configurations.RandomPatchConfiguration;
+import net.minecraft.world.level.levelgen.feature.configurations.SimpleBlockConfiguration;
+import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProvider;
 import net.minecraft.world.level.levelgen.placement.CountPlacement;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import net.minecraft.world.level.levelgen.placement.RarityFilter;
@@ -58,6 +64,12 @@ public class GensokyoBiomeFeatures {
 	/** The carpet of fallen maple leaves that goes with them, and the one litter all three groves take. */
 	public static final ResourceKey<ConfiguredFeature<?, ?>> MAPLE_FALLEN_LEAVES = AbstractBiomeGen.cf("maple_fallen_leaves");
 	public static final ResourceKey<PlacedFeature> MAPLE_FALLEN_LEAVES_PF = AbstractBiomeGen.pf("maple_fallen_leaves");
+	/**
+	 * The mod's own two water lilies, which every Gensokyo lake grows in place of the vanilla lily pad.
+	 * <p>
+	 * The count is left to each biome, as it is for the loose stone: the lake it grows in decides how many.
+	 */
+	public static final ResourceKey<ConfiguredFeature<?, ?>> LILIES = AbstractBiomeGen.cf("lilies");
 
 	private static final ResourceKey<ConfiguredFeature<?, ?>> FOOTHILL_MOSS = AbstractBiomeGen.cf("foothill_moss");
 
@@ -87,6 +99,36 @@ public class GensokyoBiomeFeatures {
 				PlacementUtils.inlinePlaced(trees.getOrThrow(TreeType.YELLOW_MAPLE.cfKey))));
 		FeatureUtils.register(ctx, MAPLE_FALLEN_LEAVES, Feature.RANDOM_PATCH,
 				AbstractBiomeGen.fallenLeaves(40, 6, GLNaturalBlocks.MIXED_MAPLE_FALLEN_LEAVES));
+		// The mod's own lilies, in place of the vanilla lily pad: a patch of them on the water, the small pad and
+		// the large one in each of its looks.
+		FeatureUtils.register(ctx, LILIES, Feature.RANDOM_PATCH, new RandomPatchConfiguration(
+				10, 7, 3, PlacementUtils.onlyWhenEmpty(Feature.SIMPLE_BLOCK, new SimpleBlockConfiguration(lilies()))));
+	}
+
+	/**
+	 * The mix a Gensokyo lake grows: the small pad, and the large one in each of its looks, so a lake is a field of
+	 * pads with the large ones among them and not a field of the same pad.
+	 * <p>
+	 * The large lily's looks are the block's own — a bare pad, a bloom, a bud, a seed pod — and only a player placing
+	 * one picks a look at random. A lake grows them all, so the looks are enumerated here rather than left to the
+	 * one the block comes up with.
+	 * <p>
+	 * The lilies are not symmetric, so every one of them has a facing, and a lake that grows them all one way round
+	 * reads as a field of arrows. Each facing is in the mix, and the large one for every three small ones.
+	 */
+	public static BlockStateProvider lilies() {
+		var small = GLNaturalBlocks.SMALL_WATER_LILY.get().defaultBlockState();
+		var large = GLNaturalBlocks.LARGE_WATER_LILY.get().defaultBlockState();
+		var palette = new AbstractBiomeGen.Palette();
+		for (var dir : Direction.Plane.HORIZONTAL) {
+			palette.add(small.setValue(WaterLilyBlock.FACING, dir), 20);
+		}
+		for (var dir : Direction.Plane.HORIZONTAL) {
+			for (int i = 0; i < LargeWaterLilyBlock.VARIANTS; i++) {
+				palette.add(large.setValue(WaterLilyBlock.FACING, dir).setValue(LargeWaterLilyBlock.VARIANT, i), 1);
+			}
+		}
+		return palette.build();
 	}
 
 	/** Called from {@code build}, which owns the single {@link Registries#PLACED_FEATURE} bootstrap. */

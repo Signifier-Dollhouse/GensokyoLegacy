@@ -182,11 +182,11 @@ public class LakeFeature extends Feature<LakeConfig> {
 		for (var deco : config.decorations()) {
 			if (deco.target() == LakeConfig.Target.FLOATING) {
 				if (depth >= 2 && level.getBlockState(top).isAir() && rand.nextFloat() < deco.chance())
-					setBlock(level, top, deco.block());
+					setBlock(level, top, deco.block().getState(rand, top));
 			} else if (deco.target() == LakeConfig.Target.SHALLOW && depth == 1) {
 				if (level.getBlockState(surface).is(Blocks.WATER) && level.getBlockState(top).isAir() &&
 						soil.is(deco.soil()) && rand.nextFloat() < deco.chance()) {
-					setBlock(level, surface, deco.block());
+					setBlock(level, surface, deco.block().getState(rand, surface));
 					if (!deco.upper().isAir()) setBlock(level, top, deco.upper());
 				}
 			}
@@ -200,7 +200,7 @@ public class LakeFeature extends Feature<LakeConfig> {
 			if (deco.target() != LakeConfig.Target.SHORE) continue;
 			if (soil.is(deco.soil()) && level.getBlockState(top).isAir() &&
 					nextToWater(level, ground) && rand.nextFloat() < deco.chance())
-				setBlock(level, top, deco.block());
+				setBlock(level, top, deco.block().getState(rand, top));
 		}
 	}
 
