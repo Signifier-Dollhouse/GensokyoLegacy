@@ -113,12 +113,6 @@ public class DollEntity extends BaseDollEntity
 	}
 
 	@Override
-	public boolean isDamageSourceBlocked(DamageSource damageSource) {
-		if (!isProjectileDamage(damageSource)) return false;
-		return super.isDamageSourceBlocked(damageSource);
-	}
-
-	@Override
 	protected void hurtCurrentlyUsedShield(float damage) {
 		wearShield();
 	}
