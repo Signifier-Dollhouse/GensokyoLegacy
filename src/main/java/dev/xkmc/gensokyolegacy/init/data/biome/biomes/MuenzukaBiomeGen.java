@@ -58,7 +58,6 @@ public class MuenzukaBiomeGen extends AbstractBiomeGen {
 	private static final ResourceKey<PlacedFeature> STONE_LANTERN_PF = pf("stone_lantern");
 	private static final ResourceKey<ConfiguredFeature<?, ?>> GHOST_FLOWERS = cf("ghost_flowers");
 	private static final ResourceKey<PlacedFeature> GHOST_FLOWERS_PF = pf("ghost_flowers");
-	private static final ResourceKey<ConfiguredFeature<?, ?>> MUENZUKA_TREES = cf("muenzuka_trees");
 	private static final ResourceKey<PlacedFeature> MUENZUKA_TREES_PF = pf("muenzuka_trees");
 	private static final ResourceKey<ConfiguredFeature<?, ?>> MUENZUKA_LITTER = cf("muenzuka_litter");
 	private static final ResourceKey<PlacedFeature> MUENZUKA_LITTER_PF = pf("muenzuka_litter");
@@ -100,17 +99,6 @@ public class MuenzukaBiomeGen extends AbstractBiomeGen {
 		FeatureUtils.register(ctx, GHOST_FLOWERS, Feature.RANDOM_PATCH, onDirt(24, new Palette()
 				.add(Blocks.LILY_OF_THE_VALLEY, 3).add(Blocks.OXEYE_DAISY, 3).add(Blocks.ALLIUM, 2)
 				.add(Blocks.DEAD_BUSH, 2).add(GLNaturalBlocks.EUGUNE_GHOST_FIRE, 1).build()));
-
-		// the odds compound down the list, so half each of the three entries leaves an eighth for the default
-		HolderGetter<ConfiguredFeature<?, ?>> trees = ctx.lookup(Registries.CONFIGURED_FEATURE);
-		FeatureUtils.register(ctx, MUENZUKA_TREES, Feature.RANDOM_SELECTOR, new RandomFeatureConfiguration(
-				List.of(new WeightedPlacedFeature(
-						PlacementUtils.inlinePlaced(trees.getOrThrow(TreeType.LOCUST.cfKey)), 0.5F),
-						new WeightedPlacedFeature(
-								PlacementUtils.inlinePlaced(trees.getOrThrow(TreeType.PURPLE_CHERRY.cfKey)), 0.5F),
-						new WeightedPlacedFeature(
-								PlacementUtils.inlinePlaced(trees.getOrThrow(TreeFeatures.OAK)), 0.5F)),
-				PlacementUtils.inlinePlaced(trees.getOrThrow(TreeFeatures.BIRCH))));
 		// the purple cherry's petals, the ones that fall in this grove
 		FeatureUtils.register(ctx, MUENZUKA_LITTER, Feature.RANDOM_PATCH,
 				fallenLeaves(40, 6, GLNaturalBlocks.PURPLE_CHERRY_FALLEN_LEAVES));
@@ -119,7 +107,7 @@ public class MuenzukaBiomeGen extends AbstractBiomeGen {
 	@Override
 	protected void placed(Registrar reg) {
 		reg.cover(PODZOL_PF, reg.feature(PODZOL_DISK), CountPlacement.of(3));
-		reg.trees(MUENZUKA_TREES_PF, reg.feature(MUENZUKA_TREES), CountPlacement.of(4));
+		reg.trees(MUENZUKA_TREES_PF, reg.feature(TreeType.PURPLE_CHERRY.cfKey), CountPlacement.of(4));
 		reg.litter(MUENZUKA_LITTER_PF, reg.feature(MUENZUKA_LITTER), CountPlacement.of(2));
 		reg.cover(GRAVE_MARKER_PF, reg.feature(GRAVE_MARKER), RarityFilter.onAverageOnceEvery(4));
 		reg.floor(GRAVESTONE_PF, reg.feature(GRAVESTONE), CountPlacement.of(1));
