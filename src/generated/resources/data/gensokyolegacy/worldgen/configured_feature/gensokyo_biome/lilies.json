@@ -15,7 +15,7 @@
                     "facing": "north"
                   }
                 },
-                "weight": 20
+                "weight": 3
               },
               {
                 "data": {
@@ -24,7 +24,7 @@
                     "facing": "east"
                   }
                 },
-                "weight": 20
+                "weight": 3
               },
               {
                 "data": {
@@ -33,7 +33,7 @@
                     "facing": "south"
                   }
                 },
-                "weight": 20
+                "weight": 3
               },
               {
                 "data": {
@@ -42,7 +42,7 @@
                     "facing": "west"
                   }
                 },
-                "weight": 20
+                "weight": 3
               },
               {
                 "data": {

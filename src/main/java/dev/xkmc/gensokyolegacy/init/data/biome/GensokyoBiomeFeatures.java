@@ -121,7 +121,7 @@ public class GensokyoBiomeFeatures {
 		var large = GLNaturalBlocks.LARGE_WATER_LILY.get().defaultBlockState();
 		var palette = new AbstractBiomeGen.Palette();
 		for (var dir : Direction.Plane.HORIZONTAL) {
-			palette.add(small.setValue(WaterLilyBlock.FACING, dir), 20);
+			palette.add(small.setValue(WaterLilyBlock.FACING, dir), 3);
 		}
 		for (var dir : Direction.Plane.HORIZONTAL) {
 			for (int i = 0; i < LargeWaterLilyBlock.VARIANTS; i++) {
