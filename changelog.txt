@@ -1,5 +1,6 @@
 1.0.5
 - Seki head, sold by Morichika at high reputation
+- doll shield
 - Gift interaction and gift return, more unique gifts
 - Fix compatibility with Sparse Structures
 
