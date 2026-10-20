@@ -9,6 +9,8 @@ import dev.xkmc.gensokyolegacy.content.worldgen.feature.dripleaf.DripleafScatter
 import dev.xkmc.gensokyolegacy.content.worldgen.feature.dripleaf.DripleafScatterFeature;
 import dev.xkmc.gensokyolegacy.content.worldgen.feature.lake.LakeConfig;
 import dev.xkmc.gensokyolegacy.content.worldgen.feature.lake.LakeFeature;
+import dev.xkmc.gensokyolegacy.content.worldgen.feature.ravine.RavineCaveConfig;
+import dev.xkmc.gensokyolegacy.content.worldgen.feature.ravine.RavineCaveFeature;
 import dev.xkmc.gensokyolegacy.content.worldgen.feature.stair.StairPoolConfig;
 import dev.xkmc.gensokyolegacy.content.worldgen.feature.stair.StairPoolFeature;
 import dev.xkmc.gensokyolegacy.content.worldgen.feature.template.TemplateBlendProcessor;
@@ -73,6 +75,8 @@ public class GLWorldGen {
 			FR.reg("stair_pool", () -> new StairPoolFeature(StairPoolConfig.CODEC));
 	public static final Val<DripleafScatterFeature> DRIPLEAF_SCATTER =
 			FR.reg("dripleaf_scatter", () -> new DripleafScatterFeature(DripleafScatterConfig.CODEC));
+	public static final Val<RavineCaveFeature> RAVINE_CAVE =
+			FR.reg("ravine_cave", () -> new RavineCaveFeature(RavineCaveConfig.CODEC));
 
 	private static final SR<PlacementModifierType<?>> PM = SR.of(GensokyoLegacy.REG, Registries.PLACEMENT_MODIFIER_TYPE);
 	public static final Val<PlacementModifierType<JitteredGridPlacement>> JITTERED_GRID = PM.reg("jittered_grid", () -> () -> JitteredGridPlacement.CODEC);

@@ -1,6 +1,7 @@
 package dev.xkmc.gensokyolegacy.init.data.biome.biomes;
 
 import dev.xkmc.gensokyolegacy.content.worldgen.feature.dripleaf.DripleafScatterConfig;
+import dev.xkmc.gensokyolegacy.content.worldgen.feature.ravine.RavineCaveConfig;
 import dev.xkmc.gensokyolegacy.content.worldgen.feature.stair.StairPoolConfig;
 import dev.xkmc.gensokyolegacy.init.data.biome.AbstractBiomeGen;
 import dev.xkmc.gensokyolegacy.init.data.biome.GensokyoBiomeFeatures;
@@ -57,11 +58,14 @@ import java.util.List;
  * ceiling growth and the rooted azalea all hang off the same cave surfaces, so taking some of them would be taking a
  * fragment of one decoration rather than a style. The one piece the ravine lays itself is the clay patch, in basalt.
  * <p>
- * The ravine's own five — the plates, the dripleaves on them, the pools cut into the steps, the moss and the stones
- * — come first, and the swamp's trees and grass after them: the plates have to be down before anything grows on
- * them, or a pool of them ends up under a patch of grass that grew first.
+ * The ravine's own six — the chamber, the plates, the dripleaves on them, the pools cut into the
+ * steps, the moss and the stones — come first, and the swamp's trees and grass after them: the
+ * plates have to be down before anything grows on them, or a pool of them ends up under a patch of
+ * grass that grew first. The chamber has to be cut before the plates are laid, because it is the
+ * chamber's floor they would otherwise have to be laid on.
  *
  * @see "doc/design/gensokyo_biomes.md" §1
+ * @see "doc/design/genbu_ravine_cave.md"
  */
 public class GenbuRavineBiomeGen extends AbstractBiomeGen {
 
@@ -72,6 +76,16 @@ public class GenbuRavineBiomeGen extends AbstractBiomeGen {
 	private static final ResourceKey<ConfiguredFeature<?, ?>> RAVINE_MOSS = cf("ravine_moss");
 	private static final ResourceKey<PlacedFeature> RAVINE_MOSS_PF = pf("ravine_moss");
 	private static final ResourceKey<PlacedFeature> RAVINE_SPRING_WATER_PF = pf("ravine_spring_water");
+
+	/**
+	 * The ravine's own cut into the mountain: a chamber with a flat floor and a domed ceiling,
+	 * cut into the face of a cliff.
+	 * <p>
+	 * It is the ravine's first feature, because everything else in the ravine is laid on the ground
+	 * it makes: the plates are the chamber's floor, and the growth hangs off its walls.
+	 */
+	private static final ResourceKey<ConfiguredFeature<?, ?>> RAVINE_CAVE = cf("ravine_cave");
+	private static final ResourceKey<PlacedFeature> RAVINE_CAVE_PF = pf("ravine_cave");
 
 	/**
 	 * The ravine's own floor plates: the patch lush caves lays in clay, laid here in basalt.
@@ -101,7 +115,9 @@ public class GenbuRavineBiomeGen extends AbstractBiomeGen {
 	private static final ResourceKey<ConfiguredFeature<?, ?>> RAVINE_DRIPLEAF = cf("ravine_dripleaf");
 	private static final ResourceKey<PlacedFeature> RAVINE_DRIPLEAF_PF = pf("ravine_dripleaf");
 
-	/** Dinosaur bones. The ravine is the one place below ground where they are still bones and not a theme. */
+	/**
+	 * Dinosaur bones. The ravine is the one place below ground where they are still bones and not a theme.
+	 */
 	private static final List<ResourceKey<PlacedFeature>> FOSSILS = List.of(
 			CavePlacements.FOSSIL_UPPER, CavePlacements.FOSSIL_LOWER);
 
@@ -129,6 +145,7 @@ public class GenbuRavineBiomeGen extends AbstractBiomeGen {
 								RAVINE_MUD_PF)))
 						.springs(RAVINE_SPRINGS)
 						.vegetation(List.of(
+								RAVINE_CAVE_PF,
 								RAVINE_BASALT_PF, RAVINE_STAIR_POOL_PF, RAVINE_DRIPLEAF_PF,
 								RAVINE_MOSS_PF, RAVINE_STONES_PF,
 								CavePlacements.GLOW_LICHEN, VegetationPlacements.TREES_SWAMP,
@@ -170,6 +187,11 @@ public class GenbuRavineBiomeGen extends AbstractBiomeGen {
 		// in bare stone, so the block it stands on is replaced with ground that it can.
 		FeatureUtils.register(ctx, RAVINE_DRIPLEAF, GLWorldGen.DRIPLEAF_SCATTER.get(),
 				new DripleafScatterConfig(Blocks.BASALT.defaultBlockState(), Blocks.MUD.defaultBlockState()));
+		// The ravine's own cut into the mountain: a chamber with a flat floor and a domed ceiling, cut into the
+		// face of a cliff. The floor is basalt and the middle of it is flooded, which is the ravine's own floor
+		// treatment carried into the rock.
+		FeatureUtils.register(ctx, RAVINE_CAVE, GLWorldGen.RAVINE_CAVE.get(), new RavineCaveConfig(
+				5, 7, 8, 5, Blocks.BASALT.defaultBlockState(), Blocks.WATER.defaultBlockState()));
 	}
 
 	/**
@@ -194,6 +216,10 @@ public class GenbuRavineBiomeGen extends AbstractBiomeGen {
 	@Override
 	protected void placed(Registrar reg) {
 		reg.cover(RAVINE_MUD_PF, reg.feature(RAVINE_MUD_DISK), CountPlacement.of(2));
+		// The ravine's own cut into the mountain, first of all of them: the cliff is read off the heightmap around
+		// the position and the chamber is cut into it, and everything else in the ravine is laid on the ground that
+		// makes. Six positions a chunk, and most of them find no wall.
+		reg.floor(RAVINE_CAVE_PF, reg.feature(RAVINE_CAVE), CountPlacement.of(32));
 		// The ravine's own floor, in the order the ravine's list reads it: the plates, the dripleaves on them, the
 		// pools cut into the steps, the moss, the stones, and only then the swamp's trees and grass. The plates have to
 		// be down first — a pool of them under a patch of grass that grew before it is grass standing on water.
