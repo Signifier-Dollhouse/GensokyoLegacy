@@ -43,6 +43,7 @@ produce them.
 | `checkinterior.py` | validates a *proposed* room/node set (the values are duplicated in the file header) |
 | `checkconfig.py` | validates the **generated datamap JSON** against the shipped template — this is the one that gates |
 | `stripjarjar.py` | strips the jar-in-jar payload from a `libs/` mod jar — unrelated to structures, listed here because it lives in `tools/` |
+| `water_lily_textures.py` | slices the water lily art in `temp/` into the atlas the lily models address — also unrelated to structures, same reason |
 
 ### Stripping jarJar from a dev jar
 
@@ -178,3 +179,19 @@ node, so if a space is genuinely unreachable it should not be a room at all.
   this in `state_of`.
 - **`half=top` stairs are decoration.** Alice's tower shelves and roof are built
   from them; only the `half=bottom` diagonal chain is a walkable run.
+
+## Cutting the water lily art
+
+The lily is drawn in `temp/`: one model per size, and a 64x64 sheet per look of the large one. A
+model addresses a rectangle of one texture, so the large lily is one model and seven textures, and
+the blockstate picks between them.
+
+Model uvs live in the 0..16 model space whatever the texture's pixel size is — the `texture_size`
+in the Blockbench export is Blockbench's own display setting and Minecraft ignores it. So the
+sheets are copied over untouched and the models address them as they are; `water_lily_textures.py`
+only renames them and cuts the two item icons out of them:
+
+- `textures/block/nature/water_lily_<n>.png` — the seven sheets, one per look
+- `textures/block/nature/water_lily_small.png` — the small lily's 32x32 sheet
+- `textures/block/nature/large_water_lily.png`, `small_water_lily.png` — the pad on its own, used as
+  the item icon and as the block particle texture

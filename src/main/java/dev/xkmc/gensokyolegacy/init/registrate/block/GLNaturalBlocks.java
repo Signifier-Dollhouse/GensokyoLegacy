@@ -28,6 +28,7 @@ import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.PlaceOnWaterBlockItem;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.grower.TreeGrower;
@@ -78,6 +79,9 @@ public class GLNaturalBlocks {
 
 	public static final BlockEntry<HugeMushroomBlock> CYAN_MUSHROOM_STEM, PURPLE_MUSHROOM_STEM, RED_MUSHROOM_STEM;
 
+	public static final BlockEntry<LargeWaterLilyBlock> LARGE_WATER_LILY;
+	public static final BlockEntry<WaterLilyBlock> SMALL_WATER_LILY;
+
 	public static final MushroomSet GHOST_FIRE_MUSHROOM_SET, DREAM_MUSHROOM_SET, DEMONIC_MIASMA_MUSHROOM_SET;
 
 	public static final BlockEntry<TallGrassBlock> BROOM_GRASS;
@@ -126,6 +130,36 @@ public class GLNaturalBlocks {
 						.parent(new ModelFile.UncheckedModelFile("item/generated"))
 						.texture("layer0", pvd.modLoc("item/ingredient/flame_cattail")))
 				.dataMap(NeoForgeDataMaps.COMPOSTABLES, new Compostable(0.65f))
+				.build()
+				.register();
+
+		// 大睡莲:浮在水面上,七种外观
+		LARGE_WATER_LILY = reg.block("large_water_lily", LargeWaterLilyBlock::new)
+				.properties(p -> p.mapColor(MapColor.PLANT).instabreak().sound(SoundType.LILY_PAD).noOcclusion()
+						.offsetType(BlockBehaviour.OffsetType.XYZ).dynamicShape().pushReaction(PushReaction.DESTROY))
+				.blockstate((ctx, pvd) -> {
+					var builder = pvd.getVariantBuilder(ctx.get());
+					for (int i = 0; i < LargeWaterLilyBlock.VARIANTS; i++) {
+						builder.partialState().with(LargeWaterLilyBlock.VARIANT, i)
+								.modelForState().modelFile(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/nature/water_lily_" + i)))
+								.addModel();
+					}
+				})
+				.item((block, props) -> new PlaceOnWaterBlockItem(block, props))
+				.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("block/nature/" + ctx.getName())))
+				.tab(ResourceKey.create(Registries.CREATIVE_MODE_TAB, GensokyoLegacy.loc("ingredients")))
+				.build()
+				.register();
+
+		// 小睡莲
+		SMALL_WATER_LILY = reg.block("small_water_lily", WaterLilyBlock::new)
+				.properties(p -> p.mapColor(MapColor.PLANT).instabreak().sound(SoundType.LILY_PAD).noOcclusion()
+						.offsetType(BlockBehaviour.OffsetType.XYZ).dynamicShape().pushReaction(PushReaction.DESTROY))
+				.blockstate((ctx, pvd) -> pvd.simpleBlock(ctx.get(),
+						new ModelFile.UncheckedModelFile(pvd.modLoc("custom/nature/water_lily_small"))))
+				.item((block, props) -> new PlaceOnWaterBlockItem(block, props))
+				.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("block/nature/" + ctx.getName())))
+				.tab(ResourceKey.create(Registries.CREATIVE_MODE_TAB, GensokyoLegacy.loc("ingredients")))
 				.build()
 				.register();
 
