@@ -1,0 +1,34 @@
+{
+  "variants": {
+    "facing=east,half=bottom": {
+      "model": "gensokyolegacy:block/jizo_myouren",
+      "y": 90
+    },
+    "facing=east,half=top": {
+      "model": "gensokyolegacy:block/jizo_myouren_top",
+      "y": 90
+    },
+    "facing=north,half=bottom": {
+      "model": "gensokyolegacy:block/jizo_myouren"
+    },
+    "facing=north,half=top": {
+      "model": "gensokyolegacy:block/jizo_myouren_top"
+    },
+    "facing=south,half=bottom": {
+      "model": "gensokyolegacy:block/jizo_myouren",
+      "y": 180
+    },
+    "facing=south,half=top": {
+      "model": "gensokyolegacy:block/jizo_myouren_top",
+      "y": 180
+    },
+    "facing=west,half=bottom": {
+      "model": "gensokyolegacy:block/jizo_myouren",
+      "y": 270
+    },
+    "facing=west,half=top": {
+      "model": "gensokyolegacy:block/jizo_myouren_top",
+      "y": 270
+    }
+  }
+}

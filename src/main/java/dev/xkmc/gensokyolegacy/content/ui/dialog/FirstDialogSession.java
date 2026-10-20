@@ -3,6 +3,7 @@ package dev.xkmc.gensokyolegacy.content.ui.dialog;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.rpg.core.ServerCharacterDialogManager;
 import dev.xkmc.gensokyolegacy.content.rpg.handle.ClientHandle;
+import dev.xkmc.gensokyolegacy.content.rpg.handle.DialogHandle;
 import dev.xkmc.gensokyolegacy.content.rpg.handle.GroupHandle;
 import dev.xkmc.gensokyolegacy.content.rpg.handle.IDialogHandle;
 import dev.xkmc.gensokyolegacy.content.rpg.network.FirstDialogToClient;
@@ -20,11 +21,20 @@ import java.util.function.Function;
 /**
  * The topic list a character offers at the start of a conversation: whatever
  * chats, quests and trades it has unlocked right now.
+ * <p>
+ * An override chat skips the list entirely — the conversation starts on its dialog instead, so a
+ * gift owed is handed over before the player is asked what they came for.
  */
 public class FirstDialogSession extends DialogSession {
 
 	public static void open(ServerPlayer sp, YoukaiEntity ch) {
-		var handles = ServerCharacterDialogManager.get(sp.serverLevel(), ch.getType()).getInitialConversation(sp, ch);
+		var manager = ServerCharacterDialogManager.get(sp.serverLevel(), ch.getType());
+		var override = manager.pickOverrideChat(sp, ch);
+		if (override != null) {
+			new DialogHandle(override).open(sp, ch);
+			return;
+		}
+		var handles = manager.getInitialConversation(sp, ch);
 		new FirstDialogSession(sp, ch, handles, toClient(handles, IDialogHandle::display), null).activate();
 	}
 

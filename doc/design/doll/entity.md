@@ -1,9 +1,11 @@
 # Doll Entity — `BaseDollEntity` and `DollEntity`
 
-The doll is split across two classes to mirror the pairing/behavior responsibility boundary:
+The doll is split across two classes, and the split is the type that says what a kind *is*: pairing on one side, action on the other.
 
-- **`BaseDollEntity`** (`content/entity/dolls/BaseDollEntity.java`) — *foundation and pairing*: identity, movement/navigation, goals, the deferred damage pipeline, the itemize interaction, the reconciliation hooks, and the never-save guard. This is the part that every doll kind shares and that keeps the ledger honest.
-- **`DollEntity`** (`content/entity/dolls/DollEntity.java`) — *doll-specific entity logic and rendering-facing state*: the GeckoLib animation rig (the actual `GeoEntity`/`Animatable` implementation lives here), the per-doll tint (`DATA_COLOR`), and the planned synced held-item accessors (§8).
+- **`BaseDollEntity`** (`content/entity/dolls/BaseDollEntity.java`) — *foundation and pairing*: identity, movement/navigation, goals, the deferred damage pipeline, the itemize interaction, the reconciliation hooks, the never-save guard, and the animation plumbing (`DollRig`). This is the part that every doll kind shares and that keeps the ledger honest.
+- **`DollEntity`** (`content/entity/dolls/DollEntity.java`) — *what a doll can do*: the four synced loadout slots, the action status, the ticket handler and the one command goal, plus the plain doll's own clips and its tint.
+
+A kind that follows and nothing more extends the base; a kind that fights — or that a host arms, or that the glove orders — extends `DollEntity`. Nothing checks "can this act" at runtime: the type says it (§9).
 
 > Note on wording: an earlier draft pushed more logic (damage vulkan, interact, goals) down into `DollEntity`. The current layout instead keeps **all** of that in `BaseDollEntity`, because it is pairing/integrity logic that the ledger hook (`resolveDollData`, `getHost`) depends on. `DollEntity` therefore stays thin: it is the single place where doll-specific appearance/render logic and per-doll synced data live. This document describes that actual layout.
 
@@ -13,20 +15,25 @@ The doll is split across two classes to mirror the pairing/behavior responsibili
 DamageRefactorEntity (l2damagetracker)
         │
         ▼
-BaseDollEntity (abstract) implements OwnableEntity
+BaseDollEntity (abstract) implements OwnableEntity, DollRig
         │ ownerUUID, homePos, getHost(), write/readValuesTo/From,
         │ DollMoveControl, FlyingPathNavigation, deferred damage,
-        │ mobInteract itemize, tick() sync+inverse check, never-save
+        │ mobInteract itemize, tick() sync+inverse check, never-save,
+        │ DollRigModule (instance cache) — DollGeo/DollTint/...
         ▼
-DollEntity extends BaseDollEntity implements GeoEntity
-        │ toy_idle/toy_fly loops, attack/bomb one-shots, DATA_COLOR, registerControllers
+DollEntity extends BaseDollEntity implements DollGeo, DollLoadout, DollStatus, …
+        │ toy_idle/toy_fly loops, attack/bomb one-shots, DATA_COLOR,
+        │ DATA_MAIN_HAND/OFF_HAND/CLOTH/CORE, registerControllers
+        │
+        ▼
+SekibankiHeadEntity extends BaseDollEntity        (a gadget: pairs, follows, itemizes, fights nothing)
 ```
 
-Subclasses are the concrete doll kinds (player doll now, character dolls later); `BaseDollEntity` is abstract. All `dolls.entity.doll` registration goes through the base type; `DollData.type` (from `getDollTypeId()`) records which concrete type a given ledger entry refers to so reconciliation can validate it (pairing.md §5).
+Subclasses are the concrete doll kinds; `BaseDollEntity` is abstract. All `dolls.entity.doll` registration goes through the base type; `DollData.type` (from `getDollTypeId()`) records which concrete type a given ledger entry refers to so reconciliation can validate it (pairing.md §5).
 
 ### 1.1 Doll modules — where the per-entity slices live
 
-Anything a doll kind adds that has to be persisted goes through a `DollModule` (`impl/`): the synced-accessor definitions, the `DollData` read/write round trip, and an optional `interact` hook. `BaseDollEntity` keeps the list and exposes `getModule(Class)`; subclasses append their own in `createDollModules(List)`, chaining through `super`. Present modules today: `DollGeo`, `DollTint`, `DollLoadout`, `DollStatus`.
+Anything a doll kind adds that has to be persisted goes through a `DollModule` (`impl/`): the synced-accessor definitions, the `DollData` read/write round trip, and an optional `interact` hook. `BaseDollEntity` keeps the list and exposes `getModule(Class)`; subclasses append their own in `createDollModules(List)`, chaining through `super`. Present modules today: `DollRig` (every kind, from the base), then `DollTint`, `DollLoadout` and `DollStatus` from `DollEntity`.
 
 The one hard constraint is **construction timing**: `defineSynchedData` runs inside the vanilla `Entity` constructor, before any subclass state exists. Module creation is therefore called there too — with a local list, since the field does not exist yet — so registration must be static-safe (fresh instances, no instance state) and the synced snapshot, not the entity, is handed to each module. A module with synced accessors that is not registered here has those accessors never defined.
 
@@ -201,24 +208,47 @@ public void readValuesFrom(DollData d) { super.readValuesFrom(d); setDyeColor(d.
 - On read, the entity was **just created** (doSummon/spawnFromData), so its base `MAX_HEALTH` is already the configured default — nothing to reset. Position/yRot were set by the caller *before* spawning, so `readValuesFrom` only applies them.
 - Combat is the single source of health and is **never null**: `applyData(d.combat)` (l2damagetracker `DamageHost`/`CombatData`) seeds the entity's `CombatData`. `DollData.getColor()`'s default is red, matching `BaseDollEntity.getColor()` default.
 
-## 8. Doll-specific logic and rendering in `DollEntity`
+## 8. The doll layer: clips, tint, loadout and status in `DollEntity`
 
-`DollEntity` implements `GeoEntity` — the entire GeckoLib animation rig and rendering-facing data are *here*, not in the base:
+`DollEntity` adds `DollGeo` — the *plain doll's* clip set — on top of the rig plumbing the base already has. The GeckoLib surface splits in two:
 
-- `toy_idle` loop while still, `toy_fly` loop while moving. One-shot `toy_attack` / `toy_bomb` are triggerable anims fired by server-to-client entity events (bytes 66/67) broadcast from `DollCommandGoal.start()` by action type.
-- `DATA_COLOR` is a synced `EntityDataAccessor<Integer>` (`EntityDataSerializers.INT`, default `DyeColor.RED.getId()`), exposed as `getColor()` / `setDyeColor(DyeColor)` and used by `DollModel` for per-`DyeColor` texture lookup. It flows through `write/readValuesTo/From` (overriding `BaseDollEntity.getColor()`'s red default each way).
-- `registerControllers(AnimatableManager.ControllerRegistrar)` adds three controllers, in bone-writing order: the `"wink"` blink loop, the `"all"` state controller holding the pure `dollAnimController(event)` hover machine, and the `"one_shot"` controller holding the triggerables. State and one-shots are split because a GeckoLib controller plays one animation at a time — sharing one leaves every bone a strike does not touch hovering still until it ends. `getAnimatableInstanceCache()` returns `GeckoLibUtil.createInstanceCache(this)`.
+- `DollRig` (`impl/`, in the base): the three controller names, `ANIM_TRANSITION`, the doll entity event ids 66-70, and the instance cache. `BaseDollEntity` implements it and registers `DollRigModule`, so **every** kind can animate without being a doll.
+- `DollGeo` (`impl/`, here): what this doll *plays* — `toy_idle` while still, `toy_fly` while moving, `toy_wink`, and the one-shot `toy_attack` / `toy_slapattack` / `toy_bomb` / `toy_bow` / `toy_skill` triggerables, fired as entity events from `DollGeo.broadcast*Anim()` (bytes 66-70) alongside their voices.
 
-### 8.1 Planned additions (landing with `loadout.md`)
+`registerControllers(AnimatableManager.ControllerRegistrar)` adds those three controllers in bone-writing order: `"wink"`, `"all"` (the pure `dollAnimController(event)` hover machine), `"one_shot"`. State and one-shots are split because a GeckoLib controller plays one animation at a time — sharing one leaves every bone a strike does not touch hovering still until it ends. The one-shot here is `DollOneShotController`, whose subclass hook flashes the lance particle at the swing's extension pose.
 
-When the four-slot loadout ships, the per-slot synced item accessors land **here** (this is the doll-specific logic side of the split):
+The rendering-facing data is the rest of this layer:
 
-- Four `EntityDataAccessor<ItemStack>` (`EntityDataSerializers.ITEM_STACK`): `DATA_MAIN_HAND`, `DATA_OFF_HAND`, `DATA_CLOTH`, `DATA_CORE` (+ the guard in syncher for `setTag(null)`), default empty.
-- Item rendering deferred as a TODO: `DollRenderer` (or the doll renderer in `content/entity/characters/`) will render the main-hand / off-hand items with a `TridentItemRenderer`-style transform anchored to the doll model's hand joint, and the cloth item on the doll's back. Until then the accessors are written but not drawn.
-- Behavior side (action selection from these slots) is specified in `control.md` and stays base-side (it is pairing-independent logic); only the synced storage + rendering are `DollEntity` concerns.
+- `DATA_COLOR` is a synced `EntityDataAccessor<Integer>` (`EntityDataSerializers.INT`, default `DyeColor.RED.getId()`), exposed as `getColor()` / `setDyeColor(DyeColor)` and used by `DollModel` for per-`DyeColor` texture lookup. It flows through `write/readValuesTo/From` via `DollTintModule`.
+- Four `EntityDataAccessor<ItemStack>` (`EntityDataSerializers.ITEM_STACK`): `DATA_MAIN_HAND`, `DATA_OFF_HAND`, `DATA_CLOTH`, `DATA_CORE`, default empty — the client mirror of the authoritative loadout (loadout.md §3).
+- `DATA_ACTION_STATE` / `DATA_ACTION_TYPE` / `DATA_VALID_MASK`, recomputed server-side each tick by `DollStatus.syncActionStatus` for the attack-glove sidebar (control.md §3).
+
+A kind that only follows — a gadget — has none of this and extends the base directly (§9.1).
+
+### 8.1 Still TODO
+
+Item rendering is deferred: `DollRenderer` will render the main-hand / off-hand items with a `TridentItemRenderer`-style transform anchored to the doll model's hand joint, and the cloth item on the doll's back. The accessors are written but not drawn (loadout.md §5).
 
 ## 9. Interaction and damage (pairing logic, lives in the base)
 
 - **`mobInteract`**: modules first, in registration order, first non-`PASS` wins (that is how sneak-interact opens the loadout editor, `DollLoadoutMenu`, loadout.md §4); then empty main hand + owner or creative on the server: `DollAttachment.itemize(...)` — the entity → item conversion (pairing.md §3.2), gated on `isPlayerOwned()`. Block-hosted dolls are *not* itemized here (they belong to the controller block; controller.md) and neither are a character's (host.md §6). Non-sneak interactions with items pass through.
 - **Deferred damage pipeline**: `takeDamage` (intercept) and `onHeal` (hook) both call `resolveDollData()` first. If a paired SUMMONED entry exists, the change lands in `DollData.combat` first (via `deferCombatData`), then is mirrored into the entity's `CombatData` (+ `CombatToClient.send` when the amount actually changed). No paired entry → plain damage path (`super.takeDamage`) — never a dropped hit, since silently swallowing it would make an unpaired doll immune to *every* source, which reads as invulnerability and hides whatever fault left it unpaired. Death-would-be and expressions flow through `DamageRefactorEntity`'s `preventDeath`/`actuallyHurt` untouched.
 - **Targetability**: `canBeSeenAsEnemy()` returns `false` (pairing.md §6) — never targeted by hostile mobs, still takes damage.
+
+## 9.1 Which base a kind extends
+
+The class *is* the capability. Every gate that would consult a flag is instead a type test, and it is worth being explicit about which is which:
+
+| behaviour | reached through | a `BaseDollEntity` kind |
+|---|---|---|
+| pairing, ledger sync, follow formation, itemize, park, recall | `BaseDollEntity` | yes |
+| a loadout, a tint, a synced status | `DollEntity` + `DollLoadout` / `DollTint` / `DollStatus` | no — the slots do not exist |
+| taking orders | `DollCommandGoal` + `DollActionHandler` | no — nothing can accept a ticket |
+| fighting | `DollBehaviorRegistry.findHand(DollEntity, …)` | no — it is never asked |
+| the sidebar roster, the glove's crosshair trace | `instanceof DollEntity` | no |
+
+So a **timed summon** extends `DollEntity` even with an empty loadout: it still takes orders and acts with an intrinsic (timed_summon.md §4). A **gadget** extends `BaseDollEntity`: owned, paired and recalled, with no action surface at all (gadget.md §3). The three `DollNature` predicates (§1 of timed_summon.md) decide the *item* questions — can this be itemized, recalled, loaded out — and never duplicate what the class already answers.
+
+The cost of the split is one place to keep honest: a pairing rule must be written against `BaseDollEntity`, never `DollEntity`. `DollEventHandlers.onEntityJoinLevel` is the one that had to be (entity events see the base type, so the orphan check belongs there).
+
+The impl interfaces follow the same line. `DollRig` is deliberately not a `DollBaseImpl`, so the base can implement it without inheriting the typed handle; the loadout-side interfaces extend `DollEntityImpl`, which narrows `asDoll()` to `DollEntity` once instead of casting at each call.

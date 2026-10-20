@@ -15,10 +15,12 @@ import dev.xkmc.gensokyolegacy.content.block.functional.portal.*;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.l2modularblock.core.BlockTemplates;
 import dev.xkmc.l2modularblock.core.DelegateBlock;
+import net.minecraft.client.renderer.block.model.BlockModel;
 import net.minecraft.core.Holder;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.item.BedItem;
 import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.level.block.BedBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -26,6 +28,7 @@ import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
+import net.neoforged.neoforge.client.model.generators.loaders.SeparateTransformsModelBuilder;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Locale;
@@ -159,7 +162,20 @@ public class GLBlocks {
 									.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/utensil/plate")))
 									.texture("all", pvd.modLoc("block/utensil/plate"))
 									.renderType("cutout")))
-					.simpleItem()
+					// the block model in the world, the flat 16x16 icon in the gui — the same split as the doll lance
+					.item().model((ctx, pvd) -> {
+						var base = pvd.nested()
+								.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("block/" + ctx.getName())));
+						var guiModel = pvd.nested()
+								.parent(new ModelFile.UncheckedModelFile("item/generated"))
+								.texture("layer0", pvd.modLoc("item/utensil/" + ctx.getName()));
+						pvd.getBuilder(ctx.getName())
+								.customLoader(SeparateTransformsModelBuilder::begin)
+								.base(base)
+								.perspective(ItemDisplayContext.GUI, guiModel)
+								.end().guiLight(BlockModel.GuiLight.FRONT);
+					})
+					.build()
 					.register();
 			PLATE_BE = GensokyoLegacy.REGISTRATE.blockEntity("plate", PlateBlockEntity::new)
 					.validBlock(PLATE)

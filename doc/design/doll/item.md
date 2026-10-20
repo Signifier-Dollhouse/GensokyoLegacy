@@ -14,14 +14,23 @@ public static final ItemEntry<DollItem> DOLL = reg.item("doll", p -> new DollIte
 
 - `stacksTo(1)` — one item per doll.
 - `GLItems.DOLL_DATA` — `DC.reg("doll_item_data", DollItemData.class, false)`, the `DataComponentType<DollItemData>` holding the doll's combat values (see §2). Registered alongside the item.
-- The entity kind is fixed for all doll items: `public static final ResourceLocation TYPE = GensokyoLegacy.loc("doll")` (used by `DollData.fromItemData`). It is **not** stored on the item — every doll item materializes this same `doll` entity type.
+- The entity kind is a constructor argument: the plain doll passes `public static final ResourceLocation TYPE = GensokyoLegacy.loc("doll")`, and a gadget passes one of its own (gadget.md §1). It is **not** stored on the item — each item class holds it, and `DollData.fromItemData` reads it back off the item in hand.
 
 ## 2. Building items from data: `makeItem` / `blank`
 
 ```java
 public static ItemStack makeItem(@Nullable DollData data) {
-    if (data == null) return blank();
-    ItemStack stack = new ItemStack(GLItems.DOLL.get());
+    DollItem item = data == null ? GLItems.DOLL.get() : BY_TYPE.getOrDefault(data.type, GLItems.DOLL.get());
+    return item.makeStack(data);   // virtual: a gadget answers with a bare stack of itself
+}
+```
+
+`makeStack` is the per-item form the plain doll reads like this:
+
+```java
+protected ItemStack makeStack(@Nullable DollData data) {
+    if (data == null) return new ItemStack(this);
+    ItemStack stack = new ItemStack(this);
     stack.set(GLItems.DOLL_DATA.get(), new DollItemData(data.combat));   // combat -> DOLL_DATA
     if (data.customName != null) stack.set(DataComponents.CUSTOM_NAME, data.customName);
     stack.set(GLItems.DOLL_COLOR.get(), data.getColor());                // tint -> DOLL_COLOR
@@ -35,6 +44,7 @@ public static ItemStack blank() {
 }
 ```
 
+- `BY_TYPE` is the static map every item files itself into from its constructor, so the entry's type finds the item it came from; an entry naming no kind falls back to the plain doll (gadget.md §1).
 - This is the **inverse** of `DollData.fromItemData` (which reads the same components back off a stack into a fresh `DollData`, with position/dimension/facing supplied at the summon/deploy site and state left to the caller — SUMMONED for a player summon, STORED for a controller install).
 - A `null`/`blank()` doll has no components: no `DOLL_DATA` (so no durability bar), no custom name, and the tint defaults to red in all readers (`colorOf`, §4).
 - Combat is stored as the `@SerialClass DollItemData`, a final class holding **only** a `CombatData combat` field (amount = health; no max health on the item). Its `hashCode` is prebuilt in the constructor and rebuilt by `onInject()` after l2serial deserialization. `DollItemData.fresh()` yields the full-health default.
@@ -129,3 +139,30 @@ pvd.getBuilder(ctx.getName())
 - `custom/doll_lance.json` is the **Blockbench export kept verbatim** — `format_version`, `credit`, `texture_size`, `groups`, `particle` and the `#0` texture key all stay, exactly as `custom/strange_glasses_head.json` does. Only the placeholder texture is filled in (`gensokyolegacy:item/tool/doll_lance`); the game ignores the rest, and round-tripping the file through Blockbench must not produce a diff.
 - Its four hand `display` transforms are the authored ones. `fixed` (item frame) deliberately has none: the lance is 28 units pointing at the camera there.
 - `SeparateTransformsModel` takes `getQuads`/`getRenderTypes`/`getParticleIcon` from the **base**, so dropped-item particles come from the 3D model's `particle` key. Only `applyTransform` redirects, which is what swaps the quads per context.
+
+## 10. The mini shield: `MiniShieldItem`
+
+`content/item/doll/MiniShieldItem.java` — a doll's second shield, and the mod's only item that is **useless to a player**: it is not a `ShieldItem`, so vanilla never lets a player raise it, and a right-click with it does nothing. A doll holding it in the off hand blocks with it exactly like a vanilla shield (control.md §5.6).
+
+```java
+MINI_SHIELD = reg.item("mini_shield", MiniShieldItem::new)
+        .model((ctx, pvd) -> { /* base custom/mini_shield, gui the 16x16 icon */ })
+        .lang("Mini Shield").tab(TAB.key())
+        .register();
+```
+
+### How a doll knows what to block with
+
+The doll's shield check is not `instanceof ShieldItem` but `DollShieldItem.isShield(stack)` (`content/item/doll/DollShieldItem.java`): the vanilla shield qualifies by being a `ShieldItem`, the mini shield by implementing the `DollShieldItem` marker. The marker is what lets a non-vanilla shield exist without pretending to be one — it brings none of the vanilla shield's behaviour (no `Equipable` off-hand slot, no dispenser equip, no plank repair, no banner tooltip), so "no use for player" holds at the item level and not only at the use level.
+
+### No durability
+
+`Properties.durability` is never called, so the stack carries no `max_damage`. The doll's wear path (`DollShield.wearShield`) skips a shield with no durability to spend: the mini shield is never worn down and never breaks, and the doll's off hand keeps it for good. The vanilla shield still loses a point per blocked hit and breaks at 336.
+
+### Where it comes from
+
+Alice sells one a day for four iron (`alice/offer_mini_shield`), half the lance's price and the same daily restock — it is her work, and a doll's shield is what her dolls carry.
+
+### Model
+
+The same split as the lance (§9): the Blockbench export in `models/custom/mini_shield.json` is the base, the GUI takes the flat `textures/item/tool/mini_shield_icon.png`. The export is kept verbatim — only the placeholder texture is filled in (`gensokyolegacy:item/tool/mini_shield`). The texture is 64×64 with the art in its top-left corner, because item model UVs are a 0–16 space over the whole texture: the model's 0–8.75 UVs land on the art, and a 16×16 texture would need the UVs scaled up to match.

@@ -14,7 +14,7 @@ import net.minecraft.world.item.ItemStack;
  * driven as a doll module. The ledger entry is authoritative; the entity accessors only carry it
  * to clients (loadout.md §3).
  */
-public interface DollLoadout extends DollBaseImpl {
+public interface DollLoadout extends DollEntityImpl {
 
 	default ItemStack getLoadoutItem(DollSlot slot) {
 		return switch (slot) {

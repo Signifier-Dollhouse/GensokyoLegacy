@@ -92,7 +92,7 @@ public class AliceQDGen extends QuestDialogData {
 		// a guest standing on someone else's doorstep should say
 		starter("alice/chat", new DialogStarter(GLEntities.ALICE.get(), List.of(homeBound()),
 				starterText("start", "Do you live out here all by yourself?"),
-				dialog("hi", "All by myself? Not quite. I have the forest and my dolls for company, and my magic research besides - was there something you needed?",
+				dialog("hi", "All by myself? Not quite. I have the forest and my dolls for company, and my magic research besides - was there something you needed?", List.of("dialog_think"),
 						option("hi/end", "Not right now."))
 		));
 
@@ -104,9 +104,9 @@ public class AliceQDGen extends QuestDialogData {
 		chat("alice/chat_star_wand", GLEntities.ALICE.get(),
 				List.of(hasQuest(QUEST_SEVEN_COLORS)),
 				starterText("start", "What are a doll's methods of attack?"),
-				dialog("talk", "A doll is a delicate piece of magic equipment - it cannot do much on its own. The lance I gave you is the simplest thing I can put in a doll's hand: it charges in like a wasp, and it delivers. But if you would rather keep your distance, the doll has to have a wand in its hand.",
+				dialog("talk", "A doll is a delicate piece of magic equipment - it cannot do much on its own. The lance I gave you is the simplest thing I can put in a doll's hand: it charges in like a wasp, and it delivers. But if you would rather keep your distance, the doll has to have a wand in its hand.", List.of("dialog_talk_04"),
 						option("where", "How does one get hold of that wand?",
-								dialog("where_ans", "Another resident of the Magical Forest - the owner of the Kirisame Magic Shop makes the things. She does not advertise, but she always has stock.",
+								dialog("where_ans", "Another resident of the Magical Forest - the owner of the Kirisame Magic Shop makes the things. She does not advertise, but she always has stock.", List.of("dialog_talk_03"),
 										option("where/end", "Then I'll go and see her.")))),
 				CHAT_INFO);
 	}
@@ -120,22 +120,25 @@ public class AliceQDGen extends QuestDialogData {
 		chat("alice/visit_marisa_house_call", GLEntities.ALICE.get(),
 				List.of(visitingAt(GLStructureGen.MARISA_HOUSE)),
 				starterText("call", "What a coincidence - you are here to see her as well?"),
-				dialog("call", "Good day. I came for some magical materials - are you here for the same?",
+				dialog("call", "Good day. I came for some magical materials - are you here for the same?", List.of("dialog_greet"),
 						option("terms", "I heard she sells more than materials?",
-								dialog("terms_ans", "Yes. She does not do everything by herself - she hands out commissions, brews potions, and now and then turns up with tools of unclear provenance. That last part is better left unasked about.",
+								dialog("terms_ans", "Yes. She does not do everything by herself - she hands out commissions, brews potions, and now and then turns up with tools of unclear provenance. That last part is better left unasked about.", List.of("dialog_talk_04"),
 										option("terms/end", "Thank you for the warning.")))),
 				CHAT_MISC);
 
 		chat("alice/visit_marisa_house_greet", GLEntities.ALICE.get(),
 				List.of(visitingAt(GLStructureGen.MARISA_HOUSE)),
 				starterText("greet", "This is all rather far from your mansion."),
-				dialog("greet", "It is. I am not often away - but materials still have to be restocked, and getting out for a while is not unpleasant.",
+				dialog("greet", "It is. I am not often away - but materials still have to be restocked, and getting out for a while is not unpleasant.", List.of("dialog_agree"),
 						option("greet/end", "Do as you like. I have business of my own with her.")),
 				CHAT_MISC);
 	}
 
 	private void quests() {
 		prefix("alice/first_doll");
+		questAnims("start", "dialog_think", "dialog_think_02", "dialog_agree");
+		questAnims("follow", "dialog_think", "dialog_decline");
+		questAnims("complete", "dialog_agree", "dialog_decline", "dialog_talk_03");
 		quest("alice/first_doll", new Quest(GLEntities.ALICE.get(), List.of(),
 				questTitle("Doll Materials"), questDesc("Bring Alice the materials every doll is made of."),
 				Optional.empty(),
@@ -162,6 +165,9 @@ public class AliceQDGen extends QuestDialogData {
 		));
 
 		prefix("alice/seven_colors");
+		questAnims("start", "dialog_think", "dialog_think", "dialog_agree");
+		questAnims("follow", "dialog_think_02", "dialog_talk_04");
+		questAnims("complete", "dialog_agree", "dialog_talk_02", "dialog_talk_05");
 		quest("alice/seven_colors", new Quest(GLEntities.ALICE.get(),
 				List.of(new HasQuestCompletedCondition(QUEST_FIRST_DOLL)),
 				questTitle("Seven Colors"), questDesc("Bring Alice four of each of the seven dyes the Doll Glove is woven from."),
@@ -192,6 +198,7 @@ public class AliceQDGen extends QuestDialogData {
 
 	private void dailyQuest() {
 		prefix("alice/daily_doll");
+		questAnims("daily", "dialog_think", "dialog_decline", "dialog_agree", "dialog_think", "dialog_greet", "dialog_agree", "dialog_talk_03");
 		// Three independent rolls out of the seven dyes: the same dye can come
 		// up twice, which keeps the daily from being a fixed shopping list.
 		var dyePool = LootPool.lootPool().setRolls(ConstantValue.exactly(3));
@@ -241,6 +248,11 @@ public class AliceQDGen extends QuestDialogData {
 				List.of(new HasQuestCompletedCondition(QUEST_SEVEN_COLORS)),
 				new ItemStack(GLItems.DOLL_LANCE.get()),
 				new TradeRecurrence(1, 24000), List.of(item(Items.IRON_INGOT, 8))));
+		// The mini shield is a doll's shield: half the iron of a lance, and one a day like it.
+		trade("offer_mini_shield", new TradeOffer(GLEntities.ALICE.get(),
+				List.of(new HasQuestCompletedCondition(QUEST_SEVEN_COLORS)),
+				new ItemStack(GLItems.MINI_SHIELD.get()),
+				new TradeRecurrence(1, 24000), List.of(item(Items.IRON_INGOT, 4))));
 	}
 
 	/** One of each of the seven dyes plus three white wool: the glove's price. */
@@ -267,26 +279,31 @@ public class AliceQDGen extends QuestDialogData {
 									 String accept, String acceptLine, String acceptEnd,
 									 String reject, String rejectLine, String rejectEnd) {
 		return option("start", button,
-				dialog("start/dialog_1", intro, THINK_ANIMS,
-						option("start/reject", reject, dialog("start/reject/dialog_1", rejectLine, option("start/reject/end", rejectEnd))),
+				dialog("start/dialog_1", intro, anims("start", 0, THINK_ANIMS),
+						option("start/reject", reject, dialog("start/reject/dialog_1", rejectLine, anims("start", 1, List.of()),
+								option("start/reject/end", rejectEnd))),
 						option("start/accept", accept, new StartQuestAction(),
-								dialog("start/accept/dialog_1", acceptLine, option("start/accept/end", acceptEnd)))));
+								dialog("start/accept/dialog_1", acceptLine, anims("start", 2, List.of()),
+										option("start/accept/end", acceptEnd)))));
 	}
 
 	private SimpleDialogOption follow(String button, String intro, String opt, String optLine, @Nullable String end) {
 		var tail = end == null ? optionKey(byeKey) : option("follow_up/end/end", end);
 		return option("follow_up", button,
-				dialog("follow_up/dialog_1", intro, THINK_ANIMS,
-						option("follow_up/end", opt, dialog("follow_up/end/dialog_1", optLine, tail))));
+				dialog("follow_up/dialog_1", intro, anims("follow", 0, THINK_ANIMS),
+						option("follow_up/end", opt, dialog("follow_up/end/dialog_1", optLine,
+								anims("follow", 1, List.of()), tail))));
 	}
 
 	private SimpleDialogOption complete(String button, String intro, String complete, String completeLine, String completeEnd,
 										String reject, String rejectLine, String rejectEnd) {
 		return option("complete", button,
-				dialog("complete/dialog_1", intro, AGREE_ANIMS,
-						option("complete/reject", reject, dialog("complete/reject/dialog_1", rejectLine, option("complete/reject/end", rejectEnd))),
+				dialog("complete/dialog_1", intro, anims("complete", 0, AGREE_ANIMS),
+						option("complete/reject", reject, dialog("complete/reject/dialog_1", rejectLine, anims("complete", 1, List.of()),
+								option("complete/reject/end", rejectEnd))),
 						option("complete/handover", complete, new CompleteQuestAction(),
-								dialog("complete/handover/dialog_1", completeLine, option("complete/handover/end", completeEnd)))));
+								dialog("complete/handover/dialog_1", completeLine, anims("complete", 2, List.of()),
+										option("complete/handover/end", completeEnd)))));
 	}
 
 	private void daily(String id, String title, String desc, QuestRecurrence rec,
@@ -307,28 +324,30 @@ public class AliceQDGen extends QuestDialogData {
 
 	private GroupDialogOption dailyStart(String intro, String acceptLine, String rejectLine) {
 		return groupKey(dailyGroupKey, dailyStartKey,
-				dialog("start/dialog_1", intro, THINK_ANIMS,
+				dialog("start/dialog_1", intro, anims("daily", 0, THINK_ANIMS),
 						optionKey(dailyRejectKey,
-								dialog("start/reject/dialog_1", rejectLine)),
+								dialog("start/reject/dialog_1", rejectLine, anims("daily", 1, List.of()))),
 						optionKey(dailyAcceptKey, new StartQuestAction(),
-								dialog("start/accept/dialog_1", acceptLine))));
+								dialog("start/accept/dialog_1", acceptLine, anims("daily", 2, List.of())))));
 	}
 
 	private GroupDialogOption dailyFollow(String followLine, @Nullable String endOverride, String optLine) {
 		var end = endOverride == null
-				? optionKey(dailyFollowEndKey, dialog("follow_up/end/dialog_1", optLine))
-				: option("follow_up/end", endOverride, dialog("follow_up/end/dialog_1", optLine));
+				? optionKey(dailyFollowEndKey, dialog("follow_up/end/dialog_1", optLine, anims("daily", 4, List.of())))
+				: option("follow_up/end", endOverride,
+						dialog("follow_up/end/dialog_1", optLine, anims("daily", 4, List.of())));
 		return groupKey(dailyGroupKey, dailyFollowKey,
-				dialog("follow_up/dialog_1", followLine, THINK_ANIMS, end));
+				dialog("follow_up/dialog_1", followLine, anims("daily", 3, THINK_ANIMS), end));
 	}
 
 	private GroupDialogOption dailyComplete(String opener, String gotemLine, String handover,
 											String completeLine, @Nullable String thanks) {
 		var done = thanks == null
-				? dialog("complete/handover/dialog_1", completeLine)
-				: dialog("complete/handover/dialog_1", completeLine, optionKey(dailyThanksKey));
+				? dialog("complete/handover/dialog_1", completeLine, anims("daily", 6, List.of()))
+				: dialog("complete/handover/dialog_1", completeLine, anims("daily", 6, List.of()),
+						optionKey(dailyThanksKey));
 		return new GroupDialogOption(dailyGroupKey, optionText("complete", opener), List.of(),
-				Optional.of(dialog("complete/dialog_1", gotemLine, AGREE_ANIMS,
+				Optional.of(dialog("complete/dialog_1", gotemLine, anims("daily", 5, AGREE_ANIMS),
 						option("complete/handover", handover, new CompleteQuestAction(), done))));
 	}
 

@@ -1,0 +1,10 @@
+{
+  "character": "gensokyolegacy:cirno",
+  "conditions": [
+    {
+      "type": "gensokyolegacy:gift_return"
+    }
+  ],
+  "dialog": "gensokyolegacy:cirno/gift/return",
+  "override": true
+}

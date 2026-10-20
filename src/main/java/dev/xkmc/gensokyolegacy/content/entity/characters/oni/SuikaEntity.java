@@ -67,6 +67,12 @@ public class SuikaEntity extends BossYoukaiEntity implements GeoYoukaiAnim {
 	private static final RawAnimation THROW = RawAnimation.begin().thenPlay("大江山（投掷）");
 	private static final RawAnimation EXECUTE = RawAnimation.begin().thenPlay("大江山（处决）");
 
+	/**
+	 * Her rig's word for taking a gift, shadowing the shared {@code 喜欢}: every other character spells
+	 * that reaction 喜欢 and she calls it 高兴. Only the slot is shared, not the clip.
+	 */
+	private static final RawAnimation LIKE = RawAnimation.begin().thenPlay("高兴");
+
 	protected static final SyncedData SUIKA_DATA = new SyncedData(SuikaEntity::defineId, SPELL_DATA);
 
 	private static final EntityDataAccessor<Integer> DATA_NAP_VARIANT = SUIKA_DATA.define(SyncedData.INT, 0, "nap_variant");
@@ -138,6 +144,11 @@ public class SuikaEntity extends BossYoukaiEntity implements GeoYoukaiAnim {
 		board.addExclusive(0, new YoukaiNapTask<>(), GLBrains.NAP.get());
 	}
 
+	/**
+	 * Her rig is the narrowest in the mod: {@link GeoYoukaiAnim#addTriggerableAnims} reads this, and
+	 * only a slot answered here is ever registered on her controller — which is why {@code TALK_01}
+	 * has to be listed rather than folded into the {@code TALK_02} line above.
+	 */
 	@Override
 	public Optional<RawAnimation> getAnim(YoukaiAnim anim) {
 		return switch (anim) {
@@ -149,6 +160,8 @@ public class SuikaEntity extends BossYoukaiEntity implements GeoYoukaiAnim {
 			case SKILL_01 -> Optional.of(GATHER);
 			case SKILL_02 -> Optional.of(CATCH);
 			case SKILL_03 -> Optional.of(THROW);
+			case LIKE -> Optional.of(LIKE);
+			case DISLIKE -> Optional.of(DISLIKE);
 			case EAT -> Optional.of(EAT);
 			case HURT -> Optional.of(HURT);
 			default -> Optional.empty();

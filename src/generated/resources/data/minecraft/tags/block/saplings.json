@@ -1,5 +1,11 @@
 {
   "values": [
-    "gensokyolegacy:blue_fir_sapling"
+    "gensokyolegacy:blue_fir_sapling",
+    "gensokyolegacy:orange_maple_sapling",
+    "gensokyolegacy:red_maple_sapling",
+    "gensokyolegacy:yellow_maple_sapling",
+    "gensokyolegacy:pink_cherry_sapling",
+    "gensokyolegacy:purple_cherry_sapling",
+    "gensokyolegacy:locust_sapling"
   ]
 }

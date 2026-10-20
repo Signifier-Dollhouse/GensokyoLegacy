@@ -28,6 +28,12 @@
     },
     {
       "type": "patchouli:spotlight",
+      "item": "gensokyolegacy:stone_lantern",
+      "title": "石灯笼",
+      "text": "两格高的石制庭院灯笼，通体实心，本身并不发光。"
+    },
+    {
+      "type": "patchouli:spotlight",
       "item": [
         "gensokyolegacy:wrought_iron_bars",
         "gensokyolegacy:wrought_iron_pillar",

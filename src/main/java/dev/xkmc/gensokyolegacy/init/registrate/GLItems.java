@@ -9,6 +9,7 @@ import dev.xkmc.gensokyolegacy.content.attachment.doll.DollInventory;
 import dev.xkmc.gensokyolegacy.content.block.deco.shelf.MorichikaOfferData;
 import dev.xkmc.gensokyolegacy.content.block.functional.portal.PortalSide;
 import dev.xkmc.gensokyolegacy.content.client.model.*;
+import dev.xkmc.gensokyolegacy.content.entity.dolls.SekibankiHeadEntity;
 import dev.xkmc.gensokyolegacy.content.item.hakkero.*;
 import dev.xkmc.gensokyolegacy.content.item.tool.BroomItem;
 import dev.xkmc.gensokyolegacy.content.item.character.*;
@@ -20,6 +21,8 @@ import dev.xkmc.gensokyolegacy.content.item.debug.StructureWand;
 import dev.xkmc.gensokyolegacy.content.item.doll.DollItem;
 import dev.xkmc.gensokyolegacy.content.item.doll.DollItemData;
 import dev.xkmc.gensokyolegacy.content.item.doll.DollLanceItem;
+import dev.xkmc.gensokyolegacy.content.item.doll.MiniShieldItem;
+import dev.xkmc.gensokyolegacy.content.item.doll.SekibankiHeadItem;
 import dev.xkmc.gensokyolegacy.content.item.gift.*;
 import dev.xkmc.gensokyolegacy.content.item.glove.DollGloveItem;
 import dev.xkmc.gensokyolegacy.content.item.glove.DollGloveModel;
@@ -117,9 +120,14 @@ public class GLItems {
 
 	public static final ItemEntry<DollItem> DOLL;
 
+			/** The Sekibanki head gadget: a doll item that summons its own kind and carries nothing. */
+	public static final ItemEntry<SekibankiHeadItem> SEKIBANKI_HEAD;
+
 	public static final ItemEntry<DollGloveItem> DOLL_GLOVE;
 
 	public static final ItemEntry<DollLanceItem> DOLL_LANCE;
+
+	public static final ItemEntry<MiniShieldItem> MINI_SHIELD;
 
 	public static final ItemEntry<StarDanmakuItem> STAR;
 	public static final ItemEntry<StarWandItem> STAR_WAND;
@@ -476,6 +484,14 @@ public class GLItems {
 					.tab(TAB.key(), (a, b) -> b.accept(DollItem.blank()))
 					.register();
 
+
+			// a gadget: a kind of its own, and a plain item since none of it survives the round trip (gadget.md §2)
+			SEKIBANKI_HEAD = reg.item("sekibanki_head", p -> new SekibankiHeadItem(p.stacksTo(1), SekibankiHeadEntity.TYPE))
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/doll/" + ctx.getName())))
+					.lang("Sekibanki's Head")
+					.tab(TAB.key())
+					.register();
+
 			DOLL_GLOVE = reg.item("doll_glove", DollGloveItem::new)
 					.model(DollGloveModel::model)
 					.lang("Seven-Colored Doll Glove").tab(TAB.key())
@@ -498,6 +514,24 @@ public class GLItems {
 								.end().guiLight(BlockModel.GuiLight.FRONT);
 					})
 					.lang("Doll Lance").tab(TAB.key())
+					.register();
+
+			// The mini shield is a Blockbench model too, and the same split: the modelled shield in the hand, the
+			// flat icon in the gui. A player cannot raise it — only a doll can (item.md §10).
+			MINI_SHIELD = reg.item("mini_shield", MiniShieldItem::new)
+					.model((ctx, pvd) -> {
+						var base = pvd.nested()
+								.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/" + ctx.getName())));
+						var guiModel = pvd.nested()
+								.parent(new ModelFile.UncheckedModelFile("item/generated"))
+								.texture("layer0", pvd.modLoc("item/tool/" + ctx.getName() + "_icon"));
+						pvd.getBuilder(ctx.getName())
+								.customLoader(SeparateTransformsModelBuilder::begin)
+								.base(base)
+								.perspective(ItemDisplayContext.GUI, guiModel)
+								.end().guiLight(BlockModel.GuiLight.FRONT);
+					})
+					.lang("Mini Shield").tab(TAB.key())
 					.register();
 
 			STRAW_HAT = reg

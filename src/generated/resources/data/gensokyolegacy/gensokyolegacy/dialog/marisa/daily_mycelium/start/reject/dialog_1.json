@@ -1,4 +1,7 @@
 {
+  "animations": [
+    "dialog_decline"
+  ],
   "options": [],
   "text": "gensokyolegacy/marisa/daily_mycelium/dialog/marisa/daily_mycelium/start/reject/dialog_1"
 }

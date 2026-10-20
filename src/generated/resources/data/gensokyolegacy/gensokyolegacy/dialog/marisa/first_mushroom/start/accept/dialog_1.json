@@ -1,4 +1,7 @@
 {
+  "animations": [
+    "dialog_agree"
+  ],
   "options": [
     {
       "type": "gensokyolegacy:simple",

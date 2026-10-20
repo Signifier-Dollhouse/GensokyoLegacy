@@ -18,8 +18,10 @@ import dev.xkmc.l2core.init.reg.registrate.L2Registrate;
 import dev.xkmc.l2modularblock.core.BlockTemplates;
 import dev.xkmc.l2modularblock.core.DelegateBlock;
 import dev.xkmc.l2modularblock.core.VoxelBuilder;
+import dev.xkmc.l2modularblock.impl.DoubleBlockImpl;
 import net.minecraft.core.Direction;
 import net.minecraft.data.recipes.RecipeCategory;
+import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.data.recipes.ShapelessRecipeBuilder;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.item.DyeColor;
@@ -28,6 +30,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.material.PushReaction;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
@@ -55,7 +58,12 @@ public class GLFurniture {
 
 	public static final BlockEntry<LanternBlock> RED_LANTERN, WHITE_LANTERN, LETTERED_RED_LANTERN, LETTERED_WHITE_LANTERN;
 
+	public static final BlockEntry<DelegateBlock> STONE_LANTERN;
+
 	public static final BlockEntry<DelegateBlock> MAGIC_TABLE, SEWING_MACHINE, MAGIC_POTION_BOTTLE, CANDLESTICK;
+
+	public static final BlockEntry<DelegateBlock> JIZO, JIZO_STRAW_HAT, JIZO_MYOUREN, JIZO_NARUMI,
+			WASTELAND_GRAVESTONE_SMALL;
 
 	static {
 
@@ -250,6 +258,28 @@ public class GLFurniture {
 			LETTERED_WHITE_LANTERN = registerLantern(reg, "lettered_white_lantern", MapColor.SNOW);
 		}
 
+		// 石灯笼：两格高的石头摆件，笠上只是块石头，不发光
+		{
+			STONE_LANTERN = reg.block("stone_lantern", p -> DelegateBlock.newBaseBlock(p,
+							new StoneLanternBlock(), new DoubleBlockImpl()))
+					.properties(p -> p.mapColor(MapColor.STONE).strength(1.5F).sound(SoundType.STONE).noOcclusion())
+					.blockstate((ctx, pvd) -> StoneLanternBlock.buildStates(ctx.get(), pvd, ctx.getName()))
+					.tag(BlockTags.MINEABLE_WITH_PICKAXE)
+					.recipe((ctx, pvd) -> GLRecipeGen.unlock(pvd, ShapedRecipeBuilder.shaped(
+									RecipeCategory.DECORATIONS, ctx.get())::unlockedBy, Items.STONE_BRICKS)
+							.pattern("C").pattern("S").pattern("S")
+							.define('C', Items.CHISELED_STONE_BRICKS).define('S', Items.STONE_BRICKS)
+							.save(pvd))
+					.item().model((ctx, pvd) -> pvd.getBuilder(ctx.getName())
+							.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/deco/stone_lantern_item")))
+							.texture("all", pvd.modLoc("block/deco/stone_lantern"))
+							.renderType("cutout"))
+					.tab(GLDecoBlocks.TAB.key())
+					.build()
+					.loot(StoneLanternBlock::genLoot)
+					.register();
+		}
+
 		// 魔法道具工作台：横向两格长的一整块，放下时右手边自动补出另一半
 		{
 			MAGIC_TABLE = reg.block("magic_table", p -> DelegateBlock.newBaseBlock(p,
@@ -305,6 +335,40 @@ public class GLFurniture {
 					.item().tab(GLDecoBlocks.TAB.key()).build()
 					.register();
 		}
+
+		// 道旁的石像和墓碑:模型都高过 y16,各占两格
+		{
+			// 地藏：四种配色共用一个模型，只有围兜和木牌换贴图。戴斗笠的两款上半格大一些
+			JIZO = registerJizo(reg, "jizo", JizoBlock.HEAD_TOP_SHAPE);
+			JIZO_STRAW_HAT = registerJizo(reg, "jizo_straw_hat", JizoBlock.HAT_TOP_SHAPE);
+			JIZO_MYOUREN = registerJizo(reg, "jizo_myouren", JizoBlock.HEAD_TOP_SHAPE);
+			JIZO_NARUMI = registerJizo(reg, "jizo_narumi", JizoBlock.HAT_TOP_SHAPE);
+
+			WASTELAND_GRAVESTONE_SMALL = reg.block("wasteland_gravestone_small", p -> DelegateBlock.newBaseBlock(p,
+							BlockTemplates.HORIZONTAL, new WastelandGravestoneBlock(), new DoubleBlockImpl()))
+					.properties(p -> p.mapColor(MapColor.STONE).strength(1.5F).sound(SoundType.STONE).noOcclusion())
+					.blockstate((ctx, pvd) -> WastelandGravestoneBlock.buildStates(ctx.get(), pvd, ctx.getName()))
+					.tag(BlockTags.MINEABLE_WITH_PICKAXE)
+					.recipe((ctx, pvd) -> GLRecipeGen.unlock(pvd, ShapedRecipeBuilder.shaped(
+									RecipeCategory.DECORATIONS, ctx.get())::unlockedBy, Items.STONE)
+							.pattern("A  ").pattern("A  ").pattern("BCB")
+							.define('A', Items.STONE).define('B', Items.STONE_SLAB).define('C', Items.SOUL_SOIL)
+							.save(pvd))
+					.simpleItem()
+					.loot(WastelandGravestoneBlock::genLoot)
+					.register();
+		}
+	}
+
+	private static BlockEntry<DelegateBlock> registerJizo(L2Registrate reg, String id, VoxelShape topShape) {
+		return reg.block(id, p -> DelegateBlock.newBaseBlock(p,
+						BlockTemplates.HORIZONTAL, new JizoBlock(topShape), new DoubleBlockImpl()))
+				.properties(p -> p.mapColor(MapColor.STONE).strength(1.5F).sound(SoundType.STONE).noOcclusion())
+				.blockstate((ctx, pvd) -> JizoBlock.buildStates(ctx.get(), pvd, ctx.getName()))
+				.tag(BlockTags.MINEABLE_WITH_PICKAXE)
+				.simpleItem()
+				.loot(JizoBlock::genLoot)
+				.register();
 	}
 
 	private static BlockEntry<LanternBlock> registerLantern(L2Registrate reg, String id, MapColor color) {

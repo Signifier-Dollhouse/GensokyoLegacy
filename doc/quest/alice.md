@@ -74,6 +74,7 @@ Stock = max times tradeable per refresh; Refresh = ticks until restock (20 ticks
 |----|------|-----|-----|-------|---------|
 | `offer_doll` | 2.1 | emerald ×32 | doll ×1 | 1 | 24000 |
 | `offer_doll_lance` | 2.1 | iron ingot ×8 | doll lance ×1 | 1 | 24000 |
+| `offer_mini_shield` | 2.1 | iron ingot ×4 | mini shield ×1 | 1 | 24000 |
 | `offer_doll_glove` | 2.1 | 7 dyes ×1 each + white wool ×3 | doll glove ×1 | 1 | 168000 |
 
 `offer_doll_glove` moved here from Morichika (`morichika/offer_doll_glove`,
@@ -81,9 +82,10 @@ Stock = max times tradeable per refresh; Refresh = ticks until restock (20 ticks
 the weekly stock plus the dye price keeps it rarer than the plain dolls. The
 lance is the cheap one — iron and a day's work — but a day is still a day, so
 one a day; it renders as a processing trade rather than a purchase, because the
-payment is not currency.
+payment is not currency. The mini shield is a doll's shield and a player's
+uselessness: half the iron of the lance, the same daily restock (item.md §10).
 
-Note that all three trades are gated on 2.1 alone, so Alice has no reputation
+Note that all four trades are gated on 2.1 alone, so Alice has no reputation
 tier at all: her progression is quest-shaped, and her reputation only feeds
 Marisa's `talisman_request`.
 

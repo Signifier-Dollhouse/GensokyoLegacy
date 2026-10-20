@@ -31,7 +31,7 @@ public class SakuyaQDGen extends QuestDialogData {
 		chat("sakuya/visit_morichika_shop_greet", GLEntities.IZAYOI_SAKUYA.get(),
 				List.of(visitingAt(GLStructureGen.MORICHIKA_SHOP)),
 				starterText("greet", "Is it open? I heard this is the only shop in the forest."),
-				dialog("greet", "It is. I have been here before - Rinnosuke's stock is the only thing in Gensokyo I have no objection to.",
+				dialog("greet", "It is. I have been here before - Rinnosuke's stock is the only thing in Gensokyo I have no objection to.", List.of("dialog_talk_01"),
 						option("greet/end", "Understood.")),
 				CHAT_DEFAULT);
 

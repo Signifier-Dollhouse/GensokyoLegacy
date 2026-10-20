@@ -1,0 +1,74 @@
+{
+	"format_version": "1.21.6",
+	"credit": "Made with Blockbench",
+	"texture_size": [64, 64],
+	"textures": {
+		"0": "gensokyolegacy:item/tool/mini_shield",
+		"particle": "gensokyolegacy:item/tool/mini_shield"
+	},
+	"elements": [
+		{
+			"from": [10, 0, 1],
+			"to": [11.5, 14, 15],
+			"rotation": {"angle": 0, "axis": "y", "origin": [9.5, 0, 7]},
+			"faces": {
+				"north": {"uv": [3.5, 5, 4, 8.5], "texture": "#0"},
+				"east": {"uv": [0, 0, 3.5, 3.5], "texture": "#0"},
+				"south": {"uv": [4, 5, 4.5, 8.5], "texture": "#0"},
+				"west": {"uv": [0, 3.5, 3.5, 7], "texture": "#0"},
+				"up": {"uv": [5, 8.5, 4.5, 5], "texture": "#0"},
+				"down": {"uv": [5.5, 5, 5, 8.5], "texture": "#0"}
+			}
+		},
+		{
+			"from": [6, 4.5, 7],
+			"to": [10, 9.5, 9],
+			"rotation": {"angle": 0, "axis": "y", "origin": [9, 7.5, 8]},
+			"faces": {
+				"north": {"uv": [5.5, 5, 6.5, 6.25], "texture": "#0"},
+				"east": {"uv": [6, 3.75, 6.5, 5], "texture": "#0"},
+				"south": {"uv": [6, 0, 7, 1.25], "texture": "#0"},
+				"west": {"uv": [6.5, 3.75, 7, 5], "texture": "#0"},
+				"up": {"uv": [7.5, 5.5, 6.5, 5], "texture": "#0"},
+				"down": {"uv": [7.5, 5.5, 6.5, 6], "texture": "#0"}
+			}
+		},
+		{
+			"from": [11.5, 2, 3],
+			"to": [13, 12, 13],
+			"rotation": {"angle": 0, "axis": "y", "origin": [12, 0, 7]},
+			"faces": {
+				"north": {"uv": [6, 1.25, 6.5, 3.75], "texture": "#0"},
+				"east": {"uv": [3.5, 0, 6, 2.5], "texture": "#0"},
+				"south": {"uv": [5.5, 6.25, 6, 8.75], "texture": "#0"},
+				"west": {"uv": [3.5, 2.5, 6, 5], "texture": "#0"},
+				"up": {"uv": [6.5, 8.75, 6, 6.25], "texture": "#0"},
+				"down": {"uv": [7, 1.25, 6.5, 3.75], "texture": "#0"}
+			}
+		}
+	],
+	"display": {
+		"thirdperson_righthand": {
+			"translation": [0, -1, 3.75],
+			"scale": [1.1, 1.1, 1.1]
+		},
+		"thirdperson_lefthand": {
+			"rotation": [0, -180, 0],
+			"translation": [-0.25, -1, 3]
+		},
+		"firstperson_righthand": {
+			"rotation": [30, 35, 0]
+		},
+		"firstperson_lefthand": {
+			"rotation": [30, -145, 0]
+		}
+	},
+	"groups": [
+		{
+			"name": "Root",
+			"origin": [8, 8, 8],
+			"color": 0,
+			"children": [0, 1, 2]
+		}
+	]
+}

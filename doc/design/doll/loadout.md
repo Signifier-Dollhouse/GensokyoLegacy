@@ -10,12 +10,12 @@ Dolls carry a small **inventory of four slots** that determines their behavior (
 
 | Slot | Semantics | Accepted items |
 |---|---|---|
-| `MAIN_HAND` | assault weapon — decides regular / super / suicide attack | every bound item: `DanmakuItem`, `DollLanceItem`, `LaserItem`, throwable `HexBrewBottleItem`, `Items.TNT`, folded heal talisman — plus the vanilla shield (§4) |
+| `MAIN_HAND` | assault weapon — decides regular / super / suicide attack | every bound item: `DanmakuItem`, `DollLanceItem`, `LaserItem`, throwable `HexBrewBottleItem`, `Items.TNT`, folded heal talisman — plus what a doll can block with (§4) |
 | `OFF_HAND` | secondary throw option — hexbrew super attack | the same set as the main hand |
 | `CLOTH` | worn paper/cloth — enables passive moves (heal) | none — inert for now, though the heal talisman is the item this slot was designed around and it is bound to a hand |
 | `CORE` | reserved for future mechanical cores | none yet — synced but functionally inert |
 
-The accepted set is not a hand-written list: it is the behavior binding table read as a whole (`DollBehaviorRegistry.matchesAny`), so any item that drives some action is admitted to either hand automatically, and a new binding line unlocks its item in the editor with no second edit. The vanilla shield is the one addition — it is a reactive block rather than a behavior (control.md §5.6).
+The accepted set is not a hand-written list: it is the behavior binding table read as a whole (`DollBehaviorRegistry.matchesAny`), so any item that drives some action is admitted to either hand automatically, and a new binding line unlocks its item in the editor with no second edit. The shields are the one addition — they are a reactive block rather than a behavior (control.md §5.6).
 
 ## 2. Storage: authoritative `DollData.inventory`, two variants
 
@@ -48,7 +48,7 @@ Click-arming is gone; the loadout is managed through `DollLoadoutMenu` (`content
 
 - Four slots arranged as a cross with no gaps on the right side: left main hand, right off hand, top core, middle cloth (the body-worn slot), plus the player inventory; shift-click moves both ways.
 - **Every slot is locked**, on two axes, both enforced in `DollLoadoutItemHandler` — the only writer:
-  - *What*: `isItemValid` admits a hand only what a doll can use (`DollBehaviorRegistry.usableInHand` — every bound item, whatever the action type, plus the vanilla `ShieldItem`). Either hand accepts the same set; only blocking reads the off hand, so a shield parked in the main hand is inert until a sticky swap (control.md §2) carries it across. The **core** takes a folded talisman, which the doll wears rather than uses (`DollCoreTalisman`, below). Cloth still takes nothing (its predicate opens up with the future cloth items).
+  - *What*: `isItemValid` admits a hand only what a doll can use (`DollBehaviorRegistry.usableInHand` — every bound item, whatever the action type, plus what a doll can block with: `DollShieldItem.isShield`, the vanilla shield and the mini shield). Either hand accepts the same set; only blocking reads the off hand, so a shield parked in the main hand is inert until a sticky swap (control.md §2) carries it across. The **core** takes a folded talisman, which the doll wears rather than uses (`DollCoreTalisman`, below). Cloth still takes nothing (its predicate opens up with the future cloth items).
   - *How many*: **one item per hand**, with a single exception — **ammunition**, i.e. an item whose binding *spends* it one per use (`DollBehaviorRegistry.spendsOnUse`, the `consumed` flag each registration declares). So a hand holds a whole stack of throwable hexbrew (up to its own 16), laser charges, or TNT (up to 64), where N in the slot is N throws/charges/dives; a danmaku item, the star wand, the lance and a folded talisman are one per hand however large their own stack is, since nothing is spent (a talisman wears down by durability instead). Core and cloth are single slots whatever the stack would allow.
   - The count rule is **stack-dependent**, which `IItemHandler.getSlotLimit` cannot express, so it is asked per item: the menu's `LoadoutSlot` (a two-line `ItemHandlerCopySlot` subclass) overrides `getMaxStackSize(ItemStack)` with `DollLoadoutItemHandler.stackLimit`. Every vanilla placement path sizes its transfer through that overload — click, number-key swap, shift-click, drag — so nothing is ever over-written and then truncated away. `insertItem` applies the same rule for non-menu callers, and `getSlotLimit` answers the 64 ceiling as the honest stack-agnostic answer.
 - Backed live by the ledger `MutableDollInventory` through `DollLoadoutItemHandler`, refreshing the client mirror on every change — no staging, no take-back on close.

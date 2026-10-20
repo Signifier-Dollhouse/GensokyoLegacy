@@ -1,0 +1,14 @@
+{
+  "animations": [
+    "dialog_dislike"
+  ],
+  "options": [
+    {
+      "type": "gensokyolegacy:simple",
+      "actions": [],
+      "conditions": [],
+      "text": "gensokyolegacy/dialog/gift/leave"
+    }
+  ],
+  "text": "gensokyolegacy/reimu/gift/dialog/dislike"
+}

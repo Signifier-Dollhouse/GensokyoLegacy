@@ -147,6 +147,20 @@ public class AliceDollHost extends AbstractYoukaiModule implements DollLedger {
 		return null;
 	}
 
+	@Override
+	@Nullable
+	public DollData drop(UUID uuid) {
+		if (uuid == null) return null;
+		for (var it = dolls.iterator(); it.hasNext(); ) {
+			DollData data = it.next();
+			if (data != null && uuid.equals(data.uuid)) {
+				it.remove();
+				return data;
+			}
+		}
+		return null;
+	}
+
 	// ---------- tick ----------
 
 	@Override
@@ -335,7 +349,8 @@ public class AliceDollHost extends AbstractYoukaiModule implements DollLedger {
 		long now = owner.level().getGameTime();
 		for (int slot = 0; slot < dolls.size(); slot++) {
 			DollData data = dolls.get(slot);
-			if (data == null || data.inventory == null) continue;
+			// a timed summon carries no loadout, so there is nothing here to arm it with (timed_summon.md §2)
+			if (data == null || data.inventory == null || !data.getNature().loadoutCapable()) continue;
 			DollEntity doll = resolve(data) instanceof DollEntity found ? found : null;
 			// idle is not enough: a doll that spent something a moment ago is still
 			// playing that swing, and its hands have to stay as drawn

@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {
+      "item": "gensokyolegacy:maple_log"
+    }
+  ],
+  "result": {
+    "count": 4,
+    "id": "minecraft:oak_planks"
+  }
+}

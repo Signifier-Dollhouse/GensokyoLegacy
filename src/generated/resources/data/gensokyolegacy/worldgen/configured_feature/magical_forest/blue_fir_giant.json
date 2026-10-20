@@ -70,6 +70,7 @@
                         "data": {
                           "Name": "gensokyolegacy:cedar_fallen_leaves",
                           "Properties": {
+                            "facing": "north",
                             "layers": "1"
                           }
                         },
@@ -79,6 +80,67 @@
                         "data": {
                           "Name": "gensokyolegacy:cedar_fallen_leaves",
                           "Properties": {
+                            "facing": "north",
+                            "layers": "2"
+                          }
+                        },
+                        "weight": 1
+                      },
+                      {
+                        "data": {
+                          "Name": "gensokyolegacy:cedar_fallen_leaves",
+                          "Properties": {
+                            "facing": "east",
+                            "layers": "1"
+                          }
+                        },
+                        "weight": 3
+                      },
+                      {
+                        "data": {
+                          "Name": "gensokyolegacy:cedar_fallen_leaves",
+                          "Properties": {
+                            "facing": "east",
+                            "layers": "2"
+                          }
+                        },
+                        "weight": 1
+                      },
+                      {
+                        "data": {
+                          "Name": "gensokyolegacy:cedar_fallen_leaves",
+                          "Properties": {
+                            "facing": "south",
+                            "layers": "1"
+                          }
+                        },
+                        "weight": 3
+                      },
+                      {
+                        "data": {
+                          "Name": "gensokyolegacy:cedar_fallen_leaves",
+                          "Properties": {
+                            "facing": "south",
+                            "layers": "2"
+                          }
+                        },
+                        "weight": 1
+                      },
+                      {
+                        "data": {
+                          "Name": "gensokyolegacy:cedar_fallen_leaves",
+                          "Properties": {
+                            "facing": "west",
+                            "layers": "1"
+                          }
+                        },
+                        "weight": 3
+                      },
+                      {
+                        "data": {
+                          "Name": "gensokyolegacy:cedar_fallen_leaves",
+                          "Properties": {
+                            "facing": "west",
                             "layers": "2"
                           }
                         },

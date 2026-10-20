@@ -40,6 +40,7 @@
 			"cat_bell_lore": "比平常的铃铛分量重得多",
 			"broom_lore": "魔女必备，非魔女也是",
 			"doll_lance_lore": "为人偶量身打造的长柄武器",
+			"mini_shield_lore": "人类的臂膀举不动，但人偶仍能躲在它后面",
 			"star_wand_lore": "挥手掷星辰",
 			"iron_dagger_lore": "永远掷出未扔过的那把",
 			"strange_glasses_lore": "所见即为真实",
@@ -160,6 +161,12 @@
 			"resync_tampered": "已移除一只含数据的人偶",
 			"broken": "这只人偶已损坏——在铁砧中用羊毛修复它",
 			"too_many": "召唤的人偶过多（上限 %s 只）"
+		},
+		"sekibanki_head": {
+			"summon": "右键召唤这颗头",
+			"collect": "空手右键这颗头以将其收回",
+			"possess": "潜行并右键这颗头以借它观看",
+			"exit": "左键停止借它观看"
 		}
 	}
 }

@@ -38,6 +38,8 @@ The consumes column is what the loadout reads as its stacking rule: the three sp
 
 There is no priority between types: each doll holds a single ticket (§4). Within a type the entry priority picks the item: the laser outranks hexbrew (10 vs 0) for `SUPER_ATTACK`, danmaku outranks the lance (0 vs −1) for `REGULAR_ATTACK` — the shot has no range limit while the charge gives up past 16 blocks (§5.1b), so a doll holding both keeps shooting and the lance is what a doll with no danmaku item does instead. `HEAL` is never player-queued; the scheduler issues it as an auto order.
 
+A doll with **no loadout at all** resolves through a third form, keyed on its class rather than a stack: `DollBehaviorRegistry.registerIntrinsic`, consulted after the item table and before the bare hand so that a timed summon's one declared move is not overridden by the bare-handed charge. See [timed_summon.md](timed_summon.md) §4.
+
 `DollActionMode` — issuance mode, carried on the command:
 
 - `ONE_TIME` — one glove command, one doll, one execution (super, suicide).
@@ -169,7 +171,7 @@ Apply the talisman's own effect on the scheduled target (§6). There is no glove
 
 ### 5.6 Shield block — reactive, off hand, regular vanilla pipeline
 
-Blocking runs through the regular `LivingEntity.hurt` shield path, not a custom hook: `DollEntity` overrides `isBlocking()` (off-hand loadout shield present and block cooldown ready), `isDamageSourceBlocked()` (projectile-only on top of vanilla bypass/pierce/front gating), and `hurtCurrentlyUsedShield()` (wears the live ledger shield in place + mirror refresh + cooldown stamp). Blocked hits never reach `actuallyHurt`, so the pairing pipeline and combat tracker stay silent; melee and explosions are never blocked, and the axe-disable branch can't fire (it requires a melee blocker). No modded-shield support for now (open question: tag-based match).
+Blocking runs through the regular `LivingEntity.hurt` shield path, not a custom hook: `DollEntity` overrides `isBlocking()` (off-hand loadout shield present and block cooldown ready), `isDamageSourceBlocked()` (projectile-only on top of vanilla bypass/pierce/front gating), and `hurtCurrentlyUsedShield()` (wears the live ledger shield in place + mirror refresh + cooldown stamp). Blocked hits never reach `actuallyHurt`, so the pairing pipeline and combat tracker stay silent; melee and explosions are never blocked, and the axe-disable branch can't fire (it requires a melee blocker). What counts as a shield is `DollShieldItem.isShield` — the vanilla shield, or the mini shield (item.md §10) — and a shield with no durability to spend is never worn down, so the mini shield blocks for good. No modded-shield support for now (open question: tag-based match).
 
 ## 6. Heal scheduling and heal marks
 
@@ -226,7 +228,7 @@ Created (`content/entity/dolls/action/`, behaviors in `.../behavior/`, all goals
 - `DollActionMode.java` — `ONE_TIME`, `ITERATIVE`, `AUTO` (§3)
 - `DollAction.java` — `record DollAction(DollActionType type, DollActionMode mode, @Nullable UUID target, Set<UUID> done)` (shared-mutable `done` for `ITERATIVE`, §8)
 - `DollActionHandler.java` — single-ticket state + cooldowns + suppress stamp + KAMIKAZE flag (§4)
-- `DollBehaviorRegistry.java` (`behavior/`) — `(id, predicate, type, priority, factory)` entries plus `registerBareHand` for the bare-handed fallback (§5.1b); `findHand` for capability, `createFor` for per-execution construction (§1–2)
+- `DollBehaviorRegistry.java` (`behavior/`) — `(id, predicate, type, priority, factory)` entries plus `registerBareHand` for the bare-handed fallback (§5.1b) and `registerIntrinsic` for a loadout-free doll's own move (timed_summon.md §4); `findHand` for capability, `createFor` for per-execution construction (§1–2)
 - `DollBehaviors.java` — built-in registration (danmaku / laser / hexbrew / TNT / heal-talis­man / shield-offhand)
 - `DollCardHolder.java` — `implements CardHolder` for the doll (§5)
 - `DollBehavior.java` + `DollDanmakuBehavior`, `DollLaserBehavior`, `DollThrowBehavior`, `DollSuicideBehavior`, `DollHealBehavior`, `DollMeleeBehavior` (`behavior/`, §5; laser before throw for super, danmaku before lance for regular). `ensureMainHand` is also the single place a spend is recorded, so every behavior holds its item for the swing without repeating it; `selfDriven` is how one outlives its ticket and `canReach` is the ticket-free reach gate (§5, §5.1b)

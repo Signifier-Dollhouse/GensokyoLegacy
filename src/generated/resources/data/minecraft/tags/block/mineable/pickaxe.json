@@ -1,6 +1,12 @@
 {
   "values": [
+    "gensokyolegacy:stone_lantern",
     "gensokyolegacy:magic_potion_bottle",
+    "gensokyolegacy:jizo",
+    "gensokyolegacy:jizo_straw_hat",
+    "gensokyolegacy:jizo_myouren",
+    "gensokyolegacy:jizo_narumi",
+    "gensokyolegacy:wasteland_gravestone_small",
     "gensokyolegacy:wrought_iron_bars",
     "gensokyolegacy:wrought_iron_pillar",
     "gensokyolegacy:ice_bricks",
@@ -35,6 +41,11 @@
     "gensokyolegacy:gray_tiles_stairs",
     "gensokyolegacy:gray_tiles_slab",
     "gensokyolegacy:gray_tiles_vertical_slab",
+    "gensokyolegacy:myouren_bricks",
+    "gensokyolegacy:myouren_brick_stairs",
+    "gensokyolegacy:myouren_brick_slab",
+    "gensokyolegacy:myouren_brick_vertical_slab",
+    "gensokyolegacy:myouren_fence",
     "gensokyolegacy:alchemy_pot",
     "gensokyolegacy:sealing_pot",
     "gensokyolegacy:plate"

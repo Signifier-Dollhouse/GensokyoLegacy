@@ -1,11 +1,12 @@
 package dev.xkmc.gensokyolegacy.content.entity.dolls.impl;
 
 import dev.xkmc.gensokyolegacy.content.attachment.doll.MutableDollInventory;
+import dev.xkmc.gensokyolegacy.content.item.doll.DollShieldItem;
 import dev.xkmc.gensokyolegacy.content.item.doll.DollSlot;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.ShieldItem;
 
 /**
  * Reactive off-hand shield block, running through the regular vanilla pipeline — blocking state and
@@ -14,29 +15,36 @@ import net.minecraft.world.item.ShieldItem;
  */
 public interface DollShield extends DollLoadout {
 
-	int SHIELD_BLOCK_COOLDOWN = 100;
-
 	default boolean hasReadyShield() {
-		ItemStack shield = asDoll().loadout().get(DollSlot.OFF_HAND);
-		if (shield.isEmpty() || !(shield.getItem() instanceof ShieldItem)) return false;
-		return asDoll().actions.isShieldReady(asDoll().level().getGameTime());
-	}
-
-	default boolean isProjectileDamage(DamageSource damageSource) {
-		// dolls only block projectiles; everything else resolves in vanilla
-		return damageSource.getDirectEntity() instanceof Projectile;
+		if (DollShieldItem.isShield(loadout().get(DollSlot.OFF_HAND)) ||
+				DollShieldItem.isShield(loadout().get(DollSlot.MAIN_HAND)))
+			return asDoll().actions.isShieldReady(asDoll().level().getGameTime());
+		return false;
 	}
 
 	default void wearShield() {
-		MutableDollInventory inv = asDoll().loadout();
-		ItemStack shield = inv.get(DollSlot.OFF_HAND);
-		if (shield.isEmpty() || !(shield.getItem() instanceof ShieldItem)) return;
-		asDoll().actions.stampShieldBlock(asDoll().level().getGameTime(), SHIELD_BLOCK_COOLDOWN);
-		int wear = shield.getDamageValue() + 1;
-		if (wear >= shield.getMaxDamage()) {
-			inv.set(DollSlot.OFF_HAND, ItemStack.EMPTY);
-		} else {
-			shield.setDamageValue(wear);
+		MutableDollInventory inv = loadout();
+		DollSlot slot = DollSlot.OFF_HAND;
+		ItemStack shield = inv.get(slot);
+		if (!DollShieldItem.isShield(shield)) {
+			slot = DollSlot.MAIN_HAND;
+			shield = inv.get(slot);
+			if (!DollShieldItem.isShield(shield))
+				return;
+		}
+
+		// no cooldown for now.
+		// asDoll().actions.stampShieldBlock(asDoll().level().getGameTime(), 100);
+
+		// the mini shield has no durability to spend, so it blocks forever
+		asDoll().playSound(SoundEvents.SHIELD_BLOCK, 1.0F, 0.8F + asDoll().level().random.nextFloat() * 0.4F);
+		if (shield.getMaxDamage() > 0) {
+			int wear = shield.getDamageValue() + 1;
+			if (wear >= shield.getMaxDamage()) {
+				inv.set(slot, ItemStack.EMPTY);
+			} else {
+				shield.setDamageValue(wear);
+			}
 		}
 		asDoll().syncLoadoutMirror();
 	}

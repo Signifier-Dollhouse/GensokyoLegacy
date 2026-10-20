@@ -30,6 +30,10 @@
 					"title": "人偶手套",
 					"description": "获得七色人偶手套"
 				},
+				"obtain_sekibanki_head": {
+					"title": "赤蛮奇的头",
+					"description": "获得赤蛮奇的头"
+				},
 				"feed_fairy": {
 					"title": "喂妖精",
 					"description": "喂一只妖精"

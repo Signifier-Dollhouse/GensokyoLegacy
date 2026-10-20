@@ -105,19 +105,21 @@ public class DollGloveItem extends Item implements GloveTargeting {
 
 	/**
 	 * Right-click on a doll entity at vanilla reach opens its loadout when owned (or in creative), in every
-	 * mode. Right-click air or a block runs the mode action, which first tries the same open through a fresh
+	 * mode. A timed summon or a gadget has no loadout, so the poke does nothing and falls through
+	 * as an ordinary interaction.
+	 * Right-click air or a block runs the mode action, which first tries the same open through a fresh
 	 * 16-block trace ({@code DollGloveHandler.tryOpenEditor}); neither path consults the target cache.
 	 */
 	@Override
 	public InteractionResult interactLivingEntity(ItemStack stack, Player player, LivingEntity target, InteractionHand hand) {
-		if (target instanceof DollEntity doll && (doll.isOwner(player) || player.getAbilities().instabuild)) {
-			if (player instanceof ServerPlayer sp) {
-				DollLoadoutProvider.open(sp, doll);
-				if (!sp.isCreative()) sp.getCooldowns().addCooldown(this, 10);
-			}
-			return InteractionResult.sidedSuccess(player.level().isClientSide());
+		// a kind with no loadout has no editor, so its poke falls through as an ordinary interaction
+		if (!(target instanceof DollEntity doll) || !doll.nature().loadoutCapable()) return InteractionResult.PASS;
+		if (!doll.isOwner(player) && !player.getAbilities().instabuild) return InteractionResult.PASS;
+		if (player instanceof ServerPlayer sp) {
+			DollLoadoutProvider.open(sp, doll);
+			if (!sp.isCreative()) sp.getCooldowns().addCooldown(this, 10);
 		}
-		return InteractionResult.PASS;
+		return InteractionResult.sidedSuccess(player.level().isClientSide());
 	}
 
 	/**

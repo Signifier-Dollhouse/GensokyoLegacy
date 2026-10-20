@@ -10,19 +10,22 @@ import net.minecraft.world.item.ItemStack;
 public record GiftItemData(int favor, int cooldown, GiftType type) {
 
 	/**
-	 * What the item is worth to this character: its base favor times the factor she has for this
-	 * category, or 0 when she will not take it at all.
+	 * How much she thinks this item is worth to her, as a multiplier on its base {@code favor}: 1.0 is
+	 * neutral, above it she is glad to be handed one, 0 is a refusal.
 	 * <p>
 	 * Two tiers, each overriding only what the one above leaves out: the per-item override, then the
 	 * category she has an opinion about in her own {@code gift_preference} datamap entry, then
 	 * {@link GiftType#neutral()} for a category nobody has stated an opinion about.
+	 * <p>
+	 * Returned raw rather than folded into the favor because {@code GiftModule} reads it twice over: the
+	 * favor is {@code factor * favor}, and only a factor of exactly 0 turns into the refusal reaction.
 	 */
-	public int getFavor(ItemStack stack, YoukaiEntity self) {
+	public double getFactor(ItemStack stack, YoukaiEntity self) {
 		var pref = GLMeta.GIFT_PREFERENCE.get(self.registryAccess(), self.getType().builtInRegistryHolder());
-		if (pref == null) return (int) (type.neutral() * favor);
-		if (pref.override().containsKey(stack.getItem()))
-			return (int) (pref.override().get(stack.getItem()) * favor);
-		return (int) (pref.preference().getOrDefault(type, type.neutral()) * favor);
+		if (pref == null) return type.neutral();
+		var single = pref.override().get(stack.getItem());
+		if (single != null) return single;
+		return pref.preference().getOrDefault(type, type.neutral());
 	}
 
 }
