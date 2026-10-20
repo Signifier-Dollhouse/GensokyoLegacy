@@ -39,8 +39,8 @@ import java.util.List;
  * The soil disk runs in the ore step, which is what puts the podzol under the grass rather than on top of it.
  * <p>
  * A burial grove: the locust is half of what grows here, because it is the one tree that grows back over a grave,
- * and the oak and birch that grew here before it make up the rest. It is thin enough at four a chunk that the
- * ground still reads as a graveyard rather than as a wood.
+ * the purple cherry is the guide's purple-blossomed tree, and the oak and birch that grew here before it make up
+ * the rest. It is thin enough at four a chunk that the ground still reads as a graveyard rather than as a wood.
  *
  * @see "doc/design/gensokyo_biomes.md"
  */
@@ -60,6 +60,8 @@ public class MuenzukaBiomeGen extends AbstractBiomeGen {
 	private static final ResourceKey<PlacedFeature> GHOST_FLOWERS_PF = pf("ghost_flowers");
 	private static final ResourceKey<ConfiguredFeature<?, ?>> MUENZUKA_TREES = cf("muenzuka_trees");
 	private static final ResourceKey<PlacedFeature> MUENZUKA_TREES_PF = pf("muenzuka_trees");
+	private static final ResourceKey<ConfiguredFeature<?, ?>> MUENZUKA_LITTER = cf("muenzuka_litter");
+	private static final ResourceKey<PlacedFeature> MUENZUKA_LITTER_PF = pf("muenzuka_litter");
 
 	public MuenzukaBiomeGen() {
 		super(KEY);
@@ -77,8 +79,8 @@ public class MuenzukaBiomeGen extends AbstractBiomeGen {
 								VegetationPlacements.PATCH_GRASS_FOREST, VegetationPlacements.BROWN_MUSHROOM_NORMAL,
 								VegetationPlacements.RED_MUSHROOM_NORMAL, VegetationPlacements.PATCH_SUGAR_CANE,
 								VegetationPlacements.PATCH_PUMPKIN),
-								List.of(MUENZUKA_TREES_PF, GensokyoBiomeFeatures.STONES_PF, GRAVE_MARKER_PF,
-										GRAVESTONE_PF, STONE_LANTERN_PF, GHOST_FLOWERS_PF)))
+								List.of(MUENZUKA_TREES_PF, MUENZUKA_LITTER_PF, GensokyoBiomeFeatures.STONES_PF,
+										GRAVE_MARKER_PF, GRAVESTONE_PF, STONE_LANTERN_PF, GHOST_FLOWERS_PF)))
 						.topLayer(FREEZE_TOP_LAYER));
 	}
 
@@ -99,20 +101,26 @@ public class MuenzukaBiomeGen extends AbstractBiomeGen {
 				.add(Blocks.LILY_OF_THE_VALLEY, 3).add(Blocks.OXEYE_DAISY, 3).add(Blocks.ALLIUM, 2)
 				.add(Blocks.DEAD_BUSH, 2).add(GLNaturalBlocks.EUGUNE_GHOST_FIRE, 1).build()));
 
-		// the odds compound down the list, so half each of the two entries leaves a quarter for the default
+		// the odds compound down the list, so half each of the three entries leaves an eighth for the default
 		HolderGetter<ConfiguredFeature<?, ?>> trees = ctx.lookup(Registries.CONFIGURED_FEATURE);
 		FeatureUtils.register(ctx, MUENZUKA_TREES, Feature.RANDOM_SELECTOR, new RandomFeatureConfiguration(
 				List.of(new WeightedPlacedFeature(
 						PlacementUtils.inlinePlaced(trees.getOrThrow(TreeType.LOCUST.cfKey)), 0.5F),
 						new WeightedPlacedFeature(
+								PlacementUtils.inlinePlaced(trees.getOrThrow(TreeType.PURPLE_CHERRY.cfKey)), 0.5F),
+						new WeightedPlacedFeature(
 								PlacementUtils.inlinePlaced(trees.getOrThrow(TreeFeatures.OAK)), 0.5F)),
 				PlacementUtils.inlinePlaced(trees.getOrThrow(TreeFeatures.BIRCH))));
+		// the purple cherry's petals, the ones that fall in this grove
+		FeatureUtils.register(ctx, MUENZUKA_LITTER, Feature.RANDOM_PATCH,
+				fallenLeaves(40, 6, GLNaturalBlocks.PURPLE_CHERRY_FALLEN_LEAVES));
 	}
 
 	@Override
 	protected void placed(Registrar reg) {
 		reg.cover(PODZOL_PF, reg.feature(PODZOL_DISK), CountPlacement.of(3));
 		reg.trees(MUENZUKA_TREES_PF, reg.feature(MUENZUKA_TREES), CountPlacement.of(4));
+		reg.litter(MUENZUKA_LITTER_PF, reg.feature(MUENZUKA_LITTER), CountPlacement.of(2));
 		reg.cover(GRAVE_MARKER_PF, reg.feature(GRAVE_MARKER), RarityFilter.onAverageOnceEvery(4));
 		reg.floor(GRAVESTONE_PF, reg.feature(GRAVESTONE), CountPlacement.of(1));
 		reg.floor(STONE_LANTERN_PF, reg.feature(STONE_LANTERN), CountPlacement.of(1));

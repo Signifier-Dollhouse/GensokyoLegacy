@@ -80,7 +80,7 @@ beside them.
 
 | biome | features after | why |
 |---|---|---|
-| `muenzuka` | `forest`, **minus `trees_birch_and_oak`** | a burial grove: half locust over the markers, half the oak and birch that grew here before — see §2.2 |
+| `muenzuka` | `forest`, **minus `trees_birch_and_oak`** | a burial grove: half locust over the markers, a quarter of the purple cherry, the rest the oak and birch that grew here before — see §2.2 |
 | `human_village` | `plains` | open, already tilled-looking, plus its pumpkin and sugar cane patches |
 | `myouren_temple_barrens` | `badlands` | the dry dead-bush and coarse-dirt look, with the locust that stands over the temple's markers |
 | `bamboo_forest_of_the_lost` | `snowy_taiga` | spruce understorey, so the grove reads as a winter one — though the biome itself no longer snows, §6 |
@@ -338,7 +338,7 @@ deep, and the run of them into a rim. See §1.
 | `gravestone` | 4 tries in 1 patch per chunk, on the floor | muenzuka |
 | `stone_lantern` | 4 tries in 1 patch per chunk, on the floor | muenzuka |
 | `ghost_flowers` | 3 patches | muenzuka |
-| `muenzuka_trees` | 4 trees, locust half | muenzuka |
+| `muenzuka_trees` / `muenzuka_litter` | 4 trees, locust half, purple cherry a quarter / 2 patches | muenzuka |
 | `village_flowers` | 4 patches | human village |
 | `barrens_scrub` | 3 patches | barrens |
 | `barrens_gravestone` | 4 tries in 1 patch per chunk, on the floor | barrens |
@@ -355,7 +355,7 @@ deep, and the run of them into a rim. See §1.
 | `ravine_mud` | 2 disks a chunk, radius 2…4 | genbu ravine |
 | `foothill_moss` | 4 patches | youkai mountain foothills |
 | `valley_mixed_trees` / `maple_fallen_leaves` | 10 trees / 2 patches | valley, settlement 6, foothills 2 |
-| `cherry_trees` / `cherry_litter` | 15 trees / 2 patches | sakura forest |
+| `cherry_trees` / `cherry_litter` | 15 pink trees / 2 patches | sakura forest |
 | `sanctuary_trees` / `sanctuary_flowers` | 1 in 5 chunks / 3 patches | sanctuary |
 | `blood_deposit` / `bone_pile` | 3 patches / 1 in 6 | hell of blood pools |
 | `den_rubble` / `fungus_patch` | 1 in 5 / 4 patches | animal realm |
@@ -445,19 +445,19 @@ share is one configured feature in `GensokyoBiomeFeatures`, the **count** is eac
 | `valley_mixed_trees` | `valley_mixed_trees` | 10 |
 | `settlement_maple_trees` | `maple_trees` | 6 |
 | `foothills_maple_trees` | `maple_trees` | 2 |
-| `cherry_trees` | `cherry_trees` | 15 |
+| `cherry_trees` | `gensokyolegacy:pink_cherry_tree` | 15 |
 | `muenzuka_trees` | `muenzuka_trees` | 4 |
 | `barrens_locust_trees` | `gensokyolegacy:locust_tree` | 6 |
 
-Every one of these is a `RANDOM_SELECTOR` that plants **one** tree per placement call, so the biome's
-`CountPlacement` is the whole of the density and nothing is hidden in the selector.
+Every one of these plants **one** tree per placement call, so the biome's `CountPlacement` is the whole of the density
+and nothing is hidden in the selector. The ones that plant a single species point straight at that tree's own
+configured feature and need no selector at all.
 
 | selector | list | default | share |
 |---|---|---|---|
 | `maple_trees` | red 1/3, orange 1/2 | yellow | red 33.3 %, orange 33.3 %, **yellow 33.3 %** |
 | `valley_mixed_trees` | `maple_trees` 0.5, oak 0.5 | birch | **maple 50 %**, oak 25 %, birch 25 % |
-| `muenzuka_trees` | locust 0.5, oak 0.5 | birch | **locust 50 %**, oak 25 %, birch 25 % |
-| `cherry_trees` | pink 0.5 | purple | pink 50 %, purple 50 % |
+| `muenzuka_trees` | locust 0.5, purple cherry 0.5, oak 0.5 | birch | **locust 50 %**, purple cherry 25 %, oak 12.5 %, birch 12.5 % |
 
 The two numbers in the `chance` column are not shares. `WeightedPlacedFeature.chance` is a `floatRange(0, 1)` that
 `RandomSelectorFeature` tests with `nextFloat()` **in list order, stopping at the first that fires**, so an entry's
@@ -488,20 +488,25 @@ Two consequences worth writing down, because both were got wrong here first:
 `valley_mixed_trees` takes the whole of `maple_trees` as its first entry rather than repeating the three maples: an
 inline placed feature with no modifiers has a count of zero but is still *called*, so it rolls one maple per call
 with the same red/orange/yellow split inside it. `barrens_locust_trees` needs no selector at all — there is one locust
-and it has the barrens to itself.
+and it has the barrens to itself, and `cherry_trees` is the same case: one pink cherry, and the grove to itself.
 
 The maple belt runs `youkai_mountain_foothills` → `tengu_settlement` → `untrodden_valley`, thinning upward with the
 wind. `sakura_forest` is outside it and replaces `minecraft:trees_cherry` outright; nothing else in the dimension
 plants vanilla cherry any more. `untrodden_valley` is the one grove the maples do not have to themselves, and
-`muenzuka` is the same shape with the locust: a burial grove is half the tree that grows back over a grave and half
-the oak and birch that grew there before, at the four a chunk that keeps the ground reading as a graveyard.
+`muenzuka` is the same shape with the locust: a burial grove is half the tree that grows back over a grave, a quarter
+the purple cherry the guide asks for as the graveyard's purple-blossomed tree, and the rest the oak and birch that
+grew there before, at the four a chunk that keeps the ground reading as a graveyard.
 
-Every one of those four biomes that grows maple or cherry also carries a carpet of the matching fallen leaves:
+The two cherry colours are split between the two biomes and neither is in both: the pink cherry is the sakura
+forest's alone, and the purple one is the graveyard's alone.
+
+Every one of those biomes that grows maple or cherry also carries a carpet of the matching fallen leaves:
 
 | placed feature | carpet | patches |
 |---|---|---|
 | `maple_fallen_leaves` | `mixed_maple_fallen_leaves`, shared by the three groves | 2 |
-| `cherry_litter` | pink and purple cherry fallen leaves, 50 % each | 2 |
+| `cherry_litter` | pink cherry fallen leaves | 2 |
+| `muenzuka_litter` | purple cherry fallen leaves | 2 |
 
 `maple_fallen_leaves` is the only placed feature of the set that is genuinely shared, because the canopy filter
 already scales it: three groves at one density means the sparse one gets little litter under its few crowns without

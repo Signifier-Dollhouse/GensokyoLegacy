@@ -331,7 +331,7 @@ tools/template_export/               导出器、巨橡生成器、预览、布�
 
 枫 / 槐两族登记在 `GLNaturalBlocks.WoodSet`（log + wood，槐族另有 `locust_hollow_log`），樱树不登记木头——粉樱 / 紫樱直接长在原版 `minecraft:cherry_log` 上，所以 `TreeSet` 收的是 `Supplier<Block>` 原木而不是 `WoodSet`。六种树叶是六种树型，但共用同一根木头：橙枫 / 红枫 / 黄枫用 `maple`，粉樱 / 紫樱用原版樱木，槐树自成一族。木头按树种切成对应的原版木板（枫与槐 → 橡木），因为本模组没有自己的木板方块。原木、六种树苗与 12 张落叶贴图全部来自美术稿，没有占位贴图。
 
-六个 `TreeType` 最初只注册 configured feature，树苗是它们唯一的入口；现在其中六个也参与世界生成：三档枫树由「山脚 → 天狗集落 → 无人之谷」这条枫林带种下（无人之谷另有橡树与白桦，枫树占一半），粉樱与紫樱取代原版 `minecraft:trees_cherry` 种满樱花森林，槐树种在两个墓地群系并与橡树、白桦混种（无之塚槐树占一半共四棵一块，命莲寺原野全是槐树六棵一块）。共享的是 configured feature，每片林子几棵树是各群系自己的 placed feature。枫林带与樱花林都另铺一层本物种的落叶地毯，铺法就是魔法森林那套 `canopy` + `MOTION_BLOCKING_NO_LEAVES` heightmap，现已提到 `Registrar.litter` 上供普通群系使用。详见 `gensokyo_biomes.md` §2.2。
+六个 `TreeType` 最初只注册 configured feature，树苗是它们唯一的入口；现在其中六个也参与世界生成：三档枫树由「山脚 → 天狗集落 → 无人之谷」这条枫林带种下（无人之谷另有橡树与白桦，枫树占一半），粉樱取代原版 `minecraft:trees_cherry` 种满樱花森林，紫樱只长在无之塚这一个墓地群系（无之塚槐树占一半、紫樱占四分之一，余下是橡树与白桦，共四棵一块），命莲寺原野全是槐树六棵一块。共享的是 configured feature，每片林子几棵树是各群系自己的 placed feature。枫林带、樱花林与无之塚都另铺一层本物种的落叶地毯（枫林带三种枫叶混铺，樱花林只落粉樱，无之塚只落紫樱），铺法就是魔法森林那套 `canopy` + `MOTION_BLOCKING_NO_LEAVES` heightmap，现已提到 `Registrar.litter` 上供普通群系使用。详见 `gensokyo_biomes.md` §2.2。
 
 树形由 `TreeFeatures.TreeShape` 给出两种：枫沿用蓝杉的 `SpruceFoliagePlacer`（6–8 格干、2–3 层平展冠），樱与槐用原版 `minecraft:cherry` 的 `CherryTrunkPlacer` + `CherryFoliagePlacer`。原版 `TreeFeature` 放置后按树干重算 `distance`，所以这些树照常会掉最外圈叶子。
 

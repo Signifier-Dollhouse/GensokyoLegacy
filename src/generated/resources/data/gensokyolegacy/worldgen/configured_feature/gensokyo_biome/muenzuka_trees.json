@@ -16,6 +16,13 @@
       {
         "chance": 0.5,
         "feature": {
+          "feature": "gensokyolegacy:purple_cherry_tree",
+          "placement": []
+        }
+      },
+      {
+        "chance": 0.5,
+        "feature": {
           "feature": "minecraft:oak",
           "placement": []
         }
