@@ -1,0 +1,23 @@
+{
+  "character": "gensokyolegacy:morichika_rinnosuke",
+  "conditions": [
+    {
+      "type": "gensokyolegacy:self_reputation",
+      "reputation": 80
+    }
+  ],
+  "ingredients": [
+    {
+      "count": 48,
+      "item": "minecraft:emerald"
+    }
+  ],
+  "recurrence": {
+    "maxStock": 1,
+    "restockTime": 168000
+  },
+  "result": {
+    "count": 1,
+    "id": "gensokyolegacy:sekibanki_head"
+  }
+}
