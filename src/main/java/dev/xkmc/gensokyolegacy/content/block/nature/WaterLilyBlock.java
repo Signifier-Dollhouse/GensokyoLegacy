@@ -83,7 +83,7 @@ public class WaterLilyBlock extends BushBlock {
 	}
 
 	protected float getMaxVerticalOffset() {
-		return 1.16f;
+		return 1/16f;
 	}
 
 }
