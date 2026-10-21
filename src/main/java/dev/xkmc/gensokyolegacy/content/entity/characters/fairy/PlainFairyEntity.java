@@ -132,6 +132,11 @@ public class PlainFairyEntity extends FairyEntity implements GeoYoukaiAnim {
 	}
 
 	@Override
+	public boolean isNamed() {
+		return false;
+	}
+
+	@Override
 	protected SyncedData data() {
 		return PLAIN_FAIRY_DATA;
 	}
