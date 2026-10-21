@@ -133,9 +133,6 @@ public class ShelfBlockEntity extends BaseBlockEntity {
 			if (hasEarning) dropEarnings(level, pos);
 		} else if (!owner.equals(Util.NIL_UUID)) {
 			PendingItemStorage.get(level).stash(owner, stack, stock, earning);
-		} else {
-			if (hasStock) dropStock(level, pos);
-			if (hasEarning) dropEarnings(level, pos);
 		}
 	}
 

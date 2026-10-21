@@ -180,7 +180,7 @@ public class GLStructureGen {
 		}
 
 		// Rumia has no structure yet, so her bed is hand-wired here
-		bedReg.add(GLBlocks.BEDS[GLBlocks.Beds.RUMIA.ordinal()], new BedData(GLEntities.RUMIA.get()), false);
+		//bedReg.add(GLBlocks.BEDS[GLBlocks.Beds.RUMIA.ordinal()], new BedData(GLEntities.RUMIA.get()), false);
 	}
 
 	public static void init(DataProviderInitializer init) {

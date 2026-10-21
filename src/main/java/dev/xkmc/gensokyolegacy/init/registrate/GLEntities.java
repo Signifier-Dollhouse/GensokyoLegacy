@@ -50,41 +50,21 @@ import java.util.Map;
 
 public class GLEntities {
 
-	public static final EntityEntry<ChairEntity> CHAIR;
-	// summon-only vehicle, no spawn egg or natural spawn: it exists only while a
-	// player rides it with a broom item in hand (see BroomItem)
-	public static final EntityEntry<BroomEntity> BROOM;
-
-	public static final EntityEntry<RumiaEntity> RUMIA;
 	public static final EntityEntry<ReimuEntity> REIMU;
 	public static final EntityEntry<CirnoEntity> CIRNO;
-
-	public static final EntityEntry<MaidenEntity> SANAE;
 	public static final EntityEntry<MarisaEntity> MARISA;
 	public static final EntityEntry<MorichikaEntity> MORICHIKA;
 	public static final EntityEntry<AliceEntity> ALICE;
-	/**
-	 * No home of her own: she only ever appears as a guest, see {@code GLStructureGen}.
-	 */
 	public static final EntityEntry<SakuyaEntity> IZAYOI_SAKUYA;
-	/**
-	 * Also a guest only. The mod has no bamboo forest to put an oni's house in, so she is
-	 * declared at one of the magical forest houses instead - see {@code GLStructureGen}.
-	 */
 	public static final EntityEntry<SuikaEntity> IBUKI_SUIKA;
-	public static final EntityEntry<GeneralYoukaiEntity> MYSTIA;
-	public static final EntityEntry<BossYoukaiEntity> YUKARI, KOISHI;
-	public static final EntityEntry<FairyEntity> SUNNY, LUNA, STAR;
-	/**
-	 * The unnamed fairy that actually wears the shared fairy rig, in four recolours.
-	 */
+
 	public static final EntityEntry<PlainFairyEntity> PLAIN_FAIRY;
+
 	public static final EntityEntry<DollEntity> DOLL;
-	/**
-	 * The first {@code ITEM_GADGET}: an owned head that itemizes but holds nothing (gadget.md §3).
-	 */
 	public static final EntityEntry<SekibankiHeadEntity> SEKIBANKI_HEAD;
 
+	public static final EntityEntry<ChairEntity> CHAIR;
+	public static final EntityEntry<BroomEntity> BROOM;
 	public static final EntityEntry<FrozenFrog> FROZEN_FROG;
 	public static final EntityEntry<FairyIce> FAIRY_ICE;
 	public static final EntityEntry<HexBrewBottleEntity> HEXBREW_BOTTLE;
@@ -314,75 +294,6 @@ public class GLEntities {
 					.dataMap(GLMeta.GIFT_PREFERENCE.reg(), GIFT_SUIKA)
 					.dataMap(GLMeta.PARTY_TASTE.reg(), TASTE_SUIKA)
 					.register();
-		}
-
-		// unused
-		{
-
-			RUMIA = GensokyoLegacy.REGISTRATE
-					.entity("rumia", RumiaEntity::new, MobCategory.CREATURE)
-					.properties(e -> e.sized(0.4F, 1.7f).clientTrackingRange(10))
-					.attributes(RumiaEntity::createAttributes)
-					.renderer(() -> RumiaRenderer::new)
-					.loot(EntityLootGen::noLoot)
-					.register();
-
-			YUKARI = GensokyoLegacy.REGISTRATE
-					.entity("yukari_yakumo", BossYoukaiEntity::new, MobCategory.CREATURE)
-					.properties(e -> e.sized(0.4F, 1.8f).clientTrackingRange(10))
-					.attributes(BossYoukaiEntity::createAttributes)
-					.renderer(() -> GeneralYoukaiRenderer::new)
-					.loot(EntityLootGen::yukari)
-					.register();
-
-			SANAE = GensokyoLegacy.REGISTRATE
-					.entity("kochiya_sanae", MaidenEntity::new, MobCategory.CREATURE)
-					.properties(e -> e.sized(0.4F, 1.8f).clientTrackingRange(10))
-					.attributes(BossYoukaiEntity::createAttributes)
-					.renderer(() -> GeneralYoukaiRenderer::new)
-					.loot(EntityLootGen::sanae)
-					.register();
-
-			KOISHI = GensokyoLegacy.REGISTRATE
-					.entity("komeiji_koishi", BossYoukaiEntity::new, MobCategory.CREATURE)
-					.properties(e -> e.sized(0.4F, 1.8f).clientTrackingRange(10))
-					.attributes(BossYoukaiEntity::createAttributes)
-					.renderer(() -> GeneralYoukaiRenderer::new)
-					.loot(EntityLootGen::noLoot)
-					.register();
-
-			MYSTIA = GensokyoLegacy.REGISTRATE
-					.entity("mystia_lorelei", GeneralYoukaiEntity::new, MobCategory.CREATURE)
-					.properties(e -> e.sized(0.4F, 1.8f).clientTrackingRange(10))
-					.attributes(GeneralYoukaiEntity::createAttributes)
-					.renderer(() -> GeneralYoukaiRenderer::new)
-					.loot(EntityLootGen::mystia)
-					.register();
-
-			SUNNY = GensokyoLegacy.REGISTRATE
-					.entity("sunny_milk", FairyEntity::new, MobCategory.CREATURE)
-					.properties(e -> e.sized(0.4F, 1.8f).clientTrackingRange(10))
-					.attributes(FairyEntity::createAttributes)
-					.renderer(() -> GeneralYoukaiRenderer::new)
-					.loot(EntityLootGen::noLoot)
-					.register();
-
-			LUNA = GensokyoLegacy.REGISTRATE
-					.entity("luna_child", FairyEntity::new, MobCategory.CREATURE)
-					.properties(e -> e.sized(0.4F, 1.8f).clientTrackingRange(10))
-					.attributes(FairyEntity::createAttributes)
-					.renderer(() -> GeneralYoukaiRenderer::new)
-					.loot(EntityLootGen::noLoot)
-					.register();
-
-			STAR = GensokyoLegacy.REGISTRATE
-					.entity("star_sapphire", FairyEntity::new, MobCategory.CREATURE)
-					.properties(e -> e.sized(0.4F, 1.8f).clientTrackingRange(10))
-					.attributes(FairyEntity::createAttributes)
-					.renderer(() -> GeneralYoukaiRenderer::new)
-					.loot(EntityLootGen::noLoot)
-					.register();
-
 		}
 
 	}
