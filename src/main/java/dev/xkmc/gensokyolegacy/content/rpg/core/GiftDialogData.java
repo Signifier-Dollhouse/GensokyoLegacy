@@ -11,15 +11,14 @@ import org.jetbrains.annotations.Nullable;
 /**
  * What a character does about a gift: the two lines she answers it with, and how she pays you back.
  *
- * @param like    said when she takes the gift
- * @param dislike said when she turns it down
- * @param threshold gift return progress that buys a gift back; 0 or less means she never pays one
+ * @param like        said when she takes the gift
+ * @param dislike     said when she turns it down
+ * @param threshold   gift return progress that buys a gift back; 0 or less means she never pays one
  * @param returnTable one roll of this table is what she hands over, or null for no table
- *
  * @see "doc/design/gift.md"
  */
 public record GiftDialogData(Holder<Dialog> like, Holder<Dialog> dislike,
-		int threshold, ResourceLocation returnTable) {
+							 int threshold, ResourceLocation returnTable) {
 
 	@Nullable
 	public static GiftDialogData of(EntityType<?> key) {

@@ -5,7 +5,6 @@ import dev.xkmc.danmakuapi.api.IYoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.attachment.doll.DollHost;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.DollEntity;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.OwnableEntity;
@@ -57,8 +56,7 @@ public interface DollDanmakuAlly extends DollEntityImpl, IYoukaiEntity {
 		if (le instanceof Mob mob && mob.getTarget() != null &&
 				ownerId.equals(mob.getTarget().getUUID())) return false;
 		LivingEntity lastHurt = le.getLastHurtByMob();
-		if (lastHurt != null && ownerId.equals(lastHurt.getUUID())) return false;
-		return true;
+		return lastHurt == null || !ownerId.equals(lastHurt.getUUID());
 	}
 
 	@Override

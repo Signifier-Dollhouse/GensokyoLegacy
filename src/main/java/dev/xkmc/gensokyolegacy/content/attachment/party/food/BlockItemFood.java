@@ -8,6 +8,7 @@ import net.minecraft.world.level.block.state.BlockState;
 /**
  * Food whose only description is the block's own item: one serving, eaten whole. Also the
  * catch-all, and registered last for that reason.
+ *
  * @see "doc/design/party/food_mods.md"
  */
 public class BlockItemFood implements BlockFoodHandler {

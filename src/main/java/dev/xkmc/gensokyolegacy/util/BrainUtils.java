@@ -15,6 +15,7 @@ import java.util.function.Supplier;
 public final class BrainUtils {
 	/**
 	 * Get a memory value from an entity, with a fallback value if no memory is present
+	 *
 	 * @param entity   The entity
 	 * @param memory   Memory type to get the value for
 	 * @param fallback Fallback value if no memory value is present
@@ -27,6 +28,7 @@ public final class BrainUtils {
 
 	/**
 	 * Get a memory value from a brain, with a fallback value if no memory is present
+	 *
 	 * @param brain    The brain
 	 * @param memory   Memory type to get the value for
 	 * @param fallback Fallback value if no memory value is present
@@ -42,6 +44,7 @@ public final class BrainUtils {
 	 * <p>
 	 * <b>NOTE: </b> Do not instantiate a new empty collection for insertion here, as the memory will be
 	 * immediately culled
+	 *
 	 * @param entity   The entity
 	 * @param memory   Memory type to get the value for
 	 * @param fallback Fallback value if no memory value is present
@@ -56,6 +59,7 @@ public final class BrainUtils {
 	 * <p>
 	 * <b>NOTE: </b> Do not instantiate a new empty collection for insertion here, as the memory will be
 	 * immediately culled
+	 *
 	 * @param brain    The brain
 	 * @param memory   Memory type to get the value for
 	 * @param fallback Fallback value if no memory value is present
@@ -73,6 +77,7 @@ public final class BrainUtils {
 
 	/**
 	 * Get a memory value from an entity, or null if no memory is present
+	 *
 	 * @param entity The entity
 	 * @param memory Memory type to get the value for
 	 * @param <T>    The type of object the memory uses
@@ -85,6 +90,7 @@ public final class BrainUtils {
 
 	/**
 	 * Get a memory value from a brain, or null if no memory is present
+	 *
 	 * @param brain  The brain
 	 * @param memory Memory type to get the value for
 	 * @param <T>    The type of object the memory uses
@@ -97,6 +103,7 @@ public final class BrainUtils {
 
 	/**
 	 * Perform an operation on a given memory value, if present. If no memory value set, operation is not run
+	 *
 	 * @param entity   The entity
 	 * @param memory   Memory type to get the value for
 	 * @param consumer The operation to run if the memory is present
@@ -108,6 +115,7 @@ public final class BrainUtils {
 
 	/**
 	 * Perform an operation on a given memory value, if present. If no memory value set, operation is not run
+	 *
 	 * @param brain    The brain
 	 * @param memory   Memory type to get the value for
 	 * @param consumer The operation to run if the memory is present
@@ -119,6 +127,7 @@ public final class BrainUtils {
 
 	/**
 	 * Check whether an entity has a memory value set.
+	 *
 	 * @param entity The entity
 	 * @param memory Memory type to get the value for
 	 * @return True if the memory value is present, or false if the memory value is absent or unregistered
@@ -129,6 +138,7 @@ public final class BrainUtils {
 
 	/**
 	 * Check whether a brain has a memory value set.
+	 *
 	 * @param brain  The brain
 	 * @param memory Memory type to get the value for
 	 * @return True if the memory value is present, or false if the memory value is absent or unregistered
@@ -139,6 +149,7 @@ public final class BrainUtils {
 
 	/**
 	 * Gets the ticks remaining until a memory expires.
+	 *
 	 * @param entity The entity
 	 * @param memory Memory type to get the expiry time for
 	 * @return The ticks until the memory expires, or 0 if the memory doesn't exist or doesn't expire
@@ -149,6 +160,7 @@ public final class BrainUtils {
 
 	/**
 	 * Gets the ticks remaining until a memory expires.
+	 *
 	 * @param brain  The brain
 	 * @param memory Memory type to get the expiry time for
 	 * @return The ticks until the memory expires, or 0 if the memory doesn't exist or doesn't expire
@@ -160,6 +172,7 @@ public final class BrainUtils {
 	/**
 	 * Set an entity's memory value for the given memory type. <br>
 	 * Use {@link BrainUtils#clearMemory(LivingEntity, MemoryModuleType)} if intending to set a memory to nothing.
+	 *
 	 * @param entity     The entity
 	 * @param memoryType Memory type to set the value for
 	 * @param memory     The memory value to set
@@ -172,6 +185,7 @@ public final class BrainUtils {
 	/**
 	 * Set a brain's memory value for the given memory type. <br>
 	 * Use {@link BrainUtils#clearMemory(Brain, MemoryModuleType)} if intending to set a memory to nothing.
+	 *
 	 * @param brain      The brain
 	 * @param memoryType Memory type to set the value for
 	 * @param memory     The memory value to set
@@ -184,6 +198,7 @@ public final class BrainUtils {
 	/**
 	 * Set a brain's memory value for the given memory type, with the memory expiring after a certain time.<br>
 	 * Use {@link BrainUtils#clearMemory(LivingEntity, MemoryModuleType)} if intending to set a memory to nothing.
+	 *
 	 * @param entity          The entity
 	 * @param memoryType      Memory type to set the value for
 	 * @param memory          The memory value to set
@@ -197,6 +212,7 @@ public final class BrainUtils {
 	/**
 	 * Set an entity's memory value for the given memory type, with the memory expiring after a certain time.<br>
 	 * Use {@link BrainUtils#clearMemory(Brain, MemoryModuleType)} if intending to set a memory to nothing.
+	 *
 	 * @param brain           The brain
 	 * @param memoryType      Memory type to set the value for
 	 * @param memory          The memory value to set
@@ -209,6 +225,7 @@ public final class BrainUtils {
 
 	/**
 	 * Wipe an entity's memory value for the given memory type. This safely unsets a memory, returning it to empty.
+	 *
 	 * @param entity The entity
 	 * @param memory Memory type to erase the value for
 	 */
@@ -218,6 +235,7 @@ public final class BrainUtils {
 
 	/**
 	 * Wipe a brain's memory value for the given memory type. This safely unsets a memory, returning it to empty.
+	 *
 	 * @param brain  The brain
 	 * @param memory Memory type to erase the value for
 	 */
@@ -227,6 +245,7 @@ public final class BrainUtils {
 
 	/**
 	 * Wipe multiple memories for a given entity. This safely unsets each memory, returning them to empty.
+	 *
 	 * @param entity   The entity
 	 * @param memories The list of memory types to erase the values for
 	 */
@@ -236,6 +255,7 @@ public final class BrainUtils {
 
 	/**
 	 * Wipe multiple memories for a given brain. This safely unsets each memory, returning them to empty.
+	 *
 	 * @param brain    The brain
 	 * @param memories The list of memory types to erase the values for
 	 */
@@ -247,6 +267,7 @@ public final class BrainUtils {
 
 	/**
 	 * Gets the current attack target of an entity, if present.
+	 *
 	 * @param entity The entity
 	 * @return The current attack target of the entity, or null if none present
 	 */
@@ -257,6 +278,7 @@ public final class BrainUtils {
 
 	/**
 	 * Gets the current attack target of an entity, if present, or an optional fallback entity if none present
+	 *
 	 * @param entity   The entity
 	 * @param fallback Optional fallback entity to return if no attack target is set.
 	 * @return The current attack target of the entity, the fallback entity if provided, or null otherwise
@@ -269,6 +291,7 @@ public final class BrainUtils {
 	/**
 	 * Gets the last entity to attack the given entity, if present. <br>
 	 * Requires the {@link MemoryModuleType#HURT_BY_ENTITY} memory type, and a sensor that sets it
+	 *
 	 * @param entity The entity
 	 * @return The last entity to attack the given entity, or null if none present
 	 */
@@ -280,6 +303,7 @@ public final class BrainUtils {
 	/**
 	 * Sets the attack target of the given entity, and the non-brain one for compatibility. <br>
 	 * Provided target can be null to effectively remove an entity's attack target.
+	 *
 	 * @param entity The entity
 	 * @param target The entity to target
 	 */

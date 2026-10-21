@@ -16,12 +16,7 @@ import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.LegacyRandomSource;
 import net.minecraft.world.level.levelgen.RandomState;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
-import net.minecraft.world.level.levelgen.structure.BoundingBox;
-import net.minecraft.world.level.levelgen.structure.PoolElementStructurePiece;
-import net.minecraft.world.level.levelgen.structure.Structure;
-import net.minecraft.world.level.levelgen.structure.StructurePiece;
-import net.minecraft.world.level.levelgen.structure.StructureSet;
-import net.minecraft.world.level.levelgen.structure.StructureType;
+import net.minecraft.world.level.levelgen.structure.*;
 import net.minecraft.world.level.levelgen.structure.pools.DimensionPadding;
 import net.minecraft.world.level.levelgen.structure.pools.JigsawPlacement;
 import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
@@ -63,7 +58,7 @@ public class FlatCheckStructure extends Structure {
 	 * codec can only name it, so the holder arrives unbound and {@link #placement} swaps in the registry's own the
 	 * first time worldgen reads it.
 	 */
-	private volatile Holder<StructureSet> set;
+	private final Holder<StructureSet> set;
 	private final int maxDepth;
 	private final boolean useExpansionHack;
 	private final int maxDistanceFromCenter;
@@ -412,8 +407,8 @@ public class FlatCheckStructure extends Structure {
 	 * #findGenerationPoint}, and stops at the first full pass, so later attempts are untried.
 	 */
 	public RegionReport diagnoseRegion(long seed, int regionX, int regionZ, RegistryAccess registries,
-								ChunkGenerator generator, RandomState randomState, StructureTemplateManager templates,
-								LevelHeightAccessor heightAccessor) {
+									   ChunkGenerator generator, RandomState randomState, StructureTemplateManager templates,
+									   LevelHeightAccessor heightAccessor) {
 		List<String> lines = new ArrayList<>();
 		Optional<MultiSpreadPlacement> resolved = this.placement();
 		if (resolved.isEmpty()) {

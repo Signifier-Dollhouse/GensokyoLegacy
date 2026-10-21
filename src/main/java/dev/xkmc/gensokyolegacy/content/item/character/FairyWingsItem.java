@@ -23,7 +23,9 @@ import java.util.List;
  */
 public class FairyWingsItem extends WingItem {
 
-	/** A multiplier rather than a flat cut, so a health bonus from elsewhere is halved along with the base. */
+	/**
+	 * A multiplier rather than a flat cut, so a health bonus from elsewhere is halved along with the base.
+	 */
 	private static final double HEALTH = -0.5;
 
 	public FairyWingsItem(Properties properties) {

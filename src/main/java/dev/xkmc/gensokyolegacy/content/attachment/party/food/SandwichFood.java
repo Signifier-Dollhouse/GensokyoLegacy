@@ -14,6 +14,7 @@ import java.util.List;
 /**
  * A Some Assembly Required sandwich: the layers live in a block entity, so this is a container rather than
  * a state-derived handler. One placed sandwich is one indivisible serving.
+ *
  * @see "doc/design/party/food_mods.md"
  */
 public class SandwichFood implements ContainerFoodHandler {

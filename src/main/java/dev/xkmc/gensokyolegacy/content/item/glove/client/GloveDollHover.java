@@ -8,21 +8,20 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.level.ClipContext;
-import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.EntityHitResult;
-import net.minecraft.world.phys.HitResult;
-import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.*;
 import org.jetbrains.annotations.Nullable;
 
 /**
  * Doll hover readout (glove.md §2b): the crosshair doll glows gold and shows its loadout. Bypasses
  * {@code GloveTargetCache} — a fresh trace on both sides, so what the holder sees is what opens.
+ *
  * @see "doc/design/doll/glove.md"
  */
 public final class GloveDollHover {
 
-	/** Gold outline for a hovered doll, in every mode (ARGB). */
+	/**
+	 * Gold outline for a hovered doll, in every mode (ARGB).
+	 */
 	public static final int DOLL_GLOW = 0xFFAA00;
 
 	private static int lastTick = -1;
@@ -58,12 +57,16 @@ public final class GloveDollHover {
 		return memo;
 	}
 
-	/** Whether the entity is the glove-hovered doll. Client-side only. */
+	/**
+	 * Whether the entity is the glove-hovered doll. Client-side only.
+	 */
 	public static boolean isHovered(@Nullable Entity entity) {
 		return entity instanceof DollEntity && hoveredDoll() == entity;
 	}
 
-	/** Gold for the glove-hovered doll, null otherwise. Client-side only. */
+	/**
+	 * Gold for the glove-hovered doll, null otherwise. Client-side only.
+	 */
 	@Nullable
 	public static Integer hoverColor(@Nullable Entity entity) {
 		return isHovered(entity) ? DOLL_GLOW : null;

@@ -9,7 +9,6 @@ import dev.xkmc.l2serial.serialization.marker.SerialField;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
@@ -24,11 +23,13 @@ import java.util.UUID;
 @SerialClass
 public class DollData {
 
-	/** item -> {@link DollData}: reads the {@code DOLL_DATA}/{@code DOLL_COLOR}/{@code CUSTOM_NAME}/
+	/**
+	 * item -> {@link DollData}: reads the {@code DOLL_DATA}/{@code DOLL_COLOR}/{@code CUSTOM_NAME}/
 	 * {@code DOLL_LOADOUT} components off the stack; a component-less stack is
 	 * {@link DollItemData#fresh()}. The type is whatever kind the item summons
 	 * ({@link DollItem#dollType()}), and the caller supplies position, dimension, facing and state
-	 * (item.md §2). */
+	 * (item.md §2).
+	 */
 	public static DollData fromItemData(ItemStack stack, Vec3 pos, ResourceLocation dim, float yRot) {
 		DollItemData item = stack.get(GLItems.DOLL_DATA.get());
 		if (item == null) item = DollItemData.fresh();
@@ -45,8 +46,10 @@ public class DollData {
 		return data;
 	}
 
-	/** Server-only ledger entry. Nothing syncs through the capability: the sidebar roster rides
-	 * {@code DollRosterToClient} and per-doll display state rides synced entity data on the doll. */
+	/**
+	 * Server-only ledger entry. Nothing syncs through the capability: the sidebar roster rides
+	 * {@code DollRosterToClient} and per-doll display state rides synced entity data on the doll.
+	 */
 	@SerialField(toClient = false)
 	public UUID uuid;
 
@@ -96,13 +99,17 @@ public class DollData {
 	@SerialField(toClient = false)
 	public long lastUpdate;
 
-	/** Authoritative loadout, live and mutable: survives park/restore/logout and mirrors to clients
-	 * through synced entity data; the item carries it in {@code DOLL_LOADOUT} (loadout.md §2). */
+	/**
+	 * Authoritative loadout, live and mutable: survives park/restore/logout and mirrors to clients
+	 * through synced entity data; the item carries it in {@code DOLL_LOADOUT} (loadout.md §2).
+	 */
 	@SerialField(toClient = false)
 	public MutableDollInventory inventory = new MutableDollInventory();
 
-	/** Follow-formation slot cache, restamped over the live summoned entries every tick by the
-	 * roster rebuild and read by the follow goal. Server-only, never serialized. */
+	/**
+	 * Follow-formation slot cache, restamped over the live summoned entries every tick by the
+	 * roster rebuild and read by the follow goal. Server-only, never serialized.
+	 */
 	public int formationIndex;
 	public int formationTotal = 1;
 

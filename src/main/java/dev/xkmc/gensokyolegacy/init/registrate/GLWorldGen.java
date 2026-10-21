@@ -18,15 +18,11 @@ import dev.xkmc.gensokyolegacy.content.worldgen.feature.template.TemplateFeature
 import dev.xkmc.gensokyolegacy.content.worldgen.feature.template.TemplateFeatureConfig;
 import dev.xkmc.gensokyolegacy.content.worldgen.feature.lean.LeanFoliagePlacer;
 import dev.xkmc.gensokyolegacy.content.worldgen.feature.lean.LeanTrunkPlacer;
-import dev.xkmc.gensokyolegacy.content.worldgen.placement.AvoidStructuresFilter;
-import dev.xkmc.gensokyolegacy.content.worldgen.placement.CanopyFilter;
-import dev.xkmc.gensokyolegacy.content.worldgen.placement.GridExclusionFilter;
-import dev.xkmc.gensokyolegacy.content.worldgen.placement.JitteredGridPlacement;
-import dev.xkmc.gensokyolegacy.content.worldgen.placement.NoiseBandFilter;
-import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
+import dev.xkmc.gensokyolegacy.content.worldgen.placement.*;
 import dev.xkmc.gensokyolegacy.content.worldgen.structure.FlatCheckStructure;
 import dev.xkmc.gensokyolegacy.content.worldgen.structure.MultiSpreadPlacement;
 import dev.xkmc.gensokyolegacy.content.worldgen.structure.SetDataProcessor;
+import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.l2core.init.reg.simple.CdcReg;
 import dev.xkmc.l2core.init.reg.simple.CdcVal;
 import dev.xkmc.l2core.init.reg.simple.SR;

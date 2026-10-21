@@ -25,9 +25,11 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-/** One {@link Quest} as a JEI recipe: only what it hands back, in plain frames, since a reward
+/**
+ * One {@link Quest} as a JEI recipe: only what it hands back, in plain frames, since a reward
  * is a list and not one product. A loot table is never synced, so the server reads it and sends
- * the drops over ({@link QuestLootToClient}); a count from it is drawn by hand. */
+ * the drops over ({@link QuestLootToClient}); a count from it is drawn by hand.
+ */
 public class QuestRewardCategory extends BaseRecipeCategory<Holder<Quest>, QuestRewardCategory> {
 
 	private static final int COLS = 3;
@@ -67,7 +69,7 @@ public class QuestRewardCategory extends BaseRecipeCategory<Holder<Quest>, Quest
 		for (var drop : rewardDrops(recipe.value())) {
 			if (index == MAX_SLOTS) break;
 			GLJeiUtil.plainSlot(builder, RecipeIngredientRole.OUTPUT,
-					GLJeiUtil.gridX(index, COLS), GLJeiUtil.gridY(index, COLS))
+							GLJeiUtil.gridX(index, COLS), GLJeiUtil.gridY(index, COLS))
 					.addItemStack(drop.slotStack())
 					// the slot cannot show a range, so the tooltip says what the page cannot
 					.addRichTooltipCallback((view, tooltip) -> tooltip.add(drop.countText()));
@@ -95,7 +97,7 @@ public class QuestRewardCategory extends BaseRecipeCategory<Holder<Quest>, Quest
 
 	@Override
 	public void getTooltip(ITooltipBuilder tooltip, Holder<Quest> recipe,
-			IRecipeSlotsView recipeSlotsView, double mouseX, double mouseY) {
+						   IRecipeSlotsView recipeSlotsView, double mouseX, double mouseY) {
 		var quest = recipe.value();
 		tooltip.add(Component.translatable(quest.title()).withStyle(ChatFormatting.UNDERLINE));
 		tooltip.add(quest.character().getDescription());
@@ -115,12 +117,16 @@ public class QuestRewardCategory extends BaseRecipeCategory<Holder<Quest>, Quest
 	private static List<LootDrop> rewardDrops(Quest quest) {
 		List<LootDrop> list = new ArrayList<>();
 		for (var reward : quest.rewards())
-			if (reward instanceof LootTableReward loot) list.addAll(QuestLootToClient.ClientHandler.get(loot.table()));
+			if (reward instanceof LootTableReward(
+					ResourceLocation table
+			)) list.addAll(QuestLootToClient.ClientHandler.get(table));
 		return list;
 	}
 
-	/** Whether this quest has anything a slot could hold. A quest paying out <i>only</i> experience
-	 * and reputation has no item to make a page out of and is not registered here at all. */
+	/**
+	 * Whether this quest has anything a slot could hold. A quest paying out <i>only</i> experience
+	 * and reputation has no item to make a page out of and is not registered here at all.
+	 */
 	public static boolean hasItemReward(Holder<Quest> quest) {
 		for (var reward : quest.value().rewards())
 			if (reward instanceof LootTableReward) return true;

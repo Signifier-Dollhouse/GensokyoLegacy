@@ -1,24 +1,25 @@
 package dev.xkmc.gensokyolegacy.content.client.model;
 
 import com.mojang.blaze3d.Blaze3D;
-import software.bernie.geckolib.animation.AnimationController;
-import software.bernie.geckolib.animation.AnimationState;
-import software.bernie.geckolib.animation.AnimatableManager;
-import software.bernie.geckolib.animation.PlayState;
-import software.bernie.geckolib.animation.RawAnimation;
 import software.bernie.geckolib.animatable.GeoAnimatable;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.animation.*;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
-/** What {@link IceWingsLayer} runs its geckolib animation against. Not an entity, so it has no tick of
+/**
+ * What {@link IceWingsLayer} runs its geckolib animation against. Not an entity, so it has no tick of
  * its own: the layer hands an {@code AnimationState} built from the wearer each frame, keyed per wearer,
  * so one player in mid-air does not drag everyone else into the hover clip.
  */
 public class IceWingsAnimatable implements GeoAnimatable {
 
-	/** Cirno's standing flap: {@code 待机}, a 13 degree flutter at 0.4583s a cycle. */
+	/**
+	 * Cirno's standing flap: {@code 待机}, a 13 degree flutter at 0.4583s a cycle.
+	 */
 	private static final RawAnimation IDLE = RawAnimation.begin().thenLoop("animation.ice_wings.idle");
-	/** Cirno's airborne flap: {@code 漂浮}, the faster one that also swings the wings in Y. */
+	/**
+	 * Cirno's airborne flap: {@code 漂浮}, the faster one that also swings the wings in Y.
+	 */
 	private static final RawAnimation HOVER = RawAnimation.begin().thenLoop("animation.ice_wings.hover");
 
 	private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this, false);
@@ -30,7 +31,8 @@ public class IceWingsAnimatable implements GeoAnimatable {
 		controllers.add(new AnimationController<>(this, "flap", 0, this::flap));
 	}
 
-	/** Cirno swaps to {@code 漂浮} the moment she leaves the ground, so the wings do the same: the layer
+	/**
+	 * Cirno swaps to {@code 漂浮} the moment she leaves the ground, so the wings do the same: the layer
 	 * feeds {@link AnimationState#isMoving()} from that test, not from walking — still in mid-air flaps hardest.
 	 */
 	private PlayState flap(AnimationState<IceWingsAnimatable> state) {

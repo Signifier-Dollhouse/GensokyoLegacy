@@ -16,7 +16,6 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.neoforged.neoforge.client.model.generators.BlockModelBuilder;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
-import net.neoforged.neoforge.client.model.generators.MultiPartBlockStateBuilder;
 
 import java.util.Map;
 
@@ -28,7 +27,9 @@ public class WroughtIronBarsBlock extends IronBarsBlock {
 
 	private static final MapCodec<WroughtIronBarsBlock> CODEC = simpleCodec(WroughtIronBarsBlock::new);
 
-	/** 竖列顶端(正上方没有同类方块),此时使用带顶横档的贴图 */
+	/**
+	 * 竖列顶端(正上方没有同类方块),此时使用带顶横档的贴图
+	 */
 	public static final BooleanProperty TOP = BooleanProperty.create("top");
 
 	private static final Map<Direction, BooleanProperty> CONNECTIONS = Map.of(
@@ -63,7 +64,7 @@ public class WroughtIronBarsBlock extends IronBarsBlock {
 
 	@Override
 	protected BlockState updateShape(BlockState state, Direction dir, BlockState facing, LevelAccessor level,
-	                                BlockPos pos, BlockPos facingPos) {
+									 BlockPos pos, BlockPos facingPos) {
 		BlockState ans = super.updateShape(state, dir, facing, level, pos, facingPos);
 		if (dir == Direction.UP) ans = ans.setValue(TOP, isTop(facing));
 		return ans;

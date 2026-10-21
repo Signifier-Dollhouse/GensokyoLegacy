@@ -8,6 +8,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * What sort of party one character will attend and how she behaves at one, from the
  * {@code party_taste} entity-type data map. A character with no row does not come at all.
+ *
  * @param weight        her share of the draw at full interest; 100 is ordinary, 0 means
  *                      she is never drawn
  * @param minReputation below this she declines, whatever is on the table
@@ -52,13 +53,16 @@ public record PartyTaste(
 		repGain = Math.clamp(repGain, 0, 1);
 	}
 
-	/** The reputation this visit is worth the host, from the appeal <i>she</i> consumed. */
+	/**
+	 * The reputation this visit is worth the host, from the appeal <i>she</i> consumed.
+	 */
 	public int reputationFor(int appeal) {
 		if (appeal <= 0) return 0;
 		return Math.max(1, (int) Math.floor(appeal * repGain));
 	}
 
-	/** This character's taste, or <b>null</b> when she has no authored row — she is then not
+	/**
+	 * This character's taste, or <b>null</b> when she has no authored row — she is then not
 	 * party-eligible. Never fall back to {@link #DEF} here: that null is what makes the data map the
 	 * eligibility list.
 	 */
@@ -67,7 +71,9 @@ public record PartyTaste(
 		return GLMeta.PARTY_TASTE.get(access, type.builtInRegistryHolder());
 	}
 
-	/** This character's taste, or {@link #DEF}, for reading behaviour mid-visit. */
+	/**
+	 * This character's taste, or {@link #DEF}, for reading behaviour mid-visit.
+	 */
 	public static PartyTaste ofOrDefault(RegistryAccess access, EntityType<?> type) {
 		var ans = of(access, type);
 		return ans == null ? DEF : ans;

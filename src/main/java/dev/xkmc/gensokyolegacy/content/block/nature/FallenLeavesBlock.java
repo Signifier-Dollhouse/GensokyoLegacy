@@ -33,11 +33,15 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-/** One carpet of fallen leaves under a tree: placed as two layers, right-clicking with itself packs it back to one. */
+/**
+ * One carpet of fallen leaves under a tree: placed as two layers, right-clicking with itself packs it back to one.
+ */
 public class FallenLeavesBlock extends SimpleBushBlock {
 
 	public static final IntegerProperty LAYERS = IntegerProperty.create("layers", 1, 2);
-	/** Only horizontal, so a patch of leaves can be spun per block instead of tiling one orientation. */
+	/**
+	 * Only horizontal, so a patch of leaves can be spun per block instead of tiling one orientation.
+	 */
 	public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
 	private static final MapCodec<FallenLeavesBlock> CODEC = simpleCodec(FallenLeavesBlock::new);
 

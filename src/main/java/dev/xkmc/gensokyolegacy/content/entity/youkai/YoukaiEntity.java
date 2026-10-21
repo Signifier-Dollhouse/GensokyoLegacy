@@ -1,17 +1,11 @@
 package dev.xkmc.gensokyolegacy.content.entity.youkai;
 
-import dev.xkmc.danmakuapi.api.IYoukaiEntity;
 import dev.xkmc.danmakuapi.content.spell.spellcard.SpellCardWrapper;
-import dev.xkmc.fastprojectileapi.spellcircle.SpellCircleHolder;
-import dev.xkmc.gensokyolegacy.content.attachment.character.ReputationState;
-import dev.xkmc.gensokyolegacy.content.block.deco.bed.YoukaiBedBlock;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.combat.*;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.module.*;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.move.YoukaiNavigationControl;
 import dev.xkmc.gensokyolegacy.content.entity.foundation.DamageClampEntity;
-import dev.xkmc.gensokyolegacy.content.entity.foundation.IDimensionBoundEntity;
-import dev.xkmc.gensokyolegacy.content.entity.foundation.ISleepOffsetEntity;
-import dev.xkmc.gensokyolegacy.content.entity.youkai.impl.YoukaiAnim;
+import dev.xkmc.gensokyolegacy.content.entity.foundation.SyncedDataTypes;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.impl.*;
 import dev.xkmc.l2core.base.entity.SyncedData;
 import dev.xkmc.l2serial.serialization.codec.TagCodec;
@@ -58,8 +52,8 @@ import java.util.Optional;
  * @see "doc/design/youkai/entity.md"
  */
 @SerialClass
-public abstract class YoukaiEntity extends DamageClampEntity implements SpellCircleHolder, IYoukaiEntity,
-		ISleepOffsetEntity, IDimensionBoundEntity, YoukaiBaseImpl, YoukaiEating, YoukaiCombat, YoukaiHurt {
+public abstract class YoukaiEntity extends DamageClampEntity implements
+		YoukaiEating, YoukaiCombat, YoukaiHurt, YoukaiIntrinsics {
 
 	private static <T> EntityDataAccessor<T> defineId(EntityDataSerializer<T> ser) {
 		return SynchedEntityData.defineId(YoukaiEntity.class, ser);
@@ -68,6 +62,8 @@ public abstract class YoukaiEntity extends DamageClampEntity implements SpellCir
 	protected static final SyncedData YOUKAI_DATA = new SyncedData(YoukaiEntity::defineId);
 
 	public static final EntityDataAccessor<Integer> DATA_FLAGS_ID = YOUKAI_DATA.define(SyncedData.INT, 0, "youkai_flags");
+	public static final EntityDataAccessor<ItemStack> DATA_EAT_ITEM = YOUKAI_DATA.define(SyncedDataTypes.STACK, ItemStack.EMPTY, null);
+	public static final EntityDataAccessor<Integer> DATA_EAT_TICKS = YOUKAI_DATA.define(SyncedData.INT, 0, null);
 
 	public static AttributeSupplier.Builder createAttributes() {
 		return Monster.createMonsterAttributes()
@@ -234,22 +230,6 @@ public abstract class YoukaiEntity extends DamageClampEntity implements SpellCir
 	}
 
 	/**
-	 * Whether this character is visiting someone else's home. A visitor has no {@link HomeModule} binding,
-	 * so it can neither sleep nor claim a bed, and the quest/dialog layer treats it as a guest.
-	 */
-	public boolean isVisiting() {
-		return getFlag(YoukaiFlags.VISITING);
-	}
-
-	/**
-	 * Whether this character is a guest at somebody's party. Like a visitor she has
-	 * no {@link HomeModule} binding, and the quest/dialog layer treats her as a guest.
-	 */
-	public boolean isPartying() {
-		return getFlag(YoukaiFlags.PARTYING);
-	}
-
-	/**
 	 * Ticks between two hurt reactions. Danmaku lands every few ticks and a flinch restarted on each one
 	 * reads as a stutter rather than a hit; the clip itself is half a second long, which sets the number.
 	 */
@@ -411,14 +391,6 @@ public abstract class YoukaiEntity extends DamageClampEntity implements SpellCir
 		this.hasImpulse = true;
 	}
 
-	@Override
-	public double getSleepOffset(BlockPos pos) {
-		if (level().isLoaded(pos)) {
-			return YoukaiBedBlock.getSleepOffset(level().getBlockState(pos));
-		}
-		return YoukaiBedBlock.VANILLA_SLEEP_OFFSET;
-	}
-
 	public boolean mayInteract(Player player) {
 		return !isHostileTo(player) && getModule(TalkModule.class).map(e -> !e.isTalking()).orElse(true);
 	}
@@ -436,14 +408,14 @@ public abstract class YoukaiEntity extends DamageClampEntity implements SpellCir
 		return mayInteract(player);
 	}
 
-	public ReputationState getReputation(LivingEntity le) {
-		return getData(le).map(e -> e.data().getState()).orElse(ReputationState.STRANGER);
-	}
-
 	public void setTalkTo(@Nullable ServerPlayer player, int time) {
 		if (player == null) return;
 		getNavigation().stop();
 		lookAt(player, 30, 30);
+	}
+
+	public boolean isTalkingTo(ServerPlayer sp) {
+		return false;
 	}
 
 	@Override
@@ -473,31 +445,6 @@ public abstract class YoukaiEntity extends DamageClampEntity implements SpellCir
 
 	@Override
 	public boolean canChangeDimensions(Level oldLevel, Level newLevel) {
-		return false;
-	}
-
-	public boolean mayFly() {
-		return true;
-	}
-
-	/**
-	 * Whether she ever settles onto the ground. A hovering character has no walkable start node - a walk node
-	 * wants solid ground under the feet and hers is a block of air - so landing her would leave her unable to
-	 * path anywhere, and she would have to climb again next tick.
-	 */
-	public boolean mayLand() {
-		return true;
-	}
-
-	public boolean vanishOutOfSight() {
-		return true;
-	}
-
-	public boolean isNamed() {
-		return true;
-	}
-
-	public boolean isTalkingTo(ServerPlayer sp) {
 		return false;
 	}
 

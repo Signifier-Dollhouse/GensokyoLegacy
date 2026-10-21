@@ -18,9 +18,11 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.Nullable;
 
-/** One {@link TradeOffer} as a JEI recipe: what the character takes in, what it hands back, who
+/**
+ * One {@link TradeOffer} as a JEI recipe: what the character takes in, what it hands back, who
  * the counterparty is, and how deep its stock is. Remaining stock is per-player state and stays
- * on the trade screen. */
+ * on the trade screen.
+ */
 public class TradeRecipeCategory extends BaseRecipeCategory<Holder<TradeOffer>, TradeRecipeCategory> {
 
 	private static final int COLS = 3;
@@ -77,7 +79,7 @@ public class TradeRecipeCategory extends BaseRecipeCategory<Holder<TradeOffer>, 
 
 	@Override
 	public void getTooltip(ITooltipBuilder tooltip, Holder<TradeOffer> recipe,
-			IRecipeSlotsView recipeSlotsView, double mouseX, double mouseY) {
+						   IRecipeSlotsView recipeSlotsView, double mouseX, double mouseY) {
 		var offer = recipe.value();
 		if (offer.ingredients().size() > MAX_INGREDIENTS)
 			tooltip.add(GLLang.JeiExtra.MORE.get(offer.ingredients().size() - MAX_INGREDIENTS));

@@ -28,7 +28,9 @@ import java.util.List;
  */
 public class CuisineBoardFood implements ContainerFoodHandler {
 
-	/** The board's contents, or null if this build of Youkai's Feasts has no such field. */
+	/**
+	 * The board's contents, or null if this build of Youkai's Feasts has no such field.
+	 */
 	private static final Field CONTENTS = lookup();
 
 	private static Field lookup() {
@@ -40,7 +42,8 @@ public class CuisineBoardFood implements ContainerFoodHandler {
 		return null;
 	}
 
-	/** The board's own list of item stacks, or null when it cannot be read. A checked exception
+	/**
+	 * The board's own list of item stacks, or null when it cannot be read. A checked exception
 	 * becomes a null on purpose: a renamed field should read as "no food on it" rather than take the
 	 * party down from the server tick.
 	 */
@@ -89,7 +92,8 @@ public class CuisineBoardFood implements ContainerFoodHandler {
 		return ans;
 	}
 
-	/** Whether the board holds a finished dish rather than a recipe part-way through. A
+	/**
+	 * Whether the board holds a finished dish rather than a recipe part-way through. A
 	 * {@link FoodTableItem} is the mod's own answer, but a nigiri or gunkan placed as the finished
 	 * item resolves to the model used to <i>assemble</i> it, so the answer is read off the contents:
 	 * a dish is made of nothing but food.
@@ -103,7 +107,9 @@ public class CuisineBoardFood implements ContainerFoodHandler {
 		return true;
 	}
 
-	/** Only a board on the table is party food, the same test every other dish uses. */
+	/**
+	 * Only a board on the table is party food, the same test every other dish uses.
+	 */
 	@Override
 	public boolean isPutOut(Level level, BlockPos pos, BlockState state) {
 		return PartyArea.touchingFurniture(level, pos);
@@ -125,7 +131,8 @@ public class CuisineBoardFood implements ContainerFoodHandler {
 		return countItems(raw);
 	}
 
-	/** Take the whole plate of {@code item} off the board — shrinking by one would leave a lone
+	/**
+	 * Take the whole plate of {@code item} off the board — shrinking by one would leave a lone
 	 * piece on a board whose model still describes a pair. Emptied in place rather than replacing the
 	 * list, because the board's own {@code addItem} matches against this very list.
 	 */

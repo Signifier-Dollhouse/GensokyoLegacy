@@ -6,6 +6,7 @@ import net.neoforged.fml.ModList;
 /**
  * Registers one handler per kind of block food, in priority order. Most name a block class
  * belonging to another mod, so each is only <b>constructed</b> when that mod is present.
+ *
  * @see "doc/design/party/food_mods.md"
  */
 public final class BlockFoods {

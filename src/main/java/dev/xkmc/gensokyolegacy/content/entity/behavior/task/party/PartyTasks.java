@@ -27,7 +27,9 @@ public final class PartyTasks {
 	 */
 	public static final int WALK_STALL = 100;
 
-	/** How often a missing chair is re-checked, in ticks. Three seconds. */
+	/**
+	 * How often a missing chair is re-checked, in ticks. Three seconds.
+	 */
 	public static final int SEAT_RETRY = 60;
 
 	/**
@@ -36,7 +38,9 @@ public final class PartyTasks {
 	 */
 	public static final int SEAT_FAILURES = 3;
 
-	/** Ticks spent chewing one serving. */
+	/**
+	 * Ticks spent chewing one serving.
+	 */
 	public static final int EAT_TICKS = 40;
 
 	/**
@@ -45,10 +49,14 @@ public final class PartyTasks {
 	 */
 	public static final int PICKUP_TICKS = 6;
 
-	/** Longest a guest hesitates over a dish before reaching for it. Two seconds. */
+	/**
+	 * Longest a guest hesitates over a dish before reaching for it. Two seconds.
+	 */
 	public static final int BITE_DELAY = 40;
 
-	/** Shortest such hesitation — the least that still looks like a choice. */
+	/**
+	 * Shortest such hesitation — the least that still looks like a choice.
+	 */
 	public static final int BITE_DELAY_MIN = 10;
 
 	/**
@@ -57,7 +65,9 @@ public final class PartyTasks {
 	 */
 	public static final int UNSEAT_MIN = 400;
 
-	/** Longest such sit, thirty seconds. The band is wide so a table winds down instead of emptying at once. */
+	/**
+	 * Longest such sit, thirty seconds. The band is wide so a table winds down instead of emptying at once.
+	 */
 	public static final int UNSEAT_MAX = 600;
 
 	/**
@@ -66,27 +76,39 @@ public final class PartyTasks {
 	 */
 	public static final int HOST_LEAVE_DISTANCE = 24;
 
-	/** How long she may spend walking away before she is let go regardless. */
+	/**
+	 * How long she may spend walking away before she is let go regardless.
+	 */
 	public static final int LEAVE_TIMEOUT = 200;
 
-	/** How far past the guest floor a departing guest is sent, as a band on top of it. */
+	/**
+	 * How far past the guest floor a departing guest is sent, as a band on top of it.
+	 */
 	public static final int WALK_OUT_SPREAD = 32;
 
-	/** How many places are rolled before giving up on somewhere to walk off to. */
+	/**
+	 * How many places are rolled before giving up on somewhere to walk off to.
+	 */
 	public static final int WALK_OUT_TRIES = 8;
 
-	/** Looser than a dish or a chair: she is walking away, not picking anything up. */
+	/**
+	 * Looser than a dish or a chair: she is walking away, not picking anything up.
+	 */
 	public static final double DEPART_REACH = 2;
 
 	private PartyTasks() {
 	}
 
-	/** The unseat wait one guest draws for herself, so the table does not empty in one frame. */
+	/**
+	 * The unseat wait one guest draws for herself, so the table does not empty in one frame.
+	 */
 	public static int unseatDelay(RandomSource random) {
 		return random.nextInt(UNSEAT_MIN, UNSEAT_MAX + 1);
 	}
 
-	/** The whole machine, in priority order. */
+	/**
+	 * The whole machine, in priority order.
+	 */
 	public static final List<PartyTask> ALL = List.of(
 			new LeaveTask(),
 			new ChewTask(),

@@ -6,11 +6,7 @@ import dev.xkmc.gensokyolegacy.content.block.base.ShapePathFindBlockMethod;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLFurniture;
 import dev.xkmc.l2modularblock.core.BlockTemplates;
 import dev.xkmc.l2modularblock.core.VoxelBuilder;
-import dev.xkmc.l2modularblock.mult.CreateBlockStateBlockMethod;
-import dev.xkmc.l2modularblock.mult.DefaultStateBlockMethod;
-import dev.xkmc.l2modularblock.mult.OnReplacedBlockMethod;
-import dev.xkmc.l2modularblock.mult.PlacementBlockMethod;
-import dev.xkmc.l2modularblock.mult.SetPlacedByBlockMethod;
+import dev.xkmc.l2modularblock.mult.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.LivingEntity;
@@ -30,16 +26,22 @@ import net.neoforged.neoforge.client.model.generators.ModelFile;
 import net.neoforged.neoforge.client.model.generators.MultiPartBlockStateBuilder;
 import org.jetbrains.annotations.Nullable;
 
-/** 魔法道具工作台。横向两格长的桌子，用 {@link #ORIGIN} 区分这一格是左半还是右半：放下时把自己当成左半，
- * 在右手边补出另一半，两半各自带各自的模型。桌面就是本方块上面那一格，装饰直接摆在上面。 */
+/**
+ * 魔法道具工作台。横向两格长的桌子，用 {@link #ORIGIN} 区分这一格是左半还是右半：放下时把自己当成左半，
+ * 在右手边补出另一半，两半各自带各自的模型。桌面就是本方块上面那一格，装饰直接摆在上面。
+ */
 public class MagicTableBlock implements CreateBlockStateBlockMethod, DefaultStateBlockMethod,
 		PlacementBlockMethod, SetPlacedByBlockMethod, OnReplacedBlockMethod, ShapePathFindBlockMethod {
 
 	public static final BooleanProperty ORIGIN = BooleanProperty.create("origin");
-	/** 朝向由 {@link BlockTemplates#HORIZONTAL} 提供，不能自己再加一个同名的。 */
+	/**
+	 * 朝向由 {@link BlockTemplates#HORIZONTAL} 提供，不能自己再加一个同名的。
+	 */
 	public static final DirectionProperty FACING = BlockTemplates.HORIZONTAL_FACING;
 
-	/** 桌面：整格一层的板，y 15..16。四面都对称，转不转一样。 */
+	/**
+	 * 桌面：整格一层的板，y 15..16。四面都对称，转不转一样。
+	 */
 	public static final VoxelShape TOP = Block.box(0, 15, 0, 16, 16, 16);
 
 	private static final VoxelShape[] LEFT_SHAPES = allFaces(

@@ -11,11 +11,14 @@ import java.util.List;
 /**
  * Food that lives inside a block entity rather than on the block state, so every answer is read
  * fresh — {@link FoodResultCache} must never be routed through here.
+ *
  * @see "doc/design/party/food.md"
  */
 public interface ContainerFoodHandler {
 
-	/** Tested against the block class, as {@link BlockFoodHandler#handles} is. */
+	/**
+	 * Tested against the block class, as {@link BlockFoodHandler#handles} is.
+	 */
 	boolean handles(Block block);
 
 	/**
@@ -26,9 +29,13 @@ public interface ContainerFoodHandler {
 	 */
 	List<FoodResult> contents(CollisionGetter level, BlockPos pos, BlockState state);
 
-	/** Not the shared furniture test: the rule genuinely differs by container. */
+	/**
+	 * Not the shared furniture test: the rule genuinely differs by container.
+	 */
 	boolean isPutOut(Level level, BlockPos pos, BlockState state);
 
-	/** Takes whatever is there, not a specific item; the container itself stays. */
+	/**
+	 * Takes whatever is there, not a specific item; the container itself stays.
+	 */
 	int consume(Level level, BlockPos pos, BlockState state);
 }

@@ -2,11 +2,7 @@ package dev.xkmc.gensokyolegacy.content.attachment.home.datamap;
 
 import net.minecraft.core.BlockPos;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 /**
  * Per-room decomposition of a structure interior for staged pathfinding; coords are

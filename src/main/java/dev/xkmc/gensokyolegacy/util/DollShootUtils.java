@@ -7,22 +7,28 @@ import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
-/** Trimmed copy of MobWeaponAPI's {@code ShootUtils} aim helpers: target-velocity lead plus optional
- *  gravity-arc compensation; the arrow/infinity machinery over there is dropped, dolls never use arrows.
- *  Callers pass gravity explicitly, and hexbrew throws use 0 (straight aim with lead, same drop as before). */
+/**
+ * Trimmed copy of MobWeaponAPI's {@code ShootUtils} aim helpers: target-velocity lead plus optional
+ * gravity-arc compensation; the arrow/infinity machinery over there is dropped, dolls never use arrows.
+ * Callers pass gravity explicitly, and hexbrew throws use 0 (straight aim with lead, same drop as before).
+ */
 public final class DollShootUtils {
 
 	private DollShootUtils() {
 	}
 
-	/** Aim at a moving target and fire in one step. */
+	/**
+	 * Aim at a moving target and fire in one step.
+	 */
 	public static void shootAimHelper(LivingEntity target, Projectile projectile, float velocity, float gravity) {
 		getShootVector(target, projectile.position(), velocity, gravity, 0).launch(projectile);
 	}
 
-	/** Laser-style firing solution for projectile shots: estimates flight ticks from distance ÷ shot speed,
-	 *  predicts the target center with {@link #predictCenter}, then refines once against the predicted distance
-	 *  so approaching/fleeing targets are actually led. Fire at {@code speed} so estimate and shot agree. */
+	/**
+	 * Laser-style firing solution for projectile shots: estimates flight ticks from distance ÷ shot speed,
+	 * predicts the target center with {@link #predictCenter}, then refines once against the predicted distance
+	 * so approaching/fleeing targets are actually led. Fire at {@code speed} so estimate and shot agree.
+	 */
 	public static Vec3 predictShotDir(LivingEntity target, Vec3 from, double speed) {
 		if (speed <= 0) speed = 1;
 		Vec3 center = new Vec3(target.getX(), target.getY(0.5), target.getZ());

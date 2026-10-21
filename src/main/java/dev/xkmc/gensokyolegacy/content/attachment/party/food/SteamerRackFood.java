@@ -5,7 +5,6 @@ import dev.xkmc.youkaishomecoming.content.pot.steamer.RackItemData;
 import dev.xkmc.youkaishomecoming.content.pot.steamer.SteamerBlockEntity;
 import dev.xkmc.youkaishomecoming.init.registrate.YHBlocks;
 import net.minecraft.core.BlockPos;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.CollisionGetter;
@@ -20,11 +19,14 @@ import java.util.List;
  * A Youkai's Feasts steamer, both halves of it — the pot's own tiers and the rack standing in it
  * are separate block entities, so a full steamer is genuinely two food sources. A pot is food
  * wherever it stands; a rack only on the table or in a pot.
+ *
  * @see "doc/design/party/food_mods.md"
  */
 public class SteamerRackFood implements ContainerFoodHandler {
 
-	/** How far to fall looking for what a rack stands in; must exceed the tallest pot. */
+	/**
+	 * How far to fall looking for what a rack stands in; must exceed the tallest pot.
+	 */
 	private static final int SUPPORT_DROP = 4;
 
 	@Override
@@ -47,7 +49,9 @@ public class SteamerRackFood implements ContainerFoodHandler {
 		return merge(ans);
 	}
 
-	/** One entry per occupied slot, unmerged; {@link #merge} folds the same item across slots and racks. */
+	/**
+	 * One entry per occupied slot, unmerged; {@link #merge} folds the same item across slots and racks.
+	 */
 	@SuppressWarnings("unused")
 	private FoodResult describe(RackItemData slot, SteamerBlockEntity be, BlockState state) {
 		var stack = slot.stack;
@@ -62,7 +66,9 @@ public class SteamerRackFood implements ContainerFoodHandler {
 				(l, p, s) -> take(be, item));
 	}
 
-	/** Folds results that name the same item into one, summing their servings. */
+	/**
+	 * Folds results that name the same item into one, summing their servings.
+	 */
 	private static List<FoodResult> merge(List<FoodResult> raw) {
 		var merged = new ArrayList<FoodResult>();
 		for (var result : raw) {
@@ -83,7 +89,8 @@ public class SteamerRackFood implements ContainerFoodHandler {
 		return merged;
 	}
 
-	/** The pot is food wherever it stands; a rack is food on furniture or inside a pot, and is
+	/**
+	 * The pot is food wherever it stands; a rack is food on furniture or inside a pot, and is
 	 * found by falling, because the block carrying a rack inside a pot is two or three down.
 	 */
 	@Override
@@ -107,7 +114,8 @@ public class SteamerRackFood implements ContainerFoodHandler {
 		return remaining(be);
 	}
 
-	/** Take one {@code item} off any rack, in slot order. Goes through the rack's own
+	/**
+	 * Take one {@code item} off any rack, in slot order. Goes through the rack's own
 	 * {@code setStack}: shrinking the stack underneath would leave the slot's recipe id pointing at
 	 * an empty slot.
 	 */

@@ -25,7 +25,9 @@ public interface YoukaiBaseImpl {
 		return (YoukaiEntity) this;
 	}
 
-	/** The vanilla synced data, redeclared here so defaults can read the accessors. */
+	/**
+	 * The vanilla synced data, redeclared here so defaults can read the accessors.
+	 */
 	SynchedEntityData getEntityData();
 
 	default boolean getFlag(YoukaiFlags val) {
@@ -47,7 +49,9 @@ public interface YoukaiBaseImpl {
 		getEntityData().set(YoukaiEntity.DATA_FLAGS_ID, b0);
 	}
 
-	/** The player behind {@code e}, whether she is one herself or something belongs to her. */
+	/**
+	 * The player behind {@code e}, whether she is one herself or something belongs to her.
+	 */
 	default Optional<Player> resolvePlayer(@Nullable Entity e) {
 		if (e instanceof Player player) {
 			return Optional.of(player);
@@ -61,7 +65,9 @@ public interface YoukaiBaseImpl {
 		return Optional.empty();
 	}
 
-	/** Her standing with whoever {@code e} resolves to, empty if that is nobody. */
+	/**
+	 * Her standing with whoever {@code e} resolves to, empty if that is nobody.
+	 */
 	default Optional<CharDataHolder> getData(@Nullable Entity e) {
 		return resolvePlayer(e).map(player -> CharDataHolder.get(player, asYoukai()));
 	}

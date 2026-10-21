@@ -10,6 +10,7 @@ import net.minecraft.world.item.ItemStack;
 /**
  * Left-click-empty in an attack mode: the mode command at the cached ray-trace target, never the editor.
  * Empty clicks never reach the server on their own, so the client forwards them.
+ *
  * @see "doc/design/doll/glove.md"
  */
 public record DollGloveSwingPacket() implements SerialPacketBase<DollGloveSwingPacket> {

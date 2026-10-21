@@ -23,9 +23,11 @@ import net.minecraft.world.level.levelgen.structure.Structure;
  */
 public class GLStructureTagGen {
 
-	/** Tags on the structure registry itself, as opposed to the biome tags which say where a structure
-	 *  may spawn. These are what {@code ServerLevel#findNearestMapStructure} takes, so "point me at Reimu's
-	 *  shrine" style lookups are written against them. */
+	/**
+	 * Tags on the structure registry itself, as opposed to the biome tags which say where a structure
+	 * may spawn. These are what {@code ServerLevel#findNearestMapStructure} takes, so "point me at Reimu's
+	 * shrine" style lookups are written against them.
+	 */
 	public static final ProviderType<RegistrateTagsProvider.Impl<Structure>> STRUCTURE_TAG =
 			ProviderType.registerDynamicTag("structure", "structure", Registries.STRUCTURE);
 
@@ -35,9 +37,11 @@ public class GLStructureTagGen {
 	public static final TagKey<Structure> MORICHIKA_SHOP_STRUCTURE = structureTag("morichika_shop");
 	public static final TagKey<Structure> ALICE_HOUSE_STRUCTURE = structureTag("alice_house");
 
-	/** Every character home at once, so a lookup answers "which of them is closest" (what the catch-all flower in
-	 *  {@code FairyDustItem} wants). <p> A datapack can widen any of these tags, so the one a given flower
-	 *  points at is data, not code: it reaches further afield without a code change. */
+	/**
+	 * Every character home at once, so a lookup answers "which of them is closest" (what the catch-all flower in
+	 * {@code FairyDustItem} wants). <p> A datapack can widen any of these tags, so the one a given flower
+	 * points at is data, not code: it reaches further afield without a code change.
+	 */
 	public static final TagKey<Structure> CHARACTER_HOMES = structureTag("character_homes");
 
 	public static final TagKey<Block> CIRNO_PRIMARY = blockTag("structure_fix/cirno_nest/primary");

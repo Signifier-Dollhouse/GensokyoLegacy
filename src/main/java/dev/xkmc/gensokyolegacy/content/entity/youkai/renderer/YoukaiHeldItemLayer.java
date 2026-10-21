@@ -63,7 +63,7 @@ public class YoukaiHeldItemLayer<T extends GeneralYoukaiEntity & GeoYoukaiAnim> 
 	 */
 	@Override
 	protected void renderStackForBone(PoseStack poseStack, GeoBone bone, ItemStack stack, GeneralYoukaiEntity doll,
-	                                  MultiBufferSource bufferSource, float partialTick, int packedLight, int packedOverlay) {
+									  MultiBufferSource bufferSource, float partialTick, int packedLight, int packedOverlay) {
 		var left = bone.getName().equals(LEFT_HAND_BONE);
 		poseStack.pushPose();
 		poseStack.scale(0.8F, 0.8F, 0.8F);

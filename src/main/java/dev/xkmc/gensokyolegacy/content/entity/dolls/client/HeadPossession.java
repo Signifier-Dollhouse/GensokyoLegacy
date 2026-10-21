@@ -71,13 +71,17 @@ public final class HeadPossession {
 		}
 	}
 
-	/** The body's arm would otherwise hang in mid air in front of the head's eyes. */
+	/**
+	 * The body's arm would otherwise hang in mid air in front of the head's eyes.
+	 */
 	public static void onRenderHand(RenderHandEvent event) {
 		Minecraft mc = Minecraft.getInstance();
 		if (mc.getCameraEntity() instanceof SekibankiHeadEntity) event.setCanceled(true);
 	}
 
-	/** Puts the camera back and tells the head to stop answering for it. */
+	/**
+	 * Puts the camera back and tells the head to stop answering for it.
+	 */
 	private static void stop(Minecraft mc, SekibankiHeadEntity head) {
 		mc.setCameraEntity(mc.player);
 		GensokyoLegacy.HANDLER.toServer(new HeadReleaseToServer(head.getId()));

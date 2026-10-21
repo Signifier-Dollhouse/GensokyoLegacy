@@ -41,7 +41,9 @@ public class TreeFeatures {
 
 		TreeConfiguration build(BlockStateProvider log, BlockStateProvider leaves);
 
-		/** Vanilla cherry: a branched trunk under a wide drooping crown, the numbers of {@code minecraft:cherry}. */
+		/**
+		 * Vanilla cherry: a branched trunk under a wide drooping crown, the numbers of {@code minecraft:cherry}.
+		 */
 		TreeShape CHERRY = new TreeShape() {
 			@Override
 			public TreeConfiguration build(BlockStateProvider log, BlockStateProvider leaves) {
@@ -103,8 +105,8 @@ public class TreeFeatures {
 		private static final int WALL_HEIGHT = 2;
 
 		TreeType(String id, Supplier<GLNaturalBlocks.TreeSet> set, TreeShape shape,
-		         ResourceKey<ConfiguredFeature<?, ?>> saplingTree,
-		         ResourceKey<ConfiguredFeature<?, ?>> saplingMega, ResourceKey<ConfiguredFeature<?, ?>> saplingGiant) {
+				 ResourceKey<ConfiguredFeature<?, ?>> saplingTree,
+				 ResourceKey<ConfiguredFeature<?, ?>> saplingMega, ResourceKey<ConfiguredFeature<?, ?>> saplingGiant) {
 			this(id, set, shape, Optional.of(saplingTree), Optional.of(saplingMega), Optional.of(saplingGiant));
 		}
 
@@ -114,9 +116,9 @@ public class TreeFeatures {
 		}
 
 		TreeType(String id, Supplier<GLNaturalBlocks.TreeSet> set, TreeShape shape,
-		         Optional<ResourceKey<ConfiguredFeature<?, ?>>> saplingTree,
-		         Optional<ResourceKey<ConfiguredFeature<?, ?>>> saplingMega,
-		         Optional<ResourceKey<ConfiguredFeature<?, ?>>> saplingGiant) {
+				 Optional<ResourceKey<ConfiguredFeature<?, ?>>> saplingTree,
+				 Optional<ResourceKey<ConfiguredFeature<?, ?>>> saplingMega,
+				 Optional<ResourceKey<ConfiguredFeature<?, ?>>> saplingGiant) {
 			this.id = id;
 			this.shape = shape;
 			this.set = set;

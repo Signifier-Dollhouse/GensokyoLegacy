@@ -24,10 +24,12 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Look-at overlay: lists the ingredients that would still complete a recipe in the pot below the
+/**
+ * Look-at overlay: lists the ingredients that would still complete a recipe in the pot below the
  * crosshair, cycling every 15 ticks once the crosshair has rested there.
  *
- * @see "doc/design/alchemy_pot.md" */
+ * @see "doc/design/alchemy_pot.md"
+ */
 public class AlchemyHintOverlay implements LayeredDraw.Layer {
 
 	private int startTick = 0;

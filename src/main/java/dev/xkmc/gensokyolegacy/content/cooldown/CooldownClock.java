@@ -29,11 +29,13 @@ public class CooldownClock {
 		return (int) (bonus * tick) - (int) (bonus * (tick - 1));
 	}
 
-	/** Advances the player's cooldown clock by the ticks its rate buys this tick. */
+	/**
+	 * Advances the player's cooldown clock by the ticks its rate buys this tick.
+	 */
 	public static void advance(Player player) {
 		float rate = CooldownRates.of(player);
 		if (rate <= 1.0F) return;
-		var clock = (ItemCooldownsAccessor) (Object) player.getCooldowns();
+		var clock = (ItemCooldownsAccessor) player.getCooldowns();
 		clock.gensokyolegacy$setTickCount(clock.gensokyolegacy$getTickCount()
 				+ extra(rate, player.tickCount));
 	}

@@ -16,7 +16,9 @@ import net.minecraft.world.entity.EntityType;
  */
 public class PartyMessage {
 
-	/** Tell the player what happened, and why not if it did not happen. */
+	/**
+	 * Tell the player what happened, and why not if it did not happen.
+	 */
 	public static void report(ServerPlayer sp, PartySend.Outcome outcome) {
 		if (outcome.ok()) {
 			sp.sendSystemMessage(GLLang.Party.SENT.get(outcome.plan().roster().size()));
@@ -46,13 +48,18 @@ public class PartyMessage {
 		}
 	}
 
-	/** The character name for a type, falling back to its registry id. */
+	/**
+	 * The character name for a type, falling back to its registry id.
+	 */
 	public static Component name(EntityType<?> type) {
 		return type.getDescription();
 	}
 
-	/** Tell the host a guest is looking for a chair — once per episode, not once per retry.
-	 * @see "doc/design/party/guest.md" */
+	/**
+	 * Tell the host a guest is looking for a chair — once per episode, not once per retry.
+	 *
+	 * @see "doc/design/party/guest.md"
+	 */
 	public static void reportLookingForSeat(ServerLevel level, PartyAttachment party, Entity guest) {
 		var host = party.host();
 		if (host == null) return;
@@ -61,7 +68,9 @@ public class PartyMessage {
 		player.sendSystemMessage(GLLang.Party.LOOKING_FOR_CHAIR.get(name(guest.getType())));
 	}
 
-	/** Tell the host a guest gave up for want of a chair. */
+	/**
+	 * Tell the host a guest gave up for want of a chair.
+	 */
 	public static void reportEvicted(ServerLevel level, PartyAttachment party, Entity guest) {
 		var host = party.host();
 		if (host == null) return;
@@ -70,7 +79,9 @@ public class PartyMessage {
 		player.sendSystemMessage(GLLang.Party.NO_CHAIR.get(name(guest.getType())));
 	}
 
-	/** A short roster line: "Reimu, Marisa". */
+	/**
+	 * A short roster line: "Reimu, Marisa".
+	 */
 	public static Component roster(Iterable<EntityType<?>> types) {
 		var sb = new StringBuilder();
 		for (var e : types) {
@@ -80,7 +91,9 @@ public class PartyMessage {
 		return sb.isEmpty() ? GLLang.Party.PREVIEW_NONE.get() : Component.literal(sb.toString());
 	}
 
-	/** Styled header for the preview dump. */
+	/**
+	 * Styled header for the preview dump.
+	 */
 	public static Component header(Component text) {
 		return text.copy().withStyle(ChatFormatting.AQUA);
 	}

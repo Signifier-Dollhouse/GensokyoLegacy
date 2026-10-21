@@ -10,8 +10,8 @@ import dev.xkmc.gensokyolegacy.content.entity.behavior.sensor.YoukaiHomeBlocksSe
 import dev.xkmc.gensokyolegacy.content.entity.behavior.task.home.YoukaiCraftTask;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.task.play.ItemPickupTask;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.task.play.YoukaiHuntTask;
-import dev.xkmc.gensokyolegacy.content.entity.youkai.impl.GeoYoukaiAnim;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.GeneralYoukaiEntity;
+import dev.xkmc.gensokyolegacy.content.entity.youkai.impl.GeoYoukaiAnim;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.impl.YoukaiAnim;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.impl.YoukaiFlags;
 import dev.xkmc.gensokyolegacy.content.item.ingredient.FrozenFrogItem;
@@ -35,7 +35,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
-import software.bernie.geckolib.animation.*;
+import software.bernie.geckolib.animation.AnimationState;
+import software.bernie.geckolib.animation.PlayState;
+import software.bernie.geckolib.animation.RawAnimation;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
 import java.util.List;
@@ -69,10 +71,14 @@ public class CirnoEntity extends FairyEntity implements GeoYoukaiAnim {
 	private static final RawAnimation CONFUSED = RawAnimation.begin().thenPlay("疑惑");
 	private static final RawAnimation AGREE = RawAnimation.begin().thenPlay("肯定");
 	private static final RawAnimation DECLINE = RawAnimation.begin().thenPlay("拒绝");
-	/** The idle flourish the current export added as {@code 闲置动画}. */
+	/**
+	 * The idle flourish the current export added as {@code 闲置动画}.
+	 */
 	private static final RawAnimation IDLE_FIDGET = RawAnimation.begin().thenPlay("闲置动画");
 
-	/** Her own entity data, over the generic youkai/spell-data layers. */
+	/**
+	 * Her own entity data, over the generic youkai/spell-data layers.
+	 */
 	protected static final SyncedData CIRNO_DATA = new SyncedData(CirnoEntity::defineId, SPELL_DATA);
 
 	private static final EntityDataAccessor<Integer> DATA_TANNED = CIRNO_DATA.define(SyncedData.INT, 0, "tanned");

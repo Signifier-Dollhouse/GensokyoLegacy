@@ -15,7 +15,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
@@ -32,14 +31,22 @@ import org.jetbrains.annotations.Nullable;
  * @see "doc/design/dagger_glove.md"
  */
 public enum DaggerGloveMode {
-	/** One dagger, straight ahead. */
+	/**
+	 * One dagger, straight ahead.
+	 */
 	SINGLE(1, 5, 40, GLLang.ItemDaggerGlove.MODE_SINGLE, GLLang.ItemDaggerGlove.DESC_SINGLE),
-	/** Seven daggers fanned across 30 degrees, 5 apart. */
+	/**
+	 * Seven daggers fanned across 30 degrees, 5 apart.
+	 */
 	FAN(7, 10, 40, GLLang.ItemDaggerGlove.MODE_FAN, GLLang.ItemDaggerGlove.DESC_FAN),
-	/** Ten daggers, five a side, each turning onto the hovered target at its own tick. */
+	/**
+	 * Ten daggers, five a side, each turning onto the hovered target at its own tick.
+	 */
 	HOMING(10, 20, 60, GLLang.ItemDaggerGlove.MODE_HOMING, GLLang.ItemDaggerGlove.DESC_HOMING);
 
-	/** Flight speed of the non-homing modes and of a homing dagger's aimed stage, in blocks per tick. */
+	/**
+	 * Flight speed of the non-homing modes and of a homing dagger's aimed stage, in blocks per tick.
+	 */
 	public static final double SPEED = 2;
 	/**
 	 * How far, in blocks, every homing dagger's outbound stage travels before it turns. A stage's turn tick
@@ -47,13 +54,21 @@ public enum DaggerGloveMode {
 	 * radius and the pairs converge as one volley (dagger_glove.md §2a-1). The aimed stage stays at {@link #SPEED}.
 	 */
 	private static final double HOMING_REACH = 16;
-	/** Degrees between neighbouring daggers, in both the fan and the homing spread. */
+	/**
+	 * Degrees between neighbouring daggers, in both the fan and the homing spread.
+	 */
 	private static final double ANGLE_STEP = 5;
-	/** Innermost homing dagger's angle, in degrees; the outermost is four more steps out. */
+	/**
+	 * Innermost homing dagger's angle, in degrees; the outermost is four more steps out.
+	 */
 	private static final double HOMING_INNER = 20;
-	/** Ticks of straight flight before the innermost homing dagger turns. */
+	/**
+	 * Ticks of straight flight before the innermost homing dagger turns.
+	 */
 	private static final int HOMING_TURN = 8;
-	/** Extra ticks of flight before each successive homing dagger turns. */
+	/**
+	 * Extra ticks of flight before each successive homing dagger turns.
+	 */
 	private static final int HOMING_TURN_STEP = 3;
 	/**
 	 * How long the second, aimed stage of a homing dagger may fly.
@@ -75,7 +90,9 @@ public enum DaggerGloveMode {
 		this.desc = desc;
 	}
 
-	/** How many daggers one shot of this mode spends. */
+	/**
+	 * How many daggers one shot of this mode spends.
+	 */
 	public int count() {
 		return count;
 	}
@@ -95,7 +112,9 @@ public enum DaggerGloveMode {
 		return life;
 	}
 
-	/** Whether this mode needs a target under the crosshair before it will fire at all. */
+	/**
+	 * Whether this mode needs a target under the crosshair before it will fire at all.
+	 */
 	public boolean needsTarget() {
 		return this == HOMING;
 	}
@@ -189,7 +208,9 @@ public enum DaggerGloveMode {
 		if (player instanceof ServerPlayer sp) SpellContainer.track(sp, danmaku);
 	}
 
-	/** The stack a glove-fired dagger is drawn as, and is worth when it lands. */
+	/**
+	 * The stack a glove-fired dagger is drawn as, and is worth when it lands.
+	 */
 	public static ItemStack dagger() {
 		return new ItemStack(GLItems.IRON_DAGGER.get());
 	}

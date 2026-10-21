@@ -35,7 +35,9 @@ public class PlainFairyModel extends DefaultedEntityGeoModel<PlainFairyEntity> {
 		return model;
 	}
 
-	/** All ten sheets are the same mesh recoloured; purely cosmetic. */
+	/**
+	 * All ten sheets are the same mesh recoloured; purely cosmetic.
+	 */
 	@Override
 	public ResourceLocation getTextureResource(PlainFairyEntity animatable) {
 		return GensokyoLegacy.loc(TEXTURE_PREFIX + animatable.getVariant()

@@ -66,7 +66,7 @@ public class FirstDialogSession extends DialogSession {
 	private final @Nullable Component body;
 
 	private FirstDialogSession(ServerPlayer sp, YoukaiEntity ch, List<IDialogHandle> handles,
-			List<ClientHandle> options, @Nullable Component body) {
+							   List<ClientHandle> options, @Nullable Component body) {
 		super(sp, ch);
 		this.handles = handles;
 		this.options = options;

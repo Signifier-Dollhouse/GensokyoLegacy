@@ -3,26 +3,27 @@ package dev.xkmc.gensokyolegacy.content.attachment.party.core;
 import net.minecraft.world.entity.EntityType;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
-/** Who comes: a weighted draw under a shared hunger budget, with the seat count as a loop
+/**
+ * Who comes: a weighted draw under a shared hunger budget, with the seat count as a loop
  * bound. The seed comes from the centre of the spread's food, so preview predicts a send.
+ *
  * @see "doc/design/party/select.md"
  */
 public class PartyPlanner {
 
-	/** @param weight      {@link PartyMath#weight}; her share of the draw, 0 meaning never drawn
+	/**
+	 * @param weight      {@link PartyMath#weight}; her share of the draw, 0 meaning never drawn
 	 * @param fulfillment what she costs against the spread's capacity, in the same unit
 	 */
 	public record Candidate(EntityType<?> type, int weight, int fulfillment, int reputation) {
 	}
 
-	/** Draws one guest at a time, spending her fulfillment from the shared budget and dropping
+	/**
+	 * Draws one guest at a time, spending her fulfillment from the shared budget and dropping
 	 * whoever the remainder can no longer satisfy, so both constraints hold by construction.
+	 *
 	 * @param capacity the hunger the spread provides
 	 * @param rng      seeded so one spread always draws one party
 	 * @return chosen characters, in the order they were drawn
@@ -63,13 +64,21 @@ public class PartyPlanner {
 		return viable.size() - 1;   // unreachable: the roll was below the total
 	}
 
-	/** Why an eligible character did not make the cut. */
+	/**
+	 * Why an eligible character did not make the cut.
+	 */
 	public enum Miss {
-		/** She wants more food than the whole spread provides. */
+		/**
+		 * She wants more food than the whole spread provides.
+		 */
 		TOO_PLAIN,
-		/** She was willing and affordable, but the draw filled the seats first. */
+		/**
+		 * She was willing and affordable, but the draw filled the seats first.
+		 */
 		NO_SEAT,
-		/** She was willing and affordable, but the roster came out empty anyway. */
+		/**
+		 * She was willing and affordable, but the roster came out empty anyway.
+		 */
 		OTHER
 	}
 
@@ -79,7 +88,7 @@ public class PartyPlanner {
 	 */
 	@Nullable
 	public static Map.Entry<Candidate, Miss> nearestMiss(List<Candidate> pool, int capacity,
-			List<EntityType<?>> roster) {
+														 List<EntityType<?>> roster) {
 		var viable = pool.stream()
 				.filter(e -> e.weight() > 0 && !roster.contains(e.type()))
 				.sorted(Comparator.comparingInt(Candidate::weight).reversed())

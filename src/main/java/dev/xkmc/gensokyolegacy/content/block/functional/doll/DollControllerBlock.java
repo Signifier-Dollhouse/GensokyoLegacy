@@ -1,18 +1,15 @@
 package dev.xkmc.gensokyolegacy.content.block.functional.doll;
 
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
-import dev.xkmc.gensokyolegacy.init.registrate.block.GLBlocks;
-import dev.xkmc.l2modularblock.impl.BlockEntityBlockMethodImpl;
 import dev.xkmc.l2modularblock.mult.OnReplacedBlockMethod;
 import dev.xkmc.l2modularblock.mult.UseItemOnBlockMethod;
 import dev.xkmc.l2modularblock.mult.UseWithoutItemBlockMethod;
 import dev.xkmc.l2modularblock.one.ShapeBlockMethod;
-import dev.xkmc.l2modularblock.type.BlockMethod;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.ItemInteractionResult;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
@@ -24,9 +21,12 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
-/** The doll controller block: a placeable pedestal that hosts its own resident dolls and deploys
+/**
+ * The doll controller block: a placeable pedestal that hosts its own resident dolls and deploys
  * them as hovering companions, with no player owner. The interaction surface for its block entity.
- * @see "doc/design/doll/controller.md" */
+ *
+ * @see "doc/design/doll/controller.md"
+ */
 public class DollControllerBlock implements ShapeBlockMethod, UseWithoutItemBlockMethod, UseItemOnBlockMethod, OnReplacedBlockMethod {
 
 	//public static final BlockMethod BE = new BlockEntityBlockMethodImpl<>(GLBlocks.DOLL_CONTROLLER_BE, DollControllerBlockEntity.class);

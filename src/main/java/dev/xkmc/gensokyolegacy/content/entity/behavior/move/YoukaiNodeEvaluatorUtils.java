@@ -8,7 +8,7 @@ import net.minecraft.world.level.pathfinder.PathfindingContext;
 public class YoukaiNodeEvaluatorUtils {
 
 	public static PathType getPathType(PathType ans, PathfindingContext context, int x, int y, int z,
-			Mob mob) {
+									   Mob mob) {
 		return YoukaiNodeEvaluatorRegistry.apply(ans, context, new BlockPos(x, y, z), mob);
 	}
 

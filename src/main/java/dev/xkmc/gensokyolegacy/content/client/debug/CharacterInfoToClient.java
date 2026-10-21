@@ -17,7 +17,8 @@ public record CharacterInfoToClient(
 		ArrayList<Component> advanced
 ) implements SerialPacketBase<CharacterInfoToClient> {
 
-	/** What a party guest has eaten, for the one readout the client cannot answer: her tallies live on the
+	/**
+	 * What a party guest has eaten, for the one readout the client cannot answer: her tallies live on the
 	 * server-side {@code PartyModule} and cover two questions at once — how much she was <i>fed</i> against
 	 * her own fulfillment and how much she was <i>moved by</i> — so both halves travel, not a ratio.
 	 *
@@ -25,7 +26,8 @@ public record CharacterInfoToClient(
 	 * @param appeal appeal served to her, which is what her gift is sized on
 	 * @param wanted the fulfillment her taste asks for
 	 */
-	public record PartyTally(int eaten, int appeal, int wanted) { }
+	public record PartyTally(int eaten, int appeal, int wanted) {
+	}
 
 	public static CharacterInfoToClient ofEntity(
 			@Nullable StructureKey home,

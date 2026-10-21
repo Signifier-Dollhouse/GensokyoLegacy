@@ -7,8 +7,8 @@ import dev.xkmc.gensokyolegacy.content.entity.misc.IronDaggerBulletEntity;
 import dev.xkmc.gensokyolegacy.init.registrate.GLEntities;
 import dev.xkmc.l2serial.serialization.marker.SerialClass;
 import dev.xkmc.l2serial.serialization.marker.SerialField;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
@@ -38,12 +38,16 @@ public class DaggerHomingTrail extends TrailAction {
 	private UUID targetId = null;
 	@SerialField
 	private double speed = 2;
-	/** The first stage's own heading, so a target that vanishes mid-flight still has somewhere to go. */
+	/**
+	 * The first stage's own heading, so a target that vanishes mid-flight still has somewhere to go.
+	 */
 	@SerialField
 	private Vec3 fallback = Vec3.ZERO;
 	@SerialField
 	private ItemStack dagger = ItemStack.EMPTY;
-	/** The glove's rune id, put on the second stage rather than the first. */
+	/**
+	 * The glove's rune id, put on the second stage rather than the first.
+	 */
 	@SerialField
 	private ResourceLocation rune = null;
 	@SerialField
@@ -61,7 +65,7 @@ public class DaggerHomingTrail extends TrailAction {
 	}
 
 	public DaggerHomingTrail(ServerLevel level, IronDaggerBulletEntity firstStage, Entity target,
-			double speed, int life, Vec3 fallback, ItemStack dagger, @Nullable ResourceLocation rune) {
+							 double speed, int life, Vec3 fallback, ItemStack dagger, @Nullable ResourceLocation rune) {
 		this.cachedLevel = level;
 		this.cachedOwner = firstStage.getOwner() instanceof LivingEntity le ? le : null;
 		this.firstStage = firstStage;
@@ -127,10 +131,12 @@ public class DaggerHomingTrail extends TrailAction {
 		return heading.lengthSqr() > 1e-4 ? heading.normalize() : null;
 	}
 
-	/** The level this trail runs in, or null if it is no longer in one. */
+	/**
+	 * The level this trail runs in, or null if it is no longer in one.
+	 */
 	@Nullable
 	public ServerLevel level() {
 		return cachedLevel;
 	}
 
-	}
+}

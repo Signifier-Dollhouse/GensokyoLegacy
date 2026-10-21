@@ -18,13 +18,16 @@ import org.jetbrains.annotations.Nullable;
  */
 public enum HakkeroMode {
 
-	/** The prototype switched off: leaks heat but cooks nothing itself. */
+	/**
+	 * The prototype switched off: leaks heat but cooks nothing itself.
+	 */
 	OFF(Blocks.AIR, null),
 	SMOKE(Blocks.SMOKER, RecipeType.SMOKING),
 	FURNACE(Blocks.FURNACE, RecipeType.SMELTING),
 	BLAST(Blocks.BLAST_FURNACE, RecipeType.BLASTING);
 
-	/** Every mode except {@link #OFF}: a sealed firebox has nothing to switch off — there are no
+	/**
+	 * Every mode except {@link #OFF}: a sealed firebox has nothing to switch off — there are no
 	 * leaks left to stop — so the finished hakkero only ever cycles and stores these.
 	 */
 	private static final HakkeroMode[] LIT = {SMOKE, FURNACE, BLAST};
@@ -46,24 +49,32 @@ public enum HakkeroMode {
 		return LIT.clone();
 	}
 
-	/** The vanilla block this mode is named after, shown in tooltips and under the menu grid. */
+	/**
+	 * The vanilla block this mode is named after, shown in tooltips and under the menu grid.
+	 */
 	public Block block() {
 		return block;
 	}
 
-	/** The recipe type cooked in this mode, or {@code null} for {@link #OFF}. */
+	/**
+	 * The recipe type cooked in this mode, or {@code null} for {@link #OFF}.
+	 */
 	@Nullable
 	public RecipeType<? extends AbstractCookingRecipe> getType() {
 		return type;
 	}
 
-	/** The next mode in the full cycle, {@link #OFF} included. What the prototype cycles through. */
+	/**
+	 * The next mode in the full cycle, {@link #OFF} included. What the prototype cycles through.
+	 */
 	public HakkeroMode next() {
 		var vals = values();
 		return vals[(ordinal() + 1) % vals.length];
 	}
 
-	/** The next mode a sealed hakkero can hold. Never {@link #OFF}. */
+	/**
+	 * The next mode a sealed hakkero can hold. Never {@link #OFF}.
+	 */
 	public HakkeroMode nextLit() {
 		for (HakkeroMode mode : LIT) {
 			if (mode.ordinal() > ordinal()) return mode;
@@ -81,7 +92,9 @@ public enum HakkeroMode {
 		return findRecipeHolder(level, new SingleRecipeInput(stack));
 	}
 
-	/** As {@link #findRecipeHolder}, for a caller that has already built the input. */
+	/**
+	 * As {@link #findRecipeHolder}, for a caller that has already built the input.
+	 */
 	@Nullable
 	public RecipeHolder<AbstractCookingRecipe> findRecipeHolder(Level level, SingleRecipeInput input) {
 		if (type == null) return null;
@@ -92,7 +105,9 @@ public enum HakkeroMode {
 		return level.getRecipeManager().getRecipeFor(cast, input, level).orElse(null);
 	}
 
-	/** As {@link #findRecipeHolder}, dropping the id — only the recipe itself is wanted. */
+	/**
+	 * As {@link #findRecipeHolder}, dropping the id — only the recipe itself is wanted.
+	 */
 	@Nullable
 	public AbstractCookingRecipe findRecipe(Level level, ItemStack stack) {
 		var holder = findRecipeHolder(level, stack);

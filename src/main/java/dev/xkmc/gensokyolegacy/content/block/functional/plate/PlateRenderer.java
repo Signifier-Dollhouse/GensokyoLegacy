@@ -9,11 +9,13 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 
-/** Draws the served food lying flat in the middle of the plate.
- *
+/**
+ * Draws the served food lying flat in the middle of the plate.
+ * <p>
  * The item renderer centres whatever it is handed, so the food rests on the disc's own one pixel at
  * half block size, and it turns with the plate: the model is authored for {@code facing=north}, whose
- * blockstate variant carries no rotation, hence the extra half turn. */
+ * blockstate variant carries no rotation, hence the extra half turn.
+ */
 public class PlateRenderer implements BlockEntityRenderer<PlateBlockEntity> {
 
 	public PlateRenderer(BlockEntityRendererProvider.Context ctx) {

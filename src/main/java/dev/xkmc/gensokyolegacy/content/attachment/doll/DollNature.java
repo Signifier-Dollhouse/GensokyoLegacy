@@ -9,7 +9,9 @@ package dev.xkmc.gensokyolegacy.content.attachment.doll;
  * @see "doc/design/doll/gadget.md"
  */
 public enum DollNature {
-	/** An item-backed doll: it converts to a doll item, the glove recalls it, and it carries a loadout. */
+	/**
+	 * An item-backed doll: it converts to a doll item, the glove recalls it, and it carries a loadout.
+	 */
 	DOLL(true, true, true),
 	/**
 	 * A temporary summon, conjured rather than owned. No item form exists, so its death or the end
@@ -31,17 +33,23 @@ public enum DollNature {
 		this.loadoutCapable = loadoutCapable;
 	}
 
-	/** Whether this can ever become a doll item, and with it be parked as {@link DollState#STORED}. */
+	/**
+	 * Whether this can ever become a doll item, and with it be parked as {@link DollState#STORED}.
+	 */
 	public boolean itemizable() {
 		return itemizable;
 	}
 
-	/** Whether the glove recall sweep may take it at all. */
+	/**
+	 * Whether the glove recall sweep may take it at all.
+	 */
 	public boolean recallable() {
 		return recallable;
 	}
 
-	/** Whether the loadout editor opens on it. */
+	/**
+	 * Whether the loadout editor opens on it.
+	 */
 	public boolean loadoutCapable() {
 		return loadoutCapable;
 	}

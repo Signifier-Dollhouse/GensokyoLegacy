@@ -15,6 +15,7 @@ import java.lang.reflect.Method;
 /**
  * A Youkai's Feasts bowl or pot: two or four servings counted <em>down</em>. The food is found by
  * permuting the block's id first, and only then by reflecting {@code BowlBlock.food}.
+ *
  * @see "doc/design/party/food_mods.md"
  */
 public class PotFood extends AbstractCountdownFood {
@@ -32,6 +33,7 @@ public class PotFood extends AbstractCountdownFood {
 	 * <p><b>Not {@code destroyBlock}, which is what the countdown default does.</b> A bowl already
 	 * knows what is left of it, and delegating is the only way to be right about <i>which</i> empty
 	 * bowl appears.
+	 *
 	 * @return servings remaining, read off the counter before the block stepped it
 	 */
 	@Override
@@ -48,7 +50,9 @@ public class PotFood extends AbstractCountdownFood {
 		return Math.max(before - 1, 0);
 	}
 
-	/** The bowl the pot fills: the mod's own item where it ships one, the block's hidden field otherwise. */
+	/**
+	 * The bowl the pot fills: the mod's own item where it ships one, the block's hidden field otherwise.
+	 */
 	@Override
 	public ItemStack serving(BlockState state) {
 		var block = state.getBlock();
@@ -63,7 +67,9 @@ public class PotFood extends AbstractCountdownFood {
 		}
 	}
 
-	/** {@code BowlBlock.food}, located once. Null when it cannot be read. */
+	/**
+	 * {@code BowlBlock.food}, located once. Null when it cannot be read.
+	 */
 	private static Field foodField() {
 		try {
 			var field = BowlBlock.class.getDeclaredField("food");

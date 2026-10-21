@@ -3,6 +3,7 @@ package dev.xkmc.gensokyolegacy.content.entity.dolls.action;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.LinkedHashSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
@@ -27,7 +28,7 @@ public record DollAction(DollActionType type, DollActionMode mode, @Nullable UUI
 
 	public boolean sameOrder(DollAction other) {
 		return type == other.type && mode == other.mode &&
-				(target == null ? other.target == null : target.equals(other.target));
+				(Objects.equals(target, other.target));
 	}
 
 }

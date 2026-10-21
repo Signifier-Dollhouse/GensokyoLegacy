@@ -1,7 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.item.dagger;
 
 import dev.xkmc.danmakuapi.api.IDanmakuEntity;
-import dev.xkmc.gensokyolegacy.content.entity.misc.IronDaggerBulletEntity;
 import dev.xkmc.gensokyolegacy.content.item.common.GloveTargeting;
 import dev.xkmc.gensokyolegacy.content.item.tool.IronDaggerItem;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
@@ -44,7 +43,9 @@ import java.util.List;
  */
 public class DaggerGloveItem extends Item implements GloveTargeting {
 
-	/** How far {@link DaggerGloveMode#HOMING} will look for something to home on. */
+	/**
+	 * How far {@link DaggerGloveMode#HOMING} will look for something to home on.
+	 */
 	public static final double TARGET_RANGE = 64;
 
 	/**
@@ -85,7 +86,9 @@ public class DaggerGloveItem extends Item implements GloveTargeting {
 		return GLItems.DAGGER_GLOVE_RUNE.get(stack);
 	}
 
-	/** The glove's rune, or {@link DaggerGloveRunes#NONE} when it carries none or an unknown one. */
+	/**
+	 * The glove's rune, or {@link DaggerGloveRunes#NONE} when it carries none or an unknown one.
+	 */
 	public static DaggerGloveRune getRune(ItemStack stack) {
 		ResourceLocation id = getRuneId(stack);
 		return id == null ? DaggerGloveRunes.NONE : DaggerGloveRunes.get(id);
@@ -164,7 +167,9 @@ public class DaggerGloveItem extends Item implements GloveTargeting {
 		return candidate != holder && !candidate.isSpectator() && IDanmakuEntity.canHurt(holder, candidate);
 	}
 
-	/** The homing target glows red, like the doll glove's attack modes; the aimed modes draw nothing. */
+	/**
+	 * The homing target glows red, like the doll glove's attack modes; the aimed modes draw nothing.
+	 */
 	@Nullable
 	@Override
 	public Integer targetGlow(ItemStack stack) {

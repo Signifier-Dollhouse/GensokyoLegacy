@@ -5,7 +5,6 @@ import dev.xkmc.l2serial.network.SerialPacketBase;
 import net.minecraft.world.entity.player.Player;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 /**

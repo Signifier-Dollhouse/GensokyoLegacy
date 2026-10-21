@@ -28,13 +28,13 @@ public class SlidingDoorJsons {
 	private static final BlockModelBuilder[] BASE_R = new BlockModelBuilder[MAX];
 
 	public static void buildBlockState(DataGenContext<Block, DelegateBlock> ctx, RegistrateBlockstateProvider pvd,
-	                                   ResourceLocation top, ResourceLocation bottom, ResourceLocation side) {
+									   ResourceLocation top, ResourceLocation bottom, ResourceLocation side) {
 		pvd.getVariantBuilder(ctx.get()).forAllStates(state -> ConfiguredModel.builder().modelFile(model(ctx, pvd, state, top, bottom, side))
 				.rotationY(((int) (state.getValue(HORIZONTAL_FACING).toYRot() + 180)) % 360).uvLock(false).build());
 	}
 
 	private static BlockModelBuilder model(DataGenContext<Block, DelegateBlock> ctx, RegistrateBlockstateProvider pvd,
-	                                       BlockState state, ResourceLocation top, ResourceLocation bottom, ResourceLocation side) {
+										   BlockState state, ResourceLocation top, ResourceLocation bottom, ResourceLocation side) {
 		boolean right = state.getValue(HINGE) == DoorHingeSide.RIGHT;
 		int stack = state.getValue(STACK);
 		boolean topHalf = state.getValue(HALF) == Half.TOP;
@@ -88,7 +88,7 @@ public class SlidingDoorJsons {
 	}
 
 	public static void genItemModel(DataGenContext<Item, BlockItem> ctx, RegistrateItemModelProvider pvd,
-	                                ResourceLocation top, ResourceLocation bottom, ResourceLocation side) {
+									ResourceLocation top, ResourceLocation bottom, ResourceLocation side) {
 		itemBase(pvd);
 		pvd.getBuilder(ctx.getName())
 				.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("item/sliding_door")))

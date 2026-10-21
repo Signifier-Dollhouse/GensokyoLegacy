@@ -513,7 +513,7 @@ public final class GLLang {
 		FURNACE_1_DESC("Mode: %s", 1, ChatFormatting.GRAY),
 		FURNACE_2_USE("Right click the item in inventory to open its menu. Click the hakkero in the center to switch modes.", 0, ChatFormatting.GRAY),
 		FURNACE_2_FUEL("Feed it fuel to reach ten times furnace speed.", 0, ChatFormatting.GRAY),
-FURNACE_2_BOOST("Held in main hand while riding a broom, right click to burn fuel and speed up.", 0, ChatFormatting.GRAY);
+		FURNACE_2_BOOST("Held in main hand while riding a broom, right click to burn fuel and speed up.", 0, ChatFormatting.GRAY);
 
 		private final String def;
 		private final int argn;
@@ -1012,6 +1012,7 @@ FURNACE_2_BOOST("Held in main hand while riding a broom, right click to burn fue
 	}
 
 	// ========== Doll ==========
+
 	/**
 	 * The Sekibanki head's item tooltip. Its own group rather than {@link ItemGlove} or a doll one,
 	 * because the four lines are this gadget's alone: what possession is, is not a doll fact.

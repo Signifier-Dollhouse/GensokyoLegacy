@@ -2,17 +2,13 @@ package dev.xkmc.gensokyolegacy.init.data.structure;
 
 import com.tterrag.registrate.providers.DataProviderInitializer;
 import com.tterrag.registrate.providers.RegistrateDataMapProvider;
-import dev.xkmc.gensokyolegacy.content.attachment.home.datamap.BedData;
 import dev.xkmc.gensokyolegacy.content.attachment.character.CharacterConfig;
+import dev.xkmc.gensokyolegacy.content.attachment.home.datamap.BedData;
 import dev.xkmc.gensokyolegacy.content.attachment.home.datamap.StructureConfig;
-import dev.xkmc.gensokyolegacy.init.data.structure.helper.StructBed;
-import dev.xkmc.gensokyolegacy.init.data.structure.helper.SetContext;
-import dev.xkmc.gensokyolegacy.init.data.structure.helper.StructFlatBuilding;
-import dev.xkmc.gensokyolegacy.init.data.structure.helper.StructFlatJigsawBuilding;
-import dev.xkmc.gensokyolegacy.init.data.structure.helper.StructStructure;
 import dev.xkmc.gensokyolegacy.content.worldgen.structure.MultiSpreadPlacement;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.biome.GLBiomeGen;
+import dev.xkmc.gensokyolegacy.init.data.structure.helper.*;
 import dev.xkmc.gensokyolegacy.init.registrate.GLEntities;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLBlocks;
@@ -26,7 +22,6 @@ import net.neoforged.neoforge.common.util.Lazy;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
-
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -77,39 +72,39 @@ public class GLStructureGen {
 						new StructFlatBuilding(List.of(), Map.of(), 5, 60, 8),
 						FOREST_HOUSES
 				),
-			// Hakurei shrine jigsaw in the modded sakura forest (root 19x14x19, bed at local (5,2,12)-(5,2,13))
-			new StructStructure(
-					HAKUREI_SHRINE, GLBiomeGen.HAKUREI_SHRINE, 32, 24,
-					StructureConfigBuilder.hakurei(),
-					List.of(new StructBed(
-							GLEntities.REIMU,
-							CharacterConfig.forStructure(6000, 12000, 16, 30),
-							GLBlocks.Beds.REIMU.holder()
-					)),
-					visits(Map.of(
-							GLEntities.MARISA.get(), visit(0.20f, 2400, 3600),
-							GLEntities.IBUKI_SUIKA.get(), visit(0.30f, 2400, 6000))),
-					new StructFlatJigsawBuilding(6, List.of(
-							new StructFlatJigsawBuilding.Part("root", true, List.of()),
-							new StructFlatJigsawBuilding.Part("road", true, List.of()),
-							new StructFlatJigsawBuilding.Part("gate", true, List.of()),
-							new StructFlatJigsawBuilding.Part("warehouse", true, List.of()),
-							new StructFlatJigsawBuilding.Part("path0", false, List.of()),
-							new StructFlatJigsawBuilding.Part("path1", false, List.of()),
-							new StructFlatJigsawBuilding.Part("path2", false, List.of()),
-							new StructFlatJigsawBuilding.Part("path3", false, List.of()),
-							new StructFlatJigsawBuilding.Part("path4", false, List.of()),
-							new StructFlatJigsawBuilding.Part("path5", false, List.of()),
-							new StructFlatJigsawBuilding.Part("stone", true, List.of()),
-							new StructFlatJigsawBuilding.Part("tree0", true, List.of()),
-							new StructFlatJigsawBuilding.Part("tree1", true, List.of()),
-							new StructFlatJigsawBuilding.Part("tree2", true, List.of()),
-							new StructFlatJigsawBuilding.Part("tree2_top", true, List.of()),
-							new StructFlatJigsawBuilding.Part("tree3", true, List.of())
-					), Map.of(), 5, 80, 8),
-				// its own set: the shrine is not part of the forest houses
-				HAKUREI_SHRINE
-			),
+				// Hakurei shrine jigsaw in the modded sakura forest (root 19x14x19, bed at local (5,2,12)-(5,2,13))
+				new StructStructure(
+						HAKUREI_SHRINE, GLBiomeGen.HAKUREI_SHRINE, 32, 24,
+						StructureConfigBuilder.hakurei(),
+						List.of(new StructBed(
+								GLEntities.REIMU,
+								CharacterConfig.forStructure(6000, 12000, 16, 30),
+								GLBlocks.Beds.REIMU.holder()
+						)),
+						visits(Map.of(
+								GLEntities.MARISA.get(), visit(0.20f, 2400, 3600),
+								GLEntities.IBUKI_SUIKA.get(), visit(0.30f, 2400, 6000))),
+						new StructFlatJigsawBuilding(6, List.of(
+								new StructFlatJigsawBuilding.Part("root", true, List.of()),
+								new StructFlatJigsawBuilding.Part("road", true, List.of()),
+								new StructFlatJigsawBuilding.Part("gate", true, List.of()),
+								new StructFlatJigsawBuilding.Part("warehouse", true, List.of()),
+								new StructFlatJigsawBuilding.Part("path0", false, List.of()),
+								new StructFlatJigsawBuilding.Part("path1", false, List.of()),
+								new StructFlatJigsawBuilding.Part("path2", false, List.of()),
+								new StructFlatJigsawBuilding.Part("path3", false, List.of()),
+								new StructFlatJigsawBuilding.Part("path4", false, List.of()),
+								new StructFlatJigsawBuilding.Part("path5", false, List.of()),
+								new StructFlatJigsawBuilding.Part("stone", true, List.of()),
+								new StructFlatJigsawBuilding.Part("tree0", true, List.of()),
+								new StructFlatJigsawBuilding.Part("tree1", true, List.of()),
+								new StructFlatJigsawBuilding.Part("tree2", true, List.of()),
+								new StructFlatJigsawBuilding.Part("tree2_top", true, List.of()),
+								new StructFlatJigsawBuilding.Part("tree3", true, List.of())
+						), Map.of(), 5, 80, 8),
+						// its own set: the shrine is not part of the forest houses
+						HAKUREI_SHRINE
+				),
 				// Kourindou (Morichika's shop) in the modded magical forest (template 33x18x33, bed at local
 				// (27,8,16)-(27,8,17))
 				new StructStructure(
@@ -121,10 +116,10 @@ public class GLStructureGen {
 								GLBlocks.Beds.MORICHIKA.holder()
 						)),
 						visits(Map.of(
-							GLEntities.REIMU.get(), visit(0.30f, 2400, 6000),
-							GLEntities.MARISA.get(), visit(0.30f, 2400, 6000),
-							GLEntities.IZAYOI_SAKUYA.get(), visit(0.30f, 2400, 6000))),
-					new StructFlatBuilding(List.of(), Map.of(), 5, 64, 8),
+								GLEntities.REIMU.get(), visit(0.30f, 2400, 6000),
+								GLEntities.MARISA.get(), visit(0.30f, 2400, 6000),
+								GLEntities.IZAYOI_SAKUYA.get(), visit(0.30f, 2400, 6000))),
+						new StructFlatBuilding(List.of(), Map.of(), 5, 64, 8),
 						FOREST_HOUSES
 				),
 				// Alice's house in the magical forest (root 29x23x18, bed at (12,6,6)-(12,6,7)). Five jigsaw parts
@@ -150,8 +145,10 @@ public class GLStructureGen {
 		);
 	}
 
-	/** A guest slot: the share of days the character shows up at all, and how long she stays when she does.
-	 *  The window inside the day is derived from the structure position and the day - see {@code VisitTable}. */
+	/**
+	 * A guest slot: the share of days the character shows up at all, and how long she stays when she does.
+	 * The window inside the day is derived from the structure position and the day - see {@code VisitTable}.
+	 */
 	private static StructureConfig.CharacterVisit visit(float chance, int minStay, int maxStay) {
 		return new StructureConfig.CharacterVisit(chance, minStay, maxStay);
 	}
