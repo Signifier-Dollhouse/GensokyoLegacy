@@ -3,28 +3,7 @@ package dev.xkmc.gensokyolegacy.content.dimension;
 import com.mojang.datafixers.util.Pair;
 import com.tterrag.registrate.providers.DataProviderInitializer;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
-import dev.xkmc.gensokyolegacy.init.data.biome.biomes.AnimalRealmBiomeGen;
-import dev.xkmc.gensokyolegacy.init.data.biome.biomes.BambooForestOfTheLostBiomeGen;
-import dev.xkmc.gensokyolegacy.init.data.biome.biomes.FormerHellBiomeGen;
-import dev.xkmc.gensokyolegacy.init.data.biome.biomes.GenbuRavineBiomeGen;
-import dev.xkmc.gensokyolegacy.init.data.biome.biomes.HellOfBlazingFiresBiomeGen;
-import dev.xkmc.gensokyolegacy.init.data.biome.biomes.HellOfBloodPoolsBiomeGen;
-import dev.xkmc.gensokyolegacy.init.data.biome.biomes.HillOfTheNamelessBiomeGen;
-import dev.xkmc.gensokyolegacy.init.data.biome.biomes.HumanVillageBiomeGen;
-import dev.xkmc.gensokyolegacy.init.data.biome.biomes.MagicalForestBiomeGen;
-import dev.xkmc.gensokyolegacy.init.data.biome.biomes.MistyLakeBiomeGen;
-import dev.xkmc.gensokyolegacy.init.data.biome.biomes.MistyLakeShoreBiomeGen;
-import dev.xkmc.gensokyolegacy.init.data.biome.biomes.MountainInteriorBiomeGen;
-import dev.xkmc.gensokyolegacy.init.data.biome.biomes.MuenzukaBiomeGen;
-import dev.xkmc.gensokyolegacy.init.data.biome.biomes.MyourenTempleBarrensBiomeGen;
-import dev.xkmc.gensokyolegacy.init.data.biome.biomes.SakuraForestBiomeGen;
-import dev.xkmc.gensokyolegacy.init.data.biome.biomes.SanctuaryBiomeGen;
-import dev.xkmc.gensokyolegacy.init.data.biome.biomes.SecretHeavenCliffBiomeGen;
-import dev.xkmc.gensokyolegacy.init.data.biome.biomes.SunflowerPlainsBiomeGen;
-import dev.xkmc.gensokyolegacy.init.data.biome.biomes.TenguSettlementBiomeGen;
-import dev.xkmc.gensokyolegacy.init.data.biome.biomes.UntroddenValleyBiomeGen;
-import dev.xkmc.gensokyolegacy.init.data.biome.biomes.YoukaiMountainFoothillsBiomeGen;
-import dev.xkmc.gensokyolegacy.init.data.biome.biomes.YoukaiMountainSummitBiomeGen;
+import dev.xkmc.gensokyolegacy.init.data.biome.biomes.*;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.HolderSet;
@@ -47,17 +26,9 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.dimension.BuiltinDimensionTypes;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.dimension.LevelStem;
-import net.minecraft.world.level.levelgen.DensityFunction;
-import net.minecraft.world.level.levelgen.DensityFunctions;
-import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
-import net.minecraft.world.level.levelgen.NoiseRouter;
-import net.minecraft.world.level.levelgen.NoiseRouterData;
-import net.minecraft.world.level.levelgen.NoiseSettings;
-import net.minecraft.world.level.levelgen.Noises;
-import net.minecraft.world.level.levelgen.SurfaceRules;
+import net.minecraft.world.level.levelgen.*;
 import net.minecraft.world.level.levelgen.SurfaceRules.ConditionSource;
 import net.minecraft.world.level.levelgen.SurfaceRules.RuleSource;
-import net.minecraft.world.level.levelgen.VerticalAnchor;
 import net.minecraft.world.level.levelgen.placement.CaveSurface;
 import net.minecraft.world.level.levelgen.synth.NormalNoise;
 
@@ -289,7 +260,7 @@ public class GensokyoDimension {
 	 * +0.00      50.0%              32.0%          18.0%
 	 * +0.08      40.4%              34.4%          25.2%
 	 * </pre>
-	 *
+	 * <p>
 	 * so {@code +0.08} puts roughly a fifth more of the underground's columns under water. Near the surface the bias
 	 * stops mattering on its own: the same three branches read against {@code d3 - 0.4} and {@code d3 - 0.8} there, so
 	 * it takes a much higher reading to flood the ground and the surface band is left alone.
@@ -351,7 +322,7 @@ public class GensokyoDimension {
 					new Cell(YoukaiMountainFoothillsBiomeGen.KEY, HOT, DRY),
 					new Cell(SanctuaryBiomeGen.KEY, COLD, DRY)),
 			List.of(new Cell(TenguSettlementBiomeGen.KEY, FULL_PLANE, HUMID),
-				new Cell(SecretHeavenCliffBiomeGen.KEY, FULL_PLANE, DRY)),
+					new Cell(SecretHeavenCliffBiomeGen.KEY, FULL_PLANE, DRY)),
 			List.of(new Cell(YoukaiMountainSummitBiomeGen.KEY, FULL_PLANE, FULL_PLANE)));
 
 	/**
@@ -762,7 +733,7 @@ public class GensokyoDimension {
 		// the inside of the mountain, one region for all of it: continentalness above CAVE_CONT and below the
 		// ceiling, and the depth between the two rock bands
 		values.add(Pair.of(new Climate.ParameterPoint(FULL_RANGE, FULL_RANGE,
-				CAVE_CONTINENTALNESS.parameter(), FULL_RANGE, CAVE_BAND.parameter(), FULL_RANGE, 0L),
+						CAVE_CONTINENTALNESS.parameter(), FULL_RANGE, CAVE_BAND.parameter(), FULL_RANGE, 0L),
 				biomes.getOrThrow(MountainInteriorBiomeGen.KEY)));
 		return MultiNoiseBiomeSource.createFromList(new Climate.ParameterList<>(values));
 	}
@@ -776,9 +747,9 @@ public class GensokyoDimension {
 	}
 
 	private static Pair<Climate.ParameterPoint, Holder<Biome>> cell(HolderGetter<Biome> biomes, Cell cell, Band region,
-																   Band depth) {
+																	Band depth) {
 		return Pair.of(new Climate.ParameterPoint(cell.temperature().parameter(), cell.humidity().parameter(),
-				region.parameter(), cell.erosion().parameter(), depth.parameter(), FULL_RANGE, 0L),
+						region.parameter(), cell.erosion().parameter(), depth.parameter(), FULL_RANGE, 0L),
 				biomes.getOrThrow(cell.biome()));
 	}
 
@@ -838,7 +809,7 @@ public class GensokyoDimension {
 	private static class OverworldNoiseRouter extends NoiseRouterData {
 
 		private static NoiseRouter overworld(HolderGetter<DensityFunction> densities,
-											HolderGetter<NormalNoise.NoiseParameters> noises) {
+											 HolderGetter<NormalNoise.NoiseParameters> noises) {
 			return NoiseRouterData.overworld(densities, noises, false, false);
 		}
 	}

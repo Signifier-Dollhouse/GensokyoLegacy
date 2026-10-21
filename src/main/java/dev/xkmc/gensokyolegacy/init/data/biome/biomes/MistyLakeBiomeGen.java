@@ -49,9 +49,9 @@ public class MistyLakeBiomeGen extends AbstractBiomeGen {
 						.ores(join(OVERWORLD_ORES, OVERWORLD_DISKS))
 						.springs(SPRINGS)
 						.vegetation(join(List.of(CavePlacements.GLOW_LICHEN, VegetationPlacements.FLOWER_DEFAULT,
-								VegetationPlacements.PATCH_GRASS_BADLANDS, VegetationPlacements.BROWN_MUSHROOM_NORMAL,
-								VegetationPlacements.RED_MUSHROOM_NORMAL, VegetationPlacements.PATCH_SUGAR_CANE,
-								VegetationPlacements.PATCH_PUMPKIN, AquaticPlacements.SEAGRASS_RIVER),
+										VegetationPlacements.PATCH_GRASS_BADLANDS, VegetationPlacements.BROWN_MUSHROOM_NORMAL,
+										VegetationPlacements.RED_MUSHROOM_NORMAL, VegetationPlacements.PATCH_SUGAR_CANE,
+										VegetationPlacements.PATCH_PUMPKIN, AquaticPlacements.SEAGRASS_RIVER),
 								List.of(LAKE_CLAY_PF, GensokyoBiomeFeatures.LAKE_CATTAILS_PF, LILY_PADS_PF)))
 						.topLayer(FREEZE_TOP_LAYER));
 	}
@@ -60,7 +60,7 @@ public class MistyLakeBiomeGen extends AbstractBiomeGen {
 	protected void configured(BootstrapContext<ConfiguredFeature<?, ?>> ctx) {
 		// the lakebed is sand and gravel under the surface rule, so this sits on those and not on BlockTags.DIRT
 		FeatureUtils.register(ctx, LAKE_CLAY, Feature.RANDOM_PATCH, onGround(14, new Palette()
-				.add(Blocks.CLAY, 3).add(Blocks.GRAVEL, 2).add(Blocks.MUD, 1).build(),
+						.add(Blocks.CLAY, 3).add(Blocks.GRAVEL, 2).add(Blocks.MUD, 1).build(),
 				Blocks.SAND, Blocks.GRAVEL, Blocks.CLAY, Blocks.DIRT));
 	}
 

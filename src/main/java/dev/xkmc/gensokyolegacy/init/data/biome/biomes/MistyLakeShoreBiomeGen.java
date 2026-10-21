@@ -48,9 +48,9 @@ public class MistyLakeShoreBiomeGen extends AbstractBiomeGen {
 						.ores(join(OVERWORLD_ORES, OVERWORLD_DISKS))
 						.springs(SPRINGS)
 						.vegetation(join(List.of(CavePlacements.GLOW_LICHEN, VegetationPlacements.FLOWER_DEFAULT,
-								VegetationPlacements.PATCH_GRASS_BADLANDS, VegetationPlacements.BROWN_MUSHROOM_NORMAL,
-								VegetationPlacements.RED_MUSHROOM_NORMAL, VegetationPlacements.PATCH_SUGAR_CANE,
-								VegetationPlacements.PATCH_PUMPKIN),
+										VegetationPlacements.PATCH_GRASS_BADLANDS, VegetationPlacements.BROWN_MUSHROOM_NORMAL,
+										VegetationPlacements.RED_MUSHROOM_NORMAL, VegetationPlacements.PATCH_SUGAR_CANE,
+										VegetationPlacements.PATCH_PUMPKIN),
 								List.of(GensokyoBiomeFeatures.STONES_PF, SHORE_SAND_PF, SHORE_REEDS_PF,
 										SHORE_FLOWERS_PF)))
 						.topLayer(FREEZE_TOP_LAYER));
@@ -59,7 +59,7 @@ public class MistyLakeShoreBiomeGen extends AbstractBiomeGen {
 	@Override
 	protected void configured(BootstrapContext<ConfiguredFeature<?, ?>> ctx) {
 		FeatureUtils.register(ctx, SHORE_SAND, Feature.RANDOM_PATCH, onGround(18, new Palette()
-				.add(Blocks.SAND, 3).add(Blocks.GRAVEL, 2).add(Blocks.MUD, 2).add(Blocks.COARSE_DIRT, 1).build(),
+						.add(Blocks.SAND, 3).add(Blocks.GRAVEL, 2).add(Blocks.MUD, 2).add(Blocks.COARSE_DIRT, 1).build(),
 				Blocks.SAND, Blocks.GRAVEL, Blocks.DIRT, Blocks.GRASS_BLOCK, Blocks.CLAY));
 		FeatureUtils.register(ctx, SHORE_FLOWERS, Feature.RANDOM_PATCH, onDirt(24, new Palette()
 				.add(GLNaturalBlocks.BRACKEN, 3).add(Blocks.FERN, 2).add(Blocks.LILY_OF_THE_VALLEY, 2)

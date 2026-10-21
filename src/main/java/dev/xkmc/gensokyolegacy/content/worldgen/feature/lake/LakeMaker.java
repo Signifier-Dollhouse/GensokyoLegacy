@@ -397,7 +397,8 @@ public class LakeMaker {
 	 * in it is not a wall, and the pool behind it pours out.
 	 */
 	private void lay(WorldGenLevel level, BlockPos pos, BlockState block) {
-		if (!level.getBlockState(pos).is(BlockTags.LAVA_POOL_STONE_CANNOT_REPLACE)) parent.setBarrier(level, pos, block);
+		if (!level.getBlockState(pos).is(BlockTags.LAVA_POOL_STONE_CANNOT_REPLACE))
+			parent.setBarrier(level, pos, block);
 	}
 
 	private boolean canReplaceBlock(BlockState state) {

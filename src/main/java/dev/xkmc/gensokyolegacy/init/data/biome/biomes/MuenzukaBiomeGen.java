@@ -6,13 +6,9 @@ import dev.xkmc.gensokyolegacy.init.data.biome.GensokyoBiomeFeatures;
 import dev.xkmc.gensokyolegacy.init.registrate.GLWorldGen;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLFurniture;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLNaturalBlocks;
-import net.minecraft.core.HolderGetter;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.data.worldgen.features.FeatureUtils;
-import net.minecraft.data.worldgen.features.TreeFeatures;
 import net.minecraft.data.worldgen.placement.CavePlacements;
-import net.minecraft.data.worldgen.placement.PlacementUtils;
 import net.minecraft.data.worldgen.placement.VegetationPlacements;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.valueproviders.UniformInt;
@@ -23,8 +19,6 @@ import net.minecraft.world.level.levelgen.blockpredicates.BlockPredicate;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.configurations.DiskConfiguration;
-import net.minecraft.world.level.levelgen.feature.configurations.RandomFeatureConfiguration;
-import net.minecraft.world.level.levelgen.feature.WeightedPlacedFeature;
 import net.minecraft.world.level.levelgen.feature.stateproviders.RuleBasedBlockStateProvider;
 import net.minecraft.world.level.levelgen.placement.CountPlacement;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
@@ -74,10 +68,10 @@ public class MuenzukaBiomeGen extends AbstractBiomeGen {
 						.ores(join(OVERWORLD_ORES, OVERWORLD_DISKS, List.of(PODZOL_PF)))
 						.springs(SPRINGS)
 						.vegetation(join(List.of(CavePlacements.GLOW_LICHEN, VegetationPlacements.FOREST_FLOWERS,
-								VegetationPlacements.FLOWER_DEFAULT,
-								VegetationPlacements.PATCH_GRASS_FOREST, VegetationPlacements.BROWN_MUSHROOM_NORMAL,
-								VegetationPlacements.RED_MUSHROOM_NORMAL, VegetationPlacements.PATCH_SUGAR_CANE,
-								VegetationPlacements.PATCH_PUMPKIN),
+										VegetationPlacements.FLOWER_DEFAULT,
+										VegetationPlacements.PATCH_GRASS_FOREST, VegetationPlacements.BROWN_MUSHROOM_NORMAL,
+										VegetationPlacements.RED_MUSHROOM_NORMAL, VegetationPlacements.PATCH_SUGAR_CANE,
+										VegetationPlacements.PATCH_PUMPKIN),
 								List.of(MUENZUKA_TREES_PF, MUENZUKA_LITTER_PF, GensokyoBiomeFeatures.STONES_PF,
 										GRAVE_MARKER_PF, GRAVESTONE_PF, STONE_LANTERN_PF, GHOST_FLOWERS_PF)))
 						.topLayer(FREEZE_TOP_LAYER));

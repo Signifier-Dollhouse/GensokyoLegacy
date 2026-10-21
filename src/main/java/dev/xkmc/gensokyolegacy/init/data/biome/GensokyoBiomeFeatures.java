@@ -83,7 +83,7 @@ public class GensokyoBiomeFeatures {
 		BlockState cattail = GLNaturalBlocks.FLAME_CATTAIL.get().defaultBlockState();
 		// the lakebed is sand and gravel under the surface rule, so these sit on those and not on BlockTags.DIRT
 		FeatureUtils.register(ctx, LAKE_CATTAILS, Feature.RANDOM_PATCH, AbstractBiomeGen.onGround(10, new AbstractBiomeGen.Palette()
-				.add(cattail, 3).add(Blocks.SUGAR_CANE, 1).build(),
+						.add(cattail, 3).add(Blocks.SUGAR_CANE, 1).build(),
 				Blocks.SAND, Blocks.GRAVEL, Blocks.DIRT, Blocks.GRASS_BLOCK, Blocks.CLAY, Blocks.MUD));
 
 		// one tree per placement call, so a biome's own CountPlacement is the whole of its density
@@ -93,7 +93,7 @@ public class GensokyoBiomeFeatures {
 		// even: a third, then the two thirds that are left taking half of what is left, and the default the rest.
 		FeatureUtils.register(ctx, MAPLE_TREES, Feature.RANDOM_SELECTOR, new RandomFeatureConfiguration(
 				List.of(new WeightedPlacedFeature(PlacementUtils.inlinePlaced(
-						trees.getOrThrow(TreeType.RED_MAPLE.cfKey)), 1.0F / 3),
+								trees.getOrThrow(TreeType.RED_MAPLE.cfKey)), 1.0F / 3),
 						new WeightedPlacedFeature(PlacementUtils.inlinePlaced(
 								trees.getOrThrow(TreeType.ORANGE_MAPLE.cfKey)), 0.5F)),
 				PlacementUtils.inlinePlaced(trees.getOrThrow(TreeType.YELLOW_MAPLE.cfKey))));

@@ -61,7 +61,7 @@ public class UntroddenValleyBiomeGen extends AbstractBiomeGen {
 		// takes the shared maple one as a single entry: the odds compound, so half each of the list and the default
 		FeatureUtils.register(ctx, VALLEY_TREES, Feature.RANDOM_SELECTOR, new RandomFeatureConfiguration(
 				List.of(new WeightedPlacedFeature(
-						PlacementUtils.inlinePlaced(trees.getOrThrow(GensokyoBiomeFeatures.MAPLE_TREES)), 0.5F),
+								PlacementUtils.inlinePlaced(trees.getOrThrow(GensokyoBiomeFeatures.MAPLE_TREES)), 0.5F),
 						new WeightedPlacedFeature(
 								PlacementUtils.inlinePlaced(trees.getOrThrow(TreeFeatures.OAK)), 0.5F)),
 				PlacementUtils.inlinePlaced(trees.getOrThrow(TreeFeatures.BIRCH))));

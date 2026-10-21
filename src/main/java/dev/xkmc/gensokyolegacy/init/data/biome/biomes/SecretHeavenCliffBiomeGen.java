@@ -47,10 +47,10 @@ public class SecretHeavenCliffBiomeGen extends AbstractBiomeGen {
 						.underground(INFESTED)
 						.springs(SPRINGS)
 						.vegetation(join(List.of(CavePlacements.GLOW_LICHEN,
-								VegetationPlacements.TREES_WINDSWEPT_FOREST, VegetationPlacements.FLOWER_DEFAULT,
-								VegetationPlacements.PATCH_GRASS_BADLANDS, VegetationPlacements.BROWN_MUSHROOM_NORMAL,
-								VegetationPlacements.RED_MUSHROOM_NORMAL, VegetationPlacements.PATCH_SUGAR_CANE,
-								VegetationPlacements.PATCH_PUMPKIN),
+										VegetationPlacements.TREES_WINDSWEPT_FOREST, VegetationPlacements.FLOWER_DEFAULT,
+										VegetationPlacements.PATCH_GRASS_BADLANDS, VegetationPlacements.BROWN_MUSHROOM_NORMAL,
+										VegetationPlacements.RED_MUSHROOM_NORMAL, VegetationPlacements.PATCH_SUGAR_CANE,
+										VegetationPlacements.PATCH_PUMPKIN),
 								List.of(GensokyoBiomeFeatures.STONES_PF, CLIFF_SCREE_PF)))
 						.topLayer(FREEZE_TOP_LAYER));
 	}

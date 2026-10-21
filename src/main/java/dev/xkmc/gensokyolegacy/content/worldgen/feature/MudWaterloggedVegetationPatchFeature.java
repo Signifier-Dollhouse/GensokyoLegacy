@@ -26,7 +26,7 @@ public class MudWaterloggedVegetationPatchFeature extends WaterloggedVegetationP
 
 	@Override
 	protected boolean placeVegetation(WorldGenLevel level, VegetationPatchConfiguration config, ChunkGenerator generator,
-									 RandomSource random, BlockPos pos) {
+									  RandomSource random, BlockPos pos) {
 		// the plant grows in the water at pos, so what it stands on is the cell under the water
 		level.setBlock(pos.below(), Blocks.MUD.defaultBlockState(), 2);
 		return super.placeVegetation(level, config, generator, random, pos);

@@ -14,12 +14,7 @@ import net.minecraft.data.worldgen.BiomeDefaultFeatures;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.data.worldgen.Carvers;
 import net.minecraft.data.worldgen.features.FeatureUtils;
-import net.minecraft.data.worldgen.placement.CavePlacements;
-import net.minecraft.data.worldgen.placement.MiscOverworldPlacements;
-import net.minecraft.data.worldgen.placement.NetherPlacements;
-import net.minecraft.data.worldgen.placement.OrePlacements;
-import net.minecraft.data.worldgen.placement.PlacementUtils;
-import net.minecraft.data.worldgen.placement.VegetationPlacements;
+import net.minecraft.data.worldgen.placement.*;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.Music;
 import net.minecraft.tags.BlockTags;
@@ -40,24 +35,11 @@ import net.minecraft.world.level.levelgen.feature.configurations.RandomPatchConf
 import net.minecraft.world.level.levelgen.feature.configurations.SimpleBlockConfiguration;
 import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProvider;
 import net.minecraft.world.level.levelgen.feature.stateproviders.WeightedStateProvider;
-import net.minecraft.world.level.levelgen.placement.BiomeFilter;
-import net.minecraft.world.level.levelgen.placement.EnvironmentScanPlacement;
-import net.minecraft.world.level.levelgen.placement.HeightmapPlacement;
-import net.minecraft.world.level.levelgen.placement.InSquarePlacement;
-import net.minecraft.world.level.levelgen.placement.PlacedFeature;
-import net.minecraft.world.level.levelgen.placement.PlacementModifier;
-import net.minecraft.world.level.levelgen.placement.RandomOffsetPlacement;
-import net.minecraft.world.level.levelgen.placement.SurfaceWaterDepthFilter;
+import net.minecraft.world.level.levelgen.placement.*;
 import net.minecraft.world.level.levelgen.synth.NormalNoise;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * One Gensokyo biome's whole registration — its key, its features and its climate — in one class of its own.
@@ -254,13 +236,16 @@ public abstract class AbstractBiomeGen {
 	protected abstract Biome build(BootstrapContext<Biome> ctx);
 
 	/** The biome's own configured features. Anything several biomes place lives in {@link GensokyoBiomeFeatures}. */
-	protected void configured(BootstrapContext<ConfiguredFeature<?, ?>> ctx) {}
+	protected void configured(BootstrapContext<ConfiguredFeature<?, ?>> ctx) {
+	}
 
 	/** The biome's own placed features, in the order they must generate. */
-	protected void placed(Registrar reg) {}
+	protected void placed(Registrar reg) {
+	}
 
 	/** The biome's own noise, for its surface rules and its custom placement. */
-	protected void noise(BootstrapContext<NormalNoise.NoiseParameters> ctx) {}
+	protected void noise(BootstrapContext<NormalNoise.NoiseParameters> ctx) {
+	}
 
 	protected Layers layers(BootstrapContext<Biome> ctx) {
 		return new Layers(ctx.lookup(Registries.PLACED_FEATURE), ctx.lookup(Registries.CONFIGURED_CARVER));
@@ -555,7 +540,8 @@ public abstract class AbstractBiomeGen {
 
 		private final SimpleWeightedRandomList.Builder<BlockState> builder = SimpleWeightedRandomList.builder();
 
-		public Palette() {}
+		public Palette() {
+		}
 
 		public Palette add(Block block, int weight) {
 			return add(block.defaultBlockState(), weight);
@@ -583,7 +569,7 @@ public abstract class AbstractBiomeGen {
 
 	/** A shared ground-cover run with the tree placements named taken back out, for a biome that plants its own. */
 	private static List<ResourceKey<PlacedFeature>> noTrees(List<ResourceKey<PlacedFeature>> ground,
-			ResourceKey<PlacedFeature>... trees) {
+															ResourceKey<PlacedFeature>... trees) {
 		var drop = List.of(trees);
 		return ground.stream().filter(k -> !drop.contains(k)).toList();
 	}
@@ -610,11 +596,11 @@ public abstract class AbstractBiomeGen {
 	 * The special effects are otherwise ours, which is why temperature alone sets the sky.
 	 */
 	protected static Biome biome(boolean hasPrecipitation, float temperature, float downfall,
-							   int waterColor, int fogColor,
-							   @Nullable Integer grassCol, @Nullable Integer foliageCol,
-							   MobSpawnSettings.Builder spawns,
-							   BiomeGenerationSettings.PlainBuilder gen,
-							   @Nullable Music bgm
+								 int waterColor, int fogColor,
+								 @Nullable Integer grassCol, @Nullable Integer foliageCol,
+								 MobSpawnSettings.Builder spawns,
+								 BiomeGenerationSettings.PlainBuilder gen,
+								 @Nullable Music bgm
 	) {
 		return biome(hasPrecipitation, temperature, downfall, waterColor, 329011, fogColor,
 				null, grassCol, foliageCol, spawns, gen, bgm);
@@ -622,10 +608,10 @@ public abstract class AbstractBiomeGen {
 
 	/** The same without the music, which is every Gensokyo biome: its soundtrack is the dimension's business. */
 	protected static Biome biome(boolean hasPrecipitation, float temperature, float downfall,
-							   int waterColor, int fogColor,
-							   @Nullable Integer grassCol, @Nullable Integer foliageCol,
-							   MobSpawnSettings.Builder spawns,
-							   BiomeGenerationSettings.PlainBuilder gen
+								 int waterColor, int fogColor,
+								 @Nullable Integer grassCol, @Nullable Integer foliageCol,
+								 MobSpawnSettings.Builder spawns,
+								 BiomeGenerationSettings.PlainBuilder gen
 	) {
 		return biome(hasPrecipitation, temperature, downfall, waterColor, 329011, fogColor,
 				null, grassCol, foliageCol, spawns, gen, null);
@@ -637,10 +623,10 @@ public abstract class AbstractBiomeGen {
 	 * numbers rather than being a Gensokyo biome that happens to be grassy.
 	 */
 	protected static Biome biome(boolean hasPrecipitation, float temperature, float downfall,
-							   int waterColor, int fogColor, int skyColor,
-							   @Nullable Integer grassCol, @Nullable Integer foliageCol,
-							   MobSpawnSettings.Builder spawns,
-							   BiomeGenerationSettings.PlainBuilder gen
+								 int waterColor, int fogColor, int skyColor,
+								 @Nullable Integer grassCol, @Nullable Integer foliageCol,
+								 MobSpawnSettings.Builder spawns,
+								 BiomeGenerationSettings.PlainBuilder gen
 	) {
 		return biome(hasPrecipitation, temperature, downfall, waterColor, 329011, fogColor,
 				skyColor, grassCol, foliageCol, spawns, gen, null);
@@ -648,17 +634,17 @@ public abstract class AbstractBiomeGen {
 
 	/** The end dimension, which is the one biome that is not Gensokyo at all. */
 	protected static Biome biome(int fogColor,
-							   MobSpawnSettings.Builder spawns,
-							   BiomeGenerationSettings.PlainBuilder gen,
-							   @Nullable Music bgm
+								 MobSpawnSettings.Builder spawns,
+								 BiomeGenerationSettings.PlainBuilder gen,
+								 @Nullable Music bgm
 	) {
 		return biome(false, 2, 0, fogColor, spawns, gen, bgm);
 	}
 
 	protected static Biome biome(boolean hasPrecipitation, float temperature, float downfall, int fogColor,
-							   MobSpawnSettings.Builder spawns,
-							   BiomeGenerationSettings.PlainBuilder gen,
-							   @Nullable Music bgm
+								 MobSpawnSettings.Builder spawns,
+								 BiomeGenerationSettings.PlainBuilder gen,
+								 @Nullable Music bgm
 	) {
 		return biome(hasPrecipitation, temperature, downfall, 4159204, 329011, fogColor,
 				null, null, null, spawns, gen, bgm);
@@ -670,22 +656,22 @@ public abstract class AbstractBiomeGen {
 	}
 
 	protected static Biome biome(boolean hasPrecipitation, float temperature, float downfall,
-							   int fogColor, @Nullable Integer grassCol, @Nullable Integer foliageCol,
-							   MobSpawnSettings.Builder spawns,
-							   BiomeGenerationSettings.PlainBuilder gen,
-							   @Nullable Music bgm
+								 int fogColor, @Nullable Integer grassCol, @Nullable Integer foliageCol,
+								 MobSpawnSettings.Builder spawns,
+								 BiomeGenerationSettings.PlainBuilder gen,
+								 @Nullable Music bgm
 	) {
 		return biome(hasPrecipitation, temperature, downfall, 4159204, 329011, fogColor,
 				null, grassCol, foliageCol, spawns, gen, bgm);
 	}
 
 	protected static Biome biome(boolean hasPrecipitation, float temperature, float downfall,
-							   int waterColor, int waterFogColor, int fogColor,
-							   @Nullable Integer skyCol,
-							   @Nullable Integer grassCol, @Nullable Integer foliageCol,
-							   MobSpawnSettings.Builder spawns,
-							   BiomeGenerationSettings.PlainBuilder gen,
-							   @Nullable Music bgm
+								 int waterColor, int waterFogColor, int fogColor,
+								 @Nullable Integer skyCol,
+								 @Nullable Integer grassCol, @Nullable Integer foliageCol,
+								 MobSpawnSettings.Builder spawns,
+								 BiomeGenerationSettings.PlainBuilder gen,
+								 @Nullable Music bgm
 	) {
 		BiomeSpecialEffects.Builder effects = new BiomeSpecialEffects.Builder()
 				.waterColor(waterColor)
