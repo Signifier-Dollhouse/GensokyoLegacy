@@ -16,7 +16,9 @@ public interface ISleepOffsetEntity {
 	 */
 	double getSleepOffset(BlockPos pos);
 
-	/** Move the entity onto the bed at {@link BlockPos}, using {@link #getSleepOffset(BlockPos)}. */
+	/**
+	 * Move the entity onto the bed at {@link BlockPos}, using {@link #getSleepOffset(BlockPos)}.
+	 */
 	default void setPosToBedImpl(BlockPos pos) {
 		LivingEntity self = (LivingEntity) this;
 		self.setPos(pos.getX() + 0.5, pos.getY() + getSleepOffset(pos), pos.getZ() + 0.5);

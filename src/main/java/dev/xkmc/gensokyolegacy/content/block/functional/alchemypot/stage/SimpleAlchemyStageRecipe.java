@@ -12,9 +12,12 @@ import net.minecraft.world.level.Level;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Stage with an explicit ingredient list and a static colour. Its priority is the ingredient
+/**
+ * Stage with an explicit ingredient list and a static colour. Its priority is the ingredient
  * count, so the fullest matching stage wins.
- * @see "doc/design/alchemy_pot.md" */
+ *
+ * @see "doc/design/alchemy_pot.md"
+ */
 @SerialClass
 public class SimpleAlchemyStageRecipe extends AlchemyStageRecipe<SimpleAlchemyStageRecipe> {
 

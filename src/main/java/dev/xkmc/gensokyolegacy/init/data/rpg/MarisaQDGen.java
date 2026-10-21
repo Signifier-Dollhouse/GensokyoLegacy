@@ -23,8 +23,8 @@ import dev.xkmc.gensokyolegacy.content.rpg.trade.TradeOffer;
 import dev.xkmc.gensokyolegacy.content.rpg.trade.TradeRecurrence;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.GLAdvGen;
-import dev.xkmc.gensokyolegacy.init.data.structure.GLStructureGen;
 import dev.xkmc.gensokyolegacy.init.data.GLTagGen;
+import dev.xkmc.gensokyolegacy.init.data.structure.GLStructureGen;
 import dev.xkmc.gensokyolegacy.init.registrate.GLEntities;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLBlocks;
@@ -394,7 +394,7 @@ public class MarisaQDGen extends QuestDialogData {
 								.withPool(lootItem(Items.EMERALD, 8)))),
 				option("start", "What's with the hush-hush request — what's going on?", new StartQuestAction(),
 						dialog("start/dialog_1",
-								"Heard the news coming outta the Nether lately? Travelers comin' back white as sheets, swearin' somethin' followed 'em home — but none of 'em can say what. Gives me the creeps just thinkin' about it, ze. You're braver than me, though. Poke around down there for me, would ya? And... watch yourself.",List.of("dialog_talk_01"),
+								"Heard the news coming outta the Nether lately? Travelers comin' back white as sheets, swearin' somethin' followed 'em home — but none of 'em can say what. Gives me the creeps just thinkin' about it, ze. You're braver than me, though. Poke around down there for me, would ya? And... watch yourself.", List.of("dialog_talk_01"),
 								option("start/end", "Really? I'll go take a look."))),
 				follow("Hm — nothing seems to be happening?",
 						"Best if nothing's wrong — but while you were gone, travelers started going missing.",
@@ -733,7 +733,7 @@ public class MarisaQDGen extends QuestDialogData {
 		var end = endOverride == null
 				? optionKey(dailyFollowEndKey, dialog("follow_up/end/dialog_1", optLine, anims("daily", 4, List.of())))
 				: option("follow_up/end", endOverride,
-						dialog("follow_up/end/dialog_1", optLine, anims("daily", 4, List.of())));
+				dialog("follow_up/end/dialog_1", optLine, anims("daily", 4, List.of())));
 		return groupKey(dailyGroupKey, dailyFollowKey,
 				dialog("follow_up/dialog_1", followLine, anims("daily", 3, THINK_ANIMS), end));
 	}
@@ -743,7 +743,7 @@ public class MarisaQDGen extends QuestDialogData {
 		var done = thanks == null
 				? dialog("complete/handover/dialog_1", completeLine, anims("daily", 6, List.of()))
 				: dialog("complete/handover/dialog_1", completeLine, anims("daily", 6, List.of()),
-						optionKey(dailyThanksKey));
+				optionKey(dailyThanksKey));
 		return new GroupDialogOption(dailyGroupKey, optionText("complete", opener), List.of(),
 				Optional.of(dialog("complete/dialog_1", gotemLine, anims("daily", 5, AGREE_ANIMS),
 						option("complete/handover", handover, new CompleteQuestAction(), done))));

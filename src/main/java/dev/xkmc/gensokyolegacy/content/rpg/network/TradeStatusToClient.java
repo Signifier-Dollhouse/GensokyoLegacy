@@ -7,7 +7,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 
 public record TradeStatusToClient(ResourceLocation id,
-                                  TradeData data) implements SerialPacketBase<TradeStatusToClient> {
+								  TradeData data) implements SerialPacketBase<TradeStatusToClient> {
 
 	@Override
 	public void handle(Player player) {

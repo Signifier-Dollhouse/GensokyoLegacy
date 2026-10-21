@@ -30,16 +30,24 @@ import java.util.Set;
  */
 public class FairyFleeTask extends Behavior<PlainFairyEntity> {
 
-	/** How far out she aims to get, and how far off "straight away" a bearing may fall. */
+	/**
+	 * How far out she aims to get, and how far off "straight away" a bearing may fall.
+	 */
 	private static final double FLEE_DISTANCE = 16.0;
 	private static final double FLEE_SPREAD = 0.6;
 
-	/** Ticks between re-picks. Short, because she is meant to keep changing her mind. */
+	/**
+	 * Ticks between re-picks. Short, because she is meant to keep changing her mind.
+	 */
 	private static final int REPATH_INTERVAL = 10;
-	/** Bearings tried before giving up on this spot entirely - a cliff, a wall. */
+	/**
+	 * Bearings tried before giving up on this spot entirely - a cliff, a wall.
+	 */
 	private static final int SPOT_ATTEMPTS = 3;
 
-	/** Past this much separation she settles down instead of running. */
+	/**
+	 * Past this much separation she settles down instead of running.
+	 */
 	private static final double GIVE_UP_DISTANCE = 24.0;
 
 	/**
@@ -50,7 +58,9 @@ public class FairyFleeTask extends Behavior<PlainFairyEntity> {
 	 */
 	private static final float ROUTE_SPEED = 1.0f;
 
-	/** Share of her health restored every {@link #HEAL_INTERVAL} ticks while she runs. */
+	/**
+	 * Share of her health restored every {@link #HEAL_INTERVAL} ticks while she runs.
+	 */
 	private static final int HEAL_INTERVAL = 10;
 	private static final float HEAL_FRACTION = 0.1f;
 

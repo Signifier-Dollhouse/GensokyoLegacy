@@ -21,10 +21,14 @@ import org.jetbrains.annotations.Nullable;
  */
 public class MyourenFenceBlock implements ShapePathFindBlockMethod, DefaultStateBlockMethod {
 
-	/** 朝向由 {@link BlockTemplates#HORIZONTAL} 加上，这里只引用它的属性。 */
+	/**
+	 * 朝向由 {@link BlockTemplates#HORIZONTAL} 加上，这里只引用它的属性。
+	 */
 	public static final DirectionProperty FACING = BlockTemplates.HORIZONTAL_FACING;
 
-	/** 模型就是 x 0..16、y 0..16、z 0..12 的一整块。z 比 x 短,朝向转了看得出来。 */
+	/**
+	 * 模型就是 x 0..16、y 0..16、z 0..12 的一整块。z 比 x 短,朝向转了看得出来。
+	 */
 	public static final VoxelShape[] SHAPES =
 			MagicTableBlock.allFaces(new VoxelBuilder(0, 0, 0, 16, 16, 12));
 

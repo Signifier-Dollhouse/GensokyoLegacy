@@ -1,6 +1,5 @@
 package dev.xkmc.gensokyolegacy.content.attachment.party.core;
 
-import dev.xkmc.gensokyolegacy.content.attachment.party.food.BlockFoodHandler;
 import dev.xkmc.gensokyolegacy.content.attachment.party.food.FoodAppeal;
 import dev.xkmc.gensokyolegacy.content.attachment.party.food.FoodResult;
 import dev.xkmc.gensokyolegacy.content.attachment.party.food.FoodResultCache;
@@ -30,14 +29,20 @@ public class PartyFoodValue {
 	private static final float NUTRITION_SCALE = 0.5f;
 	private static final float SATURATION_SCALE = 2.0f;
 
-	/** A flat bonus per beneficial effect. */
+	/**
+	 * A flat bonus per beneficial effect.
+	 */
 	private static final int BENEFICIAL_BONUS = 4;
 
-	/** The floor for anything that <i>is</i> food; invalid food scores 0 instead. */
+	/**
+	 * The floor for anything that <i>is</i> food; invalid food scores 0 instead.
+	 */
 	public static final int MIN_APPEAL = 1;
 	public static final int MAX_APPEAL = 4000;
 
-	/** @return the appeal of one serving, or 0 for something not worth serving */
+	/**
+	 * @return the appeal of one serving, or 0 for something not worth serving
+	 */
 	public static int appealOf(FoodProperties props) {
 		if (props.nutrition() <= 0 || Servings.refuses(props)) return 0;
 		float bonus = 0;
@@ -59,14 +64,18 @@ public class PartyFoodValue {
 		return List.of(FoodResultCache.of(state));
 	}
 
-	/** How many servings of anything this block offers. */
+	/**
+	 * How many servings of anything this block offers.
+	 */
 	public static int serves(Level level, BlockPos pos, BlockState state) {
 		int total = 0;
 		for (var result : results(level, pos, state)) total += Math.max(0, result.serves());
 		return total;
 	}
 
-	/** Decided entirely in code; nothing a datapack can write changes the answer. */
+	/**
+	 * Decided entirely in code; nothing a datapack can write changes the answer.
+	 */
 	public static boolean isFood(CollisionGetter level, BlockPos pos, BlockState state) {
 		for (var result : results(level, pos, state)) {
 			if (result.valid()) return true;
@@ -82,7 +91,7 @@ public class PartyFoodValue {
 	 * @return one entry per food id worth serving, empty when nothing here attracts
 	 */
 	public static List<FoodAppeal> appealPerFood(RegistryAccess access, Level level, BlockPos pos,
-			BlockState state) {
+												 BlockState state) {
 		var override = PartyFood.of(access, state);
 		var ans = new ArrayList<FoodAppeal>();
 		for (var result : results(level, pos, state)) {
@@ -133,7 +142,9 @@ public class PartyFoodValue {
 		return totals[0] <= 0 ? 0 : totals[1] / totals[0];
 	}
 
-	/** {@code {serves, appeal × serves, hunger × serves}}, weighted because a guest eats them all. */
+	/**
+	 * {@code {serves, appeal × serves, hunger × serves}}, weighted because a guest eats them all.
+	 */
 	private static int[] totals(RegistryAccess access, Level level, BlockPos pos, BlockState state) {
 		var override = PartyFood.of(access, state);
 		int serves = 0, appeal = 0, hunger = 0;
@@ -162,7 +173,9 @@ public class PartyFoodValue {
 		return totals[0] <= 0 ? 0 : totals[2] / totals[0];
 	}
 
-	/** Hunger of this placed block — every serving still on it. */
+	/**
+	 * Hunger of this placed block — every serving still on it.
+	 */
 	public static int totalHunger(Level level, BlockPos pos, BlockState state) {
 		return totals(level.registryAccess(), level, pos, state)[2];
 	}

@@ -32,11 +32,7 @@ import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.TreeMap;
+import java.util.*;
 
 /**
  * Alice Margatroid, the doll-maker living deep in the Magical Forest. <p>Quest chain: 1.1 ({@code first_doll}) → 2.1
@@ -255,19 +251,25 @@ public class AliceQDGen extends QuestDialogData {
 				new TradeRecurrence(1, 24000), List.of(item(Items.IRON_INGOT, 4))));
 	}
 
-	/** One of each of the seven dyes plus three white wool: the glove's price. */
+	/**
+	 * One of each of the seven dyes plus three white wool: the glove's price.
+	 */
 	private List<IngredientEntry> gloveIngredients() {
 		List<IngredientEntry> ans = new ArrayList<>(dyeIngredients(1));
 		ans.add(item(Items.WHITE_WOOL, 3));
 		return ans;
 	}
 
-	/** One of each of the seven dyes, {@code count} apiece: the single submit requirement. */
+	/**
+	 * One of each of the seven dyes, {@code count} apiece: the single submit requirement.
+	 */
 	private Map<String, QuestRequirement<?, ?>> dyeRequirements(int count) {
 		return Map.of("a-dyes", new SubmitItemRequirement(dyeIngredients(count)));
 	}
 
-	/** One {@code IngredientEntry} per dye, in spectral order. */
+	/**
+	 * One {@code IngredientEntry} per dye, in spectral order.
+	 */
 	private List<IngredientEntry> dyeIngredients(int count) {
 		List<IngredientEntry> ans = new ArrayList<>();
 		for (var dye : SPECTRUM_DYES)
@@ -335,7 +337,7 @@ public class AliceQDGen extends QuestDialogData {
 		var end = endOverride == null
 				? optionKey(dailyFollowEndKey, dialog("follow_up/end/dialog_1", optLine, anims("daily", 4, List.of())))
 				: option("follow_up/end", endOverride,
-						dialog("follow_up/end/dialog_1", optLine, anims("daily", 4, List.of())));
+				dialog("follow_up/end/dialog_1", optLine, anims("daily", 4, List.of())));
 		return groupKey(dailyGroupKey, dailyFollowKey,
 				dialog("follow_up/dialog_1", followLine, anims("daily", 3, THINK_ANIMS), end));
 	}
@@ -345,7 +347,7 @@ public class AliceQDGen extends QuestDialogData {
 		var done = thanks == null
 				? dialog("complete/handover/dialog_1", completeLine, anims("daily", 6, List.of()))
 				: dialog("complete/handover/dialog_1", completeLine, anims("daily", 6, List.of()),
-						optionKey(dailyThanksKey));
+				optionKey(dailyThanksKey));
 		return new GroupDialogOption(dailyGroupKey, optionText("complete", opener), List.of(),
 				Optional.of(dialog("complete/dialog_1", gotemLine, anims("daily", 5, AGREE_ANIMS),
 						option("complete/handover", handover, new CompleteQuestAction(), done))));

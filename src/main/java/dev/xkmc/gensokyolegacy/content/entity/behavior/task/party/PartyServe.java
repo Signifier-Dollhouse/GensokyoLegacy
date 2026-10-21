@@ -18,7 +18,9 @@ public record PartyServe(int hunger, int appeal) {
 			Codec.INT.fieldOf("appeal").forGetter(PartyServe::appeal)
 	).apply(instance, PartyServe::new));
 
-	/** Whether it would credit nothing, and so is not worth banking. */
+	/**
+	 * Whether it would credit nothing, and so is not worth banking.
+	 */
 	public boolean isEmpty() {
 		return hunger <= 0 && appeal <= 0;
 	}

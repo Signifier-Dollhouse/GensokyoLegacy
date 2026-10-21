@@ -26,7 +26,9 @@ public class CirnoModel extends DefaultedEntityGeoModel<CirnoEntity> {
 		return model;
 	}
 
-	/** The tanned variant is the same rig over a re-tinted sheet; purely cosmetic. */
+	/**
+	 * The tanned variant is the same rig over a re-tinted sheet; purely cosmetic.
+	 */
 	@Override
 	public ResourceLocation getTextureResource(CirnoEntity animatable) {
 		return animatable.isTanned() ? tannedTexture : texture;

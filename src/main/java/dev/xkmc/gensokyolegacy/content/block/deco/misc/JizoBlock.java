@@ -31,24 +31,36 @@ import org.jetbrains.annotations.Nullable;
  */
 public class JizoBlock implements ShapePathFindBlockMethod, DefaultStateBlockMethod {
 
-	/** 朝向由 {@link BlockTemplates#HORIZONTAL} 加上，这里只引用它的属性。 */
+	/**
+	 * 朝向由 {@link BlockTemplates#HORIZONTAL} 加上，这里只引用它的属性。
+	 */
 	public static final DirectionProperty FACING = BlockTemplates.HORIZONTAL_FACING;
 
-	/** 上下两半由 {@code DoubleBlockImpl} 加上，这里只引用它的属性。 */
+	/**
+	 * 上下两半由 {@code DoubleBlockImpl} 加上，这里只引用它的属性。
+	 */
 	public static final EnumProperty<Half> HALF = BlockStateProperties.HALF;
 
-	/** 底座 x z 都是 2..14。上下对称,朝向转了碰撞盒也一样。 */
+	/**
+	 * 底座 x z 都是 2..14。上下对称,朝向转了碰撞盒也一样。
+	 */
 	public static final VoxelShape BOTTOM_SHAPE = Block.box(2, 0, 2, 14, 16, 14);
 
-	/** 不戴帽的两款:上半格只有头,x z 跟下半格一样,高度取模型上 y17..21 那截。 */
+	/**
+	 * 不戴帽的两款:上半格只有头,x z 跟下半格一样,高度取模型上 y17..21 那截。
+	 */
 	public static final VoxelShape HEAD_TOP_SHAPE = Block.box(2, 0, 2, 14, 5, 14);
 
-	/** 戴斗笠的两款:上半格是宽檐加帽顶,宽檐撑满整格。 */
+	/**
+	 * 戴斗笠的两款:上半格是宽檐加帽顶,宽檐撑满整格。
+	 */
 	public static final VoxelShape HAT_TOP_SHAPE = Shapes.or(
 			Block.box(0, 0, 0, 16, 5, 16),
 			Block.box(2.5, 5, 2.5, 13.5, 7, 13.5));
 
-	/** 戴斗笠的配色帽檐更大,上半格的碰撞盒跟着换一种。 */
+	/**
+	 * 戴斗笠的配色帽檐更大,上半格的碰撞盒跟着换一种。
+	 */
 	private final VoxelShape topShape;
 
 	public JizoBlock(VoxelShape topShape) {
@@ -77,7 +89,9 @@ public class JizoBlock implements ShapePathFindBlockMethod, DefaultStateBlockMet
 		pvd.horizontalBlock(block, state -> state.getValue(HALF) == Half.TOP ? empty : whole);
 	}
 
-	/** 上半格是跟着下半格一起没的,只有下半格掉东西,免得拆一次掉两个。 */
+	/**
+	 * 上半格是跟着下半格一起没的,只有下半格掉东西,免得拆一次掉两个。
+	 */
 	public static void genLoot(RegistrateBlockLootTables pvd, DelegateBlock block) {
 		var helper = new LootHelper(pvd);
 		var pool = LootPool.lootPool().add(helper.item(block.asItem())

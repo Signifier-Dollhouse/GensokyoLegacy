@@ -1,10 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.entity.dolls;
 
-import dev.xkmc.gensokyolegacy.content.attachment.doll.DollAttachment;
-import dev.xkmc.gensokyolegacy.content.attachment.doll.DollData;
-import dev.xkmc.gensokyolegacy.content.attachment.doll.DollHost;
-import dev.xkmc.gensokyolegacy.content.attachment.doll.DollNature;
-import dev.xkmc.gensokyolegacy.content.attachment.doll.StrayHost;
+import dev.xkmc.gensokyolegacy.content.attachment.doll.*;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.goals.FollowDollOwnerGoal;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.goals.LookAtDollOwnerGoal;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.impl.DollModule;
@@ -25,11 +21,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.OwnableEntity;
-import net.minecraft.world.entity.PathfinderMob;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.navigation.FlyingPathNavigation;
@@ -73,7 +65,9 @@ public abstract class BaseDollEntity extends DamageRefactorEntity
 	@Nullable
 	private StrayHost strayHost;
 
-	/** Movement cap, 0.5 blocks per tick. */
+	/**
+	 * Movement cap, 0.5 blocks per tick.
+	 */
 	public static final double MAX_SPEED = 0.5;
 
 	/**

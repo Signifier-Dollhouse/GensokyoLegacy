@@ -24,7 +24,8 @@ public class CuriosManager {
 				.orElse(false);
 	}
 
-	/** The pair of wings a wearer has on, whichever of the two slots it is in. Both wing items draw the same
+	/**
+	 * The pair of wings a wearer has on, whichever of the two slots it is in. Both wing items draw the same
 	 * rig, so the draw asks for the stack rather than for a yes/no: which item it is picks the texture.
 	 */
 	public static Optional<ItemStack> getWings(LivingEntity le, boolean checkRender) {

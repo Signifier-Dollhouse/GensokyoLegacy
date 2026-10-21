@@ -9,7 +9,7 @@ import net.neoforged.neoforge.fluids.FluidStack;
 import java.util.List;
 
 public record TileClientTooltip(List<ItemStack> items, List<FluidStack> fluids, int width,
-                                int height) implements ClientTooltipComponent {
+								int height) implements ClientTooltipComponent {
 
 	public TileClientTooltip(TileTooltip inv) {
 		this(inv.items(), inv.fluids(), inv.w(), inv.h());

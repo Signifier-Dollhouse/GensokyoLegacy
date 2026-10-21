@@ -16,6 +16,7 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Volley: the first available doll attacks in turn at the cached target, or the punched entity.
+ *
  * @see "doc/design/doll/glove.md"
  */
 public class VolleyMode extends DollGloveHandler {
@@ -51,7 +52,7 @@ public class VolleyMode extends DollGloveHandler {
 
 	@Override
 	public void performAttackOn(ServerPlayer sp, @Nullable LivingEntity target, InteractionHand hand, ItemStack stack, DollGloveItem item) {
-var commands = attachment(sp).commands();
+		var commands = attachment(sp).commands();
 		if (target == null || !DollGloveItem.isValidAttackTarget(sp, target)) {
 			sp.displayClientMessage(GLLang.ItemGlove.NO_TARGET.get(), true);
 		} else if (!commands.hasCapableDoll(sp, DollActionType.REGULAR_ATTACK)) {

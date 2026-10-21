@@ -64,7 +64,9 @@ public final class DollBehaviors {
 		return findHealPaper(stack).isPresent();
 	}
 
-	/** A folded heal talisman with remaining durability. */
+	/**
+	 * A folded heal talisman with remaining durability.
+	 */
 	public static Optional<HealSetup> findHealPaper(ItemStack stack) {
 		if (!(stack.getItem() instanceof FoldedPaperTalisman)) return Optional.empty();
 		TalismanPaperItem paper = FoldedPaperTalisman.paper(stack);

@@ -27,7 +27,9 @@ public interface DollLedger extends DollHost {
 	 */
 	Collection<DollData> dolls();
 
-	/** The command state machine driving this ledger's dolls. */
+	/**
+	 * The command state machine driving this ledger's dolls.
+	 */
 	DollCommander commands();
 
 	/**

@@ -9,7 +9,7 @@ import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 
 public record GiveMobEffectAction(Holder<MobEffect> effect, int duration,
-                                  int amplifier) implements DialogAction<GiveMobEffectAction> {
+								  int amplifier) implements DialogAction<GiveMobEffectAction> {
 
 	public static final MapCodec<GiveMobEffectAction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 			BuiltInRegistries.MOB_EFFECT.holderByNameCodec().fieldOf("effect").forGetter(GiveMobEffectAction::effect),

@@ -18,11 +18,17 @@ import java.util.function.Function;
 
 public class NorenJsons {
 
-	/** 挂帘的木杆,占方块最顶上那 1 格 */
+	/**
+	 * 挂帘的木杆,占方块最顶上那 1 格
+	 */
 	private static final float BAR = 1;
-	/** 木杆有 1 格厚,帘子零厚度地吊在厚度的正中,也就是墙那边往外挪半格 */
+	/**
+	 * 木杆有 1 格厚,帘子零厚度地吊在厚度的正中,也就是墙那边往外挪半格
+	 */
 	private static final float MID_Z = 0.5F;
-	/** 普通款的布占掉木杆以外剩下的 15 格 */
+	/**
+	 * 普通款的布占掉木杆以外剩下的 15 格
+	 */
 	private static final float CLOTH = 16 - BAR;
 
 	/**
@@ -102,16 +108,18 @@ public class NorenJsons {
 		elem.end();
 	}
 
-	/** 物品模型一律用 {@code item/generated}:它把整张贴图铺满 0..16 的面片,普通款的方形贴图正好合适。
+	/**
+	 * 物品模型一律用 {@code item/generated}:它把整张贴图铺满 0..16 的面片,普通款的方形贴图正好合适。
 	 * 长款贴图 16x32,原样铺就压成又扁又胖的正方形,所以绕中心缩放——走根 {@code transform} 而不是
-	 * 重写 {@code elements},两种款式都是一张干净的 generated 模型。 */
+	 * 重写 {@code elements},两种款式都是一张干净的 generated 模型。
+	 */
 	public static void genItemModel(DataGenContext<Item, BlockItem> ctx, RegistrateItemModelProvider pvd,
 									boolean hanging) {
 		var model = pvd.getBuilder(ctx.getName())
 				.parent(new ModelFile.UncheckedModelFile("item/generated"))
 				.texture("layer0", texture(pvd::modLoc, ctx.getName()));
 		if (hanging) {
-			model.rootTransforms().scale(0.8F, 1.6F, 1).translation(0,-0.25F,0).origin(TransformOrigin.CENTER).end();
+			model.rootTransforms().scale(0.8F, 1.6F, 1).translation(0, -0.25F, 0).origin(TransformOrigin.CENTER).end();
 		}
 	}
 

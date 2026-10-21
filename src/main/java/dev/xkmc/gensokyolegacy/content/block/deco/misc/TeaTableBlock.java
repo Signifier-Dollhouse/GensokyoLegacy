@@ -60,7 +60,7 @@ public class TeaTableBlock implements CreateBlockStateBlockMethod, DefaultStateB
 	public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity le, ItemStack stack) {
 		if (level.isClientSide()) return;
 
-        Direction direction = state.getValue(BlockTemplates.HORIZONTAL_FACING);
+		Direction direction = state.getValue(BlockTemplates.HORIZONTAL_FACING);
 		Direction left = direction.getClockWise();
 		Direction back = direction.getOpposite();
 
@@ -76,14 +76,14 @@ public class TeaTableBlock implements CreateBlockStateBlockMethod, DefaultStateB
 		if (state.is(newState.getBlock())) return;
 
 		Direction clockwise = state.getValue(BlockTemplates.HORIZONTAL_FACING).getClockWise();
-        BlockPos relativePos = pos.relative(clockwise);
-        if(level.getBlockState(relativePos).is(state.getBlock())){
-            level.destroyBlock(relativePos, false);
-        }
+		BlockPos relativePos = pos.relative(clockwise);
+		if (level.getBlockState(relativePos).is(state.getBlock())) {
+			level.destroyBlock(relativePos, false);
+		}
 	}
 
-    @Override
-    public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext ctx) {
-        return Block.box(0,0,0,16,12,16);
-    }
+	@Override
+	public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext ctx) {
+		return Block.box(0, 0, 0, 16, 12, 16);
+	}
 }

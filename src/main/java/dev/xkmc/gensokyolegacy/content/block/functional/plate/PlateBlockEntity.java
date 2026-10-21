@@ -29,7 +29,9 @@ public class PlateBlockEntity extends BaseBlockEntity implements BlockContainer 
 		super(type, pos, state);
 	}
 
-	/** Empties the plate and hands back what was on it. */
+	/**
+	 * Empties the plate and hands back what was on it.
+	 */
 	public ItemStack clear() {
 		ItemStack out = stack;
 		stack = ItemStack.EMPTY;
@@ -37,7 +39,9 @@ public class PlateBlockEntity extends BaseBlockEntity implements BlockContainer 
 		return out;
 	}
 
-	/** Hand the food to the player, dropping it at the plate's feet if there is no room. */
+	/**
+	 * Hand the food to the player, dropping it at the plate's feet if there is no room.
+	 */
 	public void take(Player player) {
 		ItemStack out = clear();
 		if (!player.getInventory().add(out)) player.drop(out, false);

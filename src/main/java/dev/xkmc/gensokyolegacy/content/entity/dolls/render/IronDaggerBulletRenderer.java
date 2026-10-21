@@ -6,11 +6,11 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.world.phys.Vec3;
 
 public class IronDaggerBulletRenderer extends ItemBulletRenderer<IronDaggerBulletEntity> {
-    public IronDaggerBulletRenderer(EntityRendererProvider.Context pContext) {
-        super(pContext);
-    }
+	public IronDaggerBulletRenderer(EntityRendererProvider.Context pContext) {
+		super(pContext);
+	}
 
-    public Vec3 getRenderOffset(IronDaggerBulletEntity e, float f) {
-        return new Vec3(0.0F, 1.0F, 0.0F);
-    }
+	public Vec3 getRenderOffset(IronDaggerBulletEntity e, float f) {
+		return new Vec3(0.0F, 1.0F, 0.0F);
+	}
 }

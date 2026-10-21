@@ -92,11 +92,15 @@ public abstract class PartyTask extends Behavior<SmartYoukaiEntity> {
 		step(level, entity, ctx);
 	}
 
-	/** Whether this task still makes sense with no party to look at. Only the exit does. */
+	/**
+	 * Whether this task still makes sense with no party to look at. Only the exit does.
+	 */
 	protected boolean canRunWithoutParty() {
 		return false;
 	}
 
-	/** This task's one tick of work. */
+	/**
+	 * This task's one tick of work.
+	 */
 	protected abstract void step(ServerLevel level, SmartYoukaiEntity entity, PartyContext ctx);
 }

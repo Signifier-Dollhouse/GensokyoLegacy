@@ -34,7 +34,9 @@ public class TreeFeatures {
 
 		TreeConfiguration build(BlockStateProvider log, BlockStateProvider leaves);
 
-		/** Vanilla cherry: a branched trunk under a wide drooping crown, the numbers of {@code minecraft:cherry}. */
+		/**
+		 * Vanilla cherry: a branched trunk under a wide drooping crown, the numbers of {@code minecraft:cherry}.
+		 */
 		TreeShape CHERRY = new TreeShape() {
 			@Override
 			public TreeConfiguration build(BlockStateProvider log, BlockStateProvider leaves) {
@@ -49,9 +51,11 @@ public class TreeFeatures {
 			}
 		};
 
-		/** Straight trunk under a layered flat crown, sized to one tree. */
+		/**
+		 * Straight trunk under a layered flat crown, sized to one tree.
+		 */
 		record Spruce(int trunkBase, int trunkRandA, int trunkRandB,
-		              IntProvider radius, IntProvider offset, IntProvider height) implements TreeShape {
+					  IntProvider radius, IntProvider offset, IntProvider height) implements TreeShape {
 			@Override
 			public TreeConfiguration build(BlockStateProvider log, BlockStateProvider leaves) {
 				return new TreeConfiguration.TreeConfigurationBuilder(log,
@@ -93,8 +97,8 @@ public class TreeFeatures {
 		public final Optional<ResourceKey<ConfiguredFeature<?, ?>>> saplingGiant;
 
 		TreeType(String id, Supplier<GLNaturalBlocks.TreeSet> set, TreeShape shape,
-		         ResourceKey<ConfiguredFeature<?, ?>> saplingTree,
-		         ResourceKey<ConfiguredFeature<?, ?>> saplingMega, ResourceKey<ConfiguredFeature<?, ?>> saplingGiant) {
+				 ResourceKey<ConfiguredFeature<?, ?>> saplingTree,
+				 ResourceKey<ConfiguredFeature<?, ?>> saplingMega, ResourceKey<ConfiguredFeature<?, ?>> saplingGiant) {
 			this(id, set, shape, Optional.of(saplingTree), Optional.of(saplingMega), Optional.of(saplingGiant));
 		}
 
@@ -104,9 +108,9 @@ public class TreeFeatures {
 		}
 
 		TreeType(String id, Supplier<GLNaturalBlocks.TreeSet> set, TreeShape shape,
-		         Optional<ResourceKey<ConfiguredFeature<?, ?>>> saplingTree,
-		         Optional<ResourceKey<ConfiguredFeature<?, ?>>> saplingMega,
-		         Optional<ResourceKey<ConfiguredFeature<?, ?>>> saplingGiant) {
+				 Optional<ResourceKey<ConfiguredFeature<?, ?>>> saplingTree,
+				 Optional<ResourceKey<ConfiguredFeature<?, ?>>> saplingMega,
+				 Optional<ResourceKey<ConfiguredFeature<?, ?>>> saplingGiant) {
 			this.id = id;
 			this.shape = shape;
 			this.set = set;

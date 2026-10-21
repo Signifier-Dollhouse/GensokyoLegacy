@@ -173,12 +173,16 @@ public abstract class DialogScreen extends Screen {
 	private float typedChars;
 	private int typedTotal = -1;
 
-	/** Body text as flat code points, so a reveal can tell a glyph from a space. */
+	/**
+	 * Body text as flat code points, so a reveal can tell a glyph from a space.
+	 */
 	private int[] glyphs = new int[0];
 
 	private final RandomSource blipRandom = RandomSource.create();
 
-	/** Characters left before the next blip, so the voice runs on a stride. */
+	/**
+	 * Characters left before the next blip, so the voice runs on a stride.
+	 */
 	private int blipCountdown;
 
 	protected DialogScreen(int session, int characterId) {
@@ -552,7 +556,9 @@ public abstract class DialogScreen extends Screen {
 		return total;
 	}
 
-	/** The body text as a flat array of code points, in drawing order. */
+	/**
+	 * The body text as a flat array of code points, in drawing order.
+	 */
 	private static int[] flatten(List<FormattedCharSequence> lines) {
 		int[] out = new int[countChars(lines)];
 		int[] at = {0};

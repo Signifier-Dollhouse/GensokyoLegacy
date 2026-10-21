@@ -2,8 +2,8 @@ package dev.xkmc.gensokyolegacy.content.item.glove;
 
 import com.tterrag.registrate.providers.DataGenContext;
 import com.tterrag.registrate.providers.RegistrateItemModelProvider;
-import dev.xkmc.gensokyolegacy.content.item.glove.mode.DollGloveMode;
 import dev.xkmc.gensokyolegacy.content.item.common.GloveHandModel;
+import dev.xkmc.gensokyolegacy.content.item.glove.mode.DollGloveMode;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
@@ -18,10 +18,14 @@ import net.neoforged.neoforge.client.model.generators.ItemModelBuilder;
  */
 public class DollGloveModel {
 
-	/** This glove's own modelled hand, exported from Blockbench. */
+	/**
+	 * This glove's own modelled hand, exported from Blockbench.
+	 */
 	private static final ResourceLocation HAND_MODEL = GensokyoLegacy.loc("custom/doll_glove_hand");
 
-	/** This glove's own hand skin, which is what that model's {@code #0} is overridden to. */
+	/**
+	 * This glove's own hand skin, which is what that model's {@code #0} is overridden to.
+	 */
 	private static final ResourceLocation HAND_TEXTURE = GensokyoLegacy.loc("item/doll_glove/glove_hand");
 
 	public static void model(DataGenContext<Item, DollGloveItem> ctx, RegistrateItemModelProvider pvd) {

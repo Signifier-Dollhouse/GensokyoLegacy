@@ -1,7 +1,7 @@
 package dev.xkmc.gensokyolegacy.init.data.structure.helper;
 
-import net.minecraft.core.Holder;
 import dev.xkmc.l2core.init.reg.ench.DataGenHolder;
+import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;

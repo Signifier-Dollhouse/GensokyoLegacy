@@ -20,14 +20,18 @@ public interface DollGeo extends DollRig, DollEntityImpl {
 	RawAnimation IDLE = RawAnimation.begin().thenLoop("toy_idle");
 	RawAnimation FLY = RawAnimation.begin().thenLoop("toy_fly");
 	RawAnimation ATTACK = RawAnimation.begin().thenPlay("toy_attack");
-	/** The same charge, swung with an empty hand: {@code toy_slapattack}. */
+	/**
+	 * The same charge, swung with an empty hand: {@code toy_slapattack}.
+	 */
 	RawAnimation SLAP = RawAnimation.begin().thenPlay("toy_slapattack");
 	RawAnimation BOMB = RawAnimation.begin().thenPlay("toy_bomb");
 	RawAnimation BOW = RawAnimation.begin().thenPlay("toy_bow");
 	RawAnimation SKILL = RawAnimation.begin().thenPlay("toy_skill");
 	RawAnimation WINK = RawAnimation.begin().thenLoop("toy_wink");
 
-	/** Volume of a strike voice, both melee shapes alike; the clips are short. */
+	/**
+	 * Volume of a strike voice, both melee shapes alike; the clips are short.
+	 */
 	float ATTACK_VOLUME = 1.0F;
 
 	default PlayState dollAnimController(final AnimationState<DollEntity> event) {
@@ -57,7 +61,9 @@ public interface DollGeo extends DollRig, DollEntityImpl {
 				.triggerableAnim("skill", SKILL));
 	}
 
-	/** Client-side: play the one-shot for an entity event id. */
+	/**
+	 * Client-side: play the one-shot for an entity event id.
+	 */
 	default void handleDollEvent(byte id) {
 		if (id == EVENT_ATTACK) triggerAnim(ONE_SHOT_CONTROLLER, "attack");
 		else if (id == EVENT_SLAP) triggerAnim(ONE_SHOT_CONTROLLER, "slap");

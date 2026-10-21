@@ -7,14 +7,14 @@ import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * One step of a conversation: a dialog, the quest it is about, and the option indices this player may take.
  * Sending visible indices rather than a per-option condition flag keeps a click index meaning the same on both sides.
  */
 public record SimpleDialogToClient(
-		int session, int character, ResourceLocation dialog, @Nullable ResourceLocation quest, ArrayList<Integer> options
+		int session, int character, ResourceLocation dialog, @Nullable ResourceLocation quest,
+		ArrayList<Integer> options
 ) implements SerialPacketBase<SimpleDialogToClient> {
 
 	@Override

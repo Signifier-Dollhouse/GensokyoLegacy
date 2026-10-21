@@ -12,7 +12,9 @@ import net.minecraft.world.entity.player.Player;
  */
 public class LivelySource implements CooldownSource {
 
-	/** How much speed one level of lively adds. */
+	/**
+	 * How much speed one level of lively adds.
+	 */
 	private static final float PER_LEVEL = 0.2F;
 
 	@Override

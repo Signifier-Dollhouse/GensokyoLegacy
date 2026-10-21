@@ -24,7 +24,9 @@ import java.util.Optional;
  */
 public abstract class DollBehavior {
 
-	/** Acting dolls never leave this radius around their owner (kamikaze exempt). */
+	/**
+	 * Acting dolls never leave this radius around their owner (kamikaze exempt).
+	 */
 	public static final double LEASH_RADIUS = 10.0;
 
 	public abstract DollActionType type();
@@ -57,7 +59,9 @@ public abstract class DollBehavior {
 		return true;
 	}
 
-	/** My action, iff it is the current command. */
+	/**
+	 * My action, iff it is the current command.
+	 */
 	@Nullable
 	protected DollAction current(DollEntity doll) {
 		DollAction cur = doll.actions.getCurrent();
@@ -79,7 +83,9 @@ public abstract class DollBehavior {
 		return target.position().add(0, target.getBbHeight() / 2, 0);
 	}
 
-	/** Capability still holds. The stack is a copy. */
+	/**
+	 * Capability still holds. The stack is a copy.
+	 */
 	protected Optional<HandMatch> hand(DollEntity doll) {
 		return DollBehaviorRegistry.findHand(doll, type());
 	}

@@ -52,10 +52,14 @@ public class DollItem extends Item implements InvClickItem {
 	 */
 	public static final ResourceLocation TYPE = GensokyoLegacy.loc("doll");
 
-	/** Every doll item by the entity kind it materializes, so itemization finds the right item back (item.md §2). */
+	/**
+	 * Every doll item by the entity kind it materializes, so itemization finds the right item back (item.md §2).
+	 */
 	private static final Map<ResourceLocation, DollItem> BY_TYPE = new HashMap<>();
 
-	/** The entity kind this item summons. */
+	/**
+	 * The entity kind this item summons.
+	 */
 	private final ResourceLocation type;
 
 	public DollItem(Properties props) {

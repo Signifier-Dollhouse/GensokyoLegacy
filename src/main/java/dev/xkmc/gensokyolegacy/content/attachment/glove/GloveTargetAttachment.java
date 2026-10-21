@@ -54,7 +54,8 @@ public class GloveTargetAttachment extends PlayerCapabilityTemplate<GloveTargetA
 		if (entry == null || entry.target == null) return null;
 		long now = sp.level().getGameTime();
 		if (now - entry.time > glove.targetTtl()) return null;
-		if (!(sp.serverLevel().getEntity(entry.target) instanceof LivingEntity target) || !target.isAlive()) return null;
+		if (!(sp.serverLevel().getEntity(entry.target) instanceof LivingEntity target) || !target.isAlive())
+			return null;
 		if (sp.distanceTo(target) > glove.targetRange()) return null;
 		entries.put(stack.getItem(), new Entry(entry.target, now));
 		return target;

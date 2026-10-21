@@ -14,6 +14,7 @@ import net.minecraft.world.level.block.state.BlockState;
 /**
  * A Display Delight display. The mod builds one block instance per food item, so the serving is asked of
  * the block rather than of a table; only the plated displays carry a stack count.
+ *
  * @see "doc/design/party/food_mods.md"
  */
 public class DisplayFood implements BlockFoodHandler {
@@ -50,7 +51,9 @@ public class DisplayFood implements BlockFoodHandler {
 		return 0;
 	}
 
-	/** The plate under the display, or {@link Blocks#AIR} when it was standing on its own. */
+	/**
+	 * The plate under the display, or {@link Blocks#AIR} when it was standing on its own.
+	 */
 	private static Block plateLeftBy(BlockState state) {
 		if (state.getBlock() instanceof AbstractStackablePlatedFoodBlock plated) {
 			return plated.hasPlate(state) ? DisplayBlocks.PLATE.get() : Blocks.AIR;

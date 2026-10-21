@@ -48,7 +48,7 @@ public class AreaEffectRenderer {
 	}
 
 	private static void drawPass(ResourceLocation texture, List<RegionBorderVisual> regions,
-	                             Frustum frustum, Vec3 cam, int minY, int maxY, float time) {
+								 Frustum frustum, Vec3 cam, int minY, int maxY, float time) {
 		List<RegionBorderVisual> visible = new ArrayList<>();
 		for (RegionBorderVisual rv : regions) {
 			ChunkPosRange range = rv.range();
@@ -79,7 +79,7 @@ public class AreaEffectRenderer {
 	}
 
 	private static void addRegion(VertexConsumer consumer, int minX, int maxX, int minZ, int maxZ,
-	                              int minY, int maxY, Vec3 cam, AreaEffectVisual v, float time) {
+								  int minY, int maxY, Vec3 cam, AreaEffectVisual v, float time) {
 		float camX = (float) cam.x, camY = (float) cam.y, camZ = (float) cam.z;
 		float scroll = v.speed() * time;
 		if (v.walls()) {
@@ -97,7 +97,7 @@ public class AreaEffectRenderer {
 	}
 
 	private static void addZWall(VertexConsumer consumer, int x0, int x1, int z, int y0, int y1,
-	                             float camX, float camY, float camZ, AreaEffectVisual v, float scroll, boolean flipU) {
+								 float camX, float camY, float camZ, AreaEffectVisual v, float scroll, boolean flipU) {
 		float tx = (x1 - x0) / TILE;
 		float ty = (y1 - y0) / TILE;
 		if (flipU) {
@@ -114,7 +114,7 @@ public class AreaEffectRenderer {
 	}
 
 	private static void addXWall(VertexConsumer consumer, int z0, int z1, int x, int y0, int y1,
-	                             float camX, float camY, float camZ, AreaEffectVisual v, float scroll, boolean flipU) {
+								 float camX, float camY, float camZ, AreaEffectVisual v, float scroll, boolean flipU) {
 		float tz = (z1 - z0) / TILE;
 		float ty = (y1 - y0) / TILE;
 		if (!flipU) {
@@ -131,7 +131,7 @@ public class AreaEffectRenderer {
 	}
 
 	private static void addHWall(VertexConsumer consumer, int x0, int x1, int z0, int z1, int y,
-	                             float camX, float camY, float camZ, AreaEffectVisual v) {
+								 float camX, float camY, float camZ, AreaEffectVisual v) {
 		float tx = (x1 - x0) / TILE;
 		float tz = (z1 - z0) / TILE;
 		vertex(consumer, x0 - camX, y - camY, z0 - camZ, 0, tz, v);
@@ -141,7 +141,7 @@ public class AreaEffectRenderer {
 	}
 
 	private static void vertex(VertexConsumer consumer, float x, float y, float z, float u, float v,
-	                           AreaEffectVisual vis) {
+							   AreaEffectVisual vis) {
 		consumer.addVertex(x, y, z).setColor(vis.r(), vis.g(), vis.b(), vis.a()).setUv(u, v);
 	}
 }

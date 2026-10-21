@@ -2,11 +2,7 @@ package dev.xkmc.gensokyolegacy.content.entity.behavior.task.party;
 
 import dev.xkmc.gensokyolegacy.content.attachment.home.core.HomeSearchUtil;
 import dev.xkmc.gensokyolegacy.content.attachment.home.core.IHomeHolder;
-import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyArea;
-import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyAttachment;
-import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyFoodValue;
-import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyGift;
-import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartySend;
+import dev.xkmc.gensokyolegacy.content.attachment.party.core.*;
 import dev.xkmc.gensokyolegacy.content.attachment.party.item.PartyMessage;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.module.PartyModule;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.module.VisitModule;
@@ -65,7 +61,9 @@ public class PartyContext {
 		return party;
 	}
 
-	/** Her party this tick, or null when it has ended or its chunk has unloaded. */
+	/**
+	 * Her party this tick, or null when it has ended or its chunk has unloaded.
+	 */
 	@Nullable
 	public PartyAttachment attachment() {
 		return attachment;
@@ -75,7 +73,9 @@ public class PartyContext {
 		return gameTime;
 	}
 
-	/** Whether she is actually in a chair, which no field on the module can know. */
+	/**
+	 * Whether she is actually in a chair, which no field on the module can know.
+	 */
 	public boolean seated() {
 		return party.seat() != null && entity.isPassenger();
 	}
@@ -101,14 +101,18 @@ public class PartyContext {
 		party.serveDish = pos;
 	}
 
-	/** Whether the dish she committed to is close enough to take, from where she is now. */
+	/**
+	 * Whether the dish she committed to is close enough to take, from where she is now.
+	 */
 	public boolean dishInReach() {
 		var dish = dish();
 		if (dish == null) return false;
 		return PartyTarget.forDish(dish, standingNear(dish), seated()).inReach(this);
 	}
 
-	/** One tick of a countdown, floored at zero so a spent timer stays spent. */
+	/**
+	 * One tick of a countdown, floored at zero so a spent timer stays spent.
+	 */
 	public static int step(int current) {
 		return current > 1 ? current - 1 : 0;
 	}
@@ -168,7 +172,9 @@ public class PartyContext {
 		return party.leaveArmed;
 	}
 
-	/** Ticks left before she stands up; zero once she is already up. */
+	/**
+	 * Ticks left before she stands up; zero once she is already up.
+	 */
 	public int leaveWait() {
 		return party.leave;
 	}
@@ -184,12 +190,16 @@ public class PartyContext {
 		party.leaveArmed = true;
 	}
 
-	/** Arm the departure with a fresh per-guest wait, so a table does not empty at once. */
+	/**
+	 * Arm the departure with a fresh per-guest wait, so a table does not empty at once.
+	 */
 	public void armLeave() {
 		armLeave(PartyTasks.unseatDelay(entity.getRandom()));
 	}
 
-	/** Count the unseat wait down, stopping at zero. */
+	/**
+	 * Count the unseat wait down, stopping at zero.
+	 */
 	public void countLeave() {
 		party.leave = step(party.leave);
 	}
@@ -209,12 +219,16 @@ public class PartyContext {
 
 	// === movement ===
 
-	/** Whether she can be told to walk anywhere at all. */
+	/**
+	 * Whether she can be told to walk anywhere at all.
+	 */
 	public boolean canWalk() {
 		return entity.onGround() || entity.navCtrl.isCloseToGround();
 	}
 
-	/** The standable block beside {@code subject}, or null when there is none. */
+	/**
+	 * The standable block beside {@code subject}, or null when there is none.
+	 */
 	@Nullable
 	public BlockPos standingNear(BlockPos subject) {
 		return PartySend.standingNear(level, subject);
@@ -255,17 +269,23 @@ public class PartyContext {
 		}
 	}
 
-	/** She got where she was sent. */
+	/**
+	 * She got where she was sent.
+	 */
 	public void arrived() {
 		party.arrived();
 	}
 
-	/** Whether she is close enough to the chair or the dish to act on it. */
+	/**
+	 * Whether she is close enough to the chair or the dish to act on it.
+	 */
 	public boolean inReach(PartyTarget target) {
 		return target.inReach(this);
 	}
 
-	/** Drop the walk order and the destination. */
+	/**
+	 * Drop the walk order and the destination.
+	 */
 	public void clearWalk() {
 		BrainUtils.clearMemory(entity, MemoryModuleType.WALK_TARGET);
 		BrainUtils.clearMemory(entity, MemoryModuleType.LOOK_TARGET);
@@ -286,7 +306,9 @@ public class PartyContext {
 		return PartyTarget.forSeat(seat, standingNear(seat));
 	}
 
-	/** A target for her own chair, to carry a serving back to. */
+	/**
+	 * A target for her own chair, to carry a serving back to.
+	 */
 	@Nullable
 	public PartyTarget herSeat() {
 		var seat = party.seat();
@@ -294,7 +316,9 @@ public class PartyContext {
 		return PartyTarget.forSeat(seat, standingNear(seat));
 	}
 
-	/** Sit on the chair this target names, and claim it. */
+	/**
+	 * Sit on the chair this target names, and claim it.
+	 */
 	public void sit(PartyTarget target) {
 		var seat = target.interact();
 		if (seat == null) return;
@@ -304,13 +328,17 @@ public class PartyContext {
 		arrived();
 	}
 
-	/** Give up the chair, releasing it back to the party's seating plan. */
+	/**
+	 * Give up the chair, releasing it back to the party's seating plan.
+	 */
 	public void dropSeat() {
 		party.dropSeat(level);
 		if (entity.isPassenger()) entity.stopRiding();
 	}
 
-	/** Tell the host, once per episode, that there is no chair for her. */
+	/**
+	 * Tell the host, once per episode, that there is no chair for her.
+	 */
 	public void reportNoSeat() {
 		PartyMessage.reportLookingForSeat(level, attachment, entity);
 	}
@@ -341,7 +369,9 @@ public class PartyContext {
 		return true;
 	}
 
-	/** The stack one serving is worth: a slice, a bowl, or a board's pair of sushi. */
+	/**
+	 * The stack one serving is worth: a slice, a bowl, or a board's pair of sushi.
+	 */
 	private ItemStack servingOf(BlockPos dish) {
 		for (var result : PartyFoodValue.results(level, dish, level.getBlockState(dish))) {
 			if (result.valid()) return result.servingCopy();
@@ -349,7 +379,9 @@ public class PartyContext {
 		return ItemStack.EMPTY;
 	}
 
-	/** Put down whatever she is carrying. */
+	/**
+	 * Put down whatever she is carrying.
+	 */
 	public void dropServing() {
 		if (!entity.getItemInHand(InteractionHand.MAIN_HAND).isEmpty()) {
 			entity.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
@@ -391,7 +423,9 @@ public class PartyContext {
 		party.chew = PartyTasks.EAT_TICKS;
 	}
 
-	/** Halfway through a chew, in ticks — when the plate leaves her hand. */
+	/**
+	 * Halfway through a chew, in ticks — when the plate leaves her hand.
+	 */
 	public int chewDrop() {
 		return PartyTasks.EAT_TICKS / 2;
 	}
@@ -430,12 +464,16 @@ public class PartyContext {
 
 	// === leaving ===
 
-	/** Leave a gift, once per visit. */
+	/**
+	 * Leave a gift, once per visit.
+	 */
 	public void giveGift() {
 		PartyGift.give(level, entity, party);
 	}
 
-	/** Give up on the party because there is nowhere to sit. */
+	/**
+	 * Give up on the party because there is nowhere to sit.
+	 */
 	public void expel() {
 		PartyMessage.reportEvicted(level, attachment, entity);
 		dismiss();
@@ -451,7 +489,9 @@ public class PartyContext {
 		party.dismiss();
 	}
 
-	/** Finish leaving: come off the party's books, then restore or discard. */
+	/**
+	 * Finish leaving: come off the party's books, then restore or discard.
+	 */
 	public void finishLeaving() {
 		clearWalk();
 		finishServe();
@@ -459,13 +499,13 @@ public class PartyContext {
 	}
 
 	/**
- * Where she goes when the party is over. Asked for on every tick of the walkout, so it is
- * drawn once and kept: drawn per call, a guest re-rolls it each tick and never arrives.
- *
- * @return a destination, or null to finish leaving here and now
- */
-@Nullable
-public BlockPos destination() {
+	 * Where she goes when the party is over. Asked for on every tick of the walkout, so it is
+	 * drawn once and kept: drawn per call, a guest re-rolls it each tick and never arrives.
+	 *
+	 * @return a destination, or null to finish leaving here and now
+	 */
+	@Nullable
+	public BlockPos destination() {
 		var drawn = party.leaveDest;
 		if (drawn != null) return drawn;
 		drawn = pickDestination();

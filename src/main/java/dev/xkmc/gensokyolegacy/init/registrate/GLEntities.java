@@ -1,24 +1,23 @@
 package dev.xkmc.gensokyolegacy.init.registrate;
 
 import com.tterrag.registrate.util.entry.EntityEntry;
+import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyTaste;
 import dev.xkmc.gensokyolegacy.content.block.deco.seat.ChairEntity;
 import dev.xkmc.gensokyolegacy.content.block.deco.seat.NothingRenderer;
+import dev.xkmc.gensokyolegacy.content.entity.behavior.module.EntityInteractions;
 import dev.xkmc.gensokyolegacy.content.entity.broom.BroomEntity;
 import dev.xkmc.gensokyolegacy.content.entity.broom.BroomRenderer;
-import dev.xkmc.gensokyolegacy.content.entity.characters.fairy.CirnoEntity;
-import dev.xkmc.gensokyolegacy.content.entity.characters.fairy.CirnoRenderer;
-import dev.xkmc.gensokyolegacy.content.entity.characters.fairy.FairyEntity;
-import dev.xkmc.gensokyolegacy.content.entity.characters.fairy.PlainFairyEntity;
-import dev.xkmc.gensokyolegacy.content.entity.characters.fairy.PlainFairyRenderer;
-import dev.xkmc.gensokyolegacy.content.entity.characters.maiden.*;
+import dev.xkmc.gensokyolegacy.content.entity.characters.fairy.*;
 import dev.xkmc.gensokyolegacy.content.entity.characters.magician.AliceEntity;
 import dev.xkmc.gensokyolegacy.content.entity.characters.magician.AliceRenderer;
+import dev.xkmc.gensokyolegacy.content.entity.characters.maiden.MarisaEntity;
+import dev.xkmc.gensokyolegacy.content.entity.characters.maiden.MarisaRenderer;
+import dev.xkmc.gensokyolegacy.content.entity.characters.maiden.ReimuEntity;
+import dev.xkmc.gensokyolegacy.content.entity.characters.maiden.ReimuRenderer;
 import dev.xkmc.gensokyolegacy.content.entity.characters.merchant.MorichikaEntity;
 import dev.xkmc.gensokyolegacy.content.entity.characters.merchant.MorichikaRenderer;
 import dev.xkmc.gensokyolegacy.content.entity.characters.oni.SuikaEntity;
 import dev.xkmc.gensokyolegacy.content.entity.characters.oni.SuikaRenderer;
-import dev.xkmc.gensokyolegacy.content.entity.characters.rumia.RumiaEntity;
-import dev.xkmc.gensokyolegacy.content.entity.characters.rumia.RumiaRenderer;
 import dev.xkmc.gensokyolegacy.content.entity.characters.sakuya.SakuyaEntity;
 import dev.xkmc.gensokyolegacy.content.entity.characters.sakuya.SakuyaRenderer;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.DollEntity;
@@ -30,13 +29,10 @@ import dev.xkmc.gensokyolegacy.content.entity.misc.FairyIce;
 import dev.xkmc.gensokyolegacy.content.entity.misc.FrozenFrog;
 import dev.xkmc.gensokyolegacy.content.entity.misc.HexBrewBottleEntity;
 import dev.xkmc.gensokyolegacy.content.entity.misc.IronDaggerBulletEntity;
-import dev.xkmc.gensokyolegacy.content.entity.behavior.module.EntityInteractions;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.BossYoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.GeneralYoukaiEntity;
-import dev.xkmc.gensokyolegacy.content.entity.youkai.renderer.GeneralYoukaiRenderer;
 import dev.xkmc.gensokyolegacy.content.item.gift.GiftPreference;
 import dev.xkmc.gensokyolegacy.content.item.gift.GiftType;
-import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyTaste;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.loot.EntityLootGen;
 import net.minecraft.client.renderer.entity.ThrownItemRenderer;
@@ -160,7 +156,7 @@ public class GLEntities {
 					.register();
 
 			BROOM = GensokyoLegacy.REGISTRATE
-					.<BroomEntity>entity("broom", BroomEntity::new, MobCategory.MISC)
+					.entity("broom", BroomEntity::new, MobCategory.MISC)
 					.properties(e -> e.sized(0.6f, 1.8f).clientTrackingRange(10).updateInterval(2))
 					.renderer(() -> BroomRenderer::new)
 					.tag(EntityTypeTags.FALL_DAMAGE_IMMUNE)

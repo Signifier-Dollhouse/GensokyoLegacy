@@ -21,7 +21,9 @@ import java.util.UUID;
  */
 public interface DelegateDollHost extends DollHost {
 
-	/** The host that actually holds the ledger. Never null, never a caller-supplied one. */
+	/**
+	 * The host that actually holds the ledger. Never null, never a caller-supplied one.
+	 */
 	DollHost dolls();
 
 	@Override

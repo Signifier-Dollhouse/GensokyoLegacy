@@ -51,7 +51,9 @@ public class GLMetaEventHandlers {
 		PartyTicker.tick(sl);
 	}
 
-	/** A party lives on its chunk, so a level going away takes the whole list with it. */
+	/**
+	 * A party lives on its chunk, so a level going away takes the whole list with it.
+	 */
 	@SubscribeEvent
 	public static void onLevelUnload(LevelEvent.Unload event) {
 		if (event.getLevel() instanceof ServerLevel sl) PartyTicker.clear(sl);

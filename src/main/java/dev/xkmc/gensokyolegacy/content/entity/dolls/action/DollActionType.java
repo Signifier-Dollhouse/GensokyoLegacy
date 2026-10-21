@@ -12,6 +12,6 @@ public enum DollActionType {
 	SUICIDE_ATTACK,
 	SUPER_ATTACK,
 	REGULAR_ATTACK,
-	HEAL;
+	HEAL
 
 }

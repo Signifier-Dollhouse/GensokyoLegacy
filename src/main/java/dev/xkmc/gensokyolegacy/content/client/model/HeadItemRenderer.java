@@ -25,7 +25,7 @@ public class HeadItemRenderer {
 	 * @param parent the wearer's model, which supplies the head bone to snap to
 	 */
 	public static void render(ItemStack stack, LivingEntity entity, EntityModel<?> parent,
-	                          PoseStack pose, MultiBufferSource buffer, int light) {
+							  PoseStack pose, MultiBufferSource buffer, int light) {
 		if (entity.isInvisible() && !Minecraft.getInstance().shouldEntityAppearGlowing(entity)) return;
 		if (!(parent instanceof HeadedModel headed)) return;
 		pose.pushPose();

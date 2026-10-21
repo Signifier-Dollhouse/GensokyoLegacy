@@ -47,7 +47,8 @@ public record CharacterRequestToServer(UUID id) implements SerialPacketBase<Char
 		), sp));
 	}
 
-	/** The fulfillment this character is measured against, or 0 when she has no taste: a datapack can
+	/**
+	 * The fulfillment this character is measured against, or 0 when she has no taste: a datapack can
 	 * remove a {@code party_taste} entry mid-party, and a readout showing 0 beats one that throws.
 	 */
 	private static int wanted(PartyModule module) {

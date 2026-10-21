@@ -21,15 +21,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.IdentityHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * Command logic for one {@link DollLedger}: issues ONE_TIME / ITERATIVE actions, chains volleys
@@ -54,12 +46,16 @@ public class DollCommander {
 	 */
 	public final Set<UUID> healTargets = new LinkedHashSet<>();
 
-	/** Commanded attack targets: doll-shot danmaku outlives the ticket that fired it, so everything
-	 * uncommanded and non-hostile is spared. Transient like {@link #healTargets}, pruned per second. */
+	/**
+	 * Commanded attack targets: doll-shot danmaku outlives the ticket that fired it, so everything
+	 * uncommanded and non-hostile is spared. Transient like {@link #healTargets}, pruned per second.
+	 */
 	public final Set<UUID> attackTargets = new LinkedHashSet<>();
 
-	/** Follow-formation yaw, latched from the view yaw only when the commander moves horizontally:
-	 * turning on the spot leaves every doll's slot frozen instead of tracking the cursor. */
+	/**
+	 * Follow-formation yaw, latched from the view yaw only when the commander moves horizontally:
+	 * turning on the spot leaves every doll's slot frozen instead of tracking the cursor.
+	 */
 	private float formationYaw;
 
 	@Nullable
@@ -153,13 +149,17 @@ public class DollCommander {
 		return target != null && attackTargets.contains(target.getUUID());
 	}
 
-	/** Volley: the first available doll starts an iterative regular attack. */
+	/**
+	 * Volley: the first available doll starts an iterative regular attack.
+	 */
 	public boolean issueVolley(LivingEntity owner, LivingEntity target) {
 		attackTargets.add(target.getUUID());
 		return issue(owner, DollAction.iterative(DollActionType.REGULAR_ATTACK, target.getUUID()));
 	}
 
-	/** Whether the commander has any summoned doll entity loaded nearby. */
+	/**
+	 * Whether the commander has any summoned doll entity loaded nearby.
+	 */
 	public boolean hasSummonedDoll(LivingEntity owner) {
 		for (DollData data : ledger.dolls()) {
 			if (resolveEntity(owner, data) instanceof DollEntity) return true;
@@ -167,7 +167,9 @@ public class DollCommander {
 		return false;
 	}
 
-	/** Whether any summoned doll holds a valid weapon for the given action type (ignoring busy state). */
+	/**
+	 * Whether any summoned doll holds a valid weapon for the given action type (ignoring busy state).
+	 */
 	public boolean hasCapableDoll(LivingEntity owner, DollActionType type) {
 		for (DollData data : ledger.dolls()) {
 			if (resolveEntity(owner, data) instanceof DollEntity doll &&
@@ -176,10 +178,12 @@ public class DollCommander {
 		return false;
 	}
 
-	/** Whether any summoned doll could actually hit this target: a valid weapon for the type, and
+	/**
+	 * Whether any summoned doll could actually hit this target: a valid weapon for the type, and
 	 * a behavior that can reach it — the reach half is what separates this from
 	 * {@link #hasCapableDoll}: armed melee dolls cannot touch a mob across the field, so a host
-	 * reports too far instead of ordering (control.md §5.1b). Asked per doll, fresh behavior. */
+	 * reports too far instead of ordering (control.md §5.1b). Asked per doll, fresh behavior.
+	 */
 	public boolean canAttack(LivingEntity owner, LivingEntity target, DollActionType type) {
 		for (DollData data : ledger.dolls()) {
 			if (!(resolveEntity(owner, data) instanceof DollEntity doll)) continue;
@@ -189,12 +193,16 @@ public class DollCommander {
 		return false;
 	}
 
-	/** Super / suicide: exactly one available doll acts once. */
+	/**
+	 * Super / suicide: exactly one available doll acts once.
+	 */
 	public boolean issueOneTime(LivingEntity owner, LivingEntity target, DollActionType type) {
 		return issue(owner, DollAction.oneTime(type, target.getUUID()));
 	}
 
-	/** Glove super / suicide: one random available doll acts once. Returns the picked doll, or null. */
+	/**
+	 * Glove super / suicide: one random available doll acts once. Returns the picked doll, or null.
+	 */
 	@Nullable
 	public DollEntity issueOneTimeRandom(LivingEntity owner, LivingEntity target, DollActionType type) {
 		attackTargets.add(target.getUUID());
@@ -211,8 +219,10 @@ public class DollCommander {
 		return pick.actions.tryStart(action, now) ? pick : null;
 	}
 
-	/** A one-time order pinned to a specific doll, for a character that wants each of her dolls on
-	 * a target of her own choosing. False when that doll cannot take the order. */
+	/**
+	 * A one-time order pinned to a specific doll, for a character that wants each of her dolls on
+	 * a target of her own choosing. False when that doll cannot take the order.
+	 */
 	public boolean issueTo(DollEntity doll, DollAction action) {
 		if (!doll.actions.canAccept(doll, action)) return false;
 		return doll.actions.tryStart(action, doll.level().getGameTime());
@@ -238,8 +248,10 @@ public class DollCommander {
 		return false;
 	}
 
-	/** Stop: halt every doll and drop in-flight iterations (suicide dives are unstoppable once
-	 * started), clear heal marks and commanded-attack records so post-stop bullets stand down. */
+	/**
+	 * Stop: halt every doll and drop in-flight iterations (suicide dives are unstoppable once
+	 * started), clear heal marks and commanded-attack records so post-stop bullets stand down.
+	 */
 	public int stopAll(LivingEntity owner) {
 		long now = owner.level().getGameTime();
 		int n = 0;
@@ -256,9 +268,11 @@ public class DollCommander {
 		return n;
 	}
 
-	/** Tells the next available doll to go ahead without releasing the local wait, used when an
+	/**
+	 * Tells the next available doll to go ahead without releasing the local wait, used when an
 	 * accepted iterative action stalls. The waiter keeps its own abort timer; nothing is added to
-	 * {@code done} here. */
+	 * {@code done} here.
+	 */
 	public void handAhead(DollEntity from, DollAction action) {
 		for (DollData data : ledger.dolls()) {
 			if (data.uuid == null ||
@@ -284,10 +298,12 @@ public class DollCommander {
 		return out;
 	}
 
-	/** Chain-passing for iterative actions: start the same action (shared done-set) on the next
+	/**
+	 * Chain-passing for iterative actions: start the same action (shared done-set) on the next
 	 * available doll, only while nobody else holds it — hand-ahead puts two dolls on one action,
 	 * and without this guard a volley fans out instead of walking the roster (control.md §8).
-	 * Returns false when the iteration ends. */
+	 * Returns false when the iteration ends.
+	 */
 	public boolean handOff(DollEntity from, DollAction action) {
 		if (heldBy(action, from)) return true;
 		for (DollData data : ledger.dolls()) {
@@ -316,7 +332,9 @@ public class DollCommander {
 		return out;
 	}
 
-	/** A materialized doll and the entry that owns it. */
+	/**
+	 * A materialized doll and the entry that owns it.
+	 */
 	public record Summoned(DollData data, DollEntity doll) {
 	}
 
@@ -343,7 +361,9 @@ public class DollCommander {
 		return next;
 	}
 
-	/** One materialized doll: its network id and the ledger key that pairs it. */
+	/**
+	 * One materialized doll: its network id and the ledger key that pairs it.
+	 */
 	public record RosterEntry(int entityId, UUID uuid) {
 	}
 
@@ -404,9 +424,11 @@ public class DollCommander {
 
 	// ---------- scheduled heal: ledger-issued one-time orders, never doll-issued ----------
 
-	/** Whether anyone the heal pass could spend a talisman on is hurt: the commander, any live doll
+	/**
+	 * Whether anyone the heal pass could spend a talisman on is hurt: the commander, any live doll
 	 * of this ledger, or a marked entity — deliberately the set {@link #maybeAutoHeal} picks from
-	 * (control.md §6). */
+	 * (control.md §6).
+	 */
 	public boolean healNeeded(LivingEntity owner) {
 		if (HealTalisman.needsHeal(owner)) return true;
 		for (DollData data : ledger.dolls()) {

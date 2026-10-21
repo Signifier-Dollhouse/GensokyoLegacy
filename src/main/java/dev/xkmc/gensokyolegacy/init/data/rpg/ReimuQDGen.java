@@ -8,17 +8,12 @@ import dev.xkmc.gensokyolegacy.content.rpg.action.StartQuestAction;
 import dev.xkmc.gensokyolegacy.content.rpg.condition.HasQuestCompletedCondition;
 import dev.xkmc.gensokyolegacy.content.rpg.condition.SelfReputationCondition;
 import dev.xkmc.gensokyolegacy.content.rpg.core.IngredientEntry;
-import dev.xkmc.gensokyolegacy.content.rpg.dialog.DialogStarter;
 import dev.xkmc.gensokyolegacy.content.rpg.dialog.GroupDialogOption;
 import dev.xkmc.gensokyolegacy.content.rpg.dialog.SimpleDialogOption;
 import dev.xkmc.gensokyolegacy.content.rpg.quest.Quest;
 import dev.xkmc.gensokyolegacy.content.rpg.quest.QuestCondition;
 import dev.xkmc.gensokyolegacy.content.rpg.quest.QuestRecurrence;
-import dev.xkmc.gensokyolegacy.content.rpg.requirement.KillEnemyRequirement;
-import dev.xkmc.gensokyolegacy.content.rpg.requirement.KillMobRequirement;
-import dev.xkmc.gensokyolegacy.content.rpg.requirement.QuestRequirement;
-import dev.xkmc.gensokyolegacy.content.rpg.requirement.RaidVictoryRequirement;
-import dev.xkmc.gensokyolegacy.content.rpg.requirement.SubmitItemRequirement;
+import dev.xkmc.gensokyolegacy.content.rpg.requirement.*;
 import dev.xkmc.gensokyolegacy.content.rpg.reward.ExpReward;
 import dev.xkmc.gensokyolegacy.content.rpg.reward.ReputationReward;
 import dev.xkmc.gensokyolegacy.content.rpg.trade.TradeOffer;
@@ -183,9 +178,11 @@ public class ReimuQDGen extends QuestDialogData {
 				CHAT_INFO);
 	}
 
-	/** Reimu out visiting. Kourindou is her only host so far, so the set is written for that house
-	 *  rather than left host-agnostic, because a guest says different things in different rooms.
-	 *  {@code visitingAt} implies she is a guest at all, so nothing here surfaces on her own doorstep. */
+	/**
+	 * Reimu out visiting. Kourindou is her only host so far, so the set is written for that house
+	 * rather than left host-agnostic, because a guest says different things in different rooms.
+	 * {@code visitingAt} implies she is a guest at all, so nothing here surfaces on her own doorstep.
+	 */
 	private void visitChats() {
 		prefix("reimu/visit_kourindou");
 		chat("reimu/visit_kourindou_stock", GLEntities.REIMU.get(),
@@ -575,8 +572,8 @@ public class ReimuQDGen extends QuestDialogData {
 	}
 
 	private SimpleDialogOption start(String button, String intro,
-	                                 String accept, String acceptLine, String acceptEnd,
-	                                 String reject, String rejectLine, String rejectEnd) {
+									 String accept, String acceptLine, String acceptEnd,
+									 String reject, String rejectLine, String rejectEnd) {
 		return option("start", button,
 				dialog("start/dialog_1", intro, anims("start", 0, THINK_ANIMS),
 						option("start/reject", reject, dialog("start/reject/dialog_1", rejectLine,
@@ -587,8 +584,8 @@ public class ReimuQDGen extends QuestDialogData {
 	}
 
 	private SimpleDialogOption startRaidEx(String button, String intro,
-	                                       String accept, String acceptLine, String acceptEnd,
-	                                       String reject, String rejectLine, String rejectEnd) {
+										   String accept, String acceptLine, String acceptEnd,
+										   String reject, String rejectLine, String rejectEnd) {
 		return option("start", button,
 				dialog("start/dialog_1", intro, anims("start", 0, THINK_ANIMS),
 						option("start/reject", reject, dialog("start/reject/dialog_1", rejectLine,
@@ -614,8 +611,8 @@ public class ReimuQDGen extends QuestDialogData {
 	}
 
 	private SimpleDialogOption complete(String button, String intro,
-	                                    String reject, String rejectLine, String rejectEnd,
-	                                    String complete, String completeLine, String completeEnd) {
+										String reject, String rejectLine, String rejectEnd,
+										String complete, String completeLine, String completeEnd) {
 		return option("complete", button,
 				dialog("complete/dialog_1", intro, anims("complete", 0, AGREE_ANIMS),
 						option("complete/reject", reject, dialog("complete/reject/dialog_1", rejectLine,
@@ -632,11 +629,11 @@ public class ReimuQDGen extends QuestDialogData {
 	}
 
 	private void dailyEx(String id, String title, String desc, QuestRecurrence rec,
-	                   List<QuestCondition<?>> conditions, int exp, int rep, int softCap, int capIncrease, int maxCap,
-	                   String intro, String acceptLine, String rejectLine, String followLine,
-	                   String followOpt, String optLine, String optEnd,
-	                   String completeLine,
-	                   Map<String, QuestRequirement<?, ?>> reqs, LootTable.Builder loot) {
+						 List<QuestCondition<?>> conditions, int exp, int rep, int softCap, int capIncrease, int maxCap,
+						 String intro, String acceptLine, String rejectLine, String followLine,
+						 String followOpt, String optLine, String optEnd,
+						 String completeLine,
+						 Map<String, QuestRequirement<?, ?>> reqs, LootTable.Builder loot) {
 		quest(id, new Quest(GLEntities.REIMU.get(), conditions,
 				questTitle(title), questDesc(desc),
 				Optional.of(rec),
