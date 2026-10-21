@@ -122,7 +122,6 @@ public abstract class YoukaiEntity extends DamageClampEntity implements
 	protected void defineSynchedData(SynchedEntityData.Builder builder) {
 		super.defineSynchedData(builder);
 		data().register(builder);
-		YoukaiEating.defineSynchedData(builder);
 		// local list, not the field: the field does not exist yet during Entity construction
 		for (var e : createModules()) {
 			e.defineSynchedData(builder);
