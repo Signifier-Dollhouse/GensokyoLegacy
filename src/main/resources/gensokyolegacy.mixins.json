@@ -10,6 +10,7 @@
 		"EntityMixin",
 		"ILivingEntityExtensionMixin",
 		"ItemAccessor",
+		"ItemCooldownsAccessor",
 		"LivingEntityJumpingAccessor",
 		"LivingEntityMixin",
 		"NaturalSpawnerSealingMixin",

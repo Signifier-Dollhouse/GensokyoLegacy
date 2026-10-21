@@ -14,9 +14,6 @@
     },
     "gensokyolegacy:reimu_bed": {
       "type": "gensokyolegacy:hakurei_reimu"
-    },
-    "gensokyolegacy:rumia_bed": {
-      "type": "gensokyolegacy:rumia"
     }
   }
 }
