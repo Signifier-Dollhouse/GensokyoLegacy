@@ -1,5 +1,7 @@
 package dev.xkmc.gensokyolegacy.content.worldgen.feature;
 
+import dev.xkmc.gensokyolegacy.content.worldgen.feature.lean.LeanFoliagePlacer;
+import dev.xkmc.gensokyolegacy.content.worldgen.feature.lean.LeanTrunkPlacer;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.biome.biomes.MagicalForestBiomeGen;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLNaturalBlocks;
@@ -15,10 +17,12 @@ import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.configurations.TreeConfiguration;
 import net.minecraft.world.level.levelgen.feature.featuresize.TwoLayersFeatureSize;
 import net.minecraft.world.level.levelgen.feature.foliageplacers.CherryFoliagePlacer;
+import net.minecraft.world.level.levelgen.feature.foliageplacers.FoliagePlacer;
 import net.minecraft.world.level.levelgen.feature.foliageplacers.SpruceFoliagePlacer;
 import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProvider;
 import net.minecraft.world.level.levelgen.feature.trunkplacers.CherryTrunkPlacer;
 import net.minecraft.world.level.levelgen.feature.trunkplacers.StraightTrunkPlacer;
+import net.minecraft.world.level.levelgen.feature.trunkplacers.TrunkPlacer;
 
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -52,15 +56,14 @@ public class TreeFeatures {
 			}
 		};
 
-		/** Straight trunk under a layered flat crown, sized to one tree. */
-		record Spruce(int trunkBase, int trunkRandA, int trunkRandB,
-		              IntProvider radius, IntProvider offset, IntProvider height) implements TreeShape {
+		/** A trunk under a layered flat crown, sized to one tree. */
+		record Spruce(TrunkPlacer trunk, FoliagePlacer foliage) implements TreeShape {
 			@Override
 			public TreeConfiguration build(BlockStateProvider log, BlockStateProvider leaves) {
 				return new TreeConfiguration.TreeConfigurationBuilder(log,
-						new StraightTrunkPlacer(trunkBase, trunkRandA, trunkRandB),
+						trunk,
 						leaves,
-						new SpruceFoliagePlacer(radius, offset, height),
+						foliage,
 						new TwoLayersFeatureSize(2, 0, 2)).ignoreVines().build();
 			}
 		}
@@ -69,17 +72,16 @@ public class TreeFeatures {
 	public enum TreeType {
 		// young tree only (4-6 tall): saplings grow the hand-built template trees instead
 		BLUE_FIR("blue_fir_tree", () -> GLNaturalBlocks.BLUE_FUR_SET,
-				new TreeShape.Spruce(4, 2, 0, UniformInt.of(1, 2), UniformInt.of(0, 1), UniformInt.of(1, 2)),
+				new TreeShape.Spruce(new StraightTrunkPlacer(4, 2, 0),
+						new SpruceFoliagePlacer(UniformInt.of(1, 2), UniformInt.of(0, 1), UniformInt.of(1, 2))),
 				MagicalForestBiomeGen.BLUE_FIR_MEDIUM,
 				MagicalForestBiomeGen.BLUE_FIR_LARGE,
 				MagicalForestBiomeGen.BLUE_FIR_GIANT),
-		// the maple keeps the blue fir shape, the cherry and the locust grow like minecraft:cherry
-		ORANGE_MAPLE("orange_maple_tree", () -> GLNaturalBlocks.ORANGE_MAPLE_SET,
-				new TreeShape.Spruce(6, 2, 0, UniformInt.of(2, 3), UniformInt.of(0, 1), UniformInt.of(2, 3))),
-		RED_MAPLE("red_maple_tree", () -> GLNaturalBlocks.RED_MAPLE_SET,
-				new TreeShape.Spruce(6, 2, 0, UniformInt.of(2, 3), UniformInt.of(0, 1), UniformInt.of(2, 3))),
-		YELLOW_MAPLE("yellow_maple_tree", () -> GLNaturalBlocks.YELLOW_MAPLE_SET,
-				new TreeShape.Spruce(6, 2, 0, UniformInt.of(2, 3), UniformInt.of(0, 1), UniformInt.of(2, 3))),
+		// the maple keeps the blue fir shape, and leans away from a wall it stands against;
+		// the cherry and the locust grow like minecraft:cherry
+		ORANGE_MAPLE("orange_maple_tree", () -> GLNaturalBlocks.ORANGE_MAPLE_SET, maple()),
+		RED_MAPLE("red_maple_tree", () -> GLNaturalBlocks.RED_MAPLE_SET, maple()),
+		YELLOW_MAPLE("yellow_maple_tree", () -> GLNaturalBlocks.YELLOW_MAPLE_SET, maple()),
 		PINK_CHERRY("pink_cherry_tree", () -> GLNaturalBlocks.PINK_CHERRY_SET, TreeShape.CHERRY),
 		PURPLE_CHERRY("purple_cherry_tree", () -> GLNaturalBlocks.PURPLE_CHERRY_SET, TreeShape.CHERRY),
 		LOCUST("locust_tree", () -> GLNaturalBlocks.LOCUST_SET, TreeShape.CHERRY),
@@ -94,6 +96,11 @@ public class TreeFeatures {
 		public final Optional<ResourceKey<ConfiguredFeature<?, ?>>> saplingTree;
 		public final Optional<ResourceKey<ConfiguredFeature<?, ?>>> saplingMega;
 		public final Optional<ResourceKey<ConfiguredFeature<?, ?>>> saplingGiant;
+
+		/** The lean of a maple beside a wall: one block across for every two up. */
+		private static final int LEAN_RISE = 2;
+		/** How tall a wall has to stand before a maple leans away from it. */
+		private static final int WALL_HEIGHT = 2;
 
 		TreeType(String id, Supplier<GLNaturalBlocks.TreeSet> set, TreeShape shape,
 		         ResourceKey<ConfiguredFeature<?, ?>> saplingTree,
@@ -117,6 +124,12 @@ public class TreeFeatures {
 			this.saplingTree = saplingTree;
 			this.saplingMega = saplingMega;
 			this.saplingGiant = saplingGiant;
+		}
+
+		/** The maple's shape: a crown on a trunk that leans away from a wall, both of them following the lean. */
+		private static TreeShape maple() {
+			return new TreeShape.Spruce(new LeanTrunkPlacer(6, 2, 0, LEAN_RISE, WALL_HEIGHT),
+					new LeanFoliagePlacer(UniformInt.of(2, 3), UniformInt.of(0, 1), UniformInt.of(2, 3)));
 		}
 
 		public ConfiguredFeature<?, ?> createConfiguredFeature() {

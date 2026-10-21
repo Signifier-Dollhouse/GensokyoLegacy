@@ -16,6 +16,8 @@ import dev.xkmc.gensokyolegacy.content.worldgen.feature.stair.StairPoolFeature;
 import dev.xkmc.gensokyolegacy.content.worldgen.feature.template.TemplateBlendProcessor;
 import dev.xkmc.gensokyolegacy.content.worldgen.feature.template.TemplateFeature;
 import dev.xkmc.gensokyolegacy.content.worldgen.feature.template.TemplateFeatureConfig;
+import dev.xkmc.gensokyolegacy.content.worldgen.feature.lean.LeanFoliagePlacer;
+import dev.xkmc.gensokyolegacy.content.worldgen.feature.lean.LeanTrunkPlacer;
 import dev.xkmc.gensokyolegacy.content.worldgen.placement.AvoidStructuresFilter;
 import dev.xkmc.gensokyolegacy.content.worldgen.placement.CanopyFilter;
 import dev.xkmc.gensokyolegacy.content.worldgen.placement.GridExclusionFilter;
@@ -37,6 +39,8 @@ import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.configurations.HugeMushroomFeatureConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.SimpleBlockConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.VegetationPatchConfiguration;
+import net.minecraft.world.level.levelgen.feature.foliageplacers.FoliagePlacerType;
+import net.minecraft.world.level.levelgen.feature.trunkplacers.TrunkPlacerType;
 import net.minecraft.world.level.levelgen.placement.PlacementModifierType;
 import net.minecraft.world.level.levelgen.structure.StructureType;
 import net.minecraft.world.level.levelgen.structure.placement.StructurePlacementType;
@@ -77,6 +81,14 @@ public class GLWorldGen {
 			FR.reg("dripleaf_scatter", () -> new DripleafScatterFeature(DripleafScatterConfig.CODEC));
 	public static final Val<RavineCaveFeature> RAVINE_CAVE =
 			FR.reg("ravine_cave", () -> new RavineCaveFeature(RavineCaveConfig.CODEC));
+
+	private static final SR<TrunkPlacerType<?>> TRUNK_PLACERS = SR.of(GensokyoLegacy.REG, Registries.TRUNK_PLACER_TYPE);
+	public static final Val<TrunkPlacerType<?>> LEAN_TRUNK_PLACER =
+			TRUNK_PLACERS.reg("lean_trunk_placer", () -> new TrunkPlacerType<>(LeanTrunkPlacer.CODEC));
+
+	private static final SR<FoliagePlacerType<?>> FOLIAGE_PLACERS = SR.of(GensokyoLegacy.REG, Registries.FOLIAGE_PLACER_TYPE);
+	public static final Val<FoliagePlacerType<?>> LEAN_FOLIAGE_PLACER =
+			FOLIAGE_PLACERS.reg("lean_foliage_placer", () -> new FoliagePlacerType<>(LeanFoliagePlacer.CODEC));
 
 	private static final SR<PlacementModifierType<?>> PM = SR.of(GensokyoLegacy.REG, Registries.PLACEMENT_MODIFIER_TYPE);
 	public static final Val<PlacementModifierType<JitteredGridPlacement>> JITTERED_GRID = PM.reg("jittered_grid", () -> () -> JitteredGridPlacement.CODEC);
