@@ -45,6 +45,8 @@ public class GLModConfig {
 		public final ModConfigSpec.IntValue partyScanDistance;
 		public final ModConfigSpec.IntValue partyGuestRadius;
 
+		public final ModConfigSpec.DoubleValue cooldownMaxRate;
+
 		Server(Builder builder) {
 			markL2();
 			builder.push("reputation", "Reputation");
@@ -74,6 +76,13 @@ public class GLModConfig {
 						.defineInRange("partyScanDistance", 32, 4, 64);
 				partyGuestRadius = builder.text("How far a party guest may wander from the table she is eating at")
 						.defineInRange("partyGuestRadius", 24, 4, 64);
+			}
+			builder.pop();
+
+			builder.push("cooldown", "Cooldown");
+			{
+				cooldownMaxRate = builder.text("Upper bound on the cooldown speed, applied after the sources multiply")
+						.defineInRange("cooldownMaxRate", 4.0, 1.0, 16.0);
 			}
 			builder.pop();
 

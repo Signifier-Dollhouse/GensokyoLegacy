@@ -3,8 +3,8 @@ package dev.xkmc.gensokyolegacy.content.client.party;
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.xkmc.gensokyolegacy.content.client.structure.StructureOutlineRenderer;
 import dev.xkmc.gensokyolegacy.content.attachment.party.item.PartyWand;
-import dev.xkmc.gensokyolegacy.content.attachment.party.item.PartyWandComponent;
 import dev.xkmc.gensokyolegacy.content.attachment.party.item.PartyWandData;
+import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.ItemStack;
@@ -31,7 +31,7 @@ public class PartyAreaRenderer {
 		if (player == null) return null;
 		for (ItemStack stack : player.getHandSlots()) {
 			if (!(stack.getItem() instanceof PartyWand)) continue;
-			PartyWandData data = stack.get(PartyWandComponent.TYPE);
+			PartyWandData data = GLItems.PARTY_WAND_DATA.get(stack);
 			if (data != null && !data.drawn().isEmpty()) return data;
 		}
 		return null;

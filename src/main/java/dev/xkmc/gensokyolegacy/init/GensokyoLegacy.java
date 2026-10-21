@@ -5,6 +5,8 @@ import com.tterrag.registrate.providers.ProviderType;
 import dev.xkmc.gensokyolegacy.compat.touhoulittlemaid.TLMCompat;
 import dev.xkmc.gensokyolegacy.compat.touhoulittlemaid.TouhouSpellCards;
 import dev.xkmc.gensokyolegacy.content.attachment.party.food.BlockFoods;
+import dev.xkmc.gensokyolegacy.content.cooldown.CooldownRates;
+import dev.xkmc.gensokyolegacy.content.cooldown.LivelySource;
 import dev.xkmc.gensokyolegacy.content.dimension.GLDimensionGen;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.move.YoukaiNodeEvaluatorRegistry;
 import dev.xkmc.gensokyolegacy.content.item.glove.DollGloveSelectionListener;
@@ -104,9 +106,6 @@ public class GensokyoLegacy {
 		if (ModList.get().isLoaded(TouhouLittleMaid.MOD_ID)) {
 			NeoForge.EVENT_BUS.register(TLMCompat.class);
 		}
-		BorderUmbrellaSelectionListener.register();
-		DollGloveSelectionListener.register();
-		DaggerGloveSelectionListener.register();
 	}
 
 	@SubscribeEvent
@@ -130,6 +129,10 @@ public class GensokyoLegacy {
 	public static void commonSetup(FMLCommonSetupEvent event) {
 		event.enqueueWork(() -> {
 			BlockFoods.register();
+			BorderUmbrellaSelectionListener.register();
+			DollGloveSelectionListener.register();
+			DaggerGloveSelectionListener.register();
+			CooldownRates.register(new LivelySource());
 
 			DispenserBlock.registerProjectileBehavior(GLItems.FROZEN_FROG_COLD.get());
 			DispenserBlock.registerProjectileBehavior(GLItems.FROZEN_FROG_WARM.get());
