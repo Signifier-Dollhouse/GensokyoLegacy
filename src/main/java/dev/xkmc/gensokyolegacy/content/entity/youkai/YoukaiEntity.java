@@ -99,6 +99,9 @@ public abstract class YoukaiEntity extends DamageClampEntity implements SpellCir
 	public YoukaiEntity(EntityType<? extends YoukaiEntity> pEntityType, Level pLevel, int maxSize) {
 		super(pEntityType, pLevel);
 		this.targets = new YoukaiTargetContainer(this, maxSize);
+		if (isNamed()) {
+			setPersistenceRequired();
+		}
 	}
 
 	protected SoundEvent getAmbientSound() {
@@ -487,6 +490,10 @@ public abstract class YoukaiEntity extends DamageClampEntity implements SpellCir
 	}
 
 	public boolean vanishOutOfSight() {
+		return true;
+	}
+
+	public boolean isNamed() {
 		return true;
 	}
 
