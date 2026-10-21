@@ -86,7 +86,7 @@ There is no camera packet of our own. `possess` sends `ClientboundSetCameraPacke
 
 What that field does *not* give is a to-client state the client can read back cheaply. The enter is a `mobInteract` on the head (server-side, ownership-checked); the exit is the client's `mc.setCameraEntity(player)` in `HeadPossession`, plus a `HeadReleaseToServer` so the server drops its half. Both ends therefore hold their own copy of "am I possessed", which is why the possessor is a synced `POSSESSOR` UUID rather than a plain boolean: a bare flag would tell *every* client watching the head that it was locally controlled (§5.3), and the name is what tells one apart from the rest.
 
-**The player is not teleported.** Spectator mode copies the camera onto the player body each tick (`ServerPlayer#tick`); here that is exactly wrong, since the whole point is a body left behind. So the server sends the set-camera packet *without* going through `setCamera`, and never touches `ServerPlayer#camera`. The client's own movement continues to be applied to the body as usual.
+**The player is not teleported.** Spectator mode copies the camera onto the player body each tick (`ServerPlayer#tick`); here that is exactly wrong, since the whole point is a body left behind. So the server sends the set-camera packet *without* going through `setCamera`, and never touches `ServerPlayer#camera`. The body is left where it was, and it keeps telling the server where it is (§5.6).
 
 ### 5.1 What the body may not do
 
@@ -142,6 +142,12 @@ Left click ends possession, and the head may be anywhere inside `REACH` when it 
 The line of sight test is the load-bearing part. Without it a straight-line return would drive the head into any wall between it and its player and jam there for good, since suppressing the goal is what gives it the wheel. With it the closed case is left to the goal — which is exactly the problem pathfinding exists to solve — and the two never disagree, because both read the same predicate.
 
 Server-side only, unlike the flight it replaces: the head is an ordinary tracked entity again the moment possession ends, so running this on both sides would have the two copies pull it apart.
+
+### 5.6 The body is still the client's
+
+A player's position belongs to the client in vanilla. The server restores the player entity to where it was at the start of every tick (`ServerGamePacketListenerImpl#tick`), and the only thing that says where it went is the client's own movement packet. Those packets stop when the camera is not the player — `LocalPlayer#sendPosition` gates them on `isControlledCamera` — so a body left behind freezes on the server while the client's own copy keeps falling and being knocked about. The two copies are then in two places at once, and the first sign of it is the server pulling the body back to wherever its frozen copy had stayed.
+
+So the camera leaving the player does not take the body's authority with it. The gate is a `@WrapOperation` on that one `isControlledCamera` call, which leaves the packets — and the bookkeeping that goes with them — exactly the vanilla ones: the body is placed the way a player who never possessed anything is placed, and the server's copy of it stays a copy rather than becoming the original.
 
 ## 6. Edge cases
 

@@ -3,9 +3,9 @@ package dev.xkmc.gensokyolegacy.init.data.loot;
 import com.tterrag.registrate.providers.loot.RegistrateLootTableProvider;
 import dev.xkmc.gensokyolegacy.content.attachment.party.core.AppealConsumedCondition;
 import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyGift;
-import dev.xkmc.gensokyolegacy.content.rpg.gift.GiftReturn;
 import dev.xkmc.gensokyolegacy.content.item.hexbrew.HexBrew;
 import dev.xkmc.gensokyolegacy.content.item.talisman.core.GLTalismans;
+import dev.xkmc.gensokyolegacy.content.rpg.gift.GiftReturn;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLDecoBlocks;
@@ -22,9 +22,7 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParamSet;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Stream;
 
 /**
  * The gift each party guest leaves behind, as a loot table per character at {@code gensokyolegacy:party_gift/<entity

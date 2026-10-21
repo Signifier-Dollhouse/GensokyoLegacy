@@ -1,14 +1,8 @@
 package dev.xkmc.gensokyolegacy.content.entity.characters.magician;
 
-import dev.xkmc.gensokyolegacy.content.attachment.doll.DelegateDollHost;
-import dev.xkmc.gensokyolegacy.content.attachment.doll.DollCommander;
-import dev.xkmc.gensokyolegacy.content.attachment.doll.DollData;
-import dev.xkmc.gensokyolegacy.content.attachment.doll.DollHost;
-import dev.xkmc.gensokyolegacy.content.attachment.doll.DollLedger;
-import dev.xkmc.gensokyolegacy.content.attachment.doll.DollSpawn;
-import dev.xkmc.gensokyolegacy.content.attachment.doll.DollState;
-import dev.xkmc.gensokyolegacy.content.attachment.doll.MutableDollInventory;
+import dev.xkmc.gensokyolegacy.content.attachment.doll.*;
 import dev.xkmc.gensokyolegacy.content.attachment.home.core.IHomeHolder;
+import dev.xkmc.gensokyolegacy.content.entity.behavior.module.AbstractYoukaiModule;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.BaseDollEntity;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.DollEntity;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.action.DollAction;
@@ -16,7 +10,6 @@ import dev.xkmc.gensokyolegacy.content.entity.dolls.action.DollActionType;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.behavior.DollBehaviorRegistry;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.behavior.DollBehaviors;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.impl.DollHandLock;
-import dev.xkmc.gensokyolegacy.content.entity.behavior.module.AbstractYoukaiModule;
 import dev.xkmc.gensokyolegacy.content.item.doll.DollItem;
 import dev.xkmc.gensokyolegacy.content.item.doll.DollSlot;
 import dev.xkmc.gensokyolegacy.content.item.talisman.core.FoldedPaperTalisman;
@@ -38,12 +31,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * Alice's retinue ledger: she is a {@link DollHost} in her own right, so her dolls pair,

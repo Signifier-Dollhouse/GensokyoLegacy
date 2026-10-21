@@ -20,12 +20,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * Player capability ledger: a doll is always exactly one of {entity + {@link DollData}, item, parked data}.
@@ -69,8 +64,10 @@ public class DollAttachment extends PlayerCapabilityTemplate<DollAttachment> imp
 		return commander;
 	}
 
-	/** Sidebar roster in ledger order, pushed via {@code DollRosterToClient}, never serialized.
-	 * One field, both sides: the server's diff baseline and the client's last roster. */
+	/**
+	 * Sidebar roster in ledger order, pushed via {@code DollRosterToClient}, never serialized.
+	 * One field, both sides: the server's diff baseline and the client's last roster.
+	 */
 	private List<DollRosterToClient.Entry> roster = List.of();
 
 	public List<DollRosterToClient.Entry> getRoster() {
@@ -138,7 +135,9 @@ public class DollAttachment extends PlayerCapabilityTemplate<DollAttachment> imp
 	// The ledger key is the entity's own game UUID, minted fresh per materialization: a cloned
 	// spare summons an independent doll, findable via level().getEntity(uuid) (pairing.md §2.2).
 
-	/** Summoned entries on this ledger. */
+	/**
+	 * Summoned entries on this ledger.
+	 */
 	public int summonedCount() {
 		int n = 0;
 		for (DollData data : dolls.values()) {
@@ -201,9 +200,11 @@ public class DollAttachment extends PlayerCapabilityTemplate<DollAttachment> imp
 		return true;
 	}
 
-	/** Stray rejoin (control.md §5.4a): an aborted suicide dive is not a death, so the detached
+	/**
+	 * Stray rejoin (control.md §5.4a): an aborted suicide dive is not a death, so the detached
 	 * entry goes back parked TEMP, health and gear untouched, and the stray is discarded rather
-	 * than killed so no death drop fires. False unless stray, alive, and its key is free. */
+	 * than killed so no death drop fires. False unless stray, alive, and its key is free.
+	 */
 	public boolean rejoin(BaseDollEntity doll) {
 		StrayHost stray = doll.strayHost();
 		if (stray == null || doll.isDeadOrDying()) return false;
@@ -221,7 +222,9 @@ public class DollAttachment extends PlayerCapabilityTemplate<DollAttachment> imp
 
 	// ---------- glove mass operations ----------
 
-	/** Any doll currently summoned on this ledger. */
+	/**
+	 * Any doll currently summoned on this ledger.
+	 */
 	public boolean hasSummoned() {
 		for (var data : dolls.values()) {
 			if (data.isSummoned()) return true;
@@ -229,9 +232,11 @@ public class DollAttachment extends PlayerCapabilityTemplate<DollAttachment> imp
 		return false;
 	}
 
-	/** Glove summon-all: every parked entry (STORED promoted to TEMP) plus every doll item in the
+	/**
+	 * Glove summon-all: every parked entry (STORED promoted to TEMP) plus every doll item in the
 	 * inventory, in a ring around the owner. No ledger cap: as much as possible means everything.
-	 * Returns the dolls summoned. */
+	 * Returns the dolls summoned.
+	 */
 	public int summonAll(ServerPlayer player) {
 		int n = 0;
 		for (var data : new ArrayList<>(dolls.values())) {
@@ -256,9 +261,11 @@ public class DollAttachment extends PlayerCapabilityTemplate<DollAttachment> imp
 		return n;
 	}
 
-	/** Glove recall for strays (control.md §5.4a): itemize every stray within {@code range} blocks,
+	/**
+	 * Glove recall for strays (control.md §5.4a): itemize every stray within {@code range} blocks,
 	 * as recalling a summoned one does. A stray holds no entry, so this scans loaded entities; a
-	 * full inventory stops the sweep. Returns the dolls itemized. */
+	 * full inventory stops the sweep. Returns the dolls itemized.
+	 */
 	public int recallStrays(ServerPlayer player, double range) {
 		AABB box = player.getBoundingBox().inflate(range);
 		List<Entity> strays = player.level().getEntities(player, box,
@@ -274,8 +281,10 @@ public class DollAttachment extends PlayerCapabilityTemplate<DollAttachment> imp
 		return n;
 	}
 
-	/** Stray counterpart of {@link #itemize}: the detached entry rides a fresh doll item into the
-	 * inventory and the stray is discarded; the caller's slot check is the only gate. */
+	/**
+	 * Stray counterpart of {@link #itemize}: the detached entry rides a fresh doll item into the
+	 * inventory and the stray is discarded; the caller's slot check is the only gate.
+	 */
 	private boolean itemizeStray(ServerPlayer player, BaseDollEntity doll) {
 		StrayHost stray = doll.strayHost();
 		if (stray == null || doll.isDeadOrDying()) return false;
@@ -290,10 +299,12 @@ public class DollAttachment extends PlayerCapabilityTemplate<DollAttachment> imp
 		return true;
 	}
 
-	/** Glove recall-all: itemize every reachable summoned doll, parking to STORED when the inventory
+	/**
+	 * Glove recall-all: itemize every reachable summoned doll, parking to STORED when the inventory
 	 * is full, then fold all TEMP into STORED. Strays within {@link #STRAY_RECALL_RANGE} ride the
 	 * same sweep. Player-ledger only. Entries whose nature forbids recall are skipped whole — they
-	 * are neither itemized nor parked, and their TEMP stays TEMP. Returns {itemized, parked}. */
+	 * are neither itemized nor parked, and their TEMP stays TEMP. Returns {itemized, parked}.
+	 */
 	public int[] recallAll(ServerPlayer player) {
 		int itemized = recallStrays(player, STRAY_RECALL_RANGE), parked = 0;
 		for (var data : new ArrayList<>(dolls.values())) {
@@ -375,8 +386,10 @@ public class DollAttachment extends PlayerCapabilityTemplate<DollAttachment> imp
 		maybePushRoster(sp);
 	}
 
-	/** Sidebar roster push (glove.md §2c): rebuild in ledger order, send {@code DollRosterToClient}
-	 * only on a change, and restamp each live entry's formation slot for the follow goal. */
+	/**
+	 * Sidebar roster push (glove.md §2c): rebuild in ledger order, send {@code DollRosterToClient}
+	 * only on a change, and restamp each live entry's formation slot for the follow goal.
+	 */
 	private void maybePushRoster(ServerPlayer player) {
 		var built = commander.roster(player);
 		ArrayList<DollRosterToClient.Entry> next = new ArrayList<>(built.size());
@@ -405,10 +418,12 @@ public class DollAttachment extends PlayerCapabilityTemplate<DollAttachment> imp
 		}
 	}
 
-	/** SUMMONED watchdog: a dead entry is STORED and never re-summoned, or dropped outright when it
+	/**
+	 * SUMMONED watchdog: a dead entry is STORED and never re-summoned, or dropped outright when it
 	 * has no item form to repair; an entry that no longer matches reality, or a doll past
 	 * {@link #PULLBACK_DISTANCE} from its owner, is parked TEMP and resummoned near the owner on
-	 * the next tick. */
+	 * the next tick.
+	 */
 	private void tickSummoned(ServerPlayer player, DollData data) {
 		ServerLevel level = getLevel(player, data);
 		if (level == null) {

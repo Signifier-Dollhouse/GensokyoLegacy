@@ -455,7 +455,7 @@ public final class GLLang {
 		FURNACE_1_DESC("Mode: %s", 1, ChatFormatting.GRAY),
 		FURNACE_2_USE("Right click the item in inventory to open its menu. Click the hakkero in the center to switch modes.", 0, ChatFormatting.GRAY),
 		FURNACE_2_FUEL("Feed it fuel to reach ten times furnace speed.", 0, ChatFormatting.GRAY),
-FURNACE_2_BOOST("Held in main hand while riding a broom, right click to burn fuel and speed up.", 0, ChatFormatting.GRAY);
+		FURNACE_2_BOOST("Held in main hand while riding a broom, right click to burn fuel and speed up.", 0, ChatFormatting.GRAY);
 
 		private final String def;
 		private final int argn;
@@ -516,7 +516,8 @@ FURNACE_2_BOOST("Held in main hand while riding a broom, right click to burn fue
 		SUWAKO_HAT_LORE("A river god's hat, traded for a frog's very specific appetite.", 0, ChatFormatting.GRAY),
 		KOISHI_HAT_LORE("Taken off a third party, and it never stopped sulking about it.", 0, ChatFormatting.GRAY),
 		ICE_WINGS_LORE("Six crystals, and it is suddenly very hard to count past nine.", 0, ChatFormatting.GRAY),
-		FAIRY_WINGS_LORE("A fairy's wing, priced at half of whatever the wearer has.", 0, ChatFormatting.GRAY);
+		FAIRY_WINGS_LORE("A fairy's wing, priced at half of whatever the wearer has.", 0, ChatFormatting.GRAY),
+		FANCY_FAN_LORE("Pretty enough to give away, and it blows when you wave it.", 0, ChatFormatting.GRAY);
 
 		private final String def;
 		private final int argn;
@@ -557,6 +558,7 @@ FURNACE_2_BOOST("Held in main hand while riding a broom, right click to burn fue
 		UNKNOWN("???", 0, ChatFormatting.GRAY),
 		GIFT_FAVOR("Favor: %s", 1),
 		GIFT_TYPE("Type: %s", 1),
+		BLOW("Right-click to blow a gust", 0, ChatFormatting.AQUA),
 		INFINITE("Never runs out", 0, ChatFormatting.AQUA);
 
 		private final String def;
@@ -952,6 +954,7 @@ FURNACE_2_BOOST("Held in main hand while riding a broom, right click to burn fue
 	}
 
 	// ========== Doll ==========
+
 	/**
 	 * The Sekibanki head's item tooltip. Its own group rather than {@link ItemGlove} or a doll one,
 	 * because the four lines are this gadget's alone: what possession is, is not a doll fact.

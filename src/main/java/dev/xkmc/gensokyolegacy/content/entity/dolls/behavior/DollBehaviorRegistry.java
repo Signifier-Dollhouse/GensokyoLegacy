@@ -3,18 +3,13 @@ package dev.xkmc.gensokyolegacy.content.entity.dolls.behavior;
 import dev.xkmc.danmakuapi.content.item.DanmakuItem;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.DollEntity;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.action.DollAction;
-import dev.xkmc.gensokyolegacy.content.entity.dolls.action.DollActionHandler;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.action.DollActionType;
 import dev.xkmc.gensokyolegacy.content.item.doll.DollShieldItem;
 import dev.xkmc.gensokyolegacy.content.item.doll.DollSlot;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.EnumMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
@@ -31,7 +26,9 @@ import java.util.function.Supplier;
  */
 public final class DollBehaviorRegistry {
 
-	/** Id of the bare-handed binding, for symmetry with the item-table ids. */
+	/**
+	 * Id of the bare-handed binding, for symmetry with the item-table ids.
+	 */
 	private static final String BARE_HAND = "barehand";
 
 	/**
@@ -48,7 +45,7 @@ public final class DollBehaviorRegistry {
 	 * {@link Entry} (an always-empty match, no priority) so nothing downstream of the resolution
 	 * has to know intrinsics exist.
 	 *
-	 * @param doll   the kind it applies to, matched so a subclass inherits it
+	 * @param doll    the kind it applies to, matched so a subclass inherits it
 	 * @param danmaku the card a {@link DollDanmakuBehavior} fires when this doll carries no item,
 	 *                null for a move that needs none
 	 */
@@ -56,12 +53,12 @@ public final class DollBehaviorRegistry {
 	}
 
 	/**
- * One binding's answer for a doll: the entry, the hand it was found in, its stack and the danmaku
- * it fires. A match with an empty stack is the fallback or intrinsic form rather than an item —
- * a loadout-free timed summon's one move, or the bare hand — and {@link #danmaku()} then names the
- * card the binding itself carries, since there is no stack to read it out of.
- */
-public record HandMatch(Entry entry, DollSlot hand, ItemStack stack, @Nullable DanmakuItem danmaku) {
+	 * One binding's answer for a doll: the entry, the hand it was found in, its stack and the danmaku
+	 * it fires. A match with an empty stack is the fallback or intrinsic form rather than an item —
+	 * a loadout-free timed summon's one move, or the bare hand — and {@link #danmaku()} then names the
+	 * card the binding itself carries, since there is no stack to read it out of.
+	 */
+	public record HandMatch(Entry entry, DollSlot hand, ItemStack stack, @Nullable DanmakuItem danmaku) {
 
 		/**
 		 * Whether no item is behind this match: the bare-handed fallback, or an intrinsic. Both are
@@ -77,7 +74,9 @@ public record HandMatch(Entry entry, DollSlot hand, ItemStack stack, @Nullable D
 
 	private static final List<Intrinsic> INTRINSICS = new ArrayList<>();
 
-	/** The one bare-handed binding, if a type registered one. At most one per type. */
+	/**
+	 * The one bare-handed binding, if a type registered one. At most one per type.
+	 */
 	private static final Map<DollActionType, Entry> BARE_HANDS = new EnumMap<>(DollActionType.class);
 
 	private DollBehaviorRegistry() {

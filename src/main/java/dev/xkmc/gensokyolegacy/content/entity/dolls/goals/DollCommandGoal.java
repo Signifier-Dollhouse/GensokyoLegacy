@@ -15,18 +15,26 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.EnumSet;
 
-/** The single combat goal: resolves the commanded behavior from the held items and delegates every lifecycle call;
+/**
+ * The single combat goal: resolves the commanded behavior from the held items and delegates every lifecycle call;
  * instances are per-execution and dropped on stop, so per-run state can never go stale. Gates apply before start via
- * the cached pending candidate, and a wait whose target is dead, unreachable or unstartable aborts at once. */
+ * the cached pending candidate, and a wait whose target is dead, unreachable or unstartable aborts at once.
+ */
 public class DollCommandGoal extends Goal {
 
-	/** Accepted-but-unstarted iterative regular: hand ahead after this long. */
+	/**
+	 * Accepted-but-unstarted iterative regular: hand ahead after this long.
+	 */
 	private static final int HAND_AHEAD_TICKS = 20;
 
-	/** Accepted-but-unstarted iterative regular: abort after this long. */
+	/**
+	 * Accepted-but-unstarted iterative regular: abort after this long.
+	 */
 	private static final int GIVE_UP_TICKS = 60;
 
-	/** Accepted-but-unstarted anything else: abort after this long. */
+	/**
+	 * Accepted-but-unstarted anything else: abort after this long.
+	 */
 	private static final int GIVE_UP_OTHER_TICKS = 40;
 
 	private final DollEntity doll;

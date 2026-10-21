@@ -12,9 +12,11 @@ import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.neoforged.neoforge.fluids.FluidStack;
 
-/** Draws the tank contents: the fluid box (stage colour over fluid tint) and the items still floating on it.
+/**
+ * Draws the tank contents: the fluid box (stage colour over fluid tint) and the items still floating on it.
  *
- * @see "doc/design/alchemy_pot.md" */
+ * @see "doc/design/alchemy_pot.md"
+ */
 public class AlchemyPotRenderer implements BlockEntityRenderer<AlchemyPotBlockEntity> {
 
 	public AlchemyPotRenderer(BlockEntityRendererProvider.Context ctx) {

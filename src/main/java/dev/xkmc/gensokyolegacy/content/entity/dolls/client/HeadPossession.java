@@ -6,6 +6,7 @@ import dev.xkmc.gensokyolegacy.content.entity.dolls.network.HeadReleaseToServer;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.network.HeadUseToServer;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.neoforge.client.event.InputEvent;
 import net.neoforged.neoforge.client.event.RenderHandEvent;
@@ -43,6 +44,17 @@ public final class HeadPossession {
 	}
 
 	/**
+	 * Whether the given player is looking out of a head, with its body left behind. The body is
+	 * still the client's to place: vanilla hands a player's position to the client and takes that
+	 * hand back the moment the camera leaves the player, so the server's copy of the body would
+	 * sit still while the client's own copy falls and is knocked about.
+	 */
+	public static boolean isPossessedBody(LocalPlayer player) {
+		Minecraft mc = Minecraft.getInstance();
+		return mc.getCameraEntity() instanceof SekibankiHeadEntity head && head.isPossessedBy(player);
+	}
+
+	/**
 	 * Hands the camera to this frame's keys, so the level tick that follows flies the head on
 	 * input that is current rather than one frame stale.
 	 */
@@ -71,13 +83,17 @@ public final class HeadPossession {
 		}
 	}
 
-	/** The body's arm would otherwise hang in mid air in front of the head's eyes. */
+	/**
+	 * The body's arm would otherwise hang in mid air in front of the head's eyes.
+	 */
 	public static void onRenderHand(RenderHandEvent event) {
 		Minecraft mc = Minecraft.getInstance();
 		if (mc.getCameraEntity() instanceof SekibankiHeadEntity) event.setCanceled(true);
 	}
 
-	/** Puts the camera back and tells the head to stop answering for it. */
+	/**
+	 * Puts the camera back and tells the head to stop answering for it.
+	 */
 	private static void stop(Minecraft mc, SekibankiHeadEntity head) {
 		mc.setCameraEntity(mc.player);
 		GensokyoLegacy.HANDLER.toServer(new HeadReleaseToServer(head.getId()));

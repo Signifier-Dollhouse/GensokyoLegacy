@@ -1,14 +1,14 @@
 package dev.xkmc.gensokyolegacy.content.attachment.party.food;
 
-import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyFoodValue;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.List;
 
-/** Shared reading of a serving's {@link FoodProperties}.
+/**
+ * Shared reading of a serving's {@link FoodProperties}.
+ *
  * @see "doc/design/party/food.md"
  */
 public final class Servings {

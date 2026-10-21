@@ -1,24 +1,23 @@
 package dev.xkmc.gensokyolegacy.init.registrate;
 
 import com.tterrag.registrate.util.entry.EntityEntry;
+import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyTaste;
 import dev.xkmc.gensokyolegacy.content.block.deco.seat.ChairEntity;
 import dev.xkmc.gensokyolegacy.content.block.deco.seat.NothingRenderer;
+import dev.xkmc.gensokyolegacy.content.entity.behavior.module.EntityInteractions;
 import dev.xkmc.gensokyolegacy.content.entity.broom.BroomEntity;
 import dev.xkmc.gensokyolegacy.content.entity.broom.BroomRenderer;
-import dev.xkmc.gensokyolegacy.content.entity.characters.fairy.CirnoEntity;
-import dev.xkmc.gensokyolegacy.content.entity.characters.fairy.CirnoRenderer;
-import dev.xkmc.gensokyolegacy.content.entity.characters.fairy.FairyEntity;
-import dev.xkmc.gensokyolegacy.content.entity.characters.fairy.PlainFairyEntity;
-import dev.xkmc.gensokyolegacy.content.entity.characters.fairy.PlainFairyRenderer;
-import dev.xkmc.gensokyolegacy.content.entity.characters.maiden.*;
+import dev.xkmc.gensokyolegacy.content.entity.characters.fairy.*;
 import dev.xkmc.gensokyolegacy.content.entity.characters.magician.AliceEntity;
 import dev.xkmc.gensokyolegacy.content.entity.characters.magician.AliceRenderer;
+import dev.xkmc.gensokyolegacy.content.entity.characters.maiden.MarisaEntity;
+import dev.xkmc.gensokyolegacy.content.entity.characters.maiden.MarisaRenderer;
+import dev.xkmc.gensokyolegacy.content.entity.characters.maiden.ReimuEntity;
+import dev.xkmc.gensokyolegacy.content.entity.characters.maiden.ReimuRenderer;
 import dev.xkmc.gensokyolegacy.content.entity.characters.merchant.MorichikaEntity;
 import dev.xkmc.gensokyolegacy.content.entity.characters.merchant.MorichikaRenderer;
 import dev.xkmc.gensokyolegacy.content.entity.characters.oni.SuikaEntity;
 import dev.xkmc.gensokyolegacy.content.entity.characters.oni.SuikaRenderer;
-import dev.xkmc.gensokyolegacy.content.entity.characters.rumia.RumiaEntity;
-import dev.xkmc.gensokyolegacy.content.entity.characters.rumia.RumiaRenderer;
 import dev.xkmc.gensokyolegacy.content.entity.characters.sakuya.SakuyaEntity;
 import dev.xkmc.gensokyolegacy.content.entity.characters.sakuya.SakuyaRenderer;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.DollEntity;
@@ -30,13 +29,10 @@ import dev.xkmc.gensokyolegacy.content.entity.misc.FairyIce;
 import dev.xkmc.gensokyolegacy.content.entity.misc.FrozenFrog;
 import dev.xkmc.gensokyolegacy.content.entity.misc.HexBrewBottleEntity;
 import dev.xkmc.gensokyolegacy.content.entity.misc.IronDaggerBulletEntity;
-import dev.xkmc.gensokyolegacy.content.entity.behavior.module.EntityInteractions;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.BossYoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.GeneralYoukaiEntity;
-import dev.xkmc.gensokyolegacy.content.entity.youkai.renderer.GeneralYoukaiRenderer;
 import dev.xkmc.gensokyolegacy.content.item.gift.GiftPreference;
 import dev.xkmc.gensokyolegacy.content.item.gift.GiftType;
-import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyTaste;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.loot.EntityLootGen;
 import net.minecraft.client.renderer.entity.ThrownItemRenderer;
@@ -50,41 +46,21 @@ import java.util.Map;
 
 public class GLEntities {
 
-	public static final EntityEntry<ChairEntity> CHAIR;
-	// summon-only vehicle, no spawn egg or natural spawn: it exists only while a
-	// player rides it with a broom item in hand (see BroomItem)
-	public static final EntityEntry<BroomEntity> BROOM;
-
-	public static final EntityEntry<RumiaEntity> RUMIA;
 	public static final EntityEntry<ReimuEntity> REIMU;
 	public static final EntityEntry<CirnoEntity> CIRNO;
-
-	public static final EntityEntry<MaidenEntity> SANAE;
 	public static final EntityEntry<MarisaEntity> MARISA;
 	public static final EntityEntry<MorichikaEntity> MORICHIKA;
 	public static final EntityEntry<AliceEntity> ALICE;
-	/**
-	 * No home of her own: she only ever appears as a guest, see {@code GLStructureGen}.
-	 */
 	public static final EntityEntry<SakuyaEntity> IZAYOI_SAKUYA;
-	/**
-	 * Also a guest only. The mod has no bamboo forest to put an oni's house in, so she is
-	 * declared at one of the magical forest houses instead - see {@code GLStructureGen}.
-	 */
 	public static final EntityEntry<SuikaEntity> IBUKI_SUIKA;
-	public static final EntityEntry<GeneralYoukaiEntity> MYSTIA;
-	public static final EntityEntry<BossYoukaiEntity> YUKARI, KOISHI;
-	public static final EntityEntry<FairyEntity> SUNNY, LUNA, STAR;
-	/**
-	 * The unnamed fairy that actually wears the shared fairy rig, in four recolours.
-	 */
+
 	public static final EntityEntry<PlainFairyEntity> PLAIN_FAIRY;
+
 	public static final EntityEntry<DollEntity> DOLL;
-	/**
-	 * The first {@code ITEM_GADGET}: an owned head that itemizes but holds nothing (gadget.md §3).
-	 */
 	public static final EntityEntry<SekibankiHeadEntity> SEKIBANKI_HEAD;
 
+	public static final EntityEntry<ChairEntity> CHAIR;
+	public static final EntityEntry<BroomEntity> BROOM;
 	public static final EntityEntry<FrozenFrog> FROZEN_FROG;
 	public static final EntityEntry<FairyIce> FAIRY_ICE;
 	public static final EntityEntry<HexBrewBottleEntity> HEXBREW_BOTTLE;
@@ -180,7 +156,7 @@ public class GLEntities {
 					.register();
 
 			BROOM = GensokyoLegacy.REGISTRATE
-					.<BroomEntity>entity("broom", BroomEntity::new, MobCategory.MISC)
+					.entity("broom", BroomEntity::new, MobCategory.MISC)
 					.properties(e -> e.sized(0.6f, 1.8f).clientTrackingRange(10).updateInterval(2))
 					.renderer(() -> BroomRenderer::new)
 					.tag(EntityTypeTags.FALL_DAMAGE_IMMUNE)
@@ -314,75 +290,6 @@ public class GLEntities {
 					.dataMap(GLMeta.GIFT_PREFERENCE.reg(), GIFT_SUIKA)
 					.dataMap(GLMeta.PARTY_TASTE.reg(), TASTE_SUIKA)
 					.register();
-		}
-
-		// unused
-		{
-
-			RUMIA = GensokyoLegacy.REGISTRATE
-					.entity("rumia", RumiaEntity::new, MobCategory.CREATURE)
-					.properties(e -> e.sized(0.4F, 1.7f).clientTrackingRange(10))
-					.attributes(RumiaEntity::createAttributes)
-					.renderer(() -> RumiaRenderer::new)
-					.loot(EntityLootGen::noLoot)
-					.register();
-
-			YUKARI = GensokyoLegacy.REGISTRATE
-					.entity("yukari_yakumo", BossYoukaiEntity::new, MobCategory.CREATURE)
-					.properties(e -> e.sized(0.4F, 1.8f).clientTrackingRange(10))
-					.attributes(BossYoukaiEntity::createAttributes)
-					.renderer(() -> GeneralYoukaiRenderer::new)
-					.loot(EntityLootGen::yukari)
-					.register();
-
-			SANAE = GensokyoLegacy.REGISTRATE
-					.entity("kochiya_sanae", MaidenEntity::new, MobCategory.CREATURE)
-					.properties(e -> e.sized(0.4F, 1.8f).clientTrackingRange(10))
-					.attributes(BossYoukaiEntity::createAttributes)
-					.renderer(() -> GeneralYoukaiRenderer::new)
-					.loot(EntityLootGen::sanae)
-					.register();
-
-			KOISHI = GensokyoLegacy.REGISTRATE
-					.entity("komeiji_koishi", BossYoukaiEntity::new, MobCategory.CREATURE)
-					.properties(e -> e.sized(0.4F, 1.8f).clientTrackingRange(10))
-					.attributes(BossYoukaiEntity::createAttributes)
-					.renderer(() -> GeneralYoukaiRenderer::new)
-					.loot(EntityLootGen::noLoot)
-					.register();
-
-			MYSTIA = GensokyoLegacy.REGISTRATE
-					.entity("mystia_lorelei", GeneralYoukaiEntity::new, MobCategory.CREATURE)
-					.properties(e -> e.sized(0.4F, 1.8f).clientTrackingRange(10))
-					.attributes(GeneralYoukaiEntity::createAttributes)
-					.renderer(() -> GeneralYoukaiRenderer::new)
-					.loot(EntityLootGen::mystia)
-					.register();
-
-			SUNNY = GensokyoLegacy.REGISTRATE
-					.entity("sunny_milk", FairyEntity::new, MobCategory.CREATURE)
-					.properties(e -> e.sized(0.4F, 1.8f).clientTrackingRange(10))
-					.attributes(FairyEntity::createAttributes)
-					.renderer(() -> GeneralYoukaiRenderer::new)
-					.loot(EntityLootGen::noLoot)
-					.register();
-
-			LUNA = GensokyoLegacy.REGISTRATE
-					.entity("luna_child", FairyEntity::new, MobCategory.CREATURE)
-					.properties(e -> e.sized(0.4F, 1.8f).clientTrackingRange(10))
-					.attributes(FairyEntity::createAttributes)
-					.renderer(() -> GeneralYoukaiRenderer::new)
-					.loot(EntityLootGen::noLoot)
-					.register();
-
-			STAR = GensokyoLegacy.REGISTRATE
-					.entity("star_sapphire", FairyEntity::new, MobCategory.CREATURE)
-					.properties(e -> e.sized(0.4F, 1.8f).clientTrackingRange(10))
-					.attributes(FairyEntity::createAttributes)
-					.renderer(() -> GeneralYoukaiRenderer::new)
-					.loot(EntityLootGen::noLoot)
-					.register();
-
 		}
 
 	}

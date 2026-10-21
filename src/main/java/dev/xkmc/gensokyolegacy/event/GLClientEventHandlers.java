@@ -4,10 +4,9 @@ import dev.xkmc.gensokyolegacy.content.attachment.area.AreaEffectRenderer;
 import dev.xkmc.gensokyolegacy.content.attachment.area.ClientAreaEffectTracker;
 import dev.xkmc.gensokyolegacy.content.client.deco.DowserRenderer;
 import dev.xkmc.gensokyolegacy.content.client.party.PartyAreaRenderer;
-import dev.xkmc.gensokyolegacy.content.entity.dolls.client.HeadPossession;
-import dev.xkmc.gensokyolegacy.content.effect.FloatingEffect;
-import dev.xkmc.gensokyolegacy.content.item.hakkero.HakkeroPrototypeDeco;
 import dev.xkmc.gensokyolegacy.content.client.structure.StructureOutlineRenderer;
+import dev.xkmc.gensokyolegacy.content.entity.dolls.client.HeadPossession;
+import dev.xkmc.gensokyolegacy.content.item.hakkero.HakkeroPrototypeDeco;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.gensokyolegacy.init.registrate.GLEffects;
@@ -38,7 +37,9 @@ public class GLClientEventHandlers {
 		ClientAreaEffectTracker.clear();
 	}
 
-	/** Shift and right click is the head's camera toggle, so it has to reach the client at all. */
+	/**
+	 * Shift and right click is the head's camera toggle, so it has to reach the client at all.
+	 */
 	@SubscribeEvent
 	public static void onInteractKey(InputEvent.InteractionKeyMappingTriggered event) {
 		HeadPossession.onInteract(event);

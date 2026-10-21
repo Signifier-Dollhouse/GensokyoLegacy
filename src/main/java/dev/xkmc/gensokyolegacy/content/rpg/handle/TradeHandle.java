@@ -1,7 +1,7 @@
 package dev.xkmc.gensokyolegacy.content.rpg.handle;
 
-import dev.xkmc.gensokyolegacy.content.rpg.core.DialogConfig;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
+import dev.xkmc.gensokyolegacy.content.rpg.core.DialogConfig;
 import dev.xkmc.gensokyolegacy.content.rpg.quest.Quest;
 import dev.xkmc.gensokyolegacy.content.ui.trade.TradeProvider;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;

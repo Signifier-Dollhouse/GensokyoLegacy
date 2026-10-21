@@ -74,9 +74,9 @@ public class PartyGiftReader {
 		int min = 0;
 		int max = 0;
 		for (var condition : pool.conditions)
-			if (condition instanceof AppealConsumedCondition appeal && !appeal.invert()) {
-				min = appeal.min();
-				max = appeal.max();
+			if (condition instanceof AppealConsumedCondition(int min1, int max1, boolean invert) && !invert) {
+				min = min1;
+				max = max1;
 			}
 		return new GiftTier(min, max, gifts);
 	}
@@ -100,7 +100,9 @@ public class PartyGiftReader {
 		return said;
 	}
 
-	/** One entry of a rung: the item, and the mass it carries in the draw over the others. */
+	/**
+	 * One entry of a rung: the item, and the mass it carries in the draw over the others.
+	 */
 	private record Weighted(ItemStack stack, int weight) {
 	}
 

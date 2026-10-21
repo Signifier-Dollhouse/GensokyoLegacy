@@ -9,9 +9,11 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
-/** Third-person counterpart of {@link DowserHandRendererMixin}: with the dowser in the main hand and an empty
- *  offhand, the layer sees the left half as the main-hand item and the right half as the offhand item, so both
- *  halves land in the correct hands, respecting the entity's handedness. */
+/**
+ * Third-person counterpart of {@link DowserHandRendererMixin}: with the dowser in the main hand and an empty
+ * offhand, the layer sees the left half as the main-hand item and the right half as the offhand item, so both
+ * halves land in the correct hands, respecting the entity's handedness.
+ */
 @Mixin(ItemInHandLayer.class)
 public abstract class DowserItemInHandLayerMixin {
 

@@ -19,9 +19,9 @@ public class MiasmaMushroomCapBlock extends WeightedMushroomBlock {
 	public static final int MAX_INTENSITY = 3;
 
 	public MiasmaMushroomCapBlock(ResourceKey<ConfiguredFeature<?, ?>> small,
-	                              ResourceKey<ConfiguredFeature<?, ?>> medium,
-	                              ResourceKey<ConfiguredFeature<?, ?>> large,
-	                              BlockBehaviour.Properties props) {
+								  ResourceKey<ConfiguredFeature<?, ?>> medium,
+								  ResourceKey<ConfiguredFeature<?, ?>> large,
+								  BlockBehaviour.Properties props) {
 		super(small, medium, large, props);
 	}
 

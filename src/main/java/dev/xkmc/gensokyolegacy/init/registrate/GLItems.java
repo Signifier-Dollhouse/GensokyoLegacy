@@ -6,36 +6,35 @@ import dev.xkmc.danmakuapi.content.item.SpellItem;
 import dev.xkmc.danmakuapi.init.data.DanmakuTagGen;
 import dev.xkmc.danmakuapi.init.registrate.DanmakuItems;
 import dev.xkmc.gensokyolegacy.content.attachment.doll.DollInventory;
+import dev.xkmc.gensokyolegacy.content.attachment.party.item.InvitationLetterItem;
+import dev.xkmc.gensokyolegacy.content.attachment.party.item.PartyWand;
+import dev.xkmc.gensokyolegacy.content.attachment.party.item.PartyWandData;
 import dev.xkmc.gensokyolegacy.content.block.deco.shelf.MorichikaOfferData;
 import dev.xkmc.gensokyolegacy.content.block.functional.portal.PortalSide;
-import dev.xkmc.gensokyolegacy.content.client.model.*;
+import dev.xkmc.gensokyolegacy.content.client.model.HatModel;
+import dev.xkmc.gensokyolegacy.content.client.model.SuwakoHatModel;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.SekibankiHeadEntity;
-import dev.xkmc.gensokyolegacy.content.item.hakkero.*;
-import dev.xkmc.gensokyolegacy.content.item.tool.BroomItem;
 import dev.xkmc.gensokyolegacy.content.item.character.*;
+import dev.xkmc.gensokyolegacy.content.item.dagger.DaggerGloveItem;
+import dev.xkmc.gensokyolegacy.content.item.dagger.DaggerGloveMode;
+import dev.xkmc.gensokyolegacy.content.item.dagger.DaggerGloveModel;
 import dev.xkmc.gensokyolegacy.content.item.debug.DebugGlasses;
 import dev.xkmc.gensokyolegacy.content.item.debug.DebugWand;
 import dev.xkmc.gensokyolegacy.content.item.debug.DoorDebugItem;
-import dev.xkmc.gensokyolegacy.content.attachment.party.item.PartyWand;
 import dev.xkmc.gensokyolegacy.content.item.debug.StructureWand;
-import dev.xkmc.gensokyolegacy.content.item.doll.DollItem;
-import dev.xkmc.gensokyolegacy.content.item.doll.DollItemData;
-import dev.xkmc.gensokyolegacy.content.item.doll.DollLanceItem;
-import dev.xkmc.gensokyolegacy.content.item.doll.MiniShieldItem;
-import dev.xkmc.gensokyolegacy.content.item.doll.SekibankiHeadItem;
+import dev.xkmc.gensokyolegacy.content.item.doll.*;
 import dev.xkmc.gensokyolegacy.content.item.gift.*;
 import dev.xkmc.gensokyolegacy.content.item.glove.DollGloveItem;
 import dev.xkmc.gensokyolegacy.content.item.glove.DollGloveModel;
+import dev.xkmc.gensokyolegacy.content.item.hakkero.Hakkero;
+import dev.xkmc.gensokyolegacy.content.item.hakkero.HakkeroData;
+import dev.xkmc.gensokyolegacy.content.item.hakkero.HakkeroMode;
+import dev.xkmc.gensokyolegacy.content.item.hakkero.HakkeroPrototype;
 import dev.xkmc.gensokyolegacy.content.item.hexbrew.StarDanmakuItem;
 import dev.xkmc.gensokyolegacy.content.item.ingredient.FairyDustItem;
 import dev.xkmc.gensokyolegacy.content.item.ingredient.FairyIceItem;
 import dev.xkmc.gensokyolegacy.content.item.ingredient.FrozenFrogItem;
-import dev.xkmc.gensokyolegacy.content.attachment.party.item.InvitationLetterItem;
-import dev.xkmc.gensokyolegacy.content.attachment.party.item.PartyWandData;
 import dev.xkmc.gensokyolegacy.content.item.talisman.core.GLTalismans;
-import dev.xkmc.gensokyolegacy.content.item.dagger.DaggerGloveItem;
-import dev.xkmc.gensokyolegacy.content.item.dagger.DaggerGloveMode;
-import dev.xkmc.gensokyolegacy.content.item.dagger.DaggerGloveModel;
 import dev.xkmc.gensokyolegacy.content.item.tool.*;
 import dev.xkmc.gensokyolegacy.content.item.umbrella.BorderUmbrellaItem;
 import dev.xkmc.gensokyolegacy.content.item.umbrella.data.BorderUmbrellaMode;
@@ -56,18 +55,13 @@ import dev.xkmc.l2itemselector.init.data.L2ISTagGen;
 import net.minecraft.client.renderer.block.model.BlockModel;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Unit;
 import net.minecraft.tags.ItemTags;
+import net.minecraft.util.Unit;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.animal.FrogVariant;
 import net.minecraft.world.food.FoodProperties;
-import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.DyeColor;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemDisplayContext;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.item.Rarity;
+import net.minecraft.world.item.*;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
 import net.neoforged.neoforge.client.model.generators.loaders.SeparateTransformsModelBuilder;
 import net.neoforged.neoforge.registries.datamaps.builtin.FurnaceFuel;
@@ -108,7 +102,7 @@ public class GLItems {
 	public static final ItemEntry<MagicBookItem> MAGIC_BOOK;
 	public static final ItemEntry<DrinkGiftItem> LUCKY_TEA, ZUN_BEER;
 	public static final ItemEntry<Item> MAGIC_CANDY, KAPPA_BENTO;
-	public static final ItemEntry<Item> FANCY_FAN;
+	public static final ItemEntry<FancyFanItem> FANCY_FAN;
 
 	public static final ItemEntry<DebugGlasses> DEBUG_GLASSES;
 	public static final ItemEntry<DebugWand> DEBUG_WAND;
@@ -122,7 +116,9 @@ public class GLItems {
 
 	public static final ItemEntry<DollItem> DOLL;
 
-			/** The Sekibanki head gadget: a doll item that summons its own kind and carries nothing. */
+	/**
+	 * The Sekibanki head gadget: a doll item that summons its own kind and carries nothing.
+	 */
 	public static final ItemEntry<SekibankiHeadItem> SEKIBANKI_HEAD;
 
 	public static final ItemEntry<DollGloveItem> DOLL_GLOVE;
@@ -393,8 +389,8 @@ public class GLItems {
 					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(4, 1000, GiftType.FOOD))
 					.lang("Kappa Bento").register();
 
-			// a fan is for looking at, and the gift is the point
-			FANCY_FAN = reg.item("fancy_fan", Item::new)
+			// a fan is for looking at, and for blowing
+			FANCY_FAN = reg.item("fancy_fan", FancyFanItem::new)
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
 					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(5, 1000, GiftType.COLLECTION))
 					.tag(GLTagGen.MORICHIKA_OFFERS)
@@ -689,16 +685,20 @@ public class GLItems {
 				.texture("layer1", pvd.modLoc("item/doll/doll1"));
 	}
 
-	/** The food properties of a bottle of sake. It feeds nothing (no nutrition, so the party food system never
-	 *  mistakes it for a meal), is drinkable on a full stomach, leaves an empty glass bottle behind, and rolls
-	 *  every effect on the last gulp. */
+	/**
+	 * The food properties of a bottle of sake. It feeds nothing (no nutrition, so the party food system never
+	 * mistakes it for a meal), is drinkable on a full stomach, leaves an empty glass bottle behind, and rolls
+	 * every effect on the last gulp.
+	 */
 	private static FoodProperties sake(MobEffectInstance... effects) {
 		return sake(false, effects);
 	}
 
-	/** The same drink poured into something with no bottom to it. Still always drinkable and still no nutrition,
-	 *  but nothing is left behind: {@link GourdItem} puts the gourd back where it was. Without this the player
-	 *  would get a glass bottle per sip, and the "infinite" would read as a bottling machine. */
+	/**
+	 * The same drink poured into something with no bottom to it. Still always drinkable and still no nutrition,
+	 * but nothing is left behind: {@link GourdItem} puts the gourd back where it was. Without this the player
+	 * would get a glass bottle per sip, and the "infinite" would read as a bottling machine.
+	 */
 	private static FoodProperties gourd(MobEffectInstance... effects) {
 		return sake(false, effects);
 	}

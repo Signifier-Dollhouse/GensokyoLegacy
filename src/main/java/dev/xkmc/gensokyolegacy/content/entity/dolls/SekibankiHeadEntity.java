@@ -25,11 +25,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
-import software.bernie.geckolib.animation.AnimatableManager;
-import software.bernie.geckolib.animation.AnimationController;
-import software.bernie.geckolib.animation.AnimationState;
-import software.bernie.geckolib.animation.PlayState;
-import software.bernie.geckolib.animation.RawAnimation;
+import software.bernie.geckolib.animation.*;
 
 import javax.annotation.Nullable;
 import java.util.Optional;
@@ -50,13 +46,19 @@ import java.util.UUID;
  */
 public class SekibankiHeadEntity extends BaseDollEntity {
 
-	/** The gadget kind's entity type, and the entity kind its item materializes. */
+	/**
+	 * The gadget kind's entity type, and the entity kind its item materializes.
+	 */
 	public static final ResourceLocation TYPE = GensokyoLegacy.loc("sekibanki_head");
 
-	/** Furthest the head ever gets from the player driving it, in blocks. */
+	/**
+	 * Furthest the head ever gets from the player driving it, in blocks.
+	 */
 	public static final double REACH = 48;
 
-	/** Creative-flight speed while possessed, and the same doubled while sprinting. */
+	/**
+	 * Creative-flight speed while possessed, and the same doubled while sprinting.
+	 */
 	private static final double FLY_SPEED = 0.25;
 
 	/**
@@ -67,13 +69,19 @@ public class SekibankiHeadEntity extends BaseDollEntity {
 	 */
 	private static final double MAX_FRAME = 1.0;
 
-	/** How far the head's own crosshair reaches, matching the vanilla block interaction range. */
+	/**
+	 * How far the head's own crosshair reaches, matching the vanilla block interaction range.
+	 */
 	private static final double USE_RANGE = 4.5;
 
-	/** How far off its player the head is left stranded once possession ends, in blocks. */
+	/**
+	 * How far off its player the head is left stranded once possession ends, in blocks.
+	 */
 	private static final double RETURN_DISTANCE = 8;
 
-	/** How fast it comes back, in blocks per tick: between a mob's walk and its own flight. */
+	/**
+	 * How fast it comes back, in blocks per tick: between a mob's walk and its own flight.
+	 */
 	private static final double RETURN_SPEED = 0.75;
 
 	private static final EntityDataAccessor<Optional<UUID>> POSSESSOR =
@@ -127,7 +135,9 @@ public class SekibankiHeadEntity extends BaseDollEntity {
 				this::oneShotAnimController).receiveTriggeredAnimations().triggerableAnim("shout", SHOUT));
 	}
 
-	/** Let the shout that fired run to its end, and otherwise write nothing at all. */
+	/**
+	 * Let the shout that fired run to its end, and otherwise write nothing at all.
+	 */
 	private PlayState oneShotAnimController(AnimationState<SekibankiHeadEntity> event) {
 		return event.getController().isPlayingTriggeredAnimation() ? PlayState.CONTINUE : PlayState.STOP;
 	}
@@ -194,7 +204,9 @@ public class SekibankiHeadEntity extends BaseDollEntity {
 		return local != null ? local.getXRot() : super.getViewXRot(partialTick);
 	}
 
-	/** The player whose camera this is, when that player is the one running this code. */
+	/**
+	 * The player whose camera this is, when that player is the one running this code.
+	 */
 	@Nullable
 	private Player localPossessor() {
 		if (!level().isClientSide) return null;
@@ -213,7 +225,9 @@ public class SekibankiHeadEntity extends BaseDollEntity {
 		return found instanceof LivingEntity living ? living : null;
 	}
 
-	/** One possessor at a time: taking the eyes from a player gives them back first. */
+	/**
+	 * One possessor at a time: taking the eyes from a player gives them back first.
+	 */
 	public void possess(ServerPlayer player) {
 		if (isPossessedBy(player)) return;
 		release();
@@ -221,7 +235,9 @@ public class SekibankiHeadEntity extends BaseDollEntity {
 		player.connection.send(new ClientboundSetCameraPacket(this));
 	}
 
-	/** Puts the player back in their own head and stops answering for it. */
+	/**
+	 * Puts the player back in their own head and stops answering for it.
+	 */
 	public void release() {
 		if (getEntityData().get(POSSESSOR).isEmpty()) return;
 		LivingEntity holder = possessorEntity();
@@ -334,7 +350,8 @@ public class SekibankiHeadEntity extends BaseDollEntity {
 			LivingEntity holder = possessorEntity();
 			// the leash is expressed as a destination, the same way acceptMove reads it, so the
 			// frame this produces is already the frame the server will accept
-			if (holder != null) motion = leash(holder.position(), position(), position().add(motion)).subtract(position());
+			if (holder != null)
+				motion = leash(holder.position(), position(), position().add(motion)).subtract(position());
 			move(MoverType.SELF, motion);
 			setDeltaMovement(motion);
 			return;

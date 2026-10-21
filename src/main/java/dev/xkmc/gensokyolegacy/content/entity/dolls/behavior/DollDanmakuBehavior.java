@@ -27,7 +27,9 @@ public class DollDanmakuBehavior extends DollBehavior {
 	private static final int COOLDOWN_TICKS = 20;
 	private static final int BLOCKED_SKIP_TICKS = 40;
 
-	/** Fired shot speed in blocks per tick; the aim prediction assumes it. */
+	/**
+	 * Fired shot speed in blocks per tick; the aim prediction assumes it.
+	 */
 	private static final double SHOT_SPEED = 2;
 
 	/**

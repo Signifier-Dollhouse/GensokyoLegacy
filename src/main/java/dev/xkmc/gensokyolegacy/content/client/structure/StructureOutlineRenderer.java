@@ -98,7 +98,9 @@ public class StructureOutlineRenderer {
 		renderPosSet(pose, camera, pos, new float[]{1, 1, 1, 1});
 	}
 
-	/** {@code colour} is r, g, b, a — a caller's own constant, as {@code AreaEffectRenderer} keeps its own. */
+	/**
+	 * {@code colour} is r, g, b, a — a caller's own constant, as {@code AreaEffectRenderer} keeps its own.
+	 */
 	public static void renderPosSet(PoseStack pose, Vec3 camera, Collection<BlockPos> pos, float[] colour) {
 		if (pos.isEmpty()) return;
 		var buffer = Minecraft.getInstance().renderBuffers().bufferSource();

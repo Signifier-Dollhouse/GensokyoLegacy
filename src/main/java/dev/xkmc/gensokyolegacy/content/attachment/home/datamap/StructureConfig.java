@@ -14,7 +14,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
-import net.minecraft.world.level.levelgen.structure.Structure;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -39,7 +38,7 @@ public record StructureConfig(
 	 */
 	@Nullable
 	public static StructureConfig of(RegistryAccess access, StructureKey key) {
-		return access.<Structure>holder(key.getStructure())
+		return access.holder(key.getStructure())
 				.map(h -> h.getData(GLMeta.STRUCTURE_DATA.reg())).orElse(null);
 	}
 

@@ -16,7 +16,9 @@ import net.minecraft.server.level.ServerPlayer;
  */
 public record GiftReturnCondition() implements QuestCondition<GiftReturnCondition> {
 
-	/** No fields: the bar is the character's own threshold, not something a dialog spells out. */
+	/**
+	 * No fields: the bar is the character's own threshold, not something a dialog spells out.
+	 */
 	public static final MapCodec<GiftReturnCondition> CODEC = MapCodec.unit(GiftReturnCondition::new);
 
 	@Override

@@ -25,7 +25,9 @@ public class CharacterData {
 	@SerialField
 	public int reputation;
 
-	/** Highest reputation this relationship can currently reach; quests are what raise it. */
+	/**
+	 * Highest reputation this relationship can currently reach; quests are what raise it.
+	 */
 	@SerialField
 	public int reputationCap = ReputationConstants.INITIAL_CAP;
 
@@ -78,7 +80,9 @@ public class CharacterData {
 		reputation = Math.max(reputation - val, floor);
 	}
 
-	/** Decay stops at the configured fraction of the cap, so a cap raised by quests raises the floor too. */
+	/**
+	 * Decay stops at the configured fraction of the cap, so a cap raised by quests raises the floor too.
+	 */
 	protected void dailyUpdate() {
 		int floor = (int) (reputationCap * GLModConfig.SERVER.reputationDecayFloor.get());
 		if (reputation > floor) {

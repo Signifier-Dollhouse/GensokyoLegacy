@@ -24,6 +24,7 @@ import java.util.List;
  * {@link ItemModelProjectileType} renderer lays the model flat with image top along flight, hence tip-up one unit per
  * texel, and the model must stay parentless since {@code ModelBakery} discards {@code elements} for anything ending at
  * {@code builtin/generated}.
+ *
  * @see "doc/design/dagger_glove.md"
  */
 public class IronDaggerItem extends DanmakuItem {

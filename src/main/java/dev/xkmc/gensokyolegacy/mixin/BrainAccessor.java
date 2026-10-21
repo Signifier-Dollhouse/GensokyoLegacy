@@ -18,10 +18,12 @@ import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-/** {@code SmartBrain} re-implements {@link Brain#tick} to squeeze prioritized activities in between the vanilla
- *  memory/sensor bookkeeping and the behavior ticking, and clones itself by hand; all of that needs vanilla
- *  private state. <p> The invoker names deliberately differ from their targets: an invoker sharing name and
- *  descriptor with its target would generate a method delegating to itself. */
+/**
+ * {@code SmartBrain} re-implements {@link Brain#tick} to squeeze prioritized activities in between the vanilla
+ * memory/sensor bookkeeping and the behavior ticking, and clones itself by hand; all of that needs vanilla
+ * private state. <p> The invoker names deliberately differ from their targets: an invoker sharing name and
+ * descriptor with its target would generate a method delegating to itself.
+ */
 @Mixin(Brain.class)
 public interface BrainAccessor<T extends LivingEntity> {
 

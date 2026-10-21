@@ -6,13 +6,14 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.RotatedPillarBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.common.ItemAbility;
 import net.neoforged.neoforge.common.ItemAbilities;
+import net.neoforged.neoforge.common.ItemAbility;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Supplier;
 
-/** A log or wood block that an axe strips to a vanilla block. The target is per instance, so one class serves
+/**
+ * A log or wood block that an axe strips to a vanilla block. The target is per instance, so one class serves
  * every wood; a wood with no vanilla counterpart of its own strips to the closest one the mod already uses.
  */
 public class StrippableWoodBlock extends RotatedPillarBlock {

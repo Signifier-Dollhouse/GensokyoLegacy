@@ -11,7 +11,8 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 
-/** Renders plain (non-armor) {@link TouhouHatItem}s worn in the vanilla head armor slot, which
+/**
+ * Renders plain (non-armor) {@link TouhouHatItem}s worn in the vanilla head armor slot, which
  * {@code HumanoidArmorLayer} skips for non-{@code ArmorItem}s. Delegates to {@link TouhouHatRenderer} so the
  * head slot and the curios slot share one code path.
  */
@@ -23,7 +24,7 @@ public class TouhouHatLayer<T extends LivingEntity, M extends HumanoidModel<T>> 
 
 	@Override
 	public void render(PoseStack pose, MultiBufferSource buffer, int light, T entity,
-	                   float swing, float swingAmp, float partial, float age, float yaw, float pitch) {
+					   float swing, float swingAmp, float partial, float age, float yaw, float pitch) {
 		ItemStack stack = entity.getItemBySlot(EquipmentSlot.HEAD);
 		if (!(stack.getItem() instanceof TouhouHatItem)) return;
 		Minecraft minecraft = Minecraft.getInstance();

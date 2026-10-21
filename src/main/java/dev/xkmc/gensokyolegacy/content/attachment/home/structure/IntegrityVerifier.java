@@ -1,9 +1,9 @@
 package dev.xkmc.gensokyolegacy.content.attachment.home.structure;
 
-import dev.xkmc.gensokyolegacy.content.attachment.home.datamap.StructureConfig;
 import dev.xkmc.gensokyolegacy.content.attachment.home.core.MultiStructureBound;
 import dev.xkmc.gensokyolegacy.content.attachment.home.core.PerformanceConstants;
 import dev.xkmc.gensokyolegacy.content.attachment.home.core.StructureBound;
+import dev.xkmc.gensokyolegacy.content.attachment.home.datamap.StructureConfig;
 import dev.xkmc.gensokyolegacy.content.block.deco.bed.YoukaiBedBlock;
 import dev.xkmc.gensokyolegacy.init.data.GLTagGen;
 import net.minecraft.core.BlockPos;

@@ -3,8 +3,8 @@ package dev.xkmc.gensokyolegacy.content.item.glove;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.BaseDollEntity;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.DollEntity;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.menu.DollLoadoutProvider;
-import dev.xkmc.gensokyolegacy.content.item.glove.mode.DollGloveMode;
 import dev.xkmc.gensokyolegacy.content.item.common.GloveTargeting;
+import dev.xkmc.gensokyolegacy.content.item.glove.mode.DollGloveMode;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.l2itemselector.init.data.L2Keys;
@@ -34,7 +34,9 @@ import java.util.List;
  */
 public class DollGloveItem extends Item implements GloveTargeting {
 
-	/** Ray-trace reach for glove targeting, in blocks (glove.md §2). */
+	/**
+	 * Ray-trace reach for glove targeting, in blocks (glove.md §2).
+	 */
 	public static final double TARGET_RANGE = 48;
 
 	/**
@@ -179,7 +181,9 @@ public class DollGloveItem extends Item implements GloveTargeting {
 		return target.isAttackable() && !target.isSpectator();
 	}
 
-	/** Ally check via ownership: the holder plus anything they own (dolls, pets). */
+	/**
+	 * Ally check via ownership: the holder plus anything they own (dolls, pets).
+	 */
 	private static boolean isAlly(Player holder, LivingEntity target) {
 		if (target == holder) return true;
 		return target instanceof OwnableEntity own && holder.getUUID().equals(own.getOwnerUUID());

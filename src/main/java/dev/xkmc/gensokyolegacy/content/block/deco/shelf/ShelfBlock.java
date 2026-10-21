@@ -2,11 +2,11 @@ package dev.xkmc.gensokyolegacy.content.block.deco.shelf;
 
 import com.tterrag.registrate.providers.DataGenContext;
 import com.tterrag.registrate.providers.RegistrateBlockstateProvider;
+import dev.xkmc.gensokyolegacy.content.block.base.ShapePathFindBlockMethod;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLFurniture;
 import dev.xkmc.l2modularblock.core.DelegateBlock;
 import dev.xkmc.l2modularblock.core.VoxelBuilder;
-import dev.xkmc.gensokyolegacy.content.block.base.ShapePathFindBlockMethod;
 import dev.xkmc.l2modularblock.impl.BlockEntityBlockMethodImpl;
 import dev.xkmc.l2modularblock.mult.OnReplacedBlockMethod;
 import dev.xkmc.l2modularblock.mult.PlayerDestoryBlockMethod;

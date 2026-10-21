@@ -34,7 +34,7 @@ public interface AbstractPotionHandler extends HexBrewHandler {
 		}
 		return positive & !negative ? MobEffectCategory.BENEFICIAL :
 				negative & !positive ? MobEffectCategory.HARMFUL :
-				MobEffectCategory.NEUTRAL;
+						MobEffectCategory.NEUTRAL;
 	}
 
 
@@ -57,7 +57,7 @@ public interface AbstractPotionHandler extends HexBrewHandler {
 		var taste = getCategory(stack);
 		for (LivingEntity e : level.getEntitiesOfClass(LivingEntity.class, box, en -> true)) {
 			if (thrower != null) {
-				var ally = e == thrower||e.isAlliedTo(thrower);
+				var ally = e == thrower || e.isAlliedTo(thrower);
 				if (taste == MobEffectCategory.HARMFUL && ally)
 					continue;
 			}

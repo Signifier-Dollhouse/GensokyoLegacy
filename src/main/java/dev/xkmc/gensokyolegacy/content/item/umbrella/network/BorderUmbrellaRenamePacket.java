@@ -8,7 +8,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
 public record BorderUmbrellaRenamePacket(int slot,
-                                         String name) implements SerialPacketBase<BorderUmbrellaRenamePacket> {
+										 String name) implements SerialPacketBase<BorderUmbrellaRenamePacket> {
 
 	@Override
 	public void handle(Player player) {

@@ -2,23 +2,21 @@ package dev.xkmc.gensokyolegacy.content.entity.misc;
 
 import dev.xkmc.danmakuapi.api.DanmakuUseEvent;
 import dev.xkmc.danmakuapi.content.entity.ItemBulletEntity;
-import dev.xkmc.gensokyolegacy.content.item.dagger.DaggerGloveItem;
 import dev.xkmc.gensokyolegacy.content.item.dagger.DaggerGloveRune;
 import dev.xkmc.gensokyolegacy.content.item.dagger.DaggerGloveRunes;
 import dev.xkmc.gensokyolegacy.content.item.tool.IronDaggerItem;
 import dev.xkmc.gensokyolegacy.init.registrate.GLParticles;
 import dev.xkmc.l2serial.serialization.marker.SerialClass;
 import dev.xkmc.l2serial.serialization.marker.SerialField;
-import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
@@ -78,7 +76,7 @@ public class IronDaggerBulletEntity extends ItemBulletEntity {
 	 * §4).
 	 *
 	 * @return true if this dagger may now stop returning itself; false if the claim was taken or the dagger is already
-	 * 	 *       gone
+	 * *       gone
 	 */
 	public boolean handOffTo(boolean successorSpawned) {
 		if (!successorSpawned || !ownsReturn()) return false;
@@ -116,8 +114,8 @@ public class IronDaggerBulletEntity extends ItemBulletEntity {
 		double d5 = vec3.x;
 		double d6 = vec3.y;
 		double d1 = vec3.z;
-		for(int i = 0; i < 4; ++i) {
-			this.level().addParticle(GLParticles.KNIFE.get(), this.getX() + d5 * (double)i / (double)4.0F, this.getY() + d6 * (double)i / (double)4.0F, this.getZ() + d1 * (double)i / (double)4.0F, -d5, -d6 + 0.2, -d1);
+		for (int i = 0; i < 4; ++i) {
+			this.level().addParticle(GLParticles.KNIFE.get(), this.getX() + d5 * (double) i / (double) 4.0F, this.getY() + d6 * (double) i / (double) 4.0F, this.getZ() + d1 * (double) i / (double) 4.0F, -d5, -d6 + 0.2, -d1);
 		}
 	}
 

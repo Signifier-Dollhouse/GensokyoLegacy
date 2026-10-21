@@ -26,10 +26,12 @@ import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.items.wrapper.PlayerInvWrapper;
 import org.jetbrains.annotations.Nullable;
 
-/** Interaction front end: buckets first, then single items. Shape is a full cube even though the pot
+/**
+ * Interaction front end: buckets first, then single items. Shape is a full cube even though the pot
  * has a cavity, because the model supplies the silhouette.
  *
- * @see "doc/design/alchemy_pot.md" */
+ * @see "doc/design/alchemy_pot.md"
+ */
 public class AlchemyPotBlock implements ShapeBlockMethod, UseItemOnBlockMethod, UseWithoutItemBlockMethod {
 
 	public static final BlockMethod BE = new BlockEntityBlockMethodImpl<>(GLBlocks.ALCHEMY_POT_BE, AlchemyPotBlockEntity.class);

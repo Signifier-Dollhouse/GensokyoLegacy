@@ -3,10 +3,7 @@ package dev.xkmc.gensokyolegacy.content.attachment.party.core;
 import dev.xkmc.gensokyolegacy.content.attachment.party.food.BlockFoodHandler;
 import dev.xkmc.gensokyolegacy.content.attachment.party.food.BlockItemFood;
 import dev.xkmc.gensokyolegacy.content.attachment.party.food.ContainerFoodHandler;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -24,10 +21,14 @@ public final class PartyFoodHandler {
 	private static final List<BlockFoodHandler> HANDLERS = new CopyOnWriteArrayList<>();
 	private static final List<ContainerFoodHandler> CONTAINERS = new CopyOnWriteArrayList<>();
 
-	/** Deliberately not in the list: it scores any block whose item is food, and claims nothing. */
+	/**
+	 * Deliberately not in the list: it scores any block whose item is food, and claims nothing.
+	 */
 	private static final BlockFoodHandler FALLBACK = new BlockItemFood();
 
-	/** Add a handler. Later handlers are only consulted if earlier ones decline. */
+	/**
+	 * Add a handler. Later handlers are only consulted if earlier ones decline.
+	 */
 	public static void register(BlockFoodHandler handler) {
 		HANDLERS.add(handler);
 	}
@@ -40,7 +41,9 @@ public final class PartyFoodHandler {
 		CONTAINERS.add(handler);
 	}
 
-	/** The first handler that claims this block, or the fallback if none does. */
+	/**
+	 * The first handler that claims this block, or the fallback if none does.
+	 */
 	public static BlockFoodHandler of(Block block) {
 		var claimed = claims(block);
 		return claimed != null ? claimed : FALLBACK;
@@ -58,7 +61,9 @@ public final class PartyFoodHandler {
 		return null;
 	}
 
-	/** The container handler for this block, or null if it is not a container food. */
+	/**
+	 * The container handler for this block, or null if it is not a container food.
+	 */
 	@Nullable
 	public static ContainerFoodHandler containerOf(Block block) {
 		for (var handler : CONTAINERS) {

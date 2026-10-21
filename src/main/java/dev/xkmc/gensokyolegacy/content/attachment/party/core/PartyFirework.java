@@ -29,13 +29,19 @@ import java.util.List;
  */
 public class PartyFirework {
 
-	/** Nearest the rockets go up from the table: outside every guest's reach, let alone a burst's. */
+	/**
+	 * Nearest the rockets go up from the table: outside every guest's reach, let alone a burst's.
+	 */
 	private static final int RING_MIN = 12;
 
-	/** Furthest. A ring, not a spot, so the rockets do not stack over one corner of the room. */
+	/**
+	 * Furthest. A ring, not a spot, so the rockets do not stack over one corner of the room.
+	 */
 	private static final int RING_MAX = 18;
 
-	/** How far a burst reaches, in blocks — vanilla's firework damage radius. */
+	/**
+	 * How far a burst reaches, in blocks — vanilla's firework damage radius.
+	 */
 	private static final int BLAST = 5;
 
 	/**
@@ -45,7 +51,9 @@ public class PartyFirework {
 	 */
 	private static final int RISE = 8;
 
-	/** How many places are rolled before the round is given up on. */
+	/**
+	 * How many places are rolled before the round is given up on.
+	 */
 	private static final int TRIES = 6;
 
 	/**
@@ -66,7 +74,9 @@ public class PartyFirework {
 		}
 	}
 
-	/** A block on the ground {@link #RING_MIN}–{@link #RING_MAX} out from the table. */
+	/**
+	 * A block on the ground {@link #RING_MIN}–{@link #RING_MAX} out from the table.
+	 */
 	private static BlockPos ring(BlockPos anchor, RandomSource random) {
 		double angle = random.nextDouble() * Math.PI * 2;
 		int dist = RING_MIN + random.nextInt(RING_MAX - RING_MIN + 1);
@@ -103,7 +113,9 @@ public class PartyFirework {
 		return stack;
 	}
 
-	/** One dye colour, as the firework colour an explosion carries it in. */
+	/**
+	 * One dye colour, as the firework colour an explosion carries it in.
+	 */
 	private static int color(RandomSource random) {
 		var dyes = DyeColor.values();
 		return dyes[random.nextInt(dyes.length)].getFireworkColor();

@@ -13,7 +13,9 @@ import org.jetbrains.annotations.Nullable;
  */
 public record GiftEntry(ItemStack stack, @Nullable Float chance) {
 
-	/** how likely she is to leave this on the table, as a percentage */
+	/**
+	 * how likely she is to leave this on the table, as a percentage
+	 */
 	public Component chanceText() {
 		if (chance == null) return GLLang.JeiExtra.GIFT_CHANCE.get(GLLang.JeiExtra.COUNT_UNKNOWN.get());
 		// in tenths, because the weights are small and thirds are common; a whole one is not padded

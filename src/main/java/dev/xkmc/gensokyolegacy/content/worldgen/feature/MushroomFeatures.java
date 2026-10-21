@@ -41,11 +41,11 @@ public class MushroomFeatures {
 		public final ResourceKey<ConfiguredFeature<?, ?>> growthLarge;
 
 		MushroomTreeType(String id,
-		                 Function<Codec<HugeMushroomFeatureConfiguration>, AbstractHugeMushroomFeature> factory,
-		                 Supplier<GLNaturalBlocks.MushroomSet> set, @Nullable Integer radius,
-		                 ResourceKey<ConfiguredFeature<?, ?>> growthSmall,
-		                 ResourceKey<ConfiguredFeature<?, ?>> growthMedium,
-		                 ResourceKey<ConfiguredFeature<?, ?>> growthLarge) {
+						 Function<Codec<HugeMushroomFeatureConfiguration>, AbstractHugeMushroomFeature> factory,
+						 Supplier<GLNaturalBlocks.MushroomSet> set, @Nullable Integer radius,
+						 ResourceKey<ConfiguredFeature<?, ?>> growthSmall,
+						 ResourceKey<ConfiguredFeature<?, ?>> growthMedium,
+						 ResourceKey<ConfiguredFeature<?, ?>> growthLarge) {
 			this.id = id;
 			this.cfKey = ResourceKey.create(Registries.CONFIGURED_FEATURE, GensokyoLegacy.loc(id));
 			this.factory = factory;

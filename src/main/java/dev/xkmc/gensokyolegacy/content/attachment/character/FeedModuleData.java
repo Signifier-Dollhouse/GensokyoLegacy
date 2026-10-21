@@ -13,10 +13,14 @@ import java.util.Map;
 @SerialClass
 public class FeedModuleData {
 
-	/** How many past feeds are remembered; the newest is at the head of the list. */
+	/**
+	 * How many past feeds are remembered; the newest is at the head of the list.
+	 */
 	private static final int MEMORY = 10;
 
-	/** Each older sighting of the same item counts this much less than the one before it. */
+	/**
+	 * Each older sighting of the same item counts this much less than the one before it.
+	 */
 	private static final double RATE = 0.9;
 
 	@SerialField
@@ -24,7 +28,9 @@ public class FeedModuleData {
 	@SerialField
 	private final List<Item> history = new ArrayList<>();
 
-	/** Favour ratio for one feed of {@code food}: 1, falling toward 0 as the same item fills the memory. */
+	/**
+	 * Favour ratio for one feed of {@code food}: 1, falling toward 0 as the same item fills the memory.
+	 */
 	public double feed(ItemStack food) {
 		double ans = 0;
 		double val = 1;

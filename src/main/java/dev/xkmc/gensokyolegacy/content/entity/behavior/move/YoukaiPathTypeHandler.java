@@ -14,10 +14,10 @@ import net.minecraft.world.level.pathfinder.PathfindingContext;
 public interface YoukaiPathTypeHandler {
 
 	/**
-	 * @param ans    what the vanilla rule already decided for this block
-	 * @param mob    the entity being routed, or null when the evaluator has none
+	 * @param ans what the vanilla rule already decided for this block
+	 * @param mob the entity being routed, or null when the evaluator has none
 	 */
 	PathType getPathType(PathType ans, PathfindingContext context, BlockPos pos,
-			BlockState state, Mob mob);
+						 BlockState state, Mob mob);
 
 }

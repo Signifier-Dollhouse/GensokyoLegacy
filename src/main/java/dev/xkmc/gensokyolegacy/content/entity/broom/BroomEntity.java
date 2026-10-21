@@ -53,7 +53,9 @@ public class BroomEntity extends SimplifiedEntity implements GeoEntity {
 	private record Boost(float power, int ticks) {
 	}
 
-	/** Per-tick speed gain at full input, in blocks per tick squared. */
+	/**
+	 * Per-tick speed gain at full input, in blocks per tick squared.
+	 */
 	private static final double THRUST = 0.05;
 	private static final double STRAFE = 0.04;
 	private static final double LIFT = 0.05;
@@ -64,7 +66,9 @@ public class BroomEntity extends SimplifiedEntity implements GeoEntity {
 	 * "mushy" feel came from.
 	 */
 	private static final double BRAKE = 2;
-	/** Speed caps; 1.0 b/t is 20 blocks per second, about a sprinting horse. */
+	/**
+	 * Speed caps; 1.0 b/t is 20 blocks per second, about a sprinting horse.
+	 */
 	private static final double MAX_SPEED = 1.0;
 	private static final double MAX_RISE = 0.8;
 	/**
@@ -150,7 +154,9 @@ public class BroomEntity extends SimplifiedEntity implements GeoEntity {
 		return motion.with(Direction.Axis.Y, Mth.clamp(motion.y, -MAX_RISE, MAX_RISE));
 	}
 
-	/** The boost's share of the forward input, or 0 when there is none left. */
+	/**
+	 * The boost's share of the forward input, or 0 when there is none left.
+	 */
 	private float boostPower() {
 		if (boost == null) return 0;
 		if (boost.ticks <= 1) {
@@ -187,7 +193,9 @@ public class BroomEntity extends SimplifiedEntity implements GeoEntity {
 		return facing.scale(ahead * COAST_FWD).add(across.scale(COAST_SIDE));
 	}
 
-	/** Jump key, read through the mixin: {@code jumping} has no public getter. */
+	/**
+	 * Jump key, read through the mixin: {@code jumping} has no public getter.
+	 */
 	private static boolean isJumping(Player rider) {
 		return ((LivingEntityJumpingAccessor) rider).gensokyolegacy$isJumping();
 	}
@@ -228,7 +236,9 @@ public class BroomEntity extends SimplifiedEntity implements GeoEntity {
 		return true;
 	}
 
-	/** A broom is a tool, not a creature: it has no health and cannot be hit. */
+	/**
+	 * A broom is a tool, not a creature: it has no health and cannot be hit.
+	 */
 	@Override
 	public boolean isInvulnerableTo(DamageSource source) {
 		return true;

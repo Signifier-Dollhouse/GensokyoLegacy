@@ -1,8 +1,8 @@
 package dev.xkmc.gensokyolegacy.content.entity.behavior.visit;
 
 import dev.xkmc.gensokyolegacy.content.attachment.character.CharacterConfig;
-import dev.xkmc.gensokyolegacy.content.attachment.home.datamap.StructureConfig;
 import dev.xkmc.gensokyolegacy.content.attachment.home.core.IHomeHolder;
+import dev.xkmc.gensokyolegacy.content.attachment.home.datamap.StructureConfig;
 import dev.xkmc.gensokyolegacy.content.attachment.index.StructureKey;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.module.VisitModule;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
@@ -82,12 +82,12 @@ public class VisitScheduler {
 	}
 
 	/**
- * Put a guest on site for a fixed stretch of time, ignoring the time table — the command's forced
+	 * Put a guest on site for a fixed stretch of time, ignoring the time table — the command's forced
 	 * mode. Returns whoever is already visiting, so the command cannot stack two copies of one character.
 	 */
 	@Nullable
 	public static YoukaiEntity force(ServerLevel sl, StructureKey key, IHomeHolder home,
-			EntityType<?> guest, int stay) {
+									 EntityType<?> guest, int stay) {
 		var existing = find(sl, key, guest, home);
 		if (existing != null) return existing;
 		var youkai = spawn(sl, key, home, guest);

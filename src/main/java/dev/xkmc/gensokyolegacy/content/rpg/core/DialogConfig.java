@@ -7,9 +7,10 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * The labels a character uses on the topic list.
+ *
  * @param greeting      shown above the topic list at home
  * @param visitGreeting shown instead while she is a guest elsewhere, since the home line reads as if the player came
- *  *       here
+ *                      *       here
  * @param trade         label of the trade topic
  */
 public record DialogConfig(String greeting, String visitGreeting, String trade) {

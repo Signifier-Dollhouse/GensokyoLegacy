@@ -4,10 +4,10 @@ import com.tterrag.registrate.util.entry.MenuEntry;
 import dev.xkmc.gensokyolegacy.content.attachment.party.core.AppealConsumedCondition;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.menu.DollLoadoutMenu;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.menu.DollLoadoutScreen;
-import dev.xkmc.gensokyolegacy.content.item.talisman.pocket.TalismanPocketMenu;
-import dev.xkmc.gensokyolegacy.content.item.talisman.pocket.TalismanPocketScreen;
 import dev.xkmc.gensokyolegacy.content.item.hakkero.HakkeroMenu;
 import dev.xkmc.gensokyolegacy.content.item.hakkero.HakkeroScreen;
+import dev.xkmc.gensokyolegacy.content.item.talisman.pocket.TalismanPocketMenu;
+import dev.xkmc.gensokyolegacy.content.item.talisman.pocket.TalismanPocketScreen;
 import dev.xkmc.gensokyolegacy.content.ui.quest.QuestTab;
 import dev.xkmc.gensokyolegacy.content.ui.trade.TradeMenu;
 import dev.xkmc.gensokyolegacy.content.ui.trade.TradeScreen;
@@ -25,7 +25,9 @@ import net.minecraft.world.level.storage.loot.predicates.LootItemConditionType;
 public class GLMisc {
 
 	private static final SR<LootItemConditionType> LIC = SR.of(GensokyoLegacy.REG, Registries.LOOT_CONDITION_TYPE);
-	/** {@code gensokyolegacy:appeal_consumed}, the gate every gift table tiers on. */
+	/**
+	 * {@code gensokyolegacy:appeal_consumed}, the gate every gift table tiers on.
+	 */
 	public static final Val<LootItemConditionType> APPEAL_CONSUMED =
 			LIC.reg("appeal_consumed", () -> new LootItemConditionType(AppealConsumedCondition.CODEC));
 

@@ -79,7 +79,7 @@ public class GiftQDGen extends QuestDialogData {
 	 * {@code <char>/gift/dialog/<variant>}, not {@code .../gift/<char>/gift/...}.
 	 */
 	private void pair(String name, EntityType<?> type, SimpleDialogOption leave, YoukaiAnim talkSlot,
-			int threshold, String like, String dislike, String giveBack, String takeIt) {
+					  int threshold, String like, String dislike, String giveBack, String takeIt) {
 		prefix(name + "/gift");
 		var liked = dialogKey("like", rawText(name + "/gift/dialog/like", like),
 				List.of(YoukaiAnim.LIKE.trigger()), leave);

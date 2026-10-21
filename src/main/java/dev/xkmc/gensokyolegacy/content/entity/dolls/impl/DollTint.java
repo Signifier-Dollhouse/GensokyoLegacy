@@ -67,7 +67,9 @@ public interface DollTint extends DollEntityImpl {
 			sync.set(DollEntity.DATA_COLOR, data.getColor().getId());
 		}
 
-		/** Recolor with a dye item, without consuming it. Same color is a no-op pass-through. */
+		/**
+		 * Recolor with a dye item, without consuming it. Same color is a no-op pass-through.
+		 */
 		@Override
 		public InteractionResult interact(Player player, InteractionHand hand) {
 			ItemStack stack = player.getItemInHand(hand);

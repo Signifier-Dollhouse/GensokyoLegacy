@@ -3,10 +3,10 @@ package dev.xkmc.gensokyolegacy.content.entity.characters.fairy;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.brain.TaskBoard;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.module.*;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.move.CombatFlyingControl;
-import dev.xkmc.gensokyolegacy.content.entity.youkai.impl.GeoYoukaiAnim;
-import dev.xkmc.gensokyolegacy.content.entity.youkai.impl.YoukaiAnim;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiFeatureSet;
+import dev.xkmc.gensokyolegacy.content.entity.youkai.impl.GeoYoukaiAnim;
+import dev.xkmc.gensokyolegacy.content.entity.youkai.impl.YoukaiAnim;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.impl.YoukaiFlags;
 import dev.xkmc.gensokyolegacy.init.registrate.GLBrains;
 import dev.xkmc.gensokyolegacy.util.BrainUtils;
@@ -129,6 +129,11 @@ public class PlainFairyEntity extends FairyEntity implements GeoYoukaiAnim {
 
 	public PlainFairyEntity(EntityType<? extends FairyEntity> type, Level level) {
 		super(type, level);
+	}
+
+	@Override
+	public boolean isNamed() {
+		return false;
 	}
 
 	@Override

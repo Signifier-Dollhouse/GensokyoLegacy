@@ -19,10 +19,12 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.UUID;
 
-/** Temporary server-side storage for item payouts that could not be handed over directly (e.g. shop
+/**
+ * Temporary server-side storage for item payouts that could not be handed over directly (e.g. shop
  * shelf contents lost to a break the owner did not perform). Stock and earnings are stashed under
  * the owner UUID and handed back by periodic delivery once the owner is online with room; entries
- * never expire on their own. */
+ * never expire on their own.
+ */
 @SerialClass
 public class PendingItemStorage extends BaseSavedData<PendingItemStorage> {
 
@@ -47,9 +49,11 @@ public class PendingItemStorage extends BaseSavedData<PendingItemStorage> {
 		new TagCodec(pvd).fromTag(tag, PendingItemStorage.class, this);
 	}
 
-	/** Stash one payout of stock and earnings under the owner. Entries for the same item are merged;
+	/**
+	 * Stash one payout of stock and earnings under the owner. Entries for the same item are merged;
 	 * different items queue separately, and earnings with no stock merge into an earning-only
-	 * entry when present. */
+	 * entry when present.
+	 */
 	public void stash(UUID owner, ItemStack stack, int stock, int earning) {
 		if (owner.equals(Util.NIL_UUID)) return;
 		boolean hasStock = !stack.isEmpty() && stock > 0;
@@ -75,8 +79,10 @@ public class PendingItemStorage extends BaseSavedData<PendingItemStorage> {
 		return false;
 	}
 
-	/** Hand back everything stashed for the player. Items that do not fit stay stashed for the next
-	 * delivery. Returns true if anything was handed over. */
+	/**
+	 * Hand back everything stashed for the player. Items that do not fit stay stashed for the next
+	 * delivery. Returns true if anything was handed over.
+	 */
 	public boolean deliver(ServerPlayer player) {
 		var list = pending.get(player.getUUID());
 		if (list == null || list.isEmpty()) return false;

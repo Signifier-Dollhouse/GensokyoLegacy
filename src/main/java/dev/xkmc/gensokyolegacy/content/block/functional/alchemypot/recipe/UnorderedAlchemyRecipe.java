@@ -17,8 +17,11 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 
-/** Matches inputs unordered: each stack claims its own input entry; a partial container may leave inputs unmatched.
- * @see "doc/design/alchemy_pot.md" */
+/**
+ * Matches inputs unordered: each stack claims its own input entry; a partial container may leave inputs unmatched.
+ *
+ * @see "doc/design/alchemy_pot.md"
+ */
 @SerialClass
 public class UnorderedAlchemyRecipe extends AlchemyRecipe<UnorderedAlchemyRecipe> {
 
