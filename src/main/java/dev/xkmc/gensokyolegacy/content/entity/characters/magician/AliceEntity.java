@@ -5,15 +5,16 @@ import dev.xkmc.gensokyolegacy.content.attachment.doll.DollHost;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.brain.TaskBoard;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.task.combat.YoukaiUpdateTargetTask;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.BaseDollEntity;
-import dev.xkmc.gensokyolegacy.content.entity.module.AbstractYoukaiModule;
-import dev.xkmc.gensokyolegacy.content.entity.module.HomeModule;
-import dev.xkmc.gensokyolegacy.content.entity.module.PartyModule;
-import dev.xkmc.gensokyolegacy.content.entity.module.TalkModule;
-import dev.xkmc.gensokyolegacy.content.entity.module.VisitModule;
-import dev.xkmc.gensokyolegacy.content.entity.youkai.GeoYoukaiAnim;
+import dev.xkmc.gensokyolegacy.content.entity.behavior.module.AbstractYoukaiModule;
+import dev.xkmc.gensokyolegacy.content.entity.behavior.module.GiftModule;
+import dev.xkmc.gensokyolegacy.content.entity.behavior.module.HomeModule;
+import dev.xkmc.gensokyolegacy.content.entity.behavior.module.PartyModule;
+import dev.xkmc.gensokyolegacy.content.entity.behavior.module.TalkModule;
+import dev.xkmc.gensokyolegacy.content.entity.behavior.module.VisitModule;
+import dev.xkmc.gensokyolegacy.content.entity.youkai.impl.GeoYoukaiAnim;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.GeneralYoukaiEntity;
-import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiAnim;
-import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiFlags;
+import dev.xkmc.gensokyolegacy.content.entity.youkai.impl.YoukaiAnim;
+import dev.xkmc.gensokyolegacy.content.entity.youkai.impl.YoukaiFlags;
 import dev.xkmc.l2serial.serialization.marker.SerialClass;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.schedule.Activity;
@@ -72,6 +73,7 @@ public class AliceEntity extends GeneralYoukaiEntity implements GeoYoukaiAnim, D
 				// needs the visit module like everyone else
 				new VisitModule(this),
 				new PartyModule(this),
+				new GiftModule(this),
 				new TalkModule(this),
 				new AliceDollHost(this)
 		);
@@ -129,6 +131,8 @@ public class AliceEntity extends GeneralYoukaiEntity implements GeoYoukaiAnim, D
 			case CONFUSED -> Optional.of(CONFUSED);
 			case AGREE -> Optional.of(AGREE);
 			case DECLINE -> Optional.of(DECLINE);
+			case LIKE -> Optional.of(LIKE);
+			case DISLIKE -> Optional.of(DISLIKE);
 			case EAT -> Optional.of(EAT);
 			case HURT -> Optional.of(HURT);
 			case OUTDOOR_IDLE -> Optional.of(IDLE_FIDGET);

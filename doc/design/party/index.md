@@ -1,7 +1,7 @@
 # Party Event — Design Doc
 
 > **Status:** implemented — compiles, `runData` and `./gradlew build` both green. Not yet played in a live world, so the flow (`send.md`, `guest.md`) and `limits.md` §1 are reasoned from the code rather than observed.
-> **Package:** `content/attachment/party/` — `core/` (math, planner, state, handler lookup), `food/` (one handler class per kind of block food), `item/` (letter, wand), plus `content/entity/module/PartyModule.java` and `content/entity/behavior/task/party/PartyTasks.java`
+> **Package:** `content/attachment/party/` — `core/` (math, planner, state, handler lookup), `food/` (one handler class per kind of block food), `item/` (letter, wand), plus `content/entity/behavior/module/PartyModule.java` and `content/entity/behavior/task/party/PartyTasks.java`
 >
 > Party state is attachment-shaped, so the whole feature lives under `content/attachment/` alongside the other per-feature packages. That puts `PartyArea`'s neighbour `ChunkPosRange` in `content/attachment/area/` next to it rather than across the tree.
 >

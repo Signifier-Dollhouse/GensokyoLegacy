@@ -22,6 +22,7 @@ Every file the feature creates and modifies, and the resources it generates.
 | `content/attachment/party/food/SaucerFood.java` | YSF saucer dish: one serve, food on the block's own item |
 | `content/attachment/party/food/BiteFood.java` | KC dish: `maxBites - bites`, food from `FoodBiteRegistry` |
 | `content/attachment/party/food/PlateFood.java` | KC plate/platter: `servings` down, food from `PlateRegistry`'s serving items |
+| `content/attachment/party/food/GensokyoPlateFood.java` | this mod's plate: one food in a block entity, one serve, the plate stays |
 | `content/attachment/party/food/FoodResult.java` | serves + properties + consume, and the valid/not-valid rule |
 | `content/attachment/party/food/FoodResultCache.java` | resolves each state once; invalidated on datapack sync |
 | `content/attachment/party/food/Permutations.java` | finds the item form of a block food by id suffix |
@@ -37,7 +38,7 @@ Every file the feature creates and modifies, and the resources it generates.
 | `content/attachment/party/core/PartyFirework.java` | one rocket over the table, fired from a ring clear of the guests (state.md §2.1) |
 | `content/attachment/party/item/InvitationLetterItem.java` | the letter |
 | `content/attachment/party/item/PartyMessage.java` | one place that turns an outcome into player-facing text |
-| `content/entity/module/PartyModule.java` | per-guest state, `arrive`/`join`/`beginLeave`/`completeLeave`, and `Origin` |
+| `content/entity/behavior/module/PartyModule.java` | per-guest state, `arrive`/`join`/`beginLeave`/`completeLeave`, and `Origin` |
 | `content/entity/behavior/task/party/PartyTasks.java` | the 11-task cascade → delay → pickup → chew → rest, and the exit |
 | `content/rpg/condition/PartyCondition.java` | `{"type":"gensokyolegacy:party"}`, `invert` for home-bound |
 
@@ -55,7 +56,7 @@ Every file the feature creates and modifies, and the resources it generates.
 | `content/entity/characters/fairy/CirnoEntity.java` | `PartyModule` in its `createModules()` override |
 | `content/entity/characters/magician/AliceEntity.java` | same |
 | `content/entity/characters/fairy/PlainFairyEntity.java` | the chew the others already had (`YoukaiAnim.EAT`) |
-| `content/entity/module/VisitModule.java` | stand down while she is partying (guest.md §2) |
+| `content/entity/behavior/module/VisitModule.java` | stand down while she is partying (guest.md §2) |
 | `content/client/debug/CharacterRequestToServer.java` | carry a guest's tally in the existing character-info answer (debug.md §4) |
 | `content/client/debug/CharacterInfoToClient.java` | the `PartyTally` record and its two lines |
 | `init/registrate/GLEntities.java` | `TASTE_*` constants, applied via `.dataMap(GLMeta.PARTY_TASTE.reg(), …)` |
@@ -65,7 +66,7 @@ Every file the feature creates and modifies, and the resources it generates.
 | `content/command/GLCommands.java` | `/gensokyo party` |
 | `content/attachment/party/item/PartyWand.java` | the debug wand: hover, eat, simulate (debug.md §2) |
 | `content/attachment/party/item/PartyWandData.java` | the simulated result, as the wand's data component payload |
-| `content/attachment/party/item/PartyWandComponent.java` | the `DataComponentType`, registered on the mod bus |
+| `init/registrate/GLItems.java` | `PARTY_WAND_DATA`, the `DataComponentType` |
 | `init/data/GLModConfig.java` | `partyScanDistance`, `partyGuestRadius` |
 | `init/data/GLLang.java` | `Party` enum, wired into `genLang`'s group array |
 | `init/data/GLTagGen.java` | `PARTY_TABLE`, `PARTY_SEAT` and `genPartyTag` (area.md §1) |

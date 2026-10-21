@@ -68,7 +68,7 @@
 				{
 					"name": "OpenMouth1",
 					"parent": "OpenMouth",
-					"pivot": [0, 22.925, -2],
+					"pivot": [0, 23.425, -3.05],
 					"cubes": [
 						{
 							"origin": [-0.5, 22.925, -3.55],
@@ -214,7 +214,7 @@
 				{
 					"name": "RightEyeLight",
 					"parent": "RightEyeCore",
-					"pivot": [-2.9, 23.05, -2.9],
+					"pivot": [-1.9, 24.55, -3.7],
 					"cubes": [
 						{
 							"origin": [-2.4, 24.05, -4.2],

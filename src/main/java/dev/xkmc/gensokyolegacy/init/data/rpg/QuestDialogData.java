@@ -2,7 +2,8 @@ package dev.xkmc.gensokyolegacy.init.data.rpg;
 
 import com.tterrag.registrate.providers.ProviderType;
 import dev.xkmc.gensokyolegacy.content.rpg.core.DialogConfig;
-import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiAnim;
+import dev.xkmc.gensokyolegacy.content.rpg.core.GiftDialogData;
+import dev.xkmc.gensokyolegacy.content.entity.youkai.impl.YoukaiAnim;
 import dev.xkmc.gensokyolegacy.content.rpg.action.DialogAction;
 import dev.xkmc.gensokyolegacy.content.rpg.action.SetTimerAction;
 import dev.xkmc.gensokyolegacy.content.rpg.condition.HasAdvancementCondition;
@@ -36,7 +37,6 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
-import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -48,9 +48,9 @@ import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
-import net.minecraft.world.level.storage.loot.providers.number.NumberProvider;
 import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
 
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -74,6 +74,8 @@ public class QuestDialogData {
     private final Map<ResourceKey<Quest>, DataGenHolder<Quest>> questRegistry = new LinkedHashMap<>();
     private final Map<ResourceKey<TradeOffer>, DataGenHolder<TradeOffer>> tradeRegistry = new LinkedHashMap<>();
     private final Map<EntityType<?>, DialogConfig> defaultDialogMap = new LinkedHashMap<>();
+    private final Map<EntityType<?>, GiftDialogData> giftDialogMap = new LinkedHashMap<>();
+    private final Map<String, List<String>> questAnims = new LinkedHashMap<>();
 
     private String prefix = "";
 
@@ -105,6 +107,9 @@ public class QuestDialogData {
             var builder = pvd.builder(GLMeta.DIALOG_DATA.reg());
             forAll(all, d -> d.defaultDialogMap.forEach((k, v) ->
                     builder.add(BuiltInRegistries.ENTITY_TYPE.wrapAsHolder(k), v, false)));
+            var gifts = pvd.builder(GLMeta.GIFT_DIALOG_DATA.reg());
+            forAll(all, d -> d.giftDialogMap.forEach((k, v) ->
+                    gifts.add(BuiltInRegistries.ENTITY_TYPE.wrapAsHolder(k), v, false)));
         });
     }
 
@@ -120,6 +125,31 @@ public class QuestDialogData {
     public void prefix(String prefix) {
         this.prefix = prefix;
     }
+
+	/**
+	 * The animations this section's dialogs play, overriding what the shared quest helpers would
+	 * otherwise stamp on all of them alike.
+	 * <p>
+	 * {@code start("dialog_think", "dialog_decline", "dialog_agree")} reads the {@code start} helper's
+	 * three dialogs in the order it emits them — opener, refusal, acceptance — and {@code follow} and
+	 * {@code complete} likewise. A helper with no entry here keeps its default, which is why the
+	 * per-dialog choices below do not have to restate the ones that were already right.
+	 */
+	protected void questAnims(String helper, String... triggers) {
+		// List.of rejects nulls, and a null slot is how a section says "leave this one alone"
+		questAnims.put(prefix + "/" + helper, Arrays.asList(triggers));
+	}
+
+	/**
+	 * What a shared helper stamps on one of its dialogs: this section's choice if it named one, else
+	 * the helper's own default. A {@code null} in the override means "no choice, use the default", so
+	 * a section can fill in only the slots it cares about.
+	 */
+	protected List<String> anims(String helper, int slot, List<String> fallback) {
+		var triggers = questAnims.get(prefix + "/" + helper);
+		if (triggers == null || slot >= triggers.size() || triggers.get(slot) == null) return fallback;
+		return List.of(triggers.get(slot));
+	}
 
     public String starterText(String id, String text) {
         return text("starter", id, text);
@@ -144,11 +174,42 @@ public class QuestDialogData {
                 dialogText("trade", tradeText)));
     }
 
+	/**
+	 * What this character does about a gift: the two dialogs she answers it with, and the favor she has
+	 * to owe before she hands one back. Held as holders rather than ids, so nothing resolves a path at
+	 * runtime and a mistyped one fails at datagen.
+	 */
+	public void giftDialog(EntityType<?> type, Holder<Dialog> like, Holder<Dialog> dislike,
+			int threshold, ResourceLocation returnTable) {
+		giftDialogMap.put(type, new GiftDialogData(like, dislike, threshold, returnTable));
+	}
+
+	/**
+	 * The one line every gift reaction ends on, registered once however many characters use it. A
+	 * per-character copy would differ only in the lang key, not in what it says.
+	 */
+	public SimpleDialogOption giftLeave() {
+		reg.addRawLang(GIFT_LEAVE_KEY, "(Leave)");
+		return new SimpleDialogOption(List.of(), GIFT_LEAVE_KEY, List.of(), Optional.empty());
+	}
+
+	public static final String GIFT_LEAVE_KEY = "gensokyolegacy/dialog/gift/leave";
+
     private String dialogText(String type, String text) {
         String full = modid + "/" + prefix + "/" + type;
         reg.addRawLang(full, text);
         return full;
     }
+
+	/**
+	 * The same, at a key spelled out whole rather than assembled from the prefix. {@link #dialog} can
+	 * only make {@code prefix/dialog/prefix/id}, which spells the prefix twice; a section that already
+	 * carries it in its own path says so through here instead.
+	 */
+	public String rawText(String full, String text) {
+		reg.addRawLang(modid + "/" + full, text);
+		return modid + "/" + full;
+	}
 
     public String questDesc(String text) {
         return text("quest", "desc", text);
@@ -193,7 +254,17 @@ public class QuestDialogData {
 
     public Holder<DialogStarter> chat(String id, EntityType<?> character, List<QuestCondition<?>> conditions,
                                       String text, Holder<Dialog> dialog, int weight) {
-        return starter(id, new DialogStarter(character, conditions, text, dialog, weight));
+        return starter(id, new DialogStarter(character, conditions, text, dialog, weight, false));
+    }
+
+    /**
+     * A chat the character starts the conversation on rather than offering as a topic: no starter line,
+     * no weight, and out of the roll that picks the one chat per conversation. For something owed to the
+     * player that has to happen before anything else does.
+     */
+    public Holder<DialogStarter> overrideChat(String id, EntityType<?> character, List<QuestCondition<?>> conditions,
+                                              Holder<Dialog> dialog) {
+        return starter(id, new DialogStarter(character, conditions, "", dialog, 1, true));
     }
 
     protected HasAdvancementCondition hasAdv(ResourceLocation adv) {

@@ -17,15 +17,30 @@
     },
     {
       "type": "patchouli:spotlight",
-      "item": "tag:gensokyolegacy:plank_wall",
-      "title": "木板墙",
-      "text": "木板墙各种木材都有，适合精打细算的你。"
+      "item": [
+        "gensokyolegacy:red_lantern",
+        "gensokyolegacy:white_lantern",
+        "gensokyolegacy:lettered_red_lantern",
+        "gensokyolegacy:lettered_white_lantern"
+      ],
+      "title": "灯笼",
+      "text": "四种灯笼，红白两色，各有素面与带字两种，亮度都足以单靠一盏照亮整间屋子，一串灯笼看上去就像一整条，"
     },
     {
       "type": "patchouli:spotlight",
-      "item": "tag:gensokyolegacy:tile_variants",
-      "title": "瓦片",
-      "text": "瓦片共有 7 种颜色：青色、橙色、黄色、棕色、蓝色、黑色和灰色。每种颜色都有楼梯、台阶和墙板。"
+      "item": "gensokyolegacy:stone_lantern",
+      "title": "石灯笼",
+      "text": "两格高的石制庭院灯笼，通体实心，本身并不发光。"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": [
+        "gensokyolegacy:wrought_iron_bars",
+        "gensokyolegacy:wrought_iron_pillar",
+        "gensokyolegacy:candlestick"
+      ],
+      "title": "铁艺栏杆",
+      "text": "上过黑漆的铁器，给人庄重感。"
     },
     {
       "type": "patchouli:spotlight",
@@ -40,24 +55,26 @@
     },
     {
       "type": "patchouli:spotlight",
-      "item": [
-        "gensokyolegacy:red_lantern",
-        "gensokyolegacy:white_lantern",
-        "gensokyolegacy:lettered_red_lantern",
-        "gensokyolegacy:lettered_white_lantern"
-      ],
-      "title": "灯笼",
-      "text": "四种灯笼，红白两色，各有素面与带字两种，亮度都足以单靠一盏照亮整间屋子，一串灯笼看上去就像一整条，"
+      "item": "tag:gensokyolegacy:plank_wall",
+      "title": "木板墙",
+      "text": "木板墙各种木材都有，适合精打细算的你。"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "tag:gensokyolegacy:tile_variants",
+      "title": "瓦片",
+      "text": "瓦片共有 7 种颜色：青色、橙色、黄色、棕色、蓝色、黑色和灰色。每种颜色都有楼梯、台阶和墙板。"
     },
     {
       "type": "patchouli:spotlight",
       "item": [
-        "gensokyolegacy:wrought_iron_bars",
-        "gensokyolegacy:wrought_iron_pillar",
-        "gensokyolegacy:candlestick"
+        "gensokyolegacy:ice_bricks",
+        "gensokyolegacy:ice_brick_stairs",
+        "gensokyolegacy:ice_brick_slab",
+        "gensokyolegacy:ice_brick_vertical_slab"
       ],
-      "title": "铁艺栏杆",
-      "text": "上过黑漆的铁器，给人庄重感。"
+      "title": "冰砖",
+      "text": "用浮冰切出的建筑方块，也有楼梯、台阶和墙板三种形态。适合用于雪地中的建筑。"
     }
   ]
 }

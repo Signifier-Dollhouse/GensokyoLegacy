@@ -8,14 +8,19 @@ import dev.xkmc.gensokyolegacy.content.block.functional.alchemypot.AlchemyPotBlo
 import dev.xkmc.gensokyolegacy.content.block.functional.alchemypot.AlchemyPotRenderer;
 import dev.xkmc.gensokyolegacy.content.block.functional.barriers.SealingPotBlock;
 import dev.xkmc.gensokyolegacy.content.block.functional.barriers.SealingPotShape;
+import dev.xkmc.gensokyolegacy.content.block.functional.plate.PlateBlock;
+import dev.xkmc.gensokyolegacy.content.block.functional.plate.PlateBlockEntity;
+import dev.xkmc.gensokyolegacy.content.block.functional.plate.PlateRenderer;
 import dev.xkmc.gensokyolegacy.content.block.functional.portal.*;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.l2modularblock.core.BlockTemplates;
 import dev.xkmc.l2modularblock.core.DelegateBlock;
+import net.minecraft.client.renderer.block.model.BlockModel;
 import net.minecraft.core.Holder;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.item.BedItem;
 import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.level.block.BedBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -23,6 +28,7 @@ import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
+import net.neoforged.neoforge.client.model.generators.loaders.SeparateTransformsModelBuilder;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Locale;
@@ -85,6 +91,9 @@ public class GLBlocks {
 
 	public static final BlockEntry<DelegateBlock> SEALING_POT;
 
+	public static final BlockEntry<DelegateBlock> PLATE;
+	public static final BlockEntityEntry<PlateBlockEntity> PLATE_BE;
+
 	public static final BlockEntry<YoukaiBedBlock>[] BEDS;
 	public static final BlockEntityEntry<YoukaiBedBlockEntity> BE_BED;
 
@@ -141,6 +150,36 @@ public class GLBlocks {
 					.item().model((ctx, pvd) -> pvd.withExistingParent(ctx.getName(), "item/generated")
 							.texture("layer0", pvd.modLoc("item/utensil/sealing_pot")))
 					.build()
+					.register();
+
+			// 盘子：放一份不带容器的食物，右键取回
+			PLATE = GensokyoLegacy.REGISTRATE.block("plate", p -> DelegateBlock.newBaseBlock(p,
+							BlockTemplates.HORIZONTAL, new PlateBlock(), PlateBlock.BE))
+					.properties(p -> p.mapColor(DyeColor.WHITE).strength(1.4F).sound(SoundType.STONE).noOcclusion())
+					.tag(BlockTags.MINEABLE_WITH_PICKAXE)
+					.blockstate((ctx, pvd) -> pvd.horizontalBlock(ctx.get(),
+							pvd.models().getBuilder(ctx.getName())
+									.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/utensil/plate")))
+									.texture("all", pvd.modLoc("block/utensil/plate"))
+									.renderType("cutout")))
+					// the block model in the world, the flat 16x16 icon in the gui — the same split as the doll lance
+					.item().model((ctx, pvd) -> {
+						var base = pvd.nested()
+								.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("block/" + ctx.getName())));
+						var guiModel = pvd.nested()
+								.parent(new ModelFile.UncheckedModelFile("item/generated"))
+								.texture("layer0", pvd.modLoc("item/utensil/" + ctx.getName()));
+						pvd.getBuilder(ctx.getName())
+								.customLoader(SeparateTransformsModelBuilder::begin)
+								.base(base)
+								.perspective(ItemDisplayContext.GUI, guiModel)
+								.end().guiLight(BlockModel.GuiLight.FRONT);
+					})
+					.build()
+					.register();
+			PLATE_BE = GensokyoLegacy.REGISTRATE.blockEntity("plate", PlateBlockEntity::new)
+					.validBlock(PLATE)
+					.renderer(() -> PlateRenderer::new)
 					.register();
 
 		}

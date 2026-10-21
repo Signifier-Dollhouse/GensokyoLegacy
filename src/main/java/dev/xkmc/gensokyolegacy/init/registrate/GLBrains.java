@@ -2,7 +2,7 @@ package dev.xkmc.gensokyolegacy.init.registrate;
 
 import dev.xkmc.gensokyolegacy.content.entity.behavior.move.CompoundPath;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.sensor.*;
-import dev.xkmc.gensokyolegacy.content.entity.module.FairyFeedModule;
+import dev.xkmc.gensokyolegacy.content.entity.behavior.module.FairyFeedModule;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.l2core.init.reg.simple.SR;
 import dev.xkmc.l2core.init.reg.simple.Val;

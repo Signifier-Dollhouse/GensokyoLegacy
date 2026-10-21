@@ -8,10 +8,10 @@ import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyFoodValue;
 import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyGift;
 import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartySend;
 import dev.xkmc.gensokyolegacy.content.attachment.party.item.PartyMessage;
-import dev.xkmc.gensokyolegacy.content.entity.module.PartyModule;
-import dev.xkmc.gensokyolegacy.content.entity.module.VisitModule;
+import dev.xkmc.gensokyolegacy.content.entity.behavior.module.PartyModule;
+import dev.xkmc.gensokyolegacy.content.entity.behavior.module.VisitModule;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.SmartYoukaiEntity;
-import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiAnim;
+import dev.xkmc.gensokyolegacy.content.entity.youkai.impl.YoukaiAnim;
 import dev.xkmc.gensokyolegacy.init.data.GLModConfig;
 import dev.xkmc.gensokyolegacy.util.BrainUtils;
 import net.minecraft.core.BlockPos;
@@ -229,7 +229,6 @@ public class PartyContext {
 	 */
 	public boolean walkTo(PartyTarget target) {
 		if (target.inReach(this) && target.arrived(this)) return true;
-		party.walkingTo(target.interact(), gameTime);
 		if (target.inReach(this)) {
 			// in range but not standing on the tile: the order is what closes the gap
 			order(target);
@@ -241,9 +240,12 @@ public class PartyContext {
 	}
 
 	private void order(PartyTarget target) {
-		if (BrainUtils.getMemory(entity, MemoryModuleType.WALK_TARGET) != null) return;
 		var walk = target.walkTo() == null ? target.interact() : target.walkTo();
 		if (walk == null) return;
+		// registered here rather than in walkTo, so the stall fallback covers every order that is
+		// really given, and no clock runs at all while she is too high up to be given one
+		party.walkingTo(walk, gameTime);
+		if (BrainUtils.getMemory(entity, MemoryModuleType.WALK_TARGET) != null) return;
 		// a passenger does not walk, and the chair she is riding will not go for her
 		if (entity.isPassenger()) entity.stopRiding();
 		BrainUtils.setMemory(entity, MemoryModuleType.WALK_TARGET, new WalkTarget(walk.getCenter(), 1, 1));
@@ -381,6 +383,9 @@ public class PartyContext {
 	 */
 	public void beginChew() {
 		YoukaiAnim.EAT.play(entity);
+		// the plate she is carrying is the crumb: Chew empties her hand part-way through,
+		// so the crumbs have to come off the synced stack rather than off the hand
+		entity.startEating(entity.getMainHandItem().copy(), PartyTasks.EAT_TICKS);
 		level.playSound(null, entity.blockPosition(), SoundEvents.GENERIC_EAT,
 				SoundSource.PLAYERS, 0.8F, 1.0F);
 		party.chew = PartyTasks.EAT_TICKS;

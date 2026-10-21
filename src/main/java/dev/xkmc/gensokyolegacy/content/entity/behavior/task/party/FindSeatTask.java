@@ -1,6 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.entity.behavior.task.party;
 
-import dev.xkmc.gensokyolegacy.content.entity.module.PartyModule;
+import dev.xkmc.gensokyolegacy.content.entity.behavior.module.PartyModule;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.SmartYoukaiEntity;
 import net.minecraft.server.level.ServerLevel;
 

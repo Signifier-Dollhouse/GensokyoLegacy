@@ -59,7 +59,7 @@ public class FairyFleeTask extends Behavior<PlainFairyEntity> {
 				MemoryModuleType.WALK_TARGET, MemoryStatus.VALUE_ABSENT,
 				MemoryModuleType.ATTACK_TARGET, MemoryStatus.VALUE_ABSENT,
 				GLBrains.MEM_FEAR.get(), MemoryStatus.VALUE_PRESENT
-		), 0, 0);
+		), 100, 100);
 	}
 
 	@Override

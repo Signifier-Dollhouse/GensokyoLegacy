@@ -506,6 +506,7 @@ FURNACE_2_BOOST("Held in main hand while riding a broom, right click to burn fue
 		CAT_BELL_LORE("Small, and heavier than any bell has a right to be.", 0, ChatFormatting.GRAY),
 		BROOM_LORE("It flies itself, given there is somebody left to fly.", 0, ChatFormatting.GRAY),
 		DOLL_LANCE_LORE("A polearm built to a doll's reach rather than a hand's.", 0, ChatFormatting.GRAY),
+		MINI_SHIELD_LORE("Too small for a hand, but a doll can still get behind it.", 0, ChatFormatting.GRAY),
 		STAR_WAND_LORE("Throws the star, keeps the wand.", 0, ChatFormatting.GRAY),
 		IRON_DAGGER_LORE("Thrown, not dropped — it knows the way back.", 0, ChatFormatting.GRAY),
 		STRANGE_GLASSES_LORE("Someone else's idea of what counts as real.", 0, ChatFormatting.GRAY),
@@ -514,7 +515,8 @@ FURNACE_2_BOOST("Held in main hand while riding a broom, right click to burn fue
 		STRAW_HAT_LORE("Woven by someone with four legs, for a frog with a very large appetite.", 0, ChatFormatting.GRAY),
 		SUWAKO_HAT_LORE("A river god's hat, traded for a frog's very specific appetite.", 0, ChatFormatting.GRAY),
 		KOISHI_HAT_LORE("Taken off a third party, and it never stopped sulking about it.", 0, ChatFormatting.GRAY),
-		ICE_WINGS_LORE("Six crystals, and it is suddenly very hard to count past nine.", 0, ChatFormatting.GRAY);
+		ICE_WINGS_LORE("Six crystals, and it is suddenly very hard to count past nine.", 0, ChatFormatting.GRAY),
+		FAIRY_WINGS_LORE("A fairy's wing, priced at half of whatever the wearer has.", 0, ChatFormatting.GRAY);
 
 		private final String def;
 		private final int argn;
@@ -803,7 +805,8 @@ FURNACE_2_BOOST("Held in main hand while riding a broom, right click to burn fue
 		ALCHEMY("jei.gensokyolegacy.alchemy", "Alchemy Pot"),
 		TRADE("jei.gensokyolegacy.trade", "Trade"),
 		QUEST("jei.gensokyolegacy.quest", "Quest Rewards"),
-		GIFT("jei.gensokyolegacy.gift", "Party Gifts");
+		GIFT("jei.gensokyolegacy.gift", "Party Gifts"),
+		INTERACTION("jei.gensokyolegacy.interaction", "Entity Interaction");
 
 		private final String def;
 		private final int argn;
@@ -859,7 +862,10 @@ FURNACE_2_BOOST("Held in main hand while riding a broom, right click to burn fue
 		GIFT_BAND_TOP("%s+", 1),
 		GIFT_CHANCE("Chance: %s%%", 1),
 		GIFT_NOTE("One gift each; the appeal she ate picks how generous she is", 0),
-		MORE_RUNGS("+%s more rungs", 1);
+		MORE_RUNGS("+%s more rungs", 1),
+		KIND_FEED("Feeding", 0),
+		FEED_WORTH("+%s reputation", 1),
+		FEED_NOTE("Right-click her with it; the thank-you only lands once she no longer counts you an enemy, and feeding on its own caps at %s reputation", 1);
 
 		private final String def;
 		private final int argn;
@@ -946,6 +952,49 @@ FURNACE_2_BOOST("Held in main hand while riding a broom, right click to burn fue
 	}
 
 	// ========== Doll ==========
+	/**
+	 * The Sekibanki head's item tooltip. Its own group rather than {@link ItemGlove} or a doll one,
+	 * because the four lines are this gadget's alone: what possession is, is not a doll fact.
+	 */
+	public enum ItemSekibankiHead implements LangEntry {
+		SUMMON("Right-click to call the head out", 0, ChatFormatting.GRAY),
+		COLLECT("Right-click the head with an empty hand to collect it", 0, ChatFormatting.GRAY),
+		POSSESS("Shift and right-click the head to see through it", 0, ChatFormatting.GRAY),
+		EXIT("Left-click to stop looking through it", 0, ChatFormatting.GRAY);
+
+		private final String def;
+		private final int argn;
+		private final String key;
+		private final @Nullable ChatFormatting format;
+
+		ItemSekibankiHead(String def, int argn, @Nullable ChatFormatting format) {
+			this.def = def;
+			this.argn = argn;
+			this.key = GensokyoLegacy.MODID + ".sekibanki_head." + name().toLowerCase(Locale.ROOT);
+			this.format = format;
+		}
+
+		@Override
+		public String key() {
+			return key;
+		}
+
+		@Override
+		public String def() {
+			return def;
+		}
+
+		@Override
+		public int argn() {
+			return argn;
+		}
+
+		@Override
+		public @Nullable ChatFormatting format() {
+			return format;
+		}
+	}
+
 	public enum Doll implements LangEntry {
 		NO_SPACE("No inventory space"),
 		RESYNC_MISSING("Doll entity missing — restoring"),
@@ -995,7 +1044,7 @@ FURNACE_2_BOOST("Held in main hand while riding a broom, right click to burn fue
 		for (var group : new LangEntry[][]{
 				Quest.values(), Info.values(), Trade.values(), Misc.values(),
 				ItemDebug.values(), ItemFurnace.values(), ItemLores.values(), ItemCommon.values(), ItemUmbrella.values(), ItemGlove.values(), ItemDaggerGlove.values(), Alchemy.values(), Jei.values(), JeiExtra.values(),
-				Talisman.values(), Doll.values(), Party.values()}) {
+				Talisman.values(), Doll.values(), Party.values(), ItemSekibankiHead.values()}) {
 			for (var e : group) {
 				pvd.add(e.key(), e.def());
 			}

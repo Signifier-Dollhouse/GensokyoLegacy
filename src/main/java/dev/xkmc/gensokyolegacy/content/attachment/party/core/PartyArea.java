@@ -1,6 +1,7 @@
 package dev.xkmc.gensokyolegacy.content.attachment.party.core;
 
 import dev.xkmc.gensokyolegacy.content.attachment.area.ChunkPosRange;
+import dev.xkmc.gensokyolegacy.content.block.deco.seat.ISeatableBlock;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.GLTagGen;
 import net.minecraft.core.BlockPos;
@@ -77,8 +78,9 @@ public record PartyArea(BlockPos anchor, List<BlockPos> food, List<BlockPos> sea
 			var state = level.getBlockState(pos);
 			var furniture = false;
 			if (state.is(GLTagGen.PARTY_SEAT)) {
-				seats.add(pos);
 				furniture = true;
+				// a two-block chair is furniture on both halves, a seat on the lower one only
+				if (isSeatState(state)) seats.add(pos);
 			}
 			if (state.is(GLTagGen.PARTY_TABLE)) {
 				tables.add(pos);
@@ -141,9 +143,18 @@ public record PartyArea(BlockPos anchor, List<BlockPos> food, List<BlockPos> sea
 	public static List<BlockPos> seatsAround(Level level, BlockPos anchor) {
 		var ans = new ArrayList<BlockPos>();
 		for (var pos : box(anchor)) {
-			if (level.getBlockState(pos).is(GLTagGen.PARTY_SEAT)) ans.add(pos.immutable());
+			var state = level.getBlockState(pos);
+			if (isSeatState(state)) ans.add(pos.immutable());
 		}
 		return ans;
+	}
+
+	/**
+	 * Whether a block is a chair a guest may sit in. The tag names the <i>block</i>, so both halves
+	 * of a large chair carry it and only {@link ISeatableBlock#isSeatPos} tells them apart.
+	 */
+	public static boolean isSeatState(BlockState state) {
+		return state.is(GLTagGen.PARTY_SEAT) && ISeatableBlock.isSeatPos(state);
 	}
 
 	/** Every block of the guest box around the anchor, inclusive. */

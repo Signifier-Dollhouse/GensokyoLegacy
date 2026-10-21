@@ -1,0 +1,8 @@
+{
+  "parent": "gensokyolegacy:custom/deco/jizo",
+  "render_type": "minecraft:cutout",
+  "textures": {
+    "all": "gensokyolegacy:block/deco/jizo_narumi",
+    "particle": "gensokyolegacy:block/deco/jizo_narumi"
+  }
+}

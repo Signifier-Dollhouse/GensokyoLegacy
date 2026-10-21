@@ -18,7 +18,7 @@ public class LookAtDollOwnerGoal extends Goal {
     @Override
     public boolean canUse() {
         this.owner = this.doll.getOwner();
-        return this.owner != null;
+        return this.owner != null && this.doll.followsOwner();
     }
 
     @Override

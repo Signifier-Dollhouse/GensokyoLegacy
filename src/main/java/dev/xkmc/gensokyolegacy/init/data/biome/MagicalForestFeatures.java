@@ -1,6 +1,6 @@
 package dev.xkmc.gensokyolegacy.init.data.biome;
 
-import dev.xkmc.gensokyolegacy.content.block.nature.CedarFallenLeavesBlock;
+import dev.xkmc.gensokyolegacy.content.block.nature.FallenLeavesBlock;
 import dev.xkmc.gensokyolegacy.content.block.nature.WaterloggedBushBlock;
 import dev.xkmc.gensokyolegacy.content.worldgen.feature.lake.MagicalForestLakeFeature;
 import dev.xkmc.gensokyolegacy.content.worldgen.feature.template.TemplateFeatureConfig;
@@ -433,10 +433,14 @@ public class MagicalForestFeatures {
 
 	private static RandomPatchConfiguration fallenLeavesPatch(int tries, int spread) {
 		BlockState leaves = GLNaturalBlocks.CEDAR_FALLEN_LEAVES.get().defaultBlockState();
-		return groundPatch(tries, spread, new WeightedStateProvider(SimpleWeightedRandomList.<BlockState>builder()
-				.add(leaves.setValue(CedarFallenLeavesBlock.LAYERS, 1), 3)
-				.add(leaves.setValue(CedarFallenLeavesBlock.LAYERS, 2), 1)
-				.build()));
+		// 每格独立随机朝向，避免整片落叶看起来是同一张贴图平铺
+		var list = SimpleWeightedRandomList.<BlockState>builder();
+		for (Direction facing : Direction.Plane.HORIZONTAL) {
+			var turned = leaves.setValue(FallenLeavesBlock.FACING, facing);
+			list.add(turned.setValue(FallenLeavesBlock.LAYERS, 1), 3)
+					.add(turned.setValue(FallenLeavesBlock.LAYERS, 2), 1);
+		}
+		return groundPatch(tries, spread, new WeightedStateProvider(list.build()));
 	}
 
 	private static HolderSet<Structure> structures(HolderGetter<Structure> lookup) {

@@ -34,13 +34,15 @@ from collections import OrderedDict, Counter
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA = os.path.join(ROOT, "src/generated/resources/data/gensokyolegacy/gensokyolegacy")
 DATA_MAP = os.path.join(ROOT, "src/generated/resources/data/gensokyolegacy/data_maps/entity_type/default_dialog.json")
+GIFT_DATA_MAP = os.path.join(ROOT,
+                              "src/generated/resources/data/gensokyolegacy/data_maps/entity_type/gift_dialog.json")
 EN_LANG = os.path.join(ROOT, "src/generated/resources/assets/gensokyolegacy/lang/en_us.json")
 ZH_LANG = os.path.join(ROOT, "src/main/resources/assets/gensokyolegacy/lang/zh_cn.json")
 OUT = os.path.join(ROOT, "out")
 
 JAVA = os.path.join(ROOT, "src/main/java/dev/xkmc/gensokyolegacy")
-YOUKAI_ANIM_JAVA = os.path.join(JAVA, "content/entity/youkai/YoukaiAnim.java")
-GEO_YOUKAI_JAVA = os.path.join(JAVA, "content/entity/youkai/GeoYoukaiAnim.java")
+YOUKAI_ANIM_JAVA = os.path.join(JAVA, "content/entity/youkai/impl/YoukaiAnim.java")
+GEO_YOUKAI_JAVA = os.path.join(JAVA, "content/entity/youkai/impl/GeoYoukaiAnim.java")
 GL_ENTITIES_JAVA = os.path.join(JAVA, "init/registrate/GLEntities.java")
 ANIM_ASSETS = os.path.join(ROOT, "src/main/resources/assets/gensokyolegacy/animations")
 
@@ -109,6 +111,8 @@ LABELS = {
     "chat_head": ("chat %s", "闲聊 %s"),
     "weight": ("weight %s   (1 = default greeting, 30 misc, 100 info, 1000 special)",
                "权重 %s（1 = 默认问候，30 杂谈，100 情报，1000 特殊事件）"),
+    "override": ("override: entered on sight, no topic and no weight",
+                 "覆盖：见到即进入，不占用话题列表，也没有权重"),
     "gate_none": ("gate: none (always available)", "条件：无（始终可用）"),
     "player": ("player: ", "玩家："),
     "section_quests": ("## QUESTS (%d)", "## 任务（%d）"),
@@ -457,6 +461,9 @@ class Ctx:
         self.starters = load_registry("dialog_starter")
         self.quests = load_registry("quest")
         self.default_dialogs = load_json(DATA_MAP)["values"]
+        # the gift reactions are opened by the module rather than by a starter, so they are reached
+        # from here rather than from the topic list; without this they audit as unreachable
+        self.gift_dialogs = load_json(GIFT_DATA_MAP)["values"]
         self.rig = None                      # set per character by render_character
         self.notes = []
 
@@ -831,8 +838,13 @@ def audit(ctx, char_id, starters, quests):
                     walk(target)
 
     for s in starters.values():
-        used_keys.add(s["text"])
+        used_keys.add(s.get("text", ""))
         walk(s["dialog"])
+    for entry in ctx.gift_dialogs.values():
+        for which in ("like", "dislike"):
+            did = plain_loc(entry.get(which, ""))
+            if did.startswith(char_id + "/"):
+                walk(did)
     for q in quests.values():
         used_keys.add(q["title"])
         used_keys.add(q["description"])
@@ -921,13 +933,18 @@ def render_character(ctx, char_id, display):
     for k, s in starters.items():
         a(rule("-"))
         a(ctx.t("chat_head", loc(k)))
-        a("  " + ctx.t("weight", s.get("weight", 1)))
+        # an override has no topic and no weight: it replaces the conversation rather than competing in it
+        if s.get("override"):
+            a("  " + ctx.t("override"))
+        else:
+            a("  " + ctx.t("weight", s.get("weight", 1)))
         gates = conditions(ctx, s.get("conditions"), "  ")
         if gates:
             out.extend(gates)
         else:
             a("  " + ctx.t("gate_none"))
-        out.extend(ctx.text(s["text"], indent="  ", prefix=ctx.t("player")))
+        if s.get("text"):
+            out.extend(ctx.text(s["text"], indent="  ", prefix=ctx.t("player")))
         a("  %s:" % display)
         out.extend(dialog(ctx, s["dialog"], "    ", 0, set()))
         a("")

@@ -3,7 +3,7 @@ package dev.xkmc.gensokyolegacy.content.attachment.party.core;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.xkmc.gensokyolegacy.content.entity.module.PartyModule;
+import dev.xkmc.gensokyolegacy.content.entity.behavior.module.PartyModule;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMisc;
 import net.minecraft.world.level.storage.loot.LootContext;

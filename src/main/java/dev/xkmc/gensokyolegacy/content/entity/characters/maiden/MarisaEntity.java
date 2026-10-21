@@ -6,10 +6,10 @@ import dev.xkmc.gensokyolegacy.content.entity.behavior.sensor.YoukaiHomeBlocksSe
 import dev.xkmc.gensokyolegacy.content.entity.behavior.task.marisa.MarisaBonemealTask;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.task.marisa.MarisaBrewTask;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.task.marisa.MarisaForageTask;
-import dev.xkmc.gensokyolegacy.content.entity.youkai.GeoYoukaiAnim;
-import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiAnim;
+import dev.xkmc.gensokyolegacy.content.entity.youkai.impl.GeoYoukaiAnim;
+import dev.xkmc.gensokyolegacy.content.entity.youkai.impl.YoukaiAnim;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiFeatureSet;
-import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiFlags;
+import dev.xkmc.gensokyolegacy.content.entity.youkai.impl.YoukaiFlags;
 import dev.xkmc.gensokyolegacy.init.registrate.GLBrains;
 import dev.xkmc.l2serial.serialization.marker.SerialClass;
 import net.minecraft.world.entity.EntityType;
@@ -96,6 +96,8 @@ public class MarisaEntity extends MaidenEntity implements GeoYoukaiAnim {
 			case CONFUSED -> Optional.of(CONFUSED);
 			case AGREE -> Optional.of(AGREE);
 			case DECLINE -> Optional.of(DECLINE);
+			case LIKE -> Optional.of(LIKE);
+			case DISLIKE -> Optional.of(DISLIKE);
 			case EAT -> Optional.of(EAT);
 			case HURT -> Optional.of(HURT);
 			case OUTDOOR_IDLE -> Optional.of(IDLE_FIDGET);

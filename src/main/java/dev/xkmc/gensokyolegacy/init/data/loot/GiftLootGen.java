@@ -3,6 +3,7 @@ package dev.xkmc.gensokyolegacy.init.data.loot;
 import com.tterrag.registrate.providers.loot.RegistrateLootTableProvider;
 import dev.xkmc.gensokyolegacy.content.attachment.party.core.AppealConsumedCondition;
 import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyGift;
+import dev.xkmc.gensokyolegacy.content.rpg.gift.GiftReturn;
 import dev.xkmc.gensokyolegacy.content.item.hexbrew.HexBrew;
 import dev.xkmc.gensokyolegacy.content.item.talisman.core.GLTalismans;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
@@ -72,6 +73,16 @@ public class GiftLootGen {
 			tier(100, 150, gift(GLItems.TENGU_SAKE, 20), gift(GLItems.GHOST_SAKE, 20),
 					gift(GLItems.MAGIC_BOOK, 20), gift(GLDecoBlocks.STURDY_TEDDY_BEAR, 20)));
 
+	/**
+	 * Which rung of a character's ladder she hands back as a return gift, counted from the bottom.
+	 * <p>
+	 * The second and not the first: the bottom rung is what she leaves on the table after a whole
+	 * visit, and a return gift has to be worth more than that to read as one. Not higher either,
+	 * because the top of her ladder should stay something a visit earns rather than something
+	 * patience buys.
+	 */
+	public static final int RETURN_TIER = 1;
+
 	public static void genLoot(RegistrateLootTableProvider pvd) {
 		pvd.addLootAction(SET, c -> c.accept(PartyGift.DEFAULT_TABLE, table(DEFAULT)));
 		gift(pvd, "hakurei_reimu", reimu());
@@ -81,14 +92,50 @@ public class GiftLootGen {
 		gift(pvd, "alice_margatroid", alice());
 		gift(pvd, "morichika_rinnosuke", morichika());
 		gift(pvd, "ibuki_suika", suika());
+		returns(pvd, DEFAULT, reimu(), cirno(), marisa(), sakuya(), alice(), morichika(), suika());
+	}
+
+	/**
+	 * One return table per character, cut from her own ladder rather than restated. {@link #RETURN_TIER}
+	 * indexes into the same {@link Tier} lists the party tables are built from, so the two cannot drift.
+	 */
+	private static void returns(RegistrateLootTableProvider pvd, List<Tier>... ladders) {
+		String[] names = {"default", "hakurei_reimu", "cirno", "kirisame_marisa",
+				"izayoi_sakuya", "alice_margatroid", "morichika_rinnosuke", "ibuki_suika"};
+		for (int i = 0; i < ladders.length; i++) {
+			var name = names[i];
+			var table = returnTable(ladders[i]);
+			pvd.addLootAction(SET, c -> c.accept(returnKey(name), table));
+		}
+	}
+
+	private static ResourceKey<LootTable> returnKey(String character) {
+		return ResourceKey.create(Registries.LOOT_TABLE,
+				ResourceLocation.fromNamespaceAndPath(GensokyoLegacy.MODID, GiftReturn.TABLE_DIR + "/" + character));
+	}
+
+	/**
+	 * The one rung, ungated. The band it answers for is what a guest has eaten, and a return gift is
+	 * bought with gifts rather than appeal, so carrying the {@link AppealConsumedCondition} over would
+	 * leave the pool answering for a number this roll never sets.
+	 */
+	private static LootTable.Builder returnTable(List<Tier> ladder) {
+		Tier rung = ladder.get(Math.min(RETURN_TIER, ladder.size() - 1));
+		var pool = LootPool.lootPool()
+				.setRolls(ConstantValue.exactly(1f))
+				.setBonusRolls(ConstantValue.exactly(0f));
+		for (var entry : rung.gifts()) {
+			pool.add(LootItem.lootTableItem(entry.item()).setWeight(entry.weight()));
+		}
+		return LootTable.lootTable().withPool(pool);
 	}
 
 	private static List<Tier> reimu() {
 		return List.of(
 				tier(0, 50, gift(GLNaturalBlocks.STAR_FLOWER, 12)),
-				tier(50, 100, gift(GLItems.GHOST_SAKE, 20),
-						gift(GLItems.TENGU_SAKE, 20),
-						gift(GLDecoBlocks.STURDY_TEDDY_BEAR, 40)),
+				tier(50, 100, gift(GLItems.ZUN_BEER, 20),
+						gift(GLItems.GHOST_SAKE, 20),
+						gift(GLItems.LUCKY_TEA, 40)),
 				tier(100, 200, gift(GLTalismans.SPEED_TALISMAN, 10),
 						gift(GLTalismans.HYDROPHOBIC_TALISMAN, 10),
 						gift(GLTalismans.LAVA_TALISMAN, 10)),
@@ -115,9 +162,10 @@ public class GiftLootGen {
 
 	private static List<Tier> marisa() {
 		return List.of(
-				tier(0, 50, gift(GLNaturalBlocks.STAR_FLOWER, 20)),
-				tier(50, 100, gift(GLItems.TENGU_SAKE, 10),
-						gift(GLItems.GHOST_SAKE, 10),
+				tier(0, 50, gift(GLNaturalBlocks.STAR_FLOWER, 20),
+						gift(GLItems.MAGIC_CANDY, 20)),
+				tier(50, 100, gift(GLItems.MAGIC_CANDY, 20),
+						gift(GLItems.KAPPA_BENTO, 20),
 						gift(GLItems.MAGIC_BOOK, 20)),
 				tier(100, 200, gift(HexBrew.EXPLOSIVE_HEXBREW.bottle, 10),
 						gift(HexBrew.MIASMA_HEXBREW.bottle, 10),
@@ -139,8 +187,9 @@ public class GiftLootGen {
 
 	private static List<Tier> alice() {
 		return List.of(
-				tier(0, 50, gift(GLNaturalBlocks.STAR_FLOWER, 20)),
-				tier(50, 100, gift(GLDecoBlocks.STURDY_TEDDY_BEAR, 20)),
+				tier(0, 50, gift(GLItems.MAGIC_CANDY, 20)),
+				tier(50, 100, gift(GLDecoBlocks.STURDY_TEDDY_BEAR, 20),
+						gift(GLItems.FANCY_FAN, 20)),
 				tier(100, 400, gift(GLItems.DOLL_LANCE, 10)),
 				tier(400, 0, gift(GLItems.DOLL, 10)));
 	}
@@ -150,6 +199,8 @@ public class GiftLootGen {
 				tier(0, 50, gift(GLNaturalBlocks.STAR_FLOWER, 20)),
 				tier(50, 100, gift(GLItems.TENGU_SAKE, 10),
 						gift(GLItems.GHOST_SAKE, 10),
+						gift(GLItems.FANCY_FAN, 20),
+						gift(GLItems.ZUN_BEER, 20),
 						gift(GLDecoBlocks.STURDY_TEDDY_BEAR, 20)),
 				tier(100, 200, gift(GLItems.STRANGE_GLASSES, 10),
 						gift(GLItems.CAT_BELL, 10),

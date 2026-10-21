@@ -1,6 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.entity.characters.maiden;
 
-import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiHeldItemLayer;
+import dev.xkmc.gensokyolegacy.content.entity.youkai.renderer.YoukaiHeldItemLayer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
 

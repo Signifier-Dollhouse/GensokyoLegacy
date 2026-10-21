@@ -1,7 +1,7 @@
 package dev.xkmc.gensokyolegacy.content.rpg.network;
 
 import dev.xkmc.gensokyolegacy.content.ui.dialog.DialogSession;
-import dev.xkmc.gensokyolegacy.content.entity.module.TalkModule;
+import dev.xkmc.gensokyolegacy.content.entity.behavior.module.TalkModule;
 import dev.xkmc.l2serial.network.SerialPacketBase;
 import net.minecraft.world.entity.player.Player;
 

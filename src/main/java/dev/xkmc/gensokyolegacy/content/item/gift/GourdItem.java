@@ -11,7 +11,7 @@ import net.minecraft.world.level.Level;
 import java.util.List;
 
 /**
- * A drink (GiftType.DRINK) that is never used up: drunk straight from and put back where it was, so unlike the
+ * Suika's drink that is never used up: drunk straight from and put back where it was, so unlike the
  * sakes it neither shrinks the stack nor leaves a bottle behind, and the last gulp gives what the first did.
  * <p>
  * Suika carries one, the top rung of her gift ladder ({@code GiftLootGen.suika}): it keeps giving after she has left.

@@ -71,7 +71,10 @@
 			"gift_band_top": "%s+",
 			"gift_chance": "几率：%s%%",
 			"gift_note": "每人只留一份礼物；她吃下的吸引力决定她有多大方",
-			"more_rungs": "+还有%s档"
+			"more_rungs": "+还有%s档",
+			"kind_feed": "喂食",
+			"feed_worth": "+%s 声望",
+			"feed_note": "拿着它右键她即可；只有当她不再把你当敌人时才会回礼，单靠喂食最多涨到 %s 声望"
 		}
 	},
 	"jei": {
@@ -79,7 +82,8 @@
 			"alchemy": "炼金锅",
 			"trade": "交易",
 			"quest": "任务奖励",
-			"gift": "宴会赠礼"
+			"gift": "宴会赠礼",
+			"interaction": "互动"
 		}
 	},
 	"death.attack": {

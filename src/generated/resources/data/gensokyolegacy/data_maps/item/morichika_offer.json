@@ -18,6 +18,30 @@
       "minPrice": 12,
       "minStock": 1
     },
+    "gensokyolegacy:fancy_fan": {
+      "maxPrice": 20,
+      "maxStock": 1,
+      "minPrice": 10,
+      "minStock": 1
+    },
+    "gensokyolegacy:ghost_sake": {
+      "maxPrice": 10,
+      "maxStock": 6,
+      "minPrice": 5,
+      "minStock": 3
+    },
+    "gensokyolegacy:magic_book": {
+      "maxPrice": 24,
+      "maxStock": 1,
+      "minPrice": 12,
+      "minStock": 1
+    },
+    "gensokyolegacy:magic_candy": {
+      "maxPrice": 4,
+      "maxStock": 6,
+      "minPrice": 2,
+      "minStock": 3
+    },
     "gensokyolegacy:mermaid_pearl": {
       "maxPrice": 6,
       "maxStock": 5,
@@ -41,6 +65,24 @@
       "maxStock": 4,
       "minPrice": 3,
       "minStock": 4
+    },
+    "gensokyolegacy:sturdy_teddy_bear": {
+      "maxPrice": 10,
+      "maxStock": 3,
+      "minPrice": 5,
+      "minStock": 2
+    },
+    "gensokyolegacy:tengu_sake": {
+      "maxPrice": 10,
+      "maxStock": 6,
+      "minPrice": 5,
+      "minStock": 3
+    },
+    "gensokyolegacy:zun_beer": {
+      "maxPrice": 10,
+      "maxStock": 6,
+      "minPrice": 5,
+      "minStock": 3
     }
   }
 }

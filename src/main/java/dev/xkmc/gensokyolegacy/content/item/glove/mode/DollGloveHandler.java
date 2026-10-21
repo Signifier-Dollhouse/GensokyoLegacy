@@ -74,7 +74,9 @@ public abstract class DollGloveHandler {
 	 */
 	protected static boolean tryOpenEditor(ServerPlayer sp, DollGloveItem item) {
 		DollEntity doll = rayTraceDoll(sp);
-		if (doll != null && (doll.isOwner(sp) || sp.getAbilities().instabuild)) {
+		// loadoutCapable rather than "has an empty loadout": a timed summon and a gadget have no
+		// editor to open, so the crosshair falls through to the mode action (timed_summon.md §2)
+		if (doll != null && doll.nature().loadoutCapable() && (doll.isOwner(sp) || sp.getAbilities().instabuild)) {
 			DollLoadoutProvider.open(sp, doll);
 			cooldown(sp, item);
 			return true;

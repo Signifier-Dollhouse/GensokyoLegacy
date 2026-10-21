@@ -1,0 +1,10 @@
+{
+  "character": "gensokyolegacy:alice_margatroid",
+  "conditions": [
+    {
+      "type": "gensokyolegacy:gift_return"
+    }
+  ],
+  "dialog": "gensokyolegacy:alice/gift/return",
+  "override": true
+}

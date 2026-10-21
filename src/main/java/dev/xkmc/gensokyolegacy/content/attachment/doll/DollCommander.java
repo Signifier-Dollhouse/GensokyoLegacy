@@ -104,9 +104,29 @@ public class DollCommander {
 		for (DollData data : ledger.dolls()) {
 			if (data.isSummoned()) maybeAutoHeal(owner, data);
 		}
+		lapse(owner);
 		guardIterative(owner);
 		if (owner.level().getGameTime() % 20 == 0) pruneHealMarks(owner);
 		updateFormationAnchor(owner);
+	}
+
+	/**
+	 * Counts every entry's lifespan down and drops the ones that ran out (timed_summon.md §3). Lives
+	 * here because every ledger already ticks its commander, so expiry costs no per-host code, and
+	 * because an entry is only ever dropped from here and from a host's own reconcile pass.
+	 * <p>
+	 * The countdown only runs while the host does, so a timed summon parked over an owner's logout
+	 * loses no life to time it was not there.
+	 */
+	private void lapse(LivingEntity owner) {
+		for (DollData data : new ArrayList<>(ledger.dolls())) {
+			if (data == null || !data.tickLifespan()) continue;
+			// entity first, entry second: the other order leaves one tick in which the doll
+			// is alive and unpaired, which its own inverse check reads as an orphan
+			Entity doll = resolveEntity(owner, data);
+			if (doll != null) doll.discard();
+			ledger.drop(data.uuid);
+		}
 	}
 
 	/**
@@ -301,36 +321,30 @@ public class DollCommander {
 	}
 
 	/**
-	 * Restamps every live entry's follow-formation slot (index in ledger order, shared total) and
-	 * returns the same set as plain entity ids — the sidebar roster rides it.
+	 * Restamps every live entry's follow-formation slot (index in ledger order, shared total) over
+	 * every summoned doll whatever it can do — a gadget holds a slot like anything else — and
+	 * returns the actionable ones as plain entity ids, which is what the sidebar roster rides
+	 * (entity.md §9.1). Entries whose entity is not loaded right now are skipped.
 	 */
 	public List<RosterEntry> roster(LivingEntity owner) {
-		List<RosterEntry> next = new ArrayList<>();
+		List<DollData> live = new ArrayList<>();
 		for (DollData data : ledger.dolls()) {
-			if (!data.isSummoned()) continue;
-			if (!(resolveEntity(owner, data) instanceof DollEntity doll)) continue;
-			data.formationIndex = next.size();
-			next.add(new RosterEntry(doll.getId(), data.uuid));
+			if (data.isSummoned() && resolveEntity(owner, data) instanceof BaseDollEntity) live.add(data);
 		}
-		int total = Math.max(1, next.size());
-		for (RosterEntry entry : next) {
-			DollData data = dataOf(entry.uuid());
-			if (data != null) data.formationTotal = total;
+		List<RosterEntry> next = new ArrayList<>();
+		int total = Math.max(1, live.size());
+		for (int i = 0; i < live.size(); i++) {
+			DollData data = live.get(i);
+			data.formationIndex = i;
+			data.formationTotal = total;
+			if (resolveEntity(owner, data) instanceof DollEntity doll)
+				next.add(new RosterEntry(doll.getId(), data.uuid));
 		}
 		return next;
 	}
 
 	/** One materialized doll: its network id and the ledger key that pairs it. */
 	public record RosterEntry(int entityId, UUID uuid) {
-	}
-
-	@Nullable
-	private DollData dataOf(@Nullable UUID uuid) {
-		if (uuid == null) return null;
-		for (DollData data : ledger.dolls()) {
-			if (uuid.equals(data.uuid)) return data;
-		}
-		return null;
 	}
 
 	/**

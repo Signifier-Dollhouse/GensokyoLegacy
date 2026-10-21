@@ -15,7 +15,7 @@ import java.util.Optional;
  * Client-visible action status for the attack-glove sidebar. Ephemeral: synced to clients via
  * entity data, never persisted to {@code DollData}, recomputed server-side every tick.
  */
-public interface DollStatus extends DollBaseImpl {
+public interface DollStatus extends DollEntityImpl {
 
 	default DollActionStatus getActionStatus() {
 		int i = getEntityData().get(DollEntity.DATA_ACTION_STATE);

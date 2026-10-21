@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "C": {
+      "item": "minecraft:chiseled_stone_bricks"
+    },
+    "S": {
+      "item": "minecraft:stone_bricks"
+    }
+  },
+  "pattern": [
+    "C",
+    "S",
+    "S"
+  ],
+  "result": {
+    "count": 1,
+    "id": "gensokyolegacy:stone_lantern"
+  }
+}

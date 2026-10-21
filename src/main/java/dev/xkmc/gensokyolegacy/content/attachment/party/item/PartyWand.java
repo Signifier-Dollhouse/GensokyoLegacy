@@ -10,6 +10,7 @@ import dev.xkmc.gensokyolegacy.content.client.debug.IDebugOverlayWand;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.gensokyolegacy.init.data.GLTagGen;
+import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
@@ -64,11 +65,11 @@ public class PartyWand extends Item implements IDebugOverlayWand {
 				// the identical plan a real send runs before it commits; nothing is
 				// opened, spawned or spent
 				var outcome = PartySend.plan(level, sp, pos, PartySend.reputationOf(sp));
-				stack.set(PartyWandComponent.TYPE, readout(pos, outcome));
+				GLItems.PARTY_WAND_DATA.set(stack, readout(pos, outcome));
 				return InteractionResult.SUCCESS;
 			}
 			// a click the wand cannot read clears the held reading
-			stack.remove(PartyWandComponent.TYPE);
+			stack.remove(GLItems.PARTY_WAND_DATA.get());
 		}
 		return InteractionResult.CONSUME;
 	}
@@ -106,7 +107,7 @@ public class PartyWand extends Item implements IDebugOverlayWand {
 		for (var hand : InteractionHand.values()) {
 			var stack = sp.getItemInHand(hand);
 			if (!(stack.getItem() instanceof PartyWand)) continue;
-			stack.set(PartyWandComponent.TYPE, readout(table, outcome));
+			GLItems.PARTY_WAND_DATA.set(stack, readout(table, outcome));
 			return true;
 		}
 		return false;
@@ -127,7 +128,7 @@ public class PartyWand extends Item implements IDebugOverlayWand {
 			CharacterInfoClientManager.tooltip(lines, gameTime, youkai);
 			return;
 		}
-		var data = stack.get(PartyWandComponent.TYPE);
+		var data = GLItems.PARTY_WAND_DATA.get(stack);
 		// the invalid-food message is only honest when the wand holds nothing: with a
 		// party detail on screen, something *is* here, the player just is not looking at it
 		if (describeFood(player, lines, data == null)) return;

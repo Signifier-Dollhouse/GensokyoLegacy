@@ -18,6 +18,7 @@ import net.minecraft.advancements.AdvancementType;
 import net.minecraft.advancements.Criterion;
 import net.minecraft.advancements.critereon.EntityPredicate;
 import net.minecraft.advancements.critereon.EntityTypePredicate;
+import net.minecraft.advancements.critereon.InventoryChangeTrigger;
 import net.minecraft.advancements.critereon.LocationPredicate;
 import net.minecraft.advancements.critereon.PlayerTrigger;
 import net.minecraft.core.Holder;
@@ -25,6 +26,7 @@ import net.minecraft.core.HolderSet;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.levelgen.structure.Structure;
@@ -58,6 +60,9 @@ public class GLAdvGen {
 	public static final ResourceLocation OBTAIN_BROOM = GensokyoLegacy.loc("main/obtain_broom");
 	public static final ResourceLocation OBTAIN_IRON_DAGGER = GensokyoLegacy.loc("main/obtain_iron_dagger");
 	public static final ResourceLocation OBTAIN_DAGGER_GLOVE = GensokyoLegacy.loc("main/obtain_dagger_glove");
+	public static final ResourceLocation OBTAIN_FAIRY_ICE_CRYSTAL = GensokyoLegacy.loc("main/obtain_fairy_ice_crystal");
+	public static final ResourceLocation OBTAIN_FROZEN_FROG = GensokyoLegacy.loc("main/obtain_frozen_frog");
+	public static final ResourceLocation OBTAIN_WINGS = GensokyoLegacy.loc("main/obtain_wings");
 
 	/**
 	 * The criterion both feed advancements share, built off the entity type rather than the food: the dish is always
@@ -72,6 +77,18 @@ public class GLAdvGen {
 				GLEntities.CIRNO.get().builtInRegistryHolder());
 		return FeedCharacterTrigger.TriggerInstance.usedItem(GLCriteriaTriggers.FEED_FAIRY, null,
 				EntityPredicate.Builder.entity().entityType(new EntityTypePredicate(fairies)).build(), null);
+	}
+
+	/**
+	 * One of the items counts, which {@link CriterionBuilder#items} cannot express - it asks for all of them at once.
+	 * Only for items that are variants of one thing, where which variant turned up is not the advancement's business.
+	 */
+	private static CriterionBuilder anyItem(Item... items) {
+		var builder = CriterionBuilder.or();
+		for (var item : items) {
+			builder.add(InventoryChangeTrigger.TriggerInstance.hasItems(item));
+		}
+		return builder;
 	}
 
 	public static void genAdv(RegistrateAdvancementProvider pvd) {
@@ -134,12 +151,35 @@ public class GLAdvGen {
 						CriterionBuilder.item(GLItems.DOLL_GLOVE.get()),
 						"Doll Glove", "Obtain the Seven-Colored Doll Glove")
 				.type(AdvancementType.TASK, false, false, false);
+		// The head is Alice's first gadget, so it hangs beside the glove rather than opening a
+		// branch of its own; the book entry it unlocks is filed under the special items instead.
+		aliceHouse.create("obtain_sekibanki_head", GLItems.SEKIBANKI_HEAD.get(),
+						CriterionBuilder.item(GLItems.SEKIBANKI_HEAD.get()),
+						"Sekibanki's Head", "Obtain Sekibanki's Head")
+				.type(AdvancementType.TASK, false, false, false);
 		// Hangs off the root rather than off one of the four houses: a fairy is found
 		// in the woods, not behind a door, so there is no structure to hang it under.
-		root.create("feed_fairy", GLItems.FAIRY_CAKE.get(),
+		var feedFairy = root.create("feed_fairy", GLItems.FAIRY_CAKE.get(),
 						CriterionBuilder.one(fedAFairy()),
 						"Fairy Feeding", "Feed a fairy")
 				.type(AdvancementType.TASK, true, true, false);
+		// Feeding a Cirno a cake buys the crystal, and the crystal is what freezes a frog - so the frog hangs
+		// under the crystal rather than beside it, and both of them under feeding, the step that needs a fairy.
+		feedFairy.create("obtain_fairy_ice_crystal", GLItems.FAIRY_ICE_CRYSTAL.get(),
+						CriterionBuilder.item(GLItems.FAIRY_ICE_CRYSTAL.get()),
+						"Fairy Ice Crystal", "Obtain a Fairy Ice Crystal")
+				.type(AdvancementType.TASK, false, false, false)
+				.create("obtain_frozen_frog", GLItems.FROZEN_FROG_TEMPERATE.get(),
+						anyItem(GLItems.FROZEN_FROG_COLD.asItem(), GLItems.FROZEN_FROG_WARM.asItem(),
+								GLItems.FROZEN_FROG_TEMPERATE.asItem()),
+						"Frozen Frog", "Obtain a Frozen Frog")
+				.type(AdvancementType.TASK, false, false, false);
+		// Ice wings are cut from crystals and fairy wings from dust, so either one answers the same question
+		// and there is nothing to hang the other under. The icon is the ice pair: it is the better one.
+		feedFairy.create("obtain_wings", GLItems.ICE_WINGS.get(),
+						anyItem(GLItems.ICE_WINGS.asItem(), GLItems.FAIRY_WINGS.asItem()),
+						"Wings", "Obtain a pair of wings")
+				.type(AdvancementType.TASK, false, false, false);
 		hakurei.create("obtain_talisman", GLTalismans.HEAL_TALISMAN.get(),
 						CriterionBuilder.item(GLTagGen.TALISMAN),
 						"Paper Talismans", "Obtain a paper talisman")

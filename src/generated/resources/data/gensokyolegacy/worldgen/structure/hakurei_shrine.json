@@ -1,12 +1,10 @@
 {
   "type": "gensokyolegacy:flat_check",
-  "attempts": 24,
   "biomes": "#gensokyolegacy:has_structure/hakurei_shrine",
   "height_tolerance": 5,
   "max_distance_from_center": 80,
-  "salt": 893231697,
+  "set": "gensokyolegacy:hakurei_shrine",
   "size": 6,
-  "spacing": 32,
   "spawn_overrides": {},
   "start_pool": "gensokyolegacy:hakurei_shrine/root",
   "step": "underground_decoration",

@@ -34,7 +34,9 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -45,23 +47,55 @@ import java.util.Optional;
 public class DollItem extends Item implements InvClickItem {
 
 	/**
-	 * The single doll entity kind these items summon. Not stored on the item: every doll item
-	 * materializes this same {@code doll} entity type.
+	 * The doll entity kind the plain doll item materializes. A gadget item names its own
+	 * ({@link #dollType()}), which is the only way a ledger entry can be a kind other than this.
 	 */
 	public static final ResourceLocation TYPE = GensokyoLegacy.loc("doll");
 
+	/** Every doll item by the entity kind it materializes, so itemization finds the right item back (item.md §2). */
+	private static final Map<ResourceLocation, DollItem> BY_TYPE = new HashMap<>();
+
+	/** The entity kind this item summons. */
+	private final ResourceLocation type;
+
 	public DollItem(Properties props) {
-		super(props);
+		this(props, TYPE);
 	}
 
 	/**
-	 * Builds a doll item from a {@link DollData}, the inverse of {@link DollData#fromItemData}: combat
-	 * into {@code DOLL_DATA}, name into {@code CUSTOM_NAME}, tint into {@code DOLL_COLOR}, loadout
-	 * into {@code DOLL_LOADOUT}. {@code null} (and {@link #blank()}) yields a fresh, component-less doll.
+	 * Every item names its kind here rather than after registration: an entry's {@code .get()} is
+	 * unbound until registration ends, and an overridden {@link #dollType()} would read a field the
+	 * subclass has not been able to assign yet. Constructing the item is the one moment it owns.
+	 */
+	protected DollItem(Properties props, ResourceLocation type) {
+		super(props);
+		this.type = type;
+		BY_TYPE.put(type, this);
+	}
+
+	public ResourceLocation dollType() {
+		return type;
+	}
+
+	/**
+	 * Builds the item an entry comes back as: the item that declared that entry's entity kind,
+	 * falling back to the plain doll for an entry that names no kind. A null entry yields
+	 * {@link #blank()}.
 	 */
 	public static ItemStack makeItem(@Nullable DollData data) {
-		if (data == null) return blank();
-		ItemStack stack = new ItemStack(GLItems.DOLL.get());
+		DollItem item = data == null ? GLItems.DOLL.get() : BY_TYPE.getOrDefault(data.type, GLItems.DOLL.get());
+		return item.makeStack(data);
+	}
+
+	/**
+	 * This item's own stack from a {@link DollData}, the inverse of {@link DollData#fromItemData}:
+	 * combat into {@code DOLL_DATA}, name into {@code CUSTOM_NAME}, tint into {@code DOLL_COLOR},
+	 * loadout into {@code DOLL_LOADOUT}. {@code null} (and {@link #blank()}) yields a fresh,
+	 * component-less doll.
+	 */
+	protected ItemStack makeStack(@Nullable DollData data) {
+		if (data == null) return new ItemStack(this);
+		ItemStack stack = new ItemStack(this);
 		stack.set(GLItems.DOLL_DATA.get(), new DollItemData(data.combat));
 		if (data.customName != null) stack.set(DataComponents.CUSTOM_NAME, data.customName);
 		stack.set(GLItems.DOLL_COLOR.get(), data.getColor());

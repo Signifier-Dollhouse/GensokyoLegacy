@@ -1,13 +1,13 @@
 package dev.xkmc.gensokyolegacy.content.entity.characters.fairy;
 
 import dev.xkmc.gensokyolegacy.content.entity.behavior.brain.TaskBoard;
+import dev.xkmc.gensokyolegacy.content.entity.behavior.module.*;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.move.CombatFlyingControl;
-import dev.xkmc.gensokyolegacy.content.entity.module.*;
-import dev.xkmc.gensokyolegacy.content.entity.youkai.GeoYoukaiAnim;
-import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiAnim;
+import dev.xkmc.gensokyolegacy.content.entity.youkai.impl.GeoYoukaiAnim;
+import dev.xkmc.gensokyolegacy.content.entity.youkai.impl.YoukaiAnim;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiFeatureSet;
-import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiFlags;
+import dev.xkmc.gensokyolegacy.content.entity.youkai.impl.YoukaiFlags;
 import dev.xkmc.gensokyolegacy.init.registrate.GLBrains;
 import dev.xkmc.gensokyolegacy.util.BrainUtils;
 import dev.xkmc.l2core.base.entity.SyncedData;
@@ -28,7 +28,6 @@ import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.behavior.CountDownCooldownTicks;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
-import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.schedule.Activity;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
@@ -49,6 +48,11 @@ import java.util.Optional;
 /**
  * A plain fairy: no named character behind her, just the shared fairy rig. {@link FairyEntity}
  * stays the vanilla-placeholder mob, so this subclass carries the rig and the texture sheets.
+ * <p>
+ * She also drops {@link HomeModule}, {@link VisitModule} and {@link PartyModule} — not just the
+ * talk module every fairy lacks. She is wild-spawned and owns no house, so there is nowhere for a
+ * host to send her from and nothing for her to send anybody back to; {@code PartySend.spawn}
+ * declines on the missing module rather than spawning a guest that cannot be seated.
  */
 @SerialClass
 public class PlainFairyEntity extends FairyEntity implements GeoYoukaiAnim {
@@ -319,7 +323,7 @@ public class PlainFairyEntity extends FairyEntity implements GeoYoukaiAnim {
 	 * and run the give-up-on-the-player watchdog out from under her.
 	 */
 	@Override
-	protected void tickTargeting() {
+	public void tickTargeting() {
 		if (BrainUtils.getMemory(this, GLBrains.MEM_FEAR.get()) == null) {
 			super.tickTargeting();
 		}
@@ -347,12 +351,15 @@ public class PlainFairyEntity extends FairyEntity implements GeoYoukaiAnim {
 	 */
 	@Override
 	protected List<AbstractYoukaiModule> createModules() {
-		return List.of(
-				new HomeModule(this),
-				new VisitModule(this),
-				new FairyFeedModule(this),
-				new GiftModule(this)
-		);
+		return List.of(new FairyFeedModule(this), new GiftModule(this));
+	}
+
+	/**
+	 * Her interaction page. Stated on the entity rather than on the module, so {@code GLEntities}
+	 * can say which character answers a hand-out without knowing which module does it.
+	 */
+	public static List<EntityInteraction> interactions() {
+		return FairyFeedModule.interactions();
 	}
 
 	/**
@@ -362,7 +369,8 @@ public class PlainFairyEntity extends FairyEntity implements GeoYoukaiAnim {
 	 * A fight outranks everything, because being cornered beats every reason she had
 	 * for standing still. Running beats eating, so a snack handed to a panicking fairy
 	 * waits until she has put ground between them. She never naps, so NAP is in the
-	 * list only as a rung she skips over; TALK is absent along with the talk module.
+	 * list only as a rung she skips over; AT_HOME is skipped with the home module that
+	 * schedules it, and TALK is absent along with the talk module.
 	 */
 	@Override
 	protected void constructTaskBoard(TaskBoard board) {
@@ -383,7 +391,7 @@ public class PlainFairyEntity extends FairyEntity implements GeoYoukaiAnim {
 			return event.setAndContinue(SIT);
 		}
 		if (getFlag(YoukaiFlags.FLEEING)) {
-			event.setAndContinue(CRYING_FLOAT);
+			return event.setAndContinue(CRYING_FLOAT);
 		}
 		if (event.isMoving()) {
 			return event.setAndContinue(FLOAT);

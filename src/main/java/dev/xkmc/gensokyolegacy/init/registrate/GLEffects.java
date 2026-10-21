@@ -50,6 +50,10 @@ public class GLEffects {
 			() -> new EmptyEffect(MobEffectCategory.BENEFICIAL, 0xAD7A64),
 			"Improve vision under lava. Increase motion speed under lava. Provide fire immunity.");
 
+	public static final LegacyHolder<MobEffect> LIVELY = genEffect("lively",
+			() -> new EmptyEffect(MobEffectCategory.BENEFICIAL, 0xFF7FE0C0),
+			"Item cooldowns run 20% faster per level");
+
 	private static <T extends MobEffect> LegacyHolder<MobEffect> genEffect(String name, NonNullSupplier<T> sup, String desc) {
 		return new SimpleEntry<>(GensokyoLegacy.REGISTRATE.effect(name, sup, desc).lang(MobEffect::getDescriptionId).register());
 	}

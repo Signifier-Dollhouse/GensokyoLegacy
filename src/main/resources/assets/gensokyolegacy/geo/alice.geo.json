@@ -68,7 +68,7 @@
 				{
 					"name": "OpenMouth1",
 					"parent": "OpenMouth",
-					"pivot": [0, 23.325, -2],
+					"pivot": [0, 23.325, -3],
 					"cubes": [
 						{
 							"origin": [-0.5, 23.325, -3.55],
@@ -87,7 +87,7 @@
 				{
 					"name": "OpenMouth2",
 					"parent": "OpenMouth",
-					"pivot": [0, 23.325, -2],
+					"pivot": [0, 23.325, -3],
 					"cubes": [
 						{
 							"origin": [-0.5, 22.925, -3.54],

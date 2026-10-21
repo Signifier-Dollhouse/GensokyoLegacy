@@ -29,6 +29,9 @@
 		"sparkling.description": "受到攻击时散发星星",
 		"shield": "护盾",
 		"shield.desc": "获得1点吸收值",
-		"shield.description": "获得1点吸收值"
+		"shield.description": "获得1点吸收值",
+		"lively": "活泼",
+		"lively.desc": "每级使物品冷却速度提升20%",
+		"lively.description": "每级使物品冷却速度提升20%"
 	}
 }

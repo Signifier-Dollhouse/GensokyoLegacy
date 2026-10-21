@@ -18,6 +18,7 @@ import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
 import dev.xkmc.l2core.init.reg.registrate.L2Registrate;
 import net.minecraft.advancements.critereon.*;
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -25,7 +26,9 @@ import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapelessRecipeBuilder;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.PlaceOnWaterBlockItem;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.grower.TreeGrower;
@@ -47,11 +50,13 @@ import net.neoforged.neoforge.client.model.generators.ModelFile;
 import net.neoforged.neoforge.client.model.generators.MultiPartBlockStateBuilder;
 import net.neoforged.neoforge.registries.datamaps.builtin.Compostable;
 import net.neoforged.neoforge.registries.datamaps.builtin.NeoForgeDataMaps;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 public class GLNaturalBlocks {
 
@@ -61,11 +66,21 @@ public class GLNaturalBlocks {
 	public static final BlockEntry<SideBushBlock> EUGUNE_RED, EUGUNE_BROWN, EUGUNE_GHOST_FIRE;
 	public static final BlockEntry<EvergreenVineHeadBlock> EVERGREEN_VINE;
 	public static final BlockEntry<EvergreenVineBodyBlock> EVERGREEN_VINE_PLANT;
-	public static final BlockEntry<CedarFallenLeavesBlock> CEDAR_FALLEN_LEAVES;
+	public static final BlockEntry<FallenLeavesBlock> CEDAR_FALLEN_LEAVES, ORANGE_MAPLE_FALLEN_LEAVES,
+			RED_MAPLE_FALLEN_LEAVES, YELLOW_MAPLE_FALLEN_LEAVES, MIXED_MAPLE_FALLEN_LEAVES,
+			PINK_CHERRY_FALLEN_LEAVES, PURPLE_CHERRY_FALLEN_LEAVES;
 
-	public static final TreeSet BLUE_FUR_SET;
+	// one wood per species, shared by every leaf colour grown on it. The cherries need none: they
+	// grow on minecraft:cherry_log
+	public static final WoodSet MAPLE_WOOD, LOCUST_WOOD;
+
+	public static final TreeSet BLUE_FUR_SET, ORANGE_MAPLE_SET, RED_MAPLE_SET, YELLOW_MAPLE_SET,
+			PINK_CHERRY_SET, PURPLE_CHERRY_SET, LOCUST_SET;
 
 	public static final BlockEntry<HugeMushroomBlock> CYAN_MUSHROOM_STEM, PURPLE_MUSHROOM_STEM, RED_MUSHROOM_STEM;
+
+	public static final BlockEntry<LargeWaterLilyBlock> LARGE_WATER_LILY;
+	public static final BlockEntry<WaterLilyBlock> SMALL_WATER_LILY;
 
 	public static final MushroomSet GHOST_FIRE_MUSHROOM_SET, DREAM_MUSHROOM_SET, DEMONIC_MIASMA_MUSHROOM_SET;
 
@@ -118,6 +133,69 @@ public class GLNaturalBlocks {
 				.build()
 				.register();
 
+		// 大睡莲:浮在水面上,七种外观
+		LARGE_WATER_LILY = reg.block("large_water_lily", LargeWaterLilyBlock::new)
+				.properties(p -> p.mapColor(MapColor.PLANT).instabreak().sound(SoundType.LILY_PAD).noOcclusion()
+						.offsetType(BlockBehaviour.OffsetType.XYZ).dynamicShape().pushReaction(PushReaction.DESTROY))
+				.blockstate((ctx, pvd) -> {
+					var builder = pvd.getVariantBuilder(ctx.get());
+					for (int i = 0; i < LargeWaterLilyBlock.VARIANTS; i++) {
+						for (Direction dir : Direction.Plane.HORIZONTAL) {
+							builder.partialState().with(WaterLilyBlock.FACING, dir).with(LargeWaterLilyBlock.VARIANT, i)
+									.modelForState().modelFile(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/nature/water_lily_" + i)))
+									.rotationY(((int) dir.toYRot() + 180) % 360).addModel();
+						}
+					}
+				})
+				.item((block, props) -> new PlaceOnWaterBlockItem(block, props))
+				.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("block/nature/" + ctx.getName())))
+				.tab(ResourceKey.create(Registries.CREATIVE_MODE_TAB, GensokyoLegacy.loc("ingredients")))
+				.build()
+				.register();
+
+		// 小睡莲
+		SMALL_WATER_LILY = reg.block("small_water_lily", WaterLilyBlock::new)
+				.properties(p -> p.mapColor(MapColor.PLANT).instabreak().sound(SoundType.LILY_PAD).noOcclusion()
+						.offsetType(BlockBehaviour.OffsetType.XYZ).dynamicShape().pushReaction(PushReaction.DESTROY))
+				.blockstate((ctx, pvd) -> {
+					var builder = pvd.getVariantBuilder(ctx.get());
+					for (Direction dir : Direction.Plane.HORIZONTAL) {
+						builder.partialState().with(WaterLilyBlock.FACING, dir)
+								.modelForState().modelFile(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/nature/water_lily_small")))
+								.rotationY(((int) dir.toYRot() + 180) % 360).addModel();
+					}
+				})
+				.item((block, props) -> new PlaceOnWaterBlockItem(block, props))
+				.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("block/nature/" + ctx.getName())))
+				.tab(ResourceKey.create(Registries.CREATIVE_MODE_TAB, GensokyoLegacy.loc("ingredients")))
+				.build()
+				.register();
+
+		BROOM_GRASS = reg.block("broom_grass", TallGrassBlock::new)
+				.initialProperties(() -> Blocks.SHORT_GRASS)
+				.blockstate((ctx, pvd) -> pvd.simpleBlock(ctx.get(),
+						pvd.models().cross(ctx.getName(), pvd.modLoc("block/plant/" + ctx.getName()))
+								.renderType("cutout")))
+				.loot((pvd, block) -> {
+					var shearsOrSilk = MatchTool.toolMatches(ItemPredicate.Builder.item().of(Items.SHEARS))
+							.or(MatchTool.toolMatches(ItemPredicate.Builder.item()
+									.withSubPredicate(ItemSubPredicates.ENCHANTMENTS,
+											ItemEnchantmentsPredicate.enchantments(List.of(new EnchantmentPredicate(
+													pvd.getRegistries().lookupOrThrow(Registries.ENCHANTMENT).getOrThrow(Enchantments.SILK_TOUCH),
+													MinMaxBounds.Ints.atLeast(1)))))));
+					pvd.add(block, LootTable.lootTable()
+							.withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F)).when(shearsOrSilk)
+									.add(LootItem.lootTableItem(block)))
+							.withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F)).when(shearsOrSilk.invert())
+									.add(LootItem.lootTableItem(GLItems.MYSTICAL_STRAW.get()))));
+				})
+				.item().model((ctx, pvd) -> pvd.getBuilder(ctx.getName())
+						.parent(new ModelFile.UncheckedModelFile("item/generated"))
+						.texture("layer0", pvd.modLoc("block/plant/" + ctx.getName())))
+				.dataMap(NeoForgeDataMaps.COMPOSTABLES, new Compostable(0.5f))
+				.build()
+				.register();
+
 		// 蕨菜
 		BRACKEN = reg.block("bracken", p -> new SimpleBushBlock(p, SimpleBushBlock.THIN))
 				.properties(p -> p.offsetType(BlockBehaviour.OffsetType.XYZ).mapColor(MapColor.PLANT).strength(0).sound(SoundType.GRASS).noOcclusion().noCollission().pushReaction(PushReaction.DESTROY).dynamicShape())
@@ -156,36 +234,48 @@ public class GLNaturalBlocks {
 				.register();
 
 		// 青杉落叶
-		CEDAR_FALLEN_LEAVES = reg.block("cedar_fallen_leaves", CedarFallenLeavesBlock::new)
-				.properties(p -> p.mapColor(MapColor.PLANT).sound(SoundType.GRASS).noOcclusion().noCollission())
-				.blockstate((ctx, pvd) -> {
-					var layer1 = pvd.models().getBuilder("block/" + ctx.getName() + "_layer1")
-							.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/nature/cedar_fallen_leaves")))
-							.texture("all", pvd.modLoc("block/nature/cedar_fallen_leaves_layer1"))
-							.renderType("cutout");
-					var layer2 = pvd.models().getBuilder("block/" + ctx.getName() + "_layer2")
-							.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/nature/cedar_fallen_leaves")))
-							.texture("all", pvd.modLoc("block/nature/cedar_fallen_leaves_layer2"))
-							.renderType("cutout");
-					pvd.getVariantBuilder(ctx.get())
-							.partialState().with(CedarFallenLeavesBlock.LAYERS, 1).modelForState().modelFile(layer1).addModel()
-							.partialState().with(CedarFallenLeavesBlock.LAYERS, 2).modelForState().modelFile(layer2).addModel();
-				})
-				.loot(CedarFallenLeavesBlock::loot)
-				.item().model((ctx, pvd) -> pvd.getBuilder(ctx.getName())
-						.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/nature/cedar_fallen_leaves")))
-						.texture("all", pvd.modLoc("block/nature/cedar_fallen_leaves_layer1")))
-				.dataMap(NeoForgeDataMaps.COMPOSTABLES, new Compostable(0.3f))
-				.build()
-				.register();
+		CEDAR_FALLEN_LEAVES = regFallenLeaves(reg, "cedar_fallen_leaves");
+		ORANGE_MAPLE_FALLEN_LEAVES = regFallenLeaves(reg, "orange_maple_fallen_leaves");
+		RED_MAPLE_FALLEN_LEAVES = regFallenLeaves(reg, "red_maple_fallen_leaves");
+		YELLOW_MAPLE_FALLEN_LEAVES = regFallenLeaves(reg, "yellow_maple_fallen_leaves");
+		MIXED_MAPLE_FALLEN_LEAVES = regFallenLeaves(reg, "mixed_maple_fallen_leaves");
+		PINK_CHERRY_FALLEN_LEAVES = regFallenLeaves(reg, "pink_cherry_fallen_leaves");
+		PURPLE_CHERRY_FALLEN_LEAVES = regFallenLeaves(reg, "purple_cherry_fallen_leaves");
 
-
+		// 青杉
 		BLUE_FUR_SET = new TreeSet(
-				reg, "blue_fir",
-				BlockBehaviour.Properties.ofFullCopy(Blocks.ACACIA_LOG).mapColor(MapColor.COLOR_CYAN),
+				reg, new WoodSet(reg, "blue_fir", Items.SPRUCE_PLANKS,
+						Blocks.STRIPPED_SPRUCE_LOG, Blocks.STRIPPED_SPRUCE_WOOD,
+						BlockBehaviour.Properties.ofFullCopy(Blocks.ACACIA_LOG).mapColor(MapColor.COLOR_CYAN), null),
+				"blue_fir",
 				BlockBehaviour.Properties.ofFullCopy(Blocks.ACACIA_LEAVES),
 				TreeFeatures.TreeType.BLUE_FIR
 		);
+
+		// 枫: one wood, three autumn leaf colours
+		MAPLE_WOOD = new WoodSet(reg, "maple", Items.OAK_PLANKS,
+				Blocks.STRIPPED_DARK_OAK_LOG, Blocks.STRIPPED_DARK_OAK_WOOD,
+				BlockBehaviour.Properties.ofFullCopy(Blocks.ACACIA_LOG).mapColor(MapColor.COLOR_ORANGE), null);
+		ORANGE_MAPLE_SET = new TreeSet(reg, MAPLE_WOOD, "orange_maple",
+				BlockBehaviour.Properties.ofFullCopy(Blocks.ACACIA_LEAVES), TreeFeatures.TreeType.ORANGE_MAPLE);
+		RED_MAPLE_SET = new TreeSet(reg, MAPLE_WOOD, "red_maple",
+				BlockBehaviour.Properties.ofFullCopy(Blocks.ACACIA_LEAVES), TreeFeatures.TreeType.RED_MAPLE);
+		YELLOW_MAPLE_SET = new TreeSet(reg, MAPLE_WOOD, "yellow_maple",
+				BlockBehaviour.Properties.ofFullCopy(Blocks.ACACIA_LEAVES), TreeFeatures.TreeType.YELLOW_MAPLE);
+
+		// 樱: two blossom colours, both growing on the vanilla cherry trunk
+		PINK_CHERRY_SET = new TreeSet(reg, () -> Blocks.CHERRY_LOG, "pink_cherry",
+				BlockBehaviour.Properties.ofFullCopy(Blocks.CHERRY_LEAVES), TreeFeatures.TreeType.PINK_CHERRY);
+		PURPLE_CHERRY_SET = new TreeSet(reg, () -> Blocks.CHERRY_LOG, "purple_cherry",
+				BlockBehaviour.Properties.ofFullCopy(Blocks.CHERRY_LEAVES), TreeFeatures.TreeType.PURPLE_CHERRY);
+
+		// 槐: the only tree with a hollow trunk
+		LOCUST_WOOD = new WoodSet(reg, "locust", Items.OAK_PLANKS,
+				Blocks.STRIPPED_SPRUCE_LOG, Blocks.STRIPPED_SPRUCE_WOOD,
+				BlockBehaviour.Properties.ofFullCopy(Blocks.ACACIA_LOG).mapColor(MapColor.COLOR_PURPLE),
+				"locust_hollow_log");
+		LOCUST_SET = new TreeSet(reg, LOCUST_WOOD, "locust",
+				BlockBehaviour.Properties.ofFullCopy(Blocks.ACACIA_LEAVES), TreeFeatures.TreeType.LOCUST);
 
 		CYAN_MUSHROOM_STEM = MushroomSet.regStem(reg, "cyan_mushroom");
 		PURPLE_MUSHROOM_STEM = MushroomSet.regStem(reg, "purple_mushroom");
@@ -250,31 +340,6 @@ public class GLNaturalBlocks {
 				.item().dataMap(NeoForgeDataMaps.COMPOSTABLES, new Compostable(0.65f)).build()
 				.register();
 
-		BROOM_GRASS = reg.block("broom_grass", TallGrassBlock::new)
-				.initialProperties(() -> Blocks.SHORT_GRASS)
-				.blockstate((ctx, pvd) -> pvd.simpleBlock(ctx.get(),
-						pvd.models().cross(ctx.getName(), pvd.modLoc("block/plant/" + ctx.getName()))
-								.renderType("cutout")))
-				.loot((pvd, block) -> {
-					var shearsOrSilk = MatchTool.toolMatches(ItemPredicate.Builder.item().of(Items.SHEARS))
-							.or(MatchTool.toolMatches(ItemPredicate.Builder.item()
-									.withSubPredicate(ItemSubPredicates.ENCHANTMENTS,
-											ItemEnchantmentsPredicate.enchantments(List.of(new EnchantmentPredicate(
-													pvd.getRegistries().lookupOrThrow(Registries.ENCHANTMENT).getOrThrow(Enchantments.SILK_TOUCH),
-													MinMaxBounds.Ints.atLeast(1)))))));
-					pvd.add(block, LootTable.lootTable()
-							.withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F)).when(shearsOrSilk)
-									.add(LootItem.lootTableItem(block)))
-							.withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F)).when(shearsOrSilk.invert())
-									.add(LootItem.lootTableItem(GLItems.MYSTICAL_STRAW.get()))));
-				})
-				.item().model((ctx, pvd) -> pvd.getBuilder(ctx.getName())
-						.parent(new ModelFile.UncheckedModelFile("item/generated"))
-						.texture("layer0", pvd.modLoc("block/plant/" + ctx.getName())))
-				.dataMap(NeoForgeDataMaps.COMPOSTABLES, new Compostable(0.5f))
-				.build()
-				.register();
-
 		HYPHAE = reg.block("hyphae", HyphaeBlock::new)
 				.properties(p -> p.mapColor(MapColor.CRIMSON_HYPHAE).noCollission().noOcclusion().strength(0)
 						.sound(SoundType.COBWEB).pushReaction(PushReaction.DESTROY))
@@ -298,17 +363,53 @@ public class GLNaturalBlocks {
 
 	}
 
-	public static class TreeSet {
+	/** A carpet of fallen leaves, one block per tree: {@code <id>_layer1} and {@code <id>_layer2}. */
+	private static BlockEntry<FallenLeavesBlock> regFallenLeaves(L2Registrate reg, String id) {
+		return reg.block(id, FallenLeavesBlock::new)
+				.properties(p -> p.mapColor(MapColor.PLANT).sound(SoundType.GRASS).noOcclusion().noCollission())
+				.blockstate((ctx, pvd) -> {
+					var layer1 = pvd.models().getBuilder("block/" + ctx.getName() + "_layer1")
+							.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/nature/fallen_leaves")))
+							.texture("all", pvd.modLoc("block/nature/" + id + "_layer1"))
+							.renderType("cutout");
+					var layer2 = pvd.models().getBuilder("block/" + ctx.getName() + "_layer2")
+							.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/nature/fallen_leaves")))
+							.texture("all", pvd.modLoc("block/nature/" + id + "_layer2"))
+							.renderType("cutout");
+					var builder = pvd.getVariantBuilder(ctx.get());
+					for (Direction dir : Direction.Plane.HORIZONTAL) {
+						int yRot = (int) dir.toYRot() % 360;
+						builder.partialState().with(FallenLeavesBlock.FACING, dir)
+								.with(FallenLeavesBlock.LAYERS, 1)
+								.modelForState().modelFile(layer1).rotationY(yRot).addModel();
+						builder.partialState().with(FallenLeavesBlock.FACING, dir)
+								.with(FallenLeavesBlock.LAYERS, 2)
+								.modelForState().modelFile(layer2).rotationY(yRot).addModel();
+					}
+				})
+				.loot(FallenLeavesBlock::loot)
+				.item().model((ctx, pvd) -> pvd.getBuilder(ctx.getName())
+						.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/nature/fallen_leaves")))
+						.texture("all", pvd.modLoc("block/nature/" + id + "_layer1")))
+				.dataMap(NeoForgeDataMaps.COMPOSTABLES, new Compostable(0.3f))
+				.build()
+				.register();
+	}
 
-		public final BlockEntry<BlueFirLogBlock> log;
-		public final BlockEntry<BlueFirWoodBlock> wood;
-		public final BlockEntry<LeavesBlock> leaves;
-		public final BlockEntry<BlueFirSaplingBlock> sapling;
+	/**
+	 * The log and wood of one species, shared by every leaf colour grown on it. An axe strips both to the vanilla
+	 * block named by the caller, since no mod wood has a stripped variant of its own.
+	 */
+	public static class WoodSet {
 
-		public TreeSet(L2Registrate reg, String id,
-		               BlockBehaviour.Properties logProp, BlockBehaviour.Properties leafProp,
-		               TreeFeatures.TreeType type) {
-			log = reg.block(id + "_log", BlueFirLogBlock::new)
+		public final BlockEntry<StrippableWoodBlock> log;
+		public final BlockEntry<StrippableWoodBlock> wood;
+		/** The hollow trunk of an old tree; only the locust has one. */
+		public final @Nullable BlockEntry<StrippableWoodBlock> hollowLog;
+
+		public WoodSet(L2Registrate reg, String id, Item planks, Block strippedLog, Block strippedWood,
+		               BlockBehaviour.Properties logProp, @Nullable String hollowLogId) {
+			log = reg.block(id + "_log", p -> new StrippableWoodBlock(() -> strippedLog, p))
 					.properties(p -> logProp)
 					.blockstate((ctx, pvd) -> genColumnState(ctx, pvd,
 							pvd.modLoc("block/wood/" + ctx.getName() + "_side"),
@@ -316,10 +417,10 @@ public class GLNaturalBlocks {
 					.tag(BlockTags.MINEABLE_WITH_AXE, BlockTags.LOGS, BlockTags.LOGS_THAT_BURN)
 					.item().tag(ItemTags.LOGS_THAT_BURN, ItemTags.LOGS).build()
 					.recipe((ctx, pvd) -> GLRecipeGen.unlock(pvd, ShapelessRecipeBuilder.shapeless(
-									RecipeCategory.BUILDING_BLOCKS, Items.SPRUCE_PLANKS, 4)::unlockedBy, ctx.get().asItem())
-							.requires(ctx.get()).save(pvd, GensokyoLegacy.loc(id + "_log_to_spruce_planks")))
+									RecipeCategory.BUILDING_BLOCKS, planks, 4)::unlockedBy, ctx.get().asItem())
+							.requires(ctx.get()).save(pvd, GensokyoLegacy.loc(plankRecipe(id + "_log", planks))))
 					.register();
-			wood = reg.block(id + "_wood", BlueFirWoodBlock::new)
+			wood = reg.block(id + "_wood", p -> new StrippableWoodBlock(() -> strippedWood, p))
 					.properties(p -> logProp)
 					.blockstate((ctx, pvd) -> {
 						var side = pvd.modLoc("block/wood/" + id + "_log_side");
@@ -328,12 +429,47 @@ public class GLNaturalBlocks {
 					.tag(BlockTags.MINEABLE_WITH_AXE, BlockTags.LOGS, BlockTags.LOGS_THAT_BURN)
 					.item().tag(ItemTags.LOGS_THAT_BURN, ItemTags.LOGS).build()
 					.recipe((ctx, pvd) -> GLRecipeGen.unlock(pvd, ShapelessRecipeBuilder.shapeless(
-									RecipeCategory.BUILDING_BLOCKS, Items.SPRUCE_PLANKS, 4)::unlockedBy, ctx.get().asItem())
-							.requires(ctx.get()).save(pvd, GensokyoLegacy.loc(id + "_wood_to_spruce_planks")))
+									RecipeCategory.BUILDING_BLOCKS, planks, 4)::unlockedBy, ctx.get().asItem())
+							.requires(ctx.get()).save(pvd, GensokyoLegacy.loc(plankRecipe(id + "_wood", planks))))
 					.register();
-			var grower = new TreeGrower(id + "_tree",
-					Optional.of(type.saplingMega), Optional.of(type.saplingTree), Optional.empty());
-			sapling = reg.block(id + "_sapling", p -> new BlueFirSaplingBlock(grower, type.saplingGiant, p))
+			hollowLog = hollowLogId == null ? null : reg.block(hollowLogId, p -> new StrippableWoodBlock(() -> strippedLog, p))
+					.properties(p -> logProp)
+					.blockstate((ctx, pvd) -> {
+						var side = pvd.modLoc("block/wood/" + hollowLogId + "_side");
+						genColumnState(ctx, pvd, side, side);
+					})
+					.tag(BlockTags.MINEABLE_WITH_AXE, BlockTags.LOGS, BlockTags.LOGS_THAT_BURN)
+					.item().tag(ItemTags.LOGS_THAT_BURN, ItemTags.LOGS).build()
+					.register();
+		}
+
+		/** {@code maple_log} cut into {@code oak_planks} -> {@code maple_log_to_oak_planks}. */
+		private static String plankRecipe(String id, Item planks) {
+			return id + "_to_" + BuiltInRegistries.ITEM.getKey(planks).getPath();
+		}
+	}
+
+	/** One tree type: its leaves and its sapling, over the trunk it grows on. */
+	public static class TreeSet {
+
+		public final Supplier<Block> trunk;
+		public final BlockEntry<LeavesBlock> leaves;
+		public final BlockEntry<? extends SaplingBlock> sapling;
+
+		public TreeSet(L2Registrate reg, WoodSet wood, String id,
+		               BlockBehaviour.Properties leafProp, TreeFeatures.TreeType type) {
+			this(reg, () -> wood.log.get(), id, leafProp, type);
+		}
+
+		public TreeSet(L2Registrate reg, Supplier<Block> trunk, String id,
+		               BlockBehaviour.Properties leafProp, TreeFeatures.TreeType type) {
+			this.trunk = trunk;
+			var grower = new TreeGrower(id + "_tree", type.saplingMega, type.saplingTree, Optional.empty());
+			// only the blue fir has templates, and only it needs the 3x3 stage vanilla has no grower slot for
+			Function<BlockBehaviour.Properties, ? extends SaplingBlock> saplingFactory = type.saplingGiant.isPresent()
+					? p -> new BlueFirSaplingBlock(grower, type.saplingGiant.orElseThrow(), p)
+					: p -> new SaplingBlock(grower, p);
+			sapling = reg.block(id + "_sapling", saplingFactory::apply)
 					.properties(p -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_SAPLING))
 					.blockstate((ctx, pvd) -> pvd.simpleBlock(ctx.get(), pvd.models().cross(ctx.getName(),
 							pvd.modLoc("block/wood/" + ctx.getName())).renderType("cutout")))

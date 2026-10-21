@@ -15,7 +15,7 @@
     },
     {
       "type": "patchouli:text",
-      "text": "About shields$(br2)A vanilla shield is not a weapon, but a doll holding one in its off hand blocks incoming projectiles and wears the shield down as it does; in the main hand it does nothing at all. When both hand slots hold the same item, the doll acts with whichever hand suits the order better."
+      "text": "About shields$(br2)A vanilla shield is not a weapon, but a doll holding one in its off hand blocks incoming projectiles and wears the shield down as it does; in the main hand it does nothing at all. The mini shield works the same way, except that no hand but a doll's can hold it up, and it never wears down. When both hand slots hold the same item, the doll acts with whichever hand suits the order better."
     },
     {
       "type": "patchouli:text",

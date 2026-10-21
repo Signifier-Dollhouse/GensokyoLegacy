@@ -9,6 +9,7 @@ import dev.xkmc.gensokyolegacy.content.block.deco.door.NorenBlock;
 import dev.xkmc.gensokyolegacy.content.block.deco.door.NorenJsons;
 import dev.xkmc.gensokyolegacy.content.block.deco.door.SlidingDoor;
 import dev.xkmc.gensokyolegacy.content.block.deco.door.SlidingDoorJsons;
+import dev.xkmc.gensokyolegacy.content.block.deco.misc.MyourenFenceBlock;
 import dev.xkmc.gensokyolegacy.content.block.deco.misc.TatamiBlock;
 import dev.xkmc.gensokyolegacy.content.block.deco.misc.WroughtIronBarsBlock;
 import dev.xkmc.gensokyolegacy.content.block.deco.misc.WroughtIronPillarBlock;
@@ -16,6 +17,7 @@ import dev.xkmc.gensokyolegacy.content.block.deco.seat.CushionBlock;
 import dev.xkmc.gensokyolegacy.content.block.deco.seat.ISeatableBlock;
 import dev.xkmc.gensokyolegacy.content.block.deco.seat.SeatableImpl;
 import dev.xkmc.gensokyolegacy.content.block.deco.seat.WoodChairBlock;
+import dev.xkmc.gensokyolegacy.content.block.deco.shelf.MorichikaOfferData;
 import dev.xkmc.gensokyolegacy.content.block.deco.variants.*;
 import dev.xkmc.gensokyolegacy.content.item.gift.GiftItemData;
 import dev.xkmc.gensokyolegacy.content.item.gift.GiftType;
@@ -69,6 +71,7 @@ public class GLDecoBlocks {
 	public static final BlockEntry<DelegateBlock> STURDY_TEDDY_BEAR;
 	public static final BlockEntry<DelegateBlock> CUSHION;
 	public static final BlockEntry<DelegateBlock> SCARLET_CHAIR;
+	public static final BlockEntry<DelegateBlock> MYOUREN_FENCE;
 	public static final BlockEntry<WroughtIronBarsBlock> WROUGHT_IRON_BARS;
 	public static final BlockEntry<WroughtIronPillarBlock> WROUGHT_IRON_PILLAR;
 
@@ -81,6 +84,9 @@ public class GLDecoBlocks {
 
 	/** 冰砖:浮冰切出的冰系砖块,附带台阶、楼梯和墙 */
 	public static final BrickSet ICE_BRICK_SET;
+
+	/** 命莲寺白砖:寺墙用的白砖,附带台阶、楼梯和墙 */
+	public static final BrickSet MYOUREN_BRICK_SET;
 
 	static {
 		var reg = GensokyoLegacy.REGISTRATE;
@@ -104,6 +110,8 @@ public class GLDecoBlocks {
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
 					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(5, 1000, GiftType.TOY))
 					.dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(100))
+					.tag(GLTagGen.MORICHIKA_OFFERS)
+					.dataMap(GLMeta.MORICHIKA_OFFER.reg(), new MorichikaOfferData(5, 10, 2, 3))
 					.tab(ResourceKey.create(Registries.CREATIVE_MODE_TAB, GensokyoLegacy.loc("ingredients")))
 					.build()
 					.register();
@@ -364,6 +372,28 @@ public class GLDecoBlocks {
 						BlockBehaviour.Properties.ofFullCopy(Blocks.DEEPSLATE).mapColor(MapColor.byId(14 + col.getId())),
 						"tiles/", BlockTags.MINEABLE_WITH_PICKAXE);
 			}
+
+			MYOUREN_BRICK_SET = new BrickSet(reg, "myouren",
+					BlockBehaviour.Properties.of().mapColor(MapColor.TERRACOTTA_WHITE)
+							.requiresCorrectToolForDrops().strength(1.5F).sound(SoundType.STONE),
+					// 四块花岗岩围着一块灵魂土烧出来的白砖
+					(ctx, pvd) -> GLRecipeGen.unlock(pvd, ShapedRecipeBuilder.shaped(
+									RecipeCategory.BUILDING_BLOCKS, ctx.get(), 4)::unlockedBy, Items.DIORITE)
+							.pattern(" A ").pattern("ABA").pattern(" A ")
+							.define('A', Items.DIORITE).define('B', Items.SOUL_SOIL)
+							.save(pvd),
+					BlockTags.MINEABLE_WITH_PICKAXE);
+
+			// 命莲寺栅栏:整格宽的一段板垣,从白砖上切下来,不跟邻格连接
+			MYOUREN_FENCE = reg.block("myouren_fence", p -> DelegateBlock.newBaseBlock(p,
+							BlockTemplates.HORIZONTAL, new MyourenFenceBlock()))
+					.properties(p -> p.mapColor(MapColor.STONE).strength(1.5F).sound(SoundType.STONE).noOcclusion())
+					.blockstate((ctx, pvd) -> MyourenFenceBlock.buildStates(ctx.get(), pvd, ctx.getName()))
+					.tag(BlockTags.MINEABLE_WITH_PICKAXE)
+					.recipe((ctx, pvd) -> pvd.stonecutting(
+							DataIngredient.items(MYOUREN_BRICK_SET.block.get()), RecipeCategory.BUILDING_BLOCKS, ctx))
+					.simpleItem()
+					.register();
 
 		}
 

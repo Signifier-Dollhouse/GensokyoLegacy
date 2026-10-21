@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_maple_log": {
+      "conditions": {
+        "items": [
+          {
+            "items": "gensokyolegacy:maple_log"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "gensokyolegacy:maple_log_to_oak_planks"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_maple_log"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "gensokyolegacy:maple_log_to_oak_planks"
+    ]
+  }
+}

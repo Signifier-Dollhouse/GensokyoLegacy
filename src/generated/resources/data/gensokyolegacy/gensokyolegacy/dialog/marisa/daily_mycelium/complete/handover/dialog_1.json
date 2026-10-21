@@ -1,4 +1,7 @@
 {
+  "animations": [
+    "dialog_agree"
+  ],
   "options": [],
   "text": "gensokyolegacy/marisa/daily_mycelium/dialog/marisa/daily_mycelium/complete/handover/dialog_1"
 }

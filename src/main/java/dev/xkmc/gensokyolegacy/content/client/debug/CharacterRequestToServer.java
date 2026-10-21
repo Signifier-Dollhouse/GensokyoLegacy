@@ -2,10 +2,10 @@ package dev.xkmc.gensokyolegacy.content.client.debug;
 
 import dev.xkmc.gensokyolegacy.content.attachment.index.BedRefData;
 import dev.xkmc.gensokyolegacy.content.attachment.index.StructureKey;
-import dev.xkmc.gensokyolegacy.content.entity.module.FairyFeedModule;
-import dev.xkmc.gensokyolegacy.content.entity.module.FeedModule;
-import dev.xkmc.gensokyolegacy.content.entity.module.GiftModule;
-import dev.xkmc.gensokyolegacy.content.entity.module.PartyModule;
+import dev.xkmc.gensokyolegacy.content.entity.behavior.module.FairyFeedModule;
+import dev.xkmc.gensokyolegacy.content.entity.behavior.module.FeedModule;
+import dev.xkmc.gensokyolegacy.content.entity.behavior.module.GiftModule;
+import dev.xkmc.gensokyolegacy.content.entity.behavior.module.PartyModule;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.SmartYoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;

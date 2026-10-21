@@ -1,7 +1,7 @@
 package dev.xkmc.gensokyolegacy.content.entity.characters.rumia;
 
 import dev.xkmc.danmakuapi.content.entity.DanmakuHelper;
-import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiFlags;
+import dev.xkmc.gensokyolegacy.content.entity.youkai.impl.YoukaiFlags;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.registrate.GLBrains;
 import dev.xkmc.gensokyolegacy.util.BrainUtils;

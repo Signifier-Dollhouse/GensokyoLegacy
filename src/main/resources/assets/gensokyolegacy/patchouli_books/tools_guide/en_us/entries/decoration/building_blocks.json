@@ -17,15 +17,30 @@
     },
     {
       "type": "patchouli:spotlight",
-      "item": "tag:gensokyolegacy:plank_wall",
-      "title": "Plank Walls",
-      "text": "Plank walls come in every wood type"
+      "item": [
+        "gensokyolegacy:red_lantern",
+        "gensokyolegacy:white_lantern",
+        "gensokyolegacy:lettered_red_lantern",
+        "gensokyolegacy:lettered_white_lantern"
+      ],
+      "title": "Lanterns",
+      "text": "Four paper lanterns, red and white, plain or lettered, each bright enough on its own to light a whole room."
     },
     {
       "type": "patchouli:spotlight",
-      "item": "tag:gensokyolegacy:tile_variants",
-      "title": "Tiles",
-      "text": "Tiles come in seven colors: cyan, orange, yellow, brown, blue, black and gray. Every color has stairs, slabs and wall panels."
+      "item": "gensokyolegacy:stone_lantern",
+      "title": "Stone Lantern",
+      "text": "A garden lantern cut from stone, two blocks tall. It is solid stone all the way through, so it gives out no light of its own."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": [
+        "gensokyolegacy:wrought_iron_bars",
+        "gensokyolegacy:wrought_iron_pillar",
+        "gensokyolegacy:candlestick"
+      ],
+      "title": "Wrought Iron Railings",
+      "text": "Blackened ironwork, which lends a room some weight."
     },
     {
       "type": "patchouli:spotlight",
@@ -40,24 +55,26 @@
     },
     {
       "type": "patchouli:spotlight",
-      "item": [
-        "gensokyolegacy:red_lantern",
-        "gensokyolegacy:white_lantern",
-        "gensokyolegacy:lettered_red_lantern",
-        "gensokyolegacy:lettered_white_lantern"
-      ],
-      "title": "Lanterns",
-      "text": "Four paper lanterns, red and white, plain or lettered, each bright enough on its own to light a whole room."
+      "item": "tag:gensokyolegacy:plank_wall",
+      "title": "Plank Walls",
+      "text": "Plank walls come in every wood type"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "tag:gensokyolegacy:tile_variants",
+      "title": "Tiles",
+      "text": "Tiles come in seven colors: cyan, orange, yellow, brown, blue, black and gray. Every color has stairs, slabs and wall panels."
     },
     {
       "type": "patchouli:spotlight",
       "item": [
-        "gensokyolegacy:wrought_iron_bars",
-        "gensokyolegacy:wrought_iron_pillar",
-        "gensokyolegacy:candlestick"
+        "gensokyolegacy:ice_bricks",
+        "gensokyolegacy:ice_brick_stairs",
+        "gensokyolegacy:ice_brick_slab",
+        "gensokyolegacy:ice_brick_vertical_slab"
       ],
-      "title": "Wrought Iron Railings",
-      "text": "Blackened ironwork, which lends a room some weight."
+      "title": "Ice Bricks",
+      "text": "Thematic bricks made from packed ice, with stairs, slabs and vertical slabs. Suitable for snowy environments."
     }
   ]
 }
