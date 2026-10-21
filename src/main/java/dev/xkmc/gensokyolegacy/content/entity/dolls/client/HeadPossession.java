@@ -6,6 +6,7 @@ import dev.xkmc.gensokyolegacy.content.entity.dolls.network.HeadReleaseToServer;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.network.HeadUseToServer;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.neoforge.client.event.InputEvent;
 import net.neoforged.neoforge.client.event.RenderHandEvent;
@@ -40,6 +41,17 @@ public final class HeadPossession {
 		mc.gameMode.stopDestroyBlock();
 		GensokyoLegacy.HANDLER.toServer(new HeadMoveToServer(head.getId(),
 				head.getX(), head.getY(), head.getZ(), head.getYRot(), head.getXRot()));
+	}
+
+	/**
+	 * Whether the given player is looking out of a head, with its body left behind. The body is
+	 * still the client's to place: vanilla hands a player's position to the client and takes that
+	 * hand back the moment the camera leaves the player, so the server's copy of the body would
+	 * sit still while the client's own copy falls and is knocked about.
+	 */
+	public static boolean isPossessedBody(LocalPlayer player) {
+		Minecraft mc = Minecraft.getInstance();
+		return mc.getCameraEntity() instanceof SekibankiHeadEntity head && head.isPossessedBy(player);
 	}
 
 	/**
