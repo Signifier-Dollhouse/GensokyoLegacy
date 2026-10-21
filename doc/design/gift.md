@@ -117,7 +117,8 @@ never mistakes a bottle for a meal and a player on a full stomach can still drin
 `lucky_tea` are the same effect one potency apart — Minecraft has a single haste/looting effect
 (`MobEffects.DIG_SPEED`) that is haste on a mob and looting on an item.
 
-`fancy_fan` is a plain item: it does nothing, which is the point of it.
+`fancy_fan` is a gift that does something: it is a fan, and right-clicking it blows a gust over
+everything in the cone in front of you. See [fancy_fan.md](fancy_fan.md).
 
 ## Selling gifts on a shelf
 

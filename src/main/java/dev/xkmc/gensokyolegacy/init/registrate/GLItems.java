@@ -108,7 +108,7 @@ public class GLItems {
 	public static final ItemEntry<MagicBookItem> MAGIC_BOOK;
 	public static final ItemEntry<DrinkGiftItem> LUCKY_TEA, ZUN_BEER;
 	public static final ItemEntry<Item> MAGIC_CANDY, KAPPA_BENTO;
-	public static final ItemEntry<Item> FANCY_FAN;
+	public static final ItemEntry<FancyFanItem> FANCY_FAN;
 
 	public static final ItemEntry<DebugGlasses> DEBUG_GLASSES;
 	public static final ItemEntry<DebugWand> DEBUG_WAND;
@@ -393,8 +393,8 @@ public class GLItems {
 					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(4, 1000, GiftType.FOOD))
 					.lang("Kappa Bento").register();
 
-			// a fan is for looking at, and the gift is the point
-			FANCY_FAN = reg.item("fancy_fan", Item::new)
+			// a fan is for looking at, and for blowing
+			FANCY_FAN = reg.item("fancy_fan", FancyFanItem::new)
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
 					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(5, 1000, GiftType.COLLECTION))
 					.tag(GLTagGen.MORICHIKA_OFFERS)

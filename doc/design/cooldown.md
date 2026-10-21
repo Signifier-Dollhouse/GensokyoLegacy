@@ -111,8 +111,8 @@ pearl, which is the shape of the effect: it is worth most to the slow items.
 Everything that goes through vanilla's `ItemCooldowns` accelerates, the mod's own items included,
 with no change at any call site: the dagger glove (`mode.cooldown() + rune.cooldownCost()` is in
 the same clock, so the rune's price drains faster too), the border umbrella, the cat bell, the
-mermaid pearl, the fairy dust, the doll glove, the hakkero and the koishi hat. Vanilla items
-accelerate as well, the shield's disable cooldown among them.
+mermaid pearl, the fairy dust, the doll glove, the hakkero, the koishi hat and the fancy fan.
+Vanilla items accelerate as well, the shield's disable cooldown among them.
 
 Two cooldowns in the mod are *imposed on* the player rather than spent by them, and they
 accelerate with everything else:

@@ -25,6 +25,7 @@
 			"gift_favor": "好感值: %s",
 			"gift_type": "类型: %s",
 			"infinite": "取之不尽",
+			"blow": "右键吹出一阵风",
 			"has_ability": "持有幻想乡身份的",
 			"unknown": "???"
 		},
@@ -45,7 +46,8 @@
 			"iron_dagger_lore": "永远掷出未扔过的那把",
 			"strange_glasses_lore": "所见即为真实",
 			"ice_wings_lore": "冰一样的力量，以及冰一样的聪慧",
-			"fairy_wings_lore": "妖精般轻盈，也如妖精般柔弱"
+			"fairy_wings_lore": "妖精般轻盈，也如妖精般柔弱",
+			"fancy_fan_lore": "漂亮到足以送人，而挥动时还会吹起一阵风"
 		},
 		"gift": {
 			"type": {
