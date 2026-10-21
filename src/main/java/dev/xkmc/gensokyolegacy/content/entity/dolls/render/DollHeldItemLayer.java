@@ -1,7 +1,7 @@
 package dev.xkmc.gensokyolegacy.content.entity.dolls.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Axis;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.DollEntity;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.impl.DollLoadout;
 import dev.xkmc.gensokyolegacy.content.item.doll.DollSlot;
@@ -9,6 +9,7 @@ import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.gensokyolegacy.init.registrate.GLParticles;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
@@ -17,6 +18,7 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 import software.bernie.geckolib.cache.object.GeoBone;
 import software.bernie.geckolib.renderer.layer.BlockAndItemGeoLayer;
+import software.bernie.geckolib.util.RenderUtil;
 
 import static dev.xkmc.gensokyolegacy.content.entity.youkai.renderer.YoukaiHeldItemLayer.itemBuffer;
 
@@ -24,6 +26,8 @@ import static dev.xkmc.gensokyolegacy.content.entity.youkai.renderer.YoukaiHeldI
  * Renders the doll loadout hand slots at the model's hand locator bones.
  * Reads the synced client mirror via {@link DollLoadout#getLoadoutItem} — dolls
  * deliberately bypass vanilla equipment slots, so {@code getMainHandItem} stays empty.
+ *
+ * @see "doc/design/doll/loadout.md"
  */
 public class DollHeldItemLayer extends BlockAndItemGeoLayer<DollEntity> {
 
@@ -62,6 +66,18 @@ public class DollHeldItemLayer extends BlockAndItemGeoLayer<DollEntity> {
 				: ItemDisplayContext.THIRD_PERSON_RIGHT_HAND;
 	}
 
+	@Override
+	public void renderForBone(PoseStack poseStack, DollEntity doll, GeoBone bone, RenderType renderType,
+							  MultiBufferSource bufferSource, VertexConsumer buffer, float partialTick,
+							  int packedLight, int packedOverlay) {
+		ItemStack stack = getStackForBone(bone, doll);
+		if (stack == null) return;
+		poseStack.pushPose();
+		RenderUtil.translateToPivotPoint(poseStack, bone);
+		renderStackForBone(poseStack, bone, stack, doll, bufferSource, partialTick, packedLight, packedOverlay);
+		poseStack.popPose();
+	}
+
 	/**
 	 * Renders the stack itself instead of delegating to {@code super}, which hardcodes
 	 * {@code leftHand = false} and so cannot reproduce vanilla's third-person left hand.
@@ -79,7 +95,6 @@ public class DollHeldItemLayer extends BlockAndItemGeoLayer<DollEntity> {
 		var left = bone.getName().equals(LEFT_HAND_BONE);
 		poseStack.pushPose();
 		poseStack.scale(0.8F, 0.8F, 0.8F);
-		poseStack.mulPose(Axis.XP.rotationDegrees(90));
 		poseStack.translate(0.0D, 0.0D, -0.2D);
 		if (!left && stack.is(GLItems.DOLL_LANCE.get()) && dollRenderer.consumeSpearParticle(doll)) {
 			spawnSpearParticle(poseStack, bone, stack, doll, partialTick);
