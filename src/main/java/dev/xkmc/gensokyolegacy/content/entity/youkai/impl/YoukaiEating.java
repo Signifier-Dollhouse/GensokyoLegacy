@@ -99,13 +99,4 @@ public interface YoukaiEating extends YoukaiBaseImpl {
 				out.x, out.y, out.z, vel.x, vel.y + 0.05, vel.z);
 	}
 
-	/**
-	 * Registers the pair. A static hook rather than a module, because the module list is per-entity
-	 * and these two accessors are the same pair on every character.
-	 */
-	static void defineSynchedData(SynchedEntityData.Builder builder) {
-		builder.define(DATA_EAT_ITEM, ItemStack.EMPTY);
-		builder.define(DATA_EAT_TICKS, 0);
-	}
-
 }
