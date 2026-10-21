@@ -16,7 +16,7 @@ import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 /**
- * A stationary lance impact, aligned to the weapon axis and showing each frame for one tick.
+ * A stationary lance impact, aligned to the weapon axis and extending forward from its tip, one tick per frame.
  */
 public class SpearParticle extends TextureSheetParticle {
 
@@ -33,6 +33,11 @@ public class SpearParticle extends TextureSheetParticle {
 		if (this.direction.lengthSquared() > 1e-6F) this.direction.normalize();
 		this.lifetime = FRAMES;
 		this.quadSize = 0.75F;
+		this.setPos(x + this.direction.x * this.quadSize, y + this.direction.y * this.quadSize,
+				z + this.direction.z * this.quadSize);
+		this.xo = this.x;
+		this.yo = this.y;
+		this.zo = this.z;
 		this.setSprite(sprites.get(0, FRAMES - 1));
 	}
 
