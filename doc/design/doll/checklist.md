@@ -16,9 +16,22 @@ Loadout (done — slots, storage, mirror, editor menu; render TODO):
 - `content/item/doll/DollSlot.java` — 4-slot enum (loadout.md §1)
 - `content/attachment/doll/DollInventory.java` — immutable item variant; `MutableDollInventory.java` — mutable data variant (loadout.md §2)
 
-Summons (API only — no summon exists yet, see summon.md):
+Summons (API + the ghost, see summon.md and stray.md):
 - `content/attachment/doll/DollNature.java` — `DOLL` / `SUMMON` / `ITEM_GADGET`: the item, recall and loadout predicates (summon.md §1, gadget.md §1)
 - `content/entity/dolls/behavior/DollBehaviorRegistry.java` — `registerIntrinsic`: a binding keyed on the doll's class, for the one move a loadout-free summon owns (§4)
+
+Ghosts and wild strays (done — stray.md):
+- `content/entity/dolls/ghost/GhostEntity.java` — the owned support summon, `BaseDollEntity` + `GhostVariantHolder`, `nature() == SUMMON`, no item; auras live in `tickAuras()`
+- `content/entity/dolls/ghost/StrayGhostEntity.java` — the wild ownerless ghost, `PathfinderMob`, fully passive, persistent, variant-bearing
+- `content/entity/dolls/ghost/GhostVariant.java` + `GhostVariantHolder.java` — `CURIOS` / `FOODIE` / `LIVELY`, synced id, texture stem, display name
+- `content/entity/dolls/ghost/GhostVariantModule.java` — mirrors the synced id into `DollData.variant` across park/resummon
+- `content/entity/dolls/StrayDollEntity.java` — the wild neutral doll, `PathfinderMob`, own entity type and spawn egg
+- `content/item/doll/BoneFluteItem.java` — adopt a stray ghost / release an owned ghost
+- `content/entity/dolls/render/GhostModel.java`, `GhostRenderer.java`, `StrayGhostModel.java`, `StrayGhostRenderer.java`, `StrayDollModel.java`, `StrayDollRenderer.java`
+- `content/effect/FoodieEffect.java` — the per-second hunger→saturation conversion (stray.md §7.4)
+- `event/GhostEventHandlers.java` — `LivingEntityUseItemEvent.Tick` for the 2× eating speed
+- assets — `geo/ghost.geo.json`, `animations/ghost.animation.json`, `textures/geo/ghost/{curios,foodie,lively}_ghost.png`, `textures/item/tool/bone_flute.png`; the wild doll reuses `geo/doll.geo.json`, `animations/doll.animation.json` and `textures/geo/doll/red.png`
+- `content/entity/dolls/ghost/package-info.java` — nullability annotation for the new subpackage
 
 Gadgets (done — the Sekibanki head, gadget.md):
 - `content/item/doll/DollGadgetItem.java` — a doll item that names its own entity kind and carries no state back
@@ -46,9 +59,16 @@ Implemented — glove (item, 6 modes with heal/stop hidden, wheel, target cache 
 
 ## 2. Files to modify
 
-- `content/attachment/doll/DollData.java` — `inventory` field (loadout.md §2) — done (mutable variant); `nature` field (summon.md §1) — done
+- `content/attachment/doll/DollData.java` — `inventory` field (loadout.md §2) — done (mutable variant); `nature` field (summon.md §1) — done; `variant` int for kind-specific ids (stray.md §6.2) — done
+- `content/attachment/doll/DollNature.java` — `SUMMON` javadoc: it says "conjured rather than owned", but the ghost is player-owned; reword to "no item form" (stray.md §3) — done
 - `content/attachment/doll/DollLedger.java` — `drop(UUID)`, the forget-an-entry path a death and an expiry both end on (summon.md §3)
-- `content/attachment/doll/DollAttachment.java` — destroyed-resummon revival keeping gear (§7); stray rejoin as `TEMP` and the recall sweep for strays within 48 blocks (control.md §5.4a); ledger transitions only; the itemize / park / tryItemize / death / stray gates and the recall skip for a summon (summon.md §3)
+- `content/attachment/doll/DollAttachment.java` — destroyed-resummon revival keeping gear (§7); stray rejoin as `TEMP` and the recall sweep for strays within 48 blocks (control.md §5.4a); ledger transitions only; the itemize / park / tryItemize / death / stray gates and the recall skip for a summon (summon.md §3); `adopt(ServerPlayer, StrayGhostEntity)` and `release(ServerPlayer, GhostEntity)` (stray.md §8) — done
+- `content/entity/dolls/render/DollModel.java` — unchanged; the wild doll reuses `geo/doll.geo.json` through its own `StrayDollModel`/`StrayDollRenderer`, and no wild mob implements `DollRig` (stray.md §3) — done
+- `init/registrate/GLEffects.java` — `FOODIE` (`FoodieEffect`, not `EmptyEffect`) + description (stray.md §7.4) — done
+- `init/registrate/GLEntities.java` — `STRAY_DOLL`, `STRAY_GHOST` (`MONSTER`, spawn eggs), `GHOST` (`MISC`, no egg); renderers, attributes, no-loot tables (wild only; `MISC` cannot have one), carry-on tag (stray.md §10.1) — done
+- `init/registrate/GLItems.java` — `BONE_FLUTE` item, creative tab (stray.md §8.3) — done
+- `init/data/GLLang.java` — bone-flute tooltip/messages, ghost variant names, `Ghost.NOT_YOURS`/`BIND_FAIL`/`RELEASE_FAIL` (stray.md §10.2) — done
+- `event/GhostEventHandlers.java` — `LivingEntityUseItemEvent.Tick` only; the foodie conversion lives on the effect, so `PlayerMixin` is unchanged (stray.md §7.4) — done
 - `content/attachment/doll/DollCommander.java` — no timeout sweep: expiry is the kind's own bookkeeping, and the commander only drops entries it is told to (summon.md §5)
 - `content/attachment/doll/DollSpawn.java` — stamps the entity's `nature()` onto the materialized entry (summon.md §1)
 - `content/attachment/doll/DollHost.java` — `detach(UUID)` for stray cuts, `onDeath` hook; `StrayHost.java` holds the detached entry, answers pairing, hands it over one-shot via `take()`, persists via chunk save/load (control.md §5.4), and mints no item for a summon (summon.md §3); `DelegateDollHost.java` — the whole surface forwarded to a host kept elsewhere, so a character answers as the host with one `dolls()` method (host.md §1)
@@ -80,6 +100,9 @@ Run `./gradlew runData` (commit generated output), then `organize.ResourceOrgani
 |---|---|---|---|
 | `GLItems` | `DOLL` item, `DOLL_DATA` + `DOLL_LOADOUT` components | Registrate | done |
 | `GLItems` / `GLEntities` | `SEKIBANKI_HEAD` gadget item + its entity type (gadget.md §3) | Registrate | done |
+| `GLEntities` | `STRAY_DOLL`, `STRAY_GHOST` (`MONSTER`, spawn eggs), `GHOST` (`MISC`, no egg) (stray.md §10.1) | Registrate | done |
+| `GLItems` | `BONE_FLUTE` (stray.md §8.3) | Registrate | done |
+| `GLEffects` | `FOODIE` beneficial effect (`FoodieEffect`) (stray.md §7.4) | Registrate | done |
 | `GLItems` | `DOLL_GLOVE` item, `DOLL_GLOVE_MODE` DCVal | Registrate | done |
 | `GLItems` | `MINI_SHIELD` item, a doll-only shield (item.md §10) | Registrate | done |
 | `GLMeta` (`ATT.player`) | `DOLL` player capability → `DollAttachment` | attachment | done |
@@ -96,10 +119,13 @@ Run `./gradlew runData` (commit generated output), then `organize.ResourceOrgani
 - Glove wire-up, targeting, and texture: glove.md §2/§5.
 - The no-item-form rule and its six gates, per-kind timeouts, intrinsic move: summon.md §3/§5/§4.
 - The item's own entity kind, the component-less gadget item, and the base-vs-doll split that makes "cannot act" structural: gadget.md §1/§2/§4, entity.md §9.1.
+- Why wild mobs are not dolls, the two-entity-type ghost conversion, the variant auras and the foodie effect: stray.md §3/§6/§7/§8.
 
 ## 5. Open questions
 
 - Render held items on the model (loadout.md §5).
 - Cloth/core behaviors, mechanical `core` items, attack/tracking lasers, `ITERATIVE` for other types, a glove-inventory screen, block-hosted doll commands, modded-shield matching, heal-mark pruning (control.md §10).
 - Config toggle for park intent (TEMP vs STORED) on logout/death (pairing.md §7).
-- The actual summons: which kinds exist, what summons them, and whether expiry is instant or a staggered stagger-out like the party's (summon.md §6).
+- The remaining summons: which other kinds exist, what summons them, and whether expiry is instant or a staggered stagger-out like the party's ([stray.md](stray.md) §12).
+- Ghost acquisition in survival: no natural spawn for either wild type yet, so the bone flute has no non-creative source (stray.md §12).
+- Flute recipe and final ghost art (stray.md §12).

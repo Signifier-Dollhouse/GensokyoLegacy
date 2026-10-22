@@ -1,0 +1,149 @@
+package dev.xkmc.gensokyolegacy.content.entity.dolls.ghost;
+
+import dev.xkmc.gensokyolegacy.content.attachment.doll.DollNature;
+import dev.xkmc.gensokyolegacy.content.entity.dolls.BaseDollEntity;
+import dev.xkmc.gensokyolegacy.content.entity.dolls.impl.DollModule;
+import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
+import dev.xkmc.gensokyolegacy.init.registrate.GLEffects;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.effect.MobEffectCategory;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.Level;
+import software.bernie.geckolib.animation.AnimationController;
+import software.bernie.geckolib.animation.AnimatableManager;
+import software.bernie.geckolib.animation.PlayState;
+import software.bernie.geckolib.animation.RawAnimation;
+
+import java.util.List;
+
+/**
+ * The player-bound support ghost: it pairs, follows and is restored like any doll, but carries no
+ * item, no loadout and no command surface. Its one contribution is the variant aura it provides
+ * while its owner is nearby.
+ *
+ * @see "doc/design/doll/stray.md"
+ */
+public class GhostEntity extends BaseDollEntity implements GhostVariantHolder {
+
+	public static final ResourceLocation TYPE = GensokyoLegacy.loc("ghost");
+	public static final EntityDataAccessor<Integer> DATA_VARIANT =
+			SynchedEntityData.defineId(GhostEntity.class, EntityDataSerializers.INT);
+
+	private static final int AURA_INTERVAL = 20;
+	private static final int AURA_DURATION = 60;
+	private static final int CURIOS_INTERVAL = 60;
+	private static final double ABILITY_RANGE = 16.0;
+
+	private static final RawAnimation IDLE = RawAnimation.begin().thenLoop("idle");
+	private static final RawAnimation FLY = RawAnimation.begin().thenLoop("fly");
+	private static final RawAnimation SKILL = RawAnimation.begin().thenPlay("skill");
+
+	public GhostEntity(EntityType<? extends GhostEntity> type, Level level) {
+		super(type, level);
+	}
+
+	@Override
+	public DollNature nature() {
+		return DollNature.SUMMON;
+	}
+
+	@Override
+	protected void createDollModules(List<DollModule> modules) {
+		super.createDollModules(modules);
+		modules.add(new GhostVariantModule());
+	}
+
+	@Override
+	public GhostVariant getVariant() {
+		return GhostVariant.byId(getEntityData().get(DATA_VARIANT));
+	}
+
+	@Override
+	public void setVariant(GhostVariant variant) {
+		getEntityData().set(DATA_VARIANT, variant.ordinal());
+	}
+
+	@Override
+	public Component getName() {
+		if (getCustomName() != null) return super.getName();
+		return getVariant().getDisplayName();
+	}
+
+	@Override
+	public void tick() {
+		super.tick();
+		if (level().isClientSide() || isRemoved()) return;
+		tickAuras();
+	}
+
+	private void tickAuras() {
+		LivingEntity owner = getOwner();
+		if (owner == null || !owner.isAlive() || owner.level() != level() || owner.isSpectator()) return;
+		if (distanceToSqr(owner) > ABILITY_RANGE * ABILITY_RANGE) return;
+		if (tickCount % AURA_INTERVAL == 0) {
+			switch (getVariant()) {
+				case FOODIE -> owner.addEffect(new MobEffectInstance(GLEffects.FOODIE,
+						AURA_DURATION, 0, true, true, true));
+				case LIVELY -> {
+					owner.addEffect(new MobEffectInstance(MobEffects.DIG_SPEED,
+							AURA_DURATION, 1, true, true, true));
+					owner.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED,
+							AURA_DURATION, 1, true, true, true));
+					owner.addEffect(new MobEffectInstance(GLEffects.LIVELY,
+							AURA_DURATION, 0, true, true, true));
+				}
+				case CURIOS -> {
+				}
+			}
+		}
+		if (getVariant() == GhostVariant.CURIOS && tickCount % CURIOS_INTERVAL == 0) {
+			cleanseLongest(owner);
+		}
+	}
+
+	/**
+	 * One harmful effect per pulse, the one with the most time left, so a long debuff is worked
+	 * down before a short one that would have expired on its own anyway.
+	 */
+	private void cleanseLongest(LivingEntity owner) {
+		MobEffectInstance target = null;
+		for (MobEffectInstance effect : owner.getActiveEffects()) {
+			if (effect.getEffect().value().getCategory() != MobEffectCategory.HARMFUL) continue;
+			if (target == null || remaining(effect) > remaining(target)) target = effect;
+		}
+		if (target == null) return;
+		owner.removeEffect(target.getEffect());
+		level().broadcastEntityEvent(this, EVENT_SKILL);
+	}
+
+	private static int remaining(MobEffectInstance effect) {
+		return effect.getDuration() < 0 ? Integer.MAX_VALUE : effect.getDuration();
+	}
+
+	@Override
+	public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
+		controllers.add(new AnimationController<>(this, ANIM_CONTROLLER, ANIM_TRANSITION,
+				e -> e.setAndContinue(e.isMoving() ? FLY : IDLE)));
+		controllers.add(new AnimationController<>(this, ONE_SHOT_CONTROLLER, ANIM_TRANSITION,
+				e -> e.getController().isPlayingTriggeredAnimation() ? PlayState.CONTINUE : PlayState.STOP)
+				.receiveTriggeredAnimations()
+				.triggerableAnim("skill", SKILL));
+	}
+
+	@Override
+	public void handleEntityEvent(byte id) {
+		if (level().isClientSide() && id == EVENT_SKILL) {
+			triggerAnim(ONE_SHOT_CONTROLLER, "skill");
+			return;
+		}
+		super.handleEntityEvent(id);
+	}
+
+}

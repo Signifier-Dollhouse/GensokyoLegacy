@@ -998,6 +998,92 @@ public final class GLLang {
 		}
 	}
 
+	public enum Ghost implements LangEntry {
+		CURIOS("Curios Ghost"),
+		FOODIE("Foodie Ghost"),
+		LIVELY("Lively Ghost"),
+		NOT_YOURS("This ghost is not yours", 0, ChatFormatting.RED),
+		BIND_FAIL("The ghost resists the flute", 0, ChatFormatting.RED),
+		RELEASE_FAIL("The ghost cannot be released", 0, ChatFormatting.RED);
+
+		private final String def;
+		private final int argn;
+		private final String key;
+		private final @Nullable ChatFormatting format;
+
+		Ghost(String def) {
+			this(def, 0, null);
+		}
+
+		Ghost(String def, int argn, @Nullable ChatFormatting format) {
+			this.def = def;
+			this.argn = argn;
+			this.key = GensokyoLegacy.MODID + ".ghost." + name().toLowerCase(Locale.ROOT);
+			this.format = format;
+		}
+
+		@Override
+		public String key() {
+			return key;
+		}
+
+		@Override
+		public String def() {
+			return def;
+		}
+
+		@Override
+		public int argn() {
+			return argn;
+		}
+
+		@Override
+		public @Nullable ChatFormatting format() {
+			return format;
+		}
+	}
+
+	public enum ItemBoneFlute implements LangEntry {
+		BIND("Right-click a stray ghost to bind it to you", 0, ChatFormatting.GRAY),
+		RELEASE("Right-click your own ghost to set it free", 0, ChatFormatting.GRAY);
+
+		private final String def;
+		private final int argn;
+		private final String key;
+		private final @Nullable ChatFormatting format;
+
+		ItemBoneFlute(String def) {
+			this(def, 0, null);
+		}
+
+		ItemBoneFlute(String def, int argn, @Nullable ChatFormatting format) {
+			this.def = def;
+			this.argn = argn;
+			this.key = GensokyoLegacy.MODID + ".bone_flute." + name().toLowerCase(Locale.ROOT);
+			this.format = format;
+		}
+
+		@Override
+		public String key() {
+			return key;
+		}
+
+		@Override
+		public String def() {
+			return def;
+		}
+
+		@Override
+		public int argn() {
+			return argn;
+		}
+
+		@Override
+		public @Nullable ChatFormatting format() {
+			return format;
+		}
+	}
+
 	public enum Doll implements LangEntry {
 		NO_SPACE("No inventory space"),
 		RESYNC_MISSING("Doll entity missing — restoring"),
@@ -1047,7 +1133,8 @@ public final class GLLang {
 		for (var group : new LangEntry[][]{
 				Quest.values(), Info.values(), Trade.values(), Misc.values(),
 				ItemDebug.values(), ItemFurnace.values(), ItemLores.values(), ItemCommon.values(), ItemUmbrella.values(), ItemGlove.values(), ItemDaggerGlove.values(), Alchemy.values(), Jei.values(), JeiExtra.values(),
-				Talisman.values(), Doll.values(), Party.values(), ItemSekibankiHead.values()}) {
+				Talisman.values(), Doll.values(), Party.values(), ItemSekibankiHead.values(),
+				Ghost.values(), ItemBoneFlute.values()}) {
 			for (var e : group) {
 				pvd.add(e.key(), e.def());
 			}

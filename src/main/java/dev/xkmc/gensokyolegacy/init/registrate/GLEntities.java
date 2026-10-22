@@ -22,9 +22,15 @@ import dev.xkmc.gensokyolegacy.content.entity.characters.sakuya.SakuyaEntity;
 import dev.xkmc.gensokyolegacy.content.entity.characters.sakuya.SakuyaRenderer;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.DollEntity;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.SekibankiHeadEntity;
+import dev.xkmc.gensokyolegacy.content.entity.dolls.StrayDollEntity;
+import dev.xkmc.gensokyolegacy.content.entity.dolls.ghost.GhostEntity;
+import dev.xkmc.gensokyolegacy.content.entity.dolls.ghost.StrayGhostEntity;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.render.DollRenderer;
+import dev.xkmc.gensokyolegacy.content.entity.dolls.render.GhostRenderer;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.render.IronDaggerBulletRenderer;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.render.SekibankiHeadRenderer;
+import dev.xkmc.gensokyolegacy.content.entity.dolls.render.StrayDollRenderer;
+import dev.xkmc.gensokyolegacy.content.entity.dolls.render.StrayGhostRenderer;
 import dev.xkmc.gensokyolegacy.content.entity.misc.FairyIce;
 import dev.xkmc.gensokyolegacy.content.entity.misc.FrozenFrog;
 import dev.xkmc.gensokyolegacy.content.entity.misc.HexBrewBottleEntity;
@@ -59,6 +65,9 @@ public class GLEntities {
 
 	public static final EntityEntry<DollEntity> DOLL;
 	public static final EntityEntry<SekibankiHeadEntity> SEKIBANKI_HEAD;
+	public static final EntityEntry<StrayDollEntity> STRAY_DOLL;
+	public static final EntityEntry<StrayGhostEntity> STRAY_GHOST;
+	public static final EntityEntry<GhostEntity> GHOST;
 
 	public static final EntityEntry<ChairEntity> CHAIR;
 	public static final EntityEntry<BroomEntity> BROOM;
@@ -177,6 +186,34 @@ public class GLEntities {
 					.attributes(DollEntity::createAttributes)
 					.tag(GLTagGen.CARRYON_BLACKLIST)
 					.renderer(() -> SekibankiHeadRenderer::new)
+					.register();
+
+			STRAY_DOLL = GensokyoLegacy.REGISTRATE
+					.entity("stray_doll", StrayDollEntity::new, MobCategory.MONSTER)
+					.properties(e -> e.sized(0.4F, 0.9F).clientTrackingRange(10))
+					.attributes(StrayDollEntity::createAttributes)
+					.tag(GLTagGen.CARRYON_BLACKLIST)
+					.loot(EntityLootGen::noLoot)
+					.spawnEgg(0xE6D5B8, 0x8B6B4A).build()
+					.renderer(() -> StrayDollRenderer::new)
+					.register();
+
+			STRAY_GHOST = GensokyoLegacy.REGISTRATE
+					.entity("stray_ghost", StrayGhostEntity::new, MobCategory.MONSTER)
+					.properties(e -> e.sized(0.4F, 0.9F).clientTrackingRange(10))
+					.attributes(StrayGhostEntity::createAttributes)
+					.tag(GLTagGen.CARRYON_BLACKLIST)
+					.loot(EntityLootGen::noLoot)
+					.spawnEgg(0xBFD8E6, 0x5A7D8C).build()
+					.renderer(() -> StrayGhostRenderer::new)
+					.register();
+
+			GHOST = GensokyoLegacy.REGISTRATE
+					.entity("ghost", GhostEntity::new, MobCategory.MISC)
+					.properties(e -> e.sized(0.4F, 0.9F).clientTrackingRange(10))
+					.attributes(DollEntity::createAttributes)
+					.tag(GLTagGen.CARRYON_BLACKLIST)
+					.renderer(() -> GhostRenderer::new)
 					.register();
 
 			FROZEN_FROG = GensokyoLegacy.REGISTRATE

@@ -1,23 +1,34 @@
 # Summons — conjured non-doll escorts
 
-A **summon** (`DollNature.SUMMON`) uses the whole doll machinery — pairing, the follow formation, the command goal, the deferred damage pipeline — but is not a doll: it has no item form, cannot be recalled, and has no loadout. Everything here is already true of a character's dolls (`AliceDollHost`, host.md); what was missing is that a *player* ledger could not express any of it.
+A **summon** (`DollNature.SUMMON`) uses the whole doll machinery — pairing, the follow formation, the deferred damage pipeline — but is not a doll: it has no item form, cannot be recalled, and has no loadout. Everything here is already true of a character's dolls (`AliceDollHost`, host.md); what was missing is that a *player* ledger could not express any of it. A summon need not be unowned: the first one, the **ghost**, is bound to a player by the bone flute and is restored like any doll ([stray.md](stray.md)).
 
 The sibling nature is `ITEM_GADGET` — owned, itemizable and recallable, but loadout-free and inert: see [gadget.md](gadget.md).
 
-No summon exists yet. This doc covers the API one is built from.
+The ghost is the first summon; this doc is the API it uses, and §5 explains why it has no lifetime.
 
 ## 1. `DollNature` — the three-item axis
 
 `DollState` says what shape an entry is in right now (`SUMMONED` / `STORED` / `TEMP`). `DollNature` says what it is **allowed to become**, and it is declared once, on the kind:
 
 ```java
+// a summon that fights or takes orders
 public abstract class SomeSummon extends DollEntity {
     @Override
     public DollNature nature() {
         return DollNature.SUMMON;
     }
 }
+
+// a support summon that neither fights nor takes orders (the ghost, stray.md §6)
+public abstract class SomeSupport extends BaseDollEntity {
+    @Override
+    public DollNature nature() {
+        return DollNature.SUMMON;
+    }
+}
 ```
+
+The base class follows the action surface, not the nature (entity.md §9.1): `SUMMON` only says "no item, no recall, no loadout". A support summon can therefore be player-owned and still extend the bare base.
 
 `DollSpawn.materialize` stamps `data.nature = doll.nature()` onto the ledger entry as it materializes, so a host conjuring a summon never has to say anything — `data.type` already names the entity, and the entity already declares its nature. The entry mirrors it; every gate reads the entry.
 
@@ -101,22 +112,22 @@ That is deliberate rather than an omission. "Runs out of life" is one possible e
 
 - the countdown runs only while the kind is actually ticking, so a summon parked over an owner's logout spends no life on time it was not there;
 - nothing in the framework has to guess what a parked entry's remaining life means;
-- a summon that has no lifetime at all needs no flag to say so.
+- a summon that has no lifetime at all needs no flag to say so. The ghost is the zero-lifetime case: it lives until it is killed or released, so it carries no counter at all ([stray.md](stray.md) §9).
 
 ## 6. Building one
 
 A summon kind is:
 
-1. an entity extending `DollEntity` — not the bare base, because it still takes orders — with `nature()` returning `SUMMON` and its own `getDollTypeId()` via the registry entry (entity.md §9.1);
-2. one `registerIntrinsic` naming its one move (§4);
+1. an entity extending `DollEntity` when it takes orders or fights, or `BaseDollEntity` when it is pure support (the ghost, stray.md §6) — with `nature()` returning `SUMMON` and its own `getDollTypeId()` via the registry entry (entity.md §9.1);
+2. one `registerIntrinsic` naming its one move, if it has one (§4);
 3. a host that materializes a `DollData` with that `type` and a `position` — `DollSpawn.materialize` handles the rest, including the nature stamp;
-4. if it expires, its own lifetime bookkeeping and the discard-then-`drop` end from §5.
+4. if it expires, its own lifetime bookkeeping and the discard-then-`drop` end from §5. If it has no lifetime, nothing.
 
-Everything else it needs it already has: it pairs, follows the owner in formation, takes commands through the glove or its host, takes damage through the deferred pipeline, cannot change dimension, and is never chunk-serialized.
+Everything else it needs it already has: it pairs, follows the owner in formation, takes damage through the deferred pipeline, cannot change dimension, and is never chunk-serialized. An acting summon also takes commands through the glove or its host; a support summon has no command surface to begin with.
 
 ## 7. Edge cases
 
-- **The roster shows it.** `DollCommander.roster` includes every summoned entry, and `DollStatus.syncActionStatus` builds its valid mask from `findHand`, so an intrinsic sets the `REGULAR_ATTACK` bit and the sidebar frame is honest. The "currently using" icon comes from `findUsing` over the synced mirror, which is client-safe over plain stacks by design — a summon shows the frame with no item in it. `DollGloveModes` then hides `SUPER` and `SUICIDE` off a summon-only roster, since nothing validates for them.
+- **The roster shows it — if it can act.** `DollCommander.roster` includes every summoned entry, and `DollStatus.syncActionStatus` builds its valid mask from `findHand`, so an intrinsic sets the `REGULAR_ATTACK` bit and the sidebar frame is honest. A base-only support summon is the exception: it keeps a formation slot but draws no frame (stray.md §9). The "currently using" icon comes from `findUsing` over the synced mirror, which is client-safe over plain stacks by design — a summon shows the frame with no item in it. `DollGloveModes` then hides `SUPER` and `SUICIDE` off a summon-only roster, since nothing validates for them.
 - **A summon's host must refuse `detach`.** `detach` returning null is what keeps `becomeStray` from synthesizing an entry nobody can hand back. `AliceDollHost` already documents this as her standing rule.
 - **`drop` is not a discard of the world.** It only forgets the entry. A host that wants the entity gone — owner death, unload, expiry — still discards it itself, which is why every end discards before it drops.
 - **`trySummon` re-materializes a `TEMP` summon** through the same `DollSpawn.materialize`, so it comes back with the same nature and a fresh uuid, and re-stamps the entry's identity fields. Whatever lifetime the kind tracks starts over with the new entity.

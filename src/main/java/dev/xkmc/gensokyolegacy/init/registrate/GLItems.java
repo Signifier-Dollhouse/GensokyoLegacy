@@ -121,6 +121,8 @@ public class GLItems {
 	 */
 	public static final ItemEntry<SekibankiHeadItem> SEKIBANKI_HEAD;
 
+	public static final ItemEntry<BoneFluteItem> BONE_FLUTE;
+
 	public static final ItemEntry<DollGloveItem> DOLL_GLOVE;
 
 	public static final ItemEntry<DollLanceItem> DOLL_LANCE;
@@ -489,6 +491,12 @@ public class GLItems {
 			SEKIBANKI_HEAD = reg.item("sekibanki_head", p -> new SekibankiHeadItem(p.stacksTo(1), SekibankiHeadEntity.TYPE))
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/doll/" + ctx.getName())))
 					.lang("Sekibanki's Head")
+					.tab(TAB.key())
+					.register();
+
+			BONE_FLUTE = reg.item("bone_flute", p -> new BoneFluteItem(p.stacksTo(1)))
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/tool/" + ctx.getName())))
+					.lang("Bone Flute")
 					.tab(TAB.key())
 					.register();
 

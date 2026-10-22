@@ -55,8 +55,10 @@ public class DollData {
                                                  // Minted fresh per summon/re-summon, never on the item.
     @SerialField public ResourceLocation type;   // entity type id (future-proof: per-character dolls)
     @SerialField public DollState state;         // SUMMONED | STORED | TEMP
-    @SerialField public DollNature nature;       // DOLL | SUMMON — what it may become, mirrored
-                                                  // from the entity kind; see summon.md §1
+    @SerialField public DollNature nature;       // DOLL | SUMMON | ITEM_GADGET — what it may become,
+                                                  // mirrored from the entity kind; see summon.md §1
+    @SerialField(toClient = false) public int variant; // kind-specific id: ghost variant, stray.md §6.2;
+                                                  // 0 for kinds that do not use it
 
     // significant restore values (in-memory; persisted only with the player attachment)
     @SerialField public ResourceLocation dimension; // last known dim
@@ -94,6 +96,10 @@ public class DollAttachment extends PlayerCapabilityTemplate<DollAttachment> {
     //   Spawns the entity first (fresh game uuid), keys a SUMMONED DollData to it from
     //   the item's values, and registers it BEFORE the entity joins the level (§3.1).
     //   No entry can pre-exist: item and DollData never coexist.
+
+    // ---- stray ↔ owned ghost (stray.md §8) ----
+    public boolean adopt(ServerPlayer player, StrayGhostEntity stray); // builds the entry, then discards the stray
+    public boolean release(ServerPlayer player, GhostEntity ghost);    // spawns a stray_ghost, then drops the entry
 
     // ---- entity → item (atomic) ----
     public boolean itemize(ServerPlayer player, BaseDollEntity doll);

@@ -89,6 +89,12 @@ public class DollData {
 	@SerialField(toClient = false)
 	public DyeColor color = DyeColor.RED;
 
+	/**
+	 * Ghost variant ordinal. Only ghosts read it; other kinds leave it at zero.
+	 */
+	@SerialField(toClient = false)
+	public int variant;
+
 	@SerialField(toClient = false)
 	public long lastUpdate;
 

@@ -1,9 +1,13 @@
 package dev.xkmc.gensokyolegacy.content.attachment.doll;
 
 import dev.xkmc.gensokyolegacy.content.entity.dolls.BaseDollEntity;
+import dev.xkmc.gensokyolegacy.content.entity.dolls.ghost.GhostEntity;
+import dev.xkmc.gensokyolegacy.content.entity.dolls.ghost.StrayGhostEntity;
+import dev.xkmc.gensokyolegacy.content.entity.foundation.DamageRefactorEntity.CombatData;
 import dev.xkmc.gensokyolegacy.content.item.doll.DollItem;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
+import dev.xkmc.gensokyolegacy.init.registrate.GLEntities;
 import dev.xkmc.l2core.capability.player.PlayerCapabilityTemplate;
 import dev.xkmc.l2serial.serialization.marker.SerialClass;
 import dev.xkmc.l2serial.serialization.marker.SerialField;
@@ -480,6 +484,51 @@ public class DollAttachment extends PlayerCapabilityTemplate<DollAttachment> imp
 			}
 		}
 		return player.position().add(0, 1, 0);
+	}
+
+	/**
+	 * Bone-flute binding: turns a wild ghost into an owned one. The ledger entry is created first,
+	 * then the stray is discarded only after materialization succeeded, so a failed bind leaves the
+	 * wild ghost in place.
+	 */
+	public boolean adopt(ServerPlayer player, StrayGhostEntity stray) {
+		if (summonCapped() || stray.isRemoved() || !stray.isAlive()) return false;
+		DollData data = new DollData();
+		data.type = GhostEntity.TYPE;
+		data.state = DollState.SUMMONED;
+		data.dimension = stray.level().dimension().location();
+		data.position = stray.position();
+		data.yRot = stray.getYRot();
+		data.combat = new CombatData(stray.getHealth(), 0);
+		data.variant = stray.getVariant().ordinal();
+		data.customName = stray.getCustomName();
+		if (!doSummon(player, data, null)) return false;
+		stray.discard();
+		return true;
+	}
+
+	/**
+	 * Bone-flute release: spawns the wild counterpart first, then removes the owned ghost and its
+	 * entry. A failed spawn keeps the ghost owned.
+	 */
+	public boolean release(ServerPlayer player, GhostEntity ghost) {
+		if (!ghost.isOwner(player)) return false;
+		DollData data = dolls.get(ghost.getUUID());
+		if (data == null || !data.isSummoned() || !GhostEntity.TYPE.equals(data.type)) return false;
+		if (data.getHealth() <= 0 || !(ghost.level() instanceof ServerLevel level)) return false;
+		StrayGhostEntity stray = new StrayGhostEntity(GLEntities.STRAY_GHOST.get(), level);
+		stray.moveTo(ghost.getX(), ghost.getY(), ghost.getZ(), ghost.getYRot(), ghost.getXRot());
+		stray.setVariant(ghost.getVariant());
+		stray.setHealth(Math.min(data.getHealth(), stray.getMaxHealth()));
+		stray.setCustomName(ghost.getCustomName());
+		stray.setPersistenceRequired();
+		if (!level.addFreshEntity(stray)) {
+			stray.discard();
+			return false;
+		}
+		ghost.discard();
+		dolls.remove(ghost.getUUID());
+		return true;
 	}
 
 	// ---- spawn + register: the entry is inserted BEFORE addFreshEntity, so the entity's join-level

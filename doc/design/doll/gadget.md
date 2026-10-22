@@ -10,7 +10,7 @@ A **gadget** (`DollNature.ITEM_GADGET`) is the third nature, added between the t
 
 So a gadget converts to its item, the glove sweeps it back like any doll, and it survives logout parked like any doll — while the two loadout-editor opens refuse it, so the glove poke falls through as an ordinary interaction instead of popping an empty menu.
 
-The predicates above are all about the **item**. What a gadget entity *is* is the class it extends: `BaseDollEntity` pairs, follows and itemizes; `DollEntity` adds everything with a choice in it (entity.md §9.1). A gadget is the first kind to stop at the base.
+The predicates above are all about the **item**. What a gadget entity *is* is the class it extends: `BaseDollEntity` pairs, follows and itemizes; `DollEntity` adds everything with a choice in it (entity.md §9.1). A gadget is one kind that stops at the base; the support ghost is another ([stray.md](stray.md) §6).
 
 ## 1. Where the two kinds meet
 
@@ -43,7 +43,7 @@ The model takes one untinted texture for the same reason — a gadget has no dye
 
 ## 3. The Sekibanki head
 
-`SekibankiHeadEntity` is the first gadget, and it is the first kind to extend `BaseDollEntity` rather than `DollEntity` (entity.md §9.1). That one choice is what makes "no loadout, no commands, no attack" structural rather than a set of flags:
+`SekibankiHeadEntity` is the first gadget, and one of the kinds to extend `BaseDollEntity` rather than `DollEntity` (entity.md §9.1). That one choice is what makes "no loadout, no commands, no attack" structural rather than a set of flags:
 
 1. `nature()` returns `ITEM_GADGET`;
 2. its own entity type `sekibanki_head`, which is what makes `getDollTypeId()` name it, and its own geo / animation / texture;

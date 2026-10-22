@@ -169,6 +169,18 @@
 			"collect": "空手右键这颗头以将其收回",
 			"possess": "潜行并右键这颗头以借它观看",
 			"exit": "左键停止借它观看"
+		},
+		"ghost": {
+			"curios": "好奇幽灵",
+			"foodie": "美食幽灵",
+			"lively": "活泼幽灵",
+			"not_yours": "这个幽灵不属于你",
+			"bind_fail": "幽灵抗拒骨笛",
+			"release_fail": "无法释放这个幽灵"
+		},
+		"bone_flute": {
+			"bind": "右键流浪幽灵将其绑定",
+			"release": "右键自己的幽灵将其放归"
 		}
 	}
 }

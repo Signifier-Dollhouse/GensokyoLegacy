@@ -14,10 +14,9 @@ public enum DollNature {
 	 */
 	DOLL(true, true, true),
 	/**
-	 * A summon, conjured rather than owned. No item form exists, so its death simply drops the entry,
-	 * the glove cannot recall it, and it carries no loadout: the one move it fights with comes from
-	 * what it is (DollBehaviorRegistry#registerIntrinsic). A limited lifetime is the kind's own
-	 * business, not the ledger's.
+	 * A summon: owned by the ledger entry but with no item form, so its death simply drops the entry,
+	 * the glove cannot recall it, and it carries no loadout — what it does comes from the kind
+	 * itself (an intrinsic or its own tick). Lack of an item is not lack of an owner.
 	 */
 	SUMMON(false, false, false),
 	/**

@@ -27,8 +27,9 @@ Entity ↔ `DollData` identity is the entity's **own game uuid**, minted fresh o
 - **Guard against unauthorized external changes**.
 - Dolls are **not targetable by hostile mobs** but **still take damage**.
 - Player-hosted dolls have **behaviors driven by the items they hold** (§ loadout / control / glove) — combat actions under a single-ticket system, plus a glove item to mark heal targets and issue attack commands.
-- A **summon** is a temporary escort that shares all of that and none of the ownership: no item form, not recallable, no loadout, one intrinsic move, and whatever lifetime its own kind gives it ([summon.md](summon.md)).
+- A **summon** is an escort that shares the pairing and follow machinery but has no item form, is not recallable and carries no loadout. A summon can still be owned by a player; `SUMMON` is about the item gates, not about ownership. Its one move, if any, is an intrinsic, and any lifetime is the kind's own business ([summon.md](summon.md)).
 - A **gadget** is the other half: owned and itemizable and recallable, but with no loadout to edit and nothing to fight with ([gadget.md](gadget.md)).
+- A **ghost** is a player-owned support summon with no item form, no orders and no loadout; its variant is an aura. Wild **stray dolls** and **stray ghosts** are ordinary neutral mobs outside the ledger entirely, and a bone flute moves a ghost between the wild and owned types ([stray.md](stray.md)).
 
 ## Document tree
 
@@ -39,11 +40,12 @@ Entity ↔ `DollData` identity is the entity's **own game uuid**, minted fresh o
 | [item.md](item.md) | the doll item, significant values, item ↔ data conversion, trading | implemented |
 | [controller.md](controller.md) | block-hosted dolls — the doll controller block and its block entity as a `DollHost` | implemented (block registration pending) |
 | [host.md](host.md) | character-hosted dolls — the `DollHost` command surface, living-entity hosts, and Alice's retinue (roster by post, half-lance/half-wand arming, one-time orders) | implemented |
-| [summon.md](summon.md) | temporary non-doll escorts — `DollNature`, the no-item/no-recall/no-loadout gates, per-kind timeouts and intrinsic (one default move) bindings | API only, no summon yet |
+| [summon.md](summon.md) | the `SUMMON` nature — the no-item/no-recall/no-loadout gates, per-kind lifetimes, intrinsic (one default move) bindings | API implemented; the ghost is the first kind ([stray.md](stray.md)) |
 | [gadget.md](gadget.md) | `ITEM_GADGET` — owned, itemizable and recallable but loadout-free and inert; the item's own entity kind, and the Sekibanki head | implemented |
+| [stray.md](stray.md) | wild stray doll + stray ghost (own entity types / spawn eggs), the owned support ghost and its variants, the foodie effect, and the bone flute conversion | implemented; natural spawn and recipe deferred |
 | [loadout.md](loadout.md) | the four held item slots (main hand / off hand / cloth / core), synced entity data, loadout editor menu, item rendering TODO | implemented |
 | [control.md](control.md) | doll actions (ticket, single execution), the four action types, heal-mark targets, iterative command sequences | framework implemented (glove pending) |
 | [glove.md](glove.md) | the Seven-Colored Doll Glove: modes, itemselector wheel, network, registration | planned |
 | [checklist.md](checklist.md) | registration & datagen checklist, files to create / modify, edge cases | — |
 
-Suggested reading order: **pairing → entity → item → controller** (the core pairing model), then **loadout → control → glove** (doll behavior and control), then **host → summon** (non-player hosts, and the non-doll case).
+Suggested reading order: **pairing → entity → item → controller** (the core pairing model), then **loadout → control → glove** (doll behavior and control), then **host → summon → stray** (non-player hosts, the non-doll case, and the wild/owned ghost).
