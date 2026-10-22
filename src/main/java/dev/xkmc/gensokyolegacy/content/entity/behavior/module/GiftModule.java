@@ -32,8 +32,8 @@ import net.minecraft.world.item.ItemStack;
  * and no cooldown starts, so the interaction falls through. How much she thinks a category is worth is
  * her {@code gift_preference} datamap entry; see {@link GiftItemData#getFactor}.
  * <p>
- * A refusal is the one thing that gets a reaction of its own — she turns the item down in {@code 讨厌},
- * while anything she takes plays {@code 喜欢}.
+ * A refusal is the one thing that gets a reaction of its own — she turns the item down in {@code hate},
+ * while anything she takes plays {@code love}.
  * <p>
  * Every accepted gift also banks its favor toward {@link CharacterData#giftReturn}, which is what she
  * eventually pays back; see {@link GiftDialogData}.
@@ -91,7 +91,7 @@ public class GiftModule extends AbstractYoukaiModule {
 
 	/**
 	 * What she says about the gift, which is a dialog for the seven characters who have one written
-	 * and the bare {@code 喜欢} / {@code 讨厌} clip for everyone else.
+	 * and the bare {@code love} / {@code hate} clip for everyone else.
 	 * <p>
 	 * A refusal returns {@code PASS}, so vanilla offers the other hand as well and lands here a second
 	 * time; whoever arrives first owns the reaction and the clip is idempotent, so the second is a no-op.

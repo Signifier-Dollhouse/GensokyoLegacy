@@ -32,29 +32,29 @@ import java.util.Optional;
 @SerialClass
 public class AliceEntity extends GeneralYoukaiEntity implements GeoYoukaiAnim, DelegateDollHost {
 
-	protected static final RawAnimation IDLE = RawAnimation.begin().thenLoop("待机");
-	protected static final RawAnimation WALK = RawAnimation.begin().thenLoop("走路");
-	protected static final RawAnimation SIT = RawAnimation.begin().thenLoop("坐下");
-	protected static final RawAnimation SLEEP = RawAnimation.begin().thenLoop("睡觉");
-	private static final RawAnimation USE_MAINHAND = RawAnimation.begin().thenPlay("使用主手物品");
+	protected static final RawAnimation IDLE = RawAnimation.begin().thenLoop("idle");
+	protected static final RawAnimation WALK = RawAnimation.begin().thenLoop("walk");
+	protected static final RawAnimation SIT = RawAnimation.begin().thenLoop("sit");
+	protected static final RawAnimation SLEEP = RawAnimation.begin().thenLoop("sleep");
+	private static final RawAnimation USE_MAINHAND = RawAnimation.begin().thenPlay("swing");
 	// the rig names its greeting plainly, like the other characters' (the clip itself
 	// is still the colder variant this rig has always shipped)
-	private static final RawAnimation GREET = RawAnimation.begin().thenPlay("招呼");
-	private static final RawAnimation TALK_01 = RawAnimation.begin().thenPlay("交流_01");
-	private static final RawAnimation TALK_02 = RawAnimation.begin().thenPlay("交流_02");
-	private static final RawAnimation TALK_03 = RawAnimation.begin().thenPlay("交流_03");
-	private static final RawAnimation TALK_04 = RawAnimation.begin().thenPlay("交流_04");
-	private static final RawAnimation TALK_05 = RawAnimation.begin().thenPlay("交流_05");
-	private static final RawAnimation THINK = RawAnimation.begin().thenPlay("思考中_01");
-	private static final RawAnimation THINK_02 = RawAnimation.begin().thenPlay("思考中_02");
-	private static final RawAnimation CONFUSED = RawAnimation.begin().thenPlay("疑惑");
-	private static final RawAnimation AGREE = RawAnimation.begin().thenPlay("肯定");
-	private static final RawAnimation DECLINE = RawAnimation.begin().thenPlay("拒绝");
+	private static final RawAnimation GREET = RawAnimation.begin().thenPlay("hello");
+	private static final RawAnimation TALK_01 = RawAnimation.begin().thenPlay("talk_01");
+	private static final RawAnimation TALK_02 = RawAnimation.begin().thenPlay("talk_02");
+	private static final RawAnimation TALK_03 = RawAnimation.begin().thenPlay("talk_03");
+	private static final RawAnimation TALK_04 = RawAnimation.begin().thenPlay("talk_04");
+	private static final RawAnimation TALK_05 = RawAnimation.begin().thenPlay("talk_05");
+	private static final RawAnimation THINK = RawAnimation.begin().thenPlay("think_01");
+	private static final RawAnimation THINK_02 = RawAnimation.begin().thenPlay("think_02");
+	private static final RawAnimation CONFUSED = RawAnimation.begin().thenPlay("puzzle");
+	private static final RawAnimation AGREE = RawAnimation.begin().thenPlay("agree");
+	private static final RawAnimation DECLINE = RawAnimation.begin().thenPlay("refuse");
 	/**
-	 * The idle flourish the current export added as {@code 闲置动画}, taking the outdoor idle
+	 * The idle flourish the current export added as {@code idle_animation}, taking the outdoor idle
 	 * slot other characters fill with a stretch or a gaze. Nothing about it is Alice-specific.
 	 */
-	private static final RawAnimation IDLE_FIDGET = RawAnimation.begin().thenPlay("闲置动画");
+	private static final RawAnimation IDLE_FIDGET = RawAnimation.begin().thenPlay("idle_animation");
 
 	private final AnimatableInstanceCache geoCache = GeckoLibUtil.createInstanceCache(this);
 

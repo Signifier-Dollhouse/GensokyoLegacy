@@ -14,7 +14,7 @@ import java.util.Optional;
  * character's own clip, possibly empty; dialog animations are data-driven (one of the dialog's triggers plays
  * when it opens) while the greeting, chew, flinch, skill and special talk are code-triggered.
  * <p>
- * Three controllers, registered in bone-writing order: {@link #WINK_CONTROLLER} the {@code 眨眼} blink first,
+ * Three controllers, registered in bone-writing order: {@link #WINK_CONTROLLER} the {@code wink} blink first,
  * so everything else overwrites the face; {@link #ANIM_CONTROLLER}, the {@link #stateAnimController} loop;
  * {@link #ONE_SHOT_CONTROLLER} last, so a triggered clip wins the bones it shares. Split rather than shared
  * because a GeckoLib controller plays one animation at a time: shared, every bone a one-shot skips holds
@@ -23,7 +23,7 @@ import java.util.Optional;
  */
 public interface GeoYoukaiAnim extends GeoEntity {
 
-	RawAnimation BLINK = RawAnimation.begin().thenLoop("眨眼");
+	RawAnimation BLINK = RawAnimation.begin().thenLoop("wink");
 
 	byte ANIM_EVENT_BASE = 71;
 
@@ -38,14 +38,14 @@ public interface GeoYoukaiAnim extends GeoEntity {
 	int ANIM_TRANSITION = 5;
 
 	/**
-	 * The chew, shared because every rig that has one spells it {@code 吃} — a rig without one leaves
+	 * The chew, shared because every rig that has one spells it {@code eat} — a rig without one leaves
 	 * {@link YoukaiAnim#EAT} unmapped and its trigger unregistered, which is the gate the clip needs:
 	 * naming a clip the model cannot resolve logs "Unable to find animation" and plays nothing, every frame.
 	 * <p>
 	 * {@code thenPlayAndHold} rather than {@code thenPlay}: the chew must sit there until she reaches for the
 	 * next dish, and holding the last pose makes an off timing read as her still chewing.
 	 */
-	RawAnimation EAT = RawAnimation.begin().thenPlayAndHold("吃");
+	RawAnimation EAT = RawAnimation.begin().thenPlayAndHold("eat");
 
 	/**
 	 * The flinch, shared for the same reason as the chew: {@link YoukaiAnim#HURT} maps straight to it.
@@ -54,18 +54,17 @@ public interface GeoYoukaiAnim extends GeoEntity {
 	 * the one-shot controller having nothing to hand the pose back to — the state loop is separate and would
 	 * just override it again next tick.
 	 */
-	RawAnimation HURT = RawAnimation.begin().thenPlay("受伤");
+	RawAnimation HURT = RawAnimation.begin().thenPlay("hurt");
 
 	/**
-	 * The gift reactions, shared because every rig spells them the same two words. {@code 讨厌} is the
-	 * refusal — she turns the item down — and {@code 喜欢} is her taking it; Suika's rig calls that one
-	 * {@code 高兴} and shadows this constant with its own.
+	 * The gift reactions, shared because every rig spells them the same two words. {@code hate} is the
+	 * refusal — she turns the item down — and {@code love} is her taking it.
 	 * <p>
 	 * Both are also ordinary dialog slots ({@link YoukaiAnim#LIKE}, {@link YoukaiAnim#DISLIKE}), so a dialog
 	 * can name them too; the gift path is only the default that fires when no dialog says otherwise.
 	 */
-	RawAnimation LIKE = RawAnimation.begin().thenPlay("喜欢");
-	RawAnimation DISLIKE = RawAnimation.begin().thenPlay("讨厌");
+	RawAnimation LIKE = RawAnimation.begin().thenPlay("love");
+	RawAnimation DISLIKE = RawAnimation.begin().thenPlay("hate");
 
 	/**
 	 * The clip this character plays for the given slot, or empty when it has none.
@@ -88,7 +87,7 @@ public interface GeoYoukaiAnim extends GeoEntity {
 	PlayState stateAnimController(AnimationState<?> event);
 
 	/**
-	 * Whether this rig ships the {@code 眨眼} blink - the one capability {@link #getAnim} cannot express: it
+	 * Whether this rig ships the {@code wink} blink - the one capability {@link #getAnim} cannot express: it
 	 * loops forever rather than being triggered, so it has no trigger to hang off and gets its own controller.
 	 */
 	default boolean hasBlinkAnim() {

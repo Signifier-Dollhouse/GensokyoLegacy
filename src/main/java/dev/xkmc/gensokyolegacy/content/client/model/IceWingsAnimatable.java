@@ -14,11 +14,11 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 public class IceWingsAnimatable implements GeoAnimatable {
 
 	/**
-	 * Cirno's standing flap: {@code 待机}, a 13 degree flutter at 0.4583s a cycle.
+	 * Cirno's standing flap: {@code idle}, a 13 degree flutter at 0.4583s a cycle.
 	 */
 	private static final RawAnimation IDLE = RawAnimation.begin().thenLoop("animation.ice_wings.idle");
 	/**
-	 * Cirno's airborne flap: {@code 漂浮}, the faster one that also swings the wings in Y.
+	 * Cirno's airborne flap: {@code fly}, the faster one that also swings the wings in Y.
 	 */
 	private static final RawAnimation HOVER = RawAnimation.begin().thenLoop("animation.ice_wings.hover");
 
@@ -32,7 +32,7 @@ public class IceWingsAnimatable implements GeoAnimatable {
 	}
 
 	/**
-	 * Cirno swaps to {@code 漂浮} the moment she leaves the ground, so the wings do the same: the layer
+	 * Cirno swaps to {@code fly} the moment she leaves the ground, so the wings do the same: the layer
 	 * feeds {@link AnimationState#isMoving()} from that test, not from walking — still in mid-air flaps hardest.
 	 */
 	private PlayState flap(AnimationState<IceWingsAnimatable> state) {
