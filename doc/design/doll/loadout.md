@@ -57,9 +57,41 @@ Click-arming is gone; the loadout is managed through `DollLoadoutMenu` (`content
 - The same menu edits a doll **item**: right-clicking the stack in an inventory (`InvClickItem` via `GLClickHandler`, item.md §8) opens it through `DollItemLoadoutProvider`, backed live by the stack's `DOLL_LOADOUT` component instead of the ledger. The network flag (`true` = entity id, `false` = item) tells `fromNetwork` which backing to build client-side.
 - Plain empty-hand itemize is unchanged; non-sneak interactions with items pass through.
 
-## 5. Item rendering — TODO (deferred)
+## 5. Item rendering
 
-Main-hand / off-hand items should be rendered on the doll model (GeckoLib geo). **Deferred by design**: the synced data + slot API §2/§3 are the contract; the render pass is a later TODO. Drop placeholder hooks (an `ItemRenderer` call) into `DollRenderer`/`DollModel`, DDC'd off. Cloth-slot clothing and core rendering are likewise future work — all four actions in control.md run server-side, so client visuals are not required for the feature to function.
+`DollHeldItemLayer` renders the synced main/off-hand stacks at `RightHandLocator` and
+`LeftHandLocator`, using the corresponding third-person item transform and left-hand flag.
+Cloth-slot clothing and core rendering remain deferred.
+
+GeckoLib 4.9.3's `GeoEntityRenderer.renderRecursively` applies the bone's translation,
+pivot, rotation and scale before calling the per-bone layers. Its
+`BlockAndItemGeoLayer.renderForBone` then translates to the pivot and applies that
+rotation again. The doll overrides this method to translate to the pivot only:
+the locator rotation must appear once in the item transform.
+
+The former extra +90° X rotation in `renderStackForBone` cancelled the duplicated
+locator rotation in the neutral pose (`toy_wink` authors +90°, baked as −90°).
+Remove both together to preserve the neutral item pose, including its offset and
+scale. During `toy_attack`, the arm and locator rotations compensate each other;
+duplicating the locator breaks that compensation. Between 0 and 0.0926 seconds,
+their authored X angles change from 0°/65° to −45°/120°: applied once, the combined
+angle changes by 10°; applied twice, it changes by 65°. This comparison isolates
+those rotations from root motion and scale. The spear particle uses the same
+corrected item pose, so its position and direction follow the rendered lance.
+
+During a lance attack, `DollOneShotController` captures the shaft's **world-space
+direction on the first held-item render**, including the transition into the clip.
+Each later render measures the current shaft through the complete item display
+transform and rotates it back onto that captured axis, about the hand's item origin.
+The correction preserves the animated hand position, scale and shear; it does not
+freeze the doll's arm or body. It is applied through `PoseStack.mulPose(Matrix4f)`
+so vertex positions and lighting normals receive the same correction.
+
+The lock belongs to the doll's one-shot controller, not the shared renderer. A new
+trigger clears it, and a stopped or different animation releases it. Only the
+right-hand lance is stabilized. The particle samples the tip and axis **after** the
+correction, so the flash and lance share the same direction, including when the
+body turns. Its 100 ms delay remains independent of this direction lock.
 
 ## 6. Relation to the rest of the system
 
