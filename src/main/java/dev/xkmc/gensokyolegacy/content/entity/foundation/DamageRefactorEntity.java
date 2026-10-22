@@ -20,8 +20,11 @@ public class DamageRefactorEntity extends PathfinderMob {
 
 	private long antiHealDisableTimestamp;
 
+	protected boolean init;
+
 	protected DamageRefactorEntity(EntityType<? extends DamageRefactorEntity> entityType, Level level) {
 		super(entityType, level);
+		init = true;
 	}
 
 	public boolean invalidTarget(LivingEntity e) {
@@ -178,10 +181,12 @@ public class DamageRefactorEntity extends PathfinderMob {
 
 	@Override
 	public boolean isDeadOrDying() {
+		if (!init) return false;
 		return this.getCombatProgress() <= 0.0F;
 	}
 
 	public boolean isAlive() {
+		if (!init) return true;
 		return !this.isRemoved() && this.getCombatProgress() > 0.0F;
 	}
 
