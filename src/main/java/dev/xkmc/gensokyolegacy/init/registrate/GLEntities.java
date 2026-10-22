@@ -34,6 +34,7 @@ import dev.xkmc.gensokyolegacy.content.entity.youkai.GeneralYoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.item.gift.GiftPreference;
 import dev.xkmc.gensokyolegacy.content.item.gift.GiftType;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
+import dev.xkmc.gensokyolegacy.init.data.GLTagGen;
 import dev.xkmc.gensokyolegacy.init.data.loot.EntityLootGen;
 import net.minecraft.client.renderer.entity.ThrownItemRenderer;
 import net.minecraft.tags.EntityTypeTags;
@@ -159,13 +160,14 @@ public class GLEntities {
 					.entity("broom", BroomEntity::new, MobCategory.MISC)
 					.properties(e -> e.sized(0.6f, 1.8f).clientTrackingRange(10).updateInterval(2))
 					.renderer(() -> BroomRenderer::new)
-					.tag(EntityTypeTags.FALL_DAMAGE_IMMUNE)
+					.tag(EntityTypeTags.FALL_DAMAGE_IMMUNE, GLTagGen.CARRYON_BLACKLIST)
 					.register();
 
 			DOLL = GensokyoLegacy.REGISTRATE
 					.entity("doll", DollEntity::new, MobCategory.MISC)
 					.properties(e -> e.sized(0.4F, 0.9F).clientTrackingRange(10))
 					.attributes(DollEntity::createAttributes)
+					.tag(GLTagGen.CARRYON_BLACKLIST)
 					.renderer(() -> DollRenderer::new)
 					.register();
 
@@ -173,6 +175,7 @@ public class GLEntities {
 					.entity("sekibanki_head", SekibankiHeadEntity::new, MobCategory.MISC)
 					.properties(e -> e.sized(0.4F, 0.4F).clientTrackingRange(10))
 					.attributes(DollEntity::createAttributes)
+					.tag(GLTagGen.CARRYON_BLACKLIST)
 					.renderer(() -> SekibankiHeadRenderer::new)
 					.register();
 
@@ -227,6 +230,7 @@ public class GLEntities {
 					.loot(EntityLootGen::noLoot)
 					.dataMap(GLMeta.GIFT_PREFERENCE.reg(), GIFT_CIRNO)
 					.dataMap(GLMeta.PARTY_TASTE.reg(), TASTE_CIRNO)
+					.tag(GLTagGen.CARRYON_BLACKLIST)
 					.register();
 
 			EntityInteractions.register(CIRNO.getId(), CirnoEntity::interactions);
@@ -239,6 +243,7 @@ public class GLEntities {
 					.loot(EntityLootGen::reimu)
 					.dataMap(GLMeta.GIFT_PREFERENCE.reg(), GIFT_REIMU)
 					.dataMap(GLMeta.PARTY_TASTE.reg(), TASTE_REIMU)
+					.tag(GLTagGen.CARRYON_BLACKLIST)
 					.register();
 
 			MARISA = GensokyoLegacy.REGISTRATE
@@ -249,6 +254,7 @@ public class GLEntities {
 					.loot(EntityLootGen::marisa)
 					.dataMap(GLMeta.GIFT_PREFERENCE.reg(), GIFT_MARISA)
 					.dataMap(GLMeta.PARTY_TASTE.reg(), TASTE_MARISA)
+					.tag(GLTagGen.CARRYON_BLACKLIST)
 					.register();
 
 			MORICHIKA = GensokyoLegacy.REGISTRATE
@@ -259,6 +265,7 @@ public class GLEntities {
 					.loot(EntityLootGen::noLoot)
 					.dataMap(GLMeta.GIFT_PREFERENCE.reg(), GIFT_MORICHIKA)
 					.dataMap(GLMeta.PARTY_TASTE.reg(), TASTE_MORICHIKA)
+					.tag(GLTagGen.CARRYON_BLACKLIST)
 					.register();
 
 			ALICE = GensokyoLegacy.REGISTRATE
@@ -269,6 +276,7 @@ public class GLEntities {
 					.loot(EntityLootGen::noLoot)
 					.dataMap(GLMeta.GIFT_PREFERENCE.reg(), GIFT_ALICE)
 					.dataMap(GLMeta.PARTY_TASTE.reg(), TASTE_ALICE)
+					.tag(GLTagGen.CARRYON_BLACKLIST)
 					.register();
 
 			IZAYOI_SAKUYA = GensokyoLegacy.REGISTRATE
@@ -279,6 +287,7 @@ public class GLEntities {
 					.loot(EntityLootGen::noLoot)
 					.dataMap(GLMeta.GIFT_PREFERENCE.reg(), GIFT_SAKUYA)
 					.dataMap(GLMeta.PARTY_TASTE.reg(), TASTE_SAKUYA)
+					.tag(GLTagGen.CARRYON_BLACKLIST)
 					.register();
 
 			IBUKI_SUIKA = GensokyoLegacy.REGISTRATE
@@ -289,6 +298,7 @@ public class GLEntities {
 					.loot(EntityLootGen::noLoot)
 					.dataMap(GLMeta.GIFT_PREFERENCE.reg(), GIFT_SUIKA)
 					.dataMap(GLMeta.PARTY_TASTE.reg(), TASTE_SUIKA)
+					.tag(GLTagGen.CARRYON_BLACKLIST)
 					.register();
 		}
 
