@@ -76,8 +76,8 @@ LABELS = {
                   "每条对话可带 `animations`，内容是触发名列表。台词出现时会从中随机"),
     "anim_how2": ("them once, rolled fresh every time the line opens. Leaving the list out is NOT",
                   "取出一个播放，每次出现都重新抽取。**不写该字段并不等于没有动画**："),
-    "anim_how3": ('"no animation" - an empty list plays a random `交流_*` talk clip instead. A',
-                  "留空（列表为空）会自动随机播放一段 `交流_*` 交谈动画。枚举槽名"),
+    "anim_how3": ('"no animation" - an empty list plays a random `talk_*` talk clip instead. A',
+                  "留空（列表为空）会自动随机播放一段 `talk_*` 交谈动画。枚举槽名"),
     "anim_how4": ("trigger her rig does not map plays nothing at all, and the same trigger means",
                   "（如 `THINK`）同样有效。触发名按角色分别解析：若该角色的资源中"),
     "anim_how5": ("a different clip on a different character.",
@@ -209,7 +209,7 @@ SPECIAL_WORDS = {"tnt": "TNT", "jukebox": "Jukebox"}
 
 # `case GREET, TALK_01, ... -> Optional.of(X);` / `-> Optional.empty();`
 CASE_RE = re.compile(r'case\s+(.+?)\s*->\s*Optional\.(?:of\(\s*(\w+)\s*\)|empty\(\))', re.S)
-# `RawAnimation TALK_01 = RawAnimation.begin().thenPlay("交流_01");`
+# `RawAnimation TALK_01 = RawAnimation.begin().thenPlay("talk_01");`
 CLIP_RE = re.compile(r'RawAnimation\s+(\w+)\s*=\s*RawAnimation\.begin\(\)\.then(PlayAndHold|Play|Loop)\("([^"]+)"\)')
 # `GensokyoLegacy.loc("animations/marisa.animation.json")`
 ASSET_RE = re.compile(r'loc\("animations/([^"/]+)\.animation\.json"\)')

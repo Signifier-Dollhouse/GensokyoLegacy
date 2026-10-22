@@ -109,6 +109,9 @@ public class GLTagGen {
 
 	public static final TagKey<EntityType<?>> UMBRELLA_CAPTURE_BLACKLIST = entity("umbrella_capture_blacklist");
 
+	public static final TagKey<EntityType<?>> CARRYON_BLACKLIST = TagKey.create(Registries.ENTITY_TYPE,
+			ResourceLocation.fromNamespaceAndPath("carryon", "entity_blacklist"));
+
 	private static void addTiles(RegistrateTagsProvider.IntrinsicImpl<Block> pvd, TagKey<Block> tag) {
 		for (var set : GLDecoBlocks.TILE_SETS) {
 			pvd.addTag(tag).add(set.block.get(), set.stairs.get(), set.slab.get(), set.vertical.get());

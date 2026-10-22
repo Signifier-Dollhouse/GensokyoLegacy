@@ -173,8 +173,8 @@ does, because that is the only thing on the data that separates a refusal from a
 
 | factor | reaction | clip |
 |--------|----------|------|
-| `> 0` | she takes it | `喜欢` |
-| `= 0` | she turns it down | `讨厌` |
+| `> 0` | she takes it | `love` |
+| `= 0` | she turns it down | `hate` |
 
 A factor small enough to truncate the favor to 0 — `COLLECTION` at 0.5 on a `fancy_fan` — is neither:
 she takes it at face value and says nothing about it. That is why `GiftModule` tests the factor for
@@ -183,8 +183,7 @@ as one `favor <= 0` branch with a clip on each side.
 
 Both reactions are ordinary dialog slots as well (`dialog_like`, `dialog_dislike`), so a dialog can
 name one directly; the clip is a separate shared constant on `GeoYoukaiAnim` for a character with no
-dialog written for her yet. Suika's rig calls the like clip `高兴`, so she shadows the shared
-constant — the slot is shared, the clip is hers.
+dialog written for her yet.
 
 The text itself is one dialog per character per reaction, registered in `GiftQDGen` and named by the
 `gift_dialog` datamap, which is keyed by entity type and holds a `Holder<Dialog>` per side. Holders
