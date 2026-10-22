@@ -5,7 +5,7 @@ package dev.xkmc.gensokyolegacy.content.attachment.doll;
  * right now. Declared once by the entity kind ({@code BaseDollEntity.nature()}) and stamped onto the
  * entry by {@link DollSpawn#materialize}, so a kind is never declared twice.
  *
- * @see "doc/design/doll/timed_summon.md"
+ * @see "doc/design/doll/summon.md"
  * @see "doc/design/doll/gadget.md"
  */
 public enum DollNature {
@@ -14,11 +14,12 @@ public enum DollNature {
 	 */
 	DOLL(true, true, true),
 	/**
-	 * A temporary summon, conjured rather than owned. No item form exists, so its death or the end
-	 * of its lifespan simply drops the entry, the glove cannot recall it, and it carries no loadout:
-	 * the one move it fights with comes from what it is (DollBehaviorRegistry#registerIntrinsic).
+	 * A summon, conjured rather than owned. No item form exists, so its death simply drops the entry,
+	 * the glove cannot recall it, and it carries no loadout: the one move it fights with comes from
+	 * what it is (DollBehaviorRegistry#registerIntrinsic). A limited lifetime is the kind's own
+	 * business, not the ledger's.
 	 */
-	TIMED_SUMMON(false, false, false),
+	SUMMON(false, false, false),
 	/**
 	 * A gadget: an owned thing that is only itself. It converts back to its item and the glove
 	 * recalls it like a doll, but there is no loadout to edit — what it can do is in its rig.

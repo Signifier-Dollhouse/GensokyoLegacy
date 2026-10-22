@@ -249,7 +249,7 @@ The class *is* the capability. Every gate that would consult a flag is instead a
 | fighting | `DollBehaviorRegistry.findHand(DollEntity, …)` | no — it is never asked |
 | the sidebar roster, the glove's crosshair trace | `instanceof DollEntity` | no |
 
-So a **timed summon** extends `DollEntity` even with an empty loadout: it still takes orders and acts with an intrinsic (timed_summon.md §4). A **gadget** extends `BaseDollEntity`: owned, paired and recalled, with no action surface at all (gadget.md §3). The three `DollNature` predicates (§1 of timed_summon.md) decide the *item* questions — can this be itemized, recalled, loaded out — and never duplicate what the class already answers.
+So a **summon** extends `DollEntity` even with an empty loadout: it still takes orders and acts with an intrinsic (summon.md §4). A **gadget** extends `BaseDollEntity`: owned, paired and recalled, with no action surface at all (gadget.md §3). The three `DollNature` predicates (§1 of summon.md) decide the *item* questions — can this be itemized, recalled, loaded out — and never duplicate what the class already answers.
 
 The cost of the split is one place to keep honest: a pairing rule must be written against `BaseDollEntity`, never `DollEntity`. `DollEventHandlers.onEntityJoinLevel` is the one that had to be (entity events see the base type, so the orphan check belongs there).
 

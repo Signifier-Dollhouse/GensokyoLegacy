@@ -67,13 +67,6 @@ public class DollData {
 	@SerialField(toClient = false)
 	public DollNature nature = DollNature.DOLL;
 
-	/**
-	 * Ticks of life left, counted down by the host's commander. 0 — the value entries predating
-	 * the field read back as — means indefinite, so a lifespan is opt-in per entry.
-	 */
-	@SerialField(toClient = false)
-	public int lifespan;
-
 	@SerialField(toClient = false)
 	public ResourceLocation dimension;
 
@@ -135,16 +128,6 @@ public class DollData {
 	 */
 	public DollNature getNature() {
 		return nature == null ? DollNature.DOLL : nature;
-	}
-
-	/**
-	 * Counts one tick off the lifespan; true on the tick it runs out, so the caller drops the
-	 * entry there and then. A lifespan of 0 or less never does, which is how a plain doll is
-	 * indefinite without carrying a flag.
-	 */
-	public boolean tickLifespan() {
-		if (lifespan <= 0) return false;
-		return --lifespan <= 0;
 	}
 
 }

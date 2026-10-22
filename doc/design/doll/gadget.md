@@ -1,8 +1,8 @@
 # Gadgets — owned things that are only themselves
 
-A **gadget** (`DollNature.ITEM_GADGET`) is the third nature, added between the two it shares half of each with: a `DOLL` is owned, itemizable, recallable **and** loaded out; a `TIMED_SUMMON` is none of those ([timed_summon.md](timed_summon.md)). A gadget is owned like a doll and carries no loadout like a summon:
+A **gadget** (`DollNature.ITEM_GADGET`) is the third nature, added between the two it shares half of each with: a `DOLL` is owned, itemizable, recallable **and** loaded out; a `SUMMON` is none of those ([summon.md](summon.md)). A gadget is owned like a doll and carries no loadout like a summon:
 
-| predicate | `DOLL` | `ITEM_GADGET` | `TIMED_SUMMON` |
+| predicate | `DOLL` | `ITEM_GADGET` | `SUMMON` |
 |---|---|---|---|
 | `itemizable()` | yes | yes | no |
 | `recallable()` | yes | yes | no |

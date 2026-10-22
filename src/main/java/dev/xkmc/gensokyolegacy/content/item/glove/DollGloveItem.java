@@ -107,7 +107,7 @@ public class DollGloveItem extends Item implements GloveTargeting {
 
 	/**
 	 * Right-click on a doll entity at vanilla reach opens its loadout when owned (or in creative), in every
-	 * mode. A timed summon or a gadget has no loadout, so the poke does nothing and falls through
+	 * mode. A summon or a gadget has no loadout, so the poke does nothing and falls through
 	 * as an ordinary interaction.
 	 * Right-click air or a block runs the mode action, which first tries the same open through a fresh
 	 * 16-block trace ({@code DollGloveHandler.tryOpenEditor}); neither path consults the target cache.

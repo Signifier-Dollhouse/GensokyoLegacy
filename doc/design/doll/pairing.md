@@ -55,9 +55,8 @@ public class DollData {
                                                  // Minted fresh per summon/re-summon, never on the item.
     @SerialField public ResourceLocation type;   // entity type id (future-proof: per-character dolls)
     @SerialField public DollState state;         // SUMMONED | STORED | TEMP
-    @SerialField public DollNature nature;       // DOLL | TIMED_SUMMON — what it may become, mirrored
-                                                  // from the entity kind; see timed_summon.md §1
-    @SerialField public int lifespan;            // ticks of life left, 0 = indefinite (timed_summon.md §5)
+    @SerialField public DollNature nature;       // DOLL | SUMMON — what it may become, mirrored
+                                                  // from the entity kind; see summon.md §1
 
     // significant restore values (in-memory; persisted only with the player attachment)
     @SerialField public ResourceLocation dimension; // last known dim
@@ -288,4 +287,4 @@ public boolean canBeSeenAsEnemy() {
 - **Double `onRemove` / item-only-discard races**: guarded by the `itemized`/`parked` flags set in §3.2/§3.3.
 - **Health restore without NBT**: `readValuesFrom` seeds the entity's `CombatData` from `DollData.combat` via `applyData`; the internal `CombatData` is reconciled from the vanilla Health setter by `validateCombatData()` in `tick`.
 - **Future doll kinds**: `DollData.type` (taken from the item's `dollType()` at summon) already supports per-character dolls under the same ledger; extra per-kind significant values are added as a few more scalar fields (or new data components on the item for item-carried values), never a full NBT snapshot.
-- **A kind that is not a doll**: `DollData.nature` carries what an entry may become, and every path that would mint a doll item asks it — so a temporary timed summon with no item form is a data difference, not a second ledger (timed_summon.md §1, §3).
+- **A kind that is not a doll**: `DollData.nature` carries what an entry may become, and every path that would mint a doll item asks it — so a temporary summon with no item form is a data difference, not a second ledger (summon.md §1, §3).
