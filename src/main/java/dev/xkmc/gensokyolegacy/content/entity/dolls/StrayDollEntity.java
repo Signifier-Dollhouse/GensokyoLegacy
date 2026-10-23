@@ -1,19 +1,15 @@
 package dev.xkmc.gensokyolegacy.content.entity.dolls;
 
+import dev.xkmc.gensokyolegacy.content.entity.dolls.goals.HoverStrollGoal;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.ai.control.FlyingMoveControl;
 import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
 import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
 import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
-import net.minecraft.world.entity.ai.goal.RandomStrollGoal;
 import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
-import net.minecraft.world.entity.ai.navigation.FlyingPathNavigation;
-import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -30,7 +26,7 @@ import software.bernie.geckolib.util.GeckoLibUtil;
  *
  * @see "doc/design/doll/stray.md"
  */
-public class StrayDollEntity extends PathfinderMob implements GeoEntity {
+public class StrayDollEntity extends StrayFlyingMob implements GeoEntity {
 
 	public static final ResourceLocation TYPE = GensokyoLegacy.loc("stray_doll");
 
@@ -41,8 +37,6 @@ public class StrayDollEntity extends PathfinderMob implements GeoEntity {
 
 	public StrayDollEntity(EntityType<? extends StrayDollEntity> type, Level level) {
 		super(type, level);
-		this.moveControl = new FlyingMoveControl(this, 20, true);
-		this.setNoGravity(true);
 	}
 
 	public static AttributeSupplier.Builder createAttributes() {
@@ -55,14 +49,9 @@ public class StrayDollEntity extends PathfinderMob implements GeoEntity {
 	}
 
 	@Override
-	protected PathNavigation createNavigation(Level level) {
-		return new FlyingPathNavigation(this, level);
-	}
-
-	@Override
 	protected void registerGoals() {
 		goalSelector.addGoal(1, new MeleeAttackGoal(this, 1.0, true));
-		goalSelector.addGoal(2, new RandomStrollGoal(this, 1.0));
+		goalSelector.addGoal(2, new HoverStrollGoal(this, 1.0));
 		goalSelector.addGoal(3, new LookAtPlayerGoal(this, Player.class, 8.0F));
 		goalSelector.addGoal(4, new RandomLookAroundGoal(this));
 		targetSelector.addGoal(1, new HurtByTargetGoal(this));

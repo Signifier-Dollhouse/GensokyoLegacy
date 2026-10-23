@@ -39,7 +39,7 @@ public class GLAttackListener implements AttackListener {
 
 	@Override
 	public void onCreateSource(CreateSourceEvent event) {
-		if (!(event.getAttacker() instanceof BaseDollEntity)) return;
+		if (!(event.getDirect() instanceof BaseDollEntity)) return;
 		if (!event.getOriginal().equals(DamageTypes.MOB_ATTACK)) return;
 		event.enable(DefaultDamageState.BYPASS_COOLDOWN);
 	}

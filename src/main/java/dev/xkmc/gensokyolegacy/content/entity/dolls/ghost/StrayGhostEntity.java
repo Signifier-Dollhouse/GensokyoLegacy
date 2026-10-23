@@ -1,5 +1,7 @@
 package dev.xkmc.gensokyolegacy.content.entity.dolls.ghost;
 
+import dev.xkmc.gensokyolegacy.content.entity.dolls.StrayFlyingMob;
+import dev.xkmc.gensokyolegacy.content.entity.dolls.goals.HoverStrollGoal;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -10,16 +12,11 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobSpawnType;
-import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.ai.control.FlyingMoveControl;
 import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
 import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
-import net.minecraft.world.entity.ai.goal.RandomStrollGoal;
-import net.minecraft.world.entity.ai.navigation.FlyingPathNavigation;
-import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
@@ -38,7 +35,7 @@ import javax.annotation.Nullable;
  *
  * @see "doc/design/doll/stray.md"
  */
-public class StrayGhostEntity extends PathfinderMob implements GeoEntity, GhostVariantHolder {
+public class StrayGhostEntity extends StrayFlyingMob implements GeoEntity, GhostVariantHolder {
 
 	public static final ResourceLocation TYPE = GensokyoLegacy.loc("stray_ghost");
 	public static final EntityDataAccessor<Integer> DATA_VARIANT =
@@ -51,12 +48,10 @@ public class StrayGhostEntity extends PathfinderMob implements GeoEntity, GhostV
 
 	public StrayGhostEntity(EntityType<? extends StrayGhostEntity> type, Level level) {
 		super(type, level);
-		this.moveControl = new FlyingMoveControl(this, 20, true);
-		this.setNoGravity(true);
 	}
 
 	public static AttributeSupplier.Builder createAttributes() {
-		return PathfinderMob.createMobAttributes()
+		return StrayFlyingMob.createMobAttributes()
 				.add(Attributes.MAX_HEALTH, 20)
 				.add(Attributes.MOVEMENT_SPEED, 0.25)
 				.add(Attributes.FLYING_SPEED, 0.3)
@@ -64,13 +59,8 @@ public class StrayGhostEntity extends PathfinderMob implements GeoEntity, GhostV
 	}
 
 	@Override
-	protected PathNavigation createNavigation(Level level) {
-		return new FlyingPathNavigation(this, level);
-	}
-
-	@Override
 	protected void registerGoals() {
-		goalSelector.addGoal(1, new RandomStrollGoal(this, 1.0));
+		goalSelector.addGoal(1, new HoverStrollGoal(this, 1.0));
 		goalSelector.addGoal(2, new LookAtPlayerGoal(this, Player.class, 8.0F));
 		goalSelector.addGoal(3, new RandomLookAroundGoal(this));
 	}

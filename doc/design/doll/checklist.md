@@ -22,10 +22,12 @@ Summons (API + the ghost, see summon.md and stray.md):
 
 Ghosts and wild strays (done — stray.md):
 - `content/entity/dolls/ghost/GhostEntity.java` — the owned support summon, `BaseDollEntity` + `GhostVariantHolder`, `nature() == SUMMON`, no item; auras live in `tickAuras()`
-- `content/entity/dolls/ghost/StrayGhostEntity.java` — the wild ownerless ghost, `PathfinderMob`, fully passive, persistent, variant-bearing
+- `content/entity/dolls/StrayFlyingMob.java` — shared flying body for both wild types: flying navigation/move control, no gravity, one-block hover like the plain fairy
+- `content/entity/dolls/goals/HoverStrollGoal.java` — air-target wander that bypasses `FlyingPathNavigation.isStableDestination`
+- `content/entity/dolls/ghost/StrayGhostEntity.java` — the wild ownerless ghost, `StrayFlyingMob`, fully passive, persistent, variant-bearing
 - `content/entity/dolls/ghost/GhostVariant.java` + `GhostVariantHolder.java` — `CURIOS` / `FOODIE` / `LIVELY`, synced id, texture stem, display name
 - `content/entity/dolls/ghost/GhostVariantModule.java` — mirrors the synced id into `DollData.variant` across park/resummon
-- `content/entity/dolls/StrayDollEntity.java` — the wild neutral doll, `PathfinderMob`, own entity type and spawn egg
+- `content/entity/dolls/StrayDollEntity.java` — the wild neutral doll, `StrayFlyingMob`, own entity type and spawn egg
 - `content/item/doll/BoneFluteItem.java` — adopt a stray ghost / release an owned ghost
 - `content/entity/dolls/render/GhostModel.java`, `GhostRenderer.java`, `StrayGhostModel.java`, `StrayGhostRenderer.java`, `StrayDollModel.java`, `StrayDollRenderer.java`
 - `content/effect/FoodieEffect.java` — the per-second hunger→saturation conversion (stray.md §7.4)

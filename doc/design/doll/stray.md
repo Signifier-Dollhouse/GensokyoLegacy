@@ -27,8 +27,8 @@ state. The entity type `stray_ghost` is deliberately the wild one; it is not `is
 
 | entity type | class | base class | category | item form | ledger | spawn egg |
 |---|---|---|---|---|---|---|
-| `stray_doll` | `StrayDollEntity` | `PathfinderMob` | `MONSTER` | none | no | yes |
-| `stray_ghost` | `StrayGhostEntity` | `PathfinderMob` | `MONSTER` | none | no | yes (testing/creative) |
+| `stray_doll` | `StrayDollEntity` | `StrayFlyingMob` | `MONSTER` | none | no | yes |
+| `stray_ghost` | `StrayGhostEntity` | `StrayFlyingMob` | `MONSTER` | none | no | yes (testing/creative) |
 | `ghost` | `GhostEntity` | `BaseDollEntity` | `MISC` | none | player's `DollAttachment` | no |
 | — | `BoneFluteItem` | `Item` | — | — | — | — |
 
@@ -39,8 +39,9 @@ presentation choice, not a base class (a `PathfinderMob` can carry it without be
 ## 3. Inheritance verdict — wild mobs are not dolls
 
 **Do not** make `StrayDollEntity` or `StrayGhostEntity` extend `DollEntity`, `BaseDollEntity`, or the
-owned `GhostEntity`. Both wild types extend `PathfinderMob`; only the owned `GhostEntity` extends
-`BaseDollEntity`. The split is forced by the base's hard behaviours, not by taste:
+owned `GhostEntity`. Both wild types extend `StrayFlyingMob`, a thin `PathfinderMob`; only the
+owned `GhostEntity` extends `BaseDollEntity`. The split is forced by the base's hard behaviours, not
+by taste:
 
 | requirement | what `BaseDollEntity` actually does | consequence for a wild mob |
 |---|---|---|
@@ -67,9 +68,10 @@ What the wild mobs actually share with the doll is **presentation and one goal s
 Share those by composition:
 
 - a `GhostVariant` enum and a `GhostVariantHolder` interface, implemented by both ghost classes;
-- a shared wander/look goal set (`RandomStrollGoal`, `LookAtPlayerGoal`, `RandomLookAroundGoal`);
-  the doll adds `MeleeAttackGoal` + `HurtByTargetGoal`, the ghost adds nothing, so each registers its
-  own `registerGoals()`;
+- a shared flying body (`StrayFlyingMob`: `FlyingPathNavigation`, `FlyingMoveControl`, no gravity and
+  the plain fairy's one-block hover) and wander/look set (`HoverStrollGoal`, `LookAtPlayerGoal`,
+  `RandomLookAroundGoal`); the doll adds `MeleeAttackGoal` + `HurtByTargetGoal`, the ghost adds
+  nothing, so each registers its own `registerGoals()`;
 - the same geo/animation assets, loaded by separate models. `DollRig` cannot be reused directly: its
   default cache casts `this` to `BaseDollEntity` (DollRig.java), so a plain mob implementing it would
   `ClassCastException`. Give the wild renderers their own `GeoEntity` cache and controllers.
@@ -87,9 +89,11 @@ not associated with any player.
 
 ### 4.1 Behaviour
 
-- **Wander** — `RandomStrollGoal(this, 1.0)` picks nearby points; the doll hovers, so
-  pair it with `FlyingPathNavigation` + `FlyingMoveControl` and `setNoGravity(true)`. If 3D pathing
-  proves fussy, a ground walker is an acceptable fallback; nothing in the design depends on flight.
+- **Wander** — `HoverStrollGoal(this, 1.0)` picks nearby air points. `StrayFlyingMob` supplies
+  `FlyingPathNavigation` + `FlyingMoveControl`, `setNoGravity(true)` and a one-block floor clearance
+  like the plain fairy (`PlainFairyEntity.hoverStep`). The vanilla `RandomStrollGoal` cannot be used
+  here: its ground target is rejected by `FlyingPathNavigation.isStableDestination`, so the mob would
+  stand still.
 - **React, never initiate** — `targetSelector.addGoal(1, new HurtByTargetGoal(this))` plus
   `goalSelector.addGoal(1, new MeleeAttackGoal(this, 1.0, true))`. There is deliberately **no**
   `NearestAttackableTargetGoal`: the doll only fights what hit it first, which is what "neutral"
@@ -130,8 +134,8 @@ Reuse `geo/doll.geo.json` and `animations/doll.animation.json` with a wild-speci
 
 ### 5.1 Behaviour
 
-- **Wander/hover** — same flying wander set as the wild doll: `RandomStrollGoal`,
-  `LookAtPlayerGoal`, `RandomLookAroundGoal`.
+- **Wander/hover** — same `StrayFlyingMob` body and `HoverStrollGoal` as the wild doll, plus
+  `LookAtPlayerGoal` and `RandomLookAroundGoal`.
 - **Passive** — no target goals at all: no `HurtByTargetGoal`, no `MeleeAttackGoal`, no
   player-targeting goal. The wild ghost never fights back, which is what makes the flute a calm
   choice rather than a chase. The wild doll stays neutral and retaliates.
@@ -515,8 +519,9 @@ two reasons: the flute has no other target in creative, and no natural spawn exi
 - `./gradlew runData` for item models, loot tables (`noLoot`), lang and tags; commit the generated
   output.
 - `./gradlew compileJava`.
-- Manual checks: egg spawns both wild types; wild doll retaliates only after being hit; wild ghost
-  never retaliates; flute adopts/releases; variant survives logout/death; a released ghost is
+- Manual checks: egg spawns both wild types; both wander and hover about one block over the floor;
+  wild doll retaliates only after being hit; wild ghost never retaliates; flute adopts/releases;
+  variant survives logout/death; a released ghost is
   persistent; curios removes one harmful effect per 3-second pulse, longest first; foodie doubles eat
   speed and converts hunger to saturation above 16; lively gives Haste II/Speed II/Lively I; the cap
   refuses a ninth summon; a ghost is absent from the roster and the loadout editor.
