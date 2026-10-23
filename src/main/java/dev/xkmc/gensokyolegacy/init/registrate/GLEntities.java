@@ -20,6 +20,8 @@ import dev.xkmc.gensokyolegacy.content.entity.characters.oni.SuikaEntity;
 import dev.xkmc.gensokyolegacy.content.entity.characters.oni.SuikaRenderer;
 import dev.xkmc.gensokyolegacy.content.entity.characters.sakuya.SakuyaEntity;
 import dev.xkmc.gensokyolegacy.content.entity.characters.sakuya.SakuyaRenderer;
+import dev.xkmc.gensokyolegacy.content.entity.characters.yuyuko.YuyukoEntity;
+import dev.xkmc.gensokyolegacy.content.entity.characters.yuyuko.YuyukoRenderer;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.DollEntity;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.SekibankiHeadEntity;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.StrayDollEntity;
@@ -60,6 +62,7 @@ public class GLEntities {
 	public static final EntityEntry<AliceEntity> ALICE;
 	public static final EntityEntry<SakuyaEntity> IZAYOI_SAKUYA;
 	public static final EntityEntry<SuikaEntity> IBUKI_SUIKA;
+	public static final EntityEntry<YuyukoEntity> SAIGYOUJI_YUYUKO;
 
 	public static final EntityEntry<PlainFairyEntity> PLAIN_FAIRY;
 
@@ -81,10 +84,10 @@ public class GLEntities {
 	static {
 
 		PartyTaste TASTE_CIRNO, TASTE_REIMU, TASTE_MARISA, TASTE_MORICHIKA,
-				TASTE_ALICE, TASTE_SAKUYA, TASTE_SUIKA;
+				TASTE_ALICE, TASTE_SAKUYA, TASTE_SUIKA, TASTE_YUYUKO;
 
 		GiftPreference GIFT_CIRNO, GIFT_REIMU, GIFT_MARISA, GIFT_MORICHIKA,
-				GIFT_ALICE, GIFT_SAKUYA, GIFT_SUIKA, GIFT_FAIRY;
+				GIFT_ALICE, GIFT_SAKUYA, GIFT_SUIKA, GIFT_YUYUKO, GIFT_FAIRY;
 
 		// taste
 		{
@@ -99,6 +102,8 @@ public class GLEntities {
 			TASTE_SAKUYA = new PartyTaste(100, 0, 250, 1, 200, 500, 20, 60, 160, 0.05, 0.05);
 			// they eat a lot
 			TASTE_SUIKA = new PartyTaste(10, 0, 250, 1, 500, 1000, 400, 60, 160, 0.05, 0.01);
+			// she only ever turns up for a lavish spread
+			TASTE_YUYUKO = new PartyTaste(10, 0, 250, 1, 500, 1000, 400, 60, 160, 0.05, 0.01);
 		}
 
 		//gift
@@ -154,6 +159,15 @@ public class GLEntities {
 					GiftType.TOY, 0.0,
 					GiftType.MAGIC, 0.0,
 					GiftType.BOOK, 0.0
+			));
+			GIFT_YUYUKO = GiftPreference.of(Map.of(
+					GiftType.ALCOHOL, 2.0,
+					GiftType.DRINK, 2.0,
+					GiftType.FOOD, 2.0,
+					GiftType.BOOK, 1.5,
+					GiftType.COLLECTION, 1.5,
+					GiftType.MAGIC, 0.5,
+					GiftType.TOOL, 0.0
 			));
 		}
 
@@ -335,6 +349,17 @@ public class GLEntities {
 					.loot(EntityLootGen::noLoot)
 					.dataMap(GLMeta.GIFT_PREFERENCE.reg(), GIFT_SUIKA)
 					.dataMap(GLMeta.PARTY_TASTE.reg(), TASTE_SUIKA)
+					.tag(GLTagGen.CARRYON_BLACKLIST)
+					.register();
+
+			SAIGYOUJI_YUYUKO = GensokyoLegacy.REGISTRATE
+					.entity("saigyouji_yuyuko", YuyukoEntity::new, MobCategory.CREATURE)
+					.properties(e -> e.sized(0.5F, 1.9f).clientTrackingRange(10))
+					.attributes(BossYoukaiEntity::createAttributes)
+					.renderer(() -> YuyukoRenderer::new)
+					.loot(EntityLootGen::noLoot)
+					.dataMap(GLMeta.GIFT_PREFERENCE.reg(), GIFT_YUYUKO)
+					.dataMap(GLMeta.PARTY_TASTE.reg(), TASTE_YUYUKO)
 					.tag(GLTagGen.CARRYON_BLACKLIST)
 					.register();
 		}
