@@ -2,6 +2,8 @@ package dev.xkmc.gensokyolegacy.content.attachment.doll;
 
 import dev.xkmc.gensokyolegacy.content.entity.dolls.BaseDollEntity;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.ghost.GhostEntity;
+import dev.xkmc.gensokyolegacy.content.entity.dolls.ghost.GhostPower;
+import dev.xkmc.gensokyolegacy.content.entity.dolls.ghost.GhostVariant;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.ghost.StrayGhostEntity;
 import dev.xkmc.gensokyolegacy.content.entity.foundation.DamageRefactorEntity.CombatData;
 import dev.xkmc.gensokyolegacy.content.item.doll.DollItem;
@@ -501,6 +503,7 @@ public class DollAttachment extends PlayerCapabilityTemplate<DollAttachment> imp
 		data.yRot = stray.getYRot();
 		data.combat = new CombatData(stray.getHealth(), 0);
 		data.variant = stray.getVariant().ordinal();
+		data.power = stray.getPower();
 		data.customName = stray.getCustomName();
 		if (!doSummon(player, data, null)) return false;
 		stray.discard();
@@ -519,6 +522,7 @@ public class DollAttachment extends PlayerCapabilityTemplate<DollAttachment> imp
 		StrayGhostEntity stray = new StrayGhostEntity(GLEntities.STRAY_GHOST.get(), level);
 		stray.moveTo(ghost.getX(), ghost.getY(), ghost.getZ(), ghost.getYRot(), ghost.getXRot());
 		stray.setVariant(ghost.getVariant());
+		stray.setPower(ghost.getPower());
 		stray.setHealth(Math.min(data.getHealth(), stray.getMaxHealth()));
 		stray.setCustomName(ghost.getCustomName());
 		stray.setPersistenceRequired();
@@ -533,6 +537,52 @@ public class DollAttachment extends PlayerCapabilityTemplate<DollAttachment> imp
 
 	// ---- spawn + register: the entry is inserted BEFORE addFreshEntity, so the entity's join-level
 	// inverse check finds its SUMMONED entry; oldKey, when set, re-keys to the new entity's uuid.
+
+	/**
+	 * Yuyuko fan binding: a summoned ghost of the given type at full power, near the player.
+	 */
+	public boolean summonGhost(ServerPlayer player, GhostVariant variant, Vec3 pos) {
+		if (summonCapped()) return false;
+		DollData data = new DollData();
+		data.type = GhostEntity.TYPE;
+		data.state = DollState.SUMMONED;
+		data.dimension = player.level().dimension().location();
+		data.position = pos;
+		data.yRot = player.getYRot();
+		data.combat = new CombatData(BaseDollEntity.DEFAULT_MAX_HEALTH, 0);
+		data.variant = variant.ordinal();
+		data.power = GhostPower.MAX;
+		return doSummon(player, data, null);
+	}
+
+	/**
+	 * Yuyuko fan absorption: takes the owned ghost out of the ledger without spawning a wild one.
+	 */
+	public boolean absorb(ServerPlayer player, GhostEntity ghost) {
+		if (!ghost.isOwner(player)) return false;
+		DollData data = dolls.get(ghost.getUUID());
+		if (data == null || !data.isSummoned() || !GhostEntity.TYPE.equals(data.type)) return false;
+		ghost.discard();
+		dolls.remove(ghost.getUUID());
+		return true;
+	}
+
+	/**
+	 * The owned ghost of {@code variant} that most needs a top-up, or null when none is summoned
+	 * nearby or all of them are already full.
+	 */
+	@Nullable
+	public GhostEntity findRefillableGhost(ServerPlayer player, GhostVariant variant) {
+		GhostEntity best = null;
+		for (DollData data : dolls.values()) {
+			if (!data.isSummoned() || !GhostEntity.TYPE.equals(data.type)) continue;
+			if (data.variant != variant.ordinal()) continue;
+			if (!(player.serverLevel().getEntity(data.uuid) instanceof GhostEntity ghost)) continue;
+			if (ghost.getPower() >= GhostPower.MAX) continue;
+			if (best == null || ghost.getPower() < best.getPower()) best = ghost;
+		}
+		return best;
+	}
 
 	private boolean doSummon(ServerPlayer player, DollData data, @Nullable UUID oldKey) {
 		BaseDollEntity doll = DollSpawn.materialize(player.serverLevel(), player, data);

@@ -517,7 +517,8 @@ public final class GLLang {
 		KOISHI_HAT_LORE("Taken off a third party, and it never stopped sulking about it.", 0, ChatFormatting.GRAY),
 		ICE_WINGS_LORE("Six crystals, and it is suddenly very hard to count past nine.", 0, ChatFormatting.GRAY),
 		FAIRY_WINGS_LORE("A fairy's wing, priced at half of whatever the wearer has.", 0, ChatFormatting.GRAY),
-		FANCY_FAN_LORE("Pretty enough to give away, and it blows when you wave it.", 0, ChatFormatting.GRAY);
+		FANCY_FAN_LORE("Pretty enough to give away, and it blows when you wave it.", 0, ChatFormatting.GRAY),
+		YUYUKO_FAN_LORE("A fan full of ghosts, and not one of them will stay still.", 0, ChatFormatting.GRAY);
 
 		private final String def;
 		private final int argn;
@@ -1004,7 +1005,18 @@ public final class GLLang {
 		LIVELY("Lively Ghost"),
 		NOT_YOURS("This ghost is not yours", 0, ChatFormatting.RED),
 		BIND_FAIL("The ghost resists the flute", 0, ChatFormatting.RED),
-		RELEASE_FAIL("The ghost cannot be released", 0, ChatFormatting.RED);
+		RELEASE_FAIL("The ghost cannot be released", 0, ChatFormatting.RED),
+		TOO_WEAK("A ghost below %s power cannot be bound", 1, ChatFormatting.RED),
+		LEFT("The ghost's power is too low and it left you", 0, ChatFormatting.YELLOW),
+		FAN_FULL("The fan is full of that ghost's power", 0, ChatFormatting.RED),
+		FAN_EMPTY("Not enough stored power", 0, ChatFormatting.RED),
+		NO_POWER("That ghost has no power left", 0, ChatFormatting.RED),
+		ABSORB_FAIL("The ghost's power cannot be absorbed", 0, ChatFormatting.RED),
+		ABSORBED("Absorbed %s power", 1),
+		REFILLED("Restored %s power", 1),
+		RELEASED("The ghost is released", 0),
+		SUMMON_FAIL("The ghost cannot be summoned", 0, ChatFormatting.RED),
+		SUMMONED("Summoned a %s", 1);
 
 		private final String def;
 		private final int argn;
@@ -1013,6 +1025,10 @@ public final class GLLang {
 
 		Ghost(String def) {
 			this(def, 0, null);
+		}
+
+		Ghost(String def, int argn) {
+			this(def, argn, null);
 		}
 
 		Ghost(String def, int argn, @Nullable ChatFormatting format) {
@@ -1044,7 +1060,7 @@ public final class GLLang {
 	}
 
 	public enum ItemBoneFlute implements LangEntry {
-		BIND("Right-click a stray ghost to bind it to you", 0, ChatFormatting.GRAY),
+		BIND("Right-click a stray ghost with at least 200 power to bind it", 0, ChatFormatting.GRAY),
 		RELEASE("Right-click your own ghost to set it free", 0, ChatFormatting.GRAY);
 
 		private final String def;
@@ -1060,6 +1076,54 @@ public final class GLLang {
 			this.def = def;
 			this.argn = argn;
 			this.key = GensokyoLegacy.MODID + ".bone_flute." + name().toLowerCase(Locale.ROOT);
+			this.format = format;
+		}
+
+		@Override
+		public String key() {
+			return key;
+		}
+
+		@Override
+		public String def() {
+			return def;
+		}
+
+		@Override
+		public int argn() {
+			return argn;
+		}
+
+		@Override
+		public @Nullable ChatFormatting format() {
+			return format;
+		}
+	}
+
+	public enum ItemYuyukoFan implements LangEntry {
+		ABSORB("Right-click a ghost to absorb its power", 0, ChatFormatting.GRAY),
+		SUMMON("Right-click to summon a ghost at 1000 power, or refill an existing one", 0, ChatFormatting.GRAY),
+		RELEASE("Absorbing an owned ghost with a full fan releases it instead", 0, ChatFormatting.GRAY),
+		SELECTED("Selected: %s", 1),
+		STORED("%s: %s / %s", 3, ChatFormatting.GRAY);
+
+		private final String def;
+		private final int argn;
+		private final String key;
+		private final @Nullable ChatFormatting format;
+
+		ItemYuyukoFan(String def) {
+			this(def, 0, null);
+		}
+
+		ItemYuyukoFan(String def, int argn) {
+			this(def, argn, null);
+		}
+
+		ItemYuyukoFan(String def, int argn, @Nullable ChatFormatting format) {
+			this.def = def;
+			this.argn = argn;
+			this.key = GensokyoLegacy.MODID + ".yuyuko_fan." + name().toLowerCase(Locale.ROOT);
 			this.format = format;
 		}
 
@@ -1134,7 +1198,7 @@ public final class GLLang {
 				Quest.values(), Info.values(), Trade.values(), Misc.values(),
 				ItemDebug.values(), ItemFurnace.values(), ItemLores.values(), ItemCommon.values(), ItemUmbrella.values(), ItemGlove.values(), ItemDaggerGlove.values(), Alchemy.values(), Jei.values(), JeiExtra.values(),
 				Talisman.values(), Doll.values(), Party.values(), ItemSekibankiHead.values(),
-				Ghost.values(), ItemBoneFlute.values()}) {
+				Ghost.values(), ItemBoneFlute.values(), ItemYuyukoFan.values()}) {
 			for (var e : group) {
 				pvd.add(e.key(), e.def());
 			}

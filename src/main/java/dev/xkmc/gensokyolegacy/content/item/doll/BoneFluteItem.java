@@ -2,6 +2,7 @@ package dev.xkmc.gensokyolegacy.content.item.doll;
 
 import dev.xkmc.gensokyolegacy.content.attachment.doll.DollAttachment;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.ghost.GhostEntity;
+import dev.xkmc.gensokyolegacy.content.entity.dolls.ghost.GhostPower;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.ghost.StrayGhostEntity;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
@@ -43,11 +44,16 @@ public class BoneFluteItem extends Item {
 		if (sp.getCooldowns().isOnCooldown(this)) return InteractionResult.FAIL;
 		DollAttachment att = GLMeta.DOLL.type().getOrCreate(sp);
 		if (stray) {
+			StrayGhostEntity ghost = (StrayGhostEntity) target;
+			if (ghost.getPower() < GhostPower.LEAVE_THRESHOLD) {
+				sp.displayClientMessage(GLLang.Ghost.TOO_WEAK.get(GhostPower.LEAVE_THRESHOLD), true);
+				return InteractionResult.FAIL;
+			}
 			if (att.summonCapped()) {
 				sp.displayClientMessage(GLLang.Doll.TOO_MANY.get(DollAttachment.MAX_SUMMONED), true);
 				return InteractionResult.FAIL;
 			}
-			if (!att.adopt(sp, (StrayGhostEntity) target)) {
+			if (!att.adopt(sp, ghost)) {
 				sp.displayClientMessage(GLLang.Ghost.BIND_FAIL.get(), true);
 				return InteractionResult.FAIL;
 			}

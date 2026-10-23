@@ -9,6 +9,7 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobSpawnType;
@@ -35,10 +36,12 @@ import javax.annotation.Nullable;
  *
  * @see "doc/design/doll/stray.md"
  */
-public class StrayGhostEntity extends StrayFlyingMob implements GeoEntity, GhostVariantHolder {
+public class StrayGhostEntity extends StrayFlyingMob implements GeoEntity, GhostVariantHolder, GhostPowerHolder {
 
 	public static final ResourceLocation TYPE = GensokyoLegacy.loc("stray_ghost");
 	public static final EntityDataAccessor<Integer> DATA_VARIANT =
+			SynchedEntityData.defineId(StrayGhostEntity.class, EntityDataSerializers.INT);
+	public static final EntityDataAccessor<Integer> DATA_POWER =
 			SynchedEntityData.defineId(StrayGhostEntity.class, EntityDataSerializers.INT);
 
 	private static final RawAnimation IDLE = RawAnimation.begin().thenLoop("idle");
@@ -69,6 +72,7 @@ public class StrayGhostEntity extends StrayFlyingMob implements GeoEntity, Ghost
 	protected void defineSynchedData(SynchedEntityData.Builder builder) {
 		super.defineSynchedData(builder);
 		builder.define(DATA_VARIANT, GhostVariant.CURIOS.ordinal());
+		builder.define(DATA_POWER, GhostPower.WILD_MIN);
 	}
 
 	@Override
@@ -77,6 +81,7 @@ public class StrayGhostEntity extends StrayFlyingMob implements GeoEntity, Ghost
 		SpawnGroupData data = super.finalizeSpawn(level, difficulty, reason, spawnData);
 		if (reason == MobSpawnType.SPAWN_EGG || reason == MobSpawnType.COMMAND || reason == MobSpawnType.NATURAL) {
 			setVariant(GhostVariant.random(getRandom()));
+			setPower(GhostPowerHolder.wildPower(getRandom()));
 		}
 		return data;
 	}
@@ -85,12 +90,14 @@ public class StrayGhostEntity extends StrayFlyingMob implements GeoEntity, Ghost
 	public void addAdditionalSaveData(CompoundTag tag) {
 		super.addAdditionalSaveData(tag);
 		tag.putInt("Variant", getVariant().ordinal());
+		tag.putInt("Power", getPower());
 	}
 
 	@Override
 	public void readAdditionalSaveData(CompoundTag tag) {
 		super.readAdditionalSaveData(tag);
 		if (tag.contains("Variant")) setVariant(GhostVariant.byId(tag.getInt("Variant")));
+		if (tag.contains("Power")) setPower(tag.getInt("Power"));
 	}
 
 	@Override
@@ -101,6 +108,16 @@ public class StrayGhostEntity extends StrayFlyingMob implements GeoEntity, Ghost
 	@Override
 	public void setVariant(GhostVariant variant) {
 		getEntityData().set(DATA_VARIANT, variant.ordinal());
+	}
+
+	@Override
+	public int getPower() {
+		return getEntityData().get(DATA_POWER);
+	}
+
+	@Override
+	public void setPower(int power) {
+		getEntityData().set(DATA_POWER, Mth.clamp(power, 0, GhostPower.MAX));
 	}
 
 	@Override

@@ -1,15 +1,20 @@
 package dev.xkmc.gensokyolegacy.content.entity.dolls.ghost;
 
+import dev.xkmc.gensokyolegacy.content.attachment.doll.DollAttachment;
 import dev.xkmc.gensokyolegacy.content.attachment.doll.DollNature;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.BaseDollEntity;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.impl.DollModule;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
+import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.gensokyolegacy.init.registrate.GLEffects;
+import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -30,15 +35,20 @@ import java.util.List;
  *
  * @see "doc/design/doll/stray.md"
  */
-public class GhostEntity extends BaseDollEntity implements GhostVariantHolder {
+public class GhostEntity extends BaseDollEntity implements GhostVariantHolder, GhostPowerHolder {
 
 	public static final ResourceLocation TYPE = GensokyoLegacy.loc("ghost");
 	public static final EntityDataAccessor<Integer> DATA_VARIANT =
+			SynchedEntityData.defineId(GhostEntity.class, EntityDataSerializers.INT);
+	public static final EntityDataAccessor<Integer> DATA_POWER =
 			SynchedEntityData.defineId(GhostEntity.class, EntityDataSerializers.INT);
 
 	private static final int AURA_INTERVAL = 20;
 	private static final int AURA_DURATION = 60;
 	private static final int CURIOS_INTERVAL = 60;
+	private static final int CURIOS_DECAY_INTERVAL = 40;
+	private static final int OTHER_DECAY_INTERVAL = 20;
+	private static final int CURIOS_SKILL_COST = 50;
 	private static final double ABILITY_RANGE = 16.0;
 
 	private static final RawAnimation IDLE = RawAnimation.begin().thenLoop("idle");
@@ -58,6 +68,7 @@ public class GhostEntity extends BaseDollEntity implements GhostVariantHolder {
 	protected void createDollModules(List<DollModule> modules) {
 		super.createDollModules(modules);
 		modules.add(new GhostVariantModule());
+		modules.add(new GhostPowerModule());
 	}
 
 	@Override
@@ -71,6 +82,16 @@ public class GhostEntity extends BaseDollEntity implements GhostVariantHolder {
 	}
 
 	@Override
+	public int getPower() {
+		return getEntityData().get(DATA_POWER);
+	}
+
+	@Override
+	public void setPower(int power) {
+		getEntityData().set(DATA_POWER, Mth.clamp(power, 0, GhostPower.MAX));
+	}
+
+	@Override
 	public Component getName() {
 		if (getCustomName() != null) return super.getName();
 		return getVariant().getDisplayName();
@@ -80,13 +101,34 @@ public class GhostEntity extends BaseDollEntity implements GhostVariantHolder {
 	public void tick() {
 		super.tick();
 		if (level().isClientSide() || isRemoved()) return;
-		tickAuras();
-	}
-
-	private void tickAuras() {
 		LivingEntity owner = getOwner();
 		if (owner == null || !owner.isAlive() || owner.level() != level() || owner.isSpectator()) return;
+		if (getPower() < GhostPower.LEAVE_THRESHOLD && owner instanceof ServerPlayer sp) {
+			leaveOwner(sp);
+			return;
+		}
+		tickPower();
 		if (distanceToSqr(owner) > ABILITY_RANGE * ABILITY_RANGE) return;
+		tickAuras(owner);
+	}
+
+	/**
+	 * Below {@link GhostPower#LEAVE_THRESHOLD} the binding breaks: release spawns the wild
+	 * counterpart at the current spot, so the power is not lost and the fan can still absorb it.
+	 */
+	private void leaveOwner(ServerPlayer owner) {
+		if (GLMeta.DOLL.type().getOrCreate(owner).release(owner, this)) {
+			owner.displayClientMessage(GLLang.Ghost.LEFT.get(), true);
+		}
+	}
+
+	private void tickPower() {
+		int interval = getVariant() == GhostVariant.CURIOS ? CURIOS_DECAY_INTERVAL : OTHER_DECAY_INTERVAL;
+		if (tickCount % interval == 0) addPower(-1);
+	}
+
+	private void tickAuras(LivingEntity owner) {
+		if (getPower() <= 0) return;
 		if (tickCount % AURA_INTERVAL == 0) {
 			switch (getVariant()) {
 				case FOODIE -> owner.addEffect(new MobEffectInstance(GLEffects.FOODIE,
@@ -103,8 +145,9 @@ public class GhostEntity extends BaseDollEntity implements GhostVariantHolder {
 				}
 			}
 		}
-		if (getVariant() == GhostVariant.CURIOS && tickCount % CURIOS_INTERVAL == 0) {
-			cleanseLongest(owner);
+		if (getVariant() == GhostVariant.CURIOS && tickCount % CURIOS_INTERVAL == 0
+				&& getPower() >= CURIOS_SKILL_COST) {
+			if (cleanseLongest(owner)) addPower(-CURIOS_SKILL_COST);
 		}
 	}
 
@@ -112,15 +155,16 @@ public class GhostEntity extends BaseDollEntity implements GhostVariantHolder {
 	 * One harmful effect per pulse, the one with the most time left, so a long debuff is worked
 	 * down before a short one that would have expired on its own anyway.
 	 */
-	private void cleanseLongest(LivingEntity owner) {
+	private boolean cleanseLongest(LivingEntity owner) {
 		MobEffectInstance target = null;
 		for (MobEffectInstance effect : owner.getActiveEffects()) {
 			if (effect.getEffect().value().getCategory() != MobEffectCategory.HARMFUL) continue;
 			if (target == null || remaining(effect) > remaining(target)) target = effect;
 		}
-		if (target == null) return;
+		if (target == null) return false;
 		owner.removeEffect(target.getEffect());
 		level().broadcastEntityEvent(this, EVENT_SKILL);
+		return true;
 	}
 
 	private static int remaining(MobEffectInstance effect) {

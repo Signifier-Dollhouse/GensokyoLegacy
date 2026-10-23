@@ -1,5 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.attachment.doll;
 
+import dev.xkmc.gensokyolegacy.content.entity.dolls.ghost.GhostPower;
 import dev.xkmc.gensokyolegacy.content.entity.foundation.DamageRefactorEntity.CombatData;
 import dev.xkmc.gensokyolegacy.content.item.doll.DollItem;
 import dev.xkmc.gensokyolegacy.content.item.doll.DollItemData;
@@ -94,6 +95,13 @@ public class DollData {
 	 */
 	@SerialField(toClient = false)
 	public int variant;
+
+	/**
+	 * Ghost power, 0 to {@code GhostPower.MAX}. Other kinds ignore it; entries predating the
+	 * field read the initializer and come back at full power.
+	 */
+	@SerialField(toClient = false)
+	public int power = GhostPower.MAX;
 
 	@SerialField(toClient = false)
 	public long lastUpdate;
