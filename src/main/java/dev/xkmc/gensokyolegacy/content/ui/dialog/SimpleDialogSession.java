@@ -44,19 +44,19 @@ public class SimpleDialogSession extends DialogSession {
 	@Override
 	protected void sync() {
 		GensokyoLegacy.HANDLER.toClientPlayer(new SimpleDialogToClient(id, character.getId(),
-				dialog.unwrapKey().orElseThrow().location(),
-				ClientHandle.questId(handle.getQuest()), new ArrayList<>(visibleOptions())), player);
+				dialog.value().text(), ClientHandle.questId(handle.getQuest()),
+				new ArrayList<>(visibleOptions())), player);
 	}
 
 	/**
-	 * The indices of the options this player passes the conditions of, in display order. The client draws its
-	 * list from exactly this, so a click index names the same option on both sides.
+	 * The lang keys of the options this player passes the conditions of, in display order. The client
+	 * draws its list from exactly this, so a click index names the same option on both sides.
 	 */
-	private List<Integer> visibleOptions() {
+	private List<String> visibleOptions() {
 		var options = dialog.value().options();
-		List<Integer> ans = new ArrayList<>(options.size());
-		for (int i = 0; i < options.size(); i++) {
-			if (options.get(i).match(player, character)) ans.add(i);
+		List<String> ans = new ArrayList<>(options.size());
+		for (var e : options) {
+			if (e.match(player, character)) ans.add(e.text());
 		}
 		return ans;
 	}

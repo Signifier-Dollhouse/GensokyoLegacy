@@ -4,7 +4,24 @@
     "type": "gensokyolegacy:simple",
     "actions": [],
     "conditions": [],
-    "next": "gensokyolegacy:reimu/daily_raid/complete/dialog_1",
+    "next": {
+      "animations": [
+        "dialog_agree"
+      ],
+      "options": [
+        {
+          "type": "gensokyolegacy:simple",
+          "actions": [
+            {
+              "type": "gensokyolegacy:complete_quest"
+            }
+          ],
+          "conditions": [],
+          "text": "gensokyolegacy/reimu/daily_raid/option/complete/handover"
+        }
+      ],
+      "text": "gensokyolegacy/reimu/daily_raid/dialog/reimu/daily_raid/complete/dialog_1"
+    },
     "text": "gensokyolegacy/reimu/daily_raid/option/complete"
   },
   "conditions": [
@@ -18,14 +35,103 @@
     "type": "gensokyolegacy:group",
     "actions": [],
     "group": "gensokyolegacy/reimu/shared/option/daily_group",
-    "next": "gensokyolegacy:reimu/daily_raid/follow_up/dialog_1",
+    "next": {
+      "animations": [
+        "dialog_think"
+      ],
+      "options": [
+        {
+          "type": "gensokyolegacy:simple",
+          "actions": [
+            {
+              "type": "gensokyolegacy:give_mob_effect",
+              "duration": 12000,
+              "effect": "minecraft:bad_omen"
+            }
+          ],
+          "conditions": [],
+          "next": {
+            "animations": [
+              "dialog_agree"
+            ],
+            "options": [
+              {
+                "type": "gensokyolegacy:simple",
+                "actions": [],
+                "conditions": [],
+                "text": "gensokyolegacy/reimu/daily_raid/option/follow_up/end/leave"
+              }
+            ],
+            "text": "gensokyolegacy/reimu/daily_raid/dialog/reimu/daily_raid/follow_up/end/dialog_1"
+          },
+          "text": "gensokyolegacy/reimu/daily_raid/option/follow_up/end"
+        }
+      ],
+      "text": "gensokyolegacy/reimu/daily_raid/dialog/reimu/daily_raid/follow_up/dialog_1"
+    },
     "text": "gensokyolegacy/reimu/daily_raid/option/follow_up"
   },
   "initialDialog": {
     "type": "gensokyolegacy:group",
     "actions": [],
     "group": "gensokyolegacy/reimu/shared/option/daily_group",
-    "next": "gensokyolegacy:reimu/daily_raid/start/dialog_1",
+    "next": {
+      "animations": [
+        "dialog_think"
+      ],
+      "options": [
+        {
+          "type": "gensokyolegacy:simple",
+          "actions": [],
+          "conditions": [],
+          "next": {
+            "animations": [
+              "dialog_decline"
+            ],
+            "options": [
+              {
+                "type": "gensokyolegacy:simple",
+                "actions": [],
+                "conditions": [],
+                "text": "gensokyolegacy/reimu/daily_raid/option/start/reject/end"
+              }
+            ],
+            "text": "gensokyolegacy/reimu/daily_raid/dialog/reimu/daily_raid/start/reject/dialog_1"
+          },
+          "text": "gensokyolegacy/reimu/daily_raid/option/start/reject"
+        },
+        {
+          "type": "gensokyolegacy:simple",
+          "actions": [
+            {
+              "type": "gensokyolegacy:start_quest"
+            },
+            {
+              "type": "gensokyolegacy:give_mob_effect",
+              "duration": 12000,
+              "effect": "minecraft:bad_omen"
+            }
+          ],
+          "conditions": [],
+          "next": {
+            "animations": [
+              "dialog_agree"
+            ],
+            "options": [
+              {
+                "type": "gensokyolegacy:simple",
+                "actions": [],
+                "conditions": [],
+                "text": "gensokyolegacy/reimu/daily_raid/option/start/accept/end"
+              }
+            ],
+            "text": "gensokyolegacy/reimu/daily_raid/dialog/reimu/daily_raid/start/accept/dialog_1"
+          },
+          "text": "gensokyolegacy/reimu/daily_raid/option/start/accept"
+        }
+      ],
+      "text": "gensokyolegacy/reimu/daily_raid/dialog/reimu/daily_raid/start/dialog_1"
+    },
     "text": "gensokyolegacy/reimu/shared/option/daily_start"
   },
   "recurrence": {

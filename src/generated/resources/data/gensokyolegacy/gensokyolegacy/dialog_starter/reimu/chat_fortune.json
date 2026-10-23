@@ -13,7 +13,108 @@
       "key": "fortune"
     }
   ],
-  "dialog": "gensokyolegacy:reimu/chat_fortune/talk",
+  "dialog": {
+    "animations": [
+      "dialog_talk_01"
+    ],
+    "options": [
+      {
+        "type": "gensokyolegacy:random",
+        "conditions": [],
+        "entries": [
+          {
+            "actions": [
+              {
+                "type": "gensokyolegacy:give_mob_effect",
+                "duration": 24000,
+                "effect": "gensokyolegacy:looting"
+              },
+              {
+                "type": "gensokyolegacy:set_timer",
+                "delay": 24000,
+                "key": "fortune"
+              }
+            ],
+            "next": {
+              "animations": [
+                "dialog_talk_03"
+              ],
+              "options": [
+                {
+                  "type": "gensokyolegacy:simple",
+                  "actions": [],
+                  "conditions": [],
+                  "text": "gensokyolegacy/reimu/chat_fortune/option/good_bye"
+                }
+              ],
+              "text": "gensokyolegacy/reimu/chat_fortune/dialog/reimu/chat_fortune/good"
+            },
+            "weight": 2
+          },
+          {
+            "actions": [
+              {
+                "type": "gensokyolegacy:give_mob_effect",
+                "duration": 24000,
+                "effect": "minecraft:haste"
+              },
+              {
+                "type": "gensokyolegacy:set_timer",
+                "delay": 24000,
+                "key": "fortune"
+              }
+            ],
+            "next": {
+              "animations": [
+                "dialog_think"
+              ],
+              "options": [
+                {
+                  "type": "gensokyolegacy:simple",
+                  "actions": [],
+                  "conditions": [],
+                  "text": "gensokyolegacy/reimu/chat_fortune/option/mid_bye"
+                }
+              ],
+              "text": "gensokyolegacy/reimu/chat_fortune/dialog/reimu/chat_fortune/mid"
+            },
+            "weight": 2
+          },
+          {
+            "actions": [
+              {
+                "type": "gensokyolegacy:give_mob_effect",
+                "duration": 24000,
+                "effect": "minecraft:bad_omen"
+              },
+              {
+                "type": "gensokyolegacy:set_timer",
+                "delay": 24000,
+                "key": "fortune"
+              }
+            ],
+            "next": {
+              "animations": [
+                "dialog_think_02"
+              ],
+              "options": [
+                {
+                  "type": "gensokyolegacy:simple",
+                  "actions": [],
+                  "conditions": [],
+                  "text": "gensokyolegacy/reimu/chat_fortune/option/bad_bye"
+                }
+              ],
+              "text": "gensokyolegacy/reimu/chat_fortune/dialog/reimu/chat_fortune/bad"
+            },
+            "weight": 1
+          }
+        ],
+        "text": "gensokyolegacy/reimu/chat_fortune/option/draw"
+      }
+    ],
+    "text": "gensokyolegacy/reimu/chat_fortune/dialog/reimu/chat_fortune/talk"
+  },
   "text": "gensokyolegacy/reimu/chat_fortune/starter/start",
   "weight": 100
 }

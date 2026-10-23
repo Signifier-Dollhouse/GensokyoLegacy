@@ -4,7 +4,38 @@
     "type": "gensokyolegacy:group",
     "actions": [],
     "group": "gensokyolegacy/marisa/shared/option/daily_group",
-    "next": "gensokyolegacy:marisa/daily_brewing/complete/dialog_1",
+    "next": {
+      "animations": [
+        "dialog_talk_03"
+      ],
+      "options": [
+        {
+          "type": "gensokyolegacy:simple",
+          "actions": [
+            {
+              "type": "gensokyolegacy:complete_quest"
+            }
+          ],
+          "conditions": [],
+          "next": {
+            "animations": [
+              "dialog_agree"
+            ],
+            "options": [
+              {
+                "type": "gensokyolegacy:simple",
+                "actions": [],
+                "conditions": [],
+                "text": "gensokyolegacy/marisa/shared/option/daily_thanks"
+              }
+            ],
+            "text": "gensokyolegacy/marisa/daily_brewing/dialog/marisa/daily_brewing/complete/handover/dialog_1"
+          },
+          "text": "gensokyolegacy/marisa/daily_brewing/option/complete/handover"
+        }
+      ],
+      "text": "gensokyolegacy/marisa/daily_brewing/dialog/marisa/daily_brewing/complete/dialog_1"
+    },
     "text": "gensokyolegacy/marisa/daily_brewing/option/complete"
   },
   "conditions": [
@@ -18,14 +49,71 @@
     "type": "gensokyolegacy:group",
     "actions": [],
     "group": "gensokyolegacy/marisa/shared/option/daily_group",
-    "next": "gensokyolegacy:marisa/daily_brewing/follow_up/dialog_1",
+    "next": {
+      "animations": [
+        "dialog_think"
+      ],
+      "options": [
+        {
+          "type": "gensokyolegacy:simple",
+          "actions": [],
+          "conditions": [],
+          "next": {
+            "animations": [
+              "dialog_agree"
+            ],
+            "options": [],
+            "text": "gensokyolegacy/marisa/daily_brewing/dialog/marisa/daily_brewing/follow_up/end/dialog_1"
+          },
+          "text": "gensokyolegacy/marisa/shared/option/daily_follow_end"
+        }
+      ],
+      "text": "gensokyolegacy/marisa/daily_brewing/dialog/marisa/daily_brewing/follow_up/dialog_1"
+    },
     "text": "gensokyolegacy/marisa/shared/option/daily_follow"
   },
   "initialDialog": {
     "type": "gensokyolegacy:group",
     "actions": [],
     "group": "gensokyolegacy/marisa/shared/option/daily_group",
-    "next": "gensokyolegacy:marisa/daily_brewing/start/dialog_1",
+    "next": {
+      "animations": [
+        "dialog_think"
+      ],
+      "options": [
+        {
+          "type": "gensokyolegacy:simple",
+          "actions": [],
+          "conditions": [],
+          "next": {
+            "animations": [
+              "dialog_decline"
+            ],
+            "options": [],
+            "text": "gensokyolegacy/marisa/daily_brewing/dialog/marisa/daily_brewing/start/reject/dialog_1"
+          },
+          "text": "gensokyolegacy/marisa/shared/option/daily_reject"
+        },
+        {
+          "type": "gensokyolegacy:simple",
+          "actions": [
+            {
+              "type": "gensokyolegacy:start_quest"
+            }
+          ],
+          "conditions": [],
+          "next": {
+            "animations": [
+              "dialog_agree"
+            ],
+            "options": [],
+            "text": "gensokyolegacy/marisa/daily_brewing/dialog/marisa/daily_brewing/start/accept/dialog_1"
+          },
+          "text": "gensokyolegacy/marisa/shared/option/daily_accept"
+        }
+      ],
+      "text": "gensokyolegacy/marisa/daily_brewing/dialog/marisa/daily_brewing/start/dialog_1"
+    },
     "text": "gensokyolegacy/marisa/shared/option/daily_start"
   },
   "recurrence": {
