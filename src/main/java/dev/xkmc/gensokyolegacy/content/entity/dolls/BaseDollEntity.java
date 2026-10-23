@@ -40,7 +40,7 @@ import java.util.*;
  * lives one layer up: {@link DollEntity} adds the loadout, the commands and the status.
  *
  * @see "doc/design/doll/entity.md"
- * @see "doc/design/doll/timed_summon.md"
+ * @see "doc/design/doll/summon.md"
  */
 public abstract class BaseDollEntity extends DamageRefactorEntity
 		implements OwnableEntity, DollRig, IDimensionBoundEntity {
@@ -258,12 +258,12 @@ public abstract class BaseDollEntity extends DamageRefactorEntity
 	}
 
 	/**
-	 * What a doll of this kind is allowed to become. An item-backed doll by default; a timed summon or
+	 * What a doll of this kind is allowed to become. An item-backed doll by default; a summon or
 	 * a gadget overrides this, and it is the only place the kind has to say so —
 	 * {@link DollSpawn#materialize} stamps it onto the ledger entry, which is what every
 	 * itemize / recall / loadout gate actually reads.
 	 *
-	 * @see "doc/design/doll/timed_summon.md"
+	 * @see "doc/design/doll/summon.md"
 	 */
 	public DollNature nature() {
 		return DollNature.DOLL;

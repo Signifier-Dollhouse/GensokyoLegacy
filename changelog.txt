@@ -1,3 +1,8 @@
+1.0.7
+- wild dolls, wild ghost, and tamed ghost
+- fix doll damage won't aggravate target
+- fix doll being recolored by other player
+
 1.0.6
 - Add ability for fancy fan
 - Carry On can no longer pick up characters and dolls

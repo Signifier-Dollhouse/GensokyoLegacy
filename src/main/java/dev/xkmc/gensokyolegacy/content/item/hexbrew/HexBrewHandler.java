@@ -5,6 +5,7 @@ import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.l2core.init.reg.registrate.L2Registrate;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.OwnableEntity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -20,6 +21,19 @@ public interface HexBrewHandler {
 
 	default boolean isThrowable() {
 		return false;
+	}
+
+	/**
+	 * The entity a doll's brew should credit: the owner. The thrower itself stays the doll so
+	 * ownership-based friendly fire (danmaku, explosions) keeps working.
+	 */
+	@Nullable
+	static Entity damageOwner(@Nullable Entity thrower) {
+		return thrower instanceof OwnableEntity own && own.getOwner() != null ? own.getOwner() : thrower;
+	}
+
+	static boolean isAllied(@Nullable Entity a, @Nullable Entity b) {
+		return a != null && b != null && (a.isAlliedTo(b) || b.isAlliedTo(a));
 	}
 
 	default void onHit(Level level, Vec3 pos, @Nullable Entity thrower, ItemStack stack) {

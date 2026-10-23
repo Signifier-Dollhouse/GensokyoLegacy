@@ -8,6 +8,7 @@ import dev.xkmc.gensokyolegacy.content.client.debug.InfoUpdateClientManager;
 import dev.xkmc.gensokyolegacy.content.client.structure.StructureBoundUpdateToClient;
 import dev.xkmc.gensokyolegacy.content.client.structure.StructureInfoClientManager;
 import dev.xkmc.gensokyolegacy.content.client.structure.StructureRepairManager;
+import dev.xkmc.gensokyolegacy.content.entity.dolls.ghost.GhostPowerHolder;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
@@ -68,6 +69,12 @@ public class DebugWand extends Item implements IDebugOverlayWand {
 
 	@Override
 	public InteractionResult interactLivingEntity(ItemStack stack, Player player, LivingEntity e, InteractionHand hand) {
+		if (e instanceof GhostPowerHolder ghost) {
+			if (!player.level().isClientSide()) {
+				player.displayClientMessage(GhostDebugInfo.describe(e, ghost), true);
+			}
+			return InteractionResult.SUCCESS;
+		}
 		if (e instanceof YoukaiEntity) {
 			if (!player.level().isClientSide()) {
 				GLMeta.CHAR.type().getOrCreate(player).replace(e.getType(), new CharacterData());
@@ -83,6 +90,7 @@ public class DebugWand extends Item implements IDebugOverlayWand {
 		list.add(GLLang.ItemDebug.WAND_BLOCK.get().withStyle(ChatFormatting.GRAY));
 		list.add(GLLang.ItemDebug.WAND_STRUCTURE.get().withStyle(ChatFormatting.GRAY));
 		list.add(GLLang.ItemDebug.WAND_CHARACTER.get().withStyle(ChatFormatting.GRAY));
+		list.add(GLLang.ItemDebug.WAND_GHOST.get().withStyle(ChatFormatting.GRAY));
 	}
 
 }

@@ -67,8 +67,8 @@ public class StrayHost implements DollHost {
 		if (doll.level().isClientSide()) return;
 		DollData drop = take();
 		if (drop == null) return;
-		// the one place outside a ledger that can mint an item, and the only way a timed summon
-		// could reach it: its death ends it outright, the same as a lapse (timed_summon.md §3)
+		// the one place outside a ledger that can mint an item, and the only way a summon
+		// could reach it: its death ends it outright (summon.md §3)
 		if (!drop.getNature().itemizable()) return;
 		doll.writeValuesTo(drop);
 		drop.combat = new CombatData(0, drop.combat.baseline());

@@ -82,6 +82,18 @@
         "TOOL": 0.0,
         "TOY": 2.0
       }
+    },
+    "gensokyolegacy:saigyouji_yuyuko": {
+      "override": {},
+      "preference": {
+        "ALCOHOL": 2.0,
+        "BOOK": 1.5,
+        "COLLECTION": 1.5,
+        "DRINK": 2.0,
+        "FOOD": 2.0,
+        "MAGIC": 0.5,
+        "TOOL": 0.0
+      }
     }
   }
 }

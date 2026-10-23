@@ -9,10 +9,13 @@ package dev.xkmc.gensokyolegacy.content.attachment.party.core;
 public class PartyMath {
 
 	/**
-	 * @return 0 when she declines outright, below {@code minReputation} — and 0 means never drawn
+	 * @return 0 when she declines outright, below {@code minReputation} or {@code minAppeal}
+	 * — and 0 means never drawn
 	 */
 	public static int weight(PartyTaste taste, int spreadAppeal, int reputation) {
 		if (reputation < taste.minReputation()) return 0;
+		// minAppeal is a hard gate: the floor below must not round an uninterested guest in
+		if (spreadAppeal < taste.minAppeal()) return 0;
 		double appealFactor = ramp(spreadAppeal, taste.minAppeal(), taste.maxAppeal());
 		double repFactor = 1.0 + taste.repBonus()
 				* ramp(reputation, taste.minReputation(), taste.maxReputation());
