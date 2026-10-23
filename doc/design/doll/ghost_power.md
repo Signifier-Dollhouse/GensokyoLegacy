@@ -55,7 +55,9 @@ cannot be re-bound until its power is restored (the fan still absorbs it).
 as the brief asks: absorbing a ghost converts it to power of its type.
 
 - **Right-click a ghost** absorbs `min(power, room)`. A wild ghost is discarded; an owned ghost is
-  removed from the ledger through `DollAttachment.absorb`, which does not spawn a stray.
+  removed from the ledger through `DollAttachment.absorb`, which does not spawn a stray. The write
+  targets the live held stack because vanilla hands creative players a copy of the stack to
+  `interactLivingEntity`; writing the argument would spend the ghost without storing its power.
 - **Fan full for that type** on an owned ghost: `DollAttachment.release` runs instead, so the ghost
   is not destroyed with power still in it. A wild ghost at a full fan is simply refused.
 - **Right-click air** first looks for a summoned ghost of the selected type, full or not, and tops
@@ -68,3 +70,9 @@ as the brief asks: absorbing a ghost converts it to power of its type.
 
 The selector icons are stray-ghost spawn eggs renamed per type, because all three types share one
 fan model and the egg is the only ghost-shaped item already in the mod.
+
+## 5. Debug readout
+
+The debug wand's ghost click and the debug glasses' look-at overlay share `GhostDebugInfo`, which
+prints `Wild/Tamed <variant>: <power> / 1000 power`. Both read the synced accessors directly, so the
+readout works for wild and owned ghosts without a server round trip.

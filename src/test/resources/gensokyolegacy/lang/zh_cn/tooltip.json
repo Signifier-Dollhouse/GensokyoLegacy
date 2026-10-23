@@ -3,9 +3,13 @@
 		"item": {
 			"glass_bed": "显示角色床的状态",
 			"glass_character": "显示角色的状态 ",
+			"glass_ghost": "显示幽灵力量",
 			"glass_path": "显示角色寻路",
 			"wand_bed": "右键床以重置角色",
 			"wand_character": "右键角色以重置角色对玩家的全局数据",
+			"wand_ghost": "右键幽灵以显示其力量",
+			"ghost_wild": "野生%s：%s / %s 力量",
+			"ghost_tamed": "已收服%s：%s / %s 力量",
 			"wand_block": "右键方块显示所属结构信息",
 			"wand_structure": "潜行右键方块打开结构调试面板",
 			"door_debug_use": "右键：绑定最近的角色",

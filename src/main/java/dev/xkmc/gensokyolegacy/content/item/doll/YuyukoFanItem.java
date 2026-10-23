@@ -126,7 +126,8 @@ public class YuyukoFanItem extends Item {
 		} else {
 			target.discard();
 		}
-		setPower(stack, type, stored + take);
+		// Vanilla hands creative players a copy of the stack; write the held one so the power sticks.
+		setPower(sp.getItemInHand(hand), type, stored + take);
 		sp.displayClientMessage(GLLang.Ghost.ABSORBED.get(take), true);
 		play(sp, 1.2F);
 		sp.getCooldowns().addCooldown(this, COOLDOWN);

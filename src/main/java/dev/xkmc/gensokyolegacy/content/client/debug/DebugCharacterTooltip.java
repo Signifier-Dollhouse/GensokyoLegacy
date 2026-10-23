@@ -1,7 +1,9 @@
 package dev.xkmc.gensokyolegacy.content.client.debug;
 
 import dev.xkmc.gensokyolegacy.content.block.base.IDebugInfoBlockEntity;
+import dev.xkmc.gensokyolegacy.content.entity.dolls.ghost.GhostPowerHolder;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
+import dev.xkmc.gensokyolegacy.content.item.debug.GhostDebugInfo;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
@@ -24,6 +26,10 @@ public class DebugCharacterTooltip {
 				return true;
 			}
 		} else if (hit instanceof EntityHitResult ehit) {
+			if (ehit.getEntity() instanceof GhostPowerHolder ghost) {
+				lines.add(GhostDebugInfo.describe(ehit.getEntity(), ghost));
+				return true;
+			}
 			if (ehit.getEntity() instanceof YoukaiEntity youkai) {
 				CharacterInfoClientManager.tooltip(lines, gameTime, youkai);
 				return true;
