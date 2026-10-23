@@ -8,6 +8,7 @@ import dev.xkmc.gensokyolegacy.content.entity.dolls.behavior.DollBehaviorRegistr
 import dev.xkmc.gensokyolegacy.content.item.doll.DollLanceItem;
 import dev.xkmc.gensokyolegacy.content.item.doll.DollSlot;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -235,9 +236,12 @@ public class DollMeleeBehavior extends DollBehavior {
 	}
 
 	private void swing(DollEntity doll, ItemStack weapon, LivingEntity target, Vec3 toTarget) {
-		// Plain mob_attack; GLAttackListener#onCreateSource turns it into a bypass-cooldown variant
-		// for every doll melee, not only this behavior.
-		DamageSource source = doll.damageSources().mobAttack(doll);
+		// The doll is the direct source, its owner the causing one; GLAttackListener#onCreateSource
+		// turns every doll melee into a bypass-cooldown variant.
+		LivingEntity owner = doll.getOwner();
+		DamageSource source = owner == null
+				? doll.damageSources().mobAttack(doll)
+				: doll.damageSources().source(DamageTypes.MOB_ATTACK, doll, owner);
 		if (!target.hurt(source, meleeDamage(doll, weapon))) return;
 		Vec3 push = new Vec3(toTarget.x, 0, toTarget.z);
 		if (push.lengthSqr() < 1e-6) return;

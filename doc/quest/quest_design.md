@@ -144,6 +144,14 @@ constructors populate the maps as a side effect.
 Register any new condition / action / requirement / reward subclass in
 `CodecRegistry` (e.g. `HAS_QUEST` → `HasQuestCompletedCondition`).
 
+A dialog is **written where it is used**. `dialog(...)` / `dialogKey(...)` return a
+`Holder.Direct`, so the whole conversation lands inline in the starter, quest or trade
+file that opens it, and the `dialog/` registry holds only what has to be named from
+outside a dialog tree — the two gift reactions, which the `gift_dialog` data map
+addresses by id (`namedDialogKey`, `doc/design/gift.md` *What she says about it*).
+Nothing resolves a dialog path at runtime, and deleting an inline dialog is editing
+its host file rather than deleting a file.
+
 ## 4. Chats
 
 A `DialogStarter` is `(character, conditions, starterText, dialog, weight)`.

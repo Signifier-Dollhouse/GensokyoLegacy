@@ -14,6 +14,7 @@ import dev.xkmc.gensokyolegacy.content.block.functional.portal.PortalSide;
 import dev.xkmc.gensokyolegacy.content.client.model.HatModel;
 import dev.xkmc.gensokyolegacy.content.client.model.SuwakoHatModel;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.SekibankiHeadEntity;
+import dev.xkmc.gensokyolegacy.content.entity.dolls.ghost.GhostVariant;
 import dev.xkmc.gensokyolegacy.content.item.character.*;
 import dev.xkmc.gensokyolegacy.content.item.dagger.DaggerGloveItem;
 import dev.xkmc.gensokyolegacy.content.item.dagger.DaggerGloveMode;
@@ -121,6 +122,10 @@ public class GLItems {
 	 */
 	public static final ItemEntry<SekibankiHeadItem> SEKIBANKI_HEAD;
 
+	public static final ItemEntry<BoneFluteItem> BONE_FLUTE;
+
+	public static final ItemEntry<YuyukoFanItem> YUYUKO_FAN;
+
 	public static final ItemEntry<DollGloveItem> DOLL_GLOVE;
 
 	public static final ItemEntry<DollLanceItem> DOLL_LANCE;
@@ -160,6 +165,11 @@ public class GLItems {
 	public static final DCVal<DaggerGloveMode> DAGGER_GLOVE_MODE = DC.enumVal("dagger_glove_mode", EnumCodec.of(DaggerGloveMode.class, DaggerGloveMode.values()));
 	public static final DCVal<ResourceLocation> DAGGER_GLOVE_RUNE = DC.loc("dagger_glove_rune");
 	public static final DCVal<Unit> DAGGER_GLOVE_ICON = DC.unit("dagger_glove_icon");
+	public static final DCVal<Integer> YUYUKO_FAN_CURIOS = DC.intVal("yuyuko_fan_curios");
+	public static final DCVal<Integer> YUYUKO_FAN_FOODIE = DC.intVal("yuyuko_fan_foodie");
+	public static final DCVal<Integer> YUYUKO_FAN_LIVELY = DC.intVal("yuyuko_fan_lively");
+	public static final DCVal<GhostVariant> YUYUKO_FAN_TYPE =
+			DC.enumVal("yuyuko_fan_type", EnumCodec.of(GhostVariant.class, GhostVariant.values()));
 	public static final DCVal<PartyWandData> PARTY_WAND_DATA = DC.reg("party_wand", PartyWandData.CODEC,
 			ByteBufCodecs.fromCodecWithRegistries(PartyWandData.CODEC), false);
 
@@ -490,6 +500,19 @@ public class GLItems {
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/doll/" + ctx.getName())))
 					.lang("Sekibanki's Head")
 					.tab(TAB.key())
+					.register();
+
+			BONE_FLUTE = reg.item("bone_flute", p -> new BoneFluteItem(p.stacksTo(1)))
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/tool/" + ctx.getName())))
+					.lang("Bone Flute")
+					.tab(TAB.key())
+					.register();
+
+			YUYUKO_FAN = reg.item("yuyuko_fan", p -> new YuyukoFanItem(p.stacksTo(1)))
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/tool/" + ctx.getName())))
+					.lang("Yuyuko's Fan")
+					.tab(TAB.key())
+					.tag(L2ISTagGen.SELECTABLE)
 					.register();
 
 			DOLL_GLOVE = reg.item("doll_glove", DollGloveItem::new)

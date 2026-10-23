@@ -4,7 +4,38 @@
     "type": "gensokyolegacy:simple",
     "actions": [],
     "conditions": [],
-    "next": "gensokyolegacy:marisa/shroomlight/complete/dialog_1",
+    "next": {
+      "animations": [
+        "dialog_talk_02"
+      ],
+      "options": [
+        {
+          "type": "gensokyolegacy:simple",
+          "actions": [
+            {
+              "type": "gensokyolegacy:complete_quest"
+            }
+          ],
+          "conditions": [],
+          "next": {
+            "animations": [
+              "dialog_agree"
+            ],
+            "options": [
+              {
+                "type": "gensokyolegacy:simple",
+                "actions": [],
+                "conditions": [],
+                "text": "gensokyolegacy/marisa/shroomlight/option/complete/handover/end"
+              }
+            ],
+            "text": "gensokyolegacy/marisa/shroomlight/dialog/marisa/shroomlight/complete/handover/dialog_1"
+          },
+          "text": "gensokyolegacy/marisa/shroomlight/option/complete/handover"
+        }
+      ],
+      "text": "gensokyolegacy/marisa/shroomlight/dialog/marisa/shroomlight/complete/dialog_1"
+    },
     "text": "gensokyolegacy/marisa/shroomlight/option/complete"
   },
   "conditions": [
@@ -18,14 +49,92 @@
     "type": "gensokyolegacy:simple",
     "actions": [],
     "conditions": [],
-    "next": "gensokyolegacy:marisa/shroomlight/follow_up/dialog_1",
+    "next": {
+      "animations": [
+        "dialog_talk_04"
+      ],
+      "options": [
+        {
+          "type": "gensokyolegacy:simple",
+          "actions": [],
+          "conditions": [],
+          "next": {
+            "animations": [
+              "dialog_think"
+            ],
+            "options": [
+              {
+                "type": "gensokyolegacy:simple",
+                "actions": [],
+                "conditions": [],
+                "text": "gensokyolegacy/marisa/shroomlight/option/follow_up/end/end"
+              }
+            ],
+            "text": "gensokyolegacy/marisa/shroomlight/dialog/marisa/shroomlight/follow_up/end/dialog_1"
+          },
+          "text": "gensokyolegacy/marisa/shroomlight/option/follow_up/end"
+        }
+      ],
+      "text": "gensokyolegacy/marisa/shroomlight/dialog/marisa/shroomlight/follow_up/dialog_1"
+    },
     "text": "gensokyolegacy/marisa/shroomlight/option/follow_up"
   },
   "initialDialog": {
     "type": "gensokyolegacy:simple",
     "actions": [],
     "conditions": [],
-    "next": "gensokyolegacy:marisa/shroomlight/start/dialog_1",
+    "next": {
+      "animations": [
+        "dialog_talk_05"
+      ],
+      "options": [
+        {
+          "type": "gensokyolegacy:simple",
+          "actions": [],
+          "conditions": [],
+          "next": {
+            "animations": [
+              "dialog_decline"
+            ],
+            "options": [
+              {
+                "type": "gensokyolegacy:simple",
+                "actions": [],
+                "conditions": [],
+                "text": "gensokyolegacy/marisa/shroomlight/option/start/reject/end"
+              }
+            ],
+            "text": "gensokyolegacy/marisa/shroomlight/dialog/marisa/shroomlight/start/reject/dialog_1"
+          },
+          "text": "gensokyolegacy/marisa/shroomlight/option/start/reject"
+        },
+        {
+          "type": "gensokyolegacy:simple",
+          "actions": [
+            {
+              "type": "gensokyolegacy:start_quest"
+            }
+          ],
+          "conditions": [],
+          "next": {
+            "animations": [
+              "dialog_agree"
+            ],
+            "options": [
+              {
+                "type": "gensokyolegacy:simple",
+                "actions": [],
+                "conditions": [],
+                "text": "gensokyolegacy/marisa/shroomlight/option/start/accept/end"
+              }
+            ],
+            "text": "gensokyolegacy/marisa/shroomlight/dialog/marisa/shroomlight/start/accept/dialog_1"
+          },
+          "text": "gensokyolegacy/marisa/shroomlight/option/start/accept"
+        }
+      ],
+      "text": "gensokyolegacy/marisa/shroomlight/dialog/marisa/shroomlight/start/dialog_1"
+    },
     "text": "gensokyolegacy/marisa/shroomlight/option/start"
   },
   "requirements": {

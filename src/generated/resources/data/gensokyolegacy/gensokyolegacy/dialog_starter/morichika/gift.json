@@ -5,6 +5,23 @@
       "type": "gensokyolegacy:gift_return"
     }
   ],
-  "dialog": "gensokyolegacy:morichika/gift/return",
+  "dialog": {
+    "animations": [
+      "dialog_talk_05"
+    ],
+    "options": [
+      {
+        "type": "gensokyolegacy:simple",
+        "actions": [
+          {
+            "type": "gensokyolegacy:gift_return"
+          }
+        ],
+        "conditions": [],
+        "text": "gensokyolegacy/morichika/gift/option/return/take"
+      }
+    ],
+    "text": "gensokyolegacy/morichika/gift/dialog/return"
+  },
   "override": true
 }

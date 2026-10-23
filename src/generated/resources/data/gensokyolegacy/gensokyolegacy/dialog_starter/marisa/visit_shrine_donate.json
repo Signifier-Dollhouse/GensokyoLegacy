@@ -6,7 +6,34 @@
       "structure": "gensokyolegacy:hakurei_shrine"
     }
   ],
-  "dialog": "gensokyolegacy:marisa/visit_shrine/donate",
+  "dialog": {
+    "animations": [
+      "dialog_think_02"
+    ],
+    "options": [
+      {
+        "type": "gensokyolegacy:simple",
+        "actions": [],
+        "conditions": [],
+        "next": {
+          "animations": [
+            "dialog_agree"
+          ],
+          "options": [
+            {
+              "type": "gensokyolegacy:simple",
+              "actions": [],
+              "conditions": [],
+              "text": "gensokyolegacy/marisa/visit_shrine/option/leave/end"
+            }
+          ],
+          "text": "gensokyolegacy/marisa/visit_shrine/dialog/marisa/visit_shrine/leave_ans"
+        },
+        "text": "gensokyolegacy/marisa/visit_shrine/option/leave"
+      }
+    ],
+    "text": "gensokyolegacy/marisa/visit_shrine/dialog/marisa/visit_shrine/donate"
+  },
   "text": "gensokyolegacy/marisa/visit_shrine/starter/donate",
   "weight": 30
 }

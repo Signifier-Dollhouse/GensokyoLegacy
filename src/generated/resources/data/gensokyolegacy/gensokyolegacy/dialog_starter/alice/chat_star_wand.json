@@ -6,7 +6,34 @@
       "quest": "gensokyolegacy:alice/seven_colors"
     }
   ],
-  "dialog": "gensokyolegacy:alice/chat_star_wand/talk",
+  "dialog": {
+    "animations": [
+      "dialog_talk_04"
+    ],
+    "options": [
+      {
+        "type": "gensokyolegacy:simple",
+        "actions": [],
+        "conditions": [],
+        "next": {
+          "animations": [
+            "dialog_talk_03"
+          ],
+          "options": [
+            {
+              "type": "gensokyolegacy:simple",
+              "actions": [],
+              "conditions": [],
+              "text": "gensokyolegacy/alice/chat_star_wand/option/where/end"
+            }
+          ],
+          "text": "gensokyolegacy/alice/chat_star_wand/dialog/alice/chat_star_wand/where_ans"
+        },
+        "text": "gensokyolegacy/alice/chat_star_wand/option/where"
+      }
+    ],
+    "text": "gensokyolegacy/alice/chat_star_wand/dialog/alice/chat_star_wand/talk"
+  },
   "text": "gensokyolegacy/alice/chat_star_wand/starter/start",
   "weight": 100
 }

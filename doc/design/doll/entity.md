@@ -5,7 +5,7 @@ The doll is split across two classes, and the split is the type that says what a
 - **`BaseDollEntity`** (`content/entity/dolls/BaseDollEntity.java`) — *foundation and pairing*: identity, movement/navigation, goals, the deferred damage pipeline, the itemize interaction, the reconciliation hooks, the never-save guard, and the animation plumbing (`DollRig`). This is the part that every doll kind shares and that keeps the ledger honest.
 - **`DollEntity`** (`content/entity/dolls/DollEntity.java`) — *what a doll can do*: the four synced loadout slots, the action status, the ticket handler and the one command goal, plus the plain doll's own clips and its tint.
 
-A kind that follows and nothing more extends the base; a kind that fights — or that a host arms, or that the glove orders — extends `DollEntity`. Nothing checks "can this act" at runtime: the type says it (§9).
+A kind that follows and nothing more extends the base; a kind that fights — or that a host arms, or that the glove orders — extends `DollEntity`. Nothing checks "can this act" at runtime: the type says it (§9). A gadget and the support ghost are the base-only kinds.
 
 > Note on wording: an earlier draft pushed more logic (damage vulkan, interact, goals) down into `DollEntity`. The current layout instead keeps **all** of that in `BaseDollEntity`, because it is pairing/integrity logic that the ledger hook (`resolveDollData`, `getHost`) depends on. `DollEntity` therefore stays thin: it is the single place where doll-specific appearance/render logic and per-doll synced data live. This document describes that actual layout.
 
@@ -20,13 +20,12 @@ BaseDollEntity (abstract) implements OwnableEntity, DollRig
         │ DollMoveControl, FlyingPathNavigation, deferred damage,
         │ mobInteract itemize, tick() sync+inverse check, never-save,
         │ DollRigModule (instance cache) — DollGeo/DollTint/...
-        ▼
-DollEntity extends BaseDollEntity implements DollGeo, DollLoadout, DollStatus, …
-        │ toy_idle/toy_fly loops, attack/bomb one-shots, DATA_COLOR,
-        │ DATA_MAIN_HAND/OFF_HAND/CLOTH/CORE, registerControllers
-        │
-        ▼
-SekibankiHeadEntity extends BaseDollEntity        (a gadget: pairs, follows, itemizes, fights nothing)
+        ├── DollEntity extends BaseDollEntity implements DollGeo, DollLoadout, DollStatus, …
+        │       │ toy_idle/toy_fly loops, attack/bomb one-shots, DATA_COLOR,
+        │       │ DATA_MAIN_HAND/OFF_HAND/CLOTH/CORE, registerControllers
+        │       └── the acting kinds (plain doll, …)
+        ├── SekibankiHeadEntity extends BaseDollEntity   (a gadget: pairs, follows, itemizes, fights nothing)
+        └── GhostEntity extends BaseDollEntity           (a support summon: pairs, follows, auras, fights nothing)
 ```
 
 Subclasses are the concrete doll kinds; `BaseDollEntity` is abstract. All `dolls.entity.doll` registration goes through the base type; `DollData.type` (from `getDollTypeId()`) records which concrete type a given ledger entry refers to so reconciliation can validate it (pairing.md §5).
@@ -225,7 +224,7 @@ The rendering-facing data is the rest of this layer:
 - Four `EntityDataAccessor<ItemStack>` (`EntityDataSerializers.ITEM_STACK`): `DATA_MAIN_HAND`, `DATA_OFF_HAND`, `DATA_CLOTH`, `DATA_CORE`, default empty — the client mirror of the authoritative loadout (loadout.md §3).
 - `DATA_ACTION_STATE` / `DATA_ACTION_TYPE` / `DATA_VALID_MASK`, recomputed server-side each tick by `DollStatus.syncActionStatus` for the attack-glove sidebar (control.md §3).
 
-A kind that only follows — a gadget — has none of this and extends the base directly (§9.1).
+A kind that only follows — a gadget, or a support summon such as the ghost — has none of this and extends the base directly (§9.1).
 
 ### 8.1 Still TODO
 
@@ -249,7 +248,7 @@ The class *is* the capability. Every gate that would consult a flag is instead a
 | fighting | `DollBehaviorRegistry.findHand(DollEntity, …)` | no — it is never asked |
 | the sidebar roster, the glove's crosshair trace | `instanceof DollEntity` | no |
 
-So a **timed summon** extends `DollEntity` even with an empty loadout: it still takes orders and acts with an intrinsic (timed_summon.md §4). A **gadget** extends `BaseDollEntity`: owned, paired and recalled, with no action surface at all (gadget.md §3). The three `DollNature` predicates (§1 of timed_summon.md) decide the *item* questions — can this be itemized, recalled, loaded out — and never duplicate what the class already answers.
+So a **summon** that fights or takes orders extends `DollEntity` even with an empty loadout: it still takes orders and acts with an intrinsic (summon.md §4). A **support summon** with neither (the ghost, stray.md §6) and a **gadget** extend `BaseDollEntity`: paired, following and recalled or released, with no action surface at all (gadget.md §3). The three `DollNature` predicates (§1 of summon.md) decide the *item* questions — can this be itemized, recalled, loaded out — and never duplicate what the class already answers.
 
 The cost of the split is one place to keep honest: a pairing rule must be written against `BaseDollEntity`, never `DollEntity`. `DollEventHandlers.onEntityJoinLevel` is the one that had to be (entity events see the base type, so the orphan check belongs there).
 

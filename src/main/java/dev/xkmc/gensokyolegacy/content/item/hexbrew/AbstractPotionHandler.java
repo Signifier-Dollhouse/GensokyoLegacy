@@ -55,12 +55,12 @@ public interface AbstractPotionHandler extends HexBrewHandler {
 		float r = radius(stack);
 		AABB box = new AABB(pos, pos).inflate(r);
 		var taste = getCategory(stack);
+		Entity credit = HexBrewHandler.damageOwner(thrower);
 		for (LivingEntity e : level.getEntitiesOfClass(LivingEntity.class, box, en -> true)) {
-			if (thrower != null) {
-				var ally = e == thrower || e.isAlliedTo(thrower);
-				if (taste == MobEffectCategory.HARMFUL && ally)
-					continue;
-			}
+			var ally = e == thrower || e == credit ||
+					HexBrewHandler.isAllied(e, thrower) || HexBrewHandler.isAllied(e, credit);
+			if (taste == MobEffectCategory.HARMFUL && ally)
+				continue;
 			if (e.distanceToSqr(pos) > r * r) continue;
 			applyEffects(e, stack);
 		}

@@ -32,6 +32,9 @@
 		"shield.description": "获得1点吸收值",
 		"lively": "活泼",
 		"lively.desc": "每级使物品冷却速度提升20%",
-		"lively.description": "每级使物品冷却速度提升20%"
+		"lively.description": "每级使物品冷却速度提升20%",
+		"foodie": "美食家",
+		"foodie.desc": "饥饿值高于16时，每秒将1点饥饿值转化为1点饱和度。进食速度翻倍。",
+		"foodie.description": "饥饿值高于16时，每秒将1点饥饿值转化为1点饱和度。进食速度翻倍。"
 	}
 }

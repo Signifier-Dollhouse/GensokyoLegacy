@@ -20,6 +20,11 @@ public record Dialog(
 			Codec.STRING.listOf().optionalFieldOf("animations", List.of()).forGetter(Dialog::animations)
 	).apply(i, Dialog::new));
 
+	/**
+	 * A dialog written where it is used, or named by a registry key: the codec inlines a direct holder
+	 * and writes a registry reference as its id. Chats and quests inline; only what must be named later
+	 * is registered.
+	 */
 	public static final Codec<Holder<Dialog>> HOLDER = RegistryFileCodec.create(CodecRegistry.Keys.DIALOG, CODEC);
 
 }
