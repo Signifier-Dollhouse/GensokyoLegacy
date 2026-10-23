@@ -159,9 +159,18 @@ public class YuyukoFanItem extends Item {
 		GhostVariant type = getType(stack);
 		int stored = getPower(stack, type);
 		DollAttachment att = GLMeta.DOLL.type().getOrCreate(sp);
-		GhostEntity existing = att.findRefillableGhost(sp, type);
-		if (existing != null && stored > 0) {
-			int spend = Math.min(GhostPower.MAX - existing.getPower(), stored);
+		GhostEntity existing = att.findSummonedGhost(sp, type);
+		if (existing != null) {
+			int need = GhostPower.MAX - existing.getPower();
+			if (need <= 0) {
+				sp.displayClientMessage(GLLang.Ghost.ALREADY_FULL.get(), true);
+				return InteractionResultHolder.fail(stack);
+			}
+			if (stored <= 0) {
+				sp.displayClientMessage(GLLang.Ghost.FAN_EMPTY.get(), true);
+				return InteractionResultHolder.fail(stack);
+			}
+			int spend = Math.min(need, stored);
 			existing.addPower(spend);
 			setPower(stack, type, stored - spend);
 			sp.displayClientMessage(GLLang.Ghost.REFILLED.get(spend), true);

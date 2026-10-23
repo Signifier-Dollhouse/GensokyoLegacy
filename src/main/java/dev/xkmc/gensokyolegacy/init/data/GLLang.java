@@ -1009,6 +1009,7 @@ public final class GLLang {
 		TOO_WEAK("A ghost below %s power cannot be bound", 1, ChatFormatting.RED),
 		LEFT("The ghost's power is too low and it left you", 0, ChatFormatting.YELLOW),
 		FAN_FULL("The fan is full of that ghost's power", 0, ChatFormatting.RED),
+		ALREADY_FULL("That ghost is already at full power", 0, ChatFormatting.GRAY),
 		FAN_EMPTY("Not enough stored power", 0, ChatFormatting.RED),
 		NO_POWER("That ghost has no power left", 0, ChatFormatting.RED),
 		ABSORB_FAIL("The ghost's power cannot be absorbed", 0, ChatFormatting.RED),
@@ -1102,7 +1103,7 @@ public final class GLLang {
 
 	public enum ItemYuyukoFan implements LangEntry {
 		ABSORB("Right-click a ghost to absorb its power", 0, ChatFormatting.GRAY),
-		SUMMON("Right-click to summon a ghost at 1000 power, or refill an existing one", 0, ChatFormatting.GRAY),
+		SUMMON("Right-click to refill a following ghost, or summon one at 1000 power if none of that type follows", 0, ChatFormatting.GRAY),
 		RELEASE("Absorbing an owned ghost with a full fan releases it instead", 0, ChatFormatting.GRAY),
 		SELECTED("Selected: %s", 1),
 		STORED("%s: %s / %s", 3, ChatFormatting.GRAY);

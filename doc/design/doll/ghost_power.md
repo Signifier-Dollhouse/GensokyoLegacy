@@ -58,9 +58,10 @@ as the brief asks: absorbing a ghost converts it to power of its type.
   removed from the ledger through `DollAttachment.absorb`, which does not spawn a stray.
 - **Fan full for that type** on an owned ghost: `DollAttachment.release` runs instead, so the ghost
   is not destroyed with power still in it. A wild ghost at a full fan is simply refused.
-- **Right-click air** first looks for a summoned ghost of the selected type below full power and
-  tops it up with as much stored power as the fan has. If there is no such ghost, and at least
-  `SUMMON_COST` is stored, it summons a new one at full power through
+- **Right-click air** first looks for a summoned ghost of the selected type, full or not, and tops
+  it up with as much stored power as the fan has. The fan never summons a second ghost of a type
+  that is already following: a full one refuses the use. Only when no matching ghost is summoned,
+  and at least `SUMMON_COST` is stored, does it summon a new one at full power through
   `DollAttachment.summonGhost`. The ledger cap (`MAX_SUMMONED`) still applies.
 - **Type selection** is the shared item-selector wheel/list, registered as
   `YuyukoFanSelectionListener`; the fan carries `L2ISTagGen.SELECTABLE`.

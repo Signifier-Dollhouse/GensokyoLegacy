@@ -568,17 +568,17 @@ public class DollAttachment extends PlayerCapabilityTemplate<DollAttachment> imp
 	}
 
 	/**
-	 * The owned ghost of {@code variant} that most needs a top-up, or null when none is summoned
-	 * nearby or all of them are already full.
+	 * The summoned ghost of {@code variant} with the least power, or null when none is loaded in
+	 * the owner's level. A full ghost is still returned: the fan must not add a second one.
 	 */
 	@Nullable
-	public GhostEntity findRefillableGhost(ServerPlayer player, GhostVariant variant) {
+	public GhostEntity findSummonedGhost(ServerPlayer player, GhostVariant variant) {
 		GhostEntity best = null;
 		for (DollData data : dolls.values()) {
 			if (!data.isSummoned() || !GhostEntity.TYPE.equals(data.type)) continue;
 			if (data.variant != variant.ordinal()) continue;
 			if (!(player.serverLevel().getEntity(data.uuid) instanceof GhostEntity ghost)) continue;
-			if (ghost.getPower() >= GhostPower.MAX) continue;
+			if (!ghost.isAlive() || !ghost.isOwner(player)) continue;
 			if (best == null || ghost.getPower() < best.getPower()) best = ghost;
 		}
 		return best;
