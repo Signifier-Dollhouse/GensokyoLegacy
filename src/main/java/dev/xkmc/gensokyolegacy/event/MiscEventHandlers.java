@@ -10,6 +10,7 @@ import dev.xkmc.gensokyolegacy.content.item.hakkero.HakkeroMenu;
 import dev.xkmc.gensokyolegacy.content.item.tool.CatBell;
 import dev.xkmc.gensokyolegacy.content.item.umbrella.BorderUmbrellaItem;
 import dev.xkmc.gensokyolegacy.content.item.umbrella.data.BorderUmbrellaUnlock;
+import dev.xkmc.gensokyolegacy.content.rpg.trigger.KillTrigger;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.GLDamageTypes;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
@@ -21,10 +22,12 @@ import net.minecraft.world.entity.animal.frog.Frog;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.AnvilUpdateEvent;
 import net.neoforged.neoforge.event.entity.EntityTravelToDimensionEvent;
+import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.neoforged.neoforge.event.entity.living.LivingShieldBlockEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
@@ -34,6 +37,7 @@ import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 @EventBusSubscriber(modid = GensokyoLegacy.MODID)
 public class MiscEventHandlers {
 
+	/** Umbrella craft */
 	@SubscribeEvent
 	public static void onAnvilUpdate(AnvilUpdateEvent e) {
 		ItemStack left = e.getLeft();
@@ -57,6 +61,7 @@ public class MiscEventHandlers {
 		}
 	}
 
+	/** Hakkero, Shelf storage*/
 	@SubscribeEvent
 	public static void onPlayerTick(PlayerTickEvent.Post event) {
 		if (!(event.getEntity() instanceof ServerPlayer sp)) return;
@@ -68,6 +73,7 @@ public class MiscEventHandlers {
 			sp.sendSystemMessage(PendingItemStorage.RETURN_MSG);
 	}
 
+	/** Koishi, Rumia*/
 	@SubscribeEvent
 	public static void onShieldBlock(LivingShieldBlockEvent event) {
 		if (event.getDamageSource().is(GLDamageTypes.KOISHI)) {
@@ -80,6 +86,7 @@ public class MiscEventHandlers {
 		}
 	}
 
+	/** Frog sync */
 	@SubscribeEvent
 	public static void startTracking(PlayerEvent.StartTracking event) {
 		if (event.getTarget() instanceof Frog frog) {
@@ -87,6 +94,7 @@ public class MiscEventHandlers {
 		}
 	}
 
+	/** Hat danmaku effects */
 	@SubscribeEvent
 	public static void onDanmakuDamageType(DanmakuDamageEvent event) {
 		var le = event.getUser();
@@ -97,6 +105,7 @@ public class MiscEventHandlers {
 		}
 	}
 
+	/** Cat bell */
 	@SubscribeEvent
 	public static void onLivingTick(EntityTickEvent.Pre event) {
 		if (event.getEntity() instanceof Cat cat && cat.level() instanceof ServerLevel) {
@@ -111,12 +120,7 @@ public class MiscEventHandlers {
 		}
 	}
 
-	/**
-	 * Backstop for the dimension lock: both bases already refuse at {@code canUsePortal} / {@code canChangeDimensions},
-	 * covering every portal path, and this cancels the same transition one step lower for anything reaching {@code
-	 * Entity#changeDimension} without asking. <p> {@code /tp}'s {@code teleportTo} is left working on purpose - an
-	 * operator forcing a mob across is an explicit act the existing watchdogs already reconcile.
-	 */
+	/** IDimensionBoundEntity */
 	@SubscribeEvent
 	public static void onTravelToDimension(EntityTravelToDimensionEvent event) {
 		if (event.getEntity() instanceof IDimensionBoundEntity) {
@@ -124,11 +128,20 @@ public class MiscEventHandlers {
 		}
 	}
 
+	/** Cat bell */
 	@SubscribeEvent
 	public static void onLivingInteraction(PlayerInteractEvent.EntityInteract event) {
 		if (event.getTarget() instanceof Cat cat && event.getItemStack().is(GLItems.CAT_BELL)) {
 			event.setCancellationResult(GLItems.CAT_BELL.get().interactLivingEntity(event.getItemStack(), event.getEntity(), cat, event.getHand()));
 			event.setCanceled(true);
+		}
+	}
+
+	/** Quest */
+	@SubscribeEvent(priority = EventPriority.LOWEST)
+	public static void triggerDeath(LivingDeathEvent event) {
+		if (event.getEntity().getKillCredit() instanceof ServerPlayer sp) {
+			GLMeta.QUEST.type().getOrCreate(sp).dispatch(sp, new KillTrigger(sp, event.getEntity()));
 		}
 	}
 

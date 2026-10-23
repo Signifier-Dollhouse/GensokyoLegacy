@@ -84,10 +84,6 @@
 						}
 					}
 				},
-				"OpenMouth1": {
-					"position": [0, -0.3, -0.28],
-					"scale": [0.8, 0.5, 1]
-				},
 				"Front_Hair1a": {
 					"rotation": {
 						"0.0": {
@@ -879,10 +875,6 @@
 							"lerp_mode": "catmullrom"
 						}
 					}
-				},
-				"OpenMouth1": {
-					"position": [0, -0.3, -0.28],
-					"scale": [0.8, 0.5, 1]
 				},
 				"Front_Hair1a": {
 					"rotation": {
@@ -2224,9 +2216,6 @@
 						"0.375": [0, 0.2, 0],
 						"0.4583": [0, 0, 0]
 					}
-				},
-				"Fan": {
-					"scale": 0
 				}
 			}
 		},
@@ -4194,7 +4183,7 @@
 							"lerp_mode": "catmullrom"
 						},
 						"2.0": {
-							"post": [0, 0, 0],
+							"post": [-5, 0, 1],
 							"lerp_mode": "catmullrom"
 						}
 					}
@@ -4575,7 +4564,7 @@
 							"lerp_mode": "catmullrom"
 						},
 						"1.75": {
-							"post": [0, 0, 0],
+							"post": [-5, 0, 1],
 							"lerp_mode": "catmullrom"
 						}
 					}
@@ -4725,7 +4714,7 @@
 							"lerp_mode": "catmullrom"
 						},
 						"1.5": {
-							"post": [0, 0, 0],
+							"post": [-5, 0, 1],
 							"lerp_mode": "catmullrom"
 						}
 					}
@@ -5133,6 +5122,13 @@
 							"lerp_mode": "catmullrom"
 						},
 						"1.375": {
+							"post": [-5, 0, 1],
+							"lerp_mode": "catmullrom"
+						}
+					},
+					"position": {
+						"1.375": {
+							"pre": [0, 0, 0],
 							"post": [0, 0, 0],
 							"lerp_mode": "catmullrom"
 						}
@@ -5161,7 +5157,7 @@
 							"lerp_mode": "catmullrom"
 						},
 						"1.375": {
-							"post": [0, 0, 0],
+							"post": [10, 0, 0],
 							"lerp_mode": "catmullrom"
 						}
 					}
@@ -5508,7 +5504,7 @@
 							"lerp_mode": "catmullrom"
 						},
 						"1.375": {
-							"post": [0, 0, 0],
+							"post": [-8, -8, -3],
 							"lerp_mode": "catmullrom"
 						}
 					},
@@ -5525,7 +5521,14 @@
 					"rotation": {
 						"0.0": [0, 0, 0],
 						"0.375": [0, 0, 0],
-						"0.5833": [-30, 0, 60]
+						"0.5833": [-30, 0, 60],
+						"1.2917": [30, 0, 0],
+						"1.4583": [30, 0, 0]
+					},
+					"scale": {
+						"0.0": [1, 1, 1],
+						"1.2917": [1, 1, 1],
+						"1.4583": [0, 0, 0]
 					}
 				},
 				"Up_Fan": {

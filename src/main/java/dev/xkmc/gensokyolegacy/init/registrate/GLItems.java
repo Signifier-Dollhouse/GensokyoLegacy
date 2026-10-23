@@ -401,7 +401,7 @@ public class GLItems {
 
 			// a fan is for looking at, and for blowing
 			FANCY_FAN = reg.item("fancy_fan", FancyFanItem::new)
-					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
+					.model((ctx, pvd) -> pvd.handheld(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
 					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(5, 1000, GiftType.COLLECTION))
 					.tag(GLTagGen.MORICHIKA_OFFERS)
 					.dataMap(GLMeta.MORICHIKA_OFFER.reg(), new MorichikaOfferData(10, 20, 1, 1))
@@ -509,7 +509,7 @@ public class GLItems {
 					.register();
 
 			YUYUKO_FAN = reg.item("yuyuko_fan", p -> new YuyukoFanItem(p.stacksTo(1)))
-					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/tool/" + ctx.getName())))
+					.model((ctx, pvd) -> pvd.handheld(ctx, pvd.modLoc("item/tool/" + ctx.getName())))
 					.lang("Yuyuko's Fan")
 					.tab(TAB.key())
 					.tag(L2ISTagGen.SELECTABLE)

@@ -103,7 +103,7 @@ public class GLEntities {
 			// they eat a lot
 			TASTE_SUIKA = new PartyTaste(10, 0, 250, 1, 500, 1000, 400, 60, 160, 0.05, 0.01);
 			// she only ever turns up for a lavish spread
-			TASTE_YUYUKO = new PartyTaste(10, 0, 250, 1, 500, 1000, 400, 60, 160, 0.05, 0.01);
+			TASTE_YUYUKO = new PartyTaste(10, 0, 250, 1, 500, 1000, 500, 20, 80, 0.05, 0.01);
 		}
 
 		//gift
@@ -164,8 +164,6 @@ public class GLEntities {
 					GiftType.ALCOHOL, 2.0,
 					GiftType.DRINK, 2.0,
 					GiftType.FOOD, 2.0,
-					GiftType.BOOK, 1.5,
-					GiftType.COLLECTION, 1.5,
 					GiftType.MAGIC, 0.5,
 					GiftType.TOOL, 0.0
 			));
