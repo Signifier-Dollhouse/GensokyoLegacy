@@ -6,7 +6,6 @@ import dev.xkmc.gensokyolegacy.content.entity.dolls.BaseDollEntity;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.impl.DollModule;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
-import dev.xkmc.gensokyolegacy.init.registrate.GLEffects;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -15,9 +14,6 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
-import net.minecraft.world.effect.MobEffectCategory;
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
@@ -43,12 +39,6 @@ public class GhostEntity extends BaseDollEntity implements GhostVariantHolder, G
 	public static final EntityDataAccessor<Integer> DATA_POWER =
 			SynchedEntityData.defineId(GhostEntity.class, EntityDataSerializers.INT);
 
-	private static final int AURA_INTERVAL = 20;
-	private static final int AURA_DURATION = 60;
-	private static final int CURIOS_INTERVAL = 60;
-	private static final int CURIOS_DECAY_INTERVAL = 40;
-	private static final int OTHER_DECAY_INTERVAL = 20;
-	private static final int CURIOS_SKILL_COST = 50;
 	private static final double ABILITY_RANGE = 16.0;
 
 	private static final RawAnimation IDLE = RawAnimation.begin().thenLoop("idle");
@@ -103,13 +93,15 @@ public class GhostEntity extends BaseDollEntity implements GhostVariantHolder, G
 		if (level().isClientSide() || isRemoved()) return;
 		LivingEntity owner = getOwner();
 		if (owner == null || !owner.isAlive() || owner.level() != level() || owner.isSpectator()) return;
-		if (getPower() < GhostPower.LEAVE_THRESHOLD && owner instanceof ServerPlayer sp) {
+		GhostVariant variant = getVariant();
+		if (getPower() < GhostPower.LEAVE_THRESHOLD && variant.handler.leavesWhenWeak()
+				&& owner instanceof ServerPlayer sp) {
 			leaveOwner(sp);
 			return;
 		}
-		tickPower();
+		variant.handler.tick(this);
 		if (distanceToSqr(owner) > ABILITY_RANGE * ABILITY_RANGE) return;
-		tickAuras(owner);
+		variant.handler.aura(this, owner);
 	}
 
 	/**
@@ -120,55 +112,6 @@ public class GhostEntity extends BaseDollEntity implements GhostVariantHolder, G
 		if (GLMeta.DOLL.type().getOrCreate(owner).release(owner, this)) {
 			owner.displayClientMessage(GLLang.Ghost.LEFT.get(), true);
 		}
-	}
-
-	private void tickPower() {
-		int interval = getVariant() == GhostVariant.CURIOS ? CURIOS_DECAY_INTERVAL : OTHER_DECAY_INTERVAL;
-		if (tickCount % interval == 0) addPower(-1);
-	}
-
-	private void tickAuras(LivingEntity owner) {
-		if (getPower() <= 0) return;
-		if (tickCount % AURA_INTERVAL == 0) {
-			switch (getVariant()) {
-				case FOODIE -> owner.addEffect(new MobEffectInstance(GLEffects.FOODIE,
-						AURA_DURATION, 0, true, true, true));
-				case LIVELY -> {
-					owner.addEffect(new MobEffectInstance(MobEffects.DIG_SPEED,
-							AURA_DURATION, 1, true, true, true));
-					owner.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED,
-							AURA_DURATION, 1, true, true, true));
-					owner.addEffect(new MobEffectInstance(GLEffects.LIVELY,
-							AURA_DURATION, 0, true, true, true));
-				}
-				case CURIOS -> {
-				}
-			}
-		}
-		if (getVariant() == GhostVariant.CURIOS && tickCount % CURIOS_INTERVAL == 0
-				&& getPower() >= CURIOS_SKILL_COST) {
-			if (cleanseLongest(owner)) addPower(-CURIOS_SKILL_COST);
-		}
-	}
-
-	/**
-	 * One harmful effect per pulse, the one with the most time left, so a long debuff is worked
-	 * down before a short one that would have expired on its own anyway.
-	 */
-	private boolean cleanseLongest(LivingEntity owner) {
-		MobEffectInstance target = null;
-		for (MobEffectInstance effect : owner.getActiveEffects()) {
-			if (effect.getEffect().value().getCategory() != MobEffectCategory.HARMFUL) continue;
-			if (target == null || remaining(effect) > remaining(target)) target = effect;
-		}
-		if (target == null) return false;
-		owner.removeEffect(target.getEffect());
-		level().broadcastEntityEvent(this, EVENT_SKILL);
-		return true;
-	}
-
-	private static int remaining(MobEffectInstance effect) {
-		return effect.getDuration() < 0 ? Integer.MAX_VALUE : effect.getDuration();
 	}
 
 	@Override

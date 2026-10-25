@@ -47,6 +47,7 @@ public class DollEventHandlers {
 
 	@SubscribeEvent
 	public static void onPlayerDeath(LivingDeathEvent event) {
+		if (event.isCanceled()) return;
 		if (event.getEntity() instanceof ServerPlayer sp) {
 			GLMeta.DOLL.type().getOrCreate(sp).onPlayerDeath(sp);
 		}

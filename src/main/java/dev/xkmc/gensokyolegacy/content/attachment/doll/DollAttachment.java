@@ -584,6 +584,20 @@ public class DollAttachment extends PlayerCapabilityTemplate<DollAttachment> imp
 		return best;
 	}
 
+	/**
+	 * Every loaded ghost this player has summoned, as a snapshot: the caller may absorb or release
+	 * them while iterating.
+	 */
+	public List<GhostEntity> summonedGhosts(ServerPlayer player) {
+		List<GhostEntity> ans = new ArrayList<>();
+		for (DollData data : dolls.values()) {
+			if (!data.isSummoned() || !GhostEntity.TYPE.equals(data.type)) continue;
+			if (!(player.serverLevel().getEntity(data.uuid) instanceof GhostEntity ghost)) continue;
+			if (ghost.isAlive() && ghost.isOwner(player)) ans.add(ghost);
+		}
+		return ans;
+	}
+
 	private boolean doSummon(ServerPlayer player, DollData data, @Nullable UUID oldKey) {
 		BaseDollEntity doll = DollSpawn.materialize(player.serverLevel(), player, data);
 		if (doll == null) return false;

@@ -10,6 +10,7 @@ import dev.xkmc.gensokyolegacy.content.cooldown.LivelySource;
 import dev.xkmc.gensokyolegacy.content.dimension.GLDimensionGen;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.move.YoukaiNodeEvaluatorRegistry;
 import dev.xkmc.gensokyolegacy.content.item.dagger.DaggerGloveSelectionListener;
+import dev.xkmc.gensokyolegacy.content.item.doll.YuyukoFanItem;
 import dev.xkmc.gensokyolegacy.content.item.doll.YuyukoFanSelectionListener;
 import dev.xkmc.gensokyolegacy.content.item.glove.DollGloveSelectionListener;
 import dev.xkmc.gensokyolegacy.content.item.hexbrew.HexBrew;
@@ -51,6 +52,7 @@ import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
+import net.neoforged.neoforge.event.ModifyDefaultComponentsEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import terrablender.api.Regions;
@@ -117,6 +119,12 @@ public class GensokyoLegacy {
 		var hexBottles = Arrays.stream(HexBrew.values()).map(e -> e.bottle.asItem()).toArray(Item[]::new);
 		event.registerItem(Capabilities.FluidHandler.ITEM, (stack, ctx) -> new HexBrewWrapper(stack),
 				hexBottles);
+	}
+
+	@SubscribeEvent
+	public static void modifyDefaultComponents(ModifyDefaultComponentsEvent event) {
+		event.modify(GLItems.YUYUKO_FAN.get(), builder ->
+				builder.set(GLItems.SPIRITUAL_POWER_MAX.get(), YuyukoFanItem.MAX_POWER));
 	}
 
 	@SubscribeEvent

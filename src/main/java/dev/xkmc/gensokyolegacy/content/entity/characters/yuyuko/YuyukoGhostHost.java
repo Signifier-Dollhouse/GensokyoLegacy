@@ -114,7 +114,7 @@ public class YuyukoGhostHost extends AbstractYoukaiModule implements DollLedger 
 		if (!(owner.level() instanceof ServerLevel sl)) return;
 		if (owner.isDeadOrDying() || owner.isRemoved()) return;
 		boolean repaired = reconcile(sl);
-		if (repaired || ghosts.size() < GhostVariant.values().length || sl.getGameTime() % CONJURE_INTERVAL == 0)
+		if (repaired || ghosts.size() < GhostVariant.wildValues().length || sl.getGameTime() % CONJURE_INTERVAL == 0)
 			conjure(sl);
 		orbit(sl);
 	}
@@ -138,7 +138,7 @@ public class YuyukoGhostHost extends AbstractYoukaiModule implements DollLedger 
 	 * Brings one ghost of each variant back, materializing a parked entry before minting a new one.
 	 */
 	private void conjure(ServerLevel sl) {
-		for (GhostVariant variant : GhostVariant.values()) {
+		for (GhostVariant variant : GhostVariant.wildValues()) {
 			DollData data = byVariant(variant);
 			if (data == null) {
 				data = entry(variant);
@@ -218,7 +218,7 @@ public class YuyukoGhostHost extends AbstractYoukaiModule implements DollLedger 
 
 	private Vec3 orbitPos(int index) {
 		double time = owner.tickCount * 0.04;
-		double angle = time + index * Math.PI * 2 / GhostVariant.values().length;
+		double angle = time + index * Math.PI * 2 / GhostVariant.wildValues().length;
 		double y = ORBIT_HEIGHT + Math.sin(time * 1.7 + index) * 0.2;
 		return owner.position().add(Math.cos(angle) * ORBIT_RADIUS, y, Math.sin(angle) * ORBIT_RADIUS);
 	}

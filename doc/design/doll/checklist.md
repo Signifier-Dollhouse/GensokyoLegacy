@@ -21,18 +21,20 @@ Summons (API + the ghost, see summon.md and stray.md):
 - `content/entity/dolls/behavior/DollBehaviorRegistry.java` — `registerIntrinsic`: a binding keyed on the doll's class, for the one move a loadout-free summon owns (§4)
 
 Ghosts and wild strays (done — stray.md):
-- `content/entity/dolls/ghost/GhostEntity.java` — the owned support summon, `BaseDollEntity` + `GhostVariantHolder`, `nature() == SUMMON`, no item; auras live in `tickAuras()`
+- `content/entity/dolls/ghost/GhostEntity.java` — the owned support summon, `BaseDollEntity` + `GhostVariantHolder`, `nature() == SUMMON`, no item; variant behaviour delegated to `GhostVariantHandler`
 - `content/entity/dolls/StrayFlyingMob.java` — shared flying body for both wild types: flying navigation/move control, no gravity, one-block hover like the plain fairy
 - `content/entity/dolls/goals/HoverStrollGoal.java` — air-target wander that bypasses `FlyingPathNavigation.isStableDestination`
 - `content/entity/dolls/ghost/StrayGhostEntity.java` — the wild ownerless ghost, `StrayFlyingMob`, fully passive, persistent, variant-bearing
-- `content/entity/dolls/ghost/GhostVariant.java` + `GhostVariantHolder.java` — `CURIOS` / `FOODIE` / `LIVELY`, synced id, texture stem, display name
+- `content/entity/dolls/ghost/GhostVariant.java` + `GhostVariantHolder.java` — `CURIOS` / `FOODIE` / `LIVELY` / `DUAL`, synced id, texture stem, display name; each constant holds a `GhostVariantHandler` (`CuriosGhostHandler`, `FoodieGhostHandler`, `LivelyGhostHandler`, `DualGhostHandler`)
 - `content/entity/dolls/ghost/GhostVariantModule.java` — mirrors the synced id into `DollData.variant` across park/resummon
 - `content/entity/dolls/StrayDollEntity.java` — the wild neutral doll, `StrayFlyingMob`, own entity type and spawn egg
 - `content/item/doll/BoneFluteItem.java` — adopt a stray ghost / release an owned ghost
+- `content/item/spiritual/SpiritualPower.java` + `content/item/doll/YuyukoFanItem.java`, `YuyukoFanMode.java`, `SummonFanHandler.java`, `AbsorbFanHandler.java` — the universal spiritual pool and the fan's two modes (ghost_power.md §4)
 - `content/entity/dolls/render/GhostModel.java`, `GhostRenderer.java`, `StrayGhostModel.java`, `StrayGhostRenderer.java`, `StrayDollModel.java`, `StrayDollRenderer.java`
 - `content/effect/FoodieEffect.java` — the per-second hunger→saturation conversion (stray.md §7.4)
-- `event/GhostEventHandlers.java` — `LivingEntityUseItemEvent.Tick` for the 2× eating speed
-- assets — `geo/ghost.geo.json`, `animations/ghost.animation.json`, `textures/geo/ghost/{curios,foodie,lively}_ghost.png`, `textures/item/tool/bone_flute.png`; the wild doll reuses `geo/doll.geo.json`, `animations/doll.animation.json` and `textures/geo/doll/red.png`
+- `event/GhostEventHandlers.java` — the high-priority dual-ghost death ward
+- `event/MobEffectEventHandlers.java` — `LivingEntityUseItemEvent.Tick` for the 2× eating speed
+- assets — `geo/ghost.geo.json`, `animations/ghost.animation.json`, `textures/geo/ghost/{curios,foodie,lively,dual}_ghost.png`, `textures/item/tool/bone_flute.png`; the wild doll reuses `geo/doll.geo.json`, `animations/doll.animation.json` and `textures/geo/doll/red.png`
 - `content/entity/dolls/ghost/package-info.java` — nullability annotation for the new subpackage
 
 Gadgets (done — the Sekibanki head, gadget.md):
@@ -70,7 +72,8 @@ Implemented — glove (item, 6 modes with heal/stop hidden, wheel, target cache 
 - `init/registrate/GLEntities.java` — `STRAY_DOLL`, `STRAY_GHOST` (`MONSTER`, spawn eggs), `GHOST` (`MISC`, no egg); renderers, attributes, no-loot tables (wild only; `MISC` cannot have one), carry-on tag (stray.md §10.1) — done
 - `init/registrate/GLItems.java` — `BONE_FLUTE` item, creative tab (stray.md §8.3) — done
 - `init/data/GLLang.java` — bone-flute tooltip/messages, ghost variant names, `Ghost.NOT_YOURS`/`BIND_FAIL`/`RELEASE_FAIL` (stray.md §10.2) — done
-- `event/GhostEventHandlers.java` — `LivingEntityUseItemEvent.Tick` only; the foodie conversion lives on the effect, so `PlayerMixin` is unchanged (stray.md §7.4) — done
+- `event/MobEffectEventHandlers.java` — `LivingEntityUseItemEvent.Tick` only; the foodie conversion lives on the effect, so `PlayerMixin` is unchanged (stray.md §7.4) — done
+- `event/GhostEventHandlers.java` — the high-priority dual-ghost death ward (ghost_power.md §5) — done
 - `content/attachment/doll/DollCommander.java` — no timeout sweep: expiry is the kind's own bookkeeping, and the commander only drops entries it is told to (summon.md §5)
 - `content/attachment/doll/DollSpawn.java` — stamps the entity's `nature()` onto the materialized entry (summon.md §1)
 - `content/attachment/doll/DollHost.java` — `detach(UUID)` for stray cuts, `onDeath` hook; `StrayHost.java` holds the detached entry, answers pairing, hands it over one-shot via `take()`, persists via chunk save/load (control.md §5.4), and mints no item for a summon (summon.md §3); `DelegateDollHost.java` — the whole surface forwarded to a host kept elsewhere, so a character answers as the host with one `dolls()` method (host.md §1)
@@ -107,6 +110,7 @@ Run `./gradlew runData` (commit generated output), then `organize.ResourceOrgani
 | `GLEffects` | `FOODIE` beneficial effect (`FoodieEffect`) (stray.md §7.4) | Registrate | done |
 | `GLItems` | `DOLL_GLOVE` item, `DOLL_GLOVE_MODE` DCVal | Registrate | done |
 | `GLItems` | `MINI_SHIELD` item, a doll-only shield (item.md §10) | Registrate | done |
+| `GLItems` | `SPIRITUAL_POWER` / `SPIRITUAL_POWER_MAX` components, `YUYUKO_FAN_MODE` DCVal (ghost_power.md §4) | Registrate | done |
 | `GLMeta` (`ATT.player`) | `DOLL` player capability → `DollAttachment` | attachment | done |
 | `HANDLER` (l2serial) | `SelectorSelectPacket` (shared wheel pick), `GloveTargetPacket` (shared cache, glove.md §2) | mod constructor | done |
 | item selector | `DollGloveSelectionListener.register()` | mod constructor (next to `BorderUmbrellaSelectionListener`) | done |

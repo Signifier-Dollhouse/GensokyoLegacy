@@ -14,7 +14,6 @@ import dev.xkmc.gensokyolegacy.content.block.functional.portal.PortalSide;
 import dev.xkmc.gensokyolegacy.content.client.model.HatModel;
 import dev.xkmc.gensokyolegacy.content.client.model.SuwakoHatModel;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.SekibankiHeadEntity;
-import dev.xkmc.gensokyolegacy.content.entity.dolls.ghost.GhostVariant;
 import dev.xkmc.gensokyolegacy.content.item.character.*;
 import dev.xkmc.gensokyolegacy.content.item.dagger.DaggerGloveItem;
 import dev.xkmc.gensokyolegacy.content.item.dagger.DaggerGloveMode;
@@ -165,11 +164,10 @@ public class GLItems {
 	public static final DCVal<DaggerGloveMode> DAGGER_GLOVE_MODE = DC.enumVal("dagger_glove_mode", EnumCodec.of(DaggerGloveMode.class, DaggerGloveMode.values()));
 	public static final DCVal<ResourceLocation> DAGGER_GLOVE_RUNE = DC.loc("dagger_glove_rune");
 	public static final DCVal<Unit> DAGGER_GLOVE_ICON = DC.unit("dagger_glove_icon");
-	public static final DCVal<Integer> YUYUKO_FAN_CURIOS = DC.intVal("yuyuko_fan_curios");
-	public static final DCVal<Integer> YUYUKO_FAN_FOODIE = DC.intVal("yuyuko_fan_foodie");
-	public static final DCVal<Integer> YUYUKO_FAN_LIVELY = DC.intVal("yuyuko_fan_lively");
-	public static final DCVal<GhostVariant> YUYUKO_FAN_TYPE =
-			DC.enumVal("yuyuko_fan_type", EnumCodec.of(GhostVariant.class, GhostVariant.values()));
+	public static final DCVal<Integer> SPIRITUAL_POWER = DC.intVal("spiritual_power");
+	public static final DCVal<Integer> SPIRITUAL_POWER_MAX = DC.intVal("spiritual_power_max");
+	public static final DCVal<YuyukoFanMode> YUYUKO_FAN_MODE =
+			DC.enumVal("yuyuko_fan_mode", EnumCodec.of(YuyukoFanMode.class, YuyukoFanMode.values()));
 	public static final DCVal<PartyWandData> PARTY_WAND_DATA = DC.reg("party_wand", PartyWandData.CODEC,
 			ByteBufCodecs.fromCodecWithRegistries(PartyWandData.CODEC), false);
 

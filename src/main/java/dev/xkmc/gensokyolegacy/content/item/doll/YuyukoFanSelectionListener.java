@@ -1,7 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.item.doll;
 
-import dev.xkmc.gensokyolegacy.content.entity.dolls.ghost.GhostVariant;
-import dev.xkmc.gensokyolegacy.content.item.doll.client.YuyukoFanTypeWheel;
+import dev.xkmc.gensokyolegacy.content.item.doll.client.YuyukoFanModeWheel;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.l2itemselector.select.item.IItemSelector;
 import dev.xkmc.l2itemselector.wheel.WheelAdaptor;
@@ -15,8 +14,8 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Selector listener for the {@link YuyukoFanItem}'s ghost type, mirroring the dagger glove's mode
- * wheel. Every type is always listed, so the list never changes shape.
+ * Selector listener for the {@link YuyukoFanItem}'s mode, mirroring the dagger glove's mode wheel.
+ * Both modes are always listed, so the list never changes shape.
  *
  * @see "doc/design/doll/ghost_power.md"
  */
@@ -49,35 +48,34 @@ public class YuyukoFanSelectionListener extends IItemSelector implements WheelAd
 
 	@Override
 	public int getIndex(Player player, ItemStack stack) {
-		return YuyukoFanItem.getType(stack).ordinal();
+		return YuyukoFanItem.getMode(stack).ordinal();
 	}
 
 	@Override
 	public List<ItemStack> getList(ItemStack stack) {
 		List<ItemStack> list = new ArrayList<>();
-		for (GhostVariant type : GhostVariant.values()) {
-			list.add(YuyukoFanItem.iconStack(type));
+		for (YuyukoFanMode mode : YuyukoFanMode.values()) {
+			list.add(YuyukoFanItem.iconStack(mode));
 		}
 		return list;
 	}
 
 	@Override
 	public int getSelHash(ItemStack stack) {
-		return GhostVariant.values().length;
+		return YuyukoFanMode.values().length;
 	}
 
 	@Override
 	public int move(int i, Player player, ItemStack stack) {
-		var types = GhostVariant.values();
-		return Math.floorMod(YuyukoFanItem.getType(stack).ordinal() + i, types.length);
+		var modes = YuyukoFanMode.values();
+		return Math.floorMod(YuyukoFanItem.getMode(stack).ordinal() + i, modes.length);
 	}
 
 	@Override
 	public void swap(Player sender, int index, ItemStack stack) {
 		ItemStack held = getHeldFan(sender);
 		if (held == null) return;
-		var types = GhostVariant.values();
-		YuyukoFanItem.setType(held, index < 0 || index >= types.length ? GhostVariant.CURIOS : types[index]);
+		YuyukoFanItem.setMode(held, YuyukoFanMode.byId(index));
 	}
 
 	@Override
@@ -85,7 +83,7 @@ public class YuyukoFanSelectionListener extends IItemSelector implements WheelAd
 		if (player == null) return Optional.empty();
 		ItemStack stack = getHeldFan(player);
 		if (stack == null) return Optional.empty();
-		if (wheelIndex == 0) return Optional.of(new YuyukoFanTypeWheel(stack));
+		if (wheelIndex == 0) return Optional.of(new YuyukoFanModeWheel(stack));
 		return Optional.empty();
 	}
 

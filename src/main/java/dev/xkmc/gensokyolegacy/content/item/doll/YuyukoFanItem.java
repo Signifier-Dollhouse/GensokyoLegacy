@@ -1,26 +1,20 @@
 package dev.xkmc.gensokyolegacy.content.item.doll;
 
 import dev.xkmc.gensokyolegacy.content.attachment.doll.DollAttachment;
-import dev.xkmc.gensokyolegacy.content.attachment.doll.DollSpawn;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.ghost.GhostEntity;
-import dev.xkmc.gensokyolegacy.content.entity.dolls.ghost.GhostPower;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.ghost.GhostPowerHolder;
-import dev.xkmc.gensokyolegacy.content.entity.dolls.ghost.GhostVariant;
-import dev.xkmc.gensokyolegacy.content.entity.dolls.ghost.GhostVariantHolder;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.ghost.StrayGhostEntity;
+import dev.xkmc.gensokyolegacy.content.item.spiritual.SpiritualPower;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
-import dev.xkmc.gensokyolegacy.init.registrate.GLEntities;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
 import dev.xkmc.l2itemselector.init.data.L2Keys;
 import net.minecraft.ChatFormatting;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
-import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
@@ -28,20 +22,23 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.SpawnEggItem;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 
 import java.util.List;
 
 /**
- * Yuyuko's fan stores ghost power by type. Right-click a ghost to absorb it; right-click air to
- * summon the selected type at full power or top up an existing one. Absorbing an owned ghost
- * with a full fan releases it instead.
+ * Yuyuko's fan spends one spiritual power pool on any ghost: absorb a ghost, or tend every summoned
+ * one. The two modes are all ghosts at once rather than one selected type.
  *
  * @see "doc/design/doll/ghost_power.md"
  */
 public class YuyukoFanItem extends Item {
+
+	/**
+	 * Intrinsic capacity stamped onto every fan; other spiritual items pick their own.
+	 */
+	public static final int MAX_POWER = 10000;
 
 	private static final int COOLDOWN = 10;
 
@@ -49,40 +46,16 @@ public class YuyukoFanItem extends Item {
 		super(properties);
 	}
 
-	public static GhostVariant getType(ItemStack stack) {
-		return GLItems.YUYUKO_FAN_TYPE.getOrDefault(stack, GhostVariant.CURIOS);
+	public static YuyukoFanMode getMode(ItemStack stack) {
+		return GLItems.YUYUKO_FAN_MODE.getOrDefault(stack, YuyukoFanMode.SUMMON);
 	}
 
-	public static void setType(ItemStack stack, GhostVariant type) {
-		GLItems.YUYUKO_FAN_TYPE.set(stack, type);
+	public static void setMode(ItemStack stack, YuyukoFanMode mode) {
+		GLItems.YUYUKO_FAN_MODE.set(stack, mode);
 	}
 
-	public static int getPower(ItemStack stack, GhostVariant type) {
-		return switch (type) {
-			case CURIOS -> GLItems.YUYUKO_FAN_CURIOS.getOrDefault(stack, 0);
-			case FOODIE -> GLItems.YUYUKO_FAN_FOODIE.getOrDefault(stack, 0);
-			case LIVELY -> GLItems.YUYUKO_FAN_LIVELY.getOrDefault(stack, 0);
-		};
-	}
-
-	public static void setPower(ItemStack stack, GhostVariant type, int power) {
-		int value = Mth.clamp(power, 0, GhostPower.FAN_CAPACITY);
-		switch (type) {
-			case CURIOS -> GLItems.YUYUKO_FAN_CURIOS.set(stack, value);
-			case FOODIE -> GLItems.YUYUKO_FAN_FOODIE.set(stack, value);
-			case LIVELY -> GLItems.YUYUKO_FAN_LIVELY.set(stack, value);
-		}
-	}
-
-	/**
-	 * A selector icon for one ghost type: the stray ghost egg, named after the type, because every
-	 * type shares the same fan item model.
-	 */
-	public static ItemStack iconStack(GhostVariant type) {
-		SpawnEggItem egg = SpawnEggItem.byId(GLEntities.STRAY_GHOST.get());
-		ItemStack stack = egg == null ? new ItemStack(GLItems.YUYUKO_FAN.get()) : new ItemStack(egg);
-		stack.set(DataComponents.ITEM_NAME, type.getDisplayName());
-		return stack;
+	public static ItemStack iconStack(YuyukoFanMode mode) {
+		return mode.icon();
 	}
 
 	@Override
@@ -94,20 +67,20 @@ public class YuyukoFanItem extends Item {
 		if (player.level().isClientSide()) return InteractionResult.SUCCESS;
 		if (!(player instanceof ServerPlayer sp)) return InteractionResult.PASS;
 		if (sp.getCooldowns().isOnCooldown(this)) return InteractionResult.FAIL;
-		GhostVariantHolder holder = (GhostVariantHolder) target;
-		GhostVariant type = holder.getVariant();
-		int stored = getPower(stack, type);
+		int max = SpiritualPower.max(stack);
+		int stored = SpiritualPower.get(stack);
+		if (max <= 0) return InteractionResult.FAIL;
 		if (owned) {
 			GhostEntity ghost = (GhostEntity) target;
 			if (!ghost.isOwner(sp)) {
 				sp.displayClientMessage(GLLang.Ghost.NOT_YOURS.get(), true);
 				return InteractionResult.FAIL;
 			}
-			if (stored >= GhostPower.FAN_CAPACITY) {
+			if (stored >= max) {
 				return release(sp, ghost, hand);
 			}
 		}
-		if (stored >= GhostPower.FAN_CAPACITY) {
+		if (stored >= max) {
 			sp.displayClientMessage(GLLang.Ghost.FAN_FULL.get(), true);
 			return InteractionResult.FAIL;
 		}
@@ -116,7 +89,7 @@ public class YuyukoFanItem extends Item {
 			sp.displayClientMessage(GLLang.Ghost.NO_POWER.get(), true);
 			return InteractionResult.FAIL;
 		}
-		int take = Math.min(power, GhostPower.FAN_CAPACITY - stored);
+		int take = Math.min(power, max - stored);
 		if (owned) {
 			GhostEntity ghost = (GhostEntity) target;
 			if (!GLMeta.DOLL.type().getOrCreate(sp).absorb(sp, ghost)) {
@@ -127,7 +100,7 @@ public class YuyukoFanItem extends Item {
 			target.discard();
 		}
 		// Vanilla hands creative players a copy of the stack; write the held one so the power sticks.
-		setPower(sp.getItemInHand(hand), type, stored + take);
+		SpiritualPower.add(sp.getItemInHand(hand), take);
 		sp.displayClientMessage(GLLang.Ghost.ABSORBED.get(take), true);
 		play(sp, 1.2F);
 		sp.getCooldowns().addCooldown(this, COOLDOWN);
@@ -157,41 +130,8 @@ public class YuyukoFanItem extends Item {
 		if (level.isClientSide()) return InteractionResultHolder.sidedSuccess(stack, true);
 		if (!(player instanceof ServerPlayer sp)) return InteractionResultHolder.fail(stack);
 		if (sp.getCooldowns().isOnCooldown(this)) return InteractionResultHolder.fail(stack);
-		GhostVariant type = getType(stack);
-		int stored = getPower(stack, type);
 		DollAttachment att = GLMeta.DOLL.type().getOrCreate(sp);
-		GhostEntity existing = att.findSummonedGhost(sp, type);
-		if (existing != null) {
-			int need = GhostPower.MAX - existing.getPower();
-			if (need <= 0) {
-				sp.displayClientMessage(GLLang.Ghost.ALREADY_FULL.get(), true);
-				return InteractionResultHolder.fail(stack);
-			}
-			if (stored <= 0) {
-				sp.displayClientMessage(GLLang.Ghost.FAN_EMPTY.get(), true);
-				return InteractionResultHolder.fail(stack);
-			}
-			int spend = Math.min(need, stored);
-			existing.addPower(spend);
-			setPower(stack, type, stored - spend);
-			sp.displayClientMessage(GLLang.Ghost.REFILLED.get(spend), true);
-			return used(sp, stack, hand);
-		}
-		if (stored < GhostPower.SUMMON_COST) {
-			sp.displayClientMessage(GLLang.Ghost.FAN_EMPTY.get(), true);
-			return InteractionResultHolder.fail(stack);
-		}
-		if (att.summonCapped()) {
-			sp.displayClientMessage(GLLang.Doll.TOO_MANY.get(DollAttachment.MAX_SUMMONED), true);
-			return InteractionResultHolder.fail(stack);
-		}
-		var pos = DollSpawn.ringPos(sp, att.summonedCount(), DollAttachment.MAX_SUMMONED);
-		if (!att.summonGhost(sp, type, pos)) {
-			sp.displayClientMessage(GLLang.Ghost.SUMMON_FAIL.get(), true);
-			return InteractionResultHolder.fail(stack);
-		}
-		setPower(stack, type, stored - GhostPower.SUMMON_COST);
-		sp.displayClientMessage(GLLang.Ghost.SUMMONED.get(type.getDisplayName()), true);
+		if (!getMode(stack).handler.use(sp, stack, att)) return InteractionResultHolder.fail(stack);
 		return used(sp, stack, hand);
 	}
 
@@ -211,17 +151,14 @@ public class YuyukoFanItem extends Item {
 	@Override
 	public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> list, TooltipFlag flag) {
 		list.add(GLLang.ItemLores.YUYUKO_FAN_LORE.get());
+		SpiritualPower.appendHoverText(stack, list);
 		list.add(GLLang.ItemYuyukoFan.ABSORB.get());
 		list.add(GLLang.ItemYuyukoFan.SUMMON.get());
+		list.add(GLLang.ItemYuyukoFan.ABSORB_ALL.get());
 		list.add(GLLang.ItemYuyukoFan.RELEASE.get());
-		GhostVariant selected = getType(stack);
-		list.add(GLLang.ItemYuyukoFan.SELECTED.get(selected.getDisplayName()));
+		list.add(GLLang.ItemYuyukoFan.SELECTED.get(getMode(stack).getDisplayName()));
 		list.add(GLLang.ItemGlove.WHEEL.get(L2Keys.WHEEL.map.getKey().getDisplayName())
 				.withStyle(ChatFormatting.GRAY));
-		for (GhostVariant type : GhostVariant.values()) {
-			list.add(GLLang.ItemYuyukoFan.STORED.get(type.getDisplayName(),
-					getPower(stack, type), GhostPower.FAN_CAPACITY));
-		}
 	}
 
 }

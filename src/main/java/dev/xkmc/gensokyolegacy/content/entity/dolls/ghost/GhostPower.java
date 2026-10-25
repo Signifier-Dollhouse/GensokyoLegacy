@@ -29,11 +29,6 @@ public final class GhostPower {
 	public static final int LEAVE_THRESHOLD = 200;
 
 	/**
-	 * The fan holds this much of each ghost type.
-	 */
-	public static final int FAN_CAPACITY = 10000;
-
-	/**
 	 * Never let the model vanish completely: a spent ghost is still a faint outline.
 	 */
 	public static final float MIN_ALPHA = 0.05F;

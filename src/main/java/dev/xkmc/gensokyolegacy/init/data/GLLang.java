@@ -1003,25 +1003,68 @@ public final class GLLang {
 		}
 	}
 
+	public enum Spiritual implements LangEntry {
+		BAR("Spiritual Power: %s / %s", 2, ChatFormatting.AQUA);
+
+		private final String def;
+		private final int argn;
+		private final String key;
+		private final @Nullable ChatFormatting format;
+
+		Spiritual(String def, int argn, @Nullable ChatFormatting format) {
+			this.def = def;
+			this.argn = argn;
+			this.key = GensokyoLegacy.MODID + ".spiritual." + name().toLowerCase(Locale.ROOT);
+			this.format = format;
+		}
+
+		@Override
+		public String key() {
+			return key;
+		}
+
+		@Override
+		public String def() {
+			return def;
+		}
+
+		@Override
+		public int argn() {
+			return argn;
+		}
+
+		@Override
+		public @Nullable ChatFormatting format() {
+			return format;
+		}
+	}
+
 	public enum Ghost implements LangEntry {
 		CURIOS("Curios Ghost"),
 		FOODIE("Foodie Ghost"),
 		LIVELY("Lively Ghost"),
+		DUAL("Dual Ghost"),
 		NOT_YOURS("This ghost is not yours", 0, ChatFormatting.RED),
 		BIND_FAIL("The ghost resists the flute", 0, ChatFormatting.RED),
 		RELEASE_FAIL("The ghost cannot be released", 0, ChatFormatting.RED),
 		TOO_WEAK("A ghost below %s power cannot be bound", 1, ChatFormatting.RED),
 		LEFT("The ghost's power is too low and it left you", 0, ChatFormatting.YELLOW),
-		FAN_FULL("The fan is full of that ghost's power", 0, ChatFormatting.RED),
+		FAN_FULL("The fan's spiritual power is full", 0, ChatFormatting.RED),
 		ALREADY_FULL("That ghost is already at full power", 0, ChatFormatting.GRAY),
-		FAN_EMPTY("Not enough stored power", 0, ChatFormatting.RED),
+		ALL_FULL("Every summoned ghost is already at full power", 0, ChatFormatting.GRAY),
+		FAN_EMPTY("No spiritual power stored", 0, ChatFormatting.RED),
 		NO_POWER("That ghost has no power left", 0, ChatFormatting.RED),
 		ABSORB_FAIL("The ghost's power cannot be absorbed", 0, ChatFormatting.RED),
-		ABSORBED("Absorbed %s power", 1),
-		REFILLED("Restored %s power", 1),
+		ABSORBED("Absorbed %s spiritual power", 1),
+		REFILLED("Restored %s spiritual power", 1),
 		RELEASED("The ghost is released", 0),
 		SUMMON_FAIL("The ghost cannot be summoned", 0, ChatFormatting.RED),
-		SUMMONED("Summoned a %s", 1);
+		SUMMONED("Summoned a %s", 1),
+		SUMMON_ALL("Summoned %s ghosts and restored %s spiritual power", 2),
+		ABSORB_ALL("Absorbed %s spiritual power from %s ghosts", 2),
+		RELEASED_ALL("Released %s ghosts", 1),
+		NO_GHOSTS("No summoned ghosts to absorb", 0, ChatFormatting.GRAY),
+		DUAL_WARD("A dual ghost vanished to save your life", 0, ChatFormatting.GOLD);
 
 		private final String def;
 		private final int argn;
@@ -1106,9 +1149,12 @@ public final class GLLang {
 	}
 
 	public enum ItemYuyukoFan implements LangEntry {
-		ABSORB("Right-click a ghost to absorb its power", 0, ChatFormatting.GRAY),
-		SUMMON("Right-click to refill a following ghost, or summon one at 1000 power if none of that type follows", 0, ChatFormatting.GRAY),
+		ABSORB("Right-click a ghost to absorb its spiritual power", 0, ChatFormatting.GRAY),
+		SUMMON("Summon mode: right-click to refill every summoned ghost and summon any missing kind", 0, ChatFormatting.GRAY),
+		ABSORB_ALL("Absorb mode: right-click to absorb every summoned ghost", 0, ChatFormatting.GRAY),
 		RELEASE("Absorbing an owned ghost with a full fan releases it instead", 0, ChatFormatting.GRAY),
+		MODE_SUMMON("Summon / Refill"),
+		MODE_ABSORB("Absorb All"),
 		SELECTED("Selected: %s", 1),
 		STORED("%s: %s / %s", 3, ChatFormatting.GRAY);
 
@@ -1203,7 +1249,7 @@ public final class GLLang {
 				Quest.values(), Info.values(), Trade.values(), Misc.values(),
 				ItemDebug.values(), ItemFurnace.values(), ItemLores.values(), ItemCommon.values(), ItemUmbrella.values(), ItemGlove.values(), ItemDaggerGlove.values(), Alchemy.values(), Jei.values(), JeiExtra.values(),
 				Talisman.values(), Doll.values(), Party.values(), ItemSekibankiHead.values(),
-				Ghost.values(), ItemBoneFlute.values(), ItemYuyukoFan.values()}) {
+				Spiritual.values(), Ghost.values(), ItemBoneFlute.values(), ItemYuyukoFan.values()}) {
 			for (var e : group) {
 				pvd.add(e.key(), e.def());
 			}
