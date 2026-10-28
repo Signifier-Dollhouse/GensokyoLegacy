@@ -201,21 +201,15 @@ public class PartyModule extends AbstractYoukaiModule {
 
 	/**
 	 * The other guest she stood up to talk to, while that conversation is pending or running.
-	 * Non-null is the whole of "chatting": the spot is where they meet, and
-	 * {@link #chatStartAt} being non-zero separates walking there from talking.
+	 * Non-null is the whole of "chatting"; {@link #chatStartAt} being non-zero separates the
+	 * walk over from the talk itself.
 	 */
 	@Nullable
 	@SerialField
 	private UUID chatPartner;
 
 	@SerialField
-	private BlockPos chatSpot;
-
-	@SerialField
 	private boolean chatLead;
-
-	@SerialField
-	private boolean chatArrived;
 
 	@SerialField
 	private int chatDuration;
@@ -493,17 +487,8 @@ public class PartyModule extends AbstractYoukaiModule {
 		return chatPartner;
 	}
 
-	@Nullable
-	public BlockPos chatSpot() {
-		return chatSpot;
-	}
-
 	public boolean chatLead() {
 		return chatLead;
-	}
-
-	public boolean chatArrived() {
-		return chatArrived;
 	}
 
 	public int chatDuration() {
@@ -515,21 +500,16 @@ public class PartyModule extends AbstractYoukaiModule {
 	}
 
 	/**
-	 * Stand her up and send her to meet {@code partner}. The chair claim is deliberately kept:
-	 * she comes back to the same seat when the conversation is over.
+	 * Send her to talk to {@code partner}. The initiator walks over; the other guest keeps her
+	 * chair until the initiator is close. Either way the chair claim is kept, so both come back
+	 * to their own seats when the conversation is over.
 	 */
-	public void beginChat(UUID partner, BlockPos spot, int duration, boolean lead) {
+	public void beginChat(UUID partner, int duration, boolean lead) {
 		chatPartner = partner;
-		chatSpot = spot.immutable();
 		chatDuration = Math.max(1, duration);
 		chatLead = lead;
-		chatArrived = false;
 		chatStartAt = 0;
 		rest = 0;
-	}
-
-	public void markChatArrived() {
-		chatArrived = true;
 	}
 
 	public void startChatting(long gameTime) {
@@ -546,9 +526,7 @@ public class PartyModule extends AbstractYoukaiModule {
 
 	private void clearChat() {
 		chatPartner = null;
-		chatSpot = null;
 		chatLead = false;
-		chatArrived = false;
 		chatDuration = 0;
 		chatStartAt = 0;
 	}

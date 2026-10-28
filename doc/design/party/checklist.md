@@ -43,7 +43,7 @@ Every file the feature creates and modifies, and the resources it generates.
 | `content/attachment/party/item/PartyMessage.java` | one place that turns an outcome into player-facing text |
 | `content/entity/behavior/module/PartyModule.java` | per-guest state, `arrive`/`join`/`beginLeave`/`completeLeave`, and `Origin` |
 | `content/entity/behavior/task/party/PartyTasks.java` | the 12-task cascade → delay → pickup → chew → chat → rest, and the exit |
-| `content/entity/behavior/task/party/ChatTask.java` | walk to the meeting spot, unseat, and hold the conversation until the driver ends it |
+| `content/entity/behavior/task/party/ChatTask.java` | the initiator walks to her partner; the other stands once she is close, and both hold the conversation until the driver ends it |
 | `content/rpg/condition/PartyCondition.java` | `{"type":"gensokyolegacy:party"}`, `invert` for home-bound |
 
 ## 2. Modified

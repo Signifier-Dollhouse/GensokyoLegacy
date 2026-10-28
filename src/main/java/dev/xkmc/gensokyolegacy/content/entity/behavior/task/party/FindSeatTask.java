@@ -19,7 +19,9 @@ public class FindSeatTask extends PartyTask {
 
 	@Override
 	protected boolean stillMine(SmartYoukaiEntity entity, PartyContext ctx) {
-		return !ctx.seated();
+		// a guest standing up for a talk keeps her chair claim but must not be sat down again
+		// in the gap between ChatTask runs; she goes back once the conversation is over
+		return !ctx.seated() && !ctx.chatting();
 	}
 
 	@Override

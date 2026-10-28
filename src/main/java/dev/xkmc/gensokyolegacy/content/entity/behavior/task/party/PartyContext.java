@@ -22,6 +22,7 @@ import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.UUID;
 
 /**
  * Every move a guest can be asked to make, over the state on {@link PartyModule}. This object
@@ -353,19 +354,15 @@ public class PartyContext {
 	}
 
 	@Nullable
-	public BlockPos chatSpot() {
-		return party.chatSpot();
+	public UUID chatPartner() {
+		return party.chatPartner();
 	}
 
 	/**
-	 * Whether she has reached the meeting spot.
+	 * Whether she is the one who walks over, as opposed to the one who waits on her chair.
 	 */
-	public boolean chatArrived() {
-		return party.chatArrived();
-	}
-
-	public void markChatArrived() {
-		party.markChatArrived();
+	public boolean chatLead() {
+		return party.chatLead();
 	}
 
 	/**
