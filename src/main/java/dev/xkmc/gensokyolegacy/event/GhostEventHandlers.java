@@ -32,10 +32,6 @@ public class GhostEventHandlers {
 		for (GhostEntity ghost : att.summonedGhosts(sp)) {
 			if (!ghost.getVariant().handler.wardDeath(sp, ghost, att)) continue;
 			event.setCanceled(true);
-			sp.setHealth(1.0F);
-			sp.displayClientMessage(GLLang.Ghost.DUAL_WARD.get(), true);
-			sp.level().playSound(null, sp.getX(), sp.getY(), sp.getZ(),
-					SoundEvents.TOTEM_USE, SoundSource.PLAYERS, 1.0F, 1.0F);
 			return;
 		}
 	}
