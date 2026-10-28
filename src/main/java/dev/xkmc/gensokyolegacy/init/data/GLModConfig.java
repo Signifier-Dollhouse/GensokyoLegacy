@@ -41,6 +41,7 @@ public class GLModConfig {
 		public final ModConfigSpec.DoubleValue morichikaReplaceChance;
 
 		public final ModConfigSpec.IntValue sealingPotRadius;
+		public final ModConfigSpec.DoubleValue jizoXpRatio;
 
 		public final ModConfigSpec.IntValue partyScanDistance;
 		public final ModConfigSpec.IntValue partyGuestRadius;
@@ -67,6 +68,8 @@ public class GLModConfig {
 			{
 				sealingPotRadius = builder.text("Radius in chunks of the area around sealing pot that prevents hostile natural mob spawning")
 						.defineInRange("sealingPotRadius", 4, 1, 8);
+				jizoXpRatio = builder.text("Spiritual power a Jizo restores per experience point when it takes one level and the current progress; 0.1 restores 10%")
+						.defineInRange("jizoXpRatio", 2d, 0, 100);
 			}
 			builder.pop();
 

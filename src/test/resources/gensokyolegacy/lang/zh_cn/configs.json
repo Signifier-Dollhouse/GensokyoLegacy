@@ -9,6 +9,8 @@
 	"gensokyolegacy.configuration.danmaku_battle": "弹幕战",
 	"gensokyolegacy.configuration.frogEatCountForHat": "青蛙掉落诹访子帽子需要吃掉的不同种类灾厄村民数量",
 	"gensokyolegacy.configuration.frogEatCountForHat.tooltip": " 默认：3\n 范围：1 ~ 10",
+	"gensokyolegacy.configuration.jizoXpRatio": "地藏收取一级经验及当前经验进度时，每点经验恢复的灵力；0.1 即恢复 10%",
+	"gensokyolegacy.configuration.jizoXpRatio.tooltip": " 默认：0.1\n 范围：0.0 ~ 100.0",
 	"gensokyolegacy.configuration.koishiAttackBlockCount": "获得帽子需要连续格挡恋恋攻击的次数",
 	"gensokyolegacy.configuration.koishiAttackBlockCount.tooltip": " 默认：3\n 范围：0 ~ 100",
 	"gensokyolegacy.configuration.koishiAttackChance": "每刻触发恋恋攻击的概率",

@@ -1199,6 +1199,52 @@ public final class GLLang {
 		}
 	}
 
+	public enum Jizo implements LangEntry {
+		NO_XP("Jizo needs a full level of experience to draw on", 0, ChatFormatting.RED),
+		FULL("That item cannot hold any more spiritual power", 0, ChatFormatting.RED),
+		RESTORED("Jizo restored %s spiritual power", 1);
+
+		private final String def;
+		private final int argn;
+		private final String key;
+		private final @Nullable ChatFormatting format;
+
+		Jizo(String def) {
+			this(def, 0, null);
+		}
+
+		Jizo(String def, int argn) {
+			this(def, argn, null);
+		}
+
+		Jizo(String def, int argn, @Nullable ChatFormatting format) {
+			this.def = def;
+			this.argn = argn;
+			this.key = GensokyoLegacy.MODID + ".jizo." + name().toLowerCase(Locale.ROOT);
+			this.format = format;
+		}
+
+		@Override
+		public String key() {
+			return key;
+		}
+
+		@Override
+		public String def() {
+			return def;
+		}
+
+		@Override
+		public int argn() {
+			return argn;
+		}
+
+		@Override
+		public @Nullable ChatFormatting format() {
+			return format;
+		}
+	}
+
 	public enum Doll implements LangEntry {
 		NO_SPACE("No inventory space"),
 		RESYNC_MISSING("Doll entity missing — restoring"),
@@ -1249,7 +1295,8 @@ public final class GLLang {
 				Quest.values(), Info.values(), Trade.values(), Misc.values(),
 				ItemDebug.values(), ItemFurnace.values(), ItemLores.values(), ItemCommon.values(), ItemUmbrella.values(), ItemGlove.values(), ItemDaggerGlove.values(), Alchemy.values(), Jei.values(), JeiExtra.values(),
 				Talisman.values(), Doll.values(), Party.values(), ItemSekibankiHead.values(),
-				Spiritual.values(), Ghost.values(), ItemBoneFlute.values(), ItemYuyukoFan.values()}) {
+				Spiritual.values(), Ghost.values(), ItemBoneFlute.values(), ItemYuyukoFan.values(),
+				Jizo.values()}) {
 			for (var e : group) {
 				pvd.add(e.key(), e.def());
 			}

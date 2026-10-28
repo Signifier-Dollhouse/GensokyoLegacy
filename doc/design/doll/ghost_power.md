@@ -104,7 +104,17 @@ true, so the event is canceled and the owner is set to 1 health. Running before
 `DollEventHandlers.onPlayerDeath` (NORMAL) keeps the remaining ghosts summoned: a saved death does
 not trigger the usual park-all pass.
 
-## 6. Debug readout
+## 6. Jizo offering
+
+Right-clicking a Jizo with an item that has a `spiritual_power_max` consumes one experience level
+and the current progress, then adds `consumed_points * GLModConfig.SERVER.jizoXpRatio` (default
+0.1) spiritual power to the stack. `ExperienceHelper` owns the level arithmetic: a level is worth
+the points needed to leave it plus the progress into it. The offer is refused when the item is
+already full or the player has no level to give, and the deduction runs through
+`giveExperiencePoints` so the XP change event still sees it. When the stack fills before the whole
+offer is stored, the XP for the overflow is given back, so only the stored power is paid for.
+
+## 7. Debug readout
 
 The debug wand's ghost click and the debug glasses' look-at overlay share `GhostDebugInfo`, which
 prints `Wild/Tamed <variant>: <power> / 1000 power`. Both read the synced accessors directly, so the
