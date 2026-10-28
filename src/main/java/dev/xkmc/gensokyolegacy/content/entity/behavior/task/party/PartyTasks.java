@@ -117,6 +117,7 @@ public final class PartyTasks {
 			new DelayTask(),
 			new PickupTask(),
 			new GoToFoodTask(),
+			new ChatTask(),
 			new RestTask(),
 			new FindFoodTask(),
 			new WaitTableTask(),
@@ -124,7 +125,7 @@ public final class PartyTasks {
 
 	/**
 	 * Register the party machine on a board. The director is an <i>always</i> task and so runs
-	 * alongside whichever of the eleven exclusive tasks is going; exactly one of those is.
+	 * alongside whichever of the twelve exclusive tasks is going; exactly one of those is.
 	 */
 	public static void register(TaskBoard board) {
 		board.addAlways(new PartyDirectorTask(), GLBrains.PARTY.get());

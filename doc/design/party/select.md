@@ -150,9 +150,12 @@ for (var type : BuiltInRegistries.ENTITY_TYPE) {
     if (taste == null) continue;                          // not party-eligible
     int rep = reputation.applyAsInt(type);
     pool.add(new PartyPlanner.Candidate(type,
-            PartyMath.weight(taste, area.appeal(), rep), taste.fulfillment(), rep));
+            PartyMath.weight(taste, area.appeal(), rep), taste.fulfillment(), rep,
+            chars.invited(type)));
 }
 ```
+
+The last field is the personal-invitation flag, spent by the send that actually puts her on the roster — send.md §1.
 
 `DEFAULT` survives as a **template to copy**, not a fallback — nothing reads it at
 runtime, and it exists so a datapack author has seven concrete numbers to start from
@@ -264,7 +267,8 @@ something. The spread's **appeal** never enters here — it is computed upstream
 reaches the planner only through the weights it produced.
 
 ```java
-public record Candidate(EntityType<?> type, int weight, int fulfillment, int reputation) { }
+public record Candidate(EntityType<?> type, int weight, int fulfillment, int reputation,
+                        boolean priority) { }
 
 /**
  * @param rng seeded so one spread always draws one party
@@ -272,17 +276,23 @@ public record Candidate(EntityType<?> type, int weight, int fulfillment, int rep
  */
 public static List<EntityType<?>> select(List<Candidate> pool, int capacity, int seats, Random rng) {
     if (seats <= 0 || capacity <= 0) return List.of();
-    var viable = new ArrayList<>(pool.stream()
-            .filter(e -> e.weight() > 0 && e.fulfillment() <= capacity)
-            .toList());
+    // invitations are the whole point of the pool: spend them before the draw
+    var invited = new ArrayList<Candidate>();
+    var ordinary = new ArrayList<Candidate>();
+    for (var c : pool) {
+        if (c.weight() <= 0 || c.fulfillment() > capacity) continue;
+        (c.priority() ? invited : ordinary).add(c);
+    }
 
     int remaining = capacity;
-    var chosen = new ArrayList<EntityType<?>>(Math.min(seats, viable.size()));
-    while (chosen.size() < seats && !viable.isEmpty()) {
-        var guest = viable.remove(draw(viable, rng));
+    var chosen = new ArrayList<EntityType<?>>(Math.min(seats, invited.size() + ordinary.size()));
+    while (chosen.size() < seats && (!invited.isEmpty() || !ordinary.isEmpty())) {
+        var from = invited.isEmpty() ? ordinary : invited;
+        var guest = from.remove(draw(from, rng));
         chosen.add(guest.type());
         final int rest = remaining - guest.fulfillment();
-        viable.removeIf(e -> e.fulfillment() > rest);   // the budget filter, every round
+        invited.removeIf(e -> e.fulfillment() > rest);
+        ordinary.removeIf(e -> e.fulfillment() > rest);
         remaining = rest;
     }
     return chosen;
@@ -316,6 +326,11 @@ Implementation notes:
   and quietly skews every later draw, which surfaces only as "the roster looks odd".
 - **Roster order is draw order**, not weight order. That is the visible face of the
   randomness: the first guest drawn is the one the draw favoured most on that occasion.
+- **An invitation buys priority, not certainty.** Invited candidates are drawn first, but
+  still by weight and still under the hunger budget and seat count; if nothing they can eat
+  is left, or the seats fill, an invitation does not override the arithmetic. The flag is
+  carried by the candidate rather than read inside the draw so preview and send partition
+  the pool identically.
 
 ### 4.1 Why not the knapsack this replaced
 

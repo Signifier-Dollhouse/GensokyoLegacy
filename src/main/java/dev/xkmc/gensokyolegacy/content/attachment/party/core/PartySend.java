@@ -1,5 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.attachment.party.core;
 
+import dev.xkmc.gensokyolegacy.content.attachment.character.CharDataHolder;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.module.HomeModule;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.module.PartyModule;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.module.VisitModule;
@@ -97,13 +98,15 @@ public class PartySend {
 		if (touched != null && PartyAttachment.existing(level, touched) != null)
 			return new Outcome(area, null, Refusal.PARTY_EXISTS, null);
 
+		var chars = GLMeta.CHAR.type().getOrCreate(sp);
 		var pool = new ArrayList<PartyPlanner.Candidate>();
 		for (var type : BuiltInRegistries.ENTITY_TYPE) {
 			var taste = PartyTaste.of(level.registryAccess(), type);
 			if (taste == null) continue;
 			int rep = reputation.applyAsInt(type);
 			pool.add(new PartyPlanner.Candidate(type,
-					PartyMath.weight(taste, area.appeal(), rep), taste.fulfillment(), rep));
+					PartyMath.weight(taste, area.appeal(), rep), taste.fulfillment(), rep,
+					chars.invited(type)));
 		}
 		var roster = PartyPlanner.select(pool, area.fulfillment(), area.seats().size(),
 				drawOf(PartyArea.center(area.food())));
@@ -171,10 +174,24 @@ public class PartySend {
 				plan.roster(), plan.capacity(),
 				PartyArea.foodAround(level, anchor), PartyArea.seatsAround(level, anchor));
 		PartyTicker.register(level, partyChunk);
+		consumeInvites(sp, plan.roster());
 
 		level.playSound(null, anchor, SoundEvents.ENCHANTMENT_TABLE_USE, SoundSource.BLOCKS, 0.8F, 1.4F);
 		if (!sp.getAbilities().instabuild) letter.shrink(1);
 		return outcome;
+	}
+
+	/**
+	 * A priority invitation is spent only by a party she actually joins: one that could
+	 * not make the roster keeps it for the next send.
+	 */
+	private static void consumeInvites(ServerPlayer sp, List<EntityType<?>> roster) {
+		for (var type : roster) {
+			var holder = CharDataHolder.getUnbounded(sp, type);
+			if (!holder.data().partyData().invited()) continue;
+			holder.data().partyData().consumeInvite();
+			holder.sync();
+		}
 	}
 
 	/**

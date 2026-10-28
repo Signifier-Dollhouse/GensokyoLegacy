@@ -343,6 +343,53 @@ public class PartyContext {
 		PartyMessage.reportLookingForSeat(level, attachment, entity);
 	}
 
+	// === chatting ===
+
+	/**
+	 * Whether she is in a conversation, walking to one or talking.
+	 */
+	public boolean chatting() {
+		return party.chatting();
+	}
+
+	@Nullable
+	public BlockPos chatSpot() {
+		return party.chatSpot();
+	}
+
+	/**
+	 * Whether she has reached the meeting spot.
+	 */
+	public boolean chatArrived() {
+		return party.chatArrived();
+	}
+
+	public void markChatArrived() {
+		party.markChatArrived();
+	}
+
+	/**
+	 * Whether the conversation has started, as opposed to the walk to it.
+	 */
+	public boolean talking() {
+		return party.talking();
+	}
+
+	/**
+	 * End the conversation and let the next task take her back to her chair.
+	 */
+	public void endChat() {
+		party.endChat();
+	}
+
+	/**
+	 * Stand up for a conversation, deliberately keeping the chair claim so she returns to
+	 * the same seat afterwards.
+	 */
+	public void unseat() {
+		if (entity.isPassenger()) entity.stopRiding();
+	}
+
 	// === eating ===
 
 	/**

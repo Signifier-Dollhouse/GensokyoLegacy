@@ -15,9 +15,10 @@ import net.minecraft.world.level.storage.loot.predicates.LootItemConditionType;
 import java.util.Set;
 
 /**
- * Whether the guest has eaten enough of her own appeal — {@link PartyModule#appealEaten}, not the
- * party's total. Anything but a {@link LootContextParams#THIS_ENTITY} guest reads as zero, so a
- * gated table gives nothing, not a crash.
+ * Whether the guest has eaten enough of her own appeal — {@link PartyModule#finalAppealEaten},
+ * the tally with the party-size bonus, not the party's total. Anything but a
+ * {@link LootContextParams#THIS_ENTITY} guest reads as zero, so a gated table gives nothing,
+ * not a crash.
  *
  * @param min    lowest appeal that passes, inclusive
  * @param max    highest appeal that passes, exclusive
@@ -67,7 +68,7 @@ public record AppealConsumedCondition(int min, int max, boolean invert) implemen
 	 */
 	private static int appealOf(LootContext context) {
 		if (!(context.getParam(LootContextParams.THIS_ENTITY) instanceof YoukaiEntity guest)) return 0;
-		return guest.getModule(PartyModule.class).map(PartyModule::appealEaten).orElse(0);
+		return guest.getModule(PartyModule.class).map(PartyModule::finalAppealEaten).orElse(0);
 	}
 
 }

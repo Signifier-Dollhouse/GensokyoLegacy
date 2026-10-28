@@ -41,6 +41,15 @@ public class CharacterAttachment extends PlayerCapabilityTemplate<CharacterAttac
 		return new CharDataHolder(val, player, e, null);
 	}
 
+	/**
+	 * Whether this character is on the player's priority list for the next party. Read
+	 * without creating a row: every entity type is asked during a send.
+	 */
+	public boolean invited(EntityType<?> type) {
+		var data = characterData.get(type);
+		return data != null && data.partyData().invited();
+	}
+
 	public void replace(EntityType<?> target, CharacterData data) {
 		characterData.put(target, data);
 	}

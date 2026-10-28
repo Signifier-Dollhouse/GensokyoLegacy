@@ -43,6 +43,11 @@ public class PartyTicker {
 	private static final int ROCKET_CHECK = ROCKET_MIN;
 
 	/**
+	 * How often conversations are paired and their timers advanced, in ticks.
+	 */
+	private static final int CHAT_CHECK = PartyChat.INTERVAL;
+
+	/**
 	 * A party open this long with nothing left happening is called off.
 	 */
 	public static final int PARTY_TIMEOUT = 12000;
@@ -92,10 +97,12 @@ public class PartyTicker {
 		var set = ACTIVE.get(level);
 		if (set == null) return;
 		long time = level.getGameTime();
-		// two cadences on one sweep: the phases are a second a part, the rockets are finer
+		// three cadences on one sweep: the phases are a second a part, the rockets and the
+		// conversation scan are finer
 		boolean phases = time % INTERVAL == 0;
 		boolean rockets = time % ROCKET_CHECK == 0;
-		if (!phases && !rockets) return;
+		boolean chats = time % CHAT_CHECK == 0;
+		if (!phases && !rockets && !chats) return;
 		List<ChunkPos> snapshot;
 		synchronized (set) {
 			snapshot = new ArrayList<>(set);
@@ -104,7 +111,18 @@ public class PartyTicker {
 			// phases first: a table that fills on this pass is no longer one to celebrate
 			if (phases) tickOne(level, pos);
 			if (rockets) rocket(level, pos, time);
+			if (chats) chat(level, pos, time);
 		}
+	}
+
+	/**
+	 * Pair guests for a conversation and drive the ones under way. Runs after the phases, so
+	 * a party that just started closing cancels its talks on the same pass.
+	 */
+	private static void chat(ServerLevel level, ChunkPos pos, long time) {
+		var party = PartyAttachment.of(level, pos);
+		if (party == null || !party.active()) return;
+		PartyChat.tick(level, party, time);
 	}
 
 	private static void tickOne(ServerLevel level, ChunkPos pos) {

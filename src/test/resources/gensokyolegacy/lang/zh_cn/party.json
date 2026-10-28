@@ -20,6 +20,11 @@
 		"info_served": "已上菜 %s／%s 饱食量",
 		"info_appeal": "已上菜吸引力：%s",
 		"info_guests": "在场客人：%s",
-		"letter_hint": "右键餐桌，将邀请函送出"
+		"invited": "%s 会在下一场宴会中优先出席",
+		"invite_already": "%s 已经收到邀请了",
+		"invite_in_party": "%s 正在参加一场宴会",
+		"invite_low_reputation": "%s 还不够信任你，不会接受邀请",
+		"invite_no_taste": "%s 对宴会没有兴趣",
+		"letter_hint": "右键餐桌将它送出，或右键角色邀请她"
 	}
 }

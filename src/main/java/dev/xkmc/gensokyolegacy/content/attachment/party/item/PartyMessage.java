@@ -1,6 +1,7 @@
 package dev.xkmc.gensokyolegacy.content.attachment.party.item;
 
 import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyAttachment;
+import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyInvite;
 import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartySend;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import net.minecraft.ChatFormatting;
@@ -45,6 +46,20 @@ public class PartyMessage {
 					case OTHER -> sp.sendSystemMessage(GLLang.Party.NOBODY_CAME.get());
 				}
 			}
+		}
+	}
+
+	/**
+	 * Tell the player how a personal invitation went.
+	 */
+	public static void reportInvite(ServerPlayer sp, EntityType<?> type, PartyInvite.Result result) {
+		var who = name(type);
+		switch (result) {
+			case INVITED -> sp.sendSystemMessage(GLLang.Party.INVITED.get(who));
+			case ALREADY -> sp.sendSystemMessage(GLLang.Party.INVITE_ALREADY.get(who));
+			case IN_PARTY -> sp.sendSystemMessage(GLLang.Party.INVITE_IN_PARTY.get(who));
+			case LOW_REPUTATION -> sp.sendSystemMessage(GLLang.Party.INVITE_LOW_REPUTATION.get(who));
+			case NO_TASTE -> sp.sendSystemMessage(GLLang.Party.INVITE_NO_TASTE.get(who));
 		}
 	}
 

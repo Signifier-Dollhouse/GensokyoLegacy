@@ -34,12 +34,16 @@ Every file the feature creates and modifies, and the resources it generates.
 | `content/attachment/party/core/PartyGift.java` | what a guest leaves, rolled from her table |
 | `content/attachment/party/core/AppealConsumedCondition.java` | `{"condition":"gensokyolegacy:appeal_consumed"}`, `min`/`max`/`invert` — the gift tiers' gate |
 | `init/data/loot/GiftLootGen.java` | one `party_gift/<character>` table per guest, a pool per generosity step, each banded on appeal |
-| `content/attachment/party/core/PartyTicker.java` | level-tick driver, active-chunk registry, and the gathering rockets' own clock (state.md §2.1) |
+| `content/attachment/party/core/PartyInvite.java` | personal-invitation eligibility and the flag on `PartyModuleData` |
+| `content/attachment/party/core/PartyChat.java` | pairs resting guests for a conversation and drives its animations |
+| `content/attachment/character/PartyModuleData.java` | per-character "invited to the next party" flag |
+| `content/attachment/party/core/PartyTicker.java` | level-tick driver, active-chunk registry, gathering rockets and conversation scan (state.md §2.1) |
 | `content/attachment/party/core/PartyFirework.java` | one rocket over the table, fired from a ring clear of the guests (state.md §2.1) |
 | `content/attachment/party/item/InvitationLetterItem.java` | the letter |
 | `content/attachment/party/item/PartyMessage.java` | one place that turns an outcome into player-facing text |
 | `content/entity/behavior/module/PartyModule.java` | per-guest state, `arrive`/`join`/`beginLeave`/`completeLeave`, and `Origin` |
-| `content/entity/behavior/task/party/PartyTasks.java` | the 11-task cascade → delay → pickup → chew → rest, and the exit |
+| `content/entity/behavior/task/party/PartyTasks.java` | the 12-task cascade → delay → pickup → chew → chat → rest, and the exit |
+| `content/entity/behavior/task/party/ChatTask.java` | walk to the meeting spot, unseat, and hold the conversation until the driver ends it |
 | `content/rpg/condition/PartyCondition.java` | `{"type":"gensokyolegacy:party"}`, `invert` for home-bound |
 
 ## 2. Modified

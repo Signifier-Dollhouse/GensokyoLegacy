@@ -23,6 +23,9 @@ public class CharacterData {
 	protected final FeedModuleData foodData = new FeedModuleData();
 
 	@SerialField
+	private final PartyModuleData partyData = new PartyModuleData();
+
+	@SerialField
 	public int reputation;
 
 	/**
@@ -44,6 +47,10 @@ public class CharacterData {
 	 */
 	@SerialField
 	public int giftReturn;
+
+	public PartyModuleData partyData() {
+		return partyData;
+	}
 
 	public boolean isAvailable(String key, long gameTime) {
 		return gameTime >= timers.getOrDefault(key, 0L);

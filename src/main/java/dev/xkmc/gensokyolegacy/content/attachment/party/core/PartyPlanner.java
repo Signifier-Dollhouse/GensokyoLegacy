@@ -16,8 +16,10 @@ public class PartyPlanner {
 	/**
 	 * @param weight      {@link PartyMath#weight}; her share of the draw, 0 meaning never drawn
 	 * @param fulfillment what she costs against the spread's capacity, in the same unit
+	 * @param priority    invited by letter, so drawn before the general pool
 	 */
-	public record Candidate(EntityType<?> type, int weight, int fulfillment, int reputation) {
+	public record Candidate(EntityType<?> type, int weight, int fulfillment, int reputation,
+							boolean priority) {
 	}
 
 	/**
@@ -31,18 +33,24 @@ public class PartyPlanner {
 	public static List<EntityType<?>> select(List<Candidate> pool, int capacity, int seats, Random rng) {
 		if (seats <= 0 || capacity <= 0) return List.of();
 		// weight 0 declines outright; beyond capacity she could never be satisfied at all
-		var viable = new ArrayList<>(pool.stream()
-				.filter(e -> e.weight() > 0 && e.fulfillment() <= capacity)
-				.toList());
+		var invited = new ArrayList<Candidate>();
+		var ordinary = new ArrayList<Candidate>();
+		for (var c : pool) {
+			if (c.weight() <= 0 || c.fulfillment() > capacity) continue;
+			(c.priority() ? invited : ordinary).add(c);
+		}
 
 		int remaining = capacity;
-		var chosen = new ArrayList<EntityType<?>>(Math.min(seats, viable.size()));
-		while (chosen.size() < seats && !viable.isEmpty()) {
-			var guest = viable.remove(draw(viable, rng));
+		var chosen = new ArrayList<EntityType<?>>(Math.min(seats, invited.size() + ordinary.size()));
+		while (chosen.size() < seats && (!invited.isEmpty() || !ordinary.isEmpty())) {
+			// invitations are the whole point of the pool: spend them before the draw
+			var from = invited.isEmpty() ? ordinary : invited;
+			var guest = from.remove(draw(from, rng));
 			chosen.add(guest.type());
 			final int rest = remaining - guest.fulfillment();
 			// re-run the budget filter every round; what was affordable may no longer be
-			viable.removeIf(e -> e.fulfillment() > rest);
+			invited.removeIf(e -> e.fulfillment() > rest);
+			ordinary.removeIf(e -> e.fulfillment() > rest);
 			remaining = rest;
 		}
 		return chosen;

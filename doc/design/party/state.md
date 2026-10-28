@@ -40,7 +40,7 @@ The party lives in the chunk holding `center(food)` (area.md §3), so:
 
 **Ticking.** `PartyTicker` advances every phase in the level at 1 Hz (`LevelTickEvent.Post`, `GLMetaEventHandlers.onLevelTick`). Nothing in a party needs 20 Hz resolution: guests are walking and eating on multi-second timescales. Parties are rare, so only the chunks actually hosting one are swept.
 
-One thing does not fit that cadence — the gathering rockets of §2.1, whose gap is drawn out of a range and so cannot be honoured at 1 Hz. The driver therefore runs **two clocks off one sweep**: `tick` snapshots the active chunks twice a second and hands each pass only the work it is for. Nothing else about it changes.
+Two things do not fit that cadence — the gathering rockets of §2.1, whose gap is drawn out of a range and so cannot be honoured at 1 Hz, and the conversation scan, which pairs guests and advances their talk animations every 5 ticks (guest.md §2.2). The driver therefore runs **three clocks off one sweep**: `tick` snapshots the active chunks at the finest cadence and hands each pass only the work it is for. Nothing else about it changes.
 
 ### 1.1 The part that does not persist
 

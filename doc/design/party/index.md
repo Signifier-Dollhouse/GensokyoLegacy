@@ -25,16 +25,16 @@ a weighted draw picks guests who fit the hunger budget and the seat count
 guests spawn as temporary clones, walk in, sit, eat, gift, leave
 ```
 
-There is no monetary cost and no cooldown. The letter names no specific character — it goes out to everyone who qualifies, and who that is depends entirely on the spread and on the player's standing with each of them. The only thing the player spends is food, and the only thing they get back is gifts.
+There is no monetary cost and no cooldown. Right-clicked on a table the letter goes out to everyone who qualifies, and who that is depends entirely on the spread and on the player's standing with each of them. Right-clicked on a character it names her instead, and puts her at the front of the next draw. The only thing the player spends is food, and the only thing they get back is gifts.
 
 ## The four pieces
 
 | Piece | Lives in | Job |
 |---|---|---|
 | **Attractiveness / fulfillment math** | `content/attachment/party/core/PartyMath.java` | pure functions, no world writes |
-| **Roster selection** | `content/attachment/party/core/PartyPlanner.java` | weighted draw under the hunger budget and seat count |
+| **Roster selection** | `content/attachment/party/core/PartyPlanner.java` | weighted draw under the hunger budget and seat count, invitations first |
 | **Party state** | `GLMeta.PARTY`, a `LevelChunk` capability | host, anchor, roster, phase, counters |
-| **Guest behaviour** | `PartyModule` + `PartyTasks` | walk, sit, eat, gift, dismiss |
+| **Guest behaviour** | `PartyModule` + `PartyTasks` | walk, sit, eat, talk, gift, dismiss |
 
 The first two are deliberately side-effect free so `/gensokyo party preview` can run the identical code path as a real send and be guaranteed to predict it.
 
@@ -47,8 +47,8 @@ The first two are deliberately side-effect free so `/gensokyo party preview` can
 | [food_mods.md](food_mods.md) | the per-mod handlers — counting conventions, vanilla cake, Farmer's Delight, Youkai's Feasts, Kaleidoscope Cookery — and the `canSurvive` support measurements | implemented |
 | [state.md](state.md) | `PartyAttachment`, the chunk capability, the frozen roster, the ticker, and the phase machine | implemented |
 | [select.md](select.md) | spread appeal, `party_taste`, `PartyMath.weight`, fulfillment, the seeded weighted draw, and the worked example | implemented |
-| [send.md](send.md) | the invitation letter, `PartySend.send` and its rejections, guest clones, gifts and the reputation payout | implemented |
-| [guest.md](guest.md) | `PartyTasks` and the three phases — arriving, the bite, leaving — plus the brain wiring | implemented |
+| [send.md](send.md) | the invitation letter (to a table or a character), `PartySend.send` and its rejections, guest clones, gifts and the reputation payout | implemented |
+| [guest.md](guest.md) | `PartyTasks` and the three phases — arriving, the bite, talking, leaving — plus the brain wiring | implemented |
 | [debug.md](debug.md) | `/gensokyo party`, the debug wand, the area renderer, and the one-reading-at-a-time rule | implemented |
 | [checklist.md](checklist.md) | every file created and modified, and the generated resources | — |
 | [limits.md](limits.md) | known limits, and the owner answers that settled them | — |

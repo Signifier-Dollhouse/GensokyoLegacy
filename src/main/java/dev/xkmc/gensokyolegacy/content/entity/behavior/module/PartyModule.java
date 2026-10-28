@@ -5,6 +5,7 @@ import dev.xkmc.gensokyolegacy.content.attachment.character.CharacterConfig;
 import dev.xkmc.gensokyolegacy.content.attachment.home.core.IHomeHolder;
 import dev.xkmc.gensokyolegacy.content.attachment.index.StructureKey;
 import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyAttachment;
+import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyMath;
 import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyTaste;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.task.party.PartyServe;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
@@ -199,6 +200,30 @@ public class PartyModule extends AbstractYoukaiModule {
 	public int rest = 0;
 
 	/**
+	 * The other guest she stood up to talk to, while that conversation is pending or running.
+	 * Non-null is the whole of "chatting": the spot is where they meet, and
+	 * {@link #chatStartAt} being non-zero separates walking there from talking.
+	 */
+	@Nullable
+	@SerialField
+	private UUID chatPartner;
+
+	@SerialField
+	private BlockPos chatSpot;
+
+	@SerialField
+	private boolean chatLead;
+
+	@SerialField
+	private boolean chatArrived;
+
+	@SerialField
+	private int chatDuration;
+
+	@SerialField
+	private long chatStartAt;
+
+	/**
 	 * Whether the departure is in progress. Its own flag rather than a sentinel in the timer,
 	 * because zero has to mean "armed and already on her way".
 	 */
@@ -235,6 +260,7 @@ public class PartyModule extends AbstractYoukaiModule {
 		grab = 0;
 		chew = 0;
 		rest = 0;
+		clearChat();
 		leaveArmed = false;
 		leave = 0;
 	}
@@ -266,6 +292,20 @@ public class PartyModule extends AbstractYoukaiModule {
 	 */
 	public int appealEaten() {
 		return appealEaten;
+	}
+
+	/**
+	 * The appeal this visit is finally worth: her own tally with the party-size bonus.
+	 * Both the gift ladder and the host's reputation read this, so they cannot disagree.
+	 */
+	public int finalAppealEaten() {
+		if (!(self.level() instanceof ServerLevel sl)) return appealEaten;
+		return finalAppeal(party(sl));
+	}
+
+	public int finalAppeal(@Nullable PartyAttachment party) {
+		// the roster is the party's size, stable while guests leave one by one
+		return PartyMath.partyAppeal(appealEaten, party == null ? 0 : party.roster().size());
 	}
 
 	/**
@@ -426,6 +466,91 @@ public class PartyModule extends AbstractYoukaiModule {
 	 */
 	public double leaveChance() {
 		return ofOrDefault().leaveChance();
+	}
+
+	// --- chatting ---
+
+	/**
+	 * Whether she is in the sit between dishes from which a conversation can start.
+	 */
+	public boolean inSeatedDelay() {
+		return rest > 0 && seated && chatPartner == null && !leaving;
+	}
+
+	public boolean chatting() {
+		return chatPartner != null;
+	}
+
+	/**
+	 * Whether the conversation has started, as opposed to the walk to it.
+	 */
+	public boolean talking() {
+		return chatStartAt > 0;
+	}
+
+	@Nullable
+	public UUID chatPartner() {
+		return chatPartner;
+	}
+
+	@Nullable
+	public BlockPos chatSpot() {
+		return chatSpot;
+	}
+
+	public boolean chatLead() {
+		return chatLead;
+	}
+
+	public boolean chatArrived() {
+		return chatArrived;
+	}
+
+	public int chatDuration() {
+		return chatDuration;
+	}
+
+	public long chatStartAt() {
+		return chatStartAt;
+	}
+
+	/**
+	 * Stand her up and send her to meet {@code partner}. The chair claim is deliberately kept:
+	 * she comes back to the same seat when the conversation is over.
+	 */
+	public void beginChat(UUID partner, BlockPos spot, int duration, boolean lead) {
+		chatPartner = partner;
+		chatSpot = spot.immutable();
+		chatDuration = Math.max(1, duration);
+		chatLead = lead;
+		chatArrived = false;
+		chatStartAt = 0;
+		rest = 0;
+	}
+
+	public void markChatArrived() {
+		chatArrived = true;
+	}
+
+	public void startChatting(long gameTime) {
+		chatStartAt = gameTime;
+	}
+
+	/**
+	 * End the conversation and skip the rest of the sit: the next thing she does is eat again.
+	 */
+	public void endChat() {
+		clearChat();
+		rest = 0;
+	}
+
+	private void clearChat() {
+		chatPartner = null;
+		chatSpot = null;
+		chatLead = false;
+		chatArrived = false;
+		chatDuration = 0;
+		chatStartAt = 0;
 	}
 
 	/**
@@ -616,7 +741,8 @@ public class PartyModule extends AbstractYoukaiModule {
 
 	/**
 	 * Pay the host a share of the appeal <b>she personally consumed</b>, the same quantity her gift is
-	 * sized on. Skipped when she never ate, or too few chairs becomes a way to farm reputation.
+	 * sized on, party-size bonus included. Skipped when she never ate, or too few chairs becomes a
+	 * way to farm reputation.
 	 */
 	private void payHost(ServerLevel sl, PartyAttachment party) {
 		if (appealEaten <= 0) return;
@@ -625,7 +751,7 @@ public class PartyModule extends AbstractYoukaiModule {
 		var player = sl.getPlayerByUUID(host);
 		if (player == null) return;
 		var taste = ofOrDefault();
-		int value = taste.reputationFor(appealEaten);
+		int value = taste.reputationFor(finalAppeal(party));
 		if (value <= 0) return;
 		CharDataHolder.getUnbounded(player, self.getType()).gain(value, 0, 0, 0);
 	}

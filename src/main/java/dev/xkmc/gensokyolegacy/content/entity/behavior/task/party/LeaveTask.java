@@ -41,7 +41,9 @@ public class LeaveTask extends PartyTask {
 			ctx.countLeave();
 			return;
 		}
-		if (ctx.seated()) ctx.dropSeat();
+		// the claim is not the same as being on the chair: a guest who stood up to talk may
+		// still hold her seat, and leaving must release it even though she is already up
+		if (ctx.party().seat() != null) ctx.dropSeat();
 		// the plate left a dish that is already gone, so it still counts even though the party
 		// is ending before the chew does
 		ctx.finishServe();

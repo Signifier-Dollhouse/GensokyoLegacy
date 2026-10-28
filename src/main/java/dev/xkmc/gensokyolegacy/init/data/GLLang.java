@@ -234,7 +234,12 @@ public final class GLLang {
 		INFO_SERVED("Served %s of %s hunger", 2),
 		INFO_APPEAL("Appeal served: %s", 1),
 		INFO_GUESTS("Guests present: %s", 1),
-		LETTER_HINT("Right-click a table to send it out");
+		INVITED("%s will have priority at the next party", 1),
+		INVITE_ALREADY("%s already has an invitation", 1),
+		INVITE_IN_PARTY("%s is already attending a party", 1),
+		INVITE_LOW_REPUTATION("%s does not trust you enough to accept yet", 1),
+		INVITE_NO_TASTE("%s has no interest in parties", 1),
+		LETTER_HINT("Right-click a table to send it out, or a character to invite her");
 
 		private final String def;
 		private final int argn;

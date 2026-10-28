@@ -33,6 +33,20 @@ public InteractionResultHolder<ItemStack> useOn(UseOnContext ctx) {
 
 `useOn` rather than `use`, so the letter must be aimed at a table and cannot be fired into the air. Mirrors how `TableDecoBlock` and `CoverableImpl` gate their interactions.
 
+### Inviting one character
+
+The same letter, right-clicked on a character, names her for the next send instead of sending one now:
+
+| result | when | letter |
+|---|---|---|
+| `INVITED` | she is not partying, has at least **50** reputation, and has a `party_taste` row she qualifies for | consumed |
+| `ALREADY` | she already carries an invitation | kept |
+| `IN_PARTY` | she is attending a party, clone or resident | kept |
+| `LOW_REPUTATION` | below 50 | kept |
+| `NO_TASTE` | no row, `weight <= 0`, or below her `minReputation` | kept |
+
+`NO_TASTE` is the same eligibility gate the draw uses, so a character who could never be drawn cannot be invited either. The 50-reputation floor is an invitation precondition on top of it: a character may still turn up to a large enough spread while refusing a personal letter. The flag is one boolean on `PartyModuleData` in `CharacterData`; it survives sessions and is consumed **only by a send whose roster she actually made** — a preview, a refused send, or a draw she missed leaves it in place for next time. `PartySend.plan` reads it through `CharacterAttachment.invited`, and `PartyPlanner` draws priority candidates before the ordinary pool.
+
 ## 2. `PartySend.send` — the single entry point
 
 In order:
@@ -41,11 +55,12 @@ In order:
 2. **Reject** if `food.isEmpty()` — "there is no food on the table".
 3. **Reject** if `seats.isEmpty()` — chairs are a hard requirement, so no chairs means no party at all, and the player is told to put some out.
 4. **Reject** if `existingParty(level, touchedChunks(food))` is non-`IDLE` (area.md §4) — "there is already a party here".
-5. Build the candidate pool: every entity type in `Registries.ENTITY_TYPE` that has a `party_taste` entry, scored by `PartyMath.weight` against the player's reputation read via `CharDataHolder.getUnbounded(sp, type).data().reputation`.
-6. `PartyPlanner.select(pool, area.appeal(), area.seats().size())`.
+5. Build the candidate pool: every entity type in `Registries.ENTITY_TYPE` that has a `party_taste` entry, scored by `PartyMath.weight` against the player's reputation read via `CharDataHolder.getUnbounded(sp, type).data().reputation`, with the invited flag from `CharacterAttachment.invited(type)`.
+6. `PartyPlanner.select(pool, capacity, seats, seed)` — priority candidates first, then the ordinary draw.
 7. **Reject** if the roster is empty — the reason is the highest-scoring near-miss, so the player gets "Reimu would come, but the spread is too plain" rather than a bare failure.
 8. Freeze the roster and counters into `GLMeta.PARTY` on the chunk holding `center(food)`, set phase `GATHERING`.
-9. Consume one letter (unless creative) and play the send sound.
+9. Clear the invitation of every type that made the roster.
+10. Consume one letter (unless creative) and play the send sound.
 
 Every rejection happens **before** the letter is consumed, so a refused send costs nothing.
 
@@ -90,7 +105,9 @@ public static boolean give(ServerLevel level, YoukaiEntity guest, PartyModule pa
 }
 ```
 
-The generosity comes from **the appeal she personally consumed**, and it comes from *the data* rather than from arithmetic in `PartyGift`. Every table is a **ladder of pools, one per generosity rung**, each one roll, and what an under-served guest is short of is not count — **a gift is always exactly one item** — but *reach*. The ladder is picked by the new `gensokyolegacy:appeal_consumed` loot condition, which reads `PartyModule.appealEaten` off `THIS_ENTITY`. Anything else in that slot — no entity, or a guest with no `PartyModule` — reads as **zero appeal rather than throwing**, so a table whose whole ladder is gated degrades into a table that gives nothing instead of a crash inside somebody's party.
+The generosity comes from **the appeal she personally consumed**, and it comes from *the data* rather than from arithmetic in `PartyGift`. Every table is a **ladder of pools, one per generosity rung**, each one roll, and what an under-served guest is short of is not count — **a gift is always exactly one item** — but *reach*. The ladder is picked by the new `gensokyolegacy:appeal_consumed` loot condition, which reads `PartyModule.finalAppealEaten` off `THIS_ENTITY`. Anything else in that slot — no entity, or a guest with no `PartyModule` — reads as **zero appeal rather than throwing**, so a table whose whole ladder is gated degrades into a table that gives nothing instead of a crash inside somebody's party.
+
+**Final appeal adds 10% per character at the party**, herself included: `round(appealEaten * (1 + 0.1 * roster.size()))`. The roster is used rather than the live guest list so the number does not shrink as guests leave one by one, and the gift ladder and the host payout both read this one figure so they cannot disagree.
 
 The condition carries `min` and `max`, so it is a **band** rather than a floor, and it reads them as
 
@@ -142,10 +159,10 @@ What all this is sized on is deliberately *not* whether she was satisfied. Those
 
 **A guest leaves one gift, ever.** She has two ways out — the spread she can reach runs out, or `leaveChance` comes up — and a visit can pass close enough to both that she would otherwise thank the host twice for one banquet. The flag is on `PartyModule` rather than in `PartyGift`, so it survives the two call sites and any task restart between them. A guest with nothing tasteful to give still leaves nothing rather than something arbitrary, as before.
 
-**The host is paid in reputation, once per guest.** Every guest who ate from the party rates it, and the host gains `repGain` of the appeal **she personally consumed**:
+**The host is paid in reputation, once per guest.** Every guest who ate from the party rates it, and the host gains `repGain` of the appeal **she personally consumed**, with the same party-size bonus the gift ladder sees:
 
 ```java
-int value = taste.reputationFor(appealEaten);   // floor(appealEaten * repGain), at least 1
+int value = taste.reputationFor(finalAppeal(party));   // floor(appeal * repGain), at least 1
 CharDataHolder.getUnbounded(player, self.getType()).gain(value, 0, 0, 0);
 ```
 

@@ -1,8 +1,8 @@
 # The Guest — the state machine and the three phases
 
-A guest's visit is a **cascade of eleven brain tasks**, routed by which of seven pieces of her own state are set. There is no phase enum, no dispatcher, and no state to lose.
+A guest's visit is a **cascade of twelve brain tasks**, routed by which of eight pieces of her own state are set. There is no phase enum, no dispatcher, and no state to lose.
 
-Those seven were brain memories once, and that was the wrong home: `Brain.MemoryValue.serialize` writes a memory only when its type carries a codec, and a guest reloaded from disk came back without any of them — no line of the tree to resume on, so she went back to her schedule as though the party had never happened. The machine position is therefore **fields on `PartyModule`**, serialized with the entity beside the chair claim and the tallies that already survived a reload. The only party memory left is `MEM_PARTY`, the activity gate, and it is re-asserted every tick rather than saved.
+Those eight were brain memories once, and that was the wrong home: `Brain.MemoryValue.serialize` writes a memory only when its type carries a codec, and a guest reloaded from disk came back without any of them — no line of the tree to resume on, so she went back to her schedule as though the party had never happened. The machine position is therefore **fields on `PartyModule`**, serialized with the entity beside the chair claim and the tallies that already survived a reload. The only party memory left is `MEM_PARTY`, the activity gate, and it is re-asserted every tick rather than saved.
 
 ## 1. The machine
 
@@ -15,9 +15,9 @@ board.addPartyTasks();
 
 400 sits just below `TALK(300)` and above `VISITING(600)` and everything scheduled, so a guest can still talk and trade, never wanders off to visit mid-party, and never sleeps or goes home.
 
-**Which task runs is decided by which of those seven are set, not by a variable.** Each task declares the ones that must be set (and those that must not) in its entry condition, and `checkExtraStartConditions` covers what they cannot know — whether she is actually a passenger, whether the party has reached FEASTING. `TaskBoard.fetch` collects every exclusive task under one activity into a single `GateBehavior(ORDERED, RUN_ONE)`, which tries them **in registration order and runs the first that matches**. So the order *is* the priority, and a task lower down can be given a signature as loose as "nothing" — everything more specific has already been claimed by then.
+**Which task runs is decided by which of those eight are set, not by a variable.** Each task declares the ones that must be set (and those that must not) in its entry condition, and `checkExtraStartConditions` covers what they cannot know — whether she is actually a passenger, whether the party has reached FEASTING. `TaskBoard.fetch` collects every exclusive task under one activity into a single `GateBehavior(ORDERED, RUN_ONE)`, which tries them **in registration order and runs the first that matches**. So the order *is* the priority, and a task lower down can be given a signature as loose as "nothing" — everything more specific has already been claimed by then.
 
-### The seven
+### The eight
 
 | field | type | means |
 |---|---|---|
@@ -28,6 +28,7 @@ board.addPartyTasks();
 | `party.grab` | `int` | the pickup gesture, ticks left |
 | `party.chew` | `int` | eat wait: chewing, ticks left |
 | `party.rest` | `int` | **post-eat wait**: sitting between dishes, ticks left |
+| `party.chatPartner` / `party.chatStartAt` | `UUID` / `long` | **in a conversation**: walking to the meeting spot, or talking once the start time is non-zero |
 | `party.leaveArmed` / `party.leave` | `boolean` / `int` | the unseat wait, then the walk out |
 
 **One convention for all of them: 0 is not running, and a null dish or serve is not held**, so a restart mid-wait resumes the wait rather than re-rolling it. `leaveArmed` is the exception that proves it: the departure is a separate flag precisely because zero has to mean "armed and already on her way" — the tick after the last of the unseat wait — and the timer alone could not say whether she was leaving or merely sitting down to eat. Clearing it mid-walkout would drop the cascade back to whatever fits an ordinary guest, and she would sit back down on the way out of the door.
@@ -36,21 +37,22 @@ board.addPartyTasks();
 
 ### The cascade
 
-`✓` must be set, `✗` must be clear, `·` is don't care. Seated-ness and phase are physical checks, not machine state.
+`✓` must be set, `✗` must be clear, `·` is don't care. `A` is `chatPartner` set, `S`/`D`/`H`/`G`/`C`/`R`/`L` are the other module fields in the order above. Seated-ness and phase are physical checks, not machine state.
 
-| # | task | S | D | H | G | C | R | L | seated | phase |
-|---|---|---|---|---|---|---|---|---|---|---|
-| 1 | Leave | · | · | · | · | · | · | ✓ | · | · |
-| 2 | Chew | ✓ | · | · | · | ✓ | · | · | · | · |
-| 3 | Eat | ✓ | · | · | · | ✗ | · | · | seated | · |
-| 4 | GoToSeat | ✓ | · | · | · | · | · | · | not seated | · |
-| 5 | Delay | ✗ | ✓ | ✓ | · | · | · | · | · | · |
-| 6 | Pickup | ✗ | ✓ | ✗ | ✓ | · | · | · | · | · |
-| 7 | GoToFood | · | · | · | · | · | · | · | · | · |
-| 8 | Rest | · | · | · | · | · | ✓ | · | · | · |
-| 9 | FindFood | · | · | · | · | · | · | · | seated | FEASTING |
-| 10 | WaitTable | · | · | · | · | · | · | · | seated | not FEASTING |
-| 11 | FindSeat | · | · | · | · | · | · | · | not seated | · |
+| # | task | S | D | H | G | C | R | A | L | seated | phase |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| 1 | Leave | · | · | · | · | · | · | · | ✓ | · | · |
+| 2 | Chew | ✓ | · | · | · | ✓ | · | · | · | · | · |
+| 3 | Eat | ✓ | · | · | · | ✗ | · | · | · | seated | · |
+| 4 | GoToSeat | ✓ | · | · | · | · | · | · | · | not seated | · |
+| 5 | Delay | ✗ | ✓ | ✓ | · | · | · | · | · | · | · |
+| 6 | Pickup | ✗ | ✓ | ✗ | ✓ | · | · | · | · | · | · |
+| 7 | GoToFood | · | · | · | · | · | · | · | · | · | · |
+| 8 | Chat | · | · | · | · | · | · | ✓ | · | · | · |
+| 9 | Rest | · | · | · | · | · | ✓ | · | · | · | · |
+| 10 | FindFood | · | · | · | · | · | · | · | · | seated | FEASTING |
+| 11 | WaitTable | · | · | · | · | · | · | · | · | seated | not FEASTING |
+| 12 | FindSeat | · | · | · | · | · | · | · | · | not seated | · |
 
 Read down as a decision tree:
 
@@ -62,13 +64,14 @@ has serve                       → GoToSeat
 has dish, hesitating?           → Delay
 has dish, grabbing?             → Pickup
 has dish                        → GoToFood
+chatting?                       → Chat
 resting?                        → Rest
 seated, party feasting?         → FindFood
 seated, party not feasting?     → WaitTable
 otherwise                       → FindSeat
 ```
 
-The bottom four constrain **nothing at all**, which is the point: by the time the gate reaches them, every specific state has been ruled out, so they are the terminal fallbacks that make the cascade total. A brute-force check of all 512 combinations (7 pieces of state × seated × FEASTING) confirms every one resolves to exactly one task — 0 uncovered.
+The cascade is total by construction: by the time the gate reaches the last row, every more specific state has been ruled out, so `FindSeat` is the fallback for a guest with nothing else to do.
 
 `GoToFood` shows as all-don't-care because its `stillMine` carries the dish conditions instead; either way the combined signature is "has dish, not hesitating, not grabbing".
 
@@ -84,7 +87,7 @@ Every party task carries `WALK_TARGET: VALUE_ABSENT`, and `PartyTask.canStillUse
 
 ### The director
 
-One **always-task** under `PARTY`, running alongside whichever of the eleven is going *and alongside the walk itself*, for the things that are not states: the party ending under her, the party closing while she is mid-course (which arms the departure, the wait drawn per guest so a table does not empty in one tick), her chair being taken away by the layout rescan, and the teleport fallback. It is the one task the walk order does not yield, because every walk in the machine is one of these and a rule that lived in a task would have to be written four times — see §2.1.
+One **always-task** under `PARTY`, running alongside whichever of the twelve is going *and alongside the walk itself*, for the things that are not states: the party ending under her, the party closing while she is mid-course (which arms the departure, the wait drawn per guest so a table does not empty in one tick), her chair being taken away by the layout rescan, and the teleport fallback. It is the one task the walk order does not yield, because every walk in the machine is one of these and a rule that lived in a task would have to be written four times — see §2.1.
 
 ### What the module records
 
@@ -151,7 +154,7 @@ The walk-failure fallback (§2.1) already lands where this wants it to — it pu
 
 ### How the split went wrong, three times
 
-The machine was a single `Behavior` with a `switch`, then nine behaviours behind a phase enum, then eleven tasks behind seven brain memories, and finally eleven tasks over seven fields on the module. The first three shipped broken, and the failure mode is the same each time: the entity looks perfectly healthy while doing nothing.
+The machine was a single `Behavior` with a `switch`, then nine behaviours behind a phase enum, then eleven tasks behind seven brain memories, and finally twelve tasks over eight fields on the module. The first three shipped broken, and the failure mode is the same each time: the entity looks perfectly healthy while doing nothing.
 
 | | symptom | why it is invisible |
 |---|---|---|
@@ -286,6 +289,10 @@ draw ─ 0..40t ─ pick it up ─ back to the chair ─ eat it
 | **credit** | hunger and appeal are banked when the animation ends, unchanged from §1. |
 
 The two rules that made the serve safe still hold, and the pickup beat is where they now sit: the block is consumed **once**, at pickup, with both readings taken before it is consumed, and a serve taken and never credited is still banked by `stop()`. The item in her hand is presentation over that same serve — it is emptied during the animation and is never a second one.
+
+**Guests talk between courses.** A guest in the `rest` sit can be paired with another guest in the same sit, and the pair stands up, meets on open ground and talks instead of sitting out the pause. `PartyChat` scans every 5 ticks; the chance is **30% × N** for N guests in seated delay, halved for every pair already talking, so a full table does not all get up at once. Both keep their chair claims — the dismount is `stopRiding` without releasing the seat — and walk to one free standable block inside `partyGuestRadius`, which is why the conversation ends with them back on their own chairs rather than wherever they met.
+
+Once both have arrived the talk runs **3–5 seconds**, and every 10 ticks one of the pair plays a random mapped talk clip, the speaker alternating. The last animation is skipped when less than 10 ticks of the talk remain, so nobody is left mid-gesture. Ending clears the conversation and the rest countdown together: the pair goes straight back to its chairs and on to `FindFoodTask`, so talking replaces the pause rather than extending it. The driver also cancels a conversation when the party leaves `FEASTING`, when one partner is told to leave, or when one stops being paired — a guest whose partner left or unloaded must not keep waiting at the spot.
 
 ### 2.3 Closing — leaving
 

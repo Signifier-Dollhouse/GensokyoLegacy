@@ -31,6 +31,15 @@ public class PartyMath {
 		return (value - lo) / (double) (hi - lo);
 	}
 
+	/**
+	 * Appeal a guest is finally credited with: her own tally plus 10% for every character
+	 * at the party, herself included.
+	 */
+	public static int partyAppeal(int appeal, int partySize) {
+		if (appeal <= 0) return 0;
+		return Math.max(1, (int) Math.round(appeal * (1 + 0.1 * Math.max(0, partySize))));
+	}
+
 	private PartyMath() {
 	}
 

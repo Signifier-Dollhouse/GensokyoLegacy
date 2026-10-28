@@ -61,7 +61,7 @@ public class TaskBoard {
 	}
 
 	/**
-	 * Register the whole party machine - the director and all eleven state tasks - under
+	 * Register the whole party machine - the director and all twelve state tasks - under
 	 * {@link GLBrains#PARTY}. It is a cascade rather than a task, so an entity class should not be
 	 * the place that knows how many pieces it has or in what order. See {@code PartyTasks}.
 	 */
