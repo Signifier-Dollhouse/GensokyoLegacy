@@ -6,13 +6,15 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 
 /**
- * What the fan does on a right-click in the air: tend every summoned ghost, or collect them all.
+ * What the fan does on a right-click in the air: tend every summoned ghost, collect them all,
+ * or scatter butterfly danmaku.
  *
  * @see "doc/design/doll/ghost_power.md"
  */
 public enum YuyukoFanMode {
 	SUMMON(GLLang.ItemYuyukoFan.MODE_SUMMON, new SummonFanHandler()),
-	ABSORB(GLLang.ItemYuyukoFan.MODE_ABSORB, new AbsorbFanHandler());
+	ABSORB(GLLang.ItemYuyukoFan.MODE_ABSORB, new AbsorbFanHandler()),
+	SCATTER(GLLang.ItemYuyukoFan.MODE_SCATTER, new ScatterFanHandler());
 
 	private static final YuyukoFanMode[] VALUES = values();
 

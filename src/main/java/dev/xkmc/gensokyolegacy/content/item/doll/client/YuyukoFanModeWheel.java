@@ -16,7 +16,8 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * The selector wheel for the {@link YuyukoFanItem}: one entry per fan mode, both always listed.
+ * The selector wheel for the {@link YuyukoFanItem}: one entry per fan mode, every mode always
+ * listed.
  *
  * @see "doc/design/doll/ghost_power.md"
  */

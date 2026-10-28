@@ -28,8 +28,9 @@ import net.minecraft.world.level.Level;
 import java.util.List;
 
 /**
- * Yuyuko's fan spends one spiritual power pool on any ghost: absorb a ghost, or tend every summoned
- * one. The two modes are all ghosts at once rather than one selected type.
+ * Yuyuko's fan spends one spiritual power pool on ghosts or on a butterfly fan: absorb a ghost,
+ * tend every summoned one, or scatter danmaku. The ghost modes are all ghosts at once rather than
+ * one selected type.
  *
  * @see "doc/design/doll/ghost_power.md"
  */
@@ -155,6 +156,7 @@ public class YuyukoFanItem extends Item {
 		list.add(GLLang.ItemYuyukoFan.ABSORB.get());
 		list.add(GLLang.ItemYuyukoFan.SUMMON.get());
 		list.add(GLLang.ItemYuyukoFan.ABSORB_ALL.get());
+		list.add(GLLang.ItemYuyukoFan.SCATTER.get());
 		list.add(GLLang.ItemYuyukoFan.RELEASE.get());
 		list.add(GLLang.ItemYuyukoFan.SELECTED.get(getMode(stack).getDisplayName()));
 		list.add(GLLang.ItemGlove.WHEEL.get(L2Keys.WHEEL.map.getKey().getDisplayName())

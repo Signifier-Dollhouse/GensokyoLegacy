@@ -15,7 +15,7 @@ import java.util.Optional;
 
 /**
  * Selector listener for the {@link YuyukoFanItem}'s mode, mirroring the dagger glove's mode wheel.
- * Both modes are always listed, so the list never changes shape.
+ * Every mode is always listed, so the list never changes shape.
  *
  * @see "doc/design/doll/ghost_power.md"
  */

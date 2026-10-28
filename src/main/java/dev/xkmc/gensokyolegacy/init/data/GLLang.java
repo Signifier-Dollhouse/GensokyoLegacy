@@ -1053,6 +1053,7 @@ public final class GLLang {
 		ALREADY_FULL("That ghost is already at full power", 0, ChatFormatting.GRAY),
 		ALL_FULL("Every summoned ghost is already at full power", 0, ChatFormatting.GRAY),
 		FAN_EMPTY("No spiritual power stored", 0, ChatFormatting.RED),
+		NEED_POWER("The fan needs at least %s spiritual power", 1, ChatFormatting.RED),
 		NO_POWER("That ghost has no power left", 0, ChatFormatting.RED),
 		ABSORB_FAIL("The ghost's power cannot be absorbed", 0, ChatFormatting.RED),
 		ABSORBED("Absorbed %s spiritual power", 1),
@@ -1152,9 +1153,11 @@ public final class GLLang {
 		ABSORB("Right-click a ghost to absorb its spiritual power", 0, ChatFormatting.GRAY),
 		SUMMON("Summon mode: right-click to refill every summoned ghost and summon any missing kind", 0, ChatFormatting.GRAY),
 		ABSORB_ALL("Absorb mode: right-click to absorb every summoned ghost", 0, ChatFormatting.GRAY),
+		SCATTER("Scatter mode: right-click to spend 10 spiritual power on a butterfly fan", 0, ChatFormatting.GRAY),
 		RELEASE("Absorbing an owned ghost with a full fan releases it instead", 0, ChatFormatting.GRAY),
 		MODE_SUMMON("Summon / Refill"),
 		MODE_ABSORB("Absorb All"),
+		MODE_SCATTER("Butterfly Scatter"),
 		SELECTED("Selected: %s", 1),
 		STORED("%s: %s / %s", 3, ChatFormatting.GRAY);
 

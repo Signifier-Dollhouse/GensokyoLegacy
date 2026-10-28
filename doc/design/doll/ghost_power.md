@@ -70,11 +70,11 @@ its default components to 10000 through `ModifyDefaultComponentsEvent`. The `Spi
 reads both components, clamps writes and renders the bar, so future spiritual items only need their
 own intrinsic max.
 
-The fan has two modes, stored in the `yuyuko_fan_mode` component and selected with the shared item
+The fan has three modes, stored in the `yuyuko_fan_mode` component and selected with the shared item
 wheel/list (`YuyukoFanSelectionListener`). Each mode is a `YuyukoFanModeHandler`, mirroring the
 ghost handlers, so `YuyukoFanItem.use` only delegates.
 
-- **Right-click a ghost** absorbs `min(power, room)` into the pool. This works in both modes. A wild
+- **Right-click a ghost** absorbs `min(power, room)` into the pool. This works in every mode. A wild
   ghost is discarded; an owned ghost is removed from the ledger through `DollAttachment.absorb`,
   which does not spawn a stray. The write targets the live held stack because vanilla hands creative
   players a copy of the stack to `interactLivingEntity`; writing the argument would spend the ghost
@@ -88,9 +88,14 @@ ghost handlers, so `YuyukoFanItem.use` only delegates.
 - **Absorb mode, right-click air** collects every loaded summoned ghost. At a full pool the ghost is
   released instead, the same escape hatch the single-target path uses. Absorbing fewer ghosts than
   expected is not an error.
+- **Scatter mode, right-click air** spends 10 spiritual power on a forward fan of butterfly danmaku:
+  21 rays three degrees apart, five danmaku per ray. Odd (1-based) rays use the pink item at
+  0.6–1.0 distance, even rays the blue item at 0.55–0.95. Within a ray the five are spaced evenly
+  across that range, and each moves at the distance it spawned at, so the outermost is the fastest.
+  The mode is refused, with a message, when the pool holds less than 10.
 
-The selector icons are the stray-ghost spawn egg for summoning and the fan itself for absorbing,
-both named after the mode.
+The selector icons are the stray-ghost spawn egg for summoning, the fan itself for absorbing and the
+pink butterfly for scattering, all named after the mode.
 
 ## 5. Dual ghost and the death ward
 
