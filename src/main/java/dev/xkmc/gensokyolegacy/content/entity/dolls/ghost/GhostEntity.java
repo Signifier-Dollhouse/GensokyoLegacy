@@ -1,12 +1,12 @@
 package dev.xkmc.gensokyolegacy.content.entity.dolls.ghost;
 
-import dev.xkmc.danmakuapi.api.IDanmakuEntity;
-import dev.xkmc.danmakuapi.api.IYoukaiEntity;
+import dev.xkmc.danmakuapi.api.GrazeHelper;
 import dev.xkmc.gensokyolegacy.content.attachment.doll.DollAttachment;
 import dev.xkmc.gensokyolegacy.content.attachment.doll.DollHost;
 import dev.xkmc.gensokyolegacy.content.attachment.doll.DollLedger;
 import dev.xkmc.gensokyolegacy.content.attachment.doll.DollNature;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.BaseDollEntity;
+import dev.xkmc.gensokyolegacy.content.entity.dolls.impl.DollDanmakuAlly;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.impl.DollModule;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
@@ -18,12 +18,10 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.OwnableEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import software.bernie.geckolib.animation.AnimationController;
 import software.bernie.geckolib.animation.AnimatableManager;
@@ -41,7 +39,7 @@ import java.util.UUID;
  * @see "doc/design/doll/stray.md"
  */
 public class GhostEntity extends BaseDollEntity
-		implements GhostVariantHolder, GhostPowerHolder, IYoukaiEntity {
+		implements GhostVariantHolder, GhostPowerHolder, DollDanmakuAlly {
 
 	public static final ResourceLocation TYPE = GensokyoLegacy.loc("ghost");
 	public static final EntityDataAccessor<Integer> DATA_VARIANT =
@@ -160,32 +158,13 @@ public class GhostEntity extends BaseDollEntity
 		if (host instanceof DollLedger ledger) ledger.drop(uuid);
 	}
 
+	/**
+	 * The haunting ghost's butterflies may hurt exactly what the owner's own danmaku may hurt.
+	 */
 	@Override
-	public boolean shouldHurt(LivingEntity target) {
-		if (target == this) return false;
-		LivingEntity owner = getOwner();
-		if (owner == null) return true;
-		if (target == owner) return false;
-		if (target instanceof OwnableEntity other && owner.getUUID().equals(other.getOwnerUUID())) return false;
-		return !target.isAlliedTo(owner) && !owner.isAlliedTo(target);
-	}
-
-	@Override
-	public void onDanmakuHit(LivingEntity target, IDanmakuEntity bullet) {
-	}
-
-	@Override
-	public void onDanmakuImmune(LivingEntity target, IDanmakuEntity bullet, DamageSource source) {
-	}
-
-	@Override
-	public boolean isTarget(LivingEntity entity) {
-		return false;
-	}
-
-	@Override
-	public AABB getBoundingBoxForDanmaku() {
-		return getBoundingBox();
+	public boolean isNonEnemy(LivingEntity target) {
+		if (getOwner() instanceof Player player) return !GrazeHelper.shouldPlayerHurt(player, target);
+		return DollDanmakuAlly.super.isNonEnemy(target);
 	}
 
 	/**

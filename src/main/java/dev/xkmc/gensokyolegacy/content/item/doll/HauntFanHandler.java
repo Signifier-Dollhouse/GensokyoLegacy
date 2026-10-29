@@ -39,7 +39,7 @@ final class HauntFanHandler implements YuyukoFanModeHandler {
 			existing.addPower(cost);
 			SpiritualPower.add(stack, -cost);
 			existing.hunt(target);
-			sp.displayClientMessage(GLLang.Ghost.HAUNT_REUSED.get(), true);
+			sp.displayClientMessage(GLLang.Ghost.HAUNT_REUSED.get(cost), true);
 			return true;
 		}
 		if (SpiritualPower.get(stack) < GhostPower.SUMMON_COST) {

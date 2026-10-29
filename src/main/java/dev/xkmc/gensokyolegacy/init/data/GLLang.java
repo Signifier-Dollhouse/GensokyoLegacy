@@ -1044,7 +1044,7 @@ public final class GLLang {
 		FOODIE("Foodie Ghost"),
 		LIVELY("Lively Ghost"),
 		DUAL("Dual Ghost"),
-		HAUNTING("Haunting Ghost"),
+		HAUNTING("Ghost Butterfly"),
 		NOT_YOURS("This ghost is not yours", 0, ChatFormatting.RED),
 		BIND_FAIL("The ghost resists the flute", 0, ChatFormatting.RED),
 		RELEASE_FAIL("The ghost cannot be released", 0, ChatFormatting.RED),
@@ -1069,7 +1069,7 @@ public final class GLLang {
 		DUAL_WARD("A dual ghost vanished to save your life", 0, ChatFormatting.GOLD),
 		NO_TARGET("No target under your crosshair", 0, ChatFormatting.RED),
 		HAUNT_SUMMONED("A haunting ghost answers the fan", 0),
-		HAUNT_REUSED("The haunting ghost returns to the hunt", 0);
+		HAUNT_REUSED("The haunting ghost returns to the hunt (%s spiritual power refilled)", 1);
 
 		private final String def;
 		private final int argn;

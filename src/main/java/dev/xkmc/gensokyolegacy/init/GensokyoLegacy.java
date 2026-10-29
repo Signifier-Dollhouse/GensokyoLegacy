@@ -122,12 +122,6 @@ public class GensokyoLegacy {
 	}
 
 	@SubscribeEvent
-	public static void modifyDefaultComponents(ModifyDefaultComponentsEvent event) {
-		event.modify(GLItems.YUYUKO_FAN.get(), builder ->
-				builder.set(GLItems.SPIRITUAL_POWER_MAX.get(), YuyukoFanItem.MAX_POWER));
-	}
-
-	@SubscribeEvent
 	public static void commonSetup(FMLCommonSetupEvent event) {
 		event.enqueueWork(() -> {
 			BlockFoods.register();

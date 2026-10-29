@@ -73,7 +73,9 @@ own intrinsic max.
 
 The fan has four modes, stored in the `yuyuko_fan_mode` component and selected with the shared item
 wheel/list (`YuyukoFanSelectionListener`). Each mode is a `YuyukoFanModeHandler`, mirroring the
-ghost handlers, so `YuyukoFanItem.use` only delegates.
+ghost handlers, so `YuyukoFanItem.use` only delegates. The pool also shows as the item's durability
+bar (`SpiritualItem`): visible whenever the stack has a capacity, with width scaled to the stored
+power so it can be read without opening the tooltip.
 
 - **Right-click a ghost** absorbs `min(power, room)` into the pool. This works in every mode. A wild
   ghost is discarded; an owned ghost is removed from the ledger through `DollAttachment.absorb`,
@@ -113,26 +115,28 @@ pink butterfly for scattering and the bone flute for haunting, all named after t
 `GhostEntity`, `DollAttachment` entry, park/resummon path and summon cap as every other variant. It
 has no upkeep and never leaves on its own. With no target it follows its owner in the normal
 formation and behaves like any other ghost. `HauntingGhostHandler.hunt` gives it a target; the
-handler then suppresses the follow goals, chases the target, and attacks. When the target dies or
-leaves the level, it clears the target and resumes following.
+handler then suppresses the follow goals, chases until it is within two blocks, and attacks. When
+the target dies or leaves the level, it clears the target and resumes following. Its butterflies
+implement `DollDanmakuAlly` and override `isNonEnemy` with the owner's own player-danmaku rule, so
+they may hurt every target the owner's danmaku may hurt while still sparing the owner's side.
 
 Each volley spends 10 power; at zero it vanishes, removing its ledger entry, so one full summon is
 worth 100 volleys. `SummonFanHandler` never summons or refills it, `AbsorbFanHandler` recalls it
 like any other ghost, and the bone flute cannot release it (`releasable` is false), so the fan stays
 the only exit. A full fan leaves it following rather than releasing it.
 
-A volley is 72 butterflies: each of 36 centres gets one clockwise and one counterclockwise one. The
-n-th centre sits four blocks from the ghost at `10n` degrees, and the butterfly itself starts on the
-ghost, so the 36 centres form a ring around it while every orbit passes through its body. The ring
-lies in a plane tilted through the target (`DanmakuHelper.getOrientation` on the ghost-to-target
-direction gives the plane, and `rotateDegrees` places the centres), so the flower spreads around the
-target instead of staying horizontal. Each butterfly orbits its own centre at the same four-block
-radius for 40 ticks, which is exactly one full revolution (`PolarMover` at `2π/40`); the two
-directions per centre take opposite colours, alternating pink and blue. The ghost holds its position
-and stays invisible for all 40 ticks; `HauntingGhostModule` keeps the lock and cooldown as transient
-combat state, so a ghost parked mid-volley comes back following. When the volley ends it has a
-further 20 ticks of cooldown, which it spends tracing the target; if the target is still in range it
-volleys again.
+A volley is 96 butterflies: each of 48 centres gets one clockwise and one counterclockwise one. The
+centres sit on three concentric rings of radius 2, 2.5 and 3 blocks, sixteen per ring at 22.5-degree
+steps. The butterfly itself starts on the ghost, because each orbit radius matches its ring radius,
+so every orbit passes through its body. The rings lie in a plane tilted through the target
+(`DanmakuHelper.getOrientation` on the ghost-to-target direction gives the plane, and
+`rotateDegrees` places the centres), so the flower spreads around the target instead of staying
+horizontal. Each butterfly orbits its own centre at its ring's radius for 40 ticks, which is exactly
+one full revolution (`PolarMover` at `2π/40`); the two directions per centre take opposite colours,
+alternating pink and blue. The ghost holds its position and stays invisible for all 40 ticks;
+`HauntingGhostModule` keeps the lock and cooldown as transient combat state, so a ghost parked
+mid-volley comes back following. When the volley ends it has a further 20 ticks of cooldown, which
+it spends tracing the target; if the target is still within two blocks it volleys again.
 
 The variant wears `textures/geo/ghost/dual_ghost.png`; `GhostVariant.texture` returns that stem for
 `HAUNTING` instead of the usual `<variant>_ghost` derivation.

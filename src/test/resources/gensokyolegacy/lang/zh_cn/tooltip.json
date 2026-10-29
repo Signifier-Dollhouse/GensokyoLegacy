@@ -179,8 +179,8 @@
 			"curios": "好奇幽灵",
 			"foodie": "美食幽灵",
 			"lively": "活泼幽灵",
-			"dual": "双重幽灵",
-			"haunting": "缠身幽灵",
+			"dual": "伴灵",
+			"haunting": "幽蝶",
 			"not_yours": "这个幽灵不属于你",
 			"bind_fail": "幽灵抗拒骨笛",
 			"release_fail": "无法释放这个幽灵",
@@ -205,7 +205,7 @@
 			"dual_ward": "一只双重幽灵烟消云散，替你挡下了死亡",
 			"no_target": "准星下没有可选的目标",
 			"haunt_summoned": "一只缠身幽灵应扇而来",
-			"haunt_reused": "缠身幽灵重新投入猎杀"
+			"haunt_reused": "缠身幽灵重新投入猎杀（补充 %s 点灵力）"
 		},
 		"bone_flute": {
 			"bind": "右键力量不低于 200 的流浪幽灵将其绑定",

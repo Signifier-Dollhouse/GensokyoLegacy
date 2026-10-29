@@ -2,10 +2,12 @@ package dev.xkmc.gensokyolegacy.content.item.doll;
 
 import dev.xkmc.danmakuapi.api.IDanmakuEntity;
 import dev.xkmc.gensokyolegacy.content.attachment.doll.DollAttachment;
+import dev.xkmc.gensokyolegacy.content.client.deco.ClientTooltip;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.ghost.GhostEntity;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.ghost.GhostPowerHolder;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.ghost.StrayGhostEntity;
 import dev.xkmc.gensokyolegacy.content.item.common.GloveTargeting;
+import dev.xkmc.gensokyolegacy.content.item.spiritual.SpiritualItem;
 import dev.xkmc.gensokyolegacy.content.item.spiritual.SpiritualPower;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
@@ -22,7 +24,6 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
@@ -37,12 +38,7 @@ import java.util.List;
  *
  * @see "doc/design/doll/ghost_power.md"
  */
-public class YuyukoFanItem extends Item implements GloveTargeting {
-
-	/**
-	 * Intrinsic capacity stamped onto every fan; other spiritual items pick their own.
-	 */
-	public static final int MAX_POWER = 10000;
+public class YuyukoFanItem extends SpiritualItem implements GloveTargeting {
 
 	/**
 	 * How far the haunt mode's crosshair trace reaches, matching the dagger glove's homing mode.
@@ -58,7 +54,7 @@ public class YuyukoFanItem extends Item implements GloveTargeting {
 	private static final int COOLDOWN = 10;
 
 	public YuyukoFanItem(Properties properties) {
-		super(properties);
+		super(properties, 10000);
 	}
 
 	public static YuyukoFanMode getMode(ItemStack stack) {
@@ -114,7 +110,7 @@ public class YuyukoFanItem extends Item implements GloveTargeting {
 
 	@Override
 	public InteractionResult interactLivingEntity(ItemStack stack, Player player,
-												   LivingEntity target, InteractionHand hand) {
+												  LivingEntity target, InteractionHand hand) {
 		boolean stray = target instanceof StrayGhostEntity;
 		boolean owned = target instanceof GhostEntity;
 		if (!stray && !owned) return InteractionResult.PASS;
@@ -205,16 +201,18 @@ public class YuyukoFanItem extends Item implements GloveTargeting {
 	@Override
 	public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> list, TooltipFlag flag) {
 		list.add(GLLang.ItemLores.YUYUKO_FAN_LORE.get());
-		SpiritualPower.appendHoverText(stack, list);
-		list.add(GLLang.ItemYuyukoFan.ABSORB.get());
-		list.add(GLLang.ItemYuyukoFan.SUMMON.get());
-		list.add(GLLang.ItemYuyukoFan.ABSORB_ALL.get());
-		list.add(GLLang.ItemYuyukoFan.SCATTER.get());
-		list.add(GLLang.ItemYuyukoFan.HAUNT.get());
-		list.add(GLLang.ItemYuyukoFan.RELEASE.get());
+		super.appendHoverText(stack, context, list, flag);
 		list.add(GLLang.ItemYuyukoFan.SELECTED.get(getMode(stack).getDisplayName()));
-		list.add(GLLang.ItemGlove.WHEEL.get(L2Keys.WHEEL.map.getKey().getDisplayName())
-				.withStyle(ChatFormatting.GRAY));
+		if (ClientTooltip.isShiftDown()) {
+			list.add(GLLang.ItemYuyukoFan.ABSORB.get());
+			list.add(GLLang.ItemYuyukoFan.RELEASE.get());
+			list.add(GLLang.ItemYuyukoFan.SUMMON.get());
+			list.add(GLLang.ItemYuyukoFan.ABSORB_ALL.get());
+			list.add(GLLang.ItemYuyukoFan.SCATTER.get());
+			list.add(GLLang.ItemYuyukoFan.HAUNT.get());
+			list.add(GLLang.ItemGlove.WHEEL.get(L2Keys.WHEEL.map.getKey().getDisplayName())
+					.withStyle(ChatFormatting.GRAY));
+		}
 	}
 
 }

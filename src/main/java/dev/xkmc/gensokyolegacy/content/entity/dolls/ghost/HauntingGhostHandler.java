@@ -2,9 +2,9 @@ package dev.xkmc.gensokyolegacy.content.entity.dolls.ghost;
 
 import dev.xkmc.danmakuapi.content.entity.DanmakuHelper;
 import dev.xkmc.danmakuapi.content.entity.ItemBulletEntity;
-import dev.xkmc.danmakuapi.content.item.DanmakuItem;
 import dev.xkmc.danmakuapi.content.spell.mover.PolarMover;
 import dev.xkmc.danmakuapi.init.registrate.DanmakuEntities;
+import dev.xkmc.danmakuapi.init.registrate.DanmakuItems;
 import dev.xkmc.fastprojectileapi.collision.EntityStorageHelper;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.impl.DollRig;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
@@ -12,7 +12,6 @@ import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 
 /**
@@ -27,14 +26,8 @@ final class HauntingGhostHandler implements GhostVariantHandler {
 	private static final int ATTACK_INVISIBLE = 40;
 	private static final int ATTACK_COOLDOWN = 20;
 	private static final int ATTACK_COST = 10;
-	private static final double ATTACK_RANGE = 8;
+	private static final double ATTACK_RANGE = 3;
 	private static final int PATH_INTERVAL = 10;
-
-	private static final int RAYS = 36;
-	private static final double RAY_ANGLE = 10;
-	private static final double ORBIT_RADIUS = 4;
-	private static final int DANMAKU_LIFE = 40;
-	private static final double ORBIT_SPEED = Math.PI * 2 / DANMAKU_LIFE;
 
 	@Override
 	public Component getDisplayName() {
@@ -131,39 +124,49 @@ final class HauntingGhostHandler implements GhostVariantHandler {
 	}
 
 	/**
-	 * A clockwise and a counterclockwise butterfly for each of the thirty-six centres. The plane is
-	 * tilted through the target, so the whole flower spreads around it; every butterfly starts and
-	 * ends at the ghost.
+	 * A clockwise and a counterclockwise butterfly for every centre in three concentric rings. The
+	 * plane is tilted through the target, so the whole flower spreads around it; every butterfly
+	 * starts and ends at the ghost because each orbit radius matches its ring radius.
 	 */
 	private void spawnButterflies(GhostEntity ghost, LivingEntity target) {
 		ServerLevel level = (ServerLevel) ghost.level();
 		Vec3 origin = ghost.position().add(0, ghost.getBbHeight() / 2, 0);
 		Vec3 aim = target.getBoundingBox().getCenter().subtract(origin);
 		Vec3 dir = aim.lengthSqr() < 1e-6 ? new Vec3(1, 0, 0) : aim.normalize();
-		DanmakuHelper.Orientation plane = DanmakuHelper.getOrientation(dir);
-		Vec3 normal = plane.normal();
-		for (int i = 0; i < RAYS; i++) {
-			Vec3 out = plane.rotateDegrees(i * RAY_ANGLE);
-			Vec3 center = origin.add(out.scale(ORBIT_RADIUS));
-			Vec3 back = out.scale(-1);
-			Vec3 tangent = back.cross(normal).normalize().scale(ORBIT_SPEED * ORBIT_RADIUS);
-			DanmakuItem cw = (i % 2 == 0 ? GLItems.PINK_BUTTERFLY : GLItems.BLUE_BUTTERFLY).get();
-			DanmakuItem ccw = (i % 2 == 0 ? GLItems.BLUE_BUTTERFLY : GLItems.PINK_BUTTERFLY).get();
-			spawnButterfly(level, ghost, origin, center, back, normal, tangent, ORBIT_SPEED, cw);
-			spawnButterfly(level, ghost, origin, center, back, normal, tangent.scale(-1), -ORBIT_SPEED, ccw);
+		var ori = DanmakuHelper.getOrientation(dir);
+		var nor0 = ori.rotateDegrees(90, 70);
+		var nor1 = ori.rotateDegrees(-90, 70);
+		var pl0 = DanmakuHelper.getOrientation(dir, nor0);
+		var pl1 = DanmakuHelper.getOrientation(dir, nor1);
+
+		int rings = 3;
+		float r0 = 1, dr = 0.5f;
+		for (int layer = 0; layer < rings; layer++) {
+			double radius = r0 + dr * layer;
+			int m = 6 + layer * 2;
+			spawn(level, ghost, origin, pl0, radius, m, 1);
+			spawn(level, ghost, origin, pl1, radius, m, -1);
 		}
 	}
 
-	private void spawnButterfly(ServerLevel level, GhostEntity ghost, Vec3 origin, Vec3 center, Vec3 back,
-								Vec3 normal, Vec3 tangent, double angular, DanmakuItem item) {
-		ItemBulletEntity danmaku = new ItemBulletEntity(DanmakuEntities.ITEM_DANMAKU.get(), ghost, level);
-		danmaku.setItem(new ItemStack(item));
-		danmaku.setup((float) item.type.damage(), DANMAKU_LIFE, true, item.type.bypass(), tangent);
-		danmaku.setPos(origin);
-		danmaku.mover = PolarMover.ofPlane(center, back, normal)
-				.radial(ORBIT_RADIUS, 0, 0)
-				.angular(0, angular, 0);
-		EntityStorageHelper.fastAdd(level, danmaku);
+	private void spawn(ServerLevel level, GhostEntity ghost, Vec3 origin, DanmakuHelper.Orientation plane, double radius, int m, int alt) {
+		double w = Math.PI * 2 / ATTACK_LOCK;
+		var normal = plane.normal();
+		var item = (alt > 0 ? GLItems.PINK_BUTTERFLY : GLItems.BLUE_BUTTERFLY).asStack();
+		for (int i = 0; i < m; i++) {
+			Vec3 out = plane.rotateDegrees(i * 360.0 / m);
+			Vec3 center = origin.add(out.scale(radius));
+			Vec3 back = out.scale(-1);
+			Vec3 tangent = back.cross(normal).normalize().scale(w * radius * alt);
+			ItemBulletEntity danmaku = new ItemBulletEntity(DanmakuEntities.ITEM_DANMAKU.get(), ghost, level);
+			danmaku.setItem(item);
+			danmaku.setup(DanmakuItems.Bullet.BUTTERFLY.damage(), ATTACK_LOCK, true, true, tangent);
+			danmaku.setPos(origin);
+			danmaku.mover = PolarMover.ofPlane(center, back, normal)
+					.radial(radius, 0, 0)
+					.angular(0, w * alt, 0);
+			EntityStorageHelper.fastAdd(level, danmaku);
+		}
 	}
 
 	private static HauntingGhostModule state(GhostEntity ghost) {
