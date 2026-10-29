@@ -1,6 +1,10 @@
 package dev.xkmc.gensokyolegacy.content.entity.dolls.ghost;
 
+import dev.xkmc.danmakuapi.api.IDanmakuEntity;
+import dev.xkmc.danmakuapi.api.IYoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.attachment.doll.DollAttachment;
+import dev.xkmc.gensokyolegacy.content.attachment.doll.DollHost;
+import dev.xkmc.gensokyolegacy.content.attachment.doll.DollLedger;
 import dev.xkmc.gensokyolegacy.content.attachment.doll.DollNature;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.BaseDollEntity;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.impl.DollModule;
@@ -14,24 +18,30 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.OwnableEntity;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import software.bernie.geckolib.animation.AnimationController;
 import software.bernie.geckolib.animation.AnimatableManager;
 import software.bernie.geckolib.animation.PlayState;
 import software.bernie.geckolib.animation.RawAnimation;
 
 import java.util.List;
+import java.util.UUID;
 
 /**
- * The player-bound support ghost: it pairs, follows and is restored like any doll, but carries no
- * item, no loadout and no command surface. Its one contribution is the variant aura it provides
- * while its owner is nearby.
+ * The player-bound ghost: it pairs, follows and is restored like any doll, but carries no item,
+ * no loadout and no command surface. Most variants contribute an aura while their owner is nearby;
+ * {@link GhostVariant#HAUNTING} instead hunts the target the fan marks and follows when idle.
  *
  * @see "doc/design/doll/stray.md"
  */
-public class GhostEntity extends BaseDollEntity implements GhostVariantHolder, GhostPowerHolder {
+public class GhostEntity extends BaseDollEntity
+		implements GhostVariantHolder, GhostPowerHolder, IYoukaiEntity {
 
 	public static final ResourceLocation TYPE = GensokyoLegacy.loc("ghost");
 	public static final EntityDataAccessor<Integer> DATA_VARIANT =
@@ -59,6 +69,7 @@ public class GhostEntity extends BaseDollEntity implements GhostVariantHolder, G
 		super.createDollModules(modules);
 		modules.add(new GhostVariantModule());
 		modules.add(new GhostPowerModule());
+		modules.add(new HauntingGhostModule());
 	}
 
 	@Override
@@ -100,8 +111,81 @@ public class GhostEntity extends BaseDollEntity implements GhostVariantHolder, G
 			return;
 		}
 		variant.handler.tick(this);
+		if (isRemoved()) return;
 		if (distanceToSqr(owner) > ABILITY_RANGE * ABILITY_RANGE) return;
 		variant.handler.aura(this, owner);
+	}
+
+	@Override
+	public boolean followsOwner() {
+		return getVariant().handler.followsOwner(this);
+	}
+
+	/**
+	 * The haunting ghost holds position while its volley is in the air.
+	 */
+	@Override
+	public void travel(Vec3 input) {
+		if (getVariant().handler.isStationary(this)) {
+			setDeltaMovement(Vec3.ZERO);
+			return;
+		}
+		super.travel(input);
+	}
+
+	/**
+	 * Sends this ghost after {@code target}, resetting any volley it is in the middle of.
+	 */
+	public void hunt(LivingEntity target) {
+		getVariant().handler.hunt(this, target);
+	}
+
+	/**
+	 * Whether this ghost has no live target and is back to escorting its owner.
+	 */
+	public boolean isFollowing() {
+		LivingEntity target = getTarget();
+		return target == null || !target.isAlive() || target.level() != level();
+	}
+
+	/**
+	 * Removes a spent ghost from the ledger as well as the world, so the watchdog does not
+	 * resummon it.
+	 */
+	public void vanish() {
+		level().broadcastEntityEvent(this, (byte) 60);
+		DollHost host = getHost();
+		UUID uuid = getUUID();
+		discard();
+		if (host instanceof DollLedger ledger) ledger.drop(uuid);
+	}
+
+	@Override
+	public boolean shouldHurt(LivingEntity target) {
+		if (target == this) return false;
+		LivingEntity owner = getOwner();
+		if (owner == null) return true;
+		if (target == owner) return false;
+		if (target instanceof OwnableEntity other && owner.getUUID().equals(other.getOwnerUUID())) return false;
+		return !target.isAlliedTo(owner) && !owner.isAlliedTo(target);
+	}
+
+	@Override
+	public void onDanmakuHit(LivingEntity target, IDanmakuEntity bullet) {
+	}
+
+	@Override
+	public void onDanmakuImmune(LivingEntity target, IDanmakuEntity bullet, DamageSource source) {
+	}
+
+	@Override
+	public boolean isTarget(LivingEntity entity) {
+		return false;
+	}
+
+	@Override
+	public AABB getBoundingBoxForDanmaku() {
+		return getBoundingBox();
 	}
 
 	/**

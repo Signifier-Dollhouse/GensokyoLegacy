@@ -1,0 +1,173 @@
+package dev.xkmc.gensokyolegacy.content.entity.dolls.ghost;
+
+import dev.xkmc.danmakuapi.content.entity.DanmakuHelper;
+import dev.xkmc.danmakuapi.content.entity.ItemBulletEntity;
+import dev.xkmc.danmakuapi.content.item.DanmakuItem;
+import dev.xkmc.danmakuapi.content.spell.mover.PolarMover;
+import dev.xkmc.danmakuapi.init.registrate.DanmakuEntities;
+import dev.xkmc.fastprojectileapi.collision.EntityStorageHelper;
+import dev.xkmc.gensokyolegacy.content.entity.dolls.impl.DollRig;
+import dev.xkmc.gensokyolegacy.init.data.GLLang;
+import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.Vec3;
+
+/**
+ * The haunting ghost: an ordinary ledger ghost that ignores its follow goals while it has a target,
+ * chases it, and volleys butterflies. With no target it does nothing and the base ghost follows.
+ *
+ * @see "doc/design/doll/ghost_power.md"
+ */
+final class HauntingGhostHandler implements GhostVariantHandler {
+
+	private static final int ATTACK_LOCK = 40;
+	private static final int ATTACK_INVISIBLE = 40;
+	private static final int ATTACK_COOLDOWN = 20;
+	private static final int ATTACK_COST = 10;
+	private static final double ATTACK_RANGE = 8;
+	private static final int PATH_INTERVAL = 10;
+
+	private static final int RAYS = 36;
+	private static final double RAY_ANGLE = 10;
+	private static final double ORBIT_RADIUS = 4;
+	private static final int DANMAKU_LIFE = 40;
+	private static final double ORBIT_SPEED = Math.PI * 2 / DANMAKU_LIFE;
+
+	@Override
+	public Component getDisplayName() {
+		return GLLang.Ghost.HAUNTING.get();
+	}
+
+	@Override
+	public boolean wild() {
+		return false;
+	}
+
+	@Override
+	public boolean summonable() {
+		return false;
+	}
+
+	@Override
+	public boolean releasable() {
+		return false;
+	}
+
+	@Override
+	public boolean leavesWhenWeak() {
+		return false;
+	}
+
+	@Override
+	public boolean followsOwner(GhostEntity ghost) {
+		LivingEntity target = ghost.getTarget();
+		return target == null || !target.isAlive() || target.level() != ghost.level();
+	}
+
+	@Override
+	public boolean isStationary(GhostEntity ghost) {
+		return state(ghost).lockTicks > 0;
+	}
+
+	@Override
+	public void hunt(GhostEntity ghost, LivingEntity target) {
+		HauntingGhostModule state = state(ghost);
+		state.lockTicks = 0;
+		state.invisibleTicks = 0;
+		state.attackCooldown = 0;
+		ghost.setInvisible(false);
+		ghost.setTarget(target);
+		ghost.getNavigation().stop();
+	}
+
+	@Override
+	public void tick(GhostEntity ghost) {
+		HauntingGhostModule state = state(ghost);
+		if (ghost.getPower() <= 0) {
+			ghost.vanish();
+			return;
+		}
+		if (state.invisibleTicks > 0 && --state.invisibleTicks == 0) ghost.setInvisible(false);
+		if (state.attackCooldown > 0) state.attackCooldown--;
+		if (state.lockTicks > 0) {
+			// the cooldown is counted from the end of the lock, not from the volley
+			if (--state.lockTicks == 0) state.attackCooldown = ATTACK_COOLDOWN;
+			ghost.getNavigation().stop();
+			ghost.setDeltaMovement(Vec3.ZERO);
+			LivingEntity target = ghost.getTarget();
+			if (target != null) ghost.getLookControl().setLookAt(target, 30, 30);
+			return;
+		}
+		LivingEntity target = ghost.getTarget();
+		if (target == null || !target.isAlive() || target.level() != ghost.level()) {
+			ghost.setTarget(null);
+			return;
+		}
+		ghost.getLookControl().setLookAt(target, 30, 30);
+		if (ghost.distanceToSqr(target) <= ATTACK_RANGE * ATTACK_RANGE) {
+			ghost.getNavigation().stop();
+			if (state.attackCooldown <= 0) attack(ghost, target);
+			return;
+		}
+		if (ghost.tickCount % PATH_INTERVAL == 0) ghost.getNavigation().moveTo(target, 1);
+	}
+
+	private void attack(GhostEntity ghost, LivingEntity target) {
+		if (ghost.getPower() < ATTACK_COST) {
+			ghost.vanish();
+			return;
+		}
+		ghost.addPower(-ATTACK_COST);
+		spawnButterflies(ghost, target);
+		HauntingGhostModule state = state(ghost);
+		state.lockTicks = ATTACK_LOCK;
+		state.invisibleTicks = ATTACK_INVISIBLE;
+		ghost.setInvisible(true);
+		ghost.level().broadcastEntityEvent(ghost, DollRig.EVENT_SKILL);
+		if (ghost.getPower() <= 0) ghost.vanish();
+	}
+
+	/**
+	 * A clockwise and a counterclockwise butterfly for each of the thirty-six centres. The plane is
+	 * tilted through the target, so the whole flower spreads around it; every butterfly starts and
+	 * ends at the ghost.
+	 */
+	private void spawnButterflies(GhostEntity ghost, LivingEntity target) {
+		ServerLevel level = (ServerLevel) ghost.level();
+		Vec3 origin = ghost.position().add(0, ghost.getBbHeight() / 2, 0);
+		Vec3 aim = target.getBoundingBox().getCenter().subtract(origin);
+		Vec3 dir = aim.lengthSqr() < 1e-6 ? new Vec3(1, 0, 0) : aim.normalize();
+		DanmakuHelper.Orientation plane = DanmakuHelper.getOrientation(dir);
+		Vec3 normal = plane.normal();
+		for (int i = 0; i < RAYS; i++) {
+			Vec3 out = plane.rotateDegrees(i * RAY_ANGLE);
+			Vec3 center = origin.add(out.scale(ORBIT_RADIUS));
+			Vec3 back = out.scale(-1);
+			Vec3 tangent = back.cross(normal).normalize().scale(ORBIT_SPEED * ORBIT_RADIUS);
+			DanmakuItem cw = (i % 2 == 0 ? GLItems.PINK_BUTTERFLY : GLItems.BLUE_BUTTERFLY).get();
+			DanmakuItem ccw = (i % 2 == 0 ? GLItems.BLUE_BUTTERFLY : GLItems.PINK_BUTTERFLY).get();
+			spawnButterfly(level, ghost, origin, center, back, normal, tangent, ORBIT_SPEED, cw);
+			spawnButterfly(level, ghost, origin, center, back, normal, tangent.scale(-1), -ORBIT_SPEED, ccw);
+		}
+	}
+
+	private void spawnButterfly(ServerLevel level, GhostEntity ghost, Vec3 origin, Vec3 center, Vec3 back,
+								Vec3 normal, Vec3 tangent, double angular, DanmakuItem item) {
+		ItemBulletEntity danmaku = new ItemBulletEntity(DanmakuEntities.ITEM_DANMAKU.get(), ghost, level);
+		danmaku.setItem(new ItemStack(item));
+		danmaku.setup((float) item.type.damage(), DANMAKU_LIFE, true, item.type.bypass(), tangent);
+		danmaku.setPos(origin);
+		danmaku.mover = PolarMover.ofPlane(center, back, normal)
+				.radial(ORBIT_RADIUS, 0, 0)
+				.angular(0, angular, 0);
+		EntityStorageHelper.fastAdd(level, danmaku);
+	}
+
+	private static HauntingGhostModule state(GhostEntity ghost) {
+		return ghost.getModule(HauntingGhostModule.class);
+	}
+
+}

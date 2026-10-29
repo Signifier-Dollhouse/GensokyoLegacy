@@ -14,7 +14,7 @@ universal spiritual pool, so a player can carry ghosts instead of keeping them s
 | `SpiritualPower` | universal item pool, stored as the `spiritual_power` component |
 | `spiritual_power_max` | per-stack capacity; the fan's intrinsic value is 10000 |
 
-The ghost's power is synced entity data on both ghost types and persisted in `DollData.power`.
+The ghost's power is synced entity data on every ghost type and persisted in `DollData.power`.
 Because the ledger entry is server-only (`toClient = false`), the entity's synced accessor is what
 the renderer reads; `GhostPowerModule` is the bridge across park/resummon, like
 `GhostVariantModule` for the variant.
@@ -28,7 +28,8 @@ ghost keeps the power it had, because `DollAttachment.release` copies it onto th
 between. Both ghost renderers override `getRenderColor` to scale the vertex alpha and
 `getRenderType` to return `RenderType.entityTranslucent`. The default `entityCutoutNoCull` would
 discard alpha instead of blending it, so the render-type override is what makes fading visible at
-all. Invisible and glowing entities keep the vanilla renderer paths.
+all. Invisible and glowing entities keep the vanilla renderer paths; the haunting ghost is the
+exception, returning no render type while it hides for a volley.
 
 ## 3. Drain while following
 
@@ -70,7 +71,7 @@ its default components to 10000 through `ModifyDefaultComponentsEvent`. The `Spi
 reads both components, clamps writes and renders the bar, so future spiritual items only need their
 own intrinsic max.
 
-The fan has three modes, stored in the `yuyuko_fan_mode` component and selected with the shared item
+The fan has four modes, stored in the `yuyuko_fan_mode` component and selected with the shared item
 wheel/list (`YuyukoFanSelectionListener`). Each mode is a `YuyukoFanModeHandler`, mirroring the
 ghost handlers, so `YuyukoFanItem.use` only delegates.
 
@@ -80,26 +81,65 @@ ghost handlers, so `YuyukoFanItem.use` only delegates.
   players a copy of the stack to `interactLivingEntity`; writing the argument would spend the ghost
   without storing its power.
 - **Full pool** on an owned ghost: `DollAttachment.release` runs instead, so the ghost is not
-  destroyed with power still in it. A wild ghost at a full pool is simply refused.
+  destroyed with power still in it. A wild ghost at a full pool is simply refused. The haunting
+  ghost is the exception: release refuses it, so it stays in the ledger following its owner.
 - **Summon mode, right-click air** refills every summoned ghost, then summons one of each missing
-  kind from `GhostVariant.values()` (including dual) while the pool has at least `SUMMON_COST` and
-  the ledger cap (`MAX_SUMMONED`) allows it. A full ghost is skipped; if nothing was refilled or
-  summoned, the fan reports the cap or that everything is already full.
-- **Absorb mode, right-click air** collects every loaded summoned ghost. At a full pool the ghost is
-  released instead, the same escape hatch the single-target path uses. Absorbing fewer ghosts than
-  expected is not an error.
+  summonable kind from `GhostVariant.values()` (including dual, excluding the haunting ghost) while
+  the pool has at least `SUMMON_COST` and the ledger cap (`MAX_SUMMONED`) allows it. A full ghost is
+  skipped; if nothing was refilled or summoned, the fan reports the cap or that everything is
+  already full.
+- **Absorb mode, right-click air** collects every loaded summoned ghost, including the haunting
+  ghost. At a full pool a ghost is released instead, the same escape hatch the single-target path
+  uses; release refuses the haunting ghost, so it is left following rather than destroyed with power
+  still in it. Absorbing fewer ghosts than expected is not an error.
 - **Scatter mode, right-click air** spends 10 spiritual power on a forward fan of butterfly danmaku:
   21 rays three degrees apart, five danmaku per ray. Odd (1-based) rays use the pink item at
   0.6–1.0 distance, even rays the blue item at 0.55–0.95. Within a ray the five are spaced evenly
   across that range, and each moves at the distance it spawned at, so the outermost is the fastest.
   The mode is refused, with a message, when the pool holds less than 10.
+- **Haunt mode, right-click air** spends 1000 spiritual power to send a haunting ghost at the entity
+  under the crosshair. Targeting reuses the shared glove trace (`YuyukoFanItem` implements
+  `GloveTargeting`): 64 blocks, no block veto, the same accepted targets as the dagger glove's
+  homing mode, and a violet outline. When a haunting ghost is already in the ledger, no second one
+  is summoned: the power refills it (only the power actually added is spent) and it is sent at the
+  new target.
 
-The selector icons are the stray-ghost spawn egg for summoning, the fan itself for absorbing and the
-pink butterfly for scattering, all named after the mode.
+The selector icons are the stray-ghost spawn egg for summoning, the fan itself for absorbing, the
+pink butterfly for scattering and the bone flute for haunting, all named after the mode.
+
+### 4.1 Haunting ghost
+
+`GhostVariant.HAUNTING` is an ordinary ledger ghost, not a separate entity: it uses the same
+`GhostEntity`, `DollAttachment` entry, park/resummon path and summon cap as every other variant. It
+has no upkeep and never leaves on its own. With no target it follows its owner in the normal
+formation and behaves like any other ghost. `HauntingGhostHandler.hunt` gives it a target; the
+handler then suppresses the follow goals, chases the target, and attacks. When the target dies or
+leaves the level, it clears the target and resumes following.
+
+Each volley spends 10 power; at zero it vanishes, removing its ledger entry, so one full summon is
+worth 100 volleys. `SummonFanHandler` never summons or refills it, `AbsorbFanHandler` recalls it
+like any other ghost, and the bone flute cannot release it (`releasable` is false), so the fan stays
+the only exit. A full fan leaves it following rather than releasing it.
+
+A volley is 72 butterflies: each of 36 centres gets one clockwise and one counterclockwise one. The
+n-th centre sits four blocks from the ghost at `10n` degrees, and the butterfly itself starts on the
+ghost, so the 36 centres form a ring around it while every orbit passes through its body. The ring
+lies in a plane tilted through the target (`DanmakuHelper.getOrientation` on the ghost-to-target
+direction gives the plane, and `rotateDegrees` places the centres), so the flower spreads around the
+target instead of staying horizontal. Each butterfly orbits its own centre at the same four-block
+radius for 40 ticks, which is exactly one full revolution (`PolarMover` at `2π/40`); the two
+directions per centre take opposite colours, alternating pink and blue. The ghost holds its position
+and stays invisible for all 40 ticks; `HauntingGhostModule` keeps the lock and cooldown as transient
+combat state, so a ghost parked mid-volley comes back following. When the volley ends it has a
+further 20 ticks of cooldown, which it spends tracing the target; if the target is still in range it
+volleys again.
+
+The variant wears `textures/geo/ghost/dual_ghost.png`; `GhostVariant.texture` returns that stem for
+`HAUNTING` instead of the usual `<variant>_ghost` derivation.
 
 ## 5. Dual ghost and the death ward
 
-Dual is the fan-only variant. `GhostVariant.random` cannot roll it and the character ghost host
+Dual is the other fan-only variant. `GhostVariant.random` cannot roll it and the character ghost host
 conjures only `wildValues()`, so it never appears without a player summoning one. It has no upkeep,
 no aura, and does not leave at low power.
 

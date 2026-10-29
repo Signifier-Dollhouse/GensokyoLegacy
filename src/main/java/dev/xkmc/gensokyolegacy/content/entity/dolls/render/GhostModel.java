@@ -6,7 +6,7 @@ import net.minecraft.resources.ResourceLocation;
 import software.bernie.geckolib.model.DefaultedEntityGeoModel;
 
 /**
- * The owned ghost's variant texture is the only difference between its three looks; the geo and
+ * The owned ghost's variant texture is the only difference between its looks; the geo and
  * animation files are shared with the wild ghost.
  */
 public class GhostModel extends DefaultedEntityGeoModel<GhostEntity> {

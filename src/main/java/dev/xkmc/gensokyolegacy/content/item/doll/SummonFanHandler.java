@@ -29,6 +29,7 @@ final class SummonFanHandler implements YuyukoFanModeHandler {
 		int summoned = 0;
 		boolean capped = false;
 		for (GhostVariant type : GhostVariant.values()) {
+			if (!type.handler.summonable()) continue;
 			GhostEntity existing = att.findSummonedGhost(sp, type);
 			if (existing != null) {
 				int need = GhostPower.MAX - existing.getPower();
@@ -66,6 +67,7 @@ final class SummonFanHandler implements YuyukoFanModeHandler {
 
 	private static boolean hasSummoned(ServerPlayer sp, DollAttachment att) {
 		for (GhostVariant type : GhostVariant.values()) {
+			if (!type.handler.summonable()) continue;
 			if (att.findSummonedGhost(sp, type) != null) return true;
 		}
 		return false;

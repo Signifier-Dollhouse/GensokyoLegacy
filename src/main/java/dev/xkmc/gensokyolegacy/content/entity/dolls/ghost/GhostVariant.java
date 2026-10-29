@@ -20,7 +20,11 @@ public enum GhostVariant {
 	/**
 	 * Death ward: no upkeep and no aura. It is never rolled for a wild ghost, only summoned.
 	 */
-	DUAL(new DualGhostHandler());
+	DUAL(new DualGhostHandler()),
+	/**
+	 * Fan-only hunter: follows its owner while idle and attacks the target the fan marks.
+	 */
+	HAUNTING(new HauntingGhostHandler());
 
 	private static final GhostVariant[] VALUES = values();
 	private static final GhostVariant[] WILD = Arrays.stream(VALUES)
@@ -34,8 +38,10 @@ public enum GhostVariant {
 
 	/**
 	 * Texture stem under {@code textures/geo/ghost/}; the staged files use this exact spelling.
+	 * The hunting ghost wears the dual texture it was staged with.
 	 */
 	public String texture() {
+		if (this == HAUNTING) return "dual_ghost";
 		return name().toLowerCase(Locale.ROOT) + "_ghost";
 	}
 
@@ -48,14 +54,16 @@ public enum GhostVariant {
 	}
 
 	/**
-	 * The variants a wild ghost or a character may conjure on its own; dual is fan-only.
+	 * The variants a wild ghost or a character may conjure on its own; dual and haunting are
+	 * fan-only.
 	 */
 	public static GhostVariant[] wildValues() {
 		return WILD.clone();
 	}
 
 	/**
-	 * The wild roll never picks a variant whose handler forbids it; only the fan summons a dual.
+	 * The wild roll never picks a variant whose handler forbids it; only the fan summons dual
+	 * and haunting ghosts.
 	 */
 	public static GhostVariant random(RandomSource random) {
 		return WILD[random.nextInt(WILD.length)];

@@ -27,7 +27,7 @@ public class ButterflyDanmakuItem extends DanmakuItem {
 
 	@Override
 	public double modifyFading(double selfFading) {
-		return 1;//selfFading / 2 + 0.5;
+		return selfFading / 2 + 0.5;
 	}
 
 }

@@ -32,7 +32,8 @@ public class GhostRenderer extends GeoEntityRenderer<GhostEntity> {
 	@Override
 	public RenderType getRenderType(GhostEntity animatable, ResourceLocation texture,
 									@Nullable MultiBufferSource bufferSource, float partialTick) {
-		if (animatable.isInvisible() || Minecraft.getInstance().shouldEntityAppearGlowing(animatable))
+		if (animatable.isInvisible()) return null;
+		if (Minecraft.getInstance().shouldEntityAppearGlowing(animatable))
 			return super.getRenderType(animatable, texture, bufferSource, partialTick);
 		return RenderType.entityTranslucent(texture);
 	}

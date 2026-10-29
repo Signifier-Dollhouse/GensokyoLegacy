@@ -9,8 +9,8 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 
 /**
- * Collects every summoned ghost. At a full fan the ghost is released instead, the same escape
- * hatch a single absorption uses.
+ * Collects every summoned ghost the player owns. At a full fan a ghost is released instead, the
+ * same escape hatch a single absorption uses; the haunting ghost refuses release and stays.
  */
 final class AbsorbFanHandler implements YuyukoFanModeHandler {
 

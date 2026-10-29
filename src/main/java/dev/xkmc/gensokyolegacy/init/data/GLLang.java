@@ -1044,6 +1044,7 @@ public final class GLLang {
 		FOODIE("Foodie Ghost"),
 		LIVELY("Lively Ghost"),
 		DUAL("Dual Ghost"),
+		HAUNTING("Haunting Ghost"),
 		NOT_YOURS("This ghost is not yours", 0, ChatFormatting.RED),
 		BIND_FAIL("The ghost resists the flute", 0, ChatFormatting.RED),
 		RELEASE_FAIL("The ghost cannot be released", 0, ChatFormatting.RED),
@@ -1065,7 +1066,10 @@ public final class GLLang {
 		ABSORB_ALL("Absorbed %s spiritual power from %s ghosts", 2),
 		RELEASED_ALL("Released %s ghosts", 1),
 		NO_GHOSTS("No summoned ghosts to absorb", 0, ChatFormatting.GRAY),
-		DUAL_WARD("A dual ghost vanished to save your life", 0, ChatFormatting.GOLD);
+		DUAL_WARD("A dual ghost vanished to save your life", 0, ChatFormatting.GOLD),
+		NO_TARGET("No target under your crosshair", 0, ChatFormatting.RED),
+		HAUNT_SUMMONED("A haunting ghost answers the fan", 0),
+		HAUNT_REUSED("The haunting ghost returns to the hunt", 0);
 
 		private final String def;
 		private final int argn;
@@ -1154,10 +1158,12 @@ public final class GLLang {
 		SUMMON("Summon mode: right-click to refill every summoned ghost and summon any missing kind", 0, ChatFormatting.GRAY),
 		ABSORB_ALL("Absorb mode: right-click to absorb every summoned ghost", 0, ChatFormatting.GRAY),
 		SCATTER("Scatter mode: right-click to spend 10 spiritual power on a butterfly fan", 0, ChatFormatting.GRAY),
+		HAUNT("Haunt mode: right-click to spend 1000 spiritual power on a ghost at your crosshair", 0, ChatFormatting.GRAY),
 		RELEASE("Absorbing an owned ghost with a full fan releases it instead", 0, ChatFormatting.GRAY),
 		MODE_SUMMON("Summon / Refill"),
 		MODE_ABSORB("Absorb All"),
 		MODE_SCATTER("Butterfly Scatter"),
+		MODE_HAUNT("Haunting Ghost"),
 		SELECTED("Selected: %s", 1),
 		STORED("%s: %s / %s", 3, ChatFormatting.GRAY);
 
