@@ -85,6 +85,13 @@ public abstract class BaseDollEntity extends DamageRefactorEntity
 	}
 
 	/**
+	 * Cancels steering and clears the velocity, for a doll that drives its own movement.
+	 */
+	public void stopMove() {
+		if (moveControl instanceof DollMoveControl control) control.stop();
+	}
+
+	/**
 	 * Per-entity persistence slices. Populated from {@link #createDollModules(List)} in
 	 * the base constructor; each hierarchy level appends its own through {@code super}.
 	 */
@@ -201,6 +208,13 @@ public abstract class BaseDollEntity extends DamageRefactorEntity
 	 */
 	public boolean followsOwner() {
 		return true;
+	}
+
+	/**
+	 * Whether the follow goal steers this doll straight at its slot rather than following a path.
+	 */
+	public boolean fliesDirectly() {
+		return false;
 	}
 
 	/**
@@ -354,7 +368,7 @@ public abstract class BaseDollEntity extends DamageRefactorEntity
 		super.die(damageSource);
 	}
 
-	private void deferCombatData(DollData data, float amount, boolean force, boolean boostBase) {
+	protected void deferCombatData(DollData data, float amount, boolean force, boolean boostBase) {
 		CombatData ans = data.combat.set(this, amount, force, boostBase);
 		data.combat = ans;
 		boolean update = getCombatData() == null || ans.amount() != getCombatData().amount();

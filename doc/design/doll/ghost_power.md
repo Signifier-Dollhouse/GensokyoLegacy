@@ -35,6 +35,8 @@ exception, returning no render type while it hides for a volley.
 
 The drain ticks only while the owner is alive, in the same level and within the aura range (16
 blocks), which is the same condition the aura itself uses. A ghost far away or parked costs nothing.
+A player-owned ghost is also immune to damage: `GhostEntity.hurt` refuses every source, so its power
+pool is the only thing that can end it.
 
 | variant | drain | skill |
 |---|---|---|
@@ -115,8 +117,10 @@ pink butterfly for scattering and the bone flute for haunting, all named after t
 `GhostEntity`, `DollAttachment` entry, park/resummon path and summon cap as every other variant. It
 has no upkeep and never leaves on its own. With no target it follows its owner in the normal
 formation and behaves like any other ghost. `HauntingGhostHandler.hunt` gives it a target; the
-handler then suppresses the follow goals, chases until it is within two blocks, and attacks. When
-the target dies or leaves the level, it clears the target and resumes following. Its butterflies
+handler then suppresses the follow goals and flies straight at it, passing through blocks like a vex:
+the variant keeps `noPhysics` on and steers through the move control instead of a path, both when
+chasing and when following. It attacks once it is within range. When the target dies or leaves the
+level, it clears the target and resumes following. Its butterflies
 implement `DollDanmakuAlly` and override `isNonEnemy` with the owner's own player-danmaku rule, so
 they may hurt every target the owner's danmaku may hurt while still sparing the owner's side.
 

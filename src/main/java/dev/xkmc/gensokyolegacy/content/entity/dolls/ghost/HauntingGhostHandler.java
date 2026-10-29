@@ -17,7 +17,8 @@ import net.minecraft.world.phys.Vec3;
 
 /**
  * The haunting ghost: an ordinary ledger ghost that ignores its follow goals while it has a target,
- * chases it, and volleys butterflies. With no target it does nothing and the base ghost follows.
+ * flies straight at it through blocks like a vex, and volleys butterflies. With no target it does
+ * nothing and the base ghost follows.
  *
  * @see "doc/design/doll/ghost_power.md"
  */
@@ -27,7 +28,6 @@ final class HauntingGhostHandler implements GhostVariantHandler {
 	private static final int ATTACK_INVISIBLE = 40;
 	private static final int ATTACK_COOLDOWN = 20;
 	private static final double ATTACK_RANGE = 3;
-	private static final int PATH_INTERVAL = 10;
 
 	@Override
 	public Component getDisplayName() {
@@ -66,6 +66,16 @@ final class HauntingGhostHandler implements GhostVariantHandler {
 	}
 
 	@Override
+	public boolean phasesThroughBlocks(GhostEntity ghost) {
+		return true;
+	}
+
+	@Override
+	public boolean fliesDirectly(GhostEntity ghost) {
+		return true;
+	}
+
+	@Override
 	public void hunt(GhostEntity ghost, LivingEntity target) {
 		HauntingGhostModule state = state(ghost);
 		state.lockTicks = 0;
@@ -74,6 +84,7 @@ final class HauntingGhostHandler implements GhostVariantHandler {
 		ghost.setInvisible(false);
 		ghost.setTarget(target);
 		ghost.getNavigation().stop();
+		ghost.stopMove();
 	}
 
 	@Override
@@ -88,8 +99,7 @@ final class HauntingGhostHandler implements GhostVariantHandler {
 		if (state.lockTicks > 0) {
 			// the cooldown is counted from the end of the lock, not from the volley
 			if (--state.lockTicks == 0) state.attackCooldown = ATTACK_COOLDOWN;
-			ghost.getNavigation().stop();
-			ghost.setDeltaMovement(Vec3.ZERO);
+			ghost.stopMove();
 			LivingEntity target = ghost.getTarget();
 			if (target != null) ghost.getLookControl().setLookAt(target, 30, 30);
 			return;
@@ -97,15 +107,18 @@ final class HauntingGhostHandler implements GhostVariantHandler {
 		LivingEntity target = ghost.getTarget();
 		if (target == null || !target.isAlive() || target.level() != ghost.level()) {
 			ghost.setTarget(null);
+			ghost.stopMove();
 			return;
 		}
 		ghost.getLookControl().setLookAt(target, 30, 30);
 		if (ghost.distanceToSqr(target) <= ATTACK_RANGE * ATTACK_RANGE) {
-			ghost.getNavigation().stop();
+			ghost.stopMove();
 			if (state.attackCooldown <= 0) attack(ghost, target);
 			return;
 		}
-		if (ghost.tickCount % PATH_INTERVAL == 0) ghost.getNavigation().moveTo(target, 1);
+		// straight at the target, through any block: no path to be blocked or rebuilt
+		Vec3 eye = target.getEyePosition();
+		ghost.getMoveControl().setWantedPosition(eye.x, eye.y, eye.z, 1);
 	}
 
 	private void attack(GhostEntity ghost, LivingEntity target) {
