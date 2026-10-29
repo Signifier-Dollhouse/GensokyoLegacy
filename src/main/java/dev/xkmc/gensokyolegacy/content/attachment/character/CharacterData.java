@@ -80,15 +80,17 @@ public class CharacterData {
 		reputation = Math.max(reputation - val, floor);
 	}
 
-	/**
-	 * Decay stops at the configured fraction of the cap, so a cap raised by quests raises the floor too.
-	 */
-	protected void dailyUpdate() {
+	protected void dailyUpdate(int daysPassed) {
 		int floor = (int) (reputationCap * GLModConfig.SERVER.reputationDecayFloor.get());
 		if (reputation > floor) {
 			loseReputation(ReputationConstants.DAILY_DECAY_AMOUNT, floor);
-		} else if (reputation < ReputationConstants.THRESHOLD_JERK) {
-			gainReputation(ReputationConstants.DAILY_DECAY_AMOUNT, 0, 0, 0);
+		}
+		for (int i = 0; i < daysPassed && reputation < 0; i++) {
+			if (reputation <= ReputationConstants.NEGATIVE_HALF_THRESHOLD) {
+				reputation /= 2;
+			} else {
+				reputation = Math.min(reputation + ReputationConstants.NEGATIVE_RECOVER_AMOUNT, 0);
+			}
 		}
 	}
 
