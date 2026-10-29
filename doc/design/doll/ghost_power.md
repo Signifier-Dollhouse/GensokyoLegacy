@@ -38,9 +38,9 @@ blocks), which is the same condition the aura itself uses. A ghost far away or p
 
 | variant | drain | skill |
 |---|---|---|
-| curios | 1 power / 40 ticks | cleanse costs 50, only when power is at least 50 |
-| foodie | 1 power / 20 ticks | — |
-| lively | 1 power / 20 ticks | — |
+| curios | 1 power / `curiosDecayInterval` ticks (default 100) | cleanse costs `curiosSkillCost` (default 10) |
+| foodie | 1 power / `foodieDecayInterval` ticks (default 100) | — |
+| lively | 1 power / `livelyDecayInterval` ticks (default 100) | — |
 | dual | — | death ward, no aura |
 
 At zero power the aura stops (existing effects run out their 60-tick tail) and the curios skill is
@@ -120,10 +120,11 @@ the target dies or leaves the level, it clears the target and resumes following.
 implement `DollDanmakuAlly` and override `isNonEnemy` with the owner's own player-danmaku rule, so
 they may hurt every target the owner's danmaku may hurt while still sparing the owner's side.
 
-Each volley spends 10 power; at zero it vanishes, removing its ledger entry, so one full summon is
-worth 100 volleys. `SummonFanHandler` never summons or refills it, `AbsorbFanHandler` recalls it
-like any other ghost, and the bone flute cannot release it (`releasable` is false), so the fan stays
-the only exit. A full fan leaves it following rather than releasing it.
+Each volley spends `hauntingSkillCost` (default 10) power; at zero it vanishes, removing its ledger
+entry, so a full summon is worth `GhostPower.MAX / hauntingSkillCost` volleys. `SummonFanHandler`
+never summons or refills it, `AbsorbFanHandler` recalls it like any other ghost, and the bone flute
+cannot release it (`releasable` is false), so the fan stays the only exit. A full fan leaves it
+following rather than releasing it.
 
 A volley is 96 butterflies: each of 48 centres gets one clockwise and one counterclockwise one. The
 centres sit on three concentric rings of radius 2, 2.5 and 3 blocks, sixteen per ring at 22.5-degree

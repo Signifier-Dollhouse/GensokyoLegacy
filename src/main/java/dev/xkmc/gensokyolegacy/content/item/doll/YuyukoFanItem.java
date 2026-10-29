@@ -2,7 +2,6 @@ package dev.xkmc.gensokyolegacy.content.item.doll;
 
 import dev.xkmc.danmakuapi.api.IDanmakuEntity;
 import dev.xkmc.gensokyolegacy.content.attachment.doll.DollAttachment;
-import dev.xkmc.gensokyolegacy.content.client.deco.ClientTooltip;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.ghost.GhostEntity;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.ghost.GhostPowerHolder;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.ghost.StrayGhostEntity;
@@ -203,16 +202,8 @@ public class YuyukoFanItem extends SpiritualItem implements GloveTargeting {
 		list.add(GLLang.ItemLores.YUYUKO_FAN_LORE.get());
 		super.appendHoverText(stack, context, list, flag);
 		list.add(GLLang.ItemYuyukoFan.SELECTED.get(getMode(stack).getDisplayName()));
-		if (ClientTooltip.isShiftDown()) {
-			list.add(GLLang.ItemYuyukoFan.ABSORB.get());
-			list.add(GLLang.ItemYuyukoFan.RELEASE.get());
-			list.add(GLLang.ItemYuyukoFan.SUMMON.get());
-			list.add(GLLang.ItemYuyukoFan.ABSORB_ALL.get());
-			list.add(GLLang.ItemYuyukoFan.SCATTER.get());
-			list.add(GLLang.ItemYuyukoFan.HAUNT.get());
-			list.add(GLLang.ItemGlove.WHEEL.get(L2Keys.WHEEL.map.getKey().getDisplayName())
-					.withStyle(ChatFormatting.GRAY));
-		}
+		list.add(GLLang.ItemGlove.WHEEL.get(L2Keys.WHEEL.map.getKey().getDisplayName())
+				.withStyle(ChatFormatting.GRAY));
 	}
 
 }

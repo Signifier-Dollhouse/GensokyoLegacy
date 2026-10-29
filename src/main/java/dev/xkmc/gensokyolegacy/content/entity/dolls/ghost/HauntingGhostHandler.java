@@ -8,6 +8,7 @@ import dev.xkmc.danmakuapi.init.registrate.DanmakuItems;
 import dev.xkmc.fastprojectileapi.collision.EntityStorageHelper;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.impl.DollRig;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
+import dev.xkmc.gensokyolegacy.init.data.GLModConfig;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -25,7 +26,6 @@ final class HauntingGhostHandler implements GhostVariantHandler {
 	private static final int ATTACK_LOCK = 40;
 	private static final int ATTACK_INVISIBLE = 40;
 	private static final int ATTACK_COOLDOWN = 20;
-	private static final int ATTACK_COST = 10;
 	private static final double ATTACK_RANGE = 3;
 	private static final int PATH_INTERVAL = 10;
 
@@ -109,11 +109,12 @@ final class HauntingGhostHandler implements GhostVariantHandler {
 	}
 
 	private void attack(GhostEntity ghost, LivingEntity target) {
-		if (ghost.getPower() < ATTACK_COST) {
+		int cost = GLModConfig.SERVER.hauntingSkillCost.get();
+		if (ghost.getPower() < cost) {
 			ghost.vanish();
 			return;
 		}
-		ghost.addPower(-ATTACK_COST);
+		ghost.addPower(-cost);
 		spawnButterflies(ghost, target);
 		HauntingGhostModule state = state(ghost);
 		state.lockTicks = ATTACK_LOCK;

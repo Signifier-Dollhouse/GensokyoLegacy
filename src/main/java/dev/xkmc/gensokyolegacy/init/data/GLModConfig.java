@@ -40,6 +40,12 @@ public class GLModConfig {
 
 		public final ModConfigSpec.DoubleValue morichikaReplaceChance;
 
+		public final ModConfigSpec.IntValue curiosDecayInterval;
+		public final ModConfigSpec.IntValue foodieDecayInterval;
+		public final ModConfigSpec.IntValue livelyDecayInterval;
+		public final ModConfigSpec.IntValue curiosSkillCost;
+		public final ModConfigSpec.IntValue hauntingSkillCost;
+
 		public final ModConfigSpec.IntValue sealingPotRadius;
 		public final ModConfigSpec.DoubleValue jizoXpRatio;
 
@@ -124,6 +130,21 @@ public class GLModConfig {
 			{
 				morichikaReplaceChance = builder.text("Chance for Morichika to replace a stocked shelf with a new item when no empty shelf is available; otherwise he skips restocking")
 						.defineInRange("morichikaReplaceChance", 0.3, 0, 1);
+			}
+			builder.pop();
+
+			builder.push("ghost", "Ghosts");
+			{
+				curiosDecayInterval = builder.text("Ticks between power drain pulses for curios ghosts")
+						.defineInRange("curiosDecayInterval", 100, 1, 1000000);
+				foodieDecayInterval = builder.text("Ticks between power drain pulses for foodie ghosts")
+						.defineInRange("foodieDecayInterval", 100, 1, 1000000);
+				livelyDecayInterval = builder.text("Ticks between power drain pulses for lively ghosts")
+						.defineInRange("livelyDecayInterval", 100, 1, 1000000);
+				curiosSkillCost = builder.text("Power a curios ghost spends to cleanse one harmful effect")
+						.defineInRange("curiosSkillCost", 10, 0, 1000);
+				hauntingSkillCost = builder.text("Power a Ghost Butterfly spends on each butterfly volley")
+						.defineInRange("hauntingSkillCost", 10, 0, 1000);
 			}
 			builder.pop();
 		}
