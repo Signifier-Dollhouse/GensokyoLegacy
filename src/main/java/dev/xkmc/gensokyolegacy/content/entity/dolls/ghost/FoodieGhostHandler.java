@@ -1,6 +1,7 @@
 package dev.xkmc.gensokyolegacy.content.entity.dolls.ghost;
 
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
+import dev.xkmc.gensokyolegacy.init.data.GLModConfig;
 import dev.xkmc.gensokyolegacy.init.registrate.GLEffects;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -11,7 +12,6 @@ import net.minecraft.world.entity.LivingEntity;
  */
 final class FoodieGhostHandler implements GhostVariantHandler {
 
-	private static final int DECAY_INTERVAL = 20;
 	private static final int AURA_INTERVAL = 20;
 	private static final int AURA_DURATION = 60;
 
@@ -22,7 +22,7 @@ final class FoodieGhostHandler implements GhostVariantHandler {
 
 	@Override
 	public void tick(GhostEntity ghost) {
-		if (ghost.tickCount % DECAY_INTERVAL == 0) ghost.addPower(-1);
+		if (ghost.tickCount % GLModConfig.SERVER.foodieDecayInterval.get() == 0) ghost.addPower(-1);
 	}
 
 	@Override

@@ -109,6 +109,7 @@ public class FollowDollOwnerGoal extends Goal {
 		this.doll.teleportTo(landing.x, landing.y, landing.z);
 		// the path that led here is meaningless from the landing point
 		this.doll.getNavigation().stop();
+		this.doll.stopMove();
 		this.timeToRecalcPath = 0;
 		return true;
 	}
@@ -151,7 +152,7 @@ public class FollowDollOwnerGoal extends Goal {
 		this.unseenSince = -1;
 		Vec3 targetPos = this.getTargetPos();
 		if (targetPos == null) return;
-		this.doll.getNavigation().moveTo(targetPos.x, targetPos.y, targetPos.z, this.doll.speedModifier);
+		this.steerTo(targetPos);
 	}
 
 	@Override
@@ -163,14 +164,30 @@ public class FollowDollOwnerGoal extends Goal {
 		if (this.teleportToOwnerPos(targetPos)) {
 			return;
 		}
+		if (this.doll.fliesDirectly()) {
+			this.steerTo(targetPos);
+			return;
+		}
 		if (--this.timeToRecalcPath <= 0) {
 			this.timeToRecalcPath = this.adjustedTickDelay(10);
-			this.doll.getNavigation().moveTo(targetPos.x, targetPos.y, targetPos.z, this.doll.speedModifier);
+			this.steerTo(targetPos);
 		}
 	}
 
 	@Override
 	public void stop() {
-		this.doll.getNavigation().stop();
+		if (this.doll.fliesDirectly()) this.doll.stopMove();
+		else this.doll.getNavigation().stop();
+	}
+
+	/**
+	 * A direct doll aims its move control at the slot every tick; the rest lay a path and follow it.
+	 */
+	private void steerTo(Vec3 target) {
+		if (this.doll.fliesDirectly()) {
+			this.doll.getMoveControl().setWantedPosition(target.x, target.y, target.z, this.doll.speedModifier);
+		} else {
+			this.doll.getNavigation().moveTo(target.x, target.y, target.z, this.doll.speedModifier);
+		}
 	}
 }

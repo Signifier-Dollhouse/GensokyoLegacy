@@ -23,6 +23,7 @@ import dev.xkmc.gensokyolegacy.content.item.debug.DebugWand;
 import dev.xkmc.gensokyolegacy.content.item.debug.DoorDebugItem;
 import dev.xkmc.gensokyolegacy.content.item.debug.StructureWand;
 import dev.xkmc.gensokyolegacy.content.item.doll.*;
+import dev.xkmc.gensokyolegacy.content.item.ghost.*;
 import dev.xkmc.gensokyolegacy.content.item.gift.*;
 import dev.xkmc.gensokyolegacy.content.item.glove.DollGloveItem;
 import dev.xkmc.gensokyolegacy.content.item.glove.DollGloveModel;
@@ -132,6 +133,7 @@ public class GLItems {
 	public static final ItemEntry<MiniShieldItem> MINI_SHIELD;
 
 	public static final ItemEntry<StarDanmakuItem> STAR;
+	public static final ItemEntry<ButterflyDanmakuItem> PINK_BUTTERFLY, BLUE_BUTTERFLY;
 	public static final ItemEntry<StarWandItem> STAR_WAND;
 	public static final ItemEntry<StrangeGlassesItem> STRANGE_GLASSES;
 	public static final ItemEntry<IceWingsItem> ICE_WINGS;
@@ -181,6 +183,18 @@ public class GLItems {
 			STAR = reg.item("star_danmaku", p -> new StarDanmakuItem(p.rarity(Rarity.RARE)))
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/hexbrew/star")))
 					.tag(DanmakuItems.Bullet.STAR.tag)
+					.register();
+
+			PINK_BUTTERFLY = reg.item("pink_butterfly_danmaku", p -> new ButterflyDanmakuItem(p.rarity(Rarity.RARE),
+							DyeColor.PINK, GensokyoLegacy.loc("textures/item/danmaku/pink_butterfly_danmaku.png")))
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/danmaku/" + ctx.getName())))
+					.tag(DanmakuItems.Bullet.BUTTERFLY.tag)
+					.register();
+
+			BLUE_BUTTERFLY = reg.item("blue_butterfly_danmaku", p -> new ButterflyDanmakuItem(p.rarity(Rarity.RARE),
+							DyeColor.BLUE, GensokyoLegacy.loc("textures/item/danmaku/blue_butterfly_danmaku.png")))
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/danmaku/" + ctx.getName())))
+					.tag(DanmakuItems.Bullet.BUTTERFLY.tag)
 					.register();
 
 			// spell cards

@@ -1,4 +1,4 @@
-package dev.xkmc.gensokyolegacy.content.item.doll;
+package dev.xkmc.gensokyolegacy.content.item.ghost;
 
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import net.minecraft.core.component.DataComponents;
@@ -6,13 +6,16 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 
 /**
- * What the fan does on a right-click in the air: tend every summoned ghost, or collect them all.
+ * What the fan does on a right-click in the air: tend every summoned ghost, collect them all,
+ * scatter butterfly danmaku, or send a haunting ghost at the marked target.
  *
  * @see "doc/design/doll/ghost_power.md"
  */
 public enum YuyukoFanMode {
 	SUMMON(GLLang.ItemYuyukoFan.MODE_SUMMON, new SummonFanHandler()),
-	ABSORB(GLLang.ItemYuyukoFan.MODE_ABSORB, new AbsorbFanHandler());
+	ABSORB(GLLang.ItemYuyukoFan.MODE_ABSORB, new AbsorbFanHandler()),
+	SCATTER(GLLang.ItemYuyukoFan.MODE_SCATTER, new ScatterFanHandler()),
+	HAUNT(GLLang.ItemYuyukoFan.MODE_HAUNT, new HauntFanHandler());
 
 	private static final YuyukoFanMode[] VALUES = values();
 

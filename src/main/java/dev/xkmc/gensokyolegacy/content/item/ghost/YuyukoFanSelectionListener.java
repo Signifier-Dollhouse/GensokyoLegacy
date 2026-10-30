@@ -1,6 +1,5 @@
-package dev.xkmc.gensokyolegacy.content.item.doll;
+package dev.xkmc.gensokyolegacy.content.item.ghost;
 
-import dev.xkmc.gensokyolegacy.content.item.doll.client.YuyukoFanModeWheel;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.l2itemselector.select.item.IItemSelector;
 import dev.xkmc.l2itemselector.wheel.WheelAdaptor;
@@ -15,7 +14,7 @@ import java.util.Optional;
 
 /**
  * Selector listener for the {@link YuyukoFanItem}'s mode, mirroring the dagger glove's mode wheel.
- * Both modes are always listed, so the list never changes shape.
+ * Every mode is always listed, so the list never changes shape.
  *
  * @see "doc/design/doll/ghost_power.md"
  */

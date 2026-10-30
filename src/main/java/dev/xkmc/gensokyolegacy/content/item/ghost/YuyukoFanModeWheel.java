@@ -1,9 +1,6 @@
-package dev.xkmc.gensokyolegacy.content.item.doll.client;
+package dev.xkmc.gensokyolegacy.content.item.ghost;
 
 import dev.xkmc.gensokyolegacy.content.item.common.network.SelectorSelectPacket;
-import dev.xkmc.gensokyolegacy.content.item.doll.YuyukoFanItem;
-import dev.xkmc.gensokyolegacy.content.item.doll.YuyukoFanMode;
-import dev.xkmc.gensokyolegacy.content.item.doll.YuyukoFanSelectionListener;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.l2itemselector.wheel.ItemWheelEntry;
 import dev.xkmc.l2itemselector.wheel.PersistentWheel;
@@ -16,7 +13,8 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * The selector wheel for the {@link YuyukoFanItem}: one entry per fan mode, both always listed.
+ * The selector wheel for the {@link YuyukoFanItem}: one entry per fan mode, every mode always
+ * listed.
  *
  * @see "doc/design/doll/ghost_power.md"
  */

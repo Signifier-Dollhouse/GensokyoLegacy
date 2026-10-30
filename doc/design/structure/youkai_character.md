@@ -16,8 +16,8 @@ Related: [home_index.md](home_index.md), [structure_bed_entity.md](structure_bed
 | `DamageRefactorEntity` | `content/entity/foundation/DamageRefactorEntity.java` | Replaces `LivingEntity.health` with `CombatProgress` (`@SerialField maxProgress/progress/oldProgress`). Guards `die`/`isDeadOrDying` via progress. |
 | `DamageClampEntity` | `content/entity/foundation/DamageClampEntity.java` | Adds boss bar, `hurtCD`, speed clamp via `maxSpeed`, non-danmaku damage division. |
 | `CharacterData` | `content/attachment/character/CharacterData.java:11` | `@SerialClass` per-character (`EntityType` key). `@SerialField int reputation` **plus `int reputationCap`** (quests raise the ceiling; simple actions never pass it), `Map<String,Long> timers` (per-action cooldowns via `isAvailable`/`setTimer`), `@SerialField FeedModuleData foodData`. `gainReputation(val, softCap, capIncrease, maxCap)` halves the gain past `softCap`; `loseReputation` floors at `-150`. Design: `reputation.md`. |
-| `ReputationConstants` | `content/attachment/character/ReputationConstants.java` | Every tuning number in one place: bounds `-300..300`, `INITIAL_CAP 100`, thresholds `150/-50/-150`, `KILLED_RESTORE 0`, `COMBAT_SAFE_THRESHOLD 0`, `DEATH_LOSS 200`, hurt losses `1/5/10/20`, `FEED_SOFT_CAP`/`GIFT_SOFT_CAP 150`, `DAILY_DECAY_AMOUNT 1`. |
-| `CharacterAttachment` | `content/attachment/character/CharacterAttachment.java:15` | `PlayerCapabilityTemplate<CharacterAttachment>` (`l2core AttReg`). `@SerialField Map<EntityType<?>,CharacterData>` (LinkedHashMap). `tick` at `dayTime==0` calls `dailyUpdate` on every entry. `allTypes`/`reset`/`clearAll` for the quest and admin surfaces. |
+| `ReputationConstants` | `content/attachment/character/ReputationConstants.java` | Every tuning number in one place: bounds `-300..300`, `INITIAL_CAP 100`, thresholds `150/-50/-150`, `KILLED_RESTORE 0`, `COMBAT_SAFE_THRESHOLD 0`, `DEATH_LOSS 200`, hurt losses `1/5/10/20`, `FEED_SOFT_CAP`/`GIFT_SOFT_CAP 150`, `DAILY_DECAY_AMOUNT 1`, `NEGATIVE_HALF_THRESHOLD -20`, `NEGATIVE_RECOVER_AMOUNT 10`. |
+| `CharacterAttachment` | `content/attachment/character/CharacterAttachment.java:15` | `PlayerCapabilityTemplate<CharacterAttachment>` (`l2core AttReg`). `@SerialField Map<EntityType<?>,CharacterData>` (LinkedHashMap). `tick` compares the overworld day index (shifted to roll over at midnight) with `lastDailyDay` and calls `dailyUpdate(daysPassed)` on every entry. `allTypes`/`reset`/`clearAll` for the quest and admin surfaces. |
 | `CharDataHolder` | `content/attachment/character/CharDataHolder.java` | `record(CharacterData data, Player player, EntityType<?> type, @Nullable YoukaiEntity e)` — transient facade. Every mutator (`onHurt`/`onKilledByCharacter`/`onKillCharacter`/`feed`/`gain`) syncs afterwards, so callers never sync by hand. |
 | `ReputationState` | `content/attachment/character/ReputationState.java:15` | `FRIEND/STRANGER/JERK/ENEMY`. `toInfo(reputation, cap)` colored text, `asTargetKind()` → `TargetKind.WORTHY/NONE/ENEMY`. |
 | `FeedModuleData` | `content/attachment/character/FeedModuleData.java` | `@SerialClass Map<Item,Integer> statistics` + `List<Item> history` (MEMORY 10, RATE 0.9). `feed()` returns diminishing multiplier `1/(1+sum(0.9^n))`. |
@@ -199,7 +199,7 @@ killedEntity(level, entity):
 - repeated while still a STRANGER or better (`reputation>=-50`) → `-10`
 - repeated below `-50` → `-20`
 
-Daily decay: `dailyUpdate()` moves `DAILY_DECAY_AMOUNT 1` toward `reputationCap * GLModConfig.SERVER.reputationDecayFloor` when positive, and back up toward 0 when below `THRESHOLD_JERK`. Raising the cap via quests raises the floor with it.
+Daily update: `CharacterAttachment` compares the overworld day index (day time shifted so the rollover is midnight) with persisted `lastDailyDay`. Each advance calls `dailyUpdate(daysPassed)`: positive reputation moves `DAILY_DECAY_AMOUNT 1` toward `reputationCap * GLModConfig.SERVER.reputationDecayFloor` once, and negative reputation recovers one step per elapsed day (at or below `NEGATIVE_HALF_THRESHOLD -20` it halves, above it gains `NEGATIVE_RECOVER_AMOUNT 10`, capped at 0). Raising the cap via quests raises the floor with it. See `doc/design/structure/reputation.md`.
 
 `CombatToClient` sync via `GensokyoLegacy.HANDLER.toTrackingPlayers` on every `CombatProgress.set`.
 
@@ -233,8 +233,9 @@ CharacterAttachment:
   NBT: player NBT, copyOnDeath handled by cap
   Sync: CharDataHolder.sync() → if ServerPlayer → HANDLER.toClientPlayer(new CharDataToClient(type, uuid, data))
   Client: CharDataToClient.handle → GLMeta.CHAR.type().getOrCreate(player).replace(target,data)
-  Tick: CharacterAttachment.tick(Player) server only at dayTime==0 → dailyUpdate: drift 1 toward
-        reputationCap*GLModConfig.SERVER.reputationDecayFloor, or back toward 0 when below -150
+  Tick: CharacterAttachment.tick(ServerPlayer) compares the overworld day index with lastDailyDay →
+        dailyUpdate(daysPassed): drift 1 toward reputationCap*GLModConfig.SERVER.reputationDecayFloor once,
+        then one negative-recovery step per elapsed day
 ```
 
 ### 3.7 Navigation
