@@ -5,6 +5,23 @@
       "type": "gensokyolegacy:gift_return"
     }
   ],
-  "dialog": "gensokyolegacy:suika/gift/return",
+  "dialog": {
+    "animations": [
+      "dialog_talk_01"
+    ],
+    "options": [
+      {
+        "type": "gensokyolegacy:simple",
+        "actions": [
+          {
+            "type": "gensokyolegacy:gift_return"
+          }
+        ],
+        "conditions": [],
+        "text": "gensokyolegacy/suika/gift/option/return/take"
+      }
+    ],
+    "text": "gensokyolegacy/suika/gift/dialog/return"
+  },
   "override": true
 }

@@ -70,13 +70,13 @@ back to the generic three-rung `DEFAULT` table until she has one of her own.
 - **No spell card**, unlike every other boss-tier character here. She is melee
   only and reaches through `BossYoukaiEntity`'s 200 HP and 10 damage instead.
 - **Two dialog animations, and they change with her pose.** Her rig ships
-  `交流_01` and `交流_02` and nothing else — no greeting clip, no `思考中_*`,
-  no `疑惑` — so `getAnim` answers empty for every other dialog slot and
+  `talk_01` and `talk_02` and nothing else — no greeting clip, no `think_*`,
+  no `puzzle` — so `getAnim` answers empty for every other dialog slot and
   `SuikaEntity#hasBlinkAnim` answers no, for the same reason. That
   half is a rig limitation rather than a content choice and stands even once
   chats are written; the two she has are plenty, because a dialog with no
   `animations` list picks one at random out of the mapped talk slots.
-- **She talks lying down.** `侧卧_交流` is `侧卧` with the talking motion written
+- **She talks lying down.** `lie_01_talk` is `lie_01` with the talking motion written
   into it. A conversation does not get her out of bed: TALK(300) outranks NAP(500)
   so the dialog is what runs, and `YoukaiNapTask#canStillUse` holds the pose
   across it anyway. While the synced `YoukaiFlags.NAPPING` is set,
@@ -91,23 +91,23 @@ back to the generic three-rung `DEFAULT` table until she has one of her own.
   `int` on her own `SUIKA_DATA` layer, NBT-backed like the rest of her entity
   data, and it indexes `NAP_ANIMS` for the loop she holds and
   `YoukaiAnim.SPECIAL_TALKS` for the talk she answers from it. She ships one
-  `侧卧_*` clip, so `NAP_VARIANTS` is 1 and nothing rolls the number: the slot
+  `lie_01_*` clip, so `NAP_VARIANTS` is 1 and nothing rolls the number: the slot
   index and the clip list are the shape a second nap has to fit into, not
   machinery in use yet. `TALK_SPECIAL_01` and `TALK_SPECIAL_02` therefore both
-  resolve to `侧卧_交流` — slot *n* is the talk written for nap *n*, and only
-  one of those exists. When a second `侧卧_*` clip lands it goes into `NAP_ANIMS`
+  resolve to `lie_01_talk` — slot *n* is the talk written for nap *n*, and only
+  one of those exists. When a second `lie_01_*` clip lands it goes into `NAP_ANIMS`
   and takes over `TALK_SPECIAL_02`, with no other change. `SKILL_02` and
   `SKILL_03` exist in the enum for the same reason and are wired to nothing at
   all: her rig has no second or third skill clip, so they resolve empty and no
   triggerable is registered for them.
-- **No `OUTDOOR_IDLE` either.** She is the one character whose `侧卧` clip is not
+- **No `OUTDOOR_IDLE` either.** She is the one character whose `lie_01` clip is not
   spent as an idle flourish: `YoukaiAnim.OUTDOOR_IDLE` resolves empty for her and
   she lies down through the `NAP` activity instead — rolled from `napChance`,
   five to twenty seconds long, and ended by anything above it on the priority
   scale except a conversation. See `youkai_character.md` §3.3.
-- **One clip in the rig is wired to nothing.** `喝` is in `suika.animation.json`
+- **One clip in the rig is wired to nothing.** `drink` is in `suika.animation.json`
   with no slot behind it, same as it has been for the other rigs that ship one.
-  Neither is referenced from any Java source. `聚集` next to it *is* wired: it is
+  Neither is referenced from any Java source. `skill` next to it *is* wired: it is
   her `YoukaiAnim.SKILL_01`, played by her spell card's pull and mapped by her
   `getAnim` — the one character whose rig ships it.
 - **One house only.** If a second host is ever added, both this page and the

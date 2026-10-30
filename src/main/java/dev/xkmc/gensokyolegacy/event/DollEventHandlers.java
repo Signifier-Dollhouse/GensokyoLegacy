@@ -1,5 +1,6 @@
 package dev.xkmc.gensokyolegacy.event;
 
+import dev.xkmc.danmakuapi.api.DanmakuDamageEvent;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.BaseDollEntity;
 import dev.xkmc.gensokyolegacy.content.entity.foundation.DamageRefactorEntity.CombatData;
 import dev.xkmc.gensokyolegacy.content.item.doll.DollItem;
@@ -14,8 +15,11 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.AnvilUpdateEvent;
@@ -43,6 +47,7 @@ public class DollEventHandlers {
 
 	@SubscribeEvent
 	public static void onPlayerDeath(LivingDeathEvent event) {
+		if (event.isCanceled()) return;
 		if (event.getEntity() instanceof ServerPlayer sp) {
 			GLMeta.DOLL.type().getOrCreate(sp).onPlayerDeath(sp);
 		}
@@ -53,6 +58,19 @@ public class DollEventHandlers {
 		if (event.getEntity() instanceof ServerPlayer sp) {
 			GLMeta.DOLL.type().getOrCreate(sp).restore(sp);
 		}
+	}
+
+	/**
+	 * A doll's danmaku keeps the doll as the projectile owner (for friendly-fire filtering) but
+	 * credits the owner as the causing entity: the projectile stays the direct source.
+	 */
+	@SubscribeEvent(priority = EventPriority.LOWEST)
+	public static void onDollDanmakuDamage(DanmakuDamageEvent event) {
+		if (!(event.getUser() instanceof BaseDollEntity doll)) return;
+		LivingEntity owner = doll.getOwner();
+		if (owner == null || owner == doll) return;
+		DamageSource old = event.getSource();
+		event.setSource(new DamageSource(old.typeHolder(), old.getDirectEntity(), owner));
 	}
 
 	@SubscribeEvent

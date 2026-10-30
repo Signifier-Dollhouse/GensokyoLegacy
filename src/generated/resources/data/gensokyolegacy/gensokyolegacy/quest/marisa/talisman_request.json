@@ -4,7 +4,38 @@
     "type": "gensokyolegacy:simple",
     "actions": [],
     "conditions": [],
-    "next": "gensokyolegacy:marisa/talisman_request/complete/dialog_1",
+    "next": {
+      "animations": [
+        "dialog_agree"
+      ],
+      "options": [
+        {
+          "type": "gensokyolegacy:simple",
+          "actions": [
+            {
+              "type": "gensokyolegacy:complete_quest"
+            }
+          ],
+          "conditions": [],
+          "next": {
+            "animations": [
+              "dialog_agree"
+            ],
+            "options": [
+              {
+                "type": "gensokyolegacy:simple",
+                "actions": [],
+                "conditions": [],
+                "text": "gensokyolegacy/marisa/talisman_request/option/complete/handover/end"
+              }
+            ],
+            "text": "gensokyolegacy/marisa/talisman_request/dialog/marisa/talisman_request/complete/handover/dialog_1"
+          },
+          "text": "gensokyolegacy/marisa/talisman_request/option/complete/handover"
+        }
+      ],
+      "text": "gensokyolegacy/marisa/talisman_request/dialog/marisa/talisman_request/complete/dialog_1"
+    },
     "text": "gensokyolegacy/marisa/talisman_request/option/complete"
   },
   "conditions": [
@@ -31,14 +62,92 @@
     "type": "gensokyolegacy:simple",
     "actions": [],
     "conditions": [],
-    "next": "gensokyolegacy:marisa/talisman_request/follow_up/dialog_1",
+    "next": {
+      "animations": [
+        "dialog_think"
+      ],
+      "options": [
+        {
+          "type": "gensokyolegacy:simple",
+          "actions": [],
+          "conditions": [],
+          "next": {
+            "animations": [
+              "dialog_agree"
+            ],
+            "options": [
+              {
+                "type": "gensokyolegacy:simple",
+                "actions": [],
+                "conditions": [],
+                "text": "gensokyolegacy/marisa/talisman_request/option/follow_up/end/end"
+              }
+            ],
+            "text": "gensokyolegacy/marisa/talisman_request/dialog/marisa/talisman_request/follow_up/end/dialog_1"
+          },
+          "text": "gensokyolegacy/marisa/talisman_request/option/follow_up/end"
+        }
+      ],
+      "text": "gensokyolegacy/marisa/talisman_request/dialog/marisa/talisman_request/follow_up/dialog_1"
+    },
     "text": "gensokyolegacy/marisa/talisman_request/option/follow_up"
   },
   "initialDialog": {
     "type": "gensokyolegacy:simple",
     "actions": [],
     "conditions": [],
-    "next": "gensokyolegacy:marisa/talisman_request/start/dialog_1",
+    "next": {
+      "animations": [
+        "dialog_talk_04"
+      ],
+      "options": [
+        {
+          "type": "gensokyolegacy:simple",
+          "actions": [],
+          "conditions": [],
+          "next": {
+            "animations": [
+              "dialog_decline"
+            ],
+            "options": [
+              {
+                "type": "gensokyolegacy:simple",
+                "actions": [],
+                "conditions": [],
+                "text": "gensokyolegacy/marisa/talisman_request/option/start/reject/end"
+              }
+            ],
+            "text": "gensokyolegacy/marisa/talisman_request/dialog/marisa/talisman_request/start/reject/dialog_1"
+          },
+          "text": "gensokyolegacy/marisa/talisman_request/option/start/reject"
+        },
+        {
+          "type": "gensokyolegacy:simple",
+          "actions": [
+            {
+              "type": "gensokyolegacy:start_quest"
+            }
+          ],
+          "conditions": [],
+          "next": {
+            "animations": [
+              "dialog_agree"
+            ],
+            "options": [
+              {
+                "type": "gensokyolegacy:simple",
+                "actions": [],
+                "conditions": [],
+                "text": "gensokyolegacy/marisa/talisman_request/option/start/accept/end"
+              }
+            ],
+            "text": "gensokyolegacy/marisa/talisman_request/dialog/marisa/talisman_request/start/accept/dialog_1"
+          },
+          "text": "gensokyolegacy/marisa/talisman_request/option/start/accept"
+        }
+      ],
+      "text": "gensokyolegacy/marisa/talisman_request/dialog/marisa/talisman_request/start/dialog_1"
+    },
     "text": "gensokyolegacy/marisa/talisman_request/option/start"
   },
   "requirements": {

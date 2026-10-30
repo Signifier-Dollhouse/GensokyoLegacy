@@ -5,6 +5,19 @@
       "type": "gensokyolegacy:home_bound"
     }
   ],
-  "dialog": "gensokyolegacy:alice/chat/hi",
+  "dialog": {
+    "animations": [
+      "dialog_think"
+    ],
+    "options": [
+      {
+        "type": "gensokyolegacy:simple",
+        "actions": [],
+        "conditions": [],
+        "text": "gensokyolegacy/alice/chat/option/hi/end"
+      }
+    ],
+    "text": "gensokyolegacy/alice/chat/dialog/alice/chat/hi"
+  },
   "text": "gensokyolegacy/alice/chat/starter/start"
 }

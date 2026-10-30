@@ -3,9 +3,13 @@
 		"item": {
 			"glass_bed": "显示角色床的状态",
 			"glass_character": "显示角色的状态 ",
+			"glass_ghost": "显示幽灵力量",
 			"glass_path": "显示角色寻路",
 			"wand_bed": "右键床以重置角色",
 			"wand_character": "右键角色以重置角色对玩家的全局数据",
+			"wand_ghost": "右键幽灵以显示其力量",
+			"ghost_wild": "野生%s：%s / %s 力量",
+			"ghost_tamed": "已收服%s：%s / %s 力量",
 			"wand_block": "右键方块显示所属结构信息",
 			"wand_structure": "潜行右键方块打开结构调试面板",
 			"door_debug_use": "右键：绑定最近的角色",
@@ -47,7 +51,8 @@
 			"strange_glasses_lore": "所见即为真实",
 			"ice_wings_lore": "冰一样的力量，以及冰一样的聪慧",
 			"fairy_wings_lore": "妖精般轻盈，也如妖精般柔弱",
-			"fancy_fan_lore": "漂亮到足以送人，而挥动时还会吹起一阵风"
+			"fancy_fan_lore": "漂亮到足以送人，而挥动时还会吹起一阵风",
+			"yuyuko_fan_lore": "扇中盛满了幽灵，却没有一个肯安分下来"
 		},
 		"gift": {
 			"type": {
@@ -169,6 +174,58 @@
 			"collect": "空手右键这颗头以将其收回",
 			"possess": "潜行并右键这颗头以借它观看",
 			"exit": "左键停止借它观看"
+		},
+		"ghost": {
+			"curios": "好奇幽灵",
+			"foodie": "美食幽灵",
+			"lively": "活泼幽灵",
+			"dual": "伴灵",
+			"haunting": "幽蝶",
+			"not_yours": "这个幽灵不属于你",
+			"bind_fail": "幽灵抗拒骨笛",
+			"release_fail": "无法释放这个幽灵",
+			"too_weak": "力量低于 %s 的幽灵无法被绑定",
+			"left": "幽灵的力量太低，已经离开了你",
+			"fan_full": "扇中灵力已满",
+			"already_full": "这只幽灵的力量已经满了",
+			"all_full": "所有已召唤的幽灵都已充满力量",
+			"fan_empty": "扇中没有储存灵力",
+			"need_power": "灵力不足（需要 %s 点）",
+			"no_power": "这个幽灵已经没有力量了",
+			"absorb_fail": "无法吸收这个幽灵的力量",
+			"absorbed": "吸收了 %s 点灵力",
+			"refilled": "补充了 %s 点力量",
+			"released": "幽灵已被放归",
+			"summon_fail": "无法召唤幽灵",
+			"summoned": "召唤了%s",
+			"summon_all": "召唤了 %s 只幽灵，补充了 %s 点力量",
+			"absorb_all": "吸收了 %s 点灵力（共 %s 只幽灵）",
+			"released_all": "放归了 %s 只幽灵",
+			"no_ghosts": "没有已召唤的幽灵可吸收",
+			"dual_ward": "一只伴灵烟消云散，替你挡下了死亡",
+			"no_target": "准星下没有可选的目标",
+			"haunt_summoned": "一只缠身幽灵应扇而来",
+			"haunt_reused": "缠身幽灵重新投入猎杀（补充 %s 点力量）"
+		},
+		"bone_flute": {
+			"bind": "右键力量不低于 200 的流浪幽灵将其绑定",
+			"release": "右键自己的幽灵将其放归"
+		},
+		"jizo": {
+			"no_xp": "地藏需要一整级经验才肯收取",
+			"full": "该物品的灵力已满",
+			"restored": "地藏恢复了 %s 点灵力"
+		},
+		"yuyuko_fan": {
+			"mode_summon": "召唤 / 补充",
+			"mode_absorb": "全部吸收",
+			"mode_scatter": "蝶弹散射",
+			"mode_haunt": "缠身幽灵",
+			"selected": "当前选择：%s",
+			"stored": "%s：%s / %s"
+		},
+		"spiritual": {
+			"bar": "灵力：%s / %s"
 		}
 	}
 }

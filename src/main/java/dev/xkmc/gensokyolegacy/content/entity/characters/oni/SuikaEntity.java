@@ -33,7 +33,7 @@ import java.util.Optional;
  * greeting lines and nothing else, so she is met with an empty topic list.
  * <p>
  * She is the only character who naps: {@link #onIdleTask} buys her the {@link GLBrains#NAP}
- * activity, where her {@code 侧卧} clip is spent. An activity rather than a fidget because a
+ * activity, where her {@code lie_01} clip is spent. An activity rather than a fidget because a
  * nap has to be able to end, and a one-shot animation cannot be interrupted. A conversation
  * does not get her up — she answers from where she lies, in {@link #NAP_TALK}.
  * <p>
@@ -41,39 +41,33 @@ import java.util.Optional;
  * than a second flag, because both the clip she holds while down and the one she
  * talks from it are looked up by it - see {@link #NAP_ANIMS}. The rig ships one nap
  * today, so the number is always 0; it is a number rather than a boolean because
- * the second {@code 侧卧_*} clip a rig grows should not have to touch any of this.
+ * the second {@code lie_01_*} clip a rig grows should not have to touch any of this.
  * <p>
- * Her rig is the narrowest in the mod: no {@code 眨眼} blink, no greeting or thinking clips,
- * only two {@code 交流_*} ones, so {@link #getAnim} answers empty for most dialog slots and
+ * Her rig is the narrowest in the mod: no {@code wink} blink, no greeting or thinking clips,
+ * only two {@code talk_*} ones, so {@link #getAnim} answers empty for most dialog slots and
  * {@link #hasBlinkAnim} says no. A clip the rig does not have resolves to null, and the
  * controller then logs "Unable to find animation" every frame.
  */
 @SerialClass
 public class SuikaEntity extends BossYoukaiEntity implements GeoYoukaiAnim {
 
-	protected static final RawAnimation IDLE = RawAnimation.begin().thenLoop("待机");
-	protected static final RawAnimation WALK = RawAnimation.begin().thenLoop("走路");
-	protected static final RawAnimation SIT = RawAnimation.begin().thenLoop("坐下");
-	protected static final RawAnimation SLEEP = RawAnimation.begin().thenLoop("睡觉");
-	private static final RawAnimation USE_MAINHAND = RawAnimation.begin().thenPlay("使用主手物品");
-	private static final RawAnimation TALK_01 = RawAnimation.begin().thenPlay("交流_01");
-	private static final RawAnimation TALK_02 = RawAnimation.begin().thenPlay("交流_02");
+	protected static final RawAnimation IDLE = RawAnimation.begin().thenLoop("idle");
+	protected static final RawAnimation WALK = RawAnimation.begin().thenLoop("walk");
+	protected static final RawAnimation SIT = RawAnimation.begin().thenLoop("sit");
+	protected static final RawAnimation SLEEP = RawAnimation.begin().thenLoop("sleep");
+	private static final RawAnimation USE_MAINHAND = RawAnimation.begin().thenPlay("swing");
+	private static final RawAnimation TALK_01 = RawAnimation.begin().thenPlay("talk_01");
+	private static final RawAnimation TALK_02 = RawAnimation.begin().thenPlay("talk_02");
 
-	private static final RawAnimation NAP_ANIM = RawAnimation.begin().thenLoop("侧卧");
-	private static final RawAnimation NAP_TALK = RawAnimation.begin().thenPlay("侧卧_交流");
-	private static final RawAnimation LAY_ANIM = RawAnimation.begin().thenLoop("趴");
-	private static final RawAnimation LAY_TALK = RawAnimation.begin().thenPlay("趴_交流");
+	private static final RawAnimation NAP_ANIM = RawAnimation.begin().thenLoop("lie_01");
+	private static final RawAnimation NAP_TALK = RawAnimation.begin().thenPlay("lie_01_talk");
+	private static final RawAnimation LAY_ANIM = RawAnimation.begin().thenLoop("lie_02");
+	private static final RawAnimation LAY_TALK = RawAnimation.begin().thenPlay("lie_02_talk");
 
-	private static final RawAnimation GATHER = RawAnimation.begin().thenPlay("聚集");
-	private static final RawAnimation CATCH = RawAnimation.begin().thenPlay("大江山（抓住）");
-	private static final RawAnimation THROW = RawAnimation.begin().thenPlay("大江山（投掷）");
-	private static final RawAnimation EXECUTE = RawAnimation.begin().thenPlay("大江山（处决）");
-
-	/**
-	 * Her rig's word for taking a gift, shadowing the shared {@code 喜欢}: every other character spells
-	 * that reaction 喜欢 and she calls it 高兴. Only the slot is shared, not the clip.
-	 */
-	private static final RawAnimation LIKE = RawAnimation.begin().thenPlay("高兴");
+	private static final RawAnimation GATHER = RawAnimation.begin().thenPlay("skill");
+	private static final RawAnimation CATCH = RawAnimation.begin().thenPlay("skill_01");
+	private static final RawAnimation THROW = RawAnimation.begin().thenPlay("skill_02");
+	private static final RawAnimation EXECUTE = RawAnimation.begin().thenPlay("skill_03");
 
 	protected static final SyncedData SUIKA_DATA = new SyncedData(SuikaEntity::defineId, SPELL_DATA);
 

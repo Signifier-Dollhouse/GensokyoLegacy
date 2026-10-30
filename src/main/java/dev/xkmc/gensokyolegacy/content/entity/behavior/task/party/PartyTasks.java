@@ -45,7 +45,7 @@ public final class PartyTasks {
 
 	/**
 	 * How long the pickup gesture runs before the plate is in her hand. The
-	 * {@code 使用主手物品} clip is 0.31s, the figure {@code FairyCakeTask} times against too.
+	 * {@code swing} clip is 0.31s, the figure {@code FairyCakeTask} times against too.
 	 */
 	public static final int PICKUP_TICKS = 6;
 

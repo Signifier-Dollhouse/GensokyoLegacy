@@ -14,7 +14,34 @@
       "reputation": 50
     }
   ],
-  "dialog": "gensokyolegacy:marisa/chat_morichika/talk",
+  "dialog": {
+    "animations": [
+      "dialog_talk_05"
+    ],
+    "options": [
+      {
+        "type": "gensokyolegacy:simple",
+        "actions": [],
+        "conditions": [],
+        "next": {
+          "animations": [
+            "dialog_talk_04"
+          ],
+          "options": [
+            {
+              "type": "gensokyolegacy:simple",
+              "actions": [],
+              "conditions": [],
+              "text": "gensokyolegacy/marisa/chat_morichika/option/where/end"
+            }
+          ],
+          "text": "gensokyolegacy/marisa/chat_morichika/dialog/marisa/chat_morichika/where_ans"
+        },
+        "text": "gensokyolegacy/marisa/chat_morichika/option/where"
+      }
+    ],
+    "text": "gensokyolegacy/marisa/chat_morichika/dialog/marisa/chat_morichika/talk"
+  },
   "text": "gensokyolegacy/marisa/chat_morichika/starter/start",
   "weight": 100
 }

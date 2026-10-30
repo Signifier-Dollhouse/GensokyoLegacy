@@ -15,6 +15,7 @@ import dev.xkmc.gensokyolegacy.init.data.GLRecipeGen;
 import dev.xkmc.gensokyolegacy.init.data.GLTagGen;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
+import dev.xkmc.gensokyolegacy.init.registrate.GLParticles;
 import dev.xkmc.l2core.init.reg.registrate.L2Registrate;
 import net.minecraft.advancements.critereon.*;
 import net.minecraft.core.Direction;
@@ -257,17 +258,22 @@ public class GLNaturalBlocks {
 				Blocks.STRIPPED_DARK_OAK_LOG, Blocks.STRIPPED_DARK_OAK_WOOD,
 				BlockBehaviour.Properties.ofFullCopy(Blocks.ACACIA_LOG).mapColor(MapColor.COLOR_ORANGE), null);
 		ORANGE_MAPLE_SET = new TreeSet(reg, MAPLE_WOOD, "orange_maple",
-				BlockBehaviour.Properties.ofFullCopy(Blocks.ACACIA_LEAVES), TreeFeatures.TreeType.ORANGE_MAPLE);
+				BlockBehaviour.Properties.ofFullCopy(Blocks.ACACIA_LEAVES), TreeFeatures.TreeType.ORANGE_MAPLE,
+				p -> new SheddingLeavesBlock(p, () -> GLParticles.ORANGE_MAPLE_LEAF.get()));
 		RED_MAPLE_SET = new TreeSet(reg, MAPLE_WOOD, "red_maple",
-				BlockBehaviour.Properties.ofFullCopy(Blocks.ACACIA_LEAVES), TreeFeatures.TreeType.RED_MAPLE);
+				BlockBehaviour.Properties.ofFullCopy(Blocks.ACACIA_LEAVES), TreeFeatures.TreeType.RED_MAPLE,
+				p -> new SheddingLeavesBlock(p, () -> GLParticles.RED_MAPLE_LEAF.get()));
 		YELLOW_MAPLE_SET = new TreeSet(reg, MAPLE_WOOD, "yellow_maple",
-				BlockBehaviour.Properties.ofFullCopy(Blocks.ACACIA_LEAVES), TreeFeatures.TreeType.YELLOW_MAPLE);
+				BlockBehaviour.Properties.ofFullCopy(Blocks.ACACIA_LEAVES), TreeFeatures.TreeType.YELLOW_MAPLE,
+				p -> new SheddingLeavesBlock(p, () -> GLParticles.YELLOW_MAPLE_LEAF.get()));
 
 		// 樱: two blossom colours, both growing on the vanilla cherry trunk
 		PINK_CHERRY_SET = new TreeSet(reg, () -> Blocks.CHERRY_LOG, "pink_cherry",
-				BlockBehaviour.Properties.ofFullCopy(Blocks.CHERRY_LEAVES), TreeFeatures.TreeType.PINK_CHERRY);
+				BlockBehaviour.Properties.ofFullCopy(Blocks.CHERRY_LEAVES), TreeFeatures.TreeType.PINK_CHERRY,
+				p -> new SheddingLeavesBlock(p, () -> GLParticles.PINK_CHERRY_BLOSSOM.get()));
 		PURPLE_CHERRY_SET = new TreeSet(reg, () -> Blocks.CHERRY_LOG, "purple_cherry",
-				BlockBehaviour.Properties.ofFullCopy(Blocks.CHERRY_LEAVES), TreeFeatures.TreeType.PURPLE_CHERRY);
+				BlockBehaviour.Properties.ofFullCopy(Blocks.CHERRY_LEAVES), TreeFeatures.TreeType.PURPLE_CHERRY,
+				p -> new SheddingLeavesBlock(p, () -> GLParticles.PURPLE_CHERRY_BLOSSOM.get()));
 
 		// 槐: the only tree with a hollow trunk
 		LOCUST_WOOD = new WoodSet(reg, "locust", Items.OAK_PLANKS,
@@ -466,11 +472,23 @@ public class GLNaturalBlocks {
 
 		public TreeSet(L2Registrate reg, WoodSet wood, String id,
 					   BlockBehaviour.Properties leafProp, TreeFeatures.TreeType type) {
-			this(reg, () -> wood.log.get(), id, leafProp, type);
+			this(reg, () -> wood.log.get(), id, leafProp, type, LeavesBlock::new);
+		}
+
+		public TreeSet(L2Registrate reg, WoodSet wood, String id,
+					   BlockBehaviour.Properties leafProp, TreeFeatures.TreeType type,
+					   Function<BlockBehaviour.Properties, LeavesBlock> leafFactory) {
+			this(reg, () -> wood.log.get(), id, leafProp, type, leafFactory);
 		}
 
 		public TreeSet(L2Registrate reg, Supplier<Block> trunk, String id,
 					   BlockBehaviour.Properties leafProp, TreeFeatures.TreeType type) {
+			this(reg, trunk, id, leafProp, type, LeavesBlock::new);
+		}
+
+		public TreeSet(L2Registrate reg, Supplier<Block> trunk, String id,
+					   BlockBehaviour.Properties leafProp, TreeFeatures.TreeType type,
+					   Function<BlockBehaviour.Properties, LeavesBlock> leafFactory) {
 			this.trunk = trunk;
 			var grower = new TreeGrower(id + "_tree", type.saplingMega, type.saplingTree, Optional.empty());
 			// only the blue fir has templates, and only it needs the 3x3 stage vanilla has no grower slot for
@@ -490,7 +508,7 @@ public class GLNaturalBlocks {
 					.dataMap(NeoForgeDataMaps.COMPOSTABLES, new Compostable(0.3f))
 					.build()
 					.register();
-			leaves = reg.block(id + "_leaves", LeavesBlock::new)
+			leaves = reg.block(id + "_leaves", p -> leafFactory.apply(p))
 					.properties(p -> leafProp)
 					.blockstate((ctx, pvd) -> pvd.simpleBlock(ctx.get(), pvd.models().cubeAll(ctx.getName(),
 							pvd.modLoc("block/wood/" + ctx.getName()))))

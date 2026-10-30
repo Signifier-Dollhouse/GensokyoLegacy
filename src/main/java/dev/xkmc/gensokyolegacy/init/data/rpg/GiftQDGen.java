@@ -81,9 +81,11 @@ public class GiftQDGen extends QuestDialogData {
 	private void pair(String name, EntityType<?> type, SimpleDialogOption leave, YoukaiAnim talkSlot,
 					  int threshold, String like, String dislike, String giveBack, String takeIt) {
 		prefix(name + "/gift");
-		var liked = dialogKey("like", rawText(name + "/gift/dialog/like", like),
+		// Named rather than inlined: the gift data map holds them as holders, since which of the two
+		// plays is decided by the data map entry, not by the dialog tree.
+		var liked = namedDialogKey("like", rawText(name + "/gift/dialog/like", like),
 				List.of(YoukaiAnim.LIKE.trigger()), leave);
-		var disliked = dialogKey("dislike", rawText(name + "/gift/dialog/dislike", dislike),
+		var disliked = namedDialogKey("dislike", rawText(name + "/gift/dialog/dislike", dislike),
 				List.of(YoukaiAnim.DISLIKE.trigger()), leave);
 		// An override, not a weight: a gift owed is owed whatever the player came to ask about, so she
 		// hands it over on sight and no topic list is shown until the bank is empty again.

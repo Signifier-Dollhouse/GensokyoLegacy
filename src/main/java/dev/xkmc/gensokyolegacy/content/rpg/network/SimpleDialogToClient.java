@@ -9,12 +9,14 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 
 /**
- * One step of a conversation: a dialog, the quest it is about, and the option indices this player may take.
- * Sending visible indices rather than a per-option condition flag keeps a click index meaning the same on both sides.
+ * One step of a conversation: the body text, the quest it is about, and the option labels this player may take.
+ * Dialogs are inlined into the data files, so there is no id for the client to resolve; it only needs the lang
+ * keys. Sending visible options rather than a per-option condition flag keeps a click index meaning the same on
+ * both sides.
  */
 public record SimpleDialogToClient(
-		int session, int character, ResourceLocation dialog, @Nullable ResourceLocation quest,
-		ArrayList<Integer> options
+		int session, int character, String text, @Nullable ResourceLocation quest,
+		ArrayList<String> options
 ) implements SerialPacketBase<SimpleDialogToClient> {
 
 	@Override

@@ -4,7 +4,58 @@
     "type": "gensokyolegacy:simple",
     "actions": [],
     "conditions": [],
-    "next": "gensokyolegacy:reimu/ominous_banner/complete/dialog_1",
+    "next": {
+      "animations": [
+        "dialog_agree"
+      ],
+      "options": [
+        {
+          "type": "gensokyolegacy:simple",
+          "actions": [],
+          "conditions": [],
+          "next": {
+            "animations": [
+              "dialog_decline"
+            ],
+            "options": [
+              {
+                "type": "gensokyolegacy:simple",
+                "actions": [],
+                "conditions": [],
+                "text": "gensokyolegacy/reimu/ominous_banner/option/complete/reject/end"
+              }
+            ],
+            "text": "gensokyolegacy/reimu/ominous_banner/dialog/reimu/ominous_banner/complete/reject/dialog_1"
+          },
+          "text": "gensokyolegacy/reimu/ominous_banner/option/complete/reject"
+        },
+        {
+          "type": "gensokyolegacy:simple",
+          "actions": [
+            {
+              "type": "gensokyolegacy:complete_quest"
+            }
+          ],
+          "conditions": [],
+          "next": {
+            "animations": [
+              "dialog_agree"
+            ],
+            "options": [
+              {
+                "type": "gensokyolegacy:simple",
+                "actions": [],
+                "conditions": [],
+                "text": "gensokyolegacy/reimu/ominous_banner/option/complete/handover/end"
+              }
+            ],
+            "text": "gensokyolegacy/reimu/ominous_banner/dialog/reimu/ominous_banner/complete/handover/dialog_1"
+          },
+          "text": "gensokyolegacy/reimu/ominous_banner/option/complete/handover"
+        }
+      ],
+      "text": "gensokyolegacy/reimu/ominous_banner/dialog/reimu/ominous_banner/complete/dialog_1"
+    },
     "text": "gensokyolegacy/reimu/ominous_banner/option/complete"
   },
   "conditions": [
@@ -18,14 +69,92 @@
     "type": "gensokyolegacy:simple",
     "actions": [],
     "conditions": [],
-    "next": "gensokyolegacy:reimu/ominous_banner/follow_up/dialog_1",
+    "next": {
+      "animations": [
+        "dialog_think"
+      ],
+      "options": [
+        {
+          "type": "gensokyolegacy:simple",
+          "actions": [],
+          "conditions": [],
+          "next": {
+            "animations": [
+              "dialog_talk_02"
+            ],
+            "options": [
+              {
+                "type": "gensokyolegacy:simple",
+                "actions": [],
+                "conditions": [],
+                "text": "gensokyolegacy/reimu/ominous_banner/option/follow_up/end/leave"
+              }
+            ],
+            "text": "gensokyolegacy/reimu/ominous_banner/dialog/reimu/ominous_banner/follow_up/end/dialog_1"
+          },
+          "text": "gensokyolegacy/reimu/ominous_banner/option/follow_up/end"
+        }
+      ],
+      "text": "gensokyolegacy/reimu/ominous_banner/dialog/reimu/ominous_banner/follow_up/dialog_1"
+    },
     "text": "gensokyolegacy/reimu/ominous_banner/option/follow_up"
   },
   "initialDialog": {
     "type": "gensokyolegacy:simple",
     "actions": [],
     "conditions": [],
-    "next": "gensokyolegacy:reimu/ominous_banner/start/dialog_1",
+    "next": {
+      "animations": [
+        "dialog_think"
+      ],
+      "options": [
+        {
+          "type": "gensokyolegacy:simple",
+          "actions": [],
+          "conditions": [],
+          "next": {
+            "animations": [
+              "dialog_talk_03"
+            ],
+            "options": [
+              {
+                "type": "gensokyolegacy:simple",
+                "actions": [],
+                "conditions": [],
+                "text": "gensokyolegacy/reimu/ominous_banner/option/start/reject/end"
+              }
+            ],
+            "text": "gensokyolegacy/reimu/ominous_banner/dialog/reimu/ominous_banner/start/reject/dialog_1"
+          },
+          "text": "gensokyolegacy/reimu/ominous_banner/option/start/reject"
+        },
+        {
+          "type": "gensokyolegacy:simple",
+          "actions": [
+            {
+              "type": "gensokyolegacy:start_quest"
+            }
+          ],
+          "conditions": [],
+          "next": {
+            "animations": [
+              "dialog_talk_04"
+            ],
+            "options": [
+              {
+                "type": "gensokyolegacy:simple",
+                "actions": [],
+                "conditions": [],
+                "text": "gensokyolegacy/reimu/ominous_banner/option/start/accept/end"
+              }
+            ],
+            "text": "gensokyolegacy/reimu/ominous_banner/dialog/reimu/ominous_banner/start/accept/dialog_1"
+          },
+          "text": "gensokyolegacy/reimu/ominous_banner/option/start/accept"
+        }
+      ],
+      "text": "gensokyolegacy/reimu/ominous_banner/dialog/reimu/ominous_banner/start/dialog_1"
+    },
     "text": "gensokyolegacy/reimu/ominous_banner/option/start"
   },
   "requirements": {

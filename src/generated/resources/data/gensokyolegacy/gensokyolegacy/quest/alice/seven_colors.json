@@ -4,7 +4,58 @@
     "type": "gensokyolegacy:simple",
     "actions": [],
     "conditions": [],
-    "next": "gensokyolegacy:alice/seven_colors/complete/dialog_1",
+    "next": {
+      "animations": [
+        "dialog_agree"
+      ],
+      "options": [
+        {
+          "type": "gensokyolegacy:simple",
+          "actions": [],
+          "conditions": [],
+          "next": {
+            "animations": [
+              "dialog_talk_02"
+            ],
+            "options": [
+              {
+                "type": "gensokyolegacy:simple",
+                "actions": [],
+                "conditions": [],
+                "text": "gensokyolegacy/alice/seven_colors/option/complete/reject/end"
+              }
+            ],
+            "text": "gensokyolegacy/alice/seven_colors/dialog/alice/seven_colors/complete/reject/dialog_1"
+          },
+          "text": "gensokyolegacy/alice/seven_colors/option/complete/reject"
+        },
+        {
+          "type": "gensokyolegacy:simple",
+          "actions": [
+            {
+              "type": "gensokyolegacy:complete_quest"
+            }
+          ],
+          "conditions": [],
+          "next": {
+            "animations": [
+              "dialog_talk_05"
+            ],
+            "options": [
+              {
+                "type": "gensokyolegacy:simple",
+                "actions": [],
+                "conditions": [],
+                "text": "gensokyolegacy/alice/seven_colors/option/complete/handover/end"
+              }
+            ],
+            "text": "gensokyolegacy/alice/seven_colors/dialog/alice/seven_colors/complete/handover/dialog_1"
+          },
+          "text": "gensokyolegacy/alice/seven_colors/option/complete/handover"
+        }
+      ],
+      "text": "gensokyolegacy/alice/seven_colors/dialog/alice/seven_colors/complete/dialog_1"
+    },
     "text": "gensokyolegacy/alice/seven_colors/option/complete"
   },
   "conditions": [
@@ -18,14 +69,92 @@
     "type": "gensokyolegacy:simple",
     "actions": [],
     "conditions": [],
-    "next": "gensokyolegacy:alice/seven_colors/follow_up/dialog_1",
+    "next": {
+      "animations": [
+        "dialog_think_02"
+      ],
+      "options": [
+        {
+          "type": "gensokyolegacy:simple",
+          "actions": [],
+          "conditions": [],
+          "next": {
+            "animations": [
+              "dialog_talk_04"
+            ],
+            "options": [
+              {
+                "type": "gensokyolegacy:simple",
+                "actions": [],
+                "conditions": [],
+                "text": "gensokyolegacy/alice/seven_colors/option/follow_up/end/end"
+              }
+            ],
+            "text": "gensokyolegacy/alice/seven_colors/dialog/alice/seven_colors/follow_up/end/dialog_1"
+          },
+          "text": "gensokyolegacy/alice/seven_colors/option/follow_up/end"
+        }
+      ],
+      "text": "gensokyolegacy/alice/seven_colors/dialog/alice/seven_colors/follow_up/dialog_1"
+    },
     "text": "gensokyolegacy/alice/seven_colors/option/follow_up"
   },
   "initialDialog": {
     "type": "gensokyolegacy:simple",
     "actions": [],
     "conditions": [],
-    "next": "gensokyolegacy:alice/seven_colors/start/dialog_1",
+    "next": {
+      "animations": [
+        "dialog_think"
+      ],
+      "options": [
+        {
+          "type": "gensokyolegacy:simple",
+          "actions": [],
+          "conditions": [],
+          "next": {
+            "animations": [
+              "dialog_think"
+            ],
+            "options": [
+              {
+                "type": "gensokyolegacy:simple",
+                "actions": [],
+                "conditions": [],
+                "text": "gensokyolegacy/alice/seven_colors/option/start/reject/end"
+              }
+            ],
+            "text": "gensokyolegacy/alice/seven_colors/dialog/alice/seven_colors/start/reject/dialog_1"
+          },
+          "text": "gensokyolegacy/alice/seven_colors/option/start/reject"
+        },
+        {
+          "type": "gensokyolegacy:simple",
+          "actions": [
+            {
+              "type": "gensokyolegacy:start_quest"
+            }
+          ],
+          "conditions": [],
+          "next": {
+            "animations": [
+              "dialog_agree"
+            ],
+            "options": [
+              {
+                "type": "gensokyolegacy:simple",
+                "actions": [],
+                "conditions": [],
+                "text": "gensokyolegacy/alice/seven_colors/option/start/accept/end"
+              }
+            ],
+            "text": "gensokyolegacy/alice/seven_colors/dialog/alice/seven_colors/start/accept/dialog_1"
+          },
+          "text": "gensokyolegacy/alice/seven_colors/option/start/accept"
+        }
+      ],
+      "text": "gensokyolegacy/alice/seven_colors/dialog/alice/seven_colors/start/dialog_1"
+    },
     "text": "gensokyolegacy/alice/seven_colors/option/start"
   },
   "requirements": {

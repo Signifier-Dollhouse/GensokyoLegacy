@@ -90,6 +90,19 @@
       "repBonus": 1.0,
       "repGain": 0.05,
       "weight": 100
+    },
+    "gensokyolegacy:saigyouji_yuyuko": {
+      "fulfillment": 500,
+      "fullSeat": 80,
+      "hungrySeat": 20,
+      "leaveChance": 0.05,
+      "maxAppeal": 1000,
+      "maxReputation": 250,
+      "minAppeal": 500,
+      "minReputation": 0,
+      "repBonus": 1.0,
+      "repGain": 0.01,
+      "weight": 10
     }
   }
 }

@@ -3,10 +3,14 @@ package dev.xkmc.gensokyolegacy.event;
 import dev.xkmc.gensokyolegacy.content.attachment.area.AreaChunkHolder;
 import dev.xkmc.gensokyolegacy.content.attachment.area.AreaEffectManager;
 import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyAttachment;
+import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyGiftReader;
 import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyTicker;
 import dev.xkmc.gensokyolegacy.content.attachment.party.food.FoodResultCache;
+import dev.xkmc.gensokyolegacy.content.attachment.party.network.PartyGiftToClient;
 import dev.xkmc.gensokyolegacy.content.cooldown.CooldownClock;
 import dev.xkmc.gensokyolegacy.content.rpg.core.ServerCharacterDialogManager;
+import dev.xkmc.gensokyolegacy.content.rpg.network.QuestLootToClient;
+import dev.xkmc.gensokyolegacy.content.rpg.reward.LootReader;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
 import net.minecraft.server.level.ServerLevel;
@@ -27,11 +31,16 @@ public class GLMetaEventHandlers {
 
 	@SubscribeEvent
 	public static void reload(OnDatapackSyncEvent event) {
-		if (event.getPlayer() == null) {
+		var sp = event.getPlayer();
+		if (sp == null) {
 			ServerCharacterDialogManager.clearCache();
-			// The party_food override is resolved by the caller in PartyFoodValue and never
-			// enters the cache; belt-and-braces, since the cache is keyed on BlockState alone.
 			FoodResultCache.invalidate();
+		} else {
+			var server = sp.getServer();
+			if (server != null) {
+				GensokyoLegacy.HANDLER.toClientPlayer(new PartyGiftToClient(PartyGiftReader.all(server)), sp);
+				GensokyoLegacy.HANDLER.toClientPlayer(new QuestLootToClient(LootReader.questRewards(server)), sp);
+			}
 		}
 	}
 

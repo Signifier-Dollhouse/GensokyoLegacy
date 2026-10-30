@@ -7,7 +7,6 @@ import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.rpg.core.CodecRegistry;
-import dev.xkmc.gensokyolegacy.content.rpg.dialog.Dialog;
 import dev.xkmc.gensokyolegacy.content.rpg.network.DialogClickToServer;
 import dev.xkmc.gensokyolegacy.content.rpg.network.DialogCloseToServer;
 import dev.xkmc.gensokyolegacy.content.ui.quest.QuestInfo;
@@ -630,17 +629,6 @@ public abstract class DialogScreen extends Screen {
 		}
 		new TextBox(g, 0, 1, 10, this.height / 2, (int) (this.width * 0.4f - 20))
 				.renderLongText(font, text);
-	}
-
-	/**
-	 * Resolve a dialog id against the client's own synced registry. Null if the
-	 * dialog is gone, e.g. a datapack reload dropped it.
-	 */
-	protected static @Nullable Dialog resolveDialog(ResourceLocation id) {
-		var level = Minecraft.getInstance().level;
-		if (level == null) return null;
-		return level.registryAccess().holder(ResourceKey.create(CodecRegistry.Keys.DIALOG, id))
-				.map(Holder::value).orElse(null);
 	}
 
 	protected static @Nullable YoukaiEntity resolveCharacter(int uid) {

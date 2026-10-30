@@ -1,3 +1,21 @@
+1.0.7
+- wild dolls, wild ghost, and tamed ghost
+- fix doll damage won't aggravate target
+- fix doll being recolored by other player
+
+1.0.6
+- Add ability for fancy fan
+- Carry On can no longer pick up characters and dolls
+- Cherry and maple trees shed their petals and leaves, and grow a carpet of fallen leaves below
+- Fix character animation not playing on certain computers
+- Fix player position desync when possessing seki head
+- Fix fairy spawn ignoring spawn cap
+- Fix character pathfinding through blocking trapdoor
+- Fix character-owned shelf dropping contents on break
+- Fix crash with Alex Cave ports
+- Fix morichika texture
+- Fix cirno showing want bubble in party
+
 1.0.5
 - Seki head, sold by Morichika at high reputation
 - doll shield

@@ -6,30 +6,40 @@ import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.core.particles.SimpleParticleType;
 
 /**
- * The knife flash: a short burst through every frame of {@code particles/knife.json}, gone. Unlike {@link
- * MiasmaParticle} it is an impact, not a drifting haze, so it holds its spawn spot. The frame count is the lifetime,
+ * The knife flash: a short burst through one series of {@code particles/knife.json}, gone. Unlike {@link
+ * MiasmaParticle} it is an impact, not a drifting haze, so it holds its spawn spot. The series length is the lifetime,
  * landing one sprite per tick; nothing fades, the frames dim and shrink on their own.
+ * <p>
+ * The sprite set holds two series of the same slash: {@code knife_01..04} are the dark one and {@code knife_05..08}
+ * the light one. A flash draws its series when it is created and plays that series alone, so the order of the
+ * textures in {@code knife.json} is what decides which half is which.
  */
 public class KnifeParticle extends TextureSheetParticle {
 
-	private static final int FRAMES = 8;
+	private static final int FRAMES = 4;
+	private static final int SERIES = 2;
+	private static final int SPRITES = FRAMES * SERIES;
 
 	private final SpriteSet sprites;
+	private final int series;
 
 	protected KnifeParticle(ClientLevel level, double x, double y, double z,
 							double xd, double yd, double zd, SpriteSet sprites) {
 		super(level, x, y, z, xd, yd, zd);
 		this.sprites = sprites;
+		this.series = this.random.nextInt(SERIES);
 		this.lifetime = FRAMES;
 		this.friction = 0.96F;
 		this.quadSize *= this.random.nextFloat() * 0.5F + 0.75F;
-		this.setSpriteFromAge(sprites);
+		this.setSprite(sprites.get(this.series * FRAMES, SPRITES - 1));
 	}
 
 	@Override
 	public void tick() {
 		super.tick();
-		this.setSpriteFromAge(this.sprites);
+		if (this.removed) return;
+		// A max age of SPRITES - 1 makes SpriteSet index the list directly; the last frame holds until expiry.
+		this.setSprite(this.sprites.get(this.series * FRAMES + Math.min(this.age, FRAMES - 1), SPRITES - 1));
 	}
 
 	/**

@@ -5,6 +5,19 @@
       "type": "gensokyolegacy:home_bound"
     }
   ],
-  "dialog": "gensokyolegacy:morichika/chat/hi",
+  "dialog": {
+    "animations": [
+      "dialog_talk_03"
+    ],
+    "options": [
+      {
+        "type": "gensokyolegacy:simple",
+        "actions": [],
+        "conditions": [],
+        "text": "gensokyolegacy/morichika/chat/option/bye"
+      }
+    ],
+    "text": "gensokyolegacy/morichika/chat/dialog/morichika/chat/hi"
+  },
   "text": "gensokyolegacy/morichika/chat/starter/start"
 }

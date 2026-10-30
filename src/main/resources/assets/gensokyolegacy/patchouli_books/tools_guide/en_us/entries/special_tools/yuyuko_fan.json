@@ -1,0 +1,32 @@
+{
+  "name": "Yuyuko's Fan",
+  "icon": "gensokyolegacy:yuyuko_fan",
+  "category": "gensokyolegacy:special_tools",
+  "sortnum": 11,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "gensokyolegacy:yuyuko_fan",
+      "title": "A Fan Full of Ghosts",
+      "text": "Yuyuko's fan stores the spiritual power of ghosts in one pool, and spends it on the ghosts that follow you or on a fan of butterfly danmaku. Hold the selection key to open its mode wheel (X by default), then right-click to use the chosen mode."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Summon / Refill$()$(br)Right-click to refill every summoned ghost and summon any missing kind.$(br)$(bold)Absorb All$()$(br)Right-click to absorb every summoned ghost.$(br)$(bold)Butterfly Scatter$()$(br)Right-click to spend 10 spiritual power on a butterfly fan.$(br)$(bold)Ghost Butterfly$()$(br)Right-click to spend 1000 spiritual power to send a Ghost Butterfly at the target under your crosshair."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)The power pool$()$(br)Right-click a ghost to absorb its spiritual power. This works in every mode.$(br2)$(bold)A full fan$()$(br)Absorbing an owned ghost with a full fan releases it instead.$(br2)A Jizo will trade one experience level for spiritual power stored in the fan."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Summonable Ghosts",
+      "text": "$(bold)Curios Ghost$(): Spends 10 of its power to cleanse your longest-lasting harmful effect.$(br)$(bold)Foodie Ghost$(): Above 16 hunger, turns 1 hunger into 1 saturation per second, and lets you eat twice as fast.$(br)$(bold)Lively Ghost$(): Grants Haste II and Speed II, and item cooldowns run 20% faster.$(br)$(bold)Dual Ghost$(): Needs no upkeep. When you would die, it sacrifices itself, leaving you at one heart with brief resistance, fire resistance and regeneration."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Ghost Butterfly",
+      "text": "The Ghost Butterfly flies at its target and spends 10 power to burst into a ring of butterfly danmaku. The danmaku spread out, then contract back into the Ghost Butterfly, which resumes the hunt. With no target left, it returns to your side."
+    }
+  ]
+}

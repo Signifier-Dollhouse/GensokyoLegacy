@@ -10,7 +10,34 @@
       "invert": true
     }
   ],
-  "dialog": "gensokyolegacy:morichika/chat_reimu/talk",
+  "dialog": {
+    "animations": [
+      "dialog_talk_03"
+    ],
+    "options": [
+      {
+        "type": "gensokyolegacy:simple",
+        "actions": [],
+        "conditions": [],
+        "next": {
+          "animations": [
+            "dialog_think"
+          ],
+          "options": [
+            {
+              "type": "gensokyolegacy:simple",
+              "actions": [],
+              "conditions": [],
+              "text": "gensokyolegacy/morichika/chat_reimu/option/bye"
+            }
+          ],
+          "text": "gensokyolegacy/morichika/chat_reimu/dialog/morichika/chat_reimu/donation_ans"
+        },
+        "text": "gensokyolegacy/morichika/chat_reimu/option/donation"
+      }
+    ],
+    "text": "gensokyolegacy/morichika/chat_reimu/dialog/morichika/chat_reimu/talk"
+  },
   "text": "gensokyolegacy/morichika/chat_reimu/starter/start",
   "weight": 100
 }

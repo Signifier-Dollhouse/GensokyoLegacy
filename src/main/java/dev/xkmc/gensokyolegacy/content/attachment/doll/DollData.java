@@ -1,5 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.attachment.doll;
 
+import dev.xkmc.gensokyolegacy.content.entity.dolls.ghost.GhostPower;
 import dev.xkmc.gensokyolegacy.content.entity.foundation.DamageRefactorEntity.CombatData;
 import dev.xkmc.gensokyolegacy.content.item.doll.DollItem;
 import dev.xkmc.gensokyolegacy.content.item.doll.DollItemData;
@@ -67,13 +68,6 @@ public class DollData {
 	@SerialField(toClient = false)
 	public DollNature nature = DollNature.DOLL;
 
-	/**
-	 * Ticks of life left, counted down by the host's commander. 0 — the value entries predating
-	 * the field read back as — means indefinite, so a lifespan is opt-in per entry.
-	 */
-	@SerialField(toClient = false)
-	public int lifespan;
-
 	@SerialField(toClient = false)
 	public ResourceLocation dimension;
 
@@ -95,6 +89,19 @@ public class DollData {
 	 */
 	@SerialField(toClient = false)
 	public DyeColor color = DyeColor.RED;
+
+	/**
+	 * Ghost variant ordinal. Only ghosts read it; other kinds leave it at zero.
+	 */
+	@SerialField(toClient = false)
+	public int variant;
+
+	/**
+	 * Ghost power, 0 to {@code GhostPower.MAX}. Other kinds ignore it; entries predating the
+	 * field read the initializer and come back at full power.
+	 */
+	@SerialField(toClient = false)
+	public int power = GhostPower.MAX;
 
 	@SerialField(toClient = false)
 	public long lastUpdate;
@@ -135,16 +142,6 @@ public class DollData {
 	 */
 	public DollNature getNature() {
 		return nature == null ? DollNature.DOLL : nature;
-	}
-
-	/**
-	 * Counts one tick off the lifespan; true on the tick it runs out, so the caller drops the
-	 * entry there and then. A lifespan of 0 or less never does, which is how a plain doll is
-	 * indefinite without carrying a flag.
-	 */
-	public boolean tickLifespan() {
-		if (lifespan <= 0) return false;
-		return --lifespan <= 0;
 	}
 
 }

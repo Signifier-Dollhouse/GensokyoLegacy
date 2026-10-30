@@ -72,6 +72,7 @@ public interface DollTint extends DollEntityImpl {
 		 */
 		@Override
 		public InteractionResult interact(Player player, InteractionHand hand) {
+			if (doll.getOwner() != player) return InteractionResult.PASS;
 			ItemStack stack = player.getItemInHand(hand);
 			if (!(stack.getItem() instanceof DyeItem dye)) return InteractionResult.PASS;
 			DyeColor color = dye.getDyeColor();

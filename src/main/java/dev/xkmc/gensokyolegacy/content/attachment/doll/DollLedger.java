@@ -17,7 +17,7 @@ import java.util.UUID;
  * the forwarding and no doll branches on host type.
  *
  * @see "doc/design/doll/control.md"
- * @see "doc/design/doll/timed_summon.md"
+ * @see "doc/design/doll/summon.md"
  */
 public interface DollLedger extends DollHost {
 
@@ -34,9 +34,9 @@ public interface DollLedger extends DollHost {
 
 	/**
 	 * Forgets an entry for good: no item, no parked data, nothing waiting to become either. The end
-	 * state both of a timed summon's death and of its lifespan running out, since it has no item form
-	 * to fall back on. Entry-only — the caller disposes of the entity, and must do so
-	 * <b>before</b> calling this, or the doll spends a tick alive and unpaired.
+	 * state of a summon's death, since it has no item form to fall back on. Entry-only — the caller
+	 * disposes of the entity, and must do so <b>before</b> calling this, or the doll spends a tick
+	 * alive and unpaired.
 	 *
 	 * @return the dropped entry, or null when this ledger holds no such entry
 	 */

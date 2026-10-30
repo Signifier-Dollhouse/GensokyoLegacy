@@ -123,7 +123,7 @@ public class DollDanmakuBehavior extends DollBehavior {
 		}
 		Optional<HandMatch> match = hand(doll);
 		// the card is taken off the match rather than re-read from the main hand after the
-		// swap below: an intrinsic binding names one for a timed summon that holds nothing, and
+		// swap below: an intrinsic binding names one for a summon that holds nothing, and
 		// the swap may have brought a different hand's danmaku forward than the match did
 		if (match.isEmpty() || match.get().danmaku() == null) {
 			doll.actions.complete(doll);

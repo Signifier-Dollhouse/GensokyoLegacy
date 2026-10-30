@@ -121,6 +121,10 @@ public class GLItems {
 	 */
 	public static final ItemEntry<SekibankiHeadItem> SEKIBANKI_HEAD;
 
+	public static final ItemEntry<BoneFluteItem> BONE_FLUTE;
+
+	public static final ItemEntry<YuyukoFanItem> YUYUKO_FAN;
+
 	public static final ItemEntry<DollGloveItem> DOLL_GLOVE;
 
 	public static final ItemEntry<DollLanceItem> DOLL_LANCE;
@@ -128,6 +132,7 @@ public class GLItems {
 	public static final ItemEntry<MiniShieldItem> MINI_SHIELD;
 
 	public static final ItemEntry<StarDanmakuItem> STAR;
+	public static final ItemEntry<ButterflyDanmakuItem> PINK_BUTTERFLY, BLUE_BUTTERFLY;
 	public static final ItemEntry<StarWandItem> STAR_WAND;
 	public static final ItemEntry<StrangeGlassesItem> STRANGE_GLASSES;
 	public static final ItemEntry<IceWingsItem> ICE_WINGS;
@@ -160,6 +165,10 @@ public class GLItems {
 	public static final DCVal<DaggerGloveMode> DAGGER_GLOVE_MODE = DC.enumVal("dagger_glove_mode", EnumCodec.of(DaggerGloveMode.class, DaggerGloveMode.values()));
 	public static final DCVal<ResourceLocation> DAGGER_GLOVE_RUNE = DC.loc("dagger_glove_rune");
 	public static final DCVal<Unit> DAGGER_GLOVE_ICON = DC.unit("dagger_glove_icon");
+	public static final DCVal<Integer> SPIRITUAL_POWER = DC.intVal("spiritual_power");
+	public static final DCVal<Integer> SPIRITUAL_POWER_MAX = DC.intVal("spiritual_power_max");
+	public static final DCVal<YuyukoFanMode> YUYUKO_FAN_MODE =
+			DC.enumVal("yuyuko_fan_mode", EnumCodec.of(YuyukoFanMode.class, YuyukoFanMode.values()));
 	public static final DCVal<PartyWandData> PARTY_WAND_DATA = DC.reg("party_wand", PartyWandData.CODEC,
 			ByteBufCodecs.fromCodecWithRegistries(PartyWandData.CODEC), false);
 
@@ -173,6 +182,18 @@ public class GLItems {
 			STAR = reg.item("star_danmaku", p -> new StarDanmakuItem(p.rarity(Rarity.RARE)))
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/hexbrew/star")))
 					.tag(DanmakuItems.Bullet.STAR.tag)
+					.register();
+
+			PINK_BUTTERFLY = reg.item("pink_butterfly_danmaku", p -> new ButterflyDanmakuItem(p.rarity(Rarity.RARE),
+							DyeColor.PINK, GensokyoLegacy.loc("textures/item/danmaku/pink_butterfly_danmaku.png")))
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/danmaku/" + ctx.getName())))
+					.tag(DanmakuItems.Bullet.BUTTERFLY.tag)
+					.register();
+
+			BLUE_BUTTERFLY = reg.item("blue_butterfly_danmaku", p -> new ButterflyDanmakuItem(p.rarity(Rarity.RARE),
+							DyeColor.BLUE, GensokyoLegacy.loc("textures/item/danmaku/blue_butterfly_danmaku.png")))
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/danmaku/" + ctx.getName())))
+					.tag(DanmakuItems.Bullet.BUTTERFLY.tag)
 					.register();
 
 			// spell cards
@@ -391,7 +412,7 @@ public class GLItems {
 
 			// a fan is for looking at, and for blowing
 			FANCY_FAN = reg.item("fancy_fan", FancyFanItem::new)
-					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
+					.model((ctx, pvd) -> pvd.handheld(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
 					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(5, 1000, GiftType.COLLECTION))
 					.tag(GLTagGen.MORICHIKA_OFFERS)
 					.dataMap(GLMeta.MORICHIKA_OFFER.reg(), new MorichikaOfferData(10, 20, 1, 1))
@@ -490,6 +511,19 @@ public class GLItems {
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/doll/" + ctx.getName())))
 					.lang("Sekibanki's Head")
 					.tab(TAB.key())
+					.register();
+
+			BONE_FLUTE = reg.item("bone_flute", p -> new BoneFluteItem(p.stacksTo(1)))
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/tool/" + ctx.getName())))
+					.lang("Bone Flute")
+					.tab(TAB.key())
+					.register();
+
+			YUYUKO_FAN = reg.item("yuyuko_fan", p -> new YuyukoFanItem(p.stacksTo(1)))
+					.model((ctx, pvd) -> pvd.handheld(ctx, pvd.modLoc("item/tool/" + ctx.getName())))
+					.lang("Yuyuko's Fan")
+					.tab(TAB.key())
+					.tag(L2ISTagGen.SELECTABLE)
 					.register();
 
 			DOLL_GLOVE = reg.item("doll_glove", DollGloveItem::new)

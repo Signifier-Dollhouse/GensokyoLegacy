@@ -109,12 +109,12 @@ public class PlainFairyEntity extends FairyEntity implements GeoYoukaiAnim {
 	 */
 	private static final YoukaiFeatureSet FEATURES = YoukaiFeatureSet.builder().limit(5).maxSpeed(1.2).build();
 
-	protected static final RawAnimation IDLE = RawAnimation.begin().thenLoop("待机");
-	protected static final RawAnimation SIT = RawAnimation.begin().thenLoop("坐下");
+	protected static final RawAnimation IDLE = RawAnimation.begin().thenLoop("idle");
+	protected static final RawAnimation SIT = RawAnimation.begin().thenLoop("sit");
 
-	private static final RawAnimation FLOAT = RawAnimation.begin().thenLoop("漂浮");
-	private static final RawAnimation CRYING_FLOAT = RawAnimation.begin().thenLoop("哭泣_漂浮");
-	private static final RawAnimation USE_MAINHAND = RawAnimation.begin().thenPlay("使用主手物品");
+	private static final RawAnimation FLOAT = RawAnimation.begin().thenLoop("fly");
+	private static final RawAnimation CRYING_FLOAT = RawAnimation.begin().thenLoop("cry_fly");
+	private static final RawAnimation USE_MAINHAND = RawAnimation.begin().thenPlay("swing");
 
 	protected static final SyncedData PLAIN_FAIRY_DATA = new SyncedData(PlainFairyEntity::defineId, SPELL_DATA);
 
@@ -405,7 +405,7 @@ public class PlainFairyEntity extends FairyEntity implements GeoYoukaiAnim {
 	}
 
 	/**
-	 * Only {@code 使用主手物品} and the chew are mapped: this rig has no {@code 交流_*},
+	 * Only {@code swing} and the chew are mapped: this rig has no {@code talk_*},
 	 * greeting, agree, decline or thinking clips, so those slots resolve empty and
 	 * the dialog system plays nothing rather than asking GeckoLib for a missing clip.
 	 */

@@ -51,9 +51,22 @@ public final class ReputationConstants {
 	// --- Daily decay ---
 
 	/**
-	 * Points moved per in-game day, toward the decay floor when positive and back toward zero when hostile.
+	 * Points moved per in-game day toward the decay floor.
 	 */
 	public static final int DAILY_DECAY_AMOUNT = 1;
+
+	// --- Negative recovery ---
+
+	/**
+	 * At or below this reputation a recovery day halves it; above it the day gives back
+	 * {@link #NEGATIVE_RECOVER_AMOUNT}.
+	 */
+	public static final int NEGATIVE_HALF_THRESHOLD = -20;
+
+	/**
+	 * Reputation given back per recovery day once the relationship is above the halving threshold.
+	 */
+	public static final int NEGATIVE_RECOVER_AMOUNT = 10;
 
 	// --- Combat: youkai killed the player (forgiveness) ---
 

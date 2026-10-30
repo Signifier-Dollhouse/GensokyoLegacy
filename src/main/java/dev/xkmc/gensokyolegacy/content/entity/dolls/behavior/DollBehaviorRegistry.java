@@ -21,8 +21,8 @@ import java.util.function.Supplier;
  * <p>
  * Two bindings are <b>not</b> items. {@link #registerBareHand} matches the empty hand itself,
  * once no item binding has claimed the type (control.md §5.1b); {@link #registerIntrinsic} matches
- * the doll's own class, for a loadout-free timed summon whose one move has no stack behind it at all
- * (timed_summon.md §4).
+ * the doll's own class, for a loadout-free summon whose one move has no stack behind it at all
+ * (summon.md §4).
  */
 public final class DollBehaviorRegistry {
 
@@ -55,7 +55,7 @@ public final class DollBehaviorRegistry {
 	/**
 	 * One binding's answer for a doll: the entry, the hand it was found in, its stack and the danmaku
 	 * it fires. A match with an empty stack is the fallback or intrinsic form rather than an item —
-	 * a loadout-free timed summon's one move, or the bare hand — and {@link #danmaku()} then names the
+	 * a loadout-free summon's one move, or the bare hand — and {@link #danmaku()} then names the
 	 * card the binding itself carries, since there is no stack to read it out of.
 	 */
 	public record HandMatch(Entry entry, DollSlot hand, ItemStack stack, @Nullable DanmakuItem danmaku) {
@@ -98,11 +98,11 @@ public final class DollBehaviorRegistry {
 	}
 
 	/**
-	 * Register the one move a loadout-free timed summon fights with. Consulted after the item table and
+	 * Register the one move a loadout-free summon fights with. Consulted after the item table and
 	 * before the bare hand, so it is what an empty-handed doll of that class acts with — a
 	 * {@code danmaku} card for {@link DollDanmakuBehavior}, null for the bare-hand charge.
 	 *
-	 * @see "doc/design/doll/timed_summon.md"
+	 * @see "doc/design/doll/summon.md"
 	 */
 	public static void registerIntrinsic(String id, Class<? extends DollEntity> doll, DollActionType type,
 										 @Nullable DanmakuItem danmaku, Supplier<DollBehavior> factory) {
@@ -213,7 +213,7 @@ public final class DollBehaviorRegistry {
 
 	/**
 	 * What this doll <b>is</b>, asked for {@code type}: the first intrinsic registered for a class
-	 * it is a kind of. Matched on the concrete class, so registering against a timed summon's base is
+	 * it is a kind of. Matched on the concrete class, so registering against a summon's base is
 	 * enough and subclasses need not repeat it.
 	 */
 	@Nullable
@@ -239,7 +239,7 @@ public final class DollBehaviorRegistry {
 			}
 		}
 		// Nothing held satisfies the type: what the doll is comes before what its empty hands fall
-		// back to, or a timed summon's one declared move would lose to the bare-handed charge. It
+		// back to, or a summon's one declared move would lose to the bare-handed charge. It
 		// names the main hand, since there is no item in either one to bring forward.
 		Intrinsic intrinsic = intrinsicOf(doll, type);
 		if (best == null && intrinsic != null) {

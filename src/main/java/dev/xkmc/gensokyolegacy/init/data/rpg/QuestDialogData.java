@@ -212,12 +212,13 @@ public class QuestDialogData {
 		return dialog(id, text, List.of(), options);
 	}
 
+	/**
+	 * A dialog written in place: its id only names the lang key, not a datapack entry. A chat or a quest
+	 * therefore carries its whole conversation, and nothing has to resolve a path at runtime.
+	 */
 	public Holder<Dialog> dialog(String id, String text, List<String> animations, DialogOption<?>... options) {
 		id = prefix + "/" + id;
-		var key = ResourceKey.create(CodecRegistry.DIALOG.key(), loc(id));
-		var holder = new DataGenHolder<>(key, new Dialog(text("dialog", id, text), List.of(options), animations));
-		dialogRegistry.put(key, holder);
-		return holder;
+		return Holder.direct(new Dialog(text("dialog", id, text), List.of(options), animations));
 	}
 
 	public Holder<Dialog> dialogKey(String id, String key, DialogOption<?>... options) {
@@ -225,6 +226,15 @@ public class QuestDialogData {
 	}
 
 	public Holder<Dialog> dialogKey(String id, String key, List<String> animations, DialogOption<?>... options) {
+		id = prefix + "/" + id;
+		return Holder.direct(new Dialog(key, List.of(options), animations));
+	}
+
+	/**
+	 * The registered counterpart of {@link #dialogKey}: written as its own datapack entry instead of
+	 * inline, for the gift data map, which names its two reactions rather than holding them.
+	 */
+	protected Holder<Dialog> namedDialogKey(String id, String key, List<String> animations, DialogOption<?>... options) {
 		id = prefix + "/" + id;
 		var rkey = ResourceKey.create(CodecRegistry.DIALOG.key(), loc(id));
 		var holder = new DataGenHolder<>(rkey, new Dialog(key, List.of(options), animations));
