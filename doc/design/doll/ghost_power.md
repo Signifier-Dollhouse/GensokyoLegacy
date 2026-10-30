@@ -100,7 +100,7 @@ power so it can be read without opening the tooltip.
   21 rays three degrees apart, five danmaku per ray. Odd (1-based) rays use the pink item at
   0.6–1.0 distance, even rays the blue item at 0.55–0.95. Within a ray the five are spaced evenly
   across that range, and each moves at the distance it spawned at, so the outermost is the fastest.
-  Every butterfly trails cherry blossom petals, pink for the pink item and purple for the blue.
+  Every butterfly trails petals, pink for the pink item and purple for the blue.
   The mode is refused, with a message, when the pool holds less than 10.
 - **Haunt mode, right-click air** spends 1000 spiritual power to send a haunting ghost at the entity
   under the crosshair. Targeting reuses the shared glove trace (`YuyukoFanItem` implements
@@ -139,7 +139,7 @@ so every orbit passes through its body. The rings lie in a plane tilted through 
 `rotateDegrees` places the centres), so the flower spreads around the target instead of staying
 horizontal. Each butterfly orbits its own centre at its ring's radius for 40 ticks, which is exactly
 one full revolution (`PolarMover` at `2π/40`); the two directions per centre take opposite colours,
-alternating pink and blue, and trail matching cherry blossom petals. The ghost holds its position
+alternating pink and blue, and trail matching petals. The ghost holds its position
 and stays invisible for all 40 ticks;
 `HauntingGhostModule` keeps the lock and cooldown as transient combat state, so a ghost parked
 mid-volley comes back following. When the volley ends it has a further 20 ticks of cooldown, which

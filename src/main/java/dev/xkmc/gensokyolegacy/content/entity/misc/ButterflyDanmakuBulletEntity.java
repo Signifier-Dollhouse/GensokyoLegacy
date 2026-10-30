@@ -9,8 +9,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
 /**
- * A butterfly danmaku that leaves a trail of cherry blossom petals in flight. The petal comes from
- * the item, so the pink butterfly trails pink petals and the blue one purple.
+ * A butterfly danmaku that leaves a trail of short-lived, shrinking petals. The particle comes
+ * from the item, so the pink butterfly trails pink petals and the blue one purple.
  *
  * @see "doc/design/doll/ghost_power.md"
  */
@@ -32,7 +32,6 @@ public class ButterflyDanmakuBulletEntity extends ItemBulletEntity {
 	@Override
 	public void tick() {
 		super.tick();
-		if (tickCount % 2 != 0) return;
 		if (!(getItem().getItem() instanceof ButterflyDanmakuItem item)) return;
 		Vec3 pos = position().add(0, getBbHeight() / 2, 0);
 		level().addParticle(item.trailParticle(), pos.x, pos.y, pos.z, 0, 0, 0);

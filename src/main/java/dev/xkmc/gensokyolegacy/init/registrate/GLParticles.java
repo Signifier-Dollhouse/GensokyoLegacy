@@ -1,5 +1,6 @@
 package dev.xkmc.gensokyolegacy.init.registrate;
 
+import dev.xkmc.gensokyolegacy.content.particle.ButterflyTrailParticle;
 import dev.xkmc.gensokyolegacy.content.particle.FallingLeafParticle;
 import dev.xkmc.gensokyolegacy.content.particle.KnifeParticle;
 import dev.xkmc.gensokyolegacy.content.particle.MiasmaParticle;
@@ -35,6 +36,15 @@ public class GLParticles {
 	public static final Val<SimpleParticleType> PURPLE_CHERRY_BLOSSOM = GensokyoLegacy.REGISTRATE.particle("purple_cherry_blossom",
 			() -> new SimpleParticleType(false),
 			() -> ParticleSupplier.spriteSet(() -> FallingLeafParticle.Provider::new));
+
+	// the trail of a butterfly danmaku: the same petals, but short-lived and shrinking
+	public static final Val<SimpleParticleType> PINK_BUTTERFLY_TRAIL = GensokyoLegacy.REGISTRATE.particle("pink_butterfly_trail",
+			() -> new SimpleParticleType(false),
+			() -> ParticleSupplier.spriteSet(() -> ButterflyTrailParticle.Provider::new));
+
+	public static final Val<SimpleParticleType> PURPLE_BUTTERFLY_TRAIL = GensokyoLegacy.REGISTRATE.particle("purple_butterfly_trail",
+			() -> new SimpleParticleType(false),
+			() -> ParticleSupplier.spriteSet(() -> ButterflyTrailParticle.Provider::new));
 
 	public static final Val<SimpleParticleType> ORANGE_MAPLE_LEAF = GensokyoLegacy.REGISTRATE.particle("orange_maple_leaf",
 			() -> new SimpleParticleType(false),

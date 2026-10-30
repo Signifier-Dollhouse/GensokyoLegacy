@@ -23,7 +23,7 @@ public class ButterflyDanmakuItem extends DanmakuItem {
 	private final ResourceLocation texture;
 
 	public ButterflyDanmakuItem(Properties p, DyeColor color, ResourceLocation texture) {
-		super(p, DanmakuItems.Bullet.BUTTERFLY, color, DanmakuItems.Bullet.BUTTERFLY.size);
+		super(p, DanmakuItems.Bullet.BUTTERFLY, color, 0.7f);
 		this.texture = texture;
 	}
 
@@ -38,11 +38,11 @@ public class ButterflyDanmakuItem extends DanmakuItem {
 	}
 
 	/**
-	 * The petal this butterfly trails: the pink blossom for the pink butterfly, the purple one for
+	 * The trail this butterfly leaves: the pink petal for the pink butterfly, the purple one for
 	 * the blue.
 	 */
 	public ParticleOptions trailParticle() {
-		return (color == DyeColor.PINK ? GLParticles.PINK_CHERRY_BLOSSOM : GLParticles.PURPLE_CHERRY_BLOSSOM).get();
+		return (color == DyeColor.PINK ? GLParticles.PINK_BUTTERFLY_TRAIL : GLParticles.PURPLE_BUTTERFLY_TRAIL).get();
 	}
 
 	@Override
