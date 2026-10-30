@@ -30,7 +30,7 @@ Ghosts and wild strays (done — stray.md):
 - `content/entity/dolls/StrayDollEntity.java` — the wild neutral doll, `StrayFlyingMob`, own entity type and spawn egg
 - `content/item/doll/BoneFluteItem.java` — adopt a stray ghost / release an owned ghost
 - `content/item/spiritual/SpiritualPower.java` + `content/item/doll/YuyukoFanItem.java`, `YuyukoFanMode.java`, `SummonFanHandler.java`, `AbsorbFanHandler.java`, `ScatterFanHandler.java`, `HauntFanHandler.java`, `ButterflyDanmakuItem.java` — the universal spiritual pool and the fan's four modes (ghost_power.md §4)
-- `content/entity/dolls/ghost/GhostVariant.java` (`HAUNTING`), `HauntingGhostHandler.java`, `HauntingGhostModule.java` — the ledger's hunting variant and its 96-butterfly volley (ghost_power.md §4.1)
+- `content/entity/dolls/ghost/GhostVariant.java` (`HAUNTING`), `HauntingGhostHandler.java`, `HauntingGhostModule.java`, `content/entity/misc/ButterflyDanmakuBulletEntity.java` — the ledger's hunting variant and its 96-butterfly volley (ghost_power.md §4.1)
 - `content/entity/dolls/render/GhostModel.java`, `GhostRenderer.java`, `StrayGhostModel.java`, `StrayGhostRenderer.java`, `StrayDollModel.java`, `StrayDollRenderer.java`
 - `content/effect/FoodieEffect.java` — the per-second hunger→saturation conversion (stray.md §7.4)
 - `event/GhostEventHandlers.java` — the high-priority dual-ghost death ward
