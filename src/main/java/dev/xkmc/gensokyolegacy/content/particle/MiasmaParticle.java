@@ -22,6 +22,7 @@ public class MiasmaParticle extends TextureSheetParticle {
 		this.lifetime = 25 + this.random.nextInt(20);
 		this.friction = 0.96F;
 		this.setSpriteFromAge(sprites);
+		hasPhysics = false;
 	}
 
 	@Override

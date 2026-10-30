@@ -32,6 +32,7 @@ public class KnifeParticle extends TextureSheetParticle {
 		this.friction = 0.96F;
 		this.quadSize *= this.random.nextFloat() * 0.5F + 0.75F;
 		this.setSprite(sprites.get(this.series * FRAMES, SPRITES - 1));
+		hasPhysics = false;
 	}
 
 	@Override
