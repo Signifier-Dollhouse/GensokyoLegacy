@@ -2,6 +2,7 @@ package dev.xkmc.gensokyolegacy.content.entity.youkai.renderer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Axis;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.module.AbstractBubbleModule;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.module.IBubbleModule;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
@@ -41,22 +42,17 @@ public class YoukaiBubbleLayer<T extends YoukaiEntity & GeoYoukaiAnim> extends G
 	 * {@code NoCull}: a flat sprite has no inside to hide, and a quad that came out wound the other way
 	 * round would simply vanish if there were.
 	 */
-	private static final RenderType BUBBLE = RenderType.entityCutoutNoCull(TEXTURE);
+	private static final RenderType BUBBLE = RenderType.text(TEXTURE);
 
 	/**
-	 * The sheet is a 256px square and the pill occupies its top-left corner, {@code 48 x 24}. Only the pill is
-	 * drawn: the three marks the sheet offers under it want a tail joined to the bottom border exactly right,
-	 * and a plain gap over her head reads as hers on its own.
+	 * The sheet is a 256px square. The bubble is the {@code 48 x 24} cell at its top-left; the three tails are
+	 * complete {@code 16 x 16} cells immediately below it.
 	 */
 	private static final float SHEET = 256f;
 	private static final float PILL_W = 48f;
 	private static final float PILL_H = 24f;
-
-	/**
-	 * Blocks per sprite pixel. Just under a block wide, which is name-plate scale: big enough to read the
-	 * item, small enough not to be the thing the player is looking at.
-	 */
-	private static final float SCALE = 0.02f;
+	private static final float TAIL_SIZE = 16f;
+	private static final float TAIL_Y = 24f;
 
 	/**
 	 * The middle of the pill's inside, in sheet pixels, which runs {@code x 3-44, y 3-20} - so half a pixel off
@@ -66,17 +62,9 @@ public class YoukaiBubbleLayer<T extends YoukaiEntity & GeoYoukaiAnim> extends G
 	private static final float ICON_CY = 14.5f;
 
 	/**
-	 * The item, in sprite pixels. The pill is 18px tall inside, so 13 leaves it a 2.5px margin all round.
+	 * How far the item is placed in front of the bubble in the pixel coordinate frame.
 	 */
-	private static final float ICON_PX = 13f;
-	private static final float ICON = ICON_PX * SCALE;
-
-	/**
-	 * How far towards the camera the item is pushed, so the pill's fill does not swallow it. Half the item's
-	 * own size clears the deepest thing an item model can be - the box is a unit cube centred on the origin -
-	 * and the extra centimetre is depth-buffer slop at range.
-	 */
-	private static final float ICON_LIFT = ICON / 2 + 0.01f;
+	private static final float ICON_LIFT = -0.01f;
 
 	/**
 	 * How far the bottom edge of the pill hangs above the top of her hitbox. A plain gap: she hovers, so there
@@ -124,14 +112,24 @@ public class YoukaiBubbleLayer<T extends YoukaiEntity & GeoYoukaiAnim> extends G
 		var dispatcher = mc.getEntityRenderDispatcher();
 		if (dispatcher.distanceToSqr(entity) > RANGE * RANGE) return;
 		poseStack.pushPose();
-		poseStack.translate(0, entity.getBbHeight() + LIFT + PILL_H * SCALE / 2, 0);
+
+		poseStack.translate(0, entity.getBbHeight() + LIFT, 0);
+
 		poseStack.mulPose(dispatcher.cameraOrientation());
-		poseStack.translate(sideShift(module.getWantPlacement()), 0, 0);
-		drawPill(poseStack, bufferSource.getBuffer(BUBBLE));
-		poseStack.translate((ICON_CX - PILL_W / 2) * SCALE, (PILL_H / 2 - ICON_CY) * SCALE, ICON_LIFT);
-		poseStack.scale(ICON, ICON, ICON);
-		// GUI context so a cake comes out isometric rather than as its flat inventory sprite, full brightness
-		// for the same reason an item frame uses it: a picture of an item has to be legible at night
+		poseStack.mulPose(Axis.YP.rotationDegrees(180));
+		switch (module.getWantPlacement()) {
+			case AbstractBubbleModule.WANT_LEFT -> poseStack.translate(1, 0, 0);
+			case AbstractBubbleModule.WANT_RIGHT -> poseStack.translate(-1, 0, 0);
+			default -> poseStack.translate(0, 0.2, 0);
+		}
+		poseStack.scale(-0.025F, -0.025F, 0.025F);
+		var bubbleBuffer = bufferSource.getBuffer(BUBBLE);
+		drawPill(poseStack, bubbleBuffer);
+		drawTail(poseStack, bubbleBuffer, module.getWantPlacement());
+		poseStack.scale(16,16,16);
+		poseStack.mulPose(Axis.XP.rotationDegrees(180));
+		// GUI context renders the inventory icon instead of a world item model. Full brightness keeps the icon
+		// legible at night.
 		mc.getItemRenderer().renderStatic(want, ItemDisplayContext.GUI, LightTexture.FULL_BRIGHT,
 				OverlayTexture.NO_OVERLAY, poseStack, bufferSource, entity.level(), 0);
 		poseStack.popPose();
@@ -154,15 +152,45 @@ public class YoukaiBubbleLayer<T extends YoukaiEntity & GeoYoukaiAnim> extends G
 	 * corners are the whole of it.
 	 */
 	private static void drawPill(PoseStack poseStack, VertexConsumer vc) {
+		drawTextureRect(poseStack, vc, 0, 0, (int) PILL_W, (int) PILL_H, -PILL_W / 2, -PILL_H / 2);
+	}
+
+	/**
+	 * Draws the one tail whose position was rolled with the current want.
+	 */
+	private static void drawTail(PoseStack poseStack, VertexConsumer vc, int placement) {
+		int sourceX = switch (placement) {
+			case AbstractBubbleModule.WANT_LEFT -> 32;
+			case AbstractBubbleModule.WANT_RIGHT -> 0;
+			default -> 16;
+		};
+		poseStack.pushPose();
+		int offset = 24;
+		switch (placement) {
+			case AbstractBubbleModule.WANT_LEFT -> poseStack.translate(offset, 9, -0.05);
+			case AbstractBubbleModule.WANT_RIGHT -> poseStack.translate(-offset, 9, -0.05);
+			default -> 	poseStack.translate(0, 8, -0.05);
+		}
+		drawTextureRect(poseStack, vc, sourceX, (int) TAIL_Y, (int) TAIL_SIZE, (int) TAIL_SIZE,
+				-TAIL_SIZE / 2, -TAIL_SIZE / 2);
+		poseStack.popPose();
+	}
+
+	private static void drawTextureRect(PoseStack poseStack, VertexConsumer vc, int sourceX, int sourceY,
+										int sourceWidth, int sourceHeight, float destinationX, float destinationY) {
 		var pose = poseStack.last();
-		float hw = PILL_W * SCALE / 2;
-		float hh = PILL_H * SCALE / 2;
-		// the texture's v runs downwards where the frame's +y runs up, so the sheet's top row is the quad's
-		// top edge
-		addVertex(vc, pose, -hw, -hh, 0, PILL_H / SHEET);
-		addVertex(vc, pose, hw, -hh, PILL_W / SHEET, PILL_H / SHEET);
-		addVertex(vc, pose, hw, hh, PILL_W / SHEET, 0);
-		addVertex(vc, pose, -hw, hh, 0, 0);
+		float left = destinationX;
+		float right = destinationX + sourceWidth;
+		float top = destinationY;
+		float bottom = destinationY + sourceHeight;
+		float u0 = sourceX / SHEET;
+		float u1 = (sourceX + sourceWidth) / SHEET;
+		float v0 = sourceY / SHEET;
+		float v1 = (sourceY + sourceHeight) / SHEET;
+		addVertex(vc, pose, left, bottom, u0, v1);
+		addVertex(vc, pose, right, bottom, u1, v1);
+		addVertex(vc, pose, right, top, u1, v0);
+		addVertex(vc, pose, left, top, u0, v0);
 	}
 
 	private static void addVertex(VertexConsumer vc, PoseStack.Pose pose, float x, float y, float u, float v) {
