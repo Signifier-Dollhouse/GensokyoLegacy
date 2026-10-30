@@ -10,7 +10,7 @@ import software.bernie.geckolib.animation.AnimationController;
 
 /**
  * Arms a single lance flash 100 ms after the attack triggers, consumed by the held-item render.
- * Keeps the lance axis fixed while the attack moves the hand.
+ * Keeps the lance axis fixed after the entry transition while the attack moves the hand.
  */
 public class DollOneShotController extends AnimationController<DollEntity> {
 
@@ -36,7 +36,7 @@ public class DollOneShotController extends AnimationController<DollEntity> {
 
 	@Nullable
 	public Matrix4f stabilizeSpearPose(Matrix4f pose, Vector3f direction) {
-		if (getAnimationState() == State.STOPPED || !DollGeo.ATTACK.equals(getTriggeredAnimation())) {
+		if (getAnimationState() != State.RUNNING || !DollGeo.ATTACK.equals(getTriggeredAnimation())) {
 			spearDirection = null;
 			return null;
 		}
