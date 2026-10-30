@@ -1049,6 +1049,7 @@ public final class GLLang {
 		FOODIE("Foodie Ghost"),
 		LIVELY("Lively Ghost"),
 		DUAL("Dual Ghost"),
+		HAUNTING("Ghost Butterfly"),
 		NOT_YOURS("This ghost is not yours", 0, ChatFormatting.RED),
 		BIND_FAIL("The ghost resists the flute", 0, ChatFormatting.RED),
 		RELEASE_FAIL("The ghost cannot be released", 0, ChatFormatting.RED),
@@ -1058,6 +1059,7 @@ public final class GLLang {
 		ALREADY_FULL("That ghost is already at full power", 0, ChatFormatting.GRAY),
 		ALL_FULL("Every summoned ghost is already at full power", 0, ChatFormatting.GRAY),
 		FAN_EMPTY("No spiritual power stored", 0, ChatFormatting.RED),
+		NEED_POWER("The fan needs at least %s spiritual power", 1, ChatFormatting.RED),
 		NO_POWER("That ghost has no power left", 0, ChatFormatting.RED),
 		ABSORB_FAIL("The ghost's power cannot be absorbed", 0, ChatFormatting.RED),
 		ABSORBED("Absorbed %s spiritual power", 1),
@@ -1069,7 +1071,10 @@ public final class GLLang {
 		ABSORB_ALL("Absorbed %s spiritual power from %s ghosts", 2),
 		RELEASED_ALL("Released %s ghosts", 1),
 		NO_GHOSTS("No summoned ghosts to absorb", 0, ChatFormatting.GRAY),
-		DUAL_WARD("A dual ghost vanished to save your life", 0, ChatFormatting.GOLD);
+		DUAL_WARD("A dual ghost vanished to save your life", 0, ChatFormatting.GOLD),
+		NO_TARGET("No target under your crosshair", 0, ChatFormatting.RED),
+		HAUNT_SUMMONED("A haunting ghost answers the fan", 0),
+		HAUNT_REUSED("The haunting ghost returns to the hunt (%s spiritual power refilled)", 1);
 
 		private final String def;
 		private final int argn;
@@ -1154,12 +1159,10 @@ public final class GLLang {
 	}
 
 	public enum ItemYuyukoFan implements LangEntry {
-		ABSORB("Right-click a ghost to absorb its spiritual power", 0, ChatFormatting.GRAY),
-		SUMMON("Summon mode: right-click to refill every summoned ghost and summon any missing kind", 0, ChatFormatting.GRAY),
-		ABSORB_ALL("Absorb mode: right-click to absorb every summoned ghost", 0, ChatFormatting.GRAY),
-		RELEASE("Absorbing an owned ghost with a full fan releases it instead", 0, ChatFormatting.GRAY),
 		MODE_SUMMON("Summon / Refill"),
 		MODE_ABSORB("Absorb All"),
+		MODE_SCATTER("Butterfly Scatter"),
+		MODE_HAUNT("Haunting Ghost"),
 		SELECTED("Selected: %s", 1),
 		STORED("%s: %s / %s", 3, ChatFormatting.GRAY);
 
@@ -1180,6 +1183,52 @@ public final class GLLang {
 			this.def = def;
 			this.argn = argn;
 			this.key = GensokyoLegacy.MODID + ".yuyuko_fan." + name().toLowerCase(Locale.ROOT);
+			this.format = format;
+		}
+
+		@Override
+		public String key() {
+			return key;
+		}
+
+		@Override
+		public String def() {
+			return def;
+		}
+
+		@Override
+		public int argn() {
+			return argn;
+		}
+
+		@Override
+		public @Nullable ChatFormatting format() {
+			return format;
+		}
+	}
+
+	public enum Jizo implements LangEntry {
+		NO_XP("Jizo needs a full level of experience to draw on", 0, ChatFormatting.RED),
+		FULL("That item cannot hold any more spiritual power", 0, ChatFormatting.RED),
+		RESTORED("Jizo restored %s spiritual power", 1);
+
+		private final String def;
+		private final int argn;
+		private final String key;
+		private final @Nullable ChatFormatting format;
+
+		Jizo(String def) {
+			this(def, 0, null);
+		}
+
+		Jizo(String def, int argn) {
+			this(def, argn, null);
+		}
+
+		Jizo(String def, int argn, @Nullable ChatFormatting format) {
+			this.def = def;
+			this.argn = argn;
+			this.key = GensokyoLegacy.MODID + ".jizo." + name().toLowerCase(Locale.ROOT);
 			this.format = format;
 		}
 
@@ -1254,7 +1303,8 @@ public final class GLLang {
 				Quest.values(), Info.values(), Trade.values(), Misc.values(),
 				ItemDebug.values(), ItemFurnace.values(), ItemLores.values(), ItemCommon.values(), ItemUmbrella.values(), ItemGlove.values(), ItemDaggerGlove.values(), Alchemy.values(), Jei.values(), JeiExtra.values(),
 				Talisman.values(), Doll.values(), Party.values(), ItemSekibankiHead.values(),
-				Spiritual.values(), Ghost.values(), ItemBoneFlute.values(), ItemYuyukoFan.values()}) {
+				Spiritual.values(), Ghost.values(), ItemBoneFlute.values(), ItemYuyukoFan.values(),
+				Jizo.values()}) {
 			for (var e : group) {
 				pvd.add(e.key(), e.def());
 			}

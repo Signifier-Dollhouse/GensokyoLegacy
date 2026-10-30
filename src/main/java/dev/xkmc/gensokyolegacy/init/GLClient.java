@@ -67,6 +67,8 @@ public class GLClient {
 			CuriosRendererRegistry.register(GLItems.STRANGE_GLASSES.get(), StrangeGlassesRenderer::new);
 
 			GLItems.STAR.get().getTypeForRender();
+			GLItems.PINK_BUTTERFLY.get().getTypeForRender();
+			GLItems.BLUE_BUTTERFLY.get().getTypeForRender();
 			GLItems.IRON_DAGGER.get().getTypeForRender();
 			ProjectileRenderHelper.setup();
 		});

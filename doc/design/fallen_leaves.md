@@ -40,6 +40,11 @@ the leaves of the tree and as the carpet of fallen leaves below it. The ten text
 variants of the same petal, not the frames of an animation: every particle picks one of them at random
 and keeps it for its whole fall.
 
+The butterfly danmaku does not reuse a canopy petal. `ButterflyTrailParticle` draws from the same pink
+and purple blossom sprites through `gensokyolegacy:pink_butterfly_trail` and
+`gensokyolegacy:purple_butterfly_trail`, but lives 10 ticks and shrinks to nothing, so the trail reads
+as a wisp behind the bullet instead of a petal drifting down.
+
 ## 3. The carpet under the tree
 
 Every leaf of a cherry or a maple tree has a chance of one in ten per random tick to drop a leaf.

@@ -1,9 +1,12 @@
 package dev.xkmc.gensokyolegacy.content.item.doll;
 
+import dev.xkmc.danmakuapi.api.IDanmakuEntity;
 import dev.xkmc.gensokyolegacy.content.attachment.doll.DollAttachment;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.ghost.GhostEntity;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.ghost.GhostPowerHolder;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.ghost.StrayGhostEntity;
+import dev.xkmc.gensokyolegacy.content.item.common.GloveTargeting;
+import dev.xkmc.gensokyolegacy.content.item.spiritual.SpiritualItem;
 import dev.xkmc.gensokyolegacy.content.item.spiritual.SpiritualPower;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
@@ -20,30 +23,37 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
 /**
- * Yuyuko's fan spends one spiritual power pool on any ghost: absorb a ghost, or tend every summoned
- * one. The two modes are all ghosts at once rather than one selected type.
+ * Yuyuko's fan spends one spiritual power pool on ghosts or on a butterfly fan: absorb a ghost,
+ * tend every summoned one, scatter danmaku, or send a haunting ghost at the marked target. Summon
+ * and absorb act on every ghost at once rather than one selected type.
  *
  * @see "doc/design/doll/ghost_power.md"
  */
-public class YuyukoFanItem extends Item {
+public class YuyukoFanItem extends SpiritualItem implements GloveTargeting {
 
 	/**
-	 * Intrinsic capacity stamped onto every fan; other spiritual items pick their own.
+	 * How far the haunt mode's crosshair trace reaches, matching the dagger glove's homing mode.
 	 */
-	public static final int MAX_POWER = 10000;
+	public static final double TARGET_RANGE = 64;
 
+	/**
+	 * How long a haunt target stays usable after the client last traced it.
+	 */
+	public static final long TARGET_TTL = 60;
+
+	private static final int TARGET_GLOW = 0xAA55FF;
 	private static final int COOLDOWN = 10;
 
 	public YuyukoFanItem(Properties properties) {
-		super(properties);
+		super(properties, 10000);
 	}
 
 	public static YuyukoFanMode getMode(ItemStack stack) {
@@ -58,9 +68,48 @@ public class YuyukoFanItem extends Item {
 		return mode.icon();
 	}
 
+	/**
+	 * What the haunt mode will send a ghost after: whatever the holder's crosshair traced, accepted
+	 * only when their own danmaku could hurt it.
+	 */
+	public static boolean isHauntTarget(ItemStack stack, Player holder, LivingEntity candidate) {
+		return getMode(stack) == YuyukoFanMode.HAUNT && candidate != holder
+				&& !candidate.isSpectator() && IDanmakuEntity.canHurt(holder, candidate);
+	}
+
+	@Override
+	public double targetRange() {
+		return TARGET_RANGE;
+	}
+
+	/**
+	 * False: the ghost turns and flies, so a wall between the holder and the target does not veto
+	 * the hunt.
+	 */
+	@Override
+	public boolean blockedByBlocks() {
+		return false;
+	}
+
+	@Override
+	public long targetTtl() {
+		return TARGET_TTL;
+	}
+
+	@Override
+	public boolean acceptsTarget(ItemStack stack, Player holder, LivingEntity candidate) {
+		return isHauntTarget(stack, holder, candidate);
+	}
+
+	@Nullable
+	@Override
+	public Integer targetGlow(ItemStack stack) {
+		return getMode(stack) == YuyukoFanMode.HAUNT ? TARGET_GLOW : null;
+	}
+
 	@Override
 	public InteractionResult interactLivingEntity(ItemStack stack, Player player,
-												   LivingEntity target, InteractionHand hand) {
+												  LivingEntity target, InteractionHand hand) {
 		boolean stray = target instanceof StrayGhostEntity;
 		boolean owned = target instanceof GhostEntity;
 		if (!stray && !owned) return InteractionResult.PASS;
@@ -151,11 +200,7 @@ public class YuyukoFanItem extends Item {
 	@Override
 	public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> list, TooltipFlag flag) {
 		list.add(GLLang.ItemLores.YUYUKO_FAN_LORE.get());
-		SpiritualPower.appendHoverText(stack, list);
-		list.add(GLLang.ItemYuyukoFan.ABSORB.get());
-		list.add(GLLang.ItemYuyukoFan.SUMMON.get());
-		list.add(GLLang.ItemYuyukoFan.ABSORB_ALL.get());
-		list.add(GLLang.ItemYuyukoFan.RELEASE.get());
+		super.appendHoverText(stack, context, list, flag);
 		list.add(GLLang.ItemYuyukoFan.SELECTED.get(getMode(stack).getDisplayName()));
 		list.add(GLLang.ItemGlove.WHEEL.get(L2Keys.WHEEL.map.getKey().getDisplayName())
 				.withStyle(ChatFormatting.GRAY));

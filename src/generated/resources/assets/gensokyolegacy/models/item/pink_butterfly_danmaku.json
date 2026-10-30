@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "gensokyolegacy:item/danmaku/pink_butterfly_danmaku"
+  }
+}

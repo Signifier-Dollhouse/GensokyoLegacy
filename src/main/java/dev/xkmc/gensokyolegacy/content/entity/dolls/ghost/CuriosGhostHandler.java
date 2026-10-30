@@ -2,19 +2,18 @@ package dev.xkmc.gensokyolegacy.content.entity.dolls.ghost;
 
 import dev.xkmc.gensokyolegacy.content.entity.dolls.impl.DollRig;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
+import dev.xkmc.gensokyolegacy.init.data.GLModConfig;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
 
 /**
- * Curios ghost: the slowest upkeep and a periodic cleanse of the owner's longest debuff.
+ * Curios ghost: a periodic cleanse of the owner's longest debuff.
  */
 final class CuriosGhostHandler implements GhostVariantHandler {
 
-	private static final int DECAY_INTERVAL = 40;
 	private static final int SKILL_INTERVAL = 60;
-	private static final int SKILL_COST = 50;
 
 	@Override
 	public Component getDisplayName() {
@@ -23,14 +22,15 @@ final class CuriosGhostHandler implements GhostVariantHandler {
 
 	@Override
 	public void tick(GhostEntity ghost) {
-		if (ghost.tickCount % DECAY_INTERVAL == 0) ghost.addPower(-1);
+		if (ghost.tickCount % GLModConfig.SERVER.curiosDecayInterval.get() == 0) ghost.addPower(-1);
 	}
 
 	@Override
 	public void aura(GhostEntity ghost, LivingEntity owner) {
-		if (ghost.getPower() < SKILL_COST) return;
+		int cost = GLModConfig.SERVER.curiosSkillCost.get();
+		if (ghost.getPower() < cost) return;
 		if (ghost.tickCount % SKILL_INTERVAL != 0) return;
-		if (cleanseLongest(ghost, owner)) ghost.addPower(-SKILL_COST);
+		if (cleanseLongest(ghost, owner)) ghost.addPower(-cost);
 	}
 
 	/**

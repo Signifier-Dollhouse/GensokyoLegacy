@@ -516,6 +516,7 @@ public class DollAttachment extends PlayerCapabilityTemplate<DollAttachment> imp
 	 */
 	public boolean release(ServerPlayer player, GhostEntity ghost) {
 		if (!ghost.isOwner(player)) return false;
+		if (!ghost.getVariant().handler.releasable()) return false;
 		DollData data = dolls.get(ghost.getUUID());
 		if (data == null || !data.isSummoned() || !GhostEntity.TYPE.equals(data.type)) return false;
 		if (data.getHealth() <= 0 || !(ghost.level() instanceof ServerLevel level)) return false;

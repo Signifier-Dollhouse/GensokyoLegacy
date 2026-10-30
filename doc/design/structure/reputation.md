@@ -39,6 +39,10 @@ public final class ReputationConstants {
     // --- Daily decay ---
     public static final int DAILY_DECAY_AMOUNT = 1;
 
+    // --- Negative recovery ---
+    public static final int NEGATIVE_HALF_THRESHOLD = -20;
+    public static final int NEGATIVE_RECOVER_AMOUNT = 10;
+
     // --- Combat: youkai killed the player (forgiveness) ---
     public static final int KILLED_RESTORE = 0;
 
@@ -131,20 +135,41 @@ Example with `softCap = 150`:
 - reputation 140, gain 30 -> 155 (crosses: 10 full + 10 halved = 15)
 - reputation 200, gain 30 -> 215 (already past, halved: 15)
 
-### Daily decay
+### Day changes
 
-Positive reputation decays toward a configurable floor at 80% of the reputation cap (server config `reputation.reputationDecayFloor`, default 0.8). It never falls below that floor. Negative reputation still drifts back toward zero from the JERK threshold.
+`CharacterAttachment` persists `lastDailyDay` and compares it with the overworld's day index:
 
 ```java
-protected void dailyUpdate() {
+private static final long MIDNIGHT_SHIFT = 6000L;
+
+private static long dayIndex(ServerPlayer player) {
+    return (player.server.overworld().getDayTime() + MIDNIGHT_SHIFT) / Level.TICKS_PER_DAY;
+}
+```
+
+The shift moves the rollover from dawn to midnight (tick 18000). Comparing indices instead of testing `getDayTime() == 0` cannot miss a day: a normal midnight advances the index, and sleeping through the night jumps the day time to the next morning, which advances it too. Reading the overworld keeps the index stable across dimensions. A backwards `/time set` only resets the index and processes nothing.
+
+### Daily update
+
+`CharacterAttachment.tick` calls `updateDay` on the server every tick. When the index advances, every character gets `dailyUpdate(daysPassed)`, where `daysPassed` is the number of day boundaries crossed, capped at 1000:
+
+```java
+protected void dailyUpdate(int daysPassed) {
     int floor = (int) (reputationCap * GLModConfig.SERVER.reputationDecayFloor.get());
     if (reputation > floor) {
         loseReputation(ReputationConstants.DAILY_DECAY_AMOUNT, floor);
-    } else if (reputation < ReputationConstants.THRESHOLD_JERK) {
-        gainReputation(ReputationConstants.DAILY_DECAY_AMOUNT, 0, 0, 0);
+    }
+    for (int i = 0; i < daysPassed && reputation < 0; i++) {
+        if (reputation <= ReputationConstants.NEGATIVE_HALF_THRESHOLD) {
+            reputation /= 2;
+        } else {
+            reputation = Math.min(reputation + ReputationConstants.NEGATIVE_RECOVER_AMOUNT, 0);
+        }
     }
 }
 ```
+
+Positive reputation decays toward a configurable floor at 80% of the reputation cap (server config `reputation.reputationDecayFloor`, default 0.8) and never falls below it. That decay applies once per settlement, so logging in after several days costs one point, not one per day. Negative recovery runs once per elapsed day: at or below `NEGATIVE_HALF_THRESHOLD` (-20) the value halves toward zero, above it gives back `NEGATIVE_RECOVER_AMOUNT` (10), capped at 0. From -300 the sequence is -150, -75, -38, -19, -9, 0. Because the index is server world time, an hour of server uptime (three game days) settles three recovery steps on the next tick after login.
 
 ### Combat events
 
@@ -228,7 +253,8 @@ public static final MapCodec<ReputationReward> CODEC = RecordCodecBuilder.mapCod
 | `DonationBoxBlockEntity.take()` | `gain(value * count, FEED_SOFT_CAP, 0, 0)` -- rep only, no cap increase |
 | `ReputationReward.execute()` | `gain(reputation, softCap, capIncrease, maxCap)` |
 | `CharacterData.onKilledByCharacter()` | `reputation = max(reputation, KILLED_RESTORE)` |
-| `CharacterData.dailyUpdate()` | `loseReputation(DAILY_DECAY_AMOUNT, floor)` / `gainReputation(DAILY_DECAY_AMOUNT, 0, 0, 0)` |
+| `CharacterData.dailyUpdate(daysPassed)` | one `loseReputation(DAILY_DECAY_AMOUNT, floor)` plus `daysPassed` negative-recovery steps |
+| `CharacterAttachment.tick()` | `dailyUpdate(passed)` for every day-index advance |
 | `CharacterAttachment.reset()` | `new CharacterData()` -- both fields initialized from constants |
 | `GLCommands` | admin-only set/add/cap commands, clamped to `MIN_REPUTATION`/`MAX_REPUTATION` |
 
@@ -295,7 +321,8 @@ Passes `data.data().reputationCap` alongside `reputation` to `CharacterInfoToCli
 ## Files
 
 - `content/attachment/character/ReputationConstants.java` -- every tuning number
-- `content/attachment/character/CharacterData.java` -- `reputation` / `reputationCap`, the gain and lose methods, decay and the combat reactions
+- `content/attachment/character/CharacterData.java` -- `reputation` / `reputationCap`, the gain and lose methods, daily recovery and the combat reactions
+- `content/attachment/character/CharacterAttachment.java` -- `lastDailyDay` and day-change detection
 - `content/attachment/character/CharDataHolder.java` -- `feed()` and `gain()`, each syncing afterwards
 - `content/attachment/character/ReputationState.java` -- state to colour and target kind
 - `content/rpg/reward/ReputationReward.java` -- the four fields and their codec

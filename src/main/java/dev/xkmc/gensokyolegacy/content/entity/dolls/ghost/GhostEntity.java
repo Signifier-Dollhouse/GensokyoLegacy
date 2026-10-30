@@ -1,8 +1,11 @@
 package dev.xkmc.gensokyolegacy.content.entity.dolls.ghost;
 
-import dev.xkmc.gensokyolegacy.content.attachment.doll.DollAttachment;
+import dev.xkmc.danmakuapi.api.GrazeHelper;
+import dev.xkmc.gensokyolegacy.content.attachment.doll.DollHost;
+import dev.xkmc.gensokyolegacy.content.attachment.doll.DollLedger;
 import dev.xkmc.gensokyolegacy.content.attachment.doll.DollNature;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.BaseDollEntity;
+import dev.xkmc.gensokyolegacy.content.entity.dolls.impl.DollDanmakuAlly;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.impl.DollModule;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
@@ -14,24 +17,29 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-import software.bernie.geckolib.animation.AnimationController;
+import net.minecraft.world.phys.Vec3;
 import software.bernie.geckolib.animation.AnimatableManager;
+import software.bernie.geckolib.animation.AnimationController;
 import software.bernie.geckolib.animation.PlayState;
 import software.bernie.geckolib.animation.RawAnimation;
 
 import java.util.List;
+import java.util.UUID;
 
 /**
- * The player-bound support ghost: it pairs, follows and is restored like any doll, but carries no
- * item, no loadout and no command surface. Its one contribution is the variant aura it provides
- * while its owner is nearby.
+ * The player-bound ghost: it pairs, follows and is restored like any doll, but carries no item,
+ * no loadout and no command surface. Most variants contribute an aura while their owner is nearby;
+ * {@link GhostVariant#HAUNTING} instead hunts the target the fan marks and follows when idle.
  *
  * @see "doc/design/doll/stray.md"
  */
-public class GhostEntity extends BaseDollEntity implements GhostVariantHolder, GhostPowerHolder {
+public class GhostEntity extends BaseDollEntity
+		implements GhostVariantHolder, GhostPowerHolder, DollDanmakuAlly {
 
 	public static final ResourceLocation TYPE = GensokyoLegacy.loc("ghost");
 	public static final EntityDataAccessor<Integer> DATA_VARIANT =
@@ -59,6 +67,7 @@ public class GhostEntity extends BaseDollEntity implements GhostVariantHolder, G
 		super.createDollModules(modules);
 		modules.add(new GhostVariantModule());
 		modules.add(new GhostPowerModule());
+		modules.add(new HauntingGhostModule());
 	}
 
 	@Override
@@ -89,6 +98,8 @@ public class GhostEntity extends BaseDollEntity implements GhostVariantHolder, G
 
 	@Override
 	public void tick() {
+		// a haunting ghost phases through walls like a vex: intangible, unpushable, projectile-proof
+		noPhysics = getVariant().handler.phasesThroughBlocks(this);
 		super.tick();
 		if (level().isClientSide() || isRemoved()) return;
 		LivingEntity owner = getOwner();
@@ -100,8 +111,80 @@ public class GhostEntity extends BaseDollEntity implements GhostVariantHolder, G
 			return;
 		}
 		variant.handler.tick(this);
+		if (isRemoved()) return;
 		if (distanceToSqr(owner) > ABILITY_RANGE * ABILITY_RANGE) return;
 		variant.handler.aura(this, owner);
+	}
+
+	/**
+	 * A player's ghost is a spirit, not a body: no damage source may hurt it.
+	 */
+	@Override
+	public boolean hurt(DamageSource source, float amount) {
+		return !isPlayerOwned() && super.hurt(source, amount);
+	}
+
+	@Override
+	protected void takeDamage(DamageSource source, float amount) {
+		if (!isPlayerOwned()) super.takeDamage(source, amount);
+	}
+
+	@Override
+	public boolean followsOwner() {
+		return getVariant().handler.followsOwner(this);
+	}
+
+	@Override
+	public boolean fliesDirectly() {
+		return getVariant().handler.fliesDirectly(this);
+	}
+
+	/**
+	 * The haunting ghost holds position while its volley is in the air.
+	 */
+	@Override
+	public void travel(Vec3 input) {
+		if (getVariant().handler.isStationary(this)) {
+			setDeltaMovement(Vec3.ZERO);
+			return;
+		}
+		super.travel(input);
+	}
+
+	/**
+	 * Sends this ghost after {@code target}, resetting any volley it is in the middle of.
+	 */
+	public void hunt(LivingEntity target) {
+		getVariant().handler.hunt(this, target);
+	}
+
+	/**
+	 * Whether this ghost has no live target and is back to escorting its owner.
+	 */
+	public boolean isFollowing() {
+		LivingEntity target = getTarget();
+		return target == null || !target.isAlive() || target.level() != level();
+	}
+
+	/**
+	 * Removes a spent ghost from the ledger as well as the world, so the watchdog does not
+	 * resummon it.
+	 */
+	public void vanish() {
+		level().broadcastEntityEvent(this, (byte) 60);
+		DollHost host = getHost();
+		UUID uuid = getUUID();
+		discard();
+		if (host instanceof DollLedger ledger) ledger.drop(uuid);
+	}
+
+	/**
+	 * The haunting ghost's butterflies may hurt exactly what the owner's own danmaku may hurt.
+	 */
+	@Override
+	public boolean isNonEnemy(LivingEntity target) {
+		if (getOwner() instanceof Player player) return !GrazeHelper.shouldPlayerHurt(player, target);
+		return DollDanmakuAlly.super.isNonEnemy(target);
 	}
 
 	/**
