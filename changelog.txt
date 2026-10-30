@@ -1,5 +1,6 @@
 1.0.7
 - wild dolls, wild ghost, and tamed ghost
+- bone flute and yuyuko fan
 - fix doll damage won't aggravate target
 - fix doll being recolored by other player
 

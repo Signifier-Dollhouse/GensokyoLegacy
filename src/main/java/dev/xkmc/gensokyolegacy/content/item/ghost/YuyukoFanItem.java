@@ -1,4 +1,4 @@
-package dev.xkmc.gensokyolegacy.content.item.doll;
+package dev.xkmc.gensokyolegacy.content.item.ghost;
 
 import dev.xkmc.danmakuapi.api.IDanmakuEntity;
 import dev.xkmc.gensokyolegacy.content.attachment.doll.DollAttachment;

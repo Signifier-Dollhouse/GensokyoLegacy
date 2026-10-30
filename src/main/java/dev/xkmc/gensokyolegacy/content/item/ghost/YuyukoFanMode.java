@@ -1,4 +1,4 @@
-package dev.xkmc.gensokyolegacy.content.item.doll;
+package dev.xkmc.gensokyolegacy.content.item.ghost;
 
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import net.minecraft.core.component.DataComponents;
