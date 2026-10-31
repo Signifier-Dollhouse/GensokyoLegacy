@@ -1,9 +1,6 @@
-package dev.xkmc.gensokyolegacy.content.item.doll.client;
+package dev.xkmc.gensokyolegacy.content.item.ghost;
 
 import dev.xkmc.gensokyolegacy.content.item.common.network.SelectorSelectPacket;
-import dev.xkmc.gensokyolegacy.content.item.doll.YuyukoFanItem;
-import dev.xkmc.gensokyolegacy.content.item.doll.YuyukoFanMode;
-import dev.xkmc.gensokyolegacy.content.item.doll.YuyukoFanSelectionListener;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.l2itemselector.wheel.ItemWheelEntry;
 import dev.xkmc.l2itemselector.wheel.PersistentWheel;

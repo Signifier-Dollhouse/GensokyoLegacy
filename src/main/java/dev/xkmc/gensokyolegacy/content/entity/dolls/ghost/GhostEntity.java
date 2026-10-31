@@ -1,7 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.entity.dolls.ghost;
 
 import dev.xkmc.danmakuapi.api.GrazeHelper;
-import dev.xkmc.gensokyolegacy.content.attachment.doll.DollAttachment;
 import dev.xkmc.gensokyolegacy.content.attachment.doll.DollHost;
 import dev.xkmc.gensokyolegacy.content.attachment.doll.DollLedger;
 import dev.xkmc.gensokyolegacy.content.attachment.doll.DollNature;
@@ -18,13 +17,14 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import software.bernie.geckolib.animation.AnimationController;
 import software.bernie.geckolib.animation.AnimatableManager;
+import software.bernie.geckolib.animation.AnimationController;
 import software.bernie.geckolib.animation.PlayState;
 import software.bernie.geckolib.animation.RawAnimation;
 
@@ -98,6 +98,8 @@ public class GhostEntity extends BaseDollEntity
 
 	@Override
 	public void tick() {
+		// a haunting ghost phases through walls like a vex: intangible, unpushable, projectile-proof
+		noPhysics = getVariant().handler.phasesThroughBlocks(this);
 		super.tick();
 		if (level().isClientSide() || isRemoved()) return;
 		LivingEntity owner = getOwner();
@@ -114,9 +116,27 @@ public class GhostEntity extends BaseDollEntity
 		variant.handler.aura(this, owner);
 	}
 
+	/**
+	 * A player's ghost is a spirit, not a body: no damage source may hurt it.
+	 */
+	@Override
+	public boolean hurt(DamageSource source, float amount) {
+		return !isPlayerOwned() && super.hurt(source, amount);
+	}
+
+	@Override
+	protected void takeDamage(DamageSource source, float amount) {
+		if (!isPlayerOwned()) super.takeDamage(source, amount);
+	}
+
 	@Override
 	public boolean followsOwner() {
 		return getVariant().handler.followsOwner(this);
+	}
+
+	@Override
+	public boolean fliesDirectly() {
+		return getVariant().handler.fliesDirectly(this);
 	}
 
 	/**

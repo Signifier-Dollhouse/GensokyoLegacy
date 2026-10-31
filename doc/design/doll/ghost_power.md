@@ -35,6 +35,8 @@ exception, returning no render type while it hides for a volley.
 
 The drain ticks only while the owner is alive, in the same level and within the aura range (16
 blocks), which is the same condition the aura itself uses. A ghost far away or parked costs nothing.
+A player-owned ghost is also immune to damage: `GhostEntity.hurt` refuses every source, so its power
+pool is the only thing that can end it.
 
 | variant | drain | skill |
 |---|---|---|
@@ -98,6 +100,7 @@ power so it can be read without opening the tooltip.
   21 rays three degrees apart, five danmaku per ray. Odd (1-based) rays use the pink item at
   0.6–1.0 distance, even rays the blue item at 0.55–0.95. Within a ray the five are spaced evenly
   across that range, and each moves at the distance it spawned at, so the outermost is the fastest.
+  Every butterfly trails petals, pink for the pink item and purple for the blue.
   The mode is refused, with a message, when the pool holds less than 10.
 - **Haunt mode, right-click air** spends 1000 spiritual power to send a haunting ghost at the entity
   under the crosshair. Targeting reuses the shared glove trace (`YuyukoFanItem` implements
@@ -115,8 +118,10 @@ pink butterfly for scattering and the bone flute for haunting, all named after t
 `GhostEntity`, `DollAttachment` entry, park/resummon path and summon cap as every other variant. It
 has no upkeep and never leaves on its own. With no target it follows its owner in the normal
 formation and behaves like any other ghost. `HauntingGhostHandler.hunt` gives it a target; the
-handler then suppresses the follow goals, chases until it is within two blocks, and attacks. When
-the target dies or leaves the level, it clears the target and resumes following. Its butterflies
+handler then suppresses the follow goals and flies straight at it, passing through blocks like a vex:
+the variant keeps `noPhysics` on and steers through the move control instead of a path, both when
+chasing and when following. It attacks once it is within range. When the target dies or leaves the
+level, it clears the target and resumes following. Its butterflies
 implement `DollDanmakuAlly` and override `isNonEnemy` with the owner's own player-danmaku rule, so
 they may hurt every target the owner's danmaku may hurt while still sparing the owner's side.
 
@@ -134,7 +139,8 @@ so every orbit passes through its body. The rings lie in a plane tilted through 
 `rotateDegrees` places the centres), so the flower spreads around the target instead of staying
 horizontal. Each butterfly orbits its own centre at its ring's radius for 40 ticks, which is exactly
 one full revolution (`PolarMover` at `2π/40`); the two directions per centre take opposite colours,
-alternating pink and blue. The ghost holds its position and stays invisible for all 40 ticks;
+alternating pink and blue, and trail matching petals. The ghost holds its position
+and stays invisible for all 40 ticks;
 `HauntingGhostModule` keeps the lock and cooldown as transient combat state, so a ghost parked
 mid-volley comes back following. When the volley ends it has a further 20 ticks of cooldown, which
 it spends tracing the target; if the target is still within two blocks it volleys again.

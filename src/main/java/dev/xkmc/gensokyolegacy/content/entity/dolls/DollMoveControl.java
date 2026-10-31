@@ -9,6 +9,14 @@ public class DollMoveControl extends MoveControl {
 		super(doll);
 	}
 
+	/**
+	 * Cancels steering and clears the velocity, so a stale destination cannot keep the doll moving.
+	 */
+	public void stop() {
+		this.operation = Operation.WAIT;
+		this.mob.setDeltaMovement(Vec3.ZERO);
+	}
+
 	@Override
 	public void tick() {
 		if (this.operation == Operation.MOVE_TO) {

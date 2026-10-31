@@ -1,6 +1,7 @@
 package dev.xkmc.gensokyolegacy.init.registrate;
 
 import com.tterrag.registrate.util.entry.EntityEntry;
+import dev.xkmc.danmakuapi.content.entity.ItemBulletRenderer;
 import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyTaste;
 import dev.xkmc.gensokyolegacy.content.block.deco.seat.ChairEntity;
 import dev.xkmc.gensokyolegacy.content.block.deco.seat.NothingRenderer;
@@ -33,6 +34,7 @@ import dev.xkmc.gensokyolegacy.content.entity.dolls.render.IronDaggerBulletRende
 import dev.xkmc.gensokyolegacy.content.entity.dolls.render.SekibankiHeadRenderer;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.render.StrayDollRenderer;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.render.StrayGhostRenderer;
+import dev.xkmc.gensokyolegacy.content.entity.misc.ButterflyDanmakuBulletEntity;
 import dev.xkmc.gensokyolegacy.content.entity.misc.FairyIce;
 import dev.xkmc.gensokyolegacy.content.entity.misc.FrozenFrog;
 import dev.xkmc.gensokyolegacy.content.entity.misc.HexBrewBottleEntity;
@@ -78,6 +80,7 @@ public class GLEntities {
 	public static final EntityEntry<FairyIce> FAIRY_ICE;
 	public static final EntityEntry<HexBrewBottleEntity> HEXBREW_BOTTLE;
 	public static final EntityEntry<IronDaggerBulletEntity> IRON_DAGGER;
+	public static final EntityEntry<ButterflyDanmakuBulletEntity> BUTTERFLY_DANMAKU;
 
 
 	// No character has a spawn egg: every mob is met in the world or summoned in-game, never placed.
@@ -252,6 +255,14 @@ public class GLEntities {
 					.<IronDaggerBulletEntity>entity("iron_dagger", IronDaggerBulletEntity::new, MobCategory.MISC)
 					.properties(p -> p.sized(0.4F, 0.4F).clientTrackingRange(4).updateInterval(1 << 16))
 					.renderer(() -> IronDaggerBulletRenderer::new)
+					.register();
+
+			// the butterfly danmaku: same bullet, but it leaves a petal trail, so it needs its own
+			// entity type
+			BUTTERFLY_DANMAKU = GensokyoLegacy.REGISTRATE
+					.<ButterflyDanmakuBulletEntity>entity("butterfly_danmaku", ButterflyDanmakuBulletEntity::new, MobCategory.MISC)
+					.properties(p -> p.sized(0.4F, 0.4F).clientTrackingRange(4).updateInterval(1 << 16))
+					.renderer(() -> ItemBulletRenderer<ButterflyDanmakuBulletEntity>::new)
 					.register();
 		}
 

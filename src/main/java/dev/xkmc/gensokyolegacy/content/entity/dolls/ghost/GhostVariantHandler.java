@@ -59,6 +59,20 @@ public interface GhostVariantHandler {
 	}
 
 	/**
+	 * Whether this ghost ignores block collision and passes straight through walls.
+	 */
+	default boolean phasesThroughBlocks(GhostEntity ghost) {
+		return false;
+	}
+
+	/**
+	 * Whether this ghost flies straight at its destination instead of following a path.
+	 */
+	default boolean fliesDirectly(GhostEntity ghost) {
+		return false;
+	}
+
+	/**
 	 * Gives this ghost a target, resetting any attack state. Only the haunting variant acts on it.
 	 */
 	default void hunt(GhostEntity ghost, LivingEntity target) {
