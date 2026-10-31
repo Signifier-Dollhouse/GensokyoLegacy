@@ -491,7 +491,7 @@ public class GLNaturalBlocks {
 					   Function<BlockBehaviour.Properties, LeavesBlock> leafFactory) {
 			this.trunk = trunk;
 			var grower = new TreeGrower(id + "_tree", type.saplingMega, type.saplingTree, Optional.empty());
-			// only the blue fir has templates, and only it needs the 3x3 stage vanilla has no grower slot for
+			// only the blue fir needs the 3x3 stage vanilla has no grower slot for
 			Function<BlockBehaviour.Properties, ? extends SaplingBlock> saplingFactory = type.saplingGiant.isPresent()
 					? p -> new BlueFirSaplingBlock(grower, type.saplingGiant.orElseThrow(), p)
 					: p -> new SaplingBlock(grower, p);
