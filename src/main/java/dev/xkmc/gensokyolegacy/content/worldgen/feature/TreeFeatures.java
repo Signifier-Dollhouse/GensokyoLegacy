@@ -1,10 +1,12 @@
 package dev.xkmc.gensokyolegacy.content.worldgen.feature;
 
 import dev.xkmc.gensokyolegacy.content.worldgen.feature.template.TemplateFeatureConfig;
+import dev.xkmc.gensokyolegacy.content.worldgen.feature.template.TemplateReplaceProcessor;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.biome.MagicalForestFeatures;
 import dev.xkmc.gensokyolegacy.init.registrate.GLWorldGen;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLNaturalBlocks;
+import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -14,6 +16,7 @@ import net.minecraft.util.valueproviders.ConstantInt;
 import net.minecraft.util.valueproviders.IntProvider;
 import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.util.valueproviders.WeightedListInt;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.configurations.TreeConfiguration.TreeConfigurationBuilder;
@@ -23,8 +26,10 @@ import net.minecraft.world.level.levelgen.feature.foliageplacers.SpruceFoliagePl
 import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProvider;
 import net.minecraft.world.level.levelgen.feature.trunkplacers.CherryTrunkPlacer;
 import net.minecraft.world.level.levelgen.feature.trunkplacers.StraightTrunkPlacer;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessorList;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -71,15 +76,29 @@ public class TreeFeatures {
 			}
 		}
 
-		record Templates(String... ids) implements TreeShape {
+		static TreeShape maple(Supplier<GLNaturalBlocks.TreeSet> tree, Supplier<Block> fallenLeaves) {
+			return new Templates(() -> Map.of(
+					GLNaturalBlocks.RED_MAPLE_SET.leaves.get(), tree.get().leaves.get(),
+					GLNaturalBlocks.RED_MAPLE_FALLEN_LEAVES.get(), fallenLeaves.get()),
+					"maple_tree_01", "maple_tree_02", "maple_tree_03", "maple_tree_04", "maple_tree_05");
+		}
+
+		record Templates(Supplier<Map<Block, Block>> replacements, String... ids) implements TreeShape {
+			Templates(String... ids) {
+				this(Map::of, ids);
+			}
+
 			@Override
 			public ConfiguredFeature<?, ?> build(BlockStateProvider log, BlockStateProvider leaves) {
 				var templates = SimpleWeightedRandomList.<ResourceLocation>builder();
 				for (var id : ids) {
 					templates.add(GensokyoLegacy.loc("magical_forest/tree/" + id), 1);
 				}
+				var blocks = replacements.get();
+				var processors = blocks.isEmpty() ? TemplateFeatureConfig.NO_PROCESSORS
+						: Holder.direct(new StructureProcessorList(List.of(new TemplateReplaceProcessor(blocks))));
 				return new ConfiguredFeature<>(GLWorldGen.TEMPLATE.get(), new TemplateFeatureConfig(
-						templates.build(), TemplateFeatureConfig.NO_PROCESSORS, BlockTags.DIRT,
+						templates.build(), processors, BlockTags.DIRT,
 						0, 0, 0, 3, List.of()));
 			}
 		}
@@ -92,13 +111,16 @@ public class TreeFeatures {
 				MagicalForestFeatures.BLUE_FIR_MEDIUM,
 				MagicalForestFeatures.BLUE_FIR_LARGE,
 				MagicalForestFeatures.BLUE_FIR_GIANT),
-		// the maple keeps the blue fir shape, the cherry grows like minecraft:cherry, the locust uses templates
+		// the maple and locust use templates; the cherry grows like minecraft:cherry
 		ORANGE_MAPLE("orange_maple_tree", () -> GLNaturalBlocks.ORANGE_MAPLE_SET,
-				new TreeShape.Spruce(6, 2, 0, UniformInt.of(2, 3), UniformInt.of(0, 1), UniformInt.of(2, 3))),
+				TreeShape.maple(() -> GLNaturalBlocks.ORANGE_MAPLE_SET,
+						() -> GLNaturalBlocks.ORANGE_MAPLE_FALLEN_LEAVES.get())),
 		RED_MAPLE("red_maple_tree", () -> GLNaturalBlocks.RED_MAPLE_SET,
-				new TreeShape.Spruce(6, 2, 0, UniformInt.of(2, 3), UniformInt.of(0, 1), UniformInt.of(2, 3))),
+				TreeShape.maple(() -> GLNaturalBlocks.RED_MAPLE_SET,
+						() -> GLNaturalBlocks.RED_MAPLE_FALLEN_LEAVES.get())),
 		YELLOW_MAPLE("yellow_maple_tree", () -> GLNaturalBlocks.YELLOW_MAPLE_SET,
-				new TreeShape.Spruce(6, 2, 0, UniformInt.of(2, 3), UniformInt.of(0, 1), UniformInt.of(2, 3))),
+				TreeShape.maple(() -> GLNaturalBlocks.YELLOW_MAPLE_SET,
+						() -> GLNaturalBlocks.YELLOW_MAPLE_FALLEN_LEAVES.get())),
 		PINK_CHERRY("pink_cherry_tree", () -> GLNaturalBlocks.PINK_CHERRY_SET, TreeShape.CHERRY),
 		PURPLE_CHERRY("purple_cherry_tree", () -> GLNaturalBlocks.PURPLE_CHERRY_SET, TreeShape.CHERRY),
 		LOCUST("locust_tree", () -> GLNaturalBlocks.LOCUST_SET,

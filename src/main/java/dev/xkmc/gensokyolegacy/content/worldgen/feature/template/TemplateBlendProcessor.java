@@ -3,6 +3,7 @@ package dev.xkmc.gensokyolegacy.content.worldgen.feature.template;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.xkmc.gensokyolegacy.content.block.nature.FallenLeavesBlock;
 import dev.xkmc.gensokyolegacy.init.data.GLTagGen;
 import dev.xkmc.gensokyolegacy.init.registrate.GLWorldGen;
 import net.minecraft.core.BlockPos;
@@ -142,11 +143,11 @@ public class TemplateBlendProcessor extends StructureProcessor {
 			}
 			return false;
 		}
+		if (state.getBlock() instanceof CarpetBlock || state.getBlock() instanceof FallenLeavesBlock) {
+			return isSolid(level, pos.below(), solid);
+		}
 		if (state.hasProperty(BlockStateProperties.HORIZONTAL_FACING)) {
 			return isSolid(level, pos.relative(state.getValue(BlockStateProperties.HORIZONTAL_FACING).getOpposite()), solid);
-		}
-		if (state.getBlock() instanceof CarpetBlock) {
-			return isSolid(level, pos.below(), solid);
 		}
 		// hanging plants chain downwards, anything else needs a floor
 		return isSolid(level, pos.above(), solid) || kept.containsKey(pos.above()) || isSolid(level, pos.below(), solid);
