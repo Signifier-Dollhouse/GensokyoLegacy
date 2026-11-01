@@ -1,0 +1,8 @@
+{
+  "parent": "gensokyolegacy:custom/nature/bird_nest",
+  "render_type": "minecraft:cutout",
+  "textures": {
+    "0": "gensokyolegacy:block/nature/bird_nest_with_egg",
+    "particle": "gensokyolegacy:block/nature/bird_nest_with_egg"
+  }
+}
