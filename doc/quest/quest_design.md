@@ -147,7 +147,7 @@ Register any new condition / action / requirement / reward subclass in
 A dialog is **written where it is used**. `dialog(...)` / `dialogKey(...)` return a
 `Holder.Direct`, so the whole conversation lands inline in the starter, quest or trade
 file that opens it, and the `dialog/` registry holds only what has to be named from
-outside a dialog tree — the two gift reactions, which the `gift_dialog` data map
+outside a dialog tree — the three gift reactions, which the `gift_dialog` data map
 addresses by id (`namedDialogKey`, `doc/design/gift.md` *What she says about it*).
 Nothing resolves a dialog path at runtime, and deleting an inline dialog is editing
 its host file rather than deleting a file.
@@ -177,9 +177,10 @@ gift owed back, which is `doc/design/gift.md` *Paying a gift back*. An
 override carries no weight and has no starter line of its own, which is why
 `text` is optional on `DialogStarter`.
 
-`defaultDialog(entity, greeting, trade)` writes the two strings the entity's
-idle greeting and the trade-screen button use into
-`data_maps/entity_type/default_dialog.json`.
+`defaultDialog(entity, greeting, visitGreeting, [partyGreeting,] trade)` writes
+the strings the entity's idle greeting (home / visiting / party guest) and the
+trade-screen button use into `data_maps/entity_type/default_dialog.json`. An
+empty string means "no line for this context" and falls back to `greeting`.
 
 ## 5. Reputation model
 

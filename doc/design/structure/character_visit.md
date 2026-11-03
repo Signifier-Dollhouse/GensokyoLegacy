@@ -184,7 +184,10 @@ Datagen helpers: `homeBound()` and `visiting()`.
 The **greeting line** (`DialogConfig.greeting`, rendered by
 `FirstDialogScreen.getBodyText`) needs its own hook, because it is a body string
 rather than a gated entry: `DialogConfig` gains a `visitGreeting` component and
-the screen picks it when the `VISITING` flag is set.
+the screen picks it when the `VISITING` flag is set. `partyGreeting` works the
+same way for a party guest and outranks the visit line; an empty component falls
+through to the next one, so `greeting` is always the last resort
+(`DialogConfig#body`).
 
 ### 4.1 Hard rules
 
@@ -296,9 +299,10 @@ inspected directly instead of waiting for a 30% roll.
   Both expire on their own schedule. The visitor is `restrictTo`'d inside the
   structure bound, so this needs the bound to straddle an unloaded chunk —
   possible for the 80-block spread of `hakurei_shrine`.
-* **`visit_greeting` is a required JSON field.** A datapack overriding
-  `default_dialog` must add it. Every entry is generated; a character with no
-  home still needs one, because `visitGreeting` is what a first-time player sees.
+* **`visitGreeting` and `partyGreeting` are required JSON fields.** A datapack
+  overriding `default_dialog` must add both. Every entry is generated; a
+  character with no home still needs them, because the empty string means "no
+  line for this context" and falls back to `greeting`.
 * **Quest dialog is not gated.** `initialDialog` is unreachable while visiting
   (hard rule), and `followUp`/`completion` lines are task talk rather than
   "you're in my house" talk, so they were left alone.

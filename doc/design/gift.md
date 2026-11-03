@@ -168,26 +168,33 @@ alongside the code. `zh_cn` is hand-authored under
 
 ## What she says about it
 
-The factor decides which of two reactions plays, and it is the *factor* rather than the favor that
+The factor decides which of three reactions plays, and it is the *factor* rather than the favor that
 does, because that is the only thing on the data that separates a refusal from an ordinary gift:
 
-| factor | reaction | clip |
-|--------|----------|------|
-| `> 0` | she takes it | `love` |
-| `= 0` | she turns it down | `hate` |
+| condition | reaction | clip |
+|-----------|----------|------|
+| `factor > neutral` | she is glad to be handed it | `love` |
+| any other accepted gift | she takes it at face value | `agree` |
+| `favor <= 0` | she turns it down | `hate` |
+
+`neutral` here is the category's own neutral from the table above, not a constant: a category at 1.0
+takes every ordinary gift as a plain acceptance, and one at 0.0 — only `FROG` — has no middle band at
+all, so every gift is either liked or refused.
 
 A factor small enough to truncate the favor to 0 — `COLLECTION` at 0.5 on a `fancy_fan` — is neither:
 she takes it at face value and says nothing about it. That is why `GiftModule` tests the factor for
-the reaction and the favor for the gift, and why the two paths are written out separately rather than
-as one `favor <= 0` branch with a clip on each side.
+the reaction and the favor for the gift, rather than folding both into one `favor <= 0` branch with a
+clip on each side.
 
-Both reactions are ordinary dialog slots as well (`dialog_like`, `dialog_dislike`), so a dialog can
-name one directly; the clip is a separate shared constant on `GeoYoukaiAnim` for a character with no
-dialog written for her yet.
+All three reactions are ordinary dialog slots as well (`dialog_like`, `dialog_agree`, `dialog_dislike`),
+so a dialog can name one directly; the clip is a separate shared constant on `GeoYoukaiAnim` for a
+character with no dialog written for her yet.
 
 The text itself is one dialog per character per reaction, registered in `GiftQDGen` and named by the
 `gift_dialog` datamap, which is keyed by entity type and holds a `Holder<Dialog>` per side. Holders
-rather than ids, so a mistyped path fails at datagen instead of resolving to nothing at runtime.
+rather than ids, so a mistyped path fails at datagen instead of resolving to nothing at runtime. A
+character with no plain-acceptance line of her own reuses her like line for that band, which is what
+the gift path did before the third reaction existed.
 
 ## Paying a gift back
 
@@ -216,6 +223,7 @@ off the two datamaps rather than guessed, so that no single gift buys a return o
 | kirisame_marisa | magic_book | 2.0 | 12 |
 | cirno | sturdy_teddy_bear | 2.0 | 10 |
 | hakurei_reimu | ghost_sake | 2.0 | 10 |
+| saigyouji_yuyuko | ghost_sake | 2.0 | 10 |
 | morichika_rinnosuke | magic_book | 1.5 | 9 |
 | izayoi_sakuya | lucky_tea | 2.0 | 8 |
 
@@ -244,7 +252,7 @@ rather than leaving them having paid and owed the next one as well.
 - `content/item/gift/GiftType.java` -- the categories, their display names, and `neutral()`
 - `content/item/gift/GiftItemData.java` -- base favor / cooldown / type, and the three-tier lookup
 - `content/item/gift/GiftPreference.java` -- the `gift_preference` datamap value
-- `content/rpg/core/GiftDialogData.java` -- the `gift_dialog` datamap value: both reactions, the threshold, the return table
+- `content/rpg/core/GiftDialogData.java` -- the `gift_dialog` datamap value: the three reactions, the threshold, the return table
 - `content/rpg/condition/GiftReturnCondition.java` -- whether she owes a gift back
 - `content/rpg/action/GiftReturnAction.java` -- spends the bank and hands the item over
 - `content/rpg/gift/GiftReturn.java` -- the roll, and where the tables live
@@ -253,7 +261,7 @@ rather than leaving them having paid and owed the next one as well.
 - `init/registrate/GLItems.java`, `init/registrate/block/{GLDecoBlocks,GLNaturalBlocks}.java` -- the `GIFT_DATA` entries
 - `init/registrate/GLEntities.java` -- the `GIFT_*` preference constants and the registrations that pass them
 - `init/registrate/GLMeta.java` -- the `GIFT_DATA`, `GIFT_PREFERENCE`, `GIFT_DIALOG_DATA` and `MORICHIKA_OFFER` registrations
-- `init/data/rpg/GiftQDGen.java` -- the two reaction dialogs and the return chat, for every character
+- `init/data/rpg/GiftQDGen.java` -- the three reaction dialogs and the return chat, for every character
 - `init/data/loot/GiftLootGen.java` -- the party gift ladders and the `gift_return` tables cut from them
 - `init/data/GLTagGen.java` -- the `MORICHIKA_OFFERS` item tag
 - `event/GLClientEventHandlers.java` -- the favor / type tooltip

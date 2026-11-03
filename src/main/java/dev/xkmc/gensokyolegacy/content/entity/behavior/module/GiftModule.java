@@ -32,8 +32,8 @@ import net.minecraft.world.item.ItemStack;
  * and no cooldown starts, so the interaction falls through. How much she thinks a category is worth is
  * her {@code gift_preference} datamap entry; see {@link GiftItemData#getFactor}.
  * <p>
- * A refusal is the one thing that gets a reaction of its own — she turns the item down in {@code hate},
- * while anything she takes plays {@code love}.
+ * A gift is answered in one of three ways: a factor above the category's neutral is {@code love}, an
+ * accepted gift at or below it is a plain {@code agree}, and a factor of 0 is the refusal {@code hate}.
  * <p>
  * Every accepted gift also banks its favor toward {@link CharacterData#giftReturn}, which is what she
  * eventually pays back; see {@link GiftDialogData}.
@@ -85,7 +85,7 @@ public class GiftModule extends AbstractYoukaiModule {
 			self.level().broadcastEntityEvent(self, EntityEvent.IN_LOVE_HEARTS);
 			self.playSound(SoundEvents.PLAYER_LEVELUP, 0.8F, 1.2F);
 		}
-		react(sp, accepted);
+		react(sp, accepted, factor, giftData.type().neutral());
 		return accepted ? InteractionResult.SUCCESS : InteractionResult.PASS;
 	}
 
@@ -96,13 +96,15 @@ public class GiftModule extends AbstractYoukaiModule {
 	 * A refusal returns {@code PASS}, so vanilla offers the other hand as well and lands here a second
 	 * time; whoever arrives first owns the reaction and the clip is idempotent, so the second is a no-op.
 	 */
-	private void react(ServerPlayer sp, boolean accepted) {
+	private void react(ServerPlayer sp, boolean accepted, double factor, double neutral) {
 		var config = GiftDialogData.of(self.getType());
 		if (config == null) {
 			(accepted ? YoukaiAnim.LIKE : YoukaiAnim.DISLIKE).play(self);
 			return;
 		}
-		var dialog = accepted ? config.like() : config.dislike();
+		var dialog = !accepted ? config.dislike()
+				: factor > neutral ? config.like()
+				: config.neutral();
 		var talk = self.getModule(TalkModule.class);
 		if (talk.isEmpty() || talk.get().isTalking()) {
 			(accepted ? YoukaiAnim.LIKE : YoukaiAnim.DISLIKE).play(self);

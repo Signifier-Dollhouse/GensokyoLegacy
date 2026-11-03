@@ -156,6 +156,8 @@ public class SuikaEntity extends BossYoukaiEntity implements GeoYoukaiAnim {
 			case SKILL_01 -> Optional.of(GATHER);
 			case SKILL_02 -> Optional.of(CATCH);
 			case SKILL_03 -> Optional.of(THROW);
+			// the rig has no agree clip, so the slot borrows a talk clip
+			case AGREE -> Optional.of(TALK_02);
 			case LIKE -> Optional.of(LIKE);
 			case DISLIKE -> Optional.of(DISLIKE);
 			case EAT -> Optional.of(EAT);

@@ -114,6 +114,9 @@ public class YuyukoEntity extends BossYoukaiEntity implements GeoYoukaiAnim, Del
 			case TALK_02, TALK_04 -> Optional.of(TALK_02);
 			case THINK, THINK_02 -> Optional.of(THINK);
 			case CONFUSED -> Optional.of(CONFUSED);
+			// no love, hate or agree clip in the rig, so the gift reactions borrow a talk clip
+			case AGREE, LIKE -> Optional.of(TALK_02);
+			case DISLIKE -> Optional.of(TALK_01);
 			case EAT -> Optional.of(EAT);
 			case HURT -> Optional.of(HURT);
 			default -> Optional.empty();

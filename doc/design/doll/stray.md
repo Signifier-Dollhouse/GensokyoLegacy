@@ -124,9 +124,9 @@ it is an ambient mob, not a threat.
 
 ### 4.3 Rendering
 
-Reuse `geo/doll.geo.json` and `animations/doll.animation.json` with a wild-specific texture
-(`textures/geo/stray_doll.png`) and a `StrayDollRenderer`/`StrayDollModel`. The model plays
-`toy_idle`/`toy_fly` from its own controller. It does not implement `DollRig` (§3).
+Use its own `geo/stray_doll.geo.json`, `animations/stray_doll.animation.json` and
+`textures/geo/stray_doll.png` with a `StrayDollRenderer`/`StrayDollModel`. The model plays
+`DStoy_idle`/`DStoy_fly` from its own controller. It does not implement `DollRig` (§3).
 
 ## 5. Stray ghost
 
@@ -524,8 +524,8 @@ two reasons: the flute has no other target in creative, and no natural spawn exi
 - `geo/ghost.geo.json`, `animations/ghost.animation.json` and
   `textures/geo/ghost/{curios,foodie,lively,dual}_ghost.png` (copied from `temp/`; the staged
   originals are left untouched).
-- The wild doll reuses `geo/doll.geo.json` and `animations/doll.animation.json` with a fixed
-  `textures/geo/doll/red.png`; it does not get its own art.
+- The wild doll gets its own `geo/stray_doll.geo.json`,
+  `animations/stray_doll.animation.json` and `textures/geo/stray_doll.png`.
 - `textures/item/tool/bone_flute.png`.
 - Spawn egg models are generated (`template_spawn_egg`).
 

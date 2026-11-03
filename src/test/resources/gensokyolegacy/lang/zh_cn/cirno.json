@@ -2,9 +2,16 @@
   "-slash": true,
   "gensokyolegacy": {
     "cirno": {
+      "chat": {
+        "greeting": "你是来找咱玩的吗？",
+        "visit_greeting": "咱来玩了哦！",
+        "party_greeting": "听说你请客？那咱不客气啦！",
+        "trade": "（交易）"
+      },
       "gift": {
         "dialog": {
           "like": "你人真好，咱很喜欢这个！",
+          "neutral": "有礼物？咱就收下了~",
           "dislike": "这个咱不喜欢，你自己拿去用吧。",
           "return": "咱在外面捡到了好东西！这个送你了，记得常来找我玩。"
         },
