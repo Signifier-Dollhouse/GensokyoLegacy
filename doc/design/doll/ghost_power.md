@@ -170,7 +170,15 @@ already full or the player has no level to give, and the deduction runs through
 `giveExperiencePoints` so the XP change event still sees it. When the stack fills before the whole
 offer is stored, the XP for the overflow is given back, so only the stored power is paid for.
 
-## 7. Debug readout
+## 7. Undead kills
+
+`GhostEventHandlers.onUndeadExperienceDrop` listens to `LivingExperienceDropEvent`. When the dead
+entity is in the `minecraft:undead` entity type tag and the last attacker is a player, the dropped
+experience is handed to `SpiritualPower.addToHeld` as spiritual power; the experience orbs still
+drop. The helper splits the amount across the spiritual items in the killer's hands
+(`Player.getHandSlots`).
+
+## 8. Debug readout
 
 The debug wand's ghost click and the debug glasses' look-at overlay share `GhostDebugInfo`, which
 prints `Wild/Tamed <variant>: <power> / 1000 power`. Both read the synced accessors directly, so the

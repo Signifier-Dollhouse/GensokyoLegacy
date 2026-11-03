@@ -17,6 +17,7 @@ import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
 import dev.xkmc.gensokyolegacy.init.registrate.GLParticles;
 import dev.xkmc.l2core.init.reg.registrate.L2Registrate;
+import dev.xkmc.l2core.init.reg.registrate.SimpleEntry;
 import net.minecraft.client.renderer.block.model.BlockModel;
 import net.minecraft.advancements.critereon.*;
 import net.minecraft.core.Direction;
@@ -28,10 +29,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemDisplayContext;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.item.PlaceOnWaterBlockItem;
+import net.minecraft.world.item.*;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.grower.TreeGrower;
@@ -63,6 +61,8 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class GLNaturalBlocks {
+
+	public static final SimpleEntry<CreativeModeTab> TAB;
 
 	public static final BlockEntry<SimpleBushBlock> STAR_FLOWER;
 	public static final BlockEntry<SimpleBushBlock> GOLDEN_LOTUS_SMALL, GOLDEN_LOTUS_MEDIUM, GOLDEN_LOTUS_LARGE;
@@ -100,6 +100,9 @@ public class GLNaturalBlocks {
 	static {
 		var reg = GensokyoLegacy.REGISTRATE;
 
+		TAB = reg.buildModCreativeTab("natural_blocks", "Gensokyo Legacy - Building Blocks",
+				e -> e.icon(() -> GLNaturalBlocks.STAR_FLOWER.asItem().getDefaultInstance()));
+
 		// 星星花
 		STAR_FLOWER = reg.block("star_flower", p -> new SimpleBushBlock(p, SimpleBushBlock.FULL))
 				.properties(p -> p.offsetType(BlockBehaviour.OffsetType.XYZ).mapColor(MapColor.PLANT).strength(0).sound(SoundType.GRASS).noOcclusion().noCollission().pushReaction(PushReaction.DESTROY))
@@ -119,7 +122,6 @@ public class GLNaturalBlocks {
 				.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(1, 1000, GiftType.MAGIC))
 				.dataMap(NeoForgeDataMaps.COMPOSTABLES, new Compostable(0.65f))
 				.tag(ItemTags.SMALL_FLOWERS)
-				.tab(ResourceKey.create(Registries.CREATIVE_MODE_TAB, GensokyoLegacy.loc("ingredients")))
 				.build()
 				.tag(BlockTags.SMALL_FLOWERS)
 				.register();
@@ -148,7 +150,6 @@ public class GLNaturalBlocks {
 				.model((ctx, pvd) -> pvd.withExistingParent(ctx.getName(), pvd.modLoc("block/" + ctx.getName()))
 						.guiLight(BlockModel.GuiLight.SIDE)
 						.transforms().transform(ItemDisplayContext.GUI).rotation(30, 225, 0).scale(0.625f).end().end())
-				.tab(ResourceKey.create(Registries.CREATIVE_MODE_TAB, GensokyoLegacy.loc("ingredients")))
 				.build()
 				.register();
 
@@ -184,7 +185,6 @@ public class GLNaturalBlocks {
 				})
 				.item((block, props) -> new PlaceOnWaterBlockItem(block, props))
 				.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("block/nature/" + ctx.getName())))
-				.tab(ResourceKey.create(Registries.CREATIVE_MODE_TAB, GensokyoLegacy.loc("ingredients")))
 				.build()
 				.register();
 
@@ -202,7 +202,6 @@ public class GLNaturalBlocks {
 				})
 				.item((block, props) -> new PlaceOnWaterBlockItem(block, props))
 				.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("block/nature/" + ctx.getName())))
-				.tab(ResourceKey.create(Registries.CREATIVE_MODE_TAB, GensokyoLegacy.loc("ingredients")))
 				.build()
 				.register();
 
@@ -413,7 +412,6 @@ public class GLNaturalBlocks {
 				.item().model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("block/nature/" + ctx.getName())))
 				.tag(ItemTags.SMALL_FLOWERS)
 				.dataMap(NeoForgeDataMaps.COMPOSTABLES, new Compostable(0.65f))
-				.tab(ResourceKey.create(Registries.CREATIVE_MODE_TAB, GensokyoLegacy.loc("ingredients")))
 				.build()
 				.register();
 	}
@@ -438,7 +436,6 @@ public class GLNaturalBlocks {
 							.base(base).perspective(ItemDisplayContext.GUI, icon).end()
 							.guiLight(BlockModel.GuiLight.FRONT);
 				})
-				.tab(ResourceKey.create(Registries.CREATIVE_MODE_TAB, GensokyoLegacy.loc("ingredients")))
 				.build()
 				.register();
 	}

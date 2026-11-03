@@ -4,8 +4,10 @@ import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -43,6 +45,18 @@ public final class SpiritualPower {
 
 	public static void appendHoverText(ItemStack stack, List<Component> list) {
 		list.add(GLLang.Spiritual.BAR.get(get(stack), max(stack)));
+	}
+
+	public static int addToHeld(Player player, int power) {
+		List<ItemStack> held = new ArrayList<>();
+		for (ItemStack stack : player.getHandSlots()) {
+			if (max(stack) > 0) held.add(stack);
+		}
+		if (held.isEmpty() || power <= 0) return 0;
+		for (ItemStack stack : held) {
+			power -= add(stack, power);
+		}
+		return power;
 	}
 
 }

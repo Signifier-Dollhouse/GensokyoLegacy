@@ -275,7 +275,7 @@ public class GLItems {
 		GLNaturalBlocks.register();
 
 		TAB = reg.buildModCreativeTab("ingredients", "Gensokyo Legacy - Ingredients",
-				e -> e.icon(GLItems.MYSTICAL_STRAW::asStack));
+				e -> e.icon(GLItems.DOLL_GLOVE::asStack));
 
 		// ingredients
 		{

@@ -2,19 +2,20 @@ package dev.xkmc.gensokyolegacy.event;
 
 import dev.xkmc.gensokyolegacy.content.attachment.doll.DollAttachment;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.ghost.GhostEntity;
+import dev.xkmc.gensokyolegacy.content.item.spiritual.SpiritualPower;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
-import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
+import net.minecraft.tags.EntityTypeTags;
+import net.minecraft.world.entity.player.Player;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
+import net.neoforged.neoforge.event.entity.living.LivingExperienceDropEvent;
 
 /**
- * A dual ghost spends itself in place of its owner.
+ * A dual ghost spends itself in place of its owner, and undead kills feed the spiritual pool.
  *
  * @see "doc/design/doll/ghost_power.md"
  */
@@ -34,6 +35,17 @@ public class GhostEventHandlers {
 			event.setCanceled(true);
 			return;
 		}
+	}
+
+	/**
+	 * An undead kill feeds the spiritual pool of whatever the killer holds, split across the hands.
+	 */
+	@SubscribeEvent(priority = EventPriority.HIGH)
+	public static void onUndeadExperienceDrop(LivingExperienceDropEvent event) {
+		if (event.isCanceled() || !event.getEntity().getType().is(EntityTypeTags.UNDEAD)) return;
+		Player player = event.getAttackingPlayer();
+		if (player == null) return;
+		SpiritualPower.addToHeld(player, event.getDroppedExperience());
 	}
 
 }
