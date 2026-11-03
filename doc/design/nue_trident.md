@@ -62,7 +62,7 @@ model the way `ThrownTridentRenderer` does. Nothing else in this document depend
 | `use(...)` | `startUsingItem(hand)`, `consume(stack)` | a click only raises the trident |
 | `releaseUsing(...)` | at `>= 10` ticks held and off cooldown: post `DanmakuUseEvent`, play the sound, spawn on the server, award the stat, apply the cooldown | the vanilla charge threshold, then the throw `DanmakuItem.use` would have done |
 | `newBullet(player, level)` | `new NueTridentProjectile(GLEntities.NUE_TRIDENT.get(), player, level)` | the copy |
-| `spawnBullet(...)` | overridden: `setItem`, `setup(8, 120, false, false, look.scale(2.5))`, `moveTo(eye)`, `addFreshEntity`, `SpellContainer.track` | the arc and the damage are the trident's, not the dagger's |
+| `spawnBullet(...)` | overridden: `setItem`, `setDamage(attack damage)`, `setup(damage, 120, false, false, look.scale(2.5))`, `moveTo(eye)`, `addFreshEntity`, `SpellContainer.track` | the arc is the trident's, and the hit copies the thrower's attack damage |
 | `buildRenderer()` | inherited `DAGGER` branch → `ItemModelProjectileType` | draws the item's own model |
 | `playThrowSound(...)` | `SoundEvents.TRIDENT_THROW` | — |
 
@@ -74,9 +74,9 @@ Melee stats are the vanilla trident's, added as components in registration:
 ```java
 p.attributes(ItemAttributeModifiers.builder()
         .add(Attributes.ATTACK_DAMAGE,
-                new AttributeModifier(Item.BASE_ATTACK_DAMAGE_ID, 8.0, ADD_VALUE), MAINHAND)
+                new AttributeModifier(Item.BASE_ATTACK_DAMAGE_ID, 10.0, ADD_VALUE), MAINHAND)
         .add(Attributes.ATTACK_SPEED,
-                new AttributeModifier(Item.BASE_ATTACK_SPEED_ID, -2.9, ADD_VALUE), MAINHAND)
+                new AttributeModifier(Item.BASE_ATTACK_SPEED_ID, -2.8, ADD_VALUE), MAINHAND)
         .build())
 ```
 
@@ -112,10 +112,10 @@ copy that already hurt something cannot hurt a second one on the way down).
 | gravity | 0.05 b/t² | vanilla arrow/trident |
 | drag | 0.99 | vanilla arrow/trident |
 | lifetime | 120 ticks | vanilla arrow default; also covers a long lazy arc |
-| hit damage | 8 | vanilla `TridentItem.BASE_DAMAGE` |
+| hit damage | the thrower's `ATTACK_DAMAGE` at the throw (11 with the trident held; 8 if the field was lost) | the trident's own melee value, not a fixed number |
 | pickup | never | the entity is not an `ItemEntity`; nothing to pick up |
 
-`setup(8, 120, false, false, look.scale(2.5))` from the overridden `spawnBullet`, then
+`setup(damage, 120, false, false, look.scale(2.5))` from the overridden `spawnBullet`, then
 `moveTo(player.getEyePosition())`: the copy starts at the thrower's eyes, on the crosshair line, not
 at the body's centre. In `updateVelocity`:
 
@@ -131,7 +131,7 @@ projectile's feet.
 Hit handling:
 
 * **block** — play `TRIDENT_HIT_GROUND`, discard.
-* **entity** — if `dealtDamage` return; set it, hurt for 8 with
+* **entity** — if `dealtDamage` return; set it, hurt for `damage` (the thrower's attack damage) with
   `damageSources().thrown(this, owner)`, play `TRIDENT_HIT`, run the UFO conversion, discard.
 * **expiry** — vanish quietly (no drop, no return).
 

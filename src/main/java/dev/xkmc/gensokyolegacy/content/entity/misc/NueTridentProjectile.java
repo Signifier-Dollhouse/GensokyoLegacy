@@ -31,6 +31,11 @@ public class NueTridentProjectile extends ItemBulletEntity {
 
 	@SerialField
 	private boolean dealtDamage = false;
+	/**
+	 * The thrower's attack damage at the throw; the constant is the fallback for a copy that lost it.
+	 */
+	@SerialField
+	private float damage = DAMAGE;
 
 	public NueTridentProjectile(EntityType<? extends ItemBulletEntity> pEntityType, Level pLevel) {
 		super(pEntityType, pLevel);
@@ -38,6 +43,10 @@ public class NueTridentProjectile extends ItemBulletEntity {
 
 	public NueTridentProjectile(EntityType<? extends ItemBulletEntity> pEntityType, LivingEntity pShooter, Level pLevel) {
 		super(pEntityType, pShooter, pLevel);
+	}
+
+	public void setDamage(float damage) {
+		this.damage = damage;
 	}
 
 	@Override
@@ -66,7 +75,7 @@ public class NueTridentProjectile extends ItemBulletEntity {
 		while (target instanceof PartEntity<?> part) target = part.getParent();
 		if (target instanceof LivingEntity living) {
 			Entity owner = getOwner();
-			living.hurt(damageSources().thrown(this, owner), DAMAGE);
+			living.hurt(damageSources().thrown(this, owner), damage);
 			level().playSound(null, this, SoundEvents.TRIDENT_HIT, SoundSource.PLAYERS, 1F, 1F);
 			convert(living);
 		}

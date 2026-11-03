@@ -13,6 +13,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
@@ -188,6 +189,7 @@ public enum DaggerGloveMode {
 		// the outbound stage covers a fixed distance in whatever time it has; everything else flies
 		// at the plain speed
 		double speed = turnTick > 0 ? HOMING_REACH / turnTick : SPEED;
+		float damage = (float) player.getAttributeValue(Attributes.ATTACK_DAMAGE);
 		var danmaku = new IronDaggerBulletEntity(GLEntities.IRON_DAGGER.get(), player, level);
 		danmaku.setItem(dagger);
 		danmaku.setReturnable(true);
@@ -195,14 +197,14 @@ public enum DaggerGloveMode {
 		int stageLife = turnTick > 0 ? turnTick : life();
 		// no mover: a mover derives its per-tick velocity from tickCount, which the client reads
 		// as the entity's age, so a client first seeing the dagger computes a phantom first step (§2a)
-		danmaku.setup(DanmakuItems.Bullet.DAGGER.damage(), stageLife, false, DanmakuItems.Bullet.DAGGER.bypass(), dir.scale(speed));
+		danmaku.setup(damage, stageLife, false, DanmakuItems.Bullet.DAGGER.bypass(), dir.scale(speed));
 		danmaku.moveTo(from);
 		if (turnTick > 0) {
 			// the first stage stays returnable: it hands the dagger back itself on every ordinary ending,
 			// and the trail claims that return only once it has really spawned stage 2, which takes the rune
 			danmaku.setRune(null);
 			danmaku.afterExpiry = new DaggerHomingTrail(level, danmaku, target, SPEED,
-					HOMING_STAGE_LIFE, dir, dagger, rune);
+					HOMING_STAGE_LIFE, dir, dagger, rune, damage);
 		}
 		level.addFreshEntity(danmaku);
 		if (player instanceof ServerPlayer sp) SpellContainer.track(sp, danmaku);

@@ -198,7 +198,9 @@ public void releaseUsing(ItemStack stack, Level level, LivingEntity entity, int 
             if (used < 20) return;                            // 1 second
             int held = Math.min(used, 40) / 20;               // 2 at the 2-second cap
             int radius = Mth.clamp(2 + held, 3, 4);
-            throwAnchors(sp, player.getUsedItemHand(), AnchorThrow.DESTROY_CHARGED, radius);
+            float t = (float) (Mth.clamp(used, 20, 40) - 20) / 20;
+            float scale = Mth.lerp(t, 1.5F, 2.5F);            // 1.5x at 1s, 2.5x at 2s
+            throwAnchors(sp, player.getUsedItemHand(), AnchorThrow.DESTROY_CHARGED, radius, scale);
         }
         case VOYAGE -> { }
     }
@@ -207,10 +209,13 @@ public void releaseUsing(ItemStack stack, Level level, LivingEntity entity, int 
 
 Destroy and Storm are charge attacks, not clicks: `use` only raises the anchor (`UseAnim.SPEAR`,
 like the trident) and the release fires it. Destroy needs one second and scales its blast from 3
-blocks at 1 second to 4 at 2 seconds (`n = charge seconds + 2`, clamped to 3–4); Storm wants one
-second before the five-bullet volley. A short click therefore throws nothing and spends nothing.
-Voyage still throws on the right click, and the link branch handles a hook that is out: retrieve
-within 3 blocks, pull again from farther, regardless of the selected mode (§3.3, §6.2).
+blocks at 1 second to 4 at 2 seconds (`n = charge seconds + 2`, clamped to 3–4), with the blast
+damage scaling linearly from 1.5× to 2.5× of the thrower's attack damage over the same window. Storm
+wants one second before the five-bullet volley. A short click therefore throws nothing and spends
+nothing. Voyage still throws on the right click, and the link branch handles a hook that is out:
+retrieve within 3 blocks, pull again from farther, regardless of the selected mode (§3.3, §6.2).
+Every hook copies the thrower's `ATTACK_DAMAGE` as its hit damage (`scale` is 1 for the other
+throws), matching the trident and the dagger.
 
 `throwAnchors(sp, hand, type)` is the single gate for both clicks:
 
@@ -547,10 +552,11 @@ from the spawn packet, so no extra synced field is needed.
   knockback, then return.
 * **Right click, `DESTROY_CHARGED`** — hold 1–2 seconds and release: the same hook, but its impact
   excavates every harvestable block in a sphere of `radius` blocks and hurts every living entity in
-  the same sphere for `damage` (`AnchorStorm.areaDamage`, §5.3), then returns. `radius` is
+  the same sphere for `damage × scale` (`AnchorStorm.areaDamage`, §5.3), then returns. `radius` is
   `2 + charge seconds`, clamped to 3–4, so a 1-second charge is 3 blocks and a 2-second charge is 4.
-  Both a block and an entity hit trigger the blast at the impact point; the directly hit entity is
-  not hit twice.
+  `scale` is linear over the same window, 1.5× at 1 second and 2.5× at 2 seconds. Both a block and
+  an entity hit trigger the blast at the impact point; the directly hit entity is not hit twice.
+  The base `damage` is already the thrower's attack damage, as for every other throw.
 
 The break rule is literally "what a diamond pickaxe would harvest", widened by the one parameter:
 
@@ -728,7 +734,8 @@ effects beyond what the tags grant.
   hook;
 * the storm volley needs a one-second charge, so a right click alone never spends 10 power;
 * Destroy throws on an empty left click, and its right click is a 1–2 second charge for a 3–4 block
-  blast (`radius = charge seconds + 2`); block and entity clicks stay vanilla mining and attacking;
+  blast (`radius = charge seconds + 2`, damage `1.5×` to `2.5×` of the thrower's attack damage);
+  block and entity clicks stay vanilla mining and attacking;
 * the 16-block reach is measured from the throw origin, not from the moving player, so walking
   forward cannot stretch a throw;
 * entity hits on a `PULL` hook are passed through (`canHitEntity`), since the mode is for terrain;
@@ -795,9 +802,9 @@ a record of why the split landed in that order:
 2. Destroy vs. a mob: damage lands once, the hook returns, no second hit on the way home. A charged
    right click released before one second throws nothing.
 3. Destroy charged: a 1-second hold → a 3-block sphere of blocks breaks and mobs inside take damage
-   once each; a 2-second hold → 4 blocks; a 3-second hold → still 4. Releasing right after the 1-second
-   mark already gives 3. The blast triggers on an entity hit too, without hitting the target twice, and
-   the hook returns.
+   once each for 1.5× the thrown hit; a 2-second hold → 4 blocks and 2.5×; a 3-second hold → still
+   4 blocks and 2.5×. A 1.5-second hold lands between the two. The blast triggers on an entity hit
+   too, without hitting the target twice, and the hook returns.
 4. Voyage: an *empty* left click at a cow 10 blocks away drags it all the way to the player, one tick
    at a time (it does not coast), and the chain follows it; left-clicking a block or a mob with the
    anchor held mines / punches as usual and throws nothing.

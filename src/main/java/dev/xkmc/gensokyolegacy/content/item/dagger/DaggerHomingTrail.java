@@ -52,6 +52,11 @@ public class DaggerHomingTrail extends TrailAction {
 	private ResourceLocation rune = null;
 	@SerialField
 	private int life = 40;
+	/**
+	 * The thrower's attack damage at the time of the shot, carried to the second stage.
+	 */
+	@SerialField
+	private float damage = DanmakuItems.Bullet.DAGGER.damage();
 
 	/**
 	 * Server-side context, deliberately not a {@link SerialField}: it mirrors {@code TrailAction}'s own
@@ -65,7 +70,8 @@ public class DaggerHomingTrail extends TrailAction {
 	}
 
 	public DaggerHomingTrail(ServerLevel level, IronDaggerBulletEntity firstStage, Entity target,
-							 double speed, int life, Vec3 fallback, ItemStack dagger, @Nullable ResourceLocation rune) {
+							 double speed, int life, Vec3 fallback, ItemStack dagger,
+							 @Nullable ResourceLocation rune, float damage) {
 		this.cachedLevel = level;
 		this.cachedOwner = firstStage.getOwner() instanceof LivingEntity le ? le : null;
 		this.firstStage = firstStage;
@@ -75,6 +81,7 @@ public class DaggerHomingTrail extends TrailAction {
 		this.fallback = fallback;
 		this.dagger = dagger.copy();
 		this.rune = rune;
+		this.damage = damage;
 	}
 
 	/**
@@ -95,7 +102,7 @@ public class DaggerHomingTrail extends TrailAction {
 		danmaku.setRune(rune);
 		// no mover, same as the first stage: the aimed leg's speed and heading are both fixed, so
 		// constant delta movement carries it. The heading change is seeded here, once.
-		danmaku.setup(DanmakuItems.Bullet.DAGGER.damage(), life, false, false, heading.scale(speed));
+		danmaku.setup(damage, life, false, false, heading.scale(speed));
 		danmaku.moveTo(pos);
 		level.addFreshEntity(danmaku);
 		// set after the spawn: the entity cannot tick until the next tick anyway, and a refused claim

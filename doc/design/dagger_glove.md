@@ -207,6 +207,12 @@ the ammunition.
 - One `ItemStack` of 1 count is taken per dagger, so a stack of 12 supplies two homing volleys.
 - Each dagger is handed to the bullet it spawns (§4), which is what makes the count come back.
 
+**Damage.** A thrown dagger lands for the thrower's `ATTACK_DAMAGE` at the throw, on both stages of
+a homing shot, not for the danmaku table's fixed 6. `IRON_DAGGER` and `DAGGER_GLOVE` carry the
+matching melee profile — `ATTACK_DAMAGE` +5 (the danmaku's 6 minus the player's base 1) and
+`ATTACK_SPEED` −2 — so the blade in hand hits for exactly what it hits for once thrown, and a
+dagger fired by the glove hits for the glove's value.
+
 ## 4. Returnable daggers
 
 The glove reuses `IronDaggerBulletEntity` as the bullet, so the return path is already written: a
@@ -462,7 +468,8 @@ zh_cn is hand-authored in the split per-category files, then merged by the
 
 ## 8. Registration
 
-- `GLItems` — `DAGGER_GLOVE` = `reg.item("dagger_glove", p -> new DaggerGloveItem(p.stacksTo(1)))`,
+- `GLItems` — `DAGGER_GLOVE` = `reg.item("dagger_glove", p -> new DaggerGloveItem(p.stacksTo(1)
+  .attributes(...)))` with the dagger's +5 / −2 melee profile (§3),
   model = `DaggerGloveModel::model` (§6a, §6b): a `neoforge:separate_transforms` model whose base is
   `item/generated` and whose four hand displays carry its own hand model in that mode's skin, with
   three ascending `dagger_glove_display` overrides onto `item/dagger_glove_<mode>` sub-models (also

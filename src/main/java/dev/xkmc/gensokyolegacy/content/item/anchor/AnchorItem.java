@@ -54,6 +54,8 @@ public class AnchorItem extends SpiritualDanmakuItem {
 	private static final int DESTROY_RADIUS_BASE = 2;
 	private static final int DESTROY_RADIUS_MIN = 3;
 	private static final int DESTROY_RADIUS_MAX = 4;
+	private static final float DESTROY_DAMAGE_MIN = 1.5F;
+	private static final float DESTROY_DAMAGE_MAX = 2.5F;
 	private static final double FLY_SPEED = 1.5;
 	private static final int LIFE = 200;
 	private static final double FAN_STEP = 12.5;
@@ -159,7 +161,10 @@ public class AnchorItem extends SpiritualDanmakuItem {
 				int held = Math.min(used, DESTROY_CHARGE_MAX) / CHARGE_TIME;
 				int radius = Mth.clamp(DESTROY_RADIUS_BASE + held,
 						DESTROY_RADIUS_MIN, DESTROY_RADIUS_MAX);
-				throwAnchors(sp, player.getUsedItemHand(), AnchorThrow.DESTROY_CHARGED, radius);
+				float t = (float) (Mth.clamp(used, DESTROY_CHARGE_MIN, DESTROY_CHARGE_MAX)
+						- DESTROY_CHARGE_MIN) / (DESTROY_CHARGE_MAX - DESTROY_CHARGE_MIN);
+				float scale = Mth.lerp(t, DESTROY_DAMAGE_MIN, DESTROY_DAMAGE_MAX);
+				throwAnchors(sp, player.getUsedItemHand(), AnchorThrow.DESTROY_CHARGED, radius, scale);
 			}
 			case VOYAGE -> {
 			}
@@ -171,10 +176,15 @@ public class AnchorItem extends SpiritualDanmakuItem {
 	 * the caller has already turned the click into an {@link AnchorThrow}.
 	 */
 	public static boolean throwAnchors(ServerPlayer sp, InteractionHand hand, AnchorThrow type) {
-		return throwAnchors(sp, hand, type, 0);
+		return throwAnchors(sp, hand, type, 0, 1);
 	}
 
-	public static boolean throwAnchors(ServerPlayer sp, InteractionHand hand, AnchorThrow type, int radius) {
+	/**
+	 * @param radius the blast radius of a charged destroy throw; ignored by every other type
+	 * @param scale  the charged throw's damage multiplier on the thrower's attack damage
+	 */
+	public static boolean throwAnchors(ServerPlayer sp, InteractionHand hand, AnchorThrow type,
+			int radius, float scale) {
 		ItemStack stack = sp.getItemInHand(hand);
 		if (!(stack.getItem() instanceof AnchorItem item)) return false;
 		if (isLinked(stack)) return false;
@@ -191,7 +201,7 @@ public class AnchorItem extends SpiritualDanmakuItem {
 		Vec3 from = RayTraceUtil.getRayTerm(sp.getEyePosition(), sp.getXRot(), sp.getYRot(), 2);
 		boolean fan = type == AnchorThrow.STORM_UNBOUND;
 		int count = fan ? 5 : 1;
-		float damage = (float) sp.getAttributeValue(Attributes.ATTACK_DAMAGE);
+		float damage = (float) sp.getAttributeValue(Attributes.ATTACK_DAMAGE) * scale;
 		var orientation = DanmakuHelper.getOrientation(look);
 		for (int i = 0; i < count; i++) {
 			Vec3 dir = fan ? orientation.rotateDegrees((i - (count - 1) / 2.0) * FAN_STEP) : look;

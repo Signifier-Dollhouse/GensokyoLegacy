@@ -18,6 +18,7 @@ import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
@@ -105,8 +106,10 @@ public class NueTridentItem extends DanmakuItem {
 	@Override
 	protected void spawnBullet(ItemBulletEntity danmaku, Player player, Level level, DanmakuUseEvent event) {
 		danmaku.setItem(bulletStack(player, event));
+		float damage = (float) player.getAttributeValue(Attributes.ATTACK_DAMAGE);
+		((NueTridentProjectile) danmaku).setDamage(damage);
 		Vec3 look = RayTraceUtil.getRayTerm(Vec3.ZERO, player.getXRot(), player.getYRot(), 1);
-		danmaku.setup(8, 120, false, false, look.scale(2.5));
+		danmaku.setup(damage, 120, false, false, look.scale(2.5));
 		danmaku.moveTo(player.getEyePosition());
 		level.addFreshEntity(danmaku);
 		if (player instanceof ServerPlayer sp) SpellContainer.track(sp, danmaku);

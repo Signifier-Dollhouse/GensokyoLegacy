@@ -11,6 +11,7 @@ import dev.xkmc.gensokyolegacy.init.registrate.GLEntities;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
@@ -56,6 +57,8 @@ public class IronDaggerItem extends DanmakuItem {
 	protected void spawnBullet(ItemBulletEntity danmaku, Player player, Level level, DanmakuUseEvent event) {
 		((IronDaggerBulletEntity) danmaku).setReturnable(event.consume());
 		super.spawnBullet(danmaku, player, level, event);
+		// the throw lands for what the held weapon would hit for, not for the bare danmaku value
+		danmaku.damage = (float) player.getAttributeValue(Attributes.ATTACK_DAMAGE);
 	}
 
 	@Override

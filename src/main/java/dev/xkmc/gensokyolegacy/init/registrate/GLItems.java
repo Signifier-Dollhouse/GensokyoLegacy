@@ -632,7 +632,15 @@ public class GLItems {
 
 			// 3D model hand-written in models/custom, so only wire up the parent here. SeparateTransformsModelBuilder
 			// with gui_light: front is the modelled dagger (every display but the gui), the gui the flat 16x16 icon.
-			IRON_DAGGER = reg.item("iron_dagger", IronDaggerItem::new)
+			// The melee bonus is one below the danmaku damage so that base 1 + bonus equals the thrown hit.
+			IRON_DAGGER = reg.item("iron_dagger", p -> new IronDaggerItem(p
+					.attributes(ItemAttributeModifiers.builder()
+							.add(Attributes.ATTACK_DAMAGE, new AttributeModifier(Item.BASE_ATTACK_DAMAGE_ID,
+									DanmakuItems.Bullet.DAGGER.damage() - 1, AttributeModifier.Operation.ADD_VALUE),
+									EquipmentSlotGroup.MAINHAND)
+							.add(Attributes.ATTACK_SPEED, new AttributeModifier(Item.BASE_ATTACK_SPEED_ID,
+									-2.0, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND)
+							.build())))
 					.model((ctx, pvd) -> {
 						var base = pvd.nested()
 								.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/" + ctx.getName())));
@@ -651,7 +659,15 @@ public class GLItems {
 
 			// The glove's held model carries a predicate override per mode rather than a flat layer0, so per-mode art
 			// can be dropped in without touching the wheel; the held half is the mitten DaggerGloveModel shares.
-			DAGGER_GLOVE = reg.item("dagger_glove", p -> new DaggerGloveItem(p.stacksTo(1)))
+			// Same melee profile as the dagger it launches: the throw copies the holder's attack damage.
+			DAGGER_GLOVE = reg.item("dagger_glove", p -> new DaggerGloveItem(p.stacksTo(1)
+					.attributes(ItemAttributeModifiers.builder()
+							.add(Attributes.ATTACK_DAMAGE, new AttributeModifier(Item.BASE_ATTACK_DAMAGE_ID,
+									DanmakuItems.Bullet.DAGGER.damage() - 1, AttributeModifier.Operation.ADD_VALUE),
+									EquipmentSlotGroup.MAINHAND)
+							.add(Attributes.ATTACK_SPEED, new AttributeModifier(Item.BASE_ATTACK_SPEED_ID,
+									-2.0, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND)
+							.build())))
 					.model(DaggerGloveModel::model)
 					.lang("Dagger Glove").tab(TAB.key())
 					.tag(L2ISTagGen.SELECTABLE)
