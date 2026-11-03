@@ -6,6 +6,7 @@ import dev.xkmc.danmakuapi.content.spell.item.SpellContainer;
 import dev.xkmc.danmakuapi.init.registrate.DanmakuItems;
 import dev.xkmc.gensokyolegacy.content.entity.misc.anchor.AnchorBulletEntity;
 import dev.xkmc.gensokyolegacy.content.entity.misc.anchor.AnchorHookEntity;
+import dev.xkmc.gensokyolegacy.content.entity.misc.anchor.AnchorStorm;
 import dev.xkmc.gensokyolegacy.content.item.spiritual.SpiritualDanmakuItem;
 import dev.xkmc.gensokyolegacy.content.item.spiritual.SpiritualPower;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
@@ -56,6 +57,7 @@ public class AnchorItem extends SpiritualDanmakuItem {
 	private static final int DESTROY_RADIUS_MAX = 4;
 	private static final float DESTROY_DAMAGE_MIN = 1.5F;
 	private static final float DESTROY_DAMAGE_MAX = 2.5F;
+	private static final double MELEE_RADIUS = 3;
 	private static final double FLY_SPEED = 1.5;
 	private static final int LIFE = 200;
 	private static final double FAN_STEP = 12.5;
@@ -91,6 +93,14 @@ public class AnchorItem extends SpiritualDanmakuItem {
 
 	public static void clearLink(ItemStack stack) {
 		stack.remove(GLItems.ANCHOR_LINK.get());
+	}
+
+	/**
+	 * The Destroy and Voyage left click on an entity: the vanilla attack is cancelled and everything
+	 * within {@link #MELEE_RADIUS} of the clicked target takes the swing instead.
+	 */
+	public static void melee(ServerPlayer sp, Entity target) {
+		AnchorStorm.melee(sp, target.position(), MELEE_RADIUS);
 	}
 
 	/**

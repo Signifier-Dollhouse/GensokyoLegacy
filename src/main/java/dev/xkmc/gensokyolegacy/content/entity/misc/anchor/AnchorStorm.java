@@ -14,6 +14,8 @@ import net.minecraft.tags.FluidTags;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -33,7 +35,6 @@ public final class AnchorStorm {
 	private static final int MAX_TRAIL = 160;
 	private static final double TRAIL_SPEED = 0.7;
 	private static final int TRAIL_LIFE = 40;
-	private static final int BURST_COUNT = 100;
 	private static final double BURST_RADIUS = 4;
 	private static final float BURST_DAMAGE = 6;
 
@@ -59,7 +60,6 @@ public final class AnchorStorm {
 		Vec3 vec = self.getDeltaMovement();
 		if (vec.lengthSqr() < 1e-6) return spent;
 		var orientation = DanmakuHelper.getOrientation(vec.normalize()).asNormal();
-		var r = self.getRandom();
 		var a = self.tickCount * 10;
 		for (int i = 0; i < 6; i++) {
 			Vec3 dir = orientation.rotateDegrees(60 * i + a);
@@ -85,9 +85,25 @@ public final class AnchorStorm {
 	 */
 	public static void areaDamage(Entity self, Entity owner, Vec3 at, double radius, float damage) {
 		if (owner == null) return;
-		DamageSource source = self.damageSources().thrown(self, owner);
+		hurtArea(self.level(), owner, self.damageSources().thrown(self, owner), at, radius, damage);
+	}
+
+	/**
+	 * The anchor's cancelled melee: the swing hits everything around the clicked target for the
+	 * wielder's attack damage, and spends the attack cooldown as a vanilla hit would.
+	 */
+	public static void melee(Player player, Vec3 at, double radius) {
+		float scale = player.getAttackStrengthScale(0.5F);
+		float damage = (float) player.getAttributeValue(Attributes.ATTACK_DAMAGE)
+				* (0.2F + scale * scale * 0.8F);
+		player.resetAttackStrengthTicker();
+		hurtArea(player.level(), player, player.damageSources().playerAttack(player), at, radius, damage);
+	}
+
+	private static void hurtArea(Level level, Entity owner, DamageSource source, Vec3 at,
+			double radius, float damage) {
 		AABB box = new AABB(at.subtract(radius, radius, radius), at.add(radius, radius, radius));
-		for (LivingEntity target : self.level().getEntitiesOfClass(LivingEntity.class, box)) {
+		for (LivingEntity target : level.getEntitiesOfClass(LivingEntity.class, box)) {
 			if (target == owner) continue;
 			if (!IDanmakuEntity.canHurt(owner, target)) continue;
 			if (target.position().distanceToSqr(at) > radius * radius) continue;

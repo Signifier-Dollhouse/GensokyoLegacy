@@ -22,13 +22,14 @@ block face, hang, and drag its owner with vanilla collision and server-authorita
 
 | mode | left click | right click |
 |---|---|---|
-| **Destroy** | *empty* left click throws; on a block break 3×3×3, on an entity deal damage; then fly home. Block and entity clicks stay vanilla | hold 1–2 seconds, then release: throw an anchor that breaks blocks and damages entities in a sphere of `charge seconds + 2` blocks (3–4) around the impact; then fly home |
-| **Voyage** | *empty* left click only throws; the anchor pulls the hit entity toward the player. A block or entity click stays vanilla | throw; if it hits a block it sticks there, pulls the player in and holds them at the anchor until retrieved; if it hits nothing it pulls from the reach limit and then returns |
+| **Destroy** | *empty* left click throws; on a block break 3×3×3, on an entity deal damage; then fly home. A block click mines as usual; an entity click is a radius-3 swing instead of a vanilla attack | hold 1–2 seconds, then release: throw an anchor that breaks blocks and damages entities in a sphere of `charge seconds + 2` blocks (3–4) around the impact; then fly home |
+| **Voyage** | *empty* left click only throws; the anchor pulls the hit entity toward the player. A block click mines as usual; an entity click is a radius-3 swing instead of a vanilla attack | throw; if it hits a block it sticks there, pulls the player in and holds them at the anchor until retrieved; if it hits nothing it pulls from the reach limit and then returns |
 | **Storm** | throw (5 spiritual power); on impact deal area damage | hold right click for 1 second, then release: throw 5 unbound anchors (10 spiritual power), reach 48, no return |
 
 The anchor is also a pickaxe: diamond harvest level, and it swings for +9 attack damage at −3 attack
-speed. Mining and attacking in Destroy mode are ordinary; the 3×3×3 break and the charged blast are
-only ever the thrown anchor.
+speed. Mining is ordinary; an entity click swings a radius-3 sphere for the wielder's attack damage
+and spends the attack cooldown, and the 3×3×3 break and the charged blast are only ever the thrown
+anchor.
 
 **Wet danmaku.** For either Storm throw, the anchor checks each tick whether it is wet (water, rain,
 bubble column). The bounded hook is a real entity, so it reads its own fluid state; the unbound
@@ -256,21 +257,23 @@ after a teleport or a restart, where dropping the link is the desired outcome.
 ## 4. Left-click plumbing
 
 Left clicks never reach `use`, so the modes that need one are plumbed through events. Each mode is
-handled separately — Destroy and Voyage only throw on an empty click, and Storm throws on any left
-click:
+handled separately — Destroy and Voyage throw on an empty click and swing on an entity click, and
+Storm throws on any left click:
 
 | event | Destroy | Voyage | Storm |
 |---|---|---|---|
 | `PlayerInteractEvent.LeftClickEmpty` | throw `DESTROY` | throw `GRAB` | throw `STORM` |
 | `PlayerInteractEvent.LeftClickBlock` | vanilla mine | vanilla mine | cancel, throw `STORM` |
-| `AttackEntityEvent` | vanilla attack | vanilla attack | cancel, throw `STORM` |
+| `AttackEntityEvent` | cancel, radius-3 swing | cancel, radius-3 swing | cancel, throw `STORM` |
 
 Empty clicks never reach the server on their own, so `LeftClickEmpty` (client only) sends
 `AnchorSwingPacket`, whose handler repeats the mode/cooldown/power checks before throwing — a client
-is only a hint, as with `DollGloveSwingPacket`. Destroy and Voyage deliberately leave the block and
-entity clicks vanilla: losing mining or punching while the anchor is held would be a nuisance.
-Cancelling `LeftClickBlock` on the client as well stops the mining animation from starting in Storm
-mode.
+is only a hint, as with `DollGloveSwingPacket`. The entity swing cancels the vanilla attack on both
+sides but only damages on the server: everything alive within 3 blocks of the clicked target takes
+the wielder's `ATTACK_DAMAGE` scaled by the attack cooldown, the cooldown is spent, and the hit is
+gated by `IDanmakuEntity.canHurt` like the storm blast. Block clicks stay vanilla mining: losing
+mining while the anchor is held would be a nuisance. Cancelling `LeftClickBlock` on the client as
+well stops the mining animation from starting in Storm mode.
 
 `AnchorSwingPacket` is registered in `GLPackets` (one `.toServer(...)` line) and the handler version
 goes `3` → `4`.
@@ -550,6 +553,8 @@ from the spawn packet, so no extra synced field is needed.
 * **Left click, `DESTROY` (empty click)** — block hit: break 3×3×3 around the hit block, then
   return. Entity hit: hurt for `damage` with `damageSources().thrown(this, owner)` and a little
   knockback, then return.
+* **Left click on an entity, any mode except Storm** — the vanilla attack is cancelled and
+  `AnchorStorm.melee` hurts everything within 3 blocks of the clicked target instead; see §4.
 * **Right click, `DESTROY_CHARGED`** — hold 1–2 seconds and release: the same hook, but its impact
   excavates every harvestable block in a sphere of `radius` blocks and hurts every living entity in
   the same sphere for `damage × scale` (`AnchorStorm.areaDamage`, §5.3), then returns. `radius` is
@@ -635,7 +640,9 @@ player.fallDistance = 0;
   A throw that hits **nothing** keeps its old behaviour: it grapples from the reach limit and
   returns when the pull is over; only a block hit leaves the anchor behind.
 
-Entity hits on a `PULL` anchor are ignored (it keeps flying) — the mode is for terrain.
+Entity hits on a `PULL` anchor are ignored (it keeps flying) — the mode is for terrain. Clicking an
+entity directly with the anchor held is the radius-3 swing of §4, not a `GRAB`: the throw is for an
+empty click.
 
 ### 6.3 Storm
 
@@ -720,7 +727,8 @@ effects beyond what the tags grant.
 * Destroy and Storm hooks return; unbound bullets vanish; a `GRAB` hook drags its target home and
   then returns;
 * `GRAB` does not damage — it is a repositioning tool;
-* Destroy and Voyage keep vanilla mining and attacking; only an empty left click throws;
+* Destroy and Voyage keep vanilla mining, and an entity click is a radius-3 swing for the wielder's
+  attack damage instead of a vanilla attack; only an empty left click throws;
 * a `PULL` hook sticks even when it hits nothing, hanging at the reach limit until the pull ends;
 * only a `PULL` hook that hit a block stays in `HANG` after the pull; one that ran out of reach in
   open air returns as before;
@@ -735,7 +743,7 @@ effects beyond what the tags grant.
 * the storm volley needs a one-second charge, so a right click alone never spends 10 power;
 * Destroy throws on an empty left click, and its right click is a 1–2 second charge for a 3–4 block
   blast (`radius = charge seconds + 2`, damage `1.5×` to `2.5×` of the thrower's attack damage);
-  block and entity clicks stay vanilla mining and attacking;
+  block clicks stay vanilla mining and entity clicks are the radius-3 swing;
 * the 16-block reach is measured from the throw origin, not from the moving player, so walking
   forward cannot stretch a throw;
 * entity hits on a `PULL` hook are passed through (`canHitEntity`), since the mode is for terrain;
@@ -797,17 +805,18 @@ a record of why the split landed in that order:
 
 1. Destroy: an *empty* left click throws; at stone → 27 blocks break and drop; at obsidian → breaks
    (diamond level); at bedrock → nothing; the hook stops flush against the face, keeps the throw
-   orientation, returns to the hand on a chain and cannot be picked up as an item. Mining and punching
-   still work on a block or a mob click.
+   orientation, returns to the hand on a chain and cannot be picked up as an item. Mining still works
+   on a block click; a mob click deals the radius-3 swing, not a vanilla hit.
 2. Destroy vs. a mob: damage lands once, the hook returns, no second hit on the way home. A charged
-   right click released before one second throws nothing.
+   right click released before one second throws nothing. Clicking a mob hurts every mob in 3 blocks
+   once each, and the damage follows the attack cooldown rather than spam-clicking.
 3. Destroy charged: a 1-second hold → a 3-block sphere of blocks breaks and mobs inside take damage
    once each for 1.5× the thrown hit; a 2-second hold → 4 blocks and 2.5×; a 3-second hold → still
    4 blocks and 2.5×. A 1.5-second hold lands between the two. The blast triggers on an entity hit
    too, without hitting the target twice, and the hook returns.
 4. Voyage: an *empty* left click at a cow 10 blocks away drags it all the way to the player, one tick
-   at a time (it does not coast), and the chain follows it; left-clicking a block or a mob with the
-   anchor held mines / punches as usual and throws nothing.
+   at a time (it does not coast), and the chain follows it; left-clicking a block with the anchor held
+   mines as usual, and left-clicking a mob is the radius-3 swing and throws nothing.
 5. Voyage right click at a wall → the hook sticks in the face, the player is pulled to the wall and
    held there instead of falling; after the pull the anchor stays stuck (no timeout), and a right
    click within 3 blocks sends it home and frees the hand. Sneak out of the hold, walk more than 3
