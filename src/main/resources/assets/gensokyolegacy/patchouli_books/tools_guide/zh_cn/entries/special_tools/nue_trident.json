@@ -1,0 +1,16 @@
+{
+	"name": "鵺的三叉戟",
+	"icon": "gensokyolegacy:nue_trident",
+	"category": "gensokyolegacy:special_tools",
+	"sortnum": 13,
+	"pages": [
+		{
+			"type": "patchouli:text",
+			"text": "$(bold)正体不明之物$()$(br)被击中的生物会受到三叉戟的伤害，它手中的物品则被换成一个 UFO。生物死亡时必定掉落 UFO，被夺走的东西不会遗失。"
+		},
+		{
+			"type": "patchouli:text",
+			"text": "$(bold)打开 UFO$()$(br)拿着UFO按住右键两秒，就能取回其中保存的物品。"
+		}
+	]
+}

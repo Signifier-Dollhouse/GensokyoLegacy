@@ -201,6 +201,7 @@ which is the point of the weapon.
   `updateInterval(1 << 16)`, `renderer(NoFadeBulletRenderer::new)` — no fading or near-self hiding.
 * `GLLang`: `ItemLores.NUE_TRIDENT_LORE`, `ItemLores.UFO_LORE`, and an `ItemUfo` group for the
   `Contains <item>` line and the hold hint.
+* `patchouli_books/tools_guide`: `entries/special_tools/nue_trident.json`, en_us and zh_cn.
 * tags: `WEAPON_ENCHANTABLE`, `SHARP_WEAPON_ENCHANTABLE`; creative tab.
 * assets: the three prepared files from §3, plus `textures/item/tool/ufo.png` (new art); the staged
   originals stay in `temp/` like the other prepared art there, nothing in the mod references them.

@@ -23,8 +23,8 @@ block face, hang, and drag its owner with vanilla collision and server-authorita
 | mode | left click | right click |
 |---|---|---|
 | **Destroy** | normal attack / mine (vanilla) | throw; on a block break 3×3×3, on an entity deal damage; then fly home |
-| **Voyage** | *empty* left click only throws; the anchor pulls the hit entity toward the player. A block or entity click stays vanilla | throw; stick where it hits — or hang where the reach runs out — and pull the player in |
-| **Storm** | throw (5 spiritual power); on impact deal area damage | throw 5 unbound anchors (10 spiritual power), reach 48, no return |
+| **Voyage** | *empty* left click only throws; the anchor pulls the hit entity toward the player. A block or entity click stays vanilla | throw; if it hits a block it sticks there, pulls the player in and holds them at the anchor until retrieved; if it hits nothing it pulls from the reach limit and then returns |
+| **Storm** | throw (5 spiritual power); on impact deal area damage | hold right click for 1 second, then release: throw 5 unbound anchors (10 spiritual power), reach 48, no return |
 
 The anchor is also a pickaxe: diamond harvest level, and it swings for +9 attack damage at −3 attack
 speed. Mining in Destroy mode is ordinary mining; the 3×3×3 break is only the thrown anchor.
@@ -170,20 +170,31 @@ change.
 @Override
 public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
     ItemStack stack = player.getItemInHand(hand);
-    if (isLinked(stack)) return InteractionResultHolder.fail(stack);
+    if (isLinked(stack)) return retrieve(level, player, stack);
     if (GrazeHelper.forbidDanmaku(player)) return InteractionResultHolder.fail(stack);
+    if (getMode(stack) == AnchorMode.STORM) {
+        player.startUsingItem(hand);
+        return InteractionResultHolder.consume(stack);
+    }
     if (level.isClientSide) return InteractionResultHolder.sidedSuccess(stack, true);
     if (!(player instanceof ServerPlayer sp)) return InteractionResultHolder.fail(stack);
-    AnchorThrow type = switch (getMode(stack)) {
-        case DESTROY -> AnchorThrow.DESTROY;
-        case VOYAGE -> AnchorThrow.PULL;
-        case STORM -> AnchorThrow.STORM_UNBOUND;
-    };
+    AnchorThrow type = getMode(stack) == AnchorMode.DESTROY ? AnchorThrow.DESTROY : AnchorThrow.PULL;
     return throwAnchors(sp, hand, type)
             ? InteractionResultHolder.sidedSuccess(stack, false)
             : InteractionResultHolder.fail(stack);
 }
+
+@Override
+public void releaseUsing(ItemStack stack, Level level, LivingEntity entity, int timeLeft) {
+    if (!(entity instanceof Player player)) return;
+    if (getUseDuration(stack, entity) - timeLeft < 20) return; // 1 second
+    if (level.isClientSide || !(player instanceof ServerPlayer sp)) return;
+    if (getMode(stack) != AnchorMode.STORM) return;
+    throwAnchors(sp, player.getUsedItemHand(), AnchorThrow.STORM_UNBOUND);
+}
 ```
+
+The storm volley is a charge attack, not a click: `use` only raises the anchor (`UseAnim.SPEAR`, like the trident) and the release past 20 ticks fires it. A short click therefore never spends 10 power. The other two modes still throw on the click, and the link branch retrieves a hook that is out (§3.3).
 
 `throwAnchors(sp, hand, type)` is the single gate for both clicks:
 
@@ -276,13 +287,14 @@ Fields, with the two the client needs in `SynchedEntityData`:
 | field | type | side | meaning |
 |---|---|---|---|
 | `type` | `AnchorThrow` | synced byte | the renderer shows the wet model only for a storm throw |
-| `phase` | `Phase` | synced byte | `FLY`, `RETURN`, `GRAPPLE`, `DRAG`; the client steers by it too |
+| `phase` | `Phase` | synced byte | `FLY`, `RETURN`, `GRAPPLE`, `DRAG`, `HANG`; the client steers by it too |
 | `damage` | `float` | server, NBT | the thrower's attack damage at throw time |
 | `origin` | `Vec3` | server, NBT | eye position at throw; the reach is measured from here |
 | `flyDir` | `Vec3` | NBT, spawn data | normalized throw vector; drives FLY and the client's prediction |
 | `grapple` | `int` | server, NBT | ticks left on the pull or the drag |
 | `returnTicks` | `int` | server, NBT | return timer |
 | `trail` | `int` | server, NBT | trail budget already spent |
+| `anchored` | `boolean` | server, NBT | the pull hit a block, so it ends in `HANG` rather than `RETURN` |
 | `grabbed` | `UUID` | server, NBT | the entity a `GRAB` hook is dragging |
 
 | constant | value |
@@ -292,6 +304,8 @@ Fields, with the two the client needs in `SynchedEntityData`:
 | return speed | 1.5 b/t |
 | return timeout | 60 ticks |
 | grapple timeout | 40 ticks |
+| hang hold speed | 0.12 b/t per block of offset (a spring) |
+| hang hold range | 4 blocks |
 | drag speed | 1 b/t |
 | drag timeout | 40 ticks |
 | lifetime cap | 200 ticks |
@@ -368,16 +382,21 @@ the outcome; position updates every tick (§7) are what the client renders.
 |---|---|---|
 | `FLY` | storm trail while wet; reach check | hit, or `position().distanceTo(origin) > reach()` |
 | `RETURN` | homing to the owner's eye | within 1.5 blocks, 60 ticks, owner gone → discard |
-| `GRAPPLE` | pull the owner (§6.2) | arrival (<2 blocks), 40 ticks, sneak, owner gone → `RETURN` |
+| `GRAPPLE` | pull the owner (§6.2) | arrival (<2 blocks), 40 ticks, sneak, owner gone → `HANG` if it hit a block, else `RETURN` |
 | `DRAG` | pull the grabbed entity toward the owner (§6.2) | arrival (<2 blocks), 40 ticks, target gone → `RETURN` |
+| `HANG` | holds the owner at the anchor with a spring toward it | the linked stack's right click → `RETURN`; sneak or 4 blocks of distance releases the hold |
 
 `tickCount > 200` is the backstop: a hook that neither hits, expires nor returns is discarded rather
-than left to a chunk unload.
+than left to a chunk unload. `HANG` is exempt — a stuck anchor waits for the player, not for a timer
+— and still discards on the owner's death. The hold never touches the player's gravity flag: a hook
+lost to a chunk unload can only drop them.
 
 | hit | `DESTROY` | `GRAB` | `PULL` | `STORM` |
 |---|---|---|---|---|
-| block | break, `RETURN` | `RETURN` | `GRAPPLE` | burst, `RETURN` |
+| block | break, `RETURN` | `RETURN` | `GRAPPLE`, then `HANG` | burst, `RETURN` |
 | entity | hurt, `RETURN` | `DRAG`, then `RETURN` | flies through | burst, `RETURN` |
+
+A `PULL` throw that hits nothing is unchanged: it grapples from the reach limit and then returns.
 
 **Owner hygiene.** Every phase discards when the owner is gone, removed or dying, so the hook can
 never outlive its thrower. It cannot be `SpellContainer.track`ed (that takes a
@@ -549,8 +568,8 @@ private void tickDrag() {
 
 * **Right click, `PULL`** — the anchor enters `GRAPPLE` the moment its flight ends: on the first
   block it hits, snapped flush to that face (§5.1), or, if it hits nothing at all, where the 16-block
-  reach from the throw origin runs out — it hangs there in the air rather than expiring. Either way
-  it drags the owner for up to 40 ticks or until they are within 2 blocks:
+  reach from the throw origin runs out. Either way it drags the owner for up to 40 ticks or until
+  they are within 2 blocks:
 
 ```java
 Vec3 dir = anchor.position().subtract(player.position()).normalize();
@@ -559,8 +578,18 @@ player.hurtMarked = true;
 player.fallDistance = 0;
 ```
 
-  Sneaking cancels the pull, so a player is never dragged into something they cannot escape. When
-  the pull ends, for whatever reason, the anchor `RETURN`s and is absorbed by the owner.
+  Sneaking cancels the pull, so a player is never dragged into something they cannot escape. Only a
+  **block hit** is retained: when that pull ends the anchor stays where it stopped (`HANG`) with the
+  link still on the stack, and `tickHang` keeps the player at it with a spring,
+  `player.setDeltaMovement(diff.scale(0.12))` toward the anchor, which counters the drop without
+  touching the player's gravity flag. The hold stops while they sneak, stand on the ground, fly, or
+  move more than 4 blocks away. A right click retrieves the anchor (`RETURN`), and the hook has no
+  lifetime cap while hanging, so it cannot vanish from under the player; the right click is the only
+  way to end it besides the owner's death. The same right click that retrieves would otherwise have
+  started a throw, but the link makes `use` retrieve first (§3.2).
+
+  A throw that hits **nothing** keeps its old behaviour: it grapples from the reach limit and
+  returns when the pull is over; only a block hit leaves the anchor behind.
 
 Entity hits on a `PULL` anchor are ignored (it keeps flying) — the mode is for terrain.
 
@@ -568,9 +597,11 @@ Entity hits on a `PULL` anchor are ignored (it keeps flying) — the mode is for
 
 * **Left click, `STORM` (5 power)** — throw one hook (`AnchorHookEntity`). On block or entity hit,
   deal area damage around the impact and then return.
-* **Right click, `STORM_UNBOUND` (10 power)** — throw five bullets (`AnchorBulletEntity`) in a narrow
-  fan (±25° yaw around the aim), each with reach 48 and no return. They deal the same area damage and
-  vanish on impact.
+* **Right click, `STORM_UNBOUND` (10 power)** — hold for one second (20 ticks) and release to throw
+  five bullets (`AnchorBulletEntity`) in a narrow fan (±25° yaw around the aim), each with reach 48
+  and no return. The release repeats `throwAnchors`, so power and cooldown are checked there; a
+  click shorter than the charge raises the anchor and does nothing else. They deal the same area
+  damage and vanish on impact.
 
 Area damage: every `LivingEntity` within 4 blocks of the impact that `IDanmakuEntity.canHurt(owner,
 target)` allows takes 6 damage from `damageSources().thrown(this, owner)`. The entity that was hit
@@ -616,7 +647,9 @@ damage.
   `content/entity/misc/anchor/`, `AnchorHookRenderer` in `content/entity/misc/render/`; delete
   `AnchorProjectile`.
 * `GLLang`: `ItemLores.MINAMITSU_ANCHOR_LORE`, an `ItemAnchor` group (`MODE_DESTROY/VOYAGE/STORM`,
-  `NEED_POWER`, `SELECTED`, cost descriptions), plus the wheel hint line the fan has.
+  `NEED_POWER`, the cost/charge/retrieve lines), plus the wheel hint line the fan has. No "selected
+  mode" tooltip line: the wheel names each mode, and the Patchouli entry explains them.
+* `patchouli_books/tools_guide`: `entries/special_tools/minamitsu_anchor.json`, en_us and zh_cn.
 * `GLPackets`: `AnchorSwingPacket`, handler version bump.
 * `GensokyoLegacy.commonSetup`: `AnchorSelectionListener.register()`.
 * `GLClient`: `ItemProperties.register(MINAMITSU_ANCHOR, "anchor_display", AnchorItem::displayPredicate)`
@@ -645,6 +678,12 @@ effects beyond what the tags grant.
 * `GRAB` does not damage — it is a repositioning tool;
 * Voyage keeps vanilla mining and attacking; only an empty left click throws;
 * a `PULL` hook sticks even when it hits nothing, hanging at the reach limit until the pull ends;
+* only a `PULL` hook that hit a block stays in `HANG` after the pull; one that ran out of reach in
+  open air returns as before;
+* a retained hook holds the player at it with a spring, never by disabling the player's gravity;
+* a retained hook has no timeout and is ended only by the linked stack's right click (or the
+  owner's death);
+* the storm volley needs a one-second charge, so a right click alone never spends 10 power;
 * the 16-block reach is measured from the throw origin, not from the moving player, so walking
   forward cannot stretch a throw;
 * entity hits on a `PULL` hook are passed through (`canHitEntity`), since the mode is for terrain;
@@ -711,18 +750,21 @@ a record of why the split landed in that order:
 3. Voyage: an *empty* left click at a cow 10 blocks away drags it all the way to the player, one tick
    at a time (it does not coast), and the chain follows it; left-clicking a block or a mob with the
    anchor held mines / punches as usual and throws nothing.
-4. Voyage right click at a wall → the hook sticks in the face and the player is pulled to the wall;
-   right click at open sky → the hook hangs 16 blocks from the *launch point* and pulls the player
-   anyway. The pull ends on arrival, on sneak, or after 40 ticks, and the hook then returns.
+4. Voyage right click at a wall → the hook sticks in the face, the player is pulled to the wall and
+   held there instead of falling; after the pull the anchor stays stuck (no timeout), and a right
+   click sends it home and frees the hand. Right click at open sky → the hook hangs 16 blocks from
+   the *launch point*, pulls the player, and then returns as it always did. The pull ends on
+   arrival, on sneak, or after 40 ticks.
 5. Voyage through a wall: the return path ignores terrain, and the grappled player stops at the
    wall instead of inside it; switching hotbar slots mid-pull does not cancel the pull. The chain
    runs from the player's chest to the anchor in every phase, and the anchor does not turn around
    while returning.
 6. Storm left: throws exactly one hook (not five), costs 5 from a 100 pool, area damage hits every
    mob in 4 blocks once, and the hook returns.
-7. Storm right: five bullets, each reaching 48 blocks, 10 power for the volley; a dry throw emits
-   no danmaku and stays iron; the same throw in rain emits a trail, a 100-bullet burst, and shows
-   the water model while wet.
+7. Storm right: a short click throws nothing and costs nothing; holding for one second and releasing
+   throws five bullets, each reaching 48 blocks, 10 power for the volley; a dry throw emits no
+   danmaku and stays iron; the same throw in rain emits a trail, a 100-bullet burst, and shows the
+   water model while wet.
 8. Bound vs. unbound: the hook keeps full opacity at 40 blocks and cannot be grazed; the bullets
    still graze, fade and vanish like danmaku. The bullets are erased on impact; the hook returns
    first and is discarded at the hand.

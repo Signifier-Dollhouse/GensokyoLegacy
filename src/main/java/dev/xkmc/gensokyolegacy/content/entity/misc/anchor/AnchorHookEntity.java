@@ -43,7 +43,7 @@ import java.util.UUID;
 public class AnchorHookEntity extends ThrowableProjectile implements ItemSupplier, IEntityWithComplexSpawn {
 
 	public enum Phase {
-		FLY, RETURN, GRAPPLE, DRAG
+		FLY, RETURN, GRAPPLE, DRAG, HANG
 	}
 
 	private static final EntityDataAccessor<Byte> DATA_TYPE = SynchedEntityData.defineId(
@@ -59,6 +59,8 @@ public class AnchorHookEntity extends ThrowableProjectile implements ItemSupplie
 	private static final int DRAG_TIME = 40;
 	private static final double GRAPPLE_DIST = 2;
 	private static final double GRAPPLE_SPEED = 1;
+	private static final double HANG_DIST = 4;
+	private static final double HANG_HOLD = 0.12;
 	private static final double DRAG_DIST = 2;
 	private static final double DRAG_SPEED = 1;
 	private static final int LIFE = 200;
@@ -70,6 +72,7 @@ public class AnchorHookEntity extends ThrowableProjectile implements ItemSupplie
 	private int grapple = 0;
 	private int returnTicks = 0;
 	private int trail = 0;
+	private boolean anchored = false;
 	private UUID grabbedId;
 	private LivingEntity grabbed;
 
@@ -143,7 +146,7 @@ public class AnchorHookEntity extends ThrowableProjectile implements ItemSupplie
 				Vec3 diff = owner == null ? Vec3.ZERO : owner.getEyePosition().subtract(position());
 				setDeltaMovement(diff.lengthSqr() < 1e-6 ? Vec3.ZERO : diff.normalize().scale(RETURN_SPEED));
 			}
-			case GRAPPLE, DRAG -> setDeltaMovement(Vec3.ZERO);
+			case GRAPPLE, DRAG, HANG -> setDeltaMovement(Vec3.ZERO);
 		}
 	}
 
@@ -171,7 +174,10 @@ public class AnchorHookEntity extends ThrowableProjectile implements ItemSupplie
 				breakArea(hit.getBlockPos());
 				toReturn();
 			}
-			case PULL -> enterGrapple();
+			case PULL -> {
+				anchored = true;
+				enterGrapple();
+			}
 			case STORM -> {
 				AnchorStorm.impact(this, getOwner(), isWet());
 				toReturn();
@@ -208,7 +214,11 @@ public class AnchorHookEntity extends ThrowableProjectile implements ItemSupplie
 	}
 
 	private void tickPhase() {
-		if (tickCount > LIFE || ownerGone()) {
+		if (ownerGone()) {
+			discard();
+			return;
+		}
+		if (tickCount > LIFE && phase() != Phase.HANG) {
 			discard();
 			return;
 		}
@@ -220,6 +230,7 @@ public class AnchorHookEntity extends ThrowableProjectile implements ItemSupplie
 			case RETURN -> tickReturn();
 			case GRAPPLE -> tickGrapple();
 			case DRAG -> tickDrag();
+			case HANG -> tickHang();
 		}
 	}
 
@@ -237,6 +248,22 @@ public class AnchorHookEntity extends ThrowableProjectile implements ItemSupplie
 		returnTicks = 0;
 		grabbedId = null;
 		grabbed = null;
+	}
+
+	/**
+	 * A pull that is over leaves the hook where it stopped instead of reeling it in: the player
+	 * retrieves it with a right click, and it lives until then rather than hitting the lifetime cap.
+	 */
+	private void toHang() {
+		setPhase(Phase.HANG);
+		setDeltaMovement(Vec3.ZERO);
+	}
+
+	/**
+	 * The linked stack's right click: send the hook home, whatever it is doing.
+	 */
+	public void retrieve() {
+		if (phase() != Phase.RETURN) toReturn();
 	}
 
 	private void enterGrapple() {
@@ -265,15 +292,38 @@ public class AnchorHookEntity extends ThrowableProjectile implements ItemSupplie
 	private void tickGrapple() {
 		grapple--;
 		if (!(getOwner() instanceof Player player) || grapple <= 0 || player.isShiftKeyDown()) {
-			toReturn();
+			endPull();
 			return;
 		}
 		Vec3 diff = position().subtract(player.position());
 		if (diff.lengthSqr() < GRAPPLE_DIST * GRAPPLE_DIST) {
-			toReturn();
+			endPull();
 			return;
 		}
 		player.setDeltaMovement(diff.normalize().scale(GRAPPLE_SPEED));
+		player.hurtMarked = true;
+		player.fallDistance = 0;
+	}
+
+	/**
+	 * Only a block hit leaves the anchor behind; a throw that ran out of reach in open air returns
+	 * as it always did.
+	 */
+	private void endPull() {
+		if (anchored) toHang();
+		else toReturn();
+	}
+
+	/**
+	 * Holds the owner at the stuck anchor: a spring toward it counters the drop without ever taking
+	 * gravity away, so a lost hook can only drop the player, never strand them.
+	 */
+	private void tickHang() {
+		if (!(getOwner() instanceof Player player) || player.isShiftKeyDown()) return;
+		if (player.onGround() || player.getAbilities().flying || player.isPassenger()) return;
+		Vec3 diff = position().subtract(player.position());
+		if (diff.lengthSqr() > HANG_DIST * HANG_DIST) return;
+		player.setDeltaMovement(diff.scale(HANG_HOLD));
 		player.hurtMarked = true;
 		player.fallDistance = 0;
 	}
@@ -357,6 +407,7 @@ public class AnchorHookEntity extends ThrowableProjectile implements ItemSupplie
 		tag.putInt("AnchorGrapple", grapple);
 		tag.putInt("AnchorReturn", returnTicks);
 		tag.putInt("AnchorTrail", trail);
+		tag.putBoolean("AnchorAnchored", anchored);
 		tag.putDouble("AnchorOriginX", origin.x);
 		tag.putDouble("AnchorOriginY", origin.y);
 		tag.putDouble("AnchorOriginZ", origin.z);
@@ -375,6 +426,7 @@ public class AnchorHookEntity extends ThrowableProjectile implements ItemSupplie
 		grapple = tag.getInt("AnchorGrapple");
 		returnTicks = tag.getInt("AnchorReturn");
 		trail = tag.getInt("AnchorTrail");
+		anchored = tag.getBoolean("AnchorAnchored");
 		origin = new Vec3(tag.getDouble("AnchorOriginX"), tag.getDouble("AnchorOriginY"),
 				tag.getDouble("AnchorOriginZ"));
 		flyDir = new Vec3(tag.getDouble("AnchorFlyX"), tag.getDouble("AnchorFlyY"),

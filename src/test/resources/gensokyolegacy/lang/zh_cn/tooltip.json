@@ -231,8 +231,9 @@
 			"mode_destroy": "破坏",
 			"mode_voyage": "航行",
 			"mode_storm": "风暴",
-			"selected": "当前选择：%s",
 			"cost": "风暴投掷消耗 5 / 10 点灵力",
+			"charge": "风暴模式右键需蓄力 1 秒后释放",
+			"retrieve": "再次右键可收回投出的锚",
 			"need_power": "锚至少需要 %s 点灵力"
 		},
 		"ufo": {

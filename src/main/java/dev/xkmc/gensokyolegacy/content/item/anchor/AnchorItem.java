@@ -29,6 +29,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
@@ -46,6 +47,7 @@ public class AnchorItem extends SpiritualDanmakuItem {
 
 	public static final int MAX_POWER = 1000;
 	private static final int COOLDOWN = 10;
+	private static final int CHARGE_TIME = 20;
 	private static final double FLY_SPEED = 1.5;
 	private static final int LIFE = 200;
 	private static final double FAN_STEP = 12.5;
@@ -94,18 +96,54 @@ public class AnchorItem extends SpiritualDanmakuItem {
 	@Override
 	public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
 		ItemStack stack = player.getItemInHand(hand);
-		if (isLinked(stack)) return InteractionResultHolder.fail(stack);
+		if (isLinked(stack)) return retrieve(level, player, stack);
 		if (GrazeHelper.forbidDanmaku(player)) return InteractionResultHolder.fail(stack);
+		if (getMode(stack) == AnchorMode.STORM) {
+			player.startUsingItem(hand);
+			return InteractionResultHolder.consume(stack);
+		}
 		if (level.isClientSide()) return InteractionResultHolder.sidedSuccess(stack, true);
 		if (!(player instanceof ServerPlayer sp)) return InteractionResultHolder.fail(stack);
-		AnchorThrow type = switch (getMode(stack)) {
-			case DESTROY -> AnchorThrow.DESTROY;
-			case VOYAGE -> AnchorThrow.PULL;
-			case STORM -> AnchorThrow.STORM_UNBOUND;
-		};
+		AnchorThrow type = getMode(stack) == AnchorMode.DESTROY ? AnchorThrow.DESTROY : AnchorThrow.PULL;
 		return throwAnchors(sp, hand, type)
 				? InteractionResultHolder.sidedSuccess(stack, false)
 				: InteractionResultHolder.fail(stack);
+	}
+
+	/**
+	 * A stuck hook is freed by the right click that also frees the hand: the stack is hidden while
+	 * the link is set, so a retrieve never competes with a throw.
+	 */
+	private static InteractionResultHolder<ItemStack> retrieve(Level level, Player player, ItemStack stack) {
+		if (level.isClientSide()) return InteractionResultHolder.sidedSuccess(stack, true);
+		if (!(player instanceof ServerPlayer sp)) return InteractionResultHolder.fail(stack);
+		UUID id = getLink(stack);
+		if (id != null && sp.serverLevel().getEntity(id) instanceof AnchorHookEntity hook) hook.retrieve();
+		return InteractionResultHolder.sidedSuccess(stack, false);
+	}
+
+	@Override
+	public int getUseDuration(ItemStack stack, LivingEntity entity) {
+		return 72000;
+	}
+
+	@Override
+	public UseAnim getUseAnimation(ItemStack stack) {
+		return UseAnim.SPEAR;
+	}
+
+	/**
+	 * The storm volley is charged: a release before one second does nothing, so a right click alone
+	 * cannot dump five anchors.
+	 */
+	@Override
+	public void releaseUsing(ItemStack stack, Level level, LivingEntity entity, int timeLeft) {
+		if (!(entity instanceof Player player)) return;
+		if (getUseDuration(stack, entity) - timeLeft < CHARGE_TIME) return;
+		if (level.isClientSide()) return;
+		if (!(player instanceof ServerPlayer sp)) return;
+		if (getMode(stack) != AnchorMode.STORM) return;
+		throwAnchors(sp, player.getUsedItemHand(), AnchorThrow.STORM_UNBOUND);
 	}
 
 	/**
@@ -172,8 +210,9 @@ public class AnchorItem extends SpiritualDanmakuItem {
 	public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> list, TooltipFlag flag) {
 		list.add(GLLang.ItemLores.MINAMITSU_ANCHOR_LORE.get());
 		super.appendHoverText(stack, context, list, flag);
-		list.add(GLLang.ItemAnchor.SELECTED.get(getMode(stack).getDisplayName()));
 		list.add(GLLang.ItemAnchor.COST.get());
+		list.add(GLLang.ItemAnchor.CHARGE.get());
+		list.add(GLLang.ItemAnchor.RETRIEVE.get());
 		list.add(GLLang.ItemGlove.WHEEL.get(L2Keys.WHEEL.map.getKey().getDisplayName())
 				.withStyle(ChatFormatting.GRAY));
 	}

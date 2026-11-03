@@ -1,0 +1,26 @@
+{
+  "name": "Minamitsu's Anchor",
+  "icon": "gensokyolegacy:minamitsu_anchor",
+  "category": "gensokyolegacy:special_tools",
+  "sortnum": 12,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "gensokyolegacy:minamitsu_anchor",
+      "title": "An Anchor That Always Comes Back",
+      "text": "Minamitsu's anchor is a diamond pickaxe that can also be thrown. Hold the selection key to open its mode wheel (X by default): the mode decides what a throw does, and the hotbar icon shows it. Only the two storm throws cost spiritual power."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Destroy$()$(br)Left click mines and attacks as usual. Right click throws the anchor: a block breaks in a 3×3×3 cube around the impact, a creature takes the hit, and the anchor flies back to your hand.$(br2)$(bold)Voyage$()$(br)An empty left click grabs a creature and drags it to you. Right click throws the anchor into a wall: if it hits a block it stays stuck there, pulls you over and holds you; right click to retrieve it, or sneak to let go. A throw that hits nothing pulls you from its furthest point and then returns."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Storm$()$(br)Left click throws one anchor that deals area damage on impact. Right click is a charge: hold it for one second, then release to throw five anchors in a fan, each reaching 48 blocks. The two throws cost 5 and 10 spiritual power.$(br2)$(bold)Wet storms$()$(br)While a storm anchor is wet — in water, in rain or in a bubble column — it sheds danmaku along its flight and bursts into a spray of danmaku when it lands."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)One anchor at a time$()$(br)While the anchor is out, the hand looks empty and refuses another throw. A stuck Voyage anchor waits for you: right click to call it home.$(br2)$(bold)The power pool$()$(br)A Jizo will trade one experience level for spiritual power stored in the anchor. Without it the storm throws refuse to fire."
+    }
+  ]
+}
