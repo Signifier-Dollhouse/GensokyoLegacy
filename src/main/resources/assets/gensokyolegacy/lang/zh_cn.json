@@ -972,7 +972,7 @@
   "gensokyolegacy.anchor.mode_storm": "风暴",
   "gensokyolegacy.anchor.cost": "风暴投掷消耗 5 / 10 点灵力",
   "gensokyolegacy.anchor.charge": "风暴模式右键需蓄力 1 秒后释放",
-  "gensokyolegacy.anchor.retrieve": "再次右键可收回投出的锚",
+  "gensokyolegacy.anchor.retrieve": "再次右键可收回锚，距离较远时则会把你拉过去",
   "gensokyolegacy.anchor.need_power": "锚至少需要 %s 点灵力",
   "gensokyolegacy.ufo.contains": "内含：%s",
   "gensokyolegacy.ufo.hold": "长按右键两秒以取回",

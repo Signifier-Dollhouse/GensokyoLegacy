@@ -415,7 +415,7 @@
   "gensokyolegacy.anchor.mode_storm": "Storm",
   "gensokyolegacy.anchor.mode_voyage": "Voyage",
   "gensokyolegacy.anchor.need_power": "The anchor needs at least %s spiritual power",
-  "gensokyolegacy.anchor.retrieve": "Right click again to retrieve the thrown anchor",
+  "gensokyolegacy.anchor.retrieve": "Right click again to retrieve the anchor, or to be pulled to it",
   "gensokyolegacy.bone_flute.bind": "Right-click a stray ghost with at least 200 power to bind it",
   "gensokyolegacy.bone_flute.release": "Right-click your own ghost to set it free",
   "gensokyolegacy.command.invalid_role": "Error: invalid role id",

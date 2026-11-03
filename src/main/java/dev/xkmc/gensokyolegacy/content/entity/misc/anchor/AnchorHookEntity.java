@@ -264,6 +264,16 @@ public class AnchorHookEntity extends ThrowableProjectile implements ItemSupplie
 	/**
 	 * The hook never follows its owner through a portal; {@link #ownerLost()} discards it instead.
 	 */
+	@Override
+	public boolean canUsePortal(boolean allowPassengers) {
+		return false;
+	}
+
+	@Override
+	public boolean canChangeDimensions(Level oldLevel, Level newLevel) {
+		return false;
+	}
+
 	@Nullable
 	@Override
 	public Entity changeDimension(DimensionTransition transition) {

@@ -20,7 +20,7 @@
     },
     {
       "type": "patchouli:text",
-      "text": "$(bold)One anchor at a time$()$(br)While the anchor is out, the hand looks empty and refuses another throw. A stuck Voyage anchor waits for you: right click to call it home.$(br2)$(bold)The power pool$()$(br)A Jizo will trade one experience level for spiritual power stored in the anchor. Without it the storm throws refuse to fire."
+      "text": "$(bold)One anchor at a time$()$(br)While the anchor is out, the hand looks empty and refuses another throw. A stuck Voyage anchor waits for you: right click within 3 blocks to call it home, or from farther away to be pulled in again.$(br2)$(bold)The power pool$()$(br)A Jizo will trade one experience level for spiritual power stored in the anchor. Without it the storm throws refuse to fire."
     }
   ]
 }

@@ -404,10 +404,11 @@ A `PULL` throw that hits nothing is unchanged: it grapples from the reach limit 
 never outlive its thrower. `ownerLost` adds the leash rules: more than 24 blocks away, a different
 dimension, or a held `AnchorItem` whose link is missing or points elsewhere. The last one means a
 second anchor in the hand frees the first hook, while a non-anchor slot does not; a linkless anchor
-stack left in the inventory is fine. `changeDimension` returns null, so the hook itself never follows
-a portal — the owner's departure is what discards it. It cannot be `SpellContainer.track`ed (that
-takes a `SimplifiedProjectile`), and this check replaces the tracking the danmaku path had. No item
-is dropped or picked up, and on a caught return nothing is given back: the item never left the hand.
+stack left in the inventory is fine. `canUsePortal` is false and `changeDimension` returns null, so
+the hook itself never follows a portal — the owner's departure is what discards it. It cannot be
+`SpellContainer.track`ed (that takes a `SimplifiedProjectile`), and this check replaces the tracking
+the danmaku path had. No item is dropped or picked up, and on a caught return nothing is given back:
+the item never left the hand.
 
 ### 5.2 `AnchorBulletEntity`
 
@@ -764,25 +765,31 @@ a record of why the split landed in that order:
    anchor held mines / punches as usual and throws nothing.
 4. Voyage right click at a wall → the hook sticks in the face, the player is pulled to the wall and
    held there instead of falling; after the pull the anchor stays stuck (no timeout), and a right
-   click sends it home and frees the hand. Right click at open sky → the hook hangs 16 blocks from
-   the *launch point*, pulls the player, and then returns as it always did. The pull ends on
-   arrival, on sneak, or after 40 ticks.
-5. Voyage through a wall: the return path ignores terrain, and the grappled player stops at the
+   click within 3 blocks sends it home and frees the hand. Sneak out of the hold, walk more than 3
+   blocks away, then right click → the player is pulled in again (in any mode); within 3 blocks the
+   same click retrieves. Right click at open sky → the hook hangs 16 blocks from the *launch point*,
+   pulls the player, and then returns as it always did. The pull ends on arrival, on sneak, or after
+   40 ticks.
+5. Leash: leave a retained anchor and walk more than 24 blocks away → it discards and the hand comes
+   back. Switch to a second anchor stack in the hotbar → the first hook discards; switch to a sword
+   → it does not. Step into a portal and leave → the hook does not follow, it discards, and no hook
+   is ever found in another dimension.
+6. Voyage through a wall: the return path ignores terrain, and the grappled player stops at the
    wall instead of inside it; switching hotbar slots mid-pull does not cancel the pull. The chain
    runs from the player's chest to the anchor in every phase, and the anchor does not turn around
    while returning.
-6. Storm left: throws exactly one hook (not five), costs 5 from a 100 pool, area damage hits every
+7. Storm left: throws exactly one hook (not five), costs 5 from a 100 pool, area damage hits every
    mob in 4 blocks once, and the hook returns.
-7. Storm right: a short click throws nothing and costs nothing; holding for one second and releasing
+8. Storm right: a short click throws nothing and costs nothing; holding for one second and releasing
    throws five bullets, each reaching 48 blocks, 10 power for the volley; a dry throw emits no
    danmaku and stays iron; the same throw in rain emits a trail, a 100-bullet burst, and shows the
    water model while wet.
-8. Bound vs. unbound: the hook keeps full opacity at 40 blocks and cannot be grazed; the bullets
+9. Bound vs. unbound: the hook keeps full opacity at 40 blocks and cannot be grazed; the bullets
    still graze, fade and vanish like danmaku. The bullets are erased on impact; the hook returns
    first and is discarded at the hand.
-9. Wheel: switching modes persists on the stack, and the held model/wheel icon follow.
-10. Power: a 4-power anchor refuses a storm with the message and no cooldown; a Jizo refills it.
-11. One anchor at a time: after a throw the item is gone from the hand (first and third person) and a
+10. Wheel: switching modes persists on the stack, and the held model/wheel icon follow.
+11. Power: a 4-power anchor refuses a storm with the message and no cooldown; a Jizo refills it.
+12. One anchor at a time: after a throw the item is gone from the hand (first and third person) and a
     second click does nothing; the item reappears the tick the hook returns or is discarded, also
     when it was moved to another hotbar slot or into a chest before the hook landed. A storm volley
     does not hide the item — no hook was thrown.
