@@ -22,12 +22,13 @@ block face, hang, and drag its owner with vanilla collision and server-authorita
 
 | mode | left click | right click |
 |---|---|---|
-| **Destroy** | normal attack / mine (vanilla) | throw; on a block break 3×3×3, on an entity deal damage; then fly home |
+| **Destroy** | *empty* left click throws; on a block break 3×3×3, on an entity deal damage; then fly home. Block and entity clicks stay vanilla | hold 1–2 seconds, then release: throw an anchor that breaks blocks and damages entities in a sphere of `charge seconds + 2` blocks (3–4) around the impact; then fly home |
 | **Voyage** | *empty* left click only throws; the anchor pulls the hit entity toward the player. A block or entity click stays vanilla | throw; if it hits a block it sticks there, pulls the player in and holds them at the anchor until retrieved; if it hits nothing it pulls from the reach limit and then returns |
 | **Storm** | throw (5 spiritual power); on impact deal area damage | hold right click for 1 second, then release: throw 5 unbound anchors (10 spiritual power), reach 48, no return |
 
 The anchor is also a pickaxe: diamond harvest level, and it swings for +9 attack damage at −3 attack
-speed. Mining in Destroy mode is ordinary mining; the 3×3×3 break is only the thrown anchor.
+speed. Mining and attacking in Destroy mode are ordinary; the 3×3×3 break and the charged blast are
+only ever the thrown anchor.
 
 **Wet danmaku.** For either Storm throw, the anchor checks each tick whether it is wet (water, rain,
 bubble column). The bounded hook is a real entity, so it reads its own fluid state; the unbound
@@ -43,7 +44,7 @@ model (§5.4); when it lands it bursts 100 gravitational ones.
 | `SpiritualDanmakuItem` | `content/item/spiritual/SpiritualDanmakuItem.java` | `DanmakuItem` with the spiritual bar (§2.1) |
 | `AnchorMode` | `content/item/anchor/AnchorMode.java` | `DESTROY / VOYAGE / STORM`, display name, wheel entry |
 | `AnchorModel` | `content/item/anchor/AnchorModel.java` | the base model plus one GUI icon model per mode (§3) |
-| `AnchorThrow` | `content/item/anchor/AnchorThrow.java` | what a single throw does: `DESTROY / GRAB / PULL / STORM / STORM_UNBOUND` |
+| `AnchorThrow` | `content/item/anchor/AnchorThrow.java` | what a single throw does: `DESTROY / DESTROY_CHARGED / GRAB / PULL / STORM / STORM_UNBOUND` |
 | `AnchorHookEntity` | `content/entity/misc/anchor/AnchorHookEntity.java` | the bounded anchor: one synced throw type, one synced phase machine |
 | `AnchorBulletEntity` | `content/entity/misc/anchor/AnchorBulletEntity.java` | the unbound storm anchor, a danmaku bullet |
 | `AnchorStorm` | `content/entity/misc/anchor/AnchorStorm.java` | wetness, trail, burst and area damage, shared by both |
@@ -172,14 +173,13 @@ public InteractionResultHolder<ItemStack> use(Level level, Player player, Intera
     ItemStack stack = player.getItemInHand(hand);
     if (isLinked(stack)) return retrieve(level, player, stack);
     if (GrazeHelper.forbidDanmaku(player)) return InteractionResultHolder.fail(stack);
-    if (getMode(stack) == AnchorMode.STORM) {
+    if (getMode(stack) != AnchorMode.VOYAGE) {     // Destroy and Storm charge
         player.startUsingItem(hand);
         return InteractionResultHolder.consume(stack);
     }
     if (level.isClientSide) return InteractionResultHolder.sidedSuccess(stack, true);
     if (!(player instanceof ServerPlayer sp)) return InteractionResultHolder.fail(stack);
-    AnchorThrow type = getMode(stack) == AnchorMode.DESTROY ? AnchorThrow.DESTROY : AnchorThrow.PULL;
-    return throwAnchors(sp, hand, type)
+    return throwAnchors(sp, hand, AnchorThrow.PULL)
             ? InteractionResultHolder.sidedSuccess(stack, false)
             : InteractionResultHolder.fail(stack);
 }
@@ -187,14 +187,30 @@ public InteractionResultHolder<ItemStack> use(Level level, Player player, Intera
 @Override
 public void releaseUsing(ItemStack stack, Level level, LivingEntity entity, int timeLeft) {
     if (!(entity instanceof Player player)) return;
-    if (getUseDuration(stack, entity) - timeLeft < 20) return; // 1 second
     if (level.isClientSide || !(player instanceof ServerPlayer sp)) return;
-    if (getMode(stack) != AnchorMode.STORM) return;
-    throwAnchors(sp, player.getUsedItemHand(), AnchorThrow.STORM_UNBOUND);
+    int used = getUseDuration(stack, entity) - timeLeft;
+    switch (getMode(stack)) {
+        case STORM -> {
+            if (used < 20) return;                            // 1 second
+            throwAnchors(sp, player.getUsedItemHand(), AnchorThrow.STORM_UNBOUND);
+        }
+        case DESTROY -> {
+            if (used < 20) return;                            // 1 second
+            int held = Math.min(used, 40) / 20;               // 2 at the 2-second cap
+            int radius = Mth.clamp(2 + held, 3, 4);
+            throwAnchors(sp, player.getUsedItemHand(), AnchorThrow.DESTROY_CHARGED, radius);
+        }
+        case VOYAGE -> { }
+    }
 }
 ```
 
-The storm volley is a charge attack, not a click: `use` only raises the anchor (`UseAnim.SPEAR`, like the trident) and the release past 20 ticks fires it. A short click therefore never spends 10 power. The other two modes still throw on the click, and the link branch handles a hook that is out: retrieve within 3 blocks, pull again from farther, regardless of the selected mode (§3.3, §6.2).
+Destroy and Storm are charge attacks, not clicks: `use` only raises the anchor (`UseAnim.SPEAR`,
+like the trident) and the release fires it. Destroy needs one second and scales its blast from 3
+blocks at 1 second to 4 at 2 seconds (`n = charge seconds + 2`, clamped to 3–4); Storm wants one
+second before the five-bullet volley. A short click therefore throws nothing and spends nothing.
+Voyage still throws on the right click, and the link branch handles a hook that is out: retrieve
+within 3 blocks, pull again from farther, regardless of the selected mode (§3.3, §6.2).
 
 `throwAnchors(sp, hand, type)` is the single gate for both clicks:
 
@@ -207,6 +223,10 @@ The storm volley is a charge attack, not a click: `use` only raises the anchor (
    sound; `SpellContainer.track` only the bullets, since a hook is not a `SimplifiedProjectile` and
    discards itself when its owner is gone;
 5. return `sidedSuccess`.
+
+The four-argument overload also carries the charge radius of a `DESTROY_CHARGED` throw; it is written
+onto the hook before the first move and saved to NBT, so a chunk reload in mid-flight keeps the
+blast size.
 
 ### 3.3 One bounded anchor at a time
 
@@ -231,21 +251,21 @@ after a teleport or a restart, where dropping the link is the desired outcome.
 ## 4. Left-click plumbing
 
 Left clicks never reach `use`, so the modes that need one are plumbed through events. Each mode is
-handled separately — Destroy is entirely vanilla, Voyage only throws on an empty hand, and Storm
-throws on any left click:
+handled separately — Destroy and Voyage only throw on an empty click, and Storm throws on any left
+click:
 
 | event | Destroy | Voyage | Storm |
 |---|---|---|---|
-| `PlayerInteractEvent.LeftClickEmpty` | nothing | throw `GRAB` | throw `STORM` |
+| `PlayerInteractEvent.LeftClickEmpty` | throw `DESTROY` | throw `GRAB` | throw `STORM` |
 | `PlayerInteractEvent.LeftClickBlock` | vanilla mine | vanilla mine | cancel, throw `STORM` |
 | `AttackEntityEvent` | vanilla attack | vanilla attack | cancel, throw `STORM` |
 
 Empty clicks never reach the server on their own, so `LeftClickEmpty` (client only) sends
 `AnchorSwingPacket`, whose handler repeats the mode/cooldown/power checks before throwing — a client
-is only a hint, as with `DollGloveSwingPacket`. Voyage deliberately leaves the block and entity
-clicks vanilla: it is a grappling hook, and losing mining or punching while it is held would be a
-nuisance. Cancelling `LeftClickBlock` on the client as well stops the mining animation from
-starting in Storm mode.
+is only a hint, as with `DollGloveSwingPacket`. Destroy and Voyage deliberately leave the block and
+entity clicks vanilla: losing mining or punching while the anchor is held would be a nuisance.
+Cancelling `LeftClickBlock` on the client as well stops the mining animation from starting in Storm
+mode.
 
 `AnchorSwingPacket` is registered in `GLPackets` (one `.toServer(...)` line) and the handler version
 goes `3` → `4`.
@@ -254,12 +274,12 @@ goes `3` → `4`.
 
 | throw | entity | base | returns |
 |---|---|---|---|
-| `DESTROY`, `GRAB`, `PULL`, `STORM` | `AnchorHookEntity` | `ThrowableProjectile` | yes |
+| `DESTROY`, `DESTROY_CHARGED`, `GRAB`, `PULL`, `STORM` | `AnchorHookEntity` | `ThrowableProjectile` | yes |
 | `STORM_UNBOUND` | `AnchorBulletEntity` | `ItemBulletEntity` | no |
 
 `AnchorThrow` stays the item-level enum (`reach()`, `cost()`, `isStorm()`); `AnchorItem.throwAnchors`
 reads it and spawns one hook or five bullets. `returns()` goes away — the hook only ever sees the
-four throws that return, and the bullet is always unbound.
+five throws that return, and the bullet is always unbound.
 
 **Why the split.** A danmaku is a `SimplifiedEntity`: self-predicted movement, no fluid state, and a
 batched renderer, which is exactly what the volley needs (five anchors, each shedding a trail, must
@@ -289,6 +309,7 @@ Fields, with the two the client needs in `SynchedEntityData`:
 | `type` | `AnchorThrow` | synced byte | the renderer shows the wet model only for a storm throw |
 | `phase` | `Phase` | synced byte | `FLY`, `RETURN`, `GRAPPLE`, `DRAG`, `HANG`; the client steers by it too |
 | `damage` | `float` | server, NBT | the thrower's attack damage at throw time |
+| `radius` | `int` | server, NBT | blast radius of a `DESTROY_CHARGED` throw, from the charge |
 | `origin` | `Vec3` | server, NBT | eye position at throw; the reach is measured from here |
 | `flyDir` | `Vec3` | NBT, spawn data | normalized throw vector; drives FLY and the client's prediction |
 | `grapple` | `int` | server, NBT | ticks left on the pull or the drag |
@@ -393,10 +414,10 @@ than left to a chunk unload. `HANG` is exempt — a stuck anchor waits for the p
 — and still discards on the owner's death. The hold never touches the player's gravity flag: a hook
 lost to a chunk unload can only drop them.
 
-| hit | `DESTROY` | `GRAB` | `PULL` | `STORM` |
-|---|---|---|---|---|
-| block | break, `RETURN` | `RETURN` | `GRAPPLE`, then `HANG` | burst, `RETURN` |
-| entity | hurt, `RETURN` | `DRAG`, then `RETURN` | flies through | burst, `RETURN` |
+| hit | `DESTROY` | `DESTROY_CHARGED` | `GRAB` | `PULL` | `STORM` |
+|---|---|---|---|---|---|
+| block | break 3×3×3, `RETURN` | break + hurt in `radius`, `RETURN` | `RETURN` | `GRAPPLE`, then `HANG` | burst, `RETURN` |
+| entity | hurt, `RETURN` | break + hurt in `radius`, `RETURN` | `DRAG`, then `RETURN` | flies through | burst, `RETURN` |
 
 A `PULL` throw that hits nothing is unchanged: it grapples from the reach limit and then returns.
 
@@ -436,7 +457,7 @@ damage exist once and the volley and the single throw emit identical danmaku:
 | `isWet(Entity)` | `self.isInWaterRainOrBubble() \|\| wetAt(...)` |
 | `shedTrail(Entity self, Entity owner, boolean wet, int spent)` | 4 rotating cross bullets; returns the new budget |
 | `impact(Entity self, Entity owner, boolean wet)` | area damage, then the 100-bullet spray if wet |
-| `areaDamage(Entity self, Entity owner)` | 6 damage in 4 blocks, gated by `IDanmakuEntity.canHurt` |
+| `areaDamage(Entity self, Entity owner, Vec3 at, double radius, float damage)` | hurts every living entity in the sphere, gated by `IDanmakuEntity.canHurt`; storm impacts pass 4 blocks / 6 damage, the charged destroy blast passes its charge radius and the throw's damage |
 | `burst(Entity self, Entity owner)` | the 100-bullet gravitational spray |
 
 The owner is a parameter rather than `self.getOwner()`: `Entity` does not declare it, and the helper
@@ -521,18 +542,25 @@ from the spawn packet, so no extra synced field is needed.
 
 ### 6.1 Destroy
 
-* **Block hit** — break 3×3×3 around the hit block, then return.
-* **Entity hit** — hurt for `damage` with `damageSources().thrown(this, owner)` and a little
+* **Left click, `DESTROY` (empty click)** — block hit: break 3×3×3 around the hit block, then
+  return. Entity hit: hurt for `damage` with `damageSources().thrown(this, owner)` and a little
   knockback, then return.
+* **Right click, `DESTROY_CHARGED`** — hold 1–2 seconds and release: the same hook, but its impact
+  excavates every harvestable block in a sphere of `radius` blocks and hurts every living entity in
+  the same sphere for `damage` (`AnchorStorm.areaDamage`, §5.3), then returns. `radius` is
+  `2 + charge seconds`, clamped to 3–4, so a 1-second charge is 3 blocks and a 2-second charge is 4.
+  Both a block and an entity hit trigger the blast at the impact point; the directly hit entity is
+  not hit twice.
 
-The break rule is literally "what a diamond pickaxe would harvest":
+The break rule is literally "what a diamond pickaxe would harvest", widened by the one parameter:
 
 ```java
 private static final ItemStack DIAMOND_PICKAXE = new ItemStack(Items.DIAMOND_PICKAXE);
 
 Player player = owner instanceof Player p ? p : null;
 boolean drop = player == null || !player.isCreative();
-for (BlockPos pos : BlockPos.betweenClosed(center.offset(-1, -1, -1), center.offset(1, 1, 1))) {
+for (BlockPos pos : BlockPos.betweenClosed(center.offset(-r, -r, -r), center.offset(r, r, r))) {
+    if (r > 1 && center.distSqr(pos) > r * r) continue;             // a cube at 3×3×3, a sphere above
     BlockState state = level.getBlockState(pos);
     if (state.isAir()) continue;
     if (state.getDestroySpeed(level, pos) < 0) continue;            // bedrock, barrier
@@ -546,10 +574,12 @@ for (BlockPos pos : BlockPos.betweenClosed(center.offset(-1, -1, -1), center.off
 }
 ```
 
-Creative does not drop blocks, as with normal mining. `DIAMOND_PICKAXE` is a static so the 27
-checks do not build a stack each time. The explicit `BreakEvent` post is the Twilight Forest cube's
-approach: `mayInteract` covers spawn protection and the vanilla adventure check, but not every claim
-mod, and the cube is the reference for "a thrown weapon that excavates a volume".
+Creative does not drop blocks, as with normal mining. `DIAMOND_PICKAXE` is a static so the checks do
+not build a stack each time. The explicit `BreakEvent` post is the Twilight Forest cube's approach:
+`mayInteract` covers spawn protection and the vanilla adventure check, but not every claim mod, and
+the cube is the reference for "a thrown weapon that excavates a volume". The left-click throw keeps
+the literal 3×3×3 cube (`r = 1` skips the sphere test); the charged blast uses a sphere so the hole
+does not grow cubic with the charge.
 
 ### 6.2 Voyage
 
@@ -684,7 +714,7 @@ effects beyond what the tags grant.
 * Destroy and Storm hooks return; unbound bullets vanish; a `GRAB` hook drags its target home and
   then returns;
 * `GRAB` does not damage — it is a repositioning tool;
-* Voyage keeps vanilla mining and attacking; only an empty left click throws;
+* Destroy and Voyage keep vanilla mining and attacking; only an empty left click throws;
 * a `PULL` hook sticks even when it hits nothing, hanging at the reach limit until the pull ends;
 * only a `PULL` hook that hit a block stays in `HANG` after the pull; one that ran out of reach in
   open air returns as before;
@@ -697,6 +727,8 @@ effects beyond what the tags grant.
   owner is more than 24 blocks away, or when a *held* anchor's link is missing or points at another
   hook;
 * the storm volley needs a one-second charge, so a right click alone never spends 10 power;
+* Destroy throws on an empty left click, and its right click is a 1–2 second charge for a 3–4 block
+  blast (`radius = charge seconds + 2`); block and entity clicks stay vanilla mining and attacking;
 * the 16-block reach is measured from the throw origin, not from the moving player, so walking
   forward cannot stretch a throw;
 * entity hits on a `PULL` hook are passed through (`canHitEntity`), since the mode is for terrain;
@@ -756,40 +788,46 @@ a record of why the split landed in that order:
 
 ## 10. Test plan
 
-1. Destroy: throw at stone → 27 blocks break and drop; at obsidian → breaks (diamond level); at
-   bedrock → nothing; the hook stops flush against the face, keeps the throw orientation, returns to
-   the hand on a chain and cannot be picked up as an item.
-2. Destroy vs. a mob: damage lands once, the hook returns, no second hit on the way home.
-3. Voyage: an *empty* left click at a cow 10 blocks away drags it all the way to the player, one tick
+1. Destroy: an *empty* left click throws; at stone → 27 blocks break and drop; at obsidian → breaks
+   (diamond level); at bedrock → nothing; the hook stops flush against the face, keeps the throw
+   orientation, returns to the hand on a chain and cannot be picked up as an item. Mining and punching
+   still work on a block or a mob click.
+2. Destroy vs. a mob: damage lands once, the hook returns, no second hit on the way home. A charged
+   right click released before one second throws nothing.
+3. Destroy charged: a 1-second hold → a 3-block sphere of blocks breaks and mobs inside take damage
+   once each; a 2-second hold → 4 blocks; a 3-second hold → still 4. Releasing right after the 1-second
+   mark already gives 3. The blast triggers on an entity hit too, without hitting the target twice, and
+   the hook returns.
+4. Voyage: an *empty* left click at a cow 10 blocks away drags it all the way to the player, one tick
    at a time (it does not coast), and the chain follows it; left-clicking a block or a mob with the
    anchor held mines / punches as usual and throws nothing.
-4. Voyage right click at a wall → the hook sticks in the face, the player is pulled to the wall and
+5. Voyage right click at a wall → the hook sticks in the face, the player is pulled to the wall and
    held there instead of falling; after the pull the anchor stays stuck (no timeout), and a right
    click within 3 blocks sends it home and frees the hand. Sneak out of the hold, walk more than 3
    blocks away, then right click → the player is pulled in again (in any mode); within 3 blocks the
    same click retrieves. Right click at open sky → the hook hangs 16 blocks from the *launch point*,
    pulls the player, and then returns as it always did. The pull ends on arrival, on sneak, or after
    40 ticks.
-5. Leash: leave a retained anchor and walk more than 24 blocks away → it discards and the hand comes
+6. Leash: leave a retained anchor and walk more than 24 blocks away → it discards and the hand comes
    back. Switch to a second anchor stack in the hotbar → the first hook discards; switch to a sword
    → it does not. Step into a portal and leave → the hook does not follow, it discards, and no hook
    is ever found in another dimension.
-6. Voyage through a wall: the return path ignores terrain, and the grappled player stops at the
+7. Voyage through a wall: the return path ignores terrain, and the grappled player stops at the
    wall instead of inside it; switching hotbar slots mid-pull does not cancel the pull. The chain
    runs from the player's chest to the anchor in every phase, and the anchor does not turn around
    while returning.
-7. Storm left: throws exactly one hook (not five), costs 5 from a 100 pool, area damage hits every
+8. Storm left: throws exactly one hook (not five), costs 5 from a 100 pool, area damage hits every
    mob in 4 blocks once, and the hook returns.
-8. Storm right: a short click throws nothing and costs nothing; holding for one second and releasing
+9. Storm right: a short click throws nothing and costs nothing; holding for one second and releasing
    throws five bullets, each reaching 48 blocks, 10 power for the volley; a dry throw emits no
    danmaku and stays iron; the same throw in rain emits a trail, a 100-bullet burst, and shows the
    water model while wet.
-9. Bound vs. unbound: the hook keeps full opacity at 40 blocks and cannot be grazed; the bullets
+10. Bound vs. unbound: the hook keeps full opacity at 40 blocks and cannot be grazed; the bullets
    still graze, fade and vanish like danmaku. The bullets are erased on impact; the hook returns
    first and is discarded at the hand.
-10. Wheel: switching modes persists on the stack, and the held model/wheel icon follow.
-11. Power: a 4-power anchor refuses a storm with the message and no cooldown; a Jizo refills it.
-12. One anchor at a time: after a throw the item is gone from the hand (first and third person) and a
+11. Wheel: switching modes persists on the stack, and the held model/wheel icon follow.
+12. Power: a 4-power anchor refuses a storm with the message and no cooldown; a Jizo refills it.
+13. One anchor at a time: after a throw the item is gone from the hand (first and third person) and a
     second click does nothing; the item reappears the tick the hook returns or is discarded, also
     when it was moved to another hotbar slot or into a chest before the hook landed. A storm volley
     does not hide the item — no hook was thrown.

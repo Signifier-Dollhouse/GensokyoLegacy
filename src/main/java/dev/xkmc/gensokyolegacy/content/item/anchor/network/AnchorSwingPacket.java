@@ -23,11 +23,10 @@ public record AnchorSwingPacket() implements SerialPacketBase<AnchorSwingPacket>
 		ItemStack stack = sp.getMainHandItem();
 		if (!(stack.getItem() instanceof AnchorItem)) return;
 		AnchorThrow type = switch (AnchorItem.getMode(stack)) {
+			case DESTROY -> AnchorThrow.DESTROY;
 			case VOYAGE -> AnchorThrow.GRAB;
 			case STORM -> AnchorThrow.STORM;
-			case DESTROY -> null;
 		};
-		if (type == null) return;
 		AnchorItem.throwAnchors(sp, InteractionHand.MAIN_HAND, type);
 	}
 

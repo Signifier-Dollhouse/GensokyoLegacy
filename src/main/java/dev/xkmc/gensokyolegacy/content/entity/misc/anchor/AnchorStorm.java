@@ -77,16 +77,21 @@ public final class AnchorStorm {
 	}
 
 	private static void areaDamage(Entity self, Entity owner) {
+		areaDamage(self, owner, self.position(), BURST_RADIUS, BURST_DAMAGE);
+	}
+
+	/**
+	 * Hurts every living entity within {@code radius} of {@code at}, gated like every danmaku hit.
+	 */
+	public static void areaDamage(Entity self, Entity owner, Vec3 at, double radius, float damage) {
 		if (owner == null) return;
-		Vec3 at = self.position();
 		DamageSource source = self.damageSources().thrown(self, owner);
-		AABB box = new AABB(at.subtract(BURST_RADIUS, BURST_RADIUS, BURST_RADIUS),
-				at.add(BURST_RADIUS, BURST_RADIUS, BURST_RADIUS));
+		AABB box = new AABB(at.subtract(radius, radius, radius), at.add(radius, radius, radius));
 		for (LivingEntity target : self.level().getEntitiesOfClass(LivingEntity.class, box)) {
 			if (target == owner) continue;
 			if (!IDanmakuEntity.canHurt(owner, target)) continue;
-			if (target.position().distanceToSqr(at) > BURST_RADIUS * BURST_RADIUS) continue;
-			target.hurt(source, BURST_DAMAGE);
+			if (target.position().distanceToSqr(at) > radius * radius) continue;
+			target.hurt(source, damage);
 		}
 	}
 

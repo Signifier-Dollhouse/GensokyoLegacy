@@ -15,8 +15,8 @@ import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 
 /**
- * Left-click plumbing for the anchor: Destroy is entirely vanilla, Voyage only throws on an empty
- * click, and Storm throws on every left click.
+ * Left-click plumbing for the anchor: Destroy and Voyage only throw on an empty click, and Storm
+ * throws on every left click.
  *
  * @see "doc/design/minamitsu_anchor.md"
  */
@@ -28,7 +28,6 @@ public class AnchorEventHandlers {
 		Player player = event.getEntity();
 		ItemStack stack = player.getMainHandItem();
 		if (!(stack.getItem() instanceof AnchorItem)) return;
-		if (AnchorItem.getMode(stack) == AnchorMode.DESTROY) return;
 		GensokyoLegacy.HANDLER.toServer(new AnchorSwingPacket());
 	}
 

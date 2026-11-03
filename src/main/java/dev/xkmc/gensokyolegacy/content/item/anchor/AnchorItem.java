@@ -20,6 +20,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
+import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
@@ -48,6 +49,11 @@ public class AnchorItem extends SpiritualDanmakuItem {
 	public static final int MAX_POWER = 1000;
 	private static final int COOLDOWN = 10;
 	private static final int CHARGE_TIME = 20;
+	private static final int DESTROY_CHARGE_MIN = 20;
+	private static final int DESTROY_CHARGE_MAX = 40;
+	private static final int DESTROY_RADIUS_BASE = 2;
+	private static final int DESTROY_RADIUS_MIN = 3;
+	private static final int DESTROY_RADIUS_MAX = 4;
 	private static final double FLY_SPEED = 1.5;
 	private static final int LIFE = 200;
 	private static final double FAN_STEP = 12.5;
@@ -98,14 +104,13 @@ public class AnchorItem extends SpiritualDanmakuItem {
 		ItemStack stack = player.getItemInHand(hand);
 		if (isLinked(stack)) return retrieve(level, player, stack);
 		if (GrazeHelper.forbidDanmaku(player)) return InteractionResultHolder.fail(stack);
-		if (getMode(stack) == AnchorMode.STORM) {
+		if (getMode(stack) != AnchorMode.VOYAGE) {
 			player.startUsingItem(hand);
 			return InteractionResultHolder.consume(stack);
 		}
 		if (level.isClientSide()) return InteractionResultHolder.sidedSuccess(stack, true);
 		if (!(player instanceof ServerPlayer sp)) return InteractionResultHolder.fail(stack);
-		AnchorThrow type = getMode(stack) == AnchorMode.DESTROY ? AnchorThrow.DESTROY : AnchorThrow.PULL;
-		return throwAnchors(sp, hand, type)
+		return throwAnchors(sp, hand, AnchorThrow.PULL)
 				? InteractionResultHolder.sidedSuccess(stack, false)
 				: InteractionResultHolder.fail(stack);
 	}
@@ -135,17 +140,30 @@ public class AnchorItem extends SpiritualDanmakuItem {
 	}
 
 	/**
-	 * The storm volley is charged: a release before one second does nothing, so a right click alone
-	 * cannot dump five anchors.
+	 * Both charged throws start on {@code use} and fire on release; Destroy scales its radius with
+	 * the time held, Storm wants one full second before the volley.
 	 */
 	@Override
 	public void releaseUsing(ItemStack stack, Level level, LivingEntity entity, int timeLeft) {
 		if (!(entity instanceof Player player)) return;
-		if (getUseDuration(stack, entity) - timeLeft < CHARGE_TIME) return;
 		if (level.isClientSide()) return;
 		if (!(player instanceof ServerPlayer sp)) return;
-		if (getMode(stack) != AnchorMode.STORM) return;
-		throwAnchors(sp, player.getUsedItemHand(), AnchorThrow.STORM_UNBOUND);
+		int used = getUseDuration(stack, entity) - timeLeft;
+		switch (getMode(stack)) {
+			case STORM -> {
+				if (used < CHARGE_TIME) return;
+				throwAnchors(sp, player.getUsedItemHand(), AnchorThrow.STORM_UNBOUND);
+			}
+			case DESTROY -> {
+				if (used < DESTROY_CHARGE_MIN) return;
+				int held = Math.min(used, DESTROY_CHARGE_MAX) / CHARGE_TIME;
+				int radius = Mth.clamp(DESTROY_RADIUS_BASE + held,
+						DESTROY_RADIUS_MIN, DESTROY_RADIUS_MAX);
+				throwAnchors(sp, player.getUsedItemHand(), AnchorThrow.DESTROY_CHARGED, radius);
+			}
+			case VOYAGE -> {
+			}
+		}
 	}
 
 	/**
@@ -153,6 +171,10 @@ public class AnchorItem extends SpiritualDanmakuItem {
 	 * the caller has already turned the click into an {@link AnchorThrow}.
 	 */
 	public static boolean throwAnchors(ServerPlayer sp, InteractionHand hand, AnchorThrow type) {
+		return throwAnchors(sp, hand, type, 0);
+	}
+
+	public static boolean throwAnchors(ServerPlayer sp, InteractionHand hand, AnchorThrow type, int radius) {
 		ItemStack stack = sp.getItemInHand(hand);
 		if (!(stack.getItem() instanceof AnchorItem item)) return false;
 		if (isLinked(stack)) return false;
@@ -184,6 +206,7 @@ public class AnchorItem extends SpiritualDanmakuItem {
 			} else {
 				AnchorHookEntity proj = new AnchorHookEntity(GLEntities.ANCHOR_HOOK.get(), sp, level);
 				proj.launch(type, damage, from, dir);
+				proj.setRadius(radius);
 				if (level.addFreshEntity(proj)) setLink(stack, proj.getUUID());
 			}
 		}
@@ -213,6 +236,7 @@ public class AnchorItem extends SpiritualDanmakuItem {
 		list.add(GLLang.ItemLores.MINAMITSU_ANCHOR_LORE.get());
 		super.appendHoverText(stack, context, list, flag);
 		list.add(GLLang.ItemAnchor.COST.get());
+		list.add(GLLang.ItemAnchor.CHARGE_DESTROY.get());
 		list.add(GLLang.ItemAnchor.CHARGE.get());
 		list.add(GLLang.ItemAnchor.RETRIEVE.get());
 		list.add(GLLang.ItemGlove.WHEEL.get(L2Keys.WHEEL.map.getKey().getDisplayName())

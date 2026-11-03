@@ -8,6 +8,7 @@ package dev.xkmc.gensokyolegacy.content.item.anchor;
  */
 public enum AnchorThrow {
 	DESTROY(16, 0),
+	DESTROY_CHARGED(16, 0),
 	GRAB(16, 0),
 	PULL(16, 0),
 	STORM(16, 5),

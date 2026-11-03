@@ -12,7 +12,7 @@
     },
     {
       "type": "patchouli:text",
-      "text": "$(bold)Destroy$()$(br)Left click mines and attacks as usual. Right click throws the anchor: a block breaks in a 3×3×3 cube around the impact, a creature takes the hit, and the anchor flies back to your hand.$(br2)$(bold)Voyage$()$(br)An empty left click grabs a creature and drags it to you. Right click throws the anchor into a wall: if it hits a block it stays stuck there, pulls you over and holds you; right click to retrieve it, or sneak to let go. A throw that hits nothing pulls you from its furthest point and then returns."
+      "text": "$(bold)Destroy$()$(br)An empty left click throws the anchor: a block breaks in a 3×3×3 cube around the impact, a creature takes the hit, and the anchor flies back to your hand; mining and attacking still work as usual. Right click is a charge: hold it for 1–2 seconds, then release to throw an anchor that breaks blocks and damages creatures in a sphere of 3–4 blocks around the impact — the longer the charge, the wider the blast.$(br2)$(bold)Voyage$()$(br)An empty left click grabs a creature and drags it to you. Right click throws the anchor into a wall: if it hits a block it stays stuck there, pulls you over and holds you; right click to retrieve it, or sneak to let go. A throw that hits nothing pulls you from its furthest point and then returns."
     },
     {
       "type": "patchouli:text",

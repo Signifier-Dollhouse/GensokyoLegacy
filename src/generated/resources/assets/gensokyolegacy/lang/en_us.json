@@ -410,6 +410,7 @@
   "gensokyolegacy.alchemy.extra": "+%s more",
   "gensokyolegacy.alchemy.progress": "Progress: %s%%",
   "gensokyolegacy.anchor.charge": "Storm right click: hold for 1 second, then release",
+  "gensokyolegacy.anchor.charge_destroy": "Destroy right click: hold 1-2 seconds, then release",
   "gensokyolegacy.anchor.cost": "Storm throws cost 5 / 10 spiritual power",
   "gensokyolegacy.anchor.mode_destroy": "Destroy",
   "gensokyolegacy.anchor.mode_storm": "Storm",

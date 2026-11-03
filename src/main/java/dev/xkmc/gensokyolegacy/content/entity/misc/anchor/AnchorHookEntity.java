@@ -72,6 +72,7 @@ public class AnchorHookEntity extends ThrowableProjectile implements ItemSupplie
 	private static final ItemStack DIAMOND_PICKAXE = new ItemStack(Items.DIAMOND_PICKAXE);
 
 	private float damage = 0;
+	private int radius = 0;
 	private Vec3 origin = Vec3.ZERO;
 	private Vec3 flyDir = Vec3.ZERO;
 	private int grapple = 0;
@@ -97,6 +98,13 @@ public class AnchorHookEntity extends ThrowableProjectile implements ItemSupplie
 		setPhase(Phase.FLY);
 		setPos(origin);
 		shoot(flyDir.x, flyDir.y, flyDir.z, (float) FLY_SPEED, 0);
+	}
+
+	/**
+	 * The blast radius of a charged destroy throw; only read by {@link AnchorThrow#DESTROY_CHARGED}.
+	 */
+	public void setRadius(int radius) {
+		this.radius = Math.max(radius, 0);
 	}
 
 	public AnchorThrow throwType() {
@@ -176,7 +184,11 @@ public class AnchorHookEntity extends ThrowableProjectile implements ItemSupplie
 		playImpact(SoundEvents.TRIDENT_HIT_GROUND);
 		switch (throwType()) {
 			case DESTROY -> {
-				breakArea(hit.getBlockPos());
+				breakBlocks(hit.getBlockPos(), 1);
+				toReturn();
+			}
+			case DESTROY_CHARGED -> {
+				destroyImpact(position());
 				toReturn();
 			}
 			case PULL -> {
@@ -201,6 +213,11 @@ public class AnchorHookEntity extends ThrowableProjectile implements ItemSupplie
 			case DESTROY -> {
 				playImpact(SoundEvents.TRIDENT_HIT);
 				hurtTarget(target);
+				toReturn();
+			}
+			case DESTROY_CHARGED -> {
+				playImpact(SoundEvents.TRIDENT_HIT);
+				destroyImpact(position());
 				toReturn();
 			}
 			case GRAB -> {
@@ -427,11 +444,22 @@ public class AnchorHookEntity extends ThrowableProjectile implements ItemSupplie
 		}
 	}
 
-	private void breakArea(BlockPos center) {
+	/**
+	 * The charged destroy throw: one blast that both excavates and damages around the impact.
+	 */
+	private void destroyImpact(Vec3 at) {
+		int r = Math.max(radius, 1);
+		breakBlocks(BlockPos.containing(at), r);
+		AnchorStorm.areaDamage(this, getOwner(), at, r, damage);
+	}
+
+	private void breakBlocks(BlockPos center, int radius) {
 		Entity owner = getOwner();
 		Player player = owner instanceof Player p ? p : null;
 		boolean drop = player == null || !player.isCreative();
-		for (BlockPos pos : BlockPos.betweenClosed(center.offset(-1, -1, -1), center.offset(1, 1, 1))) {
+		for (BlockPos pos : BlockPos.betweenClosed(center.offset(-radius, -radius, -radius),
+				center.offset(radius, radius, radius))) {
+			if (radius > 1 && center.distSqr(pos) > radius * radius) continue;
 			BlockState state = level().getBlockState(pos);
 			if (state.isAir()) continue;
 			if (state.getDestroySpeed(level(), pos) < 0) continue;
@@ -451,6 +479,7 @@ public class AnchorHookEntity extends ThrowableProjectile implements ItemSupplie
 		tag.putByte("AnchorType", (byte) throwType().ordinal());
 		tag.putByte("AnchorPhase", (byte) phase().ordinal());
 		tag.putFloat("AnchorDamage", damage);
+		tag.putInt("AnchorRadius", radius);
 		tag.putInt("AnchorGrapple", grapple);
 		tag.putInt("AnchorReturn", returnTicks);
 		tag.putInt("AnchorTrail", trail);
@@ -470,6 +499,7 @@ public class AnchorHookEntity extends ThrowableProjectile implements ItemSupplie
 		entityData.set(DATA_TYPE, tag.getByte("AnchorType"));
 		entityData.set(DATA_PHASE, tag.getByte("AnchorPhase"));
 		damage = tag.getFloat("AnchorDamage");
+		radius = tag.getInt("AnchorRadius");
 		grapple = tag.getInt("AnchorGrapple");
 		returnTicks = tag.getInt("AnchorReturn");
 		trail = tag.getInt("AnchorTrail");

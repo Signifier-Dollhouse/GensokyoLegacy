@@ -7,8 +7,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 
 /**
- * What the anchor does on a right-click: break, grapple, or call a storm. Stored on the stack as a
- * component; each mode selects one of the throw behaviours in {@link AnchorThrow}.
+ * What the anchor does: break, grapple, or call a storm. The mode picks what both clicks do and
+ * which {@link AnchorThrow} the item spawns; it is stored on the stack as a component.
  *
  * @see "doc/design/minamitsu_anchor.md"
  */

@@ -114,9 +114,7 @@ public class AnchorHookRenderer extends EntityRenderer<AnchorHookEntity> {
 	 * @see "doc/design/minamitsu_anchor.md §5.4"
 	 */
 	private static void layFlat(PoseStack pose) {
-		pose.translate(-0.5F, -0.5F, -0.5F);
 		pose.mulPose(Axis.XP.rotationDegrees(90));
-		pose.translate(0.5F, 0.5F, 0.5F);
 	}
 
 	@Override
