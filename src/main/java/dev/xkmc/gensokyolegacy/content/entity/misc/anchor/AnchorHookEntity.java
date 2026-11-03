@@ -5,9 +5,11 @@ import dev.xkmc.gensokyolegacy.content.item.anchor.AnchorThrow;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -26,8 +28,11 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.entity.IEntityWithComplexSpawn;
 import net.neoforged.neoforge.entity.PartEntity;
 import net.neoforged.neoforge.event.level.BlockEvent;
+
+import java.util.UUID;
 
 /**
  * One bounded anchor: it flies out, comes home, or hangs and drags its owner. It is a plain
@@ -35,10 +40,10 @@ import net.neoforged.neoforge.event.level.BlockEvent;
  *
  * @see "doc/design/minamitsu_anchor.md"
  */
-public class AnchorHookEntity extends ThrowableProjectile implements ItemSupplier {
+public class AnchorHookEntity extends ThrowableProjectile implements ItemSupplier, IEntityWithComplexSpawn {
 
 	public enum Phase {
-		FLY, RETURN, GRAPPLE
+		FLY, RETURN, GRAPPLE, DRAG
 	}
 
 	private static final EntityDataAccessor<Byte> DATA_TYPE = SynchedEntityData.defineId(
@@ -51,16 +56,22 @@ public class AnchorHookEntity extends ThrowableProjectile implements ItemSupplie
 	private static final double RETURN_DIST = 1.5;
 	private static final int RETURN_TIMEOUT = 60;
 	private static final int GRAPPLE_TIME = 40;
+	private static final int DRAG_TIME = 40;
 	private static final double GRAPPLE_DIST = 2;
 	private static final double GRAPPLE_SPEED = 1;
+	private static final double DRAG_DIST = 2;
+	private static final double DRAG_SPEED = 1;
 	private static final int LIFE = 200;
 	private static final ItemStack DIAMOND_PICKAXE = new ItemStack(Items.DIAMOND_PICKAXE);
 
 	private float damage = 0;
 	private Vec3 origin = Vec3.ZERO;
+	private Vec3 flyDir = Vec3.ZERO;
 	private int grapple = 0;
 	private int returnTicks = 0;
 	private int trail = 0;
+	private UUID grabbedId;
+	private LivingEntity grabbed;
 
 	public AnchorHookEntity(EntityType<? extends AnchorHookEntity> type, Level level) {
 		super(type, level);
@@ -73,10 +84,11 @@ public class AnchorHookEntity extends ThrowableProjectile implements ItemSupplie
 	public void launch(AnchorThrow type, float damage, Vec3 origin, Vec3 dir) {
 		this.damage = damage;
 		this.origin = origin;
+		this.flyDir = dir.normalize();
 		entityData.set(DATA_TYPE, (byte) type.ordinal());
 		setPhase(Phase.FLY);
 		setPos(origin);
-		shoot(dir.x, dir.y, dir.z, (float) FLY_SPEED, 0);
+		shoot(flyDir.x, flyDir.y, flyDir.z, (float) FLY_SPEED, 0);
 	}
 
 	public AnchorThrow throwType() {
@@ -125,20 +137,22 @@ public class AnchorHookEntity extends ThrowableProjectile implements ItemSupplie
 
 	private void steer() {
 		switch (phase()) {
-			case FLY -> setDeltaMovement(Vec3.directionFromRotation(getXRot(), getYRot()).scale(FLY_SPEED));
+			case FLY -> setDeltaMovement(flyDir.scale(FLY_SPEED));
 			case RETURN -> {
 				Entity owner = getOwner();
 				Vec3 diff = owner == null ? Vec3.ZERO : owner.getEyePosition().subtract(position());
 				setDeltaMovement(diff.lengthSqr() < 1e-6 ? Vec3.ZERO : diff.normalize().scale(RETURN_SPEED));
 			}
-			case GRAPPLE -> setDeltaMovement(Vec3.ZERO);
+			case GRAPPLE, DRAG -> setDeltaMovement(Vec3.ZERO);
 		}
 	}
 
+	/**
+	 * The anchor keeps the heading it was thrown with. {@code Projectile.updateRotation} would turn
+	 * it around on the return leg and while it drags, making the model look like it aims backwards.
+	 */
 	@Override
 	protected void updateRotation() {
-		if (phase() == Phase.GRAPPLE) return;
-		super.updateRotation();
 	}
 
 	@Override
@@ -180,8 +194,8 @@ public class AnchorHookEntity extends ThrowableProjectile implements ItemSupplie
 			}
 			case GRAB -> {
 				playImpact(SoundEvents.TRIDENT_HIT);
-				yank(target);
-				toReturn();
+				if (target instanceof LivingEntity le) enterDrag(le);
+				else toReturn();
 			}
 			case STORM -> {
 				playImpact(SoundEvents.TRIDENT_HIT);
@@ -205,6 +219,7 @@ public class AnchorHookEntity extends ThrowableProjectile implements ItemSupplie
 			}
 			case RETURN -> tickReturn();
 			case GRAPPLE -> tickGrapple();
+			case DRAG -> tickDrag();
 		}
 	}
 
@@ -220,11 +235,21 @@ public class AnchorHookEntity extends ThrowableProjectile implements ItemSupplie
 	private void toReturn() {
 		setPhase(Phase.RETURN);
 		returnTicks = 0;
+		grabbedId = null;
+		grabbed = null;
 	}
 
 	private void enterGrapple() {
 		setPhase(Phase.GRAPPLE);
 		grapple = GRAPPLE_TIME;
+		setDeltaMovement(Vec3.ZERO);
+	}
+
+	private void enterDrag(LivingEntity target) {
+		setPhase(Phase.DRAG);
+		grapple = DRAG_TIME;
+		grabbed = target;
+		grabbedId = target.getUUID();
 		setDeltaMovement(Vec3.ZERO);
 	}
 
@@ -253,6 +278,39 @@ public class AnchorHookEntity extends ThrowableProjectile implements ItemSupplie
 		player.fallDistance = 0;
 	}
 
+	/**
+	 * The grabbed entity is dragged every tick, not nudged once, and the anchor rides along on it so
+	 * the chain stays attached for the whole pull.
+	 */
+	private void tickDrag() {
+		grapple--;
+		LivingEntity target = grabbedTarget();
+		Entity owner = getOwner();
+		if (target == null || !target.isAlive() || owner == null) {
+			toReturn();
+			return;
+		}
+		setPos(target.getX(), target.getY() + target.getBbHeight() * 0.6, target.getZ());
+		Vec3 diff = owner.position().subtract(target.position());
+		if (diff.lengthSqr() < DRAG_DIST * DRAG_DIST || grapple <= 0) {
+			toReturn();
+			return;
+		}
+		target.setDeltaMovement(diff.normalize().scale(DRAG_SPEED));
+		target.hurtMarked = true;
+		target.fallDistance = 0;
+	}
+
+	private LivingEntity grabbedTarget() {
+		if (grabbed != null && grabbed.isAlive()) return grabbed;
+		if (grabbedId == null) return null;
+		if (level() instanceof ServerLevel sl && sl.getEntity(grabbedId) instanceof LivingEntity le) {
+			grabbed = le;
+			return le;
+		}
+		return null;
+	}
+
 	private static Entity unwrap(Entity entity) {
 		while (entity instanceof PartEntity<?> part) entity = part.getParent();
 		return entity;
@@ -272,16 +330,6 @@ public class AnchorHookEntity extends ThrowableProjectile implements ItemSupplie
 		}
 	}
 
-	private void yank(Entity target) {
-		Entity owner = getOwner();
-		if (owner == null || !(target instanceof LivingEntity le)) return;
-		Vec3 diff = owner.position().subtract(le.position());
-		if (diff.lengthSqr() < 1e-6) return;
-		double power = Math.min(1.5, diff.length() * 0.15);
-		le.setDeltaMovement(le.getDeltaMovement().add(diff.normalize().scale(power)));
-		le.hurtMarked = true;
-	}
-
 	private void breakArea(BlockPos center) {
 		Entity owner = getOwner();
 		Player player = owner instanceof Player p ? p : null;
@@ -290,7 +338,7 @@ public class AnchorHookEntity extends ThrowableProjectile implements ItemSupplie
 			BlockState state = level().getBlockState(pos);
 			if (state.isAir()) continue;
 			if (state.getDestroySpeed(level(), pos) < 0) continue;
-			if (!DIAMOND_PICKAXE.isCorrectToolForDrops(state)) continue;
+			if (state.requiresCorrectToolForDrops() && !DIAMOND_PICKAXE.isCorrectToolForDrops(state)) continue;
 			if (player != null) {
 				if (!level().mayInteract(player, pos)) continue;
 				if (NeoForge.EVENT_BUS.post(new BlockEvent.BreakEvent(level(), pos, state, player)).isCanceled())
@@ -312,6 +360,10 @@ public class AnchorHookEntity extends ThrowableProjectile implements ItemSupplie
 		tag.putDouble("AnchorOriginX", origin.x);
 		tag.putDouble("AnchorOriginY", origin.y);
 		tag.putDouble("AnchorOriginZ", origin.z);
+		tag.putDouble("AnchorFlyX", flyDir.x);
+		tag.putDouble("AnchorFlyY", flyDir.y);
+		tag.putDouble("AnchorFlyZ", flyDir.z);
+		if (grabbedId != null) tag.putUUID("AnchorGrab", grabbedId);
 	}
 
 	@Override
@@ -325,6 +377,26 @@ public class AnchorHookEntity extends ThrowableProjectile implements ItemSupplie
 		trail = tag.getInt("AnchorTrail");
 		origin = new Vec3(tag.getDouble("AnchorOriginX"), tag.getDouble("AnchorOriginY"),
 				tag.getDouble("AnchorOriginZ"));
+		flyDir = new Vec3(tag.getDouble("AnchorFlyX"), tag.getDouble("AnchorFlyY"),
+				tag.getDouble("AnchorFlyZ"));
+		grabbedId = tag.hasUUID("AnchorGrab") ? tag.getUUID("AnchorGrab") : null;
+	}
+
+	/**
+	 * The client never receives the spawn velocity, and {@code Projectile} stores yaw as
+	 * {@code atan2(dx, dz)}, so the launch vector has to travel separately or the hook drives
+	 * itself in the wrong heading.
+	 */
+	@Override
+	public void writeSpawnData(RegistryFriendlyByteBuf buffer) {
+		buffer.writeDouble(flyDir.x);
+		buffer.writeDouble(flyDir.y);
+		buffer.writeDouble(flyDir.z);
+	}
+
+	@Override
+	public void readSpawnData(RegistryFriendlyByteBuf buffer) {
+		flyDir = new Vec3(buffer.readDouble(), buffer.readDouble(), buffer.readDouble());
 	}
 
 	private void playImpact(SoundEvent sound) {

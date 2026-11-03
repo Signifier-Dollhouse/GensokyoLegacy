@@ -22,10 +22,9 @@
 	],
 	"client": [
 		"AbstractContainerScreenMixin",
-		"BroomInHandMixin",
-		"DowserHandRendererMixin",
 		"DowserItemInHandLayerMixin",
 		"GuiGraphicsMixin",
+		"ItemInHandRendererMixin",
 		"LocalPlayerMixin",
 		"ClientGlowMixin"
 	],

@@ -22,6 +22,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
@@ -30,8 +31,10 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Minamitsu's anchor: a pickaxe that also throws itself. The mode picks what a throw does, and the
@@ -60,6 +63,27 @@ public class AnchorItem extends SpiritualDanmakuItem {
 	}
 
 	/**
+	 * The bounded hook this stack is tied to while it is out, or null. The UUID is written on the
+	 * throw and cleared when the hook leaves the world, so the client can trust its presence alone.
+	 */
+	@Nullable
+	public static UUID getLink(ItemStack stack) {
+		return GLItems.ANCHOR_LINK.get(stack);
+	}
+
+	public static boolean isLinked(ItemStack stack) {
+		return stack.has(GLItems.ANCHOR_LINK);
+	}
+
+	public static void setLink(ItemStack stack, UUID id) {
+		GLItems.ANCHOR_LINK.set(stack, id);
+	}
+
+	public static void clearLink(ItemStack stack) {
+		stack.remove(GLItems.ANCHOR_LINK.get());
+	}
+
+	/**
 	 * Model-override value for {@code gensokyolegacy:anchor_display}: the mode's ordinal + 1 selects
 	 * its flat GUI icon, so the hotbar icon shows which mode the anchor is in.
 	 */
@@ -70,6 +94,7 @@ public class AnchorItem extends SpiritualDanmakuItem {
 	@Override
 	public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
 		ItemStack stack = player.getItemInHand(hand);
+		if (isLinked(stack)) return InteractionResultHolder.fail(stack);
 		if (GrazeHelper.forbidDanmaku(player)) return InteractionResultHolder.fail(stack);
 		if (level.isClientSide()) return InteractionResultHolder.sidedSuccess(stack, true);
 		if (!(player instanceof ServerPlayer sp)) return InteractionResultHolder.fail(stack);
@@ -90,6 +115,7 @@ public class AnchorItem extends SpiritualDanmakuItem {
 	public static boolean throwAnchors(ServerPlayer sp, InteractionHand hand, AnchorThrow type) {
 		ItemStack stack = sp.getItemInHand(hand);
 		if (!(stack.getItem() instanceof AnchorItem item)) return false;
+		if (isLinked(stack)) return false;
 		if (sp.getCooldowns().isOnCooldown(item)) return false;
 		int cost = type.cost();
 		if (cost > 0 && SpiritualPower.get(stack) < cost) {
@@ -118,7 +144,7 @@ public class AnchorItem extends SpiritualDanmakuItem {
 			} else {
 				AnchorHookEntity proj = new AnchorHookEntity(GLEntities.ANCHOR_HOOK.get(), sp, level);
 				proj.launch(type, damage, from, dir);
-				level.addFreshEntity(proj);
+				if (level.addFreshEntity(proj)) setLink(stack, proj.getUUID());
 			}
 		}
 		sp.getCooldowns().addCooldown(item, COOLDOWN);
@@ -127,6 +153,19 @@ public class AnchorItem extends SpiritualDanmakuItem {
 		level.playSound(null, sp.getX(), sp.getY(), sp.getZ(), SoundEvents.TRIDENT_THROW.value(),
 				SoundSource.PLAYERS, 1F, 1F);
 		return true;
+	}
+
+	/**
+	 * Only the server can see the hook leave the world, so the link is cleared here rather than on
+	 * removal: the stack may have moved to another slot or a container by then.
+	 */
+	@Override
+	public void inventoryTick(ItemStack stack, Level level, Entity entity, int slot, boolean selected) {
+		if (!(level instanceof ServerLevel sl)) return;
+		UUID id = getLink(stack);
+		if (id == null) return;
+		if (sl.getEntity(id) instanceof AnchorHookEntity hook && !hook.isRemoved()) return;
+		clearLink(stack);
 	}
 
 	@Override

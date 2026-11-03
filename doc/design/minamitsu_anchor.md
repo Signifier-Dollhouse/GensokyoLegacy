@@ -47,7 +47,7 @@ model (§5.4); when it lands it bursts 100 gravitational ones.
 | `AnchorHookEntity` | `content/entity/misc/anchor/AnchorHookEntity.java` | the bounded anchor: one synced throw type, one synced phase machine |
 | `AnchorBulletEntity` | `content/entity/misc/anchor/AnchorBulletEntity.java` | the unbound storm anchor, a danmaku bullet |
 | `AnchorStorm` | `content/entity/misc/anchor/AnchorStorm.java` | wetness, trail, burst and area damage, shared by both |
-| `AnchorHookRenderer` | `content/entity/misc/render/AnchorHookRenderer.java` | draws the hook: flight rotation plus a slow roll |
+| `AnchorHookRenderer` | `content/entity/misc/render/AnchorHookRenderer.java` | draws the hook in its throw orientation and the chain back to the thrower |
 | `NoFadeBulletRenderer` | `content/entity/misc/render/NoFadeBulletRenderer.java` | the unbound volley's renderer: no fading, on the flight line (existing) |
 | `AnchorSelectionListener` | `content/item/anchor/AnchorSelectionListener.java` | wheel/list registration, like the fan's |
 | `AnchorModeWheel` | `content/item/anchor/client/AnchorModeWheel.java` | the client wheel |
@@ -170,6 +170,7 @@ change.
 @Override
 public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
     ItemStack stack = player.getItemInHand(hand);
+    if (isLinked(stack)) return InteractionResultHolder.fail(stack);
     if (GrazeHelper.forbidDanmaku(player)) return InteractionResultHolder.fail(stack);
     if (level.isClientSide) return InteractionResultHolder.sidedSuccess(stack, true);
     if (!(player instanceof ServerPlayer sp)) return InteractionResultHolder.fail(stack);
@@ -186,14 +187,35 @@ public InteractionResultHolder<ItemStack> use(Level level, Player player, Intera
 
 `throwAnchors(sp, hand, type)` is the single gate for both clicks:
 
-1. refuse if the item is on cooldown (`player.getCooldowns().isOnCooldown(this)`);
-2. for `STORM` / `STORM_UNBOUND`, refuse unless the stack has 5 / 10 power, with a chat message
+1. refuse while the stack still carries a hook's UUID (§3.3);
+2. refuse if the item is on cooldown (`player.getCooldowns().isOnCooldown(this)`);
+3. for `STORM` / `STORM_UNBOUND`, refuse unless the stack has 5 / 10 power, with a chat message
    (`GLLang.ItemAnchor.NEED_POWER`), matching how `ScatterFanHandler` refuses an empty fan;
-3. spawn the entity — one `AnchorHookEntity` for every throw except `STORM_UNBOUND`, five
+4. spawn the entity — one `AnchorHookEntity` for every throw except `STORM_UNBOUND`, five
    `AnchorBulletEntity` for it (§5) — spend the power, add the cooldown, swing the hand, play the
    sound; `SpellContainer.track` only the bullets, since a hook is not a `SimplifiedProjectile` and
    discards itself when its owner is gone;
-4. return `sidedSuccess`.
+5. return `sidedSuccess`.
+
+### 3.3 One bounded anchor at a time
+
+`GLItems.ANCHOR_LINK` (`DC.uuid("anchor_link")`) holds the UUID of the bounded hook the stack threw,
+written only after `addFreshEntity` succeeds and only for hooks (`STORM_UNBOUND` bullets leave it
+empty). Its presence alone is the client's answer: no entity lookup, no sync of its own.
+
+* **Client** — `ItemInHandRendererMixin` cancels the held-item draw while the stack has the
+  component. That covers first person, and third person via `ItemInHandLayer`, which calls the same
+  `renderItem`. The arm is still drawn, so the player looks empty-handed rather than armless.
+* **Server** — `AnchorItem.inventoryTick` runs against the `ServerLevel` lookup every tick for every
+  inventory compartment: if `sl.getEntity(id)` is not a live `AnchorHookEntity`, the component is
+  removed. `ServerPlayer.tick` broadcasts inventory changes every tick, so the hand comes back on the
+  same tick the hook discards.
+* Clearing on the hook's `remove` was rejected: by then the stack may sit in another slot, a shulker
+  or a container, none of which the hook can reach, and `discard()` is `final` anyway.
+
+The link does not survive a hook that is unloaded with its chunk: the lookup misses and the server
+frees the hand. The hook is 200 ticks old at most and its reach is 48 blocks, so this only happens
+after a teleport or a restart, where dropping the link is the desired outcome.
 
 ## 4. Left-click plumbing
 
@@ -241,7 +263,7 @@ The three references agree on the moving parts; the hook takes the best of each:
 |---|---|
 | vanilla `FishingHook` / `ThrowableProjectile` | `ProjectileUtil.getHitResultOnMoveVector` swept hit, hit callbacks that need not discard, owner id in the spawn packet |
 | Cataclysm `Tidal_Hook_Entity` | `getDefaultGravity() = 0`, empty pickup, pull = velocity toward the anchor with `hurtMarked` |
-| Twilight Forest `CubeOfAnnihilation` | zero gravity, velocity re-set by the entity every tick, slow roll in the renderer |
+| Twilight Forest `CubeOfAnnihilation` | zero gravity, velocity re-set by the entity every tick |
 
 Rejected: the cube's "fly toward a point 16 blocks ahead of the owner" (the anchor keeps its throw
 direction, so aiming means aiming) and the tidal claw's `owner.setNoGravity(true)` during the pull —
@@ -254,12 +276,14 @@ Fields, with the two the client needs in `SynchedEntityData`:
 | field | type | side | meaning |
 |---|---|---|---|
 | `type` | `AnchorThrow` | synced byte | the renderer shows the wet model only for a storm throw |
-| `phase` | `Phase` | synced byte | `FLY`, `RETURN`, `GRAPPLE`; the client steers by it too |
+| `phase` | `Phase` | synced byte | `FLY`, `RETURN`, `GRAPPLE`, `DRAG`; the client steers by it too |
 | `damage` | `float` | server, NBT | the thrower's attack damage at throw time |
 | `origin` | `Vec3` | server, NBT | eye position at throw; the reach is measured from here |
-| `grapple` | `int` | server, NBT | ticks left on the pull |
+| `flyDir` | `Vec3` | NBT, spawn data | normalized throw vector; drives FLY and the client's prediction |
+| `grapple` | `int` | server, NBT | ticks left on the pull or the drag |
 | `returnTicks` | `int` | server, NBT | return timer |
 | `trail` | `int` | server, NBT | trail budget already spent |
+| `grabbed` | `UUID` | server, NBT | the entity a `GRAB` hook is dragging |
 
 | constant | value |
 |---|---|
@@ -268,10 +292,16 @@ Fields, with the two the client needs in `SynchedEntityData`:
 | return speed | 1.5 b/t |
 | return timeout | 60 ticks |
 | grapple timeout | 40 ticks |
+| drag speed | 1 b/t |
+| drag timeout | 40 ticks |
 | lifetime cap | 200 ticks |
 
-`launch(type, damage, origin, dir)` stores the fields, writes the type and phase to the synched
-data, and calls `shoot` so the launch direction is already in the yaw/pitch the spawn packet carries.
+`launch(type, damage, origin, dir)` stores the fields (including the normalized throw vector), writes
+the type and phase to the synched data, and calls `shoot` so the entity starts out rotated the way it
+flies. The vector is stored rather than recovered from that rotation: `Projectile` records yaw as
+`atan2(dx, dz)` and pitch as positive-up, the *mirror* of the look convention that
+`Vec3.directionFromRotation` inverts, so a round trip through the rotation feeds back a reflected
+heading and the hook settles on a fixed one.
 
 The velocity is re-set every tick *before* the base class moves, and gravity is zero, so the base's
 0.99 drag never shows:
@@ -287,22 +317,26 @@ public void tick() {
 
 private void steer() {
     switch (phase()) {
-        case FLY -> setDeltaMovement(Vec3.directionFromRotation(getXRot(), getYRot()).scale(FLY_SPEED));
+        case FLY -> setDeltaMovement(flyDir.scale(FLY_SPEED));
         case RETURN -> {
             Entity owner = getOwner();
             Vec3 diff = owner == null ? Vec3.ZERO : owner.getEyePosition().subtract(position());
             setDeltaMovement(diff.lengthSqr() < 1e-6 ? Vec3.ZERO : diff.normalize().scale(RETURN_SPEED));
         }
-        case GRAPPLE -> setDeltaMovement(Vec3.ZERO);
+        case GRAPPLE, DRAG -> setDeltaMovement(Vec3.ZERO);
     }
+}
+
+// the orientation is set by shoot() at launch and never updated again
+protected void updateRotation() {
 }
 ```
 
-The launch vector is not stored. `shoot` put it into yaw/pitch, the spawn packet carries yaw/pitch,
-and `updateRotation` rewrites them from the same delta each tick, so rebuilding the direction from
-the rotation is exact on both sides — the client has no velocity at spawn anyway
-(`ClientboundAddEntityPacket` sets position and rotation, not motion). `updateRotation` is skipped
-while grappling so the hanging anchor keeps its pose instead of snapping to 0°/0°.
+`flyDir` is written to NBT and to the spawn data (`IEntityWithComplexSpawn`): the client is never
+sent the spawn velocity, so it needs the vector to predict the flight; the NBT copy keeps it after a
+chunk reload. `updateRotation` is empty for a reason: the vanilla implementation lerps the rotation
+toward the current delta, so the anchor would turn around on the return leg and while it drags. A
+fixed heading is also what lets the renderer draw the model without per-tick interpolation.
 
 **Collision.** `ThrowableProjectile` already runs the vanilla swept test
 (`ProjectileUtil.getHitResultOnMoveVector`) used by `FishingHook`, so nothing custom is needed.
@@ -335,6 +369,7 @@ the outcome; position updates every tick (§7) are what the client renders.
 | `FLY` | storm trail while wet; reach check | hit, or `position().distanceTo(origin) > reach()` |
 | `RETURN` | homing to the owner's eye | within 1.5 blocks, 60 ticks, owner gone → discard |
 | `GRAPPLE` | pull the owner (§6.2) | arrival (<2 blocks), 40 ticks, sneak, owner gone → `RETURN` |
+| `DRAG` | pull the grabbed entity toward the owner (§6.2) | arrival (<2 blocks), 40 ticks, target gone → `RETURN` |
 
 `tickCount > 200` is the backstop: a hook that neither hits, expires nor returns is discarded rather
 than left to a chunk unload.
@@ -342,7 +377,7 @@ than left to a chunk unload.
 | hit | `DESTROY` | `GRAB` | `PULL` | `STORM` |
 |---|---|---|---|---|
 | block | break, `RETURN` | `RETURN` | `GRAPPLE` | burst, `RETURN` |
-| entity | hurt, `RETURN` | yank, `RETURN` | flies through | burst, `RETURN` |
+| entity | hurt, `RETURN` | `DRAG`, then `RETURN` | flies through | burst, `RETURN` |
 
 **Owner hygiene.** Every phase discards when the owner is gone, removed or dying, so the hook can
 never outlive its thrower. It cannot be `SpellContainer.track`ed (that takes a
@@ -387,7 +422,7 @@ The hook's wetness is just `AnchorStorm.isWet(this)` — it is a real entity, so
 because `SimplifiedEntity.updateInWaterStateAndDoFluidPushing()` is a no-op and its owner is the only
 thing that notices the rain.
 
-### 5.4 Drawing the wet anchor
+### 5.4 Drawing the hook and the wet anchor
 
 The held anchor is always the iron model; only a thrown storm anchor turns into the water one, and
 only while the wet condition that emits danmaku holds. Both entities override `getItem()` to answer
@@ -408,15 +443,15 @@ public ItemStack getItem() {
 
 | what | how |
 |---|---|
-| hook | `AnchorHookRenderer`: yaw/pitch from the entity, a slow roll about the flight axis, the model laid flat, then `ItemRenderer.renderStatic(..., ItemDisplayContext.GROUND)` |
+| hook | `AnchorHookRenderer`: the fixed yaw/pitch from launch, the model laid flat, then `ItemRenderer.renderStatic(..., ItemDisplayContext.GROUND)` |
 | hook while wet | its `getItem()` returns `ANCHOR_WET` for a storm throw |
 | unbound bullet | unchanged `NoFadeBulletRenderer` / `ItemModelProjectileType` |
 | bullet while wet | its `getItem()` returns `ANCHOR_WET` |
 
 `ThrownItemRenderer` was rejected for the hook: it billboards with `cameraOrientation` and throws
-away the flight rotation, which reads as a sprite on a 3D anchor. The roll is the one thing borrowed
-from the cube renderer; the rest is the entity's own orientation, so the anchor points where it
-flies and at the wall it stuck into.
+away the flight rotation, which reads as a sprite on a 3D anchor. The heading is the one from `shoot`
+and never changes (§5.1), so the anchor points where it was thrown, at the wall it stuck into, and
+keeps that pose while it returns or drags.
 
 The item model is authored upright, so the renderer reproduces the danmaku pipeline's
 `translate(-0.5) · rotateX(90°)` (which centers the model in its own space and maps the shaft onto
@@ -424,12 +459,37 @@ the flight axis) and cancels the `translate(-0.5)` that `ItemRenderer.renderStat
 hence the two translations in `layFlat`. Using `ItemDisplayContext.GROUND` without that step leaves
 the shaft standing perpendicular to the throw direction.
 
+The outer rotations are the projectile convention, not the danmaku one: a `Projectile` stores yaw as
+`atan2(dx, dz)` and pitch as positive-up, whereas a `SimplifiedProjectile` stores the inverse look
+angles. So the hook passes `+getYRot()` and `-getXRot()` where the danmaku renderer passes
+`-getYRot()` and `+getXRot()`; the same mistake in the flight steering is what made the hook ignore
+the player's aim (§5.2).
+
 The twin is still an item, not a renderer flag, because the danmaku renderer resolves one baked model
 per *item* from `new ItemStack(item)` with no entity or level, so a per-stack predicate cannot see
 wetness. The hook does not share that limit, but reads the same twin so both entities show one art
 path. `getItem()` runs on the client too: the owner id arrives in the spawn data, so the client
 answers it without a packet, and a cosmetic disagreement with the server (rain at the edge of a
 chunk) is harmless.
+
+### 5.5 The chain
+
+The hook draws a chain from the thrower to the anchor in every phase, so a stuck anchor visibly ties
+the player to the wall and a dragged mob visibly comes in on a line. It uses the vanilla iron chain
+texture directly rather than the block atlas:
+
+* `RenderType.entityCutoutNoCull(ResourceLocation.withDefaultNamespace("textures/block/chain.png"))`
+  — standalone texture, so no atlas sprite UVs, and no culling so the ribbon's back face is drawn;
+* two ribbons crossed at 90° around the line, `3/16` block wide each, mapped to the texture's two
+  3-pixel columns (`u` `0..3/16` and `3/16..6/16`) exactly like the vanilla chain model;
+* split into one-block segments so `v` stays `0..1` per segment and a link is always a quarter block
+  long, without depending on texture wrapping;
+* the start is the owner's chest (`y + bbHeight * 0.6`), the end is the anchor's interpolated
+  position, both rebased into the renderer's entity-space `PoseStack`.
+
+The chain is drawn before the model, from the owner's interpolated position, so it stretches and
+shortens with the return instead of snapping. It is client-only: `getOwner()` is already restored
+from the spawn packet, so no extra synced field is needed.
 
 ## 6. The three modes
 
@@ -467,9 +527,26 @@ mod, and the cube is the reference for "a thrown weapon that excavates a volume"
 
 ### 6.2 Voyage
 
-* **Left click, `GRAB`** — on entity hit, push the target toward the owner: an impulse along
-  `(owner - target).normalize()` scaled by roughly `min(1.5, distance * 0.15)`, capped, and applied
-  with `hurtMarked = true`; then return. No damage.
+* **Left click, `GRAB`** — on entity hit, the hook latches onto the target and enters `DRAG`: every
+  tick it sets the target's velocity along `(owner - target).normalize()` at 1 b/t with
+  `hurtMarked = true` and a cleared fall distance, so the target is dragged the whole way instead of
+  coasting on one impulse. The hook rides on the target (chest height) so the chain stays attached.
+  The drag ends when the target is within 2 blocks of the owner, after 40 ticks, or when the target
+  dies; then the hook returns. No damage.
+
+```java
+private void tickDrag() {
+    LivingEntity target = grabbedTarget();
+    if (target == null || !target.isAlive() || getOwner() == null) { toReturn(); return; }
+    setPos(target.getX(), target.getY() + target.getBbHeight() * 0.6, target.getZ());
+    Vec3 diff = getOwner().position().subtract(target.position());
+    if (diff.lengthSqr() < DRAG_DIST * DRAG_DIST || --grapple <= 0) { toReturn(); return; }
+    target.setDeltaMovement(diff.normalize().scale(DRAG_SPEED));
+    target.hurtMarked = true;
+    target.fallDistance = 0;
+}
+```
+
 * **Right click, `PULL`** — the anchor enters `GRAPPLE` the moment its flight ends: on the first
   block it hits, snapped flush to that face (§5.1), or, if it hits nothing at all, where the 16-block
   reach from the throw origin runs out — it hangs there in the air rather than expiring. Either way
@@ -525,8 +602,8 @@ damage.
 ## 7. Registration checklist
 
 * `GLItems`: `MINAMITSU_ANCHOR` (`AnchorItem`, `stacksTo(1)`), the hidden `ANCHOR_WET` twin (§3),
-  `ANCHOR_MODE`, the attributes and `TOOL` components, `AnchorModel::model` for the base and the
-  per-mode models, `L2ISTagGen.SELECTABLE`, creative tab.
+  `ANCHOR_MODE` and `ANCHOR_LINK` (§3.3), the attributes and `TOOL` components, `AnchorModel::model`
+  for the base and the per-mode models, `L2ISTagGen.SELECTABLE`, creative tab.
 * `GLEntities`, two entries, because the split is the whole point of §5:
   * `ANCHOR_HOOK`, id `minamitsu_anchor` (the current id), `sized(0.5F, 0.5F)`,
     `clientTrackingRange(6)`, **`updateInterval(1)`**, `renderer(AnchorHookRenderer::new)`. The
@@ -563,7 +640,8 @@ effects beyond what the tags grant.
 **Decided** (change these only with a reason):
 
 * the bounded anchor is a normal `ThrowableProjectile`; only the unbound volley is danmaku (§5);
-* Destroy and Storm hooks return; unbound bullets vanish; a `GRAB` hook returns after the yank;
+* Destroy and Storm hooks return; unbound bullets vanish; a `GRAB` hook drags its target home and
+  then returns;
 * `GRAB` does not damage — it is a repositioning tool;
 * Voyage keeps vanilla mining and attacking; only an empty left click throws;
 * a `PULL` hook sticks even when it hits nothing, hanging at the reach limit until the pull ends;
@@ -576,6 +654,8 @@ effects beyond what the tags grant.
   lost to a chunk unload cannot leave anyone floating;
 * the storm volley is five bullets in a ±25° yaw fan — "up to 48 blocks" is read as reach, not as a
   literal vertical launch (the other reading is a single upward spray, which is a one-line change);
+* the held stack carries the out hook's UUID, hiding the item and refusing throws until the server
+  sees the hook gone (§3.3); the client never looks the entity up;
 * the anchor charges spiritual power in creative too, matching the fan.
 
 **Edge cases:**
@@ -619,20 +699,25 @@ a record of why the split landed in that order:
 6. Delete `AnchorThrow.returns()` and `AnchorProjectile`, `./gradlew build`, `./gradlew runData`.
 7. Playtest: reach 16 against a wall and into open air, return into the owner's hand, 3×3×3 in stone
    and in obsidian, grapple across a ravine, storm in rain and in water.
+8. The held-stack link (§3.3): merged `ItemInHandRendererMixin`, `AnchorItem.inventoryTick` clears it;
+   the hook keeps no link code, so a stack moved mid-throw still frees itself.
 
 ## 10. Test plan
 
 1. Destroy: throw at stone → 27 blocks break and drop; at obsidian → breaks (diamond level); at
-   bedrock → nothing; the hook stops flush against the face, returns to the hand and cannot be
-   picked up as an item.
+   bedrock → nothing; the hook stops flush against the face, keeps the throw orientation, returns to
+   the hand on a chain and cannot be picked up as an item.
 2. Destroy vs. a mob: damage lands once, the hook returns, no second hit on the way home.
-3. Voyage: an *empty* left click at a cow 10 blocks away yanks it toward the player; left-clicking a
-   block or a mob with the anchor held mines / punches as usual and throws nothing.
+3. Voyage: an *empty* left click at a cow 10 blocks away drags it all the way to the player, one tick
+   at a time (it does not coast), and the chain follows it; left-clicking a block or a mob with the
+   anchor held mines / punches as usual and throws nothing.
 4. Voyage right click at a wall → the hook sticks in the face and the player is pulled to the wall;
    right click at open sky → the hook hangs 16 blocks from the *launch point* and pulls the player
    anyway. The pull ends on arrival, on sneak, or after 40 ticks, and the hook then returns.
 5. Voyage through a wall: the return path ignores terrain, and the grappled player stops at the
-   wall instead of inside it; switching hotbar slots mid-pull does not cancel the pull.
+   wall instead of inside it; switching hotbar slots mid-pull does not cancel the pull. The chain
+   runs from the player's chest to the anchor in every phase, and the anchor does not turn around
+   while returning.
 6. Storm left: throws exactly one hook (not five), costs 5 from a 100 pool, area damage hits every
    mob in 4 blocks once, and the hook returns.
 7. Storm right: five bullets, each reaching 48 blocks, 10 power for the volley; a dry throw emits
@@ -643,6 +728,10 @@ a record of why the split landed in that order:
    first and is discarded at the hand.
 9. Wheel: switching modes persists on the stack, and the held model/wheel icon follow.
 10. Power: a 4-power anchor refuses a storm with the message and no cooldown; a Jizo refills it.
+11. One anchor at a time: after a throw the item is gone from the hand (first and third person) and a
+    second click does nothing; the item reappears the tick the hook returns or is discarded, also
+    when it was moved to another hotbar slot or into a chest before the hook landed. A storm volley
+    does not hide the item — no hook was thrown.
 
 ## 11. Reference notes
 
@@ -653,7 +742,7 @@ them:
 |---|---|---|
 | vanilla `FishingHook` | runs its own `ProjectileUtil.getHitResultOnMoveVector` every tick; `Projectile.getAddEntityPacket` carries the owner id and `recreateFromPacket` restores it | the swept test and the free owner sync |
 | Cataclysm `Tidal_Hook_Entity` | an `AbstractArrow` with `noGravity`, base damage 0 and `getPickupItem() = ItemStack.EMPTY`; discards when the owner dies, leaves range, or switches away from the claws; pull = `maxSpeed / 6` velocity with a brake zone, zeroed horizontally when close; sets `noGravity` on the player and restores it in `kill()` | zero gravity, empty pickup, brake-zone pull; no player no-gravity |
-| Twilight Forest `CubeOfAnnihilation` | `getDefaultGravity() = 0`; its own `tick()` aims at `owner.look * 16` (or the owner when returning), clamps speed to 0.5, annihilates an AABB; returns when the use stops; posts `BlockEvent.BreakEvent` for each block and honours adventure mode | per-tick self-set velocity, `BreakEvent` per block, the slow roll; no auto-aim |
+| Twilight Forest `CubeOfAnnihilation` | `getDefaultGravity() = 0`; its own `tick()` aims at `owner.look * 16` (or the owner when returning), clamps speed to 0.5, annihilates an AABB; returns when the use stops; posts `BlockEvent.BreakEvent` for each block and honours adventure mode | per-tick self-set velocity, `BreakEvent` per block; no auto-aim |
 
 Two vanilla behaviours shaped the plan:
 
@@ -661,5 +750,5 @@ Two vanilla behaviours shaped the plan:
   the callback, so zeroing it in `onHitBlock` stops the entity short of the face; the hook snaps to
   `hit.getLocation()` first, and the base's own `setPos` then agrees with it.
 * `ClientboundAddEntityPacket` carries position and rotation but not motion, so the client's delta is
-  zero until the first motion packet. The hook rebuilds the launch direction from its synced
-  rotation instead of storing a vector.
+  zero at spawn. The hook sends its launch vector in `IEntityWithComplexSpawn` data rather than
+  rebuilding it from the rotation — see §5.2 for why the rotation cannot be inverted naively.

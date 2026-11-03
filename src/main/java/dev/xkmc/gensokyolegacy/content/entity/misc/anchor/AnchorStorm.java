@@ -58,9 +58,11 @@ public final class AnchorStorm {
 		if (!wet || spent >= MAX_TRAIL || !stormDanmaku()) return spent;
 		Vec3 vec = self.getDeltaMovement();
 		if (vec.lengthSqr() < 1e-6) return spent;
-		var orientation = DanmakuHelper.getOrientation(vec.normalize());
-		for (int i = 0; i < 4; i++) {
-			Vec3 dir = orientation.rotateDegrees(90 * i + self.tickCount * 15);
+		var orientation = DanmakuHelper.getOrientation(vec.normalize()).asNormal();
+		var r = self.getRandom();
+		var a = self.tickCount * 10;
+		for (int i = 0; i < 6; i++) {
+			Vec3 dir = orientation.rotateDegrees(60 * i + a);
 			spawn(self, owner, dir, TRAIL_LIFE + self.getRandom().nextInt(11), null);
 		}
 		return spent + 4;
@@ -91,18 +93,18 @@ public final class AnchorStorm {
 	private static void burst(Entity self, Entity owner) {
 		Vec3 forward = self.getDeltaMovement().normalize();
 		if (forward.lengthSqr() < 1e-6) forward = new Vec3(0, 1, 0);
-		for (int i = 0; i < BURST_COUNT; i++) {
+		for (int i = 0; i < 300; i++) {
 			Vec3 dir = new Vec3(self.getRandom().nextGaussian(), self.getRandom().nextGaussian(),
 					self.getRandom().nextGaussian()).add(forward.scale(1.2));
 			if (dir.lengthSqr() < 1e-6) dir = forward;
-			spawn(self, owner, dir.normalize(), TRAIL_LIFE + self.getRandom().nextInt(11),
+			spawn(self, owner, dir.normalize().scale(1.2), TRAIL_LIFE + self.getRandom().nextInt(11),
 					new Vec3(0, -0.05, 0));
 		}
 	}
 
 	private static void spawn(Entity self, Entity owner, Vec3 dir, int life, Vec3 accel) {
 		if (!(self.level() instanceof ServerLevel sl)) return;
-		ItemStack stack = new ItemStack(DanmakuItems.Bullet.CIRCLE.get(DyeColor.BLUE).get());
+		ItemStack stack = new ItemStack(DanmakuItems.Bullet.CIRCLE.get(accel==null ? DyeColor.CYAN:DyeColor.BLUE).get());
 		ItemBulletEntity danmaku = new ItemBulletEntity(DanmakuEntities.ITEM_DANMAKU.get(), 0, 0, 0, sl);
 		if (owner != null) danmaku.setOwner(owner);
 		danmaku.setItem(stack);
