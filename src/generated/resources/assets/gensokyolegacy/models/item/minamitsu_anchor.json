@@ -6,13 +6,13 @@
   "loader": "neoforge:separate_transforms",
   "overrides": [
     {
-      "model": "gensokyolegacy:item/minamitsu_anchor_destroy",
+      "model": "gensokyolegacy:item/minamitsu_anchor_voyage",
       "predicate": {
         "gensokyolegacy:anchor_display": 1.0
       }
     },
     {
-      "model": "gensokyolegacy:item/minamitsu_anchor_voyage",
+      "model": "gensokyolegacy:item/minamitsu_anchor_destroy",
       "predicate": {
         "gensokyolegacy:anchor_display": 2.0
       }

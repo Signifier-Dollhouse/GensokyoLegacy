@@ -13,8 +13,8 @@ import net.minecraft.world.item.ItemStack;
  * @see "doc/design/minamitsu_anchor.md"
  */
 public enum AnchorMode {
-	DESTROY(GLLang.ItemAnchor.MODE_DESTROY),
 	VOYAGE(GLLang.ItemAnchor.MODE_VOYAGE),
+	DESTROY(GLLang.ItemAnchor.MODE_DESTROY),
 	STORM(GLLang.ItemAnchor.MODE_STORM);
 
 	private static final AnchorMode[] VALUES = values();
@@ -34,7 +34,7 @@ public enum AnchorMode {
 	 * component picks the flat GUI icon through {@link AnchorItem#displayPredicate}.
 	 */
 	public ItemStack icon() {
-		ItemStack stack = new ItemStack(GLItems.MINAMITSU_ANCHOR.get());
+		ItemStack stack = GLItems.MINAMITSU_ANCHOR.asStack();
 		AnchorItem.setMode(stack, this);
 		stack.set(DataComponents.ITEM_NAME, getDisplayName());
 		return stack;

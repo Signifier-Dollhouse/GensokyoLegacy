@@ -661,9 +661,9 @@ public class GLItems {
 			// the durability bar is free for the spiritual pool.
 			MINAMITSU_ANCHOR = reg.item("minamitsu_anchor", p -> new AnchorItem(p.stacksTo(1)
 					.attributes(ItemAttributeModifiers.builder()
-							.add(Attributes.ATTACK_DAMAGE, new AttributeModifier(Item.BASE_ATTACK_DAMAGE_ID, 9.0,
+							.add(Attributes.ATTACK_DAMAGE, new AttributeModifier(Item.BASE_ATTACK_DAMAGE_ID, 14.0,
 									AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND)
-							.add(Attributes.ATTACK_SPEED, new AttributeModifier(Item.BASE_ATTACK_SPEED_ID, -3.0,
+							.add(Attributes.ATTACK_SPEED, new AttributeModifier(Item.BASE_ATTACK_SPEED_ID, -3.2,
 									AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND)
 							.build())
 					.component(DataComponents.TOOL, Tiers.DIAMOND.createToolProperties(BlockTags.MINEABLE_WITH_PICKAXE))))
@@ -693,7 +693,13 @@ public class GLItems {
 					.tag(GLTagGen.WEBSITE_HIDDEN)
 					.lang("Minamitsu's Anchor (Wet)").register();
 
-			NUE_TRIDENT = reg.item("nue_trident", p -> new NueTridentItem(p.stacksTo(1).rarity(Rarity.RARE)))
+			NUE_TRIDENT = reg.item("nue_trident", p -> new NueTridentItem(p.stacksTo(1).rarity(Rarity.RARE)
+							.attributes(ItemAttributeModifiers.builder()
+									.add(Attributes.ATTACK_DAMAGE, new AttributeModifier(Item.BASE_ATTACK_DAMAGE_ID, 10.0,
+											AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND)
+									.add(Attributes.ATTACK_SPEED, new AttributeModifier(Item.BASE_ATTACK_SPEED_ID, -2.8,
+											AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND)
+									.build())))
 					.model((ctx, pvd) -> {
 						var base = pvd.nested()
 								.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/" + ctx.getName())));
