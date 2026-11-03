@@ -16,6 +16,7 @@ import dev.xkmc.gensokyolegacy.content.fluid.GLFluidType;
 import dev.xkmc.gensokyolegacy.content.item.common.ClientInvTooltip;
 import dev.xkmc.gensokyolegacy.content.item.common.InvTooltip;
 import dev.xkmc.gensokyolegacy.content.item.common.client.GloveTargetCache;
+import dev.xkmc.gensokyolegacy.content.item.anchor.AnchorItem;
 import dev.xkmc.gensokyolegacy.content.item.dagger.DaggerGloveItem;
 import dev.xkmc.gensokyolegacy.content.item.glove.DollGloveItem;
 import dev.xkmc.gensokyolegacy.content.item.glove.client.DollAttackStatusOverlay;
@@ -60,6 +61,8 @@ public class GLClient {
 			ItemProperties.register(GLItems.DOLL_GLOVE.get(), GensokyoLegacy.loc("glove_display"), DollGloveItem::displayPredicate);
 			ItemProperties.register(GLItems.DAGGER_GLOVE.get(), GensokyoLegacy.loc("dagger_glove_display"),
 					DaggerGloveItem::displayPredicate);
+			ItemProperties.register(GLItems.MINAMITSU_ANCHOR.get(), GensokyoLegacy.loc("anchor_display"),
+					AnchorItem::displayPredicate);
 
 			CuriosRendererRegistry.register(GLItems.STRAW_HAT.get(), TouhouHatRenderer::new);
 			CuriosRendererRegistry.register(GLItems.SUWAKO_HAT.get(), TouhouHatRenderer::new);
@@ -70,6 +73,9 @@ public class GLClient {
 			GLItems.PINK_BUTTERFLY.get().getTypeForRender();
 			GLItems.BLUE_BUTTERFLY.get().getTypeForRender();
 			GLItems.IRON_DAGGER.get().getTypeForRender();
+			GLItems.NUE_TRIDENT.get().getTypeForRender();
+			GLItems.MINAMITSU_ANCHOR.get().getTypeForRender();
+			GLItems.ANCHOR_WET.get().getTypeForRender();
 			ProjectileRenderHelper.setup();
 		});
 	}

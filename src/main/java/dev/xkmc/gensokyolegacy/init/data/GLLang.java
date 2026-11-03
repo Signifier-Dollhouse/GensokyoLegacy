@@ -522,7 +522,10 @@ public final class GLLang {
 		ICE_WINGS_LORE("Six crystals, and it is suddenly very hard to count past nine.", 0, ChatFormatting.GRAY),
 		FAIRY_WINGS_LORE("A fairy's wing, priced at half of whatever the wearer has.", 0, ChatFormatting.GRAY),
 		FANCY_FAN_LORE("Pretty enough to give away, and it blows when you wave it.", 0, ChatFormatting.GRAY),
-		YUYUKO_FAN_LORE("A fan full of ghosts, and not one of them will stay still.", 0, ChatFormatting.GRAY);
+		YUYUKO_FAN_LORE("A fan full of ghosts, and not one of them will stay still.", 0, ChatFormatting.GRAY),
+		MINAMITSU_ANCHOR_LORE("Heavy enough to stop a ship, and it still comes back.", 0, ChatFormatting.GRAY),
+		NUE_TRIDENT_LORE("The one you throw is never the one you keep.", 0, ChatFormatting.GRAY),
+		UFO_LORE("Something in there is waiting to be let out.", 0, ChatFormatting.GRAY);
 
 		private final String def;
 		private final int argn;
@@ -1202,6 +1205,100 @@ public final class GLLang {
 		}
 	}
 
+	public enum ItemAnchor implements LangEntry {
+		MODE_DESTROY("Destroy"),
+		MODE_VOYAGE("Voyage"),
+		MODE_STORM("Storm"),
+		SELECTED("Selected: %s", 1),
+		COST("Storm throws cost 5 / 10 spiritual power", 0, ChatFormatting.GRAY),
+		NEED_POWER("The anchor needs at least %s spiritual power", 1, ChatFormatting.RED);
+
+		private final String def;
+		private final int argn;
+		private final String key;
+		private final @Nullable ChatFormatting format;
+
+		ItemAnchor(String def) {
+			this(def, 0, null);
+		}
+
+		ItemAnchor(String def, int argn) {
+			this(def, argn, null);
+		}
+
+		ItemAnchor(String def, int argn, @Nullable ChatFormatting format) {
+			this.def = def;
+			this.argn = argn;
+			this.key = GensokyoLegacy.MODID + ".anchor." + name().toLowerCase(Locale.ROOT);
+			this.format = format;
+		}
+
+		@Override
+		public String key() {
+			return key;
+		}
+
+		@Override
+		public String def() {
+			return def;
+		}
+
+		@Override
+		public int argn() {
+			return argn;
+		}
+
+		@Override
+		public @Nullable ChatFormatting format() {
+			return format;
+		}
+	}
+
+	public enum ItemUfo implements LangEntry {
+		CONTAINS("Contains %s", 1),
+		HOLD("Hold right-click for two seconds to take it back", 0, ChatFormatting.GRAY);
+
+		private final String def;
+		private final int argn;
+		private final String key;
+		private final @Nullable ChatFormatting format;
+
+		ItemUfo(String def) {
+			this(def, 0, null);
+		}
+
+		ItemUfo(String def, int argn) {
+			this(def, argn, null);
+		}
+
+		ItemUfo(String def, int argn, @Nullable ChatFormatting format) {
+			this.def = def;
+			this.argn = argn;
+			this.key = GensokyoLegacy.MODID + ".ufo." + name().toLowerCase(Locale.ROOT);
+			this.format = format;
+		}
+
+		@Override
+		public String key() {
+			return key;
+		}
+
+		@Override
+		public String def() {
+			return def;
+		}
+
+		@Override
+		public int argn() {
+			return argn;
+		}
+
+		@Override
+		public @Nullable ChatFormatting format() {
+			return format;
+		}
+	}
+
 	public enum Jizo implements LangEntry {
 		NO_XP("Jizo needs a full level of experience to draw on", 0, ChatFormatting.RED),
 		FULL("That item cannot hold any more spiritual power", 0, ChatFormatting.RED),
@@ -1299,6 +1396,7 @@ public final class GLLang {
 				ItemDebug.values(), ItemFurnace.values(), ItemLores.values(), ItemCommon.values(), ItemUmbrella.values(), ItemGlove.values(), ItemDaggerGlove.values(), Alchemy.values(), Jei.values(), JeiExtra.values(),
 				Talisman.values(), Doll.values(), Party.values(), ItemSekibankiHead.values(),
 				Spiritual.values(), Ghost.values(), ItemBoneFlute.values(), ItemYuyukoFan.values(),
+				ItemAnchor.values(), ItemUfo.values(),
 				Jizo.values()}) {
 			for (var e : group) {
 				pvd.add(e.key(), e.def());

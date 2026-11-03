@@ -2,7 +2,6 @@ package dev.xkmc.gensokyolegacy.content.item.spiritual;
 
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import net.minecraft.network.chat.Component;
-import net.minecraft.util.Mth;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -22,19 +21,17 @@ public class SpiritualItem extends Item {
 
 	@Override
 	public boolean isBarVisible(ItemStack stack) {
-		return SpiritualPower.max(stack) > 0;
+		return SpiritualPower.barVisible(stack);
 	}
 
 	@Override
 	public int getBarWidth(ItemStack stack) {
-		int max = SpiritualPower.max(stack);
-		if (max <= 0) return 0;
-		return Mth.clamp(Math.round(13.0F * SpiritualPower.get(stack) / max), 0, 13);
+		return SpiritualPower.barWidth(stack);
 	}
 
 	@Override
 	public int getBarColor(ItemStack stack) {
-		return 0x55FFFF;
+		return SpiritualPower.BAR_COLOR;
 	}
 
 	@Override

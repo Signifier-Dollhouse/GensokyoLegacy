@@ -39,6 +39,11 @@ import dev.xkmc.gensokyolegacy.content.entity.misc.FairyIce;
 import dev.xkmc.gensokyolegacy.content.entity.misc.FrozenFrog;
 import dev.xkmc.gensokyolegacy.content.entity.misc.HexBrewBottleEntity;
 import dev.xkmc.gensokyolegacy.content.entity.misc.IronDaggerBulletEntity;
+import dev.xkmc.gensokyolegacy.content.entity.misc.NueTridentProjectile;
+import dev.xkmc.gensokyolegacy.content.entity.misc.anchor.AnchorBulletEntity;
+import dev.xkmc.gensokyolegacy.content.entity.misc.anchor.AnchorHookEntity;
+import dev.xkmc.gensokyolegacy.content.entity.misc.render.AnchorHookRenderer;
+import dev.xkmc.gensokyolegacy.content.entity.misc.render.NoFadeBulletRenderer;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.BossYoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.GeneralYoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.item.gift.GiftPreference;
@@ -81,6 +86,9 @@ public class GLEntities {
 	public static final EntityEntry<HexBrewBottleEntity> HEXBREW_BOTTLE;
 	public static final EntityEntry<IronDaggerBulletEntity> IRON_DAGGER;
 	public static final EntityEntry<ButterflyDanmakuBulletEntity> BUTTERFLY_DANMAKU;
+	public static final EntityEntry<AnchorHookEntity> ANCHOR_HOOK;
+	public static final EntityEntry<AnchorBulletEntity> ANCHOR_BULLET;
+	public static final EntityEntry<NueTridentProjectile> NUE_TRIDENT;
 
 
 	// No character has a spawn egg: every mob is met in the world or summoned in-game, never placed.
@@ -263,6 +271,27 @@ public class GLEntities {
 					.<ButterflyDanmakuBulletEntity>entity("butterfly_danmaku", ButterflyDanmakuBulletEntity::new, MobCategory.MISC)
 					.properties(p -> p.sized(0.4F, 0.4F).clientTrackingRange(4).updateInterval(1 << 16))
 					.renderer(() -> ItemBulletRenderer<ButterflyDanmakuBulletEntity>::new)
+					.register();
+
+			// the bounded anchor is a real projectile: the client must see where it stopped
+			ANCHOR_HOOK = GensokyoLegacy.REGISTRATE
+					.<AnchorHookEntity>entity("minamitsu_anchor", AnchorHookEntity::new, MobCategory.MISC)
+					.properties(p -> p.sized(0.5F, 0.5F).clientTrackingRange(6).updateInterval(1))
+					.renderer(() -> AnchorHookRenderer::new)
+					.register();
+
+			// only the unbound volley stays a danmaku, so it keeps the fully predicted movement
+			ANCHOR_BULLET = GensokyoLegacy.REGISTRATE
+					.<AnchorBulletEntity>entity("minamitsu_anchor_unbound", AnchorBulletEntity::new, MobCategory.MISC)
+					.properties(p -> p.sized(0.5F, 0.5F).clientTrackingRange(4).updateInterval(1 << 16))
+					.renderer(() -> NoFadeBulletRenderer<AnchorBulletEntity>::new)
+					.register();
+
+			// thrown weapons keep their own opacity and sight-line position, unlike danmaku
+			NUE_TRIDENT = GensokyoLegacy.REGISTRATE
+					.<NueTridentProjectile>entity("nue_trident", NueTridentProjectile::new, MobCategory.MISC)
+					.properties(p -> p.sized(0.5F, 0.5F).clientTrackingRange(4).updateInterval(1 << 16))
+					.renderer(() -> NoFadeBulletRenderer<NueTridentProjectile>::new)
 					.register();
 		}
 

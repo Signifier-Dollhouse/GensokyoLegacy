@@ -2,6 +2,7 @@ package dev.xkmc.gensokyolegacy.init.registrate;
 
 import com.tterrag.registrate.providers.RegistrateItemModelProvider;
 import com.tterrag.registrate.util.entry.ItemEntry;
+import dev.xkmc.danmakuapi.content.item.DanmakuItem;
 import dev.xkmc.danmakuapi.content.item.SpellItem;
 import dev.xkmc.danmakuapi.init.data.DanmakuTagGen;
 import dev.xkmc.danmakuapi.init.registrate.DanmakuItems;
@@ -15,6 +16,9 @@ import dev.xkmc.gensokyolegacy.content.client.model.HatModel;
 import dev.xkmc.gensokyolegacy.content.client.model.SuwakoHatModel;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.SekibankiHeadEntity;
 import dev.xkmc.gensokyolegacy.content.item.character.*;
+import dev.xkmc.gensokyolegacy.content.item.anchor.AnchorItem;
+import dev.xkmc.gensokyolegacy.content.item.anchor.AnchorMode;
+import dev.xkmc.gensokyolegacy.content.item.anchor.AnchorModel;
 import dev.xkmc.gensokyolegacy.content.item.dagger.DaggerGloveItem;
 import dev.xkmc.gensokyolegacy.content.item.dagger.DaggerGloveMode;
 import dev.xkmc.gensokyolegacy.content.item.dagger.DaggerGloveModel;
@@ -32,6 +36,8 @@ import dev.xkmc.gensokyolegacy.content.item.hakkero.HakkeroData;
 import dev.xkmc.gensokyolegacy.content.item.hakkero.HakkeroMode;
 import dev.xkmc.gensokyolegacy.content.item.hakkero.HakkeroPrototype;
 import dev.xkmc.gensokyolegacy.content.item.hexbrew.StarDanmakuItem;
+import dev.xkmc.gensokyolegacy.content.item.nue.NueTridentItem;
+import dev.xkmc.gensokyolegacy.content.item.nue.UfoItem;
 import dev.xkmc.gensokyolegacy.content.item.ingredient.FairyDustItem;
 import dev.xkmc.gensokyolegacy.content.item.ingredient.FairyIceItem;
 import dev.xkmc.gensokyolegacy.content.item.ingredient.FrozenFrogItem;
@@ -52,17 +58,24 @@ import dev.xkmc.l2core.init.reg.registrate.SimpleEntry;
 import dev.xkmc.l2core.init.reg.simple.DCReg;
 import dev.xkmc.l2core.init.reg.simple.DCVal;
 import dev.xkmc.l2core.init.reg.simple.EnumCodec;
+import dev.xkmc.l2core.util.DCStack;
 import dev.xkmc.l2itemselector.init.data.L2ISTagGen;
 import net.minecraft.client.renderer.block.model.BlockModel;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.util.Unit;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.EquipmentSlotGroup;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.animal.FrogVariant;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.*;
+import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
 import net.neoforged.neoforge.client.model.generators.loaders.SeparateTransformsModelBuilder;
 import net.neoforged.neoforge.registries.datamaps.builtin.FurnaceFuel;
@@ -96,6 +109,11 @@ public class GLItems {
 	public static final ItemEntry<CatBell> CAT_BELL;
 	public static final ItemEntry<IronDaggerItem> IRON_DAGGER;
 	public static final ItemEntry<DaggerGloveItem> DAGGER_GLOVE;
+
+	public static final ItemEntry<AnchorItem> MINAMITSU_ANCHOR;
+	public static final ItemEntry<DanmakuItem> ANCHOR_WET;
+	public static final ItemEntry<NueTridentItem> NUE_TRIDENT;
+	public static final ItemEntry<UfoItem> UFO;
 
 	public static final ItemEntry<DrinkGiftItem> TENGU_SAKE, GHOST_SAKE;
 	public static final ItemEntry<GourdItem> IBUKI_GOURD;
@@ -170,6 +188,9 @@ public class GLItems {
 	public static final DCVal<Integer> SPIRITUAL_POWER_MAX = DC.intVal("spiritual_power_max");
 	public static final DCVal<YuyukoFanMode> YUYUKO_FAN_MODE =
 			DC.enumVal("yuyuko_fan_mode", EnumCodec.of(YuyukoFanMode.class, YuyukoFanMode.values()));
+	public static final DCVal<AnchorMode> ANCHOR_MODE =
+			DC.enumVal("anchor_mode", EnumCodec.of(AnchorMode.class, AnchorMode.values()));
+	public static final DCVal<DCStack> UFO_CONTENT = DC.stack("ufo_content");
 	public static final DCVal<PartyWandData> PARTY_WAND_DATA = DC.reg("party_wand", PartyWandData.CODEC,
 			ByteBufCodecs.fromCodecWithRegistries(PartyWandData.CODEC), false);
 
@@ -633,6 +654,64 @@ public class GLItems {
 					.model(DaggerGloveModel::model)
 					.lang("Dagger Glove").tab(TAB.key())
 					.tag(L2ISTagGen.SELECTABLE)
+					.register();
+
+			// A pickaxe that throws itself. TOOL gives it diamond harvesting without durability, and
+			// the durability bar is free for the spiritual pool.
+			MINAMITSU_ANCHOR = reg.item("minamitsu_anchor", p -> new AnchorItem(p.stacksTo(1)
+					.attributes(ItemAttributeModifiers.builder()
+							.add(Attributes.ATTACK_DAMAGE, new AttributeModifier(Item.BASE_ATTACK_DAMAGE_ID, 9.0,
+									AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND)
+							.add(Attributes.ATTACK_SPEED, new AttributeModifier(Item.BASE_ATTACK_SPEED_ID, -3.0,
+									AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND)
+							.build())
+					.component(DataComponents.TOOL, Tiers.DIAMOND.createToolProperties(BlockTags.MINEABLE_WITH_PICKAXE))))
+					.model(AnchorModel::model)
+					.tag(ItemTags.PICKAXES, ItemTags.MINING_ENCHANTABLE, ItemTags.MINING_LOOT_ENCHANTABLE,
+							ItemTags.WEAPON_ENCHANTABLE, ItemTags.SHARP_WEAPON_ENCHANTABLE)
+					.lang("Minamitsu's Anchor").tab(TAB.key())
+					.tag(L2ISTagGen.SELECTABLE)
+					.register();
+
+			// the water twin: never held, only drawn by a wet storm anchor, which must switch models
+			// per item because ItemModelProjectileType bakes one model per item (minamitsu_anchor.md §5.1)
+			ANCHOR_WET = reg.item("anchor_wet", p -> new DanmakuItem(p, DanmakuItems.Bullet.DAGGER, DyeColor.WHITE, 1.0F))
+					.model((ctx, pvd) -> {
+						var base = pvd.nested()
+								.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/minamitsu_anchor_wet")));
+						var guiModel = pvd.nested()
+								.parent(new ModelFile.UncheckedModelFile("item/generated"))
+								.texture("layer0", pvd.modLoc("item/tool/iron_anchor_icon"));
+						pvd.getBuilder(ctx.getName())
+								.customLoader(SeparateTransformsModelBuilder::begin)
+								.base(base)
+								.perspective(ItemDisplayContext.GUI, guiModel)
+								.end().guiLight(BlockModel.GuiLight.FRONT);
+					})
+					.removeTab(TAB.key())
+					.tag(GLTagGen.WEBSITE_HIDDEN)
+					.lang("Minamitsu's Anchor (Wet)").register();
+
+			NUE_TRIDENT = reg.item("nue_trident", p -> new NueTridentItem(p.stacksTo(1).rarity(Rarity.RARE)))
+					.model((ctx, pvd) -> {
+						var base = pvd.nested()
+								.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/" + ctx.getName())));
+						var guiModel = pvd.nested()
+								.parent(new ModelFile.UncheckedModelFile("item/generated"))
+								.texture("layer0", pvd.modLoc("item/tool/" + ctx.getName() + "_icon"));
+						pvd.getBuilder(ctx.getName())
+								.customLoader(SeparateTransformsModelBuilder::begin)
+								.base(base)
+								.perspective(ItemDisplayContext.GUI, guiModel)
+								.end().guiLight(BlockModel.GuiLight.FRONT);
+					})
+					.tag(ItemTags.WEAPON_ENCHANTABLE, ItemTags.SHARP_WEAPON_ENCHANTABLE)
+					.lang("Nue's Trident").tab(TAB.key())
+					.register();
+
+			UFO = reg.item("ufo", p -> new UfoItem(p.stacksTo(1).rarity(Rarity.UNCOMMON)))
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/tool/" + ctx.getName())))
+					.lang("UFO").tab(TAB.key())
 					.register();
 
 			STRANGE_GLASSES = reg.item("strange_glasses", p -> new StrangeGlassesItem(p.rarity(Rarity.UNCOMMON)))

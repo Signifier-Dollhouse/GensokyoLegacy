@@ -15,6 +15,7 @@ import dev.xkmc.gensokyolegacy.content.entity.dolls.network.HeadUseToServer;
 import dev.xkmc.gensokyolegacy.content.entity.foundation.CombatToClient;
 import dev.xkmc.gensokyolegacy.content.item.common.network.GloveTargetPacket;
 import dev.xkmc.gensokyolegacy.content.item.common.network.SelectorSelectPacket;
+import dev.xkmc.gensokyolegacy.content.item.anchor.network.AnchorSwingPacket;
 import dev.xkmc.gensokyolegacy.content.item.glove.network.DollGloveSwingPacket;
 import dev.xkmc.gensokyolegacy.content.item.hakkero.Hakkero;
 import dev.xkmc.gensokyolegacy.content.item.tool.CatBell;
@@ -86,6 +87,7 @@ public class GLPackets {
 				.toClient(BorderUmbrellaOpenRenamePacket.class)
 
 				.toServer(DollGloveSwingPacket.class)
+				.toServer(AnchorSwingPacket.class)
 				.toClient(DollRosterToClient.class)
 
 				// the head's own hands while its owner looks out of it: the camera arrives on

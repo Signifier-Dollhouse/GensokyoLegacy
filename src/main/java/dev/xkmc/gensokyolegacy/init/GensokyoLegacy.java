@@ -10,6 +10,7 @@ import dev.xkmc.gensokyolegacy.content.cooldown.LivelySource;
 import dev.xkmc.gensokyolegacy.content.dimension.GLDimensionGen;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.move.YoukaiNodeEvaluatorRegistry;
 import dev.xkmc.gensokyolegacy.content.item.dagger.DaggerGloveSelectionListener;
+import dev.xkmc.gensokyolegacy.content.item.anchor.AnchorSelectionListener;
 import dev.xkmc.gensokyolegacy.content.item.ghost.YuyukoFanItem;
 import dev.xkmc.gensokyolegacy.content.item.ghost.YuyukoFanSelectionListener;
 import dev.xkmc.gensokyolegacy.content.item.glove.DollGloveSelectionListener;
@@ -69,7 +70,7 @@ public class GensokyoLegacy {
 	public static final String MODID = "gensokyolegacy";
 	public static final Reg REG = new Reg(MODID);
 	public static final L2Registrate REGISTRATE = new L2Registrate(MODID);
-	public static final PacketHandler HANDLER = GLPackets.create(3);
+	public static final PacketHandler HANDLER = GLPackets.create(4);
 
 	public GensokyoLegacy() {
 
@@ -129,6 +130,7 @@ public class GensokyoLegacy {
 			DollGloveSelectionListener.register();
 			DaggerGloveSelectionListener.register();
 			YuyukoFanSelectionListener.register();
+			AnchorSelectionListener.register();
 			CooldownRates.register(new LivelySource());
 
 			DispenserBlock.registerProjectileBehavior(GLItems.FROZEN_FROG_COLD.get());

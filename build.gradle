@@ -197,6 +197,8 @@ dependencies {
     implementation "dev.xkmc:youkaisfeasts:1.1.0"
     implementation "dev.xkmc:l2harvester:3.0.0"
     implementation "dev.xkmc:twilightdelight:3.2.6-slim"
+    implementation "curse.maven:lionfish-api-1001614:6168249"
+    implementation "curse.maven:lendercataclysm-551586:7578941"
 
     implementation "mezz.jei:jei-${jei_minecraft_version}:${jei_version}"
 

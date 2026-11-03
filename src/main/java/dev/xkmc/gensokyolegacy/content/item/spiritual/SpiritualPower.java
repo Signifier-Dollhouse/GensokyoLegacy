@@ -18,6 +18,11 @@ import java.util.List;
  */
 public final class SpiritualPower {
 
+	/**
+	 * The pool bar's colour, shared by every carrier so one item's bar cannot drift from another's.
+	 */
+	public static final int BAR_COLOR = 0x55FFFF;
+
 	private SpiritualPower() {
 	}
 
@@ -45,6 +50,16 @@ public final class SpiritualPower {
 
 	public static void appendHoverText(ItemStack stack, List<Component> list) {
 		list.add(GLLang.Spiritual.BAR.get(get(stack), max(stack)));
+	}
+
+	public static boolean barVisible(ItemStack stack) {
+		return max(stack) > 0;
+	}
+
+	public static int barWidth(ItemStack stack) {
+		int max = max(stack);
+		if (max <= 0) return 0;
+		return Mth.clamp(Math.round(13.0F * get(stack) / max), 0, 13);
 	}
 
 	public static int addToHeld(Player player, int power) {

@@ -2,6 +2,7 @@
   "values": [
     "gensokyolegacy:dowser_left",
     "gensokyolegacy:dowser_right",
+    "gensokyolegacy:anchor_wet",
     "#gensokyolegacy:debug_items",
     "#gensokyolegacy:spell_card"
   ]
