@@ -24,7 +24,7 @@ public class FallingLeafParticle extends TextureSheetParticle {
 		this.spinAcceleration = (float) Math.toRadians(this.random.nextBoolean() ? -5.0 : 5.0);
 		this.lifetime = LIFETIME;
 		this.gravity = 7.5E-4F;
-		float size = this.random.nextBoolean() ? 0.05F : 0.075F;
+		float size = this.random.nextBoolean() ? 0.075F : 0.1F;
 		this.quadSize = size;
 		this.setSize(size, size);
 		this.friction = 1.0F;
