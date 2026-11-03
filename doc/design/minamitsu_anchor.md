@@ -194,7 +194,7 @@ public void releaseUsing(ItemStack stack, Level level, LivingEntity entity, int 
 }
 ```
 
-The storm volley is a charge attack, not a click: `use` only raises the anchor (`UseAnim.SPEAR`, like the trident) and the release past 20 ticks fires it. A short click therefore never spends 10 power. The other two modes still throw on the click, and the link branch retrieves a hook that is out (§3.3).
+The storm volley is a charge attack, not a click: `use` only raises the anchor (`UseAnim.SPEAR`, like the trident) and the release past 20 ticks fires it. A short click therefore never spends 10 power. The other two modes still throw on the click, and the link branch handles a hook that is out: retrieve within 3 blocks, pull again from farther, regardless of the selected mode (§3.3, §6.2).
 
 `throwAnchors(sp, hand, type)` is the single gate for both clicks:
 
@@ -306,6 +306,8 @@ Fields, with the two the client needs in `SynchedEntityData`:
 | grapple timeout | 40 ticks |
 | hang hold speed | 0.12 b/t per block of offset (a spring) |
 | hang hold range | 4 blocks |
+| re-grapple distance | 3 blocks: a right click farther than this pulls instead of retrieving |
+| owner leash | 24 blocks |
 | drag speed | 1 b/t |
 | drag timeout | 40 ticks |
 | lifetime cap | 200 ticks |
@@ -384,7 +386,7 @@ the outcome; position updates every tick (§7) are what the client renders.
 | `RETURN` | homing to the owner's eye | within 1.5 blocks, 60 ticks, owner gone → discard |
 | `GRAPPLE` | pull the owner (§6.2) | arrival (<2 blocks), 40 ticks, sneak, owner gone → `HANG` if it hit a block, else `RETURN` |
 | `DRAG` | pull the grabbed entity toward the owner (§6.2) | arrival (<2 blocks), 40 ticks, target gone → `RETURN` |
-| `HANG` | holds the owner at the anchor with a spring toward it | the linked stack's right click → `RETURN`; sneak or 4 blocks of distance releases the hold |
+| `HANG` | holds the owner at the anchor with a spring toward it | right click within 3 blocks → `RETURN`; farther → `GRAPPLE` again; sneak or 4 blocks of distance releases the hold |
 
 `tickCount > 200` is the backstop: a hook that neither hits, expires nor returns is discarded rather
 than left to a chunk unload. `HANG` is exempt — a stuck anchor waits for the player, not for a timer
@@ -399,9 +401,13 @@ lost to a chunk unload can only drop them.
 A `PULL` throw that hits nothing is unchanged: it grapples from the reach limit and then returns.
 
 **Owner hygiene.** Every phase discards when the owner is gone, removed or dying, so the hook can
-never outlive its thrower. It cannot be `SpellContainer.track`ed (that takes a
-`SimplifiedProjectile`), and this check replaces the tracking the danmaku path had. No item is
-dropped or picked up, and on a caught return nothing is given back: the item never left the hand.
+never outlive its thrower. `ownerLost` adds the leash rules: more than 24 blocks away, a different
+dimension, or a held `AnchorItem` whose link is missing or points elsewhere. The last one means a
+second anchor in the hand frees the first hook, while a non-anchor slot does not; a linkless anchor
+stack left in the inventory is fine. `changeDimension` returns null, so the hook itself never follows
+a portal — the owner's departure is what discards it. It cannot be `SpellContainer.track`ed (that
+takes a `SimplifiedProjectile`), and this check replaces the tracking the danmaku path had. No item
+is dropped or picked up, and on a caught return nothing is given back: the item never left the hand.
 
 ### 5.2 `AnchorBulletEntity`
 
@@ -583,10 +589,11 @@ player.fallDistance = 0;
   link still on the stack, and `tickHang` keeps the player at it with a spring,
   `player.setDeltaMovement(diff.scale(0.12))` toward the anchor, which counters the drop without
   touching the player's gravity flag. The hold stops while they sneak, stand on the ground, fly, or
-  move more than 4 blocks away. A right click retrieves the anchor (`RETURN`), and the hook has no
-  lifetime cap while hanging, so it cannot vanish from under the player; the right click is the only
-  way to end it besides the owner's death. The same right click that retrieves would otherwise have
-  started a throw, but the link makes `use` retrieve first (§3.2).
+  move more than 4 blocks away. A right click within 3 blocks retrieves the anchor (`RETURN`); from
+  farther away it pulls the player back in (`GRAPPLE` again) instead of detaching, and the mode on
+  the stack does not matter (§3.2). The hook has no lifetime cap while hanging, so it cannot vanish
+  from under the player; walking 24 blocks away, changing dimension, or holding another anchor
+  discards it (`ownerLost`, §5.1).
 
   A throw that hits **nothing** keeps its old behaviour: it grapples from the reach limit and
   returns when the pull is over; only a block hit leaves the anchor behind.
@@ -683,6 +690,11 @@ effects beyond what the tags grant.
 * a retained hook holds the player at it with a spring, never by disabling the player's gravity;
 * a retained hook has no timeout and is ended only by the linked stack's right click (or the
   owner's death);
+* right-clicking a retained hook within 3 blocks retrieves it; from farther away, including after
+  sneaking out of the hold, it pulls the player back in; the selected mode is ignored;
+* a bounded hook never changes dimension; it is discarded instead when its owner does, when the
+  owner is more than 24 blocks away, or when a *held* anchor's link is missing or points at another
+  hook;
 * the storm volley needs a one-second charge, so a right click alone never spends 10 power;
 * the 16-block reach is measured from the throw origin, not from the moving player, so walking
   forward cannot stretch a throw;

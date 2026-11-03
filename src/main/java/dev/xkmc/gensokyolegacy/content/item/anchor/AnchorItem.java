@@ -111,14 +111,16 @@ public class AnchorItem extends SpiritualDanmakuItem {
 	}
 
 	/**
-	 * A stuck hook is freed by the right click that also frees the hand: the stack is hidden while
-	 * the link is set, so a retrieve never competes with a throw.
+	 * The link branch: a retained hook pulls the player again from beyond 3 blocks and is recalled
+	 * from closer, and the mode on the stack does not matter.
 	 */
 	private static InteractionResultHolder<ItemStack> retrieve(Level level, Player player, ItemStack stack) {
 		if (level.isClientSide()) return InteractionResultHolder.sidedSuccess(stack, true);
 		if (!(player instanceof ServerPlayer sp)) return InteractionResultHolder.fail(stack);
 		UUID id = getLink(stack);
-		if (id != null && sp.serverLevel().getEntity(id) instanceof AnchorHookEntity hook) hook.retrieve();
+		if (id != null && sp.serverLevel().getEntity(id) instanceof AnchorHookEntity hook) {
+			hook.onRetrieve(sp);
+		}
 		return InteractionResultHolder.sidedSuccess(stack, false);
 	}
 

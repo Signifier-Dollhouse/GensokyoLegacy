@@ -1,6 +1,7 @@
 package dev.xkmc.gensokyolegacy.content.entity.misc.anchor;
 
 import dev.xkmc.danmakuapi.api.IDanmakuEntity;
+import dev.xkmc.gensokyolegacy.content.item.anchor.AnchorItem;
 import dev.xkmc.gensokyolegacy.content.item.anchor.AnchorThrow;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import net.minecraft.core.BlockPos;
@@ -24,6 +25,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.portal.DimensionTransition;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
@@ -31,6 +33,7 @@ import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.entity.IEntityWithComplexSpawn;
 import net.neoforged.neoforge.entity.PartEntity;
 import net.neoforged.neoforge.event.level.BlockEvent;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 
@@ -61,6 +64,8 @@ public class AnchorHookEntity extends ThrowableProjectile implements ItemSupplie
 	private static final double GRAPPLE_SPEED = 1;
 	private static final double HANG_DIST = 4;
 	private static final double HANG_HOLD = 0.12;
+	private static final double REGRAPPLE_DIST = 3;
+	private static final double MAX_OWNER_DIST = 24;
 	private static final double DRAG_DIST = 2;
 	private static final double DRAG_SPEED = 1;
 	private static final int LIFE = 200;
@@ -214,7 +219,7 @@ public class AnchorHookEntity extends ThrowableProjectile implements ItemSupplie
 	}
 
 	private void tickPhase() {
-		if (ownerGone()) {
+		if (ownerGone() || ownerLost()) {
 			discard();
 			return;
 		}
@@ -236,6 +241,33 @@ public class AnchorHookEntity extends ThrowableProjectile implements ItemSupplie
 
 	private boolean ownerGone() {
 		return !(getOwner() instanceof LivingEntity owner) || owner.isRemoved() || owner.isDeadOrDying();
+	}
+
+	/**
+	 * The link on the held anchor is the leash: too far away, another dimension, or a held anchor
+	 * that does not carry this hook's UUID lets it go. Leaving the anchor in the inventory is fine.
+	 */
+	private boolean ownerLost() {
+		if (!(getOwner() instanceof Player player)) return false;
+		if (player.level() != level()) return true;
+		if (player.distanceToSqr(this) > MAX_OWNER_DIST * MAX_OWNER_DIST) return true;
+		ItemStack main = player.getMainHandItem();
+		ItemStack off = player.getOffhandItem();
+		if (!(main.getItem() instanceof AnchorItem) && !(off.getItem() instanceof AnchorItem)) return false;
+		return !linkMatches(main) && !linkMatches(off);
+	}
+
+	private boolean linkMatches(ItemStack stack) {
+		return stack.getItem() instanceof AnchorItem && getUUID().equals(AnchorItem.getLink(stack));
+	}
+
+	/**
+	 * The hook never follows its owner through a portal; {@link #ownerLost()} discards it instead.
+	 */
+	@Nullable
+	@Override
+	public Entity changeDimension(DimensionTransition transition) {
+		return null;
 	}
 
 	private void endFlight() {
@@ -260,10 +292,15 @@ public class AnchorHookEntity extends ThrowableProjectile implements ItemSupplie
 	}
 
 	/**
-	 * The linked stack's right click: send the hook home, whatever it is doing.
+	 * A right click on the linked stack: out of reach of a stuck anchor it reels the owner back in,
+	 * otherwise it sends the hook home.
 	 */
-	public void retrieve() {
-		if (phase() != Phase.RETURN) toReturn();
+	public void onRetrieve(Player player) {
+		if (phase() == Phase.HANG && distanceToSqr(player) > REGRAPPLE_DIST * REGRAPPLE_DIST) {
+			enterGrapple();
+		} else if (phase() != Phase.RETURN) {
+			toReturn();
+		}
 	}
 
 	private void enterGrapple() {
