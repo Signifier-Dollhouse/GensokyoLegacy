@@ -6,8 +6,8 @@ import net.minecraft.resources.ResourceLocation;
 import software.bernie.geckolib.model.DefaultedEntityGeoModel;
 
 /**
- * The wild doll reuses the plain doll's rig and animations with one fixed, undyed texture: nothing
- * owns it, so there is no colour to carry.
+ * The wild doll has its own rig, animation set and texture: nothing owns it, so there is no colour to
+ * carry, and its idle and flight clips are written for a doll with no controller.
  */
 public class StrayDollModel extends DefaultedEntityGeoModel<StrayDollEntity> {
 
@@ -17,17 +17,17 @@ public class StrayDollModel extends DefaultedEntityGeoModel<StrayDollEntity> {
 
 	@Override
 	public ResourceLocation getModelResource(StrayDollEntity animatable) {
-		return GensokyoLegacy.loc("geo/doll.geo.json");
+		return GensokyoLegacy.loc("geo/stray_doll.geo.json");
 	}
 
 	@Override
 	public ResourceLocation getTextureResource(StrayDollEntity animatable) {
-		return GensokyoLegacy.loc("textures/geo/doll/red.png");
+		return GensokyoLegacy.loc("textures/geo/stray_doll.png");
 	}
 
 	@Override
 	public ResourceLocation getAnimationResource(StrayDollEntity animatable) {
-		return GensokyoLegacy.loc("animations/doll.animation.json");
+		return GensokyoLegacy.loc("animations/stray_doll.animation.json");
 	}
 
 }

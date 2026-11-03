@@ -30,8 +30,8 @@ public class StrayDollEntity extends StrayFlyingMob implements GeoEntity {
 
 	public static final ResourceLocation TYPE = GensokyoLegacy.loc("stray_doll");
 
-	private static final RawAnimation IDLE = RawAnimation.begin().thenLoop("toy_idle");
-	private static final RawAnimation FLY = RawAnimation.begin().thenLoop("toy_fly");
+	private static final RawAnimation IDLE = RawAnimation.begin().thenLoop("DStoy_idle");
+	private static final RawAnimation FLY = RawAnimation.begin().thenLoop("DStoy_fly");
 
 	private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 

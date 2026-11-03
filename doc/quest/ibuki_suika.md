@@ -2,10 +2,11 @@
 
 Entity: `ibuki_suika`.
 
-**Status: entity implemented, content not.** `SuikaQDGen` currently registers
-the greeting lines and nothing else, so there are no `dialog_starter/suika/`,
-no `trade/suika/` and no `quest/suika/` entries in the datagen output. This
-page records what exists and what the rules are for adding to it.
+**Status: entity implemented, greeting lines only.** `SuikaQDGen` registers her
+home/visit greeting and her party greeting, so there are no `quest/suika/` or
+`trade/suika/` entries; the only `dialog_starter/suika/` entry is the gift-return
+override from `GiftQDGen`. This page records what exists and what the rules are
+for adding to it.
 
 Suika is the mod's second **home-less** character, after Sakuya. She owns no
 structure, no bed and no `character_config` entry, and exists only as a
@@ -35,25 +36,29 @@ See [quest_design.md](quest_design.md) for the authoring rules and
 
 | Key | Text |
 |---|---|
-| `suika/chat/greeting` | shown above the topic list at home |
-| `suika/chat/visit_greeting` | shown instead while she is a guest |
+| `suika/chat/greeting` | "Oh? You came too. I'm enjoying a nice little buzz right now." |
+| `suika/chat/visit_greeting` | empty; falls back to `greeting` |
+| `suika/chat/party_greeting` | "Yo, I'm here for the feast — you'd better show me a good time." |
 | `suika/chat/trade` | empty |
 
-The `visit_greeting` line is the one piece of content she cannot do without: a
-home-less character still needs it, because it is what a first-time player sees
-(§9 of `character_visit.md`). It is also currently the *entire* text a player
-sees from her, since she has no topic list to open.
+A home-less character is a guest wherever she stands, so the home line is
+written into `greeting` and `visit_greeting` is left empty: at the shrine a
+visitor is not `isVisiting()`, so the empty visit line falls through to it. The
+party line is a greeting variant, not a chat: `FirstDialogScreen` picks it while
+`isPartying()`, and it outranks the visit line (`DialogConfig#body`).
 
 The trade line is empty on purpose. With no offers in the trade registry the
 trade topic is never offered in the first place
 (`ServerCharacterDialogManager#getInitialConversation`), so there is nothing for
-it to label; `TradeHandle#display` falls back to the generic label regardless.
+it to label; `TradeHandle#display` falls back to the generic label on the empty
+string.
 
 ## Chats
 
-None yet. When they are written, the shape to follow is Sakuya's
-([izayoi_sakuya.md](izayoi_sakuya.md)) — a single greeting-weight chat plus
-whatever `CHAT_MISC`/`CHAT_INFO` topics earn their place.
+None of her own. The party line is greeting text, so there is no chat starter and
+nothing to roll; the only `dialog_starter` is the gift-return override. Anything
+added later is gated on `visitingAt(hakurei_shrine)` for the shrine itself, never
+on a party, because a party guest is not visiting a home.
 
 ## Trades
 
@@ -65,17 +70,21 @@ back to the generic three-rung `DEFAULT` table until she has one of her own.
 - **No home, no structure, no bed.** Nothing to repair or restock, so unlike
   Morichika she has no shelf, no crafting task and no schedule of her own; the
   visit system's `VISITING` activity handles her whole day.
-- **No content at all yet.** She can be met and will greet you, and that is the
-  whole of her.
+- **Almost no content.** She can be met and will greet you, at home or at a
+  party; there are no chats, no quests and no trades.
 - **No spell card**, unlike every other boss-tier character here. She is melee
   only and reaches through `BossYoukaiEntity`'s 200 HP and 10 damage instead.
 - **Two dialog animations, and they change with her pose.** Her rig ships
   `talk_01` and `talk_02` and nothing else — no greeting clip, no `think_*`,
-  no `puzzle` — so `getAnim` answers empty for every other dialog slot and
-  `SuikaEntity#hasBlinkAnim` answers no, for the same reason. That
-  half is a rig limitation rather than a content choice and stands even once
-  chats are written; the two she has are plenty, because a dialog with no
-  `animations` list picks one at random out of the mapped talk slots.
+  no `puzzle`, no `love`/`hate`/`agree` — so `getAnim` folds every slot she
+  needs onto one of the two, and answers empty for the rest.
+  `SuikaEntity#hasBlinkAnim` answers no for the same reason. That half is a rig
+  limitation rather than a content choice and stands even once more chats are
+  written; the two she has are plenty, because a dialog with no `animations`
+  list picks one at random out of the mapped talk slots. `AGREE` is folded onto
+  `talk_02` because her gift neutral reaction names `dialog_agree` and the rig
+  has no agree clip; `LIKE` and `DISLIKE` map to her real `love` and `hate`
+  clips.
 - **She talks lying down.** `lie_01_talk` is `lie_01` with the talking motion written
   into it. A conversation does not get her out of bed: TALK(300) outranks NAP(500)
   so the dialog is what runs, and `YoukaiNapTask#canStillUse` holds the pose

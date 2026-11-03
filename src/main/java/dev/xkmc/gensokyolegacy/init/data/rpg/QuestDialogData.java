@@ -155,20 +155,26 @@ public class QuestDialogData {
 	}
 
 	public void defaultDialog(EntityType<?> type, String greetingText, String visitGreetingText, String tradeText) {
+		defaultDialog(type, greetingText, visitGreetingText, "", tradeText);
+	}
+
+	public void defaultDialog(EntityType<?> type, String greetingText, String visitGreetingText,
+							  String partyGreetingText, String tradeText) {
 		defaultDialogMap.put(type, new DialogConfig(
 				dialogText("greeting", greetingText),
 				dialogText("visit_greeting", visitGreetingText),
+				dialogText("party_greeting", partyGreetingText),
 				dialogText("trade", tradeText)));
 	}
 
 	/**
-	 * What this character does about a gift: the two dialogs she answers it with, and the favor she has
-	 * to owe before she hands one back. Held as holders rather than ids, so nothing resolves a path at
-	 * runtime and a mistyped one fails at datagen.
+	 * What this character does about a gift: the three dialogs she answers it with, and the favor she
+	 * has to owe before she hands one back. Held as holders rather than ids, so nothing resolves a path
+	 * at runtime and a mistyped one fails at datagen.
 	 */
-	public void giftDialog(EntityType<?> type, Holder<Dialog> like, Holder<Dialog> dislike,
-						   int threshold, ResourceLocation returnTable) {
-		giftDialogMap.put(type, new GiftDialogData(like, dislike, threshold, returnTable));
+	public void giftDialog(EntityType<?> type, Holder<Dialog> like, Holder<Dialog> neutral,
+						   Holder<Dialog> dislike, int threshold, ResourceLocation returnTable) {
+		giftDialogMap.put(type, new GiftDialogData(like, neutral, dislike, threshold, returnTable));
 	}
 
 	/**
@@ -182,7 +188,12 @@ public class QuestDialogData {
 
 	public static final String GIFT_LEAVE_KEY = "gensokyolegacy/dialog/gift/leave";
 
+	/**
+	 * A greeting or trade label: an empty text registers nothing and stays the empty string, which is how
+	 * {@link DialogConfig#body} and {@code TradeHandle} tell "no line for this context" from a real one.
+	 */
 	private String dialogText(String type, String text) {
+		if (text.isEmpty()) return "";
 		String full = modid + "/" + prefix + "/" + type;
 		reg.addRawLang(full, text);
 		return full;

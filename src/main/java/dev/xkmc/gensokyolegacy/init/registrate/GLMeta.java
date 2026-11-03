@@ -107,7 +107,7 @@ public class GLMeta {
 
 	public static void register() {
 		Handlers.enableVanilla(Fluid.class, BuiltInRegistries.FLUID);
-		// so GiftDialogData can name its two dialogs as Holder<Dialog>: l2serial resolves a Holder
+		// so GiftDialogData can name its dialogs as Holder<Dialog>: l2serial resolves a Holder
 		// through the reg its element type is registered under, and Dialog is a datapack registry
 		// rather than a built-in one, so the reg has to be declared here
 		Handlers.registerReg(Dialog.class, CodecRegistry.DIALOG.key());

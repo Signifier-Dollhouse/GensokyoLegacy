@@ -1,0 +1,22 @@
+{
+  "-slash": true,
+  "gensokyolegacy": {
+    "yuyuko": {
+      "chat": {
+        "greeting": "哎呀~好像走得太远，遇到了很有生机的朋友呢。",
+        "party_greeting": "没想到还能收到来自外界的邀请，真期待你会怎样款待我呢"
+      },
+      "gift": {
+        "dialog": {
+          "like": "这么精致的礼物，我很开心哦，谢谢你",
+          "neutral": "还有礼物，你真客气，那我就收下啦",
+          "dislike": "不好意思，这件东西我不能收下呢",
+          "return": "这个送给你，也希望你能喜欢。"
+        },
+        "option": {
+          "return/take": "（收下谢礼）"
+        }
+      }
+    }
+  }
+}

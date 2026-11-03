@@ -69,6 +69,7 @@ LABELS = {
     "section_greetings": ("## GREETINGS", "## 问候"),
     "greet_home": ("at her own home", "在自己家中"),
     "greet_visit": ("while visiting", "作为客人来访时"),
+    "greet_party": ("as a party guest", "在宴会中"),
     "greet_trade": ("trade button", "交易按钮"),
 
     "section_anims": ("## DIALOG ANIMATIONS", "## 对话动画选项"),
@@ -158,6 +159,9 @@ LABELS = {
     "gate_home": ("gate: only at her own home", "条件：仅在自己的家中"),
     "gate_visiting": ("gate: only while visiting someone else", "条件：仅在作为客人来访时"),
     "gate_visit_structure": ("gate: visiting %s", "条件：正在访问 %s"),
+    "gate_party": ("gate: only as a party guest", "条件：仅在作为宴会客人时"),
+    "gate_party_not": ("gate: not a party guest", "条件：并非宴会客人"),
+    "gate_gift_return": ("gate: owes a return gift", "条件：欠着一份回礼"),
     "gate_quest_done": ("gate: completed quest %s", "条件：已完成任务 %s"),
     "gate_quest_done_title": ('gate: completed quest %s = %s', "条件：已完成任务 %s＝%s"),
     "gate_has": ("gate: has advancement %s", "条件：已获得进度 %s"),
@@ -592,6 +596,10 @@ def condition(ctx, c, indent):
         return [indent + ctx.t("gate_visiting" if inv else "gate_home")]
     if t == "gensokyolegacy:visit_structure":
         return [indent + ctx.t("gate_visit_structure", loc(c["structure"]))]
+    if t == "gensokyolegacy:party":
+        return [indent + ctx.t("gate_party_not" if inv else "gate_party")]
+    if t == "gensokyolegacy:gift_return":
+        return [indent + ctx.t("gate_gift_return")]
     if t == "gensokyolegacy:has_quest_completed":
         title = ctx.quest_title(c["quest"])
         if title:
@@ -654,13 +662,17 @@ def option(ctx, o, indent, depth, path):
 
 
 def dialog(ctx, dialog_id, indent, depth, path):
-    d = ctx.dialogs.get(plain_loc(dialog_id))
-    if d is None:
-        ctx.notes.append("dialog referenced but not registered: " + loc(dialog_id))
-        return [indent + ctx.t("missing_dialog", loc(dialog_id))]
-    if dialog_id in path or depth > 12:
-        return [indent + ctx.t("loops", dialog_id)]
-    path = path | {dialog_id}
+    if isinstance(dialog_id, dict):
+        # chat and quest dialogs are written inline in the starter/quest rather than registered
+        d, ident = dialog_id, dialog_id.get("text", "")
+    else:
+        d, ident = ctx.dialogs.get(plain_loc(dialog_id)), dialog_id
+        if d is None:
+            ctx.notes.append("dialog referenced but not registered: " + loc(dialog_id))
+            return [indent + ctx.t("missing_dialog", loc(dialog_id))]
+    if ident in path or depth > 12:
+        return [indent + ctx.t("loops", ident)]
+    path = path | {ident}
     lines = ctx.text(d["text"], indent=indent)
     lines += ctx.anim_lines(d.get("animations"), indent + "  ")
     opts = d.get("options", [])
@@ -724,11 +736,14 @@ def collect_anims(ctx, starters, quests):
 
     def walk(did):
         nonlocal total
-        key = plain_loc(did)
+        if isinstance(did, dict):
+            d, key = did, did.get("text", "")
+        else:
+            key = plain_loc(did)
+            d = ctx.dialogs.get(key)
         if key in seen:
             return
         seen.add(key)
-        d = ctx.dialogs.get(key)
         if d is None:
             return
         total += 1
@@ -823,11 +838,18 @@ def audit(ctx, char_id, starters, quests):
     used_dialogs = set()
     used_keys = set()
 
+    visited = []
+
     def walk(did):
-        used_dialogs.add(plain_loc(did))
-        d = ctx.dialogs.get(plain_loc(did))
+        if isinstance(did, dict):
+            label, d = did.get("text", ""), did
+        else:
+            key = plain_loc(did)
+            used_dialogs.add(key)
+            label, d = loc(key), ctx.dialogs.get(key)
         if d is None:
             return
+        visited.append((label, d))
         used_keys.add(d["text"])
         for o in d.get("options", []):
             used_keys.add(o.get("text", ""))
@@ -841,7 +863,7 @@ def audit(ctx, char_id, starters, quests):
         used_keys.add(s.get("text", ""))
         walk(s["dialog"])
     for entry in ctx.gift_dialogs.values():
-        for which in ("like", "dislike"):
+        for which in ("like", "neutral", "dislike"):
             did = plain_loc(entry.get(which, ""))
             if did.startswith(char_id + "/"):
                 walk(did)
@@ -859,7 +881,7 @@ def audit(ctx, char_id, starters, quests):
     # §10: "Every start has a reject branch that gives the character a reason."
     for k, q in quests.items():
         nxt = q["initialDialog"].get("next")
-        d = ctx.dialogs.get(plain_loc(nxt)) if nxt else None
+        d = nxt if isinstance(nxt, dict) else ctx.dialogs.get(plain_loc(nxt)) if nxt else None
         if d is not None and len(d.get("options", [])) < 2:
             notes.append(ctx.t("flag_no_reject", loc(k)))
 
@@ -882,16 +904,16 @@ def audit(ctx, char_id, starters, quests):
     # animations that resolve to nothing: a bad name is dropped silently, and an
     # unmapped slot plays nothing, so neither shows up in game as a problem
     if ctx.rig is not None:
-        for did in sorted(used_dialogs):
-            for trig in ctx.dialogs.get(did, {}).get("animations", []):
+        for label, d in visited:
+            for trig in d.get("animations", []):
                 slot, clip = ctx.rig.clip_of(trig)
                 if slot is None:
-                    notes.append(ctx.t("flag_anim_unknown", loc(did), trig))
+                    notes.append(ctx.t("flag_anim_unknown", label, trig))
                 elif not clip:
-                    notes.append(ctx.t("flag_anim_unmapped", loc(did), trig,
+                    notes.append(ctx.t("flag_anim_unmapped", label, trig,
                                        ctx.entity_name(char_id)))
                 elif ctx.rig.info(clip) is None:
-                    notes.append(ctx.t("flag_anim_no_clip", loc(did), trig, clip,
+                    notes.append(ctx.t("flag_anim_no_clip", label, trig, clip,
                                        ctx.rig.asset))
 
     return notes
@@ -919,10 +941,13 @@ def render_character(ctx, char_id, display):
     a(ctx.t("section_greetings"))
     cfg = ctx.default_dialogs.get("gensokyolegacy:" + char_id, {})
     for field, key in (("greeting", "greet_home"), ("visitGreeting", "greet_visit"),
-                       ("trade", "greet_trade")):
+                       ("partyGreeting", "greet_party"), ("trade", "greet_trade")):
         if field in cfg:
             a("  %s:" % ctx.t(key))
-            out.extend(ctx.text(cfg[field], indent="    "))
+            if cfg[field]:
+                out.extend(ctx.text(cfg[field], indent="    "))
+            else:
+                a('    ""')
     a("")
 
     a(ctx.t("section_chats", len(starters)))
