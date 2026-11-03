@@ -17,6 +17,7 @@ import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
 import dev.xkmc.gensokyolegacy.init.registrate.GLParticles;
 import dev.xkmc.l2core.init.reg.registrate.L2Registrate;
+import net.minecraft.client.renderer.block.model.BlockModel;
 import net.minecraft.advancements.critereon.*;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -28,6 +29,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.PlaceOnWaterBlockItem;
 import net.minecraft.world.item.enchantment.Enchantments;
@@ -49,6 +51,7 @@ import net.neoforged.neoforge.client.model.generators.BlockModelBuilder;
 import net.neoforged.neoforge.client.model.generators.ConfiguredModel;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
 import net.neoforged.neoforge.client.model.generators.MultiPartBlockStateBuilder;
+import net.neoforged.neoforge.client.model.generators.loaders.SeparateTransformsModelBuilder;
 import net.neoforged.neoforge.registries.datamaps.builtin.Compostable;
 import net.neoforged.neoforge.registries.datamaps.builtin.NeoForgeDataMaps;
 import org.jetbrains.annotations.Nullable;
@@ -62,6 +65,9 @@ import java.util.function.Supplier;
 public class GLNaturalBlocks {
 
 	public static final BlockEntry<SimpleBushBlock> STAR_FLOWER;
+	public static final BlockEntry<SimpleBushBlock> GOLDEN_LOTUS_SMALL, GOLDEN_LOTUS_MEDIUM, GOLDEN_LOTUS_LARGE;
+	public static final BlockEntry<SimpleBushBlock> TOWER_GRASS_SMALL, TOWER_GRASS_LARGE;
+	public static final BlockEntry<BirdNestBlock> BIRD_NEST;
 	public static final BlockEntry<WaterloggedBushBlock> FLAME_CATTAIL;
 	public static final BlockEntry<SimpleBushBlock> BRACKEN;
 	public static final BlockEntry<SideBushBlock> EUGUNE_RED, EUGUNE_BROWN, EUGUNE_GHOST_FIRE;
@@ -116,6 +122,34 @@ public class GLNaturalBlocks {
 				.tab(ResourceKey.create(Registries.CREATIVE_MODE_TAB, GensokyoLegacy.loc("ingredients")))
 				.build()
 				.tag(BlockTags.SMALL_FLOWERS)
+				.register();
+
+		GOLDEN_LOTUS_SMALL = regGoldenLotus(reg, "small");
+		GOLDEN_LOTUS_MEDIUM = regGoldenLotus(reg, "medium");
+		GOLDEN_LOTUS_LARGE = regGoldenLotus(reg, "large");
+		TOWER_GRASS_SMALL = regTowerGrass(reg, "small");
+		TOWER_GRASS_LARGE = regTowerGrass(reg, "large");
+
+		BIRD_NEST = reg.block("bird_nest", BirdNestBlock::new)
+				.properties(p -> p.mapColor(MapColor.WOOD).strength(0.2f).sound(SoundType.GRASS)
+						.noOcclusion().noCollission().pushReaction(PushReaction.DESTROY))
+				.blockstate((ctx, pvd) -> {
+					for (boolean hasEgg : new boolean[]{false, true}) {
+						String name = hasEgg ? "bird_nest_with_egg" : ctx.getName();
+						var model = pvd.models().withExistingParent(name, pvd.modLoc("custom/nature/bird_nest"))
+								.texture("0", pvd.modLoc("block/nature/" + name))
+								.texture("particle", pvd.modLoc("block/nature/" + name)).renderType("cutout");
+						pvd.getVariantBuilder(ctx.get()).partialState().with(BirdNestBlock.HAS_EGG, hasEgg)
+								.modelForState().modelFile(model).addModel();
+					}
+				})
+				.loot(RegistrateBlockLootTables::dropSelf)
+				.item()
+				.model((ctx, pvd) -> pvd.withExistingParent(ctx.getName(), pvd.modLoc("block/" + ctx.getName()))
+						.guiLight(BlockModel.GuiLight.SIDE)
+						.transforms().transform(ItemDisplayContext.GUI).rotation(30, 225, 0).scale(0.625f).end().end())
+				.tab(ResourceKey.create(Registries.CREATIVE_MODE_TAB, GensokyoLegacy.loc("ingredients")))
+				.build()
 				.register();
 
 		// 燃蒲
@@ -369,6 +403,46 @@ public class GLNaturalBlocks {
 
 	}
 
+	private static BlockEntry<SimpleBushBlock> regGoldenLotus(L2Registrate reg, String size) {
+		return reg.block("golden_lotus_" + size, SimpleBushBlock::new)
+				.initialProperties(() -> Blocks.POPPY)
+				.blockstate((ctx, pvd) -> pvd.simpleBlock(ctx.get(), pvd.models().cross(ctx.getName(),
+						pvd.modLoc("block/nature/" + ctx.getName())).renderType("cutout")))
+				.loot(RegistrateBlockLootTables::dropSelf)
+				.tag(BlockTags.SMALL_FLOWERS)
+				.item().model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("block/nature/" + ctx.getName())))
+				.tag(ItemTags.SMALL_FLOWERS)
+				.dataMap(NeoForgeDataMaps.COMPOSTABLES, new Compostable(0.65f))
+				.tab(ResourceKey.create(Registries.CREATIVE_MODE_TAB, GensokyoLegacy.loc("ingredients")))
+				.build()
+				.register();
+	}
+
+	private static BlockEntry<SimpleBushBlock> regTowerGrass(L2Registrate reg, String size) {
+		return reg.block("tower_grass_" + size, p -> new SimpleBushBlock(p, Block.box(0, 0, 0, 16, 27, 16)))
+				.properties(p -> p.mapColor(MapColor.PLANT).instabreak().sound(SoundType.GRASS)
+						.noOcclusion().noCollission().pushReaction(PushReaction.DESTROY))
+				.blockstate((ctx, pvd) -> pvd.simpleBlock(ctx.get(), pvd.models()
+						.withExistingParent(ctx.getName(), pvd.modLoc("custom/nature/tower_grass"))
+						.texture("1", pvd.modLoc("block/nature/" + ctx.getName()))
+						.texture("particle", pvd.modLoc("block/nature/" + ctx.getName())).renderType("cutout")))
+				.loot(RegistrateBlockLootTables::dropSelf)
+				.item()
+				.model((ctx, pvd) -> {
+					var base = pvd.nested().parent(new ModelFile.UncheckedModelFile(
+							pvd.modLoc("block/" + ctx.getName())));
+					var icon = pvd.nested().parent(new ModelFile.UncheckedModelFile(
+							pvd.modLoc("custom/nature/tower_grass_icon")))
+							.texture("plant", pvd.modLoc("block/nature/" + ctx.getName()));
+					pvd.getBuilder(ctx.getName()).customLoader(SeparateTransformsModelBuilder::begin)
+							.base(base).perspective(ItemDisplayContext.GUI, icon).end()
+							.guiLight(BlockModel.GuiLight.FRONT);
+				})
+				.tab(ResourceKey.create(Registries.CREATIVE_MODE_TAB, GensokyoLegacy.loc("ingredients")))
+				.build()
+				.register();
+	}
+
 	/**
 	 * A carpet of fallen leaves, one block per tree: {@code <id>_layer1} and {@code <id>_layer2}.
 	 */
@@ -491,7 +565,7 @@ public class GLNaturalBlocks {
 					   Function<BlockBehaviour.Properties, LeavesBlock> leafFactory) {
 			this.trunk = trunk;
 			var grower = new TreeGrower(id + "_tree", type.saplingMega, type.saplingTree, Optional.empty());
-			// only the blue fir has templates, and only it needs the 3x3 stage vanilla has no grower slot for
+			// only the blue fir needs the 3x3 stage vanilla has no grower slot for
 			Function<BlockBehaviour.Properties, ? extends SaplingBlock> saplingFactory = type.saplingGiant.isPresent()
 					? p -> new BlueFirSaplingBlock(grower, type.saplingGiant.orElseThrow(), p)
 					: p -> new SaplingBlock(grower, p);

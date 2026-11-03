@@ -1,0 +1,8 @@
+{
+  "parent": "gensokyolegacy:custom/nature/tower_grass",
+  "render_type": "minecraft:cutout",
+  "textures": {
+    "1": "gensokyolegacy:block/nature/tower_grass_large",
+    "particle": "gensokyolegacy:block/nature/tower_grass_large"
+  }
+}

@@ -80,15 +80,16 @@ those rotations from root motion and scale. The spear particle uses the same
 corrected item pose, so its position and direction follow the rendered lance.
 
 During a lance attack, `DollOneShotController` captures the shaft's **world-space
-direction on the first held-item render**, including the transition into the clip.
-Each later render measures the current shaft through the complete item display
+direction on the first held-item render after the entry transition**. During the
+transition, the lance follows the animated bones without direction correction.
+Each later running render measures the current shaft through the complete item display
 transform and rotates it back onto that captured axis, about the hand's item origin.
 The correction preserves the animated hand position, scale and shear; it does not
 freeze the doll's arm or body. It is applied through `PoseStack.mulPose(Matrix4f)`
 so vertex positions and lighting normals receive the same correction.
 
 The lock belongs to the doll's one-shot controller, not the shared renderer. A new
-trigger clears it, and a stopped or different animation releases it. Only the
+trigger clears it, and a transitioning, stopped or different animation releases it. Only the
 right-hand lance is stabilized. The particle samples the tip and axis **after** the
 correction, so the flash and lance share the same direction, including when the
 body turns. Its 100 ms delay remains independent of this direction lock.

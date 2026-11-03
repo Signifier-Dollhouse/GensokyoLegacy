@@ -7,6 +7,7 @@ import dev.xkmc.gensokyolegacy.content.entity.behavior.move.YoukaiNavigationCont
 import dev.xkmc.gensokyolegacy.content.entity.foundation.DamageClampEntity;
 import dev.xkmc.gensokyolegacy.content.entity.foundation.SyncedDataTypes;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.impl.*;
+import dev.xkmc.gensokyolegacy.init.registrate.GLParticles;
 import dev.xkmc.l2core.base.entity.SyncedData;
 import dev.xkmc.l2serial.serialization.codec.TagCodec;
 import dev.xkmc.l2serial.serialization.marker.SerialClass;
@@ -273,6 +274,12 @@ public abstract class YoukaiEntity extends DamageClampEntity implements
 			e.tickClient();
 		}
 		crumbs();
+		if (isAlive() && isSleeping() && !isInvisible() && tickCount % 20 == 0) {
+			level().addParticle(GLParticles.SLEEP.get(),
+					getX() + (random.nextDouble() - 0.5) * 0.3, getY() + 0.5,
+					getZ() + (random.nextDouble() - 0.5) * 0.3,
+					(random.nextDouble() - 0.5) * 0.01, 0.02, (random.nextDouble() - 0.5) * 0.01);
+		}
 	}
 
 	// ---------- pickup ----------

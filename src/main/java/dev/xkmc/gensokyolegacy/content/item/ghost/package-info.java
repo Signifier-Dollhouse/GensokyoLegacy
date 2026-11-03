@@ -1,7 +1,7 @@
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
 
-package dev.xkmc.gensokyolegacy.content.item.doll.client;
+package dev.xkmc.gensokyolegacy.content.item.ghost;
 
 import net.minecraft.MethodsReturnNonnullByDefault;
 

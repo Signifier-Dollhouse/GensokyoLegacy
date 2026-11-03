@@ -35,6 +35,7 @@ public class SpearParticle extends TextureSheetParticle {
 		this.yo = this.y;
 		this.zo = this.z;
 		this.setSprite(sprites.get(0, FRAMES - 1));
+		hasPhysics = false;
 	}
 
 	@Override

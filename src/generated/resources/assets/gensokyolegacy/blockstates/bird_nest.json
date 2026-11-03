@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "has_egg=false": {
+      "model": "gensokyolegacy:block/bird_nest"
+    },
+    "has_egg=true": {
+      "model": "gensokyolegacy:block/bird_nest_with_egg"
+    }
+  }
+}

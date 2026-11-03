@@ -6,6 +6,7 @@ import dev.xkmc.gensokyolegacy.content.worldgen.feature.lake.MagicalForestLakeFe
 import dev.xkmc.gensokyolegacy.content.worldgen.feature.template.TemplateBlendProcessor;
 import dev.xkmc.gensokyolegacy.content.worldgen.feature.template.TemplateFeature;
 import dev.xkmc.gensokyolegacy.content.worldgen.feature.template.TemplateFeatureConfig;
+import dev.xkmc.gensokyolegacy.content.worldgen.feature.template.TemplateReplaceProcessor;
 import dev.xkmc.gensokyolegacy.content.worldgen.placement.*;
 import dev.xkmc.gensokyolegacy.content.worldgen.structure.FlatCheckStructure;
 import dev.xkmc.gensokyolegacy.content.worldgen.structure.MultiSpreadPlacement;
@@ -35,6 +36,8 @@ public class GLWorldGen {
 	private static final SR<StructureProcessorType<?>> PROCESSORS = SR.of(GensokyoLegacy.REG, Registries.STRUCTURE_PROCESSOR);
 	public static final Val<StructureProcessorType<SetDataProcessor>> SET_DATA = PROCESSORS.reg("set_data", () -> () -> SetDataProcessor.CODEC);
 	public static final Val<StructureProcessorType<TemplateBlendProcessor>> TEMPLATE_BLEND = PROCESSORS.reg("template_blend", () -> () -> TemplateBlendProcessor.CODEC);
+	public static final Val<StructureProcessorType<TemplateReplaceProcessor>> TEMPLATE_REPLACE = PROCESSORS.reg(
+			"template_replace", () -> () -> TemplateReplaceProcessor.CODEC);
 
 	private static final SR<StructureType<?>> STRUCTURES = SR.of(GensokyoLegacy.REG, Registries.STRUCTURE_TYPE);
 	public static final Val<StructureType<FlatCheckStructure>> FLAT = STRUCTURES.reg("flat_check", () -> () -> FlatCheckStructure.CODEC);

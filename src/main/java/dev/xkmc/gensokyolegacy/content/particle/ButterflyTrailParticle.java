@@ -24,6 +24,7 @@ public class ButterflyTrailParticle extends TextureSheetParticle {
 		this.quadSize = this.startSize;
 		this.setSize(this.startSize, this.startSize);
 		this.friction = 1.0F;
+		hasPhysics = false;
 	}
 
 	@Override

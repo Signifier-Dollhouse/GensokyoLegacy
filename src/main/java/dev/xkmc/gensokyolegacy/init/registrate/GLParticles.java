@@ -4,6 +4,7 @@ import dev.xkmc.gensokyolegacy.content.particle.ButterflyTrailParticle;
 import dev.xkmc.gensokyolegacy.content.particle.FallingLeafParticle;
 import dev.xkmc.gensokyolegacy.content.particle.KnifeParticle;
 import dev.xkmc.gensokyolegacy.content.particle.MiasmaParticle;
+import dev.xkmc.gensokyolegacy.content.particle.SleepParticle;
 import dev.xkmc.gensokyolegacy.content.particle.SpearParticle;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.l2core.init.reg.registrate.L2Registrate.ParticleSupplier;
@@ -11,6 +12,10 @@ import dev.xkmc.l2core.init.reg.simple.Val;
 import net.minecraft.core.particles.SimpleParticleType;
 
 public class GLParticles {
+
+	public static final Val<SimpleParticleType> SLEEP = GensokyoLegacy.REGISTRATE.particle("sleep",
+			() -> new SimpleParticleType(false),
+			() -> ParticleSupplier.spriteSet(() -> SleepParticle.Provider::new));
 
 	public static final Val<SimpleParticleType> MIASMA = GensokyoLegacy.REGISTRATE.particle("miasma",
 			() -> new SimpleParticleType(false),
