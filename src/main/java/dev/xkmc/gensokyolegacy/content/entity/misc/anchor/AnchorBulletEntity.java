@@ -1,10 +1,12 @@
 package dev.xkmc.gensokyolegacy.content.entity.misc.anchor;
 
+import dev.xkmc.danmakuapi.content.entity.DanmakuHelper;
 import dev.xkmc.danmakuapi.content.entity.ItemBulletEntity;
 import dev.xkmc.gensokyolegacy.content.item.anchor.AnchorThrow;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.l2serial.serialization.marker.SerialClass;
 import dev.xkmc.l2serial.serialization.marker.SerialField;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
@@ -56,9 +58,31 @@ public class AnchorBulletEntity extends ItemBulletEntity {
 	@Override
 	public void tick() {
 		super.tick();
-		if (level().isClientSide || isRemoved()) return;
+		if (isRemoved()) return;
+		if (level().isClientSide) {
+			spawnWaterSwirl();
+			return;
+		}
 		trail = AnchorStorm.shedTrail(this, getOwner(), trail);
 		if (position().distanceTo(origin) > AnchorThrow.STORM.reach()) markErased(false);
+	}
+
+	private void spawnWaterSwirl() {
+		Vec3 motion = getDeltaMovement();
+		Vec3 forward = motion.normalize();
+		if (forward.lengthSqr() == 0) return;
+		var ring = DanmakuHelper.getOrientation(forward).asNormal();
+		Vec3 center = position().add(0, getBbHeight() / 2, 0);
+		for (int sample = 0; sample < 2; sample++) {
+			double step = sample * 0.5;
+			double angle = (tickCount - step) * Math.PI / 3;
+			Vec3 at = center.subtract(motion.scale(step));
+			for (int side = 0; side < 2; side++) {
+				Vec3 offset = ring.rotate(angle + side * Math.PI).scale(0.75);
+				Vec3 drop = at.add(offset);
+				level().addParticle(ParticleTypes.SPLASH, drop.x, drop.y, drop.z, offset.x * 0.1, 0, offset.z * 0.1);
+			}
+		}
 	}
 
 	@Override

@@ -130,6 +130,8 @@ public final class AnchorStorm {
 	}
 
 	private static void burst(Entity self, Entity owner) {
+		self.level().playSound(null, self.getX(), self.getY(), self.getZ(), SoundEvents.FIREWORK_ROCKET_BLAST,
+				SoundSource.PLAYERS, 1F, 1F);
 		Vec3 forward = self.getDeltaMovement().normalize();
 		if (forward.lengthSqr() < 1e-6) forward = new Vec3(0, 1, 0);
 		var r = self.getRandom();
