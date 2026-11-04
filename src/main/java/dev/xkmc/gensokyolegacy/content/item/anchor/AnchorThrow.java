@@ -40,4 +40,12 @@ public enum AnchorThrow {
 		return this == STORM || this == STORM_VOLLEY;
 	}
 
+	/**
+	 * Whether an impact from this throw could hurt anything. Only these hits play the mace-smash
+	 * feedback; the Voyage throws move things without damage.
+	 */
+	public boolean dealsDamage() {
+		return this == DESTROY || this == DESTROY_CHARGED;
+	}
+
 }

@@ -414,17 +414,18 @@ protected void onHitBlock(BlockHitResult hit) {
     if (level().isClientSide || phase() != Phase.FLY) return;
     setPos(hit.getLocation());
     setDeltaMovement(Vec3.ZERO);
-    smash(hit.getBlockPos());
+    if (throwType().dealsDamage()) smash(hit.getBlockPos());
     switch (throwType()) { ... }
 }
 ```
 
-Both hit callbacks give impact feedback with the mace smash: `SoundEvents.MACE_SMASH_GROUND` and
-`LevelEvent.PARTICLES_SMASH_ATTACK` at power 750. The particle event samples the block at the
-position, so a block hit passes `hit.getBlockPos()` and an entity hit passes the first non-air block
-under the target; when there is none (an airborne target) only the sound plays. The cancelled melee
-uses the same feedback at the clicked target, so a swing into a crowd lands with the same smash
-(`AnchorStorm.smashAt`).
+Only a damaging throw (`DESTROY` / `DESTROY_CHARGED`) gives impact feedback with the mace smash:
+`SoundEvents.MACE_SMASH_GROUND` and `LevelEvent.PARTICLES_SMASH_ATTACK` at power 750. The Voyage
+throws (`GRAB` / `PULL`) only move things, so they land without the smash. The particle event
+samples the block at the position, so a block hit passes `hit.getBlockPos()` and an entity hit
+passes the first non-air block under the target; when there is none (an airborne target) only the
+sound plays. The cancelled melee uses the same feedback at the clicked target, so a swing into a
+crowd lands with the same smash (`AnchorStorm.smashAt`).
 
 Both callbacks return early on the client. The client runs the same swept test, but the server owns
 the outcome; position updates every tick (§7) are what the client renders.

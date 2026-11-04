@@ -176,7 +176,7 @@ public class AnchorHookEntity extends ThrowableProjectile implements ItemSupplie
 		if (level().isClientSide || phase() != Phase.FLY) return;
 		setPos(hit.getLocation());
 		setDeltaMovement(Vec3.ZERO);
-		AnchorStorm.smash(level(), hit.getBlockPos());
+		if (throwType().dealsDamage()) AnchorStorm.smash(level(), hit.getBlockPos());
 		switch (throwType()) {
 			case DESTROY -> toReturn();
 			case DESTROY_CHARGED -> {
@@ -197,7 +197,7 @@ public class AnchorHookEntity extends ThrowableProjectile implements ItemSupplie
 	public void onHitEntity(EntityHitResult result) {
 		if (level().isClientSide) return;
 		Entity target = unwrap(result.getEntity());
-		AnchorStorm.smashAt(level(), target.position());
+		if (throwType().dealsDamage()) AnchorStorm.smashAt(level(), target.position());
 		switch (throwType()) {
 			case DESTROY -> {
 				hurtTarget(target);
