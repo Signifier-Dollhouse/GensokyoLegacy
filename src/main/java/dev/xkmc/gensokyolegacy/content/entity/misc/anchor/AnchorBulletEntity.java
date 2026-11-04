@@ -15,8 +15,8 @@ import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
 
 /**
- * One unbound storm anchor: flies straight to a fixed reach, sheds the wet trail, bursts on impact
- * and vanishes. The only anchor throw that stays a danmaku.
+ * One unbound storm anchor: flies straight to a fixed reach, sheds a falling danmaku every tick,
+ * bursts on impact and vanishes. Every storm throw is this entity.
  *
  * @see "doc/design/minamitsu_anchor.md"
  */
@@ -41,19 +41,11 @@ public class AnchorBulletEntity extends ItemBulletEntity {
 	}
 
 	/**
-	 * The water-anchor twin while wet; the real stack never changes.
+	 * Always the water anchor: an unbound anchor is water-borne and always sheds its trail.
 	 */
 	@Override
 	public ItemStack getItem() {
-		return isWet() ? GLItems.ANCHOR_WET.get().getDefaultInstance() : super.getItem();
-	}
-
-	/**
-	 * A danmaku's own fluid state never updates, so the block sample and the thrower stand in.
-	 */
-	public boolean isWet() {
-		return AnchorStorm.isWet(this) ||
-				getOwner() instanceof LivingEntity owner && owner.isInWaterRainOrBubble();
+		return GLItems.ANCHOR_WET.get().getDefaultInstance();
 	}
 
 	@Override
@@ -65,21 +57,21 @@ public class AnchorBulletEntity extends ItemBulletEntity {
 	public void tick() {
 		super.tick();
 		if (level().isClientSide || isRemoved()) return;
-		trail = AnchorStorm.shedTrail(this, getOwner(), isWet(), trail);
-		if (position().distanceTo(origin) > AnchorThrow.STORM_UNBOUND.reach()) markErased(false);
+		trail = AnchorStorm.shedTrail(this, getOwner(), trail);
+		if (position().distanceTo(origin) > AnchorThrow.STORM.reach()) markErased(false);
 	}
 
 	@Override
 	protected void onHitBlock(BlockHitResult result) {
 		if (level().isClientSide) return;
-		AnchorStorm.impact(this, getOwner(), isWet());
+		AnchorStorm.impact(this, getOwner());
 		markErased(false);
 	}
 
 	@Override
 	public void onHitEntity(EntityHitResult result) {
 		if (level().isClientSide) return;
-		AnchorStorm.impact(this, getOwner(), isWet());
+		AnchorStorm.impact(this, getOwner());
 		markErased(false);
 	}
 

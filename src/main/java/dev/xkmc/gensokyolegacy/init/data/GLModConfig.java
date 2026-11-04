@@ -130,7 +130,7 @@ public class GLModConfig {
 
 			builder.push("minamitsu_anchor", "Minamitsu's Anchor");
 			{
-				anchorStormDanmaku = builder.text("Whether a wet storm anchor sheds trail danmaku and bursts on impact")
+				anchorStormDanmaku = builder.text("Whether a storm anchor sheds trail danmaku and bursts on impact")
 						.define("anchorStormDanmaku", true);
 			}
 			builder.pop();

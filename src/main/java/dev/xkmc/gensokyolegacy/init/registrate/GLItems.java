@@ -691,7 +691,7 @@ public class GLItems {
 					.tag(L2ISTagGen.SELECTABLE)
 					.register();
 
-			// the water twin: never held, only drawn by a wet storm anchor, which must switch models
+			// the water twin: never held, only drawn by an unbound storm anchor, which must switch models
 			// per item because ItemModelProjectileType bakes one model per item (minamitsu_anchor.md §5.1)
 			ANCHOR_WET = reg.item("anchor_wet", p -> new DanmakuItem(p, DanmakuItems.Bullet.DAGGER, DyeColor.WHITE, 1.0F))
 					.model((ctx, pvd) -> {

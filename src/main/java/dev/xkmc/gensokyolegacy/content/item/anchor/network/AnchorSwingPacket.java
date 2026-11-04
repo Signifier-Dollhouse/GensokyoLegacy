@@ -10,8 +10,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
 /**
- * An empty left click with the anchor held: the modes that throw on a left click cannot reach
- * {@code use}, and empty clicks never reach the server on their own, so the client forwards them.
+ * An empty left click with the anchor held: the throw cannot reach {@code use}, and empty clicks
+ * never reach the server on their own, so the client forwards them.
  *
  * @see "doc/design/minamitsu_anchor.md"
  */

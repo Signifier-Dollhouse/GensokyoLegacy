@@ -77,7 +77,6 @@ public class AnchorHookEntity extends ThrowableProjectile implements ItemSupplie
 	private Vec3 flyDir = Vec3.ZERO;
 	private int grapple = 0;
 	private int returnTicks = 0;
-	private int trail = 0;
 	private boolean anchored = false;
 	private UUID grabbedId;
 	private LivingEntity grabbed;
@@ -131,16 +130,11 @@ public class AnchorHookEntity extends ThrowableProjectile implements ItemSupplie
 	}
 
 	/**
-	 * The water-anchor twin while a storm throw is wet; the stack is synthesized, never stored.
+	 * The plain iron anchor: a hook is never a storm throw, so it has no wet twin.
 	 */
 	@Override
 	public ItemStack getItem() {
-		return throwType().isStorm() && isWet() ? GLItems.ANCHOR_WET.get().getDefaultInstance()
-				: GLItems.MINAMITSU_ANCHOR.get().getDefaultInstance();
-	}
-
-	public boolean isWet() {
-		return AnchorStorm.isWet(this);
+		return GLItems.MINAMITSU_ANCHOR.get().getDefaultInstance();
 	}
 
 	@Override
@@ -183,10 +177,7 @@ public class AnchorHookEntity extends ThrowableProjectile implements ItemSupplie
 		setDeltaMovement(Vec3.ZERO);
 		playImpact(SoundEvents.TRIDENT_HIT_GROUND);
 		switch (throwType()) {
-			case DESTROY -> {
-				breakBlocks(hit.getBlockPos(), 1);
-				toReturn();
-			}
+			case DESTROY -> toReturn();
 			case DESTROY_CHARGED -> {
 				destroyImpact(position());
 				toReturn();
@@ -194,10 +185,6 @@ public class AnchorHookEntity extends ThrowableProjectile implements ItemSupplie
 			case PULL -> {
 				anchored = true;
 				enterGrapple();
-			}
-			case STORM -> {
-				AnchorStorm.impact(this, getOwner(), isWet());
-				toReturn();
 			}
 			case GRAB -> toReturn();
 			default -> {
@@ -225,11 +212,6 @@ public class AnchorHookEntity extends ThrowableProjectile implements ItemSupplie
 				if (target instanceof LivingEntity le) enterDrag(le);
 				else toReturn();
 			}
-			case STORM -> {
-				playImpact(SoundEvents.TRIDENT_HIT);
-				AnchorStorm.impact(this, getOwner(), isWet());
-				toReturn();
-			}
 			default -> {
 			}
 		}
@@ -246,7 +228,6 @@ public class AnchorHookEntity extends ThrowableProjectile implements ItemSupplie
 		}
 		switch (phase()) {
 			case FLY -> {
-				if (throwType().isStorm()) trail = AnchorStorm.shedTrail(this, getOwner(), isWet(), trail);
 				if (position().distanceTo(origin) > throwType().reach()) endFlight();
 			}
 			case RETURN -> tickReturn();
@@ -482,7 +463,6 @@ public class AnchorHookEntity extends ThrowableProjectile implements ItemSupplie
 		tag.putInt("AnchorRadius", radius);
 		tag.putInt("AnchorGrapple", grapple);
 		tag.putInt("AnchorReturn", returnTicks);
-		tag.putInt("AnchorTrail", trail);
 		tag.putBoolean("AnchorAnchored", anchored);
 		tag.putDouble("AnchorOriginX", origin.x);
 		tag.putDouble("AnchorOriginY", origin.y);
@@ -502,7 +482,6 @@ public class AnchorHookEntity extends ThrowableProjectile implements ItemSupplie
 		radius = tag.getInt("AnchorRadius");
 		grapple = tag.getInt("AnchorGrapple");
 		returnTicks = tag.getInt("AnchorReturn");
-		trail = tag.getInt("AnchorTrail");
 		anchored = tag.getBoolean("AnchorAnchored");
 		origin = new Vec3(tag.getDouble("AnchorOriginX"), tag.getDouble("AnchorOriginY"),
 				tag.getDouble("AnchorOriginZ"));

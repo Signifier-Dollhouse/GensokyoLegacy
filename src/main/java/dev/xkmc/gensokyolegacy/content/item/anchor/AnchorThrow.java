@@ -11,8 +11,8 @@ public enum AnchorThrow {
 	DESTROY_CHARGED(16, 0),
 	GRAB(16, 0),
 	PULL(16, 0),
-	STORM(16, 5),
-	STORM_UNBOUND(48, 10);
+	STORM(48, 5),
+	STORM_VOLLEY(48, 10);
 
 	private final double reach;
 	private final int cost;
@@ -37,7 +37,7 @@ public enum AnchorThrow {
 	}
 
 	public boolean isStorm() {
-		return this == STORM || this == STORM_UNBOUND;
+		return this == STORM || this == STORM_VOLLEY;
 	}
 
 }

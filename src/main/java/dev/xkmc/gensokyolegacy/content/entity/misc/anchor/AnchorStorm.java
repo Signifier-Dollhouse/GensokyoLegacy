@@ -1,16 +1,13 @@
 package dev.xkmc.gensokyolegacy.content.entity.misc.anchor;
 
 import dev.xkmc.danmakuapi.api.IDanmakuEntity;
-import dev.xkmc.danmakuapi.content.entity.DanmakuHelper;
 import dev.xkmc.danmakuapi.content.entity.ItemBulletEntity;
 import dev.xkmc.danmakuapi.content.spell.mover.RectMover;
 import dev.xkmc.danmakuapi.init.registrate.DanmakuEntities;
 import dev.xkmc.danmakuapi.init.registrate.DanmakuItems;
 import dev.xkmc.fastprojectileapi.collision.EntityStorageHelper;
 import dev.xkmc.gensokyolegacy.init.data.GLModConfig;
-import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.tags.FluidTags;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -19,65 +16,45 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 /**
- * Wetness, trail, burst and area damage, shared by the bounded hook and the unbound bullets.
- * The bounded anchor is a real entity and reads its fluid state; a danmaku bullet's is a no-op
- * and samples the block it is in plus its owner.
+ * Trail, burst and area damage shared by the unbound storm anchors.
  *
  * @see "doc/design/minamitsu_anchor.md"
  */
 public final class AnchorStorm {
 
 	private static final int MAX_TRAIL = 160;
-	private static final double TRAIL_SPEED = 0.7;
+	private static final double BURST_SPEED = 0.7;
 	private static final int TRAIL_LIFE = 40;
-	private static final double BURST_RADIUS = 4;
-	private static final float BURST_DAMAGE = 6;
+	private static final double AREA_RADIUS = 6;
+	private static final float AREA_DAMAGE = 12;
+	private static final Vec3 GRAVITY = new Vec3(0, -0.05, 0);
 
 	private AnchorStorm() {
 	}
 
-	public static boolean wetAt(Level level, Vec3 pos) {
-		BlockPos bp = BlockPos.containing(pos);
-		if (level.getFluidState(bp).is(FluidTags.WATER)) return true;
-		if (level.getBlockState(bp).is(Blocks.BUBBLE_COLUMN)) return true;
-		return level.isRainingAt(bp);
-	}
-
-	public static boolean isWet(Entity self) {
-		return self.isInWaterRainOrBubble() || wetAt(self.level(), self.position());
+	/**
+	 * Sheds one falling danmaku with no initial speed per tick; returns the new trail budget.
+	 */
+	public static int shedTrail(Entity self, Entity owner, int spent) {
+		if (spent >= MAX_TRAIL || !stormDanmaku()) return spent;
+		spawn(self, owner, Vec3.ZERO, TRAIL_LIFE + self.getRandom().nextInt(11));
+		return spent + 1;
 	}
 
 	/**
-	 * Sheds the four-bullet cross while the storm is wet; returns the new trail budget.
+	 * Area damage on impact, plus the gravitational burst.
 	 */
-	public static int shedTrail(Entity self, Entity owner, boolean wet, int spent) {
-		if (!wet || spent >= MAX_TRAIL || !stormDanmaku()) return spent;
-		Vec3 vec = self.getDeltaMovement();
-		if (vec.lengthSqr() < 1e-6) return spent;
-		var orientation = DanmakuHelper.getOrientation(vec.normalize()).asNormal();
-		var a = self.tickCount * 10;
-		for (int i = 0; i < 6; i++) {
-			Vec3 dir = orientation.rotateDegrees(60 * i + a);
-			spawn(self, owner, dir, TRAIL_LIFE + self.getRandom().nextInt(11), null);
-		}
-		return spent + 4;
-	}
-
-	/**
-	 * Area damage on impact, plus the gravitational burst when the impact was wet.
-	 */
-	public static void impact(Entity self, Entity owner, boolean wet) {
+	public static void impact(Entity self, Entity owner) {
 		areaDamage(self, owner);
-		if (wet && stormDanmaku()) burst(self, owner);
+		if (stormDanmaku()) burst(self, owner);
 	}
 
 	private static void areaDamage(Entity self, Entity owner) {
-		areaDamage(self, owner, self.position(), BURST_RADIUS, BURST_DAMAGE);
+		areaDamage(self, owner, self.position(), AREA_RADIUS, AREA_DAMAGE);
 	}
 
 	/**
@@ -118,20 +95,19 @@ public final class AnchorStorm {
 			Vec3 dir = new Vec3(self.getRandom().nextGaussian(), self.getRandom().nextGaussian(),
 					self.getRandom().nextGaussian()).add(forward.scale(1.2));
 			if (dir.lengthSqr() < 1e-6) dir = forward;
-			spawn(self, owner, dir.normalize().scale(1.2), TRAIL_LIFE + self.getRandom().nextInt(11),
-					new Vec3(0, -0.05, 0));
+			spawn(self, owner, dir.normalize().scale(BURST_SPEED), TRAIL_LIFE + self.getRandom().nextInt(11));
 		}
 	}
 
-	private static void spawn(Entity self, Entity owner, Vec3 dir, int life, Vec3 accel) {
+	private static void spawn(Entity self, Entity owner, Vec3 vec, int life) {
 		if (!(self.level() instanceof ServerLevel sl)) return;
-		ItemStack stack = new ItemStack(DanmakuItems.Bullet.CIRCLE.get(accel==null ? DyeColor.CYAN:DyeColor.BLUE).get());
+		ItemStack stack = new ItemStack(DanmakuItems.Bullet.CIRCLE.get(DyeColor.BLUE).get());
 		ItemBulletEntity danmaku = new ItemBulletEntity(DanmakuEntities.ITEM_DANMAKU.get(), 0, 0, 0, sl);
 		if (owner != null) danmaku.setOwner(owner);
 		danmaku.setItem(stack);
-		danmaku.setup(1, life, false, false, dir.scale(TRAIL_SPEED));
+		danmaku.setup(1, life, false, false, vec);
 		danmaku.setPos(self.position());
-		if (accel != null) danmaku.mover = new RectMover(self.position(), dir.scale(TRAIL_SPEED), accel);
+		danmaku.mover = new RectMover(self.position(), vec, GRAVITY);
 		EntityStorageHelper.fastAdd(sl, danmaku);
 	}
 

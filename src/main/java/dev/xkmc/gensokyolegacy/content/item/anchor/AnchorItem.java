@@ -98,8 +98,8 @@ public class AnchorItem extends SpiritualDanmakuItem {
 	}
 
 	/**
-	 * The Destroy and Voyage left click on an entity: the vanilla attack is cancelled and everything
-	 * within {@link #MELEE_RADIUS} of the clicked target takes the swing instead.
+	 * The left click on an entity in any mode: the vanilla attack is cancelled and everything within
+	 * {@link #MELEE_RADIUS} of the clicked target takes the swing instead.
 	 */
 	public static void melee(ServerPlayer sp, Entity target) {
 		AnchorStorm.melee(sp, target.position(), MELEE_RADIUS);
@@ -189,7 +189,7 @@ public class AnchorItem extends SpiritualDanmakuItem {
 		switch (getMode(stack)) {
 			case STORM -> {
 				if (used < CHARGE_TIME) return;
-				throwAnchors(sp, player.getUsedItemHand(), AnchorThrow.STORM_UNBOUND);
+				throwAnchors(sp, player.getUsedItemHand(), AnchorThrow.STORM_VOLLEY);
 			}
 			case DESTROY -> {
 				if (used < DESTROY_CHARGE_MIN) return;
@@ -234,26 +234,14 @@ public class AnchorItem extends SpiritualDanmakuItem {
 		ServerLevel level = sp.serverLevel();
 		Vec3 look = RayTraceUtil.getRayTerm(Vec3.ZERO, sp.getXRot(), sp.getYRot(), 1);
 		Vec3 from = RayTraceUtil.getRayTerm(sp.getEyePosition(), sp.getXRot(), sp.getYRot(), 2);
-		boolean fan = type == AnchorThrow.STORM_UNBOUND;
-		int count = fan ? 5 : 1;
-		float damage = (float) sp.getAttributeValue(Attributes.ATTACK_DAMAGE) * scale;
-		var orientation = DanmakuHelper.getOrientation(look);
-		for (int i = 0; i < count; i++) {
-			Vec3 dir = fan ? orientation.rotateDegrees((i - (count - 1) / 2.0) * FAN_STEP) : look;
-			if (fan) {
-				AnchorBulletEntity proj = new AnchorBulletEntity(GLEntities.ANCHOR_BULLET.get(), sp, level);
-				proj.setItem(new ItemStack(GLItems.MINAMITSU_ANCHOR.get()));
-				proj.configure(from);
-				proj.setup(0, LIFE, false, false, dir.scale(FLY_SPEED));
-				proj.moveTo(from);
-				level.addFreshEntity(proj);
-				SpellContainer.track(sp, proj);
-			} else {
-				AnchorHookEntity proj = new AnchorHookEntity(GLEntities.ANCHOR_HOOK.get(), sp, level);
-				proj.launch(type, damage, from, dir);
-				proj.setRadius(radius);
-				if (level.addFreshEntity(proj)) setLink(stack, proj.getUUID());
-			}
+		if (type.isStorm()) {
+			throwUnbound(sp, level, from, look, type == AnchorThrow.STORM_VOLLEY);
+		} else {
+			AnchorHookEntity proj = new AnchorHookEntity(GLEntities.ANCHOR_HOOK.get(), sp, level);
+			float damage = (float) sp.getAttributeValue(Attributes.ATTACK_DAMAGE) * scale;
+			proj.launch(type, damage, from, look);
+			proj.setRadius(radius);
+			if (level.addFreshEntity(proj)) setLink(stack, proj.getUUID());
 		}
 		sp.getCooldowns().addCooldown(item, COOLDOWN);
 		sp.swing(hand, true);
@@ -261,6 +249,25 @@ public class AnchorItem extends SpiritualDanmakuItem {
 		level.playSound(null, sp.getX(), sp.getY(), sp.getZ(), SoundEvents.TRIDENT_THROW.value(),
 				SoundSource.PLAYERS, 1F, 1F);
 		return true;
+	}
+
+	/**
+	 * Storm throws are always unbound: one anchor on a left click, a five-anchor fan on a charged
+	 * right click.
+	 */
+	private static void throwUnbound(ServerPlayer sp, ServerLevel level, Vec3 from, Vec3 look, boolean fan) {
+		int count = fan ? 5 : 1;
+		var orientation = DanmakuHelper.getOrientation(look);
+		for (int i = 0; i < count; i++) {
+			Vec3 dir = fan ? orientation.rotateDegrees((i - (count - 1) / 2.0) * FAN_STEP) : look;
+			AnchorBulletEntity proj = new AnchorBulletEntity(GLEntities.ANCHOR_BULLET.get(), sp, level);
+			proj.setItem(new ItemStack(GLItems.MINAMITSU_ANCHOR.get()));
+			proj.configure(from);
+			proj.setup(0, LIFE, false, false, dir.scale(FLY_SPEED));
+			proj.moveTo(from);
+			level.addFreshEntity(proj);
+			SpellContainer.track(sp, proj);
+		}
 	}
 
 	/**
