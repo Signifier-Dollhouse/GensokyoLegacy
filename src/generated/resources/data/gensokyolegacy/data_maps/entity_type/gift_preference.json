@@ -70,6 +70,15 @@
         "TOOL": 1.5
       }
     },
+    "gensokyolegacy:murasa_minamitsu": {
+      "override": {},
+      "preference": {
+        "ALCOHOL": 2.0,
+        "COLLECTION": 1.5,
+        "FOOD": 1.5,
+        "TOOL": 1.0
+      }
+    },
     "gensokyolegacy:plain_fairy": {
       "override": {},
       "preference": {
