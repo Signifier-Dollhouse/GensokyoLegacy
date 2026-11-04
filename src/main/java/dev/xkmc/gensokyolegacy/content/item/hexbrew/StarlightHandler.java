@@ -1,8 +1,9 @@
 package dev.xkmc.gensokyolegacy.content.item.hexbrew;
 
+import dev.xkmc.gensokyolegacy.content.effect.DanmakuRetaliateEffect;
+import dev.xkmc.gensokyolegacy.content.effect.SparklingEffect;
 import dev.xkmc.gensokyolegacy.init.registrate.GLEffects;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
@@ -13,7 +14,6 @@ import org.jetbrains.annotations.Nullable;
 
 public class StarlightHandler implements HexBrewHandler {
 
-	private static final String OWNER_KEY = "gensokyolegacy:starlight_owner";
 	private static final int DURATION = 3600;
 
 	@Override
@@ -32,8 +32,7 @@ public class StarlightHandler implements HexBrewHandler {
 			if (e == thrower || e == credit) continue;
 			if (HexBrewHandler.isAllied(e, thrower) || HexBrewHandler.isAllied(e, credit)) continue;
 			if (e.distanceToSqr(pos) > 16) continue;
-			e.addEffect(new MobEffectInstance(GLEffects.SPARKLING.holder(), DURATION, 0));
-			e.getPersistentData().putUUID(OWNER_KEY, thrower.getUUID());
+			DanmakuRetaliateEffect.apply(GLEffects.SPARKLING, e, thrower.getUUID(), DURATION);
 			if (credit != null) {
 				e.hurt(level.damageSources().indirectMagic(thrower, credit), 4.0f);
 			} else {
@@ -41,10 +40,7 @@ public class StarlightHandler implements HexBrewHandler {
 			}
 		}
 		if (!(thrower instanceof LivingEntity livingOwner)) return;
-		SparklingEventHandler.spawnStars(level, livingOwner, pos, 0.5f);
+		SparklingEffect.spawnStars(level, livingOwner, pos, 0.5f);
 	}
 
-	public static String getOwnerKey() {
-		return OWNER_KEY;
-	}
 }

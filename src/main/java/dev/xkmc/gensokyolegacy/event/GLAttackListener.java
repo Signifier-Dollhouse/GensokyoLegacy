@@ -1,14 +1,15 @@
 package dev.xkmc.gensokyolegacy.event;
 
 import dev.xkmc.danmakuapi.init.data.DanmakuDamageTypes;
+import dev.xkmc.gensokyolegacy.content.effect.DanmakuRetaliateEffect;
 import dev.xkmc.gensokyolegacy.content.effect.MiasmaEffect;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.BaseDollEntity;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.item.character.TouhouHatItem;
-import dev.xkmc.gensokyolegacy.content.item.hexbrew.SparklingEventHandler;
 import dev.xkmc.gensokyolegacy.content.item.talisman.core.TalismanCurioItem;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.GLModConfig;
+import dev.xkmc.gensokyolegacy.init.registrate.GLEffects;
 import dev.xkmc.l2damagetracker.contents.attack.AttackListener;
 import dev.xkmc.l2damagetracker.contents.attack.CreateSourceEvent;
 import dev.xkmc.l2damagetracker.contents.attack.DamageData;
@@ -62,7 +63,8 @@ public class GLAttackListener implements AttackListener {
 
 	@Override
 	public void onDamageFinalized(DamageData.DefenceMax data) {
-		SparklingEventHandler.onLivingHurt(data.getTarget());
+		DanmakuRetaliateEffect.onLivingHurt(data.getTarget(), GLEffects.SPARKLING);
+		DanmakuRetaliateEffect.onLivingHurt(data.getTarget(), GLEffects.HAUNTING);
 		MiasmaEffect.onHurt(data.getTarget());
 
 		var attacker = data.getAttacker();

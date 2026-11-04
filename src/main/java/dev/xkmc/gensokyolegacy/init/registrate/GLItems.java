@@ -544,7 +544,18 @@ public class GLItems {
 					.register();
 
 			YUYUKO_FAN = reg.item("yuyuko_fan", p -> new YuyukoFanItem(p.stacksTo(1)))
-					.model((ctx, pvd) -> pvd.handheld(ctx, pvd.modLoc("item/tool/" + ctx.getName())))
+					.model((ctx, pvd) -> {
+						var base = pvd.handheld(ctx, pvd.modLoc("item/yuyuko_fan/" + ctx.getName()));
+						// icon variants for the wheel/selector display stacks (cf. umbrella_display)
+						var modes = YuyukoFanMode.values();
+						for (int i = 0; i < modes.length; i++) {
+							base.override()
+									.predicate(GensokyoLegacy.loc("yuyuko_fan_display"), i + 1)
+									.model(pvd.withExistingParent("item/yuyuko_fan_icon_" + modes[i].iconName(), "item/generated")
+											.texture("layer0", pvd.modLoc("item/yuyuko_fan/" + modes[i].iconName() + "_icon")))
+									.end();
+						}
+					})
 					.lang("Yuyuko's Fan")
 					.tab(TAB.key())
 					.tag(L2ISTagGen.SELECTABLE)

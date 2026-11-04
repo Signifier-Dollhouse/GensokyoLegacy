@@ -1,9 +1,10 @@
 package dev.xkmc.gensokyolegacy.content.item.ghost;
 
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
+
+import java.util.Locale;
 
 /**
  * What the fan does on a right-click in the air: tend every summoned ghost, collect them all,
@@ -35,9 +36,17 @@ public enum YuyukoFanMode {
 	 * A selector icon for this mode, named after it.
 	 */
 	public ItemStack icon() {
-		ItemStack stack = handler.icon();
-		stack.set(DataComponents.ITEM_NAME, getDisplayName());
-		return stack;
+		return YuyukoFanItem.iconStack(this);
+	}
+
+	/**
+	 * Sub-model id suffix for this mode's icon ({@code item/yuyuko_fan/<name>_icon}).
+	 */
+	public String iconName() {
+		return switch (this) {
+			case HAUNT -> "haunting";
+			default -> name().toLowerCase(Locale.ROOT);
+		};
 	}
 
 	public static YuyukoFanMode byId(int id) {

@@ -4,7 +4,6 @@ import dev.xkmc.gensokyolegacy.content.attachment.doll.DollAttachment;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.ghost.GhostEntity;
 import dev.xkmc.gensokyolegacy.content.item.spiritual.SpiritualPower;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
-import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 
@@ -39,11 +38,6 @@ final class AbsorbFanHandler implements YuyukoFanModeHandler {
 		if (count > 0) sp.displayClientMessage(GLLang.Ghost.ABSORB_ALL.get(absorbed, count), true);
 		if (released > 0) sp.displayClientMessage(GLLang.Ghost.RELEASED_ALL.get(released), true);
 		return true;
-	}
-
-	@Override
-	public ItemStack icon() {
-		return new ItemStack(GLItems.YUYUKO_FAN.get());
 	}
 
 }

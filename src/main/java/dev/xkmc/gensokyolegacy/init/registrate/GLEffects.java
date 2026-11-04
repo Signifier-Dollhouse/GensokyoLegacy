@@ -42,6 +42,10 @@ public class GLEffects {
 			SparklingEffect::new,
 			"When hit, retaliate with stars");
 
+	public static final LegacyHolder<MobEffect> HAUNTING = genEffect("haunting",
+			HauntingEffect::new,
+			"When hit, retaliate with haunting butterflies");
+
 	public static final LegacyHolder<MobEffect> SHIELD = genEffect("shield",
 			ShieldEffect::new,
 			"Grants 1 absorption");

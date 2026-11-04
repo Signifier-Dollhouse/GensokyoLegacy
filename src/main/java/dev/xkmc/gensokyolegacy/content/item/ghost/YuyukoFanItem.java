@@ -13,11 +13,13 @@ import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
 import dev.xkmc.l2itemselector.init.data.L2Keys;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
+import net.minecraft.util.Unit;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
@@ -64,8 +66,29 @@ public class YuyukoFanItem extends SpiritualItem implements GloveTargeting {
 		GLItems.YUYUKO_FAN_MODE.set(stack, mode);
 	}
 
+	/**
+	 * Display stack for a mode's icon (client-side only): a fresh fan with the given mode.
+	 */
+	public static ItemStack displayStack(YuyukoFanMode mode) {
+		ItemStack stack = new ItemStack(GLItems.YUYUKO_FAN.get());
+		setMode(stack, mode);
+		stack.set(DataComponents.ITEM_NAME, mode.getDisplayName());
+		return stack;
+	}
+
 	public static ItemStack iconStack(YuyukoFanMode mode) {
-		return mode.icon();
+		ItemStack stack = displayStack(mode);
+		stack.set(GLItems.ICON.get(), Unit.INSTANCE);
+		return stack;
+	}
+
+	/**
+	 * Model-override value for {@code gensokyolegacy:yuyuko_fan_display}: plain stacks keep the base
+	 * model (0), an {@code ICON} stack uses its mode's icon range.
+	 */
+	public static float displayPredicate(ItemStack stack, Level level, LivingEntity entity, int seed) {
+		if (!stack.has(GLItems.ICON.get())) return 0;
+		return getMode(stack).ordinal() + 1;
 	}
 
 	/**

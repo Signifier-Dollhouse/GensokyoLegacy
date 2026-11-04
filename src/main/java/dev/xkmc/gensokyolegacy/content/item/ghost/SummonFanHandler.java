@@ -7,11 +7,8 @@ import dev.xkmc.gensokyolegacy.content.entity.dolls.ghost.GhostPower;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.ghost.GhostVariant;
 import dev.xkmc.gensokyolegacy.content.item.spiritual.SpiritualPower;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
-import dev.xkmc.gensokyolegacy.init.registrate.GLEntities;
-import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.SpawnEggItem;
 
 /**
  * Refills every summoned ghost, then summons one of each missing kind while power and the ledger
@@ -71,12 +68,6 @@ final class SummonFanHandler implements YuyukoFanModeHandler {
 			if (att.findSummonedGhost(sp, type) != null) return true;
 		}
 		return false;
-	}
-
-	@Override
-	public ItemStack icon() {
-		SpawnEggItem egg = SpawnEggItem.byId(GLEntities.STRAY_GHOST.get());
-		return egg == null ? new ItemStack(GLItems.YUYUKO_FAN.get()) : new ItemStack(egg);
 	}
 
 }

@@ -1,7 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.item.ghost;
 
 import dev.xkmc.danmakuapi.content.entity.DanmakuHelper;
-import dev.xkmc.danmakuapi.content.entity.ItemBulletEntity;
 import dev.xkmc.danmakuapi.content.item.DanmakuItem;
 import dev.xkmc.fastprojectileapi.collision.EntityStorageHelper;
 import dev.xkmc.gensokyolegacy.content.attachment.doll.DollAttachment;
@@ -50,7 +49,8 @@ final class ScatterFanHandler implements YuyukoFanModeHandler {
 				Vec3 dir = orientation.rotateDegrees((i - RAYS / 2 + 1d * j / PER_RAY) * RAY_ANGLE);
 				double dist = min + 0.2 * j;
 				int start = r.nextInt(20);
-				ItemBulletEntity danmaku = new ButterflyDanmakuBulletEntity(GLEntities.BUTTERFLY_DANMAKU.get(), sp, level);
+				ButterflyDanmakuBulletEntity danmaku = new ButterflyDanmakuBulletEntity(GLEntities.BUTTERFLY_DANMAKU.get(), sp, level);
+				danmaku.setHaunting(true);
 				danmaku.setItem(new ItemStack(item));
 				danmaku.setup((float) item.type.damage(), start + (int) ((60 + r.nextInt(10)) / dist), true, item.type.bypass(), dir.scale(dist));
 				danmaku.setPos(center.add(dir.scale(dist)));
@@ -59,11 +59,6 @@ final class ScatterFanHandler implements YuyukoFanModeHandler {
 			}
 		}
 		return true;
-	}
-
-	@Override
-	public ItemStack icon() {
-		return new ItemStack(GLItems.PINK_BUTTERFLY.get());
 	}
 
 }

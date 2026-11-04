@@ -7,7 +7,6 @@ import dev.xkmc.gensokyolegacy.content.entity.dolls.ghost.GhostPower;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.ghost.GhostVariant;
 import dev.xkmc.gensokyolegacy.content.item.spiritual.SpiritualPower;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
-import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
@@ -64,11 +63,6 @@ final class HauntFanHandler implements YuyukoFanModeHandler {
 		SpiritualPower.add(stack, -GhostPower.SUMMON_COST);
 		sp.displayClientMessage(GLLang.Ghost.HAUNT_SUMMONED.get(), true);
 		return true;
-	}
-
-	@Override
-	public ItemStack icon() {
-		return new ItemStack(GLItems.BONE_FLUTE.get());
 	}
 
 }

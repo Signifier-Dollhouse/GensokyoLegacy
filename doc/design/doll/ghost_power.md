@@ -109,8 +109,9 @@ power so it can be read without opening the tooltip.
   is summoned: the power refills it (only the power actually added is spent) and it is sent at the
   new target.
 
-The selector icons are the stray-ghost spawn egg for summoning, the fan itself for absorbing, the
-pink butterfly for scattering and the bone flute for haunting, all named after the mode.
+The selector icons are flat per-mode fan icons (`textures/item/yuyuko_fan/<mode>_icon.png`, the
+haunting mode named `haunting`), drawn through the `yuyuko_fan_display` model override: a display
+stack carries the mode plus the `icon` marker, and the predicate returns the mode ordinal + 1.
 
 ### 4.1 Haunting ghost
 
@@ -147,6 +148,18 @@ it spends tracing the target; if the target is still within two blocks it volley
 
 The variant wears `textures/geo/ghost/dual_ghost.png`; `GhostVariant.texture` returns that stem for
 `HAUNTING` instead of the usual `<variant>_ghost` derivation.
+
+### 4.2 Haunting effect
+
+Only the fan's own butterflies carry the `haunting` flag (`ScatterFanHandler` is the only place that
+sets it). When such a butterfly hits a living target it inflicts `haunting` for 3600 ticks and
+remembers the fan's holder as the effect's owner. Every later hit on that target makes
+`HauntingEffect` spawn six butterflies owned by the remembered holder: one three-butterfly circle
+in each of the ghost's two tilted planes, one block in radius, each circling for a 20-tick round
+trip. The effect has a 25-tick cooldown. The ghost's own volley carries no flag, so it cannot
+reapply the effect it was born from. `HauntingEffect` and `SparklingEffect` share
+`DanmakuRetaliateEffect`, which keeps the owner UUID and the cooldown in the holder's persistent
+data and leaves only the danmaku itself to each effect.
 
 ## 5. Dual ghost and the death ward
 

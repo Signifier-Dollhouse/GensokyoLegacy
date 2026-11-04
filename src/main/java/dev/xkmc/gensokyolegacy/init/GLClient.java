@@ -18,6 +18,7 @@ import dev.xkmc.gensokyolegacy.content.item.common.InvTooltip;
 import dev.xkmc.gensokyolegacy.content.item.common.client.GloveTargetCache;
 import dev.xkmc.gensokyolegacy.content.item.anchor.AnchorItem;
 import dev.xkmc.gensokyolegacy.content.item.dagger.DaggerGloveItem;
+import dev.xkmc.gensokyolegacy.content.item.ghost.YuyukoFanItem;
 import dev.xkmc.gensokyolegacy.content.item.glove.DollGloveItem;
 import dev.xkmc.gensokyolegacy.content.item.glove.client.DollAttackStatusOverlay;
 import dev.xkmc.gensokyolegacy.content.item.glove.client.DollClientLoadoutTooltip;
@@ -63,6 +64,8 @@ public class GLClient {
 					DaggerGloveItem::displayPredicate);
 			ItemProperties.register(GLItems.MINAMITSU_ANCHOR.get(), GensokyoLegacy.loc("anchor_display"),
 					AnchorItem::displayPredicate);
+			ItemProperties.register(GLItems.YUYUKO_FAN.get(), GensokyoLegacy.loc("yuyuko_fan_display"),
+					YuyukoFanItem::displayPredicate);
 
 			CuriosRendererRegistry.register(GLItems.STRAW_HAT.get(), TouhouHatRenderer::new);
 			CuriosRendererRegistry.register(GLItems.SUWAKO_HAT.get(), TouhouHatRenderer::new);
