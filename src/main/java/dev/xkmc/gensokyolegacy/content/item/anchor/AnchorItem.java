@@ -15,6 +15,7 @@ import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.l2itemselector.init.data.L2Keys;
 import dev.xkmc.l2library.content.raytrace.RayTraceUtil;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -22,6 +23,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
 import net.minecraft.util.Mth;
+import net.minecraft.util.Unit;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
@@ -67,7 +69,7 @@ public class AnchorItem extends SpiritualDanmakuItem {
 	}
 
 	public static AnchorMode getMode(ItemStack stack) {
-		return GLItems.ANCHOR_MODE.getOrDefault(stack, AnchorMode.DESTROY);
+		return GLItems.ANCHOR_MODE.getOrDefault(stack, AnchorMode.VOYAGE);
 	}
 
 	public static void setMode(ItemStack stack, AnchorMode mode) {
@@ -104,11 +106,34 @@ public class AnchorItem extends SpiritualDanmakuItem {
 	}
 
 	/**
+	 * Display stack for a mode (client-side only): a fresh anchor with the given mode and a name.
+	 */
+	public static ItemStack displayStack(AnchorMode mode) {
+		ItemStack stack = GLItems.MINAMITSU_ANCHOR.asStack();
+		setMode(stack, mode);
+		stack.set(DataComponents.ITEM_NAME, mode.getDisplayName());
+		return stack;
+	}
+
+	/**
+	 * As {@link #displayStack}, but marked as an icon display so the wheel and the selector list draw
+	 * this mode's wheel icon instead of its GUI icon.
+	 */
+	public static ItemStack iconStack(AnchorMode mode) {
+		ItemStack stack = displayStack(mode);
+		stack.set(GLItems.ANCHOR_ICON.get(), Unit.INSTANCE);
+		return stack;
+	}
+
+	/**
 	 * Model-override value for {@code gensokyolegacy:anchor_display}: the mode's ordinal + 1 selects
-	 * its flat GUI icon, so the hotbar icon shows which mode the anchor is in.
+	 * its flat GUI icon, and an icon stack uses the range behind it for the wheel icons.
 	 */
 	public static float displayPredicate(ItemStack stack, Level level, LivingEntity entity, int seed) {
-		return getMode(stack).ordinal() + 1;
+		int ordinal = getMode(stack).ordinal();
+		return stack.has(GLItems.ANCHOR_ICON.get())
+				? AnchorMode.values().length + 1 + ordinal
+				: ordinal + 1;
 	}
 
 	@Override

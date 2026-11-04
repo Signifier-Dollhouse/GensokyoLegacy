@@ -1,8 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.item.anchor;
 
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
-import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 
@@ -30,14 +28,11 @@ public enum AnchorMode {
 	}
 
 	/**
-	 * A selector icon for this mode, named after it. Every mode is the anchor stack itself; the mode
-	 * component picks the flat GUI icon through {@link AnchorItem#displayPredicate}.
+	 * A wheel icon stack for this mode: named after it and marked so {@link AnchorItem#displayPredicate}
+	 * picks the wheel icon range.
 	 */
 	public ItemStack icon() {
-		ItemStack stack = GLItems.MINAMITSU_ANCHOR.asStack();
-		AnchorItem.setMode(stack, this);
-		stack.set(DataComponents.ITEM_NAME, getDisplayName());
-		return stack;
+		return AnchorItem.iconStack(this);
 	}
 
 	public static AnchorMode byId(int id) {

@@ -43,7 +43,7 @@ model (§5.4); when it lands it bursts 100 gravitational ones.
 |---|---|---|
 | `AnchorItem` | `content/item/anchor/AnchorItem.java` | the item: mode dispatch, cost, cooldown, spawn |
 | `SpiritualDanmakuItem` | `content/item/spiritual/SpiritualDanmakuItem.java` | `DanmakuItem` with the spiritual bar (§2.1) |
-| `AnchorMode` | `content/item/anchor/AnchorMode.java` | `DESTROY / VOYAGE / STORM`, display name, wheel entry |
+| `AnchorMode` | `content/item/anchor/AnchorMode.java` | `VOYAGE / DESTROY / STORM`, display name, wheel entry |
 | `AnchorModel` | `content/item/anchor/AnchorModel.java` | the base model plus one GUI icon model per mode (§3) |
 | `AnchorThrow` | `content/item/anchor/AnchorThrow.java` | what a single throw does: `DESTROY / DESTROY_CHARGED / GRAB / PULL / STORM / STORM_UNBOUND` |
 | `AnchorHookEntity` | `content/entity/misc/anchor/AnchorHookEntity.java` | the bounded anchor: one synced throw type, one synced phase machine |
@@ -118,29 +118,41 @@ reg.item("minamitsu_anchor", p -> new AnchorItem(p.stacksTo(1)
 
 The art is already prepared in `temp/` and only needs moving and wiring:
 
-| from `temp/` | to `src/main/resources/assets/gensokyolegacy/` |
+| from `temp/` | to `src/main/resources/assets/gensokyolegacy/` (generated where noted) |
 |---|---|
-| `anchor.json` | `models/custom/minamitsu_anchor.json`; texture `block/铁锚` and the particle → `gensokyolegacy:item/tool/iron_anchor` |
-| `anchor.json` (same file) | `models/custom/minamitsu_anchor_wet.json`; texture `block/铁锚` and the particle → `gensokyolegacy:item/tool/water_anchor` |
-| `iron_anchor.png` (64×64) | `textures/item/tool/iron_anchor.png` |
-| `water_anchor.png` (64×64) | `textures/item/tool/water_anchor.png` |
-| `iron_anchor_icon.png` (16×16) | `textures/item/tool/iron_anchor_icon.png` — GUI icon, Destroy |
-| `anchor_icon_sink.png` (16×16) | `textures/item/tool/anchor_icon_sink.png` — GUI icon, Voyage |
-| `anchor_icon_storm.png` (16×16) | `textures/item/tool/anchor_icon_storm.png` — GUI icon, Storm |
+| `anchor.json` | `models/custom/anchor.json` — the hand-authored geometry; `#all` and the particle point at the skin |
+| (generated) | `custom/minamitsu_anchor.json` / `custom/minamitsu_anchor_wet.json` — `AnchorModel` wraps that geometry with `item/anchor/iron_anchor` / `item/anchor/water_anchor` |
+| `iron_anchor.png` (64×64) | `textures/item/anchor/iron_anchor.png` |
+| `water_anchor.png` (64×64) | `textures/item/anchor/water_anchor.png` |
+| `anchor_voyage.png` (16×16) | `textures/item/anchor/anchor_voyage.png` — GUI icon, Voyage |
+| `anchor_destroy.png` (16×16) | `textures/item/anchor/anchor_destroy.png` — GUI icon, Destroy |
+| `anchor_storm.png` (16×16) | `textures/item/anchor/anchor_storm.png` — GUI icon, Storm |
+| `anchor_icon_voyage.png` (16×16) | `textures/item/anchor/anchor_icon_voyage.png` — wheel icon, Voyage |
+| `anchor_icon_destroy.png` (16×16) | `textures/item/anchor/anchor_icon_destroy.png` — wheel icon, Destroy |
+| `anchor_icon_storm.png` (16×16) | `textures/item/anchor/anchor_icon_storm.png` — wheel icon, Storm |
 
 The Blockbench model has hand display transforms and no GUI transform, so registration uses the
 same split as the iron dagger / doll lance: the custom model is the base, and
 `ItemDisplayContext.GUI` gets a flat `item/generated` model over one of the three 16×16 icons
 through `SeparateTransformsModelBuilder`. The hook renderer draws with `ItemDisplayContext.GROUND`
 and lays the model down itself (its shaft is authored along +y, the flight direction along +z), so
-the model needs no ground transform and the file stays hand-authored; datagen never rewrites it.
+the model needs no ground transform. The hand-authored `custom/anchor.json` owns the elements; the
+two per-texture wrappers `custom/minamitsu_anchor{,_wet}.json` (parent + `#all` skin) are generated
+by `AnchorModel`, so only the Blockbench geometry stays a main resource.
 
-`AnchorModel.model` generates one such model per mode — `minamitsu_anchor` itself (Destroy icon)
-plus `minamitsu_anchor_destroy/_voyage/_storm` — and hangs them off the base model as item
+`AnchorModel.model` generates one such model per mode — `minamitsu_anchor` itself (Voyage icon)
+plus `minamitsu_anchor_voyage/_destroy/_storm` — and hangs them off the base model as item
 overrides on `gensokyolegacy:anchor_display`, whose value is `AnchorItem.displayPredicate`:
 `AnchorMode.ordinal() + 1`. Vanilla takes the first override whose predicate reaches its value, so
 the generated overrides are emitted in mode order. That is how the held icon follows the mode
-without a second item per mode; the wheel entries are the anchor stack itself (§3.1).
+without a second item per mode.
+
+The wheel icons are a second range on the same predicate: `AnchorItem.iconStack` sets the
+`ANCHOR_ICON` unit component, and `displayPredicate` then returns `modes.length + 1 + ordinal`,
+which the flat `minamitsu_anchor_icon_<mode>` overrides answer with
+`textures/item/anchor/anchor_icon_<mode>.png`. The range sits behind the held one and is emitted
+after it, so a plain anchor still shows its GUI icon while a display stack shows the wheel icon.
+This is the umbrella's `UMBRELLA_ICON` gate and the dagger glove's two-range layout (§3.1).
 
 The two models belong to two items. The visible `minamitsu_anchor` always uses the iron model; a
 hidden twin `anchor_wet` exists only so a thrown storm anchor can be drawn with the water texture,
@@ -161,10 +173,10 @@ DC.enumVal("anchor_mode", EnumCodec.of(AnchorMode.class, AnchorMode.values()))
 
 `AnchorSelectionListener` / `AnchorModeWheel` are near-copies of `YuyukoFanSelectionListener` /
 `YuyukoFanModeWheel`, registered in `commonSetup` next to the other selectors. A wheel entry is
-`AnchorMode.icon()`: the anchor stack itself with the mode component set and `ITEM_NAME` naming the
-mode, so the item override of §3 already gives it the right flat icon and no icon items exist. The
-held stack is what `swap` writes the mode to. `SelectorSelectPacket` already exists and needs no
-change.
+`AnchorMode.icon()`: the anchor stack itself with the mode component set, `ITEM_NAME` naming the
+mode and the `ANCHOR_ICON` marker, so the item override of §3 gives it the wheel icon; the selector
+list uses the same stacks. The held stack is what `swap` writes the mode to. `SelectorSelectPacket`
+already exists and needs no change.
 
 ### 3.2 Right click and left click
 
@@ -684,8 +696,9 @@ damage.
 ## 7. Registration checklist
 
 * `GLItems`: `MINAMITSU_ANCHOR` (`AnchorItem`, `stacksTo(1)`), the hidden `ANCHOR_WET` twin (§3),
-  `ANCHOR_MODE` and `ANCHOR_LINK` (§3.3), the attributes and `TOOL` components, `AnchorModel::model`
-  for the base and the per-mode models, `L2ISTagGen.SELECTABLE`, creative tab.
+  `ANCHOR_MODE` (§3.1), `ANCHOR_ICON` (§3), `ANCHOR_LINK` (§3.3), the attributes and `TOOL`
+  components, `AnchorModel::model` for the base and the per-mode models (GUI and wheel),
+  `L2ISTagGen.SELECTABLE`, creative tab.
 * `GLEntities`, two entries, because the split is the whole point of §5:
   * `ANCHOR_HOOK`, id `minamitsu_anchor` (the current id), `sized(0.5F, 0.5F)`,
     `clientTrackingRange(6)`, **`updateInterval(1)`**, `renderer(AnchorHookRenderer::new)`. The

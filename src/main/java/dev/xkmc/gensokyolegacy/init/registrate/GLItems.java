@@ -190,6 +190,7 @@ public class GLItems {
 			DC.enumVal("yuyuko_fan_mode", EnumCodec.of(YuyukoFanMode.class, YuyukoFanMode.values()));
 	public static final DCVal<AnchorMode> ANCHOR_MODE =
 			DC.enumVal("anchor_mode", EnumCodec.of(AnchorMode.class, AnchorMode.values()));
+	public static final DCVal<Unit> ANCHOR_ICON = DC.unit("anchor_icon");
 	public static final DCVal<UUID> ANCHOR_LINK = DC.uuid("anchor_link");
 	public static final DCVal<DCStack> UFO_CONTENT = DC.stack("ufo_content");
 	public static final DCVal<PartyWandData> PARTY_WAND_DATA = DC.reg("party_wand", PartyWandData.CODEC,
@@ -698,7 +699,7 @@ public class GLItems {
 								.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/minamitsu_anchor_wet")));
 						var guiModel = pvd.nested()
 								.parent(new ModelFile.UncheckedModelFile("item/generated"))
-								.texture("layer0", pvd.modLoc("item/tool/iron_anchor_icon"));
+								.texture("layer0", pvd.modLoc("item/anchor/anchor_voyage"));
 						pvd.getBuilder(ctx.getName())
 								.customLoader(SeparateTransformsModelBuilder::begin)
 								.base(base)

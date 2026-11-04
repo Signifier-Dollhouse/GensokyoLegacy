@@ -22,13 +22,31 @@
       "predicate": {
         "gensokyolegacy:anchor_display": 3.0
       }
+    },
+    {
+      "model": "gensokyolegacy:item/minamitsu_anchor_icon_voyage",
+      "predicate": {
+        "gensokyolegacy:anchor_display": 4.0
+      }
+    },
+    {
+      "model": "gensokyolegacy:item/minamitsu_anchor_icon_destroy",
+      "predicate": {
+        "gensokyolegacy:anchor_display": 5.0
+      }
+    },
+    {
+      "model": "gensokyolegacy:item/minamitsu_anchor_icon_storm",
+      "predicate": {
+        "gensokyolegacy:anchor_display": 6.0
+      }
     }
   ],
   "perspectives": {
     "gui": {
       "parent": "minecraft:item/generated",
       "textures": {
-        "layer0": "gensokyolegacy:item/tool/iron_anchor_icon"
+        "layer0": "gensokyolegacy:item/anchor/anchor_voyage"
       }
     }
   }
