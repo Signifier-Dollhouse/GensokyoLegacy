@@ -13,7 +13,7 @@ import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 
 /**
  * Left-click plumbing for the anchor: an empty click throws the mode's throw and an entity click
- * swings at a radius of 3, in every mode.
+ * swings at a radius of 3, in every mode. Both are dead while a hook is out.
  *
  * @see "doc/design/minamitsu_anchor.md"
  */
@@ -25,6 +25,7 @@ public class AnchorEventHandlers {
 		Player player = event.getEntity();
 		ItemStack stack = player.getMainHandItem();
 		if (!(stack.getItem() instanceof AnchorItem)) return;
+		if (AnchorItem.isLinked(stack)) return;
 		GensokyoLegacy.HANDLER.toServer(new AnchorSwingPacket());
 	}
 
@@ -34,6 +35,7 @@ public class AnchorEventHandlers {
 		ItemStack stack = player.getMainHandItem();
 		if (!(stack.getItem() instanceof AnchorItem)) return;
 		event.setCanceled(true);
+		if (AnchorItem.isLinked(stack)) return;
 		if (!(player instanceof ServerPlayer sp)) return;
 		AnchorItem.melee(sp, event.getTarget());
 	}

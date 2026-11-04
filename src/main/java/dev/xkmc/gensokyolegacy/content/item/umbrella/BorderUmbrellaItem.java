@@ -50,10 +50,10 @@ public class BorderUmbrellaItem extends Item {
 	/**
 	 * Model-override value for {@code gensokyolegacy:umbrella_display}, mirroring {@code
 	 * DollGloveItem.displayPredicate}: plain stacks keep the base model (0, open/closed still by {@code
-	 * umbrella_open}), an {@code UMBRELLA_ICON} stack uses its mode's icon range.
+	 * umbrella_open}), an {@code ICON} stack uses its mode's icon range.
 	 */
 	public static float displayPredicate(ItemStack stack, Level level, LivingEntity entity, int seed) {
-		if (!stack.has(GLItems.UMBRELLA_ICON.get())) return 0;
+		if (!stack.has(GLItems.ICON.get())) return 0;
 		return stack.getOrDefault(GLItems.UMBRELLA_TYPE.get(), BorderUmbrellaMode.RECORD).ordinal() + 1;
 	}
 
@@ -68,7 +68,7 @@ public class BorderUmbrellaItem extends Item {
 
 	public static ItemStack iconStack(BorderUmbrellaMode mode) {
 		ItemStack stack = displayStack(mode);
-		stack.set(GLItems.UMBRELLA_ICON.get(), Unit.INSTANCE);
+		stack.set(GLItems.ICON.get(), Unit.INSTANCE);
 		return stack;
 	}
 
@@ -152,7 +152,7 @@ public class BorderUmbrellaItem extends Item {
 	public static float isOpen(ItemStack stack, Level level, LivingEntity user, int index) {
 		// icon display stacks always resolve through umbrella_display, never the open model:
 		// display takes priority over the open flag by construction, not by override order
-		if (stack.has(GLItems.UMBRELLA_ICON.get())) return 0;
+		if (stack.has(GLItems.ICON.get())) return 0;
 		return GLItems.UMBRELLA_TYPE.getOrDefault(stack, BorderUmbrellaMode.RECORD) == BorderUmbrellaMode.RECORD ? 0 : 1;
 	}
 

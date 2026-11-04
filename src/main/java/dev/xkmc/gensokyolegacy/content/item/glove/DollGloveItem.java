@@ -58,12 +58,12 @@ public class DollGloveItem extends Item implements GloveTargeting {
 
 	/**
 	 * Model-override value for {@code gensokyolegacy:glove_display}: the held mode's ordinal + 1 selects that
-	 * mode's held-texture override, while an icon stack ({@code DOLL_GLOVE_ICON}) uses the icon range behind it.
+	 * mode's held-texture override, while an icon stack ({@code ICON}) uses the icon range behind it.
 	 * Overrides are emitted ascending, so they match exactly.
 	 */
 	public static float displayPredicate(ItemStack stack, Level level, LivingEntity entity, int seed) {
 		int ordinal = getMode(stack).ordinal();
-		return stack.has(GLItems.DOLL_GLOVE_ICON.get()) ?
+		return stack.has(GLItems.ICON.get()) ?
 				DollGloveMode.values().length + 1 + ordinal : ordinal + 1;
 	}
 
@@ -78,7 +78,7 @@ public class DollGloveItem extends Item implements GloveTargeting {
 
 	public static ItemStack iconStack(DollGloveMode mode) {
 		ItemStack stack = displayStack(mode);
-		stack.set(GLItems.DOLL_GLOVE_ICON.get(), Unit.INSTANCE);
+		stack.set(GLItems.ICON.get(), Unit.INSTANCE);
 		return stack;
 	}
 

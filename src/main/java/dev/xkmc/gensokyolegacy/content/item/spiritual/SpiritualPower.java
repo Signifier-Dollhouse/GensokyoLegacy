@@ -53,6 +53,8 @@ public final class SpiritualPower {
 	}
 
 	public static boolean barVisible(ItemStack stack) {
+		if (stack.has(GLItems.ICON.get()))
+			return false;
 		return max(stack) > 0;
 	}
 

@@ -1209,10 +1209,6 @@ public final class GLLang {
 		MODE_DESTROY("Destroy"),
 		MODE_VOYAGE("Voyage"),
 		MODE_STORM("Storm"),
-		COST("Storm throws cost 5 / 10 spiritual power", 0, ChatFormatting.GRAY),
-		CHARGE_DESTROY("Destroy right click: hold 1-2 seconds, then release", 0, ChatFormatting.GRAY),
-		CHARGE("Storm right click: hold for 1 second, then release", 0, ChatFormatting.GRAY),
-		RETRIEVE("Right click again to retrieve the anchor, or to be pulled to it", 0, ChatFormatting.GRAY),
 		NEED_POWER("The anchor needs at least %s spiritual power", 1, ChatFormatting.RED);
 
 		private final String def;

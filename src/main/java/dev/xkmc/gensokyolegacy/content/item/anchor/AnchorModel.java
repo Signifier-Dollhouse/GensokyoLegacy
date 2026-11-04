@@ -69,7 +69,7 @@ public class AnchorModel {
 					.model(pvd.getExistingFile(pvd.modLoc(name)))
 					.end();
 		}
-		// the wheel range sits behind the held range, marked by AnchorItem.iconStack's ANCHOR_ICON
+		// the wheel range sits behind the held range, marked by AnchorItem.iconStack's ICON
 		for (int i = 0; i < modes.length; i++) {
 			String name = "item/" + ctx.getName() + "_icon_" + modes[i].name().toLowerCase(Locale.ROOT);
 			anchor.override()

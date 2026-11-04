@@ -51,8 +51,8 @@ The cache is **shared**, not the doll glove's alone: `GloveTargeting` (`content/
 ## 3b. Wheel display icons (model overrides, umbrella mirror)
 
 - The glove item model carries one override per mode on the `gensokyolegacy:glove_display` predicate, emitted ascending (vanilla reverses the list at bake time and returns the first match with `>=` per predicate, so ascending gives exact per-mode matching). Two ranges: mode ordinal + 1 selects the `item/glove_<mode>` held sub-model (generated parent over `textures/item/doll_glove/glove_<mode>.png`, from `temp/<mode>.png`), and ordinal + `modes.length` + 1 selects `item/glove_icon_<mode>`, the flat icon variant the wheel and scroll list show.
-- `DollGloveItem.displayPredicate` (registered in `GLClient`, mirroring `umbrella_open`) picks between the two ranges: the icon range when the stack carries `DOLL_GLOVE_ICON`, the held range otherwise.
-- Presence component `DOLL_GLOVE_ICON` (`DC.unit`) is never set on a real glove stack — the client sets it on a fresh glove to produce a display stack (`DollGloveItem.iconStack(mode)`), so the override draws the icon variant. Wheel entries and the scroll selector list render those display stacks directly, with no reference to the held glove.
+- `DollGloveItem.displayPredicate` (registered in `GLClient`, mirroring `umbrella_open`) picks between the two ranges: the icon range when the stack carries `ICON`, the held range otherwise.
+- Presence component `ICON` (`DC.unit`, shared by every wheel-display item) is never set on a real glove stack — the client sets it on a fresh glove to produce a display stack (`DollGloveItem.iconStack(mode)`), so the override draws the icon variant. Wheel entries and the scroll selector list render those display stacks directly, with no reference to the held glove.
 
 ## 4. Network
 
@@ -62,7 +62,7 @@ The cache is **shared**, not the doll glove's alone: `GloveTargeting` (`content/
 
 ## 5. Registration
 
-- `GLItems` — `DOLL_GLOVE` = `reg.item("doll_glove", p -> new DollGloveItem(p.stacksTo(1)))` + model generation in `DollGloveModel` (base glove + one held and one icon `glove_display` override per mode) + `.lang("Seven-Colored Doll Glove")` + tab + `DOLL_GLOVE_MODE` DCVal + `DOLL_GLOVE_ICON` unit component (§3b).
+- `GLItems` — `DOLL_GLOVE` = `reg.item("doll_glove", p -> new DollGloveItem(p.stacksTo(1)))` + model generation in `DollGloveModel` (base glove + one held and one icon `glove_display` override per mode) + `.lang("Seven-Colored Doll Glove")` + tab + `DOLL_GLOVE_MODE` DCVal + `ICON` unit component (§3b).
 - Mod constructor — `DollGloveSelectionListener.register()` beside `BorderUmbrellaSelectionListener.register()`; `GensokyoLegacy.HANDLER` registers `SelectorSelectPacket` (shared) + `GloveTargetPacket`; the `CodecHandler<ItemStack>` (loadout.md §2) alongside `FluidIngredient`. `GLMeta` registers the `GLOVE_TARGET` attachment that holds the server-side cache; `GLClient` ticks the client cache from `ClientTickEvent.Post`.
 - `GLLang` — `ItemGlove` enum: mode names/descriptions plus a message for every non-trivial action (summoned count, recalled count + parked count, volley/super/suicide issued, no_target, no_doll, too_far, not_doll).
 - Textures — copy `temp/七色人偶手套.png` to `assets/gensokyolegacy/textures/item/doll_glove/doll_glove.png`; copy `temp/<mode>.png` to `assets/gensokyolegacy/textures/item/doll_glove/glove_<mode>.png` (§3b).

@@ -384,10 +384,10 @@ since the glove has three visually distinct modes:
   one entry per mode; `select(index)` sends `SelectorSelectPacket(index)`, shared with the doll glove and the umbrella.
 - No glove-specific select packet: the mode pick rides the shared selector-wheel packet, `content/item/common/network/SelectorSelectPacket.java`, which resolves the held stack to its own `IItemSelector` and calls `swap`.
 - Data components: `DAGGER_GLOVE_MODE` (`DC.enumVal` over the enum, persistent),
-  `DAGGER_GLOVE_RUNE` (`DC.loc`) and `DAGGER_GLOVE_ICON` (`DC.unit`, §6b).
+  `DAGGER_GLOVE_RUNE` (`DC.loc`) and `ICON` (`DC.unit`, §6b).
 
 Wheel entries **and the scroll sidebar** render an **icon stack carrying the mode**, the same
-trick as `DollGloveItem.iconStack`, driven by an `DAGGER_GLOVE_ICON` unit component that
+trick as `DollGloveItem.iconStack`, driven by an `ICON` unit component that
 `displayPredicate` reads to emit the icon range instead of the held range (§6b). The held
 per-mode textures are identical copies of one glove, so a display stack would show the same
 picture three times in a row in both places.
@@ -423,7 +423,7 @@ item model when a predicate matches, so a flat override would silently drop the 
 The four flat held textures are identical copies of one glove, so the wheel cannot tell the modes
 apart from them. Each mode therefore also has a distinct wheel icon,
 `item/dagger_glove/dagger_glove_icon_<mode>.png`, reached the same way the doll glove reaches its
-own: an `DAGGER_GLOVE_ICON` unit component that `DaggerGloveItem.iconStack` sets, which
+own: an `ICON` unit component that `DaggerGloveItem.iconStack` sets, which
 `displayPredicate` reads to emit the icon range (`modes.length + 1 + ordinal`) instead of the held
 range (`ordinal + 1`). `DaggerGloveModeEntry` draws `iconStack`, not `displayStack`.
 
@@ -475,7 +475,7 @@ zh_cn is hand-authored in the split per-category files, then merged by the
   three ascending `dagger_glove_display` overrides onto `item/dagger_glove_<mode>` sub-models (also
   separate-transforms, so the hand survives the override) and three more onto
   `item/dagger_glove_icon_<mode>` (flat), `.lang("Dagger Glove")`, tab `TAB`, plus the
-  `DAGGER_GLOVE_MODE` / `DAGGER_GLOVE_RUNE` / `DAGGER_GLOVE_ICON` components. Tagged
+  `DAGGER_GLOVE_MODE` / `DAGGER_GLOVE_RUNE` / `ICON` components. Tagged
   `L2ISTagGen.SELECTABLE` so the wheel offers it, like the doll glove.
 - Mod constructor — `DaggerGloveSelectionListener.register()` beside
   `DollGloveSelectionListener.register()`; `GensokyoLegacy.HANDLER` registers
@@ -489,7 +489,7 @@ zh_cn is hand-authored in the split per-category files, then merged by the
   range for an icon stack (§6b). The red target marker comes from the shared glow rule instead of a
   new one (§2d).
 - Data components — `DAGGER_GLOVE_MODE` (`DC.enumVal`, persistent), `DAGGER_GLOVE_RUNE` (`DC.loc`) and
-  `DAGGER_GLOVE_ICON` (`DC.unit`, the wheel's per-mode icon marker, §6b).
+  `ICON` (`DC.unit`, the wheel's per-mode icon marker, §6b).
 - Textures — all under `textures/item/dagger_glove/`, beside the umbrella's and the doll glove's:
   `dagger_glove.png` plus `_single` / `_fan` / `_homing` (the four flat held sprites, identical
   copies of one glove), `dagger_glove_hand_<mode>.png` (the three hand skins, §6a), and

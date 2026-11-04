@@ -169,10 +169,11 @@ public class GLItems {
 	public static final DCVal<PortalSide> DC_PORTAL_SIDE = DC.enumVal("portal_side", EnumCodec.of(PortalSide.class, PortalSide.values()));
 	public static final DCVal<UUID> DC_DEBUG_YOUKAI = DC.uuid("debug_youkai");
 	public static final DCVal<ResourceLocation> DC_OFFER = DC.loc("offer");
+	// presence marker on client-side display stacks: draw the wheel icon range instead of the held model
+	public static final DCVal<Unit> ICON = DC.unit("icon");
 	public static final DCVal<BorderUmbrellaSlots> UMBRELLA_SLOTS = DC.reg("border_umbrella_slots", BorderUmbrellaSlots.class, false);
 	public static final DCVal<Integer> UMBRELLA_SLOT_SELECTED = DC.intVal("border_umbrella_slot_selected");
 	public static final DCVal<BorderUmbrellaMode> UMBRELLA_TYPE = DC.enumVal("border_umbrella_type", EnumCodec.of(BorderUmbrellaMode.class, BorderUmbrellaMode.values()));
-	public static final DCVal<Unit> UMBRELLA_ICON = DC.unit("border_umbrella_icon");
 	public static final DCVal<BorderUmbrellaUnlock> UMBRELLA_UNLOCK = DC.reg("border_umbrella_unlock", BorderUmbrellaUnlock.class, false);
 	public static final DCVal<BorderUmbrellaTravelData> UMBRELLA_TRAVEL = DC.reg("border_umbrella_travel", BorderUmbrellaTravelData.class, false);
 	public static final DCVal<Integer> UMBRELLA_DISTANCE = DC.intVal("border_umbrella_distance");
@@ -180,17 +181,14 @@ public class GLItems {
 	public static final DCVal<DollInventory> DOLL_LOADOUT = DC.reg("doll_loadout", DollInventory.class, false);
 	public static final DCVal<DyeColor> DOLL_COLOR = DC.enumVal("doll_color", EnumCodec.of(DyeColor.class, DyeColor.values()));
 	public static final DCVal<Integer> DOLL_GLOVE_MODE = DC.intVal("doll_glove_mode");
-	public static final DCVal<Unit> DOLL_GLOVE_ICON = DC.unit("doll_glove_icon");
 	public static final DCVal<DaggerGloveMode> DAGGER_GLOVE_MODE = DC.enumVal("dagger_glove_mode", EnumCodec.of(DaggerGloveMode.class, DaggerGloveMode.values()));
 	public static final DCVal<ResourceLocation> DAGGER_GLOVE_RUNE = DC.loc("dagger_glove_rune");
-	public static final DCVal<Unit> DAGGER_GLOVE_ICON = DC.unit("dagger_glove_icon");
 	public static final DCVal<Integer> SPIRITUAL_POWER = DC.intVal("spiritual_power");
 	public static final DCVal<Integer> SPIRITUAL_POWER_MAX = DC.intVal("spiritual_power_max");
 	public static final DCVal<YuyukoFanMode> YUYUKO_FAN_MODE =
 			DC.enumVal("yuyuko_fan_mode", EnumCodec.of(YuyukoFanMode.class, YuyukoFanMode.values()));
 	public static final DCVal<AnchorMode> ANCHOR_MODE =
 			DC.enumVal("anchor_mode", EnumCodec.of(AnchorMode.class, AnchorMode.values()));
-	public static final DCVal<Unit> ANCHOR_ICON = DC.unit("anchor_icon");
 	public static final DCVal<UUID> ANCHOR_LINK = DC.uuid("anchor_link");
 	public static final DCVal<DCStack> UFO_CONTENT = DC.stack("ufo_content");
 	public static final DCVal<PartyWandData> PARTY_WAND_DATA = DC.reg("party_wand", PartyWandData.CODEC,

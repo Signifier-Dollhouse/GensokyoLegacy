@@ -73,7 +73,7 @@ public class DaggerGloveItem extends Item implements GloveTargeting {
 	 */
 	public static float displayPredicate(ItemStack stack, Level level, LivingEntity entity, int seed) {
 		int ordinal = getMode(stack).ordinal();
-		return stack.has(GLItems.DAGGER_GLOVE_ICON.get()) ?
+		return stack.has(GLItems.ICON.get()) ?
 				DaggerGloveMode.values().length + 1 + ordinal : ordinal + 1;
 	}
 
@@ -228,7 +228,7 @@ public class DaggerGloveItem extends Item implements GloveTargeting {
 	 */
 	public static ItemStack iconStack(DaggerGloveMode mode) {
 		ItemStack stack = displayStack(mode);
-		stack.set(GLItems.DAGGER_GLOVE_ICON.get(), Unit.INSTANCE);
+		stack.set(GLItems.ICON.get(), Unit.INSTANCE);
 		return stack;
 	}
 

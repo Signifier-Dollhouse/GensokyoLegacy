@@ -121,7 +121,7 @@ public class AnchorItem extends SpiritualDanmakuItem {
 	 */
 	public static ItemStack iconStack(AnchorMode mode) {
 		ItemStack stack = displayStack(mode);
-		stack.set(GLItems.ANCHOR_ICON.get(), Unit.INSTANCE);
+		stack.set(GLItems.ICON.get(), Unit.INSTANCE);
 		return stack;
 	}
 
@@ -131,7 +131,7 @@ public class AnchorItem extends SpiritualDanmakuItem {
 	 */
 	public static float displayPredicate(ItemStack stack, Level level, LivingEntity entity, int seed) {
 		int ordinal = getMode(stack).ordinal();
-		return stack.has(GLItems.ANCHOR_ICON.get())
+		return stack.has(GLItems.ICON.get())
 				? AnchorMode.values().length + 1 + ordinal
 				: ordinal + 1;
 	}
@@ -287,10 +287,6 @@ public class AnchorItem extends SpiritualDanmakuItem {
 	public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> list, TooltipFlag flag) {
 		list.add(GLLang.ItemLores.MINAMITSU_ANCHOR_LORE.get());
 		super.appendHoverText(stack, context, list, flag);
-		list.add(GLLang.ItemAnchor.COST.get());
-		list.add(GLLang.ItemAnchor.CHARGE_DESTROY.get());
-		list.add(GLLang.ItemAnchor.CHARGE.get());
-		list.add(GLLang.ItemAnchor.RETRIEVE.get());
 		list.add(GLLang.ItemGlove.WHEEL.get(L2Keys.WHEEL.map.getKey().getDisplayName())
 				.withStyle(ChatFormatting.GRAY));
 	}

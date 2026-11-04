@@ -29,7 +29,8 @@ position.
 
 The anchor is also a pickaxe: diamond harvest level, and it swings for +9 attack damage at −3 attack
 speed. Mining is ordinary; an entity click swings a radius-3 sphere for the wielder's attack damage
-and spends the attack cooldown, and the charged blast is only ever the thrown anchor.
+and spends the attack cooldown, and the charged blast is only ever the thrown anchor. While a
+bounded hook is out the hand is empty, so both left clicks are dead until it returns (§4).
 
 **Storm danmaku.** Every storm throw is an unbound anchor, always drawn with the water-anchor model
 (§5.4). It sheds one gravitational danmaku with zero initial speed every tick, and bursts 300
@@ -146,11 +147,11 @@ the generated overrides are emitted in mode order. That is how the held icon fol
 without a second item per mode.
 
 The wheel icons are a second range on the same predicate: `AnchorItem.iconStack` sets the
-`ANCHOR_ICON` unit component, and `displayPredicate` then returns `modes.length + 1 + ordinal`,
+`ICON` unit component, and `displayPredicate` then returns `modes.length + 1 + ordinal`,
 which the flat `minamitsu_anchor_icon_<mode>` overrides answer with
 `textures/item/anchor/anchor_icon_<mode>.png`. The range sits behind the held one and is emitted
 after it, so a plain anchor still shows its GUI icon while a display stack shows the wheel icon.
-This is the umbrella's `UMBRELLA_ICON` gate and the dagger glove's two-range layout (§3.1).
+This is the shared `ICON` gate and the dagger glove's two-range layout (§3.1).
 
 The two models belong to two items. The visible `minamitsu_anchor` always uses the iron model; a
 hidden twin `anchor_wet` exists only so the unbound storm anchor can be drawn with the water texture,
@@ -170,7 +171,7 @@ DC.enumVal("anchor_mode", EnumCodec.of(AnchorMode.class, AnchorMode.values()))
 `AnchorSelectionListener` / `AnchorModeWheel` are near-copies of `YuyukoFanSelectionListener` /
 `YuyukoFanModeWheel`, registered in `commonSetup` next to the other selectors. A wheel entry is
 `AnchorMode.icon()`: the anchor stack itself with the mode component set, `ITEM_NAME` naming the
-mode and the `ANCHOR_ICON` marker, so the item override of §3 gives it the wheel icon; the selector
+mode and the `ICON` marker, so the item override of §3 gives it the wheel icon; the selector
 list uses the same stacks. The held stack is what `swap` writes the mode to. `SelectorSelectPacket`
 already exists and needs no change.
 
@@ -266,21 +267,23 @@ after a teleport or a restart, where dropping the link is the desired outcome.
 
 Left clicks never reach `use`, so the modes that need one are plumbed through events. The rule is
 the same in every mode — an empty click throws and an entity click swings — so there is no
-per-mode special case:
+per-mode special case. A stack that still carries a hook's UUID (§3.3) is out of the hand, so both
+clicks are dead until the hook returns:
 
-| event | all modes |
-|---|---|
-| `PlayerInteractEvent.LeftClickEmpty` | throw the mode's throw |
-| `PlayerInteractEvent.LeftClickBlock` | vanilla mine |
-| `AttackEntityEvent` | cancel, radius-3 swing |
+| event | all modes | anchor out |
+|---|---|---|
+| `PlayerInteractEvent.LeftClickEmpty` | throw the mode's throw | nothing |
+| `PlayerInteractEvent.LeftClickBlock` | vanilla mine | vanilla mine |
+| `AttackEntityEvent` | cancel, radius-3 swing | cancel, nothing |
 
 Empty clicks never reach the server on their own, so `LeftClickEmpty` (client only) sends
 `AnchorSwingPacket`, whose handler repeats the mode/cooldown/power checks before throwing — a client
 is only a hint, as with `DollGloveSwingPacket`. The entity swing cancels the vanilla attack on both
 sides but only damages on the server: everything alive within 3 blocks of the clicked target takes
 the wielder's `ATTACK_DAMAGE` scaled by the attack cooldown, the cooldown is spent, and the hit is
-gated by `IDanmakuEntity.canHurt` like the storm blast. Block clicks stay vanilla mining in every
-mode: losing mining while the anchor is held would be a nuisance.
+gated by `IDanmakuEntity.canHurt` like the storm blast. The cancel stays while the anchor is out, so
+the hidden weapon cannot be used as a plain melee hit either. Block clicks stay vanilla mining in
+every mode: losing mining while the anchor is held would be a nuisance.
 
 `AnchorSwingPacket` is registered in `GLPackets` (one `.toServer(...)` line) and the handler version
 goes `3` → `4`.
@@ -543,7 +546,8 @@ from the spawn packet, so no extra synced field is needed.
   blocks. Entity hit: hurt for `damage` with `damageSources().thrown(this, owner)` and a little
   knockback, then return.
 * **Left click on an entity, any mode** — the vanilla attack is cancelled and `AnchorStorm.melee`
-  hurts everything within 3 blocks of the clicked target instead; see §4.
+  hurts everything within 3 blocks of the clicked target instead; see §4. Not while the anchor is
+  out: the link hides it and the click is swallowed.
 * **Right click, `DESTROY_CHARGED`** — hold 1–2 seconds and release: the same hook, but its impact
   excavates every harvestable block in a sphere of `radius` blocks and hurts every living entity in
   the same sphere for `damage × scale` (`AnchorStorm.areaDamage`, §5.3), then returns. `radius` is
@@ -670,7 +674,7 @@ server stall. If the config is off, the storm still does its damage.
 ## 7. Registration checklist
 
 * `GLItems`: `MINAMITSU_ANCHOR` (`AnchorItem`, `stacksTo(1)`), the hidden `ANCHOR_WET` twin (§3),
-  `ANCHOR_MODE` (§3.1), `ANCHOR_ICON` (§3), `ANCHOR_LINK` (§3.3), the attributes and `TOOL`
+  `ANCHOR_MODE` (§3.1), `ICON` (§3), `ANCHOR_LINK` (§3.3), the attributes and `TOOL`
   components, `AnchorModel::model` for the base and the per-mode models (GUI and wheel),
   `L2ISTagGen.SELECTABLE`, creative tab.
 * `GLEntities`, two entries, because the split is the whole point of §5:
@@ -716,7 +720,8 @@ effects beyond what the tags grant.
   returns;
 * `GRAB` does not damage — it is a repositioning tool;
 * every mode keeps vanilla mining on a block click, and an entity click is a radius-3 swing for the
-  wielder's attack damage instead of a vanilla attack; only an empty left click throws, in every mode;
+  wielder's attack damage instead of a vanilla attack; only an empty left click throws, in every
+  mode; while a hook is out both left clicks do nothing;
 * a `PULL` hook sticks even when it hits nothing, hanging at the reach limit until the pull ends;
 * only a `PULL` hook that hit a block stays in `HANG` after the pull; one that ran out of reach in
   open air returns as before;
@@ -796,7 +801,8 @@ a record of why the split landed in that order:
    on a block click; a mob click deals the radius-3 swing, not a vanilla hit.
 2. Destroy vs. a mob: damage lands once, the hook returns, no second hit on the way home. A charged
    right click released before one second throws nothing. Clicking a mob hurts every mob in 3 blocks
-   once each, and the damage follows the attack cooldown rather than spam-clicking.
+   once each, and the damage follows the attack cooldown rather than spam-clicking; clicking a mob
+   while the hook is still out does nothing at all.
 3. Destroy charged: a 1-second hold → a 3-block sphere of blocks breaks and mobs inside take damage
    once each for 1.5× the thrown hit; a 2-second hold → 4 blocks and 2.5×; a 3-second hold → still
    4 blocks and 2.5×. A 1.5-second hold lands between the two. The blast triggers on an entity hit
