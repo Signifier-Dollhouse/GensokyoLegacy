@@ -176,8 +176,12 @@ public class GLStructureGen {
 			structureReg.add(e.id(), config.build(), false);
 		}
 
-		// Rumia has no structure yet, so her bed is hand-wired here
-		//bedReg.add(GLBlocks.BEDS[GLBlocks.Beds.RUMIA.ordinal()], new BedData(GLEntities.RUMIA.get()), false);
+		// Minamitsu has no preset home yet: her bed binds to any custom home
+		// (StructureKey.support() accepts every custom key), so a player-built
+		// room holding a Minamitsu bed claims her and respawns her there.
+		bedReg.add(GLBlocks.Beds.MINAMITSU.holder(), new BedData(GLEntities.MINAMITSU.get()), false);
+		entityReg.add(GLEntities.MINAMITSU,
+				CharacterConfig.forStructure(6000, 12000, 12, 30), false);
 	}
 
 	public static void init(DataProviderInitializer init) {

@@ -40,7 +40,8 @@ public class GLBlocks {
 		REIMU(Blocks.RED_BED, new FlatBedShape()),
 		MORICHIKA(Blocks.LIGHT_BLUE_BED, new FlatBedShape()),
 		MARISA(Blocks.BLACK_BED, new WesternBedShape()),
-		ALICE(Blocks.WHITE_BED, new WesternBedShape());
+		ALICE(Blocks.WHITE_BED, new WesternBedShape()),
+		MINAMITSU(Blocks.CYAN_BED, new WesternBedShape());
 
 		private final BedBlock template;
 		private final BedShape shape;
