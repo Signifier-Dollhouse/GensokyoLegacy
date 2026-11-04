@@ -76,6 +76,7 @@ public class GLClient {
 			GLItems.NUE_TRIDENT.get().getTypeForRender();
 			GLItems.MINAMITSU_ANCHOR.get().getTypeForRender();
 			GLItems.ANCHOR_WET.get().getTypeForRender();
+			GLItems.DROPLET.get().getTypeForRender();
 			ProjectileRenderHelper.setup();
 		});
 	}

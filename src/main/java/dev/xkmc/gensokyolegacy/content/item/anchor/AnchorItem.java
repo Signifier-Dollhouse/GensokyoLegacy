@@ -136,6 +136,16 @@ public class AnchorItem extends SpiritualDanmakuItem {
 				: ordinal + 1;
 	}
 
+	/**
+	 * Bow-shaped charge ramp over {@link #CHARGE_TIME}, squared so the first ticks barely pull the
+	 * camera in. The client FOV handler reads it while the anchor is raised.
+	 */
+	public static float chargeProgress(LivingEntity user) {
+		if (!user.isUsingItem()) return 0;
+		float t = Math.min(user.getTicksUsingItem() / (float) CHARGE_TIME, 1F);
+		return t * t;
+	}
+
 	@Override
 	public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
 		ItemStack stack = player.getItemInHand(hand);

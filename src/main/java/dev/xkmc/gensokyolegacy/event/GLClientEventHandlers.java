@@ -6,6 +6,7 @@ import dev.xkmc.gensokyolegacy.content.client.deco.DowserRenderer;
 import dev.xkmc.gensokyolegacy.content.client.party.PartyAreaRenderer;
 import dev.xkmc.gensokyolegacy.content.client.structure.StructureOutlineRenderer;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.client.HeadPossession;
+import dev.xkmc.gensokyolegacy.content.item.anchor.AnchorItem;
 import dev.xkmc.gensokyolegacy.content.item.hakkero.HakkeroPrototypeDeco;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
@@ -16,8 +17,10 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.material.FogType;
@@ -144,6 +147,20 @@ public class GLClientEventHandlers {
 				event.setCanceled(true);
 			}
 		}
+	}
+
+	/**
+	 * The anchor borrows the bow's zoom while it charges: the same squared ramp and 15% at full
+	 * draw, scaled by the player's FOV effect setting like the vanilla bow.
+	 */
+	@SubscribeEvent
+	public static void onComputeFov(ComputeFovModifierEvent event) {
+		Player player = event.getPlayer();
+		if (!(player.getUseItem().getItem() instanceof AnchorItem)) return;
+		float t = AnchorItem.chargeProgress(player);
+		if (t <= 0) return;
+		float fov = event.getFovModifier() * (1F - t * 0.15F);
+		event.setNewFovModifier((float) Mth.lerp(Minecraft.getInstance().options.fovEffectScale().get(), 1F, fov));
 	}
 
 }

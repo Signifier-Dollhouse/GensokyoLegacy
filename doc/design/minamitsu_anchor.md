@@ -227,6 +227,10 @@ hook that is out: retrieve within 3 blocks, pull again from farther, regardless 
 mode (§3.3, §6.2). Every hook copies the thrower's `ATTACK_DAMAGE` as its hit damage (`scale` is 1
 for the other throws), matching the trident and the dagger.
 
+While the anchor is raised the client narrows the FOV with the bow's curve through
+`ComputeFovModifierEvent`: the squared charge over the 20-tick `CHARGE_TIME`, 15% at full draw, and
+scaled by the player's FOV effect setting like the vanilla bow.
+
 `throwAnchors(sp, hand, type)` is the single gate for both clicks:
 
 1. refuse while the stack still carries a hook's UUID (§3.3);
@@ -410,10 +414,17 @@ protected void onHitBlock(BlockHitResult hit) {
     if (level().isClientSide || phase() != Phase.FLY) return;
     setPos(hit.getLocation());
     setDeltaMovement(Vec3.ZERO);
-    playImpact(SoundEvents.TRIDENT_HIT_GROUND);
+    smash(hit.getBlockPos());
     switch (throwType()) { ... }
 }
 ```
+
+Both hit callbacks give impact feedback with the mace smash: `SoundEvents.MACE_SMASH_GROUND` and
+`LevelEvent.PARTICLES_SMASH_ATTACK` at power 750. The particle event samples the block at the
+position, so a block hit passes `hit.getBlockPos()` and an entity hit passes the first non-air block
+under the target; when there is none (an airborne target) only the sound plays. The cancelled melee
+uses the same feedback at the clicked target, so a swing into a crowd lands with the same smash
+(`AnchorStorm.smashAt`).
 
 Both callbacks return early on the client. The client runs the same swept test, but the server owns
 the outcome; position updates every tick (§7) are what the client renders.
@@ -536,7 +547,9 @@ texture directly rather than the block atlas:
 
 The chain is drawn before the model, from the owner's interpolated position, so it stretches and
 shortens with the return instead of snapping. It is client-only: `getOwner()` is already restored
-from the spawn packet, so no extra synced field is needed.
+from the spawn packet, so no extra synced field is needed. The hook plays `SoundEvents.CHAIN_PLACE`
+every 5 ticks while it flies out, returns or pulls its owner (`FLY`, `RETURN`, `GRAPPLE`), so the
+chain is audible without turning the flight into a buzz; a hanging or dragging chain is silent.
 
 ## 6. The three modes
 
@@ -662,9 +675,17 @@ Storm danmaku:
 | on impact | 300 | random sphere, biased forward | 0.7 | 40–50 | `RectMover(pos, v, (0, -0.05, 0))` |
 
 The trail danmaku starts at rest and falls, so a long throw leaves a curtain of droplets under its
-path instead of a helix. The burst is `DanmakuItems.Bullet.CIRCLE` in `DyeColor.BLUE`, damage 1,
-`bypassWall = false`, `bypassEntity = false`. `AnchorStorm` (§5.3) emits all of them as ordinary
-`ItemBulletEntity` projectiles, so they graze, fade and clean up like every other danmaku.
+path instead of a helix. Both the trail and the burst use `GLItems.DROPLET`, a hidden `DanmakuItem`
+with `DanmakuItems.Bullet.BALL` and `DyeColor.BLUE` that draws its own 16×16 water texture instead
+of the shared ball palette; damage 1, `bypassWall = false`, `bypassEntity = false`. `AnchorStorm`
+(§5.3) emits all of them as ordinary `ItemBulletEntity` projectiles, so they graze, fade and clean up
+like every other danmaku.
+
+The droplet keeps the camera-facing billboard but leans along its flight. `DropletProjectileType`
+takes the camera-to-droplet vector from the pose translation, removes the component of the motion
+along it, and rotates the sprite in the screen plane so its tip points along what is left, i.e. the
+motion as the player actually sees it. A droplet flying straight at or away from the camera has no
+such component and stays upright; the window texture has its tip at the top, so "up" is "forward".
 
 **Budget.** A 48-block unbound anchor sheds up to ~130 trail bullets and a 300-bullet burst; five
 of them at once is ~2,150 entities. Add a per-anchor trail cap (`MAX_TRAIL = 160`) and a server
@@ -674,9 +695,9 @@ server stall. If the config is off, the storm still does its damage.
 ## 7. Registration checklist
 
 * `GLItems`: `MINAMITSU_ANCHOR` (`AnchorItem`, `stacksTo(1)`), the hidden `ANCHOR_WET` twin (§3),
-  `ANCHOR_MODE` (§3.1), `ICON` (§3), `ANCHOR_LINK` (§3.3), the attributes and `TOOL`
-  components, `AnchorModel::model` for the base and the per-mode models (GUI and wheel),
-  `L2ISTagGen.SELECTABLE`, creative tab.
+  the hidden `DROPLET` storm danmaku (§6.3), `ANCHOR_MODE` (§3.1), `ICON` (§3), `ANCHOR_LINK` (§3.3),
+  the attributes and `TOOL` components, `AnchorModel::model` for the base and the per-mode models
+  (GUI and wheel), `L2ISTagGen.SELECTABLE`, creative tab.
 * `GLEntities`, two entries, because the split is the whole point of §5:
   * `ANCHOR_HOOK`, id `minamitsu_anchor` (the current id), `sized(0.5F, 0.5F)`,
     `clientTrackingRange(6)`, **`updateInterval(1)`**, `renderer(AnchorHookRenderer::new)`. The

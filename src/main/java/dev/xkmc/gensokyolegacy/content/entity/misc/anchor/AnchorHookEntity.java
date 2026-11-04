@@ -69,6 +69,7 @@ public class AnchorHookEntity extends ThrowableProjectile implements ItemSupplie
 	private static final double DRAG_DIST = 2;
 	private static final double DRAG_SPEED = 1;
 	private static final int LIFE = 200;
+	private static final int CHAIN_SOUND_INTERVAL = 5;
 	private static final ItemStack DIAMOND_PICKAXE = new ItemStack(Items.DIAMOND_PICKAXE);
 
 	private float damage = 0;
@@ -175,7 +176,7 @@ public class AnchorHookEntity extends ThrowableProjectile implements ItemSupplie
 		if (level().isClientSide || phase() != Phase.FLY) return;
 		setPos(hit.getLocation());
 		setDeltaMovement(Vec3.ZERO);
-		playImpact(SoundEvents.TRIDENT_HIT_GROUND);
+		AnchorStorm.smash(level(), hit.getBlockPos());
 		switch (throwType()) {
 			case DESTROY -> toReturn();
 			case DESTROY_CHARGED -> {
@@ -196,19 +197,17 @@ public class AnchorHookEntity extends ThrowableProjectile implements ItemSupplie
 	public void onHitEntity(EntityHitResult result) {
 		if (level().isClientSide) return;
 		Entity target = unwrap(result.getEntity());
+		AnchorStorm.smashAt(level(), target.position());
 		switch (throwType()) {
 			case DESTROY -> {
-				playImpact(SoundEvents.TRIDENT_HIT);
 				hurtTarget(target);
 				toReturn();
 			}
 			case DESTROY_CHARGED -> {
-				playImpact(SoundEvents.TRIDENT_HIT);
 				destroyImpact(position());
 				toReturn();
 			}
 			case GRAB -> {
-				playImpact(SoundEvents.TRIDENT_HIT);
 				if (target instanceof LivingEntity le) enterDrag(le);
 				else toReturn();
 			}
@@ -226,6 +225,7 @@ public class AnchorHookEntity extends ThrowableProjectile implements ItemSupplie
 			discard();
 			return;
 		}
+		tickChainSound();
 		switch (phase()) {
 			case FLY -> {
 				if (position().distanceTo(origin) > throwType().reach()) endFlight();
@@ -507,8 +507,21 @@ public class AnchorHookEntity extends ThrowableProjectile implements ItemSupplie
 		flyDir = new Vec3(buffer.readDouble(), buffer.readDouble(), buffer.readDouble());
 	}
 
-	private void playImpact(SoundEvent sound) {
-		level().playSound(null, this, sound, SoundSource.PLAYERS, 1F, 1F);
+	/**
+	 * The chain rattles while it pays out, reels in or pulls the owner; a five-tick interval keeps
+	 * it audible without turning the flight into a buzz.
+	 */
+	private void tickChainSound() {
+		if (tickCount % CHAIN_SOUND_INTERVAL != 0) return;
+		switch (phase()) {
+			case FLY, RETURN, GRAPPLE -> playSound(SoundEvents.CHAIN_PLACE, 0.6F);
+			default -> {
+			}
+		}
+	}
+
+	private void playSound(SoundEvent sound, float volume) {
+		level().playSound(null, this, sound, SoundSource.PLAYERS, volume, 1F);
 	}
 
 }

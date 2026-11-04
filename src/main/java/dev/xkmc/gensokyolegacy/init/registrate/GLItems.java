@@ -19,6 +19,7 @@ import dev.xkmc.gensokyolegacy.content.item.character.*;
 import dev.xkmc.gensokyolegacy.content.item.anchor.AnchorItem;
 import dev.xkmc.gensokyolegacy.content.item.anchor.AnchorMode;
 import dev.xkmc.gensokyolegacy.content.item.anchor.AnchorModel;
+import dev.xkmc.gensokyolegacy.content.item.anchor.DropletDanmakuItem;
 import dev.xkmc.gensokyolegacy.content.item.dagger.DaggerGloveItem;
 import dev.xkmc.gensokyolegacy.content.item.dagger.DaggerGloveMode;
 import dev.xkmc.gensokyolegacy.content.item.dagger.DaggerGloveModel;
@@ -112,6 +113,7 @@ public class GLItems {
 
 	public static final ItemEntry<AnchorItem> MINAMITSU_ANCHOR;
 	public static final ItemEntry<DanmakuItem> ANCHOR_WET;
+	public static final ItemEntry<DropletDanmakuItem> DROPLET;
 	public static final ItemEntry<NueTridentItem> NUE_TRIDENT;
 	public static final ItemEntry<UfoItem> UFO;
 
@@ -707,6 +709,14 @@ public class GLItems {
 					.removeTab(TAB.key())
 					.tag(GLTagGen.WEBSITE_HIDDEN)
 					.lang("Minamitsu's Anchor (Wet)").register();
+
+			// the storm's droplet: hidden like the wet anchor, fired only by AnchorStorm (minamitsu_anchor.md §6.3)
+			DROPLET = reg.item("droplet_danmaku", p -> new DropletDanmakuItem(p.rarity(Rarity.RARE),
+							DyeColor.BLUE, GensokyoLegacy.loc("textures/item/danmaku/droplet_danmaku.png")))
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/danmaku/" + ctx.getName())))
+					.removeTab(TAB.key())
+					.tag(GLTagGen.WEBSITE_HIDDEN)
+					.lang("Droplet Danmaku").register();
 
 			NUE_TRIDENT = reg.item("nue_trident", p -> new NueTridentItem(p.stacksTo(1).rarity(Rarity.RARE)
 							.attributes(ItemAttributeModifiers.builder()
