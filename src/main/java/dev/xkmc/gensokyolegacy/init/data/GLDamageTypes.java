@@ -7,7 +7,9 @@ import dev.xkmc.l2damagetracker.init.data.DamageTypeAndTagsGen;
 import dev.xkmc.l2damagetracker.init.data.L2DamageTypes;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.damagesource.DamageEffects;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.damagesource.DamageTypes;
@@ -20,6 +22,7 @@ public class GLDamageTypes extends DamageTypeAndTagsGen {
 			, "Koishi stabbed %s in the back", "%2$s stabbed %1$s in the back");
 	public static final ResourceKey<DamageType> RUMIA = create("rumia_attack",
 			"%s is eaten by Rumia", "%s is eaten by %s");
+	public static final ResourceKey<DamageType> DROWNING = create("drowning");
 
 	public static final TagKey<DamageType> IS_NATURE = TagKey.create(Registries.DAMAGE_TYPE, GensokyoLegacy.loc("is_nature"));
 
@@ -29,6 +32,11 @@ public class GLDamageTypes extends DamageTypeAndTagsGen {
 				.add(L2DamageTypes.BYPASS_MAGIC);
 		new DamageTypeHolder(RUMIA, new DamageType("rumia_attack", 0.1f))
 				.add(L2DamageTypes.BYPASS_MAGIC);
+		new DamageTypeHolder(DROWNING, new DamageType("drown", 0.0F, DamageEffects.DROWNING))
+				.add(DamageTypeTags.BYPASSES_ARMOR, DamageTypeTags.BYPASSES_WOLF_ARMOR,
+						DamageTypeTags.IS_DROWNING, DamageTypeTags.NO_IMPACT,
+						DamageTypeTags.NO_KNOCKBACK, DamageTypeTags.WITHER_IMMUNE_TO,
+						DamageTypeTags.BYPASSES_COOLDOWN);
 	}
 
 	@Override
@@ -46,6 +54,11 @@ public class GLDamageTypes extends DamageTypeAndTagsGen {
 	public static DamageSource rumia(LivingEntity self) {
 		return new DamageSource(self.level().registryAccess()
 				.registryOrThrow(Registries.DAMAGE_TYPE).getHolderOrThrow(RUMIA), self);
+	}
+
+	public static DamageSource drowning(LivingEntity target) {
+		return new DamageSource(target.level().registryAccess()
+				.registryOrThrow(Registries.DAMAGE_TYPE).getHolderOrThrow(DROWNING));
 	}
 
 	private static ResourceKey<DamageType> create(String id, String msg) {
