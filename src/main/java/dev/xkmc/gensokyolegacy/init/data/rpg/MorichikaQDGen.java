@@ -10,7 +10,9 @@ import dev.xkmc.gensokyolegacy.init.data.GLAdvGen;
 import dev.xkmc.gensokyolegacy.init.registrate.GLEntities;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.l2core.compat.patchouli.PatchouliHelper;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 import java.util.List;
 
@@ -56,6 +58,34 @@ public class MorichikaQDGen extends QuestDialogData {
 
 	private void trades() {
 		prefix("morichika");
+		// Restocking: the shop buys everyday supplies from the player. No gate: a shopkeeper
+		// buys from anyone, and these are the goods a fresh player can actually gather.
+		trade("sell_bread", GLEntities.MORICHIKA.get(), new ItemStack(GLItems.COIN.get()),
+				new TradeRecurrence(16, 24000), item(Items.BREAD, 12));
+		trade("sell_potato", GLEntities.MORICHIKA.get(), new ItemStack(GLItems.COIN.get()),
+				new TradeRecurrence(16, 24000), item(Items.POTATO, 24));
+		trade("sell_carrot", GLEntities.MORICHIKA.get(), new ItemStack(GLItems.COIN.get()),
+				new TradeRecurrence(16, 24000), item(Items.CARROT, 24));
+		trade("sell_cooked_chicken", GLEntities.MORICHIKA.get(), new ItemStack(GLItems.COIN.get()),
+				new TradeRecurrence(16, 24000), item(Items.COOKED_CHICKEN, 4));
+		trade("sell_cooked_porkchop", GLEntities.MORICHIKA.get(), new ItemStack(GLItems.COIN.get()),
+				new TradeRecurrence(16, 24000), item(Items.COOKED_PORKCHOP, 3));
+		trade("sell_cooked_beef", GLEntities.MORICHIKA.get(), new ItemStack(GLItems.COIN.get()),
+				new TradeRecurrence(16, 24000), item(Items.COOKED_BEEF, 3));
+		trade("sell_cooked_mutton", GLEntities.MORICHIKA.get(), new ItemStack(GLItems.COIN.get()),
+				new TradeRecurrence(16, 24000), item(Items.COOKED_MUTTON, 3));
+		trade("sell_wool", GLEntities.MORICHIKA.get(), new ItemStack(GLItems.COIN.get()),
+				new TradeRecurrence(16, 24000), itemTag(ItemTags.WOOL, 6));
+		trade("sell_leather", GLEntities.MORICHIKA.get(), new ItemStack(GLItems.COIN.get()),
+				new TradeRecurrence(16, 24000), item(Items.LEATHER, 1));
+		// Emerald is no longer our currency, but old worlds and villagers still have it, so the
+		// shop exchanges it at the coin-stack rate. Both directions are lossless by design.
+		trade("swap_emerald_to_coin_stack", GLEntities.MORICHIKA.get(),
+				new ItemStack(GLItems.COIN_STACK.get()),
+				new TradeRecurrence(16, 24000), item(Items.EMERALD, 8));
+		trade("swap_coin_to_emerald", GLEntities.MORICHIKA.get(), new ItemStack(Items.EMERALD),
+				new TradeRecurrence(16, 24000), item(GLItems.COIN.get(), 1));
+
 		trade("offer_koishi_hat", new TradeOffer(GLEntities.MORICHIKA.get(),
 				List.of(new HasAdvancementCondition(GLAdvGen.KOISHI_HAT)),
 				new ItemStack(GLItems.KOISHI_HAT.get()),
