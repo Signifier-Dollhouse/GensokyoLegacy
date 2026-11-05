@@ -86,7 +86,7 @@ public class GLJEIPlugin implements IModPlugin {
 	@Override
 	public void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
 		registration.addRecipeCatalyst(GLBlocks.ALCHEMY_POT.asStack(), ALCHEMY);
-		registration.addRecipeCatalyst(Items.EMERALD, TRADE);
+		registration.addRecipeCatalyst(GLItems.COIN.asStack(), TRADE);
 		registration.addRecipeCatalyst(Items.BOOK, QUEST);
 		registration.addRecipeCatalyst(GLItems.INVITATION_LETTER.asStack(), GIFT);
 		registration.addRecipeCatalyst(Items.COOKIE.getDefaultInstance(), INTERACTION);

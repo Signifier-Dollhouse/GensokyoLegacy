@@ -136,7 +136,7 @@ restock, and an item with no entry falls back to stock 1 at price 1.
 | `fancy_fan` | 10-20 | 1 |
 | `magic_book` | 12-24 | 1 |
 
-A gift is priced at its own favor up to double — an emerald buys back about as much favor as handing
+A gift is priced at its own favor up to double — a coin buys back about as much favor as handing
 the item over does — and stocked a few at a time, because a shelf of drinks and sweets is a shelf of
 things he can keep in stock. The fan and the book are doubled again at a single unit each, which for
 the book also keeps it honest as a furnace fuel: at 40000 ticks it burns 200 copies, so a price near

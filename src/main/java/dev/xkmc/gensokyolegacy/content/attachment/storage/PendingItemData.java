@@ -5,7 +5,7 @@ import dev.xkmc.l2serial.serialization.marker.SerialField;
 import net.minecraft.world.item.ItemStack;
 
 /**
- * One pending item payout: a display item plus remaining count, and uncollected emerald earnings.
+ * One pending item payout: a display item plus remaining count, and uncollected coin earnings.
  * Used by {@link PendingItemStorage} to restore lost contents (e.g. a broken shop shelf) to their owner.
  */
 @SerialClass

@@ -21,7 +21,7 @@ the 2.1 request, the daily roll and the glove trade, so the three cannot drift.
 
 | # | Id | Unlock | Requirements | Rewards |
 |---|----|--------|--------------|---------|
-| 1.1 | `first_doll` | none | string ×8, wool (tag) ×8, mystical straw ×4 | exp 50, rep +10 (cap +10/max 300), loot: emerald ×4 |
+| 1.1 | `first_doll` | none | string ×8, wool (tag) ×8, mystical straw ×4 | exp 50, rep +10 (cap +10/max 300), loot: coin ×4 |
 | 2.1 | `seven_colors` | 1.1 | red / orange / yellow / lime / cyan / light blue / purple dye ×4 each | exp 200, rep +20 (cap +10/max 300), loot: doll glove ×1 + doll ×1 + **doll lance** ×1 |
 
 2.1 pays out the whole doll kit at once — glove, a doll to put in it, and a
@@ -72,13 +72,13 @@ Stock = max times tradeable per refresh; Refresh = ticks until restock (20 ticks
 
 | Id | Gate | Pay | Get | Stock | Refresh |
 |----|------|-----|-----|-------|---------|
-| `offer_doll` | 2.1 | emerald ×32 | doll ×1 | 1 | 24000 |
+| `offer_doll` | 2.1 | coin ×32 | doll ×1 | 1 | 24000 |
 | `offer_doll_lance` | 2.1 | iron ingot ×8 | doll lance ×1 | 1 | 24000 |
 | `offer_mini_shield` | 2.1 | iron ingot ×4 | mini shield ×1 | 1 | 24000 |
 | `offer_doll_glove` | 2.1 | 7 dyes ×1 each + white wool ×3 | doll glove ×1 | 1 | 168000 |
 
 `offer_doll_glove` moved here from Morichika (`morichika/offer_doll_glove`,
-32 emeralds, gated on `marisa/talisman_request`): the glove is Alice's work, and
+32 coins, gated on `marisa/talisman_request`): the glove is Alice's work, and
 the weekly stock plus the dye price keeps it rarer than the plain dolls. The
 lance is the cheap one — iron and a day's work — but a day is still a day, so
 one a day; it renders as a processing trade rather than a purchase, because the

@@ -4,6 +4,7 @@ import com.tterrag.registrate.providers.RegistrateItemTagsProvider;
 import com.tterrag.registrate.providers.RegistrateTagsProvider;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.structure.GLStructureTagGen;
+import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLDecoBlocks;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLNaturalBlocks;
 import net.minecraft.core.registries.Registries;
@@ -165,7 +166,7 @@ public class GLTagGen {
 	};
 
 	public static void onItemTagGen(RegistrateItemTagsProvider pvd) {
-		pvd.addTag(CURRENCY).add(Items.EMERALD, Items.GOLD_INGOT);
+		pvd.addTag(CURRENCY).add(GLItems.COIN.get(), Items.GOLD_INGOT);
 		pvd.addTag(HUGE_MUSHROOM)
 				.add(Items.MUSHROOM_STEM, Items.BROWN_MUSHROOM_BLOCK, Items.RED_MUSHROOM_BLOCK);
 		addTiles(pvd, TILE_VARIANTS_ITEM);

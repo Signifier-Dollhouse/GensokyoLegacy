@@ -38,6 +38,16 @@ public class GLRecipeGen {
 		hexbrew(pvd);
 		fairyStuff(pvd);
 
+		// a coin stack is eight coins, packed and unpacked as a shapeless pile rather than a 3×3 block
+		unlock(pvd, ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, GLItems.COIN_STACK.get())::unlockedBy,
+				GLItems.COIN.get())
+				.requires(GLItems.COIN.get(), 8)
+				.save(pvd);
+		unlock(pvd, ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, GLItems.COIN.get(), 8)::unlockedBy,
+				GLItems.COIN_STACK.get())
+				.requires(GLItems.COIN_STACK.get())
+				.save(pvd);
+
 		unlock(pvd, ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, GLItems.INVITATION_LETTER.get(), 4)::unlockedBy, Items.PAPER)
 				.requires(Items.PAPER).requires(Items.POPPY).save(pvd);
 	}

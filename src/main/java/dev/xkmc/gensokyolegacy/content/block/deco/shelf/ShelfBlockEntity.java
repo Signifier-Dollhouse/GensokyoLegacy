@@ -1,6 +1,7 @@
 package dev.xkmc.gensokyolegacy.content.block.deco.shelf;
 
 import dev.xkmc.gensokyolegacy.content.attachment.storage.PendingItemStorage;
+import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.l2core.base.tile.BaseBlockEntity;
 import dev.xkmc.l2serial.serialization.marker.SerialClass;
 import dev.xkmc.l2serial.serialization.marker.SerialField;
@@ -10,7 +11,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -51,16 +51,16 @@ public class ShelfBlockEntity extends BaseBlockEntity {
 				}
 				return true;
 			}
-			if (held.is(Items.EMERALD)) {
+			if (held.is(GLItems.COIN)) {
 				if (!level.isClientSide()) {
 					cost = held.getCount();
 					notifyTile();
 				}
 				return true;
 			}
-			if (held.is(Items.EMERALD_BLOCK)) {
+			if (held.is(GLItems.COIN_STACK)) {
 				if (!level.isClientSide()) {
-					cost = held.getCount() * 9;
+					cost = held.getCount() * GLItems.COIN_STACK_VALUE;
 					notifyTile();
 				}
 				return true;
@@ -92,21 +92,21 @@ public class ShelfBlockEntity extends BaseBlockEntity {
 	}
 
 	/**
-	 * Pay all accumulated emerald earnings to the player, as emerald blocks first.
+	 * Pay all accumulated coin earnings to the player, as coin stacks first.
 	 * Must be called on server side. Returns true if anything was paid out.
 	 */
 	public boolean withdraw(Player player) {
 		if (earning <= 0) return false;
-		int blocks = earning / 9;
-		int rest = earning % 9;
+		int stacks = earning / GLItems.COIN_STACK_VALUE;
+		int rest = earning % GLItems.COIN_STACK_VALUE;
 		earning = 0;
-		while (blocks > 0) {
-			int n = Math.min(blocks, 64);
-			blocks -= n;
-			player.getInventory().placeItemBackInInventory(new ItemStack(Items.EMERALD_BLOCK, n));
+		while (stacks > 0) {
+			int n = Math.min(stacks, 64);
+			stacks -= n;
+			player.getInventory().placeItemBackInInventory(new ItemStack(GLItems.COIN_STACK.get(), n));
 		}
 		if (rest > 0)
-			player.getInventory().placeItemBackInInventory(new ItemStack(Items.EMERALD, rest));
+			player.getInventory().placeItemBackInInventory(new ItemStack(GLItems.COIN.get(), rest));
 		return true;
 	}
 
@@ -150,15 +150,15 @@ public class ShelfBlockEntity extends BaseBlockEntity {
 	}
 
 	private void dropEarnings(ServerLevel level, BlockPos pos) {
-		int blocks = earning / 9;
-		int rest = earning % 9;
-		while (blocks > 0) {
-			int n = Math.min(blocks, 64);
-			blocks -= n;
-			Block.popResource(level, pos, new ItemStack(Items.EMERALD_BLOCK, n));
+		int stacks = earning / GLItems.COIN_STACK_VALUE;
+		int rest = earning % GLItems.COIN_STACK_VALUE;
+		while (stacks > 0) {
+			int n = Math.min(stacks, 64);
+			stacks -= n;
+			Block.popResource(level, pos, new ItemStack(GLItems.COIN_STACK.get(), n));
 		}
 		if (rest > 0)
-			Block.popResource(level, pos, new ItemStack(Items.EMERALD, rest));
+			Block.popResource(level, pos, new ItemStack(GLItems.COIN.get(), rest));
 	}
 
 	public Component getTitle() {
@@ -167,37 +167,37 @@ public class ShelfBlockEntity extends BaseBlockEntity {
 
 	public boolean buy(Level level, ItemStack held, Player player) {
 		if (stack.isEmpty() || stock <= 0) return false;
-		int emerald = 0, blocks = 0;
+		int coins = 0, stacks = 0;
 		for (var e : player.getInventory().items) {
-			if (e.is(Items.EMERALD)) emerald += e.getCount();
-			if (e.is(Items.EMERALD_BLOCK)) blocks += e.getCount();
+			if (e.is(GLItems.COIN)) coins += e.getCount();
+			else if (e.is(GLItems.COIN_STACK)) stacks += e.getCount();
 		}
-		if (emerald + blocks * 9 < cost) return false;
+		if (coins + stacks * GLItems.COIN_STACK_VALUE < cost) return false;
 		if (!level.isClientSide()) {
 			stock--;
 			earning += cost;
 
-			int emeraldCost = Math.min(emerald, cost);
-			int blockCost = Math.min(blocks, ((cost - emeraldCost) + 8) / 9);
-			emeraldCost = cost - blockCost * 9;
+			// coins first, then whole stacks; the last stack may overpay, so its change is paid back in coins
+			int coinCost = Math.min(coins, cost);
+			int stackCost = Math.min(stacks,
+					(cost - coinCost + GLItems.COIN_STACK_VALUE - 1) / GLItems.COIN_STACK_VALUE);
+			int change = coinCost + stackCost * GLItems.COIN_STACK_VALUE - cost;
 			for (var e : player.getInventory().items) {
-				if (e.is(Items.EMERALD_BLOCK) && blockCost > 0) {
-					int remove = Math.min(blockCost, e.getCount());
+				if (e.is(GLItems.COIN_STACK) && stackCost > 0) {
+					int remove = Math.min(stackCost, e.getCount());
 					e.shrink(remove);
-					blockCost -= remove * 9;
+					stackCost -= remove;
 				}
 			}
-			if (emeraldCost < 0) {
-				player.getInventory().placeItemBackInInventory(new ItemStack(Items.EMERALD, -emeraldCost));
-			} else if (emeraldCost > 0) {
-				for (var e : player.getInventory().items) {
-					if (e.is(Items.EMERALD) && emeraldCost > 0) {
-						int remove = Math.min(emeraldCost, e.getCount());
-						e.shrink(remove);
-						emeraldCost -= remove;
-					}
+			for (var e : player.getInventory().items) {
+				if (e.is(GLItems.COIN) && coinCost > 0) {
+					int remove = Math.min(coinCost, e.getCount());
+					e.shrink(remove);
+					coinCost -= remove;
 				}
 			}
+			if (change > 0)
+				player.getInventory().placeItemBackInInventory(new ItemStack(GLItems.COIN.get(), change));
 			player.getInventory().placeItemBackInInventory(stack.copyWithCount(1));
 			notifyTile();
 		}

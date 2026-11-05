@@ -86,12 +86,12 @@ public class CharQDGen extends QuestDialogData {
 
     private void trades() {
         prefix("char");
-        trade("sell_x", GLEntities.CHAR.get(), new ItemStack(Items.EMERALD),
+        trade("sell_x", GLEntities.CHAR.get(), new ItemStack(GLItems.COIN.get()),
                 new TradeRecurrence(10, 24000), item(ITEM, 8));
         trade("offer_y", new TradeOffer(GLEntities.CHAR.get(),
                 List.of(new SelfReputationCondition(50)),
                 new ItemStack(RESULT),
-                new TradeRecurrence(4, 24000), List.of(item(Items.EMERALD, 3))));
+                new TradeRecurrence(4, 24000), List.of(item(GLItems.COIN.get(), 3))));
     }
 }
 ```
@@ -213,7 +213,7 @@ Gates read the same number: `SelfReputationCondition(v)` = rep ≥ v;
 restock = ticks (20 = 1 s). There is no separate trade *type* field: the UI
 derives the direction from the items (`TradeOffer#isSellOffer`):
 
-- result **is** currency (`GLTagGen.CURRENCY` = emerald / gold ingot), one
+- result **is** currency (`GLTagGen.CURRENCY` = coin / gold ingot), one
   ingredient, and the player gives more than they get → **sell** (restock)
   trade: the price tag is suppressed.
 - otherwise → the character is selling to the player. If the ingredients are

@@ -119,7 +119,7 @@ public class GLAdvGen {
 				CriterionBuilder.one(PlayerTrigger.TriggerInstance.located(
 						LocationPredicate.Builder.inStructure(resolve(pvd, "marisa_house")))),
 				"Kirisame House", "Enter Marisa's house in the Magical Forest");
-		var morichika = root.create("enter_morichika_shop", Items.EMERALD,
+		var morichika = root.create("enter_morichika_shop", GLItems.COIN.get(),
 				CriterionBuilder.one(PlayerTrigger.TriggerInstance.located(
 						LocationPredicate.Builder.inStructure(resolve(pvd, "morichika_shop")))),
 				"Kourindou", "Enter Morichika's shop in the Magical Forest");

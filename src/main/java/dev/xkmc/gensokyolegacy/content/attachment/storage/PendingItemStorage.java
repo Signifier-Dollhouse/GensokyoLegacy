@@ -2,6 +2,7 @@ package dev.xkmc.gensokyolegacy.content.attachment.storage;
 
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
+import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.l2core.capability.level.BaseSavedData;
 import dev.xkmc.l2serial.serialization.codec.TagCodec;
 import dev.xkmc.l2serial.serialization.marker.SerialClass;
@@ -13,7 +14,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -115,20 +115,20 @@ public class PendingItemStorage extends BaseSavedData<PendingItemStorage> {
 
 	private static int takeEarnings(ServerPlayer player, int earning) {
 		int left = earning;
-		int blocks = left / 9;
-		while (blocks > 0) {
-			int n = Math.min(blocks, 64);
-			var give = new ItemStack(Items.EMERALD_BLOCK, n);
+		int stacks = left / GLItems.COIN_STACK_VALUE;
+		while (stacks > 0) {
+			int n = Math.min(stacks, 64);
+			var give = new ItemStack(GLItems.COIN_STACK.get(), n);
 			player.getInventory().add(give);
 			int delta = n - give.getCount();
 			if (delta <= 0) break;
-			left -= delta * 9;
-			blocks -= n;
+			left -= delta * GLItems.COIN_STACK_VALUE;
+			stacks -= n;
 		}
-		if (blocks <= 0 && left % 9 > 0) {
-			var give = new ItemStack(Items.EMERALD, left % 9);
+		if (stacks <= 0 && left % GLItems.COIN_STACK_VALUE > 0) {
+			var give = new ItemStack(GLItems.COIN.get(), left % GLItems.COIN_STACK_VALUE);
 			player.getInventory().add(give);
-			left -= left % 9 - give.getCount();
+			left -= left % GLItems.COIN_STACK_VALUE - give.getCount();
 		}
 		return left;
 	}

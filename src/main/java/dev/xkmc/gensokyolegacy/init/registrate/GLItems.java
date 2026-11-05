@@ -93,6 +93,9 @@ public class GLItems {
 	public static final ItemEntry<FrozenFrogItem> FROZEN_FROG_COLD, FROZEN_FROG_WARM, FROZEN_FROG_TEMPERATE;
 	public static final ItemEntry<Item> MYSTICAL_STRAW;
 
+	public static final ItemEntry<Item> COIN, COIN_STACK;
+	public static final int COIN_STACK_VALUE = 8;
+
 	public static final ItemEntry<Item> HAKUREI_GOHEI;
 
 	public static final ItemEntry<SpellItem> REIMU_SPELL, MARISA_SPELL, SANAE_SPELL, YUKARI_SPELL_BUTTERFLY, YUKARI_SPELL_LASER, MYSTIA_SPELL, SAKUYA_SPELL;
@@ -299,6 +302,17 @@ public class GLItems {
 
 		TAB = reg.buildModCreativeTab("ingredients", "Gensokyo Legacy - Ingredients",
 				e -> e.icon(GLItems.DOLL_GLOVE::asStack));
+
+		// currency
+		{
+			COIN = reg.item("coin", Item::new)
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/currency/" + ctx.getName())))
+					.lang("Coin").register();
+			// eight to a stack, unlike the nine-to-a-block metals: see GLRecipeGen for the two recipes
+			COIN_STACK = reg.item("coin_stack", Item::new)
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/currency/" + ctx.getName())))
+					.lang("Coin Stack").register();
+		}
 
 		// ingredients
 		{

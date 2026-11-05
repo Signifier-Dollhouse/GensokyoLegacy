@@ -11,7 +11,6 @@ import dev.xkmc.gensokyolegacy.init.registrate.GLEntities;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.l2core.compat.patchouli.PatchouliHelper;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 
 import java.util.List;
 
@@ -60,28 +59,28 @@ public class MorichikaQDGen extends QuestDialogData {
 		trade("offer_koishi_hat", new TradeOffer(GLEntities.MORICHIKA.get(),
 				List.of(new HasAdvancementCondition(GLAdvGen.KOISHI_HAT)),
 				new ItemStack(GLItems.KOISHI_HAT.get()),
-				new TradeRecurrence(1, 168000), List.of(item(Items.EMERALD, 32))));
+				new TradeRecurrence(1, 168000), List.of(item(GLItems.COIN.get(), 32))));
 		trade("offer_strange_glasses", new TradeOffer(GLEntities.MORICHIKA.get(),
 				List.of(),
 				new ItemStack(GLItems.STRANGE_GLASSES.get()),
-				new TradeRecurrence(1, 24000), List.of(item(Items.EMERALD, 8))));
+				new TradeRecurrence(1, 24000), List.of(item(GLItems.COIN.get(), 8))));
 		trade("offer_guide_book", new TradeOffer(GLEntities.MORICHIKA.get(),
 				List.of(new HasAdvancementCondition(GLAdvGen.WELCOME)),
 				PatchouliHelper.getBook(GensokyoLegacy.loc("tools_guide")),
-				new TradeRecurrence(1, 24000), List.of(item(Items.EMERALD, 1))));
+				new TradeRecurrence(1, 24000), List.of(item(GLItems.COIN.get(), 1))));
 		// The glove is a weapon, and worthless to someone who cannot yet throw a dagger,
 		// so the gate is Sakuya's iron dagger advancement rather than the glove's own one.
 		trade("offer_dagger_glove", new TradeOffer(GLEntities.MORICHIKA.get(),
 				List.of(new HasAdvancementCondition(GLAdvGen.OBTAIN_IRON_DAGGER)),
 				new ItemStack(GLItems.DAGGER_GLOVE.get()),
-				new TradeRecurrence(1, 168000), List.of(item(Items.EMERALD, 24))));
+				new TradeRecurrence(1, 168000), List.of(item(GLItems.COIN.get(), 24))));
 		// The head is a curiosity he has no reason to part with for a stranger, so it waits
 		// until the shopkeeper likes the customer enough: rep 80 is inside the starting cap,
 		// so it is reachable by gifts alone and no quest is needed to unlock it.
 		trade("offer_sekibanki_head", new TradeOffer(GLEntities.MORICHIKA.get(),
 				List.of(new SelfReputationCondition(80)),
 				new ItemStack(GLItems.SEKIBANKI_HEAD.get()),
-				new TradeRecurrence(1, 168000), List.of(item(Items.EMERALD, 48))));
+				new TradeRecurrence(1, 168000), List.of(item(GLItems.COIN.get(), 48))));
 	}
 
 }
